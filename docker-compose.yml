@@ -1,0 +1,14 @@
+services:
+  zhixu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: zhixu-factory-system:local
+    container_name: zhixu-factory-system
+    ports:
+      - "${ZHIXU_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+    restart: unless-stopped

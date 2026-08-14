@@ -1,0 +1,13 @@
+.git
+.gitignore
+node_modules
+node_modules_incomplete
+.next
+.vinext
+.wrangler
+outputs
+work
+dev.out.log
+dev.err.log
+npm-debug.log*
+README.md
