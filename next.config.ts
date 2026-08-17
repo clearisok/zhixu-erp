@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Emit a self-contained Node.js server for Docker and other local hosting.
-  output: "standalone",
+  // Export a fully static app so the local Docker image needs no Node runtime.
+  output: "export",
 };
 
 export default nextConfig;

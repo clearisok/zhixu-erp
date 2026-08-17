@@ -1,4 +1,20 @@
 services:
+  database:
+    image: postgres:16-alpine
+    container_name: zhixu-database
+    environment:
+      POSTGRES_DB: ${ZHIXU_DB_NAME:-zhixu}
+      POSTGRES_USER: ${ZHIXU_DB_USER:-zhixu}
+      POSTGRES_PASSWORD: ${ZHIXU_DB_PASSWORD}
+    volumes:
+      - zhixu_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ZHIXU_DB_USER:-zhixu} -d ${ZHIXU_DB_NAME:-zhixu}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
   zhixu:
     build:
       context: .
@@ -6,9 +22,18 @@ services:
     image: zhixu-factory-system:local
     container_name: zhixu-factory-system
     ports:
-      - "${ZHIXU_PORT:-3000}:3000"
+      - "${ZHIXU_BIND_ADDRESS:-127.0.0.1}:${ZHIXU_PORT:-3000}:3000"
     environment:
-      NODE_ENV: production
-      PORT: 3000
-      HOST: 0.0.0.0
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: ${ZHIXU_DB_NAME:-zhixu}
+      DB_USER: ${ZHIXU_DB_USER:-zhixu}
+      DB_PASSWORD: ${ZHIXU_DB_PASSWORD}
+      ZHIXU_ADMIN_PASSWORD: ${ZHIXU_ADMIN_PASSWORD}
+    depends_on:
+      database:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  zhixu_data:

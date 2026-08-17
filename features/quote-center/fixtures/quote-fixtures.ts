@@ -1,0 +1,128 @@
+import type { Quote, SelectOption } from "../model/quote-view-model";
+
+export const brandOptions: SelectOption[] = [
+  { value: "zara", label: "ZARA", keywords: "飒拉" },
+  { value: "zara-man", label: "ZARA MAN" },
+  { value: "massimo-dutti", label: "Massimo Dutti" },
+  { value: "bershka", label: "Bershka" },
+  { value: "pull-bear", label: "Pull&Bear" },
+];
+
+export const salespersonOptions: SelectOption[] = [
+  { value: "sales-linqinghe", label: "林青禾", keywords: "lin qing he" },
+  { value: "sales-chenxi", label: "陈曦", keywords: "chen xi" },
+  { value: "sales-zhouyan", label: "周妍", keywords: "zhou yan" },
+  { value: "sales-sunyu", label: "孙宇", keywords: "sun yu" },
+];
+
+export const quoteFixtures: Quote[] = [
+  {
+    id: "quote-001",
+    quoteCode: "QT-2026-0817-001",
+    currentRevisionId: "quote-001-v2",
+    aggregateStatus: "quoting",
+    revisions: [{
+      revisionId: "quote-001-v2",
+      revisionLabel: "V2",
+      createdAt: "2026-08-17T09:20:00+08:00",
+      createdBy: "林青禾",
+      revisionNote: "调整彩条面料成本",
+      readOnly: false,
+      baseInfo: {
+        brandId: "zara",
+        brandName: "ZARA",
+        salespersonId: "sales-linqinghe",
+        salespersonName: "林青禾",
+        quoteType: "distribution",
+        quoteStyleNo: "T2337",
+        styleName: "精梳棉宽松圆领短袖",
+        quoteDate: "2026-08-17",
+        fabricLeadDate: null,
+        garmentLeadDate: "2026-10-18",
+        note: "素色与彩条分别核价，包装要求一致。",
+      },
+      pricingParameters: { laborCurrency: "USD", usdCnyRate: 7.12, markupRate: 10 },
+      priceVersions: [
+        {
+          id: "quote-001-solid",
+          name: "素色",
+          quantity: 12000,
+          description: "常规精梳棉，单色染色",
+          fabrics: [
+            { id: "solid-fabric-1", name: "精梳全棉单面布", specification: "180g · 32S", usage: 0.32, unit: "kg", lossRate: 5, unitPrice: 42.8 },
+            { id: "solid-fabric-2", name: "1×1 罗纹", specification: "260g · 同缸色", usage: 0.048, unit: "kg", lossRate: 8, unitPrice: 46.5 },
+          ],
+          trims: [
+            { id: "solid-trim-1", name: "主唛 / 洗水唛", specification: "缎面印字 · 2件套", usage: 1, unit: "套", lossRate: 2, unitPrice: 0.72 },
+            { id: "solid-trim-2", name: "透明自封袋", specification: "28×38cm", usage: 1, unit: "个", lossRate: 1, unitPrice: 0.34 },
+          ],
+          labor: { value: 2.15, description: "裁剪、车缝、整烫、质检包装" },
+          otherCosts: [{ id: "solid-other-1", name: "管理分摊", specification: "单件分摊", usage: 1, unit: "件", lossRate: 0, unitPrice: 1.25 }],
+          confirmation: null,
+        },
+        {
+          id: "quote-001-stripe",
+          name: "彩条",
+          quantity: 6600,
+          description: "彩条面料价格不同，其他工艺同素色",
+          fabrics: [
+            { id: "stripe-fabric-1", name: "精梳棉色织彩条", specification: "185g · 32S", usage: 0.33, unit: "kg", lossRate: 7, unitPrice: 52.6 },
+            { id: "stripe-fabric-2", name: "1×1 罗纹", specification: "260g · 配色", usage: 0.05, unit: "kg", lossRate: 8, unitPrice: 48.2 },
+          ],
+          trims: [
+            { id: "stripe-trim-1", name: "主唛 / 洗水唛", specification: "缎面印字 · 2件套", usage: 1, unit: "套", lossRate: 2, unitPrice: 0.72 },
+            { id: "stripe-trim-2", name: "透明自封袋", specification: "28×38cm", usage: 1, unit: "个", lossRate: 1, unitPrice: 0.34 },
+          ],
+          labor: { value: 2.28, description: "彩条对位、裁剪、车缝、整烫、质检包装" },
+          otherCosts: [{ id: "stripe-other-1", name: "管理分摊", specification: "单件分摊", usage: 1, unit: "件", lossRate: 0, unitPrice: 1.35 }],
+          confirmation: null,
+        },
+      ],
+      garmentMedia: [],
+      quoteDocuments: [],
+      confirmationSummary: { confirmedCount: 0, totalCount: 2 },
+    }],
+  },
+  {
+    id: "quote-002",
+    quoteCode: "QT-2026-0816-006",
+    currentRevisionId: "quote-002-v1",
+    aggregateStatus: "draft",
+    revisions: [{
+      revisionId: "quote-002-v1",
+      revisionLabel: "V1",
+      createdAt: "2026-08-16T15:10:00+08:00",
+      createdBy: "陈曦",
+      revisionNote: "初始报价",
+      readOnly: false,
+      baseInfo: {
+        brandId: "massimo-dutti",
+        brandName: "Massimo Dutti",
+        salespersonId: "sales-chenxi",
+        salespersonName: "陈曦",
+        quoteType: "processing",
+        quoteStyleNo: "T1821",
+        styleName: "珠地棉短袖 Polo",
+        quoteDate: "2026-08-16",
+        fabricLeadDate: "2026-09-05",
+        garmentLeadDate: null,
+        note: "加工报价，客供主料。",
+      },
+      pricingParameters: { laborCurrency: "CNY", usdCnyRate: 7.12, markupRate: 8 },
+      priceVersions: [{
+        id: "quote-002-standard",
+        name: "标准加工",
+        quantity: 8500,
+        description: "客供主料，工厂负责辅料与加工",
+        fabrics: [],
+        trims: [{ id: "standard-trim-1", name: "纽扣", specification: "18L 四眼扣", usage: 3, unit: "粒", lossRate: 3, unitPrice: 0.18 }],
+        labor: { value: 18.6, description: "裁剪、车缝、整烫、质检包装" },
+        otherCosts: [{ id: "standard-other-1", name: "包装", specification: "单件包装", usage: 1, unit: "件", lossRate: 0, unitPrice: 0.8 }],
+        confirmation: null,
+      }],
+      garmentMedia: [],
+      quoteDocuments: [],
+      confirmationSummary: { confirmedCount: 0, totalCount: 1 },
+    }],
+  },
+];
