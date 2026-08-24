@@ -1,10 +1,17 @@
 import { defaultBasicSettings, normalizeBasicSettings, type BasicSettingsState } from "../model/basic-settings";
 
-export const BASIC_SETTINGS_STORAGE_KEY = "zhixu.basic-settings.v1.3";
+export const BASIC_SETTINGS_STORAGE_KEY = "zhixu.basic-settings.v1.5";
+export const LEGACY_BASIC_SETTINGS_STORAGE_KEY = "zhixu.basic-settings.v1.3";
 
 export function loadBasicSettings(): BasicSettingsState {
   if (typeof window === "undefined") return defaultBasicSettings;
-  try { return normalizeBasicSettings(JSON.parse(window.localStorage.getItem(BASIC_SETTINGS_STORAGE_KEY) || "null")); }
+  try {
+    const current = window.localStorage.getItem(BASIC_SETTINGS_STORAGE_KEY);
+    const legacy = window.localStorage.getItem(LEGACY_BASIC_SETTINGS_STORAGE_KEY);
+    const normalized = normalizeBasicSettings(JSON.parse(current || legacy || "null"));
+    if (!current) window.localStorage.setItem(BASIC_SETTINGS_STORAGE_KEY, JSON.stringify(normalized));
+    return normalized;
+  }
   catch { return defaultBasicSettings; }
 }
 

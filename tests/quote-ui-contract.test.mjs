@@ -23,22 +23,40 @@ test("详情使用兼容静态导出的 query 路由", async () => {
     read("features/quote-center/components/quote-editor.tsx"),
   ]);
   assert.match(list, /\/quote-center\/detail\?id=/);
-  assert.match(editor, /URLSearchParams\(window\.location\.search\)/);
+  assert.match(editor, /useSearchParams\(\)/);
+  assert.match(editor, /\[quoteId\]/);
   assert.doesNotMatch(`${list}\n${editor}`, /\/quote-center\/\$\{quote\.id\}/);
 });
 
-test("价格版本只暴露复制入口，弹窗只编辑名称、数量、说明", async () => {
+test("价格版本操作在顶部统一使用创建文案，弹窗只编辑名称、数量、说明", async () => {
   const [selector, editor] = await Promise.all([
     read("features/quote-center/components/price-version-selector.tsx"),
     read("features/quote-center/components/quote-editor.tsx"),
   ]);
-  assert.match(selector, /复制当前价格版本/);
+  assert.doesNotMatch(selector, /复制当前价格版本/);
+  assert.match(editor, /openVersionModal\("copy", activeVersion\)\}>创建价格版本<\/Button>/);
   assert.doesNotMatch(`${selector}\n${editor}`, /新增价格版本/);
   assert.match(editor, /价格版本名称/);
   assert.match(editor, /数量/);
   assert.match(editor, /说明/);
   const versionModal = editor.slice(editor.indexOf('<Modal open={Boolean(versionModal)}'), editor.indexOf('<Modal open={Boolean(pendingNavigation)}'));
   assert.doesNotMatch(versionModal, /销售单价/);
+});
+
+test("报价详情顶部与窄屏固定操作区保持统一业务顺序", async () => {
+  const editor = await read("features/quote-center/components/quote-editor.tsx");
+  const expected = ["返回列表", "报价版本", "创建价格版本", "客户确认", "删除报价", "保存草稿"];
+  const headerActions = editor.slice(editor.indexOf("const headerActions"), editor.indexOf("const stickyActions"));
+  const stickyActions = editor.slice(editor.indexOf("const stickyActions"), editor.indexOf("return <AppShell"));
+  for (const actions of [headerActions, stickyActions]) {
+    let previous = -1;
+    for (const label of expected) {
+      const current = actions.indexOf(`>${label}</Button>`);
+      assert.ok(current > previous, `${label} 应按要求排列`);
+      previous = current;
+    }
+  }
+  assert.doesNotMatch(headerActions, />报价设置<\/Button>/);
 });
 
 test("mock repository 与旧 API 隔离", async () => {

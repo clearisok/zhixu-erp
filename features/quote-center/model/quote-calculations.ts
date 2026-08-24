@@ -1,19 +1,78 @@
-import type { CostLine, LaborCurrency, NullableNumber, PriceVersion } from "./quote-view-model";
+import type {
+  CostLine,
+  FabricCostLine,
+  LaborCurrency,
+  NullableNumber,
+  OtherCostLine,
+  PriceVersion,
+} from "./quote-view-model";
 
-export function numberOrZero(value: NullableNumber): number {
+export function numberOrZero(value: NullableNumber | undefined): number {
   return value ?? 0;
 }
 
 export function costLineAmount(line: CostLine): number {
-  return numberOrZero(line.usage) * numberOrZero(line.unitPrice) * (1 + numberOrZero(line.lossRate) / 100);
+  return numberOrZero(line.usage)
+    * numberOrZero(line.unitPrice)
+    * (1 + numberOrZero(line.lossRate) / 100);
 }
 
 export function sumCostLines(lines: CostLine[]): number {
   return lines.reduce((total, line) => total + costLineAmount(line), 0);
 }
 
+export function otherCostAmount(line: OtherCostLine | CostLine): number {
+  return "amount" in line ? numberOrZero(line.amount) : costLineAmount(line);
+}
+
+export function sumOtherCosts(lines: Array<OtherCostLine | CostLine>): number {
+  return lines.reduce((total, line) => total + otherCostAmount(line), 0);
+}
+
+export function fabricGrossWidthCm(netWidthCm: NullableNumber): number {
+  return numberOrZero(netWidthCm) + 5;
+}
+
+export function fabricConsumptionKg(line: Pick<FabricCostLine, "segmentLengthCm" | "netWidthCm" | "gsm" | "lossRate">): number {
+  return (
+    numberOrZero(line.segmentLengthCm)
+    * fabricGrossWidthCm(line.netWidthCm)
+    * numberOrZero(line.gsm)
+    / 10_000_000
+  ) * (1 + numberOrZero(line.lossRate) / 100);
+}
+
+export function fabricConsumptionMeter(line: Pick<FabricCostLine, "segmentLengthCm" | "lossRate">): number {
+  return (numberOrZero(line.segmentLengthCm) / 100)
+    * (1 + numberOrZero(line.lossRate) / 100);
+}
+
+export function fabricConsumption(line: FabricCostLine): number {
+  return line.purchaseUnit === "meter"
+    ? fabricConsumptionMeter(line)
+    : fabricConsumptionKg(line);
+}
+
+export function fabricCostAmount(line: FabricCostLine): number {
+  return fabricConsumption(line) * numberOrZero(line.unitPrice);
+}
+
+export function sumFabricCosts(lines: FabricCostLine[]): number {
+  return lines.reduce((total, line) => {
+    // Compatibility with V1.3 session fixtures that used the generic cost row.
+    if (!("purchaseUnit" in line)) return total + costLineAmount(line as unknown as CostLine);
+    return total + fabricCostAmount(line);
+  }, 0);
+}
+
 export function totalPriceVersionQuantity(priceVersions: PriceVersion[]): number {
   return priceVersions.reduce((total, version) => total + numberOrZero(version.quantity), 0);
+}
+
+export function nullableTotalPriceVersionQuantity(priceVersions: PriceVersion[]): NullableNumber {
+  return priceVersions.every((version) => version.quantity === null)
+    ? null
+    : totalPriceVersionQuantity(priceVersions);
 }
 
 export function laborCostInRmb(value: NullableNumber, currency: LaborCurrency, usdCnyRate: NullableNumber): number {
@@ -43,9 +102,9 @@ export function calculatePriceVersionMetrics(
   usdCnyRate: NullableNumber,
   markupRate: NullableNumber,
 ): PriceVersionMetrics {
-  const fabricCost = sumCostLines(version.fabrics);
+  const fabricCost = sumFabricCosts(version.fabrics);
   const trimCost = sumCostLines(version.trims);
-  const otherCost = sumCostLines(version.otherCosts);
+  const otherCost = sumOtherCosts(version.otherCosts);
   const laborRmb = laborCostInRmb(version.labor.value, laborCurrency, usdCnyRate);
   const preMarkupTotal = fabricCost + trimCost + laborRmb + otherCost;
 
@@ -67,16 +126,19 @@ export function copyPriceVersion(
   source: PriceVersion,
   input: { id: string; name: string; quantity: NullableNumber; description: string },
 ): PriceVersion {
-  const cloneLines = (lines: CostLine[], prefix: string) => lines.map((line, index) => ({ ...line, id: `${input.id}-${prefix}-${index + 1}` }));
+  const cloneRows = <T extends { id: string }>(rows: T[], prefix: string): T[] => rows.map((row, index) => ({
+    ...row,
+    id: `${input.id}-${prefix}-${index + 1}`,
+  }));
   return {
     id: input.id,
     name: input.name,
     quantity: input.quantity,
     description: input.description,
-    fabrics: cloneLines(source.fabrics, "fabric"),
-    trims: cloneLines(source.trims, "trim"),
+    fabrics: cloneRows(source.fabrics, "fabric"),
+    trims: cloneRows(source.trims, "trim"),
     labor: { ...source.labor },
-    otherCosts: cloneLines(source.otherCosts, "other"),
+    otherCosts: cloneRows(source.otherCosts, "other"),
     confirmation: null,
   };
 }

@@ -2,9 +2,13 @@
 .gitignore
 node_modules
 node_modules_incomplete
+.codex-latest-*.log
 .next
 .vinext
 .wrangler
+dist
+artifacts
+backups
 outputs
 work
 dev.out.log

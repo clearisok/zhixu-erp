@@ -1,0 +1,71 @@
+{
+  "sourceRoot": "/D:/workspace/preparesystem/",
+  "sourceTemplateHashesUnchanged": true,
+  "hashes": {
+    "placeholder": "91b2ec856192c179097635eb1434d99cb1b694ef54eaed48cebd33f3ca3c09cf",
+    "formal": "d4203cf2d39a9f28ef46adbeb4fa104f9fe27609ebf85a59aa711a8992738c08"
+  },
+  "placeholder": {
+    "sheets": [
+      "素色",
+      "彩条"
+    ],
+    "diagnostics": {
+      "sheetNames": [
+        "素色",
+        "彩条"
+      ],
+      "printAreas": [
+        "A1:L37",
+        "A1:L37"
+      ],
+      "rowCounts": [
+        37,
+        37
+      ]
+    },
+    "containsEstimateData": false,
+    "formulaRefErrors": []
+  },
+  "summaries": {
+    "perQuoteRows": 2,
+    "perVersionRows": 3,
+    "perQuoteHeaders": [
+      "报价款号 / 款式",
+      "品牌",
+      "客户业务员",
+      "总数量",
+      "面料成本",
+      "辅料成本",
+      "工价",
+      "成衣销售单价",
+      "客户确认状态",
+      "估算总成本",
+      "估算成本来源报价版本",
+      "销售价与估算成本差额"
+    ],
+    "perVersionHeaders": [
+      "报价款号 / 款式",
+      "价格版本",
+      "品牌",
+      "客户业务员",
+      "数量",
+      "面料成本",
+      "辅料成本",
+      "工价",
+      "成衣销售单价",
+      "客户确认状态",
+      "估算总成本",
+      "估算成本来源报价版本",
+      "销售价与估算成本差额"
+    ]
+  },
+  "zip": {
+    "success": 2,
+    "failed": [],
+    "entries": [
+      "T2337_V2_20260822.xlsx",
+      "T1821_V1_20260822.xlsx"
+    ]
+  }
+}

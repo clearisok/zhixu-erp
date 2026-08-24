@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { BuildInfoIndicator } from "../components/foundation/build-info-indicator";
+import { buildInfo } from "../features/runtime/build-info";
+import { PermissionProvider } from "../features/permissions";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,5 +23,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="zh-CN"><body>{children}</body></html>;
+  return <html lang="zh-CN"><body data-build-id={buildInfo.buildId} data-environment={buildInfo.environment}><PermissionProvider>{children}</PermissionProvider><BuildInfoIndicator /></body></html>;
 }

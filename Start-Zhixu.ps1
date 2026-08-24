@@ -25,12 +25,12 @@ if (-not (Test-Path -LiteralPath $envPath)) {
 }
 
 if (-not $SkipBuild) {
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Local.ps1
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\rebuild-local.ps1
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+} else {
+    & docker compose up -d
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
-
-& docker compose up --build -d
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 $ready = $false
 for ($attempt = 1; $attempt -le 30; $attempt++) {

@@ -1,0 +1,61 @@
+# Codex 永久工作规则
+
+本文件适用于整个仓库。目标是让任何新的 Codex 会话都能仅依靠仓库恢复项目认知，而不依赖聊天记录。
+
+## 每次任务的必读顺序
+
+1. 读取本文件。
+2. 读取 `docs/PROJECT_INDEX.md` 和 `docs/CURRENT_STATE.md`。
+3. 检查当前分支、`git status` 和相关文件的未提交差异；不要覆盖或回退用户已有改动。
+4. 按 `PROJECT_INDEX` 读取任务相关的 feature 文档、`docs/BUSINESS_RULES.md` 和有关的 `docs/DECISION_LOG.md` 条目。
+5. 修改前检查实际代码、数据库脚本、API 和测试。不得只根据文档或 conversation history 推测实现。
+
+## 事实来源优先级
+
+发生冲突时，按以下顺序核实：
+
+1. 当前工作树中的可执行代码、数据库约束/初始化脚本和实际测试。
+2. 与当前代码同步的 feature 文档、`CURRENT_STATE` 和明确标为 Active 的决策。
+3. README 和其他说明文档。
+4. 历史审计、迁移计划和聊天记录。
+
+聊天上下文不是项目事实的永久存储。上下文被压缩、切换 conversation 或出现不确定信息时，必须回到仓库查证。
+
+## 修改规则
+
+- 先理解现有实现，再设计或修改；不要绕过已有组件、repository 或业务边界另起一套实现。
+- 不擅自改变 `docs/BUSINESS_RULES.md`、feature 文档或 Active 决策中已经确认的业务规则。若需求与其冲突，先指出冲突并取得用户确认。
+- 严格区分根路径 ERP 与 Quote Center。两者当前具有不同的数据模型、计算口径和持久化方式，不得因为名称相同而混用接口或公式。
+- 不得删除、覆盖或破坏现有业务数据。执行恢复、清库、删除 volume、批量迁移或其他不可逆操作前，必须明确目标、备份和用户授权。
+- 保留 dirty worktree 中与当前任务无关的改动；禁止用破坏性 Git 命令清理工作区。
+- 业务行为变化时，同步更新对应的 `docs/features/*.md` 和必要的测试。
+- 新的重要架构或业务决定写入 `docs/DECISION_LOG.md`，标明日期、状态和代码证据。旧决定不直接删除，应改为 Superseded 或 Deprecated 并说明替代项。
+- 大型任务完成后更新 `docs/CURRENT_STATE.md`。它只描述当前状态、风险和下一步，不堆积开发流水账。
+- 新增模块时，只有当模块复杂到需要独立恢复上下文时才新增 feature 文档；不要创建空壳文档。
+
+## 数据库与 API 规则
+
+- 当前没有 Alembic 或 Python 后端。不要把 `database/*.sql`、空的 Drizzle/D1 scaffold 或聊天中的未来方案描述成已经存在的 migration/backend。
+- 修改 PostgreSQL schema、`api_dispatch`、初始化管理员或备份恢复流程前，先阅读 `docs/features/LEGACY_ERP.md`、相关 SQL 和脚本。
+- Quote Center 当前使用 mock repository、`sessionStorage`/`localStorage`，没有接入根路径的 `/api/quotes`。除非用户明确启动后端迁移任务，否则不得擅自接线。
+
+## 验证与交付
+
+根据改动范围执行最小充分检查。涉及 TypeScript/React 的通常检查为：
+
+```powershell
+npm run typecheck
+npm run lint
+npm test
+npm run build
+```
+
+数据库或容器相关改动还应执行对应的 SQL、API、Docker 或备份恢复验证；若环境限制导致无法执行，必须如实记录，不能写成“已通过”。
+
+完成任务前检查：
+
+- 实现与现有业务规则一致。
+- 没有误改无关文件或用户数据。
+- 相关测试和质量检查已执行并记录结果。
+- feature 文档、CURRENT_STATE、DECISION_LOG 按规则同步。
+- 最终汇报区分“已确认事实”“推断”“未验证/已知问题”。

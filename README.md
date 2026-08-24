@@ -1,5 +1,7 @@
 # 织序 ZHIXU｜本地工厂业务系统
 
+> 开发者与 Codex：开始修改前请先阅读 [`AGENTS.md`](AGENTS.md) 和 [`docs/PROJECT_INDEX.md`](docs/PROJECT_INDEX.md)。当前仓库同时包含 PostgreSQL 根路径 ERP 与浏览器 mock 持久化的 Quote Center，二者边界详见项目知识文档。
+
 面向成衣工厂的本地生产业务系统，覆盖：
 
 - 成衣报价：客户、款号、成本、毛利、有效期、报价状态及 CSV 导出
@@ -8,6 +10,26 @@
 - 账号权限：管理员、业务员、计划员、只读用户
 - 操作审计：记录登录、创建、转单、状态变化和密码修改
 - 数据保障：PostgreSQL 持久化、容器健康检查、备份与恢复
+
+## 本地开发与生产验收
+
+两套环境必须分开使用：
+
+- DEV：<http://127.0.0.1:3001>，直接运行当前源码并支持热更新。日常 React/CSS 开发先在这里验证。
+- PROD Docker：<http://127.0.0.1:3000>，运行 production build，只有显式重建后才更新。
+
+```powershell
+# DEV（端口被占用时明确报错，不会结束未知进程）
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\dev.ps1
+
+# PROD Docker 常规重建
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\rebuild-local.ps1
+
+# 仅在确认 Docker 缓存异常时使用
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\rebuild-local-clean.ps1
+```
+
+两个环境都提供 `/build-info.json`，并在页面底部显示克制的 `DEV/PROD · commit` 标识。排查旧页面时，先比较页面和该接口的 `environment`、`buildId`、`gitCommit`、`buildTime`，不要凭页面外观猜测版本。
 
 ## 首次启动
 

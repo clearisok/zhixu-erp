@@ -2,6 +2,16 @@ export type QuoteAggregateStatus = "draft" | "quoting" | "partially_confirmed" |
 export type QuoteType = "distribution" | "processing";
 export type LaborCurrency = "CNY" | "USD";
 export type NullableNumber = number | null;
+export type FabricPurchaseUnit = "kg" | "meter";
+export type QuoteRevisionReason =
+  | "初始报价"
+  | "客户调价"
+  | "面料价格变化"
+  | "辅料价格变化"
+  | "工价调整"
+  | "交期变化"
+  | "基础信息调整"
+  | "其他";
 
 export type AttachmentReference = {
   id: string;
@@ -18,6 +28,32 @@ export type CostLine = {
   unit: string;
   lossRate: NullableNumber;
   unitPrice: NullableNumber;
+};
+
+export type OtherCostLine = CostLine & {
+  amount: NullableNumber;
+  source?: "global" | "manual";
+  globalSettingId?: string;
+  overridden?: boolean;
+};
+
+export type FabricCostLine = {
+  id: string;
+  sourceLibraryItemId: string | null;
+  name: string;
+  composition: string;
+  segmentLengthCm: NullableNumber;
+  netWidthCm: NullableNumber;
+  gsm: NullableNumber;
+  lossRate: NullableNumber;
+  supplier: string;
+  unitPrice: NullableNumber;
+  purchaseUnit: FabricPurchaseUnit;
+};
+
+export type TrimCostLine = CostLine & {
+  sourceLibraryItemId: string | null;
+  supplier: string;
 };
 
 export type LaborCost = {
@@ -39,10 +75,10 @@ export type PriceVersion = {
   name: string;
   quantity: NullableNumber;
   description: string;
-  fabrics: CostLine[];
-  trims: CostLine[];
+  fabrics: FabricCostLine[];
+  trims: TrimCostLine[];
   labor: LaborCost;
-  otherCosts: CostLine[];
+  otherCosts: OtherCostLine[];
   confirmation: PriceVersionConfirmation | null;
 };
 
@@ -66,6 +102,21 @@ export type QuotePricingParameters = {
   markupRate: NullableNumber;
 };
 
+export type EstimateCost = {
+  id: string;
+  quoteId: string;
+  basedOnRevisionId: string;
+  sourcePriceVersionId: string;
+  generatedAt: string;
+  generatedBy: string;
+  ignoredForRevisionId: string | null;
+  pricingParameters: QuotePricingParameters;
+  fabrics: FabricCostLine[];
+  trims: TrimCostLine[];
+  labor: LaborCost;
+  otherCosts: OtherCostLine[];
+};
+
 export type ConfirmationSummary = {
   confirmedCount: number;
   totalCount: number;
@@ -74,44 +125,86 @@ export type ConfirmationSummary = {
 export type QuoteRevision = {
   revisionId: string;
   revisionLabel: string;
+  parentRevisionId: string | null;
+  mainlineVersion: number;
+  branchSequence: number | null;
+  basedOnConfirmedRevisionId: string | null;
   createdAt: string;
   createdBy: string;
-  revisionNote: string;
+  reason: QuoteRevisionReason;
+  note: string;
+  /** @deprecated 仅用于读取 V1/V2 mock 数据；新代码使用 reason + note。 */
+  revisionNote?: string;
   readOnly: boolean;
   baseInfo: QuoteBaseInfo;
   pricingParameters: QuotePricingParameters;
   priceVersions: PriceVersion[];
-  garmentMedia: AttachmentReference[];
-  quoteDocuments: AttachmentReference[];
+  imageAttachmentIds: string[];
+  fileAttachmentIds: string[];
+  styleImageAttachmentId: string | null;
+  /** @deprecated 兼容旧 mock URL 图片；新代码使用 imageAttachmentIds。 */
+  garmentMedia?: AttachmentReference[];
+  /** @deprecated 兼容旧 mock URL 文件；新代码使用 fileAttachmentIds。 */
+  quoteDocuments?: AttachmentReference[];
   confirmationSummary: ConfirmationSummary;
 };
 
 export type Quote = {
   id: string;
   quoteCode: string;
-  currentRevisionId: string;
+  deletedAt: string | null;
+  defaultRevisionId: string;
+  /** @deprecated 兼容旧 mock 数据；读取口径统一使用 defaultRevisionId。 */
+  currentRevisionId?: string;
   aggregateStatus: QuoteAggregateStatus;
   revisions: QuoteRevision[];
+  activeEstimateCost: EstimateCost | null;
+  estimateCostHistory: EstimateCost[];
 };
 
 export type SelectOption = { value: string; label: string; keywords?: string };
 
-export function getCurrentRevision(quote: Quote): QuoteRevision {
-  return quote.revisions.find((revision) => revision.revisionId === quote.currentRevisionId) ?? quote.revisions[quote.revisions.length - 1];
+export const BASE_PRICE_VERSION_NAME = "基础价格";
+
+export function normalizeSinglePriceVersionName(priceVersions: PriceVersion[]): PriceVersion[] {
+  if (priceVersions.length !== 1 || priceVersions[0].name === BASE_PRICE_VERSION_NAME) return priceVersions;
+  return [{ ...priceVersions[0], name: BASE_PRICE_VERSION_NAME }];
 }
 
-export function createQuoteDraft(id: string, quoteCode: string, today: string, defaults?: { markupRate?: NullableNumber; laborCurrency?: LaborCurrency; usdCnyRate?: NullableNumber }): Quote {
+export function getDefaultRevision(quote: Quote): QuoteRevision {
+  return quote.revisions.find((revision) => revision.revisionId === quote.defaultRevisionId)
+    ?? quote.revisions.find((revision) => revision.revisionId === quote.currentRevisionId)
+    ?? quote.revisions[quote.revisions.length - 1];
+}
+
+export const getCurrentRevision = getDefaultRevision;
+
+export function createQuoteDraft(
+  id: string,
+  quoteCode: string,
+  today: string,
+  defaults?: { markupRate?: NullableNumber; laborCurrency?: LaborCurrency; usdCnyRate?: NullableNumber; laborDescription?: string },
+): Quote {
   return {
     id,
     quoteCode,
+    deletedAt: null,
+    defaultRevisionId: `${id}-revision-v1`,
     currentRevisionId: `${id}-revision-v1`,
     aggregateStatus: "draft",
+    activeEstimateCost: null,
+    estimateCostHistory: [],
     revisions: [{
       revisionId: `${id}-revision-v1`,
       revisionLabel: "V1",
+      parentRevisionId: null,
+      mainlineVersion: 1,
+      branchSequence: null,
+      basedOnConfirmedRevisionId: null,
       createdAt: new Date().toISOString(),
       createdBy: "当前用户",
-      revisionNote: "初始报价",
+      reason: "初始报价",
+      note: "",
       readOnly: false,
       baseInfo: {
         brandId: "",
@@ -126,20 +219,25 @@ export function createQuoteDraft(id: string, quoteCode: string, today: string, d
         garmentLeadDate: null,
         note: "",
       },
-      pricingParameters: { laborCurrency: defaults?.laborCurrency ?? "CNY", usdCnyRate: defaults?.usdCnyRate ?? null, markupRate: defaults?.markupRate ?? null },
+      pricingParameters: {
+        laborCurrency: defaults?.laborCurrency ?? "CNY",
+        usdCnyRate: defaults?.usdCnyRate ?? null,
+        markupRate: defaults?.markupRate ?? null,
+      },
       priceVersions: [{
         id: `${id}-price-default`,
-        name: "默认价格",
+        name: BASE_PRICE_VERSION_NAME,
         quantity: null,
         description: "",
         fabrics: [],
         trims: [],
-        labor: { value: null, description: "" },
+        labor: { value: null, description: defaults?.laborDescription ?? "" },
         otherCosts: [],
         confirmation: null,
       }],
-      garmentMedia: [],
-      quoteDocuments: [],
+      imageAttachmentIds: [],
+      fileAttachmentIds: [],
+      styleImageAttachmentId: null,
       confirmationSummary: { confirmedCount: 0, totalCount: 1 },
     }],
   };

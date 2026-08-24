@@ -19,6 +19,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        ZHIXU_BUILD_ID: ${ZHIXU_BUILD_ID:-local-manual-build}
+        ZHIXU_GIT_COMMIT: ${ZHIXU_GIT_COMMIT:-unknown}
+        ZHIXU_BUILD_TIME: ${ZHIXU_BUILD_TIME:-unknown}
     image: zhixu-factory-system:local
     container_name: zhixu-factory-system
     ports:

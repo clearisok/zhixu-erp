@@ -16,4 +16,12 @@ psql -v ON_ERROR_STOP=1 \
   -v admin_password="${ZHIXU_ADMIN_PASSWORD:?ZHIXU_ADMIN_PASSWORD is required}" \
   -f /app/database/002_admin.sql
 
+if [ -f /app/site/build-info.json ]; then
+  echo '织序ERP'
+  echo "Environment: ${ZHIXU_BUILD_ENV:-production}"
+  sed -n 's/.*"buildId": "\([^"]*\)".*/Build ID: \1/p' /app/site/build-info.json
+  sed -n 's/.*"gitCommit": "\([^"]*\)".*/Git Commit: \1/p' /app/site/build-info.json
+  sed -n 's/.*"buildTime": "\([^"]*\)".*/Build Time: \1/p' /app/site/build-info.json
+fi
+
 exec nc -lk -p 3000 -e /app/serve.sh

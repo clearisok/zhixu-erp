@@ -1,4 +1,4 @@
-import type { CostLine, NullableNumber } from "./quote-view-model";
+import type { CostLine, FabricCostLine, NullableNumber, OtherCostLine, TrimCostLine } from "./quote-view-model";
 
 export type CostCategory = "fabrics" | "trims" | "otherCosts";
 
@@ -12,7 +12,39 @@ export function createEmptyCostLine(id: string): CostLine {
   return { id, name: "", specification: "", usage: null, unit: "", lossRate: null, unitPrice: null };
 }
 
+export function createEmptyOtherCostLine(id: string): OtherCostLine {
+  return { ...createEmptyCostLine(id), amount: null, source: "manual" };
+}
+
+export function createEmptyFabricCostLine(id: string): FabricCostLine {
+  return {
+    id,
+    sourceLibraryItemId: null,
+    name: "",
+    composition: "",
+    segmentLengthCm: null,
+    netWidthCm: null,
+    gsm: null,
+    lossRate: null,
+    supplier: "",
+    unitPrice: null,
+    purchaseUnit: "kg",
+  };
+}
+
+export function createEmptyTrimCostLine(id: string): TrimCostLine {
+  return {
+    ...createEmptyCostLine(id),
+    sourceLibraryItemId: null,
+    supplier: "",
+  };
+}
+
 export function patchCostLine(lines: CostLine[], lineId: string, patch: Partial<CostLine>): CostLine[] {
+  return lines.map((line) => line.id === lineId ? { ...line, ...patch, id: line.id } : line);
+}
+
+export function patchStableRow<T extends { id: string }>(lines: T[], lineId: string, patch: Partial<T>): T[] {
   return lines.map((line) => line.id === lineId ? { ...line, ...patch, id: line.id } : line);
 }
 

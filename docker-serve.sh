@@ -137,10 +137,15 @@ esac
 
 size="$(wc -c < "$file" | tr -d ' ')"
 case "$status" in 200) reason='OK' ;; *) reason='Not Found' ;; esac
+case "$file" in
+  *.html|*/build-info.json) cache_control='no-store, max-age=0, must-revalidate' ;;
+  /app/site/assets/*) cache_control='public, max-age=31536000, immutable' ;;
+  *) cache_control='public, max-age=3600' ;;
+esac
 printf 'HTTP/1.1 %s %s\r\n' "$status" "$reason"
 printf 'Content-Type: %s\r\n' "$content_type"
 printf 'Content-Length: %s\r\n' "$size"
-printf 'Cache-Control: no-cache\r\n'
+printf 'Cache-Control: %s\r\n' "$cache_control"
 printf 'X-Content-Type-Options: nosniff\r\n'
 printf 'X-Frame-Options: DENY\r\n'
 printf 'Referrer-Policy: same-origin\r\n'
