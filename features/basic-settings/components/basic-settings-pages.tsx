@@ -7,9 +7,10 @@ import {
   Card,
   CreatableCombobox,
   DataTable,
+  Drawer,
   EmptyState,
   FormItem,
-  Modal,
+  MasterDataActions,
   NullableNumberInput,
   PageContainer,
   PageHeader,
@@ -17,6 +18,8 @@ import {
   SearchField,
   Toolbar,
   Toast,
+  UnsavedDraftDialog,
+  useGuardedDraft,
   type DataColumn,
 } from "@/components/foundation";
 import {
@@ -108,20 +111,20 @@ export function BrandSettingsPage() {
   const { toast, notify } = useToast();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | BrandRecord["status"]>("all");
-  const [draft, setDraft] = useState<BrandDraft | null>(null);
+  const { draft, setDraft, openDraft, closeDraft, requestClose, closeConfirmationOpen, keepEditing } = useGuardedDraft<BrandDraft>();
   const [quickTrimDraft, setQuickTrimDraft] = useState<TrimLibraryItem | null>(null);
   const [quickTrimError, setQuickTrimError] = useState("");
   const [error, setError] = useState("");
   const rows = useMemo(() => searchBrands(state.brands, query).filter((brand) => statusFilter === "all" || brand.status === statusFilter), [state.brands, query, statusFilter]);
 
-  const openNew = () => { setError(""); setDraft(createBrandDraft()); };
-  const openEdit = (brand: BrandRecord) => { setError(""); setDraft({ id: brand.id, name: brand.name, status: brand.status, defaults: defaultConfigurationToDraft(brand.defaults) }); };
+  const openNew = () => { setError(""); openDraft(createBrandDraft()); };
+  const openEdit = (brand: BrandRecord) => { setError(""); openDraft({ id: brand.id, name: brand.name, status: brand.status, defaults: defaultConfigurationToDraft(brand.defaults) }); };
   const save = () => {
     if (!draft || !canManage) return;
     const validationError = validateBrandName(state, draft.name, draft.id);
     if (validationError) { setError(validationError); return; }
     persist(upsertBrand(state, { id: draft.id, name: draft.name.trim(), status: draft.status, defaults: draftToDefaultConfiguration(draft.defaults, draft.id) }));
-    setDraft(null);
+    closeDraft();
     notify("品牌资料已保存");
   };
   const openQuickTrim = (query: string) => { if (!can("settings.trim.edit")) return; setQuickTrimError(""); setQuickTrimDraft(createTrimLibraryDraft(query)); };
@@ -148,7 +151,7 @@ export function BrandSettingsPage() {
     { key: "trims", header: "默认辅料", width: 100, align: "right", render: (brand) => brand.defaults.defaultTrims.length ? `${brand.defaults.defaultTrims.length} 条` : null },
     { key: "other", header: "默认其他费用", minWidth: 170, render: (brand) => brand.defaults.defaultOtherCost === null ? "回退系统值" : <><strong>{brand.defaults.defaultOtherCost.name}</strong><small>¥{brand.defaults.defaultOtherCost.amount?.toFixed(2) ?? "—"} / 件</small></> },
     { key: "salespeople", header: "客户业务员", width: 110, align: "right", render: (brand) => `${state.customerSalespeople.filter((item) => item.brandId === brand.id).length} 人` },
-    { key: "actions", header: "操作", width: 132, sticky: "right", responsivePriority: "primary", render: (brand) => <div className="qc-row-actions"><PermissionButton permission="settings.brand.edit" variant="tertiary" onClick={() => openEdit(brand)}>编辑</PermissionButton><PermissionButton permission="settings.brand.edit" variant="danger" onClick={() => remove(brand)}>删除</PermissionButton></div> },
+    { key: "actions", header: "操作", width: 132, sticky: "right", responsivePriority: "primary", render: (brand) => <MasterDataActions label={`${brand.name}更多操作`} primary={<PermissionButton permission="settings.brand.edit" variant="tertiary" onClick={() => openEdit(brand)}>编辑</PermissionButton>}><PermissionButton permission="settings.brand.edit" variant="danger" onClick={() => remove(brand)}>删除品牌</PermissionButton></MasterDataActions> },
   ];
   return <AppShell title="品牌设置"><PageContainer>
     <PageHeader eyebrow="BASIC SETTINGS" title="品牌设置" count={`${rows.length} 条`} primaryAction={<PermissionButton permission="settings.brand.edit" onClick={openNew}>＋ 新增品牌</PermissionButton>} />
@@ -159,10 +162,11 @@ export function BrandSettingsPage() {
       placeholder="输入品牌名称查询"
       moreFilters={<FormItem label="状态"><select className="qc-control" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "all" | BrandRecord["status"])}><option value="all">全部状态</option><option value="active">启用</option><option value="inactive">停用</option></select></FormItem>}
     />
-    <Card className="qc-master-list"><DataTable rows={rows} columns={columns} rowKey={(brand) => brand.id} ariaLabel="品牌设置" empty={<EmptyState title="没有匹配的品牌" description={query ? "请调整搜索关键词" : "可从页面右上角新增第一个品牌"} />} renderRecord={(brand) => <div className="qc-master-record"><header><strong>{brand.name}</strong><StatusTag tone={brand.status === "active" ? "success" : "neutral"}>{brand.status === "active" ? "启用" : "停用"}</StatusTag></header><dl><div><dt>默认汇率</dt><dd>{brand.defaults.defaultUsdCnyRate ?? "回退系统值"}</dd></div><div><dt>默认辅料</dt><dd>{brand.defaults.defaultTrims.length ? `${brand.defaults.defaultTrims.length} 条` : "—"}</dd></div><div><dt>客户业务员</dt><dd>{state.customerSalespeople.filter((item) => item.brandId === brand.id).length} 人</dd></div></dl><footer><PermissionButton permission="settings.brand.edit" variant="tertiary" onClick={() => openEdit(brand)}>编辑</PermissionButton><PermissionButton permission="settings.brand.edit" variant="danger" onClick={() => remove(brand)}>删除</PermissionButton></footer></div>} /></Card>
-    <Modal open={Boolean(draft)} className="qc-master-data-long-form-modal" eyebrow="BASIC SETTINGS" title={state.brands.some((brand) => brand.id === draft?.id) ? "编辑品牌" : "新增品牌"} description="品牌名称在整个系统内唯一；默认辅料从辅料库选择。" onClose={() => setDraft(null)} onSubmit={save} footer={<><Button variant="secondary" onClick={() => setDraft(null)}>取消</Button><Button type="submit">保存品牌</Button></>}>
+    <Card className="qc-master-list"><DataTable rows={rows} columns={columns} rowKey={(brand) => brand.id} ariaLabel="品牌设置" empty={<EmptyState title="没有匹配的品牌" description={query ? "请调整搜索关键词" : "可从页面右上角新增第一个品牌"} />} renderRecord={(brand) => <div className="qc-master-record"><header><strong>{brand.name}</strong><StatusTag tone={brand.status === "active" ? "success" : "neutral"}>{brand.status === "active" ? "启用" : "停用"}</StatusTag></header><dl><div><dt>默认汇率</dt><dd>{brand.defaults.defaultUsdCnyRate ?? "回退系统值"}</dd></div><div><dt>默认辅料</dt><dd>{brand.defaults.defaultTrims.length ? `${brand.defaults.defaultTrims.length} 条` : "—"}</dd></div><div><dt>客户业务员</dt><dd>{state.customerSalespeople.filter((item) => item.brandId === brand.id).length} 人</dd></div></dl><footer><MasterDataActions label={`${brand.name}更多操作`} primary={<PermissionButton permission="settings.brand.edit" variant="tertiary" onClick={() => openEdit(brand)}>编辑</PermissionButton>}><PermissionButton permission="settings.brand.edit" variant="danger" onClick={() => remove(brand)}>删除品牌</PermissionButton></MasterDataActions></footer></div>} /></Card>
+    <Drawer open={Boolean(draft)} className="qc-master-data-long-form-modal qc-master-data-drawer" eyebrow="BASIC SETTINGS" title={state.brands.some((brand) => brand.id === draft?.id) ? "编辑品牌" : "新增品牌"} description="品牌名称在整个系统内唯一；默认辅料从辅料库选择。" onClose={requestClose} onSubmit={save} footer={<><Button variant="secondary" onClick={requestClose}>取消</Button><Button type="submit">保存品牌</Button></>}>
       {draft && <BrandFormFields draft={draft} trimLibrary={state.trimLibrary} onChange={(next) => { setDraft(next); setError(""); }} error={error} canCreateTrim={can("settings.trim.edit")} onCreateTrim={openQuickTrim} />}
-    </Modal>
+    </Drawer>
+    <UnsavedDraftDialog open={closeConfirmationOpen} entityLabel="品牌资料" onKeepEditing={keepEditing} onDiscard={closeDraft} />
     <QuickTrimDrawer open={Boolean(quickTrimDraft)} draft={quickTrimDraft} supplierOptions={supplierSuggestions(state)} error={quickTrimError} onChange={(next) => { setQuickTrimDraft(next); setQuickTrimError(""); }} onClose={() => setQuickTrimDraft(null)} onSubmit={saveQuickTrim} />
     <Toast message={toast} />
   </PageContainer></AppShell>;
@@ -174,22 +178,22 @@ export function CustomerSalespeopleSettingsPage() {
   const { state, persist } = useBasicSettingsState();
   const { toast, notify } = useToast();
   const [query, setQuery] = useState("");
-  const [draft, setDraft] = useState<SalespersonDraft | null>(null);
+  const { draft, setDraft, openDraft, closeDraft, requestClose, closeConfirmationOpen, keepEditing } = useGuardedDraft<SalespersonDraft>();
   const [quickTrimDraft, setQuickTrimDraft] = useState<TrimLibraryItem | null>(null);
   const [quickTrimError, setQuickTrimError] = useState("");
   const [error, setError] = useState("");
   const rows = useMemo(() => searchCustomerSalespeople(state.customerSalespeople, state.brands, query), [state.customerSalespeople, state.brands, query]);
   const brandNames = useMemo(() => new Map(state.brands.map((brand) => [brand.id, brand.name])), [state.brands]);
 
-  const openNew = () => { setError(""); setDraft(createSalespersonDraft(state.brands[0]?.id ?? "")); };
-  const openEdit = (item: CustomerSalespersonRecord) => { setError(""); setDraft({ id: item.id, name: item.name, brandId: item.brandId, status: item.status, defaults: defaultConfigurationToDraft(item.defaults) }); };
+  const openNew = () => { setError(""); openDraft(createSalespersonDraft(state.brands[0]?.id ?? "")); };
+  const openEdit = (item: CustomerSalespersonRecord) => { setError(""); openDraft({ id: item.id, name: item.name, brandId: item.brandId, status: item.status, defaults: defaultConfigurationToDraft(item.defaults) }); };
   const save = () => {
     if (!draft || !canManage) return;
     const validationError = validateCustomerSalespersonName(state, draft.name, draft.id);
     if (validationError) { setError(validationError); return; }
     if (!draft.brandId) { setError("请选择归属品牌"); return; }
     persist(upsertCustomerSalesperson(state, { id: draft.id, name: draft.name.trim(), brandId: draft.brandId, status: draft.status, defaults: draftToDefaultConfiguration(draft.defaults, draft.id) }));
-    setDraft(null);
+    closeDraft();
     notify("客户业务员资料已保存");
   };
   const openQuickTrim = (query: string) => { if (!can("settings.trim.edit")) return; setQuickTrimError(""); setQuickTrimDraft(createTrimLibraryDraft(query)); };
@@ -212,12 +216,21 @@ export function CustomerSalespeopleSettingsPage() {
   };
 
   return <AppShell title="客户业务员设置"><PageContainer>
-    <PageHeader eyebrow="BASIC SETTINGS" title="客户业务员设置" actions={<PermissionButton permission="settings.salesperson.edit" onClick={openNew}>＋ 新增客户业务员</PermissionButton>} />
+    <PageHeader eyebrow="BASIC SETTINGS" title="客户业务员设置" count={`${rows.length} 条`} primaryAction={<PermissionButton permission="settings.salesperson.edit" onClick={openNew}>＋ 新增客户业务员</PermissionButton>} />
     <MasterDataToolbar query={query} onQuery={setQuery} resultCount={rows.length} placeholder="输入姓名或品牌查询" />
-    <Card className="qc-master-list"><div className="qc-table-wrap"><table className="qc-master-table"><thead><tr><th>客户业务员</th><th>归属品牌</th><th>状态</th><th>默认汇率</th><th>默认辅料</th><th>默认其他费用</th><th>操作</th></tr></thead><tbody>{rows.map((item) => <tr key={item.id}><td><strong>{item.name}</strong></td><td>{brandNames.get(item.brandId) || "—"}</td><td><StatusTag tone={item.status === "active" ? "success" : "neutral"}>{item.status === "active" ? "启用" : "停用"}</StatusTag></td><td>{item.defaults.defaultUsdCnyRate ?? "回退品牌值"}</td><td>{item.defaults.defaultTrims.length ? `${item.defaults.defaultTrims.length} 条` : "回退品牌值"}</td><td>{item.defaults.defaultOtherCost === null ? "回退品牌值" : <><strong>{item.defaults.defaultOtherCost.name}</strong><small>¥{item.defaults.defaultOtherCost.amount?.toFixed(2) ?? "—"} / 件</small></>}</td><td><div className="qc-row-actions"><PermissionButton permission="settings.salesperson.edit" variant="text" onClick={() => openEdit(item)}>编辑</PermissionButton><PermissionButton permission="settings.salesperson.edit" variant="secondary" onClick={() => copy(item)}>复制</PermissionButton><PermissionButton permission="settings.salesperson.edit" variant="danger" onClick={() => remove(item)}>删除</PermissionButton></div></td></tr>)}</tbody></table></div>{!rows.length && <div className="empty-state"><span>◇</span><strong>没有匹配的客户业务员</strong></div>}</Card>
-    <Modal open={Boolean(draft)} className="qc-master-data-long-form-modal" title={state.customerSalespeople.some((item) => item.id === draft?.id) ? "编辑客户业务员" : "新增客户业务员"} description="姓名在整个系统内唯一；个人默认配置优先于品牌默认配置。" onClose={() => setDraft(null)} onSubmit={save} footer={<><Button variant="secondary" onClick={() => setDraft(null)}>取消</Button><Button type="submit">保存客户业务员</Button></>}>
+    <Card className="qc-master-list"><DataTable rows={rows} columns={[
+      { key: "name", header: "客户业务员", width: 170, sticky: "left", responsivePriority: "primary", render: (item: CustomerSalespersonRecord) => <strong>{item.name}</strong> },
+      { key: "brand", header: "归属品牌", width: 150, responsivePriority: "primary", render: (item: CustomerSalespersonRecord) => brandNames.get(item.brandId) },
+      { key: "status", header: "状态", width: 88, responsivePriority: "primary", render: (item: CustomerSalespersonRecord) => <StatusTag tone={item.status === "active" ? "success" : "neutral"}>{item.status === "active" ? "启用" : "停用"}</StatusTag> },
+      { key: "rate", header: "默认汇率", width: 115, align: "right", render: (item: CustomerSalespersonRecord) => item.defaults.defaultUsdCnyRate ?? "回退品牌值" },
+      { key: "trims", header: "默认辅料", width: 110, align: "right", render: (item: CustomerSalespersonRecord) => item.defaults.defaultTrims.length ? `${item.defaults.defaultTrims.length} 条` : "回退品牌值" },
+      { key: "other", header: "默认其他费用", minWidth: 160, render: (item: CustomerSalespersonRecord) => item.defaults.defaultOtherCost === null ? "回退品牌值" : <span className="qc-master-identity"><strong>{item.defaults.defaultOtherCost.name}</strong><small>¥{item.defaults.defaultOtherCost.amount?.toFixed(2) ?? "—"} / 件</small></span> },
+      { key: "actions", header: "操作", width: 128, sticky: "right", responsivePriority: "primary", render: (item: CustomerSalespersonRecord) => <MasterDataActions label={`${item.name}更多操作`} primary={<PermissionButton permission="settings.salesperson.edit" variant="tertiary" onClick={() => openEdit(item)}>编辑</PermissionButton>}><PermissionButton permission="settings.salesperson.edit" variant="text" onClick={() => copy(item)}>复制资料</PermissionButton><PermissionButton permission="settings.salesperson.edit" variant="danger" onClick={() => remove(item)}>删除业务员</PermissionButton></MasterDataActions> },
+    ] satisfies DataColumn<CustomerSalespersonRecord>[]} rowKey={(item) => item.id} ariaLabel="客户业务员设置" emptyTitle="没有匹配的客户业务员" emptyDescription={query ? "请调整搜索关键词" : "可从页面右上角新增第一位客户业务员"} renderRecord={(item) => <div className="qc-master-record"><header><strong>{item.name}</strong><StatusTag tone={item.status === "active" ? "success" : "neutral"}>{item.status === "active" ? "启用" : "停用"}</StatusTag></header><dl><div><dt>归属品牌</dt><dd>{brandNames.get(item.brandId) ?? "—"}</dd></div><div><dt>默认汇率</dt><dd>{item.defaults.defaultUsdCnyRate ?? "回退品牌值"}</dd></div><div><dt>默认辅料</dt><dd>{item.defaults.defaultTrims.length ? `${item.defaults.defaultTrims.length} 条` : "回退品牌值"}</dd></div></dl><footer><MasterDataActions label={`${item.name}更多操作`} primary={<PermissionButton permission="settings.salesperson.edit" variant="tertiary" onClick={() => openEdit(item)}>编辑</PermissionButton>}><PermissionButton permission="settings.salesperson.edit" variant="text" onClick={() => copy(item)}>复制资料</PermissionButton><PermissionButton permission="settings.salesperson.edit" variant="danger" onClick={() => remove(item)}>删除业务员</PermissionButton></MasterDataActions></footer></div>} /></Card>
+    <Drawer open={Boolean(draft)} className="qc-master-data-drawer" title={state.customerSalespeople.some((item) => item.id === draft?.id) ? "编辑客户业务员" : "新增客户业务员"} description="姓名在整个系统内唯一；个人默认配置优先于品牌默认配置。" onClose={requestClose} onSubmit={save} footer={<><Button variant="secondary" onClick={requestClose}>取消</Button><Button type="submit">保存客户业务员</Button></>}>
       {draft && <SalespersonFormFields draft={draft} brands={state.brands} trimLibrary={state.trimLibrary} onChange={(next) => { setDraft(next); setError(""); }} error={error} canCreateTrim={can("settings.trim.edit")} onCreateTrim={openQuickTrim} />}
-    </Modal>
+    </Drawer>
+    <UnsavedDraftDialog open={closeConfirmationOpen} entityLabel="客户业务员资料" onKeepEditing={keepEditing} onDiscard={closeDraft} />
     <QuickTrimDrawer open={Boolean(quickTrimDraft)} draft={quickTrimDraft} supplierOptions={supplierSuggestions(state)} error={quickTrimError} onChange={(next) => { setQuickTrimDraft(next); setQuickTrimError(""); }} onClose={() => setQuickTrimDraft(null)} onSubmit={saveQuickTrim} />
     <Toast message={toast} />
   </PageContainer></AppShell>;
@@ -231,7 +244,7 @@ export function FabricLibraryPage() {
   const { state, persist } = useBasicSettingsState();
   const { toast, notify } = useToast();
   const [query, setQuery] = useState("");
-  const [draft, setDraft] = useState<FabricLibraryItem | null>(null);
+  const { draft, setDraft, openDraft, closeDraft, requestClose, closeConfirmationOpen, keepEditing } = useGuardedDraft<FabricLibraryItem>();
   const [error, setError] = useState("");
   const rows = useMemo(() => searchFabricLibrary(state.fabricLibrary, query), [state.fabricLibrary, query]);
   const suppliers = useMemo(() => supplierSuggestions(state), [state]);
@@ -239,7 +252,7 @@ export function FabricLibraryPage() {
     if (!canManage) return;
     if (!draft?.name.trim()) { setError("请填写面料名称"); return; }
     persist(upsertFabricLibraryItem(state, { ...draft, name: draft.name.trim() }));
-    setDraft(null);
+    closeDraft();
     notify("面料资料已保存");
   };
   const remove = (item: FabricLibraryItem) => {
@@ -249,12 +262,22 @@ export function FabricLibraryPage() {
     notify(`已删除 ${item.name}`);
   };
   return <AppShell title="面料库"><PageContainer>
-    <PageHeader eyebrow="MATERIAL LIBRARY" title="面料库" description="同名面料可由不同供应商提供；系统使用稳定 ID 区分。段长、单耗和成本不会存入库。" actions={<PermissionButton permission="settings.fabric.edit" onClick={() => { setError(""); setDraft(emptyFabric()); }}>＋ 新增面料</PermissionButton>} />
+    <PageHeader eyebrow="MATERIAL LIBRARY" title="面料库" count={`${rows.length} 条`} description="同名面料可由不同供应商提供；系统使用稳定 ID 区分。段长、单耗和成本不会存入库。" primaryAction={<PermissionButton permission="settings.fabric.edit" onClick={() => { setError(""); openDraft(emptyFabric()); }}>＋ 新增面料</PermissionButton>} />
     <MasterDataToolbar query={query} onQuery={setQuery} resultCount={rows.length} placeholder="搜索名称、成分或供应商" />
-    <Card className="qc-master-list"><div className="qc-table-wrap"><table className="qc-master-table qc-fabric-library-table"><thead><tr><th>面料名称</th><th>成分</th><th>净门幅</th><th>克重</th><th>默认损耗率</th><th>供应商</th><th>单价</th><th>采购单位</th><th>操作</th></tr></thead><tbody>{rows.map((item) => <tr key={item.id}><td><strong>{item.name}</strong><small>{item.id}</small></td><td>{item.composition || "—"}</td><td>{item.netWidthCm === null ? "—" : `${item.netWidthCm} cm`}</td><td>{item.gsm === null ? "—" : `${item.gsm} gsm`}</td><td>{item.defaultLossRate === null ? "—" : `${item.defaultLossRate}%`}</td><td>{item.supplier || "—"}</td><td>{item.unitPrice === null ? "—" : `¥${item.unitPrice.toFixed(2)}`}</td><td>{item.purchaseUnit === "kg" ? "千克" : "米"}</td><td><div className="qc-row-actions"><PermissionButton permission="settings.fabric.edit" variant="text" onClick={() => { setError(""); setDraft({ ...item }); }}>编辑</PermissionButton><PermissionButton permission="settings.fabric.edit" variant="danger" onClick={() => remove(item)}>删除</PermissionButton></div></td></tr>)}</tbody></table></div>{!rows.length && <div className="empty-state"><span>◇</span><strong>没有匹配的面料</strong></div>}</Card>
-    <Modal open={Boolean(draft)} title={state.fabricLibrary.some((item) => item.id === draft?.id) ? "编辑面料" : "新增面料"} description="这里只保存静态基础资料；段长与计算结果属于报价快照。" onClose={() => setDraft(null)} onSubmit={save} footer={<><Button variant="secondary" onClick={() => setDraft(null)}>取消</Button><Button type="submit">保存面料</Button></>}>
+    <Card className="qc-master-list"><DataTable rows={rows} columns={[
+      { key: "name", header: "面料名称", width: 190, sticky: "left", responsivePriority: "primary", render: (item: FabricLibraryItem) => <span className="qc-master-identity"><strong>{item.name}</strong><small>{item.id}</small></span> },
+      { key: "composition", header: "成分", minWidth: 150, responsivePriority: "primary", render: (item: FabricLibraryItem) => item.composition },
+      { key: "width", header: "净门幅 (cm)", width: 105, align: "right", responsivePriority: "primary", render: (item: FabricLibraryItem) => item.netWidthCm },
+      { key: "gsm", header: "克重 (gsm)", width: 100, align: "right", responsivePriority: "primary", render: (item: FabricLibraryItem) => item.gsm },
+      { key: "loss", header: "默认损耗 (%)", width: 112, align: "right", render: (item: FabricLibraryItem) => item.defaultLossRate },
+      { key: "supplier", header: "供应商", minWidth: 140, responsivePriority: "primary", render: (item: FabricLibraryItem) => item.supplier },
+      { key: "price", header: "单价 (RMB)", width: 112, align: "right", responsivePriority: "primary", render: (item: FabricLibraryItem) => item.unitPrice === null ? null : item.unitPrice.toFixed(2) },
+      { key: "unit", header: "采购单位", width: 94, render: (item: FabricLibraryItem) => item.purchaseUnit === "kg" ? "千克" : "米" },
+      { key: "actions", header: "操作", width: 128, sticky: "right", responsivePriority: "primary", render: (item: FabricLibraryItem) => <MasterDataActions label={`${item.name}更多操作`} primary={<PermissionButton permission="settings.fabric.edit" variant="tertiary" onClick={() => { setError(""); openDraft(item); }}>编辑</PermissionButton>}><PermissionButton permission="settings.fabric.edit" variant="danger" onClick={() => remove(item)}>删除面料</PermissionButton></MasterDataActions> },
+    ] satisfies DataColumn<FabricLibraryItem>[]} rowKey={(item) => item.id} ariaLabel="面料库" emptyTitle="没有匹配的面料" emptyDescription={query ? "请调整搜索关键词" : "可从页面右上角新增第一条面料"} renderRecord={(item) => <div className="qc-master-record"><header><span className="qc-master-identity"><strong>{item.name}</strong><small>{item.composition || "未填写成分"}</small></span></header><dl><div><dt>规格</dt><dd>{item.netWidthCm ?? "—"} cm · {item.gsm ?? "—"} gsm</dd></div><div><dt>供应商</dt><dd>{item.supplier || "—"}</dd></div><div><dt>单价</dt><dd>{item.unitPrice === null ? "—" : `¥${item.unitPrice.toFixed(2)} / ${item.purchaseUnit === "kg" ? "kg" : "m"}`}</dd></div></dl><footer><MasterDataActions label={`${item.name}更多操作`} primary={<PermissionButton permission="settings.fabric.edit" variant="tertiary" onClick={() => { setError(""); openDraft(item); }}>编辑</PermissionButton>}><PermissionButton permission="settings.fabric.edit" variant="danger" onClick={() => remove(item)}>删除面料</PermissionButton></MasterDataActions></footer></div>} /></Card>
+    <Drawer open={Boolean(draft)} className="qc-master-data-drawer" title={state.fabricLibrary.some((item) => item.id === draft?.id) ? "编辑面料" : "新增面料"} description="这里只保存静态基础资料；报价引用后形成独立快照。" onClose={requestClose} onSubmit={save} footer={<><Button variant="secondary" onClick={requestClose}>取消</Button><Button type="submit">保存面料</Button></>}>
       {draft && <div className="qc-modal-form qc-material-form"><FormItem label="面料名称" required><input className="qc-control" value={draft.name} onChange={(event) => { setDraft({ ...draft, name: event.target.value }); setError(""); }} /></FormItem><FormItem label="成分"><input className="qc-control" value={draft.composition} onChange={(event) => setDraft({ ...draft, composition: event.target.value })} placeholder="例如：100% Cotton" /></FormItem><FormItem label="净门幅 cm"><NullableNumberInput className="qc-control" min="0" value={draft.netWidthCm} onValueChange={(netWidthCm) => setDraft({ ...draft, netWidthCm })} /></FormItem><FormItem label="克重 gsm"><NullableNumberInput className="qc-control" min="0" value={draft.gsm} onValueChange={(gsm) => setDraft({ ...draft, gsm })} /></FormItem><FormItem label="默认损耗率 %"><NullableNumberInput className="qc-control" min="0" value={draft.defaultLossRate} onValueChange={(defaultLossRate) => setDraft({ ...draft, defaultLossRate })} /></FormItem><FormItem label="供应商"><CreatableCombobox ariaLabel="面料供应商" value={draft.supplier} suggestions={suppliers} onChange={(supplier) => setDraft({ ...draft, supplier })} /></FormItem><FormItem label="单价"><NullableNumberInput className="qc-control" min="0" value={draft.unitPrice} onValueChange={(unitPrice) => setDraft({ ...draft, unitPrice })} /></FormItem><FormItem label="采购单位" required><select className="qc-control" value={draft.purchaseUnit} onChange={(event) => setDraft({ ...draft, purchaseUnit: event.target.value === "meter" ? "meter" : "kg" })}><option value="kg">千克</option><option value="meter">米</option></select></FormItem>{error && <p className="qc-form-alert">{error}</p>}</div>}
-    </Modal><Toast message={toast} />
+    </Drawer><UnsavedDraftDialog open={closeConfirmationOpen} entityLabel="面料资料" onKeepEditing={keepEditing} onDiscard={closeDraft} /><Toast message={toast} />
   </PageContainer></AppShell>;
 }
 
@@ -264,7 +287,7 @@ export function TrimLibraryPage() {
   const { state, persist } = useBasicSettingsState();
   const { toast, notify } = useToast();
   const [query, setQuery] = useState("");
-  const [draft, setDraft] = useState<TrimLibraryItem | null>(null);
+  const { draft, setDraft, openDraft, closeDraft, requestClose, closeConfirmationOpen, keepEditing } = useGuardedDraft<TrimLibraryItem>();
   const [error, setError] = useState("");
   const rows = useMemo(() => searchTrimLibrary(state.trimLibrary, query), [state.trimLibrary, query]);
   const suppliers = useMemo(() => supplierSuggestions(state), [state]);
@@ -272,7 +295,7 @@ export function TrimLibraryPage() {
     if (!canManage) return;
     if (!draft?.name.trim()) { setError("请填写辅料名称"); return; }
     persist(upsertTrimLibraryItem(state, { ...draft, name: draft.name.trim() }));
-    setDraft(null);
+    closeDraft();
     notify("辅料资料已保存");
   };
   const remove = (item: TrimLibraryItem) => {
@@ -282,11 +305,19 @@ export function TrimLibraryPage() {
     notify(`已删除 ${item.name}`);
   };
   return <AppShell title="辅料库"><PageContainer>
-    <PageHeader eyebrow="MATERIAL LIBRARY" title="辅料库" description="同名辅料可由不同供应商提供；系统使用稳定 ID 区分。报价用量始终由具体报价填写。" actions={<PermissionButton permission="settings.trim.edit" onClick={() => { setError(""); setDraft(createTrimLibraryDraft()); }}>＋ 新增辅料</PermissionButton>} />
+    <PageHeader eyebrow="MATERIAL LIBRARY" title="辅料库" count={`${rows.length} 条`} description="同名辅料可由不同供应商提供；系统使用稳定 ID 区分。报价用量始终由具体报价填写。" primaryAction={<PermissionButton permission="settings.trim.edit" onClick={() => { setError(""); openDraft(createTrimLibraryDraft()); }}>＋ 新增辅料</PermissionButton>} />
     <MasterDataToolbar query={query} onQuery={setQuery} resultCount={rows.length} placeholder="搜索名称、规格或供应商" />
-    <Card className="qc-master-list"><div className="qc-table-wrap"><table className="qc-master-table"><thead><tr><th>辅料名称</th><th>规格</th><th>供应商</th><th>单位</th><th>默认损耗率</th><th>单价</th><th>操作</th></tr></thead><tbody>{rows.map((item) => <tr key={item.id}><td><strong>{item.name}</strong><small>{item.id}</small></td><td>{item.specification || "—"}</td><td>{item.supplier || "—"}</td><td>{item.unit || "—"}</td><td>{item.defaultLossRate === null ? "—" : `${item.defaultLossRate}%`}</td><td>{item.unitPrice === null ? "—" : `¥${item.unitPrice.toFixed(2)}`}</td><td><div className="qc-row-actions"><PermissionButton permission="settings.trim.edit" variant="text" onClick={() => { setError(""); setDraft({ ...item }); }}>编辑</PermissionButton><PermissionButton permission="settings.trim.edit" variant="danger" onClick={() => remove(item)}>删除</PermissionButton></div></td></tr>)}</tbody></table></div>{!rows.length && <div className="empty-state"><span>◇</span><strong>没有匹配的辅料</strong></div>}</Card>
-    <Modal open={Boolean(draft)} title={state.trimLibrary.some((item) => item.id === draft?.id) ? "编辑辅料" : "新增辅料"} description="除报价用量外，其余辅料基础资料均可保存到库。" onClose={() => setDraft(null)} onSubmit={save} footer={<><Button variant="secondary" onClick={() => setDraft(null)}>取消</Button><Button type="submit">保存辅料</Button></>}>
+    <Card className="qc-master-list"><DataTable rows={rows} columns={[
+      { key: "name", header: "辅料名称", width: 190, sticky: "left", responsivePriority: "primary", render: (item: TrimLibraryItem) => <span className="qc-master-identity"><strong>{item.name}</strong><small>{item.id}</small></span> },
+      { key: "spec", header: "规格", minWidth: 150, responsivePriority: "primary", render: (item: TrimLibraryItem) => item.specification },
+      { key: "supplier", header: "供应商", minWidth: 140, responsivePriority: "primary", render: (item: TrimLibraryItem) => item.supplier },
+      { key: "unit", header: "单位", width: 90, render: (item: TrimLibraryItem) => item.unit },
+      { key: "loss", header: "默认损耗 (%)", width: 112, align: "right", render: (item: TrimLibraryItem) => item.defaultLossRate },
+      { key: "price", header: "单价 (RMB)", width: 112, align: "right", responsivePriority: "primary", render: (item: TrimLibraryItem) => item.unitPrice === null ? null : item.unitPrice.toFixed(2) },
+      { key: "actions", header: "操作", width: 128, sticky: "right", responsivePriority: "primary", render: (item: TrimLibraryItem) => <MasterDataActions label={`${item.name}更多操作`} primary={<PermissionButton permission="settings.trim.edit" variant="tertiary" onClick={() => { setError(""); openDraft(item); }}>编辑</PermissionButton>}><PermissionButton permission="settings.trim.edit" variant="danger" onClick={() => remove(item)}>删除辅料</PermissionButton></MasterDataActions> },
+    ] satisfies DataColumn<TrimLibraryItem>[]} rowKey={(item) => item.id} ariaLabel="辅料库" emptyTitle="没有匹配的辅料" emptyDescription={query ? "请调整搜索关键词" : "可从页面右上角新增第一条辅料"} renderRecord={(item) => <div className="qc-master-record"><header><span className="qc-master-identity"><strong>{item.name}</strong><small>{item.specification || "未填写规格"}</small></span></header><dl><div><dt>供应商</dt><dd>{item.supplier || "—"}</dd></div><div><dt>单位</dt><dd>{item.unit || "—"}</dd></div><div><dt>单价</dt><dd>{item.unitPrice === null ? "—" : `¥${item.unitPrice.toFixed(2)}`}</dd></div></dl><footer><MasterDataActions label={`${item.name}更多操作`} primary={<PermissionButton permission="settings.trim.edit" variant="tertiary" onClick={() => { setError(""); openDraft(item); }}>编辑</PermissionButton>}><PermissionButton permission="settings.trim.edit" variant="danger" onClick={() => remove(item)}>删除辅料</PermissionButton></MasterDataActions></footer></div>} /></Card>
+    <Drawer open={Boolean(draft)} className="qc-master-data-drawer" title={state.trimLibrary.some((item) => item.id === draft?.id) ? "编辑辅料" : "新增辅料"} description="报价引用后形成独立快照；基础库不保存本次报价用量。" onClose={requestClose} onSubmit={save} footer={<><Button variant="secondary" onClick={requestClose}>取消</Button><Button type="submit">保存辅料</Button></>}>
       {draft && <TrimLibraryFormFields draft={draft} supplierOptions={suppliers} onChange={(next) => { setDraft(next); setError(""); }} error={error} />}
-    </Modal><Toast message={toast} />
+    </Drawer><UnsavedDraftDialog open={closeConfirmationOpen} entityLabel="辅料资料" onKeepEditing={keepEditing} onDiscard={closeDraft} /><Toast message={toast} />
   </PageContainer></AppShell>;
 }

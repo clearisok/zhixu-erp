@@ -672,6 +672,8 @@ textarea.qc-note-control { min-height: 72px; height: 72px; }
 .qc-operations-rule-card small,
 .qc-operations-list-header small { color: var(--qc-muted); }
 .qc-operations-tax-form { display: grid; grid-template-columns: minmax(220px, 360px) auto; align-items: end; gap: 12px; }
+.qc-operations-tax-field { max-width: 360px; display: grid; gap: 7px; }
+.qc-operations-tax-field > small { color: var(--qc-muted); font-size: 10px; }
 .qc-operations-list-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid var(--qc-line); }
 .qc-modal-grid, .qc-default-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .qc-default-fields { padding-top: 4px; }
@@ -1260,28 +1262,15 @@ textarea.qc-note-control { min-height: 72px; height: 72px; }
   .qc-attachment-preview-modal > footer .qc-button { min-width: 68px; flex: 1 0 auto; }
   .qc-preview-arrow { width: 36px; height: 50px; }
 }
-.qc-data-management-grid {
+.qc-data-management-stack {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.qc-data-management-card {
-  display: grid;
-  align-content: start;
   gap: 16px;
-  padding: 28px;
 }
 
-.qc-data-management-card h2,
-.qc-data-management-card p { margin: 0; }
-.qc-data-management-card p { color: var(--qc-muted, #6f7873); line-height: 1.7; }
-.qc-data-management-card dl { display: grid; gap: 10px; margin: 0; }
-.qc-data-management-card dl div { display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--qc-border, #e0e5e1); padding-bottom: 10px; }
-.qc-data-management-card dt { color: var(--qc-muted, #6f7873); }
-.qc-data-management-card dd { margin: 0; text-align: right; }
 .qc-data-management-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .qc-data-danger-card { border-color: #ead5cf; }
+.qc-data-danger-card > header { background: #fff9f7; }
+.qc-data-management-scope { grid-column: 1 / -1; margin: 0; color: var(--qc-muted, #6f7873); font-size: 11px; line-height: 1.7; }
 .qc-data-reset-confirm { display: grid; gap: 8px; }
 .qc-data-reset-confirm span { color: #6e4038; font-size: 13px; }
 .qc-backup-summary { display: grid; gap: 8px; }
@@ -1289,6 +1278,6 @@ textarea.qc-note-control { min-height: 72px; height: 72px; }
 .qc-backup-summary strong { color: #7c5a22; }
 
 @media (max-width: 767px) {
-  .qc-data-management-grid { grid-template-columns: 1fr; }
-  .qc-data-management-card { padding: 20px; }
+  .qc-data-management-section > header { align-items: stretch; flex-direction: column; }
+  .qc-data-management-section > header aside, .qc-data-management-actions { display: grid; }
 }

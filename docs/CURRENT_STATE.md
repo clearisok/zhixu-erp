@@ -6,7 +6,7 @@
 
 仓库处于“双路径并存”阶段：根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行生产形态；Quote Center、基础设置和 UI Foundation 已形成较完整的前端业务实现，但仍使用浏览器 mock 持久化，尚未进入真实后端/多用户生产阶段。
 
-当前分支为 `rescue-codex-20260824`。UI Redesign Delivery Phase 0–5 的功能、QA、浏览器和文档验收均已完成；由于早期 inherited dirty worktree 无法可靠证明每个历史 hunk 的 Phase 归属，Phase 1–5 不伪造ย้อนหลัง独立提交。本次以 `chore: establish validated ui redesign phase 0-5 baseline` consolidated commit 固化当前已验收状态，它只表示可信起点，不声称重建历史 Phase commit。
+当前分支为 `rescue-codex-20260824`。UI Redesign Delivery Phase 0–6 的功能、QA、浏览器和文档验收均已完成。Phase 0–5 由 `chore: establish validated ui redesign phase 0-5 baseline` consolidated commit 固化可信起点；Phase 6 从 `3f6532036e05208b8cf23f9825081770ecdf0301` 开始隔离增量，并按“一 Phase 一独立 commit”规则收口。
 
 从 Delivery Phase 6 开始，必须在阶段开始前记录 Branch / HEAD / working tree baseline，阶段结束后只 stage 本 Phase 增量、创建独立 commit 并报告 commit hash；不得再以 inherited dirty worktree 跨阶段推进。
 
@@ -21,6 +21,7 @@
 - Quote Center：列表、个人字段偏好、新建/详情、Revision 历史、PriceVersion、面辅料/工价/其他费用、客户确认、删除、保存草稿。
 - Quote Center 模型：完整 Revision 快照、默认 Revision、分支命名、聚合状态、成本计算、校验和复制逻辑。
 - 基础设置：品牌、客户业务员、面料库、辅料库、默认汇率/辅料/其他费用和供应商建议。
+- UI Redesign Phase 6：品牌、客户业务员、面料、辅料、生产组、外发厂统一为 Foundation DataTable / Responsive Record + Drawer；关账设置与数据管理统一为紧凑 SettingsPage。稳定 ID、同名资料、快照、`null`/`0`、启停、Backup / Restore / Reset 等既有业务语义保持不变。
 - 新建报价主数据就地补充：品牌和当前品牌下的客户业务员可在 SearchableSelect 中直接新建并立即选用；品牌默认辅料可嵌套新建正式辅料库记录。所有弹层保留上层报价/配置草稿，权限不足时入口可见但 disabled，主数据保存不会触发空白报价落库。
 - 权限第一阶段：Quote Center mock User / Role / Permission、管理员/报价员/查看员三个测试账号、用户权限页面、统一 disabled tooltip，以及报价/成本/版本/估算/基础设置/生产基础资料/订单/排单/关账/全局操作日志的前端权限接入。排单中心消费 `schedule.view/create/edit/complete`，关账中心消费 `closing.view/edit/confirm/lock/reopen`；`order.edit` 不隐含排单或关账编辑。
 - 操作日志：复用唯一追加式 OperationLog 数据源；已接入排单、队列重排、完成数量、物料到仓、生产与运输设置及关账全生命周期，新事件使用 `orderId/scheduleAssignmentId/closingPeriodId/closingAllocationId` 和字段级 before/after。`productionPlanId/orderItemId` 仅为旧日志只读兼容。
@@ -56,7 +57,7 @@
 
 ## 正在开发
 
-第 5.6 批订单工作台、报价详情与生产排单中心 UX 重构已经完成代码与主要 DEV 验收；Desktop、Half-screen、Tablet 已完成可调 viewport 截图回归。True Mobile 仍遵守 D-023 的 coarse pointer + no hover 判定，自动化契约已覆盖，目标触屏设备截图属于非阻塞设备级验收。正式模型、Repository、迁移与 schemaVersion 均未因本批改变。工作树仍包含大量未提交改动，当前产品状态与最近 Git commit 不完全一致。
+当前没有跨 Delivery Phase 继续实施的 UI 工作。Phase 6 已完成八个现有 Master Data / Low-frequency Settings 页面的实现、48 个模拟 viewport 组合、代表截图、自动化、全量测试和构建验收；Delivery Phase 7 未开始，必须等待明确指令并从 Phase 6 独立 commit 重新记录基线。
 
 ## 尚未开发或尚未落地
 
@@ -102,12 +103,13 @@
 
 ## 测试状态
 
-2026-08-30 Delivery Phase 2.5 DEV / QA 数据集完成后的当前验证状态：
+2026-08-31 Delivery Phase 6 完成后的当前验证状态：
 
 - TypeScript：通过
 - ESLint：通过
-- Tests：全量 `382/382` 通过；其中 `tests/ui-qa-data-simulation.test.mjs` 5/5 通过，覆盖固定 seed、规模与分布、幂等且不覆盖用户修改、跨领域引用完整性和实际 manifest ID 的正式 Repository 解析。既有排单、关账、报价、订单与 UI Foundation 契约继续全部通过。
+- Tests：Phase 6 专项 `5/5`、全量 `402/402` 通过，0 skipped。覆盖生产组稳定 ID 与自然顺序、面料快照隔离、真实 dirty、关账 `null` / `0` 和共享 Foundation 页面契约。
 - 生产 Build：通过，预渲染 23 个静态路由；订单、排单、生产与运输设置及 `/closing-center` 均成功。仅保留既有大 chunk 体积提醒。
+- Phase 6 DEV 浏览器：品牌、客户业务员、面料、辅料、生产组、外发厂、关账设置、数据管理在 1600 / 1280 / 960 / 768 / 402 / 440 共 48 个模拟 viewport 组合全部无 document-level 横向溢出；Drawer ESC、dirty guard、焦点恢复和 14 个核心页面轻量回归通过，Browser Console 0 error / 0 warning。浏览器未保存、删除或重置长期 DEV 数据。
 - DEV 页面验收：已在真实 DEV 3001 完成手工单款创建、同一客户 PO 下不同款分别成单且订单号独立唯一、Quote → SalesOrder、SalesOrder → SalesOrder 翻单、部分取消、全部取消、P1/P2 价格历史与 `currentPriceVersionId`、刷新持久化、订单号/款号搜索、查看员权限和新 SalesOrder OperationLog。多交期业务由自动化验证；本轮浏览器自动化无法可靠驱动原生日期输入，因此未把多交期标记为真实 DEV 人工通过。
 - 第 5.5 批 DEV 验证：3001 `/production-scheduling` 与 `/build-info.json` 返回 200；Vite DEV 直接提供当前 `production-scheduling-page.tsx` 与 CSS，已确认包含完成预览和队列预览样式，证明当前源码已进入 HMR 模块。当前会话没有可调用的 Browser 控制运行时，因此未执行可视点击、真实 localStorage v8→v9 迁移观察与 Desktop/Compact/Tablet/Mobile 截图；迁移、日期、队列、权限、搜索、日志、Backup/Restore 与关账兼容以自动化为权威覆盖，目标设备 UI 仍待补验。
 - 第五批 DEV 验收：为同一订单建立内部 6,000 件与外发 4,000 件两条关账归属，原币加工产值分别为 ¥39,000 与 ¥26,000，汇总 10,000 件 / ¥65,000；刷新后持久化。已验证警告下确认、勾选并填写原因后锁定、锁定后 mutation disabled、填写原因重新打开；订单详情显示“已关账”，全局搜索返回关账月份，统一 OperationLog 显示创建/新增/修改/确认/锁定/重开动作。1440px、1024px 与 390px fine-pointer 均无 document 横向溢出；True Mobile coarse-pointer 仍建议实体设备复验。
@@ -124,7 +126,7 @@
 
 ## 下一步
 
-1. 由用户确认并固化当前 dirty worktree 的 Quote Center 代码基线。
+1. Delivery Phase 7 如获明确授权，必须先记录 Phase 6 独立 commit 后的 Branch / HEAD / working tree baseline；不得自动开始。
 2. 今后 Codex 业务开发先用 3001 验证 HMR；需要 production build 验收时再显式重建 3000，并记录 `/build-info.json`。
 3. 在任何“生产化 Quote Center”任务前，先决定真实后端、数据库、认证、多用户和 migration 策略。
 4. 若继续根路径 ERP，优先补充 PostgreSQL API 集成测试和可版本化 schema migration。

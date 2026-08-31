@@ -670,3 +670,87 @@ Phase 6 的 Master Data 与低频设置、旧内置模板资产升级、真实 W
 ## Phase 5 Gate
 
 **Delivery Phase 5：PASS**
+
+## Delivery Phase 6 — Master Data & Low-frequency Settings
+
+结论：**PASS**。
+
+本阶段只正式收口现有路由能够证明的八个页面：品牌、客户业务员、面料库、辅料库、生产组、外发厂、关账设置和数据管理。仓库没有独立 Customer Master / Supplier Master，供应商继续是面辅料历史中的自由文本；生产与运输仍属于 Phase 5 回归范围，没有在本阶段重新实现。
+
+### A. Master Data
+
+- 品牌、客户业务员、面料和辅料统一复用 Foundation `PageHeader`、`Toolbar`、`DataTable`、Responsive Record、`Drawer` 和状态展示；默认操作只突出“编辑”，复制、启停或删除进入 More，危险动作不再与主操作并排。
+- ProductionGroup 与 OutsourceFactory 使用同一主数据管理模式，保留既有稳定 ID、启停语义和正式 Repository。生产组排序按正式 `sortOrder` 后做自然名称排序，非数字名称仍然合法，没有建立“必须 1–14”规则。
+- 面料与辅料同名仍由稳定 ID 区分；供应商没有被提升为新实体。编辑库资料不会回写已有 QuoteRevision / PriceVersion 快照。
+- Drawer 初始加载保持 clean；只有真实字段变化才触发未保存保护。ESC、继续编辑、取消和正常焦点恢复均通过浏览器验收，浏览器未保存任何长期 DEV 主数据修改。
+
+### B. Low-frequency Settings
+
+- 关账设置改为紧凑 SettingsPage：默认销售产值税率使用 FormSection，只有真实变化才允许保存；月度生产目标使用 DataTable / Mobile Record 和 Drawer。
+- 月度目标继续严格区分 `null` 与 `0`，金额右对齐并使用 tabular numbers；目标只影响关账投影，不修改订单、排单或关账事实。
+- 数据管理分成“备份与恢复”和“危险操作”两个 FormSection，继续调用既有 Backup / Restore / Reset 边界。Reset 保持独立 danger 区并要求原有二次确认；本阶段没有执行导入、恢复或重置。
+
+### C. Responsive Browser QA
+
+| 页面 | 1600 | 1280 | 960 | 768 | 402 | 440 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 品牌 | Table PASS | Table PASS | Record PASS | Record PASS | Mobile Record PASS | Mobile Record PASS |
+| 客户业务员 | Table PASS | Table PASS | Record PASS | Record PASS | Mobile Record PASS | Mobile Record PASS |
+| 面料库 | Table PASS | Table PASS；容器内受控横滚 | Record PASS | Record PASS | Mobile Record PASS | Mobile Record PASS |
+| 辅料库 | Table PASS | Table PASS | Record PASS | Record PASS | Mobile Record PASS | Mobile Record PASS |
+| 生产组 | Empty / Table PASS | Empty / Table PASS | Empty / Record PASS | Empty / Record PASS | Empty / Mobile PASS | Empty / Mobile PASS |
+| 外发厂 | Empty / Table PASS | Empty / Table PASS | Empty / Record PASS | Empty / Record PASS | Empty / Mobile PASS | Empty / Mobile PASS |
+| 关账设置 | Settings PASS | Settings PASS | Compact PASS | Compact PASS | Mobile PASS | Mobile PASS |
+| 数据管理 | Settings PASS | Settings PASS | Compact PASS | Compact PASS | Mobile PASS | Mobile PASS |
+
+48 个正式 viewport 组合均无 document-level 横向溢出。面料库 1280 的受控横滚仅发生在 DataTable 容器，识别、规格、供应商、价格和操作仍可高效判断；960 以下不强撑桌面表格。以上属于模拟 CSS viewport 验收，不升级为真实 Windows Display Scaling / Chrome Zoom 或真机 Safari 通过。
+
+### D. Business / Data Protection
+
+未修改 Quote、QuoteRevision、PriceVersion、Calculator、成本公式、SalesOrder、DeliveryPlan、ScheduleAssignment、Closing 语义、ProductionGroup / OutsourceFactory identity、RBAC、OperationLog、AttachmentRepository、Backup / Restore、Template Parser / Exporter、namespace、schemaVersion 或 Legacy PostgreSQL。
+
+无 Reset、无 Re-seed、无 Quote / Order / Schedule / Closing 删除、无 `localStorage` / IndexedDB 清理、无用户表格偏好清理。长期 DEV 浏览器验收只打开、搜索、切换布局和放弃未保存草稿。
+
+### E. Quality Gate
+
+| Check | Result | 证据 |
+| --- | --- | --- |
+| TypeScript | PASS | `npm.cmd run typecheck`，0 error |
+| ESLint | PASS | `npm.cmd run lint`，0 error |
+| Phase 6 Tests | PASS | `tests/ui-redesign-phase6.test.mjs`，5 / 5 |
+| Full Tests | PASS | `npm.cmd test`，402 / 402，0 skipped |
+| Production Build | PASS | 23 routes prerendered；仅保留 `>500 kB` chunk warning |
+| Browser Console | PASS | 八页矩阵与核心回归 0 error / 0 warning |
+| `git diff --check` | PASS | Phase 6 增量无 whitespace error；既存 vendored artifact 单独排除 |
+
+报价中心、报价详情、新建报价、订单中心、订单详情、新建订单、生产排单、关账中心、用户权限、OperationLog、生产与运输、报价设置、模板设置和品牌设置均已轻量打开回归，无 Phase 6 引入的页面横向溢出或 Runtime Error。
+
+### F. Phase 6 Screenshots
+
+| 场景 | 截图 |
+| --- | --- |
+| Brands 1280 | [phase6-brands-1280.png](screenshots/phase6-brands-1280.png) |
+| Brands Compact 960 | [phase6-brands-compact-960.png](screenshots/phase6-brands-compact-960.png) |
+| Brands Mobile 402 | [phase6-brands-mobile-402.png](screenshots/phase6-brands-mobile-402.png) |
+| Customer Salespeople 1280 | [phase6-customer-salespeople-1280.png](screenshots/phase6-customer-salespeople-1280.png) |
+| Fabrics Wide 1600 | [phase6-fabrics-wide-1600.png](screenshots/phase6-fabrics-wide-1600.png) |
+| Fabrics 1280 | [phase6-fabrics-1280.png](screenshots/phase6-fabrics-1280.png) |
+| Fabrics Compact 960 | [phase6-fabrics-compact-960.png](screenshots/phase6-fabrics-compact-960.png) |
+| Fabrics Mobile 402 | [phase6-fabrics-mobile-402.png](screenshots/phase6-fabrics-mobile-402.png) |
+| Fabrics Edit Drawer | [phase6-fabrics-edit-drawer-1280.png](screenshots/phase6-fabrics-edit-drawer-1280.png) |
+| Trims 1280 | [phase6-trims-1280.png](screenshots/phase6-trims-1280.png) |
+| Production Groups Mobile Empty | [phase6-production-groups-mobile-402.png](screenshots/phase6-production-groups-mobile-402.png) |
+| Closing Settings 1280 | [phase6-closing-settings-1280.png](screenshots/phase6-closing-settings-1280.png) |
+| Closing Settings Mobile | [phase6-closing-settings-mobile-402.png](screenshots/phase6-closing-settings-mobile-402.png) |
+| Data Management 1280 | [phase6-data-management-1280.png](screenshots/phase6-data-management-1280.png) |
+| Data Management Mobile | [phase6-data-management-mobile-402.png](screenshots/phase6-data-management-mobile-402.png) |
+
+截图使用真实视口捕获；未使用会受固定侧栏影响的拼接式 full-page 截图。Legacy Audit 及其已知缺失的 Compact Reference 没有被修改或补造。
+
+### G. Remaining
+
+独立客户主数据、供应商实体、真实服务端 CRUD / 并发、数据库 migration、真实 Windows 缩放 / Chrome Zoom 和真机 Safari 验收不在本阶段范围。Delivery Phase 7 未开始。
+
+## Phase 6 Gate
+
+**Delivery Phase 6：PASS**
