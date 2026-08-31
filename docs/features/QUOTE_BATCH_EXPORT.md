@@ -2,6 +2,8 @@
 
 ## Current behavior
 
+- 每次成功导出后追加 OperationLog：除选择数、成功/失败数或导出行数外，还保存全部所选 Quote 的稳定 ID、款号、款名、Revision ID/Label 与 PriceVersion 制作快照摘要。日志详情页可以折叠查看完整清单，折叠不会截断持久化数据。
+
 - Quote Center 正常模式不显示 Checkbox；点击“批量导出”进入临时 Selection Mode。
 - Selection Mode 把 Foundation Checkbox 放入款式列内容左侧，不新增永久表格列；支持全选当前筛选结果、导出所选和退出清空。
 - “报价单”对每个 Quote 读取 `defaultRevisionId`，调用正式客户报价 exporter，一个 Quote 一个 xlsx，一个 PriceVersion 一个 Sheet，最后使用 JSZip 下载 ZIP。

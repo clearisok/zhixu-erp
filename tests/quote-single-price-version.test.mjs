@@ -39,7 +39,7 @@ test("单价格版本隐藏管理区并在基础信息显示可编辑数量", as
     read("features/quote-center/components/quote-base-info.tsx"),
   ]);
   assert.match(editor, /revision\.priceVersions\.length >= 2 && <PriceVersionSelector/);
-  assert.match(editor, /openVersionModal\("copy", activeVersion\)\}>创建价格版本<\/Button>/);
+  assert.match(editor, /id: "create-price-version", label: "创建价格版本"[\s\S]*openVersionModal\("copy", activeVersion\)/);
   assert.match(baseInfo, /singlePriceVersion \? <FormItem label="数量">/);
   assert.match(baseInfo, /priceVersions: \[\{ \.\.\.singlePriceVersion, quantity \}\]/);
   assert.match(baseInfo, /NullableNumberInput[^>]+aria-label="数量"/);

@@ -1,24 +1,39 @@
 import { defaultBasicSettings, normalizeBasicSettings, type BasicSettingsState } from "../model/basic-settings";
+import {
+  browserLocalDataStore,
+  LEGACY_LOCAL_DATA_KEYS,
+  type LocalDataStore,
+} from "../../data-management/repository/local-data-store.ts";
 
 export const BASIC_SETTINGS_STORAGE_KEY = "zhixu.basic-settings.v1.5";
 export const LEGACY_BASIC_SETTINGS_STORAGE_KEY = "zhixu.basic-settings.v1.3";
+export const BASIC_SETTINGS_STORAGE_NAME = "basic-settings";
+
+export function createBasicSettingsRepository(store: LocalDataStore = browserLocalDataStore) {
+  return {
+    load(): BasicSettingsState {
+      return normalizeBasicSettings(store.initialize(BASIC_SETTINGS_STORAGE_NAME, {
+        seed: () => structuredClone(defaultBasicSettings),
+        legacySources: typeof window === "undefined" ? [] : LEGACY_LOCAL_DATA_KEYS.basicSettings.map((key) => ({ key, storage: window.localStorage })),
+        migrate: (value) => normalizeBasicSettings(value as Partial<BasicSettingsState>),
+      }));
+    },
+    save(state: BasicSettingsState): BasicSettingsState {
+      const normalized = normalizeBasicSettings(state);
+      store.save(BASIC_SETTINGS_STORAGE_NAME, normalized);
+      return normalized;
+    },
+  };
+}
+
+const basicSettingsRepository = createBasicSettingsRepository();
 
 export function loadBasicSettings(): BasicSettingsState {
-  if (typeof window === "undefined") return defaultBasicSettings;
-  try {
-    const current = window.localStorage.getItem(BASIC_SETTINGS_STORAGE_KEY);
-    const legacy = window.localStorage.getItem(LEGACY_BASIC_SETTINGS_STORAGE_KEY);
-    const normalized = normalizeBasicSettings(JSON.parse(current || legacy || "null"));
-    if (!current) window.localStorage.setItem(BASIC_SETTINGS_STORAGE_KEY, JSON.stringify(normalized));
-    return normalized;
-  }
-  catch { return defaultBasicSettings; }
+  return basicSettingsRepository.load();
 }
 
 export function saveBasicSettings(state: BasicSettingsState): BasicSettingsState {
-  const normalized = normalizeBasicSettings(state);
-  if (typeof window !== "undefined") window.localStorage.setItem(BASIC_SETTINGS_STORAGE_KEY, JSON.stringify(normalized));
-  return normalized;
+  return basicSettingsRepository.save(state);
 }
 
 export function createMasterDataId(prefix: string): string {

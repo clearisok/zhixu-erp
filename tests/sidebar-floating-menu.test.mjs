@@ -24,13 +24,14 @@ test("浮层处理视口碰撞、滚动、resize、点击外部和 Esc", async (
   assert.match(source, /event\.key !== "Escape"/);
 });
 
-test("AppShell 展开桌面使用内联子菜单，紧凑桌面使用浮层，Mobile 保留抽屉", async () => {
+test("AppShell Wide/Primary 使用内联子菜单，Compact 使用浮层，Touch 使用统一 Drawer", async () => {
   const source = await read("components/foundation/app-shell.tsx");
   assert.match(source, /SidebarFloatingMenu/);
-  assert.match(source, /systemOpen && viewportMode === "desktop"/);
-  assert.match(source, /open=\{systemOpen && viewportMode !== "desktop" && viewportMode !== "mobile"\}/);
-  assert.match(source, /open=\{basicOpen && viewportMode !== "desktop" && viewportMode !== "mobile"\}/);
-  assert.match(source, /viewportMode === "mobile" && \(basicOpen \|\| systemOpen\)/);
+  assert.match(source, /expandedSidebar = viewportMode === "wide" \|\| viewportMode === "primary"/);
+  assert.match(source, /compactSidebar = viewportMode === "compact"/);
+  assert.match(source, /open=\{systemOpen && compactSidebar\}/);
+  assert.match(source, /open=\{basicOpen && compactSidebar\}/);
+  assert.match(source, /<Drawer open=\{navigationOpen && touchNavigation\}/);
   assert.doesNotMatch(source, /className="ops-nav-flyout"/);
 });
 

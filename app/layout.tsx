@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { BuildInfoIndicator } from "../components/foundation/build-info-indicator";
 import { buildInfo } from "../features/runtime/build-info";
 import { PermissionProvider } from "../features/permissions";
+import { LocalDataBootstrap } from "../features/data-management";
 import "./globals.css";
+import "./quote-center/quote-center.css";
+import "./order-center/order-center.css";
+import "./production-scheduling/production-scheduling.css";
+import "./closing-center/closing-center.css";
+import "./foundation.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
@@ -23,5 +29,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="zh-CN"><body data-build-id={buildInfo.buildId} data-environment={buildInfo.environment}><PermissionProvider>{children}</PermissionProvider><BuildInfoIndicator /></body></html>;
+  return <html lang="zh-CN"><body data-build-id={buildInfo.buildId} data-environment={buildInfo.environment}><LocalDataBootstrap><PermissionProvider>{children}</PermissionProvider></LocalDataBootstrap><BuildInfoIndicator /></body></html>;
 }

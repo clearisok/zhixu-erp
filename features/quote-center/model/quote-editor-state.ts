@@ -1,4 +1,4 @@
-import type { CostLine, FabricCostLine, NullableNumber, OtherCostLine, TrimCostLine } from "./quote-view-model";
+import { createCostLineGroupId, type CostLine, type FabricCostLine, type NullableNumber, type OtherCostLine, type TrimCostLine } from "./quote-view-model.ts";
 
 export type CostCategory = "fabrics" | "trims" | "otherCosts";
 
@@ -9,7 +9,7 @@ export function parseNumberDraft(draft: string): NullableNumber {
 }
 
 export function createEmptyCostLine(id: string): CostLine {
-  return { id, name: "", specification: "", usage: null, unit: "", lossRate: null, unitPrice: null };
+  return { id, lineGroupId: createCostLineGroupId(), name: "", specification: "", usage: null, unit: "", lossRate: null, unitPrice: null };
 }
 
 export function createEmptyOtherCostLine(id: string): OtherCostLine {
@@ -19,6 +19,7 @@ export function createEmptyOtherCostLine(id: string): OtherCostLine {
 export function createEmptyFabricCostLine(id: string): FabricCostLine {
   return {
     id,
+    lineGroupId: createCostLineGroupId(),
     sourceLibraryItemId: null,
     name: "",
     composition: "",

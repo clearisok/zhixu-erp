@@ -93,7 +93,7 @@ test("品牌支持多条默认辅料，带入报价后每条 usage 都保持 nul
   assert.deepEqual(filledVersion.trims.map((item) => item.name), ["主唛", "吊牌"]);
   assert.ok(filledVersion.trims.every((item) => item.usage === null));
   assert.equal(filledVersion.otherCosts[0].unitPrice, 1.25);
-  assert.equal(filled.pricingParameters.usdCnyRate, 7.1);
+  assert.equal(filledVersion.pricingParameters.usdCnyRate, 7.1);
 
   filledVersion.trims[0].unitPrice = 99;
   assert.equal(state.trimLibrary.find((item) => item.id === "trim-main-label").unitPrice, 0.28);
@@ -104,7 +104,7 @@ test("重新应用默认资料只补空字段，不覆盖人工辅料、汇率�
   const quote = createQuoteDraft("manual-v15", "QT-MANUAL", "2026-08-17");
   const revision = getCurrentRevision(quote);
   const version = revision.priceVersions[0];
-  revision.pricingParameters.usdCnyRate = 6.88;
+  version.pricingParameters.usdCnyRate = 6.88;
   version.trims = [{
     id: "manual-trim",
     sourceLibraryItemId: null,
@@ -119,7 +119,7 @@ test("重新应用默认资料只补空字段，不覆盖人工辅料、汇率�
   version.otherCosts = [{ id: "manual-other", name: "手工费用", specification: "", usage: 1, unit: "件", lossRate: 0, unitPrice: 2 }];
 
   const reapplied = applyDefaultsToEmptyQuoteFields(revision, version.id, state, "zara", "sales-linqinghe");
-  assert.equal(reapplied.pricingParameters.usdCnyRate, 6.88);
+  assert.equal(reapplied.priceVersions[0].pricingParameters.usdCnyRate, 6.88);
   assert.equal(reapplied.priceVersions[0].trims[0].name, "手工辅料");
   assert.equal(reapplied.priceVersions[0].trims[0].usage, 0);
   assert.equal(reapplied.priceVersions[0].otherCosts[0].name, "手工费用");

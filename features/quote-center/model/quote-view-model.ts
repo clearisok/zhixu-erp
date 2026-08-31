@@ -22,6 +22,10 @@ export type AttachmentReference = {
 
 export type CostLine = {
   id: string;
+  /** 同一 QuoteRevision 内跨 PriceVersion 对应成本行的稳定关联键。 */
+  lineGroupId?: string;
+  /** 用户明确要求保留为版本独立差异的字段键。 */
+  independentFields?: string[];
   name: string;
   specification: string;
   usage: NullableNumber;
@@ -39,6 +43,10 @@ export type OtherCostLine = CostLine & {
 
 export type FabricCostLine = {
   id: string;
+  /** 同一 QuoteRevision 内跨 PriceVersion 对应成本行的稳定关联键。 */
+  lineGroupId?: string;
+  /** 用户明确要求保留为版本独立差异的字段键。 */
+  independentFields?: string[];
   sourceLibraryItemId: string | null;
   name: string;
   composition: string;
@@ -70,11 +78,31 @@ export type PriceVersionConfirmation = {
   confirmedAt: string | null;
 };
 
+/**
+ * PriceVersion-owned pricing snapshot. It is deliberately self-contained so
+ * later edits to a system ManufacturingPreset cannot change a saved quote.
+ */
+export type PriceVersionPricingParameters = {
+  manufacturingCountry: string;
+  manufacturingPresetId: string | null;
+  manufacturingPresetName: string;
+  laborCurrency: LaborCurrency;
+  usdCnyRate: NullableNumber;
+  markupRate: NullableNumber;
+  includeFreight: boolean;
+  freightName: string;
+  freightAmount: NullableNumber;
+};
+
+/** @deprecated Use PriceVersionPricingParameters. Kept for EstimateCost and v2 migration compatibility. */
+export type QuotePricingParameters = PriceVersionPricingParameters;
+
 export type PriceVersion = {
   id: string;
   name: string;
   quantity: NullableNumber;
   description: string;
+  pricingParameters: PriceVersionPricingParameters;
   fabrics: FabricCostLine[];
   trims: TrimCostLine[];
   labor: LaborCost;
@@ -94,12 +122,6 @@ export type QuoteBaseInfo = {
   fabricLeadDate: string | null;
   garmentLeadDate: string | null;
   note: string;
-};
-
-export type QuotePricingParameters = {
-  laborCurrency: LaborCurrency;
-  usdCnyRate: NullableNumber;
-  markupRate: NullableNumber;
 };
 
 export type EstimateCost = {
@@ -137,7 +159,6 @@ export type QuoteRevision = {
   revisionNote?: string;
   readOnly: boolean;
   baseInfo: QuoteBaseInfo;
-  pricingParameters: QuotePricingParameters;
   priceVersions: PriceVersion[];
   imageAttachmentIds: string[];
   fileAttachmentIds: string[];
@@ -166,6 +187,9 @@ export type SelectOption = { value: string; label: string; keywords?: string };
 
 export const BASE_PRICE_VERSION_NAME = "基础价格";
 
+export const createCostLineGroupId = () => globalThis.crypto?.randomUUID?.()
+  ?? `line-group-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
 export function normalizeSinglePriceVersionName(priceVersions: PriceVersion[]): PriceVersion[] {
   if (priceVersions.length !== 1 || priceVersions[0].name === BASE_PRICE_VERSION_NAME) return priceVersions;
   return [{ ...priceVersions[0], name: BASE_PRICE_VERSION_NAME }];
@@ -183,7 +207,7 @@ export function createQuoteDraft(
   id: string,
   quoteCode: string,
   today: string,
-  defaults?: { markupRate?: NullableNumber; laborCurrency?: LaborCurrency; usdCnyRate?: NullableNumber; laborDescription?: string },
+  defaults?: { manufacturingCountry?: string; manufacturingPresetId?: string | null; manufacturingPresetName?: string; markupRate?: NullableNumber; laborCurrency?: LaborCurrency; usdCnyRate?: NullableNumber; laborDescription?: string; includeFreight?: boolean; freightName?: string; freightAmount?: NullableNumber },
 ): Quote {
   return {
     id,
@@ -219,16 +243,22 @@ export function createQuoteDraft(
         garmentLeadDate: null,
         note: "",
       },
-      pricingParameters: {
-        laborCurrency: defaults?.laborCurrency ?? "CNY",
-        usdCnyRate: defaults?.usdCnyRate ?? null,
-        markupRate: defaults?.markupRate ?? null,
-      },
       priceVersions: [{
         id: `${id}-price-default`,
         name: BASE_PRICE_VERSION_NAME,
         quantity: null,
         description: "",
+        pricingParameters: {
+          manufacturingCountry: defaults?.manufacturingCountry ?? "",
+          manufacturingPresetId: defaults?.manufacturingPresetId ?? null,
+          manufacturingPresetName: defaults?.manufacturingPresetName ?? "",
+          laborCurrency: defaults?.laborCurrency ?? "CNY",
+          usdCnyRate: defaults?.usdCnyRate ?? null,
+          markupRate: defaults?.markupRate ?? null,
+          includeFreight: defaults?.includeFreight ?? false,
+          freightName: defaults?.freightName ?? "运费",
+          freightAmount: defaults?.freightAmount ?? null,
+        },
         fabrics: [],
         trims: [],
         labor: { value: null, description: defaults?.laborDescription ?? "" },

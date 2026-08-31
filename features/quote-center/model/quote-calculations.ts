@@ -33,18 +33,33 @@ export function fabricGrossWidthCm(netWidthCm: NullableNumber): number {
   return numberOrZero(netWidthCm) + 5;
 }
 
+export const FABRIC_CONSUMPTION_DECIMALS = 4;
+
+/** Decimal half-up normalization for non-negative ERP quantities. */
+export function roundTo(value: number, decimals: number): number {
+  if (!Number.isFinite(value)) return value;
+  const factor = 10 ** decimals;
+  return Math.round((value + Number.EPSILON) * factor) / factor;
+}
+
+export function normalizeFabricConsumption(value: number): number {
+  return roundTo(value, FABRIC_CONSUMPTION_DECIMALS);
+}
+
 export function fabricConsumptionKg(line: Pick<FabricCostLine, "segmentLengthCm" | "netWidthCm" | "gsm" | "lossRate">): number {
-  return (
+  const rawConsumption = (
     numberOrZero(line.segmentLengthCm)
     * fabricGrossWidthCm(line.netWidthCm)
     * numberOrZero(line.gsm)
     / 10_000_000
   ) * (1 + numberOrZero(line.lossRate) / 100);
+  return normalizeFabricConsumption(rawConsumption);
 }
 
 export function fabricConsumptionMeter(line: Pick<FabricCostLine, "segmentLengthCm" | "lossRate">): number {
-  return (numberOrZero(line.segmentLengthCm) / 100)
+  const rawConsumption = (numberOrZero(line.segmentLengthCm) / 100)
     * (1 + numberOrZero(line.lossRate) / 100);
+  return normalizeFabricConsumption(rawConsumption);
 }
 
 export function fabricConsumption(line: FabricCostLine): number {
@@ -75,8 +90,18 @@ export function nullableTotalPriceVersionQuantity(priceVersions: PriceVersion[])
     : totalPriceVersionQuantity(priceVersions);
 }
 
+/** Fixed business coefficient used only when converting USD labor to RMB. */
+export const USD_LABOR_RMB_CONVERSION_FACTOR = 1.13;
+
+export function convertedLaborRmb(value: NullableNumber, currency: LaborCurrency, usdCnyRate: NullableNumber): number {
+  return currency === "USD"
+    ? numberOrZero(value) * numberOrZero(usdCnyRate) * USD_LABOR_RMB_CONVERSION_FACTOR
+    : numberOrZero(value);
+}
+
+/** @deprecated Prefer convertedLaborRmb; retained for existing consumers. */
 export function laborCostInRmb(value: NullableNumber, currency: LaborCurrency, usdCnyRate: NullableNumber): number {
-  return currency === "USD" ? numberOrZero(value) * numberOrZero(usdCnyRate) : numberOrZero(value);
+  return convertedLaborRmb(value, currency, usdCnyRate);
 }
 
 export function applyMarkup(cost: number, markupRate: NullableNumber): number {
@@ -98,14 +123,12 @@ export type PriceVersionMetrics = {
 
 export function calculatePriceVersionMetrics(
   version: PriceVersion,
-  laborCurrency: LaborCurrency,
-  usdCnyRate: NullableNumber,
-  markupRate: NullableNumber,
 ): PriceVersionMetrics {
+  const { laborCurrency, usdCnyRate, markupRate } = version.pricingParameters;
   const fabricCost = sumFabricCosts(version.fabrics);
   const trimCost = sumCostLines(version.trims);
   const otherCost = sumOtherCosts(version.otherCosts);
-  const laborRmb = laborCostInRmb(version.labor.value, laborCurrency, usdCnyRate);
+  const laborRmb = convertedLaborRmb(version.labor.value, laborCurrency, usdCnyRate);
   const preMarkupTotal = fabricCost + trimCost + laborRmb + otherCost;
 
   return {
@@ -135,6 +158,7 @@ export function copyPriceVersion(
     name: input.name,
     quantity: input.quantity,
     description: input.description,
+    pricingParameters: { ...source.pricingParameters },
     fabrics: cloneRows(source.fabrics, "fabric"),
     trims: cloneRows(source.trims, "trim"),
     labor: { ...source.labor },

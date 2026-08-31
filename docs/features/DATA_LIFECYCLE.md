@@ -1,0 +1,106 @@
+# 开发数据保护与非破坏性迁移
+
+## Purpose
+
+保护 Quote Center 在浏览器中的长期验收数据，使页面刷新、HMR、DEV 重启、Production Build、Docker rebuild、Seed 变化和前端 schema 演进均不会自动清空或覆盖用户数据。
+
+## Current behavior
+
+- DEV `127.0.0.1:3001` 与 PROD Docker `127.0.0.1:3000` 继续依靠浏览器 Origin 隔离，不做跨 Origin 共享。
+- 所有可序列化的 Quote Center 数据写入稳定命名空间 `zhixu.erp.local.*`；版本存在 envelope/manifest 的 `schemaVersion` 中，不再通过改 key 升级。
+- 当前正式 `schemaVersion = 9`。v3 将旧 QuoteRevision 级制作参数映射为 PriceVersion 快照；v4 新增 `operations-settings`；v5 新增 `sales-orders`；v6 将多款订单非破坏拆分为单款 SalesOrder；v7 新增 `production-scheduling`；v8 新增 `closing-center`；v9 将旧 ProductionPlan owner 提升为 `ScheduleAssignment.salesOrderId`，保留 Assignment ID，并为缺失的生产地点、日历和运输设置补安全默认。
+- 启动时 `LocalDataBootstrap` 触发一次非破坏性初始化。稳定记录存在时只读取/迁移；稳定记录不存在时优先迁移旧记录；只有两者都不存在时才写一次 Seed。
+- 旧 key 在迁移成功后保留，不由自动流程删除。只有用户在“系统设置 > 数据管理”显式执行全部重置时才清理稳定与旧命名空间。
+- 稳定记录或 manifest 损坏时抛出 `LocalDataCorruptionError`，原始字符串保持不变，不静默回退 Seed。
+
+## Storage map
+
+| 数据 | Repository / service | 当前稳定位置 | 旧迁移来源 |
+| --- | --- | --- | --- |
+| Quote、Revision、PriceVersion、EstimateCost、附件引用 | `mock-quote-repository.ts` | localStorage `zhixu.erp.local.quotes` | sessionStorage `zhixu.quote-center.slice-1.2` |
+| 单款 SalesOrder、交期、数量/价格历史与附件引用 | `order-repository.ts` | localStorage `zhixu.erp.local.sales-orders` | v5 `SalesOrder + OrderItem[]` |
+| ScheduleAssignment、OrderExecutionTracking | `production-scheduling-repository.ts` | localStorage `zhixu.erp.local.production-scheduling` | v8 ProductionPlan 只用于 v9 owner 提升，原 Assignment ID 保留 |
+| ClosingPeriod、ClosingAllocation | `closing-repository.ts` | localStorage `zhixu.erp.local.closing-center` | v7 无此独立记录时初始化空集合 |
+| 品牌、客户业务员、面辅料库 | `basic-settings-repository.ts` | localStorage `zhixu.erp.local.basic-settings` | `zhixu.basic-settings.v1.5`、`v1.3` |
+| 全局报价设置 | `quote-settings.ts` | localStorage `zhixu.erp.local.quote-global-settings` | `zhixu.quote-center.global-settings.v1` 与旧基础设置 |
+| 个人列表偏好 | `quote-settings.ts` | localStorage `zhixu.erp.local.quote-preferences.<userId>` | `zhixu.quote-center.preferences.v1.*`、旧单用户设置 |
+| 用户/角色/权限 | `permission-repository.ts` | localStorage `zhixu.erp.local.permission-state` | `zhixu.permission-state.v1` |
+| 操作日志 | `operation-log-repository.ts` | localStorage `zhixu.erp.local.operation-logs` | `zhixu.operation-logs.v1` |
+| 最近搜索 | `recent-search-repository.ts` | localStorage `zhixu.erp.local.recent-search` | `zhixu.global-search.recent.v1` |
+| 模板默认指针 | `indexeddb-template-repository.ts` | localStorage `zhixu.erp.local.template-default` | `zhixu.template-settings.default.quote_customer` |
+| 附件 metadata + Blob | `indexeddb-attachment-repository.ts` | IndexedDB `zhixu-quote-attachments / attachments` | 名称不变，无清库迁移 |
+| 用户模板 metadata + Blob | `indexeddb-template-repository.ts` | IndexedDB `zhixu-export-templates / templates` | 名称不变，无清库迁移 |
+
+每个 localStorage 业务记录使用：
+
+```ts
+{
+  schemaVersion: 9,
+  initializedAt: string,
+  updatedAt: string,
+  data: unknown
+}
+```
+
+manifest 记录 product、schemaVersion、environment、initializedAt 和 updatedAt。
+
+## Migration rules
+
+1. 读取稳定 key；若存在则校验 envelope 和版本。
+2. 稳定 key 不存在时依次检查该模块已登记的旧 key。
+3. 旧记录解析和模块 normalize 成功后，先写稳定 envelope；不删除旧记录。
+4. 两类记录都不存在时才写入 Seed，并形成 initializedAt。
+5. 后续版本必须以 `v1 -> v2 -> ...` 的迁移函数前进，保留 ID、未知字段及 Quote 内部关系；禁止换 key 规避迁移。
+6. 迁移必须幂等；版本高于当前应用或 JSON 损坏时停止写入。
+7. 报价旧数据来自按标签页隔离的 `sessionStorage`。每个标签页首次访问报价 Repository 时都要检查自己的 legacy 记录：稳定空间只有 Seed 时由真实旧报价替换；稳定空间已有用户数据时以稳定数据为主并补入缺少的 Quote/Revision。成功合并后仅删除该标签页已迁移的 legacy key，不能因其他标签页已先初始化而漏掉旧数据。
+8. v2 报价若只有 `QuoteRevision.pricingParameters`，加载时必须原值复制到该 Revision 的每个 PriceVersion，并从规范化后的新保存结构移除 Revision 级字段；迁移不得读取当前全局制作预设覆盖历史口径。
+9. v3 → v4 不重写已有报价或基础资料 payload；只升级 manifest/envelope 版本并允许新模块在记录不存在时读取安全空默认值。已有未知字段必须原样保留。
+10. v4 → v5 只增加 `sales-orders` 稳定记录能力；已有 records 及未知字段原样保留，重复初始化必须幂等。订单恢复前必须校验每个 OrderItem 的 `currentPriceVersionId` 能命中价格历史，损坏指针不得写入。
+11. v5 → v6 保持 `sales-orders` key：单 Item 保留原 SalesOrder ID/订单号，多 Item 逐款拆单，第一款保留原身份，其余订单复用正式订单号生成规则。Quote 来源、数量/交期/价格历史及附件引用按旧 Item 隔离迁移，child owner 改为 `salesOrderId`。
+12. v5 → v6 建立确定性的旧 Item→新 SalesOrder mapping，用于迁移翻单 `sourceOrderItemId`；新 Runtime Domain 不保留 OrderItem。坏指针、重复 ID、空 items 或 owner 损坏会停止迁移并保留原始 record，禁止 fallback、Seed 或全局清空。
+13. v6 → v7 只增加 `production-scheduling` 稳定记录；v7 → v8 只增加 `closing-center` 稳定记录。已有 records、未知字段与时间戳原样保留，旧备份没有新记录时初始化安全空集合。
+
+## Test isolation
+
+- 浏览器 DEV/PROD 依靠 Origin 隔离。
+- Repository 单元测试注入内存 Storage，并使用 `zhixu.erp.test` 或测试专用 namespace。
+- 测试清理只允许 `clearNamespace()` 清测试 namespace；不得执行 `localStorage.clear()`、`indexedDB.deleteDatabase()` 或读取真实 DEV 浏览器存储。
+
+## Backup and restore
+
+“系统设置 > 数据管理”提供 JSON 备份：
+
+- 元数据：`backupVersion`、`schemaVersion`、`createdAt`、`environment`、`origin`、`namespace`。
+- localRecords：稳定命名空间内的完整 envelope 字符串。
+- `operations-settings` 与其他稳定记录一样自动进入 `localRecords`，恢复旧备份中没有该记录时使用安全空默认值，不覆盖其他业务记录。
+- `sales-orders` 与其内部交期、数量变化、价格版本和当前价格指针作为一个稳定记录自动进入 `localRecords`；新备份保存 v6 单款结构。旧 v5 备份在替换当前数据前执行同一提升/拆单迁移并整体校验；附件 Blob 仍由 attachments 区域独立备份，不复制进订单 JSON。
+- `production-scheduling` 与 `closing-center` 都作为独立稳定记录进入 `localRecords`。恢复关账前校验 ClosingPeriod 唯一性、SalesOrder owner、可选 ScheduleAssignment 引用与当前 schema；任何关系损坏都会在覆盖当前数据前拒绝恢复。
+- attachments：附件 metadata 与 Blob（Base64 仅存在于用户主动下载的备份 JSON，不写回 localStorage）。
+- templates：用户模板 definition 与 Blob；内置模板不重复备份。
+
+恢复前校验产品、备份版本、schemaVersion、记录 key、JSON 和文件大小。恢复会先保留当前内存快照，任一写入失败时回滚 localStorage、附件和模板。成功后刷新页面以清除 Repository 内存缓存。
+
+## Reset
+
+“重置全部本地业务数据”是唯一清空入口，需要：
+
+1. 管理系统设置权限；
+2. 打开危险操作 Modal；
+3. 完整输入 `重置全部本地业务数据`；
+4. 再次点击确认。
+
+启动、HMR、Build、`scripts/rebuild-local.ps1`、`scripts/rebuild-local-clean.ps1` 和 Docker rebuild 都不会调用 Reset。`clean` 只指构建缓存。
+
+## Important constraints
+
+- 不改变 Quote、QuoteRevision、PriceVersion、EstimateCost 或成本公式。
+- 不把附件 Base64 写入业务 localStorage。
+- 不绕过 Repository 让业务组件直接访问 IndexedDB。
+- 不自动让 3000/3001 共用数据；需要复制时使用导出/导入。
+- 迁移失败不得以 Reset 处理，也不得用 Seed 覆盖。
+
+## Known gaps
+
+- 这是单浏览器、单 Origin 的开发期持久化，不是服务端事务数据库或跨设备同步。
+- localStorage 与两个 IndexedDB database 之间无法形成真正的跨存储原子事务；当前恢复以预校验、内存快照和失败回滚降低风险。
+- 大量附件会使 JSON 备份体积较大；未来对象存储阶段应升级为流式归档格式。

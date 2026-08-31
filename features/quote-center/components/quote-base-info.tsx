@@ -11,6 +11,10 @@ type QuoteBaseInfoProps = {
   salespersonOptions: SelectOption[];
   onBrandChange: (value: string, option: SelectOption) => void;
   onSalespersonChange: (value: string, option: SelectOption) => void;
+  onCreateBrand?: (query: string) => void;
+  onCreateSalesperson?: (query: string) => void;
+  canCreateBrand?: boolean;
+  canCreateSalesperson?: boolean;
   onChange: (revision: QuoteRevision) => void;
   styleImage: { url: string; name: string } | null;
   onStyleImagePreview: () => void;
@@ -18,7 +22,7 @@ type QuoteBaseInfoProps = {
   readOnlyLabel?: string;
 };
 
-export function QuoteBaseInfo({ revision, brandOptions, salespersonOptions, onBrandChange, onSalespersonChange, onChange, styleImage, onStyleImagePreview, readOnly = false, readOnlyLabel = "历史只读" }: QuoteBaseInfoProps) {
+export function QuoteBaseInfo({ revision, brandOptions, salespersonOptions, onBrandChange, onSalespersonChange, onCreateBrand, onCreateSalesperson, canCreateBrand = false, canCreateSalesperson = false, onChange, styleImage, onStyleImagePreview, readOnly = false, readOnlyLabel = "历史只读" }: QuoteBaseInfoProps) {
   const base = revision.baseInfo;
   const setBase = (patch: Partial<typeof base>) => onChange({ ...revision, baseInfo: { ...base, ...patch } });
   const singlePriceVersion = revision.priceVersions.length === 1 ? revision.priceVersions[0] : null;
@@ -29,8 +33,8 @@ export function QuoteBaseInfo({ revision, brandOptions, salespersonOptions, onBr
   };
 
   return <Card className="qc-base-card"><header><div><span className="qc-section-index">01</span><div><h2>报价基础信息</h2><p>报价版本保存整张报价快照；数量在各价格版本中独立维护。</p></div></div><span className="qc-revision-chip">{revision.revisionLabel} · {readOnly ? readOnlyLabel : "当前编辑"}</span></header><div className="qc-base-layout"><fieldset disabled={readOnly} className="qc-base-fields qc-readonly-fieldset"><div className="qc-form-grid">
-    <FormItem label="品牌" required><SearchableSelect value={base.brandId} options={brandOptions} onChange={onBrandChange} /></FormItem>
-    <FormItem label="客户业务员" required><SearchableSelect value={base.salespersonId} options={salespersonOptions} onChange={onSalespersonChange} /></FormItem>
+    <FormItem label="品牌" required><SearchableSelect value={base.brandId} options={brandOptions} onChange={onBrandChange} createAction={!readOnly && onCreateBrand ? { label: (query) => `＋ 新建品牌「${query}」`, onCreate: onCreateBrand, disabled: !canCreateBrand, disabledLabel: "暂无创建品牌权限" } : undefined} /></FormItem>
+    <FormItem label="客户业务员" required><SearchableSelect value={base.salespersonId} options={salespersonOptions} onChange={onSalespersonChange} placeholder={base.brandId ? "请选择客户业务员" : "请先选择品牌"} disabled={readOnly || !base.brandId} createAction={!readOnly && base.brandId && onCreateSalesperson ? { label: (query) => `＋ 新建客户业务员「${query}」`, onCreate: onCreateSalesperson, disabled: !canCreateSalesperson, disabledLabel: "暂无创建客户业务员权限" } : undefined} /></FormItem>
     <FormItem label="报价款号" required><input className="qc-control" value={base.quoteStyleNo} onChange={(event) => setBase({ quoteStyleNo: event.target.value })} placeholder="例如 ZRM-26AW-0418" /></FormItem>
     <FormItem label="款式名称" required><input className="qc-control" value={base.styleName} onChange={(event) => setBase({ styleName: event.target.value })} placeholder="请输入款式名称" /></FormItem>
     {singlePriceVersion ? <FormItem label="数量"><NullableNumberInput className="qc-control" min="0" aria-label="数量" placeholder="请输入数量" value={singlePriceVersion.quantity} onValueChange={setSingleQuantity} /></FormItem> : <FormItem label="总数量" hint="由各价格版本数量自动汇总"><div className="qc-control qc-readonly-value qc-quantity-summary" aria-label="总数量"><strong>{totalQuantity === null ? "—" : totalQuantity.toLocaleString()}</strong><span>件</span></div></FormItem>}

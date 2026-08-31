@@ -52,10 +52,9 @@ export function removePriceVersion(revision: QuoteRevision, priceVersionId: stri
 
 export function applyCustomerConfirmation(quote: Quote, priceVersionId: string, confirmedLaborPrice: number, confirmedGarmentPrice: number | null, note: string): Quote {
   const current = getCurrentRevision(quote);
-  const pricing = current.pricingParameters;
   const versions = current.priceVersions.map((version) => {
     if (version.id !== priceVersionId) return version;
-    const metrics = calculatePriceVersionMetrics(version, pricing.laborCurrency, pricing.usdCnyRate, pricing.markupRate);
+    const metrics = calculatePriceVersionMetrics(version);
     const confirmation: PriceVersionConfirmation = {
       quotedGarmentPrice: metrics.garmentSellingPrice,
       confirmedGarmentPrice,

@@ -7,6 +7,8 @@ import {
   fabricConsumptionMeter,
   fabricCostAmount,
   fabricGrossWidthCm,
+  normalizeFabricConsumption,
+  roundTo,
   sumFabricCosts,
 } from "../features/quote-center/model/quote-calculations.ts";
 import { createEmptyFabricCostLine } from "../features/quote-center/model/quote-editor-state.ts";
@@ -33,8 +35,8 @@ const fabricLine = (overrides = {}) => ({
 test("KG 面料使用净门幅加 5cm，并按克重和损耗计算单耗", () => {
   const line = fabricLine();
   assert.equal(fabricGrossWidthCm(line.netWidthCm), 150);
-  closeTo(fabricConsumptionKg(line), 0.383778);
-  closeTo(fabricConsumption(line), 0.383778);
+  closeTo(fabricConsumptionKg(line), 0.3838);
+  closeTo(fabricConsumption(line), 0.3838);
 });
 
 test("米制面料先把段长从 cm 转为 m，再计算损耗", () => {
@@ -46,9 +48,27 @@ test("米制面料先把段长从 cm 转为 m，再计算损耗", () => {
 test("面料成本始终等于单耗乘单价，汇总不会重复计算损耗", () => {
   const kg = fabricLine();
   const meter = fabricLine({ id: "fabric-row-2", purchaseUnit: "meter" });
-  closeTo(fabricCostAmount(kg), 9.018783);
+  closeTo(fabricCostAmount(kg), 9.0193);
   closeTo(fabricCostAmount(meter), 33.4029);
-  closeTo(sumFabricCosts([kg, meter]), 42.421683);
+  closeTo(sumFabricCosts([kg, meter]), 42.4222);
+});
+
+test("面料单耗在计算边界按第五位四舍五入为四位正式业务值", () => {
+  assert.equal(normalizeFabricConsumption(0.7263827), 0.7264);
+  assert.equal(normalizeFabricConsumption(0.72634), 0.7263);
+  assert.equal(normalizeFabricConsumption(0.72635), 0.7264);
+  assert.equal(normalizeFabricConsumption(0.726349999), 0.7263);
+  assert.equal(normalizeFabricConsumption(0.99995), 1);
+  assert.equal(roundTo(0.7, 4), 0.7);
+});
+
+test("kg 与 meter 单耗及成本共用四位正式值", () => {
+  const kg = fabricLine();
+  const meter = fabricLine({ purchaseUnit: "meter", segmentLengthCm: 123.4567, lossRate: 0 });
+  assert.equal(fabricConsumption(kg), 0.3838);
+  assert.equal(fabricCostAmount(kg), 0.3838 * 23.5);
+  assert.equal(fabricConsumption(meter), 1.2346);
+  assert.equal(fabricCostAmount(meter), 1.2346 * 23.5);
 });
 
 test("面料人工数字保持 null 与 0 两种状态，preview 可按相同无损耗结果计算", () => {

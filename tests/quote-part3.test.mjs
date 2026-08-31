@@ -81,9 +81,9 @@ test("多价格版本列表展示区间或 n/m 确认，不静默读取第一项
 test("空值展示为破折号，用户明确输入 0 才显示 0.00", () => {
   const revision = getCurrentRevision(createQuoteDraft("null-zero", "QT-NULL", "2026-08-21"));
   const version = revision.priceVersions[0];
-  assert.equal(nullablePriceVersionMetrics(version, revision).laborInput, null);
+  assert.equal(nullablePriceVersionMetrics(version).laborInput, null);
   version.labor.value = 0;
-  assert.equal(nullablePriceVersionMetrics(version, revision).laborInput, 0);
+  assert.equal(nullablePriceVersionMetrics(version).laborInput, 0);
 });
 
 test("编辑页术语、历史只读、校验摘要与 Dirty Guard 接线存在", async () => {

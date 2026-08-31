@@ -1,12 +1,13 @@
-import type {
-  FabricCostLine,
-  FabricPurchaseUnit,
-  LaborCurrency,
-  NullableNumber,
-  OtherCostLine,
-  QuoteRevision,
-  TrimCostLine,
-} from "../../quote-center/model/quote-view-model";
+import {
+  createCostLineGroupId,
+  type FabricCostLine,
+  type FabricPurchaseUnit,
+  type LaborCurrency,
+  type NullableNumber,
+  type OtherCostLine,
+  type QuoteRevision,
+  type TrimCostLine,
+} from "../../quote-center/model/quote-view-model.ts";
 
 export type RecordStatus = "active" | "inactive";
 
@@ -44,6 +45,7 @@ export type TrimLibraryItem = {
 export type DefaultTrimConfig = {
   id: string;
   trimLibraryItemId: string;
+  quantity: NullableNumber;
   overrideLossRate: NullableNumber;
   overrideUnitPrice: NullableNumber;
 };
@@ -94,9 +96,10 @@ const trimItem = (
   unitPrice: number,
 ): TrimLibraryItem => ({ id, name, specification, supplier, unit, defaultLossRate, unitPrice, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME });
 
-const defaultTrim = (id: string, trimLibraryItemId: string, overrides: Partial<Pick<DefaultTrimConfig, "overrideLossRate" | "overrideUnitPrice">> = {}): DefaultTrimConfig => ({
+const defaultTrim = (id: string, trimLibraryItemId: string, overrides: Partial<Pick<DefaultTrimConfig, "quantity" | "overrideLossRate" | "overrideUnitPrice">> = {}): DefaultTrimConfig => ({
   id,
   trimLibraryItemId,
+  quantity: overrides.quantity ?? null,
   overrideLossRate: overrides.overrideLossRate ?? null,
   overrideUnitPrice: overrides.overrideUnitPrice ?? null,
 });
@@ -221,7 +224,7 @@ function normalizeDefaultTrim(value: unknown): DefaultTrimConfig | null {
   const id = text(item.id);
   const trimLibraryItemId = text(item.trimLibraryItemId);
   if (!id || !trimLibraryItemId) return null;
-  return { id, trimLibraryItemId, overrideLossRate: validNumber(item.overrideLossRate), overrideUnitPrice: validNumber(item.overrideUnitPrice) };
+  return { id, trimLibraryItemId, quantity: validNumber(item.quantity ?? item.usage), overrideLossRate: validNumber(item.overrideLossRate), overrideUnitPrice: validNumber(item.overrideUnitPrice) };
 }
 
 function uniqueByNormalizedName<T extends { id: string; name: string }>(items: T[]): T[] {
@@ -238,7 +241,7 @@ export function normalizeBasicSettings(value: Partial<BasicSettingsState> | null
   if (!value) return structuredClone(defaultBasicSettings);
   const source = record(value);
   const explicitTrims = Array.isArray(source.trimLibrary) ? source.trimLibrary.map(normalizeTrim).filter((item): item is TrimLibraryItem => item !== null) : [];
-  const trimLibrary = explicitTrims.length ? [...explicitTrims] : structuredClone(defaultBasicSettings.trimLibrary);
+  const trimLibrary = Array.isArray(source.trimLibrary) ? [...explicitTrims] : structuredClone(defaultBasicSettings.trimLibrary);
 
   const normalizeDefaults = (rawValue: unknown, prefix: string): DefaultQuoteConfiguration => {
     const raw = record(rawValue);
@@ -402,12 +405,12 @@ export function customerSalespeopleForBrand(state: BasicSettingsState, brandId: 
   return state.customerSalespeople.filter((item) => item.brandId === brandId && item.status === "active");
 }
 
-export function createFabricCostLineFromLibrary(item: FabricLibraryItem, id: string): FabricCostLine {
-  return { id, sourceLibraryItemId: item.id, name: item.name, composition: item.composition, segmentLengthCm: null, netWidthCm: item.netWidthCm, gsm: item.gsm, lossRate: item.defaultLossRate, supplier: item.supplier, unitPrice: item.unitPrice, purchaseUnit: item.purchaseUnit };
+export function createFabricCostLineFromLibrary(item: FabricLibraryItem, id: string, lineGroupId = createCostLineGroupId()): FabricCostLine {
+  return { id, lineGroupId, sourceLibraryItemId: item.id, name: item.name, composition: item.composition, segmentLengthCm: null, netWidthCm: item.netWidthCm, gsm: item.gsm, lossRate: item.defaultLossRate, supplier: item.supplier, unitPrice: item.unitPrice, purchaseUnit: item.purchaseUnit };
 }
 
-export function createTrimCostLineFromLibrary(item: TrimLibraryItem, id: string, config?: DefaultTrimConfig): TrimCostLine {
-  return { id, sourceLibraryItemId: item.id, name: item.name, specification: item.specification, supplier: item.supplier, usage: null, unit: item.unit, lossRate: config?.overrideLossRate ?? item.defaultLossRate, unitPrice: config?.overrideUnitPrice ?? item.unitPrice };
+export function createTrimCostLineFromLibrary(item: TrimLibraryItem, id: string, config?: DefaultTrimConfig, lineGroupId = createCostLineGroupId()): TrimCostLine {
+  return { id, lineGroupId, sourceLibraryItemId: item.id, name: item.name, specification: item.specification, supplier: item.supplier, usage: config?.quantity ?? null, unit: item.unit, lossRate: config?.overrideLossRate ?? item.defaultLossRate, unitPrice: config?.overrideUnitPrice ?? item.unitPrice };
 }
 
 export function fabricLibraryItemFromCostLine(line: FabricCostLine, id: string, existing?: FabricLibraryItem, now = new Date().toISOString()): FabricLibraryItem {
@@ -425,7 +428,12 @@ export type ResolvedQuoteDefaults = {
   sourceLabel: string;
 };
 
-export function resolveQuoteDefaults(state: BasicSettingsState, brandId: string, salespersonId: string): ResolvedQuoteDefaults {
+export function resolveQuoteDefaults(
+  state: BasicSettingsState,
+  brandId: string,
+  salespersonId: string,
+  systemDefaults: { usdCnyRate: NullableNumber; defaultOtherCost: DefaultOtherCost | null } = state.systemDefaults,
+): ResolvedQuoteDefaults {
   const brand = state.brands.find((item) => item.id === brandId);
   const salesperson = state.customerSalespeople.find((item) => item.id === salespersonId && item.brandId === brandId);
   const trimConfigs = salesperson?.defaults.defaultTrims.length ? salesperson.defaults.defaultTrims : brand?.defaults.defaultTrims ?? [];
@@ -434,25 +442,28 @@ export function resolveQuoteDefaults(state: BasicSettingsState, brandId: string,
     return item ? [createTrimCostLineFromLibrary(item, `resolved-default-trim-${index + 1}`, config)] : [];
   });
   return {
-    usdCnyRate: salesperson?.defaults.defaultUsdCnyRate ?? brand?.defaults.defaultUsdCnyRate ?? state.systemDefaults.usdCnyRate,
+    usdCnyRate: salesperson?.defaults.defaultUsdCnyRate ?? brand?.defaults.defaultUsdCnyRate ?? systemDefaults.usdCnyRate,
     trims,
-    otherCost: salesperson?.defaults.defaultOtherCost ?? brand?.defaults.defaultOtherCost ?? state.systemDefaults.defaultOtherCost,
+    otherCost: salesperson?.defaults.defaultOtherCost ?? brand?.defaults.defaultOtherCost ?? systemDefaults.defaultOtherCost,
     sourceLabel: salesperson?.name ?? brand?.name ?? "系统",
   };
 }
 
 export function defaultOtherCostLine(id: string, value: DefaultOtherCost): OtherCostLine {
-  return { id, name: value.name, amount: value.amount, specification: "基础设置自动带入", usage: 1, unit: "件", lossRate: 0, unitPrice: value.amount, source: "manual" };
+  return { id, lineGroupId: createCostLineGroupId(), name: value.name, amount: value.amount, specification: "基础设置自动带入", usage: 1, unit: "件", lossRate: 0, unitPrice: value.amount, source: "manual" };
 }
 
-export function applyDefaultsToEmptyQuoteFields(revision: QuoteRevision, priceVersionId: string, state: BasicSettingsState, brandId: string, salespersonId: string): QuoteRevision {
-  const defaults = resolveQuoteDefaults(state, brandId, salespersonId);
+export function applyDefaultsToEmptyQuoteFields(revision: QuoteRevision, priceVersionId: string, state: BasicSettingsState, brandId: string, salespersonId: string, systemDefaults?: { usdCnyRate: NullableNumber; defaultOtherCost: DefaultOtherCost | null }): QuoteRevision {
+  const defaults = resolveQuoteDefaults(state, brandId, salespersonId, systemDefaults);
   return {
     ...revision,
-    pricingParameters: { ...revision.pricingParameters, usdCnyRate: revision.pricingParameters.usdCnyRate ?? defaults.usdCnyRate },
     priceVersions: revision.priceVersions.map((version) => version.id !== priceVersionId ? version : ({
       ...version,
-      trims: version.trims.length ? version.trims : defaults.trims.map((item, index) => ({ ...item, id: `${version.id}-default-trim-${index + 1}`, usage: null })),
+      pricingParameters: {
+        ...version.pricingParameters,
+        usdCnyRate: version.pricingParameters.usdCnyRate ?? defaults.usdCnyRate,
+      },
+      trims: version.trims.length ? version.trims : defaults.trims.map((item, index) => ({ ...item, id: `${version.id}-default-trim-${index + 1}` })),
       otherCosts: version.otherCosts.length || defaults.otherCost === null ? version.otherCosts : [defaultOtherCostLine(`${version.id}-default-other`, defaults.otherCost)],
     })),
   };

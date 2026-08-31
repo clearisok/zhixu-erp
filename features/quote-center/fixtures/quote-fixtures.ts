@@ -50,16 +50,17 @@ export const quoteFixtures: Quote[] = [
         garmentLeadDate: "2026-10-18",
         note: "素色与彩条分别核价，包装要求一致。",
       },
-      pricingParameters: { laborCurrency: "USD", usdCnyRate: 7.12, markupRate: 10 },
       priceVersions: [
         {
           id: "quote-001-solid",
           name: "素色",
           quantity: 12000,
           description: "常规精梳棉，单色染色",
+          pricingParameters: { manufacturingCountry: "柬埔寨", manufacturingPresetId: "preset-cambodia", manufacturingPresetName: "柬埔寨制作", laborCurrency: "USD", usdCnyRate: 7.12, markupRate: 10, includeFreight: true, freightName: "运费", freightAmount: null },
           fabrics: [
             {
               id: "solid-fabric-1",
+              lineGroupId: "fixture-group-solid-main-fabric",
               sourceLibraryItemId: "fabric-combed-cotton-a",
               name: "精梳棉 40S",
               composition: "100% Cotton",
@@ -73,6 +74,7 @@ export const quoteFixtures: Quote[] = [
             },
             {
               id: "solid-fabric-2",
+              lineGroupId: "fixture-group-rib-fabric",
               sourceLibraryItemId: "fabric-rib",
               name: "1×1 罗纹",
               composition: "95% Cotton 5% Spandex",
@@ -86,11 +88,11 @@ export const quoteFixtures: Quote[] = [
             },
           ],
           trims: [
-            { id: "solid-trim-1", sourceLibraryItemId: "trim-main-label", name: "主唛", specification: "缎面印字", supplier: "织序辅料", usage: 1, unit: "枚", lossRate: 2, unitPrice: 0.28 },
-            { id: "solid-trim-2", sourceLibraryItemId: "trim-zip-bag", name: "透明自封袋", specification: "28×38cm", supplier: "苏州包装", usage: 1, unit: "个", lossRate: 1, unitPrice: 0.34 },
+            { id: "solid-trim-1", lineGroupId: "fixture-group-main-label", sourceLibraryItemId: "trim-main-label", name: "主唛", specification: "缎面印字", supplier: "织序辅料", usage: 1, unit: "枚", lossRate: 2, unitPrice: 0.28 },
+            { id: "solid-trim-2", lineGroupId: "fixture-group-zip-bag", sourceLibraryItemId: "trim-zip-bag", name: "透明自封袋", specification: "28×38cm", supplier: "苏州包装", usage: 1, unit: "个", lossRate: 1, unitPrice: 0.34 },
           ],
           labor: { value: 2.15, description: "裁剪、车缝、整烫、质检包装" },
-          otherCosts: [{ id: "solid-other-1", name: "管理分摊", amount: 1.25, specification: "单件分摊", usage: 1, unit: "件", lossRate: 0, unitPrice: 1.25 }],
+          otherCosts: [{ id: "solid-other-1", lineGroupId: "fixture-group-management", name: "管理分摊", amount: 1.25, specification: "单件分摊", usage: 1, unit: "件", lossRate: 0, unitPrice: 1.25 }],
           confirmation: { quotedGarmentPrice: 88.2, confirmedGarmentPrice: 88, quotedLaborPrice: 2.15, confirmedLaborPrice: 2.15, note: "客户确认素色报价", confirmedAt: "2026-08-18T10:00:00+08:00" },
         },
         {
@@ -98,9 +100,11 @@ export const quoteFixtures: Quote[] = [
           name: "彩条",
           quantity: 6600,
           description: "彩条面料价格不同，其他工艺同素色",
+          pricingParameters: { manufacturingCountry: "柬埔寨", manufacturingPresetId: "preset-cambodia", manufacturingPresetName: "柬埔寨制作", laborCurrency: "USD", usdCnyRate: 7.12, markupRate: 10, includeFreight: true, freightName: "运费", freightAmount: null },
           fabrics: [
             {
               id: "stripe-fabric-1",
+              lineGroupId: "fixture-group-stripe-main-fabric",
               sourceLibraryItemId: null,
               name: "精梳棉色织彩条",
               composition: "100% Cotton",
@@ -114,6 +118,7 @@ export const quoteFixtures: Quote[] = [
             },
             {
               id: "stripe-fabric-2",
+              lineGroupId: "fixture-group-rib-fabric",
               sourceLibraryItemId: "fabric-rib",
               name: "1×1 罗纹",
               composition: "95% Cotton 5% Spandex",
@@ -127,11 +132,11 @@ export const quoteFixtures: Quote[] = [
             },
           ],
           trims: [
-            { id: "stripe-trim-1", sourceLibraryItemId: "trim-main-label", name: "主唛", specification: "缎面印字", supplier: "织序辅料", usage: 1, unit: "枚", lossRate: 2, unitPrice: 0.28 },
-            { id: "stripe-trim-2", sourceLibraryItemId: "trim-zip-bag", name: "透明自封袋", specification: "28×38cm", supplier: "苏州包装", usage: 1, unit: "个", lossRate: 1, unitPrice: 0.34 },
+            { id: "stripe-trim-1", lineGroupId: "fixture-group-main-label", sourceLibraryItemId: "trim-main-label", name: "主唛", specification: "缎面印字", supplier: "织序辅料", usage: 1, unit: "枚", lossRate: 2, unitPrice: 0.28 },
+            { id: "stripe-trim-2", lineGroupId: "fixture-group-zip-bag", sourceLibraryItemId: "trim-zip-bag", name: "透明自封袋", specification: "28×38cm", supplier: "苏州包装", usage: 1, unit: "个", lossRate: 1, unitPrice: 0.34 },
           ],
           labor: { value: 2.28, description: "彩条对位、裁剪、车缝、整烫、质检包装" },
-          otherCosts: [{ id: "stripe-other-1", name: "管理分摊", amount: 1.35, specification: "单件分摊", usage: 1, unit: "件", lossRate: 0, unitPrice: 1.35 }],
+          otherCosts: [{ id: "stripe-other-1", lineGroupId: "fixture-group-management", name: "管理分摊", amount: 1.35, specification: "单件分摊", usage: 1, unit: "件", lossRate: 0, unitPrice: 1.35 }],
           confirmation: { quotedGarmentPrice: 95.5, confirmedGarmentPrice: 95.5, quotedLaborPrice: 2.28, confirmedLaborPrice: 2.28, note: "客户确认彩条报价", confirmedAt: "2026-08-18T10:05:00+08:00" },
         },
       ],
@@ -175,16 +180,16 @@ export const quoteFixtures: Quote[] = [
         garmentLeadDate: null,
         note: "加工报价，客供主料。",
       },
-      pricingParameters: { laborCurrency: "CNY", usdCnyRate: 7.12, markupRate: 8 },
       priceVersions: [{
         id: "quote-002-standard",
         name: "基础价格",
         quantity: 8500,
         description: "客供主料，工厂负责辅料与加工",
+        pricingParameters: { manufacturingCountry: "中国", manufacturingPresetId: "preset-china", manufacturingPresetName: "中国制作", laborCurrency: "CNY", usdCnyRate: 7.12, markupRate: 8, includeFreight: false, freightName: "运费", freightAmount: null },
         fabrics: [],
-        trims: [{ id: "standard-trim-1", sourceLibraryItemId: "trim-button-18l", name: "18L 四眼扣", specification: "18L", supplier: "ABC辅料", usage: 3, unit: "粒", lossRate: 3, unitPrice: 0.18 }],
+        trims: [{ id: "standard-trim-1", lineGroupId: "fixture-group-standard-button", sourceLibraryItemId: "trim-button-18l", name: "18L 四眼扣", specification: "18L", supplier: "ABC辅料", usage: 3, unit: "粒", lossRate: 3, unitPrice: 0.18 }],
         labor: { value: 18.6, description: "裁剪、车缝、整烫、质检包装" },
-        otherCosts: [{ id: "standard-other-1", name: "包装", amount: 0.8, specification: "单件包装", usage: 1, unit: "件", lossRate: 0, unitPrice: 0.8 }],
+        otherCosts: [{ id: "standard-other-1", lineGroupId: "fixture-group-standard-packaging", name: "包装", amount: 0.8, specification: "单件包装", usage: 1, unit: "件", lossRate: 0, unitPrice: 0.8 }],
         confirmation: null,
       }],
       imageAttachmentIds: [],

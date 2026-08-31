@@ -94,7 +94,7 @@ function otherCostOrNull(line: OtherCostLine): number | null {
 }
 
 export function mapPriceVersionForExport(priceVersion: PriceVersion, revision: QuoteRevision): ExportPriceVersionData {
-  const metrics = nullablePriceVersionMetrics(priceVersion, revision);
+  const metrics = nullablePriceVersionMetrics(priceVersion);
   const fabricRows = priceVersion.fabrics.filter(meaningfulFabric).map((line) => ({
     name: line.name,
     description: fabricDescription(line),
@@ -124,7 +124,7 @@ export function mapPriceVersionForExport(priceVersion: PriceVersion, revision: Q
       quantity: null,
       unitPrice: null,
       estimatedCost: metrics.laborRmb,
-      actualCost: revision.pricingParameters.laborCurrency === "USD" ? priceVersion.labor.value : null,
+      actualCost: priceVersion.pricingParameters.laborCurrency === "USD" ? priceVersion.labor.value : null,
     }]
     : [];
   const otherCostRows = priceVersion.otherCosts.filter(meaningfulOther).map((line) => ({
@@ -151,7 +151,7 @@ export function mapPriceVersionForExport(priceVersion: PriceVersion, revision: Q
       laborRmb: metrics.laborRmb,
       otherCost: metrics.otherCost,
       preMarkupTotal: metrics.preMarkupTotal,
-      markupRate: revision.pricingParameters.markupRate,
+      markupRate: priceVersion.pricingParameters.markupRate,
       garmentSellingPrice,
       finalQuote: formatFinalQuote(garmentSellingPrice),
       customerTargetPrice: null,

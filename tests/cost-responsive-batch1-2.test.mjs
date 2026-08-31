@@ -5,19 +5,20 @@ import { resolveResponsiveMode } from "../components/foundation/responsive.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("R1-R3 成本区域使用独立 Container Query，并定义 Wide / Compact / Narrow 三档", async () => {
+test("R1-R3 成本区域使用内容宽度 Container Query，并定义 Wide / Compact / Narrow 三档", async () => {
   const css = await read("app/quote-center/quote-center.css");
   assert.match(css, /container-name:\s*qc-cost-section/);
-  assert.match(css, /@container qc-cost-section \(max-width:\s*1199px\)/);
+  assert.match(css, /@container qc-cost-section \(max-width:\s*1039px\)/);
   assert.match(css, /@container qc-cost-section \(max-width:\s*699px\)/);
   assert.match(css, /\.qc-cost-wide-renderer\s*\{\s*display:\s*block/);
   assert.match(css, /\.qc-cost-compact-renderer, \.qc-cost-mobile-renderer\s*\{\s*display:\s*none/);
 });
 
-test("R31-R33 报价明细使用 1200 / 700 视口边界且 Compact 不回退宽表", async () => {
+test("R31-R33 报价明细以 1040 内容宽度进入 Wide，窄桌面保持 Compact", async () => {
   const css = await read("app/quote-center/responsive.css");
-  assert.match(css, /@media \(min-width:\s*1200px\)/);
-  assert.match(css, /@media \(min-width:\s*700px\) and \(max-width:\s*1199px\)/);
+  const baseCss = await read("app/quote-center/quote-center.css");
+  assert.match(baseCss, /@container qc-cost-section \(max-width:\s*1039px\)/);
+  assert.match(css, /@media \(min-width:\s*700px\) and \(max-width:\s*1099px\)/);
   assert.match(css, /qc-cost-section \.qc-cost-wide-renderer[^}]*display:\s*none !important/s);
   assert.match(css, /qc-cost-section \.qc-cost-compact-renderer[^}]*display:\s*grid !important/s);
 });
@@ -47,7 +48,7 @@ test("R4-R7 Wide Table 保留现有面料与辅料宽表、固定列和 sticky h
   assert.match(component, /qc-fabric-cost-table/);
   assert.match(component, /qc-trim-cost-table/);
   assert.match(css, /\.qc-erp-cost-table th[^}]*position:\s*sticky/);
-  assert.match(css, /\.qc-fabric-cost-table th:nth-child\(1\)[^}]*position:\s*sticky/s);
+  assert.match(css, /\.qc-fabric-cost-table, \.qc-trim-cost-table, \.qc-other-cost-table[^}]*table-layout:\s*fixed/s);
 });
 
 test("R8-R12 Compact 面料卡完整可编辑并复用同一行 ID、回调和计算函数", async () => {

@@ -17,6 +17,8 @@
 
 四类主数据均有列表查询和维护 UI；品牌、客户业务员支持新增、编辑、删除，客户业务员还支持复制。物料库用于 Quote Center 搜索选择，也允许报价中自由输入。模板设置维护客户报价 Excel 的版本、默认模板和占位符字段。用户权限页面维护第一阶段 mock User / Role / Permission，详细规则见 `PERMISSIONS.md`。
 
+生产组与外发厂虽然从 AppShell 的“基础设置”进入，但属于订单及未来排单/关账共用的独立 `operations-settings` 领域，不写入 `BasicSettingsState`；关账设置位于系统设置。详细边界见 `OPERATIONS_FOUNDATION.md`。
+
 ## Business rules
 
 - Brand 名称经 NFKC、trim、大小写归一化后唯一。
@@ -49,7 +51,7 @@
 ## API and persistence
 
 - 当前 repository：`features/basic-settings/repository/basic-settings-repository.ts`。
-- 当前存储：`localStorage` key `zhixu.basic-settings.v1.5`。
+- 当前存储：稳定 localStorage `zhixu.erp.local.basic-settings`，`schemaVersion` 位于 envelope；`zhixu.basic-settings.v1.5` / `v1.3` 仅作为非破坏迁移来源。
 - 兼容读取并归一化旧 key `zhixu.basic-settings.v1.3`。
 - 没有真实 API、数据库表或服务端唯一约束。
 
@@ -63,6 +65,8 @@
 - 默认资料应用和品牌/业务员切换保护在基础设置模型服务与 Quote Editor 协同实现。
 - 全局工序说明使用普通 Textarea；同步当前默认 Revision 时保护已单独编辑的内容，历史 Revision 不变。
 - 品牌、客户业务员、面料库、辅料库、模板和全局默认值的 mutation 按权限键控制；无权限操作保持可见 disabled。
+- 品牌和客户业务员表单复用共享 Draft/Fields；默认配置默认折叠。固定辅料选择器引用正式 Trim Library，并允许在当前 Modal 内打开 Drawer 新建辅料后立即选用，上层未保存字段不会丢失。
+- 新建报价中的 Quick Create 复用同一模型校验和 repository：品牌只要求名称，客户业务员固定归属当前品牌；保存失败时弹层保持打开并显示错误。
 
 ## Important constraints
 
@@ -79,6 +83,7 @@
 
 - `tests/basic-settings-v15.test.mjs`
 - `tests/material-libraries.test.mjs`
+- `tests/quick-master-data.test.mjs`
 - Quote Center 中默认资料和成本快照相关测试
 
 覆盖名称唯一性、重复物料名、品牌归属、默认优先级、override、快照隔离和个人列表偏好等规则。

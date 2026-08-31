@@ -2,6 +2,19 @@
 
 本文件只记录可由当前代码、数据库约束或测试确认的规则。根路径 ERP 与 Quote Center 的同名概念有不同口径，未经明确迁移决定不得互相套用。
 
+## 新生产计划与排单路径
+
+- 一张 SalesOrder 只允许一个款式，但可直接拥有多个 ScheduleAssignment；ProductionPlan 已退出正式 Runtime。
+- 内部 Assignment 必须且只能引用稳定 `productionGroupId`，外发 Assignment 必须且只能引用稳定 `outsourceFactoryId`。停用资料不能用于新排单，历史引用继续显示。
+- 订单有效数量、排单数量、完成数量和关账数量是不同事实。订单数量变化不自动调整排单；超排或超完成保留真实值并显示 warning。
+- SalesOrder 不保存执行方式、执行方、排单/完成数量或可编辑生产状态。执行模式、生产状态与全部数量摘要由 Production Scheduling Service 统一投影。
+- 完成数量减少必须有原因；已开工排单更换执行方、切换内部/外发或取消也必须有原因，并写入唯一 OperationLog。
+- DeliveryPlan 是客户交付需求，ScheduleAssignment 是生产安排。多交期风险按日期顺序比较累计需求与预计/实际累计完成量；没有客户交期时不生成虚假风险。
+- OrderExecutionTracking 记录面料、辅料、样品、印绣花和短溢装等轻量状态，并通过稳定 SupplyHub ID 分别保存面料/辅料到仓日期；不复制数量、价格、执行方或排单事实。两类物料都到仓后才形成齐套日。
+- 平均日产属于款式参考，保存在 `SalesOrder.averageDailyOutput`；按日产量排单时写入 Assignment 快照并推导工作日。工作日模式只把工作日作为权威输入，不反写订单参考日产。
+- 内部生产组按可编辑 ProductionCalendar 串行排队；上一款结束日等于下一款交接开始日，但交接日不计入完整生产工作日。实际完成日期不覆盖计划结束日期，自动顺排前必须预览并确认。
+- 运输建议由 SupplyHub、SupplyRoute、ProductionSite 与 TransportMode 投影；封样提前期来自 ProductionSite，推荐满足最晚到厂日的最慢可行运输方式，建议不创建物流订单且不修改排期。
+
 ## 根路径 ERP
 
 ### 角色与权限
@@ -30,6 +43,14 @@
 
 ## Quote Center
 
+### 开发数据保护
+
+- DEV `127.0.0.1:3001` 中由用户创建的浏览器业务数据属于长期验收数据；除非用户在数据管理页显式二次确认重置，否则刷新、HMR、Server 重启、Build、Docker rebuild、schema 迁移和 Seed 变化不得删除或覆盖。
+- Seed 只在稳定数据和所有已登记旧数据都不存在时执行一次；非空数据空间不得因默认 fixture 变化重新 Seed。
+- Quote Center 浏览器 schema 只能向前迁移，不得通过更换 storage key、IndexedDB database name 或 object store name让旧数据不可见。
+- 3000 与 3001 是不同 Origin，默认不共享浏览器数据；复制验收数据必须使用显式备份/恢复。
+- 自动化测试只使用注入的 test namespace，不得清理或读写 DEV 浏览器数据。
+
 ### 第一阶段账号与权限
 
 - Quote Center mock 权限采用 User -> Role -> Permission；业务授权只判断稳定权限键，不判断角色名称。
@@ -42,17 +63,54 @@
 
 ### 操作日志
 
+- 正式前端审计类型统一为 `OperationLog`。品牌、客户业务员、系统报价设置和制作预设保存成功后均追加字段级日志；PriceVersion 选择制作预设与全局预设维护必须是不同动作。
+- 批量导出日志必须保留全部所选款式的最小业务快照清单及相关 PriceVersion，不得仅记录数量，也不得存入整个 Quote、附件或工作簿 Blob。
+
 - Quote Center 操作日志是独立追加记录，不进入 Quote、QuoteRevision 或 PriceVersion，也不替代 Revision 历史。
 - 日志只在报价保存成功后依据上一次已保存快照生成；未保存的输入不产生操作记录。
 - 日志记录稳定 `userId` 和操作时的 `userName` 快照，并以 `quoteId` 聚合该报价下的 Revision、PriceVersion、成本和附件行为。
+- 新生成的报价日志同时保存 Quote 编号/款号/款式名、Revision ID/名称、PriceVersion ID/名称和具体行项目 ID/名称；展示标题必须能区分具体报价快照与品牌/客户业务员默认资料，旧日志缺少字段时明确标为未记录而不是猜测。
 - 当前记录报价创建/保存/删除、报价版本创建/更新/删除、价格版本创建/修改/删除、客户确认、面料/辅料/工价/其他费用修改、图片/文件上传、附件删除、款式图、估算成本、导出、模板和权限管理动作。
 - OperationLog repository 只有追加和读取能力；全局页面与报价详情复用同一数据源，不提供编辑、删除或清空。
+
+## 订单、排单与关账共用基础设施
+
+- `ProductionGroup` 和 `OutsourceFactory` 以稳定 `id` 作为身份；名称不是技术主键，也不设置唯一约束。已被业务引用的资料应停用而不是物理删除，当前 UI 因此只提供启用/停用。
+- 外发厂联系人、电话和备注仍是基础资料字符串；外发厂与生产执行的关联保存在排单分配，并在关账时形成执行方快照，不反向把订单/排单数组塞入外发厂。
+- 默认销售产值税率当前为 `13%`，属于关账设置默认值；创建关账归属时复制当时值，不能让全局设置变化污染已有归属或锁定月份。
+- 月度生产目标按 `YYYY-MM` 唯一维护一条，金额口径为人民币；总加工产值目标和内部加工产值目标均可为空，空值不等于 0。
+- `OrderType` 为 `processing | distribution`，`ExecutionType` 为 `internal | outsource`，关账期间状态为 `open | confirmed | locked`。
+- 订单数量、排单分配数量、实际完成数量与关账数量是四个独立事实，不能互相覆盖；锁定关账后的重新打开必须有 `closing.reopen` 权限和原因。
+
+## 新订单中心
+
+- `SalesOrder` 同时是订单身份和单款执行单位；一张 SalesOrder 只允许一个款式。同一客户 PO 可以对应多张不同订单，但订单号 trim + case normalize 后必须唯一。
+- 订单来源为 `manual | quote | reorder`。报价生成订单时，Quote/Revision/PriceVersion 来源 ID 直接保存在 SalesOrder；翻单只保存 `sourceOrderId` 并生成新的 SalesOrder 与 P1，`sourceOrderItemId` 已废弃。
+- Quote 转单选择明确 Revision 和 PriceVersion，并把款式、执行面辅料、工价、币种、汇率、附件引用等形成订单快照。后续 Quote 修改不得回写订单；执行资料不得携带报价成本、损耗、单耗或利润字段。
+- SalesOrder 有效数量以 `initialQuantity + quantityChanges[]` 计算。`OrderQuantityChange.salesOrderId` 直接归属订单，数量变更追加保存，部分/全部取消必须保留原因与历史；数量变化不会自动改写交期。
+- 客户交期是 SalesOrder 下 0..N 条 `DeliveryPlan`，owner 为 `salesOrderId`。不足、匹配和超额只产生提示，不自动分配或重算。
+- `OrderPriceVersion.salesOrderId` 直接归属 SalesOrder；`SalesOrder.currentPriceVersionId` 是当前成交价格的唯一权威指针，不得按数组位置、版本号或时间推断。
+- 生产关系为 `SalesOrder → ScheduleAssignment[]`；`ClosingAllocation.salesOrderId` 直接关联订单，`scheduleAssignmentId` 可空且必须保持稳定。
+- 订单价格历史是 append-only `OrderPriceVersion[]`，`currentPriceVersionId` 是唯一权威指针；调价必须填写原因，指针损坏时拒绝 fallback。
+- 翻单只继承来源款式当前有效数量、当前价格和执行/附件快照，并以新 P1 开始；不复制来源数量变化、交期或价格历史，也不修改来源订单。
+- 确认订单将状态从草稿变为已确认；确认前执行完整性校验。排单与关账摘要都由对应 Service 从独立事实投影，不在 SalesOrder 保存第二套状态。
+- 订单附件复用 AttachmentRepository 中的 Blob，只保存附件 ID 引用；订单引用存在时，Quote 侧不得删除底层 Blob。
 - 全局操作日志需要 `audit_log.view`；默认只有管理员具备该权限。
 - 当前 localStorage 实现不是生产级不可篡改审计存储；未来服务端必须在业务事务成功后由后端追加。
 
+## 关账中心
+
+- 一个 `ClosingPeriod` 对应一个 `YYYY-MM` 月份，月份唯一；状态流转为开放、已确认、已锁定。已锁定月份拒绝新增、编辑、作废或同步归属，重新打开必须记录操作者、时间和原因。
+- `ClosingAllocation` 直接归属 SalesOrder，可选引用稳定 ScheduleAssignment；没有排单引用的归属计入“待分配”。内部、外发和待分配可在同一订单同一月份并存。
+- 关账保存数量、订单类型、销售单价、加工单价/币种、汇率、税率、执行方以及排单依据快照。基础资料、订单或排单以后变化不能静默污染已保存关账。
+- 加工产值原币 = `quantity × closingProcessingUnitPrice`；CNY 直接计入 RMB，USD 按 `fxRateSnapshot` 折算。经销订单销售产值 = `quantity × closingSalesUnitPriceSnapshot`；加工订单销售产值按含税加工产值计算。
+- 排单的计划量、完成量或执行方发生变化时，开放月份显示 stale；用户只能显式同步快照或确认保留旧快照。确认/锁定阶段不自动同步。
+- 同一订单累计关账量小于有效数量为部分关账，等于为已关账，大于为超额关账；warning 不静默截断真实数量。
+- 关账权限、搜索、订单摘要、OperationLog 与 Backup/Restore 都读取同一 Closing Repository/Service，不建立第二套财务事实。
+
 ### 全局搜索
 
-- 第一阶段全局搜索只返回已保存 Quote Center 报价，搜索字段为报价号、款号、款式名称、品牌和客户业务员。
+- 全局搜索当前接入 Quote、Order、Schedule 与 Closing Provider；关账搜索字段包括月份、订单号、款号、款名、客户和执行方。
 - 报价号保留为内部搜索字段，但搜索结果和最近访问不主动展示报价号。
 - 报价搜索必须经过 `quote.view` 权限；无权限时不得查询 QuoteRepository，也不得从最近访问泄露旧结果。
 - 搜索结果只包含报价列表级身份和导航信息，不包含面辅料、工价、其他费用、估算成本或确认价格。
@@ -78,14 +136,25 @@
 
 ### 计算与空值
 
+- 面料单耗公式不变；kg 与 meter 的原始结果统一按第五位四舍五入为四位正式业务值（例如 `0.7263827 → 0.7264`）。面料成本、UI 和 Excel 必须消费同一个四位值，不能出现“显示四位、计算更多位”的双轨口径。
+
 - 空值与用户明确输入的 0 不等价；展示层不得把未填写成本显示为 `¥0.00`。
 - 辅料及通用成本行：`用量 × 单价 × (1 + 损耗率 / 100)`。
 - 面料毛门幅为 `净门幅 + 5cm`。
 - 千克采购单耗：`段长(cm) × (净门幅 + 5) × 克重 / 10,000,000 × (1 + 损耗率 / 100)`。
 - 米采购单耗：`段长(cm) / 100 × (1 + 损耗率 / 100)`。
 - 面料成本：`单耗 × 单价`。
-- USD 工价按 Revision 中的 USD/CNY 汇率换算为 CNY。
+- USD 工价按当前 PriceVersion 快照中的 USD/CNY 汇率与固定折算系数 `1.13` 换算为 CNY：`USD 工价 × 汇率 × 1.13`；固定系数不等于、也不得替换为 `1 + markupRate`。
+- CNY 工价直接使用用户录入的人民币值，不经过汇率或 USD 固定折算系数。
 - Quote Center 加成口径为 `成本 × (1 + markupRate / 100)`，不得替换成根路径 ERP 的毛利率公式。
+- 内部计算保留原始精度；面向用户的成衣销售单价/最终报价统一截断保留一位小数，不四舍五入，例如 `41.25 -> 41.2`。
+
+### 制作国家与报价预设
+
+- 制作预设是系统级可维护配置，至少包含名称、制作国家、加工币种、成本加成率、是否带运费、运费名称和可空金额；当前 Seed 提供“中国制作（CNY、13%、无运费）”和“柬埔寨制作（USD、5%、带运费）”。
+- 每个 PriceVersion 独立保存预设 ID、预设名称、制作国家、加工币种、USD/CNY 汇率、`markupRate` 与运费策略的完整报价参数快照；同一 Revision 的不同 PriceVersion 可以采用不同制作口径。
+- 应用预设只更新当前 PriceVersion 及其预设专属运费行，不得修改其他 PriceVersion，也不得删除人工费用或其他来源的全局费用。
+- 报价详情只允许为当前 PriceVersion 选择/重新应用制作预设，国家、币种、加成率和运费规则只读；预设内容只能在系统设置维护。系统预设后续变化不得污染已有 PriceVersion 或历史 QuoteRevision。
 
 ### 保存、确认与删除
 
@@ -124,6 +193,7 @@
 - QuoteRevision 保存图片附件 ID、文件附件 ID 和款式图附件 ID；附件不属于 PriceVersion。
 - 款式图只是当前 Revision 某张图片的引用，不复制二进制文件。
 - 第一张成功上传的图片在款式图为空时自动成为款式图，后续图片不自动覆盖。
+- 可编辑 Revision 中的 IndexedDB 图片附件允许修改显示文件名；重命名保留附件 ID、Blob、MIME 和原扩展名，刷新后从 AttachmentRepository 读取新名称，历史只读 Revision 不提供重命名入口。
 - 新 Revision 复制附件引用数组，但不复制底层 Blob；新版本新增附件不影响旧版本。
 - 历史 Revision 只能查看、切换预览和下载，不能上传、删除或修改款式图。
 - 删除当前款式图需要二次确认，确认后 `styleImageAttachmentId` 置空。
@@ -133,11 +203,14 @@
 
 ### 正式 Excel 报价
 
+- 每个 PriceVersion Sheet 独立读取自己的制作预设快照；制作国家标题、加工币种、加成率和加工费结果不得被 Revision 级或实时全局设置覆盖。
+- Excel 面料单耗单元格写入已规范的 number，数值格式固定为 `0.0000`；动态插入行和历史 Revision 导出遵守同一规则。
+
 - 一个 Quote Revision 导出为一个 Workbook；每个被选中的 PriceVersion 导出为独立 Sheet。
 - 历史 Revision 必须从该 Revision 快照导出，不得混入当前 Revision 或当前页面的编辑值。
 - 有未保存修改时不得静默导出为“最新”；用户必须明确选择导出已保存版本或保存并导出。新建报价必须先保存。
 - 面料、辅料、加工费、外协和其他费用区域均允许按实际条数扩展；空值保持空白，明确输入 0 才导出 0。
-- 导出的成本、小计和报价结果使用 Quote Center 现有计算口径；最终报价文字使用 `FOB RMB x.x`。
+- 导出的成本、小计和报价结果使用 Quote Center 现有计算口径；成衣销售单价数值和 `FOB RMB x.x` 最终报价均使用共享的一位小数截断规则。
 - 款式图只引用当前 Revision 的 `styleImageAttachmentId`，不建立第二套图片文件。
 - 加工币种为 CNY 时，Excel 的 RMB/件写原始 CNY 工价且 USD/件留空；加工币种为 USD 时，RMB/件复用系统已计算的人民币工价，USD/件写原始 USD 工价，导出层不得再次乘汇率。
 

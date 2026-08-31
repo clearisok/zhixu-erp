@@ -132,7 +132,7 @@ test("附件 UI 只有图片 Preview，文件列表仅提供下载和删除", as
 
 test("附件 Card 固定在其他费用之后，并保持为最后一个业务 Card", async () => {
   const editor = await readFile(new URL("../features/quote-center/components/quote-editor.tsx", import.meta.url), "utf8");
-  const page = editor.slice(editor.indexOf("return <AppShell"));
+  const page = editor.slice(editor.indexOf('return <AppShell title={isNew ? "新建报价"'));
   const orderedSections = [
     "<FabricCostTable",
     "<TrimCostTable",

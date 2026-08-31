@@ -7,7 +7,7 @@ import type { Quote } from "../model/quote-view-model";
 import { indexedDbAttachmentRepository } from "../repository/indexeddb-attachment-repository";
 import { exportQuoteSummary, exportQuoteZip, type EstimateSummaryColumn, type QuoteSummaryRowMode } from "../export/quote-batch-exporter";
 import { usePermissions } from "@/features/permissions";
-import { createOperationLogDraft, operationLogRepository } from "@/features/operation-logs";
+import { createBatchExportQuoteSnapshots, createOperationLogDraft, operationLogRepository } from "@/features/operation-logs";
 
 export function BatchExportModal({ open, quotes, visibleColumns, onClose }: { open: boolean; quotes: Quote[]; visibleColumns: ListColumnKey[]; onClose: () => void }) {
   const { currentUser } = usePermissions();
@@ -24,14 +24,19 @@ export function BatchExportModal({ open, quotes, visibleColumns, onClose }: { op
     if (!quotes.length || busy) return;
     setBusy(true); setResult("");
     try {
+      const exportQuotes = createBatchExportQuoteSnapshots(quotes);
       if (type === "quote") {
         const outcome = await exportQuoteZip({ quotes, attachmentRepository: indexedDbAttachmentRepository });
+        const failedByQuoteId = new Map(outcome.failed.map((item) => [item.quoteId, item.reason]));
+        const loggedQuotes = exportQuotes.map((quote) => failedByQuoteId.has(quote.quoteId)
+          ? { ...quote, exportStatus: "failed" as const, failureReason: failedByQuoteId.get(quote.quoteId) }
+          : { ...quote, exportStatus: "success" as const });
         setResult(`成功 ${outcome.success}，失败 ${outcome.failed.length}${outcome.failed.length ? `；失败报价：${outcome.failed.map((item) => `${item.quote}（${item.reason}）`).join("、")}` : ""}`);
-        await operationLogRepository.append(createOperationLogDraft({ actor: { userId: currentUser.id, userName: currentUser.name }, module: "报价中心", entityType: "Export", entityId: `batch-quote-${Date.now()}`, action: "批量导出", afterData: { values: { "选择报价数": quotes.length, "成功": outcome.success, "失败": outcome.failed.length } } }));
+        await operationLogRepository.append(createOperationLogDraft({ actor: { userId: currentUser.id, userName: currentUser.name }, module: "报价中心", entityType: "Export", entityId: `batch-quote-${Date.now()}`, action: "批量导出", afterData: { values: { "导出类型": "报价单", "选择报价数": quotes.length, "成功": outcome.success, "失败": outcome.failed.length }, exportQuotes: loggedQuotes } }));
       } else {
         const outcome = await exportQuoteSummary({ quotes, visibleColumns: columns, rowMode, estimateColumns });
         setResult(`已生成 ${outcome.rowCount} 行报价汇总`);
-        await operationLogRepository.append(createOperationLogDraft({ actor: { userId: currentUser.id, userName: currentUser.name }, module: "报价中心", entityType: "Export", entityId: `batch-summary-${Date.now()}`, action: "导出报价汇总表", afterData: { values: { "选择报价数": quotes.length, "导出行数": outcome.rowCount, "行模式": rowMode } } }));
+        await operationLogRepository.append(createOperationLogDraft({ actor: { userId: currentUser.id, userName: currentUser.name }, module: "报价中心", entityType: "Export", entityId: `batch-summary-${Date.now()}`, action: "导出报价汇总表", afterData: { values: { "导出类型": "报价汇总表", "选择报价数": quotes.length, "导出行数": outcome.rowCount, "行模式": rowMode }, exportQuotes } }));
       }
     } catch (error) { setResult(error instanceof Error ? error.message : "批量导出失败"); }
     finally { setBusy(false); }

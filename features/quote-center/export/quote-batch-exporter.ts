@@ -26,10 +26,10 @@ function differenceValue(quote: Quote, priceVersionId?: string): string | number
   const revision = getDefaultRevision(quote);
   if (priceVersionId) {
     const version = revision.priceVersions.find((item) => item.id === priceVersionId);
-    const sales = version ? nullablePriceVersionMetrics(version, revision).garmentSellingPrice : null;
+    const sales = version ? nullablePriceVersionMetrics(version).garmentSellingPrice : null;
     return sales === null ? null : sales - total;
   }
-  const values = revision.priceVersions.map((version) => nullablePriceVersionMetrics(version, revision).garmentSellingPrice).filter((value): value is number => value !== null).map((value) => value - total);
+  const values = revision.priceVersions.map((version) => nullablePriceVersionMetrics(version).garmentSellingPrice).filter((value): value is number => value !== null).map((value) => value - total);
   if (!values.length) return null;
   const min = Math.min(...values), max = Math.max(...values);
   return min === max ? min : `${min.toFixed(2)} - ${max.toFixed(2)}`;
@@ -76,10 +76,10 @@ export async function exportQuoteSummary(input: QuoteSummaryExportInput) {
   return result;
 }
 
-export async function buildQuoteZipBundle(input: { quotes: Quote[]; attachmentRepository: AttachmentRepository; now?: Date; buildQuote?: typeof buildDefaultQuoteRevisionExcel }): Promise<{ success: number; failed: Array<{ quote: string; reason: string }>; fileName: string | null; buffer: Uint8Array | null }> {
+export async function buildQuoteZipBundle(input: { quotes: Quote[]; attachmentRepository: AttachmentRepository; now?: Date; buildQuote?: typeof buildDefaultQuoteRevisionExcel }): Promise<{ success: number; failed: Array<{ quoteId: string; quote: string; reason: string }>; fileName: string | null; buffer: Uint8Array | null }> {
   const JSZip = (await import("jszip")).default;
   const zip = new JSZip();
-  const failed: Array<{ quote: string; reason: string }> = [];
+  const failed: Array<{ quoteId: string; quote: string; reason: string }> = [];
   const now = input.now ?? new Date();
   const usedNames = new Set<string>();
   let success = 0;
@@ -94,7 +94,7 @@ export async function buildQuoteZipBundle(input: { quotes: Quote[]; attachmentRe
       usedNames.add(entryName); zip.file(entryName, result.buffer);
       success += 1;
     } catch (error) {
-      failed.push({ quote: styleNo, reason: error instanceof Error ? error.message : "导出失败" });
+      failed.push({ quoteId: quote.id, quote: styleNo, reason: error instanceof Error ? error.message : "导出失败" });
     }
   }
   if (!success) return { success, failed, fileName: null, buffer: null };
@@ -102,7 +102,7 @@ export async function buildQuoteZipBundle(input: { quotes: Quote[]; attachmentRe
   return { success, failed, fileName, buffer: await zip.generateAsync({ type: "uint8array", compression: "DEFLATE" }) };
 }
 
-export async function exportQuoteZip(input: { quotes: Quote[]; attachmentRepository: AttachmentRepository; now?: Date }): Promise<{ success: number; failed: Array<{ quote: string; reason: string }>; fileName: string | null }> {
+export async function exportQuoteZip(input: { quotes: Quote[]; attachmentRepository: AttachmentRepository; now?: Date }): Promise<{ success: number; failed: Array<{ quoteId: string; quote: string; reason: string }>; fileName: string | null }> {
   const result = await buildQuoteZipBundle(input);
   if (result.buffer && result.fileName) {
     const browserBuffer = new Uint8Array(result.buffer.byteLength);

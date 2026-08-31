@@ -14,13 +14,8 @@ export type NullablePriceVersionMetrics = {
   preMarkupTotal: NullableNumber;
 };
 
-export function nullablePriceVersionMetrics(version: PriceVersion, revision: QuoteRevision): NullablePriceVersionMetrics {
-  const metrics = calculatePriceVersionMetrics(
-    version,
-    revision.pricingParameters.laborCurrency,
-    revision.pricingParameters.usdCnyRate,
-    revision.pricingParameters.markupRate,
-  );
+export function nullablePriceVersionMetrics(version: PriceVersion): NullablePriceVersionMetrics {
+  const metrics = calculatePriceVersionMetrics(version);
   const hasFabric = version.fabrics.some((line) => line.unitPrice !== null);
   const hasTrim = version.trims.some((line) => line.usage !== null && line.unitPrice !== null);
   const hasLabor = version.labor.value !== null;
@@ -57,7 +52,7 @@ export function summarizeRevisionMetric(
   selector: (metrics: NullablePriceVersionMetrics, version: PriceVersion) => NullableNumber,
   formatter: (value: number) => string = (value) => formatMoney(value),
 ): string {
-  return summarizeValues(revision.priceVersions.map((version) => selector(nullablePriceVersionMetrics(version, revision), version)), formatter);
+  return summarizeValues(revision.priceVersions.map((version) => selector(nullablePriceVersionMetrics(version), version)), formatter);
 }
 
 export function priceVersionConfirmationLabel(version: PriceVersion): string {

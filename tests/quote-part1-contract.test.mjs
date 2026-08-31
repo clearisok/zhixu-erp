@@ -54,10 +54,11 @@ test("4/5. Brand 1:N CustomerSalesperson 且报价选择按品牌过滤", () => 
   assert.equal(people.some((person) => person.brandId === "massimo-dutti"), false);
 });
 
-test("6/9. DefaultTrimConfig 引用辅料库且不包含本次报价数量", () => {
+test("6/9. DefaultTrimConfig 引用辅料库并以 nullable quantity 保存固定数量", () => {
   const config = cloneState().brands.find((brand) => brand.id === "zara").defaults.defaultTrims[0];
   assert.equal(typeof config.trimLibraryItemId, "string");
-  assert.equal("quantity" in config, false);
+  assert.equal("quantity" in config, true);
+  assert.equal(config.quantity, null);
   assert.equal("usage" in config, false);
 });
 
@@ -66,6 +67,7 @@ test("7/8. DefaultTrimConfig 的单价与损耗率 override 生效", () => {
   const line = createTrimCostLineFromLibrary(item, "quote-row", {
     id: "config-1",
     trimLibraryItemId: item.id,
+    quantity: null,
     overrideLossRate: 6,
     overrideUnitPrice: 0.88,
   });

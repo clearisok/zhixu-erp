@@ -14,7 +14,7 @@ export function scrollToQuoteSection(sectionId: string): boolean {
   return true;
 }
 
-export function QuoteQuickNavigation({ items }: { items: QuoteQuickNavigationItem[] }) {
+export function QuoteQuickNavigation({ items, presentation = "responsive" }: { items: QuoteQuickNavigationItem[]; presentation?: "responsive" | "dropdown" }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLElement>(null);
 
@@ -41,11 +41,11 @@ export function QuoteQuickNavigation({ items }: { items: QuoteQuickNavigationIte
     scrollToQuoteSection(id);
   };
 
-  return <nav ref={root} className="qc-quick-navigation" aria-label="报价详情快速导航">
-    <div className="qc-quick-navigation-desktop">
+  return <nav ref={root} className={`qc-quick-navigation ${presentation === "dropdown" ? "is-dropdown" : ""}`} aria-label="报价详情快速导航">
+    {presentation === "responsive" && <div className="qc-quick-navigation-desktop">
       <span>快速导航</span>
       {items.map((item) => <button key={item.id} type="button" onClick={() => navigate(item.id)}>{item.label}</button>)}
-    </div>
+    </div>}
     <div className="qc-quick-navigation-mobile">
       <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((current) => !current)}>快速导航 <span aria-hidden="true">⌄</span></button>
       {open && <div className="qc-quick-navigation-menu" role="menu">

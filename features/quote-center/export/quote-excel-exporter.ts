@@ -1,6 +1,7 @@
 import ExcelJS, { type Cell, type Row, type Worksheet } from "exceljs";
 import type { AttachmentRepository } from "../repository/attachment-repository.ts";
 import type { PriceVersion, Quote, QuoteRevision } from "../model/quote-view-model.ts";
+import { truncateFinalQuoteValue } from "../model/final-quote-format.ts";
 import { BUILTIN_FORMAL_TEMPLATE, getDefaultQuoteCustomerTemplate } from "../../template-settings/repository/indexeddb-template-repository.ts";
 import type { TemplateDefinition } from "../../template-settings/model/template-definition.ts";
 import { excelDate, quoteExportFileName, uniqueSheetName } from "./quote-export-formatters.ts";
@@ -222,6 +223,14 @@ function writeBaseInfo(
   revision: QuoteRevision,
   data: ExportPriceVersionData,
 ): void {
+  const titleCell = worksheet.getCell(1, 1);
+  const title = typeof titleCell.value === "string" ? titleCell.value : "";
+  const productionCountry = data.priceVersion.pricingParameters.manufacturingCountry.trim();
+  if (title && productionCountry) {
+    titleCell.value = /（[^）]*）/.test(title)
+      ? title.replace(/（[^）]*）/, `（${productionCountry}）`)
+      : `${title}（${productionCountry}）`;
+  }
   setCellValue(worksheet, mappedPoint(layout.base.brand, plan), revision.baseInfo.brandName || null);
   setCellValue(worksheet, mappedPoint(layout.base.styleName, plan), revision.baseInfo.styleName || null);
   setCellValue(worksheet, mappedPoint(layout.base.garmentLeadDate, plan), excelDate(revision.baseInfo.garmentLeadDate), "yyyy-mm-dd");
@@ -243,7 +252,7 @@ function writeSummary(
     data.summary.markupRate === null ? null : data.summary.markupRate / 100,
     "0%",
   );
-  setCellValue(worksheet, mappedPoint(layout.summary.garmentSellingPrice, plan), data.summary.garmentSellingPrice, MONEY_FORMAT);
+  setCellValue(worksheet, mappedPoint(layout.summary.garmentSellingPrice, plan), data.summary.garmentSellingPrice === null ? null : truncateFinalQuoteValue(data.summary.garmentSellingPrice), "0.0");
   setCellValue(worksheet, mappedPoint(layout.summary.finalQuote, plan), data.summary.finalQuote);
   setCellValue(worksheet, mappedPoint(layout.summary.customerTargetPrice, plan), data.summary.customerTargetPrice, MONEY_FORMAT);
   setCellValue(worksheet, mappedPoint(layout.summary.customerConfirmedPrice, plan), data.summary.customerConfirmedPrice, MONEY_FORMAT);

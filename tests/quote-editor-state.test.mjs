@@ -28,11 +28,14 @@ test("数字编辑中间态可解析但不要求输入框立即格式化", () =>
 test("新报价和新增成本行的人工数字初始为空", () => {
   const quote = createQuoteDraft("draft-test", "QT-TEST", "2026-08-17");
   const revision = quote.revisions[0];
-  assert.equal(revision.pricingParameters.usdCnyRate, null);
-  assert.equal(revision.pricingParameters.markupRate, null);
+  assert.equal(revision.priceVersions[0].pricingParameters.usdCnyRate, null);
+  assert.equal(revision.priceVersions[0].pricingParameters.markupRate, null);
   assert.equal(revision.priceVersions[0].quantity, null);
   assert.equal(revision.priceVersions[0].labor.value, null);
-  assert.deepEqual(createEmptyCostLine("row-1"), {
+  const emptyLine = createEmptyCostLine("row-1");
+  assert.ok(emptyLine.lineGroupId);
+  const businessFields = Object.fromEntries(Object.entries(emptyLine).filter(([key]) => key !== "lineGroupId"));
+  assert.deepEqual(businessFields, {
     id: "row-1", name: "", specification: "", usage: null, unit: "", lossRate: null, unitPrice: null,
   });
 });

@@ -6,7 +6,105 @@
 - **Superseded**：已被新的实现或决定替代，仅保留背景。
 - **Deprecated**：为兼容仍可能存在，但新代码不应继续依赖。
 
+### D-043 ScheduleAssignment 直接归属 SalesOrder，生产计划层退出 Runtime
+
+- 日期：2026-08-28
+- 状态：Active；替代 D-041 的三层关系，但保留其数量分离、混合执行、Service Projection 与权限边界。
+- 决定：正式关系改为 `SalesOrder → ScheduleAssignment[]`。Assignment 保存 `salesOrderId`、队列、工期口径、日产量快照、工作日、计划/实际日期与 dateMode；ProductionPlan 只留在 v8→v9 legacy migration、迁移测试、旧日志兼容和已替代文档。
+- 迁移：v8 ProductionPlan 只用于解析 owner，原 ScheduleAssignment ID 不变，确保 ClosingAllocation.scheduleAssignmentId、锁账快照和产值不变；稳定 namespace 不变，schemaVersion 升为 9。
+- 排期：内部生产组按 ProductionSite 的可编辑 ProductionCalendar 串行排队；同日交接不计完整工作日；manual_fixed、已开工和已完成记录不自动移动。完成后用户明确选择是否重排后续，联动日志共享 operationId。
+- 物流：物料齐套要求面辅料均到 SupplyHub；SupplyRoute/TransportMode 按自然日给出满足时效的最慢运输建议，不反向修改排期。报价 ManufacturingPreset 与实际 ProductionSite 分离。
+- 证据：`features/production-scheduling/`、`features/operations-settings/`、schema v9 migration、订单/排单页面和 `tests/production-scheduling.test.mjs`。
+
 ## Active
+
+### D-042 关账归属保存月度事实快照，锁定后只允许有原因地重开
+
+- 日期：2026-08-28
+- 决定：正式关系为 `SalesOrder → ClosingAllocation[]`，`ClosingAllocation.scheduleAssignmentId` 可空；关账数量独立于订单数量、排单数量和完成数量。内部、外发与待分配可在同一订单、同一月份并存，关账事实不得写回 SalesOrder 或 ScheduleAssignment。
+- 决定：`ClosingAllocation` 在保存时冻结订单类型、销售单价、加工单价/币种、汇率、税率和执行方；加工产值原币为 `quantity × closingProcessingUnitPrice`，USD 按关账汇率快照折算 RMB，经销销售产值为 `quantity × salePriceSnapshot ÷ (1 + taxRateSnapshot / 100) ÷ 10000`，加工订单销售产值不适用。计算集中在 Closing Service。
+- 决定：`ClosingPeriod` 生命周期为 `open → confirmed → locked`。锁定拒绝普通 mutation；重新打开需要 `closing.reopen` 与原因。排单变化不静默改写既有关账，Service 以 ScheduleBasisSnapshot 识别 stale，用户显式同步或保留快照。
+- 决定：浏览器 schema 升至 v8，只新增稳定 `closing-center` record；v7 其他 payload 原样重封装。关账动作复用唯一 OperationLog，权限、SearchProvider、订单投影与 Backup/Restore 同步接入。
+- 边界：不实现应收应付、发票、付款、总账、利润核算或 PostgreSQL 关账表；根路径旧 ERP 数据库不修改。D-041 中“关账尚未实现”的阶段性边界自本决定起被替代，排单领域决定本身继续有效。
+- 证据：`features/closing-center/`、`app/closing-center/`、订单详情关账投影、ClosingSearchProvider、数据生命周期接入和 `tests/closing-center.test.mjs`。
+
+### D-041 排单事实独立于单款 SalesOrder，并由 Service 统一投影（Superseded by D-043）
+
+- 日期：2026-08-28
+- 决定：正式关系为 `SalesOrder → ProductionPlan[] → ScheduleAssignment[]`。Assignment 通过 `productionPlanId` 归属计划，不重复保存 `salesOrderId`；内部执行只引用 ProductionGroup，外发只引用 OutsourceFactory，一单允许多计划、多执行方和内部/外发混合。
+- 决定：SalesOrder 不保存执行方式、执行方、排单数量、完成数量或生产状态。订单有效量、计划量、排单量、内部/外发量、完成量、执行模式、生产状态与 DeliveryPlan 累计交期风险全部通过 `production-scheduling-service.ts` 计算。订单数量变化不自动修改排单，超额只提示不截断。
+- 决定：schema 升至 v7，仅新增稳定 `production-scheduling` record；v6 其他业务 payload 原样重封装。排单动作复用 OperationLog 和现有 schedule 权限，SearchProvider/Backup/Restore 同步接入。停用基础资料不能用于新排单，但历史引用保持可读。
+- 边界：不创建 ClosingPeriod、ClosingAllocation、关账中心、产值计算、锁账或重开；不修改旧 PostgreSQL `orders/schedules/audit_logs`。
+- 证据：`features/production-scheduling/`、`app/production-scheduling/`、订单详情摘要、ScheduleSearchProvider、数据生命周期接入与 `tests/production-scheduling.test.mjs`。
+
+### D-040 一张 SalesOrder 只允许一个款式
+
+- 日期：2026-08-27
+- 状态：Superseded by D-043。数量口径、混合执行、Service Projection、权限与旧 PostgreSQL 隔离继续有效；ProductionPlan 中间层和 Assignment.productionPlanId 已被替代。
+- 决定：SalesOrder 同时承担订单身份与单款执行单位，不再拥有 `OrderItem[]`。Quote 来源、款式、初始数量、执行资料、附件、DeliveryPlan、OrderQuantityChange、OrderPriceVersion 与 `currentPriceVersionId` 均直接属于 SalesOrder；当前价格只能通过该指针读取，损坏时禁止 fallback。
+- 决定：Quote 直接生成 SalesOrder；翻单关系为 `SalesOrder → SalesOrder`，只保留 `sourceOrderId`，`sourceOrderItemId` 正式废弃。相同 `customerPoNo` 可以对应多张不同单款订单，不能因此合并。
+- 决定：v5→v6 的单款 payload 迁移保持有效，稳定 `sales-orders` key 不变；当前整体 schema 已由 D-041 升至 v7。v5 单 Item 保留原订单 ID/订单号，多 Item 逐款拆单；确定性旧 Item→新 SalesOrder mapping 保护翻单链路、诊断和旧日志展示。旧 OperationLog 不改写，新日志不再写 `orderItemId`。
+- 后续：`SalesOrder → ProductionPlan → ScheduleAssignment` 已由 D-041 实现；`ClosingAllocation.salesOrderId` 与可空 `scheduleAssignmentId` 仍只是未来边界。本决策不创建 ClosingPeriod、ClosingAllocation 或关账中心，也不修改旧 PostgreSQL orders/schedules。
+- 证据：`features/order-center/model/order.ts`、`migration/order-v5-to-v6.ts`、Order Service/Repository/UI、OrderSearchProvider、订单日志/备份适配与 `tests/order-center.test.mjs`。
+
+### D-038 订单、排单与关账先共享稳定基础设施，业务实体延后实现
+
+- 日期：2026-08-26
+- 决定：先建立独立 `operations-settings` 领域保存生产组、外发厂、默认销售产值税率和月度生产目标；生产组/外发厂以稳定 ID 引用、允许同名并通过停用保留未来历史引用。浏览器 schema 升至 v4，v3 → v4 只增加独立记录并保留既有 payload 与未知字段。订单、排单和关账权限键先进入统一 RBAC，但报价员和查看员的既有权限不自动扩大。
+- 决定：审计继续扩展唯一的追加式 `OperationLog`，设置写入使用一次业务操作一个 `operationId` 并保存字段级 `changes[]`；新上下文 ID 只作未来关联预留，不新建第二套 `AuditEvent`。未来订单、排单、关账业务对象仍需独立设计和实现。
+- 决定：`OrderType` 复用 `processing | distribution`，执行方式为 `internal | outsource`，关账期间状态为 `open | confirmed | locked`。外发厂引用未来应落在排单分配；订单数量、排单数量、完成数量保持独立。默认税率只作为创建关账快照时的来源，已确认/锁定月份不得实时读取全局设置。
+- 原因：先稳定跨模块身份、权限、审计和数据保护边界，避免未来订单/排单/关账各自复制一套主数据或在没有正式模型时污染现有报价和 PostgreSQL 旧表。
+- 证据：`features/operations-settings/`、`features/shared-domain/model/operations.ts`、权限与 OperationLog 扩展、local data v4 migration、`tests/operations-infrastructure.test.mjs` 和 `docs/features/OPERATIONS_FOUNDATION.md`。
+
+### D-037 面料单耗统一为四位正式业务值，审计日志扩展到设置与批量导出
+
+- 日期：2026-08-26
+- 决定：kg/meter 面料公式先计算原始值，再在 `quote-calculations.ts` 统一按第五位四舍五入到四位；面料成本、UI、正式 Excel 和占位符 Excel 都消费该值。当前架构的单耗是明确的计算派生值，因此不在 FabricCostLine 冗余保存第二份 raw/stored 字段，也不原地改写历史 Revision；历史导出按同一读取规则规范化。Excel 写 number，格式为 `0.0000`。
+- 决定：审计继续使用唯一 `OperationLog`，扩展品牌、客户业务员、系统报价设置、制作预设和 PriceVersion 预设切换事件。批量导出只保存完整的最小业务快照清单，不保存 Quote/Blob 大对象。
+- 原因：单耗必须在成本、显示和导出间可解释一致；关键主数据和系统设置写操作也必须能按稳定 ID 与字段差异追溯。
+- 证据：`quote-calculations.ts`、两个 Excel exporter、`settings-operation-logs.ts`、批量导出日志接线及相关自动化测试。
+
+### D-036 USD 工价人民币折合使用固定 1.13 系数
+
+- 日期：2026-08-26
+- 决定：当 PriceVersion 加工币种为 USD 时，统一由 `convertedLaborRmb` 计算 `原始 USD 工价 × PriceVersion 汇率 × 1.13`；固定 `1.13` 与 PriceVersion 的 `markupRate` 是两个独立业务概念。CNY 工价直接使用用户录入人民币值。详情摘要、Sticky、Excel 和其他消费者读取 calculator 结果，不自行重复公式。
+- 原因：USD 加工单价需要遵循明确的固定折算口径，同时保留各制作预设独立的报价成本加成率，避免两种“13%”语义混淆。
+- 证据：`quote-calculations.ts`、`quote-presentation.ts`、报价摘要/加工费组件、Excel export mapper 和 `tests/quote-calculations.test.mjs`。
+
+### D-035 制作预设与全部报价计算参数属于 PriceVersion 快照
+
+- 日期：2026-08-26
+- 决定：制作预设只在系统设置维护，但 `manufacturingPresetId`、预设名称、制作国家、加工币种、USD/CNY 汇率、`markupRate` 和运费策略均以 `PriceVersion.pricingParameters` 完整快照保存。应用预设只更新当前 PriceVersion 及其预设运费行；复制 PriceVersion 深复制该快照并清除客户确认。计算、展示和 Excel 导出只读取目标 PriceVersion 快照。旧 Revision 级参数仅在 schema v2 → v3 读取迁移时使用，迁移后不再保存。
+- 原因：同一 QuoteRevision 必须同时支持不同制作国家、币种、加成和运费口径，且系统预设后续变化不能污染任一已有或历史 PriceVersion。
+- 证据：`quote-view-model.ts`、`quote-settings.ts`、`quote-calculations.ts`、`mock-quote-repository.ts`、报价设置/导出组件和 `tests/price-version-manufacturing-preset.test.mjs`。
+
+### D-033 面向客户的最终成衣报价统一截断到一位小数
+
+- 日期：2026-08-26
+- 决定：内部成本与成衣销售单价计算保持原始精度；所有面向用户的最终成衣报价显示及客户 Excel 输出统一调用共享 formatter，保留一位小数并使用截断而非四舍五入，例如 `41.25 -> 41.2`。空值继续显示/导出为空，明确 0 显示 `0.0`。
+- 原因：这是客户报价口径，不能由 React、列表和不同 Excel exporter 各自格式化并产生舍入差异。
+- 证据：`features/quote-center/model/final-quote-format.ts`、报价展示组件、`features/quote-center/export/` 和相关测试。
+
+### D-032 Quote Center 浏览器数据采用稳定命名空间与非破坏性迁移
+
+- 日期：2026-08-25
+- 决定：Quote Center 与新订单中心所有可序列化长期数据写入稳定 `zhixu.erp.local.*` localStorage namespace，当前 `schemaVersion = 6`；旧报价 sessionStorage、旧 envelope 和旧带版本 localStorage key 只作为迁移来源。启动时优先读取已有稳定数据，其次迁移旧数据，只有空 namespace 才执行一次 Seed。附件与用户模板继续使用原 IndexedDB database/store，并纳入显式 JSON 备份/恢复。自动流程不删除旧 key，数据清空只允许在数据管理页二次确认执行。v4 增加 `operations-settings`，v5 增加 `sales-orders`，v6 仅迁移多款订单 payload，其他记录不重写。
+- 原因：DEV 3001 已承载长期人工验收数据；sessionStorage、版本化 key 和解析失败后静默回退 Seed 会让数据在关闭标签页、版本升级或数据异常时丢失或看似消失。
+- 证据：`features/data-management/`、各 browser repository、`tests/data-lifecycle.test.mjs`、`docs/features/DATA_LIFECYCLE.md`。
+
+### D-031 Quote Detail 宽表按内容宽度铺满，半屏操作固定四列
+
+- 日期：2026-08-24
+- 决定：成本 Card 实际内容宽度 `>=1040px` 时使用单行 Wide renderer，面料/辅料/其他费用采用 `table-layout: fixed` 与业务权重百分比，不设置会超过 Card 的固定最小宽度；`700–1099px` viewport 保持完整两行 Compact 编辑，True Mobile 规则不变。全部 Compact/Tablet 的普通与 Sticky 操作区使用四列等宽 Grid，只有 `>=1440px` Large Desktop 自然横排。顶部常驻操作移除“操作记录/删除报价”文字按钮，两项能力连同权限和 handler 收进复用的“更多”入口。Sticky 触发状态源与时机不变。AppShell 客户端模式在浏览器绘制前解析，避免服务端 Desktop fallback 在列表/详情切换时闪现展开侧栏。
+- 原因：在 1920×1200、系统/浏览器缩放后的约 1230px CSS viewport 中，实际 Card 只有约 1091px；旧 1230/1160px 固定表宽必然产生无意义横向滚动。半屏操作使用 flex 时也不能稳定控制行密度。
+- 证据：`cost-table.tsx`、`quote-editor.tsx`、`quote-center.css`、`responsive.css`、相关响应式测试及 DEV 浏览器 1920/1230/785 实测。
+
+### D-029 新建报价主数据采用嵌套就地创建与显式保存边界
+
+- 日期：2026-08-24
+- 决定：品牌和当前品牌下的客户业务员通过 SearchableSelect 的条件创建项打开 Quick Create Modal；品牌默认辅料选择器可在 Modal 内继续打开 body Portal Drawer，并把新记录写入正式 Trim Library。只有主数据 repository 在用户明确保存时写入；报价草稿仍遵守 Lazy Create。新建资料立即选中，默认辅料只保存 Library ID 与长期 override，应用报价时再生成新成本行快照。已有用户成本数据时继续使用保留、应用、取消三向保护。
+- 原因：用户需要在新建报价上下文中补齐缺失主数据，同时不能丢失草稿、复制伪 Library 数据、污染历史 Revision 或因快建而产生空白报价。
+- 证据：`components/foundation/searchable-select.tsx`、`components/foundation/drawer.tsx`、`features/basic-settings/components/quick-master-data-create.tsx`、`features/basic-settings/components/master-data-forms.tsx`、`quote-editor.tsx` 和 `tests/quick-master-data.test.mjs`。
 
 ### D-028 ERP 全局搜索使用权限感知的 Provider 注册表
 
@@ -168,13 +266,6 @@
 - 原因：ERP 的窗口宽度不能代表设备类型；Windows/Mac 半屏仍需完整导航、表格和报价操作。
 - 证据：`components/foundation/responsive.ts`、`components/foundation/app-shell.tsx`、`app/globals.css`、`app/quote-center/responsive.css`、`features/quote-center/components/quote-list.tsx`、`tests/responsive-mobile-batch1.test.mjs`。
 
-### D-025 报价明细成本区增加 Desktop Compact 两行栅格
-
-- 日期：2026-08-23
-- 决定：报价明细成本 renderer 使用 `>=1200px` Full、`700–1199px` Desktop Compact、`<700px` Narrow 的视口边界，Card Container Query 继续作为嵌入式回退。Desktop Compact 复用现有完整编辑卡：面料按 `3 + 6`、辅料按 `3 + 4`、其他费用按 `2 + 4` 分成两行并填满可用宽度；Narrow 回落单列。True Mobile 仍由 D-023 决定并保留面辅料轻量摘要。所有 renderer 继续共享 ViewModel、稳定 row ID、回调和计算函数。
-- 原因：半屏窗口的成本 Card 会因 Sidebar 和页面 padding 低于原容器阈值；仅依赖 Card 宽度会让约 700px 的细指针桌面窗口过早进入窄布局。显式视口边界可以保证半屏仍保留高密度完整编辑，同时不改变全局设备识别。
-- 证据：`features/quote-center/components/cost-table.tsx`、`features/quote-center/components/quote-editor.tsx`、`app/quote-center/quote-center.css`、`app/quote-center/responsive.css`、`tests/cost-responsive-batch1-2.test.mjs`。
-
 ### D-026 quoteCode 保留但退出常规业务展示
 
 - 日期：2026-08-24
@@ -205,7 +296,64 @@
 - 决定：搜索结果、最近访问、鼠标点击和 Enter 统一经过 `openSearchResult`；打开前重新检查 Provider 权限。Quote Detail Loader 订阅 query `id` 并以 `Quote.id` 作为 Editor key，确保同路由导航和 Browser Back 都重载正确报价。
 - 证据：Global Search Palette、Quote Detail Loader 和 Batch 4.1 测试。
 
+### D-044 订单详情以款号为主、系统订单号只读
+
+- 日期：2026-08-29
+- 决定：单款 SalesOrder 详情以 `styleNo` 作为主标题，订单号由系统生成并只读弱化；客户 PO 归入单款执行资料。平均日产仅作为排单参考，不在普通订单详情中作为日常编辑字段展示。
+- 原因：订单执行人员首先按款识别工作对象，同时避免系统身份字段被误改。
+
+### D-045 订单详情离开必须保护未保存内容
+
+- 日期：2026-08-29
+- 决定：有未保存修改时，返回列表提供继续编辑、放弃并返回、保存并返回三种选择；保存并返回必须等待持久化成功后再导航。
+- 原因：避免因路由切换丢失订单编辑内容，也避免保存失败后仍离开页面。
+
+### D-046 排单中心采用生产组总览到单组队列的信息架构
+
+- 日期：2026-08-29
+- 决定：主入口先展示每个生产组一张聚合卡，再进入单组高密度队列；未排订单和异常保持独立视图。总览数量随生产组数量增长，不随款式数量成倍膨胀。
+- 原因：生产管理首先按执行组查看负荷和队列，同时仍保留订单与异常入口。
+
+### D-047 排单编辑不暴露内部工期口径
+
+- 日期：2026-08-29
+- 决定：UI 不显示“排期依据”或 `durationMode`。平均日产与所需工作日直接双向联动，以用户最后编辑的字段形成当前输入口径；正式计算仍由排单 Service 完成。
+- 原因：减少内部模型术语对用户的干扰，同时保留两种常用录入方式。
+
+### D-048 报价与订单列表复用统一 Table Preference
+
+- 日期：2026-08-29
+- 决定：列宽偏好通过 Foundation Repository 按 `userId + moduleKey + tableKey` 隔离保存；报价列表和订单列表复用 contract、各自拥有默认值和恢复默认能力。偏好不是业务数据，不写 OperationLog。
+- 原因：统一个人视图能力，同时避免不同模块的列设置互相污染。
+
+### D-049 结束排单将直接记录与队列建议明确分流
+
+- 日期：2026-08-29
+- 决定：首层结束弹窗同时提供“仅记录结束”和“结束并应用建议”；应用建议必须先展示后续排期变更预览，确认后才持久化。两条路径继续共享正式 ScheduleAssignment Service 与统一 OperationLog。
+- 原因：常规结束操作不应被迫经过队列调整，同时任何后续排期移动都必须显式可见。
+
 ## Superseded
+
+### D-039 新订单中心使用 SalesOrder + OrderItem 多款聚合
+
+- 日期：2026-08-27
+- 状态：Superseded by D-040。
+- 旧决定：SalesOrder 承载订单头，OrderItem 承载款式执行事实与 Quote 来源；一张订单允许多款，翻单保存 `sourceOrderItemId`，未来 ProductionPlan/ClosingAllocation 以 OrderItem 为 owner。
+- 替代原因：最新业务规则明确一张 SalesOrder 只允许一个款式。v6 已将 OrderItem 限定为 migration-only `LegacyOrderItem`，所有新 Runtime 关系直接归属 SalesOrder。
+- 历史证据：第三批 v5 模型与 `tests/order-center.test.mjs` 的旧版本；当前迁移器仍能读取该结构。
+
+### D-034 制作国家预设形成 Revision 报价参数与费用快照
+
+- 日期：2026-08-26
+- 状态：Superseded by D-035。
+- 原决定：制作国家、预设 ID、加工币种和加成率保存在 QuoteRevision，并把预设运费同步到全部 PriceVersion。
+- 替代原因：同一 Revision 的并列 PriceVersion 需要独立制作国家、币种、加成率和运费，Revision 级口径会互相覆盖。
+
+### D-S05 报价明细以 1200/700 纯 viewport 选择 Full/Compact
+
+- 原状态：D-025 使用 `>=1200px` Full、`700–1199px` Desktop Compact，并以 Container Query 作为回退。
+- 替代：D-031 让 Card 实际内容宽度决定 Wide，并只用 `700–1099px` 保护半屏完整编辑。
+- 处理：保留 D-025 的 Compact `3 + 6`、`3 + 4`、`2 + 4` 分组、共享 ViewModel/row ID/回调/公式及 True Mobile 边界；替换会在缩放后桌面制造横向滚动的固定 viewport/表宽规则。
 
 ### D-S04 成本 renderer 只由 Card 容器宽度决定
 

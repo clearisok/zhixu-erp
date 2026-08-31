@@ -64,6 +64,17 @@ export function validateRevisionUpdate(revision: QuoteRevision): QuoteValidation
   ]);
 }
 
+/** 新建页只校验建立报价工作区所需的最小上下文；成本完整性仍由详情工作区的正式节点校验负责。 */
+export function validateQuoteCreation(revision: QuoteRevision): QuoteValidationResult {
+  const issues = [...validateBaseInfo(revision)];
+  for (const version of revision.priceVersions) {
+    const common = { priceVersionId: version.id };
+    if (!version.name.trim()) issues.push({ ...common, code: "priceVersion.name.required", message: "请填写初始价格方案名称", target: "price-versions" });
+    if (version.quantity === null) issues.push({ ...common, code: "priceVersion.quantity.required", message: `${version.name || "初始价格方案"}：请填写数量`, target: "price-versions" });
+  }
+  return result(issues);
+}
+
 export function validateCustomerConfirmation(
   revision: QuoteRevision,
   version: PriceVersion,

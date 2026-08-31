@@ -96,12 +96,12 @@ export function GlobalSearchPalette({ open, context, onClose, onNavigate }: { op
 
   return createPortal(<div className="qc-global-search-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
     <section className="qc-global-search-palette" role="dialog" aria-modal="true" aria-label="全局搜索" onKeyDown={onKeyDown}>
-      <header className="qc-global-search-input-row"><span aria-hidden="true">⌕</span><input ref={inputRef} value={query} onChange={(event) => { setQuery(event.target.value); if (!event.target.value.trim()) setActiveIndex(recent.length ? 0 : -1); }} placeholder="搜索报价号、款号、款式、品牌或客户业务员" aria-label="全局搜索关键词" autoComplete="off" /><kbd>ESC</kbd></header>
+      <header className="qc-global-search-input-row"><span aria-hidden="true">⌕</span><input ref={inputRef} value={query} onChange={(event) => { setQuery(event.target.value); if (!event.target.value.trim()) setActiveIndex(recent.length ? 0 : -1); }} placeholder="搜索报价、订单、排单、关账、客户 PO 或款号" aria-label="全局搜索关键词" autoComplete="off" /><kbd>ESC</kbd></header>
       <div className="qc-global-search-content">
         <div className="qc-global-search-section-title"><strong>{query.trim() ? "搜索结果" : "最近访问"}</strong>{query.trim() && <span>{loading ? "正在搜索…" : `${results.length} 条结果`}</span>}</div>
-        {displayed.length ? <div ref={resultListRef} className="qc-global-search-results" role="listbox" aria-label={query.trim() ? "搜索结果" : "最近访问"}>{displayed.map((result, index) => <ResultCard key={`${result.providerId}:${result.id}`} result={result} index={index} active={index === activeIndex} onHover={() => setActiveIndex(index)} onChoose={() => openSearchResult(result)} />)}</div> : <div className="qc-global-search-empty"><span>{loading ? "⌛" : "◇"}</span><strong>{loading ? "正在搜索" : query.trim() ? "没有匹配结果" : "暂无最近访问"}</strong><p>{query.trim() ? "尝试输入报价号、款号、款式名称、品牌或客户业务员" : "通过搜索打开的业务记录会显示在这里"}</p></div>}
+        {displayed.length ? <div ref={resultListRef} className="qc-global-search-results" role="listbox" aria-label={query.trim() ? "搜索结果" : "最近访问"}>{displayed.map((result, index) => <ResultCard key={`${result.providerId}:${result.id}`} result={result} index={index} active={index === activeIndex} onHover={() => setActiveIndex(index)} onChoose={() => openSearchResult(result)} />)}</div> : <div className="qc-global-search-empty"><span>{loading ? "⌛" : "◇"}</span><strong>{loading ? "正在搜索" : query.trim() ? "没有匹配结果" : "暂无最近访问"}</strong><p>{query.trim() ? "尝试输入报价号、订单号、客户 PO、款号、款式名称、品牌或客户" : "通过搜索打开的业务记录会显示在这里"}</p></div>}
       </div>
-      <footer><span><kbd>↑</kbd><kbd>↓</kbd> 选择</span><span><kbd>↵</kbd> 打开</span><span><kbd>ESC</kbd> 关闭</span><i>第一阶段 · 报价中心</i></footer>
+      <footer><span><kbd>↑</kbd><kbd>↓</kbd> 选择</span><span><kbd>↵</kbd> 打开</span><span><kbd>ESC</kbd> 关闭</span><i>报价 · 订单 · 排单 · 关账 · 权限感知搜索</i></footer>
     </section>
   </div>, document.body);
 }

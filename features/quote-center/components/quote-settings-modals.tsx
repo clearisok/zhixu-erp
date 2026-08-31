@@ -1,20 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Button, FormItem, Modal, NullableNumberInput } from "@/components/foundation";
+import { Button, FormItem, Modal, NullableNumberInput, type TablePreference } from "@/components/foundation";
 import { listColumnOptions, type ListColumnKey, type QuoteUserSettings } from "../model/quote-settings";
 
-export function ListFieldSettingsModal({ open, settings, onClose, onSave }: { open: boolean; settings: QuoteUserSettings; onClose: () => void; onSave: (settings: QuoteUserSettings) => void }) {
+export function ListFieldSettingsModal({ open, settings, tablePreference, defaultColumnWidths, onClose, onSave }: { open: boolean; settings: QuoteUserSettings; tablePreference: TablePreference; defaultColumnWidths: Record<string, number>; onClose: () => void; onSave: (settings: QuoteUserSettings, preference: TablePreference) => void }) {
   if (!open) return null;
-  return <ListFieldSettingsDialog settings={settings} onClose={onClose} onSave={onSave} />;
+  return <ListFieldSettingsDialog settings={settings} tablePreference={tablePreference} defaultColumnWidths={defaultColumnWidths} onClose={onClose} onSave={onSave} />;
 }
 
-function ListFieldSettingsDialog({ settings, onClose, onSave }: { settings: QuoteUserSettings; onClose: () => void; onSave: (settings: QuoteUserSettings) => void }) {
+function ListFieldSettingsDialog({ settings, tablePreference, defaultColumnWidths, onClose, onSave }: { settings: QuoteUserSettings; tablePreference: TablePreference; defaultColumnWidths: Record<string, number>; onClose: () => void; onSave: (settings: QuoteUserSettings, preference: TablePreference) => void }) {
   const [visibleColumns, setVisibleColumns] = useState<ListColumnKey[]>(settings.visibleColumns);
+  const [columnWidths, setColumnWidths] = useState(tablePreference.columnWidths);
   const toggle = (key: ListColumnKey) => setVisibleColumns((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key]);
-  const save = () => onSave({ ...settings, visibleColumns });
-  return <Modal open title="报价列表字段设置" description="选择当前用户需要在报价中心列表中展示的字段；不会影响单张报价设置。" onClose={onClose} onSubmit={save} footer={<><Button variant="secondary" onClick={onClose}>取消</Button><Button type="submit">保存设置</Button></>}>
+  const save = () => onSave({ ...settings, visibleColumns }, { ...tablePreference, columnWidths });
+  return <Modal open title="报价列表页面设置" description="显示字段与列宽仅属于当前用户，不影响单张报价设置。" onClose={onClose} onSubmit={save} footer={<><Button variant="secondary" onClick={() => setColumnWidths(defaultColumnWidths)}>恢复默认列宽</Button><Button variant="secondary" onClick={onClose}>取消</Button><Button type="submit">保存设置</Button></>}>
     <div className="qc-setting-options">{listColumnOptions.map((option) => <label key={option.key}><input type="checkbox" checked={visibleColumns.includes(option.key)} onChange={() => toggle(option.key)} /><span><strong>{option.label}</strong><small>{["fabricCost", "trimCost", "labor", "garmentPrice", "confirmedLabor", "confirmedGarment"].includes(option.key) ? "多价格版本按区间或确认汇总展示" : "报价基础字段"}</small></span></label>)}</div>
+    <div className="qc-column-width-settings"><strong>表格列宽（px）</strong>{listColumnOptions.map((option) => <FormItem key={option.key} label={option.label}><NullableNumberInput className="qc-control" min="56" value={columnWidths[option.key] ?? defaultColumnWidths[option.key]} onValueChange={(value) => setColumnWidths((current) => ({ ...current, [option.key]: value ?? defaultColumnWidths[option.key] }))} /></FormItem>)}</div>
   </Modal>;
 }
 

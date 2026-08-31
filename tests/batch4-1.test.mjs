@@ -30,7 +30,7 @@ test("Sidebar 将基础资料与系统设置分组，并固定头尾、隐藏导
   assert.doesNotMatch(basic, /模板设置|用户权限/);
   for (const label of ["报价设置", "模板设置", "用户权限", "操作日志"]) assert.match(system, new RegExp(label));
   assert.doesNotMatch(shell, /核心业务|返回原 ERP|系统入口/);
-  assert.match(shell, /systemOpen && viewportMode === "desktop"/);
+  assert.match(shell, /systemOpen && expandedSidebar/);
   assert.match(css, /\.ops-sidebar \{[^}]*overflow: hidden/);
   assert.match(css, /\.ops-sidebar nav \{[^}]*overflow-y: auto/);
   assert.match(css, /scrollbar-width: none/);
@@ -47,11 +47,25 @@ test("全局操作日志复用现有 repository，支持查询筛选详情且保
   assert.match(route, /GlobalOperationLogPage/);
   assert.match(page, /operationLogRepository\.list\(\)/);
   assert.match(page, /audit_log\.view/);
-  for (const field of ["开始日期", "结束日期", "用户", "模块", "操作类型"]) assert.match(page, new RegExp(field));
-  assert.match(page, /操作日志详情/);
+  for (const field of ["开始日期", "结束日期", "用户", "模块", "操作"]) assert.match(page, new RegExp(field));
+  assert.match(page, /<Drawer/);
+  assert.match(page, /技术详情与原始 Before \/ After/);
   assert.doesNotMatch(page, /编辑日志|删除日志/);
   assert.match(repository, /list\(\): Promise<OperationLog\[\]>/);
   assert.doesNotMatch(repository, /update\(|delete\(/);
+});
+
+test("报价设置与操作日志 Header 使用同一纵向左对齐标题容器", async () => {
+  const [settings, audit, foundation, css] = await Promise.all([
+    read("features/quote-center/components/global-quote-settings-page.tsx"),
+    read("features/operation-logs/components/global-operation-log-page.tsx"),
+    read("components/foundation/page.tsx"),
+    read("app/globals.css"),
+  ]);
+  assert.match(settings, /eyebrow="SYSTEM SETTINGS" title="报价设置"/);
+  assert.match(audit, /eyebrow="OPERATION LOG" title="操作日志"/);
+  assert.match(foundation, /className="qc-page-identity">\{eyebrow/);
+  assert.match(css, /\.module-head > \.qc-page-actions/);
 });
 
 test("audit_log.view 只默认授予管理员", () => {

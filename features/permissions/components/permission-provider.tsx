@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { DEFAULT_PERMISSION_STATE, permissionsForUser, type PermissionKey, type PermissionState, type Role, type User } from "../model/permissions";
-import { permissionRepository } from "../repository/permission-repository";
+import { PERMISSION_RESET_CONFIRMATION, permissionRepository } from "../repository/permission-repository";
 
 type PermissionContextValue = {
   state: PermissionState;
@@ -24,7 +24,7 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
     if (!state.users.some((user) => user.id === userId && user.status === "active")) return;
     saveState({ ...state, currentUserId: userId });
   };
-  const resetState = () => setState(permissionRepository.reset());
+  const resetState = () => setState(permissionRepository.reset(PERMISSION_RESET_CONFIRMATION));
   const currentUser = state.users.find((user) => user.id === state.currentUserId) ?? state.users[0] ?? DEFAULT_PERMISSION_STATE.users[0];
   const currentRole = state.roles.find((role) => role.id === currentUser.roleId) ?? state.roles[0] ?? DEFAULT_PERMISSION_STATE.roles[0];
   const permissionSet = useMemo(() => new Set(permissionsForUser(state, currentUser.id)), [currentUser.id, state]);

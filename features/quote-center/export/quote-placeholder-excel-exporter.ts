@@ -3,6 +3,7 @@ import { calculateContainedImageLayout } from "./quote-image-layout.ts";
 import { excelDate, quoteExportFileName, uniqueSheetName } from "./quote-export-formatters.ts";
 import { mapPriceVersionForExport, type ExportCostRow, type ExportPriceVersionData } from "./quote-export-mappers.ts";
 import { placeholdersInText, validateQuoteCustomerTemplate } from "../../template-settings/model/template-definition.ts";
+import { truncateFinalQuoteValue } from "../model/final-quote-format.ts";
 import type { PriceVersion } from "../model/quote-view-model.ts";
 import type { QuoteExcelBuildInput, QuoteExcelBuildResult } from "./quote-excel-exporter.ts";
 
@@ -111,7 +112,7 @@ function scalarValue(placeholder: string, input: QuoteExcelBuildInput, version: 
     "priceVersion.quantity": version.quantity,
     "summary.totalCost": data.summary.preMarkupTotal,
     "summary.markupRate": data.summary.markupRate === null ? null : data.summary.markupRate / 100,
-    "summary.garmentSalesPrice": data.summary.garmentSellingPrice,
+    "summary.garmentSalesPrice": data.summary.garmentSellingPrice === null ? null : truncateFinalQuoteValue(data.summary.garmentSellingPrice),
     "summary.finalQuote": data.summary.finalQuote,
     "customer.confirmedPrice": data.summary.customerConfirmedPrice,
     "styleImage": null,
@@ -202,6 +203,7 @@ function cloneTemplateSheet(source: Worksheet, target: Worksheet, data: ExportPr
     }
     for (let column = 1; column <= lastColumn; column += 1) {
       const cell = target.getCell(outputRow, column);
+      const placeholders = typeof cell.value === "string" ? placeholdersInText(cell.value) : [];
       if (cell.value && typeof cell.value === "object" && "formula" in cell.value && typeof cell.value.formula === "string") {
         cell.value = { ...cell.value, formula: translateFormulaRows(cell.value.formula, regions, rowMap, data), result: undefined };
       }
@@ -210,8 +212,17 @@ function cloneTemplateSheet(source: Worksheet, target: Worksheet, data: ExportPr
         if (region && placeholder.startsWith(`${region.group}.`)) return sourceData ? dynamicValue(region.group, placeholder.slice(region.group.length + 1), sourceData) : null;
         return scalarValue(placeholder, input, version, data);
       });
+      if (placeholders.some((placeholder) => placeholder === "fabric.consumptionKg" || placeholder === "fabric.consumptionMeter")) {
+        cell.numFmt = "0.0000";
+      }
     }
   });
+  const productionCountry = version.pricingParameters.manufacturingCountry.trim();
+  if (productionCountry) target.eachRow({ includeEmpty: false }, (row) => row.eachCell({ includeEmpty: false }, (cell) => {
+    if (typeof cell.value === "string" && /报价表（[^）]*）/.test(cell.value)) {
+      cell.value = cell.value.replace(/报价表（[^）]*）/, `报价表（${productionCountry}）`);
+    }
+  }));
   target.pageSetup = { ...target.pageSetup, printArea: `A1:${columnName(lastColumn)}${targetRow - 1}`, fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
   return { rowMap, styleImagePoint };
 }

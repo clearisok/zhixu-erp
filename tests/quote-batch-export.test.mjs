@@ -8,9 +8,9 @@ import { buildQuoteSummaryExcel } from "../features/quote-center/export/quote-ba
 test("T14-T20 Selection Mode 不永久显示 Checkbox，并支持当前筛选全选与退出清空", async () => {
   const list = await readFile(new URL("../features/quote-center/components/quote-list.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/quote-center/quote-center.css", import.meta.url), "utf8");
-  assert.match(list, /selectionMode && <Checkbox/);
+  assert.match(list, /selectionMode === "batch-export" && <Checkbox/);
   assert.match(list, /全选当前筛选结果/);
-  assert.match(list, /setSelectionMode\(false\); setSelectedIds\(\[\]\)/);
+  assert.match(list, /setSelectionMode\(null\); setSelectedIds\(\[\]\)/);
   assert.match(css, /\.qc-checkbox \{ width: 18px; height: 18px;/);
   assert.match(css, /tbody tr\.is-selected td \{ background: #f0f8f4;/);
 });

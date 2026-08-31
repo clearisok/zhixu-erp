@@ -104,8 +104,8 @@ test("详情页只保留统一报价版本入口，历史模式移除编辑操�
   assert.match(editor, /历史只读/);
   assert.match(editor, /返回当前版本/);
   assert.match(editor, /更新此报价版本/);
-  assert.match(editor, /!isHistorical && <Button permission="quote\.edit" onClick=\{save\}>保存草稿/);
-  assert.match(editor, /!isNew && !isHistorical && <Button permission="quote\.confirm" variant="secondary" onClick=\{openConfirmation\}>客户确认/);
+  assert.match(editor, /id: "save", label: "保存草稿", permission: "quote\.edit"/);
+  assert.match(editor, /id: "confirmation", label: "客户确认", permission: "quote\.confirm"/);
   assert.match(pricing, /readOnly/);
   assert.match(manager, /确认创建新报价版本/);
   assert.doesNotMatch(manager, /恢复/);

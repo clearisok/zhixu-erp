@@ -13,6 +13,8 @@
 - 管理员可以分配角色、调整用户状态和维护非管理员角色的权限；管理员角色固定拥有完整权限目录。
 - 权限不足的业务按钮保持可见并置灰，悬停提示“暂无权限，请联系管理员”。
 - Quote Editor 会同时保护基础信息、成本编辑、附件修改、报价设置、客户确认、版本更新和估算成本，不只禁用顶部按钮。
+- 新订单中心消费 `order.view/create/edit/cancel`：列表/详情读取、手工/报价/翻单创建、订单编辑与确认、部分/全部取消分别受权限键保护；无权按钮继续可见并 disabled。
+- 排单中心消费 `schedule.view/create/edit/complete`，关账中心消费 `closing.view/edit/confirm/lock/reopen`；订单编辑权限不会隐含这两类权限。
 
 ## Data model
 
@@ -33,7 +35,11 @@
 - 价格版本：`quote.price_version.create/delete`
 - 报价成本：`quote.cost.view/edit`、`quote.settings.edit`
 - 估算成本：`estimate.view/edit`
+- 订单：`order.view/create/edit/cancel`
+- 排单：`schedule.view/create/edit/complete`
+- 关账：`closing.view/edit/confirm/lock/reopen`、`closing.target.manage`
 - 基础设置：`settings.global/brand/salesperson/fabric/trim/template.edit`
+- 生产基础资料：`settings.production_group.edit`、`settings.outsource_factory.edit`、`settings.production_infrastructure.edit`、`settings.closing.edit`
 - 权限管理：`user_permissions.view/manage`
 - 系统审计：`audit_log.view`
 
@@ -41,14 +47,16 @@
 
 ## Default roles
 
-- 管理员：当前权限目录全部权限，包括全局操作日志；旧 localStorage 权限状态加载时会自动补齐管理员新增权限键。
+- 管理员：当前权限目录全部权限，包括订单、排单、关账、生产基础资料和全局操作日志；旧 localStorage 权限状态加载时会自动补齐管理员新增权限键。
 - 报价员：查看/创建/编辑/导出/确认报价，查看和更新报价版本，创建价格版本，查看与编辑报价成本，修改单张报价设置，查看估算成本；不能删除报价、删除价格版本、编辑基础设置或管理用户权限。
 - 查看员：查看报价、历史报价版本、报价成本并导出；不允许创建、编辑、删除、确认或修改估算成本。
+
+订单、排单、关账和生产基础资料权限只默认授予管理员；没有扩大报价员或查看员的既有权限。三个业务模块都已消费各自稳定权限键。
 
 ## Persistence and API
 
 - mock repository：`features/permissions/repository/permission-repository.ts`
-- localStorage key：`zhixu.permission-state.v1`
+- 当前 localStorage：`zhixu.erp.local.permission-state`；旧 `zhixu.permission-state.v1` 仅作为非破坏迁移来源。
 - 当前没有权限 API、服务端 session、密码验证或数据库表。
 - 根路径 ERP 的 PostgreSQL 用户/角色模型保持独立，未在本阶段迁移或修改。
 
@@ -69,7 +77,7 @@
 
 ## Tests
 
-`tests/permissions.test.mjs` 覆盖默认账号、管理员全集、报价员限制、查看员只读、角色继承、角色集中更新和停用用户无权限。
+`tests/permissions.test.mjs` 覆盖默认账号、管理员全集、报价员限制、查看员只读、角色继承、角色集中更新和停用用户无权限；`tests/operations-infrastructure.test.mjs` 覆盖新增权限不扩张；`tests/order-center.test.mjs` 覆盖订单权限过滤、页面权限接线与取消权限守卫源码契约。
 
 ## Known gaps
 

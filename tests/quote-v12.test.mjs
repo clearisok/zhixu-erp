@@ -22,8 +22,8 @@ test("列表字段设置被规范化并保留可选成本确认字段", () => {
 test("默认加成率只应用到以后新建的报价", () => {
   const existing = createQuoteDraft("existing", "QT-OLD", "2026-08-17", defaultQuoteSettings.newQuoteDefaults);
   const created = createQuoteDraft("new", "QT-NEW", "2026-08-17", { markupRate: 5, laborCurrency: "CNY" });
-  assert.equal(getCurrentRevision(existing).pricingParameters.markupRate, null);
-  assert.equal(getCurrentRevision(created).pricingParameters.markupRate, 5);
+  assert.equal(getCurrentRevision(existing).priceVersions[0].pricingParameters.markupRate, null);
+  assert.equal(getCurrentRevision(created).priceVersions[0].pricingParameters.markupRate, 5);
 });
 
 test("客户确认按经销与加工报价执行不同必填规则", () => {
@@ -60,7 +60,9 @@ test("版本更新保留 V1、创建完整独立 V2 并移动当前指针", () =
 
 test("Modal 只在打开状态变化时执行自动聚焦", async () => {
   const source = await readFile(new URL("../components/foundation/modal.tsx", import.meta.url), "utf8");
-  assert.match(source, /onCloseRef/);
-  assert.match(source, /\}, \[open\]\);/);
-  assert.doesNotMatch(source, /\[open, onClose\]/);
+  const overlay = await readFile(new URL("../components/foundation/overlay.ts", import.meta.url), "utf8");
+  assert.match(source, /useOverlayLifecycle\(\{ open, panelRef: panel, onClose \}\)/);
+  assert.match(overlay, /onCloseRef\.current = onClose/);
+  assert.match(overlay, /if \(!open\) return/);
+  assert.doesNotMatch(overlay, /\[open, onClose\]/);
 });

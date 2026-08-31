@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   applyMarkup,
   calculatePriceVersionMetrics,
+  convertedLaborRmb,
   copyPriceVersion,
   laborCostInRmb,
   sumCostLines,
@@ -16,6 +17,7 @@ function version(overrides = {}) {
     name: "素色",
     quantity: 12000,
     description: "基础报价",
+    pricingParameters: { manufacturingCountry: "中国", manufacturingPresetId: "preset-china", manufacturingPresetName: "中国制作", laborCurrency: "CNY", usdCnyRate: 7.2, markupRate: 20, includeFreight: false, freightName: "运费", freightAmount: null },
     fabrics: [{ id: "fabric-1", name: "棉布", specification: "200g", usage: 2, unit: "kg", lossRate: 10, unitPrice: 10 }],
     trims: [{ id: "trim-1", name: "拉链", specification: "20cm", usage: 3, unit: "条", lossRate: 0, unitPrice: 2 }],
     labor: { value: 15, description: "车缝" },
@@ -31,16 +33,21 @@ test("总数量严格等于所有价格版本数量之和", () => {
 
 test("CNY 工价直接按人民币计入且不改写输入", () => {
   assert.equal(laborCostInRmb(15, "CNY", 7.2), 15);
-  const metrics = calculatePriceVersionMetrics(version(), "CNY", 7.2, 20);
+  const metrics = calculatePriceVersionMetrics(version());
   assert.equal(metrics.laborInput, 15);
   assert.equal(metrics.laborRmb, 15);
 });
 
-test("USD 工价通过 usdCnyRate 换算成人民币", () => {
-  assert.equal(laborCostInRmb(10, "USD", 7.2), 72);
-  const metrics = calculatePriceVersionMetrics(version({ labor: { value: 10, description: "美元工价" } }), "USD", 7.2, 0);
-  assert.equal(metrics.laborInput, 10);
-  assert.equal(metrics.laborRmb, 72);
+test("USD 工价按汇率与固定 1.13 系数折合人民币且不改写原值", () => {
+  assert.ok(Math.abs(convertedLaborRmb(2.1, "USD", 6.7) - 15.8991) < 1e-10);
+  assert.ok(Math.abs(laborCostInRmb(10, "USD", 7.2) - 81.36) < 1e-10);
+  const source = version({ labor: { value: 2.1, description: "美元工价" }, pricingParameters: { ...version().pricingParameters, laborCurrency: "USD", usdCnyRate: 6.7, markupRate: 5 } });
+  const metrics = calculatePriceVersionMetrics(source);
+  assert.equal(metrics.laborInput, 2.1);
+  assert.ok(Math.abs(metrics.laborRmb - 15.8991) < 1e-10);
+  assert.equal(source.labor.value, 2.1);
+  source.pricingParameters.usdCnyRate = 7;
+  assert.ok(Math.abs(calculatePriceVersionMetrics(source).laborRmb - 16.611) < 1e-10);
 });
 
 test("0% 加成保持原始成本", () => {
@@ -57,7 +64,7 @@ test("面料与辅料成本包含用量、单价和损耗", () => {
 });
 
 test("成衣销售单价由全部人民币成本统一加成", () => {
-  const metrics = calculatePriceVersionMetrics(version(), "CNY", 7.2, 20);
+  const metrics = calculatePriceVersionMetrics(version());
   assert.equal(metrics.fabricCost, 22);
   assert.equal(metrics.trimCost, 6);
   assert.equal(metrics.preMarkupTotal, 47);
@@ -81,5 +88,7 @@ test("复制不会修改来源，也不会复制客户确认", () => {
   assert.equal(copied.confirmation, null);
   assert.equal(copied.name, "素色副本");
   assert.equal(copied.quantity, 5000);
+  assert.deepEqual(copied.pricingParameters, source.pricingParameters);
+  assert.notEqual(copied.pricingParameters, source.pricingParameters);
   assert.notEqual(copied.fabrics[0], source.fabrics[0]);
 });

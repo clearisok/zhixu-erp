@@ -33,7 +33,7 @@ export function createEstimateCostFromRevision(input: {
     generatedAt: input.generatedAt,
     generatedBy: input.generatedBy,
     ignoredForRevisionId: null,
-    pricingParameters: clone(input.revision.pricingParameters),
+    pricingParameters: clone(source.pricingParameters),
     fabrics: source.fabrics.map((line, index) => ({ ...clone(line), id: rowId(input.id, "fabric", index) })),
     trims: source.trims.map((line, index) => ({ ...clone(line), id: rowId(input.id, "trim", index) })),
     labor: clone(source.labor),
@@ -47,6 +47,7 @@ export function estimateCostAsPriceVersion(estimate: EstimateCost): PriceVersion
     name: "估算成本",
     quantity: null,
     description: "",
+    pricingParameters: estimate.pricingParameters,
     fabrics: estimate.fabrics,
     trims: estimate.trims,
     labor: estimate.labor,
@@ -56,9 +57,7 @@ export function estimateCostAsPriceVersion(estimate: EstimateCost): PriceVersion
 }
 
 export function estimateCostMetrics(estimate: EstimateCost): NullablePriceVersionMetrics {
-  return nullablePriceVersionMetrics(estimateCostAsPriceVersion(estimate), {
-    pricingParameters: estimate.pricingParameters,
-  } as QuoteRevision);
+  return nullablePriceVersionMetrics(estimateCostAsPriceVersion(estimate));
 }
 
 export function estimateCostTotal(estimate: EstimateCost): number | null {

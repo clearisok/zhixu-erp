@@ -31,6 +31,16 @@ export function canPreviewAttachment(attachment: Pick<AttachmentViewModel, "kind
   return attachment.kind === "image";
 }
 
+export function renamedAttachmentFileName(currentName: string, requestedName: string): string {
+  const normalized = requestedName.trim().replace(/[\\/:*?"<>|]/g, "-");
+  if (!normalized) throw new Error("图片名称不能为空。");
+  const extension = currentName.includes(".") ? currentName.slice(currentName.lastIndexOf(".")) : "";
+  if (!extension) return normalized;
+  const requestedBase = normalized.includes(".") ? normalized.slice(0, normalized.lastIndexOf(".")) : normalized;
+  if (!requestedBase.trim()) throw new Error("图片名称不能为空。");
+  return `${requestedBase}${extension}`;
+}
+
 export function legacyAttachmentViewModel(reference: AttachmentReference, kind: AttachmentKind): AttachmentViewModel {
   return {
     id: reference.id,

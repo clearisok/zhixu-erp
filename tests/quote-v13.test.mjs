@@ -63,14 +63,14 @@ test("自动默认值只补空字段，不覆盖手工录入内容", () => {
   const revision = getCurrentRevision(quote);
   const price = revision.priceVersions[0];
   const filled = applyDefaultsToEmptyQuoteFields(revision, price.id, clone(defaultBasicSettings), "zara", "sales-linqinghe");
-  assert.equal(filled.pricingParameters.usdCnyRate, 7.12);
+  assert.equal(filled.priceVersions[0].pricingParameters.usdCnyRate, 7.12);
   assert.equal(filled.priceVersions[0].trims[0].name, "透明自封袋");
   assert.equal(filled.priceVersions[0].trims[0].usage, null);
   assert.equal(filled.priceVersions[0].otherCosts[0].unitPrice, 1.5);
-  filled.pricingParameters.usdCnyRate = 6.88;
+  filled.priceVersions[0].pricingParameters.usdCnyRate = 6.88;
   filled.priceVersions[0].trims = [{ id: "manual", sourceLibraryItemId: null, name: "手工辅料", specification: "", supplier: "", usage: 1, unit: "件", lossRate: 0, unitPrice: 1 }];
   const reapplied = applyDefaultsToEmptyQuoteFields(filled, price.id, clone(defaultBasicSettings), "massimo-dutti", "sales-chenxi");
-  assert.equal(reapplied.pricingParameters.usdCnyRate, 6.88);
+  assert.equal(reapplied.priceVersions[0].pricingParameters.usdCnyRate, 6.88);
   assert.equal(reapplied.priceVersions[0].trims[0].name, "手工辅料");
 });
 
@@ -82,14 +82,15 @@ test("复制价格版本名称为空、使用指定 Placeholder 并有必填校�
   assert.match(source, /setVersionError\("请填写价格版本名称"\)/);
 });
 
-test("详情信息架构、吸顶操作与列表页面设置符合 V1.4", async () => {
+test("详情顶部价格摘要、吸顶操作与列表页面设置符合当前信息架构", async () => {
   const editor = await readFile(new URL("../features/quote-center/components/quote-editor.tsx", import.meta.url), "utf8");
   const list = await readFile(new URL("../features/quote-center/components/quote-list.tsx", import.meta.url), "utf8");
-  assert.ok(editor.indexOf("<QuoteBaseInfo") < editor.indexOf("<QuoteMetrics"));
-  assert.ok(editor.indexOf("<QuoteMetrics") < editor.indexOf("<PriceVersionSelector"));
-  assert.ok(editor.indexOf("<PriceVersionSelector") < editor.indexOf("<CostTable"));
+  const detail = editor.slice(editor.indexOf("const headerActions"));
+  assert.ok(detail.indexOf('QuoteMetrics className="qc-header-metrics"') < detail.indexOf("<QuoteBaseInfo"));
+  assert.ok(detail.indexOf("<QuoteBaseInfo") < detail.indexOf("<PriceVersionSelector"));
+  assert.ok(detail.indexOf("<PriceVersionSelector") < detail.indexOf("<CostTable"));
+  assert.match(detail, /qc-sticky-header/);
+  assert.doesNotMatch(detail, /页面设置/);
   assert.match(editor, /IntersectionObserver/);
-  assert.match(editor, /qc-sticky-header/);
-  assert.doesNotMatch(editor, /页面设置/);
   assert.match(list, /页面设置|ListFieldSettingsModal/);
 });

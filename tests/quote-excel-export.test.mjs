@@ -10,6 +10,7 @@ import { calculateContainedImageLayout } from "../features/quote-center/export/q
 import { fabricDescription, mapPriceVersionForExport } from "../features/quote-center/export/quote-export-mappers.ts";
 import { createExpandedRowPlan, parseQuoteExportTemplateLayout } from "../features/quote-center/export/quote-export-template-layout.ts";
 import { nullablePriceVersionMetrics } from "../features/quote-center/model/quote-presentation.ts";
+import { truncateFinalQuoteValue } from "../features/quote-center/model/final-quote-format.ts";
 import { quoteFixtures } from "../features/quote-center/fixtures/quote-fixtures.ts";
 
 const templateUrl = new URL("../templates/quote-export-template-v1.xlsx", import.meta.url);
@@ -151,6 +152,15 @@ test("R14-R18 null 保持空白、明确 0 保持为 0，并按采购单位逐�
   const sheet = workbook.worksheets[0];
   const layout = await templateLayout();
   const plan = createExpandedRowPlan(layout, { fabric: 7, trim: 10, labor: 1, outsourcing: 0, otherCost: 5 });
+  const fabricQuantityColumn = layout.sections.fabric.columns.initialQuantity;
+  const firstFabricQuantity = sheet.getCell(plan.sections.fabric.dataStartRow, fabricQuantityColumn);
+  const insertedFabricQuantity = sheet.getCell(plan.sections.fabric.dataStartRow + 6, fabricQuantityColumn);
+  assert.equal(typeof firstFabricQuantity.value, "number");
+  assert.equal(firstFabricQuantity.value, data.fabricRows[0].quantity);
+  assert.equal(firstFabricQuantity.numFmt, "0.0000");
+  assert.equal(typeof insertedFabricQuantity.value, "number");
+  assert.equal(insertedFabricQuantity.value, data.fabricRows[6].quantity);
+  assert.equal(insertedFabricQuantity.numFmt, "0.0000");
   const trimQuantityColumn = layout.sections.trim.columns.initialQuantity;
   assert.equal(sheet.getCell(plan.sections.trim.dataStartRow + 8, trimQuantityColumn).value, null);
   assert.equal(sheet.getCell(plan.sections.trim.dataStartRow + 9, trimQuantityColumn).value, 0);
@@ -160,12 +170,12 @@ test("R19-R24 汇总沿用系统 Metrics、加成率为百分比、最终报价�
   const revision = stressRevision();
   const version = revision.priceVersions[0];
   const data = mapPriceVersionForExport(version, revision);
-  const metrics = nullablePriceVersionMetrics(version, revision);
+  const metrics = nullablePriceVersionMetrics(version);
   assert.equal(data.summary.garmentSellingPrice, metrics.garmentSellingPrice);
   assert.equal(data.summary.preMarkupTotal, metrics.preMarkupTotal);
   assert.equal(formatFinalQuote(88), "FOB RMB 88.0");
   assert.equal(formatFinalQuote(88.24), "FOB RMB 88.2");
-  assert.equal(formatFinalQuote(88.25), "FOB RMB 88.3");
+  assert.equal(formatFinalQuote(88.25), "FOB RMB 88.2");
   assert.equal(mapPriceVersionForExport(revision.priceVersions[1], revision).summary.customerConfirmedPrice, null);
   const result = await buildQuoteExcel({ template: templateArrayBuffer, quote: quoteFixtures[0], revision, priceVersions: [version] });
   const workbook = await loadWorkbook(result.buffer);
@@ -175,8 +185,8 @@ test("R19-R24 汇总沿用系统 Metrics、加成率为百分比、最终报价�
   const markup = plan.rowMap.get(layout.summary.markupRate.row);
   const price = plan.rowMap.get(layout.summary.garmentSellingPrice.row);
   const final = plan.rowMap.get(layout.summary.finalQuote.row);
-  assert.equal(sheet.getCell(markup, layout.summary.markupRate.column).value, revision.pricingParameters.markupRate / 100);
-  assert.equal(sheet.getCell(price, layout.summary.garmentSellingPrice.column).value, metrics.garmentSellingPrice);
+  assert.equal(sheet.getCell(markup, layout.summary.markupRate.column).value, version.pricingParameters.markupRate / 100);
+  assert.equal(sheet.getCell(price, layout.summary.garmentSellingPrice.column).value, truncateFinalQuoteValue(metrics.garmentSellingPrice));
   assert.match(String(sheet.getCell(final, layout.summary.finalQuote.column).value), /^FOB RMB \d+\.\d$/);
   assert.equal(sheet.getCell(plan.sections.labor.subtotalRow, layout.sections.labor.columns.actualCost).value, null);
   assert.equal(sheet.getCell(plan.sections.outsourcing.subtotalRow, layout.sections.outsourcing.columns.actualCost).value, null);
@@ -229,7 +239,7 @@ test("R33-R34 dirty Modal 提供三按钮，保存成功后才调用导出", asy
   assert.match(modal, /保存并导出/);
   const saveAndExport = editor.slice(editor.indexOf("const saveAndExportRevision"), editor.indexOf("const saveAndNavigate"));
   const executeExport = editor.slice(editor.indexOf("const executeExport"), editor.indexOf("const exportCurrentRevision"));
-  assert.match(saveAndExport, /await persist\(\)/);
+  assert.match(saveAndExport, /await requestPersist\("export"\)/);
   assert.ok(executeExport.indexOf("await resolveTarget()") < executeExport.indexOf("await runExcelExport"));
 });
 
@@ -256,9 +266,9 @@ test("R25-R29 CNY 只输出 RMB；USD 同时输出系统 RMB 与原始 USD，且
   const baseRevision = stressRevision();
   const version = baseRevision.priceVersions[0];
   version.labor.description = "车缝加工";
-  baseRevision.pricingParameters.usdCnyRate = 7.29;
+  version.pricingParameters.usdCnyRate = 7.29;
 
-  baseRevision.pricingParameters.laborCurrency = "CNY";
+  version.pricingParameters.laborCurrency = "CNY";
   version.labor.value = 15.31;
   const cnyData = mapPriceVersionForExport(version, baseRevision);
   assert.equal(cnyData.laborRows[0].estimatedCost, 15.31);
@@ -270,10 +280,10 @@ test("R25-R29 CNY 只输出 RMB；USD 同时输出系统 RMB 与原始 USD，且
   assert.equal(cnyWorkbook.worksheets[0].getCell(cnyPlan.sections.labor.dataStartRow, layout.sections.labor.columns.estimatedCost).value, 15.31);
   assert.equal(cnyWorkbook.worksheets[0].getCell(cnyPlan.sections.labor.dataStartRow, layout.sections.labor.columns.actualCost).value, null);
 
-  baseRevision.pricingParameters.laborCurrency = "USD";
+  version.pricingParameters.laborCurrency = "USD";
   version.labor.value = 2.10;
   const usdData = mapPriceVersionForExport(version, baseRevision);
-  const systemMetrics = nullablePriceVersionMetrics(version, baseRevision);
+  const systemMetrics = nullablePriceVersionMetrics(version);
   assert.equal(usdData.laborRows[0].estimatedCost, systemMetrics.laborRmb);
   assert.equal(usdData.laborRows[0].actualCost, 2.10);
   const usdResult = await buildQuoteExcel({ template: templateArrayBuffer, quote: quoteFixtures[0], revision: baseRevision, priceVersions: [version] });
@@ -293,7 +303,7 @@ test("R25-R29 CNY 只输出 RMB；USD 同时输出系统 RMB 与原始 USD，且
 
   const mapperSource = await readFile(new URL("../features/quote-center/export/quote-export-mappers.ts", import.meta.url), "utf8");
   const exporterSource = await readFile(new URL("../features/quote-center/export/quote-excel-exporter.ts", import.meta.url), "utf8");
-  assert.doesNotMatch(`${mapperSource}\n${exporterSource}`, /labor\.value\s*\*\s*revision\.pricingParameters\.usdCnyRate/);
+  assert.doesNotMatch(`${mapperSource}\n${exporterSource}`, /revision\.pricingParameters/);
 });
 
 test("R30 加工费动态扩行后每行 RMB/USD 列仍写入对应导出值", async () => {
@@ -325,4 +335,29 @@ test("R30 加工费动态扩行后每行 RMB/USD 列仍写入对应导出值", a
     assert.equal(workbook.worksheets[0].getCell(outputRow, layout.sections.labor.columns.estimatedCost).value, row.estimatedCost);
     assert.equal(workbook.worksheets[0].getCell(outputRow, layout.sections.labor.columns.actualCost).value, row.actualCost);
   });
+});
+
+test("每个 PriceVersion Sheet 使用自己的制作国家、币种、加成率和工价折算快照", async () => {
+  const revision = stressRevision();
+  const [cambodia, china] = revision.priceVersions;
+  cambodia.name = "V1";
+  cambodia.pricingParameters = { ...cambodia.pricingParameters, manufacturingCountry: "柬埔寨", manufacturingPresetName: "柬埔寨制作", laborCurrency: "USD", usdCnyRate: 6.7, markupRate: 5 };
+  cambodia.labor = { ...cambodia.labor, value: 2.1 };
+  china.name = "V2";
+  china.pricingParameters = { ...china.pricingParameters, manufacturingCountry: "中国", manufacturingPresetName: "中国制作", laborCurrency: "CNY", markupRate: 13 };
+  china.labor = { ...china.labor, value: 15.31 };
+  const result = await buildQuoteExcel({ template: templateArrayBuffer, quote: quoteFixtures[0], revision, priceVersions: [cambodia, china] });
+  const workbook = await loadWorkbook(result.buffer);
+  const layout = await templateLayout();
+  const cambodiaData = mapPriceVersionForExport(cambodia, revision);
+  const chinaData = mapPriceVersionForExport(china, revision);
+  assert.match(String(workbook.worksheets[0].getCell("A1").value), /柬埔寨/);
+  assert.match(String(workbook.worksheets[1].getCell("A1").value), /中国/);
+  for (const [index, version, data] of [[0, cambodia, cambodiaData], [1, china, chinaData]]) {
+    const plan = createExpandedRowPlan(layout, { fabric: data.fabricRows.length, trim: data.trimRows.length, labor: data.laborRows.length, outsourcing: 0, otherCost: data.otherCostRows.length });
+    const sheet = workbook.worksheets[index];
+    assert.equal(sheet.getCell(plan.rowMap.get(layout.summary.markupRate.row), layout.summary.markupRate.column).value, version.pricingParameters.markupRate / 100);
+    assert.equal(sheet.getCell(plan.sections.labor.dataStartRow, layout.sections.labor.columns.estimatedCost).value, data.summary.laborRmb);
+    assert.equal(sheet.getCell(plan.sections.labor.dataStartRow, layout.sections.labor.columns.actualCost).value, version.pricingParameters.laborCurrency === "USD" ? version.labor.value : null);
+  }
 });

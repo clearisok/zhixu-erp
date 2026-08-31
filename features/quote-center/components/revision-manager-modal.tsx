@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button, FormItem, Modal, SearchableSelect, StatusTag } from "@/components/foundation";
 import { summarizeRevisionMetric } from "../model/quote-presentation";
+import { formatFinalGarmentPrice } from "../model/final-quote-format";
 import { getNextRevisionLabel, revisionLabelParts } from "../model/quote-revision-naming";
 import { confirmationSummaryLabel } from "../model/quote-workflows";
 import type { Quote, QuoteRevision, QuoteRevisionReason, SelectOption } from "../model/quote-view-model";
@@ -121,7 +122,7 @@ function RevisionManagerDialog({ quote, viewedRevisionId, canUpdate, canViewEsti
           <div><dt>辅料成本</dt><dd>{summarizeRevisionMetric(selected, (metrics) => metrics.trimCost)} / 件</dd></div>
           <div><dt>工价（折合 RMB）</dt><dd>{summarizeRevisionMetric(selected, (metrics) => metrics.laborRmb)} / 件</dd></div>
           <div><dt>其他费用</dt><dd>{summarizeRevisionMetric(selected, (metrics) => metrics.otherCost)} / 件</dd></div>
-          <div><dt>成衣销售价</dt><dd>{summarizeRevisionMetric(selected, (metrics) => metrics.garmentSellingPrice)} / 件</dd></div>
+          <div><dt>成衣销售价</dt><dd>{summarizeRevisionMetric(selected, (metrics) => metrics.garmentSellingPrice, formatFinalGarmentPrice)} / 件</dd></div>
           <div><dt>客户确认</dt><dd>{confirmationText(selected)}</dd></div>
           <div><dt>来源关系</dt><dd>{sourceRevision ? <>基于 <RevisionLabel revision={sourceRevision} /></> : "初始报价版本"}</dd></div>
         </dl>

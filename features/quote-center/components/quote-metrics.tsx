@@ -1,15 +1,15 @@
-import { formatMoney, nullablePriceVersionMetrics } from "../model/quote-presentation";
+import { createQuoteMetricsViewModel } from "../model/quote-metrics-view-model";
 import type { PriceVersion, QuoteRevision } from "../model/quote-view-model";
 
-const currencyMoney = (value: number | null, currency: "CNY" | "USD") => value === null ? "—" : currency === "USD" ? `$${value.toFixed(2)}` : `¥${value.toFixed(2)}`;
+export function QuoteMetrics({ version, className = "" }: { version: PriceVersion; revision: QuoteRevision; className?: string }) {
+  const items = createQuoteMetricsViewModel(version);
 
-export function QuoteMetrics({ version, revision }: { version: PriceVersion; revision: QuoteRevision }) {
-  const metrics = nullablePriceVersionMetrics(version, revision);
-  const confirmation = version.confirmation;
-  return <section className="qc-metrics" aria-label="报价关键数据">
-    <article><span>面料成本</span><strong>{formatMoney(metrics.fabricCost)}</strong><small>{metrics.fabricWithMarkup === null ? "加成后 —" : `加成后 ${formatMoney(metrics.fabricWithMarkup)}`}</small></article>
-    <article><span>辅料成本</span><strong>{formatMoney(metrics.trimCost)}</strong><small>{metrics.trimWithMarkup === null ? "加成后 —" : `加成后 ${formatMoney(metrics.trimWithMarkup)}`}</small></article>
-    <article><span>工价</span><strong>{currencyMoney(metrics.laborInput, revision.pricingParameters.laborCurrency)} <em>{revision.pricingParameters.laborCurrency} / 件</em></strong><small>{confirmation ? `客户确认 ${currencyMoney(confirmation.confirmedLaborPrice, revision.pricingParameters.laborCurrency)}` : "客户尚未确认"}</small></article>
-    <article className="primary"><span>成衣销售单价</span><strong>{formatMoney(metrics.garmentSellingPrice)} <em>RMB / 件</em></strong><small>{confirmation?.confirmedGarmentPrice !== null && confirmation?.confirmedGarmentPrice !== undefined ? `客户确认 ${formatMoney(confirmation.confirmedGarmentPrice)}` : metrics.preMarkupTotal === null ? "利润前总成本 —" : `利润前总成本 ${formatMoney(metrics.preMarkupTotal)} × (1 + ${revision.pricingParameters.markupRate ?? 0}%)`}</small></article>
+  return <section className={`qc-metrics ${className}`.trim()} aria-label="报价关键数据">
+    {items.map((item) => <article key={item.key} className={item.primary ? "primary" : undefined}>
+      <span className="qc-metric-label">{item.label}</span>
+      <strong className="qc-metric-value">{item.value}</strong>
+      {item.unit ? <em className="qc-metric-unit">{item.unit}</em> : null}
+      <small className="qc-metric-secondary">{item.secondaryLabel} <b>{item.secondaryValue}</b></small>
+    </article>)}
   </section>;
 }

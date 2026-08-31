@@ -47,17 +47,19 @@ test("采购单位使用 Segmented Control，计算结果使用只读展示", as
   assert.match(editor, /系统未进行 RMB\/kg 与 RMB\/m 换算/);
 });
 
-test("ERP 宽表拥有显式列宽、sticky 表头、横向滚动与统一输入高度", async () => {
-  const css = await readFile(cssUrl, "utf8");
+test("ERP 宽表使用比例列宽铺满内容区，并保留 sticky 表头与统一输入高度", async () => {
+  const [css, source] = await Promise.all([
+    readFile(cssUrl, "utf8"),
+    readFile(new URL("../features/quote-center/components/cost-table.tsx", import.meta.url), "utf8"),
+  ]);
   assert.match(css, /\.qc-cost-table-wrap[^}]*overflow-x:\s*auto/);
   assert.match(css, /\.qc-erp-cost-table th[^}]*position:\s*sticky/);
   assert.match(css, /\.qc-erp-cost-table input[^}]*height:\s*36px/);
-  assert.match(css, /\.qc-fabric-cost-table col:nth-child\(1\)[^}]*width:\s*180px/);
-  assert.match(css, /\.qc-fabric-cost-table col:nth-child\(3\)[^}]*width:\s*80px/);
-  assert.match(css, /\.qc-fabric-cost-table col:nth-child\(4\)[^}]*width:\s*70px/);
-  assert.match(css, /\.qc-fabric-cost-table col:nth-child\(5\)[^}]*width:\s*70px/);
-  assert.match(css, /\.qc-fabric-cost-table col:nth-child\(7\)[^}]*width:\s*180px/);
-  assert.match(css, /\.qc-fabric-cost-table col:nth-child\(12\)[^}]*width:\s*70px/);
+  assert.match(css, /\.qc-fabric-cost-table, \.qc-trim-cost-table, \.qc-other-cost-table[^}]*min-width:\s*0[^}]*table-layout:\s*fixed/s);
+  assert.match(source, /const fabricColumns:[\s\S]*key: "name"[\s\S]*weight: 18/);
+  assert.match(source, /const trimColumns:[\s\S]*key: "supplier"[\s\S]*weight: 21/);
+  assert.match(source, /const otherCostColumns:[\s\S]*key: "name"[\s\S]*weight: 21/);
+  assert.match(source, /style=\{\{ width: `\$\{\(column\.weight \/ totalWeight\) \* 100\}%` \}\}/);
   assert.match(css, /\.qc-material-popover[^}]*position:\s*fixed/);
   assert.match(css, /\.qc-material-popover[^}]*width:\s*400px/);
   assert.match(css, /\.qc-material-popover[^}]*max-height:\s*300px/);

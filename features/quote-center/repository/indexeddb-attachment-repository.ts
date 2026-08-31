@@ -9,6 +9,11 @@ const STORE_NAME = "attachments";
 
 type StoredAttachment = AttachmentViewModel & { blob: Blob };
 
+export type AttachmentBackupRecord = {
+  attachment: AttachmentViewModel;
+  blob: Blob;
+};
+
 let databasePromise: Promise<IDBDatabase> | null = null;
 
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
@@ -97,6 +102,18 @@ export const indexedDbAttachmentRepository: AttachmentRepository = {
     return record?.blob ?? null;
   },
 
+  async rename(id, name) {
+    const database = await openDatabase();
+    const transaction = database.transaction(STORE_NAME, "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    const record = await requestResult(store.get(id) as IDBRequest<StoredAttachment | undefined>);
+    if (!record) throw new Error("附件不存在，无法修改名称。");
+    const updated = { ...record, name } satisfies StoredAttachment;
+    store.put(updated);
+    await transactionComplete(transaction);
+    return metadata(updated);
+  },
+
   async delete(id) {
     const database = await openDatabase();
     const transaction = database.transaction(STORE_NAME, "readwrite");
@@ -104,3 +121,23 @@ export const indexedDbAttachmentRepository: AttachmentRepository = {
     await transactionComplete(transaction);
   },
 };
+
+export async function exportStoredAttachments(): Promise<AttachmentBackupRecord[]> {
+  const database = await openDatabase();
+  const transaction = database.transaction(STORE_NAME, "readonly");
+  const records = await requestResult(transaction.objectStore(STORE_NAME).getAll() as IDBRequest<StoredAttachment[]>);
+  return records.map((record) => ({ attachment: metadata(record), blob: record.blob }));
+}
+
+export async function replaceStoredAttachments(records: AttachmentBackupRecord[]): Promise<void> {
+  const database = await openDatabase();
+  const transaction = database.transaction(STORE_NAME, "readwrite");
+  const store = transaction.objectStore(STORE_NAME);
+  store.clear();
+  for (const record of records) store.put({ ...record.attachment, blob: record.blob } satisfies StoredAttachment);
+  await transactionComplete(transaction);
+}
+
+export async function clearStoredAttachments(): Promise<void> {
+  await replaceStoredAttachments([]);
+}

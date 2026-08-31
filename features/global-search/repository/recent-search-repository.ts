@@ -1,11 +1,17 @@
 "use client";
 
 import type { SearchResult } from "../model/global-search";
+import {
+  browserLocalDataStore,
+  createLocalDataStore,
+  LEGACY_LOCAL_DATA_KEYS,
+  TEST_LOCAL_DATA_NAMESPACE,
+  type LocalStorageLike,
+} from "../../data-management/repository/local-data-store.ts";
 
-const STORAGE_KEY = "zhixu.global-search.recent.v1";
+const STORAGE_NAME = "recent-search";
 const MAX_RECENT_RESULTS = 6;
 type RecentState = Record<string, SearchResult[]>;
-type StorageLike = Pick<Storage, "getItem" | "setItem">;
 
 export type RecentSearchRepository = {
   list: (userId: string) => SearchResult[];
@@ -14,26 +20,24 @@ export type RecentSearchRepository = {
 
 const clone = <T>(value: T): T => structuredClone(value);
 
-export function createRecentSearchRepository(storage?: StorageLike | null): RecentSearchRepository {
+export function createRecentSearchRepository(storage?: LocalStorageLike | null): RecentSearchRepository {
   let memory: RecentState = {};
-  const target = () => storage === undefined && typeof window !== "undefined" ? window.localStorage : storage ?? null;
+  const store = storage === undefined
+    ? browserLocalDataStore
+    : createLocalDataStore({ storage, namespace: TEST_LOCAL_DATA_NAMESPACE, environment: "test" });
   const read = (): RecentState => {
-    const current = target();
-    if (!current) return memory;
-    const raw = current.getItem(STORAGE_KEY);
-    if (!raw) return {};
-    try {
-      const parsed = JSON.parse(raw) as RecentState;
-      return parsed && typeof parsed === "object" ? parsed : {};
-    } catch {
-      return {};
-    }
+    return store.initialize(STORAGE_NAME, {
+      seed: () => memory,
+      legacySources: storage === undefined && typeof window !== "undefined"
+        ? [{ key: LEGACY_LOCAL_DATA_KEYS.recentSearch, storage: window.localStorage }]
+        : storage ? [{ key: LEGACY_LOCAL_DATA_KEYS.recentSearch, storage }] : [],
+      migrate: (value) => value && typeof value === "object" && !Array.isArray(value) ? value as RecentState : {},
+    });
   };
   const write = (state: RecentState) => {
     const next = clone(state);
-    const current = target();
-    if (current) current.setItem(STORAGE_KEY, JSON.stringify(next));
-    else memory = next;
+    memory = next;
+    store.save(STORAGE_NAME, next);
   };
   return {
     list(userId) { return clone(read()[userId] ?? []); },
@@ -48,4 +52,4 @@ export function createRecentSearchRepository(storage?: StorageLike | null): Rece
 }
 
 export const recentSearchRepository = createRecentSearchRepository();
-export const recentSearchStorageKey = STORAGE_KEY;
+export const recentSearchStorageKey = browserLocalDataStore.key(STORAGE_NAME);

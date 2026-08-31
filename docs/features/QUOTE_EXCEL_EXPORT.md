@@ -17,6 +17,10 @@
 
 ## Business rules
 
+- 一个 Revision 仍生成一个 Workbook，一个 PriceVersion 生成一个 Sheet。每张 Sheet 的制作国家标题、加工币种、加成率和工价结果只读取该 PriceVersion 的 `pricingParameters` 快照，不读取统一 Revision 参数或实时系统预设。
+- 面料单耗由正式 calculator 先计算原始 kg/meter 公式，再按第五位四舍五入规范为四位业务值。成本、UI 和 Excel 共用该值；Excel 写入真实 number，并为正式模板及动态占位符插入行统一设置 `0.0000`。
+- 历史 Revision 本体不会因精度规则被批量改写；历史导出在读取既有输入快照后通过同一 calculator 生成四位单耗。
+
 - 正式模板为 `templates/quote-export-template-v1.xlsx`，源模板不得被运行时代码改写。
 - 可维护模板使用 `{{namespace.field}}` 占位符；fabric/trim/labor/otherCost 行按字段命名识别并动态复制，不依赖固定行号。
 - 客户报价导出输入模型不含 EstimateCost，且模板验证拒绝 `{{estimate.*}}`，内部估算数据不得进入客户文件。

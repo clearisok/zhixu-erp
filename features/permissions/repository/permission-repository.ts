@@ -1,6 +1,12 @@
-import { DEFAULT_PERMISSION_STATE, PERMISSION_KEYS, type PermissionKey, type PermissionState } from "../model/permissions";
+import { DEFAULT_PERMISSION_STATE, PERMISSION_KEYS, type PermissionKey, type PermissionState } from "../model/permissions.ts";
+import {
+  browserLocalDataStore,
+  LEGACY_LOCAL_DATA_KEYS,
+  type LocalDataStore,
+} from "../../data-management/repository/local-data-store.ts";
 
-const STORAGE_KEY = "zhixu.permission-state.v1";
+export const PERMISSION_STORAGE_NAME = "permission-state";
+export const PERMISSION_RESET_CONFIRMATION = "RESET PERMISSIONS";
 
 function normalize(input: unknown): PermissionState {
   if (!input || typeof input !== "object") return structuredClone(DEFAULT_PERMISSION_STATE);
@@ -17,24 +23,27 @@ function normalize(input: unknown): PermissionState {
   return { schemaVersion: 1, currentUserId: fallbackUserId, users: candidate.users, roles };
 }
 
-export const permissionRepository = {
-  load(): PermissionState {
-    if (typeof window === "undefined") return structuredClone(DEFAULT_PERMISSION_STATE);
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      return raw ? normalize(JSON.parse(raw)) : structuredClone(DEFAULT_PERMISSION_STATE);
-    } catch {
-      return structuredClone(DEFAULT_PERMISSION_STATE);
-    }
-  },
-  save(state: PermissionState): PermissionState {
-    const normalized = normalize(state);
-    if (typeof window !== "undefined") window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-    return normalized;
-  },
-  reset(): PermissionState {
-    const next = structuredClone(DEFAULT_PERMISSION_STATE);
-    if (typeof window !== "undefined") window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    return next;
-  },
-};
+export function createPermissionRepository(store: LocalDataStore = browserLocalDataStore) {
+  return {
+    load(): PermissionState {
+      return normalize(store.initialize(PERMISSION_STORAGE_NAME, {
+        seed: () => structuredClone(DEFAULT_PERMISSION_STATE),
+        legacySources: typeof window === "undefined" ? [] : [{ key: LEGACY_LOCAL_DATA_KEYS.permissionState, storage: window.localStorage }],
+        migrate: normalize,
+      }));
+    },
+    save(state: PermissionState): PermissionState {
+      const normalized = normalize(state);
+      store.save(PERMISSION_STORAGE_NAME, normalized);
+      return normalized;
+    },
+    reset(confirmation: string): PermissionState {
+      if (confirmation !== PERMISSION_RESET_CONFIRMATION) throw new Error("恢复默认权限需要明确二次确认");
+      const next = structuredClone(DEFAULT_PERMISSION_STATE);
+      store.save(PERMISSION_STORAGE_NAME, next);
+      return next;
+    },
+  };
+}
+
+export const permissionRepository = createPermissionRepository();

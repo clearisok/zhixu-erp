@@ -3,12 +3,13 @@
 import { useState } from "react";
 import type { QuoteValidationIssue } from "../model/quote-validation";
 
-export function ValidationSummary({ title = "请先完成以下内容", issues, onSelect }: {
+export function ValidationSummary({ title = "请先完成以下内容", issues, onSelect, initiallyExpanded = false }: {
   title?: string;
   issues: QuoteValidationIssue[];
   onSelect?: (issue: QuoteValidationIssue) => void;
+  initiallyExpanded?: boolean;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(initiallyExpanded);
   if (!issues.length) return null;
 
   return <section className={`qc-validation-summary ${expanded ? "is-expanded" : ""}`} role="alert">

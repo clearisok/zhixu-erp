@@ -19,18 +19,18 @@
 - `database/002_admin.sql` 在用户名不存在时创建初始管理员。
 - 数据保存在 Compose 命名 volume `zhixu_data` 中。
 
-### Quote Center（当前浏览器 mock 路径）
+### Quote Center、订单、排单与关账（当前浏览器 mock 路径）
 
 ```text
-浏览器 /quote-center 和 /basic-settings
+浏览器 /quote-center、/order-center、/production-scheduling、/closing-center、/basic-settings 和 /system-settings
   -> React feature 组件与领域函数
   -> mock repository / browser storage
-     - 报价结构和附件 ID：sessionStorage
-     - 基础资料、全局费用、个人列表偏好：localStorage
+     - 报价、订单、排单、关账、附件 ID、基础资料、生产基础设施设置、权限与日志：稳定 schemaVersion localStorage namespace
      - 附件 metadata 与二进制 Blob：IndexedDB
+     - 用户 Excel 模板 metadata 与 Blob：IndexedDB
 ```
 
-Quote Center 不调用根路径 ERP 的 `/api/quotes`，也没有独立真实后端、数据库表或 migration。Revision、PriceVersion、成本明细、基础资料和附件只存在于当前前端实现及浏览器本地存储中。
+新 Quote Center/订单/排单/关账路径不调用根路径 ERP 的 `/api/quotes`、旧订单 API 或旧 schedules，也没有独立真实后端或数据库表。Revision、PriceVersion、单款 SalesOrder、ScheduleAssignment、ClosingPeriod、ClosingAllocation、基础资料和附件只存在于当前前端实现及浏览器本地存储中。浏览器数据使用 `zhixu.erp.local.*` 稳定命名空间、`schemaVersion = 9` 和向前迁移；v5 OrderItem 与 v8 ProductionPlan 只作为迁移输入，旧 sessionStorage/localStorage key 只作为兼容迁移来源。
 
 ### Vinext / Cloudflare 路径
 
@@ -58,12 +58,21 @@ Quote Center 不调用根路径 ERP 的 `/api/quotes`，也没有独立真实后
 | `/quote-center` | 报价中心列表 | Quote mock repository |
 | `/quote-center/new` | 新建报价 | 内存草稿，保存后进入 mock repository |
 | `/quote-center/detail?id=...` | 报价详情/Revision/PriceVersion 编辑 | Quote mock repository |
+| `/order-center` | 新订单中心列表与筛选 | Order browser repository |
+| `/order-center/new` | 手工订单或翻单草稿 | Order domain service；保存后进入 repository |
+| `/order-center/detail?id=...` | 订单详情、交期/数量/价格历史、附件与日志 | Order browser repository + IndexedDB attachments |
+| `/production-scheduling` | 直接排单、内部生产队列、外发固定排期、物流建议与交期风险 | ProductionScheduling browser repository |
+| `/closing-center` | 月度关账、归属快照、产值平衡与锁账 | Closing browser repository |
 | `/basic-settings/brands` | 品牌设置 | localStorage |
 | `/basic-settings/customer-salespeople` | 客户业务员设置 | localStorage |
 | `/basic-settings/fabrics` | 面料库 | localStorage |
 | `/basic-settings/trims` | 辅料库 | localStorage |
+| `/basic-settings/production-groups` | 生产组基础资料 | localStorage |
+| `/basic-settings/outsource-factories` | 外发厂基础资料 | localStorage |
+| `/system-settings/closing-settings` | 关账默认税率与月度生产目标 | localStorage |
+| `/system-settings/data-management` | 浏览器数据备份、恢复和显式重置 | localStorage + IndexedDB repositories |
 
-共用 UI Foundation 位于 `components/foundation/`。Quote Center 领域代码位于 `features/quote-center/`，基础资料位于 `features/basic-settings/`。
+共用 UI Foundation 位于 `components/foundation/`。Quote Center 领域代码位于 `features/quote-center/`，订单领域位于 `features/order-center/`，排单位于 `features/production-scheduling/`，关账位于 `features/closing-center/`，报价基础资料位于 `features/basic-settings/`，共用生产设置位于 `features/operations-settings/`。正式关系为 `SalesOrder → ScheduleAssignment[]`，以及 `SalesOrder → ClosingAllocation`（可选引用稳定 ScheduleAssignment）。这些浏览器领域不修改根路径 PostgreSQL schema。
 
 ## 数据库与 migration 状态
 
@@ -96,7 +105,8 @@ Quote Center 不调用根路径 ERP 的 `/api/quotes`，也没有独立真实后
 - 运行实例通过 `/build-info.json` 和页面底部标识暴露 environment/buildId/gitCommit/buildTime。HTML 与 Build Info 禁止长期缓存，带 hash 的 `/assets/*` 使用长期 immutable 缓存。
 - `Backup-Zhixu.ps1` / `Restore-Zhixu.ps1`：PostgreSQL 备份与恢复；恢复要求显式确认数据丢失。
 - `Build-Local.ps1` 对 Windows 下特定 Vinext 退出异常有容错，但只有生成新鲜且含 ZHIXU 标识的 `dist/client/index.html` 才视为成功。
+- Quote Center 浏览器数据的 Build/HMR/rebuild 安全规则见 `docs/features/DATA_LIFECYCLE.md`；这些构建脚本不读取、清理或重置浏览器 localStorage/IndexedDB。
 
 ## 测试边界
 
-自动化测试主要覆盖 Quote Center 模型、计算、Revision、全局费用、基础资料、Foundation 表单行为和源码契约。当前没有覆盖 PostgreSQL `api_dispatch` 的集成测试，也没有容器级端到端测试。任何数据库/API 修改都不能仅凭前端测试判断安全。
+自动化测试主要覆盖 Quote Center、订单、排单、关账、计算、Revision、全局费用、基础资料、Foundation 表单行为和源码契约。订单到关账测试覆盖持久化、Quote 转单、翻单、交期、数量/价格历史、生产投影、关账快照/产值/锁定、权限、日志、搜索与备份恢复。当前没有覆盖 PostgreSQL `api_dispatch` 的集成测试，也没有容器级端到端测试。任何数据库/API 修改都不能仅凭前端测试判断安全。

@@ -5,7 +5,7 @@
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
 
 - 根路径 ERP：报价、订单、排单、用户和审计功能，使用 PostgreSQL 持久化，并由数据库函数提供 API。
-- Quote Center：新报价中心、报价 Revision/PriceVersion、基础资料和统一 UI Foundation，当前仍使用浏览器 mock 持久化，与根路径 ERP 后端隔离。
+- Quote Center 路径：新报价中心、报价 Revision/PriceVersion、新订单中心、基础资料和统一 UI Foundation，当前仍使用浏览器 mock 持久化，与根路径 ERP 后端隔离。
 
 两条路径都是真实现，但边界和成熟度不同。开始任务前必须先确认目标模块。
 
@@ -28,10 +28,15 @@
 | --- | --- |
 | `app/` | Vinext/React 路由；根路径 ERP、Quote Center 和基础设置入口 |
 | `features/quote-center/` | Quote Center 领域模型、mock repository、计算、工作流、页面组件和测试 |
+| `features/order-center/` | 单款 SalesOrder 订单领域、v5→v6 LegacyOrderItem 迁移、Repository、服务、页面、附件引用和测试 |
+| `features/production-scheduling/` | 直接归属订单的排单、内部生产队列、完成数量、物料运输、订单预警与交期风险投影 |
+| `features/closing-center/` | 月度关账、归属快照、产值投影、锁账生命周期与关账搜索 |
 | `features/basic-settings/` | 品牌、客户业务员、面料库、辅料库及默认资料逻辑 |
+| `features/operations-settings/` | 生产组、外发厂、生产地点/日历、供应枢纽/路线/运输方式及关账设置基础设施 |
 | `features/permissions/` | Quote Center 前端 User / Role / Permission、mock repository、权限上下文和用户权限页面 |
 | `features/operation-logs/` | 统一追加式 OperationLog、差异生成、localStorage repository、报价时间线和系统全局查询页 |
-| `features/global-search/` | ERP Command Palette、SearchProvider 注册表、Quote 搜索和最近访问 |
+| `features/global-search/` | ERP Command Palette、SearchProvider 注册表、Quote/Order 搜索和最近访问 |
+| `features/data-management/` | 浏览器长期数据 schema、非破坏性迁移、测试隔离、备份恢复和危险重置 |
 | `components/foundation/` | 共用页面、表单、Modal、选择器、表格、Toast 等 UI 基础组件 |
 | `components/` | 根路径 ERP 使用的通用图标和品牌组件 |
 | `database/` | PostgreSQL schema、`api_dispatch` API 函数和初始管理员脚本 |
@@ -52,15 +57,20 @@
 | --- | --- | --- |
 | 根路径 ERP、登录、报价/订单/排单 | `features/LEGACY_ERP.md` | `app/page.tsx`、`database/001_schema.sql`、根目录 `docker-serve.sh` |
 | Quote Center | `features/QUOTE_CENTER.md` | `app/quote-center/`、`features/quote-center/` |
+| 新订单中心、报价转订单、翻单、交期与订单价格历史 | `features/ORDER_CENTER.md`、`features/OPERATIONS_FOUNDATION.md`、`features/DATA_LIFECYCLE.md` | `app/order-center/`、`features/order-center/`、`tests/order-center.test.mjs` |
+| 生产队列、排单中心、物料运输、订单预警与交期风险 | `features/PRODUCTION_SCHEDULING.md`、`features/ORDER_CENTER.md`、`features/OPERATIONS_FOUNDATION.md`、`features/PERMISSIONS.md` | `app/production-scheduling/`、`features/production-scheduling/`、`tests/production-scheduling.test.mjs` |
+| 关账月份、关账归属、月度产值与锁账 | `features/CLOSING_CENTER.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/PERMISSIONS.md` | `app/closing-center/`、`features/closing-center/`、`tests/closing-center.test.mjs` |
 | Quote Center 附件 | `features/ATTACHMENTS.md`、`features/QUOTE_CENTER.md` | `quote-attachments.ts`、`attachment-panel.tsx`、附件 repository |
 | Quote Center Excel 导出 | `features/QUOTE_EXCEL_EXPORT.md`、`features/QUOTE_CENTER.md` | `features/quote-center/export/`、`quote-export-modal.tsx`、正式模板 |
 | 模板设置 | `features/TEMPLATE_SETTINGS.md`、`features/QUOTE_EXCEL_EXPORT.md` | `features/template-settings/`、`app/basic-settings/templates/`、`templates/` |
 | 报价批量导出 | `features/QUOTE_BATCH_EXPORT.md`、`features/QUOTE_CENTER.md` | `quote-list.tsx`、`batch-export-modal.tsx`、`quote-batch-exporter.ts` |
 | 估算成本 | `features/ESTIMATE_COST.md`、`features/QUOTE_CENTER.md` | `model/estimate-cost.ts`、`estimate-cost-panel.tsx`、Revision 管理 Modal |
 | 品牌、客户业务员、面辅料库 | `features/BASIC_SETTINGS.md` | `app/basic-settings/`、`features/basic-settings/` |
+| 生产组、外发厂、生产地点/日历、物流路线、关账设置 | `features/OPERATIONS_FOUNDATION.md`、`features/PERMISSIONS.md`、`features/DATA_LIFECYCLE.md` | `features/operations-settings/`、对应基础/系统设置路由、`tests/operations-infrastructure.test.mjs` |
 | 用户、角色与权限 | `features/PERMISSIONS.md`、`features/UI_FOUNDATION.md` | `features/permissions/`、`components/foundation/button.tsx`、用户权限路由 |
 | Quote Center / 全局操作日志 | `features/OPERATION_LOGS.md`、`features/QUOTE_CENTER.md` | `features/operation-logs/`、`app/system-settings/operation-logs/`、`quote-editor.tsx`、日志测试 |
 | ERP 全局搜索 | `features/GLOBAL_SEARCH.md`、`features/PERMISSIONS.md` | `features/global-search/`、`components/foundation/app-shell.tsx`、`tests/global-search.test.mjs` |
+| 浏览器数据生命周期、迁移、备份恢复 | `features/DATA_LIFECYCLE.md` | `features/data-management/`、各 browser repository、`tests/data-lifecycle.test.mjs` |
 | 表单、Modal、选择器和 App Shell | `features/UI_FOUNDATION.md` | `components/foundation/`、`app/globals.css` |
 | 数据库/API | `features/LEGACY_ERP.md`、`SYSTEM_OVERVIEW.md` | `database/*.sql`、根目录 `docker-serve.sh` |
 | 本地 Docker/备份恢复 | `features/LEGACY_ERP.md`、README | `Dockerfile`、`docker-compose.yml`、根目录 `*.ps1`、`*.sh` |

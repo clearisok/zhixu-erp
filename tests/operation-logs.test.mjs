@@ -34,6 +34,7 @@ test("面料价格保存差异记录用户、时间、字段与修改前后值",
   assert.equal(fabricLog.createdAt, now);
   assert.equal(fabricLog.beforeData?.values?.单价, 23.5);
   assert.equal(fabricLog.afterData?.values?.单价, 24.8);
+  assert.deepEqual(fabricLog.changes.find((change) => change.field === "单价"), { field: "单价", beforeValue: 23.5, afterValue: 24.8 });
   assert.equal(fabricLog.beforeData?.rowName, "精梳棉40S");
   assert.ok(logs.some((log) => log.action === "保存报价"));
 });
@@ -47,7 +48,31 @@ test("辅料、工价和其他费用分别形成独立日志", () => {
   version.otherCosts[0].unitPrice = 1;
   version.otherCosts[0].amount = 1;
   const actions = createQuoteOperationLogs(before, after, actor, now).map((log) => log.action).filter((action) => action !== "保存报价");
-  assert.deepEqual(actions, ["修改辅料成本", "修改其他费用", "修改工价"]);
+  assert.deepEqual(actions, ["修改辅料成本", "修改其他费用", "修改报价工价"]);
+});
+
+test("字段级日志严格区分空、2 和 0，并记录供应商及成本加成率", () => {
+  const before = quoteWithCosts("field-values");
+  const beforeRevision = getDefaultRevision(before);
+  beforeRevision.priceVersions[0].trims[0].usage = null;
+  beforeRevision.priceVersions[0].pricingParameters.markupRate = 8;
+
+  const changed = structuredClone(before);
+  const changedRevision = getDefaultRevision(changed);
+  changedRevision.priceVersions[0].trims[0].usage = 2;
+  changedRevision.priceVersions[0].trims[0].supplier = "新辅料厂";
+  changedRevision.priceVersions[0].pricingParameters.markupRate = 10;
+  const firstLogs = createQuoteOperationLogs(before, changed, actor, now);
+  const trimLog = firstLogs.find((log) => log.action === "修改辅料成本");
+  const pricingLog = firstLogs.find((log) => log.action === "修改价格版本" && log.changes.some((change) => change.field === "成本加成率"));
+  assert.deepEqual(trimLog?.changes.find((change) => change.field === "数量/用量"), { field: "数量/用量", beforeValue: null, afterValue: 2 });
+  assert.deepEqual(trimLog?.changes.find((change) => change.field === "供应商"), { field: "供应商", beforeValue: "辅料厂", afterValue: "新辅料厂" });
+  assert.deepEqual(pricingLog?.changes.find((change) => change.field === "成本加成率"), { field: "成本加成率", beforeValue: 8, afterValue: 10 });
+
+  const zeroed = structuredClone(changed);
+  getDefaultRevision(zeroed).priceVersions[0].trims[0].usage = 0;
+  const zeroLog = createQuoteOperationLogs(changed, zeroed, actor, now).find((log) => log.action === "修改辅料成本");
+  assert.deepEqual(zeroLog?.changes.find((change) => change.field === "数量/用量"), { field: "数量/用量", beforeValue: 2, afterValue: 0 });
 });
 
 test("价格版本创建、删除和客户确认均追加动作记录", () => {
@@ -126,10 +151,12 @@ test("Quote Editor 在保存成功后统一追加日志并提供只读时间线�
   const editor = await readFile(new URL("../features/quote-center/components/quote-editor.tsx", import.meta.url), "utf8");
   const panel = await readFile(new URL("../features/operation-logs/components/operation-log-modal.tsx", import.meta.url), "utf8");
   const quoteModel = await readFile(new URL("../features/quote-center/model/quote-view-model.ts", import.meta.url), "utf8");
-  assert.match(editor, /await mockQuoteRepository\.save\(quote\);\s+await appendSavedOperationLogs\(quote\)/);
+  assert.match(editor, /await mockQuoteRepository\.save\(targetQuote\);\s+await appendSavedOperationLogs\(targetQuote, additionalLogs\)/);
   assert.match(editor, /await mockQuoteRepository\.save\(next\);\s+await appendSavedOperationLogs\(next\)/);
-  assert.match(editor, />操作记录</);
-  assert.match(panel, /qc-operation-log-timeline/);
+  assert.match(editor, /const operationId = createOperationId\(\)/);
+  assert.match(editor, /assignOperationMetadata/);
+  assert.match(editor, /label: "操作记录"/);
+  assert.match(panel, /OperationLogGroupList/);
   assert.doesNotMatch(panel, /删除日志|编辑日志/);
   assert.doesNotMatch(quoteModel, /OperationLog|operationLogs/);
 });

@@ -4,6 +4,8 @@ import { readFile } from "node:fs/promises";
 import {
   COMPACT_WIDTH,
   MOBILE_WIDTH,
+  PRIMARY_WIDTH,
+  WIDE_WIDTH,
   resolveResponsiveMode,
   isCompactDesktop,
   isTrueMobile,
@@ -14,16 +16,16 @@ const fine = (width) => ({ width, hasHover: true, hasFinePointer: true, hasCoars
 const touch = (width) => ({ width, hasHover: false, hasFinePointer: false, hasCoarsePointer: true });
 
 test("R1 Desktop 1920：不是 Mobile", () => {
-  assert.equal(resolveResponsiveMode(fine(1920)), "desktop");
+  assert.equal(resolveResponsiveMode(fine(1920)), "wide");
   assert.equal(isTrueMobile(fine(1920)), false);
 });
 
 test("R2 Desktop 1366：不是 Mobile", () => {
-  assert.equal(resolveResponsiveMode(fine(1366)), "compact");
+  assert.equal(resolveResponsiveMode(fine(1366)), "primary");
   assert.equal(isTrueMobile(fine(1366)), false);
 });
 
-for (const [rule, width] of [["R3", 1024], ["R4", 900], ["R5", 800], ["R6", 700], ["R7", 650]]) {
+for (const [rule, width] of [["R3", 1099], ["R4", 900], ["R5", 800], ["R6", 700], ["R7", 600]]) {
   test(`${rule} Fine pointer + ${width}px：Compact Desktop`, () => {
     assert.equal(resolveResponsiveMode(fine(width)), "compact");
     assert.equal(isCompactDesktop(fine(width)), true);
@@ -31,12 +33,13 @@ for (const [rule, width] of [["R3", 1024], ["R4", 900], ["R5", 800], ["R6", 700]
   });
 }
 
-test("R8 Compact Desktop 不显示 Bottom Navigation", async () => {
-  const [shell, globalCss] = await Promise.all([read("components/foundation/app-shell.tsx"), read("app/globals.css")]);
-  assert.match(shell, /viewportMode === "mobile" && <nav className="ops-mobile-nav"/);
+test("R8 Compact Desktop 不显示 Mobile Navigation Drawer trigger", async () => {
+  const [shell, foundationCss] = await Promise.all([read("components/foundation/app-shell.tsx"), read("app/foundation.css")]);
+  assert.match(shell, /touchNavigation = viewportMode === "tablet" \|\| viewportMode === "mobile"/);
   assert.match(shell, /data-responsive-mode=\{viewportMode\}/);
-  assert.match(globalCss, /data-responsive-mode="mobile"[^}]*\.ops-mobile-nav/);
-  assert.doesNotMatch(globalCss, /@media \(max-width:\s*767px\)[^{]*\{[\s\S]*?\.ops-mobile-nav[^}]*display:\s*grid/);
+  assert.match(shell, /<Drawer open=\{navigationOpen && touchNavigation\}/);
+  assert.doesNotMatch(shell, /<nav className="ops-mobile-nav"/);
+  assert.match(foundationCss, /data-responsive-mode="compact"[^}]*\.ops-sidebar[^}]*display:\s*flex/s);
 });
 
 test("R9 Compact Desktop 保留完整报价操作", async () => {
@@ -46,41 +49,43 @@ test("R9 Compact Desktop 保留完整报价操作", async () => {
   }
 });
 
-test("R10 Compact Desktop Quote Center 不切 Mobile Card List", async () => {
-  const responsiveCss = await read("app/quote-center/responsive.css");
-  assert.match(responsiveCss, /max-width:\s*1023px\) and \(hover:\s*hover\) and \(pointer:\s*fine\)/);
-  assert.match(responsiveCss, /qc-desktop-quote-table[^}]*display:\s*block !important/);
-  assert.match(responsiveCss, /qc-mobile-quote-list[^}]*display:\s*none !important/);
+test("R10 Phase 4 Compact Desktop Quote Center 使用 Compact Record，不强撑宽表", async () => {
+  const quoteCss = await read("app/quote-center/quote-center.css");
+  assert.match(quoteCss, /data-responsive-mode="compact"[^}]*qc-desktop-quote-table[^}]*display:\s*none !important/s);
+  assert.match(quoteCss, /data-responsive-mode="compact"[^}]*qc-mobile-quote-list[^}]*display:\s*grid !important/s);
 });
 
-test("R11-R12 Search / Type / Status 始终同一行且比例为 6:2:2", async () => {
-  const [list, responsiveCss] = await Promise.all([read("features/quote-center/components/quote-list.tsx"), read("app/quote-center/responsive.css")]);
-  assert.match(list, /<Card className="qc-filter-card"><div className="qc-filter-search"/);
-  assert.match(list, /<span>报价类型<\/span>/);
-  assert.match(list, /<span>报价状态<\/span>/);
-  assert.match(responsiveCss, /grid-template-columns:\s*minmax\(0,\s*6fr\)\s*minmax\(0,\s*2fr\)\s*minmax\(0,\s*2fr\)/);
-  assert.doesNotMatch(responsiveCss, /\.qc-filter-card[^}]*grid-template-columns:\s*(?:1fr|repeat\(2)/);
+test("R11-R12 Phase 4 报价列表使用统一 Toolbar 与既有真实筛选字段", async () => {
+  const list = await read("features/quote-center/components/quote-list.tsx");
+  assert.match(list, /<Toolbar className="qc-quote-toolbar"/);
+  assert.match(list, /<SearchField/);
+  assert.match(list, /label="报价类型"/);
+  assert.match(list, /label="报价状态"/);
+  assert.match(list, /resultSummary=\{`显示 \$\{rows\.length\} \/ \$\{quotes\.length\} 条`\}/);
 });
 
-test("R13 不存在筛选 Drawer", async () => {
-  const [list, quoteCss, responsiveCss] = await Promise.all([read("features/quote-center/components/quote-list.tsx"), read("app/quote-center/quote-center.css"), read("app/quote-center/responsive.css")]);
-  for (const source of [list, quoteCss, responsiveCss]) {
-    assert.doesNotMatch(source, /mobileFiltersOpen|qc-mobile-filter|筛选报价/);
-  }
-  assert.match(list, /qc-list-result-count/);
+test("R13 Phase 4 Mobile 筛选复用 Foundation MobileSheet", async () => {
+  const [list, toolbar] = await Promise.all([read("features/quote-center/components/quote-list.tsx"), read("components/foundation/toolbar.tsx")]);
+  assert.match(list, /mobileFilterTitle="报价筛选"/);
+  assert.match(toolbar, /<MobileSheet/);
+  assert.match(toolbar, /qc-toolbar-more-filters/);
+  assert.doesNotMatch(list, /mobileFiltersOpen|qc-mobile-filter/);
 });
 
-test("R14 Mobile 390 + coarse pointer：Mobile Mode", () => {
+test("R14 Mobile <600：pointer / hover 不得阻止 Mobile Mode", () => {
   assert.equal(resolveResponsiveMode(touch(390)), "mobile");
   assert.equal(isTrueMobile(touch(390)), true);
-  assert.equal(resolveResponsiveMode(touch(375)), "mobile");
-  assert.equal(isTrueMobile(touch(375)), true);
+  assert.equal(resolveResponsiveMode(fine(402)), "mobile");
+  assert.equal(resolveResponsiveMode(fine(440)), "mobile");
+  assert.equal(resolveResponsiveMode(fine(599)), "mobile");
 });
 
-test("R15 Mobile Bottom Navigation 正常", async () => {
-  const [shell, globalCss] = await Promise.all([read("components/foundation/app-shell.tsx"), read("app/globals.css")]);
-  assert.match(shell, /ops-mobile-nav/);
-  assert.match(globalCss, /data-responsive-mode="mobile"[^}]*\.ops-mobile-nav[^}]*display:\s*grid/s);
+test("R15 Mobile App Header 与 Navigation Drawer 正常", async () => {
+  const [shell, foundationCss] = await Promise.all([read("components/foundation/app-shell.tsx"), read("app/foundation.css")]);
+  assert.match(shell, /ops-mobile-menu-trigger/);
+  assert.match(shell, /className="ops-navigation-drawer"/);
+  assert.match(foundationCss, /data-responsive-mode="mobile"[^}]*\.ops-sidebar[^}]*display:\s*none/s);
+  assert.match(foundationCss, /data-responsive-mode="mobile"[^}]*\.ops-topbar/s);
 });
 
 test("R16 Mobile 相册 / Camera 不退化", async () => {
@@ -91,22 +96,31 @@ test("R16 Mobile 相册 / Camera 不退化", async () => {
 });
 
 test("R17 Tablet touch mode 正常", () => {
-  assert.equal(resolveResponsiveMode(touch(768)), "tablet");
-  assert.equal(resolveResponsiveMode(touch(1023)), "tablet");
-  assert.equal(resolveResponsiveMode(touch(1024)), "compact");
+  assert.equal(resolveResponsiveMode(touch(600)), "tablet");
+  assert.equal(resolveResponsiveMode(touch(1099)), "tablet");
+  assert.equal(resolveResponsiveMode(touch(1100)), "primary");
 });
 
 test("R18 Desktop Sidebar 不回归", async () => {
-  const globalCss = await read("app/globals.css");
-  assert.equal(MOBILE_WIDTH, 768);
+  const foundationCss = await read("app/foundation.css");
+  assert.equal(MOBILE_WIDTH, 600);
+  assert.equal(PRIMARY_WIDTH, 1100);
+  assert.equal(WIDE_WIDTH, 1440);
   assert.equal(COMPACT_WIDTH, 1440);
-  assert.match(globalCss, /\.ops-sidebar[^}]*position:\s*fixed[^}]*width:\s*186px[^}]*height:\s*100dvh/s);
-  assert.match(globalCss, /data-responsive-mode="compact"[^}]*\.ops-sidebar[^}]*width:\s*78px/s);
+  assert.match(foundationCss, /data-responsive-mode="primary"[^}]*\.ops-sidebar[^}]*width:\s*186px/s);
+  assert.match(foundationCss, /data-responsive-mode="compact"[^}]*\.ops-sidebar[^}]*width:\s*78px/s);
+});
+
+test("R18.1 AppShell 在浏览器首帧前解析真实模式，路由切换不闪出展开侧栏", async () => {
+  const responsive = await read("components/foundation/responsive.ts");
+  assert.match(responsive, /useLayoutEffect\(\(\) => \{/);
+  assert.doesNotMatch(responsive, /useEffect\(\(\) => \{[\s\S]*?updateMode\(\)/);
 });
 
 test("R19 无 document-level horizontal overflow", async () => {
-  const globalCss = await read("app/globals.css");
+  const [globalCss, foundationCss] = await Promise.all([read("app/globals.css"), read("app/foundation.css")]);
   assert.match(globalCss, /html, body[^}]*overflow-x:\s*hidden/s);
+  assert.match(foundationCss, /ops-shell\.qc-app-shell[^}]*overflow:\s*hidden/s);
 });
 
 test("R20 Table horizontal scroll 只发生在 table container", async () => {

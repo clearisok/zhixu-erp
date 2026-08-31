@@ -2,10 +2,10 @@
 
 import type { TemplateDefinition } from "../model/template-definition";
 import type { TemplateRepository } from "./template-repository";
+import { browserLocalDataStore, LEGACY_LOCAL_DATA_KEYS } from "../../data-management/repository/local-data-store.ts";
 
 const DATABASE = "zhixu-export-templates";
 const STORE = "templates";
-const DEFAULT_KEY = "zhixu.template-settings.default.quote_customer";
 const BUILTIN_FORMAL_URL = new URL("../../../templates/quote-export-template-v1.xlsx", import.meta.url);
 const BUILTIN_PLACEHOLDER_URL = new URL("../../../templates/quote-customer-placeholder-v1.xlsx", import.meta.url);
 const BUILTIN_TIME = "2026-08-22T00:00:00.000Z";
@@ -23,6 +23,8 @@ export const BUILTIN_PLACEHOLDER_TEMPLATE: TemplateDefinition = {
 };
 
 type StoredTemplate = { definition: TemplateDefinition; blob: Blob };
+
+export type TemplateBackupRecord = StoredTemplate;
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -54,7 +56,12 @@ async function putStored(record: StoredTemplate): Promise<void> {
 }
 
 function defaultId(): string {
-  return typeof localStorage === "undefined" ? BUILTIN_FORMAL_TEMPLATE.id : localStorage.getItem(DEFAULT_KEY) || BUILTIN_FORMAL_TEMPLATE.id;
+  if (typeof localStorage === "undefined") return BUILTIN_FORMAL_TEMPLATE.id;
+  return browserLocalDataStore.initialize("template-default", {
+    seed: () => BUILTIN_FORMAL_TEMPLATE.id,
+    legacySources: [{ key: LEGACY_LOCAL_DATA_KEYS.templateDefault, storage: localStorage, deserialize: (raw) => raw }],
+    migrate: (value) => typeof value === "string" && value ? value : BUILTIN_FORMAL_TEMPLATE.id,
+  });
 }
 
 function withDefault(definitions: TemplateDefinition[]): TemplateDefinition[] {
@@ -81,13 +88,13 @@ export const indexedDbTemplateRepository: TemplateRepository = {
   async setDefault(id) {
     const definition = await this.getById(id);
     if (!definition?.enabled) throw new Error("停用模板不能设为默认");
-    localStorage.setItem(DEFAULT_KEY, id);
+    browserLocalDataStore.save("template-default", id);
   },
   async setEnabled(id, enabled) {
     const record = (await allStored()).find((item) => item.definition.id === id);
     if (!record) throw new Error("系统内置模板不能停用");
     await putStored({ ...record, definition: { ...record.definition, enabled, updatedAt: new Date().toISOString() } });
-    if (!enabled && defaultId() === id) localStorage.setItem(DEFAULT_KEY, BUILTIN_FORMAL_TEMPLATE.id);
+    if (!enabled && defaultId() === id) browserLocalDataStore.save("template-default", BUILTIN_FORMAL_TEMPLATE.id);
   },
   async copy(id, definition) {
     const blob = await this.getBlob(id);
@@ -102,4 +109,26 @@ export async function getDefaultQuoteCustomerTemplate(): Promise<{ definition: T
   const blob = await indexedDbTemplateRepository.getBlob(definition.id);
   if (!blob) throw new Error("默认报价模板文件不可用");
   return { definition, buffer: await blob.arrayBuffer() };
+}
+
+export async function exportStoredTemplates(): Promise<TemplateBackupRecord[]> {
+  return allStored();
+}
+
+export async function replaceStoredTemplates(records: TemplateBackupRecord[]): Promise<void> {
+  if (typeof indexedDB === "undefined") return;
+  const db = await openDatabase();
+  await new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction(STORE, "readwrite");
+    const store = transaction.objectStore(STORE);
+    store.clear();
+    for (const record of records) store.put(record);
+    transaction.oncomplete = () => { db.close(); resolve(); };
+    transaction.onerror = () => { db.close(); reject(transaction.error); };
+    transaction.onabort = () => { db.close(); reject(transaction.error ?? new Error("模板恢复事务已中止")); };
+  });
+}
+
+export async function clearStoredTemplates(): Promise<void> {
+  await replaceStoredTemplates([]);
 }

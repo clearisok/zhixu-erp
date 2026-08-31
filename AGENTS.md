@@ -27,17 +27,19 @@
 - 不擅自改变 `docs/BUSINESS_RULES.md`、feature 文档或 Active 决策中已经确认的业务规则。若需求与其冲突，先指出冲突并取得用户确认。
 - 严格区分根路径 ERP 与 Quote Center。两者当前具有不同的数据模型、计算口径和持久化方式，不得因为名称相同而混用接口或公式。
 - 不得删除、覆盖或破坏现有业务数据。执行恢复、清库、删除 volume、批量迁移或其他不可逆操作前，必须明确目标、备份和用户授权。
+- Quote Center DEV 浏览器数据是长期验收数据。修改任何 browser Repository、Seed、Storage key、schema 或 IndexedDB 前必须先读 `docs/features/DATA_LIFECYCLE.md`；只允许向前、幂等、非破坏迁移，禁止以换 key、静默 Seed 或测试全局 clear 处理旧数据。
 - 保留 dirty worktree 中与当前任务无关的改动；禁止用破坏性 Git 命令清理工作区。
 - 业务行为变化时，同步更新对应的 `docs/features/*.md` 和必要的测试。
 - 新的重要架构或业务决定写入 `docs/DECISION_LOG.md`，标明日期、状态和代码证据。旧决定不直接删除，应改为 Superseded 或 Deprecated 并说明替代项。
 - 大型任务完成后更新 `docs/CURRENT_STATE.md`。它只描述当前状态、风险和下一步，不堆积开发流水账。
+- 每个 Delivery Phase 必须独立完成版本控制收口：开始前记录 Branch、HEAD 与工作树 baseline，结束后只 stage 本 Phase 增量并创建独立 commit，最终报告 commit hash。若增量与继承 dirty hunks 无法安全隔离，必须停止提交并先完成明确的 baseline reconciliation，禁止猜测拆分历史。
 - 新增模块时，只有当模块复杂到需要独立恢复上下文时才新增 feature 文档；不要创建空壳文档。
 
 ## 数据库与 API 规则
 
 - 当前没有 Alembic 或 Python 后端。不要把 `database/*.sql`、空的 Drizzle/D1 scaffold 或聊天中的未来方案描述成已经存在的 migration/backend。
 - 修改 PostgreSQL schema、`api_dispatch`、初始化管理员或备份恢复流程前，先阅读 `docs/features/LEGACY_ERP.md`、相关 SQL 和脚本。
-- Quote Center 当前使用 mock repository、`sessionStorage`/`localStorage`，没有接入根路径的 `/api/quotes`。除非用户明确启动后端迁移任务，否则不得擅自接线。
+- Quote Center 当前使用 mock repository、稳定 schemaVersion localStorage namespace 与 IndexedDB；旧 `sessionStorage`/带版本 localStorage key 只用于兼容迁移。它没有接入根路径的 `/api/quotes`。除非用户明确启动后端迁移任务，否则不得擅自接线。
 
 ## 验证与交付
 

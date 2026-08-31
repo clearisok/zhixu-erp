@@ -13,7 +13,7 @@
 
 ## Data model and persistence
 
-`TemplateDefinition` 保存稳定 ID、类型、名称、版本、文件名、默认/启用状态和审计时间。用户模板 metadata 与 Blob 通过 `TemplateRepository` 存入浏览器 IndexedDB `zhixu-export-templates`；默认模板 ID 使用轻量 localStorage 指针。没有把二进制写入 localStorage。
+`TemplateDefinition` 保存稳定 ID、类型、名称、版本、文件名、默认/启用状态和审计时间。用户模板 metadata 与 Blob 通过 `TemplateRepository` 存入浏览器 IndexedDB `zhixu-export-templates`；默认模板 ID 使用稳定 localStorage `zhixu.erp.local.template-default` 指针。没有把二进制写入 localStorage；数据管理备份会在用户主动导出时把用户模板 Blob 放入备份文件。
 
 ## Placeholder and dynamic rows
 

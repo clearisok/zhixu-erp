@@ -12,5 +12,6 @@ export interface AttachmentRepository {
   get(id: string): Promise<AttachmentViewModel | null>;
   list(ids: string[]): Promise<AttachmentViewModel[]>;
   getBlob(id: string): Promise<Blob | null>;
+  rename(id: string, name: string): Promise<AttachmentViewModel>;
   delete(id: string): Promise<void>;
 }

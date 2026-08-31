@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type ClipboardEvent, type DragEvent } from "react";
 import { createPortal } from "react-dom";
-import { Button, Card, Modal } from "@/components/foundation";
+import { Button, Card, FormItem, Modal } from "@/components/foundation";
 import {
   adjacentPreviewAttachmentId,
   attachmentNeedsDeleteConfirmation,
@@ -13,6 +13,7 @@ import {
   isVideoAttachment,
   legacyAttachmentViewModel,
   removeAttachmentFromRevision,
+  renamedAttachmentFileName,
   setRevisionStyleImage,
   type AttachmentKind,
   type AttachmentViewModel,
@@ -144,6 +145,8 @@ export function QuoteAttachmentPanel({ revision, readOnly, createdBy, previewAtt
   const [attachments, setAttachments] = useState<AttachmentViewModel[]>([]);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deleteStyleTarget, setDeleteStyleTarget] = useState<AttachmentViewModel | null>(null);
+  const [renameTarget, setRenameTarget] = useState<AttachmentViewModel | null>(null);
+  const [renameDraft, setRenameDraft] = useState("");
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteFeedback, setPasteFeedback] = useState("");
   const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
@@ -342,6 +345,24 @@ export function QuoteAttachmentPanel({ revision, readOnly, createdBy, previewAtt
   };
 
   const safeDownload = (attachment: AttachmentViewModel) => downloadAttachment(attachment).catch((error) => notify(error instanceof Error ? error.message : "附件下载失败。"));
+  const openRename = (attachment: AttachmentViewModel) => {
+    setOpenMenuId(null);
+    setRenameTarget(attachment);
+    setRenameDraft(attachment.name);
+  };
+  const renameAttachment = async () => {
+    if (!renameTarget) return;
+    try {
+      const name = renamedAttachmentFileName(renameTarget.name, renameDraft);
+      const updated = await indexedDbAttachmentRepository.rename(renameTarget.id, name);
+      setAttachments((current) => current.map((item) => item.id === updated.id ? updated : item));
+      setRenameTarget(null);
+      setRenameDraft("");
+      notify(`图片名称已修改为“${updated.name}”`);
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "图片名称修改失败，请重试。");
+    }
+  };
   const active = tab === "image" ? images : files;
 
   return <Card className="qc-attachment-card">
@@ -357,11 +378,12 @@ export function QuoteAttachmentPanel({ revision, readOnly, createdBy, previewAtt
         <AttachmentThumbnail attachment={attachment} onOpen={() => onPreviewAttachmentIdChange(attachment.id)} />
         <div className="qc-attachment-image-meta"><span title={attachment.name}>{attachment.name}</span>{revision.styleImageAttachmentId === attachment.id && <b>款式图</b>}</div>
         <button type="button" className="qc-attachment-more" aria-label={`${attachment.name} 更多操作`} onClick={() => setOpenMenuId(openMenuId === attachment.id ? null : attachment.id)}>•••</button>
-        {openMenuId === attachment.id && <div className="qc-attachment-action-menu">{!readOnly && (revision.styleImageAttachmentId === attachment.id ? <span>当前款式图</span> : <button type="button" onClick={() => setStyleImage(attachment)}>设为款式图</button>)}<button type="button" onClick={() => safeDownload(attachment)}>下载</button>{!readOnly && <button type="button" className="is-danger" onClick={() => requestDelete(attachment)}>删除</button>}</div>}
+        {openMenuId === attachment.id && <div className="qc-attachment-action-menu">{!readOnly && (revision.styleImageAttachmentId === attachment.id ? <span>当前款式图</span> : <button type="button" onClick={() => setStyleImage(attachment)}>设为款式图</button>)}{!readOnly && <button type="button" onClick={() => openRename(attachment)}>编辑名称</button>}<button type="button" onClick={() => safeDownload(attachment)}>下载</button>{!readOnly && <button type="button" className="is-danger" onClick={() => requestDelete(attachment)}>删除</button>}</div>}
       </article>)}</div>}
       {tab === "file" && files.length > 0 && <div className="qc-attachment-file-wrap"><table className="qc-attachment-file-table"><thead><tr><th>文件名</th><th>类型</th><th>大小</th><th>上传时间</th><th>上传人</th><th>操作</th></tr></thead><tbody>{files.map((attachment) => <tr key={attachment.id}><td><strong title={attachment.name}>{attachment.name}</strong></td><td>{fileTypeLabel(attachment)}</td><td>{formatFileSize(attachment.size)}</td><td>{formatCreatedAt(attachment.createdAt)}</td><td>{attachment.createdBy || "—"}</td><td><div className="qc-file-actions"><Button variant="text" onClick={() => safeDownload(attachment)}>下载</Button>{!readOnly && <button type="button" className="qc-file-delete" onClick={() => requestDelete(attachment)}>删除</button>}</div></td></tr>)}</tbody></table></div>}
     </div>
     {typeof document !== "undefined" && createPortal(<><AttachmentPreviewModal openId={previewAttachmentId} images={images} onChange={onPreviewAttachmentIdChange} onClose={() => onPreviewAttachmentIdChange(null)} /><Modal open={pasteOpen} className="qc-paste-image-modal" title="粘贴图片" description="可按 Ctrl + V 粘贴图片，或将图片拖入下方区域" onClose={closePasteModal} onSubmit={confirmPendingImages} footer={<><Button variant="secondary" disabled={uploading} onClick={closePasteModal}>取消</Button><Button type="submit" disabled={uploading || pendingImages.length === 0}>{uploading ? "正在保存…" : `确认${pendingImages.length ? `（${pendingImages.length}）` : ""}`}</Button></>}><div ref={pasteAreaRef} className={`qc-paste-image-area ${pasteDragActive ? "is-drag-active" : ""}`} tabIndex={0} role="region" aria-label="粘贴或拖拽图片区域" onPaste={pasteImage} onDragEnter={enterPasteArea} onDragOver={(event) => event.preventDefault()} onDragLeave={leavePasteArea} onDrop={dropImages}><div className="qc-paste-image-prompt"><strong>{uploading ? "正在保存图片…" : pasteDragActive ? "松开即可添加图片" : "粘贴或拖拽图片到这里"}</strong><span>Ctrl + V / 拖入图片，可一次添加多张</span></div>{pendingImages.length > 0 && <div className="qc-pending-image-grid" aria-label={`待添加 ${pendingImages.length} 张图片`}>{pendingImages.map((image) => <article key={image.id} className="qc-pending-image-item"><div><Image src={image.previewUrl} alt={image.file.name} fill sizes="120px" unoptimized /></div><span title={image.file.name}>{image.file.name}</span><button type="button" aria-label={`移除 ${image.file.name}`} onClick={() => removePendingImage(image.id)}>×</button></article>)}</div>}{pasteFeedback && <p role="status">{pasteFeedback}</p>}</div></Modal><Modal open={Boolean(deleteStyleTarget)} title="删除当前款式图？" description="该图片当前被设为款式图。删除后当前报价将暂无款式图。" onClose={() => setDeleteStyleTarget(null)} onSubmit={async () => { if (!deleteStyleTarget) return; await remove(deleteStyleTarget); setDeleteStyleTarget(null); }} footer={<><Button variant="secondary" onClick={() => setDeleteStyleTarget(null)}>取消</Button><Button type="submit" variant="danger">确认删除</Button></>}><p className="qc-unsaved-message">确认后将删除附件关系，并把 styleImageAttachmentId 清空；不会自动指定另一张图片。</p></Modal></>, document.body)}
+    {typeof document !== "undefined" && createPortal(<Modal open={Boolean(renameTarget)} title="编辑图片名称" description="只修改附件显示名称；图片内容、附件 ID 与文件格式保持不变。" onClose={() => { setRenameTarget(null); setRenameDraft(""); }} onSubmit={renameAttachment} footer={<><Button variant="secondary" onClick={() => { setRenameTarget(null); setRenameDraft(""); }}>取消</Button><Button type="submit" disabled={!renameDraft.trim()}>保存名称</Button></>}><FormItem label="图片名称" required><input className="qc-control" value={renameDraft} onChange={(event) => setRenameDraft(event.target.value)} autoFocus /></FormItem></Modal>, document.body)}
   </Card>;
 }
 
