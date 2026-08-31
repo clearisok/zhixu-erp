@@ -754,3 +754,15 @@ Phase 6 的 Master Data 与低频设置、旧内置模板资产升级、真实 W
 ## Phase 6 Gate
 
 **Delivery Phase 6：PASS**
+
+## Post-Phase6 UI Correction
+
+本 Correction 不是 Delivery Phase 7。详细审计、测量、字段矩阵、质量门禁与截图索引见 [post-phase6-ui-correction.md](post-phase6-ui-correction.md)。
+
+- QA Dataset 使用浏览器本地 Repository，按 Origin + Browser Profile 双重隔离；`127.0.0.1`、`localhost`、Codex Browser 与用户 Chrome Profile 不自动共享数据。DEV-only Loader 现在显示 Origin、Dataset、seed、namespace 与数量，并提供目标 Chrome Profile 的显式幂等装载流程。
+- Quote Detail 完成 Second Pass：Object Header 按款号、款名、metadata 与 actions 的语义层级重排；Compact 根据自身容器宽度换布局，不再将业务字符串压成逐字竖排；Header 与价格摘要形成连续 Workspace。
+- Quote Fabric Snapshot 的名称、成分、供应商、段长、门幅、克重、损耗率、单价和采购单位在 Compact Desktop 均可直接编辑；段长不再只读。单耗与面料成本继续由正式 Calculator 派生并保持只读。
+- Fabric Compact 使用按内容类型分配的多列 Grid，中等宽度通常以 2–4 个业务行完成主要字段；Mobile 保留任务卡与完整资料 Drawer，不复制桌面宽表。
+- Order Detail 在无 Context Panel 时使用全部可用 Workspace 宽度。用户 full-page 长截图中的 Sidebar 重复已确认是 fixed/sticky screenshot stitching artifact，实时 DOM 与正常滚动没有重复导航。
+- 标准 1600 / 1280 / 960 / 768 / 402 / 440 CSS viewport 及三个用户环境等效 CSS viewport 均完成验收；不把模拟 viewport 升级为真实 Windows Display Scaling / Chrome Zoom 通过。
+- TypeScript、ESLint、Correction Tests 6/6、Full Tests 408/408、Production Build、Browser Console 与 Correction diff check 均通过；独立 Correction commit 完成后 Gate 关闭。

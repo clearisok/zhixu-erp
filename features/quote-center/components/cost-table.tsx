@@ -219,10 +219,6 @@ function CompactCostField({ label, className = "", children }: { label: string; 
   return <label className={`qc-compact-cost-field ${className}`}><span>{label}</span>{children}</label>;
 }
 
-function SnapshotValue({ children }: { children: ReactNode }) {
-  return <span className="qc-snapshot-value">{children || "—"}</span>;
-}
-
 function CompactResult({ label, value, prefix = "", suffix }: { label: string; value: number | null; prefix?: string; suffix?: string }) {
   return <span className="qc-compact-cost-result"><small>{label}</small><ReadOnlyMetric value={value} prefix={prefix} suffix={suffix} /></span>;
 }
@@ -386,10 +382,12 @@ function FabricRow({ line, library, supplierOptions, onChange, onPurchaseUnitCha
   </tr>;
 }
 
-function FabricCompactCard({ line, library, onChange, onSelectLibrary, onSaveToLibrary, onDelete, onOpenDetails }: {
+function FabricCompactCard({ line, library, supplierOptions, onChange, onPurchaseUnitChange, onSelectLibrary, onSaveToLibrary, onDelete, onOpenDetails }: {
   line: FabricCostLine;
   library: FabricLibraryItem[];
+  supplierOptions: string[];
   onChange: (lineId: string, patch: Partial<FabricCostLine>) => void;
+  onPurchaseUnitChange: (lineId: string, purchaseUnit: FabricCostLine["purchaseUnit"]) => void;
   onSelectLibrary: (lineId: string, item: FabricLibraryItem) => void;
   onSaveToLibrary?: (line: FabricCostLine) => void;
   onDelete?: (lineId: string) => void;
@@ -410,14 +408,14 @@ function FabricCompactCard({ line, library, onChange, onSelectLibrary, onSaveToL
     </header>
     <div className="qc-compact-cost-grid qc-fabric-compact-grid">
       <CompactCostField label="面料名称" className="is-name"><MaterialCombobox ariaLabel={`${label}-名称`} value={line.name} options={library} status={fabricStatus(line, library)} placeholder="搜索面料库或自由输入" getSearchText={(item) => `${item.name} ${item.composition} ${item.supplier}`} onInputChange={(name) => onChange(line.id, { name })} onSelect={(item) => onSelectLibrary(line.id, item)} renderOption={(item) => <div className="qc-material-option qc-fabric-option"><strong>{item.name}</strong><div className="qc-material-option-details"><span><b>供应商：</b>{item.supplier || "未填写"}</span><span><b>成分：</b>{item.composition || "未填写"}</span><span><b>门幅：</b>{nullable(item.netWidthCm, "cm")}</span><span><b>克重：</b>{nullable(item.gsm, "gsm")}</span><span><b>采购单位：</b>{item.purchaseUnit === "kg" ? "千克" : "米"}</span><span><b>价格：</b><em>{item.unitPrice === null ? "—" : `¥${item.unitPrice.toFixed(2)}/${item.purchaseUnit === "kg" ? "kg" : "m"}`}</em></span></div></div>} /></CompactCostField>
-      <CompactCostField label="成分" className="is-composition"><SnapshotValue>{line.composition || "—"}</SnapshotValue></CompactCostField>
-      <CompactCostField label="供应商" className="is-supplier"><SnapshotValue>{line.supplier || "—"}</SnapshotValue></CompactCostField>
-      <CompactCostField label="段长 cm" className="is-segment"><SnapshotValue>{line.segmentLengthCm ?? "—"}</SnapshotValue></CompactCostField>
-      <CompactCostField label="净门幅 cm" className="is-width"><SnapshotValue>{line.netWidthCm ?? "—"}</SnapshotValue></CompactCostField>
-      <CompactCostField label="克重 gsm" className="is-gsm"><SnapshotValue>{line.gsm ?? "—"}</SnapshotValue></CompactCostField>
+      <CompactCostField label="成分" className="is-composition"><input aria-label={`${label}-成分`} value={line.composition} onChange={(event) => onChange(line.id, { composition: event.target.value })} placeholder="如 100% Cotton" /></CompactCostField>
+      <CompactCostField label="供应商" className="is-supplier"><CreatableCombobox ariaLabel={`${label}-供应商`} value={line.supplier} suggestions={supplierOptions} onChange={(supplier) => onChange(line.id, { supplier })} placeholder="选择或输入供应商" /></CompactCostField>
+      <CompactCostField label="段长 cm" className="is-segment"><NullableNumberInput aria-label={`${label}-段长`} min="0" value={line.segmentLengthCm} onValueChange={(segmentLengthCm) => onChange(line.id, { segmentLengthCm })} placeholder="cm" /></CompactCostField>
+      <CompactCostField label="净门幅 cm" className="is-width"><NullableNumberInput aria-label={`${label}-净门幅`} min="0" value={line.netWidthCm} onValueChange={(netWidthCm) => onChange(line.id, { netWidthCm })} placeholder="cm" /></CompactCostField>
+      <CompactCostField label="克重 gsm" className="is-gsm"><NullableNumberInput aria-label={`${label}-克重`} min="0" value={line.gsm} onValueChange={(gsm) => onChange(line.id, { gsm })} placeholder="gsm" /></CompactCostField>
       <CompactCostField label="损耗率 %" className="is-loss"><div className="qc-number-suffix"><NullableNumberInput aria-label={`${label}-损耗率`} min="0" value={line.lossRate} onValueChange={(lossRate) => onChange(line.id, { lossRate })} placeholder="损耗" /><span>%</span></div></CompactCostField>
       <CompactCostField label="单价" className="is-price"><div className="qc-number-prefix"><span>¥</span><NullableNumberInput aria-label={`${label}-单价`} min="0" value={line.unitPrice} onValueChange={(unitPrice) => onChange(line.id, { unitPrice })} placeholder="单价" /></div></CompactCostField>
-      <CompactCostField label="采购单位" className="is-purchase-unit"><SnapshotValue>{line.purchaseUnit === "kg" ? "千克" : "米"}</SnapshotValue></CompactCostField>
+      <CompactCostField label="采购单位" className="is-purchase-unit"><div className="qc-unit-segment" role="group" aria-label={`${label}-采购单位`}><button type="button" className={line.purchaseUnit === "kg" ? "selected" : ""} aria-pressed={line.purchaseUnit === "kg"} onClick={() => onPurchaseUnitChange(line.id, "kg")}>千克</button><button type="button" className={line.purchaseUnit === "meter" ? "selected" : ""} aria-pressed={line.purchaseUnit === "meter"} onClick={() => onPurchaseUnitChange(line.id, "meter")}>米</button></div></CompactCostField>
     </div>
   </article>;
 }
@@ -444,7 +442,7 @@ export function FabricCostTable({ lines, library, supplierOptions, onChange, onP
   return <Card className={`qc-cost-card qc-cost-section qc-fabric-cost-card ${fixedStructure ? "is-fixed-structure" : ""}`}>
     <header><div><h3>面料成本</h3><p>ERP 宽表录入 · 毛门幅按净门幅 + 5cm，单耗与成本实时计算</p></div>{!fixedStructure && onAdd && <Button className="qc-cost-edit-action" variant="secondary" onClick={onAdd}>＋ 增加面料</Button>}</header>
     <div className="qc-cost-renderer-shell" ref={rendererFocusRef}><div className="qc-cost-table-wrap qc-cost-wide-renderer qc-desktop-cost-table"><table className="qc-cost-table qc-erp-cost-table qc-fabric-cost-table"><CostColumnLayout columns={columns} /><tbody>{lines.map((line) => <FabricRow key={line.id} line={line} library={library} supplierOptions={supplierOptions} onChange={onChange} onPurchaseUnitChange={onPurchaseUnitChange} onSelectLibrary={onSelectLibrary} onSaveToLibrary={actions ? onSaveToLibrary : undefined} onDelete={actions ? onDelete : undefined} />)}{!lines.length && <tr><td colSpan={columns.length}><div className="qc-inline-empty">暂无面料</div></td></tr>}</tbody></table></div>
-    <div className="qc-cost-compact-renderer" aria-label="面料成本紧凑编辑">{lines.map((line) => <FabricCompactCard key={line.id} line={line} library={library} onChange={onChange} onSelectLibrary={onSelectLibrary} onSaveToLibrary={actions ? onSaveToLibrary : undefined} onDelete={actions ? onDelete : undefined} onOpenDetails={setDetailLineId} />)}{!lines.length && <div className="qc-inline-empty">暂无面料</div>}</div>
+    <div className="qc-cost-compact-renderer" aria-label="面料成本紧凑编辑">{lines.map((line) => <FabricCompactCard key={line.id} line={line} library={library} supplierOptions={supplierOptions} onChange={onChange} onPurchaseUnitChange={onPurchaseUnitChange} onSelectLibrary={onSelectLibrary} onSaveToLibrary={actions ? onSaveToLibrary : undefined} onDelete={actions ? onDelete : undefined} onOpenDetails={setDetailLineId} />)}{!lines.length && <div className="qc-inline-empty">暂无面料</div>}</div>
     <div className="qc-cost-mobile-renderer qc-mobile-cost-list" aria-label="面料成本摘要">{lines.map((line) => { const consumption = fabricConsumptionValue(line); const amount = fabricCostValue(line); return <article key={line.id} className="qc-mobile-cost-card"><header><div><small>面料</small><strong>{line.name || "未填写面料名称"}</strong></div><span className={`qc-source-badge is-${fabricStatus(line, library) || "manual"}`}>{sourceLabels[fabricStatus(line, library) || "manual"]}</span></header><dl><div><dt>成分</dt><dd>{line.composition || "—"}</dd></div><div><dt>供应商</dt><dd>{line.supplier || "—"}</dd></div><div><dt>段长 (cm)</dt><dd>{nullable(line.segmentLengthCm)}</dd></div><div><dt>净门幅 (cm)</dt><dd>{nullable(line.netWidthCm)}</dd></div><div><dt>克重 (gsm)</dt><dd>{nullable(line.gsm)}</dd></div><div><dt>采购单位</dt><dd>{line.purchaseUnit === "kg" ? "千克" : "米"}</dd></div><div><dt>损耗率</dt><dd>{nullable(line.lossRate, "%")}</dd></div><div><dt>采购价</dt><dd>{line.unitPrice === null ? "—" : `¥${line.unitPrice.toFixed(2)}/${line.purchaseUnit === "kg" ? "kg" : "m"}`}</dd></div></dl><footer><span><small>单耗</small><strong>{consumption === null ? "—" : `${consumption.toFixed(4)} ${line.purchaseUnit === "kg" ? "kg/件" : "m/件"}`}</strong></span><span><small>面料成本</small><strong>{amount === null ? "—" : `¥${amount.toFixed(2)}`}</strong></span><Button variant="text" onClick={() => setDetailLineId(line.id)}>{readOnly ? "查看完整资料" : "查看 / 编辑完整资料"}</Button></footer></article>; })}{!lines.length && <div className="qc-inline-empty">暂无面料</div>}<p className="qc-mobile-edit-hint">手机端以完整摘要判断成本；编辑仍写入当前报价快照。</p></div></div>
     <footer className="qc-cost-subtotal"><span>面料小计</span><strong>{subtotal === null ? "—" : `¥${subtotal.toFixed(2)}`} {subtotal !== null && <small>/ 件</small>}</strong></footer>
     <Drawer open={Boolean(detailLine)} title={detailLine?.name || "面料完整资料"} eyebrow="QUOTE SNAPSHOT" description="当前内容属于本报价价格方案快照；后续面料库变化不会自动改写这里。" onClose={() => setDetailLineId(null)} footer={<Button onClick={() => setDetailLineId(null)}>完成</Button>}>

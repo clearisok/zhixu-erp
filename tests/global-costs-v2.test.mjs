@@ -84,7 +84,8 @@ test("报价详情 Header 只显示款号与款式名称；Sticky 与列表维�
   const css = await readFile(new URL("../app/quote-center/quote-center.css", import.meta.url), "utf8");
   assert.match(editor, /baseInfo\.quoteStyleNo\.trim\(\).*"未填写款号"/);
   assert.match(editor, /baseInfo\.styleName\.trim\(\).*"未填写款式名称"/);
-  assert.match(editor, /title=\{`\$\{pageTitle\} · \$\{pageSubtitle\}`\}/);
+  assert.match(editor, /title=\{pageTitle\}/);
+  assert.match(editor, /qc-quote-object-description[^>]*><strong>\{pageSubtitle\}<\/strong>/);
   assert.doesNotMatch(editor, /title=\{`\$\{quote\.quoteCode\}/);
   assert.doesNotMatch(editor, /qc-header-version-state/);
   assert.match(await readFile(new URL("../app/quote-center/responsive.css", import.meta.url), "utf8"), /qc-title-sentinel \.qc-page-header h1[^}]*white-space:\s*nowrap/);

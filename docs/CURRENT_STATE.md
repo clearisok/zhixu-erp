@@ -49,7 +49,7 @@
 - 全局工序说明：单个 Textarea 默认值，未来新报价继承，当前默认 Revision 三向覆盖保护，历史不变。
 - Sticky 同步：报价摘要、操作按钮和快速导航共用一个 sentinel/state/container；宽表在宽屏填满 Card，窄屏保留最小宽度与内部滚动。
 - 响应式体系：设备模式由 viewport + hover/pointer 共同决定；650–1366px 的细指针桌面窗口保持 Compact Desktop、Table、完整操作和 78px Sidebar，只有 `<768px + coarse pointer + no hover` 的 True Mobile 使用底部导航与轻编辑。Quote Center 三个筛选在全端保持 6:2:2 单行直显，不再使用筛选 Sheet。
-- 成本区响应式：宽表是否可用以成本 Card 的实际内容宽度为准，`>=1040px` 使用单行比例宽表，面料/辅料/其他费用以 `table-layout: fixed` 和业务权重百分比分配列宽，不再用固定最小宽度制造桌面横向滚动；内容宽度低于该阈值进入 Compact。`700–1099px` viewport 强制保留完整两行 Compact 编辑，避免 Sidebar/padding 让半屏误入 Narrow；Compact 面料为 `3 + 6`、辅料为 `3 + 4`、其他费用为 `2 + 4`，True Mobile 继续使用轻量摘要。
+- 成本区响应式：宽表是否可用以成本 Card 的实际内容宽度为准，`>=1040px` 使用单行比例宽表，面料/辅料/其他费用以 `table-layout: fixed` 和业务权重百分比分配列宽，不再用固定最小宽度制造桌面横向滚动；内容宽度低于该阈值进入 Compact。Compact 面料按字段内容长度使用多列 Grid，名称、成分、供应商、段长、门幅、克重、损耗率、单价和采购单位均直接编辑，单耗与成本保持 Calculator-derived read-only；True Mobile 使用轻量摘要与完整资料 Drawer。
 - Quote Detail 操作区：Large Desktop 按内容自然横排；全部 Compact/Tablet（包括缩放后实际 CSS viewport 约 1280px 的桌面）普通 Header 与既有 Sticky Header 均使用四列等宽 Grid。顶部常驻操作只保留返回列表、报价版本、创建价格版本、客户确认、导出报价、保存草稿；操作记录和删除报价保留权限/handler/Modal 并收进“更多”。Sticky 的 sentinel、observer 和触发时机未改变。
 - AppShell 响应式首帧：服务端继续使用安全的 Desktop fallback，客户端改在浏览器绘制前同步解析真实 viewport/pointer 模式；列表、详情之间切换不再短暂显示 186px 展开侧栏后才回到 78px Compact Sidebar。
 - 手机轻编辑：报价列表使用 Card List；详情保留基础信息、备注、工价、客户确认和附件等简单编辑，面辅料改为完整只读摘要卡；次要详情操作收进“更多”。
@@ -126,7 +126,15 @@
 
 ## 下一步
 
-1. Delivery Phase 7 如获明确授权，必须先记录 Phase 6 独立 commit 后的 Branch / HEAD / working tree baseline；不得自动开始。
+### Post-Phase6 UI Correction 当前事实
+
+- Browser-local QA Dataset 按 Origin + Browser Profile 隔离；目标验收 Chrome Profile 必须显式打开 DEV-only Loader 执行幂等“生成 / 补齐”。
+- Quote Workspace 的 Compact 布局必须按容器宽度重新组织 identity、metadata、actions 与成本字段，不允许业务字符串字符级塌陷。
+- Quote Fabric Snapshot 的名称、成分、供应商、段长、门幅、克重、损耗率、单价和采购单位在 Compact Desktop 保持直接可编辑；段长可编辑。单耗与成本继续是 Calculator-derived read-only。
+- Order Detail 无 Context Panel 时使用完整可用宽度；full-page 截图中的 Sidebar 重复已确认是 stitching artifact，产品 DOM 不存在重复 AppShell Navigation。
+- Post-Phase6 UI Correction 已完成实现、408 / 408 全量测试、构建、标准 viewport 与等效 CSS viewport 验收；Delivery Phase 7 未开始。
+
+1. Delivery Phase 7 如获明确授权，必须先记录本次 Post-Phase6 UI Correction 独立 commit 后的 Branch / HEAD / working tree baseline；不得自动开始。
 2. 今后 Codex 业务开发先用 3001 验证 HMR；需要 production build 验收时再显式重建 3000，并记录 `/build-info.json`。
 3. 在任何“生产化 Quote Center”任务前，先决定真实后端、数据库、认证、多用户和 migration 策略。
 4. 若继续根路径 ERP，优先补充 PostgreSQL API 集成测试和可版本化 schema migration。

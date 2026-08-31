@@ -20,6 +20,25 @@ npm.cmd run qa:data:cleanup
 
 `qa:data:prepare` 只生成临时同源执行页 `public/__dev-ui-qa-data.html`；用户必须在合规 DEV Origin 中点击执行。`qa:data:cleanup` 只移除该临时执行页，不删除任何 QA 或用户业务数据。
 
+### 目标 Chrome Profile 装载流程
+
+浏览器本地 Repository 同时按 **Origin** 与 **Browser Profile** 隔离：
+
+- `http://127.0.0.1:3001` 与 `http://localhost:3001` 是两个不同 Origin，二者的 localStorage / IndexedDB 不互通。
+- Codex Browser Profile 与用户自己的 Chrome Profile 不共享 localStorage / IndexedDB。
+- Loader 无法也不会把数据跨 Profile 推送；它只向“当前打开 Loader 的 Profile + 当前 Origin”写入正式 DEV namespace `zhixu.erp.local.*`。
+
+因此在用户自己的 Chrome 中装载时必须：
+
+1. 启动 `http://127.0.0.1:3001`，并始终使用该 Origin，不要中途切换到 `localhost`。
+2. 执行 `npm.cmd run qa:data:prepare`。
+3. 使用最终验收 ERP 的同一个 Chrome Profile 打开 `http://127.0.0.1:3001/__dev-ui-qa-data.html`。
+4. 核对 Loader 显示的 Origin、Dataset ID、Seed、namespace 和预期数量，然后点击“生成 / 补齐数据集”。
+5. 返回同一 Profile、同一 Origin 的 ERP，检查 Quote / Order / Scheduling / Closing。
+6. 执行 `npm.cmd run qa:data:cleanup`。该命令只删除临时 Loader，不删除 Dataset。
+
+Loader 成功结果会显示 QA Quote、Order、ScheduleAssignment、Closing Period / Relation 的实际数量和本次 added / skipped 统计。同 datasetId 与 seed 再次执行只跳过已有对象，不覆盖用户已经修改过的 QA Quote / Order。
+
 - 入口脚本：`scripts/generate-ui-qa-data.mjs`
 - 数据集实现：`scripts/ui-qa-data/dataset.ts`
 - 自动化：`tests/ui-qa-data-simulation.test.mjs`

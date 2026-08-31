@@ -873,13 +873,23 @@ textarea.qc-note-control { min-height: 72px; height: 72px; }
 
 @container qc-cost-section (max-width: 699px) {
   .qc-cost-compact-renderer { padding: 9px; }
-  .qc-compact-cost-card > header { align-items: flex-start; padding: 9px 10px; }
-  .qc-compact-cost-card-tools { gap: 7px; }
+  .qc-compact-cost-card > header { display: grid; grid-template-columns: minmax(120px, 1fr) auto; align-items: start; padding: 9px 10px; }
+  .qc-compact-cost-card-tools { flex-wrap: wrap; gap: 7px; }
   .qc-compact-cost-result { min-width: 70px; }
-  .qc-compact-cost-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 9px 10px 11px; }
-  .qc-compact-cost-grid > .qc-compact-cost-field { grid-column: 1 / -1; }
+  .qc-compact-cost-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; padding: 9px 10px 11px; }
+  .qc-fabric-compact-grid .is-name, .qc-fabric-compact-grid .is-composition, .qc-fabric-compact-grid .is-supplier { grid-column: span 6; }
+  .qc-fabric-compact-grid .is-segment, .qc-fabric-compact-grid .is-width, .qc-fabric-compact-grid .is-gsm { grid-column: span 2; }
+  .qc-fabric-compact-grid .is-loss, .qc-fabric-compact-grid .is-price, .qc-fabric-compact-grid .is-purchase-unit { grid-column: span 4; }
   .qc-labor-card > .qc-labor-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 11px; }
   .qc-labor-conversion { grid-column: 1 / -1; }
+}
+
+@container qc-cost-section (max-width: 459px) {
+  .qc-compact-cost-card > header { grid-template-columns: minmax(0, 1fr); }
+  .qc-compact-cost-card-tools { justify-content: space-between; }
+  .qc-compact-cost-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qc-fabric-compact-grid > :is(.is-name, .is-composition, .is-supplier) { grid-column: 1 / -1; }
+  .qc-fabric-compact-grid > :is(.is-segment, .is-width, .is-gsm, .is-loss, .is-price, .is-purchase-unit) { grid-column: span 1; }
 }
 
 @media (max-width: 620px) {
