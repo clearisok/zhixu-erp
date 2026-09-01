@@ -41,3 +41,12 @@ next-env.d.ts
 /outputs/
 /work/
 /backups/
+
+# Nested dependencies / generated tooling
+**/node_modules/
+
+# Local temporary audits
+.tmp-*/
+
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo
