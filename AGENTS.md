@@ -61,3 +61,51 @@ npm run build
 - 相关测试和质量检查已执行并记录结果。
 - feature 文档、CURRENT_STATE、DECISION_LOG 按规则同步。
 - 最终汇报区分“已确认事实”“推断”“未验证/已知问题”。
+
+## GitHub 交付协议
+
+本仓库远端：
+
+- Repository: `clearisok/zhixu-erp`
+- Remote: `origin`
+- Default branch: `main`
+
+除非用户明确要求，否则：
+
+1. 不直接在 `main` 上实施大型业务任务。
+2. 每个任务从最新 `origin/main` 建立独立任务分支：
+   - `feat/<task-slug>`
+   - `fix/<task-slug>`
+   - `chore/<task-slug>`
+3. 不得因为当前分支或工作树与预期不同而 reset / clean；先分析差异。
+4. 每完成一个可以独立验证的 Gate：
+   - 更新必要的测试；
+   - 更新 `docs/AI_HANDOFF.md`；
+   - 创建 checkpoint commit；
+   - 自动 push 当前任务分支到 `origin`。
+5. 多 Gate / 长时间任务不得把全部进度只留在未提交 working tree 中。
+   上下文压缩、额度中断或工具中断后，GitHub 上必须存在最近一个安全 checkpoint。
+6. 最终 Gate PASS 后：
+   - 更新 CURRENT_STATE；
+   - 更新相关 feature docs；
+   - 更新必要的 DECISION_LOG；
+   - 更新 AI_HANDOFF；
+   - 完成最终 commit；
+   - 自动 push；
+   - 创建或更新 Pull Request 到 `main`。
+7. 不自动 merge `main`。
+8. 不 push：
+   - secrets
+   - `.env`
+   - 真实业务原始 Excel（除非明确批准）
+   - backup
+   - 临时 audit
+   - node_modules
+   - tsconfig.tsbuildinfo
+   - DEV 私有缓存
+9. 最终报告必须给出：
+   - branch
+   - commit hash
+   - PR number / URL（若创建）
+   - tests
+   - remaining dirty
