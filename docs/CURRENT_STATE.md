@@ -6,7 +6,7 @@
 
 仓库处于“双路径并存”阶段：根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行生产形态；Quote Center、基础设置和 UI Foundation 已形成较完整的前端业务实现，但仍使用浏览器 mock 持久化，尚未进入真实后端/多用户生产阶段。
 
-当前稳定 GitHub `main` HEAD 为 `65a0cac20991f0c6c2550ddbc7bcd9924377f065`。当前没有正在实施的业务任务。
+正式共享基线为 GitHub `main`；恢复项目状态时必须读取实时 `origin/main`，不得依赖文档中保存的固定 HEAD。当前没有正在实施的业务任务。
 
 从 Delivery Phase 6 开始，必须在阶段开始前记录 Branch / HEAD / working tree baseline，阶段结束后只 stage 本 Phase 增量、创建独立 commit 并报告 commit hash；不得再以 inherited dirty worktree 跨阶段推进。
 

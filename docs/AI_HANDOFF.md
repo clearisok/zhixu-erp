@@ -18,9 +18,9 @@
 7. `docs/DECISION_LOG.md` 中 Active 决策
 8. 当前 Git branch / HEAD / status
 
-## Current Stable HEAD
+## Git State
 
-`65a0cac20991f0c6c2550ddbc7bcd9924377f065`
+`AI_HANDOFF` 是接力内容，不是 Git HEAD 缓存。本文不保存“当前 main HEAD”这一自失效字段；恢复项目时，必须从 Git 实时获取状态，以 `origin/main` 为正式共享基线，并检查当前 branch / HEAD / status。
 
 ## Last Completed
 
