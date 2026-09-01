@@ -15,12 +15,15 @@
 
 1. 根目录 `AGENTS.md`
 2. 本文件
-3. `docs/CURRENT_STATE.md`
-4. 当前 `git status`、相关 diff
-5. `docs/BUSINESS_RULES.md`
-6. 任务对应的 `docs/features/*.md`
-7. `docs/DECISION_LOG.md` 中相关 Active 条目
-8. 实际代码、SQL、API 和测试
+3. `docs/AI_HANDOFF.md`
+4. `docs/CURRENT_STATE.md`
+5. 当前 `git status`、相关 diff
+6. `docs/BUSINESS_RULES.md`
+7. 任务对应的 `docs/features/*.md`
+8. `docs/DECISION_LOG.md` 中相关 Active 条目
+9. 实际代码、SQL、API 和测试
+
+`AI_HANDOFF` 是当前接力棒，只说明现在从哪里接着做，不是第四个长期业务事实源。AI 接力判断优先级仍然是：当前用户明确要求 > `CURRENT_STATE` > Active `BUSINESS_RULES` / `DECISION_LOG` > older discussion > AI assumption。代码与测试等事实源的核验顺序继续遵守 `AGENTS.md`。
 
 ## 目录结构
 
@@ -83,6 +86,7 @@
 ## 知识文件职责
 
 - `SYSTEM_OVERVIEW.md`：架构、技术栈、运行路径、数据流。
+- `AI_HANDOFF.md`：当前接力棒；只记录稳定 HEAD、最后完成项、当前任务和候选下一阶段。
 - `BUSINESS_RULES.md`：能够由代码、约束、测试或明确文档确认的规则。
 - `CURRENT_STATE.md`：当前完成度、正在进行的工作、缺口、验证状态和不可破坏项。
 - `DECISION_LOG.md`：重要决定及其 Active/Superseded/Deprecated 状态。

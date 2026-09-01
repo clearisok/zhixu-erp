@@ -6,9 +6,18 @@
 
 仓库处于“双路径并存”阶段：根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行生产形态；Quote Center、基础设置和 UI Foundation 已形成较完整的前端业务实现，但仍使用浏览器 mock 持久化，尚未进入真实后端/多用户生产阶段。
 
-当前分支为 `rescue-codex-20260824`。UI Redesign Delivery Phase 0–6 的功能、QA、浏览器和文档验收均已完成。Phase 0–5 由 `chore: establish validated ui redesign phase 0-5 baseline` consolidated commit 固化可信起点；Phase 6 从 `3f6532036e05208b8cf23f9825081770ecdf0301` 开始隔离增量，并按“一 Phase 一独立 commit”规则收口。
+当前稳定 GitHub `main` HEAD 为 `65a0cac20991f0c6c2550ddbc7bcd9924377f065`。当前没有正在实施的业务任务。
 
 从 Delivery Phase 6 开始，必须在阶段开始前记录 Branch / HEAD / working tree baseline，阶段结束后只 stage 本 Phase 增量、创建独立 commit 并报告 commit hash；不得再以 inherited dirty worktree 跨阶段推进。
+
+## 项目治理与交付状态
+
+- Style Progress Logistics Correction：PASS。Correction Commit：`ab1608a7019ff620b29c3d132765104df639cf48`。
+- GitHub Delivery Protocol：已启用。Commit：`daa0b47`。
+- Repository Hygiene：已完成。PR #1；cleanup commit：`51a427d9de11fa34228286eb03f32c2abd23c6ae`；merged main：`65a0cac20991f0c6c2550ddbc7bcd9924377f065`。
+- `artifacts/artifact-tool-qa/node_modules` 已停止 Git 跟踪。
+- `.tmp-*`、`tsconfig.tsbuildinfo` 与 nested `node_modules` 已进入 ignore。
+- 本地 dependencies 未删除。
 
 ## 已完成模块
 
@@ -58,9 +67,9 @@
 - 手机轻编辑：报价列表使用 Card List；详情保留基础信息、备注、工价、客户确认和附件等简单编辑，面辅料改为完整只读摘要卡；次要详情操作收进“更多”。
 - 手机附件：相册多选与 `capture="environment"` 拍照入口复用现有 AttachmentRepository，预览使用 contain、安全视口和 44px 触摸目标。
 
-## 正在开发
+## 当前活动任务
 
-Style Progress + Material Follow-up + Logistics Integration 已在真实 DEV Origin 完成正式导入、同文件零新增、D1935（45 项）、T2403（11 项）与 T1933 正确缺失态验收。人工预计到料日修改、刷新持久化、来源显示、恢复使用艾诺科交期及三类 OperationLog 已通过；备份导出显示 83,500 条款式进度记录。Overview 在 1600/1280/1229/960/768/402 均无 document-level 横向溢出，风险中心、Order Detail 摘要与全局搜索已读取真实数据。
+当前没有正在实施的业务任务。Style Progress / Material Follow-up 及 Logistics Correction 均已完成并通过验收。
 
 ## 尚未开发或尚未落地
 
@@ -131,20 +140,7 @@ Style Progress + Material Follow-up + Logistics Integration 已在真实 DEV Ori
 
 ## 下一步
 
-### Post-Phase6 UI Correction 当前事实
-
-- Browser-local QA Dataset 按 Origin + Browser Profile 隔离；目标验收 Chrome Profile 必须显式打开 DEV-only Loader 执行幂等“生成 / 补齐”。
-- Quote Workspace 的 Compact 布局必须按容器宽度重新组织 identity、metadata、actions 与成本字段，不允许业务字符串字符级塌陷。
-- Quote Fabric Snapshot 的名称、成分、供应商、段长、门幅、克重、损耗率、单价和采购单位在 Compact Desktop 保持直接可编辑；段长可编辑。单耗与成本继续是 Calculator-derived read-only。
-- Order Detail 无 Context Panel 时使用完整可用宽度；full-page 截图中的 Sidebar 重复已确认是 stitching artifact，产品 DOM 不存在重复 AppShell Navigation。
-- Post-Phase6 UI Correction 已完成实现、408 / 408 全量测试、构建、标准 viewport 与等效 CSS viewport 验收；Delivery Phase 7 未开始。
-
-1. Delivery Phase 7 如获明确授权，必须先记录本次 Post-Phase6 UI Correction 独立 commit 后的 Branch / HEAD / working tree baseline；不得自动开始。
-2. 今后 Codex 业务开发先用 3001 验证 HMR；需要 production build 验收时再显式重建 3000，并记录 `/build-info.json`。
-3. 在任何“生产化 Quote Center”任务前，先决定真实后端、数据库、认证、多用户和 migration 策略。
-4. 若继续根路径 ERP，优先补充 PostgreSQL API 集成测试和可版本化 schema migration。
-5. 第五批已完成，停止于本批；没有明确新批次指令时不得扩展财务、应收应付、发票、付款或总账。
-6. 关账数量继续与客户交期、订单数量、排单数量和完成数量保持独立；不得复用不兼容的旧 PostgreSQL 表。
+Ainuoke Playwright 自动抓取 / 同步准备是候选下一阶段，尚未启动；只有用户明确授权后才建立正式任务规格并实施。
 
 ## 明确不能破坏的内容
 
