@@ -250,5 +250,5 @@
 - `提供方式 = 厂供` 映射为 `actualConsumption = plannedConsumption`；不得映射为供货方式、采购方式或影响采购/入库/齐套/运输。
 - 单物料齐套只在累计入库量达到需求量时成立；款式齐套按物料项计数，不跨单位加权。
 - 面料按实际用量（无实际时按计划用量）降序并以源行稳定打平；辅料严格按源行顺序。
-- 逐物料运输复用现有物流基础事实与 Service；实际齐套日优先于 Effective 日期。无排单显示“待排单后计算”，路线资料不全显示“物流路线未配置”，可行方式中选择最慢者。
+- 逐物料运输复用现有物流基础事实与 Service；实际齐套日优先于 Effective 日期。无排单显示“待排单后计算”；未持久化的 SupplyHub 不得由首个启用仓、名称或唯一路线推断，必须显示“集货仓未设置”。缺 ProductionSite、指定 Route 或 Route TransportMode 分别显示精确原因；只有 Hub + Site 均确定后才按稳定 ID 查路线，可行方式中选择最慢者。
 - 预计到料日人工修改与恢复必须写统一追加式 OperationLog；ImportBatch / Raw Snapshot 只作技术 Trace。

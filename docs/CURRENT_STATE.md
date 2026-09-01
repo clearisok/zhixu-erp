@@ -18,7 +18,7 @@
 - 本地运行：DEV `127.0.0.1:3001` 源码/HMR 与 PROD Docker `127.0.0.1:3000` 显式重建验收已分离；两者均有自动 Build Info、页面版本标识和分层缓存策略。
 - 数据保护：PostgreSQL dump 备份和带显式数据丢失确认的恢复脚本。
 - 款式进度 / 面辅料跟进：订单中心已增加款式进度、风险预警与艾诺科同步二级导航；真实 Excel 使用 ImportBatch + Raw Snapshot + 分离的 MaterialDemand / Purchase / Inbound / Shipment / Outbound Event，Source / Effective / Actual 严格分层。万行级事实存于 IndexedDB，schemaVersion 11 的现有 Backup / Restore / Reset 已纳入该数据库并支持失败回滚。
-- 逐物料物流：复用现有 ProductionSite、SupplyHub、SupplyRoute、TransportMode、ScheduleAssignment 与 `material-logistics-service.ts`，支持最慢可行方式、加快/仅最快/全部失败、无排单和路线缺失语义；物料/排单变化通过 Projection 重算，不复制或反向覆盖事实。
+- 逐物料物流：复用现有 ProductionSite、SupplyHub、SupplyRoute、TransportMode、ScheduleAssignment 与 `material-logistics-service.ts`，支持最慢可行方式、加快/仅最快/全部失败，并精确区分无排单、缺集货仓、缺生产地点、缺指定路线和路线无运输方式；物料/排单变化通过 Projection 重算，不复制或反向覆盖事实。Style Progress Detail 已提供紧凑“物流依据”，生产弹窗对未持久化 SupplyHub 明确显示“未设置”，不推断第一个启用仓。
 - 真实 Excel 与 DEV Import：`面辅料申购统计.xlsx` SHA-256 `9DBEBF05FDC2EE201E4A1A7F24B3B5E9585AA4B5BE4C3C49C6CB64EF0B88675E`；Raw 17,016、有效 17,015、无效 Trace 1、需求 12,853、采购 11,269、入库 14,601、出运 13,140、出库 14,620、合同 474。当前真实 DEV Repository 为 1 个正式批次、17,016 个 Raw Snapshot、上述需求与事件；396 个合同投影到正式订单，78 个合同尚无订单。同文件再次正式提交全部业务事实新增为 0。
 - Quote Center/新订单、排单、关账与款式进度浏览器数据保护：`zhixu.erp.local.*` 稳定命名空间、`schemaVersion = 11`、旧 v1-v10/sessionStorage/localStorage 非破坏迁移、一次性 Seed、损坏数据拒绝覆盖、test namespace 隔离，以及包含订单、艾诺科、排单、关账、生产与运输设置、附件、用户模板 Blob 和 Style Progress IndexedDB 的备份恢复。v8→v9 将旧 ProductionPlan owner 提升到原 ScheduleAssignment，v11 纳入 Material ImportBatch、Raw、Demand、Events 与 Override，稳定保留旧业务关系。
 - Quote Center：列表、个人字段偏好、新建/详情、Revision 历史、PriceVersion、面辅料/工价/其他费用、客户确认、删除、保存草稿。

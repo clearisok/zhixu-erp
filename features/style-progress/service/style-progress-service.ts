@@ -30,7 +30,7 @@ export type StyleProgressProjection = {
   daysRemaining: number | null;
   salesRisk: "overdue" | "7d" | "14d" | "30d" | "normal" | "unknown";
   materialRisk: "ready" | "unpurchase" | "pending_inbound" | "late_expected" | "normal";
-  transportRisk: "none" | "pending_schedule" | "route_missing" | "faster_required" | "only_fastest" | "late";
+  transportRisk: "none" | "pending_schedule" | "hub_missing" | "site_missing" | "route_missing" | "modes_missing" | "faster_required" | "only_fastest" | "late";
   fabricReady: number;
   fabricTotal: number;
   trimReady: number;
@@ -42,6 +42,7 @@ export type StyleProgressProjection = {
   pendingInboundCount: number;
   transportRiskCount: number;
   expectedLatestMaterialDate: string | null;
+  logisticsBasis: MaterialLogisticsRecommendation["basis"];
   materials: MaterialProgressProjection[];
   keyExceptions: string[];
 };
@@ -99,18 +100,18 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
     });
     const fabric = materials.filter((item) => item.demand.materialType === "fabric"); const trim = materials.filter((item) => item.demand.materialType === "trim");
     const ready = materials.filter((item) => item.readinessStatus === "ready"); const notPurchasedCount = materials.filter((item) => item.readinessStatus === "not_purchased").length; const pendingInboundCount = materials.filter((item) => item.readinessStatus === "pending_inbound" || item.readinessStatus === "purchasing").length;
-    const riskyTransport = materials.filter((item) => item.logistics.status === "late" || item.logistics.status === "route_missing" || item.logistics.escalationLevel === "faster_required" || item.logistics.escalationLevel === "only_fastest");
+    const riskyTransport = materials.filter((item) => ["late", "hub_missing", "site_missing", "route_missing", "modes_missing"].includes(item.logistics.status) || item.logistics.escalationLevel === "faster_required" || item.logistics.escalationLevel === "only_fastest");
     const source = demands[0]; const delivery = order?.contractDeliveryDate ?? null; const remaining = daysFromToday(delivery, today);
     const salesRisk = remaining === null ? "unknown" : remaining < 0 ? "overdue" : remaining <= 7 ? "7d" : remaining <= 14 ? "14d" : remaining <= 30 ? "30d" : "normal";
     const expectedLatestMaterialDate = materials.map((item) => item.demand.expectedMaterialReadyDate).filter((value): value is string => Boolean(value)).sort().at(-1) ?? null;
     const materialRisk = ready.length === materials.length && materials.length ? "ready" : notPurchasedCount ? "unpurchase" : expectedLatestMaterialDate && delivery && expectedLatestMaterialDate > delivery ? "late_expected" : pendingInboundCount ? "pending_inbound" : "normal";
     const logisticsStatuses = new Set(materials.map((item) => item.logistics.status));
-    const transportRisk = logisticsStatuses.has("late") ? "late" : logisticsStatuses.has("route_missing") ? "route_missing" : logisticsStatuses.has("pending_schedule") ? "pending_schedule" : materials.some((item) => item.logistics.escalationLevel === "only_fastest") ? "only_fastest" : materials.some((item) => item.logistics.escalationLevel === "faster_required") ? "faster_required" : "none";
+    const transportRisk = logisticsStatuses.has("late") ? "late" : logisticsStatuses.has("hub_missing") ? "hub_missing" : logisticsStatuses.has("site_missing") ? "site_missing" : logisticsStatuses.has("route_missing") ? "route_missing" : logisticsStatuses.has("modes_missing") ? "modes_missing" : logisticsStatuses.has("pending_schedule") ? "pending_schedule" : materials.some((item) => item.logistics.escalationLevel === "only_fastest") ? "only_fastest" : materials.some((item) => item.logistics.escalationLevel === "faster_required") ? "faster_required" : "none";
     const exceptions: string[] = [];
     for (const item of materials.filter((material) => material.readinessStatus === "not_purchased").slice(0, 2)) exceptions.push(`${item.demand.materialName || item.demand.materialCode}尚未采购`);
     for (const item of materials.filter((material) => material.readinessStatus === "pending_inbound").slice(0, Math.max(0, 3 - exceptions.length))) exceptions.push(`${item.demand.materialName || item.demand.materialCode}待入库`);
     for (const item of riskyTransport.slice(0, Math.max(0, 5 - exceptions.length))) exceptions.push(`${item.demand.materialName || item.demand.materialCode}：${item.logistics.message}`);
-    projections.push({ salesContractNo, order, styleNo: order?.styleNo || source.sourceStyleNoSnapshot, factoryStyleNo: order?.factoryStyleNo || source.sourceFactoryStyleNoSnapshot, brand: order?.brandNameSnapshot || source.sourceBrandSnapshot, owner: source.sourceOwnerSnapshot, customer: order?.customerNameSnapshot || source.sourceCustomerSnapshot, garmentQuantity: order ? getEffectiveQuantity(order) : source.sourceOrderQuantitySnapshot, contractDeliveryDate: delivery, daysRemaining: remaining, salesRisk, materialRisk, transportRisk, fabricReady: fabric.filter((item) => item.readinessStatus === "ready").length, fabricTotal: fabric.length, trimReady: trim.filter((item) => item.readinessStatus === "ready").length, trimTotal: trim.length, totalReady: ready.length, totalMaterials: materials.length, readinessRate: materials.length ? ready.length / materials.length * 100 : 0, notPurchasedCount, pendingInboundCount, transportRiskCount: riskyTransport.length, expectedLatestMaterialDate, materials, keyExceptions: exceptions.slice(0, 5) });
+    projections.push({ salesContractNo, order, styleNo: order?.styleNo || source.sourceStyleNoSnapshot, factoryStyleNo: order?.factoryStyleNo || source.sourceFactoryStyleNoSnapshot, brand: order?.brandNameSnapshot || source.sourceBrandSnapshot, owner: source.sourceOwnerSnapshot, customer: order?.customerNameSnapshot || source.sourceCustomerSnapshot, garmentQuantity: order ? getEffectiveQuantity(order) : source.sourceOrderQuantitySnapshot, contractDeliveryDate: delivery, daysRemaining: remaining, salesRisk, materialRisk, transportRisk, fabricReady: fabric.filter((item) => item.readinessStatus === "ready").length, fabricTotal: fabric.length, trimReady: trim.filter((item) => item.readinessStatus === "ready").length, trimTotal: trim.length, totalReady: ready.length, totalMaterials: materials.length, readinessRate: materials.length ? ready.length / materials.length * 100 : 0, notPurchasedCount, pendingInboundCount, transportRiskCount: riskyTransport.length, expectedLatestMaterialDate, logisticsBasis: materials[0]?.logistics.basis ?? { scheduleAssignmentId: null, supplyHub: null, productionSite: null, matchedRoute: null, candidateTransportModes: [] }, materials, keyExceptions: exceptions.slice(0, 5) });
   }
   return projections.sort((left, right) => {
     const risk = (value: StyleProgressProjection) => value.salesRisk === "overdue" ? 0 : value.transportRisk === "late" ? 1 : value.notPurchasedCount ? 2 : value.pendingInboundCount ? 3 : 4;

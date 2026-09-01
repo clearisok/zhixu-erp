@@ -356,6 +356,13 @@
 - 决定：逐物料建议扩展既有 `material-logistics-service.ts`，使用 Actual 齐套日，否则使用 Effective；使用最早相关正式 ScheduleAssignment，并在可行方式中选择最慢方式。缺排单或路线明确显示待配置，不猜运输方式。schemaVersion 11 将 Material ImportBatch、Raw、Demand、Events 与 Override 纳入既有 Backup / Restore。
 - 原因：物流建议必须随排单与预计到料变化重算，同时保持唯一运输模型和恢复边界。
 
+### D-054 未持久化的集货仓不得由 UI 或基础资料推断
+
+- 日期：2026-09-01
+- 状态：Active
+- 决定：逐物料物流只把 `OrderExecutionTracking.supplyHubId` 视为订单的正式 SupplyHub。下拉首项、首个启用仓、唯一仓或唯一路线都不得自动成为业务事实；缺 Hub、Site、Route、TransportMode 时返回各自精确原因，只有 Hub 与 Site 均存在后才按稳定 ID 查路线。Style Progress 显示紧凑物流依据，生产弹窗缺 Hub 时回显“未设置”。
+- 原因：基础资料存在不等于订单已经选择；自动展示“宁波仓”会让用户误认为 D1935 已保存集货仓，并把前提缺失误报为路线缺失。
+
 ## Superseded
 
 ### D-039 新订单中心使用 SalesOrder + OrderItem 多款聚合

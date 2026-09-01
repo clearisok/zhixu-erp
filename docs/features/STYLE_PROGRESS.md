@@ -56,7 +56,8 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 逐物料建议扩展现有 `material-logistics-service.ts`，没有 V2 Service 或平行路线表。实际齐套日优先于当前预计到料日；后者优先于过时 Source。
 
 - 使用最早的相关有效 ScheduleAssignment；没有可靠 material/color relation 时不做平均、最后一条或随机选择。
-- 没有排单显示“待排单后计算”。缺 ProductionSite、SupplyHub、SupplyRoute 或 TransportMode 显示“物流路线未配置”。
+- 运输 Projection 只读取正式持久化的 `OrderExecutionTracking.supplyHubId`；UI 下拉首项、唯一启用仓或唯一可用路线都不是业务事实，不得用于自动推断。
+- 没有排单显示“待排单后计算”；缺 SupplyHub 显示“集货仓未设置”；缺 ProductionSite 显示“生产地点未设置”。只有 Hub 与 Site 均存在后才按稳定 ID 查找路线；缺路线显示“{Hub} → {Site}路线未配置”，路线没有启用方式显示“当前路线未配置运输方式”。
 - 在能按时到厂的方式中选择最慢可行方式；必要时升级为更快方式、仅最快可行，全部失败时显示最快方式及晚到天数。
 - 修改排单地点/计划开工或物料 Effective 日期后，Projection 在下一次读取时立即重算；不反向修改排期或预计到料日。
 
@@ -64,7 +65,7 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 
 - 订单中心二级导航：订单列表、款式进度、风险预警、艾诺科同步。
 - `/order-center/style-progress`：高密度款式总览与真实 Excel 预检/导入。
-- `/order-center/style-progress/detail?contract=...`：对象摘要、三类风险、关键异常、颜色筛选、面料/辅料分区、inline Effective 日期编辑与来源历史。
+- `/order-center/style-progress/detail?contract=...`：对象摘要、三类风险、关键异常、颜色筛选、面料/辅料分区、inline Effective 日期编辑与来源历史；顶部紧凑“物流依据”同时解释集货仓、生产地点、相关排单开工日、匹配路线与可用运输方式。
 - 物料明细并列显示 Source 交期、当前 Effective、Actual 齐套日、计划开工、最晚到厂与逐物料运输结论；Actual 不回写或覆盖 Expected。
 - `/order-center/risks`：交期、未采购、待入库与运输异常筛选。
 - Order Detail 只读取 StyleProgress Projection，显示紧凑摘要和 Drawer；完整编辑通过 deep link 进入款式进度。
@@ -79,4 +80,4 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 
 ## Verification status
 
-真实 DEV 已完成第一轮正式提交与同文件零新增验证：Repository 为 1 个 ImportBatch、17,016 个 Raw Snapshot、12,853 个 Demand、11,269 个 Purchase、14,601 个 Inbound、13,140 个 Shipment、14,620 个 Outbound；474 个合同中 396 个投影到正式订单、78 个尚无订单。D1935、T2403、T1933 缺失态、人工交期修改/恢复、OperationLog、83,500 条记录备份导出、全局搜索、风险中心、Order Detail 与 1600/1280/1229/960/768/402 响应式均已在 3001 真实页面验收。
+真实 DEV 已完成第一轮正式提交与同文件零新增验证：Repository 为 1 个 ImportBatch、17,016 个 Raw Snapshot、12,853 个 Demand、11,269 个 Purchase、14,601 个 Inbound、13,140 个 Shipment、14,620 个 Outbound；474 个合同中 396 个投影到正式订单、78 个尚无订单。D1935、T2403、T1933 缺失态、人工交期修改/恢复、OperationLog、83,500 条记录备份导出、全局搜索、风险中心、Order Detail 与 1600/1280/1229/960/768/402 响应式均已在 3001 真实页面验收。D1935 的正式排单可解析柬埔寨工厂与 2026-09-22 开工，但其持久化 SupplyHub 为空；当前页面精确显示“集货仓未设置”，不再把宁波仓下拉首项伪装成已保存事实。

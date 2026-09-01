@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import ExcelJS from "exceljs";
 import { parseMaterialFollowUpWorkbook } from "../features/style-progress/parser/material-follow-up-parser.ts";
 import { actualReadyDate, buildStyleProgressProjections, deriveMaterialStatuses, fabricDisplayOrder, trimDisplayOrder } from "../features/style-progress/service/style-progress-service.ts";
@@ -51,12 +52,20 @@ test("面料按实际或计划用量稳定排序，辅料严格按来源序号",
   assert.deepEqual(fabricDisplayOrder(materials).map((item) => item.demand.id), ["b", "a"]); assert.deepEqual(trimDisplayOrder(materials).map((item) => item.demand.id), ["d", "c"]);
 });
 
-test("逐物料运输无排单和缺路线不猜测，有路线选择最慢可行方式", () => {
+test("逐物料运输精确区分缺失依据，有正式路线时选择最慢可行方式", () => {
   const now = "2026-09-01T00:00:00.000Z"; const settings = upsertProductionGroup(normalizeOperationsSettings({}), { id: "group-a", name: "一组", shortName: "", productionSiteId: "production-site-cambodia-default", enabled: true, sortOrder: 1, remark: "", createdAt: now, updatedAt: now }, now);
   assert.equal(recommendMaterialTransport({ assignment: null, settings, supplyHubId: null, expectedMaterialReadyDate: "2026-09-01" }).message, "待排单后计算");
-  const assignment = { executionType: "internal", productionGroupId: "group-a", plannedStartDate: "2026-09-30" };
-  assert.equal(recommendMaterialTransport({ assignment, settings, supplyHubId: null, expectedMaterialReadyDate: "2026-09-01" }).message, "物流路线未配置");
-  assert.equal(recommendMaterialTransport({ assignment, settings, supplyHubId: "supply-hub-ningbo-default", expectedMaterialReadyDate: "2026-09-01" }).recommendedMode.name, "海运");
+  const assignment = { id: "assignment-a", executionType: "internal", productionGroupId: "group-a", plannedStartDate: "2026-09-30" };
+  const missingHub = recommendMaterialTransport({ assignment, settings, supplyHubId: null, expectedMaterialReadyDate: "2026-09-01" });
+  assert.equal(missingHub.status, "hub_missing"); assert.equal(missingHub.message, "集货仓未设置"); assert.equal(missingHub.basis.productionSite.name, "柬埔寨工厂");
+  const missingSite = recommendMaterialTransport({ assignment: { ...assignment, productionGroupId: "missing" }, settings, supplyHubId: "supply-hub-ningbo-default", expectedMaterialReadyDate: "2026-09-01" });
+  assert.equal(missingSite.status, "site_missing"); assert.equal(missingSite.message, "生产地点未设置");
+  const missingRoute = recommendMaterialTransport({ assignment, settings: { ...settings, supplyRoutes: [] }, supplyHubId: "supply-hub-ningbo-default", expectedMaterialReadyDate: "2026-09-01" });
+  assert.equal(missingRoute.status, "route_missing"); assert.equal(missingRoute.message, "宁波仓 → 柬埔寨工厂路线未配置");
+  const missingModes = recommendMaterialTransport({ assignment, settings: { ...settings, transportModes: [] }, supplyHubId: "supply-hub-ningbo-default", expectedMaterialReadyDate: "2026-09-01" });
+  assert.equal(missingModes.status, "modes_missing"); assert.equal(missingModes.message, "当前路线未配置运输方式");
+  const normal = recommendMaterialTransport({ assignment, settings, supplyHubId: "supply-hub-ningbo-default", expectedMaterialReadyDate: "2026-09-01" });
+  assert.equal(normal.recommendedMode.name, "海运"); assert.equal(normal.basis.scheduleAssignmentId, "assignment-a"); assert.equal(normal.basis.supplyHub.id, "supply-hub-ningbo-default"); assert.equal(normal.basis.productionSite.id, "production-site-cambodia-default"); assert.equal(normal.basis.matchedRoute.id, "supply-route-ningbo-cambodia-default"); assert.deepEqual(normal.basis.candidateTransportModes.map((item) => [item.name, item.transitDays]), [["海运", 20], ["陆运", 12], ["定时达", 8]]);
   const faster = recommendMaterialTransport({ assignment, settings, supplyHubId: "supply-hub-ningbo-default", expectedMaterialReadyDate: "2026-09-10" });
   assert.equal(faster.recommendedMode.name, "陆运"); assert.equal(faster.escalationLevel, "faster_required");
   const onlyFastest = recommendMaterialTransport({ assignment, settings, supplyHubId: "supply-hub-ningbo-default", expectedMaterialReadyDate: "2026-09-17" });
@@ -65,6 +74,15 @@ test("逐物料运输无排单和缺路线不猜测，有路线选择最慢可�
   assert.equal(late.status, "late"); assert.equal(late.gapDays, 1);
   const actualWins = recommendMaterialTransport({ assignment, settings, supplyHubId: "supply-hub-ningbo-default", expectedMaterialReadyDate: "2026-09-18", actualMaterialReadyDate: "2026-09-01" });
   assert.equal(actualWins.recommendedMode.name, "海运");
+});
+
+test("款式进度物流依据暴露稳定关联 ID，生产弹窗不再暗示未保存默认仓", () => {
+  const source = readFileSync(new URL("../features/style-progress/components/style-progress-pages.tsx", import.meta.url), "utf8");
+  for (const contract of ["物流依据", "data-order-id", "data-schedule-assignment-id", "data-supply-hub-id", "data-production-site-id", "data-supply-route-id", "data-material-demand-id", "集货仓未设置", "生产地点未设置", "当前路线未配置运输方式"]) assert.match(source, new RegExp(contract));
+  const schedulingSource = readFileSync(new URL("../features/production-scheduling/components/production-scheduling-page.tsx", import.meta.url), "utf8");
+  assert.match(schedulingSource, /selectedTracking\?\.supplyHubId \?\? ""/);
+  assert.match(schedulingSource, /<option value="">未设置<\/option>/);
+  assert.doesNotMatch(schedulingSource, /selectedTracking\?\.supplyHubId \?\? settings\.supplyHubs\.find/);
 });
 
 test("Source 更新会推进跟随值，人工 Effective 值在重导入时保留", async () => {
@@ -88,6 +106,18 @@ test("款式进度仅按销售合同号投影订单，不按相同款号模糊�
     today: "2026-09-01",
   });
   assert.equal(projections.length, 1); assert.equal(projections[0].order, null); assert.equal(projections[0].salesContractNo, "PI-1");
+});
+
+test("款式进度沿正式订单与最早排单投影生产地点，缺仓不丢排单关联", async () => {
+  const preview = await parseMaterialFollowUpWorkbook({ buffer: await workbookBuffer([base()]), fileName: "logistics-projection.xlsx", actorName: "测试" });
+  const now = "2026-09-01T00:00:00.000Z";
+  const settings = upsertProductionGroup(normalizeOperationsSettings({}), { id: "group-a", name: "一组", shortName: "", productionSiteId: "production-site-cambodia-default", enabled: true, sortOrder: 1, remark: "", createdAt: now, updatedAt: now }, now);
+  const order = { id: "order-formal", salesContractNo: "PI-1", styleNo: "D1", factoryStyleNo: "FD1", brandNameSnapshot: "B", customerNameSnapshot: "客户", initialQuantity: 100, quantityChanges: [], contractDeliveryDate: "2026-10-01" };
+  const assignment = { id: "assignment-formal", salesOrderId: order.id, executionType: "internal", productionGroupId: "group-a", plannedStartDate: "2026-09-30", status: "planned" };
+  const missingHub = buildStyleProgressProjections({ data: preview, orders: [order], scheduling: { scheduleAssignments: [assignment], orderExecutionTrackings: [] }, settings, today: "2026-09-01" })[0];
+  assert.equal(missingHub.transportRisk, "hub_missing"); assert.equal(missingHub.logisticsBasis.scheduleAssignmentId, assignment.id); assert.equal(missingHub.logisticsBasis.productionSite.id, "production-site-cambodia-default"); assert.equal(missingHub.logisticsBasis.supplyHub, null);
+  const configured = buildStyleProgressProjections({ data: preview, orders: [order], scheduling: { scheduleAssignments: [assignment], orderExecutionTrackings: [{ salesOrderId: order.id, supplyHubId: "supply-hub-ningbo-default" }] }, settings, today: "2026-09-01" })[0];
+  assert.equal(configured.logisticsBasis.matchedRoute.id, "supply-route-ningbo-cambodia-default"); assert.deepEqual(configured.logisticsBasis.candidateTransportModes.map((item) => item.name), ["海运", "陆运", "定时达"]);
 });
 
 test("v11 Restore 同时恢复 Raw、Demand、Events、人工 Override、ImportBatch 且保留旧业务存储", async () => {

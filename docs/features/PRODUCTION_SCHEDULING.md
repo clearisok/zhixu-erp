@@ -33,11 +33,12 @@
 
 ## Material and transport
 
-- 默认供应枢纽为“宁波仓”，可在“系统设置 → 生产与运输”维护枢纽、地点、路线、日历和运输方式。
+- 系统内置启用的供应枢纽资料包含“宁波仓”，可在“系统设置 → 生产与运输”维护枢纽、地点、路线、日历和运输方式；这不构成所有订单的默认业务值。`OrderExecutionTracking.supplyHubId` 未保存时就是“未设置”。
 - 运输时长按自然日。最晚到生产地点日期 = `plannedStartDate - preProductionSampleLeadDays`。
 - 推荐满足到达要求的最慢启用方式；排单编辑器与订单详情复用同一 Projection，显示齐套日、实际生产地点、计划开工、封样提前期、最晚到厂、推荐方式、预计到厂和风险。若全部失败，显示最快预计到达日与晚到天数，不反向修改生产排期。
 - 没有跨境路线时显示“无需跨境运输建议”。ManufacturingPreset 是报价口径，不等于实际 ProductionSite。
-- 款式进度通过现有 `recommendMaterialTransport` 形成逐物料建议，继续读取同一 ProductionSite / SupplyHub / SupplyRoute / TransportMode。实际累计入库齐套日优先，否则读取当前 Effective 到料日；没有排单显示“待排单后计算”，地点、枢纽、路线或方式不完整显示“物流路线未配置”。
+- 款式进度通过现有 `recommendMaterialTransport` 形成逐物料建议，继续读取同一 ProductionSite / SupplyHub / SupplyRoute / TransportMode。实际累计入库齐套日优先，否则读取当前 Effective 到料日；缺排单、集货仓、生产地点、指定路线、路线运输方式时分别给出精确原因。
+- “物料与运输”弹窗只回显已持久化 SupplyHub；没有正式值时选中“未设置”，不得自动选中第一个启用仓或据此形成运输推荐。
 - 多 Assignment 暂无可靠 material/color relation 时使用最早的有效 `plannedStartDate` 保守计算，禁止平均、最后一条或随机选择。物料日期或排单地点/开工变化只触发 Projection 重算，不互相覆盖业务事实。
 
 ## Closing compatibility
