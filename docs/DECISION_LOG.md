@@ -332,6 +332,30 @@
 - 决定：首层结束弹窗同时提供“仅记录结束”和“结束并应用建议”；应用建议必须先展示后续排期变更预览，确认后才持久化。两条路径继续共享正式 ScheduleAssignment Service 与统一 OperationLog。
 - 原因：常规结束操作不应被迫经过队列调整，同时任何后续排期移动都必须显式可见。
 
+### D-050 面辅料跟进是低权威 Source
+
+- 日期：2026-09-01
+- 决定：《面辅料申购统计》只提供 Material Follow-up Source；销售合同与成衣分色分码继续分别作为订单字段和颜色数量的高权威来源。Style Progress 不反向覆盖正式订单。
+- 原因：采购跟进表允许修正和缺行，不能替代合同与订单事实。
+
+### D-051 当前预计到料日采用 Source / Effective / Actual 分层
+
+- 日期：2026-09-01
+- 决定：`sourceMaterialDueDate` 保留来源，`expectedMaterialReadyDate` 是当前业务 Effective，累计入库达到需求推导 Actual 齐套日。首次导入与未人工修改的重导入跟随 Source；人工 Effective 不被重导入覆盖；恢复后使用当前 Source。Excel `厂供` 仅映射 `actualConsumption`。
+- 原因：来源变化、人工判断和实际到料是不同时间事实，必须同时可追溯。
+
+### D-052 款式进度只按销售合同号投影正式订单
+
+- 日期：2026-09-01
+- 决定：Style Progress 只用 `salesContractNo` 读取 SalesOrder；禁止款号、工厂款号、品牌或数量模糊匹配，禁止自动创建订单。无订单合同引导至艾诺科同步。
+- 原因：复用正式订单去重与匹配边界，避免建立第二套 Matcher。
+
+### D-053 逐物料物流复用现有排单和路线事实
+
+- 日期：2026-09-01
+- 决定：逐物料建议扩展既有 `material-logistics-service.ts`，使用 Actual 齐套日，否则使用 Effective；使用最早相关正式 ScheduleAssignment，并在可行方式中选择最慢方式。缺排单或路线明确显示待配置，不猜运输方式。schemaVersion 11 将 Material ImportBatch、Raw、Demand、Events 与 Override 纳入既有 Backup / Restore。
+- 原因：物流建议必须随排单与预计到料变化重算，同时保持唯一运输模型和恢复边界。
+
 ## Superseded
 
 ### D-039 新订单中心使用 SalesOrder + OrderItem 多款聚合

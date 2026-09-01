@@ -15,6 +15,7 @@ import { buildHistoricalProductionImport, parseHistoricalClosingWorkbook, parseH
 import { ainuokeRepository } from "../repository/ainuoke-repository";
 import { candidateOrdersForContract, synchronizeAinuokeContracts, type AinuokeSyncResult } from "../service/ainuoke-sync-service";
 import type { AinuokeContractMirror, AinuokeImportRun, AinuokeSyncState } from "../model/ainuoke";
+import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 
 const dispositionLabels = { synced: "已同步", auto_bound: "自动绑定", recommended: "建议确认", review_required: "待人工确认", auto_created: "自动建单", blocked: "数据阻断" } as const;
 const dispositionTone = (value: AinuokeContractMirror["lastDisposition"]) => value === "blocked" ? "danger" : value === "review_required" || value === "recommended" ? "warning" : value ? "success" : "neutral";
@@ -98,7 +99,7 @@ export function AinuokeSyncPage() {
   ] : [["镜像合同", state.contracts.length], ["待确认", visibleReviews.length], ["导入批次", state.importRuns.length], ["已绑定", state.contracts.filter((item) => item.boundOrderId).length], ["异常", state.contracts.filter((item) => item.validationStatus !== "valid").length], ["订单总数", orders.length]];
 
   if (loading) return <AppShell title="艾诺科同步"><PageContainer><LoadingState label="正在读取同步镜像" /></PageContainer></AppShell>;
-  return <AppShell title="艾诺科同步"><PageContainer className="as-page">
+  return <AppShell title="艾诺科同步"><PageContainer className="as-page"><OrderCenterNavigation />
     <PageHeader eyebrow="AINUOKE ERP SYNC" title="艾诺科同步" count={`${visibleReviews.length} 条待确认`} description="自动创建与自动绑定在后台完成；此页集中处理真正需要人工判断的同步异常。" primaryAction={<Button permission="ainuoke.sync" disabled={working || !salesFile || !colorFile || !scheduleFile || !closingFile} onClick={() => void runPreview()}>{working ? "处理中…" : "运行四文件预检"}</Button>} />
     {error && <ErrorState title="同步处理失败" description={error} onRetry={() => setError("")} />}
     <AlertBanner tone="info" title="正式数据保护已启用">系统会自动防重、创建或绑定订单；只有多候选、无可靠归属或源数据异常才进入人工确认。预检不会改动订单。</AlertBanner>

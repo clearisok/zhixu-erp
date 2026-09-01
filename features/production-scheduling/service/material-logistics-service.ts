@@ -3,6 +3,18 @@ import type { OrderExecutionTracking, ScheduleAssignment } from "../model/produc
 import { getMaterialReadyDate } from "./production-scheduling-service.ts";
 
 export type LogisticsRecommendation = { status: "incomplete" | "no_cross_border" | "feasible" | "late"; materialReadyDate: string | null; latestRequiredArrivalDate: string | null; recommendedMode: TransportMode | null; earliestArrivalDate: string | null; gapDays: number; message: string };
+export type MaterialLogisticsRecommendation = {
+  status: "pending_schedule" | "route_missing" | "incomplete" | "feasible" | "late";
+  materialReadyDate: string | null;
+  plannedProductionStartDate: string | null;
+  latestRequiredArrivalDate: string | null;
+  recommendedMode: TransportMode | null;
+  expectedArrivalDate: string | null;
+  bufferDays: number | null;
+  gapDays: number;
+  escalationLevel: "none" | "faster_required" | "only_fastest" | "late";
+  message: string;
+};
 const shift = (value: string, days: number) => { const result = new Date(`${value}T00:00:00Z`); result.setUTCDate(result.getUTCDate() + days); return result.toISOString().slice(0, 10); };
 const gap = (from: string, to: string) => Math.ceil((new Date(`${to}T00:00:00Z`).getTime() - new Date(`${from}T00:00:00Z`).getTime()) / 86400000);
 
@@ -19,4 +31,42 @@ export function recommendTransport(input: { assignment: LogisticsAssignment; tra
   if (feasible) return { status: "feasible", materialReadyDate, latestRequiredArrivalDate, recommendedMode: feasible, earliestArrivalDate: shift(materialReadyDate, feasible.transitDays), gapDays: 0, message: `建议 ${feasible.name}（${feasible.transitDays} 天）` };
   const fastest = modes.slice().sort((a, b) => a.transitDays - b.transitDays)[0] ?? null; const earliestArrivalDate = fastest ? shift(materialReadyDate, fastest.transitDays) : materialReadyDate; const gapDays = Math.max(0, gap(latestRequiredArrivalDate, earliestArrivalDate));
   return { status: "late", materialReadyDate, latestRequiredArrivalDate, recommendedMode: fastest, earliestArrivalDate, gapDays, message: `⚠ 当前所有运输方式均无法满足封样及计划开工时间；最快仍晚 ${gapDays} 天，预计 ${earliestArrivalDate} 到达` };
+}
+
+/**
+ * Per-material projection. It deliberately reuses the same ProductionSite,
+ * SupplyRoute and TransportMode facts as the order-level recommendation.
+ */
+export function recommendMaterialTransport(input: {
+  assignment: LogisticsAssignment | null;
+  settings: OperationsSettingsState;
+  supplyHubId: string | null;
+  expectedMaterialReadyDate: string | null;
+  actualMaterialReadyDate?: string | null;
+}): MaterialLogisticsRecommendation {
+  const materialReadyDate = input.actualMaterialReadyDate || input.expectedMaterialReadyDate;
+  if (!input.assignment?.plannedStartDate) return { status: "pending_schedule", materialReadyDate, plannedProductionStartDate: null, latestRequiredArrivalDate: null, recommendedMode: null, expectedArrivalDate: null, bufferDays: null, gapDays: 0, escalationLevel: "none", message: "待排单后计算" };
+  const plannedProductionStartDate = input.assignment.plannedStartDate;
+  const site = productionSiteForAssignment(input.assignment, input.settings);
+  if (!site) return { status: "route_missing", materialReadyDate, plannedProductionStartDate, latestRequiredArrivalDate: null, recommendedMode: null, expectedArrivalDate: null, bufferDays: null, gapDays: 0, escalationLevel: "none", message: "物流路线未配置" };
+  const latestRequiredArrivalDate = shift(plannedProductionStartDate, -site.preProductionSampleLeadDays);
+  if (!input.supplyHubId) return { status: "route_missing", materialReadyDate, plannedProductionStartDate, latestRequiredArrivalDate, recommendedMode: null, expectedArrivalDate: null, bufferDays: null, gapDays: 0, escalationLevel: "none", message: "物流路线未配置" };
+  const route = input.settings.supplyRoutes.find((item) => item.enabled && item.supplyHubId === input.supplyHubId && item.productionSiteId === site.id);
+  if (!route) return { status: "route_missing", materialReadyDate, plannedProductionStartDate, latestRequiredArrivalDate, recommendedMode: null, expectedArrivalDate: null, bufferDays: null, gapDays: 0, escalationLevel: "none", message: "物流路线未配置" };
+  if (!materialReadyDate) return { status: "incomplete", materialReadyDate: null, plannedProductionStartDate, latestRequiredArrivalDate, recommendedMode: null, expectedArrivalDate: null, bufferDays: null, gapDays: 0, escalationLevel: "none", message: "当前预计到料日未填写" };
+  const modes = input.settings.transportModes.filter((item) => item.enabled && item.routeId === route.id).sort((left, right) => right.transitDays - left.transitDays);
+  if (!modes.length) return { status: "route_missing", materialReadyDate, plannedProductionStartDate, latestRequiredArrivalDate, recommendedMode: null, expectedArrivalDate: null, bufferDays: null, gapDays: 0, escalationLevel: "none", message: "物流路线未配置" };
+  const feasible = modes.find((mode) => shift(materialReadyDate, mode.transitDays) <= latestRequiredArrivalDate) ?? null;
+  if (feasible) {
+    const expectedArrivalDate = shift(materialReadyDate, feasible.transitDays);
+    const fastestDays = Math.min(...modes.map((mode) => mode.transitDays));
+    const slowestDays = Math.max(...modes.map((mode) => mode.transitDays));
+    const escalationLevel = feasible.transitDays === fastestDays && fastestDays !== slowestDays ? "only_fastest" : feasible.transitDays < slowestDays ? "faster_required" : "none";
+    const bufferDays = gap(expectedArrivalDate, latestRequiredArrivalDate);
+    return { status: "feasible", materialReadyDate, plannedProductionStartDate, latestRequiredArrivalDate, recommendedMode: feasible, expectedArrivalDate, bufferDays, gapDays: 0, escalationLevel, message: `建议${feasible.name}，预计 ${expectedArrivalDate} 到厂` };
+  }
+  const fastest = [...modes].sort((left, right) => left.transitDays - right.transitDays)[0];
+  const expectedArrivalDate = shift(materialReadyDate, fastest.transitDays);
+  const gapDays = Math.max(0, gap(latestRequiredArrivalDate, expectedArrivalDate));
+  return { status: "late", materialReadyDate, plannedProductionStartDate, latestRequiredArrivalDate, recommendedMode: fastest, expectedArrivalDate, bufferDays: -gapDays, gapDays, escalationLevel: "late", message: `最快${fastest.name}仍晚 ${gapDays} 天` };
 }

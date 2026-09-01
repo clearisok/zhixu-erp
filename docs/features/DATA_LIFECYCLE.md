@@ -8,7 +8,7 @@
 
 - DEV `127.0.0.1:3001` 与 PROD Docker `127.0.0.1:3000` 继续依靠浏览器 Origin 隔离，不做跨 Origin 共享。
 - 所有可序列化的 Quote Center 数据写入稳定命名空间 `zhixu.erp.local.*`；版本存在 envelope/manifest 的 `schemaVersion` 中，不再通过改 key 升级。
-- 当前正式 `schemaVersion = 9`。v3 将旧 QuoteRevision 级制作参数映射为 PriceVersion 快照；v4 新增 `operations-settings`；v5 新增 `sales-orders`；v6 将多款订单非破坏拆分为单款 SalesOrder；v7 新增 `production-scheduling`；v8 新增 `closing-center`；v9 将旧 ProductionPlan owner 提升为 `ScheduleAssignment.salesOrderId`，保留 Assignment ID，并为缺失的生产地点、日历和运输设置补安全默认。
+- 当前正式 `schemaVersion = 11`。v3 将旧 QuoteRevision 级制作参数映射为 PriceVersion 快照；v4 新增 `operations-settings`；v5 新增 `sales-orders`；v6 将多款订单非破坏拆分为单款 SalesOrder；v7 新增 `production-scheduling`；v8 新增 `closing-center`；v9 将旧 ProductionPlan owner 提升为 `ScheduleAssignment.salesOrderId`；v10 增加艾诺科同步正式记录；v11 接入款式进度 IndexedDB 与完整备份编排。v10→v11 只升级基础设施 envelope，旧 payload 字节不变。
 - 启动时 `LocalDataBootstrap` 触发一次非破坏性初始化。稳定记录存在时只读取/迁移；稳定记录不存在时优先迁移旧记录；只有两者都不存在时才写一次 Seed。
 - 旧 key 在迁移成功后保留，不由自动流程删除。只有用户在“系统设置 > 数据管理”显式执行全部重置时才清理稳定与旧命名空间。
 - 稳定记录或 manifest 损坏时抛出 `LocalDataCorruptionError`，原始字符串保持不变，不静默回退 Seed。
@@ -21,6 +21,8 @@
 | 单款 SalesOrder、交期、数量/价格历史与附件引用 | `order-repository.ts` | localStorage `zhixu.erp.local.sales-orders` | v5 `SalesOrder + OrderItem[]` |
 | ScheduleAssignment、OrderExecutionTracking | `production-scheduling-repository.ts` | localStorage `zhixu.erp.local.production-scheduling` | v8 ProductionPlan 只用于 v9 owner 提升，原 Assignment ID 保留 |
 | ClosingPeriod、ClosingAllocation | `closing-repository.ts` | localStorage `zhixu.erp.local.closing-center` | v7 无此独立记录时初始化空集合 |
+| Ainuoke Mirror、同步批次与 Import Review | `ainuoke-sync-repository.ts` | localStorage `zhixu.erp.local.ainuoke-sync` | v9 无记录时初始化空集合 |
+| 款式进度 ImportBatch、Raw、需求与四类事件 | `style-progress-repository.ts` | IndexedDB `zhixu-style-progress` 多 Store | v10 无此数据库时初始化空集合 |
 | 品牌、客户业务员、面辅料库 | `basic-settings-repository.ts` | localStorage `zhixu.erp.local.basic-settings` | `zhixu.basic-settings.v1.5`、`v1.3` |
 | 全局报价设置 | `quote-settings.ts` | localStorage `zhixu.erp.local.quote-global-settings` | `zhixu.quote-center.global-settings.v1` 与旧基础设置 |
 | 个人列表偏好 | `quote-settings.ts` | localStorage `zhixu.erp.local.quote-preferences.<userId>` | `zhixu.quote-center.preferences.v1.*`、旧单用户设置 |
@@ -35,7 +37,7 @@
 
 ```ts
 {
-  schemaVersion: 9,
+  schemaVersion: 11,
   initializedAt: string,
   updatedAt: string,
   data: unknown
@@ -59,6 +61,7 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 11. v5 → v6 保持 `sales-orders` key：单 Item 保留原 SalesOrder ID/订单号，多 Item 逐款拆单，第一款保留原身份，其余订单复用正式订单号生成规则。Quote 来源、数量/交期/价格历史及附件引用按旧 Item 隔离迁移，child owner 改为 `salesOrderId`。
 12. v5 → v6 建立确定性的旧 Item→新 SalesOrder mapping，用于迁移翻单 `sourceOrderItemId`；新 Runtime Domain 不保留 OrderItem。坏指针、重复 ID、空 items 或 owner 损坏会停止迁移并保留原始 record，禁止 fallback、Seed 或全局清空。
 13. v6 → v7 只增加 `production-scheduling` 稳定记录；v7 → v8 只增加 `closing-center` 稳定记录。已有 records、未知字段与时间戳原样保留，旧备份没有新记录时初始化安全空集合。
+14. v9 → v10 增加艾诺科同步稳定记录；v10 → v11 只提升现有 localStorage envelope/manifest，原业务 payload 保持不变。款式进度大数据使用独立 IndexedDB Store，不把万行事件塞进单个 localStorage JSON。
 
 ## Test isolation
 
@@ -75,6 +78,7 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 - `operations-settings` 与其他稳定记录一样自动进入 `localRecords`，恢复旧备份中没有该记录时使用安全空默认值，不覆盖其他业务记录。
 - `sales-orders` 与其内部交期、数量变化、价格版本和当前价格指针作为一个稳定记录自动进入 `localRecords`；新备份保存 v6 单款结构。旧 v5 备份在替换当前数据前执行同一提升/拆单迁移并整体校验；附件 Blob 仍由 attachments 区域独立备份，不复制进订单 JSON。
 - `production-scheduling` 与 `closing-center` 都作为独立稳定记录进入 `localRecords`。恢复关账前校验 ClosingPeriod 唯一性、SalesOrder owner、可选 ScheduleAssignment 引用与当前 schema；任何关系损坏都会在覆盖当前数据前拒绝恢复。
+- `ainuoke-sync` 作为稳定记录进入 `localRecords`；款式进度以结构化 `styleProgress` 区块进入同一备份 JSON。恢复会先完整校验需求/事件引用，再与 localStorage、附件和模板一起执行失败回滚；旧备份没有该区块时只初始化空款式进度，不触碰订单、排单、关账或艾诺科数据。
 - attachments：附件 metadata 与 Blob（Base64 仅存在于用户主动下载的备份 JSON，不写回 localStorage）。
 - templates：用户模板 definition 与 Blob；内置模板不重复备份。
 

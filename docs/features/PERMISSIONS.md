@@ -15,6 +15,7 @@
 - Quote Editor 会同时保护基础信息、成本编辑、附件修改、报价设置、客户确认、版本更新和估算成本，不只禁用顶部按钮。
 - 新订单中心消费 `order.view/create/edit/cancel`：列表/详情读取、手工/报价/翻单创建、订单编辑与确认、部分/全部取消分别受权限键保护；无权按钮继续可见并 disabled。
 - 排单中心消费 `schedule.view/create/edit/complete`，关账中心消费 `closing.view/edit/confirm/lock/reopen`；订单编辑权限不会隐含这两类权限。
+- 款式进度消费 `style_progress.read/edit/import/view_history`；查看、日期维护、真实 Excel 导入和来源/操作历史分别授权，不隐含订单创建或艾诺科冲突处理权限。
 
 ## Data model
 
@@ -42,6 +43,8 @@
 - 生产基础资料：`settings.production_group.edit`、`settings.outsource_factory.edit`、`settings.production_infrastructure.edit`、`settings.closing.edit`
 - 权限管理：`user_permissions.view/manage`
 - 系统审计：`audit_log.view`
+- 艾诺科同步：`ainuoke.view/sync/bind/resolve_conflict`
+- 款式进度：`style_progress.read/edit/import/view_history`
 
 `quote.revision.delete` 当前为未来能力预留；现有 Quote Center 尚无报价 Revision 删除 UI。
 

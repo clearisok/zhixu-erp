@@ -37,7 +37,8 @@ export function DataManagementPage() {
       anchor.download = `zhixu-erp-backup-${backup.createdAt.replaceAll(":", "-")}.json`;
       anchor.click();
       URL.revokeObjectURL(url);
-      setToast(`备份已导出：${backup.attachments.length} 个附件 · ${backup.templates.length} 个自定义模板`);
+      const materialRecords = backup.styleProgress.batches.length + backup.styleProgress.rawSnapshots.length + backup.styleProgress.demands.length + backup.styleProgress.purchaseEvents.length + backup.styleProgress.inboundEvents.length + backup.styleProgress.shipmentEvents.length + backup.styleProgress.outboundEvents.length;
+      setToast(`备份已导出：${backup.attachments.length} 个附件 · ${backup.templates.length} 个自定义模板 · ${materialRecords} 条款式进度记录`);
     } catch (error) {
       setToast(error instanceof Error ? error.message : "备份导出失败");
     } finally { setBusy(false); }
@@ -89,7 +90,7 @@ export function DataManagementPage() {
         <ReadOnlyField label="环境" value={buildInfo.environment} secondary="DEV / PROD 按 Origin 隔离" />
         <ReadOnlyField label="Schema" value={`v${LOCAL_DATA_SCHEMA_VERSION}`} secondary="仅允许向前、非破坏迁移" />
         <ReadOnlyField label="命名空间" value={<code>{browserLocalDataStore.namespace}</code>} secondary="不会因 Build 或 HMR 清理" />
-        <p className="qc-data-management-scope">包含报价、Revision、PriceVersion、EstimateCost、品牌与物料、生产组、外发厂、关账设置、权限、OperationLog、附件 Blob 与自定义模板。</p>
+        <p className="qc-data-management-scope">包含报价、订单、排单、关账、艾诺科同步、款式进度 ImportBatch / Raw Snapshot / 物料需求与事件、基础资料、权限、OperationLog、附件 Blob 与自定义模板。</p>
         <input ref={inputRef} hidden type="file" accept="application/json,.json" onChange={(event) => void chooseBackup(event.target.files?.[0] ?? null)} />
       </FormSection>
       <FormSection className="qc-data-management-section qc-data-danger-card" title="危险操作" description="重置会永久删除当前 Origin 的全部本地业务数据；建议先导出备份。" columns={1} actions={<Button variant="danger" disabled={!manageable || busy} onClick={() => setResetOpen(true)}>重置全部本地业务数据</Button>}>
@@ -97,7 +98,7 @@ export function DataManagementPage() {
       </FormSection>
     </div>
     <Modal open={Boolean(pendingBackup)} title="确认恢复备份" description="恢复会写入当前浏览器 Origin，并以备份内容替换当前本地数据。" onClose={() => { setPendingBackup(null); setPendingSummary(null); }} footer={<><Button variant="secondary" onClick={() => { setPendingBackup(null); setPendingSummary(null); }}>取消</Button><Button disabled={busy} onClick={() => void restore()}>确认恢复</Button></>}>
-      {pendingSummary && <div className="qc-backup-summary"><p>备份时间：{new Date(pendingSummary.createdAt).toLocaleString("zh-CN")}</p><p>来源环境：{pendingSummary.environment}</p><p>{pendingSummary.localRecordCount} 组业务数据 · {pendingSummary.attachmentCount} 个附件 · {pendingSummary.templateCount} 个自定义模板</p><strong>建议先导出当前数据，再执行恢复。</strong></div>}
+      {pendingSummary && <div className="qc-backup-summary"><p>备份时间：{new Date(pendingSummary.createdAt).toLocaleString("zh-CN")}</p><p>来源环境：{pendingSummary.environment}</p><p>{pendingSummary.localRecordCount} 组业务数据 · {pendingSummary.styleProgressRecordCount} 条款式进度记录 · {pendingSummary.attachmentCount} 个附件 · {pendingSummary.templateCount} 个自定义模板</p><strong>建议先导出当前数据，再执行恢复。</strong></div>}
     </Modal>
     <Modal open={resetOpen} title="危险操作：重置全部本地业务数据" description="该操作会删除当前 Origin 的报价、基础资料、设置、日志、附件和自定义模板，且无法撤销。" onClose={() => { setResetOpen(false); setResetConfirmation(""); }} footer={<><Button variant="secondary" onClick={() => { setResetOpen(false); setResetConfirmation(""); }}>取消</Button><Button variant="danger" disabled={busy || resetConfirmation !== RESET_ALL_LOCAL_DATA_CONFIRMATION} onClick={() => void reset()}>确认永久重置</Button></>}>
       <label className="qc-data-reset-confirm"><span>请输入“{RESET_ALL_LOCAL_DATA_CONFIRMATION}”进行二次确认</span><input className="qc-control" value={resetConfirmation} onChange={(event) => setResetConfirmation(event.target.value)} autoComplete="off" /></label>

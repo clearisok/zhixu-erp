@@ -63,7 +63,7 @@ test("operations-settings repository 写入稳定 namespace 且重复加载幂�
   state = repository.save(upsertProductionGroup(state, productionGroup, timestamp));
   assert.deepEqual(repository.load(), state);
   const envelope = JSON.parse(storage.getItem("zhixu.erp.operations-test.operations-settings"));
-  assert.equal(envelope.schemaVersion, 10);
+  assert.equal(envelope.schemaVersion, 11);
   assert.equal(envelope.data.productionGroups[0].id, productionGroup.id);
 });
 
@@ -93,9 +93,9 @@ test("v3 到 v7 独立记录升级只重封 envelope，不丢失 Quote 与未知
   const loaded = store.initialize("quotes", { seed: () => [], migrate: (value) => value.map((item) => ({ id: item.id })) });
   assert.deepEqual(loaded, [{ id: "quote-stable" }]);
   const persisted = JSON.parse(storage.getItem(`${namespace}.quotes`));
-  assert.equal(persisted.schemaVersion, 10);
+  assert.equal(persisted.schemaVersion, 11);
   assert.equal(persisted.data[0].customUserField, "keep-me");
-  assert.equal(JSON.parse(storage.getItem(`${namespace}.manifest`)).schemaVersion, 10);
+  assert.equal(JSON.parse(storage.getItem(`${namespace}.manifest`)).schemaVersion, 11);
   const second = store.initialize("quotes", { seed: () => [], migrate: (value) => value.map((item) => ({ id: item.id })) });
   assert.deepEqual(second, [{ id: "quote-stable" }]);
   assert.deepEqual(JSON.parse(storage.getItem(`${namespace}.quotes`)), persisted);
@@ -205,7 +205,7 @@ test("基础设施页面和导航入口存在，Legacy orders/schedules/closing 
   assert.match(shell, /system-settings\/closing-settings/);
   assert.match(pages, /settings\.production_group\.edit/);
   assert.match(pages, /closing\.target\.manage/);
-  assert.match(localStore, /LOCAL_DATA_SCHEMA_VERSION = 10/);
+  assert.match(localStore, /LOCAL_DATA_SCHEMA_VERSION = 11/);
   assert.match(lifecycle, /operationsSettingsRepository\.load/);
   assert.doesNotMatch(shell, /href: "\/orders"|href: "\/schedules"|href: "\/closing"/);
 });

@@ -1,6 +1,6 @@
 # 当前状态
 
-> 状态快照：2026-08-31。更新本文件时只保留当前事实，不追加开发流水账。
+> 状态快照：2026-09-01。更新本文件时只保留当前事实，不追加开发流水账。
 
 ## 当前阶段
 
@@ -12,12 +12,15 @@
 
 ## 已完成模块
 
-- UI Redesign DEV / QA 仿真数据集：`ui-redesign-qa-v1` 已在长期 DEV 安装，固定 seed 为 `zhixu-ui-redesign-2026`；包含 72 Quote、168 Order、1–13/15/16 共 15 个生产组、150 ScheduleAssignment、2026-06/07/09 三个 QA 关账月及 90 条关系。生成器只在显式 DEV / QA 入口运行，幂等跳过已有对象；未创建 QA 14 组，原非 QA `2026-08` 关账数据保持不变。详细事实见 `docs/ui-redesign/qa-dataset.md` 和 `artifacts/ui-redesign-qa/manifest.json`。
+- UI Redesign QA 数据已通过正式 datasetId `ui-redesign-qa-v1` 做 dataset-scoped cleanup；QA / Demo / Seed 订单不会进入 Ainuoke Matcher，QA Schedule 不进入生产中心。生成器继续只用于独立 test namespace / fixture，不在普通 DEV 启动时恢复 QA 数据。
 
 - 根路径 ERP：登录、工作台、成衣报价、报价转订单、订单状态、生产排单、用户管理、审计日志。
 - 本地运行：DEV `127.0.0.1:3001` 源码/HMR 与 PROD Docker `127.0.0.1:3000` 显式重建验收已分离；两者均有自动 Build Info、页面版本标识和分层缓存策略。
 - 数据保护：PostgreSQL dump 备份和带显式数据丢失确认的恢复脚本。
-- Quote Center/新订单、排单与关账中心浏览器数据保护：`zhixu.erp.local.*` 稳定命名空间、`schemaVersion = 9`、旧 v1-v8/sessionStorage/localStorage 非破坏迁移、一次性 Seed、损坏数据拒绝覆盖、test namespace 隔离，以及包含订单、排单、关账、生产与运输设置、附件和用户模板 Blob 的备份恢复。v8→v9 将旧 ProductionPlan owner 提升到原 ScheduleAssignment，稳定保留 Assignment ID 和 ClosingAllocation 引用。
+- 款式进度 / 面辅料跟进：订单中心已增加款式进度、风险预警与艾诺科同步二级导航；真实 Excel 使用 ImportBatch + Raw Snapshot + 分离的 MaterialDemand / Purchase / Inbound / Shipment / Outbound Event，Source / Effective / Actual 严格分层。万行级事实存于 IndexedDB，schemaVersion 11 的现有 Backup / Restore / Reset 已纳入该数据库并支持失败回滚。
+- 逐物料物流：复用现有 ProductionSite、SupplyHub、SupplyRoute、TransportMode、ScheduleAssignment 与 `material-logistics-service.ts`，支持最慢可行方式、加快/仅最快/全部失败、无排单和路线缺失语义；物料/排单变化通过 Projection 重算，不复制或反向覆盖事实。
+- 真实 Excel 与 DEV Import：`面辅料申购统计.xlsx` SHA-256 `9DBEBF05FDC2EE201E4A1A7F24B3B5E9585AA4B5BE4C3C49C6CB64EF0B88675E`；Raw 17,016、有效 17,015、无效 Trace 1、需求 12,853、采购 11,269、入库 14,601、出运 13,140、出库 14,620、合同 474。当前真实 DEV Repository 为 1 个正式批次、17,016 个 Raw Snapshot、上述需求与事件；396 个合同投影到正式订单，78 个合同尚无订单。同文件再次正式提交全部业务事实新增为 0。
+- Quote Center/新订单、排单、关账与款式进度浏览器数据保护：`zhixu.erp.local.*` 稳定命名空间、`schemaVersion = 11`、旧 v1-v10/sessionStorage/localStorage 非破坏迁移、一次性 Seed、损坏数据拒绝覆盖、test namespace 隔离，以及包含订单、艾诺科、排单、关账、生产与运输设置、附件、用户模板 Blob 和 Style Progress IndexedDB 的备份恢复。v8→v9 将旧 ProductionPlan owner 提升到原 ScheduleAssignment，v11 纳入 Material ImportBatch、Raw、Demand、Events 与 Override，稳定保留旧业务关系。
 - Quote Center：列表、个人字段偏好、新建/详情、Revision 历史、PriceVersion、面辅料/工价/其他费用、客户确认、删除、保存草稿。
 - Quote Center 模型：完整 Revision 快照、默认 Revision、分支命名、聚合状态、成本计算、校验和复制逻辑。
 - 基础设置：品牌、客户业务员、面料库、辅料库、默认汇率/辅料/其他费用和供应商建议。
@@ -57,7 +60,7 @@
 
 ## 正在开发
 
-当前没有跨 Delivery Phase 继续实施的 UI 工作。Phase 6 已完成八个现有 Master Data / Low-frequency Settings 页面的实现、48 个模拟 viewport 组合、代表截图、自动化、全量测试和构建验收；Delivery Phase 7 未开始，必须等待明确指令并从 Phase 6 独立 commit 重新记录基线。
+Style Progress + Material Follow-up + Logistics Integration 已在真实 DEV Origin 完成正式导入、同文件零新增、D1935（45 项）、T2403（11 项）与 T1933 正确缺失态验收。人工预计到料日修改、刷新持久化、来源显示、恢复使用艾诺科交期及三类 OperationLog 已通过；备份导出显示 83,500 条款式进度记录。Overview 在 1600/1280/1229/960/768/402 均无 document-level 横向溢出，风险中心、Order Detail 摘要与全局搜索已读取真实数据。
 
 ## 尚未开发或尚未落地
 
@@ -102,6 +105,8 @@
 - 任何引入 migration 框架的工作都属于新的架构任务，不能假定已经完成。
 
 ## 测试状态
+
+2026-09-01 Style Progress + Material Follow-up + Logistics Integration 最终门禁：TypeScript、ESLint、Build 与批次文件 `diff-check` 通过；全量 Tests `426/426`，0 failed、0 skipped；生产构建预渲染 28 个路由。真实 DEV Browser Console 为 0 error / 0 warning，Overview 在 1600/1280/1229/960/768/402 均无 document-level 横向溢出。
 
 2026-08-31 Delivery Phase 6 完成后的当前验证状态：
 

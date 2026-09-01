@@ -14,6 +14,8 @@ import { closingRepository, CLOSING_STORAGE_NAME } from "../../closing-center/re
 import { validateClosingState } from "../../closing-center/model/closing";
 import { ainuokeRepository, AINUOKE_STORAGE_NAME } from "../../ainuoke-sync/repository/ainuoke-repository";
 import { validateAinuokeSyncState } from "../../ainuoke-sync/model/ainuoke";
+import { clearStyleProgressData, exportStyleProgressData, replaceStyleProgressData } from "../../style-progress/repository/style-progress-repository";
+import { emptyStyleProgressData, validateStyleProgressData } from "../../style-progress/model/style-progress";
 import {
   exportStoredAttachments,
   replaceStoredAttachments,
@@ -43,6 +45,7 @@ import {
   LOCAL_DATA_SCHEMA_VERSION,
   LocalDataCorruptionError,
 } from "../repository/local-data-store";
+import { restoreLocalDataStores, type LocalDataRestoreAdapters } from "./local-data-restore";
 
 export const RESET_ALL_LOCAL_DATA_CONFIRMATION = "重置全部本地业务数据";
 
@@ -87,6 +90,7 @@ export async function initializeLocalDataLifecycle(): Promise<void> {
   await productionSchedulingRepository.load();
   await closingRepository.load();
   await ainuokeRepository.load();
+  await exportStyleProgressData();
   await mockQuoteRepository.list();
   await operationLogRepository.list();
   recentSearchRepository.list(CURRENT_MOCK_USER_ID);
@@ -95,7 +99,7 @@ export async function initializeLocalDataLifecycle(): Promise<void> {
 
 export async function exportLocalDataBackup(): Promise<LocalDataBackup> {
   await initializeLocalDataLifecycle();
-  const [attachments, templates] = await Promise.all([exportStoredAttachments(), exportStoredTemplates()]);
+  const [attachments, templates, styleProgress] = await Promise.all([exportStoredAttachments(), exportStoredTemplates(), exportStyleProgressData()]);
   return {
     product: "zhixu-erp",
     backupVersion: LOCAL_DATA_BACKUP_VERSION,
@@ -107,6 +111,7 @@ export async function exportLocalDataBackup(): Promise<LocalDataBackup> {
     localRecords: browserLocalDataStore.getRawRecords(),
     attachments: await Promise.all(attachments.map(async ({ attachment, blob }) => ({ attachment, file: await encodeBlob(blob) }))),
     templates: await Promise.all(templates.map(async ({ definition, blob }) => ({ definition, file: await encodeBlob(blob) }))),
+    styleProgress,
   };
 }
 
@@ -164,7 +169,8 @@ export function validateLocalDataBackup(value: unknown): LocalDataBackup {
   for (const entry of [...value.attachments, ...value.templates]) {
     if (!isRecord(entry) || !isRecord(entry.file) || typeof entry.file.base64 !== "string" || typeof entry.file.mimeType !== "string" || typeof entry.file.size !== "number") throw new Error("备份包含无效文件记录");
   }
-  return { ...(value as unknown as LocalDataBackup), localRecords };
+  const styleProgress = value.styleProgress === undefined ? emptyStyleProgressData() : validateStyleProgressData(value.styleProgress);
+  return { ...(value as unknown as LocalDataBackup), localRecords, styleProgress };
 }
 
 export function backupSummary(backup: LocalDataBackup): BackupSummary {
@@ -174,24 +180,29 @@ export function backupSummary(backup: LocalDataBackup): BackupSummary {
     localRecordCount: Object.keys(backup.localRecords).length,
     attachmentCount: backup.attachments.length,
     templateCount: backup.templates.length,
+    styleProgressRecordCount: backup.styleProgress.batches.length + backup.styleProgress.rawSnapshots.length + backup.styleProgress.demands.length + backup.styleProgress.purchaseEvents.length + backup.styleProgress.inboundEvents.length + backup.styleProgress.shipmentEvents.length + backup.styleProgress.outboundEvents.length,
   };
 }
 
-export async function restoreLocalDataBackup(input: unknown): Promise<void> {
-  const backup = validateLocalDataBackup(input);
+const browserRestoreAdapters: LocalDataRestoreAdapters<AttachmentBackupRecord, TemplateBackupRecord, ReturnType<typeof emptyStyleProgressData>> = {
+  exportAttachments: exportStoredAttachments,
+  replaceAttachments: replaceStoredAttachments,
+  exportTemplates: exportStoredTemplates,
+  replaceTemplates: replaceStoredTemplates,
+  exportStyleProgress: exportStyleProgressData,
+  replaceStyleProgress: replaceStyleProgressData,
+  getLocalRecords: () => browserLocalDataStore.getRawRecords(),
+  replaceLocalRecords: (records) => browserLocalDataStore.replaceRawRecords(records),
+};
+
+export async function restoreValidatedLocalDataBackup(backup: LocalDataBackup, adapters: LocalDataRestoreAdapters<AttachmentBackupRecord, TemplateBackupRecord, ReturnType<typeof emptyStyleProgressData>> = browserRestoreAdapters): Promise<void> {
   const nextAttachments: AttachmentBackupRecord[] = backup.attachments.map((entry) => ({ attachment: entry.attachment, blob: base64ToBlob(entry.file) }));
   const nextTemplates: TemplateBackupRecord[] = backup.templates.map((entry) => ({ definition: entry.definition, blob: base64ToBlob(entry.file) }));
-  const previousLocalRecords = browserLocalDataStore.getRawRecords();
-  const [previousAttachments, previousTemplates] = await Promise.all([exportStoredAttachments(), exportStoredTemplates()]);
-  try {
-    await replaceStoredAttachments(nextAttachments);
-    await replaceStoredTemplates(nextTemplates);
-    browserLocalDataStore.replaceRawRecords(backup.localRecords);
-  } catch (error) {
-    browserLocalDataStore.replaceRawRecords(previousLocalRecords);
-    await Promise.all([replaceStoredAttachments(previousAttachments), replaceStoredTemplates(previousTemplates)]);
-    throw error;
-  }
+  await restoreLocalDataStores({ attachments: nextAttachments, templates: nextTemplates, styleProgress: backup.styleProgress, localRecords: backup.localRecords }, adapters);
+}
+
+export async function restoreLocalDataBackup(input: unknown): Promise<void> {
+  await restoreValidatedLocalDataBackup(validateLocalDataBackup(input));
 }
 
 function removeLegacyLocalStorageRecords(): void {
@@ -217,7 +228,7 @@ function removeLegacyLocalStorageRecords(): void {
 
 export async function resetAllLocalBusinessData(confirmation: string): Promise<void> {
   if (confirmation !== RESET_ALL_LOCAL_DATA_CONFIRMATION) throw new Error("重置全部本地业务数据需要输入完整确认文字");
-  await Promise.all([replaceStoredAttachments([]), replaceStoredTemplates([])]);
+  await Promise.all([replaceStoredAttachments([]), replaceStoredTemplates([]), clearStyleProgressData()]);
   browserLocalDataStore.clearNamespace();
   removeLegacyLocalStorageRecords();
 }

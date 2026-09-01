@@ -14,6 +14,8 @@
 - Quote Detail 的“生成订单”允许选择明确的 Quote Revision 与 PriceVersion，并直接生成 SalesOrder；未客户确认只提示，不阻断生成。
 - 草稿通过完整性校验后可确认；交期不足/超额保持提示，不自动调整数量或交期。
 - 页面读取正式排单与关账 Service，展示排单数、已排/完成数量、生产状态、交期风险、累计关账数量与加工产值，并可进入对应中心。“物料与运输”使用统一物流 Projection 展示动态 SupplyHub 到仓、齐套日、实际生产地点、开工日、封样提前期、最晚到厂、推荐方式、预计到厂和风险。
+- 订单中心二级导航统一包含订单列表、款式进度、风险预警和艾诺科同步。订单详情按 `salesContractNo` 查询 StyleProgress Projection，只显示面/辅料齐套、未采购、待入库、运输风险和最晚齐料摘要；Drawer 保持紧凑，完整明细与日期编辑通过 deep link 进入款式进度。
+- Order Detail 不保存第二份 MaterialDemand 或 Event，也不允许款式进度按款号/品牌/数量猜测订单、创建订单或覆盖订单权威字段。
 
 ## Business rules
 

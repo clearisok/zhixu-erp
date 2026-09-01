@@ -46,6 +46,10 @@ export const PERMISSION_KEYS = [
   "ainuoke.sync",
   "ainuoke.bind",
   "ainuoke.resolve_conflict",
+  "style_progress.read",
+  "style_progress.edit",
+  "style_progress.import",
+  "style_progress.view_history",
   "settings.brand_alias.edit",
   "settings.purchased_trim_cost.edit",
 ] as const;
@@ -132,6 +136,10 @@ export const PERMISSION_DEFINITIONS: PermissionDefinition[] = [
   define("ainuoke.sync", "艾诺科同步", "执行艾诺科同步", "上传并同步销售合同与成衣分色文件"),
   define("ainuoke.bind", "艾诺科同步", "绑定销售合同", "将艾诺科销售合同绑定到织序订单"),
   define("ainuoke.resolve_conflict", "艾诺科同步", "处理同步冲突", "处理重复候选、分色差异与同步变更"),
+  define("style_progress.read", "款式进度", "查看款式进度", "查看面辅料齐套、风险和逐物料物流建议"),
+  define("style_progress.edit", "款式进度", "编辑款式进度", "维护当前预计到料日并恢复来源交期"),
+  define("style_progress.import", "款式进度", "导入面辅料跟进", "预检并确认导入艾诺科面辅料申购统计"),
+  define("style_progress.view_history", "款式进度", "查看款式进度历史", "查看预计到料日人工调整的统一操作日志"),
   define("settings.brand_alias.edit", "基础设置", "管理品牌别名", "维护艾诺科品牌名称到织序品牌的映射"),
   define("settings.purchased_trim_cost.edit", "基础设置", "管理代购辅料成本", "维护带生效日期的品牌代购辅料成本规则"),
 ];

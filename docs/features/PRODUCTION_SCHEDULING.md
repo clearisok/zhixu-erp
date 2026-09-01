@@ -37,6 +37,8 @@
 - 运输时长按自然日。最晚到生产地点日期 = `plannedStartDate - preProductionSampleLeadDays`。
 - 推荐满足到达要求的最慢启用方式；排单编辑器与订单详情复用同一 Projection，显示齐套日、实际生产地点、计划开工、封样提前期、最晚到厂、推荐方式、预计到厂和风险。若全部失败，显示最快预计到达日与晚到天数，不反向修改生产排期。
 - 没有跨境路线时显示“无需跨境运输建议”。ManufacturingPreset 是报价口径，不等于实际 ProductionSite。
+- 款式进度通过现有 `recommendMaterialTransport` 形成逐物料建议，继续读取同一 ProductionSite / SupplyHub / SupplyRoute / TransportMode。实际累计入库齐套日优先，否则读取当前 Effective 到料日；没有排单显示“待排单后计算”，地点、枢纽、路线或方式不完整显示“物流路线未配置”。
+- 多 Assignment 暂无可靠 material/color relation 时使用最早的有效 `plannedStartDate` 保守计算，禁止平均、最后一条或随机选择。物料日期或排单地点/开工变化只触发 Projection 重算，不互相覆盖业务事实。
 
 ## Closing compatibility
 
@@ -45,7 +47,7 @@
 
 ## Repository, permissions, audit and search
 
-- 稳定记录仍为 `zhixu.erp.local.production-scheduling`，schemaVersion 9，namespace 不变；迁移不清数据、不重建 ID、不覆盖 Seed。
+- 稳定记录仍为 `zhixu.erp.local.production-scheduling`，schemaVersion 11，namespace 不变；迁移不清数据、不重建 ID、不覆盖 Seed。
 - 复用 `schedule.view/create/edit/complete`；生产与运输设置使用 `settings.production_infrastructure.edit`。
 - 复用唯一 OperationLog。新日志使用 `orderId/scheduleAssignmentId`；`productionPlanId` 仅保留旧日志读取兼容。
 - ScheduleSearchProvider 搜索订单、款式、执行方、生产地点与供应枢纽，并先检查 `schedule.view`。

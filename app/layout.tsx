@@ -9,6 +9,7 @@ import "./order-center/order-center.css";
 import "./production-scheduling/production-scheduling.css";
 import "./closing-center/closing-center.css";
 import "./ainuoke-sync/ainuoke-sync.css";
+import "./order-center/style-progress/style-progress.css";
 import "./foundation.css";
 
 export const metadata: Metadata = {

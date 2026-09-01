@@ -1,6 +1,7 @@
 import type { AttachmentViewModel } from "../../quote-center/model/quote-attachments";
 import type { TemplateDefinition } from "../../template-settings/model/template-definition";
 import type { LocalDataEnvironment } from "../repository/local-data-store";
+import type { StyleProgressData } from "../../style-progress/model/style-progress";
 
 export const LOCAL_DATA_BACKUP_VERSION = 1 as const;
 
@@ -31,6 +32,7 @@ export type LocalDataBackup = {
   localRecords: Record<string, string>;
   attachments: AttachmentBackupEntry[];
   templates: TemplateBackupEntry[];
+  styleProgress: StyleProgressData;
 };
 
 export type BackupSummary = {
@@ -39,4 +41,5 @@ export type BackupSummary = {
   localRecordCount: number;
   attachmentCount: number;
   templateCount: number;
+  styleProgressRecordCount: number;
 };

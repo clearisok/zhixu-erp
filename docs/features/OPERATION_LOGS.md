@@ -12,6 +12,7 @@
 - 生产组、外发厂、默认关账税率和月度生产目标在各自 Repository 保存成功后追加设置日志；一次新增/编辑/启停/删除动作共用一个 `operationId`，字段差异仍保存在 `changes[]` 中。
 - 新订单中心记录手工创建、报价生成、翻单、确认、基础信息修改、交期新增/修改/作废、数量调整/部分取消/全部取消、价格版本调整和整单取消。一次相关动作可共享 `operationId`，订单/款式/报价来源上下文和字段级差异写入同一 OperationLog 模型。
 - 关账中心记录创建月份、新增/修改/作废归属、同步/保留排单快照、确认/取消确认、锁定和重新打开；一次归属保存中的多个字段变化共享 `operationId`，继续写入统一 Repository。
+- 款式进度只在用户修改“当前预计到料日”或恢复艾诺科交期成功后追加统一 OperationLog，保存 MaterialDemand ID、订单/款式上下文、Source/Effective 修改前后与操作者。Excel ImportBatch/Raw Snapshot 是技术 Trace，不创建第二套审计日志，也不替代人工操作日志。
 - PriceVersion 重新选择制作预设时使用“修改价格版本制作预设”事件，保存 quoteId、revisionId、priceVersionId/name、切换前后 presetId/name，并继续用 `changes[]` 记录国家、币种、加成率和运费快照差异。
 - 批量报价单和批量汇总导出日志在 `exportQuotes[]` 中保存完整的最小业务快照清单：Quote、款号/款名、Revision，以及实际相关的 PriceVersion 和制作预设信息；不保存整个 Quote、附件或 Excel Blob。
 

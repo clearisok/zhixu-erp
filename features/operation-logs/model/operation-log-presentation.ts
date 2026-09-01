@@ -50,6 +50,7 @@ export function operationLogCategory(log: OperationLog): string {
   if (["SalesOrder", "OrderItem", "DeliveryPlan", "OrderQuantityChange", "OrderPriceVersion"].includes(log.entityType)) return "订单";
   if (["ProductionPlan", "ScheduleAssignment", "OrderExecutionTracking"].includes(log.entityType)) return "排单";
   if (["ClosingPeriod", "ClosingAllocation"].includes(log.entityType)) return "关账";
+  if (["MaterialImportBatch", "MaterialDemand"].includes(log.entityType)) return "款式进度";
   if (log.entityType === "FabricCostLine") return "面料成本";
   if (log.entityType === "TrimCostLine") return "辅料成本";
   if (log.entityType === "LaborCost") return "工价";

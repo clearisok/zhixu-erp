@@ -8,10 +8,13 @@ import { productionSchedulingRepository } from "../production-scheduling/reposit
 import { operationsSettingsRepository } from "../operations-settings/repository/operations-settings-repository.ts";
 import { closingRepository } from "../closing-center/repository/closing-repository.ts";
 import { createClosingSearchProvider } from "./providers/closing-search-provider.ts";
+import { styleProgressRepository } from "../style-progress/repository/style-progress-repository.ts";
+import { createStyleProgressSearchProvider } from "./providers/style-progress-search-provider.ts";
 
 export const globalSearchRegistry = new SearchRegistry([
   createQuoteSearchProvider(mockQuoteRepository),
   createOrderSearchProvider(orderRepository),
   createScheduleSearchProvider(productionSchedulingRepository, orderRepository, () => operationsSettingsRepository.load()),
   createClosingSearchProvider(closingRepository, orderRepository, () => operationsSettingsRepository.load()),
+  createStyleProgressSearchProvider(styleProgressRepository, orderRepository),
 ]);

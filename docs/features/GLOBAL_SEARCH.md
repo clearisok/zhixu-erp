@@ -2,7 +2,7 @@
 
 ## Purpose
 
-提供跨模块的统一 Command Palette 搜索入口。当前已注册 Quote、Order、Schedule 与 Closing Provider；架构允许未来继续接入采购、客户、供应商和基础资料，不要求重写搜索 UI。
+提供跨模块的统一 Command Palette 搜索入口。当前已注册 Quote、Order、Schedule、Closing 与 Style Progress Provider；架构允许未来继续接入采购、客户、供应商和基础资料，不要求重写搜索 UI。
 
 ## Current behavior
 
@@ -10,6 +10,7 @@
 - `Ctrl+K` / `Cmd+K` 在 AppShell 任意页面打开居中 Command Palette。
 - 输入报价号、款号、款式名称、品牌或客户业务员可搜索已保存报价。
 - 输入订单号、客户 PO、款号或客户可搜索已保存订单。
+- 输入销售合同号、工厂款号或业务款号可搜索已导入款式进度；结果进入合同维度款式详情，并显示是否已有正式订单。
 - 输入订单号、款号、客户、生产组或外发厂可搜索排单；输入月份、订单、款式、客户或执行方可搜索关账。
 - 结果显示类型、款号、款式名称、品牌、业务员和当前 Revision；不展示报价号，也不包含任何成本字段。
 - 支持方向键循环选择、Enter 打开、Esc 或点击遮罩关闭，并保护中文 IME composing 状态。
@@ -53,6 +54,11 @@
 - `ScheduleSearchProvider` 读取 ProductionSchedulingRepository，按订单身份、客户与执行方匹配，并要求 `schedule.view`。
 - `ClosingSearchProvider` 读取 ClosingRepository 和 OrderRepository，按月份、订单、款式、客户和执行方匹配，并要求 `closing.view`。
 - 两者都只返回导航摘要，不暴露报价成本；关账结果显示期间状态、归属数和关账数量。
+
+## Style Progress provider
+
+- `StyleProgressSearchProvider` 读取 StyleProgressRepository 与 OrderRepository，仅按 `salesContractNo` 关联订单。
+- 搜索字段为销售合同号、工厂款号与业务款号；需要 `style_progress.read`。结果不包含整份物料事件或订单成本。
 
 ## Persistence and API
 

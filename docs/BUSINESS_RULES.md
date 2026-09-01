@@ -241,3 +241,14 @@
 - 下拉选择打开、日期选择打开或中文 IME composing 时，Enter 不提交外层表单。
 - 正在提交时禁止重复提交。
 - 整页报价编辑普通 Enter 不保存整张报价。
+# 款式进度与面辅料跟进
+
+- 款式进度只按 `salesContractNo` 投影正式 SalesOrder；禁止使用款号、工厂款号、品牌或数量做模糊绑定，禁止由 Style Progress 创建订单。
+- 销售合同与成衣分色分码是订单/颜色高权威来源；《面辅料申购统计》是可纠正的 Material Follow-up Source，不得反向覆盖订单品牌、款号、数量或合同交期。
+- MaterialDemand 与 Purchase / Inbound / Shipment / Outbound Event 分离并分别去重；禁止对笛卡尔展开的 raw required/purchase 直接求和。
+- `sourceMaterialDueDate` 是 Source；`expectedMaterialReadyDate` 是 Effective；累计入库数量/日期是 Actual。人工 Effective 在重导入时保留，恢复来源后才重新跟随。
+- `提供方式 = 厂供` 映射为 `actualConsumption = plannedConsumption`；不得映射为供货方式、采购方式或影响采购/入库/齐套/运输。
+- 单物料齐套只在累计入库量达到需求量时成立；款式齐套按物料项计数，不跨单位加权。
+- 面料按实际用量（无实际时按计划用量）降序并以源行稳定打平；辅料严格按源行顺序。
+- 逐物料运输复用现有物流基础事实与 Service；实际齐套日优先于 Effective 日期。无排单显示“待排单后计算”，路线资料不全显示“物流路线未配置”，可行方式中选择最慢者。
+- 预计到料日人工修改与恢复必须写统一追加式 OperationLog；ImportBatch / Raw Snapshot 只作技术 Trace。
