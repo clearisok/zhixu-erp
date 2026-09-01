@@ -86,7 +86,7 @@
 ## 知识文件职责
 
 - `SYSTEM_OVERVIEW.md`：架构、技术栈、运行路径、数据流。
-- `AI_HANDOFF.md`：当前接力棒；只记录稳定 HEAD、最后完成项、当前任务和候选下一阶段。
+- `AI_HANDOFF.md`：当前接力棒；只记录最后完成项、当前任务、候选下一阶段和必要的接力说明；当前 Git 状态必须实时从 Git 获取，不在文档中缓存固定 HEAD。
 - `BUSINESS_RULES.md`：能够由代码、约束、测试或明确文档确认的规则。
 - `CURRENT_STATE.md`：当前完成度、正在进行的工作、缺口、验证状态和不可破坏项。
 - `DECISION_LOG.md`：重要决定及其 Active/Superseded/Deprecated 状态。
