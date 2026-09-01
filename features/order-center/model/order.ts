@@ -1,10 +1,11 @@
 import type { LaborCurrency, NullableNumber } from "../../quote-center/model/quote-view-model.ts";
 import type { OrderType } from "../../shared-domain/model/operations.ts";
 
-export type OrderSourceType = "quote" | "reorder" | "manual";
+export type OrderSourceType = "quote" | "reorder" | "manual" | "ainuoke";
 export type SalesOrderStatus = "draft" | "confirmed" | "active" | "completed" | "cancelled";
 export type OrderQuantityChangeType = "increase" | "decrease" | "partial_cancel" | "full_cancel";
 export type DeliveryPlanBalanceStatus = "unplanned" | "short" | "matched" | "excess";
+export type AinuokeOrderSyncStatus = "synced" | "unlinked" | "recommended" | "review_required" | "changed" | "created_from_ainuoke";
 
 export type FabricExecutionSnapshot = {
   id: string;
@@ -50,6 +51,7 @@ export type OrderQuantityChange = {
   reason: string;
   createdAt: string;
   createdBy: string;
+  source?: "manual" | "ainuoke_sync" | "system";
 };
 
 export type DeliveryPlan = {
@@ -61,6 +63,21 @@ export type DeliveryPlan = {
   createdAt: string;
   updatedAt: string;
   voidedAt: string | null;
+  source?: "manual" | "ainuoke_sync";
+  salesContractNo?: string | null;
+};
+
+export type OrderColorLine = {
+  id: string;
+  salesOrderId: string;
+  salesContractNo: string;
+  colorName: string;
+  quantity: number;
+  deliveryDate: string | null;
+  source: "ainuoke_sync";
+  sourceHash: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 /** A SalesOrder is both the commercial order and its single-style execution unit. */
@@ -71,6 +88,7 @@ export type SalesOrder = {
   customerNameSnapshot: string;
   customerPoNo: string;
   sourceType: OrderSourceType;
+  creationSource: OrderSourceType;
   sourceOrderId: string | null;
   sourceQuoteId: string | null;
   sourceRevisionId: string | null;
@@ -82,7 +100,11 @@ export type SalesOrder = {
   merchandiserNameSnapshot: string;
   orderType: OrderType;
   status: SalesOrderStatus;
+  salesContractNo: string | null;
+  ainuokeSyncStatus: AinuokeOrderSyncStatus;
+  ainuokeLastSyncedAt: string | null;
   styleNo: string;
+  factoryStyleNo: string;
   styleName: string;
   brandId: string | null;
   brandNameSnapshot: string;
@@ -90,7 +112,16 @@ export type SalesOrder = {
   processDescription: string;
   customerRequirement: string;
   remark: string;
+  businessConfirmedDeliveryDate: string | null;
+  contractDeliveryDate: string | null;
+  inspectionDate: string | null;
   initialQuantity: number;
+  orderColorLines: OrderColorLine[];
+  purchasedTrimUnitCostSnapshot: number | null;
+  purchasedTrimCurrencySnapshot: LaborCurrency | null;
+  purchasedTrimRuleId: string | null;
+  purchasedTrimCostOverride: boolean;
+  factorySettlementUnitPrice: number | null;
   averageDailyOutput?: number | null;
   fabricExecutionSnapshots: FabricExecutionSnapshot[];
   trimExecutionSnapshots: TrimExecutionSnapshot[];
@@ -147,6 +178,11 @@ export function getCurrentPriceVersion(order: SalesOrder): OrderPriceVersion {
   return current;
 }
 
+export function calculateFactorySettlementUnitPrice(order: SalesOrder): number | null {
+  const processing = getCurrentPriceVersion(order).processingUnitPrice;
+  return processing == null || order.purchasedTrimUnitCostSnapshot == null ? processing ?? null : processing + order.purchasedTrimUnitCostSnapshot;
+}
+
 export function getNearestDeliveryDate(order: SalesOrder): string | null {
   return activeDeliveryPlans(order).map((plan) => plan.deliveryDate).sort()[0] ?? null;
 }
@@ -181,18 +217,45 @@ export function validateOrderCollection(value: unknown): SalesOrder[] {
   assertUnique(orders.map((order) => order?.id), "订单");
   const normalizedOrderNos = orders.map((order) => normalizeOrderNo(order?.orderNo ?? ""));
   if (new Set(normalizedOrderNos).size !== normalizedOrderNos.length) throw new Error("订单号存在重复值");
+  const salesContractNos = orders.map((order) => order?.salesContractNo?.normalize("NFKC").trim().toLocaleUpperCase()).filter((value): value is string => Boolean(value));
+  if (new Set(salesContractNos).size !== salesContractNos.length) throw new Error("销售合同号存在重复值");
   for (const order of orders) {
     if (!order || typeof order !== "object") throw new Error("订单本地数据格式无效");
-    if (!Array.isArray(order.priceVersions) || !Array.isArray(order.quantityChanges) || !Array.isArray(order.deliveryPlans)) throw new Error(`订单 ${order.orderNo || order.id} 的历史集合结构无效`);
+    if (!Array.isArray(order.priceVersions) || !Array.isArray(order.quantityChanges) || !Array.isArray(order.deliveryPlans) || !Array.isArray(order.orderColorLines)) throw new Error(`订单 ${order.orderNo || order.id} 的历史集合结构无效`);
     if (!order.priceVersions.some((version) => version.id === order.currentPriceVersionId && version.salesOrderId === order.id)) throw new Error(`订单 ${order.orderNo || order.id} 的当前价格版本指针损坏`);
     if (order.priceVersions.some((version) => version.salesOrderId !== order.id)) throw new Error(`订单 ${order.orderNo || order.id} 的价格历史归属损坏`);
     if (order.quantityChanges.some((change) => change.salesOrderId !== order.id)) throw new Error(`订单 ${order.orderNo || order.id} 的数量历史归属损坏`);
     if (order.deliveryPlans.some((plan) => plan.salesOrderId !== order.id)) throw new Error(`订单 ${order.orderNo || order.id} 的交期历史归属损坏`);
+    if (order.orderColorLines.some((line) => line.salesOrderId !== order.id || line.salesContractNo !== order.salesContractNo)) throw new Error(`订单 ${order.orderNo || order.id} 的颜色数量归属损坏`);
     assertUnique(order.priceVersions.map((version) => version.id), `订单 ${order.orderNo} 的价格版本`);
     assertUnique(order.quantityChanges.map((change) => change.id), `订单 ${order.orderNo} 的数量变更`);
     assertUnique(order.deliveryPlans.map((plan) => plan.id), `订单 ${order.orderNo} 的交期`);
+    assertUnique(order.orderColorLines.map((line) => line.id), `订单 ${order.orderNo} 的颜色数量`);
   }
   return structuredClone(orders);
+}
+
+export function normalizeSalesOrderV10(order: SalesOrder): SalesOrder {
+  const sourceType = order.sourceType === "quote" || order.sourceType === "reorder" || order.sourceType === "ainuoke" ? order.sourceType : "manual";
+  const normalized: SalesOrder = {
+    ...structuredClone(order),
+    sourceType,
+    creationSource: order.creationSource ?? sourceType,
+    salesContractNo: order.salesContractNo?.normalize("NFKC").trim().toLocaleUpperCase() || null,
+    ainuokeSyncStatus: order.ainuokeSyncStatus ?? (order.salesContractNo ? "synced" : "unlinked"),
+    ainuokeLastSyncedAt: order.ainuokeLastSyncedAt ?? null,
+    factoryStyleNo: order.factoryStyleNo ?? "",
+    businessConfirmedDeliveryDate: order.businessConfirmedDeliveryDate ?? null,
+    contractDeliveryDate: order.contractDeliveryDate ?? null,
+    inspectionDate: order.inspectionDate ?? null,
+    orderColorLines: Array.isArray(order.orderColorLines) ? order.orderColorLines : [],
+    purchasedTrimUnitCostSnapshot: order.purchasedTrimUnitCostSnapshot ?? null,
+    purchasedTrimCurrencySnapshot: order.purchasedTrimCurrencySnapshot ?? null,
+    purchasedTrimRuleId: order.purchasedTrimRuleId ?? null,
+    purchasedTrimCostOverride: order.purchasedTrimCostOverride ?? false,
+    factorySettlementUnitPrice: order.factorySettlementUnitPrice ?? null,
+  };
+  return normalized;
 }
 
 export function orderReferencesAttachment(order: SalesOrder, attachmentId: string): boolean {

@@ -1,4 +1,4 @@
-import { normalizeOrderNo, validateOrderCollection, type SalesOrder } from "../model/order.ts";
+import { normalizeOrderNo, normalizeSalesOrderV10, validateOrderCollection, type SalesOrder } from "../model/order.ts";
 import { suggestOrderNo } from "../service/order-service.ts";
 
 type LegacyOrderPriceVersion = Omit<SalesOrder["priceVersions"][number], "salesOrderId"> & { orderItemId: string };
@@ -137,7 +137,7 @@ function liftDeliveryPlans(salesOrderId: string, plans: LegacyDeliveryPlan[]): S
 
 export function migrateOrderCollectionV5ToV6(value: unknown): OrderMigrationResult {
   if (Array.isArray(value) && value.every((entry) => !entry || typeof entry !== "object" || !("items" in entry))) {
-    const orders = validateOrderCollection(value);
+    const orders = validateOrderCollection(value.map((entry) => normalizeSalesOrderV10(entry as SalesOrder)));
     return {
       orders,
       legacyOrderItemToSalesOrderId: {},
@@ -171,7 +171,7 @@ export function migrateOrderCollectionV5ToV6(value: unknown): OrderMigrationResu
       if (item.sourceOrderItemId && !mappedSourceOrderId) {
         diagnostics.push({ severity: "warning", code: "sourceOrderItemId.unresolved", message: `旧翻单来源 ${item.sourceOrderItemId} 无法解析；订单 ${orderNo} 保留原 sourceOrderId 作为兼容来源`, legacyOrderId: legacyOrder.id, legacyOrderItemId: item.id });
       }
-      migratedOrders.push({
+      migratedOrders.push(normalizeSalesOrderV10({
         id: salesOrderId,
         orderNo,
         customerId: legacyOrder.customerId,
@@ -211,7 +211,7 @@ export function migrateOrderCollectionV5ToV6(value: unknown): OrderMigrationResu
         updatedAt: legacyOrder.updatedAt.localeCompare(item.updatedAt) >= 0 ? legacyOrder.updatedAt : item.updatedAt,
         createdBy: legacyOrder.createdBy,
         updatedBy: legacyOrder.updatedBy,
-      });
+      } as SalesOrder));
     }
   }
 

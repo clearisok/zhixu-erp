@@ -41,5 +41,5 @@ export function migrateProductionSchedulingV8ToV9(value: unknown): ProductionSch
     fabricSupplyHubArrivalDate: typeof raw.fabricSupplyHubArrivalDate === "string" ? raw.fabricSupplyHubArrivalDate : null,
     trimSupplyHubArrivalDate: typeof raw.trimSupplyHubArrivalDate === "string" ? raw.trimSupplyHubArrivalDate : null,
   })) as ProductionSchedulingState["orderExecutionTrackings"];
-  return { scheduleAssignments, orderExecutionTrackings };
+  return { scheduleAssignments, orderExecutionTrackings, scheduleBatches: Array.isArray(source.scheduleBatches) ? source.scheduleBatches : [] };
 }

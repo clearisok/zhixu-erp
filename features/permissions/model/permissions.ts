@@ -42,6 +42,12 @@ export const PERMISSION_KEYS = [
   "user_permissions.view",
   "user_permissions.manage",
   "audit_log.view",
+  "ainuoke.view",
+  "ainuoke.sync",
+  "ainuoke.bind",
+  "ainuoke.resolve_conflict",
+  "settings.brand_alias.edit",
+  "settings.purchased_trim_cost.edit",
 ] as const;
 
 export type PermissionKey = typeof PERMISSION_KEYS[number];
@@ -122,6 +128,12 @@ export const PERMISSION_DEFINITIONS: PermissionDefinition[] = [
   define("user_permissions.view", "权限管理", "查看用户权限", "查看用户、角色和权限明细"),
   define("user_permissions.manage", "权限管理", "修改用户权限", "分配角色并维护角色权限"),
   define("audit_log.view", "系统审计", "查看操作日志", "查看全局追加式操作日志及修改前后内容"),
+  define("ainuoke.view", "艾诺科同步", "查看艾诺科同步", "查看销售合同镜像、同步状态和异常"),
+  define("ainuoke.sync", "艾诺科同步", "执行艾诺科同步", "上传并同步销售合同与成衣分色文件"),
+  define("ainuoke.bind", "艾诺科同步", "绑定销售合同", "将艾诺科销售合同绑定到织序订单"),
+  define("ainuoke.resolve_conflict", "艾诺科同步", "处理同步冲突", "处理重复候选、分色差异与同步变更"),
+  define("settings.brand_alias.edit", "基础设置", "管理品牌别名", "维护艾诺科品牌名称到织序品牌的映射"),
+  define("settings.purchased_trim_cost.edit", "基础设置", "管理代购辅料成本", "维护带生效日期的品牌代购辅料成本规则"),
 ];
 
 const operatorPermissions: PermissionKey[] = [

@@ -1,0 +1,25 @@
+.as-page { display: grid; gap: 18px; }
+.as-upload-grid, .as-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.as-upload { display: grid; gap: 10px; min-height: 148px; padding: 18px; border: 1px dashed #aebdb6; border-radius: 12px; background: #fbfdfc; }
+.as-upload strong { color: var(--forest); }
+.as-upload small { color: #718079; line-height: 1.55; }
+.as-upload input { width: 100%; }
+.as-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.as-metrics { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.as-metric { display: grid; gap: 5px; padding: 14px; border: 1px solid #e0e7e3; border-radius: 10px; background: #fff; }
+.as-metric span { color: #748179; font-size: 12px; }
+.as-metric strong { color: #254a3d; font-size: 22px; }
+.as-table-wrap { overflow: auto; border: 1px solid #e2e8e5; border-radius: 10px; }
+.as-table { width: 100%; min-width: 980px; border-collapse: collapse; background: #fff; }
+.as-table th, .as-table td { padding: 11px 12px; border-bottom: 1px solid #edf1ef; text-align: left; vertical-align: middle; font-size: 13px; }
+.as-table th { position: sticky; top: 0; z-index: 1; color: #607068; background: #f7faf8; font-size: 11px; letter-spacing: .04em; }
+.as-table td strong, .as-table td small { display: block; }
+.as-table td small { margin-top: 3px; color: #77847e; }
+.as-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.as-section-head h2 { margin: 0; font-size: 17px; }
+.as-history { display: grid; gap: 8px; }
+.as-history article { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #edf1ef; }
+.as-history article:last-child { border-bottom: 0; }
+.as-history span { color: #65746d; font-size: 12px; }
+@media (max-width: 980px) { .as-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .as-upload-grid, .as-metrics { grid-template-columns: 1fr; } .as-actions { align-items: stretch; flex-direction: column; } }

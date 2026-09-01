@@ -2,7 +2,7 @@
 
 import { browserLocalDataStore, type LocalDataStore } from "../../data-management/repository/local-data-store.ts";
 import { migrateOrderCollectionV5ToV6 } from "../migration/order-v5-to-v6.ts";
-import { normalizeOrderNo, orderReferencesAttachment, validateOrderCollection, type SalesOrder } from "../model/order.ts";
+import { normalizeOrderNo, normalizeSalesOrderV10, orderReferencesAttachment, validateOrderCollection, type SalesOrder } from "../model/order.ts";
 
 export const ORDER_STORAGE_NAME = "sales-orders";
 
@@ -10,6 +10,7 @@ export interface OrderRepository {
   list(): Promise<SalesOrder[]>;
   getById(id: string): Promise<SalesOrder | null>;
   save(order: SalesOrder): Promise<SalesOrder>;
+  saveAll(orders: SalesOrder[]): Promise<SalesOrder[]>;
   orderNoExists(orderNo: string, excludingId?: string): Promise<boolean>;
   isAttachmentReferenced(attachmentId: string): Promise<boolean>;
 }
@@ -21,7 +22,7 @@ export function createOrderRepository(store: LocalDataStore = browserLocalDataSt
   const migrate = (value: unknown) => {
     const result = migrateOrderCollectionV5ToV6(value);
     for (const diagnostic of result.diagnostics) console.warn(`[order-migration:${diagnostic.code}] ${diagnostic.message}`);
-    return result.orders;
+    return result.orders.map(normalizeSalesOrderV10);
   };
   const read = () => memory ??= validateOrderCollection(store.initialize(ORDER_STORAGE_NAME, { seed: () => [], migrate }));
   const write = (orders: SalesOrder[]) => { memory = store.save(ORDER_STORAGE_NAME, validateOrderCollection(orders)); };
@@ -37,6 +38,11 @@ export function createOrderRepository(store: LocalDataStore = browserLocalDataSt
       if (index >= 0) orders[index] = clone(order); else orders.unshift(clone(order));
       write(orders);
       return clone(order);
+    },
+    async saveAll(orders) {
+      const normalized = orders.map(normalizeSalesOrderV10);
+      write(validateOrderCollection(normalized));
+      return clone(normalized);
     },
     async orderNoExists(orderNo, excludingId) { return read().some((order) => order.id !== excludingId && normalizeOrderNo(order.orderNo) === normalizeOrderNo(orderNo)); },
     async isAttachmentReferenced(attachmentId) { return read().some((order) => orderReferencesAttachment(order, attachmentId)); },

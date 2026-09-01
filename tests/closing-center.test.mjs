@@ -37,7 +37,7 @@ test("schema v7 到 v8 只重封装旧记录并初始化空关账记录", async 
   const store = createLocalDataStore({ storage, namespace: TEST_LOCAL_DATA_NAMESPACE, environment: "test", now: () => now });
   const state = await createClosingRepository(store).load();
   assert.deepEqual(state, { periods: [], allocations: [] });
-  assert.equal(JSON.parse(values.get(`${TEST_LOCAL_DATA_NAMESPACE}.manifest`)).schemaVersion, 9);
+  assert.equal(JSON.parse(values.get(`${TEST_LOCAL_DATA_NAMESPACE}.manifest`)).schemaVersion, 10);
   assert.deepEqual(JSON.parse(values.get(`${TEST_LOCAL_DATA_NAMESPACE}.sales-orders`)).data, [{ id: "keep", unknown: "preserve" }]);
 });
 
@@ -69,7 +69,7 @@ test("内部、外发和待分配可并存且快照互斥", () => {
 test("CNY 与 USD 加工产值使用关账汇率且不使用报价 1.13 因子", () => {
   const period = periodState().periods[0]; const source = order();
   const cny = createAllocationDraft({ period, order: source, settings, actor, quantity: 100 });
-  const usd = { ...cny, id: "usd", processingCurrencySnapshot: "USD", closingProcessingUnitPrice: 2, fxRateSnapshot: 7.2 };
+  const usd = { ...cny, id: "usd", processingCurrencySnapshot: "USD", currencySnapshot: "USD", legacyFxRateApplied: true, closingProcessingUnitPrice: 2, customerProcessingUnitPriceSnapshot: 2, fxRateSnapshot: 7.2 };
   assert.equal(allocationOutput(cny).processingOutputRmb, 1000);
   assert.equal(allocationOutput(usd).processingOutputRmb, 1440);
 });

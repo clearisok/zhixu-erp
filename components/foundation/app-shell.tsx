@@ -69,6 +69,7 @@ export function AppShell({ title, children, onRequestNavigation }: { title: stri
     { label: "经营工作台", symbol: "⌂", href: "/", active: pathname === "/" },
     { label: "报价中心", symbol: "¥", href: "/quote-center", active: pathname.startsWith("/quote-center") },
     { label: "订单中心", symbol: "▣", href: "/order-center", active: pathname.startsWith("/order-center") },
+    { label: "艾诺科同步", symbol: "⇄", href: "/ainuoke-sync", active: pathname.startsWith("/ainuoke-sync") },
     { label: "生产排单", symbol: "▦", href: "/production-scheduling", active: pathname.startsWith("/production-scheduling") },
     { label: "关账中心", symbol: "结", href: "/closing-center", active: pathname.startsWith("/closing-center") },
   ];
@@ -107,7 +108,7 @@ export function AppShell({ title, children, onRequestNavigation }: { title: stri
     <section className="ops-workspace">
       <header className="ops-topbar">
         {touchNavigation && <button type="button" className="ops-mobile-menu-trigger" aria-label="打开主导航" aria-expanded={navigationOpen} onClick={() => setNavigationOpen(true)}><span aria-hidden="true">☰</span></button>}
-        <div className="ops-topbar-title"><small>织序 / 业务中心 / {basicActive ? "基础设置" : systemActive ? "系统设置" : pathname.startsWith("/closing-center") ? "关账中心" : pathname.startsWith("/production-scheduling") ? "生产排单" : pathname.startsWith("/order-center") ? "订单中心" : "报价中心"}</small><strong>{title}</strong></div>
+        <div className="ops-topbar-title"><small>织序 / 业务中心 / {basicActive ? "基础设置" : systemActive ? "系统设置" : pathname.startsWith("/ainuoke-sync") ? "艾诺科同步" : pathname.startsWith("/closing-center") ? "关账中心" : pathname.startsWith("/production-scheduling") ? "生产排单" : pathname.startsWith("/order-center") ? "订单中心" : "报价中心"}</small><strong>{title}</strong></div>
         <div className="topbar-actions"><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></div>
       </header>
       {children}

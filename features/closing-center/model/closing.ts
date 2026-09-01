@@ -52,6 +52,12 @@ export type ClosingAllocation = {
   closingProcessingUnitPrice: number;
   processingCurrencySnapshot: LaborCurrency;
   fxRateSnapshot: number | null;
+  currencySnapshot: LaborCurrency;
+  legacyFxRateApplied: boolean;
+  salesContractNoSnapshot: string | null;
+  customerProcessingUnitPriceSnapshot: number;
+  purchasedTrimUnitCostSnapshot: number | null;
+  factorySettlementUnitPriceSnapshot: number;
   taxRateSnapshot: number;
   executionTypeSnapshot: ExecutionType | null;
   productionGroupIdSnapshot: string | null;
@@ -89,6 +95,20 @@ export function validateClosingState(value: unknown, context?: { orderIds?: Set<
   const source = value as Partial<ClosingState>;
   if (!Array.isArray(source.periods) || !Array.isArray(source.allocations)) throw new Error("关账集合结构无效");
   const state = structuredClone(source) as ClosingState;
+  state.allocations = state.allocations.map((allocation) => {
+    const legacyAllocation = allocation as Partial<ClosingAllocation>;
+    const legacyFxRateApplied = legacyAllocation.legacyFxRateApplied ?? (legacyAllocation.currencySnapshot === undefined && allocation.processingCurrencySnapshot === "USD" && Number.isFinite(allocation.fxRateSnapshot) && (allocation.fxRateSnapshot ?? 0) > 0);
+    const customerProcessingUnitPriceSnapshot = allocation.customerProcessingUnitPriceSnapshot ?? allocation.closingProcessingUnitPrice;
+    return {
+      ...allocation,
+      currencySnapshot: allocation.currencySnapshot ?? allocation.processingCurrencySnapshot,
+      legacyFxRateApplied,
+      salesContractNoSnapshot: allocation.salesContractNoSnapshot ?? null,
+      customerProcessingUnitPriceSnapshot,
+      purchasedTrimUnitCostSnapshot: allocation.purchasedTrimUnitCostSnapshot ?? null,
+      factorySettlementUnitPriceSnapshot: allocation.factorySettlementUnitPriceSnapshot ?? customerProcessingUnitPriceSnapshot,
+    };
+  });
   unique(state.periods.map((item) => item.id), "关账期间");
   unique(state.periods.map((item) => item.month), "关账月份");
   unique(state.allocations.map((item) => item.id), "关账归属");
@@ -103,7 +123,8 @@ export function validateClosingState(value: unknown, context?: { orderIds?: Set<
     if (!Number.isFinite(allocation.quantity) || allocation.quantity < 0) throw new Error("关账数量不能小于 0");
     if (!Number.isFinite(allocation.closingProcessingUnitPrice) || allocation.closingProcessingUnitPrice < 0) throw new Error("关账工价不能小于 0");
     if (!Number.isFinite(allocation.taxRateSnapshot) || allocation.taxRateSnapshot < 0) throw new Error("关账税率不能小于 0");
-    if (allocation.processingCurrencySnapshot === "USD" && (!Number.isFinite(allocation.fxRateSnapshot) || (allocation.fxRateSnapshot ?? 0) <= 0)) throw new Error("USD 关账必须保存有效汇率快照");
+    if (allocation.legacyFxRateApplied && allocation.processingCurrencySnapshot === "USD" && (!Number.isFinite(allocation.fxRateSnapshot) || (allocation.fxRateSnapshot ?? 0) <= 0)) throw new Error("旧版 USD 关账必须保留有效汇率快照");
+    if (!Number.isFinite(allocation.customerProcessingUnitPriceSnapshot) || allocation.customerProcessingUnitPriceSnapshot < 0 || !Number.isFinite(allocation.factorySettlementUnitPriceSnapshot) || allocation.factorySettlementUnitPriceSnapshot < 0) throw new Error("关账结算单价快照无效");
     if (allocation.orderTypeSnapshot === "distribution" && (!Number.isFinite(allocation.salePriceSnapshot) || allocation.salePriceSnapshot === null || allocation.salePriceSnapshot < 0)) throw new Error("经销订单关账必须保存销售价快照");
     if (allocation.scheduleAssignmentId && context?.assignmentIds && !context.assignmentIds.has(allocation.scheduleAssignmentId) && !allocation.scheduleBasisSnapshot) throw new Error("关账归属引用了不存在的排单且缺少历史快照");
     if (allocation.executionTypeSnapshot === "internal" && (!allocation.productionGroupIdSnapshot || allocation.outsourceFactoryIdSnapshot)) throw new Error("内部关账归属执行方快照无效");

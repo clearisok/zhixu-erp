@@ -10,6 +10,7 @@ import {
 import type { ClosingPeriod, ClosingState } from "../../features/closing-center/model/closing.ts";
 import { browserLocalDataStore, type LocalDataStore } from "../../features/data-management/repository/local-data-store.ts";
 import { activeDeliveryPlans, getCurrentPriceVersion, getEffectiveQuantity, normalizeOrderNo, validateOrderCollection, type SalesOrder } from "../../features/order-center/model/order.ts";
+import { isUiQaDatasetOrder, UI_QA_DATASET_ID as ORDER_UI_QA_DATASET_ID } from "../../features/order-center/model/order-provenance.ts";
 import { createOrderRepository, type OrderRepository } from "../../features/order-center/repository/order-repository.ts";
 import {
   cancelOrder,
@@ -58,7 +59,7 @@ import {
 import { createMockQuoteRepository } from "../../features/quote-center/repository/mock-quote-repository.ts";
 import type { QuoteRepository } from "../../features/quote-center/repository/quote-repository.ts";
 
-export const UI_QA_DATASET_ID = "ui-redesign-qa-v1";
+export const UI_QA_DATASET_ID = ORDER_UI_QA_DATASET_ID;
 export const UI_QA_SEED = "zhixu-ui-redesign-2026";
 export const UI_QA_MARKER = `UI-REDESIGN-QA · ${UI_QA_DATASET_ID}`;
 export const UI_QA_ANCHOR_DATE = "2026-08-30";
@@ -119,6 +120,14 @@ export type UiQaDatasetManifest = {
   integrity: Record<string, boolean | number | string>;
 };
 
+export type UiQaDatasetCleanupCounts = { qaOrders: number; realOrders: number; qaSchedule: number; realSchedule: number };
+export type UiQaDatasetCleanupReport = {
+  datasetId: typeof UI_QA_DATASET_ID;
+  before: UiQaDatasetCleanupCounts;
+  after: UiQaDatasetCleanupCounts;
+  removed: { quotes: number; orders: number; scheduleAssignments: number; orderExecutionTrackings: number; scheduleBatches: number; closingAllocations: number; closingPeriods: number };
+};
+
 function hashSeed(value: string): number {
   let hash = 2166136261;
   for (const char of value) { hash ^= char.charCodeAt(0); hash = Math.imul(hash, 16777619); }
@@ -154,7 +163,7 @@ function resolveStableId<T>(base: string, existing: readonly T[], idOf: (item: T
 }
 
 function quoteOwned(quote: Quote) { return quote.revisions.some((revision) => revision.baseInfo.note.includes(UI_QA_DATASET_ID)); }
-function orderOwned(order: SalesOrder) { return order.remark.includes(UI_QA_DATASET_ID); }
+function orderOwned(order: SalesOrder) { return isUiQaDatasetOrder(order); }
 function assignmentOwned(assignment: ScheduleAssignment) { return assignment.remark.includes(UI_QA_DATASET_ID); }
 function periodOwned(period: ClosingPeriod) { return period.remark.includes(UI_QA_DATASET_ID); }
 
@@ -486,6 +495,62 @@ export function createUiQaRepositories(store: LocalDataStore): DatasetRepositori
   return { store, quotes: createMockQuoteRepository({ store, legacySessionStorage: null }), orders: createOrderRepository(store), scheduling: createProductionSchedulingRepository(store), closing: createClosingRepository(store), operationsSettings: createOperationsSettingsRepository(store) };
 }
 
+export async function cleanupUiQaDataset(repositories?: DatasetRepositories): Promise<UiQaDatasetCleanupReport> {
+  const repos = repositories ?? createUiQaRepositories(browserLocalDataStore);
+  if (repos.store.environment !== "development") throw new Error(`拒绝执行：当前 LocalDataEnvironment=${repos.store.environment}`);
+  if (!repositories && (typeof window === "undefined" || !["127.0.0.1", "localhost"].includes(window.location.hostname) || window.location.port !== "3001")) throw new Error("拒绝执行：只允许当前 DEV 3001 Origin");
+
+  const [quotes, orders, scheduling, closing] = await Promise.all([repos.quotes.list(), repos.orders.list(), repos.scheduling.load(), repos.closing.load()]);
+  const qaOrderIds = new Set(orders.filter(orderOwned).map((order) => order.id));
+  const qaAssignmentIds = new Set(scheduling.scheduleAssignments.filter((assignment) => assignmentOwned(assignment) || qaOrderIds.has(assignment.salesOrderId)).map((assignment) => assignment.id));
+  const counts = (nextOrders: SalesOrder[], nextScheduling: ProductionSchedulingState): UiQaDatasetCleanupCounts => ({
+    qaOrders: nextOrders.filter(orderOwned).length,
+    realOrders: nextOrders.filter((order) => !orderOwned(order)).length,
+    qaSchedule: nextScheduling.scheduleAssignments.filter((assignment) => assignmentOwned(assignment) || qaOrderIds.has(assignment.salesOrderId)).length,
+    realSchedule: nextScheduling.scheduleAssignments.filter((assignment) => !assignmentOwned(assignment) && !qaOrderIds.has(assignment.salesOrderId)).length,
+  });
+  const before = counts(orders, scheduling);
+
+  const qaQuotes = quotes.filter(quoteOwned);
+  for (const quote of qaQuotes) await repos.quotes.delete(quote.id, { mode: "hard" });
+
+  const nextOrders = orders.filter((order) => !qaOrderIds.has(order.id));
+  const nextScheduling: ProductionSchedulingState = {
+    scheduleAssignments: scheduling.scheduleAssignments.filter((assignment) => !qaAssignmentIds.has(assignment.id)),
+    orderExecutionTrackings: scheduling.orderExecutionTrackings.filter((tracking) => !qaOrderIds.has(tracking.salesOrderId) && !tracking.remark.includes(UI_QA_DATASET_ID)),
+    scheduleBatches: scheduling.scheduleBatches.flatMap((batch) => {
+      if (batch.remark.includes(UI_QA_DATASET_ID)) return [];
+      const allocations = batch.allocations.filter((allocation) => !qaOrderIds.has(allocation.salesOrderId) && !qaAssignmentIds.has(allocation.scheduleAssignmentId));
+      return allocations.length >= 2 ? [{ ...batch, allocations }] : [];
+    }),
+  };
+  const nextAllocations = closing.allocations.filter((allocation) => !qaOrderIds.has(allocation.salesOrderId) && !qaAssignmentIds.has(allocation.scheduleAssignmentId ?? "") && !allocation.remark.includes(UI_QA_DATASET_ID));
+  const retainedPeriodIds = new Set(nextAllocations.map((allocation) => allocation.closingPeriodId));
+  const nextClosing: ClosingState = {
+    allocations: nextAllocations,
+    periods: closing.periods.filter((period) => !periodOwned(period) || retainedPeriodIds.has(period.id)),
+  };
+
+  await repos.orders.saveAll(nextOrders);
+  await repos.scheduling.save(nextScheduling);
+  await repos.closing.save(nextClosing);
+
+  return {
+    datasetId: UI_QA_DATASET_ID,
+    before,
+    after: counts(nextOrders, nextScheduling),
+    removed: {
+      quotes: qaQuotes.length,
+      orders: orders.length - nextOrders.length,
+      scheduleAssignments: scheduling.scheduleAssignments.length - nextScheduling.scheduleAssignments.length,
+      orderExecutionTrackings: scheduling.orderExecutionTrackings.length - nextScheduling.orderExecutionTrackings.length,
+      scheduleBatches: scheduling.scheduleBatches.length - nextScheduling.scheduleBatches.length,
+      closingAllocations: closing.allocations.length - nextClosing.allocations.length,
+      closingPeriods: closing.periods.length - nextClosing.periods.length,
+    },
+  };
+}
+
 export async function installUiQaDataset(repositories?: DatasetRepositories): Promise<UiQaDatasetManifest> {
   const repos = repositories ?? createUiQaRepositories(browserLocalDataStore);
   if (repos.store.environment !== "development") throw new Error(`拒绝执行：当前 LocalDataEnvironment=${repos.store.environment}`);
@@ -543,7 +608,7 @@ export async function installUiQaDataset(repositories?: DatasetRepositories): Pr
   const generatedOrders = savedOrders.filter((order) => orderIds.includes(order.id));
   const generatedAssignments = savedScheduling.scheduleAssignments.filter((assignment) => schedulingResult.ids.includes(assignment.id));
   const generatedAllocations = savedClosing.allocations.filter((allocation) => closingResult.allocationIds.includes(allocation.id));
-  const overviews = buildProductionGroupOverview(generatedOrders, { scheduleAssignments: generatedAssignments, orderExecutionTrackings: savedScheduling.orderExecutionTrackings.filter((tracking) => orderIds.includes(tracking.salesOrderId)) }, settings);
+  const overviews = buildProductionGroupOverview(generatedOrders, { scheduleAssignments: generatedAssignments, orderExecutionTrackings: savedScheduling.orderExecutionTrackings.filter((tracking) => orderIds.includes(tracking.salesOrderId)), scheduleBatches: [] }, settings);
   const orderById = new Map(generatedOrders.map((order) => [order.id, order]));
   const groupReport = ensured.groups.map(({ group, reused }, index) => {
     const overview = overviews.find((item) => item.group.id === group.id);

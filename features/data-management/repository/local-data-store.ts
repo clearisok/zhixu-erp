@@ -1,6 +1,6 @@
 "use client";
 
-export const LOCAL_DATA_SCHEMA_VERSION = 9 as const;
+export const LOCAL_DATA_SCHEMA_VERSION = 10 as const;
 export const DEFAULT_LOCAL_DATA_NAMESPACE = "zhixu.erp.local";
 export const TEST_LOCAL_DATA_NAMESPACE = "zhixu.erp.test";
 
@@ -70,6 +70,7 @@ export function localDataKeys(namespace = DEFAULT_LOCAL_DATA_NAMESPACE) {
     salesOrders: `${namespace}.sales-orders`,
     productionScheduling: `${namespace}.production-scheduling`,
     closingCenter: `${namespace}.closing-center`,
+    ainuokeSync: `${namespace}.ainuoke-sync`,
     recentSearch: `${namespace}.recent-search`,
     templateDefault: `${namespace}.template-default`,
   } as const;

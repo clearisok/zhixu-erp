@@ -71,6 +71,26 @@ export type CustomerSalespersonRecord = {
   defaults: DefaultQuoteConfiguration;
 };
 
+export type BrandAliasRecord = {
+  id: string;
+  brandId: string;
+  alias: string;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type BrandPurchasedTrimCostRule = {
+  id: string;
+  brandId: string;
+  unitCost: number;
+  currency: LaborCurrency;
+  effectiveFrom: string;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type BasicSettingsState = {
   systemDefaults: {
     usdCnyRate: NullableNumber;
@@ -82,6 +102,8 @@ export type BasicSettingsState = {
   customerSalespeople: CustomerSalespersonRecord[];
   fabricLibrary: FabricLibraryItem[];
   trimLibrary: TrimLibraryItem[];
+  brandAliases: BrandAliasRecord[];
+  purchasedTrimCostRules: BrandPurchasedTrimCostRule[];
 };
 
 const FIXTURE_TIME = "2026-08-17T00:00:00.000Z";
@@ -133,6 +155,15 @@ export const defaultBasicSettings: BasicSettingsState = {
     { id: "sales-zhouyan", name: "周妍", brandId: "zara", status: "active", defaults: { defaultUsdCnyRate: null, defaultTrims: [], defaultOtherCost: null } },
     { id: "sales-chenxi", name: "陈曦", brandId: "massimo-dutti", status: "active", defaults: { defaultUsdCnyRate: null, defaultTrims: [], defaultOtherCost: otherCost("质检分摊", 0.35) } },
     { id: "sales-sunyu", name: "孙宇", brandId: "bershka", status: "active", defaults: { defaultUsdCnyRate: 7.09, defaultTrims: [], defaultOtherCost: null } },
+  ],
+  brandAliases: [
+    { id: "alias-oysho", brandId: "brand-oysho", alias: "OYSHO", enabled: true, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME },
+    { id: "alias-oysho-export", brandId: "brand-oysho", alias: "OYSHO-外销", enabled: true, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME },
+    { id: "alias-ms", brandId: "brand-ms", alias: "M&S", enabled: true, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME },
+  ],
+  purchasedTrimCostRules: [
+    { id: "purchased-trim-ms-20260801", brandId: "brand-ms", unitCost: 0.28, currency: "USD", effectiveFrom: "2026-08-01", enabled: true, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME },
+    { id: "purchased-trim-oysho-20260801", brandId: "brand-oysho", unitCost: 0.10, currency: "USD", effectiveFrom: "2026-08-01", enabled: true, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME },
   ],
 };
 
@@ -279,6 +310,15 @@ export function normalizeBasicSettings(value: Partial<BasicSettingsState> | null
     return { id: text(item.id), name: text(item.name).trim(), status: item.status === "inactive" ? "inactive" as const : "active" as const, defaults: normalizeDefaults(item.defaults, text(item.id) || `brand-${index + 1}`) };
   }).filter((item) => item.id && item.name) : structuredClone(defaultBasicSettings.brands);
   const uniqueBrands = uniqueByNormalizedName(brands);
+  const ensureBrand = (id: string, name: string) => {
+    const existing = uniqueBrands.find((item) => normalizeUniqueName(item.name) === normalizeUniqueName(name));
+    if (existing) return existing;
+    const created = { id, name, status: "active" as const, defaults: { defaultUsdCnyRate: null, defaultTrims: [], defaultOtherCost: null } };
+    uniqueBrands.push(created);
+    return created;
+  };
+  const msBrand = ensureBrand("brand-ms", "M&S");
+  const oyshoBrand = ensureBrand("brand-oysho", "OYSHO");
   const brandIds = new Set(uniqueBrands.map((brand) => brand.id));
   const customerSalespeople = Array.isArray(source.customerSalespeople) ? source.customerSalespeople.map((value, index) => {
     const item = record(value);
@@ -286,6 +326,25 @@ export function normalizeBasicSettings(value: Partial<BasicSettingsState> | null
   }).filter((item) => item.id && item.name && brandIds.has(item.brandId)) : structuredClone(defaultBasicSettings.customerSalespeople);
   const systemDefaults = record(source.systemDefaults);
   const fabricLibrary = Array.isArray(source.fabricLibrary) ? source.fabricLibrary.map(normalizeFabric).filter((item): item is FabricLibraryItem => item !== null) : structuredClone(defaultBasicSettings.fabricLibrary);
+  const defaultAliases: BrandAliasRecord[] = [
+    { id: "alias-ms", brandId: msBrand.id, alias: "M&S", enabled: true, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME },
+    { id: "alias-oysho", brandId: oyshoBrand.id, alias: "OYSHO", enabled: true, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME },
+    { id: "alias-oysho-export", brandId: oyshoBrand.id, alias: "OYSHO-外销", enabled: true, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME },
+  ];
+  const brandAliases = (Array.isArray(source.brandAliases) ? source.brandAliases : defaultAliases).flatMap((value) => {
+    const item = record(value); const id = text(item.id).trim(); const brandId = text(item.brandId).trim(); const alias = text(item.alias).trim();
+    return id && brandId && alias && uniqueBrands.some((brand) => brand.id === brandId) ? [{ id, brandId, alias, enabled: item.enabled !== false, createdAt: isoText(item.createdAt), updatedAt: isoText(item.updatedAt ?? item.createdAt) }] : [];
+  });
+  const defaultRules: BrandPurchasedTrimCostRule[] = [
+    { id: "purchased-trim-ms-20260801", brandId: msBrand.id, unitCost: 0.28, currency: "USD", effectiveFrom: "2026-08-01", enabled: true, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME },
+    { id: "purchased-trim-oysho-20260801", brandId: oyshoBrand.id, unitCost: 0.10, currency: "USD", effectiveFrom: "2026-08-01", enabled: true, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME },
+  ];
+  const purchasedTrimCostRules = (Array.isArray(source.purchasedTrimCostRules) ? source.purchasedTrimCostRules : defaultRules).flatMap((value) => {
+    const item = record(value); const id = text(item.id).trim(); const brandId = text(item.brandId).trim(); const unitCost = validNumber(item.unitCost); const effectiveFrom = text(item.effectiveFrom);
+    return id && brandId && unitCost !== null && unitCost >= 0 && /^\d{4}-\d{2}-\d{2}$/.test(effectiveFrom) && uniqueBrands.some((brand) => brand.id === brandId)
+      ? [{ id, brandId, unitCost, currency: item.currency === "CNY" ? "CNY" as const : "USD" as const, effectiveFrom, enabled: item.enabled !== false, createdAt: isoText(item.createdAt), updatedAt: isoText(item.updatedAt ?? item.createdAt) }]
+      : [];
+  });
 
   return {
     systemDefaults: {
@@ -298,7 +357,24 @@ export function normalizeBasicSettings(value: Partial<BasicSettingsState> | null
     customerSalespeople: uniqueByNormalizedName(customerSalespeople),
     fabricLibrary,
     trimLibrary,
+    brandAliases,
+    purchasedTrimCostRules,
   };
+}
+
+export function resolveBrandByAlias(state: BasicSettingsState, value: string): BrandRecord | null {
+  const normalized = normalizeUniqueName(value);
+  const direct = state.brands.find((brand) => normalizeUniqueName(brand.name) === normalized);
+  if (direct) return direct;
+  const alias = state.brandAliases.find((item) => item.enabled && normalizeUniqueName(item.alias) === normalized);
+  return state.brands.find((brand) => brand.id === alias?.brandId) ?? null;
+}
+
+export function resolvePurchasedTrimCostRule(state: BasicSettingsState, brandId: string | null, effectiveDate: string): BrandPurchasedTrimCostRule | null {
+  if (!brandId) return null;
+  return state.purchasedTrimCostRules
+    .filter((item) => item.enabled && item.brandId === brandId && item.effectiveFrom <= effectiveDate)
+    .sort((left, right) => right.effectiveFrom.localeCompare(left.effectiveFrom))[0] ?? null;
 }
 
 export function searchBrands(items: BrandRecord[], query: string): BrandRecord[] {

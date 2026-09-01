@@ -83,11 +83,25 @@ export function createManualOrder(input: { header: OrderHeaderInput; style?: Par
     ...style,
     orderNo: input.header.orderNo.trim(),
     sourceType: "manual",
+    creationSource: "manual",
     sourceOrderId: null,
     sourceQuoteId: null,
     sourceRevisionId: null,
     sourcePriceVersionId: null,
     status: "draft",
+    salesContractNo: null,
+    ainuokeSyncStatus: "unlinked",
+    ainuokeLastSyncedAt: null,
+    factoryStyleNo: "",
+    businessConfirmedDeliveryDate: null,
+    contractDeliveryDate: null,
+    inspectionDate: null,
+    orderColorLines: [],
+    purchasedTrimUnitCostSnapshot: null,
+    purchasedTrimCurrencySnapshot: null,
+    purchasedTrimRuleId: null,
+    purchasedTrimCostOverride: false,
+    factorySettlementUnitPrice: null,
     quantityChanges: [],
     deliveryPlans: [],
     priceVersions: [price],
@@ -120,11 +134,25 @@ export function createOrderFromQuote(input: { quote: Quote; revision: QuoteRevis
     ...header,
     orderNo: header.orderNo.trim(),
     sourceType: "quote",
+    creationSource: "quote",
     sourceOrderId: null,
     sourceQuoteId: quote.id,
     sourceRevisionId: revision.revisionId,
     sourcePriceVersionId: priceVersion.id,
     status: "draft",
+    salesContractNo: null,
+    ainuokeSyncStatus: "unlinked",
+    ainuokeLastSyncedAt: null,
+    factoryStyleNo: "",
+    businessConfirmedDeliveryDate: null,
+    contractDeliveryDate: null,
+    inspectionDate: null,
+    orderColorLines: [],
+    purchasedTrimUnitCostSnapshot: null,
+    purchasedTrimCurrencySnapshot: null,
+    purchasedTrimRuleId: null,
+    purchasedTrimCostOverride: false,
+    factorySettlementUnitPrice: null,
     styleNo: revision.baseInfo.quoteStyleNo,
     styleName: revision.baseInfo.styleName,
     brandId: revision.baseInfo.brandId || null,
@@ -162,9 +190,23 @@ export function createReorder(input: { source: SalesOrder; orderNo: string; orde
     orderNo: input.orderNo.trim(),
     customerPoNo: "",
     sourceType: "reorder",
+    creationSource: "reorder",
     sourceOrderId: input.source.id,
     orderDate: input.orderDate,
     status: "draft",
+    salesContractNo: null,
+    ainuokeSyncStatus: "unlinked",
+    ainuokeLastSyncedAt: null,
+    factoryStyleNo: "",
+    businessConfirmedDeliveryDate: null,
+    contractDeliveryDate: null,
+    inspectionDate: null,
+    orderColorLines: [],
+    purchasedTrimUnitCostSnapshot: null,
+    purchasedTrimCurrencySnapshot: null,
+    purchasedTrimRuleId: null,
+    purchasedTrimCostOverride: false,
+    factorySettlementUnitPrice: null,
     initialQuantity: getEffectiveQuantity(input.source),
     quantityChanges: [],
     deliveryPlans: [],
@@ -186,7 +228,7 @@ export function createOrderPriceVersion(order: SalesOrder, input: { salePrice: n
   return { ...order, priceVersions: [...order.priceVersions, next], currentPriceVersionId: next.id, updatedAt: timestamp, updatedBy: input.actor.name };
 }
 
-export function changeOrderQuantity(order: SalesOrder, input: { afterQuantity: number; changeType: OrderQuantityChangeType; reason: string; actor: OrderActor; operationId?: string }): SalesOrder {
+export function changeOrderQuantity(order: SalesOrder, input: { afterQuantity: number; changeType: OrderQuantityChangeType; reason: string; actor: OrderActor; operationId?: string; source?: "manual" | "ainuoke_sync" | "system" }): SalesOrder {
   const beforeQuantity = getEffectiveQuantity(order);
   if (!Number.isFinite(input.afterQuantity) || input.afterQuantity < 0) throw new Error("调整后数量必须大于或等于 0");
   const delta = input.afterQuantity - beforeQuantity;
@@ -195,7 +237,7 @@ export function changeOrderQuantity(order: SalesOrder, input: { afterQuantity: n
   if ((input.changeType === "increase" && delta < 0) || (input.changeType !== "increase" && delta > 0)) throw new Error("数量变化方向与调整类型不一致");
   if (input.changeType === "full_cancel" && input.afterQuantity !== 0) throw new Error("全部取消后的有效数量必须为 0");
   const timestamp = nowIso();
-  const change = { id: createOrderId("quantity-change"), salesOrderId: order.id, beforeQuantity, afterQuantity: input.afterQuantity, delta, changeType: input.changeType, reason: input.reason.trim(), createdAt: timestamp, createdBy: input.actor.name };
+  const change = { id: createOrderId("quantity-change"), salesOrderId: order.id, beforeQuantity, afterQuantity: input.afterQuantity, delta, changeType: input.changeType, reason: input.reason.trim(), createdAt: timestamp, createdBy: input.actor.name, source: input.source ?? "manual" };
   return { ...order, quantityChanges: [...order.quantityChanges, change], updatedAt: timestamp, updatedBy: input.actor.name };
 }
 

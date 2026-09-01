@@ -1,4 +1,4 @@
-import { getCurrentPriceVersion, getEffectiveQuantity, type SalesOrder } from "../../order-center/model/order.ts";
+import { calculateFactorySettlementUnitPrice, getCurrentPriceVersion, getEffectiveQuantity, type SalesOrder } from "../../order-center/model/order.ts";
 import type { OperationsSettingsState } from "../../operations-settings/model/operations-settings.ts";
 import type { ProductionSchedulingState, ScheduleAssignment } from "../../production-scheduling/model/production-scheduling.ts";
 import { assignmentsForOrder } from "../../production-scheduling/service/production-scheduling-service.ts";
@@ -6,8 +6,8 @@ import { activeClosingAllocations, type ClosingAllocation, type ClosingPeriod, t
 
 export type ClosingActor = { id: string; name: string };
 export type ClosingWarning = { code: "order-over" | "assignment-over" | "completed-over" | "pending" | "schedule-stale" | "price-diff"; message: string };
-export type AllocationOutput = { originalAmount: number; originalCurrency: "CNY" | "USD"; processingOutputRmb: number; salesOutputWan: number | null };
-export type ClosingSummary = { quantity: number; processingOutputRmb: number; internalProcessingOutputRmb: number; outsourceProcessingOutputRmb: number; pendingProcessingOutputRmb: number; salesOutputWan: number; originalByCurrency: Record<"CNY" | "USD", number> };
+export type AllocationOutput = { originalAmount: number; originalCurrency: "CNY" | "USD"; processingOutputRmb: number; customerProcessingOutput: number; factoryPayableAmount: number; salesOutputWan: number | null };
+export type ClosingSummary = { quantity: number; processingOutputRmb: number; customerProcessingOutput: number; factoryPayableAmount: number; internalProcessingOutputRmb: number; outsourceProcessingOutputRmb: number; pendingProcessingOutputRmb: number; salesOutputWan: number; originalByCurrency: Record<"CNY" | "USD", number> };
 export type MonthlyTargetMetric = { target: number | null; actual: number; difference: number | null; completionRate: number | null };
 export type MonthlyTargetBalance = { total: MonthlyTargetMetric; internal: MonthlyTargetMetric; outsourceActual: number; pendingActual: number };
 
@@ -39,7 +39,10 @@ export function createAllocationDraft(input: { period: ClosingPeriod; order: Sal
   const assignment = input.assignment ?? null;
   const basis = assignment ? scheduleBasis(assignment, input.settings) : null;
   const now = input.now ?? timestamp();
-  return { id: uid("closing-allocation"), closingPeriodId: input.period.id, salesOrderId: input.order.id, scheduleAssignmentId: assignment?.id ?? null, quantity: input.quantity ?? assignment?.plannedQuantity ?? getEffectiveQuantity(input.order), orderTypeSnapshot: input.order.orderType, salePriceSnapshot: price.salePrice, closingProcessingUnitPrice: price.processingUnitPrice ?? 0, processingCurrencySnapshot: price.processingCurrency, fxRateSnapshot: price.processingCurrency === "USD" ? price.exchangeRateSnapshot : null, taxRateSnapshot: input.period.taxRateSnapshot, executionTypeSnapshot: assignment?.executionType ?? null, productionGroupIdSnapshot: basis?.productionGroupId ?? null, productionGroupNameSnapshot: basis?.productionGroupName ?? null, outsourceFactoryIdSnapshot: basis?.outsourceFactoryId ?? null, outsourceFactoryNameSnapshot: basis?.outsourceFactoryName ?? null, scheduleBasisSnapshot: basis, staleAcknowledgedFingerprint: null, staleAcknowledgedAt: null, staleAcknowledgedBy: null, staleAcknowledgedByName: null, staleAcknowledgedReason: null, remark: "", status: "active", voidedAt: null, voidedBy: null, voidedByName: null, voidReason: null, createdAt: now, updatedAt: now, createdBy: input.actor.id, createdByName: input.actor.name, updatedBy: input.actor.id, updatedByName: input.actor.name };
+  const customerProcessingUnitPriceSnapshot = price.processingUnitPrice ?? 0;
+  const factorySettlementUnitPriceSnapshot = calculateFactorySettlementUnitPrice(input.order) ?? customerProcessingUnitPriceSnapshot;
+  const currencySnapshot = input.settings.companyProcessingCurrency ?? price.processingCurrency;
+  return { id: uid("closing-allocation"), closingPeriodId: input.period.id, salesOrderId: input.order.id, scheduleAssignmentId: assignment?.id ?? null, quantity: input.quantity ?? assignment?.plannedQuantity ?? getEffectiveQuantity(input.order), orderTypeSnapshot: input.order.orderType, salePriceSnapshot: price.salePrice, closingProcessingUnitPrice: customerProcessingUnitPriceSnapshot, processingCurrencySnapshot: currencySnapshot, fxRateSnapshot: null, currencySnapshot, legacyFxRateApplied: false, salesContractNoSnapshot: input.order.salesContractNo, customerProcessingUnitPriceSnapshot, purchasedTrimUnitCostSnapshot: input.order.purchasedTrimUnitCostSnapshot, factorySettlementUnitPriceSnapshot, taxRateSnapshot: input.period.taxRateSnapshot, executionTypeSnapshot: assignment?.executionType ?? null, productionGroupIdSnapshot: basis?.productionGroupId ?? null, productionGroupNameSnapshot: basis?.productionGroupName ?? null, outsourceFactoryIdSnapshot: basis?.outsourceFactoryId ?? null, outsourceFactoryNameSnapshot: basis?.outsourceFactoryName ?? null, scheduleBasisSnapshot: basis, staleAcknowledgedFingerprint: null, staleAcknowledgedAt: null, staleAcknowledgedBy: null, staleAcknowledgedByName: null, staleAcknowledgedReason: null, remark: "", status: "active", voidedAt: null, voidedBy: null, voidedByName: null, voidReason: null, createdAt: now, updatedAt: now, createdBy: input.actor.id, createdByName: input.actor.name, updatedBy: input.actor.id, updatedByName: input.actor.name };
 }
 
 export function saveClosingAllocation(state: ClosingState, allocation: ClosingAllocation, actor: ClosingActor, now = timestamp()) {
@@ -65,15 +68,17 @@ export function voidClosingAllocation(state: ClosingState, allocationId: string,
 }
 
 export function allocationOutput(allocation: ClosingAllocation): AllocationOutput {
-  const originalAmount = allocation.quantity * allocation.closingProcessingUnitPrice;
-  const processingOutputRmb = allocation.processingCurrencySnapshot === "USD" ? originalAmount * (allocation.fxRateSnapshot ?? 0) : originalAmount;
+  const originalAmount = allocation.quantity * allocation.customerProcessingUnitPriceSnapshot;
+  const customerProcessingOutput = originalAmount;
+  const factoryPayableAmount = allocation.quantity * allocation.factorySettlementUnitPriceSnapshot;
+  const processingOutputRmb = allocation.legacyFxRateApplied && allocation.processingCurrencySnapshot === "USD" ? originalAmount * (allocation.fxRateSnapshot ?? 0) : originalAmount;
   const salesOutputWan = allocation.orderTypeSnapshot === "distribution" && allocation.salePriceSnapshot !== null ? allocation.quantity * allocation.salePriceSnapshot / (1 + allocation.taxRateSnapshot / 100) / 10000 : null;
-  return { originalAmount, originalCurrency: allocation.processingCurrencySnapshot, processingOutputRmb, salesOutputWan };
+  return { originalAmount, originalCurrency: allocation.currencySnapshot, processingOutputRmb, customerProcessingOutput, factoryPayableAmount, salesOutputWan };
 }
 
 export function summarizeClosing(allocations: ClosingAllocation[]): ClosingSummary {
   const active = allocations.filter((item) => item.status !== "voided" && item.voidedAt === null);
-  return active.reduce<ClosingSummary>((result, item) => { const output = allocationOutput(item); result.quantity += item.quantity; result.processingOutputRmb += output.processingOutputRmb; result.salesOutputWan += output.salesOutputWan ?? 0; result.originalByCurrency[output.originalCurrency] += output.originalAmount; if (item.executionTypeSnapshot === "internal") result.internalProcessingOutputRmb += output.processingOutputRmb; else if (item.executionTypeSnapshot === "outsource") result.outsourceProcessingOutputRmb += output.processingOutputRmb; else result.pendingProcessingOutputRmb += output.processingOutputRmb; return result; }, { quantity: 0, processingOutputRmb: 0, internalProcessingOutputRmb: 0, outsourceProcessingOutputRmb: 0, pendingProcessingOutputRmb: 0, salesOutputWan: 0, originalByCurrency: { CNY: 0, USD: 0 } });
+  return active.reduce<ClosingSummary>((result, item) => { const output = allocationOutput(item); result.quantity += item.quantity; result.processingOutputRmb += output.processingOutputRmb; result.customerProcessingOutput += output.customerProcessingOutput; result.factoryPayableAmount += output.factoryPayableAmount; result.salesOutputWan += output.salesOutputWan ?? 0; result.originalByCurrency[output.originalCurrency] += output.originalAmount; if (item.executionTypeSnapshot === "internal") result.internalProcessingOutputRmb += output.processingOutputRmb; else if (item.executionTypeSnapshot === "outsource") result.outsourceProcessingOutputRmb += output.processingOutputRmb; else result.pendingProcessingOutputRmb += output.processingOutputRmb; return result; }, { quantity: 0, processingOutputRmb: 0, customerProcessingOutput: 0, factoryPayableAmount: 0, internalProcessingOutputRmb: 0, outsourceProcessingOutputRmb: 0, pendingProcessingOutputRmb: 0, salesOutputWan: 0, originalByCurrency: { CNY: 0, USD: 0 } });
 }
 
 function targetMetric(actual: number, target: number | null): MonthlyTargetMetric {
@@ -121,7 +126,7 @@ export function allocationWarnings(allocation: ClosingAllocation, order: SalesOr
   const difference = currentScheduleDifference(allocation, scheduling, settings);
   if (difference && !difference.acknowledged) warnings.push({ code: "schedule-stale", message: "当前排单与关账快照不同，请同步或确认保留" });
   const price = getCurrentPriceVersion(order);
-  if (price.processingUnitPrice !== allocation.closingProcessingUnitPrice || price.processingCurrency !== allocation.processingCurrencySnapshot || (price.processingCurrency === "USD" && price.exchangeRateSnapshot !== allocation.fxRateSnapshot) || (order.orderType === "distribution" && price.salePrice !== allocation.salePriceSnapshot)) warnings.push({ code: "price-diff", message: "当前订单价格与关账快照不同" });
+  if (price.processingUnitPrice !== allocation.customerProcessingUnitPriceSnapshot || calculateFactorySettlementUnitPrice(order) !== allocation.factorySettlementUnitPriceSnapshot || (order.orderType === "distribution" && price.salePrice !== allocation.salePriceSnapshot)) warnings.push({ code: "price-diff", message: "当前订单价格与关账快照不同" });
   return warnings;
 }
 

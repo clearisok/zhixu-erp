@@ -195,10 +195,10 @@ test("v5→v6 Repository 升级稳定 key、幂等且迁移异常不覆盖 sales
   storage.setItem(key, JSON.stringify({ schemaVersion: 5, initializedAt: timestamp, updatedAt: timestamp, data: legacy }));
   const store = createStore(storage, namespace);
   const migrated = await createOrderRepository(store).list();
-  assert.equal(LOCAL_DATA_SCHEMA_VERSION, 9);
+  assert.equal(LOCAL_DATA_SCHEMA_VERSION, 10);
   assert.equal(migrated[0].id, "order-stable");
-  assert.equal(JSON.parse(storage.getItem(`${namespace}.manifest`)).schemaVersion, 9);
-  assert.equal(JSON.parse(storage.getItem(key)).schemaVersion, 9);
+  assert.equal(JSON.parse(storage.getItem(`${namespace}.manifest`)).schemaVersion, 10);
+  assert.equal(JSON.parse(storage.getItem(key)).schemaVersion, 10);
   const firstRaw = storage.getItem(key);
   assert.deepEqual(await createOrderRepository(store).list(), migrated);
   assert.equal(storage.getItem(key), firstRaw);

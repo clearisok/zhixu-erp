@@ -95,7 +95,7 @@ test("v2 Revision 级制作参数非破坏迁移到每个 PriceVersion", () => {
 
   const migrated = normalizeQuote(legacy);
   const migratedRevision = getDefaultRevision(migrated);
-  assert.equal(LOCAL_DATA_SCHEMA_VERSION, 9);
+  assert.equal(LOCAL_DATA_SCHEMA_VERSION, 10);
   assert.equal("pricingParameters" in migratedRevision, false);
   assert.deepEqual(migratedRevision.priceVersions.map((version) => version.pricingParameters.manufacturingPresetId), ["preset-cambodia", "preset-cambodia"]);
   assert.deepEqual(migratedRevision.priceVersions.map((version) => version.pricingParameters.laborCurrency), ["USD", "USD"]);

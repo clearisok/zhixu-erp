@@ -12,6 +12,8 @@ import { validateProductionSchedulingState } from "../../production-scheduling/m
 import { migrateProductionSchedulingV8ToV9 } from "../../production-scheduling/migration/production-scheduling-v8-to-v9";
 import { closingRepository, CLOSING_STORAGE_NAME } from "../../closing-center/repository/closing-repository";
 import { validateClosingState } from "../../closing-center/model/closing";
+import { ainuokeRepository, AINUOKE_STORAGE_NAME } from "../../ainuoke-sync/repository/ainuoke-repository";
+import { validateAinuokeSyncState } from "../../ainuoke-sync/model/ainuoke";
 import {
   exportStoredAttachments,
   replaceStoredAttachments,
@@ -84,6 +86,7 @@ export async function initializeLocalDataLifecycle(): Promise<void> {
   await orderRepository.list();
   await productionSchedulingRepository.load();
   await closingRepository.load();
+  await ainuokeRepository.load();
   await mockQuoteRepository.list();
   await operationLogRepository.list();
   recentSearchRepository.list(CURRENT_MOCK_USER_ID);
@@ -150,6 +153,13 @@ export function validateLocalDataBackup(value: unknown): LocalDataBackup {
       const closing = validateClosingState(parsed?.data ?? parsed, { orderIds, assignmentIds });
       if (!restoredOrders && closing.allocations.length) throw new Error("关账备份缺少 sales-orders 归属记录");
     } catch (error) { throw new LocalDataCorruptionError(closingKey, error); }
+  }
+  const ainuokeKey = `${browserLocalDataStore.namespace}.${AINUOKE_STORAGE_NAME}`;
+  if (localRecords[ainuokeKey]) {
+    try {
+      const parsed = JSON.parse(localRecords[ainuokeKey]) as { data?: unknown };
+      validateAinuokeSyncState(parsed?.data ?? parsed);
+    } catch (error) { throw new LocalDataCorruptionError(ainuokeKey, error); }
   }
   for (const entry of [...value.attachments, ...value.templates]) {
     if (!isRecord(entry) || !isRecord(entry.file) || typeof entry.file.base64 !== "string" || typeof entry.file.mimeType !== "string" || typeof entry.file.size !== "number") throw new Error("备份包含无效文件记录");

@@ -15,6 +15,9 @@ export type ScheduleAssignment = {
   executionType: ExecutionType;
   productionGroupId: string | null;
   outsourceFactoryId: string | null;
+  colorLineId: string | null;
+  colorNameSnapshot: string | null;
+  outsourceUnitPrice: number | null;
   queueSequence: number | null;
   plannedQuantity: number;
   durationMode: ScheduleDurationMode;
@@ -34,6 +37,9 @@ export type ScheduleAssignment = {
   createdBy: string;
   updatedBy: string;
 };
+
+export type ScheduleBatchAllocation = { salesOrderId: string; scheduleAssignmentId: string; assignedQuantity: number };
+export type ScheduleBatch = { id: string; name: string; allocations: ScheduleBatchAllocation[]; remark: string; createdAt: string; updatedAt: string; createdBy: string; updatedBy: string };
 
 export type TrackingField = { status: TrackingStatus; remark: string };
 
@@ -58,6 +64,7 @@ export type OrderExecutionTracking = {
 export type ProductionSchedulingState = {
   scheduleAssignments: ScheduleAssignment[];
   orderExecutionTrackings: OrderExecutionTracking[];
+  scheduleBatches: ScheduleBatch[];
 };
 
 export type QuantityProjection = {
@@ -98,6 +105,7 @@ export type OrderScheduleProjection = QuantityProjection & {
 export const emptyProductionSchedulingState = (): ProductionSchedulingState => ({
   scheduleAssignments: [],
   orderExecutionTrackings: [],
+  scheduleBatches: [],
 });
 
 const statuses = <T extends string>(...values: T[]) => new Set<string>(values);
@@ -121,10 +129,12 @@ export function validateProductionSchedulingState(
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("生产排单本地数据格式无效");
   const source = value as Partial<ProductionSchedulingState>;
   if (!Array.isArray(source.scheduleAssignments) || !Array.isArray(source.orderExecutionTrackings)) throw new Error("生产排单集合结构无效");
-  const state = structuredClone(source) as ProductionSchedulingState;
+  const state = structuredClone({ ...source, scheduleBatches: Array.isArray(source.scheduleBatches) ? source.scheduleBatches : [] }) as ProductionSchedulingState;
+  state.scheduleAssignments = state.scheduleAssignments.map((assignment) => ({ ...assignment, colorLineId: assignment.colorLineId ?? null, colorNameSnapshot: assignment.colorNameSnapshot ?? null, outsourceUnitPrice: assignment.outsourceUnitPrice ?? null }));
   const unique = (ids: string[], label: string) => { if (new Set(ids).size !== ids.length) throw new Error(`${label}存在重复 ID`); };
   unique(state.scheduleAssignments.map((item) => item.id), "排单");
   unique(state.orderExecutionTrackings.map((item) => item.id), "订单跟进");
+  unique(state.scheduleBatches.map((item) => item.id), "合并排单批次");
   unique(state.orderExecutionTrackings.map((item) => item.salesOrderId), "订单跟进归属");
   const orderIds = context?.orders ? new Set(context.orders.map((order) => order.id)) : null;
   for (const assignment of state.scheduleAssignments) {
@@ -132,6 +142,7 @@ export function validateProductionSchedulingState(
     if (orderIds && !orderIds.has(assignment.salesOrderId)) throw new Error(`排单 ${assignment.id} 引用了不存在的订单`);
     if (!durationModes.has(assignment.durationMode) || !dateModes.has(assignment.dateMode)) throw new Error("排单工期或日期模式无效");
     if (!Number.isFinite(assignment.plannedQuantity) || assignment.plannedQuantity < 0 || !Number.isFinite(assignment.completedQuantity) || assignment.completedQuantity < 0) throw new Error("排单数量不能小于 0");
+    if (assignment.outsourceUnitPrice !== null && (!Number.isFinite(assignment.outsourceUnitPrice) || assignment.outsourceUnitPrice < 0)) throw new Error("外发单价不能小于 0");
     if (!Number.isInteger(assignment.requiredWorkdays) || assignment.requiredWorkdays < 1) throw new Error("排单工作日必须为正整数");
     if (!Number.isInteger(assignment.nonWorkingDayCount) || assignment.nonWorkingDayCount < 0) throw new Error("非工作日数量无效");
     if (assignment.durationMode === "average_daily_output" && (!assignment.averageDailyOutputSnapshot || assignment.averageDailyOutputSnapshot <= 0)) throw new Error("按日产量排期必须保存有效日产量快照");
@@ -142,6 +153,10 @@ export function validateProductionSchedulingState(
     } else throw new Error("排单执行类型无效");
     assertDateOrder(assignment.plannedStartDate, assignment.plannedEndDate, "排单");
     assertDateOrder(assignment.actualStartDate, assignment.actualCompletedDate, "排单实际");
+  }
+  for (const batch of state.scheduleBatches) {
+    if (!batch.id || !batch.name.trim() || !Array.isArray(batch.allocations) || batch.allocations.length < 2) throw new Error("合并排单批次结构无效");
+    if (batch.allocations.some((item) => !item.salesOrderId || !item.scheduleAssignmentId || !Number.isFinite(item.assignedQuantity) || item.assignedQuantity <= 0)) throw new Error("合并排单分配无效");
   }
   for (const tracking of state.orderExecutionTrackings) {
     if (!tracking.id || !tracking.salesOrderId || (orderIds && !orderIds.has(tracking.salesOrderId))) throw new Error("订单跟进归属无效");

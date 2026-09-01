@@ -6,10 +6,12 @@ import { validateClosingState } from "../features/closing-center/model/closing.t
 import { createClosingPeriod } from "../features/closing-center/service/closing-service.ts";
 import { createLocalDataStore } from "../features/data-management/repository/local-data-store.ts";
 import { getEffectiveQuantity, validateOrderCollection } from "../features/order-center/model/order.ts";
+import { createManualOrder } from "../features/order-center/service/order-service.ts";
 import { validateProductionSchedulingState } from "../features/production-scheduling/model/production-scheduling.ts";
 import {
   createDeterministicRandom,
   createUiQaRepositories,
+  cleanupUiQaDataset,
   installUiQaDataset,
   UI_QA_DATASET_ID,
   UI_QA_SEED,
@@ -88,6 +90,30 @@ test("生成器使用正式 Repository 保存，重复运行只跳过且不覆�
   assert.equal(second.installation.closingPeriodsAdded, 0);
   assert.equal(second.installation.closingAllocationsAdded, 0);
   assert.equal((await secondRepositories.orders.getById(protectedOrder.id)).customerPoNo, "USER-PRESERVED-PO");
+});
+
+test("dataset-scoped cleanup 只删除 QA 订单和排单并保留真实业务事实与主数据", async () => {
+  const { repositories } = setup("zhixu.erp.test-ui-qa-cleanup");
+  await installUiQaDataset(repositories);
+  const settingsBefore = repositories.operationsSettings.load();
+  const realOrder = createManualOrder({
+    header: { orderNo: "SO-REAL-001", customerId: null, customerNameSnapshot: "真实客户", customerPoNo: "", orderDate: "2026-08-31", salespersonId: null, salespersonNameSnapshot: "", merchandiserId: null, merchandiserNameSnapshot: "", orderType: "processing", remark: "用户真实业务订单" },
+    style: { styleNo: "D1933", styleName: "真实款", brandId: null, brandNameSnapshot: "KIABI", productionCountry: "柬埔寨", initialQuantity: 9410 },
+    actor: { id: "user", name: "用户" }, id: "real-order-001", createdAt: "2026-08-31T12:00:00.000Z",
+  });
+  await repositories.orders.save(realOrder);
+  const scheduling = await repositories.scheduling.load();
+  const qaAssignment = scheduling.scheduleAssignments[0];
+  await repositories.scheduling.save({ ...scheduling, scheduleAssignments: [...scheduling.scheduleAssignments, { ...qaAssignment, id: "real-schedule-001", salesOrderId: realOrder.id, remark: "真实历史排单", createdBy: "用户", updatedBy: "用户" }] });
+
+  const report = await cleanupUiQaDataset(createUiQaRepositories(repositories.store));
+  assert.deepEqual(report.before, { qaOrders: 168, realOrders: 1, qaSchedule: 150, realSchedule: 1 });
+  assert.deepEqual(report.after, { qaOrders: 0, realOrders: 1, qaSchedule: 0, realSchedule: 1 });
+  const remainingOrders = await createUiQaRepositories(repositories.store).orders.list();
+  const remainingScheduling = await createUiQaRepositories(repositories.store).scheduling.load();
+  assert.deepEqual(remainingOrders.map((item) => item.id), [realOrder.id]);
+  assert.deepEqual(remainingScheduling.scheduleAssignments.map((item) => item.id), ["real-schedule-001"]);
+  assert.deepEqual(createUiQaRepositories(repositories.store).operationsSettings.load(), settingsBefore);
 });
 
 test("跨报价、订单、排单和关账的正式 owner 与指针完整", async () => {

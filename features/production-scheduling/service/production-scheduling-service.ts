@@ -1,6 +1,6 @@
 import { activeDeliveryPlans, getEffectiveQuantity, type SalesOrder } from "../../order-center/model/order.ts";
 import type { OperationsSettingsState, ProductionCalendar } from "../../operations-settings/model/operations-settings.ts";
-import { scheduleAssignmentIsActive, type DeliveryRiskProjection, type ExecutionMode, type OrderExecutionTracking, type OrderScheduleProjection, type ProductionSchedulingState, type ProductionStatus, type ScheduleAssignment, type TrackingField } from "../model/production-scheduling.ts";
+import { scheduleAssignmentIsActive, type DeliveryRiskProjection, type ExecutionMode, type OrderExecutionTracking, type OrderScheduleProjection, type ProductionSchedulingState, type ProductionStatus, type ScheduleAssignment, type ScheduleBatch, type TrackingField } from "../model/production-scheduling.ts";
 
 export const DEFAULT_DELIVERY_WARNING_LEAD_DAYS = 7;
 export type SchedulingActor = { id: string; name: string };
@@ -70,6 +70,7 @@ function assertEnabledExecutor(input: Pick<ScheduleAssignment, "executionType" |
 
 export function createScheduleAssignment(state: ProductionSchedulingState, input: {
   salesOrderId: string; executionType: ScheduleAssignment["executionType"]; productionGroupId?: string | null; outsourceFactoryId?: string | null;
+  colorLineId?: string | null; colorNameSnapshot?: string | null; outsourceUnitPrice?: number | null;
   plannedQuantity: number; durationMode?: ScheduleAssignment["durationMode"]; averageDailyOutput?: number | null; requiredWorkdays?: number | null;
   plannedStartDate?: string | null; plannedEndDate?: string | null; dateMode?: ScheduleAssignment["dateMode"]; remark?: string; actor: SchedulingActor; settings: OperationsSettingsState; timestamp?: string;
 }): { state: ProductionSchedulingState; assignment: ScheduleAssignment } {
@@ -80,6 +81,7 @@ export function createScheduleAssignment(state: ProductionSchedulingState, input
   const assignment: ScheduleAssignment = {
     id: id("schedule"), salesOrderId: input.salesOrderId, executionType,
     productionGroupId: executionType === "internal" ? input.productionGroupId ?? null : null, outsourceFactoryId: executionType === "outsource" ? input.outsourceFactoryId ?? null : null,
+    colorLineId: input.colorLineId ?? null, colorNameSnapshot: input.colorNameSnapshot?.trim() || null, outsourceUnitPrice: executionType === "outsource" ? input.outsourceUnitPrice ?? null : null,
     queueSequence: executionType === "internal" ? Math.max(0, ...groupAssignments.map((item) => item.queueSequence ?? 0)) + 1 : null,
     plannedQuantity: nonNegative(input.plannedQuantity, "排单数量"), durationMode, averageDailyOutputSnapshot: duration.averageDailyOutputSnapshot, requiredWorkdays: duration.requiredWorkdays,
     plannedStartDate: input.plannedStartDate ?? null, plannedEndDate: input.plannedEndDate ?? null, nonWorkingDayCount: 0, completedQuantity: 0, actualStartDate: null, actualCompletedDate: null,
@@ -92,7 +94,7 @@ export function createScheduleAssignment(state: ProductionSchedulingState, input
   return { state: { ...state, scheduleAssignments: [...state.scheduleAssignments, assignment] }, assignment };
 }
 
-export function updateScheduleAssignment(state: ProductionSchedulingState, assignmentId: string, patch: Partial<Pick<ScheduleAssignment, "executionType" | "productionGroupId" | "outsourceFactoryId" | "queueSequence" | "plannedQuantity" | "durationMode" | "averageDailyOutputSnapshot" | "requiredWorkdays" | "plannedStartDate" | "plannedEndDate" | "nonWorkingDayCount" | "completedQuantity" | "actualStartDate" | "actualCompletedDate" | "dateMode" | "status" | "remark">>, input: { actor: SchedulingActor; settings: OperationsSettingsState; reason?: string; timestamp?: string }) {
+export function updateScheduleAssignment(state: ProductionSchedulingState, assignmentId: string, patch: Partial<Pick<ScheduleAssignment, "executionType" | "productionGroupId" | "outsourceFactoryId" | "colorLineId" | "colorNameSnapshot" | "outsourceUnitPrice" | "queueSequence" | "plannedQuantity" | "durationMode" | "averageDailyOutputSnapshot" | "requiredWorkdays" | "plannedStartDate" | "plannedEndDate" | "nonWorkingDayCount" | "completedQuantity" | "actualStartDate" | "actualCompletedDate" | "dateMode" | "status" | "remark">>, input: { actor: SchedulingActor; settings: OperationsSettingsState; reason?: string; timestamp?: string }) {
   const before = state.scheduleAssignments.find((item) => item.id === assignmentId); if (!before) throw new Error("排单不存在");
   const started = before.status === "in_progress" || before.status === "completed" || before.completedQuantity > 0 || Boolean(before.actualStartDate);
   const executorChanged = (patch.executionType !== undefined && patch.executionType !== before.executionType) || (patch.productionGroupId !== undefined && patch.productionGroupId !== before.productionGroupId) || (patch.outsourceFactoryId !== undefined && patch.outsourceFactoryId !== before.outsourceFactoryId);
@@ -107,13 +109,32 @@ export function updateScheduleAssignment(state: ProductionSchedulingState, assig
     patch.averageDailyOutputSnapshot === undefined ? before.averageDailyOutputSnapshot : patch.averageDailyOutputSnapshot,
     patch.requiredWorkdays === undefined ? before.requiredWorkdays : patch.requiredWorkdays,
   );
-  const assignment: ScheduleAssignment = { ...before, ...patch, executionType, productionGroupId: executionType === "internal" ? (patch.productionGroupId === undefined ? before.productionGroupId : patch.productionGroupId) : null, outsourceFactoryId: executionType === "outsource" ? (patch.outsourceFactoryId === undefined ? before.outsourceFactoryId : patch.outsourceFactoryId) : null, plannedQuantity, durationMode, averageDailyOutputSnapshot: duration.averageDailyOutputSnapshot, completedQuantity: patch.completedQuantity === undefined ? before.completedQuantity : nonNegative(patch.completedQuantity, "完成数量"), requiredWorkdays: duration.requiredWorkdays, remark: patch.remark === undefined ? before.remark : patch.remark.trim(), updatedAt: input.timestamp ?? now(), updatedBy: input.actor.name };
+  const assignment: ScheduleAssignment = { ...before, ...patch, executionType, productionGroupId: executionType === "internal" ? (patch.productionGroupId === undefined ? before.productionGroupId : patch.productionGroupId) : null, outsourceFactoryId: executionType === "outsource" ? (patch.outsourceFactoryId === undefined ? before.outsourceFactoryId : patch.outsourceFactoryId) : null, colorNameSnapshot: patch.colorNameSnapshot === undefined ? before.colorNameSnapshot : patch.colorNameSnapshot?.trim() || null, outsourceUnitPrice: executionType === "outsource" ? (patch.outsourceUnitPrice === undefined ? before.outsourceUnitPrice : patch.outsourceUnitPrice) : null, plannedQuantity, durationMode, averageDailyOutputSnapshot: duration.averageDailyOutputSnapshot, completedQuantity: patch.completedQuantity === undefined ? before.completedQuantity : nonNegative(patch.completedQuantity, "完成数量"), requiredWorkdays: duration.requiredWorkdays, remark: patch.remark === undefined ? before.remark : patch.remark.trim(), updatedAt: input.timestamp ?? now(), updatedBy: input.actor.name };
+  if (assignment.outsourceUnitPrice !== null) nonNegative(assignment.outsourceUnitPrice, "外发单价");
   if (assignment.status === "in_progress" && !assignment.actualStartDate) assignment.actualStartDate = (input.timestamp ?? now()).slice(0, 10);
   if (executorChanged) assertEnabledExecutor(assignment, input.settings);
   const calendar = calendarForAssignment(assignment, input.settings);
   if (assignment.dateMode === "auto_queue" && assignment.plannedStartDate && calendar) Object.assign(assignment, calculateScheduleDates({ startDate: assignment.plannedStartDate, requiredWorkdays: assignment.requiredWorkdays, calendar }));
   if (assignment.plannedStartDate && assignment.plannedEndDate && assignment.plannedStartDate > assignment.plannedEndDate) throw new Error("排单开始日期不能晚于结束日期");
   return { before, assignment, state: { ...state, scheduleAssignments: state.scheduleAssignments.map((item) => item.id === assignmentId ? assignment : item) } };
+}
+
+export function projectOrderColorSchedule(order: SalesOrder, state: ProductionSchedulingState) {
+  const assignments = activeAssignmentsForOrder(state, order.id);
+  return order.orderColorLines.map((line) => {
+    const assignedQuantity = assignments.filter((assignment) => assignment.colorLineId === line.id).reduce((sum, assignment) => sum + assignment.plannedQuantity, 0);
+    const completedQuantity = assignments.filter((assignment) => assignment.colorLineId === line.id).reduce((sum, assignment) => sum + assignment.completedQuantity, 0);
+    return { line, assignedQuantity, completedQuantity, remainingQuantity: Math.max(line.quantity - assignedQuantity, 0), overAssignedQuantity: Math.max(assignedQuantity - line.quantity, 0) };
+  });
+}
+
+export function createScheduleBatch(state: ProductionSchedulingState, input: { name: string; assignmentIds: string[]; actor: SchedulingActor; remark?: string; timestamp?: string }): { state: ProductionSchedulingState; batch: ScheduleBatch } {
+  const assignments = input.assignmentIds.map((assignmentId) => state.scheduleAssignments.find((item) => item.id === assignmentId)).filter((item): item is ScheduleAssignment => Boolean(item));
+  if (assignments.length !== input.assignmentIds.length || assignments.length < 2) throw new Error("合并排单至少需要两条有效排单");
+  if (new Set(assignments.map((item) => item.salesOrderId)).size < 2) throw new Error("合并排单必须包含至少两张销售合同订单");
+  const createdAt = input.timestamp ?? now();
+  const batch: ScheduleBatch = { id: id("schedule-batch"), name: input.name.trim() || `合并排单 ${createdAt.slice(0, 10)}`, allocations: assignments.map((item) => ({ salesOrderId: item.salesOrderId, scheduleAssignmentId: item.id, assignedQuantity: item.plannedQuantity })), remark: input.remark?.trim() ?? "", createdAt, updatedAt: createdAt, createdBy: input.actor.name, updatedBy: input.actor.name };
+  return { batch, state: { ...state, scheduleBatches: [...state.scheduleBatches, batch] } };
 }
 
 export type QueueDateChange = { assignmentId: string; beforeStartDate: string | null; beforeEndDate: string | null; afterStartDate: string | null; afterEndDate: string | null };
