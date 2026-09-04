@@ -2,7 +2,7 @@ import { calculateFactorySettlementUnitPrice, getCurrentPriceVersion, getEffecti
 import type { OperationsSettingsState } from "../../operations-settings/model/operations-settings.ts";
 import type { ProductionSchedulingState, ScheduleAssignment } from "../../production-scheduling/model/production-scheduling.ts";
 import { assignmentsForOrder } from "../../production-scheduling/service/production-scheduling-service.ts";
-import { activeClosingAllocations, type ClosingAllocation, type ClosingPeriod, type ClosingState, type ClosingStatusProjection, type ScheduleBasisSnapshot } from "../model/closing.ts";
+import { activeClosingAllocations, type ClosingAllocation, type ClosingPeriod, type ClosingPeriodStatus, type ClosingState, type ClosingStatusProjection, type ScheduleBasisSnapshot } from "../model/closing.ts";
 
 export type ClosingActor = { id: string; name: string };
 export type ClosingWarning = { code: "order-over" | "assignment-over" | "completed-over" | "pending" | "schedule-stale" | "price-diff"; message: string };
@@ -159,3 +159,53 @@ export function transitionClosingPeriod(state: ClosingState, periodId: string, a
 }
 
 export function getAssignmentsForClosing(order: SalesOrder, scheduling: ProductionSchedulingState) { return assignmentsForOrder(scheduling, order.id).filter((item) => item.status !== "cancelled"); }
+
+export function sortClosingPeriodsLatestFirst(periods: ClosingPeriod[]) {
+  return [...periods].sort((left, right) => right.month.localeCompare(left.month));
+}
+
+export function filterClosingPeriods(
+  periods: ClosingPeriod[],
+  status: ClosingPeriodStatus | "all",
+) {
+  const sorted = sortClosingPeriodsLatestFirst(periods);
+  return status === "all"
+    ? sorted
+    : sorted.filter((period) => period.status === status);
+}
+
+export function groupClosingPeriodsByYear(periods: ClosingPeriod[]) {
+  return periods.reduce<Array<{ year: string; periods: ClosingPeriod[] }>>(
+    (groups, period) => {
+      const year = period.month.slice(0, 4);
+      const current = groups.at(-1);
+      if (current?.year === year) current.periods.push(period);
+      else groups.push({ year, periods: [period] });
+      return groups;
+    },
+    [],
+  );
+}
+
+export function allocationsForClosingPeriod(
+  state: ClosingState,
+  periodId: string,
+) {
+  return activeClosingAllocations(state).filter(
+    (allocation) => allocation.closingPeriodId === periodId,
+  );
+}
+
+export function projectOrderProductionForClosing(
+  order: SalesOrder,
+  scheduling: ProductionSchedulingState,
+) {
+  return getAssignmentsForClosing(order, scheduling).reduce(
+    (projection, assignment) => {
+      projection.scheduledQuantity += assignment.plannedQuantity;
+      projection.completedQuantity += assignment.completedQuantity;
+      return projection;
+    },
+    { scheduledQuantity: 0, completedQuantity: 0 },
+  );
+}
