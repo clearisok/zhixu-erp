@@ -46,6 +46,7 @@
 | 根目录 `*.ps1`、`*.sh` | 本地 Docker 构建、启动、备份、恢复和静态服务脚本 |
 | `tests/` | 根级源码契约/配置测试；业务模块测试也分布在 `features/**/__tests__` |
 | `docs/features/` | 复杂模块的当前行为与边界 |
+| `docs/tasks/` | active 保存当前正式任务规格，completed 保存已完成任务的追溯映射；不替代 CURRENT_STATE |
 | `artifacts/` | 验证截图等生成物，不是业务事实源 |
 | `templates/` | 正式业务文档模板；修改前必须核对对应 feature 文档与模板哈希 |
 | `outputs/` | 可复验的导出验收文件，不是业务数据源 |
@@ -90,6 +91,7 @@
 
 ## 历史资料
 
+- 2026-09-01 Full UI / Workflow Correction 的 Page 1–16 映射、Gate commits、响应式与截图索引见 `docs/tasks/completed/2026-09-01-full-ui-workflow-correction.md`。
 - `docs/ui-audit.md` 是 2026-08-17 时点的 UI 审计，其中“尚无 Foundation”等描述已经被当前代码取代。
 - `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
 

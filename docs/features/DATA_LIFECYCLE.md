@@ -8,7 +8,7 @@
 
 - DEV `127.0.0.1:3001` 与 PROD Docker `127.0.0.1:3000` 继续依靠浏览器 Origin 隔离，不做跨 Origin 共享。
 - 所有可序列化的 Quote Center 数据写入稳定命名空间 `zhixu.erp.local.*`；版本存在 envelope/manifest 的 `schemaVersion` 中，不再通过改 key 升级。
-- 当前正式 `schemaVersion = 11`。v3 将旧 QuoteRevision 级制作参数映射为 PriceVersion 快照；v4 新增 `operations-settings`；v5 新增 `sales-orders`；v6 将多款订单非破坏拆分为单款 SalesOrder；v7 新增 `production-scheduling`；v8 新增 `closing-center`；v9 将旧 ProductionPlan owner 提升为 `ScheduleAssignment.salesOrderId`；v10 增加艾诺科同步正式记录；v11 接入款式进度 IndexedDB 与完整备份编排。v10→v11 只升级基础设施 envelope，旧 payload 字节不变。
+- 当前正式 `schemaVersion = 12`。v3 将旧 QuoteRevision 级制作参数映射为 PriceVersion 快照；v4 新增 `operations-settings`；v5 新增 `sales-orders`；v6 将多款订单非破坏拆分为单款 SalesOrder；v7 新增 `production-scheduling`；v8 新增 `closing-center`；v9 将旧 ProductionPlan owner 提升为 `ScheduleAssignment.salesOrderId`；v10 增加艾诺科同步正式记录；v11 接入款式进度 IndexedDB 与完整备份编排；v12 加入颜色数量 adjustment、默认加工币种与 Style Progress `actualConsumption` 的非破坏兼容。旧 payload 与稳定 ID 不因升级重建。
 - 启动时 `LocalDataBootstrap` 触发一次非破坏性初始化。稳定记录存在时只读取/迁移；稳定记录不存在时优先迁移旧记录；只有两者都不存在时才写一次 Seed。
 - 旧 key 在迁移成功后保留，不由自动流程删除。只有用户在“系统设置 > 数据管理”显式执行全部重置时才清理稳定与旧命名空间。
 - 稳定记录或 manifest 损坏时抛出 `LocalDataCorruptionError`，原始字符串保持不变，不静默回退 Seed。
@@ -37,7 +37,7 @@
 
 ```ts
 {
-  schemaVersion: 11,
+  schemaVersion: 12,
   initializedAt: string,
   updatedAt: string,
   data: unknown
@@ -62,6 +62,7 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 12. v5 → v6 建立确定性的旧 Item→新 SalesOrder mapping，用于迁移翻单 `sourceOrderItemId`；新 Runtime Domain 不保留 OrderItem。坏指针、重复 ID、空 items 或 owner 损坏会停止迁移并保留原始 record，禁止 fallback、Seed 或全局清空。
 13. v6 → v7 只增加 `production-scheduling` 稳定记录；v7 → v8 只增加 `closing-center` 稳定记录。已有 records、未知字段与时间戳原样保留，旧备份没有新记录时初始化安全空集合。
 14. v9 → v10 增加艾诺科同步稳定记录；v10 → v11 只提升现有 localStorage envelope/manifest，原业务 payload 保持不变。款式进度大数据使用独立 IndexedDB Store，不把万行事件塞进单个 localStorage JSON。
+15. v11 → v12 保持所有稳定 key 与实体 ID；颜色取消 adjustment、系统默认加工币种和 `actualConsumption` 修复均采用可重复、非破坏迁移。Ainuoke 重同步更新来源颜色数量时保留 adjustment；无法由当前 Raw Snapshot 证明的旧实际用量保持 `null`。
 
 ## Test isolation
 

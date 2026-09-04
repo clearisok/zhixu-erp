@@ -18,7 +18,7 @@
 - 原始数据行 17,016；有效 17,015；无效 Trace 1。
 - 474 个销售合同；12,853 个规范化 MaterialDemand；因 Cartesian expansion 去除 4,162 个需求展开行。
 - 采购事件 11,269；入库 14,601；出运 13,140；出库 14,620；重复事件展开 5,542。
-- D1935 / `PI2607-235`：45 个需求（面料 20、辅料 25），其中 5 项由 `厂供` 语义映射 `actualConsumption`。
+- D1935 / `PI2607-235`：45 个需求（面料 20、辅料 25）；`actualConsumption` 读取 Excel 表头“厂供”的数值。
 - T2403 / `PI2608-266`：11 个需求（面料 5、辅料 6）。
 - T1933 不在该基表中，详情必须显示“当前导入数据未找到该款”，禁止造数。
 
@@ -32,7 +32,7 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 - `MaterialPurchaseEvent`、`MaterialInboundEvent`、`MaterialShipmentEvent`、`MaterialOutboundEvent`：从需求分离并分别去重，避免采购 × 入库等笛卡尔展开造成数量倍增。
 - `sourceMaterialDueDate` 是只读 Source；`expectedMaterialReadyDate` 是当前 Effective；累计入库达到需求数量时推导的日期与数量属于 Actual。
 - `expectedDateSource = source | manual`。首次导入和跟随来源的重导入使用最新 Source；人工 Effective 在重导入时保留，恢复艾诺科后重新跟随 Source。
-- Excel `提供方式 = 厂供` 按已确认业务语义把该行单耗映射为 `actualConsumption`，不保留为采购/供货方式，不影响采购、入库、齐套或运输。
+- Excel 表头“厂供”是实际用量数值列并映射为 `actualConsumption`；“提供方式”是独立字段，不得把文字 `厂供` 转换为计划用量。旧错误快照仅在当前 ImportBatch Raw Snapshot 能证明对应值时确定性修复，否则保持 `null`。
 
 ## Import and idempotency
 
@@ -63,9 +63,9 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 
 ## UI integration
 
-- 订单中心二级导航：订单列表、款式进度、风险预警、艾诺科同步。
+- 订单中心日常二级导航：订单列表、款式进度、风险预警；艾诺科同步不再占用日常导航。
 - `/order-center/style-progress`：高密度款式总览与真实 Excel 预检/导入。
-- `/order-center/style-progress/detail?contract=...`：对象摘要、三类风险、关键异常、颜色筛选、面料/辅料分区、inline Effective 日期编辑与来源历史；顶部紧凑“物流依据”同时解释集货仓、生产地点、相关排单开工日、匹配路线与可用运输方式。
+- `/order-center/style-progress/detail?contract=...`：对象摘要、三类风险、关键异常、可工作的成衣颜色筛选、可折叠面料/辅料分区、inline Effective 日期编辑与来源历史；顶部紧凑“物流依据”同时解释集货仓、生产地点、相关排单开工日、匹配路线与可用运输方式。高密度表格在 1229 viewport 不制造 document-level 横向滚动。
 - 物料明细并列显示 Source 交期、当前 Effective、Actual 齐套日、计划开工、最晚到厂与逐物料运输结论；Actual 不回写或覆盖 Expected。
 - `/order-center/risks`：交期、未采购、待入库与运输异常筛选。
 - Order Detail 只读取 StyleProgress Projection，显示紧凑摘要和 Drawer；完整编辑通过 deep link 进入款式进度。
@@ -74,7 +74,7 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 ## Storage, backup, permissions and audit
 
 - 万行级事实存入 IndexedDB `zhixu-style-progress`，分为批次、Raw、需求与四类事件 Store；React 只经 Service/Repository 访问。
-- schemaVersion 11 将该 IndexedDB 纳入现有 JSON Backup / Restore / Reset 的原子式回滚编排；旧备份缺失此区块时恢复为空集合，不影响其他数据。
+- schemaVersion 12 将该 IndexedDB 纳入现有 JSON Backup / Restore / Reset 的原子式回滚编排；旧备份缺失此区块时恢复为空集合，不影响其他数据。
 - 权限：`style_progress.read/edit/import/view_history`；新增权限只自动补给管理员。
 - 正式导入、人工修改和恢复 Effective 日期复用唯一追加式 OperationLog；ImportBatch / Raw Snapshot 继续保留技术 Trace，不替代业务操作日志。
 

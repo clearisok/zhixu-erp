@@ -21,6 +21,11 @@ Quote Center 是面向成衣报价工作的新版前端模块，提供完整报�
 - 当前默认 Revision 的可编辑能力由权限键控制；查看员仍可打开报价和导出，但基础信息、成本、附件与保存操作保持只读/disabled。
 - 报价详情提供只读“操作记录”时间线；日志在保存成功后由前后快照差异追加生成，详细边界见 `OPERATION_LOGS.md`。
 - 已保存报价可由 AppShell 全局搜索按报价号、款号、款式名称、品牌和客户业务员检索；结果只投影非成本信息，详细架构见 `GLOBAL_SEARCH.md`。
+- 列表普通搜索按空格 token 做 AND；`/字段 值` 结构化搜索也做 AND，并可与普通 token 组合。`/制作国家` 扫描全部 PriceVersion 快照。
+- 列表在 1229 CSS viewport 保持无 document-level 横向溢出，并直接显示款式缩略图；“更多”使用 Portal，不受表格或父容器裁切。
+- 其他费用进入顶部成本摘要；点击最终报价打开 Cost Breakdown Drawer，计算继续读取当前 PriceVersion 的正式 calculator 结果。
+- Attachment 区域获得焦点后可直接 Ctrl/Cmd+V 粘贴图片，不再要求先打开上传弹窗。
+- 品牌与客户业务员使用嵌套选择器；系统 fallback 必须显示实际继承值，不能只显示“回退品牌值”占位。
 
 当前“创建价格版本”以活动 PriceVersion 为来源复制成本数据，并为成本行生成新 ID；UI 使用“创建价格版本”文案。
 
@@ -136,4 +141,4 @@ Quote Center 是面向成衣报价工作的新版前端模块，提供完整报�
 - 附件当前仅为单设备 IndexedDB 原型，没有真实上传 API、对象存储和跨设备共享。
 - 列表无分页/服务端筛选。
 - 当前测试账号可在 AppShell 切换，但不是已认证的真实会话；个人偏好尚未按该账号全面迁移。
-- 当前工作树中的功能扩展尚未全部由 Git commit 固化。
+- 2026-09-01 Full UI / Workflow Correction 的 Quote 与 Foundation 修改已由 Gate A commit `367983925f8e9236a701a71781054f6baaf65e78` 独立固化。

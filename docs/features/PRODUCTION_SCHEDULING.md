@@ -13,6 +13,10 @@
 - 排单编辑器不向用户展示 `durationMode` 或“排期依据”；平均日产与所需工作日直接双向联动，以最后编辑的输入为当前口径。新建排单无需填写变更原因，并可一键带入全部未排数量。
 - 结束 Assignment 时在首层 Modal 同时提供“仅记录结束”和“结束并应用建议”。后者先预览每条受影响排单的前后日期，用户确认后才持久化；只调整同组未开工自动队列，全部日志共享 operationId。
 - 外发排单弹窗允许就地创建外发厂，保存稳定 ID、自动选中，并通过统一 OperationLog 记录基础资料变更；它不创建第二套排单日志。
+- 生产组左侧总览在宽屏保持 sticky；队列行不再下垂，订单与物流均通过真实导航进入对应页面。
+- 重复排单入口已收敛；行内“更多”只保留真实动作，包括进入排单、款式进度和价格调整。
+- 生产物料状态直接消费 Style Progress Projection，不再维护面辅料手工到料日期；空提交校验与 Modal 位于同一可见层级。
+- 生产执行日期文案统一使用“拟定交期”。
 
 ## Data model
 
@@ -48,7 +52,7 @@
 
 ## Repository, permissions, audit and search
 
-- 稳定记录仍为 `zhixu.erp.local.production-scheduling`，schemaVersion 11，namespace 不变；迁移不清数据、不重建 ID、不覆盖 Seed。
+- 稳定记录仍为 `zhixu.erp.local.production-scheduling`，schemaVersion 12，namespace 不变；迁移不清数据、不重建 ID、不覆盖 Seed。
 - 复用 `schedule.view/create/edit/complete`；生产与运输设置使用 `settings.production_infrastructure.edit`。
 - 复用唯一 OperationLog。新日志使用 `orderId/scheduleAssignmentId`；`productionPlanId` 仅保留旧日志读取兼容。
 - ScheduleSearchProvider 搜索订单、款式、执行方、生产地点与供应枢纽，并先检查 `schedule.view`。

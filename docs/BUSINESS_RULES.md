@@ -97,6 +97,10 @@
 - 订单附件复用 AttachmentRepository 中的 Blob，只保存附件 ID 引用；订单引用存在时，Quote 侧不得删除底层 Blob。
 - 全局操作日志需要 `audit_log.view`；默认只有管理员具备该权限。
 - 当前 localStorage 实现不是生产级不可篡改审计存储；未来服务端必须在业务事务成功后由后端追加。
+- 订单列表的交期月份筛选读取有效 `DeliveryPlan` 的月份；不得用下单日期或排单月份代替。
+- `salesContractNo`、`factoryStyleNo` 与订单来源由正式来源快照决定，订单详情只读；客户 PO、客户和制作国家不在日常编辑区重复维护。
+- 颜色级部分取消以 append-only adjustment 保存，不覆盖来源颜色行。有效颜色数量 = 来源数量 + 该颜色全部 adjustment；艾诺科重同步只能更新来源数量，必须保留人工 adjustment。
+- 系统 `defaultProcessingCurrency` 只初始化新建手工订单、新价格调整和新关账记录，当前默认值为 USD；既有订单价格、Quote 快照与 Closing 快照不得随设置变化重算。
 
 ## 关账中心
 
@@ -107,6 +111,9 @@
 - 排单的计划量、完成量或执行方发生变化时，开放月份显示 stale；用户只能显式同步快照或确认保留旧快照。确认/锁定阶段不自动同步。
 - 同一订单累计关账量小于有效数量为部分关账，等于为已关账，大于为超额关账；warning 不静默截断真实数量。
 - 关账权限、搜索、订单摘要、OperationLog 与 Backup/Restore 都读取同一 Closing Repository/Service，不建立第二套财务事实。
+- `/closing-center` 是月份总览：月份倒序、按年分组，并可按开放中、已确认、已锁定筛选；`/closing-center/detail?month=YYYY-MM` 是月份详情，路由月份决定订单行、KPI、筛选与动作。
+- `confirmed` 与 `locked` 是不同业务状态，不得合并。已确认仍可取消确认或进入锁定；已锁定拒绝普通 mutation，只有 `closing.reopen` 权限且填写原因后才能重开。
+- 关账详情必须并列显示订单数量、已排、已生产、本月关账与累计关账；已生产来自 ScheduleAssignment Projection，不得用已排或关账数量替代。
 
 ### 全局搜索
 
@@ -116,6 +123,8 @@
 - 搜索结果只包含报价列表级身份和导航信息，不包含面辅料、工价、其他费用、估算成本或确认价格。
 - 搜索结果导航继续经过 AppShell 导航回调；当前报价有未保存修改时不得绕过 dirty guard。
 - 最近访问按 `userId` 隔离，只保存非敏感结果投影，不复制 Quote 或 Revision。
+- Quote Center 普通搜索把空格分隔 token 按 AND 组合；以 `/` 开头的结构化条件也按 AND 组合，并可与普通 token 同时使用。
+- `/制作国家` 必须扫描 Quote 下各 PriceVersion 的制作国家快照，不得只读取 Revision 或当前活动版本。
 
 ### Revision 与 PriceVersion
 
@@ -247,8 +256,9 @@
 - 销售合同与成衣分色分码是订单/颜色高权威来源；《面辅料申购统计》是可纠正的 Material Follow-up Source，不得反向覆盖订单品牌、款号、数量或合同交期。
 - MaterialDemand 与 Purchase / Inbound / Shipment / Outbound Event 分离并分别去重；禁止对笛卡尔展开的 raw required/purchase 直接求和。
 - `sourceMaterialDueDate` 是 Source；`expectedMaterialReadyDate` 是 Effective；累计入库数量/日期是 Actual。人工 Effective 在重导入时保留，恢复来源后才重新跟随。
-- `提供方式 = 厂供` 映射为 `actualConsumption = plannedConsumption`；不得映射为供货方式、采购方式或影响采购/入库/齐套/运输。
+- `actualConsumption` 只读取 Excel 中名为“厂供”的实际用量数值列；“提供方式”是另一列，不得把文字 `厂供` 转成计划用量，也不得影响采购、入库、齐套或运输。旧错误快照只有在当前 ImportBatch Raw Snapshot 能证明对应数值时才确定性迁移，否则保持 `null`。
 - 单物料齐套只在累计入库量达到需求量时成立；款式齐套按物料项计数，不跨单位加权。
 - 面料按实际用量（无实际时按计划用量）降序并以源行稳定打平；辅料严格按源行顺序。
 - 逐物料运输复用现有物流基础事实与 Service；实际齐套日优先于 Effective 日期。无排单显示“待排单后计算”；未持久化的 SupplyHub 不得由首个启用仓、名称或唯一路线推断，必须显示“集货仓未设置”。缺 ProductionSite、指定 Route 或 Route TransportMode 分别显示精确原因；只有 Hub + Site 均确定后才按稳定 ID 查路线，可行方式中选择最慢者。
 - 预计到料日人工修改与恢复必须写统一追加式 OperationLog；ImportBatch / Raw Snapshot 只作技术 Trace。
+- 生产排单的物料状态直接消费 Style Progress Projection，不再维护第二套手工物料日期；UI 对生产执行承诺统一使用“拟定交期”。

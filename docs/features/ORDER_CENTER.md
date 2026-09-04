@@ -14,8 +14,11 @@
 - Quote Detail 的“生成订单”允许选择明确的 Quote Revision 与 PriceVersion，并直接生成 SalesOrder；未客户确认只提示，不阻断生成。
 - 草稿通过完整性校验后可确认；交期不足/超额保持提示，不自动调整数量或交期。
 - 页面读取正式排单与关账 Service，展示排单数、已排/完成数量、生产状态、交期风险、累计关账数量与加工产值，并可进入对应中心。“物料与运输”使用统一物流 Projection 展示动态 SupplyHub 到仓、齐套日、实际生产地点、开工日、封样提前期、最晚到厂、推荐方式、预计到厂和风险。
-- 订单中心二级导航统一包含订单列表、款式进度、风险预警和艾诺科同步。订单详情按 `salesContractNo` 查询 StyleProgress Projection，只显示面/辅料齐套、未采购、待入库、运输风险和最晚齐料摘要；Drawer 保持紧凑，完整明细与日期编辑通过 deep link 进入款式进度。
+- 订单中心日常二级导航包含订单列表、款式进度和风险预警；艾诺科同步不再作为日常导航项。订单详情按 `salesContractNo` 查询 StyleProgress Projection，只显示面/辅料齐套、未采购、待入库、运输风险和最晚齐料摘要；Drawer 保持紧凑，完整明细与日期编辑通过 deep link 进入款式进度。
 - Order Detail 不保存第二份 MaterialDemand 或 Event，也不允许款式进度按款号/品牌/数量猜测订单、创建订单或覆盖订单权威字段。
+- 列表可按有效客户交期月份筛选。详情中的销售合同号、工厂款号和来源只读，客户 PO、客户与制作国家不在普通编辑区重复维护。
+- 颜色级部分取消通过 append-only adjustment 保存；来源颜色行不变，Ainuoke 重同步更新来源数量时保留人工取消。
+- 新手工订单的加工币种由系统 `defaultProcessingCurrency` 初始化，当前默认 USD；既有价格版本不随系统默认值变化。
 
 ## Business rules
 
@@ -49,7 +52,7 @@
 - Repository：`features/order-center/repository/order-repository.ts`。
 - 稳定记录名：`sales-orders`，完整 key 为 `zhixu.erp.local.sales-orders`，升级不更换 key。
 - Repository 提供 list/get/save、订单号唯一检查和附件引用检查；保存前验证所有 child owner 与当前价格指针。
-- 浏览器 schema 当前为 v9；v5→v6 只迁移 `sales-orders` payload，后续版本新增独立排单/关账记录并在 v8→v9 提升 Assignment owner，不读取或修改根路径 PostgreSQL `orders/schedules`。
+- 浏览器 schema 当前为 v12；v5→v6 只迁移 `sales-orders` payload，后续版本新增独立排单/关账记录、在 v8→v9 提升 Assignment owner，并在 v12 加入颜色调整与默认加工币种兼容，不读取或修改根路径 PostgreSQL `orders/schedules`。
 
 ## v5 → v6 non-destructive migration
 
