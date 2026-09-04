@@ -23,7 +23,7 @@ export type OutsourceFactory = { id: string; name: string; shortName: string; en
 export type MonthlyProductionTarget = { id: string; month: string; totalProcessingOutputTargetRmb: number | null; internalProcessingOutputTargetRmb: number | null; remark: string; createdAt: string; updatedAt: string };
 export type ClosingSettings = { defaultSalesTaxRatePercent: number; monthlyProductionTargets: MonthlyProductionTarget[] };
 export type OperationsSettingsState = {
-  companyProcessingCurrency: LaborCurrency;
+  defaultProcessingCurrency: LaborCurrency;
   productionGroups: ProductionGroup[];
   outsourceFactories: OutsourceFactory[];
   productionSites: ProductionSite[];
@@ -59,7 +59,7 @@ const defaultModes = (): TransportMode[] => [
 ];
 
 export const defaultOperationsSettings: OperationsSettingsState = {
-  companyProcessingCurrency: "USD", productionGroups: [], outsourceFactories: [], productionSites: defaultSites(), productionCalendars: defaultCalendars(), supplyHubs: defaultHubs(), supplyRoutes: defaultRoutes(), transportModes: defaultModes(),
+  defaultProcessingCurrency: "USD", productionGroups: [], outsourceFactories: [], productionSites: defaultSites(), productionCalendars: defaultCalendars(), supplyHubs: defaultHubs(), supplyRoutes: defaultRoutes(), transportModes: defaultModes(),
   closingSettings: { defaultSalesTaxRatePercent: 13, monthlyProductionTargets: [] },
 };
 
@@ -91,7 +91,12 @@ export function normalizeOperationsSettings(value: unknown, now = new Date().toI
   const routes = unique((Array.isArray(source.supplyRoutes) && source.supplyRoutes.length ? source.supplyRoutes : defaultRoutes()).flatMap((item) => normalizeRoute(item, now) ?? []));
   const modes = unique((Array.isArray(source.transportModes) && source.transportModes.length ? source.transportModes : defaultModes()).flatMap((item) => normalizeMode(item, now) ?? []));
   const targets = unique((Array.isArray(closing.monthlyProductionTargets) ? closing.monthlyProductionTargets : []).flatMap((item) => normalizeTarget(item, now) ?? []));
-  return { companyProcessingCurrency: source.companyProcessingCurrency === "CNY" ? "CNY" : "USD", productionGroups: groups.sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, "zh-CN")), outsourceFactories: factories.sort((a, b) => a.name.localeCompare(b.name, "zh-CN")), productionSites: sites, productionCalendars: calendars, supplyHubs: hubs, supplyRoutes: routes, transportModes: modes.sort((a, b) => a.sortOrder - b.sortOrder), closingSettings: { defaultSalesTaxRatePercent: Math.max(0, finite(closing.defaultSalesTaxRatePercent, 13)), monthlyProductionTargets: targets.sort((a, b) => b.month.localeCompare(a.month)) } };
+  const legacyCurrency = source.defaultProcessingCurrency ?? source.companyProcessingCurrency;
+  return { defaultProcessingCurrency: legacyCurrency === "CNY" ? "CNY" : "USD", productionGroups: groups.sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, "zh-CN")), outsourceFactories: factories.sort((a, b) => a.name.localeCompare(b.name, "zh-CN")), productionSites: sites, productionCalendars: calendars, supplyHubs: hubs, supplyRoutes: routes, transportModes: modes.sort((a, b) => a.sortOrder - b.sortOrder), closingSettings: { defaultSalesTaxRatePercent: Math.max(0, finite(closing.defaultSalesTaxRatePercent, 13)), monthlyProductionTargets: targets.sort((a, b) => b.month.localeCompare(a.month)) } };
+}
+
+export function saveDefaultProcessingCurrency(state: OperationsSettingsState, currency: LaborCurrency): OperationsSettingsState {
+  return normalizeOperationsSettings({ ...state, defaultProcessingCurrency: currency });
 }
 
 export function upsertProductionGroup(state: OperationsSettingsState, input: ProductionGroup, now = new Date().toISOString()): OperationsSettingsState { const existing = state.productionGroups.find((item) => item.id === input.id); const item = { ...input, name: input.name.trim(), shortName: input.shortName.trim(), remark: input.remark.trim(), createdAt: existing?.createdAt ?? input.createdAt ?? now, updatedAt: now }; return normalizeOperationsSettings({ ...state, productionGroups: existing ? state.productionGroups.map((current) => current.id === item.id ? item : current) : [...state.productionGroups, item] }, now); }

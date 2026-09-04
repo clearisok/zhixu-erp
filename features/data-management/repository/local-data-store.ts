@@ -1,6 +1,6 @@
 "use client";
 
-export const LOCAL_DATA_SCHEMA_VERSION = 11 as const;
+export const LOCAL_DATA_SCHEMA_VERSION = 12 as const;
 export const DEFAULT_LOCAL_DATA_NAMESPACE = "zhixu.erp.local";
 export const TEST_LOCAL_DATA_NAMESPACE = "zhixu.erp.test";
 

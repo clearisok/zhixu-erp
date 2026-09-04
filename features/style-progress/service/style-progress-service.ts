@@ -120,7 +120,26 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
 }
 
 export function fabricDisplayOrder(materials: MaterialProgressProjection[]): MaterialProgressProjection[] {
-  return materials.filter((item) => item.demand.materialType === "fabric").sort((left, right) => (right.demand.actualConsumption ?? right.demand.plannedConsumption ?? -Infinity) - (left.demand.actualConsumption ?? left.demand.plannedConsumption ?? -Infinity) || left.demand.sourceSortNo - right.demand.sourceSortNo);
+  return materials.filter((item) => item.demand.materialType === "fabric").sort((left, right) => {
+    const leftActual = left.demand.actualConsumption;
+    const rightActual = right.demand.actualConsumption;
+    if (leftActual !== null && rightActual === null) return -1;
+    if (leftActual === null && rightActual !== null) return 1;
+    const consumptionOrder = leftActual !== null && rightActual !== null
+      ? rightActual - leftActual
+      : (right.demand.plannedConsumption ?? -Infinity) - (left.demand.plannedConsumption ?? -Infinity);
+    return consumptionOrder || left.demand.sourceSortNo - right.demand.sourceSortNo || left.demand.id.localeCompare(right.demand.id);
+  });
 }
 
 export function trimDisplayOrder(materials: MaterialProgressProjection[]): MaterialProgressProjection[] { return materials.filter((item) => item.demand.materialType === "trim").sort((left, right) => left.demand.sourceSortNo - right.demand.sourceSortNo); }
+
+export function normalizeGarmentColorTokens(values: string[]): string[] {
+  return [...new Set(values.flatMap((value) => value.normalize("NFKC").split(/[\/／,，;；、\s]+/).map((item) => item.trim()).filter(Boolean)))];
+}
+
+export function filterMaterialsByGarmentColor(materials: MaterialProgressProjection[], selectedColor: string): MaterialProgressProjection[] {
+  if (selectedColor === "all") return materials;
+  const target = selectedColor.normalize("NFKC").trim();
+  return materials.filter((item) => normalizeGarmentColorTokens(item.demand.garmentColors).includes(target));
+}

@@ -138,7 +138,7 @@ export type OperationLogAction =
   | "手工覆盖代购辅料成本"
   | "导入面辅料跟进"
   | "修改当前预计到料日"
-  | "恢复艾诺科交期";
+  | "恢复拟定交期";
 
 export type OperationLogExportPriceVersionSnapshot = {
   priceVersionId: string;

@@ -81,7 +81,9 @@ function deliveryPlansForOrder(order: SalesOrder, contract: AinuokeContractMirro
 function applyContractToOrder(orderInput: SalesOrder, contract: AinuokeContractMirror, settings: BasicSettingsState, actor: OrderActor, timestamp: string): { order: SalesOrder; quantityChanged: boolean; colorsChanged: boolean } {
   let order = normalizeSalesOrderV10(orderInput);
   const beforeQuantity = getEffectiveQuantity(order);
-  if (beforeQuantity !== contract.quantity) order = changeOrderQuantity(order, { afterQuantity: contract.quantity, changeType: contract.quantity > beforeQuantity ? "increase" : "decrease", reason: `艾诺科同步 ${contract.salesContractNo}`, actor, source: "ainuoke_sync" });
+  const businessAdjustment = order.quantityChanges.filter((change) => change.source !== "ainuoke_sync").reduce((total, change) => total + change.delta, 0);
+  const nextEffectiveQuantity = contract.quantity + businessAdjustment;
+  if (beforeQuantity !== nextEffectiveQuantity) order = changeOrderQuantity(order, { afterQuantity: nextEffectiveQuantity, changeType: nextEffectiveQuantity > beforeQuantity ? "increase" : "decrease", reason: `艾诺科同步 ${contract.salesContractNo}`, actor, source: "ainuoke_sync" });
   const brand = resolveBrandByAlias(settings, contract.brandNormalized || contract.brandRaw);
   const nextColorLines = colorLinesForOrder(order, contract, timestamp);
   const colorsChanged = JSON.stringify(order.orderColorLines.map(({ sourceHash }) => sourceHash).sort()) !== JSON.stringify(nextColorLines.map(({ sourceHash }) => sourceHash).sort());
@@ -109,7 +111,7 @@ function applyContractToOrder(orderInput: SalesOrder, contract: AinuokeContractM
     updatedBy: actor.name,
   };
   order.factorySettlementUnitPrice = calculateFactorySettlementUnitPrice(order);
-  return { order, quantityChanged: beforeQuantity !== contract.quantity, colorsChanged };
+  return { order, quantityChanged: beforeQuantity !== nextEffectiveQuantity, colorsChanged };
 }
 
 function createOrderForContract(contract: AinuokeContractMirror, existingOrders: SalesOrder[], settings: BasicSettingsState, actor: OrderActor, timestamp: string): SalesOrder {

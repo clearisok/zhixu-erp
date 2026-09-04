@@ -157,6 +157,46 @@ export const emptyStyleProgressData = (): StyleProgressData => ({
   outboundEvents: [],
 });
 
+const normalizedText = (value: RawCellValue | undefined): string => String(value ?? "").normalize("NFKC").trim();
+const rawByHeader = (snapshot: MaterialRawSnapshot, names: string[]): RawCellValue | undefined => Object.entries(snapshot.rawFields).find(([key]) => names.some((name) => key.endsWith(`:${name}`)))?.[1];
+const sourceNumber = (value: RawCellValue | undefined): number | null => {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = typeof value === "number" ? value : Number(String(value).replaceAll(",", ""));
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+/** v2 repairs the former “提供方式=厂供 means actual=planned” interpretation from Raw snapshots. */
+export function migrateStyleProgressDataV2(value: StyleProgressData): StyleProgressData {
+  const batchTimestamp = new Map(value.batches.map((batch) => [batch.id, batch.committedAt ?? batch.createdAt ?? ""]));
+  const snapshots = new Map<string, MaterialRawSnapshot[]>();
+  for (const snapshot of value.rawSnapshots) {
+    if (!snapshot.normalizedDemandId) continue;
+    snapshots.set(snapshot.normalizedDemandId, [...(snapshots.get(snapshot.normalizedDemandId) ?? []), snapshot]);
+  }
+  return {
+    ...structuredClone(value),
+    demands: value.demands.map((demand) => {
+      const snapshot = [...(snapshots.get(demand.id) ?? [])].sort((left, right) => {
+        const leftCurrent = left.importBatchId === demand.lastImportBatchId ? 1 : 0;
+        const rightCurrent = right.importBatchId === demand.lastImportBatchId ? 1 : 0;
+        if (leftCurrent !== rightCurrent) return rightCurrent - leftCurrent;
+        const leftSource = left.fileHash === demand.sourceFileHash ? 1 : 0;
+        const rightSource = right.fileHash === demand.sourceFileHash ? 1 : 0;
+        if (leftSource !== rightSource) return rightSource - leftSource;
+        const byBatchTime = (batchTimestamp.get(right.importBatchId) ?? "").localeCompare(batchTimestamp.get(left.importBatchId) ?? "");
+        return byBatchTime || left.sourceRow - right.sourceRow || left.id.localeCompare(right.id);
+      })[0];
+      if (!snapshot) return structuredClone(demand);
+      const actualRaw = rawByHeader(snapshot, ["厂供", "实际用量", "实际单耗"]);
+      const methodRaw = rawByHeader(snapshot, ["提供方式", "供应方式"]);
+      const actualConsumption = sourceNumber(actualRaw);
+      const supplyMethod = methodRaw === undefined ? demand.supplyMethod : normalizedText(methodRaw) || null;
+      if (actualRaw === undefined && methodRaw === undefined) return structuredClone(demand);
+      return { ...structuredClone(demand), actualConsumption, supplyMethod };
+    }),
+  };
+}
+
 export function validateStyleProgressData(value: unknown): StyleProgressData {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("款式进度数据格式无效");
   const source = value as Partial<StyleProgressData>;

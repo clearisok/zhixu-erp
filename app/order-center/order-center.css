@@ -277,6 +277,13 @@
 .oc-cockpit-card span { overflow: hidden; color: #66756e; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .oc-cockpit-primary strong { font-size: 20px; }
 .oc-tabular { font-variant-numeric: tabular-nums; }
+.oc-color-lines .as-table-wrap { max-height: none; overflow-y: visible; }
+.oc-color-adjustments { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px 12px; padding: 12px; border: 1px solid #dfe7e2; border-radius: 10px; background: #f7faf8; }
+.oc-color-adjustments > :is(strong,small) { grid-column: 1 / -1; }
+.oc-color-adjustments > small { color: #6b7a73; }
+.oc-color-change-history { display: grid; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.oc-color-change-history li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 9px; border-radius: 7px; background: #f4f7f5; }
+.oc-color-change-history span { color: #617168; font-variant-numeric: tabular-nums; }
 .oc-cockpit-statuses { grid-template-columns: 1fr 1fr; }
 .oc-cockpit-statuses > small { grid-column: 1 / -1; }
 .oc-cockpit-statuses > span { display: flex; align-items: center; gap: 5px; }
@@ -376,3 +383,8 @@
 .qc-app-shell[data-responsive-mode="mobile"] .oc-create-deliveries > article { align-items: flex-start; }
 .qc-app-shell[data-responsive-mode="mobile"] .oc-create-deliveries > article > div:first-child { grid-template-columns: 1fr; gap: 3px; }
 .qc-app-shell[data-responsive-mode="mobile"] .oc-create-deliveries > article > div:last-child { flex-direction: column; }
+
+@media (max-width: 599px) {
+  .oc-color-adjustments { grid-template-columns: 1fr; }
+  .oc-color-change-history li { align-items: flex-start; flex-direction: column; }
+}

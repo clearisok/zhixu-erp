@@ -116,7 +116,7 @@
 .ps-workspace-toolbar .ps-view-tabs { white-space: nowrap; }
 .ps-compact-group-picker { display: none; }
 .ps-scheduling-master-detail { grid-template-columns: minmax(230px,270px) minmax(0,1fr); align-items: start; }
-.ps-group-master { display: grid; gap: 4px; padding: 6px; border: 1px solid #dae2dd; border-radius: 11px; background: #fff; }
+.ps-group-master { position: sticky; top: 12px; display: grid; gap: 4px; padding: 6px; border: 1px solid #dae2dd; border-radius: 11px; background: #fff; }
 .ps-group-master > button { min-width: 0; display: grid; gap: 5px; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; color: #3e5048; text-align: left; cursor: pointer; }
 .ps-group-master > button:hover,.ps-group-master > button.active { background: #edf5f1; }
 .ps-group-master > button.active { box-shadow: inset 3px 0 #17634e; }
@@ -156,6 +156,8 @@
 .ps-row-more > summary { min-height: 34px; display: grid; place-items: center; border: 1px solid #d8dfdb; border-radius: 7px; background: #fff; color: #315145; cursor: pointer; list-style: none; font-size: 10px; font-weight: 700; }
 .ps-row-more > summary::-webkit-details-marker { display: none; }
 .ps-row-more > div { position: absolute; z-index: 20; top: calc(100% + 4px); right: 0; min-width: 150px; display: grid; gap: 4px; padding: 7px; border: 1px solid #dbe2de; border-radius: 8px; background: #fff; box-shadow: 0 10px 24px rgba(18,48,38,.15); }
+.ps-row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+.ps-row-actions .qc-button { min-height: 32px; padding-inline: 7px; font-size: 10px; }
 
 @media (min-width:1100px) and (max-width:1399px) {
   .ps-scheduling-master-detail { grid-template-columns: 230px minmax(0,1fr); }

@@ -1,9 +1,9 @@
 "use client";
 
-import { emptyStyleProgressData, validateStyleProgressData, type MaterialDemand, type MaterialImportCommitReport, type MaterialImportPreview, type StyleProgressData } from "../model/style-progress.ts";
+import { emptyStyleProgressData, migrateStyleProgressDataV2, validateStyleProgressData, type MaterialDemand, type MaterialImportCommitReport, type MaterialImportPreview, type StyleProgressData } from "../model/style-progress.ts";
 
 const DATABASE_NAME = "zhixu-style-progress";
-const DATABASE_VERSION = 1;
+const DATABASE_VERSION = 2;
 const STORES = {
   batches: "batches",
   rawSnapshots: "raw-snapshots",
@@ -90,7 +90,17 @@ export const styleProgressRepository: StyleProgressRepository = {
       readStore<StyleProgressData["batches"][number]>("batches"), readStore<StyleProgressData["rawSnapshots"][number]>("rawSnapshots"), readStore<MaterialDemand>("demands"),
       readStore<StyleProgressData["purchaseEvents"][number]>("purchaseEvents"), readStore<StyleProgressData["inboundEvents"][number]>("inboundEvents"), readStore<StyleProgressData["shipmentEvents"][number]>("shipmentEvents"), readStore<StyleProgressData["outboundEvents"][number]>("outboundEvents"),
     ]);
-    return validateStyleProgressData({ batches, rawSnapshots, demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents });
+    const current = validateStyleProgressData({ batches, rawSnapshots, demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents });
+    const migrated = migrateStyleProgressDataV2(current);
+    const changed = migrated.demands.filter((demand, index) => demand.actualConsumption !== current.demands[index]?.actualConsumption || demand.supplyMethod !== current.demands[index]?.supplyMethod);
+    if (changed.length) {
+      const database = await openDatabase();
+      const transaction = database.transaction(STORES.demands, "readwrite");
+      const store = transaction.objectStore(STORES.demands);
+      for (const demand of changed) store.put(demand);
+      await transactionComplete(transaction);
+    }
+    return migrated;
   },
   async listDemands() { return readStore<MaterialDemand>("demands"); },
   async listDemandsByContract(salesContractNo) {
@@ -167,7 +177,7 @@ export async function exportStyleProgressData(): Promise<StyleProgressData> {
 }
 
 export async function replaceStyleProgressData(value: StyleProgressData): Promise<void> {
-  const data = validateStyleProgressData(value);
+  const data = migrateStyleProgressDataV2(validateStyleProgressData(value));
   const database = await openDatabase();
   const transaction = database.transaction(Object.values(STORES), "readwrite");
   for (const key of Object.keys(STORES) as StoreKey[]) {

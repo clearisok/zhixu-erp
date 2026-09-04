@@ -5,10 +5,12 @@ import {
   activeDeliveryPlans,
   createOrderId,
   getCurrentPriceVersion,
+  getEffectiveColorQuantity,
   getEffectiveQuantity,
   normalizeOrderNo,
   type DeliveryPlan,
   type OrderPriceVersion,
+  type OrderColorAdjustment,
   type OrderQuantityChangeType,
   type SalesOrder,
 } from "../model/order.ts";
@@ -72,11 +74,11 @@ const emptyStyle = (input: Partial<OrderStyleInput> = {}): OrderStyleInput => ({
   styleImageAttachmentId: input.styleImageAttachmentId ?? null,
 });
 
-export function createManualOrder(input: { header: OrderHeaderInput; style?: Partial<OrderStyleInput>; actor: OrderActor; id?: string; createdAt?: string }): SalesOrder {
+export function createManualOrder(input: { header: OrderHeaderInput; style?: Partial<OrderStyleInput>; actor: OrderActor; defaultProcessingCurrency?: "CNY" | "USD"; id?: string; createdAt?: string }): SalesOrder {
   const timestamp = input.createdAt ?? nowIso();
   const id = input.id ?? createOrderId("sales-order");
   const style = emptyStyle(input.style);
-  const price = createInitialOrderPriceVersion({ salesOrderId: id, salePrice: null, processingUnitPrice: null, processingCurrency: "CNY", exchangeRateSnapshot: null, effectiveDate: input.header.orderDate, reason: "初始订单价格", actor: input.actor, createdAt: timestamp });
+  const price = createInitialOrderPriceVersion({ salesOrderId: id, salePrice: null, processingUnitPrice: null, processingCurrency: input.defaultProcessingCurrency ?? "USD", exchangeRateSnapshot: null, effectiveDate: input.header.orderDate, reason: "初始订单价格", actor: input.actor, createdAt: timestamp });
   return {
     id,
     ...input.header,
@@ -228,7 +230,7 @@ export function createOrderPriceVersion(order: SalesOrder, input: { salePrice: n
   return { ...order, priceVersions: [...order.priceVersions, next], currentPriceVersionId: next.id, updatedAt: timestamp, updatedBy: input.actor.name };
 }
 
-export function changeOrderQuantity(order: SalesOrder, input: { afterQuantity: number; changeType: OrderQuantityChangeType; reason: string; actor: OrderActor; operationId?: string; source?: "manual" | "ainuoke_sync" | "system" }): SalesOrder {
+export function changeOrderQuantity(order: SalesOrder, input: { afterQuantity: number; changeType: OrderQuantityChangeType; reason: string; actor: OrderActor; colorQuantities?: Array<{ colorLineId: string; afterQuantity: number }>; operationId?: string; source?: "manual" | "ainuoke_sync" | "system" }): SalesOrder {
   const beforeQuantity = getEffectiveQuantity(order);
   if (!Number.isFinite(input.afterQuantity) || input.afterQuantity < 0) throw new Error("调整后数量必须大于或等于 0");
   const delta = input.afterQuantity - beforeQuantity;
@@ -236,15 +238,28 @@ export function changeOrderQuantity(order: SalesOrder, input: { afterQuantity: n
   if ((input.changeType === "partial_cancel" || input.changeType === "full_cancel") && !input.reason.trim()) throw new Error("取消数量必须填写原因");
   if ((input.changeType === "increase" && delta < 0) || (input.changeType !== "increase" && delta > 0)) throw new Error("数量变化方向与调整类型不一致");
   if (input.changeType === "full_cancel" && input.afterQuantity !== 0) throw new Error("全部取消后的有效数量必须为 0");
+  const colorAdjustments: OrderColorAdjustment[] = (input.colorQuantities ?? []).map((item) => {
+    const line = order.orderColorLines.find((candidate) => candidate.id === item.colorLineId);
+    if (!line) throw new Error("颜色数量变更引用了不存在的颜色");
+    if (!Number.isFinite(item.afterQuantity) || item.afterQuantity < 0) throw new Error(`${line.colorName} 调整后数量必须大于或等于 0`);
+    const before = getEffectiveColorQuantity(order, line.id);
+    return { colorLineId: line.id, colorNameSnapshot: line.colorName, beforeQuantity: before, afterQuantity: item.afterQuantity, delta: item.afterQuantity - before };
+  }).filter((item) => item.delta !== 0);
+  if (new Set(colorAdjustments.map((item) => item.colorLineId)).size !== colorAdjustments.length) throw new Error("同一颜色不能重复调整");
+  const isCancellation = input.changeType === "partial_cancel" || input.changeType === "full_cancel";
+  if (isCancellation && order.orderColorLines.length && !input.colorQuantities?.length) throw new Error("分色订单取消时必须填写各颜色调整后数量");
+  if (colorAdjustments.length && colorAdjustments.reduce((total, item) => total + item.delta, 0) !== delta) throw new Error("各颜色数量变化合计必须等于订单数量变化");
+  if (input.changeType === "full_cancel" && order.orderColorLines.some((line) => (input.colorQuantities ?? []).find((item) => item.colorLineId === line.id)?.afterQuantity !== 0)) throw new Error("全部取消时各颜色有效数量必须为 0");
   const timestamp = nowIso();
-  const change = { id: createOrderId("quantity-change"), salesOrderId: order.id, beforeQuantity, afterQuantity: input.afterQuantity, delta, changeType: input.changeType, reason: input.reason.trim(), createdAt: timestamp, createdBy: input.actor.name, source: input.source ?? "manual" };
+  const change = { id: createOrderId("quantity-change"), salesOrderId: order.id, beforeQuantity, afterQuantity: input.afterQuantity, delta, changeType: input.changeType, reason: input.reason.trim(), createdAt: timestamp, createdBy: input.actor.name, source: input.source ?? "manual", colorAdjustments: colorAdjustments.length ? colorAdjustments : undefined };
   return { ...order, quantityChanges: [...order.quantityChanges, change], updatedAt: timestamp, updatedBy: input.actor.name };
 }
 
 export function cancelOrder(order: SalesOrder, reason: string, actor: OrderActor): SalesOrder {
   if (!reason.trim()) throw new Error("取消整张订单必须填写原因");
   const quantity = getEffectiveQuantity(order);
-  const next = quantity > 0 ? changeOrderQuantity(order, { afterQuantity: 0, changeType: "full_cancel", reason, actor }) : structuredClone(order);
+  const colorQuantities = order.orderColorLines.map((line) => ({ colorLineId: line.id, afterQuantity: 0 }));
+  const next = quantity > 0 ? changeOrderQuantity(order, { afterQuantity: 0, changeType: "full_cancel", reason, actor, colorQuantities }) : structuredClone(order);
   return { ...next, status: "cancelled", updatedAt: nowIso(), updatedBy: actor.name };
 }
 

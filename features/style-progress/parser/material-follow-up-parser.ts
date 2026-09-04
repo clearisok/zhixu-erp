@@ -43,8 +43,8 @@ export async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
 
-function splitGarmentColors(value: unknown): string[] {
-  return [...new Set(normalizeText(value).split(/[,，;；]+/).map((item) => item.trim()).filter(Boolean))];
+export function splitGarmentColors(value: unknown): string[] {
+  return [...new Set(normalizeText(value).split(/[\/／,，;；、\s]+/).map((item) => item.trim()).filter(Boolean))];
 }
 
 type ParsedRow = { sourceRow: number; values: unknown[]; get: (column: number) => unknown };
@@ -83,6 +83,12 @@ export async function parseMaterialFollowUpWorkbook(input: { buffer: ArrayBuffer
   const headers = Array.from({ length: sheet.columnCount }, (_, index) => normalizeText(headerRow.getCell(index + 1).value));
   for (const required of REQUIRED_HEADERS) if (!headers.includes(required)) throw new Error(`缺少必需列：${required}`);
   const fileHash = await sha256Hex(input.buffer);
+  const columnFor = (...names: string[]): number | null => {
+    const index = headers.findIndex((header) => names.includes(header));
+    return index < 0 ? null : index + 1;
+  };
+  const actualConsumptionColumn = columnFor("厂供", "实际用量", "实际单耗");
+  const supplyMethodColumn = columnFor("提供方式", "供应方式");
   const now = input.now ?? new Date().toISOString();
   const batchId = `material-import-${fileHash.toLocaleLowerCase()}`;
   const batch: MaterialImportBatch = {
@@ -120,12 +126,13 @@ export async function parseMaterialFollowUpWorkbook(input: { buffer: ArrayBuffer
     batch.validRowCount += 1;
     const sourceDue = dateValue(row.get(32));
     if (!demands.has(demandId)) {
-      const provided = normalizeText(row.get(23));
       const plannedConsumption = numberValue(row.get(16));
+      const supplyMethod = supplyMethodColumn ? normalizeText(row.get(supplyMethodColumn)) || null : null;
+      const actualConsumption = actualConsumptionColumn ? numberValue(row.get(actualConsumptionColumn)) : null;
       demands.set(demandId, {
         id: demandId, salesContractNo, materialType: type, materialCode: normalizeText(row.get(13)), materialName: normalizeText(row.get(14)), sourceActualName: normalizeText(row.get(15)),
-        materialColor: normalizeText(row.get(21)), garmentColors: splitGarmentColors(row.get(9)), specification: normalizeText(row.get(22)), supplyMethod: provided === "厂供" ? null : provided || null,
-        garmentQuantity: numberValue(row.get(10)), plannedConsumption, actualConsumption: provided === "厂供" ? plannedConsumption : null, lossRate: numberValue(row.get(17)), totalConsumption: numberValue(row.get(18)), width: normalizeText(row.get(19)), gsm: normalizeText(row.get(20)),
+        materialColor: normalizeText(row.get(21)), garmentColors: splitGarmentColors(row.get(9)), specification: normalizeText(row.get(22)), supplyMethod,
+        garmentQuantity: numberValue(row.get(10)), plannedConsumption, actualConsumption, lossRate: numberValue(row.get(17)), totalConsumption: numberValue(row.get(18)), width: normalizeText(row.get(19)), gsm: normalizeText(row.get(20)),
         requiredQuantity, sampleQuantity: numberValue(row.get(25)), sourceMaterialDueDate: sourceDue, expectedMaterialReadyDate: sourceDue, expectedDateSource: "source", sourceSortNo: sourceRow,
         sourceStyleNoSnapshot: normalizeText(row.get(1)), sourceFactoryStyleNoSnapshot: normalizeText(row.get(8)), sourceBrandSnapshot: normalizeText(row.get(5)), sourceOwnerSnapshot: normalizeText(row.get(7)) || normalizeText(row.get(6)), sourceCustomerSnapshot: normalizeText(row.get(11)), sourceOrderQuantitySnapshot: numberValue(row.get(10)), sourceContractDeliveryDateSnapshot: dateValue(row.get(12)),
         lastImportBatchId: batchId, sourceFileHash: fileHash, createdAt: now, updatedAt: now,

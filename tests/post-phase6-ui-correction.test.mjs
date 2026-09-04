@@ -94,7 +94,7 @@ test("Correction: Order Detail preserves one cockpit and consumes the full conte
     read("app/order-center/order-center.css"),
   ]);
   const workspaceIndex = source.indexOf('className="oc-order-workspace"');
-  const detail = source.slice(source.lastIndexOf("return <AppShell", workspaceIndex), source.indexOf("const creationIssues", workspaceIndex));
+  const detail = source.slice(source.lastIndexOf("function OrderEditor", workspaceIndex), source.indexOf("const creationIssues", workspaceIndex));
   assert.equal((detail.match(/<AppShell/g) ?? []).length, 1);
   assert.equal((detail.match(/<Workspace/g) ?? []).length, 1);
   assert.equal((detail.match(/id="order-overview"/g) ?? []).length, 1);

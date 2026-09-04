@@ -38,7 +38,7 @@ test("Phase 3 队列压缩为业务组合列并提供移动卡语义", async () 
   assert.match(source, /queuePhase === "当前"/);
   assert.match(source, /queuePhase === "已完成"/);
   assert.match(source, /结束生产/);
-  assert.match(source, /variant="danger" permission="schedule.complete"/);
+  assert.match(source, /variant="danger"[\s\S]*?permission="schedule\.complete"/);
 });
 
 test("Phase 3 页面不建立第二个主纵向滚动容器", async () => {

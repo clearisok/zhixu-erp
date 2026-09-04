@@ -13,6 +13,7 @@ import {
   getCurrentPriceVersion,
   getDeliveryBalanceStatus,
   getDeliveryPlannedQuantity,
+  getEffectiveColorQuantity,
   getEffectiveQuantity,
   orderReferencesAttachment,
   validateOrderCollection,
@@ -195,10 +196,10 @@ test("v5→v6 Repository 升级稳定 key、幂等且迁移异常不覆盖 sales
   storage.setItem(key, JSON.stringify({ schemaVersion: 5, initializedAt: timestamp, updatedAt: timestamp, data: legacy }));
   const store = createStore(storage, namespace);
   const migrated = await createOrderRepository(store).list();
-  assert.equal(LOCAL_DATA_SCHEMA_VERSION, 11);
+  assert.equal(LOCAL_DATA_SCHEMA_VERSION, 12);
   assert.equal(migrated[0].id, "order-stable");
-  assert.equal(JSON.parse(storage.getItem(`${namespace}.manifest`)).schemaVersion, 11);
-  assert.equal(JSON.parse(storage.getItem(key)).schemaVersion, 11);
+  assert.equal(JSON.parse(storage.getItem(`${namespace}.manifest`)).schemaVersion, 12);
+  assert.equal(JSON.parse(storage.getItem(key)).schemaVersion, 12);
   const firstRaw = storage.getItem(key);
   assert.deepEqual(await createOrderRepository(store).list(), migrated);
   assert.equal(storage.getItem(key), firstRaw);
@@ -290,6 +291,70 @@ test("数量、部分取消、全部取消与商务状态保持 append-only", ()
   assert.equal(cancelled.quantityChanges.at(-1).delta, -60);
   assert.throws(() => cancelOrder(order, " ", actor), /原因/);
   assert.throws(() => changeOrderQuantity(order, { afterQuantity: 0, changeType: "partial_cancel", reason: "", actor }), /原因/);
+});
+
+test("分色取消保持来源数量不变、逐次 append-only 且总量始终一致", () => {
+  let order = manualOrder("SO-COLOR");
+  order.salesContractNo = "PI-COLOR";
+  order.orderColorLines = [
+    { id: "color-black", salesOrderId: order.id, salesContractNo: "PI-COLOR", colorName: "黑色", quantity: 60, deliveryDate: null, source: "ainuoke_sync", sourceHash: "black-60", createdAt: timestamp, updatedAt: timestamp },
+    { id: "color-white", salesOrderId: order.id, salesContractNo: "PI-COLOR", colorName: "白色", quantity: 40, deliveryDate: null, source: "ainuoke_sync", sourceHash: "white-40", createdAt: timestamp, updatedAt: timestamp },
+  ];
+  const sourceLines = structuredClone(order.orderColorLines);
+  order = changeOrderQuantity(order, { afterQuantity: 70, changeType: "partial_cancel", reason: "客户取消分色", actor, colorQuantities: [{ colorLineId: "color-black", afterQuantity: 50 }, { colorLineId: "color-white", afterQuantity: 20 }] });
+  order = changeOrderQuantity(order, { afterQuantity: 60, changeType: "partial_cancel", reason: "第二次取消", actor, colorQuantities: [{ colorLineId: "color-black", afterQuantity: 45 }, { colorLineId: "color-white", afterQuantity: 15 }] });
+  assert.deepEqual(order.orderColorLines, sourceLines);
+  assert.deepEqual(order.quantityChanges.map((change) => change.colorAdjustments?.map((item) => item.delta)), [[-10, -20], [-5, -5]]);
+  assert.equal(getEffectiveColorQuantity(order, "color-black"), 45);
+  assert.equal(getEffectiveColorQuantity(order, "color-white"), 15);
+  assert.equal(getEffectiveQuantity(order), 60);
+  assert.doesNotThrow(() => validateOrderCollection([order]));
+  assert.throws(() => changeOrderQuantity(order, { afterQuantity: 50, changeType: "partial_cancel", reason: "不一致", actor, colorQuantities: [{ colorLineId: "color-black", afterQuantity: 40 }, { colorLineId: "color-white", afterQuantity: 5 }] }), /合计必须等于/);
+  const cancelled = cancelOrder(order, "整单取消", actor);
+  assert.deepEqual(cancelled.orderColorLines, sourceLines);
+  assert.equal(getEffectiveColorQuantity(cancelled, "color-black"), 0);
+  assert.equal(getEffectiveColorQuantity(cancelled, "color-white"), 0);
+  assert.equal(getEffectiveQuantity(cancelled), 0);
+  assert.equal(cancelled.quantityChanges.length, 3);
+});
+
+test("分色调整通过 Repository 与 raw backup/restore 完整保留", async () => {
+  let order = manualOrder("SO-COLOR-BACKUP");
+  order.salesContractNo = "PI-COLOR-BACKUP";
+  order.orderColorLines = [{ id: "color-blue", salesOrderId: order.id, salesContractNo: order.salesContractNo, colorName: "蓝色", quantity: 100, deliveryDate: null, source: "ainuoke_sync", sourceHash: "blue-100", createdAt: timestamp, updatedAt: timestamp }];
+  order = changeOrderQuantity(order, { afterQuantity: 75, changeType: "partial_cancel", reason: "取消蓝色", actor, colorQuantities: [{ colorLineId: "color-blue", afterQuantity: 75 }] });
+  const sourceStore = createStore(new MemoryStorage(), "zhixu.erp.color-backup-source");
+  await createOrderRepository(sourceStore).save(order);
+  const restoredStore = createStore(new MemoryStorage(), "zhixu.erp.color-backup-target");
+  const records = sourceStore.getRawRecords();
+  const remapped = Object.fromEntries(Object.entries(records).map(([key, value]) => [key.replace("zhixu.erp.color-backup-source", "zhixu.erp.color-backup-target"), value]));
+  restoredStore.replaceRawRecords(remapped);
+  const restored = await createOrderRepository(restoredStore).getById(order.id);
+  assert.deepEqual(restored.orderColorLines, order.orderColorLines);
+  assert.deepEqual(restored.quantityChanges[0].colorAdjustments, order.quantityChanges[0].colorAdjustments);
+  assert.equal(getEffectiveColorQuantity(restored, "color-blue"), 75);
+});
+
+test("公司默认加工币种只初始化新手工订单，不回写既有价格版本", () => {
+  const usd = createManualOrder({ header: header("SO-USD"), actor, id: "order-usd", createdAt: timestamp });
+  const cny = createManualOrder({ header: header("SO-CNY"), actor, defaultProcessingCurrency: "CNY", id: "order-cny", createdAt: timestamp });
+  assert.equal(getCurrentPriceVersion(usd).processingCurrency, "USD");
+  assert.equal(getCurrentPriceVersion(cny).processingCurrency, "CNY");
+  const snapshot = structuredClone(cny.priceVersions);
+  createManualOrder({ header: header("SO-USD-2"), actor, defaultProcessingCurrency: "USD", id: "order-usd-2", createdAt: timestamp });
+  assert.deepEqual(cny.priceVersions, snapshot);
+});
+
+test("订单 UI 按合同交期月份筛选并把艾诺科身份字段保持只读", async () => {
+  const source = await readFile(new URL("../features/order-center/components/order-pages.tsx", import.meta.url), "utf8");
+  assert.match(source, /order\.contractDeliveryDate\?\.slice\(0, 7\) === deliveryMonth/);
+  assert.doesNotMatch(source, /order\.businessConfirmedDeliveryDate\?\.slice\(0, 7\) === deliveryMonth/);
+  for (const field of ["销售合同号", "工厂款号", "订单来源", "客户 / PO", "制作国家"]) assert.match(source, new RegExp(field));
+  assert.match(source, /DescriptionList/);
+  assert.match(source, /交期计划与数量历史/);
+  assert.match(source, /defaultProcessingCurrency/);
+  assert.match(source, /beforeValues:\s*\{\s*有效数量: beforeQuantity,\s*\.\.\.colorBeforeValues\s*\}/);
+  assert.match(source, /afterValues:\s*\{\s*有效数量: 0,\s*\.\.\.colorAfterValues\s*\}/);
 });
 
 test("DeliveryPlan 直接属于 SalesOrder，多交期与数量变化保持隔离", () => {
