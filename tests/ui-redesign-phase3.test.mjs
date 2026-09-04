@@ -27,7 +27,8 @@ test("Phase 3 数量与价格历史保持只读并进入 Drawer", async () => {
 test("Phase 3 排单使用生产组 MasterDetail 并明确数量语义", async () => {
   const source = await read("features/production-scheduling/components/production-scheduling-page.tsx");
   assert.match(source, /<MasterDetail/);
-  for (const label of ["总计", "当前", "待产", "完成", "队尾日期", "正式异常"]) assert.match(source, new RegExp(label));
+  for (const label of ["当前", "待产", "队尾", "异常 / 物流"]) assert.match(source, new RegExp(label));
+  assert.doesNotMatch(source, /title="组内执行摘要"/);
   assert.match(source, /无 QA 14 组/);
   assert.match(source, /Number\(left\[1\]\) - Number\(right\[1\]\)/);
 });
@@ -47,6 +48,6 @@ test("Phase 3 页面不建立第二个主纵向滚动容器", async () => {
     read("app/production-scheduling/production-scheduling.css"),
   ]);
   assert.match(orderCss, /Delivery Phase 3: order cockpit/);
-  assert.match(scheduleCss, /ps-group-queue \.ps-queue-table-wrap[^}]*overflow-x:\s*auto[^}]*overflow-y:\s*hidden/s);
-  assert.match(scheduleCss, /ps-group-queue \.ps-queue-table[^}]*min-width:\s*860px/);
+  assert.match(scheduleCss, /ps-group-queue \.ps-queue-table-wrap[^}]*overflow:\s*visible/s);
+  assert.match(scheduleCss, /ps-group-queue \.ps-queue-table[^}]*min-width:\s*0/s);
 });

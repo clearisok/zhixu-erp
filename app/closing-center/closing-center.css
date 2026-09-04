@@ -217,7 +217,7 @@
     minmax(210px, 1.35fr) minmax(105px, 0.8fr) repeat(5, minmax(82px, 0.55fr))
     minmax(215px, 1.2fr);
   align-items: center;
-  min-width: 1070px;
+  min-width: 0;
   min-height: 64px;
   padding: 0 18px;
   border-top: 1px solid #e5eae7;

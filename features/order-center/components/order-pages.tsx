@@ -124,6 +124,7 @@ export const ORDER_LIST_DEFAULT_COLUMN_WIDTHS: Record<string, number> = {
   updatedAt: 120,
   action: 108,
 };
+export const ORDER_LIST_DEFAULT_COLUMN_ORDER = Object.keys(ORDER_LIST_DEFAULT_COLUMN_WIDTHS);
 
 export function OrderCenterPage() {
   const router = useRouter();
@@ -143,6 +144,7 @@ export function OrderCenterPage() {
     moduleKey: "order-center",
     tableKey: "order-center.order-list",
     columnWidths: ORDER_LIST_DEFAULT_COLUMN_WIDTHS,
+    columnOrder: ORDER_LIST_DEFAULT_COLUMN_ORDER,
   });
   const loadOrders = () => {
     setLoading(true);
@@ -190,6 +192,7 @@ export function OrderCenterPage() {
           "order-center",
           "order-center.order-list",
           ORDER_LIST_DEFAULT_COLUMN_WIDTHS,
+          ORDER_LIST_DEFAULT_COLUMN_ORDER,
         ),
       ),
     );
@@ -526,6 +529,10 @@ export function OrderCenterPage() {
             onRowActivate={openOrder}
             renderRecord={renderOrderRecord}
             ariaLabel="订单中心列表"
+            moduleKey="order-center"
+            tableKey="order-center.order-list"
+            tablePreference={tablePreference}
+            onTablePreferenceChange={setTablePreference}
             empty={
               <EmptyState
                 title="没有匹配的订单"
@@ -545,6 +552,7 @@ export function OrderCenterPage() {
                 currentUser.id,
                 tablePreference,
                 ORDER_LIST_DEFAULT_COLUMN_WIDTHS,
+                ORDER_LIST_DEFAULT_COLUMN_ORDER,
               ),
             );
             setSettingsOpen(false);
@@ -557,6 +565,7 @@ export function OrderCenterPage() {
                   setTablePreference({
                     ...tablePreference,
                     columnWidths: ORDER_LIST_DEFAULT_COLUMN_WIDTHS,
+                    columnOrder: ORDER_LIST_DEFAULT_COLUMN_ORDER,
                   })
                 }
               >
@@ -1134,10 +1143,10 @@ function OrderEditor({
               closingProjection.status === "partially_closed"
             ? "查看关账"
             : "查看执行记录";
+    const ainuokeBound = order.sourceType === "ainuoke" || order.creationSource === "ainuoke" || Boolean(order.salesContractNo);
     const sections = [
       { id: "order-overview", label: "概览" },
       { id: "order-business", label: "商务资料" },
-      { id: "order-delivery", label: "数量与交期" },
       { id: "order-production", label: "生产执行" },
       { id: "order-material", label: "物料 / 物流" },
       { id: "order-price", label: "价格 / 关账" },
@@ -1169,14 +1178,10 @@ function OrderEditor({
                     <>
                       <strong>{order.styleName || "未填写款式名称"}</strong>
                       <span>
-                        {order.customerNameSnapshot || "未填写客户"}
-                        {order.brandNameSnapshot
-                          ? ` · ${order.brandNameSnapshot}`
-                          : ""}
+                        {order.brandNameSnapshot || "未填写品牌"} · {order.salespersonNameSnapshot || "未填写业务员"}
                       </span>
                       <small>
-                        {order.orderNo} · {sourceLabel[order.sourceType]} ·
-                        只读系统编号
+                        {order.salesContractNo || "无销售合同号"} · {order.orderNo} · {sourceLabel[order.sourceType]} · 只读系统编号
                       </small>
                     </>
                   }
@@ -1278,54 +1283,27 @@ function OrderEditor({
               >
                 <Card className="oc-cockpit-card">
                   <div className="oc-cockpit-primary">
-                    <small>款式 / 订单</small>
-                    <strong>{order.styleNo || "—"}</strong>
-                    <span>{order.orderNo}</span>
-                  </div>
-                  <div>
-                    <small>客户 / PO</small>
-                    <strong>{order.customerNameSnapshot || "—"}</strong>
-                    <span>{order.customerPoNo || "—"}</span>
-                  </div>
-                  <div>
                     <small>有效数量</small>
-                    <strong className="oc-tabular">
-                      {getEffectiveQuantity(order).toLocaleString("zh-CN")}
-                    </strong>
-                    <span>
-                      原始 {order.initialQuantity.toLocaleString("zh-CN")}
-                    </span>
+                    <strong className="oc-tabular">{getEffectiveQuantity(order).toLocaleString("zh-CN")}</strong>
+                    <span>原始 {order.initialQuantity.toLocaleString("zh-CN")}</span>
                   </div>
                   <div>
-                    <small>客户交期</small>
-                    <strong>
-                      {getOrderLatestDeliveryDate(order) ?? "未安排"}
-                    </strong>
-                    <span>
-                      最近 {getOrderNearestDeliveryDate(order) ?? "—"}
-                    </span>
+                    <small>合同交期</small>
+                    <strong>{order.contractDeliveryDate ?? "未安排"}</strong>
+                    <span>业务确认 {order.businessConfirmedDeliveryDate ?? "—"}</span>
                   </div>
                   <div className="oc-cockpit-statuses">
-                    <small>执行状态</small>
-                    <span>
-                      <b>订单</b>
-                      {statusLabel[order.status]}
-                    </span>
+                    <small>生产状态</small>
                     <span>
                       <b>生产</b>
                       {productionLabels[scheduleProjection.productionStatus]}
-                    </span>
-                    <span>
-                      <b>关账</b>
-                      {closingLabels[closingProjection.status]}
                     </span>
                   </div>
                   <div className="oc-next-action">
                     <small>下一步</small>
                     <strong>{nextAction}</strong>
                     <span>
-                      {activeAssignments.length} 条排单 ·{" "}
-                      {activeDeliveryPlans(order).length} 条客户交期
+                      {activeAssignments.length} 条排单 · {statusLabel[order.status]}
                     </span>
                   </div>
                 </Card>
@@ -1374,6 +1352,11 @@ function OrderEditor({
                         value: sourceLabel[order.creationSource],
                       },
                       {
+                        key: "systemOrder",
+                        label: "系统订单号",
+                        value: order.orderNo,
+                      },
+                      {
                         key: "customer",
                         label: "客户 / PO",
                         value: `${order.customerNameSnapshot || "—"} / ${order.customerPoNo || "—"}`,
@@ -1387,6 +1370,7 @@ function OrderEditor({
                   />
                   <fieldset disabled={readOnly}>
                     <div className="oc-business-grid">
+                      {!ainuokeBound && <>
                       <FormItem label="款号" required>
                         <input
                           className="qc-control"
@@ -1441,14 +1425,7 @@ function OrderEditor({
                           }
                         />
                       </FormItem>
-                      <FormItem label="合同交期">
-                        <input
-                          type="date"
-                          className="qc-control"
-                          value={order.contractDeliveryDate ?? ""}
-                          readOnly
-                        />
-                      </FormItem>
+                      </>}
                       <FormItem label="业务确认交期">
                         <input
                           type="date"
@@ -1474,7 +1451,7 @@ function OrderEditor({
                           }
                         />
                       </FormItem>
-                      <FormItem label="业务员">
+                      {!ainuokeBound && <FormItem label="业务员">
                         <input
                           className="qc-control"
                           value={order.salespersonNameSnapshot}
@@ -1484,7 +1461,7 @@ function OrderEditor({
                             })
                           }
                         />
-                      </FormItem>
+                      </FormItem>}
                       <FormItem label="理单员">
                         <input
                           className="qc-control"
@@ -1521,6 +1498,8 @@ function OrderEditor({
                 </Card>
               </section>
 
+              {!ainuokeBound && <details className="oc-secondary-history">
+                <summary>维护数量与交期（手工 / 历史订单）</summary>
               <section
                 id="order-delivery"
                 className="oc-work-section oc-scroll-anchor"
@@ -1656,6 +1635,7 @@ function OrderEditor({
                   </Card>
                 </div>
               </section>
+              </details>}
 
               {order.orderColorLines.length > 0 && (
                 <section className="oc-work-section oc-color-lines">

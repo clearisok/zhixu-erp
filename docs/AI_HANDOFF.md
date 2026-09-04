@@ -15,7 +15,7 @@
 
 ## Current Active Task
 
-2026-09-04 Second Acceptance Correction 正在 PR #3 的同一分支实施；Gate D/E 已进入验证，Gate F 尚待独立收口。不得把候选阶段描述为已启动。
+2026-09-04 Second Acceptance Correction 的 Gate D/E/F 与自动门禁已完成；Gate D/E checkpoint 为 `3b8f69b`。PR #3 保持未合并，当前只等待用户在真实 1229×691 CSS 环境进行最终视觉复验。不得把候选阶段描述为已启动。
 
 ## Do Not Reopen
 

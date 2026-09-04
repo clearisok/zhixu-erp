@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-044 业务表格采用 Fit-first 个人布局，工作台身份信息去重
+
+- 日期：2026-09-04
+- 决定：正式 `DataTable` 的列宽与稳定列顺序按 `User + Table` 保存；旧 width-only 偏好向前迁移，删除列忽略、新列按默认顺序追加。Preferred Width 参与可用宽度比例 fit，不得把主业务列表的横向滚动当作默认交互。
+- 决定：Desktop Sidebar 支持按用户保存的展开/折叠；基础设置与系统设置菜单只因用户动作打开，pathname 只负责高亮并在切换时关闭临时菜单。
+- 决定：订单 Header 负责身份，Summary 只保留有效数量、合同交期、生产状态与下一步；正式 Ainuoke Order 不提供普通数量/合同交期覆盖入口。生产排单移除重复摘要与大异常 Banner，组选择器压缩后固定在 AppShell 唯一主滚动的顶栏下方。
+- 边界：报价成本录入矩阵、关账分组汇总、Ainuoke 对照表和附件表等具有固定业务语义的自定义表不允许任意重排；它们仍须 fit-first 或使用窄屏 Record/Card，不能用隐藏 scrollbar 伪装溢出。
+- 证据：`components/foundation/data-table.tsx`、`table-preference.ts`、`sidebar-preference.ts`、Quote/Order/Production/Closing UI、Second Acceptance tests 与截图目录。
+
 ### D-042 关账归属保存月度事实快照，锁定后只允许有原因地重开
 
 - 日期：2026-08-28

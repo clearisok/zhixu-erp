@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  AlertBanner,
   AppShell,
   Button,
   Card,
@@ -779,9 +778,6 @@ export function ProductionSchedulingPage() {
                   const currentOrder = orders.find(
                     (order) => order.id === summary.current?.salesOrderId,
                   );
-                  const completed = summary.assignments.filter(
-                    (item) => item.status === "completed",
-                  ).length;
                   return (
                     <button
                       type="button"
@@ -801,24 +797,7 @@ export function ProductionSchedulingPage() {
                         )}
                       </header>
                       <span>当前 {currentOrder?.styleNo ?? "待排"}</span>
-                      <dl>
-                        <div>
-                          <dt>总计</dt>
-                          <dd>{summary.assignments.length}</dd>
-                        </div>
-                        <div>
-                          <dt>当前</dt>
-                          <dd>{summary.current ? 1 : 0}</dd>
-                        </div>
-                        <div>
-                          <dt>待产</dt>
-                          <dd>{summary.pendingCount}</dd>
-                        </div>
-                        <div>
-                          <dt>完成</dt>
-                          <dd>{completed}</dd>
-                        </div>
-                      </dl>
+                      <b className="ps-group-pending">待产 {summary.pendingCount}</b>
                       <small>队尾 {summary.tailDate ?? "—"}</small>
                     </button>
                   );
@@ -852,54 +831,6 @@ export function ProductionSchedulingPage() {
                       {selectedGroup.tailDate ?? "—"}
                     </small>
                   </header>
-                  {selectedGroup.anomalyCount > 0 && (
-                    <AlertBanner
-                      tone="warning"
-                      title={`${selectedGroup.group.name} 有 ${selectedGroup.anomalyCount} 条正式异常`}
-                    >
-                      异常与普通状态分开显示，详情见队列“异常 / 物流”列。
-                    </AlertBanner>
-                  )}
-                  <ContextSummary
-                    title="组内执行摘要"
-                    items={[
-                      {
-                        key: "total",
-                        label: "总排单",
-                        value: selectedGroup.assignments.length,
-                      },
-                      {
-                        key: "current",
-                        label: "当前",
-                        value: selectedGroup.current ? 1 : 0,
-                      },
-                      {
-                        key: "pending",
-                        label: "待生产",
-                        value: selectedGroup.pendingCount,
-                      },
-                      {
-                        key: "completed",
-                        label: "已完成",
-                        value: selectedGroup.assignments.filter(
-                          (item) => item.status === "completed",
-                        ).length,
-                      },
-                      {
-                        key: "tail",
-                        label: "队尾日期",
-                        value: selectedGroup.tailDate ?? "—",
-                      },
-                      {
-                        key: "exception",
-                        label: "正式异常",
-                        value: selectedGroup.anomalyCount,
-                        tone: selectedGroup.anomalyCount
-                          ? "warning"
-                          : "default",
-                      },
-                    ]}
-                  />
                   <div className="ps-queue-table-wrap">
                     <table className="ps-queue-table">
                       <thead>

@@ -1,12 +1,13 @@
 # 当前状态
 
-> 状态快照：2026-09-04。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-05。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
 - 当前分支：`fix/full-ui-workflow-correction`
-- 本轮起点：`65a0cac20991f0c6c2550ddbc7bcd9924377f065`
-- 2026-09-01 Full UI / Workflow Correction 已完成 Gate A、Gate B、Gate C；当前没有仍在实施的业务 Gate。
+- 当前 PR：#3 `fix: complete full UI workflow correction`，保持未合并，等待用户最终视觉复验。
+- 2026-09-04 Second Acceptance Correction 已完成 Gate D、Gate E、Gate F；第一检查点 commit `3b8f69b27fdd54bc2de900859179f252f5f1aa8a`。
+- 2026-09-01 Full UI / Workflow Correction 已完成 Gate A、Gate B、Gate C，没有重新实施。
 - Gate A：Foundation + Quote + 必要 Master Data Correction，commit `367983925f8e9236a701a71781054f6baaf65e78`，PASS。
 - Gate B：Order + Production + Style Progress，commit `9098f903f9d76ff647dcebacbde46ce7ebfe0de4`，PASS。
 - Gate C：Closing Center，commit `be464c6476c8a6b596f26229d0022481ffb0fb2b`，PASS。
@@ -44,12 +45,21 @@
 - `confirmed` 与 `locked` 保持不同状态；锁定后普通编辑被拒绝，高权限重开必须填写原因。
 - Modal 内校验错误通过独立高层 Error Layer 展示，不被遮挡。
 
+### Second Acceptance — Gate D/E/F
+
+- `DataTable` 的列宽与稳定列顺序按用户/表保存；旧 width-only 与旧 Quote `style` 偏好非破坏迁移，新增列追加、删除列忽略。
+- 主业务列表改为 fit-first；Quote 最大字段、Order、Style Progress、Production Queue、Basic Settings 与 Closing Detail 的代表容器均不依赖局部横向滚动。
+- Desktop Sidebar 支持 186px/78px 主动切换并按用户持久化；Basic/System 菜单默认关闭，路由切换不自动展开。
+- Quote 款式图/款式身份独立可排序，列表组合信息密度、单行“更多”和详情高价值 Sticky 已完成。
+- Order Detail 完成身份/客户 PO 去重；正式 Ainuoke Order 不再暴露常驻数量/合同交期人工覆盖模块，但历史 Domain、日志和备份保持不变。
+- Production 移除重复 Banner/摘要，组选择项只保留待产指标与必要身份；选择面板在 AppShell 主滚动中固定于顶栏下方且没有独立滚动。
+
 ## 验证状态
 
-- Gate A、Gate B、Gate C 的 relevant tests、full tests、typecheck、lint、build 与 `git diff --check` 均已分别通过。
-- Gate C 完成时 full tests 为 447/447；最终文档提交前仍需以最终回归结果为准。
-- Browser QA 已覆盖 1600、1280、1229、960、768、402 六档宽度；代表页面无 document-level 横向溢出，unexpected console error 为 0。
-- 本轮 13 张截图保存在 `docs/ui-redesign/screenshots/full-ui-2026-09-01/`，未覆盖 Legacy Audit。
+- Second Acceptance relevant tests 17/17、full tests 455/455、typecheck、lint 与 build 均通过；`git diff --check` 在提交前执行。
+- 应用内 Browser 实际 viewport 为 1280×720（与 1229 同属 Primary Desktop 模式）：Quote/Order/Style Progress/Production/Basic Settings/Closing 代表页面 document 无横向溢出，逐容器复验无局部横向滚动，unexpected console error 为 0。
+- 用户的真实 1920×1080、Windows 125%、Chrome 125%（约 1229×691 CSS px）仍是 PR merge 前最终视觉复验环境；自动门禁不能替代这一步。
+- Second Acceptance 9 张截图保存在 `docs/ui-redesign/screenshots/second-acceptance-2026-09-04/`，没有覆盖上一轮截图。
 - Browser QA 使用隔离的 QA profile 追加/调整测试数据；没有清除用户或正式业务数据。
 
 ## 已确认的既有稳定状态

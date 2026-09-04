@@ -63,3 +63,10 @@
 - 外发厂第一版仍以手工固定开始/结束日期为主；ProductionSite/Calendar 自动队列目前只作用于内部生产组。
 - 真实触屏 Mobile 仍需目标设备补验；自动化已覆盖迁移、日期、队列、关账 stale 和运输建议。
 - 排单页服务端首屏使用安全默认 operations settings，客户端挂载后再读取本地资料，避免 localStorage 差异造成 hydration mismatch。
+
+## 2026-09-04 Second Acceptance
+
+- 单组队列顶部不再重复展示大异常 Banner 与“组内执行摘要”；正式异常继续留在行级“异常 / 物流”，组选择项保留小型异常 Badge。
+- 组选择项只保留组号、当前款身份、待产数量、异常 Badge 与队尾日期；15 个组使用紧凑布局。
+- Sticky 作用在 MasterDetail 的左侧 `aside`，位于 68px 顶栏下方的 80px 边界；组面板自身 `overflow: visible`，生产队列与未排池跟随 AppShell 唯一主纵向滚动。
+- Production Queue 与 Unscheduled Pool 保持固定作业顺序语义，并采用 fit-first 列宽；不建立局部横向或纵向滚动。

@@ -31,8 +31,10 @@ test("TablePreference 向前迁移列顺序并保持用户隔离与完整重置"
 
 test("DataTable 提供边缘拖拽、键盘列宽、顺序持久化和安全行点击", () => {
   const source = readFileSync(new URL("../components/foundation/data-table.tsx", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../app/foundation.css", import.meta.url), "utf8");
   for (const marker of ["qc-column-resize-handle", "onPointerDown", "pointermove", "pointerup", "ArrowLeft", "ArrowRight", "draggable", "onDrop", "saveTablePreference", "isInteractiveTarget"]) assert.match(source, new RegExp(marker));
   assert.match(source, /Math\.min\(max, Math\.max\(min, nextWidth\)\)/);
+  assert.match(css, /th:last-child \.qc-column-resize-handle \{[^}]*right:\s*0/s);
 });
 
 test("Sidebar 折叠状态按用户持久化且基础设置路由不会自动展开菜单", () => {
@@ -58,4 +60,5 @@ test("Quote 使用独立款式图和款式身份、摘要列、单行更多与�
   assert.match(editor, /activeVersion\.quantity/);
   assert.match(editor, /garmentSellingPrice/);
   assert.match(css, /qc-list-more-actions[^}]*white-space:\s*nowrap/s);
+  assert.doesNotMatch(css, /data-column-key="revision"\][^}]*display:\s*none/s);
 });

@@ -269,7 +269,7 @@
 .oc-order-workspace .qc-section-navigation { position: sticky; z-index: 25; top: 0; }
 .oc-scroll-anchor { scroll-margin-top: 58px; }
 .oc-cockpit-section { display: grid; gap: 10px; }
-.oc-cockpit-card { display: grid; grid-template-columns: 1.2fr 1.35fr .8fr 1fr 1.35fr 1.1fr; gap: 0; padding: 0; overflow: hidden; }
+.oc-cockpit-card { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; padding: 0; overflow: hidden; }
 .oc-cockpit-card > div { min-width: 0; min-height: 94px; display: grid; align-content: center; gap: 4px; padding: 13px 15px; border-right: 1px solid #e3e8e5; }
 .oc-cockpit-card > div:last-child { border-right: 0; }
 .oc-cockpit-card small { color: #79877f; font-size: 10px; }
@@ -303,6 +303,9 @@
 .oc-section-card { min-width: 0; padding: 17px 18px; }
 .oc-business-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px 14px; }
 .oc-section-split { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(300px,.75fr); gap: 12px; align-items: start; }
+.oc-secondary-history { border: 1px solid #dce4df; border-radius: 10px; background: #fff; }
+.oc-secondary-history > summary { padding: 12px 14px; color: #285647; cursor: pointer; font-size: 11px; font-weight: 700; }
+.oc-secondary-history > .oc-work-section { padding: 0 14px 14px; }
 .oc-delivery-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 2px; border-top: 1px solid #e8ece9; }
 .oc-delivery-row > div:first-child { min-width: 0; display: grid; grid-template-columns: 110px 100px minmax(0,1fr); align-items: center; gap: 8px; }
 .oc-delivery-row span,.oc-delivery-row small { color: #74827b; font-size: 11px; }
@@ -316,7 +319,7 @@
 .oc-history-drawer article > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
 @media (max-width: 1399px) {
-  .oc-cockpit-card { grid-template-columns: 1.1fr 1.2fr .75fr .9fr 1.25fr 1fr; }
+  .oc-cockpit-card { grid-template-columns: repeat(4,minmax(0,1fr)); }
   .oc-cockpit-card > div { padding-inline: 10px; }
   .oc-cockpit-card > div:nth-child(4) strong { font-size: 13px; }
   .oc-business-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }

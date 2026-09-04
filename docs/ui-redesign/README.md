@@ -766,3 +766,7 @@ Phase 6 的 Master Data 与低频设置、旧内置模板资产升级、真实 W
 - Order Detail 在无 Context Panel 时使用全部可用 Workspace 宽度。用户 full-page 长截图中的 Sidebar 重复已确认是 fixed/sticky screenshot stitching artifact，实时 DOM 与正常滚动没有重复导航。
 - 标准 1600 / 1280 / 960 / 768 / 402 / 440 CSS viewport 及三个用户环境等效 CSS viewport 均完成验收；不把模拟 viewport 升级为真实 Windows Display Scaling / Chrome Zoom 通过。
 - TypeScript、ESLint、Correction Tests 6/6、Full Tests 408/408、Production Build、Browser Console 与 Correction diff check 均通过；独立 Correction commit 完成后 Gate 关闭。
+
+## 2026-09-04 Second Acceptance Correction
+
+本轮不重做既有 Gate A/B/C。表格 Preference、Sidebar、Quote 密度、Order 去重与 Production Sticky 的验收映射、覆盖矩阵、局部 overflow 测量和截图索引见 [Second Acceptance 任务记录](../tasks/completed/2026-09-04-second-acceptance-correction.md)。PR #3 在用户真实 1229×691 视觉复验前保持未合并。

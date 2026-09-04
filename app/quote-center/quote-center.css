@@ -93,7 +93,6 @@
 
 @media (min-width: 1024px) and (max-width: 1300px) and (hover: hover) and (pointer: fine) {
   .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="salesperson"],
-  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="revision"],
   .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="status"] { display: none; }
   .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="style"] { width: 24% !important; }
   .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="brand"] { width: 15% !important; }

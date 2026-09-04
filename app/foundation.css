@@ -120,6 +120,7 @@
 .qc-table-heading > span:last-child { min-width: 0; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .qc-column-drag-handle { flex: none; color: #a7b1ac; cursor: grab; font-size: 9px; letter-spacing: -3px; }
 .qc-column-resize-handle { position: absolute; z-index: 2; top: 4px; right: -4px; bottom: 4px; width: 9px; padding: 0; border: 0; background: transparent; cursor: col-resize; touch-action: none; }
+.qc-data-table th:last-child .qc-column-resize-handle { right: 0; width: 5px; }
 .qc-column-resize-handle::after { content: ""; position: absolute; top: 7px; right: 4px; bottom: 7px; width: 1px; background: #d6ded9; opacity: 0; transition: opacity .14s; }
 .qc-data-table th:hover .qc-column-resize-handle::after,.qc-column-resize-handle:focus-visible::after { opacity: 1; }
 .qc-column-resize-handle:focus-visible { outline: 2px solid #3d8a72; outline-offset: -2px; }

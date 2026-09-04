@@ -250,6 +250,15 @@
 - 下拉选择打开、日期选择打开或中文 IME composing 时，Enter 不提交外层表单。
 - 正在提交时禁止重复提交。
 - 整页报价编辑普通 Enter 不保存整张报价。
+
+## 业务工作台显示与个人布局
+
+- 主业务表格不得把横向滚动作为正常操作方式；优先使用字段组合、信息层级、合理换行、用户列宽/顺序、侧栏折叠、viewport fit 与窄屏 Record/Card。
+- 正式业务 `DataTable` 必须允许用户调整列宽与字段顺序；Preference 按 `User + Table` 保存，不得写入业务实体。
+- Desktop Sidebar 必须允许用户主动折叠/展开并按用户保存；Tablet/Mobile 继续使用既有 Drawer 导航。
+- Production Group Selector 在桌面主滚动中保持位于顶栏下方，不建立自己的纵向滚动容器。
+- 正式 Ainuoke Order 的来源数量与合同交期是权威事实，普通订单详情不得提供人工覆盖入口；历史 Domain 与审计记录继续保留。
+- 页面正常状态下，同一业务事实只保留一个主要展示位置；Header 承担对象身份，Summary 只展示需要判断的 Projection。
 # 款式进度与面辅料跟进
 
 - 款式进度只按 `salesContractNo` 投影正式 SalesOrder；禁止使用款号、工厂款号、品牌或数量做模糊绑定，禁止由 Style Progress 创建订单。

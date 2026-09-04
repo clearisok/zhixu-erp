@@ -83,3 +83,11 @@ Foundation 不拥有业务数据模型，也不直接调用业务 API。它通�
 - AppShell 的订单/生产导航仍回到根路径 ERP，没有统一路由领域。
 - 当前测试中含源码文本契约，无法替代完整的可访问性、焦点陷阱和浏览器端到端测试。
 - 可调 viewport 的桌面浏览器不能代表 coarse-pointer True Mobile；设备模式仍以 D-023 的 viewport + pointer/hover 组合为准。
+
+## 2026-09-04 Second Acceptance
+
+- `TablePreference` 现同时保存 `columnWidths` 与稳定 `columnOrder`；旧 width-only 数据、旧列别名、新增列与删除列均通过幂等 normalization 处理。
+- 所有共享 `DataTable` 表头支持 pointer 边缘调宽、方向键微调与拖放排序；宽度是 Preferred Width，最终按容器比例 fit，操作列 sticky 保持可用，resize handle 不触发行打开。
+- Desktop Sidebar 可由用户主动在 186px/78px 间切换并按用户保存；折叠态的基础/系统设置继续使用 Portal 浮层，Tablet/Mobile 导航模型不变。
+- 基础设置与系统设置菜单默认关闭；Active Route 只高亮，路由变化关闭临时菜单，避免页面切换闪动。
+- 自定义 spreadsheet/matrix 表保留固定业务列语义，但仍必须 fit-first 或在窄屏提供 Record/Card；例外与 tableKey 记录在 Second Acceptance 任务规格中。

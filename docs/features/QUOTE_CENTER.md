@@ -142,3 +142,9 @@ Quote Center 是面向成衣报价工作的新版前端模块，提供完整报�
 - 列表无分页/服务端筛选。
 - 当前测试账号可在 AppShell 切换，但不是已认证的真实会话；个人偏好尚未按该账号全面迁移。
 - 2026-09-01 Full UI / Workflow Correction 的 Quote 与 Foundation 修改已由 Gate A commit `367983925f8e9236a701a71781054f6baaf65e78` 独立固化。
+
+## 2026-09-04 Second Acceptance
+
+- 报价列表把旧 `style` 拆为稳定 `styleImage` 与 `styleIdentity`，旧偏好自动映射为两列；用户可分别调整顺序与宽度。
+- 最大字段场景使用业务组合列与 secondary line 展示报价编号、款式、品牌/业务员、类型/状态、数量、成本、成衣价/确认、报价历史/价格方案、日期和操作，Primary Desktop 不再强制隐藏用户选择的 revision 列。
+- “更多”保持单行紧凑按钮；详情 Sticky 在滚入成本区后继续显示款式身份、Revision、PriceVersion、制作国家、报价类型、数量、成衣价、工价、确认与 dirty/save 状态。

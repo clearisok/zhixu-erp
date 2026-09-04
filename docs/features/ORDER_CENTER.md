@@ -93,3 +93,9 @@
 - ScheduleAssignment、ClosingPeriod、ClosingAllocation、排单中心与关账中心均由独立模块实现；订单只消费摘要投影，不复制这些事实。
 - 当前仍是单浏览器、单 Origin mock 持久化，没有服务端并发控制、跨设备同步或不可篡改审计。
 - 本轮只是产品化 UI 与交互调整，没有改变 SalesOrder、价格/数量历史、排单和关账领域边界。
+
+## 2026-09-04 Second Acceptance
+
+- 详情 Header 是订单身份的主要位置；Overview 只保留有效数量、合同交期、生产状态与下一步，客户/PO 不在 Summary 重复。
+- Business 区集中显示唯一权威事实。正式 Ainuoke-bound Order 的来源字段使用紧凑只读 Projection，不再用大型输入重复 Header。
+- “交期计划与数量历史”不再作为正式 Ainuoke 日常模块；`QuantityChange`、`DeliveryPlan`、migration、OperationLog 与 Backup/Restore Domain 均未删除。手工/Legacy 入口降为折叠的低频 Secondary Action。
