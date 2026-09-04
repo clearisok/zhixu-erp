@@ -144,7 +144,7 @@ test("18. QuoteListViewPreferences 按 userId 生成隔离存储键", () => {
   assert.equal(a.userId, "user-a");
   assert.equal(b.userId, "user-b");
   assert.deepEqual(a.visibleColumns, ["quote"]);
-  assert.deepEqual(b.visibleColumns, ["style"]);
+  assert.deepEqual(b.visibleColumns, ["styleImage", "styleIdentity"]);
 });
 
 test("切换品牌或客户业务员时提供保留、应用、取消三种数据保护选择", async () => {

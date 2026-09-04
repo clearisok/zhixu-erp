@@ -19,6 +19,7 @@ export * from "./page";
 export * from "./page-back-button";
 export * from "./searchable-select";
 export * from "./sidebar-floating-menu";
+export * from "./sidebar-preference";
 export * from "./status-tag";
 export * from "./states";
 export * from "./table-preference";

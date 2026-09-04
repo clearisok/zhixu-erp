@@ -89,7 +89,7 @@ test("报价详情 Header 只显示款号与款式名称；Sticky 与列表维�
   assert.doesNotMatch(editor, /title=\{`\$\{quote\.quoteCode\}/);
   assert.doesNotMatch(editor, /qc-header-version-state/);
   assert.match(await readFile(new URL("../app/quote-center/responsive.css", import.meta.url), "utf8"), /qc-title-sentinel \.qc-page-header h1[^}]*white-space:\s*nowrap/);
-  assert.match(editor, /<strong>\{pageTitle\}<\/strong><small>\{revision\.baseInfo\.brandName.*\{pageSubtitle\}/);
+  assert.match(editor, /<strong>\{pageTitle\}<\/strong><small>\{pageSubtitle\}.*revision\.baseInfo\.brandName/);
   assert.ok(list.indexOf("quoteStyleNo") < list.indexOf("styleName"));
   assert.match(css, /\.qc-sticky-header > \.qc-sticky-summary small/);
   assert.match(css, /\.qc-title-sentinel \.qc-page-header p/);

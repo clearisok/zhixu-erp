@@ -8,7 +8,7 @@ import { buildDefaultQuoteRevisionExcel } from "./quote-excel-exporter.ts";
 
 export type QuoteSummaryRowMode = "quote" | "price-version";
 export type EstimateSummaryColumn = "estimateTotal" | "estimateRevision" | "estimateDifference";
-export type QuoteSummaryExportInput = { quotes: Quote[]; visibleColumns: ListColumnKey[]; rowMode: QuoteSummaryRowMode; estimateColumns?: EstimateSummaryColumn[]; now?: Date };
+export type QuoteSummaryExportInput = { quotes: Quote[]; visibleColumns: Array<ListColumnKey | "style">; rowMode: QuoteSummaryRowMode; estimateColumns?: EstimateSummaryColumn[]; now?: Date };
 
 const estimateLabels: Record<EstimateSummaryColumn, string> = { estimateTotal: "估算总成本", estimateRevision: "估算成本来源报价版本", estimateDifference: "销售价与估算成本差额" };
 const dateStamp = (date: Date) => `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
@@ -37,8 +37,9 @@ function differenceValue(quote: Quote, priceVersionId?: string): string | number
 
 export async function buildQuoteSummaryExcel(input: QuoteSummaryExportInput): Promise<{ buffer: ArrayBuffer; fileName: string; rowCount: number; headers: string[] }> {
   const now = input.now ?? new Date();
-  const columns = [...input.visibleColumns];
-  const headers = columns.map((key) => input.rowMode === "price-version" && key === "quantity" ? "数量" : quoteListColumnDefinitionMap[key].label);
+  const sourceColumns = [...input.visibleColumns];
+  const columns = sourceColumns.map((key) => key === "style" ? "styleIdentity" : key);
+  const headers = columns.map((key, index) => sourceColumns[index] === "style" ? "报价款号 / 款式" : input.rowMode === "price-version" && key === "quantity" ? "数量" : quoteListColumnDefinitionMap[key].label);
   if (input.rowMode === "price-version") headers.splice(1, 0, "价格版本");
   for (const key of input.estimateColumns ?? []) headers.push(estimateLabels[key]);
   const rows: Array<Array<string | number | null>> = [];

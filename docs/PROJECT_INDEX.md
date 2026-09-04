@@ -15,12 +15,13 @@
 
 1. 根目录 `AGENTS.md`
 2. 本文件
-3. `docs/CURRENT_STATE.md`
-4. 当前 `git status`、相关 diff
-5. `docs/BUSINESS_RULES.md`
-6. 任务对应的 `docs/features/*.md`
-7. `docs/DECISION_LOG.md` 中相关 Active 条目
-8. 实际代码、SQL、API 和测试
+3. `docs/AI_HANDOFF.md`（当前接力棒，不是长期业务事实源）
+4. `docs/CURRENT_STATE.md`
+5. 当前 `git status`、相关 diff
+6. `docs/BUSINESS_RULES.md`
+7. 任务对应的 `docs/features/*.md`
+8. `docs/DECISION_LOG.md` 中相关 Active 条目
+9. 实际代码、SQL、API 和测试
 
 ## 目录结构
 
@@ -82,6 +83,8 @@
 | 当前进度/风险 | `CURRENT_STATE.md` | 当前工作树和验证结果 |
 
 ## 知识文件职责
+
+事实优先级：当前用户明确要求 > `CURRENT_STATE` > Active `BUSINESS_RULES` / `DECISION_LOG` > 旧讨论 > AI 推测。`AI_HANDOFF` 只说明从哪里接着做，不构成第四个长期业务事实源。
 
 - `SYSTEM_OVERVIEW.md`：架构、技术栈、运行路径、数据流。
 - `BUSINESS_RULES.md`：能够由代码、约束、测试或明确文档确认的规则。

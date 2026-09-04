@@ -27,8 +27,9 @@ test("浮层处理视口碰撞、滚动、resize、点击外部和 Esc", async (
 test("AppShell Wide/Primary 使用内联子菜单，Compact 使用浮层，Touch 使用统一 Drawer", async () => {
   const source = await read("components/foundation/app-shell.tsx");
   assert.match(source, /SidebarFloatingMenu/);
-  assert.match(source, /expandedSidebar = viewportMode === "wide" \|\| viewportMode === "primary"/);
-  assert.match(source, /compactSidebar = viewportMode === "compact"/);
+  assert.match(source, /desktopSidebar = viewportMode === "wide" \|\| viewportMode === "primary"/);
+  assert.match(source, /expandedSidebar = desktopSidebar && !sidebarCollapsed/);
+  assert.match(source, /compactSidebar = viewportMode === "compact" \|\| desktopSidebar && sidebarCollapsed/);
   assert.match(source, /open=\{systemOpen && compactSidebar\}/);
   assert.match(source, /open=\{basicOpen && compactSidebar\}/);
   assert.match(source, /<Drawer open=\{navigationOpen && touchNavigation\}/);

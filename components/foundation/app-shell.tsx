@@ -7,6 +7,7 @@ import { SidebarFloatingMenu } from "./sidebar-floating-menu";
 import { Drawer } from "./drawer";
 import { usePermissions } from "@/features/permissions";
 import { GlobalSearchPalette } from "@/features/global-search";
+import { loadSidebarPreference, saveSidebarPreference } from "./sidebar-preference";
 
 const basicRoutes = [
   { label: "品牌设置", href: "/basic-settings/brands" },
@@ -36,8 +37,9 @@ export function AppShell({ title, children, onRequestNavigation }: { title: stri
   const viewportMode = useResponsiveMode();
   const basicActive = basicRoutes.some((route) => pathname === route.href);
   const systemActive = systemRoutes.some((route) => pathname === route.href);
-  const [basicOpen, setBasicOpen] = useState(basicActive);
-  const [systemOpen, setSystemOpen] = useState(systemActive);
+  const [basicOpen, setBasicOpen] = useState(false);
+  const [systemOpen, setSystemOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [navigationOpen, setNavigationOpen] = useState(false);
   const { state: permissionState, currentUser, currentRole, can, setCurrentUser } = usePermissions();
@@ -59,6 +61,17 @@ export function AppShell({ title, children, onRequestNavigation }: { title: stri
     return () => document.removeEventListener("keydown", openGlobalSearch);
   }, []);
 
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      setBasicOpen(false);
+      setSystemOpen(false);
+    });
+  }, [pathname]);
+
+  useEffect(() => {
+    Promise.resolve().then(() => setSidebarCollapsed(loadSidebarPreference(currentUser.id).collapsed));
+  }, [currentUser.id]);
+
   const navigate = (target: string) => {
     setBasicOpen(false);
     setSystemOpen(false);
@@ -79,13 +92,22 @@ export function AppShell({ title, children, onRequestNavigation }: { title: stri
   const systemMenuItems = <>
     {systemRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onClick={() => navigate(item.href)}>{item.label}</button>)}
   </>;
-  const expandedSidebar = viewportMode === "wide" || viewportMode === "primary";
-  const compactSidebar = viewportMode === "compact";
+  const desktopSidebar = viewportMode === "wide" || viewportMode === "primary";
+  const expandedSidebar = desktopSidebar && !sidebarCollapsed;
+  const compactSidebar = viewportMode === "compact" || desktopSidebar && sidebarCollapsed;
   const touchNavigation = viewportMode === "tablet" || viewportMode === "mobile";
 
-  return <main className="ops-shell qc-app-shell" data-responsive-mode={viewportMode}>
+  const toggleSidebar = () => {
+    const collapsed = !sidebarCollapsed;
+    setSidebarCollapsed(collapsed);
+    saveSidebarPreference({ userId: currentUser.id, collapsed });
+    closeMenus();
+  };
+
+  return <main className="ops-shell qc-app-shell" data-responsive-mode={viewportMode} data-sidebar-state={sidebarCollapsed ? "collapsed" : "expanded"}>
     <aside className="ops-sidebar">
       <div className="ops-brand"><span>纫</span><div><strong>织序 ZHIXU</strong><small>GARMENT OPERATIONS</small></div></div>
+      {desktopSidebar && <button type="button" className="ops-sidebar-toggle" aria-label={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} title={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} onClick={toggleSidebar}><span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "展开" : "收起"}</b></button>}
       <div className="organization"><span>苏</span><div><small>当前组织</small><strong>苏州织序服饰</strong></div><i>报价 UI V1</i></div>
       <nav aria-label="主导航">
         {nav.slice(0, 2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
