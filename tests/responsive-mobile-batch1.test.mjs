@@ -44,9 +44,10 @@ test("R8 Compact Desktop 不显示 Mobile Navigation Drawer trigger", async () =
 
 test("R9 Compact Desktop 保留完整报价操作", async () => {
   const editor = await read("features/quote-center/components/quote-editor.tsx");
-  for (const label of ["返回列表", "报价版本", "创建价格版本", "客户确认", "导出报价", "删除报价", "保存草稿"]) {
+  for (const label of ["返回报价中心", "报价版本", "创建价格版本", "客户确认", "导出报价", "删除报价", "保存草稿"]) {
     assert.match(editor, new RegExp(label));
   }
+  assert.match(editor, /<PageBackButton fallbackHref="\/quote-center"/);
 });
 
 test("R10 Phase 4 Compact Desktop Quote Center 使用 Compact Record，不强撑宽表", async () => {
@@ -58,7 +59,8 @@ test("R10 Phase 4 Compact Desktop Quote Center 使用 Compact Record，不强撑
 test("R11-R12 Phase 4 报价列表使用统一 Toolbar 与既有真实筛选字段", async () => {
   const list = await read("features/quote-center/components/quote-list.tsx");
   assert.match(list, /<Toolbar className="qc-quote-toolbar"/);
-  assert.match(list, /<SearchField/);
+  assert.match(list, /<QuoteSearchField/);
+  assert.match(list, /QUOTE_STRUCTURED_SEARCH_FIELDS/);
   assert.match(list, /label="报价类型"/);
   assert.match(list, /label="报价状态"/);
   assert.match(list, /resultSummary=\{`显示 \$\{rows\.length\} \/ \$\{quotes\.length\} 条`\}/);

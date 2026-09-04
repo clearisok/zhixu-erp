@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { AppShell, Button, Card, Checkbox, DataTable, EmptyState, ErrorState, FormItem, loadTablePreference, PageContainer, PageHeader, Radio, saveTablePreference, SearchField, StatusTag, Toolbar, type DataColumn, type TablePreference } from "@/components/foundation";
+import { AppShell, Button, Card, Checkbox, DataTable, EmptyState, ErrorState, FloatingMenu, FormItem, loadTablePreference, PageContainer, PageHeader, Radio, saveTablePreference, StatusTag, Toolbar, type DataColumn, type TablePreference } from "@/components/foundation";
 import { totalPriceVersionQuantity } from "../model/quote-calculations";
 import { confirmedPriceSummary, summarizeRevisionMetric } from "../model/quote-presentation";
 import { formatFinalGarmentPrice } from "../model/final-quote-format";
 import { defaultQuoteSettings, loadQuoteSettings, saveQuoteSettings, type ListColumnKey, type QuoteUserSettings } from "../model/quote-settings";
-import { confirmationSummaryLabel, matchesQuoteSearch } from "../model/quote-workflows";
+import { confirmationSummaryLabel, matchesQuoteRecordSearch, QUOTE_STRUCTURED_SEARCH_FIELDS } from "../model/quote-workflows";
 import { getCurrentRevision, type Quote } from "../model/quote-view-model";
 import { mockQuoteRepository } from "../repository/mock-quote-repository";
 import { ListFieldSettingsModal } from "./quote-settings-modals";
@@ -16,12 +18,32 @@ import { quoteListColumnDefinitionMap } from "../model/quote-list-column-definit
 import { PermissionButton, usePermissions } from "@/features/permissions";
 import { createQuoteOperationLogs, operationLogRepository } from "@/features/operation-logs";
 import { CopyQuoteModal } from "./copy-quote-modal";
+import { revisionLegacyStyleReference, useAttachmentAsset } from "./attachment-panel";
 
 type SelectionMode = "batch-export" | "copy-quote" | null;
 
 const statusLabels = { draft: "草稿", quoting: "报价中", partially_confirmed: "部分确认", confirmed: "全部确认" } as const;
 const moneyRange = (value: number) => `¥${value.toFixed(2)}`;
 export const QUOTE_LIST_DEFAULT_COLUMN_WIDTHS: Record<string, number> = { quote: 150, style: 178, brand: 148, type: 72, salesperson: 118, versions: 96, quantity: 92, fabricCost: 108, trimCost: 108, labor: 102, garmentPrice: 110, confirmedLabor: 118, confirmedGarment: 124, confirmationStatus: 116, revision: 96, status: 92, date: 98, action: 96 };
+
+function QuoteStyleThumbnail({ revision }: { revision: ReturnType<typeof getCurrentRevision> }) {
+  const asset = useAttachmentAsset(revision.styleImageAttachmentId, revisionLegacyStyleReference(revision));
+  return <span className="qc-quote-list-thumbnail">{asset ? <Image src={asset.url} alt={asset.attachment.name} fill sizes="56px" unoptimized /> : <span aria-hidden="true">◇</span>}</span>;
+}
+
+function QuoteSearchField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const anchor = useRef<HTMLLabelElement | null>(null);
+  const [position, setPosition] = useState<{ left: number; top: number; width: number } | null>(null);
+  const open = /(?:^|\s)\/$/.test(value);
+  useEffect(() => {
+    if (!open) return;
+    const update = () => { const rect = anchor.current?.getBoundingClientRect(); if (rect) setPosition({ left: rect.left, top: rect.bottom + 6, width: Math.max(rect.width, 360) }); };
+    update(); window.addEventListener("resize", update); window.addEventListener("scroll", update, true);
+    return () => { window.removeEventListener("resize", update); window.removeEventListener("scroll", update, true); };
+  }, [open]);
+  const choose = (field: string) => onChange(value.replace(/\/$/, `/${field}:`));
+  return <><label ref={anchor} className="qc-search-field qc-quote-structured-search"><span>⌕</span><input value={value} onChange={(event) => onChange(event.target.value)} placeholder="搜索款号、品牌、业务员、制作国家；输入 / 精确筛选" aria-label="搜索报价" /></label>{open && position && typeof document !== "undefined" && createPortal(<div className="qc-quote-search-suggestions qc-foundation-portal" role="listbox" aria-label="精确筛选字段" style={position}>{QUOTE_STRUCTURED_SEARCH_FIELDS.map((field) => <button type="button" role="option" aria-selected="false" key={field} onClick={() => choose(field)}><strong>{field}</strong><span>/{field}:</span></button>)}</div>, document.body)}</>;
+}
 
 export function QuoteList() {
   const router = useRouter();
@@ -54,16 +76,15 @@ export function QuoteList() {
 
   const rows = useMemo(() => quotes.filter((quote) => {
     const revision = getCurrentRevision(quote);
-    const searchable = [quote.quoteCode, revision.baseInfo.brandName, revision.baseInfo.quoteStyleNo, revision.baseInfo.styleName, revision.baseInfo.salespersonName].join(" ");
-    return matchesQuoteSearch(searchable, query) && (type === "all" || revision.baseInfo.quoteType === type) && (status === "all" || quote.aggregateStatus === status);
+    return matchesQuoteRecordSearch(quote, query) && (type === "all" || revision.baseInfo.quoteType === type) && (status === "all" || quote.aggregateStatus === status);
   }), [quotes, query, type, status]);
   const header = (key: ListColumnKey) => quoteListColumnDefinitionMap[key].label;
   const salespersonHasOwnColumn = settings.visibleColumns.includes("salesperson");
 
   const columnMap: Record<ListColumnKey, DataColumn<Quote>> = {
     quote: { key: "quote", header: header("quote"), render: (quote) => <strong>{quote.quoteCode}</strong> },
-    style: { key: "style", header: header("style"), render: (quote) => { const revision = getCurrentRevision(quote); return <div className="qc-selection-style-cell">{selectionMode === "batch-export" && <Checkbox aria-label={`选择 ${revision.baseInfo.quoteStyleNo || "未填写款号"}`} checked={selectedIds.includes(quote.id)} onClick={(event) => event.stopPropagation()} onChange={() => setSelectedIds((current) => current.includes(quote.id) ? current.filter((id) => id !== quote.id) : [...current, quote.id])} />}{selectionMode === "copy-quote" && <Radio name="copy-quote-source" aria-label={`复制 ${revision.baseInfo.quoteStyleNo || "未填写款号"}`} checked={selectedQuoteId === quote.id} onClick={(event) => event.stopPropagation()} onChange={() => setSelectedQuoteId(quote.id)} />}<span><strong>{revision.baseInfo.quoteStyleNo || "—"}</strong><small>{revision.baseInfo.styleName || "未填写款式名称"}</small></span></div>; } },
-    brand: { key: "brand", header: salespersonHasOwnColumn ? "品牌" : "品牌 / 客户业务员", render: (quote) => { const base = getCurrentRevision(quote).baseInfo; return <div className="qc-primary-cell"><strong>{base.brandName || "—"}</strong>{!salespersonHasOwnColumn && <small>{base.salespersonName || "未填写客户业务员"}</small>}</div>; } },
+    style: { key: "style", header: "款式图 / 款式", render: (quote) => { const revision = getCurrentRevision(quote); return <div className="qc-selection-style-cell">{selectionMode === "batch-export" && <Checkbox aria-label={`选择 ${revision.baseInfo.quoteStyleNo || "未填写款号"}`} checked={selectedIds.includes(quote.id)} onClick={(event) => event.stopPropagation()} onChange={() => setSelectedIds((current) => current.includes(quote.id) ? current.filter((id) => id !== quote.id) : [...current, quote.id])} />}{selectionMode === "copy-quote" && <Radio name="copy-quote-source" aria-label={`复制 ${revision.baseInfo.quoteStyleNo || "未填写款号"}`} checked={selectedQuoteId === quote.id} onClick={(event) => event.stopPropagation()} onChange={() => setSelectedQuoteId(quote.id)} />}<QuoteStyleThumbnail revision={revision} /><span><strong>{revision.baseInfo.quoteStyleNo || "—"}</strong><small>{revision.baseInfo.styleName || "未填写款式名称"}</small></span></div>; } },
+    brand: { key: "brand", header: salespersonHasOwnColumn ? "品牌 / 业务员" : "品牌 / 客户业务员", render: (quote) => { const base = getCurrentRevision(quote).baseInfo; return <div className="qc-primary-cell"><strong>{base.brandName || "—"}</strong><small>{base.salespersonName || "未填写客户业务员"}</small></div>; } },
     type: { key: "type", header: header("type"), render: (quote) => getCurrentRevision(quote).baseInfo.quoteType === "distribution" ? "经销" : "加工" },
     salesperson: { key: "salesperson", header: header("salesperson"), render: (quote) => getCurrentRevision(quote).baseInfo.salespersonName || "—" },
     versions: { key: "versions", header: "价格方案", render: (quote) => { const versions = getCurrentRevision(quote).priceVersions; return <div className="qc-price-version-cell"><strong>{versions.length} 个 PriceVersion</strong><small>{versions.slice(0, 2).map((version) => version.pricingParameters.manufacturingCountry || version.name).join(" · ") || "—"}</small></div>; } },
@@ -87,8 +108,8 @@ export function QuoteList() {
   const filters = <><FormItem label="报价类型"><select className="qc-control" value={type} onChange={(event) => setType(event.target.value)}><option value="all">全部类型</option><option value="distribution">经销</option><option value="processing">加工</option></select></FormItem><FormItem label="报价状态"><select className="qc-control" value={status} onChange={(event) => setStatus(event.target.value)}><option value="all">全部状态</option><option value="draft">草稿</option><option value="quoting">报价中</option><option value="partially_confirmed">部分确认</option><option value="confirmed">全部确认</option></select></FormItem></>;
 
   return <AppShell title="报价中心"><PageContainer className="qc-quote-center-page">
-    <PageHeader eyebrow="QUOTE CENTER" title="报价中心" count={`${rows.length} 条`} description="按款式识别报价，区分报价历史、价格方案与客户确认。" secondaryActions={<details className="qc-list-more-actions"><summary>更多</summary><div><PermissionButton permission="quote.export" variant="text" onClick={() => { setSelectionMode("batch-export"); setSelectedIds([]); setSelectedQuoteId(""); }}>批量导出</PermissionButton><PermissionButton permission="quote.create" variant="text" onClick={() => { setSelectionMode("copy-quote"); setSelectedQuoteId(""); setSelectedIds([]); }}>复制报价</PermissionButton><Button variant="text" onClick={() => setSettingsOpen(true)}>页面设置</Button></div></details>} primaryAction={<PermissionButton permission="quote.create" onClick={() => router.push("/quote-center/new")}>＋ 新建报价</PermissionButton>} />
-    <Toolbar className="qc-quote-toolbar" search={<SearchField value={query} onChange={setQuery} placeholder="搜索款号、款式、品牌或客户业务员" label="搜索报价" />} moreFilters={filters} resultSummary={`显示 ${rows.length} / ${quotes.length} 条`} mobileFilterTitle="报价筛选" />
+    <PageHeader eyebrow="QUOTE CENTER" title="报价中心" count={`${rows.length} 条`} description="按款式识别报价，区分报价历史、价格方案与客户确认。" secondaryActions={<FloatingMenu className="qc-list-more-actions" menuClassName="qc-list-more-menu" label="更多报价操作"><PermissionButton permission="quote.export" variant="text" onClick={() => { setSelectionMode("batch-export"); setSelectedIds([]); setSelectedQuoteId(""); }}>批量导出</PermissionButton><PermissionButton permission="quote.create" variant="text" onClick={() => { setSelectionMode("copy-quote"); setSelectedQuoteId(""); setSelectedIds([]); }}>复制报价</PermissionButton><Button variant="text" onClick={() => setSettingsOpen(true)}>页面设置</Button></FloatingMenu>} primaryAction={<PermissionButton permission="quote.create" onClick={() => router.push("/quote-center/new")}>＋ 新建报价</PermissionButton>} />
+    <Toolbar className="qc-quote-toolbar" search={<QuoteSearchField value={query} onChange={setQuery} />} moreFilters={filters} resultSummary={`显示 ${rows.length} / ${quotes.length} 条`} mobileFilterTitle="报价筛选" />
     {selectionMode === "batch-export" && can("quote.export") && <div className="qc-batch-selection-toolbar"><strong>批量导出 · 已选择 {selectedIds.length} 个报价</strong><Button variant="text" onClick={() => setSelectedIds((current) => [...new Set([...current, ...rows.map((quote) => quote.id)])])}>全选当前筛选结果</Button><Button disabled={!selectedIds.length} onClick={() => setBatchExportOpen(true)}>导出所选</Button><Button variant="secondary" onClick={() => { setSelectionMode(null); setSelectedIds([]); }}>退出选择</Button></div>}
     {selectionMode === "copy-quote" && can("quote.create") && <div className="qc-batch-selection-toolbar qc-copy-selection-toolbar"><strong>复制报价 · {selectedQuoteId ? "已选择 1 个报价" : "请选择一个来源报价"}</strong><span>复制来源为所选报价的当前默认报价版本</span><Button disabled={!selectedQuoteId} onClick={() => setCopyQuoteOpen(true)}>继续复制</Button><Button variant="secondary" onClick={() => { setSelectionMode(null); setSelectedQuoteId(""); }}>取消复制</Button></div>}
     <Card className="qc-list-card">

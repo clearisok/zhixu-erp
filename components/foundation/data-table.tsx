@@ -75,12 +75,12 @@ export function DataTable<T>({ rows, columns, rowKey, rowClassName, empty, empty
   return <div className={`qc-business-table ${className}`.trim()} data-loading={loading || undefined}>
     <div className="qc-table-wrap" tabIndex={0} role="region" aria-label={`${ariaLabel}，可横向滚动`}>
       <table className="qc-data-table" aria-label={ariaLabel} aria-busy={loading || undefined}>
-        <colgroup>{columns.map((column) => <col key={column.key} style={styleFor(column)} />)}</colgroup>
-        <thead><tr>{columns.map((column) => <th key={column.key} scope="col" className={classFor(column)} data-priority={column.responsivePriority ?? "secondary"} style={styleFor(column)}>{column.header}</th>)}</tr></thead>
-        <tbody>{loading ? Array.from({ length: 5 }, (_, rowIndex) => <tr key={`loading-${rowIndex}`} className="qc-table-skeleton" aria-hidden="true">{columns.map((column) => <td key={column.key} className={classFor(column)} style={styleFor(column)}><i /></td>)}</tr>) : rows.map((row) => {
+        <colgroup>{columns.map((column) => <col key={column.key} data-column-key={column.key} style={styleFor(column)} />)}</colgroup>
+        <thead><tr>{columns.map((column) => <th key={column.key} scope="col" className={classFor(column)} data-column-key={column.key} data-priority={column.responsivePriority ?? "secondary"} style={styleFor(column)}>{column.header}</th>)}</tr></thead>
+        <tbody>{loading ? Array.from({ length: 5 }, (_, rowIndex) => <tr key={`loading-${rowIndex}`} className="qc-table-skeleton" aria-hidden="true">{columns.map((column) => <td key={column.key} className={classFor(column)} data-column-key={column.key} style={styleFor(column)}><i /></td>)}</tr>) : rows.map((row) => {
           const key = rowKey(row);
           const selected = key === selectedRowKey;
-          return <tr key={key} className={[rowClassName?.(row), selected ? "is-selected" : ""].filter(Boolean).join(" ")} aria-selected={selected || undefined} tabIndex={onRowActivate ? 0 : undefined} onClick={() => onRowActivate?.(row)} onKeyDown={(event) => activateFromKeyboard(event, row, onRowActivate)}>{columns.map((column) => <td key={column.key} className={classFor(column)} data-priority={column.responsivePriority ?? "secondary"} style={styleFor(column)}>{displayValue(column.render(row))}</td>)}</tr>;
+          return <tr key={key} className={[rowClassName?.(row), selected ? "is-selected" : ""].filter(Boolean).join(" ")} aria-selected={selected || undefined} tabIndex={onRowActivate ? 0 : undefined} onClick={() => onRowActivate?.(row)} onKeyDown={(event) => activateFromKeyboard(event, row, onRowActivate)}>{columns.map((column) => <td key={column.key} className={classFor(column)} data-column-key={column.key} data-priority={column.responsivePriority ?? "secondary"} style={styleFor(column)}>{displayValue(column.render(row))}</td>)}</tr>;
         })}</tbody>
       </table>
       {loading && <span className="sr-only" role="status">{loadingLabel}</span>}

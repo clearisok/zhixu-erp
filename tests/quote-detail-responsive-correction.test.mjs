@@ -15,7 +15,8 @@ test("操作区按实际可用宽度依次降级，不依赖固定 viewport brea
 
 test("普通 Header 使用完整 QuoteActionBar，Sticky 只保留最小业务操作", async () => {
   const editor = await read("features/quote-center/components/quote-editor.tsx");
-  assert.match(editor, /const quoteActionBarProps = \{ leadingAction, actions: contextualActions, primaryAction, quickNavigationItems \}/);
+  assert.match(editor, /const quoteActionBarProps = \{ actions: contextualActions, primaryAction, quickNavigationItems \}/);
+  assert.match(editor, /back=\{<PageBackButton fallbackHref="\/quote-center"/);
   assert.match(editor, /<QuoteActionBar \{\.\.\.quoteActionBarProps\} onModeChange=\{setHeaderActionMode\}/);
   assert.match(editor, /className="qc-sticky-actions"/);
   assert.match(editor, />保存<\/Button>/);

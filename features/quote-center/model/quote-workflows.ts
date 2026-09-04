@@ -11,7 +11,43 @@ export function matchesQuoteSearch(searchable: string, query: string): boolean {
   const tokens = tokenizeQuoteSearch(query);
   if (!tokens.length) return true;
   const haystack = searchable.toLowerCase();
-  return tokens.some((token) => haystack.includes(token));
+  return tokens.every((token) => haystack.includes(token));
+}
+
+export const QUOTE_STRUCTURED_SEARCH_FIELDS = ["报价类型", "品牌", "制作国家", "客户业务员", "报价状态", "款号"] as const;
+export type QuoteStructuredSearchField = typeof QUOTE_STRUCTURED_SEARCH_FIELDS[number];
+export type QuoteSearchExpression = { ordinaryTokens: string[]; filters: Array<{ field: QuoteStructuredSearchField; value: string }> };
+
+export function parseQuoteSearch(query: string): QuoteSearchExpression {
+  const filters: QuoteSearchExpression["filters"] = [];
+  const ordinarySource = query.replace(/\/([^\s/:]+):([^\s/]+)/g, (source, rawField: string, rawValue: string) => {
+    const field = QUOTE_STRUCTURED_SEARCH_FIELDS.find((candidate) => candidate === rawField);
+    if (!field) return source;
+    filters.push({ field, value: rawValue.normalize("NFKC").trim() });
+    return " ";
+  });
+  return { ordinaryTokens: tokenizeQuoteSearch(ordinarySource), filters };
+}
+
+const aggregateStatusSearchLabel: Record<QuoteAggregateStatus, string[]> = {
+  draft: ["草稿"], quoting: ["报价中", "未确认"], partially_confirmed: ["部分确认"], confirmed: ["全部确认", "已确认"],
+};
+
+export function matchesQuoteRecordSearch(quote: Quote, query: string): boolean {
+  const revision = getCurrentRevision(quote);
+  const countries = revision.priceVersions.map((version) => version.pricingParameters.manufacturingCountry).filter(Boolean);
+  const searchable = [quote.quoteCode, revision.baseInfo.brandName, revision.baseInfo.quoteStyleNo, revision.baseInfo.styleName, revision.baseInfo.salespersonName, ...countries].join(" ").toLocaleLowerCase("zh-CN");
+  const expression = parseQuoteSearch(query);
+  if (!expression.ordinaryTokens.every((token) => searchable.includes(token.toLocaleLowerCase("zh-CN")))) return false;
+  return expression.filters.every(({ field, value }) => {
+    const expected = value.toLocaleLowerCase("zh-CN");
+    if (field === "报价类型") return (revision.baseInfo.quoteType === "distribution" ? "经销" : "加工") === value;
+    if (field === "品牌") return revision.baseInfo.brandName.toLocaleLowerCase("zh-CN") === expected;
+    if (field === "制作国家") return countries.some((country) => country.toLocaleLowerCase("zh-CN") === expected);
+    if (field === "客户业务员") return revision.baseInfo.salespersonName.toLocaleLowerCase("zh-CN") === expected;
+    if (field === "报价状态") return aggregateStatusSearchLabel[quote.aggregateStatus].some((label) => label === value);
+    return revision.baseInfo.quoteStyleNo.toLocaleLowerCase("zh-CN") === expected;
+  });
 }
 
 export function validateCustomerConfirmation(quoteType: QuoteType, labor: NullableNumber, garment: NullableNumber): string | null {

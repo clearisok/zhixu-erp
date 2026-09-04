@@ -147,9 +147,9 @@ export function BrandSettingsPage() {
   const columns: DataColumn<BrandRecord>[] = [
     { key: "name", header: "品牌名称", width: 180, minWidth: 150, sticky: "left", responsivePriority: "primary", render: (brand) => <strong>{brand.name}</strong> },
     { key: "status", header: "状态", width: 90, responsivePriority: "primary", render: (brand) => <StatusTag tone={brand.status === "active" ? "success" : "neutral"}>{brand.status === "active" ? "启用" : "停用"}</StatusTag> },
-    { key: "rate", header: "默认汇率", width: 120, align: "right", render: (brand) => brand.defaults.defaultUsdCnyRate ?? "回退系统值" },
+    { key: "rate", header: "默认汇率", width: 140, align: "right", render: (brand) => brand.defaults.defaultUsdCnyRate ?? `未覆盖 · 系统 ${state.systemDefaults.usdCnyRate ?? "未设置"}` },
     { key: "trims", header: "默认辅料", width: 100, align: "right", render: (brand) => brand.defaults.defaultTrims.length ? `${brand.defaults.defaultTrims.length} 条` : null },
-    { key: "other", header: "默认其他费用", minWidth: 170, render: (brand) => brand.defaults.defaultOtherCost === null ? "回退系统值" : <><strong>{brand.defaults.defaultOtherCost.name}</strong><small>¥{brand.defaults.defaultOtherCost.amount?.toFixed(2) ?? "—"} / 件</small></> },
+    { key: "other", header: "默认其他费用", minWidth: 190, render: (brand) => brand.defaults.defaultOtherCost === null ? (state.systemDefaults.defaultOtherCost ? `未覆盖 · 系统 ${state.systemDefaults.defaultOtherCost.name} ¥${state.systemDefaults.defaultOtherCost.amount?.toFixed(2) ?? "—"}` : "未覆盖 · 系统未设置") : <><strong>{brand.defaults.defaultOtherCost.name}</strong><small>¥{brand.defaults.defaultOtherCost.amount?.toFixed(2) ?? "—"} / 件</small></> },
     { key: "salespeople", header: "客户业务员", width: 110, align: "right", render: (brand) => `${state.customerSalespeople.filter((item) => item.brandId === brand.id).length} 人` },
     { key: "actions", header: "操作", width: 132, sticky: "right", responsivePriority: "primary", render: (brand) => <MasterDataActions label={`${brand.name}更多操作`} primary={<PermissionButton permission="settings.brand.edit" variant="tertiary" onClick={() => openEdit(brand)}>编辑</PermissionButton>}><PermissionButton permission="settings.brand.edit" variant="danger" onClick={() => remove(brand)}>删除品牌</PermissionButton></MasterDataActions> },
   ];
@@ -162,7 +162,7 @@ export function BrandSettingsPage() {
       placeholder="输入品牌名称查询"
       moreFilters={<FormItem label="状态"><select className="qc-control" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "all" | BrandRecord["status"])}><option value="all">全部状态</option><option value="active">启用</option><option value="inactive">停用</option></select></FormItem>}
     />
-    <Card className="qc-master-list"><DataTable rows={rows} columns={columns} rowKey={(brand) => brand.id} ariaLabel="品牌设置" empty={<EmptyState title="没有匹配的品牌" description={query ? "请调整搜索关键词" : "可从页面右上角新增第一个品牌"} />} renderRecord={(brand) => <div className="qc-master-record"><header><strong>{brand.name}</strong><StatusTag tone={brand.status === "active" ? "success" : "neutral"}>{brand.status === "active" ? "启用" : "停用"}</StatusTag></header><dl><div><dt>默认汇率</dt><dd>{brand.defaults.defaultUsdCnyRate ?? "回退系统值"}</dd></div><div><dt>默认辅料</dt><dd>{brand.defaults.defaultTrims.length ? `${brand.defaults.defaultTrims.length} 条` : "—"}</dd></div><div><dt>客户业务员</dt><dd>{state.customerSalespeople.filter((item) => item.brandId === brand.id).length} 人</dd></div></dl><footer><MasterDataActions label={`${brand.name}更多操作`} primary={<PermissionButton permission="settings.brand.edit" variant="tertiary" onClick={() => openEdit(brand)}>编辑</PermissionButton>}><PermissionButton permission="settings.brand.edit" variant="danger" onClick={() => remove(brand)}>删除品牌</PermissionButton></MasterDataActions></footer></div>} /></Card>
+    <Card className="qc-master-list"><DataTable rows={rows} columns={columns} rowKey={(brand) => brand.id} ariaLabel="品牌设置" empty={<EmptyState title="没有匹配的品牌" description={query ? "请调整搜索关键词" : "可从页面右上角新增第一个品牌"} />} renderRecord={(brand) => <div className="qc-master-record"><header><strong>{brand.name}</strong><StatusTag tone={brand.status === "active" ? "success" : "neutral"}>{brand.status === "active" ? "启用" : "停用"}</StatusTag></header><dl><div><dt>默认汇率</dt><dd>{brand.defaults.defaultUsdCnyRate ?? `未覆盖 · 系统 ${state.systemDefaults.usdCnyRate ?? "未设置"}`}</dd></div><div><dt>默认辅料</dt><dd>{brand.defaults.defaultTrims.length ? `${brand.defaults.defaultTrims.length} 条` : "—"}</dd></div><div><dt>客户业务员</dt><dd>{state.customerSalespeople.filter((item) => item.brandId === brand.id).length} 人</dd></div></dl><footer><MasterDataActions label={`${brand.name}更多操作`} primary={<PermissionButton permission="settings.brand.edit" variant="tertiary" onClick={() => openEdit(brand)}>编辑</PermissionButton>}><PermissionButton permission="settings.brand.edit" variant="danger" onClick={() => remove(brand)}>删除品牌</PermissionButton></MasterDataActions></footer></div>} /></Card>
     <Drawer open={Boolean(draft)} className="qc-master-data-long-form-modal qc-master-data-drawer" eyebrow="BASIC SETTINGS" title={state.brands.some((brand) => brand.id === draft?.id) ? "编辑品牌" : "新增品牌"} description="品牌名称在整个系统内唯一；默认辅料从辅料库选择。" onClose={requestClose} onSubmit={save} footer={<><Button variant="secondary" onClick={requestClose}>取消</Button><Button type="submit">保存品牌</Button></>}>
       {draft && <BrandFormFields draft={draft} trimLibrary={state.trimLibrary} onChange={(next) => { setDraft(next); setError(""); }} error={error} canCreateTrim={can("settings.trim.edit")} onCreateTrim={openQuickTrim} />}
     </Drawer>
@@ -184,6 +184,35 @@ export function CustomerSalespeopleSettingsPage() {
   const [error, setError] = useState("");
   const rows = useMemo(() => searchCustomerSalespeople(state.customerSalespeople, state.brands, query), [state.customerSalespeople, state.brands, query]);
   const brandNames = useMemo(() => new Map(state.brands.map((brand) => [brand.id, brand.name])), [state.brands]);
+  const inheritedDefaults = (item: CustomerSalespersonRecord) => {
+    const brand = state.brands.find((candidate) => candidate.id === item.brandId);
+    const rate = item.defaults.defaultUsdCnyRate !== null
+      ? { value: item.defaults.defaultUsdCnyRate, source: "个人" }
+      : brand?.defaults.defaultUsdCnyRate !== null && brand?.defaults.defaultUsdCnyRate !== undefined
+        ? { value: brand.defaults.defaultUsdCnyRate, source: `品牌 ${brand.name}` }
+        : { value: state.systemDefaults.usdCnyRate, source: "系统" };
+    const trims = item.defaults.defaultTrims.length
+      ? { count: item.defaults.defaultTrims.length, source: "个人" }
+      : { count: brand?.defaults.defaultTrims.length ?? 0, source: brand ? `品牌 ${brand.name}` : "系统" };
+    const otherCost = item.defaults.defaultOtherCost
+      ? { value: item.defaults.defaultOtherCost, source: "个人" }
+      : brand?.defaults.defaultOtherCost
+        ? { value: brand.defaults.defaultOtherCost, source: `品牌 ${brand.name}` }
+        : { value: state.systemDefaults.defaultOtherCost, source: "系统" };
+    return { rate, trims, otherCost };
+  };
+  const renderRate = (item: CustomerSalespersonRecord) => {
+    const resolved = inheritedDefaults(item).rate;
+    return <span className="qc-master-identity"><strong>{resolved.value ?? "未设置"}</strong><small>{resolved.source}</small></span>;
+  };
+  const renderTrims = (item: CustomerSalespersonRecord) => {
+    const resolved = inheritedDefaults(item).trims;
+    return <span className="qc-master-identity"><strong>{resolved.count} 条</strong><small>{resolved.source}</small></span>;
+  };
+  const renderOtherCost = (item: CustomerSalespersonRecord) => {
+    const resolved = inheritedDefaults(item).otherCost;
+    return <span className="qc-master-identity"><strong>{resolved.value?.name ?? "未设置"}</strong><small>{resolved.value ? `¥${resolved.value.amount?.toFixed(2) ?? "—"} / 件 · ${resolved.source}` : resolved.source}</small></span>;
+  };
 
   const openNew = () => { setError(""); openDraft(createSalespersonDraft(state.brands[0]?.id ?? "")); };
   const openEdit = (item: CustomerSalespersonRecord) => { setError(""); openDraft({ id: item.id, name: item.name, brandId: item.brandId, status: item.status, defaults: defaultConfigurationToDraft(item.defaults) }); };
@@ -222,11 +251,11 @@ export function CustomerSalespeopleSettingsPage() {
       { key: "name", header: "客户业务员", width: 170, sticky: "left", responsivePriority: "primary", render: (item: CustomerSalespersonRecord) => <strong>{item.name}</strong> },
       { key: "brand", header: "归属品牌", width: 150, responsivePriority: "primary", render: (item: CustomerSalespersonRecord) => brandNames.get(item.brandId) },
       { key: "status", header: "状态", width: 88, responsivePriority: "primary", render: (item: CustomerSalespersonRecord) => <StatusTag tone={item.status === "active" ? "success" : "neutral"}>{item.status === "active" ? "启用" : "停用"}</StatusTag> },
-      { key: "rate", header: "默认汇率", width: 115, align: "right", render: (item: CustomerSalespersonRecord) => item.defaults.defaultUsdCnyRate ?? "回退品牌值" },
-      { key: "trims", header: "默认辅料", width: 110, align: "right", render: (item: CustomerSalespersonRecord) => item.defaults.defaultTrims.length ? `${item.defaults.defaultTrims.length} 条` : "回退品牌值" },
-      { key: "other", header: "默认其他费用", minWidth: 160, render: (item: CustomerSalespersonRecord) => item.defaults.defaultOtherCost === null ? "回退品牌值" : <span className="qc-master-identity"><strong>{item.defaults.defaultOtherCost.name}</strong><small>¥{item.defaults.defaultOtherCost.amount?.toFixed(2) ?? "—"} / 件</small></span> },
+      { key: "rate", header: "默认汇率", width: 135, align: "right", render: renderRate },
+      { key: "trims", header: "默认辅料", width: 130, align: "right", render: renderTrims },
+      { key: "other", header: "默认其他费用", minWidth: 180, render: renderOtherCost },
       { key: "actions", header: "操作", width: 128, sticky: "right", responsivePriority: "primary", render: (item: CustomerSalespersonRecord) => <MasterDataActions label={`${item.name}更多操作`} primary={<PermissionButton permission="settings.salesperson.edit" variant="tertiary" onClick={() => openEdit(item)}>编辑</PermissionButton>}><PermissionButton permission="settings.salesperson.edit" variant="text" onClick={() => copy(item)}>复制资料</PermissionButton><PermissionButton permission="settings.salesperson.edit" variant="danger" onClick={() => remove(item)}>删除业务员</PermissionButton></MasterDataActions> },
-    ] satisfies DataColumn<CustomerSalespersonRecord>[]} rowKey={(item) => item.id} ariaLabel="客户业务员设置" emptyTitle="没有匹配的客户业务员" emptyDescription={query ? "请调整搜索关键词" : "可从页面右上角新增第一位客户业务员"} renderRecord={(item) => <div className="qc-master-record"><header><strong>{item.name}</strong><StatusTag tone={item.status === "active" ? "success" : "neutral"}>{item.status === "active" ? "启用" : "停用"}</StatusTag></header><dl><div><dt>归属品牌</dt><dd>{brandNames.get(item.brandId) ?? "—"}</dd></div><div><dt>默认汇率</dt><dd>{item.defaults.defaultUsdCnyRate ?? "回退品牌值"}</dd></div><div><dt>默认辅料</dt><dd>{item.defaults.defaultTrims.length ? `${item.defaults.defaultTrims.length} 条` : "回退品牌值"}</dd></div></dl><footer><MasterDataActions label={`${item.name}更多操作`} primary={<PermissionButton permission="settings.salesperson.edit" variant="tertiary" onClick={() => openEdit(item)}>编辑</PermissionButton>}><PermissionButton permission="settings.salesperson.edit" variant="text" onClick={() => copy(item)}>复制资料</PermissionButton><PermissionButton permission="settings.salesperson.edit" variant="danger" onClick={() => remove(item)}>删除业务员</PermissionButton></MasterDataActions></footer></div>} /></Card>
+    ] satisfies DataColumn<CustomerSalespersonRecord>[]} rowKey={(item) => item.id} ariaLabel="客户业务员设置" emptyTitle="没有匹配的客户业务员" emptyDescription={query ? "请调整搜索关键词" : "可从页面右上角新增第一位客户业务员"} renderRecord={(item) => <div className="qc-master-record"><header><strong>{item.name}</strong><StatusTag tone={item.status === "active" ? "success" : "neutral"}>{item.status === "active" ? "启用" : "停用"}</StatusTag></header><dl><div><dt>归属品牌</dt><dd>{brandNames.get(item.brandId) ?? "—"}</dd></div><div><dt>默认汇率</dt><dd>{renderRate(item)}</dd></div><div><dt>默认辅料</dt><dd>{renderTrims(item)}</dd></div></dl><footer><MasterDataActions label={`${item.name}更多操作`} primary={<PermissionButton permission="settings.salesperson.edit" variant="tertiary" onClick={() => openEdit(item)}>编辑</PermissionButton>}><PermissionButton permission="settings.salesperson.edit" variant="text" onClick={() => copy(item)}>复制资料</PermissionButton><PermissionButton permission="settings.salesperson.edit" variant="danger" onClick={() => remove(item)}>删除业务员</PermissionButton></MasterDataActions></footer></div>} /></Card>
     <Drawer open={Boolean(draft)} className="qc-master-data-drawer" title={state.customerSalespeople.some((item) => item.id === draft?.id) ? "编辑客户业务员" : "新增客户业务员"} description="姓名在整个系统内唯一；个人默认配置优先于品牌默认配置。" onClose={requestClose} onSubmit={save} footer={<><Button variant="secondary" onClick={requestClose}>取消</Button><Button type="submit">保存客户业务员</Button></>}>
       {draft && <SalespersonFormFields draft={draft} brands={state.brands} trimLibrary={state.trimLibrary} onChange={(next) => { setDraft(next); setError(""); }} error={error} canCreateTrim={can("settings.trim.edit")} onCreateTrim={openQuickTrim} />}
     </Drawer>

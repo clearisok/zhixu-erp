@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { FloatingMenu } from "./floating-menu";
 
 export function MasterDataActions({ primary, children, label = "更多操作" }: {
   primary: ReactNode;
@@ -7,9 +8,6 @@ export function MasterDataActions({ primary, children, label = "更多操作" }:
 }) {
   return <div className="qc-master-actions">
     {primary}
-    {children && <details className="qc-master-more">
-      <summary aria-label={label}>更多</summary>
-      <div>{children}</div>
-    </details>}
+    {children && <FloatingMenu className="qc-master-more" menuClassName="qc-master-more-menu" label={label}>{children}</FloatingMenu>}
   </div>;
 }

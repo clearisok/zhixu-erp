@@ -2,7 +2,7 @@ import { formatFinalGarmentPrice } from "./final-quote-format.ts";
 import { formatMoney, nullablePriceVersionMetrics } from "./quote-presentation.ts";
 import type { NullableNumber, PriceVersion } from "./quote-view-model.ts";
 
-export type QuoteMetricKey = "fabric" | "trim" | "labor" | "garment";
+export type QuoteMetricKey = "fabric" | "trim" | "labor" | "other" | "garment";
 
 export type QuoteMetricViewModel = {
   key: QuoteMetricKey;
@@ -53,6 +53,15 @@ export function createQuoteMetricsViewModel(version: PriceVersion): QuoteMetricV
       unit: laborCurrency === "USD" ? "USD / 件" : "RMB / 件",
       secondaryLabel: laborCurrency === "USD" ? "RMB折合" : "加成后",
       secondaryValue: formatMoney(laborCurrency === "USD" ? metrics.laborRmb : metrics.laborWithMarkup),
+      primary: false,
+    },
+    {
+      key: "other",
+      label: "其他费用",
+      value: formatMoney(metrics.otherCost),
+      unit: "RMB / 件",
+      secondaryLabel: "计入",
+      secondaryValue: "加成前合计",
       primary: false,
     },
     {
