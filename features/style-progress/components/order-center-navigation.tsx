@@ -6,7 +6,6 @@ const items = [
   { label: "订单列表", href: "/order-center", matches: (path: string) => path === "/order-center" || path === "/order-center/detail" || path === "/order-center/new" },
   { label: "款式进度", href: "/order-center/style-progress", matches: (path: string) => path.startsWith("/order-center/style-progress") },
   { label: "风险预警", href: "/order-center/risks", matches: (path: string) => path.startsWith("/order-center/risks") },
-  { label: "艾诺科同步", href: "/ainuoke-sync", matches: (path: string) => path.startsWith("/ainuoke-sync") },
 ];
 
 export function OrderCenterNavigation() {

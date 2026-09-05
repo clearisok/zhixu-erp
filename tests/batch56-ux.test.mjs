@@ -44,8 +44,10 @@ test("订单详情款号为主视觉、订单号只读并保护未保存返回",
   assert.match(source, /系统订单号/);
   assert.doesNotMatch(source, /label="订单号" required><input/);
   for (const text of ["当前订单有未保存修改", "继续编辑", "不保存并返回", "保存并返回"]) assert.match(source, new RegExp(text));
-  const singleStyle = source.slice(source.indexOf('<section id="order-business"'), source.indexOf('<section id="order-delivery"'));
-  assert.match(singleStyle, /客户 PO/);
+  const businessMarker = source.indexOf('id="order-business"');
+  const deliveryMarker = source.indexOf('id="order-delivery"');
+  const singleStyle = source.slice(source.lastIndexOf("<section", businessMarker), source.lastIndexOf("<section", deliveryMarker));
+  assert.match(singleStyle, /客户 \/ PO/);
   assert.doesNotMatch(singleStyle, /平均日产量|工艺说明/);
 });
 
@@ -54,9 +56,9 @@ test("排单 UI 隐藏排期依据，新建无变更原因并联动日产与工�
   assert.doesNotMatch(source, /工期口径|排期依据/);
   assert.match(source, /label="平均日产"/);
   assert.match(source, /label="所需工作日"/);
-  assert.match(source, /Math\.ceil\(\(form\.quantity \?\? 0\) \/ value\)/);
-  assert.match(source, /Math\.ceil\(\(form\.quantity \?\? 0\) \/ workdays\)/);
-  assert.match(source, /\{form\.id && <><FormItem label="完成数量"/);
+  assert.match(source, /Math\.ceil\(\s*\(form\.quantity \?\? 0\) \/ value\s*\)/);
+  assert.match(source, /Math\.ceil\(\s*\(form\.quantity \?\? 0\) \/ workdays\s*\)/);
+  assert.match(source, /\{form\.id && \([\s\S]*?<FormItem label="完成数量"/);
   assert.deepEqual(deriveRequiredWorkdays(4000, "average_daily_output", 500, null), { requiredWorkdays: 8, averageDailyOutputSnapshot: 500 });
   assert.deepEqual(deriveRequiredWorkdays(4000, "workdays", null, 6), { requiredWorkdays: 6, averageDailyOutputSnapshot: 667 });
 });
@@ -112,16 +114,16 @@ test("报价 Sticky Header 使用 56px 克制摘要并显示款号、版本和�
 test("结束排单首层支持仅记录或预览后应用建议", () => {
   const source = readFileSync(new URL("../features/production-scheduling/components/production-scheduling-page.tsx", import.meta.url), "utf8");
   assert.match(source, /title="结束排单"/);
-  assert.match(source, />仅记录结束</);
-  assert.match(source, />结束并应用建议</);
+  assert.match(source, />\s*仅记录结束\s*</);
+  assert.match(source, />\s*结束并应用建议\s*</);
   assert.match(source, /setCompletionPreview\(preview\)/);
   assert.doesNotMatch(source, />下一步</);
 });
 
 test("排单页 hydration、生产组 fallback 与外发厂审计采用统一正式路径", () => {
   const source = readFileSync(new URL("../features/production-scheduling/components/production-scheduling-page.tsx", import.meta.url), "utf8");
-  assert.match(source, /useState<OperationsSettingsState>\(defaultOperationsSettings\)/);
-  assert.match(source, /item\?\.productionGroupId \|\| selectedGroupId \|\| settings\.productionGroups\.find/);
+  assert.match(source, /useState<OperationsSettingsState>\(\s*defaultOperationsSettings,?\s*\)/);
+  assert.match(source, /item\?\.productionGroupId \|\|\s*selectedGroupId \|\|\s*settings\.productionGroups\.find/);
   assert.match(source, /createOperationsSettingsOperationLogs\(settings, nextSettings/);
   assert.match(source, /operationLogRepository\.appendMany\(logs\)/);
 });

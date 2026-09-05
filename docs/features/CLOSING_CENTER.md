@@ -6,8 +6,9 @@
 
 ## Current behavior
 
-- `/closing-center` 提供“月度关账”和“产值平衡”；一月一个 ClosingPeriod，一张订单可跨月、多次关账。
-- 月度关账按 SalesOrder 汇总，展开后显示 ClosingAllocation。归属可引用 ScheduleAssignment，也可以不关联排单并计入“待分配”。
+- `/closing-center` 是月份总览：月份倒序、按年分组，并支持全部/开放中/已确认/已锁定筛选；一月一个 ClosingPeriod，一张订单可跨月、多次关账。
+- `/closing-center/detail?month=YYYY-MM` 是月份详情；路由月份决定 KPI、订单行、归属筛选和全部动作。月切换会实际切换数据，不只修改标题。
+- 月份详情按 SalesOrder 汇总 ClosingAllocation，并列展示订单数量、已排、已生产、本月关账和累计关账。归属可引用 ScheduleAssignment，也可以不关联排单并计入“待分配”。
 - 内部、外发与待分配可在同一订单、同一月份并存。订单详情读取同一 Projection 展示累计关账数量和加工产值。
 - 开放月份可编辑；已确认月份可取消确认或锁定；锁定月份拒绝普通编辑。重新打开需要 `closing.reopen` 和原因。
 - 默认销售税率只在创建期间时形成快照；现有 MonthlyProductionTarget 直接用于产值平衡。
@@ -21,7 +22,8 @@
 - internal 只保存生产组快照；outsource 只保存外发厂快照；null 为待分配。
 - 超订单、超排单、超完成、待分配、排单 stale 和价格差异是 warning，不截断真实数量。负数、坏 owner、USD 无有效汇率和经销无销售价是 hard error。
 - 排单执行类型、执行方、计划数量或取消/缺失会 stale；仅 completedQuantity 变化不会 stale。用户可明确同步或填写原因保留快照。
-- 状态流为 `open → confirmed → locked`；confirmed 可取消确认；locked 只能以高权限和原因重开。
+- 状态流为 `open → confirmed → locked`；confirmed 与 locked 不合并，confirmed 可取消确认或进入锁定；locked 只能以高权限和原因重开。
+- Modal 内校验错误由 body Portal 的 Error Layer 展示，必须高于 Modal，不得被遮挡。
 
 ## Data model and code
 
@@ -38,7 +40,7 @@
 - 使用既有 `closing.view/edit/confirm/lock/reopen/target.manage`，默认只有管理员拥有。
 - 所有动作写入唯一 OperationLog，使用 `orderId/closingPeriodId/closingAllocationId` 和可选 `scheduleAssignmentId`。
 - ClosingSearchProvider 搜索月份、订单、款式、客户及执行方，并检查 `closing.view`。
-- schemaVersion 为 8。v7→v8 只新增 closing-center record；v7 其他 payload 原样重封装。Backup/Restore 校验期间、订单与排单引用；旧 v7 备份安全初始化空关账集合。
+- schemaVersion 为 12。v7→v8 只新增 closing-center record；后续迁移保持稳定 record 与 owner 引用。Backup/Restore 校验期间、订单与排单引用；旧 v7 备份安全初始化空关账集合。
 
 ## Known gaps
 

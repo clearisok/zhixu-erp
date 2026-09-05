@@ -7,6 +7,7 @@ import {
   Button,
   Card,
   ContextSummary,
+  Drawer,
   FormItem,
   FormSection,
   FormShell,
@@ -14,6 +15,7 @@ import {
   NullableNumberInput,
   PageContainer,
   PageHeader,
+  PageBackButton,
   SaveBar,
   Toast,
 } from "@/components/foundation";
@@ -36,7 +38,7 @@ import {
   loadBasicSettings,
   saveBasicSettings,
 } from "../../basic-settings/repository/basic-settings-repository";
-import { copyPriceVersion, costLineAmount } from "../model/quote-calculations";
+import { calculatePriceVersionMetrics, copyPriceVersion, costLineAmount } from "../model/quote-calculations";
 import {
   createEmptyOtherCostLine,
   createEmptyFabricCostLine,
@@ -134,6 +136,7 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   const [stickyVisible, setStickyVisible] = useState(false);
   const [headerActionMode, setHeaderActionMode] = useState<QuoteActionBarMode>("compact");
   const [pricingOpen, setPricingOpen] = useState(false);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportScope, setExportScope] = useState<QuoteExportScope>("all");
@@ -672,6 +675,7 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   };
 
   if (!activeVersion) return null;
+  const breakdownMetrics = calculatePriceVersionMetrics(activeVersion);
 
   const selectViewedRevision = (nextRevision: QuoteRevision) => {
     setViewedRevisionId(nextRevision.revisionId);
@@ -742,12 +746,6 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
     ...(!isNew ? [{ id: "quote-section-history", label: "报价历史" }] : []),
   ];
 
-  const leadingAction: QuoteActionDescriptor = {
-    id: "back",
-    label: "返回列表",
-    variant: "secondary",
-    onClick: () => requestNavigation("/quote-center"),
-  };
   const contextualActions: QuoteActionDescriptor[] = isHistorical ? [
     { id: "revisions", label: "报价版本", permission: "quote.revision.view", variant: "secondary", onClick: () => setRevisionManagerOpen(true) },
     { id: "operation-log", label: "操作记录", permission: "quote.view", variant: "secondary", onClick: () => setOperationLogOpen(true) },
@@ -768,7 +766,7 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   const primaryAction: QuoteActionDescriptor | undefined = isHistorical
     ? { id: "update-revision", label: "更新此报价版本", permission: "quote.revision.update", variant: "primary", onClick: () => setRevisionManagerOpen(true) }
     : { id: "save", label: "保存草稿", permission: "quote.edit", variant: "primary", onClick: save };
-  const quoteActionBarProps = { leadingAction, actions: contextualActions, primaryAction, quickNavigationItems };
+  const quoteActionBarProps = { actions: contextualActions, primaryAction, quickNavigationItems };
 
   const headerActions = <div className="qc-quote-header-controls">
     <QuoteActionBar {...quoteActionBarProps} onModeChange={setHeaderActionMode} />
@@ -776,8 +774,8 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
 
   return <AppShell title={isNew ? "新建报价" : "款式报价明细"} onRequestNavigation={requestNavigation}><PageContainer>
     <FormShell className="qc-page-form-shell" submitOnEnter={false} onSubmit={() => { if (!quoteReadOnly) return save(); }}>
-    <div ref={titleSentinelRef} className="qc-title-sentinel"><PageHeader className="qc-quote-object-header" variant="object" eyebrow="QUOTE WORKSPACE" title={pageTitle} description={<span className="qc-quote-object-description"><strong>{pageSubtitle}</strong><span className="qc-workspace-metadata"><b>{revision.baseInfo.brandName || "未填写品牌"}</b><span>{revision.baseInfo.salespersonName || "未填写客户业务员"}</span><span>{revision.baseInfo.quoteType === "distribution" ? "经销报价" : "加工报价"}</span><span>{quoteStatusLabel}</span><span>报价编号 {quote.quoteCode}</span><span>{isHistorical ? "历史只读" : "当前编辑"}</span></span></span>} actions={headerActions} /><QuoteMetrics className="qc-header-metrics" version={activeVersion} revision={revision} /></div>
-    <div className={`qc-sticky-header ${stickyVisible ? "is-visible" : ""}`} aria-hidden={!stickyVisible}><div className="qc-sticky-summary"><strong>{pageTitle}</strong><small>{revision.baseInfo.brandName || "未填写客户"} · {pageSubtitle}</small></div><div className="qc-sticky-state"><span>{activePriceDisplayName}</span><span>{confirmationSummaryLabel(revision.confirmationSummary)}</span><b>{isDirty ? "有未保存修改" : "已保存"}</b></div><div className="qc-sticky-actions">{!isHistorical && <Button permission="quote.edit" onClick={save}>保存</Button>}{!isNew && <Button permission="order.create" variant="secondary" onClick={() => setQuoteToOrderOpen(true)}>生成订单</Button>}</div></div>
+    <div ref={titleSentinelRef} className="qc-title-sentinel"><PageHeader className="qc-quote-object-header" variant="object" eyebrow="QUOTE WORKSPACE" title={pageTitle} back={<PageBackButton fallbackHref="/quote-center" label="返回报价中心" />} description={<span className="qc-quote-object-description"><strong>{pageSubtitle}</strong><span className="qc-workspace-metadata"><b>{revision.baseInfo.brandName || "未填写品牌"}</b><span>{revision.baseInfo.salespersonName || "未填写客户业务员"}</span><span>{revision.baseInfo.quoteType === "distribution" ? "经销报价" : "加工报价"}</span><span>{quoteStatusLabel}</span><span>报价编号 {quote.quoteCode}</span><span>{isHistorical ? "历史只读" : "当前编辑"}</span></span></span>} actions={headerActions} /><QuoteMetrics className="qc-header-metrics" version={activeVersion} revision={revision} onFinalQuoteClick={() => setBreakdownOpen(true)} /></div>
+    <div className={`qc-sticky-header ${stickyVisible ? "is-visible" : ""}`} aria-hidden={!stickyVisible}><div className="qc-sticky-summary"><strong>{pageTitle}</strong><small>{pageSubtitle} · {revision.baseInfo.brandName || "未填写品牌"} · {revision.baseInfo.salespersonName || "未填写业务员"}</small></div><div className="qc-sticky-state"><span>{revision.revisionLabel} · {activePriceDisplayName}</span><span>{activeProductionLabel} · {revision.baseInfo.quoteType === "distribution" ? "经销" : "加工"}</span><span>{activeVersion.quantity === null ? "数量未填写" : `${activeVersion.quantity.toLocaleString("zh-CN")} 件`} · 成衣 {formatFinalGarmentPrice(metrics?.garmentSellingPrice ?? null)}</span><span>工价 {activeVersion.labor.value === null ? "—" : activeVersion.labor.value.toFixed(2)} {activeVersion.pricingParameters.laborCurrency} · {confirmationSummaryLabel(revision.confirmationSummary)}</span><b>{isDirty ? "有未保存修改" : "已保存"}</b></div><div className="qc-sticky-actions">{!isHistorical && <Button permission="quote.edit" onClick={save}>保存</Button>}{!isNew && <Button permission="order.create" variant="secondary" onClick={() => setQuoteToOrderOpen(true)}>生成订单</Button>}</div></div>
     <div className="qc-quote-functional-stack">
       <div className={`qc-quick-navigation-normal ${headerActionMode === "full" ? "" : "is-collapsed"}`}><QuoteQuickNavigation items={quickNavigationItems} /></div>
       <div className={`qc-quote-version-bar qc-price-version-context ${isHistorical ? "is-history" : ""}`}>
@@ -829,6 +827,19 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
     {!isNew && <OperationLogModal open={operationLogOpen} quoteId={quote.id} onClose={() => setOperationLogOpen(false)} />}
     {!isNew && quoteToOrderOpen && <QuoteToOrderModal open quote={quote} defaultRevisionId={revision.revisionId} defaultPriceVersionId={activeVersion.id} onClose={() => setQuoteToOrderOpen(false)} />}
     <Modal open={Boolean(pendingEstimateGeneration)} title="重新生成估算成本？" description="当前估算将归档到历史记录，新估算会从所选报价版本重新形成独立快照。" onClose={() => setPendingEstimateGeneration(null)} onSubmit={() => { if (pendingEstimateGeneration) commitEstimateGeneration(pendingEstimateGeneration.source); }} footer={<><Button variant="secondary" onClick={() => setPendingEstimateGeneration(null)}>取消</Button><Button type="submit">确认重新生成</Button></>}><p className="qc-unsaved-message">已有估算成本不会丢失，可随时从历史记录恢复并克隆为新的当前估算。</p></Modal>
+    <Drawer open={breakdownOpen} title="最终报价构成" eyebrow="PRICE BREAKDOWN" description={`${activePriceDisplayName} · 所有金额来自正式 PriceVersion Calculator`} onClose={() => setBreakdownOpen(false)}>
+      <dl className="qc-price-breakdown">
+        <div><dt>面料（加成前）</dt><dd>¥{breakdownMetrics.fabricCost.toFixed(2)}</dd></div>
+        <div><dt>辅料（加成前）</dt><dd>¥{breakdownMetrics.trimCost.toFixed(2)}</dd></div>
+        <div><dt>工价原币</dt><dd>{activeVersion.pricingParameters.laborCurrency === "USD" ? "$" : "¥"}{breakdownMetrics.laborInput.toFixed(2)} {activeVersion.pricingParameters.laborCurrency}</dd></div>
+        <div><dt>工价 RMB 折合</dt><dd>¥{breakdownMetrics.laborRmb.toFixed(2)}</dd></div>
+        <div><dt>其他费用</dt><dd>¥{breakdownMetrics.otherCost.toFixed(2)}</dd></div>
+        <div><dt>加成前合计</dt><dd>¥{breakdownMetrics.preMarkupTotal.toFixed(2)}</dd></div>
+        <div><dt>成本加成率</dt><dd>{activeVersion.pricingParameters.markupRate === null ? "未设置" : `${activeVersion.pricingParameters.markupRate}%`}</dd></div>
+        <div className="is-total"><dt>最终报价</dt><dd>{formatFinalGarmentPrice(breakdownMetrics.garmentSellingPrice)} RMB / 件</dd></div>
+      </dl>
+      <div className="qc-price-breakdown-context"><span>制作国家 <b>{activeVersion.pricingParameters.manufacturingCountry || "未设置"}</b></span><span>加工币种 <b>{activeVersion.pricingParameters.laborCurrency}</b></span>{activeVersion.pricingParameters.laborCurrency === "USD" && <span>USD/CNY 汇率 <b>{activeVersion.pricingParameters.usdCnyRate ?? "未设置"}</b></span>}</div>
+    </Drawer>
     <Toast message={toast} />
   </PageContainer></AppShell>;
 }

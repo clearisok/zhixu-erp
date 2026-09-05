@@ -64,7 +64,7 @@ const LEGACY_BASIC_SETTINGS_STORAGE_KEYS = ["zhixu.basic-settings.v1.5", "zhixu.
 export function defaultQuoteSettingsForUser(userId: string): QuoteUserSettings {
   return {
     userId,
-    visibleColumns: ["style", "brand", "type", "revision", "versions", "garmentPrice", "confirmationStatus", "status", "date"],
+    visibleColumns: ["styleImage", "styleIdentity", "brand", "type", "revision", "versions", "garmentPrice", "confirmationStatus", "status", "date"],
     newQuoteDefaults: { markupRate: null, laborCurrency: "CNY" },
   };
 }
@@ -85,11 +85,14 @@ export function normalizeQuoteSettings(value: Partial<QuoteUserSettings> | null 
   const userId = value?.userId?.trim() || fallbackUserId;
   const defaults = defaultQuoteSettingsForUser(userId);
   const allowed = new Set(listColumnOptions.map((item) => item.key));
-  const aliases: Record<string, ListColumnKey> = { sales: "salesperson" };
-  const visibleColumns = value?.visibleColumns?.map((key) => aliases[key] ?? key).filter((key): key is ListColumnKey => allowed.has(key as ListColumnKey)) ?? defaults.visibleColumns;
+  const aliases: Record<string, ListColumnKey | ListColumnKey[]> = { sales: "salesperson", style: ["styleImage", "styleIdentity"] };
+  const visibleColumns = value?.visibleColumns?.flatMap((key) => {
+    const mapped = aliases[key] ?? key;
+    return Array.isArray(mapped) ? mapped : [mapped];
+  }).filter((key): key is ListColumnKey => allowed.has(key as ListColumnKey)) ?? defaults.visibleColumns;
   return {
     userId,
-    visibleColumns: visibleColumns.length ? visibleColumns : ["style"],
+    visibleColumns: visibleColumns.length ? [...new Set(visibleColumns)] : ["styleImage", "styleIdentity"],
     newQuoteDefaults: {
       markupRate: value?.newQuoteDefaults?.markupRate ?? defaults.newQuoteDefaults.markupRate,
       laborCurrency: value?.newQuoteDefaults?.laborCurrency === "USD" ? "USD" : "CNY",

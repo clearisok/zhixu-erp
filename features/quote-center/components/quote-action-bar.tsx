@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { Button } from "@/components/foundation";
+import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Button, FloatingMenu } from "@/components/foundation";
 import type { PermissionKey } from "@/features/permissions";
 import { QuoteQuickNavigation, type QuoteQuickNavigationItem } from "./quote-quick-navigation";
 import { resolveQuoteActionBarMode, type QuoteActionBarMode, type QuoteActionRequiredWidths } from "./quote-action-layout";
@@ -18,7 +18,7 @@ export type QuoteActionDescriptor = {
 };
 
 type QuoteActionBarProps = {
-  leadingAction: QuoteActionDescriptor;
+  leadingAction?: QuoteActionDescriptor;
   actions: QuoteActionDescriptor[];
   primaryAction?: QuoteActionDescriptor;
   quickNavigationItems: QuoteQuickNavigationItem[];
@@ -58,7 +58,6 @@ export function QuoteActionBar({
   onModeChange,
 }: QuoteActionBarProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const detailsRef = useRef<HTMLDetailsElement>(null);
   const probeRefs = useRef<Record<QuoteActionBarMode, HTMLDivElement | null>>({
     full: null,
     "compact-navigation": null,
@@ -67,7 +66,6 @@ export function QuoteActionBar({
   });
   const [mode, setMode] = useState<QuoteActionBarMode>("compact");
   const [measured, setMeasured] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
 
   const measure = useCallback(() => {
     const availableWidth = rootRef.current?.getBoundingClientRect().width ?? 0;
@@ -94,23 +92,6 @@ export function QuoteActionBar({
     return () => observer.disconnect();
   }, [measure]);
 
-  useEffect(() => {
-    if (!moreOpen) return;
-    const closeOutside = (event: PointerEvent) => {
-      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) detailsRef.current?.removeAttribute("open");
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") detailsRef.current?.removeAttribute("open");
-    };
-    document.addEventListener("pointerdown", closeOutside);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeOutside);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [moreOpen]);
-
-  const closeMore = () => detailsRef.current?.removeAttribute("open");
   const showNavigation = mode === "compact-navigation";
   const showPrimary = mode !== "minimal" && primaryAction;
   const hasMore = actions.length > 0;
@@ -121,35 +102,32 @@ export function QuoteActionBar({
     data-action-mode={mode}
   >
     <div className="qc-quote-action-visible">
-      <ActionButton action={leadingAction} />
+      {leadingAction && <ActionButton action={leadingAction} />}
       {mode === "full" && actions.map((action) => <ActionButton key={action.id} action={action} />)}
-      {mode !== "full" && hasMore && <details ref={detailsRef} className="qc-secondary-actions qc-quote-action-more" onToggle={(event) => setMoreOpen(event.currentTarget.open)}>
-        <summary>更多</summary>
-        <div>{actions.map((action) => <ActionButton key={action.id} action={action} inMenu onAfterClick={closeMore} />)}</div>
-      </details>}
+      {mode !== "full" && hasMore && <FloatingMenu className="qc-secondary-actions qc-quote-action-more" menuClassName="qc-quote-action-menu" label="更多报价操作">{actions.map((action) => <ActionButton key={action.id} action={action} inMenu />)}</FloatingMenu>}
       {showPrimary && <ActionButton action={primaryAction} />}
       {showNavigation && <QuoteQuickNavigation items={quickNavigationItems} presentation="dropdown" />}
     </div>
 
     <div className="qc-quote-action-probes" aria-hidden="true">
       <div ref={(node) => { probeRefs.current.full = node; }} className="qc-quote-action-probe">
-        <ActionProbe action={leadingAction} />
+        {leadingAction && <ActionProbe action={leadingAction} />}
         {actions.map((action) => <ActionProbe key={action.id} action={action} />)}
         {primaryAction && <ActionProbe action={primaryAction} />}
       </div>
       <div ref={(node) => { probeRefs.current["compact-navigation"] = node; }} className="qc-quote-action-probe">
-        <ActionProbe action={leadingAction} />
+        {leadingAction && <ActionProbe action={leadingAction} />}
         {hasMore && <span className="qc-secondary-actions"><span className="qc-action-probe-summary">更多</span></span>}
         {primaryAction && <ActionProbe action={primaryAction} />}
         <span className="qc-action-probe-navigation">快速导航⌄</span>
       </div>
       <div ref={(node) => { probeRefs.current.compact = node; }} className="qc-quote-action-probe">
-        <ActionProbe action={leadingAction} />
+        {leadingAction && <ActionProbe action={leadingAction} />}
         {hasMore && <span className="qc-secondary-actions"><span className="qc-action-probe-summary">更多</span></span>}
         {primaryAction && <ActionProbe action={primaryAction} />}
       </div>
       <div ref={(node) => { probeRefs.current.minimal = node; }} className="qc-quote-action-probe">
-        <ActionProbe action={leadingAction} />
+        {leadingAction && <ActionProbe action={leadingAction} />}
         {hasMore && <span className="qc-secondary-actions"><span className="qc-action-probe-summary">更多</span></span>}
       </div>
     </div>

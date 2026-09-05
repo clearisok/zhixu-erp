@@ -8,7 +8,8 @@ import { normalizeStyleNo } from "../features/ainuoke-sync/model/style-normalize
 import { stableSourceHash } from "../features/ainuoke-sync/parser/ainuoke-excel-parser.ts";
 import { parseHistoricalScheduleWorkbook } from "../features/ainuoke-sync/parser/historical-production-parser.ts";
 import { candidateOrdersForContract, synchronizeAinuokeContracts } from "../features/ainuoke-sync/service/ainuoke-sync-service.ts";
-import { createManualOrder } from "../features/order-center/service/order-service.ts";
+import { changeOrderQuantity, createManualOrder } from "../features/order-center/service/order-service.ts";
+import { getEffectiveColorQuantity, getEffectiveQuantity, validateOrderCollection } from "../features/order-center/model/order.ts";
 import { createClosingPeriod, createAllocationDraft } from "../features/closing-center/service/closing-service.ts";
 import { emptyClosingState } from "../features/closing-center/model/closing.ts";
 import { defaultOperationsSettings } from "../features/operations-settings/model/operations-settings.ts";
@@ -71,6 +72,25 @@ test("same contract sync is idempotent for orders, quantity history, colors, and
   const source = contract(); const first = synchronizeAinuokeContracts({ state: emptyAinuokeSyncState(), contracts: [source], orders: [], settings, actor, timestamp: "2026-08-31T00:00:00.000Z" });
   const second = synchronizeAinuokeContracts({ state: first.state, contracts: [source], orders: first.orders, settings, actor, timestamp: "2026-08-31T00:01:00.000Z" });
   assert.equal(second.orders.length, 1); assert.equal(second.report.autoCreatedCount, 0); assert.equal(second.report.unchangedExistingCount, 1); assert.equal(second.orders[0].quantityChanges.length, first.orders[0].quantityChanges.length); assert.equal(second.orders[0].orderColorLines.length, first.orders[0].orderColorLines.length); assert.equal(second.orders[0].deliveryPlans.length, first.orders[0].deliveryPlans.length);
+});
+
+test("Ainuoke resync updates source color quantity without losing cancellation adjustments", () => {
+  const first = synchronizeAinuokeContracts({ state: emptyAinuokeSyncState(), contracts: [contract()], orders: [], settings, actor, timestamp: "2026-08-31T00:00:00.000Z" });
+  const lineId = first.orders[0].orderColorLines[0].id;
+  const cancelled = changeOrderQuantity(first.orders[0], { afterQuantity: 80, changeType: "partial_cancel", reason: "客户取消黑色 20", actor, colorQuantities: [{ colorLineId: lineId, afterQuantity: 80 }] });
+  const source120 = contract({ quantity: 120, colorQuantity: 120, colorLines: [{ colorName: "黑色", quantity: 120, deliveryDate: "2026-10-01", sourceRows: [4] }], deliveryLines: [{ deliveryDate: "2026-10-01", quantity: 120 }] });
+  const resynced = synchronizeAinuokeContracts({ state: first.state, contracts: [source120], orders: [cancelled], settings, actor, timestamp: "2026-09-01T00:00:00.000Z" });
+  const updated = resynced.orders[0];
+  assert.equal(updated.orderColorLines[0].quantity, 120);
+  assert.equal(updated.quantityChanges[0].colorAdjustments[0].delta, -20);
+  assert.equal(getEffectiveColorQuantity(updated, lineId), 100);
+  assert.equal(getEffectiveQuantity(updated), 100);
+  assert.equal(updated.quantityChanges.length, 2);
+  assert.equal(updated.quantityChanges.at(-1).source, "ainuoke_sync");
+  assert.doesNotThrow(() => validateOrderCollection([updated]));
+  const repeated = synchronizeAinuokeContracts({ state: resynced.state, contracts: [source120], orders: resynced.orders, settings, actor, timestamp: "2026-09-01T00:01:00.000Z" });
+  assert.equal(repeated.orders[0].quantityChanges.length, 2);
+  assert.equal(getEffectiveColorQuantity(repeated.orders[0], lineId), 100);
 });
 
 test("purchased trim rules start on 2026-08-01 and preserve null for other brands", () => {

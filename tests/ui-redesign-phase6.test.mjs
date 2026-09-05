@@ -86,7 +86,7 @@ test("Phase 6 正式页面共享 DataTable、移动投影、Drawer 与危险操�
   assert.equal((operations.match(/<DataTable/g) ?? []).length >= 3, true);
   assert.equal((operations.match(/renderRecord=/g) ?? []).length >= 3, true);
   assert.equal((operations.match(/<Drawer/g) ?? []).length >= 3, true);
-  assert.match(foundation, /<summary aria-label=\{label\}>更多<\/summary>/);
+  assert.match(foundation, /<FloatingMenu[^>]+label=\{label\}/);
   assert.match(basic, /variant="danger"[\s\S]{0,200}删除品牌/);
   assert.match(operations, /variant=\{item\.enabled \? "danger" : "text"\}/);
   assert.match(dataManagement, /title="备份与恢复"/);

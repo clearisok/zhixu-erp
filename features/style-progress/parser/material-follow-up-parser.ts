@@ -12,9 +12,59 @@ import type {
   RawCellValue,
 } from "../model/style-progress.ts";
 
-const REQUIRED_HEADERS = ["款号", "类型", "销售合同号", "面辅料编码", "面辅料名称", "需求数量", "采购单号", "入库单号", "出运单号", "出库单号"];
 const normalizeText = (value: unknown) => String(value ?? "").normalize("NFKC").trim();
 const normalizeKey = (value: unknown) => normalizeText(value).toLocaleUpperCase();
+type SemanticField =
+  | "styleNo" | "materialType" | "companyHeader" | "salesContractNo" | "brand" | "salesperson" | "owner" | "factoryStyleNo"
+  | "garmentColors" | "relatedGarmentColors" | "garmentQuantity" | "customerName" | "contractDeliveryDate"
+  | "materialCode" | "materialName" | "sourceActualName" | "plannedConsumption" | "lossRate" | "totalConsumption" | "width" | "gsm"
+  | "materialColor" | "specification" | "supplyMethod" | "requiredQuantity" | "sampleQuantity"
+  | "purchaseOrderNo" | "purchaseDate" | "supplier" | "purchaseEntity" | "sourceMaterialDueDate" | "currency" | "purchaser"
+  | "purchasedMaterialName" | "invoiceName" | "purchaseActualName" | "purchaseSpecification" | "purchaseColor" | "purchaseQuantity"
+  | "purchaseSampleQuantity" | "purchaseUnitPrice" | "purchaseAmount" | "purchaseExtraCost"
+  | "inboundDocumentNo" | "inboundDate" | "inboundQuantity" | "shipmentDocumentNo" | "shipmentDate" | "transportMode" | "shipmentQuantity"
+  | "outboundQuantity" | "outboundDocumentNo" | "outboundDate" | "actualConsumption";
+
+const FIELD_ALIASES: Record<Exclude<SemanticField, "purchaseQuantity">, string[]> = {
+  styleNo: ["款号"], materialType: ["类型", "物料类型"], companyHeader: ["公司抬头"], salesContractNo: ["销售合同号", "销售合同"], brand: ["客户品牌", "品牌"],
+  salesperson: ["业务员"], owner: ["跟单人", "负责人"], factoryStyleNo: ["工厂款号"], garmentColors: ["成衣颜色"], relatedGarmentColors: ["对应成衣颜色"], garmentQuantity: ["成衣数量", "订单数量"],
+  customerName: ["客户名称"], contractDeliveryDate: ["销售交期", "合同交期"], materialCode: ["面辅料编码", "物料编码"], materialName: ["面辅料名称", "物料名称"], sourceActualName: ["申购实际名称"],
+  plannedConsumption: ["单耗", "计划单耗"], lossRate: ["损耗", "损耗率"], totalConsumption: ["总耗"], width: ["门幅"], gsm: ["克重"], materialColor: ["颜色"], specification: ["规格成分", "申购规格"],
+  supplyMethod: ["提供方式", "供应方式"], requiredQuantity: ["需求数量"], sampleQuantity: ["样衣用量"], purchaseOrderNo: ["采购单号"], purchaseDate: ["采购日期"], supplier: ["供应商"], purchaseEntity: ["采购抬头", "采购主体"],
+  sourceMaterialDueDate: ["采购交期", "来源交期"], currency: ["币种"], purchaser: ["采购人"], purchasedMaterialName: ["采购面辅料名称"], invoiceName: ["开票名称"], purchaseActualName: ["实际名称", "采购实际名称"],
+  purchaseSpecification: ["采购规格"], purchaseColor: ["采购颜色"], purchaseSampleQuantity: ["采购样衣用量"], purchaseUnitPrice: ["采购价格", "采购单价"], purchaseAmount: ["采购金额"], purchaseExtraCost: ["额外费用"],
+  inboundDocumentNo: ["入库单号"], inboundDate: ["入库日期"], inboundQuantity: ["入库数", "入库数量"], shipmentDocumentNo: ["出运单号"], shipmentDate: ["出运日期"], transportMode: ["运输方式"], shipmentQuantity: ["出运数量"],
+  outboundQuantity: ["出库数量"], outboundDocumentNo: ["出库单号"], outboundDate: ["出库日期"], actualConsumption: ["厂供", "实际用量", "实际单耗"],
+};
+const REQUIRED_FIELDS = new Set<SemanticField>([
+  "styleNo", "materialType", "salesContractNo", "materialCode", "materialName", "requiredQuantity",
+  "purchaseOrderNo", "purchaseQuantity", "inboundDocumentNo", "inboundQuantity", "shipmentDocumentNo", "shipmentQuantity", "outboundDocumentNo", "outboundQuantity",
+]);
+
+export type MaterialFollowUpColumnMap = Record<SemanticField, number | null>;
+
+export function resolveMaterialFollowUpColumns(headers: string[]): MaterialFollowUpColumnMap {
+  const normalizedHeaders = headers.map(normalizeText);
+  const columns = {} as MaterialFollowUpColumnMap;
+  for (const [field, aliases] of Object.entries(FIELD_ALIASES) as [Exclude<SemanticField, "purchaseQuantity">, string[]][]) {
+    const matches = normalizedHeaders.flatMap((header, index) => aliases.includes(header) ? [index + 1] : []);
+    if (matches.length > 1) throw new Error(`关键表头无法唯一识别：${aliases.join(" / ")}`);
+    if (!matches.length && REQUIRED_FIELDS.has(field)) throw new Error(`缺少必需列：${aliases[0]}`);
+    columns[field] = matches[0] ?? null;
+  }
+  const purchaseQuantityMatches = normalizedHeaders.flatMap((header, index) => header === "采购数量" ? [index + 1] : []);
+  const purchaseStart = columns.purchaseOrderNo;
+  const purchaseEnd = columns.inboundDocumentNo;
+  const eventQuantityMatches = purchaseStart && purchaseEnd
+    ? purchaseQuantityMatches.filter((column) => column > purchaseStart && column < purchaseEnd)
+    : [];
+  if (eventQuantityMatches.length !== 1) {
+    if (!eventQuantityMatches.length) throw new Error("缺少必需列：采购数量（采购事件）");
+    throw new Error("关键表头无法唯一识别：采购数量（采购事件）");
+  }
+  columns.purchaseQuantity = eventQuantityMatches[0];
+  return columns;
+}
 const numberValue = (value: unknown): number | null => {
   if (value === null || value === undefined || value === "") return null;
   const parsed = typeof value === "number" ? value : Number(String(value).replaceAll(",", ""));
@@ -43,18 +93,18 @@ export async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
 
-function splitGarmentColors(value: unknown): string[] {
-  return [...new Set(normalizeText(value).split(/[,，;；]+/).map((item) => item.trim()).filter(Boolean))];
+export function splitGarmentColors(value: unknown): string[] {
+  return [...new Set(normalizeText(value).split(/[\/／,，;；、\r\n]+/).map((item) => item.trim()).filter(Boolean))];
 }
 
-type ParsedRow = { sourceRow: number; values: unknown[]; get: (column: number) => unknown };
+type ParsedRow = { sourceRow: number; values: unknown[]; get: (field: SemanticField) => unknown };
 
 function demandIdentity(row: ParsedRow): unknown[] {
   return [
-    normalizeKey(row.get(4)), normalizeKey(row.get(2)), normalizeKey(row.get(13)), normalizeText(row.get(14)), normalizeText(row.get(15)),
-    normalizeText(row.get(21)), normalizeText(row.get(9)), normalizeText(row.get(22)), normalizeText(row.get(23)),
-    numberValue(row.get(10)), numberValue(row.get(16)), numberValue(row.get(17)), numberValue(row.get(18)),
-    normalizeText(row.get(19)), normalizeText(row.get(20)), numberValue(row.get(24)), numberValue(row.get(25)),
+    normalizeKey(row.get("salesContractNo")), normalizeKey(row.get("materialType")), normalizeKey(row.get("materialCode")), normalizeText(row.get("materialName")), normalizeText(row.get("sourceActualName")),
+    normalizeText(row.get("materialColor")), normalizeText(row.get("garmentColors")), normalizeText(row.get("specification")), normalizeText(row.get("supplyMethod")),
+    numberValue(row.get("garmentQuantity")), numberValue(row.get("plannedConsumption")), numberValue(row.get("lossRate")), numberValue(row.get("totalConsumption")),
+    normalizeText(row.get("width")), normalizeText(row.get("gsm")), numberValue(row.get("requiredQuantity")), numberValue(row.get("sampleQuantity")),
   ];
 }
 
@@ -81,7 +131,7 @@ export async function parseMaterialFollowUpWorkbook(input: { buffer: ArrayBuffer
   if (!sheet) throw new Error("工作簿没有可读取的 Sheet");
   const headerRow = sheet.getRow(3);
   const headers = Array.from({ length: sheet.columnCount }, (_, index) => normalizeText(headerRow.getCell(index + 1).value));
-  for (const required of REQUIRED_HEADERS) if (!headers.includes(required)) throw new Error(`缺少必需列：${required}`);
+  const columns = resolveMaterialFollowUpColumns(headers);
   const fileHash = await sha256Hex(input.buffer);
   const now = input.now ?? new Date().toISOString();
   const batchId = `material-import-${fileHash.toLocaleLowerCase()}`;
@@ -104,30 +154,35 @@ export async function parseMaterialFollowUpWorkbook(input: { buffer: ArrayBuffer
     const values = Array.from({ length: sheet.columnCount }, (_, index) => worksheetRow.getCell(index + 1).value);
     if (!values.some((value) => value !== null && value !== undefined && normalizeText(value) !== "")) continue;
     batch.rawRowCount += 1;
-    const row: ParsedRow = { sourceRow, values, get: (column) => values[column - 1] };
+    const row: ParsedRow = { sourceRow, values, get: (field) => columns[field] ? values[columns[field]! - 1] : null };
     const issues: string[] = [];
-    const salesContractNo = normalizeKey(row.get(4));
-    const type = materialType(row.get(2));
-    const requiredQuantity = numberValue(row.get(24));
+    const salesContractNo = normalizeKey(row.get("salesContractNo"));
+    const type = materialType(row.get("materialType"));
+    const requiredQuantity = numberValue(row.get("requiredQuantity"));
     if (!salesContractNo) issues.push("销售合同号为空");
     if (!type) issues.push("类型必须为面料或辅料");
-    if (!normalizeText(row.get(13))) issues.push("面辅料编码为空");
+    if (!normalizeText(row.get("materialCode"))) issues.push("面辅料编码为空");
     if (requiredQuantity === null || requiredQuantity < 0) issues.push("需求数量无效");
     const demandId = issues.length ? null : `material-demand-${stableMaterialHash(demandIdentity(row))}`;
     const rawFields = Object.fromEntries(headers.map((header, index) => [`${index + 1}:${header || "未命名"}`, rawValue(values[index])]));
     rawSnapshots.push({ id: `material-raw-${stableMaterialHash([fileHash, sheet.name, sourceRow])}`, importBatchId: batchId, fileHash, fileName: input.fileName, sheetName: sheet.name, sourceRow, rawFields, normalizedDemandId: demandId, validationIssues: issues });
     if (issues.length || !demandId || !type || requiredQuantity === null) { batch.invalidRowCount += 1; continue; }
     batch.validRowCount += 1;
-    const sourceDue = dateValue(row.get(32));
+    const sourceDue = dateValue(row.get("sourceMaterialDueDate"));
     if (!demands.has(demandId)) {
-      const provided = normalizeText(row.get(23));
-      const plannedConsumption = numberValue(row.get(16));
+      const plannedConsumption = numberValue(row.get("plannedConsumption"));
+      const supplyMethod = normalizeText(row.get("supplyMethod")) || null;
+      const actualConsumption = numberValue(row.get("actualConsumption"));
+      const garmentColors = [...new Set([
+        ...splitGarmentColors(row.get("garmentColors")),
+        ...splitGarmentColors(row.get("relatedGarmentColors")),
+      ])];
       demands.set(demandId, {
-        id: demandId, salesContractNo, materialType: type, materialCode: normalizeText(row.get(13)), materialName: normalizeText(row.get(14)), sourceActualName: normalizeText(row.get(15)),
-        materialColor: normalizeText(row.get(21)), garmentColors: splitGarmentColors(row.get(9)), specification: normalizeText(row.get(22)), supplyMethod: provided === "厂供" ? null : provided || null,
-        garmentQuantity: numberValue(row.get(10)), plannedConsumption, actualConsumption: provided === "厂供" ? plannedConsumption : null, lossRate: numberValue(row.get(17)), totalConsumption: numberValue(row.get(18)), width: normalizeText(row.get(19)), gsm: normalizeText(row.get(20)),
-        requiredQuantity, sampleQuantity: numberValue(row.get(25)), sourceMaterialDueDate: sourceDue, expectedMaterialReadyDate: sourceDue, expectedDateSource: "source", sourceSortNo: sourceRow,
-        sourceStyleNoSnapshot: normalizeText(row.get(1)), sourceFactoryStyleNoSnapshot: normalizeText(row.get(8)), sourceBrandSnapshot: normalizeText(row.get(5)), sourceOwnerSnapshot: normalizeText(row.get(7)) || normalizeText(row.get(6)), sourceCustomerSnapshot: normalizeText(row.get(11)), sourceOrderQuantitySnapshot: numberValue(row.get(10)), sourceContractDeliveryDateSnapshot: dateValue(row.get(12)),
+        id: demandId, salesContractNo, materialType: type, materialCode: normalizeText(row.get("materialCode")), materialName: normalizeText(row.get("materialName")), sourceActualName: normalizeText(row.get("sourceActualName")),
+        materialColor: normalizeText(row.get("materialColor")), garmentColors, specification: normalizeText(row.get("specification")), supplyMethod,
+        garmentQuantity: numberValue(row.get("garmentQuantity")), plannedConsumption, actualConsumption, lossRate: numberValue(row.get("lossRate")), totalConsumption: numberValue(row.get("totalConsumption")), width: normalizeText(row.get("width")), gsm: normalizeText(row.get("gsm")),
+        requiredQuantity, sampleQuantity: numberValue(row.get("sampleQuantity")), sourceMaterialDueDate: sourceDue, expectedMaterialReadyDate: sourceDue, expectedDateSource: "source", sourceSortNo: sourceRow,
+        sourceStyleNoSnapshot: normalizeText(row.get("styleNo")), sourceFactoryStyleNoSnapshot: normalizeText(row.get("factoryStyleNo")), sourceBrandSnapshot: normalizeText(row.get("brand")), sourceOwnerSnapshot: normalizeText(row.get("owner")) || normalizeText(row.get("salesperson")), sourceCustomerSnapshot: normalizeText(row.get("customerName")), sourceOrderQuantitySnapshot: numberValue(row.get("garmentQuantity")), sourceContractDeliveryDateSnapshot: dateValue(row.get("contractDeliveryDate")),
         lastImportBatchId: batchId, sourceFileHash: fileHash, createdAt: now, updatedAt: now,
       });
     } else {
@@ -141,20 +196,20 @@ export async function parseMaterialFollowUpWorkbook(input: { buffer: ArrayBuffer
       if (existing) { existing.sourceRows = [...new Set([...existing.sourceRows, sourceRow])]; duplicateEventRows += 1; }
       else target.set(event.id, event);
     };
-    const purchaseOrderNo = normalizeText(row.get(28));
-    const purchaseQuantity = numberValue(row.get(40));
+    const purchaseOrderNo = normalizeText(row.get("purchaseOrderNo"));
+    const purchaseQuantity = numberValue(row.get("purchaseQuantity"));
     if (purchaseOrderNo && purchaseQuantity !== null) {
-      const parts = [purchaseOrderNo, dateValue(row.get(29)), normalizeText(row.get(39)), purchaseQuantity, numberValue(row.get(41)), numberValue(row.get(42)), numberValue(row.get(43)), numberValue(row.get(44))];
-      addEvent(purchaseEvents, { id: eventId("purchase", demandId, parts), materialDemandId: demandId, purchaseOrderNo, purchaseDate: dateValue(row.get(29)), supplier: normalizeText(row.get(30)), purchaseEntity: normalizeText(row.get(31)), sourceMaterialDueDate: sourceDue, currency: normalizeText(row.get(33)), purchaser: normalizeText(row.get(34)), purchasedMaterialName: normalizeText(row.get(35)), invoiceName: normalizeText(row.get(36)), actualName: normalizeText(row.get(37)), specification: normalizeText(row.get(38)), color: normalizeText(row.get(39)), quantity: purchaseQuantity, sampleQuantity: numberValue(row.get(41)), unitPrice: numberValue(row.get(42)), amount: numberValue(row.get(43)), extraCost: numberValue(row.get(44)), importBatchId: batchId, sourceRows: [sourceRow] });
+      const parts = [purchaseOrderNo, dateValue(row.get("purchaseDate")), normalizeText(row.get("purchaseColor")), purchaseQuantity, numberValue(row.get("purchaseSampleQuantity")), numberValue(row.get("purchaseUnitPrice")), numberValue(row.get("purchaseAmount")), numberValue(row.get("purchaseExtraCost"))];
+      addEvent(purchaseEvents, { id: eventId("purchase", demandId, parts), materialDemandId: demandId, purchaseOrderNo, purchaseDate: dateValue(row.get("purchaseDate")), supplier: normalizeText(row.get("supplier")), purchaseEntity: normalizeText(row.get("purchaseEntity")), sourceMaterialDueDate: sourceDue, currency: normalizeText(row.get("currency")), purchaser: normalizeText(row.get("purchaser")), purchasedMaterialName: normalizeText(row.get("purchasedMaterialName")), invoiceName: normalizeText(row.get("invoiceName")), actualName: normalizeText(row.get("purchaseActualName")), specification: normalizeText(row.get("purchaseSpecification")), color: normalizeText(row.get("purchaseColor")), quantity: purchaseQuantity, sampleQuantity: numberValue(row.get("purchaseSampleQuantity")), unitPrice: numberValue(row.get("purchaseUnitPrice")), amount: numberValue(row.get("purchaseAmount")), extraCost: numberValue(row.get("purchaseExtraCost")), importBatchId: batchId, sourceRows: [sourceRow] });
     }
-    const inboundNo = normalizeText(row.get(46)); const inboundQuantity = numberValue(row.get(48));
-    if (inboundNo && inboundQuantity !== null) addEvent(inboundEvents, { id: eventId("inbound", demandId, [inboundNo, dateValue(row.get(47)), inboundQuantity]), materialDemandId: demandId, documentNo: inboundNo, eventDate: dateValue(row.get(47)), quantity: inboundQuantity, importBatchId: batchId, sourceRows: [sourceRow] });
-    const shipmentNo = normalizeText(row.get(50)); const shipmentQuantity = numberValue(row.get(53));
-    if (shipmentNo && shipmentQuantity !== null) addEvent(shipmentEvents, { id: eventId("shipment", demandId, [shipmentNo, dateValue(row.get(51)), normalizeText(row.get(52)), shipmentQuantity]), materialDemandId: demandId, documentNo: shipmentNo, eventDate: dateValue(row.get(51)), quantity: shipmentQuantity, transportModeSnapshot: normalizeText(row.get(52)), importBatchId: batchId, sourceRows: [sourceRow] });
-    const outboundNo = normalizeText(row.get(55)); const outboundQuantity = numberValue(row.get(54));
-    if (outboundNo && outboundQuantity !== null) addEvent(outboundEvents, { id: eventId("outbound", demandId, [outboundNo, dateValue(row.get(56)), outboundQuantity]), materialDemandId: demandId, documentNo: outboundNo, eventDate: dateValue(row.get(56)), quantity: outboundQuantity, importBatchId: batchId, sourceRows: [sourceRow] });
+    const inboundNo = normalizeText(row.get("inboundDocumentNo")); const inboundQuantity = numberValue(row.get("inboundQuantity"));
+    if (inboundNo && inboundQuantity !== null) addEvent(inboundEvents, { id: eventId("inbound", demandId, [inboundNo, dateValue(row.get("inboundDate")), inboundQuantity]), materialDemandId: demandId, documentNo: inboundNo, eventDate: dateValue(row.get("inboundDate")), quantity: inboundQuantity, importBatchId: batchId, sourceRows: [sourceRow] });
+    const shipmentNo = normalizeText(row.get("shipmentDocumentNo")); const shipmentQuantity = numberValue(row.get("shipmentQuantity"));
+    if (shipmentNo && shipmentQuantity !== null) addEvent(shipmentEvents, { id: eventId("shipment", demandId, [shipmentNo, dateValue(row.get("shipmentDate")), normalizeText(row.get("transportMode")), shipmentQuantity]), materialDemandId: demandId, documentNo: shipmentNo, eventDate: dateValue(row.get("shipmentDate")), quantity: shipmentQuantity, transportModeSnapshot: normalizeText(row.get("transportMode")), importBatchId: batchId, sourceRows: [sourceRow] });
+    const outboundNo = normalizeText(row.get("outboundDocumentNo")); const outboundQuantity = numberValue(row.get("outboundQuantity"));
+    if (outboundNo && outboundQuantity !== null) addEvent(outboundEvents, { id: eventId("outbound", demandId, [outboundNo, dateValue(row.get("outboundDate")), outboundQuantity]), materialDemandId: demandId, documentNo: outboundNo, eventDate: dateValue(row.get("outboundDate")), quantity: outboundQuantity, importBatchId: batchId, sourceRows: [sourceRow] });
   }
 
   batch.demandCount = demands.size; batch.purchaseEventCount = purchaseEvents.size; batch.inboundEventCount = inboundEvents.size; batch.shipmentEventCount = shipmentEvents.size; batch.outboundEventCount = outboundEvents.size; batch.duplicateEventRows = duplicateEventRows;
-  return { batch, batches: [batch], rawSnapshots, demands: [...demands.values()], purchaseEvents: [...purchaseEvents.values()], inboundEvents: [...inboundEvents.values()], shipmentEvents: [...shipmentEvents.values()], outboundEvents: [...outboundEvents.values()] };
+  return { dataVersion: 3, batch, batches: [batch], rawSnapshots, demands: [...demands.values()], purchaseEvents: [...purchaseEvents.values()], inboundEvents: [...inboundEvents.values()], shipmentEvents: [...shipmentEvents.values()], outboundEvents: [...outboundEvents.values()], expectedArrivalBatches: [] };
 }

@@ -97,6 +97,10 @@
 - 订单附件复用 AttachmentRepository 中的 Blob，只保存附件 ID 引用；订单引用存在时，Quote 侧不得删除底层 Blob。
 - 全局操作日志需要 `audit_log.view`；默认只有管理员具备该权限。
 - 当前 localStorage 实现不是生产级不可篡改审计存储；未来服务端必须在业务事务成功后由后端追加。
+- 订单列表的交期月份筛选读取有效 `DeliveryPlan` 的月份；不得用下单日期或排单月份代替。
+- `salesContractNo`、`factoryStyleNo` 与订单来源由正式来源快照决定，订单详情只读；客户 PO、客户和制作国家不在日常编辑区重复维护。
+- 颜色级部分取消以 append-only adjustment 保存，不覆盖来源颜色行。有效颜色数量 = 来源数量 + 该颜色全部 adjustment；艾诺科重同步只能更新来源数量，必须保留人工 adjustment。
+- 系统 `defaultProcessingCurrency` 只初始化新建手工订单、新价格调整和新关账记录，当前默认值为 USD；既有订单价格、Quote 快照与 Closing 快照不得随设置变化重算。
 
 ## 关账中心
 
@@ -107,6 +111,9 @@
 - 排单的计划量、完成量或执行方发生变化时，开放月份显示 stale；用户只能显式同步快照或确认保留旧快照。确认/锁定阶段不自动同步。
 - 同一订单累计关账量小于有效数量为部分关账，等于为已关账，大于为超额关账；warning 不静默截断真实数量。
 - 关账权限、搜索、订单摘要、OperationLog 与 Backup/Restore 都读取同一 Closing Repository/Service，不建立第二套财务事实。
+- `/closing-center` 是月份总览：月份倒序、按年分组，并可按开放中、已确认、已锁定筛选；`/closing-center/detail?month=YYYY-MM` 是月份详情，路由月份决定订单行、KPI、筛选与动作。
+- `confirmed` 与 `locked` 是不同业务状态，不得合并。已确认仍可取消确认或进入锁定；已锁定拒绝普通 mutation，只有 `closing.reopen` 权限且填写原因后才能重开。
+- 关账详情必须并列显示订单数量、已排、已生产、本月关账与累计关账；已生产来自 ScheduleAssignment Projection，不得用已排或关账数量替代。
 
 ### 全局搜索
 
@@ -116,6 +123,8 @@
 - 搜索结果只包含报价列表级身份和导航信息，不包含面辅料、工价、其他费用、估算成本或确认价格。
 - 搜索结果导航继续经过 AppShell 导航回调；当前报价有未保存修改时不得绕过 dirty guard。
 - 最近访问按 `userId` 隔离，只保存非敏感结果投影，不复制 Quote 或 Revision。
+- Quote Center 普通搜索把空格分隔 token 按 AND 组合；以 `/` 开头的结构化条件也按 AND 组合，并可与普通 token 同时使用。
+- `/制作国家` 必须扫描 Quote 下各 PriceVersion 的制作国家快照，不得只读取 Revision 或当前活动版本。
 
 ### Revision 与 PriceVersion
 
@@ -241,14 +250,28 @@
 - 下拉选择打开、日期选择打开或中文 IME composing 时，Enter 不提交外层表单。
 - 正在提交时禁止重复提交。
 - 整页报价编辑普通 Enter 不保存整张报价。
+
+## 业务工作台显示与个人布局
+
+- 主业务表格不得把横向滚动作为正常操作方式；优先使用字段组合、信息层级、合理换行、用户列宽/顺序、侧栏折叠、viewport fit 与窄屏 Record/Card。
+- 正式业务 `DataTable` 必须允许用户调整列宽与字段顺序；Preference 按 `User + Table` 保存，不得写入业务实体。
+- Desktop Sidebar 必须允许用户主动折叠/展开并按用户保存；Tablet/Mobile 继续使用既有 Drawer 导航。
+- Production Group Selector 在桌面主滚动中保持位于顶栏下方，不建立自己的纵向滚动容器。
+- 正式 Ainuoke Order 的来源数量与合同交期是权威事实，普通订单详情不得提供人工覆盖入口；历史 Domain 与审计记录继续保留。
+- 页面正常状态下，同一业务事实只保留一个主要展示位置；Header 承担对象身份，Summary 只展示需要判断的 Projection。
 # 款式进度与面辅料跟进
 
 - 款式进度只按 `salesContractNo` 投影正式 SalesOrder；禁止使用款号、工厂款号、品牌或数量做模糊绑定，禁止由 Style Progress 创建订单。
 - 销售合同与成衣分色分码是订单/颜色高权威来源；《面辅料申购统计》是可纠正的 Material Follow-up Source，不得反向覆盖订单品牌、款号、数量或合同交期。
 - MaterialDemand 与 Purchase / Inbound / Shipment / Outbound Event 分离并分别去重；禁止对笛卡尔展开的 raw required/purchase 直接求和。
-- `sourceMaterialDueDate` 是 Source；`expectedMaterialReadyDate` 是 Effective；累计入库数量/日期是 Actual。人工 Effective 在重导入时保留，恢复来源后才重新跟随。
-- `提供方式 = 厂供` 映射为 `actualConsumption = plannedConsumption`；不得映射为供货方式、采购方式或影响采购/入库/齐套/运输。
+- 普通页面按 Canonical Material Group 展示真实物料，`materialCode` 只作为来源身份进入 Trace。同一销售合同内，面料按标准化名称 + 门幅 + 克重 + 正常化后的唯一采购单价归一；采购价缺失或冲突时保持独立，不猜测 first / last / 平均值。辅料按标准化名称归一，规格、颜色与来源编码保留在下层需求明细。
+- `sourceMaterialDueDate` 是只读 Source；Effective 正式表示“预计到达已持久化 SupplyHub 的日期”，由 `MaterialExpectedArrivalBatch.expectedArrivalAtHubDate` 表达；累计入库数量与达到需求的入库日是 Actual。人工计划 Batch 不强制绑定 Purchase / Inbound / Shipment / Outbound Event，Actual 不能由人工 Effective 覆盖。
+- 一个 Canonical Material 可有多个 Expected Arrival Batch；Allocation 必须引用稳定 `materialDemandId`、数量大于 0，同一 Demand 可拆入多批，累计不得超过需求。部分安排合法并显示未安排数量，系统不得自动补齐。人工 Batch 在重导入时保留；只有“恢复使用来源计划”后才重新跟随 Source。
+- `提供方式=厂供` 保留 Raw Snapshot 与 Source Trace，但退出采购跟进、未采购、待入库、齐套分子/分母、风险、物流推荐与 Expected Arrival Batch。厂供不能因缺 PurchaseEvent 显示“未采购”。Excel 中名为“厂供”的数值列仍只映射 `actualConsumption`；它与“提供方式”是两个不同字段。
+- Purchase / Inbound / Shipment / Outbound 数量分别累计对应 Event；“出运”只能累计 `ShipmentEvent.quantity`，不得用采购、入库或出库数量替代。采购不足显示“采购不足 X”，采购超出显示“采购余量 X”，不得输出负的“未采购数量”。
 - 单物料齐套只在累计入库量达到需求量时成立；款式齐套按物料项计数，不跨单位加权。
 - 面料按实际用量（无实际时按计划用量）降序并以源行稳定打平；辅料严格按源行顺序。
-- 逐物料运输复用现有物流基础事实与 Service；实际齐套日优先于 Effective 日期。无排单显示“待排单后计算”；未持久化的 SupplyHub 不得由首个启用仓、名称或唯一路线推断，必须显示“集货仓未设置”。缺 ProductionSite、指定 Route 或 Route TransportMode 分别显示精确原因；只有 Hub + Site 均确定后才按稳定 ID 查路线，可行方式中选择最慢者。
-- 预计到料日人工修改与恢复必须写统一追加式 OperationLog；ImportBatch / Raw Snapshot 只作技术 Trace。
+- 每个 Expected Arrival Batch 独立复用 `material-logistics-service.ts`；无排单显示“待排单后计算”，未持久化的 SupplyHub 必须显示“集货仓未设置”，不得由首个启用仓、名称或唯一路线推断。只有 Hub + Site 均确定后才按稳定 ID 查路线，并在可按时到厂的方式中选择最慢者。
+- “距上线”是 `plannedProductionStartDate - expectedArrivalAtHubDate` 的自然日差，只作直观信息；运输缓冲是 `latestRequiredArrivalDate - expectedFactoryArrivalDate` 的正式风险事实。`bufferDays > 7` 为绿色，`0..7` 为黄色，`< 0` 为红色并显示晚到天数；两者不得混用。
+- Expected Arrival Batch 的创建、日期修改、增删、Allocation 调整与恢复 Source 必须写唯一追加式 OperationLog；ImportBatch / Raw Snapshot 只作技术 Trace。
+- 生产排单的物料状态直接消费 Style Progress Projection，不再维护第二套手工物料日期；UI 对生产执行承诺统一使用“拟定交期”。

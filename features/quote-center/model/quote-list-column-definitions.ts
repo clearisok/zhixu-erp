@@ -4,7 +4,7 @@ import { confirmationSummaryLabel } from "./quote-workflows.ts";
 import { getDefaultRevision, type PriceVersion, type Quote } from "./quote-view-model.ts";
 import { formatFinalGarmentPrice } from "./final-quote-format.ts";
 
-export type ListColumnKey = "quote" | "style" | "brand" | "salesperson" | "type" | "versions" | "quantity" | "fabricCost" | "trimCost" | "labor" | "garmentPrice" | "confirmedLabor" | "confirmedGarment" | "confirmationStatus" | "revision" | "status" | "date";
+export type ListColumnKey = "quote" | "styleImage" | "styleIdentity" | "brand" | "salesperson" | "type" | "versions" | "quantity" | "fabricCost" | "trimCost" | "labor" | "garmentPrice" | "confirmedLabor" | "confirmedGarment" | "confirmationStatus" | "revision" | "status" | "date";
 export type QuoteListColumnDefinition = { key: ListColumnKey; label: string; value: (quote: Quote, version?: PriceVersion) => string | number | null };
 
 const money = (value: number) => `¥${value.toFixed(2)}`;
@@ -37,7 +37,8 @@ const metric = (quote: Quote, version: PriceVersion | undefined, key: "fabricCos
 
 export const quoteListColumnDefinitions: QuoteListColumnDefinition[] = [
   { key: "quote", label: "报价编号", value: (quote) => quote.quoteCode },
-  { key: "style", label: "报价款号 / 款式", value: (quote) => { const base = getDefaultRevision(quote).baseInfo; return [base.quoteStyleNo, base.styleName].filter(Boolean).join(" / ") || null; } },
+  { key: "styleImage", label: "款式图", value: () => null },
+  { key: "styleIdentity", label: "款号 / 款式名称", value: (quote) => { const base = getDefaultRevision(quote).baseInfo; return [base.quoteStyleNo, base.styleName].filter(Boolean).join(" / ") || null; } },
   { key: "brand", label: "品牌", value: (quote) => getDefaultRevision(quote).baseInfo.brandName || null },
   { key: "salesperson", label: "客户业务员", value: (quote) => getDefaultRevision(quote).baseInfo.salespersonName || null },
   { key: "type", label: "报价类型", value: (quote) => getDefaultRevision(quote).baseInfo.quoteType === "distribution" ? "经销" : "加工" },

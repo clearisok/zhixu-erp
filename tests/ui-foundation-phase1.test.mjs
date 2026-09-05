@@ -39,7 +39,9 @@ test("Phase 1 页面保持一个主纵向滚动容器", async () => {
   const css = await read("app/foundation.css");
   assert.match(css, /ops-shell\.qc-app-shell[^}]*overflow:\s*hidden/s);
   assert.match(css, /ops-shell\.qc-app-shell \.ops-workspace[^}]*overflow-y:\s*auto/s);
-  assert.match(css, /\.qc-table-wrap[^}]*overflow-x:\s*auto[^}]*overflow-y:\s*hidden/s);
+  assert.match(css, /\.qc-table-wrap[^}]*overflow:\s*visible/s);
+  assert.match(css, /\.qc-data-table[^}]*table-layout:\s*fixed/s);
+  assert.doesNotMatch(css, /\.qc-data-table[^}]*min-width:\s*max-content/s);
   assert.match(css, /\.qc-drawer-body[^}]*overflow-y:\s*auto/s);
   assert.match(css, /\.qc-mobile-sheet-body[^}]*overflow-y:\s*auto/s);
 });

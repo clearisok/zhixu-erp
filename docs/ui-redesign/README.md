@@ -766,3 +766,23 @@ Phase 6 的 Master Data 与低频设置、旧内置模板资产升级、真实 W
 - Order Detail 在无 Context Panel 时使用全部可用 Workspace 宽度。用户 full-page 长截图中的 Sidebar 重复已确认是 fixed/sticky screenshot stitching artifact，实时 DOM 与正常滚动没有重复导航。
 - 标准 1600 / 1280 / 960 / 768 / 402 / 440 CSS viewport 及三个用户环境等效 CSS viewport 均完成验收；不把模拟 viewport 升级为真实 Windows Display Scaling / Chrome Zoom 通过。
 - TypeScript、ESLint、Correction Tests 6/6、Full Tests 408/408、Production Build、Browser Console 与 Correction diff check 均通过；独立 Correction commit 完成后 Gate 关闭。
+
+## 2026-09-04 Second Acceptance Correction
+
+本轮不重做既有 Gate A/B/C。表格 Preference、Sidebar、Quote 密度、Order 去重与 Production Sticky 的验收映射、覆盖矩阵、局部 overflow 测量和截图索引见 [Second Acceptance 任务记录](../tasks/completed/2026-09-04-second-acceptance-correction.md)。PR #3 在用户真实 1229×691 视觉复验前保持未合并。
+
+## Material Control Tower V2
+
+款式进度已升级为 Canonical Material 驱动的 Material Control Tower。`materialCode` 保留为来源 Trace；面料按名称 + 门幅 + 克重 + 唯一采购价归一，辅料按标准化名称归一。厂供只在有记录时通过“厂供信息”查看，不进入采购跟进、齐套、风险、物流或 Expected Arrival Batch。
+
+一个真实物料现在支持多个预计到集货仓批次，Allocation 可把同一 Demand 拆到多个 Batch，也允许部分未安排；超分配会阻止保存。每批继续调用唯一 `material-logistics-service.ts`，并把距上线与运输 buffer 分开。主页面提供五项 KPI、紧凑待处理动作、Sticky Filter、Canonical Material 卡、卡内需求明细、多事件 Drawer 与 Batch Planner。
+
+Gate 4 截图： [Wide 1600](screenshots/style-progress-v4-wide-1600.png)、[Primary 1280](screenshots/style-progress-v4-primary-1280.png)、[Compact 960](screenshots/style-progress-v4-compact-960.png)、[Mobile 402](screenshots/style-progress-v4-mobile-402.png)、[Batch Planner](screenshots/style-progress-v4-batch-planner-960.png)、[Material Drawer](screenshots/style-progress-v4-material-drawer-960.png)。1600/1280/1229/960/768/402 CSS viewport 均无 document-level 横向溢出；内部需求表允许受控横向滚动。真实来源数字以 `docs/features/STYLE_PROGRESS.md` 的本地 Excel 审计为准，演示 HTML 不作为数据事实源。
+
+Gate 5 使用真实《面辅料申购统计 (1).xlsx》在隔离的 Codex QA Browser Profile 中完成 D1935 / PI2607-235 验收；原始 Excel 未进入仓库。D1935 投影为 18 个 Canonical Material（面料 8、辅料 10），厂供编码 `202608130002` 的 5 条 / 3,809 需求量只在“厂供信息”中展示，不进入采购跟进、齐套率、风险、物流或 Expected Arrival Batch。罗马布的英文多词颜色（如 `Holly hock`、`Surf the Web`、`Navy Blazer`）保持完整词组，Shipment 数量来自 ShipmentEvent。该隔离 Profile 没有 D1935 对应织序订单，因此逐批物流如实显示“待排单后计算”，没有猜测 SupplyHub、ProductionSite 或 ScheduleAssignment。
+
+Gate 5 真实数据截图： [D1935 1280](screenshots/style-progress-v4-d1935-1280.png)、[厂供信息](screenshots/style-progress-v4-d1935-factory-info-1280.png)、[多事件 Drawer](screenshots/style-progress-v4-d1935-detail-drawer-1280.png)、[Mobile 402](screenshots/style-progress-v4-d1935-mobile-402.png)。真实 D1935 在 1600/1280/1229/960/768/402 CSS viewport 下均无 document-level 横向溢出；这些仍是模拟 CSS viewport 证据，不冒充真实 Windows Display Scaling / Chrome Zoom 验收。
+
+Gate 5 最终门禁为 TypeScript PASS、ESLint PASS、Full Tests 480/480、Production Build 29 routes PASS、`git diff --check` PASS、Browser Console 0 error / 0 warning。全局 browser-local schema 从任务前 12 向前迁移到 13，Style Progress IndexedDB 从 2 向前迁移到 3；没有清库、换 namespace 或用 Seed 代替 migration。
+
+Gate 5 checkpoint 为 `b459df29c976e27664fbb80eeeb7d8c176e9e3f5`；PR #4 已创建，保持未合并并等待用户审阅。

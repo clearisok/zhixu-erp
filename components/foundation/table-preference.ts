@@ -6,6 +6,7 @@ export type TablePreference = {
   moduleKey: string;
   tableKey: string;
   columnWidths: Record<string, number>;
+  columnOrder: string[];
 };
 
 type UserTablePreferences = {
@@ -27,6 +28,27 @@ export function normalizeColumnWidths(value: unknown, defaults: Record<string, n
   }));
 }
 
+export function normalizeColumnOrder(
+  value: unknown,
+  defaults: string[],
+  aliases: Record<string, string | string[]> = {},
+): string[] {
+  const allowed = new Set(defaults);
+  const normalized: string[] = [];
+  const append = (key: string) => {
+    if (allowed.has(key) && !normalized.includes(key)) normalized.push(key);
+  };
+  if (Array.isArray(value)) {
+    for (const rawKey of value) {
+      if (typeof rawKey !== "string") continue;
+      const mapped = aliases[rawKey] ?? rawKey;
+      for (const key of Array.isArray(mapped) ? mapped : [mapped]) append(key);
+    }
+  }
+  for (const key of defaults) append(key);
+  return normalized;
+}
+
 function normalizeUserPreferences(value: unknown, userId: string): UserTablePreferences {
   const source = value && typeof value === "object" ? value as Partial<UserTablePreferences> : {};
   const tables = source.tables && typeof source.tables === "object" ? source.tables : {};
@@ -36,12 +58,21 @@ function normalizeUserPreferences(value: unknown, userId: string): UserTablePref
 export function createTablePreferenceRepository(store: LocalDataStore) {
   const loadUser = (userId: string) => normalizeUserPreferences(store.initialize(storageName(userId), { seed: () => ({ userId, tables: {} }), migrate: (value) => normalizeUserPreferences(value, userId) }), userId);
   return {
-    load(userId: string, moduleKey: string, tableKey: string, defaults: Record<string, number>): TablePreference {
+    load(userId: string, moduleKey: string, tableKey: string, defaults: Record<string, number>, defaultOrder = Object.keys(defaults), aliases: Record<string, string | string[]> = {}): TablePreference {
       const current = loadUser(userId).tables[tableKey];
-      return { moduleKey, tableKey, columnWidths: normalizeColumnWidths(current?.columnWidths, defaults) };
+      return {
+        moduleKey,
+        tableKey,
+        columnWidths: normalizeColumnWidths(current?.columnWidths, defaults),
+        columnOrder: normalizeColumnOrder(current?.columnOrder, defaultOrder, aliases),
+      };
     },
-    save(userId: string, preference: TablePreference, defaults: Record<string, number>): TablePreference {
-      const normalized = { ...preference, columnWidths: normalizeColumnWidths(preference.columnWidths, defaults) };
+    save(userId: string, preference: TablePreference, defaults: Record<string, number>, defaultOrder = Object.keys(defaults), aliases: Record<string, string | string[]> = {}): TablePreference {
+      const normalized = {
+        ...preference,
+        columnWidths: normalizeColumnWidths(preference.columnWidths, defaults),
+        columnOrder: normalizeColumnOrder(preference.columnOrder, defaultOrder, aliases),
+      };
       const current = loadUser(userId);
       store.save(storageName(userId), { ...current, userId, tables: { ...current.tables, [preference.tableKey]: normalized } });
       return normalized;
@@ -51,16 +82,16 @@ export function createTablePreferenceRepository(store: LocalDataStore) {
 
 const browserTablePreferenceRepository = createTablePreferenceRepository(browserLocalDataStore);
 
-export function loadTablePreference(userId: string, moduleKey: string, tableKey: string, defaults: Record<string, number>): TablePreference {
-  if (typeof window === "undefined") return { moduleKey, tableKey, columnWidths: structuredClone(defaults) };
-  return browserTablePreferenceRepository.load(userId, moduleKey, tableKey, defaults);
+export function loadTablePreference(userId: string, moduleKey: string, tableKey: string, defaults: Record<string, number>, defaultOrder = Object.keys(defaults), aliases: Record<string, string | string[]> = {}): TablePreference {
+  if (typeof window === "undefined") return { moduleKey, tableKey, columnWidths: structuredClone(defaults), columnOrder: [...defaultOrder] };
+  return browserTablePreferenceRepository.load(userId, moduleKey, tableKey, defaults, defaultOrder, aliases);
 }
 
-export function saveTablePreference(userId: string, preference: TablePreference, defaults: Record<string, number>): TablePreference {
-  if (typeof window === "undefined") return { ...preference, columnWidths: normalizeColumnWidths(preference.columnWidths, defaults) };
-  return browserTablePreferenceRepository.save(userId, preference, defaults);
+export function saveTablePreference(userId: string, preference: TablePreference, defaults: Record<string, number>, defaultOrder = Object.keys(defaults), aliases: Record<string, string | string[]> = {}): TablePreference {
+  if (typeof window === "undefined") return { ...preference, columnWidths: normalizeColumnWidths(preference.columnWidths, defaults), columnOrder: normalizeColumnOrder(preference.columnOrder, defaultOrder, aliases) };
+  return browserTablePreferenceRepository.save(userId, preference, defaults, defaultOrder, aliases);
 }
 
-export function resetTablePreference(userId: string, moduleKey: string, tableKey: string, defaults: Record<string, number>): TablePreference {
-  return saveTablePreference(userId, { moduleKey, tableKey, columnWidths: defaults }, defaults);
+export function resetTablePreference(userId: string, moduleKey: string, tableKey: string, defaults: Record<string, number>, defaultOrder = Object.keys(defaults)): TablePreference {
+  return saveTablePreference(userId, { moduleKey, tableKey, columnWidths: defaults, columnOrder: defaultOrder }, defaults, defaultOrder);
 }

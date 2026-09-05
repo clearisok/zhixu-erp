@@ -69,7 +69,7 @@ test("Phase 4 有效新建订单写入独立测试 namespace 并指向详情路�
   await repository.save(validOrder);
   assert.equal((await repository.getById(validOrder.id))?.id, validOrder.id);
   const source = await read("features/order-center/components/order-pages.tsx");
-  assert.match(source, /router\.replace\(`\/order-center\/detail\?id=/);
+  assert.match(source, /router\.replace\(\s*`\/order-center\/detail\?id=/);
 });
 
 test("Phase 4 新建页初始 clean、用户修改后 dirty，只有 dirty 离开才拦截", async () => {
@@ -83,7 +83,7 @@ test("Phase 4 新建页初始 clean、用户修改后 dirty，只有 dirty 离�
   assert.match(orderSource, /setDirty\(true\)/);
   assert.deepEqual(createNavigationIntent(false, "/quote-center"), { navigateTo: "/quote-center", pendingTarget: null });
   assert.deepEqual(createNavigationIntent(true, "/quote-center"), { navigateTo: null, pendingTarget: "/quote-center" });
-  assert.match(orderSource, /if \(dirty\) setPendingListNavigation\(true\); else router\.push\("\/order-center"\)/);
+  assert.match(orderSource, /if \(dirty\)\s*setPendingListNavigation\(true\);\s*else\s*router\.push\("\/order-center"\)/);
 });
 
 test("Phase 4 dirty guard 提供继续编辑与放弃路径，创建提交防重复", async () => {

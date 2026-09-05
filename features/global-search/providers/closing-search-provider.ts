@@ -13,7 +13,7 @@ export function createClosingSearchProvider(repository: ClosingRepository, order
       const text = [period.month, ...allocations.flatMap((item) => { const order = orderMap.get(item.salesOrderId); return [order?.orderNo ?? "", order?.styleNo ?? "", order?.styleName ?? "", order?.customerNameSnapshot ?? "", item.productionGroupNameSnapshot ?? "", item.outsourceFactoryNameSnapshot ?? ""]; })].join(" ");
       if (!includes(text, query)) return [];
       const quantity = allocations.reduce((sum, item) => sum + item.quantity, 0);
-      return [{ id: `closing:${period.id}`, providerId: "closing-center", type: "closing", typeLabel: "关账", icon: "结", title: `${period.month} 月度关账`, subtitle: `${allocations.length} 条归属 · ${quantity.toLocaleString("zh-CN")} 件`, meta: [{ label: "状态", value: period.status === "open" ? "开放" : period.status === "confirmed" ? "已确认" : "已锁定" }, { label: "生产基础资料", value: `${masters.productionGroups.length} 组 / ${masters.outsourceFactories.length} 厂` }], href: `/closing-center?month=${encodeURIComponent(period.month)}` }];
+      return [{ id: `closing:${period.id}`, providerId: "closing-center", type: "closing", typeLabel: "关账", icon: "结", title: `${period.month} 月度关账`, subtitle: `${allocations.length} 条归属 · ${quantity.toLocaleString("zh-CN")} 件`, meta: [{ label: "状态", value: period.status === "open" ? "开放" : period.status === "confirmed" ? "已确认" : "已锁定" }, { label: "生产基础资料", value: `${masters.productionGroups.length} 组 / ${masters.outsourceFactories.length} 厂` }], href: `/closing-center/detail?month=${encodeURIComponent(period.month)}` }];
     }).slice(0, 20);
   } };
 }

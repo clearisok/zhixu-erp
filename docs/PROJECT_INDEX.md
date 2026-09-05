@@ -15,12 +15,13 @@
 
 1. 根目录 `AGENTS.md`
 2. 本文件
-3. `docs/CURRENT_STATE.md`
-4. 当前 `git status`、相关 diff
-5. `docs/BUSINESS_RULES.md`
-6. 任务对应的 `docs/features/*.md`
-7. `docs/DECISION_LOG.md` 中相关 Active 条目
-8. 实际代码、SQL、API 和测试
+3. `docs/AI_HANDOFF.md`（当前接力棒，不是长期业务事实源）
+4. `docs/CURRENT_STATE.md`
+5. 当前 `git status`、相关 diff
+6. `docs/BUSINESS_RULES.md`
+7. 任务对应的 `docs/features/*.md`
+8. `docs/DECISION_LOG.md` 中相关 Active 条目
+9. 实际代码、SQL、API 和测试
 
 ## 目录结构
 
@@ -46,6 +47,7 @@
 | 根目录 `*.ps1`、`*.sh` | 本地 Docker 构建、启动、备份、恢复和静态服务脚本 |
 | `tests/` | 根级源码契约/配置测试；业务模块测试也分布在 `features/**/__tests__` |
 | `docs/features/` | 复杂模块的当前行为与边界 |
+| `docs/tasks/` | active 保存当前正式任务规格，completed 保存已完成任务的追溯映射；不替代 CURRENT_STATE |
 | `artifacts/` | 验证截图等生成物，不是业务事实源 |
 | `templates/` | 正式业务文档模板；修改前必须核对对应 feature 文档与模板哈希 |
 | `outputs/` | 可复验的导出验收文件，不是业务数据源 |
@@ -82,6 +84,8 @@
 
 ## 知识文件职责
 
+事实优先级：当前用户明确要求 > `CURRENT_STATE` > Active `BUSINESS_RULES` / `DECISION_LOG` > 旧讨论 > AI 推测。`AI_HANDOFF` 只说明从哪里接着做，不构成第四个长期业务事实源。
+
 - `SYSTEM_OVERVIEW.md`：架构、技术栈、运行路径、数据流。
 - `BUSINESS_RULES.md`：能够由代码、约束、测试或明确文档确认的规则。
 - `CURRENT_STATE.md`：当前完成度、正在进行的工作、缺口、验证状态和不可破坏项。
@@ -90,6 +94,7 @@
 
 ## 历史资料
 
+- 2026-09-01 Full UI / Workflow Correction 的 Page 1–16 映射、Gate commits、响应式与截图索引见 `docs/tasks/completed/2026-09-01-full-ui-workflow-correction.md`。
 - `docs/ui-audit.md` 是 2026-08-17 时点的 UI 审计，其中“尚无 Foundation”等描述已经被当前代码取代。
 - `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
 

@@ -29,6 +29,7 @@ import {
   createOperationsMasterDataId,
   defaultOperationsSettings,
   deleteMonthlyProductionTarget,
+  saveDefaultProcessingCurrency,
   saveClosingTaxRate,
   upsertMonthlyProductionTarget,
   upsertOutsourceFactory,
@@ -182,10 +183,13 @@ export function ClosingSettingsPage() {
   const { state, persist } = useOperationsSettings();
   const { message, notify } = useToast();
   const [taxRateDraft, setTaxRateDraft] = useState<number | null | undefined>(undefined);
+  const [currencyDraft, setCurrencyDraft] = useState<"CNY" | "USD" | undefined>(undefined);
   const { draft, setDraft, openDraft, closeDraft, requestClose, closeConfirmationOpen, keepEditing } = useGuardedDraft<MonthlyProductionTarget>();
   const [error, setError] = useState("");
   const taxRate = taxRateDraft === undefined ? state.closingSettings.defaultSalesTaxRatePercent : taxRateDraft;
   const taxDirty = taxRateDraft !== undefined && taxRateDraft !== state.closingSettings.defaultSalesTaxRatePercent;
+  const processingCurrency = currencyDraft ?? state.defaultProcessingCurrency;
+  const currencyDirty = currencyDraft !== undefined && currencyDraft !== state.defaultProcessingCurrency;
   const openNew = () => {
     const timestamp = now();
     setError("");
@@ -197,6 +201,12 @@ export function ClosingSettingsPage() {
     persist(saveClosingTaxRate(state, taxRate));
     setTaxRateDraft(undefined);
     notify("关账默认税率已保存");
+  };
+  const saveCurrency = () => {
+    if (!can("settings.closing.edit")) return;
+    persist(saveDefaultProcessingCurrency(state, processingCurrency));
+    setCurrencyDraft(undefined);
+    notify("新订单默认加工币种已保存");
   };
   const saveTarget = () => {
     if (!can("closing.target.manage")) return;
@@ -223,7 +233,7 @@ export function ClosingSettingsPage() {
   ];
   return <AppShell title="关账设置"><PageContainer>
     <PageHeader eyebrow="CLOSING SETTINGS" title="关账设置" count={`${targetRows.length} 个月`} description="维护新关账月份使用的默认规则与月度产值目标；已有关账归属继续使用自己的快照。" primaryAction={<PermissionButton permission="closing.target.manage" onClick={openNew}>＋ 新增月度目标</PermissionButton>} />
-    <FormSection title="默认销售产值税率" description="只作为新关账月份和归属的默认来源；不会回写已保存或锁定的关账快照。" columns={1} actions={<PermissionButton permission="settings.closing.edit" onClick={saveTax} disabled={taxRate === null || !taxDirty}>{taxDirty ? "保存默认税率" : "已保存"}</PermissionButton>}><div className="qc-operations-tax-field"><FormItem label="默认税率 %" required><NullableNumberInput className="qc-control" min="0" value={taxRate} onValueChange={setTaxRateDraft} /></FormItem><small>当前正式默认值：{state.closingSettings.defaultSalesTaxRatePercent}%</small></div></FormSection>
+    <FormSection title="订单与关账默认值" description="只作为新建订单、新价格调整和新关账记录的默认来源；既有价格与关账快照不会重算。" columns={2} actions={<><PermissionButton permission="settings.closing.edit" variant="secondary" onClick={saveCurrency} disabled={!currencyDirty}>{currencyDirty ? "保存默认币种" : "币种已保存"}</PermissionButton><PermissionButton permission="settings.closing.edit" onClick={saveTax} disabled={taxRate === null || !taxDirty}>{taxDirty ? "保存默认税率" : "税率已保存"}</PermissionButton></>}><div className="qc-operations-tax-field"><FormItem label="新订单默认加工币种" required><select className="qc-control" value={processingCurrency} onChange={(event) => setCurrencyDraft(event.target.value as "CNY" | "USD")}><option value="USD">USD</option><option value="CNY">CNY</option></select></FormItem><small>当前正式默认值：{state.defaultProcessingCurrency}</small></div><div className="qc-operations-tax-field"><FormItem label="默认税率 %" required><NullableNumberInput className="qc-control" min="0" value={taxRate} onValueChange={setTaxRateDraft} /></FormItem><small>当前正式默认值：{state.closingSettings.defaultSalesTaxRatePercent}%</small></div></FormSection>
     <Card className="qc-master-list"><div className="qc-operations-list-header"><div><strong>月度生产目标</strong><small>金额口径统一为人民币；空值保持为空，不显示为 0。</small></div></div><DataTable rows={targetRows} columns={targetColumns} rowKey={(item) => item.id} ariaLabel="月度生产目标" empty={<EmptyState title="尚未配置月度产值目标" description="可从页面右上角新增目标" />} renderRecord={(item) => <div className="qc-master-record"><header><strong>{item.month}</strong></header><dl><div><dt>总加工目标</dt><dd>{item.totalProcessingOutputTargetRmb === null ? "—" : `¥${item.totalProcessingOutputTargetRmb.toLocaleString("zh-CN")}`}</dd></div><div><dt>内部加工目标</dt><dd>{item.internalProcessingOutputTargetRmb === null ? "—" : `¥${item.internalProcessingOutputTargetRmb.toLocaleString("zh-CN")}`}</dd></div><div><dt>备注</dt><dd>{item.remark || "—"}</dd></div></dl><footer><MasterDataActions label={`${item.month}更多操作`} primary={<PermissionButton permission="closing.target.manage" variant="tertiary" onClick={() => { setError(""); openDraft(item); }}>编辑</PermissionButton>}><PermissionButton permission="closing.target.manage" variant="danger" onClick={() => removeTarget(item)}>删除目标</PermissionButton></MasterDataActions></footer></div>} /></Card>
     <Drawer open={Boolean(draft)} className="qc-master-data-drawer" title={state.closingSettings.monthlyProductionTargets.some((item) => item.id === draft?.id) ? "编辑月度产值目标" : "新增月度产值目标"} description="每个月仅保留一条目标记录；金额单位为人民币。" onClose={requestClose} onSubmit={saveTarget} footer={<><Button variant="secondary" onClick={requestClose}>取消</Button><Button type="submit" permission="closing.target.manage">保存目标</Button></>}>
       {draft && <div className="qc-modal-form"><FormItem label="月份" required><input className="qc-control" type="month" value={draft.month} onChange={(event) => { setDraft({ ...draft, month: event.target.value }); setError(""); }} /></FormItem><FormItem label="总加工产值目标（RMB）"><NullableNumberInput className="qc-control" min="0" value={draft.totalProcessingOutputTargetRmb} onValueChange={(value) => setDraft({ ...draft, totalProcessingOutputTargetRmb: value })} /></FormItem><FormItem label="内部加工产值目标（RMB）"><NullableNumberInput className="qc-control" min="0" value={draft.internalProcessingOutputTargetRmb} onValueChange={(value) => setDraft({ ...draft, internalProcessingOutputTargetRmb: value })} /></FormItem><FormItem label="备注"><textarea className="qc-control" rows={3} value={draft.remark} onChange={(event) => setDraft({ ...draft, remark: event.target.value })} /></FormItem>{error && <p className="qc-form-alert">{error}</p>}</div>}

@@ -244,16 +244,14 @@ test("批量保存中途失败会回滚本批次已保存 Blob，不返回半成
   assert.equal(deleted.length, 2);
 });
 
-test("R6-R12 Paste Modal 使用 pendingImages、局部拖拽、取消与统一确认", async () => {
+test("图片粘贴区获得焦点后直接保存多图，不再经过 Paste Modal", async () => {
   const panel = await readFile(new URL("../features/quote-center/components/attachment-panel.tsx", import.meta.url), "utf8");
-  assert.match(panel, /const \[pendingImages, setPendingImages\]/);
-  assert.match(panel, /onPaste=\{pasteImage\}/);
-  assert.match(panel, /onDrop=\{dropImages\}/);
+  assert.match(panel, /className=\{`qc-direct-paste-area/);
+  assert.match(panel, /onPaste=\{\(event\) => void pasteImage\(event\)\}/);
+  assert.match(panel, /onDrop=\{\(event\) => void dropImages\(event\)\}/);
   assert.match(panel, /onDragEnter=\{enterPasteArea\}/);
-  assert.match(panel, /removePendingImage/);
-  assert.match(panel, /pendingImages\.length === 0/);
-  assert.match(panel, /onSubmit=\{confirmPendingImages\}/);
-  assert.match(panel, /discardPendingImages/);
+  assert.match(panel, /saveAttachments\("image", files\)/);
+  assert.doesNotMatch(panel, /pendingImages|pasteOpen|confirmPendingImages|qc-paste-image-modal/);
   assert.doesNotMatch(panel, /document\.addEventListener\(["'](?:paste|drop|dragover)/);
 });
 
@@ -261,8 +259,8 @@ test("粘贴监听仅绑定 Paste Area，预览使用 contain 且 Footer 文案�
   const panel = await readFile(new URL("../features/quote-center/components/attachment-panel.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/quote-center/quote-center.css", import.meta.url), "utf8");
   const previewCss = css.slice(css.indexOf(".qc-attachment-preview-modal"), css.indexOf("@media (max-width: 620px)", css.indexOf(".qc-attachment-preview-modal")));
-  assert.match(panel, /粘贴图片/);
-  assert.match(panel, /onPaste=\{pasteImage\}/);
+  assert.match(panel, /直接 Ctrl \+ V/);
+  assert.match(panel, /onPaste=\{\(event\) => void pasteImage\(event\)\}/);
   assert.doesNotMatch(panel, /document\.addEventListener\(["']paste/);
   assert.match(panel, />上一张<\/Button>/);
   assert.match(panel, />下一张<\/Button>/);

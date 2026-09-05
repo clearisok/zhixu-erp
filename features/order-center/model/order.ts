@@ -52,6 +52,15 @@ export type OrderQuantityChange = {
   createdAt: string;
   createdBy: string;
   source?: "manual" | "ainuoke_sync" | "system";
+  colorAdjustments?: OrderColorAdjustment[];
+};
+
+export type OrderColorAdjustment = {
+  colorLineId: string;
+  colorNameSnapshot: string;
+  beforeQuantity: number;
+  afterQuantity: number;
+  delta: number;
 };
 
 export type DeliveryPlan = {
@@ -151,6 +160,13 @@ export function getEffectiveQuantity(order: SalesOrder): number {
   return order.initialQuantity + order.quantityChanges.reduce((sum, change) => sum + change.delta, 0);
 }
 
+export function getEffectiveColorQuantity(order: SalesOrder, colorLineId: string): number {
+  const source = order.orderColorLines.find((line) => line.id === colorLineId)?.quantity ?? 0;
+  return source + order.quantityChanges
+    .filter((change) => change.source !== "ainuoke_sync")
+    .reduce((total, change) => total + (change.colorAdjustments ?? []).filter((item) => item.colorLineId === colorLineId).reduce((sum, item) => sum + item.delta, 0), 0);
+}
+
 export function activeDeliveryPlans(order: SalesOrder): DeliveryPlan[] {
   return order.deliveryPlans.filter((plan) => plan.voidedAt === null);
 }
@@ -231,6 +247,17 @@ export function validateOrderCollection(value: unknown): SalesOrder[] {
     assertUnique(order.quantityChanges.map((change) => change.id), `订单 ${order.orderNo} 的数量变更`);
     assertUnique(order.deliveryPlans.map((plan) => plan.id), `订单 ${order.orderNo} 的交期`);
     assertUnique(order.orderColorLines.map((line) => line.id), `订单 ${order.orderNo} 的颜色数量`);
+    for (const change of order.quantityChanges) {
+      const adjustments = change.colorAdjustments ?? [];
+      assertUnique(adjustments.map((item) => item.colorLineId), `订单 ${order.orderNo} 的颜色数量变更`);
+      if (adjustments.some((item) => !order.orderColorLines.some((line) => line.id === item.colorLineId))) throw new Error(`订单 ${order.orderNo} 的颜色数量变更引用了不存在的颜色`);
+      if (adjustments.some((item) => !Number.isFinite(item.beforeQuantity) || !Number.isFinite(item.afterQuantity) || item.afterQuantity < 0 || item.afterQuantity - item.beforeQuantity !== item.delta)) throw new Error(`订单 ${order.orderNo} 的颜色数量变更无效`);
+      if (adjustments.length && adjustments.reduce((total, item) => total + item.delta, 0) !== change.delta) throw new Error(`订单 ${order.orderNo} 的颜色数量变更与订单变更不一致`);
+    }
+    if (order.quantityChanges.some((change) => change.source !== "ainuoke_sync" && change.colorAdjustments?.length)) {
+      const colorTotal = order.orderColorLines.reduce((total, line) => total + getEffectiveColorQuantity(order, line.id), 0);
+      if (colorTotal !== getEffectiveQuantity(order)) throw new Error(`订单 ${order.orderNo} 的有效分色数量与订单数量不一致`);
+    }
   }
   return structuredClone(orders);
 }
@@ -249,6 +276,7 @@ export function normalizeSalesOrderV10(order: SalesOrder): SalesOrder {
     contractDeliveryDate: order.contractDeliveryDate ?? null,
     inspectionDate: order.inspectionDate ?? null,
     orderColorLines: Array.isArray(order.orderColorLines) ? order.orderColorLines : [],
+    quantityChanges: Array.isArray(order.quantityChanges) ? order.quantityChanges.map((change) => ({ ...change, colorAdjustments: Array.isArray(change.colorAdjustments) ? change.colorAdjustments : undefined })) : [],
     purchasedTrimUnitCostSnapshot: order.purchasedTrimUnitCostSnapshot ?? null,
     purchasedTrimCurrencySnapshot: order.purchasedTrimCurrencySnapshot ?? null,
     purchasedTrimRuleId: order.purchasedTrimRuleId ?? null,

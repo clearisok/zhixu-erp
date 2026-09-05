@@ -68,7 +68,7 @@ test("顶部和 Sticky 操作区按容器测量，不再使用四列等宽 Grid"
   assert.doesNotMatch(css, /qc-sticky-actions[\s\S]{0,180}repeat\(4/);
   assert.match(actionBar, /ResizeObserver/);
   assert.match(actionBar, /resolveQuoteActionBarMode/);
-  assert.match(actionBar, /summary>更多<\/summary>/);
+  assert.match(actionBar, /<FloatingMenu[^>]*label="更多报价操作"/);
 });
 
 test("mock repository 与旧 API 隔离", async () => {

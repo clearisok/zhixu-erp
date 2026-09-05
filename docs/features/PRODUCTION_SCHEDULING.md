@@ -13,6 +13,10 @@
 - 排单编辑器不向用户展示 `durationMode` 或“排期依据”；平均日产与所需工作日直接双向联动，以最后编辑的输入为当前口径。新建排单无需填写变更原因，并可一键带入全部未排数量。
 - 结束 Assignment 时在首层 Modal 同时提供“仅记录结束”和“结束并应用建议”。后者先预览每条受影响排单的前后日期，用户确认后才持久化；只调整同组未开工自动队列，全部日志共享 operationId。
 - 外发排单弹窗允许就地创建外发厂，保存稳定 ID、自动选中，并通过统一 OperationLog 记录基础资料变更；它不创建第二套排单日志。
+- 生产组左侧总览在宽屏保持 sticky；队列行不再下垂，订单与物流均通过真实导航进入对应页面。
+- 重复排单入口已收敛；行内“更多”只保留真实动作，包括进入排单、款式进度和价格调整。
+- 生产物料状态直接消费 Style Progress Projection，不再维护面辅料手工到料日期；空提交校验与 Modal 位于同一可见层级。
+- 生产执行日期文案统一使用“拟定交期”。
 
 ## Data model
 
@@ -37,7 +41,8 @@
 - 运输时长按自然日。最晚到生产地点日期 = `plannedStartDate - preProductionSampleLeadDays`。
 - 推荐满足到达要求的最慢启用方式；排单编辑器与订单详情复用同一 Projection，显示齐套日、实际生产地点、计划开工、封样提前期、最晚到厂、推荐方式、预计到厂和风险。若全部失败，显示最快预计到达日与晚到天数，不反向修改生产排期。
 - 没有跨境路线时显示“无需跨境运输建议”。ManufacturingPreset 是报价口径，不等于实际 ProductionSite。
-- 款式进度通过现有 `recommendMaterialTransport` 形成逐物料建议，继续读取同一 ProductionSite / SupplyHub / SupplyRoute / TransportMode。实际累计入库齐套日优先，否则读取当前 Effective 到料日；缺排单、集货仓、生产地点、指定路线、路线运输方式时分别给出精确原因。
+- 款式进度对每个 Expected Arrival Batch 独立调用现有 `recommendMaterialTransport`，继续读取同一 ScheduleAssignment / ProductionSite / SupplyHub / SupplyRoute / TransportMode，不创建平行物流算法或日期事实。Batch 的 Effective 是预计到达 SupplyHub 的日期；Service 返回推荐方式、预计到厂、最晚到厂、`bufferDays` 与 escalation。缺排单、集货仓、生产地点、指定路线、路线运输方式时分别给出精确原因。
+- “距上线”是计划开工日减 Expected Arrival at SupplyHub 的自然日差，只用于直观提示；运输风险只看 `latestRequiredArrivalDate - expectedFactoryArrivalDate`，大于 7 天为绿色、0–7 天为黄色、小于 0 为红色。两者不得合并为同一状态。
 - “物料与运输”弹窗只回显已持久化 SupplyHub；没有正式值时选中“未设置”，不得自动选中第一个启用仓或据此形成运输推荐。
 - 多 Assignment 暂无可靠 material/color relation 时使用最早的有效 `plannedStartDate` 保守计算，禁止平均、最后一条或随机选择。物料日期或排单地点/开工变化只触发 Projection 重算，不互相覆盖业务事实。
 
@@ -48,7 +53,7 @@
 
 ## Repository, permissions, audit and search
 
-- 稳定记录仍为 `zhixu.erp.local.production-scheduling`，schemaVersion 11，namespace 不变；迁移不清数据、不重建 ID、不覆盖 Seed。
+- 稳定记录仍为 `zhixu.erp.local.production-scheduling`，schemaVersion 13，namespace 不变；迁移不清数据、不重建 ID、不覆盖 Seed。
 - 复用 `schedule.view/create/edit/complete`；生产与运输设置使用 `settings.production_infrastructure.edit`。
 - 复用唯一 OperationLog。新日志使用 `orderId/scheduleAssignmentId`；`productionPlanId` 仅保留旧日志读取兼容。
 - ScheduleSearchProvider 搜索订单、款式、执行方、生产地点与供应枢纽，并先检查 `schedule.view`。
@@ -59,3 +64,10 @@
 - 外发厂第一版仍以手工固定开始/结束日期为主；ProductionSite/Calendar 自动队列目前只作用于内部生产组。
 - 真实触屏 Mobile 仍需目标设备补验；自动化已覆盖迁移、日期、队列、关账 stale 和运输建议。
 - 排单页服务端首屏使用安全默认 operations settings，客户端挂载后再读取本地资料，避免 localStorage 差异造成 hydration mismatch。
+
+## 2026-09-04 Second Acceptance
+
+- 单组队列顶部不再重复展示大异常 Banner 与“组内执行摘要”；正式异常继续留在行级“异常 / 物流”，组选择项保留小型异常 Badge。
+- 组选择项只保留组号、当前款身份、待产数量、异常 Badge 与队尾日期；15 个组使用紧凑布局。
+- Sticky 作用在 MasterDetail 的左侧 `aside`，位于 68px 顶栏下方的 80px 边界；组面板自身 `overflow: visible`，生产队列与未排池跟随 AppShell 唯一主纵向滚动。
+- Production Queue 与 Unscheduled Pool 保持固定作业顺序语义，并采用 fit-first 列宽；不建立局部横向或纵向滚动。

@@ -33,7 +33,7 @@ export type OperationLogSection = {
   items: OperationLogPresentationItem[];
 };
 
-const sectionOrder = ["报价基础信息", "报价参数", "报价版本", "价格版本", "面料成本", "辅料成本", "工价", "其他费用", "客户确认", "附件", "品牌", "客户业务员", "生产组", "外发厂", "关账设置", "月度产值目标", "制作预设", "报价设置", "订单", "排单", "关账", "导出", "估算成本", "模板", "权限", "报价"];
+const sectionOrder = ["报价基础信息", "报价参数", "报价版本", "价格版本", "面料成本", "辅料成本", "工价", "其他费用", "客户确认", "附件", "品牌", "客户业务员", "生产组", "外发厂", "关账设置", "月度产值目标", "制作预设", "报价设置", "订单", "排单", "关账", "款式进度", "导出", "估算成本", "模板", "权限", "报价"];
 const pricingFields = new Set(["制作国家", "制作预设 ID", "加工币种", "USD/CNY汇率", "成本加成率"]);
 
 export function operationLogCategory(log: OperationLog): string {
@@ -50,7 +50,7 @@ export function operationLogCategory(log: OperationLog): string {
   if (["SalesOrder", "OrderItem", "DeliveryPlan", "OrderQuantityChange", "OrderPriceVersion"].includes(log.entityType)) return "订单";
   if (["ProductionPlan", "ScheduleAssignment", "OrderExecutionTracking"].includes(log.entityType)) return "排单";
   if (["ClosingPeriod", "ClosingAllocation"].includes(log.entityType)) return "关账";
-  if (["MaterialImportBatch", "MaterialDemand"].includes(log.entityType)) return "款式进度";
+  if (["MaterialImportBatch", "MaterialDemand", "MaterialExpectedArrivalBatch"].includes(log.entityType)) return "款式进度";
   if (log.entityType === "FabricCostLine") return "面料成本";
   if (log.entityType === "TrimCostLine") return "辅料成本";
   if (log.entityType === "LaborCost") return "工价";

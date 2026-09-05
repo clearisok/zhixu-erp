@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-044 业务表格采用 Fit-first 个人布局，工作台身份信息去重
+
+- 日期：2026-09-04
+- 决定：正式 `DataTable` 的列宽与稳定列顺序按 `User + Table` 保存；旧 width-only 偏好向前迁移，删除列忽略、新列按默认顺序追加。Preferred Width 参与可用宽度比例 fit，不得把主业务列表的横向滚动当作默认交互。
+- 决定：Desktop Sidebar 支持按用户保存的展开/折叠；基础设置与系统设置菜单只因用户动作打开，pathname 只负责高亮并在切换时关闭临时菜单。
+- 决定：订单 Header 负责身份，Summary 只保留有效数量、合同交期、生产状态与下一步；正式 Ainuoke Order 不提供普通数量/合同交期覆盖入口。生产排单移除重复摘要与大异常 Banner，组选择器压缩后固定在 AppShell 唯一主滚动的顶栏下方。
+- 边界：报价成本录入矩阵、关账分组汇总、Ainuoke 对照表和附件表等具有固定业务语义的自定义表不允许任意重排；它们仍须 fit-first 或使用窄屏 Record/Card，不能用隐藏 scrollbar 伪装溢出。
+- 证据：`components/foundation/data-table.tsx`、`table-preference.ts`、`sidebar-preference.ts`、Quote/Order/Production/Closing UI、Second Acceptance tests 与截图目录。
+
 ### D-042 关账归属保存月度事实快照，锁定后只允许有原因地重开
 
 - 日期：2026-08-28
@@ -341,7 +350,8 @@
 ### D-051 当前预计到料日采用 Source / Effective / Actual 分层
 
 - 日期：2026-09-01
-- 决定：`sourceMaterialDueDate` 保留来源，`expectedMaterialReadyDate` 是当前业务 Effective，累计入库达到需求推导 Actual 齐套日。首次导入与未人工修改的重导入跟随 Source；人工 Effective 不被重导入覆盖；恢复后使用当前 Source。Excel `厂供` 仅映射 `actualConsumption`。
+- 状态：Superseded by D-065 / D-066。
+- 原决定：`sourceMaterialDueDate` 保留来源，`expectedMaterialReadyDate` 是当前业务 Effective，累计入库达到需求推导 Actual 齐套日。首次导入与未人工修改的重导入跟随 Source；人工 Effective 不被重导入覆盖；恢复后使用当前 Source。Excel `厂供` 仅映射 `actualConsumption`。
 - 原因：来源变化、人工判断和实际到料是不同时间事实，必须同时可追溯。
 
 ### D-052 款式进度只按销售合同号投影正式订单
@@ -353,15 +363,114 @@
 ### D-053 逐物料物流复用现有排单和路线事实
 
 - 日期：2026-09-01
-- 决定：逐物料建议扩展既有 `material-logistics-service.ts`，使用 Actual 齐套日，否则使用 Effective；使用最早相关正式 ScheduleAssignment，并在可行方式中选择最慢方式。缺排单或路线明确显示待配置，不猜运输方式。schemaVersion 11 将 Material ImportBatch、Raw、Demand、Events 与 Override 纳入既有 Backup / Restore。
+- 状态：Superseded by D-065 / D-068。
+- 原决定：逐物料建议扩展既有 `material-logistics-service.ts`，使用 Actual 齐套日，否则使用 Effective；使用最早相关正式 ScheduleAssignment，并在可行方式中选择最慢方式。缺排单或路线明确显示待配置，不猜运输方式。schemaVersion 11 将 Material ImportBatch、Raw、Demand、Events 与 Override 纳入既有 Backup / Restore。
 - 原因：物流建议必须随排单与预计到料变化重算，同时保持唯一运输模型和恢复边界。
 
 ### D-054 未持久化的集货仓不得由 UI 或基础资料推断
 
 - 日期：2026-09-01
 - 状态：Active
-- 决定：逐物料物流只把 `OrderExecutionTracking.supplyHubId` 视为订单的正式 SupplyHub。下拉首项、首个启用仓、唯一仓或唯一路线都不得自动成为业务事实；缺 Hub、Site、Route、TransportMode 时返回各自精确原因，只有 Hub 与 Site 均存在后才按稳定 ID 查路线。Style Progress 显示紧凑物流依据，生产弹窗缺 Hub 时回显“未设置”。
+- 决定：逐物料物流只把 `OrderExecutionTracking.supplyHubId` 视为订单的正式 SupplyHub。下拉首项、首个启用仓、唯一仓或唯一路线都不得自动成为业务事实；缺 Hub、Site、Route、TransportMode 时返回各自精确原因，只有 Hub 与 Site 均存在后才按稳定 ID 查路线。Style Progress 在具体 Batch 推荐或 Detail 中展示物流依据，主页面不重复整条依据卡；生产弹窗缺 Hub 时回显“未设置”。
 - 原因：基础资料存在不等于订单已经选择；自动展示“宁波仓”会让用户误认为 D1935 已保存集货仓，并把前提缺失误报为路线缺失。
+
+### D-055 Quote 搜索采用可组合的 AND 语法
+
+- 日期：2026-09-04
+- 状态：Active
+- 决定：普通空格 token、`/字段 值` 结构化条件以及二者的组合均按 AND 计算；`/制作国家` 扫描 Quote 下全部 PriceVersion 的制作国家快照。
+- 原因：报价人员需要在同一列表中把模糊身份信息与明确业务字段叠加筛选，不能因切换语法而丢失其他条件。
+
+### D-056 颜色级取消是来源数量之上的追加调整
+
+- 日期：2026-09-04
+- 状态：Active
+- 决定：部分取消不改写来源颜色行，以 append-only adjustment 计算有效数量；艾诺科重同步只更新来源数量，并保留全部人工取消记录。
+- 原因：同步事实与人工业务决定必须分别追溯，重同步不得恢复已取消数量。
+
+### D-057 默认加工币种只初始化新事实
+
+- 日期：2026-09-04
+- 状态：Active
+- 决定：系统 `defaultProcessingCurrency` 当前默认 USD，只用于新建手工订单、新价格调整和新关账记录；既有订单价格、Quote 与 Closing 快照不重算。
+- 原因：系统默认值是录入辅助，不是覆盖历史业务事实的全局口径。
+
+### D-058 生产物料状态只消费 Style Progress Projection
+
+- 日期：2026-09-04
+- 状态：Active
+- 决定：生产排单不再维护重复的手工物料日期；物料状态、异常与物流入口读取 Style Progress Projection。生产执行 UI 的承诺日期统一称为“拟定交期”。
+- 原因：消除同一物料日期的双写与漂移，并让术语与当前业务语义一致。
+
+### D-059 actualConsumption 读取 Excel 的精确数值列
+
+- 日期：2026-09-04
+- 状态：Active
+- 决定：`actualConsumption` 读取表头“厂供”的实际用量数值，不再把“提供方式 = 厂供”转换为计划用量。旧错误快照仅在当前 ImportBatch Raw Snapshot 能确定对应数值时迁移，否则为 `null`。
+- 原因：这是对已确认 Excel 列语义的实现纠正，不是新增的 AI 假设；供货方式与实际用量属于不同事实。
+
+### D-060 关账采用月份总览到月份详情的工作流
+
+- 日期：2026-09-04
+- 状态：Active
+- 决定：`/closing-center` 提供月份倒序、按年分组和状态筛选；`/closing-center/detail?month=YYYY-MM` 由路由月份决定归属、KPI、订单行和动作。`confirmed` 与 `locked` 保持独立，锁定后普通编辑被拒绝，高权限重开必须填写原因。
+- 原因：月份状态需要先总览再进入单月工作面，同时确认与锁定承担不同控制强度，不能合并。
+
+### D-061 厂供退出 Operational Material Control
+
+- 日期：2026-09-05
+- 状态：Active
+- 决定：`提供方式=厂供` 保留 Raw Snapshot 与 Source Trace，但不进入采购跟进、未采购/待入库、齐套率、风险、物流推荐或 Expected Arrival Batch。普通 UI 只在存在厂供时显示“厂供信息”，不得把缺 PurchaseEvent 的厂供显示成未采购。
+- 原因：厂供是来源信息，不是织序采购执行对象；把它纳入运营指标会制造虚假缺口。
+
+### D-062 materialCode 降级为 Source Identity
+
+- 日期：2026-09-05
+- 状态：Active
+- 决定：艾诺科 `materialCode` 只用于来源追溯，普通款式进度按 `salesContractNo` 内的 Canonical Material Group 展示真实物料。来源编码、规格和颜色继续保留在下层 Demand/Trace，不跨合同聚合。
+- 原因：一个真实物料可能对应多个来源编码，Excel 行或编码不能直接充当用户物料身份。
+
+### D-063 面料以名称、门幅、克重和唯一采购价归一
+
+- 日期：2026-09-05
+- 状态：Active
+- 决定：同一销售合同内，面料以标准化名称 + 门幅 + 克重 + 正常化后的唯一采购单价判定 Canonical identity。价格缺失或存在冲突时保持独立并显式标记，不取 first / last，也不计算平均采购价。
+- 原因：这些字段共同决定真实面料口径；不可靠价格不能被猜测性归一掩盖。
+
+### D-064 辅料按标准化名称归一
+
+- 日期：2026-09-05
+- 状态：Active
+- 决定：同一销售合同内，辅料按标准化名称直接聚合；来源编码、规格和颜色不参与顶层身份，但必须保留在下层需求明细。
+- 原因：业务首先按辅料名称跟进，具体规格与颜色属于组内执行事实。
+
+### D-065 Effective 是 Expected Arrival at SupplyHub
+
+- 日期：2026-09-05
+- 状态：Active
+- 决定：Source 是艾诺科来源交期；Effective 正式定义为货物预计到达已持久化 SupplyHub 的日期，并由 Expected Arrival Batch 表达；Actual 只能由 InboundEvent 等实际事件产生。缺 SupplyHub 必须显示“集货仓未设置”，不得推断默认仓。
+- 原因：跟进、运输推荐与预计到厂必须共享一个明确地点语义，同时保持来源、人工计划和实际事件分离。
+
+### D-066 一个真实物料支持多批 Expected Arrival Allocation
+
+- 日期：2026-09-05
+- 状态：Active
+- 决定：一个 Canonical Material 可保存多个 Expected Arrival Batch；Allocation 稳定引用 `materialDemandId`，允许一项 Demand 拆入多批和部分未安排，但全部批次累计不得超过需求数量，系统不得自动补齐。manual Batch 在重导入时保留，只有“恢复使用来源计划”才重新跟随 Source。
+- 原因：真实到料经常分批且同一颜色跨批次，单日期模型无法表达执行事实。
+
+### D-067 人工到料批次不绑定来源事件
+
+- 日期：2026-09-05
+- 状态：Active
+- 决定：人工计划 Expected Arrival Batch 不强制绑定 PurchaseEvent、InboundEvent、ShipmentEvent 或 OutboundEvent，也不得按日期、数量、颜色或顺序自动猜测关联。计划与四类事件可以并排比较，但保持独立事实身份。
+- 原因：缺少稳定外键时自动配对会制造无法审计的虚假关系。
+
+### D-068 每批复用唯一物流服务并独立计算 buffer
+
+- 日期：2026-09-05
+- 状态：Active
+- 决定：每个 Expected Arrival Batch 独立调用 `material-logistics-service.ts`，在可按时到厂的方式中选择最慢者；“距上线”是计划开工减预计到集货仓的自然日差，运输 buffer 是最晚到厂减预计到厂。`bufferDays > 7` 为 green，`0..7` 为 yellow，`< 0` 为 red / 晚 X 天。
+- 原因：同一物料不同批次可能需要不同运输方式；距上线不是物流安全判断，不能混为一个数值或状态。
 
 ## Superseded
 

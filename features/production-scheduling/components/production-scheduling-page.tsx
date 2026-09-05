@@ -1,71 +1,1743 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { AlertBanner, AppShell, Button, Card, ContextSummary, EmptyState, FormItem, MasterDetail, Modal, NullableNumberInput, PageContainer, PageHeader, SearchField, StatusTag, Toast, Toolbar } from "@/components/foundation";
-import { createOperationId, createOperationsSettingsOperationLogs, createProductionSchedulingOperationLog, operationLogRepository, type OperationLogAction } from "@/features/operation-logs";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  AppShell,
+  Button,
+  Card,
+  ContextSummary,
+  EmptyState,
+  FloatingMenu,
+  FormItem,
+  MasterDetail,
+  Modal,
+  NullableNumberInput,
+  PageContainer,
+  PageHeader,
+  SearchField,
+  StatusTag,
+  Toast,
+  Toolbar,
+} from "@/components/foundation";
+import {
+  createOperationId,
+  createOperationsSettingsOperationLogs,
+  createProductionSchedulingOperationLog,
+  operationLogRepository,
+  type OperationLogAction,
+} from "@/features/operation-logs";
 import { operationsSettingsRepository } from "@/features/operations-settings/repository/operations-settings-repository";
-import { createOperationsMasterDataId, defaultOperationsSettings, upsertOutsourceFactory, type OperationsSettingsState, type OutsourceFactory } from "@/features/operations-settings/model/operations-settings";
+import {
+  createOperationsMasterDataId,
+  defaultOperationsSettings,
+  upsertOutsourceFactory,
+  type OperationsSettingsState,
+  type OutsourceFactory,
+} from "@/features/operations-settings/model/operations-settings";
 import { orderRepository } from "@/features/order-center/repository/order-repository";
 import type { SalesOrder } from "@/features/order-center/model/order";
 import { usePermissions } from "@/features/permissions";
-import { assignmentsForOrder, buildProductionGroupOverview, completeAssignmentWithQueuePreview, createScheduleAssignment, getMaterialReadyDate, productionSchedulingRepository, projectOrderSchedule, recommendTransport, recalculateInternalQueue, suggestInternalQueueTailStartDate, updateScheduleAssignment, upsertOrderExecutionTracking, type OrderExecutionTracking, type ProductionSchedulingState, type ScheduleAssignment } from "..";
+import { styleProgressRepository } from "@/features/style-progress/repository/style-progress-repository";
+import {
+  buildStyleProgressProjections,
+  type StyleProgressProjection,
+} from "@/features/style-progress/service/style-progress-service";
+import type { StyleProgressData } from "@/features/style-progress/model/style-progress";
+import {
+  assignmentsForOrder,
+  buildProductionGroupOverview,
+  completeAssignmentWithQueuePreview,
+  createScheduleAssignment,
+  productionSchedulingRepository,
+  projectOrderSchedule,
+  recalculateInternalQueue,
+  suggestInternalQueueTailStartDate,
+  updateScheduleAssignment,
+  upsertOrderExecutionTracking,
+  type OrderExecutionTracking,
+  type ProductionSchedulingState,
+  type ScheduleAssignment,
+} from "..";
 
-const emptyState: ProductionSchedulingState = { scheduleAssignments: [], orderExecutionTrackings: [], scheduleBatches: [] };
+const emptyState: ProductionSchedulingState = {
+  scheduleAssignments: [],
+  orderExecutionTrackings: [],
+  scheduleBatches: [],
+};
 const quantity = (value: number) => value.toLocaleString("zh-CN");
-const assignmentStatusLabels: Record<ScheduleAssignment["status"], string> = { planned: "已计划", in_progress: "生产中", completed: "已完成", cancelled: "已取消" };
-type AssignmentForm = { id: string | null; salesOrderId: string; colorLineId: string; executionType: "internal" | "outsource"; executorId: string; outsourceUnitPrice: number | null; quantity: number | null; durationMode: ScheduleAssignment["durationMode"]; averageDailyOutput: number | null; requiredWorkdays: number | null; dateMode: ScheduleAssignment["dateMode"]; startDate: string; endDate: string; completedQuantity: number | null; status: ScheduleAssignment["status"]; remark: string; reason: string };
-type CompletionPreview = { order: SalesOrder; result: ReturnType<typeof completeAssignmentWithQueuePreview> };
-type CompletionDraft = { order: SalesOrder; assignment: ScheduleAssignment; completedQuantity: number | null; actualCompletedDate: string };
-const executorName = (item: ScheduleAssignment, settings: OperationsSettingsState) => item.executionType === "internal" ? settings.productionGroups.find((entry) => entry.id === item.productionGroupId)?.name ?? "历史生产组" : settings.outsourceFactories.find((entry) => entry.id === item.outsourceFactoryId)?.name ?? "历史外发厂";
+const assignmentStatusLabels: Record<ScheduleAssignment["status"], string> = {
+  planned: "已计划",
+  in_progress: "生产中",
+  completed: "已完成",
+  cancelled: "已取消",
+};
+type AssignmentForm = {
+  id: string | null;
+  salesOrderId: string;
+  colorLineId: string;
+  executionType: "internal" | "outsource";
+  executorId: string;
+  outsourceUnitPrice: number | null;
+  quantity: number | null;
+  durationMode: ScheduleAssignment["durationMode"];
+  averageDailyOutput: number | null;
+  requiredWorkdays: number | null;
+  dateMode: ScheduleAssignment["dateMode"];
+  startDate: string;
+  endDate: string;
+  completedQuantity: number | null;
+  status: ScheduleAssignment["status"];
+  remark: string;
+  reason: string;
+};
+type CompletionPreview = {
+  order: SalesOrder;
+  result: ReturnType<typeof completeAssignmentWithQueuePreview>;
+};
+type CompletionDraft = {
+  order: SalesOrder;
+  assignment: ScheduleAssignment;
+  completedQuantity: number | null;
+  actualCompletedDate: string;
+};
+const executorName = (
+  item: ScheduleAssignment,
+  settings: OperationsSettingsState,
+) =>
+  item.executionType === "internal"
+    ? (settings.productionGroups.find(
+        (entry) => entry.id === item.productionGroupId,
+      )?.name ?? "历史生产组")
+    : (settings.outsourceFactories.find(
+        (entry) => entry.id === item.outsourceFactoryId,
+      )?.name ?? "历史外发厂");
 
 export function ProductionSchedulingPage() {
-  const searchParams = useSearchParams(); const { can, currentUser } = usePermissions();
-  const actor = useMemo(() => ({ id: currentUser.id, name: currentUser.name }), [currentUser.id, currentUser.name]);
-  const [orders, setOrders] = useState<SalesOrder[]>([]); const [state, setState] = useState<ProductionSchedulingState>(emptyState); const [settings, setSettings] = useState<OperationsSettingsState>(defaultOperationsSettings);
-  const [view, setView] = useState<"orders" | "executors" | "warnings">("executors"); const [query, setQuery] = useState(""); const [selectedOrderId, setSelectedOrderId] = useState(searchParams.get("orderId") ?? "");
-  const [selectedGroupId, setSelectedGroupId] = useState(""); const [unscheduledFilter, setUnscheduledFilter] = useState<"all" | "full" | "partial">("all");
-  const [form, setForm] = useState<AssignmentForm | null>(null); const [factoryDraft, setFactoryDraft] = useState<OutsourceFactory | null>(null); const [completionDraft, setCompletionDraft] = useState<CompletionDraft | null>(null); const [completionPreview, setCompletionPreview] = useState<CompletionPreview | null>(null); const [trackingOpen, setTrackingOpen] = useState(false); const [trackingDraft, setTrackingDraft] = useState<{ supplyHubId: string; fabricDate: string; trimDate: string; remark: string }>({ supplyHubId: "", fabricDate: "", trimDate: "", remark: "" }); const [toast, setToast] = useState(""); const [error, setError] = useState("");
-  useEffect(() => { Promise.all([orderRepository.list(), productionSchedulingRepository.load()]).then(([nextOrders, nextState]) => { const nextSettings = operationsSettingsRepository.load(); setOrders(nextOrders); setState(nextState); setSettings(nextSettings); setSelectedOrderId((current) => current || nextOrders[0]?.id || ""); setSelectedGroupId((current) => { if (current) return current; const contextOrderId = searchParams.get("orderId"); const contextAssignment = contextOrderId ? nextState.scheduleAssignments.find((item) => item.salesOrderId === contextOrderId && item.executionType === "internal" && item.status !== "cancelled") : null; return contextAssignment?.productionGroupId ?? nextSettings.productionGroups.filter((item) => item.enabled).sort((a, b) => a.sortOrder - b.sortOrder)[0]?.id ?? ""; }); }); }, [searchParams]);
-  const selectedOrder = orders.find((order) => order.id === selectedOrderId) ?? null; const selectedTracking = selectedOrder ? state.orderExecutionTrackings.find((item) => item.salesOrderId === selectedOrder.id) ?? null : null;
-  const rows = useMemo(() => orders.map((order) => ({ order, projection: projectOrderSchedule(order, state) })).filter(({ order }) => !query.trim() || [order.orderNo, order.salesContractNo, order.styleNo, order.factoryStyleNo, order.styleName, order.customerNameSnapshot, ...order.orderColorLines.map((line) => line.colorName)].join(" ").toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())), [orders, query, state]);
-  const unscheduledRows = rows.filter(({ projection }) => projection.unscheduledQuantity > 0 && (unscheduledFilter === "all" || unscheduledFilter === "full" && projection.scheduledQuantity === 0 || unscheduledFilter === "partial" && projection.scheduledQuantity > 0));
-  const activeInternalAssignments = state.scheduleAssignments.filter((item) => item.status !== "cancelled" && item.executionType === "internal");
-  const groupSummaries = useMemo(() => buildProductionGroupOverview(orders, state, settings).sort((a, b) => { const left = /^\s*(\d+)/.exec(a.group.name); const right = /^\s*(\d+)/.exec(b.group.name); if (left && right) return Number(left[1]) - Number(right[1]); if (left) return -1; if (right) return 1; return a.group.sortOrder - b.group.sortOrder || a.group.name.localeCompare(b.group.name, "zh-CN"); }), [orders, settings, state]);
-  const selectedGroup = groupSummaries.find((item) => item.group.id === selectedGroupId) ?? null;
-  const anomalyRows = rows.flatMap(({ order, projection }) => { const orderAssignments = assignmentsForOrder(state, order.id).filter((item) => item.status !== "cancelled"); const logisticsIssues = orderAssignments.flatMap((assignment) => { const recommendation = recommendTransport({ assignment, tracking: state.orderExecutionTrackings.find((entry) => entry.salesOrderId === order.id) ?? null, settings }); return recommendation.status === "late" ? [recommendation.message] : recommendation.recommendedMode?.name === "定时达" ? ["需使用定时达"] : []; }); const overdue = orderAssignments.some((item) => item.status !== "completed" && item.plannedEndDate && item.plannedEndDate < new Date().toISOString().slice(0, 10)); const messages = [...projection.warnings, ...projection.deliveryRisk.messages, ...logisticsIssues, ...(overdue ? ["已超过计划结束日期但尚未结束"] : [])]; return messages.length ? [{ order, messages, severity: projection.warnings.length || logisticsIssues.some((message) => message.includes("无法")) ? "严重" : "一般" }] : []; });
-  const draftSupplyHubName = settings.supplyHubs.find((item) => item.id === (trackingDraft.supplyHubId || selectedTracking?.supplyHubId))?.name ?? "供应枢纽";
-  const draftAssignment = form ? { id: form.id ?? "draft-assignment", executionType: form.executionType, productionGroupId: form.executionType === "internal" ? form.executorId : null, plannedStartDate: form.startDate || null } : null;
-  const draftLogistics = draftAssignment ? recommendTransport({ assignment: draftAssignment, tracking: form ? state.orderExecutionTrackings.find((item) => item.salesOrderId === form.salesOrderId) ?? null : selectedTracking, settings }) : null;
-  const formOrder = form ? orders.find((item) => item.id === form.salesOrderId) ?? null : null;
-  const formProjection = formOrder ? projectOrderSchedule(formOrder, state) : null;
-  const formGroupQueue = form?.executionType === "internal" && form.executorId ? activeInternalAssignments.filter((item) => item.productionGroupId === form.executorId && item.id !== form.id).sort((a, b) => (a.queueSequence ?? 9999) - (b.queueSequence ?? 9999)) : [];
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { can, currentUser } = usePermissions();
+  const actor = useMemo(
+    () => ({ id: currentUser.id, name: currentUser.name }),
+    [currentUser.id, currentUser.name],
+  );
+  const [orders, setOrders] = useState<SalesOrder[]>([]);
+  const [state, setState] = useState<ProductionSchedulingState>(emptyState);
+  const [settings, setSettings] = useState<OperationsSettingsState>(
+    defaultOperationsSettings,
+  );
+  const [styleProgressData, setStyleProgressData] = useState<StyleProgressData | null>(null);
+  const [view, setView] = useState<"orders" | "executors" | "warnings">(
+    "executors",
+  );
+  const [query, setQuery] = useState("");
+  const [selectedOrderId, setSelectedOrderId] = useState(
+    searchParams.get("orderId") ?? "",
+  );
+  const [selectedGroupId, setSelectedGroupId] = useState("");
+  const [unscheduledFilter, setUnscheduledFilter] = useState<
+    "all" | "full" | "partial"
+  >("all");
+  const [form, setForm] = useState<AssignmentForm | null>(null);
+  const [factoryDraft, setFactoryDraft] = useState<OutsourceFactory | null>(
+    null,
+  );
+  const [completionDraft, setCompletionDraft] =
+    useState<CompletionDraft | null>(null);
+  const [completionPreview, setCompletionPreview] =
+    useState<CompletionPreview | null>(null);
+  const [trackingOpen, setTrackingOpen] = useState(false);
+  const [trackingDraft, setTrackingDraft] = useState<{
+    supplyHubId: string;
+    remark: string;
+  }>({ supplyHubId: "", remark: "" });
+  const [toast, setToast] = useState("");
+  const [error, setError] = useState("");
+  useEffect(() => {
+    Promise.all([
+      orderRepository.list(),
+      productionSchedulingRepository.load(),
+      styleProgressRepository.loadAll(),
+    ]).then(([nextOrders, nextState, nextStyleProgress]) => {
+      const nextSettings = operationsSettingsRepository.load();
+      setOrders(nextOrders);
+      setState(nextState);
+      setSettings(nextSettings);
+      setStyleProgressData(nextStyleProgress);
+      setSelectedOrderId((current) => current || nextOrders[0]?.id || "");
+      setSelectedGroupId((current) => {
+        if (current) return current;
+        const contextOrderId = searchParams.get("orderId");
+        const contextAssignment = contextOrderId
+          ? nextState.scheduleAssignments.find(
+              (item) =>
+                item.salesOrderId === contextOrderId &&
+                item.executionType === "internal" &&
+                item.status !== "cancelled",
+            )
+          : null;
+        return (
+          contextAssignment?.productionGroupId ??
+          nextSettings.productionGroups
+            .filter((item) => item.enabled)
+            .sort((a, b) => a.sortOrder - b.sortOrder)[0]?.id ??
+          ""
+        );
+      });
+    });
+  }, [searchParams]);
+  const selectedOrder =
+    orders.find((order) => order.id === selectedOrderId) ?? null;
+  const selectedTracking = selectedOrder
+    ? (state.orderExecutionTrackings.find(
+        (item) => item.salesOrderId === selectedOrder.id,
+      ) ?? null)
+    : null;
+  const rows = useMemo(
+    () =>
+      orders
+        .map((order) => ({
+          order,
+          projection: projectOrderSchedule(order, state),
+        }))
+        .filter(
+          ({ order }) =>
+            !query.trim() ||
+            [
+              order.orderNo,
+              order.salesContractNo,
+              order.styleNo,
+              order.factoryStyleNo,
+              order.styleName,
+              order.customerNameSnapshot,
+              ...order.orderColorLines.map((line) => line.colorName),
+            ]
+              .join(" ")
+              .toLocaleLowerCase()
+              .includes(query.trim().toLocaleLowerCase()),
+        ),
+    [orders, query, state],
+  );
+  const unscheduledRows = rows.filter(
+    ({ projection }) =>
+      projection.unscheduledQuantity > 0 &&
+      (unscheduledFilter === "all" ||
+        (unscheduledFilter === "full" && projection.scheduledQuantity === 0) ||
+        (unscheduledFilter === "partial" && projection.scheduledQuantity > 0)),
+  );
+  const activeInternalAssignments = state.scheduleAssignments.filter(
+    (item) => item.status !== "cancelled" && item.executionType === "internal",
+  );
+  const groupSummaries = useMemo(
+    () =>
+      buildProductionGroupOverview(orders, state, settings).sort((a, b) => {
+        const left = /^\s*(\d+)/.exec(a.group.name);
+        const right = /^\s*(\d+)/.exec(b.group.name);
+        if (left && right) return Number(left[1]) - Number(right[1]);
+        if (left) return -1;
+        if (right) return 1;
+        return (
+          a.group.sortOrder - b.group.sortOrder ||
+          a.group.name.localeCompare(b.group.name, "zh-CN")
+        );
+      }),
+    [orders, settings, state],
+  );
+  const selectedGroup =
+    groupSummaries.find((item) => item.group.id === selectedGroupId) ?? null;
+  const styleProgressByContract = useMemo<Map<string, StyleProgressProjection>>(() => {
+    if (!styleProgressData) return new Map<string, StyleProgressProjection>();
+    return new Map(buildStyleProgressProjections({ data: styleProgressData, orders, scheduling: state, settings }).map((item) => [item.salesContractNo, item]));
+  }, [orders, settings, state, styleProgressData]);
+  const selectedStyleProgress = selectedOrder?.salesContractNo
+    ? styleProgressByContract.get(selectedOrder.salesContractNo) ?? null
+    : null;
+  const materialReadinessLabel = (order: SalesOrder) => {
+    if (!order.salesContractNo) return "暂无面辅料跟进数据";
+    const projection = styleProgressByContract.get(order.salesContractNo);
+    return projection ? `齐套 ${projection.totalReady}/${projection.totalMaterials} · ${projection.readinessRate.toFixed(1)}%` : "暂无面辅料跟进数据";
+  };
+  const anomalyRows = rows.flatMap(({ order, projection }) => {
+    const orderAssignments = assignmentsForOrder(state, order.id).filter(
+      (item) => item.status !== "cancelled",
+    );
+    const materialProjection = order.salesContractNo ? styleProgressByContract.get(order.salesContractNo) : null;
+    const logisticsIssues = materialProjection
+      ? [...new Set(materialProjection.materials.filter((item) => item.logistics.status === "late" || item.logistics.escalationLevel === "only_fastest").map((item) => item.logistics.message))]
+      : [];
+    const overdue = orderAssignments.some(
+      (item) =>
+        item.status !== "completed" &&
+        item.plannedEndDate &&
+        item.plannedEndDate < new Date().toISOString().slice(0, 10),
+    );
+    const messages = [
+      ...projection.warnings,
+      ...projection.deliveryRisk.messages,
+      ...logisticsIssues,
+      ...(overdue ? ["已超过计划结束日期但尚未结束"] : []),
+    ];
+    return messages.length
+      ? [
+          {
+            order,
+            messages,
+            severity:
+              projection.warnings.length ||
+              logisticsIssues.some((message) => message.includes("无法"))
+                ? "严重"
+                : "一般",
+          },
+        ]
+      : [];
+  });
+  const formOrder = form
+    ? (orders.find((item) => item.id === form.salesOrderId) ?? null)
+    : null;
+  const formProjection = formOrder
+    ? projectOrderSchedule(formOrder, state)
+    : null;
+  const formStyleProgress = formOrder?.salesContractNo
+    ? styleProgressByContract.get(formOrder.salesContractNo) ?? null
+    : null;
+  const formGroupQueue =
+    form?.executionType === "internal" && form.executorId
+      ? activeInternalAssignments
+          .filter(
+            (item) =>
+              item.productionGroupId === form.executorId && item.id !== form.id,
+          )
+          .sort((a, b) => (a.queueSequence ?? 9999) - (b.queueSequence ?? 9999))
+      : [];
   const formGroupTail = formGroupQueue.at(-1) ?? null;
-  const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(""), 2400); }; const persist = async (next: ProductionSchedulingState) => { const saved = await productionSchedulingRepository.save(next); setState(saved); return saved; };
-  const appendLog = async (order: SalesOrder, action: OperationLogAction, entity: ScheduleAssignment | OrderExecutionTracking, beforeValues?: Record<string, string | number | null>, afterValues?: Record<string, string | number | null>, reason?: string, operationId?: string) => operationLogRepository.append(createProductionSchedulingOperationLog({ actor: { userId: currentUser.id, userName: currentUser.name }, order, action, entityType: "plannedQuantity" in entity ? "ScheduleAssignment" : "OrderExecutionTracking", entity, beforeValues, afterValues, reason, operationId }));
-  if (!can("schedule.view")) return <AppShell title="生产排单"><PageContainer><Card><strong>暂无排单查看权限</strong><p>请联系管理员分配 schedule.view 权限。</p></Card></PageContainer></AppShell>;
+  const notify = (message: string) => {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 2400);
+  };
+  const persist = async (next: ProductionSchedulingState) => {
+    const saved = await productionSchedulingRepository.save(next);
+    setState(saved);
+    return saved;
+  };
+  const appendLog = async (
+    order: SalesOrder,
+    action: OperationLogAction,
+    entity: ScheduleAssignment | OrderExecutionTracking,
+    beforeValues?: Record<string, string | number | null>,
+    afterValues?: Record<string, string | number | null>,
+    reason?: string,
+    operationId?: string,
+  ) =>
+    operationLogRepository.append(
+      createProductionSchedulingOperationLog({
+        actor: { userId: currentUser.id, userName: currentUser.name },
+        order,
+        action,
+        entityType:
+          "plannedQuantity" in entity
+            ? "ScheduleAssignment"
+            : "OrderExecutionTracking",
+        entity,
+        beforeValues,
+        afterValues,
+        reason,
+        operationId,
+      }),
+    );
+  if (!can("schedule.view"))
+    return (
+      <AppShell title="生产排单">
+        <PageContainer>
+          <Card>
+            <strong>暂无排单查看权限</strong>
+            <p>请联系管理员分配 schedule.view 权限。</p>
+          </Card>
+        </PageContainer>
+      </AppShell>
+    );
 
-  const openAssignment = (item?: ScheduleAssignment, orderId = selectedOrder?.id ?? "") => { const order = orders.find((entry) => entry.id === (item?.salesOrderId ?? orderId)); if (!order) return; const executionType = item?.executionType ?? "internal"; const executorId = executionType === "internal" ? item?.productionGroupId || selectedGroupId || settings.productionGroups.find((entry) => entry.enabled)?.id || "" : item?.outsourceFactoryId ?? settings.outsourceFactories.find((entry) => entry.enabled)?.id ?? ""; const quantityValue = item?.plannedQuantity ?? projectOrderSchedule(order, state).unscheduledQuantity; const average = item?.averageDailyOutputSnapshot ?? order.averageDailyOutput ?? null; setSelectedOrderId(order.id); setForm({ id: item?.id ?? null, salesOrderId: order.id, colorLineId: item?.colorLineId ?? "", executionType, executorId, outsourceUnitPrice: item?.outsourceUnitPrice ?? null, quantity: quantityValue, durationMode: item?.durationMode ?? "average_daily_output", averageDailyOutput: average, requiredWorkdays: item?.requiredWorkdays ?? (average ? Math.max(1, Math.ceil(quantityValue / average)) : 1), dateMode: item?.dateMode ?? (executionType === "internal" ? "auto_queue" : "manual_fixed"), startDate: item?.plannedStartDate ?? (executionType === "internal" && executorId ? suggestInternalQueueTailStartDate(state, executorId) : ""), endDate: item?.plannedEndDate ?? "", completedQuantity: item?.completedQuantity ?? 0, status: item?.status ?? "planned", remark: item?.remark ?? "", reason: "" }); };
-  const saveAssignment = async () => { if (!form) return; const formOrder = orders.find((item) => item.id === form.salesOrderId); if (!formOrder) return; const colorLine = formOrder.orderColorLines.find((line) => line.id === form.colorLineId); setError(""); try { let nextState: ProductionSchedulingState; let saved: ScheduleAssignment; let before: ScheduleAssignment | null = null; if (form.id) { const result = updateScheduleAssignment(state, form.id, { executionType: form.executionType, productionGroupId: form.executionType === "internal" ? form.executorId : null, outsourceFactoryId: form.executionType === "outsource" ? form.executorId : null, colorLineId: colorLine?.id ?? null, colorNameSnapshot: colorLine?.colorName ?? null, outsourceUnitPrice: form.executionType === "outsource" ? form.outsourceUnitPrice : null, plannedQuantity: form.quantity ?? 0, durationMode: form.durationMode, averageDailyOutputSnapshot: form.averageDailyOutput, requiredWorkdays: form.requiredWorkdays ?? 1, dateMode: form.dateMode, plannedStartDate: form.startDate || null, plannedEndDate: form.dateMode === "manual_fixed" ? form.endDate || null : undefined, completedQuantity: form.completedQuantity ?? 0, status: form.status, remark: form.remark }, { actor, settings, reason: form.reason }); nextState = result.state; saved = result.assignment; before = result.before; } else { const result = createScheduleAssignment(state, { salesOrderId: formOrder.id, executionType: form.executionType, productionGroupId: form.executionType === "internal" ? form.executorId : null, outsourceFactoryId: form.executionType === "outsource" ? form.executorId : null, colorLineId: colorLine?.id ?? null, colorNameSnapshot: colorLine?.colorName ?? null, outsourceUnitPrice: form.executionType === "outsource" ? form.outsourceUnitPrice : null, plannedQuantity: form.quantity ?? 0, durationMode: form.durationMode, averageDailyOutput: form.averageDailyOutput, requiredWorkdays: form.requiredWorkdays, dateMode: form.dateMode, plannedStartDate: form.startDate || null, plannedEndDate: form.dateMode === "manual_fixed" ? form.endDate || null : null, remark: form.remark, actor, settings }); nextState = result.state; saved = result.assignment; } if (saved.executionType === "internal" && saved.dateMode === "auto_queue" && saved.productionGroupId) nextState = recalculateInternalQueue(nextState, saved.productionGroupId, settings, saved.plannedStartDate ?? undefined).state; await persist(nextState); await appendLog(formOrder, before ? "修改排单" : saved.executionType === "internal" ? "新增内部排单" : "新增外发排单", saved, before ? { "排单数量": before.plannedQuantity, "执行方": executorName(before, settings), "工作日": before.requiredWorkdays } : undefined, { "排单数量": saved.plannedQuantity, "执行方": executorName(saved, settings), "工作日": saved.requiredWorkdays, "日期模式": saved.dateMode }, form.id ? form.reason : undefined); setForm(null); notify("排单已保存"); } catch (cause) { setError(cause instanceof Error ? cause.message : "排单保存失败"); } };
-  const applyCompletion = async (preview: CompletionPreview, applyQueue: boolean) => { const operationId = createOperationId(); const { order, result } = preview; await persist(result.state); await appendLog(order, applyQueue ? "结束并更新后续排期" : "仅记录结束", result.assignment, { "完成数量": result.before.completedQuantity, "实际完成": result.before.actualCompletedDate }, { "完成数量": result.assignment.completedQuantity, "实际完成": result.assignment.actualCompletedDate }, undefined, operationId); for (const change of result.queueChanges) { const moved = result.state.scheduleAssignments.find((entry) => entry.id === change.assignmentId); if (moved) await appendLog(order, "队列重排", moved, { "计划开始": change.beforeStartDate, "计划结束": change.beforeEndDate }, { "计划开始": change.afterStartDate, "计划结束": change.afterEndDate }, undefined, operationId); } setCompletionPreview(null); notify(applyQueue ? `已结束并更新 ${result.queueChanges.length} 条后续排期` : "已记录结束，后续排期未调整"); };
-  const prepareCompletion = (item: ScheduleAssignment) => { const order = orders.find((entry) => entry.id === item.salesOrderId); if (!order || !can("schedule.complete")) return; setCompletionDraft({ order, assignment: item, completedQuantity: item.plannedQuantity, actualCompletedDate: new Date().toISOString().slice(0, 10) }); };
-  const submitCompletion = async (applyQueue: boolean) => { if (!completionDraft || completionDraft.completedQuantity === null || !completionDraft.actualCompletedDate) return; const preview = { order: completionDraft.order, result: completeAssignmentWithQueuePreview(state, completionDraft.assignment.id, completionDraft.completedQuantity, completionDraft.actualCompletedDate, settings, actor, applyQueue) }; setCompletionDraft(null); if (preview.result.queueChanges.length && preview.result.assignment.executionType === "internal" && applyQueue) { setCompletionPreview(preview); return; } await applyCompletion(preview, applyQueue); };
-  const openTracking = () => { setTrackingDraft({ supplyHubId: selectedTracking?.supplyHubId ?? "", fabricDate: selectedTracking?.fabricSupplyHubArrivalDate ?? "", trimDate: selectedTracking?.trimSupplyHubArrivalDate ?? "", remark: selectedTracking?.remark ?? "" }); setTrackingOpen(true); };
-  const saveTracking = async () => { if (!selectedOrder) return; const result = upsertOrderExecutionTracking(state, { salesOrderId: selectedOrder.id, patch: { supplyHubId: trackingDraft.supplyHubId || null, fabricSupplyHubArrivalDate: trackingDraft.fabricDate || null, trimSupplyHubArrivalDate: trackingDraft.trimDate || null, remark: trackingDraft.remark }, actor }); await persist(result.state); await appendLog(selectedOrder, "修改物料到仓", result.tracking, result.before ? { "面料到仓": result.before.fabricSupplyHubArrivalDate, "辅料到仓": result.before.trimSupplyHubArrivalDate } : undefined, { "面料到仓": result.tracking.fabricSupplyHubArrivalDate, "辅料到仓": result.tracking.trimSupplyHubArrivalDate, "物料齐套": getMaterialReadyDate(result.tracking) }); setTrackingOpen(false); notify("物料运输信息已保存"); };
-  const openFactoryCreate = () => { const timestamp = new Date().toISOString(); setFactoryDraft({ id: createOperationsMasterDataId("outsource-factory"), name: "", shortName: "", enabled: true, contactPerson: "", phone: "", remark: "", createdAt: timestamp, updatedAt: timestamp }); };
-  const saveFactory = () => { if (!factoryDraft || !can("settings.outsource_factory.edit")) return; if (!factoryDraft.name.trim()) { setError("请填写外发厂名称"); return; } const nextSettings = operationsSettingsRepository.save(upsertOutsourceFactory(settings, factoryDraft)); const logs = createOperationsSettingsOperationLogs(settings, nextSettings, { userId: currentUser.id, userName: currentUser.name }); void operationLogRepository.appendMany(logs).catch((cause) => { if (process.env.NODE_ENV !== "production") console.error("Outsource factory audit log failed", cause); }); setSettings(nextSettings); setForm((current) => current ? { ...current, executionType: "outsource", executorId: factoryDraft.id, dateMode: "manual_fixed" } : current); setFactoryDraft(null); notify("外发厂已创建并选中"); };
+  const openAssignment = (
+    item?: ScheduleAssignment,
+    orderId = selectedOrder?.id ?? "",
+  ) => {
+    const order = orders.find(
+      (entry) => entry.id === (item?.salesOrderId ?? orderId),
+    );
+    if (!order) return;
+    const executionType = item?.executionType ?? "internal";
+    const executorId =
+      executionType === "internal"
+        ? item?.productionGroupId ||
+          selectedGroupId ||
+          settings.productionGroups.find((entry) => entry.enabled)?.id ||
+          ""
+        : (item?.outsourceFactoryId ??
+          settings.outsourceFactories.find((entry) => entry.enabled)?.id ??
+          "");
+    const quantityValue =
+      item?.plannedQuantity ??
+      projectOrderSchedule(order, state).unscheduledQuantity;
+    const average =
+      item?.averageDailyOutputSnapshot ?? order.averageDailyOutput ?? null;
+    setSelectedOrderId(order.id);
+    setForm({
+      id: item?.id ?? null,
+      salesOrderId: order.id,
+      colorLineId: item?.colorLineId ?? "",
+      executionType,
+      executorId,
+      outsourceUnitPrice: item?.outsourceUnitPrice ?? null,
+      quantity: quantityValue,
+      durationMode: item?.durationMode ?? "average_daily_output",
+      averageDailyOutput: average,
+      requiredWorkdays:
+        item?.requiredWorkdays ??
+        (average ? Math.max(1, Math.ceil(quantityValue / average)) : 1),
+      dateMode:
+        item?.dateMode ??
+        (executionType === "internal" ? "auto_queue" : "manual_fixed"),
+      startDate:
+        item?.plannedStartDate ??
+        (executionType === "internal" && executorId
+          ? suggestInternalQueueTailStartDate(state, executorId)
+          : ""),
+      endDate: item?.plannedEndDate ?? "",
+      completedQuantity: item?.completedQuantity ?? 0,
+      status: item?.status ?? "planned",
+      remark: item?.remark ?? "",
+      reason: "",
+    });
+  };
+  const saveAssignment = async () => {
+    if (!form) return;
+    const formOrder = orders.find((item) => item.id === form.salesOrderId);
+    if (!formOrder) return;
+    const colorLine = formOrder.orderColorLines.find(
+      (line) => line.id === form.colorLineId,
+    );
+    setError("");
+    try {
+      let nextState: ProductionSchedulingState;
+      let saved: ScheduleAssignment;
+      let before: ScheduleAssignment | null = null;
+      if (form.id) {
+        const result = updateScheduleAssignment(
+          state,
+          form.id,
+          {
+            executionType: form.executionType,
+            productionGroupId:
+              form.executionType === "internal" ? form.executorId : null,
+            outsourceFactoryId:
+              form.executionType === "outsource" ? form.executorId : null,
+            colorLineId: colorLine?.id ?? null,
+            colorNameSnapshot: colorLine?.colorName ?? null,
+            outsourceUnitPrice:
+              form.executionType === "outsource"
+                ? form.outsourceUnitPrice
+                : null,
+            plannedQuantity: form.quantity ?? 0,
+            durationMode: form.durationMode,
+            averageDailyOutputSnapshot: form.averageDailyOutput,
+            requiredWorkdays: form.requiredWorkdays ?? 1,
+            dateMode: form.dateMode,
+            plannedStartDate: form.startDate || null,
+            plannedEndDate:
+              form.dateMode === "manual_fixed"
+                ? form.endDate || null
+                : undefined,
+            completedQuantity: form.completedQuantity ?? 0,
+            status: form.status,
+            remark: form.remark,
+          },
+          { actor, settings, reason: form.reason },
+        );
+        nextState = result.state;
+        saved = result.assignment;
+        before = result.before;
+      } else {
+        const result = createScheduleAssignment(state, {
+          salesOrderId: formOrder.id,
+          executionType: form.executionType,
+          productionGroupId:
+            form.executionType === "internal" ? form.executorId : null,
+          outsourceFactoryId:
+            form.executionType === "outsource" ? form.executorId : null,
+          colorLineId: colorLine?.id ?? null,
+          colorNameSnapshot: colorLine?.colorName ?? null,
+          outsourceUnitPrice:
+            form.executionType === "outsource" ? form.outsourceUnitPrice : null,
+          plannedQuantity: form.quantity ?? 0,
+          durationMode: form.durationMode,
+          averageDailyOutput: form.averageDailyOutput,
+          requiredWorkdays: form.requiredWorkdays,
+          dateMode: form.dateMode,
+          plannedStartDate: form.startDate || null,
+          plannedEndDate:
+            form.dateMode === "manual_fixed" ? form.endDate || null : null,
+          remark: form.remark,
+          actor,
+          settings,
+        });
+        nextState = result.state;
+        saved = result.assignment;
+      }
+      if (
+        saved.executionType === "internal" &&
+        saved.dateMode === "auto_queue" &&
+        saved.productionGroupId
+      )
+        nextState = recalculateInternalQueue(
+          nextState,
+          saved.productionGroupId,
+          settings,
+          saved.plannedStartDate ?? undefined,
+        ).state;
+      await persist(nextState);
+      await appendLog(
+        formOrder,
+        before
+          ? "修改排单"
+          : saved.executionType === "internal"
+            ? "新增内部排单"
+            : "新增外发排单",
+        saved,
+        before
+          ? {
+              排单数量: before.plannedQuantity,
+              执行方: executorName(before, settings),
+              工作日: before.requiredWorkdays,
+            }
+          : undefined,
+        {
+          排单数量: saved.plannedQuantity,
+          执行方: executorName(saved, settings),
+          工作日: saved.requiredWorkdays,
+          日期模式: saved.dateMode,
+        },
+        form.id ? form.reason : undefined,
+      );
+      setForm(null);
+      notify("排单已保存");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "排单保存失败");
+    }
+  };
+  const applyCompletion = async (
+    preview: CompletionPreview,
+    applyQueue: boolean,
+  ) => {
+    const operationId = createOperationId();
+    const { order, result } = preview;
+    await persist(result.state);
+    await appendLog(
+      order,
+      applyQueue ? "结束并更新后续排期" : "仅记录结束",
+      result.assignment,
+      {
+        完成数量: result.before.completedQuantity,
+        实际完成: result.before.actualCompletedDate,
+      },
+      {
+        完成数量: result.assignment.completedQuantity,
+        实际完成: result.assignment.actualCompletedDate,
+      },
+      undefined,
+      operationId,
+    );
+    for (const change of result.queueChanges) {
+      const moved = result.state.scheduleAssignments.find(
+        (entry) => entry.id === change.assignmentId,
+      );
+      if (moved)
+        await appendLog(
+          order,
+          "队列重排",
+          moved,
+          { 计划开始: change.beforeStartDate, 计划结束: change.beforeEndDate },
+          { 计划开始: change.afterStartDate, 计划结束: change.afterEndDate },
+          undefined,
+          operationId,
+        );
+    }
+    setCompletionPreview(null);
+    notify(
+      applyQueue
+        ? `已结束并更新 ${result.queueChanges.length} 条后续排期`
+        : "已记录结束，后续排期未调整",
+    );
+  };
+  const prepareCompletion = (item: ScheduleAssignment) => {
+    const order = orders.find((entry) => entry.id === item.salesOrderId);
+    if (!order || !can("schedule.complete")) return;
+    setCompletionDraft({
+      order,
+      assignment: item,
+      completedQuantity: item.plannedQuantity,
+      actualCompletedDate: new Date().toISOString().slice(0, 10),
+    });
+  };
+  const submitCompletion = async (applyQueue: boolean) => {
+    if (
+      !completionDraft ||
+      completionDraft.completedQuantity === null ||
+      !completionDraft.actualCompletedDate
+    )
+      return;
+    const preview = {
+      order: completionDraft.order,
+      result: completeAssignmentWithQueuePreview(
+        state,
+        completionDraft.assignment.id,
+        completionDraft.completedQuantity,
+        completionDraft.actualCompletedDate,
+        settings,
+        actor,
+        applyQueue,
+      ),
+    };
+    setCompletionDraft(null);
+    if (
+      preview.result.queueChanges.length &&
+      preview.result.assignment.executionType === "internal" &&
+      applyQueue
+    ) {
+      setCompletionPreview(preview);
+      return;
+    }
+    await applyCompletion(preview, applyQueue);
+  };
+  const openTracking = () => {
+    setTrackingDraft({
+      supplyHubId: selectedTracking?.supplyHubId ?? "",
+      remark: selectedTracking?.remark ?? "",
+    });
+    setTrackingOpen(true);
+  };
+  const saveTracking = async () => {
+    if (!selectedOrder) return;
+    const result = upsertOrderExecutionTracking(state, {
+      salesOrderId: selectedOrder.id,
+      patch: {
+        supplyHubId: trackingDraft.supplyHubId || null,
+        remark: trackingDraft.remark,
+      },
+      actor,
+    });
+    await persist(result.state);
+    await appendLog(
+      selectedOrder,
+      "修改物料到仓",
+      result.tracking,
+      result.before
+        ? {
+            集货仓: settings.supplyHubs.find((item) => item.id === result.before?.supplyHubId)?.name ?? null,
+            备注: result.before.remark,
+          }
+        : undefined,
+      {
+        集货仓: settings.supplyHubs.find((item) => item.id === result.tracking.supplyHubId)?.name ?? null,
+        备注: result.tracking.remark,
+      },
+    );
+    setTrackingOpen(false);
+    notify("物料运输信息已保存");
+  };
+  const openFactoryCreate = () => {
+    const timestamp = new Date().toISOString();
+    setFactoryDraft({
+      id: createOperationsMasterDataId("outsource-factory"),
+      name: "",
+      shortName: "",
+      enabled: true,
+      contactPerson: "",
+      phone: "",
+      remark: "",
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+  };
+  const saveFactory = () => {
+    if (!factoryDraft || !can("settings.outsource_factory.edit")) return;
+    if (!factoryDraft.name.trim()) {
+      setError("请填写外发厂名称");
+      return;
+    }
+    const nextSettings = operationsSettingsRepository.save(
+      upsertOutsourceFactory(settings, factoryDraft),
+    );
+    const logs = createOperationsSettingsOperationLogs(settings, nextSettings, {
+      userId: currentUser.id,
+      userName: currentUser.name,
+    });
+    void operationLogRepository.appendMany(logs).catch((cause) => {
+      if (process.env.NODE_ENV !== "production")
+        console.error("Outsource factory audit log failed", cause);
+    });
+    setSettings(nextSettings);
+    setForm((current) =>
+      current
+        ? {
+            ...current,
+            executionType: "outsource",
+            executorId: factoryDraft.id,
+            dateMode: "manual_fixed",
+          }
+        : current,
+    );
+    setFactoryDraft(null);
+    notify("外发厂已创建并选中");
+  };
 
-  return <AppShell title="生产排单"><PageContainer className="ps-scheduling-page"><PageHeader eyebrow="PRODUCTION SCHEDULING" title="生产排单" count={`${groupSummaries.length} 个生产组`} description="按生产组扫描当前、待产、队尾与正式异常，再处理单组队列。" secondaryActions={selectedOrder && <Button variant="secondary" permission="schedule.edit" onClick={openTracking}>物料与运输</Button>} />
-    <Toolbar className="ps-workspace-toolbar" search={<SearchField value={query} onChange={setQuery} placeholder="搜索订单、款号、款名或客户" label="搜索排单" />} actions={<div className="ps-view-tabs">{([['executors','生产组'],['orders',`未排订单 ${unscheduledRows.length}`],['warnings',`异常 ${anomalyRows.length}`]] as const).map(([key,label]) => <button key={key} className={view === key ? "active" : ""} onClick={() => setView(key)}>{label}</button>)}</div>} resultSummary={view === "executors" ? `共 ${groupSummaries.length} 组 · 无 QA 14 组` : undefined} />
-    {view === "executors" && <div className="ps-compact-group-picker"><label htmlFor="ps-group-select">当前生产组</label><select id="ps-group-select" className="qc-control" value={selectedGroup?.group.id ?? ""} onChange={(event) => setSelectedGroupId(event.target.value)}>{groupSummaries.map((summary) => <option key={summary.group.id} value={summary.group.id}>{summary.group.name} · 总计 {summary.assignments.length} · 待产 {summary.pendingCount}{summary.anomalyCount ? ` · 异常 ${summary.anomalyCount}` : ""}</option>)}</select></div>}
-    {view === "executors" && <MasterDetail className="ps-scheduling-master-detail" selected={Boolean(selectedGroup)} master={<nav className="ps-group-master ps-group-overview ps-group-nav" aria-label="生产组总览">{groupSummaries.map((summary) => { const currentOrder = orders.find((order) => order.id === summary.current?.salesOrderId); const completed = summary.assignments.filter((item) => item.status === "completed").length; return <button type="button" key={summary.group.id} data-production-group={summary.group.name} className={summary.group.id === selectedGroup?.group.id ? "active" : ""} onClick={() => setSelectedGroupId(summary.group.id)}><header><strong>{summary.group.name}</strong>{summary.anomalyCount > 0 && <em>异常 {summary.anomalyCount}</em>}</header><span>当前 {currentOrder?.styleNo ?? "待排"}</span><dl><div><dt>总计</dt><dd>{summary.assignments.length}</dd></div><div><dt>当前</dt><dd>{summary.current ? 1 : 0}</dd></div><div><dt>待产</dt><dd>{summary.pendingCount}</dd></div><div><dt>完成</dt><dd>{completed}</dd></div></dl><small>队尾 {summary.tailDate ?? "—"}</small></button>; })}{!groupSummaries.length && <EmptyState compact title="暂无生产组" description="请先在基础设置维护生产组。" />}</nav>} detail={selectedGroup ? <Card className="ps-group-queue"><header><div><strong>{selectedGroup.group.name} · 生产队列</strong><span>当前 {orders.find((order) => order.id === selectedGroup.current?.salesOrderId)?.styleNo ?? "待排"}</span></div><small>总计 {selectedGroup.assignments.length} · 待产 {selectedGroup.pendingCount} · 队尾 {selectedGroup.tailDate ?? "—"}</small></header>{selectedGroup.anomalyCount > 0 && <AlertBanner tone="warning" title={`${selectedGroup.group.name} 有 ${selectedGroup.anomalyCount} 条正式异常`}>异常与普通状态分开显示，详情见队列“异常 / 物流”列。</AlertBanner>}<ContextSummary title="组内执行摘要" items={[{ key: "total", label: "总排单", value: selectedGroup.assignments.length }, { key: "current", label: "当前", value: selectedGroup.current ? 1 : 0 }, { key: "pending", label: "待生产", value: selectedGroup.pendingCount }, { key: "completed", label: "已完成", value: selectedGroup.assignments.filter((item) => item.status === "completed").length }, { key: "tail", label: "队尾日期", value: selectedGroup.tailDate ?? "—" }, { key: "exception", label: "正式异常", value: selectedGroup.anomalyCount, tone: selectedGroup.anomalyCount ? "warning" : "default" }]} /><div className="ps-queue-table-wrap"><table className="ps-queue-table"><thead><tr><th>顺序</th><th>款号 / 订单</th><th>数量</th><th>生产窗口</th><th>队列状态</th><th>异常 / 物流</th><th className="ps-sticky-action">操作</th></tr></thead><tbody>{selectedGroup.assignments.map((item, index) => { const order = orders.find((entry) => entry.id === item.salesOrderId); const orderProjection = order ? projectOrderSchedule(order, state) : null; const itemTracking = state.orderExecutionTrackings.find((entry) => entry.salesOrderId === item.salesOrderId) ?? null; const itemLogistics = recommendTransport({ assignment: item, tracking: itemTracking, settings }); const formalExceptions = [...new Set([...(orderProjection?.warnings ?? []), ...(orderProjection?.deliveryRisk.level === "risk" ? orderProjection.deliveryRisk.messages : [])])]; const logisticsWarning = itemLogistics.status === "late" ? itemLogistics.message : null; const currentIndex = selectedGroup.assignments.findIndex((entry) => entry.id === selectedGroup.current?.id); const queuePhase = item.status === "completed" ? "已完成" : item.id === selectedGroup.current?.id ? "当前" : currentIndex >= 0 && index === currentIndex + 1 ? "下一款" : "待生产"; const logisticsBrief = itemLogistics.recommendedMode?.name ? `${itemLogistics.recommendedMode.name} · ${itemLogistics.earliestArrivalDate ?? "待定"}` : itemTracking && getMaterialReadyDate(itemTracking) ? `齐套 ${getMaterialReadyDate(itemTracking)}` : "物料未齐"; return <tr key={item.id} data-queue-phase={queuePhase} data-queue-sequence={item.queueSequence ?? undefined}><td data-label="顺序"><strong>{item.queueSequence ?? "—"}</strong></td><td data-label="款号 / 订单"><strong>{order?.styleNo ?? "历史款"}</strong><small>{order?.orderNo ?? "订单缺失"} · {order?.customerNameSnapshot ?? "—"}</small></td><td data-label="数量"><strong>{quantity(item.plannedQuantity)}</strong><small>完成 {quantity(item.completedQuantity)} · 日产 {item.averageDailyOutputSnapshot ? quantity(item.averageDailyOutputSnapshot) : "—"}</small></td><td data-label="生产窗口"><strong>{item.plannedStartDate ?? "—"} → {item.plannedEndDate ?? "—"}</strong><small>{item.requiredWorkdays} 工作日 · 休 {item.nonWorkingDayCount} 天</small></td><td data-label="队列状态"><StatusTag tone={queuePhase === "当前" ? "active" : queuePhase === "已完成" ? "success" : "neutral"}>{queuePhase}</StatusTag><small>{assignmentStatusLabels[item.status]}</small></td><td data-label="异常 / 物流" title={formalExceptions[0] ?? logisticsWarning ?? itemLogistics.message}>{formalExceptions.length ? <em className="ps-row-exception">正式异常 · {formalExceptions[0]}</em> : logisticsWarning ? <em className="ps-row-logistics-warning">物流警示 · {logisticsWarning}</em> : <><strong>{logisticsBrief}</strong><small>无正式异常</small></>}</td><td data-label="操作" className="ps-sticky-action"><details className="ps-row-more"><summary aria-label={`更多：${order?.styleNo ?? "历史款"}`}>更多</summary><div><Button variant="text" permission="schedule.edit" onClick={() => openAssignment(item)}>编辑排单</Button>{item.status !== "completed" && <Button variant="danger" permission="schedule.complete" onClick={() => prepareCompletion(item)}>结束生产</Button>}</div></details></td></tr>; })}</tbody></table></div></Card> : <Card><EmptyState title="请选择生产组" /></Card>} />}
-    {view === "orders" && <><div className="ps-pool-toolbar"><div className="ps-view-tabs">{([['all','全部未排'],['full','完全未排'],['partial','部分排单']] as const).map(([key,label]) => <button key={key} className={unscheduledFilter === key ? "active" : ""} onClick={() => setUnscheduledFilter(key)}>{label}</button>)}</div><span>{unscheduledRows.length} 张订单待处理</span></div><Card className="ps-unscheduled-pool"><div className="ps-pool-row head"><span>款号 / 客户</span><span>有效数量</span><span>已排</span><span>可排</span><span>交期</span><span>物料 / 物流</span><span>操作</span></div>{unscheduledRows.map(({ order, projection }) => { const tracking = state.orderExecutionTrackings.find((item) => item.salesOrderId === order.id) ?? null; return <div className="ps-pool-row" key={order.id}><span><strong>{order.styleNo}</strong><small>{order.customerNameSnapshot} · {order.styleName}</small></span><span>{quantity(projection.effectiveOrderQuantity)}</span><span>{quantity(projection.scheduledQuantity)}</span><span><strong>{quantity(projection.unscheduledQuantity)}</strong></span><span>{projection.deliveryRisk.nearestDeliveryDate ?? "—"}</span><span>{tracking && getMaterialReadyDate(tracking) ? `齐套 ${getMaterialReadyDate(tracking)}` : "— 物料未齐"}</span><span><Button permission="schedule.create" onClick={() => openAssignment(undefined, order.id)}>排单</Button></span></div>; })}{!unscheduledRows.length && <p className="ps-empty">当前筛选下没有未排完的订单。</p>}</Card></>}
-    {view === "warnings" && <Card className="ps-warning-list">{anomalyRows.map(({ order, messages, severity }) => <button type="button" key={order.id} onClick={() => { setView("orders"); setSelectedOrderId(order.id); }}><strong>{order.styleNo} · {order.customerNameSnapshot}</strong><span>{messages.join("；")}</span><StatusTag tone={severity === "严重" ? "danger" : "active"}>{severity}</StatusTag></button>)}{!anomalyRows.length && <p className="ps-empty">当前没有需要处理的排单异常。</p>}</Card>}
-    <Modal open={Boolean(completionDraft)} title="结束排单" description="计划日期保持不变；请确认真实完成日期和数量，再选择是否应用后续排期建议。" onClose={() => setCompletionDraft(null)} footer={<><Button variant="secondary" onClick={() => setCompletionDraft(null)}>取消</Button><Button type="button" variant="secondary" permission="schedule.complete" onClick={() => void submitCompletion(false)}>仅记录结束</Button><Button type="button" variant="danger" permission="schedule.complete" onClick={() => void submitCompletion(true)}>结束并应用建议</Button></>}>{completionDraft && <div className="qc-modal-form"><ContextSummary title="当前结束对象" items={[{ key: "style", label: "款号 / 订单", value: `${completionDraft.order.styleNo} · ${completionDraft.order.orderNo}` }, { key: "group", label: "生产组", value: settings.productionGroups.find((group) => group.id === completionDraft.assignment.productionGroupId)?.name ?? "—" }, { key: "status", label: "当前状态", value: assignmentStatusLabels[completionDraft.assignment.status] }, { key: "quantity", label: "计划 / 已完成", value: `${quantity(completionDraft.assignment.plannedQuantity)} / ${quantity(completionDraft.assignment.completedQuantity)}` }]} /><FormItem label="实际完成日期" required><input type="date" className="qc-control" value={completionDraft.actualCompletedDate} onChange={(event) => setCompletionDraft({ ...completionDraft, actualCompletedDate: event.target.value })} /></FormItem><FormItem label="实际完成数量" required><NullableNumberInput className="qc-control" min="0" value={completionDraft.completedQuantity} onValueChange={(value) => setCompletionDraft({ ...completionDraft, completedQuantity: value })} /></FormItem><p>计划结束仍保留为 {completionDraft.assignment.plannedEndDate ?? "未安排"}。</p></div>}</Modal>
-    <Modal open={Boolean(completionPreview)} title="确认更新后续排期" description="当前排单将记录为实际完成；确认后才会写入下列队列日期变化。" onClose={() => setCompletionPreview(null)} onSubmit={() => completionPreview ? applyCompletion(completionPreview, true) : undefined} footer={<><Button variant="secondary" onClick={() => setCompletionPreview(null)}>取消</Button><Button type="submit" permission="schedule.complete">确认结束并更新</Button></>}>{completionPreview && <div className="ps-queue-preview"><div><strong>{completionPreview.order.orderNo} · {completionPreview.order.styleNo}</strong><span>实际完成：{completionPreview.result.assignment.actualCompletedDate} · {quantity(completionPreview.result.assignment.completedQuantity)} 件</span></div>{completionPreview.result.queueChanges.map((change) => { const assignment = completionPreview.result.state.scheduleAssignments.find((item) => item.id === change.assignmentId); return <div key={change.assignmentId}><strong>{assignment ? executorName(assignment, settings) : change.assignmentId}</strong><span>{change.beforeStartDate ?? "待排"} → {change.beforeEndDate ?? "待排"}</span><b>调整为</b><span>{change.afterStartDate ?? "待排"} → {change.afterEndDate ?? "待排"}</span></div>; })}</div>}</Modal>
-    <Modal open={Boolean(form)} title={form?.id ? "编辑排单" : "直接排单"} description="平均日产与所需工作日会按最后编辑字段即时联动。" onClose={() => setForm(null)} onSubmit={saveAssignment} footer={<><Button variant="secondary" onClick={() => setForm(null)}>取消</Button><Button type="submit" permission={form?.id ? "schedule.edit" : "schedule.create"}>确认排单</Button></>}>{form && <div className="qc-modal-form ps-assignment-form"><div className="ps-order-context"><strong>{formOrder?.styleNo || "未填写款号"} · {formOrder?.customerNameSnapshot || "未填写客户"}</strong><span>有效 {quantity(formProjection?.effectiveOrderQuantity ?? 0)} · 已排 {quantity(formProjection?.scheduledQuantity ?? 0)} · 可排 {quantity(formProjection?.unscheduledQuantity ?? 0)}</span><small>面料成分：{[...new Set(formOrder?.fabricExecutionSnapshots.map((item) => item.composition).filter(Boolean) ?? [])].join("、") || "—"}</small></div><FormItem label="生产组织"><select className="qc-control" value={form.executionType} onChange={(event) => { const executionType = event.target.value as "internal" | "outsource"; const executorId = executionType === "internal" ? settings.productionGroups.find((item) => item.enabled)?.id ?? "" : settings.outsourceFactories.find((item) => item.enabled)?.id ?? ""; setForm({ ...form, executionType, executorId, dateMode: executionType === "internal" ? "auto_queue" : "manual_fixed", startDate: executionType === "internal" && executorId ? suggestInternalQueueTailStartDate(state, executorId) : form.startDate }); }}><option value="internal">内部</option><option value="outsource">外发</option></select></FormItem><FormItem label={form.executionType === "internal" ? "生产组" : "外发厂"} required><div className="ps-executor-select"><select className="qc-control" value={form.executorId} onChange={(event) => { const executorId = event.target.value; setForm({ ...form, executorId, startDate: form.executionType === "internal" && form.dateMode === "auto_queue" ? suggestInternalQueueTailStartDate(state, executorId) : form.startDate }); }}><option value="">请选择</option>{(form.executionType === "internal" ? settings.productionGroups : settings.outsourceFactories).filter((item) => item.enabled || item.id === form.executorId).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>{form.executionType === "outsource" && <Button type="button" variant="text" permission="settings.outsource_factory.edit" onClick={openFactoryCreate}>＋ 新建外发厂</Button>}</div></FormItem><FormItem label="排单数量" required><div className="ps-quantity-control"><NullableNumberInput className="qc-control" min="0" value={form.quantity} onValueChange={(value) => { const nextQuantity = value ?? 0; setForm({ ...form, quantity: value, requiredWorkdays: form.durationMode === "average_daily_output" && form.averageDailyOutput ? Math.max(1, Math.ceil(nextQuantity / form.averageDailyOutput)) : form.requiredWorkdays, averageDailyOutput: form.durationMode === "workdays" && form.requiredWorkdays ? Math.ceil(nextQuantity / form.requiredWorkdays) : form.averageDailyOutput }); }} /><Button type="button" variant="secondary" disabled={(formProjection?.unscheduledQuantity ?? 0) <= 0} onClick={() => { const nextQuantity = formProjection?.unscheduledQuantity ?? 0; setForm({ ...form, quantity: nextQuantity, requiredWorkdays: form.averageDailyOutput ? Math.max(1, Math.ceil(nextQuantity / form.averageDailyOutput)) : form.requiredWorkdays }); }}>全部数量</Button></div></FormItem><FormItem label="平均日产"><NullableNumberInput className="qc-control" min="1" value={form.averageDailyOutput} onValueChange={(value) => setForm({ ...form, durationMode: "average_daily_output", averageDailyOutput: value, requiredWorkdays: value ? Math.max(1, Math.ceil((form.quantity ?? 0) / value)) : form.requiredWorkdays })} /></FormItem><FormItem label="所需工作日"><NullableNumberInput className="qc-control" min="1" value={form.requiredWorkdays} onValueChange={(value) => { const workdays = value ? Math.max(1, Math.ceil(value)) : null; setForm({ ...form, durationMode: "workdays", requiredWorkdays: workdays, averageDailyOutput: workdays ? Math.ceil((form.quantity ?? 0) / workdays) : form.averageDailyOutput }); }} /></FormItem><FormItem label="日期安排"><select className="qc-control" value={form.dateMode} onChange={(event) => setForm({ ...form, dateMode: event.target.value as ScheduleAssignment["dateMode"] })}><option value="auto_queue">自动队列</option><option value="manual_fixed">手工固定</option></select></FormItem><FormItem label="计划开始"><input type="date" className="qc-control" value={form.startDate} onChange={(event) => setForm({ ...form, startDate: event.target.value })} /></FormItem>{form.dateMode === "manual_fixed" && <FormItem label="计划结束"><input type="date" className="qc-control" value={form.endDate} onChange={(event) => setForm({ ...form, endDate: event.target.value })} /></FormItem>}{form.executionType === "internal" && <div className="ps-queue-tail"><strong>{settings.productionGroups.find((item) => item.id === form.executorId)?.name ?? "当前生产组"} 队尾</strong><span>最后一款：{orders.find((order) => order.id === formGroupTail?.salesOrderId)?.styleNo ?? "暂无"} · 预计结束 {formGroupTail?.plannedEndDate ?? "—"}</span><span>本款建议开始：{form.startDate || "—"}</span></div>}<div className={`ps-logistics-feedback ${draftLogistics?.status === "late" ? "danger" : ""}`}><strong>物料与运输结论</strong><span>物料齐套：{draftLogistics?.materialReadyDate ?? "尚未确定"}</span><span>计划开始：{form.startDate || "尚未确定"} · 最晚到厂：{draftLogistics?.latestRequiredArrivalDate ?? "—"}</span><em>{draftLogistics?.message ?? "请补全物料和排期信息"}</em></div>{form.id && <><FormItem label="完成数量"><NullableNumberInput className="qc-control" min="0" value={form.completedQuantity} onValueChange={(value) => setForm({ ...form, completedQuantity: value })} /></FormItem><FormItem label="状态"><select className="qc-control" value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as ScheduleAssignment["status"] })}><option value="planned">已计划</option><option value="in_progress">生产中</option><option value="completed">已完成</option><option value="cancelled">已取消</option></select></FormItem><FormItem label="变更原因"><textarea className="qc-control" value={form.reason} onChange={(event) => setForm({ ...form, reason: event.target.value })} /></FormItem></>}<FormItem label="备注"><textarea className="qc-control" value={form.remark} onChange={(event) => setForm({ ...form, remark: event.target.value })} /></FormItem></div>}</Modal>
-    <Modal open={Boolean(factoryDraft)} title="新建外发厂" description="创建后写入正式外发厂基础资料，并自动选中稳定 ID。" onClose={() => setFactoryDraft(null)} onSubmit={saveFactory} footer={<><Button variant="secondary" onClick={() => setFactoryDraft(null)}>取消</Button><Button type="submit" permission="settings.outsource_factory.edit">创建并选择</Button></>}>{factoryDraft && <div className="qc-modal-form"><FormItem label="外发厂名称" required><input className="qc-control" value={factoryDraft.name} onChange={(event) => setFactoryDraft({ ...factoryDraft, name: event.target.value })} /></FormItem><FormItem label="联系人"><input className="qc-control" value={factoryDraft.contactPerson} onChange={(event) => setFactoryDraft({ ...factoryDraft, contactPerson: event.target.value })} /></FormItem><FormItem label="电话"><input className="qc-control" value={factoryDraft.phone} onChange={(event) => setFactoryDraft({ ...factoryDraft, phone: event.target.value })} /></FormItem><FormItem label="备注"><textarea className="qc-control" value={factoryDraft.remark} onChange={(event) => setFactoryDraft({ ...factoryDraft, remark: event.target.value })} /></FormItem></div>}</Modal>
-    <Modal open={trackingOpen} title="物料与运输" description="两类物料都到达供应枢纽后才形成物料齐套日。" onClose={() => setTrackingOpen(false)} onSubmit={saveTracking} footer={<><Button variant="secondary" onClick={() => setTrackingOpen(false)}>取消</Button><Button type="submit" permission="schedule.edit">保存</Button></>}>{<div className="qc-modal-form"><FormItem label="供应枢纽"><select className="qc-control" value={trackingDraft.supplyHubId} onChange={(event) => setTrackingDraft({ ...trackingDraft, supplyHubId: event.target.value })}><option value="">未设置</option>{settings.supplyHubs.filter((item) => item.enabled).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></FormItem><FormItem label={`面料到${draftSupplyHubName}`}><input type="date" className="qc-control" value={trackingDraft.fabricDate} onChange={(event) => setTrackingDraft({ ...trackingDraft, fabricDate: event.target.value })} /></FormItem><FormItem label={`辅料到${draftSupplyHubName}`}><input type="date" className="qc-control" value={trackingDraft.trimDate} onChange={(event) => setTrackingDraft({ ...trackingDraft, trimDate: event.target.value })} /></FormItem><FormItem label="备注"><textarea className="qc-control" value={trackingDraft.remark} onChange={(event) => setTrackingDraft({ ...trackingDraft, remark: event.target.value })} /></FormItem></div>}</Modal>
-    {error && <Toast message={error} />}{toast && <Toast message={toast} />}
-  </PageContainer></AppShell>;
+  return (
+    <AppShell title="生产排单">
+      <PageContainer className="ps-scheduling-page">
+        <PageHeader
+          eyebrow="PRODUCTION SCHEDULING"
+          title="生产排单"
+          count={`${groupSummaries.length} 个生产组`}
+          description="按生产组扫描当前、待产、队尾与正式异常，再处理单组队列。"
+          secondaryActions={
+            selectedOrder && (
+              <Button
+                variant="secondary"
+                permission="schedule.edit"
+                onClick={openTracking}
+              >
+                物料与运输
+              </Button>
+            )
+          }
+        />
+        <Toolbar
+          className="ps-workspace-toolbar"
+          search={
+            <SearchField
+              value={query}
+              onChange={setQuery}
+              placeholder="搜索订单、款号、款名或客户"
+              label="搜索排单"
+            />
+          }
+          actions={
+            <div className="ps-view-tabs">
+              {(
+                [
+                  ["executors", "生产组"],
+                  ["orders", `未排订单 ${unscheduledRows.length}`],
+                  ["warnings", `异常 ${anomalyRows.length}`],
+                ] as const
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  className={view === key ? "active" : ""}
+                  onClick={() => setView(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          }
+          resultSummary={
+            view === "executors"
+              ? `共 ${groupSummaries.length} 组 · 无 QA 14 组`
+              : undefined
+          }
+        />
+        {view === "executors" && (
+          <div className="ps-compact-group-picker">
+            <label htmlFor="ps-group-select">当前生产组</label>
+            <select
+              id="ps-group-select"
+              className="qc-control"
+              value={selectedGroup?.group.id ?? ""}
+              onChange={(event) => setSelectedGroupId(event.target.value)}
+            >
+              {groupSummaries.map((summary) => (
+                <option key={summary.group.id} value={summary.group.id}>
+                  {summary.group.name} · 总计 {summary.assignments.length} ·
+                  待产 {summary.pendingCount}
+                  {summary.anomalyCount
+                    ? ` · 异常 ${summary.anomalyCount}`
+                    : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        {view === "executors" && (
+          <MasterDetail
+            className="ps-scheduling-master-detail"
+            selected={Boolean(selectedGroup)}
+            master={
+              <nav
+                className="ps-group-master ps-group-overview ps-group-nav"
+                aria-label="生产组总览"
+              >
+                {groupSummaries.map((summary) => {
+                  const currentOrder = orders.find(
+                    (order) => order.id === summary.current?.salesOrderId,
+                  );
+                  return (
+                    <button
+                      type="button"
+                      key={summary.group.id}
+                      data-production-group={summary.group.name}
+                      className={
+                        summary.group.id === selectedGroup?.group.id
+                          ? "active"
+                          : ""
+                      }
+                      onClick={() => setSelectedGroupId(summary.group.id)}
+                    >
+                      <header>
+                        <strong>{summary.group.name}</strong>
+                        {summary.anomalyCount > 0 && (
+                          <em>异常 {summary.anomalyCount}</em>
+                        )}
+                      </header>
+                      <span>当前 {currentOrder?.styleNo ?? "待排"}</span>
+                      <b className="ps-group-pending">待产 {summary.pendingCount}</b>
+                      <small>队尾 {summary.tailDate ?? "—"}</small>
+                    </button>
+                  );
+                })}
+                {!groupSummaries.length && (
+                  <EmptyState
+                    compact
+                    title="暂无生产组"
+                    description="请先在基础设置维护生产组。"
+                  />
+                )}
+              </nav>
+            }
+            detail={
+              selectedGroup ? (
+                <Card className="ps-group-queue">
+                  <header>
+                    <div>
+                      <strong>{selectedGroup.group.name} · 生产队列</strong>
+                      <span>
+                        当前{" "}
+                        {orders.find(
+                          (order) =>
+                            order.id === selectedGroup.current?.salesOrderId,
+                        )?.styleNo ?? "待排"}
+                      </span>
+                    </div>
+                    <small>
+                      总计 {selectedGroup.assignments.length} · 待产{" "}
+                      {selectedGroup.pendingCount} · 队尾{" "}
+                      {selectedGroup.tailDate ?? "—"}
+                    </small>
+                  </header>
+                  <div className="ps-queue-table-wrap">
+                    <table className="ps-queue-table">
+                      <thead>
+                        <tr>
+                          <th>顺序</th>
+                          <th>款号 / 订单</th>
+                          <th>数量</th>
+                          <th>生产窗口</th>
+                          <th>队列状态</th>
+                          <th>异常 / 物流</th>
+                          <th className="ps-sticky-action">操作</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedGroup.assignments.map((item, index) => {
+                          const order = orders.find(
+                            (entry) => entry.id === item.salesOrderId,
+                          );
+                          const orderProjection = order
+                            ? projectOrderSchedule(order, state)
+                            : null;
+                          const itemMaterial = order?.salesContractNo
+                            ? styleProgressByContract.get(order.salesContractNo) ?? null
+                            : null;
+                          const formalExceptions = [
+                            ...new Set([
+                              ...(orderProjection?.warnings ?? []),
+                              ...(orderProjection?.deliveryRisk.level === "risk"
+                                ? orderProjection.deliveryRisk.messages
+                                : []),
+                            ]),
+                          ];
+                          const logisticsWarning = itemMaterial?.keyExceptions[0] ?? null;
+                          const currentIndex =
+                            selectedGroup.assignments.findIndex(
+                              (entry) => entry.id === selectedGroup.current?.id,
+                            );
+                          const queuePhase =
+                            item.status === "completed"
+                              ? "已完成"
+                              : item.id === selectedGroup.current?.id
+                                ? "当前"
+                                : currentIndex >= 0 &&
+                                    index === currentIndex + 1
+                                  ? "下一款"
+                                  : "待生产";
+                          const logisticsBrief = order ? materialReadinessLabel(order) : "暂无面辅料跟进数据";
+                          return (
+                            <tr
+                              key={item.id}
+                              data-queue-phase={queuePhase}
+                              data-queue-sequence={
+                                item.queueSequence ?? undefined
+                              }
+                            >
+                              <td data-label="顺序">
+                                <strong>{item.queueSequence ?? "—"}</strong>
+                              </td>
+                              <td data-label="款号 / 订单">
+                                <strong>{order?.styleNo ?? "历史款"}</strong>
+                                <small>
+                                  {order?.orderNo ?? "订单缺失"} ·{" "}
+                                  {order?.customerNameSnapshot ?? "—"}
+                                </small>
+                              </td>
+                              <td data-label="数量">
+                                <strong>
+                                  {quantity(item.plannedQuantity)}
+                                </strong>
+                                <small>
+                                  完成 {quantity(item.completedQuantity)} · 日产{" "}
+                                  {item.averageDailyOutputSnapshot
+                                    ? quantity(item.averageDailyOutputSnapshot)
+                                    : "—"}
+                                </small>
+                              </td>
+                              <td data-label="生产窗口">
+                                <strong>
+                                  {item.plannedStartDate ?? "—"} →{" "}
+                                  {item.plannedEndDate ?? "—"}
+                                </strong>
+                                <small>
+                                  {item.requiredWorkdays} 工作日 · 休{" "}
+                                  {item.nonWorkingDayCount} 天
+                                </small>
+                              </td>
+                              <td data-label="队列状态">
+                                <StatusTag
+                                  tone={
+                                    queuePhase === "当前"
+                                      ? "active"
+                                      : queuePhase === "已完成"
+                                        ? "success"
+                                        : "neutral"
+                                  }
+                                >
+                                  {queuePhase}
+                                </StatusTag>
+                                <small>
+                                  {assignmentStatusLabels[item.status]}
+                                </small>
+                              </td>
+                              <td
+                                data-label="异常 / 物流"
+                                title={
+                                  formalExceptions[0] ??
+                                  logisticsWarning ??
+                                  logisticsBrief
+                                }
+                              >
+                                {formalExceptions.length ? (
+                                  <em className="ps-row-exception">
+                                    正式异常 · {formalExceptions[0]}
+                                  </em>
+                                ) : logisticsWarning ? (
+                                  <em className="ps-row-logistics-warning">
+                                    物流警示 · {logisticsWarning}
+                                  </em>
+                                ) : (
+                                  <>
+                                    <strong>{logisticsBrief}</strong>
+                                    <small>无正式异常</small>
+                                  </>
+                                )}
+                              </td>
+                              <td
+                                data-label="操作"
+                                className="ps-sticky-action"
+                              >
+                                <div className="ps-row-actions">
+                                  {order && <Button variant="text" permission="order.view" onClick={() => router.push(`/order-center/detail?id=${encodeURIComponent(order.id)}`)}>查看订单</Button>}
+                                  <FloatingMenu label={`更多：${order?.styleNo ?? "历史款"}`} menuClassName="ps-row-more-menu">
+                                    <Button
+                                      variant="text"
+                                      permission="schedule.edit"
+                                      onClick={() => openAssignment(item)}
+                                    >
+                                      查看 / 调整排单
+                                    </Button>
+                                    {order?.salesContractNo && <Button variant="text" permission="style_progress.read" onClick={() => router.push(`/order-center/style-progress/detail?contract=${encodeURIComponent(order.salesContractNo!)}`)}>查看物流 / 款式进度</Button>}
+                                    {order && <Button variant="text" permission="order.edit" onClick={() => router.push(`/order-center/detail?id=${encodeURIComponent(order.id)}&action=price`)}>调整价格</Button>}
+                                    {item.status !== "completed" && (
+                                      <Button
+                                        variant="danger"
+                                        permission="schedule.complete"
+                                        onClick={() => prepareCompletion(item)}
+                                      >
+                                        结束生产
+                                      </Button>
+                                    )}
+                                  </FloatingMenu>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </Card>
+              ) : (
+                <Card>
+                  <EmptyState title="请选择生产组" />
+                </Card>
+              )
+            }
+          />
+        )}
+        {view === "orders" && (
+          <>
+            <div className="ps-pool-toolbar">
+              <div className="ps-view-tabs">
+                {(
+                  [
+                    ["all", "全部未排"],
+                    ["full", "完全未排"],
+                    ["partial", "部分排单"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <button
+                    key={key}
+                    className={unscheduledFilter === key ? "active" : ""}
+                    onClick={() => setUnscheduledFilter(key)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <span>{unscheduledRows.length} 张订单待处理</span>
+            </div>
+            <Card className="ps-unscheduled-pool">
+              <div className="ps-pool-row head">
+                <span>款号 / 客户</span>
+                <span>有效数量</span>
+                <span>已排</span>
+                <span>可排</span>
+                <span>交期</span>
+                <span>物料 / 物流</span>
+                <span>操作</span>
+              </div>
+              {unscheduledRows.map(({ order, projection }) => {
+                return (
+                  <div className="ps-pool-row" key={order.id}>
+                    <span>
+                      <strong>{order.styleNo}</strong>
+                      <small>
+                        {order.customerNameSnapshot} · {order.styleName}
+                      </small>
+                    </span>
+                    <span>{quantity(projection.effectiveOrderQuantity)}</span>
+                    <span>{quantity(projection.scheduledQuantity)}</span>
+                    <span>
+                      <strong>
+                        {quantity(projection.unscheduledQuantity)}
+                      </strong>
+                    </span>
+                    <span>
+                      {projection.deliveryRisk.nearestDeliveryDate ?? "—"}
+                    </span>
+                    <span>
+                      {materialReadinessLabel(order)}
+                    </span>
+                    <span>
+                      <Button
+                        permission="schedule.create"
+                        onClick={() => openAssignment(undefined, order.id)}
+                      >
+                        排单
+                      </Button>
+                    </span>
+                  </div>
+                );
+              })}
+              {!unscheduledRows.length && (
+                <p className="ps-empty">当前筛选下没有未排完的订单。</p>
+              )}
+            </Card>
+          </>
+        )}
+        {view === "warnings" && (
+          <Card className="ps-warning-list">
+            {anomalyRows.map(({ order, messages, severity }) => (
+              <button
+                type="button"
+                key={order.id}
+                onClick={() => {
+                  setView("orders");
+                  setSelectedOrderId(order.id);
+                }}
+              >
+                <strong>
+                  {order.styleNo} · {order.customerNameSnapshot}
+                </strong>
+                <span>{messages.join("；")}</span>
+                <StatusTag tone={severity === "严重" ? "danger" : "active"}>
+                  {severity}
+                </StatusTag>
+              </button>
+            ))}
+            {!anomalyRows.length && (
+              <p className="ps-empty">当前没有需要处理的排单异常。</p>
+            )}
+          </Card>
+        )}
+        <Modal
+          open={Boolean(completionDraft)}
+          title="结束排单"
+          description="计划日期保持不变；请确认真实完成日期和数量，再选择是否应用后续排期建议。"
+          onClose={() => setCompletionDraft(null)}
+          footer={
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => setCompletionDraft(null)}
+              >
+                取消
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                permission="schedule.complete"
+                onClick={() => void submitCompletion(false)}
+              >
+                仅记录结束
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                permission="schedule.complete"
+                onClick={() => void submitCompletion(true)}
+              >
+                结束并应用建议
+              </Button>
+            </>
+          }
+        >
+          {completionDraft && (
+            <div className="qc-modal-form">
+              <ContextSummary
+                title="当前结束对象"
+                items={[
+                  {
+                    key: "style",
+                    label: "款号 / 订单",
+                    value: `${completionDraft.order.styleNo} · ${completionDraft.order.orderNo}`,
+                  },
+                  {
+                    key: "group",
+                    label: "生产组",
+                    value:
+                      settings.productionGroups.find(
+                        (group) =>
+                          group.id ===
+                          completionDraft.assignment.productionGroupId,
+                      )?.name ?? "—",
+                  },
+                  {
+                    key: "status",
+                    label: "当前状态",
+                    value:
+                      assignmentStatusLabels[completionDraft.assignment.status],
+                  },
+                  {
+                    key: "quantity",
+                    label: "计划 / 已完成",
+                    value: `${quantity(completionDraft.assignment.plannedQuantity)} / ${quantity(completionDraft.assignment.completedQuantity)}`,
+                  },
+                ]}
+              />
+              <FormItem label="实际完成日期" required>
+                <input
+                  type="date"
+                  className="qc-control"
+                  value={completionDraft.actualCompletedDate}
+                  onChange={(event) =>
+                    setCompletionDraft({
+                      ...completionDraft,
+                      actualCompletedDate: event.target.value,
+                    })
+                  }
+                />
+              </FormItem>
+              <FormItem label="实际完成数量" required>
+                <NullableNumberInput
+                  className="qc-control"
+                  min="0"
+                  value={completionDraft.completedQuantity}
+                  onValueChange={(value) =>
+                    setCompletionDraft({
+                      ...completionDraft,
+                      completedQuantity: value,
+                    })
+                  }
+                />
+              </FormItem>
+              <p>
+                计划结束仍保留为{" "}
+                {completionDraft.assignment.plannedEndDate ?? "未安排"}。
+              </p>
+            </div>
+          )}
+        </Modal>
+        <Modal
+          open={Boolean(completionPreview)}
+          title="确认更新后续排期"
+          description="当前排单将记录为实际完成；确认后才会写入下列队列日期变化。"
+          onClose={() => setCompletionPreview(null)}
+          onSubmit={() =>
+            completionPreview
+              ? applyCompletion(completionPreview, true)
+              : undefined
+          }
+          footer={
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => setCompletionPreview(null)}
+              >
+                取消
+              </Button>
+              <Button type="submit" permission="schedule.complete">
+                确认结束并更新
+              </Button>
+            </>
+          }
+        >
+          {completionPreview && (
+            <div className="ps-queue-preview">
+              <div>
+                <strong>
+                  {completionPreview.order.orderNo} ·{" "}
+                  {completionPreview.order.styleNo}
+                </strong>
+                <span>
+                  实际完成：
+                  {completionPreview.result.assignment.actualCompletedDate} ·{" "}
+                  {quantity(
+                    completionPreview.result.assignment.completedQuantity,
+                  )}{" "}
+                  件
+                </span>
+              </div>
+              {completionPreview.result.queueChanges.map((change) => {
+                const assignment =
+                  completionPreview.result.state.scheduleAssignments.find(
+                    (item) => item.id === change.assignmentId,
+                  );
+                return (
+                  <div key={change.assignmentId}>
+                    <strong>
+                      {assignment
+                        ? executorName(assignment, settings)
+                        : change.assignmentId}
+                    </strong>
+                    <span>
+                      {change.beforeStartDate ?? "待排"} →{" "}
+                      {change.beforeEndDate ?? "待排"}
+                    </span>
+                    <b>调整为</b>
+                    <span>
+                      {change.afterStartDate ?? "待排"} →{" "}
+                      {change.afterEndDate ?? "待排"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Modal>
+        <Modal
+          open={Boolean(form)}
+          title={form?.id ? "编辑排单" : "直接排单"}
+          description="平均日产与所需工作日会按最后编辑字段即时联动。"
+          onClose={() => setForm(null)}
+          onSubmit={saveAssignment}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setForm(null)}>
+                取消
+              </Button>
+              <Button
+                type="submit"
+                permission={form?.id ? "schedule.edit" : "schedule.create"}
+              >
+                确认排单
+              </Button>
+            </>
+          }
+        >
+          {form && (
+            <div className="qc-modal-form ps-assignment-form">
+              <div className="ps-order-context">
+                <strong>
+                  {formOrder?.styleNo || "未填写款号"} ·{" "}
+                  {formOrder?.customerNameSnapshot || "未填写客户"}
+                </strong>
+                <span>
+                  有效 {quantity(formProjection?.effectiveOrderQuantity ?? 0)} ·
+                  已排 {quantity(formProjection?.scheduledQuantity ?? 0)} · 可排{" "}
+                  {quantity(formProjection?.unscheduledQuantity ?? 0)}
+                </span>
+                <small>
+                  面料成分：
+                  {[
+                    ...new Set(
+                      formOrder?.fabricExecutionSnapshots
+                        .map((item) => item.composition)
+                        .filter(Boolean) ?? [],
+                    ),
+                  ].join("、") || "—"}
+                </small>
+              </div>
+              <FormItem label="生产组织">
+                <select
+                  className="qc-control"
+                  value={form.executionType}
+                  onChange={(event) => {
+                    const executionType = event.target.value as
+                      "internal" | "outsource";
+                    const executorId =
+                      executionType === "internal"
+                        ? (settings.productionGroups.find(
+                            (item) => item.enabled,
+                          )?.id ?? "")
+                        : (settings.outsourceFactories.find(
+                            (item) => item.enabled,
+                          )?.id ?? "");
+                    setForm({
+                      ...form,
+                      executionType,
+                      executorId,
+                      dateMode:
+                        executionType === "internal"
+                          ? "auto_queue"
+                          : "manual_fixed",
+                      startDate:
+                        executionType === "internal" && executorId
+                          ? suggestInternalQueueTailStartDate(state, executorId)
+                          : form.startDate,
+                    });
+                  }}
+                >
+                  <option value="internal">内部</option>
+                  <option value="outsource">外发</option>
+                </select>
+              </FormItem>
+              <FormItem
+                label={form.executionType === "internal" ? "生产组" : "外发厂"}
+                required
+              >
+                <div className="ps-executor-select">
+                  <select
+                    className="qc-control"
+                    value={form.executorId}
+                    onChange={(event) => {
+                      const executorId = event.target.value;
+                      setForm({
+                        ...form,
+                        executorId,
+                        startDate:
+                          form.executionType === "internal" &&
+                          form.dateMode === "auto_queue"
+                            ? suggestInternalQueueTailStartDate(
+                                state,
+                                executorId,
+                              )
+                            : form.startDate,
+                      });
+                    }}
+                  >
+                    <option value="">请选择</option>
+                    {(form.executionType === "internal"
+                      ? settings.productionGroups
+                      : settings.outsourceFactories
+                    )
+                      .filter(
+                        (item) => item.enabled || item.id === form.executorId,
+                      )
+                      .map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                  </select>
+                  {form.executionType === "outsource" && (
+                    <Button
+                      type="button"
+                      variant="text"
+                      permission="settings.outsource_factory.edit"
+                      onClick={openFactoryCreate}
+                    >
+                      ＋ 新建外发厂
+                    </Button>
+                  )}
+                </div>
+              </FormItem>
+              <FormItem label="排单数量" required>
+                <div className="ps-quantity-control">
+                  <NullableNumberInput
+                    className="qc-control"
+                    min="0"
+                    value={form.quantity}
+                    onValueChange={(value) => {
+                      const nextQuantity = value ?? 0;
+                      setForm({
+                        ...form,
+                        quantity: value,
+                        requiredWorkdays:
+                          form.durationMode === "average_daily_output" &&
+                          form.averageDailyOutput
+                            ? Math.max(
+                                1,
+                                Math.ceil(
+                                  nextQuantity / form.averageDailyOutput,
+                                ),
+                              )
+                            : form.requiredWorkdays,
+                        averageDailyOutput:
+                          form.durationMode === "workdays" &&
+                          form.requiredWorkdays
+                            ? Math.ceil(nextQuantity / form.requiredWorkdays)
+                            : form.averageDailyOutput,
+                      });
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={(formProjection?.unscheduledQuantity ?? 0) <= 0}
+                    onClick={() => {
+                      const nextQuantity =
+                        formProjection?.unscheduledQuantity ?? 0;
+                      setForm({
+                        ...form,
+                        quantity: nextQuantity,
+                        requiredWorkdays: form.averageDailyOutput
+                          ? Math.max(
+                              1,
+                              Math.ceil(nextQuantity / form.averageDailyOutput),
+                            )
+                          : form.requiredWorkdays,
+                      });
+                    }}
+                  >
+                    全部数量
+                  </Button>
+                </div>
+              </FormItem>
+              <FormItem label="平均日产">
+                <NullableNumberInput
+                  className="qc-control"
+                  min="1"
+                  value={form.averageDailyOutput}
+                  onValueChange={(value) =>
+                    setForm({
+                      ...form,
+                      durationMode: "average_daily_output",
+                      averageDailyOutput: value,
+                      requiredWorkdays: value
+                        ? Math.max(1, Math.ceil((form.quantity ?? 0) / value))
+                        : form.requiredWorkdays,
+                    })
+                  }
+                />
+              </FormItem>
+              <FormItem label="所需工作日">
+                <NullableNumberInput
+                  className="qc-control"
+                  min="1"
+                  value={form.requiredWorkdays}
+                  onValueChange={(value) => {
+                    const workdays = value
+                      ? Math.max(1, Math.ceil(value))
+                      : null;
+                    setForm({
+                      ...form,
+                      durationMode: "workdays",
+                      requiredWorkdays: workdays,
+                      averageDailyOutput: workdays
+                        ? Math.ceil((form.quantity ?? 0) / workdays)
+                        : form.averageDailyOutput,
+                    });
+                  }}
+                />
+              </FormItem>
+              <FormItem label="日期安排">
+                <select
+                  className="qc-control"
+                  value={form.dateMode}
+                  onChange={(event) =>
+                    setForm({
+                      ...form,
+                      dateMode: event.target
+                        .value as ScheduleAssignment["dateMode"],
+                    })
+                  }
+                >
+                  <option value="auto_queue">自动队列</option>
+                  <option value="manual_fixed">手工固定</option>
+                </select>
+              </FormItem>
+              <FormItem label="计划开始">
+                <input
+                  type="date"
+                  className="qc-control"
+                  value={form.startDate}
+                  onChange={(event) =>
+                    setForm({ ...form, startDate: event.target.value })
+                  }
+                />
+              </FormItem>
+              {form.dateMode === "manual_fixed" && (
+                <FormItem label="计划结束">
+                  <input
+                    type="date"
+                    className="qc-control"
+                    value={form.endDate}
+                    onChange={(event) =>
+                      setForm({ ...form, endDate: event.target.value })
+                    }
+                  />
+                </FormItem>
+              )}
+              {form.executionType === "internal" && (
+                <div className="ps-queue-tail">
+                  <strong>
+                    {settings.productionGroups.find(
+                      (item) => item.id === form.executorId,
+                    )?.name ?? "当前生产组"}{" "}
+                    队尾
+                  </strong>
+                  <span>
+                    最后一款：
+                    {orders.find(
+                      (order) => order.id === formGroupTail?.salesOrderId,
+                    )?.styleNo ?? "暂无"}{" "}
+                    · 预计结束 {formGroupTail?.plannedEndDate ?? "—"}
+                  </span>
+                  <span>本款建议开始：{form.startDate || "—"}</span>
+                </div>
+              )}
+              <div
+                className={`ps-logistics-feedback ${formStyleProgress?.transportRisk === "late" ? "danger" : ""}`}
+              >
+                <strong>物料与运输结论</strong>
+                <span>
+                  款式进度：{formStyleProgress ? `${formStyleProgress.totalReady}/${formStyleProgress.totalMaterials} 项齐套` : "暂无面辅料跟进数据"}
+                </span>
+                <span>
+                  计划开始：{form.startDate || "尚未确定"} · 最晚到厂：
+                  {formStyleProgress?.materials[0]?.logistics.latestRequiredArrivalDate ?? "—"}
+                </span>
+                <em>{formStyleProgress?.keyExceptions[0] ?? (formStyleProgress ? "当前无物料异常" : "不会使用旧手工到仓字段推断齐套")}</em>
+              </div>
+              {form.id && (
+                <>
+                  <FormItem label="完成数量">
+                    <NullableNumberInput
+                      className="qc-control"
+                      min="0"
+                      value={form.completedQuantity}
+                      onValueChange={(value) =>
+                        setForm({ ...form, completedQuantity: value })
+                      }
+                    />
+                  </FormItem>
+                  <FormItem label="状态">
+                    <select
+                      className="qc-control"
+                      value={form.status}
+                      onChange={(event) =>
+                        setForm({
+                          ...form,
+                          status: event.target
+                            .value as ScheduleAssignment["status"],
+                        })
+                      }
+                    >
+                      <option value="planned">已计划</option>
+                      <option value="in_progress">生产中</option>
+                      <option value="completed">已完成</option>
+                      <option value="cancelled">已取消</option>
+                    </select>
+                  </FormItem>
+                  <FormItem label="变更原因">
+                    <textarea
+                      className="qc-control"
+                      value={form.reason}
+                      onChange={(event) =>
+                        setForm({ ...form, reason: event.target.value })
+                      }
+                    />
+                  </FormItem>
+                </>
+              )}
+              <FormItem label="备注">
+                <textarea
+                  className="qc-control"
+                  value={form.remark}
+                  onChange={(event) =>
+                    setForm({ ...form, remark: event.target.value })
+                  }
+                />
+              </FormItem>
+            </div>
+          )}
+        </Modal>
+        <Modal
+          open={Boolean(factoryDraft)}
+          title="新建外发厂"
+          description="创建后写入正式外发厂基础资料，并自动选中稳定 ID。"
+          onClose={() => setFactoryDraft(null)}
+          onSubmit={saveFactory}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setFactoryDraft(null)}>
+                取消
+              </Button>
+              <Button
+                type="submit"
+                permission="settings.outsource_factory.edit"
+              >
+                创建并选择
+              </Button>
+            </>
+          }
+        >
+          {factoryDraft && (
+            <div className="qc-modal-form">
+              <FormItem label="外发厂名称" required>
+                <input
+                  className="qc-control"
+                  value={factoryDraft.name}
+                  onChange={(event) =>
+                    setFactoryDraft({
+                      ...factoryDraft,
+                      name: event.target.value,
+                    })
+                  }
+                />
+              </FormItem>
+              <FormItem label="联系人">
+                <input
+                  className="qc-control"
+                  value={factoryDraft.contactPerson}
+                  onChange={(event) =>
+                    setFactoryDraft({
+                      ...factoryDraft,
+                      contactPerson: event.target.value,
+                    })
+                  }
+                />
+              </FormItem>
+              <FormItem label="电话">
+                <input
+                  className="qc-control"
+                  value={factoryDraft.phone}
+                  onChange={(event) =>
+                    setFactoryDraft({
+                      ...factoryDraft,
+                      phone: event.target.value,
+                    })
+                  }
+                />
+              </FormItem>
+              <FormItem label="备注">
+                <textarea
+                  className="qc-control"
+                  value={factoryDraft.remark}
+                  onChange={(event) =>
+                    setFactoryDraft({
+                      ...factoryDraft,
+                      remark: event.target.value,
+                    })
+                  }
+                />
+              </FormItem>
+            </div>
+          )}
+        </Modal>
+        <Modal
+          open={trackingOpen}
+          title="物料与运输"
+          description="日常只维护集货仓与备注；到料、齐套、物流风险来自款式进度投影。"
+          onClose={() => setTrackingOpen(false)}
+          onSubmit={saveTracking}
+          footer={
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => setTrackingOpen(false)}
+              >
+                取消
+              </Button>
+              {selectedStyleProgress && <Button variant="secondary" permission="style_progress.read" onClick={() => router.push(`/order-center/style-progress/detail?contract=${encodeURIComponent(selectedStyleProgress.salesContractNo)}`)}>查看款式进度</Button>}
+              <Button type="submit" permission="schedule.edit">
+                保存
+              </Button>
+            </>
+          }
+        >
+          {
+            <div className="qc-modal-form">
+              {selectedStyleProgress ? (
+                <ContextSummary title="只读款式进度投影" items={[{ key: "ready", label: "总齐套", value: `${selectedStyleProgress.totalReady}/${selectedStyleProgress.totalMaterials} · ${selectedStyleProgress.readinessRate.toFixed(1)}%` }, { key: "fabric", label: "面料", value: `${selectedStyleProgress.fabricReady}/${selectedStyleProgress.fabricTotal}` }, { key: "trim", label: "辅料", value: `${selectedStyleProgress.trimReady}/${selectedStyleProgress.trimTotal}` }, { key: "latest", label: "预计最晚齐料", value: selectedStyleProgress.expectedLatestMaterialDate ?? "—" }, { key: "risk", label: "物流风险", value: selectedStyleProgress.transportRisk }, { key: "exception", label: "最新异常", value: selectedStyleProgress.keyExceptions[0] ?? "无" }]} />
+              ) : (
+                <EmptyState compact title="暂无面辅料跟进数据" description="不会使用旧手工面料 / 辅料到仓日期推断齐套。" />
+              )}
+              <FormItem label="供应枢纽">
+                <select
+                  className="qc-control"
+                  value={trackingDraft.supplyHubId}
+                  onChange={(event) =>
+                    setTrackingDraft({
+                      ...trackingDraft,
+                      supplyHubId: event.target.value,
+                    })
+                  }
+                >
+                  <option value="">未设置</option>
+                  {settings.supplyHubs
+                    .filter((item) => item.enabled)
+                    .map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                </select>
+              </FormItem>
+              <FormItem label="备注">
+                <textarea
+                  className="qc-control"
+                  value={trackingDraft.remark}
+                  onChange={(event) =>
+                    setTrackingDraft({
+                      ...trackingDraft,
+                      remark: event.target.value,
+                    })
+                  }
+                />
+              </FormItem>
+            </div>
+          }
+        </Modal>
+        {error && <Toast message={error} />}
+        {toast && <Toast message={toast} />}
+      </PageContainer>
+    </AppShell>
+  );
 }

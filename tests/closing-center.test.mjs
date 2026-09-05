@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { createLocalDataStore, TEST_LOCAL_DATA_NAMESPACE } from "../features/data-management/repository/local-data-store.ts";
 import { createClosingRepository } from "../features/closing-center/repository/closing-repository.ts";
 import { validateClosingState } from "../features/closing-center/model/closing.ts";
@@ -7,12 +8,17 @@ import {
   acknowledgeAllocationSchedule,
   allocationOutput,
   allocationWarnings,
+  allocationsForClosingPeriod,
   createAllocationDraft,
   createClosingPeriod,
   currentScheduleDifference,
+  filterClosingPeriods,
+  groupClosingPeriodsByYear,
   projectMonthlyTargetBalance,
   projectOrderClosing,
+  projectOrderProductionForClosing,
   saveClosingAllocation,
+  sortClosingPeriodsLatestFirst,
   summarizeClosing,
   syncAllocationSchedule,
   transitionClosingPeriod,
@@ -37,7 +43,7 @@ test("schema v7 到 v8 只重封装旧记录并初始化空关账记录", async 
   const store = createLocalDataStore({ storage, namespace: TEST_LOCAL_DATA_NAMESPACE, environment: "test", now: () => now });
   const state = await createClosingRepository(store).load();
   assert.deepEqual(state, { periods: [], allocations: [] });
-  assert.equal(JSON.parse(values.get(`${TEST_LOCAL_DATA_NAMESPACE}.manifest`)).schemaVersion, 11);
+  assert.equal(JSON.parse(values.get(`${TEST_LOCAL_DATA_NAMESPACE}.manifest`)).schemaVersion, 13);
   assert.deepEqual(JSON.parse(values.get(`${TEST_LOCAL_DATA_NAMESPACE}.sales-orders`)).data, [{ id: "keep", unknown: "preserve" }]);
 });
 
@@ -53,6 +59,46 @@ test("月份唯一、状态流转、锁定不可编辑且重开必须有原因",
   state = transitionClosingPeriod(state, period.id, "reopen", actor, { reason: "补录" }).state;
   assert.equal(state.periods[0].status, "open");
   assert.equal(state.periods[0].reopenReason, "补录");
+});
+
+test("Closing Overview 最新月份优先、按年分组并按正式状态筛选", () => {
+  const periods = [
+    { ...periodState().periods[0], id: "period-2025", month: "2025-12", status: "locked" },
+    { ...periodState().periods[0], id: "period-2027", month: "2027-01", status: "open" },
+    { ...periodState().periods[0], id: "period-2026", month: "2026-09", status: "confirmed" },
+  ];
+  assert.deepEqual(sortClosingPeriodsLatestFirst(periods).map((item) => item.month), ["2027-01", "2026-09", "2025-12"]);
+  assert.deepEqual(filterClosingPeriods(periods, "confirmed").map((item) => item.id), ["period-2026"]);
+  assert.deepEqual(groupClosingPeriodsByYear(sortClosingPeriodsLatestFirst(periods)).map((group) => [group.year, group.periods.map((item) => item.month)]), [
+    ["2027", ["2027-01"]],
+    ["2026", ["2026-09"]],
+    ["2025", ["2025-12"]],
+  ]);
+});
+
+test("月份路由只投影该月有效归属，切换月份会改变行集合", () => {
+  const august = { ...periodState().periods[0], id: "period-august", month: "2026-08" };
+  const september = { ...august, id: "period-september", month: "2026-09" };
+  const state = {
+    periods: [august, september],
+    allocations: [
+      { ...createAllocationDraft({ period: august, order: order(), settings, actor }), id: "allocation-august" },
+      { ...createAllocationDraft({ period: september, order: order("distribution"), settings, actor }), id: "allocation-september" },
+      { ...createAllocationDraft({ period: august, order: order(), settings, actor }), id: "allocation-voided", status: "voided", voidedAt: now },
+    ],
+  };
+  assert.deepEqual(allocationsForClosingPeriod(state, august.id).map((item) => item.id), ["allocation-august"]);
+  assert.deepEqual(allocationsForClosingPeriod(state, september.id).map((item) => item.id), ["allocation-september"]);
+});
+
+test("关账已排与已生产来自正式 Assignment 累计且不改变关账规则", () => {
+  const source = order();
+  const projection = projectOrderProductionForClosing(source, scheduling([
+    assignment("internal"),
+    { ...assignment("outsource"), id: "assignment-outsource-2", plannedQuantity: 300, completedQuantity: 125 },
+    { ...assignment("outsource"), id: "assignment-cancelled", status: "cancelled", plannedQuantity: 900, completedQuantity: 900 },
+  ]));
+  assert.deepEqual(projection, { scheduledQuantity: 900, completedQuantity: 525 });
 });
 
 test("内部、外发和待分配可并存且快照互斥", () => {
@@ -129,7 +175,20 @@ test("ClosingSearchProvider 按 closing.view 过滤并搜索月份和订单", as
   const source = order(); let state = periodState(); state = saveClosingAllocation(state, createAllocationDraft({ period: state.periods[0], order: source, settings, actor }), actor).state;
   const provider = createClosingSearchProvider({ load: async () => state, save: async (value) => value }, { list: async () => [source], getById: async () => source, save: async (value) => value, orderNoExists: async () => false, isAttachmentReferenced: async () => false }, () => settings);
   assert.equal(provider.canSearch({ userId: "admin", can: (key) => key === "closing.view" }), true); assert.equal(provider.canSearch({ userId: "viewer", can: () => false }), false);
-  const results = await provider.search("P100", { userId: "admin", can: () => true }); assert.equal(results[0].href, "/closing-center?month=2026-08");
+  const results = await provider.search("P100", { userId: "admin", can: () => true }); assert.equal(results[0].href, "/closing-center/detail?month=2026-08");
+});
+
+test("Closing UI 使用 Overview → Month Detail 路由并显示生产事实", async () => {
+  const [source, detailRoute] = await Promise.all([
+    readFile(new URL("../features/closing-center/components/closing-center-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/closing-center/detail/page.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(source, /groupClosingPeriodsByYear/);
+  assert.match(source, /sortClosingPeriodsLatestFirst/);
+  assert.match(source, /\/closing-center\/detail\?month=/);
+  assert.match(source, /periodOrderIds\.has\(order\.id\)/);
+  for (const label of ["全部", "开放中", "已确认", "已锁定", "订单数量", "已排", "已生产", "本月关账", "累计关账"]) assert.match(source, new RegExp(label));
+  assert.match(detailRoute, /<ClosingCenterPage detail \/>/);
 });
 
 test("月度目标差额和达成率由 Closing Service 投影且不修改关账事实", () => {

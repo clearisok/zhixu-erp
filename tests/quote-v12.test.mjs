@@ -6,10 +6,11 @@ import { createQuoteDraft, getCurrentRevision } from "../features/quote-center/m
 import { defaultQuoteSettings, normalizeQuoteSettings } from "../features/quote-center/model/quote-settings.ts";
 import { applyCustomerConfirmation, createRevisionSnapshot, matchesQuoteSearch, tokenizeQuoteSearch, validateCustomerConfirmation } from "../features/quote-center/model/quote-workflows.ts";
 
-test("搜索支持首尾空格、多空格、OR 与大小写不敏感", () => {
+test("搜索支持首尾空格、多空格、AND 与大小写不敏感", () => {
   assert.deepEqual(tokenizeQuoteSearch("  T2337   t1821  "), ["t2337", "t1821"]);
-  assert.equal(matchesQuoteSearch("ZARA T2337 精梳棉", " T2337   T1821 "), true);
-  assert.equal(matchesQuoteSearch("Massimo Dutti t1821 Polo", "T2337 T1821"), true);
+  assert.equal(matchesQuoteSearch("ZARA T2337 精梳棉", " T2337   精梳棉 "), true);
+  assert.equal(matchesQuoteSearch("Massimo Dutti t1821 Polo", "MASSIMO POLO"), true);
+  assert.equal(matchesQuoteSearch("ZARA T2337 精梳棉", "T2337 T1821"), false);
   assert.equal(matchesQuoteSearch("OTHER-100", "T2337 T1821"), false);
 });
 
