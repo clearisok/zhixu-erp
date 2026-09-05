@@ -109,3 +109,23 @@ npm run build
    - PR number / URL（若创建）
    - tests
    - remaining dirty
+
+### GitHub Push 网络故障 fallback
+
+1. 每个 Gate 完成验证并创建 checkpoint commit 后，自动 push 当前任务分支一次。
+2. 如果 push 明确失败于 `Failed to connect`、`Could not connect to server`、`Connection reset` 或 TLS/network timeout，不得无限重试；停止网络操作并报告：
+   - Branch
+   - HEAD
+   - checkpoint commit SHA
+   - working tree 状态
+   - 人工 PowerShell push 命令：`git push -u origin <branch>`
+   - push 后本地验证命令：
+
+     ```powershell
+     git rev-parse HEAD
+     git rev-parse origin/<branch>
+     git status --short
+     ```
+3. 用户人工 push 后，可以只使用上述本地命令验证。仅当 `HEAD == origin/<branch>` 且 working tree clean 时，才允许继续下一 Gate。
+4. 该 fallback 只适用于明确网络故障。`authentication failed`、`permission denied`、`rejected`、`non-fast-forward`、branch divergence 或 merge/rebase conflict 必须停止并报告，不得绕过。
+5. 网络故障处理禁止使用 `git push --force`、`git reset --hard`、`git clean`，也禁止为绕过网络问题擅自 rebase。

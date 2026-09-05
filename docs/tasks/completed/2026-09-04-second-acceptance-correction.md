@@ -1,6 +1,6 @@
 # 2026-09-04 Second Acceptance Correction
 
-状态：实现与自动门禁 PASS；PR #3 保持未合并，等待用户真实 1229×691 视觉复验。
+状态：PASS；用户真实 1229×691 视觉复验完成，PR #3 对应提交已进入 `main`。
 
 ## 截图反馈映射
 
@@ -45,7 +45,7 @@
 - Quote Sticky：滚动后可见，top 约 68px。
 - Production Group Selector：请求滚动 400/800/1200 时当前数据页均在主滚动最大值 240px 截止；sticky top 始终为 80px，顶栏 bottom 为 68px，左侧内容未形成独立滚动。
 - Browser Console：unexpected error/warn 0。
-- 真实 1920×1080、Windows 125%、Chrome 125%（约 1229×691 CSS px）由用户在合并 PR #3 前完成最终视觉复验。
+- 真实 1920×1080、Windows 125%、Chrome 125%（约 1229×691 CSS px）已由用户在 PR #3 merge 前完成最终视觉复验。
 
 ## 截图
 
