@@ -4,16 +4,11 @@
 
 ## 当前阶段
 
-- 当前分支：`feat/style-progress-material-control-v2`。
-- Material Control Tower V2 Gate 1–5 已完成并推送：Domain / Batch `2890041b`、Parser / Repository `84e309c7`、Service / Projection / Logistics `992d7309`、V4 UI `6d80889f`、真实 D1935 验收与最终收口 `b459df2`。PR #4 已创建并保持未合并。
+- 当前稳定分支：`main`，HEAD / `origin/main` 均为 `21cef9ac6ba1d326f7f40b0bca13c23648d42556`。
+- PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
+- PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
+- 当前没有业务 Active Task；`feat/style-progress-material-control-v2` 不再是活动任务分支。
 - 最新真实 `面辅料申购统计 (1).xlsx` 已通过正式 Parser 只读验证，并显式导入隔离的 Codex QA Browser Profile：17,384 Source Row / 17,383 有效；D1935 / PI2607-235 为 261 Source Row，厂供编码 `202608130002` 5 行、需求 3,809，并从 Operational Projection 全部排除。导入没有触碰用户 Chrome / PROD Profile，原始 Excel 未进入 Git。
-- 任务分支不自动合并 `main`；PR #4 等待用户审阅，不自动 merge。
-- 既有 PR #3 `fix: complete full UI workflow correction` 保持未合并。
-- 2026-09-04 Second Acceptance Correction 已完成 Gate D、Gate E、Gate F；第一检查点 commit `3b8f69b27fdd54bc2de900859179f252f5f1aa8a`。
-- 2026-09-01 Full UI / Workflow Correction 已完成 Gate A、Gate B、Gate C，没有重新实施。
-- Gate A：Foundation + Quote + 必要 Master Data Correction，commit `367983925f8e9236a701a71781054f6baaf65e78`，PASS。
-- Gate B：Order + Production + Style Progress，commit `9098f903f9d76ff647dcebacbde46ce7ebfe0de4`，PASS。
-- Gate C：Closing Center，commit `be464c6476c8a6b596f26229d0022481ffb0fb2b`，PASS。
 
 ## 当前可运行边界
 
@@ -70,7 +65,7 @@
 
 - Second Acceptance relevant tests 17/17、full tests 455/455、typecheck、lint 与 build 均通过；`git diff --check` 在提交前执行。
 - 应用内 Browser 实际 viewport 为 1280×720（与 1229 同属 Primary Desktop 模式）：Quote/Order/Style Progress/Production/Basic Settings/Closing 代表页面 document 无横向溢出，逐容器复验无局部横向滚动，unexpected console error 为 0。
-- 用户的真实 1920×1080、Windows 125%、Chrome 125%（约 1229×691 CSS px）仍是 PR merge 前最终视觉复验环境；自动门禁不能替代这一步。
+- 用户已在 PR #3 merge 前完成真实 1920×1080、Windows 125%、Chrome 125%（约 1229×691 CSS px）视觉复验；自动门禁不替代该真实环境证据。
 - Second Acceptance 9 张截图保存在 `docs/ui-redesign/screenshots/second-acceptance-2026-09-04/`，没有覆盖上一轮截图。
 - Browser QA 使用隔离的 QA profile 追加/调整测试数据；没有清除用户或正式业务数据。
 
