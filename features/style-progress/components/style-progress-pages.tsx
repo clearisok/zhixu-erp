@@ -22,6 +22,7 @@ import {
 import { orderRepository } from "@/features/order-center/repository/order-repository";
 import type { SalesOrder } from "@/features/order-center/model/order";
 import { operationsSettingsRepository } from "@/features/operations-settings/repository/operations-settings-repository";
+import type { OperationsSettingsState } from "@/features/operations-settings/model/operations-settings";
 import { productionSchedulingRepository } from "@/features/production-scheduling/repository/production-scheduling-repository";
 import {
   operationLogRepository,
@@ -44,11 +45,13 @@ import type {
   StyleProgressData,
 } from "../model/style-progress";
 import { OrderCenterNavigation } from "./order-center-navigation";
+import { MaterialControlTower } from "./material-control-tower";
 
 type Loaded = {
   data: StyleProgressData;
   orders: SalesOrder[];
   projections: StyleProgressProjection[];
+  settings: OperationsSettingsState;
 };
 type ImportPreviewAudit = {
   contracts: number;
@@ -123,6 +126,7 @@ async function loadProgress(): Promise<Loaded> {
   return {
     data,
     orders,
+    settings,
     projections: buildStyleProgressProjections({
       data,
       orders,
@@ -1029,7 +1033,7 @@ function MaterialSourceHistory({
   );
 }
 
-export function StyleProgressDetailPage() {
+export function LegacyStyleProgressDetailPage() {
   const router = useRouter();
   const params = useSearchParams();
   const contract =
@@ -1300,6 +1304,29 @@ export function StyleProgressDetailPage() {
       </PageContainer>
     </AppShell>
   );
+}
+
+export function StyleProgressDetailPage() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const contract = params.get("contract")?.normalize("NFKC").trim().toLocaleUpperCase() ?? "";
+  const [loaded, setLoaded] = useState<Loaded | null>(null);
+  const [error, setError] = useState("");
+  const [toast, setToast] = useState("");
+  const reload = async () => {
+    try {
+      setLoaded(await loadProgress());
+      setError("");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "无法读取款式进度");
+    }
+  };
+  useEffect(() => { Promise.resolve().then(() => void reload()); }, []);
+  const projection = loaded?.projections.find((item) => item.salesContractNo === contract) ?? null;
+  if (!loaded && !error) return <AppShell title="款式进度详情"><PageContainer><LoadingState label="正在读取物料明细" /></PageContainer></AppShell>;
+  if (error) return <AppShell title="款式进度详情"><PageContainer><ErrorState title="读取失败" description={error} onRetry={() => void reload()} /></PageContainer></AppShell>;
+  if (!loaded || !projection) return <AppShell title="款式进度详情"><PageContainer className="sp-page"><OrderCenterNavigation /><PageHeader title={contract || "款式进度详情"} back={<Button variant="text" onClick={() => router.push("/order-center/style-progress")}>← 返回款式进度</Button>} /><EmptyState title="当前导入数据未找到该款" description="没有使用虚构数据补齐；请核对销售合同号或导入最新面辅料申购统计。" /></PageContainer></AppShell>;
+  return <AppShell title={`${projection.factoryStyleNo || projection.styleNo} · 款式进度`}><PageContainer className="sp-page sp-detail sp-v4-page"><OrderCenterNavigation /><MaterialControlTower projection={projection} data={loaded.data} settings={loaded.settings} onReload={reload} onToast={setToast} />{toast && <Toast message={toast} />}</PageContainer></AppShell>;
 }
 
 export function StyleRiskPage() {

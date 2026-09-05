@@ -40,6 +40,14 @@ export type MaterialBatchSummary = {
   bufferRisk: MaterialBufferRisk;
 };
 
+export type MaterialConsistencyIssue = {
+  demandId: string;
+  purchaseEventId: string;
+  field: "material_name" | "specification" | "color";
+  sourceValue: string;
+  purchaseValue: string;
+};
+
 export type MaterialProgressProjection = {
   demand: MaterialDemand;
   purchaseEvents: MaterialPurchaseEvent[];
@@ -80,6 +88,7 @@ export type CanonicalMaterialProgressProjection = {
   batchSummary: MaterialBatchSummary;
   sourceDueDates: string[];
   actualInboundDates: string[];
+  consistencyIssues: MaterialConsistencyIssue[];
 };
 
 export type StyleProgressProjection = {
@@ -108,6 +117,7 @@ export type StyleProgressProjection = {
   transportRiskCount: number;
   expectedLatestMaterialDate: string | null;
   logisticsBasis: MaterialLogisticsRecommendation["basis"];
+  logisticsContext: { assignment: ScheduleAssignment | null; supplyHubId: string | null };
   /** Formal operational projection used by the Material Control Tower. */
   canonicalMaterials: CanonicalMaterialProgressProjection[];
   /** Demand-level detail retained for Gate-4 detail views and temporary UI compatibility. */
@@ -127,6 +137,7 @@ const daysFromToday = (date: string | null, today: string) => date ? dateGap(tod
 const activeAssignments = (state: ProductionSchedulingState, orderId: string) => state.scheduleAssignments.filter((item) => item.salesOrderId === orderId && item.status !== "cancelled");
 const earliestAssignment = (items: ScheduleAssignment[]) => items.filter((item) => item.plannedStartDate).sort((left, right) => (left.plannedStartDate ?? "").localeCompare(right.plannedStartDate ?? ""))[0] ?? null;
 const uniqueStrings = (values: Array<string | null | undefined>) => [...new Set(values.filter((value): value is string => Boolean(value)))];
+const comparableText = (value: string) => value.normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleUpperCase();
 
 function dateGap(from: string, to: string): number {
   return Math.ceil((new Date(`${to}T00:00:00Z`).getTime() - new Date(`${from}T00:00:00Z`).getTime()) / DAY_MS);
@@ -233,6 +244,19 @@ function aggregateLifecycleStatus(items: MaterialProgressProjection[]): Material
   return order[Math.min(...items.map((item) => Math.max(0, order.indexOf(item.lifecycleStatus))))];
 }
 
+function findConsistencyIssues(items: MaterialProgressProjection[]): MaterialConsistencyIssue[] {
+  return items.flatMap((item) => item.purchaseEvents.flatMap((event) => {
+    const pairs: Array<[MaterialConsistencyIssue["field"], string, string]> = [
+      ["material_name", item.demand.sourceActualName || item.demand.materialName, event.actualName],
+      ["specification", item.demand.specification, event.specification],
+      ["color", item.demand.materialColor, event.color],
+    ];
+    return pairs.flatMap(([field, sourceValue, purchaseValue]) => sourceValue && purchaseValue && comparableText(sourceValue) !== comparableText(purchaseValue)
+      ? [{ demandId: item.demand.id, purchaseEventId: event.id, field, sourceValue, purchaseValue }]
+      : []);
+  }));
+}
+
 export function buildStyleProgressProjections(input: { data: StyleProgressData; orders: SalesOrder[]; scheduling: ProductionSchedulingState; settings: OperationsSettingsState; today?: string }): StyleProgressProjection[] {
   const today = input.today ?? new Date().toISOString().slice(0, 10);
   const ordersByContract = new Map(input.orders.filter((order) => order.salesContractNo).map((order) => [order.salesContractNo!, order]));
@@ -322,6 +346,7 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
         batchSummary: summarizeBatchProjections(expectedArrivalBatches),
         sourceDueDates: uniqueStrings(canonicalDemands.map((demand) => demand.sourceMaterialDueDate)).sort(),
         actualInboundDates: uniqueStrings(demandItems.map((item) => item.actualInboundDate)).sort(),
+        consistencyIssues: findConsistencyIssues(demandItems),
       };
     }).sort((left, right) => left.demands[0].demand.sourceSortNo - right.demands[0].demand.sourceSortNo || left.canonicalMaterialKey.localeCompare(right.canonicalMaterialKey));
 
@@ -387,6 +412,7 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
       transportRiskCount: riskyCanonicalMaterials.length,
       expectedLatestMaterialDate,
       logisticsBasis: basis,
+      logisticsContext: { assignment, supplyHubId: tracking?.supplyHubId ?? null },
       canonicalMaterials,
       materials,
       factorySuppliedDemands,
