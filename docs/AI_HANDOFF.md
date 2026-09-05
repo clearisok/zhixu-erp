@@ -23,7 +23,9 @@ Gate 3 Service / Projection 已完成：普通业务投影新增 Canonical Mater
 
 Gate 3 checkpoint `992d7309ea6fe8869e576fa6a853932dd06fe03b` 已推送。Gate 4 正式 V4 UI 已完成：路由已切换到 Material Control Tower，主页面使用 Canonical Material 卡片、五项 KPI、紧凑待处理动作、Sticky Filter 与可横向滚动的卡内明细；来源历史、条件式厂供信息、订单跳转、多事件 Detail Drawer 和分批预计到料 Planner 均已接入。Planner 允许部分分配、拒绝超分配，不自动补齐；逐批物流展示唯一复用 `material-logistics-service.ts`。一致性检查只提示申购/采购名称、规格、颜色冲突，不修改来源事实。
 
-Gate 4 浏览器验收已覆盖 1600、1280、1229、960、768、402 CSS px；各档 `document-level horizontal overflow = 0`，Drawer 与 Planner 在 960/402 正常，查看员的分批到料入口保持可见但 disabled，Console 无 error / warning。正式截图位于 `docs/ui-redesign/screenshots/style-progress-v4-*.png`。Gate 4 最终门禁为 TypeScript PASS、ESLint PASS、Full Tests 479/479、Production Build 29 routes PASS、`git diff --check` PASS。下一步仅在 Gate 4 checkpoint 推送成功后进入 Gate 5 的真实 D1935 验收、最终文档与 PR；不得 merge main。
+Gate 4 浏览器验收已覆盖 1600、1280、1229、960、768、402 CSS px；各档 `document-level horizontal overflow = 0`，Drawer 与 Planner 在 960/402 正常，查看员的分批到料入口保持可见但 disabled，Console 无 error / warning。正式截图位于 `docs/ui-redesign/screenshots/style-progress-v4-*.png`。Gate 4 最终门禁为 TypeScript PASS、ESLint PASS、Full Tests 479/479、Production Build 29 routes PASS、`git diff --check` PASS。
+
+Gate 5 使用真实《面辅料申购统计 (1).xlsx》完成正式 Parser 审计及隔离 Codex QA Browser Profile 导入；原始文件未进入 Git。D1935 / PI2607-235 投影为 18 个 Canonical Material（面料 8、辅料 10）；厂供编码 `202608130002` 的 5 条 / 3,809 需求量仅保留在厂供 Trace Drawer，未进入运营卡片、齐套、风险、物流或 Expected Arrival Batch。罗马布英文多词颜色已加入 Parser / Service regression，Shipment 数量在真实 Drawer 中验证来自 ShipmentEvent。真实 D1935 的 1600/1280/1229/960/768/402 CSS viewport 均无 document-level 横向溢出，Console 无 error / warning。该隔离 Profile 不含 D1935 织序订单，逐批物流因此正确显示“待排单后计算”，不得据此声称完成 D1935 有排单物流的真实数据验收；相应逐批算法由 Gate 3 自动化与 Gate 4 QA 数据覆盖。Gate 5 最终门禁为 TypeScript PASS、ESLint PASS、Full Tests 480/480、Production Build 29 routes PASS 与 `git diff --check` PASS。下一步只提交、推送并创建 PR，不得 merge main。
 
 ## Do Not Reopen
 

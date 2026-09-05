@@ -94,7 +94,7 @@ export async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
 }
 
 export function splitGarmentColors(value: unknown): string[] {
-  return [...new Set(normalizeText(value).split(/[\/／,，;；、\s]+/).map((item) => item.trim()).filter(Boolean))];
+  return [...new Set(normalizeText(value).split(/[\/／,，;；、\r\n]+/).map((item) => item.trim()).filter(Boolean))];
 }
 
 type ParsedRow = { sourceRow: number; values: unknown[]; get: (field: SemanticField) => unknown };

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import ExcelJS from "exceljs";
-import { parseMaterialFollowUpWorkbook } from "../features/style-progress/parser/material-follow-up-parser.ts";
+import { parseMaterialFollowUpWorkbook, splitGarmentColors } from "../features/style-progress/parser/material-follow-up-parser.ts";
 import { actualReadyDate, buildStyleProgressProjections, deriveMaterialStatuses, fabricDisplayOrder, filterMaterialsByGarmentColor, normalizeGarmentColorTokens, trimDisplayOrder } from "../features/style-progress/service/style-progress-service.ts";
 import { mergeImportedDemand } from "../features/style-progress/repository/style-progress-repository.ts";
 import { recommendMaterialTransport } from "../features/production-scheduling/service/material-logistics-service.ts";
@@ -70,6 +70,13 @@ test("D1935 多颜色字段按 NFKC 与中英文分隔符过滤", () => {
   assert.deepEqual(filterMaterialsByGarmentColor(materials, "蓝色").map((item) => item.demand.id), ["multi"]);
   assert.deepEqual(filterMaterialsByGarmentColor(materials, "A色").map((item) => item.demand.id), ["full-width"]);
   assert.equal(filterMaterialsByGarmentColor(materials, "all").length, 3);
+});
+
+test("D1935 英文多词颜色保留词组，不把普通空格误判为颜色分隔符", () => {
+  const source = "绿色/Courtyard,紫色/Holly hock,藏青/Navy Blazer,蓝色/Surf the Web,浅藏青+白色 锁链条印花";
+  const expected = ["绿色", "Courtyard", "紫色", "Holly hock", "藏青", "Navy Blazer", "蓝色", "Surf the Web", "浅藏青+白色 锁链条印花"];
+  assert.deepEqual(splitGarmentColors(source), expected);
+  assert.deepEqual(normalizeGarmentColorTokens([source]), expected);
 });
 
 test("面料与辅料默认展开且折叠状态仅保留在当前会话，1229 主表无需横向滚动", () => {

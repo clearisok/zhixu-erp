@@ -5,8 +5,9 @@
 ## 当前阶段
 
 - 当前分支：`feat/style-progress-material-control-v2`。
-- Material Control Tower V2 Gate 1 已完成并推送，checkpoint 为 `2890041bcacae526cc80a518490b6043ddcc1383`；Gate 2 已完成 Parser、Repository、厂供回填/排除、重导入、Backup / Restore 与 OperationLog，最终门禁为 TypeScript、ESLint、Full Tests 468/468、Production Build 29 routes 与 `git diff --check` 全部 PASS。
-- 任务分支不自动合并 `main`；Gate 2 独立 checkpoint push 成功后才进入 Gate 3。
+- Material Control Tower V2 Gate 1–4 已完成并推送：Domain / Batch `2890041b`、Parser / Repository `84e309c7`、Service / Projection / Logistics `992d7309`、V4 UI `6d80889f`。Gate 5 已完成真实 D1935 验收及最终质量门禁，当前只剩独立提交、推送与 PR 收口。
+- 最新真实 `面辅料申购统计 (1).xlsx` 已通过正式 Parser 只读验证，并显式导入隔离的 Codex QA Browser Profile：17,384 Source Row / 17,383 有效；D1935 / PI2607-235 为 261 Source Row，厂供编码 `202608130002` 5 行、需求 3,809，并从 Operational Projection 全部排除。导入没有触碰用户 Chrome / PROD Profile，原始 Excel 未进入 Git。
+- 任务分支不自动合并 `main`；Gate 5 完成后只创建最终独立 commit、push 与 PR，不自动 merge。
 - 既有 PR #3 `fix: complete full UI workflow correction` 保持未合并。
 - 2026-09-04 Second Acceptance Correction 已完成 Gate D、Gate E、Gate F；第一检查点 commit `3b8f69b27fdd54bc2de900859179f252f5f1aa8a`。
 - 2026-09-01 Full UI / Workflow Correction 已完成 Gate A、Gate B、Gate C，没有重新实施。
@@ -22,6 +23,15 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 3；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### Material Control Tower V2
+
+- Style Progress IndexedDB version 3 与全局 schemaVersion 13 支持非破坏 Expected Arrival Batch / Allocation；旧单日期、manual/source 语义、重导入、Backup / Restore 与唯一 OperationLog 均保持可追溯。
+- 普通 Projection 按销售合同内 Canonical Material Group 展示真实物料；面料按名称 + 门幅 + 克重 + 唯一采购价归一，辅料按标准化名称归一，厂供退出运营统计但保留 Source Trace。
+- 每批 Expected Arrival 独立复用正式物流 Service；Shipment quantity 只来自 ShipmentEvent，“距上线”与运输 buffer 分开，buffer 使用 `>7 / 0..7 / <0` 的 green/yellow/red 规则。
+- V4 Material Control Tower 已提供 Canonical Material 卡、五项 KPI、Sticky Filter、多事件 Drawer 与 Batch Planner；1600/1280/1229/960/768/402 CSS viewport 无 document 横向溢出。这里记录的是 CSS viewport 验收，不冒充真实 Windows Display Scaling。
+- 真实 D1935 验收得到 18 个 Canonical Material（面料 8、辅料 10）；采购 / 入库 / 出运 / 出库分别使用对应 Event。罗马布英文多词颜色保持完整，厂供仅在条件式 Drawer 中出现。隔离 Browser Profile 没有该合同的织序订单，因此物流保持“待排单后计算”，未建立任何 fallback。
+- Gate 5 最终门禁：TypeScript PASS、ESLint PASS、Full Tests 480/480、Production Build 29 routes PASS、`git diff --check` PASS、Browser Console 0 error / 0 warning。
 
 ### Gate A — Foundation / Quote
 

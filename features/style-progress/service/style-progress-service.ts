@@ -441,7 +441,7 @@ export function fabricDisplayOrder(materials: MaterialProgressProjection[]): Mat
 export function trimDisplayOrder(materials: MaterialProgressProjection[]): MaterialProgressProjection[] { return materials.filter((item) => item.demand.materialType === "trim").sort((left, right) => left.demand.sourceSortNo - right.demand.sourceSortNo); }
 
 export function normalizeGarmentColorTokens(values: string[]): string[] {
-  return [...new Set(values.flatMap((value) => value.normalize("NFKC").split(/[\/、，,；;。\s]+/).map((item) => item.trim()).filter(Boolean)))];
+  return [...new Set(values.flatMap((value) => value.normalize("NFKC").split(/[\/、，,；;。\r\n]+/).map((item) => item.trim()).filter(Boolean)))];
 }
 
 export function filterMaterialsByGarmentColor(materials: MaterialProgressProjection[], selectedColor: string): MaterialProgressProjection[] {
