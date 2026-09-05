@@ -30,7 +30,8 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 - `MaterialRawSnapshot`：批次、文件、Sheet、源行、全部原始字段、规范化需求 ID 与 validation issues。
 - `MaterialDemand`：合同内的面/辅料需求；保存 Source Snapshot，但不保存第二份订单权威字段。
 - `MaterialPurchaseEvent`、`MaterialInboundEvent`、`MaterialShipmentEvent`、`MaterialOutboundEvent`：从需求分离并分别去重，避免采购 × 入库等笛卡尔展开造成数量倍增。
-- `sourceMaterialDueDate` 是只读 Source；`expectedMaterialReadyDate` 是当前 Effective；累计入库达到需求数量时推导的日期与数量属于 Actual。
+- `MaterialExpectedArrivalBatch` / Allocation：按销售合同与 Canonical Material 保存一个物料的多个预计到集货仓批次；Allocation 稳定引用 `materialDemandId`，允许部分安排和一项需求跨批次分配，但累计不得超过需求数量。
+- `sourceMaterialDueDate` 是只读 Source；`MaterialExpectedArrivalBatch.expectedArrivalAtHubDate` 是参与跟进和物流计算的 Effective。旧 `expectedMaterialReadyDate` 仅作为迁移与旧 UI 兼容摘要；累计入库达到需求数量时推导的日期与数量属于 Actual。
 - `expectedDateSource = source | manual`。首次导入和跟随来源的重导入使用最新 Source；人工 Effective 在重导入时保留，恢复艾诺科后重新跟随 Source。
 - Excel 表头“厂供”是实际用量数值列并映射为 `actualConsumption`；“提供方式”是独立字段，不得把文字 `厂供` 转换为计划用量。旧错误快照仅在当前 ImportBatch Raw Snapshot 能证明对应值时确定性修复，否则保持 `null`。
 
@@ -38,10 +39,13 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 
 流程固定为 Upload → Parse → Normalize → Dedup → Validate → Preview → Confirm → Commit。预检展示 SHA、行数、需求/事件、重复、无效、来源交期变化、人工覆盖保留数、合同匹配和无订单合同。
 
+- Parser 通过 Excel Header → Semantic Field Mapping 定位字段，兼容已知别名、插入无关列和非关键列换序；缺失或重复关键表头时明确拒绝，Raw Snapshot 仍保留全部原始列。新增“对应成衣颜色”列不会改变其他字段解析。
 - 无效行保留 Raw Trace，不生成业务记录；不阻断同批有效行提交。
 - 相同文件使用文件 SHA 形成确定性批次 ID；第二次提交返回全部新增为 0。
 - 需求与事件使用稳定业务 hash。新完整来源文件更新当前需求与事件；同一需求已消失的旧事件从当前事实集合移除，历史 Raw Snapshot 与 ImportBatch 仍保留。
 - 重导入不得覆盖 `expectedDateSource=manual` 的 Effective 值。
+- 重导入只刷新仍跟随 Source 的 Expected Arrival Batch；人工 Batch 保持不变，只有“恢复使用来源计划”动作才重新生成 Source Batch。
+- `提供方式=厂供` 保留 Raw Snapshot 与来源 Trace，但不进入采购跟进、齐套率、物料风险、物流推荐或 Expected Arrival Batch；可从既有 Raw Snapshot 确定恢复时执行非破坏 backfill，证据不足时不猜测。
 
 ## Readiness, risk and sorting
 
@@ -73,8 +77,8 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 
 ## Storage, backup, permissions and audit
 
-- 万行级事实存入 IndexedDB `zhixu-style-progress`，分为批次、Raw、需求与四类事件 Store；React 只经 Service/Repository 访问。
-- schemaVersion 12 将该 IndexedDB 纳入现有 JSON Backup / Restore / Reset 的原子式回滚编排；旧备份缺失此区块时恢复为空集合，不影响其他数据。
+- 万行级事实存入 IndexedDB `zhixu-style-progress` version 3，分为导入批次、Raw、需求、四类事件与 Expected Arrival Batch Store；React 只经 Service/Repository 访问。
+- 全局 schemaVersion 13 将 Expected Arrival Batch 纳入现有 JSON Backup / Restore / Reset 的原子式回滚编排；旧备份缺失该集合时按空集合向前恢复，不影响其他数据。
 - 权限：`style_progress.read/edit/import/view_history`；新增权限只自动补给管理员。
 - 正式导入、人工修改和恢复 Effective 日期复用唯一追加式 OperationLog；ImportBatch / Raw Snapshot 继续保留技术 Trace，不替代业务操作日志。
 

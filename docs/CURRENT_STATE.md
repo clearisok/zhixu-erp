@@ -4,8 +4,10 @@
 
 ## 当前阶段
 
-- 当前分支：`fix/full-ui-workflow-correction`
-- 当前 PR：#3 `fix: complete full UI workflow correction`，保持未合并，等待用户最终视觉复验。
+- 当前分支：`feat/style-progress-material-control-v2`。
+- Material Control Tower V2 Gate 1 已完成并推送，checkpoint 为 `2890041bcacae526cc80a518490b6043ddcc1383`；Gate 2 已完成 Parser、Repository、厂供回填/排除、重导入、Backup / Restore 与 OperationLog，最终门禁为 TypeScript、ESLint、Full Tests 468/468、Production Build 29 routes 与 `git diff --check` 全部 PASS。
+- 任务分支不自动合并 `main`；Gate 2 独立 checkpoint push 成功后才进入 Gate 3。
+- 既有 PR #3 `fix: complete full UI workflow correction` 保持未合并。
 - 2026-09-04 Second Acceptance Correction 已完成 Gate D、Gate E、Gate F；第一检查点 commit `3b8f69b27fdd54bc2de900859179f252f5f1aa8a`。
 - 2026-09-01 Full UI / Workflow Correction 已完成 Gate A、Gate B、Gate C，没有重新实施。
 - Gate A：Foundation + Quote + 必要 Master Data Correction，commit `367983925f8e9236a701a71781054f6baaf65e78`，PASS。
@@ -17,7 +19,7 @@
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
 - Quote Center、新订单中心、生产排单、款式进度、关账中心和相关设置仍使用浏览器 Repository；尚不是服务端多用户生产实现。
 - DEV 固定使用 `127.0.0.1:3001`，PROD Docker 固定使用 `127.0.0.1:3000`，两者依靠 Origin 隔离数据。
-- 当前浏览器 local data `schemaVersion = 12`；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
+- 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 3；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
 

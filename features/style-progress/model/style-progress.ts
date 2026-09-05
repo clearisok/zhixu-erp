@@ -190,6 +190,17 @@ export const emptyStyleProgressData = (): StyleProgressData => ({
   expectedArrivalBatches: [],
 });
 
+export function countStyleProgressRecords(data: StyleProgressData): number {
+  return data.batches.length
+    + data.rawSnapshots.length
+    + data.demands.length
+    + data.purchaseEvents.length
+    + data.inboundEvents.length
+    + data.shipmentEvents.length
+    + data.outboundEvents.length
+    + data.expectedArrivalBatches.length;
+}
+
 const normalizedText = (value: RawCellValue | undefined): string => String(value ?? "").normalize("NFKC").trim();
 const rawByHeader = (snapshot: MaterialRawSnapshot, names: string[]): RawCellValue | undefined => Object.entries(snapshot.rawFields).find(([key]) => names.some((name) => key.endsWith(`:${name}`)))?.[1];
 const sourceNumber = (value: RawCellValue | undefined): number | null => {
@@ -205,7 +216,7 @@ const normalizedNumericIdentity = (value: unknown): string => {
   const parsed = Number(text);
   return Number.isFinite(parsed) ? String(parsed) : text;
 };
-const stableIdentityHash = (parts: unknown[]): string => {
+export const stableStyleProgressHash = (parts: unknown[]): string => {
   let hash = 2166136261;
   for (const character of parts.map(normalizedIdentityText).join("\u001f")) {
     hash ^= character.charCodeAt(0);
@@ -227,7 +238,7 @@ export function resolveCanonicalMaterialIdentity(
   const normalizedGsm = normalizedNumericIdentity(demand.gsm);
   if (demand.materialType === "trim") {
     return {
-      key: `material-trim-${stableIdentityHash([demand.salesContractNo, "trim", normalizedName])}`,
+      key: `material-trim-${stableStyleProgressHash([demand.salesContractNo, "trim", normalizedName])}`,
       normalizedName,
       normalizedWidth,
       normalizedGsm,
@@ -245,8 +256,8 @@ export function resolveCanonicalMaterialIdentity(
   const identityParts = [demand.salesContractNo, "fabric", normalizedName, normalizedWidth, normalizedGsm];
   return {
     key: status === "resolved"
-      ? `material-fabric-${stableIdentityHash([...identityParts, normalizedPurchasePrice])}`
-      : `material-fabric-unresolved-${stableIdentityHash([...identityParts, status, demand.id])}`,
+      ? `material-fabric-${stableStyleProgressHash([...identityParts, normalizedPurchasePrice])}`
+      : `material-fabric-unresolved-${stableStyleProgressHash([...identityParts, status, demand.id])}`,
     normalizedName,
     normalizedWidth,
     normalizedGsm,
@@ -293,13 +304,17 @@ export function migrateStyleProgressDataV3(value: StyleProgressData): StyleProgr
   const repaired = migrateStyleProgressDataV2(value);
   if (repaired.dataVersion >= 3) return structuredClone(repaired);
   const grouped = new Map<string, MaterialExpectedArrivalBatch>();
+  const purchaseEventsByDemand = new Map<string, MaterialPurchaseEvent[]>();
+  for (const event of repaired.purchaseEvents) {
+    purchaseEventsByDemand.set(event.materialDemandId, [...(purchaseEventsByDemand.get(event.materialDemandId) ?? []), event]);
+  }
   for (const demand of repaired.demands) {
     if (isFactorySupplied(demand) || !demand.expectedMaterialReadyDate || demand.requiredQuantity <= 0) continue;
-    const identity = resolveCanonicalMaterialIdentity(demand, repaired.purchaseEvents);
+    const identity = resolveCanonicalMaterialIdentity(demand, purchaseEventsByDemand.get(demand.id) ?? []);
     const groupKey = [demand.salesContractNo, identity.key, demand.expectedMaterialReadyDate, demand.expectedDateSource].join("\u001f");
     const timestamp = demand.updatedAt || demand.createdAt || "1970-01-01T00:00:00.000Z";
     const batch = grouped.get(groupKey) ?? {
-      id: `material-arrival-${stableIdentityHash(["legacy-v3", groupKey])}`,
+      id: `material-arrival-${stableStyleProgressHash(["legacy-v3", groupKey])}`,
       salesContractNo: demand.salesContractNo,
       canonicalMaterialKey: identity.key,
       expectedArrivalAtHubDate: demand.expectedMaterialReadyDate,
@@ -311,13 +326,25 @@ export function migrateStyleProgressDataV3(value: StyleProgressData): StyleProgr
       updatedBy: "legacy-migration",
     };
     batch.allocations.push({
-      id: `material-allocation-${stableIdentityHash([batch.id, demand.id])}`,
+      id: `material-allocation-${stableStyleProgressHash([batch.id, demand.id])}`,
       materialDemandId: demand.id,
       quantity: demand.requiredQuantity,
     });
     grouped.set(groupKey, batch);
   }
   return { ...structuredClone(repaired), dataVersion: 3, expectedArrivalBatches: [...grouped.values()] };
+}
+
+export function removeFactorySuppliedExpectedArrivals(value: StyleProgressData): StyleProgressData {
+  const factoryDemandIds = new Set(value.demands.filter(isFactorySupplied).map((demand) => demand.id));
+  if (!factoryDemandIds.size) return structuredClone(value);
+  return {
+    ...structuredClone(value),
+    expectedArrivalBatches: value.expectedArrivalBatches.flatMap((batch) => {
+      const allocations = batch.allocations.filter((allocation) => !factoryDemandIds.has(allocation.materialDemandId));
+      return allocations.length ? [{ ...structuredClone(batch), allocations }] : [];
+    }),
+  };
 }
 
 export function validateStyleProgressData(value: unknown): StyleProgressData {

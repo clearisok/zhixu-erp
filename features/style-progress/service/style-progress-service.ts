@@ -3,7 +3,7 @@ import { getEffectiveQuantity } from "../../order-center/model/order.ts";
 import type { OperationsSettingsState } from "../../operations-settings/model/operations-settings.ts";
 import type { ProductionSchedulingState, ScheduleAssignment } from "../../production-scheduling/model/production-scheduling.ts";
 import { recommendMaterialTransport, type MaterialLogisticsRecommendation } from "../../production-scheduling/service/material-logistics-service.ts";
-import type { MaterialDemand, MaterialInboundEvent, MaterialLifecycleStatus, MaterialReadinessStatus, StyleProgressData } from "../model/style-progress.ts";
+import { isFactorySupplied, type MaterialDemand, type MaterialInboundEvent, type MaterialLifecycleStatus, type MaterialReadinessStatus, type StyleProgressData } from "../model/style-progress.ts";
 
 export type MaterialProgressProjection = {
   demand: MaterialDemand;
@@ -44,6 +44,7 @@ export type StyleProgressProjection = {
   expectedLatestMaterialDate: string | null;
   logisticsBasis: MaterialLogisticsRecommendation["basis"];
   materials: MaterialProgressProjection[];
+  factorySuppliedDemands: MaterialDemand[];
   keyExceptions: string[];
 };
 
@@ -87,7 +88,9 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
     const order = ordersByContract.get(salesContractNo) ?? null;
     const assignment = order ? earliestAssignment(activeAssignments(input.scheduling, order.id)) : null;
     const tracking = order ? trackings.get(order.id) ?? null : null;
-    const materials = demands.map((demand): MaterialProgressProjection => {
+    const factorySuppliedDemands = demands.filter(isFactorySupplied);
+    const operationalDemands = demands.filter((demand) => !isFactorySupplied(demand));
+    const materials = operationalDemands.map((demand): MaterialProgressProjection => {
       const purchasedQuantity = sum((purchaseByDemand.get(demand.id) ?? []).map((event) => event.quantity));
       const inboundEvents = inboundByDemand.get(demand.id) ?? [];
       const inboundQuantity = sum(inboundEvents.map((event) => event.quantity));
@@ -111,7 +114,7 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
     for (const item of materials.filter((material) => material.readinessStatus === "not_purchased").slice(0, 2)) exceptions.push(`${item.demand.materialName || item.demand.materialCode}尚未采购`);
     for (const item of materials.filter((material) => material.readinessStatus === "pending_inbound").slice(0, Math.max(0, 3 - exceptions.length))) exceptions.push(`${item.demand.materialName || item.demand.materialCode}待入库`);
     for (const item of riskyTransport.slice(0, Math.max(0, 5 - exceptions.length))) exceptions.push(`${item.demand.materialName || item.demand.materialCode}：${item.logistics.message}`);
-    projections.push({ salesContractNo, order, styleNo: order?.styleNo || source.sourceStyleNoSnapshot, factoryStyleNo: order?.factoryStyleNo || source.sourceFactoryStyleNoSnapshot, brand: order?.brandNameSnapshot || source.sourceBrandSnapshot, owner: source.sourceOwnerSnapshot, customer: order?.customerNameSnapshot || source.sourceCustomerSnapshot, garmentQuantity: order ? getEffectiveQuantity(order) : source.sourceOrderQuantitySnapshot, contractDeliveryDate: delivery, daysRemaining: remaining, salesRisk, materialRisk, transportRisk, fabricReady: fabric.filter((item) => item.readinessStatus === "ready").length, fabricTotal: fabric.length, trimReady: trim.filter((item) => item.readinessStatus === "ready").length, trimTotal: trim.length, totalReady: ready.length, totalMaterials: materials.length, readinessRate: materials.length ? ready.length / materials.length * 100 : 0, notPurchasedCount, pendingInboundCount, transportRiskCount: riskyTransport.length, expectedLatestMaterialDate, logisticsBasis: materials[0]?.logistics.basis ?? { scheduleAssignmentId: null, supplyHub: null, productionSite: null, matchedRoute: null, candidateTransportModes: [] }, materials, keyExceptions: exceptions.slice(0, 5) });
+    projections.push({ salesContractNo, order, styleNo: order?.styleNo || source.sourceStyleNoSnapshot, factoryStyleNo: order?.factoryStyleNo || source.sourceFactoryStyleNoSnapshot, brand: order?.brandNameSnapshot || source.sourceBrandSnapshot, owner: source.sourceOwnerSnapshot, customer: order?.customerNameSnapshot || source.sourceCustomerSnapshot, garmentQuantity: order ? getEffectiveQuantity(order) : source.sourceOrderQuantitySnapshot, contractDeliveryDate: delivery, daysRemaining: remaining, salesRisk, materialRisk, transportRisk, fabricReady: fabric.filter((item) => item.readinessStatus === "ready").length, fabricTotal: fabric.length, trimReady: trim.filter((item) => item.readinessStatus === "ready").length, trimTotal: trim.length, totalReady: ready.length, totalMaterials: materials.length, readinessRate: materials.length ? ready.length / materials.length * 100 : 0, notPurchasedCount, pendingInboundCount, transportRiskCount: riskyTransport.length, expectedLatestMaterialDate, logisticsBasis: materials[0]?.logistics.basis ?? { scheduleAssignmentId: null, supplyHub: null, productionSite: null, matchedRoute: null, candidateTransportModes: [] }, materials, factorySuppliedDemands, keyExceptions: exceptions.slice(0, 5) });
   }
   return projections.sort((left, right) => {
     const risk = (value: StyleProgressProjection) => value.salesRisk === "overdue" ? 0 : value.transportRisk === "late" ? 1 : value.notPurchasedCount ? 2 : value.pendingInboundCount ? 3 : 4;

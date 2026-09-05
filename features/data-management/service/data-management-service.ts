@@ -15,7 +15,7 @@ import { validateClosingState } from "../../closing-center/model/closing";
 import { ainuokeRepository, AINUOKE_STORAGE_NAME } from "../../ainuoke-sync/repository/ainuoke-repository";
 import { validateAinuokeSyncState } from "../../ainuoke-sync/model/ainuoke";
 import { clearStyleProgressData, exportStyleProgressData, replaceStyleProgressData } from "../../style-progress/repository/style-progress-repository";
-import { emptyStyleProgressData, validateStyleProgressData } from "../../style-progress/model/style-progress";
+import { countStyleProgressRecords, emptyStyleProgressData, validateStyleProgressData } from "../../style-progress/model/style-progress";
 import {
   exportStoredAttachments,
   replaceStoredAttachments,
@@ -180,7 +180,7 @@ export function backupSummary(backup: LocalDataBackup): BackupSummary {
     localRecordCount: Object.keys(backup.localRecords).length,
     attachmentCount: backup.attachments.length,
     templateCount: backup.templates.length,
-    styleProgressRecordCount: backup.styleProgress.batches.length + backup.styleProgress.rawSnapshots.length + backup.styleProgress.demands.length + backup.styleProgress.purchaseEvents.length + backup.styleProgress.inboundEvents.length + backup.styleProgress.shipmentEvents.length + backup.styleProgress.outboundEvents.length,
+    styleProgressRecordCount: countStyleProgressRecords(backup.styleProgress),
   };
 }
 

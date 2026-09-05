@@ -160,7 +160,8 @@ test("款式进度仅按销售合同号投影订单，不按相同款号模糊�
 });
 
 test("款式进度沿正式订单与最早排单投影生产地点，缺仓不丢排单关联", async () => {
-  const preview = await parseMaterialFollowUpWorkbook({ buffer: await workbookBuffer([base()]), fileName: "logistics-projection.xlsx", actorName: "测试" });
+  const material = base(); material[22] = "自购";
+  const preview = await parseMaterialFollowUpWorkbook({ buffer: await workbookBuffer([material]), fileName: "logistics-projection.xlsx", actorName: "测试" });
   const now = "2026-09-01T00:00:00.000Z";
   const settings = upsertProductionGroup(normalizeOperationsSettings({}), { id: "group-a", name: "一组", shortName: "", productionSiteId: "production-site-cambodia-default", enabled: true, sortOrder: 1, remark: "", createdAt: now, updatedAt: now }, now);
   const order = { id: "order-formal", salesContractNo: "PI-1", styleNo: "D1", factoryStyleNo: "FD1", brandNameSnapshot: "B", customerNameSnapshot: "客户", initialQuantity: 100, quantityChanges: [], contractDeliveryDate: "2026-10-01" };
@@ -171,7 +172,7 @@ test("款式进度沿正式订单与最早排单投影生产地点，缺仓不�
   assert.equal(configured.logisticsBasis.matchedRoute.id, "supply-route-ningbo-cambodia-default"); assert.deepEqual(configured.logisticsBasis.candidateTransportModes.map((item) => item.name), ["海运", "陆运", "定时达"]);
 });
 
-test("v11 Restore 同时恢复 Raw、Demand、Events、人工 Override、ImportBatch 且保留旧业务存储", async () => {
+test("旧版 Restore 同时恢复 Raw、Demand、Events、Expected Arrival、人工 Override 与 ImportBatch", async () => {
   const styleProgress = emptyStyleProgressData();
   styleProgress.batches.push({ id: "batch-1", status: "committed" });
   styleProgress.rawSnapshots.push({ id: "raw-1", normalizedDemandId: "demand-1" });
@@ -180,6 +181,7 @@ test("v11 Restore 同时恢复 Raw、Demand、Events、人工 Override、ImportB
   styleProgress.inboundEvents.push({ id: "inbound-1", materialDemandId: "demand-1" });
   styleProgress.shipmentEvents.push({ id: "shipment-1", materialDemandId: "demand-1" });
   styleProgress.outboundEvents.push({ id: "outbound-1", materialDemandId: "demand-1" });
+  styleProgress.expectedArrivalBatches.push({ id: "arrival-1", salesContractNo: "PI-1", canonicalMaterialKey: "material-1", expectedArrivalAtHubDate: "2026-09-13", dateSource: "manual", allocations: [{ id: "allocation-1", materialDemandId: "demand-1", quantity: 1 }] });
   const formalRecords = { "zhixu.erp.local.sales-orders": "orders-v10", "zhixu.erp.local.ainuoke-sync": "ainuoke-v10", "zhixu.erp.local.production-scheduling": "schedule-v10", "zhixu.erp.local.closing-center": "closing-v10" };
   let restoredStyleProgress = emptyStyleProgressData(); let restoredLocalRecords = { old: "state" }; let attachments = []; let templates = [];
   await restoreLocalDataStores({ attachments: [], templates: [], styleProgress, localRecords: formalRecords }, {
@@ -195,5 +197,6 @@ test("v11 Restore 同时恢复 Raw、Demand、Events、人工 Override、ImportB
   assert.deepEqual(restoredLocalRecords, formalRecords);
   assert.equal(restoredStyleProgress.batches[0].id, "batch-1"); assert.equal(restoredStyleProgress.rawSnapshots[0].id, "raw-1");
   assert.equal(restoredStyleProgress.demands[0].expectedDateSource, "manual"); assert.equal(restoredStyleProgress.demands[0].expectedMaterialReadyDate, "2026-09-13");
+  assert.equal(restoredStyleProgress.expectedArrivalBatches[0].id, "arrival-1");
   assert.deepEqual([restoredStyleProgress.purchaseEvents.length, restoredStyleProgress.inboundEvents.length, restoredStyleProgress.shipmentEvents.length, restoredStyleProgress.outboundEvents.length], [1, 1, 1, 1]);
 });
