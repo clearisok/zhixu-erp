@@ -1,9 +1,9 @@
 "use client";
 
-import { emptyStyleProgressData, migrateStyleProgressDataV2, validateStyleProgressData, type MaterialDemand, type MaterialImportCommitReport, type MaterialImportPreview, type StyleProgressData } from "../model/style-progress.ts";
+import { emptyStyleProgressData, migrateStyleProgressDataV3, validateStyleProgressData, type MaterialDemand, type MaterialImportCommitReport, type MaterialImportPreview, type StyleProgressData } from "../model/style-progress.ts";
 
 const DATABASE_NAME = "zhixu-style-progress";
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 const STORES = {
   batches: "batches",
   rawSnapshots: "raw-snapshots",
@@ -12,7 +12,10 @@ const STORES = {
   inboundEvents: "inbound-events",
   shipmentEvents: "shipment-events",
   outboundEvents: "outbound-events",
+  expectedArrivalBatches: "expected-arrival-batches",
 } as const;
+const METADATA_STORE = "metadata";
+const METADATA_ID = "style-progress-metadata";
 
 type StoreKey = keyof typeof STORES;
 
@@ -60,8 +63,9 @@ function openDatabase(): Promise<IDBDatabase> {
         if (database.objectStoreNames.contains(name)) continue;
         const store = database.createObjectStore(name, { keyPath: "id" });
         if (key === "demands") store.createIndex("salesContractNo", "salesContractNo", { unique: false });
-        if (key !== "batches" && key !== "rawSnapshots" && key !== "demands") store.createIndex("materialDemandId", "materialDemandId", { unique: false });
+        if (key !== "batches" && key !== "rawSnapshots" && key !== "demands" && key !== "expectedArrivalBatches") store.createIndex("materialDemandId", "materialDemandId", { unique: false });
       }
+      if (!database.objectStoreNames.contains(METADATA_STORE)) database.createObjectStore(METADATA_STORE, { keyPath: "id" });
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error("无法打开款式进度数据库"));
@@ -86,18 +90,27 @@ export interface StyleProgressRepository {
 
 export const styleProgressRepository: StyleProgressRepository = {
   async loadAll() {
-    const [batches, rawSnapshots, demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents] = await Promise.all([
+    const [batches, rawSnapshots, demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents, expectedArrivalBatches] = await Promise.all([
       readStore<StyleProgressData["batches"][number]>("batches"), readStore<StyleProgressData["rawSnapshots"][number]>("rawSnapshots"), readStore<MaterialDemand>("demands"),
       readStore<StyleProgressData["purchaseEvents"][number]>("purchaseEvents"), readStore<StyleProgressData["inboundEvents"][number]>("inboundEvents"), readStore<StyleProgressData["shipmentEvents"][number]>("shipmentEvents"), readStore<StyleProgressData["outboundEvents"][number]>("outboundEvents"),
+      readStore<StyleProgressData["expectedArrivalBatches"][number]>("expectedArrivalBatches"),
     ]);
-    const current = validateStyleProgressData({ batches, rawSnapshots, demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents });
-    const migrated = migrateStyleProgressDataV2(current);
+    const database = await openDatabase();
+    const metadataTransaction = database.transaction(METADATA_STORE, "readonly");
+    const metadata = await requestResult(metadataTransaction.objectStore(METADATA_STORE).get(METADATA_ID) as IDBRequest<{ id: string; dataVersion: number } | undefined>);
+    const current = validateStyleProgressData({ dataVersion: metadata?.dataVersion ?? 2, batches, rawSnapshots, demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents, expectedArrivalBatches });
+    const migrated = migrateStyleProgressDataV3(current);
     const changed = migrated.demands.filter((demand, index) => demand.actualConsumption !== current.demands[index]?.actualConsumption || demand.supplyMethod !== current.demands[index]?.supplyMethod);
-    if (changed.length) {
-      const database = await openDatabase();
-      const transaction = database.transaction(STORES.demands, "readwrite");
+    const needsV3Write = (metadata?.dataVersion ?? 2) < 3;
+    if (changed.length || needsV3Write) {
+      const transaction = database.transaction([STORES.demands, STORES.expectedArrivalBatches, METADATA_STORE], "readwrite");
       const store = transaction.objectStore(STORES.demands);
       for (const demand of changed) store.put(demand);
+      if (needsV3Write) {
+        const batchStore = transaction.objectStore(STORES.expectedArrivalBatches);
+        for (const batch of migrated.expectedArrivalBatches) batchStore.put(batch);
+        transaction.objectStore(METADATA_STORE).put({ id: METADATA_ID, dataVersion: 3 });
+      }
       await transactionComplete(transaction);
     }
     return migrated;
@@ -115,7 +128,7 @@ export const styleProgressRepository: StyleProgressRepository = {
   },
   async commitImport(preview) {
     const database = await openDatabase();
-    const storeNames = Object.values(STORES);
+    const storeNames = Object.values(STORES).filter((name) => name !== STORES.expectedArrivalBatches);
     const transaction = database.transaction(storeNames, "readwrite");
     const batchStore = transaction.objectStore(STORES.batches);
     const existingBatch = await requestResult(batchStore.get(preview.batch.id) as IDBRequest<StyleProgressData["batches"][number] | undefined>);
@@ -125,7 +138,8 @@ export const styleProgressRepository: StyleProgressRepository = {
     }
     const existingDemands = await requestResult(transaction.objectStore(STORES.demands).getAll() as IDBRequest<MaterialDemand[]>);
     const demandMap = new Map(existingDemands.map((item) => [item.id, item]));
-    const existingKeys = Object.fromEntries(await Promise.all((Object.keys(STORES) as StoreKey[]).filter((key) => key !== "demands" && key !== "batches").map(async (key) => [key, new Set((await requestResult(transaction.objectStore(STORES[key]).getAllKeys())).map(String))]))) as Partial<Record<StoreKey, Set<string>>>;
+    const eventKeys = ["rawSnapshots", "purchaseEvents", "inboundEvents", "shipmentEvents", "outboundEvents"] as const;
+    const existingKeys = Object.fromEntries(await Promise.all(eventKeys.map(async (key) => [key, new Set((await requestResult(transaction.objectStore(STORES[key]).getAllKeys())).map(String))]))) as Partial<Record<StoreKey, Set<string>>>;
     let updatedDemands = 0;
     for (const incoming of preview.demands) {
       const existing = demandMap.get(incoming.id);
@@ -177,14 +191,16 @@ export async function exportStyleProgressData(): Promise<StyleProgressData> {
 }
 
 export async function replaceStyleProgressData(value: StyleProgressData): Promise<void> {
-  const data = migrateStyleProgressDataV2(validateStyleProgressData(value));
+  const data = migrateStyleProgressDataV3(validateStyleProgressData(value));
   const database = await openDatabase();
-  const transaction = database.transaction(Object.values(STORES), "readwrite");
+  const transaction = database.transaction([...Object.values(STORES), METADATA_STORE], "readwrite");
   for (const key of Object.keys(STORES) as StoreKey[]) {
     const store = transaction.objectStore(STORES[key]);
     store.clear();
     for (const row of data[key]) store.put(row);
   }
+  transaction.objectStore(METADATA_STORE).clear();
+  transaction.objectStore(METADATA_STORE).put({ id: METADATA_ID, dataVersion: data.dataVersion });
   await transactionComplete(transaction);
 }
 

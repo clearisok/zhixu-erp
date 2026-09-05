@@ -122,7 +122,37 @@ export type MaterialInboundEvent = {
 export type MaterialShipmentEvent = MaterialInboundEvent & { transportModeSnapshot: string };
 export type MaterialOutboundEvent = MaterialInboundEvent;
 
+export type MaterialExpectedArrivalAllocation = {
+  id: string;
+  materialDemandId: string;
+  quantity: number;
+};
+
+export type MaterialExpectedArrivalBatch = {
+  id: string;
+  salesContractNo: string;
+  canonicalMaterialKey: string;
+  expectedArrivalAtHubDate: string;
+  dateSource: ExpectedDateSource;
+  allocations: MaterialExpectedArrivalAllocation[];
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
+};
+
+export type CanonicalMaterialIdentity = {
+  key: string;
+  normalizedName: string;
+  normalizedWidth: string;
+  normalizedGsm: string;
+  normalizedPurchasePrice: string | null;
+  status: "resolved" | "price_missing" | "price_conflict";
+  purchasePrices: number[];
+};
+
 export type StyleProgressData = {
+  dataVersion: number;
   batches: MaterialImportBatch[];
   rawSnapshots: MaterialRawSnapshot[];
   demands: MaterialDemand[];
@@ -130,6 +160,7 @@ export type StyleProgressData = {
   inboundEvents: MaterialInboundEvent[];
   shipmentEvents: MaterialShipmentEvent[];
   outboundEvents: MaterialOutboundEvent[];
+  expectedArrivalBatches: MaterialExpectedArrivalBatch[];
 };
 
 export type MaterialImportPreview = StyleProgressData & {
@@ -148,6 +179,7 @@ export type MaterialImportCommitReport = {
 };
 
 export const emptyStyleProgressData = (): StyleProgressData => ({
+  dataVersion: 3,
   batches: [],
   rawSnapshots: [],
   demands: [],
@@ -155,6 +187,7 @@ export const emptyStyleProgressData = (): StyleProgressData => ({
   inboundEvents: [],
   shipmentEvents: [],
   outboundEvents: [],
+  expectedArrivalBatches: [],
 });
 
 const normalizedText = (value: RawCellValue | undefined): string => String(value ?? "").normalize("NFKC").trim();
@@ -164,6 +197,64 @@ const sourceNumber = (value: RawCellValue | undefined): number | null => {
   const parsed = typeof value === "number" ? value : Number(String(value).replaceAll(",", ""));
   return Number.isFinite(parsed) ? parsed : null;
 };
+
+const normalizedIdentityText = (value: unknown): string => String(value ?? "").normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleUpperCase();
+const normalizedNumericIdentity = (value: unknown): string => {
+  const text = normalizedIdentityText(value).replaceAll(",", "");
+  if (!text) return "";
+  const parsed = Number(text);
+  return Number.isFinite(parsed) ? String(parsed) : text;
+};
+const stableIdentityHash = (parts: unknown[]): string => {
+  let hash = 2166136261;
+  for (const character of parts.map(normalizedIdentityText).join("\u001f")) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+};
+
+export function isFactorySupplied(demand: Pick<MaterialDemand, "supplyMethod">): boolean {
+  return normalizedIdentityText(demand.supplyMethod) === "厂供";
+}
+
+export function resolveCanonicalMaterialIdentity(
+  demand: MaterialDemand,
+  purchaseEvents: MaterialPurchaseEvent[],
+): CanonicalMaterialIdentity {
+  const normalizedName = normalizedIdentityText(demand.sourceActualName || demand.materialName);
+  const normalizedWidth = normalizedNumericIdentity(demand.width);
+  const normalizedGsm = normalizedNumericIdentity(demand.gsm);
+  if (demand.materialType === "trim") {
+    return {
+      key: `material-trim-${stableIdentityHash([demand.salesContractNo, "trim", normalizedName])}`,
+      normalizedName,
+      normalizedWidth,
+      normalizedGsm,
+      normalizedPurchasePrice: null,
+      status: "resolved",
+      purchasePrices: [],
+    };
+  }
+  const purchasePrices = [...new Set(purchaseEvents
+    .filter((event) => event.materialDemandId === demand.id && event.unitPrice !== null && Number.isFinite(event.unitPrice))
+    .map((event) => Number(event.unitPrice)))]
+    .sort((left, right) => left - right);
+  const status = purchasePrices.length === 1 ? "resolved" : purchasePrices.length === 0 ? "price_missing" : "price_conflict";
+  const normalizedPurchasePrice = status === "resolved" ? String(purchasePrices[0]) : null;
+  const identityParts = [demand.salesContractNo, "fabric", normalizedName, normalizedWidth, normalizedGsm];
+  return {
+    key: status === "resolved"
+      ? `material-fabric-${stableIdentityHash([...identityParts, normalizedPurchasePrice])}`
+      : `material-fabric-unresolved-${stableIdentityHash([...identityParts, status, demand.id])}`,
+    normalizedName,
+    normalizedWidth,
+    normalizedGsm,
+    normalizedPurchasePrice,
+    status,
+    purchasePrices,
+  };
+}
 
 /** v2 repairs the former “提供方式=厂供 means actual=planned” interpretation from Raw snapshots. */
 export function migrateStyleProgressDataV2(value: StyleProgressData): StyleProgressData {
@@ -197,19 +288,68 @@ export function migrateStyleProgressDataV2(value: StyleProgressData): StyleProgr
   };
 }
 
+/** v3 converts the former one-date-per-demand Effective value into deterministic arrival batches. */
+export function migrateStyleProgressDataV3(value: StyleProgressData): StyleProgressData {
+  const repaired = migrateStyleProgressDataV2(value);
+  if (repaired.dataVersion >= 3) return structuredClone(repaired);
+  const grouped = new Map<string, MaterialExpectedArrivalBatch>();
+  for (const demand of repaired.demands) {
+    if (isFactorySupplied(demand) || !demand.expectedMaterialReadyDate || demand.requiredQuantity <= 0) continue;
+    const identity = resolveCanonicalMaterialIdentity(demand, repaired.purchaseEvents);
+    const groupKey = [demand.salesContractNo, identity.key, demand.expectedMaterialReadyDate, demand.expectedDateSource].join("\u001f");
+    const timestamp = demand.updatedAt || demand.createdAt || "1970-01-01T00:00:00.000Z";
+    const batch = grouped.get(groupKey) ?? {
+      id: `material-arrival-${stableIdentityHash(["legacy-v3", groupKey])}`,
+      salesContractNo: demand.salesContractNo,
+      canonicalMaterialKey: identity.key,
+      expectedArrivalAtHubDate: demand.expectedMaterialReadyDate,
+      dateSource: demand.expectedDateSource,
+      allocations: [],
+      createdAt: timestamp,
+      createdBy: "legacy-migration",
+      updatedAt: timestamp,
+      updatedBy: "legacy-migration",
+    };
+    batch.allocations.push({
+      id: `material-allocation-${stableIdentityHash([batch.id, demand.id])}`,
+      materialDemandId: demand.id,
+      quantity: demand.requiredQuantity,
+    });
+    grouped.set(groupKey, batch);
+  }
+  return { ...structuredClone(repaired), dataVersion: 3, expectedArrivalBatches: [...grouped.values()] };
+}
+
 export function validateStyleProgressData(value: unknown): StyleProgressData {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("款式进度数据格式无效");
   const source = value as Partial<StyleProgressData>;
   const names = ["batches", "rawSnapshots", "demands", "purchaseEvents", "inboundEvents", "shipmentEvents", "outboundEvents"] as const;
   for (const name of names) if (!Array.isArray(source[name])) throw new Error(`款式进度 ${name} 集合结构无效`);
-  const data = structuredClone(source) as StyleProgressData;
-  for (const name of names) {
+  if (source.expectedArrivalBatches !== undefined && !Array.isArray(source.expectedArrivalBatches)) throw new Error("款式进度 expectedArrivalBatches 集合结构无效");
+  const data = structuredClone({ ...source, dataVersion: source.dataVersion ?? 2, expectedArrivalBatches: source.expectedArrivalBatches ?? [] }) as StyleProgressData;
+  for (const name of [...names, "expectedArrivalBatches"] as const) {
     const ids = data[name].map((item) => item.id);
     if (new Set(ids).size !== ids.length) throw new Error(`款式进度 ${name} 存在重复 ID`);
   }
   const demandIds = new Set(data.demands.map((item) => item.id));
   for (const name of ["purchaseEvents", "inboundEvents", "shipmentEvents", "outboundEvents"] as const) {
     if (data[name].some((event) => !demandIds.has(event.materialDemandId))) throw new Error(`款式进度 ${name} 引用了不存在的需求`);
+  }
+  const allocated = new Map<string, number>();
+  for (const batch of data.expectedArrivalBatches) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(batch.expectedArrivalAtHubDate)) throw new Error("预计到料批次日期无效");
+    const allocationIds = batch.allocations.map((item) => item.id);
+    if (new Set(allocationIds).size !== allocationIds.length) throw new Error("预计到料批次存在重复 Allocation ID");
+    for (const allocation of batch.allocations) {
+      const demand = data.demands.find((item) => item.id === allocation.materialDemandId);
+      if (!demand || demand.salesContractNo !== batch.salesContractNo) throw new Error("预计到料批次引用了不存在或跨合同的需求");
+      if (!Number.isFinite(allocation.quantity) || allocation.quantity <= 0) throw new Error("预计到料批次数量必须大于 0");
+      allocated.set(demand.id, (allocated.get(demand.id) ?? 0) + allocation.quantity);
+    }
+  }
+  for (const [demandId, quantity] of allocated) {
+    const required = data.demands.find((item) => item.id === demandId)?.requiredQuantity ?? 0;
+    if (quantity > required + 1e-9) throw new Error(`预计到料批次超出需求数量：${demandId}`);
   }
   return data;
 }

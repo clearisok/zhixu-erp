@@ -1,6 +1,6 @@
 "use client";
 
-export const LOCAL_DATA_SCHEMA_VERSION = 12 as const;
+export const LOCAL_DATA_SCHEMA_VERSION = 13 as const;
 export const DEFAULT_LOCAL_DATA_NAMESPACE = "zhixu.erp.local";
 export const TEST_LOCAL_DATA_NAMESPACE = "zhixu.erp.test";
 
@@ -213,7 +213,7 @@ export function createLocalDataStore(options: {
           // payloads are re-enveloped byte-for-byte so unknown user fields are not
           // discarded by a module normalizer during infrastructure migrations. v5 -> v6
           // is the first payload migration and therefore persists the module migrator result.
-          const valueToPersist = parsed.schemaVersion === 3 || parsed.schemaVersion === 4 || parsed.schemaVersion === 6 || parsed.schemaVersion === 7 || parsed.schemaVersion === 10 ? parsed.data as T : migrated;
+          const valueToPersist = parsed.schemaVersion === 3 || parsed.schemaVersion === 4 || parsed.schemaVersion === 6 || parsed.schemaVersion === 7 || parsed.schemaVersion === 10 || parsed.schemaVersion === 12 ? parsed.data as T : migrated;
           save(name, valueToPersist);
         }
         return clone(migrated);

@@ -43,7 +43,7 @@ test("schema v7 到 v8 只重封装旧记录并初始化空关账记录", async 
   const store = createLocalDataStore({ storage, namespace: TEST_LOCAL_DATA_NAMESPACE, environment: "test", now: () => now });
   const state = await createClosingRepository(store).load();
   assert.deepEqual(state, { periods: [], allocations: [] });
-  assert.equal(JSON.parse(values.get(`${TEST_LOCAL_DATA_NAMESPACE}.manifest`)).schemaVersion, 12);
+  assert.equal(JSON.parse(values.get(`${TEST_LOCAL_DATA_NAMESPACE}.manifest`)).schemaVersion, 13);
   assert.deepEqual(JSON.parse(values.get(`${TEST_LOCAL_DATA_NAMESPACE}.sales-orders`)).data, [{ id: "keep", unknown: "preserve" }]);
 });
 

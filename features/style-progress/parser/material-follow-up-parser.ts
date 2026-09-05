@@ -163,5 +163,5 @@ export async function parseMaterialFollowUpWorkbook(input: { buffer: ArrayBuffer
   }
 
   batch.demandCount = demands.size; batch.purchaseEventCount = purchaseEvents.size; batch.inboundEventCount = inboundEvents.size; batch.shipmentEventCount = shipmentEvents.size; batch.outboundEventCount = outboundEvents.size; batch.duplicateEventRows = duplicateEventRows;
-  return { batch, batches: [batch], rawSnapshots, demands: [...demands.values()], purchaseEvents: [...purchaseEvents.values()], inboundEvents: [...inboundEvents.values()], shipmentEvents: [...shipmentEvents.values()], outboundEvents: [...outboundEvents.values()] };
+  return { dataVersion: 3, batch, batches: [batch], rawSnapshots, demands: [...demands.values()], purchaseEvents: [...purchaseEvents.values()], inboundEvents: [...inboundEvents.values()], shipmentEvents: [...shipmentEvents.values()], outboundEvents: [...outboundEvents.values()], expectedArrivalBatches: [] };
 }
