@@ -784,3 +784,5 @@ Gate 5 使用真实《面辅料申购统计 (1).xlsx》在隔离的 Codex QA Bro
 Gate 5 真实数据截图： [D1935 1280](screenshots/style-progress-v4-d1935-1280.png)、[厂供信息](screenshots/style-progress-v4-d1935-factory-info-1280.png)、[多事件 Drawer](screenshots/style-progress-v4-d1935-detail-drawer-1280.png)、[Mobile 402](screenshots/style-progress-v4-d1935-mobile-402.png)。真实 D1935 在 1600/1280/1229/960/768/402 CSS viewport 下均无 document-level 横向溢出；这些仍是模拟 CSS viewport 证据，不冒充真实 Windows Display Scaling / Chrome Zoom 验收。
 
 Gate 5 最终门禁为 TypeScript PASS、ESLint PASS、Full Tests 480/480、Production Build 29 routes PASS、`git diff --check` PASS、Browser Console 0 error / 0 warning。全局 browser-local schema 从任务前 12 向前迁移到 13，Style Progress IndexedDB 从 2 向前迁移到 3；没有清库、换 namespace 或用 Seed 代替 migration。
+
+Gate 5 checkpoint 为 `b459df29c976e27664fbb80eeeb7d8c176e9e3f5`；PR #4 已创建，保持未合并并等待用户审阅。

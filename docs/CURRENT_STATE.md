@@ -5,9 +5,9 @@
 ## 当前阶段
 
 - 当前分支：`feat/style-progress-material-control-v2`。
-- Material Control Tower V2 Gate 1–4 已完成并推送：Domain / Batch `2890041b`、Parser / Repository `84e309c7`、Service / Projection / Logistics `992d7309`、V4 UI `6d80889f`。Gate 5 已完成真实 D1935 验收及最终质量门禁，当前只剩独立提交、推送与 PR 收口。
+- Material Control Tower V2 Gate 1–5 已完成并推送：Domain / Batch `2890041b`、Parser / Repository `84e309c7`、Service / Projection / Logistics `992d7309`、V4 UI `6d80889f`、真实 D1935 验收与最终收口 `b459df2`。PR #4 已创建并保持未合并。
 - 最新真实 `面辅料申购统计 (1).xlsx` 已通过正式 Parser 只读验证，并显式导入隔离的 Codex QA Browser Profile：17,384 Source Row / 17,383 有效；D1935 / PI2607-235 为 261 Source Row，厂供编码 `202608130002` 5 行、需求 3,809，并从 Operational Projection 全部排除。导入没有触碰用户 Chrome / PROD Profile，原始 Excel 未进入 Git。
-- 任务分支不自动合并 `main`；Gate 5 完成后只创建最终独立 commit、push 与 PR，不自动 merge。
+- 任务分支不自动合并 `main`；PR #4 等待用户审阅，不自动 merge。
 - 既有 PR #3 `fix: complete full UI workflow correction` 保持未合并。
 - 2026-09-04 Second Acceptance Correction 已完成 Gate D、Gate E、Gate F；第一检查点 commit `3b8f69b27fdd54bc2de900859179f252f5f1aa8a`。
 - 2026-09-01 Full UI / Workflow Correction 已完成 Gate A、Gate B、Gate C，没有重新实施。
