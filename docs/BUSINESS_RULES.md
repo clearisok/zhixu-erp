@@ -264,7 +264,7 @@
 - 款式进度只按 `salesContractNo` 投影正式 SalesOrder；禁止使用款号、工厂款号、品牌或数量做模糊绑定，禁止由 Style Progress 创建订单。
 - 销售合同与成衣分色分码是订单/颜色高权威来源；《面辅料申购统计》是可纠正的 Material Follow-up Source，不得反向覆盖订单品牌、款号、数量或合同交期。
 - MaterialDemand 与 Purchase / Inbound / Shipment / Outbound Event 分离并分别去重；禁止对笛卡尔展开的 raw required/purchase 直接求和。
-- 普通页面按 Canonical Material Group 展示真实物料，`materialCode` 只作为来源身份进入 Trace。同一销售合同内，面料按标准化名称 + 门幅 + 克重 + 正常化后的唯一采购单价归一；采购价缺失或冲突时保持独立，不猜测 first / last / 平均值。辅料按标准化名称归一，规格、颜色与来源编码保留在下层需求明细。
+- 普通页面按 Canonical Material Group 展示真实物料，`materialCode` 只作为来源身份进入 Trace。同一销售合同、同一 `materialType` 内，面料和辅料都只按标准化物料名称形成顶层 Canonical identity；编码、颜色、规格、门幅、克重、采购价、供应商和采购单号均保留为组内 Variant / Demand / Event 事实，不参与顶层分组。不同计量单位如有确定性来源必须分口径汇总；当前来源没有可靠单位字段时不得猜测、平均或制造统一口径。
 - `sourceMaterialDueDate` 是只读 Source；Effective 正式表示“预计到达已持久化 SupplyHub 的日期”，由 `MaterialExpectedArrivalBatch.expectedArrivalAtHubDate` 表达；累计入库数量与达到需求的入库日是 Actual。人工计划 Batch 不强制绑定 Purchase / Inbound / Shipment / Outbound Event，Actual 不能由人工 Effective 覆盖。
 - 一个 Canonical Material 可有多个 Expected Arrival Batch；Allocation 必须引用稳定 `materialDemandId`、数量大于 0，同一 Demand 可拆入多批，累计不得超过需求。部分安排合法并显示未安排数量，系统不得自动补齐。人工 Batch 在重导入时保留；只有“恢复使用来源计划”后才重新跟随 Source。
 - `提供方式=厂供` 保留 Raw Snapshot 与 Source Trace，但退出采购跟进、未采购、待入库、齐套分子/分母、风险、物流推荐与 Expected Arrival Batch。厂供不能因缺 PurchaseEvent 显示“未采购”。Excel 中名为“厂供”的数值列仍只映射 `actualConsumption`；它与“提供方式”是两个不同字段。

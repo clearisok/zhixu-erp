@@ -109,13 +109,14 @@ Quote Center 是面向成衣报价工作的新版前端模块，提供完整报�
 - `>=1440px` 保持完整桌面侧栏和列表 Table；小于 1440px 的细指针/可 hover 桌面窗口使用 compact sidebar，即使 viewport 缩到 650px 也保留完整业务能力。报价列表仍保持 Table，成本区则按各自 Card 容器宽度选择 renderer。
 - 报价明细成本区以 Card 实际内容宽度选择 renderer：`>=1040px` 使用单行 Wide，低于该值使用 Compact/Narrow；同时 `700–1099px` viewport 保证半屏使用完整两行 Compact，不因 Sidebar/padding 误入单列。Wide 面料、辅料和其他费用使用固定表格布局与业务权重百分比，吃满 Card 且正常桌面不产生横向滚动；Compact 分组、ViewModel、回调、计算、row ID、dirty 和焦点规则不变。
 - 全部 Compact/Tablet 的普通操作 Header 和已验收 Sticky Header 均为四列等宽 Grid；只有 `>=1440px` Large Desktop 自然横排。响应式只改变尺寸和排列，Sticky sentinel/observer/出现时机不变。
-- Compact Desktop 的报价详情保留完整业务能力；标题区第二行承载四列操作 Grid，快速导航以 Header dropdown 展示，成本指标压缩为单行 Summary Bar。操作记录和删除报价通过“更多”访问。
+- Quote Detail 内容区不再显示“返回报价中心”；明确父目标由 AppShell 顶栏返回入口承载并继续经过 unsaved guard。操作记录和删除报价通过轻量单行“··· 更多”访问。
+- Quote Detail 顶部只有一条 Quote Cockpit Bar：Revision / PriceVersion / 制作国家 / 数量、面辅料、工价及人民币折合、其他费用、成衣销售价格、客户确认与差异、加成和报价设置在同一业务 strip 中表达；独立 `QuoteMetrics` 与黄色 Price Context Bar 不再并行重复最终售价。1229 CSS viewport 下无需页面或 Cockpit 横向滚动，窄宽度通过语义合并而非极小字体处理。
 - `768–1023px` 的触摸设备使用 Tablet；连接细指针并可 hover 时优先按 Compact Desktop 处理。
 - 只有 `<768px`、`pointer: coarse`、`hover: none` 的 True Mobile 把报价列表改为 Card List；报价详情是“查看全部 + 轻编辑”，基础信息、备注、工价、客户确认、附件继续复用桌面状态与保存流程。
 - Quote Center 的搜索、报价类型、报价状态在所有设备直接显示为同一行 `6fr / 2fr / 2fr`，不使用筛选按钮、Drawer 或 Bottom Sheet；结果数量轻量显示在列表上方右侧。
 - Mobile 详情隐藏 Sticky Header，款式图显示 contain 缩略图；Bottom Navigation 只允许 True Mobile 出现。
 - 手机面料/辅料为现有成本行的摘要投影，数值继续调用既有计算函数，不建立第二套数据或公式；结构增删留在桌面端。
-- Mobile PriceVersion 使用横向紧凑卡；返回、保存和客户确认保留在顶部，报价版本、创建价格版本、导出和删除进入“更多”。
+- Mobile PriceVersion 使用横向紧凑卡；保存和客户确认保留在顶部，返回由 AppShell Detail 导航承载，报价版本、创建价格版本、导出和删除进入“更多”。
 
 ## Important constraints
 
@@ -148,3 +149,4 @@ Quote Center 是面向成衣报价工作的新版前端模块，提供完整报�
 - 报价列表把旧 `style` 拆为稳定 `styleImage` 与 `styleIdentity`，旧偏好自动映射为两列；用户可分别调整顺序与宽度。
 - 最大字段场景使用业务组合列与 secondary line 展示报价编号、款式、品牌/业务员、类型/状态、数量、成本、成衣价/确认、报价历史/价格方案、日期和操作，Primary Desktop 不再强制隐藏用户选择的 revision 列。
 - “更多”保持单行紧凑按钮；详情 Sticky 在滚入成本区后继续显示款式身份、Revision、PriceVersion、制作国家、报价类型、数量、成衣价、工价、确认与 dirty/save 状态。
+- 2026-09-08 Correction 将两层价格摘要收敛为唯一 Quote Cockpit Bar；Sticky 继续共用原 sentinel/state，只保留滚动时的高价值上下文，不重新渲染第二套大型 Cockpit。

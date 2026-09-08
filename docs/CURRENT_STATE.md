@@ -1,13 +1,13 @@
 # 当前状态
 
-> 状态快照：2026-09-05。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-08。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
-- 当前稳定分支：`main`，HEAD / `origin/main` 均为 `21cef9ac6ba1d326f7f40b0bca13c23648d42556`。
+- 当前稳定基线：`main` / `origin/main` 的任务起点 `ab13869a26d0240f7f9cc950ef439c38ac0ede73`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
-- 当前没有业务 Active Task；`feat/style-progress-material-control-v2` 不再是活动任务分支。
+- 当前 Active Task 为 `feat/navigation-material-infrastructure-redesign`。Gate A/B/C checkpoint 已完成并推送：`9be9efa`（Detail 导航与 Quote Cockpit）、`d9176be`（name-only Canonical Material）、`e34dfc9`（生产与运输业务化设置）；最终文档、浏览器复验与质量门禁已完成，待 PR 审阅，未合并 `main`。
 - 最新真实 `面辅料申购统计 (1).xlsx` 已通过正式 Parser 只读验证，并显式导入隔离的 Codex QA Browser Profile：17,384 Source Row / 17,383 有效；D1935 / PI2607-235 为 261 Source Row，厂供编码 `202608130002` 5 行、需求 3,809，并从 Operational Projection 全部排除。导入没有触碰用户 Chrome / PROD Profile，原始 Excel 未进入 Git。
 
 ## 当前可运行边界
@@ -15,18 +15,19 @@
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
 - Quote Center、新订单中心、生产排单、款式进度、关账中心和相关设置仍使用浏览器 Repository；尚不是服务端多用户生产实现。
 - DEV 固定使用 `127.0.0.1:3001`，PROD Docker 固定使用 `127.0.0.1:3000`，两者依靠 Origin 隔离数据。
-- 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 3；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
+- 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
 
 ### Material Control Tower V2
 
-- Style Progress IndexedDB version 3 与全局 schemaVersion 13 支持非破坏 Expected Arrival Batch / Allocation；旧单日期、manual/source 语义、重导入、Backup / Restore 与唯一 OperationLog 均保持可追溯。
-- 普通 Projection 按销售合同内 Canonical Material Group 展示真实物料；面料按名称 + 门幅 + 克重 + 唯一采购价归一，辅料按标准化名称归一，厂供退出运营统计但保留 Source Trace。
+- Style Progress IndexedDB version 4 与全局 schemaVersion 13 支持非破坏 Expected Arrival Batch / Allocation；v3→v4 确定性重映射 Canonical key，旧单日期、manual/source 语义、重导入、Backup / Restore 与唯一 OperationLog 均保持可追溯。
+- 普通 Projection 以 `salesContractNo + materialType + normalizedMaterialName` 形成 Canonical Material Group；面料与辅料的编码、颜色、规格、门幅、克重、采购价等差异保留在组内明细，厂供退出运营统计但保留 Source Trace。
 - 每批 Expected Arrival 独立复用正式物流 Service；Shipment quantity 只来自 ShipmentEvent，“距上线”与运输 buffer 分开，buffer 使用 `>7 / 0..7 / <0` 的 green/yellow/red 规则。
 - V4 Material Control Tower 已提供 Canonical Material 卡、五项 KPI、Sticky Filter、多事件 Drawer 与 Batch Planner；1600/1280/1229/960/768/402 CSS viewport 无 document 横向溢出。这里记录的是 CSS viewport 验收，不冒充真实 Windows Display Scaling。
-- 真实 D1935 验收得到 18 个 Canonical Material（面料 8、辅料 10）；采购 / 入库 / 出运 / 出库分别使用对应 Event。罗马布英文多词颜色保持完整，厂供仅在条件式 Drawer 中出现。隔离 Browser Profile 没有该合同的织序订单，因此物流保持“待排单后计算”，未建立任何 fallback。
-- Gate 5 最终门禁：TypeScript PASS、ESLint PASS、Full Tests 480/480、Production Build 29 routes PASS、`git diff --check` PASS、Browser Console 0 error / 0 warning。
+- 真实 D1935 从旧规则的 18 个 Canonical Material（面料 8、辅料 10）收敛为 13 个（面料 3、辅料 10）；罗马布、棉毛布、汗布的 Variant/Demand/Event 差异完整保留，采购 / 入库 / 出运 / 出库分别使用对应 Event。隔离 Browser Profile 没有该合同的织序订单，因此物流保持“待排单后计算”，未建立任何 fallback。
+- 本任务 1229 CSS viewport 浏览器复验：Quote Detail 单一 Cockpit、AppShell 返回、D1935 13 个不重名 Material Group 及展开明细、生产与运输三段业务流程均无 document 横向溢出，Console 0 unexpected error。
+- 本任务最终门禁：TypeScript PASS、ESLint PASS、Full Tests 488/488、Production Build 29 routes PASS、`git diff --check` PASS。
 
 ### Gate A — Foundation / Quote
 

@@ -41,6 +41,8 @@ UI Foundation 为 Quote Center 和基础设置提供统一的 ERP 页面、表�
 - Desktop/Compact Sidebar 固定于 viewport，Workspace 是独立纵向滚动容器；Compact 不得降级成 Mobile 导航或隐藏完整业务操作。
 - AppShell 把共享 helper 的结果写入 `data-responsive-mode`，导航 CSS 和 React 条件使用同一模式；客户端必须在浏览器绘制前同步解析真实模式，不能让服务端安全 fallback 在路由切换时以展开侧栏闪现。只有 True Mobile 隐藏桌面侧栏并渲染底部主导航与 Drawer，不能仅凭 width 切换全局导航。
 - AppShell 顶部提供紧凑全局搜索触发器，并统一监听 Ctrl/Cmd+K；Command Palette、Provider 注册和权限边界位于 `features/global-search/`，不能把模块查询写进 AppShell。
+- 存在明确父页面的 Detail Page 通过 `AppShell` 顶栏左侧返回入口提供显式 parent target；返回仍经过 feature 的 `onRequestNavigation`，不得用不确定的 `history.back()` 绕过 Quote / Order unsaved guard。内容区不再重复大型返回按钮，Root/List Page 不强行增加返回。
+- 全局“更多”使用轻量单行 `··· 更多` 触发器；默认保持低视觉权重，hover/open 才强调，chevron 不换行，菜单继续使用正式 Portal / Overlay 与键盘导航。
 - 报价明细成本区可在不改变全局设备模式的前提下使用局部内容宽度：Card `>=1040px` 为 Wide，低于该值为 Compact/Narrow；`700–1099px` viewport 只用于保证半屏不会因 Shell 占宽误入单列。这不能改变 AppShell 的 True Mobile 判定。
 - Mobile Modal 为底部 Sheet：header/footer 固定保留，body 独立滚动，并考虑 safe area。
 - 报价与订单列表复用同一 Table Preference contract；列宽保存键包含 `userId + moduleKey + tableKey`，各表有独立默认值并支持恢复默认。偏好只控制视图，不写入业务实体或 OperationLog。
@@ -56,6 +58,7 @@ Foundation 不拥有业务数据模型，也不直接调用业务 API。它通�
 - Searchable/Creatable 组件支持键盘导航、自由输入或选项选择；打开状态用 ARIA 属性标记，以便 FormShell 判断 Enter 优先级。
 - SearchableSelect 与 CreatableCombobox 的浮层均使用 body Portal，并在 resize/scroll 时依据触发控件重新定位。
 - Drawer 使用 body Portal 和 FormShell，可安全嵌套在 Modal 上方；Escape、backdrop 和事件隔离不得意外关闭或提交上层表单。
+- `PageBackButton` 只负责向 AppShell 注册明确的父页面目标；可保存详情必须把注册入口接回既有 navigation guard。
 - Nullable 输入保留 `null` 与 `0` 的区别。
 - 成本宽表由 Quote Center 组件承载业务列和计算展示，Foundation 只提供通用控件和视觉基础。
 

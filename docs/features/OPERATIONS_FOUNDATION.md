@@ -9,7 +9,9 @@
 - “基础设置 > 生产组”支持查询、新增、编辑、排序、备注和启用/停用。
 - “基础设置 > 外发厂”支持查询、新增、编辑、联系人、电话、备注和启用/停用。
 - “系统设置 > 关账设置”维护默认销售产值税率和按月的总加工/内部加工产值目标。
-- “系统设置 > 生产与运输”维护生产地点、生产日历、供应枢纽、路线和运输方式；生产组必须归属生产地点。
+- “系统设置 > 生产与运输”按三个业务问题组织：在哪里生产、物料从哪里发、仓库到工厂怎么走。生产组必须归属生产地点；路线与运输方式通过一个“运输方案”工作流维护，底层仍保存既有 `SupplyRoute` 与 `TransportMode[]`。
+- 生产日历使用星期勾选和结构化特殊日期表单；用户不直接编辑 weekday 数字串或 exceptions JSON。
+- Configuration Health 从正式生产组、地点、日历、集货仓、路线和运输方式动态诊断缺口，并提供权限受控的修复入口。
 - 无权限按钮保持可见、disabled，并显示统一提示；表单 mutation 也有显式权限守卫，不能通过 Enter 绕过。
 - 保存成功后向统一 `OperationLogRepository` 追加字段级日志。
 
@@ -38,7 +40,7 @@
 
 - Repository：`features/operations-settings/repository/operations-settings-repository.ts`。
 - 稳定记录：`zhixu.erp.local.operations-settings`，使用共享 `LocalDataStore` envelope。
-- 浏览器 schema 当前为 v9；本模块仍使用 v4 引入的稳定记录。v8→v9 对缺失/空的新设置集合补安全默认，并给旧生产组关联默认生产地点，不覆盖现有基础资料。
+- 全局浏览器 schema 当前为 v13；本模块继续使用既有稳定记录和向前兼容读取。历史 v8→v9 对缺失/空设置集合的安全默认与旧生产组地点关联仍保留，不覆盖现有基础资料。
 - 数据管理备份自动包含该 raw record；旧备份无此记录时恢复后读取安全默认值。
 - 当前没有 API、数据库表、Alembic 或 PostgreSQL migration；旧 `orders`、`schedules`、`audit_logs` 未修改。
 
@@ -47,6 +49,7 @@
 - 页面组件：`features/operations-settings/components/operations-settings-pages.tsx`。
 - 路由：`/basic-settings/production-groups`、`/basic-settings/outsource-factories`、`/system-settings/closing-settings`、`/system-settings/production-infrastructure`。
 - 页面复用 Foundation Page/Card/Table/Modal/Form/Button，不引入独立 UI 体系。
+- 生产地点卡显示被生产组引用数量并禁止物理删除；集货仓卡显示服务路线；运输方案把 Hub、Site 与方式列表合并编辑，保存时仍调用原 Repository。页面帮助文案准确解释“预计到料 + 运输自然日 = 预计到厂；计划开工 - 产前准备 = 最晚到厂；选择最慢可行方式”，不暴露 TypeScript 实体名。
 
 ## Permissions and audit
 
@@ -63,7 +66,7 @@
 
 ## Tests
 
-`tests/operations-infrastructure.test.mjs` 覆盖模型、稳定 ID、Repository 重载、旧版本向前迁移、v9 排单备份兼容、权限不扩张、字段级日志和路由/源码契约。
+`tests/operations-infrastructure.test.mjs` 覆盖模型、稳定 ID、Repository 重载、旧版本向前迁移、v9 排单备份兼容、权限不扩张、字段级日志、生产地点/集货仓 CRUD、可读星期与特殊日期、组合运输方案、Configuration Health，以及正式物流推荐服务不变的契约。
 
 ## Known gaps
 
