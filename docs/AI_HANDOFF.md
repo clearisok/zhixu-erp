@@ -11,11 +11,14 @@
 
 ## Current Stable Main
 
-`21cef9ac6ba1d326f7f40b0bca13c23648d42556`
+`ab13869a26d0240f7f9cc950ef439c38ac0ede73`
 
 ## Current Active Task
 
-当前没有业务 Active Task。新任务必须从最新 `origin/main` 建立独立分支并记录 baseline。
+- Branch: `feat/navigation-material-infrastructure-redesign`
+- Baseline: `ab13869a26d0240f7f9cc950ef439c38ac0ede73`
+- Gate A 已完成代码与专项测试：详情返回进入 AppShell Topbar、明确 parent target 且继续经过 unsaved navigation guard；全局 More 轻量单行；报价顶部合并为唯一 Quote Cockpit Bar。
+- 下一步：Gate A checkpoint push 后进入 Gate B name-only Canonical Material migration；不要重做 Gate A。
 
 ## Latest Merged Work
 

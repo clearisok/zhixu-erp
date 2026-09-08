@@ -128,13 +128,13 @@ test("常规 Header 保留价格摘要，Sticky 收敛为对象、版本与保�
     read("app/quote-center/responsive.css"),
   ]);
 
-  assert.match(editor, /<QuoteMetrics className="qc-header-metrics" version=\{activeVersion\}/);
+  assert.match(editor, /<QuoteCockpit version=\{activeVersion\}/);
   assert.match(editor, /qc-sticky-state/);
   assert.match(editor, /isDirty \? "有未保存修改" : "已保存"/);
   assert.match(component, /createQuoteMetricsViewModel\(version\)/);
-  assert.match(component, /qc-metric-secondary/);
-  assert.match(responsiveCss, /\.qc-header-metrics \.qc-metric-secondary/);
-  assert.doesNotMatch(responsiveCss, /\.qc-header-metrics small, \.qc-sticky-metrics small \{ display: none;/);
+  assert.match(component, /qc-quote-cockpit/);
+  assert.match(responsiveCss, /\.qc-quote-cockpit/);
+  assert.doesNotMatch(editor, /qc-price-version-context/);
 });
 
 test("报价设置只允许选择当前 PriceVersion 制作预设，其余参数只读展示", async () => {
@@ -157,6 +157,8 @@ test("Header、Sticky、价格版本卡和加工费区均从当前 PriceVersion 
   assert.match(editor, /RMB \/ 件/);
   assert.match(editor, /固定折算系数/);
   assert.match(metrics, /createQuoteMetricsViewModel/);
+  assert.match(metrics, /revisionLabel/);
+  assert.match(metrics, /productionLabel/);
   assert.match(metricsViewModel, /RMB折合/);
   assert.match(metricsViewModel, /加成前/);
   assert.match(selector, /productionLabel/);

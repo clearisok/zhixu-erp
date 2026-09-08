@@ -86,7 +86,9 @@ test("详情顶部价格摘要、吸顶操作与列表页面设置符合当前�
   const editor = await readFile(new URL("../features/quote-center/components/quote-editor.tsx", import.meta.url), "utf8");
   const list = await readFile(new URL("../features/quote-center/components/quote-list.tsx", import.meta.url), "utf8");
   const detail = editor.slice(editor.indexOf("const headerActions"));
-  assert.ok(detail.indexOf('QuoteMetrics className="qc-header-metrics"') < detail.indexOf("<QuoteBaseInfo"));
+  assert.ok(detail.indexOf("<QuoteCockpit") >= 0);
+  assert.ok(detail.indexOf("<QuoteCockpit") < detail.indexOf("<QuoteBaseInfo"));
+  assert.doesNotMatch(detail, /qc-price-version-context/);
   assert.ok(detail.indexOf("<QuoteBaseInfo") < detail.indexOf("<PriceVersionSelector"));
   assert.ok(detail.indexOf("<PriceVersionSelector") < detail.indexOf("<CostTable"));
   assert.match(detail, /qc-sticky-header/);

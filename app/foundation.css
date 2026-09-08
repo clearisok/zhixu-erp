@@ -214,8 +214,8 @@
 .qc-master-record dl div { min-width: 0; display: grid; gap: 3px; }.qc-master-record dt { color: #7b8882; font-size: 10px; }.qc-master-record dd { overflow: hidden; margin: 0; color: #34483f; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .qc-master-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
 .qc-floating-menu { position: relative; display: inline-flex; }
-.qc-floating-menu-trigger { min-width: 38px; min-height: 34px; display: grid; place-items: center; padding: 0 8px; color: var(--forest); border: 1px solid transparent; border-radius: 7px; background: transparent; font-size: 10px; font-weight: 650; }
-.qc-floating-menu-trigger:hover, .qc-floating-menu-trigger[aria-expanded="true"] { background: #edf5f1; }
+.qc-floating-menu-trigger { min-width: 38px; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; padding: 0 9px; color: #66746e; border: 1px solid transparent; border-radius: 7px; background: transparent; font-size: 10px; font-weight: 650; white-space: nowrap; }
+.qc-floating-menu-trigger:hover, .qc-floating-menu-trigger:focus-visible, .qc-floating-menu-trigger[aria-expanded="true"] { color: var(--forest); border-color: #d5e1db; background: #edf5f1; outline: 0; }
 .qc-floating-menu-popover { position: fixed; z-index: 1100; min-width: 132px; display: grid; gap: 2px; padding: 5px; border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: var(--foundation-overlay-shadow); }
 .qc-floating-menu-popover .qc-button, .qc-floating-menu-popover > button { width: 100%; justify-content: flex-start; }
 .qc-master-identity { min-width: 0; display: grid; gap: 2px; }

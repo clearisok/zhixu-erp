@@ -47,7 +47,7 @@ test("R9 Compact Desktop 保留完整报价操作", async () => {
   for (const label of ["返回报价中心", "报价版本", "创建价格版本", "客户确认", "导出报价", "删除报价", "保存草稿"]) {
     assert.match(editor, new RegExp(label));
   }
-  assert.match(editor, /<PageBackButton fallbackHref="\/quote-center"/);
+  assert.match(editor, /backTarget=\{\{ href: "\/quote-center", label: "返回报价中心" \}\}/);
 });
 
 test("R10 Phase 4 Compact Desktop Quote Center 使用 Compact Record，不强撑宽表", async () => {

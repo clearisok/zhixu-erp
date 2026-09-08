@@ -1035,6 +1035,7 @@ function MaterialSourceHistory({
 
 export function LegacyStyleProgressDetailPage() {
   const router = useRouter();
+  const backTarget = { href: "/order-center/style-progress", label: "返回款式进度" };
   const params = useSearchParams();
   const contract =
     params.get("contract")?.normalize("NFKC").trim().toLocaleUpperCase() ?? "";
@@ -1111,7 +1112,7 @@ export function LegacyStyleProgressDetailPage() {
   };
   if (!loaded && !error)
     return (
-      <AppShell title="款式进度详情">
+      <AppShell title="款式进度详情" backTarget={backTarget}>
         <PageContainer>
           <LoadingState label="正在读取物料明细" />
         </PageContainer>
@@ -1119,7 +1120,7 @@ export function LegacyStyleProgressDetailPage() {
     );
   if (error)
     return (
-      <AppShell title="款式进度详情">
+      <AppShell title="款式进度详情" backTarget={backTarget}>
         <PageContainer>
           <ErrorState
             title="读取失败"
@@ -1134,20 +1135,10 @@ export function LegacyStyleProgressDetailPage() {
     );
   if (!projection)
     return (
-      <AppShell title="款式进度详情">
+      <AppShell title="款式进度详情" backTarget={backTarget}>
         <PageContainer className="sp-page">
           <OrderCenterNavigation />
-          <PageHeader
-            title={contract || "款式进度详情"}
-            back={
-              <Button
-                variant="text"
-                onClick={() => router.push("/order-center/style-progress")}
-              >
-                ← 返回款式进度
-              </Button>
-            }
-          />
+          <PageHeader title={contract || "款式进度详情"} />
           <EmptyState
             title="当前导入数据未找到该款"
             description="没有使用虚构数据补齐；请核对销售合同号或导入最新面辅料申购统计。"
@@ -1158,6 +1149,7 @@ export function LegacyStyleProgressDetailPage() {
   return (
     <AppShell
       title={`${projection.factoryStyleNo || projection.styleNo} · 款式进度`}
+      backTarget={backTarget}
     >
       <PageContainer className="sp-page sp-detail">
         <OrderCenterNavigation />
@@ -1165,14 +1157,6 @@ export function LegacyStyleProgressDetailPage() {
           variant="object"
           eyebrow="STYLE PROGRESS"
           title={projection.factoryStyleNo || projection.styleNo}
-          back={
-            <Button
-              variant="text"
-              onClick={() => router.push("/order-center/style-progress")}
-            >
-              ← 返回款式进度
-            </Button>
-          }
           description={
             <>
               {projection.salesContractNo} · {projection.brand} ·{" "}
@@ -1307,7 +1291,6 @@ export function LegacyStyleProgressDetailPage() {
 }
 
 export function StyleProgressDetailPage() {
-  const router = useRouter();
   const params = useSearchParams();
   const contract = params.get("contract")?.normalize("NFKC").trim().toLocaleUpperCase() ?? "";
   const [loaded, setLoaded] = useState<Loaded | null>(null);
@@ -1323,10 +1306,11 @@ export function StyleProgressDetailPage() {
   };
   useEffect(() => { Promise.resolve().then(() => void reload()); }, []);
   const projection = loaded?.projections.find((item) => item.salesContractNo === contract) ?? null;
-  if (!loaded && !error) return <AppShell title="款式进度详情"><PageContainer><LoadingState label="正在读取物料明细" /></PageContainer></AppShell>;
-  if (error) return <AppShell title="款式进度详情"><PageContainer><ErrorState title="读取失败" description={error} onRetry={() => void reload()} /></PageContainer></AppShell>;
-  if (!loaded || !projection) return <AppShell title="款式进度详情"><PageContainer className="sp-page"><OrderCenterNavigation /><PageHeader title={contract || "款式进度详情"} back={<Button variant="text" onClick={() => router.push("/order-center/style-progress")}>← 返回款式进度</Button>} /><EmptyState title="当前导入数据未找到该款" description="没有使用虚构数据补齐；请核对销售合同号或导入最新面辅料申购统计。" /></PageContainer></AppShell>;
-  return <AppShell title={`${projection.factoryStyleNo || projection.styleNo} · 款式进度`}><PageContainer className="sp-page sp-detail sp-v4-page"><OrderCenterNavigation /><MaterialControlTower projection={projection} data={loaded.data} settings={loaded.settings} onReload={reload} onToast={setToast} />{toast && <Toast message={toast} />}</PageContainer></AppShell>;
+  const backTarget = { href: "/order-center/style-progress", label: "返回款式进度" };
+  if (!loaded && !error) return <AppShell title="款式进度详情" backTarget={backTarget}><PageContainer><LoadingState label="正在读取物料明细" /></PageContainer></AppShell>;
+  if (error) return <AppShell title="款式进度详情" backTarget={backTarget}><PageContainer><ErrorState title="读取失败" description={error} onRetry={() => void reload()} /></PageContainer></AppShell>;
+  if (!loaded || !projection) return <AppShell title="款式进度详情" backTarget={backTarget}><PageContainer className="sp-page"><OrderCenterNavigation /><PageHeader title={contract || "款式进度详情"} /><EmptyState title="当前导入数据未找到该款" description="没有使用虚构数据补齐；请核对销售合同号或导入最新面辅料申购统计。" /></PageContainer></AppShell>;
+  return <AppShell title={`${projection.factoryStyleNo || projection.styleNo} · 款式进度`} backTarget={backTarget}><PageContainer className="sp-page sp-detail sp-v4-page"><OrderCenterNavigation /><MaterialControlTower projection={projection} data={loaded.data} settings={loaded.settings} onReload={reload} onToast={setToast} />{toast && <Toast message={toast} />}</PageContainer></AppShell>;
 }
 
 export function StyleRiskPage() {

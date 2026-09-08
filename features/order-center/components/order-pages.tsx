@@ -654,7 +654,7 @@ function OrderEditor({
   const actionHandledRef = useRef(false);
   const [deliveryModal, setDeliveryModal] = useState<DeliveryModalState>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
-  const [pendingListNavigation, setPendingListNavigation] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const [historyDrawer, setHistoryDrawer] = useState<
     "quantity" | "price" | null
   >(null);
@@ -837,12 +837,18 @@ function OrderEditor({
     }
   };
 
-  const requestListNavigation = () => {
-    if (dirty) setPendingListNavigation(true);
-    else router.push("/order-center");
+  const requestNavigation = (target: string) => {
+    if (dirty) setPendingNavigation(target);
+    else router.push(target);
   };
   const saveAndReturn = async () => {
-    if (await save()) router.push("/order-center");
+    const target = pendingNavigation ?? "/order-center";
+    if (await save()) router.push(target);
+  };
+  const discardAndReturn = () => {
+    const target = pendingNavigation ?? "/order-center";
+    setPendingNavigation(null);
+    router.push(target);
   };
 
   const confirm = async () => {
@@ -1163,7 +1169,7 @@ function OrderEditor({
     );
 
     return (
-      <AppShell title="订单明细">
+      <AppShell title="订单明细" backTarget={{ href: "/order-center", label: "返回订单中心" }} onRequestNavigation={requestNavigation}>
         <PageContainer className="oc-cockpit-page">
           <OrderCenterNavigation />
           <FormShell submitOnEnter={false} onSubmit={() => void save()}>
@@ -1184,11 +1190,6 @@ function OrderEditor({
                         {order.salesContractNo || "无销售合同号"} · {order.orderNo} · {sourceLabel[order.sourceType]} · 只读系统编号
                       </small>
                     </>
-                  }
-                  back={
-                    <Button variant="text" onClick={requestListNavigation}>
-                      ← 返回订单中心
-                    </Button>
                   }
                   status={
                     <StatusTag
@@ -2418,21 +2419,21 @@ function OrderEditor({
               </FormItem>
             </Modal>
             <Modal
-              open={pendingListNavigation}
+              open={Boolean(pendingNavigation)}
               title="当前订单有未保存修改"
               description="离开后修改将丢失。"
-              onClose={() => setPendingListNavigation(false)}
+              onClose={() => setPendingNavigation(null)}
               footer={
                 <>
                   <Button
                     variant="secondary"
-                    onClick={() => setPendingListNavigation(false)}
+                    onClick={() => setPendingNavigation(null)}
                   >
                     继续编辑
                   </Button>
                   <Button
                     variant="danger"
-                    onClick={() => router.push("/order-center")}
+                    onClick={discardAndReturn}
                   >
                     不保存并返回
                   </Button>
@@ -2469,7 +2470,7 @@ function OrderEditor({
     });
 
   return (
-    <AppShell title="新建订单">
+    <AppShell title="新建订单" backTarget={{ href: "/order-center", label: "返回订单中心" }} onRequestNavigation={requestNavigation}>
       <PageContainer className="qc-create-page oc-create-page">
         <FormShell
           className="qc-create-form oc-create-form"
@@ -2491,11 +2492,6 @@ function OrderEditor({
                   一张 SalesOrder 只对应一个款式；创建后进入订单详情继续执行。
                 </span>
               </>
-            }
-            back={
-              <Button variant="text" onClick={requestListNavigation}>
-                ← 返回订单中心
-              </Button>
             }
             status={
               <span className="qc-create-state" data-dirty={dirty || undefined}>
@@ -3099,21 +3095,21 @@ function OrderEditor({
           </FormItem>
         </Modal>
         <Modal
-          open={pendingListNavigation}
+          open={Boolean(pendingNavigation)}
           title="当前订单有未保存修改"
           description="离开后修改将丢失。"
-          onClose={() => setPendingListNavigation(false)}
+          onClose={() => setPendingNavigation(null)}
           footer={
             <>
               <Button
                 variant="secondary"
-                onClick={() => setPendingListNavigation(false)}
+                onClick={() => setPendingNavigation(null)}
               >
                 继续编辑
               </Button>
               <Button
                 variant="danger"
-                onClick={() => router.push("/order-center")}
+                onClick={discardAndReturn}
               >
                 不保存并返回
               </Button>
@@ -3173,7 +3169,7 @@ export function OrderNewLoader() {
   }, [can, currentUser.id, currentUser.name, reorderId]);
   if (!can("order.create"))
     return (
-      <AppShell title="新建订单">
+      <AppShell title="新建订单" backTarget={{ href: "/order-center", label: "返回订单中心" }}>
         <PageContainer>
           <Card className="oc-no-permission">
             <strong>暂无创建订单权限</strong>
@@ -3183,7 +3179,7 @@ export function OrderNewLoader() {
     );
   if (!order)
     return (
-      <AppShell title="新建订单">
+      <AppShell title="新建订单" backTarget={{ href: "/order-center", label: "返回订单中心" }}>
         <PageContainer>
           <div className="loading-screen qc-inline-loading">
             <div className="loading-mark">纫</div>
@@ -3206,7 +3202,7 @@ export function OrderDetailLoader() {
   }, [id]);
   if (!can("order.view"))
     return (
-      <AppShell title="订单明细">
+      <AppShell title="订单明细" backTarget={{ href: "/order-center", label: "返回订单中心" }}>
         <PageContainer>
           <Card className="oc-no-permission">
             <strong>暂无订单查看权限</strong>
@@ -3216,7 +3212,7 @@ export function OrderDetailLoader() {
     );
   if (order === undefined)
     return (
-      <AppShell title="载入订单">
+      <AppShell title="载入订单" backTarget={{ href: "/order-center", label: "返回订单中心" }}>
         <PageContainer>
           <div className="loading-screen qc-inline-loading">
             <div className="loading-mark">纫</div>
@@ -3228,13 +3224,10 @@ export function OrderDetailLoader() {
     );
   if (!order)
     return (
-      <AppShell title="订单不存在">
+      <AppShell title="订单不存在" backTarget={{ href: "/order-center", label: "返回订单中心" }}>
         <PageContainer>
           <Card className="oc-no-permission">
             <strong>没有找到该订单</strong>
-            <Button onClick={() => window.location.assign("/order-center")}>
-              返回订单中心
-            </Button>
           </Card>
         </PageContainer>
       </AppShell>

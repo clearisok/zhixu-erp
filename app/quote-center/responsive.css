@@ -25,8 +25,8 @@
 .qc-quote-action-probe { position: absolute; width: max-content; display: flex; align-items: center; gap: 8px; }
 .qc-action-probe-summary, .qc-action-probe-navigation { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 14px; color: #52625c; border: 1px solid #d6ded9; border-radius: 7px; background: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .qc-action-probe-navigation { padding: 0 10px; }
-.qc-quote-action-more .qc-floating-menu-trigger { min-height: 44px; padding-inline: 14px; color: #52625c; border-color: #d6ded9; background: #fff; font-size: 12px; font-weight: 700; }
-.qc-quote-action-more .qc-floating-menu-trigger::after { content: "⌄"; margin-left: 7px; color: #87938e; }
+.qc-quote-action-more .qc-floating-menu-trigger { min-height: 44px; padding-inline: 12px; color: #66746e; border-color: transparent; background: transparent; font-size: 12px; font-weight: 680; white-space: nowrap; }
+.qc-quote-action-more .qc-floating-menu-trigger:hover, .qc-quote-action-more .qc-floating-menu-trigger[aria-expanded="true"] { color: var(--qc-green); border-color: #d5e1db; background: #edf5f1; }
 .qc-quote-action-menu { width: 184px !important; }
 .qc-quote-action-region .qc-quick-navigation.is-dropdown { min-height: 44px; margin: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; }
 .qc-quote-action-region .qc-quick-navigation.is-dropdown .qc-quick-navigation-mobile { position: relative; min-height: 44px; display: flex; align-items: center; justify-content: flex-end; padding: 0; }
@@ -279,6 +279,33 @@
 .qc-workspace-metadata > span { color: #77847e; font-size: 10px; font-weight: 500; }
 .qc-workspace-metadata > span + span::before { margin-right: 10px; color: #b1bab5; content: "·"; }
 .qc-workspace-metadata b { color: #40534b; }
+.qc-quote-cockpit { min-width: 0; min-height: 68px; display: grid; grid-template-columns: minmax(168px,1.25fr) minmax(142px,1fr) minmax(108px,.72fr) minmax(76px,.5fr) minmax(142px,.9fr) minmax(122px,.78fr) minmax(70px,.45fr) 58px; align-items: stretch; overflow: hidden; border-top: 1px solid var(--qc-line); background: #fff; }
+.qc-quote-cockpit > :is(div,button) { min-width: 0; display: grid; align-content: center; gap: 2px; margin: 0; padding: 9px 11px; color: inherit; border: 0; border-right: 1px solid #e2e9e5; background: transparent; text-align: left; }
+.qc-quote-cockpit > :is(div,button) > span { overflow: hidden; color: #7b8781; font-size: 8px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.qc-quote-cockpit > :is(div,button) > strong { overflow: hidden; color: #29483d; font: 650 14px Georgia,"Songti SC",serif; text-overflow: ellipsis; white-space: nowrap; }
+.qc-quote-cockpit > :is(div,button) > small { overflow: hidden; color: #84908a; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.qc-quote-cockpit .qc-cockpit-context { box-shadow: inset 3px 0 0 var(--qc-green); background: #f3f8f5; }
+.qc-quote-cockpit.is-history .qc-cockpit-context { box-shadow: inset 3px 0 0 #a77b42; background: #fff9ef; }
+.qc-cockpit-materials strong i { color: #a9b4af; font-style: normal; }
+.qc-quote-cockpit .qc-cockpit-final { cursor: pointer; background: #183e32; }
+.qc-quote-cockpit .qc-cockpit-final:hover, .qc-quote-cockpit .qc-cockpit-final:focus-visible { background: #205043; outline: 3px solid rgba(43,130,103,.24); outline-offset: -3px; }
+.qc-quote-cockpit .qc-cockpit-final > :is(span,small) { color: #b2c7be; }
+.qc-quote-cockpit .qc-cockpit-final > strong { color: #fff; font-size: 20px; font-variant-numeric: tabular-nums; }
+.qc-cockpit-confirmation > button { justify-self: start; overflow: hidden; padding: 0; color: #9a5c19; border: 0; background: transparent; cursor: pointer; font-size: 8px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.qc-cockpit-settings { place-items: center; padding: 5px !important; border-right: 0 !important; }
+.qc-cockpit-settings .qc-button { min-width: 44px; min-height: 38px; padding-inline: 7px; font-size: 9px; }
+
+@container qc-quote-header (max-width: 900px) {
+  .qc-quote-cockpit { grid-template-columns: minmax(150px,1.1fr) minmax(132px,1fr) minmax(104px,.8fr) minmax(72px,.55fr) minmax(130px,.9fr) minmax(110px,.8fr) minmax(64px,.48fr) 52px; }
+  .qc-quote-cockpit > :is(div,button) { padding-inline: 8px; }
+}
+
+@container qc-quote-header (max-width: 720px) {
+  .qc-quote-cockpit { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .qc-cockpit-context, .qc-cockpit-final { grid-column: span 2; }
+  .qc-cockpit-materials, .qc-cockpit-confirmation { grid-column: span 2; }
+  .qc-cockpit-settings { grid-column: auto; }
+}
 .qc-quote-version-bar.qc-price-version-context { min-height: 72px; display: grid; grid-template-columns: minmax(120px,.55fr) minmax(190px,1fr) minmax(150px,.72fr) minmax(180px,.9fr) auto; align-items: stretch; gap: 0; padding: 0; overflow: hidden; background: #fff; }
 .qc-price-version-context > div { min-width: 0; display: grid; align-content: center; gap: 3px; padding: 11px 14px; border-right: 1px solid #e1e8e4; }
 .qc-price-version-context > div > span { color: #78857f; font-size: 8px; font-weight: 700; letter-spacing: .03em; }
@@ -337,6 +364,10 @@
 .qc-app-shell[data-responsive-mode="mobile"] .qc-quote-action-region .qc-quick-navigation.is-dropdown .qc-quick-navigation-mobile > button { min-width: 0; padding-inline: 7px; }
 .qc-app-shell[data-responsive-mode="mobile"] .qc-quote-header-controls { display: grid; grid-template-columns: minmax(0,1fr); }
 .qc-app-shell[data-responsive-mode="mobile"] :is(.qc-quick-navigation-normal,.qc-sticky-header) { display: none !important; }
+.qc-app-shell[data-responsive-mode="mobile"] .qc-quote-cockpit { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.qc-app-shell[data-responsive-mode="mobile"] .qc-quote-cockpit > :is(div,button) { min-height: 58px; padding: 9px 10px; }
+.qc-app-shell[data-responsive-mode="mobile"] .qc-quote-cockpit :is(.qc-cockpit-context,.qc-cockpit-materials,.qc-cockpit-final,.qc-cockpit-confirmation) { grid-column: 1 / -1; }
+.qc-app-shell[data-responsive-mode="mobile"] .qc-cockpit-settings .qc-button { min-height: 44px; }
 .qc-app-shell[data-responsive-mode="mobile"] .qc-header-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
 .qc-app-shell[data-responsive-mode="mobile"] .qc-header-metrics article { min-height: 66px; padding: 8px 10px; }
 .qc-app-shell[data-responsive-mode="mobile"] .qc-header-metrics strong { font-size: 17px; }

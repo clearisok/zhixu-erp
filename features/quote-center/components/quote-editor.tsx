@@ -15,7 +15,6 @@ import {
   NullableNumberInput,
   PageContainer,
   PageHeader,
-  PageBackButton,
   SaveBar,
   Toast,
 } from "@/components/foundation";
@@ -78,7 +77,7 @@ import { indexedDbAttachmentRepository } from "../repository/indexeddb-attachmen
 import { CostTable, FabricCostTable, TrimCostTable } from "./cost-table";
 import { PriceVersionSelector } from "./price-version-selector";
 import { QuoteBaseInfo } from "./quote-base-info";
-import { QuoteMetrics } from "./quote-metrics";
+import { QuoteCockpit } from "./quote-metrics";
 import { QuotePricingSettings } from "./quote-pricing-settings";
 import { QuoteExportModal, type QuoteExportGuardMode, type QuoteExportScope } from "./quote-export-modal";
 import { RevisionManagerModal } from "./revision-manager-modal";
@@ -689,14 +688,13 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   const creatingSecondPriceVersion = versionModal?.mode === "copy" && revision.priceVersions.length === 1;
   const creationValidationIssues = isNew ? validateQuoteCreation(revision).issues : [];
 
-  if (isNew) return <AppShell title="新建报价" onRequestNavigation={requestNavigation}><PageContainer className="qc-create-page qc-quote-create-page">
+  if (isNew) return <AppShell title="新建报价" backTarget={{ href: "/quote-center", label: "返回报价中心" }} onRequestNavigation={requestNavigation}><PageContainer className="qc-create-page qc-quote-create-page">
     <FormShell className="qc-create-form" submitOnEnter={false} onSubmit={save}>
       <PageHeader
         variant="object"
         eyebrow="CREATE QUOTE"
         title={revision.baseInfo.quoteStyleNo.trim() || "新建报价"}
         description={<><strong>{revision.baseInfo.styleName.trim() || "先建立款式与客户上下文"}</strong><span>创建后进入报价详情继续维护成本、附件与客户确认。</span></>}
-        back={<Button variant="text" onClick={() => requestNavigation("/quote-center")}>← 返回报价中心</Button>}
         status={<span className="qc-create-state" data-dirty={isDirty || undefined}>{isDirty ? "有未保存修改" : "尚未保存"}</span>}
         primaryAction={<Button type="submit" permission="quote.edit">创建报价</Button>}
       />
@@ -772,19 +770,12 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
     <QuoteActionBar {...quoteActionBarProps} onModeChange={setHeaderActionMode} />
   </div>;
 
-  return <AppShell title={isNew ? "新建报价" : "款式报价明细"} onRequestNavigation={requestNavigation}><PageContainer>
+  return <AppShell title={isNew ? "新建报价" : "款式报价明细"} backTarget={{ href: "/quote-center", label: "返回报价中心" }} onRequestNavigation={requestNavigation}><PageContainer>
     <FormShell className="qc-page-form-shell" submitOnEnter={false} onSubmit={() => { if (!quoteReadOnly) return save(); }}>
-    <div ref={titleSentinelRef} className="qc-title-sentinel"><PageHeader className="qc-quote-object-header" variant="object" eyebrow="QUOTE WORKSPACE" title={pageTitle} back={<PageBackButton fallbackHref="/quote-center" label="返回报价中心" />} description={<span className="qc-quote-object-description"><strong>{pageSubtitle}</strong><span className="qc-workspace-metadata"><b>{revision.baseInfo.brandName || "未填写品牌"}</b><span>{revision.baseInfo.salespersonName || "未填写客户业务员"}</span><span>{revision.baseInfo.quoteType === "distribution" ? "经销报价" : "加工报价"}</span><span>{quoteStatusLabel}</span><span>报价编号 {quote.quoteCode}</span><span>{isHistorical ? "历史只读" : "当前编辑"}</span></span></span>} actions={headerActions} /><QuoteMetrics className="qc-header-metrics" version={activeVersion} revision={revision} onFinalQuoteClick={() => setBreakdownOpen(true)} /></div>
+    <div ref={titleSentinelRef} className="qc-title-sentinel"><PageHeader className="qc-quote-object-header" variant="object" eyebrow="QUOTE WORKSPACE" title={pageTitle} description={<span className="qc-quote-object-description"><strong>{pageSubtitle}</strong><span className="qc-workspace-metadata"><b>{revision.baseInfo.brandName || "未填写品牌"}</b><span>{revision.baseInfo.salespersonName || "未填写客户业务员"}</span><span>{revision.baseInfo.quoteType === "distribution" ? "经销报价" : "加工报价"}</span><span>{quoteStatusLabel}</span><span>报价编号 {quote.quoteCode}</span><span>{isHistorical ? "历史只读" : "当前编辑"}</span></span></span>} actions={headerActions} /><QuoteCockpit version={activeVersion} revisionLabel={revision.revisionLabel} priceVersionLabel={activePriceDisplayName} productionLabel={activeProductionLabel} confirmationLabel={confirmationSummaryLabel(revision.confirmationSummary)} differenceCount={unconfirmedCostDifferences.length} historical={isHistorical} onDifferenceClick={() => setPriceDifferencesOpen(true)} onFinalQuoteClick={() => setBreakdownOpen(true)} settingsAction={<Button permission="quote.settings.edit" variant="text" onClick={() => setPricingOpen(true)}>报价设置</Button>} /></div>
     <div className={`qc-sticky-header ${stickyVisible ? "is-visible" : ""}`} aria-hidden={!stickyVisible}><div className="qc-sticky-summary"><strong>{pageTitle}</strong><small>{pageSubtitle} · {revision.baseInfo.brandName || "未填写品牌"} · {revision.baseInfo.salespersonName || "未填写业务员"}</small></div><div className="qc-sticky-state"><span>{revision.revisionLabel} · {activePriceDisplayName}</span><span>{activeProductionLabel} · {revision.baseInfo.quoteType === "distribution" ? "经销" : "加工"}</span><span>{activeVersion.quantity === null ? "数量未填写" : `${activeVersion.quantity.toLocaleString("zh-CN")} 件`} · 成衣 {formatFinalGarmentPrice(metrics?.garmentSellingPrice ?? null)}</span><span>工价 {activeVersion.labor.value === null ? "—" : activeVersion.labor.value.toFixed(2)} {activeVersion.pricingParameters.laborCurrency} · {confirmationSummaryLabel(revision.confirmationSummary)}</span><b>{isDirty ? "有未保存修改" : "已保存"}</b></div><div className="qc-sticky-actions">{!isHistorical && <Button permission="quote.edit" onClick={save}>保存</Button>}{!isNew && <Button permission="order.create" variant="secondary" onClick={() => setQuoteToOrderOpen(true)}>生成订单</Button>}</div></div>
     <div className="qc-quote-functional-stack">
       <div className={`qc-quick-navigation-normal ${headerActionMode === "full" ? "" : "is-collapsed"}`}><QuoteQuickNavigation items={quickNavigationItems} /></div>
-      <div className={`qc-quote-version-bar qc-price-version-context ${isHistorical ? "is-history" : ""}`}>
-        <div className="qc-revision-context"><span>报价版本 · 历史快照</span><strong>{revision.revisionLabel}</strong><small>{isHistorical ? "历史只读" : "当前默认报价"}</small></div>
-        <div className="qc-active-price-context"><span>当前价格方案</span><strong>{activePriceDisplayName}</strong><small>{activeProductionLabel} · {activeVersion.quantity === null ? "数量未填写" : `${activeVersion.quantity.toLocaleString("zh-CN")} 件`}</small></div>
-        <div className="qc-active-price-result"><span>最终报价</span><strong>{formatFinalGarmentPrice(metrics?.garmentSellingPrice ?? null)}</strong><small>RMB / 件 · {confirmationSummaryLabel(revision.confirmationSummary)}</small></div>
-        <div className="qc-price-context-meta">{unconfirmedCostDifferences.length > 0 && <button type="button" className="qc-version-difference-button" onClick={() => setPriceDifferencesOpen(true)}>{unconfirmedCostDifferences.length} 项未确认差异</button>}<span>{activeVersion.pricingParameters.laborCurrency} 工价 · 成本加成 <b>{activeVersion.pricingParameters.markupRate === null ? "未设置" : `${activeVersion.pricingParameters.markupRate}%`}</b></span></div>
-        <Button permission="quote.settings.edit" className="qc-quote-settings-entry" variant="secondary" onClick={() => setPricingOpen(true)}>报价设置</Button>
-      </div>
       <ValidationSummary issues={liveRevisionValidationIssues} title={isNew ? "完成新建报价前请完成以下内容" : isHistorical ? "当前报价版本尚有以下资料未完成" : "更新报价版本前请完成以下内容"} onSelect={isHistorical ? undefined : (issue) => { if (issue.priceVersionId) setActivePriceId(issue.priceVersionId); focusQuoteValidationIssue(issue); }} />
       <ValidationSummary issues={confirmationValidationIssues} title="客户确认前请完成以下内容" onSelect={(issue) => { if (issue.priceVersionId) setActivePriceId(issue.priceVersionId); focusQuoteValidationIssue(issue); }} />
     </div>
@@ -854,8 +845,8 @@ export function QuoteDetailLoader() {
     mockQuoteRepository.getById(quoteId).then((next) => { if (active) setQuote(next); });
     return () => { active = false; };
   }, [quoteId]);
-  if (quote === undefined) return <AppShell title="载入报价"><PageContainer><div className="loading-screen qc-inline-loading"><div className="loading-mark">纫</div><strong>正在载入报价</strong><span /></div></PageContainer></AppShell>;
-  if (!quote) return <AppShell title="报价不存在"><PageContainer><Card className="qc-not-found"><strong>没有找到这张报价</strong><p>该 mock 报价可能已随浏览器会话结束而清除。</p><Button onClick={() => window.location.assign("/quote-center")}>返回报价中心</Button></Card></PageContainer></AppShell>;
+  if (quote === undefined) return <AppShell title="载入报价" backTarget={{ href: "/quote-center", label: "返回报价中心" }}><PageContainer><div className="loading-screen qc-inline-loading"><div className="loading-mark">纫</div><strong>正在载入报价</strong><span /></div></PageContainer></AppShell>;
+  if (!quote) return <AppShell title="报价不存在" backTarget={{ href: "/quote-center", label: "返回报价中心" }}><PageContainer><Card className="qc-not-found"><strong>没有找到这张报价</strong><p>该报价不存在或当前数据源无法读取。</p></Card></PageContainer></AppShell>;
   return <QuoteEditor key={quote.id} initialQuote={quote} />;
 }
 
@@ -869,6 +860,6 @@ export function QuoteNewLoader() {
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     mockQuoteRepository.createDraft(today).then(setQuote);
   }, []);
-  if (!quote) return <AppShell title="新建报价"><PageContainer><div className="loading-screen qc-inline-loading"><div className="loading-mark">纫</div><strong>正在准备报价草稿</strong><span /></div></PageContainer></AppShell>;
+  if (!quote) return <AppShell title="新建报价" backTarget={{ href: "/quote-center", label: "返回报价中心" }}><PageContainer><div className="loading-screen qc-inline-loading"><div className="loading-mark">纫</div><strong>正在准备报价草稿</strong><span /></div></PageContainer></AppShell>;
   return <QuoteEditor initialQuote={quote} isNew />;
 }
