@@ -446,26 +446,65 @@ html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 .qc-audit-mobile-record p { margin: 0; color: #516159; font-size: 11px; line-height: 1.45; }
 .qc-audit-mobile-record footer { flex-wrap: wrap; color: #7b8781; font-size: 9px; }
 .qc-audit-mobile-record time { font-variant-numeric: tabular-nums; }
-.qc-infrastructure-summary { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px; }
-.qc-infrastructure-summary .qc-card { display:grid;gap:5px;padding:15px 17px; }
-.qc-infrastructure-summary span,.qc-infrastructure-summary small { color:#75827b;font-size:9px; }
-.qc-infrastructure-summary strong { color:var(--forest);font-size:22px;font-variant-numeric:tabular-nums; }
-.qc-infrastructure-relationships { overflow:hidden;padding:0; }
-.qc-infrastructure-route-list { display:grid;gap:12px;padding:14px; }
-.qc-infrastructure-route-list > article { overflow:hidden;border:1px solid var(--line);border-radius:10px;background:#fff; }
-.qc-infrastructure-route-list article > header { display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;border-bottom:1px solid var(--line);background:#f8faf8; }
-.qc-infrastructure-route-list article > header div { display:grid;gap:3px; }
-.qc-infrastructure-route-list article > header strong { color:var(--forest);font-size:12px; }
-.qc-infrastructure-route-list article > header small { color:#7a8781;font-size:9px; }
-.qc-infrastructure-flow { display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr) 24px minmax(0,1fr);align-items:center;gap:6px;padding:14px; }
-.qc-infrastructure-flow section { min-width:0;display:grid;gap:4px;padding:10px;border-radius:8px;background:#f6f8f6; }
-.qc-infrastructure-flow span,.qc-infrastructure-flow small { color:#7a8781;font-size:9px; }
-.qc-infrastructure-flow strong { color:#30453b;font-size:11px;overflow-wrap:anywhere; }
-.qc-infrastructure-flow i { color:#98a39d;font-style:normal;text-align:center; }
-.qc-infrastructure-route-list article > footer { display:flex;flex-wrap:wrap;gap:7px;padding:0 14px 14px; }
-.qc-infrastructure-route-list article > footer button { min-height:38px;display:inline-flex;align-items:center;gap:8px;padding:0 10px;color:#405149;border:1px solid var(--line);border-radius:7px;background:#fff;cursor:pointer; }
-.qc-infrastructure-route-list article > footer button span { color:#7a8781;font-size:9px; }
-.qc-infrastructure-management { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start; }
+.qc-infrastructure-health { display:grid;gap:12px;padding:15px 17px;border-left:3px solid var(--forest); }
+.qc-infrastructure-health > header { display:flex;align-items:center;justify-content:space-between;gap:12px; }
+.qc-infrastructure-health > header div { display:grid;gap:3px; }
+.qc-infrastructure-health > header span { color:#75827b;font-size:9px;letter-spacing:.08em;text-transform:uppercase; }
+.qc-infrastructure-health > header strong { color:var(--forest);font-size:15px; }
+.qc-infrastructure-health > div { display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:8px; }
+.qc-infrastructure-health p,.qc-infrastructure-health button { min-height:40px;margin:0;padding:9px 11px;color:#405149;border:1px solid #e2e8e4;border-radius:8px;background:#f8faf8;font:inherit;font-size:10px;text-align:left; }
+.qc-infrastructure-health button { cursor:pointer; }
+.qc-infrastructure-health button:disabled { cursor:not-allowed;opacity:.56; }
+.qc-infrastructure-health button span { display:block;margin-top:4px;color:var(--forest);font-weight:700; }
+.qc-infrastructure-business-section { display:grid;gap:10px; }
+.qc-infrastructure-business-section > header { min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 3px; }
+.qc-infrastructure-business-section > header > div:first-child { min-width:0;display:flex;align-items:center;gap:10px; }
+.qc-infrastructure-business-section > header > div:first-child > span { width:28px;height:28px;display:grid;flex:0 0 auto;place-items:center;color:var(--forest);border:1px solid #cfe0d7;border-radius:50%;background:#edf6f1;font-size:9px;font-weight:800; }
+.qc-infrastructure-business-section h2 { margin:0;color:#20352c;font-size:17px; }
+.qc-infrastructure-business-section p { margin:3px 0 0;color:#77847e;font-size:10px; }
+.qc-infrastructure-business-section > header > div:last-child { display:flex;gap:7px; }
+.qc-infrastructure-card-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:10px; }
+.qc-infrastructure-entity-card { display:grid;gap:12px;padding:14px 15px; }
+.qc-infrastructure-entity-card > header,.qc-infrastructure-entity-card > footer { display:flex;align-items:flex-start;justify-content:space-between;gap:10px; }
+.qc-infrastructure-entity-card > header > div { min-width:0;display:grid;gap:3px; }
+.qc-infrastructure-entity-card > header strong { color:var(--forest);font-size:13px; }
+.qc-infrastructure-entity-card > header small { overflow:hidden;color:#77847e;font-size:9px;text-overflow:ellipsis;white-space:nowrap; }
+.qc-infrastructure-entity-card dl { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;margin:0;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:var(--line); }
+.qc-infrastructure-entity-card dl > div { min-width:0;display:grid;gap:3px;padding:9px;background:#f9faf9; }
+.qc-infrastructure-entity-card dt { color:#849089;font-size:8px; }
+.qc-infrastructure-entity-card dd { margin:0;color:#34483f;font-size:10px;overflow-wrap:anywhere; }
+.qc-infrastructure-entity-card > footer { justify-content:flex-end; }
+.qc-infrastructure-plan-list { display:grid;gap:10px; }
+.qc-infrastructure-plan-card { overflow:hidden;padding:0; }
+.qc-infrastructure-plan-card > header { display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);background:#f8faf8; }
+.qc-infrastructure-plan-card > header > div { min-width:0;display:grid;gap:3px; }
+.qc-infrastructure-plan-card > header strong { color:var(--forest);font-size:13px; }
+.qc-infrastructure-plan-card > header strong span { padding:0 6px;color:#98a39d; }
+.qc-infrastructure-plan-card > header small { color:#78857e;font-size:9px; }
+.qc-infrastructure-plan-card > div { display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px; }
+.qc-infrastructure-plan-card > div > span { min-width:120px;display:grid;gap:3px;padding:9px 11px;border:1px solid #dde5e0;border-radius:8px;background:#fff; }
+.qc-infrastructure-plan-card > div strong { color:#30453b;font-size:11px; }
+.qc-infrastructure-plan-card > div small { color:#7b8781;font-size:9px; }
+.qc-infrastructure-explanation { padding:13px 15px;border:1px solid var(--line);border-radius:10px;background:#f8faf8; }
+.qc-infrastructure-explanation summary { color:var(--forest);cursor:pointer;font-size:11px;font-weight:800; }
+.qc-infrastructure-explanation > div { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:11px; }
+.qc-infrastructure-explanation p { margin:0;padding:10px;color:#596861;border-radius:7px;background:#fff;font-size:10px;line-height:1.5; }
+.qc-infrastructure-drawer { width:min(760px,calc(100vw - 28px)); }
+.qc-infrastructure-form { display:grid;gap:15px; }
+.qc-infrastructure-form-grid,.qc-infrastructure-steps { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px; }
+.qc-infrastructure-reference-note { margin:0;padding:10px;color:#6b7771;border-left:3px solid #d5e2dc;background:#f6f8f6;font-size:10px; }
+.qc-weekday-field { margin:0;padding:12px;border:1px solid var(--line);border-radius:9px; }
+.qc-weekday-field legend { padding:0 5px;color:#57665f;font-size:10px;font-weight:700; }
+.qc-weekday-field > div { display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px; }
+.qc-weekday-field label { min-height:42px;display:flex;align-items:center;justify-content:center;gap:5px;border:1px solid #dfe6e2;border-radius:7px;background:#fafbf9;color:#465850;font-size:9px;cursor:pointer; }
+.qc-calendar-exceptions,.qc-transport-mode-editor { display:grid;gap:8px; }
+.qc-calendar-exceptions > header,.qc-transport-mode-editor > header { display:flex;align-items:center;justify-content:space-between;gap:10px; }
+.qc-calendar-exceptions > header > div,.qc-transport-mode-editor > header > div { display:grid;gap:3px; }
+.qc-calendar-exceptions > header strong,.qc-transport-mode-editor > header strong { color:#34483f;font-size:11px; }
+.qc-calendar-exceptions > header small,.qc-transport-mode-editor > header small { color:#7b8781;font-size:9px; }
+.qc-calendar-exceptions > div { display:grid;grid-template-columns:145px 100px minmax(140px,1fr) auto;align-items:center;gap:7px; }
+.qc-transport-mode-editor > div { display:grid;grid-template-columns:minmax(150px,1fr) 100px auto 80px 90px;align-items:center;gap:7px;padding:9px;border:1px solid var(--line);border-radius:8px; }
+.qc-transport-mode-editor > div > span,.qc-transport-mode-editor > div > label { color:#66746d;font-size:9px;white-space:nowrap; }
 .qc-template-management-grid { overflow:hidden;padding:0; }
 .qc-template-cell { min-width:0;display:grid;gap:4px; }
 .qc-template-cell strong { color:var(--forest);font-size:11px; }
@@ -485,8 +524,8 @@ html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 .qc-template-mobile-record header strong { color:var(--forest);font-size:13px; }
 .qc-template-mobile-record p { margin:0;color:#6f7c76;font-size:10px;overflow-wrap:anywhere; }
 .qc-template-mobile-record footer { justify-content:flex-start;flex-wrap:wrap;color:#7a8781;font-size:9px; }
-@media (max-width:1099px) { .qc-infrastructure-flow { grid-template-columns:1fr; }.qc-infrastructure-flow i { transform:rotate(90deg); }.qc-infrastructure-management { grid-template-columns:1fr; } }
-@media (max-width:699px) { .qc-infrastructure-summary { grid-template-columns:1fr; }.qc-infrastructure-route-list { padding:10px; }.qc-infrastructure-route-list article > header,.qc-operations-list-header { align-items:flex-start;flex-direction:column; }.qc-infrastructure-route-list article > footer button { min-height:44px; }.qc-infrastructure-management .qc-row-actions { display:grid;grid-template-columns:1fr auto; }.qc-infrastructure-management .qc-row-actions span { grid-column:1; }.qc-template-detail dl { grid-template-columns:1fr; } }
+@media (max-width:1099px) { .qc-infrastructure-health > div { grid-template-columns:1fr; }.qc-infrastructure-explanation > div { grid-template-columns:1fr; } }
+@media (max-width:699px) { .qc-infrastructure-business-section > header,.qc-infrastructure-plan-card > header,.qc-calendar-exceptions > header,.qc-transport-mode-editor > header { align-items:flex-start;flex-direction:column; }.qc-infrastructure-business-section > header > div:last-child { width:100%;flex-wrap:wrap; }.qc-infrastructure-business-section > header .qc-button { min-height:44px; }.qc-infrastructure-entity-card > footer { align-items:stretch;flex-direction:column; }.qc-infrastructure-entity-card > footer .qc-button { min-height:44px; }.qc-infrastructure-form-grid,.qc-infrastructure-steps { grid-template-columns:1fr; }.qc-weekday-field > div { grid-template-columns:repeat(2,minmax(0,1fr)); }.qc-weekday-field label { min-height:44px; }.qc-calendar-exceptions > div { grid-template-columns:1fr 110px; }.qc-calendar-exceptions > div > input:nth-of-type(2) { grid-column:1; }.qc-transport-mode-editor > div { grid-template-columns:minmax(0,1fr) 100px auto; }.qc-transport-mode-editor > div > label,.qc-transport-mode-editor > div > :last-child { min-height:44px; }.qc-template-detail dl { grid-template-columns:1fr; } }
 
 /* ERP global search */
 .qc-global-search-backdrop { position: fixed; z-index: 130; inset: 0; display: grid; place-items: start center; padding: min(13vh, 116px) 18px 24px; background: rgba(11, 27, 21, .34); backdrop-filter: blur(3px); }

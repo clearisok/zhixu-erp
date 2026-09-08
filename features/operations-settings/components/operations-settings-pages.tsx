@@ -11,7 +11,6 @@ import {
   FormItem,
   FormSection,
   MasterDataActions,
-  Modal,
   NullableNumberInput,
   PageContainer,
   PageHeader,
@@ -37,8 +36,7 @@ import {
   upsertProductionCalendar,
   upsertProductionSite,
   upsertSupplyHub,
-  upsertSupplyRoute,
-  upsertTransportMode,
+  upsertTransportPlan,
   type MonthlyProductionTarget,
   type OperationsSettingsState,
   type OutsourceFactory,
@@ -245,28 +243,131 @@ type InfrastructureDraft =
   | { kind: "calendar"; value: ProductionCalendar }
   | { kind: "site"; value: ProductionSite }
   | { kind: "hub"; value: SupplyHub }
-  | { kind: "route"; value: SupplyRoute }
-  | { kind: "mode"; value: TransportMode };
+  | { kind: "transport-plan"; route: SupplyRoute; modes: TransportMode[] };
+
+const weekdayLabels = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"] as const;
+
+function weekdaySummary(days: number[]) {
+  const ordered = [...new Set(days)].sort((left, right) => left - right);
+  if (ordered.join(",") === "1,2,3,4,5") return "周一至周五";
+  if (ordered.join(",") === "1,2,3,4,5,6") return "周一至周六";
+  if (ordered.length === 7) return "每天";
+  return ordered.map((day) => weekdayLabels[day]).join("、") || "未设置";
+}
+
+function infrastructureDraftTitle(draft: InfrastructureDraft | null) {
+  if (!draft) return "生产与运输设置";
+  if (draft.kind === "site") return "生产地点";
+  if (draft.kind === "calendar") return "工作日历";
+  if (draft.kind === "hub") return "集货仓";
+  return "运输方案";
+}
 
 export function ProductionInfrastructureSettingsPage() {
-  const { can } = usePermissions(); const { state, persist } = useOperationsSettings(); const { message, notify } = useToast(); const [draft, setDraft] = useState<InfrastructureDraft | null>(null); const timestamp = now();
-  const save = () => { if (!draft || !can("settings.production_infrastructure.edit")) return; let next = state; if (draft.kind === "calendar") next = upsertProductionCalendar(state, draft.value); if (draft.kind === "site") next = upsertProductionSite(state, draft.value); if (draft.kind === "hub") next = upsertSupplyHub(state, draft.value); if (draft.kind === "route") next = upsertSupplyRoute(state, draft.value); if (draft.kind === "mode") next = upsertTransportMode(state, draft.value); persist(next); setDraft(null); notify("生产与运输设置已保存"); };
-  const newCalendar = () => setDraft({ kind: "calendar", value: { id: createOperationsMasterDataId("production-calendar"), name: "", workingWeekdays: [1,2,3,4,5,6], exceptions: [], enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp } });
-  const newSite = () => setDraft({ kind: "site", value: { id: createOperationsMasterDataId("production-site"), name: "", countryCode: null, productionCalendarId: state.productionCalendars[0]?.id ?? "", preProductionSampleLeadDays: 0, enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp } });
-  const newHub = () => setDraft({ kind: "hub", value: { id: createOperationsMasterDataId("supply-hub"), name: "", enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp } });
-  const newRoute = () => setDraft({ kind: "route", value: { id: createOperationsMasterDataId("supply-route"), supplyHubId: state.supplyHubs[0]?.id ?? "", productionSiteId: state.productionSites[0]?.id ?? "", name: "", enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp } });
-  const newMode = () => setDraft({ kind: "mode", value: { id: createOperationsMasterDataId("transport-mode"), routeId: state.supplyRoutes[0]?.id ?? "", name: "", transitDays: 0, enabled: true, sortOrder: 10, remark: "", createdAt: timestamp, updatedAt: timestamp } });
-  return <AppShell title="生产与运输"><PageContainer><PageHeader eyebrow="PRODUCTION & TRANSPORT" title="生产与运输" description="用正式生产地点、日历、供应枢纽、路线和运输方式表达执行关系；运输可行性仍由现有排单服务判断。" />
-    <section className="qc-infrastructure-summary" aria-label="关系概览"><Card><span>生产地点</span><strong>{state.productionSites.filter((item) => item.enabled).length}</strong><small>{state.productionCalendars.filter((item) => item.enabled).length} 个启用日历</small></Card><Card><span>供应路线</span><strong>{state.supplyRoutes.filter((item) => item.enabled).length}</strong><small>{state.supplyHubs.filter((item) => item.enabled).length} 个供应枢纽</small></Card><Card><span>运输方式</span><strong>{state.transportModes.filter((item) => item.enabled).length}</strong><small>按正式路线与自然日维护</small></Card></section>
-    <Card className="qc-infrastructure-relationships"><div className="qc-operations-list-header"><div><strong>生产 ↔ 运输关系</strong><small>异常与状态不在此处推算；排单工作区使用同一组正式事实。</small></div><div><PermissionButton permission="settings.production_infrastructure.edit" variant="secondary" onClick={newRoute}>＋ 路线</PermissionButton><PermissionButton permission="settings.production_infrastructure.edit" onClick={newMode}>＋ 运输方式</PermissionButton></div></div><div className="qc-infrastructure-route-list">{state.supplyRoutes.map((route) => { const site = state.productionSites.find((item) => item.id === route.productionSiteId); const hub = state.supplyHubs.find((item) => item.id === route.supplyHubId); const calendar = state.productionCalendars.find((item) => item.id === site?.productionCalendarId); const modes = state.transportModes.filter((item) => item.routeId === route.id); return <article key={route.id}><header><div><strong>{route.name}</strong><small>{route.enabled ? "路线启用" : "路线停用"}</small></div><Button variant="text" permission="settings.production_infrastructure.edit" onClick={() => setDraft({ kind: "route", value: { ...route } })}>编辑路线</Button></header><div className="qc-infrastructure-flow"><section><span>供应</span><strong>{hub?.name ?? "历史枢纽"}</strong><small>SupplyHub</small></section><i aria-hidden="true">→</i><section><span>生产</span><strong>{site?.name ?? "历史地点"}</strong><small>{calendar?.name ?? "无日历"} · 封样提前 {site?.preProductionSampleLeadDays ?? 0} 天</small></section><i aria-hidden="true">→</i><section><span>运输</span><strong>{modes.length ? modes.map((item) => item.name).join(" / ") : "未配置"}</strong><small>{modes.length ? `${Math.min(...modes.map((item) => item.transitDays))}–${Math.max(...modes.map((item) => item.transitDays))} 自然日` : "需要维护运输方式"}</small></section></div><footer>{modes.map((item) => <button type="button" key={item.id} onClick={() => setDraft({ kind: "mode", value: { ...item } })}><strong>{item.name}</strong><span>{item.transitDays} 天</span></button>)}</footer></article>; })}</div></Card>
-    <div className="qc-infrastructure-management"><Card className="qc-master-list"><div className="qc-operations-list-header"><div><strong>生产事实</strong><small>地点与日历；不等同于报价制作国家。</small></div><div><PermissionButton permission="settings.production_infrastructure.edit" variant="secondary" onClick={newCalendar}>＋ 日历</PermissionButton><PermissionButton permission="settings.production_infrastructure.edit" onClick={newSite}>＋ 地点</PermissionButton></div></div>{state.productionCalendars.map((item) => <div className="qc-row-actions" key={item.id}><strong>{item.name}</strong><span>工作周 {item.workingWeekdays.map((day) => "日一二三四五六"[day]).join("、")}</span><span>{item.exceptions.length} 个例外</span><Button variant="text" permission="settings.production_infrastructure.edit" onClick={() => setDraft({ kind: "calendar", value: { ...item, exceptions: [...item.exceptions] } })}>编辑</Button></div>)}{state.productionSites.map((item) => <div className="qc-row-actions" key={item.id}><strong>{item.name}</strong><span>{item.countryCode ?? "—"}</span><span>提前 {item.preProductionSampleLeadDays} 天</span><Button variant="text" permission="settings.production_infrastructure.edit" onClick={() => setDraft({ kind: "site", value: { ...item } })}>编辑</Button></div>)}</Card><Card className="qc-master-list"><div className="qc-operations-list-header"><div><strong>运输事实</strong><small>供应枢纽、正式路线与运输自然日。</small></div><PermissionButton permission="settings.production_infrastructure.edit" onClick={newHub}>＋ 枢纽</PermissionButton></div>{state.supplyHubs.map((item) => <div className="qc-row-actions" key={item.id}><strong>{item.name}</strong><span>供应枢纽</span><Button variant="text" permission="settings.production_infrastructure.edit" onClick={() => setDraft({ kind: "hub", value: { ...item } })}>编辑</Button></div>)}</Card></div>
-    <Modal open={Boolean(draft)} title="编辑生产与运输设置" onClose={() => setDraft(null)} onSubmit={save} footer={<><Button variant="secondary" onClick={() => setDraft(null)}>取消</Button><Button type="submit" permission="settings.production_infrastructure.edit">保存</Button></>}>{draft && <div className="qc-modal-form">
-      <FormItem label="名称" required><input className="qc-control" value={draft.value.name} onChange={(event) => setDraft({ ...draft, value: { ...draft.value, name: event.target.value } } as InfrastructureDraft)} /></FormItem>
-      {draft.kind === "calendar" && <><FormItem label="每周工作日"><input className="qc-control" value={draft.value.workingWeekdays.join(",")} onChange={(event) => setDraft({ kind: "calendar", value: { ...draft.value, workingWeekdays: event.target.value.split(",").map(Number).filter((day) => day >= 0 && day <= 6) } })} placeholder="0=周日，1=周一，例如 1,2,3,4,5,6" /></FormItem><FormItem label="例外日期 JSON"><textarea className="qc-control" value={JSON.stringify(draft.value.exceptions)} onChange={(event) => { try { const exceptions = JSON.parse(event.target.value) as ProductionCalendar["exceptions"]; setDraft({ kind: "calendar", value: { ...draft.value, exceptions } }); } catch { /* 输入完成后再解析 */ } }} /></FormItem></>}
-      {draft.kind === "site" && <><FormItem label="国家代码"><input className="qc-control" value={draft.value.countryCode ?? ""} onChange={(event) => setDraft({ kind: "site", value: { ...draft.value, countryCode: event.target.value || null } })} /></FormItem><FormItem label="生产日历"><select className="qc-control" value={draft.value.productionCalendarId} onChange={(event) => setDraft({ kind: "site", value: { ...draft.value, productionCalendarId: event.target.value } })}>{state.productionCalendars.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></FormItem><FormItem label="产前样提前天数"><NullableNumberInput className="qc-control" min="0" value={draft.value.preProductionSampleLeadDays} onValueChange={(value) => setDraft({ kind: "site", value: { ...draft.value, preProductionSampleLeadDays: value ?? 0 } })} /></FormItem></>}
-      {draft.kind === "route" && <><FormItem label="供应枢纽"><select className="qc-control" value={draft.value.supplyHubId} onChange={(event) => setDraft({ kind: "route", value: { ...draft.value, supplyHubId: event.target.value } })}>{state.supplyHubs.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></FormItem><FormItem label="生产地点"><select className="qc-control" value={draft.value.productionSiteId} onChange={(event) => setDraft({ kind: "route", value: { ...draft.value, productionSiteId: event.target.value } })}>{state.productionSites.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></FormItem></>}
-      {draft.kind === "mode" && <><FormItem label="路线"><select className="qc-control" value={draft.value.routeId} onChange={(event) => setDraft({ kind: "mode", value: { ...draft.value, routeId: event.target.value } })}>{state.supplyRoutes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></FormItem><FormItem label="运输自然日"><NullableNumberInput className="qc-control" min="0" value={draft.value.transitDays} onValueChange={(value) => setDraft({ kind: "mode", value: { ...draft.value, transitDays: value ?? 0 } })} /></FormItem></>}
-      <FormItem label="备注"><textarea className="qc-control" value={draft.value.remark} onChange={(event) => setDraft({ ...draft, value: { ...draft.value, remark: event.target.value } } as InfrastructureDraft)} /></FormItem>
-    </div>}</Modal><Toast message={message} />
+  const { can } = usePermissions();
+  const { state, persist } = useOperationsSettings();
+  const { message, notify } = useToast();
+  const [draft, setDraft] = useState<InfrastructureDraft | null>(null);
+  const [error, setError] = useState("");
+  const timestamp = now();
+  const canEdit = can("settings.production_infrastructure.edit");
+  const enabledModesFor = (routeId: string) => state.transportModes.filter((item) => item.routeId === routeId && item.enabled).sort((left, right) => left.sortOrder - right.sortOrder);
+  const calendarFor = (site: ProductionSite) => state.productionCalendars.find((item) => item.id === site.productionCalendarId);
+  const groupCountFor = (siteId: string) => state.productionGroups.filter((item) => item.productionSiteId === siteId).length;
+  const routeCountFor = (hubId: string) => state.supplyRoutes.filter((item) => item.supplyHubId === hubId && item.enabled).length;
+  const operationalGroups = state.productionGroups.filter((group) => group.enabled);
+  const missingSiteGroups = operationalGroups.filter((group) => !state.productionSites.some((site) => site.id === group.productionSiteId && site.enabled));
+  const sitesWithoutCalendar = state.productionSites.filter((site) => site.enabled && !state.productionCalendars.some((calendar) => calendar.id === site.productionCalendarId && calendar.enabled));
+  const routesWithoutModes = state.supplyRoutes.filter((route) => route.enabled && enabledModesFor(route.id).length === 0);
+  const usedSiteIds = new Set(operationalGroups.map((group) => group.productionSiteId));
+  const missingRoutePairs = state.supplyHubs.filter((hub) => hub.enabled).flatMap((hub) => state.productionSites
+    .filter((site) => site.enabled && usedSiteIds.has(site.id))
+    .filter((site) => !state.supplyRoutes.some((route) => route.enabled && route.supplyHubId === hub.id && route.productionSiteId === site.id))
+    .map((site) => ({ hub, site })));
+  const healthIssueCount = missingSiteGroups.length + sitesWithoutCalendar.length + missingRoutePairs.length + routesWithoutModes.length;
+
+  const openNewCalendar = () => setDraft({ kind: "calendar", value: { id: createOperationsMasterDataId("production-calendar"), name: "", workingWeekdays: [1, 2, 3, 4, 5, 6], exceptions: [], enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp } });
+  const openNewSite = () => setDraft({ kind: "site", value: { id: createOperationsMasterDataId("production-site"), name: "", countryCode: null, productionCalendarId: state.productionCalendars[0]?.id ?? "", preProductionSampleLeadDays: 0, enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp } });
+  const openNewHub = () => setDraft({ kind: "hub", value: { id: createOperationsMasterDataId("supply-hub"), name: "", enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp } });
+  const openTransportPlan = (route?: SupplyRoute, defaults?: { supplyHubId: string; productionSiteId: string }) => {
+    const nextRoute = route ? { ...route } : { id: createOperationsMasterDataId("supply-route"), supplyHubId: defaults?.supplyHubId ?? state.supplyHubs[0]?.id ?? "", productionSiteId: defaults?.productionSiteId ?? state.productionSites[0]?.id ?? "", name: "", enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp };
+    setDraft({ kind: "transport-plan", route: nextRoute, modes: route ? state.transportModes.filter((item) => item.routeId === route.id).map((item) => ({ ...item })) : [] });
+    setError("");
+  };
+  const addMode = () => {
+    if (!draft || draft.kind !== "transport-plan") return;
+    setDraft({ ...draft, modes: [...draft.modes, { id: createOperationsMasterDataId("transport-mode"), routeId: draft.route.id, name: "", transitDays: 0, enabled: true, sortOrder: (draft.modes.at(-1)?.sortOrder ?? 0) + 10, remark: "", createdAt: timestamp, updatedAt: timestamp }] });
+  };
+  const updateMode = (id: string, patch: Partial<TransportMode>) => {
+    if (!draft || draft.kind !== "transport-plan") return;
+    setDraft({ ...draft, modes: draft.modes.map((mode) => mode.id === id ? { ...mode, ...patch, routeId: draft.route.id } : mode) });
+  };
+  const save = () => {
+    if (!draft || !canEdit) return;
+    setError("");
+    let next = state;
+    if (draft.kind === "calendar") {
+      if (!draft.value.name.trim() || !draft.value.workingWeekdays.length) { setError("请填写日历名称并至少选择一个工作日。"); return; }
+      if (draft.value.exceptions.some((item) => !/^\d{4}-\d{2}-\d{2}$/.test(item.date) || !item.name.trim())) { setError("请完整填写特殊日期、类型和说明。"); return; }
+      next = upsertProductionCalendar(state, draft.value);
+    }
+    if (draft.kind === "site") {
+      if (!draft.value.name.trim() || !draft.value.productionCalendarId) { setError("请填写地点名称并选择工作日历。"); return; }
+      next = upsertProductionSite(state, draft.value);
+    }
+    if (draft.kind === "hub") {
+      if (!draft.value.name.trim()) { setError("请填写集货仓名称。"); return; }
+      next = upsertSupplyHub(state, draft.value);
+    }
+    if (draft.kind === "transport-plan") {
+      if (!draft.route.supplyHubId || !draft.route.productionSiteId) { setError("请选择出发集货仓和到达生产地点。"); return; }
+      if (!draft.modes.length || draft.modes.some((mode) => !mode.name.trim() || mode.transitDays < 0)) { setError("请至少添加一种完整的运输方式。"); return; }
+      const hub = state.supplyHubs.find((item) => item.id === draft.route.supplyHubId);
+      const site = state.productionSites.find((item) => item.id === draft.route.productionSiteId);
+      const route = { ...draft.route, name: `${hub?.name ?? "集货仓"} → ${site?.name ?? "生产地点"}` };
+      next = upsertTransportPlan(next, { route, modes: draft.modes });
+    }
+    persist(next);
+    setDraft(null);
+    notify("生产与运输设置已保存");
+  };
+
+  return <AppShell title="生产与运输"><PageContainer>
+    <PageHeader eyebrow="PRODUCTION & TRANSPORT" title="生产与运输" description="按生产地点、物料出发仓和运输方案维护物流计算所需事实。" primaryAction={<PermissionButton permission="settings.production_infrastructure.edit" onClick={() => openTransportPlan()}>＋ 新增运输方案</PermissionButton>} />
+
+    <Card className="qc-infrastructure-health">
+      <header><div><span>配置检查</span><strong>{healthIssueCount === 0 ? "生产与运输配置完整" : "仍有配置需要处理"}</strong></div><StatusTag tone={healthIssueCount === 0 ? "success" : "warning"}>{healthIssueCount === 0 ? "可用" : `${healthIssueCount} 项`}</StatusTag></header>
+      <div>
+        {missingSiteGroups.length ? <button type="button" disabled={!canEdit} onClick={openNewSite}>⚠ {missingSiteGroups.length} 个生产组未配置可用生产地点 <span>补充地点</span></button> : <p>✓ {operationalGroups.length} 个生产组已有生产地点</p>}
+        {sitesWithoutCalendar.length ? <button type="button" disabled={!canEdit} onClick={openNewCalendar}>⚠ {sitesWithoutCalendar.length} 个生产地点缺少可用工作日历 <span>补充日历</span></button> : <p>✓ 启用的生产地点均已有工作日历</p>}
+        {missingRoutePairs.length ? <button type="button" disabled={!canEdit} onClick={() => openTransportPlan(undefined, { supplyHubId: missingRoutePairs[0].hub.id, productionSiteId: missingRoutePairs[0].site.id })}>⚠ {missingRoutePairs[0].hub.name} → {missingRoutePairs[0].site.name} 缺少路线{missingRoutePairs.length > 1 ? `（另有 ${missingRoutePairs.length - 1} 项）` : ""} <span>新增运输方案</span></button> : <p>✓ 使用中的生产地点均已有供应路线</p>}
+        {routesWithoutModes.length ? <button type="button" disabled={!canEdit} onClick={() => openTransportPlan(routesWithoutModes[0])}>⚠ {routesWithoutModes.length} 条路线没有可用运输方式 <span>编辑运输方案</span></button> : <p>✓ 启用的运输方案均已有运输方式</p>}
+      </div>
+    </Card>
+
+    <section className="qc-infrastructure-business-section" aria-labelledby="production-sites-heading">
+      <header><div><span>01</span><div><h2 id="production-sites-heading">在哪里生产</h2><p>生产地点关联工作日历和产前准备时间，生产组直接引用这里的地点。</p></div></div><div><PermissionButton permission="settings.production_infrastructure.edit" variant="secondary" onClick={openNewCalendar}>＋ 工作日历</PermissionButton><PermissionButton permission="settings.production_infrastructure.edit" onClick={openNewSite}>＋ 生产地点</PermissionButton></div></header>
+      <div className="qc-infrastructure-card-grid">{state.productionSites.map((site) => { const calendar = calendarFor(site); const groupCount = groupCountFor(site.id); return <Card key={site.id} className="qc-infrastructure-entity-card"><header><div><strong>{site.name}</strong><small>{site.countryCode || "未设置国家/地区"}</small></div><StatusTag tone={site.enabled && calendar?.enabled ? "success" : "neutral"}>{site.enabled && calendar?.enabled ? "配置完整" : "待完善"}</StatusTag></header><dl><div><dt>生产组</dt><dd>{groupCount ? `${groupCount} 个生产组使用` : "尚未被生产组使用"}</dd></div><div><dt>工作日</dt><dd>{calendar ? weekdaySummary(calendar.workingWeekdays) : "未设置"}</dd></div><div><dt>产前准备</dt><dd>{site.preProductionSampleLeadDays} 天</dd></div><div><dt>特殊日期</dt><dd>{calendar ? `${calendar.exceptions.length} 条` : "—"}</dd></div></dl><footer><Button variant="text" permission="settings.production_infrastructure.edit" onClick={() => calendar && setDraft({ kind: "calendar", value: structuredClone(calendar) })} disabled={!calendar}>编辑工作日历</Button><Button variant="secondary" permission="settings.production_infrastructure.edit" onClick={() => setDraft({ kind: "site", value: { ...site } })}>编辑地点</Button></footer></Card>; })}</div>
+    </section>
+
+    <section className="qc-infrastructure-business-section" aria-labelledby="supply-hubs-heading">
+      <header><div><span>02</span><div><h2 id="supply-hubs-heading">物料从哪里发</h2><p>集货仓是预计到料计划的到达点，也是运输方案的出发点。</p></div></div><PermissionButton permission="settings.production_infrastructure.edit" onClick={openNewHub}>＋ 集货仓</PermissionButton></header>
+      <div className="qc-infrastructure-card-grid">{state.supplyHubs.map((hub) => <Card key={hub.id} className="qc-infrastructure-entity-card"><header><div><strong>{hub.name}</strong><small>{hub.remark || "物料集货与运输起点"}</small></div><StatusTag tone={hub.enabled ? "success" : "neutral"}>{hub.enabled ? "启用" : "停用"}</StatusTag></header><dl><div><dt>服务路线</dt><dd>{routeCountFor(hub.id)} 条</dd></div><div><dt>状态</dt><dd>{hub.enabled ? "可用于运输计划" : "不用于新计划"}</dd></div></dl><footer><Button variant="secondary" permission="settings.production_infrastructure.edit" onClick={() => setDraft({ kind: "hub", value: { ...hub } })}>编辑集货仓</Button></footer></Card>)}</div>
+    </section>
+
+    <section className="qc-infrastructure-business-section" aria-labelledby="transport-plans-heading">
+      <header><div><span>03</span><div><h2 id="transport-plans-heading">仓库到工厂怎么走</h2><p>一个运输方案包含出发仓、到达地点和可选运输方式。</p></div></div><PermissionButton permission="settings.production_infrastructure.edit" onClick={() => openTransportPlan()}>＋ 新增运输方案</PermissionButton></header>
+      <div className="qc-infrastructure-plan-list">{state.supplyRoutes.map((route) => { const site = state.productionSites.find((item) => item.id === route.productionSiteId); const hub = state.supplyHubs.find((item) => item.id === route.supplyHubId); const modes = enabledModesFor(route.id); return <Card key={route.id} className="qc-infrastructure-plan-card"><header><div><strong>{hub?.name ?? "历史集货仓"} <span aria-hidden>→</span> {site?.name ?? "历史生产地点"}</strong><small>{route.enabled ? "运输方案启用" : "运输方案停用"}</small></div><Button variant="secondary" permission="settings.production_infrastructure.edit" onClick={() => openTransportPlan(route)}>编辑运输方案</Button></header><div>{modes.length ? modes.map((mode) => <span key={mode.id}><strong>{mode.name}</strong><small>{mode.transitDays} 个自然日</small></span>) : <p>尚未配置运输方式</p>}</div></Card>; })}</div>
+    </section>
+
+    <details className="qc-infrastructure-explanation"><summary>系统如何选择运输方式</summary><div><p><strong>预计到料日</strong> + 运输自然日 = 预计到厂日</p><p><strong>计划开工日</strong> − 产前准备天数 = 最晚到厂日</p><p>系统会在预计到厂日不晚于最晚到厂日的方式中，选择最慢的可行运输方式。</p></div></details>
+
+    <Drawer open={Boolean(draft)} className="qc-infrastructure-drawer" title={infrastructureDraftTitle(draft)} description={draft?.kind === "transport-plan" ? "一次维护出发集货仓、到达生产地点和全部运输方式。" : "修改会继续写入现有正式设置与 OperationLog。"} onClose={() => { setDraft(null); setError(""); }} onSubmit={save} footer={<><Button variant="secondary" onClick={() => setDraft(null)}>取消</Button><Button type="submit" permission="settings.production_infrastructure.edit">保存</Button></>}>
+      {draft?.kind === "calendar" && <div className="qc-infrastructure-form"><FormItem label="日历名称" required><input className="qc-control" value={draft.value.name} onChange={(event) => setDraft({ kind: "calendar", value: { ...draft.value, name: event.target.value } })} /></FormItem><fieldset className="qc-weekday-field"><legend>每周工作日</legend><div>{weekdayLabels.map((label, day) => <label key={label}><input type="checkbox" checked={draft.value.workingWeekdays.includes(day)} onChange={(event) => setDraft({ kind: "calendar", value: { ...draft.value, workingWeekdays: event.target.checked ? [...draft.value.workingWeekdays, day].sort() : draft.value.workingWeekdays.filter((item) => item !== day) } })} /><span>{label}</span></label>)}</div></fieldset><section className="qc-calendar-exceptions"><header><div><strong>特殊日期</strong><small>明确设置某天工作或休息。</small></div><Button variant="secondary" size="compact" onClick={() => setDraft({ kind: "calendar", value: { ...draft.value, exceptions: [...draft.value.exceptions, { id: createOperationsMasterDataId("calendar-exception"), date: "", type: "non_working", name: "" }] } })}>＋ 添加特殊日期</Button></header>{draft.value.exceptions.map((exception) => <div key={exception.id}><input className="qc-control" type="date" aria-label="特殊日期" value={exception.date} onChange={(event) => setDraft({ kind: "calendar", value: { ...draft.value, exceptions: draft.value.exceptions.map((item) => item.id === exception.id ? { ...item, date: event.target.value } : item) } })} /><select className="qc-control" aria-label="特殊日期类型" value={exception.type} onChange={(event) => setDraft({ kind: "calendar", value: { ...draft.value, exceptions: draft.value.exceptions.map((item) => item.id === exception.id ? { ...item, type: event.target.value as ProductionCalendar["exceptions"][number]["type"] } : item) } })}><option value="non_working">休息</option><option value="working">工作</option></select><input className="qc-control" aria-label="特殊日期说明" placeholder="说明" value={exception.name} onChange={(event) => setDraft({ kind: "calendar", value: { ...draft.value, exceptions: draft.value.exceptions.map((item) => item.id === exception.id ? { ...item, name: event.target.value } : item) } })} /><Button variant="text" onClick={() => setDraft({ kind: "calendar", value: { ...draft.value, exceptions: draft.value.exceptions.filter((item) => item.id !== exception.id) } })}>移除</Button></div>)}</section><FormItem label="备注"><textarea className="qc-control" rows={3} value={draft.value.remark} onChange={(event) => setDraft({ kind: "calendar", value: { ...draft.value, remark: event.target.value } })} /></FormItem></div>}
+      {draft?.kind === "site" && <div className="qc-infrastructure-form"><FormItem label="地点名称" required><input className="qc-control" value={draft.value.name} onChange={(event) => setDraft({ kind: "site", value: { ...draft.value, name: event.target.value } })} /></FormItem><div className="qc-infrastructure-form-grid"><FormItem label="国家 / 地区"><input className="qc-control" value={draft.value.countryCode ?? ""} onChange={(event) => setDraft({ kind: "site", value: { ...draft.value, countryCode: event.target.value || null } })} /></FormItem><FormItem label="工作日历" required><select className="qc-control" value={draft.value.productionCalendarId} onChange={(event) => setDraft({ kind: "site", value: { ...draft.value, productionCalendarId: event.target.value } })}>{state.productionCalendars.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></FormItem><FormItem label="产前准备提前天数"><NullableNumberInput className="qc-control" min="0" value={draft.value.preProductionSampleLeadDays} onValueChange={(value) => setDraft({ kind: "site", value: { ...draft.value, preProductionSampleLeadDays: value ?? 0 } })} /></FormItem><FormItem label="状态"><select className="qc-control" value={draft.value.enabled ? "enabled" : "disabled"} onChange={(event) => setDraft({ kind: "site", value: { ...draft.value, enabled: event.target.value === "enabled" } })}><option value="enabled">启用</option><option value="disabled">停用</option></select></FormItem></div><p className="qc-infrastructure-reference-note">当前被 {groupCountFor(draft.value.id)} 个生产组使用。被引用的地点只能停用，不能物理删除。</p><FormItem label="备注"><textarea className="qc-control" rows={3} value={draft.value.remark} onChange={(event) => setDraft({ kind: "site", value: { ...draft.value, remark: event.target.value } })} /></FormItem></div>}
+      {draft?.kind === "hub" && <div className="qc-infrastructure-form"><FormItem label="集货仓名称" required><input className="qc-control" value={draft.value.name} onChange={(event) => setDraft({ kind: "hub", value: { ...draft.value, name: event.target.value } })} /></FormItem><FormItem label="状态"><select className="qc-control" value={draft.value.enabled ? "enabled" : "disabled"} onChange={(event) => setDraft({ kind: "hub", value: { ...draft.value, enabled: event.target.value === "enabled" } })}><option value="enabled">启用</option><option value="disabled">停用</option></select></FormItem><FormItem label="备注"><textarea className="qc-control" rows={3} value={draft.value.remark} onChange={(event) => setDraft({ kind: "hub", value: { ...draft.value, remark: event.target.value } })} /></FormItem></div>}
+      {draft?.kind === "transport-plan" && <div className="qc-infrastructure-form"><div className="qc-infrastructure-steps"><FormItem label="1. 出发集货仓" required><select className="qc-control" value={draft.route.supplyHubId} onChange={(event) => setDraft({ ...draft, route: { ...draft.route, supplyHubId: event.target.value } })}>{state.supplyHubs.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></FormItem><FormItem label="2. 到达生产地点" required><select className="qc-control" value={draft.route.productionSiteId} onChange={(event) => setDraft({ ...draft, route: { ...draft.route, productionSiteId: event.target.value } })}>{state.productionSites.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></FormItem></div><section className="qc-transport-mode-editor"><header><div><strong>3. 运输方式</strong><small>系统按自然日和排序使用现有运输方式事实。</small></div><Button variant="secondary" size="compact" onClick={addMode}>＋ 增加运输方式</Button></header>{draft.modes.map((mode) => <div key={mode.id}><input className="qc-control" aria-label="运输方式名称" placeholder="名称" value={mode.name} onChange={(event) => updateMode(mode.id, { name: event.target.value })} /><NullableNumberInput className="qc-control" min="0" value={mode.transitDays} onValueChange={(value) => updateMode(mode.id, { transitDays: value ?? 0 })} /><span>自然日</span><label><input type="checkbox" checked={mode.enabled} onChange={(event) => updateMode(mode.id, { enabled: event.target.checked })} /> 启用</label><NullableNumberInput className="qc-control" min="0" value={mode.sortOrder} onValueChange={(value) => updateMode(mode.id, { sortOrder: value ?? 0 })} /></div>)}</section><FormItem label="方案备注"><textarea className="qc-control" rows={3} value={draft.route.remark} onChange={(event) => setDraft({ ...draft, route: { ...draft.route, remark: event.target.value } })} /></FormItem></div>}
+      {error && <p className="qc-form-alert">{error}</p>}
+    </Drawer><Toast message={message} />
   </PageContainer></AppShell>;
 }

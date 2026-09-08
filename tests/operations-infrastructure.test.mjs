@@ -10,6 +10,10 @@ import {
   upsertMonthlyProductionTarget,
   upsertOutsourceFactory,
   upsertProductionGroup,
+  upsertProductionCalendar,
+  upsertProductionSite,
+  upsertSupplyHub,
+  upsertTransportPlan,
 } from "../features/operations-settings/model/operations-settings.ts";
 import { createOperationsSettingsRepository } from "../features/operations-settings/repository/operations-settings-repository.ts";
 import { createOperationsSettingsOperationLogs } from "../features/operation-logs/model/operations-settings-operation-logs.ts";
@@ -219,4 +223,39 @@ test("基础设施页面和导航入口存在，Legacy orders/schedules/closing 
   assert.match(localStore, /LOCAL_DATA_SCHEMA_VERSION = 13/);
   assert.match(lifecycle, /operationsSettingsRepository\.load/);
   assert.doesNotMatch(shell, /href: "\/orders"|href: "\/schedules"|href: "\/closing"/);
+});
+
+test("生产地点、可读工作日历、集货仓和组合运输方案继续写入既有正式实体", () => {
+  let state = structuredClone(defaultOperationsSettings);
+  state = upsertProductionCalendar(state, { id: "calendar-test", name: "测试日历", workingWeekdays: [1, 2, 3, 4, 5, 6], exceptions: [{ id: "exception-1", date: "2026-10-01", type: "non_working", name: "国庆休息" }], enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp });
+  state = upsertProductionSite(state, { id: "site-test", name: "测试工厂", countryCode: "KH", productionCalendarId: "calendar-test", preProductionSampleLeadDays: 5, enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp });
+  state = upsertSupplyHub(state, { id: "hub-test", name: "测试仓", enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp });
+  state = upsertTransportPlan(state, {
+    route: { id: "route-test", supplyHubId: "hub-test", productionSiteId: "site-test", name: "测试仓 → 测试工厂", enabled: true, remark: "", createdAt: timestamp, updatedAt: timestamp },
+    modes: [
+      { id: "mode-land", routeId: "wrong-route-is-repaired", name: "陆运", transitDays: 12, enabled: true, sortOrder: 20, remark: "", createdAt: timestamp, updatedAt: timestamp },
+      { id: "mode-sea", routeId: "wrong-route-is-repaired", name: "海运", transitDays: 20, enabled: true, sortOrder: 30, remark: "", createdAt: timestamp, updatedAt: timestamp },
+    ],
+  });
+  assert.deepEqual(state.productionCalendars.find((item) => item.id === "calendar-test").workingWeekdays, [1, 2, 3, 4, 5, 6]);
+  assert.equal(state.productionCalendars.find((item) => item.id === "calendar-test").exceptions[0].type, "non_working");
+  assert.equal(state.productionSites.find((item) => item.id === "site-test").productionCalendarId, "calendar-test");
+  assert.equal(state.supplyRoutes.find((item) => item.id === "route-test").supplyHubId, "hub-test");
+  assert.deepEqual(state.transportModes.filter((item) => item.id.startsWith("mode-")).map((item) => [item.name, item.transitDays, item.routeId]), [["陆运", 12, "route-test"], ["海运", 20, "route-test"]]);
+});
+
+test("生产与运输页面按三个业务问题组织，不暴露工作日数字串或例外 JSON 编辑", async () => {
+  const [page, css] = await Promise.all([
+    readFile(new URL("../features/operations-settings/components/operations-settings-pages.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  for (const label of ["在哪里生产", "物料从哪里发", "仓库到工厂怎么走", "新增运输方案", "系统如何选择运输方式", "特殊日期", "周一", "周日"]) assert.match(page, new RegExp(label));
+  assert.match(page, /upsertTransportPlan/);
+  assert.match(page, /missingRoutePairs/);
+  assert.match(page, /缺少路线/);
+  assert.match(page, /当前被 \{groupCountFor\(draft\.value\.id\)\} 个生产组使用/);
+  assert.doesNotMatch(page, /例外日期 JSON|workingWeekdays\.join\(","\)|0=周日|＋ 路线|＋ 运输方式/);
+  assert.doesNotMatch(page, /calculateLogisticsRisk|newRiskThreshold|运输风险算法/);
+  assert.match(css, /qc-infrastructure-business-section/);
+  assert.match(css, /@media \(max-width:699px\)/);
 });
