@@ -3,7 +3,7 @@
 import {
   emptyStyleProgressData,
   isFactorySupplied,
-  migrateStyleProgressDataV3,
+  migrateStyleProgressDataV4,
   removeFactorySuppliedExpectedArrivals,
   resolveCanonicalMaterialIdentity,
   stableStyleProgressHash,
@@ -17,7 +17,7 @@ import {
 } from "../model/style-progress.ts";
 
 const DATABASE_NAME = "zhixu-style-progress";
-const DATABASE_VERSION = 3;
+const DATABASE_VERSION = 4;
 const STORES = {
   batches: "batches",
   rawSnapshots: "raw-snapshots",
@@ -229,21 +229,21 @@ export const styleProgressRepository: StyleProgressRepository = {
     const metadataTransaction = database.transaction(METADATA_STORE, "readonly");
     const metadata = await requestResult(metadataTransaction.objectStore(METADATA_STORE).get(METADATA_ID) as IDBRequest<{ id: string; dataVersion: number } | undefined>);
     const current = validateStyleProgressData({ dataVersion: metadata?.dataVersion ?? 2, batches, rawSnapshots, demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents, expectedArrivalBatches });
-    const migrated = removeFactorySuppliedExpectedArrivals(migrateStyleProgressDataV3(current));
+    const migrated = removeFactorySuppliedExpectedArrivals(migrateStyleProgressDataV4(current));
     const changed = migrated.demands.filter((demand, index) => demand.actualConsumption !== current.demands[index]?.actualConsumption || demand.supplyMethod !== current.demands[index]?.supplyMethod);
-    const needsV3Write = (metadata?.dataVersion ?? 2) < 3;
+    const needsDataWrite = (metadata?.dataVersion ?? 2) < 4;
     const expectedArrivalsChanged = JSON.stringify(current.expectedArrivalBatches) !== JSON.stringify(migrated.expectedArrivalBatches);
-    if (changed.length || needsV3Write || expectedArrivalsChanged) {
+    if (changed.length || needsDataWrite || expectedArrivalsChanged) {
       const transaction = database.transaction([STORES.demands, STORES.expectedArrivalBatches, METADATA_STORE], "readwrite");
       const store = transaction.objectStore(STORES.demands);
       for (const demand of changed) store.put(demand);
-      if (needsV3Write || expectedArrivalsChanged) {
+      if (needsDataWrite || expectedArrivalsChanged) {
         const batchStore = transaction.objectStore(STORES.expectedArrivalBatches);
         batchStore.clear();
         for (const batch of migrated.expectedArrivalBatches) batchStore.put(batch);
       }
-      if (needsV3Write) {
-        transaction.objectStore(METADATA_STORE).put({ id: METADATA_ID, dataVersion: 3 });
+      if (needsDataWrite) {
+        transaction.objectStore(METADATA_STORE).put({ id: METADATA_ID, dataVersion: 4 });
       }
       await transactionComplete(transaction);
     }
@@ -323,7 +323,7 @@ export const styleProgressRepository: StyleProgressRepository = {
     const expectedArrivalStore = transaction.objectStore(STORES.expectedArrivalBatches);
     expectedArrivalStore.clear();
     for (const batch of reconciledExpectedArrivals) expectedArrivalStore.put(batch);
-    transaction.objectStore(METADATA_STORE).put({ id: METADATA_ID, dataVersion: 3 });
+    transaction.objectStore(METADATA_STORE).put({ id: METADATA_ID, dataVersion: 4 });
     batchStore.put({ ...preview.batch, status: "committed", committedAt: new Date().toISOString() });
     await transactionComplete(transaction);
     const newCount = (key: StoreKey, rows: { id: string }[]) => rows.filter((row) => !existingKeys[key]?.has(row.id)).length;
@@ -412,7 +412,7 @@ export async function exportStyleProgressData(): Promise<StyleProgressData> {
 }
 
 export async function replaceStyleProgressData(value: StyleProgressData): Promise<void> {
-  const data = removeFactorySuppliedExpectedArrivals(migrateStyleProgressDataV3(validateStyleProgressData(value)));
+  const data = removeFactorySuppliedExpectedArrivals(migrateStyleProgressDataV4(validateStyleProgressData(value)));
   const database = await openDatabase();
   const transaction = database.transaction([...Object.values(STORES), METADATA_STORE], "readwrite");
   for (const key of Object.keys(STORES) as StoreKey[]) {

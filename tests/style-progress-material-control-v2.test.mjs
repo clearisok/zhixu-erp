@@ -6,6 +6,7 @@ import {
   countStyleProgressRecords,
   isFactorySupplied,
   migrateStyleProgressDataV3,
+  migrateStyleProgressDataV4,
   removeFactorySuppliedExpectedArrivals,
   resolveCanonicalMaterialIdentity,
   validateStyleProgressData,
@@ -90,6 +91,7 @@ const parserValues = {
   提供方式: "自购", 需求数量: 100, 未采购数量: 0, 采购数量: 100, 采购单号: "P-1", 采购日期: new Date("2026-08-01"), 供应商: "供应商",
   采购交期: new Date("2026-08-25"), 采购价格: 70.5, 入库单号: "IN-1", 入库日期: new Date("2026-08-20"), 入库数: 100,
   出运单号: "SHIP-1", 出运日期: new Date("2026-08-21"), 出运数量: 80, 出库数量: 70, 出库单号: "OUT-1", 出库日期: new Date("2026-08-22"),
+  计量单位: "KG",
 };
 
 async function parserWorkbook(headers) {
@@ -123,7 +125,7 @@ test("Parser 通过语义表头同时兼容旧布局与新增对应成衣颜色�
 
 test("Parser 不受无关插列和非关键列换序影响", async () => {
   const reordered = [...parserHeaders];
-  reordered.splice(4, 0, "无关备注列");
+  reordered.splice(4, 0, "无关备注列", "计量单位");
   const supplier = reordered.indexOf("供应商");
   const purchaseDate = reordered.indexOf("采购日期");
   [reordered[supplier], reordered[purchaseDate]] = [reordered[purchaseDate], reordered[supplier]];
@@ -131,6 +133,8 @@ test("Parser 不受无关插列和非关键列换序影响", async () => {
   assert.equal(preview.demands[0].salesContractNo, "PI2607-235");
   assert.equal(preview.purchaseEvents[0].supplier, "供应商");
   assert.equal(preview.purchaseEvents[0].purchaseDate, "2026-08-01");
+  assert.equal(Object.values(preview.rawSnapshots[0].rawFields).includes("KG"), true);
+  assert.equal("unit" in preview.demands[0], false, "来源没有正式单位语义映射时只保留 Raw，不猜测单位模型");
 });
 
 test("Parser 对缺失或重复关键表头明确失败，不静默取首列", () => {
@@ -142,28 +146,28 @@ test("Parser 对缺失或重复关键表头明确失败，不静默取首列", (
   assert.throws(() => resolveMaterialFollowUpColumns(duplicateEventQuantity), /关键表头无法唯一识别：采购数量（采购事件）/);
 });
 
-test("面料 Canonical identity 忽略来源编码，但严格包含名称、门幅、克重与正常化采购价", () => {
+test("面料 Canonical identity 在同合同同类型下仅按标准化名称聚合", () => {
   const left = demand("a", { materialCode: "202607230001", width: "153", gsm: "230.0" });
-  const right = demand("b", { materialCode: "OTHER", width: "153.00", gsm: "230" });
+  const right = demand("b", { materialCode: "OTHER", width: "180", gsm: "300", specification: "不同规格", materialColor: "不同颜色" });
   const leftIdentity = resolveCanonicalMaterialIdentity(left, [purchase("p-a", left.id, 70.5)]);
-  const rightIdentity = resolveCanonicalMaterialIdentity(right, [purchase("p-b", right.id, 70.50)]);
+  const rightIdentity = resolveCanonicalMaterialIdentity(right, [purchase("p-b", right.id, 80)]);
   assert.equal(leftIdentity.status, "resolved");
   assert.equal(leftIdentity.key, rightIdentity.key);
-  assert.notEqual(leftIdentity.key, resolveCanonicalMaterialIdentity(right, [purchase("p-b2", right.id, 80)]).key);
   assert.notEqual(leftIdentity.key, resolveCanonicalMaterialIdentity({ ...right, salesContractNo: "PI-2" }, [purchase("p-b3", right.id, 70.5)]).key);
+  assert.notEqual(leftIdentity.key, resolveCanonicalMaterialIdentity({ ...right, materialType: "trim" }, []).key);
 });
 
-test("面料价格缺失或冲突时不猜测合并", () => {
+test("面料价格缺失或冲突只保留为明细事实，不再拆分汇总身份", () => {
   const left = demand("missing-a");
   const right = demand("missing-b");
   const missingLeft = resolveCanonicalMaterialIdentity(left, []);
   const missingRight = resolveCanonicalMaterialIdentity(right, []);
-  assert.equal(missingLeft.status, "price_missing");
-  assert.notEqual(missingLeft.key, missingRight.key);
+  assert.equal(missingLeft.status, "resolved");
+  assert.equal(missingLeft.key, missingRight.key);
   const conflict = resolveCanonicalMaterialIdentity(left, [purchase("p-1", left.id, 70.5), purchase("p-2", left.id, 80)]);
-  assert.equal(conflict.status, "price_conflict");
+  assert.equal(conflict.status, "resolved");
   assert.deepEqual(conflict.purchasePrices, [70.5, 80]);
-  assert.notEqual(conflict.key, missingLeft.key);
+  assert.equal(conflict.key, missingLeft.key);
 });
 
 test("辅料在同一合同内按标准化名称聚合，规格、颜色和来源编码不参与身份", () => {
@@ -194,12 +198,55 @@ test("旧单日期非破坏迁移为批次，人工语义保留且幂等", () =>
   assert.deepEqual(migrateStyleProgressDataV3(migrated), migrated);
 });
 
+test("v4 确定性 remap 旧 Canonical key，保留人工批次、Allocation 与审计字段且幂等", () => {
+  const timestamp = "2026-08-01T00:00:00.000Z";
+  const left = demand("left", { width: "153", gsm: "230", requiredQuantity: 60 });
+  const right = demand("right", { materialCode: "OTHER", width: "180", gsm: "300", requiredQuantity: 40 });
+  const data = { ...emptyStyleProgressData(), dataVersion: 3 };
+  data.demands = [left, right];
+  data.purchaseEvents = [purchase("p-left", left.id, 70.5), purchase("p-right", right.id, 80)];
+  data.expectedArrivalBatches = [
+    { id: "manual-left", salesContractNo: "PI-1", canonicalMaterialKey: "legacy-price-70", expectedArrivalAtHubDate: "2026-08-25", dateSource: "manual", allocations: [{ id: "allocation-left", materialDemandId: left.id, quantity: 30 }], createdAt: timestamp, createdBy: "planner", updatedAt: timestamp, updatedBy: "planner" },
+    { id: "manual-right", salesContractNo: "PI-1", canonicalMaterialKey: "legacy-price-80", expectedArrivalAtHubDate: "2026-09-01", dateSource: "manual", allocations: [{ id: "allocation-right", materialDemandId: right.id, quantity: 25 }], createdAt: timestamp, createdBy: "planner", updatedAt: timestamp, updatedBy: "planner" },
+  ];
+  const migrated = migrateStyleProgressDataV4(data);
+  assert.equal(migrated.dataVersion, 4);
+  assert.equal(migrated.expectedArrivalBatches.length, 2);
+  assert.equal(new Set(migrated.expectedArrivalBatches.map((batch) => batch.canonicalMaterialKey)).size, 1);
+  assert.deepEqual(migrated.expectedArrivalBatches.map((batch) => [batch.id, batch.dateSource, batch.allocations[0].id, batch.createdBy, batch.updatedBy]), [
+    ["manual-left", "manual", "allocation-left", "planner", "planner"],
+    ["manual-right", "manual", "allocation-right", "planner", "planner"],
+  ]);
+  assert.deepEqual(migrateStyleProgressDataV4(migrated), migrated);
+});
+
+test("v4 migration 拒绝把一个旧批次猜测归入两个新的物料名称", () => {
+  const left = demand("left");
+  const right = demand("right", { materialName: "不同物料", sourceActualName: "不同物料" });
+  const data = { ...emptyStyleProgressData(), dataVersion: 3, demands: [left, right] };
+  data.expectedArrivalBatches = [{ id: "ambiguous", salesContractNo: "PI-1", canonicalMaterialKey: "legacy-key", expectedArrivalAtHubDate: "2026-09-01", dateSource: "manual", allocations: [{ id: "left", materialDemandId: left.id, quantity: 10 }, { id: "right", materialDemandId: right.id, quantity: 10 }], createdAt: left.createdAt, createdBy: "u", updatedAt: left.updatedAt, updatedBy: "u" }];
+  assert.throws(() => migrateStyleProgressDataV4(data), /包含多个真实物料身份/);
+});
+
+test("v4 validator 拒绝 Restore payload 中的错误 canonical key 和空 Allocation 批次", () => {
+  const material = demand("a");
+  const canonicalMaterialKey = resolveCanonicalMaterialIdentity(material, []).key;
+  const data = { ...emptyStyleProgressData(), demands: [material] };
+  const batch = { id: "batch", salesContractNo: "PI-1", canonicalMaterialKey, expectedArrivalAtHubDate: "2026-09-01", dateSource: "manual", allocations: [{ id: "allocation", materialDemandId: material.id, quantity: 10 }], createdAt: material.createdAt, createdBy: "u", updatedAt: material.updatedAt, updatedBy: "u" };
+  data.expectedArrivalBatches = [{ ...batch, canonicalMaterialKey: "wrong-key" }];
+  assert.throws(() => validateStyleProgressData(data), /canonicalMaterialKey 与 Allocation 物料身份不一致/);
+  data.expectedArrivalBatches = [{ ...batch, allocations: [] }];
+  assert.throws(() => validateStyleProgressData(data), /至少包含一个 Allocation/);
+  assert.throws(() => migrateStyleProgressDataV4({ ...data, dataVersion: 3 }), /至少包含一个 Allocation/);
+});
+
 test("批次允许部分分配和一需求多批，但拒绝超分配", () => {
   const data = emptyStyleProgressData();
   data.demands = [demand("a", { requiredQuantity: 100 })];
+  const canonicalMaterialKey = resolveCanonicalMaterialIdentity(data.demands[0], []).key;
   data.expectedArrivalBatches = [
-    { id: "batch-a", salesContractNo: "PI-1", canonicalMaterialKey: "canonical-a", expectedArrivalAtHubDate: "2026-08-25", dateSource: "manual", allocations: [{ id: "allocation-a", materialDemandId: "a", quantity: 40 }], createdAt: "2026-08-01T00:00:00.000Z", createdBy: "u", updatedAt: "2026-08-01T00:00:00.000Z", updatedBy: "u" },
-    { id: "batch-b", salesContractNo: "PI-1", canonicalMaterialKey: "canonical-a", expectedArrivalAtHubDate: "2026-09-01", dateSource: "manual", allocations: [{ id: "allocation-b", materialDemandId: "a", quantity: 50 }], createdAt: "2026-08-01T00:00:00.000Z", createdBy: "u", updatedAt: "2026-08-01T00:00:00.000Z", updatedBy: "u" },
+    { id: "batch-a", salesContractNo: "PI-1", canonicalMaterialKey, expectedArrivalAtHubDate: "2026-08-25", dateSource: "manual", allocations: [{ id: "allocation-a", materialDemandId: "a", quantity: 40 }], createdAt: "2026-08-01T00:00:00.000Z", createdBy: "u", updatedAt: "2026-08-01T00:00:00.000Z", updatedBy: "u" },
+    { id: "batch-b", salesContractNo: "PI-1", canonicalMaterialKey, expectedArrivalAtHubDate: "2026-09-01", dateSource: "manual", allocations: [{ id: "allocation-b", materialDemandId: "a", quantity: 50 }], createdAt: "2026-08-01T00:00:00.000Z", createdBy: "u", updatedAt: "2026-08-01T00:00:00.000Z", updatedBy: "u" },
   ];
   assert.equal(validateStyleProgressData(data).expectedArrivalBatches.length, 2);
   data.expectedArrivalBatches[1].allocations[0].quantity = 61;

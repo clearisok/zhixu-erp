@@ -18,8 +18,7 @@
 .qc-primary-cell strong, .qc-price-version-cell strong { overflow: hidden; color: #283c34; text-overflow: ellipsis; white-space: nowrap; }
 .qc-primary-cell small, .qc-price-version-cell small, .qc-revision-context-cell small { overflow: hidden; color: #7b8983; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
 .qc-list-more-actions { position: relative; }
-.qc-list-more-actions .qc-floating-menu-trigger { min-width: 72px; min-height: 42px; display: inline-flex; flex-wrap: nowrap; padding: 0 15px; color: #52625c; border-color: #d6ded9; background: #fff; font-size: 11px; font-weight: 700; white-space: nowrap; }
-.qc-list-more-actions .qc-floating-menu-trigger::after { content: "⌄"; margin-left: 7px; color: #87938e; }
+.qc-list-more-actions .qc-floating-menu-trigger { min-width: 72px; min-height: 42px; display: inline-flex; flex-wrap: nowrap; padding: 0 12px; color: #66746e; border-color: transparent; background: transparent; font-size: 11px; font-weight: 680; white-space: nowrap; }
 .qc-list-more-menu { width: 176px !important; gap: 3px; padding: 6px; border-radius: 10px; }
 .qc-list-more-menu .qc-button { width: 100%; justify-content: flex-start; }
 .qc-quote-list-thumbnail { position: relative; width: 52px; height: 52px; flex: none; display: grid; place-items: center; overflow: hidden; color: #8b9993; border: 1px solid #dce4e0; border-radius: 8px; background: #f3f6f4; }

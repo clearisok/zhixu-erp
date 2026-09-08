@@ -433,16 +433,16 @@
 ### D-063 面料以名称、门幅、克重和唯一采购价归一
 
 - 日期：2026-09-05
-- 状态：Active
+- 状态：Superseded by D-069。
 - 决定：同一销售合同内，面料以标准化名称 + 门幅 + 克重 + 正常化后的唯一采购单价判定 Canonical identity。价格缺失或存在冲突时保持独立并显式标记，不取 first / last，也不计算平均采购价。
-- 原因：这些字段共同决定真实面料口径；不可靠价格不能被猜测性归一掩盖。
+- 替代原因：当前业务明确要求同名面料在顶层合并，门幅、克重和采购价降级为组内 Variant 事实。
 
 ### D-064 辅料按标准化名称归一
 
 - 日期：2026-09-05
-- 状态：Active
+- 状态：Superseded by D-069。
 - 决定：同一销售合同内，辅料按标准化名称直接聚合；来源编码、规格和颜色不参与顶层身份，但必须保留在下层需求明细。
-- 原因：业务首先按辅料名称跟进，具体规格与颜色属于组内执行事实。
+- 替代原因：D-069 以一条统一规则同时覆盖面料和辅料，并明确合同与物料类型隔离。
 
 ### D-065 Effective 是 Expected Arrival at SupplyHub
 
@@ -471,6 +471,15 @@
 - 状态：Active
 - 决定：每个 Expected Arrival Batch 独立调用 `material-logistics-service.ts`，在可按时到厂的方式中选择最慢者；“距上线”是计划开工减预计到集货仓的自然日差，运输 buffer 是最晚到厂减预计到厂。`bufferDays > 7` 为 green，`0..7` 为 yellow，`< 0` 为 red / 晚 X 天。
 - 原因：同一物料不同批次可能需要不同运输方式；距上线不是物流安全判断，不能混为一个数值或状态。
+
+### D-069 Canonical Material 统一按合同、类型和标准化名称归一
+
+- 日期：2026-09-08
+- 状态：Active；替代 D-063 / D-064。
+- 决定：Canonical identity 固定为 `salesContractNo + materialType + normalizedMaterialName`。同一合同、同一类型、同名的面料或辅料必须汇总为一个 Material Group；`materialCode`、颜色、规格、门幅、克重、采购价、供应商和采购单号只作为组内 Variant / Demand / Event 事实保留。不同合同或不同物料类型绝不交叉合并。
+- 迁移：Style Progress IndexedDB v3→v4 确定性重映射旧 `canonicalMaterialKey`；保留所有 Expected Arrival Batch、Allocation、manual/source 语义和审计元数据，碰到无法证明安全归属的跨名称批次则拒绝猜测迁移。迁移幂等且不改变稳定 namespace。
+- 汇总：需求、采购、入库、出运和出库只从组内 child Demand / 对应 Event 各累加一次；Group Ready 要求全部有效 child Demand 齐套。来源没有可靠单位字段时不猜测单位，也不跨虚构口径相加。
+- 原因：普通工作台需要按业务人员识别的物料名称形成唯一顶层对象，同时完整保留执行层差异和来源追溯。
 
 ## Superseded
 

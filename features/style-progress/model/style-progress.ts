@@ -179,7 +179,7 @@ export type MaterialImportCommitReport = {
 };
 
 export const emptyStyleProgressData = (): StyleProgressData => ({
-  dataVersion: 3,
+  dataVersion: 4,
   batches: [],
   rawSnapshots: [],
   demands: [],
@@ -236,33 +236,17 @@ export function resolveCanonicalMaterialIdentity(
   const normalizedName = normalizedIdentityText(demand.sourceActualName || demand.materialName);
   const normalizedWidth = normalizedNumericIdentity(demand.width);
   const normalizedGsm = normalizedNumericIdentity(demand.gsm);
-  if (demand.materialType === "trim") {
-    return {
-      key: `material-trim-${stableStyleProgressHash([demand.salesContractNo, "trim", normalizedName])}`,
-      normalizedName,
-      normalizedWidth,
-      normalizedGsm,
-      normalizedPurchasePrice: null,
-      status: "resolved",
-      purchasePrices: [],
-    };
-  }
   const purchasePrices = [...new Set(purchaseEvents
     .filter((event) => event.materialDemandId === demand.id && event.unitPrice !== null && Number.isFinite(event.unitPrice))
     .map((event) => Number(event.unitPrice)))]
     .sort((left, right) => left - right);
-  const status = purchasePrices.length === 1 ? "resolved" : purchasePrices.length === 0 ? "price_missing" : "price_conflict";
-  const normalizedPurchasePrice = status === "resolved" ? String(purchasePrices[0]) : null;
-  const identityParts = [demand.salesContractNo, "fabric", normalizedName, normalizedWidth, normalizedGsm];
   return {
-    key: status === "resolved"
-      ? `material-fabric-${stableStyleProgressHash([...identityParts, normalizedPurchasePrice])}`
-      : `material-fabric-unresolved-${stableStyleProgressHash([...identityParts, status, demand.id])}`,
+    key: `material-${demand.materialType}-${stableStyleProgressHash([demand.salesContractNo, demand.materialType, normalizedName])}`,
     normalizedName,
     normalizedWidth,
     normalizedGsm,
-    normalizedPurchasePrice,
-    status,
+    normalizedPurchasePrice: purchasePrices.length === 1 ? String(purchasePrices[0]) : null,
+    status: "resolved",
     purchasePrices,
   };
 }
@@ -335,6 +319,28 @@ export function migrateStyleProgressDataV3(value: StyleProgressData): StyleProgr
   return { ...structuredClone(repaired), dataVersion: 3, expectedArrivalBatches: [...grouped.values()] };
 }
 
+/** v4 remaps legacy width/GSM/price-based canonical keys to contract + type + name keys. */
+export function migrateStyleProgressDataV4(value: StyleProgressData): StyleProgressData {
+  const repaired = migrateStyleProgressDataV3(value);
+  if (repaired.dataVersion >= 4) return validateStyleProgressData(repaired);
+  const demandsById = new Map(repaired.demands.map((demand) => [demand.id, demand]));
+  const purchasesByDemand = new Map<string, MaterialPurchaseEvent[]>();
+  for (const event of repaired.purchaseEvents) {
+    purchasesByDemand.set(event.materialDemandId, [...(purchasesByDemand.get(event.materialDemandId) ?? []), event]);
+  }
+  const expectedArrivalBatches = repaired.expectedArrivalBatches.map((batch) => {
+    if (!batch.allocations.length) throw new Error(`预计到料批次必须至少包含一个 Allocation：${batch.id}`);
+    const keys = new Set(batch.allocations.map((allocation) => {
+      const demand = demandsById.get(allocation.materialDemandId);
+      if (!demand) throw new Error(`预计到料批次引用了不存在的需求：${allocation.materialDemandId}`);
+      return resolveCanonicalMaterialIdentity(demand, purchasesByDemand.get(demand.id) ?? []).key;
+    }));
+    if (keys.size > 1) throw new Error(`预计到料批次包含多个真实物料身份，无法安全迁移：${batch.id}`);
+    return { ...structuredClone(batch), canonicalMaterialKey: [...keys][0] ?? batch.canonicalMaterialKey };
+  });
+  return validateStyleProgressData({ ...structuredClone(repaired), dataVersion: 4, expectedArrivalBatches });
+}
+
 export function removeFactorySuppliedExpectedArrivals(value: StyleProgressData): StyleProgressData {
   const factoryDemandIds = new Set(value.demands.filter(isFactorySupplied).map((demand) => demand.id));
   if (!factoryDemandIds.size) return structuredClone(value);
@@ -358,21 +364,28 @@ export function validateStyleProgressData(value: unknown): StyleProgressData {
     const ids = data[name].map((item) => item.id);
     if (new Set(ids).size !== ids.length) throw new Error(`款式进度 ${name} 存在重复 ID`);
   }
-  const demandIds = new Set(data.demands.map((item) => item.id));
+  const demandsById = new Map(data.demands.map((item) => [item.id, item]));
+  const demandIds = new Set(demandsById.keys());
+  const purchasesByDemand = new Map<string, MaterialPurchaseEvent[]>();
+  for (const event of data.purchaseEvents) purchasesByDemand.set(event.materialDemandId, [...(purchasesByDemand.get(event.materialDemandId) ?? []), event]);
   for (const name of ["purchaseEvents", "inboundEvents", "shipmentEvents", "outboundEvents"] as const) {
     if (data[name].some((event) => !demandIds.has(event.materialDemandId))) throw new Error(`款式进度 ${name} 引用了不存在的需求`);
   }
   const allocated = new Map<string, number>();
   for (const batch of data.expectedArrivalBatches) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(batch.expectedArrivalAtHubDate)) throw new Error("预计到料批次日期无效");
+    if (!batch.allocations.length) throw new Error(`预计到料批次必须至少包含一个 Allocation：${batch.id}`);
     const allocationIds = batch.allocations.map((item) => item.id);
     if (new Set(allocationIds).size !== allocationIds.length) throw new Error("预计到料批次存在重复 Allocation ID");
+    const canonicalKeys = new Set<string>();
     for (const allocation of batch.allocations) {
-      const demand = data.demands.find((item) => item.id === allocation.materialDemandId);
+      const demand = demandsById.get(allocation.materialDemandId);
       if (!demand || demand.salesContractNo !== batch.salesContractNo) throw new Error("预计到料批次引用了不存在或跨合同的需求");
       if (!Number.isFinite(allocation.quantity) || allocation.quantity <= 0) throw new Error("预计到料批次数量必须大于 0");
+      if (data.dataVersion >= 4) canonicalKeys.add(resolveCanonicalMaterialIdentity(demand, purchasesByDemand.get(demand.id) ?? []).key);
       allocated.set(demand.id, (allocated.get(demand.id) ?? 0) + allocation.quantity);
     }
+    if (data.dataVersion >= 4 && (canonicalKeys.size !== 1 || !canonicalKeys.has(batch.canonicalMaterialKey))) throw new Error(`预计到料批次 canonicalMaterialKey 与 Allocation 物料身份不一致：${batch.id}`);
   }
   for (const [demandId, quantity] of allocated) {
     const required = data.demands.find((item) => item.id === demandId)?.requiredQuantity ?? 0;

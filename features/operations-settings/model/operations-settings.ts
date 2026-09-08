@@ -109,4 +109,9 @@ export function upsertProductionSite(state: OperationsSettingsState, item: Produ
 export function upsertSupplyHub(state: OperationsSettingsState, item: SupplyHub): OperationsSettingsState { return normalizeOperationsSettings({ ...state, supplyHubs: [...state.supplyHubs.filter((entry) => entry.id !== item.id), item] }); }
 export function upsertSupplyRoute(state: OperationsSettingsState, item: SupplyRoute): OperationsSettingsState { return normalizeOperationsSettings({ ...state, supplyRoutes: [...state.supplyRoutes.filter((entry) => entry.id !== item.id), item] }); }
 export function upsertTransportMode(state: OperationsSettingsState, item: TransportMode): OperationsSettingsState { return normalizeOperationsSettings({ ...state, transportModes: [...state.transportModes.filter((entry) => entry.id !== item.id), item] }); }
+export function upsertTransportPlan(state: OperationsSettingsState, input: { route: SupplyRoute; modes: TransportMode[] }): OperationsSettingsState {
+  let next = upsertSupplyRoute(state, input.route);
+  for (const mode of input.modes) next = upsertTransportMode(next, { ...mode, routeId: input.route.id });
+  return next;
+}
 export function createOperationsMasterDataId(prefix: string): string { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }

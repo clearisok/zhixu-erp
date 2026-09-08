@@ -10,7 +10,6 @@ import {
   FormItem,
   Modal,
   NullableNumberInput,
-  PageBackButton,
   PageContainer,
   PageHeader,
   StatusTag,
@@ -865,15 +864,12 @@ export function ClosingCenterPage({ detail = false }: { detail?: boolean }) {
   };
 
   return (
-    <AppShell title="关账中心">
+    <AppShell title="关账中心" backTarget={{ href: "/closing-center", label: "返回关账中心" }}>
       <PageContainer>
         <PageHeader
           variant="object"
           eyebrow="CLOSING MONTH"
           title={selectedPeriod?.month ?? selectedMonth}
-          back={
-            <PageBackButton fallbackHref="/closing-center" label="返回关账中心" />
-          }
           status={
             selectedPeriod ? (
               <StatusTag

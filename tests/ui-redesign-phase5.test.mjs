@@ -35,7 +35,7 @@ test("Phase 5 OperationLog 使用正式业务分组和 changes[] 详情", async 
 test("Phase 5 生产与运输只表达正式基础事实，不新增风险算法", async () => {
   const source = await read("features/operations-settings/components/operations-settings-pages.tsx");
   for (const marker of ["state.productionSites", "state.productionCalendars", "state.supplyHubs", "state.supplyRoutes", "state.transportModes"]) assert.match(source, new RegExp(marker.replace(".", "\\.")));
-  assert.match(source, /异常与状态不在此处推算/);
+  for (const heading of ["在哪里生产", "物料从哪里发", "仓库到工厂怎么走"]) assert.match(source, new RegExp(heading));
   assert.doesNotMatch(source, /calculateLogisticsRisk|newRiskThreshold|运输风险算法/);
 });
 

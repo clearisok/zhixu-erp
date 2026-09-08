@@ -117,18 +117,18 @@ export function QuoteActionBar({
       </div>
       <div ref={(node) => { probeRefs.current["compact-navigation"] = node; }} className="qc-quote-action-probe">
         {leadingAction && <ActionProbe action={leadingAction} />}
-        {hasMore && <span className="qc-secondary-actions"><span className="qc-action-probe-summary">更多</span></span>}
+        {hasMore && <span className="qc-secondary-actions"><span className="qc-action-probe-summary">··· 更多</span></span>}
         {primaryAction && <ActionProbe action={primaryAction} />}
         <span className="qc-action-probe-navigation">快速导航⌄</span>
       </div>
       <div ref={(node) => { probeRefs.current.compact = node; }} className="qc-quote-action-probe">
         {leadingAction && <ActionProbe action={leadingAction} />}
-        {hasMore && <span className="qc-secondary-actions"><span className="qc-action-probe-summary">更多</span></span>}
+        {hasMore && <span className="qc-secondary-actions"><span className="qc-action-probe-summary">··· 更多</span></span>}
         {primaryAction && <ActionProbe action={primaryAction} />}
       </div>
       <div ref={(node) => { probeRefs.current.minimal = node; }} className="qc-quote-action-probe">
         {leadingAction && <ActionProbe action={leadingAction} />}
-        {hasMore && <span className="qc-secondary-actions"><span className="qc-action-probe-summary">更多</span></span>}
+        {hasMore && <span className="qc-secondary-actions"><span className="qc-action-probe-summary">··· 更多</span></span>}
       </div>
     </div>
   </div>;

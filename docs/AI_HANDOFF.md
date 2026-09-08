@@ -11,15 +11,20 @@
 
 ## Current Stable Main
 
-`21cef9ac6ba1d326f7f40b0bca13c23648d42556`
+`ab13869a26d0240f7f9cc950ef439c38ac0ede73`
 
 ## Current Active Task
 
-当前没有业务 Active Task。新任务必须从最新 `origin/main` 建立独立分支并记录 baseline。
+- Branch: `feat/navigation-material-infrastructure-redesign`
+- Baseline: `ab13869a26d0240f7f9cc950ef439c38ac0ede73`
+- Gate A `9be9efa598d1f8758f07153574c8dd54b2d71f2f`：详情返回进入 AppShell Topbar、明确 parent target 且继续经过 unsaved navigation guard；全局 More 轻量单行；报价顶部合并为唯一 Quote Cockpit Bar。
+- Gate B `d9176be4f16d3802fa6838cc3ec2534e471a570a`：Canonical identity 改为合同 + `materialType` + 标准化名称；Style Progress IndexedDB v3→v4 非破坏迁移保留 Batch / Allocation / manual/source；D1935 从 18 组收敛为 13 组且明细不丢失。
+- Gate C `e34dfc9f3c667ff17d7904a7235f6c673c86f3f5`：生产与运输按“在哪里生产 / 物料从哪里发 / 仓库到工厂怎么走”组织；路线与方式组合编辑，日历使用星期与特殊日期表单，Configuration Health 使用正式 Repository 事实。
+- Gate A/B/C 与最终文档已完成并推送；final hardening 进一步要求 v4 Expected Arrival Batch 的 `canonicalMaterialKey` 与非空 Allocation 当前身份一致，并为跨名称迁移、错误 key 与空批次补充 fail-closed 测试。1229 CSS viewport Browser QA、TypeScript、ESLint、490/490 全量测试、29 路由 Production Build 和 diff check 全部通过。任务处于 PR 审阅阶段；不要重做 Gate A–C，不要自动合并 main。
 
 ## Latest Merged Work
 
-- PR #4 已 merged；Material Control Tower V2 Gate 1–5 已进入 `main`。当前全局 local data schema 为 13，Style Progress IndexedDB 为 3；详细模型、真实 D1935 验收和已知边界见 `docs/features/STYLE_PROGRESS.md` 与 `docs/CURRENT_STATE.md`。
+- PR #4 已 merged；Material Control Tower V2 Gate 1–5 已进入 `main`。当前全局 local data schema 为 13，本任务把 Style Progress IndexedDB 向前升级为 4；详细模型、真实 D1935 验收和已知边界见 `docs/features/STYLE_PROGRESS.md` 与 `docs/CURRENT_STATE.md`。
 - PR #3 对应的 Full UI Workflow Correction、Second Acceptance 及其 Gate A–F 提交已进入 `main`；追溯资料见 `docs/tasks/completed/`。
 
 ## Do Not Reopen

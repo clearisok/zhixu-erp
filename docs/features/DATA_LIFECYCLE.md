@@ -8,7 +8,7 @@
 
 - DEV `127.0.0.1:3001` 与 PROD Docker `127.0.0.1:3000` 继续依靠浏览器 Origin 隔离，不做跨 Origin 共享。
 - 所有可序列化的 Quote Center 数据写入稳定命名空间 `zhixu.erp.local.*`；版本存在 envelope/manifest 的 `schemaVersion` 中，不再通过改 key 升级。
-- 当前正式 `schemaVersion = 13`。v3 将旧 QuoteRevision 级制作参数映射为 PriceVersion 快照；v4 新增 `operations-settings`；v5 新增 `sales-orders`；v6 将多款订单非破坏拆分为单款 SalesOrder；v7 新增 `production-scheduling`；v8 新增 `closing-center`；v9 将旧 ProductionPlan owner 提升为 `ScheduleAssignment.salesOrderId`；v10 增加艾诺科同步正式记录；v11 接入款式进度 IndexedDB 与完整备份编排；v12 加入颜色数量 adjustment、默认加工币种与 Style Progress `actualConsumption` 的非破坏兼容；v13 加入 Expected Arrival Batch / Allocation 与 Style Progress IndexedDB v3 非破坏迁移。旧 payload 与稳定 ID 不因升级重建。
+- 当前正式 `schemaVersion = 13`。v3 将旧 QuoteRevision 级制作参数映射为 PriceVersion 快照；v4 新增 `operations-settings`；v5 新增 `sales-orders`；v6 将多款订单非破坏拆分为单款 SalesOrder；v7 新增 `production-scheduling`；v8 新增 `closing-center`；v9 将旧 ProductionPlan owner 提升为 `ScheduleAssignment.salesOrderId`；v10 增加艾诺科同步正式记录；v11 接入款式进度 IndexedDB 与完整备份编排；v12 加入颜色数量 adjustment、默认加工币种与 Style Progress `actualConsumption` 的非破坏兼容；v13 加入 Expected Arrival Batch / Allocation，并先将 Style Progress IndexedDB 2→3；PR #6 再将其从 v3→v4，以 name-only Canonical identity 确定性重映射既有 `canonicalMaterialKey`。旧 payload 与稳定 ID 不因升级重建。
 - 启动时 `LocalDataBootstrap` 触发一次非破坏性初始化。稳定记录存在时只读取/迁移；稳定记录不存在时优先迁移旧记录；只有两者都不存在时才写一次 Seed。
 - 旧 key 在迁移成功后保留，不由自动流程删除。只有用户在“系统设置 > 数据管理”显式执行全部重置时才清理稳定与旧命名空间。
 - 稳定记录或 manifest 损坏时抛出 `LocalDataCorruptionError`，原始字符串保持不变，不静默回退 Seed。
@@ -22,7 +22,7 @@
 | ScheduleAssignment、OrderExecutionTracking | `production-scheduling-repository.ts` | localStorage `zhixu.erp.local.production-scheduling` | v8 ProductionPlan 只用于 v9 owner 提升，原 Assignment ID 保留 |
 | ClosingPeriod、ClosingAllocation | `closing-repository.ts` | localStorage `zhixu.erp.local.closing-center` | v7 无此独立记录时初始化空集合 |
 | Ainuoke Mirror、同步批次与 Import Review | `ainuoke-sync-repository.ts` | localStorage `zhixu.erp.local.ainuoke-sync` | v9 无记录时初始化空集合 |
-| 款式进度 ImportBatch、Raw、需求、四类事件与 Expected Arrival Batch | `style-progress-repository.ts` | IndexedDB `zhixu-style-progress` version 3 多 Store | 旧单日期按 Source/manual 语义确定性迁移；旧备份缺新集合时为空 |
+| 款式进度 ImportBatch、Raw、需求、四类事件与 Expected Arrival Batch | `style-progress-repository.ts` | IndexedDB `zhixu-style-progress` version 4 多 Store | v2→v3 迁移旧单日期；v3→v4 重映射 name-only Canonical key；旧备份缺新集合时为空 |
 | 品牌、客户业务员、面辅料库 | `basic-settings-repository.ts` | localStorage `zhixu.erp.local.basic-settings` | `zhixu.basic-settings.v1.5`、`v1.3` |
 | 全局报价设置 | `quote-settings.ts` | localStorage `zhixu.erp.local.quote-global-settings` | `zhixu.quote-center.global-settings.v1` 与旧基础设置 |
 | 个人列表偏好 | `quote-settings.ts` | localStorage `zhixu.erp.local.quote-preferences.<userId>` | `zhixu.quote-center.preferences.v1.*`、旧单用户设置 |
@@ -64,6 +64,7 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 14. v9 → v10 增加艾诺科同步稳定记录；v10 → v11 只提升现有 localStorage envelope/manifest，原业务 payload 保持不变。款式进度大数据使用独立 IndexedDB Store，不把万行事件塞进单个 localStorage JSON。
 15. v11 → v12 保持所有稳定 key 与实体 ID；颜色取消 adjustment、系统默认加工币种和 `actualConsumption` 修复均采用可重复、非破坏迁移。Ainuoke 重同步更新来源颜色数量时保留 adjustment；无法由当前 Raw Snapshot 证明的旧实际用量保持 `null`。
 16. v12 → v13 保持 namespace、数据库名、既有 ImportBatch、Raw、Demand 与 Event ID；Style Progress IndexedDB 2 → 3 新增 Expected Arrival Batch Store，并把旧 `expectedMaterialReadyDate` 按 Canonical Material + 日期 + `source|manual` 确定性迁移为 Allocation。manual 计划不被重导入覆盖，厂供 Allocation 在迁移/加载时非破坏移除；旧备份缺新集合时按空集合恢复。
+17. Style Progress IndexedDB v3 → v4 保持数据库名、Store、Demand/Event、Expected Arrival Batch、Allocation 与审计字段；按 `salesContractNo + materialType + normalizedMaterialName` 重映射 `canonicalMaterialKey`。一个旧批次若指向多个新物料身份则拒绝迁移；v4 数据中的 key 必须与全部 Allocation 的当前物料身份一致，空 Allocation 批次视为损坏数据并拒绝加载或恢复。
 
 ## Test isolation
 

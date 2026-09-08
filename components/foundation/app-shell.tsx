@@ -28,7 +28,12 @@ const systemRoutes = [
   { label: "数据管理", href: "/system-settings/data-management" },
 ];
 
-export function AppShell({ title, children, onRequestNavigation }: { title: string; children: ReactNode; onRequestNavigation?: (target: string) => void }) {
+export type AppShellBackTarget = {
+  href: string;
+  label: string;
+};
+
+export function AppShell({ title, children, onRequestNavigation, backTarget }: { title: string; children: ReactNode; onRequestNavigation?: (target: string) => void; backTarget?: AppShellBackTarget }) {
   const router = useRouter();
   const pathname = usePathname();
   const navigateRequest = onRequestNavigation ?? ((target: string) => router.push(target));
@@ -129,7 +134,10 @@ export function AppShell({ title, children, onRequestNavigation }: { title: stri
     <section className="ops-workspace">
       <header className="ops-topbar">
         {touchNavigation && <button type="button" className="ops-mobile-menu-trigger" aria-label="打开主导航" aria-expanded={navigationOpen} onClick={() => setNavigationOpen(true)}><span aria-hidden="true">☰</span></button>}
-        <div className="ops-topbar-title"><small>织序 / 业务中心 / {basicActive ? "基础设置" : systemActive ? "系统设置" : pathname.startsWith("/ainuoke-sync") || pathname.startsWith("/order-center") ? "订单中心" : pathname.startsWith("/closing-center") ? "关账中心" : pathname.startsWith("/production-scheduling") ? "生产排单" : "报价中心"}</small><strong>{title}</strong></div>
+        <div className="ops-topbar-heading">
+          {backTarget && <button type="button" className="ops-topbar-back" aria-label={backTarget.label} title={backTarget.label} onClick={() => navigateRequest(backTarget.href)}><span aria-hidden="true">‹</span></button>}
+          <div className="ops-topbar-title"><small>织序 / 业务中心 / {basicActive ? "基础设置" : systemActive ? "系统设置" : pathname.startsWith("/ainuoke-sync") || pathname.startsWith("/order-center") ? "订单中心" : pathname.startsWith("/closing-center") ? "关账中心" : pathname.startsWith("/production-scheduling") ? "生产排单" : "报价中心"}</small><strong>{title}</strong></div>
+        </div>
         <div className="topbar-actions"><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></div>
       </header>
       {children}

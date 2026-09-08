@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 type FloatingMenuProps = { children: ReactNode; label: string; trigger?: ReactNode; className?: string; menuClassName?: string; align?: "start" | "end" };
 const VIEWPORT_GAP = 8;
 
-export function FloatingMenu({ children, label, trigger = "更多", className = "", menuClassName = "", align = "end" }: FloatingMenuProps) {
+export function FloatingMenu({ children, label, trigger = "··· 更多", className = "", menuClassName = "", align = "end" }: FloatingMenuProps) {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<{ left: number; top: number; width: number } | null>(null);
   const anchorRef = useRef<HTMLButtonElement | null>(null);

@@ -90,6 +90,6 @@ test("长表单滚动、附件重命名与顶部价格轨道均已接入真实�
   assert.match(styles, /qc-master-data-long-form-modal > \.qc-modal-body[^}]*overflow-y:\s*auto/);
   assert.match(attachmentPanel, />编辑名称</);
   assert.match(attachmentRepository, /async rename\(id, name\)/);
-  assert.match(editor, /QuoteMetrics className="qc-header-metrics"/);
+  assert.match(editor, /<QuoteCockpit version=\{activeVersion\}/);
   assert.match(editor, /qc-sticky-state/);
 });

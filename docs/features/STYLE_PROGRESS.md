@@ -11,7 +11,7 @@
 - 面辅料申购统计：Material Follow-up Source，提供需求、采购、入库、出运、出库、来源交期、实际用量和跟进文本；允许标准化与人工纠正，不反向覆盖正式订单。
 - 普通 UI 的订单字段始终读取 Order Projection。Excel 中相同款号、品牌或数量不能用于猜测绑定；合同不存在时显示“销售合同尚未形成织序订单”并引导至艾诺科同步。
 
-## Real Excel audit (2026-09-05)
+## Real Excel audit (2026-09-08)
 
 最新只读来源文件 `面辅料申购统计 (1).xlsx`，SHA-256 `393D4EFA69ED402AEC3BE6FF91B88F8EA036A35363D79D79D7A6FC7ECBED3C15`，Sheet `面辅料申购统计`，解析范围 `A1:BE17388`。原文件只用于本地审计，不进入 Git：
 
@@ -19,7 +19,7 @@
 - 13,189 个规范化 MaterialDemand；采购事件 11,502、入库 14,665、出运 13,269、出库 14,751；重复事件展开 5,572。
 - 新增“对应成衣颜色”列后，Header → Semantic Field Mapping 正确解析，不依赖固定列号。
 - D1935 / `PI2607-235`：261 条 Source Row、254 个规范化 Demand（面料 20、辅料 234）。其中厂供编码 `202608130002` 为 5 条 Source Row / 5 个 Demand，需求合计 3,809；普通 Operational Projection 使用其余 249 个 Demand。
-- D1935 普通页面归一为 18 个 Canonical Material Group（面料 8、辅料 10）；4 个面料组因采购价缺失而保持独立，未猜测合并。罗马布按采购价 70.5 与 80 分为两个真实组，不计算平均价。
+- D1935 在旧 v3 Canonical 规则下为 18 个 Group（面料 8、辅料 10）；v4 name-only 规则下为 13 个 Group（面料 3、辅料 10）。罗马布、棉毛布、汗布各自的不同来源编码、门幅、克重和采购价合并到同名顶层组，全部差异仍保留在 Demand / Event 明细中，不计算平均采购价，也不猜测统一规格。
 - D1935 对应 181 条采购事件、16 条入库事件、13 条 ShipmentEvent、13 条 OutboundEvent；出运与出库虽然该样本合计均为 21,656，UI 仍分别从各自 Event 累计，不互相替代。
 
 HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自另一份文件，不作为本批数据权威。
@@ -79,13 +79,13 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 
 ## Storage, backup, permissions and audit
 
-- 万行级事实存入 IndexedDB `zhixu-style-progress` version 3，分为导入批次、Raw、需求、四类事件与 Expected Arrival Batch Store；React 只经 Service/Repository 访问。
+- 万行级事实存入 IndexedDB `zhixu-style-progress` version 4，分为导入批次、Raw、需求、四类事件与 Expected Arrival Batch Store；React 只经 Service/Repository 访问。v3→v4 只重映射 Canonical key，保留批次、Allocation、manual/source 语义和审计元数据；迁移幂等且不更换 namespace。跨名称旧批次拒绝猜测迁移；v4 数据统一校验每个批次至少有一个 Allocation，且 `canonicalMaterialKey` 与全部 Allocation 的当前物料身份一致。
 - 全局 schemaVersion 13 将 Expected Arrival Batch 纳入现有 JSON Backup / Restore / Reset 的原子式回滚编排；旧备份缺失该集合时按空集合向前恢复，不影响其他数据。
 - 权限：`style_progress.read/edit/import/view_history`；新增权限只自动补给管理员。
 - 正式导入、人工修改和恢复 Effective 日期复用唯一追加式 OperationLog；ImportBatch / Raw Snapshot 继续保留技术 Trace，不替代业务操作日志。
 
 ## Verification status
 
-Gate 5 已使用最新 Excel 调用正式 Parser 与 Canonical identity 完成只读审计，并显式导入隔离的 Codex QA Browser Profile 做 D1935 / PI2607-235 页面验收；没有覆盖用户 Chrome 或 PROD Profile，原始 Excel 没有进入 Git。真实页面得到 18 个 Canonical Material，厂供 5 条 / 3,809 需求量仅在只读 Trace Drawer 中出现；罗马布英文多词颜色保持完整，展开行与多事件 Drawer 的出运量均来自 ShipmentEvent。
+本次 Correction 使用最新 Excel 调用正式 Parser 与 v4 Canonical identity 完成只读审计，并在既有隔离 Browser Profile 复验 D1935 / PI2607-235；没有覆盖用户 Chrome 或 PROD Profile，原始 Excel 没有进入 Git。真实页面从旧 18 个 Canonical Material 收敛为 13 个（面料 3、辅料 10），厂供 5 条 / 3,809 需求量仍只在只读 Trace Drawer 中出现；罗马布的 5 条颜色/规格 Demand 及不同采购价完整保留，展开行与多事件 Drawer 的出运量均来自 ShipmentEvent。
 
 真实 D1935 的 1600/1280/1229/960/768/402 CSS viewport 均为 `document-level horizontal overflow = 0`，Supplier 搜索、Sticky Filter、条件式厂供入口、Batch Planner、多个 Event Tab 和 Console 均通过。该隔离 Browser Profile 没有 PI2607-235 对应织序订单，因此页面正确显示“销售合同尚未形成织序订单”，逐批物流显示“待排单后计算”；没有猜测订单、SupplyHub、ProductionSite 或 ScheduleAssignment。Gate 3 自动化与 Gate 4 QA Dataset 已验证有正式排单时的逐批 recommendation、缺 Hub 精确原因、最慢可行方式和 buffer 颜色，但不能把这些证据冒充为本次 D1935 有排单的真实 Profile 验收。
