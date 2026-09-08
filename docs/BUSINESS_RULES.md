@@ -61,6 +61,16 @@
 - 权限记录与当前测试账号不进入 Quote、QuoteRevision 或 PriceVersion。
 - 当前权限是 localStorage mock RBAC，不构成生产安全边界；未来真实 API 必须服务端重新鉴权。
 
+### 艾诺科个人账号与只读 Direct API
+
+- 正式关系为 `Zhixu User → 0..1 Personal Ainuoke Account`，不使用公司共享账号或管理员高权限账号；当前只实现 browser-local mock identity 下的本地 Windows 原型，不能称为生产级身份隔离。
+- Ainuoke password 只存 Windows OS Secure Credential Store；Ainuoke token/session 只按 mock `User.id` 存 Local Bridge 内存，Bridge 重启即失效。二者不得进入浏览器存储、业务实体、备份、OperationLog、console/file log、telemetry、Git 或 committed `.env`。
+- Bridge 只绑定 `127.0.0.1`/`::1`，使用精确 Origin allowlist、HttpOnly bridge session 与 CSRF nonce；每次账号/报表请求从 bridge session 取得 user context，不直接信任请求体中的 userId。该机制不能补足当前 mock user 缺少真实认证的限制。
+- 个人账号绑定使用 `ainuoke.account.bind_self`；既有 `ainuoke.bind` 仍只表示业务合同绑定。个人绑定不自动授予 sync、合同绑定或 conflict resolution。
+- PUT credential 必须先真实测试登录，成功后才能替换旧 credential；失败保留旧值。invalid credential 不循环 retry，network retry 有上限，auth expiry 最多自动重新登录一次并 replay 原 read 一次。
+- Direct API 固定只读 Report Catalog：`6086103`、`6086997`、`6087050`。Browser 不能传任意 reportId，Bridge 不提供 Ainuoke write endpoint，也不得直接 create/update SalesOrder 或 upsert Style Progress。
+- Direct API 只形成带 report/page/query/row identity/schema/hash 的 sanitized source snapshot；后续 6086103/6086997 必须复用既有 `AinuokeContractMirror` 与 matcher/service，6087050 必须复用既有 Material Normalize → Dedup → Validate → Preview → `commitImport`，本 Gate 不 commit。
+
 ### 操作日志
 
 - 正式前端审计类型统一为 `OperationLog`。品牌、客户业务员、系统报价设置和制作预设保存成功后均追加字段级日志；PriceVersion 选择制作预设与全局预设维护必须是不同动作。

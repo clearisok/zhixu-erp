@@ -1,0 +1,9 @@
+[project]
+name = "zhixu-ainuoke-bridge"
+version = "0.1.0"
+description = "Loopback-only read bridge for the Zhixu local Windows prototype"
+requires-python = ">=3.11"
+dependencies = ["keyring>=25,<27"]
+
+[tool.unittest]
+start-directory = "tests"

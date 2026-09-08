@@ -44,6 +44,8 @@ next-env.d.ts
 
 # Nested dependencies / generated tooling
 **/node_modules/
+**/__pycache__/
+*.py[cod]
 
 # Local temporary audits
 .tmp-*/
