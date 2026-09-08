@@ -153,6 +153,30 @@ test("Gate 3 operational projection uses canonical materials and excludes factor
   assert.equal(projection.canonicalMaterials[0].expectedArrivalBatches.some((item) => item.batch.id === "factory-batch"), false);
 });
 
+test("name-only Canonical group preserves width/GSM/code/price variants and does not double-count child events", () => {
+  const data = emptyStyleProgressData();
+  const first = demand("variant-a", { materialCode: "CODE-A", width: "153", gsm: "230", requiredQuantity: 60 });
+  const second = demand("variant-b", { materialCode: "CODE-B", width: "180", gsm: "300", materialColor: "藏青", specification: "不同规格", requiredQuantity: 40, sourceSortNo: 2 });
+  data.demands = [first, second];
+  data.purchaseEvents = [purchase("purchase-a", first.id, 60, 70.5), purchase("purchase-b", second.id, 40, 80)];
+  data.inboundEvents = [event("inbound-a", first.id, 30), event("inbound-b", second.id, 10)];
+  data.shipmentEvents = [{ ...event("shipment-a", first.id, 12), transportModeSnapshot: "海运" }, { ...event("shipment-b", second.id, 8), transportModeSnapshot: "陆运" }];
+  data.outboundEvents = [event("outbound-a", first.id, 5), event("outbound-b", second.id, 3)];
+  const { settings, scheduling } = schedulingAndSettings();
+  const order = { id: "order-a", salesContractNo: "PI2607-235", styleNo: "D1935", factoryStyleNo: "D1935", brandNameSnapshot: "OYSHO", customerNameSnapshot: "", initialQuantity: 100, quantityChanges: [], contractDeliveryDate: "2026-10-13" };
+  const canonical = buildStyleProgressProjections({ data, orders: [order], scheduling, settings, today: "2026-09-01" })[0].canonicalMaterials;
+
+  assert.equal(canonical.length, 1);
+  assert.deepEqual(canonical[0].materialCodes, ["CODE-A", "CODE-B"]);
+  assert.deepEqual(canonical[0].demands.map((item) => [item.demand.width, item.demand.gsm, item.purchaseEvents[0].unitPrice]), [["153", "230", 70.5], ["180", "300", 80]]);
+  assert.equal(canonical[0].requiredQuantity, 100);
+  assert.equal(canonical[0].purchasedQuantity, 100);
+  assert.equal(canonical[0].inboundQuantity, 40);
+  assert.equal(canonical[0].shipmentQuantity, 20);
+  assert.equal(canonical[0].outboundQuantity, 8);
+  assert.equal(canonical[0].isReady, false);
+});
+
 test("Gate 3 computes every expected-arrival batch through the formal logistics service and keeps multi-batch summaries honest", () => {
   const data = emptyStyleProgressData();
   const purple = demand("purple", { requiredQuantity: 60 });

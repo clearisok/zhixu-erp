@@ -107,7 +107,7 @@ function MaterialTab({ item }: { item: CanonicalMaterialProgressProjection }) {
     <div><dt>所有来源编码</dt><dd>{item.materialCodes.join(" / ") || "—"}</dd></div>
     <div><dt>颜色 / 规格明细</dt><dd>{item.demands.length} 项</dd></div><div><dt>供应商</dt><dd>{suppliers.join(" / ") || "—"}</dd></div>
     <div><dt>采购主体</dt><dd>{purchaseEntities.join(" / ") || "—"}</dd></div><div><dt>采购人</dt><dd>{purchasers.join(" / ") || "—"}</dd></div>
-    <div><dt>身份状态</dt><dd>{item.identity.status === "resolved" ? "已安全归一" : item.identity.status === "price_missing" ? "采购价缺失，保持独立" : "采购价冲突，保持独立"}</dd></div>
+    <div><dt>汇总口径</dt><dd>同合同、同类型、同标准化名称</dd></div>
   </div>;
 }
 

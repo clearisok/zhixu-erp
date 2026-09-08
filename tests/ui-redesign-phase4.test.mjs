@@ -83,7 +83,7 @@ test("Phase 4 新建页初始 clean、用户修改后 dirty，只有 dirty 离�
   assert.match(orderSource, /setDirty\(true\)/);
   assert.deepEqual(createNavigationIntent(false, "/quote-center"), { navigateTo: "/quote-center", pendingTarget: null });
   assert.deepEqual(createNavigationIntent(true, "/quote-center"), { navigateTo: null, pendingTarget: "/quote-center" });
-  assert.match(orderSource, /if \(dirty\)\s*setPendingListNavigation\(true\);\s*else\s*router\.push\("\/order-center"\)/);
+  assert.match(orderSource, /const requestNavigation = \(target: string\) => \{\s*if \(dirty\) setPendingNavigation\(target\);\s*else router\.push\(target\);/);
 });
 
 test("Phase 4 dirty guard 提供继续编辑与放弃路径，创建提交防重复", async () => {
