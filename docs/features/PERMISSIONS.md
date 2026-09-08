@@ -16,6 +16,7 @@
 - 新订单中心消费 `order.view/create/edit/cancel`：列表/详情读取、手工/报价/翻单创建、订单编辑与确认、部分/全部取消分别受权限键保护；无权按钮继续可见并 disabled。
 - 排单中心消费 `schedule.view/create/edit/complete`，关账中心分别消费 `closing.view/edit/confirm/lock/reopen`；订单编辑权限不会隐含这两类权限。确认、锁定与重开是不同动作，`closing.reopen` 只允许有原因地重开已锁定月份。
 - 款式进度消费 `style_progress.read/edit/import/view_history`；查看、日期维护、真实 Excel 导入和来源/操作历史分别授权，不隐含订单创建或艾诺科冲突处理权限。
+- 个人设置消费 self-scoped `ainuoke.account.bind_self`，只允许当前用户绑定、测试、更新或解除自己的艾诺科 credential。它与业务合同 `ainuoke.bind` 明确分离，不隐含同步或冲突处理。
 
 ## Data model
 
@@ -44,6 +45,7 @@
 - 权限管理：`user_permissions.view/manage`
 - 系统审计：`audit_log.view`
 - 艾诺科同步：`ainuoke.view/sync/bind/resolve_conflict`
+- 我的设置：`ainuoke.account.bind_self`
 - 款式进度：`style_progress.read/edit/import/view_history`
 
 `quote.revision.delete` 当前为未来能力预留；现有 Quote Center 尚无报价 Revision 删除 UI。
@@ -54,13 +56,14 @@
 - 报价员：查看/创建/编辑/导出/确认报价，查看和更新报价版本，创建价格版本，查看与编辑报价成本，修改单张报价设置，查看估算成本；不能删除报价、删除价格版本、编辑基础设置或管理用户权限。
 - 查看员：查看报价、历史报价版本、报价成本并导出；不允许创建、编辑、删除、确认或修改估算成本。
 
-订单、排单、关账和生产基础资料权限只默认授予管理员；没有扩大报价员或查看员的既有权限。三个业务模块都已消费各自稳定权限键。
+订单、排单、关账、生产基础资料与个人艾诺科账号绑定权限只默认授予管理员；没有扩大报价员或查看员的既有权限。管理员可把 self-scoped capability 分配给需要绑定个人账号的角色，但这不会附带 `ainuoke.sync/bind/resolve_conflict`。
 
 ## Persistence and API
 
 - mock repository：`features/permissions/repository/permission-repository.ts`
 - 当前 localStorage：`zhixu.erp.local.permission-state`；旧 `zhixu.permission-state.v1` 仅作为非破坏迁移来源。
 - 当前没有权限 API、服务端 session、密码验证或数据库表。
+- Ainuoke Local Bridge 的 HttpOnly session/CSRF 只保护本地请求上下文，不把前端 mock `currentUserId` 提升为真实认证；生产化时必须由可信 Zhixu session 确定用户身份。
 - 根路径 ERP 的 PostgreSQL 用户/角色模型保持独立，未在本阶段迁移或修改。
 
 ## Frontend integration

@@ -66,7 +66,20 @@ class ReportSnapshot:
     rows: list[SourceRow]
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        return {
+            "schemaVersion": self.schema_version,
+            "reportId": self.report_id,
+            "fetchedAt": self.fetched_at,
+            "page": self.page,
+            "pageSize": self.page_size,
+            "total": self.total,
+            "queryContext": self.query_context,
+            "snapshotHash": self.snapshot_hash,
+            "rows": [
+                {"sourceRowIdentity": row.source_row_identity, "values": row.values}
+                for row in self.rows
+            ],
+        }
 
 
 def resolve_report(report_key: str) -> ReportDefinition:

@@ -4,10 +4,11 @@
 
 ## 当前阶段
 
-- 当前稳定基线：`main` / `origin/main` 的任务起点 `ab13869a26d0240f7f9cc950ef439c38ac0ede73`。
+- 当前稳定基线：`main` / `origin/main` 的任务起点 `c0eec7e4229e98df5bc9753c0379780165af9937`。
+- PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
-- 当前 Active Task 为 `feat/navigation-material-infrastructure-redesign`。Gate A/B/C checkpoint 已完成并推送：`9be9efa`（Detail 导航与 Quote Cockpit）、`d9176be`（name-only Canonical Material）、`e34dfc9`（生产与运输业务化设置）；最终文档、浏览器复验与质量门禁已完成，待 PR 审阅，未合并 `main`。
+- 当前 Active Task 为 `feat/ainuoke-personal-api-binding`。Gate 0 Security/Source Contract checkpoint `39e1f2e` 已推送；Gate 1 个人账号绑定、只读 Local Bridge、个人设置 UI、测试与文档已收口，最终 checkpoint / PR 以分支 Git history 为准。
 - 最新真实 `面辅料申购统计 (1).xlsx` 已通过正式 Parser 只读验证，并显式导入隔离的 Codex QA Browser Profile：17,384 Source Row / 17,383 有效；D1935 / PI2607-235 为 261 Source Row，厂供编码 `202608130002` 5 行、需求 3,809，并从 Operational Projection 全部排除。导入没有触碰用户 Chrome / PROD Profile，原始 Excel 未进入 Git。
 
 ## 当前可运行边界
@@ -18,6 +19,16 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### Ainuoke Personal Account + Read-only Direct API
+
+- 正式关系为 `Zhixu User → 0..1 Personal Ainuoke Account`；Password 只进入 Python keyring / Windows Credential Manager，Ainuoke JWT 与 bridge browser session/CSRF 只在进程/页面内存。账号、token/session 不进入 localStorage、sessionStorage、IndexedDB、Backup / Restore 或业务实体。
+- Bridge 只允许 `127.0.0.1` / `::1` bind，CORS 只允许 `http://127.0.0.1:3000` 与 `http://127.0.0.1:3001`；账号/报表请求通过 HttpOnly bridge session + CSRF nonce 取得 mock user context。当前 userId 仍由 browser-local mock identity 启动会话，不是生产可信认证。
+- Personal Account API 已提供 GET/PUT/test/DELETE；GET 不返回 secret，PUT 先真实验证再替换，失败保留旧 credential，DELETE 同时清 credential、token 与该用户 bridge session。
+- 固定只读 Catalog 只有 6086103 / 6086997 / 6087050；source snapshot 保留 report、fetch time、paging、total、query context、source row identity、schema 与 deterministic hash。unknown report 与 write-like endpoint fail closed。
+- `/my-settings/ainuoke-account` 提供本人用户名、密码输入、状态/验证时间、测试、保存/更新密码与解除绑定；密码不回填。self-scoped `ainuoke.account.bind_self` 与业务合同 `ainuoke.bind` 分离，且不会授予 sync/conflict 权限。
+- Direct API 尚未接入 SalesOrder 或 Style Progress commit；没有建立第二套 Matcher、Dedup、Canonical resolver、Logistics 或 OperationLog。上游 report-data path 尚无仓库内确认事实，因此真实 D1935 read 未执行。
+- Gate 1 验证：Python Bridge 23/23、TypeScript PASS、ESLint PASS、Full Tests 496/496、Production Build 30 routes PASS；最终 diff check 在 commit 前执行。
 
 ### Material Control Tower V2
 

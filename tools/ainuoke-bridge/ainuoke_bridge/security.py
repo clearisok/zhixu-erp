@@ -9,8 +9,6 @@ DEFAULT_ALLOWED_ORIGINS = frozenset(
     {
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3001",
-        "http://localhost:3000",
-        "http://localhost:3001",
     }
 )
 
@@ -41,7 +39,7 @@ def require_loopback_host(host: str) -> str:
         address = ip_address(candidate)
     except ValueError as error:
         raise SecurityContractError("bridge host must be a literal loopback address") from error
-    if not address.is_loopback:
+    if str(address) not in {"127.0.0.1", "::1"}:
         raise SecurityContractError("bridge may bind only to 127.0.0.1 or ::1")
     return host
 
@@ -74,13 +72,16 @@ def sanitize_mapping(value: Mapping[str, Any]) -> dict[str, Any]:
     for key, child in value.items():
         if _normalized_key(key) in forbidden:
             continue
-        if isinstance(child, Mapping):
-            result[str(key)] = sanitize_mapping(child)
-        elif isinstance(child, list):
-            result[str(key)] = [sanitize_mapping(item) if isinstance(item, Mapping) else item for item in child]
-        else:
-            result[str(key)] = child
+        result[str(key)] = _sanitize_value(child)
     return result
+
+
+def _sanitize_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return sanitize_mapping(value)
+    if isinstance(value, (list, tuple)):
+        return [_sanitize_value(item) for item in value]
+    return value
 
 
 @dataclass(frozen=True)

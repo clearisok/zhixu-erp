@@ -50,7 +50,7 @@ class ReportContractTests(unittest.TestCase):
     def test_source_snapshot_removes_secret_named_fields(self) -> None:
         snapshot = build_report_snapshot(
             report_key="material_purchase_statistics",
-            rows=[{"id": 1, "material": "罗马布", "jwtToken": "jwt-secret"}],
+            rows=[{"id": 1, "material": "罗马布", "jwtToken": "jwt-secret", "nested": [[{"session": "session-secret"}]]}],
             page=1,
             page_size=50,
             total=1,
@@ -59,6 +59,7 @@ class ReportContractTests(unittest.TestCase):
         encoded = json.dumps(snapshot.to_dict(), ensure_ascii=False)
         self.assertNotIn("credential-secret", encoded)
         self.assertNotIn("jwt-secret", encoded)
+        self.assertNotIn("session-secret", encoded)
         self.assertFalse(contains_secret_field(snapshot.to_dict()))
 
 
@@ -66,7 +67,7 @@ class SecurityContractTests(unittest.TestCase):
     def test_bridge_accepts_only_literal_loopback(self) -> None:
         SecurityContract("127.0.0.1")
         SecurityContract("::1")
-        for host in ("0.0.0.0", "192.168.1.20", "localhost"):
+        for host in ("0.0.0.0", "127.0.0.2", "192.168.1.20", "localhost"):
             with self.subTest(host=host), self.assertRaises(SecurityContractError):
                 SecurityContract(host)
 

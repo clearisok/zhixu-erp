@@ -92,6 +92,7 @@
 - 不物理覆盖数量/价格历史，不在指针损坏时猜测当前价格。
 - ScheduleAssignment、ClosingPeriod、ClosingAllocation、排单中心与关账中心均由独立模块实现；订单只消费摘要投影，不复制这些事实。
 - 当前仍是单浏览器、单 Origin mock 持久化，没有服务端并发控制、跨设备同步或不可篡改审计。
+- Ainuoke Direct API 当前只建立 read source snapshot；没有直接 create/update SalesOrder，也尚未接入本文件所述既有 `AinuokeContractMirror` matcher/service commit 路径。
 - 本轮只是产品化 UI 与交互调整，没有改变 SalesOrder、价格/数量历史、排单和关账领域边界。
 
 ## 2026-09-04 Second Acceptance

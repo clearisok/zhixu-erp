@@ -9,3 +9,19 @@ Run the contract tests from the repository root:
 ```powershell
 python -m unittest discover -s tools/ainuoke-bridge/tests -v
 ```
+
+Install the runtime dependency without creating or committing an `.env` file:
+
+```powershell
+python -m pip install ./tools/ainuoke-bridge
+```
+
+Start the bridge with the confirmed Ainuoke host and read-report path. Both values can be passed as parameters or supplied only in the current process environment:
+
+```powershell
+./tools/ainuoke-bridge/start.ps1 -AinuokeBaseUrl http://ainuoke-host -AinuokeReportPath /confirmed/read/report/path
+```
+
+The login path is fixed at `/kaijin/system/user/loginsys2`. The report path is intentionally required at runtime because the current repository contains no confirmed upstream report-data path. Startup rejects non-loopback hosts and non-Windows-Credential-Manager keyring backends.
+
+The browser API is `http://127.0.0.1:8765`. It creates an HttpOnly bridge session with `POST /v1/session`, then exposes only the four personal-account endpoints and `POST /v1/ainuoke/reports/{catalogKey}/query`.

@@ -45,10 +45,12 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 
 ## Current implementation boundary
 
-- Python contract：`tools/ainuoke-bridge/ainuoke_bridge/security.py` 与 `contracts.py`。
-- 当前 Gate 0 只锁定安全、Catalog 与 Source DTO；尚未把 API 数据写入任何浏览器 Repository。
+- Python Bridge：`tools/ainuoke-bridge/ainuoke_bridge/`；`KeyringCredentialStore` 启动时拒绝非 Windows Credential Manager backend，browser session、CSRF nonce 与 Ainuoke JWT 均为 process-memory state。
+- Browser client/UI：`features/ainuoke-api/` 与 `/my-settings/ainuoke-account`。密码输入从不回填，GET view 不含 secret；切换 mock user 会新建对应 bridge session。
+- 上游登录 path 固定为 `/kaijin/system/user/loginsys2`；base URL 与只读 report-data path 必须在进程启动参数或当前进程环境中提供，不提交 `.env`。仓库目前没有已确认的 report-data path，因此不得声称完成真实 D1935 live read。
+- 当前只返回 read source snapshot，尚未把 API 数据写入任何浏览器 Repository，也未调用既有订单同步或 Material `commitImport`。
 - 既有 Excel Ainuoke Matcher、Order Sync、Material Normalize/Dedup/Canonical resolver、Material Logistics Service 与 OperationLog 保持唯一，不建立第二套。
 
 ## Verification
 
-Python tests：`tools/ainuoke-bridge/tests/`。测试必须覆盖固定 allowlist、unknown report 拒绝、loopback-only、Origin allowlist、deterministic snapshot hash 与 secret field 清除；完整 Gate 1 还需覆盖 credential/token 隔离、retry 上限、CSRF/session、替换失败回滚、unbind 清缓存和 Secret Leakage。
+Python tests：`tools/ainuoke-bridge/tests/`；browser/source contract：`tests/ainuoke-personal-api.test.mjs`。覆盖固定 allowlist、unknown/write-like endpoint 拒绝、loopback-only、Origin allowlist、CSRF/session、credential/token 隔离、retry 上限、auth expiry 单次 replay、替换失败回滚、unbind 清缓存、process restart、deterministic source hash 与 Secret Leakage。
