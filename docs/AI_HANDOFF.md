@@ -20,7 +20,7 @@
 - Gate A `9be9efa598d1f8758f07153574c8dd54b2d71f2f`：详情返回进入 AppShell Topbar、明确 parent target 且继续经过 unsaved navigation guard；全局 More 轻量单行；报价顶部合并为唯一 Quote Cockpit Bar。
 - Gate B `d9176be4f16d3802fa6838cc3ec2534e471a570a`：Canonical identity 改为合同 + `materialType` + 标准化名称；Style Progress IndexedDB v3→v4 非破坏迁移保留 Batch / Allocation / manual/source；D1935 从 18 组收敛为 13 组且明细不丢失。
 - Gate C `e34dfc9f3c667ff17d7904a7235f6c673c86f3f5`：生产与运输按“在哪里生产 / 物料从哪里发 / 仓库到工厂怎么走”组织；路线与方式组合编辑，日历使用星期与特殊日期表单，Configuration Health 使用正式 Repository 事实。
-- Gate A/B/C 与最终文档已完成并推送；1229 CSS viewport Browser QA、TypeScript、ESLint、488/488 全量测试、29 路由 Production Build 和 diff check 全部通过。任务处于 PR 审阅阶段；不要重做 Gate A–C，不要自动合并 main。
+- Gate A/B/C 与最终文档已完成并推送；final hardening 进一步要求 v4 Expected Arrival Batch 的 `canonicalMaterialKey` 与非空 Allocation 当前身份一致，并为跨名称迁移、错误 key 与空批次补充 fail-closed 测试。1229 CSS viewport Browser QA、TypeScript、ESLint、490/490 全量测试、29 路由 Production Build 和 diff check 全部通过。任务处于 PR 审阅阶段；不要重做 Gate A–C，不要自动合并 main。
 
 ## Latest Merged Work
 

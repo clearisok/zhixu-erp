@@ -21,13 +21,13 @@
 
 ### Material Control Tower V2
 
-- Style Progress IndexedDB version 4 与全局 schemaVersion 13 支持非破坏 Expected Arrival Batch / Allocation；v3→v4 确定性重映射 Canonical key，旧单日期、manual/source 语义、重导入、Backup / Restore 与唯一 OperationLog 均保持可追溯。
+- Style Progress IndexedDB version 4 与全局 schemaVersion 13 支持非破坏 Expected Arrival Batch / Allocation；v3→v4 确定性重映射 Canonical key，旧单日期、manual/source 语义、重导入、Backup / Restore 与唯一 OperationLog 均保持可追溯。跨名称旧批次拒绝猜测迁移；v4 加载/恢复拒绝错误 Canonical key 与空 Allocation 批次。
 - 普通 Projection 以 `salesContractNo + materialType + normalizedMaterialName` 形成 Canonical Material Group；面料与辅料的编码、颜色、规格、门幅、克重、采购价等差异保留在组内明细，厂供退出运营统计但保留 Source Trace。
 - 每批 Expected Arrival 独立复用正式物流 Service；Shipment quantity 只来自 ShipmentEvent，“距上线”与运输 buffer 分开，buffer 使用 `>7 / 0..7 / <0` 的 green/yellow/red 规则。
 - V4 Material Control Tower 已提供 Canonical Material 卡、五项 KPI、Sticky Filter、多事件 Drawer 与 Batch Planner；1600/1280/1229/960/768/402 CSS viewport 无 document 横向溢出。这里记录的是 CSS viewport 验收，不冒充真实 Windows Display Scaling。
 - 真实 D1935 从旧规则的 18 个 Canonical Material（面料 8、辅料 10）收敛为 13 个（面料 3、辅料 10）；罗马布、棉毛布、汗布的 Variant/Demand/Event 差异完整保留，采购 / 入库 / 出运 / 出库分别使用对应 Event。隔离 Browser Profile 没有该合同的织序订单，因此物流保持“待排单后计算”，未建立任何 fallback。
 - 本任务 1229 CSS viewport 浏览器复验：Quote Detail 单一 Cockpit、AppShell 返回、D1935 13 个不重名 Material Group 及展开明细、生产与运输三段业务流程均无 document 横向溢出，Console 0 unexpected error。
-- 本任务最终门禁：TypeScript PASS、ESLint PASS、Full Tests 488/488、Production Build 29 routes PASS、`git diff --check` PASS。
+- 本任务最终门禁：TypeScript PASS、ESLint PASS、Full Tests 490/490、Production Build 29 routes PASS、`git diff --check` PASS。
 
 ### Gate A — Foundation / Quote
 

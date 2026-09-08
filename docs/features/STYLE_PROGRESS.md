@@ -79,7 +79,7 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 
 ## Storage, backup, permissions and audit
 
-- 万行级事实存入 IndexedDB `zhixu-style-progress` version 4，分为导入批次、Raw、需求、四类事件与 Expected Arrival Batch Store；React 只经 Service/Repository 访问。v3→v4 只重映射 Canonical key，保留批次、Allocation、manual/source 语义和审计元数据；迁移幂等且不更换 namespace。
+- 万行级事实存入 IndexedDB `zhixu-style-progress` version 4，分为导入批次、Raw、需求、四类事件与 Expected Arrival Batch Store；React 只经 Service/Repository 访问。v3→v4 只重映射 Canonical key，保留批次、Allocation、manual/source 语义和审计元数据；迁移幂等且不更换 namespace。跨名称旧批次拒绝猜测迁移；v4 数据统一校验每个批次至少有一个 Allocation，且 `canonicalMaterialKey` 与全部 Allocation 的当前物料身份一致。
 - 全局 schemaVersion 13 将 Expected Arrival Batch 纳入现有 JSON Backup / Restore / Reset 的原子式回滚编排；旧备份缺失该集合时按空集合向前恢复，不影响其他数据。
 - 权限：`style_progress.read/edit/import/view_history`；新增权限只自动补给管理员。
 - 正式导入、人工修改和恢复 Effective 日期复用唯一追加式 OperationLog；ImportBatch / Raw Snapshot 继续保留技术 Trace，不替代业务操作日志。
