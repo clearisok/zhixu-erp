@@ -8,7 +8,7 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ainuoke_bridge.ainuoke_client import AuthExpiredError, InvalidCredentialError, ReportPage  # noqa: E402
+from ainuoke_bridge.ainuoke_client import AinuokeLoginSession, AuthExpiredError, InvalidCredentialError, ReportPage  # noqa: E402
 from ainuoke_bridge.credential_store import KeyringCredentialStore, MemoryCredentialStore, PersonalCredential  # noqa: E402
 from ainuoke_bridge.service import AinuokeBridgeService  # noqa: E402
 from ainuoke_bridge.session_store import AinuokeTokenCache  # noqa: E402
@@ -21,16 +21,16 @@ class FakeClient:
         self.login_results: list[object] = []
         self.read_results: list[object] = []
 
-    def login(self, username: str, password: str) -> str:
+    def login(self, username: str, password: str) -> AinuokeLoginSession:
         self.login_calls.append((username, password))
-        result = self.login_results.pop(0) if self.login_results else f"jwt-{username}"
+        result = self.login_results.pop(0) if self.login_results else AinuokeLoginSession(f"jwt-{username}", f"session-{username}")
         if isinstance(result, Exception):
             raise result
-        return str(result)
+        return result
 
     def read_report(self, _definition, *, jwt_token: str, page: int, page_size: int, query_context):
         self.read_tokens.append(jwt_token)
-        result = self.read_results.pop(0) if self.read_results else ReportPage(rows=[{"id": 1}], total=1)
+        result = self.read_results.pop(0) if self.read_results else ReportPage(rows=[{"id": 1}], total=1, page_index=page, page_size=page_size)
         if isinstance(result, Exception):
             raise result
         return result
@@ -50,6 +50,8 @@ class PersonalAccountServiceTests(unittest.TestCase):
         self.assertEqual(self.credentials.get("user-b").username, "bob")  # type: ignore[union-attr]
         self.assertEqual(self.tokens.get("user-a").jwt_token, "jwt-alice")  # type: ignore[union-attr]
         self.assertEqual(self.tokens.get("user-b").jwt_token, "jwt-bob")  # type: ignore[union-attr]
+        self.assertEqual(self.tokens.get("user-a").session_id, "session-alice")  # type: ignore[union-attr]
+        self.assertEqual(self.tokens.get("user-b").session_id, "session-bob")  # type: ignore[union-attr]
 
     def test_public_account_never_returns_password_token_or_session(self) -> None:
         self.service.put_account("user-a", "alice", "credential-secret")
@@ -74,8 +76,8 @@ class PersonalAccountServiceTests(unittest.TestCase):
 
     def test_auth_expiry_relogs_once_and_replays_read_once(self) -> None:
         self.service.put_account("user-a", "alice", "credential-secret")
-        self.client.read_results = [AuthExpiredError("auth_expired"), ReportPage(rows=[{"id": 2}], total=1)]
-        snapshot = self.service.read_report("user-a", report_key="sales_contracts", page=1, page_size=50, query_context={})
+        self.client.read_results = [AuthExpiredError("auth_expired"), ReportPage(rows=[{"id": 2}], total=1, page_index=1, page_size=50)]
+        snapshot = self.service.read_report("user-a", report_key="sales_contracts", page=1, page_size=50, query_context={"insideOrderNo": "D1935"})
         self.assertEqual(len(self.client.login_calls), 2)
         self.assertEqual(len(self.client.read_tokens), 2)
         self.assertEqual(snapshot.rows[0].values["id"], 2)
@@ -84,14 +86,14 @@ class PersonalAccountServiceTests(unittest.TestCase):
         self.service.put_account("user-a", "alice", "credential-secret")
         self.client.read_results = [AuthExpiredError("auth_expired"), AuthExpiredError("auth_expired")]
         with self.assertRaises(AuthExpiredError):
-            self.service.read_report("user-a", report_key="sales_contracts", page=1, page_size=50, query_context={})
+            self.service.read_report("user-a", report_key="sales_contracts", page=1, page_size=50, query_context={"insideOrderNo": "D1935"})
         self.assertEqual(len(self.client.login_calls), 2)
         self.assertEqual(len(self.client.read_tokens), 2)
 
     def test_process_restart_does_not_restore_token(self) -> None:
         self.service.put_account("user-a", "alice", "credential-secret")
         restarted = AinuokeBridgeService(credentials=self.credentials, token_cache=AinuokeTokenCache(), client=self.client, clock=lambda: "2026-09-08T00:00:01Z")
-        restarted.read_report("user-a", report_key="sales_contracts", page=1, page_size=50, query_context={})
+        restarted.read_report("user-a", report_key="sales_contracts", page=1, page_size=50, query_context={"insideOrderNo": "D1935"})
         self.assertEqual(len(self.client.login_calls), 2)
 
     def test_candidate_connection_test_does_not_persist_new_credential(self) -> None:

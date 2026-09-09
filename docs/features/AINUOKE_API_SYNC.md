@@ -41,16 +41,25 @@ GET 只返回 username/脱敏标识、configured、status、lastVerifiedAt、las
 
 Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 login、auth、paging、timeout、有限 network retry、字段脱敏和 read DTO；不负责 Matcher、订单创建、Material commit、Canonical identity、Risk、Logistics 或 Domain mutation。本阶段不调用 `commitImport`。
 
-每个 `ReportSnapshot` 必须保存：`schemaVersion`、`reportId`、`fetchedAt`、`page`、`pageSize`、`total`、`queryContext`、每行 `sourceRowIdentity`、sanitized source error（失败时）及 deterministic `snapshotHash`。hash 对同一 report/page/query/rows 稳定，不把 fetch timestamp 算入 identity；所有 source DTO 再次移除 secret-named fields。
+已确认真实协议（2026-09-08 requests + Scanner）：base 为 `http://61.164.81.194:9043`，登录为 `GET /kaijin/system/user/loginsys2`，Generic Report 为 `POST /kaijin/report/report/getReportObjAndData`，System Id 为 `6080183`。上游是 HTTP，不是安全链路；base/report path 仍允许进程级覆盖，但上述事实是当前默认值。
+
+- 登录 query 固定包含 `userName/password/verifyCode/cltType=1/rememberMe=true/jsCode/isCoverLogin`，并使用已捕获的 Accept、`X-Requested-With: XMLHttpRequest` 与 login Referer。只有 `data.isOk === true` 且同时存在非空 `data.jwtToken`、`data.sessionId` 才判成功；raw URL/response/userObj/PII/secret 不记录。
+- 报表鉴权按捕获请求发送原值 `Authorization: <token>`、`Token: <token>` 与 Cookie `kaijin_my_token=<token>; rungingSysId=6080183`；不使用未经验证的 `Bearer` 假设。token/cookie 永不返回 Browser。
+- Browser query DTO 目前严格只有非空 `insideOrderNo`。6086103 映射为 `InsideOrderNo + contains + [内层]`，6086997 映射为 `InsideOrderNo + is`，6087050 映射为 `insideorderno + is + [内层]`。Bridge 构造 `reportId + sqlCdtn(pageIndex/pageSize/conditionList/sqlParamList/orderFieldList) + isFirstTime + isIniPage`；这三种已捕获的过滤请求均不猜测或发送 `formId`。
+- 响应必须含 JSON string `dataList`，解析后必须是含 mapping rows 的对象；total 读取真实 `dataCount`。该 endpoint 成功返回时顶层 `pageIndex/pageSize` 可为已验证的 `0/0` 哨兵，此时保留请求中已验证的分页值；缺失、负数、非数字、分页冲突或 malformed `dataList` 全部 fail closed。
+
+每个 `ReportSnapshot` 必须保存：`schemaVersion`、`reportId`、`fetchedAt`、`page`、`pageSize`、`total`、`queryContext`、每行 `sourceRowIdentity`、sanitized source error（失败时）及 deterministic `snapshotHash`。当前 schema 为 `ainuoke-direct-read.v2`。hash 对同一 report/page/query/rows 稳定，不把 fetch timestamp 算入 identity；所有 source DTO 再次移除 secret-named fields。6087050 是 joined view 且 `id` 已确认重复，因此不能使用 `6087050:<id>`；三张报表都没有足够证据证明 `id` 唯一，统一采用 report-specific canonical full-row SHA-256，identity 不依赖 API page position 或排序。
 
 ## Current implementation boundary
 
 - Python Bridge：`tools/ainuoke-bridge/ainuoke_bridge/`；`KeyringCredentialStore` 启动时拒绝非 Windows Credential Manager backend，browser session、CSRF nonce 与 Ainuoke JWT 均为 process-memory state。
 - Browser client/UI：`features/ainuoke-api/` 与 `/my-settings/ainuoke-account`。密码输入从不回填，GET view 不含 secret；切换 mock user 会新建对应 bridge session。
-- 上游登录 path 固定为 `/kaijin/system/user/loginsys2`；base URL 与只读 report-data path 必须在进程启动参数或当前进程环境中提供，不提交 `.env`。仓库目前没有已确认的 report-data path，因此不得声称完成真实 D1935 live read。
+- 上游默认 base/login/report path 已按真实请求固定；`/my-settings/ainuoke-account` 另提供 D1935 固定 Catalog 的只读验收面板，只显示行数、total、paging 与字段名，不输出 raw response 或 secret。
 - 当前只返回 read source snapshot，尚未把 API 数据写入任何浏览器 Repository，也未调用既有订单同步或 Material `commitImport`。
 - 既有 Excel Ainuoke Matcher、Order Sync、Material Normalize/Dedup/Canonical resolver、Material Logistics Service 与 OperationLog 保持唯一，不建立第二套。
 
 ## Verification
 
-Python tests：`tools/ainuoke-bridge/tests/`；browser/source contract：`tests/ainuoke-personal-api.test.mjs`。覆盖固定 allowlist、unknown/write-like endpoint 拒绝、loopback-only、Origin allowlist、CSRF/session、credential/token 隔离、retry 上限、auth expiry 单次 replay、替换失败回滚、unbind 清缓存、process restart、deterministic source hash 与 Secret Leakage。
+Python tests：`tools/ainuoke-bridge/tests/`；browser/source contract：`tests/ainuoke-personal-api.test.mjs`。覆盖脱敏真实 login/report fixture、三报表 condition adapter、header/cookie、`dataList` parser、0/0 paging sentinel、6087050 repeated id、固定 allowlist、unknown/write-like endpoint 拒绝、loopback-only、Origin allowlist、CSRF/session、credential/token 隔离、retry 上限、auth expiry 单次 replay、替换失败回滚、unbind 清缓存、process restart、deterministic source hash 与 Secret Leakage。
+
+2026-09-09 真实只读验收：个人账号由用户本人通过 UI 输入并保存到 Windows Credential Manager；登录成功。D1935 的 6086103 为 HTTP 200、1/1 行；6086997 为 HTTP 200、第一页 50/187 行；6087050 为 HTTP 200、第一页 50/262 行，字段结构与脱敏 Scanner 清单一致。6087050 该页实际出现 1 个 repeated-`id` group，50 行生成 50 个唯一 `6087050:sha256:*` identity。浏览器 console 检查 16 条记录、secret-pattern 命中 0；没有调用 Ainuoke write API、`synchronizeAinuokeContracts`、`commitImport`、SalesOrder write 或 Style Progress write。上述行数是当次上游事实，不是稳定业务常量。

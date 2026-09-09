@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Any, Mapping
 
 from .ainuoke_client import AinuokeClient, AinuokeClientError, AuthExpiredError
-from .contracts import ReportSnapshot, build_report_snapshot, resolve_report
+from .contracts import ReportSnapshot, build_report_snapshot, resolve_report, validate_report_query
 from .credential_store import CredentialStore, PersonalCredential, UNCONFIGURED_ACCOUNT
 from .session_store import AinuokeAuthSession, AinuokeTokenCache
 
@@ -33,7 +33,7 @@ class AinuokeBridgeService:
         username = username.strip()
         if not username or not password:
             raise ValueError("username_and_password_required")
-        jwt_token = self.client.login(username, password)
+        login_session = self.client.login(username, password)
         timestamp = self.clock()
         credential = PersonalCredential(
             username=username,
@@ -44,7 +44,7 @@ class AinuokeBridgeService:
             last_error_code=None,
         )
         self.credentials.set(user_id, credential)
-        self.token_cache.set(user_id, AinuokeAuthSession(jwt_token=jwt_token, authenticated_at=timestamp))
+        self.token_cache.set(user_id, AinuokeAuthSession(jwt_token=login_session.jwt_token, session_id=login_session.session_id, authenticated_at=timestamp))
         return credential.public_view()
 
     def test_account(self, user_id: str, username: str | None = None, password: str | None = None) -> dict[str, str | bool | None]:
@@ -58,13 +58,13 @@ class AinuokeBridgeService:
         else:
             raise ValueError("username_and_password_required")
         try:
-            jwt_token = self.client.login(tested.username, tested.password)
+            login_session = self.client.login(tested.username, tested.password)
         except AinuokeClientError as error:
             if stored is not None and tested.username == stored.username and tested.password == stored.password:
                 self.credentials.set(user_id, replace(stored, status="error", last_verified_at=self.clock(), last_error_code=error.code))
             raise
         timestamp = self.clock()
-        self.token_cache.set(user_id, AinuokeAuthSession(jwt_token=jwt_token, authenticated_at=timestamp))
+        self.token_cache.set(user_id, AinuokeAuthSession(jwt_token=login_session.jwt_token, session_id=login_session.session_id, authenticated_at=timestamp))
         if stored is not None and tested.username == stored.username and tested.password == stored.password:
             stored = replace(stored, status="verified", last_verified_at=timestamp, last_successful_login_at=timestamp, last_error_code=None)
             self.credentials.set(user_id, stored)
@@ -78,28 +78,29 @@ class AinuokeBridgeService:
 
     def read_report(self, user_id: str, *, report_key: str, page: int, page_size: int, query_context: Mapping[str, Any]) -> ReportSnapshot:
         definition = resolve_report(report_key)
+        safe_query = validate_report_query(query_context)
         credential = self.credentials.get(user_id)
         if credential is None:
             raise AccountNotConfiguredError("account_not_configured")
         auth = self.token_cache.get(user_id)
         if auth is None:
-            token = self.client.login(credential.username, credential.password)
-            auth = AinuokeAuthSession(jwt_token=token, authenticated_at=self.clock())
+            login_session = self.client.login(credential.username, credential.password)
+            auth = AinuokeAuthSession(jwt_token=login_session.jwt_token, session_id=login_session.session_id, authenticated_at=self.clock())
             self.token_cache.set(user_id, auth)
         try:
-            report_page = self.client.read_report(definition, jwt_token=auth.jwt_token, page=page, page_size=page_size, query_context=query_context)
+            report_page = self.client.read_report(definition, jwt_token=auth.jwt_token, page=page, page_size=page_size, query_context=safe_query)
         except AuthExpiredError:
             self.token_cache.delete(user_id)
-            token = self.client.login(credential.username, credential.password)
-            auth = AinuokeAuthSession(jwt_token=token, authenticated_at=self.clock())
+            login_session = self.client.login(credential.username, credential.password)
+            auth = AinuokeAuthSession(jwt_token=login_session.jwt_token, session_id=login_session.session_id, authenticated_at=self.clock())
             self.token_cache.set(user_id, auth)
-            report_page = self.client.read_report(definition, jwt_token=auth.jwt_token, page=page, page_size=page_size, query_context=query_context)
+            report_page = self.client.read_report(definition, jwt_token=auth.jwt_token, page=page, page_size=page_size, query_context=safe_query)
         return build_report_snapshot(
             report_key=report_key,
             rows=report_page.rows,
-            page=page,
-            page_size=page_size,
+            page=report_page.page_index,
+            page_size=report_page.page_size,
             total=report_page.total,
-            query_context=query_context,
+            query_context=safe_query,
             fetched_at=self.clock(),
         )

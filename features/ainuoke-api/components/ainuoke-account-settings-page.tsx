@@ -6,7 +6,7 @@ import { operationLogRepository } from "@/features/operation-logs";
 import { usePermissions, type User } from "@/features/permissions";
 import { AinuokeBridgeError, ainuokeBridgeClient } from "../client/ainuoke-bridge-client";
 import { createAinuokeAccountOperationLog } from "../model/account-operation-log";
-import type { AinuokeAccountView } from "../model/ainuoke-api";
+import { AINUOKE_REPORT_CATALOG, type AinuokeAccountView, type AinuokeReportKey } from "../model/ainuoke-api";
 
 const EMPTY_ACCOUNT: AinuokeAccountView = { username: null, configured: false, status: "not_configured", lastVerifiedAt: null, lastSuccessfulLoginAt: null, lastErrorCode: null };
 const statusLabel = { not_configured: "未绑定", verified: "连接正常", error: "连接异常" } as const;
@@ -17,10 +17,12 @@ function formatTime(value: string | null) {
 
 export function AinuokeAccountSettingsPage() {
   const { currentUser, can } = usePermissions();
-  return <AinuokeAccountSettingsForUser key={currentUser.id} currentUser={currentUser} allowed={can("ainuoke.account.bind_self")} />;
+  return <AinuokeAccountSettingsForUser key={currentUser.id} currentUser={currentUser} allowed={can("ainuoke.account.bind_self")} readAllowed={can("ainuoke.view")} />;
 }
 
-function AinuokeAccountSettingsForUser({ currentUser, allowed }: { currentUser: User; allowed: boolean }) {
+type ReadResult = { rowCount: number; total: number; page: number; pageSize: number; fields: string[]; fetchedAt: string };
+
+function AinuokeAccountSettingsForUser({ currentUser, allowed, readAllowed }: { currentUser: User; allowed: boolean; readAllowed: boolean }) {
   const [account, setAccount] = useState<AinuokeAccountView>(EMPTY_ACCOUNT);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,6 +30,8 @@ function AinuokeAccountSettingsForUser({ currentUser, allowed }: { currentUser: 
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+  const [insideOrderNo, setInsideOrderNo] = useState("D1935");
+  const [readResults, setReadResults] = useState<Partial<Record<AinuokeReportKey, ReadResult>>>({});
 
   useEffect(() => {
     let active = true;
@@ -114,6 +118,28 @@ function AinuokeAccountSettingsForUser({ currentUser, allowed }: { currentUser: 
     }
   };
 
+  const readReport = async (reportKey: AinuokeReportKey) => {
+    setWorking(true);
+    setError("");
+    try {
+      const snapshot = await ainuokeBridgeClient.readReport(currentUser.id, reportKey, {
+        page: 1,
+        pageSize: 50,
+        query: { insideOrderNo: insideOrderNo.trim() },
+      });
+      const fields = snapshot.rows[0] ? Object.keys(snapshot.rows[0].values).sort() : [];
+      setReadResults((current) => ({
+        ...current,
+        [reportKey]: { rowCount: snapshot.rows.length, total: snapshot.total, page: snapshot.page, pageSize: snapshot.pageSize, fields, fetchedAt: snapshot.fetchedAt },
+      }));
+      setToast(`${AINUOKE_REPORT_CATALOG[reportKey].label}只读查询成功`);
+    } catch (reason) {
+      setError(reason instanceof AinuokeBridgeError ? reason.message : "艾诺科只读查询失败");
+    } finally {
+      setWorking(false);
+    }
+  };
+
   return <AppShell title="艾诺科账号"><PageContainer>
     <PageHeader eyebrow="MY SETTINGS · PERSONAL ACCOUNT" title="艾诺科账号" description="绑定当前织序用户自己的艾诺科账号；密码只保存到 Windows Credential Manager。" status={<StatusTag tone={account.status === "verified" ? "success" : account.status === "error" ? "danger" : "neutral"}>{statusLabel[account.status]}</StatusTag>} />
     <AlertBanner tone="warning" title="本地 Windows 原型">当前织序用户仍是浏览器 mock identity。本绑定不构成生产级多人认证或安全隔离；艾诺科上游当前为 HTTP。</AlertBanner>
@@ -133,6 +159,23 @@ function AinuokeAccountSettingsForUser({ currentUser, allowed }: { currentUser: 
         </footer>
       </fieldset>
     </Card>
+    <Card className="ainuoke-account-card ainuoke-live-read-card">
+      <fieldset disabled={!readAllowed || !account.configured || working}>
+        <header><div><strong>真实协议只读验收</strong><small>仅调用固定报表目录并返回 read DTO；不会写入销售订单、款式进度或物料导入。</small></div></header>
+        <label><span>内部订单号</span><input className="qc-control" value={insideOrderNo} onChange={(event) => setInsideOrderNo(event.target.value)} placeholder="例如 D1935" /></label>
+        <div className="ainuoke-live-read-list">
+          {(Object.keys(AINUOKE_REPORT_CATALOG) as AinuokeReportKey[]).map((reportKey) => {
+            const definition = AINUOKE_REPORT_CATALOG[reportKey];
+            const result = readResults[reportKey];
+            return <section key={reportKey}>
+              <div><strong>{definition.reportId} · {definition.label}</strong>{result && <small>HTTP 200 · rows {result.rowCount} / total {result.total} · page {result.page} / {result.pageSize}<br />字段：{result.fields.slice(0, 12).join("、") || "无返回行"}</small>}</div>
+              <Button variant="secondary" disabled={!insideOrderNo.trim()} onClick={() => void readReport(reportKey)}>只读查询</Button>
+            </section>;
+          })}
+        </div>
+      </fieldset>
+    </Card>
+    {!readAllowed && <AlertBanner tone="warning" title="暂无只读权限">当前角色没有 `ainuoke.view`，不能执行艾诺科只读报表验收。</AlertBanner>}
     {!allowed && <AlertBanner tone="warning" title="暂无权限">当前角色没有 `ainuoke.account.bind_self`，请联系管理员分配该 self-scoped capability。</AlertBanner>}
     <Toast message={toast} />
   </PageContainer></AppShell>;

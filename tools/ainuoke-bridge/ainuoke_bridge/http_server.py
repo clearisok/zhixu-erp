@@ -91,6 +91,8 @@ class BridgeApplication:
             prefix = "/v1/ainuoke/reports/"
             suffix = "/query"
             if request.method == "POST" and request.path.startswith(prefix) and request.path.endswith(suffix):
+                if not set(request.body).issubset({"page", "pageSize", "query"}):
+                    raise ValueError("invalid_query")
                 report_key = request.path[len(prefix) : -len(suffix)]
                 page = int(request.body.get("page", 1))
                 page_size = int(request.body.get("pageSize", 100))

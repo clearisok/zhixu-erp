@@ -1,0 +1,10 @@
+{
+  "dataList": "{\"rows\":[{\"id\":71001,\"insideorderno\":\"D1935\",\"GoodsNo\":\"MATERIAL-A\",\"CnColor\":\"BLACK\"},{\"id\":71001,\"insideorderno\":\"D1935\",\"GoodsNo\":\"MATERIAL-B\",\"CnColor\":\"WHITE\"}],\"total\":2}",
+  "dataCount": 2,
+  "pageIndex": 0,
+  "pageSize": 0,
+  "isLogined": false,
+  "reObj": {
+    "isOk": true
+  }
+}

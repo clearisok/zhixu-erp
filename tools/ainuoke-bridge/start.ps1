@@ -1,16 +1,12 @@
 param(
-  [string]$AinuokeBaseUrl = $env:ZHIXU_AINUOKE_BASE_URL,
-  [string]$AinuokeReportPath = $env:ZHIXU_AINUOKE_REPORT_PATH,
+  [string]$AinuokeBaseUrl = $(if ($env:ZHIXU_AINUOKE_BASE_URL) { $env:ZHIXU_AINUOKE_BASE_URL } else { "http://61.164.81.194:9043" }),
+  [string]$AinuokeReportPath = $(if ($env:ZHIXU_AINUOKE_REPORT_PATH) { $env:ZHIXU_AINUOKE_REPORT_PATH } else { "/kaijin/report/report/getReportObjAndData" }),
   [ValidateSet("127.0.0.1", "::1")]
   [string]$BindHost = "127.0.0.1",
   [int]$Port = 8765
 )
 
 $ErrorActionPreference = "Stop"
-if (-not $AinuokeBaseUrl -or -not $AinuokeReportPath) {
-  throw "Provide -AinuokeBaseUrl and -AinuokeReportPath, or set them in the current process environment."
-}
-
 $bridgeRoot = $PSScriptRoot
 $previousPythonPath = $env:PYTHONPATH
 try {

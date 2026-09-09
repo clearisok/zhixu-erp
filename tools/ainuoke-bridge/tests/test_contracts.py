@@ -13,6 +13,7 @@ from ainuoke_bridge.contracts import (  # noqa: E402
     SOURCE_SCHEMA_VERSION,
     SourceContractError,
     build_report_snapshot,
+    build_report_request,
     resolve_report,
 )
 from ainuoke_bridge.security import (  # noqa: E402
@@ -38,14 +39,32 @@ class ReportContractTests(unittest.TestCase):
             page=1,
             page_size=100,
             total=1,
-            query_context={"styleNo": "D1935"},
+            query_context={"insideOrderNo": "D1935"},
         )
         first = build_report_snapshot(**arguments, fetched_at="2026-09-08T01:00:00+00:00")
         second = build_report_snapshot(**arguments, fetched_at="2026-09-08T02:00:00+00:00")
         self.assertEqual(first.schema_version, SOURCE_SCHEMA_VERSION)
         self.assertEqual(first.report_id, "6086103")
-        self.assertEqual(first.rows[0].source_row_identity, "6086103:7")
+        self.assertTrue(first.rows[0].source_row_identity.startswith("6086103:sha256:"))
         self.assertEqual(first.snapshot_hash, second.snapshot_hash)
+
+    def test_6087050_repeated_id_uses_distinct_stable_row_fingerprints(self) -> None:
+        rows = [
+            {"id": 71001, "insideorderno": "D1935", "GoodsNo": "MATERIAL-A", "CnColor": "BLACK"},
+            {"id": 71001, "insideorderno": "D1935", "GoodsNo": "MATERIAL-B", "CnColor": "WHITE"},
+        ]
+        first = build_report_snapshot(report_key="material_purchase_statistics", rows=rows, page=1, page_size=50, total=2, query_context={"insideOrderNo": "D1935"})
+        reordered = build_report_snapshot(report_key="material_purchase_statistics", rows=list(reversed(rows)), page=1, page_size=50, total=2, query_context={"insideOrderNo": "D1935"})
+        identities = [row.source_row_identity for row in first.rows]
+        self.assertEqual(len(set(identities)), 2)
+        self.assertEqual(set(identities), {row.source_row_identity for row in reordered.rows})
+        self.assertTrue(all(identity.startswith("6087050:sha256:") for identity in identities))
+
+    def test_browser_query_cannot_supply_raw_upstream_contract(self) -> None:
+        definition = resolve_report("sales_contracts")
+        for query in ({"conditionList": []}, {"sqlCdtn": {}}, {"reportId": "6086103"}, {"insideOrderNo": ""}):
+            with self.subTest(query=query), self.assertRaisesRegex(SourceContractError, "invalid_query"):
+                build_report_request(definition, page=1, page_size=50, query_context=query)
 
     def test_source_snapshot_removes_secret_named_fields(self) -> None:
         snapshot = build_report_snapshot(
@@ -54,7 +73,7 @@ class ReportContractTests(unittest.TestCase):
             page=1,
             page_size=50,
             total=1,
-            query_context={"password": "credential-secret", "styleNo": "D1935"},
+            query_context={"password": "credential-secret", "insideOrderNo": "D1935"},
         )
         encoded = json.dumps(snapshot.to_dict(), ensure_ascii=False)
         self.assertNotIn("credential-secret", encoded)

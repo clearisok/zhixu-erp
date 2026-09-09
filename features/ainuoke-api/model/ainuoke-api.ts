@@ -11,19 +11,23 @@ export type AinuokeAccountView = {
 
 export type AinuokeReportKey = "sales_contracts" | "sales_contract_color_sizes" | "material_purchase_statistics";
 
+export type AinuokeReportQuery = {
+  insideOrderNo: string;
+};
+
 export type AinuokeSourceRow = {
   sourceRowIdentity: string;
   values: Record<string, unknown>;
 };
 
 export type AinuokeReportSnapshot = {
-  schemaVersion: "ainuoke-direct-read.v1";
+  schemaVersion: "ainuoke-direct-read.v2";
   reportId: "6086103" | "6086997" | "6087050";
   fetchedAt: string;
   page: number;
   pageSize: number;
   total: number;
-  queryContext: Record<string, unknown>;
+  queryContext: AinuokeReportQuery;
   snapshotHash: string;
   rows: AinuokeSourceRow[];
 };

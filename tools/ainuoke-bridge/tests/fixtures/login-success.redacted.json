@@ -1,0 +1,7 @@
+{
+  "data": {
+    "isOk": true,
+    "jwtToken": "REDACTED_JWT",
+    "sessionId": "REDACTED_SESSION"
+  }
+}

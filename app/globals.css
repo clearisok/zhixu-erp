@@ -339,6 +339,13 @@ html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 .ainuoke-account-status dt { color: var(--muted); font-size: 10px; }
 .ainuoke-account-status dd { margin: 0; color: var(--ink); font-size: 12px; font-weight: 650; }
 .ainuoke-account-card footer { display: flex; justify-content: flex-end; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+.ainuoke-live-read-card { margin-top: 16px; }
+.ainuoke-live-read-card fieldset > label { display: grid; gap: 7px; }
+.ainuoke-live-read-card fieldset > label > span { color: var(--muted); font-size: 11px; font-weight: 700; }
+.ainuoke-live-read-list { display: grid; gap: 10px; }
+.ainuoke-live-read-list section { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+.ainuoke-live-read-list section > div { display: grid; gap: 4px; min-width: 0; }
+.ainuoke-live-read-list small { color: var(--muted); overflow-wrap: anywhere; }
 .qc-audit-filter-card { display: grid; grid-template-columns: minmax(240px, 2fr) repeat(5, minmax(120px, 1fr)); gap: 10px; align-items: end; padding: 14px; }
 .qc-audit-filter-card > label { min-width: 0; display: grid; gap: 6px; }
 .qc-audit-filter-card > label > span { color: #718078; font-size: 9px; font-weight: 650; }

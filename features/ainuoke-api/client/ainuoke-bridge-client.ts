@@ -1,4 +1,4 @@
-import type { AinuokeAccountView, AinuokeReportKey, AinuokeReportSnapshot } from "../model/ainuoke-api.ts";
+import type { AinuokeAccountView, AinuokeReportKey, AinuokeReportQuery, AinuokeReportSnapshot } from "../model/ainuoke-api.ts";
 
 export const DEFAULT_AINUOKE_BRIDGE_URL = "http://127.0.0.1:8765";
 
@@ -72,10 +72,10 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
       session = null;
       return result;
     },
-    readReport(userId: string, reportKey: AinuokeReportKey, input: { page?: number; pageSize?: number; query?: Record<string, unknown> } = {}) {
+    readReport(userId: string, reportKey: AinuokeReportKey, input: { page?: number; pageSize?: number; query: AinuokeReportQuery }) {
       return request<AinuokeReportSnapshot>(userId, `/v1/ainuoke/reports/${reportKey}/query`, {
         method: "POST",
-        body: JSON.stringify({ page: input.page ?? 1, pageSize: input.pageSize ?? 100, query: input.query ?? {} }),
+        body: JSON.stringify({ page: input.page ?? 1, pageSize: input.pageSize ?? 100, query: input.query }),
       });
     },
     clearSession() {

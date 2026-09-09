@@ -66,6 +66,7 @@ def _constant_time_equal(left: str, right: str) -> bool:
 @dataclass(frozen=True)
 class AinuokeAuthSession:
     jwt_token: str
+    session_id: str
     authenticated_at: str
 
 

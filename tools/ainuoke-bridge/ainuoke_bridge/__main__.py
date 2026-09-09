@@ -15,12 +15,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Zhixu local Ainuoke read bridge")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", default=8765, type=int)
-    parser.add_argument("--ainuoke-base-url", default=os.environ.get("ZHIXU_AINUOKE_BASE_URL"))
-    parser.add_argument("--ainuoke-report-path", default=os.environ.get("ZHIXU_AINUOKE_REPORT_PATH"))
+    parser.add_argument("--ainuoke-base-url", default=os.environ.get("ZHIXU_AINUOKE_BASE_URL", AinuokeClient.DEFAULT_BASE_URL))
+    parser.add_argument("--ainuoke-report-path", default=os.environ.get("ZHIXU_AINUOKE_REPORT_PATH", AinuokeClient.REPORT_PATH))
     parser.add_argument("--allow-origin", action="append", dest="allowed_origins")
     arguments = parser.parse_args()
-    if not arguments.ainuoke_base_url or not arguments.ainuoke_report_path:
-        parser.error("--ainuoke-base-url and --ainuoke-report-path are required (or set process environment variables)")
     security = SecurityContract(arguments.host, frozenset(arguments.allowed_origins or DEFAULT_ALLOWED_ORIGINS))
     service = AinuokeBridgeService(
         credentials=KeyringCredentialStore(),

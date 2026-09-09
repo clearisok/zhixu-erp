@@ -55,6 +55,21 @@ test("Report Catalog 只公开三个只读 source key，不接受 raw report sel
   assert.doesNotMatch(clientSource, /createSalesOrder|orderRepository|styleProgressRepository|commitImport/);
 });
 
+test("Browser 只发送受限 insideOrderNo DTO，不发送上游 conditionList/sqlCdtn/reportId", async () => {
+  const calls = [];
+  const responses = [
+    jsonResponse({ csrfToken: "csrf-memory-only" }, 201),
+    jsonResponse({ schemaVersion: "ainuoke-direct-read.v2", reportId: "6086103", fetchedAt: "2026-09-09T00:00:00Z", page: 1, pageSize: 50, total: 1, queryContext: { insideOrderNo: "D1935" }, snapshotHash: "hash", rows: [] }),
+  ];
+  const client = createAinuokeBridgeClient({ fetchImpl: async (url, init) => { calls.push({ url, init }); return responses.shift(); } });
+  await client.readReport("user-a", "sales_contracts", { page: 1, pageSize: 50, query: { insideOrderNo: "D1935" } });
+  const body = JSON.parse(calls[1].init.body);
+  assert.deepEqual(body, { page: 1, pageSize: 50, query: { insideOrderNo: "D1935" } });
+  assert.equal(Object.hasOwn(body, "reportId"), false);
+  assert.equal(Object.hasOwn(body, "conditionList"), false);
+  assert.equal(Object.hasOwn(body, "sqlCdtn"), false);
+});
+
 test("Secret Leakage contract excludes browser repositories, backup and console/file logging", () => {
   const clientSource = fs.readFileSync("features/ainuoke-api/client/ainuoke-bridge-client.ts", "utf8");
   const uiSource = fs.readFileSync("features/ainuoke-api/components/ainuoke-account-settings-page.tsx", "utf8");

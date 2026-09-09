@@ -1,6 +1,6 @@
 # 当前状态
 
-> 状态快照：2026-09-08。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-09。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
@@ -8,7 +8,7 @@
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
-- 当前 Active Task 为 `feat/ainuoke-personal-api-binding`。Gate 0 Security/Source Contract checkpoint `39e1f2e` 已推送；Gate 1 个人账号绑定、只读 Local Bridge、个人设置 UI、测试与文档已收口，最终 checkpoint / PR 以分支 Git history 为准。
+- 当前 Active Task 为 `feat/ainuoke-personal-api-binding` / PR #7。Gate 0/1 边界保持不变；分支正在收口真实 Ainuoke Protocol Correction + Live Read Gate，最终 checkpoint 以分支 Git history 为准。PR 不自动 merge。
 - 最新真实 `面辅料申购统计 (1).xlsx` 已通过正式 Parser 只读验证，并显式导入隔离的 Codex QA Browser Profile：17,384 Source Row / 17,383 有效；D1935 / PI2607-235 为 261 Source Row，厂供编码 `202608130002` 5 行、需求 3,809，并从 Operational Projection 全部排除。导入没有触碰用户 Chrome / PROD Profile，原始 Excel 未进入 Git。
 
 ## 当前可运行边界
@@ -25,10 +25,12 @@
 - 正式关系为 `Zhixu User → 0..1 Personal Ainuoke Account`；Password 只进入 Python keyring / Windows Credential Manager，Ainuoke JWT 与 bridge browser session/CSRF 只在进程/页面内存。账号、token/session 不进入 localStorage、sessionStorage、IndexedDB、Backup / Restore 或业务实体。
 - Bridge 只允许 `127.0.0.1` / `::1` bind，CORS 只允许 `http://127.0.0.1:3000` 与 `http://127.0.0.1:3001`；账号/报表请求通过 HttpOnly bridge session + CSRF nonce 取得 mock user context。当前 userId 仍由 browser-local mock identity 启动会话，不是生产可信认证。
 - Personal Account API 已提供 GET/PUT/test/DELETE；GET 不返回 secret，PUT 先真实验证再替换，失败保留旧 credential，DELETE 同时清 credential、token 与该用户 bridge session。
-- 固定只读 Catalog 只有 6086103 / 6086997 / 6087050；source snapshot 保留 report、fetch time、paging、total、query context、source row identity、schema 与 deterministic hash。unknown report 与 write-like endpoint fail closed。
+- 已确认 base `http://61.164.81.194:9043`、login `/kaijin/system/user/loginsys2`、Generic Report `/kaijin/report/report/getReportObjAndData` 与 `rungingSysId=6080183` Cookie context。报表按真实 `Authorization/Token/kaijin_my_token`、JSON `sqlCdtn`、report-specific InsideOrderNo condition 与 JSON-string `dataList` parser 工作，不使用 `Bearer` 或通用 `{reportId,page,pageSize,query}` 假设。
+- 固定只读 Catalog 只有 6086103 / 6086997 / 6087050；Browser query DTO 只有 `insideOrderNo`，不能提交 raw reportId/formId/sqlCdtn/conditionList。source snapshot v2 保留 report、fetch time、paging、total、query context、canonical-row source identity、schema 与 deterministic hash。6087050 repeated id 不碰撞，unknown report、malformed dataList 与 write-like endpoint fail closed。
 - `/my-settings/ainuoke-account` 提供本人用户名、密码输入、状态/验证时间、测试、保存/更新密码与解除绑定；密码不回填。self-scoped `ainuoke.account.bind_self` 与业务合同 `ainuoke.bind` 分离，且不会授予 sync/conflict 权限。
-- Direct API 尚未接入 SalesOrder 或 Style Progress commit；没有建立第二套 Matcher、Dedup、Canonical resolver、Logistics 或 OperationLog。上游 report-data path 尚无仓库内确认事实，因此真实 D1935 read 未执行。
-- Gate 1 验证：Python Bridge 23/23、TypeScript PASS、ESLint PASS、Full Tests 496/496、Production Build 30 routes PASS；最终 diff check 在 commit 前执行。
+- 2026-09-09 真实只读验收已执行：用户本人通过 UI 保存个人 credential，Windows backend 为 `WinVaultKeyring`；login 成功。D1935 的 6086103 为 HTTP 200、1/1 行，6086997 为 50/187 行，6087050 为 50/262 行；字段结构与真实 Scanner 清单一致。6087050 当页有 1 个 repeated-`id` group，而 50 个 source identity 全部唯一。Console 16 条记录 secret-pattern 命中 0，未调用任何 Ainuoke mutation 或 Zhixu business commit。
+- Direct API 尚未接入 SalesOrder 或 Style Progress commit；没有建立第二套 Matcher、Dedup、Canonical resolver、Logistics 或 OperationLog。当前仍是 browser-local mock identity 下的本地 Windows 原型，不是生产级身份安全。
+- Protocol Correction 最终门禁：Python Bridge 32/32、TypeScript、ESLint、Full Tests 497/497、Production Build 30 routes 与 `git diff --check` 全部通过。
 
 ### Material Control Tower V2
 

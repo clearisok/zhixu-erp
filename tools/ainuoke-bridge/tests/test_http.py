@@ -62,6 +62,19 @@ class BridgeHttpContractTests(unittest.TestCase):
         self.assertEqual(write_like.status, 405)
         self.assertEqual(write_like.body["error"]["code"], "read_only_boundary")
 
+    def test_report_endpoint_rejects_raw_upstream_selector_and_condition(self) -> None:
+        cookie, csrf = self.create_session()
+        self.request("PUT", "/v1/ainuoke/account", cookie=cookie, csrf=csrf, body={"username": "alice", "password": "secret"})
+        for body in (
+            {"reportId": "6086103", "query": {"insideOrderNo": "D1935"}},
+            {"sqlCdtn": {}, "query": {"insideOrderNo": "D1935"}},
+            {"query": {"conditionList": []}},
+        ):
+            with self.subTest(body=body):
+                response = self.request("POST", "/v1/ainuoke/reports/sales_contracts/query", cookie=cookie, csrf=csrf, body=body)
+                self.assertEqual(response.status, 400)
+                self.assertEqual(response.body["error"]["code"], "invalid_query")
+
     def test_unbind_invalidates_bridge_session_and_upstream_cache(self) -> None:
         cookie, csrf = self.create_session()
         self.request("PUT", "/v1/ainuoke/account", cookie=cookie, csrf=csrf, body={"username": "alice", "password": "secret"})
