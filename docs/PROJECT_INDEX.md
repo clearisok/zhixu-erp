@@ -31,7 +31,7 @@
 | `features/quote-center/` | Quote Center 领域模型、mock repository、计算、工作流、页面组件和测试 |
 | `features/order-center/` | 单款 SalesOrder 订单领域、v5→v6 LegacyOrderItem 迁移、Repository、服务、页面、附件引用和测试 |
 | `features/production-scheduling/` | 直接归属订单的排单、内部生产队列、完成数量、物料运输、订单预警与交期风险投影 |
-| `features/style-progress/` | 面辅料 ImportBatch / Raw Snapshot / 需求与事件、Source/Effective/Actual、齐套风险与逐物料物流投影 |
+| `features/style-progress/` | Excel/API 共用的面辅料 Normalize / Dedup / Validate、ImportBatch / Raw Snapshot / 需求与事件、Source/Effective/Actual、齐套风险与逐物料物流投影 |
 | `features/closing-center/` | 月度关账、归属快照、产值投影、锁账生命周期与关账搜索 |
 | `features/basic-settings/` | 品牌、客户业务员、面料库、辅料库及默认资料逻辑 |
 | `features/operations-settings/` | 生产组、外发厂、生产地点/日历、供应枢纽/路线/运输方式及关账设置基础设施 |

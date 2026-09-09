@@ -9,6 +9,7 @@
 - 销售合同：订单号、品牌、业务/工厂款号、正式数量与合同交期的高权威来源。
 - 成衣分色分码：成衣颜色、颜色数量及颜色交期/出运明细的高权威来源。
 - 面辅料申购统计：Material Follow-up Source，提供需求、采购、入库、出运、出库、来源交期、实际用量和跟进文本；允许标准化与人工纠正，不反向覆盖正式订单。
+- 当前同步以 6087050 Direct API 当次 Snapshot 为 authoritative source；Excel 是导出时间点的 historical source。API/Excel 不要求 row-count、snapshot-hash 或 source-row-identity parity，但相同字段必须保持同一语义并进入唯一 Material pipeline。无法由真实 API metadata/rows 证明的字段保持 `null`/empty，禁止猜测。
 - 普通 UI 的订单字段始终读取 Order Projection。Excel 中相同款号、品牌或数量不能用于猜测绑定；合同不存在时显示“销售合同尚未形成织序订单”并引导至艾诺科同步。
 
 ## Real Excel audit (2026-09-08)
@@ -83,7 +84,7 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 - 全局 schemaVersion 13 将 Expected Arrival Batch 纳入现有 JSON Backup / Restore / Reset 的原子式回滚编排；旧备份缺失该集合时按空集合向前恢复，不影响其他数据。
 - 权限：`style_progress.read/edit/import/view_history`；新增权限只自动补给管理员。
 - 正式导入、人工修改和恢复 Effective 日期复用唯一追加式 OperationLog；ImportBatch / Raw Snapshot 继续保留技术 Trace，不替代业务操作日志。
-- Ainuoke Direct API 的 6087050 当前只形成 sanitized source snapshot；尚未进入现有 Normalize → Dedup → Validate → Preview，更未调用 `commitImport` 或直接 upsert 本 IndexedDB。
+- Ainuoke Direct API 的 6087050 已通过薄 source adapter 进入 Excel 共用的 Normalize → Dedup → Validate → Preview。API trace 不伪造 Excel 坐标；`MSingleName` 无法证明等价于 Excel“申购实际名称”，不映射 `sourceActualName`，当前也无充分证据映射 API `actualConsumption`，两者保持空值。Preview 只在内存运行，没有 `commitImport` 按钮，不调用本 IndexedDB Repository，也不修改既有 Expected Arrival Batch / Allocation。
 
 ## Verification status
 

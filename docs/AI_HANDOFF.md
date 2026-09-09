@@ -11,22 +11,23 @@
 
 ## Current Stable Main
 
-`7527a5d5fee7b04cdfbeec489203559e0b5ff157`（PR #8 已 merged，Gate 2 已进入 main）
+`f83b427c90baff22c4df24170561f2b9022506c9`（PR #9 已 merged，历史 Review cleanup 已进入 main）
 
 ## Current Active Task
 
-- Branch: `chore/ainuoke-historical-review-cleanup`
-- Baseline: `7527a5d5fee7b04cdfbeec489203559e0b5ff157`
-- Scope: 只显式清理 unresolved `schedule_match` / `closing_match`；保留 order/data-anomaly/resolved reviews 和全部业务事实，不开始 6087050 或未来录入方案。
-- Pure service `cleanupObsoleteHistoricalReviews` immutable、deterministic、idempotent；commit orchestration 只执行 Ainuoke state load → filtered state save → count-only OperationLog append，不调用 Order/Scheduling/Closing/Style Progress Repository。
-- `/ainuoke-sync` 只在旧 backlog 非零时显示轻量维护入口与确认 Modal；复用 `ainuoke.resolve_conflict`，`ainuoke.view` 不能执行清理。成功后 state/badge 立即刷新，入口在 backlog 归零后消失。
-- 2026-09-09 真实 DEV cleanup 已完成：用户先导出 Backup，再由本人通过 UI 确认。unresolved schedule/closing 分别从 112/373 变为 0/0，order 保持 30，data anomaly 保持 0，pending 从 515 变为 30；resolved schedule/closing 仍为 0/0。
-- Cleanup 前后业务数量一致：Mirror 487、ImportRuns 4、SalesOrders 464、ScheduleAssignments 26、OrderExecutionTrackings 2、ScheduleBatches 0、ClosingPeriods 11、ClosingAllocations 47、ProductionGroups 16、OutsourceFactories 13、ProductionSites/Calendars 2/2、SupplyHubs/Routes 1/1、TransportModes 3。OperationLog 只新增 1 条 count-only cleanup 日志（112/373/485）。专项纯函数/service 复验确认第二次 removed 0 且无第二条日志。后续真实排单/生产录入方式仍为 TBD。
-- 自动门禁：相关回归 69/69、Full Tests 520/520、TypeScript、ESLint、30-route build 与 `git diff --check` 通过。
+- Branch: `feat/ainuoke-material-api-preview`
+- Baseline: `f83b427c90baff22c4df24170561f2b9022506c9`
+- Scope: 6087050 Direct API → thin adapter → 唯一 Material Normalize / Dedup / Validate / Preview → STOP。禁止 `commitImport`、Style Progress persisted write、SalesOrder、Scheduling 或 Closing mutation。
+- 当前同步以 6087050 Direct API 当次 Snapshot 为 authoritative source；历史 Excel 只作历史 Source、字段语义参考和回归输入。API/Excel 不要求 row-count/hash/identity parity，但同字段语义和后续 Domain pipeline 必须一致。
+- API trace 保存 report/source identity/snapshot hash/fetchedAt/query/schema，绝不伪造 Excel 坐标；6087050 继续复用 canonical full-row SHA-256，identity 与页码、位置和排序无关，repeated upstream id 不碰撞。
+- `material-normalization-pipeline.ts` 是 Excel/API 共用的唯一 Normalize / Dedup / Validate/Event construction；Canonical 仍按合同 + 类型 + 标准化名称，厂供仍保留 Trace 并退出 operational projection。`MSingleName` 不映射为 `sourceActualName`；6087050 的 `actualConsumption` 也没有充分字段证据，均保持空值。
+- 2026-09-09 D1935 真实 UI dry run：6 页、262/262 Source rows、262 accepted / 0 rejected、262 unique identities、1 repeated-id group、12 Canonical groups（面料 2、辅料 10）、6 厂供 rows、12 operational groups、255 Demands、Purchase/Inbound/Shipment/Outbound 183/153/150/150、identity collision 0。只调用只读 bridge query；页面业务计数仍为 mirror 0、ImportRun 0、orders 168。
+- 本 Gate 没有 Material commit 按钮或 Repository 调用。**LIVE MATERIAL COMMIT NOT EXECUTED**。
+- 自动门禁：定向 75/75、字段语义修正专项 34/34、Full Tests 541/541、TypeScript、ESLint、30-route build 与 `git diff --check` 通过；Bridge 未修改。
 
 ## Latest Merged Work
 
-- PR #8 已 merged；6086103/6086997 Direct API → common Contract Source → existing `AinuokeContractMirror` → existing `synchronizeAinuokeContracts` 的 Gate 2 已进入 main，6087050 Material commit 仍未开始。
+- PR #9 已 merged；历史 Review cleanup 已进入 main。PR #8 的 6086103/6086997 Contract API Gate 2 继续是稳定事实；6087050 Material commit 仍未开始。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已进入 `main`。当前全局 local data schema 为 13，本任务把 Style Progress IndexedDB 向前升级为 4；详细模型、真实 D1935 验收和已知边界见 `docs/features/STYLE_PROGRESS.md` 与 `docs/CURRENT_STATE.md`。
 - PR #3 对应的 Full UI Workflow Correction、Second Acceptance 及其 Gate A–F 提交已进入 `main`；追溯资料见 `docs/tasks/completed/`。
 
