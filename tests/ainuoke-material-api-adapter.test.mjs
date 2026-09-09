@@ -16,6 +16,8 @@ test("6087050 薄适配器映射真实字段并保留非 Excel API Source Trace"
   const fabric = source.rows.find((row) => row.values.materialCode === "FABRIC-A");
   assert.equal(fabric.values.salesContractNo, "SC-REDACTED-001");
   assert.equal(fabric.values.materialType, "面料");
+  assert.equal(fabric.values.materialName, "面料 A");
+  assert.equal(fabric.values.sourceActualName, undefined);
   assert.equal(fabric.values.plannedConsumption, 0.5);
   assert.equal(fabric.values.totalConsumption, 0.525);
   assert.equal(fabric.values.requiredQuantity, 50);
@@ -35,6 +37,7 @@ test("6087050 薄适配器映射真实字段并保留非 Excel API Source Trace"
   });
   for (const forbidden of ["fileName", "fileHash", "sheetName", "sourceRow"]) assert.equal(Object.hasOwn(fabric.trace, forbidden), false);
   assert.equal(AINUOKE_6087050_FIELD_MAP.actualConsumption, undefined);
+  assert.equal(AINUOKE_6087050_FIELD_MAP.sourceActualName, undefined);
 });
 
 test("全部分页合并与行顺序变化不改变 source identity", () => {

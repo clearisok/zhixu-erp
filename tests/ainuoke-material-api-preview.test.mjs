@@ -99,6 +99,7 @@ test("Source/Effective/Actual 不串义，actualConsumption 仅在有证据时�
   assert.equal(fabric.expectedMaterialReadyDate, "2026-09-10");
   assert.equal(fabric.expectedDateSource, "source");
   assert.equal(fabric.actualConsumption, null);
+  assert.equal(fabric.sourceActualName, "");
   assert.equal(preview.pipeline.inboundEvents[0].eventDate, "2026-09-08");
   assert.equal(preview.summary.warnings[0].code, "actual_consumption_unmapped");
 });

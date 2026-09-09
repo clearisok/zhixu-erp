@@ -42,7 +42,8 @@ const FIELD_MAP: Readonly<Partial<Record<MaterialSemanticField, string>>> = {
   contractDeliveryDate: "DeliveryDate",
   materialCode: "GoodsNo",
   materialName: "CnName",
-  sourceActualName: "MSingleName",
+  // MSingleName has one repeated value across the verified D1935 snapshot and
+  // is not proven equivalent to Excel “申购实际名称”; keep sourceActualName absent.
   plannedConsumption: "Num",
   lossRate: "Lost",
   totalConsumption: "picnum",
@@ -80,7 +81,7 @@ const FIELD_MAP: Readonly<Partial<Record<MaterialSemanticField, string>>> = {
   outboundDate: "ckrq",
   outboundQuantity: "OutStoreNum",
   // No verified 6087050 field currently proves the Excel numeric “厂供” meaning.
-  // actualConsumption and unmapped fields intentionally remain absent.
+  // sourceActualName, actualConsumption, and other unmapped fields remain absent.
 };
 
 const SECRET_KEY = /password|passwd|credential|authorization|cookie|token|session/i;
