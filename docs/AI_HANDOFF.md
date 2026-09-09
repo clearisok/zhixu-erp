@@ -20,7 +20,8 @@
 - Scope: 只显式清理 unresolved `schedule_match` / `closing_match`；保留 order/data-anomaly/resolved reviews 和全部业务事实，不开始 6087050 或未来录入方案。
 - Pure service `cleanupObsoleteHistoricalReviews` immutable、deterministic、idempotent；commit orchestration 只执行 Ainuoke state load → filtered state save → count-only OperationLog append，不调用 Order/Scheduling/Closing/Style Progress Repository。
 - `/ainuoke-sync` 只在旧 backlog 非零时显示轻量维护入口与确认 Modal；复用 `ainuoke.resolve_conflict`，`ainuoke.view` 不能执行清理。成功后 state/badge 立即刷新，入口在 backlog 归零后消失。
-- 用户已授权废弃该 backlog，但 LIVE cleanup 必须等待用户先导出当前 DEV Backup，再由用户本人点击 UI 确认；当前尚未执行。
+- 2026-09-09 真实 DEV cleanup 已完成：用户先导出 Backup，再由本人通过 UI 确认。unresolved schedule/closing 分别从 112/373 变为 0/0，order 保持 30，data anomaly 保持 0，pending 从 515 变为 30；resolved schedule/closing 仍为 0/0。
+- Cleanup 前后业务数量一致：Mirror 487、ImportRuns 4、SalesOrders 464、ScheduleAssignments 26、OrderExecutionTrackings 2、ScheduleBatches 0、ClosingPeriods 11、ClosingAllocations 47、ProductionGroups 16、OutsourceFactories 13、ProductionSites/Calendars 2/2、SupplyHubs/Routes 1/1、TransportModes 3。OperationLog 只新增 1 条 count-only cleanup 日志（112/373/485）。专项纯函数/service 复验确认第二次 removed 0 且无第二条日志。后续真实排单/生产录入方式仍为 TBD。
 - 自动门禁：相关回归 69/69、Full Tests 520/520、TypeScript、ESLint、30-route build 与 `git diff --check` 通过。
 
 ## Latest Merged Work
