@@ -163,6 +163,19 @@ export function mergeImportedDemand(incoming: MaterialDemand, existing?: Materia
   };
 }
 
+export function findStaleApiMaterialDemandIds(input: {
+  existingDemands: MaterialDemand[];
+  incomingDemandIds: Set<string>;
+  insideOrderNo: string;
+}): Set<string> {
+  const normalizedQuery = input.insideOrderNo.normalize("NFKC").trim().toLocaleUpperCase();
+  return new Set(input.existingDemands
+    .filter((demand) => demand.sourceKind === "api"
+      && demand.sourceFactoryStyleNoSnapshot.normalize("NFKC").trim().toLocaleUpperCase() === normalizedQuery
+      && !input.incomingDemandIds.has(demand.id))
+    .map((demand) => demand.id));
+}
+
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
@@ -264,7 +277,7 @@ export const styleProgressRepository: StyleProgressRepository = {
   },
   async hasCommittedFile(fileHash) {
     const batches = await readStore<StyleProgressData["batches"][number]>("batches");
-    return batches.some((batch) => batch.fileHash === fileHash && batch.status === "committed");
+    return batches.some((batch) => batch.sourceKind !== "api" && batch.fileHash === fileHash && batch.status === "committed");
   },
   async commitImport(preview) {
     const database = await openDatabase();
@@ -278,6 +291,10 @@ export const styleProgressRepository: StyleProgressRepository = {
     }
     const existingDemands = await requestResult(transaction.objectStore(STORES.demands).getAll() as IDBRequest<MaterialDemand[]>);
     const demandMap = new Map(existingDemands.map((item) => [item.id, item]));
+    const incomingDemandIds = new Set(preview.demands.map((item) => item.id));
+    const staleDemandIds = preview.replaceSourceScope
+      ? findStaleApiMaterialDemandIds({ existingDemands, incomingDemandIds, insideOrderNo: preview.replaceSourceScope.queryContext.insideOrderNo })
+      : new Set<string>();
     const eventKeys = ["rawSnapshots", "purchaseEvents", "inboundEvents", "shipmentEvents", "outboundEvents"] as const;
     const existingKeys = Object.fromEntries(await Promise.all(eventKeys.map(async (key) => [key, new Set((await requestResult(transaction.objectStore(STORES[key]).getAllKeys())).map(String))]))) as Partial<Record<StoreKey, Set<string>>>;
     let updatedDemands = 0;
@@ -289,7 +306,8 @@ export const styleProgressRepository: StyleProgressRepository = {
       mergedIncomingDemands.push(next);
       transaction.objectStore(STORES.demands).put(next);
     }
-    const affectedDemandIds = new Set(preview.demands.map((item) => item.id));
+    for (const staleDemandId of staleDemandIds) transaction.objectStore(STORES.demands).delete(staleDemandId);
+    const affectedDemandIds = new Set([...incomingDemandIds, ...staleDemandIds]);
     for (const key of ["purchaseEvents", "inboundEvents", "shipmentEvents", "outboundEvents"] as const) {
       const store = transaction.objectStore(STORES[key]);
       const incomingIds = new Set(preview[key].map((item) => item.id));
@@ -300,14 +318,20 @@ export const styleProgressRepository: StyleProgressRepository = {
     }
     const writeMany = <T extends { id: string }>(key: StoreKey, rows: T[]) => { const store = transaction.objectStore(STORES[key]); for (const row of rows) store.put(row); };
     writeMany("rawSnapshots", preview.rawSnapshots); writeMany("purchaseEvents", preview.purchaseEvents); writeMany("inboundEvents", preview.inboundEvents); writeMany("shipmentEvents", preview.shipmentEvents); writeMany("outboundEvents", preview.outboundEvents);
-    const existingExpectedArrivals = await requestResult(transaction.objectStore(STORES.expectedArrivalBatches).getAll() as IDBRequest<MaterialExpectedArrivalBatch[]>);
+    const existingExpectedArrivals = (await requestResult(transaction.objectStore(STORES.expectedArrivalBatches).getAll() as IDBRequest<MaterialExpectedArrivalBatch[]>))
+      .flatMap((batch) => {
+        const allocations = batch.allocations.filter((allocation) => !staleDemandIds.has(allocation.materialDemandId));
+        return allocations.length ? [{ ...batch, allocations }] : [];
+      });
     const reconciledExpectedArrivals = reconcileExpectedArrivalBatchesAfterImport({
       existingBatches: existingExpectedArrivals,
       incomingDemands: mergedIncomingDemands,
       incomingPurchaseEvents: preview.purchaseEvents,
     });
     const mergedIncomingById = new Map(mergedIncomingDemands.map((demand) => [demand.id, demand]));
-    const candidateDemands = existingDemands.map((existing) => mergedIncomingById.get(existing.id) ?? existing);
+    const candidateDemands = existingDemands
+      .filter((existing) => !staleDemandIds.has(existing.id))
+      .map((existing) => mergedIncomingById.get(existing.id) ?? existing);
     for (const incoming of mergedIncomingDemands) if (!demandMap.has(incoming.id)) candidateDemands.push(incoming);
     try {
       validateStyleProgressData({

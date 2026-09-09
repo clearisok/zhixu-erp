@@ -76,7 +76,7 @@ function SourceHistoryDrawer({ open, onClose, projection, data }: { open: boolea
   const batches = data.batches.filter((item) => item.status === "committed").sort((left, right) => (right.committedAt ?? right.createdAt).localeCompare(left.committedAt ?? left.createdAt));
   return <Drawer open={open} title="来源历史" eyebrow="SOURCE TRACE" description="只读保留导入批次与原始来源，不改变当前 Effective 计划。" onClose={onClose}>
     <div className="sp-v4-drawer-stack">
-      <section><h3>导入批次</h3>{batches.length ? <ul className="sp-v4-trace-list">{batches.map((batch) => <li key={batch.id}><strong>{batch.fileName}</strong><span>{batch.committedAt?.slice(0, 16) ?? batch.createdAt.slice(0, 16)} · {batch.validRowCount.toLocaleString("zh-CN")} 条有效数据</span><small>{batch.fileHash}</small></li>)}</ul> : <p>暂无已提交导入批次。</p>}</section>
+      <section><h3>导入批次</h3>{batches.length ? <ul className="sp-v4-trace-list">{batches.map((batch) => <li key={batch.id}><strong>{batch.sourceKind === "api" ? `6087050 / ${batch.queryContext.insideOrderNo}` : batch.fileName}</strong><span>{batch.committedAt?.slice(0, 16) ?? batch.createdAt.slice(0, 16)} · {batch.validRowCount.toLocaleString("zh-CN")} 条有效数据</span><small>{batch.sourceKind === "api" ? batch.sourceArtifactHash : batch.fileHash}</small></li>)}</ul> : <p>暂无已提交导入批次。</p>}</section>
       <section><h3>当前款式来源 Trace</h3><p>{snapshots.length.toLocaleString("zh-CN")} 条 Raw Snapshot；来源值保持只读。</p></section>
     </div>
   </Drawer>;
