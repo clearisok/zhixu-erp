@@ -48,6 +48,8 @@ function assertCommitReady(preview: AinuokeMaterialApiPreview): void {
 
 export function toAinuokeMaterialImportPreview(preview: AinuokeMaterialApiPreview, actorName: string): MaterialImportPreview {
   assertCommitReady(preview);
+  const affectedSalesContractNos = [...new Set(preview.pipeline.demands.map((item) => item.salesContractNo))].sort();
+  if (!affectedSalesContractNos.length) throw new Error("6087050 API Preview 没有可提交的 operational contract scope");
   const batch = {
     id: preview.importBatchId,
     sourceKind: "api" as const,
@@ -95,6 +97,7 @@ export function toAinuokeMaterialImportPreview(preview: AinuokeMaterialApiPrevie
       sourceKind: "api",
       reportId: "6087050",
       queryContext: { insideOrderNo: preview.source.query.insideOrderNo },
+      affectedSalesContractNos,
     },
   };
 }

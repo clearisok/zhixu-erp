@@ -11,6 +11,7 @@ import { stableStyleProgressHash, type MaterialExpectedArrivalBatch, type StyleP
 import {
   bufferRiskForDays,
   calculateDaysToProduction,
+  filterCanonicalMaterialsByType,
   type MaterialBufferRisk,
   type CanonicalMaterialProgressProjection,
   type MaterialConsistencyIssue,
@@ -217,8 +218,7 @@ export function MaterialControlTower({ projection, data, settings, onReload, onT
   const [sourceOpen, setSourceOpen] = useState(false);
   const [factoryOpen, setFactoryOpen] = useState(false);
   const normalizedQuery = query.normalize("NFKC").trim().toLocaleLowerCase();
-  const visible = useMemo(() => projection.canonicalMaterials.filter((item) => {
-    if (typeFilter !== "all" && item.materialType !== typeFilter) return false;
+  const visible = useMemo(() => filterCanonicalMaterialsByType(projection.canonicalMaterials, typeFilter).filter((item) => {
     if (statusFilter === "not_purchased" && !item.hasUnpurchasedDemand) return false;
     if (statusFilter === "pending_inbound" && (item.isReady || item.hasUnpurchasedDemand)) return false;
     if (statusFilter === "ready" && !item.isReady) return false;

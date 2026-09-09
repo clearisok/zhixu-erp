@@ -198,6 +198,7 @@ export type MaterialImportPreview = StyleProgressData & {
     sourceKind: "api";
     reportId: "6087050";
     queryContext: { insideOrderNo: string };
+    affectedSalesContractNos: string[];
   };
 };
 
