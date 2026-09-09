@@ -80,6 +80,8 @@ export type MaterialDemand = {
   sourceOrderQuantitySnapshot: number | null;
   sourceContractDeliveryDateSnapshot: string | null;
   lastImportBatchId: string;
+  sourceKind?: "excel" | "api";
+  sourceArtifactHash?: string;
   sourceFileHash: string;
   createdAt: string;
   updatedAt: string;
@@ -107,6 +109,7 @@ export type MaterialPurchaseEvent = {
   extraCost: number | null;
   importBatchId: string;
   sourceRows: number[];
+  sourceReferences?: string[];
 };
 
 export type MaterialInboundEvent = {
@@ -117,6 +120,7 @@ export type MaterialInboundEvent = {
   quantity: number;
   importBatchId: string;
   sourceRows: number[];
+  sourceReferences?: string[];
 };
 
 export type MaterialShipmentEvent = MaterialInboundEvent & { transportModeSnapshot: string };

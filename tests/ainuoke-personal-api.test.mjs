@@ -70,6 +70,27 @@ test("Browser 只发送受限 insideOrderNo DTO，不发送上游 conditionList/
   assert.equal(Object.hasOwn(body, "sqlCdtn"), false);
 });
 
+test("Browser 自动读取全部报表分页直到 readCount 达到实时 total", async () => {
+  const calls = [];
+  const snapshot = (page, rows, total = 3) => ({ schemaVersion: "ainuoke-direct-read.v2", reportId: "6087050", fetchedAt: "2026-09-09T00:00:00Z", page, pageSize: 2, total, queryContext: { insideOrderNo: "D1935" }, snapshotHash: `hash-${page}`, rows });
+  const responses = [
+    jsonResponse({ csrfToken: "csrf-memory-only" }, 201),
+    jsonResponse(snapshot(1, [{ sourceRowIdentity: "6087050:sha256:a", values: {} }, { sourceRowIdentity: "6087050:sha256:b", values: {} }])),
+    jsonResponse(snapshot(2, [{ sourceRowIdentity: "6087050:sha256:c", values: {} }])),
+  ];
+  const client = createAinuokeBridgeClient({ fetchImpl: async (url, init) => { calls.push({ url, init }); return responses.shift(); } });
+  const pages = await client.readAllReportPages("user-a", "material_purchase_statistics", { pageSize: 2, query: { insideOrderNo: "D1935" } });
+  assert.equal(pages.length, 2);
+  assert.deepEqual(calls.slice(1).map((call) => JSON.parse(call.init.body).page), [1, 2]);
+  assert.ok(calls.slice(1).every((call) => JSON.parse(call.init.body).query.insideOrderNo === "D1935"));
+});
+
+test("Browser 全分页读取遵守安全页数上限", async () => {
+  const responses = [jsonResponse({ csrfToken: "csrf-memory-only" }, 201), jsonResponse({ schemaVersion: "ainuoke-direct-read.v2", reportId: "6087050", fetchedAt: "2026-09-09T00:00:00Z", page: 1, pageSize: 1, total: 99, queryContext: { insideOrderNo: "D1935" }, snapshotHash: "hash", rows: [{ sourceRowIdentity: "6087050:sha256:a", values: {} }] })];
+  const client = createAinuokeBridgeClient({ fetchImpl: async () => responses.shift() });
+  await assert.rejects(() => client.readAllReportPages("user-a", "material_purchase_statistics", { pageSize: 1, maxPages: 1, query: { insideOrderNo: "D1935" } }), (error) => error.code === "paging_limit");
+});
+
 test("Secret Leakage contract excludes browser repositories, backup and console/file logging", () => {
   const clientSource = fs.readFileSync("features/ainuoke-api/client/ainuoke-bridge-client.ts", "utf8");
   const uiSource = fs.readFileSync("features/ainuoke-api/components/ainuoke-account-settings-page.tsx", "utf8");

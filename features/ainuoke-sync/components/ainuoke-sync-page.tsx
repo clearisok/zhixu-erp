@@ -11,6 +11,7 @@ import type { SalesOrder } from "@/features/order-center/model/order";
 import { orderRepository } from "@/features/order-center/repository/order-repository";
 import { usePermissions } from "@/features/permissions";
 import { productionSchedulingRepository } from "@/features/production-scheduling/repository/production-scheduling-repository";
+import { buildAinuokeMaterialApiPreview, type AinuokeMaterialApiPreview } from "@/features/style-progress";
 import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import type { AinuokeContractMirror, AinuokeImportRun, AinuokeSyncState } from "../model/ainuoke";
 import { parseAinuokeWorkbooks } from "../parser/ainuoke-excel-parser";
@@ -39,6 +40,7 @@ export function AinuokeSyncPage() {
   const [closingFile, setClosingFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<AinuokeSyncResult | null>(null);
   const [apiPreview, setApiPreview] = useState<AinuokeContractApiPreview | null>(null);
+  const [materialApiPreview, setMaterialApiPreview] = useState<AinuokeMaterialApiPreview | null>(null);
   const [historicalPreview, setHistoricalPreview] = useState<HistoricalImportResult | null>(null);
   const [previewContracts, setPreviewContracts] = useState<AinuokeContractMirror[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,20 +67,11 @@ export function AinuokeSyncPage() {
   useEffect(() => { if (!toast) return; const timer = window.setTimeout(() => setToast(""), 2600); return () => window.clearTimeout(timer); }, [toast]);
 
   const actor = { id: currentUser.id, name: currentUser.name, userId: currentUser.id, userName: currentUser.name };
-  const clearPreview = () => { setPreview(null); setApiPreview(null); setHistoricalPreview(null); setPreviewContracts([]); };
+  const clearPreview = () => { setPreview(null); setApiPreview(null); setMaterialApiPreview(null); setHistoricalPreview(null); setPreviewContracts([]); };
   const changeSourceMode = (next: SourceMode) => { clearPreview(); setError(""); setSourceMode(next); };
 
   const readAllPages = async (reportKey: AinuokeReportKey, query: string): Promise<AinuokeReportSnapshot[]> => {
-    const snapshots: AinuokeReportSnapshot[] = [];
-    const pageSize = 50;
-    let readCount = 0;
-    for (let page = 1; page <= 100; page += 1) {
-      const snapshot = await ainuokeBridgeClient.readReport(currentUser.id, reportKey, { page, pageSize, query: { insideOrderNo: query } });
-      snapshots.push(snapshot);
-      readCount += snapshot.rows.length;
-      if (readCount >= snapshot.total || snapshot.rows.length === 0) return snapshots;
-    }
-    throw new Error("艾诺科报表超过 100 页安全上限，已停止读取");
+    return ainuokeBridgeClient.readAllReportPages(currentUser.id, reportKey, { pageSize: 50, maxPages: 100, query: { insideOrderNo: query } });
   };
 
   const runApiPreview = async () => {
@@ -102,6 +95,27 @@ export function AinuokeSyncPage() {
       setToast("艾诺科 API 预检完成，尚未写入正式数据");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "艾诺科 API 预检失败");
+    } finally {
+      setWorking(false);
+    }
+  };
+
+  const runMaterialApiPreview = async () => {
+    const query = insideOrderNo.normalize("NFKC").trim();
+    if (!can("ainuoke.view")) { setError("缺少 ainuoke.view 权限，不能读取艾诺科 API Source"); return; }
+    if (!query) { setError("请输入 InsideOrderNo"); return; }
+    setWorking(true);
+    setError("");
+    clearPreview();
+    try {
+      const account = await ainuokeBridgeClient.getAccount(currentUser.id);
+      if (!account.configured) throw new Error("请先在“我的设置 → 艾诺科账号”绑定个人账号");
+      const snapshots = await readAllPages("material_purchase_statistics", query);
+      const result = buildAinuokeMaterialApiPreview({ snapshots });
+      setMaterialApiPreview(result);
+      setToast("物料 API 预检完成，尚未写入款式进度");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "物料 API 预检失败");
     } finally {
       setWorking(false);
     }
@@ -233,7 +247,7 @@ export function AinuokeSyncPage() {
       ? <Button permission="ainuoke.view" disabled={working || !insideOrderNo.trim()} onClick={() => void runApiPreview()}>{working ? "处理中…" : "运行 API 预检"}</Button>
       : <Button permission="ainuoke.sync" disabled={working || !salesFile || !colorFile || !scheduleFile || !closingFile} onClick={() => void runExcelPreview()}>{working ? "处理中…" : "运行四文件预检"}</Button>} />
     {error && <ErrorState title="同步处理失败" description={error} onRetry={() => setError("")} />}
-    <AlertBanner tone="info" title="Preview-first 数据保护">读取与预检不会写订单。只有用户明确点击“确认同步”且拥有 `ainuoke.sync` 后，才提交既有同步服务生成的结果。</AlertBanner>
+    <AlertBanner tone="info" title="Preview-first 数据保护">合同读取与预检不会写订单。6087050 物料 API 当前只运行内存预检，不提供提交按钮，也不会写入款式进度。</AlertBanner>
     {obsoleteReviewCounts.total > 0 && <Card>
       <div className="as-section-head"><h2>旧迁移待确认</h2><span>{obsoleteReviewCounts.total} 条</span></div>
       <section className="as-metrics"><div className="as-metric"><span>排单匹配</span><strong>{obsoleteReviewCounts.scheduleReviews}</strong></div><div className="as-metric"><span>生产/关账匹配</span><strong>{obsoleteReviewCounts.closingReviews}</strong></div></section>
@@ -241,17 +255,41 @@ export function AinuokeSyncPage() {
       <div className="as-actions"><Button variant="danger" permission="ainuoke.resolve_conflict" disabled={working} onClick={() => setCleanupOpen(true)}>清理旧迁移待确认</Button></div>
     </Card>}
     <Card>
-      <div className="as-section-head"><h2>来源模式</h2><span>共用 AinuokeContractMirror</span></div>
+      <div className="as-section-head"><h2>来源模式</h2><span>固定 API Catalog / 历史 Excel</span></div>
       <div className="as-actions">
         <Button variant={sourceMode === "api" ? "primary" : "secondary"} onClick={() => changeSourceMode("api")}>艾诺科 API</Button>
         <Button variant={sourceMode === "excel" ? "primary" : "secondary"} onClick={() => changeSourceMode("excel")}>Excel / 历史文件</Button>
       </div>
     </Card>
-    {sourceMode === "api" ? <Card>
-      <div className="as-section-head"><h2>合同 API Source</h2><span>6086103 + 6086997</span></div>
-      <label className="as-upload"><strong>InsideOrderNo</strong><small>使用当前用户的个人艾诺科账号只读查询；不要求排单或生产预警文件。</small><input className="qc-control" value={insideOrderNo} onChange={(event) => { setInsideOrderNo(event.target.value); clearPreview(); }} placeholder="例如 D1935" /></label>
-      {apiPreview && <div className="as-actions"><span>预检尚未写入正式数据 · Snapshot {apiPreview.source.snapshotHashes.length} 页</span><Button variant="secondary" onClick={clearPreview}>放弃预检</Button><Button permission="ainuoke.sync" disabled={working || preview?.report.mismatchCount !== 0} onClick={() => void commitApiPreview()}>确认同步合同</Button></div>}
-    </Card> : <Card><div className="as-upload-grid">
+    {sourceMode === "api" ? <>
+      <Card>
+        <div className="as-section-head"><h2>合同 API Source</h2><span>6086103 + 6086997</span></div>
+        <label className="as-upload"><strong>InsideOrderNo</strong><small>使用当前用户的个人艾诺科账号只读查询；不要求排单或生产预警文件。</small><input className="qc-control" value={insideOrderNo} onChange={(event) => { setInsideOrderNo(event.target.value); clearPreview(); }} placeholder="例如 D1935" /></label>
+        {apiPreview && <div className="as-actions"><span>预检尚未写入正式数据 · Snapshot {apiPreview.source.snapshotHashes.length} 页</span><Button variant="secondary" onClick={clearPreview}>放弃预检</Button><Button permission="ainuoke.sync" disabled={working || preview?.report.mismatchCount !== 0} onClick={() => void commitApiPreview()}>确认同步合同</Button></div>}
+      </Card>
+      <Card>
+        <div className="as-section-head"><h2>物料 API 预检</h2><span>6087050 · Preview only</span></div>
+        <p>当前数据来自艾诺科实时 API Snapshot。历史 Excel 是另一时间点的来源，不参与实时行数校验。</p>
+        <div className="as-actions"><Button variant="secondary" permission="ainuoke.view" disabled={working || !insideOrderNo.trim()} onClick={() => void runMaterialApiPreview()}>{working ? "处理中…" : "运行物料 API 预检"}</Button>{materialApiPreview && <Button variant="secondary" onClick={clearPreview}>放弃物料预检</Button>}</div>
+        {materialApiPreview && <>
+          <AlertBanner tone="info" title="本次仅预检，尚未写入款式进度">获取时间 {new Date(materialApiPreview.source.fetchedAt).toLocaleString("zh-CN")} · InsideOrderNo {materialApiPreview.source.query.insideOrderNo} · {materialApiPreview.source.pages.length} 页 · Source {materialApiPreview.source.sourceRowCount} 行 / 实时 total {materialApiPreview.source.reportedTotal}</AlertBanner>
+          <section className="as-metrics">
+            <div className="as-metric"><span>有效 / 拒绝</span><strong>{materialApiPreview.summary.normalizedRows} / {materialApiPreview.summary.rejectedRows}</strong></div>
+            <div className="as-metric"><span>Canonical 物料</span><strong>{materialApiPreview.summary.canonicalMaterialGroups}</strong></div>
+            <div className="as-metric"><span>面料 / 辅料</span><strong>{materialApiPreview.summary.fabricGroups} / {materialApiPreview.summary.trimGroups}</strong></div>
+            <div className="as-metric"><span>厂供 Source 行</span><strong>{materialApiPreview.summary.vendorSupplySourceRows}</strong></div>
+            <div className="as-metric"><span>Operational 物料</span><strong>{materialApiPreview.summary.operationalMaterialGroups}</strong></div>
+            <div className="as-metric"><span>需求</span><strong>{materialApiPreview.summary.demands}</strong></div>
+            <div className="as-metric"><span>采购 / 入库</span><strong>{materialApiPreview.summary.purchaseEvents} / {materialApiPreview.summary.inboundEvents}</strong></div>
+            <div className="as-metric"><span>出运 / 出库</span><strong>{materialApiPreview.summary.shipmentEvents} / {materialApiPreview.summary.outboundEvents}</strong></div>
+            <div className="as-metric"><span>需求 / 事件去重</span><strong>{materialApiPreview.summary.duplicateDemandRowsPrevented} / {materialApiPreview.summary.duplicateEventRowsPrevented}</strong></div>
+            <div className="as-metric"><span>Source duplicate / collision</span><strong>{materialApiPreview.summary.duplicateSourceRowsPrevented} / {materialApiPreview.summary.sourceIdentityCollisions}</strong></div>
+          </section>
+          {materialApiPreview.summary.errors.length > 0 && <AlertBanner tone="warning" title={`${materialApiPreview.summary.rejectedRows} 行未通过校验`}>{materialApiPreview.summary.errors.map((issue) => `${issue.message} × ${issue.count}`).join("；")}</AlertBanner>}
+          {materialApiPreview.summary.warnings.map((issue) => <AlertBanner key={issue.code} tone="warning" title="字段映射限制">{issue.message}</AlertBanner>)}
+        </>}
+      </Card>
+    </> : <Card><div className="as-upload-grid">
       <label className="as-upload"><strong>1. 销售合同.xlsx</strong><small>读取销售合同号、客户、品牌、款号、工厂款号、数量与合同交期。</small><input aria-label="选择销售合同文件" type="file" accept=".xlsx,.xls" onChange={(event) => { setSalesFile(event.target.files?.[0] ?? null); clearPreview(); }} /><span>{salesFile?.name ?? "尚未选择"}</span></label>
       <label className="as-upload"><strong>2. 成衣分色分码明细.xlsx</strong><small>按销售合同号汇总颜色、尺码、数量和交期，并与合同总量交叉校验。</small><input aria-label="选择分色分码文件" type="file" accept=".xlsx,.xls" onChange={(event) => { setColorFile(event.target.files?.[0] ?? null); clearPreview(); }} /><span>{colorFile?.name ?? "尚未选择"}</span></label>
       <label className="as-upload"><strong>3. 柬凯排单计划.xlsx</strong><small>历史模式才解析排单；API Contract Mode 不触碰排单。</small><input aria-label="选择排单计划文件" type="file" accept=".xlsx,.xls" onChange={(event) => { setScheduleFile(event.target.files?.[0] ?? null); clearPreview(); }} /><span>{scheduleFile?.name ?? "尚未选择"}</span></label>

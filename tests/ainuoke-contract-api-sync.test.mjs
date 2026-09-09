@@ -129,7 +129,7 @@ test("API commit orchestration cannot touch Scheduling or Closing", () => {
   assert.match(source, /preview\.sync\.operationLogs/);
 });
 
-test("existing Ainuoke Sync page exposes API/Excel source modes and explicit preview commit", () => {
+test("existing Ainuoke Sync page exposes contract commit and read-only material preview in the same source center", () => {
   const source = readFileSync(new URL("../features/ainuoke-sync/components/ainuoke-sync-page.tsx", import.meta.url), "utf8");
   assert.match(source, /艾诺科 API/);
   assert.match(source, /Excel \/ 历史文件/);
@@ -139,5 +139,8 @@ test("existing Ainuoke Sync page exposes API/Excel source modes and explicit pre
   assert.match(source, /permission="ainuoke\.sync"/);
   assert.match(source, /readAllPages\("sales_contracts"/);
   assert.match(source, /readAllPages\("sales_contract_color_sizes"/);
-  assert.doesNotMatch(source, /readAllPages\("material_purchase_statistics"/);
+  assert.match(source, /readAllPages\("material_purchase_statistics"/);
+  assert.match(source, /本次仅预检，尚未写入款式进度/);
+  assert.match(source, /历史 Excel 是另一时间点的来源，不参与实时行数校验/);
+  assert.doesNotMatch(source, /commitMaterial|commitImport\(materialApiPreview/);
 });
