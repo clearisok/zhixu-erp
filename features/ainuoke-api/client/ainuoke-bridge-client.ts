@@ -56,6 +56,11 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
     return parse<T>(response);
   };
 
+  const readReport = (userId: string, reportKey: AinuokeReportKey, input: { page?: number; pageSize?: number; query: AinuokeReportQuery }) => request<AinuokeReportSnapshot>(userId, `/v1/ainuoke/reports/${reportKey}/query`, {
+    method: "POST",
+    body: JSON.stringify({ page: input.page ?? 1, pageSize: input.pageSize ?? 100, query: input.query }),
+  });
+
   return {
     getAccount(userId: string) {
       return request<AinuokeAccountView>(userId, "/v1/ainuoke/account", { method: "GET" });
@@ -72,11 +77,19 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
       session = null;
       return result;
     },
-    readReport(userId: string, reportKey: AinuokeReportKey, input: { page?: number; pageSize?: number; query: AinuokeReportQuery }) {
-      return request<AinuokeReportSnapshot>(userId, `/v1/ainuoke/reports/${reportKey}/query`, {
-        method: "POST",
-        body: JSON.stringify({ page: input.page ?? 1, pageSize: input.pageSize ?? 100, query: input.query }),
-      });
+    readReport,
+    async readAllReportPages(userId: string, reportKey: AinuokeReportKey, input: { pageSize?: number; maxPages?: number; query: AinuokeReportQuery }) {
+      const snapshots: AinuokeReportSnapshot[] = [];
+      const pageSize = input.pageSize ?? 50;
+      const maxPages = input.maxPages ?? 100;
+      let readCount = 0;
+      for (let page = 1; page <= maxPages; page += 1) {
+        const snapshot = await readReport(userId, reportKey, { page, pageSize, query: input.query });
+        snapshots.push(snapshot);
+        readCount += snapshot.rows.length;
+        if (readCount >= snapshot.total || snapshot.rows.length === 0) return snapshots;
+      }
+      throw new AinuokeBridgeError("paging_limit", `艾诺科报表超过 ${maxPages} 页安全上限，已停止读取`);
     },
     clearSession() {
       activeUserId = null;

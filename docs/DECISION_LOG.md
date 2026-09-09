@@ -506,6 +506,15 @@
 - 后续：真实排单与生产相关业务数据会以新的正式方式进入织序；该方式当前仍为 TBD，本决定不定义或猜测未来录入路径。
 - 代码证据：`features/ainuoke-sync/service/ainuoke-historical-review-cleanup.ts` 与 `tests/ainuoke-historical-review-cleanup.test.mjs`。
 
+### D-073 当前物料同步以 Direct API Snapshot 为准并共用唯一 Domain pipeline
+
+- 日期：2026-09-09
+- 状态：Active
+- 决定：6087050 当前同步以 Ainuoke Direct API 当次返回为 authoritative Source Snapshot；历史 Excel 是导出时间点的 historical source。两者不要求 row-count、snapshot-hash、source-row-identity 或跨时间点数据 parity，不得为匹配旧 Excel 人为过滤当前 API 数据，也不得把某次 261/262 行固化为业务常量。
+- 一致性边界：Excel/API 相同业务字段必须保持同一语义，并在各自 transport adapter 后进入唯一 Material Normalize / Dedup / Validate / Preview。API 字段只有在真实 metadata/rows 能证明语义时才映射，否则保持 `null`/empty。Canonical Material、厂供排除、Source/Effective/Actual、事件构建与物流规则不得在 API adapter 中复制或改变。
+- 写入边界：Gate 3 只运行内存 Preview；不提供或调用 `commitImport`，不写 Style Progress Repository、ExpectedArrivalBatch、SalesOrder、Scheduling 或 Closing。真实 Material commit 必须由后续独立 Gate 再次明确授权。
+- 代码证据：`features/style-progress/source/ainuoke-material-api-adapter.ts`、`features/style-progress/parser/material-normalization-pipeline.ts`、`features/style-progress/service/ainuoke-material-api-preview.ts` 与 `tests/ainuoke-material-api-preview.test.mjs`。
+
 ## Superseded
 
 ### D-039 新订单中心使用 SalesOrder + OrderItem 多款聚合

@@ -33,13 +33,15 @@ GET 只返回 username/脱敏标识、configured、status、lastVerifiedAt、las
 
 固定 Report Catalog 只有：
 
-| Catalog key | Report ID | 名称 | 未来消费边界 |
+| Catalog key | Report ID | 名称 | 消费边界 |
 | --- | --- | --- | --- |
 | `sales_contracts` | `6086103` | 销售合同 | common source model → existing `AinuokeContractMirror` → existing matcher/service |
 | `sales_contract_color_sizes` | `6086997` | 销售合同颜色尺码明细 | common source model → existing `AinuokeContractMirror` → existing matcher/service |
-| `material_purchase_statistics` | `6087050` | 面辅料申购统计 | common source rows → existing Normalize → Dedup → Validate → Preview → `commitImport` |
+| `material_purchase_statistics` | `6087050` | 面辅料申购统计 | thin API adapter → common Material source rows → existing Normalize → Dedup → Validate → Preview → STOP |
 
 Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 login、auth、paging、timeout、有限 network retry、字段脱敏和 read DTO；不负责 Matcher、订单创建、Material commit、Canonical identity、Risk、Logistics 或 Domain mutation。本阶段不调用 `commitImport`。
+
+当前同步时，6087050 Direct API 的当次返回是 authoritative Source Snapshot。历史 Excel 是另一个时间点的 historical source，可用于字段语义证据、Parser 回归与历史 Trace，但不要求与 API 具有相同 row count、snapshot hash 或 source row identity。两个 Source Adapter 必须保持同一业务字段语义并进入同一 Material domain pipeline；不得为了匹配历史 Excel 行数而过滤当前 API 数据，也不得把某次 261/262 行硬编码为业务常量。
 
 已确认真实协议（2026-09-08 requests + Scanner）：base 为 `http://61.164.81.194:9043`，登录为 `GET /kaijin/system/user/loginsys2`，Generic Report 为 `POST /kaijin/report/report/getReportObjAndData`，System Id 为 `6080183`。上游是 HTTP，不是安全链路；base/report path 仍允许进程级覆盖，但上述事实是当前默认值。
 
@@ -56,8 +58,17 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 - Browser client/UI：`features/ainuoke-api/` 与 `/my-settings/ainuoke-account`。密码输入从不回填，GET view 不含 secret；切换 mock user 会新建对应 bridge session。
 - 上游默认 base/login/report path 已按真实请求固定；`/my-settings/ainuoke-account` 另提供 D1935 固定 Catalog 的只读验收面板，只显示行数、total、paging 与字段名，不输出 raw response 或 secret。
 - 6086103/6086997 已进入 Gate 2 Preview-first 合同链路：Direct API snapshot → common Contract Source → 唯一 `buildAinuokeMirror` → existing `synchronizeAinuokeContracts`。读取与预检只在内存运行；只有用户明确点击“确认同步”且拥有 `ainuoke.sync` 才由 commit orchestration 保存既有 Service 产出的 orders/state/operationLogs 与 API ImportRun。
-- 6087050 仍只返回 read source snapshot，不调用 Material `commitImport`。合同 API mode 不读取或修改 Production Scheduling、Closing 或四文件历史导入数据。
+- 6087050 已通过薄 API adapter 形成 source-neutral rows，并进入既有 Material Normalize / Dedup / Validate / Preview。该 UI 只在内存运行，不提供 Material commit 按钮，不调用 `commitImport` 或 Style Progress Repository。合同 API mode 与物料 Preview 都不读取或修改 Production Scheduling、Closing 或四文件历史导入数据。
 - 既有 Excel Ainuoke Matcher、Order Sync、Material Normalize/Dedup/Canonical resolver、Material Logistics Service 与 OperationLog 保持唯一，不建立第二套。
+
+## Gate 3 material source adapter
+
+- `AinuokeMaterialApiAdapter` 只接收固定 6087050 `ReportSnapshot[]`，校验 schema、query、完整分页、source identity 与 secret-named fields，再把经证据确认的 API 字段映射为共用 Material source row。Adapter 不做 Canonical grouping、厂供过滤、数量汇总、Event construction、物流或持久化。
+- API Source Trace 保存 `sourceKind=api`、reportId、sourceRowIdentity、snapshotHash、fetchedAt、InsideOrderNo 与 source schema version；不伪造 Excel fileName、sheetName 或 rowNumber。重复分页中的完全相同 source row 会去重，真正 identity collision 则 fail closed。
+- Excel semantic-header adapter 与 API adapter 共同进入 `normalizeMaterialSourceRows`。现有 demand/event stable IDs、Normalize/Dedup/Validate、name-only Canonical resolver 和 factory-supply exclusion 仍是唯一实现；现有 Excel Import/Backup compatibility 保持不变。
+- 真实 6087050 字段已证明可映射销售合同号、内部订单号、物料类型、名称、编码、颜色、规格、门幅、克重、采购价、供应商、需求、采购/入库/出运/出库、来源交期和提供方式。`MSingleName` 在 D1935 全量 Snapshot 中只有一个重复值，且与 `CnName` 不同，不能证明等价于 Excel“申购实际名称”，所以不映射 `sourceActualName`。其他无法证明的字段也保持 `null`/empty；尤其没有充分证据证明某 API 字段等价于 Excel 数值列“厂供”，因此 API `actualConsumption=null` 并在 Preview 显示 warning。
+- Canonical identity 仍固定为 `salesContractNo + materialType + normalizedMaterialName`。materialCode、颜色、规格、门幅、克重与采购价只保留为 Demand/Event/Trace child facts；`提供方式=厂供` 保留 Raw/Trace，但退出未采购、待入库、齐套、风险、物流与 Expected Arrival operational projection。
+- Browser 使用固定 catalog key `material_purchase_statistics` 与受限 `insideOrderNo` DTO，按实时 `snapshot.total` 自动读取全部页或在合法空页停止，并保留 100 页安全上限。UI 复用 `/ainuoke-sync`，明确显示实时 Snapshot、fetchedAt 与“本次仅预检，尚未写入款式进度”。
 
 ## Gate 2 contract source adapter
 
@@ -77,6 +88,12 @@ Python tests：`tools/ainuoke-bridge/tests/`；browser/source contract：`tests/
 同日 Gate 2 真实合同 dry run：Ainuoke Sync API mode 读取 D1935 的 6086103/6086997 全部分页，经 common Contract Source 与既有 `synchronizeAinuokeContracts` 得到 1 份有效合同；合同/分色数量为 4,640/4,640、差异 0、颜色数 5、交期 2026-10-13。既有 matcher 无候选，因此 preview 为 auto-create 1，update/bind/review 均为 0。没有点击“确认同步合同”；刷新后 persisted mirror/import run 仍为 0、orders 仍为 168。复核 console 4 条记录，secret-pattern 0、error 0。该结果只证明 read DTO → mirror → existing matcher/service 的 dry-run 链路，不代表执行过 SalesOrder commit。
 
 Gate 2 自动验证：定向 26/26、Python Bridge 32/32、TypeScript、ESLint、Full Tests 513/513、Production Build 30 routes 与 `git diff --check` 通过。
+
+同日 Gate 3 真实物料 dry run：用户在 `/ainuoke-sync` 对 D1935 点击“运行物料 API 预检”，6087050 共读取 6 页，全部 6 次 query 均 HTTP 200；实时 total/source rows 为 262/262，unique source identities 262，repeated upstream `id` groups 1。共用 pipeline accepted/rejected 为 262/0，Canonical groups 12（面料 2、辅料 10），厂供 Source rows 6，operational groups 12，Demand 255，Purchase/Inbound/Shipment/Outbound events 为 183/153/150/150，Demand/Event duplicates prevented 为 7/6，identity collisions 0。该 262 是当次上游事实，不与历史 Excel 261 行作 parity gate，也不是稳定常量。
+
+真实验收网络只包含 bridge session/account 与固定 `material_purchase_statistics/query`；没有 Ainuoke write endpoint。预检前后当前页面 persisted mirror/import run/order 计数保持 0/0/168，代码依赖与专项测试同时证明 API Preview 不引用 Style Progress Repository、不调用 `commitImport`，也不写 ExpectedArrivalBatch、SalesOrder、Scheduling 或 Closing。**LIVE MATERIAL COMMIT NOT EXECUTED**。
+
+Gate 3 自动验证：定向 Adapter/Pipeline/UI 回归 75/75，字段语义修正专项 34/34，Full Tests 541/541、TypeScript、ESLint、Production Build 30 routes 与 `git diff --check` 全部通过。Local Bridge 代码没有变化，因此本 Gate 未重复运行 Python Bridge tests；Gate 2 的 Bridge 32/32 仍是既有基线证据。
 
 ## Obsolete historical review cleanup
 

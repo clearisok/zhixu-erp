@@ -1,0 +1,120 @@
+[
+  {
+    "schemaVersion": "ainuoke-direct-read.v2",
+    "reportId": "6087050",
+    "fetchedAt": "2026-09-09T03:00:00.000Z",
+    "page": 1,
+    "pageSize": 2,
+    "total": 3,
+    "queryContext": { "insideOrderNo": "D1935" },
+    "snapshotHash": "page-one-redacted",
+    "rows": [
+      {
+        "sourceRowIdentity": "6087050:sha256:aaaaaaaa",
+        "values": {
+          "id": 71001,
+          "insideorderno": "D1935",
+          "ExpContractNo": "SC-REDACTED-001",
+          "styleno": "STYLE-REDACTED",
+          "lx": "面料",
+          "GoodsNo": "FABRIC-A",
+          "CnName": "面料 A",
+          "MSingleName": "UNIT-REDACTED",
+          "CnColor": "黑色",
+          "CnComposition": "棉",
+          "MenFu": "150",
+          "KeZhong": "200",
+          "StyleColor": "黑色",
+          "StyleColorcy": "黑色",
+          "StyleNum": 100,
+          "Num": 0.5,
+          "Lost": 5,
+          "picnum": 0.525,
+          "TotalNum": 50,
+          "yyyl": 1,
+          "SupplyType": "自购",
+          "cgdh": "PO-REDACTED-1",
+          "cgrq": "2026-09-01",
+          "SupplierName": "供应商 A",
+          "cgtt": "采购主体 A",
+          "cgjq": "2026-09-10",
+          "CurrencyName": "CNY",
+          "cgr": "采购员 A",
+          "cgcnname": "面料 A",
+          "kpname": "面料 A",
+          "actualname": "面料 A",
+          "cgCnComposition": "棉",
+          "cgcncolor": "黑色",
+          "cgnum": 50,
+          "cgyyyl": 1,
+          "cgprice": 2.5,
+          "goodsamount": 125,
+          "rkdh": "IN-REDACTED-1",
+          "rkrq": "2026-09-08",
+          "rknum": 50,
+          "cydh": "SHIP-REDACTED-1",
+          "cyrq": "2026-09-09",
+          "TransType": "SEA",
+          "CYNum": 50,
+          "ckdh": "OUT-REDACTED-1",
+          "ckrq": "2026-09-10",
+          "OutStoreNum": 50
+        }
+      },
+      {
+        "sourceRowIdentity": "6087050:sha256:bbbbbbbb",
+        "values": {
+          "id": 71001,
+          "insideorderno": "D1935",
+          "ExpContractNo": "SC-REDACTED-001",
+          "styleno": "STYLE-REDACTED",
+          "lx": "辅料",
+          "GoodsNo": "TRIM-B",
+          "CnName": "辅料 B",
+          "MSingleName": "UNIT-REDACTED",
+          "CnColor": "白色",
+          "StyleColor": "白色",
+          "StyleNum": 100,
+          "Num": 1,
+          "Lost": 5,
+          "picnum": 1.05,
+          "TotalNum": 100,
+          "SupplyType": "厂供"
+        }
+      }
+    ]
+  },
+  {
+    "schemaVersion": "ainuoke-direct-read.v2",
+    "reportId": "6087050",
+    "fetchedAt": "2026-09-09T03:00:01.000Z",
+    "page": 2,
+    "pageSize": 2,
+    "total": 3,
+    "queryContext": { "insideOrderNo": "D1935" },
+    "snapshotHash": "page-two-redacted",
+    "rows": [
+      {
+        "sourceRowIdentity": "6087050:sha256:cccccccc",
+        "values": {
+          "id": 71002,
+          "insideorderno": "D1935",
+          "ExpContractNo": "SC-REDACTED-001",
+          "styleno": "STYLE-REDACTED",
+          "lx": "辅料",
+          "GoodsNo": "TRIM-C",
+          "CnName": "辅料 C",
+          "MSingleName": "UNIT-REDACTED",
+          "CnColor": "银色",
+          "StyleColor": "银色",
+          "StyleNum": 100,
+          "Num": 2,
+          "Lost": 5,
+          "picnum": 2.1,
+          "TotalNum": 200,
+          "SupplyType": "自购"
+        }
+      }
+    ]
+  }
+]
