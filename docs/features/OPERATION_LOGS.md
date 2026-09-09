@@ -24,6 +24,7 @@
 - 新增图片/文件、删除附件、款式图引用和估算成本动作在保存报价后记录。
 - 报价单/批量/汇总导出、模板上传/默认/状态和角色/权限/账号状态修改在对应操作成功后追加。
 - 仓库接口提供 `append`、`appendMany`、全局 `list`、`listByQuoteId` 和 `listByOrderId`，没有编辑或删除能力。
+- 个人艾诺科账号只在绑定成功、更新成功或解除成功后追加日志。payload 仅保留 actor、action、`result=success` 与 time；不保存 password、token/session、raw username 或 raw upstream response。连接测试与失败 credential 不写 secret 或 raw response。
 - 全局页面使用 Dense Table，支持款号、款式名称、用户、操作、模块和对象内容搜索，支持日期范围、用户、模块和操作类型筛选；点击记录显示格式化 before/after。
 
 ## Business rules
@@ -86,6 +87,7 @@ OperationLog {
 - 不得把 OperationLog 数组塞入 Quote Revision。
 - 不得用日志替代 Revision 完整快照或客户确认快照。
 - 不得在每次键盘输入时写日志。
+- 不得把个人 Ainuoke username/password、JWT/token、bridge session/CSRF、完整登录 URL 或 raw response 写入 OperationLog；账号日志的 entityId 只使用当前 Zhixu User.id。
 - 未来服务端实现必须在业务写事务成功后追加日志，并由后端重新确定当前用户；不能信任客户端传入的操作者。
 
 ## Tests

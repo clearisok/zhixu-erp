@@ -42,6 +42,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget }: {
   const viewportMode = useResponsiveMode();
   const basicActive = basicRoutes.some((route) => pathname === route.href);
   const systemActive = systemRoutes.some((route) => pathname === route.href);
+  const personalActive = pathname.startsWith("/my-settings/");
   const [basicOpen, setBasicOpen] = useState(false);
   const [systemOpen, setSystemOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -128,7 +129,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget }: {
           <SidebarFloatingMenu id="sidebar-system-menu" open={systemOpen && compactSidebar} anchorRef={systemTriggerRef} label="系统设置菜单" onClose={closeMenus}>{systemMenuItems}</SidebarFloatingMenu>
         </div>
       </nav>
-      <div className="ops-user"><span>{userInitial}</span><div><strong>{currentUser.name}</strong><small>{currentRole.name}</small></div></div>
+      <button type="button" className={`ops-user ${personalActive ? "active" : ""}`} title="我的设置" onClick={() => navigate("/my-settings/ainuoke-account")}><span>{userInitial}</span><div><strong>{currentUser.name}</strong><small>{currentRole.name} · 我的设置</small></div></button>
     </aside>
 
     <section className="ops-workspace">
@@ -136,7 +137,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget }: {
         {touchNavigation && <button type="button" className="ops-mobile-menu-trigger" aria-label="打开主导航" aria-expanded={navigationOpen} onClick={() => setNavigationOpen(true)}><span aria-hidden="true">☰</span></button>}
         <div className="ops-topbar-heading">
           {backTarget && <button type="button" className="ops-topbar-back" aria-label={backTarget.label} title={backTarget.label} onClick={() => navigateRequest(backTarget.href)}><span aria-hidden="true">‹</span></button>}
-          <div className="ops-topbar-title"><small>织序 / 业务中心 / {basicActive ? "基础设置" : systemActive ? "系统设置" : pathname.startsWith("/ainuoke-sync") || pathname.startsWith("/order-center") ? "订单中心" : pathname.startsWith("/closing-center") ? "关账中心" : pathname.startsWith("/production-scheduling") ? "生产排单" : "报价中心"}</small><strong>{title}</strong></div>
+          <div className="ops-topbar-title"><small>织序 / 业务中心 / {personalActive ? "我的设置" : basicActive ? "基础设置" : systemActive ? "系统设置" : pathname.startsWith("/ainuoke-sync") || pathname.startsWith("/order-center") ? "订单中心" : pathname.startsWith("/closing-center") ? "关账中心" : pathname.startsWith("/production-scheduling") ? "生产排单" : "报价中心"}</small><strong>{title}</strong></div>
         </div>
         <div className="topbar-actions"><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></div>
       </header>
@@ -147,6 +148,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget }: {
         <section><strong>业务工作区</strong>{nav.map((item) => <button key={item.href} type="button" className={item.active ? "active" : ""} aria-current={item.active ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">{item.symbol}</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section>
         <section><strong>基础设置</strong>{basicRoutes.map((item) => <button key={item.href} type="button" className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">⚙</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section>
         <section><strong>系统设置</strong>{systemRoutes.map((item) => <button key={item.href} type="button" className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">⋯</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section>
+        <section><strong>我的设置</strong><button type="button" className={personalActive ? "active" : ""} aria-current={personalActive ? "page" : undefined} onClick={() => navigate("/my-settings/ainuoke-account")}><span aria-hidden="true">我</span><b>艾诺科账号</b><i aria-hidden="true">›</i></button></section>
       </nav>
     </Drawer>
     <GlobalSearchPalette open={globalSearchOpen} context={{ userId: currentUser.id, can }} onClose={() => setGlobalSearchOpen(false)} onNavigate={navigate} />

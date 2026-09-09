@@ -11,16 +11,20 @@
 
 ## Current Stable Main
 
-`ab13869a26d0240f7f9cc950ef439c38ac0ede73`
+`c0eec7e4229e98df5bc9753c0379780165af9937`（PR #6 已 merged）
 
 ## Current Active Task
 
-- Branch: `feat/navigation-material-infrastructure-redesign`
-- Baseline: `ab13869a26d0240f7f9cc950ef439c38ac0ede73`
-- Gate A `9be9efa598d1f8758f07153574c8dd54b2d71f2f`：详情返回进入 AppShell Topbar、明确 parent target 且继续经过 unsaved navigation guard；全局 More 轻量单行；报价顶部合并为唯一 Quote Cockpit Bar。
-- Gate B `d9176be4f16d3802fa6838cc3ec2534e471a570a`：Canonical identity 改为合同 + `materialType` + 标准化名称；Style Progress IndexedDB v3→v4 非破坏迁移保留 Batch / Allocation / manual/source；D1935 从 18 组收敛为 13 组且明细不丢失。
-- Gate C `e34dfc9f3c667ff17d7904a7235f6c673c86f3f5`：生产与运输按“在哪里生产 / 物料从哪里发 / 仓库到工厂怎么走”组织；路线与方式组合编辑，日历使用星期与特殊日期表单，Configuration Health 使用正式 Repository 事实。
-- Gate A/B/C 与最终文档已完成并推送；final hardening 进一步要求 v4 Expected Arrival Batch 的 `canonicalMaterialKey` 与非空 Allocation 当前身份一致，并为跨名称迁移、错误 key 与空批次补充 fail-closed 测试。1229 CSS viewport Browser QA、TypeScript、ESLint、490/490 全量测试、29 路由 Production Build 和 diff check 全部通过。任务处于 PR 审阅阶段；不要重做 Gate A–C，不要自动合并 main。
+- Branch: `feat/ainuoke-personal-api-binding`
+- Baseline: `c0eec7e4229e98df5bc9753c0379780165af9937`
+- Scope: Gate 0/1 已完成；当前追加真实 Ainuoke Protocol Correction + Live Read Gate，不改变个人账号、loopback/Origin/CSRF、固定 allowlist 与 no-business-commit 边界。
+- Gate 0 checkpoint `39e1f2e` 已推送：建立 `tools/ainuoke-bridge` Python contract、loopback/Origin/secret policy、固定 6086103/6086997/6087050 Catalog、sanitized source DTO 与 deterministic snapshot hash。
+- Gate 1 已实现 Windows Credential Manager keyring、按用户内存 JWT、HttpOnly bridge session + CSRF、Personal Account API、read report endpoint、`/my-settings/ainuoke-account` 与 `ainuoke.account.bind_self`。Direct API 不写 SalesOrder/Style Progress，不调用任何 commit。
+- 已确认 base `http://61.164.81.194:9043`、login `/kaijin/system/user/loginsys2`、Generic Report `/kaijin/report/report/getReportObjAndData`、System Id `6080183`。Bridge 已按真实 login `data.isOk/jwtToken/sessionId`、原值 Authorization/Token、`kaijin_my_token + rungingSysId` Cookie、report-specific InsideOrderNo condition 与 JSON-string `dataList` parser 修正；三张 report 的 filtered read 都不发送猜测 formId。
+- 2026-09-09 用户本人已通过 UI 保存 credential；Windows backend 确认为 `keyring.backends.Windows.WinVaultKeyring`。真实 D1935：login 成功；6086103 HTTP 200 1/1 行；6086997 HTTP 200 50/187 行；6087050 HTTP 200 50/262 行。6087050 当页 1 个 repeated-`id` group，50 个 source identity 全部唯一。Console 16 条记录 secret-pattern 0 命中；无 Ainuoke mutation、订单/物料/款式进度 commit。
+- Source schema 已升为 `ainuoke-direct-read.v2`。6087050 已确认 joined-view `id` 重复；三张报表都用 canonical-row SHA-256，不假设 `id` 唯一，不依赖排序/页位置。
+- Protocol Correction 自动门禁：Python Bridge 32/32、TypeScript、ESLint、Full Tests 497/497、Production Build 30 routes 与 `git diff --check` 全部通过。
+- 本任务必须明确标为 browser-local mock identity 下的“本地 Windows 原型个人账号绑定”，不是生产级多人认证与安全隔离。
 
 ## Latest Merged Work
 

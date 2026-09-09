@@ -83,6 +83,7 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 - 全局 schemaVersion 13 将 Expected Arrival Batch 纳入现有 JSON Backup / Restore / Reset 的原子式回滚编排；旧备份缺失该集合时按空集合向前恢复，不影响其他数据。
 - 权限：`style_progress.read/edit/import/view_history`；新增权限只自动补给管理员。
 - 正式导入、人工修改和恢复 Effective 日期复用唯一追加式 OperationLog；ImportBatch / Raw Snapshot 继续保留技术 Trace，不替代业务操作日志。
+- Ainuoke Direct API 的 6087050 当前只形成 sanitized source snapshot；尚未进入现有 Normalize → Dedup → Validate → Preview，更未调用 `commitImport` 或直接 upsert 本 IndexedDB。
 
 ## Verification status
 

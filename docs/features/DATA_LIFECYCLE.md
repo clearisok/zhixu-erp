@@ -22,6 +22,8 @@
 | ScheduleAssignment、OrderExecutionTracking | `production-scheduling-repository.ts` | localStorage `zhixu.erp.local.production-scheduling` | v8 ProductionPlan 只用于 v9 owner 提升，原 Assignment ID 保留 |
 | ClosingPeriod、ClosingAllocation | `closing-repository.ts` | localStorage `zhixu.erp.local.closing-center` | v7 无此独立记录时初始化空集合 |
 | Ainuoke Mirror、同步批次与 Import Review | `ainuoke-sync-repository.ts` | localStorage `zhixu.erp.local.ainuoke-sync` | v9 无记录时初始化空集合 |
+| Ainuoke personal credential | Python keyring / Windows Credential Manager | OS Secure Credential Store，以 Zhixu User.id 分项 | 不进入浏览器 migration / Backup / Restore |
+| Ainuoke JWT/token/session | Local Bridge process memory | 不持久化 | Bridge restart 后重新登录 |
 | 款式进度 ImportBatch、Raw、需求、四类事件与 Expected Arrival Batch | `style-progress-repository.ts` | IndexedDB `zhixu-style-progress` version 4 多 Store | v2→v3 迁移旧单日期；v3→v4 重映射 name-only Canonical key；旧备份缺新集合时为空 |
 | 品牌、客户业务员、面辅料库 | `basic-settings-repository.ts` | localStorage `zhixu.erp.local.basic-settings` | `zhixu.basic-settings.v1.5`、`v1.3` |
 | 全局报价设置 | `quote-settings.ts` | localStorage `zhixu.erp.local.quote-global-settings` | `zhixu.quote-center.global-settings.v1` 与旧基础设置 |
@@ -82,6 +84,7 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 - `sales-orders` 与其内部交期、数量变化、价格版本和当前价格指针作为一个稳定记录自动进入 `localRecords`；新备份保存 v6 单款结构。旧 v5 备份在替换当前数据前执行同一提升/拆单迁移并整体校验；附件 Blob 仍由 attachments 区域独立备份，不复制进订单 JSON。
 - `production-scheduling` 与 `closing-center` 都作为独立稳定记录进入 `localRecords`。恢复关账前校验 ClosingPeriod 唯一性、SalesOrder owner、可选 ScheduleAssignment 引用与当前 schema；任何关系损坏都会在覆盖当前数据前拒绝恢复。
 - `ainuoke-sync` 作为稳定记录进入 `localRecords`；款式进度以结构化 `styleProgress` 区块进入同一备份 JSON。恢复会先完整校验需求/事件引用，再与 localStorage、附件和模板一起执行失败回滚；旧备份没有该区块时只初始化空款式进度，不触碰订单、排单、关账或艾诺科数据。
+- Personal Ainuoke credential 与 Local Bridge JWT/session 不属于浏览器业务数据，显式排除在 `localRecords`、IndexedDB、JSON Backup / Restore 与 Reset 编排之外。备份恢复不会导入、导出、覆盖或删除 Windows Credential Manager 中的个人账号。
 - attachments：附件 metadata 与 Blob（Base64 仅存在于用户主动下载的备份 JSON，不写回 localStorage）。
 - templates：用户模板 definition 与 Blob；内置模板不重复备份。
 
@@ -110,4 +113,5 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 
 - 这是单浏览器、单 Origin 的开发期持久化，不是服务端事务数据库或跨设备同步。
 - localStorage 与两个 IndexedDB database 之间无法形成真正的跨存储原子事务；当前恢复以预校验、内存快照和失败回滚降低风险。
+- Browser Backup 无法备份个人 Ainuoke credential；Windows Credential Manager 与 Local Bridge 生命周期独立，迁移设备时必须由本人重新绑定。
 - 大量附件会使 JSON 备份体积较大；未来对象存储阶段应升级为流式归档格式。

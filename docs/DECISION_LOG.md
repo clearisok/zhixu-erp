@@ -481,6 +481,22 @@
 - 汇总：需求、采购、入库、出运和出库只从组内 child Demand / 对应 Event 各累加一次；Group Ready 要求全部有效 child Demand 齐套。来源没有可靠单位字段时不猜测单位，也不跨虚构口径相加。
 - 原因：普通工作台需要按业务人员识别的物料名称形成唯一顶层对象，同时完整保留执行层差异和来源追溯。
 
+### D-070 艾诺科使用个人账号与 OS Credential Store
+
+- 日期：2026-09-08
+- 状态：Active
+- 决定：正式关系为 `Zhixu User → 0..1 Personal Ainuoke Account`，不建立公司共享账号。Password 只存 Windows OS Secure Credential Store；Ainuoke token/session 只在 Local Bridge 内存中按 mock `User.id` 隔离。Bridge 只绑定 loopback，并使用精确 Origin allowlist、HttpOnly bridge session 与 CSRF nonce保护请求上下文。
+- 限制：当前 Zhixu User 是 browser-local mock identity，前端 userId 不能视为生产可信身份；本实现只能称为本地 Windows 原型。艾诺科登录仍为 HTTP，bridge 到上游链路没有 TLS。
+- 原因：保留艾诺科本人的权限和待办身份，同时阻止 credential/token 进入浏览器长期数据、业务模型、备份、日志或 Git。
+
+### D-071 Direct API 只作为固定 Catalog 的 Source Adapter
+
+- 日期：2026-09-08
+- 状态：Active
+- 决定：Direct API 只允许 `6086103`、`6086997`、`6087050`，Browser 传 catalog key 而不是 reportId。Bridge 负责 login/auth/paging/timeout/retry/sanitize/read DTO；来源快照保留 report、fetch timestamp、paging、total、source row identity、query context、schema 与 deterministic hash。
+- 边界：6086103/6086997 后续进入既有 `AinuokeContractMirror` 和 matcher/service；6087050 后续进入既有 Material Normalize/Dedup/Validate/Preview/commitImport。本阶段不 commit，不提供 write endpoint，不创建第二套 Matcher、Dedup、Canonical resolver、Logistics 或 OperationLog。
+- 原因：API 与 Excel 只是不同 Source Adapter；领域规则和持久化边界必须保持唯一。
+
 ## Superseded
 
 ### D-039 新订单中心使用 SalesOrder + OrderItem 多款聚合
