@@ -84,9 +84,14 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 - 全局 schemaVersion 13 将 Expected Arrival Batch 纳入现有 JSON Backup / Restore / Reset 的原子式回滚编排；旧备份缺失该集合时按空集合向前恢复，不影响其他数据。
 - 权限：`style_progress.read/edit/import/view_history`；新增权限只自动补给管理员。
 - 正式导入、人工修改和恢复 Effective 日期复用唯一追加式 OperationLog；ImportBatch / Raw Snapshot 继续保留技术 Trace，不替代业务操作日志。
-- Ainuoke Direct API 的 6087050 已通过薄 source adapter 进入 Excel 共用的 Normalize → Dedup → Validate → Preview。API trace 不伪造 Excel 坐标；`MSingleName` 无法证明等价于 Excel“申购实际名称”，不映射 `sourceActualName`，当前也无充分证据映射 API `actualConsumption`，两者保持空值。Preview 只在内存运行，没有 `commitImport` 按钮，不调用本 IndexedDB Repository，也不修改既有 Expected Arrival Batch / Allocation。
+- Ainuoke Direct API 的 6087050 已通过薄 source adapter 进入 Excel 共用的 Normalize → Dedup → Validate → Preview。API trace 不伪造 Excel 坐标；`MSingleName` 无法证明等价于 Excel“申购实际名称”，不映射 `sourceActualName`，当前也无充分证据映射 API `actualConsumption`，两者保持空值。
+- Gate 3C commit capability 保持同一正式路径：Preview 后由 `style_progress.import` 用户在二次确认 Modal 明确确认，薄 orchestration 校验完整分页、稳定 source content identity、零 collision/阻断错误和未被改动的 Preview，再调用唯一 `commitImport`。API ImportBatch/RawSnapshot 仍是本 Domain 既有实体，只以 `sourceKind=api` 保存 report/source identity/snapshot/fetchedAt/query/schema trace。
+- 同一 API Snapshot 的 ImportBatch ID 不包含 fetchedAt，重复 commit 新增为 0且不重复业务 OperationLog；新完整 Snapshot 会替换同 InsideOrderNo scope 的当前 API Demand/Event facts。manual Effective 与人工 ExpectedArrivalBatch 保留，source-following 计划刷新，Actual 不改变语义；厂供继续只保留 Trace 并退出运营投影。
+- 当前仅完成 fixture/isolated repository 验证与 UI capability；真实 DEV D1935 commit 尚未执行。**LIVE MATERIAL COMMIT NOT EXECUTED**。
 
 ## Verification status
+
+Gate 3C 第一阶段使用脱敏 6087050 fixture 与 isolated temporary repository 验证唯一 `commitImport` 路径：first commit 保存 Batch/Raw/Demand/四类 Event，same-snapshot second commit 全部新增为 0且只有一条既有语义 OperationLog；source due 更新、manual Effective 保留、stale current API facts 移除、厂供运营排除以及 SalesOrder/Scheduling/Closing 不变均通过。定向 68/68、Full Tests 550/550、TypeScript、ESLint、30-route build、diff-check 与 secret leakage scan PASS。真实 DEV Style Progress 未写入。
 
 本次 Correction 使用最新 Excel 调用正式 Parser 与 v4 Canonical identity 完成只读审计，并在既有隔离 Browser Profile 复验 D1935 / PI2607-235；没有覆盖用户 Chrome 或 PROD Profile，原始 Excel 没有进入 Git。真实页面从旧 18 个 Canonical Material 收敛为 13 个（面料 3、辅料 10），厂供 5 条 / 3,809 需求量仍只在只读 Trace Drawer 中出现；罗马布的 5 条颜色/规格 Demand 及不同采购价完整保留，展开行与多事件 Drawer 的出运量均来自 ShipmentEvent。
 

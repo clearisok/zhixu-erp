@@ -18,13 +18,14 @@
 - Branch: `feat/ainuoke-material-api-commit`
 - Baseline: `152638db2004b34193f0bed8332100f1d0bb3b47`
 - Scope: Gate 3C 第一阶段，在既有 6087050 Preview 后增加薄 commit orchestration，且只调用现有 `styleProgressRepository.commitImport`。本阶段允许 fixture/isolated repository 验证，不允许对真实 DEV D1935 执行 Material commit。
-- Checkpoint 1 已实现稳定内容批次身份、API ImportBatch/RawSnapshot trace、完整性/权限/stale-preview 防护、同 snapshot 幂等、当前事实替换、manual Effective 保留和 count-only 既有语义 OperationLog；UI 最终确认与安全展示仍在下一 checkpoint。
+- Checkpoint 1 已实现稳定内容批次身份、API ImportBatch/RawSnapshot trace、完整性/权限/stale-preview 防护、同 snapshot 幂等、当前事实替换、manual Effective 保留和 count-only 既有语义 OperationLog。
+- Checkpoint 2 已实现 Preview-first UI 与二次确认 Modal；只有 `style_progress.import` 可提交，Modal 明示当前绑定 Snapshot 的 InsideOrderNo/fetchedAt/Source/Canonical/Demand/Event/厂供计数，以及 SalesOrder/Scheduling/Closing 不变边界。
 - 当前同步以 6087050 Direct API 当次 Snapshot 为 authoritative source；历史 Excel 只作历史 Source、字段语义参考和回归输入。API/Excel 不要求 row-count/hash/identity parity，但同字段语义和后续 Domain pipeline 必须一致。
 - API trace 保存 report/source identity/snapshot hash/fetchedAt/query/schema，绝不伪造 Excel 坐标；6087050 继续复用 canonical full-row SHA-256，identity 与页码、位置和排序无关，repeated upstream id 不碰撞。
 - `material-normalization-pipeline.ts` 是 Excel/API 共用的唯一 Normalize / Dedup / Validate/Event construction；Canonical 仍按合同 + 类型 + 标准化名称，厂供仍保留 Trace 并退出 operational projection。`MSingleName` 不映射为 `sourceActualName`；6087050 的 `actualConsumption` 也没有充分字段证据，均保持空值。
 - 2026-09-09 D1935 真实 UI dry run：6 页、262/262 Source rows、262 accepted / 0 rejected、262 unique identities、1 repeated-id group、12 Canonical groups（面料 2、辅料 10）、6 厂供 rows、12 operational groups、255 Demands、Purchase/Inbound/Shipment/Outbound 183/153/150/150、identity collision 0。只调用只读 bridge query；页面业务计数仍为 mirror 0、ImportRun 0、orders 168。
-- 当前仅完成 isolated commit validation；**LIVE MATERIAL COMMIT NOT EXECUTED**。完成 UI capability 后仍须停在 READY FOR LIVE ACCEPTANCE，不创建 PR。
-- Checkpoint 1 自动门禁：Gate 3C + Material Preview/Adapter + Style Progress + Contract API 定向 67/67 PASS、TypeScript PASS、`git diff --check` PASS。
+- 当前只完成 fixture + isolated temporary repository commit validation 与 UI capability；**LIVE MATERIAL COMMIT NOT EXECUTED**。本分支必须停在 READY FOR LIVE ACCEPTANCE，不创建 PR。
+- Gate 3C 门禁：定向 68/68、Full Tests 550/550、TypeScript、ESLint、Production Build 30 routes、`git diff --check` 与 secret leakage scan PASS。Bridge 未修改，未重复运行 Python tests。
 
 ## Latest Merged Work
 

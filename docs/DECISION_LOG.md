@@ -509,11 +509,21 @@
 ### D-073 当前物料同步以 Direct API Snapshot 为准并共用唯一 Domain pipeline
 
 - 日期：2026-09-09
-- 状态：Active
+- 状态：Active；Source 与 pipeline 决策保留，阶段性“只 Preview”写入边界由 D-074 接续。
 - 决定：6087050 当前同步以 Ainuoke Direct API 当次返回为 authoritative Source Snapshot；历史 Excel 是导出时间点的 historical source。两者不要求 row-count、snapshot-hash、source-row-identity 或跨时间点数据 parity，不得为匹配旧 Excel 人为过滤当前 API 数据，也不得把某次 261/262 行固化为业务常量。
 - 一致性边界：Excel/API 相同业务字段必须保持同一语义，并在各自 transport adapter 后进入唯一 Material Normalize / Dedup / Validate / Preview。API 字段只有在真实 metadata/rows 能证明语义时才映射，否则保持 `null`/empty。Canonical Material、厂供排除、Source/Effective/Actual、事件构建与物流规则不得在 API adapter 中复制或改变。
 - 写入边界：Gate 3 只运行内存 Preview；不提供或调用 `commitImport`，不写 Style Progress Repository、ExpectedArrivalBatch、SalesOrder、Scheduling 或 Closing。真实 Material commit 必须由后续独立 Gate 再次明确授权。
 - 代码证据：`features/style-progress/source/ainuoke-material-api-adapter.ts`、`features/style-progress/parser/material-normalization-pipeline.ts`、`features/style-progress/service/ainuoke-material-api-preview.ts` 与 `tests/ainuoke-material-api-preview.test.mjs`。
+
+### D-074 6087050 只通过既有 commitImport 提交当前完整 Snapshot
+
+- 日期：2026-09-09
+- 状态：Active；真实 DEV acceptance 尚未执行。
+- 决定：6087050 API Material commit 的唯一路径为 Preview → 薄 `commitAinuokeMaterialApiPreview` orchestration → existing `styleProgressRepository.commitImport`。orchestration 只负责 `style_progress.import`、完整性/stale-preview 校验和既有语义 OperationLog，不复制 Normalize、Dedup、Validate、Canonical resolver、Event construction 或 Expected Arrival 规则。
+- Identity / resync：ImportBatch identity 使用 reportId、normalized InsideOrderNo 与 canonical source row content，不使用 fetchedAt。同 Snapshot 重复提交新增为 0且不追加重复业务日志；新完整 Snapshot 更新同 InsideOrderNo scope 的当前 API Demand/Event facts并移除已消失 facts，历史 Raw/ImportBatch Trace 保留。
+- 业务保留：manual Effective 与人工 ExpectedArrivalBatch 不被重同步覆盖；source-following 批次刷新；Actual 只来自实际 Event；厂供保留 Raw/Trace 但退出采购、齐套、风险、物流与 Expected Arrival 运营指标。提交不修改 SalesOrder、Scheduling 或 Closing。
+- 验收边界：UI 必须 Preview-first 并二次确认，提交绑定用户所见的 immutable Preview。当前只允许 fixture/isolated repository 验证；真实 DEV D1935 commit 必须在后续 Backup、BEFORE baseline、用户本人 UI 确认与 AFTER baseline Gate 中执行。
+- 代码证据：`features/style-progress/service/ainuoke-material-api-commit.ts`、`features/style-progress/repository/style-progress-repository.ts`、`features/ainuoke-sync/components/ainuoke-sync-page.tsx` 与 `tests/ainuoke-material-api-commit.test.mjs`。
 
 ## Superseded
 

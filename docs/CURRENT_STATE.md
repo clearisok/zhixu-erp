@@ -4,11 +4,11 @@
 
 ## 当前阶段
 
-- 当前稳定基线：`main` / `origin/main` 的任务起点 `f83b427c90baff22c4df24170561f2b9022506c9`（PR #9 已 merged，历史 Review cleanup 已进入 main）。
+- 当前稳定基线：`main` / `origin/main` 的任务起点 `152638db2004b34193f0bed8332100f1d0bb3b47`（PR #10 已 merged，6087050 Material API Preview 已进入 main）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
-- 当前 Active Task 为 `feat/ainuoke-material-api-preview`。只把 6087050 Direct API 当前 Snapshot 接入唯一 Material Normalize / Dedup / Validate / Preview；不调用 `commitImport`，PR 不自动 merge。
+- 当前 Active Task 为 `feat/ainuoke-material-api-commit`。Gate 3C 第一阶段只增加 Preview-first Material commit capability，并停在 `READY FOR LIVE ACCEPTANCE`；真实 DEV D1935 commit、PR 创建和 merge 均未执行。
 - `面辅料申购统计 (1).xlsx` 的既有审计仍是有效的历史 Source Trace 与字段语义证据，但不是当前同步的 authoritative snapshot。当前同步以 6087050 Direct API 当次返回为准；不同时间的 Excel/API 不要求 row-count、hash 或 row identity parity，也不得为匹配历史行数过滤实时数据。
 
 ## 当前可运行边界
@@ -20,15 +20,19 @@
 
 ## 本轮完成状态
 
-### Ainuoke 6087050 Material API Preview Gate 3
+### Ainuoke 6087050 Material API Gate 3A/B + Gate 3C Capability
 
 - 6087050 Direct API 已通过薄 transport adapter 进入唯一 Material source-neutral Normalize / Dedup / Validate pipeline；Excel 继续通过原 semantic-header adapter 进入同一 pipeline。API trace 保存 reportId、sourceRowIdentity、snapshotHash、fetchedAt、InsideOrderNo 与 schema，不伪造 fileName、sheetName 或 rowNumber。
 - 当前同步的 source of truth 是 6087050 Direct API 当次 Snapshot；历史 Excel 只作历史来源、字段语义参考与回归输入。两种 Source 的共同约束是字段语义与 Domain pipeline 一致，不是不同时间点的行数一致。
 - API adapter 只映射真实字段证据。Canonical identity 仍为 `salesContractNo + materialType + normalizedMaterialName`；materialCode、颜色、规格、门幅、克重与价格只保留为 child facts。`MSingleName` 不等价于 Excel“申购实际名称”，因此不映射 `sourceActualName`；当前也没有充分证据证明 6087050 某字段等价于 Excel 数值列“厂供”，因此 API `actualConsumption` 保持 `null` 并给出 warning。`提供方式=厂供` 仍保留 Raw/Trace 但退出 operational projection。
-- `/ainuoke-sync` 复用现有页面提供“物料 API 预检”，按当次实时 total 自动读取全部页，只输出内存 Preview，页面不提供 Material commit 按钮。该路径不引用 Style Progress Repository，也不调用 `commitImport`、SalesOrder、Scheduling 或 Closing 写入。
+- Gate 3C 增加的薄 orchestration 只负责 `style_progress.import` 权限、完整性与 stale-preview 校验，把 API Preview 转为既有 `MaterialImportBatch` / `MaterialRawSnapshot` trace 后调用唯一 `styleProgressRepository.commitImport`。Adapter、Normalize/Dedup/Validate、Canonical resolver、Event construction、Expected Arrival 和 OperationLog 均未复制。
+- `/ainuoke-sync` 仍必须先运行物料 API 预检；成功后才显示“确认导入款式进度”，并要求用户在二次确认 Modal 复核 InsideOrderNo、fetchedAt、Source rows、Canonical groups、Demand/Event 和厂供数量。提交绑定当前 immutable Preview；内容 hash 不一致、分页不足、total 不一致、identity collision、blocking validation 或权限不足均 fail closed。
+- API ImportBatch identity 使用 reportId + normalized query + canonical source row content 的稳定 hash，不使用 fetchedAt；同一完整 Snapshot 重复 commit 返回全部新增为 0，且不追加重复业务 OperationLog。完整新 Snapshot 会更新当前同 scope Demand/Event facts并移除消失的旧 API Demand/Event；历史 Raw Snapshot/ImportBatch Trace 保留。
+- `expectedDateSource=manual` 的 Effective 与人工 ExpectedArrivalBatch 在重同步时保留；仍跟随 Source 的批次按新 source due date 更新。Actual 继续只来自实际 Event，厂供仍保留 Raw/Trace 并退出 operational projection。
 - 2026-09-09 D1935 真实只读验收：6087050 HTTP 200，共 6 页、实时 total/source rows 262，unique source identities 262，repeated upstream `id` groups 1；pipeline accepted/rejected 为 262/0，Canonical groups 12（面料 2、辅料 10），厂供 Source rows 6，operational groups 12，Demand 255，Purchase/Inbound/Shipment/Outbound events 为 183/153/150/150，Demand/Event duplicates prevented 为 7/6，source identity collision 0。
-- 验收浏览器网络只出现 bridge session/account 与 `material_purchase_statistics/query`；6 次报表查询均 HTTP 200。预检前后页面 mirror/import run/order 计数保持 0/0/168；静态依赖检查与测试证明没有 persisted Style Progress、ExpectedArrivalBatch、SalesOrder、Scheduling 或 Closing 写路径。**LIVE MATERIAL COMMIT NOT EXECUTED**。
-- Gate 3 自动门禁：定向 Adapter/Pipeline/UI 回归 75/75，字段语义修正专项 34/34，Full Tests 541/541、TypeScript、ESLint、Production Build 30 routes 与 `git diff --check` 全部通过。Bridge 未修改，因此没有为形式重复运行 Python Bridge tests。
+- Gate 3A/B 验收浏览器网络只出现 bridge session/account 与 `material_purchase_statistics/query`；6 次报表查询均 HTTP 200。预检前后页面 mirror/import run/order 计数保持 0/0/168；没有 persisted Style Progress、ExpectedArrivalBatch、SalesOrder、Scheduling 或 Closing 写入。
+- Gate 3C 第一阶段只在 fixture + isolated temporary repository 验证 first commit、same-snapshot zero-addition、manual Effective、current facts replacement 与 count-only OperationLog；没有打开或操作真实 DEV Style Progress Repository。**LIVE MATERIAL COMMIT NOT EXECUTED**。
+- Gate 3C 第一阶段自动门禁：定向 Material/Contract/Style Progress 回归 68/68、Full Tests 550/550、TypeScript、ESLint、Production Build 30 routes 与 `git diff --check` 全部通过；secret leakage fixture/state/log scan PASS。Bridge 未修改，因此未重复运行 Python Bridge tests。
 
 ### Ainuoke Personal Account + Direct API Contract Sync Gate 2
 
@@ -41,7 +45,7 @@
 - 2026-09-09 真实只读验收已执行：用户本人通过 UI 保存个人 credential，Windows backend 为 `WinVaultKeyring`；login 成功。D1935 的 6086103 为 HTTP 200、1/1 行，6086997 为 50/187 行，6087050 为 50/262 行；字段结构与真实 Scanner 清单一致。6087050 当页有 1 个 repeated-`id` group，而 50 个 source identity 全部唯一。Console 16 条记录 secret-pattern 命中 0，未调用任何 Ainuoke mutation 或 Zhixu business commit。
 - 6086103/6086997 Direct API snapshot 已经通过 transport-neutral Contract Source 进入唯一 `AinuokeContractMirror → synchronizeAinuokeContracts`。API 与历史 Excel 只在 transport mapping 不同；normalize、数量校验、matcher、幂等与人工 adjustment 保留规则均复用既有实现。Preview 只在内存运行；正式保存仍要求用户明确确认与 `ainuoke.sync`，且只保存既有 Service 产出的 orders/state/operationLogs 与 API ImportRun。
 - Gate 2 的 D1935 真实 dry run 已执行：6086103/6086997 全部分页形成 1 份合同，合同数量 4,640、分色数量 4,640、数量差异 0、5 个颜色、合同交期 2026-10-13，validation 为 `valid`；既有 matcher 无候选，结果为 would auto-create 1，would update/bind/review 均为 0。没有点击“确认同步合同”；刷新后镜像合同/导入批次仍为 0、订单总数仍为 168，未写 SalesOrder、Ainuoke Sync state、Scheduling、Closing 或 Style Progress。
-- 6087050 已由 Gate 3 接入既有 Material Preview，但仍不调用 Material `commitImport`；没有建立第二套 Matcher、Dedup、Canonical resolver、Logistics 或 OperationLog。当前仍是 browser-local mock identity 下的本地 Windows 原型，不是生产级身份安全。
+- 6087050 已由 Gate 3A/B 接入既有 Material Preview，Gate 3C 第一阶段已具备显式确认后调用唯一 Material `commitImport` 的能力，但真实 DEV acceptance 尚未执行；没有建立第二套 Matcher、Dedup、Canonical resolver、Logistics 或 OperationLog。当前仍是 browser-local mock identity 下的本地 Windows 原型，不是生产级身份安全。
 - Gate 2 自动门禁：定向 26/26、Python Bridge 32/32、TypeScript、ESLint、Full Tests 513/513、Production Build 30 routes 与 `git diff --check` 全部通过。D1935 复核页 console 4 条记录，secret-pattern 命中 0、error 0。
 - 用户已明确废弃旧历史排单/生产预警遗留的 unresolved `schedule_match` / `closing_match` 人工 backlog。当前分支提供显式、幂等、immutable cleanup：只过滤这两类未解决 Review，保留其他 Review、contracts、ImportRuns 与全部正式业务事实；入口仅在 backlog 非零时显示，使用 `ainuoke.resolve_conflict`，确认后追加 count-only OperationLog。
 - 2026-09-09 用户先通过数据管理导出真实 DEV Backup，再由本人在 `/ainuoke-sync` UI 确认执行 cleanup。unresolved `schedule_match` 112 → 0、unresolved `closing_match` 373 → 0，unresolved `order_match` 保持 30，总 pending reviews 515 → 30，旧迁移入口按设计消失。

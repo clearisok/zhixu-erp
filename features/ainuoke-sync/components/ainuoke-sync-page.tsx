@@ -11,7 +11,7 @@ import type { SalesOrder } from "@/features/order-center/model/order";
 import { orderRepository } from "@/features/order-center/repository/order-repository";
 import { usePermissions } from "@/features/permissions";
 import { productionSchedulingRepository } from "@/features/production-scheduling/repository/production-scheduling-repository";
-import { buildAinuokeMaterialApiPreview, type AinuokeMaterialApiPreview } from "@/features/style-progress";
+import { buildAinuokeMaterialApiPreview, commitAinuokeMaterialApiPreview, styleProgressRepository, type AinuokeMaterialApiPreview } from "@/features/style-progress";
 import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import type { AinuokeContractMirror, AinuokeImportRun, AinuokeSyncState } from "../model/ainuoke";
 import { parseAinuokeWorkbooks } from "../parser/ainuoke-excel-parser";
@@ -46,6 +46,7 @@ export function AinuokeSyncPage() {
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [cleanupOpen, setCleanupOpen] = useState(false);
+  const [materialCommitOpen, setMaterialCommitOpen] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
 
@@ -67,7 +68,7 @@ export function AinuokeSyncPage() {
   useEffect(() => { if (!toast) return; const timer = window.setTimeout(() => setToast(""), 2600); return () => window.clearTimeout(timer); }, [toast]);
 
   const actor = { id: currentUser.id, name: currentUser.name, userId: currentUser.id, userName: currentUser.name };
-  const clearPreview = () => { setPreview(null); setApiPreview(null); setMaterialApiPreview(null); setHistoricalPreview(null); setPreviewContracts([]); };
+  const clearPreview = () => { setPreview(null); setApiPreview(null); setMaterialApiPreview(null); setMaterialCommitOpen(false); setHistoricalPreview(null); setPreviewContracts([]); };
   const changeSourceMode = (next: SourceMode) => { clearPreview(); setError(""); setSourceMode(next); };
 
   const readAllPages = async (reportKey: AinuokeReportKey, query: string): Promise<AinuokeReportSnapshot[]> => {
@@ -168,6 +169,30 @@ export function AinuokeSyncPage() {
     }
   };
 
+  const commitMaterialApiPreview = async () => {
+    if (!materialApiPreview) return;
+    setWorking(true);
+    setError("");
+    try {
+      const result = await commitAinuokeMaterialApiPreview({
+        preview: materialApiPreview,
+        canImport: can("style_progress.import"),
+        actor: { userId: currentUser.id, userName: currentUser.name },
+        repositories: { styleProgress: styleProgressRepository, operationLogs: operationLogRepository },
+      });
+      setMaterialCommitOpen(false);
+      clearPreview();
+      setToast(result.report.duplicateFile
+        ? "该 API Snapshot 已导入，本次未新增业务事实"
+        : `物料 API 导入完成：新增需求 ${result.report.newDemands}，更新需求 ${result.report.updatedDemands}`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "物料 API 导入失败");
+      setMaterialCommitOpen(false);
+    } finally {
+      setWorking(false);
+    }
+  };
+
   const commitExcelPreview = async () => {
     if (!preview || !historicalPreview || !salesFile || !colorFile || !scheduleFile || !closingFile || !can("ainuoke.sync")) return;
     setWorking(true);
@@ -247,7 +272,7 @@ export function AinuokeSyncPage() {
       ? <Button permission="ainuoke.view" disabled={working || !insideOrderNo.trim()} onClick={() => void runApiPreview()}>{working ? "处理中…" : "运行 API 预检"}</Button>
       : <Button permission="ainuoke.sync" disabled={working || !salesFile || !colorFile || !scheduleFile || !closingFile} onClick={() => void runExcelPreview()}>{working ? "处理中…" : "运行四文件预检"}</Button>} />
     {error && <ErrorState title="同步处理失败" description={error} onRetry={() => setError("")} />}
-    <AlertBanner tone="info" title="Preview-first 数据保护">合同读取与预检不会写订单。6087050 物料 API 当前只运行内存预检，不提供提交按钮，也不会写入款式进度。</AlertBanner>
+    <AlertBanner tone="info" title="Preview-first 数据保护">合同读取与物料预检不会写业务数据。6087050 只有通过预检并由具备 `style_progress.import` 权限的用户在二次确认 Modal 中明确确认，才会写入款式进度；不会修改订单、排单或关账。</AlertBanner>
     {obsoleteReviewCounts.total > 0 && <Card>
       <div className="as-section-head"><h2>旧迁移待确认</h2><span>{obsoleteReviewCounts.total} 条</span></div>
       <section className="as-metrics"><div className="as-metric"><span>排单匹配</span><strong>{obsoleteReviewCounts.scheduleReviews}</strong></div><div className="as-metric"><span>生产/关账匹配</span><strong>{obsoleteReviewCounts.closingReviews}</strong></div></section>
@@ -268,11 +293,11 @@ export function AinuokeSyncPage() {
         {apiPreview && <div className="as-actions"><span>预检尚未写入正式数据 · Snapshot {apiPreview.source.snapshotHashes.length} 页</span><Button variant="secondary" onClick={clearPreview}>放弃预检</Button><Button permission="ainuoke.sync" disabled={working || preview?.report.mismatchCount !== 0} onClick={() => void commitApiPreview()}>确认同步合同</Button></div>}
       </Card>
       <Card>
-        <div className="as-section-head"><h2>物料 API 预检</h2><span>6087050 · Preview only</span></div>
+        <div className="as-section-head"><h2>物料 API 预检</h2><span>6087050 · Preview first</span></div>
         <p>当前数据来自艾诺科实时 API Snapshot。历史 Excel 是另一时间点的来源，不参与实时行数校验。</p>
-        <div className="as-actions"><Button variant="secondary" permission="ainuoke.view" disabled={working || !insideOrderNo.trim()} onClick={() => void runMaterialApiPreview()}>{working ? "处理中…" : "运行物料 API 预检"}</Button>{materialApiPreview && <Button variant="secondary" onClick={clearPreview}>放弃物料预检</Button>}</div>
+        <div className="as-actions"><Button variant="secondary" permission="ainuoke.view" disabled={working || !insideOrderNo.trim()} onClick={() => void runMaterialApiPreview()}>{working ? "处理中…" : "运行物料 API 预检"}</Button>{materialApiPreview && <><Button variant="secondary" onClick={clearPreview}>放弃物料预检</Button><Button permission="style_progress.import" disabled={working || materialApiPreview.summary.errors.length > 0 || materialApiPreview.summary.sourceIdentityCollisions > 0} onClick={() => setMaterialCommitOpen(true)}>确认导入款式进度</Button></>}</div>
         {materialApiPreview && <>
-          <AlertBanner tone="info" title="本次仅预检，尚未写入款式进度">获取时间 {new Date(materialApiPreview.source.fetchedAt).toLocaleString("zh-CN")} · InsideOrderNo {materialApiPreview.source.query.insideOrderNo} · {materialApiPreview.source.pages.length} 页 · Source {materialApiPreview.source.sourceRowCount} 行 / 实时 total {materialApiPreview.source.reportedTotal}</AlertBanner>
+          <AlertBanner tone="info" title="预检尚未写入款式进度">提交将使用当前预检绑定的 immutable Snapshot，不会静默换源。获取时间 {new Date(materialApiPreview.source.fetchedAt).toLocaleString("zh-CN")} · InsideOrderNo {materialApiPreview.source.query.insideOrderNo} · {materialApiPreview.source.pages.length} 页 · Source {materialApiPreview.source.sourceRowCount} 行 / 实时 total {materialApiPreview.source.reportedTotal}</AlertBanner>
           <section className="as-metrics">
             <div className="as-metric"><span>有效 / 拒绝</span><strong>{materialApiPreview.summary.normalizedRows} / {materialApiPreview.summary.rejectedRows}</strong></div>
             <div className="as-metric"><span>Canonical 物料</span><strong>{materialApiPreview.summary.canonicalMaterialGroups}</strong></div>
@@ -305,6 +330,9 @@ export function AinuokeSyncPage() {
     <Card><div className="as-section-head"><h2>导入批次</h2><span>最近 {Math.min(10, state.importRuns.length)} 次</span></div>{state.importRuns.length ? <div className="as-history">{state.importRuns.slice(0, 10).map((run) => <article key={run.id}><div><strong>{new Date(run.createdAt).toLocaleString("zh-CN")} · {run.createdBy}</strong><span>{run.sourceKind === "api" ? `API · ${run.query?.insideOrderNo ?? "未记录查询"} · ${(run.reportIds ?? []).join(" + ")}` : run.sourceFiles.join(" + ")}</span></div><span>合同 {run.contractsSeen} · 新建 {run.autoCreatedCount} · 绑定 {run.autoBoundCount} · 待确认 {run.reviewCount}</span></article>)}</div> : <EmptyState compact title="暂无正式导入批次" />}</Card>
     <Modal open={cleanupOpen && obsoleteReviewCounts.total > 0} tone="danger" title="确认清理旧迁移待确认" description="该操作只删除尚未处理的旧历史匹配任务。" onClose={() => setCleanupOpen(false)} footer={<><Button variant="secondary" disabled={working} onClick={() => setCleanupOpen(false)}>取消</Button><Button variant="danger" permission="ainuoke.resolve_conflict" disabled={working} onClick={() => void cleanupHistoricalReviews()}>确认清理旧待确认</Button></>}>
       <div className="qc-modal-form"><strong>即将删除</strong><ul><li>排单待确认：{obsoleteReviewCounts.scheduleReviews}</li><li>生产/关账待确认：{obsoleteReviewCounts.closingReviews}</li><li>合计：{obsoleteReviewCounts.total}</li></ul><strong>不会删除</strong><ul><li>SalesOrder</li><li>已导入排单</li><li>已导入关账</li><li>Ainuoke 合同镜像</li><li>ImportRun</li></ul></div>
+    </Modal>
+    <Modal open={materialCommitOpen && Boolean(materialApiPreview)} tone="danger" title="确认导入款式进度" description="该操作会把当前 6087050 Preview 通过现有 Material commitImport 写入 Style Progress。" onClose={() => setMaterialCommitOpen(false)} footer={<><Button variant="secondary" disabled={working} onClick={() => setMaterialCommitOpen(false)}>取消</Button><Button variant="danger" permission="style_progress.import" disabled={working || !materialApiPreview} onClick={() => void commitMaterialApiPreview()}>{working ? "导入中…" : "确认导入款式进度"}</Button></>}>
+      {materialApiPreview && <div className="qc-modal-form"><strong>当前绑定 Snapshot</strong><ul><li>InsideOrderNo：{materialApiPreview.source.query.insideOrderNo}</li><li>获取时间：{new Date(materialApiPreview.source.fetchedAt).toLocaleString("zh-CN")}</li><li>Source rows：{materialApiPreview.source.sourceRowCount}</li><li>Canonical groups：{materialApiPreview.summary.canonicalMaterialGroups}</li><li>Demands：{materialApiPreview.summary.demands}</li><li>Purchase / Inbound / Shipment / Outbound：{materialApiPreview.summary.purchaseEvents} / {materialApiPreview.summary.inboundEvents} / {materialApiPreview.summary.shipmentEvents} / {materialApiPreview.summary.outboundEvents}</li><li>厂供 Source rows：{materialApiPreview.summary.vendorSupplySourceRows}</li></ul><strong>本次将写入</strong><ul><li>Style Progress MaterialImportBatch、Raw Trace、Demand 与 Events</li><li>现有 Expected Arrival reconciliation</li><li>一条不含密钥的 OperationLog（重复 Snapshot 不新增）</li></ul><strong>不会修改</strong><ul><li>SalesOrder</li><li>Scheduling</li><li>Closing</li></ul></div>}
     </Modal>
     <Toast message={toast} />
   </PageContainer></AppShell>;
