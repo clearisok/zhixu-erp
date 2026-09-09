@@ -1,12 +1,26 @@
 export type AinuokeValidationStatus = "valid" | "quantity_mismatch" | "missing_color_detail";
 export type AinuokeMatchDisposition = "synced" | "auto_bound" | "recommended" | "review_required" | "auto_created" | "blocked";
 
-export type AinuokeSourceTrace = {
+export type AinuokeExcelSourceTrace = {
+  sourceKind?: "excel";
   sourceFile: string;
   sourceSheet: string;
   sourceRow: number;
   sourceHash: string;
 };
+
+export type AinuokeApiReportId = "6086103" | "6086997";
+
+export type AinuokeApiSourceTrace = {
+  sourceKind: "api";
+  reportId: AinuokeApiReportId;
+  sourceRowIdentity: string;
+  snapshotHash: string;
+  fetchedAt: string;
+  sourceHash: string;
+};
+
+export type AinuokeSourceTrace = AinuokeExcelSourceTrace | AinuokeApiSourceTrace;
 
 export type AinuokeSizeDetail = { sizeName: string; quantity: number };
 
@@ -26,6 +40,7 @@ export type AinuokeColorLine = {
   quantity: number;
   deliveryDate: string | null;
   sourceRows: number[];
+  sourceRowIdentities?: string[];
 };
 
 export type AinuokeDeliveryLine = {
@@ -75,6 +90,11 @@ export type AinuokeImportRun = {
   id: string;
   sourceFiles: string[];
   sourceHashes: string[];
+  sourceKind?: "excel" | "api";
+  reportIds?: AinuokeApiReportId[];
+  query?: { insideOrderNo: string };
+  snapshotHashes?: string[];
+  fetchedAt?: string;
   mode: "dry_run" | "commit";
   contractsSeen: number;
   contractsChanged: number;

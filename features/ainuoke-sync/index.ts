@@ -3,6 +3,8 @@ export * from "./model/style-normalizer.ts";
 export * from "./repository/ainuoke-repository.ts";
 export * from "./parser/ainuoke-excel-parser.ts";
 export * from "./parser/historical-production-parser.ts";
+export * from "./source/ainuoke-contract-source.ts";
+export * from "./source/ainuoke-contract-api-adapter.ts";
 export * from "./service/ainuoke-sync-service.ts";
 export * from "./components/ainuoke-sync-page.tsx";
 export * from "./components/ainuoke-contract-lookup-page.tsx";

@@ -58,6 +58,13 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 - 当前只返回 read source snapshot，尚未把 API 数据写入任何浏览器 Repository，也未调用既有订单同步或 Material `commitImport`。
 - 既有 Excel Ainuoke Matcher、Order Sync、Material Normalize/Dedup/Canonical resolver、Material Logistics Service 与 OperationLog 保持唯一，不建立第二套。
 
+## Gate 2 contract source adapter
+
+- 6086103/6086997 已新增 transport-neutral Contract Source：Excel workbook 与 Direct API snapshot 分别完成 transport mapping 后，共同进入唯一 `buildAinuokeMirror`。API Adapter 不复制品牌/款号 normalize、数量校验、matcher 或订单 mutation 规则。
+- 真实报表 metadata 确认 6086103 的 `BillNo=销售合同号`、`GoodsDesc=款号`、`InsideOrderNo=工厂款号`；`QuotationNo` 不是客户 PO，因此 API mapping 的 `poNo` 保持空。6086997 确认 `billno=销售合同号`、`stylecolor=成衣颜色`、`stylesizerule=成衣尺寸`、`stylenum=订单数量`。
+- 6086997 是 material join，同一成衣颜色/尺码随物料行重复，并含合同级逗号拼接颜色汇总。API Adapter 以稳定 source identity 折叠 join，使用颜色组已验证订单数量；当前无法证明 `stylesizerule` 等价于 Excel `Size1/Size2/...` 列，因此 `sizes=[]`，不伪造尺码分配。
+- `AinuokeSourceTrace` 以向前兼容 union 表达 Excel/API。旧 persisted Excel trace 缺少 `sourceKind` 时仍按 legacy Excel 读取；新 Excel trace 保存 file/sheet/row，新 API trace 保存 reportId/sourceRowIdentity/snapshotHash/fetchedAt/sourceHash，API identity 不依赖 page position 或排序。
+
 ## Verification
 
 Python tests：`tools/ainuoke-bridge/tests/`；browser/source contract：`tests/ainuoke-personal-api.test.mjs`。覆盖脱敏真实 login/report fixture、三报表 condition adapter、header/cookie、`dataList` parser、0/0 paging sentinel、6087050 repeated id、固定 allowlist、unknown/write-like endpoint 拒绝、loopback-only、Origin allowlist、CSRF/session、credential/token 隔离、retry 上限、auth expiry 单次 replay、替换失败回滚、unbind 清缓存、process restart、deterministic source hash 与 Secret Leakage。

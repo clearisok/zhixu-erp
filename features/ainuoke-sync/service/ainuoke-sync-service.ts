@@ -5,7 +5,7 @@ import { isEligibleAinuokeMatchOrder } from "../../order-center/model/order-prov
 import { changeOrderQuantity, createManualOrder, suggestOrderNo, type OrderActor } from "../../order-center/service/order-service.ts";
 import type { AinuokeContractMirror, AinuokeImportReview, AinuokeSyncState } from "../model/ainuoke.ts";
 import { normalizeStyleNo, styleSimilarity } from "../model/style-normalizer.ts";
-import { stableSourceHash } from "../parser/ainuoke-excel-parser.ts";
+import { stableSourceHash } from "../source/ainuoke-contract-source.ts";
 
 export type AinuokeCandidate = { orderId: string; score: number; reasons: string[]; highConfidence: boolean };
 export type AinuokeSyncReport = {

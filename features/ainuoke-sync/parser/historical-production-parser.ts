@@ -6,7 +6,7 @@ import type { ClosingAllocation, ClosingState } from "../../closing-center/model
 import type { ProductionSchedulingState, ScheduleAssignment } from "../../production-scheduling/model/production-scheduling.ts";
 import type { AinuokeImportReview } from "../model/ainuoke.ts";
 import { normalizeBrandText, normalizeStyleNo } from "../model/style-normalizer.ts";
-import { stableSourceHash } from "./ainuoke-excel-parser.ts";
+import { stableSourceHash } from "../source/ainuoke-contract-source.ts";
 
 type SourceRow = { sourceFile: string; sourceSheet: string; sourceRow: number; sourceHash: string };
 export type HistoricalScheduleRow = SourceRow & { executionType: "internal" | "outsource"; executorName: string; brand: string; styleNo: string; quantity: number; plannedStartDate: string | null; plannedEndDate: string | null; productionDays: number; averageDailyOutput: number | null; outsourceUnitPrice: number | null; colorHint: string; remark: string; dateCorrected: boolean };
