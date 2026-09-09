@@ -55,11 +55,25 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 - Python Bridge：`tools/ainuoke-bridge/ainuoke_bridge/`；`KeyringCredentialStore` 启动时拒绝非 Windows Credential Manager backend，browser session、CSRF nonce 与 Ainuoke JWT 均为 process-memory state。
 - Browser client/UI：`features/ainuoke-api/` 与 `/my-settings/ainuoke-account`。密码输入从不回填，GET view 不含 secret；切换 mock user 会新建对应 bridge session。
 - 上游默认 base/login/report path 已按真实请求固定；`/my-settings/ainuoke-account` 另提供 D1935 固定 Catalog 的只读验收面板，只显示行数、total、paging 与字段名，不输出 raw response 或 secret。
-- 当前只返回 read source snapshot，尚未把 API 数据写入任何浏览器 Repository，也未调用既有订单同步或 Material `commitImport`。
+- 6086103/6086997 已进入 Gate 2 Preview-first 合同链路：Direct API snapshot → common Contract Source → 唯一 `buildAinuokeMirror` → existing `synchronizeAinuokeContracts`。读取与预检只在内存运行；只有用户明确点击“确认同步”且拥有 `ainuoke.sync` 才由 commit orchestration 保存既有 Service 产出的 orders/state/operationLogs 与 API ImportRun。
+- 6087050 仍只返回 read source snapshot，不调用 Material `commitImport`。合同 API mode 不读取或修改 Production Scheduling、Closing 或四文件历史导入数据。
 - 既有 Excel Ainuoke Matcher、Order Sync、Material Normalize/Dedup/Canonical resolver、Material Logistics Service 与 OperationLog 保持唯一，不建立第二套。
+
+## Gate 2 contract source adapter
+
+- 6086103/6086997 已新增 transport-neutral Contract Source：Excel workbook 与 Direct API snapshot 分别完成 transport mapping 后，共同进入唯一 `buildAinuokeMirror`。API Adapter 不复制品牌/款号 normalize、数量校验、matcher 或订单 mutation 规则。
+- 真实报表 metadata 确认 6086103 的 `BillNo=销售合同号`、`GoodsDesc=款号`、`InsideOrderNo=工厂款号`；`QuotationNo` 不是客户 PO，因此 API mapping 的 `poNo` 保持空。6086997 确认 `billno=销售合同号`、`stylecolor=成衣颜色`、`stylesizerule=成衣尺寸`、`stylenum=订单数量`。
+- 6086997 是 material join，同一成衣颜色/尺码随物料行重复，并含合同级逗号拼接颜色汇总。API Adapter 以稳定 source identity 折叠 join，使用颜色组已验证订单数量；当前无法证明 `stylesizerule` 等价于 Excel `Size1/Size2/...` 列，因此 `sizes=[]`，不伪造尺码分配。
+- `AinuokeSourceTrace` 以向前兼容 union 表达 Excel/API。旧 persisted Excel trace 缺少 `sourceKind` 时仍按 legacy Excel 读取；新 Excel trace 保存 file/sheet/row，新 API trace 保存 reportId/sourceRowIdentity/snapshotHash/fetchedAt/sourceHash，API identity 不依赖 page position 或排序。
+- Ainuoke Sync 继续使用既有页面，以“艾诺科 API / Excel · 历史文件”选择 Source Mode；API mode 只要求 InsideOrderNo、`ainuoke.view` 与当前用户已配置个人账号，不要求 scheduleFile/closingFile。Preview 展示合同/分色数量、数量差异、颜色数、交期、validation、match disposition 与 candidate，并明确标注尚未写入正式数据。
+- API `AinuokeImportRun` 保存 `sourceKind=api`、6086103/6086997、InsideOrderNo query、snapshot hashes、fetchedAt 与 dry_run/commit mode；不保存 password/token/session/header/cookie。现有 Excel run 字段继续可读，local data schema/namespace 不变。
 
 ## Verification
 
 Python tests：`tools/ainuoke-bridge/tests/`；browser/source contract：`tests/ainuoke-personal-api.test.mjs`。覆盖脱敏真实 login/report fixture、三报表 condition adapter、header/cookie、`dataList` parser、0/0 paging sentinel、6087050 repeated id、固定 allowlist、unknown/write-like endpoint 拒绝、loopback-only、Origin allowlist、CSRF/session、credential/token 隔离、retry 上限、auth expiry 单次 replay、替换失败回滚、unbind 清缓存、process restart、deterministic source hash 与 Secret Leakage。
 
 2026-09-09 真实只读验收：个人账号由用户本人通过 UI 输入并保存到 Windows Credential Manager；登录成功。D1935 的 6086103 为 HTTP 200、1/1 行；6086997 为 HTTP 200、第一页 50/187 行；6087050 为 HTTP 200、第一页 50/262 行，字段结构与脱敏 Scanner 清单一致。6087050 该页实际出现 1 个 repeated-`id` group，50 行生成 50 个唯一 `6087050:sha256:*` identity。浏览器 console 检查 16 条记录、secret-pattern 命中 0；没有调用 Ainuoke write API、`synchronizeAinuokeContracts`、`commitImport`、SalesOrder write 或 Style Progress write。上述行数是当次上游事实，不是稳定业务常量。
+
+同日 Gate 2 真实合同 dry run：Ainuoke Sync API mode 读取 D1935 的 6086103/6086997 全部分页，经 common Contract Source 与既有 `synchronizeAinuokeContracts` 得到 1 份有效合同；合同/分色数量为 4,640/4,640、差异 0、颜色数 5、交期 2026-10-13。既有 matcher 无候选，因此 preview 为 auto-create 1，update/bind/review 均为 0。没有点击“确认同步合同”；刷新后 persisted mirror/import run 仍为 0、orders 仍为 168。复核 console 4 条记录，secret-pattern 0、error 0。该结果只证明 read DTO → mirror → existing matcher/service 的 dry-run 链路，不代表执行过 SalesOrder commit。
+
+Gate 2 自动验证：定向 26/26、Python Bridge 32/32、TypeScript、ESLint、Full Tests 513/513、Production Build 30 routes 与 `git diff --check` 通过。

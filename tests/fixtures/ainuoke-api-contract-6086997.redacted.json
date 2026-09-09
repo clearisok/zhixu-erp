@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "ainuoke-direct-read.v2",
+  "reportId": "6086997",
+  "fetchedAt": "2026-09-09T08:00:01.000Z",
+  "page": 1,
+  "pageSize": 50,
+  "total": 9,
+  "queryContext": { "insideOrderNo": "D1935" },
+  "snapshotHash": "snapshot-colors-redacted",
+  "rows": [
+    { "sourceRowIdentity": "6086997:sha256:01", "values": { "id": 7, "billno": "SC-API-001", "GoodsDesc": "STYLE-100", "InsideOrderNo": "D1935", "stylecolor": "RED", "stylesizerule": "S", "stylenum": 20, "cnname": "JOIN-A" } },
+    { "sourceRowIdentity": "6086997:sha256:02", "values": { "id": 7, "billno": "SC-API-001", "GoodsDesc": "STYLE-100", "InsideOrderNo": "D1935", "stylecolor": "RED", "stylesizerule": "S", "stylenum": 20, "cnname": "JOIN-B" } },
+    { "sourceRowIdentity": "6086997:sha256:03", "values": { "id": 8, "billno": "SC-API-001", "GoodsDesc": "STYLE-100", "InsideOrderNo": "D1935", "stylecolor": "RED", "stylesizerule": "M", "stylenum": 30, "cnname": "JOIN-A" } },
+    { "sourceRowIdentity": "6086997:sha256:04", "values": { "id": 9, "billno": "SC-API-001", "GoodsDesc": "STYLE-100", "InsideOrderNo": "D1935", "stylecolor": "RED", "stylesizerule": "S,M", "stylenum": 50, "cnname": "JOIN-C" } },
+    { "sourceRowIdentity": "6086997:sha256:05", "values": { "id": 10, "billno": "SC-API-001", "GoodsDesc": "STYLE-100", "InsideOrderNo": "D1935", "stylecolor": "BLUE", "stylesizerule": "S", "stylenum": 10, "cnname": "JOIN-A" } },
+    { "sourceRowIdentity": "6086997:sha256:06", "values": { "id": 10, "billno": "SC-API-001", "GoodsDesc": "STYLE-100", "InsideOrderNo": "D1935", "stylecolor": "BLUE", "stylesizerule": "M", "stylenum": 40, "cnname": "JOIN-A" } },
+    { "sourceRowIdentity": "6086997:sha256:07", "values": { "id": 11, "billno": "SC-API-001", "GoodsDesc": "STYLE-100", "InsideOrderNo": "D1935", "stylecolor": "BLUE", "stylesizerule": "S,M", "stylenum": 50, "cnname": "JOIN-C" } },
+    { "sourceRowIdentity": "6086997:sha256:08", "values": { "id": 12, "billno": "SC-API-001", "GoodsDesc": "STYLE-100", "InsideOrderNo": "D1935", "stylecolor": "RED,BLUE", "stylesizerule": "S,M", "stylenum": 100, "cnname": "JOIN-D" } },
+    { "sourceRowIdentity": "6086997:sha256:09", "values": { "id": 12, "billno": "SC-API-001", "GoodsDesc": "STYLE-100", "InsideOrderNo": "D1935", "stylecolor": "RED,BLUE", "stylesizerule": "S,M", "stylenum": 100, "cnname": "JOIN-E" } }
+  ]
+}
