@@ -55,7 +55,8 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 - Python Bridge：`tools/ainuoke-bridge/ainuoke_bridge/`；`KeyringCredentialStore` 启动时拒绝非 Windows Credential Manager backend，browser session、CSRF nonce 与 Ainuoke JWT 均为 process-memory state。
 - Browser client/UI：`features/ainuoke-api/` 与 `/my-settings/ainuoke-account`。密码输入从不回填，GET view 不含 secret；切换 mock user 会新建对应 bridge session。
 - 上游默认 base/login/report path 已按真实请求固定；`/my-settings/ainuoke-account` 另提供 D1935 固定 Catalog 的只读验收面板，只显示行数、total、paging 与字段名，不输出 raw response 或 secret。
-- 当前只返回 read source snapshot，尚未把 API 数据写入任何浏览器 Repository，也未调用既有订单同步或 Material `commitImport`。
+- 6086103/6086997 已进入 Gate 2 Preview-first 合同链路：Direct API snapshot → common Contract Source → 唯一 `buildAinuokeMirror` → existing `synchronizeAinuokeContracts`。读取与预检只在内存运行；只有用户明确点击“确认同步”且拥有 `ainuoke.sync` 才由 commit orchestration 保存既有 Service 产出的 orders/state/operationLogs 与 API ImportRun。
+- 6087050 仍只返回 read source snapshot，不调用 Material `commitImport`。合同 API mode 不读取或修改 Production Scheduling、Closing 或四文件历史导入数据。
 - 既有 Excel Ainuoke Matcher、Order Sync、Material Normalize/Dedup/Canonical resolver、Material Logistics Service 与 OperationLog 保持唯一，不建立第二套。
 
 ## Gate 2 contract source adapter
@@ -64,6 +65,8 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 - 真实报表 metadata 确认 6086103 的 `BillNo=销售合同号`、`GoodsDesc=款号`、`InsideOrderNo=工厂款号`；`QuotationNo` 不是客户 PO，因此 API mapping 的 `poNo` 保持空。6086997 确认 `billno=销售合同号`、`stylecolor=成衣颜色`、`stylesizerule=成衣尺寸`、`stylenum=订单数量`。
 - 6086997 是 material join，同一成衣颜色/尺码随物料行重复，并含合同级逗号拼接颜色汇总。API Adapter 以稳定 source identity 折叠 join，使用颜色组已验证订单数量；当前无法证明 `stylesizerule` 等价于 Excel `Size1/Size2/...` 列，因此 `sizes=[]`，不伪造尺码分配。
 - `AinuokeSourceTrace` 以向前兼容 union 表达 Excel/API。旧 persisted Excel trace 缺少 `sourceKind` 时仍按 legacy Excel 读取；新 Excel trace 保存 file/sheet/row，新 API trace 保存 reportId/sourceRowIdentity/snapshotHash/fetchedAt/sourceHash，API identity 不依赖 page position 或排序。
+- Ainuoke Sync 继续使用既有页面，以“艾诺科 API / Excel · 历史文件”选择 Source Mode；API mode 只要求 InsideOrderNo、`ainuoke.view` 与当前用户已配置个人账号，不要求 scheduleFile/closingFile。Preview 展示合同/分色数量、颜色数、交期、validation、match disposition 与 candidate，并明确标注尚未写入正式数据。
+- API `AinuokeImportRun` 保存 `sourceKind=api`、6086103/6086997、InsideOrderNo query、snapshot hashes、fetchedAt 与 dry_run/commit mode；不保存 password/token/session/header/cookie。现有 Excel run 字段继续可读，local data schema/namespace 不变。
 
 ## Verification
 
