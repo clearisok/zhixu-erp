@@ -86,6 +86,7 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 - `ainuoke-sync` 作为稳定记录进入 `localRecords`；款式进度以结构化 `styleProgress` 区块进入同一备份 JSON。恢复会先完整校验需求/事件引用，再与 localStorage、附件和模板一起执行失败回滚；旧备份没有该区块时只初始化空款式进度，不触碰订单、排单、关账或艾诺科数据。
 - API 合同同步不更换 `ainuoke-sync` key，也不提升全局 schemaVersion。新 API trace 真实保存 reportId/sourceRowIdentity/snapshotHash/fetchedAt/sourceHash；API ImportRun 保存 sourceKind/reportIds/query/snapshotHashes/fetchedAt/mode。字段均为向前兼容扩展，旧 Excel trace/run 不补造 API metadata，JSON Backup/Restore 原样保留两种来源。
 - API dry-run 只在内存建立 mirror/sync result，不调用任何 Repository save。2026-09-09 D1935 真实预检后刷新页面，Ainuoke mirror/import run 仍为 0、SalesOrder 总数仍为 168；只有明确确认且通过 `ainuoke.sync` 检查后才保存既有 Service 结果。
+- 旧迁移 Review cleanup 不是 schema migration、validator 或 load-time repair；只在用户显式确认后过滤 `ainuoke-sync` 记录内 unresolved schedule/closing reviews，不更换 key/namespace/schema。执行前必须由用户导出 DEV Backup；contracts、ImportRuns 和其他稳定记录不得改写。
 - Personal Ainuoke credential 与 Local Bridge JWT/session 不属于浏览器业务数据，显式排除在 `localRecords`、IndexedDB、JSON Backup / Restore 与 Reset 编排之外。备份恢复不会导入、导出、覆盖或删除 Windows Credential Manager 中的个人账号。
 - attachments：附件 metadata 与 Blob（Base64 仅存在于用户主动下载的备份 JSON，不写回 localStorage）。
 - templates：用户模板 definition 与 Blob；内置模板不重复备份。

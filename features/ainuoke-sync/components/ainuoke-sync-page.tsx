@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertBanner, AppShell, Button, Card, EmptyState, ErrorState, LoadingState, PageContainer, PageHeader, StatusTag, Toast } from "@/components/foundation";
+import { AlertBanner, AppShell, Button, Card, EmptyState, ErrorState, LoadingState, Modal, PageContainer, PageHeader, StatusTag, Toast } from "@/components/foundation";
 import { ainuokeBridgeClient, type AinuokeReportKey, type AinuokeReportSnapshot } from "@/features/ainuoke-api";
 import { loadBasicSettings } from "@/features/basic-settings/repository/basic-settings-repository";
 import { closingRepository } from "@/features/closing-center/repository/closing-repository";
@@ -17,6 +17,7 @@ import { parseAinuokeWorkbooks } from "../parser/ainuoke-excel-parser";
 import { buildHistoricalProductionImport, parseHistoricalClosingWorkbook, parseHistoricalScheduleWorkbook, type HistoricalImportResult } from "../parser/historical-production-parser";
 import { ainuokeRepository } from "../repository/ainuoke-repository";
 import { buildAinuokeContractApiPreview, commitAinuokeContractApiPreview, type AinuokeContractApiPreview } from "../service/ainuoke-contract-api-sync";
+import { commitObsoleteHistoricalReviewCleanup, countObsoleteHistoricalReviews } from "../service/ainuoke-historical-review-cleanup";
 import { candidateOrdersForContract, synchronizeAinuokeContracts, type AinuokeSyncResult } from "../service/ainuoke-sync-service";
 import { stableSourceHash } from "../source/ainuoke-contract-source";
 
@@ -42,6 +43,7 @@ export function AinuokeSyncPage() {
   const [previewContracts, setPreviewContracts] = useState<AinuokeContractMirror[]>([]);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
+  const [cleanupOpen, setCleanupOpen] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
 
@@ -197,8 +199,29 @@ export function AinuokeSyncPage() {
     }
   };
 
+  const cleanupHistoricalReviews = async () => {
+    setWorking(true);
+    setError("");
+    try {
+      const result = await commitObsoleteHistoricalReviewCleanup({
+        canResolveConflicts: can("ainuoke.resolve_conflict"),
+        actor: { userId: currentUser.id, userName: currentUser.name },
+        repositories: { ainuoke: ainuokeRepository, operationLogs: operationLogRepository },
+      });
+      setState(result.state);
+      clearPreview();
+      setCleanupOpen(false);
+      setToast(result.totalRemoved > 0 ? `已清理 ${result.totalRemoved} 条旧迁移待确认` : "旧迁移待确认已是 0 条");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "清理旧迁移待确认失败");
+    } finally {
+      setWorking(false);
+    }
+  };
+
   const visibleContracts = preview?.state.contracts ?? state.contracts;
   const visibleReviews = (preview?.state.reviews ?? state.reviews).filter((item) => !item.resolvedAt);
+  const obsoleteReviewCounts = countObsoleteHistoricalReviews(state);
   const report = preview?.report;
   const metrics = report ? [
     ["合同", report.contractsSeen], ["校验异常", report.mismatchCount], ["更新既有", report.updatedExistingCount], ["自动绑定", report.autoBoundCount], ["自动建单", report.autoCreatedCount], ["待人工确认", report.manualReviewCount],
@@ -211,6 +234,12 @@ export function AinuokeSyncPage() {
       : <Button permission="ainuoke.sync" disabled={working || !salesFile || !colorFile || !scheduleFile || !closingFile} onClick={() => void runExcelPreview()}>{working ? "处理中…" : "运行四文件预检"}</Button>} />
     {error && <ErrorState title="同步处理失败" description={error} onRetry={() => setError("")} />}
     <AlertBanner tone="info" title="Preview-first 数据保护">读取与预检不会写订单。只有用户明确点击“确认同步”且拥有 `ainuoke.sync` 后，才提交既有同步服务生成的结果。</AlertBanner>
+    {obsoleteReviewCounts.total > 0 && <Card>
+      <div className="as-section-head"><h2>旧迁移待确认</h2><span>{obsoleteReviewCounts.total} 条</span></div>
+      <section className="as-metrics"><div className="as-metric"><span>排单匹配</span><strong>{obsoleteReviewCounts.scheduleReviews}</strong></div><div className="as-metric"><span>生产/关账匹配</span><strong>{obsoleteReviewCounts.closingReviews}</strong></div></section>
+      <p>这些记录来自旧的排单计划 / 生产预警历史迁移。清理只删除尚未处理的匹配任务，不会删除已经导入的订单、排单、关账或同步批次。</p>
+      <div className="as-actions"><Button variant="danger" permission="ainuoke.resolve_conflict" disabled={working} onClick={() => setCleanupOpen(true)}>清理旧迁移待确认</Button></div>
+    </Card>}
     <Card>
       <div className="as-section-head"><h2>来源模式</h2><span>共用 AinuokeContractMirror</span></div>
       <div className="as-actions">
@@ -236,6 +265,9 @@ export function AinuokeSyncPage() {
     </Card>}
     <Card><div className="as-section-head"><h2>待人工确认</h2><span>{visibleReviews.length} 条</span></div>{visibleReviews.length ? <div className="as-history">{visibleReviews.slice(0, 100).map((review) => <article key={review.id}><div><strong>{review.salesContractNo ?? review.sourceKey}</strong><span>{review.reason}</span></div><StatusTag tone="warning">{review.candidateOrderIds.length} 个候选</StatusTag></article>)}</div> : <EmptyState compact title="没有待确认项" description="高置信度匹配会自动绑定，异常会进入人工队列。" />}</Card>
     <Card><div className="as-section-head"><h2>导入批次</h2><span>最近 {Math.min(10, state.importRuns.length)} 次</span></div>{state.importRuns.length ? <div className="as-history">{state.importRuns.slice(0, 10).map((run) => <article key={run.id}><div><strong>{new Date(run.createdAt).toLocaleString("zh-CN")} · {run.createdBy}</strong><span>{run.sourceKind === "api" ? `API · ${run.query?.insideOrderNo ?? "未记录查询"} · ${(run.reportIds ?? []).join(" + ")}` : run.sourceFiles.join(" + ")}</span></div><span>合同 {run.contractsSeen} · 新建 {run.autoCreatedCount} · 绑定 {run.autoBoundCount} · 待确认 {run.reviewCount}</span></article>)}</div> : <EmptyState compact title="暂无正式导入批次" />}</Card>
+    <Modal open={cleanupOpen && obsoleteReviewCounts.total > 0} tone="danger" title="确认清理旧迁移待确认" description="该操作只删除尚未处理的旧历史匹配任务。" onClose={() => setCleanupOpen(false)} footer={<><Button variant="secondary" disabled={working} onClick={() => setCleanupOpen(false)}>取消</Button><Button variant="danger" permission="ainuoke.resolve_conflict" disabled={working} onClick={() => void cleanupHistoricalReviews()}>确认清理旧待确认</Button></>}>
+      <div className="qc-modal-form"><strong>即将删除</strong><ul><li>排单待确认：{obsoleteReviewCounts.scheduleReviews}</li><li>生产/关账待确认：{obsoleteReviewCounts.closingReviews}</li><li>合计：{obsoleteReviewCounts.total}</li></ul><strong>不会删除</strong><ul><li>SalesOrder</li><li>已导入排单</li><li>已导入关账</li><li>Ainuoke 合同镜像</li><li>ImportRun</li></ul></div>
+    </Modal>
     <Toast message={toast} />
   </PageContainer></AppShell>;
 }

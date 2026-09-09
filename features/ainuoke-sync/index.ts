@@ -7,5 +7,6 @@ export * from "./source/ainuoke-contract-source.ts";
 export * from "./source/ainuoke-contract-api-adapter.ts";
 export * from "./service/ainuoke-sync-service.ts";
 export * from "./service/ainuoke-contract-api-sync.ts";
+export * from "./service/ainuoke-historical-review-cleanup.ts";
 export * from "./components/ainuoke-sync-page.tsx";
 export * from "./components/ainuoke-contract-lookup-page.tsx";

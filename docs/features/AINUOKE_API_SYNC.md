@@ -77,3 +77,13 @@ Python tests：`tools/ainuoke-bridge/tests/`；browser/source contract：`tests/
 同日 Gate 2 真实合同 dry run：Ainuoke Sync API mode 读取 D1935 的 6086103/6086997 全部分页，经 common Contract Source 与既有 `synchronizeAinuokeContracts` 得到 1 份有效合同；合同/分色数量为 4,640/4,640、差异 0、颜色数 5、交期 2026-10-13。既有 matcher 无候选，因此 preview 为 auto-create 1，update/bind/review 均为 0。没有点击“确认同步合同”；刷新后 persisted mirror/import run 仍为 0、orders 仍为 168。复核 console 4 条记录，secret-pattern 0、error 0。该结果只证明 read DTO → mirror → existing matcher/service 的 dry-run 链路，不代表执行过 SalesOrder commit。
 
 Gate 2 自动验证：定向 26/26、Python Bridge 32/32、TypeScript、ESLint、Full Tests 513/513、Production Build 30 routes 与 `git diff --check` 通过。
+
+## Obsolete historical review cleanup
+
+- PR #8 已 merged，Gate 2 已进入 main。旧历史排单/生产预警导入能力和 Excel mode 继续保留；本 cleanup 不删除 parser、Review kind 或未来能力。
+- 用户已明确废弃旧历史排单产生的 unresolved `schedule_match` 与旧生产预警/关账迁移产生的 unresolved `closing_match` backlog。`cleanupObsoleteHistoricalReviews` 只删除这两组记录；`order_match`、`data_anomaly`、resolved schedule/closing reviews、contracts 与 ImportRuns 均保持原顺序和原值。函数 immutable、deterministic，第二次执行删除 0 条。
+- `/ainuoke-sync` 只在 backlog 大于 0 时显示“旧迁移待确认”，并在确认 Modal 列出排单、生产/关账和合计数量，以及明确不会删除的业务对象。操作复用 `ainuoke.resolve_conflict`；普通 `ainuoke.view` 不能清理。
+- 正式 commit 边界只有 `AinuokeSyncState load → pure cleanup → AinuokeSyncState save → OperationLog append`。唯一日志动作“清理艾诺科旧迁移待确认”只保存 actor、timestamp 和 schedule/closing/total 三个 count，不保存 Review payload 或任何 secret。
+- 清理不触碰 SalesOrder、ScheduleAssignment、Closing state、Production Settings、Style Progress、ImportRun 或 Ainuoke contract binding。真实 DEV cleanup 必须先导出 Backup，再由用户本人通过 UI 确认；当前尚未执行。
+- 后续真实排单与生产相关业务数据会使用新的正式方式录入；具体方式仍为 TBD，本任务不作设计或推断。
+- Cleanup 自动验证覆盖精确过滤、resolved/其他 kind 保留、immutable/idempotent、Repository 隔离、count-only log、权限、UI 条件显示与 Backup/Restore；相关回归 69/69、Full Tests 520/520、TypeScript、ESLint、30-route build 与 `git diff --check` 通过。

@@ -33,10 +33,11 @@ export type OperationLogSection = {
   items: OperationLogPresentationItem[];
 };
 
-const sectionOrder = ["报价基础信息", "报价参数", "报价版本", "价格版本", "面料成本", "辅料成本", "工价", "其他费用", "客户确认", "附件", "品牌", "客户业务员", "生产组", "外发厂", "关账设置", "月度产值目标", "制作预设", "报价设置", "订单", "排单", "关账", "款式进度", "导出", "估算成本", "模板", "权限", "报价"];
+const sectionOrder = ["报价基础信息", "报价参数", "报价版本", "价格版本", "面料成本", "辅料成本", "工价", "其他费用", "客户确认", "附件", "品牌", "客户业务员", "生产组", "外发厂", "关账设置", "月度产值目标", "制作预设", "报价设置", "订单", "排单", "关账", "艾诺科同步", "款式进度", "导出", "估算成本", "模板", "权限", "报价"];
 const pricingFields = new Set(["制作国家", "制作预设 ID", "加工币种", "USD/CNY汇率", "成本加成率"]);
 
 export function operationLogCategory(log: OperationLog): string {
+  if (log.module === "艾诺科同步" || log.entityType === "AinuokeContract" || log.entityType === "AinuokeImportReview") return "艾诺科同步";
   if (log.module === "模板设置" || log.entityType === "Template") return "模板";
   if (log.module === "权限管理" || log.entityType === "User" || log.entityType === "Role") return "权限";
   if (log.entityType === "Brand") return "品牌";

@@ -4,11 +4,11 @@
 
 ## 当前阶段
 
-- 当前稳定基线：`main` / `origin/main` 的任务起点 `14acc656dcd13d7ad0b664e5ec9a5582653a233a`（PR #7 已 merged）。
+- 当前稳定基线：`main` / `origin/main` 的任务起点 `7527a5d5fee7b04cdfbeec489203559e0b5ff157`（PR #8 已 merged，Gate 2 已进入 main）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
-- 当前 Active Task 为 `feat/ainuoke-contract-api-sync`。Gate 2 只把 6086103/6086997 接入既有合同镜像与同步服务，保持 Preview-first；6087050 Material commit 不在本轮，PR 不自动 merge。
+- 当前 Active Task 为 `chore/ainuoke-historical-review-cleanup`。只清理旧历史排单/生产预警迁移产生的 unresolved `schedule_match` / `closing_match` Review；不清库、不设计未来录入路径，PR 不自动 merge。
 - 最新真实 `面辅料申购统计 (1).xlsx` 已通过正式 Parser 只读验证，并显式导入隔离的 Codex QA Browser Profile：17,384 Source Row / 17,383 有效；D1935 / PI2607-235 为 261 Source Row，厂供编码 `202608130002` 5 行、需求 3,809，并从 Operational Projection 全部排除。导入没有触碰用户 Chrome / PROD Profile，原始 Excel 未进入 Git。
 
 ## 当前可运行边界
@@ -33,6 +33,9 @@
 - Gate 2 的 D1935 真实 dry run 已执行：6086103/6086997 全部分页形成 1 份合同，合同数量 4,640、分色数量 4,640、数量差异 0、5 个颜色、合同交期 2026-10-13，validation 为 `valid`；既有 matcher 无候选，结果为 would auto-create 1，would update/bind/review 均为 0。没有点击“确认同步合同”；刷新后镜像合同/导入批次仍为 0、订单总数仍为 168，未写 SalesOrder、Ainuoke Sync state、Scheduling、Closing 或 Style Progress。
 - 6087050 仍只停留在 Gate 1 read source snapshot，不调用 Material `commitImport`；没有建立第二套 Matcher、Dedup、Canonical resolver、Logistics 或 OperationLog。当前仍是 browser-local mock identity 下的本地 Windows 原型，不是生产级身份安全。
 - Gate 2 自动门禁：定向 26/26、Python Bridge 32/32、TypeScript、ESLint、Full Tests 513/513、Production Build 30 routes 与 `git diff --check` 全部通过。D1935 复核页 console 4 条记录，secret-pattern 命中 0、error 0。
+- 用户已明确废弃旧历史排单/生产预警遗留的 unresolved `schedule_match` / `closing_match` 人工 backlog。当前分支提供显式、幂等、immutable cleanup：只过滤这两类未解决 Review，保留其他 Review、contracts、ImportRuns 与全部正式业务事实；入口仅在 backlog 非零时显示，使用 `ainuoke.resolve_conflict`，确认后追加 count-only OperationLog。
+- 真实 DEV cleanup 尚未执行。必须先由用户通过数据管理导出 Backup，再由用户本人在 UI 确认；后续排单/生产数据的新正式录入方式仍为 TBD。
+- Cleanup 自动门禁：相关回归 69/69、Full Tests 520/520、TypeScript、ESLint、Production Build 30 routes 与 `git diff --check` 通过。
 
 ### Material Control Tower V2
 
