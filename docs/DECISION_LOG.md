@@ -518,11 +518,11 @@
 ### D-074 6087050 只通过既有 commitImport 提交当前完整 Snapshot
 
 - 日期：2026-09-09
-- 状态：Active；真实 DEV acceptance 尚未执行。
+- 状态：Active；2026-09-10 真实 DEV D1935 acceptance 已完成。
 - 决定：6087050 API Material commit 的唯一路径为 Preview → 薄 `commitAinuokeMaterialApiPreview` orchestration → existing `styleProgressRepository.commitImport`。orchestration 只负责 `style_progress.import`、完整性/stale-preview 校验和既有语义 OperationLog，不复制 Normalize、Dedup、Validate、Canonical resolver、Event construction 或 Expected Arrival 规则。
-- Identity / resync：ImportBatch identity 使用 reportId、normalized InsideOrderNo 与 canonical source row content，不使用 fetchedAt。同 Snapshot 重复提交新增为 0且不追加重复业务日志；新完整 Snapshot 更新同 InsideOrderNo scope 的当前 API Demand/Event facts并移除已消失 facts，历史 Raw/ImportBatch Trace 保留。
-- 业务保留：manual Effective 与人工 ExpectedArrivalBatch 不被重同步覆盖；source-following 批次刷新；Actual 只来自实际 Event；厂供保留 Raw/Trace 但退出采购、齐套、风险、物流与 Expected Arrival 运营指标。提交不修改 SalesOrder、Scheduling 或 Closing。
-- 验收边界：UI 必须 Preview-first 并二次确认，提交绑定用户所见的 immutable Preview。当前只允许 fixture/isolated repository 验证；真实 DEV D1935 commit 必须在后续 Backup、BEFORE baseline、用户本人 UI 确认与 AFTER baseline Gate 中执行。
+- Identity / resync：ImportBatch identity 使用 reportId、normalized InsideOrderNo 与 canonical source row content，不使用 fetchedAt。同 Snapshot 重复提交新增为 0且不追加重复业务日志；新完整 Snapshot 按 affected contract scope 替换全部 prior-source current Demand/Event facts，而不只替换旧 API facts，历史 Excel/API Raw/ImportBatch Trace 保留。
+- 业务保留：manual Effective 与人工 ExpectedArrivalBatch 不被重同步覆盖。Excel/API Demand ID 不稳定时只按确定性业务身份做唯一 remap，零或多候选 fail closed；source-following 批次刷新；Actual 只来自实际 Event；厂供保留 Raw/Trace 但退出采购、齐套、风险、物流与 Expected Arrival 运营指标。提交不修改 SalesOrder、Scheduling 或 Closing。
+- 验收边界：UI 必须 Preview-first 并二次确认，提交绑定用户所见的 immutable Preview。2026-09-10 用户完成 DEV Backup 后本人确认 D1935 commit；AFTER 为 262 Source rows、255 Demands、12 Canonical（面料 2、辅料 10）与 183/153/150/150 四类 Events。旧 Excel operational facts 已退出，历史 Trace、manual Effective 和刷新持久化均通过验收。
 - 代码证据：`features/style-progress/service/ainuoke-material-api-commit.ts`、`features/style-progress/repository/style-progress-repository.ts`、`features/ainuoke-sync/components/ainuoke-sync-page.tsx` 与 `tests/ainuoke-material-api-commit.test.mjs`。
 
 ## Superseded

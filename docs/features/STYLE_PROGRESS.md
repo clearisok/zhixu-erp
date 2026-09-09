@@ -86,12 +86,16 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 - 正式导入、人工修改和恢复 Effective 日期复用唯一追加式 OperationLog；ImportBatch / Raw Snapshot 继续保留技术 Trace，不替代业务操作日志。
 - Ainuoke Direct API 的 6087050 已通过薄 source adapter 进入 Excel 共用的 Normalize → Dedup → Validate → Preview。API trace 不伪造 Excel 坐标；`MSingleName` 无法证明等价于 Excel“申购实际名称”，不映射 `sourceActualName`，当前也无充分证据映射 API `actualConsumption`，两者保持空值。
 - Gate 3C commit capability 保持同一正式路径：Preview 后由 `style_progress.import` 用户在二次确认 Modal 明确确认，薄 orchestration 校验完整分页、稳定 source content identity、零 collision/阻断错误和未被改动的 Preview，再调用唯一 `commitImport`。API ImportBatch/RawSnapshot 仍是本 Domain 既有实体，只以 `sourceKind=api` 保存 report/source identity/snapshot/fetchedAt/query/schema trace。
-- 同一 API Snapshot 的 ImportBatch ID 不包含 fetchedAt，重复 commit 新增为 0且不重复业务 OperationLog；新完整 Snapshot 会替换同 InsideOrderNo scope 的当前 API Demand/Event facts。manual Effective 与人工 ExpectedArrivalBatch 保留，source-following 计划刷新，Actual 不改变语义；厂供继续只保留 Trace 并退出运营投影。
-- 当前仅完成 fixture/isolated repository 验证与 UI capability；真实 DEV D1935 commit 尚未执行。**LIVE MATERIAL COMMIT NOT EXECUTED**。
+- 同一 API Snapshot 的 ImportBatch ID 不包含 fetchedAt，重复 commit 新增为 0且不重复业务 OperationLog；新完整 Snapshot 会按 affected contract scope 替换全部 prior-source current Demand/Event facts，历史 Excel/API ImportBatch 与 Raw Trace 保留。Excel/API Demand ID 不稳定时，manual ExpectedArrivalBatch 只按确定性业务身份唯一 remap，零或多候选 fail closed；source-following 计划刷新，Actual 不改变语义，厂供继续只保留 Trace 并退出运营投影。
+- Canonical Material 在 Projection 形成处统一排序：fabric 全部先于 trim；fabric 先按 actualConsumption DESC，缺 actual 时按 plannedConsumption DESC，再按 sourceSortNo 与稳定 Canonical key；trim 按 sourceSortNo 与稳定 key。All/Fabric/Trim 筛选不改变各自相对顺序。
 
 ## Verification status
 
-Gate 3C 第一阶段使用脱敏 6087050 fixture 与 isolated temporary repository 验证唯一 `commitImport` 路径：first commit 保存 Batch/Raw/Demand/四类 Event，same-snapshot second commit 全部新增为 0且只有一条既有语义 OperationLog；source due 更新、manual Effective 保留、stale current API facts 移除、厂供运营排除以及 SalesOrder/Scheduling/Closing 不变均通过。定向 68/68、Full Tests 550/550、TypeScript、ESLint、30-route build、diff-check 与 secret leakage scan PASS。真实 DEV Style Progress 未写入。
+Gate 3C 使用脱敏 6087050 fixture 与 isolated temporary repository 验证唯一 `commitImport` 路径：first commit 保存 Batch/Raw/Demand/四类 Event，same-snapshot second commit 全部新增为 0且只有一条既有语义 OperationLog；跨 Source current facts replacement、manual Effective 唯一 remap、source due 更新、厂供运营排除、统一排序以及 SalesOrder/Scheduling/Closing 不变均通过。
+
+2026-09-10 用户在已完成 DEV Backup 后本人确认修复后的 D1935 commit。AFTER persisted state 为 262 Source rows、255 Demands、12 Canonical（fabric 2、trim 10）及 Purchase/Inbound/Shipment/Outbound 183/153/150/150；6 条厂供 Source rows 仍为 trace-only。第一次 commit 多出的汗布、罗马布、棉毛布共 20 个旧 Excel Demand 已退出 current operational projection，两个 Excel 历史 ImportBatch/Raw Trace 与 API 262-row Trace 均保留。All/Fabric/Trim 显示 fabric-first 稳定顺序，刷新后仍为 12 / 2 / 10。人工 Expected Arrival batch/allocation 与 `2026-09-01` manual Effective 保留；OperationLog 只有 report/query 与数量 metadata，无 secret。轻量边界复核与自动化确认没有 SalesOrder、Scheduling 或 Closing 写入。
+
+Gate 3C 最终门禁：定向 78/78、Full Tests 555/555、TypeScript、ESLint、Production Build 30 routes、`git diff --check` 与 secret leakage scan PASS。Local Bridge 未修改，因此未重复运行 Python tests。
 
 本次 Correction 使用最新 Excel 调用正式 Parser 与 v4 Canonical identity 完成只读审计，并在既有隔离 Browser Profile 复验 D1935 / PI2607-235；没有覆盖用户 Chrome 或 PROD Profile，原始 Excel 没有进入 Git。真实页面从旧 18 个 Canonical Material 收敛为 13 个（面料 3、辅料 10），厂供 5 条 / 3,809 需求量仍只在只读 Trace Drawer 中出现；罗马布的 5 条颜色/规格 Demand 及不同采购价完整保留，展开行与多事件 Drawer 的出运量均来自 ShipmentEvent。
 

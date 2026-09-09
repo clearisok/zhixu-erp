@@ -58,7 +58,7 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 - Browser client/UI：`features/ainuoke-api/` 与 `/my-settings/ainuoke-account`。密码输入从不回填，GET view 不含 secret；切换 mock user 会新建对应 bridge session。
 - 上游默认 base/login/report path 已按真实请求固定；`/my-settings/ainuoke-account` 另提供 D1935 固定 Catalog 的只读验收面板，只显示行数、total、paging 与字段名，不输出 raw response 或 secret。
 - 6086103/6086997 已进入 Gate 2 Preview-first 合同链路：Direct API snapshot → common Contract Source → 唯一 `buildAinuokeMirror` → existing `synchronizeAinuokeContracts`。读取与预检只在内存运行；只有用户明确点击“确认同步”且拥有 `ainuoke.sync` 才由 commit orchestration 保存既有 Service 产出的 orders/state/operationLogs 与 API ImportRun。
-- 6087050 已通过薄 API adapter 形成 source-neutral rows，并进入既有 Material Normalize / Dedup / Validate / Preview。Gate 3C 第一阶段在 Preview 后提供二次确认入口，薄 orchestration 只做权限/完整性/stale 校验并调用唯一 `styleProgressRepository.commitImport`；合同 API mode 与物料 commit 都不读取或修改 Production Scheduling、Closing 或四文件历史导入数据，也不触碰 SalesOrder。
+- 6087050 已通过薄 API adapter 形成 source-neutral rows，并进入既有 Material Normalize / Dedup / Validate / Preview。Gate 3C 在 Preview 后提供二次确认入口，薄 orchestration 只做权限/完整性/stale 校验并调用唯一 `styleProgressRepository.commitImport`；合同 API mode 与物料 commit 都不读取或修改 Production Scheduling、Closing 或四文件历史导入数据，也不触碰 SalesOrder。
 - 既有 Excel Ainuoke Matcher、Order Sync、Material Normalize/Dedup/Canonical resolver、Material Logistics Service 与 OperationLog 保持唯一，不建立第二套。
 
 ## Gate 3 material source adapter
@@ -75,8 +75,8 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 - stale boundary 采用绑定当前 immutable Preview 的方案，不在提交时静默换成另一 Snapshot。commit 前重新计算 canonical source content hash，并验证全部分页 `readCount >= total`、total 一致、report/schema/query、零 identity collision、零 blocking validation 和全部 batch reference。
 - API ImportBatch identity 不包含 fetchedAt，而由 reportId、normalized query 与 canonical source row content 生成。同一完整 Snapshot 重复提交走 `commitImport` 既有 batch idempotency，新增业务事实为 0且不重复追加“导入面辅料跟进” OperationLog。
 - API ImportBatch / RawSnapshot 使用现有 Material entity，仅增加 `sourceKind=api` trace 字段：reportId、sourceRowIdentity、snapshotHash、fetchedAt、query、source schema 与 sourceArtifactHash；不伪造 Excel filename、sheet 或 row number。
-- 新完整 Snapshot 按 InsideOrderNo scope 更新当前 API Demand/Event facts，并移除已消失的旧 API facts；历史 Raw/ImportBatch Trace 保留。`expectedDateSource=manual` 与人工 ExpectedArrivalBatch 保留，source-following 计划按新来源交期刷新，Actual 仍只来自实际事件。
-- 本阶段自动化只使用脱敏 fixture 与 isolated temporary repository；没有对真实 DEV D1935 执行 commit。**LIVE MATERIAL COMMIT NOT EXECUTED**。
+- 新完整 Snapshot 按 affected contract scope 替换全部 prior-source current Demand/Event facts，而不只移除旧 API facts；历史 Excel/API Raw/ImportBatch Trace 保留。Excel/API Demand ID 不稳定时，manual ExpectedArrivalBatch 只按确定性业务身份进行唯一 remap，零或多候选 fail closed；source-following 计划按新来源交期刷新，Actual 仍只来自实际事件。
+- Canonical Material 的唯一业务排序在 Style Progress Projection 中形成：fabric 全部在 trim 之前；fabric 按 actualConsumption DESC，缺 actual 时按 plannedConsumption DESC，再按 sourceSortNo 与稳定 Canonical key；trim 按 sourceSortNo 与稳定 key。详情、筛选、风险与下游消费者使用一致顺序。
 - Canonical identity 仍固定为 `salesContractNo + materialType + normalizedMaterialName`。materialCode、颜色、规格、门幅、克重与采购价只保留为 Demand/Event/Trace child facts；`提供方式=厂供` 保留 Raw/Trace，但退出未采购、待入库、齐套、风险、物流与 Expected Arrival operational projection。
 - Browser 使用固定 catalog key `material_purchase_statistics` 与受限 `insideOrderNo` DTO，按实时 `snapshot.total` 自动读取全部页或在合法空页停止，并保留 100 页安全上限。UI 复用 `/ainuoke-sync`，明确显示实时 Snapshot、fetchedAt 与“本次仅预检，尚未写入款式进度”。
 
@@ -101,11 +101,17 @@ Gate 2 自动验证：定向 26/26、Python Bridge 32/32、TypeScript、ESLint�
 
 同日 Gate 3 真实物料 dry run：用户在 `/ainuoke-sync` 对 D1935 点击“运行物料 API 预检”，6087050 共读取 6 页，全部 6 次 query 均 HTTP 200；实时 total/source rows 为 262/262，unique source identities 262，repeated upstream `id` groups 1。共用 pipeline accepted/rejected 为 262/0，Canonical groups 12（面料 2、辅料 10），厂供 Source rows 6，operational groups 12，Demand 255，Purchase/Inbound/Shipment/Outbound events 为 183/153/150/150，Demand/Event duplicates prevented 为 7/6，identity collisions 0。该 262 是当次上游事实，不与历史 Excel 261 行作 parity gate，也不是稳定常量。
 
-Gate 3A/B 真实验收网络只包含 bridge session/account 与固定 `material_purchase_statistics/query`；没有 Ainuoke write endpoint。预检前后当前页面 persisted mirror/import run/order 计数保持 0/0/168，API Adapter/Preview 不引用 Style Progress Repository。Gate 3C capability 的 fixture/isolated validation 不替代真实 DEV acceptance。**LIVE MATERIAL COMMIT NOT EXECUTED**。
+Gate 3A/B 真实验收网络只包含 bridge session/account 与固定 `material_purchase_statistics/query`；没有 Ainuoke write endpoint。预检前后当前页面 persisted mirror/import run/order 计数保持 0/0/168，API Adapter/Preview 不引用 Style Progress Repository。
 
 Gate 3 自动验证：定向 Adapter/Pipeline/UI 回归 75/75，字段语义修正专项 34/34，Full Tests 541/541、TypeScript、ESLint、Production Build 30 routes 与 `git diff --check` 全部通过。Local Bridge 代码没有变化，因此本 Gate 未重复运行 Python Bridge tests；Gate 2 的 Bridge 32/32 仍是既有基线证据。
 
-Gate 3C 第一阶段自动验证：commit/UI/Adapter/Preview/Style Progress/Contract API 定向 68/68，Full Tests 550/550，TypeScript、ESLint、Production Build 30 routes 与 `git diff --check` PASS。脱敏 fixture、isolated persisted shape 与 OperationLog secret leakage scan PASS。验证中 first commit 写入预期 Material entities，same-snapshot second commit 全部 additions 为 0且日志仍为 1，manual Effective 保留，source-following due 更新，厂供仍退出 operational projection，SalesOrder/Scheduling/Closing fixture 完全不变。Bridge 未修改，未重复运行 Python tests。真实 DEV acceptance 仍待 Backup → BEFORE baseline → 用户 UI 确认 → AFTER/idempotency；**LIVE MATERIAL COMMIT NOT EXECUTED**。
+Gate 3C fixture/isolated validation 覆盖 first commit、same-snapshot idempotency、跨 Source current-facts replacement、manual Effective 唯一 remap、source-following refresh、厂供运营排除、稳定排序、SalesOrder/Scheduling/Closing 不变与 secret leakage。Bridge 未修改，因此未重复运行 Python tests。
+
+2026-09-10 真实 Gate 3C 验收：用户先完成 DEV Backup，再本人通过二次确认 Modal 提交修复后的 D1935 Snapshot。AFTER persisted state 为 262 Source rows、255 Demands、12 Canonical（fabric 2、trim 10）与 Purchase/Inbound/Shipment/Outbound 183/153/150/150；6 条厂供 Source rows 保持 trace-only。第一次 commit 混入的旧 Excel 汗布、罗马布、棉毛布共 20 个 Demand 已从 current operational projection 移除，两个 Excel ImportBatch/Raw Trace 和 API 262-row Trace 仍保留。All/Fabric/Trim 排序符合 fabric-first 规则，刷新后 12 / 2 / 10 与顺序继续保持。
+
+同次验收中，人工 Expected Arrival batch/allocation 与 `2026-09-01` manual Effective 被唯一 remap 并保留；新增“导入面辅料跟进” OperationLog 仅含 report/query 和 262/255/183/153/150/150 数量 metadata，无 password/token/session/credential。轻量边界复核显示 SalesOrders 仍为 464；实现和自动化没有 SalesOrder、Scheduling 或 Closing 写入。本次未触发 Ainuoke write API，也未再次执行 Material commit。
+
+Gate 3C 最终自动验证：commit/UI/Adapter/Preview/Style Progress/Contract API 定向 78/78，Full Tests 555/555，TypeScript、ESLint、Production Build 30 routes 与 `git diff --check` PASS；secret leakage fixture/state/log scan PASS。Local Bridge 未修改，因此未重复运行 Python Bridge tests。
 
 ## Obsolete historical review cleanup
 
