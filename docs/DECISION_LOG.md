@@ -497,6 +497,15 @@
 - 边界：6086103/6086997 后续进入既有 `AinuokeContractMirror` 和 matcher/service；6087050 后续进入既有 Material Normalize/Dedup/Validate/Preview/commitImport。本阶段不 commit，不提供 write endpoint，不创建第二套 Matcher、Dedup、Canonical resolver、Logistics 或 OperationLog。
 - 原因：API 与 Excel 只是不同 Source Adapter；领域规则和持久化边界必须保持唯一。
 
+### D-072 废弃旧历史排单与生产预警的未解决 Review backlog
+
+- 日期：2026-09-09
+- 状态：Active
+- 决定：旧历史排单计划产生的 unresolved `schedule_match` 与旧生产预警/关账迁移产生的 unresolved `closing_match` 不再作为必须人工处理的迁移债务，允许用户通过 `/ainuoke-sync` 显式确认后精确清理。清理不是 load migration 或 validator 行为，且执行前必须完成 DEV Backup。
+- 保留：`order_match`、`data_anomaly`、已经 resolved 的 `schedule_match` / `closing_match`，以及合同镜像、ImportRun、SalesOrder、排单、关账、生产基础资料和 Style Progress 全部保持不变。清理复用 `ainuoke.resolve_conflict` 与唯一 OperationLog，只记录删除数量元数据。
+- 后续：真实排单与生产相关业务数据会以新的正式方式进入织序；该方式当前仍为 TBD，本决定不定义或猜测未来录入路径。
+- 代码证据：`features/ainuoke-sync/service/ainuoke-historical-review-cleanup.ts` 与 `tests/ainuoke-historical-review-cleanup.test.mjs`。
+
 ## Superseded
 
 ### D-039 新订单中心使用 SalesOrder + OrderItem 多款聚合
