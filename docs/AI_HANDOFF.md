@@ -26,7 +26,9 @@
 - Gate 2B 已在既有 Ainuoke Sync 页面增加“艾诺科 API / Excel · 历史文件”Source Mode；API 只读抓取两张报表全部分页并建立内存 Preview，不要求 schedule/closing 文件。Preview 明确显示未写入；commit orchestration 显式检查 `ainuoke.sync`，且只保存 existing service 的 orders/state/operationLogs + API ImportRun，不导入或修改 Scheduling/Closing。
 - Gate 2B 定向覆盖 API end-to-end mirror/sync、mismatch/orphan block、幂等、人工数量/颜色取消/交期/价格历史保留、preview 无写入、commit permission、ImportRun secret/restore 与 Scheduling/Closing 隔离。
 - Gate 2B 验证：定向 26/26、Full Tests 513/513、TypeScript、ESLint、30-route production build 与 `git diff --check` 通过。
-- PR #7 的个人 credential 仍在 Windows Credential Manager；D1935 Gate 2 live 仅允许 dry-run，除非用户另行明确确认，绝不写入 DEV 业务数据。
+- Gate 2B checkpoint：`7ee9188`，已推送。
+- D1935 Gate 2 live dry-run 已完成：1 份合同，quantity/colorQuantity 为 4,640/4,640、difference 0、5 colors、delivery 2026-10-13、validation valid；既有 matcher 无候选，would auto-create 1，would update/bind/review 0。用户未确认业务 commit；刷新后 mirror/import run 仍为 0、orders 仍为 168。
+- PR #7 的个人 credential 仍在 Windows Credential Manager；本轮没有打印或持久化 credential/token/session。复核 console 4 条记录，secret-pattern 0、error 0；6087050 Material commit 未开始。
 
 ## Latest Merged Work
 
