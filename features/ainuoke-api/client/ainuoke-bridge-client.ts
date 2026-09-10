@@ -1,4 +1,10 @@
-import type { AinuokeAccountView, AinuokeReportKey, AinuokeReportQuery, AinuokeReportSnapshot } from "../model/ainuoke-api.ts";
+import type {
+  AinuokeAccountView,
+  AinuokeDetailReportKey,
+  AinuokeOrderDiscoveryQuery,
+  AinuokeReportQuery,
+  AinuokeReportSnapshot,
+} from "../model/ainuoke-api.ts";
 
 export const DEFAULT_AINUOKE_BRIDGE_URL = "http://127.0.0.1:8765";
 
@@ -56,9 +62,14 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
     return parse<T>(response);
   };
 
-  const readReport = (userId: string, reportKey: AinuokeReportKey, input: { page?: number; pageSize?: number; query: AinuokeReportQuery }) => request<AinuokeReportSnapshot>(userId, `/v1/ainuoke/reports/${reportKey}/query`, {
+  const readReport = (userId: string, reportKey: AinuokeDetailReportKey, input: { page?: number; pageSize?: number; query: AinuokeReportQuery }) => request<AinuokeReportSnapshot>(userId, `/v1/ainuoke/reports/${reportKey}/query`, {
     method: "POST",
     body: JSON.stringify({ page: input.page ?? 1, pageSize: input.pageSize ?? 100, query: input.query }),
+  });
+
+  const readOrderDiscoveryPage = (userId: string, input: { page?: number; pageSize?: number } = {}) => request<AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>>(userId, "/v1/ainuoke/reports/order_discovery/query", {
+    method: "POST",
+    body: JSON.stringify({ page: input.page ?? 1, pageSize: input.pageSize ?? 50, query: {} }),
   });
 
   return {
@@ -78,7 +89,32 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
       return result;
     },
     readReport,
-    async readAllReportPages(userId: string, reportKey: AinuokeReportKey, input: { pageSize?: number; maxPages?: number; query: AinuokeReportQuery }) {
+    readOrderDiscoveryPage,
+    async readAllOrderDiscoveryPages(userId: string, input: { pageSize?: number; maxPages?: number } = {}) {
+      const snapshots: AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>[] = [];
+      const pageSize = input.pageSize ?? 50;
+      const maxPages = input.maxPages ?? 100;
+      let expectedTotal: number | null = null;
+      let readCount = 0;
+      for (let page = 1; page <= maxPages; page += 1) {
+        const snapshot = await readOrderDiscoveryPage(userId, { page, pageSize });
+        if (snapshot.reportId !== "6086103" || snapshot.page !== page || snapshot.pageSize !== pageSize || Object.keys(snapshot.queryContext).length !== 0) {
+          throw new AinuokeBridgeError("discovery_contract_mismatch", "艾诺科订单发现响应与固定只读协议不一致");
+        }
+        if (expectedTotal === null) expectedTotal = snapshot.total;
+        if (snapshot.total !== expectedTotal || snapshot.rows.length > pageSize) {
+          throw new AinuokeBridgeError("discovery_paging_mismatch", "艾诺科订单发现分页总数不一致");
+        }
+        snapshots.push(snapshot);
+        readCount += snapshot.rows.length;
+        if (readCount === expectedTotal) return snapshots;
+        if (readCount > expectedTotal || snapshot.rows.length === 0 || snapshot.rows.length < pageSize) {
+          throw new AinuokeBridgeError("discovery_incomplete", "艾诺科订单发现未读取完整分页");
+        }
+      }
+      throw new AinuokeBridgeError("paging_limit", `艾诺科订单发现超过 ${maxPages} 页安全上限，已停止读取`);
+    },
+    async readAllReportPages(userId: string, reportKey: AinuokeDetailReportKey, input: { pageSize?: number; maxPages?: number; query: AinuokeReportQuery }) {
       const snapshots: AinuokeReportSnapshot[] = [];
       const pageSize = input.pageSize ?? 50;
       const maxPages = input.maxPages ?? 100;

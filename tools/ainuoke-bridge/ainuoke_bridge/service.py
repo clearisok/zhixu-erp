@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Any, Mapping
 
 from .ainuoke_client import AinuokeClient, AinuokeClientError, AuthExpiredError
-from .contracts import ReportSnapshot, build_report_snapshot, resolve_report, validate_report_query
+from .contracts import ReportSnapshot, build_report_snapshot, resolve_report, validate_query_for_report
 from .credential_store import CredentialStore, PersonalCredential, UNCONFIGURED_ACCOUNT
 from .session_store import AinuokeAuthSession, AinuokeTokenCache
 
@@ -78,7 +78,7 @@ class AinuokeBridgeService:
 
     def read_report(self, user_id: str, *, report_key: str, page: int, page_size: int, query_context: Mapping[str, Any]) -> ReportSnapshot:
         definition = resolve_report(report_key)
-        safe_query = validate_report_query(query_context)
+        safe_query = validate_query_for_report(definition, query_context)
         credential = self.credentials.get(user_id)
         if credential is None:
             raise AccountNotConfiguredError("account_not_configured")

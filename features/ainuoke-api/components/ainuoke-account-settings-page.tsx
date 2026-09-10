@@ -6,7 +6,7 @@ import { operationLogRepository } from "@/features/operation-logs";
 import { usePermissions, type User } from "@/features/permissions";
 import { AinuokeBridgeError, ainuokeBridgeClient } from "../client/ainuoke-bridge-client";
 import { createAinuokeAccountOperationLog } from "../model/account-operation-log";
-import { AINUOKE_REPORT_CATALOG, type AinuokeAccountView, type AinuokeReportKey } from "../model/ainuoke-api";
+import { AINUOKE_DETAIL_REPORT_KEYS, AINUOKE_REPORT_CATALOG, type AinuokeAccountView, type AinuokeDetailReportKey } from "../model/ainuoke-api";
 
 const EMPTY_ACCOUNT: AinuokeAccountView = { username: null, configured: false, status: "not_configured", lastVerifiedAt: null, lastSuccessfulLoginAt: null, lastErrorCode: null };
 const statusLabel = { not_configured: "未绑定", verified: "连接正常", error: "连接异常" } as const;
@@ -31,7 +31,7 @@ function AinuokeAccountSettingsForUser({ currentUser, allowed, readAllowed }: { 
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
   const [insideOrderNo, setInsideOrderNo] = useState("D1935");
-  const [readResults, setReadResults] = useState<Partial<Record<AinuokeReportKey, ReadResult>>>({});
+  const [readResults, setReadResults] = useState<Partial<Record<AinuokeDetailReportKey, ReadResult>>>({});
 
   useEffect(() => {
     let active = true;
@@ -118,7 +118,7 @@ function AinuokeAccountSettingsForUser({ currentUser, allowed, readAllowed }: { 
     }
   };
 
-  const readReport = async (reportKey: AinuokeReportKey) => {
+  const readReport = async (reportKey: AinuokeDetailReportKey) => {
     setWorking(true);
     setError("");
     try {
@@ -164,7 +164,7 @@ function AinuokeAccountSettingsForUser({ currentUser, allowed, readAllowed }: { 
         <header><div><strong>真实协议只读验收</strong><small>仅调用固定报表目录并返回 read DTO；不会写入销售订单、款式进度或物料导入。</small></div></header>
         <label><span>内部订单号</span><input className="qc-control" value={insideOrderNo} onChange={(event) => setInsideOrderNo(event.target.value)} placeholder="例如 D1935" /></label>
         <div className="ainuoke-live-read-list">
-          {(Object.keys(AINUOKE_REPORT_CATALOG) as AinuokeReportKey[]).map((reportKey) => {
+          {AINUOKE_DETAIL_REPORT_KEYS.map((reportKey) => {
             const definition = AINUOKE_REPORT_CATALOG[reportKey];
             const result = readResults[reportKey];
             return <section key={reportKey}>

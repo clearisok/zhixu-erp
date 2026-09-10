@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `chore/postgres-salesorder-ownership-audit`，起点为 PR #13 merge `f1736f84496d2651b91e64e4584ad5f7fe055d49`。Phase 2A 只审计 SalesOrder ownership、重建能力、稳定身份与 proposed PostgreSQL 边界；不迁移真实数据、不切换 Repository、不导入 Browser DEV 数据、不实现 Phase 2B。
-- 当前稳定基线：`main` / `origin/main` 为 `f1736f84496d2651b91e64e4584ad5f7fe055d49`（PR #13 已 merged，PostgreSQL Server Persistence Foundation Phase 1 已进入 main）。
+- 当前 Active Task 为 `chore/ainuoke-order-discovery`，起点为 `13620491cf56605cadf57c90c6cdf389f0919297`。本 Gate 只建立 clean PostgreSQL bootstrap 所需的固定只读 Ainuoke Order Discovery；不创建 PostgreSQL SalesOrder、不执行 bootstrap、不切换 Repository、不触碰 Browser 业务数据、不开始 Phase 2B。
+- 当前稳定基线：`main` / `origin/main` 为 `13620491cf56605cadf57c90c6cdf389f0919297`（PR #13 PostgreSQL Server Foundation 与 PR #14 SalesOrder Persistence Ownership Audit 均已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -22,6 +22,19 @@
 
 ## 本轮完成状态
 
+### Ainuoke Order Discovery Gate
+
+- Stage A PASS：从真实“成衣销售合同”页面确认固定报表 6086103 的空条件列表协议。它不要求预知 InsideOrderNo/SalesContractNo，使用 `POST /kaijin/report/report/getReportObjAndData`，并以实时 total 分页到确定终点。
+- 当前绑定账号两次完整只读遍历均返回 505 行、11 页；505 个 source ID、InsideOrderNo、SalesContractNo 及 pair 均唯一，无重复页。normalized SHA-256 两次均为 `37d8e7860e3157cb3022657a4b4ce2223a53876383aec701c685431a5945b744`。
+- 当前完整 Snapshot 观察到 505 条：raw status `生效=143`、`草拟=362`。用户已确认全部 Discovery-visible 合同都是未来 clean-bootstrap candidate，Status 不参与 inclusion/exclusion；Status 仍作为 source fact 保留。505 只是本次 Snapshot 数量，未来以当次完整 Snapshot 为准。
+- D1935 与另外 5 个脱敏样本均通过 6086103/6086997 identity/detail cross-check。Source scope 只能确认 `current_account_visible`，不能称为全公司订单；账号权限/组织范围仍需在正式 bootstrap 前确认。
+- Stage B 新增固定 `order_discovery` allowlist、精确空 query builder、typed full-pagination client、最小 Discovery Row/Snapshot 与 whole-list deterministic hash。DiscoveryRow 不是 SalesOrder；没有业务 Repository、PostgreSQL 或 commit 依赖。
+- Source 消失不能区分删除、权限变化、筛选变化或上游失败；未来不得仅凭缺失 hard-delete，需 last-seen/missing/tombstone reconciliation。
+- 当前 Browser Order Center / Scheduling 是测试数据，不作为正式 PostgreSQL migration source 或 bootstrap authority；历史 464 不是迁移清单。Quote Center 是真实业务数据并必须保护，Style Progress/Material 不在 retirement 范围，Closing retirement 状态待决定。
+- 旧 Browser Order/Scheduling 删除未获授权。未来必须另立 Test Business Data Retirement Gate，先完整 backup、dependency audit、精确 delete/protect scope，再取得 explicit destructive confirmation。
+- 本 Gate 自动门禁：Discovery 专项 6/6、Full Tests 571/571、Python Bridge 34/34、TypeScript、零警告 ESLint、Production Build 30 routes、secret scan 与 `git diff --check` 全部 PASS。
+- 详细协议与证据见 `docs/features/AINUOKE_ORDER_DISCOVERY.md`。Phase 2B 未开始。
+
 ### PostgreSQL Server Persistence Migration — Phase 1
 
 - PR #13 已 merged；Phase 1 在 `main` 完成，以下 server/migration/Auth/RBAC/OperationLog 能力是稳定基线，不是本轮待实现内容。
@@ -37,11 +50,10 @@
 
 ### PostgreSQL Persistence — Phase 2A SalesOrder Ownership Audit
 
-- 字段级证据见 `docs/features/SALES_ORDER_PERSISTENCE.md`。推荐边界为 Ainuoke source facts 与 Zhixu-owned SalesOrder aggregate 的组合模型；该方案标记为 Proposed / Needs Decision，不是 Active Decision。
-- 当前 Direct API 只有已知非空 `InsideOrderNo` 后读取固定 6086103/6086997/6087050 全部分页的能力；没有已验证的全量订单/合同 discovery source，不能声称可从空 PostgreSQL 全量重建。
-- `SalesOrder.id` 被排单、关账、reorder、Ainuoke binding、OperationLog 和订单 child owner 引用。即使 Ainuoke 业务字段可重建，稳定身份仍不能无条件重建或更换。
-- Browser SalesOrder 只能按逻辑条件定义为 A（纯 Ainuoke 可重建）、B（Ainuoke + Zhixu-owned state）、C（Zhixu-native）。仓库没有真实 Browser Backup；历史验收的 464 不是迁移清单，本轮不推测三类数量。
-- Phase 2B 首次 bootstrap 推荐 hybrid：经 discovery 重建 Ainuoke source facts，只从经验证 Browser Backup 导入 stable identity 与 Zhixu-owned facts。开始前仍需用户确认 discovery source、Backup authority、source retention 和 legacy ID/UUID 策略。
+- PR #14 已 merged。字段级证据见 `docs/features/SALES_ORDER_PERSISTENCE.md`；Ainuoke source facts + Zhixu-owned aggregate 的组合边界仍有效。
+- 原 A/B/C Browser classifier/hybrid import 建议保留为历史分析，但已被当前 Browser Order/Scheduling migration strategy supersede：这些是测试数据，不作为正式 bootstrap authority，也不要求继承当前 Browser SalesOrder ID。
+- 未来正式 PostgreSQL SalesOrder 从 discovery/detail facts 新建稳定身份；身份一旦建立仍必须长期稳定，以承载未来 Quote/reorder provenance、owned state、Scheduling、Closing 与 OperationLog references。
+- Discovery blocker 已在本 Gate 解决到 `current_account_visible` 范围，且 all-visible-contracts/no-status-filter 规则已确认。Phase 2B clean-bootstrap schema/API design 技术前置已具备，但 visibility scope/retention 仍需用户决定，且本任务没有 Phase 2B 或真实 bootstrap 授权。
 
 ### Ainuoke Unified Order + Material Sync Gate 4
 
@@ -162,5 +174,5 @@
 ## 当前数据保护原则
 
 - 不执行隐式 Reset，不删除本地 dependencies，不用测试清理触碰 DEV/PROD 浏览器真实命名空间。
-- Quote、SalesOrder、ScheduleAssignment、ClosingAllocation、Style Progress 与附件继续按既有稳定 Repository/IndexedDB 边界保存。
+- Quote Center 与附件是真实业务数据，必须长期保护。当前 Browser SalesOrder/ScheduleAssignment 虽被确认为测试数据、未来不迁移，现阶段仍不得修改或删除；只能在独立 Retirement Gate 完成 backup/dependency audit/scope 清单并取得用户明确破坏性确认后定向清理。Closing 分类待决定，Style Progress/Material 不在该 retirement 范围并继续保护。
 - 备份恢复在覆盖前校验 owner、指针和跨记录引用；损坏数据拒绝写入并保留原始内容。
