@@ -525,6 +525,17 @@
 - 验收边界：UI 必须 Preview-first 并二次确认，提交绑定用户所见的 immutable Preview。2026-09-10 用户完成 DEV Backup 后本人确认 D1935 commit；AFTER 为 262 Source rows、255 Demands、12 Canonical（面料 2、辅料 10）与 183/153/150/150 四类 Events。旧 Excel operational facts 已退出，历史 Trace、manual Effective 和刷新持久化均通过验收。
 - 代码证据：`features/style-progress/service/ainuoke-material-api-commit.ts`、`features/style-progress/repository/style-progress-repository.ts`、`features/ainuoke-sync/components/ainuoke-sync-page.tsx` 与 `tests/ainuoke-material-api-commit.test.mjs`。
 
+### D-075 艾诺科统一同步只编排既有 Contract 与 Material 领域提交
+
+- 日期：2026-09-10
+- 状态：Active。
+- 决定：API 日常入口以 `InsideOrderNo → 一次刷新 → 统一 Preview → 必要时一次确认` 聚合固定 6086103、6086997、6087050；统一层只接收受限 `insideOrderNo`，继续使用 Bridge Catalog，不接受 raw reportId、sqlCdtn 或 conditionList。
+- 领域边界：读取分别复用 `buildAinuokeContractApiPreview` 与 `buildAinuokeMaterialApiPreview`；确认分别调用 `commitAinuokeContractApiPreview` 与 `commitAinuokeMaterialApiPreview`。Matcher、Order mutation、Material Normalize/Dedup/Canonical、`commitImport`、Expected Arrival 与 OperationLog 均保持既有唯一实现。
+- No-change / 权限：合同与物料都无变化时不要求确认，也不产生 ImportRun、Repository write 或 OperationLog。合同写仍要求 `ainuoke.sync`，物料写仍要求 `style_progress.import`；统一 Preview 只要求 `ainuoke.view`，不新增超级权限。
+- Failure safety：当前 browser-local Repository 无法提供跨领域 ACID。确认前必须完成两侧 validation、immutable Preview 与本地 baseline stale guard；提交顺序为 Contract → Material。合同成功而物料失败时明确返回 partial failure，不伪造 rollback；用户重新刷新后依靠两侧既有幂等只提交仍有变化的领域。
+- 真实验收：2026-09-10 alternate/isolated Browser Profile 首次 D1935 统一 Preview 显示 contract auto-create 1 与 material changed；用户本人确认后两侧均 success，随后同一 D1935 只读刷新两侧均 no-change。该 Profile 的 `0/0/168 → 1/1/169` 不能标作 Gate 3C 原真实 DEV dataset。回到 Gate 3C 同一 Chrome Profile 后，D1935 原有 12 Canonical（2 fabric + 10 trim），SalesOrders/Mirror/ImportRuns 为 464/487/4；一次只读统一刷新显示 Contract changed、Material no-change，确认按钮出现但未点击，未执行 commit。
+- 代码证据：`features/ainuoke-sync/service/ainuoke-unified-sync.ts`、`features/ainuoke-sync/components/ainuoke-sync-page.tsx` 与 `tests/ainuoke-unified-sync.test.mjs`。
+
 ## Superseded
 
 ### D-039 新订单中心使用 SalesOrder + OrderItem 多款聚合

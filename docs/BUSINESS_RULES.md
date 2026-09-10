@@ -69,7 +69,7 @@
 - 个人账号绑定使用 `ainuoke.account.bind_self`；既有 `ainuoke.bind` 仍只表示业务合同绑定。个人绑定不自动授予 sync、合同绑定或 conflict resolution。
 - PUT credential 必须先真实测试登录，成功后才能替换旧 credential；失败保留旧值。invalid credential 不循环 retry，network retry 有上限，auth expiry 最多自动重新登录一次并 replay 原 read 一次。
 - Direct API 固定只读 Report Catalog：`6086103`、`6086997`、`6087050`。Browser 不能传任意 reportId，Bridge 不提供 Ainuoke write endpoint，也不得直接 create/update SalesOrder 或 upsert Style Progress。
-- Direct API 形成带 report/page/query/row identity/schema/hash 的 sanitized source snapshot。6086103/6086997 只可经 common Contract Source 进入既有 `AinuokeContractMirror` 与 `synchronizeAinuokeContracts`；读取先形成内存 Preview，只有用户明确确认且拥有 `ainuoke.sync` 才提交该既有 Service 产出的 orders/state/operationLogs 与 ImportRun。6087050 只可经薄 API adapter 进入 Excel 共用的 Material Normalize → Dedup → Validate → Preview；当前不暴露或调用 `commitImport`。
+- Direct API 形成带 report/page/query/row identity/schema/hash 的 sanitized source snapshot。6086103/6086997 只可经 common Contract Source 进入既有 `AinuokeContractMirror` 与 `synchronizeAinuokeContracts`；6087050 只可经薄 API adapter 进入 Excel 共用的 Material Normalize → Dedup → Validate → Preview → 既有 `commitImport`。日常入口按 InsideOrderNo 一次读取三报表并形成统一 Preview；只有用户明确确认，且合同变化拥有 `ainuoke.sync`、物料变化拥有 `style_progress.import`，才分别调用既有领域提交。统一层不得复制领域 pipeline 或以一个超级权限替代两项权限。
 - 当前同步以 6087050 Direct API 当次 Snapshot 为业务来源；历史 Excel 是时间点历史快照。两者不要求 row-count、snapshot-hash 或 source-row-identity parity，不得为匹配历史 Excel 人为过滤 API 当前数据；共同约束是同字段语义一致并复用唯一 Domain pipeline。API 字段无法由真实 metadata/rows 证明时必须保持 `null`/empty。
 - 旧历史排单/生产预警遗留的 unresolved `schedule_match` / `closing_match` 可由用户在完成 DEV Backup 后，以 `ainuoke.resolve_conflict` 显式清理；不得在 load、validator 或 migration 中静默删除。order/data-anomaly/resolved reviews 与全部已导入业务事实必须保留。未来新的排单/生产录入方式仍为 TBD。
 

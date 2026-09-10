@@ -17,6 +17,7 @@
 - 排单中心消费 `schedule.view/create/edit/complete`，关账中心分别消费 `closing.view/edit/confirm/lock/reopen`；订单编辑权限不会隐含这两类权限。确认、锁定与重开是不同动作，`closing.reopen` 只允许有原因地重开已锁定月份。
 - 款式进度消费 `style_progress.read/edit/import/view_history`；查看、日期维护、真实 Excel 导入和来源/操作历史分别授权，不隐含订单创建或艾诺科冲突处理权限。
 - 个人设置消费 self-scoped `ainuoke.account.bind_self`，只允许当前用户绑定、测试、更新或解除自己的艾诺科 credential。它与业务合同 `ainuoke.bind` 明确分离，不隐含同步或冲突处理。
+- 艾诺科统一 Preview 只要求 `ainuoke.view`。统一确认不引入超级权限：合同有变化时要求 `ainuoke.sync`，物料有变化时要求 `style_progress.import`；只有一侧变化时不要求另一侧的写权限。缺少对应权限时 Preview 仍可查看，但确认 disabled 并显示缺失领域权限。
 - `ainuoke.resolve_conflict` 同时保护用户显式清理已废弃的旧历史 schedule/closing 匹配 Review；该动作属于人工冲突 backlog 维护，不新增一次性权限。`ainuoke.view` 只能查看，不能执行删除。
 
 ## Data model

@@ -4,11 +4,11 @@
 
 ## 当前阶段
 
-- 当前稳定基线：`main` / `origin/main` 的任务起点 `152638db2004b34193f0bed8332100f1d0bb3b47`（PR #10 已 merged，6087050 Material API Preview 已进入 main）。
+- 当前稳定基线：`main` / `origin/main` 的任务起点 `0be13768bed1e1d990138cf7b9e60097554b945d`（PR #11 已 merged，6087050 Material API commit 与真实 D1935 acceptance 已进入 main）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
-- 当前 Active Task 为 `feat/ainuoke-material-api-commit`。Gate 3C capability、authoritative replacement 修复与真实 DEV D1935 live acceptance 已完成；PR 尚未创建或 merge。
+- 当前 Active Task 为 `feat/ainuoke-unified-sync`。Gate 4 将 6086103、6086997 与 6087050 聚合为一次统一读取、一个 change summary 和必要时一次确认；内部继续调用既有 Contract/Material Preview 与 commit，不创建第三套 pipeline。
 - `面辅料申购统计 (1).xlsx` 的既有审计仍是有效的历史 Source Trace 与字段语义证据，但不是当前同步的 authoritative snapshot。当前同步以 6087050 Direct API 当次返回为准；不同时间的 Excel/API 不要求 row-count、hash 或 row identity parity，也不得为匹配历史行数过滤实时数据。
 
 ## 当前可运行边界
@@ -20,13 +20,26 @@
 
 ## 本轮完成状态
 
+### Ainuoke Unified Order + Material Sync Gate 4
+
+- `runAinuokeUnifiedPreview` 只接收 `insideOrderNo`，通过现有 Bridge client/catalog 并行读取固定 6086103、6086997、6087050，再分别调用既有 `buildAinuokeContractApiPreview` 与 `buildAinuokeMaterialApiPreview`。Browser 仍不能提交 raw reportId、sqlCdtn 或 conditionList。
+- Unified Preview 汇总合同身份/数量/分色/交期/matcher disposition 与物料 Source/Canonical/Demand/Event/厂供/阻断信息，并把用户可理解的状态归纳为 `no_change | changed | blocked`；技术 hash 只用于 immutable Preview 与本地 baseline stale guard。
+- Unified commit 固定先调用既有 Contract commit，再调用既有 Material commit；任何一侧 Preview blocking 时不允许提交。两侧权限继续分别为 `ainuoke.sync` 与 `style_progress.import`，只要求实际发生变化的领域权限，不新增超级权限。
+- 当前 browser-local Repository 无跨领域 ACID transaction。合同成功、物料失败时明确返回 partial failure，不伪造 rollback；用户重新“刷新艾诺科”后，已成功合同侧会成为 no-change，只重试仍有差异的一侧，复用两侧既有幂等和 OperationLog 规则。
+- `/ainuoke-sync` 的 API mode 现只保留一个主动作“刷新艾诺科”。统一结果同时展示合同数量/分色/交期/matcher 变化和物料 Source/Canonical/Demand/Event 变化；两侧均 no-change 时明确显示“已是最新，无需同步”且不出现确认按钮。有变化时只有一个确认 Modal，并明确 Contract → Material 顺序与 partial-failure 边界。
+- 2026-09-10 alternate/isolated Browser Profile 的 D1935 live commit acceptance 使用当前用户个人 Ainuoke credential 完成三报表读取。该 Profile 在刷新前为 mirror/import run/order `0/0/168`，因此首次统一 Preview 如实显示合同 auto-create 1 和物料 Snapshot changed；合同为 PI2607-235、4,640/4,640、数量差异 0、颜色 5、交期 2026-10-13，物料为 262 Source rows、12 Canonical（面料 2、辅料 10）、255 Demands 与 183/153/150/150 Events，无阻断。该数据集不能再称为 Gate 3C 原真实 DEV Profile。
+- 用户本人在该 alternate/isolated Profile 的统一确认 Modal 点击确认后，页面返回 contract `success`、material `success`；mirror/import run/order 为 `1/1/169`。款式进度列表中的 D1935 为面料 2、辅料 10。随后再次执行同一只读刷新，两侧均为“已是最新”，create/update/bind/review 全为 0且不再显示确认按钮，因此没有第二次业务提交或重复日志。浏览器 console 共 4 条、error 0、secret-pattern 命中 0。
+- Merge 前重新使用 Gate 3C 同一 Chrome Profile 只读验收：进入刷新前已确认 D1935 `12 Canonical / 2 fabric / 10 trim`，SalesOrders 464、Mirror contracts 487、ImportRuns 4。一次“刷新艾诺科”后 Material 为 `no_change`，仍为 262 Source rows、12 Canonical、255 Demands 与 183/153/150/150 Events；Contract 为 `changed`，显示 quantity change 1、delivery change 0、color change 1、would update 1，create/bind/review 均为 0。确认按钮按设计出现，但未打开 Modal、未点击确认、未执行任何 unified commit；因此本次不是双侧 no-change acceptance，现有 464/487/4 业务计数保持不变。
+- 本次统一提交没有调用 Ainuoke write API，也不接入 Scheduling 或 Closing Repository。真实验收没有为这两个无关领域另造 mutation；其不变边界由编排依赖和隔离回归覆盖。当前 browser-local Repository 仍无跨领域 ACID，partial failure 的明确结果与安全重试规则继续有效。
+- Gate 4 最终门禁：统一/Contract/Material 定向回归 44/44、Full Tests 565/565、TypeScript、ESLint、Production Build 30 routes 与 `git diff --check` 全部 PASS。Bridge 未修改，因此未重复运行 Python Bridge tests。
+
 ### Ainuoke 6087050 Material API Gate 3A/B + Gate 3C Live Acceptance
 
 - 6087050 Direct API 已通过薄 transport adapter 进入唯一 Material source-neutral Normalize / Dedup / Validate pipeline；Excel 继续通过原 semantic-header adapter 进入同一 pipeline。API trace 保存 reportId、sourceRowIdentity、snapshotHash、fetchedAt、InsideOrderNo 与 schema，不伪造 fileName、sheetName 或 rowNumber。
 - 当前同步的 source of truth 是 6087050 Direct API 当次 Snapshot；历史 Excel 只作历史来源、字段语义参考与回归输入。两种 Source 的共同约束是字段语义与 Domain pipeline 一致，不是不同时间点的行数一致。
 - API adapter 只映射真实字段证据。Canonical identity 仍为 `salesContractNo + materialType + normalizedMaterialName`；materialCode、颜色、规格、门幅、克重与价格只保留为 child facts。`MSingleName` 不等价于 Excel“申购实际名称”，因此不映射 `sourceActualName`；当前也没有充分证据证明 6087050 某字段等价于 Excel 数值列“厂供”，因此 API `actualConsumption` 保持 `null` 并给出 warning。`提供方式=厂供` 仍保留 Raw/Trace 但退出 operational projection。
 - Gate 3C 增加的薄 orchestration 只负责 `style_progress.import` 权限、完整性与 stale-preview 校验，把 API Preview 转为既有 `MaterialImportBatch` / `MaterialRawSnapshot` trace 后调用唯一 `styleProgressRepository.commitImport`。Adapter、Normalize/Dedup/Validate、Canonical resolver、Event construction、Expected Arrival 和 OperationLog 均未复制。
-- `/ainuoke-sync` 仍必须先运行物料 API 预检；成功后才显示“确认导入款式进度”，并要求用户在二次确认 Modal 复核 InsideOrderNo、fetchedAt、Source rows、Canonical groups、Demand/Event 和厂供数量。提交绑定当前 immutable Preview；内容 hash 不一致、分页不足、total 不一致、identity collision、blocking validation 或权限不足均 fail closed。
+- Gate 3C 建立的物料 Preview-first、immutable Snapshot 与二次确认边界继续有效；Gate 4 已把它纳入统一 Preview/确认 Modal，不再提供并列的独立“运行物料 API 预检”主动作。内容 hash 不一致、分页不足、total 不一致、identity collision、blocking validation 或权限不足仍全部 fail closed。
 - API ImportBatch identity 使用 reportId + normalized query + canonical source row content 的稳定 hash，不使用 fetchedAt；同一完整 Snapshot 重复 commit 返回全部新增为 0，且不追加重复业务 OperationLog。完整 6087050 Snapshot 会按 affected contract scope 替换全部 prior-source current Demand/Event facts，而不只替换旧 API facts；历史 Excel/API Raw Snapshot 与 ImportBatch Trace 均保留。
 - `expectedDateSource=manual` 的 Effective 与人工 ExpectedArrivalBatch 在重同步时保留。Excel/API Demand ID 不稳定时只按确定性业务身份做唯一映射，零或多候选 fail closed；仍跟随 Source 的批次按新 source due date 更新。Actual 继续只来自实际 Event，厂供仍保留 Raw/Trace 并退出 operational projection。
 - Canonical Material 的统一业务排序在 Style Progress Projection 形成处执行：全部面料先于辅料；面料优先按 actualConsumption DESC，缺少真实 actual 时按 plannedConsumption DESC，再按 sourceSortNo 与稳定 Canonical key；辅料按 sourceSortNo 与稳定 key。详情、筛选、风险和下游消费者共享同一顺序。
