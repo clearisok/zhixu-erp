@@ -11,17 +11,24 @@
 
 ## Current Stable Main
 
-`efb2996206c1738255f764d71fb2bfa3f329e069`（PR #12 已 merged，Ainuoke Unified Order + Material Sync Gate 4 已进入 main）
+`f1736f84496d2651b91e64e4584ad5f7fe055d49`（PR #13 已 merged，PostgreSQL Server Persistence Foundation Phase 1 已进入 main）
 
 ## Current Active Task
 
-- Branch: `feat/postgres-server-foundation`
-- Baseline: `efb2996206c1738255f764d71fb2bfa3f329e069`
-- Scope: PostgreSQL Server Persistence Migration Phase 1，只交付 Node/TypeScript Server Runtime、版本化 PostgreSQL migration、可信 Auth/RBAC 与服务器 OperationLog 基础；不创建 SalesOrder 或其他 Phase 2 业务表，不迁移浏览器业务数据。
+- Branch: `chore/postgres-salesorder-ownership-audit`
+- Baseline: `f1736f84496d2651b91e64e4584ad5f7fe055d49`
+- Scope: PostgreSQL Persistence Phase 2A，只做 SalesOrder ownership/rebuildability/stable identity 审计与 proposed Phase 2B 设计；不迁移数据、不切 Repository、不读取或导入 Browser DEV 数据、不实现 Phase 2B。
+- Detailed audit: `docs/features/SALES_ORDER_PERSISTENCE.md`。结论是组合模型（Ainuoke source facts + Zhixu-owned aggregate），不是整表 Ainuoke Mirror 或 Browser JSON 搬迁。
+- Current Direct API 必须先知道非空 `InsideOrderNo`；没有已验证的全量 discovery/list source，所以空 PostgreSQL 不能发现全部合同/订单。仓库也没有真实 Browser Backup，历史 464 不能拆分为 A/B/C 数量。
+- Stable identity: `SalesOrder.id` 被 child owner、Ainuoke binding、Scheduling、Closing、OperationLog 和 reorder 引用；source fields 可重建不等于订单 identity 可丢弃。
+- Proposed bootstrap: verified Ainuoke discovery 重建 source facts + validated Browser Backup 只导入 stable ID / Zhixu-owned facts。开始 Phase 2B 前需要用户确认 discovery source、Backup authority、retention 和 ID mapping 策略。
+- READY FOR PHASE 2B: NO。
+
+### Previous completed PR #13 context
+
 - Checkpoint A：commit `d69649149b4898eaaeaace000604b4bc538c20f6` 已实现独立 Node/TypeScript server、PostgreSQL pool、`/api/v1/health`、forward-only migration runner 与 `schema_migrations` ledger；runner 使用 advisory lock、逐文件事务和 SHA-256 checksum fail-closed。
 - Checkpoint B：已实现 `app_users` 单一身份源的 immutable UUID、digest-only V1 session、brute-force/expiry/revocation、共享 `PermissionKey` PostgreSQL RBAC、append-only server OperationLog、DEV proxy、Node static + API Docker profile 和完整文档。PostgreSQL integration 只使用一次性 PG16 tmpfs 容器；没有创建 SalesOrder/Quote/Scheduling/Closing/Style Progress/Ainuoke/附件业务表，也未迁移或双写 browser data。
 - Checkpoint B 最终门禁：Full Tests 565/565、PostgreSQL integration 9/9、typecheck、lint、server build、Production Build 30 routes、Compose config、production container health/static/cookie/session digest/trusted identity、secret scan 与 diff-check 全部 PASS；一次性容器均已清理。
-- Next：Phase 1 完成后必须停止。SalesOrder Phase 2 只有在用户另行批准后才能开始。
 
 ### Previous completed PR #12 context
 
