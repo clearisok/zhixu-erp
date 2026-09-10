@@ -4,11 +4,11 @@
 
 ## 当前阶段
 
-- 当前稳定基线：`main` / `origin/main` 的任务起点 `152638db2004b34193f0bed8332100f1d0bb3b47`（PR #10 已 merged，6087050 Material API Preview 已进入 main）。
+- 当前稳定基线：`main` / `origin/main` 的任务起点 `0be13768bed1e1d990138cf7b9e60097554b945d`（PR #11 已 merged，6087050 Material API commit 与真实 D1935 acceptance 已进入 main）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
-- 当前 Active Task 为 `feat/ainuoke-material-api-commit`。Gate 3C capability、authoritative replacement 修复与真实 DEV D1935 live acceptance 已完成；PR 尚未创建或 merge。
+- 当前 Active Task 为 `feat/ainuoke-unified-sync`。Gate 4 将 6086103、6086997 与 6087050 聚合为一次统一读取、一个 change summary 和必要时一次确认；内部继续调用既有 Contract/Material Preview 与 commit，不创建第三套 pipeline。
 - `面辅料申购统计 (1).xlsx` 的既有审计仍是有效的历史 Source Trace 与字段语义证据，但不是当前同步的 authoritative snapshot。当前同步以 6087050 Direct API 当次返回为准；不同时间的 Excel/API 不要求 row-count、hash 或 row identity parity，也不得为匹配历史行数过滤实时数据。
 
 ## 当前可运行边界
@@ -19,6 +19,14 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### Ainuoke Unified Order + Material Sync Gate 4
+
+- `runAinuokeUnifiedPreview` 只接收 `insideOrderNo`，通过现有 Bridge client/catalog 并行读取固定 6086103、6086997、6087050，再分别调用既有 `buildAinuokeContractApiPreview` 与 `buildAinuokeMaterialApiPreview`。Browser 仍不能提交 raw reportId、sqlCdtn 或 conditionList。
+- Unified Preview 汇总合同身份/数量/分色/交期/matcher disposition 与物料 Source/Canonical/Demand/Event/厂供/阻断信息，并把用户可理解的状态归纳为 `no_change | changed | blocked`；技术 hash 只用于 immutable Preview 与本地 baseline stale guard。
+- Unified commit 固定先调用既有 Contract commit，再调用既有 Material commit；任何一侧 Preview blocking 时不允许提交。两侧权限继续分别为 `ainuoke.sync` 与 `style_progress.import`，只要求实际发生变化的领域权限，不新增超级权限。
+- 当前 browser-local Repository 无跨领域 ACID transaction。合同成功、物料失败时明确返回 partial failure，不伪造 rollback；用户重新“刷新艾诺科”后，已成功合同侧会成为 no-change，只重试仍有差异的一侧，复用两侧既有幂等和 OperationLog 规则。
+- Checkpoint 1 已覆盖三报表统一读取、合同/物料 Preview 复用、no-change、单侧/双侧变化、blocking、权限组合、partial failure、安全重试、stale guard 与无第三 pipeline。统一页面 UX 与真实 D1935 验收仍待第二 checkpoint。
 
 ### Ainuoke 6087050 Material API Gate 3A/B + Gate 3C Live Acceptance
 
