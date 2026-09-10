@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `feat/postgres-server-foundation`，起点为 PR #12 merge `efb2996206c1738255f764d71fb2bfa3f329e069`。Phase 1 只建立 Node/PostgreSQL server runtime、versioned migrations、trusted Auth/RBAC 和 server OperationLog；不进入 SalesOrder Phase 2。
-- 当前稳定基线：`main` / `origin/main` 的任务起点 `efb2996206c1738255f764d71fb2bfa3f329e069`（PR #12 已 merged，Ainuoke Unified Order + Material Sync Gate 4 已进入 main）。
+- 当前 Active Task 为 `chore/postgres-salesorder-ownership-audit`，起点为 PR #13 merge `f1736f84496d2651b91e64e4584ad5f7fe055d49`。Phase 2A 只审计 SalesOrder ownership、重建能力、稳定身份与 proposed PostgreSQL 边界；不迁移真实数据、不切换 Repository、不导入 Browser DEV 数据、不实现 Phase 2B。
+- 当前稳定基线：`main` / `origin/main` 为 `f1736f84496d2651b91e64e4584ad5f7fe055d49`（PR #13 已 merged，PostgreSQL Server Persistence Foundation Phase 1 已进入 main）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -24,6 +24,7 @@
 
 ### PostgreSQL Server Persistence Migration — Phase 1
 
+- PR #13 已 merged；Phase 1 在 `main` 完成，以下 server/migration/Auth/RBAC/OperationLog 能力是稳定基线，不是本轮待实现内容。
 - 新增 `server/` Node/TypeScript runtime、`pg` pool、graceful shutdown、静态文件服务和结构化错误；数据库凭据只读取 server environment。`/api/v1/health` 对数据库不可用返回 503。
 - 新增 `database/migrations/` 和 `schema_migrations` ledger。runner 按版本排序，使用 advisory lock、逐文件 transaction 和 SHA-256 checksum；rerun no-op，漂移/缺失/失败 fail closed，没有自动 down。
 - `app_users` 仍是唯一身份源；新增唯一、不可变 UUID `public_id`。V1 session 只保存随机 token 的 SHA-256 digest，支持 expiry、logout/revocation、inactive rejection 和 15 分钟 10 次失败限制；cookie 为 HttpOnly/SameSite Strict，production 强制 Secure。
@@ -33,6 +34,14 @@
 - PostgreSQL integration 使用随机一次性 PG16 tmpfs 容器，覆盖 migration、legacy schema compatibility、auth/session、RBAC spoof/403、OperationLog append-only 和 health；不会连接真实 DEV/`zhixu` 数据库。
 - Phase 1 最终门禁：Full Tests 565/565、PostgreSQL integration 9/9、TypeScript、ESLint、server build、Production Build 30 routes、Compose config、production container health/static/cookie/session digest/trusted identity、secret scan 与 `git diff --check` 全部 PASS；一次性容器均已清理。
 - 未创建 SalesOrder 或其他业务表，未导入/修改 browser repository 数据，未迁移 Ainuoke/Quote/Style Progress/Scheduling/Closing/附件，也未修改 legacy `customers/quotes/orders/schedules/audit_logs/api_dispatch`。
+
+### PostgreSQL Persistence — Phase 2A SalesOrder Ownership Audit
+
+- 字段级证据见 `docs/features/SALES_ORDER_PERSISTENCE.md`。推荐边界为 Ainuoke source facts 与 Zhixu-owned SalesOrder aggregate 的组合模型；该方案标记为 Proposed / Needs Decision，不是 Active Decision。
+- 当前 Direct API 只有已知非空 `InsideOrderNo` 后读取固定 6086103/6086997/6087050 全部分页的能力；没有已验证的全量订单/合同 discovery source，不能声称可从空 PostgreSQL 全量重建。
+- `SalesOrder.id` 被排单、关账、reorder、Ainuoke binding、OperationLog 和订单 child owner 引用。即使 Ainuoke 业务字段可重建，稳定身份仍不能无条件重建或更换。
+- Browser SalesOrder 只能按逻辑条件定义为 A（纯 Ainuoke 可重建）、B（Ainuoke + Zhixu-owned state）、C（Zhixu-native）。仓库没有真实 Browser Backup；历史验收的 464 不是迁移清单，本轮不推测三类数量。
+- Phase 2B 首次 bootstrap 推荐 hybrid：经 discovery 重建 Ainuoke source facts，只从经验证 Browser Backup 导入 stable identity 与 Zhixu-owned facts。开始前仍需用户确认 discovery source、Backup authority、source retention 和 legacy ID/UUID 策略。
 
 ### Ainuoke Unified Order + Material Sync Gate 4
 
@@ -147,7 +156,7 @@
 
 - Quote、Order、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
-- 服务端全文搜索、分页、不可篡改审计及正式数据库 migration/rollback 体系。
+- 服务端全文搜索与业务列表分页尚未落地；Phase 1 已提供 forward-only migration 和 append-only server OperationLog，但没有自动 down，业务领域的事务内日志仍需随各领域 cutover 接入。
 - True Mobile 的真实 coarse-pointer 设备级复验；当前自动回归验证的是指定 CSS viewport。
 
 ## 当前数据保护原则
