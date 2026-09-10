@@ -119,9 +119,17 @@ export default defineConfig(async ({ command }) => {
     define: {
       __ZHIXU_BUILD_INFO__: JSON.stringify(buildInfo),
     },
-    server: isCodexSeatbeltSandbox
-      ? { watch: { useFsEvents: false, usePolling: true } }
-      : undefined,
+    server: {
+      proxy: {
+        "/api/v1": {
+          target: process.env.ZHIXU_API_ORIGIN?.trim() || "http://127.0.0.1:3100",
+          changeOrigin: false,
+        },
+      },
+      ...(isCodexSeatbeltSandbox
+        ? { watch: { useFsEvents: false, usePolling: true } }
+        : {}),
+    },
     plugins: [
       buildInfoPlugin(buildInfo),
       vinext(),

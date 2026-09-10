@@ -4,6 +4,8 @@
 
 根路径 ERP 是当前本地 Docker + PostgreSQL 可运行的工厂业务系统，覆盖登录、工作台、成衣报价、报价转订单、生产排单、用户和审计。本文用“根路径 ERP”或“旧报价模型”与新版 Quote Center 区分；“旧”不表示它不可用。
 
+Phase 1 已确立 Node/TypeScript → PostgreSQL 为未来正式生产架构；根路径 ERP 现在是待退役兼容路径，不是新业务 schema、字段或 migration source。Phase 1 没有删除或改写本路径。
+
 ## Current behavior
 
 `app/page.tsx` 是单页模块容器，登录后可切换：
@@ -106,3 +108,4 @@ API 不是 Node/Python controller，而是 PostgreSQL 函数 `api_dispatch(metho
 - `app/page.tsx` 体量较大，业务、状态和展示耦合。
 - 与 Quote Center 模型、基础资料和真实用户偏好尚未整合。
 - Cloudflare worker 不提供这套 PostgreSQL API，因此静态部署不能单独运行完整根路径 ERP。
+- 新 server foundation 只共享并演进 `app_users/app_sessions` 身份基础；`customers/quotes/orders/schedules/audit_logs/api_dispatch` 未被新 API 依赖或修改。后续退役必须另立 Gate，不能在业务 cutover 前删除。

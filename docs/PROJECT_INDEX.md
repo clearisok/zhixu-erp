@@ -6,6 +6,7 @@
 
 - 根路径 ERP：报价、订单、排单、用户和审计功能，使用 PostgreSQL 持久化，并由数据库函数提供 API。
 - Quote Center 路径：新报价中心、报价 Revision/PriceVersion、新订单中心、基础资料和统一 UI Foundation，当前仍使用浏览器 mock 持久化，与根路径 ERP 后端隔离。
+- Server Persistence 路径：Phase 1 Node/TypeScript API、PostgreSQL versioned migrations、可信 Auth/RBAC 与 server OperationLog；尚未接管 SalesOrder 或其他浏览器业务领域。
 
 两条路径都是真实现，但边界和成熟度不同。开始任务前必须先确认目标模块。
 
@@ -37,13 +38,14 @@
 | `features/operations-settings/` | 生产组、外发厂、生产地点/日历、供应枢纽/路线/运输方式及关账设置基础设施 |
 | `features/permissions/` | Quote Center 前端 User / Role / Permission、mock repository、权限上下文和用户权限页面 |
 | `features/operation-logs/` | 统一追加式 OperationLog、差异生成、localStorage repository、报价时间线和系统全局查询页 |
+| `server/` | Node/TypeScript API runtime、PostgreSQL pool/migration、可信 Auth/RBAC、server OperationLog repository 与集成测试 |
 | `features/global-search/` | ERP Command Palette、SearchProvider 注册表、Quote/Order 搜索和最近访问 |
 | `features/data-management/` | 浏览器长期数据 schema、非破坏性迁移、测试隔离、备份恢复和危险重置 |
 | `features/ainuoke-api/` | Local Bridge 的浏览器客户端、个人账号设置与只读 Source DTO；不承载订单/物料 mutation |
 | `tools/ainuoke-bridge/` | loopback-only Python Bridge、Windows Credential Manager 接入、内存会话/token 与固定只读 Report Catalog |
 | `components/foundation/` | 共用页面、表单、Modal、选择器、表格、Toast 等 UI 基础组件 |
 | `components/` | 根路径 ERP 使用的通用图标和品牌组件 |
-| `database/` | PostgreSQL schema、`api_dispatch` API 函数和初始管理员脚本 |
+| `database/` | Legacy PostgreSQL schema/`api_dispatch`/初始化管理员，以及独立 `migrations/` forward-only server migrations |
 | `worker/` | Cloudflare/Vinext 静态应用与图片请求入口；不包含业务 API |
 | `db/`、`drizzle/` | 尚未承载业务数据的 D1/Drizzle scaffold |
 | 根目录 `*.ps1`、`*.sh` | 本地 Docker 构建、启动、备份、恢复和静态服务脚本 |
@@ -54,7 +56,7 @@
 | `templates/` | 正式业务文档模板；修改前必须核对对应 feature 文档与模板哈希 |
 | `outputs/` | 可复验的导出验收文件，不是业务数据源 |
 
-仓库当前没有独立的 `backend/`、`frontend/` 目录，也没有 Alembic migration 目录。
+仓库当前没有独立的 `backend/`、`frontend/` 目录，也没有 Alembic；正式 Node backend 位于 `server/`，PostgreSQL migration 位于 `database/migrations/`。
 
 ## 模块导航
 
@@ -80,6 +82,7 @@
 | 浏览器数据生命周期、迁移、备份恢复 | `features/DATA_LIFECYCLE.md` | `features/data-management/`、各 browser repository、`tests/data-lifecycle.test.mjs` |
 | 表单、Modal、选择器和 App Shell | `features/UI_FOUNDATION.md` | `components/foundation/`、`app/globals.css` |
 | 数据库/API | `features/LEGACY_ERP.md`、`SYSTEM_OVERVIEW.md` | `database/*.sql`、根目录 `docker-serve.sh` |
+| Node server、migration、可信认证/RBAC、server OperationLog | `features/SERVER_PERSISTENCE.md`、`features/PERMISSIONS.md`、`features/OPERATION_LOGS.md` | `server/`、`database/migrations/`、`Dockerfile.server` |
 | 本地 Docker/备份恢复 | `features/LEGACY_ERP.md`、README | `Dockerfile`、`docker-compose.yml`、根目录 `*.ps1`、`*.sh` |
 | 部署/静态构建 | `SYSTEM_OVERVIEW.md` | `next.config.ts`、`vite.config.ts`、`worker/`、`.openai/hosting.json` |
 | 业务规则 | `BUSINESS_RULES.md` + 对应 feature | 模型、validation、计算函数及测试 |

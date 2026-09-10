@@ -4,6 +4,8 @@
 
 为 Quote Center 与基础设置提供可扩展的前端 RBAC 框架。第一阶段验证账号、角色、权限目录和 UI 权限反馈；它不替代未来服务端认证与授权。
 
+PostgreSQL Server Persistence Phase 1 已增加可信 server RBAC foundation，但尚未把浏览器业务 API 切到服务器。前端 mock 仍只负责当前 UI 状态；生产授权以 server session + PostgreSQL role/permission relationship 为准。
+
 ## Current behavior
 
 - 权限关系为 `User.roleId -> Role.permissions[]`，业务组件只判断权限键，不判断角色名称。
@@ -64,7 +66,8 @@
 
 - mock repository：`features/permissions/repository/permission-repository.ts`
 - 当前 localStorage：`zhixu.erp.local.permission-state`；旧 `zhixu.permission-state.v1` 仅作为非破坏迁移来源。
-- 当前没有权限 API、服务端 session、密码验证或数据库表。
+- Phase 1 server 新增 `app_roles`、`app_permissions`、`app_user_roles`、`app_role_permissions`，以及 `/api/v1/auth/me`、`/api/v1/auth/permissions`。`app_users` 是唯一 identity source，server 只按 permission key 授权。
+- `PERMISSION_KEYS` / `PERMISSION_DEFINITIONS` 仍是 browser/server 共用的唯一纯 TypeScript 目录；server 幂等同步到 PostgreSQL，不维护复制列表。
 - Ainuoke Local Bridge 的 HttpOnly session/CSRF 只保护本地请求上下文，不把前端 mock `currentUserId` 提升为真实认证；生产化时必须由可信 Zhixu session 确定用户身份。
 - 根路径 ERP 的 PostgreSQL 用户/角色模型保持独立，未在本阶段迁移或修改。
 
@@ -91,5 +94,5 @@
 
 - 当前是单浏览器 mock 登录/切换，不是真实身份认证。
 - localStorage 可被客户端修改，不能用于生产安全控制。
-- 尚无服务端权限 enforcement、审计日志、密码/SSO、组织隔离和数据范围权限。
+- 已有 Phase 1 服务端 session、permission enforcement 和 OperationLog 基础；尚无 SSO、组织隔离、数据范围权限，也尚未把 Quote/Order/Scheduling 等业务 mutation 切入该边界。
 - 现有报价 Revision 没有删除功能，因此该权限仅预留。

@@ -18,6 +18,17 @@
 
 ## Active
 
+### D-076 正式持久化采用 Node/TypeScript API、可信 RBAC 与逐领域切换
+
+- 日期：2026-09-10
+- 状态：Active；替代 D-002 作为未来正式生产目标，但 legacy static + `api_dispatch` 路径在独立退役 Gate 前继续兼容运行。
+- 决定：正式架构为 Browser → same-origin `/api/v1/*` → Node/TypeScript application/repository → PostgreSQL 16。新业务规则留在 TypeScript，不扩展通用 SQL/表名/op dispatch 或复杂 PL/pgSQL controller。
+- Migration：`database/migrations/NNNN_*.sql` 只前进；`schema_migrations` 保存 filename/checksum/applied_at/duration，advisory lock 串行化 runner，每文件 transaction，checksum drift/missing file/failure fail closed。没有自动 down，回退使用 forward fix 或经授权的已验证 restore。
+- Identity/RBAC：`app_users` 是唯一 identity source，以不可变 UUID `public_id` 对外；V1 session 只持久化 token digest。授权关系为 users/roles/permissions/user_roles/role_permissions，权限目录复用现有纯 TypeScript `PermissionKey`，只按 key 授权且没有角色名/admin bypass。
+- Audit：server `operation_logs` 与 legacy `audit_logs` 分离；actor 使用内部 FK + stable public ID/name snapshots，由 trusted session context 注入，数据库拒绝 update/delete。现有 browser OperationLog 在领域 cutover 前继续独立运行，不做长期未对账双写。
+- Cutover：每个业务领域必须独立完成 schema/repository/service transaction/authorization/OperationLog/backfill/reconciliation/read-write cutover 后才能退休 browser store。Phase 1 不创建 SalesOrder/Quote/Scheduling/Closing/Style Progress/Ainuoke/附件业务表，也不迁移浏览器数据。
+- 证据：`server/`、`database/migrations/`、`Dockerfile.server`、`server/integration/postgres.integration.test.ts` 与 `docs/features/SERVER_PERSISTENCE.md`。
+
 ### D-044 业务表格采用 Fit-first 个人布局，工作台身份信息去重
 
 - 日期：2026-09-04

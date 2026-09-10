@@ -1,0 +1,43 @@
+FROM docker.m.daocloud.io/library/node:22-alpine AS builder
+
+WORKDIR /build
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --ignore-scripts --no-audit --no-fund
+COPY . .
+
+ARG ZHIXU_BUILD_ID
+ARG ZHIXU_GIT_COMMIT
+ARG ZHIXU_BUILD_TIME
+ENV ZHIXU_BUILD_ENV=production \
+    ZHIXU_BUILD_ID=${ZHIXU_BUILD_ID} \
+    ZHIXU_GIT_COMMIT=${ZHIXU_GIT_COMMIT} \
+    ZHIXU_BUILD_TIME=${ZHIXU_BUILD_TIME}
+RUN npm run build && npm run server:build
+
+FROM docker.m.daocloud.io/library/node:22-alpine
+
+ARG ZHIXU_BUILD_ID
+ARG ZHIXU_GIT_COMMIT
+ARG ZHIXU_BUILD_TIME
+ENV NODE_ENV=production \
+    ZHIXU_BUILD_ENV=production \
+    ZHIXU_BUILD_ID=${ZHIXU_BUILD_ID} \
+    ZHIXU_GIT_COMMIT=${ZHIXU_GIT_COMMIT} \
+    ZHIXU_BUILD_TIME=${ZHIXU_BUILD_TIME}
+LABEL io.zhixu.build-id=${ZHIXU_BUILD_ID} \
+      org.opencontainers.image.revision=${ZHIXU_GIT_COMMIT} \
+      org.opencontainers.image.created=${ZHIXU_BUILD_TIME}
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+COPY --from=builder /build/dist/client ./dist/client/
+COPY --from=builder /build/dist/server ./dist/server/
+COPY database/migrations ./database/migrations/
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=8s --start-period=8s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:3000/api/v1/health | grep -q '"status":"ok"' || exit 1
+
+CMD ["node", "dist/server/server/index.js"]

@@ -39,5 +39,43 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  server:
+    profiles: ["server-foundation"]
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+      args:
+        ZHIXU_BUILD_ID: ${ZHIXU_BUILD_ID:-local-server-build}
+        ZHIXU_GIT_COMMIT: ${ZHIXU_GIT_COMMIT:-unknown}
+        ZHIXU_BUILD_TIME: ${ZHIXU_BUILD_TIME:-unknown}
+    image: zhixu-server:local
+    ports:
+      - "${ZHIXU_SERVER_BIND_ADDRESS:-127.0.0.1}:${ZHIXU_SERVER_PUBLIC_PORT:-3002}:3000"
+    environment:
+      # Local HTTP is explicitly development mode. TLS deployments must use
+      # NODE_ENV=production, a HTTPS origin, and Secure cookies.
+      NODE_ENV: development
+      ZHIXU_SERVER_HOST: 0.0.0.0
+      ZHIXU_SERVER_PORT: 3000
+      ZHIXU_ALLOWED_ORIGINS: ${ZHIXU_SERVER_ORIGIN:-http://127.0.0.1:3002}
+      ZHIXU_COOKIE_SECURE: "false"
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: ${ZHIXU_DB_NAME:-zhixu}
+      DB_USER: ${ZHIXU_DB_USER:-zhixu}
+      DB_PASSWORD: ${ZHIXU_DB_PASSWORD}
+      ZHIXU_ADMIN_USERNAME: ${ZHIXU_ADMIN_USERNAME:-admin}
+      ZHIXU_ADMIN_DISPLAY_NAME: ${ZHIXU_ADMIN_DISPLAY_NAME:-系统管理员}
+      ZHIXU_ADMIN_PASSWORD: ${ZHIXU_ADMIN_PASSWORD}
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/v1/health | grep -q '\"status\":\"ok\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
 volumes:
   zhixu_data:

@@ -1,6 +1,6 @@
 # 织序 ZHIXU｜本地工厂业务系统
 
-> 开发者与 Codex：开始修改前请先阅读 [`AGENTS.md`](AGENTS.md) 和 [`docs/PROJECT_INDEX.md`](docs/PROJECT_INDEX.md)。当前仓库同时包含 PostgreSQL 根路径 ERP 与浏览器 mock 持久化的 Quote Center，二者边界详见项目知识文档。
+> 开发者与 Codex：开始修改前请先阅读 [`AGENTS.md`](AGENTS.md) 和 [`docs/PROJECT_INDEX.md`](docs/PROJECT_INDEX.md)。当前仓库同时包含 legacy 根路径 ERP、浏览器 mock 业务路径，以及 Phase 1 Node/PostgreSQL server foundation；边界详见项目知识文档。
 
 面向成衣工厂的本地生产业务系统，覆盖：
 
@@ -31,6 +31,29 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\rebuild-local-
 
 两个环境都提供 `/build-info.json`，并在页面底部显示克制的 `DEV/PROD · commit` 标识。排查旧页面时，先比较页面和该接口的 `environment`、`buildId`、`gitCommit`、`buildTime`，不要凭页面外观猜测版本。
 
+### Phase 1 Node server foundation
+
+Node API 开发进程默认监听 `127.0.0.1:3100`，Vite 将浏览器同源 `/api/v1/*` 代理到该端口。先从 `.env.example` 创建本机 `.env` 并填写数据库与 bootstrap 管理员密码，然后使用两个 PowerShell 终端：
+
+```powershell
+npm run server:dev
+npm run dev:local
+```
+
+一次性 PostgreSQL 16 集成测试不会连接 `zhixu` 或用户数据库：
+
+```powershell
+npm run test:postgres
+```
+
+本地容器化 Node static + API 路径使用显式 profile，并继续复用 `database` 服务和命名 volume：
+
+```powershell
+docker compose --profile server-foundation up --build server
+```
+
+该 Phase 1 路径只包含 Auth/RBAC、OperationLog 和 migration foundation；SalesOrder 等浏览器业务尚未切换到服务器。
+
 ## 首次启动
 
 请先启动 Docker Desktop，然后在 PowerShell 执行：
@@ -42,12 +65,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Start-Zhixu.ps1
 
 系统地址：<http://localhost:3000>
 
-初始管理员：
-
-- 用户名：`admin`
-- 初始密码：`Zhixu@J7m4Q9v2`
-
-首次登录后请点击右上角头像，立即修改初始密码。
+初始管理员用户名和密码必须通过未提交的 `.env` 提供；仓库不再提供硬编码初始密码。首次登录后应立即轮换 bootstrap 密码。
 
 ## 日常启动与停止
 
