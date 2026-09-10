@@ -26,7 +26,7 @@
 
 - Stage A PASS：从真实“成衣销售合同”页面确认固定报表 6086103 的空条件列表协议。它不要求预知 InsideOrderNo/SalesContractNo，使用 `POST /kaijin/report/report/getReportObjAndData`，并以实时 total 分页到确定终点。
 - 当前绑定账号两次完整只读遍历均返回 505 行、11 页；505 个 source ID、InsideOrderNo、SalesContractNo 及 pair 均唯一，无重复页。normalized SHA-256 两次均为 `37d8e7860e3157cb3022657a4b4ce2223a53876383aec701c685431a5945b744`。
-- 观察到 raw status 为 `生效=143`、`草拟=362`。正式 bootstrap 采用哪些 status 仍是 Needs User Decision；实现不添加时间/status 隐式筛选。
+- 当前完整 Snapshot 观察到 505 条：raw status `生效=143`、`草拟=362`。用户已确认全部 Discovery-visible 合同都是未来 clean-bootstrap candidate，Status 不参与 inclusion/exclusion；Status 仍作为 source fact 保留。505 只是本次 Snapshot 数量，未来以当次完整 Snapshot 为准。
 - D1935 与另外 5 个脱敏样本均通过 6086103/6086997 identity/detail cross-check。Source scope 只能确认 `current_account_visible`，不能称为全公司订单；账号权限/组织范围仍需在正式 bootstrap 前确认。
 - Stage B 新增固定 `order_discovery` allowlist、精确空 query builder、typed full-pagination client、最小 Discovery Row/Snapshot 与 whole-list deterministic hash。DiscoveryRow 不是 SalesOrder；没有业务 Repository、PostgreSQL 或 commit 依赖。
 - Source 消失不能区分删除、权限变化、筛选变化或上游失败；未来不得仅凭缺失 hard-delete，需 last-seen/missing/tombstone reconciliation。
@@ -53,7 +53,7 @@
 - PR #14 已 merged。字段级证据见 `docs/features/SALES_ORDER_PERSISTENCE.md`；Ainuoke source facts + Zhixu-owned aggregate 的组合边界仍有效。
 - 原 A/B/C Browser classifier/hybrid import 建议保留为历史分析，但已被当前 Browser Order/Scheduling migration strategy supersede：这些是测试数据，不作为正式 bootstrap authority，也不要求继承当前 Browser SalesOrder ID。
 - 未来正式 PostgreSQL SalesOrder 从 discovery/detail facts 新建稳定身份；身份一旦建立仍必须长期稳定，以承载未来 Quote/reorder provenance、owned state、Scheduling、Closing 与 OperationLog references。
-- Discovery blocker 已在本 Gate 解决到 `current_account_visible` 范围。Phase 2B clean-bootstrap schema/API design 技术前置已具备，但 status/scope/retention 仍需用户决定，且本任务没有 Phase 2B 或真实 bootstrap 授权。
+- Discovery blocker 已在本 Gate 解决到 `current_account_visible` 范围，且 all-visible-contracts/no-status-filter 规则已确认。Phase 2B clean-bootstrap schema/API design 技术前置已具备，但 visibility scope/retention 仍需用户决定，且本任务没有 Phase 2B 或真实 bootstrap 授权。
 
 ### Ainuoke Unified Order + Material Sync Gate 4
 

@@ -13,7 +13,7 @@
 - `sourceType` / `creationSource` support `manual | quote | reorder | ainuoke`. Quote conversion persists Quote/Revision/PriceVersion IDs; reorder persists `sourceOrderId`.
 - Ainuoke contract sync derives current contract facts from reports 6086103/6086997. It updates `salesContractNo`, customer/brand/style/factory-style snapshots, contract quantity projection, contract delivery, source DeliveryPlan rows and source OrderColorLine rows.
 - Ainuoke resync preserves non-Ainuoke quantity adjustments and manual DeliveryPlan rows. It does not rebuild price history, execution material snapshots, attachments, scheduling, closing, Quote/reorder provenance or other Zhixu edits.
-- Existing detail/unified query DTO still requires exactly one non-empty `insideOrderNo`. Separately, the Order Discovery Gate verified the actual 6086103 “成衣销售合同” empty-condition list and added a fixed `order_discovery` read foundation. It can enumerate the current bound account's visible rows from empty state; it does not prove company-wide visibility or decide which raw statuses are formally effective.
+- Existing detail/unified query DTO still requires exactly one non-empty `insideOrderNo`. Separately, the Order Discovery Gate verified the actual 6086103 “成衣销售合同” empty-condition list and added a fixed `order_discovery` read foundation. It can enumerate the current bound account's visible rows from empty state; it does not prove company-wide visibility. Every discovered visible contract is a clean-bootstrap candidate, and raw Ainuoke `Status` is not an inclusion filter.
 - Current Browser `SalesOrder.id` is referenced by order child records, Ainuoke `boundOrderId`, `ScheduleAssignment`, `OrderExecutionTracking`, `ScheduleBatchAllocation`, `ClosingAllocation`, OperationLog context and reorder provenance. That proves identity must be stable inside any retained dataset. It does **not** require future formal PostgreSQL orders to inherit IDs from the current Browser Order/Scheduling test dataset; newly bootstrapped PostgreSQL identities must instead remain stable from their creation onward.
 - Style Progress is different: current operational facts bind primarily by `salesContractNo`, while optional OperationLog context can also contain `orderId`.
 - The repository contains no committed real Browser Backup. The historical `464` count describes one acceptance profile at a point in time; it is not a migration inventory and cannot be divided into A/B/C counts from repository evidence.
@@ -74,7 +74,8 @@ An order has no verified Ainuoke source link and originates from `manual`, `quot
 
 - **Confirmed:** known `InsideOrderNo` → fully paged 6086103/6086997/6087050 detail reads works.
 - **Now confirmed:** empty state → fixed 6086103 empty-condition discovery → complete current-account-visible `InsideOrderNo` / `SalesContractNo` list. Two traversals returned the same 505 rows over 11 pages and the same normalized hash; identities were unique and D1935 plus five redacted samples entered the existing 6086103/6086997 pipeline.
-- **Still undecided:** whether formal bootstrap includes `生效` only, `生效 + 草拟`, or another explicit lifecycle rule; whether the currently bound account has the intended organizational scope. Discovery preserves raw status and makes no hidden time/status filter.
+- **Confirmed rule:** formal clean bootstrap includes every contract in the complete `current_account_visible` Discovery snapshot. `生效` and `草拟` both participate; raw status remains a source fact but is not an inclusion/exclusion rule. The observed total 505 is one snapshot, not a fixed constant; later runs use their own complete total.
+- **Still undecided:** whether the currently bound account has the intended organizational scope. Discovery makes no hidden time/status filter.
 - Source disappearance cannot authorize hard deletion. Future reconciliation needs last-seen/missing/tombstone state and review.
 
 ## Browser migration necessity
@@ -99,21 +100,20 @@ Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate*
 
 ## Proposed Phase 2B gates
 
-1. **Decision/evidence gate:** approve the source/owned boundary, formal bootstrap statuses and intended Ainuoke account visibility scope. Discovery protocol/source evidence is now available; Browser Backup classification is no longer a clean-bootstrap prerequisite.
+1. **Decision/evidence gate:** approve the source/owned boundary and intended Ainuoke account visibility scope. Discovery protocol/source evidence and the all-visible-contracts/no-status-filter rule are now confirmed; Browser Backup classification is no longer a clean-bootstrap prerequisite.
 2. **Schema/repository gate:** add only SalesOrder/source-link/source-mirror/owned-child migrations, transactional service and API in disposable PostgreSQL; preserve stable IDs and reject broken pointers/owners.
-3. **Clean bootstrap dry run:** discover the approved current-account-visible scope, read details, create only new formal PostgreSQL identities/source links in disposable data, and report duplicates, omissions, lifecycle selection and reconciliation outcomes. Do not import Browser Order/Scheduling records.
+3. **Clean bootstrap dry run:** discover the approved current-account-visible scope, read details, create only new formal PostgreSQL identities/source links in disposable data, and report duplicates, omissions, raw status preservation and reconciliation outcomes. Do not import Browser Order/Scheduling records.
 4. **Owned-state/API gate:** define how formal manual/Quote/reorder orders and later Zhixu-owned facts are created transactionally, including immutable provenance and append-only OperationLog. Quote data remains in its protected current repository until its own cutover.
 5. **Two-profile read acceptance:** point Chrome Profiles A and B at the same Node/PostgreSQL instance with separate trusted sessions; assert the same SalesOrder stable ID/version/projection, verify a permitted Zhixu-owned mutation from A is visible to B after reread, verify unauthorized writes fail, and verify the server OperationLog actor. Browser SalesOrder localStorage must not be a read fallback during this test.
 6. **Cutover decision:** only after reconciliation and user approval decide whether to perform real bootstrap/read cutover. Write cutover and browser-store retirement require their own explicit Gate; no unbounded dual write.
 
 ## Decisions requiring user confirmation
 
-1. Which observed statuses define formal “effective orders”: `生效`, `生效 + 草拟`, or another explicit rule.
-2. Whether `current_account_visible` is the intended bootstrap scope or another approved account/organizational visibility proof is required.
-3. Raw Ainuoke snapshot/import-run retention duration versus retaining only current mirror plus hashes/reconciliation metadata; disappearance/tombstone review policy.
-4. Whether Phase 2B ends at schema/API/disposable dry-run or later includes a separately approved real bootstrap/read cutover.
-5. Closing test-data retirement classification. Browser Order/Scheduling retirement also requires a later explicit destructive confirmation; it is not implied by this architecture direction.
+1. Whether `current_account_visible` is the intended bootstrap scope or another approved account/organizational visibility proof is required.
+2. Raw Ainuoke snapshot/import-run retention duration versus retaining only current mirror plus hashes/reconciliation metadata; disappearance/tombstone review policy.
+3. Whether Phase 2B ends at schema/API/disposable dry-run or later includes a separately approved real bootstrap/read cutover.
+4. Closing test-data retirement classification. Browser Order/Scheduling retirement also requires a later explicit destructive confirmation; it is not implied by this architecture direction.
 
 ## Readiness
 
-**READY FOR PHASE 2B CLEAN BOOTSTRAP SCHEMA/API DESIGN: YES.** The fixed discovery source is proven for `current_account_visible`, and Browser Backup is no longer a bootstrap prerequisite. This is not permission to start Phase 2B or run a real bootstrap; lifecycle/scope/retention decisions and explicit Phase 2B approval remain required.
+**READY FOR PHASE 2B CLEAN BOOTSTRAP SCHEMA/API DESIGN: YES.** The fixed discovery source is proven for `current_account_visible`, all discovered contracts participate without status filtering, and Browser Backup is no longer a bootstrap prerequisite. This is not permission to start Phase 2B or run a real bootstrap; visibility-scope/retention decisions and explicit Phase 2B approval remain required.

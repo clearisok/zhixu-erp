@@ -19,7 +19,7 @@
 - Baseline: `13620491cf56605cadf57c90c6cdf389f0919297`
 - Scope: Ainuoke Order Discovery Gate，只做固定只读 clean-bootstrap discovery foundation；不创建 PostgreSQL SalesOrder、不执行 bootstrap、不切换 Repository、不触碰 Browser 数据、不开始 Phase 2B。
 - Stage A PASS：真实“成衣销售合同”页面使用固定 6086103 空条件请求。当前绑定账号两次完整遍历均为 505 行/11 页，source ID、InsideOrderNo、SalesContractNo 各 505 unique，重复页 0，normalized hash 均为 `37d8e7860e3157cb3022657a4b4ce2223a53876383aec701c685431a5945b744`。
-- Observed lifecycle: `生效=143`、`草拟=362`。D1935 + 5 个脱敏样本均通过 6086103/6086997 cross-check。只能声称 `current_account_visible`，不能声称 company-wide；正式 effective statuses 与组织 visibility 仍需用户决定。
+- Observed snapshot: total 505，`生效=143`、`草拟=362`。全部 Discovery-visible 合同均是 future clean-bootstrap candidate，Status 不作 inclusion filter，只保留为 source fact；505 不是固定常量，未来以当次完整 Snapshot 为准。D1935 + 5 个脱敏样本均通过 6086103/6086997 cross-check。visibility 仍只能声称 `current_account_visible`，不能声称 company-wide。
 - Stage B 增加 fixed `order_discovery` allowlist、精确空 DTO/request、deterministic full pagination、minimal Discovery Row/Snapshot 与 SHA-256；它没有 SalesOrder/业务 Repository/PostgreSQL mutation。
 - Detailed evidence: `docs/features/AINUOKE_ORDER_DISCOVERY.md`。Phase 2A ownership history and updated clean-bootstrap boundary: `docs/features/SALES_ORDER_PERSISTENCE.md`。
 - Current migration direction: Browser Order Center / Scheduling 是测试数据，不作为正式迁移源；Quote Center 是真实业务数据并必须保护；Style Progress/Material out of scope/preserve；Closing retirement status 未决定。

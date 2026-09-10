@@ -553,7 +553,7 @@
 - 状态：Active；只确认长期数据边界与 bootstrap 方向，不授权 Phase 2B、真实 bootstrap 或任何删除。
 - 决定：未来正式 SalesOrder 从 empty PostgreSQL 经固定 Ainuoke discovery 和 6086103/6086997/6087050 detail reads 建立新的正式 PostgreSQL identity；当前 Browser Order Center / Scheduling 是功能测试数据，不是 migration/bootstrap authority，也不要求继承其 SalesOrder ID。新正式 identity 一旦建立必须保持稳定，以承载未来 Zhixu-owned state、Quote/reorder provenance、Scheduling、Closing 与 OperationLog references。
 - 保护边界：Quote Center 的 Quote/Revision/PriceVersion/provenance/附件是真实业务数据并必须保护；Style Progress/Material 不属于 Order/Scheduling retirement 范围；Closing retirement status 仍为 Needs Decision。
-- Discovery scope：当前只证明 6086103 空条件列表可完整遍历 `current_account_visible`，不能声称 company-wide。正式 effective status 与账号 visibility scope 仍需用户确认；source disappearance 不得单独触发 hard delete。
+- Discovery scope：当前只证明 6086103 空条件列表可完整遍历 `current_account_visible`，不能声称 company-wide。完整 Snapshot 内所有 visible contracts 都参与 future clean bootstrap；`生效`、`草拟` 或其他 raw Status 不作为 inclusion/exclusion filter，仅作为 source fact 保留供显示、审计、排查和未来可能的业务规则。当前观察到 505（生效 143、草拟 362）只属于本次 Snapshot，未来以当次完整 Snapshot 为准。账号 visibility scope 仍需确认；source disappearance 不得单独触发 hard delete。
 - Retirement：旧 Browser Order/Scheduling 可以在未来退役，但只能通过独立 Test Business Data Retirement Gate；必须先完整 backup、dependency audit、精确 delete/protect scope，并取得用户 explicit destructive confirmation。此决定本身不授权清理。
 - 证据：`docs/features/AINUOKE_ORDER_DISCOVERY.md`、`docs/features/SALES_ORDER_PERSISTENCE.md`、`features/ainuoke-api/source/ainuoke-order-discovery-adapter.ts` 与 Discovery/Bridge tests。
 

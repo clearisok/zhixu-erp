@@ -7,6 +7,7 @@
 - Stage A protocol discovery: **PASS** on 2026-09-10.
 - Stage B fixed read-only foundation: implemented on `chore/ainuoke-order-discovery`.
 - Proven scope is only **all rows visible to the currently bound Ainuoke account** (`current_account_visible`). Company-wide or department-wide visibility was not proven.
+- Every contract returned by a complete `current_account_visible` Discovery snapshot is a future clean-bootstrap candidate. Ainuoke `Status` does not include or exclude a discovered contract.
 - This Gate does not create PostgreSQL SalesOrder, bootstrap orders, switch a Repository, write Ainuoke, or read/change Browser SalesOrder/Scheduling/Quote/Style Progress/Closing data.
 
 ## Confirmed source and request
@@ -82,7 +83,7 @@ At the observed snapshot, statuses were:
 - `生效`: 143
 - `草拟`: 362
 
-The source exposes status, but which statuses should enter a formal PostgreSQL bootstrap is **Needs User Decision**. The foundation returns all current-account-visible rows and preserves raw status; it does not silently apply “recent years”, effective-only, or any other lifecycle filter.
+All contracts in a complete current-account-visible snapshot participate as future clean-bootstrap candidates, including both observed statuses. `Status` has no bootstrap inclusion/exclusion meaning. It remains an Ainuoke source fact for display, audit, troubleshooting, and possible future rules. The observed 505/143/362 values describe this one snapshot only; every future run uses that run's complete snapshot and does not treat 505 as a permanent constant. No time/status filter is applied.
 
 ## Detail cross-check
 
@@ -111,11 +112,10 @@ The old Browser Order/Scheduling data is not authorized for deletion. A later in
 
 ## Remaining decisions
 
-1. Which observed statuses define the formal effective-order bootstrap scope (`生效` only, `生效 + 草拟`, or another explicit rule).
-2. Whether `current_account_visible` is the intended formal bootstrap scope, or whether another approved Ainuoke account/visibility proof is required.
-3. Snapshot/reconciliation retention and how missing rows become reviewed tombstones without hard deletion.
-4. Phase 2B schema/API scope and the separate approval to run any real bootstrap.
-5. Closing data retirement classification; Browser Order/Scheduling retirement remains a later separately confirmed destructive Gate.
+1. Whether `current_account_visible` is the intended formal bootstrap scope, or whether another approved Ainuoke account/visibility proof is required.
+2. Snapshot/reconciliation retention and how missing rows become reviewed tombstones without hard deletion.
+3. Phase 2B schema/API scope and the separate approval to run any real bootstrap.
+4. Closing data retirement classification; Browser Order/Scheduling retirement remains a later separately confirmed destructive Gate.
 
 ## Readiness
 
