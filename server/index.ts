@@ -1,5 +1,7 @@
 import { createServer } from "node:http";
 import { createApp } from "./app.js";
+import { bootstrapAdmin } from "./auth/bootstrap.js";
+import { synchronizePermissionCatalog } from "./auth/permissions.js";
 import { loadServerConfig } from "./config.js";
 import { closeDatabasePool, createDatabasePool } from "./db/pool.js";
 import { runMigrations } from "./db/migration-runner.js";
@@ -11,8 +13,18 @@ const pool = createDatabasePool({
 });
 
 await runMigrations(pool, config.migrationsDirectory);
+await synchronizePermissionCatalog(pool);
+await bootstrapAdmin(pool, config.bootstrapAdmin);
 
-const server = createServer(createApp({ pool }));
+const server = createServer(createApp({
+  pool,
+  allowedOrigins: config.allowedOrigins,
+  security: {
+    secureCookies: config.secureCookies,
+    sessionTtlSeconds: config.sessionTtlSeconds,
+  },
+  staticDirectory: config.staticDirectory,
+}));
 let shuttingDown = false;
 
 async function shutdown(signal: string): Promise<void> {

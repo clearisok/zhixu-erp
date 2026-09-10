@@ -18,8 +18,10 @@
 - Branch: `feat/postgres-server-foundation`
 - Baseline: `efb2996206c1738255f764d71fb2bfa3f329e069`
 - Scope: PostgreSQL Server Persistence Migration Phase 1，只交付 Node/TypeScript Server Runtime、版本化 PostgreSQL migration、可信 Auth/RBAC 与服务器 OperationLog 基础；不创建 SalesOrder 或其他 Phase 2 业务表，不迁移浏览器业务数据。
-- Checkpoint A：已实现独立 Node/TypeScript server、PostgreSQL pool、`/api/v1/health`、forward-only migration runner 与 `schema_migrations` ledger；runner 使用 advisory lock、逐文件事务和 SHA-256 checksum fail-closed。一次性 `postgres:16-alpine` tmpfs 容器集成测试覆盖顺序、幂等、checksum drift、失败回滚、并发 runner 和数据库健康状态。
-- Checkpoint B：待实现 trusted auth/session、基于共享 `PermissionKey` 的 server RBAC、append-only server OperationLog、DEV proxy / Node production container path、完整文档与最终验证。
+- Checkpoint A：commit `d69649149b4898eaaeaace000604b4bc538c20f6` 已实现独立 Node/TypeScript server、PostgreSQL pool、`/api/v1/health`、forward-only migration runner 与 `schema_migrations` ledger；runner 使用 advisory lock、逐文件事务和 SHA-256 checksum fail-closed。
+- Checkpoint B：已实现 `app_users` 单一身份源的 immutable UUID、digest-only V1 session、brute-force/expiry/revocation、共享 `PermissionKey` PostgreSQL RBAC、append-only server OperationLog、DEV proxy、Node static + API Docker profile 和完整文档。PostgreSQL integration 只使用一次性 PG16 tmpfs 容器；没有创建 SalesOrder/Quote/Scheduling/Closing/Style Progress/Ainuoke/附件业务表，也未迁移或双写 browser data。
+- Checkpoint B 最终门禁：Full Tests 565/565、PostgreSQL integration 9/9、typecheck、lint、server build、Production Build 30 routes、Compose config、production container health/static/cookie/session digest/trusted identity、secret scan 与 diff-check 全部 PASS；一次性容器均已清理。
+- Next：Phase 1 完成后必须停止。SalesOrder Phase 2 只有在用户另行批准后才能开始。
 
 ### Previous completed PR #12 context
 

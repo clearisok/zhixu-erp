@@ -4,6 +4,8 @@
 
 为 Quote Center、新订单中心与设置模块的关键业务写操作提供可追溯的追加式记录，回答“谁、何时、对哪个对象做了什么、修改前后是什么”。操作日志是独立审计数据，不替代 Quote Revision、订单数量或价格历史，也不进入业务聚合。
 
+PostgreSQL Server Persistence Phase 1 已建立独立 server `operation_logs` foundation；browser localStorage repository 继续服务尚未 cutover 的现有业务，两者当前不双写。
+
 ## Current behavior
 
 - 正式模型继续使用唯一的 `OperationLog` / `OperationLogRepository`，没有新增第二套 `AuditEvent`。
@@ -72,7 +74,8 @@ OperationLog {
 
 - Repository：`features/operation-logs/repository/operation-log-repository.ts`；全局和报价详情读取同一数据源。
 - 当前存储：localStorage `zhixu.erp.local.operation-logs`；旧 `zhixu.operation-logs.v1` 仅作为非破坏迁移来源。
-- 当前没有操作日志 API、数据库表、migration 或服务器端写入保证。
+- Phase 1 新增 PostgreSQL `operation_logs` 与内部 append repository。actor 由 trusted session context 注入，保存 `app_users.id` RESTRICT FK、稳定 public ID 和姓名快照；数据库 trigger 拒绝 UPDATE/DELETE。
+- `/api/v1/operation-logs` 只提供 `audit_log.view` 保护的读取；没有 client append/update/delete/clear API。浏览器业务尚未 cutover，因此仍写原 localStorage repository，不做未对账双写。
 - 存储与 Quote mock repository 分离，因此不会改变现有报价数据结构。
 
 ## Frontend behavior
@@ -102,5 +105,6 @@ OperationLog {
 - localStorage 可以被客户端修改，不是生产级不可篡改审计存储。
 - 当前统一前端日志覆盖 Quote Center、基础设置、系统报价设置、模板和权限；根路径 ERP 的 PostgreSQL `audit_logs` 仍是另一条既有后端路径，两者尚未合并。
 - 当前全局页面没有分页、日志导出或保留策略。
+- Server endpoint 当前只有有界最新 100 条读取，尚未接入分页/保留策略；业务 OperationLog transaction 接线随各领域独立 cutover 实施。
 - 现有代码没有 Quote Revision 删除 UI，因此“删除报价版本”差异能力已预留，但没有可触发的当前页面操作。
 - 附件日志当前记录稳定附件 ID；尚未把文件名快照写入日志。

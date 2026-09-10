@@ -4,21 +4,35 @@
 
 ## 当前阶段
 
+- 当前 Active Task 为 `feat/postgres-server-foundation`，起点为 PR #12 merge `efb2996206c1738255f764d71fb2bfa3f329e069`。Phase 1 只建立 Node/PostgreSQL server runtime、versioned migrations、trusted Auth/RBAC 和 server OperationLog；不进入 SalesOrder Phase 2。
 - 当前稳定基线：`main` / `origin/main` 的任务起点 `0be13768bed1e1d990138cf7b9e60097554b945d`（PR #11 已 merged，6087050 Material API commit 与真实 D1935 acceptance 已进入 main）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
-- 当前 Active Task 为 `feat/ainuoke-unified-sync`。Gate 4 将 6086103、6086997 与 6087050 聚合为一次统一读取、一个 change summary 和必要时一次确认；内部继续调用既有 Contract/Material Preview 与 commit，不创建第三套 pipeline。
+- 前一任务 `feat/ainuoke-unified-sync` 已通过 PR #12 合并；Gate 4 继续作为稳定既有能力，不是本轮 server migration 的迁移对象。
 - `面辅料申购统计 (1).xlsx` 的既有审计仍是有效的历史 Source Trace 与字段语义证据，但不是当前同步的 authoritative snapshot。当前同步以 6087050 Direct API 当次返回为准；不同时间的 Excel/API 不要求 row-count、hash 或 row identity parity，也不得为匹配历史行数过滤实时数据。
 
 ## 当前可运行边界
 
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
+- Phase 1 Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。legacy 3000 runtime 暂时保留。
 - Quote Center、新订单中心、生产排单、款式进度、关账中心和相关设置仍使用浏览器 Repository；尚不是服务端多用户生产实现。
 - DEV 固定使用 `127.0.0.1:3001`，PROD Docker 固定使用 `127.0.0.1:3000`，两者依靠 Origin 隔离数据。
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### PostgreSQL Server Persistence Migration — Phase 1
+
+- 新增 `server/` Node/TypeScript runtime、`pg` pool、graceful shutdown、静态文件服务和结构化错误；数据库凭据只读取 server environment。`/api/v1/health` 对数据库不可用返回 503。
+- 新增 `database/migrations/` 和 `schema_migrations` ledger。runner 按版本排序，使用 advisory lock、逐文件 transaction 和 SHA-256 checksum；rerun no-op，漂移/缺失/失败 fail closed，没有自动 down。
+- `app_users` 仍是唯一身份源；新增唯一、不可变 UUID `public_id`。V1 session 只保存随机 token 的 SHA-256 digest，支持 expiry、logout/revocation、inactive rejection 和 15 分钟 10 次失败限制；cookie 为 HttpOnly/SameSite Strict，production 强制 Secure。
+- PostgreSQL RBAC 使用 `app_roles/app_permissions/app_user_roles/app_role_permissions`，权限目录从现有纯 TypeScript `PERMISSION_KEYS` 唯一同步。授权只比较 permission key，不判断角色名称或提供 admin bypass。
+- 新 `operation_logs` 与 legacy `audit_logs` 分离，保存 internal actor FK + stable public ID/name snapshots、operationId、上下文和 before/after/changes/metadata；DB trigger 拒绝 UPDATE/DELETE，API 只提供 `audit_log.view` 只读列表。
+- 新 API 为 `/api/v1/auth/login|logout|me|permissions` 与只读 `/api/v1/operation-logs`。server 不信任 body/header 中的 userId/role/permissions，不提供通用 SQL 或 client append log endpoint。
+- PostgreSQL integration 使用随机一次性 PG16 tmpfs 容器，覆盖 migration、legacy schema compatibility、auth/session、RBAC spoof/403、OperationLog append-only 和 health；不会连接真实 DEV/`zhixu` 数据库。
+- Phase 1 最终门禁：Full Tests 565/565、PostgreSQL integration 9/9、TypeScript、ESLint、server build、Production Build 30 routes、Compose config、production container health/static/cookie/session digest/trusted identity、secret scan 与 `git diff --check` 全部 PASS；一次性容器均已清理。
+- 未创建 SalesOrder 或其他业务表，未导入/修改 browser repository 数据，未迁移 Ainuoke/Quote/Style Progress/Scheduling/Closing/附件，也未修改 legacy `customers/quotes/orders/schedules/audit_logs/api_dispatch`。
 
 ### Ainuoke Unified Order + Material Sync Gate 4
 

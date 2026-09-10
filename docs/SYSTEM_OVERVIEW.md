@@ -2,7 +2,22 @@
 
 ## 当前架构
 
-本仓库是一个 Vinext/React/TypeScript 单仓应用，不是传统的 `frontend/` + `backend/` 分仓。当前存在两条相互隔离的数据路径。
+本仓库是一个 Vinext/React/TypeScript 单仓应用，不是传统的 `frontend/` + `backend/` 分仓。Phase 1 新增位于 `server/` 的正式 Node backend foundation；现有 legacy 与 browser mock 路径仍保持隔离。
+
+### Phase 1 Node/PostgreSQL server foundation
+
+```text
+浏览器
+  -> 同源 /api/v1/*
+  -> Node/TypeScript server
+  -> trusted session + PermissionKey RBAC
+  -> PostgreSQL pool
+```
+
+- 当前只承载 health、Auth/RBAC 与 server OperationLog，不承载 SalesOrder 或其他业务领域。
+- versioned SQL 位于 `database/migrations/`，`schema_migrations` 保存 checksum 和应用信息；旧 `database/001_schema.sql` 不属于新 migration sequence。
+- DEV 3001 通过 Vite proxy 访问 3100 API；Compose 的显式 `server-foundation` profile 演示 Node 同时提供 static + API。未来生产目标是 Browser → Node → PostgreSQL。
+- 详细安全、migration、Docker、测试和 cutover 边界见 `docs/features/SERVER_PERSISTENCE.md`。
 
 ### 根路径 ERP（本地 PostgreSQL 路径）
 
@@ -15,6 +30,7 @@
 ```
 
 - Docker 镜像不运行 Node 服务；它以 PostgreSQL 镜像为基础，启动数据库和 BusyBox/`nc` 静态服务脚本。
+- 上述描述只针对 legacy `zhixu` service；新 `Dockerfile.server`/`server` profile 运行 Node，但 Phase 1 尚未替换 legacy 默认 service。
 - `database/001_schema.sql` 创建表、约束、索引和 `api_dispatch` 函数。
 - `database/002_admin.sql` 在用户名不存在时创建初始管理员。
 - 数据保存在 Compose 命名 volume `zhixu_data` 中。
@@ -78,8 +94,8 @@
 
 - 权威生产数据库定义：`database/001_schema.sql`。
 - 初始化管理员：`database/002_admin.sql`。
-- 当前没有 Alembic、SQLAlchemy、FastAPI 或 Python migration/backend。
-- SQL 文件会在容器启动时重复执行，主要依靠 `IF NOT EXISTS` 和 `CREATE OR REPLACE`；它们是初始化/演进脚本，不具备完整 migration 版本、升级序列或回滚历史。
+- 当前没有 Alembic、SQLAlchemy、FastAPI 或 Python backend；已新增 Node/TypeScript migration runner 与 `database/migrations/`。
+- Legacy `001_schema.sql`/`002_admin.sql` 仍会在旧容器启动时重复执行；新 Node runtime 只运行带 ledger/advisory lock/checksum/transaction 的 forward-only migrations。
 - `db/`、`drizzle/` 指向 SQLite/D1 scaffold，当前不承载业务表，不能作为 PostgreSQL schema 的替代事实源。
 
 ## 根路径 API 概览
@@ -109,4 +125,4 @@
 
 ## 测试边界
 
-自动化测试主要覆盖 Quote Center、订单、排单、关账、计算、Revision、全局费用、基础资料、Foundation 表单行为和源码契约。订单到关账测试覆盖持久化、Quote 转单、翻单、交期、数量/价格历史、生产投影、关账快照/产值/锁定、权限、日志、搜索与备份恢复。当前没有覆盖 PostgreSQL `api_dispatch` 的集成测试，也没有容器级端到端测试。任何数据库/API 修改都不能仅凭前端测试判断安全。
+自动化测试主要覆盖 Quote Center、订单、排单、关账、计算、Revision、全局费用、基础资料、Foundation 表单行为和源码契约。订单到关账测试覆盖持久化、Quote 转单、翻单、交期、数量/价格历史、生产投影、关账快照/产值/锁定、权限、日志、搜索与备份恢复。当前仍没有覆盖 legacy PostgreSQL `api_dispatch` 业务行为的集成测试。Phase 1 已新增 disposable PG16 容器集成测试，覆盖新 migration、Auth/RBAC、OperationLog 与 health；这不等价于 legacy ERP 或未来业务领域端到端测试。
