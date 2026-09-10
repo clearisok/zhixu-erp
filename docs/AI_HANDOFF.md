@@ -21,7 +21,9 @@
 - Measurement harness 使用 Node 进程内隔离 fake IndexedDB 与 deterministic synthetic dataset，覆盖 1k/5k/10k/20k Demands、四类 Event、Expected Arrival Batch、多合同和 active/cancelled Scheduling；不会连接 DEV/PROD Browser namespace。
 - Before median/单次基线（ms，1k/5k/10k/20k）：`loadAll=152.9/1486.0/3007.1/7765.8`；`buildStyleProgressProjections=38.5/1079.0/3866.5/14203.2`；完整 `loadProgress=208.5/2273.2/6400.0/13511.8`；DataTable SSR 首次 render=`16.6/159.2/224.0/201.0`。
 - 已确认首要热点：Projection 对全部 `expectedArrivalBatches` 按 Demand 和 Canonical Material 重复扫描；每合同重复过滤全部 `scheduleAssignments`。Repository 还读取列表不需要的 Raw/Import Trace，且 v4 validation 在 allocation 校验后按 Demand ID 线性回查。
-- 当前 checkpoint 只建立可重复 benchmark fixture/script 与可注入的 `loadStyleProgress` 编排边界；下一步实现内存索引和轻量 Projection read model，并以同 fixture 做字段级 deep equality 与 after benchmark。
+- Projection 已建立 Demand → Expected Arrival Batch、SalesOrder → active assignments 索引，并预计算 Canonical 排序事实/复用合同 fallback；列表/风险/订单摘要读取不含 Raw/Import Trace 的轻量 read model，详情/Import/Backup/Migration 继续使用完整 `loadAll()`。IndexedDB version/store/index 未改变。
+- After（ms，1k/5k/10k/20k）：`loadAll=49.3/201.0/438.5/895.5`；`buildStyleProgressProjections=25.6/89.3/175.2/358.0`；完整 `loadProgress=54.1/263.7/560.0/1097.3`；DataTable SSR=`13.6/66.4/123.6/167.5`。10k Projection 为 22.07× / 95.5% reduction，20k 为 39.68× / 97.5%；20k 完整 loader 为 12.31× / 91.9%。
+- Projection equivalence：优化前完整 fixture JSON hash `03b44ea3c898f353c8fca75b8a33341bf586667dcd2e78d05ea53c05a0ba51cc` 保持一致；轻量/full read model 输出 deep-equal。最终门禁为专项 50/50、Full Tests 577/577、TypeScript、零警告 ESLint、Production Build 30 routes 与 `git diff --check` PASS。
 
 ### Previous completed PR #14 context
 

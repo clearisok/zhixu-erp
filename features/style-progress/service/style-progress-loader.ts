@@ -23,7 +23,7 @@ export type StyleProgressLoaders = {
 };
 
 const defaultLoaders: StyleProgressLoaders = {
-  loadData: () => styleProgressRepository.loadAll(),
+  loadData: () => styleProgressRepository.loadProjectionData(),
   loadOrders: () => orderRepository.list(),
   loadScheduling: () => productionSchedulingRepository.load(),
   loadSettings: () => operationsSettingsRepository.load(),

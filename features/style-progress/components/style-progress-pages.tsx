@@ -38,6 +38,7 @@ import {
 } from "../service/style-progress-service";
 import { loadStyleProgress, type LoadedStyleProgress } from "../service/style-progress-loader";
 import type {
+  MaterialImportBatch,
   MaterialImportPreview,
   StyleProgressData,
 } from "../model/style-progress";
@@ -108,12 +109,12 @@ const quantity = (value: number | null) =>
     ? "—"
     : value.toLocaleString("zh-CN", { maximumFractionDigits: 3 });
 
-async function loadProgress(): Promise<Loaded> {
-  return loadStyleProgress();
+async function loadProgress(includeTrace = false): Promise<Loaded> {
+  return loadStyleProgress(includeTrace ? { loadData: () => styleProgressRepository.loadAll() } : {});
 }
 
 async function ensureMaterialImportOperationLogs(
-  data: StyleProgressData,
+  batches: MaterialImportBatch[],
 ): Promise<void> {
   const existing = await operationLogRepository.list();
   const loggedBatchIds = new Set(
@@ -125,7 +126,7 @@ async function ensureMaterialImportOperationLogs(
       )
       .map((item) => item.entityId),
   );
-  const missing = data.batches.filter(
+  const missing = batches.filter(
     (batch) => batch.status === "committed" && !loggedBatchIds.has(batch.id),
   );
   if (!missing.length) return;
@@ -474,7 +475,7 @@ export function StyleProgressPage() {
     return () => clearTimeout(timer);
   }, [toast]);
   useEffect(() => {
-    if (loaded) void ensureMaterialImportOperationLogs(loaded.data);
+    if (loaded) void styleProgressRepository.listImportBatches().then(ensureMaterialImportOperationLogs);
   }, [loaded]);
   const rows = useMemo(
     () =>
@@ -1028,7 +1029,7 @@ export function LegacyStyleProgressDetailPage() {
   const [toast, setToast] = useState("");
   const reload = async () => {
     try {
-      setLoaded(await loadProgress());
+      setLoaded(await loadProgress(true));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "无法读取款式进度");
     }
@@ -1280,7 +1281,7 @@ export function StyleProgressDetailPage() {
   const [toast, setToast] = useState("");
   const reload = async () => {
     try {
-      setLoaded(await loadProgress());
+      setLoaded(await loadProgress(true));
       setError("");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "无法读取款式进度");

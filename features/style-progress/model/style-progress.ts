@@ -426,7 +426,7 @@ export function validateStyleProgressData(value: unknown): StyleProgressData {
     if (data.dataVersion >= 4 && (canonicalKeys.size !== 1 || !canonicalKeys.has(batch.canonicalMaterialKey))) throw new Error(`预计到料批次 canonicalMaterialKey 与 Allocation 物料身份不一致：${batch.id}`);
   }
   for (const [demandId, quantity] of allocated) {
-    const required = data.demands.find((item) => item.id === demandId)?.requiredQuantity ?? 0;
+    const required = demandsById.get(demandId)?.requiredQuantity ?? 0;
     if (quantity > required + 1e-9) throw new Error(`预计到料批次超出需求数量：${demandId}`);
   }
   return data;

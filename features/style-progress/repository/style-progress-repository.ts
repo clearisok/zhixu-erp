@@ -323,8 +323,42 @@ async function readStore<T>(key: StoreKey): Promise<T[]> {
   return requestResult(transaction.objectStore(STORES[key]).getAll() as IDBRequest<T[]>);
 }
 
+async function readMetadata(): Promise<{ id: string; dataVersion: number } | undefined> {
+  const database = await openDatabase();
+  const transaction = database.transaction(METADATA_STORE, "readonly");
+  return requestResult(transaction.objectStore(METADATA_STORE).get(METADATA_ID) as IDBRequest<{ id: string; dataVersion: number } | undefined>);
+}
+
+async function persistExpectedArrivalRepair(
+  batches: MaterialExpectedArrivalBatch[],
+): Promise<void> {
+  const database = await openDatabase();
+  const transaction = database.transaction(STORES.expectedArrivalBatches, "readwrite");
+  const store = transaction.objectStore(STORES.expectedArrivalBatches);
+  store.clear();
+  for (const batch of batches) store.put(batch);
+  await transactionComplete(transaction);
+}
+
+function removeFactorySuppliedExpectedArrivalsForRead(
+  data: StyleProgressData,
+): { data: StyleProgressData; changed: boolean } {
+  const factoryDemandIds = new Set(data.demands.filter(isFactorySupplied).map((demand) => demand.id));
+  if (!factoryDemandIds.size) return { data, changed: false };
+  let changed = false;
+  const expectedArrivalBatches = data.expectedArrivalBatches.flatMap((batch) => {
+    const allocations = batch.allocations.filter((allocation) => !factoryDemandIds.has(allocation.materialDemandId));
+    if (allocations.length === batch.allocations.length) return [batch];
+    changed = true;
+    return allocations.length ? [{ ...batch, allocations }] : [];
+  });
+  return { data: changed ? { ...data, expectedArrivalBatches } : data, changed };
+}
+
 export interface StyleProgressRepository {
   loadAll(): Promise<StyleProgressData>;
+  loadProjectionData(): Promise<StyleProgressData>;
+  listImportBatches(): Promise<StyleProgressData["batches"]>;
   listDemands(): Promise<MaterialDemand[]>;
   listDemandsByContract(salesContractNo: string): Promise<MaterialDemand[]>;
   listExpectedArrivalBatchesByContract(salesContractNo: string): Promise<MaterialExpectedArrivalBatch[]>;
@@ -337,20 +371,21 @@ export interface StyleProgressRepository {
 
 export const styleProgressRepository: StyleProgressRepository = {
   async loadAll() {
-    const [batches, rawSnapshots, demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents, expectedArrivalBatches] = await Promise.all([
+    const [batches, rawSnapshots, demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents, expectedArrivalBatches, metadata] = await Promise.all([
       readStore<StyleProgressData["batches"][number]>("batches"), readStore<StyleProgressData["rawSnapshots"][number]>("rawSnapshots"), readStore<MaterialDemand>("demands"),
       readStore<StyleProgressData["purchaseEvents"][number]>("purchaseEvents"), readStore<StyleProgressData["inboundEvents"][number]>("inboundEvents"), readStore<StyleProgressData["shipmentEvents"][number]>("shipmentEvents"), readStore<StyleProgressData["outboundEvents"][number]>("outboundEvents"),
       readStore<StyleProgressData["expectedArrivalBatches"][number]>("expectedArrivalBatches"),
+      readMetadata(),
     ]);
-    const database = await openDatabase();
-    const metadataTransaction = database.transaction(METADATA_STORE, "readonly");
-    const metadata = await requestResult(metadataTransaction.objectStore(METADATA_STORE).get(METADATA_ID) as IDBRequest<{ id: string; dataVersion: number } | undefined>);
     const current = validateStyleProgressData({ dataVersion: metadata?.dataVersion ?? 2, batches, rawSnapshots, demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents, expectedArrivalBatches });
-    const migrated = removeFactorySuppliedExpectedArrivals(migrateStyleProgressDataV4(current));
+    const versioned = current.dataVersion >= 4 ? current : migrateStyleProgressDataV4(current);
+    const repaired = removeFactorySuppliedExpectedArrivalsForRead(versioned);
+    const migrated = repaired.data;
     const changed = migrated.demands.filter((demand, index) => demand.actualConsumption !== current.demands[index]?.actualConsumption || demand.supplyMethod !== current.demands[index]?.supplyMethod);
     const needsDataWrite = (metadata?.dataVersion ?? 2) < 4;
-    const expectedArrivalsChanged = JSON.stringify(current.expectedArrivalBatches) !== JSON.stringify(migrated.expectedArrivalBatches);
+    const expectedArrivalsChanged = needsDataWrite || repaired.changed;
     if (changed.length || needsDataWrite || expectedArrivalsChanged) {
+      const database = await openDatabase();
       const transaction = database.transaction([STORES.demands, STORES.expectedArrivalBatches, METADATA_STORE], "readwrite");
       const store = transaction.objectStore(STORES.demands);
       for (const demand of changed) store.put(demand);
@@ -366,6 +401,33 @@ export const styleProgressRepository: StyleProgressRepository = {
     }
     return migrated;
   },
+  async loadProjectionData() {
+    const metadata = await readMetadata();
+    if ((metadata?.dataVersion ?? 2) < 4) return styleProgressRepository.loadAll();
+    const [demands, purchaseEvents, inboundEvents, shipmentEvents, outboundEvents, expectedArrivalBatches] = await Promise.all([
+      readStore<MaterialDemand>("demands"),
+      readStore<StyleProgressData["purchaseEvents"][number]>("purchaseEvents"),
+      readStore<StyleProgressData["inboundEvents"][number]>("inboundEvents"),
+      readStore<StyleProgressData["shipmentEvents"][number]>("shipmentEvents"),
+      readStore<StyleProgressData["outboundEvents"][number]>("outboundEvents"),
+      readStore<StyleProgressData["expectedArrivalBatches"][number]>("expectedArrivalBatches"),
+    ]);
+    const current = validateStyleProgressData({
+      dataVersion: metadata!.dataVersion,
+      batches: [],
+      rawSnapshots: [],
+      demands,
+      purchaseEvents,
+      inboundEvents,
+      shipmentEvents,
+      outboundEvents,
+      expectedArrivalBatches,
+    });
+    const repaired = removeFactorySuppliedExpectedArrivalsForRead(current);
+    if (repaired.changed) await persistExpectedArrivalRepair(repaired.data.expectedArrivalBatches);
+    return repaired.data;
+  },
+  async listImportBatches() { return readStore<StyleProgressData["batches"][number]>("batches"); },
   async listDemands() { return readStore<MaterialDemand>("demands"); },
   async listDemandsByContract(salesContractNo) {
     const database = await openDatabase();

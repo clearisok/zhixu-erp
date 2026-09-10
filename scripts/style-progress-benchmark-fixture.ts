@@ -316,12 +316,13 @@ export function createStyleProgressBenchmarkFixture(demandCount: number): StyleP
     });
   }
 
+  const purchaseByDemandId = new Map(data.purchaseEvents.map((event) => [event.materialDemandId, event]));
   for (let start = 0; start < demandCount; start += DEMANDS_PER_CANONICAL_MATERIAL) {
     const group = data.demands.slice(start, start + DEMANDS_PER_CANONICAL_MATERIAL);
     const operational = group.filter((demand) => demand.supplyMethod !== "厂供");
     if (!operational.length) continue;
     const first = operational[0];
-    const identity = resolveCanonicalMaterialIdentity(first, data.purchaseEvents.filter((event) => event.materialDemandId === first.id));
+    const identity = resolveCanonicalMaterialIdentity(first, [purchaseByDemandId.get(first.id)!]);
     const groupIndex = Math.floor(start / DEMANDS_PER_CANONICAL_MATERIAL);
     const dateSource = groupIndex % 9 === 0 ? "manual" : "source";
     const expectedArrivalAtHubDate = dateSource === "manual" ? "2026-09-18" : first.sourceMaterialDueDate!;
