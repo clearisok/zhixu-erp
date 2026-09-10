@@ -5,7 +5,7 @@
 ## 当前阶段
 
 - 当前 Active Task 为 `feat/postgres-server-foundation`，起点为 PR #12 merge `efb2996206c1738255f764d71fb2bfa3f329e069`。Phase 1 只建立 Node/PostgreSQL server runtime、versioned migrations、trusted Auth/RBAC 和 server OperationLog；不进入 SalesOrder Phase 2。
-- 当前稳定基线：`main` / `origin/main` 的任务起点 `0be13768bed1e1d990138cf7b9e60097554b945d`（PR #11 已 merged，6087050 Material API commit 与真实 D1935 acceptance 已进入 main）。
+- 当前稳定基线：`main` / `origin/main` 的任务起点 `efb2996206c1738255f764d71fb2bfa3f329e069`（PR #12 已 merged，Ainuoke Unified Order + Material Sync Gate 4 已进入 main）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
