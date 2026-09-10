@@ -21,9 +21,6 @@ import {
 } from "@/components/foundation";
 import { orderRepository } from "@/features/order-center/repository/order-repository";
 import type { SalesOrder } from "@/features/order-center/model/order";
-import { operationsSettingsRepository } from "@/features/operations-settings/repository/operations-settings-repository";
-import type { OperationsSettingsState } from "@/features/operations-settings/model/operations-settings";
-import { productionSchedulingRepository } from "@/features/production-scheduling/repository/production-scheduling-repository";
 import {
   operationLogRepository,
   createOperationLogDraft,
@@ -32,7 +29,6 @@ import { usePermissions } from "@/features/permissions";
 import { parseMaterialFollowUpWorkbook } from "../parser/material-follow-up-parser";
 import { styleProgressRepository } from "../repository/style-progress-repository";
 import {
-  buildStyleProgressProjections,
   fabricDisplayOrder,
   filterMaterialsByGarmentColor,
   normalizeGarmentColorTokens,
@@ -40,6 +36,7 @@ import {
   type MaterialProgressProjection,
   type StyleProgressProjection,
 } from "../service/style-progress-service";
+import { loadStyleProgress, type LoadedStyleProgress } from "../service/style-progress-loader";
 import type {
   MaterialImportPreview,
   StyleProgressData,
@@ -47,12 +44,7 @@ import type {
 import { OrderCenterNavigation } from "./order-center-navigation";
 import { MaterialControlTower } from "./material-control-tower";
 
-type Loaded = {
-  data: StyleProgressData;
-  orders: SalesOrder[];
-  projections: StyleProgressProjection[];
-  settings: OperationsSettingsState;
-};
+type Loaded = LoadedStyleProgress;
 type ImportPreviewAudit = {
   contracts: number;
   contractsMatched: number;
@@ -117,23 +109,7 @@ const quantity = (value: number | null) =>
     : value.toLocaleString("zh-CN", { maximumFractionDigits: 3 });
 
 async function loadProgress(): Promise<Loaded> {
-  const [data, orders, scheduling, settings] = await Promise.all([
-    styleProgressRepository.loadAll(),
-    orderRepository.list(),
-    productionSchedulingRepository.load(),
-    Promise.resolve(operationsSettingsRepository.load()),
-  ]);
-  return {
-    data,
-    orders,
-    settings,
-    projections: buildStyleProgressProjections({
-      data,
-      orders,
-      scheduling,
-      settings,
-    }),
-  };
+  return loadStyleProgress();
 }
 
 async function ensureMaterialImportOperationLogs(
