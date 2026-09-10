@@ -533,7 +533,8 @@
 - 领域边界：读取分别复用 `buildAinuokeContractApiPreview` 与 `buildAinuokeMaterialApiPreview`；确认分别调用 `commitAinuokeContractApiPreview` 与 `commitAinuokeMaterialApiPreview`。Matcher、Order mutation、Material Normalize/Dedup/Canonical、`commitImport`、Expected Arrival 与 OperationLog 均保持既有唯一实现。
 - No-change / 权限：合同与物料都无变化时不要求确认，也不产生 ImportRun、Repository write 或 OperationLog。合同写仍要求 `ainuoke.sync`，物料写仍要求 `style_progress.import`；统一 Preview 只要求 `ainuoke.view`，不新增超级权限。
 - Failure safety：当前 browser-local Repository 无法提供跨领域 ACID。确认前必须完成两侧 validation、immutable Preview 与本地 baseline stale guard；提交顺序为 Contract → Material。合同成功而物料失败时明确返回 partial failure，不伪造 rollback；用户重新刷新后依靠两侧既有幂等只提交仍有变化的领域。
-- 代码证据：`features/ainuoke-sync/service/ainuoke-unified-sync.ts` 与 `tests/ainuoke-unified-sync.test.mjs`。
+- 真实验收：2026-09-10 当前 DEV Browser Profile 首次 D1935 统一 Preview 显示 contract auto-create 1 与 material changed；用户本人确认后两侧均 success。随后同一 D1935 只读刷新两侧均 no-change，不显示确认按钮，也没有第二次业务提交。物料保持 262 Source rows、12 Canonical（2 fabric + 10 trim）、255 Demands 与 183/153/150/150 Events。
+- 代码证据：`features/ainuoke-sync/service/ainuoke-unified-sync.ts`、`features/ainuoke-sync/components/ainuoke-sync-page.tsx` 与 `tests/ainuoke-unified-sync.test.mjs`。
 
 ## Superseded
 

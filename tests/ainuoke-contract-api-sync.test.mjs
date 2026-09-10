@@ -129,21 +129,19 @@ test("API commit orchestration cannot touch Scheduling or Closing", () => {
   assert.match(source, /preview\.sync\.operationLogs/);
 });
 
-test("existing Ainuoke Sync page exposes contract commit and preview-first material commit in the same source center", () => {
+test("Ainuoke Sync page exposes one unified refresh and confirmation while retaining Excel mode", () => {
   const source = readFileSync(new URL("../features/ainuoke-sync/components/ainuoke-sync-page.tsx", import.meta.url), "utf8");
   assert.match(source, /艾诺科 API/);
   assert.match(source, /Excel \/ 历史文件/);
-  assert.match(source, /预检尚未写入正式数据/);
+  assert.match(source, /刷新艾诺科/);
+  assert.match(source, /runAinuokeUnifiedPreview/);
+  assert.match(source, /commitAinuokeUnifiedPreview/);
+  assert.match(source, /统一 Preview 尚未写入业务数据/);
   assert.match(source, /数量差异/);
   assert.match(source, /permission="ainuoke\.view"/);
-  assert.match(source, /permission="ainuoke\.sync"/);
-  assert.match(source, /readAllPages\("sales_contracts"/);
-  assert.match(source, /readAllPages\("sales_contract_color_sizes"/);
-  assert.match(source, /readAllPages\("material_purchase_statistics"/);
-  assert.match(source, /预检尚未写入款式进度/);
-  assert.match(source, /历史 Excel 是另一时间点的来源，不参与实时行数校验/);
-  assert.match(source, /permission="style_progress\.import"/);
-  assert.match(source, /确认导入款式进度/);
-  assert.match(source, /commitAinuokeMaterialApiPreview/);
-  assert.doesNotMatch(source, /commitImport\(materialApiPreview|orderRepository\.saveAll\(materialApiPreview|productionSchedulingRepository\.save\(materialApiPreview|closingRepository\.save\(materialApiPreview/);
+  assert.match(source, /can\("ainuoke\.sync"\)/);
+  assert.match(source, /can\("style_progress\.import"\)/);
+  assert.match(source, /确认同步艾诺科变化/);
+  assert.doesNotMatch(source, /运行 API 预检|运行物料 API 预检|确认同步合同|确认导入款式进度/);
+  assert.doesNotMatch(source, /buildAinuokeContractApiPreview|buildAinuokeMaterialApiPreview|commitAinuokeContractApiPreview|commitAinuokeMaterialApiPreview/);
 });

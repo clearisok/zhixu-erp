@@ -300,3 +300,15 @@ test("unified orchestration never accepts raw report selectors or creates a thir
   assert.match(source, /commitAinuokeMaterialApiPreview/);
   assert.doesNotMatch(source, /reportId\s*:\s*input|conditionList|sqlCdtn|synchronizeAinuokeContracts\(|normalizeMaterialSourceRows\(|commitImport\(/);
 });
+
+test("unified UI presents one refresh, human change summary, no-change state, and one confirmation", () => {
+  const source = readFileSync(new URL("../features/ainuoke-sync/components/ainuoke-sync-page.tsx", import.meta.url), "utf8");
+  assert.equal(source.match(/刷新中…" : "刷新艾诺科"/g)?.length, 1);
+  for (const label of ["已是最新，无需同步", "合同与订单", "物料与进度", "数量 / 交期 / 分色变化", "新建 / 更新 / 绑定 / 待确认", "确认同步变化"]) assert.match(source, new RegExp(label));
+  assert.match(source, /summary\.confirmRequired && <Button/);
+  assert.match(source, /summary\.blockingErrors\.length > 0/);
+  assert.match(source, /缺少部分确认权限/);
+  assert.match(source, /部分成功，可安全重试/);
+  assert.match(source, /合同已成功、物料失败/);
+  assert.doesNotMatch(source, /运行 API 预检|运行物料 API 预检|确认同步合同|确认导入款式进度/);
+});

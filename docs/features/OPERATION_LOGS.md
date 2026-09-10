@@ -26,6 +26,7 @@
 - 仓库接口提供 `append`、`appendMany`、全局 `list`、`listByQuoteId` 和 `listByOrderId`，没有编辑或删除能力。
 - 个人艾诺科账号只在绑定成功、更新成功或解除成功后追加日志。payload 仅保留 actor、action、`result=success` 与 time；不保存 password、token/session、raw username 或 raw upstream response。连接测试与失败 credential 不写 secret 或 raw response。
 - Ainuoke 合同 API read/preview 不写 OperationLog；用户明确确认同步后，只追加既有 `synchronizeAinuokeContracts` 生成的订单业务日志，不建立 API 专用审计模型。API ImportRun 是 sanitized source trace，不替代 OperationLog，也不保存 credential/token/session/header/cookie。
+- Gate 4 统一层不创建“统一同步”日志，也不复制日志工厂；Contract/Material 各自在成功提交后继续追加既有领域日志。两侧 no-change 的刷新不写日志；partial failure 重试先重新 Preview，已成功侧变为 no-change，因此不会重复该侧日志。
 - 显式清理旧历史 `schedule_match` / `closing_match` backlog 后追加“清理艾诺科旧迁移待确认”。日志只保存 actor、timestamp、removedScheduleReviewCount、removedClosingReviewCount 与 totalRemoved；不保存被删除 Review 的 payload、候选、原因或任何 secret。第二次幂等执行删除 0 条时不追加重复日志。
 - 全局页面使用 Dense Table，支持款号、款式名称、用户、操作、模块和对象内容搜索，支持日期范围、用户、模块和操作类型筛选；点击记录显示格式化 before/after。
 

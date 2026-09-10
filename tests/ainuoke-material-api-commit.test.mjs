@@ -282,15 +282,16 @@ test("Preview alone and commit orchestration cannot mutate SalesOrder, Schedulin
   assert.doesNotMatch(source, /orderRepository|saveAll|productionSchedulingRepository|closingRepository|commitImport\(preview\.pipeline/);
 });
 
-test("UI requires Preview-first and a second explicit style_progress.import confirmation", () => {
+test("UI keeps Preview-first material details inside the unified confirmation", () => {
   const source = readFileSync(new URL("../features/ainuoke-sync/components/ainuoke-sync-page.tsx", import.meta.url), "utf8");
-  assert.match(source, /运行物料 API 预检/);
-  assert.match(source, /setMaterialCommitOpen\(true\)/);
-  assert.match(source, /title="确认导入款式进度"/);
-  assert.match(source, /permission="style_progress\.import"/);
-  assert.match(source, /当前绑定 Snapshot/);
-  for (const label of ["InsideOrderNo", "获取时间", "Source rows", "Canonical groups", "Demands", "厂供 Source rows", "SalesOrder", "Scheduling", "Closing"]) assert.match(source, new RegExp(label));
-  assert.doesNotMatch(source, /ainuoke\.view[^\n]{0,300}commitMaterialApiPreview/);
+  assert.match(source, /setUnifiedCommitOpen\(true\)/);
+  assert.match(source, /title="确认同步艾诺科变化"/);
+  assert.match(source, /style_progress\.import/);
+  assert.match(source, /物料当前事实/);
+  for (const label of ["InsideOrderNo", "获取时间", "Source rows", "Canonical", "Demands", "厂供 Source", "排单", "关账"]) assert.match(source, new RegExp(label));
+  assert.match(source, /先提交合同与订单，再提交物料与款式进度/);
+  assert.match(source, /不具备跨领域 ACID/);
+  assert.doesNotMatch(source, /ainuoke\.view[^\n]{0,300}commitAinuokeUnifiedPreview/);
 });
 
 test("API ImportBatch/Raw/OperationLog trace 不含 credential、token 或 session", async () => {

@@ -57,8 +57,9 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 - Python Bridge：`tools/ainuoke-bridge/ainuoke_bridge/`；`KeyringCredentialStore` 启动时拒绝非 Windows Credential Manager backend，browser session、CSRF nonce 与 Ainuoke JWT 均为 process-memory state。
 - Browser client/UI：`features/ainuoke-api/` 与 `/my-settings/ainuoke-account`。密码输入从不回填，GET view 不含 secret；切换 mock user 会新建对应 bridge session。
 - 上游默认 base/login/report path 已按真实请求固定；`/my-settings/ainuoke-account` 另提供 D1935 固定 Catalog 的只读验收面板，只显示行数、total、paging 与字段名，不输出 raw response 或 secret。
-- 6086103/6086997 已进入 Gate 2 Preview-first 合同链路：Direct API snapshot → common Contract Source → 唯一 `buildAinuokeMirror` → existing `synchronizeAinuokeContracts`。读取与预检只在内存运行；只有用户明确点击“确认同步”且拥有 `ainuoke.sync` 才由 commit orchestration 保存既有 Service 产出的 orders/state/operationLogs 与 API ImportRun。
-- 6087050 已通过薄 API adapter 形成 source-neutral rows，并进入既有 Material Normalize / Dedup / Validate / Preview。Gate 3C 在 Preview 后提供二次确认入口，薄 orchestration 只做权限/完整性/stale 校验并调用唯一 `styleProgressRepository.commitImport`；合同 API mode 与物料 commit 都不读取或修改 Production Scheduling、Closing 或四文件历史导入数据，也不触碰 SalesOrder。
+- 6086103/6086997 已进入 Gate 2 Preview-first 合同链路：Direct API snapshot → common Contract Source → 唯一 `buildAinuokeMirror` → existing `synchronizeAinuokeContracts`。只有用户明确确认且拥有 `ainuoke.sync` 才由既有 commit orchestration 保存 Service 产出的 orders/state/operationLogs 与 API ImportRun。
+- 6087050 已通过薄 API adapter 形成 source-neutral rows，并进入既有 Material Normalize / Dedup / Validate / Preview。Gate 3C 的 commit orchestration 只做权限/完整性/stale 校验并调用唯一 `styleProgressRepository.commitImport`。
+- Gate 4 只在上述两条领域链路外增加统一编排：一个 InsideOrderNo 同时读取三报表，分别调用既有 Preview；必要时一个确认先调用既有 Contract commit、再调用既有 Material commit。统一层不读取或修改 Production Scheduling、Closing 或四文件历史导入数据，也不建立新的 Order/Material pipeline。
 - 既有 Excel Ainuoke Matcher、Order Sync、Material Normalize/Dedup/Canonical resolver、Material Logistics Service 与 OperationLog 保持唯一，不建立第二套。
 
 ## Gate 3 material source adapter
@@ -71,7 +72,7 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 ## Gate 3C material commit capability
 
 - 正式路径固定为 API snapshots → `AinuokeMaterialApiAdapter` → shared Material Normalize/Dedup/Validate → Preview → `commitAinuokeMaterialApiPreview` → existing `commitImport` → Style Progress IndexedDB。API adapter 和 Preview service 仍没有 Repository 依赖。
-- commit 复用 `style_progress.import`；`ainuoke.view` 只能读取和预检，不能授权业务写入。UI 必须先 Preview，再打开二次确认 Modal；Modal 展示当前 Preview 的 InsideOrderNo、fetchedAt、Source/Canonical/Demand/Event/厂供计数和不会修改 SalesOrder/Scheduling/Closing 的边界。
+- commit 复用 `style_progress.import`；`ainuoke.view` 只能读取和预检，不能授权业务写入。UI 必须先 Preview，再打开二次确认 Modal；Gate 4 将该确认合并进唯一统一 Modal，仍展示当前 Preview 的 InsideOrderNo、fetchedAt、Source/Canonical/Demand/Event/厂供计数和不会修改 Scheduling/Closing 的边界。
 - stale boundary 采用绑定当前 immutable Preview 的方案，不在提交时静默换成另一 Snapshot。commit 前重新计算 canonical source content hash，并验证全部分页 `readCount >= total`、total 一致、report/schema/query、零 identity collision、零 blocking validation 和全部 batch reference。
 - API ImportBatch identity 不包含 fetchedAt，而由 reportId、normalized query 与 canonical source row content 生成。同一完整 Snapshot 重复提交走 `commitImport` 既有 batch idempotency，新增业务事实为 0且不重复追加“导入面辅料跟进” OperationLog。
 - API ImportBatch / RawSnapshot 使用现有 Material entity，仅增加 `sourceKind=api` trace 字段：reportId、sourceRowIdentity、snapshotHash、fetchedAt、query、source schema 与 sourceArtifactHash；不伪造 Excel filename、sheet 或 row number。
@@ -79,6 +80,16 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 - Canonical Material 的唯一业务排序在 Style Progress Projection 中形成：fabric 全部在 trim 之前；fabric 按 actualConsumption DESC，缺 actual 时按 plannedConsumption DESC，再按 sourceSortNo 与稳定 Canonical key；trim 按 sourceSortNo 与稳定 key。详情、筛选、风险与下游消费者使用一致顺序。
 - Canonical identity 仍固定为 `salesContractNo + materialType + normalizedMaterialName`。materialCode、颜色、规格、门幅、克重与采购价只保留为 Demand/Event/Trace child facts；`提供方式=厂供` 保留 Raw/Trace，但退出未采购、待入库、齐套、风险、物流与 Expected Arrival operational projection。
 - Browser 使用固定 catalog key `material_purchase_statistics` 与受限 `insideOrderNo` DTO，按实时 `snapshot.total` 自动读取全部页或在合法空页停止，并保留 100 页安全上限。UI 复用 `/ainuoke-sync`，明确显示实时 Snapshot、fetchedAt 与“本次仅预检，尚未写入款式进度”。
+
+## Gate 4 unified order and material sync
+
+- API 日常 UI 只有一个主动作“刷新艾诺科”。Browser 只提交受限 `insideOrderNo`；`runAinuokeUnifiedPreview` 通过固定 Catalog 并行读取 6086103、6086997、6087050，并复用 `buildAinuokeContractApiPreview` / `buildAinuokeMaterialApiPreview`。Browser 不能提交 raw reportId、sqlCdtn 或 conditionList。
+- Unified Preview 把两侧结果归纳为 `no_change | changed | blocked`，展示合同号、数量/分色差异、颜色、交期、create/update/bind/review 和物料 Source/Canonical/fabric/trim/Demand/Event/厂供/阻断计数。两侧无变化时显示“已是最新，无需同步”，不出现确认按钮，也不写 ImportRun、Repository 或 OperationLog。
+- 任一侧阻断会阻止整个确认。Preview 只需 `ainuoke.view`；只有合同发生变化时要求 `ainuoke.sync`，只有物料发生变化时要求 `style_progress.import`，不新增超级权限。确认绑定三报表 immutable source 和相关本地 baseline；任一变化都会在写入前 fail stale guard。
+- 提交顺序固定为 Contract → Material，并只调用既有两个领域 commit。当前 browser-local Repository 没有跨领域 ACID；合同成功、物料失败时返回 partial failure，不伪造 rollback。重新刷新会让已成功领域成为 no-change，只安全重试未完成领域，且不会重复领域日志。
+- 2026-09-10 真实 DEV D1935：首次统一 Preview 在该 Browser Profile 的 `0 mirror / 0 import run / 168 orders` 基线上如实显示 contract auto-create 1 与 material changed。合同为 PI2607-235、4,640/4,640、差异 0、5 colors、交期 2026-10-13；物料为 262 Source rows、12 Canonical（2 fabric + 10 trim）、255 Demands、183/153/150/150 Events、6 vendor-supply Source rows，阻断 0。
+- 用户本人确认后 contract/material 均 `success`，mirror/import run/order 为 `1/1/169`，D1935 款式进度为 2 fabric + 10 trim。第二次只读刷新两侧均 no-change，create/update/bind/review 为 0且无确认按钮，因此未产生第二次提交或重复日志。console 4 条、error 0、secret-pattern 0；未调用 Ainuoke write API，Scheduling/Closing 不在编排依赖中。
+- Gate 4 最终验证：统一/Contract/Material 定向回归 44/44、Full Tests 565/565、TypeScript、ESLint、Production Build 30 routes 与 `git diff --check` PASS。Bridge 协议代码未修改，因此沿用既有 Python 32/32 证据而未重复运行。
 
 ## Gate 2 contract source adapter
 
