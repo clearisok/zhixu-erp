@@ -11,13 +11,20 @@
 
 ## Current Stable Main
 
-`0be13768bed1e1d990138cf7b9e60097554b945d`（PR #11 已 merged，6087050 Material API commit 与真实 D1935 acceptance 已进入 main）
+`efb2996206c1738255f764d71fb2bfa3f329e069`（PR #12 已 merged，Ainuoke Unified Order + Material Sync Gate 4 已进入 main）
 
 ## Current Active Task
 
-- Branch: `feat/ainuoke-unified-sync`
-- Baseline: `0be13768bed1e1d990138cf7b9e60097554b945d`
-- Scope: Gate 4 把 6086103、6086997、6087050 合并为一次“刷新艾诺科”、一个统一 Preview 与必要时一次确认；不做后台同步、自动 commit 或任何 Ainuoke write API。
+- Branch: `feat/postgres-server-foundation`
+- Baseline: `efb2996206c1738255f764d71fb2bfa3f329e069`
+- Scope: PostgreSQL Server Persistence Migration Phase 1，只交付 Node/TypeScript Server Runtime、版本化 PostgreSQL migration、可信 Auth/RBAC 与服务器 OperationLog 基础；不创建 SalesOrder 或其他 Phase 2 业务表，不迁移浏览器业务数据。
+- Checkpoint A：已实现独立 Node/TypeScript server、PostgreSQL pool、`/api/v1/health`、forward-only migration runner 与 `schema_migrations` ledger；runner 使用 advisory lock、逐文件事务和 SHA-256 checksum fail-closed。一次性 `postgres:16-alpine` tmpfs 容器集成测试覆盖顺序、幂等、checksum drift、失败回滚、并发 runner 和数据库健康状态。
+- Checkpoint B：待实现 trusted auth/session、基于共享 `PermissionKey` 的 server RBAC、append-only server OperationLog、DEV proxy / Node production container path、完整文档与最终验证。
+
+### Previous completed PR #12 context
+
+- Previous branch: `feat/ainuoke-unified-sync`
+- Previous scope: Gate 4 把 6086103、6086997、6087050 合并为一次“刷新艾诺科”、一个统一 Preview 与必要时一次确认；不做后台同步、自动 commit 或任何 Ainuoke write API。
 - Checkpoint 1：`runAinuokeUnifiedPreview` 并行读取三个固定 Catalog report，分别复用既有 Contract/Material Preview；统一层只聚合 change summary、权限、stale guard、提交顺序和结果，不复制 Matcher、Normalize/Dedup、Canonical、Expected Arrival、Repository 或 OperationLog。
 - Unified change state 为 `no_change | changed | blocked`。合同与物料均 no-change 时不显示/调用 Confirm；任一侧 blocking 时整个 Confirm disabled。合同写仍要求 `ainuoke.sync`，物料写仍要求 `style_progress.import`，只缺一项时明确指出对应领域。
 - 提交顺序固定为 Contract → Material。当前 browser-local Repository 没有跨领域 ACID；第一段成功、第二段失败时返回 partial failure，不显示全部成功，也不伪造 rollback。重新刷新后已成功领域变为 no-change，只重试失败领域，既有领域幂等与日志规则继续生效。
