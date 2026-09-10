@@ -163,6 +163,123 @@ export function mergeImportedDemand(incoming: MaterialDemand, existing?: Materia
   };
 }
 
+export function findStaleApiMaterialDemandIds(input: {
+  existingDemands: MaterialDemand[];
+  incomingDemandIds: Set<string>;
+  affectedSalesContractNos: string[];
+}): Set<string> {
+  const affectedContracts = new Set(input.affectedSalesContractNos.map((item) => item.normalize("NFKC").trim().toLocaleUpperCase()).filter(Boolean));
+  if (!affectedContracts.size) throw new Error("6087050 API authoritative replacement 缺少合同范围");
+  return new Set(input.existingDemands
+    .filter((demand) => affectedContracts.has(demand.salesContractNo.normalize("NFKC").trim().toLocaleUpperCase())
+      && !input.incomingDemandIds.has(demand.id))
+    .map((demand) => demand.id));
+}
+
+const normalizedRemapText = (value: unknown): string => String(value ?? "").normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleUpperCase();
+const normalizedRemapNumber = (value: number | null): string => value === null || !Number.isFinite(value) ? "" : String(value);
+
+/**
+ * Stable business identity for preserving a manual plan across source adapters.
+ * Source-only fields (actual-name evidence, row order, batch/hash/timestamps) and
+ * garmentColors are deliberately excluded: the verified Excel and API adapters
+ * represent those color tokens differently while the remaining Demand facts agree.
+ */
+export function authoritativeMaterialDemandRemapKey(demand: MaterialDemand): string {
+  return [
+    demand.salesContractNo,
+    demand.materialType,
+    demand.materialCode,
+    demand.materialName,
+    demand.materialColor,
+    demand.specification,
+    demand.supplyMethod,
+    normalizedRemapNumber(demand.garmentQuantity),
+    normalizedRemapNumber(demand.plannedConsumption),
+    normalizedRemapNumber(demand.lossRate),
+    normalizedRemapNumber(demand.totalConsumption),
+    demand.width,
+    demand.gsm,
+    normalizedRemapNumber(demand.requiredQuantity),
+    normalizedRemapNumber(demand.sampleQuantity),
+    demand.sourceStyleNoSnapshot,
+    demand.sourceFactoryStyleNoSnapshot,
+    normalizedRemapNumber(demand.sourceOrderQuantitySnapshot),
+  ].map(normalizedRemapText).join("\u001f");
+}
+
+export function remapManualExpectedArrivalBatchesForAuthoritativeImport(input: {
+  existingBatches: MaterialExpectedArrivalBatch[];
+  existingDemands: MaterialDemand[];
+  incomingDemands: MaterialDemand[];
+  incomingPurchaseEvents: MaterialPurchaseEvent[];
+  staleDemandIds: Set<string>;
+}): MaterialExpectedArrivalBatch[] {
+  if (!input.staleDemandIds.size) return clone(input.existingBatches);
+  const existingById = new Map(input.existingDemands.map((demand) => [demand.id, demand]));
+  const incomingById = new Map(input.incomingDemands.map((demand) => [demand.id, demand]));
+  const candidatesByKey = new Map<string, MaterialDemand[]>();
+  for (const demand of input.incomingDemands) {
+    const key = authoritativeMaterialDemandRemapKey(demand);
+    candidatesByKey.set(key, [...(candidatesByKey.get(key) ?? []), demand]);
+  }
+  const purchasesByDemand = new Map<string, MaterialPurchaseEvent[]>();
+  for (const event of input.incomingPurchaseEvents) {
+    purchasesByDemand.set(event.materialDemandId, [...(purchasesByDemand.get(event.materialDemandId) ?? []), event]);
+  }
+
+  return input.existingBatches.flatMap((batch) => {
+    const staleAllocations = batch.allocations.filter((allocation) => input.staleDemandIds.has(allocation.materialDemandId));
+    if (!staleAllocations.length) return [clone(batch)];
+    if (batch.dateSource !== "manual") {
+      const allocations = batch.allocations.filter((allocation) => !input.staleDemandIds.has(allocation.materialDemandId));
+      return allocations.length ? [{ ...clone(batch), allocations }] : [];
+    }
+
+    const mappedTargetIds = new Set<string>();
+    const allocations = batch.allocations.map((allocation) => {
+      if (!input.staleDemandIds.has(allocation.materialDemandId)) return clone(allocation);
+      const staleDemand = existingById.get(allocation.materialDemandId);
+      if (!staleDemand) throw new Error("人工计划引用的历史 Demand 不存在，已停止 authoritative replacement");
+      const candidates = candidatesByKey.get(authoritativeMaterialDemandRemapKey(staleDemand)) ?? [];
+      if (candidates.length !== 1) throw new Error(`人工计划 Demand 无法唯一映射到当前 API Snapshot：${staleDemand.id}`);
+      const target = candidates[0];
+      if (isFactorySupplied(target)) throw new Error(`人工计划 Demand 映射到厂供物料，已停止 authoritative replacement：${staleDemand.id}`);
+      if (mappedTargetIds.has(target.id)) throw new Error(`多条人工计划 Demand 映射到同一 API Demand，已停止 authoritative replacement：${target.id}`);
+      mappedTargetIds.add(target.id);
+      return {
+        ...clone(allocation),
+        id: `material-allocation-${stableStyleProgressHash([batch.id, target.id])}`,
+        materialDemandId: target.id,
+      };
+    });
+    const canonicalKeys = new Set(allocations.map((allocation) => {
+      const demand = incomingById.get(allocation.materialDemandId) ?? existingById.get(allocation.materialDemandId);
+      if (!demand) throw new Error("人工计划 remap 后引用了不存在的 Demand");
+      return resolveCanonicalMaterialIdentity(demand, purchasesByDemand.get(demand.id) ?? []).key;
+    }));
+    if (canonicalKeys.size !== 1) throw new Error(`人工计划批次无法唯一映射到当前 Canonical Material：${batch.id}`);
+    return [{ ...clone(batch), canonicalMaterialKey: [...canonicalKeys][0], allocations }];
+  });
+}
+
+function applyManualExpectedArrivalState(
+  demands: MaterialDemand[],
+  batches: MaterialExpectedArrivalBatch[],
+): MaterialDemand[] {
+  const manualDates = new Map<string, string[]>();
+  for (const batch of batches.filter((item) => item.dateSource === "manual")) {
+    for (const allocation of batch.allocations) {
+      manualDates.set(allocation.materialDemandId, [...(manualDates.get(allocation.materialDemandId) ?? []), batch.expectedArrivalAtHubDate]);
+    }
+  }
+  return demands.map((demand) => {
+    const dates = manualDates.get(demand.id)?.sort();
+    if (!dates?.length) return demand;
+    return { ...demand, expectedMaterialReadyDate: dates.at(-1)!, expectedDateSource: "manual" };
+  });
+}
+
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
@@ -264,7 +381,7 @@ export const styleProgressRepository: StyleProgressRepository = {
   },
   async hasCommittedFile(fileHash) {
     const batches = await readStore<StyleProgressData["batches"][number]>("batches");
-    return batches.some((batch) => batch.fileHash === fileHash && batch.status === "committed");
+    return batches.some((batch) => batch.sourceKind !== "api" && batch.fileHash === fileHash && batch.status === "committed");
   },
   async commitImport(preview) {
     const database = await openDatabase();
@@ -272,42 +389,59 @@ export const styleProgressRepository: StyleProgressRepository = {
     const transaction = database.transaction(storeNames, "readwrite");
     const batchStore = transaction.objectStore(STORES.batches);
     const existingBatch = await requestResult(batchStore.get(preview.batch.id) as IDBRequest<StyleProgressData["batches"][number] | undefined>);
-    if (existingBatch?.status === "committed") {
+    const existingDemands = await requestResult(transaction.objectStore(STORES.demands).getAll() as IDBRequest<MaterialDemand[]>);
+    const demandMap = new Map(existingDemands.map((item) => [item.id, item]));
+    const incomingDemandIds = new Set(preview.demands.map((item) => item.id));
+    const staleDemandIds = preview.replaceSourceScope
+      ? findStaleApiMaterialDemandIds({ existingDemands, incomingDemandIds, affectedSalesContractNos: preview.replaceSourceScope.affectedSalesContractNos })
+      : new Set<string>();
+    const eventKeys = ["rawSnapshots", "purchaseEvents", "inboundEvents", "shipmentEvents", "outboundEvents"] as const;
+    const existingKeys = Object.fromEntries(await Promise.all(eventKeys.map(async (key) => [key, new Set((await requestResult(transaction.objectStore(STORES[key]).getAllKeys())).map(String))]))) as Partial<Record<StoreKey, Set<string>>>;
+    const operationalEventKeys = ["purchaseEvents", "inboundEvents", "shipmentEvents", "outboundEvents"] as const;
+    const existingOperationalEvents = Object.fromEntries(await Promise.all(operationalEventKeys.map(async (key) => [key, await requestResult(transaction.objectStore(STORES[key]).getAll() as IDBRequest<Array<{ id: string; materialDemandId: string }>>)]))) as Record<(typeof operationalEventKeys)[number], Array<{ id: string; materialDemandId: string }>>;
+    const affectedDemandIds = new Set([...incomingDemandIds, ...staleDemandIds]);
+    const hasStaleOperationalEvents = operationalEventKeys.some((key) => {
+      const incomingEventIds = new Set(preview[key].map((item) => item.id));
+      return existingOperationalEvents[key].some((event) => affectedDemandIds.has(event.materialDemandId) && !incomingEventIds.has(event.id));
+    });
+    const hasMissingIncomingFacts = preview.demands.some((item) => !demandMap.has(item.id))
+      || eventKeys.some((key) => preview[key].some((item) => !existingKeys[key]?.has(item.id)));
+    if (existingBatch?.status === "committed" && !staleDemandIds.size && !hasStaleOperationalEvents && !hasMissingIncomingFacts) {
       transaction.abort();
       return { duplicateFile: true, newDemands: 0, updatedDemands: 0, newPurchaseEvents: 0, newInboundEvents: 0, newShipmentEvents: 0, newOutboundEvents: 0, newRawSnapshots: 0 };
     }
-    const existingDemands = await requestResult(transaction.objectStore(STORES.demands).getAll() as IDBRequest<MaterialDemand[]>);
-    const demandMap = new Map(existingDemands.map((item) => [item.id, item]));
-    const eventKeys = ["rawSnapshots", "purchaseEvents", "inboundEvents", "shipmentEvents", "outboundEvents"] as const;
-    const existingKeys = Object.fromEntries(await Promise.all(eventKeys.map(async (key) => [key, new Set((await requestResult(transaction.objectStore(STORES[key]).getAllKeys())).map(String))]))) as Partial<Record<StoreKey, Set<string>>>;
     let updatedDemands = 0;
-    const mergedIncomingDemands: MaterialDemand[] = [];
+    let mergedIncomingDemands: MaterialDemand[] = [];
     for (const incoming of preview.demands) {
       const existing = demandMap.get(incoming.id);
       const next = mergeImportedDemand(incoming, existing);
       if (existing) updatedDemands += 1;
       mergedIncomingDemands.push(next);
-      transaction.objectStore(STORES.demands).put(next);
     }
-    const affectedDemandIds = new Set(preview.demands.map((item) => item.id));
-    for (const key of ["purchaseEvents", "inboundEvents", "shipmentEvents", "outboundEvents"] as const) {
-      const store = transaction.objectStore(STORES[key]);
-      const incomingIds = new Set(preview[key].map((item) => item.id));
-      const existingEvents = await requestResult(store.getAll() as IDBRequest<Array<{ id: string; materialDemandId: string }>>);
-      for (const event of existingEvents) {
-        if (affectedDemandIds.has(event.materialDemandId) && !incomingIds.has(event.id)) store.delete(event.id);
-      }
-    }
-    const writeMany = <T extends { id: string }>(key: StoreKey, rows: T[]) => { const store = transaction.objectStore(STORES[key]); for (const row of rows) store.put(row); };
-    writeMany("rawSnapshots", preview.rawSnapshots); writeMany("purchaseEvents", preview.purchaseEvents); writeMany("inboundEvents", preview.inboundEvents); writeMany("shipmentEvents", preview.shipmentEvents); writeMany("outboundEvents", preview.outboundEvents);
     const existingExpectedArrivals = await requestResult(transaction.objectStore(STORES.expectedArrivalBatches).getAll() as IDBRequest<MaterialExpectedArrivalBatch[]>);
+    let remappedExpectedArrivals: MaterialExpectedArrivalBatch[];
+    try {
+      remappedExpectedArrivals = remapManualExpectedArrivalBatchesForAuthoritativeImport({
+        existingBatches: existingExpectedArrivals,
+        existingDemands,
+        incomingDemands: mergedIncomingDemands,
+        incomingPurchaseEvents: preview.purchaseEvents,
+        staleDemandIds,
+      });
+    } catch (error) {
+      transaction.abort();
+      throw error;
+    }
     const reconciledExpectedArrivals = reconcileExpectedArrivalBatchesAfterImport({
-      existingBatches: existingExpectedArrivals,
+      existingBatches: remappedExpectedArrivals,
       incomingDemands: mergedIncomingDemands,
       incomingPurchaseEvents: preview.purchaseEvents,
     });
+    mergedIncomingDemands = applyManualExpectedArrivalState(mergedIncomingDemands, reconciledExpectedArrivals);
     const mergedIncomingById = new Map(mergedIncomingDemands.map((demand) => [demand.id, demand]));
-    const candidateDemands = existingDemands.map((existing) => mergedIncomingById.get(existing.id) ?? existing);
+    const candidateDemands = existingDemands
+      .filter((existing) => !staleDemandIds.has(existing.id))
+      .map((existing) => mergedIncomingById.get(existing.id) ?? existing);
     for (const incoming of mergedIncomingDemands) if (!demandMap.has(incoming.id)) candidateDemands.push(incoming);
     try {
       validateStyleProgressData({
@@ -320,11 +454,23 @@ export const styleProgressRepository: StyleProgressRepository = {
       transaction.abort();
       throw error;
     }
+    const demandStore = transaction.objectStore(STORES.demands);
+    for (const incoming of mergedIncomingDemands) demandStore.put(incoming);
+    for (const staleDemandId of staleDemandIds) demandStore.delete(staleDemandId);
+    for (const key of operationalEventKeys) {
+      const store = transaction.objectStore(STORES[key]);
+      const incomingIds = new Set(preview[key].map((item) => item.id));
+      for (const event of existingOperationalEvents[key]) {
+        if (affectedDemandIds.has(event.materialDemandId) && !incomingIds.has(event.id)) store.delete(event.id);
+      }
+    }
+    const writeMany = <T extends { id: string }>(key: StoreKey, rows: T[]) => { const store = transaction.objectStore(STORES[key]); for (const row of rows) store.put(row); };
+    writeMany("rawSnapshots", preview.rawSnapshots); writeMany("purchaseEvents", preview.purchaseEvents); writeMany("inboundEvents", preview.inboundEvents); writeMany("shipmentEvents", preview.shipmentEvents); writeMany("outboundEvents", preview.outboundEvents);
     const expectedArrivalStore = transaction.objectStore(STORES.expectedArrivalBatches);
     expectedArrivalStore.clear();
     for (const batch of reconciledExpectedArrivals) expectedArrivalStore.put(batch);
     transaction.objectStore(METADATA_STORE).put({ id: METADATA_ID, dataVersion: 4 });
-    batchStore.put({ ...preview.batch, status: "committed", committedAt: new Date().toISOString() });
+    batchStore.put({ ...preview.batch, status: "committed", committedAt: existingBatch?.committedAt ?? new Date().toISOString() });
     await transactionComplete(transaction);
     const newCount = (key: StoreKey, rows: { id: string }[]) => rows.filter((row) => !existingKeys[key]?.has(row.id)).length;
     return {

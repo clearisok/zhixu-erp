@@ -126,6 +126,37 @@ export type StyleProgressProjection = {
   keyExceptions: string[];
 };
 
+const canonicalSourceSortNo = (item: CanonicalMaterialProgressProjection): number => Math.min(...item.demands.map((entry) => entry.demand.sourceSortNo));
+const canonicalMaxConsumption = (item: CanonicalMaterialProgressProjection, field: "actualConsumption" | "plannedConsumption"): number | null => {
+  const values = item.demands.map((entry) => entry.demand[field]).filter((value): value is number => value !== null && Number.isFinite(value));
+  return values.length ? Math.max(...values) : null;
+};
+
+export function sortCanonicalMaterials(items: CanonicalMaterialProgressProjection[]): CanonicalMaterialProgressProjection[] {
+  return [...items].sort((left, right) => {
+    if (left.materialType !== right.materialType) return left.materialType === "fabric" ? -1 : 1;
+    if (left.materialType === "fabric") {
+      const leftActual = canonicalMaxConsumption(left, "actualConsumption");
+      const rightActual = canonicalMaxConsumption(right, "actualConsumption");
+      if (leftActual !== null && rightActual === null) return -1;
+      if (leftActual === null && rightActual !== null) return 1;
+      const leftConsumption = leftActual ?? canonicalMaxConsumption(left, "plannedConsumption") ?? -Infinity;
+      const rightConsumption = rightActual ?? canonicalMaxConsumption(right, "plannedConsumption") ?? -Infinity;
+      const consumptionOrder = rightConsumption - leftConsumption;
+      if (consumptionOrder) return consumptionOrder;
+    }
+    return canonicalSourceSortNo(left) - canonicalSourceSortNo(right)
+      || left.canonicalMaterialKey.localeCompare(right.canonicalMaterialKey);
+  });
+}
+
+export function filterCanonicalMaterialsByType(
+  items: CanonicalMaterialProgressProjection[],
+  materialType: "all" | MaterialType,
+): CanonicalMaterialProgressProjection[] {
+  return materialType === "all" ? [...items] : items.filter((item) => item.materialType === materialType);
+}
+
 const DAY_MS = 86_400_000;
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
 const byDemand = <T extends { materialDemandId: string }>(rows: T[]) => {
@@ -348,13 +379,14 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
         actualInboundDates: uniqueStrings(demandItems.map((item) => item.actualInboundDate)).sort(),
         consistencyIssues: findConsistencyIssues(demandItems),
       };
-    }).sort((left, right) => left.demands[0].demand.sourceSortNo - right.demands[0].demand.sourceSortNo || left.canonicalMaterialKey.localeCompare(right.canonicalMaterialKey));
+    });
+    const orderedCanonicalMaterials = sortCanonicalMaterials(canonicalMaterials);
 
-    const fabric = canonicalMaterials.filter((item) => item.materialType === "fabric");
-    const trim = canonicalMaterials.filter((item) => item.materialType === "trim");
-    const ready = canonicalMaterials.filter((item) => item.isReady);
-    const notPurchasedCount = canonicalMaterials.filter((item) => item.hasUnpurchasedDemand).length;
-    const pendingInboundCount = canonicalMaterials.filter((item) => !item.isReady && !item.hasUnpurchasedDemand && item.hasPendingInboundDemand).length;
+    const fabric = orderedCanonicalMaterials.filter((item) => item.materialType === "fabric");
+    const trim = orderedCanonicalMaterials.filter((item) => item.materialType === "trim");
+    const ready = orderedCanonicalMaterials.filter((item) => item.isReady);
+    const notPurchasedCount = orderedCanonicalMaterials.filter((item) => item.hasUnpurchasedDemand).length;
+    const pendingInboundCount = orderedCanonicalMaterials.filter((item) => !item.isReady && !item.hasUnpurchasedDemand && item.hasPendingInboundDemand).length;
     const canonicalRecommendations = (item: CanonicalMaterialProgressProjection): MaterialLogisticsRecommendation[] => item.expectedArrivalBatches.length
       ? item.expectedArrivalBatches.map((batch) => batch.recommendation)
       : item.demands[0]?.logistics ? [item.demands[0].logistics] : [];
@@ -362,20 +394,20 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
       || item.status.endsWith("missing")
       || item.escalationLevel === "faster_required"
       || item.escalationLevel === "only_fastest";
-    const riskyCanonicalMaterials = canonicalMaterials.filter((item) => canonicalRecommendations(item).some(recommendationIsRisky));
+    const riskyCanonicalMaterials = orderedCanonicalMaterials.filter((item) => canonicalRecommendations(item).some(recommendationIsRisky));
     const source = demands[0];
     const delivery = order?.contractDeliveryDate ?? null;
     const remaining = daysFromToday(delivery, today);
     const salesRisk = remaining === null ? "unknown" : remaining < 0 ? "overdue" : remaining <= 7 ? "7d" : remaining <= 14 ? "14d" : remaining <= 30 ? "30d" : "normal";
-    const allBatchDates = canonicalMaterials.flatMap((item) => item.expectedArrivalBatches.map((batch) => batch.batch.expectedArrivalAtHubDate)).sort();
+    const allBatchDates = orderedCanonicalMaterials.flatMap((item) => item.expectedArrivalBatches.map((batch) => batch.batch.expectedArrivalAtHubDate)).sort();
     const expectedLatestMaterialDate = allBatchDates.at(-1) ?? null;
-    const materialRisk = ready.length === canonicalMaterials.length && canonicalMaterials.length ? "ready" : notPurchasedCount ? "unpurchase" : expectedLatestMaterialDate && delivery && expectedLatestMaterialDate > delivery ? "late_expected" : pendingInboundCount ? "pending_inbound" : "normal";
-    const batchRecommendations = canonicalMaterials.flatMap(canonicalRecommendations);
+    const materialRisk = ready.length === orderedCanonicalMaterials.length && orderedCanonicalMaterials.length ? "ready" : notPurchasedCount ? "unpurchase" : expectedLatestMaterialDate && delivery && expectedLatestMaterialDate > delivery ? "late_expected" : pendingInboundCount ? "pending_inbound" : "normal";
+    const batchRecommendations = orderedCanonicalMaterials.flatMap(canonicalRecommendations);
     const transportStatuses = new Set(batchRecommendations.map((item) => item.status));
     const transportRisk = transportStatuses.has("late") ? "late" : transportStatuses.has("hub_missing") ? "hub_missing" : transportStatuses.has("site_missing") ? "site_missing" : transportStatuses.has("route_missing") ? "route_missing" : transportStatuses.has("modes_missing") ? "modes_missing" : transportStatuses.has("pending_schedule") ? "pending_schedule" : batchRecommendations.some((item) => item.escalationLevel === "only_fastest") ? "only_fastest" : batchRecommendations.some((item) => item.escalationLevel === "faster_required") ? "faster_required" : "none";
     const exceptions: string[] = [];
-    for (const item of canonicalMaterials.filter((material) => material.hasUnpurchasedDemand).slice(0, 2)) exceptions.push(`${item.materialName}尚未采购`);
-    for (const item of canonicalMaterials.filter((material) => !material.isReady && !material.hasUnpurchasedDemand && material.hasPendingInboundDemand).slice(0, Math.max(0, 3 - exceptions.length))) exceptions.push(`${item.materialName}待入库`);
+    for (const item of orderedCanonicalMaterials.filter((material) => material.hasUnpurchasedDemand).slice(0, 2)) exceptions.push(`${item.materialName}尚未采购`);
+    for (const item of orderedCanonicalMaterials.filter((material) => !material.isReady && !material.hasUnpurchasedDemand && material.hasPendingInboundDemand).slice(0, Math.max(0, 3 - exceptions.length))) exceptions.push(`${item.materialName}待入库`);
     for (const item of riskyCanonicalMaterials.slice(0, Math.max(0, 5 - exceptions.length))) {
       const recommendations = canonicalRecommendations(item);
       const recommendation = item.expectedArrivalBatches.length
@@ -383,7 +415,7 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
         : recommendations[0];
       exceptions.push(`${item.materialName}：${recommendation.message}`);
     }
-    const basis = canonicalMaterials.flatMap((item) => item.expectedArrivalBatches).map((item) => item.recommendation.basis)[0]
+    const basis = orderedCanonicalMaterials.flatMap((item) => item.expectedArrivalBatches).map((item) => item.recommendation.basis)[0]
       ?? materials[0]?.logistics.basis
       ?? { scheduleAssignmentId: assignment?.id ?? null, supplyHub: null, productionSite: null, matchedRoute: null, candidateTransportModes: [] };
     projections.push({
@@ -405,15 +437,15 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
       trimReady: trim.filter((item) => item.isReady).length,
       trimTotal: trim.length,
       totalReady: ready.length,
-      totalMaterials: canonicalMaterials.length,
-      readinessRate: canonicalMaterials.length ? ready.length / canonicalMaterials.length * 100 : 0,
+      totalMaterials: orderedCanonicalMaterials.length,
+      readinessRate: orderedCanonicalMaterials.length ? ready.length / orderedCanonicalMaterials.length * 100 : 0,
       notPurchasedCount,
       pendingInboundCount,
       transportRiskCount: riskyCanonicalMaterials.length,
       expectedLatestMaterialDate,
       logisticsBasis: basis,
       logisticsContext: { assignment, supplyHubId: tracking?.supplyHubId ?? null },
-      canonicalMaterials,
+      canonicalMaterials: orderedCanonicalMaterials,
       materials,
       factorySuppliedDemands,
       keyExceptions: exceptions.slice(0, 5),

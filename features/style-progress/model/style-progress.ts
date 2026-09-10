@@ -14,24 +14,33 @@ export type MaterialLifecycleStatus =
 
 export type RawCellValue = string | number | boolean | null;
 
-export type MaterialRawSnapshot = {
+type MaterialRawSnapshotCommon = {
   id: string;
   importBatchId: string;
-  fileHash: string;
-  fileName: string;
-  sheetName: string;
-  sourceRow: number;
   rawFields: Record<string, RawCellValue>;
   normalizedDemandId: string | null;
   validationIssues: string[];
 };
 
-export type MaterialImportBatch = {
-  id: string;
-  fileName: string;
+export type MaterialRawSnapshot = MaterialRawSnapshotCommon & ({
+  sourceKind?: "excel";
   fileHash: string;
+  fileName: string;
   sheetName: string;
-  usedRange: string;
+  sourceRow: number;
+} | {
+  sourceKind: "api";
+  sourceArtifactHash: string;
+  reportId: "6087050";
+  sourceRowIdentity: string;
+  snapshotHash: string;
+  fetchedAt: string;
+  queryContext: { insideOrderNo: string };
+  sourceSchemaVersion: "ainuoke-direct-read.v2";
+});
+
+type MaterialImportBatchCommon = {
+  id: string;
   rawRowCount: number;
   validRowCount: number;
   invalidRowCount: number;
@@ -47,6 +56,22 @@ export type MaterialImportBatch = {
   createdBy: string;
   committedAt: string | null;
 };
+
+export type MaterialImportBatch = MaterialImportBatchCommon & ({
+  sourceKind?: "excel";
+  fileName: string;
+  fileHash: string;
+  sheetName: string;
+  usedRange: string;
+} | {
+  sourceKind: "api";
+  sourceArtifactHash: string;
+  reportId: "6087050";
+  snapshotHashes: string[];
+  fetchedAt: string;
+  queryContext: { insideOrderNo: string };
+  sourceSchemaVersion: "ainuoke-direct-read.v2";
+});
 
 export type MaterialDemand = {
   id: string;
@@ -169,6 +194,12 @@ export type StyleProgressData = {
 
 export type MaterialImportPreview = StyleProgressData & {
   batch: MaterialImportBatch;
+  replaceSourceScope?: {
+    sourceKind: "api";
+    reportId: "6087050";
+    queryContext: { insideOrderNo: string };
+    affectedSalesContractNos: string[];
+  };
 };
 
 export type MaterialImportCommitReport = {
@@ -270,11 +301,14 @@ export function migrateStyleProgressDataV2(value: StyleProgressData): StyleProgr
         const leftCurrent = left.importBatchId === demand.lastImportBatchId ? 1 : 0;
         const rightCurrent = right.importBatchId === demand.lastImportBatchId ? 1 : 0;
         if (leftCurrent !== rightCurrent) return rightCurrent - leftCurrent;
-        const leftSource = left.fileHash === demand.sourceFileHash ? 1 : 0;
-        const rightSource = right.fileHash === demand.sourceFileHash ? 1 : 0;
+        const leftSourceHash = left.sourceKind === "api" ? left.sourceArtifactHash : left.fileHash;
+        const rightSourceHash = right.sourceKind === "api" ? right.sourceArtifactHash : right.fileHash;
+        const leftSource = leftSourceHash === demand.sourceFileHash ? 1 : 0;
+        const rightSource = rightSourceHash === demand.sourceFileHash ? 1 : 0;
         if (leftSource !== rightSource) return rightSource - leftSource;
         const byBatchTime = (batchTimestamp.get(right.importBatchId) ?? "").localeCompare(batchTimestamp.get(left.importBatchId) ?? "");
-        return byBatchTime || left.sourceRow - right.sourceRow || left.id.localeCompare(right.id);
+        const bySourcePosition = left.sourceKind !== "api" && right.sourceKind !== "api" ? left.sourceRow - right.sourceRow : 0;
+        return byBatchTime || bySourcePosition || left.id.localeCompare(right.id);
       })[0];
       if (!snapshot) return structuredClone(demand);
       const actualRaw = rawByHeader(snapshot, ["厂供", "实际用量", "实际单耗"]);

@@ -166,9 +166,13 @@ async function ensureMaterialImportOperationLogs(
         action: "导入面辅料跟进",
         createdAt: batch.committedAt ?? batch.createdAt,
         afterData: {
-          objectName: batch.fileName,
+          objectName: batch.sourceKind === "api" ? `6087050 / ${batch.queryContext.insideOrderNo}` : batch.fileName,
           values: {
-            文件哈希: batch.fileHash,
+            ...(batch.sourceKind === "api" ? {
+              来源: "艾诺科 Direct API",
+              报表: batch.reportId,
+              InsideOrderNo: batch.queryContext.insideOrderNo,
+            } : { 文件哈希: batch.fileHash }),
             原始行: batch.rawRowCount,
             有效行: batch.validRowCount,
             "无效 Trace": batch.invalidRowCount,
@@ -247,6 +251,7 @@ function ImportModal({
         fileName: file.name,
         actorName: currentUser.name,
       });
+      if (next.batch.sourceKind === "api") throw new Error("Excel 导入预检返回了错误的 Source 类型");
       const [alreadyCommitted, existing, orders] = await Promise.all([
         styleProgressRepository.hasCommittedFile(next.batch.fileHash),
         styleProgressRepository.listDemands(),
@@ -290,6 +295,7 @@ function ImportModal({
   };
   const commit = async () => {
     if (!preview || !can("style_progress.import")) return;
+    if (preview.batch.sourceKind === "api") return;
     setWorking(true);
     setError("");
     try {
@@ -331,7 +337,7 @@ function ImportModal({
       setWorking(false);
     }
   };
-  const b = preview?.batch;
+  const b = preview?.batch.sourceKind === "api" ? null : preview?.batch;
   return (
     <Modal
       open={open}
@@ -1023,9 +1029,9 @@ function MaterialSourceHistory({
       <div className="sp-batch-history">
         {batches.map((batch) => (
           <span key={batch.id}>
-            {batch.fileName} ·{" "}
+            {batch.sourceKind === "api" ? `6087050 / ${batch.queryContext.insideOrderNo}` : batch.fileName} ·{" "}
             {batch.committedAt?.slice(0, 10) ?? batch.createdAt.slice(0, 10)} ·{" "}
-            {batch.fileHash.slice(0, 10)}…
+            {(batch.sourceKind === "api" ? batch.sourceArtifactHash : batch.fileHash).slice(0, 10)}…
           </span>
         ))}
       </div>

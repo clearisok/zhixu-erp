@@ -5,6 +5,7 @@ import {
   bufferRiskForDays,
   buildStyleProgressProjections,
   calculateDaysToProduction,
+  filterCanonicalMaterialsByType,
 } from "../features/style-progress/service/style-progress-service.ts";
 import { emptyProductionSchedulingState } from "../features/production-scheduling/model/production-scheduling.ts";
 import { normalizeOperationsSettings, upsertProductionGroup } from "../features/operations-settings/model/operations-settings.ts";
@@ -175,6 +176,28 @@ test("name-only Canonical group preserves width/GSM/code/price variants and does
   assert.equal(canonical[0].shipmentQuantity, 20);
   assert.equal(canonical[0].outboundQuantity, 8);
   assert.equal(canonical[0].isReady, false);
+});
+
+test("Canonical projection orders fabric before trim and preserves that order through type filters", () => {
+  const data = emptyStyleProgressData();
+  data.demands = [
+    demand("trim-later", { materialType: "trim", materialName: "辅料二", sourceActualName: "", plannedConsumption: 99, sourceSortNo: 8 }),
+    demand("fabric-tie-later", { materialName: "面料并列二", sourceActualName: "", plannedConsumption: 0.3, actualConsumption: null, sourceSortNo: 5 }),
+    demand("fabric-high", { materialName: "面料高单耗", sourceActualName: "", plannedConsumption: 0.8, actualConsumption: null, sourceSortNo: 9 }),
+    demand("trim-first", { materialType: "trim", materialName: "辅料一", sourceActualName: "", plannedConsumption: 100, sourceSortNo: 1 }),
+    demand("fabric-actual", { materialName: "面料实际", sourceActualName: "", plannedConsumption: 0.1, actualConsumption: 0.1, sourceSortNo: 20 }),
+    demand("fabric-tie-first", { materialName: "面料并列一", sourceActualName: "", plannedConsumption: 0.3, actualConsumption: null, sourceSortNo: 2 }),
+  ];
+  const { settings, scheduling } = schedulingAndSettings();
+  const order = { id: "order-a", salesContractNo: "PI2607-235", styleNo: "D1935", factoryStyleNo: "D1935", brandNameSnapshot: "OYSHO", customerNameSnapshot: "客户", initialQuantity: 100, quantityChanges: [], contractDeliveryDate: "2026-10-13" };
+  const canonical = buildStyleProgressProjections({ data, orders: [order], scheduling, settings, today: "2026-09-01" })[0].canonicalMaterials;
+
+  assert.deepEqual(canonical.map((item) => item.materialName), ["面料实际", "面料高单耗", "面料并列一", "面料并列二", "辅料一", "辅料二"]);
+  assert.ok(canonical.slice(0, 4).every((item) => item.materialType === "fabric"));
+  assert.ok(canonical.slice(4).every((item) => item.materialType === "trim"));
+  assert.deepEqual(filterCanonicalMaterialsByType(canonical, "all").map((item) => item.materialName), canonical.map((item) => item.materialName));
+  assert.deepEqual(filterCanonicalMaterialsByType(canonical, "fabric").map((item) => item.materialName), ["面料实际", "面料高单耗", "面料并列一", "面料并列二"]);
+  assert.deepEqual(filterCanonicalMaterialsByType(canonical, "trim").map((item) => item.materialName), ["辅料一", "辅料二"]);
 });
 
 test("Gate 3 computes every expected-arrival batch through the formal logistics service and keeps multi-batch summaries honest", () => {

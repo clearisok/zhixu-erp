@@ -6,3 +6,4 @@ export * from "./repository/style-progress-repository.ts";
 export * from "./service/style-progress-service.ts";
 export * from "./service/expected-arrival-plan-service.ts";
 export * from "./service/ainuoke-material-api-preview.ts";
+export * from "./service/ainuoke-material-api-commit.ts";
