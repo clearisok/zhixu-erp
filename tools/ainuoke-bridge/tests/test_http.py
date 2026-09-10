@@ -75,6 +75,17 @@ class BridgeHttpContractTests(unittest.TestCase):
                 self.assertEqual(response.status, 400)
                 self.assertEqual(response.body["error"]["code"], "invalid_query")
 
+    def test_order_discovery_accepts_only_empty_query(self) -> None:
+        cookie, csrf = self.create_session()
+        self.request("PUT", "/v1/ainuoke/account", cookie=cookie, csrf=csrf, body={"username": "alice", "password": "secret"})
+        accepted = self.request("POST", "/v1/ainuoke/reports/order_discovery/query", cookie=cookie, csrf=csrf, body={"page": 1, "pageSize": 50, "query": {}})
+        rejected = self.request("POST", "/v1/ainuoke/reports/order_discovery/query", cookie=cookie, csrf=csrf, body={"page": 1, "pageSize": 50, "query": {"status": "生效"}})
+        self.assertEqual(accepted.status, 200)
+        self.assertEqual(accepted.body["reportId"], "6086103")
+        self.assertEqual(accepted.body["queryContext"], {})
+        self.assertEqual(rejected.status, 400)
+        self.assertEqual(rejected.body["error"]["code"], "invalid_query")
+
     def test_unbind_invalidates_bridge_session_and_upstream_cache(self) -> None:
         cookie, csrf = self.create_session()
         self.request("PUT", "/v1/ainuoke/account", cookie=cookie, csrf=csrf, body={"username": "alice", "password": "secret"})

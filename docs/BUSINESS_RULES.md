@@ -45,7 +45,8 @@
 
 ### 开发数据保护
 
-- DEV `127.0.0.1:3001` 中由用户创建的浏览器业务数据属于长期验收数据；除非用户在数据管理页显式二次确认重置，否则刷新、HMR、Server 重启、Build、Docker rebuild、schema 迁移和 Seed 变化不得删除或覆盖。
+- DEV `127.0.0.1:3001` 的 Quote/Revision/PriceVersion、Quote provenance 与相关附件是真实业务数据，必须长期保护；刷新、HMR、Server 重启、Build、Docker rebuild、schema 迁移和 Seed 变化不得删除或覆盖。
+- 当前 Browser Order Center / Scheduling 被确认为功能测试数据，不作为未来 PostgreSQL migration/bootstrap authority，也不要求正式 PostgreSQL SalesOrder 继承其 ID；但在独立 Test Business Data Retirement Gate 完成完整 backup、dependency audit、精确 delete/protect scope 并取得用户明确破坏性确认前，仍不得读取后清理、修改或删除。Style Progress/Material 不属于该 retirement 范围；Closing retirement status 尚未决定。
 - Seed 只在稳定数据和所有已登记旧数据都不存在时执行一次；非空数据空间不得因默认 fixture 变化重新 Seed。
 - Quote Center 浏览器 schema 只能向前迁移，不得通过更换 storage key、IndexedDB database name 或 object store name让旧数据不可见。
 - 3000 与 3001 是不同 Origin，默认不共享浏览器数据；复制验收数据必须使用显式备份/恢复。
@@ -68,7 +69,8 @@
 - Bridge 只绑定 `127.0.0.1`/`::1`，使用精确 Origin allowlist、HttpOnly bridge session 与 CSRF nonce；每次账号/报表请求从 bridge session 取得 user context，不直接信任请求体中的 userId。该机制不能补足当前 mock user 缺少真实认证的限制。
 - 个人账号绑定使用 `ainuoke.account.bind_self`；既有 `ainuoke.bind` 仍只表示业务合同绑定。个人绑定不自动授予 sync、合同绑定或 conflict resolution。
 - PUT credential 必须先真实测试登录，成功后才能替换旧 credential；失败保留旧值。invalid credential 不循环 retry，network retry 有上限，auth expiry 最多自动重新登录一次并 replay 原 read 一次。
-- Direct API 固定只读 Report Catalog：`6086103`、`6086997`、`6087050`。Browser 不能传任意 reportId，Bridge 不提供 Ainuoke write endpoint，也不得直接 create/update SalesOrder 或 upsert Style Progress。
+- Direct API 固定只读 Report Catalog 只指向 `6086103`、`6086997`、`6087050`。`order_discovery` 使用真实观察到的 6086103 空条件列表并只返回当前账号可见范围；detail keys 仍要求非空 InsideOrderNo。Browser 不能传任意 reportId/endpoint/condition，Bridge 不提供 Ainuoke write endpoint，也不得直接 create/update SalesOrder 或 upsert Style Progress。
+- Formal clean bootstrap 方向为 empty PostgreSQL → Ainuoke discovery → detail reads → 新建正式 PostgreSQL SalesOrder identity。Discovery 必须保留 raw lifecycle status；正式 effective-status 规则与账号 visibility scope 需用户决定。来源消失不得单独触发 SalesOrder hard delete。
 - Direct API 形成带 report/page/query/row identity/schema/hash 的 sanitized source snapshot。6086103/6086997 只可经 common Contract Source 进入既有 `AinuokeContractMirror` 与 `synchronizeAinuokeContracts`；6087050 只可经薄 API adapter 进入 Excel 共用的 Material Normalize → Dedup → Validate → Preview → 既有 `commitImport`。日常入口按 InsideOrderNo 一次读取三报表并形成统一 Preview；只有用户明确确认，且合同变化拥有 `ainuoke.sync`、物料变化拥有 `style_progress.import`，才分别调用既有领域提交。统一层不得复制领域 pipeline 或以一个超级权限替代两项权限。
 - 当前同步以 6087050 Direct API 当次 Snapshot 为业务来源；历史 Excel 是时间点历史快照。两者不要求 row-count、snapshot-hash 或 source-row-identity parity，不得为匹配历史 Excel 人为过滤 API 当前数据；共同约束是同字段语义一致并复用唯一 Domain pipeline。API 字段无法由真实 metadata/rows 证明时必须保持 `null`/empty。
 - 旧历史排单/生产预警遗留的 unresolved `schedule_match` / `closing_match` 可由用户在完成 DEV Backup 后，以 `ainuoke.resolve_conflict` 显式清理；不得在 load、validator 或 migration 中静默删除。order/data-anomaly/resolved reviews 与全部已导入业务事实必须保留。未来新的排单/生产录入方式仍为 TBD。

@@ -35,6 +35,7 @@ GET 只返回 username/脱敏标识、configured、status、lastVerifiedAt、las
 
 | Catalog key | Report ID | 名称 | 消费边界 |
 | --- | --- | --- | --- |
+| `order_discovery` | `6086103` | 成衣销售合同发现 | fixed empty-query list → `AinuokeOrderDiscoverySnapshot`; read-only only, not SalesOrder creation |
 | `sales_contracts` | `6086103` | 销售合同 | common source model → existing `AinuokeContractMirror` → existing matcher/service |
 | `sales_contract_color_sizes` | `6086997` | 销售合同颜色尺码明细 | common source model → existing `AinuokeContractMirror` → existing matcher/service |
 | `material_purchase_statistics` | `6087050` | 面辅料申购统计 | thin API adapter → common Material source rows → existing Normalize → Dedup → Validate → Preview → explicit confirm → existing `commitImport` |
@@ -47,8 +48,10 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 
 - 登录 query 固定包含 `userName/password/verifyCode/cltType=1/rememberMe=true/jsCode/isCoverLogin`，并使用已捕获的 Accept、`X-Requested-With: XMLHttpRequest` 与 login Referer。只有 `data.isOk === true` 且同时存在非空 `data.jwtToken`、`data.sessionId` 才判成功；raw URL/response/userObj/PII/secret 不记录。
 - 报表鉴权按捕获请求发送原值 `Authorization: <token>`、`Token: <token>` 与 Cookie `kaijin_my_token=<token>; rungingSysId=6080183`；不使用未经验证的 `Bearer` 假设。token/cookie 永不返回 Browser。
-- Browser query DTO 目前严格只有非空 `insideOrderNo`。6086103 映射为 `InsideOrderNo + contains + [内层]`，6086997 映射为 `InsideOrderNo + is`，6087050 映射为 `insideorderno + is + [内层]`。Bridge 构造 `reportId + sqlCdtn(pageIndex/pageSize/conditionList/sqlParamList/orderFieldList) + isFirstTime + isIniPage`；这三种已捕获的过滤请求均不猜测或发送 `formId`。
+- Detail query DTO 严格只有非空 `insideOrderNo`。6086103 映射为 `InsideOrderNo + contains + [内层]`，6086997 映射为 `InsideOrderNo + is`，6087050 映射为 `insideorderno + is + [内层]`。独立的 `order_discovery` DTO 必须是精确空对象；Bridge 只为它构造真实观察到的 6086103 空 `conditionList/sqlParamList/orderFieldList` 请求，不接受任何筛选字段。Browser 仍不能提交 raw reportId、endpoint、sqlCdtn、conditionList 或 `formId`。
 - 响应必须含 JSON string `dataList`，解析后必须是含 mapping rows 的对象；total 读取真实 `dataCount`。该 endpoint 成功返回时顶层 `pageIndex/pageSize` 可为已验证的 `0/0` 哨兵，此时保留请求中已验证的分页值；缺失、负数、非数字、分页冲突或 malformed `dataList` 全部 fail closed。
+
+2026-09-10 Order Discovery Gate 已从“成衣销售合同”页面确认 6086103 空条件列表是实际列表刷新协议。当前账号两次完整遍历均为 505 行、11 页，505 个 source ID / InsideOrderNo / SalesContractNo 全部唯一，`生效=143`、`草拟=362`，normalized snapshot SHA-256 相同；D1935 与另外 5 个脱敏样本均可进入 6086103/6086997 detail pipeline。该结论仅证明 `current_account_visible`，不证明公司级可见范围，也没有决定正式 bootstrap 的 status filter。完整证据与消失语义见 `AINUOKE_ORDER_DISCOVERY.md`。
 
 每个 `ReportSnapshot` 必须保存：`schemaVersion`、`reportId`、`fetchedAt`、`page`、`pageSize`、`total`、`queryContext`、每行 `sourceRowIdentity`、sanitized source error（失败时）及 deterministic `snapshotHash`。当前 schema 为 `ainuoke-direct-read.v2`。hash 对同一 report/page/query/rows 稳定，不把 fetch timestamp 算入 identity；所有 source DTO 再次移除 secret-named fields。6087050 是 joined view 且 `id` 已确认重复，因此不能使用 `6087050:<id>`；三张报表都没有足够证据证明 `id` 唯一，统一采用 report-specific canonical full-row SHA-256，identity 不依赖 API page position 或排序。
 
@@ -56,6 +59,7 @@ Browser 只能提交 catalog key，不能提交任意 reportId。Bridge 负责 l
 
 - Python Bridge：`tools/ainuoke-bridge/ainuoke_bridge/`；`KeyringCredentialStore` 启动时拒绝非 Windows Credential Manager backend，browser session、CSRF nonce 与 Ainuoke JWT 均为 process-memory state。
 - Browser client/UI：`features/ainuoke-api/` 与 `/my-settings/ainuoke-account`。密码输入从不回填，GET view 不含 secret；切换 mock user 会新建对应 bridge session。
+- Order Discovery：`order_discovery` 只读完整分页 + `AinuokeOrderDiscoveryRow/Snapshot` pure adapter；返回原始 status 和 deterministic whole-list hash，不依赖或写入 SalesOrder/Browser Repository/PostgreSQL。
 - 上游默认 base/login/report path 已按真实请求固定；`/my-settings/ainuoke-account` 另提供 D1935 固定 Catalog 的只读验收面板，只显示行数、total、paging 与字段名，不输出 raw response 或 secret。
 - 6086103/6086997 已进入 Gate 2 Preview-first 合同链路：Direct API snapshot → common Contract Source → 唯一 `buildAinuokeMirror` → existing `synchronizeAinuokeContracts`。只有用户明确确认且拥有 `ainuoke.sync` 才由既有 commit orchestration 保存 Service 产出的 orders/state/operationLogs 与 API ImportRun。
 - 6087050 已通过薄 API adapter 形成 source-neutral rows，并进入既有 Material Normalize / Dedup / Validate / Preview。Gate 3C 的 commit orchestration 只做权限/完整性/stale 校验并调用唯一 `styleProgressRepository.commitImport`。

@@ -2,8 +2,8 @@
 
 ## Status and scope
 
-- Phase: PostgreSQL Persistence Phase 2A, analysis/design only.
-- Baseline: `f1736f84496d2651b91e64e4584ad5f7fe055d49` (PR #13 merged).
+- Phase: PostgreSQL Persistence Phase 2A audit completed by PR #14; Order Discovery foundation is the current follow-up Gate.
+- Baseline: `13620491cf56605cadf57c90c6cdf389f0919297` (PR #13 and PR #14 merged).
 - No PostgreSQL SalesOrder table/API was created, no Repository was switched, and no Browser DEV data was read or imported.
 - The boundary below is **Proposed / Needs Decision**, not an Active architecture decision and not authorization to begin Phase 2B.
 
@@ -13,8 +13,8 @@
 - `sourceType` / `creationSource` support `manual | quote | reorder | ainuoke`. Quote conversion persists Quote/Revision/PriceVersion IDs; reorder persists `sourceOrderId`.
 - Ainuoke contract sync derives current contract facts from reports 6086103/6086997. It updates `salesContractNo`, customer/brand/style/factory-style snapshots, contract quantity projection, contract delivery, source DeliveryPlan rows and source OrderColorLine rows.
 - Ainuoke resync preserves non-Ainuoke quantity adjustments and manual DeliveryPlan rows. It does not rebuild price history, execution material snapshots, attachments, scheduling, closing, Quote/reorder provenance or other Zhixu edits.
-- Current API query DTO requires exactly one non-empty `insideOrderNo`. The unified flow reads the three fixed reports only after that identifier is already known. No verified list/discovery endpoint or report currently enumerates all effective contracts/orders from an empty database.
-- `SalesOrder.id` is referenced by order child records, Ainuoke `boundOrderId`, `ScheduleAssignment`, `OrderExecutionTracking`, `ScheduleBatchAllocation`, `ClosingAllocation`, OperationLog context and reorder provenance. Recreating a business-equivalent order with a new ID would break identity continuity.
+- Existing detail/unified query DTO still requires exactly one non-empty `insideOrderNo`. Separately, the Order Discovery Gate verified the actual 6086103 “成衣销售合同” empty-condition list and added a fixed `order_discovery` read foundation. It can enumerate the current bound account's visible rows from empty state; it does not prove company-wide visibility or decide which raw statuses are formally effective.
+- Current Browser `SalesOrder.id` is referenced by order child records, Ainuoke `boundOrderId`, `ScheduleAssignment`, `OrderExecutionTracking`, `ScheduleBatchAllocation`, `ClosingAllocation`, OperationLog context and reorder provenance. That proves identity must be stable inside any retained dataset. It does **not** require future formal PostgreSQL orders to inherit IDs from the current Browser Order/Scheduling test dataset; newly bootstrapped PostgreSQL identities must instead remain stable from their creation onward.
 - Style Progress is different: current operational facts bind primarily by `salesContractNo`, while optional OperationLog context can also contain `orderId`.
 - The repository contains no committed real Browser Backup. The historical `464` count describes one acceptance profile at a point in time; it is not a migration inventory and cannot be divided into A/B/C counts from repository evidence.
 
@@ -45,14 +45,16 @@
 | `businessConfirmedDeliveryDate`, `inspectionDate` | Zhixu user input | No | Yes | Aggregate ID anchors it | Never | Yes |
 | production country, process/customer requirements, remarks | Quote/manual defaults plus Zhixu edits; not supplied by current contract reports | No in general | Yes | Aggregate ID anchors it | Never | Yes |
 | attachment references and Blob | Quote-derived or Zhixu uploads; order stores attachment IDs | No | Yes | Yes; attachment IDs must survive | Never | References in PostgreSQL; Blob in future object storage |
-| Scheduling references | Separate Zhixu `ScheduleAssignment` / tracking / batch facts keyed by `salesOrderId` | No | Yes | Yes | Never by Ainuoke resync | Yes when Scheduling domain migrates; ID continuity required now |
+| Scheduling references | Separate Zhixu `ScheduleAssignment` / tracking / batch facts keyed by `salesOrderId` | No | Yes | Yes | Never by Ainuoke resync | Yes for future formal Scheduling; current Browser test Scheduling will not be migrated |
 | Closing references | Separate Zhixu allocation/snapshot facts keyed by `salesOrderId` and optional assignment ID | No | Yes | Yes | Never by Ainuoke resync | Yes when Closing domain migrates; ID continuity required now |
 | OperationLog references | Append-only Zhixu audit context with `orderId` and snapshots | No | Yes | Yes | Never | Yes; server append-only log |
 | Quote provenance | `sourceQuoteId/sourceRevisionId/sourcePriceVersionId` | No | Yes | Yes | Never | Yes; until Quote cutover, retain stable external IDs without pretending a PG FK exists |
 | reorder provenance | `sourceOrderId` self-reference | No | Yes | Yes | Never | Yes, self-FK once both orders exist |
 | Ainuoke mirror/import/sync metadata | Report/source hashes, fetched time, disposition, `boundOrderId`, ImportRun | Current snapshot can be reread only after discovery; historical runs cannot | Binding/disposition/audit policy are Zhixu-owned | Yes | Refresh current source metadata; never replace binding/history silently | Mapping + latest reconciliation metadata yes; raw retention policy needs decision |
 
-## Logical classification of Browser SalesOrder
+## Historical logical classification of Browser SalesOrder
+
+> The A/B/C predicates below remain useful ownership-analysis history, but are **Superseded for current Browser Order/Scheduling migration strategy**. The user has confirmed those stores are test data and are not the formal PostgreSQL bootstrap authority. This Gate does not read, classify, migrate, or delete them.
 
 The classes are predicates, not counts:
 
@@ -71,17 +73,18 @@ An order has no verified Ainuoke source link and originates from `manual`, `quot
 ## Rebuildability and bootstrap gap
 
 - **Confirmed:** known `InsideOrderNo` → fully paged 6086103/6086997/6087050 detail reads works.
-- **Not available:** empty PostgreSQL → enumerate every current effective `InsideOrderNo` / `SalesContractNo`.
-- Relaxing the current non-empty `insideOrderNo` validation or sending a wildcard is not evidence of full discovery and must not be treated as such.
-- Phase 2B needs a new allowlisted Ainuoke discovery/list source (verified report or endpoint, not an invented report ID) that returns at least stable `InsideOrderNo`, `SalesContractNo`, lifecycle/status and preferably last-updated/cursor data. It must define the effective-order scope, paginate to a proven total, detect duplicates/deletions and then feed each discovered identifier into the existing detail adapters.
+- **Now confirmed:** empty state → fixed 6086103 empty-condition discovery → complete current-account-visible `InsideOrderNo` / `SalesContractNo` list. Two traversals returned the same 505 rows over 11 pages and the same normalized hash; identities were unique and D1935 plus five redacted samples entered the existing 6086103/6086997 pipeline.
+- **Still undecided:** whether formal bootstrap includes `生效` only, `生效 + 草拟`, or another explicit lifecycle rule; whether the currently bound account has the intended organizational scope. Discovery preserves raw status and makes no hidden time/status filter.
+- Source disappearance cannot authorize hard deletion. Future reconciliation needs last-seen/missing/tombstone state and review.
 
 ## Browser migration necessity
 
-- A wholesale migration of the historically observed 464 Browser orders is not justified.
-- A records should rebuild their Ainuoke source mirror through verified discovery; import only stable identity/source mapping or other continuity facts that cannot safely change.
-- B records require a hybrid: API rebuild of source facts plus a validated Browser Backup import of Zhixu-owned facts and stable IDs.
-- C records require Browser Backup import or an explicit authoritative manual re-entry process.
-- Without a real validated Browser Backup, B/C data and cross-domain references cannot be inventoried or migrated safely. Repository evidence therefore supports no A/B/C counts.
+- Current Browser Order Center and Scheduling data is test data. It is not a formal migration source, bootstrap authority, stable-ID continuity requirement, or prerequisite classifier inventory.
+- The historically observed 464 is only a past browser-profile count. Do not migrate it wholesale and do not infer A/B/C counts.
+- Formal SalesOrder bootstrap direction is clean: discovery → detail reads → new PostgreSQL SalesOrder identity/source mapping → later Zhixu-owned facts and new formal Scheduling.
+- Quote Center is real business data and must be preserved, including Quote/Revision/PriceVersion/provenance/attachments. Future Quote → Order conversion still requires stable PostgreSQL SalesOrder identity and provenance, but this Gate does not implement it.
+- Style Progress/Material is outside the Order/Scheduling retirement scope and remains protected. Closing retirement status is Needs Decision.
+- Browser test-data deletion is not authorized. A separate Test Business Data Retirement Gate must first export a complete backup, audit dependencies, list precise delete/protect scopes, and obtain explicit destructive confirmation.
 
 ## Recommended PostgreSQL boundary — Proposed / Needs Decision
 
@@ -96,21 +99,21 @@ Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate*
 
 ## Proposed Phase 2B gates
 
-1. **Decision/evidence gate:** approve the source/owned boundary, obtain a sanitized real Browser Backup for read-only inventory, and verify an Ainuoke discovery source and effective-order scope.
+1. **Decision/evidence gate:** approve the source/owned boundary, formal bootstrap statuses and intended Ainuoke account visibility scope. Discovery protocol/source evidence is now available; Browser Backup classification is no longer a clean-bootstrap prerequisite.
 2. **Schema/repository gate:** add only SalesOrder/source-link/source-mirror/owned-child migrations, transactional service and API in disposable PostgreSQL; preserve stable IDs and reject broken pointers/owners.
-3. **Classifier/reconciliation dry run:** classify backup records by predicates A/B/C, produce counts only from the supplied backup, detect duplicate source links and enumerate every inbound reference. No DEV write.
-4. **Hybrid bootstrap dry run:** rebuild Ainuoke facts from discovery and transform only Zhixu-owned facts/stable identity from backup. Report field-level differences, orphans and source deletions; fail closed.
+3. **Clean bootstrap dry run:** discover the approved current-account-visible scope, read details, create only new formal PostgreSQL identities/source links in disposable data, and report duplicates, omissions, lifecycle selection and reconciliation outcomes. Do not import Browser Order/Scheduling records.
+4. **Owned-state/API gate:** define how formal manual/Quote/reorder orders and later Zhixu-owned facts are created transactionally, including immutable provenance and append-only OperationLog. Quote data remains in its protected current repository until its own cutover.
 5. **Two-profile read acceptance:** point Chrome Profiles A and B at the same Node/PostgreSQL instance with separate trusted sessions; assert the same SalesOrder stable ID/version/projection, verify a permitted Zhixu-owned mutation from A is visible to B after reread, verify unauthorized writes fail, and verify the server OperationLog actor. Browser SalesOrder localStorage must not be a read fallback during this test.
 6. **Cutover decision:** only after reconciliation and user approval decide whether to perform real bootstrap/read cutover. Write cutover and browser-store retirement require their own explicit Gate; no unbounded dual write.
 
 ## Decisions requiring user confirmation
 
-1. Which verified Ainuoke report/endpoint is the authoritative discovery list, and what statuses define “current effective orders”?
-2. Whether Phase 2B may use a user-exported Browser Backup as the source for stable IDs and Zhixu-owned facts.
-3. Raw Ainuoke snapshot/import-run retention duration versus retaining only current mirror plus hashes/reconciliation metadata.
-4. Whether the historical Browser `SalesOrder.id` strings are preserved verbatim or mapped once to new UUIDs through an immutable legacy-ID mapping. Preserving them verbatim minimizes current cross-domain migration risk.
-5. Whether Phase 2B ends at schema/API/dry-run or includes an explicitly approved real bootstrap/read cutover.
+1. Which observed statuses define formal “effective orders”: `生效`, `生效 + 草拟`, or another explicit rule.
+2. Whether `current_account_visible` is the intended bootstrap scope or another approved account/organizational visibility proof is required.
+3. Raw Ainuoke snapshot/import-run retention duration versus retaining only current mirror plus hashes/reconciliation metadata; disappearance/tombstone review policy.
+4. Whether Phase 2B ends at schema/API/disposable dry-run or later includes a separately approved real bootstrap/read cutover.
+5. Closing test-data retirement classification. Browser Order/Scheduling retirement also requires a later explicit destructive confirmation; it is not implied by this architecture direction.
 
 ## Readiness
 
-**READY FOR PHASE 2B: NO.** The ownership boundary is analyzable, but full Ainuoke discovery, a real Browser Backup inventory and the decisions above are not yet available/approved.
+**READY FOR PHASE 2B CLEAN BOOTSTRAP SCHEMA/API DESIGN: YES.** The fixed discovery source is proven for `current_account_visible`, and Browser Backup is no longer a bootstrap prerequisite. This is not permission to start Phase 2B or run a real bootstrap; lifecycle/scope/retention decisions and explicit Phase 2B approval remain required.

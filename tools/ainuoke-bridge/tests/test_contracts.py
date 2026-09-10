@@ -26,11 +26,35 @@ from ainuoke_bridge.security import (  # noqa: E402
 
 class ReportContractTests(unittest.TestCase):
     def test_catalog_is_exact_and_does_not_accept_unknown_report(self) -> None:
+        self.assertEqual(set(REPORT_CATALOG), {"order_discovery", "sales_contracts", "sales_contract_color_sizes", "material_purchase_statistics"})
         self.assertEqual({item.report_id for item in REPORT_CATALOG.values()}, {"6086103", "6086997", "6087050"})
         with self.assertRaisesRegex(SourceContractError, "unknown_report"):
             resolve_report("6086103")
         with self.assertRaisesRegex(SourceContractError, "unknown_report"):
             resolve_report("write_sales_order")
+
+    def test_order_discovery_replays_only_the_observed_empty_query_contract(self) -> None:
+        definition = resolve_report("order_discovery")
+        request = build_report_request(definition, page=3, page_size=50, query_context={})
+        self.assertEqual(request, {
+            "reportId": 6086103,
+            "sqlCdtn": {
+                "targetId": 6086103,
+                "entId": 6086103,
+                "currentPage": 3,
+                "pageIndex": 3,
+                "pageSize": 50,
+                "targetType": 1,
+                "conditionList": [],
+                "sqlParamList": [],
+                "orderFieldList": [],
+            },
+            "isFirstTime": True,
+            "isIniPage": False,
+        })
+        for query in ({"insideOrderNo": "D1935"}, {"conditionList": []}, {"status": "生效"}):
+            with self.subTest(query=query), self.assertRaisesRegex(SourceContractError, "invalid_query"):
+                build_report_request(definition, page=1, page_size=50, query_context=query)
 
     def test_snapshot_preserves_provenance_and_has_deterministic_hash(self) -> None:
         arguments = dict(

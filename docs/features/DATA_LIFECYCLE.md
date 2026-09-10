@@ -13,6 +13,14 @@
 - 旧 key 在迁移成功后保留，不由自动流程删除。只有用户在“系统设置 > 数据管理”显式执行全部重置时才清理稳定与旧命名空间。
 - 稳定记录或 manifest 损坏时抛出 `LocalDataCorruptionError`，原始字符串保持不变，不静默回退 Seed。
 
+## Current migration and retirement authority
+
+- Quote Center 的 Quote/Revision/PriceVersion、provenance 与相关附件是真实业务数据，必须保护；不是 Order/Scheduling test-data retirement 的一部分。
+- 当前 Browser Order Center 与 Scheduling 是功能测试数据，不作为正式 PostgreSQL migration source、bootstrap authority 或正式 SalesOrder ID continuity source。未来正式订单走 Ainuoke clean discovery/detail bootstrap，之后产生新的正式 Scheduling。
+- 这项分类不是删除授权。本阶段和任何普通 migration/load/test 流程都不得读取后清空或修改这些 Browser 数据。真正 retirement 必须是独立 Gate：先完整导出 backup、完成 dependency audit、列出精确删除与保护范围，再取得用户 explicit destructive confirmation。
+- Style Progress/Material 不在 Order/Scheduling retirement 范围，必须保持不变。Closing 数据是否为测试数据尚未决定，不得迁移、删除或自动归类。
+- 当前历史 464 SalesOrder 计数不是迁移清单，也不应触发 Browser A/B/C classifier。完整 backup 仍是未来 retirement 的安全前置，不是 clean PostgreSQL bootstrap 的来源。
+
 ## Storage map
 
 | 数据 | Repository / service | 当前稳定位置 | 旧迁移来源 |
