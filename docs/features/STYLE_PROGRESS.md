@@ -98,7 +98,7 @@ Gate 3C 使用脱敏 6087050 fixture 与 isolated temporary repository 验证唯
 
 Gate 3C 最终门禁：定向 78/78、Full Tests 555/555、TypeScript、ESLint、Production Build 30 routes、`git diff --check` 与 secret leakage scan PASS。Local Bridge 未修改，因此未重复运行 Python tests。
 
-Gate 4 真实统一同步后 D1935 仍为 262 Source rows、255 Demands、12 Canonical（fabric 2、trim 10）与 183/153/150/150 Events；第二次统一刷新 Material 侧为 no-change且不再显示确认按钮。Gate 4 定向 44/44 与 Full Tests 565/565 PASS，确认统一编排没有复制或绕过本 Domain 的 Preview/commitImport、authoritative replacement、Expected Arrival 或排序规则。
+Gate 4 alternate/isolated Browser Profile 的统一提交后 D1935 为 262 Source rows、255 Demands、12 Canonical（fabric 2、trim 10）与 183/153/150/150 Events；第二次统一刷新 Material 侧为 no-change且不再显示确认按钮。PR #12 merge 前回到 Gate 3C 同一 Chrome Profile，只读确认 D1935 原有 12 / 2 / 10 后执行一次统一刷新；Material 仍为 no-change且计数不变，Contract 单独为 changed，确认按钮出现但未点击。Gate 4 定向 44/44 与 Full Tests 565/565 PASS，确认统一编排没有复制或绕过本 Domain 的 Preview/commitImport、authoritative replacement、Expected Arrival 或排序规则。
 
 本次 Correction 使用最新 Excel 调用正式 Parser 与 v4 Canonical identity 完成只读审计，并在既有隔离 Browser Profile 复验 D1935 / PI2607-235；没有覆盖用户 Chrome 或 PROD Profile，原始 Excel 没有进入 Git。真实页面从旧 18 个 Canonical Material 收敛为 13 个（面料 3、辅料 10），厂供 5 条 / 3,809 需求量仍只在只读 Trace Drawer 中出现；罗马布的 5 条颜色/规格 Demand 及不同采购价完整保留，展开行与多事件 Drawer 的出运量均来自 ShipmentEvent。
 
