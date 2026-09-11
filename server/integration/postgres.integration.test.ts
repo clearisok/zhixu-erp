@@ -11,6 +11,17 @@ import type { TrustedIdentity } from "../auth/session.js";
 import { loadServerConfig } from "../config.js";
 import { runMigrations } from "../db/migration-runner.js";
 import { appendOperationLog, createServerOperationId } from "../operation-logs/repository.js";
+import {
+  createOrUpdateSourceLink,
+  createSalesOrder,
+  getSalesOrderById,
+  getSalesOrderBySalesContractNo,
+  getSalesOrderBySourceIdentity,
+  listSalesOrders,
+  replaceCurrentAinuokeColorSlice,
+  updateSalesOrderLifecycle,
+  upsertCurrentAinuokeContractMirror,
+} from "../sales-orders/repository.js";
 import { startDisposablePostgres } from "./postgres-container.js";
 
 const { Pool } = pg;
@@ -182,7 +193,10 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
       );
       const directory = resolve("database/migrations");
       const first = await runMigrations(pool, directory);
-      assert.deepEqual(first.applied, ["0001_trusted_auth_rbac_operation_logs.sql"]);
+      assert.deepEqual(first.applied, [
+        "0001_trusted_auth_rbac_operation_logs.sql",
+        "0002_sales_order_foundation.sql",
+      ]);
       const identity = await pool.query<{ public_id: string }>("SELECT public_id::text FROM app_users WHERE username = 'legacy-user'");
       assert.match(identity.rows[0].public_id, /^[0-9a-f-]{36}$/);
       const columns = await pool.query<{ column_name: string }>(
@@ -197,6 +211,156 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         () => pool.query("UPDATE app_users SET public_id = gen_random_uuid() WHERE username = 'legacy-user'"),
         /immutable/i,
       );
+    } finally {
+      await pool.end();
+    }
+  });
+
+  await t.test("SalesOrder migration and repository enforce stable identity, source ownership, and current mirrors", async () => {
+    const databaseUrl = await postgres.createDatabase("sales_order_repository");
+    const pool = new Pool({ connectionString: databaseUrl });
+    try {
+      const migration = await runMigrations(pool, resolve("database/migrations"));
+      assert.deepEqual(migration.applied, [
+        "0001_trusted_auth_rbac_operation_logs.sql",
+        "0002_sales_order_foundation.sql",
+      ]);
+      const tables = await pool.query<{ table_name: string }>(
+        `SELECT table_name FROM information_schema.tables
+         WHERE table_schema = 'public' AND table_name IN (
+           'sales_orders',
+           'sales_order_source_links',
+           'ainuoke_sales_order_contract_mirrors',
+           'ainuoke_sales_order_color_mirrors'
+         ) ORDER BY table_name`,
+      );
+      assert.deepEqual(tables.rows.map((row) => row.table_name), [
+        "ainuoke_sales_order_color_mirrors",
+        "ainuoke_sales_order_contract_mirrors",
+        "sales_order_source_links",
+        "sales_orders",
+      ]);
+
+      const second = await createSalesOrder(pool, {
+        orderNo: "  so-002  ",
+        creationSource: "ainuoke",
+      });
+      const first = await createSalesOrder(pool, {
+        orderNo: "SO-001",
+        creationSource: "manual",
+      });
+      assert.match(second.id, /^[0-9a-f-]{36}$/);
+      assert.equal(second.orderNo, "SO-002");
+      assert.equal(second.version, 1);
+      assert.deepEqual((await listSalesOrders(pool)).map((order) => order.orderNo), ["SO-001", "SO-002"]);
+      await assert.rejects(
+        () => createSalesOrder(pool, { orderNo: "so-002", creationSource: "manual" }),
+        (error: unknown) => (error as { code?: string }).code === "23505",
+      );
+      await assert.rejects(
+        () => pool.query("INSERT INTO sales_orders(order_no, creation_source) VALUES ('lowercase', 'manual')"),
+        (error: unknown) => (error as { code?: string }).code === "23514",
+      );
+
+      await createOrUpdateSourceLink(pool, {
+        salesOrderId: second.id,
+        sourceSystem: "ainuoke",
+        sourceEntityType: "sales_contract",
+        externalId: "source-6086103-1",
+        salesContractNo: "sc-api-001",
+        insideOrderNo: "D1935",
+      });
+      await assert.rejects(
+        () => createOrUpdateSourceLink(pool, {
+          salesOrderId: first.id,
+          sourceSystem: "ainuoke",
+          sourceEntityType: "sales_contract",
+          externalId: "source-6086103-1",
+          salesContractNo: "SC-API-001",
+          insideOrderNo: "D1935",
+        }),
+        /already bound/i,
+      );
+      await assert.rejects(
+        () => createOrUpdateSourceLink(pool, {
+          salesOrderId: "00000000-0000-0000-0000-000000000000",
+          sourceSystem: "ainuoke",
+          sourceEntityType: "sales_contract",
+          externalId: "broken-owner",
+        }),
+        (error: unknown) => (error as { code?: string }).code === "23503",
+      );
+      await assert.rejects(
+        () => pool.query(
+          "UPDATE sales_order_source_links SET sales_order_id = $1::uuid WHERE external_id = 'source-6086103-1'",
+          [first.id],
+        ),
+        /binding is immutable/i,
+      );
+
+      const mirror = {
+        sourceId: "source-6086103-1",
+        sourceRowIdentity: "6086103:sha256:contract-redacted",
+        salesContractNo: "SC-API-001",
+        insideOrderNo: "D1935",
+        lifecycleStatusRaw: "生效",
+        contractDate: "2026-08-01",
+        contractDeliveryDate: "2026-10-01",
+        styleNo: "STYLE-100",
+        companyNameSnapshot: "COMPANY-A",
+        customerNameSnapshot: "CUSTOMER-A",
+        brandNameSnapshot: "BRAND-A",
+        quantity: 100,
+        sourceHash: "contract-hash-v1",
+        fetchedAt: "2026-09-11T01:00:00.000Z",
+        sourceMetadata: { reportId: "6086103" },
+      };
+      await upsertCurrentAinuokeContractMirror(pool, second.id, mirror);
+      await replaceCurrentAinuokeColorSlice(pool, second.id, [
+        { sourceLineIdentity: "color-red", colorName: "RED", quantity: 40, deliveryDate: null, sourceHash: "red-v1" },
+        { sourceLineIdentity: "color-blue", colorName: "BLUE", quantity: 60, deliveryDate: "2026-10-01", sourceHash: "blue-v1" },
+      ]);
+      const bySource = await getSalesOrderBySourceIdentity(pool, "ainuoke", "sales_contract", "source-6086103-1");
+      const byContract = await getSalesOrderBySalesContractNo(pool, "sc-api-001");
+      assert.equal(bySource?.id, second.id);
+      assert.equal(byContract?.id, second.id);
+      assert.equal(byContract?.quantity, 100);
+
+      await upsertCurrentAinuokeContractMirror(pool, second.id, {
+        ...mirror,
+        lifecycleStatusRaw: "草拟",
+        quantity: 120,
+        sourceHash: "contract-hash-v2",
+        fetchedAt: "2026-09-11T02:00:00.000Z",
+      });
+      await replaceCurrentAinuokeColorSlice(pool, second.id, [
+        { sourceLineIdentity: "color-green", colorName: "GREEN", quantity: 120, deliveryDate: null, sourceHash: "green-v2" },
+      ]);
+      const refreshed = await getSalesOrderById(pool, second.id);
+      assert.equal(refreshed?.id, second.id);
+      assert.equal(refreshed?.version, 1);
+      assert.equal(refreshed?.quantity, 120);
+      assert.equal(refreshed?.sourceLifecycleStatus, "草拟");
+      assert.deepEqual(refreshed?.colors.map((color) => color.colorName), ["GREEN"]);
+
+      const updated = await updateSalesOrderLifecycle(pool, {
+        id: second.id,
+        expectedVersion: 1,
+        lifecycleState: "active",
+      });
+      assert.equal(updated?.id, second.id);
+      assert.equal(updated?.version, 2);
+      assert.equal(updated?.lifecycleState, "active");
+      assert.equal((await updateSalesOrderLifecycle(pool, {
+        id: second.id,
+        expectedVersion: 1,
+        lifecycleState: "completed",
+      })), null);
+      await assert.rejects(
+        () => pool.query("UPDATE sales_orders SET lifecycle_state = 'completed' WHERE id = $1::uuid", [second.id]),
+        /version must increment/i,
+      );
+      assert.equal((await getSalesOrderById(pool, second.id))?.id, second.id);
     } finally {
       await pool.end();
     }

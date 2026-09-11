@@ -11,19 +11,17 @@
 
 ## Current Stable Main
 
-`d2194b8518ab0a83520f3e841e8d4350b946b3f2`（PR #15 Ainuoke Order Discovery Foundation 已 merged）
+`2349aedd6538e4d80382db14f8cfa4590fbe9c86`（PR #13、#15、#16 已 merged）
 
 ## Current Active Task
 
-- Branch: `perf/style-progress-loading`
-- Baseline: `d2194b8518ab0a83520f3e841e8d4350b946b3f2`
-- Scope: 只优化 Style Progress 首次加载与 Projection CPU；不改变业务语义，不迁 PostgreSQL，不改 Quote Center/Ainuoke Bridge，不读写真实 Browser 数据，不开始 Phase 2B。
-- Measurement harness 使用 Node 进程内隔离 fake IndexedDB 与 deterministic synthetic dataset，覆盖 1k/5k/10k/20k Demands、四类 Event、Expected Arrival Batch、多合同和 active/cancelled Scheduling；不会连接 DEV/PROD Browser namespace。
-- Before median/单次基线（ms，1k/5k/10k/20k）：`loadAll=152.9/1486.0/3007.1/7765.8`；`buildStyleProgressProjections=38.5/1079.0/3866.5/14203.2`；完整 `loadProgress=208.5/2273.2/6400.0/13511.8`；DataTable SSR 首次 render=`16.6/159.2/224.0/201.0`。
-- 已确认首要热点：Projection 对全部 `expectedArrivalBatches` 按 Demand 和 Canonical Material 重复扫描；每合同重复过滤全部 `scheduleAssignments`。Repository 还读取列表不需要的 Raw/Import Trace，且 v4 validation 在 allocation 校验后按 Demand ID 线性回查。
-- Projection 已建立 Demand → Expected Arrival Batch、SalesOrder → active assignments 索引，并预计算 Canonical 排序事实/复用合同 fallback；列表/风险/订单摘要读取不含 Raw/Import Trace 的轻量 read model，详情/Import/Backup/Migration 继续使用完整 `loadAll()`。IndexedDB version/store/index 未改变。
-- After（ms，1k/5k/10k/20k）：`loadAll=49.3/201.0/438.5/895.5`；`buildStyleProgressProjections=25.6/89.3/175.2/358.0`；完整 `loadProgress=54.1/263.7/560.0/1097.3`；DataTable SSR=`13.6/66.4/123.6/167.5`。10k Projection 为 22.07× / 95.5% reduction，20k 为 39.68× / 97.5%；20k 完整 loader 为 12.31× / 91.9%。
-- Projection equivalence：优化前完整 fixture JSON hash `03b44ea3c898f353c8fca75b8a33341bf586667dcd2e78d05ea53c05a0ba51cc` 保持一致；轻量/full read model 输出 deep-equal。最终门禁为专项 50/50、Full Tests 577/577、TypeScript、零警告 ESLint、Production Build 30 routes 与 `git diff --check` PASS。
+- Branch: `feat/postgres-salesorder-foundation`
+- Baseline: `2349aedd6538e4d80382db14f8cfa4590fbe9c86`
+- Scope: PostgreSQL Phase 2B1 SalesOrder Server Foundation；只实现 schema、repository、事务创建 service、安全 read API 与一次性 PostgreSQL 测试。禁止真实 Ainuoke read/write、真实 bootstrap、Browser Order/Scheduling migration/cutover/dual-write，以及 Quote/Style Progress/Closing/Blob mutation。
+- Gate A 已完成：新增 forward-only `0002_sales_order_foundation.sql`，建立 `sales_orders`、`sales_order_source_links`、Ainuoke current contract mirror 与 color mirror 四张表；SalesOrder identity/provenance、source binding、规范化 order number 与 optimistic version 由 DB 约束/trigger 保护。
+- Gate A Repository 已提供 create/get-by-id/get-by-source/get-by-contract/list、source-link create/update、current contract mirror upsert、current color slice replacement 和 optimistic lifecycle update；所有 SQL 参数化，读取返回 composed typed projection，不暴露 raw row/opaque payload。
+- Gate A 隔离验证：server build PASS；一次性 PG16 tmpfs PostgreSQL integration 10/10，覆盖 fresh migration、schema/unique/FK、stable UUID、normalized order number、source binding、mirror refresh、color replacement 与 optimistic version。测试没有连接 DEV/业务数据库。
+- 下一步：Gate B 实现 `createAinuokeSalesOrder` 单 transaction、可信 actor OperationLog、只读 list/detail API 与 401/403/two-session integration tests；不得开始 Phase 2B2。
 
 ### Previous completed PR #14 context
 
