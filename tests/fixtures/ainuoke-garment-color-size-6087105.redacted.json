@@ -6,7 +6,7 @@
     "page": 1,
     "pageSize": 50,
     "total": 5,
-    "queryContext": { "insideOrderNo": "D1935" },
+    "queryContext": { "salesContractNo": "PI2607-235" },
     "snapshotHash": "d1935-sanitized",
     "rows": [
       {
@@ -100,7 +100,7 @@
     "page": 1,
     "pageSize": 50,
     "total": 3,
-    "queryContext": { "insideOrderNo": "T1826-4" },
+    "queryContext": { "salesContractNo": "PI2508-025" },
     "snapshotHash": "t1826-sanitized",
     "rows": [
       { "sourceRowIdentity": "6087105:sha256:t1826-white", "values": { "id": 1, "BillNo": "PI2508-025", "GoodsNo": "T1826-4", "insideorderno": "T1826-4", "SizeRule": "S,M,L", "CnColor": "White白色BN108", "SizeNum": 1530, "Size1": 500, "Size2": 510, "Size3": 520 } },
@@ -115,7 +115,7 @@
     "page": 1,
     "pageSize": 50,
     "total": 2,
-    "queryContext": { "insideOrderNo": "1917U" },
+    "queryContext": { "salesContractNo": "PI2511-141" },
     "snapshotHash": "1917u-sanitized",
     "rows": [
       { "sourceRowIdentity": "6087105:sha256:1917u-ecru", "values": { "id": 2, "BillNo": "PI2511-141", "GoodsNo": "MS1917U", "insideorderno": "1917U", "SizeRule": "S,M,L", "CnColor": "ECRU 白色", "SizeNum": 4382, "Size1": 1400, "Size2": 1482, "Size3": 1500 } },

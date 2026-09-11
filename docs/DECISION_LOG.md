@@ -18,6 +18,24 @@
 
 ## Active
 
+### D-080 SalesContractNo / BillNo 是 Ainuoke SalesOrder 稳定跨报表关联键
+
+- 日期：2026-09-11
+- 状态：Active；补充 D-077/D-078，并约束后续 Ainuoke SalesOrder bootstrap / refresh。它不授权真实 bootstrap 或 Browser cutover。
+- 决定：`SalesContractNo` / `BillNo` 是 Ainuoke SalesOrder 稳定业务关联键；PostgreSQL UUID 继续是正式技术 identity，immutable source binding 继续由既有模型承担。完整 6086103 Discovery 必须建立 normalized、non-empty、unique BillNo index；duplicate BillNo fail closed。
+- InsideOrderNo：只作为 mutable source attribute 和某些旧 report 已证明支持的 transport lookup key。同一 BillNo 下 InsideOrderNo 变化不得新建 SalesOrder、替换 UUID/order_no、解除 source binding、丢失 source-owned details 或形成 identity conflict；跨报表差异记录为 `inside_order_no_drift` informational evidence。
+- Query audit：6086103 `order_discovery` 使用 empty query；6087105 已证明支持 `BillNo contains`；6086997 与 6087050 当前 catalog 只证明 `InsideOrderNo is` / `insideorderno is`。未证明 BillNo transport contract 的 report 不得猜测 fieldName/compareType，可由 Discovery 取得当前 InsideOrderNo 查询，但结果必须回绑原 SalesContractNo / SalesOrder UUID。
+- 证据：Phase 2B2.2 全量只读验证的 before/after Discovery 均为 511、hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`；511/511 BillNo queries 成功，8 个旧 missing 全部以相同 BillNo 找回且全部产生合法 drift；PI2512-121 从 Discovery `5384/086-1(46021-N)` 对应到 6087105 `5466/086(46021-N)`，颜色数量 9000 与合同一致。
+
+### D-079 6087105 正式取代 6086997 作为 SalesOrder 颜色/分码来源
+
+- 日期：2026-09-11
+- 状态：Active；用户已明确批准 source replacement。
+- 决定：6087105 是正式当前 SalesOrder color/size source，固定 query 为 `{ salesContractNo }` → `BillNo contains`，返回后 exact normalized BillNo filter。6086997 catalog、adapter、tests 与 Phase 2B2 证据保留为 legacy / historical，不再作为正式当前 SalesOrder color source。
+- Missing/invalid：6087105 没有 exact BillNo rows 时为 `missing`，关键行异常时为 `invalid`；两者都是颜色 enrichment 状态，均不得阻止 SalesOrder 创建。InsideOrderNo drift 既不 invalid 也不 missing。
+- 边界：本决定不执行真实 PostgreSQL bootstrap、不切换 Browser Order Center、不写 Ainuoke/Browser/Quote/Style Progress/Scheduling/Closing。下一步是 fresh Bootstrap Preview，不是 real bootstrap。
+- 证据：Phase 2B2.2 全量验证 511/511 query success、511 exact BillNo orders、1390 exact rows、505 usable、0 missing、6 invalid、505/505 usable quantity parity；before/after stale guard stable。
+
 ### D-078 正式 SalesOrder 编号、bootstrap scope、source disappearance 与 retention policy
 
 - 日期：2026-09-11
@@ -577,14 +595,6 @@
 - Retirement：旧 Browser Order/Scheduling 可以在未来退役，但只能通过独立 Test Business Data Retirement Gate；必须先完整 backup、dependency audit、精确 delete/protect scope，并取得用户 explicit destructive confirmation。此决定本身不授权清理。
 - 证据：`docs/features/AINUOKE_ORDER_DISCOVERY.md`、`docs/features/SALES_ORDER_PERSISTENCE.md`、`features/ainuoke-api/source/ainuoke-order-discovery-adapter.ts` 与 Discovery/Bridge tests。
 
-## Needs User Decision
-
-### D-079 6087105 是否取代 6086997 作为正式颜色/分码来源
-
-- 日期：2026-09-11
-- 状态：Needs User Decision；不是 Active source replacement。
-- 候选证据：6087105 固定只读路径、exact post-filter、typed adapter 与全量 current-account validation 已通过。authoritative run 的 511/511 queries 成功；497 个 usable-color orders 的 `sum(SizeNum)` 全部等于 6086103 contract quantity；旧 34 blockers 中 31 resolved、3 invalid、0 missing、0 quantity-warning-only。
-- 保留边界：6086997 catalog、adapter、tests 与 Phase 2B2 历史证据全部保留；现有默认 Bootstrap Color Source 未切换。只有用户明确批准后，下一独立阶段才能切换 Preview source 并重新运行 fresh full Bootstrap Preview。
 - 证据：`features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts`、`features/ainuoke-sync/service/ainuoke-garment-color-size-validation.ts` 与 `docs/features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`。
 
 ## Superseded

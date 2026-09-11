@@ -1,4 +1,4 @@
-import type { AinuokeReportKey, AinuokeReportQuery, AinuokeReportSnapshot } from "../../ainuoke-api/model/ainuoke-api.ts";
+import type { AinuokeDetailReportKey, AinuokeReportQuery, AinuokeReportSnapshot } from "../../ainuoke-api/model/ainuoke-api.ts";
 import type { BasicSettingsState } from "../../basic-settings/model/basic-settings.ts";
 import type { OperationLog, OperationLogActor, OperationLogDraft } from "../../operation-logs/model/operation-log.ts";
 import type { SalesOrder } from "../../order-center/model/order.ts";
@@ -74,7 +74,7 @@ export type AinuokeUnifiedPreviewDependencies = {
   reports: {
     readAllReportPages(
       userId: string,
-      reportKey: AinuokeReportKey,
+      reportKey: Exclude<AinuokeDetailReportKey, "garment_color_size_details">,
       input: { pageSize?: number; maxPages?: number; query: AinuokeReportQuery },
     ): Promise<AinuokeReportSnapshot[]>;
   };

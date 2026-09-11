@@ -1,4 +1,8 @@
-import type { AinuokeReportSnapshot, AinuokeSourceRow } from "../../ainuoke-api/model/ainuoke-api.ts";
+import type {
+  AinuokeReportSnapshot,
+  AinuokeSalesContractQuery,
+  AinuokeSourceRow,
+} from "../../ainuoke-api/model/ainuoke-api.ts";
 
 export type AinuokeGarmentColorDetailStatus = "missing" | "invalid" | "usable";
 
@@ -14,7 +18,6 @@ export type AinuokeSizeMatrixStatus =
 export type AinuokeGarmentColorSizeIssueCode =
   | "BLANK_COLOR"
   | "INVALID_SIZE_NUM"
-  | "BILL_NO_MISMATCH"
   | "GOODS_NO_MISMATCH"
   | "DUPLICATE_SOURCE_IDENTITY";
 
@@ -36,6 +39,7 @@ export type AinuokeGarmentColorSizeRow = {
   salesContractNo: string;
   styleNo: string;
   insideOrderNo: string;
+  insideOrderNoDrift: boolean;
   customerOrderNo: string | null;
   sizeRuleRaw: string | null;
   sizeRuleTokens: string[];
@@ -54,8 +58,10 @@ export type AinuokeGarmentColorSizeRow = {
 export type AinuokeGarmentColorSizeSource = {
   schemaVersion: "ainuoke-garment-color-size.v1";
   reportId: "6087105";
-  requestedInsideOrderNo: string;
-  expectedSalesContractNo: string;
+  requestedSalesContractNo: string;
+  discoveryInsideOrderNo: string;
+  detailInsideOrderNos: string[];
+  insideOrderNoDrift: boolean;
   expectedStyleNo: string;
   upstreamRows: number;
   exactRows: number;
@@ -73,6 +79,10 @@ const normalizeText = (value: unknown): string => value === null || value === un
   : String(value).normalize("NFKC").trim();
 
 export const normalizeAinuokeInsideOrderNo = (value: unknown): string => normalizeText(value)
+  .replace(/\s+/gu, "")
+  .toLocaleUpperCase("en-US");
+
+export const normalizeAinuokeSalesContractNo = (value: unknown): string => normalizeText(value)
   .replace(/\s+/gu, "")
   .toLocaleUpperCase("en-US");
 
@@ -140,7 +150,10 @@ function mapSizeFacts(row: AinuokeSourceRow, quantity: number | null) {
   };
 }
 
-function assertSnapshotSet(snapshots: ReadonlyArray<AinuokeReportSnapshot>, requestedInsideOrderNo: string): void {
+function assertSnapshotSet(
+  snapshots: ReadonlyArray<AinuokeReportSnapshot<AinuokeSalesContractQuery>>,
+  requestedSalesContractNo: string,
+): void {
   if (!snapshots.length) throw new Error("6087105 缺少分页 Snapshot");
   const ordered = [...snapshots].sort((left, right) => left.page - right.page);
   const pageSize = ordered[0].pageSize;
@@ -152,7 +165,8 @@ function assertSnapshotSet(snapshots: ReadonlyArray<AinuokeReportSnapshot>, requ
       || snapshot.page !== index + 1
       || snapshot.pageSize !== pageSize
       || snapshot.total !== total
-      || normalizeAinuokeInsideOrderNo(snapshot.queryContext.insideOrderNo) !== requestedInsideOrderNo
+      || normalizeAinuokeSalesContractNo(snapshot.queryContext.salesContractNo) !== requestedSalesContractNo
+      || Object.keys(snapshot.queryContext).length !== 1
       || snapshot.rows.length > pageSize) {
       throw new Error("6087105 Source 协议、query context 或分页不一致");
     }
@@ -167,32 +181,32 @@ async function sha256Hex(value: string): Promise<string> {
 }
 
 export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
-  snapshots: ReadonlyArray<AinuokeReportSnapshot>;
-  requestedInsideOrderNo: string;
-  expectedSalesContractNo: string;
+  snapshots: ReadonlyArray<AinuokeReportSnapshot<AinuokeSalesContractQuery>>;
+  requestedSalesContractNo: string;
+  discoveryInsideOrderNo: string;
   expectedStyleNo: string;
 }): Promise<AinuokeGarmentColorSizeSource> {
-  const requestedInsideOrderNo = normalizeAinuokeInsideOrderNo(input.requestedInsideOrderNo);
-  const expectedSalesContractNo = normalizeIdentity(input.expectedSalesContractNo);
+  const requestedSalesContractNo = normalizeAinuokeSalesContractNo(input.requestedSalesContractNo);
+  const discoveryInsideOrderNo = normalizeAinuokeInsideOrderNo(input.discoveryInsideOrderNo);
   const expectedStyleNo = normalizeIdentity(input.expectedStyleNo);
-  if (!requestedInsideOrderNo || !expectedSalesContractNo) throw new Error("6087105 exact filter 缺少订单身份");
-  assertSnapshotSet(input.snapshots, requestedInsideOrderNo);
+  if (!requestedSalesContractNo || !discoveryInsideOrderNo) throw new Error("6087105 exact filter 缺少订单身份");
+  assertSnapshotSet(input.snapshots, requestedSalesContractNo);
 
   const sourceRows = [...input.snapshots]
     .sort((left, right) => left.page - right.page)
     .flatMap((snapshot) => snapshot.rows);
-  const exactSourceRows = sourceRows.filter((row) => normalizeAinuokeInsideOrderNo(row.values.insideorderno) === requestedInsideOrderNo);
+  const exactSourceRows = sourceRows.filter((row) => normalizeAinuokeSalesContractNo(row.values.BillNo) === requestedSalesContractNo);
   const issues: AinuokeGarmentColorSizeIssue[] = [];
   const rows = exactSourceRows.map((row): AinuokeGarmentColorSizeRow => {
     const sourceRowIdentity = normalizeText(row.sourceRowIdentity);
     const salesContractNo = normalizeText(row.values.BillNo);
     const styleNo = normalizeText(row.values.GoodsNo);
     const insideOrderNo = normalizeText(row.values.insideorderno);
+    const insideOrderNoDrift = normalizeAinuokeInsideOrderNo(insideOrderNo) !== discoveryInsideOrderNo;
     const colorName = normalizeText(row.values.CnColor);
     const sizeNum = optionalNonNegativeNumber(row.values.SizeNum);
     if (!colorName) issues.push({ code: "BLANK_COLOR", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 CnColor 为空" });
     if (!sizeNum.present || !sizeNum.valid) issues.push({ code: "INVALID_SIZE_NUM", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 SizeNum 无效" });
-    if (normalizeIdentity(salesContractNo) !== expectedSalesContractNo) issues.push({ code: "BILL_NO_MISMATCH", sourceRowIdentity: sourceRowIdentity || null, message: `6087105 BillNo ${salesContractNo || "(空)"} 与 ${expectedSalesContractNo} 不一致` });
     if (expectedStyleNo && normalizeIdentity(styleNo) !== expectedStyleNo) issues.push({ code: "GOODS_NO_MISMATCH", sourceRowIdentity: sourceRowIdentity || null, message: `6087105 GoodsNo ${styleNo || "(空)"} 与 ${input.expectedStyleNo} 不一致` });
     return {
       sourceRowIdentity,
@@ -200,6 +214,7 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
       salesContractNo,
       styleNo,
       insideOrderNo,
+      insideOrderNoDrift,
       customerOrderNo: normalizeText(row.values.CustomerOrderNo) || null,
       colorName,
       quantity: sizeNum.value,
@@ -217,15 +232,16 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
   rows.sort((left, right) => left.sourceRowIdentity.localeCompare(right.sourceRowIdentity)
     || normalizeIdentity(left.colorName).localeCompare(normalizeIdentity(right.colorName))
     || (left.deliveryDate ?? "").localeCompare(right.deliveryDate ?? ""));
-  const invalidCodes = new Set<AinuokeGarmentColorSizeIssueCode>(["BLANK_COLOR", "INVALID_SIZE_NUM", "BILL_NO_MISMATCH", "DUPLICATE_SOURCE_IDENTITY"]);
+  const invalidCodes = new Set<AinuokeGarmentColorSizeIssueCode>(["BLANK_COLOR", "INVALID_SIZE_NUM", "DUPLICATE_SOURCE_IDENTITY"]);
   const colorDetailStatus: AinuokeGarmentColorDetailStatus = rows.length === 0
     ? "missing"
     : issues.some((issue) => invalidCodes.has(issue.code))
       ? "invalid"
       : "usable";
+  const detailInsideOrderNos = [...new Set(rows.map((row) => normalizeText(row.insideOrderNo)).filter(Boolean))].sort();
   const hashPayload = rows.map((row) => ({
     sourceRowIdentity: row.sourceRowIdentity,
-    salesContractNo: normalizeIdentity(row.salesContractNo),
+    salesContractNo: normalizeAinuokeSalesContractNo(row.salesContractNo),
     styleNo: normalizeIdentity(row.styleNo),
     insideOrderNo: normalizeAinuokeInsideOrderNo(row.insideOrderNo),
     customerOrderNo: normalizeIdentity(row.customerOrderNo),
@@ -238,8 +254,10 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
   return {
     schemaVersion: "ainuoke-garment-color-size.v1",
     reportId: "6087105",
-    requestedInsideOrderNo,
-    expectedSalesContractNo,
+    requestedSalesContractNo,
+    discoveryInsideOrderNo,
+    detailInsideOrderNos,
+    insideOrderNoDrift: rows.some((row) => row.insideOrderNoDrift),
     expectedStyleNo,
     upstreamRows: sourceRows.length,
     exactRows: rows.length,

@@ -31,6 +31,7 @@ function AinuokeAccountSettingsForUser({ currentUser, allowed, readAllowed }: { 
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
   const [insideOrderNo, setInsideOrderNo] = useState("D1935");
+  const [salesContractNo, setSalesContractNo] = useState("PI2607-235");
   const [readResults, setReadResults] = useState<Partial<Record<AinuokeDetailReportKey, ReadResult>>>({});
 
   useEffect(() => {
@@ -122,11 +123,17 @@ function AinuokeAccountSettingsForUser({ currentUser, allowed, readAllowed }: { 
     setWorking(true);
     setError("");
     try {
-      const snapshot = await ainuokeBridgeClient.readReport(currentUser.id, reportKey, {
-        page: 1,
-        pageSize: 50,
-        query: { insideOrderNo: insideOrderNo.trim() },
-      });
+      const snapshot = reportKey === "garment_color_size_details"
+        ? await ainuokeBridgeClient.readReport(currentUser.id, reportKey, {
+            page: 1,
+            pageSize: 50,
+            query: { salesContractNo: salesContractNo.trim() },
+          })
+        : await ainuokeBridgeClient.readReport(currentUser.id, reportKey, {
+            page: 1,
+            pageSize: 50,
+            query: { insideOrderNo: insideOrderNo.trim() },
+          });
       const fields = snapshot.rows[0] ? Object.keys(snapshot.rows[0].values).sort() : [];
       setReadResults((current) => ({
         ...current,
@@ -163,13 +170,14 @@ function AinuokeAccountSettingsForUser({ currentUser, allowed, readAllowed }: { 
       <fieldset disabled={!readAllowed || !account.configured || working}>
         <header><div><strong>真实协议只读验收</strong><small>仅调用固定报表目录并返回 read DTO；不会写入销售订单、款式进度或物料导入。</small></div></header>
         <label><span>内部订单号</span><input className="qc-control" value={insideOrderNo} onChange={(event) => setInsideOrderNo(event.target.value)} placeholder="例如 D1935" /></label>
+        <label><span>销售合同号（6087105）</span><input className="qc-control" value={salesContractNo} onChange={(event) => setSalesContractNo(event.target.value)} placeholder="例如 PI2607-235" /></label>
         <div className="ainuoke-live-read-list">
           {AINUOKE_DETAIL_REPORT_KEYS.map((reportKey) => {
             const definition = AINUOKE_REPORT_CATALOG[reportKey];
             const result = readResults[reportKey];
             return <section key={reportKey}>
               <div><strong>{definition.reportId} · {definition.label}</strong>{result && <small>HTTP 200 · rows {result.rowCount} / total {result.total} · page {result.page} / {result.pageSize}<br />字段：{result.fields.slice(0, 12).join("、") || "无返回行"}</small>}</div>
-              <Button variant="secondary" disabled={!insideOrderNo.trim()} onClick={() => void readReport(reportKey)}>只读查询</Button>
+              <Button variant="secondary" disabled={reportKey === "garment_color_size_details" ? !salesContractNo.trim() : !insideOrderNo.trim()} onClick={() => void readReport(reportKey)}>只读查询</Button>
             </section>;
           })}
         </div>

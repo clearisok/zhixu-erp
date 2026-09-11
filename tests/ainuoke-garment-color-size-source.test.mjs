@@ -14,8 +14,8 @@ const clone = (value) => structuredClone(value);
 
 const adaptFixture = (insideOrderNo, salesContractNo, styleNo) => adaptAinuokeGarmentColorSizeSnapshots({
   snapshots: [clone(fixtures[insideOrderNo])],
-  requestedInsideOrderNo: insideOrderNo,
-  expectedSalesContractNo: salesContractNo,
+  requestedSalesContractNo: salesContractNo,
+  discoveryInsideOrderNo: insideOrderNo,
   expectedStyleNo: styleNo,
 });
 
@@ -51,9 +51,9 @@ test("contains results are exact-filtered after whitespace and Unicode normaliza
   snapshot.total = 2;
   snapshot.rows = [
     snapshot.rows[0],
-    { ...snapshot.rows[1], sourceRowIdentity: "6087105:sha256:false-positive", values: { ...snapshot.rows[1].values, insideorderno: "XD1935" } },
+    { ...snapshot.rows[1], sourceRowIdentity: "6087105:sha256:false-positive", values: { ...snapshot.rows[1].values, BillNo: "PI2607-235-X" } },
   ];
-  const source = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [snapshot], requestedInsideOrderNo: " D 1935 ", expectedSalesContractNo: "PI2607-235", expectedStyleNo: "D1935" });
+  const source = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [snapshot], requestedSalesContractNo: " PI2607-235 ", discoveryInsideOrderNo: " D 1935 ", expectedStyleNo: "D1935" });
   assert.equal(normalizeAinuokeInsideOrderNo(" D 1935 "), "D1935");
   assert.equal(source.exactRows, 1);
   assert.equal(source.containsFalsePositiveRows, 1);
@@ -63,8 +63,8 @@ test("contains results are exact-filtered after whitespace and Unicode normaliza
 test("no exact rows means missing detail rather than missing SalesOrder", async () => {
   const snapshot = clone(fixtures.D1935);
   snapshot.total = 1;
-  snapshot.rows = [{ ...snapshot.rows[0], values: { ...snapshot.rows[0].values, insideorderno: "D1935-1" } }];
-  const source = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [snapshot], requestedInsideOrderNo: "D1935", expectedSalesContractNo: "PI2607-235", expectedStyleNo: "D1935" });
+  snapshot.rows = [{ ...snapshot.rows[0], values: { ...snapshot.rows[0].values, BillNo: "PI2607-235-X" } }];
+  const source = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [snapshot], requestedSalesContractNo: "PI2607-235", discoveryInsideOrderNo: "D1935", expectedStyleNo: "D1935" });
   assert.equal(source.colorDetailStatus, "missing");
   assert.equal(source.exactRows, 0);
   assert.equal(source.containsFalsePositiveRows, 1);
@@ -74,17 +74,52 @@ test("critical row anomalies fail the complete color slice closed without invent
   const cases = [
     ["BLANK_COLOR", (rows) => { rows[0].values.CnColor = ""; }],
     ["INVALID_SIZE_NUM", (rows) => { rows[0].values.SizeNum = "not-a-number"; }],
-    ["BILL_NO_MISMATCH", (rows) => { rows[0].values.BillNo = "PI-WRONG"; }],
     ["DUPLICATE_SOURCE_IDENTITY", (rows) => { rows[1].sourceRowIdentity = rows[0].sourceRowIdentity; }],
   ];
   for (const [code, mutate] of cases) {
     const snapshot = clone(fixtures.D1935);
     mutate(snapshot.rows);
-    const source = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [snapshot], requestedInsideOrderNo: "D1935", expectedSalesContractNo: "PI2607-235", expectedStyleNo: "D1935" });
+    const source = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [snapshot], requestedSalesContractNo: "PI2607-235", discoveryInsideOrderNo: "D1935", expectedStyleNo: "D1935" });
     assert.equal(source.colorDetailStatus, "invalid", code);
     assert.equal(source.usableRows.length, 0, code);
     assert.ok(source.issues.some((issue) => issue.code === code), code);
   }
+});
+
+test("same BillNo with changed InsideOrderNo remains usable and records drift", async () => {
+  const snapshot = clone(fixtures.D1935);
+  snapshot.rows.forEach((row) => { row.values.insideorderno = "5384/086-1(NEW)"; });
+  const source = await adaptAinuokeGarmentColorSizeSnapshots({
+    snapshots: [snapshot],
+    requestedSalesContractNo: "PI2607-235",
+    discoveryInsideOrderNo: "5384/086-1(46021-N)",
+    expectedStyleNo: "D1935",
+  });
+  assert.equal(source.colorDetailStatus, "usable");
+  assert.equal(source.exactRows, 5);
+  assert.equal(source.insideOrderNoDrift, true);
+  assert.deepEqual(source.detailInsideOrderNos, ["5384/086-1(NEW)"]);
+  assert.ok(source.rows.every((row) => row.insideOrderNoDrift));
+});
+
+test("BillNo contains false positives fail closed from the projection", async () => {
+  const snapshot = clone(fixtures.D1935);
+  snapshot.total += 1;
+  snapshot.rows.push({
+    ...clone(snapshot.rows[0]),
+    sourceRowIdentity: "6087105:sha256:cross-contract",
+    values: { ...clone(snapshot.rows[0].values), BillNo: "PI2607-235-X" },
+  });
+  const source = await adaptAinuokeGarmentColorSizeSnapshots({
+    snapshots: [snapshot],
+    requestedSalesContractNo: "PI2607-235",
+    discoveryInsideOrderNo: "D1935",
+    expectedStyleNo: "D1935",
+  });
+  assert.equal(source.colorDetailStatus, "usable");
+  assert.equal(source.containsFalsePositiveRows, 1);
+  assert.equal(source.rows.length, 5);
+  assert.ok(source.rows.every((row) => row.salesContractNo === "PI2607-235"));
 });
 
 test("SizeRule anomalies remain explicit typed evidence and do not invalidate otherwise usable colors", async () => {
@@ -93,7 +128,7 @@ test("SizeRule anomalies remain explicit typed evidence and do not invalidate ot
   snapshot.rows[0].values.Size1 = 499;
   snapshot.rows[1].values.SizeRule = "";
   snapshot.rows[2].values.SizeRule = "S,M";
-  const source = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [snapshot], requestedInsideOrderNo: "T1826-4", expectedSalesContractNo: "PI2508-025", expectedStyleNo: "T1826-4" });
+  const source = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [snapshot], requestedSalesContractNo: "PI2508-025", discoveryInsideOrderNo: "T1826-4", expectedStyleNo: "T1826-4" });
   assert.equal(source.colorDetailStatus, "usable");
   assert.deepEqual(new Set(source.rows.map((row) => row.sizeMatrixStatus)), new Set([
     "SIZE_MATRIX_QUANTITY_MISMATCH",
@@ -107,13 +142,13 @@ test("zero-quantity rows only accept absent or zero SizeN values", async () => {
   const withZero = clone(fixtures.D1935);
   const zeroRow = withZero.rows.find((row) => Number(row.values.SizeNum) === 0);
   zeroRow.values.Size1 = 0;
-  const accepted = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [withZero], requestedInsideOrderNo: "D1935", expectedSalesContractNo: "PI2607-235", expectedStyleNo: "D1935" });
+  const accepted = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [withZero], requestedSalesContractNo: "PI2607-235", discoveryInsideOrderNo: "D1935", expectedStyleNo: "D1935" });
   assert.equal(accepted.rows.find((row) => row.sourceRowIdentity === zeroRow.sourceRowIdentity).sizeMatrixStatus, "ZERO_QUANTITY_WITH_SIZE");
 
   const withNonZero = clone(fixtures.D1935);
   const invalidZeroRow = withNonZero.rows.find((row) => Number(row.values.SizeNum) === 0);
   invalidZeroRow.values.Size1 = 1;
-  const rejected = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [withNonZero], requestedInsideOrderNo: "D1935", expectedSalesContractNo: "PI2607-235", expectedStyleNo: "D1935" });
+  const rejected = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [withNonZero], requestedSalesContractNo: "PI2607-235", discoveryInsideOrderNo: "D1935", expectedStyleNo: "D1935" });
   assert.equal(rejected.rows.find((row) => row.sourceRowIdentity === invalidZeroRow.sourceRowIdentity).sizeMatrixStatus, "SIZE_MATRIX_QUANTITY_MISMATCH");
 });
 
@@ -121,8 +156,8 @@ test("row ordering and source hash are deterministic and color name alone is not
   const firstSnapshot = clone(fixtures.D1935);
   const reversedSnapshot = clone(fixtures.D1935);
   reversedSnapshot.rows.reverse();
-  const first = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [firstSnapshot], requestedInsideOrderNo: "D1935", expectedSalesContractNo: "PI2607-235", expectedStyleNo: "D1935" });
-  const reversed = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [reversedSnapshot], requestedInsideOrderNo: "D1935", expectedSalesContractNo: "PI2607-235", expectedStyleNo: "D1935" });
+  const first = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [firstSnapshot], requestedSalesContractNo: "PI2607-235", discoveryInsideOrderNo: "D1935", expectedStyleNo: "D1935" });
+  const reversed = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [reversedSnapshot], requestedSalesContractNo: "PI2607-235", discoveryInsideOrderNo: "D1935", expectedStyleNo: "D1935" });
   assert.equal(first.sourceHash, reversed.sourceHash);
   assert.deepEqual(first.rows.map((row) => row.sourceRowIdentity), reversed.rows.map((row) => row.sourceRowIdentity));
   assert.equal(new Set(first.rows.map((row) => row.sourceRowIdentity)).size, first.rows.length);
@@ -145,15 +180,15 @@ test("typed 6087105 client uses fixed key and fails closed on report and total d
     new Response(JSON.stringify(second), { status: 200 }),
   ];
   const client = createAinuokeBridgeClient({ fetchImpl: async (url, init) => { calls.push({ url, init }); return responses.shift(); } });
-  const pages = await client.readAllGarmentColorSizePages("user-a", { insideOrderNo: " D1935 ", pageSize: 3 });
+  const pages = await client.readAllGarmentColorSizePages("user-a", { salesContractNo: " PI2607-235 ", pageSize: 3 });
   assert.equal(pages.length, 2);
   assert.ok(calls.slice(1).every((call) => call.url.endsWith("/v1/ainuoke/reports/garment_color_size_details/query")));
-  assert.ok(calls.slice(1).every((call) => JSON.parse(call.init.body).query.insideOrderNo === "D1935"));
+  assert.ok(calls.slice(1).every((call) => JSON.parse(call.init.body).query.salesContractNo === "PI2607-235"));
 
   const badReport = clone(fixtures.D1935);
   badReport.reportId = "6086997";
   const reportClient = createAinuokeBridgeClient({ fetchImpl: async () => new Response(JSON.stringify({ csrfToken: "memory-only", ...badReport }), { status: 200 }) });
-  await assert.rejects(() => reportClient.readAllGarmentColorSizePages("user-a", { insideOrderNo: "D1935" }), /固定只读协议不一致/);
+  await assert.rejects(() => reportClient.readAllGarmentColorSizePages("user-a", { salesContractNo: "PI2607-235" }), /固定只读协议不一致/);
 
   const drifting = clone(second);
   drifting.total = 6;
@@ -163,7 +198,21 @@ test("typed 6087105 client uses fixed key and fails closed on report and total d
     new Response(JSON.stringify(drifting), { status: 200 }),
   ];
   const driftClient = createAinuokeBridgeClient({ fetchImpl: async () => driftResponses.shift() });
-  await assert.rejects(() => driftClient.readAllGarmentColorSizePages("user-a", { insideOrderNo: "D1935", pageSize: 3 }), /分页总数不一致/);
+  await assert.rejects(() => driftClient.readAllGarmentColorSizePages("user-a", { salesContractNo: "PI2607-235", pageSize: 3 }), /分页总数不一致/);
+});
+
+test("typed client rejects mixed or wrong query kinds before transport", async () => {
+  let calls = 0;
+  const client = createAinuokeBridgeClient({ fetchImpl: async () => { calls += 1; throw new Error("must not call transport"); } });
+  await assert.rejects(
+    () => client.readAllReportPages("user-a", "garment_color_size_details", { query: { salesContractNo: "PI2607-235", insideOrderNo: "D1935" } }),
+    (error) => error.code === "report_query_invalid",
+  );
+  await assert.rejects(
+    () => client.readAllReportPages("user-a", "sales_contract_color_sizes", { query: { salesContractNo: "PI2607-235" } }),
+    (error) => error.code === "report_query_invalid",
+  );
+  assert.equal(calls, 0);
 });
 
 test("validation report aggregates coverage, quantity, size, PO, delivery and selected old blockers", async () => {
@@ -191,8 +240,9 @@ test("validation report aggregates coverage, quantity, size, PO, delivery and se
     discoveryBefore: discovery,
     discoveryAfter: discovery,
     contracts,
-    details: sources.map((source) => ({ insideOrderNo: source.requestedInsideOrderNo, pages: 1, source })),
+    details: sources.map((source) => ({ insideOrderNo: source.discoveryInsideOrderNo, salesContractNo: source.requestedSalesContractNo, pages: 1, source })),
     oldBlockerInsideOrderNos: ["T1826-4", "1917U"],
+    formerMissingSalesContractNos: [],
   });
   assert.equal(report.snapshot.stable, true);
   assert.deepEqual(report.queries, { total: 3, successful: 3, failed: 0, pages: 3 });

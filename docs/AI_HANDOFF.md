@@ -11,20 +11,35 @@
 
 ## Current Stable Main
 
-`9556cc9be9ee375b53121e9f30d67a68171356e6`（Phase 2B2 PR #18 已 merged）
+`07e57b0eacecb20668e7de8f0c8592e0bfc612b0`（Phase 2B2.1 PR #19 已 merged）
 
 ## Current Active Task
+
+- Branch: `fix/ainuoke-sales-contract-stable-identity`
+- Baseline: `07e57b0eacecb20668e7de8f0c8592e0bfc612b0` (`origin/main`, Phase 2B2.1 PR #19 merge commit).
+- Scope: Phase 2B2.2 changes the stable Ainuoke SalesOrder cross-report association to normalized `SalesContractNo` / `BillNo`. `InsideOrderNo` is mutable source data; same BillNo drift records `inside_order_no_drift` and cannot create/change/rebind a SalesOrder.
+- Typed Bridge query kinds are `empty | sales_contract | inside_order`. 6087105 uses fixed `{ salesContractNo }` → `BillNo contains` and exact normalized row.BillNo filter. Query kinds cannot mix, and Browser cannot submit raw report controls.
+- D-079 is Active by explicit user approval: 6087105 formally replaces 6086997 as current SalesOrder color/size source. 6086997 stays legacy/historical in catalog/adapter/tests. 6087105 missing/invalid remains non-blocking enrichment.
+- Discovery remains full empty-query 6086103 and now requires non-empty unique normalized BillNo. The formal bootstrap path builds a local BillNo index and does not need per-order 6086103 InsideOrderNo detail reads.
+- Authoritative read-only validation: Discovery before/after 511/11 pages, 草拟 368 / 生效 143, identical hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`, added/removed/changed 0/0/0. 6087105 BillNo queries 511/511 success, exact/no-detail 511/0, exact rows 1,390, contains false positives 0.
+- Colors: usable/missing/invalid 505/0/6; all 505 usable totals equal contract quantity, lower/higher 0/0. Drift orders 8. All former eight missing are resolved.
+- PI2512-121 anchor: 6086103 InsideOrderNo `5384/086-1(46021-N)`; 6087105 InsideOrderNo `5466/086(46021-N)`; one usable color, quantity 9,000 = contract quantity; PASS.
+- Query audit: 6086103 Discovery empty; 6087105 BillNo contains; 6086997 InsideOrderNo is; 6087050 insideorderno is. BillNo support was not guessed for legacy reports and 6087050 was not business-read.
+- Authoritative reads 533 pages (6086103 22, 6087105 511); all Ainuoke/PG/Browser/Quote/Style Progress/Scheduling/Closing writes 0. No PG schema change. Next allowed step is fresh Bootstrap Preview; real bootstrap and Browser cutover remain forbidden.
+- Final gates: Bridge 36/36, targeted 21/21, Full Tests 598/598, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and diff-check PASS. PostgreSQL integration and Style benchmark were intentionally not rerun.
+
+## Previous completed Phase 2B2.1 task
 
 - Branch: `feat/ainuoke-6087105-color-source-validation`
 - Baseline: `9556cc9be9ee375b53121e9f30d67a68171356e6`（Phase 2B2 PR #18 merge commit）
 - Scope: Phase 2B2.1 validates fixed report 6087105 (成衣分色分码明细) as a candidate SalesOrder color/size source. It does not switch/delete 6086997, run real bootstrap, write PostgreSQL/Browser/Ainuoke, read 6087050, or touch Quote/Style Progress/Scheduling/Closing mutations.
-- Fixed Bridge key `garment_color_size_details` uses report 6087105, `insideorderno contains`, `[内层]`; browser cannot submit raw reportId/endpoint/condition. Typed client reuses complete bounded pagination and fails closed on report/query/page/total/incomplete/page-limit drift.
+- Historical Phase 2B2.1 state (superseded by Phase 2B2.2): fixed key 6087105 then used `insideorderno contains`; it now uses BillNo as recorded above.
 - Independent adapter performs NFKC/case/whitespace exact post-filter, uses canonical whole sanitized-row SHA-256 rather than upstream `id`, preserves zero-quantity colors, maps ordered SizeRule→Size1…26 without guessing, and makes critical color anomalies invalidate the whole enrichment slice without invalidating SalesOrder existence.
 - Authoritative live run: Discovery before/after 511/11 pages, `草拟=368`/`生效=143`, stable hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`; 511/511 6087105 queries succeeded over 511 pages. Exact orders/no detail=503/8, exact rows=1,378, contains false positives excluded=174.
 - Usable colors: 497 orders; all 497 have color total equal contract quantity. Invalid: 6 orders (15 invalid SizeNum, 6 blank colors, 3 duplicate canonical placeholder identities); duplicate usable identity/cross-order contamination/BillNo/InsideOrderNo/GoodsNo mismatch all 0. SizeRule present/missing=1,372/6, patterns=41, tokens 1…25; positive matrix valid/mismatch/missing=1,361/0/0; zero rows without SizeN=2 legal.
 - Old Phase 2B2 34 blockers retain their historical record. Under 6087105 they are 31 resolved, 0 missing, 3 invalid, 0 quantity-warning-only. D1935/T1826-4/1917U anchors are 5/4,640, 3/3,730 and 2/9,393 PASS.
 - Formal policies are now confirmed and documented in D-078: server-generated global `SO-00000001` sequence, `current_account_visible` fresh scope, missing source retention without delete/cancel/rebind, and normalized mirror/hash/time/reconciliation retention without full raw payload by default. Schema implementation remains later.
-- `RECOMMEND_REPLACE_6086997_WITH_6087105 = YES`, but D-079 remains Needs User Decision. The existing/default Preview still uses 6086997. After explicit approval, a later phase may switch the Preview source and rerun a fresh full Preview; it still may not execute real bootstrap without separate authorization.
+- Historical Phase 2B2.1 state (superseded): replacement was then only recommended. D-079 is now Active and the next step is a fresh Preview; real bootstrap still needs separate authorization.
 - Authoritative run used 533 successful pages; two safe classification-only reruns used 1,044, for Phase 2B2.1 total 1,577. 6086997/6087050 reads and all business writes were 0. Final gates: Bridge 36/36, relevant Ainuoke 40/40, Full Tests 595/595, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and `git diff --check` PASS. PR closure is pending in this working tree; Style Progress benchmark and PostgreSQL integration were intentionally not rerun because neither domain changed.
 
 ### Previous completed PR #14 context

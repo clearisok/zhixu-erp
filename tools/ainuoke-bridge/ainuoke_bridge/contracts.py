@@ -16,7 +16,7 @@ ReportKey = Literal[
     "garment_color_size_details",
     "material_purchase_statistics",
 ]
-ReportQueryKind = Literal["empty", "inside_order"]
+ReportQueryKind = Literal["empty", "sales_contract", "inside_order"]
 SOURCE_SCHEMA_VERSION = "ainuoke-direct-read.v2"
 
 
@@ -27,9 +27,9 @@ class ReportDefinition:
     label: str
     future_consumer: str
     query_kind: ReportQueryKind
-    inside_order_field: str | None = None
-    inside_order_compare_type: str | None = None
-    inside_order_flow_name: str | None = None
+    query_field: str | None = None
+    query_compare_type: str | None = None
+    query_flow_name: str | None = None
 
 
 REPORT_CATALOG: dict[ReportKey, ReportDefinition] = {
@@ -46,9 +46,9 @@ REPORT_CATALOG: dict[ReportKey, ReportDefinition] = {
         label="销售合同",
         future_consumer="AinuokeContractMirror",
         query_kind="inside_order",
-        inside_order_field="InsideOrderNo",
-        inside_order_compare_type="contains",
-        inside_order_flow_name="[内层]",
+        query_field="InsideOrderNo",
+        query_compare_type="contains",
+        query_flow_name="[内层]",
     ),
     "sales_contract_color_sizes": ReportDefinition(
         key="sales_contract_color_sizes",
@@ -56,18 +56,18 @@ REPORT_CATALOG: dict[ReportKey, ReportDefinition] = {
         label="销售合同颜色尺码明细",
         future_consumer="AinuokeContractMirror",
         query_kind="inside_order",
-        inside_order_field="InsideOrderNo",
-        inside_order_compare_type="is",
+        query_field="InsideOrderNo",
+        query_compare_type="is",
     ),
     "garment_color_size_details": ReportDefinition(
         key="garment_color_size_details",
         report_id="6087105",
         label="成衣分色分码明细",
         future_consumer="AinuokeGarmentColorSizeSource",
-        query_kind="inside_order",
-        inside_order_field="insideorderno",
-        inside_order_compare_type="contains",
-        inside_order_flow_name="[内层]",
+        query_kind="sales_contract",
+        query_field="BillNo",
+        query_compare_type="contains",
+        query_flow_name="[内层]",
     ),
     "material_purchase_statistics": ReportDefinition(
         key="material_purchase_statistics",
@@ -75,9 +75,9 @@ REPORT_CATALOG: dict[ReportKey, ReportDefinition] = {
         label="面辅料申购统计",
         future_consumer="Material Normalize -> Dedup -> Validate -> Preview",
         query_kind="inside_order",
-        inside_order_field="insideorderno",
-        inside_order_compare_type="is",
-        inside_order_flow_name="[内层]",
+        query_field="insideorderno",
+        query_compare_type="is",
+        query_flow_name="[内层]",
     ),
 }
 
@@ -148,22 +148,23 @@ def build_report_request(
         raise SourceContractError("invalid_paging")
     normalized_query = validate_query_for_report(definition, query_context)
     conditions: list[dict[str, Any]] = []
-    if definition.query_kind == "inside_order":
-        inside_order_no = normalized_query["insideOrderNo"]
+    if definition.query_kind != "empty":
+        query_key = "salesContractNo" if definition.query_kind == "sales_contract" else "insideOrderNo"
+        query_value = normalized_query[query_key]
         condition: dict[str, Any] = {
             "conditionRelation": "and",
             "cuHaiType": 0,
             "dbTableName": "",
-            "fieldName": definition.inside_order_field,
-            "compareType": definition.inside_order_compare_type,
+            "fieldName": definition.query_field,
+            "compareType": definition.query_compare_type,
             "dataType": "varchar",
             "dataTypeId": 2,
             "valueType": 1,
             "dealWithType": 0,
-            "compareValue": inside_order_no,
+            "compareValue": query_value,
         }
-        if definition.inside_order_flow_name:
-            condition["flowName"] = definition.inside_order_flow_name
+        if definition.query_flow_name:
+            condition["flowName"] = definition.query_flow_name
         conditions.append(condition)
     report_id = int(definition.report_id)
     return {
@@ -184,13 +185,21 @@ def build_report_request(
     }
 
 
+def _validate_single_text_query(query_context: Mapping[str, Any], key: str) -> dict[str, str]:
+    if set(query_context) != {key}:
+        raise SourceContractError("invalid_query")
+    value = query_context.get(key)
+    if not isinstance(value, str) or not value.strip() or len(value.strip()) > 80:
+        raise SourceContractError("invalid_query")
+    return {key: value.strip()}
+
+
 def validate_report_query(query_context: Mapping[str, Any]) -> dict[str, str]:
-    if set(query_context) != {"insideOrderNo"}:
-        raise SourceContractError("invalid_query")
-    inside_order_no = query_context.get("insideOrderNo")
-    if not isinstance(inside_order_no, str) or not inside_order_no.strip() or len(inside_order_no.strip()) > 80:
-        raise SourceContractError("invalid_query")
-    return {"insideOrderNo": inside_order_no.strip()}
+    return _validate_single_text_query(query_context, "insideOrderNo")
+
+
+def validate_sales_contract_query(query_context: Mapping[str, Any]) -> dict[str, str]:
+    return _validate_single_text_query(query_context, "salesContractNo")
 
 
 def validate_discovery_query(query_context: Mapping[str, Any]) -> dict[str, Any]:
@@ -202,6 +211,8 @@ def validate_discovery_query(query_context: Mapping[str, Any]) -> dict[str, Any]
 def validate_query_for_report(definition: ReportDefinition, query_context: Mapping[str, Any]) -> dict[str, Any]:
     if definition.query_kind == "empty":
         return validate_discovery_query(query_context)
+    if definition.query_kind == "sales_contract":
+        return validate_sales_contract_query(query_context)
     return validate_report_query(query_context)
 
 

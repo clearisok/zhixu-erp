@@ -7,7 +7,7 @@ import type {
 import { adaptAinuokeOrderDiscoverySnapshots } from "../features/ainuoke-api/source/ainuoke-order-discovery-adapter.ts";
 import {
   adaptAinuokeGarmentColorSizeSnapshots,
-  normalizeAinuokeInsideOrderNo,
+  normalizeAinuokeSalesContractNo,
 } from "../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts";
 import {
   buildAinuokeGarmentColorSizeValidationReport,
@@ -38,6 +38,13 @@ function requiredQuantity(value: unknown, insideOrderNo: string): number {
   return parsed;
 }
 
+function contractAgeDays(value: string | null): number | null {
+  if (!value) return null;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return Math.max(0, Math.floor((Date.now() - parsed.getTime()) / 86_400_000));
+}
+
 function contractFacts(
   discovery: AinuokeOrderDiscoverySnapshot,
   rawSnapshots: ReadonlyArray<AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>>,
@@ -51,6 +58,10 @@ function contractFacts(
       salesContractNo: row.salesContractNo,
       styleNo: row.styleNo,
       quantity: requiredQuantity(raw.values.Num, row.insideOrderNo),
+      lifecycleStatusRaw: row.lifecycleStatusRaw,
+      contractDate: row.contractDate,
+      deliveryDate: row.deliveryDate,
+      contractAgeDays: contractAgeDays(row.contractDate),
     };
   });
 }
@@ -69,20 +80,22 @@ async function readDetails(
       cursor += 1;
       const contract = contracts[index];
       try {
-        const snapshots = await client.readAllGarmentColorSizePages(userId, { insideOrderNo: contract.insideOrderNo, pageSize: PAGE_SIZE, maxPages: 100 });
+        const snapshots = await client.readAllGarmentColorSizePages(userId, { salesContractNo: contract.salesContractNo, pageSize: PAGE_SIZE, maxPages: 100 });
         results[index] = {
           insideOrderNo: contract.insideOrderNo,
+          salesContractNo: contract.salesContractNo,
           pages: snapshots.length,
           source: await adaptAinuokeGarmentColorSizeSnapshots({
             snapshots,
-            requestedInsideOrderNo: contract.insideOrderNo,
-            expectedSalesContractNo: contract.salesContractNo,
+            requestedSalesContractNo: contract.salesContractNo,
+            discoveryInsideOrderNo: contract.insideOrderNo,
             expectedStyleNo: contract.styleNo,
           }),
         };
       } catch (error) {
         results[index] = {
           insideOrderNo: contract.insideOrderNo,
+          salesContractNo: contract.salesContractNo,
           pages: 0,
           error: error instanceof Error ? error.message : "6087105 query failed",
         };
@@ -95,15 +108,18 @@ async function readDetails(
   return results;
 }
 
-function anchor(details: AinuokeGarmentColorSizeValidationDetail[], insideOrderNo: string, colorRows: number, total: number) {
-  const detail = details.find((item) => normalizeAinuokeInsideOrderNo(item.insideOrderNo) === normalizeAinuokeInsideOrderNo(insideOrderNo));
+function anchor(details: AinuokeGarmentColorSizeValidationDetail[], salesContractNo: string, colorRows: number, total: number) {
+  const detail = details.find((item) => normalizeAinuokeSalesContractNo(item.salesContractNo) === normalizeAinuokeSalesContractNo(salesContractNo));
   const rows = detail?.source?.usableRows ?? [];
   const colorTotal = rows.reduce((sum, row) => sum + (row.quantity ?? 0), 0);
   const valid = detail?.source?.colorDetailStatus === "usable"
     && rows.length === colorRows
     && colorTotal === total;
   return {
-    insideOrderNo,
+    salesContractNo,
+    discoveryInsideOrderNo: detail?.insideOrderNo ?? null,
+    detailInsideOrderNos: detail?.source?.detailInsideOrderNos ?? [],
+    insideOrderNoDrift: detail?.source?.insideOrderNoDrift ?? false,
     colorRows: rows.length,
     colorTotal,
     sizeMatrix: [...new Set(rows.map((row) => row.sizeMatrixStatus))].sort(),
@@ -123,9 +139,9 @@ async function main(): Promise<void> {
   console.log(`Discovery before ${discoveryBefore.total}/${discoveryBefore.pageCount} ${discoveryBefore.snapshotHash}`);
   const details = await readDetails(client, userId, contracts);
   const anchors = [
-    anchor(details, "D1935", 5, 4640),
-    anchor(details, "T1826-4", 3, 3730),
-    anchor(details, "1917U", 2, 9393),
+    anchor(details, "PI2607-235", 5, 4640),
+    anchor(details, "PI2508-025", 3, 3730),
+    anchor(details, "PI2511-141", 2, 9393),
   ];
   if (anchors.some((item) => !item.valid)) {
     console.log(`ANCHOR_MISMATCH=${JSON.stringify(anchors)}`);
@@ -136,11 +152,11 @@ async function main(): Promise<void> {
     : await client.readAllOrderDiscoveryPages(userId, { pageSize: PAGE_SIZE, maxPages: 100 });
   const discoveryAfter = await adaptAinuokeOrderDiscoverySnapshots(afterPages);
   const report = buildAinuokeGarmentColorSizeValidationReport({ discoveryBefore, discoveryAfter, contracts, details });
-  const safeErrors = details.flatMap((detail) => detail.error ? [{ insideOrderNo: detail.insideOrderNo, error: detail.error }] : []);
+  const safeErrors = details.flatMap((detail) => detail.error ? [{ salesContractNo: detail.salesContractNo, insideOrderNo: detail.insideOrderNo, error: detail.error }] : []);
   const anomalies = details.flatMap((detail) => {
     const source = detail.source;
     if (!source || source.colorDetailStatus === "usable") return [];
-    const contract = contracts.find((item) => normalizeAinuokeInsideOrderNo(item.insideOrderNo) === normalizeAinuokeInsideOrderNo(detail.insideOrderNo));
+    const contract = contracts.find((item) => normalizeAinuokeSalesContractNo(item.salesContractNo) === normalizeAinuokeSalesContractNo(detail.salesContractNo));
     return [{
       insideOrderNo: detail.insideOrderNo,
       salesContractNo: contract?.salesContractNo ?? null,
@@ -150,6 +166,8 @@ async function main(): Promise<void> {
       upstreamRows: source.upstreamRows,
       exactRows: source.exactRows,
       containsFalsePositiveRows: source.containsFalsePositiveRows,
+      detailInsideOrderNos: source.detailInsideOrderNos,
+      insideOrderNoDrift: source.insideOrderNoDrift,
       issues: source.issues.map((issue) => ({ code: issue.code, sourceRowIdentity: issue.sourceRowIdentity ? `${issue.sourceRowIdentity.slice(0, 22)}…${issue.sourceRowIdentity.slice(-12)}` : null })),
       rows: source.rows.map((row) => ({
         sourceRowIdentity: `${row.sourceRowIdentity.slice(0, 22)}…${row.sourceRowIdentity.slice(-12)}`,
@@ -162,6 +180,7 @@ async function main(): Promise<void> {
   });
   if (compact) {
     const { rows: oldBlockerRows, ...oldBlockerSummary } = report.oldBlockers;
+    const { rows: formerMissingRows, ...formerMissingSummary } = report.formerMissing;
     console.log(`COMPACT_RESULT=${JSON.stringify({
       snapshot: report.snapshot,
       discovery: report.discovery,
@@ -175,10 +194,12 @@ async function main(): Promise<void> {
       po: report.po,
       deliveryDate: report.deliveryDate,
       oldBlockerSummary,
+      formerMissingSummary,
       anomalies: summaryOnly ? undefined : anomalies,
       anchors,
       safeErrors,
       oldBlockerRows: summaryOnly ? undefined : oldBlockerRows,
+      formerMissingRows: summaryOnly ? undefined : formerMissingRows,
       classificationOnly: true,
       successfulAinuokePageReads: beforePages.length + report.queries.pages,
       readsByReport: { "6086103": beforePages.length, "6087105": report.queries.pages, "6086997": 0, "6087050": 0 },
