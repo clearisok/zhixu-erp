@@ -117,6 +117,48 @@ test("Typed discovery client fails closed on total drift, malformed paging and m
   );
 });
 
+test("Typed detail client requires the fixed report, query and complete constant-total pagination", async () => {
+  const detailSnapshot = (patch = {}) => ({
+    schemaVersion: "ainuoke-direct-read.v2",
+    reportId: "6086997",
+    fetchedAt: "2026-09-11T00:00:00Z",
+    page: 1,
+    pageSize: 1,
+    total: 2,
+    queryContext: { insideOrderNo: "D1" },
+    snapshotHash: "detail-hash",
+    rows: [{ sourceRowIdentity: "detail-1", values: {} }],
+    ...patch,
+  });
+  const calls = [];
+  const responses = [
+    jsonResponse({ csrfToken: "csrf-memory-only" }, 201),
+    jsonResponse(detailSnapshot()),
+    jsonResponse(detailSnapshot({ page: 2, rows: [{ sourceRowIdentity: "detail-2", values: {} }] })),
+  ];
+  const client = createAinuokeBridgeClient({ fetchImpl: async (url, init) => { calls.push({ url, init }); return responses.shift(); } });
+  const pages = await client.readAllReportPages("user-a", "sales_contract_color_sizes", { pageSize: 1, query: { insideOrderNo: " D1 " } });
+  assert.equal(pages.length, 2);
+  assert.deepEqual(calls.slice(1).map((call) => JSON.parse(call.init.body).query), [{ insideOrderNo: "D1" }, { insideOrderNo: "D1" }]);
+
+  const makeClient = (pageResponses) => createAinuokeBridgeClient({ fetchImpl: async () => pageResponses.shift() });
+  await assert.rejects(
+    () => makeClient([
+      jsonResponse({ csrfToken: "csrf-memory-only" }, 201),
+      jsonResponse(detailSnapshot()),
+      jsonResponse(detailSnapshot({ page: 2, total: 3, rows: [{ sourceRowIdentity: "detail-2", values: {} }] })),
+    ]).readAllReportPages("user-a", "sales_contract_color_sizes", { pageSize: 1, query: { insideOrderNo: "D1" } }),
+    /分页总数不一致/,
+  );
+  await assert.rejects(
+    () => makeClient([
+      jsonResponse({ csrfToken: "csrf-memory-only" }, 201),
+      jsonResponse(detailSnapshot({ reportId: "6086103" })),
+    ]).readAllReportPages("user-a", "sales_contract_color_sizes", { pageSize: 1, query: { insideOrderNo: "D1" } }),
+    /固定只读协议不一致/,
+  );
+});
+
 test("Discovery foundation has no business repository or PostgreSQL mutation dependency", () => {
   const sources = [
     fs.readFileSync("features/ainuoke-api/client/ainuoke-bridge-client.ts", "utf8"),

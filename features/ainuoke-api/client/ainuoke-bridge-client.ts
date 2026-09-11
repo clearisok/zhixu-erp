@@ -5,6 +5,7 @@ import type {
   AinuokeReportQuery,
   AinuokeReportSnapshot,
 } from "../model/ainuoke-api.ts";
+import { AINUOKE_REPORT_CATALOG } from "../model/ainuoke-api.ts";
 
 export const DEFAULT_AINUOKE_BRIDGE_URL = "http://127.0.0.1:8765";
 
@@ -118,12 +119,29 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
       const snapshots: AinuokeReportSnapshot[] = [];
       const pageSize = input.pageSize ?? 50;
       const maxPages = input.maxPages ?? 100;
+      const insideOrderNo = input.query.insideOrderNo.normalize("NFKC").trim();
+      if (!insideOrderNo) throw new AinuokeBridgeError("report_query_invalid", "艾诺科报表 InsideOrderNo 不能为空");
+      const expectedReportId = AINUOKE_REPORT_CATALOG[reportKey].reportId;
+      let expectedTotal: number | null = null;
       let readCount = 0;
       for (let page = 1; page <= maxPages; page += 1) {
-        const snapshot = await readReport(userId, reportKey, { page, pageSize, query: input.query });
+        const snapshot = await readReport(userId, reportKey, { page, pageSize, query: { insideOrderNo } });
+        if (snapshot.reportId !== expectedReportId
+          || snapshot.page !== page
+          || snapshot.pageSize !== pageSize
+          || snapshot.queryContext.insideOrderNo.normalize("NFKC").trim() !== insideOrderNo) {
+          throw new AinuokeBridgeError("report_contract_mismatch", "艾诺科 detail 响应与固定只读协议不一致");
+        }
+        if (expectedTotal === null) expectedTotal = snapshot.total;
+        if (snapshot.total !== expectedTotal || snapshot.rows.length > pageSize) {
+          throw new AinuokeBridgeError("report_paging_mismatch", "艾诺科 detail 分页总数不一致");
+        }
         snapshots.push(snapshot);
         readCount += snapshot.rows.length;
-        if (readCount >= snapshot.total || snapshot.rows.length === 0) return snapshots;
+        if (readCount === expectedTotal) return snapshots;
+        if (readCount > expectedTotal || snapshot.rows.length === 0 || snapshot.rows.length < pageSize) {
+          throw new AinuokeBridgeError("report_incomplete", "艾诺科 detail 未读取完整分页");
+        }
       }
       throw new AinuokeBridgeError("paging_limit", `艾诺科报表超过 ${maxPages} 页安全上限，已停止读取`);
     },

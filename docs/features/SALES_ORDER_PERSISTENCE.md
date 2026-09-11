@@ -2,11 +2,22 @@
 
 ## Status and scope
 
-- Phase: PostgreSQL Phase 2B1 SalesOrder Server Foundation complete on `feat/postgres-salesorder-foundation`.
-- Baseline: `2349aedd6538e4d80382db14f8cfa4590fbe9c86` (`origin/main`, PR #13/#15/#16 merged).
+- Phase: PostgreSQL Phase 2B1 SalesOrder Server Foundation complete; Phase 2B2 Bootstrap Preview / Dry Run complete on `feat/postgres-salesorder-bootstrap-preview`.
+- Phase 2B2 baseline: `f424a9b78f66dffdd47075f8ff29ea5f3590717b` (`main`, Phase 2B1 PR #17 merged).
 - Phase 2B1 implements PostgreSQL schema, parameterized repository, transactional Ainuoke-created SalesOrder service, typed read API and disposable PostgreSQL integration tests.
 - This is not a Browser Order Center cutover and not a real bootstrap. Browser runtime remains on its existing Repository; no Browser DEV data was read, imported, modified or deleted.
 - No live Ainuoke read/write or real 505 bootstrap occurred. Quote, Style Progress, Scheduling and Closing were not migrated or mutated.
+
+Phase 2B2 subsequently performed authorized live **reads only** for Discovery/6086103/6086997, built no UUID, and made no real PostgreSQL or Browser write. Its complete evidence and blockers are recorded in `SALES_ORDER_BOOTSTRAP_PREVIEW.md`.
+
+## Phase 2B2 Bootstrap Preview result
+
+- Final Discovery observed 507 current-account-visible contracts: `草拟=364`, `生效=143`. Status was preserved without filtering; historical 505 is not a constant.
+- Ten mapped-field parity samples passed, so the Preview reused 6086103 Discovery rows and performed only ten additional 6086103 detail page reads. Every row still received complete 6086997 pagination through the existing adapter.
+- The second complete Discovery matched the first: hash `95b36d6375ab8061731ef976debffa41b46995da6e8c8146b32960e9ff616261`, total 507, added/removed/changed identity all zero.
+- All 507 rows remained bootstrap scope candidates. 473 formed strict in-memory `SalesOrderBootstrapCandidate` projections; 34 were blocked by 6086997 structure (29 missing required `stylecolor`, 5 duplicate canonical source-row identity). There were 26 uncorrected color/contract quantity-difference warnings.
+- The 473 valid projections passed `createAinuokeSalesOrder` in a disposable PG16 database: created 473, idempotent returns 473, rejected/schema/source-link conflicts 0, rollback probe 1, trusted OperationLogs 473. The database was destroyed.
+- Formal `order_no` policy is still `NEEDS_USER_DECISION`; `PREVIEW-######` values were disposable-test-only. Therefore real bootstrap readiness is **NO**, despite stable snapshots and successful subset dry-run.
 
 ## Phase 2B1 implemented boundary
 
@@ -97,8 +108,8 @@ An order has no verified Ainuoke source link and originates from `manual`, `quot
 ## Rebuildability and bootstrap gap
 
 - **Confirmed:** known `InsideOrderNo` → fully paged 6086103/6086997/6087050 detail reads works.
-- **Now confirmed:** empty state → fixed 6086103 empty-condition discovery → complete current-account-visible `InsideOrderNo` / `SalesContractNo` list. Two traversals returned the same 505 rows over 11 pages and the same normalized hash; identities were unique and D1935 plus five redacted samples entered the existing 6086103/6086997 pipeline.
-- **Confirmed rule:** formal clean bootstrap includes every contract in the complete `current_account_visible` Discovery snapshot. `生效` and `草拟` both participate; raw status remains a source fact but is not an inclusion/exclusion rule. The observed total 505 is one snapshot, not a fixed constant; later runs use their own complete total.
+- **Now confirmed:** empty state → fixed 6086103 empty-condition discovery → complete current-account-visible `InsideOrderNo` / `SalesContractNo` list. Phase 2B2's final two traversals returned the same 507 rows over 11 pages and the same normalized hash; D1935 plus nine date/status-spanning samples proved strict 6086103 Discovery/detail mapped-field parity.
+- **Confirmed rule:** formal clean bootstrap includes every contract in the complete `current_account_visible` Discovery snapshot. `生效` and `草拟` both participate; raw status remains a source fact but is not an inclusion/exclusion rule. Observed totals such as 505 and 507 are snapshots, never fixed constants.
 - **Still undecided:** whether the currently bound account has the intended organizational scope. Discovery makes no hidden time/status filter.
 - Source disappearance cannot authorize hard deletion. Future reconciliation needs last-seen/missing/tombstone state and review.
 
@@ -124,8 +135,9 @@ Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate*
 
 1. **Phase 2A evidence/decision:** complete. Source/owned boundary, clean-bootstrap direction and Discovery semantics are recorded; Browser Order/Scheduling test data is not a migration source.
 2. **Phase 2B1 Server Foundation:** complete. Migration/schema/repository/transactional create/read API are verified only in disposable PostgreSQL; there is no runtime cutover.
-3. **Phase 2B2 Bootstrap Preview / Dry Run:** next. Ainuoke Discovery → detail reads → bootstrap candidate projection → reconciliation → preview report. It must not execute a real formal bootstrap.
-4. **Later owned-state/API and cutover gates:** manual/Quote/reorder creation, remaining owned facts, real bootstrap/read/write cutover and Browser retirement each require their own decisions, reconciliation and authorization.
+3. **Phase 2B2 Bootstrap Preview / Dry Run:** complete. The stable 507-row scope yielded 473 projectable candidates, 34 blocking color-detail issues and 26 warnings; the valid subset passed disposable PostgreSQL. No real bootstrap occurred.
+4. **Next reconciliation/decision gate:** resolve the 34 source-detail blockers and confirm server `order_no`, organizational scope and disappearance/retention policies, then rerun a fresh Preview.
+5. **Later owned-state/API and cutover gates:** manual/Quote/reorder creation, remaining owned facts, separately authorized real bootstrap/read/write cutover and Browser retirement each require their own decisions and authorization.
 
 ## Decisions requiring user confirmation
 
@@ -136,4 +148,4 @@ Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate*
 
 ## Readiness
 
-**PHASE 2B1 SERVER FOUNDATION COMPLETE. READY FOR PHASE 2B2 BOOTSTRAP PREVIEW: YES.** This means the isolated schema/service/read boundary is ready to support a future preview/dry-run workflow. It is not permission to perform live Ainuoke reads, real bootstrap writes, Browser cutover or any other domain migration.
+**PHASE 2B2 BOOTSTRAP PREVIEW COMPLETE. READY FOR REAL BOOTSTRAP: NO.** Snapshot stability and disposable schema projection passed, but 34 color-detail blockers, the formal server `order_no` policy and scope/retention confirmations remain unresolved. No real bootstrap, Browser cutover or other domain migration is authorized.

@@ -6,7 +6,7 @@
 
 - 根路径 ERP：报价、订单、排单、用户和审计功能，使用 PostgreSQL 持久化，并由数据库函数提供 API。
 - Quote Center 路径：新报价中心、报价 Revision/PriceVersion、新订单中心、基础资料和统一 UI Foundation，当前仍使用浏览器 mock 持久化，与根路径 ERP 后端隔离。
-- Server Persistence 路径：Phase 1 Node/TypeScript API、PostgreSQL versioned migrations、可信 Auth/RBAC 与 server OperationLog，以及 Phase 2B1 PostgreSQL SalesOrder schema/repository/transactional service/read API foundation。该 foundation 尚未接管 Browser Order Center runtime。
+- Server Persistence 路径：Phase 1 Node/TypeScript API、PostgreSQL versioned migrations、可信 Auth/RBAC 与 server OperationLog、Phase 2B1 PostgreSQL SalesOrder server foundation，以及 Phase 2B2 只读 Bootstrap Preview / disposable dry-run。它尚未执行真实 bootstrap，也未接管 Browser Order Center runtime。
 
 两条路径都是真实现，但边界和成熟度不同。开始任务前必须先确认目标模块。
 
@@ -64,7 +64,7 @@
 | --- | --- | --- |
 | 根路径 ERP、登录、报价/订单/排单 | `features/LEGACY_ERP.md` | `app/page.tsx`、`database/001_schema.sql`、根目录 `docker-serve.sh` |
 | Quote Center | `features/QUOTE_CENTER.md` | `app/quote-center/`、`features/quote-center/` |
-| 新订单中心、报价转订单、翻单、交期、订单价格历史与 PostgreSQL SalesOrder foundation | `features/ORDER_CENTER.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SERVER_PERSISTENCE.md`、`features/OPERATIONS_FOUNDATION.md`、`features/DATA_LIFECYCLE.md` | Browser runtime：`app/order-center/`、`features/order-center/`；server foundation：`server/sales-orders/`、`database/migrations/0002_sales_order_foundation.sql` |
+| 新订单中心、报价转订单、翻单、交期、订单价格历史与 PostgreSQL SalesOrder foundation/bootstrap preview | `features/ORDER_CENTER.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`、`features/SERVER_PERSISTENCE.md`、`features/OPERATIONS_FOUNDATION.md`、`features/DATA_LIFECYCLE.md` | Browser runtime：`app/order-center/`、`features/order-center/`；server foundation/dry-run：`server/sales-orders/`、`features/ainuoke-sync/service/sales-order-bootstrap-preview.ts`、`database/migrations/0002_sales_order_foundation.sql` |
 | 生产队列、排单中心、物料运输、订单预警与交期风险 | `features/PRODUCTION_SCHEDULING.md`、`features/ORDER_CENTER.md`、`features/OPERATIONS_FOUNDATION.md`、`features/PERMISSIONS.md` | `app/production-scheduling/`、`features/production-scheduling/`、`tests/production-scheduling.test.mjs` |
 | 款式进度、面辅料跟进、逐物料物流与真实 Excel 导入 | `features/STYLE_PROGRESS.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/DATA_LIFECYCLE.md` | `app/order-center/style-progress/`、`features/style-progress/`、`tests/style-progress.test.mjs` |
 | 关账月份、关账归属、月度产值与锁账 | `features/CLOSING_CENTER.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/PERMISSIONS.md` | `app/closing-center/`、`features/closing-center/`、`tests/closing-center.test.mjs` |
@@ -82,7 +82,7 @@
 | 浏览器数据生命周期、迁移、备份恢复 | `features/DATA_LIFECYCLE.md` | `features/data-management/`、各 browser repository、`tests/data-lifecycle.test.mjs` |
 | 表单、Modal、选择器和 App Shell | `features/UI_FOUNDATION.md` | `components/foundation/`、`app/globals.css` |
 | 数据库/API | `features/LEGACY_ERP.md`、`SYSTEM_OVERVIEW.md` | `database/*.sql`、根目录 `docker-serve.sh` |
-| Node server、migration、可信认证/RBAC、server OperationLog、SalesOrder read foundation | `features/SERVER_PERSISTENCE.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/PERMISSIONS.md`、`features/OPERATION_LOGS.md` | `server/`、`database/migrations/`、`Dockerfile.server` |
+| Node server、migration、可信认证/RBAC、server OperationLog、SalesOrder foundation/bootstrap preview | `features/SERVER_PERSISTENCE.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`、`features/PERMISSIONS.md`、`features/OPERATION_LOGS.md` | `server/`、`features/ainuoke-sync/service/sales-order-bootstrap-preview.ts`、`database/migrations/`、`Dockerfile.server` |
 | 本地 Docker/备份恢复 | `features/LEGACY_ERP.md`、README | `Dockerfile`、`docker-compose.yml`、根目录 `*.ps1`、`*.sh` |
 | 部署/静态构建 | `SYSTEM_OVERVIEW.md` | `next.config.ts`、`vite.config.ts`、`worker/`、`.openai/hosting.json` |
 | 业务规则 | `BUSINESS_RULES.md` + 对应 feature | 模型、validation、计算函数及测试 |
