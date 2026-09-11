@@ -242,7 +242,11 @@ export async function getSalesOrderBySourceIdentity(
          AND lookup.source_entity_type = $2
          AND lookup.external_id = $3
      )`,
-    [sourceSystem.toLowerCase(), sourceEntityType.toLowerCase(), externalId],
+    [
+      requiredText(sourceSystem, "sourceSystem").toLowerCase(),
+      requiredText(sourceEntityType, "sourceEntityType").toLowerCase(),
+      requiredText(externalId, "externalId"),
+    ],
   );
   return result.rows[0] ? mapReadModel(result.rows[0]) : null;
 }

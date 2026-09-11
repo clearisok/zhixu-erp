@@ -21,7 +21,11 @@
 - Gate A 已完成：新增 forward-only `0002_sales_order_foundation.sql`，建立 `sales_orders`、`sales_order_source_links`、Ainuoke current contract mirror 与 color mirror 四张表；SalesOrder identity/provenance、source binding、规范化 order number 与 optimistic version 由 DB 约束/trigger 保护。
 - Gate A Repository 已提供 create/get-by-id/get-by-source/get-by-contract/list、source-link create/update、current contract mirror upsert、current color slice replacement 和 optimistic lifecycle update；所有 SQL 参数化，读取返回 composed typed projection，不暴露 raw row/opaque payload。
 - Gate A 隔离验证：server build PASS；一次性 PG16 tmpfs PostgreSQL integration 10/10，覆盖 fresh migration、schema/unique/FK、stable UUID、normalized order number、source binding、mirror refresh、color replacement 与 optimistic version。测试没有连接 DEV/业务数据库。
-- 下一步：Gate B 实现 `createAinuokeSalesOrder` 单 transaction、可信 actor OperationLog、只读 list/detail API 与 401/403/two-session integration tests；不得开始 Phase 2B2。
+- Gate A checkpoint：`97ead2f90250b0d889097c97595e5951dcabcd16`，已由用户人工 push 并验证本地/远端 SHA 一致。
+- Gate B 已完成：`createAinuokeSalesOrder(pool, trustedIdentity, input)` 在 source-scoped transaction advisory lock 内执行 source binding 检查、SalesOrder/source link/current contract mirror/current color slice/OperationLog 写入；input 类型没有 actor，相同 source identity 幂等返回原 ID/version 且不重复写日志，任一步失败全部 rollback。
+- Gate B Read API：`GET /api/v1/sales-orders` 与 `GET /api/v1/sales-orders/:id` 复用 Trusted Session 和既有 `order.view`；返回 typed composed DTO，不暴露 DB row、source hash 或 source metadata。未登录 401、无权限 403、缺失记录 404。
+- Gate B 隔离验证：server build PASS；一次性 PG16 tmpfs PostgreSQL integration 12/12。新增覆盖 transactional create、duplicate source idempotency、rollback、trusted actor、list/detail、401/403/permitted read，以及两个不同 trusted sessions 读取相同 PostgreSQL SalesOrder ID/version。
+- 下一步：创建并 push Gate B checkpoint；随后 Gate C 更新正式文档并执行 PostgreSQL integration、full tests、typecheck、lint、server build、frontend production build 与 `git diff --check`。不得开始 Phase 2B2。
 
 ### Previous completed PR #14 context
 
