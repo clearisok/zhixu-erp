@@ -2,7 +2,7 @@
 
 This directory contains the loopback-only Python bridge for the local Windows prototype. It is not a production identity or multi-user security boundary.
 
-The fixed read catalog contains only reports `6086103`, `6086997`, and `6087050`. Browser callers select a catalog key and cannot submit an arbitrary report ID. Ainuoke passwords are reserved for the OS credential store and Ainuoke JWT/session data is process memory only.
+The fixed read catalog contains reports `6086103`, `6086997`, `6087050`, and the candidate garment color/size source `6087105`. Browser callers select a catalog key and cannot submit an arbitrary report ID. `6087105` is validation-only and has not replaced the existing `6086997` contract-color path. Ainuoke passwords are reserved for the OS credential store and Ainuoke JWT/session data is process memory only.
 
 Run the contract tests from the repository root:
 

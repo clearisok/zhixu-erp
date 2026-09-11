@@ -18,6 +18,16 @@
 
 ## Active
 
+### D-078 正式 SalesOrder 编号、bootstrap scope、source disappearance 与 retention policy
+
+- 日期：2026-09-11
+- 状态：Active；补充 D-076/D-077 在真实 bootstrap 前待确认的业务政策，但不授权真实 bootstrap、Browser cutover 或 6087105 source replacement。
+- `order_no`：由 server/PostgreSQL 全局递增生成 `SO-00000001`、`SO-00000002`……，用户不可编辑。PostgreSQL UUID 仍是真正技术 identity；InsideOrderNo 与 SalesContractNo 是独立 source facts，不得代替 UUID 或互相推导。
+- Scope：正式 bootstrap 组织范围为 `current_account_visible`。每次必须使用 fresh complete Discovery；505、507、511 等历史/当前 total 都只是观察快照，不是固定业务常量，Status 继续不参与 inclusion/exclusion。
+- Disappearance：正式 SalesOrder 建立后，source 从 Discovery 消失不触发 hard delete、auto-cancel、UUID replacement 或 source unbind。系统标记 missing、保留历史；source 重新出现后恢复 seen。
+- Retention：长期保存 normalized current source mirror、source/discovery hash、fetchedAt/lastSeen/missing 等必要时间和 reconciliation metadata；默认不长期保存完整 raw upstream payload。
+- 证据：用户对 Phase 2B2.1 的明确规则确认、`docs/BUSINESS_RULES.md`、`docs/features/SALES_ORDER_PERSISTENCE.md`。具体 sequence/tombstone schema 与真实 bootstrap 写入仍属于后续独立实现 Gate。
+
 ### D-077 PostgreSQL SalesOrder 采用稳定 aggregate + immutable source binding + current source mirrors
 
 - 日期：2026-09-11
@@ -566,6 +576,16 @@
 - Discovery scope：当前只证明 6086103 空条件列表可完整遍历 `current_account_visible`，不能声称 company-wide。完整 Snapshot 内所有 visible contracts 都参与 future clean bootstrap；`生效`、`草拟` 或其他 raw Status 不作为 inclusion/exclusion filter，仅作为 source fact 保留供显示、审计、排查和未来可能的业务规则。当前观察到 505（生效 143、草拟 362）只属于本次 Snapshot，未来以当次完整 Snapshot 为准。账号 visibility scope 仍需确认；source disappearance 不得单独触发 hard delete。
 - Retirement：旧 Browser Order/Scheduling 可以在未来退役，但只能通过独立 Test Business Data Retirement Gate；必须先完整 backup、dependency audit、精确 delete/protect scope，并取得用户 explicit destructive confirmation。此决定本身不授权清理。
 - 证据：`docs/features/AINUOKE_ORDER_DISCOVERY.md`、`docs/features/SALES_ORDER_PERSISTENCE.md`、`features/ainuoke-api/source/ainuoke-order-discovery-adapter.ts` 与 Discovery/Bridge tests。
+
+## Needs User Decision
+
+### D-079 6087105 是否取代 6086997 作为正式颜色/分码来源
+
+- 日期：2026-09-11
+- 状态：Needs User Decision；不是 Active source replacement。
+- 候选证据：6087105 固定只读路径、exact post-filter、typed adapter 与全量 current-account validation 已通过。authoritative run 的 511/511 queries 成功；497 个 usable-color orders 的 `sum(SizeNum)` 全部等于 6086103 contract quantity；旧 34 blockers 中 31 resolved、3 invalid、0 missing、0 quantity-warning-only。
+- 保留边界：6086997 catalog、adapter、tests 与 Phase 2B2 历史证据全部保留；现有默认 Bootstrap Color Source 未切换。只有用户明确批准后，下一独立阶段才能切换 Preview source 并重新运行 fresh full Bootstrap Preview。
+- 证据：`features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts`、`features/ainuoke-sync/service/ainuoke-garment-color-size-validation.ts` 与 `docs/features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`。
 
 ## Superseded
 

@@ -9,7 +9,13 @@ from typing import Any, Literal, Mapping
 from .security import sanitize_mapping
 
 
-ReportKey = Literal["order_discovery", "sales_contracts", "sales_contract_color_sizes", "material_purchase_statistics"]
+ReportKey = Literal[
+    "order_discovery",
+    "sales_contracts",
+    "sales_contract_color_sizes",
+    "garment_color_size_details",
+    "material_purchase_statistics",
+]
 ReportQueryKind = Literal["empty", "inside_order"]
 SOURCE_SCHEMA_VERSION = "ainuoke-direct-read.v2"
 
@@ -52,6 +58,16 @@ REPORT_CATALOG: dict[ReportKey, ReportDefinition] = {
         query_kind="inside_order",
         inside_order_field="InsideOrderNo",
         inside_order_compare_type="is",
+    ),
+    "garment_color_size_details": ReportDefinition(
+        key="garment_color_size_details",
+        report_id="6087105",
+        label="成衣分色分码明细",
+        future_consumer="AinuokeGarmentColorSizeSource",
+        query_kind="inside_order",
+        inside_order_field="insideorderno",
+        inside_order_compare_type="contains",
+        inside_order_flow_name="[内层]",
     ),
     "material_purchase_statistics": ReportDefinition(
         key="material_purchase_statistics",

@@ -49,8 +49,8 @@ test("个人账号 OperationLog 只保留 actor/action/result/time", () => {
 });
 
 test("Report Catalog 只公开固定只读 source key，不接受 raw report selector", () => {
-  assert.deepEqual(Object.keys(AINUOKE_REPORT_CATALOG), ["order_discovery", "sales_contracts", "sales_contract_color_sizes", "material_purchase_statistics"]);
-  assert.deepEqual(new Set(Object.values(AINUOKE_REPORT_CATALOG).map((item) => item.reportId)), new Set(["6086103", "6086997", "6087050"]));
+  assert.deepEqual(Object.keys(AINUOKE_REPORT_CATALOG), ["order_discovery", "sales_contracts", "sales_contract_color_sizes", "garment_color_size_details", "material_purchase_statistics"]);
+  assert.deepEqual(new Set(Object.values(AINUOKE_REPORT_CATALOG).map((item) => item.reportId)), new Set(["6086103", "6086997", "6087050", "6087105"]));
   const clientSource = fs.readFileSync("features/ainuoke-api/client/ainuoke-bridge-client.ts", "utf8");
   assert.doesNotMatch(clientSource, /createSalesOrder|orderRepository|styleProgressRepository|commitImport/);
 });

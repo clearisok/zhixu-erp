@@ -102,21 +102,26 @@ The list does not provide a trustworthy deletion event. A row missing on a later
 
 ## Clean-bootstrap implication
 
-The verified future direction is:
+The verified source direction is:
 
-`empty PostgreSQL → current-account-visible discovery → 6086103/6086997/6087050 detail reads → future formal PostgreSQL SalesOrder`
+`empty PostgreSQL → fresh current-account-visible discovery → 6086103 contract detail + approved color-source detail → candidate projection/reconciliation → separately authorized future formal PostgreSQL SalesOrder`
+
+Phase 2B2 historically used 6086997 for color detail. Phase 2B2.1 subsequently validated fixed report 6087105 as the recommended cleaner color/size candidate, but it has not replaced 6086997 without explicit user approval. 6087050 is the independent Material source and was not read by Phase 2B2/2B2.1 SalesOrder validation.
 
 Current Browser Order Center and Scheduling records are test data and are not the bootstrap authority or a required migration inventory. Quote Center contains real business data and remains protected. Style Progress/Material is outside this retirement scope and must be preserved. Closing retirement status remains undecided.
 
 The old Browser Order/Scheduling data is not authorized for deletion. A later independent Test Business Data Retirement Gate must first take a complete backup, audit dependencies, enumerate delete/protect scopes, and obtain explicit destructive confirmation.
 
-## Remaining decisions
+## Confirmed policies and remaining decisions
 
-1. Whether `current_account_visible` is the intended formal bootstrap scope, or whether another approved Ainuoke account/visibility proof is required.
-2. Snapshot/reconciliation retention and how missing rows become reviewed tombstones without hard deletion.
-3. Phase 2B schema/API scope and the separate approval to run any real bootstrap.
-4. Closing data retirement classification; Browser Order/Scheduling retirement remains a later separately confirmed destructive Gate.
+The user has confirmed `current_account_visible` as the formal bootstrap scope, measured by each fresh complete Discovery rather than a fixed count. A missing source row retains the SalesOrder UUID, immutable binding and history; it is marked missing rather than deleted or cancelled, and returns to seen when rediscovered. Long-term retention keeps normalized current mirrors, hashes, necessary timestamps and reconciliation metadata, but not complete raw upstream payload by default.
+
+Remaining decisions are:
+
+1. Whether fixed report 6087105 formally supersedes 6086997 as the Bootstrap Preview color source.
+2. Separate approval and precise scope for any real bootstrap/read cutover.
+3. Closing data retirement classification; Browser Order/Scheduling retirement remains a later separately confirmed destructive Gate.
 
 ## Readiness
 
-The read-only discovery source and implementation foundation are ready for use by a future schema/API design. **Phase 2B itself has not started and remains not approved.**
+The read-only Discovery source is stable foundation evidence. Phase 2B1 server foundation, Phase 2B2 Preview and Phase 2B2.1 candidate-source validation are complete. **No real bootstrap or Browser cutover is approved.**

@@ -86,6 +86,17 @@ class BridgeHttpContractTests(unittest.TestCase):
         self.assertEqual(rejected.status, 400)
         self.assertEqual(rejected.body["error"]["code"], "invalid_query")
 
+    def test_garment_color_size_endpoint_is_fixed_and_rejects_condition_injection(self) -> None:
+        cookie, csrf = self.create_session()
+        self.request("PUT", "/v1/ainuoke/account", cookie=cookie, csrf=csrf, body={"username": "alice", "password": "secret"})
+        accepted = self.request("POST", "/v1/ainuoke/reports/garment_color_size_details/query", cookie=cookie, csrf=csrf, body={"page": 1, "pageSize": 50, "query": {"insideOrderNo": "D1935"}})
+        injected = self.request("POST", "/v1/ainuoke/reports/garment_color_size_details/query", cookie=cookie, csrf=csrf, body={"page": 1, "pageSize": 50, "query": {"insideOrderNo": "D1935", "conditionList": []}})
+        raw = self.request("POST", "/v1/ainuoke/reports/6087105/query", cookie=cookie, csrf=csrf, body={"page": 1, "pageSize": 50, "query": {"insideOrderNo": "D1935"}})
+        self.assertEqual(accepted.status, 200)
+        self.assertEqual(accepted.body["reportId"], "6087105")
+        self.assertEqual(injected.body["error"]["code"], "invalid_query")
+        self.assertEqual(raw.body["error"]["code"], "unknown_report")
+
     def test_unbind_invalidates_bridge_session_and_upstream_cache(self) -> None:
         cookie, csrf = self.create_session()
         self.request("PUT", "/v1/ainuoke/account", cookie=cookie, csrf=csrf, body={"username": "alice", "password": "secret"})

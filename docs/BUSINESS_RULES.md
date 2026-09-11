@@ -69,8 +69,16 @@
 - Bridge 只绑定 `127.0.0.1`/`::1`，使用精确 Origin allowlist、HttpOnly bridge session 与 CSRF nonce；每次账号/报表请求从 bridge session 取得 user context，不直接信任请求体中的 userId。该机制不能补足当前 mock user 缺少真实认证的限制。
 - 个人账号绑定使用 `ainuoke.account.bind_self`；既有 `ainuoke.bind` 仍只表示业务合同绑定。个人绑定不自动授予 sync、合同绑定或 conflict resolution。
 - PUT credential 必须先真实测试登录，成功后才能替换旧 credential；失败保留旧值。invalid credential 不循环 retry，network retry 有上限，auth expiry 最多自动重新登录一次并 replay 原 read 一次。
-- Direct API 固定只读 Report Catalog 只指向 `6086103`、`6086997`、`6087050`。`order_discovery` 使用真实观察到的 6086103 空条件列表并只返回当前账号可见范围；detail keys 仍要求非空 InsideOrderNo。Browser 不能传任意 reportId/endpoint/condition，Bridge 不提供 Ainuoke write endpoint，也不得直接 create/update SalesOrder 或 upsert Style Progress。
+- Direct API 固定只读 Report Catalog 指向 `6086103`、`6086997`、`6087050`，并新增候选验证源 `6087105`。`order_discovery` 使用真实观察到的 6086103 空条件列表并只返回当前账号可见范围；detail keys 仍要求非空 InsideOrderNo。Browser 不能传任意 reportId/endpoint/condition，Bridge 不提供 Ainuoke write endpoint，也不得直接 create/update SalesOrder 或 upsert Style Progress。6087105 当前仅是已验证候选，尚未取代既有 6086997 默认路径。
 - Formal clean bootstrap 方向为 empty PostgreSQL → Ainuoke discovery → detail reads → 新建正式 PostgreSQL SalesOrder identity。当前账号完整 Discovery Snapshot 中的全部合同均参与 bootstrap candidate 集合，不按 `Status` inclusion/exclusion；raw lifecycle status 仍作为 source fact 保留。每次以当次完整 Snapshot 为准，观察到的 505 不是固定业务常量。账号 visibility 仍仅为 `current_account_visible`；来源消失不得单独触发 SalesOrder hard delete。
+- 正式 bootstrap 组织范围已确认为 `current_account_visible`；任何 505、507、511 等数量都只是观察快照，后续必须以 fresh complete Discovery 为准，不得写死。
+- 正式 server `order_no` 由 PostgreSQL/server 全局递增生成，格式为 `SO-00000001`、`SO-00000002`……且用户不可编辑；PostgreSQL UUID 仍是真正技术 identity，InsideOrderNo 与 SalesContractNo 是互相独立的 source facts。
+- 正式 SalesOrder 建立后，Ainuoke source 从后续 Discovery 消失时不 hard delete、不自动 cancel、不更换 UUID、不解除 source binding；标记 source missing 并保留历史，source 重新出现后恢复 seen。
+- Ainuoke 长期保留 normalized current source mirror、source/discovery hash、fetchedAt/lastSeen/missing 等必要时间和 reconciliation metadata；默认不长期保存完整 raw upstream payload。
+- 6087105 使用 `insideorderno contains` 查询，因此任何颜色/分码 projection 必须在返回后按 NFKC、大小写和空白规范化做 exact InsideOrderNo filter；contains false positive 只能计数，不能混入目标订单。
+- 6087105 的上游 `id` 不是颜色行 identity。颜色行 trace 使用 normalized whole sanitized source row 的 deterministic SHA-256；不得使用 `id`、数组下标、页码、fetchedAt 或随机值作为稳定 line identity。
+- 6087105 的 `SizeRule` 按原 CSV 顺序一一映射 `Size1..Size26`，只允许 trim/Unicode normalize，不排序、不删除中间零值、不猜名称。`SizeNum=0` 且所有 SizeN absent/0 是合法颜色行；颜色必须保留。
+- 6087105 是颜色 enrichment，不是 SalesOrder existence gate。没有 exact rows 时状态为 missing；关键颜色行异常时整个颜色 slice fail closed 为 invalid；两种情况都不能阻止 SalesOrder 主 Candidate 存在。
 - Direct API 形成带 report/page/query/row identity/schema/hash 的 sanitized source snapshot。6086103/6086997 只可经 common Contract Source 进入既有 `AinuokeContractMirror` 与 `synchronizeAinuokeContracts`；6087050 只可经薄 API adapter 进入 Excel 共用的 Material Normalize → Dedup → Validate → Preview → 既有 `commitImport`。日常入口按 InsideOrderNo 一次读取三报表并形成统一 Preview；只有用户明确确认，且合同变化拥有 `ainuoke.sync`、物料变化拥有 `style_progress.import`，才分别调用既有领域提交。统一层不得复制领域 pipeline 或以一个超级权限替代两项权限。
 - 当前同步以 6087050 Direct API 当次 Snapshot 为业务来源；历史 Excel 是时间点历史快照。两者不要求 row-count、snapshot-hash 或 source-row-identity parity，不得为匹配历史 Excel 人为过滤 API 当前数据；共同约束是同字段语义一致并复用唯一 Domain pipeline。API 字段无法由真实 metadata/rows 证明时必须保持 `null`/empty。
 - 旧历史排单/生产预警遗留的 unresolved `schedule_match` / `closing_match` 可由用户在完成 DEV Backup 后，以 `ainuoke.resolve_conflict` 显式清理；不得在 load、validator 或 migration 中静默删除。order/data-anomaly/resolved reviews 与全部已导入业务事实必须保留。未来新的排单/生产录入方式仍为 TBD。
