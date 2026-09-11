@@ -101,7 +101,6 @@ function ainuokeSalesOrderInput(
   patch: Partial<CreateAinuokeSalesOrderInput> = {},
 ): CreateAinuokeSalesOrderInput {
   return {
-    orderNo: "SO-PG-001",
     source: {
       sourceId: "6086103-source-001",
       sourceRowIdentity: "6086103:sha256:source-001",
@@ -228,6 +227,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
       assert.deepEqual(first.applied, [
         "0001_trusted_auth_rbac_operation_logs.sql",
         "0002_sales_order_foundation.sql",
+        "0003_sales_order_number_sequence.sql",
       ]);
       const identity = await pool.query<{ public_id: string }>("SELECT public_id::text FROM app_users WHERE username = 'legacy-user'");
       assert.match(identity.rows[0].public_id, /^[0-9a-f-]{36}$/);
@@ -248,6 +248,34 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
     }
   });
 
+  await t.test("order number migration advances past existing formal numbers without rewriting them", async () => {
+    const databaseUrl = await postgres.createDatabase("sales_order_number_upgrade");
+    const directory = await migrationDirectory({
+      "0001_trusted_auth_rbac_operation_logs.sql": await readFile(resolve("database/migrations/0001_trusted_auth_rbac_operation_logs.sql"), "utf8"),
+      "0002_sales_order_foundation.sql": await readFile(resolve("database/migrations/0002_sales_order_foundation.sql"), "utf8"),
+    });
+    const pool = new Pool({ connectionString: databaseUrl });
+    try {
+      await runMigrations(pool, directory);
+      await pool.query("INSERT INTO sales_orders(order_no, creation_source) VALUES ('SO-00000100', 'manual'), ('LEGACY-ORDER', 'manual')");
+      await writeFile(
+        join(directory, "0003_sales_order_number_sequence.sql"),
+        await readFile(resolve("database/migrations/0003_sales_order_number_sequence.sql"), "utf8"),
+        "utf8",
+      );
+      const migration = await runMigrations(pool, directory);
+      assert.deepEqual(migration.applied, ["0003_sales_order_number_sequence.sql"]);
+      const created = await createSalesOrder(pool, { creationSource: "manual" });
+      assert.equal(created.orderNo, "SO-00000101");
+      assert.equal((await pool.query<{ count: number }>(
+        "SELECT count(*)::int AS count FROM sales_orders WHERE order_no IN ('SO-00000100', 'LEGACY-ORDER')",
+      )).rows[0].count, 2);
+    } finally {
+      await pool.end();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   await t.test("SalesOrder migration and repository enforce stable identity, source ownership, and current mirrors", async () => {
     const databaseUrl = await postgres.createDatabase("sales_order_repository");
     const pool = new Pool({ connectionString: databaseUrl });
@@ -256,6 +284,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
       assert.deepEqual(migration.applied, [
         "0001_trusted_auth_rbac_operation_logs.sql",
         "0002_sales_order_foundation.sql",
+        "0003_sales_order_number_sequence.sql",
       ]);
       const tables = await pool.query<{ table_name: string }>(
         `SELECT table_name FROM information_schema.tables
@@ -273,25 +302,34 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         "sales_orders",
       ]);
 
-      const second = await createSalesOrder(pool, {
-        orderNo: "  so-002  ",
-        creationSource: "ainuoke",
-      });
       const first = await createSalesOrder(pool, {
-        orderNo: "SO-001",
         creationSource: "manual",
       });
+      const second = await createSalesOrder(pool, {
+        creationSource: "ainuoke",
+      });
       assert.match(second.id, /^[0-9a-f-]{36}$/);
-      assert.equal(second.orderNo, "SO-002");
+      assert.equal(first.orderNo, "SO-00000001");
+      assert.equal(second.orderNo, "SO-00000002");
       assert.equal(second.version, 1);
-      assert.deepEqual((await listSalesOrders(pool)).map((order) => order.orderNo), ["SO-001", "SO-002"]);
+      assert.deepEqual((await listSalesOrders(pool)).map((order) => order.orderNo), ["SO-00000001", "SO-00000002"]);
+      const concurrent = await Promise.all(Array.from({ length: 8 }, () => createSalesOrder(pool, { creationSource: "manual" })));
+      assert.equal(new Set(concurrent.map((order) => order.orderNo)).size, concurrent.length);
+      assert.deepEqual(concurrent.map((order) => order.orderNo).sort(), [
+        "SO-00000003", "SO-00000004", "SO-00000005", "SO-00000006",
+        "SO-00000007", "SO-00000008", "SO-00000009", "SO-00000010",
+      ]);
       await assert.rejects(
-        () => createSalesOrder(pool, { orderNo: "so-002", creationSource: "manual" }),
-        (error: unknown) => (error as { code?: string }).code === "23505",
+        () => pool.query("INSERT INTO sales_orders(order_no, creation_source) VALUES ('SO-99999999', 'manual')"),
+        (error: unknown) => (error as { code?: string }).code === "23514",
       );
       await assert.rejects(
         () => pool.query("INSERT INTO sales_orders(order_no, creation_source) VALUES ('lowercase', 'manual')"),
         (error: unknown) => (error as { code?: string }).code === "23514",
+      );
+      await assert.rejects(
+        () => pool.query("UPDATE sales_orders SET order_no = 'SO-99999998', version = version + 1 WHERE id = $1::uuid", [second.id]),
+        /order number.*immutable/i,
       );
 
       await createOrUpdateSourceLink(pool, {
@@ -417,19 +455,19 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
       const inputWithIgnoredActor = {
         ...ainuokeSalesOrderInput(),
         actor: spoofedActor,
+        orderNo: "SO-99999999",
       };
       const created = await createAinuokeSalesOrder(pool, trustedActor, inputWithIgnoredActor);
       assert.equal(created.created, true);
       assert.match(created.salesOrder.id, /^[0-9a-f-]{36}$/);
       assert.equal(created.salesOrder.version, 1);
-      assert.equal(created.salesOrder.orderNo, "SO-PG-001");
+      assert.equal(created.salesOrder.orderNo, "SO-00000001");
       assert.equal(created.salesOrder.creationSource, "ainuoke");
       assert.equal(created.salesOrder.salesContractNo, "SC-PG-001");
       assert.deepEqual(created.salesOrder.colors.map((color) => color.colorName), ["BLUE", "RED"]);
 
       const duplicate = await createAinuokeSalesOrder(pool, trustedActor, {
         ...ainuokeSalesOrderInput(),
-        orderNo: "SO-PG-DUPLICATE-MUST-NOT-BE-CREATED",
       });
       assert.equal(duplicate.created, false);
       assert.equal(duplicate.salesOrder.id, created.salesOrder.id);
@@ -460,7 +498,6 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
       assert.notEqual(operationLog.rows[0].actor_public_id, spoofedActor.userId);
 
       const brokenInput = ainuokeSalesOrderInput({
-        orderNo: "SO-PG-ROLLBACK",
         source: {
           ...ainuokeSalesOrderInput().source,
           sourceId: "6086103-source-rollback",
@@ -481,9 +518,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         () => createAinuokeSalesOrder(pool, trustedActor, brokenInput),
         (error: unknown) => (error as { code?: string }).code === "23514",
       );
-      assert.equal((await pool.query<{ count: number }>(
-        "SELECT count(*)::int AS count FROM sales_orders WHERE order_no = 'SO-PG-ROLLBACK'",
-      )).rows[0].count, 0);
+      assert.equal((await pool.query<{ count: number }>("SELECT count(*)::int AS count FROM sales_orders")).rows[0].count, 1);
       assert.equal((await pool.query<{ count: number }>(
         "SELECT count(*)::int AS count FROM sales_order_source_links WHERE external_id = '6086103-source-rollback'",
       )).rows[0].count, 0);
@@ -491,6 +526,17 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         "SELECT count(*)::int AS count FROM ainuoke_sales_order_contract_mirrors WHERE sales_contract_no = 'SC-PG-ROLLBACK'",
       )).rows[0].count, 0);
       assert.equal((await pool.query<{ count: number }>("SELECT count(*)::int AS count FROM operation_logs")).rows[0].count, 1);
+      const afterRollback = await createAinuokeSalesOrder(pool, trustedActor, ainuokeSalesOrderInput({
+        source: {
+          ...ainuokeSalesOrderInput().source,
+          sourceId: "6086103-source-after-rollback",
+          sourceRowIdentity: "6086103:sha256:source-after-rollback",
+          salesContractNo: "SC-PG-AFTER-ROLLBACK",
+          insideOrderNo: "D-AFTER-ROLLBACK",
+          sourceHash: "after-rollback-contract-hash",
+        },
+      }));
+      assert.equal(afterRollback.salesOrder.orderNo, "SO-00000003");
     } finally {
       await pool.end();
     }
@@ -507,9 +553,8 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         password: "test-bootstrap-preview-password",
         permissions: ["order.view"],
       });
-      const first = ainuokeSalesOrderInput({ orderNo: "PREVIEW-000001" });
+      const first = ainuokeSalesOrderInput();
       const second = ainuokeSalesOrderInput({
-        orderNo: "PREVIEW-000002",
         source: {
           ...ainuokeSalesOrderInput().source,
           sourceId: "6086103-source-002",
@@ -520,8 +565,8 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         },
       });
       const result = await runSalesOrderBootstrapDryRun(pool, trustedActor, [
-        { previewOnlyOrderNo: first.orderNo, source: first.source, colors: first.colors },
-        { previewOnlyOrderNo: second.orderNo, source: second.source, colors: second.colors },
+        { source: first.source, colors: first.colors },
+        { source: second.source, colors: second.colors },
       ]);
       assert.deepEqual(result, {
         planned: 2,
@@ -532,6 +577,13 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         sourceLinkConflicts: 0,
         schemaRejections: 0,
         operationLogs: 2,
+        firstOrderNo: "SO-00000001",
+        lastOrderNo: "SO-00000002",
+        orderNumberDuplicates: 0,
+        uuidDuplicates: 0,
+        clientOverrideRejected: true,
+        mutationRejected: true,
+        rollbackNumberReuse: false,
         idempotencyPassed: true,
         rollbackPassed: true,
       });

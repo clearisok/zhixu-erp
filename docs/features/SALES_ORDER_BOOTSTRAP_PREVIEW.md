@@ -14,7 +14,7 @@
 - Reconciliation groups blocking, warning and informational issues and checks source ID, source-row identity, InsideOrderNo and SalesContractNo duplicates/cross-mappings, detail failures, identity mismatches, invalid quantities and color-total differences. Status is preserved verbatim and never filters inclusion.
 - Candidate ordering and `previewHash` are deterministic from normalized business/source facts. Fetch timestamps and page grouping do not create a different candidate identity.
 - The stale guard performs a second complete Discovery only after all details, then compares total, normalized hash and source/identity sets. A change makes the Preview stale and prevents readiness.
-- There is still no confirmed formal server-side `order_no` policy. The Preview records `ORDER_NO_POLICY = NEEDS_USER_DECISION`; disposable PG alone uses deterministic `PREVIEW-000001` values. Those values are test-only and may never enter a real bootstrap.
+- Historical Phase 2B2 had no confirmed formal server-side `order_no` policy and recorded `ORDER_NO_POLICY = NEEDS_USER_DECISION`; its disposable PG alone used deterministic `PREVIEW-000001` values. Phase 2B2.3 later supersedes that policy for new server records without rewriting this historical evidence.
 - `runSalesOrderBootstrapDryRun` invokes the Phase 2B1 `createAinuokeSalesOrder` service, retries every valid candidate to prove source idempotency, performs one deliberate invalid-color rollback probe, and counts source-link/schema/log outcomes. It accepts only an explicit trusted actor argument.
 
 ## Authoritative live Preview — 2026-09-11
@@ -102,7 +102,7 @@ The fixed 6087105 query changed from `insideorderno contains <InsideOrderNo>` to
 - 8 InsideOrderNo drift orders. These are exactly the former eight InsideOrderNo-query misses, and all eight are now resolved by BillNo;
 - PI2512-121 maps Discovery `5384/086-1(46021-N)` to 6087105 `5466/086(46021-N)`, one usable color totaling 9,000: PASS.
 
-Missing or invalid 6087105 enrichment still does not block SalesOrder creation. This phase did not generate a fresh bootstrap candidate set or execute real PostgreSQL bootstrap. The next step is a separate **fresh Bootstrap Preview** using the approved identity/source contract.
+Missing or invalid 6087105 enrichment still does not block SalesOrder creation. Phase 2B2.2 did not generate a fresh bootstrap candidate set or execute real PostgreSQL bootstrap; its required fresh Preview was subsequently completed in Phase 2B2.3 below.
 
 ## Final validation
 
@@ -110,3 +110,16 @@ Missing or invalid 6087105 enrichment still does not block SalesOrder creation. 
 - Full tests: 584/584 PASS.
 - TypeScript typecheck, zero-warning ESLint, server build, frontend production build (30 routes), and `git diff --check`: PASS.
 - Style Progress benchmark was not rerun.
+
+## Phase 2B2.3 final fresh Preview — 2026-09-11
+
+Phase 2B2.3 preserves the historical 6086997 Preview above and adds a separate `sales-order-final-bootstrap-preview.v2` path using the approved BillNo/6087105 contract.
+
+- Fresh Discovery before/after: 511 rows / 11 pages, `草拟=368` / `生效=143`, identical hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`; BillNo blank/duplicate and added/removed/changed identity are all zero.
+- 6087105: 511/511 successful BillNo queries, 511 pages, 511 exact orders, usable/missing/invalid 505/0/6, InsideOrderNo drift 8. All 505 usable color totals equal contract quantity; lower/higher 0/0.
+- Candidate semantics: planned 511. Usable candidates contain full color mirrors; missing/invalid candidates remain valid SalesOrder aggregates with `colors=[]` and sanitized reconciliation metadata. SizeRule/Size1..26/SizeNum are typed evidence only; no size table was added. Preview hash: `6966d8d360118f4aa5fb8565061b0234a482d114de90f9b0fc5dc7c17337ea71`.
+- Disposable PG16 applied `0001`, `0002`, `0003` and created 511/511 through `createAinuokeSalesOrder`; rejected/source conflicts/schema rejections 0/0/0, exact idempotent returns 511, trusted OperationLogs 511 and rollback probes 1. UUID/order-number duplicates were zero. Formal numbers were `SO-00000001` through `SO-00000511`; client override and mutation were rejected, and the rollback number was not reused.
+- Ainuoke reads were 533 pages (`6086103` 22 + `6087105` 511); 6086997/6087050 reads were zero. Ainuoke, real PostgreSQL, Browser, Quote, Style Progress, Scheduling and Closing writes were all zero. The disposable container/database was destroyed.
+- Final validation: Bridge 36/36, targeted 23/23, PostgreSQL integration 14/14, Full Tests 601/601, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and `git diff --check` all passed.
+
+**READY FOR A SEPARATELY AUTHORIZED REAL BOOTSTRAP: YES.** This evidence does not itself authorize or execute that bootstrap, Browser cutover, Browser retirement, legacy 6086997 deletion, or any other domain migration.

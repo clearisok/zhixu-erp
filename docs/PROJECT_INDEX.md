@@ -6,7 +6,7 @@
 
 - 根路径 ERP：报价、订单、排单、用户和审计功能，使用 PostgreSQL 持久化，并由数据库函数提供 API。
 - Quote Center 路径：新报价中心、报价 Revision/PriceVersion、新订单中心、基础资料和统一 UI Foundation，当前仍使用浏览器 mock 持久化，与根路径 ERP 后端隔离。
-- Server Persistence 路径：Phase 1 Node/TypeScript API、PostgreSQL versioned migrations、可信 Auth/RBAC 与 server OperationLog、Phase 2B1 PostgreSQL SalesOrder server foundation、Phase 2B2 历史只读 Bootstrap Preview / disposable dry-run、Phase 2B2.1 6087105 candidate validation，以及 Phase 2B2.2 stable SalesContract identity migration。当前 `SalesContractNo` / `BillNo` 是稳定跨报表关联，6087105 是 Active 正式 SalesOrder color/size source；尚未执行真实 bootstrap，也未接管 Browser Order Center runtime。
+- Server Persistence 路径：Phase 1 Node/TypeScript API、PostgreSQL versioned migrations、可信 Auth/RBAC 与 server OperationLog、Phase 2B1 PostgreSQL SalesOrder server foundation、Phase 2B2/2B2.1/2B2.2 source Preview/validation/identity，以及 Phase 2B2.3 formal order number + final fresh disposable dry-run。当前 `SalesContractNo` / `BillNo` 是稳定跨报表关联，6087105 是 Active color/size source，server-generated `SO-00000001` 编号已落地；尚未执行真实 bootstrap，也未接管 Browser Order Center runtime。
 
 两条路径都是真实现，但边界和成熟度不同。开始任务前必须先确认目标模块。
 
@@ -45,7 +45,7 @@
 | `tools/ainuoke-bridge/` | loopback-only Python Bridge、Windows Credential Manager 接入、内存会话/token 与固定只读 Report Catalog |
 | `components/foundation/` | 共用页面、表单、Modal、选择器、表格、Toast 等 UI 基础组件 |
 | `components/` | 根路径 ERP 使用的通用图标和品牌组件 |
-| `database/` | Legacy PostgreSQL schema/`api_dispatch`/初始化管理员，以及独立 `migrations/` forward-only server migrations；`0002` 建立 SalesOrder server foundation 四表 |
+| `database/` | Legacy PostgreSQL schema/`api_dispatch`/初始化管理员，以及独立 `migrations/` forward-only server migrations；`0002` 建立 SalesOrder foundation 四表，`0003` 建立正式 SalesOrder sequence/allocator |
 | `worker/` | Cloudflare/Vinext 静态应用与图片请求入口；不包含业务 API |
 | `db/`、`drizzle/` | 尚未承载业务数据的 D1/Drizzle scaffold |
 | 根目录 `*.ps1`、`*.sh` | 本地 Docker 构建、启动、备份、恢复和静态服务脚本 |
@@ -64,7 +64,7 @@
 | --- | --- | --- |
 | 根路径 ERP、登录、报价/订单/排单 | `features/LEGACY_ERP.md` | `app/page.tsx`、`database/001_schema.sql`、根目录 `docker-serve.sh` |
 | Quote Center | `features/QUOTE_CENTER.md` | `app/quote-center/`、`features/quote-center/` |
-| 新订单中心、报价转订单、翻单、交期、订单价格历史与 PostgreSQL SalesOrder foundation/bootstrap preview | `features/ORDER_CENTER.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`、`features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`、`features/SERVER_PERSISTENCE.md`、`features/OPERATIONS_FOUNDATION.md`、`features/DATA_LIFECYCLE.md` | Browser runtime：`app/order-center/`、`features/order-center/`；server foundation/dry-run：`server/sales-orders/`、`features/ainuoke-sync/service/sales-order-bootstrap-preview.ts`、`features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts`、`database/migrations/0002_sales_order_foundation.sql` |
+| 新订单中心、报价转订单、翻单、交期、订单价格历史与 PostgreSQL SalesOrder foundation/bootstrap preview | `features/ORDER_CENTER.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`、`features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`、`features/SERVER_PERSISTENCE.md`、`features/OPERATIONS_FOUNDATION.md`、`features/DATA_LIFECYCLE.md` | Browser runtime：`app/order-center/`、`features/order-center/`；server foundation/dry-run：`server/sales-orders/`、`features/ainuoke-sync/service/sales-order-final-bootstrap-preview.ts`、`features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts`、`database/migrations/0002_sales_order_foundation.sql`、`0003_sales_order_number_sequence.sql` |
 | 生产队列、排单中心、物料运输、订单预警与交期风险 | `features/PRODUCTION_SCHEDULING.md`、`features/ORDER_CENTER.md`、`features/OPERATIONS_FOUNDATION.md`、`features/PERMISSIONS.md` | `app/production-scheduling/`、`features/production-scheduling/`、`tests/production-scheduling.test.mjs` |
 | 款式进度、面辅料跟进、逐物料物流与真实 Excel 导入 | `features/STYLE_PROGRESS.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/DATA_LIFECYCLE.md` | `app/order-center/style-progress/`、`features/style-progress/`、`tests/style-progress.test.mjs` |
 | 关账月份、关账归属、月度产值与锁账 | `features/CLOSING_CENTER.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/PERMISSIONS.md` | `app/closing-center/`、`features/closing-center/`、`tests/closing-center.test.mjs` |
