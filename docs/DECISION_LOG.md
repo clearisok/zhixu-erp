@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-081 PostgreSQL owns immutable global SalesOrder numbers; final Preview includes non-usable color enrichment
+
+- 日期：2026-09-11
+- 状态：Active；实现 D-078 的编号政策并完成 Phase 2B2.3 final fresh Preview。它不授权或执行 real bootstrap / Browser cutover。
+- Number allocator：`0003_sales_order_number_sequence.sql` 使用 PostgreSQL sequence + insert trigger 生成 `SO-00000001` 格式编号。UUID 仍是技术 identity；官方 create input 不接受 `orderNo`，显式 override 与 update 均拒绝；rollback sequence gap 允许且不回收。
+- Candidate：每个 fresh Discovery BillNo 都形成 candidate。6087105 usable 写完整 color mirror；missing/invalid 写 `colors=[]` 并保留 sanitized reconciliation metadata。SizeRule/Size1..26/SizeNum 只作为 typed evidence，不新增 size relational schema。
+- 证据：fresh before/after Discovery 511/511、hash 相同、BillNo blank/duplicate 0/0；6087105 511/511 success，usable/missing/invalid 505/0/6，drift 8，quantity parity 505/0/0。Disposable PG16 通过 0001/0002/0003 创建 511、幂等返回 511、trusted logs 511、rollback probe 1，编号 `SO-00000001`…`SO-00000511` 且无重复/复用。
+- 边界：Ainuoke reads 533；Ainuoke/real PG/Browser/Quote/Style Progress/Scheduling/Closing writes 0。6086997 legacy support 保留；disposable container/database 已销毁。
+
 ### D-080 SalesContractNo / BillNo 是 Ainuoke SalesOrder 稳定跨报表关联键
 
 - 日期：2026-09-11
@@ -33,7 +42,7 @@
 - 状态：Active；用户已明确批准 source replacement。
 - 决定：6087105 是正式当前 SalesOrder color/size source，固定 query 为 `{ salesContractNo }` → `BillNo contains`，返回后 exact normalized BillNo filter。6086997 catalog、adapter、tests 与 Phase 2B2 证据保留为 legacy / historical，不再作为正式当前 SalesOrder color source。
 - Missing/invalid：6087105 没有 exact BillNo rows 时为 `missing`，关键行异常时为 `invalid`；两者都是颜色 enrichment 状态，均不得阻止 SalesOrder 创建。InsideOrderNo drift 既不 invalid 也不 missing。
-- 边界：本决定不执行真实 PostgreSQL bootstrap、不切换 Browser Order Center、不写 Ainuoke/Browser/Quote/Style Progress/Scheduling/Closing。下一步是 fresh Bootstrap Preview，不是 real bootstrap。
+- 边界：本决定不执行真实 PostgreSQL bootstrap、不切换 Browser Order Center、不写 Ainuoke/Browser/Quote/Style Progress/Scheduling/Closing。当时的下一步 fresh Bootstrap Preview 已由 D-081 完成；real bootstrap 仍需另行授权。
 - 证据：Phase 2B2.2 全量验证 511/511 query success、511 exact BillNo orders、1390 exact rows、505 usable、0 missing、6 invalid、505/505 usable quantity parity；before/after stale guard stable。
 
 ### D-078 正式 SalesOrder 编号、bootstrap scope、source disappearance 与 retention policy
@@ -44,7 +53,7 @@
 - Scope：正式 bootstrap 组织范围为 `current_account_visible`。每次必须使用 fresh complete Discovery；505、507、511 等历史/当前 total 都只是观察快照，不是固定业务常量，Status 继续不参与 inclusion/exclusion。
 - Disappearance：正式 SalesOrder 建立后，source 从 Discovery 消失不触发 hard delete、auto-cancel、UUID replacement 或 source unbind。系统标记 missing、保留历史；source 重新出现后恢复 seen。
 - Retention：长期保存 normalized current source mirror、source/discovery hash、fetchedAt/lastSeen/missing 等必要时间和 reconciliation metadata；默认不长期保存完整 raw upstream payload。
-- 证据：用户对 Phase 2B2.1 的明确规则确认、`docs/BUSINESS_RULES.md`、`docs/features/SALES_ORDER_PERSISTENCE.md`。具体 sequence/tombstone schema 与真实 bootstrap 写入仍属于后续独立实现 Gate。
+- 证据：用户对 Phase 2B2.1 的明确规则确认、`docs/BUSINESS_RULES.md`、`docs/features/SALES_ORDER_PERSISTENCE.md`。Sequence 已由 D-081 / migration `0003` 实现；tombstone schema 与真实 bootstrap 写入仍属于后续独立 Gate。
 
 ### D-077 PostgreSQL SalesOrder 采用稳定 aggregate + immutable source binding + current source mirrors
 

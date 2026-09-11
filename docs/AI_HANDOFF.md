@@ -11,22 +11,21 @@
 
 ## Current Stable Main
 
-`07e57b0eacecb20668e7de8f0c8592e0bfc612b0`（Phase 2B2.1 PR #19 已 merged）
+`8803a6b86e34f9daee7f38f6a798bd6fd9e3e5c9`（Phase 2B2.2 PR #20 已 merged）
 
 ## Current Active Task
 
-- Branch: `fix/ainuoke-sales-contract-stable-identity`
-- Baseline: `07e57b0eacecb20668e7de8f0c8592e0bfc612b0` (`origin/main`, Phase 2B2.1 PR #19 merge commit).
-- Scope: Phase 2B2.2 changes the stable Ainuoke SalesOrder cross-report association to normalized `SalesContractNo` / `BillNo`. `InsideOrderNo` is mutable source data; same BillNo drift records `inside_order_no_drift` and cannot create/change/rebind a SalesOrder.
-- Typed Bridge query kinds are `empty | sales_contract | inside_order`. 6087105 uses fixed `{ salesContractNo }` → `BillNo contains` and exact normalized row.BillNo filter. Query kinds cannot mix, and Browser cannot submit raw report controls.
-- D-079 is Active by explicit user approval: 6087105 formally replaces 6086997 as current SalesOrder color/size source. 6086997 stays legacy/historical in catalog/adapter/tests. 6087105 missing/invalid remains non-blocking enrichment.
-- Discovery remains full empty-query 6086103 and now requires non-empty unique normalized BillNo. The formal bootstrap path builds a local BillNo index and does not need per-order 6086103 InsideOrderNo detail reads.
-- Authoritative read-only validation: Discovery before/after 511/11 pages, 草拟 368 / 生效 143, identical hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`, added/removed/changed 0/0/0. 6087105 BillNo queries 511/511 success, exact/no-detail 511/0, exact rows 1,390, contains false positives 0.
-- Colors: usable/missing/invalid 505/0/6; all 505 usable totals equal contract quantity, lower/higher 0/0. Drift orders 8. All former eight missing are resolved.
-- PI2512-121 anchor: 6086103 InsideOrderNo `5384/086-1(46021-N)`; 6087105 InsideOrderNo `5466/086(46021-N)`; one usable color, quantity 9,000 = contract quantity; PASS.
-- Query audit: 6086103 Discovery empty; 6087105 BillNo contains; 6086997 InsideOrderNo is; 6087050 insideorderno is. BillNo support was not guessed for legacy reports and 6087050 was not business-read.
-- Authoritative reads 533 pages (6086103 22, 6087105 511); all Ainuoke/PG/Browser/Quote/Style Progress/Scheduling/Closing writes 0. No PG schema change. Next allowed step is fresh Bootstrap Preview; real bootstrap and Browser cutover remain forbidden.
-- Final gates: Bridge 36/36, targeted 21/21, Full Tests 598/598, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and diff-check PASS. PostgreSQL integration and Style benchmark were intentionally not rerun.
+- Branch: `feat/postgres-salesorder-final-bootstrap-preview`
+- Baseline: `8803a6b86e34f9daee7f38f6a798bd6fd9e3e5c9` (`origin/main`, Phase 2B2.2 PR #20 merge commit).
+- Scope: Phase 2B2.3 implements PostgreSQL-owned immutable `SO-00000001` numbering and performs the final fresh BillNo/6087105 Preview plus full disposable PG16 service validation. It does not execute the separately authorized real bootstrap or Browser cutover.
+- Forward-only `0003_sales_order_number_sequence.sql` adds the global sequence and insert allocator. Official repository/service inputs cannot supply `order_no`; explicit SQL override and mutation are rejected. UUID remains the technical identity; sequence gaps on rollback are retained and never reused.
+- Fresh Discovery before/after: 511 rows / 11 pages, 草拟 368 / 生效 143, identical hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`, BillNo blank/duplicate 0/0 and added/removed/changed identity 0/0/0.
+- 6087105: 511/511 BillNo queries succeeded over 511 pages; exact orders 511, usable/missing/invalid 505/0/6, InsideOrderNo drift 8, usable color quantity parity equal/lower/higher 505/0/0.
+- Every Discovery contract formed a candidate. Usable candidates carry full color mirrors; missing/invalid candidates carry `colors=[]` plus sanitized reconciliation metadata. SizeRule/Size1..26/SizeNum remain typed evidence only; no size relational table was added.
+- Disposable PG16 applied 0001/0002/0003 and created 511/511 via `createAinuokeSalesOrder`; rejected/source conflicts/schema rejections 0/0/0, exact idempotent returns 511, trusted OperationLogs 511, rollback probes 1. Order numbers were `SO-00000001`…`SO-00000511`, UUID/order-number duplicates 0/0, override/mutation rejected, rollback number not reused. Container/database were destroyed.
+- Authoritative Ainuoke reads: 533 pages (`6086103` 22, `6087105` 511, `6086997`/`6087050` 0). Ainuoke, real PostgreSQL, Browser, Quote, Style Progress, Scheduling and Closing writes: 0.
+- Final gates: Bridge 36/36, targeted 23/23, PostgreSQL integration 14/14, Full Tests 601/601, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and `git diff --check` PASS.
+- Fresh Preview evidence is ready for a separately authorized real bootstrap. No real bootstrap, Browser read/write cutover, legacy 6086997 deletion or automatic merge is authorized by this phase.
 
 ## Previous completed Phase 2B2.1 task
 

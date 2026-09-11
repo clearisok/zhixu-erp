@@ -11,6 +11,7 @@ export * from "./service/ainuoke-contract-api-sync.ts";
 export * from "./service/ainuoke-unified-sync.ts";
 export * from "./service/ainuoke-historical-review-cleanup.ts";
 export * from "./service/sales-order-bootstrap-preview.ts";
+export * from "./service/sales-order-final-bootstrap-preview.ts";
 export * from "./service/ainuoke-garment-color-size-validation.ts";
 export * from "./components/ainuoke-sync-page.tsx";
 export * from "./components/ainuoke-contract-lookup-page.tsx";

@@ -2,7 +2,7 @@
 
 ## Current status
 
-- Phase: **Phase 2B2.2 stable SalesContract identity migration complete in code and read-only validation**.
+- Phase: **Phase 2B2.3 final fresh Bootstrap Preview complete; 6087105 remains the Active source**.
 - Active source decision: report `6087105`（成衣分色分码明细）is the formal current SalesOrder color/size source.
 - Stable Ainuoke business association: normalized `SalesContractNo` / `BillNo`.
 - `InsideOrderNo` is a mutable source attribute, not long-term source identity.
@@ -135,4 +135,4 @@ No fieldName/compareType was guessed, and 6087050 was not business-read in this 
 
 No PostgreSQL schema/table/identity model changed. Existing `sales_orders` UUID and immutable `sales_order_source_links` remain authoritative. Browser Order Center still uses the Browser Repository.
 
-The next allowed step is a **fresh Bootstrap Preview** using Discovery BillNo identity plus 6087105. It remains preview-only until a separate user authorization permits real bootstrap. Browser cutover is also a separate later Gate.
+The Phase 2B2.3 fresh Preview is complete: 511 BillNo queries yielded 505 usable, 0 missing and 6 invalid candidates; all 511 aggregates passed the disposable PostgreSQL service path. A real bootstrap still requires separate explicit authorization. Browser cutover remains a separate later Gate.

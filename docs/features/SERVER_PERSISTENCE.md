@@ -39,7 +39,8 @@ Browser
 ## Phase 2B1 SalesOrder foundation
 
 - Forward-only migration `0002_sales_order_foundation.sql` 建立 `sales_orders`、`sales_order_source_links`、`ainuoke_sales_order_contract_mirrors`、`ainuoke_sales_order_color_mirrors`。
-- `sales_orders.id` 使用 PostgreSQL UUID，创建后是正式稳定 identity；`order_no` 按既有 NFKC/trim/uppercase 规则规范化并由数据库唯一约束保护。创建来源/creation provenance 不可变，`version` 从 1 开始且每次 owned aggregate update 必须精确递增 1。
+- Forward-only migration `0003_sales_order_number_sequence.sql` 增加 PostgreSQL-owned global sequence/insert allocator。新单由数据库生成 `SO-00000001` 格式编号；repository/service input 不接受 `orderNo`，显式 override 与创建后 mutation 均拒绝，rollback gap 不回收。
+- `sales_orders.id` 使用 PostgreSQL UUID，创建后是正式稳定 identity；`order_no` 是不可编辑业务编号并继续由数据库唯一约束保护。创建来源/creation provenance 不可变，`version` 从 1 开始且每次 owned aggregate update 必须精确递增 1。
 - `sales_order_source_links` 以 `(source_system, source_entity_type, external_id)` 唯一绑定 SalesOrder。数据库 trigger 拒绝改变 source identity 或 `sales_order_id`，refresh 不能静默换绑。
 - Ainuoke contract/color mirror 只保存当前已验证 typed source facts。合同 mirror 一单一行；color mirror 使用稳定 `source_line_identity` child 行。refresh 只 upsert/replace 这两个 source-owned slice，不更新 SalesOrder identity、creation provenance 或 version。
 - Repository 只使用参数化 SQL，提供 create/get-by-id/get-by-source/get-by-salesContractNo/list、source-link create/update、contract mirror upsert、color mirror replacement 与 optimistic lifecycle update。list 以 order number + UUID 形成稳定顺序。
@@ -105,7 +106,7 @@ docker compose --profile server-foundation up --build server
 
 `npm run test:postgres` 每次创建随机命名 `postgres:16-alpine` 容器，数据库目录使用 tmpfs，动态映射端口，并在结束时只删除该测试容器。测试绝不连接 `zhixu`、真实 DEV 或用户数据库。
 
-覆盖：empty/legacy-schema migration、rerun/order/checksum mismatch/failed rollback/advisory-lock concurrency、稳定用户 ID、valid/invalid/inactive login、expiry/logout/revocation、brute-force、raw token 不持久化/不进日志、RBAC granted/denied/spoof、OperationLog actor/append-only/stable ID/operationId，以及 health ready/unavailable。Phase 2B1 另覆盖 fresh SalesOrder migration、UUID/order-number/source/FK/version constraints、source mirror refresh、color replacement、transactional create/idempotency/rollback/trusted actor、read API 401/403/404/permitted read，以及两个 trusted sessions 读取相同 SalesOrder ID/version。
+覆盖：empty/legacy-schema migration、rerun/order/checksum mismatch/failed rollback/advisory-lock concurrency、稳定用户 ID、valid/invalid/inactive login、expiry/logout/revocation、brute-force、raw token 不持久化/不进日志、RBAC granted/denied/spoof、OperationLog actor/append-only/stable ID/operationId，以及 health ready/unavailable。SalesOrder 另覆盖 0001/0002/0003、首号/次号、并发唯一、client override/mutation 拒绝、rollback 不复用、UUID/source/FK/version constraints、source mirror refresh、transactional create/idempotency/rollback/trusted actor、read API 401/403/404/permitted read，以及两个 trusted sessions 读取相同 SalesOrder ID/version。
 
 Phase 2B1 final validation：PostgreSQL integration 12/12、Full Tests 577/577、TypeScript、零警告 ESLint、server build、frontend Production Build 30 routes 与 `git diff --check` PASS。frontend build 的 chunk-size advisory 不影响成功退出。
 

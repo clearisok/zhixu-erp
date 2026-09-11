@@ -18,7 +18,6 @@ import {
 } from "./repository.js";
 
 export type CreateAinuokeSalesOrderInput = {
-  orderNo: string;
   source: AinuokeContractMirrorInput;
   colors: readonly AinuokeColorMirrorInput[];
 };
@@ -55,7 +54,6 @@ export async function createAinuokeSalesOrder(
     }
 
     const salesOrder = await createSalesOrder(client, {
-      orderNo: input.orderNo,
       creationSource: "ainuoke",
       lifecycleState: "draft",
     });

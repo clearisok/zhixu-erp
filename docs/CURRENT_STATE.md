@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `fix/ainuoke-sales-contract-stable-identity`，起点为 `07e57b0eacecb20668e7de8f0c8592e0bfc612b0`（Phase 2B2.1 PR #19 merge）。Phase 2B2.2 已完成 BillNo typed query、stable association/drift reconciliation 与 authoritative read-only validation，正在进行最终门禁/PR 收口；它没有执行真实 bootstrap 或 Browser cutover。
-- 当前稳定基线：GitHub `main` 为 `07e57b0eacecb20668e7de8f0c8592e0bfc612b0`（Phase 2B2.1 PR #19 已 merged）。
+- 当前 Active Task 为 `feat/postgres-salesorder-final-bootstrap-preview`，起点为 `8803a6b86e34f9daee7f38f6a798bd6fd9e3e5c9`（Phase 2B2.2 PR #20 merge）。Phase 2B2.3 已实现正式 server-generated order number 并完成 fresh Preview/disposable PG16 验证；没有执行真实 bootstrap 或 Browser cutover。
+- 当前稳定基线：GitHub `main` 为 `8803a6b86e34f9daee7f38f6a798bd6fd9e3e5c9`（Phase 2B2.2 PR #20 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -22,6 +22,16 @@
 
 ## 本轮完成状态
 
+### PostgreSQL Phase 2B2.3 — Formal SalesOrder Number + Final Fresh Bootstrap Preview
+
+- `0003_sales_order_number_sequence.sql` 使用 PostgreSQL global sequence + insert trigger 生成 `SO-00000001` 格式编号。官方 repository/service create input 不再接受 `orderNo`；显式 insert override 与创建后 mutation 均由数据库拒绝。UUID 仍是技术 identity，rollback 消耗的 sequence number 不回收。
+- 独立 v2 final Preview 使用完整 6086103 Discovery + normalized unique BillNo index + 6087105 exact BillNo source。每个 Discovery 合同均形成 candidate；usable 写完整 color mirror，missing/invalid 写 `colors=[]` 并保存 sanitized reconciliation metadata。SizeRule/Size1..26/SizeNum 仅保存为 typed evidence，不新增 size business table。
+- Fresh authoritative run：Discovery before/after 均为 511/11 pages，草拟 368 / 生效 143，hash 均为 `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`；BillNo blank/duplicate 与 added/removed/changed identity 均为 0。
+- 6087105 511/511 queries success，511 exact orders，usable/missing/invalid=505/0/6，InsideOrderNo drift=8；usable quantity equal/lower/higher=505/0/0。Candidate planned=511，preview hash `6966d8d360118f4aa5fb8565061b0234a482d114de90f9b0fc5dc7c17337ea71`。
+- 全新 disposable PostgreSQL 16 应用 0001/0002/0003，通过正式 `createAinuokeSalesOrder` 创建 511/511；rejected/source-link conflicts/schema rejection=0/0/0，idempotent exact returns=511，trusted OperationLogs=511，rollback probe=1。编号 `SO-00000001`…`SO-00000511`，order number/UUID duplicates=0/0，client override/mutation rejected，rollback number reuse=NO。容器与数据库已销毁。
+- Ainuoke reads=533（6086103 22，6087105 511；6086997/6087050 0）。Ainuoke、真实 PostgreSQL、Browser、Quote、Style Progress、Scheduling、Closing writes 全部为 0。Browser Order Center 仍在 Browser Repository；real bootstrap/read-write cutover 仍需单独明确授权。
+- 最终门禁一次完成：Bridge 36/36、targeted 23/23、PostgreSQL integration 14/14、Full Tests 601/601、TypeScript、零警告 ESLint、server build、frontend Production Build 30 routes 与 `git diff --check` 全部 PASS。
+
 ### PostgreSQL Phase 2B2.2 — Ainuoke Stable SalesContract Identity Migration
 
 - Active identity: normalized `SalesContractNo` / `BillNo` is the stable Ainuoke SalesOrder cross-report business association; PostgreSQL UUID remains technical identity. `InsideOrderNo` is mutable source data and transport-only where a report has only proven InsideOrderNo search.
@@ -33,7 +43,7 @@
 - Query audit: 6086103 Discovery = empty; 6087105 = proven BillNo contains; 6086997 = proven InsideOrderNo is; 6087050 = proven insideorderno is. No unproven BillNo field/compare type was guessed and 6087050 was not business-read.
 - Authoritative reads: 533 pages (6086103 22, 6087105 511); Ainuoke/PG/Browser/Quote/Style Progress/Scheduling/Closing writes 0. No PostgreSQL schema change; PostgreSQL integration and Style benchmark are intentionally not rerun.
 - Final gates after the one type-boundary correction: Bridge 36/36, targeted 21/21, Full Tests 598/598, TypeScript, zero-warning ESLint, server build, frontend Production Build 30 routes and `git diff --check` PASS.
-- Next: fresh Bootstrap Preview using BillNo identity + 6087105. Real bootstrap and Browser Order Center cutover remain separately unauthorized.
+- This Phase's next step was the fresh BillNo/6087105 Preview; it is now completed by Phase 2B2.3 above. Real bootstrap and Browser Order Center cutover remain separately unauthorized.
 
 ### Previous PostgreSQL Phase 2B2.1 — Ainuoke 6087105 Garment Color/Size Source Validation
 
@@ -46,7 +56,7 @@
 - 六张 invalid：15 个 invalid SizeNum、6 个 blank color、3 个 duplicate canonical placeholder identity groups；duplicate usable identity、cross-order contamination、BillNo/InsideOrderNo/GoodsNo mismatch 都为 0。另有 8 张 no exact detail，作为 missing enrichment。
 - SizeRule present/missing=1,372/6，41 patterns，token 1…25；positive SizeNum matrix valid/mismatch/missing=1,361/0/0；2 个 zero-quantity rows 无 SizeN 且合法；populated beyond SizeRule=0；同订单 multiple rules=3。
 - 旧 34 blockers 保留 Phase 2B2 历史。6087105 对照为 resolved/still missing/invalid/warning-only=31/0/3/0；D1935 5 rows/4,640、T1826-4 3/3,730、1917U 2/9,393 anchor 全部 PASS。
-- 用户确认的正式规则已记录为 D-078：server 全局递增不可编辑 `SO-00000001` order number、fresh `current_account_visible` scope、source disappearance 不 delete/cancel/rebind 并可恢复 seen、normalized mirror/hash/time/reconciliation retention 且默认不存完整 raw payload。具体 schema/sequence/tombstone 实现未在本 Gate 扩展。
+- 用户确认的正式规则已记录为 D-078：server 全局递增不可编辑 `SO-00000001` order number、fresh `current_account_visible` scope、source disappearance 不 delete/cancel/rebind 并可恢复 seen、normalized mirror/hash/time/reconciliation retention 且默认不存完整 raw payload。该阶段未扩展 schema；sequence 随后已由 Phase 2B2.3 `0003` 实现，tombstone 仍未实现。
 - Historical Phase 2B2.1 state（已 supersede）：当时只推荐替换且 D-079 待决定；当前 D-079 已 Active。该阶段的 read/write 统计仍作为历史审计保留。
 - 完整字段、token distribution、old-34 table 与限制见 `docs/features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`。最终门禁一次完成：Bridge 36/36、相关 Ainuoke 40/40、Full Tests 595/595、TypeScript、零警告 ESLint、server build、Production Build 30 routes 与 `git diff --check` 全部 PASS；按范围未重跑 PostgreSQL integration 或 Style Progress benchmark。
 
@@ -228,7 +238,7 @@
 
 ## 尚未落地
 
-- Browser Order Center 到 PostgreSQL SalesOrder 的真实 bootstrap、read/write cutover 与 Browser store retirement 尚未落地；Phase 2B1 只完成 server foundation，Phase 2B2 只完成 historical read-only Preview/disposable dry-run，Phase 2B2.2 只完成稳定 BillNo identity、6087105 Active source 决定与 read-only validation。下一步是 fresh Preview，不是 real bootstrap。
+- Browser Order Center 到 PostgreSQL SalesOrder 的真实 bootstrap、read/write cutover 与 Browser store retirement 尚未落地；Phase 2B1 完成 server foundation，Phase 2B2/2B2.2 完成 historical Preview 与 BillNo/6087105 source contract，Phase 2B2.3 完成正式编号和 final fresh disposable dry-run。下一步只能是另行明确授权的 real bootstrap，不是 Browser cutover。
 - Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
 - 服务端全文搜索与业务列表分页尚未落地；migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。

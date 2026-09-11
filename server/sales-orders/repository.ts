@@ -1,5 +1,4 @@
 import type { Pool, PoolClient, QueryResult } from "pg";
-import { normalizeOrderNo } from "../../features/order-center/model/order.js";
 import type {
   AinuokeColorMirrorInput,
   AinuokeContractMirrorInput,
@@ -144,7 +143,6 @@ const READ_MODEL_SELECT = `
 export async function createSalesOrder(
   client: Queryable,
   input: {
-    orderNo: string;
     creationSource: SalesOrderCreationSource;
     lifecycleState?: SalesOrderLifecycleState;
     sourceOrderId?: string | null;
@@ -153,15 +151,13 @@ export async function createSalesOrder(
     sourcePriceVersionId?: string | null;
   },
 ): Promise<SalesOrderRecord> {
-  const orderNo = normalizeOrderNo(requiredText(input.orderNo, "orderNo"));
   const result = await client.query<SalesOrderRow>(
     `INSERT INTO sales_orders(
-       order_no, creation_source, lifecycle_state, source_order_id,
+       creation_source, lifecycle_state, source_order_id,
        source_quote_id, source_revision_id, source_price_version_id
-     ) VALUES ($1, $2, $3, $4::uuid, $5, $6, $7)
+     ) VALUES ($1, $2, $3::uuid, $4, $5, $6)
      RETURNING *`,
     [
-      orderNo,
       input.creationSource,
       input.lifecycleState ?? "draft",
       input.sourceOrderId ?? null,
