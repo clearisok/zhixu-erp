@@ -25,7 +25,9 @@
 - Gate B 已完成：`createAinuokeSalesOrder(pool, trustedIdentity, input)` 在 source-scoped transaction advisory lock 内执行 source binding 检查、SalesOrder/source link/current contract mirror/current color slice/OperationLog 写入；input 类型没有 actor，相同 source identity 幂等返回原 ID/version 且不重复写日志，任一步失败全部 rollback。
 - Gate B Read API：`GET /api/v1/sales-orders` 与 `GET /api/v1/sales-orders/:id` 复用 Trusted Session 和既有 `order.view`；返回 typed composed DTO，不暴露 DB row、source hash 或 source metadata。未登录 401、无权限 403、缺失记录 404。
 - Gate B 隔离验证：server build PASS；一次性 PG16 tmpfs PostgreSQL integration 12/12。新增覆盖 transactional create、duplicate source idempotency、rollback、trusted actor、list/detail、401/403/permitted read，以及两个不同 trusted sessions 读取相同 PostgreSQL SalesOrder ID/version。
-- 下一步：创建并 push Gate B checkpoint；随后 Gate C 更新正式文档并执行 PostgreSQL integration、full tests、typecheck、lint、server build、frontend production build 与 `git diff --check`。不得开始 Phase 2B2。
+- Gate B checkpoint：`9f633d206496f6165bec74d5ff331a37e354d65d`，已由用户人工 push 并验证本地/远端 SHA 一致。
+- Gate C 已将 Phase 2B1 标为 Server Foundation complete，并明确 Browser Order Center 仍未 cutover。最终门禁为 PostgreSQL integration 12/12、Full Tests 577/577、TypeScript、零警告 ESLint、server build、Production Build 30 routes 与 `git diff --check` 全部 PASS；frontend build 仅有既有 chunk-size advisory。
+- 下一步仅为经单独启动的 Phase 2B2 Bootstrap Preview / Dry Run：Discovery → detail reads → PostgreSQL bootstrap candidate projection → reconciliation → preview report。不得执行真实 bootstrap，不得自动进入 Phase 2B2。
 
 ### Previous completed PR #14 context
 

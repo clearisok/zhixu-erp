@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Phase 1 建立未来正式业务持久化所需的可信服务器边界：Node/TypeScript API、PostgreSQL 连接池、版本化 migration、可信 Auth/RBAC，以及服务器追加式 OperationLog。它没有创建 SalesOrder 或其他浏览器业务表，也没有迁移、双写或切换现有浏览器数据。
+Phase 1 建立未来正式业务持久化所需的可信服务器边界：Node/TypeScript API、PostgreSQL 连接池、版本化 migration、可信 Auth/RBAC，以及服务器追加式 OperationLog。Phase 2B1 在该边界内加入 PostgreSQL SalesOrder schema/repository/transactional service/read API foundation。Browser Order Center 仍使用既有 Browser Repository；没有迁移、双写或切换现有浏览器数据。
 
 ## Runtime architecture
 
@@ -23,7 +23,7 @@ Browser
 
 ## API contract
 
-Phase 1 endpoint：
+当前 endpoint：
 
 - `GET /api/v1/health`
 - `POST /api/v1/auth/login`
@@ -31,8 +31,21 @@ Phase 1 endpoint：
 - `GET /api/v1/auth/me`
 - `GET /api/v1/auth/permissions`
 - `GET /api/v1/operation-logs`（需要 `audit_log.view`）
+- `GET /api/v1/sales-orders`（需要 `order.view`）
+- `GET /api/v1/sales-orders/:id`（需要 `order.view`）
 
-错误统一返回 `{ error: { code, message, requestId } }`。Health 只有在 PostgreSQL `SELECT 1` 成功时返回 200/ready，数据库不可用时返回 503，不伪报健康。API 不接受 SQL、表名、数据库操作名、actor userId、role 或授权结果；未知 `/api/*` 路径返回结构化 404。
+错误统一返回 `{ error: { code, message, requestId } }`。Health 只有在 PostgreSQL `SELECT 1` 成功时返回 200/ready，数据库不可用时返回 503，不伪报健康。SalesOrder read API 对未登录、无 `order.view` 和不存在的 ID 分别返回 401、403、404；返回 typed composed DTO，不直接暴露数据库行、source hash、source metadata 或 raw payload。API 不接受 SQL、表名、数据库操作名、actor userId、role 或授权结果；未知 `/api/*` 路径返回结构化 404。
+
+## Phase 2B1 SalesOrder foundation
+
+- Forward-only migration `0002_sales_order_foundation.sql` 建立 `sales_orders`、`sales_order_source_links`、`ainuoke_sales_order_contract_mirrors`、`ainuoke_sales_order_color_mirrors`。
+- `sales_orders.id` 使用 PostgreSQL UUID，创建后是正式稳定 identity；`order_no` 按既有 NFKC/trim/uppercase 规则规范化并由数据库唯一约束保护。创建来源/creation provenance 不可变，`version` 从 1 开始且每次 owned aggregate update 必须精确递增 1。
+- `sales_order_source_links` 以 `(source_system, source_entity_type, external_id)` 唯一绑定 SalesOrder。数据库 trigger 拒绝改变 source identity 或 `sales_order_id`，refresh 不能静默换绑。
+- Ainuoke contract/color mirror 只保存当前已验证 typed source facts。合同 mirror 一单一行；color mirror 使用稳定 `source_line_identity` child 行。refresh 只 upsert/replace 这两个 source-owned slice，不更新 SalesOrder identity、creation provenance 或 version。
+- Repository 只使用参数化 SQL，提供 create/get-by-id/get-by-source/get-by-salesContractNo/list、source-link create/update、contract mirror upsert、color mirror replacement 与 optimistic lifecycle update。list 以 order number + UUID 形成稳定顺序。
+- `createAinuokeSalesOrder(pool, trustedIdentity, input)` 使用单 PostgreSQL transaction 和 source-scoped advisory lock：检查 binding；存在时幂等返回原 SalesOrder；不存在时依次创建 aggregate、source link、contract mirror、color slice 和 OperationLog，任何失败全部 rollback。
+- OperationLog actor 只能由独立 `TrustedIdentity` 参数注入；service input 没有 actor，附加同名字段不能覆盖正式 actor FK/public-ID/name snapshots。重复 source create 不重复写 OperationLog。
+- 该 internal service 当前只供集成测试和下一阶段 bootstrap orchestration 使用，不开放 POST/bootstrap/upsert/delete API。
 
 ## Identity and trusted session
 
@@ -92,11 +105,14 @@ docker compose --profile server-foundation up --build server
 
 `npm run test:postgres` 每次创建随机命名 `postgres:16-alpine` 容器，数据库目录使用 tmpfs，动态映射端口，并在结束时只删除该测试容器。测试绝不连接 `zhixu`、真实 DEV 或用户数据库。
 
-覆盖：empty/legacy-schema migration、rerun/order/checksum mismatch/failed rollback/advisory-lock concurrency、稳定用户 ID、valid/invalid/inactive login、expiry/logout/revocation、brute-force、raw token 不持久化/不进日志、RBAC granted/denied/spoof、OperationLog actor/append-only/stable ID/operationId，以及 health ready/unavailable。
+覆盖：empty/legacy-schema migration、rerun/order/checksum mismatch/failed rollback/advisory-lock concurrency、稳定用户 ID、valid/invalid/inactive login、expiry/logout/revocation、brute-force、raw token 不持久化/不进日志、RBAC granted/denied/spoof、OperationLog actor/append-only/stable ID/operationId，以及 health ready/unavailable。Phase 2B1 另覆盖 fresh SalesOrder migration、UUID/order-number/source/FK/version constraints、source mirror refresh、color replacement、transactional create/idempotency/rollback/trusted actor、read API 401/403/404/permitted read，以及两个 trusted sessions 读取相同 SalesOrder ID/version。
+
+Phase 2B1 final validation：PostgreSQL integration 12/12、Full Tests 577/577、TypeScript、零警告 ESLint、server build、frontend Production Build 30 routes 与 `git diff --check` PASS。frontend build 的 chunk-size advisory 不影响成功退出。
 
 ## Phase boundary and next step
 
-- Phase 1 没有 SalesOrder schema/API/cutover，没有浏览器数据导入、双写、Ainuoke server migration、附件/Blob、后台同步、Style Progress、Scheduling、Closing 或 Quote migration。
+- Phase 2B1 Server Foundation complete；这不等于正式订单已经上线。Browser Order Center 仍使用 Browser Repository，当前 PostgreSQL SalesOrder 只通过 server foundation/integration tests 验证。
+- 本阶段没有 live Ainuoke read/write、真实 505 bootstrap、Browser test-order migration、Repository cutover 或 dual write，也没有 Quote、Style Progress、Scheduling、Closing、附件/Blob migration。
 - legacy root ERP 是待退役兼容路径，不是新业务表设计、字段语义或 migration source。
-- 后续每个业务领域必须独立完成：schema + repository + service transaction + authorization + server OperationLog + backfill/dry-run/reconciliation + read cutover + write cutover + browser store retirement。不得长期保留未对账双写。
-- 下一阶段只能在用户单独批准后开始；本 Phase 1 不自动进入 SalesOrder Phase 2。
+- 后续每个业务领域仍必须独立完成 backfill/dry-run/reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
+- 下一阶段为 Phase 2B2 Bootstrap Preview / Dry Run：Ainuoke Discovery → detail reads → 生成 PostgreSQL bootstrap candidate projection → reconciliation → preview report。它仍不得执行真实正式 bootstrap；任何 live read、真实写入或 cutover 都需要单独边界与授权。
