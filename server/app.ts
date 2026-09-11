@@ -6,6 +6,7 @@ import { HttpError } from "./http/errors.js";
 import { assertMutationBoundary, readJsonBody } from "./http/request.js";
 import { requestId, sendError, sendJson } from "./http/responses.js";
 import { listOperationLogs } from "./operation-logs/repository.js";
+import { getSalesOrderById, listSalesOrders } from "./sales-orders/repository.js";
 import { serveStatic } from "./static-files.js";
 
 export type ServerLogger = {
@@ -102,6 +103,25 @@ async function route(
       throw new HttpError(400, "invalid_limit", "limit must be a positive integer");
     }
     sendJson(response, 200, { operationLogs: await listOperationLogs(dependencies.pool, limit) });
+    return;
+  }
+
+  if (request.method === "GET" && path === "/api/v1/sales-orders") {
+    const identity = await authenticate(dependencies.pool, request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    requirePermission(identity.permissions, "order.view");
+    sendJson(response, 200, { salesOrders: await listSalesOrders(dependencies.pool) });
+    return;
+  }
+
+  const salesOrderMatch = /^\/api\/v1\/sales-orders\/([^/]+)$/.exec(path);
+  if (request.method === "GET" && salesOrderMatch) {
+    const identity = await authenticate(dependencies.pool, request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    requirePermission(identity.permissions, "order.view");
+    const salesOrder = await getSalesOrderById(dependencies.pool, decodeURIComponent(salesOrderMatch[1]));
+    if (!salesOrder) throw new HttpError(404, "sales_order_not_found", "SalesOrder was not found");
+    sendJson(response, 200, { salesOrder });
     return;
   }
 

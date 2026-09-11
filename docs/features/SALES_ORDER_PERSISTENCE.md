@@ -1,11 +1,35 @@
-# SalesOrder Persistence Ownership Audit
+# SalesOrder PostgreSQL Persistence Foundation
 
 ## Status and scope
 
-- Phase: PostgreSQL Persistence Phase 2A audit completed by PR #14; Order Discovery foundation is the current follow-up Gate.
-- Baseline: `13620491cf56605cadf57c90c6cdf389f0919297` (PR #13 and PR #14 merged).
-- No PostgreSQL SalesOrder table/API was created, no Repository was switched, and no Browser DEV data was read or imported.
-- The boundary below is **Proposed / Needs Decision**, not an Active architecture decision and not authorization to begin Phase 2B.
+- Phase: PostgreSQL Phase 2B1 SalesOrder Server Foundation complete on `feat/postgres-salesorder-foundation`.
+- Baseline: `2349aedd6538e4d80382db14f8cfa4590fbe9c86` (`origin/main`, PR #13/#15/#16 merged).
+- Phase 2B1 implements PostgreSQL schema, parameterized repository, transactional Ainuoke-created SalesOrder service, typed read API and disposable PostgreSQL integration tests.
+- This is not a Browser Order Center cutover and not a real bootstrap. Browser runtime remains on its existing Repository; no Browser DEV data was read, imported, modified or deleted.
+- No live Ainuoke read/write or real 505 bootstrap occurred. Quote, Style Progress, Scheduling and Closing were not migrated or mutated.
+
+## Phase 2B1 implemented boundary
+
+### Migration and tables
+
+Forward-only migration `database/migrations/0002_sales_order_foundation.sql` adds exactly four domain tables:
+
+- `sales_orders`: stable PostgreSQL UUID identity, normalized unique `order_no`, immutable creation provenance, Zhixu-owned lifecycle state, optimistic `version`, `created_at` and `updated_at`.
+- `sales_order_source_links`: immutable `(source_system, source_entity_type, external_id) → sales_order_id` binding with current `sales_contract_no` and `inside_order_no` lookup facts. Database uniqueness and trigger protection prevent one source identity from binding two orders or refresh from silently moving a binding.
+- `ainuoke_sales_order_contract_mirrors`: one current typed contract source slice per SalesOrder, including verified identity, raw lifecycle status, contract/delivery dates, style, company/customer/brand snapshots, quantity, source hash/fetched-at and sanitized object metadata.
+- `ainuoke_sales_order_color_mirrors`: normalized current color children with stable source-line identity, color, source quantity, optional proven delivery date and sanitized metadata.
+
+`order_no` reuses the existing NFKC + trim + uppercase normalization before insert and has a database functional unique index/check. SalesOrder identity/creation provenance cannot be updated; an owned aggregate update must supply the expected version and increment it by exactly one. Source mirror refresh never updates that UUID, provenance or version.
+
+### Repository, transaction and read model
+
+- `server/sales-orders/repository.ts` provides create, get-by-ID, get-by-source-identity, get-by-sales-contract-number, deterministic list, source-link create/update, current contract mirror upsert, current color slice replacement and optimistic lifecycle update. All values use PostgreSQL parameters; there is no generic SQL API.
+- `createAinuokeSalesOrder(pool, trustedIdentity, input)` executes in one PostgreSQL transaction under a source-scoped advisory lock. It checks the source binding first; an existing binding returns the original SalesOrder ID/version without creating another aggregate or log. A new binding creates the SalesOrder, link, contract mirror, color slice and server OperationLog, then commits. Any failing step rolls everything back.
+- Actor is not part of `CreateAinuokeSalesOrderInput`; it is a separate `TrustedIdentity` argument. OperationLog derives actor FK/public-ID/name snapshots only from that trusted identity, so request/body/extra input fields cannot impersonate the actor.
+- `GET /api/v1/sales-orders` and `GET /api/v1/sales-orders/:id` require an existing trusted session plus `order.view`. They return a typed composed DTO of stable SalesOrder fields plus current Ainuoke projection; DB rows, raw source payload, source hash and source metadata are not exposed. Responses enforce 401 unauthenticated, 403 unauthorized and 404 missing detail.
+- Disposable PG16 integration tests prove transactional create, duplicate-source idempotency, rollback, trusted actor, list/detail reads and two different trusted sessions observing the same PostgreSQL SalesOrder UUID/version.
+
+Final Phase 2B1 validation: PostgreSQL integration 12/12, Full Tests 577/577, TypeScript, zero-warning ESLint, server build, frontend Production Build 30 routes and `git diff --check` all pass. The frontend build retains a non-failing chunk-size advisory.
 
 ## Confirmed implementation facts
 
@@ -87,33 +111,29 @@ An order has no verified Ainuoke source link and originates from `manual`, `quot
 - Style Progress/Material is outside the Order/Scheduling retirement scope and remains protected. Closing retirement status is Needs Decision.
 - Browser test-data deletion is not authorized. A separate Test Business Data Retirement Gate must first export a complete backup, audit dependencies, list precise delete/protect scopes, and obtain explicit destructive confirmation.
 
-## Recommended PostgreSQL boundary — Proposed / Needs Decision
+## PostgreSQL boundary after Phase 2B1
 
 Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate**, not a monolithic Ainuoke Mirror and not a byte-for-byte Browser JSON copy.
 
-- `sales_orders`: immutable UUID identity, unique normalized `order_no`, creation/workflow provenance, Zhixu-owned commercial/execution fields, timestamps and optimistic version.
-- `sales_order_source_links`: unique `(source_system, source_entity_type, external_id)` → `sales_order_id`, storing verified `sales_contract_no` and `inside_order_no` identities without using mutable style/customer fields as keys.
-- Ainuoke current mirror tables: contract header, color lines and proven source delivery facts with source identity/hash/fetched-at. Resync replaces only this source-owned slice.
-- Zhixu child tables: quantity/color adjustments, manual/voided delivery plans, price versions/current pointer, execution snapshots, attachment references and provenance. These are never overwritten by source refresh.
+- Phase 2B1 implements `sales_orders`, immutable `sales_order_source_links`, and Ainuoke current contract/color mirror tables with the source/owned separation above.
+- Quantity/color adjustments, manual/voided delivery plans, price versions/current pointer, execution snapshots, attachment references and full Quote/reorder provenance remain future Zhixu-owned gates. They were intentionally not added to `0002`.
 - Existing server OperationLog records mutations after successful domain transactions and references stable SalesOrder identity with business snapshots.
 - Scheduling, Closing, Style Progress, Quote and Blob storage remain separate domain cutovers. Phase 2B must not claim their browser stores are migrated merely because SalesOrder IDs are reserved.
 
-## Proposed Phase 2B gates
+## Phase progression
 
-1. **Decision/evidence gate:** approve the source/owned boundary and intended Ainuoke account visibility scope. Discovery protocol/source evidence and the all-visible-contracts/no-status-filter rule are now confirmed; Browser Backup classification is no longer a clean-bootstrap prerequisite.
-2. **Schema/repository gate:** add only SalesOrder/source-link/source-mirror/owned-child migrations, transactional service and API in disposable PostgreSQL; preserve stable IDs and reject broken pointers/owners.
-3. **Clean bootstrap dry run:** discover the approved current-account-visible scope, read details, create only new formal PostgreSQL identities/source links in disposable data, and report duplicates, omissions, raw status preservation and reconciliation outcomes. Do not import Browser Order/Scheduling records.
-4. **Owned-state/API gate:** define how formal manual/Quote/reorder orders and later Zhixu-owned facts are created transactionally, including immutable provenance and append-only OperationLog. Quote data remains in its protected current repository until its own cutover.
-5. **Two-profile read acceptance:** point Chrome Profiles A and B at the same Node/PostgreSQL instance with separate trusted sessions; assert the same SalesOrder stable ID/version/projection, verify a permitted Zhixu-owned mutation from A is visible to B after reread, verify unauthorized writes fail, and verify the server OperationLog actor. Browser SalesOrder localStorage must not be a read fallback during this test.
-6. **Cutover decision:** only after reconciliation and user approval decide whether to perform real bootstrap/read cutover. Write cutover and browser-store retirement require their own explicit Gate; no unbounded dual write.
+1. **Phase 2A evidence/decision:** complete. Source/owned boundary, clean-bootstrap direction and Discovery semantics are recorded; Browser Order/Scheduling test data is not a migration source.
+2. **Phase 2B1 Server Foundation:** complete. Migration/schema/repository/transactional create/read API are verified only in disposable PostgreSQL; there is no runtime cutover.
+3. **Phase 2B2 Bootstrap Preview / Dry Run:** next. Ainuoke Discovery → detail reads → bootstrap candidate projection → reconciliation → preview report. It must not execute a real formal bootstrap.
+4. **Later owned-state/API and cutover gates:** manual/Quote/reorder creation, remaining owned facts, real bootstrap/read/write cutover and Browser retirement each require their own decisions, reconciliation and authorization.
 
 ## Decisions requiring user confirmation
 
 1. Whether `current_account_visible` is the intended bootstrap scope or another approved account/organizational visibility proof is required.
 2. Raw Ainuoke snapshot/import-run retention duration versus retaining only current mirror plus hashes/reconciliation metadata; disappearance/tombstone review policy.
-3. Whether Phase 2B ends at schema/API/disposable dry-run or later includes a separately approved real bootstrap/read cutover.
+3. Whether a future phase proceeds beyond preview/dry-run to a separately approved real bootstrap/read cutover.
 4. Closing test-data retirement classification. Browser Order/Scheduling retirement also requires a later explicit destructive confirmation; it is not implied by this architecture direction.
 
 ## Readiness
 
-**READY FOR PHASE 2B CLEAN BOOTSTRAP SCHEMA/API DESIGN: YES.** The fixed discovery source is proven for `current_account_visible`, all discovered contracts participate without status filtering, and Browser Backup is no longer a bootstrap prerequisite. This is not permission to start Phase 2B or run a real bootstrap; visibility-scope/retention decisions and explicit Phase 2B approval remain required.
+**PHASE 2B1 SERVER FOUNDATION COMPLETE. READY FOR PHASE 2B2 BOOTSTRAP PREVIEW: YES.** This means the isolated schema/service/read boundary is ready to support a future preview/dry-run workflow. It is not permission to perform live Ainuoke reads, real bootstrap writes, Browser cutover or any other domain migration.

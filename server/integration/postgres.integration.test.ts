@@ -11,6 +11,18 @@ import type { TrustedIdentity } from "../auth/session.js";
 import { loadServerConfig } from "../config.js";
 import { runMigrations } from "../db/migration-runner.js";
 import { appendOperationLog, createServerOperationId } from "../operation-logs/repository.js";
+import {
+  createOrUpdateSourceLink,
+  createSalesOrder,
+  getSalesOrderById,
+  getSalesOrderBySalesContractNo,
+  getSalesOrderBySourceIdentity,
+  listSalesOrders,
+  replaceCurrentAinuokeColorSlice,
+  updateSalesOrderLifecycle,
+  upsertCurrentAinuokeContractMirror,
+} from "../sales-orders/repository.js";
+import { createAinuokeSalesOrder, type CreateAinuokeSalesOrderInput } from "../sales-orders/service.js";
 import { startDisposablePostgres } from "./postgres-container.js";
 
 const { Pool } = pg;
@@ -81,6 +93,36 @@ async function seedUser(
     username: input.username,
     userName: `Test ${input.username}`,
     permissions: input.permissions as TrustedIdentity["permissions"],
+  };
+}
+
+function ainuokeSalesOrderInput(
+  patch: Partial<CreateAinuokeSalesOrderInput> = {},
+): CreateAinuokeSalesOrderInput {
+  return {
+    orderNo: "SO-PG-001",
+    source: {
+      sourceId: "6086103-source-001",
+      sourceRowIdentity: "6086103:sha256:source-001",
+      salesContractNo: "SC-PG-001",
+      insideOrderNo: "D1935",
+      lifecycleStatusRaw: "生效",
+      contractDate: "2026-08-01",
+      contractDeliveryDate: "2026-10-01",
+      styleNo: "STYLE-PG-001",
+      companyNameSnapshot: "COMPANY-A",
+      customerNameSnapshot: "CUSTOMER-A",
+      brandNameSnapshot: "BRAND-A",
+      quantity: 100,
+      sourceHash: "contract-source-hash-001",
+      fetchedAt: "2026-09-11T03:00:00.000Z",
+      sourceMetadata: { reportId: "6086103", snapshotHash: "sanitized-snapshot" },
+    },
+    colors: [
+      { sourceLineIdentity: "6086997:red", colorName: "RED", quantity: 40, deliveryDate: null, sourceHash: "red-hash" },
+      { sourceLineIdentity: "6086997:blue", colorName: "BLUE", quantity: 60, deliveryDate: null, sourceHash: "blue-hash" },
+    ],
+    ...patch,
   };
 }
 
@@ -182,7 +224,10 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
       );
       const directory = resolve("database/migrations");
       const first = await runMigrations(pool, directory);
-      assert.deepEqual(first.applied, ["0001_trusted_auth_rbac_operation_logs.sql"]);
+      assert.deepEqual(first.applied, [
+        "0001_trusted_auth_rbac_operation_logs.sql",
+        "0002_sales_order_foundation.sql",
+      ]);
       const identity = await pool.query<{ public_id: string }>("SELECT public_id::text FROM app_users WHERE username = 'legacy-user'");
       assert.match(identity.rows[0].public_id, /^[0-9a-f-]{36}$/);
       const columns = await pool.query<{ column_name: string }>(
@@ -197,6 +242,343 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         () => pool.query("UPDATE app_users SET public_id = gen_random_uuid() WHERE username = 'legacy-user'"),
         /immutable/i,
       );
+    } finally {
+      await pool.end();
+    }
+  });
+
+  await t.test("SalesOrder migration and repository enforce stable identity, source ownership, and current mirrors", async () => {
+    const databaseUrl = await postgres.createDatabase("sales_order_repository");
+    const pool = new Pool({ connectionString: databaseUrl });
+    try {
+      const migration = await runMigrations(pool, resolve("database/migrations"));
+      assert.deepEqual(migration.applied, [
+        "0001_trusted_auth_rbac_operation_logs.sql",
+        "0002_sales_order_foundation.sql",
+      ]);
+      const tables = await pool.query<{ table_name: string }>(
+        `SELECT table_name FROM information_schema.tables
+         WHERE table_schema = 'public' AND table_name IN (
+           'sales_orders',
+           'sales_order_source_links',
+           'ainuoke_sales_order_contract_mirrors',
+           'ainuoke_sales_order_color_mirrors'
+         ) ORDER BY table_name`,
+      );
+      assert.deepEqual(tables.rows.map((row) => row.table_name), [
+        "ainuoke_sales_order_color_mirrors",
+        "ainuoke_sales_order_contract_mirrors",
+        "sales_order_source_links",
+        "sales_orders",
+      ]);
+
+      const second = await createSalesOrder(pool, {
+        orderNo: "  so-002  ",
+        creationSource: "ainuoke",
+      });
+      const first = await createSalesOrder(pool, {
+        orderNo: "SO-001",
+        creationSource: "manual",
+      });
+      assert.match(second.id, /^[0-9a-f-]{36}$/);
+      assert.equal(second.orderNo, "SO-002");
+      assert.equal(second.version, 1);
+      assert.deepEqual((await listSalesOrders(pool)).map((order) => order.orderNo), ["SO-001", "SO-002"]);
+      await assert.rejects(
+        () => createSalesOrder(pool, { orderNo: "so-002", creationSource: "manual" }),
+        (error: unknown) => (error as { code?: string }).code === "23505",
+      );
+      await assert.rejects(
+        () => pool.query("INSERT INTO sales_orders(order_no, creation_source) VALUES ('lowercase', 'manual')"),
+        (error: unknown) => (error as { code?: string }).code === "23514",
+      );
+
+      await createOrUpdateSourceLink(pool, {
+        salesOrderId: second.id,
+        sourceSystem: "ainuoke",
+        sourceEntityType: "sales_contract",
+        externalId: "source-6086103-1",
+        salesContractNo: "sc-api-001",
+        insideOrderNo: "D1935",
+      });
+      await assert.rejects(
+        () => createOrUpdateSourceLink(pool, {
+          salesOrderId: first.id,
+          sourceSystem: "ainuoke",
+          sourceEntityType: "sales_contract",
+          externalId: "source-6086103-1",
+          salesContractNo: "SC-API-001",
+          insideOrderNo: "D1935",
+        }),
+        /already bound/i,
+      );
+      await assert.rejects(
+        () => createOrUpdateSourceLink(pool, {
+          salesOrderId: "00000000-0000-0000-0000-000000000000",
+          sourceSystem: "ainuoke",
+          sourceEntityType: "sales_contract",
+          externalId: "broken-owner",
+        }),
+        (error: unknown) => (error as { code?: string }).code === "23503",
+      );
+      await assert.rejects(
+        () => pool.query(
+          "UPDATE sales_order_source_links SET sales_order_id = $1::uuid WHERE external_id = 'source-6086103-1'",
+          [first.id],
+        ),
+        /binding is immutable/i,
+      );
+
+      const mirror = {
+        sourceId: "source-6086103-1",
+        sourceRowIdentity: "6086103:sha256:contract-redacted",
+        salesContractNo: "SC-API-001",
+        insideOrderNo: "D1935",
+        lifecycleStatusRaw: "生效",
+        contractDate: "2026-08-01",
+        contractDeliveryDate: "2026-10-01",
+        styleNo: "STYLE-100",
+        companyNameSnapshot: "COMPANY-A",
+        customerNameSnapshot: "CUSTOMER-A",
+        brandNameSnapshot: "BRAND-A",
+        quantity: 100,
+        sourceHash: "contract-hash-v1",
+        fetchedAt: "2026-09-11T01:00:00.000Z",
+        sourceMetadata: { reportId: "6086103" },
+      };
+      await upsertCurrentAinuokeContractMirror(pool, second.id, mirror);
+      await replaceCurrentAinuokeColorSlice(pool, second.id, [
+        { sourceLineIdentity: "color-red", colorName: "RED", quantity: 40, deliveryDate: null, sourceHash: "red-v1" },
+        { sourceLineIdentity: "color-blue", colorName: "BLUE", quantity: 60, deliveryDate: "2026-10-01", sourceHash: "blue-v1" },
+      ]);
+      const bySource = await getSalesOrderBySourceIdentity(pool, "ainuoke", "sales_contract", "source-6086103-1");
+      const byContract = await getSalesOrderBySalesContractNo(pool, "sc-api-001");
+      assert.equal(bySource?.id, second.id);
+      assert.equal(byContract?.id, second.id);
+      assert.equal(byContract?.quantity, 100);
+
+      await upsertCurrentAinuokeContractMirror(pool, second.id, {
+        ...mirror,
+        lifecycleStatusRaw: "草拟",
+        quantity: 120,
+        sourceHash: "contract-hash-v2",
+        fetchedAt: "2026-09-11T02:00:00.000Z",
+      });
+      await replaceCurrentAinuokeColorSlice(pool, second.id, [
+        { sourceLineIdentity: "color-green", colorName: "GREEN", quantity: 120, deliveryDate: null, sourceHash: "green-v2" },
+      ]);
+      const refreshed = await getSalesOrderById(pool, second.id);
+      assert.equal(refreshed?.id, second.id);
+      assert.equal(refreshed?.version, 1);
+      assert.equal(refreshed?.quantity, 120);
+      assert.equal(refreshed?.sourceLifecycleStatus, "草拟");
+      assert.deepEqual(refreshed?.colors.map((color) => color.colorName), ["GREEN"]);
+
+      const updated = await updateSalesOrderLifecycle(pool, {
+        id: second.id,
+        expectedVersion: 1,
+        lifecycleState: "active",
+      });
+      assert.equal(updated?.id, second.id);
+      assert.equal(updated?.version, 2);
+      assert.equal(updated?.lifecycleState, "active");
+      assert.equal((await updateSalesOrderLifecycle(pool, {
+        id: second.id,
+        expectedVersion: 1,
+        lifecycleState: "completed",
+      })), null);
+      await assert.rejects(
+        () => pool.query("UPDATE sales_orders SET lifecycle_state = 'completed' WHERE id = $1::uuid", [second.id]),
+        /version must increment/i,
+      );
+      assert.equal((await getSalesOrderById(pool, second.id))?.id, second.id);
+    } finally {
+      await pool.end();
+    }
+  });
+
+  await t.test("createAinuokeSalesOrder is atomic, idempotent, and records only the trusted actor", async () => {
+    const databaseUrl = await postgres.createDatabase("sales_order_service");
+    const pool = new Pool({ connectionString: databaseUrl });
+    try {
+      await runMigrations(pool, resolve("database/migrations"));
+      await synchronizePermissionCatalog(pool);
+      const trustedActor = await seedUser(pool, {
+        username: "trusted-order-actor",
+        password: "test-trusted-order-password",
+        permissions: ["order.view"],
+      });
+      const spoofedActor = await seedUser(pool, {
+        username: "spoofed-order-actor",
+        password: "test-spoofed-order-password",
+        permissions: ["order.view"],
+      });
+      const inputWithIgnoredActor = {
+        ...ainuokeSalesOrderInput(),
+        actor: spoofedActor,
+      };
+      const created = await createAinuokeSalesOrder(pool, trustedActor, inputWithIgnoredActor);
+      assert.equal(created.created, true);
+      assert.match(created.salesOrder.id, /^[0-9a-f-]{36}$/);
+      assert.equal(created.salesOrder.version, 1);
+      assert.equal(created.salesOrder.orderNo, "SO-PG-001");
+      assert.equal(created.salesOrder.creationSource, "ainuoke");
+      assert.equal(created.salesOrder.salesContractNo, "SC-PG-001");
+      assert.deepEqual(created.salesOrder.colors.map((color) => color.colorName), ["BLUE", "RED"]);
+
+      const duplicate = await createAinuokeSalesOrder(pool, trustedActor, {
+        ...ainuokeSalesOrderInput(),
+        orderNo: "SO-PG-DUPLICATE-MUST-NOT-BE-CREATED",
+      });
+      assert.equal(duplicate.created, false);
+      assert.equal(duplicate.salesOrder.id, created.salesOrder.id);
+      assert.equal(duplicate.salesOrder.version, created.salesOrder.version);
+      assert.equal((await pool.query<{ count: number }>("SELECT count(*)::int AS count FROM sales_orders")).rows[0].count, 1);
+      assert.equal((await pool.query<{ count: number }>("SELECT count(*)::int AS count FROM operation_logs")).rows[0].count, 1);
+
+      const operationLog = await pool.query<{
+        actor_public_id: string;
+        actor_name: string;
+        entity_type: string;
+        entity_id: string;
+        metadata: Record<string, unknown>;
+      }>(
+        "SELECT actor_public_id::text, actor_name, entity_type, entity_id, metadata FROM operation_logs",
+      );
+      assert.deepEqual(operationLog.rows[0], {
+        actor_public_id: trustedActor.userId,
+        actor_name: trustedActor.userName,
+        entity_type: "SalesOrder",
+        entity_id: created.salesOrder.id,
+        metadata: {
+          sourceSystem: "ainuoke",
+          sourceEntityType: "sales_contract",
+          sourceId: "6086103-source-001",
+        },
+      });
+      assert.notEqual(operationLog.rows[0].actor_public_id, spoofedActor.userId);
+
+      const brokenInput = ainuokeSalesOrderInput({
+        orderNo: "SO-PG-ROLLBACK",
+        source: {
+          ...ainuokeSalesOrderInput().source,
+          sourceId: "6086103-source-rollback",
+          sourceRowIdentity: "6086103:sha256:source-rollback",
+          salesContractNo: "SC-PG-ROLLBACK",
+          insideOrderNo: "D-ROLLBACK",
+          sourceHash: "rollback-contract-hash",
+        },
+        colors: [{
+          sourceLineIdentity: "6086997:invalid-negative",
+          colorName: "INVALID",
+          quantity: -1,
+          deliveryDate: null,
+          sourceHash: "invalid-color-hash",
+        }],
+      });
+      await assert.rejects(
+        () => createAinuokeSalesOrder(pool, trustedActor, brokenInput),
+        (error: unknown) => (error as { code?: string }).code === "23514",
+      );
+      assert.equal((await pool.query<{ count: number }>(
+        "SELECT count(*)::int AS count FROM sales_orders WHERE order_no = 'SO-PG-ROLLBACK'",
+      )).rows[0].count, 0);
+      assert.equal((await pool.query<{ count: number }>(
+        "SELECT count(*)::int AS count FROM sales_order_source_links WHERE external_id = '6086103-source-rollback'",
+      )).rows[0].count, 0);
+      assert.equal((await pool.query<{ count: number }>(
+        "SELECT count(*)::int AS count FROM ainuoke_sales_order_contract_mirrors WHERE sales_contract_no = 'SC-PG-ROLLBACK'",
+      )).rows[0].count, 0);
+      assert.equal((await pool.query<{ count: number }>("SELECT count(*)::int AS count FROM operation_logs")).rows[0].count, 1);
+    } finally {
+      await pool.end();
+    }
+  });
+
+  await t.test("SalesOrder read API enforces session RBAC and shares one PostgreSQL identity across sessions", async () => {
+    const databaseUrl = await postgres.createDatabase("sales_order_read_api");
+    const pool = new Pool({ connectionString: databaseUrl });
+    try {
+      await runMigrations(pool, resolve("database/migrations"));
+      await synchronizePermissionCatalog(pool);
+      const firstReader = await seedUser(pool, {
+        username: "order-reader-a",
+        password: "test-order-reader-a",
+        permissions: ["order.view"],
+      });
+      await seedUser(pool, {
+        username: "order-reader-b",
+        password: "test-order-reader-b",
+        permissions: ["order.view"],
+      });
+      await seedUser(pool, {
+        username: "order-read-denied",
+        password: "test-order-read-denied",
+        permissions: ["quote.view"],
+      });
+      const created = await createAinuokeSalesOrder(pool, firstReader, ainuokeSalesOrderInput());
+      const api = await startApi(pool);
+      try {
+        const anonymousList = await fetch(`${api.baseUrl}/api/v1/sales-orders`);
+        assert.equal(anonymousList.status, 401);
+        assert.equal(((await anonymousList.json()) as { error: { code: string } }).error.code, "authentication_required");
+
+        const deniedLogin = await loginRequest(api.baseUrl, "order-read-denied", "test-order-read-denied");
+        const deniedToken = deniedLogin.headers.get("set-cookie")?.match(/zhixu_v1_session=([^;]+)/)?.[1] ?? "";
+        assert.equal((await fetch(`${api.baseUrl}/api/v1/sales-orders`, {
+          headers: { Cookie: `zhixu_v1_session=${deniedToken}` },
+        })).status, 403);
+        assert.equal((await fetch(`${api.baseUrl}/api/v1/sales-orders/${created.salesOrder.id}`, {
+          headers: { Cookie: `zhixu_v1_session=${deniedToken}` },
+        })).status, 403);
+
+        const loginA = await loginRequest(api.baseUrl, "order-reader-a", "test-order-reader-a");
+        const loginB = await loginRequest(api.baseUrl, "order-reader-b", "test-order-reader-b");
+        const tokenA = loginA.headers.get("set-cookie")?.match(/zhixu_v1_session=([^;]+)/)?.[1] ?? "";
+        const tokenB = loginB.headers.get("set-cookie")?.match(/zhixu_v1_session=([^;]+)/)?.[1] ?? "";
+        const listResponse = await fetch(`${api.baseUrl}/api/v1/sales-orders`, {
+          headers: { Cookie: `zhixu_v1_session=${tokenA}` },
+        });
+        assert.equal(listResponse.status, 200);
+        const listPayload = await listResponse.json() as { salesOrders: Array<Record<string, unknown>> };
+        assert.equal(listPayload.salesOrders.length, 1);
+        assert.equal(listPayload.salesOrders[0].id, created.salesOrder.id);
+        assert.equal(listPayload.salesOrders[0].version, 1);
+        assert.equal("sourceHash" in listPayload.salesOrders[0], false);
+        assert.equal("sourceMetadata" in listPayload.salesOrders[0], false);
+
+        const [detailAResponse, detailBResponse] = await Promise.all([
+          fetch(`${api.baseUrl}/api/v1/sales-orders/${created.salesOrder.id}`, {
+            headers: { Cookie: `zhixu_v1_session=${tokenA}` },
+          }),
+          fetch(`${api.baseUrl}/api/v1/sales-orders/${created.salesOrder.id}`, {
+            headers: { Cookie: `zhixu_v1_session=${tokenB}` },
+          }),
+        ]);
+        assert.equal(detailAResponse.status, 200);
+        assert.equal(detailBResponse.status, 200);
+        const detailA = (await detailAResponse.json()) as { salesOrder: Record<string, unknown> };
+        const detailB = (await detailBResponse.json()) as { salesOrder: Record<string, unknown> };
+        assert.equal(detailA.salesOrder.id, detailB.salesOrder.id);
+        assert.equal(detailA.salesOrder.version, detailB.salesOrder.version);
+        assert.equal(detailA.salesOrder.id, created.salesOrder.id);
+        assert.equal(detailA.salesOrder.version, 1);
+        assert.equal("sourceHash" in detailA.salesOrder, false);
+        assert.equal("sourceMetadata" in detailA.salesOrder, false);
+        assert.deepEqual(
+          (detailA.salesOrder.colors as Array<{ colorName: string }>).map((color) => color.colorName),
+          ["BLUE", "RED"],
+        );
+
+        assert.equal((await fetch(`${api.baseUrl}/api/v1/sales-orders/not-a-uuid`, {
+          headers: { Cookie: `zhixu_v1_session=${tokenA}` },
+        })).status, 404);
+        assert.equal((await fetch(`${api.baseUrl}/api/v1/sales-orders/00000000-0000-0000-0000-000000000000`, {
+          headers: { Cookie: `zhixu_v1_session=${tokenA}` },
+        })).status, 404);
+      } finally {
+        await api.close();
+      }
     } finally {
       await pool.end();
     }

@@ -18,6 +18,16 @@
 
 ## Active
 
+### D-077 PostgreSQL SalesOrder 采用稳定 aggregate + immutable source binding + current source mirrors
+
+- 日期：2026-09-11
+- 状态：Active；落实 D-076 的逐领域 server persistence 与 clean-bootstrap 方向，但不授权真实 bootstrap 或 Browser cutover。
+- 决定：Phase 2B1 使用 PostgreSQL UUID 作为正式 SalesOrder identity；`sales_orders` 保存规范化唯一 `order_no`、不可变 creation provenance、Zhixu lifecycle 和 optimistic version。Ainuoke source identity 通过 `sales_order_source_links` 唯一且不可换绑；当前合同头与分色事实存入独立 typed mirror tables，refresh 只替换 source-owned slice，不覆盖 aggregate identity/provenance/version。
+- 事务/审计：`createAinuokeSalesOrder` 在 source-scoped advisory lock 和单 PostgreSQL transaction 中完成 aggregate/link/current mirrors/server OperationLog。重复 source identity 幂等返回既有 ID/version；任一步失败整体 rollback。OperationLog actor 只能由 TrustedIdentity 注入，不能从业务 input 或 request body 接受。
+- API/边界：本阶段只开放带 Trusted Session + `order.view` 的 list/detail GET，返回 composed DTO。Browser Order Center 仍使用 Browser Repository；没有 live Ainuoke read/write、真实 505 bootstrap、Browser migration/dual-write/cutover，也没有 Quote、Style Progress、Scheduling 或 Closing migration。
+- 下一步：Phase 2B2 只构建 Discovery/detail-read → bootstrap candidate → reconciliation → preview report，不执行真实正式 bootstrap。真实写入、cutover 与 Browser retirement 均需后续独立 Gate。
+- 证据：`database/migrations/0002_sales_order_foundation.sql`、`server/sales-orders/`、`server/app.ts`、`server/integration/postgres.integration.test.ts` 与 `docs/features/SALES_ORDER_PERSISTENCE.md`。
+
 ### D-076 正式持久化采用 Node/TypeScript API、可信 RBAC 与逐领域切换
 
 - 日期：2026-09-10

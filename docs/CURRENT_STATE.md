@@ -1,11 +1,11 @@
 # 当前状态
 
-> 状态快照：2026-09-10。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-11。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
-- 当前 Active Task 为 `perf/style-progress-loading`，起点为 `d2194b8518ab0a83520f3e841e8d4350b946b3f2`。本任务只优化 Style Progress 加载与 Projection CPU；不改变业务语义，不迁 PostgreSQL，不改 UI 设计，不触碰 Quote Center、Ainuoke Bridge 或真实 Browser 数据，不开始 Phase 2B。
-- 当前稳定基线：`main` / `origin/main` 为 `d2194b8518ab0a83520f3e841e8d4350b946b3f2`（PR #15 Ainuoke Order Discovery Foundation 已 merged）。
+- 当前 Active Task 为 `feat/postgres-salesorder-foundation`，起点为 `2349aedd6538e4d80382db14f8cfa4590fbe9c86`。Phase 2B1 Server Foundation 已完成实现，正在进行最终文档/门禁/PR 收口；它不是正式订单上线或 Browser cutover。
+- 当前稳定基线：`main` / `origin/main` 为 `2349aedd6538e4d80382db14f8cfa4590fbe9c86`（PR #13、#15、#16 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -15,12 +15,25 @@
 ## 当前可运行边界
 
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
-- Phase 1 Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。legacy 3000 runtime 暂时保留。
+- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。Phase 2B1 已加入 PostgreSQL SalesOrder read foundation；legacy 3000 runtime 暂时保留。
 - Quote Center、新订单中心、生产排单、款式进度、关账中心和相关设置仍使用浏览器 Repository；尚不是服务端多用户生产实现。
 - DEV 固定使用 `127.0.0.1:3001`，PROD Docker 固定使用 `127.0.0.1:3000`，两者依靠 Origin 隔离数据。
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### PostgreSQL Phase 2B1 — SalesOrder Server Foundation
+
+- Forward-only migration `0002_sales_order_foundation.sql` 新增 `sales_orders`、`sales_order_source_links`、`ainuoke_sales_order_contract_mirrors`、`ainuoke_sales_order_color_mirrors`。没有修改 legacy `orders`/`api_dispatch` 或任何 Browser schema/key。
+- `sales_orders` 使用 PostgreSQL UUID 正式 identity、规范化唯一 `order_no`、不可变 creation provenance、独立 Zhixu lifecycle 与 optimistic `version`。source refresh 不改变 identity/provenance/version。
+- source link 的 `(source_system, source_entity_type, external_id)` 由数据库唯一约束保护，binding identity 与 `sales_order_id` 不可更新；Ainuoke contract/color 作为独立 current source mirror 保存 typed facts，颜色 refresh 替换 source-owned slice。
+- PostgreSQL repository 使用参数化 SQL，提供 create/get/list/source lookup/mirror refresh/optimistic update。列表使用 order number + UUID 稳定排序，读取为 composed typed projection而不是 DB row/raw payload。
+- `createAinuokeSalesOrder` 使用单 transaction + source-scoped advisory lock。重复 source identity 幂等返回既有 SalesOrder ID/version，不创建第二单或第二条日志；首次创建把 aggregate/link/contract mirror/color slice/trusted OperationLog 一次提交，任一步失败全部 rollback。
+- actor 来自独立 `TrustedIdentity`，不在 service input/request body 中；server OperationLog 保存可信 actor FK/public ID/name snapshot。
+- 新增只读 `GET /api/v1/sales-orders` 与 `GET /api/v1/sales-orders/:id`，复用现有 `order.view` 和 Trusted Session，分别覆盖 401/403/404/permitted read；两个不同 trusted sessions 从同一 PostgreSQL 读取相同 SalesOrder UUID/version。
+- Browser Order Center 仍使用既有 Browser Repository。Phase 2B1 没有 live Ainuoke read/write、真实 505 bootstrap、Browser test-order migration/cutover/dual-write，也没有 Quote、Style Progress、Scheduling、Closing migration 或 mutation。
+- 下一阶段是 Phase 2B2 Bootstrap Preview / Dry Run：Discovery → detail reads → PostgreSQL bootstrap candidate projection → reconciliation → preview report。它仍不得执行真实正式 bootstrap。
+- Phase 2B1 最终门禁：PostgreSQL integration 12/12、Full Tests 577/577、TypeScript、零警告 ESLint、server build、Production Build 30 routes 与 `git diff --check` 全部 PASS。frontend build 仍报告既有 chunk-size advisory，不影响成功退出。
 
 ### Style Progress Performance Pass
 
@@ -42,7 +55,7 @@
 - 当前 Browser Order Center / Scheduling 是测试数据，不作为正式 PostgreSQL migration source 或 bootstrap authority；历史 464 不是迁移清单。Quote Center 是真实业务数据并必须保护，Style Progress/Material 不在 retirement 范围，Closing retirement 状态待决定。
 - 旧 Browser Order/Scheduling 删除未获授权。未来必须另立 Test Business Data Retirement Gate，先完整 backup、dependency audit、精确 delete/protect scope，再取得 explicit destructive confirmation。
 - 本 Gate 自动门禁：Discovery 专项 6/6、Full Tests 571/571、Python Bridge 34/34、TypeScript、零警告 ESLint、Production Build 30 routes、secret scan 与 `git diff --check` 全部 PASS。
-- 详细协议与证据见 `docs/features/AINUOKE_ORDER_DISCOVERY.md`。Phase 2B 未开始。
+- 详细协议与证据见 `docs/features/AINUOKE_ORDER_DISCOVERY.md`。该 Discovery Gate 本身没有执行 bootstrap；后续 Phase 2B1 只完成了隔离 server foundation，仍未执行任何真实 bootstrap。
 
 ### PostgreSQL Server Persistence Migration — Phase 1
 
@@ -175,9 +188,10 @@
 
 ## 尚未落地
 
-- Quote、Order、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限。
+- Browser Order Center 到 PostgreSQL SalesOrder 的 bootstrap、reconciliation、read/write cutover 与 Browser store retirement 尚未落地；Phase 2B1 只完成 server foundation。
+- Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
-- 服务端全文搜索与业务列表分页尚未落地；Phase 1 已提供 forward-only migration 和 append-only server OperationLog，但没有自动 down，业务领域的事务内日志仍需随各领域 cutover 接入。
+- 服务端全文搜索与业务列表分页尚未落地；migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。
 - True Mobile 的真实 coarse-pointer 设备级复验；当前自动回归验证的是指定 CSS viewport。
 
 ## 当前数据保护原则
