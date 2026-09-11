@@ -11,21 +11,19 @@
 
 ## Current Stable Main
 
-`13620491cf56605cadf57c90c6cdf389f0919297`（PR #13 PostgreSQL Server Foundation 与 PR #14 SalesOrder Persistence Ownership Audit 已 merged）
+`d2194b8518ab0a83520f3e841e8d4350b946b3f2`（PR #15 Ainuoke Order Discovery Foundation 已 merged）
 
 ## Current Active Task
 
-- Branch: `chore/ainuoke-order-discovery`
-- Baseline: `13620491cf56605cadf57c90c6cdf389f0919297`
-- Scope: Ainuoke Order Discovery Gate，只做固定只读 clean-bootstrap discovery foundation；不创建 PostgreSQL SalesOrder、不执行 bootstrap、不切换 Repository、不触碰 Browser 数据、不开始 Phase 2B。
-- Stage A PASS：真实“成衣销售合同”页面使用固定 6086103 空条件请求。当前绑定账号两次完整遍历均为 505 行/11 页，source ID、InsideOrderNo、SalesContractNo 各 505 unique，重复页 0，normalized hash 均为 `37d8e7860e3157cb3022657a4b4ce2223a53876383aec701c685431a5945b744`。
-- Observed snapshot: total 505，`生效=143`、`草拟=362`。全部 Discovery-visible 合同均是 future clean-bootstrap candidate，Status 不作 inclusion filter，只保留为 source fact；505 不是固定常量，未来以当次完整 Snapshot 为准。D1935 + 5 个脱敏样本均通过 6086103/6086997 cross-check。visibility 仍只能声称 `current_account_visible`，不能声称 company-wide。
-- Stage B 增加 fixed `order_discovery` allowlist、精确空 DTO/request、deterministic full pagination、minimal Discovery Row/Snapshot 与 SHA-256；它没有 SalesOrder/业务 Repository/PostgreSQL mutation。
-- Detailed evidence: `docs/features/AINUOKE_ORDER_DISCOVERY.md`。Phase 2A ownership history and updated clean-bootstrap boundary: `docs/features/SALES_ORDER_PERSISTENCE.md`。
-- Current migration direction: Browser Order Center / Scheduling 是测试数据，不作为正式迁移源；Quote Center 是真实业务数据并必须保护；Style Progress/Material out of scope/preserve；Closing retirement status 未决定。
-- Browser test data retirement is not authorized. Future cleanup requires an independent Gate, complete backup, dependency audit, exact delete/protect scope, and explicit destructive confirmation.
-- Verification: Discovery 6/6、Full Tests 571/571、Python Bridge 34/34、typecheck、zero-warning lint、30-route build、secret scan、diff-check PASS。
-- READY FOR PHASE 2B CLEAN BOOTSTRAP SCHEMA/API DESIGN: YES；但 Phase 2B 尚未获准，本任务没有开始。真实 bootstrap/read cutover 仍为 NO。
+- Branch: `perf/style-progress-loading`
+- Baseline: `d2194b8518ab0a83520f3e841e8d4350b946b3f2`
+- Scope: 只优化 Style Progress 首次加载与 Projection CPU；不改变业务语义，不迁 PostgreSQL，不改 Quote Center/Ainuoke Bridge，不读写真实 Browser 数据，不开始 Phase 2B。
+- Measurement harness 使用 Node 进程内隔离 fake IndexedDB 与 deterministic synthetic dataset，覆盖 1k/5k/10k/20k Demands、四类 Event、Expected Arrival Batch、多合同和 active/cancelled Scheduling；不会连接 DEV/PROD Browser namespace。
+- Before median/单次基线（ms，1k/5k/10k/20k）：`loadAll=152.9/1486.0/3007.1/7765.8`；`buildStyleProgressProjections=38.5/1079.0/3866.5/14203.2`；完整 `loadProgress=208.5/2273.2/6400.0/13511.8`；DataTable SSR 首次 render=`16.6/159.2/224.0/201.0`。
+- 已确认首要热点：Projection 对全部 `expectedArrivalBatches` 按 Demand 和 Canonical Material 重复扫描；每合同重复过滤全部 `scheduleAssignments`。Repository 还读取列表不需要的 Raw/Import Trace，且 v4 validation 在 allocation 校验后按 Demand ID 线性回查。
+- Projection 已建立 Demand → Expected Arrival Batch、SalesOrder → active assignments 索引，并预计算 Canonical 排序事实/复用合同 fallback；列表/风险/订单摘要读取不含 Raw/Import Trace 的轻量 read model，详情/Import/Backup/Migration 继续使用完整 `loadAll()`。IndexedDB version/store/index 未改变。
+- After（ms，1k/5k/10k/20k）：`loadAll=49.3/201.0/438.5/895.5`；`buildStyleProgressProjections=25.6/89.3/175.2/358.0`；完整 `loadProgress=54.1/263.7/560.0/1097.3`；DataTable SSR=`13.6/66.4/123.6/167.5`。10k Projection 为 22.07× / 95.5% reduction，20k 为 39.68× / 97.5%；20k 完整 loader 为 12.31× / 91.9%。
+- Projection equivalence：优化前完整 fixture JSON hash `03b44ea3c898f353c8fca75b8a33341bf586667dcd2e78d05ea53c05a0ba51cc` 保持一致；轻量/full read model 输出 deep-equal。最终门禁为专项 50/50、Full Tests 577/577、TypeScript、零警告 ESLint、Production Build 30 routes 与 `git diff --check` PASS。
 
 ### Previous completed PR #14 context
 

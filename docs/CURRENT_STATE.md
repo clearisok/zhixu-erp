@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `chore/ainuoke-order-discovery`，起点为 `13620491cf56605cadf57c90c6cdf389f0919297`。本 Gate 只建立 clean PostgreSQL bootstrap 所需的固定只读 Ainuoke Order Discovery；不创建 PostgreSQL SalesOrder、不执行 bootstrap、不切换 Repository、不触碰 Browser 业务数据、不开始 Phase 2B。
-- 当前稳定基线：`main` / `origin/main` 为 `13620491cf56605cadf57c90c6cdf389f0919297`（PR #13 PostgreSQL Server Foundation 与 PR #14 SalesOrder Persistence Ownership Audit 均已 merged）。
+- 当前 Active Task 为 `perf/style-progress-loading`，起点为 `d2194b8518ab0a83520f3e841e8d4350b946b3f2`。本任务只优化 Style Progress 加载与 Projection CPU；不改变业务语义，不迁 PostgreSQL，不改 UI 设计，不触碰 Quote Center、Ainuoke Bridge 或真实 Browser 数据，不开始 Phase 2B。
+- 当前稳定基线：`main` / `origin/main` 为 `d2194b8518ab0a83520f3e841e8d4350b946b3f2`（PR #15 Ainuoke Order Discovery Foundation 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -21,6 +21,15 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### Style Progress Performance Pass
+
+- 确定性 1k/5k/10k/20k Demand profiling 已覆盖真实 `styleProgressRepository.loadAll()`、`buildStyleProgressProjections()`、完整 `loadStyleProgress()` 和 DataTable SSR。使用 Node 进程内隔离 fake IndexedDB，不读取或写入 DEV/PROD Browser 数据。
+- 根因一：Expected Arrival Batch 在每 Demand 和每 Canonical Material 层重复全表扫描；现已建立 Demand 索引并保持原始 Batch 顺序、Allocation 过滤与唯一物流 Service。10k Projection 由 3,866.5ms 降至 175.2ms（22.07× / 95.5%），20k 由 14,203.2ms 降至 358.0ms（39.68× / 97.5%）。
+- 根因二：每合同重复扫描全部 ScheduleAssignment；现已一次建立 active assignments by SalesOrder Map，并继续按原规则选最早 plannedStartDate。tracking Map 保持不变。
+- 根因三：列表加载读取并多次 clone/validate 不参与 Projection 的 Raw Snapshot 与 ImportBatch Trace，Allocation 校验还逐 Demand 线性回查；现有轻量 Projection read model 跳过 Trace store，详情/Import/Backup/Migration 继续使用 `loadAll()`，validator 改用 Demand Map。20k 完整首次 loader 由 13,511.8ms 降至 1,097.3ms（12.31× / 91.9%）。
+- 优化前后 20-Demand 完整 Projection JSON 稳定 hash 一致，轻量/full read model 的业务 Projection deep-equal；manual Expected Arrival、Canonical sorting、空数据和两类索引均有专项回归。IndexedDB version/store/index 未改变，未引入 pagination、virtualization 或 Worker。
+- 完整 benchmark 表和长期边界见 `docs/features/STYLE_PROGRESS.md`。最终门禁：专项 50/50、Full Tests 577/577、TypeScript、零警告 ESLint、Production Build 30 routes 与 `git diff --check` PASS。
 
 ### Ainuoke Order Discovery Gate
 

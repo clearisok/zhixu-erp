@@ -126,26 +126,36 @@ export type StyleProgressProjection = {
   keyExceptions: string[];
 };
 
-const canonicalSourceSortNo = (item: CanonicalMaterialProgressProjection): number => Math.min(...item.demands.map((entry) => entry.demand.sourceSortNo));
+const canonicalSourceSortNo = (item: CanonicalMaterialProgressProjection): number => item.demands.reduce(
+  (minimum, entry) => Math.min(minimum, entry.demand.sourceSortNo),
+  Number.POSITIVE_INFINITY,
+);
 const canonicalMaxConsumption = (item: CanonicalMaterialProgressProjection, field: "actualConsumption" | "plannedConsumption"): number | null => {
   const values = item.demands.map((entry) => entry.demand[field]).filter((value): value is number => value !== null && Number.isFinite(value));
   return values.length ? Math.max(...values) : null;
 };
 
 export function sortCanonicalMaterials(items: CanonicalMaterialProgressProjection[]): CanonicalMaterialProgressProjection[] {
+  const sortFacts = new Map(items.map((item) => [item, {
+    sourceSortNo: canonicalSourceSortNo(item),
+    actualConsumption: canonicalMaxConsumption(item, "actualConsumption"),
+    plannedConsumption: canonicalMaxConsumption(item, "plannedConsumption"),
+  }]));
   return [...items].sort((left, right) => {
     if (left.materialType !== right.materialType) return left.materialType === "fabric" ? -1 : 1;
+    const leftFacts = sortFacts.get(left)!;
+    const rightFacts = sortFacts.get(right)!;
     if (left.materialType === "fabric") {
-      const leftActual = canonicalMaxConsumption(left, "actualConsumption");
-      const rightActual = canonicalMaxConsumption(right, "actualConsumption");
+      const leftActual = leftFacts.actualConsumption;
+      const rightActual = rightFacts.actualConsumption;
       if (leftActual !== null && rightActual === null) return -1;
       if (leftActual === null && rightActual !== null) return 1;
-      const leftConsumption = leftActual ?? canonicalMaxConsumption(left, "plannedConsumption") ?? -Infinity;
-      const rightConsumption = rightActual ?? canonicalMaxConsumption(right, "plannedConsumption") ?? -Infinity;
+      const leftConsumption = leftActual ?? leftFacts.plannedConsumption ?? -Infinity;
+      const rightConsumption = rightActual ?? rightFacts.plannedConsumption ?? -Infinity;
       const consumptionOrder = rightConsumption - leftConsumption;
       if (consumptionOrder) return consumptionOrder;
     }
-    return canonicalSourceSortNo(left) - canonicalSourceSortNo(right)
+    return leftFacts.sourceSortNo - rightFacts.sourceSortNo
       || left.canonicalMaterialKey.localeCompare(right.canonicalMaterialKey);
   });
 }
@@ -165,10 +175,57 @@ const byDemand = <T extends { materialDemandId: string }>(rows: T[]) => {
   return result;
 };
 const daysFromToday = (date: string | null, today: string) => date ? dateGap(today, date) : null;
-const activeAssignments = (state: ProductionSchedulingState, orderId: string) => state.scheduleAssignments.filter((item) => item.salesOrderId === orderId && item.status !== "cancelled");
 const earliestAssignment = (items: ScheduleAssignment[]) => items.filter((item) => item.plannedStartDate).sort((left, right) => (left.plannedStartDate ?? "").localeCompare(right.plannedStartDate ?? ""))[0] ?? null;
 const uniqueStrings = (values: Array<string | null | undefined>) => [...new Set(values.filter((value): value is string => Boolean(value)))];
 const comparableText = (value: string) => value.normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleUpperCase();
+
+export type ExpectedArrivalBatchIndex = {
+  byDemandId: Map<string, MaterialExpectedArrivalBatch[]>;
+  sourceOrderByBatchId: Map<string, number>;
+};
+
+export function indexExpectedArrivalBatchesByDemand(
+  batches: MaterialExpectedArrivalBatch[],
+): ExpectedArrivalBatchIndex {
+  const byDemandId = new Map<string, MaterialExpectedArrivalBatch[]>();
+  const sourceOrderByBatchId = new Map<string, number>();
+  for (const [index, batch] of batches.entries()) {
+    sourceOrderByBatchId.set(batch.id, index);
+    for (const allocation of batch.allocations) {
+      const current = byDemandId.get(allocation.materialDemandId);
+      if (current) current.push(batch);
+      else byDemandId.set(allocation.materialDemandId, [batch]);
+    }
+  }
+  return { byDemandId, sourceOrderByBatchId };
+}
+
+export function indexActiveScheduleAssignmentsByOrder(
+  assignments: ScheduleAssignment[],
+): Map<string, ScheduleAssignment[]> {
+  const result = new Map<string, ScheduleAssignment[]>();
+  for (const assignment of assignments) {
+    if (assignment.status === "cancelled") continue;
+    const current = result.get(assignment.salesOrderId);
+    if (current) current.push(assignment);
+    else result.set(assignment.salesOrderId, [assignment]);
+  }
+  return result;
+}
+
+function expectedArrivalBatchesForDemandIds(
+  index: ExpectedArrivalBatchIndex,
+  demandIds: Iterable<string>,
+): MaterialExpectedArrivalBatch[] {
+  const unique = new Map<string, MaterialExpectedArrivalBatch>();
+  for (const demandId of demandIds) {
+    for (const batch of index.byDemandId.get(demandId) ?? []) unique.set(batch.id, batch);
+  }
+  return [...unique.values()].sort((left, right) => (
+    (index.sourceOrderByBatchId.get(left.id) ?? Number.POSITIVE_INFINITY)
+    - (index.sourceOrderByBatchId.get(right.id) ?? Number.POSITIVE_INFINITY)
+  ));
+}
 
 function dateGap(from: string, to: string): number {
   return Math.ceil((new Date(`${to}T00:00:00Z`).getTime() - new Date(`${from}T00:00:00Z`).getTime()) / DAY_MS);
@@ -295,14 +352,16 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
   const inboundByDemand = byDemand(input.data.inboundEvents);
   const shipmentByDemand = byDemand(input.data.shipmentEvents);
   const outboundByDemand = byDemand(input.data.outboundEvents);
+  const expectedArrivalBatchIndex = indexExpectedArrivalBatchesByDemand(input.data.expectedArrivalBatches);
   const demandsByContract = new Map<string, MaterialDemand[]>();
   for (const demand of input.data.demands) demandsByContract.set(demand.salesContractNo, [...(demandsByContract.get(demand.salesContractNo) ?? []), demand]);
+  const activeAssignmentsByOrder = indexActiveScheduleAssignmentsByOrder(input.scheduling.scheduleAssignments);
   const trackings = new Map(input.scheduling.orderExecutionTrackings.map((item) => [item.salesOrderId, item]));
   const projections: StyleProgressProjection[] = [];
 
   for (const [salesContractNo, demands] of demandsByContract) {
     const order = ordersByContract.get(salesContractNo) ?? null;
-    const assignment = order ? earliestAssignment(activeAssignments(input.scheduling, order.id)) : null;
+    const assignment = order ? earliestAssignment(activeAssignmentsByOrder.get(order.id) ?? []) : null;
     const tracking = order ? trackings.get(order.id) ?? null : null;
     const factorySuppliedDemands = demands.filter(isFactorySupplied);
     const operationalDemands = demands.filter((demand) => !isFactorySupplied(demand));
@@ -314,6 +373,7 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
     }
 
     const materialById = new Map<string, MaterialProgressProjection>();
+    const fallback = recommendMaterialTransport({ assignment, settings: input.settings, supplyHubId: tracking?.supplyHubId ?? null, expectedMaterialReadyDate: null });
     for (const demand of operationalDemands) {
       const purchaseEvents = purchaseByDemand.get(demand.id) ?? [];
       const inboundEvents = inboundByDemand.get(demand.id) ?? [];
@@ -326,8 +386,8 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
       const actualInboundDate = actualReadyDate(demand.requiredQuantity, inboundEvents);
       const statuses = deriveMaterialStatuses(demand.requiredQuantity, purchasedQuantity, inboundQuantity, shipmentQuantity, outboundQuantity);
       const demandIds = new Set([demand.id]);
-      const expectedArrivalBatches = input.data.expectedArrivalBatches.flatMap((batch) => projectExpectedArrivalBatch({ batch, demandIds, assignment, settings: input.settings, supplyHubId: tracking?.supplyHubId ?? null }) ?? []);
-      const fallback = recommendMaterialTransport({ assignment, settings: input.settings, supplyHubId: tracking?.supplyHubId ?? null, expectedMaterialReadyDate: null });
+      const expectedArrivalBatches = expectedArrivalBatchesForDemandIds(expectedArrivalBatchIndex, demandIds)
+        .flatMap((batch) => projectExpectedArrivalBatch({ batch, demandIds, assignment, settings: input.settings, supplyHubId: tracking?.supplyHubId ?? null }) ?? []);
       materialById.set(demand.id, {
         demand,
         purchaseEvents,
@@ -350,7 +410,8 @@ export function buildStyleProgressProjections(input: { data: StyleProgressData; 
     const canonicalMaterials = [...canonicalDemandGroups.entries()].map(([canonicalMaterialKey, canonicalDemands]): CanonicalMaterialProgressProjection => {
       const demandItems = canonicalDemands.map((demand) => materialById.get(demand.id)!);
       const demandIds = new Set(canonicalDemands.map((demand) => demand.id));
-      const expectedArrivalBatches = input.data.expectedArrivalBatches.flatMap((batch) => projectExpectedArrivalBatch({ batch, demandIds, assignment, settings: input.settings, supplyHubId: tracking?.supplyHubId ?? null }) ?? []);
+      const expectedArrivalBatches = expectedArrivalBatchesForDemandIds(expectedArrivalBatchIndex, demandIds)
+        .flatMap((batch) => projectExpectedArrivalBatch({ batch, demandIds, assignment, settings: input.settings, supplyHubId: tracking?.supplyHubId ?? null }) ?? []);
       const allReady = demandItems.length > 0 && demandItems.every((item) => item.readinessStatus === "ready");
       const hasUnpurchasedDemand = demandItems.some((item) => item.readinessStatus === "not_purchased");
       const hasPendingInboundDemand = demandItems.some((item) => item.readinessStatus === "purchasing" || item.readinessStatus === "pending_inbound");

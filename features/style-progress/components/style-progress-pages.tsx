@@ -21,9 +21,6 @@ import {
 } from "@/components/foundation";
 import { orderRepository } from "@/features/order-center/repository/order-repository";
 import type { SalesOrder } from "@/features/order-center/model/order";
-import { operationsSettingsRepository } from "@/features/operations-settings/repository/operations-settings-repository";
-import type { OperationsSettingsState } from "@/features/operations-settings/model/operations-settings";
-import { productionSchedulingRepository } from "@/features/production-scheduling/repository/production-scheduling-repository";
 import {
   operationLogRepository,
   createOperationLogDraft,
@@ -32,7 +29,6 @@ import { usePermissions } from "@/features/permissions";
 import { parseMaterialFollowUpWorkbook } from "../parser/material-follow-up-parser";
 import { styleProgressRepository } from "../repository/style-progress-repository";
 import {
-  buildStyleProgressProjections,
   fabricDisplayOrder,
   filterMaterialsByGarmentColor,
   normalizeGarmentColorTokens,
@@ -40,19 +36,16 @@ import {
   type MaterialProgressProjection,
   type StyleProgressProjection,
 } from "../service/style-progress-service";
+import { loadStyleProgress, type LoadedStyleProgress } from "../service/style-progress-loader";
 import type {
+  MaterialImportBatch,
   MaterialImportPreview,
   StyleProgressData,
 } from "../model/style-progress";
 import { OrderCenterNavigation } from "./order-center-navigation";
 import { MaterialControlTower } from "./material-control-tower";
 
-type Loaded = {
-  data: StyleProgressData;
-  orders: SalesOrder[];
-  projections: StyleProgressProjection[];
-  settings: OperationsSettingsState;
-};
+type Loaded = LoadedStyleProgress;
 type ImportPreviewAudit = {
   contracts: number;
   contractsMatched: number;
@@ -116,28 +109,12 @@ const quantity = (value: number | null) =>
     ? "—"
     : value.toLocaleString("zh-CN", { maximumFractionDigits: 3 });
 
-async function loadProgress(): Promise<Loaded> {
-  const [data, orders, scheduling, settings] = await Promise.all([
-    styleProgressRepository.loadAll(),
-    orderRepository.list(),
-    productionSchedulingRepository.load(),
-    Promise.resolve(operationsSettingsRepository.load()),
-  ]);
-  return {
-    data,
-    orders,
-    settings,
-    projections: buildStyleProgressProjections({
-      data,
-      orders,
-      scheduling,
-      settings,
-    }),
-  };
+async function loadProgress(includeTrace = false): Promise<Loaded> {
+  return loadStyleProgress(includeTrace ? { loadData: () => styleProgressRepository.loadAll() } : {});
 }
 
 async function ensureMaterialImportOperationLogs(
-  data: StyleProgressData,
+  batches: MaterialImportBatch[],
 ): Promise<void> {
   const existing = await operationLogRepository.list();
   const loggedBatchIds = new Set(
@@ -149,7 +126,7 @@ async function ensureMaterialImportOperationLogs(
       )
       .map((item) => item.entityId),
   );
-  const missing = data.batches.filter(
+  const missing = batches.filter(
     (batch) => batch.status === "committed" && !loggedBatchIds.has(batch.id),
   );
   if (!missing.length) return;
@@ -498,7 +475,7 @@ export function StyleProgressPage() {
     return () => clearTimeout(timer);
   }, [toast]);
   useEffect(() => {
-    if (loaded) void ensureMaterialImportOperationLogs(loaded.data);
+    if (loaded) void styleProgressRepository.listImportBatches().then(ensureMaterialImportOperationLogs);
   }, [loaded]);
   const rows = useMemo(
     () =>
@@ -1052,7 +1029,7 @@ export function LegacyStyleProgressDetailPage() {
   const [toast, setToast] = useState("");
   const reload = async () => {
     try {
-      setLoaded(await loadProgress());
+      setLoaded(await loadProgress(true));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "无法读取款式进度");
     }
@@ -1304,7 +1281,7 @@ export function StyleProgressDetailPage() {
   const [toast, setToast] = useState("");
   const reload = async () => {
     try {
-      setLoaded(await loadProgress());
+      setLoaded(await loadProgress(true));
       setError("");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "无法读取款式进度");

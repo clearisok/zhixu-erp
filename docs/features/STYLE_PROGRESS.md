@@ -90,6 +90,25 @@ HTML 工作台只用于视觉与字段语义参考；其内嵌数据声明来自
 - 同一 API Snapshot 的 ImportBatch ID 不包含 fetchedAt，重复 commit 新增为 0且不重复业务 OperationLog；新完整 Snapshot 会按 affected contract scope 替换全部 prior-source current Demand/Event facts，历史 Excel/API ImportBatch 与 Raw Trace 保留。Excel/API Demand ID 不稳定时，manual ExpectedArrivalBatch 只按确定性业务身份唯一 remap，零或多候选 fail closed；source-following 计划刷新，Actual 不改变语义，厂供继续只保留 Trace 并退出运营投影。
 - Canonical Material 在 Projection 形成处统一排序：fabric 全部先于 trim；fabric 先按 actualConsumption DESC，缺 actual 时按 plannedConsumption DESC，再按 sourceSortNo 与稳定 Canonical key；trim 按 sourceSortNo 与稳定 key。All/Fabric/Trim 筛选不改变各自相对顺序。
 
+## Loading and projection performance
+
+- 2026-09-10 profiling 确认旧 `buildStyleProgressProjections` 对全部 Expected Arrival Batch 先按每个 Demand、再按每个 Canonical Material 重复全表扫描，形成近似 `O(Demands × Batches)` 的主热点；每个合同还会重新过滤全部 ScheduleAssignment。
+- 当前 Projection 在一次构建开始时建立 `materialDemandId → ExpectedArrivalBatch[]`、`salesOrderId → active ScheduleAssignment[]` 和既有 tracking/event Map。关联批次继续按原始 Store 顺序进入同一 `projectExpectedArrivalBatch` 与唯一物流 Service；manual/source、Allocation、批次摘要、物流推荐、风险和 Canonical 排序语义未改变。
+- Style Progress 列表、风险页和订单摘要改读轻量 Projection read model：只读取 Demand、四类 Event 与 Expected Arrival Batch；ImportBatch/Raw Snapshot Trace 不再阻塞首次列表 Projection。详情页仍显式使用完整 `loadAll()`，Import/Backup/Migration 接口保持不变。列表的历史 ImportBatch OperationLog 补录只单独读取较小的 ImportBatch store。
+- IndexedDB database name、Store、index 与 `DATABASE_VERSION=4` 均未改变；没有 schema migration、clear 或真实数据重写。已有低版本数据仍先进入原 `loadAll()` 的非破坏迁移，v4 厂供 Expected Arrival repair 继续保留。
+- `validateStyleProgressData` 的 Allocation 需求量校验复用已建立的 Demand Map，不再为每个已分配 Demand 线性扫描全部 Demand。Canonical 排序的实际/计划用量和 sourceSortNo 也只预计算一次。
+
+确定性 synthetic benchmark 使用 Node 22、进程内隔离 fake IndexedDB；每合同 20 个 Demand，包含 Purchase/Inbound/Shipment/Outbound Event、每 Canonical Material 一个 Expected Arrival Batch、多个销售合同以及 active/cancelled assignments。1k/5k 使用 3 次中位数、10k 使用 2 次中位数、20k 使用 1 次；timing 只作 profiling 证据，不作为 CI wall-clock assertion。DataTable 数值是 SSR 首次 render，不等同浏览器 layout/paint。
+
+| Demands | `loadAll()` Before → After | Projection Before → After | 完整 `loadProgress()` Before → After | DataTable SSR Before → After |
+| ---: | ---: | ---: | ---: | ---: |
+| 1,000 | 152.9 → 49.3 ms (3.10×) | 38.5 → 25.6 ms (1.50×) | 208.5 → 54.1 ms (3.86×) | 16.6 → 13.6 ms |
+| 5,000 | 1,486.0 → 201.0 ms (7.39×) | 1,079.0 → 89.3 ms (12.08×) | 2,273.2 → 263.7 ms (8.62×) | 159.2 → 66.4 ms |
+| 10,000 | 3,007.1 → 438.5 ms (6.86×) | 3,866.5 → 175.2 ms (22.07×) | 6,400.0 → 560.0 ms (11.43×) | 224.0 → 123.6 ms |
+| 20,000 | 7,765.8 → 895.5 ms (8.67×) | 14,203.2 → 358.0 ms (39.68×) | 13,511.8 → 1,097.3 ms (12.31×) | 201.0 → 167.5 ms |
+
+Projection 完整输出以优化前 fixture 的稳定 SHA-256 `03b44ea3c898f353c8fca75b8a33341bf586667dcd2e78d05ea53c05a0ba51cc` 回归，并另以完整 read model/full `loadAll()` 对同 fixture deep-equal；不改变任何 Style Progress 业务结果。DataTable 未引入 pagination 或 virtualization，本轮改善来自加载边界与算法热点修复。
+
 ## Verification status
 
 Gate 3C 使用脱敏 6087050 fixture 与 isolated temporary repository 验证唯一 `commitImport` 路径：first commit 保存 Batch/Raw/Demand/四类 Event，same-snapshot second commit 全部新增为 0且只有一条既有语义 OperationLog；跨 Source current facts replacement、manual Effective 唯一 remap、source due 更新、厂供运营排除、统一排序以及 SalesOrder/Scheduling/Closing 不变均通过。
