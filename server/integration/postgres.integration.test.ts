@@ -23,6 +23,7 @@ import {
   upsertCurrentAinuokeContractMirror,
 } from "../sales-orders/repository.js";
 import { createAinuokeSalesOrder, type CreateAinuokeSalesOrderInput } from "../sales-orders/service.js";
+import { runSalesOrderBootstrapDryRun } from "../sales-orders/bootstrap-dry-run.js";
 import { startDisposablePostgres } from "./postgres-container.js";
 
 const { Pool } = pg;
@@ -490,6 +491,52 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         "SELECT count(*)::int AS count FROM ainuoke_sales_order_contract_mirrors WHERE sales_contract_no = 'SC-PG-ROLLBACK'",
       )).rows[0].count, 0);
       assert.equal((await pool.query<{ count: number }>("SELECT count(*)::int AS count FROM operation_logs")).rows[0].count, 1);
+    } finally {
+      await pool.end();
+    }
+  });
+
+  await t.test("SalesOrder bootstrap dry run projects candidates only into disposable PostgreSQL", async () => {
+    const databaseUrl = await postgres.createDatabase("sales_order_bootstrap_preview");
+    const pool = new Pool({ connectionString: databaseUrl });
+    try {
+      await runMigrations(pool, resolve("database/migrations"));
+      await synchronizePermissionCatalog(pool);
+      const trustedActor = await seedUser(pool, {
+        username: "bootstrap-preview-actor",
+        password: "test-bootstrap-preview-password",
+        permissions: ["order.view"],
+      });
+      const first = ainuokeSalesOrderInput({ orderNo: "PREVIEW-000001" });
+      const second = ainuokeSalesOrderInput({
+        orderNo: "PREVIEW-000002",
+        source: {
+          ...ainuokeSalesOrderInput().source,
+          sourceId: "6086103-source-002",
+          sourceRowIdentity: "6086103:sha256:source-002",
+          salesContractNo: "SC-PG-002",
+          insideOrderNo: "D1936",
+          sourceHash: "contract-source-hash-002",
+        },
+      });
+      const result = await runSalesOrderBootstrapDryRun(pool, trustedActor, [
+        { previewOnlyOrderNo: first.orderNo, source: first.source, colors: first.colors },
+        { previewOnlyOrderNo: second.orderNo, source: second.source, colors: second.colors },
+      ]);
+      assert.deepEqual(result, {
+        planned: 2,
+        created: 2,
+        rejected: 0,
+        rolledBack: 1,
+        idempotent: 2,
+        sourceLinkConflicts: 0,
+        schemaRejections: 0,
+        operationLogs: 2,
+        idempotencyPassed: true,
+        rollbackPassed: true,
+      });
+      assert.equal((await pool.query<{ count: number }>("SELECT count(*)::int AS count FROM sales_orders")).rows[0].count, 2);
+      assert.equal((await pool.query<{ count: number }>("SELECT count(*)::int AS count FROM sales_order_source_links")).rows[0].count, 2);
     } finally {
       await pool.end();
     }

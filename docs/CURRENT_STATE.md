@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `feat/postgres-salesorder-foundation`，起点为 `2349aedd6538e4d80382db14f8cfa4590fbe9c86`。Phase 2B1 Server Foundation 已完成实现，正在进行最终文档/门禁/PR 收口；它不是正式订单上线或 Browser cutover。
-- 当前稳定基线：`main` / `origin/main` 为 `2349aedd6538e4d80382db14f8cfa4590fbe9c86`（PR #13、#15、#16 已 merged）。
+- 当前 Active Task 为 `feat/postgres-salesorder-bootstrap-preview`，起点为 `f424a9b78f66dffdd47075f8ff29ea5f3590717b`。Phase 2B2 Bootstrap Preview / Dry Run 已完成实现与 live read/disposable-PG 验证，正在进行最终门禁/PR 收口；它没有执行真实 bootstrap 或 Browser cutover。
+- 当前稳定基线：`main` / `origin/main` 为 `f424a9b78f66dffdd47075f8ff29ea5f3590717b`（Phase 2B1 PR #17 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -22,6 +22,18 @@
 
 ## 本轮完成状态
 
+### PostgreSQL Phase 2B2 — SalesOrder Bootstrap Preview / Dry Run
+
+- 新增纯内存 `SalesOrderBootstrapCandidate`、deterministic ordering/hash、Discovery/detail identity reconciliation、duplicate/cross-mapping detection、detail failure/quantity warning 分组与二次完整 Discovery stale guard；Candidate 不创建 UUID，不依赖业务 Repository。
+- detail client 对固定 report/query、constant total、完整分页和安全页数 fail closed。颜色仍只使用既有 6086997 adapter/normalization，没有第二套解析；未读取 6087050。
+- 2026-09-11 最终 live run：Discovery 507/11 页，`草拟=364`、`生效=143`，D1935 存在；前后 hash 均为 `95b36d6375ab8061731ef976debffa41b46995da6e8c8146b32960e9ff616261`，added/removed/changed identity 为 0/0/0，Snapshot stable PASS。
+- D1935 + 9 个跨日期/Status 样本的 6086103 mapped-field parity 10/10，使用 `DISCOVERY ROW REUSE`。最终 run 为 10 次额外 6086103 page read；6086997 对 507/507 InsideOrderNo 完整读取，共 551 页。
+- 507 个 visible rows 全部保留在 bootstrap scope；473 个形成 strict Candidate。34 个 blocking 均来自颜色结构：29 缺 required `stylecolor`，5 存在重复 canonical 6086997 source-row identity；26 个 color/contract quantity difference 只报告、不修正。Discovery duplicate sourceId/sourceRowIdentity/InsideOrderNo/SalesContractNo 和 identity mismatch 均为 0。
+- `ORDER_NO_POLICY = NEEDS_USER_DECISION`。一次性 PG16 只对 473 个 projectable Candidate 使用 `PREVIEW-######`，结果 planned/created/idempotent=473/473/473、rejected/schema/source-link conflicts=0/0/0、rollback probe=1、trusted OperationLogs=473；tmpfs container/database 已销毁。
+- 最终 authoritative run 为 583 个成功 report-page reads。本阶段因本地统计归类修正前另做过一次相同完整 stable read，累计成功 page reads 为 1,166；Ainuoke writes、真实 PostgreSQL business writes、Browser/Quote/Style Progress/Scheduling/Closing/真实 OperationLog writes 均为 0。
+- `READY FOR REAL BOOTSTRAP = NO`：必须先处理 34 个 color-detail blockers，确认正式 server `order_no` rule、`current_account_visible` 组织范围、source disappearance/retention policy，并在独立授权后重新执行 fresh stable Preview。详细证据见 `docs/features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`。
+- Phase 2B2 最终门禁：PostgreSQL integration 13/13、Full Tests 584/584、TypeScript、零警告 ESLint、server build、Production Build 30 routes 与 `git diff --check` 全部 PASS；未重跑 Style Progress benchmark。
+
 ### PostgreSQL Phase 2B1 — SalesOrder Server Foundation
 
 - Forward-only migration `0002_sales_order_foundation.sql` 新增 `sales_orders`、`sales_order_source_links`、`ainuoke_sales_order_contract_mirrors`、`ainuoke_sales_order_color_mirrors`。没有修改 legacy `orders`/`api_dispatch` 或任何 Browser schema/key。
@@ -32,7 +44,7 @@
 - actor 来自独立 `TrustedIdentity`，不在 service input/request body 中；server OperationLog 保存可信 actor FK/public ID/name snapshot。
 - 新增只读 `GET /api/v1/sales-orders` 与 `GET /api/v1/sales-orders/:id`，复用现有 `order.view` 和 Trusted Session，分别覆盖 401/403/404/permitted read；两个不同 trusted sessions 从同一 PostgreSQL 读取相同 SalesOrder UUID/version。
 - Browser Order Center 仍使用既有 Browser Repository。Phase 2B1 没有 live Ainuoke read/write、真实 505 bootstrap、Browser test-order migration/cutover/dual-write，也没有 Quote、Style Progress、Scheduling、Closing migration 或 mutation。
-- 下一阶段是 Phase 2B2 Bootstrap Preview / Dry Run：Discovery → detail reads → PostgreSQL bootstrap candidate projection → reconciliation → preview report。它仍不得执行真实正式 bootstrap。
+- Phase 2B2 Preview 已在本轮完成；Phase 2B1 本身仍只代表 server foundation，不代表正式订单上线。
 - Phase 2B1 最终门禁：PostgreSQL integration 12/12、Full Tests 577/577、TypeScript、零警告 ESLint、server build、Production Build 30 routes 与 `git diff --check` 全部 PASS。frontend build 仍报告既有 chunk-size advisory，不影响成功退出。
 
 ### Style Progress Performance Pass
@@ -47,8 +59,8 @@
 ### Ainuoke Order Discovery Gate
 
 - Stage A PASS：从真实“成衣销售合同”页面确认固定报表 6086103 的空条件列表协议。它不要求预知 InsideOrderNo/SalesContractNo，使用 `POST /kaijin/report/report/getReportObjAndData`，并以实时 total 分页到确定终点。
-- 当前绑定账号两次完整只读遍历均返回 505 行、11 页；505 个 source ID、InsideOrderNo、SalesContractNo 及 pair 均唯一，无重复页。normalized SHA-256 两次均为 `37d8e7860e3157cb3022657a4b4ce2223a53876383aec701c685431a5945b744`。
-- 当前完整 Snapshot 观察到 505 条：raw status `生效=143`、`草拟=362`。用户已确认全部 Discovery-visible 合同都是未来 clean-bootstrap candidate，Status 不参与 inclusion/exclusion；Status 仍作为 source fact 保留。505 只是本次 Snapshot 数量，未来以当次完整 Snapshot 为准。
+- 原 Discovery Gate 曾观察到 505 行；Phase 2B2 当前两次完整只读遍历均返回 507 行、11 页，normalized SHA-256 均为 `95b36d6375ab8061731ef976debffa41b46995da6e8c8146b32960e9ff616261`。这再次证明 505/507 都只是当次 Snapshot，不是业务常量。
+- 当前完整 Snapshot 的 raw status 为 `生效=143`、`草拟=364`。全部 Discovery-visible 合同都是 clean-bootstrap scope candidate，Status 不参与 inclusion/exclusion；Status 仅作为 source fact 保留。
 - D1935 与另外 5 个脱敏样本均通过 6086103/6086997 identity/detail cross-check。Source scope 只能确认 `current_account_visible`，不能称为全公司订单；账号权限/组织范围仍需在正式 bootstrap 前确认。
 - Stage B 新增固定 `order_discovery` allowlist、精确空 query builder、typed full-pagination client、最小 Discovery Row/Snapshot 与 whole-list deterministic hash。DiscoveryRow 不是 SalesOrder；没有业务 Repository、PostgreSQL 或 commit 依赖。
 - Source 消失不能区分删除、权限变化、筛选变化或上游失败；未来不得仅凭缺失 hard-delete，需 last-seen/missing/tombstone reconciliation。
@@ -188,7 +200,7 @@
 
 ## 尚未落地
 
-- Browser Order Center 到 PostgreSQL SalesOrder 的 bootstrap、reconciliation、read/write cutover 与 Browser store retirement 尚未落地；Phase 2B1 只完成 server foundation。
+- Browser Order Center 到 PostgreSQL SalesOrder 的真实 bootstrap、read/write cutover 与 Browser store retirement尚未落地；Phase 2B1 只完成 server foundation，Phase 2B2 只完成 read-only Preview/disposable dry-run。
 - Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
 - 服务端全文搜索与业务列表分页尚未落地；migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。

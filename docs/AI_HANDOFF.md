@@ -11,23 +11,21 @@
 
 ## Current Stable Main
 
-`2349aedd6538e4d80382db14f8cfa4590fbe9c86`（PR #13、#15、#16 已 merged）
+`f424a9b78f66dffdd47075f8ff29ea5f3590717b`（Phase 2B1 PR #17 已 merged）
 
 ## Current Active Task
 
-- Branch: `feat/postgres-salesorder-foundation`
-- Baseline: `2349aedd6538e4d80382db14f8cfa4590fbe9c86`
-- Scope: PostgreSQL Phase 2B1 SalesOrder Server Foundation；只实现 schema、repository、事务创建 service、安全 read API 与一次性 PostgreSQL 测试。禁止真实 Ainuoke read/write、真实 bootstrap、Browser Order/Scheduling migration/cutover/dual-write，以及 Quote/Style Progress/Closing/Blob mutation。
-- Gate A 已完成：新增 forward-only `0002_sales_order_foundation.sql`，建立 `sales_orders`、`sales_order_source_links`、Ainuoke current contract mirror 与 color mirror 四张表；SalesOrder identity/provenance、source binding、规范化 order number 与 optimistic version 由 DB 约束/trigger 保护。
-- Gate A Repository 已提供 create/get-by-id/get-by-source/get-by-contract/list、source-link create/update、current contract mirror upsert、current color slice replacement 和 optimistic lifecycle update；所有 SQL 参数化，读取返回 composed typed projection，不暴露 raw row/opaque payload。
-- Gate A 隔离验证：server build PASS；一次性 PG16 tmpfs PostgreSQL integration 10/10，覆盖 fresh migration、schema/unique/FK、stable UUID、normalized order number、source binding、mirror refresh、color replacement 与 optimistic version。测试没有连接 DEV/业务数据库。
-- Gate A checkpoint：`97ead2f90250b0d889097c97595e5951dcabcd16`，已由用户人工 push 并验证本地/远端 SHA 一致。
-- Gate B 已完成：`createAinuokeSalesOrder(pool, trustedIdentity, input)` 在 source-scoped transaction advisory lock 内执行 source binding 检查、SalesOrder/source link/current contract mirror/current color slice/OperationLog 写入；input 类型没有 actor，相同 source identity 幂等返回原 ID/version 且不重复写日志，任一步失败全部 rollback。
-- Gate B Read API：`GET /api/v1/sales-orders` 与 `GET /api/v1/sales-orders/:id` 复用 Trusted Session 和既有 `order.view`；返回 typed composed DTO，不暴露 DB row、source hash 或 source metadata。未登录 401、无权限 403、缺失记录 404。
-- Gate B 隔离验证：server build PASS；一次性 PG16 tmpfs PostgreSQL integration 12/12。新增覆盖 transactional create、duplicate source idempotency、rollback、trusted actor、list/detail、401/403/permitted read，以及两个不同 trusted sessions 读取相同 PostgreSQL SalesOrder ID/version。
-- Gate B checkpoint：`9f633d206496f6165bec74d5ff331a37e354d65d`，已由用户人工 push 并验证本地/远端 SHA 一致。
-- Gate C 已将 Phase 2B1 标为 Server Foundation complete，并明确 Browser Order Center 仍未 cutover。最终门禁为 PostgreSQL integration 12/12、Full Tests 577/577、TypeScript、零警告 ESLint、server build、Production Build 30 routes 与 `git diff --check` 全部 PASS；frontend build 仅有既有 chunk-size advisory。
-- 下一步仅为经单独启动的 Phase 2B2 Bootstrap Preview / Dry Run：Discovery → detail reads → PostgreSQL bootstrap candidate projection → reconciliation → preview report。不得执行真实 bootstrap，不得自动进入 Phase 2B2。
+- Branch: `feat/postgres-salesorder-bootstrap-preview`
+- Baseline: `f424a9b78f66dffdd47075f8ff29ea5f3590717b`
+- Scope: PostgreSQL Phase 2B2 SalesOrder Bootstrap Preview / Dry Run。允许 fixed Discovery/6086103/6086997 live reads；禁止 6087050、Ainuoke write、真实 PostgreSQL/Browser 业务写入、真实 bootstrap、cutover/retirement，以及 Quote/Style Progress/Scheduling/Closing mutation。
+- 纯内存 `SalesOrderBootstrapCandidate`、reconciliation、deterministic ordering/hash、detail failure/quantity warning 分组和完整 Discovery stale guard 已实现；Candidate 不创建 UUID。typed detail paging 对协议/total/完整性 fail closed，颜色只复用既有 adapter/normalization。
+- 最终 authoritative live run：Discovery 507/11 页，`草拟=364`、`生效=143`；before/after hash 均为 `95b36d6375ab8061731ef976debffa41b46995da6e8c8146b32960e9ff616261`，added/removed/changed identity=0/0/0。D1935 + 9 samples 的 6086103 parity 10/10，因此 strategy=`DISCOVERY ROW REUSE`、additional 6086103 pages=10；6086997 507/507 query 完整读取、551 pages。
+- Scope candidates 507；strict projectable 473。Blocking 34：29 missing `stylecolor`、5 duplicate canonical 6086997 source-row identity。Warnings 26：color/contract quantity difference，未修正。Discovery duplicates 与 detail identity mismatch 都为 0。
+- `ORDER_NO_POLICY = NEEDS_USER_DECISION`。473 个 valid candidates 使用 disposable-only `PREVIEW-######` 经 Phase 2B1 `createAinuokeSalesOrder`：created 473、idempotent 473、rejected/schema/source-link conflicts 0、rollback probe 1、trusted OperationLogs 473；PG16 tmpfs container/database 已销毁。
+- 最终 run 583 successful report-page reads；本阶段累计 1,166（统计归类修正前有一次相同完整 stable run）。6087050 reads、Ainuoke writes、real PG/Browser/Quote/Style Progress/Scheduling/Closing/real OperationLog writes 均为 0。
+- `READY FOR REAL BOOTSTRAP = NO`。下一步只能是 blocker reconciliation + 用户确认正式 server `order_no`、`current_account_visible` 组织范围、disappearance/retention policy；之后仍须单独授权并重新运行 fresh Preview。不得开始真实 bootstrap、Browser cutover 或 retirement。
+- Phase 2B1 remains stable baseline: migration 0002 four tables、transactional/idempotent `createAinuokeSalesOrder`、trusted actor、typed read API 401/403/404/two-session identity，PR #17 已 merge。
+- Phase 2B2 final gate：PostgreSQL integration 13/13、Full Tests 584/584、TypeScript、zero-warning ESLint、server build、Production Build 30 routes、`git diff --check` 全部 PASS；Style Progress benchmark 未重跑。
 
 ### Previous completed PR #14 context
 
