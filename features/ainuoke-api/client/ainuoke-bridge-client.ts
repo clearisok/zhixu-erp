@@ -1,9 +1,11 @@
 import type {
   AinuokeAccountView,
   AinuokeDetailReportKey,
+  AinuokeDetailReportQueryByKey,
   AinuokeOrderDiscoveryQuery,
   AinuokeReportQuery,
   AinuokeReportSnapshot,
+  AinuokeSalesContractQuery,
 } from "../model/ainuoke-api.ts";
 import { AINUOKE_REPORT_CATALOG } from "../model/ainuoke-api.ts";
 
@@ -63,7 +65,7 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
     return parse<T>(response);
   };
 
-  const readReport = (userId: string, reportKey: AinuokeDetailReportKey, input: { page?: number; pageSize?: number; query: AinuokeReportQuery }) => request<AinuokeReportSnapshot>(userId, `/v1/ainuoke/reports/${reportKey}/query`, {
+  const readReport = <K extends AinuokeDetailReportKey>(userId: string, reportKey: K, input: { page?: number; pageSize?: number; query: AinuokeDetailReportQueryByKey[K] }) => request<AinuokeReportSnapshot<AinuokeDetailReportQueryByKey[K]>>(userId, `/v1/ainuoke/reports/${reportKey}/query`, {
     method: "POST",
     body: JSON.stringify({ page: input.page ?? 1, pageSize: input.pageSize ?? 100, query: input.query }),
   });
@@ -73,27 +75,35 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
     body: JSON.stringify({ page: input.page ?? 1, pageSize: input.pageSize ?? 50, query: {} }),
   });
 
-  const readGarmentColorSizePage = (userId: string, input: { page?: number; pageSize?: number; insideOrderNo: string }) => readReport(
+  const readGarmentColorSizePage = (userId: string, input: { page?: number; pageSize?: number; salesContractNo: string }) => readReport(
     userId,
     "garment_color_size_details",
-    { page: input.page, pageSize: input.pageSize, query: { insideOrderNo: input.insideOrderNo } },
+    { page: input.page, pageSize: input.pageSize, query: { salesContractNo: input.salesContractNo } },
   );
 
-  const readAllReportPages = async (userId: string, reportKey: AinuokeDetailReportKey, input: { pageSize?: number; maxPages?: number; query: AinuokeReportQuery }) => {
-    const snapshots: AinuokeReportSnapshot[] = [];
+  const readAllReportPages = async <K extends AinuokeDetailReportKey>(userId: string, reportKey: K, input: { pageSize?: number; maxPages?: number; query: AinuokeDetailReportQueryByKey[K] }) => {
+    const snapshots: AinuokeReportSnapshot<AinuokeDetailReportQueryByKey[K]>[] = [];
     const pageSize = input.pageSize ?? 50;
     const maxPages = input.maxPages ?? 100;
-    const insideOrderNo = input.query.insideOrderNo.normalize("NFKC").trim();
-    if (!insideOrderNo) throw new AinuokeBridgeError("report_query_invalid", "艾诺科报表 InsideOrderNo 不能为空");
+    const queryKind = AINUOKE_REPORT_CATALOG[reportKey].queryKind;
+    const queryKey = queryKind === "sales_contract" ? "salesContractNo" : "insideOrderNo";
+    const rawQuery = input.query as AinuokeReportQuery | AinuokeSalesContractQuery;
+    if (Object.keys(rawQuery).length !== 1 || !(queryKey in rawQuery)) {
+      throw new AinuokeBridgeError("report_query_invalid", `艾诺科报表只接受 ${queryKey} query context`);
+    }
+    const queryValue = (queryKey === "salesContractNo" ? (rawQuery as AinuokeSalesContractQuery).salesContractNo : (rawQuery as AinuokeReportQuery).insideOrderNo)?.normalize("NFKC").trim();
+    if (!queryValue) throw new AinuokeBridgeError("report_query_invalid", `艾诺科报表 ${queryKey} 不能为空`);
+    const query = { [queryKey]: queryValue } as AinuokeDetailReportQueryByKey[K];
     const expectedReportId = AINUOKE_REPORT_CATALOG[reportKey].reportId;
     let expectedTotal: number | null = null;
     let readCount = 0;
     for (let page = 1; page <= maxPages; page += 1) {
-      const snapshot = await readReport(userId, reportKey, { page, pageSize, query: { insideOrderNo } });
+      const snapshot = await readReport(userId, reportKey, { page, pageSize, query });
       if (snapshot.reportId !== expectedReportId
         || snapshot.page !== page
         || snapshot.pageSize !== pageSize
-        || snapshot.queryContext.insideOrderNo.normalize("NFKC").trim() !== insideOrderNo) {
+        || (snapshot.queryContext as Record<string, string>)[queryKey]?.normalize("NFKC").trim() !== queryValue
+        || Object.keys(snapshot.queryContext).length !== 1) {
         throw new AinuokeBridgeError("report_contract_mismatch", "艾诺科 detail 响应与固定只读协议不一致");
       }
       if (expectedTotal === null) expectedTotal = snapshot.total;
@@ -154,11 +164,11 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
       throw new AinuokeBridgeError("paging_limit", `艾诺科订单发现超过 ${maxPages} 页安全上限，已停止读取`);
     },
     readAllReportPages,
-    async readAllGarmentColorSizePages(userId: string, input: { insideOrderNo: string; pageSize?: number; maxPages?: number }) {
+    async readAllGarmentColorSizePages(userId: string, input: { salesContractNo: string; pageSize?: number; maxPages?: number }) {
       return readAllReportPages(userId, "garment_color_size_details", {
         pageSize: input.pageSize,
         maxPages: input.maxPages,
-        query: { insideOrderNo: input.insideOrderNo },
+        query: { salesContractNo: input.salesContractNo },
       });
     },
     clearSession() {

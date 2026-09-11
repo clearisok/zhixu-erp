@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-- Phase: PostgreSQL Phase 2B1 SalesOrder Server Foundation complete; Phase 2B2 Bootstrap Preview / Dry Run complete on `feat/postgres-salesorder-bootstrap-preview`.
+- Phase: PostgreSQL Phase 2B1 SalesOrder Server Foundation complete; Phase 2B2 historical Bootstrap Preview / Dry Run complete; Phase 2B2.2 stable SalesContract identity/source migration complete in code and read-only validation.
 - Phase 2B2 baseline: `f424a9b78f66dffdd47075f8ff29ea5f3590717b` (`main`, Phase 2B1 PR #17 merged).
 - Phase 2B1 implements PostgreSQL schema, parameterized repository, transactional Ainuoke-created SalesOrder service, typed read API and disposable PostgreSQL integration tests.
 - This is not a Browser Order Center cutover and not a real bootstrap. Browser runtime remains on its existing Repository; no Browser DEV data was read, imported, modified or deleted.
@@ -10,7 +10,7 @@
 
 Phase 2B2 subsequently performed authorized live **reads only** for Discovery/6086103/6086997, built no UUID, and made no real PostgreSQL or Browser write. Its complete evidence and blockers are recorded in `SALES_ORDER_BOOTSTRAP_PREVIEW.md`.
 
-Phase 2B2.1 subsequently validated 6087105 as a cleaner candidate garment color/size source. The fixed support and evidence do not change the current/default 6086997 Preview path; source replacement remains pending explicit user approval. No PostgreSQL schema or business write was added.
+Phase 2B2.1 validated 6087105 as a cleaner candidate garment color/size source. Phase 2B2.2 then made the user-approved source/identity decision active: normalized `SalesContractNo` / `BillNo` is the stable Ainuoke cross-report business association, `InsideOrderNo` is mutable, and 6087105 formally replaces 6086997 for current SalesOrder color/size sourcing. 6086997 remains legacy/historical. No PostgreSQL schema, identity model or business write was added.
 
 ## Phase 2B2 Bootstrap Preview result
 
@@ -64,14 +64,14 @@ Final Phase 2B1 validation: PostgreSQL integration 12/12, Full Tests 577/577, Ty
 | `creationSource`, `sourceType`, lifecycle `status` | Zhixu creation/workflow provenance | No | Yes | Aggregate ID anchors it | Never from source sync | Yes |
 | `salesContractNo` and source binding | Ainuoke contract fact plus Zhixu binding decision | Conditionally, after discovery/known `insideOrderNo` | Binding is Zhixu-owned | Yes; source-to-order mapping must be stable | Only through validated source binding/reconciliation | Yes |
 | `styleNo` | Ainuoke for bound orders; Quote/manual for native orders | Conditional | Conditional | No separate child ID | Yes only for Ainuoke-owned source projection | Yes |
-| `factoryStyleNo` / current API `InsideOrderNo` | Ainuoke source | Conditional | No for bound orders | Stable source mapping needed | Yes for source projection | Yes, including discovery/mapping use |
+| `factoryStyleNo` / current API `InsideOrderNo` | Ainuoke mutable source attribute | Conditional | No for bound orders | No; drift under same BillNo is informational | Yes for source projection | Yes, with `inside_order_no_drift` evidence |
 | customer / brand snapshots and resolved IDs | Ainuoke source for bound orders; Quote/manual otherwise; brand ID is Zhixu master-data resolution | Conditional | Resolution and native snapshots are Zhixu-owned | Referenced master IDs must stay stable | Source snapshot may refresh; resolved ID only via deterministic reconciliation | Yes |
 | `customerPoNo` | Quote/manual/user input; current API adapter deliberately leaves `poNo` empty | No with current reports | Yes | Aggregate ID anchors it | No | Yes |
 | order date, salesperson and merchandiser snapshots | Quote/manual/Ainuoke-create defaults plus Zhixu edits | No | Yes | Referenced master IDs should stay stable | No | Yes |
 | `initialQuantity` | Immutable Zhixu baseline; equals source quantity only when an Ainuoke order is first created | Current value only conditionally; historical baseline cannot generally be reconstructed | Yes as baseline semantics | Aggregate ID anchors it | Never; current code appends changes | Yes |
 | current Ainuoke contract quantity | Ainuoke contract mirror | Yes after discovery | No | Source identity/link needed | Yes, source-owned | Persist current mirror; raw history policy is a decision |
 | `OrderQuantityChange[]` and color adjustments | Mixed: Ainuoke sync deltas plus manual/system append-only decisions | Current source total is rebuildable; event history/timestamps are not | Manual/system adjustments are yes | Yes for audit and color references | Never overwrite manual/system adjustments | Yes; proposed schema should separate source total from owned adjustments |
-| `OrderColorLine[]` | Ainuoke 6086997 source; deterministic current IDs | Yes after discovery and complete detail read | No, except manual adjustments stored elsewhere | Stable line/source identity needed for adjustments | Replace source lines only; preserve adjustments | Persist current mirror/projection |
+| `OrderColorLine[]` | Formal Ainuoke 6087105 BillNo source; 6086997 legacy/historical | Yes after discovery and complete detail read | No, except manual adjustments stored elsewhere | Stable line/source identity needed for adjustments | Replace source lines only; preserve adjustments | Persist current mirror/projection |
 | `contractDeliveryDate` | Ainuoke 6086103 | Yes after discovery | No for bound orders | Aggregate/source link anchors it | Yes, source-owned | Persist current mirror/projection |
 | `DeliveryPlan[]` | Mixed source/manual collection | Current API can rebuild only the fallback contract-date plan because 6086997 adapter currently has no proven per-color delivery date | Manual plans are yes | Yes for manual/history references | Replace only `source=ainuoke_sync`; preserve manual/voided history | Yes |
 | `OrderPriceVersion[]` | Quote snapshot plus Zhixu price adjustments | No | Yes | Yes; append-only child identity | Never | Yes |
@@ -138,9 +138,10 @@ Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate*
 1. **Phase 2A evidence/decision:** complete. Source/owned boundary, clean-bootstrap direction and Discovery semantics are recorded; Browser Order/Scheduling test data is not a migration source.
 2. **Phase 2B1 Server Foundation:** complete. Migration/schema/repository/transactional create/read API are verified only in disposable PostgreSQL; there is no runtime cutover.
 3. **Phase 2B2 Bootstrap Preview / Dry Run:** complete. The stable 507-row scope yielded 473 projectable candidates, 34 blocking color-detail issues and 26 warnings; the valid subset passed disposable PostgreSQL. No real bootstrap occurred.
-4. **Phase 2B2.1 6087105 candidate validation:** complete. The old 34 are retained historically and reclassified as 31 resolved + 3 invalid under 6087105; order number, scope, disappearance and retention policies are confirmed. The default source was not switched. Final gates passed: Bridge 36/36, targeted 40/40, Full Tests 595/595, typecheck, lint, server/frontend builds and diff-check.
-5. **Next user source decision:** decide whether 6087105 supersedes 6086997, then run a separate fresh full Bootstrap Preview if approved. This Gate does not perform that Preview.
-6. **Later owned-state/API and cutover gates:** manual/Quote/reorder creation, remaining owned facts, separately authorized real bootstrap/read/write cutover and Browser retirement each require their own decisions and authorization.
+4. **Phase 2B2.1 6087105 candidate validation:** complete. The old 34 are retained historically and were reclassified as 31 resolved + 3 invalid under its former InsideOrderNo query.
+5. **Phase 2B2.2 stable identity migration:** complete in code/read-only validation. 6087105 now queries BillNo; all 511 contracts had exact detail, the former eight missing were recovered as legitimate InsideOrderNo drift, and 6087105 is the Active formal source. No real bootstrap occurred.
+6. **Next:** run a separate fresh full Bootstrap Preview using SalesContractNo identity and 6087105. Preview remains non-writing.
+7. **Later owned-state/API and cutover gates:** manual/Quote/reorder creation, remaining owned facts, separately authorized real bootstrap/read/write cutover and Browser retirement each require their own decisions and authorization.
 
 ## Decisions requiring user confirmation
 
@@ -151,12 +152,11 @@ The user has now confirmed these formal rules:
 - source disappearance marks missing and retains UUID/binding/history; it does not hard-delete or auto-cancel, and reappearance restores seen;
 - retain normalized current mirrors, source/discovery hashes, necessary fetched/last-seen/missing timestamps and reconciliation metadata, but not complete raw upstream payload by default.
 
-Implementation of the sequence and missing/tombstone storage remains a later independent schema/service Gate. Decisions still requiring confirmation are:
+Implementation of the sequence and missing/tombstone storage remains a later independent schema/service Gate. The 6087105 source decision is no longer pending. Decisions still requiring confirmation are:
 
-1. Whether 6087105 formally supersedes 6086997 as the Bootstrap Preview color source. Current evidence recommends YES, but the default has not switched.
-2. Whether a future phase proceeds beyond preview/dry-run to a separately approved real bootstrap/read cutover.
-3. Closing test-data retirement classification. Browser Order/Scheduling retirement also requires a later explicit destructive confirmation; it is not implied by this architecture direction.
+1. Whether a future phase proceeds beyond preview/dry-run to a separately approved real bootstrap/read cutover.
+2. Closing test-data retirement classification. Browser Order/Scheduling retirement also requires a later explicit destructive confirmation; it is not implied by this architecture direction.
 
 ## Readiness
 
-**PHASE 2B2 BOOTSTRAP PREVIEW COMPLETE; PHASE 2B2.1 CANDIDATE SOURCE VALIDATED. READY FOR REAL BOOTSTRAP: NO.** The original 6086997 run retains its 34 historical blockers. 6087105 now resolves/reclassifies them as 31 resolved + 3 invalid, and the order-number/scope/disappearance/retention policies are confirmed, but switching the Preview source still requires explicit user approval and a later fresh full Preview. No real bootstrap, Browser cutover or other domain migration is authorized.
+**PHASE 2B2.2 STABLE SALES CONTRACT IDENTITY MIGRATION COMPLETE. READY FOR FRESH BOOTSTRAP PREVIEW: YES. READY FOR REAL BOOTSTRAP: NO.** The original 6086997 run and its 34 blockers remain historical evidence. 6087105 is Active, BillNo is the stable association, and the former eight missing are resolved as valid drift. A fresh full Preview is still required before any separately authorized real bootstrap. Browser cutover and other domain migration remain unauthorized.

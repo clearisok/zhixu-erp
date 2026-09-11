@@ -74,9 +74,9 @@ class ReportContractTests(unittest.TestCase):
         self.assertTrue(first.rows[0].source_row_identity.startswith("6086103:sha256:"))
         self.assertEqual(first.snapshot_hash, second.snapshot_hash)
 
-    def test_6087105_uses_fixed_contains_inside_order_contract(self) -> None:
+    def test_6087105_uses_fixed_contains_sales_contract_contract(self) -> None:
         definition = resolve_report("garment_color_size_details")
-        request = build_report_request(definition, page=2, page_size=50, query_context={"insideOrderNo": " D1935 "})
+        request = build_report_request(definition, page=2, page_size=50, query_context={"salesContractNo": " PI2607-235 "})
         self.assertEqual(request["reportId"], 6087105)
         self.assertEqual(request["sqlCdtn"]["targetId"], 6087105)
         self.assertEqual(request["sqlCdtn"]["entId"], 6087105)
@@ -86,16 +86,22 @@ class ReportContractTests(unittest.TestCase):
             "conditionRelation": "and",
             "cuHaiType": 0,
             "dbTableName": "",
-            "fieldName": "insideorderno",
+            "fieldName": "BillNo",
             "compareType": "contains",
             "dataType": "varchar",
             "dataTypeId": 2,
             "valueType": 1,
             "dealWithType": 0,
-            "compareValue": "D1935",
+            "compareValue": "PI2607-235",
             "flowName": "[内层]",
         }])
-        for query in ({"reportId": "6087105"}, {"insideOrderNo": "D1935", "conditionList": []}, {"insideOrderNo": ""}):
+        for query in (
+            {"reportId": "6087105"},
+            {"salesContractNo": "PI2607-235", "conditionList": []},
+            {"salesContractNo": ""},
+            {"insideOrderNo": "D1935"},
+            {"insideOrderNo": "D1935", "salesContractNo": "PI2607-235"},
+        ):
             with self.subTest(query=query), self.assertRaisesRegex(SourceContractError, "invalid_query"):
                 build_report_request(definition, page=1, page_size=50, query_context=query)
 

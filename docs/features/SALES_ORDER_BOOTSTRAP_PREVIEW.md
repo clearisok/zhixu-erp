@@ -90,7 +90,19 @@ The 34 blockers above remain the authoritative historical result of the 6086997-
 - Eight current Discovery orders have no 6087105 exact detail and six have invalid slices. These are enrichment missing/invalid results, not reasons to reject the SalesOrder main Candidate.
 - D1935, T1826-4 and 1917U anchors passed exactly. Full evidence is in `AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`.
 
-The repository recommendation is to replace the Preview color source with 6087105, but the decision remains **pending explicit user approval**. This Gate does not change the existing/default 6086997 Preview path and does not run a fresh full Bootstrap Preview.
+## Subsequent Phase 2B2.2 stable identity decision
+
+The user approved 6087105 as the formal current SalesOrder color/size source and confirmed normalized `SalesContractNo` / `BillNo` as the stable Ainuoke cross-report business association. `InsideOrderNo` is a mutable source attribute; drift under the same BillNo is informational and never an identity failure. The original 6086997 Preview and its 34 blockers remain historical evidence, not the current source contract.
+
+The fixed 6087105 query changed from `insideorderno contains <InsideOrderNo>` to `{ salesContractNo }` → `BillNo contains <SalesContractNo>`, followed by exact normalized `row.BillNo` filtering. Fresh read-only validation observed:
+
+- stable Discovery before/after: 511 rows, hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`, no added/removed/changed identity;
+- 511/511 successful BillNo queries, 511 exact-detail orders, 0 no-detail, 1,390 exact rows and 0 contains false positives;
+- 505 usable, 0 missing and 6 invalid color slices; all 505 usable totals equal their contract quantity;
+- 8 InsideOrderNo drift orders. These are exactly the former eight InsideOrderNo-query misses, and all eight are now resolved by BillNo;
+- PI2512-121 maps Discovery `5384/086-1(46021-N)` to 6087105 `5466/086(46021-N)`, one usable color totaling 9,000: PASS.
+
+Missing or invalid 6087105 enrichment still does not block SalesOrder creation. This phase did not generate a fresh bootstrap candidate set or execute real PostgreSQL bootstrap. The next step is a separate **fresh Bootstrap Preview** using the approved identity/source contract.
 
 ## Final validation
 

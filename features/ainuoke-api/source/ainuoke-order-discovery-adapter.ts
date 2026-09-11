@@ -64,7 +64,7 @@ export async function adaptAinuokeOrderDiscoverySnapshots(
   assertUnique(sourceRows.map((row) => row.sourceRowIdentity), "Source row identity");
   const rows = sourceRows.map(mapRow).sort((left, right) => left.sourceId.localeCompare(right.sourceId, "en", { numeric: true }) || left.insideOrderNo.localeCompare(right.insideOrderNo));
   assertUnique(rows.map((row) => row.sourceId), "sourceId");
-  assertUnique(rows.map((row) => `${row.insideOrderNo}\u0000${row.salesContractNo}`), "InsideOrderNo / SalesContractNo");
+  assertUnique(rows.map((row) => row.salesContractNo), "SalesContractNo / BillNo");
   const hashPayload = {
     schemaVersion: "ainuoke-order-discovery.v1",
     reportId: "6086103",

@@ -41,7 +41,7 @@ The Bridge owns the fixed body below; Browser code can only select the allowlist
 }
 ```
 
-`currentPage` and `pageIndex` advance together. The observed response exposes a constant `total`; the client reads consecutive pages until the accumulated row count equals it, with a maximum-page guard. It fails closed on total changes, wrong page/page size, premature short/empty page, excess rows, malformed protocol, repeated source-row identity, duplicate source ID, or duplicate `(InsideOrderNo, SalesContractNo)` identity.
+`currentPage` and `pageIndex` advance together. The observed response exposes a constant `total`; the client reads consecutive pages until the accumulated row count equals it, with a maximum-page guard. It fails closed on total changes, wrong page/page size, premature short/empty page, excess rows, malformed protocol, repeated source-row identity, duplicate source ID, blank BillNo, or duplicate normalized `SalesContractNo` / `BillNo`.
 
 ## Live completeness evidence
 
@@ -106,7 +106,7 @@ The verified source direction is:
 
 `empty PostgreSQL → fresh current-account-visible discovery → 6086103 contract detail + approved color-source detail → candidate projection/reconciliation → separately authorized future formal PostgreSQL SalesOrder`
 
-Phase 2B2 historically used 6086997 for color detail. Phase 2B2.1 subsequently validated fixed report 6087105 as the recommended cleaner color/size candidate, but it has not replaced 6086997 without explicit user approval. 6087050 is the independent Material source and was not read by Phase 2B2/2B2.1 SalesOrder validation.
+Phase 2B2 historically used 6086997 for color detail. Phase 2B2.2 records the approved current rule: normalized `SalesContractNo` / `BillNo` is the stable cross-report association, while `InsideOrderNo` is mutable. Fixed report 6087105 now uses `{ salesContractNo }` → `BillNo contains`, exact-filters `row.BillNo`, and formally replaces 6086997 for current SalesOrder color/size sourcing. 6086997 remains legacy/historical. 6087050 remains an independent Material source; only its current InsideOrderNo transport query is proven.
 
 Current Browser Order Center and Scheduling records are test data and are not the bootstrap authority or a required migration inventory. Quote Center contains real business data and remains protected. Style Progress/Material is outside this retirement scope and must be preserved. Closing retirement status remains undecided.
 
@@ -118,10 +118,10 @@ The user has confirmed `current_account_visible` as the formal bootstrap scope, 
 
 Remaining decisions are:
 
-1. Whether fixed report 6087105 formally supersedes 6086997 as the Bootstrap Preview color source.
+1. Run a fresh Bootstrap Preview using the approved BillNo identity and 6087105 color/size source; do not execute real bootstrap.
 2. Separate approval and precise scope for any real bootstrap/read cutover.
 3. Closing data retirement classification; Browser Order/Scheduling retirement remains a later separately confirmed destructive Gate.
 
 ## Readiness
 
-The read-only Discovery source is stable foundation evidence. Phase 2B1 server foundation, Phase 2B2 Preview and Phase 2B2.1 candidate-source validation are complete. **No real bootstrap or Browser cutover is approved.**
+The read-only Discovery source is stable foundation evidence. Phase 2B1 server foundation, historical Phase 2B2 Preview, Phase 2B2.1 candidate validation and Phase 2B2.2 stable BillNo identity/source migration are complete. **Ready for a fresh Bootstrap Preview; no real bootstrap or Browser cutover is approved.**

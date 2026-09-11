@@ -56,6 +56,14 @@ test("Discovery adapter fails closed on incomplete paging and duplicate stable i
     /InsideOrderNo/,
   );
   await assert.rejects(
+    () => adaptAinuokeOrderDiscoverySnapshots([snapshot({ page: 1, pageSize: 1, total: 1, rows: [row(1, "D1", "")] })]),
+    /BillNo/,
+  );
+  await assert.rejects(
+    () => adaptAinuokeOrderDiscoverySnapshots([snapshot({ page: 1, pageSize: 2, total: 2, rows: [row(1, "D1", "PI-1"), row(2, "D2", " pi-1 ")] })]),
+    /SalesContractNo \/ BillNo/,
+  );
+  await assert.rejects(
     () => adaptAinuokeOrderDiscoverySnapshots([
       snapshot({ page: 1, pageSize: 1, total: 2, rows: [row(1, "D1", "PI-1")] }),
       snapshot({ page: 2, pageSize: 1, total: 2, rows: [row(1, "D1", "PI-1")] }),

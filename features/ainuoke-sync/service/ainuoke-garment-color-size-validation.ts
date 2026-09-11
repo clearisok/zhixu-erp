@@ -1,6 +1,7 @@
 import type { AinuokeOrderDiscoverySnapshot } from "../../ainuoke-api/model/ainuoke-api.ts";
 import {
   normalizeAinuokeInsideOrderNo,
+  normalizeAinuokeSalesContractNo,
   type AinuokeGarmentColorSizeRow,
   type AinuokeGarmentColorSizeSource,
 } from "../source/ainuoke-garment-color-size-adapter.ts";
@@ -43,15 +44,31 @@ export const PHASE_2B2_OLD_BLOCKER_INSIDE_ORDER_NOS = [
   "T2017-2",
 ] as const;
 
+export const PHASE_2B2_1_MISSING_SALES_CONTRACT_NOS = [
+  "PI2608-257",
+  "PI2608-069",
+  "PI2608-026",
+  "PI2608-006",
+  "PI2607-293",
+  "PI2607-246",
+  "PI2603-127",
+  "PI2512-121",
+] as const;
+
 export type AinuokeGarmentColorSizeContractFact = {
   insideOrderNo: string;
   salesContractNo: string;
   styleNo: string;
   quantity: number;
+  lifecycleStatusRaw?: string;
+  contractDate?: string | null;
+  deliveryDate?: string | null;
+  contractAgeDays?: number | null;
 };
 
 export type AinuokeGarmentColorSizeValidationDetail = {
   insideOrderNo: string;
+  salesContractNo: string;
   pages: number;
   source?: AinuokeGarmentColorSizeSource;
   error?: string;
@@ -71,6 +88,8 @@ export type AinuokeOldBlockerComparison = {
   sizeRulePresent: "YES" | "NO" | "PARTIAL";
   sizeMatrixStatuses: string[];
   duplicateSourceIdentityGroups: number;
+  detailInsideOrderNos: string[];
+  insideOrderNoDrift: boolean;
   disposition: AinuokeOldBlockerDisposition;
 };
 
@@ -85,7 +104,12 @@ export type AinuokeGarmentColorSizeValidationReport = {
     duplicateUsableSourceIdentityGroups: number;
     crossOrderContaminationRows: number;
     billNoMismatchRows: number;
-    insideOrderNoMismatchRows: number;
+    ordersWithInsideOrderNoDrift: number;
+    insideOrderNoDriftExamples: Array<{
+      salesContractNo: string;
+      discoveryInsideOrderNo: string;
+      detailInsideOrderNos: string[];
+    }>;
     goodsNoMismatchRows: number;
   };
   colors: { usableOrders: number; blankRows: number; invalidQuantityRows: number; zeroQuantityRows: number; sameColorRepeatedOrders: number };
@@ -111,6 +135,13 @@ export type AinuokeGarmentColorSizeValidationReport = {
   po: { nonEmptyOrders: number; nonEmptyRows: number; inconsistentOrders: number };
   deliveryDate: { presentOrders: number; presentRows: number; multipleDatesOrders: number };
   oldBlockers: {
+    rows: AinuokeOldBlockerComparison[];
+    resolved: number;
+    stillMissing: number;
+    invalid: number;
+    warningOnly: number;
+  };
+  formerMissing: {
     rows: AinuokeOldBlockerComparison[];
     resolved: number;
     stillMissing: number;
@@ -144,9 +175,9 @@ function statusDistribution(snapshot: AinuokeOrderDiscoverySnapshot): Array<{ st
   return [...counts].sort(([left], [right]) => left.localeCompare(right, "zh-CN")).map(([status, count]) => ({ status, count }));
 }
 
-function sourceByInside(details: ReadonlyArray<AinuokeGarmentColorSizeValidationDetail>): Map<string, AinuokeGarmentColorSizeSource> {
+function sourceByContract(details: ReadonlyArray<AinuokeGarmentColorSizeValidationDetail>): Map<string, AinuokeGarmentColorSizeSource> {
   return new Map(details.flatMap((detail) => detail.source
-    ? [[normalizeAinuokeInsideOrderNo(detail.insideOrderNo), detail.source] as const]
+    ? [[normalizeAinuokeSalesContractNo(detail.salesContractNo), detail.source] as const]
     : []));
 }
 
@@ -158,6 +189,45 @@ function oldBlockerComparison(
   const key = normalizeAinuokeInsideOrderNo(insideOrderNo);
   const contract = contracts.get(key);
   if (!contract) throw new Error(`旧 blocker ${insideOrderNo} 不在本次 Discovery`);
+  const source = sources.get(normalizeAinuokeSalesContractNo(contract.salesContractNo));
+  const rows = source?.rows ?? [];
+  const colorQuantity = rows.reduce((sum, row) => sum + (row.quantity ?? 0), 0);
+  const quantityDifference = source?.colorDetailStatus === "usable" ? colorQuantity - contract.quantity : null;
+  const presentRules = rows.filter((row) => row.sizeRuleRaw).length;
+  const duplicateSourceIdentityGroups = repeatedGroupCount(rows.map((row) => row.sourceRowIdentity));
+  const disposition: AinuokeOldBlockerDisposition = !source || source.colorDetailStatus === "missing"
+    ? "still_missing"
+    : source.colorDetailStatus === "invalid"
+      ? "invalid"
+      : quantityDifference === 0
+        ? "resolved"
+        : "quantity_warning_only";
+  return {
+    insideOrderNo: contract.insideOrderNo,
+    salesContractNo: contract.salesContractNo,
+    styleNo: contract.styleNo,
+    contractQuantity: contract.quantity,
+    exactRows: source?.exactRows ?? 0,
+    usableColors: source?.usableRows.length ?? 0,
+    colorQuantity,
+    quantityDifference,
+    sizeRulePresent: rows.length === 0 || presentRules === 0 ? "NO" : presentRules === rows.length ? "YES" : "PARTIAL",
+    sizeMatrixStatuses: [...new Set(rows.map((row) => row.sizeMatrixStatus))].sort(),
+    duplicateSourceIdentityGroups,
+    detailInsideOrderNos: source?.detailInsideOrderNos ?? [],
+    insideOrderNoDrift: source?.insideOrderNoDrift ?? false,
+    disposition,
+  };
+}
+
+function formerMissingComparison(
+  salesContractNo: string,
+  contracts: Map<string, AinuokeGarmentColorSizeContractFact>,
+  sources: Map<string, AinuokeGarmentColorSizeSource>,
+): AinuokeOldBlockerComparison {
+  const key = normalizeAinuokeSalesContractNo(salesContractNo);
+  const contract = contracts.get(key);
+  if (!contract) throw new Error(`former missing contract ${salesContractNo} 不在本次 Discovery`);
   const source = sources.get(key);
   const rows = source?.rows ?? [];
   const colorQuantity = rows.reduce((sum, row) => sum + (row.quantity ?? 0), 0);
@@ -183,6 +253,8 @@ function oldBlockerComparison(
     sizeRulePresent: rows.length === 0 || presentRules === 0 ? "NO" : presentRules === rows.length ? "YES" : "PARTIAL",
     sizeMatrixStatuses: [...new Set(rows.map((row) => row.sizeMatrixStatus))].sort(),
     duplicateSourceIdentityGroups,
+    detailInsideOrderNos: source?.detailInsideOrderNos ?? [],
+    insideOrderNoDrift: source?.insideOrderNoDrift ?? false,
     disposition,
   };
 }
@@ -193,16 +265,18 @@ export function buildAinuokeGarmentColorSizeValidationReport(input: {
   contracts: ReadonlyArray<AinuokeGarmentColorSizeContractFact>;
   details: ReadonlyArray<AinuokeGarmentColorSizeValidationDetail>;
   oldBlockerInsideOrderNos?: ReadonlyArray<string>;
+  formerMissingSalesContractNos?: ReadonlyArray<string>;
 }): AinuokeGarmentColorSizeValidationReport {
   const sources = input.details.flatMap((detail) => detail.source ? [detail.source] : []);
   const rows = sources.flatMap((source) => source.rows);
   const usableSources = sources.filter((source) => source.colorDetailStatus === "usable");
   const usableRows = usableSources.flatMap((source) => source.usableRows);
-  const contractMap = new Map(input.contracts.map((contract) => [normalizeAinuokeInsideOrderNo(contract.insideOrderNo), contract]));
-  const sourceMap = sourceByInside(input.details);
+  const contractMapByInside = new Map(input.contracts.map((contract) => [normalizeAinuokeInsideOrderNo(contract.insideOrderNo), contract]));
+  const contractMapByContract = new Map(input.contracts.map((contract) => [normalizeAinuokeSalesContractNo(contract.salesContractNo), contract]));
+  const sourceMap = sourceByContract(input.details);
   const colorComparison = { equal: 0, lower: 0, higher: 0 };
   for (const source of usableSources) {
-    const contract = contractMap.get(normalizeAinuokeInsideOrderNo(source.requestedInsideOrderNo));
+    const contract = contractMapByContract.get(normalizeAinuokeSalesContractNo(source.requestedSalesContractNo));
     if (!contract) continue;
     const difference = source.usableRows.reduce((sum, row) => sum + (row.quantity ?? 0), 0) - contract.quantity;
     if (difference === 0) colorComparison.equal += 1;
@@ -215,11 +289,13 @@ export function buildAinuokeGarmentColorSizeValidationReport(input: {
   const positiveRows = rows.filter((row) => (row.quantity ?? -1) > 0);
   const zeroRows = rows.filter((row) => row.quantity === 0);
   const oldRows = (input.oldBlockerInsideOrderNos ?? PHASE_2B2_OLD_BLOCKER_INSIDE_ORDER_NOS)
-    .map((insideOrderNo) => oldBlockerComparison(insideOrderNo, contractMap, sourceMap));
+    .map((insideOrderNo) => oldBlockerComparison(insideOrderNo, contractMapByInside, sourceMap));
+  const formerMissingRows = (input.formerMissingSalesContractNos ?? PHASE_2B2_1_MISSING_SALES_CONTRACT_NOS)
+    .map((salesContractNo) => formerMissingComparison(salesContractNo, contractMapByContract, sourceMap));
   const usableIdentities = usableRows.map((row) => row.sourceRowIdentity);
   const identityOrders = new Map<string, Set<string>>();
   for (const source of usableSources) for (const row of source.usableRows) {
-    identityOrders.set(row.sourceRowIdentity, new Set([...(identityOrders.get(row.sourceRowIdentity) ?? []), source.requestedInsideOrderNo]));
+    identityOrders.set(row.sourceRowIdentity, new Set([...(identityOrders.get(row.sourceRowIdentity) ?? []), source.requestedSalesContractNo]));
   }
   return {
     schemaVersion: "ainuoke-garment-color-size-validation.v1",
@@ -240,9 +316,14 @@ export function buildAinuokeGarmentColorSizeValidationReport(input: {
     identity: {
       duplicateCanonicalIdentityGroups: sources.reduce((sum, source) => sum + repeatedGroupCount(source.rows.map((row) => row.sourceRowIdentity)), 0),
       duplicateUsableSourceIdentityGroups: repeatedGroupCount(usableIdentities),
-      crossOrderContaminationRows: usableSources.reduce((sum, source) => sum + source.usableRows.filter((row) => normalizeAinuokeInsideOrderNo(row.insideOrderNo) !== source.requestedInsideOrderNo).length, 0),
-      billNoMismatchRows: sources.reduce((sum, source) => sum + source.issues.filter((issue) => issue.code === "BILL_NO_MISMATCH").length, 0),
-      insideOrderNoMismatchRows: 0,
+      crossOrderContaminationRows: 0,
+      billNoMismatchRows: 0,
+      ordersWithInsideOrderNoDrift: sources.filter((source) => source.insideOrderNoDrift).length,
+      insideOrderNoDriftExamples: sources.filter((source) => source.insideOrderNoDrift).slice(0, 10).map((source) => ({
+        salesContractNo: source.requestedSalesContractNo,
+        discoveryInsideOrderNo: source.discoveryInsideOrderNo,
+        detailInsideOrderNos: source.detailInsideOrderNos,
+      })),
       goodsNoMismatchRows: sources.reduce((sum, source) => sum + source.issues.filter((issue) => issue.code === "GOODS_NO_MISMATCH").length, 0),
     },
     colors: {
@@ -287,6 +368,13 @@ export function buildAinuokeGarmentColorSizeValidationReport(input: {
       stillMissing: oldRows.filter((row) => row.disposition === "still_missing").length,
       invalid: oldRows.filter((row) => row.disposition === "invalid").length,
       warningOnly: oldRows.filter((row) => row.disposition === "quantity_warning_only").length,
+    },
+    formerMissing: {
+      rows: formerMissingRows,
+      resolved: formerMissingRows.filter((row) => row.disposition === "resolved").length,
+      stillMissing: formerMissingRows.filter((row) => row.disposition === "still_missing").length,
+      invalid: formerMissingRows.filter((row) => row.disposition === "invalid").length,
+      warningOnly: formerMissingRows.filter((row) => row.disposition === "quantity_warning_only").length,
     },
   };
 }
