@@ -115,4 +115,4 @@ Phase 2B1 final validation：PostgreSQL integration 12/12、Full Tests 577/577�
 - 本阶段没有 live Ainuoke read/write、真实 505 bootstrap、Browser test-order migration、Repository cutover 或 dual write，也没有 Quote、Style Progress、Scheduling、Closing、附件/Blob migration。
 - legacy root ERP 是待退役兼容路径，不是新业务表设计、字段语义或 migration source。
 - 后续每个业务领域仍必须独立完成 backfill/dry-run/reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
-- 下一阶段为 Phase 2B2 Bootstrap Preview / Dry Run：Ainuoke Discovery → detail reads → 生成 PostgreSQL bootstrap candidate projection → reconciliation → preview report。它仍不得执行真实正式 bootstrap；任何 live read、真实写入或 cutover 都需要单独边界与授权。
+- Phase 2B2 Bootstrap Preview / Dry Run 已完成；随后 Phase 2B2.1 只读验证了固定 6087105 candidate garment color/size source。两阶段都没有执行真实正式 bootstrap、Browser cutover 或 PostgreSQL business write。6087105 是否取代当前历史 Preview 的 6086997 仍等待用户明确决定。

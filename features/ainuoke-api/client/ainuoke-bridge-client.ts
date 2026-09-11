@@ -73,6 +73,43 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
     body: JSON.stringify({ page: input.page ?? 1, pageSize: input.pageSize ?? 50, query: {} }),
   });
 
+  const readGarmentColorSizePage = (userId: string, input: { page?: number; pageSize?: number; insideOrderNo: string }) => readReport(
+    userId,
+    "garment_color_size_details",
+    { page: input.page, pageSize: input.pageSize, query: { insideOrderNo: input.insideOrderNo } },
+  );
+
+  const readAllReportPages = async (userId: string, reportKey: AinuokeDetailReportKey, input: { pageSize?: number; maxPages?: number; query: AinuokeReportQuery }) => {
+    const snapshots: AinuokeReportSnapshot[] = [];
+    const pageSize = input.pageSize ?? 50;
+    const maxPages = input.maxPages ?? 100;
+    const insideOrderNo = input.query.insideOrderNo.normalize("NFKC").trim();
+    if (!insideOrderNo) throw new AinuokeBridgeError("report_query_invalid", "艾诺科报表 InsideOrderNo 不能为空");
+    const expectedReportId = AINUOKE_REPORT_CATALOG[reportKey].reportId;
+    let expectedTotal: number | null = null;
+    let readCount = 0;
+    for (let page = 1; page <= maxPages; page += 1) {
+      const snapshot = await readReport(userId, reportKey, { page, pageSize, query: { insideOrderNo } });
+      if (snapshot.reportId !== expectedReportId
+        || snapshot.page !== page
+        || snapshot.pageSize !== pageSize
+        || snapshot.queryContext.insideOrderNo.normalize("NFKC").trim() !== insideOrderNo) {
+        throw new AinuokeBridgeError("report_contract_mismatch", "艾诺科 detail 响应与固定只读协议不一致");
+      }
+      if (expectedTotal === null) expectedTotal = snapshot.total;
+      if (snapshot.total !== expectedTotal || snapshot.rows.length > pageSize) {
+        throw new AinuokeBridgeError("report_paging_mismatch", "艾诺科 detail 分页总数不一致");
+      }
+      snapshots.push(snapshot);
+      readCount += snapshot.rows.length;
+      if (readCount === expectedTotal) return snapshots;
+      if (readCount > expectedTotal || snapshot.rows.length === 0 || snapshot.rows.length < pageSize) {
+        throw new AinuokeBridgeError("report_incomplete", "艾诺科 detail 未读取完整分页");
+      }
+    }
+    throw new AinuokeBridgeError("paging_limit", `艾诺科报表超过 ${maxPages} 页安全上限，已停止读取`);
+  };
+
   return {
     getAccount(userId: string) {
       return request<AinuokeAccountView>(userId, "/v1/ainuoke/account", { method: "GET" });
@@ -90,6 +127,7 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
       return result;
     },
     readReport,
+    readGarmentColorSizePage,
     readOrderDiscoveryPage,
     async readAllOrderDiscoveryPages(userId: string, input: { pageSize?: number; maxPages?: number } = {}) {
       const snapshots: AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>[] = [];
@@ -115,35 +153,13 @@ export function createAinuokeBridgeClient(options: { baseUrl?: string; fetchImpl
       }
       throw new AinuokeBridgeError("paging_limit", `艾诺科订单发现超过 ${maxPages} 页安全上限，已停止读取`);
     },
-    async readAllReportPages(userId: string, reportKey: AinuokeDetailReportKey, input: { pageSize?: number; maxPages?: number; query: AinuokeReportQuery }) {
-      const snapshots: AinuokeReportSnapshot[] = [];
-      const pageSize = input.pageSize ?? 50;
-      const maxPages = input.maxPages ?? 100;
-      const insideOrderNo = input.query.insideOrderNo.normalize("NFKC").trim();
-      if (!insideOrderNo) throw new AinuokeBridgeError("report_query_invalid", "艾诺科报表 InsideOrderNo 不能为空");
-      const expectedReportId = AINUOKE_REPORT_CATALOG[reportKey].reportId;
-      let expectedTotal: number | null = null;
-      let readCount = 0;
-      for (let page = 1; page <= maxPages; page += 1) {
-        const snapshot = await readReport(userId, reportKey, { page, pageSize, query: { insideOrderNo } });
-        if (snapshot.reportId !== expectedReportId
-          || snapshot.page !== page
-          || snapshot.pageSize !== pageSize
-          || snapshot.queryContext.insideOrderNo.normalize("NFKC").trim() !== insideOrderNo) {
-          throw new AinuokeBridgeError("report_contract_mismatch", "艾诺科 detail 响应与固定只读协议不一致");
-        }
-        if (expectedTotal === null) expectedTotal = snapshot.total;
-        if (snapshot.total !== expectedTotal || snapshot.rows.length > pageSize) {
-          throw new AinuokeBridgeError("report_paging_mismatch", "艾诺科 detail 分页总数不一致");
-        }
-        snapshots.push(snapshot);
-        readCount += snapshot.rows.length;
-        if (readCount === expectedTotal) return snapshots;
-        if (readCount > expectedTotal || snapshot.rows.length === 0 || snapshot.rows.length < pageSize) {
-          throw new AinuokeBridgeError("report_incomplete", "艾诺科 detail 未读取完整分页");
-        }
-      }
-      throw new AinuokeBridgeError("paging_limit", `艾诺科报表超过 ${maxPages} 页安全上限，已停止读取`);
+    readAllReportPages,
+    async readAllGarmentColorSizePages(userId: string, input: { insideOrderNo: string; pageSize?: number; maxPages?: number }) {
+      return readAllReportPages(userId, "garment_color_size_details", {
+        pageSize: input.pageSize,
+        maxPages: input.maxPages,
+        query: { insideOrderNo: input.insideOrderNo },
+      });
     },
     clearSession() {
       activeUserId = null;

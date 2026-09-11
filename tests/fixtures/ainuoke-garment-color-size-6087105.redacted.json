@@ -1,0 +1,125 @@
+{
+  "D1935": {
+    "schemaVersion": "ainuoke-direct-read.v2",
+    "reportId": "6087105",
+    "fetchedAt": "2026-09-11T00:00:00Z",
+    "page": 1,
+    "pageSize": 50,
+    "total": 5,
+    "queryContext": { "insideOrderNo": "D1935" },
+    "snapshotHash": "d1935-sanitized",
+    "rows": [
+      {
+        "sourceRowIdentity": "6087105:sha256:d1935-green",
+        "values": {
+          "id": 6204,
+          "BillNo": "PI2607-235",
+          "GoodsNo": "D1935",
+          "insideorderno": "D1935",
+          "CustomerOrderNo": "PO-SANITIZED",
+          "SizeRule": "4P,6P,8P,10P,12P,14P,16P,4R,6R,8R,10R,12R,14R,16R,18R,20R,22R,8L,10L,12L,14L,16L,18L,20L,22L",
+          "CnColor": "绿色/Courtyard",
+          "SizeNum": 1000,
+          "DeliveryDate": "2026-10-13",
+          "Size1": 100,
+          "Size2": 200,
+          "Size3": 300,
+          "Size4": 400
+        }
+      },
+      {
+        "sourceRowIdentity": "6087105:sha256:d1935-purple",
+        "values": {
+          "id": 6204,
+          "BillNo": "PI2607-235",
+          "GoodsNo": "D1935",
+          "insideorderno": "D1935",
+          "CustomerOrderNo": "PO-SANITIZED",
+          "SizeRule": "4P,6P,8P,10P,12P,14P,16P,4R,6R,8R,10R,12R,14R,16R,18R,20R,22R,8L,10L,12L,14L,16L,18L,20L,22L",
+          "CnColor": "紫色/Holly hock",
+          "SizeNum": 1800,
+          "DeliveryDate": "2026-10-13",
+          "Size1": 300,
+          "Size2": 400,
+          "Size3": 500,
+          "Size4": 600
+        }
+      },
+      {
+        "sourceRowIdentity": "6087105:sha256:d1935-navy-zero",
+        "values": {
+          "id": 6204,
+          "BillNo": "PI2607-235",
+          "GoodsNo": "D1935",
+          "insideorderno": "D1935",
+          "CustomerOrderNo": "PO-SANITIZED",
+          "SizeRule": "4P,6P,8P,10P,12P,14P,16P,4R,6R,8R,10R,12R,14R,16R,18R,20R,22R,8L,10L,12L,14L,16L,18L,20L,22L",
+          "CnColor": "藏青/Navy Blazer",
+          "SizeNum": 0,
+          "DeliveryDate": "2026-10-13"
+        }
+      },
+      {
+        "sourceRowIdentity": "6087105:sha256:d1935-blue-zero",
+        "values": {
+          "id": 6204,
+          "BillNo": "PI2607-235",
+          "GoodsNo": "D1935",
+          "insideorderno": "D1935",
+          "CustomerOrderNo": "PO-SANITIZED",
+          "SizeRule": "4P,6P,8P,10P,12P,14P,16P,4R,6R,8R,10R,12R,14R,16R,18R,20R,22R,8L,10L,12L,14L,16L,18L,20L,22L",
+          "CnColor": "蓝色/Surf the Web",
+          "SizeNum": 0,
+          "DeliveryDate": "2026-10-13"
+        }
+      },
+      {
+        "sourceRowIdentity": "6087105:sha256:d1935-print",
+        "values": {
+          "id": 6204,
+          "BillNo": "PI2607-235",
+          "GoodsNo": "D1935",
+          "insideorderno": "D1935",
+          "CustomerOrderNo": "PO-SANITIZED",
+          "SizeRule": "4P,6P,8P,10P,12P,14P,16P,4R,6R,8R,10R,12R,14R,16R,18R,20R,22R,8L,10L,12L,14L,16L,18L,20L,22L",
+          "CnColor": "浅藏青+白色 锁链条印花",
+          "SizeNum": 1840,
+          "DeliveryDate": "2026-10-13",
+          "Size1": 400,
+          "Size2": 440,
+          "Size3": 500,
+          "Size4": 500
+        }
+      }
+    ]
+  },
+  "T1826-4": {
+    "schemaVersion": "ainuoke-direct-read.v2",
+    "reportId": "6087105",
+    "fetchedAt": "2026-09-11T00:00:00Z",
+    "page": 1,
+    "pageSize": 50,
+    "total": 3,
+    "queryContext": { "insideOrderNo": "T1826-4" },
+    "snapshotHash": "t1826-sanitized",
+    "rows": [
+      { "sourceRowIdentity": "6087105:sha256:t1826-white", "values": { "id": 1, "BillNo": "PI2508-025", "GoodsNo": "T1826-4", "insideorderno": "T1826-4", "SizeRule": "S,M,L", "CnColor": "White白色BN108", "SizeNum": 1530, "Size1": 500, "Size2": 510, "Size3": 520 } },
+      { "sourceRowIdentity": "6087105:sha256:t1826-navy", "values": { "id": 1, "BillNo": "PI2508-025", "GoodsNo": "T1826-4", "insideorderno": "T1826-4", "SizeRule": "S,M,L", "CnColor": "Navy藏青色BN357", "SizeNum": 1200, "Size1": 400, "Size2": 400, "Size3": 400 } },
+      { "sourceRowIdentity": "6087105:sha256:t1826-black", "values": { "id": 1, "BillNo": "PI2508-025", "GoodsNo": "T1826-4", "insideorderno": "T1826-4", "SizeRule": "S,M,L", "CnColor": "Black黑色BN035", "SizeNum": 1000, "Size1": 300, "Size2": 300, "Size3": 400 } }
+    ]
+  },
+  "1917U": {
+    "schemaVersion": "ainuoke-direct-read.v2",
+    "reportId": "6087105",
+    "fetchedAt": "2026-09-11T00:00:00Z",
+    "page": 1,
+    "pageSize": 50,
+    "total": 2,
+    "queryContext": { "insideOrderNo": "1917U" },
+    "snapshotHash": "1917u-sanitized",
+    "rows": [
+      { "sourceRowIdentity": "6087105:sha256:1917u-ecru", "values": { "id": 2, "BillNo": "PI2511-141", "GoodsNo": "MS1917U", "insideorderno": "1917U", "SizeRule": "S,M,L", "CnColor": "ECRU 白色", "SizeNum": 4382, "Size1": 1400, "Size2": 1482, "Size3": 1500 } },
+      { "sourceRowIdentity": "6087105:sha256:1917u-mole", "values": { "id": 2, "BillNo": "PI2511-141", "GoodsNo": "MS1917U", "insideorderno": "1917U", "SizeRule": "S,M,L", "CnColor": "DARK MOLE 绿色", "SizeNum": 5011, "Size1": 1600, "Size2": 1700, "Size3": 1711 } }
+    ]
+  }
+}

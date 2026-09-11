@@ -11,21 +11,21 @@
 
 ## Current Stable Main
 
-`f424a9b78f66dffdd47075f8ff29ea5f3590717b`（Phase 2B1 PR #17 已 merged）
+`9556cc9be9ee375b53121e9f30d67a68171356e6`（Phase 2B2 PR #18 已 merged）
 
 ## Current Active Task
 
-- Branch: `feat/postgres-salesorder-bootstrap-preview`
-- Baseline: `f424a9b78f66dffdd47075f8ff29ea5f3590717b`
-- Scope: PostgreSQL Phase 2B2 SalesOrder Bootstrap Preview / Dry Run。允许 fixed Discovery/6086103/6086997 live reads；禁止 6087050、Ainuoke write、真实 PostgreSQL/Browser 业务写入、真实 bootstrap、cutover/retirement，以及 Quote/Style Progress/Scheduling/Closing mutation。
-- 纯内存 `SalesOrderBootstrapCandidate`、reconciliation、deterministic ordering/hash、detail failure/quantity warning 分组和完整 Discovery stale guard 已实现；Candidate 不创建 UUID。typed detail paging 对协议/total/完整性 fail closed，颜色只复用既有 adapter/normalization。
-- 最终 authoritative live run：Discovery 507/11 页，`草拟=364`、`生效=143`；before/after hash 均为 `95b36d6375ab8061731ef976debffa41b46995da6e8c8146b32960e9ff616261`，added/removed/changed identity=0/0/0。D1935 + 9 samples 的 6086103 parity 10/10，因此 strategy=`DISCOVERY ROW REUSE`、additional 6086103 pages=10；6086997 507/507 query 完整读取、551 pages。
-- Scope candidates 507；strict projectable 473。Blocking 34：29 missing `stylecolor`、5 duplicate canonical 6086997 source-row identity。Warnings 26：color/contract quantity difference，未修正。Discovery duplicates 与 detail identity mismatch 都为 0。
-- `ORDER_NO_POLICY = NEEDS_USER_DECISION`。473 个 valid candidates 使用 disposable-only `PREVIEW-######` 经 Phase 2B1 `createAinuokeSalesOrder`：created 473、idempotent 473、rejected/schema/source-link conflicts 0、rollback probe 1、trusted OperationLogs 473；PG16 tmpfs container/database 已销毁。
-- 最终 run 583 successful report-page reads；本阶段累计 1,166（统计归类修正前有一次相同完整 stable run）。6087050 reads、Ainuoke writes、real PG/Browser/Quote/Style Progress/Scheduling/Closing/real OperationLog writes 均为 0。
-- `READY FOR REAL BOOTSTRAP = NO`。下一步只能是 blocker reconciliation + 用户确认正式 server `order_no`、`current_account_visible` 组织范围、disappearance/retention policy；之后仍须单独授权并重新运行 fresh Preview。不得开始真实 bootstrap、Browser cutover 或 retirement。
-- Phase 2B1 remains stable baseline: migration 0002 four tables、transactional/idempotent `createAinuokeSalesOrder`、trusted actor、typed read API 401/403/404/two-session identity，PR #17 已 merge。
-- Phase 2B2 final gate：PostgreSQL integration 13/13、Full Tests 584/584、TypeScript、zero-warning ESLint、server build、Production Build 30 routes、`git diff --check` 全部 PASS；Style Progress benchmark 未重跑。
+- Branch: `feat/ainuoke-6087105-color-source-validation`
+- Baseline: `9556cc9be9ee375b53121e9f30d67a68171356e6`（Phase 2B2 PR #18 merge commit）
+- Scope: Phase 2B2.1 validates fixed report 6087105 (成衣分色分码明细) as a candidate SalesOrder color/size source. It does not switch/delete 6086997, run real bootstrap, write PostgreSQL/Browser/Ainuoke, read 6087050, or touch Quote/Style Progress/Scheduling/Closing mutations.
+- Fixed Bridge key `garment_color_size_details` uses report 6087105, `insideorderno contains`, `[内层]`; browser cannot submit raw reportId/endpoint/condition. Typed client reuses complete bounded pagination and fails closed on report/query/page/total/incomplete/page-limit drift.
+- Independent adapter performs NFKC/case/whitespace exact post-filter, uses canonical whole sanitized-row SHA-256 rather than upstream `id`, preserves zero-quantity colors, maps ordered SizeRule→Size1…26 without guessing, and makes critical color anomalies invalidate the whole enrichment slice without invalidating SalesOrder existence.
+- Authoritative live run: Discovery before/after 511/11 pages, `草拟=368`/`生效=143`, stable hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`; 511/511 6087105 queries succeeded over 511 pages. Exact orders/no detail=503/8, exact rows=1,378, contains false positives excluded=174.
+- Usable colors: 497 orders; all 497 have color total equal contract quantity. Invalid: 6 orders (15 invalid SizeNum, 6 blank colors, 3 duplicate canonical placeholder identities); duplicate usable identity/cross-order contamination/BillNo/InsideOrderNo/GoodsNo mismatch all 0. SizeRule present/missing=1,372/6, patterns=41, tokens 1…25; positive matrix valid/mismatch/missing=1,361/0/0; zero rows without SizeN=2 legal.
+- Old Phase 2B2 34 blockers retain their historical record. Under 6087105 they are 31 resolved, 0 missing, 3 invalid, 0 quantity-warning-only. D1935/T1826-4/1917U anchors are 5/4,640, 3/3,730 and 2/9,393 PASS.
+- Formal policies are now confirmed and documented in D-078: server-generated global `SO-00000001` sequence, `current_account_visible` fresh scope, missing source retention without delete/cancel/rebind, and normalized mirror/hash/time/reconciliation retention without full raw payload by default. Schema implementation remains later.
+- `RECOMMEND_REPLACE_6086997_WITH_6087105 = YES`, but D-079 remains Needs User Decision. The existing/default Preview still uses 6086997. After explicit approval, a later phase may switch the Preview source and rerun a fresh full Preview; it still may not execute real bootstrap without separate authorization.
+- Authoritative run used 533 successful pages; two safe classification-only reruns used 1,044, for Phase 2B2.1 total 1,577. 6086997/6087050 reads and all business writes were 0. Final gates: Bridge 36/36, relevant Ainuoke 40/40, Full Tests 595/595, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and `git diff --check` PASS. PR closure is pending in this working tree; Style Progress benchmark and PostgreSQL integration were intentionally not rerun because neither domain changed.
 
 ### Previous completed PR #14 context
 

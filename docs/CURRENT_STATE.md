@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `feat/postgres-salesorder-bootstrap-preview`，起点为 `f424a9b78f66dffdd47075f8ff29ea5f3590717b`。Phase 2B2 Bootstrap Preview / Dry Run 已完成实现与 live read/disposable-PG 验证，正在进行最终门禁/PR 收口；它没有执行真实 bootstrap 或 Browser cutover。
-- 当前稳定基线：`main` / `origin/main` 为 `f424a9b78f66dffdd47075f8ff29ea5f3590717b`（Phase 2B1 PR #17 已 merged）。
+- 当前 Active Task 为 `feat/ainuoke-6087105-color-source-validation`，起点为 `9556cc9be9ee375b53121e9f30d67a68171356e6`。Phase 2B2.1 已完成 6087105 candidate source 实现、live read validation 与最终门禁，正在进行 PR 收口；它没有正式切换 6086997、执行真实 bootstrap 或 Browser cutover。
+- 当前稳定基线：GitHub `main` 为 `9556cc9be9ee375b53121e9f30d67a68171356e6`（Phase 2B2 PR #18 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -22,6 +22,21 @@
 
 ## 本轮完成状态
 
+### PostgreSQL Phase 2B2.1 — Ainuoke 6087105 Garment Color/Size Source Validation
+
+- Bridge fixed catalog 新增 `garment_color_size_details`：report 6087105、`insideorderno contains`、flow `[内层]`。Browser 仍只传固定 key + InsideOrderNo，不能传 raw reportId/endpoint/conditionList。6086997 支持未删除、默认 Preview source 未切换。
+- 新 typed client 复用现有 credential/session、auth-expiry replay、timeout、sanitization 与完整分页；report/query/page/total drift、incomplete pagination 和 page limit 全部 fail closed。
+- 独立 adapter 在 contains 返回后执行 NFKC/case/whitespace exact filter，排除并统计其它 InsideOrderNo；上游 `id` 不作为 line identity，trace 继续使用 whole sanitized-row canonical SHA-256。颜色名不被假设为唯一。
+- `SizeRule` 原顺序映射 Size1…Size26，不排序、不删中间零值、不猜尺码。`SizeNum=0` 且无 SizeN 是合法颜色；关键颜色行异常使整个 enrichment slice invalid，但 missing/invalid enrichment 都不阻止 6086103 SalesOrder Candidate 存在。
+- 2026-09-11 authoritative live run：Discovery before/after 都是 511 行/11 页，`草拟=368`、`生效=143`，hash 均为 `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`，added/removed/changed identity=0/0/0。6087105 queries 511/511 success，共 511 页。
+- exact orders/no detail=503/8；exact rows=1,378；contains false-positive rows 174 全部排除；usable-color orders=497。497/497 的 `sum(SizeNum)` 与 6086103 contract quantity 相等，lower/higher 都为 0。
+- 六张 invalid：15 个 invalid SizeNum、6 个 blank color、3 个 duplicate canonical placeholder identity groups；duplicate usable identity、cross-order contamination、BillNo/InsideOrderNo/GoodsNo mismatch 都为 0。另有 8 张 no exact detail，作为 missing enrichment。
+- SizeRule present/missing=1,372/6，41 patterns，token 1…25；positive SizeNum matrix valid/mismatch/missing=1,361/0/0；2 个 zero-quantity rows 无 SizeN 且合法；populated beyond SizeRule=0；同订单 multiple rules=3。
+- 旧 34 blockers 保留 Phase 2B2 历史。6087105 对照为 resolved/still missing/invalid/warning-only=31/0/3/0；D1935 5 rows/4,640、T1826-4 3/3,730、1917U 2/9,393 anchor 全部 PASS。
+- 用户确认的正式规则已记录为 D-078：server 全局递增不可编辑 `SO-00000001` order number、fresh `current_account_visible` scope、source disappearance 不 delete/cancel/rebind 并可恢复 seen、normalized mirror/hash/time/reconciliation retention 且默认不存完整 raw payload。具体 schema/sequence/tombstone 实现未在本 Gate 扩展。
+- 推荐 `RECOMMEND_REPLACE_6086997_WITH_6087105=YES`，但 D-079 状态仍是 Needs User Decision；未正式替换。权威 run 533 successful page reads，两个 aggregate/classification-only pass 1,044，总计 1,577；6086997/6087050 reads 与 Ainuoke/PG/Browser/Quote/Style Progress/Scheduling/Closing writes 均为 0。
+- 完整字段、token distribution、old-34 table 与限制见 `docs/features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`。最终门禁一次完成：Bridge 36/36、相关 Ainuoke 40/40、Full Tests 595/595、TypeScript、零警告 ESLint、server build、Production Build 30 routes 与 `git diff --check` 全部 PASS；按范围未重跑 PostgreSQL integration 或 Style Progress benchmark。
+
 ### PostgreSQL Phase 2B2 — SalesOrder Bootstrap Preview / Dry Run
 
 - 新增纯内存 `SalesOrderBootstrapCandidate`、deterministic ordering/hash、Discovery/detail identity reconciliation、duplicate/cross-mapping detection、detail failure/quantity warning 分组与二次完整 Discovery stale guard；Candidate 不创建 UUID，不依赖业务 Repository。
@@ -29,9 +44,9 @@
 - 2026-09-11 最终 live run：Discovery 507/11 页，`草拟=364`、`生效=143`，D1935 存在；前后 hash 均为 `95b36d6375ab8061731ef976debffa41b46995da6e8c8146b32960e9ff616261`，added/removed/changed identity 为 0/0/0，Snapshot stable PASS。
 - D1935 + 9 个跨日期/Status 样本的 6086103 mapped-field parity 10/10，使用 `DISCOVERY ROW REUSE`。最终 run 为 10 次额外 6086103 page read；6086997 对 507/507 InsideOrderNo 完整读取，共 551 页。
 - 507 个 visible rows 全部保留在 bootstrap scope；473 个形成 strict Candidate。34 个 blocking 均来自颜色结构：29 缺 required `stylecolor`，5 存在重复 canonical 6086997 source-row identity；26 个 color/contract quantity difference 只报告、不修正。Discovery duplicate sourceId/sourceRowIdentity/InsideOrderNo/SalesContractNo 和 identity mismatch 均为 0。
-- `ORDER_NO_POLICY = NEEDS_USER_DECISION`。一次性 PG16 只对 473 个 projectable Candidate 使用 `PREVIEW-######`，结果 planned/created/idempotent=473/473/473、rejected/schema/source-link conflicts=0/0/0、rollback probe=1、trusted OperationLogs=473；tmpfs container/database 已销毁。
+- Phase 2B2 当时记录 `ORDER_NO_POLICY = NEEDS_USER_DECISION`；随后用户已在 Phase 2B2.1 确认正式规则为 server/PostgreSQL 全局递增、不可编辑的 `SO-00000001` 格式。该次一次性 PG16 仍只对 473 个 projectable Candidate 使用 disposable-only `PREVIEW-######`，结果 planned/created/idempotent=473/473/473、rejected/schema/source-link conflicts=0/0/0、rollback probe=1、trusted OperationLogs=473；tmpfs container/database 已销毁。
 - 最终 authoritative run 为 583 个成功 report-page reads。本阶段因本地统计归类修正前另做过一次相同完整 stable read，累计成功 page reads 为 1,166；Ainuoke writes、真实 PostgreSQL business writes、Browser/Quote/Style Progress/Scheduling/Closing/真实 OperationLog writes 均为 0。
-- `READY FOR REAL BOOTSTRAP = NO`：必须先处理 34 个 color-detail blockers，确认正式 server `order_no` rule、`current_account_visible` 组织范围、source disappearance/retention policy，并在独立授权后重新执行 fresh stable Preview。详细证据见 `docs/features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`。
+- Phase 2B2 当时的 `READY FOR REAL BOOTSTRAP = NO` 结论继续有效。随后 Phase 2B2.1 已确认 order number/scope/disappearance/retention policies，并用 6087105 将旧 34 reclassify 为 31 resolved + 3 invalid；但 source replacement 仍需用户决定，获批后还要独立执行 fresh stable Preview，真实 bootstrap 仍需另外授权。详细证据见 `docs/features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`。
 - Phase 2B2 最终门禁：PostgreSQL integration 13/13、Full Tests 584/584、TypeScript、零警告 ESLint、server build、Production Build 30 routes 与 `git diff --check` 全部 PASS；未重跑 Style Progress benchmark。
 
 ### PostgreSQL Phase 2B1 — SalesOrder Server Foundation
@@ -61,7 +76,7 @@
 - Stage A PASS：从真实“成衣销售合同”页面确认固定报表 6086103 的空条件列表协议。它不要求预知 InsideOrderNo/SalesContractNo，使用 `POST /kaijin/report/report/getReportObjAndData`，并以实时 total 分页到确定终点。
 - 原 Discovery Gate 曾观察到 505 行；Phase 2B2 当前两次完整只读遍历均返回 507 行、11 页，normalized SHA-256 均为 `95b36d6375ab8061731ef976debffa41b46995da6e8c8146b32960e9ff616261`。这再次证明 505/507 都只是当次 Snapshot，不是业务常量。
 - 当前完整 Snapshot 的 raw status 为 `生效=143`、`草拟=364`。全部 Discovery-visible 合同都是 clean-bootstrap scope candidate，Status 不参与 inclusion/exclusion；Status 仅作为 source fact 保留。
-- D1935 与另外 5 个脱敏样本均通过 6086103/6086997 identity/detail cross-check。Source scope 只能确认 `current_account_visible`，不能称为全公司订单；账号权限/组织范围仍需在正式 bootstrap 前确认。
+- D1935 与另外 5 个脱敏样本均通过 6086103/6086997 identity/detail cross-check。Source scope 只能称为 `current_account_visible`、不能称为全公司订单；用户已确认它就是正式 bootstrap organizational scope，并要求每次以 fresh complete Discovery 为准。
 - Stage B 新增固定 `order_discovery` allowlist、精确空 query builder、typed full-pagination client、最小 Discovery Row/Snapshot 与 whole-list deterministic hash。DiscoveryRow 不是 SalesOrder；没有业务 Repository、PostgreSQL 或 commit 依赖。
 - Source 消失不能区分删除、权限变化、筛选变化或上游失败；未来不得仅凭缺失 hard-delete，需 last-seen/missing/tombstone reconciliation。
 - 当前 Browser Order Center / Scheduling 是测试数据，不作为正式 PostgreSQL migration source 或 bootstrap authority；历史 464 不是迁移清单。Quote Center 是真实业务数据并必须保护，Style Progress/Material 不在 retirement 范围，Closing retirement 状态待决定。
@@ -87,7 +102,7 @@
 - PR #14 已 merged。字段级证据见 `docs/features/SALES_ORDER_PERSISTENCE.md`；Ainuoke source facts + Zhixu-owned aggregate 的组合边界仍有效。
 - 原 A/B/C Browser classifier/hybrid import 建议保留为历史分析，但已被当前 Browser Order/Scheduling migration strategy supersede：这些是测试数据，不作为正式 bootstrap authority，也不要求继承当前 Browser SalesOrder ID。
 - 未来正式 PostgreSQL SalesOrder 从 discovery/detail facts 新建稳定身份；身份一旦建立仍必须长期稳定，以承载未来 Quote/reorder provenance、owned state、Scheduling、Closing 与 OperationLog references。
-- Discovery blocker 已在本 Gate 解决到 `current_account_visible` 范围，且 all-visible-contracts/no-status-filter 规则已确认。Phase 2B clean-bootstrap schema/API design 技术前置已具备，但 visibility scope/retention 仍需用户决定，且本任务没有 Phase 2B 或真实 bootstrap 授权。
+- Discovery blocker 已解决到 `current_account_visible` 范围，且 all-visible-contracts/no-status-filter 规则已确认。用户随后确认了 server order number、scope、source disappearance 和 normalized retention policies；对应 schema/sequence/tombstone 实现仍是后续独立 Gate。当前未授权真实 bootstrap。
 
 ### Ainuoke Unified Order + Material Sync Gate 4
 
@@ -127,7 +142,7 @@
 - Bridge 只允许 `127.0.0.1` / `::1` bind，CORS 只允许 `http://127.0.0.1:3000` 与 `http://127.0.0.1:3001`；账号/报表请求通过 HttpOnly bridge session + CSRF nonce 取得 mock user context。当前 userId 仍由 browser-local mock identity 启动会话，不是生产可信认证。
 - Personal Account API 已提供 GET/PUT/test/DELETE；GET 不返回 secret，PUT 先真实验证再替换，失败保留旧 credential，DELETE 同时清 credential、token 与该用户 bridge session。
 - 已确认 base `http://61.164.81.194:9043`、login `/kaijin/system/user/loginsys2`、Generic Report `/kaijin/report/report/getReportObjAndData` 与 `rungingSysId=6080183` Cookie context。报表按真实 `Authorization/Token/kaijin_my_token`、JSON `sqlCdtn`、report-specific InsideOrderNo condition 与 JSON-string `dataList` parser 工作，不使用 `Bearer` 或通用 `{reportId,page,pageSize,query}` 假设。
-- 固定只读 Catalog 只有 6086103 / 6086997 / 6087050；Browser query DTO 只有 `insideOrderNo`，不能提交 raw reportId/formId/sqlCdtn/conditionList。source snapshot v2 保留 report、fetch time、paging、total、query context、canonical-row source identity、schema 与 deterministic hash。6087050 repeated id 不碰撞，unknown report、malformed dataList 与 write-like endpoint fail closed。
+- 固定只读 Catalog 包含既有 6086103 / 6086997 / 6087050，以及 Phase 2B2.1 新增的候选 6087105；Browser query DTO 只有 `insideOrderNo`，不能提交 raw reportId/formId/sqlCdtn/conditionList。6087105 仅用于独立 typed candidate adapter/validation，未进入默认 unified sync 或 Bootstrap Preview。source snapshot v2 保留 report、fetch time、paging、total、query context、canonical-row source identity、schema 与 deterministic hash。6087050/6087105 的 repeated id 不作为 identity，unknown report、malformed dataList 与 write-like endpoint fail closed。
 - `/my-settings/ainuoke-account` 提供本人用户名、密码输入、状态/验证时间、测试、保存/更新密码与解除绑定；密码不回填。self-scoped `ainuoke.account.bind_self` 与业务合同 `ainuoke.bind` 分离，且不会授予 sync/conflict 权限。
 - 2026-09-09 真实只读验收已执行：用户本人通过 UI 保存个人 credential，Windows backend 为 `WinVaultKeyring`；login 成功。D1935 的 6086103 为 HTTP 200、1/1 行，6086997 为 50/187 行，6087050 为 50/262 行；字段结构与真实 Scanner 清单一致。6087050 当页有 1 个 repeated-`id` group，而 50 个 source identity 全部唯一。Console 16 条记录 secret-pattern 命中 0，未调用任何 Ainuoke mutation 或 Zhixu business commit。
 - 6086103/6086997 Direct API snapshot 已经通过 transport-neutral Contract Source 进入唯一 `AinuokeContractMirror → synchronizeAinuokeContracts`。API 与历史 Excel 只在 transport mapping 不同；normalize、数量校验、matcher、幂等与人工 adjustment 保留规则均复用既有实现。Preview 只在内存运行；正式保存仍要求用户明确确认与 `ainuoke.sync`，且只保存既有 Service 产出的 orders/state/operationLogs 与 API ImportRun。
@@ -200,7 +215,7 @@
 
 ## 尚未落地
 
-- Browser Order Center 到 PostgreSQL SalesOrder 的真实 bootstrap、read/write cutover 与 Browser store retirement尚未落地；Phase 2B1 只完成 server foundation，Phase 2B2 只完成 read-only Preview/disposable dry-run。
+- Browser Order Center 到 PostgreSQL SalesOrder 的真实 bootstrap、read/write cutover 与 Browser store retirement 尚未落地；Phase 2B1 只完成 server foundation，Phase 2B2 只完成 read-only Preview/disposable dry-run，Phase 2B2.1 只验证了候选 color/size source。6087105 是否替换 6086997 仍等待用户决定。
 - Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
 - 服务端全文搜索与业务列表分页尚未落地；migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。

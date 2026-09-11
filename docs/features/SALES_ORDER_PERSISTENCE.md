@@ -10,6 +10,8 @@
 
 Phase 2B2 subsequently performed authorized live **reads only** for Discovery/6086103/6086997, built no UUID, and made no real PostgreSQL or Browser write. Its complete evidence and blockers are recorded in `SALES_ORDER_BOOTSTRAP_PREVIEW.md`.
 
+Phase 2B2.1 subsequently validated 6087105 as a cleaner candidate garment color/size source. The fixed support and evidence do not change the current/default 6086997 Preview path; source replacement remains pending explicit user approval. No PostgreSQL schema or business write was added.
+
 ## Phase 2B2 Bootstrap Preview result
 
 - Final Discovery observed 507 current-account-visible contracts: `草拟=364`, `生效=143`. Status was preserved without filtering; historical 505 is not a constant.
@@ -85,7 +87,7 @@ Final Phase 2B1 validation: PostgreSQL integration 12/12, Full Tests 577/577, Ty
 | OperationLog references | Append-only Zhixu audit context with `orderId` and snapshots | No | Yes | Yes | Never | Yes; server append-only log |
 | Quote provenance | `sourceQuoteId/sourceRevisionId/sourcePriceVersionId` | No | Yes | Yes | Never | Yes; until Quote cutover, retain stable external IDs without pretending a PG FK exists |
 | reorder provenance | `sourceOrderId` self-reference | No | Yes | Yes | Never | Yes, self-FK once both orders exist |
-| Ainuoke mirror/import/sync metadata | Report/source hashes, fetched time, disposition, `boundOrderId`, ImportRun | Current snapshot can be reread only after discovery; historical runs cannot | Binding/disposition/audit policy are Zhixu-owned | Yes | Refresh current source metadata; never replace binding/history silently | Mapping + latest reconciliation metadata yes; raw retention policy needs decision |
+| Ainuoke mirror/import/sync metadata | Report/source hashes, fetched time, disposition, `boundOrderId`, ImportRun | Current snapshot can be reread only after discovery; historical runs cannot | Binding/disposition/audit policy are Zhixu-owned | Yes | Refresh current source metadata; never replace binding/history silently | Retain normalized mirror, hashes, necessary timestamps and reconciliation metadata; do not retain complete raw payload by default |
 
 ## Historical logical classification of Browser SalesOrder
 
@@ -110,8 +112,8 @@ An order has no verified Ainuoke source link and originates from `manual`, `quot
 - **Confirmed:** known `InsideOrderNo` → fully paged 6086103/6086997/6087050 detail reads works.
 - **Now confirmed:** empty state → fixed 6086103 empty-condition discovery → complete current-account-visible `InsideOrderNo` / `SalesContractNo` list. Phase 2B2's final two traversals returned the same 507 rows over 11 pages and the same normalized hash; D1935 plus nine date/status-spanning samples proved strict 6086103 Discovery/detail mapped-field parity.
 - **Confirmed rule:** formal clean bootstrap includes every contract in the complete `current_account_visible` Discovery snapshot. `生效` and `草拟` both participate; raw status remains a source fact but is not an inclusion/exclusion rule. Observed totals such as 505 and 507 are snapshots, never fixed constants.
-- **Still undecided:** whether the currently bound account has the intended organizational scope. Discovery makes no hidden time/status filter.
-- Source disappearance cannot authorize hard deletion. Future reconciliation needs last-seen/missing/tombstone state and review.
+- **Confirmed scope:** `current_account_visible` is the formal organizational bootstrap scope. Discovery makes no hidden time/status filter and every run measures a fresh complete snapshot rather than expecting 505/507 or another constant.
+- **Confirmed disappearance/retention:** source absence cannot authorize hard deletion, cancellation, UUID replacement or binding removal. Future reconciliation marks missing, retains history and restores seen on reappearance; long-term storage keeps normalized mirrors, hashes, necessary timestamps and reconciliation metadata without full raw upstream payload by default.
 
 ## Browser migration necessity
 
@@ -136,16 +138,25 @@ Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate*
 1. **Phase 2A evidence/decision:** complete. Source/owned boundary, clean-bootstrap direction and Discovery semantics are recorded; Browser Order/Scheduling test data is not a migration source.
 2. **Phase 2B1 Server Foundation:** complete. Migration/schema/repository/transactional create/read API are verified only in disposable PostgreSQL; there is no runtime cutover.
 3. **Phase 2B2 Bootstrap Preview / Dry Run:** complete. The stable 507-row scope yielded 473 projectable candidates, 34 blocking color-detail issues and 26 warnings; the valid subset passed disposable PostgreSQL. No real bootstrap occurred.
-4. **Next reconciliation/decision gate:** resolve the 34 source-detail blockers and confirm server `order_no`, organizational scope and disappearance/retention policies, then rerun a fresh Preview.
-5. **Later owned-state/API and cutover gates:** manual/Quote/reorder creation, remaining owned facts, separately authorized real bootstrap/read/write cutover and Browser retirement each require their own decisions and authorization.
+4. **Phase 2B2.1 6087105 candidate validation:** complete. The old 34 are retained historically and reclassified as 31 resolved + 3 invalid under 6087105; order number, scope, disappearance and retention policies are confirmed. The default source was not switched. Final gates passed: Bridge 36/36, targeted 40/40, Full Tests 595/595, typecheck, lint, server/frontend builds and diff-check.
+5. **Next user source decision:** decide whether 6087105 supersedes 6086997, then run a separate fresh full Bootstrap Preview if approved. This Gate does not perform that Preview.
+6. **Later owned-state/API and cutover gates:** manual/Quote/reorder creation, remaining owned facts, separately authorized real bootstrap/read/write cutover and Browser retirement each require their own decisions and authorization.
 
 ## Decisions requiring user confirmation
 
-1. Whether `current_account_visible` is the intended bootstrap scope or another approved account/organizational visibility proof is required.
-2. Raw Ainuoke snapshot/import-run retention duration versus retaining only current mirror plus hashes/reconciliation metadata; disappearance/tombstone review policy.
-3. Whether a future phase proceeds beyond preview/dry-run to a separately approved real bootstrap/read cutover.
-4. Closing test-data retirement classification. Browser Order/Scheduling retirement also requires a later explicit destructive confirmation; it is not implied by this architecture direction.
+The user has now confirmed these formal rules:
+
+- server/PostgreSQL generates globally increasing, non-editable `SO-00000001` style order numbers while UUID remains the technical identity;
+- `current_account_visible` is the formal organizational bootstrap scope, always measured by fresh complete Discovery rather than a fixed row count;
+- source disappearance marks missing and retains UUID/binding/history; it does not hard-delete or auto-cancel, and reappearance restores seen;
+- retain normalized current mirrors, source/discovery hashes, necessary fetched/last-seen/missing timestamps and reconciliation metadata, but not complete raw upstream payload by default.
+
+Implementation of the sequence and missing/tombstone storage remains a later independent schema/service Gate. Decisions still requiring confirmation are:
+
+1. Whether 6087105 formally supersedes 6086997 as the Bootstrap Preview color source. Current evidence recommends YES, but the default has not switched.
+2. Whether a future phase proceeds beyond preview/dry-run to a separately approved real bootstrap/read cutover.
+3. Closing test-data retirement classification. Browser Order/Scheduling retirement also requires a later explicit destructive confirmation; it is not implied by this architecture direction.
 
 ## Readiness
 
-**PHASE 2B2 BOOTSTRAP PREVIEW COMPLETE. READY FOR REAL BOOTSTRAP: NO.** Snapshot stability and disposable schema projection passed, but 34 color-detail blockers, the formal server `order_no` policy and scope/retention confirmations remain unresolved. No real bootstrap, Browser cutover or other domain migration is authorized.
+**PHASE 2B2 BOOTSTRAP PREVIEW COMPLETE; PHASE 2B2.1 CANDIDATE SOURCE VALIDATED. READY FOR REAL BOOTSTRAP: NO.** The original 6086997 run retains its 34 historical blockers. 6087105 now resolves/reclassifies them as 31 resolved + 3 invalid, and the order-number/scope/disappearance/retention policies are confirmed, but switching the Preview source still requires explicit user approval and a later fresh full Preview. No real bootstrap, Browser cutover or other domain migration is authorized.

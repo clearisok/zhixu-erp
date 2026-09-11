@@ -26,10 +26,12 @@ from ainuoke_bridge.security import (  # noqa: E402
 
 class ReportContractTests(unittest.TestCase):
     def test_catalog_is_exact_and_does_not_accept_unknown_report(self) -> None:
-        self.assertEqual(set(REPORT_CATALOG), {"order_discovery", "sales_contracts", "sales_contract_color_sizes", "material_purchase_statistics"})
-        self.assertEqual({item.report_id for item in REPORT_CATALOG.values()}, {"6086103", "6086997", "6087050"})
+        self.assertEqual(set(REPORT_CATALOG), {"order_discovery", "sales_contracts", "sales_contract_color_sizes", "garment_color_size_details", "material_purchase_statistics"})
+        self.assertEqual({item.report_id for item in REPORT_CATALOG.values()}, {"6086103", "6086997", "6087050", "6087105"})
         with self.assertRaisesRegex(SourceContractError, "unknown_report"):
             resolve_report("6086103")
+        with self.assertRaisesRegex(SourceContractError, "unknown_report"):
+            resolve_report("6087105")
         with self.assertRaisesRegex(SourceContractError, "unknown_report"):
             resolve_report("write_sales_order")
 
@@ -71,6 +73,31 @@ class ReportContractTests(unittest.TestCase):
         self.assertEqual(first.report_id, "6086103")
         self.assertTrue(first.rows[0].source_row_identity.startswith("6086103:sha256:"))
         self.assertEqual(first.snapshot_hash, second.snapshot_hash)
+
+    def test_6087105_uses_fixed_contains_inside_order_contract(self) -> None:
+        definition = resolve_report("garment_color_size_details")
+        request = build_report_request(definition, page=2, page_size=50, query_context={"insideOrderNo": " D1935 "})
+        self.assertEqual(request["reportId"], 6087105)
+        self.assertEqual(request["sqlCdtn"]["targetId"], 6087105)
+        self.assertEqual(request["sqlCdtn"]["entId"], 6087105)
+        self.assertEqual(request["sqlCdtn"]["currentPage"], 2)
+        self.assertEqual(request["sqlCdtn"]["pageIndex"], 2)
+        self.assertEqual(request["sqlCdtn"]["conditionList"], [{
+            "conditionRelation": "and",
+            "cuHaiType": 0,
+            "dbTableName": "",
+            "fieldName": "insideorderno",
+            "compareType": "contains",
+            "dataType": "varchar",
+            "dataTypeId": 2,
+            "valueType": 1,
+            "dealWithType": 0,
+            "compareValue": "D1935",
+            "flowName": "[内层]",
+        }])
+        for query in ({"reportId": "6087105"}, {"insideOrderNo": "D1935", "conditionList": []}, {"insideOrderNo": ""}):
+            with self.subTest(query=query), self.assertRaisesRegex(SourceContractError, "invalid_query"):
+                build_report_request(definition, page=1, page_size=50, query_context=query)
 
     def test_6087050_repeated_id_uses_distinct_stable_row_fingerprints(self) -> None:
         rows = [

@@ -80,6 +80,18 @@ Only D1935 is shown verbatim. The other nine rows are masked and omit company, c
 
 Even after these items are resolved, a later phase must rerun a fresh full Preview. This document grants no authority to write a real business database, switch Browser reads/writes, or retire Browser data.
 
+## Subsequent Phase 2B2.1 candidate-source evidence
+
+The 34 blockers above remain the authoritative historical result of the 6086997-based Phase 2B2 run; they have not been deleted or rewritten. A later Phase 2B2.1 validation added 6087105 (成衣分色分码明细) as a fixed **candidate** garment color/size source and observed a stable 511-row current-account Discovery.
+
+- 511/511 fixed 6087105 queries succeeded. Exact post-filtering excluded 174 `contains` false-positive rows; no cross-order contamination remained.
+- 497 orders produced usable color slices, and all 497 had `sum(SizeNum) == 6086103 contract quantity`.
+- Of the historical 34 blockers, 31 are resolved by clean 6087105 detail. The remaining T1829-2/T1795-2/T2017-2 results are correctly `invalid` because each contains two identical blank placeholder rows; none remains `missing` and none is quantity-warning-only.
+- Eight current Discovery orders have no 6087105 exact detail and six have invalid slices. These are enrichment missing/invalid results, not reasons to reject the SalesOrder main Candidate.
+- D1935, T1826-4 and 1917U anchors passed exactly. Full evidence is in `AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`.
+
+The repository recommendation is to replace the Preview color source with 6087105, but the decision remains **pending explicit user approval**. This Gate does not change the existing/default 6086997 Preview path and does not run a fresh full Bootstrap Preview.
+
 ## Final validation
 
 - Disposable PostgreSQL integration: 13/13 PASS.
