@@ -7,27 +7,34 @@ import {
 import { HttpError } from "../http/errors.js";
 
 const permissionKeys = new Set<string>(PERMISSION_KEYS);
+type Queryable = Pick<Pool | PoolClient, "query">;
 
 export function isPermissionKey(value: string): value is PermissionKey {
   return permissionKeys.has(value);
+}
+
+export async function synchronizePermissionCatalogInTransaction(client: Queryable): Promise<void> {
+  for (const permission of PERMISSION_DEFINITIONS) {
+    await client.query(
+      `INSERT INTO app_permissions(key, module, label, description)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (key) DO UPDATE SET
+         module = EXCLUDED.module,
+         label = EXCLUDED.label,
+         description = EXCLUDED.description,
+         updated_at = now()
+       WHERE (app_permissions.module, app_permissions.label, app_permissions.description)
+         IS DISTINCT FROM (EXCLUDED.module, EXCLUDED.label, EXCLUDED.description)`,
+      [permission.key, permission.module, permission.label, permission.description],
+    );
+  }
 }
 
 export async function synchronizePermissionCatalog(pool: Pool): Promise<void> {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    for (const permission of PERMISSION_DEFINITIONS) {
-      await client.query(
-        `INSERT INTO app_permissions(key, module, label, description)
-         VALUES ($1, $2, $3, $4)
-         ON CONFLICT (key) DO UPDATE SET
-           module = EXCLUDED.module,
-           label = EXCLUDED.label,
-           description = EXCLUDED.description,
-           updated_at = now()`,
-        [permission.key, permission.module, permission.label, permission.description],
-      );
-    }
+    await synchronizePermissionCatalogInTransaction(client);
     await client.query("COMMIT");
   } catch (error) {
     await client.query("ROLLBACK");

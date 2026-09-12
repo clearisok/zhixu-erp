@@ -97,11 +97,13 @@ List rows expose `colorCount` only. Full typed color rows remain detail-only. Ra
 
 Read-only inspection on 2026-09-12 found two active `app_users`, both with password hashes, so credential authentication can be attempted. However `app_roles`, `app_permissions`, `app_user_roles` and `app_role_permissions` are all empty; `order.view` has zero catalog rows and no user assignment. Full server startup would call `synchronizePermissionCatalog()` and `bootstrapAdmin()`, which is a forbidden real DB write in C0, so it was not started.
 
+C1.1 now provides a guarded existing-admin-only activation runner but deliberately has not executed it against the real target. Its 2026-09-13 real read-only PLAN confirmed PostgreSQL 16.14, one active normalized `admin` with public_id, expected catalog count 54, RBAC counts `0/0/0/0`, exact migrations 0001/0002/0003, SalesOrder counts `511/511/511/1348/511`, sequence `511/true`, and `READY_TO_EXECUTE_REAL_RBAC=YES`. The aggregate snapshot including login attempts and sessions was identical before/after PLAN.
+
 `SERVER_AUTH_READY_FOR_SHADOW_READ = NO`.
 
 Exact blockers:
 
-1. real permission catalog has not been synchronized;
+1. real permission catalog has not been synchronized；C1.2 执行授权已存在，但必须等待 guarded runner merge；
 2. no real roles or user-role/role-permission assignments exist;
 3. no Browser-to-Node trusted login/session UX is active;
 4. therefore authenticated real API list/detail cannot be exercised without a separately authorized RBAC activation Gate.
@@ -126,7 +128,7 @@ All five have version 1; their detail color counts match the mirror table. No Br
 
 ### BLOCKING before list cutover
 
-- activate trusted server permission catalog/roles and grant `order.view` under a separately authorized real DB Gate;
+- merge C1.1, then use the already-authorized guarded C1.2 Gate to activate the trusted server permission catalog/role and grant `order.view`;
 - add Browser-to-Node login/session handling and explicit 401/403 UX;
 - decide the production list information architecture for base PG facts versus unavailable price, delivery-plan, production and closing projections;
 - prevent PG UUID list links from opening the current Browser-only detail loader.
@@ -156,8 +158,8 @@ All five have version 1; their detail color counts match the mirror table. No Br
 
 ## Staged plan
 
-1. **C1 — Server auth/RBAC activation:** separately authorize permission catalog synchronization and explicit real role assignments; validate login/session + `order.view` without bootstrap/admin side effects.
-2. **C2 — Authenticated shadow acceptance:** run the existing DEV-only PostgreSQL preview against the real GET APIs; reconcile all pages and representative details with the 511-row SQL baseline.
+1. **C1.1 — Guarded activation runner:** implemented/rehearsed with real read-only PLAN; real RBAC activation remains unexecuted in this PR.
+2. **C1.2 — Already-authorized activation + authenticated shadow acceptance:** run the merged guarded runner, verify admin has `order.view`, prove `ZHIXU_ADMIN_PASSWORD` is absent, then start the merged server. The user enters the existing password through a local UI or non-echo secure prompt; login/authentication may write only `login_attempts`, `app_sessions` and `last_seen_at`. Traverse all paginated 511 rows and representative details, then confirm SalesOrder facts/sequence unchanged.
 3. **C3 — Base list cutover:** switch only the production Order list to the dedicated server view, with PG detail navigation and honest omission of unavailable execution facts. Keep Browser writes disabled for PG masters.
 4. **C4 — Base detail plus server extensions:** move base identity/contract/colors to PG detail, then add separately owned delivery, price, execution and attachment read models without manufacturing Browser defaults.
 5. **C5 — Server mutation Gates:** add narrowly scoped create/update APIs, optimistic concurrency, trusted audit and domain-specific authorization.

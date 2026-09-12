@@ -1,11 +1,11 @@
 # 当前状态
 
-> 状态快照：2026-09-12。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-13。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
-- 当前 Active Task 为 `feat/salesorder-postgres-shadow-read`，起点为 `5e107847a6ba408f65154296fe64d34e1b0e8a2c`（real-bootstrap docs PR #26 merge）。Phase 2B3C0 只实现 PostgreSQL SalesOrder read-path shadow 与 Browser cutover readiness audit；不执行 Browser cutover、真实 DB mutation 或 RBAC sync。
-- 当前稳定基线：GitHub `main` 为 `5e107847a6ba408f65154296fe64d34e1b0e8a2c`（PR #26 已 merged）。
+- 当前 Active Task 为 `feat/server-rbac-activation-runner`，起点为 `4c54a2090522acdbe06007396f00bdbe32c0991f`（Phase 2B3C0 PR #27 merge）。Phase C1.1 只实现 guarded existing-admin RBAC activation runner、disposable rehearsal 与真实库 read-only PLAN；不执行真实 RBAC/auth/session write 或 Browser cutover。
+- 当前稳定基线：GitHub `main` 为 `4c54a2090522acdbe06007396f00bdbe32c0991f`（PR #27 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -21,6 +21,16 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### Phase C1.1 — Guarded Real Server Auth/RBAC Activation Runner
+
+- 新增 `server/auth/rbac-activation.ts` 与独立 compiled CLI `dist/server/server/auth/rbac-activation-cli.js`。CLI 只接受显式 `--plan` / `--execute` 和 `--username=admin`；execute 同时要求 `--confirm-real-rbac=zhixu` 与 `ZHIXU_REAL_RBAC_CONFIRM=YES`。
+- activation 在一个 transaction/advisory xact lock 内核对固定 `zhixu` target、仓库当前 0001/0002/0003 checksum ledger、现有 normalized admin 唯一/active/public_id、SalesOrder safety counts 与 sequence，然后复用 canonical `PERMISSION_DEFINITIONS/PERMISSION_KEYS` 同步目录，幂等 upsert `role-server-admin`、全部当前 permission bindings 与 existing-admin binding。它不调用 `bootstrapAdmin()`、不 INSERT/UPDATE `app_users`、不删除既有 role/permission/assignment。
+- Disposable PostgreSQL 16 rehearsal 覆盖双确认、wrong target、ledger mismatch、missing/inactive/ambiguous admin、read-only PLAN、admin core/password hash/public_id/row-count preservation、54 项动态 catalog + `order.view`、idempotent rerun、late-failure full rollback，以及 SalesOrder counts/sequence unchanged。
+- 真实 `zhixu` 只读 PLAN：PostgreSQL 16.14；admin match=1、active/public_id present；permissions/roles/role-permission/user-role=`0/0/0/0`，`order.view` catalog/admin grant=false/false；expected permissions=54。SalesOrder aggregate/link/contract/color/log=`511/511/511/1348/511`，sequence=`511/true`，`READY_TO_EXECUTE_REAL_RBAC=YES`。PLAN 前后包含 login attempts/session 的安全快照完全一致。
+- 用户已明确授权 runner 合并后的 C1.2：真实目录同步、existing admin role/binding 及本地 authenticated acceptance 所需 login/session/last_seen 写入；不授权密码修改、用户创建、SalesOrder/Browser/Quote/Style Progress/Scheduling/Closing/Ainuoke 写入。C1.1 本身真实 RBAC/auth/session/business writes 全部为 0，`SERVER_AUTH_READY_FOR_SHADOW_READ` 仍为 NO。
+- C1.2 启动 Node server 前必须验证 `ZHIXU_ADMIN_PASSWORD` ABSENT/UNSET；`loadServerConfig` 将 blank/missing 映射为 undefined，此时 `bootstrapAdmin()` 返回 false。现有 admin 密码只能由用户通过本地 UI 或 non-echo secure prompt 直接输入，不得进入 Codex/chat/commit/command history。
+- 最终门禁：RBAC targeted 8/8、PostgreSQL integration 30/30、Full Tests 604/604、typecheck、零警告 lint、server build（compiled CLI 存在）、frontend Production Build 31 routes 与 `git diff --check` 全部 PASS。
 
 ### PostgreSQL Phase 2B3C0 — Shadow Read + Browser Cutover Readiness
 
@@ -295,10 +305,10 @@
 
 ## 尚未落地
 
-- Browser Order Center 到 PostgreSQL SalesOrder 的真实 bootstrap、read/write cutover 与 Browser store retirement 尚未落地；Phase 2B1 完成 server foundation，Phase 2B2/2B2.2 完成 historical Preview 与 BillNo/6087105 source contract，Phase 2B2.3 完成正式编号和 final fresh disposable dry-run，Phase 2B3A.1 已激活真实空 SalesOrder schema。下一步只能是另行明确授权的 real bootstrap，不是 Browser cutover。
+- Browser Order Center 到 PostgreSQL SalesOrder 的 read/write cutover 与 Browser store retirement 尚未落地；真实 511 单 bootstrap 已完成，C0 shadow read 已合并，C1.1 正在准备 guarded RBAC runner。下一步是按现有授权执行 merged-main C1.2 activation/authenticated acceptance，不是 Browser cutover。
 - Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
-- 服务端全文搜索与业务列表分页尚未落地；migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。
+- SalesOrder 已有 bounded search/filter/sort/pagination；其他服务端业务列表与通用全文搜索仍未落地。migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。
 - True Mobile 的真实 coarse-pointer 设备级复验；当前自动回归验证的是指定 CSS viewport。
 
 ## 当前数据保护原则

@@ -11,18 +11,19 @@
 
 ## Current Stable Main
 
-`5e107847a6ba408f65154296fe64d34e1b0e8a2c`（real-bootstrap docs PR #26 已 merged）
+`4c54a2090522acdbe06007396f00bdbe32c0991f`（Phase 2B3C0 PR #27 已 merged）
 
 ## Current Active Task
 
-- Branch: `feat/salesorder-postgres-shadow-read`
-- Baseline: `5e107847a6ba408f65154296fe64d34e1b0e8a2c` (`origin/main`, PR #26 merge commit). Real bootstrap remains complete at 511 SalesOrders; this task is read-path/model/UI readiness only.
-- Architecture: new dedicated server DTO/view-model adapter/read-only repository exposes only `list()` and `getById()`. It never imports or implements the writable Browser `OrderRepository`. The current Browser Order Center source of truth and write paths remain unchanged.
-- API: list now supports default/max 100/200 pagination, offset, parameterized search, lifecycle/creation-source filters, allowlisted sorting and page metadata. List contains `colorCount` without color rows; detail retains typed colors. Auth and `order.view` remain mandatory.
-- DEV UI: hidden `/order-center/server-preview` is development-only, clearly read-only and displays PG source identity/contract/style/customer/brand/quantity/status/delivery/color facts plus detail colors. It has no edit/save/delete actions.
-- Real RBAC blocker: both existing users are active and password-backed, but all four RBAC tables are empty and `order.view` is absent/unassigned. Starting the full server would perform forbidden real permission/bootstrap writes, so authenticated real GET was not run. Direct read-only SQL validated total=511 and five representative UUID/orderNo/BillNo/version/color-count samples. `SERVER_AUTH_READY_FOR_SHADOW_READ=NO`.
-- Readiness: list/detail/write cutover are all NO. Next recommended Gate is C1 server auth/RBAC activation with separate real-DB-write authorization, followed by authenticated shadow acceptance. Full matrix/blockers/stages are in `docs/features/SALES_ORDER_BROWSER_CUTOVER.md`.
-- Boundaries: real PostgreSQL SalesOrder mutations, RBAC writes, Browser/Quote/Style Progress/Scheduling/Closing/Ainuoke writes and Browser cutover are all zero/NO.
+- Branch: `feat/server-rbac-activation-runner`
+- Baseline: `4c54a2090522acdbe06007396f00bdbe32c0991f` (`origin/main`, PR #27 merge commit).
+- C1.1 implementation: `server/auth/rbac-activation.ts` and `server/auth/rbac-activation-cli.ts` provide a guarded existing-admin-only transaction. It reuses canonical permission catalog semantics, upserts `role-server-admin` plus every current `PERMISSION_KEYS` binding and the existing admin binding; it never creates/updates a user or calls `bootstrapAdmin()`.
+- Guards: execute requires fixed `zhixu`, exact current 0001/0002/0003 filenames/checksums, unique active normalized `admin` with public_id, exact SalesOrder safety state, `--confirm-real-rbac=zhixu`, and `ZHIXU_REAL_RBAC_CONFIRM=YES`. Missing/ambiguous/inactive admin and any late transaction failure fail closed and roll back all C1 changes.
+- Real read-only PLAN: PostgreSQL 16.14; admin exists/active/public_id present; permissions/roles/role-permission/user-role=`0/0/0/0`; expected catalog=54; role/order.view absent. SalesOrder counts=`511/511/511/1348/511`, sequence=`511/true`, readiness YES. Pre/post safety snapshot including login attempts/sessions was identical; C1.1 real writes=0.
+- Existing authorization: user has already authorized merged-main C1.2 real permission catalog + existing-admin role activation and the login_attempt/session/last_seen writes needed for authenticated acceptance. Do not ask again unless scope changes. Password changes, new users, `bootstrapAdmin`, business writes and Browser cutover remain unauthorized.
+- C1.2 startup rule: explicitly prove `ZHIXU_ADMIN_PASSWORD` absent/unset before server startup so `bootstrapAdmin()` returns false. The user enters the existing password only in a local login UI/non-echo prompt; never request it in Codex/chat or place it in env files, command history, logs or Git.
+- After activation, verify admin resolves `order.view`, then use trusted session GETs for auth/me, permissions, all paginated 511 SalesOrders and representative details. Until activation plus authenticated acceptance succeed, `SERVER_AUTH_READY_FOR_SHADOW_READ=NO` and list/detail/write cutover remain NO.
+- Final C1.1 gates: RBAC targeted 8/8, PostgreSQL integration 30/30, Full Tests 604/604, typecheck, zero-warning lint, server build with compiled CLI, frontend Production Build 31 routes and `git diff --check` PASS.
 
 ## Previous completed Phase 2B3B.1 task
 
