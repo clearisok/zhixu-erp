@@ -164,7 +164,8 @@ Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate*
 7. **Phase 2B3A.1 real schema activation:** complete. The real target now has the migration ledger, RBAC/OperationLog schema, empty SalesOrder domain tables and an unconsumed number sequence. No business row was created.
 8. **Phase 2B3B.1 production runner:** implemented and disposable-validated. The compiled CLI performs fresh source reads, dual execute confirmation, exact target/ledger/empty/sequence/actor guards, serial service-only creation, same-array idempotency replay and read-only reconciliation. This PR performs zero real business writes.
 9. **Phase 2B3B.2a Bridge transport hardening:** bounded pre-Response retry is bootstrap-only and preserves all report, identity, Preview and write semantics. It executes no real bootstrap.
-10. **Next operational Gate — Phase 2B3B.2:** retry the user-authorized real bootstrap only after the transport hardening PR is merged into latest main. Browser read/write cutover, Browser retirement, manual/Quote/reorder creation and remaining owned facts remain separate, unapproved gates.
+10. **Phase 2B3B.2 real bootstrap:** complete. Latest merged main passed a final independent PLAN, then EXECUTE created and reconciled all 511 candidates with exact idempotent replay.
+11. **Next boundary:** Browser read/write cutover, Browser retirement, manual/Quote/reorder creation and remaining owned facts remain separate, unapproved Gates. Real bootstrap completion does not authorize them.
 
 ## Decisions requiring user confirmation
 
@@ -182,4 +183,11 @@ The sequence is implemented by `0003`; missing/tombstone lifecycle storage remai
 
 ## Readiness
 
-**PHASE 2B3B.2a BOOTSTRAP BRIDGE TRANSPORT HARDENED; REAL BUSINESS WRITES IN THIS PR: 0.** The user authorization for Phase 2B3B.2 remains valid, but execution waits for this PR to merge. The runner must then rebuild a fresh stable Preview and recheck the real target before any service write. Browser cutover and all other domain migrations remain separately unauthorized.
+**REAL SALESORDER BOOTSTRAP = COMPLETE.** On 2026-09-12 the compiled runner from main `5271f87cdd350db0ef8f4cc464fc81badc4ed893` used explicit Browser-local identity `user-admin`, independently rebuilt a fresh stable Preview, and created all 511 current-account-visible candidates through `createAinuokeSalesOrder()`.
+
+- Fresh EXECUTE: total 511; before/after hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`; preview hash `6966d8d360118f4aa5fb8565061b0234a482d114de90f9b0fc5dc7c17337ea71`; usable/missing/invalid 505/0/6; InsideOrderNo drift 8; transport retries 20, all recovered.
+- Planned/created/idempotent were 511/511/511. Final aggregate/source-link/contract-mirror/color-mirror/log counts were 511/511/511/1,348/511. Reconciliation found zero blank/duplicate BillNo, UUID/order-number duplicates, source conflicts or color mismatches.
+- Formal numbers are `SO-00000001` through `SO-00000511`; sequence is `last_value=511, is_called=true`. Every first-create log is trusted admin actor + `艾诺科同步` / `艾诺科新增订单`; replay added none.
+- Verified restore points are `D:\workspace\preparesystem\backups\zhixu-20260912-130020.dump` before and `D:\workspace\preparesystem\backups\zhixu-20260912-233603.dump` after bootstrap. Legacy count/digest evidence remained unchanged.
+
+**Browser Order Center cutover = NO.** PostgreSQL now contains the formal bootstrapped SalesOrders, but Browser Order Center still uses its existing Browser Repository. Browser test-order retirement/cutover and every Quote, Style Progress, Scheduling or Closing migration remain separate future Gates.

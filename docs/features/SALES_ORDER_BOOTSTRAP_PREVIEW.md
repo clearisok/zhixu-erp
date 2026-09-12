@@ -137,4 +137,16 @@ Phase 2B3B.1 prepares the production path but deliberately performs zero real Po
 - Only after a complete first pass, the exact same in-memory array is replayed. Every result must be idempotent with the same UUID, order number and version, and business counts must remain unchanged. Final read-only reconciliation checks source/contract/color coverage, invalid/missing zero-color behavior, trusted OperationLog actor and exact action, UUID/order-number uniqueness, `SO-########` continuity and sequence state.
 - Disposable PG16 tests cover both success and first-failure stop. They do not connect the production execute path to real `zhixu`.
 
-The user has explicitly authorized Phase 2B3B.2 to run this bootstrap from merged latest main. The authorization remains valid unless scope changes. It does not permit B3B.1 to execute from an unmerged runner, and it does not permit Browser Order Center cutover or any Ainuoke/Quote/Style Progress/Scheduling/Closing write.
+The user explicitly authorized Phase 2B3B.2, and the final execution recorded below completed from merged latest main. That authorization did not and does not permit Browser Order Center cutover or any Ainuoke/Quote/Style Progress/Scheduling/Closing write.
+
+## Phase 2B3B.2 FINAL real bootstrap — 2026-09-12
+
+**REAL SALESORDER BOOTSTRAP = COMPLETE.** Main/runner SHA `5271f87cdd350db0ef8f4cc464fc81badc4ed893` executed with the explicit configured Browser-local Ainuoke identity `user-admin`.
+
+- Final read-only PLAN: Discovery total 511; before/after hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`; preview hash `6966d8d360118f4aa5fb8565061b0234a482d114de90f9b0fc5dc7c17337ea71`; usable/missing/invalid 505/0/6; drift 8; BillNo blank/duplicates and detail failures all zero; transportRetries 0.
+- EXECUTE performed its own fresh source traversal and reproduced the same total/hashes/coverage/drift. It recovered 20 bounded ETIMEDOUT pre-Response retries, then passed the stable snapshot guard.
+- planned/created/idempotent = 511/511/511. Replaying the exact same in-memory candidate array returned the same UUID/orderNo/version and did not change counts.
+- Final database counts: SalesOrders 511, source links 511, contract mirrors 511, color mirrors 1,348 and SalesOrder OperationLogs 511. UUID/order-number duplicates, source conflicts and color mismatches are zero. Order numbers are `SO-00000001`…`SO-00000511`; sequence is `511/true`.
+- OperationLogs are exactly `艾诺科同步` / `艾诺科新增订单` and all actors match the real admin identity. Legacy customers, quotes, orders, schedules, audit logs and app users retained identical counts and deterministic digests.
+- Pre-bootstrap backup `D:\workspace\preparesystem\backups\zhixu-20260912-130020.dump` (82,458 bytes; SHA-256 `3EC0E6F721981F39DACAE6FB99CC8F65C738212706A438B7A037D2C692A49E6D`) and post-bootstrap backup `D:\workspace\preparesystem\backups\zhixu-20260912-233603.dump` (646,448 bytes; SHA-256 `521A7EEFC7C3B70A08C00497E37FF2D3F409AE0B97B3E843EF18542DD3DB691D`) both passed `pg_restore --list`; the pre-backup also passed disposable restore and legacy/business fingerprint parity.
+- Ainuoke/Browser/Quote/Style Progress/Scheduling/Closing writes were zero. RBAC catalog sync and bootstrap admin did not run. **Browser Order Center cutover = NO.**
