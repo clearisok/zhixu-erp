@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `fix/bootstrap-ainuoke-user-preflight`，起点为 `afda50e77cc24d9a57fc05d5b2b5e49ec86dc124`（Phase 2B3B.2a PR #24 merge）。Phase 2B3B.2b 只解决 bootstrap operator supplied Ainuoke user identity mismatch，并增加显式账号公开状态预检；本任务未执行真实 SalesOrder bootstrap。
-- 当前稳定基线：GitHub `main` 为 `afda50e77cc24d9a57fc05d5b2b5e49ec86dc124`（PR #24 已 merged）。
+- 当前 Active Task 为 `docs/real-salesorder-bootstrap`，起点为 `5271f87cdd350db0ef8f4cc464fc81badc4ed893`（Phase 2B3B.2b PR #25 merge）。Phase 2B3B.2 FINAL 已完成首次真实 SalesOrder bootstrap；本分支只记录执行证据，不做额外业务写入或 Browser cutover。
+- 当前稳定基线：GitHub `main` 为 `5271f87cdd350db0ef8f4cc464fc81badc4ed893`（PR #25 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -15,12 +15,22 @@
 ## 当前可运行边界
 
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
-- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger 与 SalesOrder server schema，但 Node server/Browser Order Center 尚未切换到该空业务 schema；legacy 3000 runtime 暂时保留。
+- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、SalesOrder server schema，并完成 511 单首次 bootstrap；Node server/Browser Order Center 尚未切换读取该数据，legacy 3000 runtime 暂时保留。
 - Quote Center、新订单中心、生产排单、款式进度、关账中心和相关设置仍使用浏览器 Repository；尚不是服务端多用户生产实现。
 - DEV 固定使用 `127.0.0.1:3001`，PROD Docker 固定使用 `127.0.0.1:3000`，两者依靠 Origin 隔离数据。
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### PostgreSQL Phase 2B3B.2 FINAL — Real SalesOrder Bootstrap
+
+- **REAL SALESORDER BOOTSTRAP = COMPLETE.** Runner main SHA 为 `5271f87cdd350db0ef8f4cc464fc81badc4ed893`；首次创建日志发生于 2026-09-12 23:35:02–23:35:05（Asia/Shanghai）。Ainuoke Browser-local identity 明确为 `user-admin`，公开账号 preflight 为 configured/verified。
+- Merged-main final PLAN 与 EXECUTE 各自独立读取 fresh 6086103 BEFORE → 全部 6087105 BillNo detail → 6086103 AFTER。两次均为 total=511、before/after hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`、preview hash `6966d8d360118f4aa5fb8565061b0234a482d114de90f9b0fc5dc7c17337ea71`、usable/missing/invalid=505/0/6、InsideOrderNo drift=8、BillNo blank/duplicate=0/0、detail failures=0。PLAN transportRetries=0；EXECUTE transportRetries=20，均为 bounded ETIMEDOUT pre-Response retry 并全部恢复。
+- 正式 runner 通过既有 `createAinuokeSalesOrder()` 按 normalized BillNo 顺序创建 planned/created=511/511；同一 in-memory candidate array 幂等 replay=511，所有 replay 均返回原 UUID/orderNo/version 且未增加业务行或 OperationLog。
+- 最终真实 PostgreSQL counts：sales_orders/source links/contract mirrors/color mirrors/SalesOrder OperationLogs=`511/511/511/1348/511`。编号为 `SO-00000001`…`SO-00000511`，UUID/orderNo duplicates=0/0，source conflicts/color mismatches=0/0；sequence=`last_value=511/is_called=true`。
+- 511 条 OperationLog 均为 module=`艾诺科同步`、action=`艾诺科新增订单`、entity_type=`SalesOrder`，且 actor 全部匹配唯一 active PostgreSQL admin（display name `系统管理员`）。customers/quotes/legacy orders/schedules/audit_logs/app_users 的 pre/post count 与 deterministic digest 全部一致，legacy preservation PASS。
+- Pre-bootstrap restore point `D:\workspace\preparesystem\backups\zhixu-20260912-130020.dump` 为 82,458 bytes、SHA-256 `3EC0E6F721981F39DACAE6FB99CC8F65C738212706A438B7A037D2C692A49E6D`，`pg_restore --list` 与 disposable restore/fingerprint comparison PASS。Post-bootstrap backup `D:\workspace\preparesystem\backups\zhixu-20260912-233603.dump` 为 646,448 bytes、SHA-256 `521A7EEFC7C3B70A08C00497E37FF2D3F409AE0B97B3E843EF18542DD3DB691D`，`pg_restore --list` PASS。备份未进入 Git。
+- Ainuoke/Browser/Quote/Style Progress/Scheduling/Closing writes 均为 0；RBAC sync/bootstrap admin 未执行。**Browser Order Center cutover = NO**，Browser test orders 未迁移，PostgreSQL 数据已落地不构成 UI 切换授权。
 
 ### PostgreSQL Phase 2B3B.2b — Bootstrap Ainuoke User Identity Preflight
 

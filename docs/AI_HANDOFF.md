@@ -11,18 +11,18 @@
 
 ## Current Stable Main
 
-`afda50e77cc24d9a57fc05d5b2b5e49ec86dc124`（Phase 2B3B.2a PR #24 已 merged）
+`5271f87cdd350db0ef8f4cc464fc81badc4ed893`（Phase 2B3B.2b PR #25 已 merged）
 
 ## Current Active Task
 
-- Branch: `fix/bootstrap-ainuoke-user-preflight`
-- Baseline: `afda50e77cc24d9a57fc05d5b2b5e49ec86dc124` (`origin/main`, Phase 2B3B.2a PR #24 merge commit).
-- Identity finding: Account Settings passes Browser `currentUser.id` to Bridge. The current UI user “系统管理员” is exactly `user-admin`; previous successful PLAN also used `user-admin`. The failed `account_not_configured` PLAN used PostgreSQL admin `public_id`, which is a different identity namespace. Root cause is `BOOTSTRAP_USER_ID_MISMATCH`, not missing/invalid credential.
-- Safety change: before any 6086103 read, production bootstrap now checks the explicitly supplied user with Bridge `GET /v1/ainuoke/account`. `configured=false` emits only `bootstrap_ainuoke_account_precondition_failed` + configured/status/bridgeCode and stops. It never scans credential storage, substitutes another id or logs secrets.
-- Live evidence: `user-admin` public account is configured/verified and the stored-credential test succeeds without passing username/password. The single read-only PLAN completed total=511, stable before/after hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`, preview hash `6966d8d360118f4aa5fb8565061b0234a482d114de90f9b0fc5dc7c17337ea71`, usable/missing/invalid=505/0/6, drift=8, BillNo blank/duplicates=0/0 and detail failures=0. Twelve bounded ETIMEDOUT transport retries recovered.
-- Real state after PLAN: all four SalesOrder tables and SalesOrder OperationLogs remain 0; sequence remains `last_value=1/is_called=false`. `--execute` was not run; PostgreSQL/Ainuoke business writes remain 0 and Browser cutover remains forbidden.
-- Final gates: bootstrap source 9/9, PostgreSQL integration 22/22, Bridge 36/36, Full Tests 601/601, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and `git diff --check` PASS.
-- Authorization: the existing Phase 2B3B.2 authorization remains valid after this preflight change is merged. The operator must still explicitly pass the intended Browser-local Ainuoke user id; no identity auto-selection is authorized.
+- Branch: `docs/real-salesorder-bootstrap`
+- Baseline/runner: `5271f87cdd350db0ef8f4cc464fc81badc4ed893` (`origin/main`, Phase 2B3B.2b PR #25 merge commit).
+- Status: **REAL SALESORDER BOOTSTRAP = COMPLETE** at 2026-09-12 23:35:02–23:35:05 Asia/Shanghai. Explicit Ainuoke Browser-local user id `user-admin` passed configured/verified preflight and stored-credential test.
+- Fresh final PLAN and EXECUTE source both produced total=511, stable hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`, preview hash `6966d8d360118f4aa5fb8565061b0234a482d114de90f9b0fc5dc7c17337ea71`, usable/missing/invalid=505/0/6, drift=8 and BillNo blank/duplicates=0/0. PLAN/EXECUTE transportRetries were 0/20; all execute retries recovered before Response.
+- Runner result: planned/created/idempotent=511/511/511. Final counts are SalesOrders/source links/contract mirrors/color mirrors/SalesOrder OperationLogs=`511/511/511/1348/511`; order numbers `SO-00000001`…`SO-00000511`; UUID/order number duplicates, source conflicts and color mismatches are all zero; sequence is `511/true`.
+- Audit/legacy: every SalesOrder log is `艾诺科同步` / `艾诺科新增订单`, actor matches the real active admin, and replay added no log. customers/quotes/legacy orders/schedules/audit_logs/app_users count+digest remained identical.
+- Backups: verified pre-bootstrap `D:\workspace\preparesystem\backups\zhixu-20260912-130020.dump` (82,458 bytes, SHA-256 `3EC0E6F721981F39DACAE6FB99CC8F65C738212706A438B7A037D2C692A49E6D`) and post-bootstrap `D:\workspace\preparesystem\backups\zhixu-20260912-233603.dump` (646,448 bytes, SHA-256 `521A7EEFC7C3B70A08C00497E37FF2D3F409AE0B97B3E843EF18542DD3DB691D`) both pass `pg_restore --list`; the pre-backup also passed disposable restore/fingerprint parity.
+- Boundaries: Ainuoke/Browser/Quote/Style Progress/Scheduling/Closing writes remain zero. RBAC sync and bootstrap admin were not run. **Browser Order Center cutover = NO**; do not switch repositories or migrate/delete Browser test orders without a separate Gate.
 
 ## Previous completed Phase 2B3B.1 task
 
