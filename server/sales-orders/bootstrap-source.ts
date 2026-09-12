@@ -18,10 +18,30 @@ const BRIDGE_ORIGIN = "http://127.0.0.1:3001";
 const DETAIL_CONCURRENCY = 4;
 const PAGE_SIZE = 50;
 
+export const BOOTSTRAP_BRIDGE_MAX_ATTEMPTS = 4;
+export const BOOTSTRAP_BRIDGE_RETRY_BACKOFF_MS = [250, 750, 1_500] as const;
+
+const RETRYABLE_TRANSPORT_CODES = new Set([
+  "ECONNRESET",
+  "ETIMEDOUT",
+  "ECONNREFUSED",
+  "EPIPE",
+  "UND_ERR_SOCKET",
+  "UND_ERR_CONNECT_TIMEOUT",
+]);
+
 export type BootstrapSourceProgress = {
   phase: "discovery_before" | "color_details" | "discovery_after";
   completed: number;
   total: number;
+};
+
+export type BootstrapBridgeTransportRetry = {
+  attempt: number;
+  maxAttempts: number;
+  errorClass: string;
+  transportCode: string | null;
+  endpointPath: string | null;
 };
 
 export type FreshSalesOrderBootstrapPlan = {
@@ -31,19 +51,83 @@ export type FreshSalesOrderBootstrapPlan = {
     total: number;
     byReport: { "6086103": number; "6087105": number; "6086997": 0; "6087050": 0 };
   };
+  transportRetries: number;
 };
 
-function createCookieFetch(fetchImpl: typeof fetch = fetch): typeof fetch {
-  let cookie: string | null = null;
-  return async (input, init = {}) => {
-    const headers = new Headers(init.headers);
-    headers.set("Origin", BRIDGE_ORIGIN);
-    if (cookie) headers.set("Cookie", cookie);
-    const response = await fetchImpl(input, { ...init, headers });
-    const setCookie = response.headers.get("set-cookie");
-    if (setCookie) cookie = setCookie.split(";", 1)[0];
-    return response;
+type BootstrapBridgeTransport = {
+  fetchImpl: typeof fetch;
+  getRetryCount: () => number;
+};
+
+function safeTransportCode(error: unknown): string | null {
+  let current: unknown = error;
+  const visited = new Set<unknown>();
+  while (current && typeof current === "object" && !visited.has(current)) {
+    visited.add(current);
+    const candidate = current as { code?: unknown; cause?: unknown };
+    if (typeof candidate.code === "string" && RETRYABLE_TRANSPORT_CODES.has(candidate.code)) {
+      return candidate.code;
+    }
+    current = candidate.cause;
+  }
+  return null;
+}
+
+function endpointPath(input: Parameters<typeof fetch>[0]): string | null {
+  try {
+    const value = input instanceof Request ? input.url : String(input);
+    return new URL(value, BRIDGE_ORIGIN).pathname;
+  } catch {
+    return null;
+  }
+}
+
+function retryableTransportFailure(error: unknown): { errorClass: string; transportCode: string | null } | null {
+  const transportCode = safeTransportCode(error);
+  if (!(error instanceof TypeError) && !transportCode) return null;
+  return {
+    errorClass: error instanceof Error ? error.name : "UnknownError",
+    transportCode,
   };
+}
+
+export function createBootstrapBridgeTransport(options: {
+  fetchImpl?: typeof fetch;
+  sleep?: (milliseconds: number) => Promise<void>;
+  onRetry?: (retry: BootstrapBridgeTransportRetry) => void;
+} = {}): BootstrapBridgeTransport {
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const sleep = options.sleep ?? ((milliseconds: number) => new Promise<void>((resolve) => {
+    setTimeout(resolve, milliseconds);
+  }));
+  let cookie: string | null = null;
+  let retryCount = 0;
+  const bootstrapFetch: typeof fetch = async (input, init = {}) => {
+    for (let attempt = 1; attempt <= BOOTSTRAP_BRIDGE_MAX_ATTEMPTS; attempt += 1) {
+      const headers = new Headers(init.headers);
+      headers.set("Origin", BRIDGE_ORIGIN);
+      if (cookie) headers.set("Cookie", cookie);
+      try {
+        const response = await fetchImpl(input, { ...init, headers });
+        const setCookie = response.headers.get("set-cookie");
+        if (setCookie) cookie = setCookie.split(";", 1)[0];
+        return response;
+      } catch (error) {
+        const failure = retryableTransportFailure(error);
+        if (!failure || attempt === BOOTSTRAP_BRIDGE_MAX_ATTEMPTS) throw error;
+        retryCount += 1;
+        options.onRetry?.({
+          attempt,
+          maxAttempts: BOOTSTRAP_BRIDGE_MAX_ATTEMPTS,
+          ...failure,
+          endpointPath: endpointPath(input),
+        });
+        await sleep(BOOTSTRAP_BRIDGE_RETRY_BACKOFF_MS[attempt - 1]);
+      }
+    }
+    throw new Error("Bootstrap Bridge transport exhausted attempts");
+  };
+  return { fetchImpl: bootstrapFetch, getRetryCount: () => retryCount };
 }
 
 function billNoIntegrity(
@@ -108,12 +192,19 @@ export async function buildFreshSalesOrderBootstrapPlan(input: {
   bridgeUrl?: string;
   fetchImpl?: typeof fetch;
   onProgress?: (progress: BootstrapSourceProgress) => void;
+  onTransportRetry?: (retry: BootstrapBridgeTransportRetry) => void;
+  transportSleep?: (milliseconds: number) => Promise<void>;
 }): Promise<FreshSalesOrderBootstrapPlan> {
   const userId = input.ainuokeUserId.normalize("NFKC").trim();
   if (!userId) throw new Error("--ainuoke-user-id is required");
+  const transport = createBootstrapBridgeTransport({
+    fetchImpl: input.fetchImpl,
+    sleep: input.transportSleep,
+    onRetry: input.onTransportRetry,
+  });
   const client = createAinuokeBridgeClient({
     baseUrl: input.bridgeUrl,
-    fetchImpl: createCookieFetch(input.fetchImpl),
+    fetchImpl: transport.fetchImpl,
   });
 
   const beforePages = await client.readAllOrderDiscoveryPages(userId, { pageSize: PAGE_SIZE, maxPages: 100 });
@@ -152,5 +243,6 @@ export async function buildFreshSalesOrderBootstrapPlan(input: {
         "6087050": 0,
       },
     },
+    transportRetries: transport.getRetryCount(),
   };
 }

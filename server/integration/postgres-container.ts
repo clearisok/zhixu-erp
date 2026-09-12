@@ -22,14 +22,18 @@ async function docker(arguments_: string[]): Promise<string> {
   return stdout.trim();
 }
 
-async function waitForReady(containerName: string): Promise<void> {
+async function waitForReady(containerName: string, adminUrl: string): Promise<void> {
   const deadline = Date.now() + 60_000;
   while (Date.now() < deadline) {
+    const pool = new Pool({ connectionString: adminUrl, max: 1, connectionTimeoutMillis: 1_000 });
     try {
       await docker(["exec", containerName, "pg_isready", "-U", "postgres", "-d", "postgres"]);
+      await pool.query("SELECT 1");
       return;
     } catch {
       await new Promise((resolve) => setTimeout(resolve, 250));
+    } finally {
+      await pool.end().catch(() => undefined);
     }
   }
   throw new Error("Disposable PostgreSQL container did not become ready");
@@ -55,8 +59,8 @@ export async function startDisposablePostgres(): Promise<DisposablePostgres> {
     const portOutput = await docker(["port", containerName, "5432/tcp"]);
     const port = portOutput.match(/:(\d+)$/)?.[1];
     if (!port) throw new Error(`Could not determine disposable PostgreSQL port: ${portOutput}`);
-    await waitForReady(containerName);
     const adminUrl = `postgresql://postgres:${password}@127.0.0.1:${port}/postgres`;
+    await waitForReady(containerName, adminUrl);
 
     return {
       containerName,

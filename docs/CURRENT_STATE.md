@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `feat/postgres-real-salesorder-bootstrap-runner`，起点为 `482d60dd085df0e66c824e1adbc6abbbd0c8beb8`（Phase 2B3A.1 docs PR #22 merge）。Phase 2B3B.1 只实现和 disposable 验证 production bootstrap runner；本 PR 不执行真实 SalesOrder bootstrap。
-- 当前稳定基线：GitHub `main` 为 `482d60dd085df0e66c824e1adbc6abbbd0c8beb8`（PR #22 已 merged）。
+- 当前 Active Task 为 `fix/bootstrap-bridge-transport-retry`，起点为 `9572162fa68c60674f8973472f779d7f16e394ec`（Phase 2B3B.1 PR #23 merge）。Phase 2B3B.2a 只加固 production bootstrap 专用 Bridge source-read transport；本 PR 不执行真实 SalesOrder bootstrap。
+- 当前稳定基线：GitHub `main` 为 `9572162fa68c60674f8973472f779d7f16e394ec`（PR #23 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -21,6 +21,15 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### PostgreSQL Phase 2B3B.2a — Bootstrap Bridge Transport Hardening
+
+- Phase 2B3B.2 的两次完整 `--plan` 均成功且得到同一 511-row stable Preview；随后三次已授权 `--execute` 都在 PostgreSQL 写入 orchestration 开始前被 Bridge source read 中断（两次 fetch `TypeError`，一次完成 Discovery BEFORE 和 511 次 6087105 调用后以 detail-query aggregate fail closed）。独立 11-page Discovery diagnostic 也成功。没有 HTTP auth rejection 证据，因此根因分类为 Bridge/fetch 的 transient pre-Response transport instability，而不是 credential/session 失效或业务校验失败。
+- `bootstrap-source.ts` 现在只为 production bootstrap source reads 提供 bounded retry：总 attempts=4，退避 `250/750/1500ms`。仅 fetch 在收到 `Response` 前抛出的 `TypeError` 或 allowlisted safe transport code（`ECONNRESET`、`ETIMEDOUT`、`ECONNREFUSED`、`EPIPE`、`UND_ERR_SOCKET`、`UND_ERR_CONNECT_TIMEOUT`）可重试。
+- 任何 HTTP Response（包括 4xx/5xx）、Bridge contract error、paging/data validation、BillNo mismatch、stale snapshot、adapter/business error 都不重试。Cookie 在失败尝试间保持不变，只在收到含 `Set-Cookie` 的 Response 后更新。6086103/6087105 catalog、BillNo identity、stale guard、candidate mapping、detail concurrency=4、service/sequence/migration 均未改变。
+- CLI 输出安全结构化事件 `bootstrap_bridge_transport_retry`，只含 attempt/maxAttempts/errorClass/allowlisted transportCode/endpoint pathname；不输出 message、query、body、cookie、credential 或 token。成功 report page reads 与 `transportRetries` 分开计数。
+- 本 PR 不运行 `--execute`。真实 SalesOrder 四表/OperationLogs 仍为 0，sequence 仍为 `last_value=1/is_called=false`；前三次失败未产生真实 PostgreSQL business write 或 sequence consumption。用户对 runner merge 后 Phase 2B3B.2 的授权仍有效，下一步只能在本 hardening PR merge 后重新执行该 Gate。
+- 最终门禁：bootstrap source/runner 16/16、PostgreSQL integration 22/22、Bridge 36/36、Full Tests 601/601、typecheck、零警告 lint、server build、frontend Production Build 30 routes 与 `git diff --check` 全部 PASS。可选 real-target `--plan` 在 Discovery 完成前收到 `AinuokeBridgeError` 并按规则不重试（transport retries=0）；未运行 `--execute`，复核业务 counts 仍全 0、sequence 仍为 `1/false`。
 
 ### PostgreSQL Phase 2B3B.1 — Production Real SalesOrder Bootstrap Runner
 

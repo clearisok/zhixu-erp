@@ -1,4 +1,8 @@
-import { buildFreshSalesOrderBootstrapPlan, type BootstrapSourceProgress } from "./bootstrap-source.js";
+import {
+  buildFreshSalesOrderBootstrapPlan,
+  type BootstrapBridgeTransportRetry,
+  type BootstrapSourceProgress,
+} from "./bootstrap-source.js";
 import {
   BootstrapExecutionError,
   BootstrapGuardError,
@@ -47,6 +51,10 @@ function progressLogger(progress: BootstrapSourceProgress): void {
   }
 }
 
+function transportRetryLogger(retry: BootstrapBridgeTransportRetry): void {
+  process.stdout.write(`${JSON.stringify({ event: "bootstrap_bridge_transport_retry", ...retry })}\n`);
+}
+
 function executionHeader(plan: Awaited<ReturnType<typeof buildFreshSalesOrderBootstrapPlan>>) {
   const { preview } = plan;
   return {
@@ -58,6 +66,7 @@ function executionHeader(plan: Awaited<ReturnType<typeof buildFreshSalesOrderBoo
     missing: preview.coverage.missing,
     invalid: preview.coverage.invalid,
     insideOrderNoDrift: preview.identity.insideOrderNoDriftCount,
+    transportRetries: plan.transportRetries,
   };
 }
 
@@ -107,6 +116,7 @@ async function main(): Promise<void> {
       ainuokeUserId: options.ainuokeUserId,
       bridgeUrl,
       onProgress: progressLogger,
+      onTransportRetry: transportRetryLogger,
     });
     process.stdout.write(`${JSON.stringify({ event: "bootstrap_execution_header", ...executionHeader(plan) })}\n`);
 
@@ -120,6 +130,7 @@ async function main(): Promise<void> {
         sequence: initialPreconditions.sequence,
         billNo: plan.billNo,
         reads: plan.reads,
+        transportRetries: plan.transportRetries,
         realPostgresBusinessWrites: 0,
         readyToExecuteRealBootstrap: true,
       })}\n`);
