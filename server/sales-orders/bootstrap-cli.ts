@@ -3,6 +3,7 @@ import {
   type BootstrapBridgeTransportRetry,
   type BootstrapSourceProgress,
 } from "./bootstrap-source.js";
+import { AinuokeBridgeError } from "../../features/ainuoke-api/client/ainuoke-bridge-client.js";
 import {
   BootstrapExecutionError,
   BootstrapGuardError,
@@ -18,6 +19,24 @@ import { loadServerConfig } from "../config.js";
 import { closeDatabasePool, createDatabasePool } from "../db/pool.js";
 
 const DEFAULT_BRIDGE_URL = "http://127.0.0.1:8765";
+
+const SAFE_BRIDGE_ERROR_CODES = new Set([
+  "network_timeout",
+  "network_unavailable",
+  "invalid_credential",
+  "auth_expired",
+  "upstream_schema_error",
+  "unknown_report",
+  "invalid_query",
+  "upstream_error",
+  "account_not_configured",
+  "session_required",
+  "session_origin_mismatch",
+  "csrf_invalid",
+  "csrf_required",
+  "origin_not_allowed",
+  "bridge_internal_error",
+]);
 
 function requiredEnvironment(value: string | undefined, reason: string): string {
   const normalized = value?.normalize("NFKC").trim();
@@ -79,6 +98,13 @@ function sanitizedFailure(error: unknown): Record<string, unknown> {
   }
   if (error instanceof BootstrapGuardError) {
     return { event: "real_bootstrap_guard_rejected", reasons: error.reasons };
+  }
+  if (error instanceof AinuokeBridgeError) {
+    return {
+      event: "real_bootstrap_source_failed",
+      errorClass: "AinuokeBridgeError",
+      bridgeCode: SAFE_BRIDGE_ERROR_CODES.has(error.code) ? error.code : "unknown_bridge_error",
+    };
   }
   return {
     event: "real_bootstrap_failed",

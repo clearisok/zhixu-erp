@@ -29,7 +29,8 @@
 - 任何 HTTP Response（包括 4xx/5xx）、Bridge contract error、paging/data validation、BillNo mismatch、stale snapshot、adapter/business error 都不重试。Cookie 在失败尝试间保持不变，只在收到含 `Set-Cookie` 的 Response 后更新。6086103/6087105 catalog、BillNo identity、stale guard、candidate mapping、detail concurrency=4、service/sequence/migration 均未改变。
 - CLI 输出安全结构化事件 `bootstrap_bridge_transport_retry`，只含 attempt/maxAttempts/errorClass/allowlisted transportCode/endpoint pathname；不输出 message、query、body、cookie、credential 或 token。成功 report page reads 与 `transportRetries` 分开计数。
 - 本 PR 不运行 `--execute`。真实 SalesOrder 四表/OperationLogs 仍为 0，sequence 仍为 `last_value=1/is_called=false`；前三次失败未产生真实 PostgreSQL business write 或 sequence consumption。用户对 runner merge 后 Phase 2B3B.2 的授权仍有效，下一步只能在本 hardening PR merge 后重新执行该 Gate。
-- 最终门禁：bootstrap source/runner 16/16、PostgreSQL integration 22/22、Bridge 36/36、Full Tests 601/601、typecheck、零警告 lint、server build、frontend Production Build 30 routes 与 `git diff --check` 全部 PASS。可选 real-target `--plan` 在 Discovery 完成前收到 `AinuokeBridgeError` 并按规则不重试（transport retries=0）；未运行 `--execute`，复核业务 counts 仍全 0、sequence 仍为 `1/false`。
+- bootstrap CLI 对 `AinuokeBridgeError` 只输出 allowlisted `bridgeCode`，未知 code 归一为 `unknown_bridge_error`，不输出 message/credential/cookie/CSRF/query/BillNo/DB URL/password。本轮安全 diagnostic real-target `--plan` 在 Discovery 完成前返回 `account_not_configured`，最后完整 source phase=无、transport retries=0；这次失败分类为账号配置，不是 Node→Bridge transport 或 Bridge→Ainuoke transient network。按 fail-closed 规则没有增加 response-level/upstream retry，也没有再次运行 live PLAN。
+- 最终门禁：bootstrap source/runner 16/16、PostgreSQL integration 22/22、Bridge 36/36、Full Tests 601/601、typecheck、零警告 lint、server build、frontend Production Build 30 routes 与 `git diff --check` 全部 PASS。未运行 `--execute`，诊断后复核业务 counts 仍全 0、sequence 仍为 `1/false`。在重试已授权 Phase 2B3B.2 前必须先恢复/选择已配置的个人 Ainuoke account/session。
 
 ### PostgreSQL Phase 2B3B.1 — Production Real SalesOrder Bootstrap Runner
 
