@@ -122,4 +122,18 @@ Phase 2B2.3 preserves the historical 6086997 Preview above and adds a separate `
 - Ainuoke reads were 533 pages (`6086103` 22 + `6087105` 511); 6086997/6087050 reads were zero. Ainuoke, real PostgreSQL, Browser, Quote, Style Progress, Scheduling and Closing writes were all zero. The disposable container/database was destroyed.
 - Final validation: Bridge 36/36, targeted 23/23, PostgreSQL integration 14/14, Full Tests 601/601, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and `git diff --check` all passed.
 
-**READY FOR A SEPARATELY AUTHORIZED REAL BOOTSTRAP: YES.** This evidence does not itself authorize or execute that bootstrap, Browser cutover, Browser retirement, legacy 6086997 deletion, or any other domain migration.
+**READY FOR A SEPARATELY AUTHORIZED REAL BOOTSTRAP: YES.** This historical Preview did not itself authorize or execute that bootstrap, Browser cutover, Browser retirement, legacy 6086997 deletion, or any other domain migration. The user subsequently granted real-bootstrap authorization for Phase 2B3B.2.
+
+## Phase 2B3B.1 production runner
+
+Phase 2B3B.1 prepares the production path but deliberately performs zero real PostgreSQL business writes and zero real sequence consumption.
+
+- `server/sales-orders/bootstrap-source.ts` is the shared fresh-source orchestration used by both the historical disposable script and the production CLI. It reuses the fixed Bridge, 6086103/6087105 adapters and `buildFinalSalesOrderBootstrapPreview`; there is no second candidate-mapping pipeline.
+- `server/sales-orders/bootstrap-cli.ts` compiles to `dist/server/server/sales-orders/bootstrap-cli.js` and has explicit `--plan` / `--execute` modes. No mode fails closed. Execute additionally requires `--confirm-real-bootstrap=zhixu` and `ZHIXU_REAL_BOOTSTRAP_CONFIRM=YES`; the named existing actor and browser-local Ainuoke user id are also explicit.
+- Every plan/execute rebuilds 6086103 BEFORE → all 6087105 BillNo details → 6086103 AFTER. BillNo blanks/duplicates, query failures, candidate coverage problems or an unstable snapshot stop before writes. The resulting `previewHash` and immutable in-memory candidate array are emitted as safe aggregate evidence; raw upstream payload and credentials are not printed.
+- FIRST_BOOTSTRAP preflight requires the real `zhixu` database, an exact 0001/0002/0003 filename/checksum ledger, empty SalesOrder aggregate/link/mirror/log state and an unconsumed sequence. The actor must be an existing active `app_users` row with a public UUID; no fake actor, admin bootstrap or RBAC sync is allowed.
+- Execute ordering is the final Preview's normalized BillNo ordering. Each candidate goes serially through the existing transactional `createAinuokeSalesOrder`; no production script DML duplicates the service. The first failure stops future candidates without destructive cleanup or sequence reset.
+- Only after a complete first pass, the exact same in-memory array is replayed. Every result must be idempotent with the same UUID, order number and version, and business counts must remain unchanged. Final read-only reconciliation checks source/contract/color coverage, invalid/missing zero-color behavior, trusted OperationLog actor and exact action, UUID/order-number uniqueness, `SO-########` continuity and sequence state.
+- Disposable PG16 tests cover both success and first-failure stop. They do not connect the production execute path to real `zhixu`.
+
+The user has explicitly authorized Phase 2B3B.2 to run this bootstrap from merged latest main. The authorization remains valid unless scope changes. It does not permit B3B.1 to execute from an unmerged runner, and it does not permit Browser Order Center cutover or any Ainuoke/Quote/Style Progress/Scheduling/Closing write.

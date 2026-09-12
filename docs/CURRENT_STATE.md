@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `docs/postgres-schema-activation`，起点为 `6834b237670d5955028c68aa2c2d96ae25b914ed`（Phase 2B2.3 PR #21 merge）。Phase 2B3A.1 已在固定真实 `zhixu` PostgreSQL 上仅通过正式 migration runner 应用 0001/0002/0003；没有执行 SalesOrder bootstrap、permission catalog sync、bootstrap admin、完整 server startup 或 Browser cutover。
-- 当前稳定基线：GitHub `main` 为 `6834b237670d5955028c68aa2c2d96ae25b914ed`（Phase 2B2.3 PR #21 已 merged）。
+- 当前 Active Task 为 `feat/postgres-real-salesorder-bootstrap-runner`，起点为 `482d60dd085df0e66c824e1adbc6abbbd0c8beb8`（Phase 2B3A.1 docs PR #22 merge）。Phase 2B3B.1 只实现和 disposable 验证 production bootstrap runner；本 PR 不执行真实 SalesOrder bootstrap。
+- 当前稳定基线：GitHub `main` 为 `482d60dd085df0e66c824e1adbc6abbbd0c8beb8`（PR #22 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -22,6 +22,16 @@
 
 ## 本轮完成状态
 
+### PostgreSQL Phase 2B3B.1 — Production Real SalesOrder Bootstrap Runner
+
+- 新增独立编译型 CLI `server/sales-orders/bootstrap-cli.ts`，支持且只支持显式 `--plan` / `--execute`。execute 同时要求 `--confirm-real-bootstrap=zhixu` 与 `ZHIXU_REAL_BOOTSTRAP_CONFIRM=YES`，没有默认确认值。
+- runner 从 `AINUOKE_BRIDGE_URL` 的 fixed Bridge routes 重新读取 fresh 6086103 BEFORE → 全部 6087105 BillNo details → 6086103 AFTER，并复用既有 adapters 与 `buildFinalSalesOrderBootstrapPreview`。BillNo blank/duplicate、detail query failure 或 stale snapshot 均在 PostgreSQL 写入前 fail closed；写入开始后只使用同一份 in-memory candidate array。
+- FIRST_BOOTSTRAP preflight 要求目标 `current_database() = zhixu`、migration ledger 精确为当前 0001/0002/0003 及 checksum、四张 SalesOrder 表和 SalesOrder OperationLogs 全空、sequence `last_value=1/is_called=false`。actor 必须由显式 `ZHIXU_BOOTSTRAP_ACTOR_USERNAME` 指向一个现有 active `app_users`，真实 id/public_id/display_name 与数据库权限共同构造 TrustedIdentity；不创建 fake actor、不同步 RBAC。
+- 正式写路径不含直接业务 DML；每个按 normalized BillNo 排序的 candidate 串行调用既有 `createAinuokeSalesOrder`。首个失败即停止后续创建且不自动删除/restore/reset；全成功后只用相同 candidate array 原进程幂等 replay，并只读核对 UUID/order number/source binding/contract/color/log/actor/sequence。
+- disposable PostgreSQL 16 rehearsal 覆盖 target、ledger、empty-state、sequence、actor、双确认、stale Preview、全量创建、deterministic `SO-` 编号、invalid colors 空 slice、幂等 replay、OperationLog 去重和 failure-stop。真实 `zhixu` PostgreSQL business writes 与 sequence consumption 均为 0。
+- 用户已明确授权在 runner 合并后的 Phase 2B3B.2 从最新 main 执行真实 bootstrap；该授权持续有效，除非范围变化。它不授权本 PR 提前执行，也不授权 Browser Order Center cutover 或 Quote/Style Progress/Scheduling/Closing/Ainuoke 写入。
+- 最终门禁：runner targeted 8/8、PostgreSQL integration 22/22、Bridge 36/36、Full Tests 601/601、TypeScript、零警告 ESLint、server build（compiled CLI 存在）、frontend Production Build 30 routes 与 `git diff --check` 全部 PASS；按要求未运行 Style Progress benchmark。
+
 ### PostgreSQL Phase 2B3A.1 — Real Schema Activation
 
 - 目标再次确认为固定 `zhixu-database / zhixu`、PostgreSQL 16.14、`DB_HOST=database`、持久化 named volume `preparesystem_zhixu_data`；不是 disposable/tmpfs integration database。
@@ -30,7 +40,7 @@
 - `schema_migrations`、四张 RBAC 表、`operation_logs`、四张 SalesOrder domain 表及 `sales_order_number_seq` 均已存在。正式唯一索引与 identity/version、source binding、append-only log、assign-number/order-number immutable triggers 的只读 introspection 全部通过。
 - `sales_orders`、source links、contract/color mirrors 和 SalesOrder OperationLogs 仍全部为 0。sequence 保持 `last_value=1, is_called=false`，预期首个正式编号为 `SO-00000001`；没有调用测试 `nextval`、手工 `setval` 或 restart。
 - Legacy migration 前后完全一致：app users 2、sessions 0、login attempts 1、customers 2、quotes 2、orders 2、schedules 1、audit logs 18；core/business deterministic digests 全部相同。2/2 existing users 的 `public_id` 已填充且重复数为 0。RBAC catalog sync 明确未执行，空 catalog 不属于 migration failure。
-- 本 Gate Ainuoke reads/writes 均为 0；真实 SalesOrder bootstrap、Browser Repository write/cutover、Quote/Style Progress/Scheduling/Closing migration 或 write 均未执行。下一 Gate 只能在再次明确授权后执行 real SalesOrder bootstrap。
+- 本 Gate Ainuoke reads/writes 均为 0；真实 SalesOrder bootstrap、Browser Repository write/cutover、Quote/Style Progress/Scheduling/Closing migration 或 write 均未执行。后续用户已明确授权 B3B.2 real bootstrap，但 B3B.1 runner PR 仍不得执行。
 
 ### PostgreSQL Phase 2B2.3 — Formal SalesOrder Number + Final Fresh Bootstrap Preview
 

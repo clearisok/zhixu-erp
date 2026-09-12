@@ -11,18 +11,25 @@
 
 ## Current Stable Main
 
-`6834b237670d5955028c68aa2c2d96ae25b914ed`（Phase 2B2.3 PR #21 已 merged）
+`482d60dd085df0e66c824e1adbc6abbbd0c8beb8`（Phase 2B3A.1 docs PR #22 已 merged）
 
 ## Current Active Task
 
-- Branch: `docs/postgres-schema-activation`
-- Baseline: `6834b237670d5955028c68aa2c2d96ae25b914ed` (`origin/main`, Phase 2B2.3 PR #21 merge commit).
-- Scope: Phase 2B3A.1 activates only migrations 0001/0002/0003 on the fixed real `zhixu-database / zhixu` PostgreSQL 16.14 target. It does not run a SalesOrder bootstrap, start the full Node server, sync the RBAC catalog, bootstrap an admin, read Ainuoke, or cut over Browser Order Center.
-- Verified backup: `D:\workspace\preparesystem\backups\zhixu-20260912-000250.dump`, 47,667 bytes, SHA-256 `4A6A11844E70943318760F1F8729E736656A1B5A8C97E9F04024FB87A335EF1C`; `pg_restore --list` PASS.
-- Migration-only execution: the first formal runner applied `0001_trusted_auth_rbac_operation_logs.sql`, `0002_sales_order_foundation.sql`, and `0003_sales_order_number_sequence.sql`. The three ledger checksums exactly match the repository files. The second runner applied nothing and skipped all three.
-- Post-state: migration ledger, RBAC schema, server OperationLog, SalesOrder tables and number sequence exist. SalesOrder aggregate/link/mirror/log counts are all 0. Sequence is unconsumed at `last_value=1, is_called=false`, so the expected first real number remains `SO-00000001`.
-- Legacy reconciliation: app users 2, sessions 0, login attempts 1, customers 2, quotes 2, orders 2, schedules 1 and audit logs 18 all retained identical pre/post core or full-row digests. Both existing users have non-null unique `public_id` values. RBAC catalog sync was not executed.
-- Next Gate: only an explicitly authorized real SalesOrder bootstrap. This handoff does not authorize it; Browser cutover and all other domain migrations remain separate.
+- Branch: `feat/postgres-real-salesorder-bootstrap-runner`
+- Baseline: `482d60dd085df0e66c824e1adbc6abbbd0c8beb8` (`origin/main`, Phase 2B3A.1 docs PR #22 merge commit).
+- Scope: Phase 2B3B.1 implements and validates a compiled production real-bootstrap runner. This PR must not execute it against real `zhixu`, consume its sequence, sync RBAC, bootstrap an admin, read 6087050, or cut over Browser Order Center.
+- Source plan: `bootstrap-source.ts` reuses the fixed Bridge, Discovery/6087105 adapters and final Preview builder. Every invocation performs fresh 6086103 BEFORE, all BillNo-keyed 6087105 reads and fresh 6086103 AFTER; blank/duplicate BillNo, query failure or stale snapshot rejects before writes. Historical 511 candidates are never loaded as an execution file.
+- Guards: exactly one `--plan`/`--execute`; explicit Ainuoke user id and actor username; execute-only CLI `zhixu` plus env `YES` confirmation; exact real database, migration filenames/checksums, empty first-bootstrap tables/logs and unconsumed sequence; existing active actor with non-null public UUID. Empty RBAC permissions do not block this internal bootstrap and are never fabricated.
+- Write/reconcile path: candidates retain normalized BillNo ordering and are serially passed only to `createAinuokeSalesOrder`. First failure stops; successful rows are not auto-removed and sequence is not reset. Complete first pass is replayed with the same in-memory array and must return the same UUID/order/version without new mirrors/logs. Final read-only reconciliation checks counts, bindings, mirrors, trusted actor logs, numbering and sequence.
+- Disposable rehearsal includes success, invalid-color zero-row behavior, idempotency, trusted logs, stale/target/ledger/empty/sequence/actor/confirmation guards and failure-stop. No real PostgreSQL business write or real sequence consumption occurred in this PR.
+- Authorization: the user has explicitly authorized the real `zhixu` SalesOrder bootstrap for the next operational Phase 2B3B.2 after this runner is merged. That authorization remains valid unless scope changes. It does not authorize execution from this unmerged branch, Browser cutover, or Quote/Style Progress/Scheduling/Closing/Ainuoke writes.
+- Final gates: runner targeted 8/8, PostgreSQL integration 22/22, Bridge 36/36, Full Tests 601/601, typecheck, zero-warning lint, server build with compiled CLI, frontend Production Build 30 routes and `git diff --check` PASS. Style Progress benchmark was intentionally not run.
+
+## Previous completed Phase 2B3A.1 task
+
+- Branch: `docs/postgres-schema-activation`; merged by PR #22 as `482d60dd085df0e66c824e1adbc6abbbd0c8beb8`.
+- Migrations 0001/0002/0003 were applied once to fixed `zhixu-database / zhixu` PostgreSQL 16.14 and the second runner skipped all three. SalesOrder aggregate/link/mirror/log counts remained 0 and sequence remained `last_value=1, is_called=false`.
+- Backup `D:\workspace\preparesystem\backups\zhixu-20260912-000250.dump` was verified non-empty with SHA-256 `4A6A11844E70943318760F1F8729E736656A1B5A8C97E9F04024FB87A335EF1C` and `pg_restore --list` PASS. Legacy digests were unchanged; RBAC catalog sync was not executed.
 
 ## Previous completed Phase 2B2.3 task
 

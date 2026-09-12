@@ -151,7 +151,8 @@ Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate*
 5. **Phase 2B2.2 stable identity migration:** complete in code/read-only validation. 6087105 now queries BillNo; all 511 contracts had exact detail, the former eight missing were recovered as legitimate InsideOrderNo drift, and 6087105 is the Active formal source. No real bootstrap occurred.
 6. **Phase 2B2.3 formal number + final fresh Preview:** complete. Stable 511-row BillNo scope produced 511 candidates (505 usable colors, 0 missing, 6 invalid); all 511 passed the formal service, exact idempotent retry, trusted log and rollback probes in disposable PG16 after 0001/0002/0003.
 7. **Phase 2B3A.1 real schema activation:** complete. The real target now has the migration ledger, RBAC/OperationLog schema, empty SalesOrder domain tables and an unconsumed number sequence. No business row was created.
-8. **Next only after separate authorization:** real bootstrap remains an external business write and is not executed by this phase. Browser read/write cutover, Browser retirement, manual/Quote/reorder creation and remaining owned facts remain separate gates.
+8. **Phase 2B3B.1 production runner:** implemented and disposable-validated. The compiled CLI performs fresh source reads, dual execute confirmation, exact target/ledger/empty/sequence/actor guards, serial service-only creation, same-array idempotency replay and read-only reconciliation. This PR performs zero real business writes.
+9. **Next operational Gate — Phase 2B3B.2:** execute the user-authorized real bootstrap only after the runner is merged into latest main. Browser read/write cutover, Browser retirement, manual/Quote/reorder creation and remaining owned facts remain separate, unapproved gates.
 
 ## Decisions requiring user confirmation
 
@@ -164,9 +165,9 @@ The user has now confirmed these formal rules:
 
 The sequence is implemented by `0003`; missing/tombstone lifecycle storage remains a later independent schema/service Gate. The 6087105 source decision is no longer pending. Decisions still requiring confirmation are:
 
-1. Whether a future phase proceeds beyond preview/dry-run to a separately approved real bootstrap/read cutover.
-2. Closing test-data retirement classification. Browser Order/Scheduling retirement also requires a later explicit destructive confirmation; it is not implied by this architecture direction.
+1. Closing test-data retirement classification.
+2. Browser Order/Scheduling retirement and cutover. They still require later explicit approval and are not implied by real SalesOrder bootstrap authorization.
 
 ## Readiness
 
-**PHASE 2B3A.1 REAL POSTGRESQL SCHEMA ACTIVATION COMPLETE. READY FOR A SEPARATELY AUTHORIZED REAL SALESORDER BOOTSTRAP: YES.** The target schema is present, empty, ledger-verified and idempotent, and its number sequence is unconsumed. This is readiness evidence, not bootstrap authorization or a real order launch. Browser cutover and all other domain migrations remain unauthorized.
+**PHASE 2B3B.1 PRODUCTION BOOTSTRAP RUNNER PREPARED; REAL BUSINESS WRITES IN THIS PR: 0.** The user has authorized Phase 2B3B.2 execution after this runner is merged. The runner must then rebuild a fresh stable Preview and recheck the real target before any service write. Browser cutover and all other domain migrations remain separately unauthorized.
