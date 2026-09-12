@@ -65,6 +65,13 @@ Browser
 - 服务端授权只比较稳定 `PermissionKey`。角色名称没有授权语义，也不存在 admin hardcoded bypass；bootstrap 管理员通过普通 role 获得当前目录权限。
 - Phase 1 不迁移 browser mock users/roles/permissions。自动化账号只创建在一次性 PostgreSQL 容器内，不进入 DEV 数据库。
 
+### C1 guarded real activation
+
+- `activateExistingServerAdminRole()` 是独立于 `bootstrapAdmin()` 的 narrow activation path。它只接受 normalized `admin`，要求唯一 existing active row + public_id，并且从不 INSERT/UPDATE `app_users` 或接收密码。
+- PLAN/execute 都验证 fixed `zhixu`、repository current 0001/0002/0003 filename/checksum ledger 和精确 SalesOrder safety state。Execute 另要求 CLI `--confirm-real-rbac=zhixu` + env `ZHIXU_REAL_RBAC_CONFIRM=YES`；没有 mode/username/任一确认均 fail closed。
+- Execute 在单 transaction + advisory xact lock 内调用 `synchronizePermissionCatalogInTransaction()`，幂等 upsert `role-server-admin`（服务器管理员）、全部当前 `PERMISSION_KEYS` role bindings 和 existing admin user-role binding。不删除或覆盖其他 role/permission/assignment；未知额外 server-admin permission 无法安全删除时 PLAN 拒绝执行。
+- C1.1 只完成 runner/disposable rehearsal 与 real read-only PLAN。真实权限目录、role/bindings、login attempts/session 均未写入；用户对 runner merged 后 C1.2 的 narrow activation + authenticated acceptance 授权已存在。
+
 ## Server OperationLog
 
 - `operation_logs` 是新的正式 server table，与 legacy `audit_logs` 完全分离。
@@ -127,4 +134,5 @@ Phase 2B3A.1 on 2026-09-12 applied migrations 0001/0002/0003 to the fixed real `
 - 完成 real bootstrap 不等于 Browser 正式订单已经上线。Browser Order Center 仍使用既有 Browser Repository；没有 Browser test-order migration、Repository cutover 或 dual write，也没有 Quote、Style Progress、Scheduling、Closing、附件/Blob migration。
 - legacy root ERP 是待退役兼容路径，不是新业务表设计、字段语义或 migration source。
 - 后续每个业务领域仍必须独立完成 reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
-- Phase 2B3C0 只增加 bounded read API、独立 server read DTO/view-model/repository、DEV-only shadow UI 和 readiness audit。真实 RBAC catalog/assignment 仍为空，下一 Gate 应先单独授权并完成 server auth/RBAC activation，再做 authenticated shadow acceptance；本阶段不执行 Browser cutover。
+- Phase 2B3C0 只增加 bounded read API、独立 server read DTO/view-model/repository、DEV-only shadow UI 和 readiness audit。真实 RBAC catalog/assignment 仍为空；用户已为 C1.2 narrow activation 与 authenticated acceptance 明确授权，但必须等待 C1.1 runner merge 后再执行。本阶段不执行 Browser cutover。
+- Phase C1.1 已准备 guarded runner 并只读确认真实目标 `READY_TO_EXECUTE_REAL_RBAC=YES`，但尚未执行 activation。下一 Gate 是 runner merge 后按现有授权执行 C1.2，再以现有 admin 在本地 non-echo login 取得 trusted session，验证 `/auth/me`、`/auth/permissions`、全部 511 条分页 SalesOrder 与样本详情。启动前必须证明 `ZHIXU_ADMIN_PASSWORD` 未设置，使 `bootstrapAdmin()` 返回 false。
