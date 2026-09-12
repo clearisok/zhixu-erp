@@ -11,21 +11,18 @@
 
 ## Current Stable Main
 
-`9572162fa68c60674f8973472f779d7f16e394ec`（Phase 2B3B.1 PR #23 已 merged）
+`afda50e77cc24d9a57fc05d5b2b5e49ec86dc124`（Phase 2B3B.2a PR #24 已 merged）
 
 ## Current Active Task
 
-- Branch: `fix/bootstrap-bridge-transport-retry`
-- Baseline: `9572162fa68c60674f8973472f779d7f16e394ec` (`origin/main`, Phase 2B3B.1 PR #23 merge commit).
-- Scope: Phase 2B3B.2a hardens only the production bootstrap Ainuoke Bridge source-read transport. It must not run `--execute`, write SalesOrder/Ainuoke/Browser data, consume the real sequence, change report contracts/candidate semantics, or cut over Browser Order Center.
-- Operational evidence: two complete real-target plans produced the same stable 511-row Preview. Three authorized execute attempts then stopped before PostgreSQL write orchestration: attempts 1 and 3 failed with fetch `TypeError`; attempt 2 completed Discovery BEFORE and all 511 detail calls, then failed the aggregate detail guard before Discovery AFTER. A separate complete 11-page Discovery diagnostic succeeded. No HTTP auth rejection was observed, so the current classification is transient pre-Response Bridge/fetch transport instability, not expired credentials or a business validation failure.
-- Transport rule: the bootstrap-only wrapper allows four total attempts with `250/750/1500ms` backoff. It retries only pre-Response `TypeError` or `ECONNRESET`/`ETIMEDOUT`/`ECONNREFUSED`/`EPIPE`/`UND_ERR_SOCKET`/`UND_ERR_CONNECT_TIMEOUT`. HTTP responses, Bridge errors, paging/data validation, BillNo mismatch, stale snapshots and adapter/business errors remain fail-closed without retry.
-- Session/observability: the current cookie is reused unchanged across rejected attempts and updated only from a received Response. `bootstrap_bridge_transport_retry` exposes only attempt, maxAttempts, error class, allowlisted transport code and endpoint pathname. Report-page reads and transport retries are independent counters; query/body/error message/cookie/credential/token are never logged.
-- Unchanged boundary: fixed 6086103/6087105 routes, SalesContractNo/BillNo identity, exact filtering, stable Preview guard, candidate mapping, detail concurrency=4, service-only database writes, idempotency/reconciliation, sequence and migrations are unchanged.
-- Real state remains empty: SalesOrder aggregate/source-link/contract-mirror/color-mirror/OperationLog counts are all 0 and `sales_order_number_seq` remains `last_value=1, is_called=false`. The three stopped attempts made no PostgreSQL business write and consumed no sequence value.
-- Authorization: the user authorization for Phase 2B3B.2 remains valid, but execution must wait until this hardening PR is merged. This PR does not authorize Browser cutover or Quote/Style Progress/Scheduling/Closing/Ainuoke writes.
-- Safe diagnostic output now maps only the explicit Bridge allowlist and emits `real_bootstrap_source_failed` with `AinuokeBridgeError` plus `bridgeCode`; unknown codes become `unknown_bridge_error`, and messages/request/account/secret data are excluded. The diagnostic real-target `--plan` returned `account_not_configured` before any completed Discovery phase with transport retries 0. This current failure is account configuration, not Node→Bridge transport or transient Bridge→Ainuoke networking; response-level retry was therefore not added and no second live PLAN was run.
-- Final gates: bootstrap source/runner 16/16, PostgreSQL integration 22/22, Bridge 36/36, Full Tests 601/601, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and `git diff --check` PASS. No `--execute` occurred and the real zero-count/unconsumed-sequence state was reconfirmed afterward. Before authorized Phase 2B3B.2 can be retried, the operator must restore/select the configured personal Ainuoke account/session.
+- Branch: `fix/bootstrap-ainuoke-user-preflight`
+- Baseline: `afda50e77cc24d9a57fc05d5b2b5e49ec86dc124` (`origin/main`, Phase 2B3B.2a PR #24 merge commit).
+- Identity finding: Account Settings passes Browser `currentUser.id` to Bridge. The current UI user “系统管理员” is exactly `user-admin`; previous successful PLAN also used `user-admin`. The failed `account_not_configured` PLAN used PostgreSQL admin `public_id`, which is a different identity namespace. Root cause is `BOOTSTRAP_USER_ID_MISMATCH`, not missing/invalid credential.
+- Safety change: before any 6086103 read, production bootstrap now checks the explicitly supplied user with Bridge `GET /v1/ainuoke/account`. `configured=false` emits only `bootstrap_ainuoke_account_precondition_failed` + configured/status/bridgeCode and stops. It never scans credential storage, substitutes another id or logs secrets.
+- Live evidence: `user-admin` public account is configured/verified and the stored-credential test succeeds without passing username/password. The single read-only PLAN completed total=511, stable before/after hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`, preview hash `6966d8d360118f4aa5fb8565061b0234a482d114de90f9b0fc5dc7c17337ea71`, usable/missing/invalid=505/0/6, drift=8, BillNo blank/duplicates=0/0 and detail failures=0. Twelve bounded ETIMEDOUT transport retries recovered.
+- Real state after PLAN: all four SalesOrder tables and SalesOrder OperationLogs remain 0; sequence remains `last_value=1/is_called=false`. `--execute` was not run; PostgreSQL/Ainuoke business writes remain 0 and Browser cutover remains forbidden.
+- Final gates: bootstrap source 9/9, PostgreSQL integration 22/22, Bridge 36/36, Full Tests 601/601, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and `git diff --check` PASS.
+- Authorization: the existing Phase 2B3B.2 authorization remains valid after this preflight change is merged. The operator must still explicitly pass the intended Browser-local Ainuoke user id; no identity auto-selection is authorized.
 
 ## Previous completed Phase 2B3B.1 task
 
