@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-- Phase: PostgreSQL Phase 2B1 Server Foundation complete; Phase 2B2.3 final fresh Preview complete; Phase 2B3A.1 real PostgreSQL schema activation complete.
+- Phase: PostgreSQL Phase 2B1 Server Foundation complete; Phase 2B2.3 final fresh Preview complete; Phase 2B3A.1 real PostgreSQL schema activation complete; Phase 2B3B.1 production runner merged; Phase 2B3B.2a transport hardening in progress.
 - Phase 2B2 baseline: `f424a9b78f66dffdd47075f8ff29ea5f3590717b` (`main`, Phase 2B1 PR #17 merged).
 - Phase 2B1 implements PostgreSQL schema, parameterized repository, transactional Ainuoke-created SalesOrder service, typed read API and disposable PostgreSQL integration tests.
 - This is not a Browser Order Center cutover and not a real bootstrap. Browser runtime remains on its existing Repository; no Browser DEV data was read, imported, modified or deleted.
@@ -20,6 +20,17 @@ Phase 2B2.1 validated 6087105 as a cleaner candidate garment color/size source. 
 - Read-only schema introspection confirms normalized unique order number, unique immutable source binding, normalized SalesContractNo uniqueness, SalesOrder identity/version and order-number protection, append-only OperationLog, and insert-time number assignment.
 - `sales_orders`, `sales_order_source_links`, both Ainuoke current mirror tables and SalesOrder OperationLogs all remain empty. The sequence is unconsumed at `last_value=1, is_called=false`; the expected first real order number remains `SO-00000001`.
 - Legacy user/session core data and legacy business tables passed deterministic pre/post reconciliation. RBAC catalog sync, bootstrap admin, Ainuoke reads, SalesOrder bootstrap and Browser cutover were not executed.
+
+## Phase 2B3B.2a bootstrap Bridge transport boundary
+
+- Two complete `--plan` runs against the real target produced the same stable 511-row Preview. Three later authorized `--execute` attempts stopped before PostgreSQL write orchestration: two surfaced fetch `TypeError`; one completed Discovery BEFORE and all 511 BillNo detail calls but failed the detail-query aggregate guard before Discovery AFTER. A separate complete 11-page Discovery diagnostic succeeded. No HTTP authentication rejection was observed; the failure class is transient pre-Response Bridge/fetch transport instability.
+- The production bootstrap source layer now makes at most four attempts per Bridge request, with `250ms`, `750ms`, then `1500ms` backoff. Only a fetch rejection before any `Response` is received is eligible: `TypeError` or an allowlisted `ECONNRESET`, `ETIMEDOUT`, `ECONNREFUSED`, `EPIPE`, `UND_ERR_SOCKET`, or `UND_ERR_CONNECT_TIMEOUT` code.
+- A received HTTP response is never retried, regardless of status. Bridge contract errors, report paging/data validation, BillNo mismatch, stale snapshot, adapter errors and business errors remain fail-closed. The cookie is preserved across a rejected attempt and updated only after a received Response supplies `Set-Cookie`.
+- Safe `bootstrap_bridge_transport_retry` events contain only attempt/maxAttempts/errorClass/allowlisted transportCode/endpoint pathname. Successful 6086103/6087105 report pages remain counted as reads, while `transportRetries` is reported separately. No raw response, query/body, cookie, credential, token or error message is emitted.
+- This is a bootstrap-only wrapper; global Bridge/app behavior is unchanged. Fixed 6086103 and 6087105 contracts, BillNo identity/exact filter, stale guard, Preview/candidate mapping, detail concurrency 4, database service, migrations and sequence semantics are unchanged.
+- This PR does not run `--execute`. Real SalesOrder tables and logs remain empty and the real sequence remains unconsumed. The authorized Phase 2B3B.2 operational retry is the next Gate only after this hardening is merged.
+- Bootstrap CLI source failures expose only an allowlisted sanitized `bridgeCode`; unknown Bridge codes become `unknown_bridge_error`, with no error message or request/account/secret material. The diagnostic real-target `--plan` returned `account_not_configured` before any complete Discovery phase and with transport retries 0. This is an account/session prerequisite, not a transient network response, so no response-level/upstream retry was added and no second live PLAN was run.
+- Automated validation passed: focused source/runner 16/16, disposable PostgreSQL 22/22, Bridge 36/36, Full Tests 601/601, typecheck, lint, both builds and diff-check. Real business counts and sequence remained unchanged. The configured personal Ainuoke account/session must be restored or selected before the authorized Phase 2B3B.2 retry.
 
 ## Phase 2B2 Bootstrap Preview result
 
@@ -152,7 +163,8 @@ Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate*
 6. **Phase 2B2.3 formal number + final fresh Preview:** complete. Stable 511-row BillNo scope produced 511 candidates (505 usable colors, 0 missing, 6 invalid); all 511 passed the formal service, exact idempotent retry, trusted log and rollback probes in disposable PG16 after 0001/0002/0003.
 7. **Phase 2B3A.1 real schema activation:** complete. The real target now has the migration ledger, RBAC/OperationLog schema, empty SalesOrder domain tables and an unconsumed number sequence. No business row was created.
 8. **Phase 2B3B.1 production runner:** implemented and disposable-validated. The compiled CLI performs fresh source reads, dual execute confirmation, exact target/ledger/empty/sequence/actor guards, serial service-only creation, same-array idempotency replay and read-only reconciliation. This PR performs zero real business writes.
-9. **Next operational Gate — Phase 2B3B.2:** execute the user-authorized real bootstrap only after the runner is merged into latest main. Browser read/write cutover, Browser retirement, manual/Quote/reorder creation and remaining owned facts remain separate, unapproved gates.
+9. **Phase 2B3B.2a Bridge transport hardening:** bounded pre-Response retry is bootstrap-only and preserves all report, identity, Preview and write semantics. It executes no real bootstrap.
+10. **Next operational Gate — Phase 2B3B.2:** retry the user-authorized real bootstrap only after the transport hardening PR is merged into latest main. Browser read/write cutover, Browser retirement, manual/Quote/reorder creation and remaining owned facts remain separate, unapproved gates.
 
 ## Decisions requiring user confirmation
 
@@ -170,4 +182,4 @@ The sequence is implemented by `0003`; missing/tombstone lifecycle storage remai
 
 ## Readiness
 
-**PHASE 2B3B.1 PRODUCTION BOOTSTRAP RUNNER PREPARED; REAL BUSINESS WRITES IN THIS PR: 0.** The user has authorized Phase 2B3B.2 execution after this runner is merged. The runner must then rebuild a fresh stable Preview and recheck the real target before any service write. Browser cutover and all other domain migrations remain separately unauthorized.
+**PHASE 2B3B.2a BOOTSTRAP BRIDGE TRANSPORT HARDENED; REAL BUSINESS WRITES IN THIS PR: 0.** The user authorization for Phase 2B3B.2 remains valid, but execution waits for this PR to merge. The runner must then rebuild a fresh stable Preview and recheck the real target before any service write. Browser cutover and all other domain migrations remain separately unauthorized.

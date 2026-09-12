@@ -11,19 +11,27 @@
 
 ## Current Stable Main
 
-`482d60dd085df0e66c824e1adbc6abbbd0c8beb8`（Phase 2B3A.1 docs PR #22 已 merged）
+`9572162fa68c60674f8973472f779d7f16e394ec`（Phase 2B3B.1 PR #23 已 merged）
 
 ## Current Active Task
 
-- Branch: `feat/postgres-real-salesorder-bootstrap-runner`
-- Baseline: `482d60dd085df0e66c824e1adbc6abbbd0c8beb8` (`origin/main`, Phase 2B3A.1 docs PR #22 merge commit).
-- Scope: Phase 2B3B.1 implements and validates a compiled production real-bootstrap runner. This PR must not execute it against real `zhixu`, consume its sequence, sync RBAC, bootstrap an admin, read 6087050, or cut over Browser Order Center.
-- Source plan: `bootstrap-source.ts` reuses the fixed Bridge, Discovery/6087105 adapters and final Preview builder. Every invocation performs fresh 6086103 BEFORE, all BillNo-keyed 6087105 reads and fresh 6086103 AFTER; blank/duplicate BillNo, query failure or stale snapshot rejects before writes. Historical 511 candidates are never loaded as an execution file.
-- Guards: exactly one `--plan`/`--execute`; explicit Ainuoke user id and actor username; execute-only CLI `zhixu` plus env `YES` confirmation; exact real database, migration filenames/checksums, empty first-bootstrap tables/logs and unconsumed sequence; existing active actor with non-null public UUID. Empty RBAC permissions do not block this internal bootstrap and are never fabricated.
-- Write/reconcile path: candidates retain normalized BillNo ordering and are serially passed only to `createAinuokeSalesOrder`. First failure stops; successful rows are not auto-removed and sequence is not reset. Complete first pass is replayed with the same in-memory array and must return the same UUID/order/version without new mirrors/logs. Final read-only reconciliation checks counts, bindings, mirrors, trusted actor logs, numbering and sequence.
-- Disposable rehearsal includes success, invalid-color zero-row behavior, idempotency, trusted logs, stale/target/ledger/empty/sequence/actor/confirmation guards and failure-stop. No real PostgreSQL business write or real sequence consumption occurred in this PR.
-- Authorization: the user has explicitly authorized the real `zhixu` SalesOrder bootstrap for the next operational Phase 2B3B.2 after this runner is merged. That authorization remains valid unless scope changes. It does not authorize execution from this unmerged branch, Browser cutover, or Quote/Style Progress/Scheduling/Closing/Ainuoke writes.
-- Final gates: runner targeted 8/8, PostgreSQL integration 22/22, Bridge 36/36, Full Tests 601/601, typecheck, zero-warning lint, server build with compiled CLI, frontend Production Build 30 routes and `git diff --check` PASS. Style Progress benchmark was intentionally not run.
+- Branch: `fix/bootstrap-bridge-transport-retry`
+- Baseline: `9572162fa68c60674f8973472f779d7f16e394ec` (`origin/main`, Phase 2B3B.1 PR #23 merge commit).
+- Scope: Phase 2B3B.2a hardens only the production bootstrap Ainuoke Bridge source-read transport. It must not run `--execute`, write SalesOrder/Ainuoke/Browser data, consume the real sequence, change report contracts/candidate semantics, or cut over Browser Order Center.
+- Operational evidence: two complete real-target plans produced the same stable 511-row Preview. Three authorized execute attempts then stopped before PostgreSQL write orchestration: attempts 1 and 3 failed with fetch `TypeError`; attempt 2 completed Discovery BEFORE and all 511 detail calls, then failed the aggregate detail guard before Discovery AFTER. A separate complete 11-page Discovery diagnostic succeeded. No HTTP auth rejection was observed, so the current classification is transient pre-Response Bridge/fetch transport instability, not expired credentials or a business validation failure.
+- Transport rule: the bootstrap-only wrapper allows four total attempts with `250/750/1500ms` backoff. It retries only pre-Response `TypeError` or `ECONNRESET`/`ETIMEDOUT`/`ECONNREFUSED`/`EPIPE`/`UND_ERR_SOCKET`/`UND_ERR_CONNECT_TIMEOUT`. HTTP responses, Bridge errors, paging/data validation, BillNo mismatch, stale snapshots and adapter/business errors remain fail-closed without retry.
+- Session/observability: the current cookie is reused unchanged across rejected attempts and updated only from a received Response. `bootstrap_bridge_transport_retry` exposes only attempt, maxAttempts, error class, allowlisted transport code and endpoint pathname. Report-page reads and transport retries are independent counters; query/body/error message/cookie/credential/token are never logged.
+- Unchanged boundary: fixed 6086103/6087105 routes, SalesContractNo/BillNo identity, exact filtering, stable Preview guard, candidate mapping, detail concurrency=4, service-only database writes, idempotency/reconciliation, sequence and migrations are unchanged.
+- Real state remains empty: SalesOrder aggregate/source-link/contract-mirror/color-mirror/OperationLog counts are all 0 and `sales_order_number_seq` remains `last_value=1, is_called=false`. The three stopped attempts made no PostgreSQL business write and consumed no sequence value.
+- Authorization: the user authorization for Phase 2B3B.2 remains valid, but execution must wait until this hardening PR is merged. This PR does not authorize Browser cutover or Quote/Style Progress/Scheduling/Closing/Ainuoke writes.
+- Safe diagnostic output now maps only the explicit Bridge allowlist and emits `real_bootstrap_source_failed` with `AinuokeBridgeError` plus `bridgeCode`; unknown codes become `unknown_bridge_error`, and messages/request/account/secret data are excluded. The diagnostic real-target `--plan` returned `account_not_configured` before any completed Discovery phase with transport retries 0. This current failure is account configuration, not Node→Bridge transport or transient Bridge→Ainuoke networking; response-level retry was therefore not added and no second live PLAN was run.
+- Final gates: bootstrap source/runner 16/16, PostgreSQL integration 22/22, Bridge 36/36, Full Tests 601/601, typecheck, zero-warning lint, server build, frontend Production Build 30 routes and `git diff --check` PASS. No `--execute` occurred and the real zero-count/unconsumed-sequence state was reconfirmed afterward. Before authorized Phase 2B3B.2 can be retried, the operator must restore/select the configured personal Ainuoke account/session.
+
+## Previous completed Phase 2B3B.1 task
+
+- Branch: `feat/postgres-real-salesorder-bootstrap-runner`; merged by PR #23 as `9572162fa68c60674f8973472f779d7f16e394ec`.
+- The compiled runner and its target/ledger/empty-state/sequence/actor/double-confirmation guards, fresh source plan, service-only serial create, same-array idempotency replay and read-only reconciliation remain unchanged by Phase 2B3B.2a.
+- Final gates at merge: runner targeted 8/8, PostgreSQL integration 22/22, Bridge 36/36, Full Tests 601/601, typecheck, zero-warning lint, server build with compiled CLI, frontend Production Build 30 routes and `git diff --check` PASS.
 
 ## Previous completed Phase 2B3A.1 task
 
