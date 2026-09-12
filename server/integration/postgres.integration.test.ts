@@ -312,7 +312,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
       assert.equal(first.orderNo, "SO-00000001");
       assert.equal(second.orderNo, "SO-00000002");
       assert.equal(second.version, 1);
-      assert.deepEqual((await listSalesOrders(pool)).map((order) => order.orderNo), ["SO-00000001", "SO-00000002"]);
+      assert.deepEqual((await listSalesOrders(pool)).items.map((order) => order.orderNo), ["SO-00000001", "SO-00000002"]);
       const concurrent = await Promise.all(Array.from({ length: 8 }, () => createSalesOrder(pool, { creationSource: "manual" })));
       assert.equal(new Set(concurrent.map((order) => order.orderNo)).size, concurrent.length);
       assert.deepEqual(concurrent.map((order) => order.orderNo).sort(), [
@@ -616,6 +616,21 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         permissions: ["quote.view"],
       });
       const created = await createAinuokeSalesOrder(pool, firstReader, ainuokeSalesOrderInput());
+      const secondFixture = ainuokeSalesOrderInput();
+      const second = await createAinuokeSalesOrder(pool, firstReader, {
+        ...secondFixture,
+        source: {
+          ...secondFixture.source,
+          sourceId: "6086103-source-002",
+          sourceRowIdentity: "6086103:sha256:source-002",
+          salesContractNo: "SC-PG-002",
+          insideOrderNo: "D1936",
+          styleNo: "STYLE-PG-002",
+          customerNameSnapshot: "CUSTOMER-B",
+          sourceHash: "contract-source-hash-002",
+        },
+        colors: [],
+      });
       const api = await startApi(pool);
       try {
         const anonymousList = await fetch(`${api.baseUrl}/api/v1/sales-orders`);
@@ -635,16 +650,37 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         const loginB = await loginRequest(api.baseUrl, "order-reader-b", "test-order-reader-b");
         const tokenA = loginA.headers.get("set-cookie")?.match(/zhixu_v1_session=([^;]+)/)?.[1] ?? "";
         const tokenB = loginB.headers.get("set-cookie")?.match(/zhixu_v1_session=([^;]+)/)?.[1] ?? "";
-        const listResponse = await fetch(`${api.baseUrl}/api/v1/sales-orders`, {
+        const listResponse = await fetch(`${api.baseUrl}/api/v1/sales-orders?limit=1&offset=0&sortBy=orderNo&sortDirection=desc`, {
           headers: { Cookie: `zhixu_v1_session=${tokenA}` },
         });
         assert.equal(listResponse.status, 200);
-        const listPayload = await listResponse.json() as { salesOrders: Array<Record<string, unknown>> };
+        const listPayload = await listResponse.json() as {
+          salesOrders: Array<Record<string, unknown>>;
+          page: { limit: number; offset: number; total: number; hasMore: boolean };
+        };
         assert.equal(listPayload.salesOrders.length, 1);
-        assert.equal(listPayload.salesOrders[0].id, created.salesOrder.id);
+        assert.equal(listPayload.salesOrders[0].id, second.salesOrder.id);
         assert.equal(listPayload.salesOrders[0].version, 1);
+        assert.equal(listPayload.salesOrders[0].colorCount, 0);
+        assert.equal("colors" in listPayload.salesOrders[0], false);
         assert.equal("sourceHash" in listPayload.salesOrders[0], false);
         assert.equal("sourceMetadata" in listPayload.salesOrders[0], false);
+        assert.deepEqual(listPayload.page, { limit: 1, offset: 0, total: 2, hasMore: true });
+
+        const searched = await fetch(`${api.baseUrl}/api/v1/sales-orders?search=SC-PG-001&lifecycleState=draft&creationSource=ainuoke`, {
+          headers: { Cookie: `zhixu_v1_session=${tokenA}` },
+        });
+        assert.equal(searched.status, 200);
+        const searchedPayload = await searched.json() as { salesOrders: Array<Record<string, unknown>>; page: { total: number } };
+        assert.equal(searchedPayload.page.total, 1);
+        assert.equal(searchedPayload.salesOrders[0].id, created.salesOrder.id);
+        assert.equal(searchedPayload.salesOrders[0].colorCount, 2);
+
+        const invalidListQuery = await fetch(`${api.baseUrl}/api/v1/sales-orders?limit=201`, {
+          headers: { Cookie: `zhixu_v1_session=${tokenA}` },
+        });
+        assert.equal(invalidListQuery.status, 400);
+        assert.equal(((await invalidListQuery.json()) as { error: { code: string } }).error.code, "invalid_sales_order_list_query");
 
         const [detailAResponse, detailBResponse] = await Promise.all([
           fetch(`${api.baseUrl}/api/v1/sales-orders/${created.salesOrder.id}`, {

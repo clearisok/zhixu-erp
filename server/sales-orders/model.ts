@@ -71,6 +71,7 @@ export type SalesOrderReadModel = {
   customerName: string;
   brandName: string;
   quantity: number | null;
+  colorCount: number;
   contractDate: string | null;
   contractDeliveryDate: string | null;
   createdAt: string;

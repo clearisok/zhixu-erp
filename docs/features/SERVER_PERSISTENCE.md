@@ -31,10 +31,10 @@ Browser
 - `GET /api/v1/auth/me`
 - `GET /api/v1/auth/permissions`
 - `GET /api/v1/operation-logs`（需要 `audit_log.view`）
-- `GET /api/v1/sales-orders`（需要 `order.view`）
+- `GET /api/v1/sales-orders`（需要 `order.view`；支持 bounded limit/offset、search、lifecycle/source filters、allowlisted sorting 与 page metadata）
 - `GET /api/v1/sales-orders/:id`（需要 `order.view`）
 
-错误统一返回 `{ error: { code, message, requestId } }`。Health 只有在 PostgreSQL `SELECT 1` 成功时返回 200/ready，数据库不可用时返回 503，不伪报健康。SalesOrder read API 对未登录、无 `order.view` 和不存在的 ID 分别返回 401、403、404；返回 typed composed DTO，不直接暴露数据库行、source hash、source metadata 或 raw payload。API 不接受 SQL、表名、数据库操作名、actor userId、role 或授权结果；未知 `/api/*` 路径返回结构化 404。
+错误统一返回 `{ error: { code, message, requestId } }`。Health 只有在 PostgreSQL `SELECT 1` 成功时返回 200/ready，数据库不可用时返回 503，不伪报健康。SalesOrder read API 对非法 list query、未登录、无 `order.view` 和不存在的 ID 分别返回 400、401、403、404；返回 typed composed DTO，不直接暴露数据库行、source hash、source metadata 或 raw payload。List 仅暴露 `colorCount`，完整颜色行只在 detail 返回。API 不接受 SQL、表名、数据库操作名、actor userId、role 或授权结果；未知 `/api/*` 路径返回结构化 404。
 
 ## Phase 2B1 SalesOrder foundation
 
@@ -123,8 +123,8 @@ Phase 2B3A.1 on 2026-09-12 applied migrations 0001/0002/0003 to the fixed real `
 
 ## Phase boundary and next step
 
-- Phase 2B1 Server Foundation complete；Phase 2B3A.1 已把该 schema 激活到真实 `zhixu` PostgreSQL，但业务表仍为空。这不等于正式订单已经上线。Browser Order Center 仍使用 Browser Repository。
-- 本阶段没有 live Ainuoke read/write、真实 505 bootstrap、Browser test-order migration、Repository cutover 或 dual write，也没有 Quote、Style Progress、Scheduling、Closing、附件/Blob migration。
+- Phase 2B1 Server Foundation、Phase 2B2 Preview/validation、Phase 2B3A.1 schema activation 与 Phase 2B3B.2 real bootstrap 均已完成。真实 `zhixu` PostgreSQL 当前有 511 个 SalesOrder master、511 个 source link、511 个 contract mirror、1,348 个 color mirror 和 511 条 trusted SalesOrder OperationLog，正式编号为 `SO-00000001`…`SO-00000511`。
+- 完成 real bootstrap 不等于 Browser 正式订单已经上线。Browser Order Center 仍使用既有 Browser Repository；没有 Browser test-order migration、Repository cutover 或 dual write，也没有 Quote、Style Progress、Scheduling、Closing、附件/Blob migration。
 - legacy root ERP 是待退役兼容路径，不是新业务表设计、字段语义或 migration source。
-- 后续每个业务领域仍必须独立完成 backfill/dry-run/reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
-- Phase 2B2 Bootstrap Preview / Dry Run、Phase 2B2.2 BillNo/6087105 stable identity 和 Phase 2B2.3 final fresh Preview 均已完成；Phase 2B3A.1 只完成真实 schema activation。下一 Gate 仍必须获得明确授权后才可执行 real SalesOrder bootstrap；Browser cutover 不包含在该授权内。
+- 后续每个业务领域仍必须独立完成 reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
+- Phase 2B3C0 只增加 bounded read API、独立 server read DTO/view-model/repository、DEV-only shadow UI 和 readiness audit。真实 RBAC catalog/assignment 仍为空，下一 Gate 应先单独授权并完成 server auth/RBAC activation，再做 authenticated shadow acceptance；本阶段不执行 Browser cutover。

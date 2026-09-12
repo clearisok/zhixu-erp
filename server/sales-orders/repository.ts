@@ -49,6 +49,22 @@ type ReadModelRow = SalesOrderRow & {
   customer_name_snapshot: string | null;
   brand_name_snapshot: string | null;
   quantity: string | null;
+  color_count: string | number;
+};
+
+export type SalesOrderListOptions = {
+  limit: number;
+  offset: number;
+  search?: string;
+  lifecycleState?: SalesOrderLifecycleState;
+  creationSource?: SalesOrderCreationSource;
+  sortBy?: "orderNo" | "updatedAt" | "contractDeliveryDate" | "salesContractNo";
+  sortDirection?: "asc" | "desc";
+};
+
+export type SalesOrderListResult = {
+  items: SalesOrderReadModel[];
+  total: number;
 };
 
 function requiredText(value: string, label: string): string {
@@ -113,6 +129,7 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
     customerName: row.customer_name_snapshot ?? "",
     brandName: row.brand_name_snapshot ?? "",
     quantity: row.quantity === null ? null : Number(row.quantity),
+    colorCount: Number(row.color_count),
     contractDate: isoDate(row.contract_date),
     contractDeliveryDate: isoDate(row.contract_delivery_date),
     createdAt: row.created_at.toISOString(),
@@ -131,7 +148,12 @@ const READ_MODEL_SELECT = `
          mirror.company_name_snapshot,
          mirror.customer_name_snapshot,
          mirror.brand_name_snapshot,
-         mirror.quantity
+         mirror.quantity,
+         (
+           SELECT count(*)::int
+           FROM ainuoke_sales_order_color_mirrors color_mirror
+           WHERE color_mirror.sales_order_id = so.id
+         ) AS color_count
   FROM sales_orders so
   LEFT JOIN sales_order_source_links sl
     ON sl.sales_order_id = so.id
@@ -339,9 +361,55 @@ export async function replaceCurrentAinuokeColorSlice(
   }
 }
 
-export async function listSalesOrders(client: Queryable): Promise<SalesOrderReadModel[]> {
-  const result = await client.query<ReadModelRow>(`${READ_MODEL_SELECT} ORDER BY so.order_no ASC, so.id ASC`);
-  return result.rows.map(mapReadModel);
+export async function listSalesOrders(
+  client: Queryable,
+  options: SalesOrderListOptions = { limit: 100, offset: 0 },
+): Promise<SalesOrderListResult> {
+  const values: unknown[] = [];
+  const where: string[] = [];
+  const addValue = (value: unknown): string => {
+    values.push(value);
+    return `$${values.length}`;
+  };
+  if (options.search) {
+    const search = addValue(`%${options.search}%`);
+    where.push(`concat_ws(' ', so.order_no, sl.sales_contract_no, sl.inside_order_no,
+      mirror.style_no, mirror.company_name_snapshot, mirror.customer_name_snapshot,
+      mirror.brand_name_snapshot) ILIKE ${search}`);
+  }
+  if (options.lifecycleState) where.push(`so.lifecycle_state = ${addValue(options.lifecycleState)}`);
+  if (options.creationSource) where.push(`so.creation_source = ${addValue(options.creationSource)}`);
+  const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+  const totalResult = await client.query<{ total: number }>(
+    `SELECT count(*)::int AS total
+     FROM sales_orders so
+     LEFT JOIN sales_order_source_links sl
+       ON sl.sales_order_id = so.id
+      AND sl.source_system = 'ainuoke'
+      AND sl.source_entity_type = 'sales_contract'
+     LEFT JOIN ainuoke_sales_order_contract_mirrors mirror
+       ON mirror.sales_order_id = so.id
+     ${whereSql}`,
+    values,
+  );
+  const sortColumns = {
+    orderNo: "so.order_no",
+    updatedAt: "so.updated_at",
+    contractDeliveryDate: "mirror.contract_delivery_date",
+    salesContractNo: "sl.sales_contract_no",
+  } as const;
+  const sortColumn = sortColumns[options.sortBy ?? "orderNo"];
+  const sortDirection = options.sortDirection === "desc" ? "DESC" : "ASC";
+  const limit = addValue(options.limit);
+  const offset = addValue(options.offset);
+  const result = await client.query<ReadModelRow>(
+    `${READ_MODEL_SELECT}
+     ${whereSql}
+     ORDER BY ${sortColumn} ${sortDirection} NULLS LAST, so.order_no ASC, so.id ASC
+     LIMIT ${limit} OFFSET ${offset}`,
+    values,
+  );
+  return { items: result.rows.map(mapReadModel), total: totalResult.rows[0].total };
 }
 
 export async function getSalesOrderById(client: Queryable, id: string): Promise<SalesOrderDetailReadModel | null> {

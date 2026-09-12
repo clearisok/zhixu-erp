@@ -11,18 +11,18 @@
 
 ## Current Stable Main
 
-`5271f87cdd350db0ef8f4cc464fc81badc4ed893`（Phase 2B3B.2b PR #25 已 merged）
+`5e107847a6ba408f65154296fe64d34e1b0e8a2c`（real-bootstrap docs PR #26 已 merged）
 
 ## Current Active Task
 
-- Branch: `docs/real-salesorder-bootstrap`
-- Baseline/runner: `5271f87cdd350db0ef8f4cc464fc81badc4ed893` (`origin/main`, Phase 2B3B.2b PR #25 merge commit).
-- Status: **REAL SALESORDER BOOTSTRAP = COMPLETE** at 2026-09-12 23:35:02–23:35:05 Asia/Shanghai. Explicit Ainuoke Browser-local user id `user-admin` passed configured/verified preflight and stored-credential test.
-- Fresh final PLAN and EXECUTE source both produced total=511, stable hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`, preview hash `6966d8d360118f4aa5fb8565061b0234a482d114de90f9b0fc5dc7c17337ea71`, usable/missing/invalid=505/0/6, drift=8 and BillNo blank/duplicates=0/0. PLAN/EXECUTE transportRetries were 0/20; all execute retries recovered before Response.
-- Runner result: planned/created/idempotent=511/511/511. Final counts are SalesOrders/source links/contract mirrors/color mirrors/SalesOrder OperationLogs=`511/511/511/1348/511`; order numbers `SO-00000001`…`SO-00000511`; UUID/order number duplicates, source conflicts and color mismatches are all zero; sequence is `511/true`.
-- Audit/legacy: every SalesOrder log is `艾诺科同步` / `艾诺科新增订单`, actor matches the real active admin, and replay added no log. customers/quotes/legacy orders/schedules/audit_logs/app_users count+digest remained identical.
-- Backups: verified pre-bootstrap `D:\workspace\preparesystem\backups\zhixu-20260912-130020.dump` (82,458 bytes, SHA-256 `3EC0E6F721981F39DACAE6FB99CC8F65C738212706A438B7A037D2C692A49E6D`) and post-bootstrap `D:\workspace\preparesystem\backups\zhixu-20260912-233603.dump` (646,448 bytes, SHA-256 `521A7EEFC7C3B70A08C00497E37FF2D3F409AE0B97B3E843EF18542DD3DB691D`) both pass `pg_restore --list`; the pre-backup also passed disposable restore/fingerprint parity.
-- Boundaries: Ainuoke/Browser/Quote/Style Progress/Scheduling/Closing writes remain zero. RBAC sync and bootstrap admin were not run. **Browser Order Center cutover = NO**; do not switch repositories or migrate/delete Browser test orders without a separate Gate.
+- Branch: `feat/salesorder-postgres-shadow-read`
+- Baseline: `5e107847a6ba408f65154296fe64d34e1b0e8a2c` (`origin/main`, PR #26 merge commit). Real bootstrap remains complete at 511 SalesOrders; this task is read-path/model/UI readiness only.
+- Architecture: new dedicated server DTO/view-model adapter/read-only repository exposes only `list()` and `getById()`. It never imports or implements the writable Browser `OrderRepository`. The current Browser Order Center source of truth and write paths remain unchanged.
+- API: list now supports default/max 100/200 pagination, offset, parameterized search, lifecycle/creation-source filters, allowlisted sorting and page metadata. List contains `colorCount` without color rows; detail retains typed colors. Auth and `order.view` remain mandatory.
+- DEV UI: hidden `/order-center/server-preview` is development-only, clearly read-only and displays PG source identity/contract/style/customer/brand/quantity/status/delivery/color facts plus detail colors. It has no edit/save/delete actions.
+- Real RBAC blocker: both existing users are active and password-backed, but all four RBAC tables are empty and `order.view` is absent/unassigned. Starting the full server would perform forbidden real permission/bootstrap writes, so authenticated real GET was not run. Direct read-only SQL validated total=511 and five representative UUID/orderNo/BillNo/version/color-count samples. `SERVER_AUTH_READY_FOR_SHADOW_READ=NO`.
+- Readiness: list/detail/write cutover are all NO. Next recommended Gate is C1 server auth/RBAC activation with separate real-DB-write authorization, followed by authenticated shadow acceptance. Full matrix/blockers/stages are in `docs/features/SALES_ORDER_BROWSER_CUTOVER.md`.
+- Boundaries: real PostgreSQL SalesOrder mutations, RBAC writes, Browser/Quote/Style Progress/Scheduling/Closing/Ainuoke writes and Browser cutover are all zero/NO.
 
 ## Previous completed Phase 2B3B.1 task
 
