@@ -11,13 +11,24 @@
 
 ## Current Stable Main
 
-`8803a6b86e34f9daee7f38f6a798bd6fd9e3e5c9`（Phase 2B2.2 PR #20 已 merged）
+`6834b237670d5955028c68aa2c2d96ae25b914ed`（Phase 2B2.3 PR #21 已 merged）
 
 ## Current Active Task
 
+- Branch: `docs/postgres-schema-activation`
+- Baseline: `6834b237670d5955028c68aa2c2d96ae25b914ed` (`origin/main`, Phase 2B2.3 PR #21 merge commit).
+- Scope: Phase 2B3A.1 activates only migrations 0001/0002/0003 on the fixed real `zhixu-database / zhixu` PostgreSQL 16.14 target. It does not run a SalesOrder bootstrap, start the full Node server, sync the RBAC catalog, bootstrap an admin, read Ainuoke, or cut over Browser Order Center.
+- Verified backup: `D:\workspace\preparesystem\backups\zhixu-20260912-000250.dump`, 47,667 bytes, SHA-256 `4A6A11844E70943318760F1F8729E736656A1B5A8C97E9F04024FB87A335EF1C`; `pg_restore --list` PASS.
+- Migration-only execution: the first formal runner applied `0001_trusted_auth_rbac_operation_logs.sql`, `0002_sales_order_foundation.sql`, and `0003_sales_order_number_sequence.sql`. The three ledger checksums exactly match the repository files. The second runner applied nothing and skipped all three.
+- Post-state: migration ledger, RBAC schema, server OperationLog, SalesOrder tables and number sequence exist. SalesOrder aggregate/link/mirror/log counts are all 0. Sequence is unconsumed at `last_value=1, is_called=false`, so the expected first real number remains `SO-00000001`.
+- Legacy reconciliation: app users 2, sessions 0, login attempts 1, customers 2, quotes 2, orders 2, schedules 1 and audit logs 18 all retained identical pre/post core or full-row digests. Both existing users have non-null unique `public_id` values. RBAC catalog sync was not executed.
+- Next Gate: only an explicitly authorized real SalesOrder bootstrap. This handoff does not authorize it; Browser cutover and all other domain migrations remain separate.
+
+## Previous completed Phase 2B2.3 task
+
 - Branch: `feat/postgres-salesorder-final-bootstrap-preview`
 - Baseline: `8803a6b86e34f9daee7f38f6a798bd6fd9e3e5c9` (`origin/main`, Phase 2B2.2 PR #20 merge commit).
-- Scope: Phase 2B2.3 implements PostgreSQL-owned immutable `SO-00000001` numbering and performs the final fresh BillNo/6087105 Preview plus full disposable PG16 service validation. It does not execute the separately authorized real bootstrap or Browser cutover.
+- Scope: Phase 2B2.3 implemented PostgreSQL-owned immutable `SO-00000001` numbering and performed the final fresh BillNo/6087105 Preview plus full disposable PG16 service validation. It did not execute the separately authorized real bootstrap or Browser cutover.
 - Forward-only `0003_sales_order_number_sequence.sql` adds the global sequence and insert allocator. Official repository/service inputs cannot supply `order_no`; explicit SQL override and mutation are rejected. UUID remains the technical identity; sequence gaps on rollback are retained and never reused.
 - Fresh Discovery before/after: 511 rows / 11 pages, 草拟 368 / 生效 143, identical hash `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`, BillNo blank/duplicate 0/0 and added/removed/changed identity 0/0/0.
 - 6087105: 511/511 BillNo queries succeeded over 511 pages; exact orders 511, usable/missing/invalid 505/0/6, InsideOrderNo drift 8, usable color quantity parity equal/lower/higher 505/0/0.

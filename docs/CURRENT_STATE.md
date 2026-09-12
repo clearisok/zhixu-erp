@@ -1,11 +1,11 @@
 # 当前状态
 
-> 状态快照：2026-09-11。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-12。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
-- 当前 Active Task 为 `feat/postgres-salesorder-final-bootstrap-preview`，起点为 `8803a6b86e34f9daee7f38f6a798bd6fd9e3e5c9`（Phase 2B2.2 PR #20 merge）。Phase 2B2.3 已实现正式 server-generated order number 并完成 fresh Preview/disposable PG16 验证；没有执行真实 bootstrap 或 Browser cutover。
-- 当前稳定基线：GitHub `main` 为 `8803a6b86e34f9daee7f38f6a798bd6fd9e3e5c9`（Phase 2B2.2 PR #20 已 merged）。
+- 当前 Active Task 为 `docs/postgres-schema-activation`，起点为 `6834b237670d5955028c68aa2c2d96ae25b914ed`（Phase 2B2.3 PR #21 merge）。Phase 2B3A.1 已在固定真实 `zhixu` PostgreSQL 上仅通过正式 migration runner 应用 0001/0002/0003；没有执行 SalesOrder bootstrap、permission catalog sync、bootstrap admin、完整 server startup 或 Browser cutover。
+- 当前稳定基线：GitHub `main` 为 `6834b237670d5955028c68aa2c2d96ae25b914ed`（Phase 2B2.3 PR #21 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -15,12 +15,22 @@
 ## 当前可运行边界
 
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
-- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。Phase 2B1 已加入 PostgreSQL SalesOrder read foundation；legacy 3000 runtime 暂时保留。
+- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger 与 SalesOrder server schema，但 Node server/Browser Order Center 尚未切换到该空业务 schema；legacy 3000 runtime 暂时保留。
 - Quote Center、新订单中心、生产排单、款式进度、关账中心和相关设置仍使用浏览器 Repository；尚不是服务端多用户生产实现。
 - DEV 固定使用 `127.0.0.1:3001`，PROD Docker 固定使用 `127.0.0.1:3000`，两者依靠 Origin 隔离数据。
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### PostgreSQL Phase 2B3A.1 — Real Schema Activation
+
+- 目标再次确认为固定 `zhixu-database / zhixu`、PostgreSQL 16.14、`DB_HOST=database`、持久化 named volume `preparesystem_zhixu_data`；不是 disposable/tmpfs integration database。
+- mutation 前重新验证 `D:\workspace\preparesystem\backups\zhixu-20260912-000250.dump`：47,667 bytes，SHA-256 `4A6A11844E70943318760F1F8729E736656A1B5A8C97E9F04024FB87A335EF1C`，`pg_restore --list` PASS。
+- 只构建当前 main 的 server image 并运行 `node dist/server/server/db/migrate.js`；没有启动完整 server。第一次 runner 依次应用 `0001_trusted_auth_rbac_operation_logs.sql`、`0002_sales_order_foundation.sql`、`0003_sales_order_number_sequence.sql`，ledger 三条 checksum 与仓库文件一致；第二次 runner 返回 `applied=[]` 并跳过三项。
+- `schema_migrations`、四张 RBAC 表、`operation_logs`、四张 SalesOrder domain 表及 `sales_order_number_seq` 均已存在。正式唯一索引与 identity/version、source binding、append-only log、assign-number/order-number immutable triggers 的只读 introspection 全部通过。
+- `sales_orders`、source links、contract/color mirrors 和 SalesOrder OperationLogs 仍全部为 0。sequence 保持 `last_value=1, is_called=false`，预期首个正式编号为 `SO-00000001`；没有调用测试 `nextval`、手工 `setval` 或 restart。
+- Legacy migration 前后完全一致：app users 2、sessions 0、login attempts 1、customers 2、quotes 2、orders 2、schedules 1、audit logs 18；core/business deterministic digests 全部相同。2/2 existing users 的 `public_id` 已填充且重复数为 0。RBAC catalog sync 明确未执行，空 catalog 不属于 migration failure。
+- 本 Gate Ainuoke reads/writes 均为 0；真实 SalesOrder bootstrap、Browser Repository write/cutover、Quote/Style Progress/Scheduling/Closing migration 或 write 均未执行。下一 Gate 只能在再次明确授权后执行 real SalesOrder bootstrap。
 
 ### PostgreSQL Phase 2B2.3 — Formal SalesOrder Number + Final Fresh Bootstrap Preview
 
@@ -69,7 +79,7 @@
 - 507 个 visible rows 全部保留在 bootstrap scope；473 个形成 strict Candidate。34 个 blocking 均来自颜色结构：29 缺 required `stylecolor`，5 存在重复 canonical 6086997 source-row identity；26 个 color/contract quantity difference 只报告、不修正。Discovery duplicate sourceId/sourceRowIdentity/InsideOrderNo/SalesContractNo 和 identity mismatch 均为 0。
 - Phase 2B2 当时记录 `ORDER_NO_POLICY = NEEDS_USER_DECISION`；随后用户已在 Phase 2B2.1 确认正式规则为 server/PostgreSQL 全局递增、不可编辑的 `SO-00000001` 格式。该次一次性 PG16 仍只对 473 个 projectable Candidate 使用 disposable-only `PREVIEW-######`，结果 planned/created/idempotent=473/473/473、rejected/schema/source-link conflicts=0/0/0、rollback probe=1、trusted OperationLogs=473；tmpfs container/database 已销毁。
 - 最终 authoritative run 为 583 个成功 report-page reads。本阶段因本地统计归类修正前另做过一次相同完整 stable read，累计成功 page reads 为 1,166；Ainuoke writes、真实 PostgreSQL business writes、Browser/Quote/Style Progress/Scheduling/Closing/真实 OperationLog writes 均为 0。
-- Phase 2B2 当时的 `READY FOR REAL BOOTSTRAP = NO` 结论继续有效。随后 Phase 2B2.1 已确认 order number/scope/disappearance/retention policies，并用 6087105 将旧 34 reclassify 为 31 resolved + 3 invalid；但 source replacement 仍需用户决定，获批后还要独立执行 fresh stable Preview，真实 bootstrap 仍需另外授权。详细证据见 `docs/features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`。
+- Phase 2B2 当时的 `READY FOR REAL BOOTSTRAP = NO` 是该历史 Gate 当时的结论。随后 Phase 2B2.1/2B2.2 已确认 policies 与 6087105 source replacement，Phase 2B2.3 已完成 fresh stable Preview；Phase 2B3A.1 又完成真实 schema activation。真实 bootstrap 仍需下一 Gate 单独明确授权。详细证据见 `docs/features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`。
 - Phase 2B2 最终门禁：PostgreSQL integration 13/13、Full Tests 584/584、TypeScript、零警告 ESLint、server build、Production Build 30 routes 与 `git diff --check` 全部 PASS；未重跑 Style Progress benchmark。
 
 ### PostgreSQL Phase 2B1 — SalesOrder Server Foundation
@@ -238,7 +248,7 @@
 
 ## 尚未落地
 
-- Browser Order Center 到 PostgreSQL SalesOrder 的真实 bootstrap、read/write cutover 与 Browser store retirement 尚未落地；Phase 2B1 完成 server foundation，Phase 2B2/2B2.2 完成 historical Preview 与 BillNo/6087105 source contract，Phase 2B2.3 完成正式编号和 final fresh disposable dry-run。下一步只能是另行明确授权的 real bootstrap，不是 Browser cutover。
+- Browser Order Center 到 PostgreSQL SalesOrder 的真实 bootstrap、read/write cutover 与 Browser store retirement 尚未落地；Phase 2B1 完成 server foundation，Phase 2B2/2B2.2 完成 historical Preview 与 BillNo/6087105 source contract，Phase 2B2.3 完成正式编号和 final fresh disposable dry-run，Phase 2B3A.1 已激活真实空 SalesOrder schema。下一步只能是另行明确授权的 real bootstrap，不是 Browser cutover。
 - Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
 - 服务端全文搜索与业务列表分页尚未落地；migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。
