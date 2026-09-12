@@ -10,6 +10,7 @@ import type {
 import {
   BOOTSTRAP_BRIDGE_MAX_ATTEMPTS,
   BOOTSTRAP_BRIDGE_RETRY_BACKOFF_MS,
+  BootstrapAinuokeAccountPreconditionError,
   buildFreshSalesOrderBootstrapPlan,
   createBootstrapBridgeTransport,
   type BootstrapBridgeTransportRetry,
@@ -248,17 +249,76 @@ function detailSnapshot(): AinuokeReportSnapshot<AinuokeSalesContractQuery> {
 }
 
 function planFetch(failFirstDiscovery: boolean): typeof fetch {
-  let call = 0;
-  return async () => {
-    call += 1;
-    if (call === 1) return jsonResponse({ csrfToken: "csrf" }, 201, { "Set-Cookie": "session=one; Path=/" });
-    if (failFirstDiscovery && call === 2) throw new TypeError("fetch failed");
-    const sourceCall = call - (failFirstDiscovery ? 1 : 0);
-    if (sourceCall === 2 || sourceCall === 4) return jsonResponse(discoverySnapshot());
-    if (sourceCall === 3) return jsonResponse(detailSnapshot());
-    throw new Error(`Unexpected fixture call ${call}`);
+  let discoveryFailed = false;
+  return async (input) => {
+    const pathname = new URL(input instanceof Request ? input.url : String(input)).pathname;
+    if (pathname === "/v1/session") {
+      return jsonResponse({ csrfToken: "csrf" }, 201, { "Set-Cookie": "session=one; Path=/" });
+    }
+    if (pathname === "/v1/ainuoke/account") {
+      return jsonResponse({
+        username: "Fixture User",
+        configured: true,
+        status: "verified",
+        lastVerifiedAt: "2026-09-12T00:00:00.000Z",
+        lastSuccessfulLoginAt: "2026-09-12T00:00:00.000Z",
+        lastErrorCode: null,
+      });
+    }
+    if (pathname === "/v1/ainuoke/reports/order_discovery/query") {
+      if (failFirstDiscovery && !discoveryFailed) {
+        discoveryFailed = true;
+        throw new TypeError("fetch failed");
+      }
+      return jsonResponse(discoverySnapshot());
+    }
+    if (pathname === "/v1/ainuoke/reports/garment_color_size_details/query") {
+      return jsonResponse(detailSnapshot());
+    }
+    throw new Error(`Unexpected fixture path ${pathname}`);
   };
 }
+
+test("bootstrap source rejects an unconfigured Ainuoke user before Discovery", async () => {
+  const paths: string[] = [];
+  const fetchImpl: typeof fetch = async (input) => {
+    const pathname = new URL(input instanceof Request ? input.url : String(input)).pathname;
+    paths.push(pathname);
+    if (pathname === "/v1/session") return jsonResponse({ csrfToken: "csrf" }, 201);
+    if (pathname === "/v1/ainuoke/account") {
+      return jsonResponse({
+        username: null,
+        configured: false,
+        status: "not_configured",
+        lastVerifiedAt: null,
+        lastSuccessfulLoginAt: null,
+        lastErrorCode: null,
+      });
+    }
+    throw new Error(`Unexpected fixture path ${pathname}`);
+  };
+
+  await assert.rejects(
+    () => buildFreshSalesOrderBootstrapPlan({
+      ainuokeUserId: "unconfigured-user",
+      bridgeUrl: "http://bridge.test",
+      fetchImpl,
+      transportSleep: noSleep,
+    }),
+    (error: unknown) => {
+      assert.ok(error instanceof BootstrapAinuokeAccountPreconditionError);
+      assert.deepEqual(error.report, {
+        event: "bootstrap_ainuoke_account_precondition_failed",
+        configured: false,
+        status: "not_configured",
+        bridgeCode: "account_not_configured",
+      });
+      assert.deepEqual(Object.keys(error.report).sort(), ["bridgeCode", "configured", "event", "status"]);
+      return true;
+    },
+  );
+  assert.deepEqual(paths, ["/v1/session", "/v1/ainuoke/account"]);
+});
 
 test("a recovered transport failure leaves the stable Preview and report-page accounting unchanged", async () => {
   const baseline = await buildFreshSalesOrderBootstrapPlan({

@@ -1,5 +1,6 @@
 import { createAinuokeBridgeClient } from "../../features/ainuoke-api/client/ainuoke-bridge-client.js";
 import type {
+  AinuokeAccountStatus,
   AinuokeOrderDiscoveryQuery,
   AinuokeReportSnapshot,
 } from "../../features/ainuoke-api/model/ainuoke-api.js";
@@ -43,6 +44,30 @@ export type BootstrapBridgeTransportRetry = {
   transportCode: string | null;
   endpointPath: string | null;
 };
+
+export class BootstrapAinuokeAccountPreconditionError extends Error {
+  readonly configured = false;
+  readonly status: AinuokeAccountStatus;
+  readonly bridgeCode = "account_not_configured";
+  readonly report: {
+    event: "bootstrap_ainuoke_account_precondition_failed";
+    configured: false;
+    status: AinuokeAccountStatus;
+    bridgeCode: "account_not_configured";
+  };
+
+  constructor(status: AinuokeAccountStatus) {
+    super("The selected Ainuoke user has no configured Bridge account");
+    this.name = "BootstrapAinuokeAccountPreconditionError";
+    this.status = status;
+    this.report = {
+      event: "bootstrap_ainuoke_account_precondition_failed",
+      configured: false,
+      status,
+      bridgeCode: "account_not_configured",
+    };
+  }
+}
 
 export type FreshSalesOrderBootstrapPlan = {
   preview: FinalSalesOrderBootstrapPreview;
@@ -206,6 +231,11 @@ export async function buildFreshSalesOrderBootstrapPlan(input: {
     baseUrl: input.bridgeUrl,
     fetchImpl: transport.fetchImpl,
   });
+
+  const account = await client.getAccount(userId);
+  if (!account.configured) {
+    throw new BootstrapAinuokeAccountPreconditionError(account.status);
+  }
 
   const beforePages = await client.readAllOrderDiscoveryPages(userId, { pageSize: PAGE_SIZE, maxPages: 100 });
   input.onProgress?.({ phase: "discovery_before", completed: beforePages.length, total: beforePages.length });

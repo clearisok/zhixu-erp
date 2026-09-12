@@ -1,4 +1,5 @@
 import {
+  BootstrapAinuokeAccountPreconditionError,
   buildFreshSalesOrderBootstrapPlan,
   type BootstrapBridgeTransportRetry,
   type BootstrapSourceProgress,
@@ -90,6 +91,9 @@ function executionHeader(plan: Awaited<ReturnType<typeof buildFreshSalesOrderBoo
 }
 
 function sanitizedFailure(error: unknown): Record<string, unknown> {
+  if (error instanceof BootstrapAinuokeAccountPreconditionError) {
+    return error.report;
+  }
   if (error instanceof BootstrapExecutionError) {
     return { event: "real_bootstrap_stopped", ...error.report };
   }

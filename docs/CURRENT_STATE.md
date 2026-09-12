@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `fix/bootstrap-bridge-transport-retry`，起点为 `9572162fa68c60674f8973472f779d7f16e394ec`（Phase 2B3B.1 PR #23 merge）。Phase 2B3B.2a 只加固 production bootstrap 专用 Bridge source-read transport；本 PR 不执行真实 SalesOrder bootstrap。
-- 当前稳定基线：GitHub `main` 为 `9572162fa68c60674f8973472f779d7f16e394ec`（PR #23 已 merged）。
+- 当前 Active Task 为 `fix/bootstrap-ainuoke-user-preflight`，起点为 `afda50e77cc24d9a57fc05d5b2b5e49ec86dc124`（Phase 2B3B.2a PR #24 merge）。Phase 2B3B.2b 只解决 bootstrap operator supplied Ainuoke user identity mismatch，并增加显式账号公开状态预检；本任务未执行真实 SalesOrder bootstrap。
+- 当前稳定基线：GitHub `main` 为 `afda50e77cc24d9a57fc05d5b2b5e49ec86dc124`（PR #24 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -21,6 +21,14 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### PostgreSQL Phase 2B3B.2b — Bootstrap Ainuoke User Identity Preflight
+
+- Account Settings 以 Browser permissions repository 的 `currentUser.id` 调用 Bridge；当前 UI“系统管理员”的精确 id 是 `user-admin`。Bridge credential store 同样严格以传入的 `user_id` 为 key。此前成功 PLAN 使用 `user-admin`，而失败的 `account_not_configured` PLAN 错用了 PostgreSQL admin `public_id`；根因是 `BOOTSTRAP_USER_ID_MISMATCH`，不是密码或全局账号缺失。
+- bootstrap source 现在在任何 6086103 read 前调用 `GET /v1/ainuoke/account`。显式 operator user id 若返回 `configured=false`，CLI 以 `bootstrap_ainuoke_account_precondition_failed` fail closed，只输出 configured/status/bridgeCode；不会自动选择其他 id、扫描 Credential Manager 或输出 credential/session secret。
+- `user-admin` 的公开账户视图为 configured/verified，存量 credential 的无密码 connection test 成功。唯一一次 fresh real-target `--plan` 完成 511-row stable Preview：before/after hash 均为 `dbc00320725a981e248dfda1fdfd08b105385ad02c9de4b90c20d768d7b1be78`，preview hash `6966d8d360118f4aa5fb8565061b0234a482d114de90f9b0fc5dc7c17337ea71`，usable/missing/invalid=505/0/6，InsideOrderNo drift=8，BillNo blank/duplicate=0/0，detail failures=0。12 次 ETIMEDOUT pre-Response retry 全部恢复。
+- PLAN 前后真实 SalesOrder aggregate/source-link/contract-mirror/color-mirror/OperationLog counts 均为 0，sequence 保持 `last_value=1/is_called=false`；未运行 `--execute`，Ainuoke writes=0，Browser cutover=NO。现有 Phase 2B3B.2 授权可在本 preflight change 合并后继续，但执行仍须显式使用 intended Browser-local user id。
+- 最终门禁：bootstrap source 9/9、PostgreSQL integration 22/22、Bridge 36/36、Full Tests 601/601、typecheck、零警告 lint、server build、frontend Production Build 30 routes 与 `git diff --check` 全部 PASS。
 
 ### PostgreSQL Phase 2B3B.2a — Bootstrap Bridge Transport Hardening
 
