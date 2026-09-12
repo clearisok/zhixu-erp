@@ -110,10 +110,21 @@ docker compose --profile server-foundation up --build server
 
 Phase 2B1 final validation：PostgreSQL integration 12/12、Full Tests 577/577、TypeScript、零警告 ESLint、server build、frontend Production Build 30 routes 与 `git diff --check` PASS。frontend build 的 chunk-size advisory 不影响成功退出。
 
+## Real PostgreSQL schema activation
+
+Phase 2B3A.1 on 2026-09-12 applied migrations 0001/0002/0003 to the fixed real `zhixu-database / zhixu` PostgreSQL 16.14 target through the compiled migration-only entry. The full server was not started, so permission catalog synchronization, bootstrap admin and other startup writes did not run.
+
+- The pre-existing backup `D:\workspace\preparesystem\backups\zhixu-20260912-000250.dump` was revalidated as a non-empty custom archive (47,667 bytes, SHA-256 `4A6A11844E70943318760F1F8729E736656A1B5A8C97E9F04024FB87A335EF1C`) with `pg_restore --list`.
+- `schema_migrations` contains exactly 0001/0002/0003, with filenames and checksums matching the repository. A second runner execution applied nothing and skipped all three.
+- RBAC tables and `operation_logs` exist, but catalog sync was deliberately not executed; empty roles/permissions are therefore an expected migration-only state.
+- SalesOrder aggregate/source-link/contract-mirror/color-mirror rows and SalesOrder OperationLogs remain 0. `sales_order_number_seq` remains unconsumed at `last_value=1, is_called=false`.
+- Pre/post deterministic reconciliation preserved all legacy user/session core data and all `customers`, `quotes`, `orders`, `schedules` and `audit_logs` rows. Migration 0001 populated unique non-null `public_id` for both existing users without changing their legacy core fields.
+- No Ainuoke read/write, SalesOrder bootstrap, Browser write/cutover, or Quote/Style Progress/Scheduling/Closing migration/write occurred.
+
 ## Phase boundary and next step
 
-- Phase 2B1 Server Foundation complete；这不等于正式订单已经上线。Browser Order Center 仍使用 Browser Repository，当前 PostgreSQL SalesOrder 只通过 server foundation/integration tests 验证。
+- Phase 2B1 Server Foundation complete；Phase 2B3A.1 已把该 schema 激活到真实 `zhixu` PostgreSQL，但业务表仍为空。这不等于正式订单已经上线。Browser Order Center 仍使用 Browser Repository。
 - 本阶段没有 live Ainuoke read/write、真实 505 bootstrap、Browser test-order migration、Repository cutover 或 dual write，也没有 Quote、Style Progress、Scheduling、Closing、附件/Blob migration。
 - legacy root ERP 是待退役兼容路径，不是新业务表设计、字段语义或 migration source。
 - 后续每个业务领域仍必须独立完成 backfill/dry-run/reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
-- Phase 2B2 Bootstrap Preview / Dry Run 已完成；随后 Phase 2B2.1 只读验证了固定 6087105 candidate garment color/size source。两阶段都没有执行真实正式 bootstrap、Browser cutover 或 PostgreSQL business write。6087105 是否取代当前历史 Preview 的 6086997 仍等待用户明确决定。
+- Phase 2B2 Bootstrap Preview / Dry Run、Phase 2B2.2 BillNo/6087105 stable identity 和 Phase 2B2.3 final fresh Preview 均已完成；Phase 2B3A.1 只完成真实 schema activation。下一 Gate 仍必须获得明确授权后才可执行 real SalesOrder bootstrap；Browser cutover 不包含在该授权内。

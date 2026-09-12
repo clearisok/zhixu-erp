@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-- Phase: PostgreSQL Phase 2B1 Server Foundation complete; Phase 2B2.3 formal order number and final fresh Bootstrap Preview/disposable dry-run complete.
+- Phase: PostgreSQL Phase 2B1 Server Foundation complete; Phase 2B2.3 final fresh Preview complete; Phase 2B3A.1 real PostgreSQL schema activation complete.
 - Phase 2B2 baseline: `f424a9b78f66dffdd47075f8ff29ea5f3590717b` (`main`, Phase 2B1 PR #17 merged).
 - Phase 2B1 implements PostgreSQL schema, parameterized repository, transactional Ainuoke-created SalesOrder service, typed read API and disposable PostgreSQL integration tests.
 - This is not a Browser Order Center cutover and not a real bootstrap. Browser runtime remains on its existing Repository; no Browser DEV data was read, imported, modified or deleted.
@@ -10,7 +10,16 @@
 
 Phase 2B2 subsequently performed authorized live **reads only** for Discovery/6086103/6086997, built no UUID, and made no real PostgreSQL or Browser write. Its complete evidence and blockers are recorded in `SALES_ORDER_BOOTSTRAP_PREVIEW.md`.
 
-Phase 2B2.1 validated 6087105 as a cleaner candidate garment color/size source. Phase 2B2.2 made the user-approved source/identity decision active: normalized `SalesContractNo` / `BillNo` is the stable Ainuoke cross-report business association, `InsideOrderNo` is mutable, and 6087105 formally replaces 6086997 for current SalesOrder color/size sourcing. 6086997 remains legacy/historical. Phase 2B2.3 adds only the formal order-number allocator and fresh disposable verification; it performs no real business bootstrap.
+Phase 2B2.1 validated 6087105 as a cleaner candidate garment color/size source. Phase 2B2.2 made the user-approved source/identity decision active: normalized `SalesContractNo` / `BillNo` is the stable Ainuoke cross-report business association, `InsideOrderNo` is mutable, and 6087105 formally replaces 6086997 for current SalesOrder color/size sourcing. 6086997 remains legacy/historical. Phase 2B2.3 added the formal order-number allocator and fresh disposable verification. Phase 2B3A.1 then applied 0001/0002/0003 to the real target through the migration-only runner; it performed no real business bootstrap.
+
+## Phase 2B3A.1 real schema activation
+
+- Fixed target: `zhixu-database / zhixu`, PostgreSQL 16.14, persistent named volume `preparesystem_zhixu_data`.
+- The verified pre-mutation backup is `D:\workspace\preparesystem\backups\zhixu-20260912-000250.dump` (47,667 bytes; SHA-256 `4A6A11844E70943318760F1F8729E736656A1B5A8C97E9F04024FB87A335EF1C`; `pg_restore --list` PASS).
+- The first compiled migration-only run applied 0001/0002/0003. Ledger filenames/checksums match the repository; the second run applied nothing and skipped all three.
+- Read-only schema introspection confirms normalized unique order number, unique immutable source binding, normalized SalesContractNo uniqueness, SalesOrder identity/version and order-number protection, append-only OperationLog, and insert-time number assignment.
+- `sales_orders`, `sales_order_source_links`, both Ainuoke current mirror tables and SalesOrder OperationLogs all remain empty. The sequence is unconsumed at `last_value=1, is_called=false`; the expected first real order number remains `SO-00000001`.
+- Legacy user/session core data and legacy business tables passed deterministic pre/post reconciliation. RBAC catalog sync, bootstrap admin, Ainuoke reads, SalesOrder bootstrap and Browser cutover were not executed.
 
 ## Phase 2B2 Bootstrap Preview result
 
@@ -141,7 +150,8 @@ Use a composed model: **Ainuoke source facts + Zhixu-owned SalesOrder aggregate*
 4. **Phase 2B2.1 6087105 candidate validation:** complete. The old 34 are retained historically and were reclassified as 31 resolved + 3 invalid under its former InsideOrderNo query.
 5. **Phase 2B2.2 stable identity migration:** complete in code/read-only validation. 6087105 now queries BillNo; all 511 contracts had exact detail, the former eight missing were recovered as legitimate InsideOrderNo drift, and 6087105 is the Active formal source. No real bootstrap occurred.
 6. **Phase 2B2.3 formal number + final fresh Preview:** complete. Stable 511-row BillNo scope produced 511 candidates (505 usable colors, 0 missing, 6 invalid); all 511 passed the formal service, exact idempotent retry, trusted log and rollback probes in disposable PG16 after 0001/0002/0003.
-7. **Next only after separate authorization:** real bootstrap remains an external business write and is not executed by this phase. Browser read/write cutover, Browser retirement, manual/Quote/reorder creation and remaining owned facts remain separate gates.
+7. **Phase 2B3A.1 real schema activation:** complete. The real target now has the migration ledger, RBAC/OperationLog schema, empty SalesOrder domain tables and an unconsumed number sequence. No business row was created.
+8. **Next only after separate authorization:** real bootstrap remains an external business write and is not executed by this phase. Browser read/write cutover, Browser retirement, manual/Quote/reorder creation and remaining owned facts remain separate gates.
 
 ## Decisions requiring user confirmation
 
@@ -159,4 +169,4 @@ The sequence is implemented by `0003`; missing/tombstone lifecycle storage remai
 
 ## Readiness
 
-**PHASE 2B2.3 FINAL FRESH BOOTSTRAP PREVIEW COMPLETE. READY FOR A SEPARATELY AUTHORIZED REAL BOOTSTRAP: YES.** This is readiness evidence, not authorization and not a real order launch. The original 6086997 run and its 34 blockers remain historical evidence. Browser cutover and all other domain migrations remain unauthorized.
+**PHASE 2B3A.1 REAL POSTGRESQL SCHEMA ACTIVATION COMPLETE. READY FOR A SEPARATELY AUTHORIZED REAL SALESORDER BOOTSTRAP: YES.** The target schema is present, empty, ledger-verified and idempotent, and its number sequence is unconsumed. This is readiness evidence, not bootstrap authorization or a real order launch. Browser cutover and all other domain migrations remain unauthorized.
