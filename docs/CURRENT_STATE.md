@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `docs/real-salesorder-bootstrap`，起点为 `5271f87cdd350db0ef8f4cc464fc81badc4ed893`（Phase 2B3B.2b PR #25 merge）。Phase 2B3B.2 FINAL 已完成首次真实 SalesOrder bootstrap；本分支只记录执行证据，不做额外业务写入或 Browser cutover。
-- 当前稳定基线：GitHub `main` 为 `5271f87cdd350db0ef8f4cc464fc81badc4ed893`（PR #25 已 merged）。
+- 当前 Active Task 为 `feat/salesorder-postgres-shadow-read`，起点为 `5e107847a6ba408f65154296fe64d34e1b0e8a2c`（real-bootstrap docs PR #26 merge）。Phase 2B3C0 只实现 PostgreSQL SalesOrder read-path shadow 与 Browser cutover readiness audit；不执行 Browser cutover、真实 DB mutation 或 RBAC sync。
+- 当前稳定基线：GitHub `main` 为 `5e107847a6ba408f65154296fe64d34e1b0e8a2c`（PR #26 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -21,6 +21,15 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### PostgreSQL Phase 2B3C0 — Shadow Read + Browser Cutover Readiness
+
+- 采用独立 `ServerSalesOrderReadDto → OrderCenterServerViewModel → ServerSalesOrderReadRepository`，不把不完整 PG master 强制转换为完整 writable Browser `SalesOrder`，也不填充虚假 PO、价格、交期计划或执行数据。现有 `orderRepository`、Order Center routes 与全部 Browser writes 未改变。
+- `GET /api/v1/sales-orders` 新增 read-only bounded query：默认/最大 limit=100/200、offset、参数化 search、lifecycle/creation source filters、allowlisted sorting 和 page metadata。List 只返回 `colorCount`，detail 才返回 typed color rows；401/403/404 与 `order.view` 边界不变。
+- 新增无导航入口的 DEV-only `/order-center/server-preview`，明确标注“PostgreSQL 只读预览”，只调用独立 list/detail repository；没有 edit/save/delete 或 Browser OrderRepository 引用。Production build 不渲染该页面内容。
+- 真实库只读 RBAC audit：2 个 active users 均有 password hash，但 `app_roles/app_permissions/app_user_roles/app_role_permissions` 全为空，`order.view` catalog/assignment 均为 0。因 server startup 会触发 permission sync/bootstrap admin，本 Gate 未启动真实 server。`SERVER_AUTH_READY_FOR_SHADOW_READ=NO`。
+- 直接只读 SQL 验证真实 count=511，并核对 first/middle/last、一个 invalid-color 和一个 InsideOrderNo-drift sample 的 UUID/orderNo/BillNo/version/color count。Authenticated real GET 因 RBAC blocker 未运行；无真实 PostgreSQL、Browser、Ainuoke 或其他业务写入。
+- 字段矩阵、list/detail/write blocker 与 C1–C6 staged plan 见 `docs/features/SALES_ORDER_BROWSER_CUTOVER.md`。当前 READY FOR ORDER LIST/DETAIL/WRITE CUTOVER 均为 NO；**Browser Order Center cutover = NO**。
 
 ### PostgreSQL Phase 2B3B.2 FINAL — Real SalesOrder Bootstrap
 

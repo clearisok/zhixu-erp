@@ -7,6 +7,7 @@ import { assertMutationBoundary, readJsonBody } from "./http/request.js";
 import { requestId, sendError, sendJson } from "./http/responses.js";
 import { listOperationLogs } from "./operation-logs/repository.js";
 import { getSalesOrderById, listSalesOrders } from "./sales-orders/repository.js";
+import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales-orders/model.js";
 import { serveStatic } from "./static-files.js";
 
 export type ServerLogger = {
@@ -26,6 +27,57 @@ const defaultLogger: ServerLogger = {
     process.stderr.write(`${JSON.stringify(event)}\n`);
   },
 };
+
+const SALES_ORDER_LIST_DEFAULT_LIMIT = 100;
+const SALES_ORDER_LIST_MAX_LIMIT = 200;
+const salesOrderLifecycleStates = new Set<SalesOrderLifecycleState>(["draft", "confirmed", "active", "completed", "cancelled"]);
+const salesOrderCreationSources = new Set<SalesOrderCreationSource>(["quote", "reorder", "manual", "ainuoke"]);
+const salesOrderSortFields = new Set<string>(["orderNo", "updatedAt", "contractDeliveryDate", "salesContractNo"]);
+
+function integerQuery(value: string | null, fallback: number, label: string, minimum: number): number {
+  if (value === null) return fallback;
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < minimum) {
+    throw new HttpError(400, "invalid_sales_order_list_query", `${label} is invalid`);
+  }
+  return parsed;
+}
+
+function salesOrderListQuery(requestUrl: string | undefined) {
+  const params = new URL(requestUrl ?? "/", "http://localhost").searchParams;
+  const limit = integerQuery(params.get("limit"), SALES_ORDER_LIST_DEFAULT_LIMIT, "limit", 1);
+  if (limit > SALES_ORDER_LIST_MAX_LIMIT) {
+    throw new HttpError(400, "invalid_sales_order_list_query", `limit cannot exceed ${SALES_ORDER_LIST_MAX_LIMIT}`);
+  }
+  const offset = integerQuery(params.get("offset"), 0, "offset", 0);
+  const search = params.get("search")?.normalize("NFKC").trim() || undefined;
+  if (search && search.length > 200) {
+    throw new HttpError(400, "invalid_sales_order_list_query", "search cannot exceed 200 characters");
+  }
+  const lifecycleState = params.get("lifecycleState") || undefined;
+  const creationSource = params.get("creationSource") || undefined;
+  const sortBy = params.get("sortBy") || "orderNo";
+  const sortDirection = params.get("sortDirection") || "asc";
+  if (lifecycleState && !salesOrderLifecycleStates.has(lifecycleState as SalesOrderLifecycleState)) {
+    throw new HttpError(400, "invalid_sales_order_list_query", "lifecycleState is invalid");
+  }
+  if (creationSource && !salesOrderCreationSources.has(creationSource as SalesOrderCreationSource)) {
+    throw new HttpError(400, "invalid_sales_order_list_query", "creationSource is invalid");
+  }
+  if (!salesOrderSortFields.has(sortBy)
+    || (sortDirection !== "asc" && sortDirection !== "desc")) {
+    throw new HttpError(400, "invalid_sales_order_list_query", "sort is invalid");
+  }
+  return {
+    limit,
+    offset,
+    search,
+    lifecycleState: lifecycleState as SalesOrderLifecycleState | undefined,
+    creationSource: creationSource as SalesOrderCreationSource | undefined,
+    sortBy: sortBy as "orderNo" | "updatedAt" | "contractDeliveryDate" | "salesContractNo",
+    sortDirection: sortDirection as "asc" | "desc",
+  };
+}
 
 function publicIdentity(identity: TrustedIdentity): {
   id: string;
@@ -110,7 +162,17 @@ async function route(
     const identity = await authenticate(dependencies.pool, request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "order.view");
-    sendJson(response, 200, { salesOrders: await listSalesOrders(dependencies.pool) });
+    const query = salesOrderListQuery(request.url);
+    const result = await listSalesOrders(dependencies.pool, query);
+    sendJson(response, 200, {
+      salesOrders: result.items,
+      page: {
+        limit: query.limit,
+        offset: query.offset,
+        total: result.total,
+        hasMore: query.offset + result.items.length < result.total,
+      },
+    });
     return;
   }
 

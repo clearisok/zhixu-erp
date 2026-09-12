@@ -191,3 +191,11 @@ The sequence is implemented by `0003`; missing/tombstone lifecycle storage remai
 - Verified restore points are `D:\workspace\preparesystem\backups\zhixu-20260912-130020.dump` before and `D:\workspace\preparesystem\backups\zhixu-20260912-233603.dump` after bootstrap. Legacy count/digest evidence remained unchanged.
 
 **Browser Order Center cutover = NO.** PostgreSQL now contains the formal bootstrapped SalesOrders, but Browser Order Center still uses its existing Browser Repository. Browser test-order retirement/cutover and every Quote, Style Progress, Scheduling or Closing migration remain separate future Gates.
+
+## Phase 2B3C0 shadow read boundary
+
+The server read model now exposes aggregate/current mirror facts plus list-only `colorCount`; the list API has bounded pagination, parameterized search, exact lifecycle/creation-source filters and allowlisted sorting. A dedicated Order Center server DTO/view-model adapter and `ServerSalesOrderReadRepository` provide `list/getById` without implementing Browser save/update/delete methods. The DEV-only shadow page is not linked from production navigation and does not select or mutate `orderRepository`.
+
+This does not make the full Browser `SalesOrder` type a server DTO. PO, customer/brand IDs, salesperson/merchandiser, business delivery, quantity changes, delivery plans, price versions, execution snapshots, attachments and audit display fields remain absent or separately owned. See `SALES_ORDER_BROWSER_CUTOVER.md` for the exhaustive matrix.
+
+Real authenticated shadow GET is currently blocked: existing users are active/password-backed, but the permission catalog, roles and assignments are empty and `order.view` cannot resolve. C0 did not run the write-capable server startup or synchronize RBAC. Browser list/detail/write cutover remain NO.
