@@ -2,7 +2,7 @@
 
 ## Current boundary
 
-Phase 2B3C0 established read-path/model/UI readiness, C1 activated real Server RBAC plus authenticated API acceptance, and C2.1 implemented a separate Browser trusted Server session boundary. Real PostgreSQL is authoritative for the 511 bootstrapped Ainuoke SalesOrder masters, their immutable source bindings and current contract/color mirrors. Browser Order Center remains the active UI repository for its existing test/execution dataset. C2.1 changes only the unlinked read-only preview UX; no Browser repository selection, business write path, schema or migration changed.
+Phase 2B3C0 established read-path/model/UI readiness, C1 activated real Server RBAC plus authenticated API acceptance, C2.1 implemented a separate Browser trusted Server session boundary, and C2.2 completed real Browser same-origin shadow acceptance. Real PostgreSQL is authoritative for the 511 bootstrapped Ainuoke SalesOrder masters, their immutable source bindings and current contract/color mirrors. Browser Order Center remains the active UI repository for its existing test/execution dataset. C2 changes only the unlinked read-only preview UX and its normal auth/session metadata; no Browser repository selection, business write path, schema or migration changed.
 
 The recommended architecture is:
 
@@ -101,7 +101,9 @@ Trusted local admin acceptance passed login, `/auth/me`, `/auth/permissions`, si
 
 `SERVER_AUTH_READY_FOR_SHADOW_READ = YES` and C1 `AUTHENTICATED_SHADOW_ACCEPTANCE = PASS`.
 
-C2.1 adds same-origin login/logout/me/permissions, an independent `ServerSessionProvider`, explicit login-required/403 states, 401 expiry invalidation and trusted Server identity labeling to `/order-center/server-preview`. Session remains an opaque HttpOnly cookie; Browser storage contains no token/password. The existing Browser `PermissionProvider` and `orderRepository` remain separate and unchanged. Disposable PostgreSQL tests provide Browser-client login/list/detail/403/logout evidence; real Browser authenticated shadow acceptance is still pending C2.2.
+C2.1 adds same-origin login/logout/me/permissions, an independent `ServerSessionProvider`, explicit login-required/403 states, 401 expiry invalidation and trusted Server identity labeling to `/order-center/server-preview`. Session remains an opaque HttpOnly cookie; Browser storage contains no token/password. The existing Browser `PermissionProvider` and `orderRepository` remain separate and unchanged.
+
+C2.2 used PR #30 merged main `5fee5ebb04f04219a9da064cd683aaba8536663a` against the real target. Anonymous/login-required, user-entered admin login, trusted identity, `order.view`, total 511/source PostgreSQL/first `SO-00000001`, hard-refresh restore, orderNo/BillNo/style search, `draft` and `ainuoke` filters (511 each), 50-row pagination, normal one-color detail, zero-color master detail, logout and post-logout anonymous refresh all passed. Only normal auth/session metadata changed; SalesOrder counts stayed `511/511/511/1348/511`, master fingerprint and sequence `511/true` stayed unchanged, and all non-auth business writes were 0. `BROWSER_TRUSTED_SESSION_READY=YES` and `REAL_BROWSER_SHADOW_ACCEPTANCE=PASS`.
 
 ## Real read reconciliation
 
@@ -121,7 +123,7 @@ All five have version 1; their detail color counts match the mirror table. No Br
 
 ### BLOCKING before list cutover
 
-- complete C2.2 real Browser authenticated shadow acceptance of the implemented C2.1 login/session/401/403 UX;
+- C2.2 real Browser authenticated shadow acceptance is complete; it is no longer a blocker;
 - decide the production list information architecture for base PG facts versus unavailable price, delivery-plan, production and closing projections;
 - prevent PG UUID list links from opening the current Browser-only detail loader.
 
@@ -152,11 +154,11 @@ All five have version 1; their detail color counts match the mirror table. No Br
 
 1. **C1.1 — Guarded activation runner:** complete and merged in PR #28.
 2. **C1.2 — Real activation + authenticated shadow acceptance:** complete; Server RBAC and trusted admin API reads passed without SalesOrder mutation.
-3. **C2.1 — Browser Trusted Session UX:** implemented on the task branch with separate ServerSession/Browser PermissionProvider boundaries, same-origin opaque-cookie auth, explicit 401/403 UX and disposable Browser-client E2E. No real login/session write or cutover.
-4. **C2.2 — Real Browser Authenticated Shadow Acceptance:** after C2.1 merge, run the static `server-preview` against the real authenticated API and verify login/list/detail/logout and safe failure UX. This is still not production Order Center cutover.
+3. **C2.1 — Browser Trusted Session UX:** complete and merged in PR #30, with separate ServerSession/Browser PermissionProvider boundaries, same-origin opaque-cookie auth, explicit 401/403 UX and disposable Browser-client E2E.
+4. **C2.2 — Real Browser Authenticated Shadow Acceptance:** complete. The real static `server-preview` passed login/session restore/list/search/filter/pagination/detail/zero-color/logout acceptance with only authorized auth/session metadata writes. This is still not production Order Center cutover.
 5. **C3 — Base list cutover:** switch only the production Order list to the dedicated server view, with PG detail navigation and honest omission of unavailable execution facts. Keep Browser writes disabled for PG masters.
 6. **C4 — Base detail plus server extensions:** move base identity/contract/colors to PG detail, then add separately owned delivery, price, execution and attachment read models without manufacturing Browser defaults.
 7. **C5 — Server mutation Gates:** add narrowly scoped create/update APIs, optimistic concurrency, trusted audit and domain-specific authorization.
 8. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
 
-C2.1 executes none of the Browser cutovers above.
+C2 executes none of the Browser cutovers above. C3 is the next Gate and requires separate authorization.
