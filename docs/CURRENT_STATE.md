@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `feat/server-rbac-activation-runner`，起点为 `4c54a2090522acdbe06007396f00bdbe32c0991f`（Phase 2B3C0 PR #27 merge）。Phase C1.1 只实现 guarded existing-admin RBAC activation runner、disposable rehearsal 与真实库 read-only PLAN；不执行真实 RBAC/auth/session write 或 Browser cutover。
-- 当前稳定基线：GitHub `main` 为 `4c54a2090522acdbe06007396f00bdbe32c0991f`（PR #27 已 merged）。
+- 当前 Active Task 为 docs-only `docs/server-rbac-activation`，起点为 `bb60f84f9aa148877b75a81b42f4b2f36eccabb4`（Phase C1.1 PR #28 merge）。Phase C1.2 已完成真实 Server Auth/RBAC activation 与 authenticated shadow acceptance；本分支只记录已确认事实，不启动 C2。
+- 当前稳定基线：GitHub `main` 为 `bb60f84f9aa148877b75a81b42f4b2f36eccabb4`（PR #28 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -15,12 +15,21 @@
 ## 当前可运行边界
 
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
-- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、SalesOrder server schema，并完成 511 单首次 bootstrap；Node server/Browser Order Center 尚未切换读取该数据，legacy 3000 runtime 暂时保留。
+- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实只读 API 验收。Browser Order Center 仍未接入 Node login/session，也未切换读取该数据；legacy 3000 runtime 暂时保留。
 - Quote Center、新订单中心、生产排单、款式进度、关账中心和相关设置仍使用浏览器 Repository；尚不是服务端多用户生产实现。
 - DEV 固定使用 `127.0.0.1:3001`，PROD Docker 固定使用 `127.0.0.1:3000`，两者依靠 Origin 隔离数据。
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### Phase C1.2 — Real Server Auth/RBAC Activation + Authenticated Shadow Acceptance
+
+- 使用 PR #28 merged main `bb60f84f9aa148877b75a81b42f4b2f36eccabb4` 的 guarded runner，在固定 `zhixu-database / zhixu` PostgreSQL 16.14 上激活当前 54 项 permission catalog、`role-server-admin`、全部 54 项 role-permission binding 与现有 admin binding；`order.view` 已生效，重复项均为 0，第二次 guarded execute 幂等 PASS。
+- `app_users` 仍为 2；唯一 normalized admin 的 id/public_id/username/password hash/display name/role/active/created_at/updated_at safe fingerprint 与 C1 前一致。没有创建用户或修改密码。Server 启动前和容器内均确认 `ZHIXU_ADMIN_PASSWORD` 为空，因此 `bootstrapAdmin()` 没有用户 mutation。
+- 现有 admin 通过本地 non-echo prompt 完成 trusted login、`/api/v1/auth/me`、`/api/v1/auth/permissions` 与 `order.view` 验收。Authenticated SalesOrder API 以 limit=100 遍历 6 页、total/unique UUID/unique orderNo=`511/511/511`，orderNo/BillNo/style fuzzy search、draft lifecycle、ainuoke source filters、orderNo/updatedAt sorting、5 个代表性 detail、invalid-color 空 slice、非法 query 400 与 missing detail 404 均 PASS；最终 session logout PASS。
+- 验收后 SalesOrder aggregate/link/contract/color/log 仍为 `511/511/511/1348/511`，orderNo/UUID duplicates=`0/0`，sequence 仍为 `511/true`；SalesOrder 与 legacy deterministic fingerprints 均未变化。真实业务 Ainuoke/Browser/Quote/Style Progress/Scheduling/Closing writes 均为 0。
+- Post-C1 backup：`D:\workspace\preparesystem\backups\zhixu-20260913-085419.dump`，649,290 bytes，SHA-256 `A9346C786828F919A6A372565CE2652E20B444C498CC01EBEADAF82D42A6E333`，`pg_restore --list` PASS。临时验收脚本/result 已删除，临时 3002 server 已停止；数据库与 legacy 3000 runtime 保持运行。
+- `SERVER_AUTH_READY_FOR_SHADOW_READ=YES`，`AUTHENTICATED_SHADOW_ACCEPTANCE=PASS`，**C1 Server Auth/RBAC Activation = COMPLETE**。这只证明 server-side auth/read readiness；Browser production login/session UX 与 Browser Order Center cutover 仍为 NO。下一 Gate 是 **C2 — Browser Trusted Session UX + Authenticated Shadow UI Acceptance**。
 
 ### Phase C1.1 — Guarded Real Server Auth/RBAC Activation Runner
 

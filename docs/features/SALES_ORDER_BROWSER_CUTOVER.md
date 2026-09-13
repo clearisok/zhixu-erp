@@ -2,7 +2,7 @@
 
 ## Current boundary
 
-Phase 2B3C0 is read-path/model/UI readiness only. Real PostgreSQL is authoritative for the 511 bootstrapped Ainuoke SalesOrder masters, their immutable source bindings and current contract/color mirrors. Browser Order Center remains the active UI repository for its existing test/execution dataset. No Browser repository selection, business write path, schema, migration or real RBAC state changes in this phase.
+Phase 2B3C0 established read-path/model/UI readiness, and C1 subsequently activated real Server RBAC plus authenticated shadow acceptance. Real PostgreSQL is authoritative for the 511 bootstrapped Ainuoke SalesOrder masters, their immutable source bindings and current contract/color mirrors. Browser Order Center remains the active UI repository for its existing test/execution dataset. No Browser repository selection, business write path, schema or migration changed in C1.
 
 The recommended architecture is:
 
@@ -95,24 +95,17 @@ List rows expose `colorCount` only. Full typed color rows remain detail-only. Ra
 
 ## Real auth/RBAC readiness
 
-Read-only inspection on 2026-09-12 found two active `app_users`, both with password hashes, so credential authentication can be attempted. However `app_roles`, `app_permissions`, `app_user_roles` and `app_role_permissions` are all empty; `order.view` has zero catalog rows and no user assignment. Full server startup would call `synchronizePermissionCatalog()` and `bootstrapAdmin()`, which is a forbidden real DB write in C0, so it was not started.
+C1 used the merged guarded existing-admin runner on `zhixu` PostgreSQL 16.14. The real catalog now contains all 54 current permissions; `role-server-admin` has all 54, the existing admin is bound, and `order.view` resolves. The idempotency rerun produced no duplicates. `app_users` remains 2 and the admin core fingerprint is unchanged; no user was created and no password was modified. Server startup used an empty `ZHIXU_ADMIN_PASSWORD`, so `bootstrapAdmin()` was a no-op.
 
-C1.1 now provides a guarded existing-admin-only activation runner but deliberately has not executed it against the real target. Its 2026-09-13 real read-only PLAN confirmed PostgreSQL 16.14, one active normalized `admin` with public_id, expected catalog count 54, RBAC counts `0/0/0/0`, exact migrations 0001/0002/0003, SalesOrder counts `511/511/511/1348/511`, sequence `511/true`, and `READY_TO_EXECUTE_REAL_RBAC=YES`. The aggregate snapshot including login attempts and sessions was identical before/after PLAN.
+Trusted local admin acceptance passed login, `/auth/me`, `/auth/permissions`, six pages containing all 511 unique SalesOrder UUIDs/orderNos, fuzzy orderNo/BillNo/style search, draft lifecycle and ainuoke source filters, orderNo/updatedAt sorting, representative details, structured invalid-query 400, missing detail 404 and logout. SalesOrder counts remained `511/511/511/1348/511` and sequence remained `511/true`.
 
-`SERVER_AUTH_READY_FOR_SHADOW_READ = NO`.
+`SERVER_AUTH_READY_FOR_SHADOW_READ = YES` and `AUTHENTICATED_SHADOW_ACCEPTANCE = PASS`.
 
-Exact blockers:
-
-1. real permission catalog has not been synchronized；C1.2 执行授权已存在，但必须等待 guarded runner merge；
-2. no real roles or user-role/role-permission assignments exist;
-3. no Browser-to-Node trusted login/session UX is active;
-4. therefore authenticated real API list/detail cannot be exercised without a separately authorized RBAC activation Gate.
-
-Disposable PostgreSQL tests remain the evidence for 401, 403, pagination/query behavior, permitted list/detail and two-session stable identity.
+The remaining auth blocker is Browser UX, not Server RBAC: the frontend still lacks a production Browser-to-Node trusted login/session flow and explicit 401/403 handling. Disposable PostgreSQL tests remain the 403 enforcement evidence; C1 did not remove real admin permissions for testing.
 
 ## Real read reconciliation
 
-Because real authenticated server startup is unsafe in C0, direct parameter-free read-only SQL verified total=511 and these stable samples:
+C0 direct SQL and C1 authenticated API acceptance both verified total=511 and these stable samples:
 
 | Sample | UUID | orderNo | BillNo | InsideOrderNo | styleNo | colors |
 | --- | --- | --- | --- | --- | --- | ---: |
@@ -128,8 +121,7 @@ All five have version 1; their detail color counts match the mirror table. No Br
 
 ### BLOCKING before list cutover
 
-- merge C1.1, then use the already-authorized guarded C1.2 Gate to activate the trusted server permission catalog/role and grant `order.view`;
-- add Browser-to-Node login/session handling and explicit 401/403 UX;
+- complete C2 Browser-to-Node trusted login/session handling and explicit 401/403 UX;
 - decide the production list information architecture for base PG facts versus unavailable price, delivery-plan, production and closing projections;
 - prevent PG UUID list links from opening the current Browser-only detail loader.
 
@@ -158,11 +150,12 @@ All five have version 1; their detail color counts match the mirror table. No Br
 
 ## Staged plan
 
-1. **C1.1 — Guarded activation runner:** implemented/rehearsed with real read-only PLAN; real RBAC activation remains unexecuted in this PR.
-2. **C1.2 — Already-authorized activation + authenticated shadow acceptance:** run the merged guarded runner, verify admin has `order.view`, prove `ZHIXU_ADMIN_PASSWORD` is absent, then start the merged server. The user enters the existing password through a local UI or non-echo secure prompt; login/authentication may write only `login_attempts`, `app_sessions` and `last_seen_at`. Traverse all paginated 511 rows and representative details, then confirm SalesOrder facts/sequence unchanged.
-3. **C3 — Base list cutover:** switch only the production Order list to the dedicated server view, with PG detail navigation and honest omission of unavailable execution facts. Keep Browser writes disabled for PG masters.
-4. **C4 — Base detail plus server extensions:** move base identity/contract/colors to PG detail, then add separately owned delivery, price, execution and attachment read models without manufacturing Browser defaults.
-5. **C5 — Server mutation Gates:** add narrowly scoped create/update APIs, optimistic concurrency, trusted audit and domain-specific authorization.
-6. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
+1. **C1.1 — Guarded activation runner:** complete and merged in PR #28.
+2. **C1.2 — Real activation + authenticated shadow acceptance:** complete; Server RBAC and trusted admin API reads passed without SalesOrder mutation.
+3. **C2 — Browser Trusted Session UX + Authenticated Shadow UI Acceptance:** make the Browser frontend obtain/use a Node trusted session, implement explicit 401 login-required and 403 permission-denied UX, and run `server-preview` through the real authenticated API. This is still not production Order Center cutover.
+4. **C3 — Base list cutover:** switch only the production Order list to the dedicated server view, with PG detail navigation and honest omission of unavailable execution facts. Keep Browser writes disabled for PG masters.
+5. **C4 — Base detail plus server extensions:** move base identity/contract/colors to PG detail, then add separately owned delivery, price, execution and attachment read models without manufacturing Browser defaults.
+6. **C5 — Server mutation Gates:** add narrowly scoped create/update APIs, optimistic concurrency, trusted audit and domain-specific authorization.
+7. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
 
-Phase 2B3C0 executes none of these cutovers.
+C1 executes none of the Browser cutovers above.
