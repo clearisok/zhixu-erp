@@ -11,19 +11,18 @@
 
 ## Current Stable Main
 
-`4c54a2090522acdbe06007396f00bdbe32c0991f`（Phase 2B3C0 PR #27 已 merged）
+`bb60f84f9aa148877b75a81b42f4b2f36eccabb4`（Phase C1.1 PR #28 已 merged）
 
 ## Current Active Task
 
-- Branch: `feat/server-rbac-activation-runner`
-- Baseline: `4c54a2090522acdbe06007396f00bdbe32c0991f` (`origin/main`, PR #27 merge commit).
-- C1.1 implementation: `server/auth/rbac-activation.ts` and `server/auth/rbac-activation-cli.ts` provide a guarded existing-admin-only transaction. It reuses canonical permission catalog semantics, upserts `role-server-admin` plus every current `PERMISSION_KEYS` binding and the existing admin binding; it never creates/updates a user or calls `bootstrapAdmin()`.
-- Guards: execute requires fixed `zhixu`, exact current 0001/0002/0003 filenames/checksums, unique active normalized `admin` with public_id, exact SalesOrder safety state, `--confirm-real-rbac=zhixu`, and `ZHIXU_REAL_RBAC_CONFIRM=YES`. Missing/ambiguous/inactive admin and any late transaction failure fail closed and roll back all C1 changes.
-- Real read-only PLAN: PostgreSQL 16.14; admin exists/active/public_id present; permissions/roles/role-permission/user-role=`0/0/0/0`; expected catalog=54; role/order.view absent. SalesOrder counts=`511/511/511/1348/511`, sequence=`511/true`, readiness YES. Pre/post safety snapshot including login attempts/sessions was identical; C1.1 real writes=0.
-- Existing authorization: user has already authorized merged-main C1.2 real permission catalog + existing-admin role activation and the login_attempt/session/last_seen writes needed for authenticated acceptance. Do not ask again unless scope changes. Password changes, new users, `bootstrapAdmin`, business writes and Browser cutover remain unauthorized.
-- C1.2 startup rule: explicitly prove `ZHIXU_ADMIN_PASSWORD` absent/unset before server startup so `bootstrapAdmin()` returns false. The user enters the existing password only in a local login UI/non-echo prompt; never request it in Codex/chat or place it in env files, command history, logs or Git.
-- After activation, verify admin resolves `order.view`, then use trusted session GETs for auth/me, permissions, all paginated 511 SalesOrders and representative details. Until activation plus authenticated acceptance succeed, `SERVER_AUTH_READY_FOR_SHADOW_READ=NO` and list/detail/write cutover remain NO.
-- Final C1.1 gates: RBAC targeted 8/8, PostgreSQL integration 30/30, Full Tests 604/604, typecheck, zero-warning lint, server build with compiled CLI, frontend Production Build 31 routes and `git diff --check` PASS.
+- Branch: `docs/server-rbac-activation`
+- Baseline: `bb60f84f9aa148877b75a81b42f4b2f36eccabb4` (`origin/main`, PR #28 merge commit).
+- C1.2 is complete on fixed `zhixu-database / zhixu` PostgreSQL 16.14. The merged guarded runner activated the canonical 54-permission catalog, `role-server-admin`, all 54 current role permissions and the existing normalized admin binding; `order.view` resolves and the guarded idempotency rerun passed with no duplicate catalog/role/binding rows.
+- Existing admin preservation passed: `app_users=2`, the unique active admin retains public_id, and its complete safe core fingerprint including password hash is unchanged. No user was created and no password was modified. The temporary server started with `ZHIXU_ADMIN_PASSWORD` empty, so `bootstrapAdmin()` performed no user mutation.
+- Trusted admin acceptance passed: login, `/api/v1/auth/me`, `/api/v1/auth/permissions`, `order.view`, six pages of all 511 unique SalesOrder UUIDs/orderNos, orderNo/BillNo/style fuzzy search, draft/ainuoke filters, allowlisted sorting, representative first/middle/last/invalid-color/InsideOrderNo-drift details, structured bad-query 400, missing detail 404 and logout.
+- SalesOrder aggregate/link/contract/color/log counts remain `511/511/511/1348/511`, duplicates remain 0/0 and sequence remains `511/true`; SalesOrder and legacy deterministic fingerprints are unchanged. Only authorized RBAC/auth/session state changed. Ainuoke/Browser/Quote/Style Progress/Scheduling/Closing writes are 0 and Browser Order Center cutover remains NO.
+- Post-C1 backup `D:\workspace\preparesystem\backups\zhixu-20260913-085419.dump` is 649,290 bytes, SHA-256 `A9346C786828F919A6A372565CE2652E20B444C498CC01EBEADAF82D42A6E333`, with `pg_restore --list` PASS. Temporary acceptance artifacts were removed and the temporary 3002 server was stopped without stopping the database or legacy 3000 runtime.
+- Current classification: `SERVER_AUTH_READY_FOR_SHADOW_READ=YES`, `AUTHENTICATED_SHADOW_ACCEPTANCE=PASS`, C1 complete. Browser login/session UX is not implemented. Next Gate is **C2 — Browser Trusted Session UX + Authenticated Shadow UI Acceptance**; do not start C2 or production Order Center cutover from this docs branch.
 
 ## Previous completed Phase 2B3B.1 task
 

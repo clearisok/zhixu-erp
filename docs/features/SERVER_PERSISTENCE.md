@@ -71,6 +71,9 @@ Browser
 - PLAN/execute 都验证 fixed `zhixu`、repository current 0001/0002/0003 filename/checksum ledger 和精确 SalesOrder safety state。Execute 另要求 CLI `--confirm-real-rbac=zhixu` + env `ZHIXU_REAL_RBAC_CONFIRM=YES`；没有 mode/username/任一确认均 fail closed。
 - Execute 在单 transaction + advisory xact lock 内调用 `synchronizePermissionCatalogInTransaction()`，幂等 upsert `role-server-admin`（服务器管理员）、全部当前 `PERMISSION_KEYS` role bindings 和 existing admin user-role binding。不删除或覆盖其他 role/permission/assignment；未知额外 server-admin permission 无法安全删除时 PLAN 拒绝执行。
 - C1.1 只完成 runner/disposable rehearsal 与 real read-only PLAN。真实权限目录、role/bindings、login attempts/session 均未写入；用户对 runner merged 后 C1.2 的 narrow activation + authenticated acceptance 授权已存在。
+- C1.2 使用 merged main `bb60f84f9aa148877b75a81b42f4b2f36eccabb4` 完成真实 activation：当前 54 项 catalog、`role-server-admin`、54 项 role permission 和 existing admin binding 均存在，`order.view` 可解析，重复项为 0，第二次 guarded execute 幂等。`app_users` row count 和包含 password hash 的 admin core fingerprint 未变；没有用户创建或密码修改。
+- 本地 trusted admin acceptance 完成 login、`/auth/me`、`/auth/permissions`、6 页/511 条唯一 SalesOrder、fuzzy search、`lifecycleState=draft`、`creationSource=ainuoke`、allowlisted sorting、代表性 detail、400/404 与 logout。验证后 SalesOrder counts/sequence 和 legacy/business fingerprints 未变化；`SERVER_AUTH_READY_FOR_SHADOW_READ=YES`。
+- Operational note：Windows PowerShell 5.1 临时验收脚本应使用 ASCII-only source，避免 UTF-8-no-BOM 中文源码解释差异；结构化 HTTP error body 从兼容的 `ErrorDetails.Message` 读取。Ainuoke `sourceLifecycleStatus` 与 SalesOrder `lifecycleState` 是不同语义；本次 bootstrap SalesOrder 均为 `draft`。通用 search 是 `ILIKE` fuzzy search，style 等查询可返回多行，验收应检查包含已知结果而非强制唯一。
 
 ## Server OperationLog
 
@@ -134,5 +137,5 @@ Phase 2B3A.1 on 2026-09-12 applied migrations 0001/0002/0003 to the fixed real `
 - 完成 real bootstrap 不等于 Browser 正式订单已经上线。Browser Order Center 仍使用既有 Browser Repository；没有 Browser test-order migration、Repository cutover 或 dual write，也没有 Quote、Style Progress、Scheduling、Closing、附件/Blob migration。
 - legacy root ERP 是待退役兼容路径，不是新业务表设计、字段语义或 migration source。
 - 后续每个业务领域仍必须独立完成 reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
-- Phase 2B3C0 只增加 bounded read API、独立 server read DTO/view-model/repository、DEV-only shadow UI 和 readiness audit。真实 RBAC catalog/assignment 仍为空；用户已为 C1.2 narrow activation 与 authenticated acceptance 明确授权，但必须等待 C1.1 runner merge 后再执行。本阶段不执行 Browser cutover。
-- Phase C1.1 已准备 guarded runner 并只读确认真实目标 `READY_TO_EXECUTE_REAL_RBAC=YES`，但尚未执行 activation。下一 Gate 是 runner merge 后按现有授权执行 C1.2，再以现有 admin 在本地 non-echo login 取得 trusted session，验证 `/auth/me`、`/auth/permissions`、全部 511 条分页 SalesOrder 与样本详情。启动前必须证明 `ZHIXU_ADMIN_PASSWORD` 未设置，使 `bootstrapAdmin()` 返回 false。
+- Phase C1 已完成真实 Server RBAC activation 与 authenticated shadow acceptance。真实 permission catalog/`role-server-admin`/existing-admin binding/`order.view` 已激活；admin core、SalesOrder business state、sequence 与 legacy business state 均保持不变。Post-C1 backup 为 `D:\workspace\preparesystem\backups\zhixu-20260913-085419.dump`（649,290 bytes，SHA-256 `A9346C786828F919A6A372565CE2652E20B444C498CC01EBEADAF82D42A6E333`，`pg_restore --list` PASS）。
+- `SERVER_AUTH_READY_FOR_SHADOW_READ=YES` 不等于 Browser production login/session UX 已完成。下一 Gate 是 **C2 — Browser Trusted Session UX + Authenticated Shadow UI Acceptance**：Browser frontend 获取/使用 Node trusted session，并验证 401/403 UX 与 server-preview 的真实 authenticated API；仍不执行 Browser Order Center production cutover。之后才是 C3 PostgreSQL base Order list cutover。
