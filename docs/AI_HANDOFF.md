@@ -11,19 +11,18 @@
 
 ## Current Stable Main
 
-`f8bdd848e6c2f41d43d2930a2dcd246d1476c549`（Phase C1.2 finalization PR #29 已 merged）
+`5fee5ebb04f04219a9da064cd683aaba8536663a`（Phase C2.1 PR #30 已 merged）
 
 ## Current Active Task
 
-- Branch: `feat/browser-trusted-session-ux`
-- Baseline: `f8bdd848e6c2f41d43d2930a2dcd246d1476c549` (`origin/main`, PR #29 merge commit).
-- C1 is complete: fixed `zhixu-database / zhixu` has the canonical 54-permission catalog, `role-server-admin`, existing admin binding and `order.view`; real trusted admin API acceptance passed. SalesOrder aggregate/link/contract/color/log remain `511/511/511/1348/511`, sequence `511/true`, and Browser Order Center cutover remains NO.
-- C2.1 introduces a separate `features/server-auth` frontend boundary. `ServerSessionProvider` derives trusted user/permissions from Node `me`/`permissions`; the existing Browser `PermissionProvider`, `currentUser` and permission repository remain unchanged and local. No automatic mapping exists between Browser `user-admin` and the PostgreSQL public UUID.
-- The same-origin auth client supports login/logout/me/permissions with `credentials: include`, `cache: no-store`, and the existing mutation-boundary header. Browser JavaScript never reads the HttpOnly cookie and stores no token/identity/password in Browser storage. Login errors are allowlisted/sanitized; 401/429 are not retried.
-- `/order-center/server-preview` now renders checking, login-required, authenticated `order.view` list/detail, explicit 403, expired-session 401 invalidation and logout states. It remains an unlinked PostgreSQL read-only `DEV SHADOW READ` surface with no save/edit/delete and no Browser `orderRepository` use. The production static export retains this route so Node can serve it same-origin; this is not production Order Center cutover.
-- Frontend/source contract tests and disposable PostgreSQL 16 Browser-client E2E cover login, session restoration, list/detail, 403 and logout without touching the real target. Real PostgreSQL/auth/session/SalesOrder/Browser/Quote/Style Progress/Scheduling/Closing/Ainuoke writes in C2.1 are 0.
-- Final gates: auth frontend 7/7, shadow read 6/6, server auth disposable integration 1/1, PostgreSQL integration 31/31, Full Tests 607/607, typecheck, zero-warning lint, server build, frontend Production Build 31 routes including `/order-center/server-preview`, and `git diff --check` PASS.
-- Real C2 Browser authenticated acceptance is **NOT YET EXECUTED**. After C2.1 merges, the next Gate is **C2.2 — Real Browser Authenticated Shadow Acceptance**. Do not start C3, mutate real SalesOrders, replace Browser OrderRepository, or auto-merge.
+- Branch: `docs/browser-shadow-acceptance`
+- Baseline: `5fee5ebb04f04219a9da064cd683aaba8536663a` (`origin/main`, PR #30 merge commit).
+- C1 and C2 are complete. The fixed `zhixu-database / zhixu` has the canonical 54-permission catalog, `role-server-admin`, existing admin binding and `order.view`; real trusted admin API acceptance and Browser same-origin shadow acceptance both passed.
+- C2.2 used the merged production-shaped Node static runtime at `http://127.0.0.1:3002/order-center/server-preview`. Anonymous/login-required, user-entered admin login, trusted identity, `order.view`, 511-row PostgreSQL list, hard-refresh session restore, orderNo/BillNo/style search, `draft`/`ainuoke` filters, pagination, normal detail, zero-color detail, logout and post-logout anonymous refresh all passed.
+- Safe auth baseline successful/failed/sessions/active/revoked=`3/0/2/1/1`; post-acceptance=`5/0/4/2/2`. Two successful manual logins were recorded while locating the correct Browser surface; the tested Browser session was revoked by logout and the other new active session was not deleted or revoked. These are the only real writes in C2.2.
+- SalesOrder aggregate/link/contract/color/log stayed `511/511/511/1348/511`; SalesOrder id/order/version/updated fingerprint and sequence `511/true` stayed unchanged. `app_users=2`, permissions=54 and admin `order.view` stayed intact; `ZHIXU_ADMIN_PASSWORD` was empty and startup caused no admin/RBAC changes.
+- Ainuoke/Browser business/Quote/Style Progress/Scheduling/Closing writes were 0. The temporary 3002 server was stopped; database and legacy 3000 runtime stayed healthy.
+- `BROWSER_TRUSTED_SESSION_READY=YES`, `REAL_BROWSER_SHADOW_ACCEPTANCE=PASS`, **C2=COMPLETE**. Browser Order Center cutover remains NO. Next Gate is **C3 — PostgreSQL Base Order List Cutover**, which requires separate authorization and must not be started from this docs-only task.
 
 ## Previous completed Phase 2B3B.1 task
 

@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `feat/browser-trusted-session-ux`，起点为 `f8bdd848e6c2f41d43d2930a2dcd246d1476c549`（Phase C1.2 finalization PR #29 merge）。Phase C2.1 在 Browser 中实现独立 trusted Server session UX；本阶段不执行真实登录、真实 session 写入或 Browser Order Center cutover。
-- 当前稳定基线：GitHub `main` 为 `f8bdd848e6c2f41d43d2930a2dcd246d1476c549`（PR #29 已 merged）。
+- 当前 Active Task 为 `docs/browser-shadow-acceptance`，起点为 `5fee5ebb04f04219a9da064cd683aaba8536663a`（Phase C2.1 PR #30 merge）。Phase C2.2 已完成真实 Browser same-origin trusted session + PostgreSQL shadow read 验收；本分支只记录验收事实，不执行 Browser Order Center cutover。
+- 当前稳定基线：GitHub `main` 为 `5fee5ebb04f04219a9da064cd683aaba8536663a`（PR #30 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -15,22 +15,31 @@
 ## 当前可运行边界
 
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
-- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实只读 API 验收。C2.1 分支已让独立 `/order-center/server-preview` 使用 Browser-to-Node trusted session UX；普通 Browser Order Center 仍未切换读取该数据，legacy 3000 runtime 暂时保留。
+- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实 API 和 Browser same-origin shadow UI 验收。独立 `/order-center/server-preview` 使用 Browser-to-Node trusted session UX；普通 Browser Order Center 仍未切换读取该数据，legacy 3000 runtime 暂时保留。
 - Quote Center、新订单中心、生产排单、款式进度、关账中心和相关设置仍使用浏览器 Repository；尚不是服务端多用户生产实现。
 - DEV 固定使用 `127.0.0.1:3001`，PROD Docker 固定使用 `127.0.0.1:3000`，两者依靠 Origin 隔离数据。
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
 
+### Phase C2.2 — Real Browser Authenticated Shadow Acceptance
+
+- 使用 PR #30 merged main `5fee5ebb04f04219a9da064cd683aaba8536663a` 构建并在 `http://127.0.0.1:3002/order-center/server-preview` 完成真实 same-origin Browser 验收。匿名态显示 login-required 且不泄露 SalesOrder；用户本人在 Browser 输入现有 Server admin 密码，trusted identity `系统管理员 (admin)` 与 `order.view` 生效。
+- PostgreSQL shadow list 显示 total=511、source=PostgreSQL、首单 `SO-00000001`，页面无 save/edit/delete。硬刷新后 session 通过 `/auth/me` + permissions 恢复；orderNo `SO-00000001`、BillNo `PI2505-075` 和 style `2359/332` 搜索，`draft`/`ainuoke` 各 511 条筛选，以及 1–50 → 51–100 → 1–50 分页往返均 PASS。
+- `SO-00000001` detail 显示 BillNo `PI2505-075`、style `2359/332` 和 1 条颜色；`SO-00000015` master 正常存在并显示 0 条颜色及明确的 empty-mirror 说明。logout 后页面回到 anonymous，刷新后仍无 trusted identity 或 SalesOrder list。
+- 验收前后 SalesOrder aggregate/link/contract/color/log 保持 `511/511/511/1348/511`，master id/order/version/updated fingerprint 未变，sequence 保持 `511/true`，`app_users=2`、permissions=54、admin `order.view` 仍有效。只发生授权范围内的 auth/session metadata：因浏览器表面定位期间两次人工成功登录，safe count 从 successful/failed/sessions/active/revoked=`3/0/2/1/1` 变为 `5/0/4/2/2`；测试页 logout 撤销其中一个新 session，未清理另一 active session 或历史记录。
+- Ainuoke、Browser business、Quote、Style Progress、Scheduling、Closing writes 均为 0；`ZHIXU_ADMIN_PASSWORD` 为空，startup 未改变 admin 或 RBAC。临时 3002 server 已停止，`zhixu-database` 与 legacy 3000 runtime 保持 healthy。
+- `BROWSER_TRUSTED_SESSION_READY=YES`、`REAL_BROWSER_SHADOW_ACCEPTANCE=PASS`，**C2 = COMPLETE**。Browser Order Center cutover 仍为 NO；下一 Gate 是单独授权的 **C3 — PostgreSQL Base Order List Cutover**，本阶段未开始 C3。
+
 ### Phase C2.1 — Browser Trusted Server Session UX
 
 - 新增独立 `features/server-auth` 边界：same-origin auth client 只调用现有 login/logout/me/permissions API，全部请求使用 `credentials: include` 与 `cache: no-store`；mutation 保留 `X-Zhixu-Request` 边界。Session token 只存在于 Server 设置的 HttpOnly cookie，前端不读取 Cookie，也不把 token、identity 或 password 写入 localStorage、sessionStorage 或 IndexedDB。
 - `ServerSessionProvider` 与既有 Browser `PermissionProvider` 并存且互不替代。前者从 Node/PostgreSQL 恢复 trusted UUID identity 与 permission set；后者继续维护 Browser-local user/role/repository。C2.1 不做 `user-admin` 与 PostgreSQL public UUID 的自动映射。
 - `/order-center/server-preview` 保持 `DEV SHADOW READ` / PostgreSQL 只读标签，现支持 checking、anonymous login-required、authenticated `order.view` list/detail、显式 403、list/detail 401 session invalidation 与 logout。匿名或无权限状态不会调用 SalesOrder list；页面仍无 save/edit/delete，也不引用 Browser `orderRepository`。
-- 为使 Node 静态服务器能够同源提供此验收入口，production static export 现在保留该未导航的 preview route；“DEV SHADOW READ”是功能边界标签，不表示生产 Order Center 已切换。真实 C2 Browser authenticated acceptance **尚未执行**。
+- 为使 Node 静态服务器能够同源提供此验收入口，production static export 现在保留该未导航的 preview route；“DEV SHADOW READ”是功能边界标签，不表示生产 Order Center 已切换。真实 C2 Browser authenticated acceptance 已由上方 C2.2 完成。
 - Mock/frontend contract tests 与 disposable PostgreSQL 16 E2E 覆盖无 session、restore/login/permissions、safe 401/429、order.view list/detail、无权限 403、logout 后 401、HttpOnly cookie opacity 和 Browser PermissionProvider separation。Disposable 测试只写临时 tmpfs database；真实 PostgreSQL、真实 auth/session、SalesOrder 及 Browser/Quote/Style Progress/Scheduling/Closing/Ainuoke writes 均为 0。
 - 最终门禁：auth frontend 7/7、shadow read 6/6、server auth disposable integration 1/1、PostgreSQL integration 31/31、Full Tests 607/607、typecheck、零警告 lint、server build、frontend Production Build 31 routes（包含 `/order-center/server-preview`）与 `git diff --check` 全部 PASS。
-- **C2.1 Browser trusted session UX = IMPLEMENTED**；Browser Order Center cutover 仍为 NO。C2.1 merge 后下一 Gate 是 **C2.2 — Real Browser Authenticated Shadow Acceptance**，只验收真实 Browser login/session/shadow read，不自动进入 C3 或任何业务写切换。
+- **C2.1 Browser trusted session UX = IMPLEMENTED**；PR #30 已合并，随后 C2.2 真实 Browser acceptance PASS。Browser Order Center cutover 仍为 NO，C3 需要独立授权和实施计划。
 
 ### Phase C1.2 — Real Server Auth/RBAC Activation + Authenticated Shadow Acceptance
 
@@ -324,7 +333,7 @@
 
 ## 尚未落地
 
-- Browser Order Center 到 PostgreSQL SalesOrder 的 read/write cutover 与 Browser store retirement 尚未落地；真实 511 单 bootstrap、C0 shadow read 与 C1 Server activation/acceptance 已完成，C2.1 trusted Browser session UX 已在任务分支实现。下一步仅是合并后执行 C2.2 real Browser authenticated shadow acceptance，不是 Browser cutover。
+- Browser Order Center 到 PostgreSQL SalesOrder 的 read/write cutover 与 Browser store retirement 尚未落地；真实 511 单 bootstrap、C0 shadow read、C1 Server activation/acceptance、C2.1 trusted Browser session UX 与 C2.2 real Browser authenticated shadow acceptance 已完成。下一步是另行授权和规划 C3 PostgreSQL Base Order List Cutover；本轮不开始 C3。
 - Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
 - SalesOrder 已有 bounded search/filter/sort/pagination；其他服务端业务列表与通用全文搜索仍未落地。migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。
