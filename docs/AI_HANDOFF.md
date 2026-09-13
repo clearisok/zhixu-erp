@@ -11,23 +11,24 @@
 
 ## Current Stable Main
 
-`be3eb259279df3ea71c74cf177c7f18905f7027d`（Phase C2.2 PR #31 已 merged）
+`1c5b8e1680ac5f49cda3df532cb7ae9509d73a0b`（Phase C3.1 PR #32 已 merged）
 
 ## Current Active Task
 
-- Branch: `feat/postgres-order-list-cutover`
-- Baseline: `be3eb259279df3ea71c74cf177c7f18905f7027d` (`origin/main`, PR #31 merge commit).
+- Branch: `docs/order-list-cutover-acceptance`
+- Baseline: `1c5b8e1680ac5f49cda3df532cb7ae9509d73a0b` (`origin/main`, PR #32 merge commit).
 - C1 and C2 are complete. The fixed `zhixu-database / zhixu` has the canonical 54-permission catalog, `role-server-admin`, existing admin binding and `order.view`; real trusted admin API acceptance and Browser same-origin shadow acceptance both passed.
 - C2.2 used the merged production-shaped Node static runtime at `http://127.0.0.1:3002/order-center/server-preview`. Anonymous/login-required, user-entered admin login, trusted identity, `order.view`, 511-row PostgreSQL list, hard-refresh session restore, orderNo/BillNo/style search, `draft`/`ainuoke` filters, pagination, normal detail, zero-color detail, logout and post-logout anonymous refresh all passed.
 - Safe auth baseline successful/failed/sessions/active/revoked=`3/0/2/1/1`; post-acceptance=`5/0/4/2/2`. Two successful manual logins were recorded while locating the correct Browser surface; the tested Browser session was revoked by logout and the other new active session was not deleted or revoked. These are the only real writes in C2.2.
 - SalesOrder aggregate/link/contract/color/log stayed `511/511/511/1348/511`; SalesOrder id/order/version/updated fingerprint and sequence `511/true` stayed unchanged. `app_users=2`, permissions=54 and admin `order.view` stayed intact; `ZHIXU_ADMIN_PASSWORD` was empty and startup caused no admin/RBAC changes.
 - Ainuoke/Browser business/Quote/Style Progress/Scheduling/Closing writes were 0. The temporary 3002 server was stopped; database and legacy 3000 runtime stayed healthy.
 - `BROWSER_TRUSTED_SESSION_READY=YES`, `REAL_BROWSER_SHADOW_ACCEPTANCE=PASS`, **C2=COMPLETE**.
-- C3.1 now routes production `/order-center` to the dedicated PostgreSQL Server base list. It requires trusted Server session + `order.view`, never falls back to Browser orders, uses 50-row Server pagination/search/filter/allowlisted sorting, and preserves zero-color masters.
-- PostgreSQL rows open only a same-page Server `getById` read-only inspector. They never enter `/order-center/detail` or any Browser save/edit/cancel/delete/reorder/attachment path. Browser `OrderCenterPage`, OrderRepository, new/detail, manual create, Quote-to-order and reorder code remain present and unchanged in ownership; Scheduling, Closing and Style Progress remain Browser-owned and unmigrated.
-- C3.1 uses disposable PostgreSQL and mock/source-contract verification only. Real DB/auth/session/SalesOrder writes are 0. Browser Order data was not migrated, deleted or rewritten. The existing `/order-center/server-preview` remains available.
-- Final validation passed: C3 + shadow-read targeted `14/14`, ServerSession frontend `7/7`, disposable server-auth integration `1/1`, PostgreSQL integration `31/31`, full tests `615/615`, typecheck, lint, server build, frontend production build (31 routes), and `git diff --check`.
-- Actual 1280/wide visual interaction was not executed because the Browser tool could not open the isolated 3001 mock route; the real 3002 session was deliberately not used. **C3.1 implementation is complete, but C3 is NOT COMPLETE.** After merge, the next action is **C3.2 real production-list Browser acceptance**; do not start C4.
+- C3.1 PR #32 routes production `/order-center` to the dedicated PostgreSQL Server base list. It requires trusted Server session + `order.view`, never falls back to Browser orders, uses 50-row Server pagination/search/filter/allowlisted sorting, and preserves zero-color masters.
+- C3.2 real acceptance passed on production-shaped `http://127.0.0.1:3002/order-center`: anonymous/login-required, user-entered admin login, trusted identity/public id, `order.view`, 511 PostgreSQL orders, hard-refresh restore, orderNo/BillNo/style search, `draft`/`ainuoke` filters, ASC/DESC server sorting, pagination, same-page normal and zero-color inspectors, logout and post-logout anonymous refresh all passed.
+- Real visual acceptance passed at 1280×800 and 1600×900. The page had no document-level horizontal overflow; header/source/search/filter/sort/table/action/pagination remained usable, and both the drawer and zero-color empty state remained readable.
+- PostgreSQL rows never entered `/order-center/detail` or any Browser save/edit/cancel/delete/reorder/attachment path. Browser OrderRepository, new/detail, manual create, Quote-to-order and reorder code remain retained, unmigrated and unmodified; Scheduling, Closing and Style Progress remain Browser-owned and unmigrated.
+- Safe auth counts successful/failed/v1 sessions/active/revoked moved only from `5/0/4/2/2` to `6/0/5/2/3`. SalesOrder aggregate/link/contract/color/log stayed `511/511/511/1348/511`; fingerprint `321bf4319b30ce672302a49b9cf1a33c` and sequence `511/true` stayed unchanged. `app_users=2`, admin core, 54-permission RBAC and `order.view` stayed unchanged; all non-auth business writes were 0.
+- The temporary 3002 server was stopped; the database and legacy 3000 runtime stayed healthy. `PRODUCTION_ORDER_LIST_POSTGRESQL_READY=YES`, `REAL_PRODUCTION_ORDER_LIST_ACCEPTANCE=PASS`, **C3=COMPLETE**. Next Gate is **C4 — Base Detail + Server Extensions**, but C4 is not authorized and has not started.
 
 ## Previous completed Phase 2B3B.1 task
 
