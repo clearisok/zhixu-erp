@@ -58,6 +58,15 @@ Browser
 - 登录失败按规范化 username 在 PostgreSQL transaction/advisory lock 下计数：15 分钟内 10 次后返回 429，旧记录保留 7 天。
 - mutation 必须同时提供 `X-Zhixu-Request: 1` 和精确 Origin；身份始终由 session 派生，body/header 中伪造的 userId/role/permissions 不参与认证或授权。
 
+### C2.1 Browser trusted session boundary
+
+- `features/server-auth/server-auth-client.ts` 是 same-origin Browser client，复用既有 login/logout/me/permissions API；默认 `baseUrl=""`，测试才允许注入 base URL/fetch。所有请求均为 credentialed/no-store，login/logout 保留 mutation-boundary header，Browser JavaScript 不读取或构造 Cookie。
+- `ServerSessionProvider` 独立维护 `checking | anonymous | authenticated | error`，从 Node session truth 恢复稳定 public UUID user 与 server permission set，并提供 login/logout/refresh/invalidate。任何 trusted identity/session token/password 都不持久化到 localStorage、sessionStorage 或 IndexedDB。
+- 它不替换既有 Browser `PermissionProvider`。Browser-local `currentUser`、role editing 与 `permissionRepository` 继续原行为；C2.1 不暗示两套 identity 已统一，也不自动映射 Browser `user-admin` 与 PostgreSQL public UUID。
+- `/order-center/server-preview` 只在 authenticated + `order.view` 时读取 SalesOrder list/detail。anonymous 显示登录，403 保留 permission-denied 语义且不请求 list，list/detail 401 会 invalidate session 回到登录态；logout 只退出 Server session，不改变 Browser-local user。
+- Node production runtime 已能从 `dist/client` 同源提供静态 preview route 与 `/api/v1/*`，无需 Next production server 或永久 cross-origin auth。该 route 仍标记 `DEV SHADOW READ`、没有导航入口和 mutation；保留 production static artifact 只为下一 Gate 的真实 shadow acceptance，不是 Browser Order Center cutover。
+- C2.1 只用 mock 和 disposable PostgreSQL 16 验证 Browser client→Node→PostgreSQL contract。没有真实 login/session 或 PostgreSQL write；真实 C2.2 Browser acceptance 尚未执行。
+
 ## RBAC
 
 - PostgreSQL 关系为 `app_users -> app_user_roles -> app_roles -> app_role_permissions -> app_permissions`。
@@ -138,4 +147,4 @@ Phase 2B3A.1 on 2026-09-12 applied migrations 0001/0002/0003 to the fixed real `
 - legacy root ERP 是待退役兼容路径，不是新业务表设计、字段语义或 migration source。
 - 后续每个业务领域仍必须独立完成 reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
 - Phase C1 已完成真实 Server RBAC activation 与 authenticated shadow acceptance。真实 permission catalog/`role-server-admin`/existing-admin binding/`order.view` 已激活；admin core、SalesOrder business state、sequence 与 legacy business state 均保持不变。Post-C1 backup 为 `D:\workspace\preparesystem\backups\zhixu-20260913-085419.dump`（649,290 bytes，SHA-256 `A9346C786828F919A6A372565CE2652E20B444C498CC01EBEADAF82D42A6E333`，`pg_restore --list` PASS）。
-- `SERVER_AUTH_READY_FOR_SHADOW_READ=YES` 不等于 Browser production login/session UX 已完成。下一 Gate 是 **C2 — Browser Trusted Session UX + Authenticated Shadow UI Acceptance**：Browser frontend 获取/使用 Node trusted session，并验证 401/403 UX 与 server-preview 的真实 authenticated API；仍不执行 Browser Order Center production cutover。之后才是 C3 PostgreSQL base Order list cutover。
+- `SERVER_AUTH_READY_FOR_SHADOW_READ=YES`，C2.1 Browser trusted session UX 已实现但尚未经过真实 Browser acceptance。下一 Gate 是 **C2.2 — Real Browser Authenticated Shadow Acceptance**：只验证真实 Browser login/session/logout、401/403 与 server-preview authenticated reads；仍不执行 Browser Order Center production cutover。之后才可能进入单独授权的 C3 PostgreSQL base Order list cutover。
