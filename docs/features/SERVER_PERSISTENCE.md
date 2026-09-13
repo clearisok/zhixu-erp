@@ -75,6 +75,15 @@ Browser
 - 验收后 SalesOrder aggregate/link/contract/color/log 仍为 `511/511/511/1348/511`，sequence 仍为 `511/true`；Ainuoke、Browser business、Quote、Style Progress、Scheduling 与 Closing writes 为 0。临时 3002 server 已停止，数据库与 legacy 3000 runtime 未停止。
 - `BROWSER_TRUSTED_SESSION_READY=YES`、`REAL_BROWSER_SHADOW_ACCEPTANCE=PASS`、C2 complete。该证据仍只属于 `DEV SHADOW READ`；Browser Order Center production cutover 为 NO。
 
+### C3.1 production Order list read cutover
+
+- Production `/order-center` now renders a dedicated `ServerOrderCenterPage` backed only by `serverSalesOrderReadRepository`; the legacy Browser `OrderCenterPage` remains in the repository but is no longer the production base-list source. Exact Server-read routes skip the global Browser local-data bootstrap, so opening `/order-center` or `/order-center/server-preview` does not initialize/read the Browser OrderRepository; all other Browser-owned routes retain the existing initialization path.
+- The route follows the trusted Server session state machine: checking, anonymous login-required, authenticated without `order.view` as explicit 403, authenticated permitted list, and list/detail 401 invalidation back to anonymous. Server/session errors remain explicit and never trigger a Browser-local fallback. Browser `PermissionProvider` is unchanged and remains a separate identity boundary.
+- The list requests 50-row Server pages with normalized submitted search, exact lifecycle/creation-source filters and allowlisted Server sorting. It exposes only PostgreSQL/current-mirror facts or lossless aliases. `lifecycleState` and `sourceLifecycleStatus` remain separate, and zero-color masters remain visible.
+- A list row opens a same-page read-only inspector through Server `getById`; the PostgreSQL UUID is never routed into the Browser `/order-center/detail` loader. There are no create/edit/save/cancel/delete/reorder/attachment actions for PostgreSQL rows and no SalesOrder mutation API was added.
+- Browser OrderRepository, Browser new/detail/editor, manual/Quote/reorder write paths and existing Browser data remain retained, unmigrated, undeleted and unmodified. Scheduling, Closing, Style Progress, Ainuoke and Quote persistence are unchanged. C3.1 performed zero real DB/auth/session/SalesOrder writes and no real login.
+- C3.1 disposable implementation validation is complete. Real production-list Browser acceptance and interactive 1280/wide visual acceptance are deferred to C3.2 because the isolated local mock tab was unavailable; the real 3002 shadow session was not used. Therefore C3 is not complete and full production detail remains uncut.
+
 ## RBAC
 
 - PostgreSQL 关系为 `app_users -> app_user_roles -> app_roles -> app_role_permissions -> app_permissions`。
@@ -155,4 +164,4 @@ Phase 2B3A.1 on 2026-09-12 applied migrations 0001/0002/0003 to the fixed real `
 - legacy root ERP 是待退役兼容路径，不是新业务表设计、字段语义或 migration source。
 - 后续每个业务领域仍必须独立完成 reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
 - Phase C1 已完成真实 Server RBAC activation 与 authenticated shadow acceptance。真实 permission catalog/`role-server-admin`/existing-admin binding/`order.view` 已激活；admin core、SalesOrder business state、sequence 与 legacy business state 均保持不变。Post-C1 backup 为 `D:\workspace\preparesystem\backups\zhixu-20260913-085419.dump`（649,290 bytes，SHA-256 `A9346C786828F919A6A372565CE2652E20B444C498CC01EBEADAF82D42A6E333`，`pg_restore --list` PASS）。
-- `SERVER_AUTH_READY_FOR_SHADOW_READ=YES`；C2.1 Browser trusted session UX 与 C2.2 real Browser authenticated shadow acceptance 均已完成。下一 Gate 是需要单独授权的 **C3 — PostgreSQL Base Order List Cutover**；本阶段未执行 Browser Order Center production cutover。
+- `SERVER_AUTH_READY_FOR_SHADOW_READ=YES`；C2.1/C2.2 已完成，C3.1 production base-list implementation 已完成但尚未经过真实 C3.2 Browser acceptance。下一步是 C3.1 merge 后执行 **C3.2 real production-list Browser acceptance**；C3 尚未完成，full detail/write cutover 与 Browser retirement 均未执行。

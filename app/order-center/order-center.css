@@ -77,6 +77,35 @@
 .oc-order-risk { display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 6px; padding: 8px 10px; color: #7d5920; border: 1px solid #ebd9b6; border-radius: 7px; background: #fff9ec; }
 .oc-order-risk strong { font-size: 10px; }
 
+/* C3 PostgreSQL-owned production base list. */
+.oc-server-order-center-page { gap: 14px; }
+.oc-server-source-bar { min-height: 38px; display: flex; align-items: center; gap: 12px; padding: 7px 12px; border: 1px solid #dce7e1; border-radius: 9px; background: #f7faf8; color: #5f7168; }
+.oc-server-source-bar > span { display: inline-flex; align-items: center; gap: 7px; color: #245b48; font-size: 11px; font-weight: 750; }
+.oc-server-source-bar > span i { width: 7px; height: 7px; border-radius: 50%; background: #288b69; box-shadow: 0 0 0 3px #dff1e9; }
+.oc-server-source-bar > small { flex: 1; overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.oc-server-order-toolbar .qc-toolbar-desktop-more { min-width: 0; }
+.oc-server-order-toolbar .qc-toolbar-desktop-more .qc-form-item { min-width: 112px; }
+.oc-server-order-toolbar .qc-toolbar-desktop-more select { min-width: 112px; max-width: 142px; }
+.oc-server-order-table .qc-data-table td { height: 68px; padding-block: 9px; }
+.oc-server-order-table .qc-data-table tbody tr { cursor: pointer; }
+.oc-server-order-table .qc-data-table :is(th, td).is-sticky-left { background: #fff; }
+.oc-server-order-table .qc-data-table th.is-sticky-left { background: #f7f9f7; }
+.oc-server-status-cell { min-width: 0; display: grid; gap: 5px; }
+.oc-server-status-cell .status-tag { width: max-content; max-width: 100%; }
+.oc-server-status-cell small { overflow: hidden; color: #78877f; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.oc-server-pagination { min-height: 54px; display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 9px 12px; border-top: 1px solid #e4eae6; color: #64746c; font-size: 11px; font-variant-numeric: tabular-nums; }
+.oc-server-record-status { display: flex; align-items: center; gap: 8px; }
+.oc-server-record-status small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oc-server-inspector { width: min(720px, calc(100vw - 24px)); }
+.oc-server-inspector-content { display: grid; gap: 18px; }
+.oc-server-color-table { overflow: auto; border: 1px solid #e0e7e3; border-radius: 10px; }
+.oc-server-color-table table { width: 100%; border-collapse: collapse; }
+.oc-server-color-table th,
+.oc-server-color-table td { padding: 11px 12px; border-bottom: 1px solid #e7ece9; text-align: left; }
+.oc-server-color-table th { color: #66766e; background: #f7f9f8; font-size: 11px; }
+.oc-server-color-table td:nth-child(2) { font-variant-numeric: tabular-nums; text-align: right; }
+.oc-server-color-table tbody tr:last-child td { border-bottom: 0; }
+
 @media (min-width: 1100px) and (max-width: 1399px) {
   .oc-order-table .qc-data-table { width: 100%; min-width: 100%; table-layout: fixed; }
   .oc-order-table .qc-data-table :is(th, td) { overflow: hidden; padding-inline: 8px; }
@@ -88,6 +117,14 @@
   .oc-order-table .qc-data-table :is(col, th, td):nth-child(5) { width: 13% !important; min-width: 0 !important; }
   .oc-order-table .qc-data-table :is(col, th, td):nth-child(6) { width: 17% !important; min-width: 0 !important; }
   .oc-order-table .qc-data-table :is(col, th, td):nth-child(7) { width: 11% !important; min-width: 0 !important; }
+  .oc-server-order-table .qc-data-table :is(col, th, td):nth-child(1) { width: 18% !important; }
+  .oc-server-order-table .qc-data-table :is(col, th, td):nth-child(2) { width: 17% !important; }
+  .oc-server-order-table .qc-data-table :is(col, th, td):nth-child(3) { width: 16% !important; }
+  .oc-server-order-table .qc-data-table :is(col, th, td):nth-child(4) { width: 9% !important; }
+  .oc-server-order-table .qc-data-table :is(col, th, td):nth-child(5) { width: 16% !important; }
+  .oc-server-order-table .qc-data-table :is(col, th, td):nth-child(6) { width: 13% !important; }
+  .oc-server-order-table .qc-data-table :is(col, th, td):nth-child(7) { width: 11% !important; }
+  .oc-server-order-table .qc-data-table :is(col, th, td):nth-child(8) { width: 9% !important; min-width: 0 !important; }
 }
 
 @media (max-width: 1099px) {
@@ -102,6 +139,8 @@
   .oc-order-record-facts { gap: 7px; }
   .oc-order-record .oc-status-summary { grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); padding-top: 10px; border-top: 1px solid #edf0ee; }
   .oc-order-record .oc-order-risk { grid-column: 1 / -1; }
+  .oc-server-order-toolbar .qc-toolbar-desktop-more { display: none; }
+  .oc-server-order-toolbar .qc-toolbar-more-filters { display: inline-flex; }
 }
 
 .oc-summary-bar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-bottom: 18px; padding: 16px 20px; }
@@ -258,6 +297,10 @@
   .oc-order-record-identity { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
   .oc-order-record .oc-status-summary { grid-column: auto; grid-template-columns: minmax(0, 1fr); gap: 5px; padding: 9px 10px; border: 1px solid #e2e9e5; border-radius: 8px; background: #f8faf9; }
   .oc-order-record .oc-order-risk { grid-column: auto; }
+  .oc-server-source-bar { align-items: flex-start; flex-wrap: wrap; }
+  .oc-server-source-bar > small { order: 3; width: 100%; flex-basis: 100%; }
+  .oc-server-source-bar > .qc-button { margin-left: auto; }
+  .oc-server-pagination { justify-content: space-between; }
 }
 
 /* Delivery Phase 3: order cockpit and execution workspace. */
