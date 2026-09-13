@@ -84,6 +84,15 @@ Browser
 - Browser OrderRepository, Browser new/detail/editor, manual/Quote/reorder write paths and existing Browser data remain retained, unmigrated, undeleted and unmodified. Scheduling, Closing, Style Progress, Ainuoke and Quote persistence are unchanged. C3.1 performed zero real DB/auth/session/SalesOrder writes and no real login.
 - C3.1 disposable implementation validation is complete. Real production-list Browser acceptance and interactive 1280/wide visual acceptance are deferred to C3.2 because the isolated local mock tab was unavailable; the real 3002 shadow session was not used. Therefore C3 is not complete and full production detail remains uncut.
 
+### C3.2 real production Order Center list acceptance
+
+- PR #32 merged as `1c5b8e1680ac5f49cda3df532cb7ae9509d73a0b`. The real production route `http://127.0.0.1:3002/order-center` passed anonymous/login-required, user-entered trusted admin login, public Server identity, `order.view`, source=PostgreSQL, total=511, page size=50 and hard-refresh session restore acceptance. No Browser fallback appeared.
+- Server fuzzy search passed for `SO-00000001`, `PI2505-075` and `2359/332`; exact `draft` and `ainuoke` filters each returned 511; orderNo ASC/DESC started at `SO-00000001`/`SO-00000511`; pagination moved 1–50 → 51–100 → 1–50 with `SO-00000051` as the second-page first row.
+- `SO-00000001` and zero-color `SO-00000015` both opened only the same-page read-only inspector. UUID/version/base facts and the legitimate empty color-enrichment state were visible; the URL stayed `/order-center`, and no Browser editor or mutation control was entered.
+- Real 1280×800 and 1600×900 visual acceptance passed without document-level horizontal overflow or destructive clipping. Search/filter/sort, sticky action access, pagination, drawer close control and zero-color empty state remained usable/readable.
+- Logout and post-logout refresh returned to anonymous state with zero visible SalesOrder rows. Only authorized auth/session metadata changed: successful/failed/v1 sessions/active/revoked=`5/0/4/2/2` → `6/0/5/2/3`. SalesOrder counts remained `511/511/511/1348/511`, fingerprint and sequence `511/true` were unchanged, and app_users/admin/RBAC fingerprints stayed unchanged.
+- Browser OrderRepository was retained, unmigrated and unmodified. Manual/Quote/reorder/full-detail writes, Scheduling, Closing, Style Progress and Ainuoke remained untouched. `PRODUCTION_ORDER_LIST_POSTGRESQL_READY=YES`, `REAL_PRODUCTION_ORDER_LIST_ACCEPTANCE=PASS`, and C3 is complete; C4 Base Detail + Server Extensions is the next Gate but is not authorized.
+
 ## RBAC
 
 - PostgreSQL 关系为 `app_users -> app_user_roles -> app_roles -> app_role_permissions -> app_permissions`。
@@ -164,4 +173,4 @@ Phase 2B3A.1 on 2026-09-12 applied migrations 0001/0002/0003 to the fixed real `
 - legacy root ERP 是待退役兼容路径，不是新业务表设计、字段语义或 migration source。
 - 后续每个业务领域仍必须独立完成 reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
 - Phase C1 已完成真实 Server RBAC activation 与 authenticated shadow acceptance。真实 permission catalog/`role-server-admin`/existing-admin binding/`order.view` 已激活；admin core、SalesOrder business state、sequence 与 legacy business state 均保持不变。Post-C1 backup 为 `D:\workspace\preparesystem\backups\zhixu-20260913-085419.dump`（649,290 bytes，SHA-256 `A9346C786828F919A6A372565CE2652E20B444C498CC01EBEADAF82D42A6E333`，`pg_restore --list` PASS）。
-- `SERVER_AUTH_READY_FOR_SHADOW_READ=YES`；C2.1/C2.2 已完成，C3.1 production base-list implementation 已完成但尚未经过真实 C3.2 Browser acceptance。下一步是 C3.1 merge 后执行 **C3.2 real production-list Browser acceptance**；C3 尚未完成，full detail/write cutover 与 Browser retirement 均未执行。
+- `SERVER_AUTH_READY_FOR_SHADOW_READ=YES`；C2.1/C2.2、C3.1 implementation 与 C3.2 real production-list Browser acceptance 均已完成。Production `/order-center` base list 已从 PostgreSQL 读取且 C3 完成；full detail/write cutover 与 Browser retirement 均未执行。下一 Gate 是尚未授权的 **C4 — Base Detail + Server Extensions**。
