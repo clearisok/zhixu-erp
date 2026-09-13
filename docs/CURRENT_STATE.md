@@ -1,11 +1,11 @@
 # 当前状态
 
-> 状态快照：2026-09-13。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-14。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
-- 当前 Active Task 为 `docs/order-list-cutover-acceptance`，起点为 `1c5b8e1680ac5f49cda3df532cb7ae9509d73a0b`（Phase C3.1 PR #32 merge）。Phase C3.2 已在真实 production `/order-center` 完成 PostgreSQL base-list Browser acceptance；C3 已完成，下一 Gate 是尚未授权的 C4 Base Detail + Server Extensions。
-- 当前稳定基线：GitHub `main` 为 `1c5b8e1680ac5f49cda3df532cb7ae9509d73a0b`（PR #32 已 merged）。
+- 当前 Active Task 为 docs-only `docs/c4-confirmed-business-decisions`，起点为 `dd5121d99a7b86e433303f7bd2698651e27a2cae`（Phase C3.2 docs PR #33 merge）。C3 已完成；本轮只记录 C4.0 用户确认的业务所有权决策，C4 实现仍为 **NOT STARTED**。下一建议 Gate 是 C4.1 Server Base Detail Read Cutover。
+- 当前稳定基线：GitHub `main` 为 `dd5121d99a7b86e433303f7bd2698651e27a2cae`（PR #33 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -31,6 +31,14 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### Phase C4.0 — confirmed business ownership decisions (docs only)
+
+- D-082 确认 Ainuoke-backed SalesOrder 的已证明 source facts 持续是只读权威事实，并必须与 Zhixu-owned values 区分。Customer PO 属于 Ainuoke、不可编辑且不唯一，但当前 Direct API 字段映射未证明，所以保持 null/只读。Source order quantity 不可人工改写，Scheduling quantity 是独立事实。
+- 同一决策确认订单业务员是品牌/客户侧人员，不是 `app_users`；理单员若语义不同则仍待决。Production country 仅保留在 Quote/Quote PriceVersion，正式 SalesOrder 不增加该字段；Scheduling `ProductionSite` 是不同的执行地事实。
+- D-083 确认 Ainuoke contract/process delivery date 是不可覆写 source fact，Zhixu `DeliveryPlan` 是可编辑多行集合。首次创建时可从有效 source date 派生一条默认计划；仅 untouched collection 可继续同步，任何用户介入后的计划都不得被 source refresh 覆写，差异只显式呈现为 drift。
+- D-084 确认已关联 Quote/SalesOrder 共享当前客户确认价格与确认工价；Quote 和 Order 都可编辑，每次变更必须记录 trusted actor/time/old/new。这不是全量 PriceVersion live-link，历史 Quote 快照和其他价格事实仍独立，未关联 Order 不伪造 Quote 关系。
+- 本轮只修改项目文档；没有应用代码、schema、migration、API、PostgreSQL/Browser 业务写入或 C4 实现。当前 Browser legacy 模型与上述目标规则的差异只作为后续 Gate 的显式待实现边界。
 
 ### Phase C3.2 — Real Production Order Center PostgreSQL List Acceptance
 
@@ -354,7 +362,7 @@
 
 ## 尚未落地
 
-- Browser Order Center 到 PostgreSQL SalesOrder 的 read/write cutover 与 Browser store retirement 尚未落地；真实 511 单 bootstrap、C0 shadow read、C1 Server activation/acceptance、C2.1 trusted Browser session UX 与 C2.2 real Browser authenticated shadow acceptance 已完成。下一步是另行授权和规划 C3 PostgreSQL Base Order List Cutover；本轮不开始 C3。
+- Production `/order-center` base list 已完成 PostgreSQL read cutover，但 full detail/write cutover 与 Browser store retirement 尚未落地。C4.0 业务所有权决策已记录，但 C4 实现尚未开始；下一建议 Gate 是需单独授权的 C4.1 Server Base Detail Read Cutover。
 - Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
 - SalesOrder 已有 bounded search/filter/sort/pagination；其他服务端业务列表与通用全文搜索仍未落地。migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。

@@ -4,6 +4,8 @@
 
 Phase 2B3C0 established read-path/model/UI readiness, C1 activated real Server RBAC plus authenticated API acceptance, C2.1 implemented a separate Browser trusted Server session boundary, and C2.2 completed real Browser same-origin shadow acceptance. C3.1 cut production `/order-center` base-list reads to PostgreSQL, and C3.2 completed real production-route Browser acceptance. Real PostgreSQL is authoritative for the 511 bootstrapped Ainuoke SalesOrder masters, immutable source bindings and current contract/color mirrors. Browser OrderRepository remains retained for its existing test/execution dataset and legacy write/detail paths, but it is no longer the production base-list source.
 
+The C4.0 read-only audit is complete and the user-confirmed ownership decisions are recorded in D-082–D-084. This documentation does not implement C4: the production list still opens the existing same-page base inspector, the Browser full-detail/write paths remain separate, and no new server schema, API or business write exists. The next proposed implementation Gate is C4.1 Server Base Detail Read Cutover using only already-authoritative PostgreSQL facts.
+
 The recommended architecture is:
 
 `PostgreSQL typed read DTO → OrderCenterServerViewModel adapter → dedicated read-only UI → staged Order Center adoption`
@@ -20,6 +22,7 @@ Classification meanings:
 - `BROWSER_EXECUTION_DATA`: currently coupled to Browser execution behavior and cannot be copied into the PG master DTO.
 - `NEEDS_SEPARATE_SERVER_DOMAIN`: requires a separately designed server-owned collection/domain or master-data relationship.
 - `LEGACY/TEST_ONLY`: compatibility duplication rather than a new authoritative server fact.
+- `DEFER_DECISION`: business semantics remain insufficiently confirmed; no server ownership choice may be inferred yet.
 
 | Browser `SalesOrder` field | Classification | PostgreSQL/server evidence and cutover note |
 | --- | --- | --- |
@@ -27,7 +30,7 @@ Classification meanings:
 | `orderNo` | AVAILABLE_FROM_PG | Immutable `SO-########`, exposed. |
 | `customerId` | NEEDS_SEPARATE_SERVER_DOMAIN | Only customer name snapshot exists; no server customer master FK/mapping. |
 | `customerNameSnapshot` | AVAILABLE_FROM_PG | `customerName` from current contract mirror. |
-| `customerPoNo` | NOT_YET_PERSISTED | No authoritative PG/API field. |
+| `customerPoNo` | NOT_YET_PERSISTED | Ainuoke-owned and read-only, but the concrete Direct API mapping is **NOT YET PROVEN** (`QuotationNo` is not PO). Keep null/read-only until actual metadata/rows prove a mapping; it is not unique identity or a user-maintained fallback. |
 | `sourceType` | LEGACY/TEST_ONLY | Browser duplicate of `creationSource`; dedicated view uses only `creationSource`. |
 | `creationSource` | AVAILABLE_FROM_PG | Aggregate field, exposed. |
 | `sourceOrderId` | AVAILABLE_FROM_PG | Aggregate column exists but current read DTO does not expose it. |
@@ -35,10 +38,10 @@ Classification meanings:
 | `sourceRevisionId` | AVAILABLE_FROM_PG | Aggregate column exists but current read DTO does not expose it. |
 | `sourcePriceVersionId` | AVAILABLE_FROM_PG | Aggregate column exists but current read DTO does not expose it. |
 | `orderDate` | NOT_YET_PERSISTED | `contractDate` is a distinct Ainuoke source fact and must not be relabeled. |
-| `salespersonId` | NEEDS_SEPARATE_SERVER_DOMAIN | Requires server user/master-data association. |
-| `salespersonNameSnapshot` | NOT_YET_PERSISTED | No authoritative SalesOrder snapshot. |
-| `merchandiserId` | NEEDS_SEPARATE_SERVER_DOMAIN | Requires server user/master-data association. |
-| `merchandiserNameSnapshot` | NOT_YET_PERSISTED | No authoritative SalesOrder snapshot. |
+| `salespersonId` | NEEDS_SEPARATE_SERVER_DOMAIN | Business salesperson means brand/customer-side personnel, never `app_users`; a future customer/brand personnel master relation is permitted but not designed. |
+| `salespersonNameSnapshot` | NEEDS_SEPARATE_SERVER_DOMAIN | Future order-time snapshot of the brand/customer-side salesperson; not currently persisted. |
+| `merchandiserId` | DEFER_DECISION | Semantics may differ from brand salesperson and must not be silently mapped to `app_users`. |
+| `merchandiserNameSnapshot` | DEFER_DECISION | Snapshot/ownership remains pending with merchandiser semantics. |
 | `orderType` | NOT_YET_PERSISTED | Processing/distribution semantics are absent from current PG master. |
 | `status` | DERIVABLE | Exact alias of exposed `lifecycleState`; do not substitute raw Ainuoke status. |
 | `salesContractNo` | AVAILABLE_FROM_PG | Normalized BillNo from immutable source link/mirror, exposed. |
@@ -49,14 +52,14 @@ Classification meanings:
 | `styleName` | NOT_YET_PERSISTED | No authoritative server field. |
 | `brandId` | NEEDS_SEPARATE_SERVER_DOMAIN | Only brand snapshot exists; no server brand master FK/mapping. |
 | `brandNameSnapshot` | AVAILABLE_FROM_PG | `brandName` from current contract mirror. |
-| `productionCountry` | NOT_YET_PERSISTED | SalesOrder-owned fact requires a later mutation/storage Gate. |
+| `productionCountry` | LEGACY/TEST_ONLY | Browser legacy/test field only for this migration. Production country belongs to Quote/Quote PriceVersion; formal SalesOrder must not gain this field. Scheduling `ProductionSite` is a distinct execution-location concept. |
 | `processDescription` | NOT_YET_PERSISTED | No authoritative server field. |
 | `customerRequirement` | NOT_YET_PERSISTED | No authoritative server field. |
 | `remark` | NOT_YET_PERSISTED | No authoritative server field. |
-| `businessConfirmedDeliveryDate` | NOT_YET_PERSISTED | Must remain distinct from source contract delivery. |
+| `businessConfirmedDeliveryDate` | LEGACY/TEST_ONLY | A single Browser scalar must not become a second authoritative delivery value. Ainuoke delivery remains source mirror; editable customer delivery requirements belong to multi-row `DeliveryPlan`. |
 | `contractDeliveryDate` | AVAILABLE_FROM_PG | Current Ainuoke contract mirror field, exposed. |
 | `inspectionDate` | NOT_YET_PERSISTED | No authoritative server field. |
-| `initialQuantity` | DERIVABLE | Dedicated view aliases exposed source `quantity`; quantity history is not present. |
+| `initialQuantity` | DERIVABLE | Dedicated view currently uses this Browser-shaped alias for exposed Ainuoke source quantity. The value is source-authoritative/read-only; do not turn the alias into an editable commercial baseline. |
 | `orderColorLines` | DERIVABLE | Detail colors can populate a dedicated simplified view; Browser IDs/audit/hash fields are not fabricated. |
 | `purchasedTrimUnitCostSnapshot` | BROWSER_EXECUTION_DATA | Current execution/cost behavior; not in PG master. |
 | `purchasedTrimCurrencySnapshot` | BROWSER_EXECUTION_DATA | Current execution/cost behavior; not in PG master. |
@@ -66,10 +69,10 @@ Classification meanings:
 | `averageDailyOutput` | BROWSER_EXECUTION_DATA | Scheduling/execution projection, not SalesOrder master data. |
 | `fabricExecutionSnapshots` | BROWSER_EXECUTION_DATA | Requires future execution snapshot persistence. |
 | `trimExecutionSnapshots` | BROWSER_EXECUTION_DATA | Requires future execution snapshot persistence. |
-| `quantityChanges` | NEEDS_SEPARATE_SERVER_DOMAIN | Requires append/history model plus optimistic mutation API. |
-| `deliveryPlans` | NEEDS_SEPARATE_SERVER_DOMAIN | Requires a server collection/lifecycle and audit model. |
-| `priceVersions` | NEEDS_SEPARATE_SERVER_DOMAIN | Requires version/current-pointer storage and mutation rules. |
-| `currentPriceVersionId` | NEEDS_SEPARATE_SERVER_DOMAIN | Cannot exist honestly before server price versions. |
+| `quantityChanges` | NEEDS_SEPARATE_SERVER_DOMAIN | Do not migrate the Browser editable commercial-quantity baseline for Ainuoke orders. Source quantity drift is reconciliation evidence; existing color-adjustment rules remain separate, while any broader server history model still needs a later decision. |
+| `deliveryPlans` | NEEDS_SEPARATE_SERVER_DOMAIN | Zhixu-owned editable multi-row customer delivery plan. A valid source date initializes one system-derived default; only an untouched collection may track later source-date changes, and any user intervention permanently protects the collection from source overwrite. Exact technical markers remain unfrozen. |
+| `priceVersions` | NEEDS_SEPARATE_SERVER_DOMAIN | Do not live-link full Quote/Order PriceVersions. Linked Quote/Order share only the two current confirmed commercial terms; historical Quote snapshots and all other pricing facts stay independent. |
+| `currentPriceVersionId` | NEEDS_SEPARATE_SERVER_DOMAIN | Browser legacy pointer is not the future cross-domain shared-value authority. Exact server price-history design remains later work. |
 | `imageAttachmentIds` | NEEDS_SEPARATE_SERVER_DOMAIN | Requires server attachment/blob ownership and references. |
 | `fileAttachmentIds` | NEEDS_SEPARATE_SERVER_DOMAIN | Requires server attachment/blob ownership and references. |
 | `styleImageAttachmentId` | NEEDS_SEPARATE_SERVER_DOMAIN | Requires server attachment/blob ownership and references. |
@@ -79,6 +82,29 @@ Classification meanings:
 | `updatedBy` | NOT_YET_PERSISTED | No aggregate updater field/API contract. |
 
 Server-only facts retained by the dedicated view include `version`, `companyName`, `contractDate`, `sourceLifecycleStatus` and `colorCount`. They must not be discarded merely to fit the Browser type.
+
+## C4.0 confirmed ownership decisions
+
+The following C4.0 audit questions are no longer pending. These are user-confirmed business rules, not implementation claims:
+
+| Audit decision | Status | Confirmed outcome |
+| --- | --- | --- |
+| C4-D01 Customer PO | CONFIRMED | Ainuoke-owned, read-only, non-unique and never a user-maintained replacement. Concrete Direct API mapping is not yet proven; `QuotationNo` is known not to be PO, so the value stays null/read-only until actual evidence proves a field. |
+| C4-D03 brand salesperson identity | CONFIRMED | Means brand/customer-side salesperson, not a Zhixu authenticated user and never `app_users`. Future customer/brand personnel master + order-time snapshot is permitted; merchandiser remains pending if its semantics differ. |
+| C4-D06 production country | CONFIRMED | Quote/Quote PriceVersion only. `SalesOrder.productionCountry` is absent from the formal target; Browser legacy/test data is not migrated. Scheduling `ProductionSite` is a distinct execution-location fact. |
+| C4-D07 order quantity | CONFIRMED | Ainuoke source quantity is authoritative/read-only and no editable formal commercial baseline is introduced. Scheduling quantities remain separate; source changes may surface drift but never authorize user overwrite. |
+| C4-D09 delivery semantics | CONFIRMED | Ainuoke contract/process delivery is immutable source; `DeliveryPlan` is a Zhixu-owned editable multi-row collection. A valid source date initializes one derived default; only an untouched collection may follow source changes, and any user intervention protects the collection from later overwrite. |
+| C4-D10 shared current confirmed commercial terms | CONFIRMED | A linked Quote/SalesOrder shares the current customer-confirmed price and confirmed labor price. Both surfaces may edit the same current values with trusted actor/time/old/new audit. Historical Quote snapshots stay immutable; the full PriceVersion and all other price facts remain independent. |
+
+For Ainuoke-backed orders, source mirror and Zhixu-owned values must remain structurally distinguishable. Proven BillNo/InsideOrderNo/source lifecycle/contract dates/source quantity/style/customer/brand/company/color facts are source-owned; an operational value with different semantics must use a separate owned field/domain. Drift is explicit evidence and must not be silently resolved by overwriting user-owned data.
+
+Delivery detail must eventually show the multi-row DeliveryPlan collection and retain source delivery as subdued secondary/reference text (for example `工艺单交期：YYYY年MM月DD日`). The implementation must deterministically identify an untouched system-derived default versus a user-managed collection, but this docs-only decision intentionally does not freeze a flag, column or API name.
+
+The shared current terms may be described conceptually as `ConfirmedCommercialTerms`, without freezing a storage/API name. An unlinked SalesOrder receives no fabricated Quote relationship. Fabric/trim costs, margin, exchange rate, processing assumptions, production country and every other Quote/Order PriceVersion field are not live-synchronized by this decision.
+
+Still pending unless an existing Active decision already governs the narrow behavior: Customer/Brand master mapping, `orderDate` semantics, source style versus a future Zhixu Style master, manual color modeling beyond current source/adjustment rules, settlement/pricing basis beyond the two shared terms, execution snapshots, attachments, process/customer requirement/inspection/remark semantics and Browser retirement details.
+
+Current Browser code is not proof of C4 implementation: it still contains a `SalesOrder.productionCountry`, independent Quote/Order price structures, a mutable quantity-history baseline and refresh-time `source="ainuoke_sync"` DeliveryPlan reconstruction. Those are retained legacy/test behaviors and must not be promoted into the formal server model merely because they exist.
 
 ## Read API audit
 
@@ -129,10 +155,19 @@ All five have version 1; their detail color counts match the mirror table. No Br
 - production information architecture uses only PG facts, and PG UUIDs cannot open the Browser-only detail loader;
 - Browser OrderRepository remains retained, unmigrated and unmodified, but is no longer the production base-list source.
 
-### BLOCKING before detail cutover
+### BLOCKING before C4.1 base detail read cutover
 
-- adopt the dedicated server detail view rather than the full writable Browser `SalesOrder` type;
-- implement or deliberately defer customer/brand IDs, PO, salesperson/merchandiser, business delivery, quantity history, delivery plans, price versions, execution snapshots and attachments;
+- build the dedicated production detail route/view from the existing typed PostgreSQL detail DTO rather than the full writable Browser `SalesOrder` type;
+- preserve trusted session + `order.view`, explicit 401/403/404 and zero-color semantics without Browser fallback or mutation controls;
+- keep all absent owned/master/domain fields absent in C4.1 instead of inventing defaults. The confirmed rules above guide later extensions but do not require them to be implemented before the authoritative base detail can cut over.
+
+### BLOCKING before later C4 server extensions
+
+- prove the concrete Customer PO source field before exposing any value;
+- design customer/brand and brand-salesperson master/snapshot relationships while keeping merchandiser semantics pending;
+- design multi-row DeliveryPlan persistence, deterministic derived-default ownership transition, drift projection and trusted audit;
+- design a linked Quote/SalesOrder shared-current-terms domain with trusted audit and immutable historical snapshots, without full PriceVersion live-link;
+- decide the remaining Customer/Brand, orderDate, style-master, color, settlement, execution, attachment and free-text semantics before implementing those slices;
 - design identity joins for future Scheduling/Closing/Style Progress extensions against stable PG UUID.
 
 ### BLOCKING before edit/write cutover
@@ -159,8 +194,10 @@ All five have version 1; their detail color counts match the mirror table. No Br
 4. **C2.2 — Real Browser Authenticated Shadow Acceptance:** complete. The real static `server-preview` passed login/session restore/list/search/filter/pagination/detail/zero-color/logout acceptance with only authorized auth/session metadata writes. This is still not production Order Center cutover.
 5. **C3.1 — Base list implementation:** complete in code/disposable validation. Production `/order-center` uses the dedicated Server view, has no Browser fallback, and opens only a same-page read-only Server inspector. Browser repositories and write paths are retained but isolated from PG rows.
 6. **C3.2 — Real production-list Browser acceptance:** complete. The formal route passed trusted session restore, list/search/filter/server-sort/pagination, same-page inspectors, zero-color semantics, 1280/wide visuals, logout and post-logout anonymous checks without business mutation.
-7. **C4 — Base detail plus server extensions:** move base identity/contract/colors to PG detail, then add separately owned delivery, price, execution and attachment read models without manufacturing Browser defaults.
-8. **C5 — Server mutation Gates:** add narrowly scoped create/update APIs, optimistic concurrency, trusted audit and domain-specific authorization.
-9. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
+7. **C4.0 — Ownership audit and decisions:** read-only audit complete; D-082–D-084 record the user-confirmed source, quantity/people/country, delivery-plan and shared-current-terms boundaries. Documentation is complete; implementation is not started.
+8. **C4.1 — Server Base Detail Read Cutover:** next proposed Gate. Move only already-authoritative PG identity/contract/color facts to the production detail route; keep all absent fields absent and add no mutation.
+9. **C4.2+ — Separately authorized server extensions:** add only approved master relationships and separately owned domains, beginning with independently designed DeliveryPlan and shared-current-terms slices. Remaining ambiguous fields stay deferred.
+10. **C5 — Server mutation Gates:** add narrowly scoped create/update APIs, optimistic concurrency, trusted audit and domain-specific authorization.
+11. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
 
-C3 does not migrate or retire Browser data and does not cut over full detail or writes. The production base-list cutover is complete; C4 Base Detail + Server Extensions remains the next Gate and is not authorized by this acceptance.
+C3 does not migrate or retire Browser data and does not cut over full detail or writes. The production base-list cutover is complete; this docs-only task records C4.0 decisions but authorizes no C4 implementation. C4.1 Server Base Detail Read Cutover remains the next proposed Gate.
