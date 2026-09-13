@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BuildInfoIndicator } from "../components/foundation/build-info-indicator";
 import { buildInfo } from "../features/runtime/build-info";
 import { PermissionProvider } from "../features/permissions";
+import { ServerSessionProvider } from "../features/server-auth";
 import { LocalDataBootstrap } from "../features/data-management";
 import "./globals.css";
 import "./quote-center/quote-center.css";
@@ -31,5 +32,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="zh-CN"><body data-build-id={buildInfo.buildId} data-environment={buildInfo.environment}><LocalDataBootstrap><PermissionProvider>{children}</PermissionProvider></LocalDataBootstrap><BuildInfoIndicator /></body></html>;
+  return <html lang="zh-CN"><body data-build-id={buildInfo.buildId} data-environment={buildInfo.environment}><LocalDataBootstrap><PermissionProvider><ServerSessionProvider>{children}</ServerSessionProvider></PermissionProvider></LocalDataBootstrap><BuildInfoIndicator /></body></html>;
 }
