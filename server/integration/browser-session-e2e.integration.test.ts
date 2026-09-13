@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
-import { resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import test from "node:test";
 import pg from "pg";
 import {
@@ -21,11 +23,12 @@ import { startDisposablePostgres } from "./postgres-container.js";
 const { Pool } = pg;
 const browserOrigin = "http://127.0.0.1:3001";
 
-async function startApi(pool: pg.Pool) {
+async function startApi(pool: pg.Pool, staticDirectory?: string) {
   const server = createServer(createApp({
     pool,
     allowedOrigins: [browserOrigin],
     security: { secureCookies: false, sessionTtlSeconds: 43_200 },
+    staticDirectory,
   }));
   await new Promise<void>((resolve_) => server.listen(0, "127.0.0.1", resolve_));
   const address = server.address();
@@ -69,32 +72,33 @@ async function seedUser(
   };
 }
 
-function salesOrderFixture(): CreateAinuokeSalesOrderInput {
+function salesOrderFixture(index = 1, withColors = true): CreateAinuokeSalesOrderInput {
+  const suffix = String(index).padStart(3, "0");
   return {
     source: {
-      sourceId: "browser-session-source-001",
-      sourceRowIdentity: "6086103:browser-session-source-001",
-      salesContractNo: "SC-BROWSER-001",
-      insideOrderNo: "INSIDE-BROWSER-001",
+      sourceId: `browser-session-source-${suffix}`,
+      sourceRowIdentity: `6086103:browser-session-source-${suffix}`,
+      salesContractNo: `SC-BROWSER-${suffix}`,
+      insideOrderNo: `INSIDE-BROWSER-${suffix}`,
       lifecycleStatusRaw: "active",
       contractDate: "2026-09-01",
       contractDeliveryDate: "2026-10-01",
-      styleNo: "STYLE-BROWSER-001",
+      styleNo: index <= 3 ? "STYLE-COMMON" : `STYLE-BROWSER-${suffix}`,
       companyNameSnapshot: "COMPANY-BROWSER",
       customerNameSnapshot: "CUSTOMER-BROWSER",
       brandNameSnapshot: "BRAND-BROWSER",
-      quantity: 12,
-      sourceHash: "browser-contract-hash",
+      quantity: 10 + index,
+      sourceHash: `browser-contract-hash-${suffix}`,
       fetchedAt: "2026-09-13T00:00:00.000Z",
       sourceMetadata: { reportId: "6086103", fixture: true },
     },
-    colors: [{
-      sourceLineIdentity: "6087105:browser-blue",
+    colors: withColors ? [{
+      sourceLineIdentity: `6087105:browser-blue-${suffix}`,
       colorName: "BLUE",
-      quantity: 12,
+      quantity: 10 + index,
       deliveryDate: "2026-10-01",
-      sourceHash: "browser-color-hash",
-    }],
+      sourceHash: `browser-color-hash-${suffix}`,
+    }] : [],
   };
 }
 
@@ -114,16 +118,18 @@ function createBrowserFetch(): typeof fetch {
   };
 }
 
-test("Browser trusted session UX reaches the real Node auth and SalesOrder contracts in disposable PostgreSQL", async (t) => {
+test("production Order Center route reaches trusted auth and paged SalesOrder reads in disposable PostgreSQL", async (t) => {
   const postgres = await startDisposablePostgres();
   const resources: {
     pool?: pg.Pool;
     api?: Awaited<ReturnType<typeof startApi>>;
+    staticDirectory?: string;
   } = {};
   t.after(async () => {
     await resources.api?.close();
     await resources.pool?.end();
     await postgres.stop();
+    if (resources.staticDirectory) await rm(resources.staticDirectory, { recursive: true, force: true });
   });
   const databaseUrl = await postgres.createDatabase("browser_session_e2e");
   const pool = new Pool({ connectionString: databaseUrl });
@@ -141,9 +147,19 @@ test("Browser trusted session UX reaches the real Node auth and SalesOrder contr
     password: "disposable-denied-password",
     permissions: ["quote.view"],
   });
-  const created = await createAinuokeSalesOrder(pool, reader, salesOrderFixture());
-  const api = await startApi(pool);
+  const created: Awaited<ReturnType<typeof createAinuokeSalesOrder>>[] = [];
+  for (let index = 1; index <= 55; index += 1) {
+    created.push(await createAinuokeSalesOrder(pool, reader, salesOrderFixture(index, index !== 55)));
+  }
+  const staticDirectory = await mkdtemp(join(tmpdir(), "zhixu-production-order-center-"));
+  resources.staticDirectory = staticDirectory;
+  await writeFile(join(staticDirectory, "order-center.html"), "<!doctype html><title>订单中心</title><main>ServerOrderCenterPage</main>", "utf8");
+  const api = await startApi(pool, staticDirectory);
   resources.api = api;
+
+  const productionRoute = await fetch(`${api.baseUrl}/order-center`);
+  assert.equal(productionRoute.status, 200);
+  assert.match(await productionRoute.text(), /ServerOrderCenterPage/u);
 
   const readerFetch = createBrowserFetch();
   const readerAuth = createServerAuthClient({ baseUrl: api.baseUrl, fetchImpl: readerFetch });
@@ -159,13 +175,37 @@ test("Browser trusted session UX reaches the real Node auth and SalesOrder contr
   assert.deepEqual(await readerAuth.getMe(), login.user);
   assert.deepEqual(await readerAuth.getPermissions(), ["order.view"]);
 
-  const page = await readerOrders.list({ limit: 10, offset: 0 });
-  assert.equal(page.page.total, 1);
-  assert.equal(page.salesOrders[0].id, created.salesOrder.id);
-  const detail = await readerOrders.getById(created.salesOrder.id);
-  assert.equal(detail.id, created.salesOrder.id);
-  assert.equal(detail.version, created.salesOrder.version);
+  const page = await readerOrders.list({ limit: 50, offset: 0, sortBy: "orderNo", sortDirection: "asc" });
+  assert.deepEqual(page.page, { limit: 50, offset: 0, total: 55, hasMore: true });
+  assert.equal(page.salesOrders.length, 50);
+  assert.equal(page.salesOrders[0].id, created[0].salesOrder.id);
+  assert.equal(page.salesOrders[0].orderNo, "SO-00000001");
+  const nextPage = await readerOrders.list({ limit: 50, offset: 50, sortBy: "orderNo", sortDirection: "asc" });
+  assert.deepEqual(nextPage.page, { limit: 50, offset: 50, total: 55, hasMore: false });
+  assert.equal(nextPage.salesOrders.length, 5);
+
+  const commonStyle = await readerOrders.list({ search: "STYLE-COMMON", limit: 50, offset: 0 });
+  assert.equal(commonStyle.page.total, 3);
+  assert.equal(commonStyle.salesOrders.every((order) => order.styleNo === "STYLE-COMMON"), true);
+  const draft = await readerOrders.list({ lifecycleState: "draft", limit: 50, offset: 0 });
+  assert.equal(draft.page.total, 55);
+  const ainuoke = await readerOrders.list({ creationSource: "ainuoke", limit: 50, offset: 0 });
+  assert.equal(ainuoke.page.total, 55);
+  const descending = await readerOrders.list({ limit: 50, offset: 0, sortBy: "orderNo", sortDirection: "desc" });
+  assert.equal(descending.salesOrders[0].orderNo, "SO-00000055");
+
+  const detail = await readerOrders.getById(created[0].salesOrder.id);
+  assert.equal(detail.id, created[0].salesOrder.id);
+  assert.equal(detail.version, created[0].salesOrder.version);
   assert.deepEqual(detail.colors.map((color) => color.colorName), ["BLUE"]);
+  const zeroColorDetail = await readerOrders.getById(created[54].salesOrder.id);
+  assert.equal(zeroColorDetail.orderNo, "SO-00000055");
+  assert.equal(zeroColorDetail.colorCount, 0);
+  assert.deepEqual(zeroColorDetail.colors, []);
+
+  const restoredAuth = createServerAuthClient({ baseUrl: api.baseUrl, fetchImpl: readerFetch });
+  assert.equal((await restoredAuth.getMe()).id, reader.userId);
+  assert.deepEqual(await restoredAuth.getPermissions(), ["order.view"]);
 
   await readerAuth.logout();
   await assert.rejects(

@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `docs/browser-shadow-acceptance`，起点为 `5fee5ebb04f04219a9da064cd683aaba8536663a`（Phase C2.1 PR #30 merge）。Phase C2.2 已完成真实 Browser same-origin trusted session + PostgreSQL shadow read 验收；本分支只记录验收事实，不执行 Browser Order Center cutover。
-- 当前稳定基线：GitHub `main` 为 `5fee5ebb04f04219a9da064cd683aaba8536663a`（PR #30 已 merged）。
+- 当前 Active Task 为 `feat/postgres-order-list-cutover`，起点为 `be3eb259279df3ea71c74cf177c7f18905f7027d`（Phase C2.2 PR #31 merge）。Phase C3.1 已完成 production `/order-center` PostgreSQL base-list 实现与 disposable 验证；真实 C3.2 Browser production-list acceptance 尚未执行，因此 C3 尚未完成。
+- 当前稳定基线：GitHub `main` 为 `be3eb259279df3ea71c74cf177c7f18905f7027d`（PR #31 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -15,7 +15,17 @@
 ## 当前可运行边界
 
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
-- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实 API 和 Browser same-origin shadow UI 验收。独立 `/order-center/server-preview` 使用 Browser-to-Node trusted session UX；普通 Browser Order Center 仍未切换读取该数据，legacy 3000 runtime 暂时保留。
+- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实 API 和 Browser same-origin shadow UI 验收。C3.1 将 production `/order-center` base list 改为 trusted Server session + `order.view` 下的 PostgreSQL read model；`/order-center/server-preview` 继续保留为诊断入口，legacy 3000 runtime 暂时保留。
+
+### Phase C3.1 — PostgreSQL Base Order List Cutover implementation
+
+- Production `/order-center` 不再渲染 Browser `OrderCenterPage`，而是独立 `ServerOrderCenterPage`。它只通过 `serverSalesOrderReadRepository` 读取 typed Server view model；无 Server 时显式报错，anonymous 显示 trusted login-required，403 保持 permission-denied，list/detail 401 使 Server session invalid 并返回登录态，任何状态都不 fallback 到 Browser OrderRepository。
+- 列表使用每页 50 条的 Server pagination、NFKC + trim 后提交的 Server fuzzy search、精确 `lifecycleState` / `creationSource` filter，以及仅限 `orderNo|updatedAt|contractDeliveryDate|salesContractNo` 的 Server sorting。页面只显示 PostgreSQL 或无损投影事实：正式订单号/BillNo、款号/InsideOrderNo、客户/品牌、合同数量、SalesOrder lifecycle/Ainuoke source status、合同交期/颜色数和创建来源。
+- PostgreSQL UUID 只进入 same-page Server read-only inspector 的 `getById`，不会导航到仍由 Browser `orderRepository.getById()` 驱动的 `/order-center/detail`。inspector 只显示 base facts 与颜色，zero-color master 显示合法空 enrichment 说明；production PG rows 的 create/edit/save/cancel/delete/reorder/attachment mutation controls 为 0。
+- Browser `OrderCenterPage`、OrderRepository、`/order-center/new`、`/order-center/detail`、Quote-to-order 与 Browser reorder/write code 全部保留，未迁移、删除或改写。`LocalDataBootstrap` 只在精确 `/order-center` 和 `/order-center/server-preview` 冷启动时跳过 Browser local-data initialization；进入旧 detail/new、Quote、Scheduling、Closing、Style Progress 或其他 Browser-owned route 时仍按原逻辑初始化。
+- C3.1 只使用 source/DOM contract、mock 与 disposable PostgreSQL 16 验证。没有真实 login、session metadata、PostgreSQL business 或 SalesOrder write；没有 schema/RBAC/app_users/Ainuoke/Quote/Scheduling/Closing/Style Progress mutation。真实 1280/宽屏视觉检查因 Browser 工具无法打开新的本地 3001 mock 标签而未执行，未借用真实 3002 session 绕过边界。
+- 最终验证通过：C3 + shadow-read targeted `14/14`、ServerSession frontend `7/7`、server-auth disposable integration `1/1`、PostgreSQL integration `31/31`、full tests `615/615`，并通过 typecheck、lint、server build、frontend production build（31 routes）与 `git diff --check`。
+- **C3.1 implementation = complete；C3 = NOT COMPLETE。** 下一步是在 C3.1 merge 后单独执行 **C3.2 real production-list Browser acceptance**；本分支不执行 C3.2，也不开始 C4 full detail cutover。
 - Quote Center、新订单中心、生产排单、款式进度、关账中心和相关设置仍使用浏览器 Repository；尚不是服务端多用户生产实现。
 - DEV 固定使用 `127.0.0.1:3001`，PROD Docker 固定使用 `127.0.0.1:3000`，两者依靠 Origin 隔离数据。
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。

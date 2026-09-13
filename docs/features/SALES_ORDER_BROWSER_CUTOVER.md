@@ -2,7 +2,7 @@
 
 ## Current boundary
 
-Phase 2B3C0 established read-path/model/UI readiness, C1 activated real Server RBAC plus authenticated API acceptance, C2.1 implemented a separate Browser trusted Server session boundary, and C2.2 completed real Browser same-origin shadow acceptance. Real PostgreSQL is authoritative for the 511 bootstrapped Ainuoke SalesOrder masters, their immutable source bindings and current contract/color mirrors. Browser Order Center remains the active UI repository for its existing test/execution dataset. C2 changes only the unlinked read-only preview UX and its normal auth/session metadata; no Browser repository selection, business write path, schema or migration changed.
+Phase 2B3C0 established read-path/model/UI readiness, C1 activated real Server RBAC plus authenticated API acceptance, C2.1 implemented a separate Browser trusted Server session boundary, and C2.2 completed real Browser same-origin shadow acceptance. C3.1 now implements the production `/order-center` base-list read-source cutover to PostgreSQL, pending real C3.2 Browser acceptance. Real PostgreSQL is authoritative for the 511 bootstrapped Ainuoke SalesOrder masters, immutable source bindings and current contract/color mirrors. Browser OrderRepository remains retained for its existing test/execution dataset and legacy write/detail paths, but it is no longer the production base-list source.
 
 The recommended architecture is:
 
@@ -123,9 +123,8 @@ All five have version 1; their detail color counts match the mirror table. No Br
 
 ### BLOCKING before list cutover
 
-- C2.2 real Browser authenticated shadow acceptance is complete; it is no longer a blocker;
-- decide the production list information architecture for base PG facts versus unavailable price, delivery-plan, production and closing projections;
-- prevent PG UUID list links from opening the current Browser-only detail loader.
+- C3.1 code/disposable implementation is complete: production information architecture uses only PG facts, and PG UUIDs cannot open the Browser-only detail loader;
+- C3.2 real production-list Browser acceptance remains required before declaring the base-list cutover complete.
 
 ### BLOCKING before detail cutover
 
@@ -156,9 +155,10 @@ All five have version 1; their detail color counts match the mirror table. No Br
 2. **C1.2 — Real activation + authenticated shadow acceptance:** complete; Server RBAC and trusted admin API reads passed without SalesOrder mutation.
 3. **C2.1 — Browser Trusted Session UX:** complete and merged in PR #30, with separate ServerSession/Browser PermissionProvider boundaries, same-origin opaque-cookie auth, explicit 401/403 UX and disposable Browser-client E2E.
 4. **C2.2 — Real Browser Authenticated Shadow Acceptance:** complete. The real static `server-preview` passed login/session restore/list/search/filter/pagination/detail/zero-color/logout acceptance with only authorized auth/session metadata writes. This is still not production Order Center cutover.
-5. **C3 — Base list cutover:** switch only the production Order list to the dedicated server view, with PG detail navigation and honest omission of unavailable execution facts. Keep Browser writes disabled for PG masters.
-6. **C4 — Base detail plus server extensions:** move base identity/contract/colors to PG detail, then add separately owned delivery, price, execution and attachment read models without manufacturing Browser defaults.
-7. **C5 — Server mutation Gates:** add narrowly scoped create/update APIs, optimistic concurrency, trusted audit and domain-specific authorization.
-8. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
+5. **C3.1 — Base list implementation:** complete in code/disposable validation. Production `/order-center` uses the dedicated Server view, has no Browser fallback, and opens only a same-page read-only Server inspector. Browser repositories and write paths are retained but isolated from PG rows.
+6. **C3.2 — Real production-list Browser acceptance:** pending after C3.1 merge. Validate the real production route/session/list/search/filter/sort/pagination/zero-color/inspector behavior and responsive visuals without business mutation.
+7. **C4 — Base detail plus server extensions:** move base identity/contract/colors to PG detail, then add separately owned delivery, price, execution and attachment read models without manufacturing Browser defaults.
+8. **C5 — Server mutation Gates:** add narrowly scoped create/update APIs, optimistic concurrency, trusted audit and domain-specific authorization.
+9. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
 
-C2 executes none of the Browser cutovers above. C3 is the next Gate and requires separate authorization.
+C3.1 does not migrate or retire Browser data and does not cut over full detail or writes. C3 remains incomplete until C3.2 real Browser acceptance; C4 is not authorized by this implementation.

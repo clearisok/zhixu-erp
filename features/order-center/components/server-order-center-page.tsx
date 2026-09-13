@@ -1,0 +1,480 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import {
+  AlertBanner,
+  AppShell,
+  Button,
+  Card,
+  DataTable,
+  DescriptionList,
+  Drawer,
+  EmptyState,
+  ErrorState,
+  FormItem,
+  LoadingState,
+  PageContainer,
+  PageHeader,
+  SearchField,
+  StatusTag,
+  Toolbar,
+  type DataColumn,
+} from "@/components/foundation";
+import { ServerLoginCard, useServerSession } from "@/features/server-auth";
+import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
+import { SalesOrderServerReadError } from "../server/sales-order-server-client";
+import {
+  initialServerOrderCenterQuery,
+  loadServerOrderCenterDetail,
+  loadServerOrderCenterPage,
+  normalizeServerOrderSearch,
+  SERVER_ORDER_CENTER_PAGE_SIZE,
+  type ServerOrderCenterQueryState,
+} from "../server/server-order-center-query";
+import { serverSalesOrderReadRepository } from "../server/server-sales-order-read-repository";
+import type {
+  OrderCenterServerDetailViewModel,
+  OrderCenterServerListViewModel,
+  ServerSalesOrderCreationSource,
+  ServerSalesOrderLifecycleState,
+  ServerSalesOrderPage,
+} from "../server/sales-order-server-model";
+
+const emptyPage: ServerSalesOrderPage = {
+  limit: SERVER_ORDER_CENTER_PAGE_SIZE,
+  offset: 0,
+  total: 0,
+  hasMore: false,
+};
+
+const lifecycleLabels: Record<ServerSalesOrderLifecycleState, string> = {
+  draft: "草稿",
+  confirmed: "已确认",
+  active: "执行中",
+  completed: "已完成",
+  cancelled: "已取消",
+};
+
+const creationSourceLabels: Record<ServerSalesOrderCreationSource, string> = {
+  ainuoke: "艾诺科",
+  quote: "报价",
+  reorder: "翻单",
+  manual: "手工",
+};
+
+function readError(error: unknown): string {
+  if (error instanceof SalesOrderServerReadError) {
+    return `${error.code}（HTTP ${error.status}）`;
+  }
+  return "订单服务暂时不可用，请稍后重试。不会切换到 Browser 本地订单。";
+}
+
+function lifecycleTone(
+  lifecycleState: ServerSalesOrderLifecycleState,
+): "neutral" | "success" | "danger" {
+  if (lifecycleState === "cancelled") return "danger";
+  if (lifecycleState === "confirmed" || lifecycleState === "completed") return "success";
+  return "neutral";
+}
+
+function OrderCenterFrame({
+  count,
+  children,
+}: {
+  count: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <AppShell title="订单中心">
+      <PageContainer className="oc-order-center-page oc-server-order-center-page">
+        <OrderCenterNavigation />
+        <PageHeader
+          eyebrow="ORDER CENTER"
+          title="订单中心"
+          count={count}
+          description="正式订单基础视图；数据源：PostgreSQL。"
+        />
+        {children}
+      </PageContainer>
+    </AppShell>
+  );
+}
+
+export function ServerOrderCenterPage() {
+  const serverSession = useServerSession();
+  const [items, setItems] = useState<OrderCenterServerListViewModel[]>([]);
+  const [page, setPage] = useState<ServerSalesOrderPage>(emptyPage);
+  const [query, setQuery] = useState<ServerOrderCenterQueryState>(initialServerOrderCenterQuery);
+  const [searchInput, setSearchInput] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
+  const [permissionDenied, setPermissionDenied] = useState(false);
+  const [sessionActionError, setSessionActionError] = useState<string | null>(null);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
+  const [detail, setDetail] = useState<OrderCenterServerDetailViewModel | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
+
+  const handleReadFailure = useCallback((error: unknown): "session" | "read" => {
+    if (error instanceof SalesOrderServerReadError && error.status === 401) {
+      setItems([]);
+      setPage(emptyPage);
+      setDetail(null);
+      setInspectorOpen(false);
+      serverSession.invalidate();
+      return "session";
+    }
+    if (error instanceof SalesOrderServerReadError && error.status === 403) {
+      setItems([]);
+      setPage(emptyPage);
+      setDetail(null);
+      setInspectorOpen(false);
+      setPermissionDenied(true);
+      return "session";
+    }
+    return "read";
+  }, [serverSession]);
+
+  const loadList = useCallback(async () => {
+    if (serverSession.status !== "authenticated" || !serverSession.hasPermission("order.view")) return;
+    setLoading(true);
+    setListError(null);
+    setPermissionDenied(false);
+    try {
+      const result = await loadServerOrderCenterPage(serverSalesOrderReadRepository, query);
+      setItems(result.items);
+      setPage(result.page);
+    } catch (error) {
+      if (handleReadFailure(error) === "read") {
+        setItems([]);
+        setPage(emptyPage);
+        setListError(readError(error));
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [handleReadFailure, query, serverSession]);
+
+  useEffect(() => {
+    if (serverSession.status === "authenticated" && serverSession.hasPermission("order.view")) {
+      void Promise.resolve().then(loadList);
+    }
+  }, [loadList, serverSession]);
+
+  const openInspector = async (item: OrderCenterServerListViewModel) => {
+    setInspectorOpen(true);
+    setDetail(null);
+    setDetailError(null);
+    setDetailLoading(true);
+    try {
+      setDetail(await loadServerOrderCenterDetail(serverSalesOrderReadRepository, item.id));
+    } catch (error) {
+      if (handleReadFailure(error) === "read") setDetailError(readError(error));
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    setSessionActionError(null);
+    try {
+      await serverSession.logout();
+      setItems([]);
+      setPage(emptyPage);
+      setDetail(null);
+      setInspectorOpen(false);
+    } catch {
+      setSessionActionError("无法退出 Server 会话，请稍后重试。");
+    }
+  };
+
+  const updateQuery = <Key extends keyof ServerOrderCenterQueryState,>(
+    key: Key,
+    value: ServerOrderCenterQueryState[Key],
+  ) => {
+    setDetail(null);
+    setInspectorOpen(false);
+    setQuery((current) => ({ ...current, offset: 0, [key]: value }));
+  };
+
+  const columns: DataColumn<OrderCenterServerListViewModel>[] = [
+    {
+      key: "orderNo",
+      header: "正式订单 / BillNo",
+      width: 188,
+      sticky: "left",
+      responsivePriority: "primary",
+      render: (item) => (
+        <div className="oc-primary-cell">
+          <strong>{item.orderNo}</strong>
+          <small>{item.billNo ?? "未绑定 BillNo"}</small>
+        </div>
+      ),
+    },
+    {
+      key: "style",
+      header: "款号 / 工厂款号",
+      width: 178,
+      responsivePriority: "primary",
+      render: (item) => (
+        <div className="oc-primary-cell">
+          <strong>{item.styleNo || "—"}</strong>
+          <small>{item.factoryStyleNo ?? "—"}</small>
+        </div>
+      ),
+    },
+    {
+      key: "customer",
+      header: "客户 / 品牌",
+      width: 172,
+      responsivePriority: "primary",
+      render: (item) => (
+        <div className="oc-primary-cell">
+          <strong>{item.customerName || "—"}</strong>
+          <small>{item.brandName || "—"}</small>
+        </div>
+      ),
+    },
+    {
+      key: "quantity",
+      header: "合同数量",
+      width: 96,
+      align: "right",
+      responsivePriority: "primary",
+      render: (item) => (
+        <strong className="oc-number">
+          {item.initialQuantity?.toLocaleString("zh-CN") ?? "—"}
+        </strong>
+      ),
+    },
+    {
+      key: "lifecycle",
+      header: "生命周期 / 来源状态",
+      width: 158,
+      responsivePriority: "primary",
+      render: (item) => (
+        <div className="oc-server-status-cell">
+          <StatusTag tone={lifecycleTone(item.lifecycleState)}>
+            {lifecycleLabels[item.lifecycleState]}
+          </StatusTag>
+          <small>艾诺科：{item.sourceLifecycleStatus || "未记录"}</small>
+        </div>
+      ),
+    },
+    {
+      key: "delivery",
+      header: "合同交期 / 颜色",
+      width: 142,
+      responsivePriority: "primary",
+      render: (item) => (
+        <div className="oc-delivery-cell">
+          <strong>{item.contractDeliveryDate ?? "—"}</strong>
+          <small>{item.colorCount} 个颜色</small>
+        </div>
+      ),
+    },
+    {
+      key: "source",
+      header: "创建来源",
+      width: 104,
+      responsivePriority: "secondary",
+      render: (item) => creationSourceLabels[item.creationSource],
+    },
+    {
+      key: "action",
+      header: "操作",
+      width: 94,
+      sticky: "right",
+      align: "center",
+      responsivePriority: "primary",
+      className: "oc-sticky-action",
+      render: (item) => (
+        <Button
+          variant="text"
+          onClick={(event) => {
+            event.stopPropagation();
+            void openInspector(item);
+          }}
+        >
+          查看
+        </Button>
+      ),
+    },
+  ];
+
+  const renderRecord = (item: OrderCenterServerListViewModel) => (
+    <div className="oc-order-record oc-server-order-record">
+      <header>
+        <div><strong>{item.styleNo || "未记录款号"}</strong><small>{item.factoryStyleNo ?? "未记录工厂款号"}</small></div>
+        <span>只读查看 <b>›</b></span>
+      </header>
+      <div className="oc-order-record-identity">
+        <span><small>正式订单号</small><strong>{item.orderNo}</strong></span>
+        <span><small>BillNo</small><strong>{item.billNo ?? "—"}</strong></span>
+      </div>
+      <div className="oc-order-record-facts">
+        <span><small>合同数量</small><strong>{item.initialQuantity?.toLocaleString("zh-CN") ?? "—"}</strong></span>
+        <span><small>合同交期</small><strong>{item.contractDeliveryDate ?? "—"}</strong></span>
+        <span><small>颜色数</small><strong>{item.colorCount}</strong></span>
+      </div>
+      <div className="oc-server-record-status">
+        <StatusTag tone={lifecycleTone(item.lifecycleState)}>{lifecycleLabels[item.lifecycleState]}</StatusTag>
+        <small>艾诺科来源状态：{item.sourceLifecycleStatus || "未记录"}</small>
+      </div>
+    </div>
+  );
+
+  if (serverSession.status === "checking") {
+    return <OrderCenterFrame count="—"><LoadingState label="确认织序 Server 登录状态" /></OrderCenterFrame>;
+  }
+
+  if (serverSession.status === "error") {
+    return (
+      <OrderCenterFrame count="—">
+        <ErrorState title="订单服务暂时不可用" description={serverSession.error} onRetry={() => void serverSession.refresh()} />
+      </OrderCenterFrame>
+    );
+  }
+
+  if (serverSession.status === "anonymous") {
+    return (
+      <OrderCenterFrame count="—">
+        <AlertBanner tone="info" title="登录后查看正式订单">
+          订单中心使用可信 Server session；不会读取或回退到 Browser 本地订单。
+        </AlertBanner>
+        <ServerLoginCard defaultUsername={process.env.NODE_ENV === "development" ? "admin" : ""} />
+      </OrderCenterFrame>
+    );
+  }
+
+  const trustedIdentity = `${serverSession.user.name}（${serverSession.user.username}）`;
+  if (permissionDenied || !serverSession.hasPermission("order.view")) {
+    return (
+      <OrderCenterFrame count="—">
+        <AlertBanner
+          tone="warning"
+          title="当前 Server 账号没有订单查看权限"
+          actions={<Button variant="secondary" onClick={() => void logout()}>退出 Server 会话</Button>}
+        >
+          已登录为 {trustedIdentity}；需要 order.view 权限。
+        </AlertBanner>
+        {sessionActionError && <ErrorState description={sessionActionError} />}
+        <ErrorState permission title="Server 权限不足（403）" description="请联系管理员分配 order.view 权限。" />
+      </OrderCenterFrame>
+    );
+  }
+
+  return (
+    <OrderCenterFrame count={`${page.total} 条`}>
+      <div className="oc-server-source-bar">
+        <span><i aria-hidden="true" />数据源：PostgreSQL</span>
+        <small>Server identity：{trustedIdentity}</small>
+        <Button variant="text" onClick={() => void logout()}>退出登录</Button>
+      </div>
+      {sessionActionError && <ErrorState description={sessionActionError} />}
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          updateQuery("search", normalizeServerOrderSearch(searchInput));
+        }}
+      >
+        <Toolbar
+          className="oc-order-toolbar oc-server-order-toolbar"
+          search={<SearchField value={searchInput} onChange={setSearchInput} label="搜索正式订单" placeholder="订单号、BillNo、工厂款号、款号、客户或品牌" />}
+          filters={<Button type="submit" variant="secondary">查询</Button>}
+          moreFilters={(
+            <>
+              <FormItem label="生命周期">
+                <select className="qc-control" value={query.lifecycleState} onChange={(event) => updateQuery("lifecycleState", event.target.value as ServerSalesOrderLifecycleState | "")}>
+                  <option value="">全部生命周期</option>
+                  {Object.entries(lifecycleLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </FormItem>
+              <FormItem label="创建来源">
+                <select className="qc-control" value={query.creationSource} onChange={(event) => updateQuery("creationSource", event.target.value as ServerSalesOrderCreationSource | "")}>
+                  <option value="">全部来源</option>
+                  {Object.entries(creationSourceLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </FormItem>
+              <FormItem label="排序字段">
+                <select className="qc-control" value={query.sortBy} onChange={(event) => updateQuery("sortBy", event.target.value as ServerOrderCenterQueryState["sortBy"])}>
+                  <option value="orderNo">正式订单号</option>
+                  <option value="updatedAt">更新时间</option>
+                  <option value="contractDeliveryDate">合同交期</option>
+                  <option value="salesContractNo">BillNo</option>
+                </select>
+              </FormItem>
+              <FormItem label="排序方向">
+                <select className="qc-control" value={query.sortDirection} onChange={(event) => updateQuery("sortDirection", event.target.value as ServerOrderCenterQueryState["sortDirection"])}>
+                  <option value="asc">升序</option>
+                  <option value="desc">降序</option>
+                </select>
+              </FormItem>
+            </>
+          )}
+          resultSummary={page.total === 0 ? "0 条" : `${page.offset + 1}–${Math.min(page.offset + items.length, page.total)} / ${page.total}`}
+          mobileFilterTitle="正式订单筛选与排序"
+        />
+      </form>
+      <Card className="oc-list-card oc-order-table oc-server-order-table">
+        <DataTable
+          rows={items}
+          columns={columns}
+          rowKey={(item) => item.id}
+          loading={loading}
+          loadingLabel="读取 PostgreSQL 正式订单"
+          error={listError}
+          onRetry={() => void loadList()}
+          onRowActivate={(item) => void openInspector(item)}
+          renderRecord={renderRecord}
+          ariaLabel="PostgreSQL 正式订单列表"
+          moduleKey="order-center"
+          tableKey="order-center.server-order-list"
+          empty={<EmptyState title="没有匹配的正式订单" description="调整搜索或筛选条件后重试。" />}
+        />
+        <div className="oc-server-pagination" aria-label="正式订单分页">
+          <Button variant="secondary" disabled={query.offset === 0 || loading} onClick={() => setQuery((current) => ({ ...current, offset: Math.max(0, current.offset - SERVER_ORDER_CENTER_PAGE_SIZE) }))}>上一页</Button>
+          <span>{page.total === 0 ? "0" : `${page.offset + 1}–${Math.min(page.offset + items.length, page.total)}`} / {page.total}</span>
+          <Button variant="secondary" disabled={!page.hasMore || loading} onClick={() => setQuery((current) => ({ ...current, offset: current.offset + SERVER_ORDER_CENTER_PAGE_SIZE }))}>下一页</Button>
+        </div>
+      </Card>
+      <Drawer
+        open={inspectorOpen}
+        title={detail?.orderNo ?? "正式订单只读详情"}
+        description="PostgreSQL 基础事实；完整业务详情将在后续阶段开放。"
+        eyebrow="READ ONLY"
+        className="oc-server-inspector"
+        onClose={() => setInspectorOpen(false)}
+        footer={<Button variant="secondary" onClick={() => setInspectorOpen(false)}>关闭</Button>}
+      >
+        {detailLoading ? <LoadingState label="读取 PostgreSQL 订单详情" compact /> : detailError ? <ErrorState description={detailError} /> : detail ? (
+          <div className="oc-server-inspector-content">
+            <DescriptionList columns={2} items={[
+              { key: "identity", label: "正式身份", value: detail.orderNo, secondary: `UUID ${detail.id} · version ${detail.version}` },
+              { key: "billNo", label: "BillNo", value: detail.billNo },
+              { key: "insideOrderNo", label: "工厂款号 / InsideOrderNo", value: detail.factoryStyleNo },
+              { key: "styleNo", label: "款号", value: detail.styleNo },
+              { key: "customer", label: "客户", value: detail.customerName },
+              { key: "brand", label: "品牌", value: detail.brandName },
+              { key: "quantity", label: "合同数量", value: detail.initialQuantity?.toLocaleString("zh-CN") },
+              { key: "lifecycle", label: "SalesOrder 生命周期", value: lifecycleLabels[detail.lifecycleState], secondary: detail.lifecycleState },
+              { key: "sourceStatus", label: "艾诺科来源状态", value: detail.sourceLifecycleStatus },
+              { key: "delivery", label: "合同交期", value: detail.contractDeliveryDate },
+              { key: "source", label: "创建来源", value: creationSourceLabels[detail.creationSource] },
+              { key: "updatedAt", label: "更新时间", value: detail.updatedAt },
+            ]} />
+            {detail.colors.length === 0 ? (
+              <EmptyState compact title="该正式订单没有可用颜色明细" description="颜色 enrichment 为空不影响 SalesOrder master 有效性。" />
+            ) : (
+              <div className="oc-server-color-table" role="region" aria-label="正式订单颜色明细">
+                <table><thead><tr><th>颜色</th><th>数量</th><th>交期</th></tr></thead><tbody>{detail.colors.map((color) => (
+                  <tr key={color.sourceLineIdentity}><td>{color.colorName}</td><td>{color.quantity.toLocaleString("zh-CN")}</td><td>{color.deliveryDate ?? "—"}</td></tr>
+                ))}</tbody></table>
+              </div>
+            )}
+          </div>
+        ) : <EmptyState compact title="未选择正式订单" />}
+      </Drawer>
+    </OrderCenterFrame>
+  );
+}

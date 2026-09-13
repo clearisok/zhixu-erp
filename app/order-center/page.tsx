@@ -1,5 +1,5 @@
-import { OrderCenterPage } from "@/features/order-center/components/order-pages";
+import { ServerOrderCenterPage } from "@/features/order-center/components/server-order-center-page";
 
 export default function Page() {
-  return <OrderCenterPage />;
+  return <ServerOrderCenterPage />;
 }
