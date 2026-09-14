@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 
 const items = [
-  { label: "订单列表", href: "/order-center", matches: (path: string) => path === "/order-center" || path === "/order-center/detail" || path === "/order-center/new" },
+  { label: "订单列表", href: "/order-center", matches: (path: string) => path === "/order-center" || path === "/order-center/detail" || path === "/order-center/new" || path === "/order-center/server-detail" },
   { label: "款式进度", href: "/order-center/style-progress", matches: (path: string) => path.startsWith("/order-center/style-progress") },
   { label: "风险预警", href: "/order-center/risks", matches: (path: string) => path.startsWith("/order-center/risks") },
 ];

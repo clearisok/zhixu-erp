@@ -147,6 +147,14 @@ C0 direct SQL and C1 authenticated API acceptance both verified total=511 and th
 
 All five have version 1; their detail color counts match the mirror table. No Browser repository was read or written for this verification.
 
+## C4.1 production base-detail implementation
+
+The production list now routes “查看” to the static-export-compatible Server-owned URL `/order-center/server-detail?id=<PG UUID>`. This route renders only `ServerSalesOrderDetailPage`; it never enters the legacy `/order-center/detail` / `OrderDetailLoader`, never calls Browser `orderRepository`, and has no Browser fallback or mutation control. The three exact Server-read paths `/order-center`, `/order-center/server-preview` and `/order-center/server-detail` skip Browser local-data initialization, while legacy new/detail and all other Browser-owned routes retain it.
+
+The dedicated page keeps the trusted Server session + `order.view` boundary and explicit checking/anonymous/401-expired/403/404/server-unavailable states. The typed detail view uses exact `insideOrderNo` and source `quantity` names instead of Browser-shaped writable aliases. UI separates Zhixu-owned aggregate facts from Ainuoke-authoritative source facts and displays only the C4.1 allowlist: UUID/orderNo/version/creation source/lifecycle/timestamps, BillNo/InsideOrderNo/style/company/customer/brand/source quantity/contract dates/source lifecycle, color count and color name/quantity. SourceLineIdentity remains an internal row key. The typed 6087105 color-row delivery date remains available internally but is intentionally absent from the initial UI because its broader user-facing semantics are unresolved.
+
+Zero-color orders remain valid and show an explicit valid-master/empty-color state. Customer PO, customer/brand master IDs, personnel, order date, production country, DeliveryPlans, single-value business delivery, quantity/color adjustments, shared confirmed commercial terms, OrderPriceVersion facts, attachments, execution/settlement, inspection and free-text fields remain absent. C4.1 adds no schema, migration, API mutation, permission, Browser migration or real-environment write. Real production-detail Browser acceptance remains a separate post-merge Gate; C4 overall and C4.2+ are not complete.
+
 ## Cutover blockers
 
 ### Production list cutover
@@ -155,11 +163,12 @@ All five have version 1; their detail color counts match the mirror table. No Br
 - production information architecture uses only PG facts, and PG UUIDs cannot open the Browser-only detail loader;
 - Browser OrderRepository remains retained, unmigrated and unmodified, but is no longer the production base-list source.
 
-### BLOCKING before C4.1 base detail read cutover
+### C4.1 base detail read implementation
 
-- build the dedicated production detail route/view from the existing typed PostgreSQL detail DTO rather than the full writable Browser `SalesOrder` type;
-- preserve trusted session + `order.view`, explicit 401/403/404 and zero-color semantics without Browser fallback or mutation controls;
-- keep all absent owned/master/domain fields absent in C4.1 instead of inventing defaults. The confirmed rules above guide later extensions but do not require them to be implemented before the authoritative base detail can cut over.
+- dedicated production detail route/view from the existing typed PostgreSQL detail DTO: implemented;
+- trusted session + `order.view`, explicit 401/403/404/server-unavailable and zero-color semantics without Browser fallback or mutation: implemented;
+- absent owned/master/domain fields remain absent rather than receiving invented defaults: implemented;
+- real production-detail Browser acceptance: not executed; requires a separate post-merge Gate.
 
 ### BLOCKING before later C4 server extensions
 
@@ -192,12 +201,12 @@ All five have version 1; their detail color counts match the mirror table. No Br
 2. **C1.2 — Real activation + authenticated shadow acceptance:** complete; Server RBAC and trusted admin API reads passed without SalesOrder mutation.
 3. **C2.1 — Browser Trusted Session UX:** complete and merged in PR #30, with separate ServerSession/Browser PermissionProvider boundaries, same-origin opaque-cookie auth, explicit 401/403 UX and disposable Browser-client E2E.
 4. **C2.2 — Real Browser Authenticated Shadow Acceptance:** complete. The real static `server-preview` passed login/session restore/list/search/filter/pagination/detail/zero-color/logout acceptance with only authorized auth/session metadata writes. This is still not production Order Center cutover.
-5. **C3.1 — Base list implementation:** complete in code/disposable validation. Production `/order-center` uses the dedicated Server view, has no Browser fallback, and opens only a same-page read-only Server inspector. Browser repositories and write paths are retained but isolated from PG rows.
+5. **C3.1 — Base list implementation:** complete in code/disposable validation. Production `/order-center` uses the dedicated Server view and has no Browser fallback. Its historical same-page inspector is replaced by the C4.1 dedicated Server detail route; Browser repositories and write paths remain retained and isolated from PG rows.
 6. **C3.2 — Real production-list Browser acceptance:** complete. The formal route passed trusted session restore, list/search/filter/server-sort/pagination, same-page inspectors, zero-color semantics, 1280/wide visuals, logout and post-logout anonymous checks without business mutation.
 7. **C4.0 — Ownership audit and decisions:** read-only audit complete; D-082–D-084 record the user-confirmed source, quantity/people/country, delivery-plan and shared-current-terms boundaries. Documentation is complete; implementation is not started.
-8. **C4.1 — Server Base Detail Read Cutover:** next proposed Gate. Move only already-authoritative PG identity/contract/color facts to the production detail route; keep all absent fields absent and add no mutation.
+8. **C4.1 — Server Base Detail Read Cutover:** implementation complete in code/automated validation. Only authoritative PG identity/contract/color facts enter the dedicated production route; absent fields stay absent and no mutation exists. Real Browser acceptance remains pending after merge.
 9. **C4.2+ — Separately authorized server extensions:** add only approved master relationships and separately owned domains, beginning with independently designed DeliveryPlan and shared-current-terms slices. Remaining ambiguous fields stay deferred.
 10. **C5 — Server mutation Gates:** add narrowly scoped create/update APIs, optimistic concurrency, trusted audit and domain-specific authorization.
 11. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
 
-C3 does not migrate or retire Browser data and does not cut over full detail or writes. The production base-list cutover is complete; this docs-only task records C4.0 decisions but authorizes no C4 implementation. C4.1 Server Base Detail Read Cutover remains the next proposed Gate.
+C4.1 does not migrate or retire Browser data and does not cut over writes. The production base-list and authoritative base-detail implementations are complete; real C4.1 Browser acceptance remains pending. C4.2+ extensions and C5 mutations have not started.

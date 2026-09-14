@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 docs-only `docs/c4-confirmed-business-decisions`，起点为 `dd5121d99a7b86e433303f7bd2698651e27a2cae`（Phase C3.2 docs PR #33 merge）。C3 已完成；本轮只记录 C4.0 用户确认的业务所有权决策，C4 实现仍为 **NOT STARTED**。下一建议 Gate 是 C4.1 Server Base Detail Read Cutover。
-- 当前稳定基线：GitHub `main` 为 `dd5121d99a7b86e433303f7bd2698651e27a2cae`（PR #33 已 merged）。
+- 当前 Active Task 为 `feat/postgres-order-detail-cutover`，起点为 `7b8c483487514f77de546db178edfbffc52bfd69`（C4.0 docs PR #34 merge）。C3 与 C4.0 已完成；本轮只实施 C4.1 authoritative base-detail read cutover，不实施任何 owned-domain mutation、schema 或真实验收。
+- 当前稳定基线：GitHub `main` 为 `7b8c483487514f77de546db178edfbffc52bfd69`（PR #34 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -15,14 +15,23 @@
 ## 当前可运行边界
 
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
-- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实 API、Browser shadow UI 和 production `/order-center` 验收。Production base list 现由 trusted Server session + `order.view` 下的 PostgreSQL read model 提供；`/order-center/server-preview` 继续保留为诊断入口，legacy 3000 runtime 暂时保留。
+- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实 API、Browser shadow UI 和 production `/order-center` list 验收。Production base list 与 C4.1 detail implementation 均使用 trusted Server session + `order.view` 下的 PostgreSQL read model；`/order-center/server-preview` 继续保留为诊断入口，legacy 3000 runtime 暂时保留。
+
+### Phase C4.1 — PostgreSQL Base Detail Read Cutover implementation
+
+- Production list 的“查看”现导航到静态可导出的独立 Server route `/order-center/server-detail?id=<PG UUID>`。该 route 只加载 `ServerSalesOrderDetailPage`，不会进入仍由 Browser `OrderDetailLoader` 驱动的 `/order-center/detail`，也不调用 Browser OrderRepository 或任何 SalesOrder mutation。
+- 详情延续 trusted Server session + `order.view`：anonymous 显示登录要求，detail 401 invalidate session，403 保留明确 permission-denied，404 明确订单不存在，Server/network failure 明确报错且没有 Browser fallback。`LocalDataBootstrap` 精确跳过 `/order-center`、`/order-center/server-preview` 与 `/order-center/server-detail`；legacy new/detail 及其他 Browser-owned route 仍按原逻辑初始化。
+- UI 将 Zhixu-owned aggregate facts 与 Ainuoke-authoritative source facts 分区。展示字段严格限定为 id/orderNo/version/creationSource/lifecycleState/createdAt/updatedAt、BillNo/InsideOrderNo/style/company/customer/brand/source quantity/contract dates/source lifecycle、colorCount 及 color name/quantity；InsideOrderNo 明确为 mutable source attribute，source quantity 与 contract/process delivery 均不可编辑。
+- 6087105 color-row `deliveryDate` 继续留在 typed/internal DTO，但初始 C4.1 UI 不展示。零颜色是合法 detail empty state。Customer PO、production country、DeliveryPlans、人员/master IDs、orderDate、quantity/color adjustments、共享确认价/工价、PriceVersion、附件、execution/settlement 与其他 blocked fields 全部缺席。
+- C4.1 仅使用 source/contract tests、mock 与 disposable PostgreSQL validation；没有 schema、真实 PostgreSQL/Auth/Browser/Ainuoke write，也没有执行真实 Browser production-detail acceptance。C4.1 真实验收必须在本 PR 合并后另行授权；C4 overall 仍未完成，C4.2+ 与 C5 未开始。
+- 最终自动验证通过：C3/C4.1/shadow-read targeted `21/21`、ServerSession frontend `7/7`、disposable PostgreSQL `31/31`、full tests `622/622`，typecheck、lint、server build、frontend production build（`32` static routes）与 `git diff --check` 全部 PASS。
 
 ### Phase C3.1 — PostgreSQL Base Order List Cutover implementation
 
 - Production `/order-center` 不再渲染 Browser `OrderCenterPage`，而是独立 `ServerOrderCenterPage`。它只通过 `serverSalesOrderReadRepository` 读取 typed Server view model；无 Server 时显式报错，anonymous 显示 trusted login-required，403 保持 permission-denied，list/detail 401 使 Server session invalid 并返回登录态，任何状态都不 fallback 到 Browser OrderRepository。
 - 列表使用每页 50 条的 Server pagination、NFKC + trim 后提交的 Server fuzzy search、精确 `lifecycleState` / `creationSource` filter，以及仅限 `orderNo|updatedAt|contractDeliveryDate|salesContractNo` 的 Server sorting。页面只显示 PostgreSQL 或无损投影事实：正式订单号/BillNo、款号/InsideOrderNo、客户/品牌、合同数量、SalesOrder lifecycle/Ainuoke source status、合同交期/颜色数和创建来源。
-- PostgreSQL UUID 只进入 same-page Server read-only inspector 的 `getById`，不会导航到仍由 Browser `orderRepository.getById()` 驱动的 `/order-center/detail`。inspector 只显示 base facts 与颜色，zero-color master 显示合法空 enrichment 说明；production PG rows 的 create/edit/save/cancel/delete/reorder/attachment mutation controls 为 0。
-- Browser `OrderCenterPage`、OrderRepository、`/order-center/new`、`/order-center/detail`、Quote-to-order 与 Browser reorder/write code 全部保留，未迁移、删除或改写。`LocalDataBootstrap` 只在精确 `/order-center` 和 `/order-center/server-preview` 冷启动时跳过 Browser local-data initialization；进入旧 detail/new、Quote、Scheduling、Closing、Style Progress 或其他 Browser-owned route 时仍按原逻辑初始化。
+- C3.1 当时 PostgreSQL UUID 只进入 same-page Server read-only inspector；C4.1 已将该历史 inspector 替换为独立 Server detail route，依然不会导航到 Browser `/order-center/detail`。
+- Browser `OrderCenterPage`、OrderRepository、`/order-center/new`、`/order-center/detail`、Quote-to-order 与 Browser reorder/write code 全部保留，未迁移、删除或改写。当前 `LocalDataBootstrap` 在精确 `/order-center`、`/order-center/server-preview` 和 `/order-center/server-detail` 跳过 Browser local-data initialization；进入旧 detail/new、Quote、Scheduling、Closing、Style Progress 或其他 Browser-owned route 时仍按原逻辑初始化。
 - C3.1 只使用 source/DOM contract、mock 与 disposable PostgreSQL 16 验证。没有真实 login、session metadata、PostgreSQL business 或 SalesOrder write；没有 schema/RBAC/app_users/Ainuoke/Quote/Scheduling/Closing/Style Progress mutation。真实 1280/宽屏视觉检查因 Browser 工具无法打开新的本地 3001 mock 标签而未执行，未借用真实 3002 session 绕过边界。
 - 最终验证通过：C3 + shadow-read targeted `14/14`、ServerSession frontend `7/7`、server-auth disposable integration `1/1`、PostgreSQL integration `31/31`、full tests `615/615`，并通过 typecheck、lint、server build、frontend production build（31 routes）与 `git diff --check`。
 - **C3.1 implementation = complete。** PR #32 已合并为 `1c5b8e1680ac5f49cda3df532cb7ae9509d73a0b`；真实 C3.2 验收见下节。
