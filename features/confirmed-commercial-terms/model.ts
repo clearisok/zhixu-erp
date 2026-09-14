@@ -31,3 +31,23 @@ export type UpdateConfirmedCommercialTermsInput = {
   confirmedLaborPrice: string | null;
   laborCurrency: ConfirmedLaborCurrency | null;
 };
+
+export function isQuoteTermsServerLinkageActivated(value: string | undefined): boolean {
+  return value === "true";
+}
+
+export type QuoteTermsConfirmationAuthority =
+  | "legacy_local_pre_activation"
+  | "proven_unlinked_local"
+  | "linked_server"
+  | "unknown_blocked";
+
+export function resolveQuoteTermsConfirmationAuthority(input: {
+  activated: boolean;
+  lookupReady: boolean;
+  linkage: ConfirmedCommercialTermsLinkage | null;
+}): QuoteTermsConfirmationAuthority {
+  if (!input.activated) return "legacy_local_pre_activation";
+  if (!input.lookupReady || input.linkage === null) return "unknown_blocked";
+  return input.linkage === "linked" ? "linked_server" : "proven_unlinked_local";
+}

@@ -133,6 +133,8 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
   const provenance = { quoteId: "quote-exact-1", revisionId: "revision-exact-1", priceVersionId: "price-exact-1" };
   const firstOrder = await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: provenance.quoteId, sourceRevisionId: provenance.revisionId, sourcePriceVersionId: provenance.priceVersionId });
   const secondOrder = await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: provenance.quoteId, sourceRevisionId: provenance.revisionId, sourcePriceVersionId: provenance.priceVersionId });
+  const currencyUnsetProvenance = { quoteId: "quote-currency-unset", revisionId: "revision-currency-unset", priceVersionId: "price-currency-unset" };
+  const currencyUnsetOrder = await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: currencyUnsetProvenance.quoteId, sourceRevisionId: currencyUnsetProvenance.revisionId, sourcePriceVersionId: currencyUnsetProvenance.priceVersionId });
   const unlinkedOrder = (await createAinuokeSalesOrder(pool, editor.identity, {
     source: {
       sourceId: "terms-source-unlinked",
@@ -175,6 +177,19 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, firstOrder.id)).current?.customerConfirmedPrice, "125.50");
     assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, secondOrder.id)).current?.id, quoteUpdated.current?.id);
 
+    await assert.rejects(
+      () => updateConfirmedCommercialTermsBySalesOrder(pool, editor.identity, firstOrder.id, {
+        expectedVersion: 1,
+        customerConfirmedPrice: "125.50",
+        confirmedLaborPrice: "8.75",
+        laborCurrency: "USD",
+      }),
+      (error: unknown) => (error as { status?: number; code?: string }).status === 409
+        && (error as { code?: string }).code === "linked_labor_currency_order_conflict",
+    );
+    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, firstOrder.id)).current?.laborCurrency, "CNY");
+    assert.equal((await pool.query("SELECT count(*)::int AS count FROM operation_logs WHERE entity_type = 'ConfirmedCommercialTerms'")).rows[0].count, 1);
+
     const orderUpdated = await updateConfirmedCommercialTermsBySalesOrder(pool, editor.identity, secondOrder.id, {
       expectedVersion: 1,
       customerConfirmedPrice: "126.00",
@@ -194,6 +209,17 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     });
     assert.equal(currencyUpdated.current?.version, 3);
     assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, firstOrder.id)).current?.laborCurrency, "USD");
+    await assert.rejects(
+      () => updateConfirmedCommercialTermsBySalesOrder(pool, editor.identity, secondOrder.id, {
+        expectedVersion: 3,
+        customerConfirmedPrice: "126.00",
+        confirmedLaborPrice: "9.00",
+        laborCurrency: "CNY",
+      }),
+      (error: unknown) => (error as { status?: number; code?: string }).status === 409
+        && (error as { code?: string }).code === "linked_labor_currency_order_conflict",
+    );
+    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, secondOrder.id)).current?.laborCurrency, "USD");
     assert.equal((await pool.query("SELECT count(*)::int AS count FROM confirmed_commercial_terms")).rows[0].count, 1);
     assert.equal((await pool.query("SELECT count(*)::int AS count FROM confirmed_commercial_terms_sales_orders")).rows[0].count, 2);
     const logs = await pool.query<{ actor_public_id: string; changes: Array<{ field: string; beforeValue: string | number | null; afterValue: string | number | null }> }>(
@@ -221,6 +247,31 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     );
   });
 
+  await t.test("linked Order cannot invent labor currency and Quote can establish it", async () => {
+    const logsBefore = (await pool.query("SELECT count(*)::int AS count FROM operation_logs WHERE entity_type = 'ConfirmedCommercialTerms'")).rows[0].count;
+    await assert.rejects(
+      () => updateConfirmedCommercialTermsBySalesOrder(pool, editor.identity, currencyUnsetOrder.id, {
+        expectedVersion: 0,
+        customerConfirmedPrice: null,
+        confirmedLaborPrice: "7.25",
+        laborCurrency: "CNY",
+      }),
+      (error: unknown) => (error as { status?: number; code?: string }).status === 409
+        && (error as { code?: string }).code === "linked_labor_currency_not_established",
+    );
+    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, currencyUnsetOrder.id)).current, null);
+    assert.equal((await pool.query("SELECT count(*)::int AS count FROM operation_logs WHERE entity_type = 'ConfirmedCommercialTerms'")).rows[0].count, logsBefore);
+
+    const establishedByQuote = await updateConfirmedCommercialTermsByQuote(pool, editor.identity, currencyUnsetProvenance, {
+      expectedVersion: 0,
+      customerConfirmedPrice: null,
+      confirmedLaborPrice: "7.25",
+      laborCurrency: "USD",
+    });
+    assert.equal(establishedByQuote.current?.laborCurrency, "USD");
+    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, currencyUnsetOrder.id)).current?.laborCurrency, "USD");
+  });
+
   await t.test("null is distinct from zero and an unlinked order never gains Quote provenance", async () => {
     const initial = await readConfirmedCommercialTermsBySalesOrder(pool, unlinkedOrder.id);
     assert.equal(initial.current, null);
@@ -233,6 +284,13 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     assert.equal(zero.linkage, "unlinked");
     assert.equal(zero.current?.customerConfirmedPrice, "0");
     assert.equal(zero.current?.confirmedLaborPrice, "0");
+    const explicitUsd = await updateConfirmedCommercialTermsBySalesOrder(pool, editor.identity, unlinkedOrder.id, {
+      expectedVersion: 1,
+      customerConfirmedPrice: "0",
+      confirmedLaborPrice: "0",
+      laborCurrency: "USD",
+    });
+    assert.equal(explicitUsd.current?.laborCurrency, "USD");
     const provenanceAfter = await pool.query("SELECT source_quote_id, source_revision_id, source_price_version_id FROM sales_orders WHERE id = $1", [unlinkedOrder.id]);
     assert.deepEqual(provenanceAfter.rows[0], { source_quote_id: null, source_revision_id: null, source_price_version_id: null });
     await assert.rejects(
@@ -278,6 +336,16 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     assert.equal((await apiRequest(api.baseUrl, termsPath(firstOrder.id), { cookie: editorCookie, method: "PATCH", origin: browserOrigin, trustedHeader: true, body: { ...mutationBody, actor: "spoof" } })).response.status, 400);
     assert.equal((await apiRequest(api.baseUrl, termsPath(firstOrder.id), { cookie: editorCookie, method: "PATCH", origin: browserOrigin, trustedHeader: true, body: { ...mutationBody, customerConfirmedPrice: -1 } })).response.status, 400);
     assert.equal((await apiRequest(api.baseUrl, termsPath(firstOrder.id), { cookie: editorCookie, method: "PATCH", origin: browserOrigin, trustedHeader: true, body: { ...mutationBody, confirmedLaborPrice: "1", laborCurrency: null } })).response.status, 400);
+
+    const currencyConflict = await apiRequest<{ error: { code: string } }>(api.baseUrl, termsPath(firstOrder.id), {
+      cookie: editorCookie,
+      method: "PATCH",
+      origin: browserOrigin,
+      trustedHeader: true,
+      body: { ...mutationBody, laborCurrency: "CNY" },
+    });
+    assert.equal(currencyConflict.response.status, 409);
+    assert.equal(currencyConflict.payload.error.code, "linked_labor_currency_order_conflict");
 
     const success = await apiRequest<{ confirmedCommercialTerms: { current: { version: number } } }>(api.baseUrl, termsPath(firstOrder.id), { cookie: editorCookie, method: "PATCH", origin: browserOrigin, trustedHeader: true, body: mutationBody });
     assert.equal(success.response.status, 200);

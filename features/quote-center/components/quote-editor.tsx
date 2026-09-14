@@ -46,7 +46,7 @@ import {
   parseNumberDraft,
   patchStableRow,
 } from "../model/quote-editor-state";
-import { applyCustomerConfirmation, confirmationAggregateStatus, confirmationSummaryLabel, createRevisionFromSnapshot, removePriceVersion, summarizeRevisionConfirmations } from "../model/quote-workflows";
+import { applyCustomerConfirmation, confirmationAggregateStatus, confirmationSummaryLabel, createRevisionFromSnapshot, isQuoteConfirmationComplete, removePriceVersion, summarizeRevisionConfirmations } from "../model/quote-workflows";
 import { nullablePriceVersionMetrics } from "../model/quote-presentation";
 import { formatFinalGarmentPrice } from "../model/final-quote-format";
 import { quoteReferencesAttachment } from "../model/quote-attachments";
@@ -98,6 +98,8 @@ import { useServerSession } from "@/features/server-auth";
 import {
   ConfirmedCommercialTermsServerError,
   confirmedCommercialTermsServerClient,
+  isQuoteTermsServerLinkageActivated,
+  resolveQuoteTermsConfirmationAuthority,
   type ConfirmedCommercialTermsDto,
 } from "@/features/confirmed-commercial-terms";
 
@@ -105,6 +107,11 @@ type VersionModalState = { mode: "copy" | "edit"; sourceId: string } | null;
 type MasterSwitchIntent = { kind: "brand" | "salesperson"; value: string; label: string } | null;
 type PersistIntent = "save" | "navigate" | "export";
 type PriceSyncRequest = { candidates: CostSyncCandidate[]; intent: PersistIntent } | null;
+type ServerTermsState = "idle" | "legacy_pre_activation" | "loading" | "ready" | "login_required" | "forbidden" | "error";
+
+const quoteTermsServerLinkageActivated = isQuoteTermsServerLinkageActivated(
+  process.env.NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE,
+);
 
 function versionId() {
   return `price-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -165,7 +172,7 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   const [confirmationDraft, setConfirmationDraft] = useState({ labor: "", garment: "", note: "" });
   const [confirmationError, setConfirmationError] = useState("");
   const [serverTerms, setServerTerms] = useState<ConfirmedCommercialTermsDto | null>(null);
-  const [serverTermsState, setServerTermsState] = useState<"idle" | "loading" | "ready" | "login_required" | "forbidden" | "error">("idle");
+  const [serverTermsState, setServerTermsState] = useState<ServerTermsState>("idle");
   const [revisionManagerOpen, setRevisionManagerOpen] = useState(false);
   const [operationLogOpen, setOperationLogOpen] = useState(false);
   const [priceSyncRequest, setPriceSyncRequest] = useState<PriceSyncRequest>(null);
@@ -186,6 +193,11 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
     ? serverTerms
     : null;
   const activeServerTermsState = serverTermsState === "ready" && !activeServerTerms ? "loading" : serverTermsState;
+  const activeConfirmationAuthority = resolveQuoteTermsConfirmationAuthority({
+    activated: quoteTermsServerLinkageActivated,
+    lookupReady: activeServerTermsState === "ready",
+    linkage: activeServerTerms?.linkage ?? null,
+  });
   const activePriceDisplayName = revision.priceVersions.length === 1 ? BASE_PRICE_VERSION_NAME : activeVersion?.name;
   const activeProductionLabel = activeVersion?.pricingParameters.manufacturingPresetName || activeVersion?.pricingParameters.manufacturingCountry || "未设置制作国家";
   const liveRevisionValidationIssues = validateRevisionUpdate(revision).issues;
@@ -198,8 +210,13 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
     partially_confirmed: "部分确认",
     confirmed: "已确认",
   }[quote.aggregateStatus];
+  const linkedCurrentConfirmationComplete = activeServerTerms?.linkage === "linked" && isQuoteConfirmationComplete(
+    revision.baseInfo.quoteType,
+    activeServerTerms.current?.confirmedLaborPrice,
+    activeServerTerms.current?.customerConfirmedPrice,
+  );
   const activeConfirmationLabel = !isHistorical && activeServerTerms?.linkage === "linked"
-    ? activeServerTerms.current?.confirmedLaborPrice !== null && activeServerTerms.current?.confirmedLaborPrice !== undefined
+    ? linkedCurrentConfirmationComplete
       ? "已确认（Server current）"
       : "未确认（Server current）"
     : confirmationSummaryLabel(revision.confirmationSummary);
@@ -274,6 +291,11 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
       if (isNew || isHistorical || !activeVersion) {
         setServerTerms(null);
         setServerTermsState("idle");
+        return;
+      }
+      if (!quoteTermsServerLinkageActivated) {
+        setServerTerms(null);
+        setServerTermsState("legacy_pre_activation");
         return;
       }
       if (serverSession.status === "checking") {
@@ -596,7 +618,7 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   };
 
   const openConfirmation = () => {
-    if (!isHistorical && !isNew && activeServerTermsState !== "ready") {
+    if (!isHistorical && !isNew && activeConfirmationAuthority === "unknown_blocked") {
       notify(activeServerTermsState === "login_required"
         ? "请先登录可信 Server 会话，再确认当前价格方案是否已关联正式订单。"
         : activeServerTermsState === "forbidden"
@@ -636,13 +658,17 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   const saveConfirmation = async () => {
     const labor = parseNumberDraft(confirmationDraft.labor);
     const garment = parseNumberDraft(confirmationDraft.garment);
+    if (activeConfirmationAuthority === "unknown_blocked") {
+      setConfirmationError("Server 关联状态未知；未写入本地确认值。");
+      return;
+    }
     const validation = validateCustomerConfirmation(revision, activeVersion, { labor, garment });
     if (!validation.valid) {
       setConfirmationError(validation.issues.map((issue) => issue.message).join("；"));
       return;
     }
     if (labor === null) return;
-    if (activeServerTerms?.linkage === "linked") {
+    if (activeConfirmationAuthority === "linked_server" && activeServerTerms?.linkage === "linked") {
       if (serverSession.status !== "authenticated" || !serverSession.hasPermission("quote.confirm")) {
         setConfirmationError("需要具有 quote.confirm 的可信 Server 会话；未写入本地确认值。");
         return;
@@ -922,7 +948,7 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
       </Card></div>
       <div id="quote-section-other-costs" className="qc-page-section-anchor"><CostTable title="其他费用" description="包装、运输、管理分摊等费用" namePlaceholder="请输入费用名称" lines={activeVersion.otherCosts} onChange={updateOtherLine} onAdd={addOtherLine} onDelete={(lineId) => { defaultsStateRef.current.otherTouched = true; defaultsStateRef.current.otherAuto = false; updateActiveVersion((version) => ({ ...version, otherCosts: version.otherCosts.filter((line) => line.id !== lineId) })); }} /></div>
     </div></fieldset> : <Card className="qc-editor-surface qc-permission-cost-hidden"><strong>成本信息不可见</strong><p>暂无成本查看权限，请联系管理员。</p></Card>}
-    <section id="quote-section-confirmation" className="qc-workspace-reference qc-page-section-anchor"><div><span>客户确认</span><strong>{isHistorical ? (activeVersion.confirmation ? "历史价格方案已确认" : "历史价格方案未确认") : activeServerTerms?.linkage === "linked" ? (activeServerTerms.current?.confirmedLaborPrice !== null && activeServerTerms.current?.confirmedLaborPrice !== undefined ? "Server 共享条款已确认" : "Server 共享条款未确认") : activeVersion.confirmation ? "当前价格方案已确认" : "当前价格方案未确认"}</strong><small>{isHistorical ? "历史快照只读" : activeServerTerms?.linkage === "linked" ? `Server current · v${activeServerTerms.current?.version ?? 0}` : activeServerTermsState === "ready" ? "未关联正式订单 · 保留本地确认流程" : "正在安全确认 Server 关联状态"} · {revision.revisionLabel} · {activePriceDisplayName}</small></div>{!isNew && <Button permission="quote.confirm" variant="secondary" onClick={openConfirmation}>{activeServerTerms?.linkage === "linked" ? "查看 / 更新共享条款" : activeVersion.confirmation ? "查看 / 更新确认" : "客户确认"}</Button>}</section>
+    <section id="quote-section-confirmation" className="qc-workspace-reference qc-page-section-anchor"><div><span>客户确认</span><strong>{isHistorical ? (activeVersion.confirmation ? "历史价格方案已确认" : "历史价格方案未确认") : activeServerTerms?.linkage === "linked" ? (linkedCurrentConfirmationComplete ? "Server 共享条款已确认" : "Server 共享条款未确认") : activeVersion.confirmation ? "当前价格方案已确认" : "当前价格方案未确认"}</strong><small>{isHistorical ? "历史快照只读" : activeServerTerms?.linkage === "linked" ? `Server current · v${activeServerTerms.current?.version ?? 0}` : activeServerTermsState === "ready" ? "已证明未关联正式订单 · 保留本地确认流程" : activeServerTermsState === "legacy_pre_activation" ? "Server linkage 未激活 · 保留现有本地确认流程" : "关联状态未知 · 禁止本地确认"} · {revision.revisionLabel} · {activePriceDisplayName}</small></div>{!isNew && <Button permission="quote.confirm" variant="secondary" onClick={openConfirmation}>{activeServerTerms?.linkage === "linked" ? "查看 / 更新共享条款" : activeVersion.confirmation ? "查看 / 更新确认" : "客户确认"}</Button>}</section>
     <div id="quote-section-attachments" className="qc-page-section-anchor"><QuoteAttachmentPanel revision={revision} readOnly={quoteReadOnly} createdBy={revision.baseInfo.salespersonName || currentUser.name} previewAttachmentId={attachmentPreviewId} onPreviewAttachmentIdChange={setAttachmentPreviewId} onChange={updateRevision} onAttachmentRemoved={(attachmentId) => { if (!quoteReferencesAttachment(quote, attachmentId, revision.revisionId)) pendingAttachmentDeletesRef.current.add(attachmentId); }} notify={notify} /></div>
     {!isNew && <section id="quote-section-history" className="qc-workspace-reference qc-page-section-anchor"><div><span>报价历史</span><strong>{revision.revisionLabel} · {revision.reason}</strong><small>QuoteRevision 是不可变报价快照；价格方案在当前快照内独立切换。</small></div><Button permission="quote.revision.view" variant="secondary" onClick={() => setRevisionManagerOpen(true)}>查看报价历史</Button></section>}
     </FormShell>

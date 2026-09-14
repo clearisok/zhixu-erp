@@ -44,10 +44,12 @@ ConfirmedCommercialTerms mutation 使用 decimal string + `expectedVersion` type
 
 - `0004_confirmed_commercial_terms.sql` 建立 `confirmed_commercial_terms` current context 与 `confirmed_commercial_terms_sales_orders` association。migration 是 forward-only、无 backfill，并继续由既有 ledger/checksum/transaction runner 管理。
 - `ConfirmedCommercialTerms` 有独立 PostgreSQL UUID 与 optimistic version。客户确认价格按 CNY/件解释；确认工价的 `NUMERIC` amount 必须有 `CNY|USD` qualifier。`NULL` 表示未确认，和明确的 `0` 不同；API 不使用 JS float 作为 persisted representation，也不引入新舍入规则。
+- Quote-linked context 的 labor currency 只由 Quote surface 按 exact PriceVersion 建立/变更。Order mutation 必须原样保留已建立 qualifier；CNY↔USD 变更或未建立时提交工价均返回安全 409，transaction 不写 terms/OperationLog。unlinked order-owned context 才允许 Order 明确选择币种。
 - 当前 schema/repository 没有证明 Quote provenance 1:1；多个 SalesOrder 可持有相同 exact `source_quote_id/source_revision_id/source_price_version_id`。因此 linked context 的 exact provenance 唯一而 association 为 1→N；所有相同 provenance 的订单和 Quote endpoint 解析到同一 terms UUID。DB trigger 拒绝 provenance mismatch 与 association 改绑。
 - 无完整 Quote provenance 的 SalesOrder 仅能拥有自己的 order-scoped context；服务不会填充或改变 `source_quote_id/source_revision_id/source_price_version_id`。partial provenance 被视为不安全状态并返回 409。
 - 每次真实 terms mutation 与一条 existing append-only `operation_logs` action 在同一 transaction 中提交。OperationLog actor 只来自 `TrustedIdentity`，记录 old/new amount/currency/version、mutation surface、exact Quote provenance（如有）和关联 SalesOrder IDs；审计失败会回滚 terms/association。
 - terms version 与 SalesOrder aggregate version 分离。C4.2 不修改 SalesOrder source mirrors、source quantity、order number/sequence、lifecycle、DeliveryPlan 或任何其他 PriceVersion field。
+- Browser Quote linkage 使用默认关闭的 `NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE=true` build-time activation gate。关闭时现有 Quote-local production flow 保持原样，并要求不得形成/使用 formal Quote-linked SalesOrder；开启后 authenticated exact lookup 才能证明 linked/unlinked，anonymous/unavailable/loading 均为 unknown 并禁止 local fallback。linked confirmation projection 按 Quote type 判断：processing 需要 labor，distribution 需要 labor + customer price。
 - 本实现只在 disposable PostgreSQL 验证。真实 `zhixu` 未应用 0004、真实业务写入为 0；由于 Node startup 自动运行 pending migration，当前分支/未来 merge 后的 Server 都不得连接真实目标启动，直到单独 rollout 授权。
 
 ## Phase 2B1 SalesOrder foundation

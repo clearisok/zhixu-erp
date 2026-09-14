@@ -24,8 +24,9 @@
 - 状态：Active（implementation complete in PR；real migration not authorized）
 - 决定：`ConfirmedCommercialTerms` 使用独立 PostgreSQL UUID identity。完整 `quoteId + revisionId + priceVersionId` 是可选的精确 provenance，并在 terms context 上唯一；一个该 context 可关联一张或多张 formal SalesOrder，所有关联订单因此读取/修改同一个 current row。没有 Quote provenance 的 SalesOrder 使用一对一的 order-owned context，绝不填充伪造 Quote 字段。
 - 金额：客户确认价格是 CNY/件；确认工价使用 PostgreSQL `NUMERIC` 并携带 `CNY|USD` qualifier。API 以 decimal string 传输，不引入浮点或新舍入规则；`NULL` 与 `0` 严格不同。
+- 币种所有权：linked context 的工价币种由 exact Quote PriceVersion 建立和变更。Order surface 只能保留该 qualifier；双向变更或未建立时由 Order 发明币种均返回 409，且不产生 terms/OperationLog。unlinked order-owned context 仍允许 Order 明确选择 `CNY|USD`。
 - 并发与审计：terms 自有 optimistic `version`，Quote/Order mutation 都要求 `expectedVersion`，stale 返回 409。terms 与单条 append-only `OperationLog` 在同一 transaction 提交，actor 只来自 trusted Server session；SalesOrder aggregate version、source mirrors 与 sequence 不变。
-- 边界：历史 Quote Revision/PriceVersion confirmation 保持 Browser snapshot；未关联当前 Quote 仍走 legacy local confirmation。精确 linked current Quote 只读写 Server terms，不回退写本地 numeric copy。0004 无 backfill，真实 `zhixu` activation/data migration/Browser write acceptance 均需后续单独授权。
+- 边界：历史 Quote Revision/PriceVersion confirmation 保持 Browser snapshot；未关联当前 Quote 仍走 legacy local confirmation。精确 linked current Quote 只读写 Server terms，不回退写本地 numeric copy。为避免 implementation merge 破坏既有 Quote-first Browser 生产，Quote linkage integration 由默认关闭的显式 build-time activation gate 控制；关闭时禁止形成正式 Quote-linked SalesOrder 是 rollout prerequisite，开启后 anonymous/unavailable/未完成 lookup 均视为 unknown 并禁止 local fallback。0004 无 backfill，真实 `zhixu` activation/data migration/Browser write acceptance 均需后续单独授权。
 - 代码证据：`database/migrations/0004_confirmed_commercial_terms.sql`、`server/confirmed-commercial-terms/`、`server/app.ts`、`features/confirmed-commercial-terms/`。
 
 ### D-084 Linked Quote and SalesOrder share only current confirmed commercial terms

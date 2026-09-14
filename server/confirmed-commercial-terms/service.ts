@@ -100,6 +100,30 @@ function assertExpectedVersion(current: ConfirmedCommercialTermsRow | null, expe
   }
 }
 
+function assertOrderPreservesLinkedLaborCurrency(
+  current: ConfirmedCommercialTermsRow | null,
+  input: UpdateConfirmedCommercialTermsInput,
+): void {
+  const establishedCurrency = current?.labor_currency ?? null;
+  if (establishedCurrency === null) {
+    if (input.confirmedLaborPrice !== null || input.laborCurrency !== null) {
+      throw new HttpError(
+        409,
+        "linked_labor_currency_not_established",
+        "Linked labor currency must first be established from the Quote PriceVersion",
+      );
+    }
+    return;
+  }
+  if (input.laborCurrency !== establishedCurrency) {
+    throw new HttpError(
+      409,
+      "linked_labor_currency_order_conflict",
+      "Order mutation must preserve the linked Quote PriceVersion labor currency",
+    );
+  }
+}
+
 async function readOrderWithClient(
   client: Pool | PoolClient,
   salesOrderId: string,
@@ -188,6 +212,9 @@ async function mutate(
     }
 
     assertExpectedVersion(current, input.values.expectedVersion);
+    if (input.surface === "order" && provenance) {
+      assertOrderPreservesLinkedLaborCurrency(current, input.values);
+    }
     if (current && sameTerms(current, input.values)) {
       await client.query("COMMIT");
       return composeTermsDto({ linkage: provenance ? "linked" : "unlinked", scope, provenance, salesOrderIds, terms: current });

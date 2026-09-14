@@ -176,7 +176,12 @@ export function ServerSalesOrderDetailPage() {
   };
 
   const saveTerms = async () => {
-    if (termsDraft.laborPrice && !termsDraft.laborCurrency) {
+    const linkedLaborCurrency = terms?.linkage === "linked" ? terms.current?.laborCurrency ?? null : null;
+    if (termsDraft.laborPrice && terms?.linkage === "linked" && !linkedLaborCurrency) {
+      setTermsMutationError("关联 Quote 尚未建立工价币种；请先从对应 PriceVersion 确认，订单端不会猜测币种。");
+      return;
+    }
+    if (termsDraft.laborPrice && terms?.linkage !== "linked" && !termsDraft.laborCurrency) {
       setTermsMutationError("填写确认工价时必须明确选择币种。");
       return;
     }
@@ -187,7 +192,7 @@ export function ServerSalesOrderDetailPage() {
         expectedVersion: terms?.current?.version ?? 0,
         customerConfirmedPrice: termsDraft.customerPrice || null,
         confirmedLaborPrice: termsDraft.laborPrice || null,
-        laborCurrency: termsDraft.laborCurrency || null,
+        laborCurrency: terms?.linkage === "linked" ? linkedLaborCurrency : termsDraft.laborCurrency || null,
       });
       setTerms(next);
       setTermsOpen(false);
@@ -203,7 +208,11 @@ export function ServerSalesOrderDetailPage() {
         } catch {
           // Keep the explicit conflict as the primary safe error.
         }
-        setTermsMutationError("条款已被其他页面更新，已重新读取当前值；请核对后再保存。");
+        setTermsMutationError(nextError.code === "linked_labor_currency_not_established"
+          ? "关联 Quote 尚未建立工价币种；请先从对应 PriceVersion 确认，订单端未写入任何条款。"
+          : nextError.code === "linked_labor_currency_order_conflict"
+            ? "订单端不能更改关联 Quote PriceVersion 的工价币种；本次未写入。"
+            : "条款已被其他页面更新，已重新读取当前值；请核对后再保存。");
         return;
       }
       setTermsMutationError(nextError instanceof ConfirmedCommercialTermsServerError && nextError.status === 403
@@ -344,7 +353,7 @@ export function ServerSalesOrderDetailPage() {
           <Modal
             open={termsOpen}
             title="编辑确认商业条款"
-            description="仅修改 Server current 客户确认价格与确认工价；不会修改订单来源事实。"
+            description={terms?.linkage === "linked" ? "仅修改 Server current 确认金额；工价币种由精确关联的 Quote PriceVersion 确定且订单端只读。" : "仅修改当前 SalesOrder-owned 商业条款；不会修改订单来源事实。"}
             onClose={() => setTermsOpen(false)}
             onSubmit={() => void saveTerms()}
             footer={<><Button variant="secondary" onClick={() => setTermsOpen(false)}>取消</Button><Button type="submit" disabled={termsSaving}>{termsSaving ? "保存中" : "保存"}</Button></>}
@@ -352,7 +361,9 @@ export function ServerSalesOrderDetailPage() {
             <div className="qc-modal-form">
               <FormItem label="客户确认价格（CNY / 件）"><input className="qc-control" inputMode="decimal" value={termsDraft.customerPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, customerPrice: event.target.value }); }} placeholder="未确认" /></FormItem>
               <FormItem label="确认工价"><input className="qc-control" inputMode="decimal" value={termsDraft.laborPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, laborPrice: event.target.value }); }} placeholder="未确认" /></FormItem>
-              <FormItem label="工价币种"><select className="qc-control" value={termsDraft.laborCurrency} onChange={(event) => setTermsDraft({ ...termsDraft, laborCurrency: event.target.value as "" | ConfirmedLaborCurrency })}><option value="">请选择</option><option value="CNY">CNY</option><option value="USD">USD</option></select></FormItem>
+              {terms?.linkage === "linked"
+                ? <FormItem label="工价币种（Quote PriceVersion，只读）"><div className="qc-create-readonly"><strong>{terms.current?.laborCurrency ?? "尚未建立"}</strong><small>{terms.current?.laborCurrency ? "订单端保存时必须保持该币种。" : "请先从关联 Quote 建立；订单端不会猜测 CNY/USD。"}</small></div></FormItem>
+                : <FormItem label="工价币种"><select className="qc-control" value={termsDraft.laborCurrency} onChange={(event) => setTermsDraft({ ...termsDraft, laborCurrency: event.target.value as "" | ConfirmedLaborCurrency })}><option value="">请选择</option><option value="CNY">CNY</option><option value="USD">USD</option></select></FormItem>}
               {termsMutationError && <p className="qc-form-alert">{termsMutationError}</p>}
             </div>
           </Modal>
