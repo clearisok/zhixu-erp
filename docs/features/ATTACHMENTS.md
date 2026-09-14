@@ -61,6 +61,20 @@ QuoteRevision 的附件字段位于 `quote-view-model.ts`。旧 `garmentMedia` /
 
 未来真实后端可用 Object Storage/API repository 替换 IndexedDB implementation，业务组件继续依赖 AttachmentRepository 边界。
 
+## Future production architecture — USER CONFIRMED
+
+以下是 Quote Production 的目标与 migration 边界，不是当前已实现行为：
+
+- 当前 Browser IndexedDB Quote attachment blobs 不作为 Server Quote migration source，现有 QuoteRevision attachment references 也不迁移为正式关系。新 Server attachments 在 Quote cutover 后从空的正式 attachment domain 开始。
+- 旧 Browser blobs 和引用不是损坏或 disposable test data；migration development、production acceptance 与 rollback window 内均保持原状。删除需要后续独立 destructive-data authorization。
+- Server attachment metadata 与 Quote/Revision business relationships 持久化在 PostgreSQL；图片/文件 binary content 持久化在 Object Storage。VPS local filesystem 和 PostgreSQL large binary 均不是 production source of truth。
+- Metadata 目标概念包括 stable attachment UUID、original file name、MIME type、size、content hash、kind、storage provider/bucket/key、createdBy、createdAt，以及需要时的 lifecycle/status。具体 SQL schema、API 和 Object Storage provider 尚未冻结。
+- PostgreSQL 保存稳定 storage identity/key，而不是 server-specific absolute filesystem path。推荐 key 形态为 `attachments/<attachment-uuid>/original`，不使用易变化的业务名称组织 object identity。
+- 同一 Object Storage 继续使用时，更换 VPS 应只需部署兼容应用、移动/恢复 PostgreSQL、重建配置与 secrets、验证并切换 DNS，不应再次搬迁 attachment blobs。
+- Local filesystem / IndexedDB 可以继续作为 development adapter，不能据此宣称 production attachment architecture 已完成。
+
+完整 Quote-first rollout、migration transformation 与 rollback 原则见 `QUOTE_PRODUCTION.md` 和 `DATA_LIFECYCLE.md`。
+
 ## Frontend behavior
 
 - 主组件：`features/quote-center/components/attachment-panel.tsx`。
