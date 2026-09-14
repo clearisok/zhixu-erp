@@ -18,6 +18,35 @@
 
 ## Active
 
+### D-084 Linked Quote and SalesOrder share only current confirmed commercial terms
+
+- 日期：2026-09-14
+- 状态：Active；确认 C4.0 审计 C4-D10，取代“Quote 与 Order 的当前客户确认价格和确认工价各自独立维护”的旧 AI 建议。C4 实现仍未开始。
+- 决定：在同一业务流中已稳定关联的 Quote 与 SalesOrder，“客户确认价格”和“确认工价”分别是一个共享的当前业务事实，不得在 Quote 与 Order 各保存一份可独立漂移的当前值。Quote Center 与 Order Detail 都可编辑这两项共享当前值，任一表面的修改都必须在另一表面读到同一结果。概念上可称为 `ConfirmedCommercialTerms`，本 docs-only 决策不锁定 SQL 表名或 API 名称。
+- 审计/历史：每次修改必须通过可信身份记录 actor、timestamp、old value 和 new value，遵守 server OperationLog 原则。Quote Revision / PriceVersion 历史快照仍为 immutable historical facts，共享当前值变化不回写历史快照。
+- 边界：不对 Quote PriceVersion 与 Order PriceVersion 做全量 live-link。面辅料成本、margin、汇率、加工假设、Quote 制作国家及其他 PriceVersion 事实仍相互独立。未关联 Quote 的 SalesOrder 不得伪造 Quote 关系。
+- 现状证据：`features/quote-center/model/quote-view-model.ts` 与 `features/order-center/model/order.ts` 当前仍是两套 Browser-local 价格结构，所以本条是已确认的目标业务规则，不是已实现状态。
+
+### D-083 Ainuoke source delivery date and Zhixu DeliveryPlan are separate domains
+
+- 日期：2026-09-14
+- 状态：Active；确认 C4.0 审计 C4-D09，取代“将单个业务确认交期标量或每次 source refresh 重建的计划直接作为未来交付真值”的旧 C4.0 AI 建议。C4 实现仍未开始。
+- 决定：Ainuoke 工艺单/合同交期是不可由织序用户覆写的 source fact。`DeliveryPlan` 是织序拥有、可编辑的客户交付要求/计划集合，支持多行；Order Detail 必须能展开多条计划，同时以弱化的次要文字保留 source delivery date，不得因用户修改 DeliveryPlan 而改写 source mirror。
+- 初始化：Ainuoke SalesOrder 首次创建且存在有效 source delivery date 时，初始化一条日期相同的默认 DeliveryPlan。当且仅当用户从未编辑、拆分、新增或其他手工改动整个集合时，该 untouched system-derived default 才可在后续 source delivery-date 变化时同步。
+- 用户所有权：一旦发生任何用户介入，整个 DeliveryPlan collection 转为 Zhixu-owned；后续 Ainuoke refresh 只更新 source fact，不覆写用户计划，有差异时显式呈现 drift/reconciliation evidence。后续实现必须能确定性区分 untouched derived default 与 user-managed collection，本条不预设具体 flag/列名。
+- 现状证据：`features/ainuoke-sync/service/ainuoke-sync-service.ts` 的 Browser legacy 行为仍在 refresh 时重建 `source="ainuoke_sync"` 行并保留 manual rows；它不具备上述 collection-level 所有权切换，不是本决策已实现的证据。
+
+### D-082 Ainuoke-backed SalesOrder source facts remain authoritative and read-only
+
+- 日期：2026-09-14
+- 状态：Active；确认 C4.0 审计 C4-D01、C4-D03、C4-D06 和 C4-D07，取代与本条冲突的旧 AI 建议。C4 实现仍未开始。
+- Source authority：对 Ainuoke-backed SalesOrder，已由真实 report metadata/rows 证明的 Ainuoke 字段是权威 source facts，织序不得直接覆写。需要不同运营/业务值时，必须建立可区分的 Zhixu-owned 字段或独立 domain；source drift/conflict 显式呈现，不通过改写用户业务值静默解决。当前已证明范围包括 BillNo/SalesContractNo、InsideOrderNo、source lifecycle、contract/process delivery date、source quantity、source style/customer/brand/company 与 6087105 color enrichment；具体映射仍必须逐字段有实际证据。
+- Customer PO：业务所有权属于 Ainuoke，织序用户不可编辑；它不是唯一订单身份，也不得成为用户维护的替代值。但 6086103 `QuotationNo` 已证明不是客户 PO，当前 Direct API 具体 source mapping **NOT YET PROVEN**；在真实 metadata/rows 证明前，server/UI 值必须保持 null/只读，不得猜测映射。
+- Quantity：正式 Ainuoke-backed SalesOrder 的 source order quantity 为 Ainuoke-authoritative 且不可由织序用户编辑，不建立可编辑的商业数量 baseline。Scheduling quantity 是独立事实；order quantity 变化不自动改写 schedule quantity。未来 source quantity 变化可产生 drift/reconciliation evidence，但不授权人工改写 source quantity。
+- People/country：SalesOrder 的业务“业务员”是品牌/客户侧人员，不是织序 authenticated user，不得映射 `app_users`；未来可采用 customer/brand personnel master + order-time snapshot，具体 schema 未实现。理单员若与该业务员语义不同，继续 pending。Production country 只属于 Quote/Quote PriceVersion；不新增、不迁移 `SalesOrder.productionCountry`。Scheduling `ProductionSite`/实际执行地是不同概念，不得重命名或混同。
+- 未决边界：Customer/Brand master mapping、orderDate 语义、source style 向 Zhixu Style master 的长期关系、超出当前 source/adjustment 规则的颜色人工模型、settlement basis、execution snapshots、attachments、process/customer requirement/inspection/remark 语义和 Browser retirement 细节仍未确认，不得由本决策推导。
+- 现状证据：`server/sales-orders/model.ts`、migration `0002`、`features/ainuoke-sync/source/ainuoke-contract-api-adapter.ts`、`features/operations-settings/model/operations-settings.ts`、D-035、D-043、D-056、D-077–D-081。当前 Browser `SalesOrder.productionCountry` 及其 legacy sync default 只是已存在的兼容/测试行为，不是正式 server 目标模型。
+
 ### D-081 PostgreSQL owns immutable global SalesOrder numbers; final Preview includes non-usable color enrichment
 
 - 日期：2026-09-11

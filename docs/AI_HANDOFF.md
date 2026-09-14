@@ -11,12 +11,17 @@
 
 ## Current Stable Main
 
-`1c5b8e1680ac5f49cda3df532cb7ae9509d73a0b`（Phase C3.1 PR #32 已 merged）
+`dd5121d99a7b86e433303f7bd2698651e27a2cae`（Phase C3.2 docs PR #33 已 merged）
 
 ## Current Active Task
 
-- Branch: `docs/order-list-cutover-acceptance`
-- Baseline: `1c5b8e1680ac5f49cda3df532cb7ae9509d73a0b` (`origin/main`, PR #32 merge commit).
+- Branch: `docs/c4-confirmed-business-decisions`
+- Baseline: `dd5121d99a7b86e433303f7bd2698651e27a2cae` (`origin/main`, PR #33 merge commit).
+- This branch is docs-only. D-082–D-084 record the user-confirmed C4.0 ownership rules; there is no schema, API, application, PostgreSQL or Browser change, and C4 implementation is **NOT STARTED**.
+- For Ainuoke-backed SalesOrders, proven Ainuoke facts remain authoritative/read-only and distinct from Zhixu-owned values. Customer PO is Ainuoke-owned/non-unique but its Direct API mapping is **NOT YET PROVEN**, so it remains null/read-only until actual evidence exists. Source order quantity is read-only; Scheduling quantities remain separate.
+- Business salesperson means brand/customer-side personnel and must never map to `app_users`; merchandiser semantics remain pending. Production country remains only in Quote/Quote PriceVersion and must not be added to formal SalesOrder; Scheduling `ProductionSite` is distinct.
+- Ainuoke contract/process delivery remains immutable source. Zhixu `DeliveryPlan` is a separate editable multi-row collection. A valid source date initializes one derived default; only an untouched collection may follow later source changes, while any user intervention protects the collection from source overwrite and leaves differences as explicit drift.
+- Linked Quote/SalesOrder share only the current customer-confirmed price and confirmed labor price; both Quote and Order surfaces may edit those shared values with trusted actor/time/old/new audit. Historical Quote snapshots remain immutable, full PriceVersions and all other pricing facts remain independent, and unlinked orders receive no fabricated Quote relation.
 - C1 and C2 are complete. The fixed `zhixu-database / zhixu` has the canonical 54-permission catalog, `role-server-admin`, existing admin binding and `order.view`; real trusted admin API acceptance and Browser same-origin shadow acceptance both passed.
 - C2.2 used the merged production-shaped Node static runtime at `http://127.0.0.1:3002/order-center/server-preview`. Anonymous/login-required, user-entered admin login, trusted identity, `order.view`, 511-row PostgreSQL list, hard-refresh session restore, orderNo/BillNo/style search, `draft`/`ainuoke` filters, pagination, normal detail, zero-color detail, logout and post-logout anonymous refresh all passed.
 - Safe auth baseline successful/failed/sessions/active/revoked=`3/0/2/1/1`; post-acceptance=`5/0/4/2/2`. Two successful manual logins were recorded while locating the correct Browser surface; the tested Browser session was revoked by logout and the other new active session was not deleted or revoked. These are the only real writes in C2.2.
@@ -28,7 +33,7 @@
 - Real visual acceptance passed at 1280×800 and 1600×900. The page had no document-level horizontal overflow; header/source/search/filter/sort/table/action/pagination remained usable, and both the drawer and zero-color empty state remained readable.
 - PostgreSQL rows never entered `/order-center/detail` or any Browser save/edit/cancel/delete/reorder/attachment path. Browser OrderRepository, new/detail, manual create, Quote-to-order and reorder code remain retained, unmigrated and unmodified; Scheduling, Closing and Style Progress remain Browser-owned and unmigrated.
 - Safe auth counts successful/failed/v1 sessions/active/revoked moved only from `5/0/4/2/2` to `6/0/5/2/3`. SalesOrder aggregate/link/contract/color/log stayed `511/511/511/1348/511`; fingerprint `321bf4319b30ce672302a49b9cf1a33c` and sequence `511/true` stayed unchanged. `app_users=2`, admin core, 54-permission RBAC and `order.view` stayed unchanged; all non-auth business writes were 0.
-- The temporary 3002 server was stopped; the database and legacy 3000 runtime stayed healthy. `PRODUCTION_ORDER_LIST_POSTGRESQL_READY=YES`, `REAL_PRODUCTION_ORDER_LIST_ACCEPTANCE=PASS`, **C3=COMPLETE**. Next Gate is **C4 — Base Detail + Server Extensions**, but C4 is not authorized and has not started.
+- The temporary 3002 server was stopped; the database and legacy 3000 runtime stayed healthy. `PRODUCTION_ORDER_LIST_POSTGRESQL_READY=YES`, `REAL_PRODUCTION_ORDER_LIST_ACCEPTANCE=PASS`, **C3=COMPLETE**. The next proposed Gate is **C4.1 — Server Base Detail Read Cutover**, using only already-authoritative PostgreSQL facts; it is not implemented or authorized by this docs-only branch.
 
 ## Previous completed Phase 2B3B.1 task
 

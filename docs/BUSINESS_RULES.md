@@ -106,21 +106,33 @@
 
 ## 新订单中心
 
+### C4 已确认的正式所有权边界
+
+- 对 Ainuoke-backed SalesOrder，经真实 report metadata/rows 证明的 Ainuoke 字段是权威 source facts，织序不得直接覆写。需要不同运营/业务值时，必须放入可与 source mirror 区分的 Zhixu-owned 字段或独立 domain。Source drift/conflict 可显式呈现，不得通过改写用户业务值静默解决。该原则覆盖已证明的 BillNo/SalesContractNo、InsideOrderNo、source lifecycle、contract/process delivery date、source quantity、source style/customer/brand/company 和 6087105 color enrichment；未证明字段不得猜测映射。
+- Customer PO 属于 Ainuoke source，织序用户不可编辑，它不是唯一订单身份，也不得成为用户维护的替代值。当前 6086103 `QuotationNo` 已证明不是 Customer PO，具体 Direct API source mapping 仍为 **NOT YET PROVEN**；在真实 metadata/rows 证明前，正式 server/UI 值必须保持 null/只读。
+- Ainuoke source order quantity 为正式 Ainuoke-backed SalesOrder 的权威数量且不可由织序用户编辑；不建立可编辑的正式商业数量 baseline。Scheduling quantities 是独立事实，order quantity 变化不自动改写 schedule quantities。后续 source quantity 变化可生成 drift/reconciliation evidence，但不授权人工改写 source quantity。
+- 订单业务“业务员”指品牌/客户侧业务员，不是织序 authenticated user，不得映射 `app_users`。未来 server 模型可使用 customer/brand personnel master + order-time snapshot，但具体 schema 尚未实现。理单员若是不同业务语义，仍保持 pending，不得默认归入 `app_users`。
+- Production country 只属于 Quote / Quote PriceVersion 上下文；正式 server SalesOrder 不增加 `productionCountry`，也不迁移 Browser 同名字段。Scheduling `ProductionSite`/实际执行地是不同业务概念，不得重命名或混同。
+- Ainuoke 工艺单/合同交期是只读 source fact。Zhixu `DeliveryPlan` 是可编辑、可展开多行的客户交付要求/计划 domain，修改计划不得改写 source delivery date；详情后续必须将 source date 以弱化的次要文字另行保留。
+- Ainuoke SalesOrder 首次创建且存在有效 source delivery date 时，初始化一条同日期的默认 DeliveryPlan。只要用户从未编辑、拆分、新增或其他手工改动整个集合，该 untouched system-derived default 才可跟随后续 source date 变化。一旦发生任何用户介入，整个 DeliveryPlan collection 转为 Zhixu-owned；后续 source refresh 只更新 source fact，不覆写用户计划，差异只通过 drift/reconciliation 显式呈现。具体 flag/列名由后续实现决定，但必须能确定性区分两种所有权状态。
+- 对已在同一业务流中关联的 Quote 与 SalesOrder，“客户确认价格”和“确认工价”分别是一个共享的当前业务事实。Quote Center 与 Order Detail 都可编辑这两项当前值，任一修改都必须在另一表面读到同一结果，并用可信 actor 记录 timestamp、old value 和 new value。概念 domain 可称为 `ConfirmedCommercialTerms`，但本规则不锁定 SQL/API 名称。历史 Quote Revision/PriceVersion 快照不回写；完整 Quote/Order PriceVersion 不做 live-link，面辅料成本、margin、汇率、加工假设、Quote production country 及其他字段仍独立。未关联 Quote 的 SalesOrder 不得伪造 Quote 关系。
+- 上述 C4 规则已经确认，但尚未实现。Customer/Brand master mapping、orderDate 语义、source style 向 Zhixu Style master 的长期关系、超出当前 source/adjustment 规则的颜色人工模型、settlement/pricing basis、execution snapshots、attachments、process/customer requirement/inspection/remark 语义以及 Browser retirement 细节仍为 pending。
+
 - `SalesOrder` 同时是订单身份和单款执行单位；一张 SalesOrder 只允许一个款式。同一客户 PO 可以对应多张不同订单，但订单号 trim + case normalize 后必须唯一。
-- 订单来源为 `manual | quote | reorder`。报价生成订单时，Quote/Revision/PriceVersion 来源 ID 直接保存在 SalesOrder；翻单只保存 `sourceOrderId` 并生成新的 SalesOrder 与 P1，`sourceOrderItemId` 已废弃。
-- Quote 转单选择明确 Revision 和 PriceVersion，并把款式、执行面辅料、工价、币种、汇率、附件引用等形成订单快照。后续 Quote 修改不得回写订单；执行资料不得携带报价成本、损耗、单耗或利润字段。
-- SalesOrder 有效数量以 `initialQuantity + quantityChanges[]` 计算。`OrderQuantityChange.salesOrderId` 直接归属订单，数量变更追加保存，部分/全部取消必须保留原因与历史；数量变化不会自动改写交期。
-- 客户交期是 SalesOrder 下 0..N 条 `DeliveryPlan`，owner 为 `salesOrderId`。不足、匹配和超额只产生提示，不自动分配或重算。
-- `OrderPriceVersion.salesOrderId` 直接归属 SalesOrder；`SalesOrder.currentPriceVersionId` 是当前成交价格的唯一权威指针，不得按数组位置、版本号或时间推断。
+- 订单来源为 `manual | quote | reorder | ainuoke`。报价生成订单时，Quote/Revision/PriceVersion 来源 ID 直接保存在 SalesOrder；翻单只保存 `sourceOrderId` 并生成新的 SalesOrder 与 P1，`sourceOrderItemId` 已废弃。
+- 当前 Browser legacy Quote 转单会选择明确 Revision 和 PriceVersion，并把款式、执行面辅料、工价、币种、汇率、附件引用等形成订单快照。该历史快照不随后续 Quote 修改而回写，执行资料也不携带报价成本、损耗、单耗或利润字段；但这不取消上述两项共享当前商业条款的特例。
+- 当前 Browser legacy `SalesOrder` 仍以 `initialQuantity + quantityChanges[]` 计算有效数量，`OrderQuantityChange` 追加保留原因与历史。该实现不得被照搬为正式 Ainuoke-backed SalesOrder 的可编辑商业数量 baseline；数量变化也不自动改写交期或排单数量。
+- 客户交付计划是 SalesOrder 下 0..N 条 `DeliveryPlan`，owner 为 `salesOrderId`。不足、匹配和超额只产生提示，不自动分配或重算；对 Ainuoke-backed SalesOrder 还必须遵守上述 derived-default 与 user-managed collection 的所有权切换规则。
+- 当前 Browser legacy `OrderPriceVersion.salesOrderId` 直接归属 SalesOrder，`currentPriceVersionId` 是该 Browser 价格历史的权威指针；未来正式共享当前客户确认价格/确认工价不得依赖 Quote 与 Order 各自指针生成两份可漂移值。
 - 生产关系为 `SalesOrder → ScheduleAssignment[]`；`ClosingAllocation.salesOrderId` 直接关联订单，`scheduleAssignmentId` 可空且必须保持稳定。
-- 订单价格历史是 append-only `OrderPriceVersion[]`，`currentPriceVersionId` 是唯一权威指针；调价必须填写原因，指针损坏时拒绝 fallback。
+- 当前 Browser legacy 订单价格历史是 append-only `OrderPriceVersion[]`，`currentPriceVersionId` 是该历史的唯一权威指针；调价必须填写原因，指针损坏时拒绝 fallback。该指针不代替链接 Quote/Order 的共享当前商业条款。
 - 翻单只继承来源款式当前有效数量、当前价格和执行/附件快照，并以新 P1 开始；不复制来源数量变化、交期或价格历史，也不修改来源订单。
 - 确认订单将状态从草稿变为已确认；确认前执行完整性校验。排单与关账摘要都由对应 Service 从独立事实投影，不在 SalesOrder 保存第二套状态。
 - 订单附件复用 AttachmentRepository 中的 Blob，只保存附件 ID 引用；订单引用存在时，Quote 侧不得删除底层 Blob。
 - 全局操作日志需要 `audit_log.view`；默认只有管理员具备该权限。
 - 当前 localStorage 实现不是生产级不可篡改审计存储；未来服务端必须在业务事务成功后由后端追加。
 - 订单列表的交期月份筛选读取有效 `DeliveryPlan` 的月份；不得用下单日期或排单月份代替。
-- `salesContractNo`、`factoryStyleNo` 与订单来源由正式来源快照决定，订单详情只读；客户 PO、客户和制作国家不在日常编辑区重复维护。
+- `salesContractNo`、`factoryStyleNo` 与订单来源由正式 source mirror 决定，订单详情只读；Customer PO 同样是 Ainuoke-owned 只读 source，当前映射未证明时保持 null。客户/Brand 的 server master mapping 仍待决；Quote 制作国家不进入正式 SalesOrder。
 - 颜色级部分取消以 append-only adjustment 保存，不覆盖来源颜色行。有效颜色数量 = 来源数量 + 该颜色全部 adjustment；艾诺科重同步只能更新来源数量，必须保留人工 adjustment。
 - 系统 `defaultProcessingCurrency` 只初始化新建手工订单、新价格调整和新关账记录，当前默认值为 USD；既有订单价格、Quote 快照与 Closing 快照不得随设置变化重算。
 
