@@ -4,8 +4,8 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 `feat/postgres-order-detail-cutover`，起点为 `7b8c483487514f77de546db178edfbffc52bfd69`（C4.0 docs PR #34 merge）。C3 与 C4.0 已完成；本轮只实施 C4.1 authoritative base-detail read cutover，不实施任何 owned-domain mutation、schema 或真实验收。
-- 当前稳定基线：GitHub `main` 为 `7b8c483487514f77de546db178edfbffc52bfd69`（PR #34 已 merged）。
+- 当前 Active Task 为 docs-only `docs/c4-1-production-detail-acceptance`，起点为 `c38e80a44eed384c0d09f9a0317bd14122763865`（C4.1 implementation PR #35 merge）。C4.1 真实 production-detail Browser 验收已 PASS；本分支只记录验收事实，不修改 code/schema/API 或业务数据。
+- 当前稳定基线：GitHub `main` 为 `c38e80a44eed384c0d09f9a0317bd14122763865`（PR #35 已 merged）。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -15,7 +15,7 @@
 ## 当前可运行边界
 
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
-- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实 API、Browser shadow UI 和 production `/order-center` list 验收。Production base list 与 C4.1 detail implementation 均使用 trusted Server session + `order.view` 下的 PostgreSQL read model；`/order-center/server-preview` 继续保留为诊断入口，legacy 3000 runtime 暂时保留。
+- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实 API、Browser shadow UI、production `/order-center` list 与 C4.1 production detail 验收。Production base list/detail 均使用 trusted Server session + `order.view` 下的 PostgreSQL read model；`/order-center/server-preview` 继续保留为诊断入口，legacy 3000 runtime 暂时保留。
 
 ### Phase C4.1 — PostgreSQL Base Detail Read Cutover implementation
 
@@ -23,7 +23,10 @@
 - 详情延续 trusted Server session + `order.view`：anonymous 显示登录要求，detail 401 invalidate session，403 保留明确 permission-denied，404 明确订单不存在，Server/network failure 明确报错且没有 Browser fallback。`LocalDataBootstrap` 精确跳过 `/order-center`、`/order-center/server-preview` 与 `/order-center/server-detail`；legacy new/detail 及其他 Browser-owned route 仍按原逻辑初始化。
 - UI 将 Zhixu-owned aggregate facts 与 Ainuoke-authoritative source facts 分区。展示字段严格限定为 id/orderNo/version/creationSource/lifecycleState/createdAt/updatedAt、BillNo/InsideOrderNo/style/company/customer/brand/source quantity/contract dates/source lifecycle、colorCount 及 color name/quantity；InsideOrderNo 明确为 mutable source attribute，source quantity 与 contract/process delivery 均不可编辑。
 - 6087105 color-row `deliveryDate` 继续留在 typed/internal DTO，但初始 C4.1 UI 不展示。零颜色是合法 detail empty state。Customer PO、production country、DeliveryPlans、人员/master IDs、orderDate、quantity/color adjustments、共享确认价/工价、PriceVersion、附件、execution/settlement 与其他 blocked fields 全部缺席。
-- C4.1 仅使用 source/contract tests、mock 与 disposable PostgreSQL validation；没有 schema、真实 PostgreSQL/Auth/Browser/Ainuoke write，也没有执行真实 Browser production-detail acceptance。C4.1 真实验收必须在本 PR 合并后另行授权；C4 overall 仍未完成，C4.2+ 与 C5 未开始。
+- PR #35 merged main `c38e80a44eed384c0d09f9a0317bd14122763865` 已在 production-shaped `http://127.0.0.1:3002` 完成真实 C4.1 Browser 验收。Anonymous protection、本人输入 admin 密码、511-row list、list → Server detail PG UUID parity、normal source parity、hard refresh、return/reopen、zero-color、real 404、1280/wide visual、logout 与 post-logout protection 全部 PASS；未进入 Browser `/order-center/detail`。
+- 代表 normal order 为 `SO-00000001` / UUID `cae075db-e0b7-4d2c-8648-db092c7501a3` / BillNo `PI2505-075`；UI 的 InsideOrderNo、style/company/customer/brand source snapshots、5,000 source quantity、contract/process-sheet dates、Ainuoke/Zhixu lifecycle 与颜色 `酱紫色:5000` 全部匹配 PostgreSQL。`SO-00000015` 的 zero-color valid empty state PASS；不存在的合法 UUID 显示明确 404。
+- 验收前后 SalesOrder aggregate/link/contract/color/log 保持 `511/511/511/1348/511`，fingerprint 保持 `580696ff5c562493dea67f883df501cc`，sequence 保持 `511/true`。`app_users=2`、permissions=54、user/RBAC fingerprints 与 admin `order.view` 全部未变。Safe auth counts successful/failed/sessions/active/revoked 仅从 `6/0/0/0/0` 变为 `8/0/2/1/1`；测试 session 已 logout revoke，另一 active session 按协议保留。SalesOrder、Browser、Quote、DeliveryPlan、Scheduling、Closing、Style Progress、Ainuoke business writes 均为 0。
+- **C4.1 = COMPLETE**，但 C4 overall 仍为 INCOMPLETE。Customer PO mapping 仍未证明/未实现，DeliveryPlan 未实现。最终 Order Detail 必须显示共享当前“客户确认价格”和“确认工价”；它们在 C4.1 中缺席只是因为 `ConfirmedCommercialTerms` Server domain 尚未实现，下一建议 Gate 为需单独授权的 C4.2。C4.2 与 C5 均未开始。
 - 最终自动验证通过：C3/C4.1/shadow-read targeted `21/21`、ServerSession frontend `7/7`、disposable PostgreSQL `31/31`、full tests `622/622`，typecheck、lint、server build、frontend production build（`32` static routes）与 `git diff --check` 全部 PASS。
 
 ### Phase C3.1 — PostgreSQL Base Order List Cutover implementation
@@ -58,7 +61,7 @@
 - Logout 与 post-logout refresh 均返回 anonymous/login-required，订单行和 trusted identity 不再显示。Safe auth count successful/failed/v1 sessions/active/revoked 从 `5/0/4/2/2` 变为 `6/0/5/2/3`；只增加一次人工成功登录及对应 session，并由 logout 撤销。未清理或撤销其他 session。
 - 验收前后 SalesOrder aggregate/link/contract/color/log 保持 `511/511/511/1348/511`，deterministic fingerprint `321bf4319b30ce672302a49b9cf1a33c` 未变，sequence 保持 `511/true`。`app_users=2`、admin core fingerprint、54 项 RBAC catalog fingerprint 与 admin `order.view` 均未变；Browser/Ainuoke/Quote/Scheduling/Closing/Style Progress business writes 均为 0。
 - Browser OrderRepository 保留、未迁移、未删除、未改写；manual create、Quote-to-order、reorder、full editable detail、Scheduling、Closing 与 Style Progress 均未迁移。本次临时 3002 server 已停止，`zhixu-database` 与 legacy 3000 runtime 保持 healthy。
-- `PRODUCTION_ORDER_LIST_POSTGRESQL_READY=YES`、`REAL_PRODUCTION_ORDER_LIST_ACCEPTANCE=PASS`、**C3=COMPLETE**。下一 Gate 是 **C4 — Base Detail + Server Extensions**，但 C4 尚未授权且本轮未开始。
+- `PRODUCTION_ORDER_LIST_POSTGRESQL_READY=YES`、`REAL_PRODUCTION_ORDER_LIST_ACCEPTANCE=PASS`、**C3=COMPLETE**。C4.1 已在后续独立 Gate 完成；见上方当前状态。
 
 ### Phase C2.2 — Real Browser Authenticated Shadow Acceptance
 
@@ -371,7 +374,7 @@
 
 ## 尚未落地
 
-- Production `/order-center` base list 已完成 PostgreSQL read cutover，但 full detail/write cutover 与 Browser store retirement 尚未落地。C4.0 业务所有权决策已记录，但 C4 实现尚未开始；下一建议 Gate 是需单独授权的 C4.1 Server Base Detail Read Cutover。
+- Production `/order-center` base list 与 authoritative base-detail read cutover 均已完成；write cutover 与 Browser store retirement 尚未落地。C4.1 已完成但 C4 overall 仍不完整；下一建议 Gate 是需单独授权的 C4.2 `ConfirmedCommercialTerms` Server Domain。
 - Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
 - SalesOrder 已有 bounded search/filter/sort/pagination；其他服务端业务列表与通用全文搜索仍未落地。migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。

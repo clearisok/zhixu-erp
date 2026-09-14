@@ -11,17 +11,20 @@
 
 ## Current Stable Main
 
-`7b8c483487514f77de546db178edfbffc52bfd69`（C4.0 confirmed ownership docs PR #34 已 merged）
+`c38e80a44eed384c0d09f9a0317bd14122763865`（C4.1 implementation PR #35 已 merged）
 
 ## Current Active Task
 
-- Branch: `feat/postgres-order-detail-cutover`
-- Baseline: `7b8c483487514f77de546db178edfbffc52bfd69` (`origin/main`, PR #34 merge commit).
+- Branch: `docs/c4-1-production-detail-acceptance`
+- Baseline: `c38e80a44eed384c0d09f9a0317bd14122763865` (`origin/main`, PR #35 merge commit).
 - C4.1 implements the production PostgreSQL base-detail read cutover at `/order-center/server-detail?id=<PG UUID>`. The static route is deliberately separate from legacy Browser `/order-center/detail`; the production list now navigates to it and never sends a PG UUID to `OrderDetailLoader`.
 - The dedicated detail uses only `serverSalesOrderReadRepository.getById` and the trusted Server session + `order.view` boundary. It provides explicit anonymous/login-required, 401 expiry invalidation, 403, 404 and server-unavailable states without Browser fallback. The exact route skips `LocalDataBootstrap`, while Browser new/detail and other legacy routes retain their existing initialization path.
 - UI sections distinguish Zhixu-owned aggregate facts from read-only Ainuoke source facts. It displays only id/orderNo/version/creationSource/lifecycle/timestamps, BillNo/InsideOrderNo/style/company/customer/brand/source quantity/contract dates/source status, colorCount and color name/quantity. Color-row delivery remains typed/internal but is not displayed; a zero-color slice remains a valid SalesOrder.
 - Customer PO, master IDs, personnel, order date, production country, DeliveryPlans, quantity/color adjustments, confirmed commercial terms, prices, attachments, execution/settlement and free-text fields remain absent. No schema, mutation API, Browser migration or real environment write is part of C4.1.
-- C4.1 automated implementation validation passed: targeted C3/C4.1/shadow-read `21/21`, ServerSession frontend `7/7`, disposable PostgreSQL `31/31`, full tests `622/622`, typecheck, lint, server build, frontend production build (`32` static routes) and `git diff --check`. Real production-detail Browser acceptance is a separate post-merge Gate and has **NOT BEEN EXECUTED**. C4 overall is not complete; C4.2+ and C5 have not started.
+- C4.1 automated implementation validation passed: targeted C3/C4.1/shadow-read `21/21`, ServerSession frontend `7/7`, disposable PostgreSQL `31/31`, full tests `622/622`, typecheck, lint, server build, frontend production build (`32` static routes) and `git diff --check`.
+- Real C4.1 Browser acceptance passed on the merged `c38e80a...` production-shaped runtime at `http://127.0.0.1:3002`. Anonymous protection, user-entered admin login, 511-row PostgreSQL list, list → Server detail UUID parity, authoritative normal detail, hard-refresh restore, return/reopen, zero-color valid empty state, explicit 404, 1280/wide visual inspection, logout and post-logout detail protection all passed. No PG UUID entered Browser `/order-center/detail` and no Browser repository or mutation control mounted.
+- SalesOrder aggregate/link/contract/color/log stayed `511/511/511/1348/511`; fingerprint `580696ff5c562493dea67f883df501cc` and sequence `511/true` were unchanged. `app_users=2`, all user/RBAC fingerprints, permissions=54 and admin `order.view` were unchanged. Safe auth counts successful/failed/sessions/active/revoked moved only from `6/0/0/0/0` to `8/0/2/1/1`; the tested session was revoked and the other active session was preserved. No business write occurred.
+- **C4.1 = COMPLETE**, but C4 overall remains incomplete. `ConfirmedCommercialTerms` is the next recommended Server-domain Gate: final Order Detail must show the shared current customer-confirmed price and confirmed labor price once implemented. DeliveryPlan remains not implemented, Customer PO mapping remains unproven/not implemented, C4.2 has not started and C5 has not started.
 - For Ainuoke-backed SalesOrders, proven Ainuoke facts remain authoritative/read-only and distinct from Zhixu-owned values. Customer PO is Ainuoke-owned/non-unique but its Direct API mapping is **NOT YET PROVEN**, so it remains null/read-only until actual evidence exists. Source order quantity is read-only; Scheduling quantities remain separate.
 - Business salesperson means brand/customer-side personnel and must never map to `app_users`; merchandiser semantics remain pending. Production country remains only in Quote/Quote PriceVersion and must not be added to formal SalesOrder; Scheduling `ProductionSite` is distinct.
 - Ainuoke contract/process delivery remains immutable source. Zhixu `DeliveryPlan` is a separate editable multi-row collection. A valid source date initializes one derived default; only an untouched collection may follow later source changes, while any user intervention protects the collection from source overwrite and leaves differences as explicit drift.
@@ -37,7 +40,7 @@
 - Real visual acceptance passed at 1280×800 and 1600×900. The page had no document-level horizontal overflow; header/source/search/filter/sort/table/action/pagination remained usable, and both the drawer and zero-color empty state remained readable.
 - PostgreSQL rows never entered `/order-center/detail` or any Browser save/edit/cancel/delete/reorder/attachment path. Browser OrderRepository, new/detail, manual create, Quote-to-order and reorder code remain retained, unmigrated and unmodified; Scheduling, Closing and Style Progress remain Browser-owned and unmigrated.
 - Safe auth counts successful/failed/v1 sessions/active/revoked moved only from `5/0/4/2/2` to `6/0/5/2/3`. SalesOrder aggregate/link/contract/color/log stayed `511/511/511/1348/511`; fingerprint `321bf4319b30ce672302a49b9cf1a33c` and sequence `511/true` stayed unchanged. `app_users=2`, admin core, 54-permission RBAC and `order.view` stayed unchanged; all non-auth business writes were 0.
-- The temporary 3002 server was stopped; the database and legacy 3000 runtime stayed healthy. `PRODUCTION_ORDER_LIST_POSTGRESQL_READY=YES`, `REAL_PRODUCTION_ORDER_LIST_ACCEPTANCE=PASS`, **C3=COMPLETE**. The next proposed Gate is **C4.1 — Server Base Detail Read Cutover**, using only already-authoritative PostgreSQL facts; it is not implemented or authorized by this docs-only branch.
+- The temporary C3.2 3002 server was stopped; the database and legacy 3000 runtime stayed healthy. `PRODUCTION_ORDER_LIST_POSTGRESQL_READY=YES`, `REAL_PRODUCTION_ORDER_LIST_ACCEPTANCE=PASS`, **C3=COMPLETE**. C4.1 has since completed as recorded above.
 
 ## Previous completed Phase 2B3B.1 task
 
