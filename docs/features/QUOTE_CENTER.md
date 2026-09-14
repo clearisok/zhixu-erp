@@ -1,5 +1,15 @@
 # Quote Center
 
+## C4.2 linked current confirmation boundary
+
+- The current default Quote Revision/PriceVersion now resolves formal linkage through the trusted Server by exact `quoteId + revisionId + priceVersionId` only. No quote code/style/customer/brand/date/price or Browser SalesOrder ID inference is allowed.
+- If exact provenance is unlinked, the existing Browser-local confirmation workflow remains active. This is not a duplicate shared authority because no formal SalesOrder relation exists.
+- If exact provenance is linked, customer-confirmed price and confirmed labor price (plus the PriceVersion's actual `CNY|USD` labor qualifier) read/write the shared Server `ConfirmedCommercialTerms`. The linked branch does not call `mockQuoteRepository.save` for these numeric values and does not fall back locally on anonymous session, 401, 403, conflict or Server failure.
+- Linked stale `expectedVersion` returns 409; the UI reloads current Server values and asks the user to review. The trusted session and `quote.view`/`quote.confirm` remain distinct from Browser mock identity/permissions.
+- The active PriceVersion confirmation card, cockpit and sticky summary project linked confirmation from Server current terms. The quote-wide `aggregateStatus` remains the legacy Browser aggregate until a later formal Quote migration can resolve every PriceVersion together; C4.2 does not duplicate numeric values locally merely to rewrite that aggregate.
+- Historical Quote Revision/PriceVersion pages continue to display their embedded immutable confirmation snapshots. New revisions and copied PriceVersions are not assumed linked and do not inherit a Server relationship. Confirmation note and every other PriceVersion field remain local/snapshot semantics; fabric/trim costs, markup, exchange rate, manufacturing country and assumptions are not live-linked.
+- C4.2 contains no migration of real Browser confirmations and no real Browser write acceptance. Real PostgreSQL activation is separately gated.
+
 ## Purpose
 
 Quote Center 是面向成衣报价工作的新版前端模块，提供完整报价快照、并列价格版本、细分成本、客户确认和报价列表管理。它目前与根路径 ERP 的旧报价模型隔离。

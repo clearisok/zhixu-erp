@@ -94,6 +94,12 @@ import { QuickMasterDataCreate, type QuickMasterDataRequest } from "@/features/b
 import { PriceVersionCostSyncModal, PriceVersionDifferencesModal } from "./price-version-cost-sync-modal";
 import { orderRepository } from "@/features/order-center";
 import { QuoteToOrderModal } from "@/features/order-center/components/quote-to-order-modal";
+import { useServerSession } from "@/features/server-auth";
+import {
+  ConfirmedCommercialTermsServerError,
+  confirmedCommercialTermsServerClient,
+  type ConfirmedCommercialTermsDto,
+} from "@/features/confirmed-commercial-terms";
 
 type VersionModalState = { mode: "copy" | "edit"; sourceId: string } | null;
 type MasterSwitchIntent = { kind: "brand" | "salesperson"; value: string; label: string } | null;
@@ -119,6 +125,7 @@ function estimateId() {
 export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quote; isNew?: boolean }) {
   const router = useRouter();
   const { can, currentUser } = usePermissions();
+  const serverSession = useServerSession();
   const [quote, setQuote] = useState<Quote>(initialQuote);
   const initialRevision = getDefaultRevision(initialQuote);
   const [viewedRevisionId, setViewedRevisionId] = useState(initialRevision.revisionId);
@@ -157,6 +164,8 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [confirmationDraft, setConfirmationDraft] = useState({ labor: "", garment: "", note: "" });
   const [confirmationError, setConfirmationError] = useState("");
+  const [serverTerms, setServerTerms] = useState<ConfirmedCommercialTermsDto | null>(null);
+  const [serverTermsState, setServerTermsState] = useState<"idle" | "loading" | "ready" | "login_required" | "forbidden" | "error">("idle");
   const [revisionManagerOpen, setRevisionManagerOpen] = useState(false);
   const [operationLogOpen, setOperationLogOpen] = useState(false);
   const [priceSyncRequest, setPriceSyncRequest] = useState<PriceSyncRequest>(null);
@@ -171,6 +180,12 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   const revision = quote.revisions.find((item) => item.revisionId === viewedRevisionId) ?? currentRevision;
   const isHistorical = revision.revisionId !== quote.defaultRevisionId;
   const activeVersion = revision.priceVersions.find((version) => version.id === activePriceId) ?? revision.priceVersions[0];
+  const activeServerTerms = serverTerms?.quoteProvenance?.quoteId === quote.id
+    && serverTerms.quoteProvenance.revisionId === revision.revisionId
+    && serverTerms.quoteProvenance.priceVersionId === activeVersion?.id
+    ? serverTerms
+    : null;
+  const activeServerTermsState = serverTermsState === "ready" && !activeServerTerms ? "loading" : serverTermsState;
   const activePriceDisplayName = revision.priceVersions.length === 1 ? BASE_PRICE_VERSION_NAME : activeVersion?.name;
   const activeProductionLabel = activeVersion?.pricingParameters.manufacturingPresetName || activeVersion?.pricingParameters.manufacturingCountry || "未设置制作国家";
   const liveRevisionValidationIssues = validateRevisionUpdate(revision).issues;
@@ -183,6 +198,11 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
     partially_confirmed: "部分确认",
     confirmed: "已确认",
   }[quote.aggregateStatus];
+  const activeConfirmationLabel = !isHistorical && activeServerTerms?.linkage === "linked"
+    ? activeServerTerms.current?.confirmedLaborPrice !== null && activeServerTerms.current?.confirmedLaborPrice !== undefined
+      ? "已确认（Server current）"
+      : "未确认（Server current）"
+    : confirmationSummaryLabel(revision.confirmationSummary);
   const brandOptions = masterData.brands.filter((brand) => brand.status === "active").map((brand) => ({ value: brand.id, label: brand.name }));
   const salespersonOptions = customerSalespeopleForBrand(masterData, revision.baseInfo.brandId).map((person) => ({ value: person.id, label: person.name }));
   const supplierOptions = supplierSuggestions(masterData);
@@ -246,6 +266,51 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   }, [isDirty]);
 
   useEffect(() => { Promise.resolve().then(() => setMasterData(loadBasicSettings())); }, []);
+
+  useEffect(() => {
+    let active = true;
+    void Promise.resolve().then(async () => {
+      if (!active) return;
+      if (isNew || isHistorical || !activeVersion) {
+        setServerTerms(null);
+        setServerTermsState("idle");
+        return;
+      }
+      if (serverSession.status === "checking") {
+        setServerTermsState("loading");
+        return;
+      }
+      if (serverSession.status !== "authenticated") {
+        setServerTerms(null);
+        setServerTermsState(serverSession.status === "anonymous" ? "login_required" : "error");
+        return;
+      }
+      if (!serverSession.hasPermission("quote.view")) {
+        setServerTerms(null);
+        setServerTermsState("forbidden");
+        return;
+      }
+      setServerTermsState("loading");
+      try {
+        const result = await confirmedCommercialTermsServerClient.getByQuote(quote.id, revision.revisionId, activeVersion.id);
+        if (!active) return;
+        setServerTerms(result);
+        setServerTermsState("ready");
+      } catch (error) {
+        if (!active) return;
+        setServerTerms(null);
+        if (error instanceof ConfirmedCommercialTermsServerError && error.status === 401) {
+          serverSession.invalidate();
+          setServerTermsState("login_required");
+        } else if (error instanceof ConfirmedCommercialTermsServerError && error.status === 403) {
+          setServerTermsState("forbidden");
+        } else {
+          setServerTermsState("error");
+        }
+      }
+    });
+    return () => { active = false; };
+  }, [activeVersion, isHistorical, isNew, quote.id, revision.revisionId, serverSession]);
 
   useEffect(() => {
     const target = titleSentinelRef.current;
@@ -531,10 +596,25 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   };
 
   const openConfirmation = () => {
-    const confirmation = activeVersion.confirmation;
+    if (!isHistorical && !isNew && activeServerTermsState !== "ready") {
+      notify(activeServerTermsState === "login_required"
+        ? "请先登录可信 Server 会话，再确认当前价格方案是否已关联正式订单。"
+        : activeServerTermsState === "forbidden"
+          ? "当前 Server 账号没有 quote.view 权限，不能安全解析共享确认条款。"
+          : "共享确认条款状态尚不可用；未写入本地确认值。");
+      return;
+    }
+    const linked = !isHistorical && activeServerTerms?.linkage === "linked";
+    const confirmation = linked ? activeServerTerms.current : activeVersion.confirmation;
     const preflight = validateCustomerConfirmation(revision, activeVersion, {
-      labor: confirmation?.confirmedLaborPrice ?? 0,
-      garment: revision.baseInfo.quoteType === "distribution" ? confirmation?.confirmedGarmentPrice ?? 0 : null,
+      labor: confirmation?.confirmedLaborPrice === null || confirmation?.confirmedLaborPrice === undefined ? 0 : Number(confirmation.confirmedLaborPrice),
+      garment: revision.baseInfo.quoteType === "distribution"
+        ? confirmation && "confirmedGarmentPrice" in confirmation
+          ? confirmation.confirmedGarmentPrice ?? 0
+          : confirmation?.customerConfirmedPrice === null || confirmation?.customerConfirmedPrice === undefined
+            ? 0
+            : Number(confirmation.customerConfirmedPrice)
+        : null,
     });
     if (!preflight.valid) {
       setConfirmationValidationIssues(preflight.issues.filter((issue) => !issue.code.startsWith("confirmation.")));
@@ -544,8 +624,10 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
     setConfirmationValidationIssues([]);
     setConfirmationDraft({
       labor: confirmation?.confirmedLaborPrice === null || confirmation?.confirmedLaborPrice === undefined ? "" : String(confirmation.confirmedLaborPrice),
-      garment: confirmation?.confirmedGarmentPrice === null || confirmation?.confirmedGarmentPrice === undefined ? "" : String(confirmation.confirmedGarmentPrice),
-      note: confirmation?.note ?? "",
+      garment: confirmation && "confirmedGarmentPrice" in confirmation
+        ? confirmation.confirmedGarmentPrice === null ? "" : String(confirmation.confirmedGarmentPrice)
+        : confirmation?.customerConfirmedPrice ?? "",
+      note: confirmation && "note" in confirmation ? confirmation.note : "",
     });
     setConfirmationError("");
     setConfirmationOpen(true);
@@ -560,6 +642,54 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
       return;
     }
     if (labor === null) return;
+    if (activeServerTerms?.linkage === "linked") {
+      if (serverSession.status !== "authenticated" || !serverSession.hasPermission("quote.confirm")) {
+        setConfirmationError("需要具有 quote.confirm 的可信 Server 会话；未写入本地确认值。");
+        return;
+      }
+      try {
+        const nextTerms = await confirmedCommercialTermsServerClient.updateByQuote(
+          quote.id,
+          revision.revisionId,
+          activeVersion.id,
+          {
+            expectedVersion: activeServerTerms.current?.version ?? 0,
+            customerConfirmedPrice: revision.baseInfo.quoteType === "distribution" ? confirmationDraft.garment : null,
+            confirmedLaborPrice: confirmationDraft.labor,
+            laborCurrency: activeVersion.pricingParameters.laborCurrency,
+          },
+        );
+        setServerTerms(nextTerms);
+        setConfirmationOpen(false);
+        notify(`已保存 ${activePriceDisplayName} 的 Server 共享确认条款`);
+      } catch (error) {
+        if (error instanceof ConfirmedCommercialTermsServerError && error.status === 401) {
+          serverSession.invalidate();
+          setConfirmationOpen(false);
+          notify("Server 会话已失效；未写入本地确认值。");
+          return;
+        }
+        if (error instanceof ConfirmedCommercialTermsServerError && error.status === 409) {
+          try {
+            const current = await confirmedCommercialTermsServerClient.getByQuote(quote.id, revision.revisionId, activeVersion.id);
+            setServerTerms(current);
+            setConfirmationDraft({
+              labor: current.current?.confirmedLaborPrice ?? "",
+              garment: current.current?.customerConfirmedPrice ?? "",
+              note: "",
+            });
+          } catch {
+            // Preserve the explicit optimistic-conflict message.
+          }
+          setConfirmationError("共享条款已被其他页面更新，已重新读取当前值；请核对后再保存。");
+          return;
+        }
+        setConfirmationError(error instanceof ConfirmedCommercialTermsServerError && error.status === 403
+          ? "当前 Server 账号没有 quote.confirm 权限。"
+          : "Server 共享条款保存失败；未回退写入 Quote 本地数值。");
+      }
+      return;
+    }
     const next = applyCustomerConfirmation(quote, activeVersion.id, labor, revision.baseInfo.quoteType === "distribution" ? garment : null, confirmationDraft.note);
     await mockQuoteRepository.save(next);
     await appendSavedOperationLogs(next);
@@ -772,8 +902,8 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
 
   return <AppShell title={isNew ? "新建报价" : "款式报价明细"} backTarget={{ href: "/quote-center", label: "返回报价中心" }} onRequestNavigation={requestNavigation}><PageContainer>
     <FormShell className="qc-page-form-shell" submitOnEnter={false} onSubmit={() => { if (!quoteReadOnly) return save(); }}>
-    <div ref={titleSentinelRef} className="qc-title-sentinel"><PageHeader className="qc-quote-object-header" variant="object" eyebrow="QUOTE WORKSPACE" title={pageTitle} description={<span className="qc-quote-object-description"><strong>{pageSubtitle}</strong><span className="qc-workspace-metadata"><b>{revision.baseInfo.brandName || "未填写品牌"}</b><span>{revision.baseInfo.salespersonName || "未填写客户业务员"}</span><span>{revision.baseInfo.quoteType === "distribution" ? "经销报价" : "加工报价"}</span><span>{quoteStatusLabel}</span><span>报价编号 {quote.quoteCode}</span><span>{isHistorical ? "历史只读" : "当前编辑"}</span></span></span>} actions={headerActions} /><QuoteCockpit version={activeVersion} revisionLabel={revision.revisionLabel} priceVersionLabel={activePriceDisplayName} productionLabel={activeProductionLabel} confirmationLabel={confirmationSummaryLabel(revision.confirmationSummary)} differenceCount={unconfirmedCostDifferences.length} historical={isHistorical} onDifferenceClick={() => setPriceDifferencesOpen(true)} onFinalQuoteClick={() => setBreakdownOpen(true)} settingsAction={<Button permission="quote.settings.edit" variant="text" onClick={() => setPricingOpen(true)}>报价设置</Button>} /></div>
-    <div className={`qc-sticky-header ${stickyVisible ? "is-visible" : ""}`} aria-hidden={!stickyVisible}><div className="qc-sticky-summary"><strong>{pageTitle}</strong><small>{pageSubtitle} · {revision.baseInfo.brandName || "未填写品牌"} · {revision.baseInfo.salespersonName || "未填写业务员"}</small></div><div className="qc-sticky-state"><span>{revision.revisionLabel} · {activePriceDisplayName}</span><span>{activeProductionLabel} · {revision.baseInfo.quoteType === "distribution" ? "经销" : "加工"}</span><span>{activeVersion.quantity === null ? "数量未填写" : `${activeVersion.quantity.toLocaleString("zh-CN")} 件`} · 成衣 {formatFinalGarmentPrice(metrics?.garmentSellingPrice ?? null)}</span><span>工价 {activeVersion.labor.value === null ? "—" : activeVersion.labor.value.toFixed(2)} {activeVersion.pricingParameters.laborCurrency} · {confirmationSummaryLabel(revision.confirmationSummary)}</span><b>{isDirty ? "有未保存修改" : "已保存"}</b></div><div className="qc-sticky-actions">{!isHistorical && <Button permission="quote.edit" onClick={save}>保存</Button>}{!isNew && <Button permission="order.create" variant="secondary" onClick={() => setQuoteToOrderOpen(true)}>生成订单</Button>}</div></div>
+    <div ref={titleSentinelRef} className="qc-title-sentinel"><PageHeader className="qc-quote-object-header" variant="object" eyebrow="QUOTE WORKSPACE" title={pageTitle} description={<span className="qc-quote-object-description"><strong>{pageSubtitle}</strong><span className="qc-workspace-metadata"><b>{revision.baseInfo.brandName || "未填写品牌"}</b><span>{revision.baseInfo.salespersonName || "未填写客户业务员"}</span><span>{revision.baseInfo.quoteType === "distribution" ? "经销报价" : "加工报价"}</span><span>{quoteStatusLabel}</span><span>报价编号 {quote.quoteCode}</span><span>{isHistorical ? "历史只读" : "当前编辑"}</span></span></span>} actions={headerActions} /><QuoteCockpit version={activeVersion} revisionLabel={revision.revisionLabel} priceVersionLabel={activePriceDisplayName} productionLabel={activeProductionLabel} confirmationLabel={activeConfirmationLabel} differenceCount={unconfirmedCostDifferences.length} historical={isHistorical} onDifferenceClick={() => setPriceDifferencesOpen(true)} onFinalQuoteClick={() => setBreakdownOpen(true)} settingsAction={<Button permission="quote.settings.edit" variant="text" onClick={() => setPricingOpen(true)}>报价设置</Button>} /></div>
+    <div className={`qc-sticky-header ${stickyVisible ? "is-visible" : ""}`} aria-hidden={!stickyVisible}><div className="qc-sticky-summary"><strong>{pageTitle}</strong><small>{pageSubtitle} · {revision.baseInfo.brandName || "未填写品牌"} · {revision.baseInfo.salespersonName || "未填写业务员"}</small></div><div className="qc-sticky-state"><span>{revision.revisionLabel} · {activePriceDisplayName}</span><span>{activeProductionLabel} · {revision.baseInfo.quoteType === "distribution" ? "经销" : "加工"}</span><span>{activeVersion.quantity === null ? "数量未填写" : `${activeVersion.quantity.toLocaleString("zh-CN")} 件`} · 成衣 {formatFinalGarmentPrice(metrics?.garmentSellingPrice ?? null)}</span><span>工价 {activeVersion.labor.value === null ? "—" : activeVersion.labor.value.toFixed(2)} {activeVersion.pricingParameters.laborCurrency} · {activeConfirmationLabel}</span><b>{isDirty ? "有未保存修改" : "已保存"}</b></div><div className="qc-sticky-actions">{!isHistorical && <Button permission="quote.edit" onClick={save}>保存</Button>}{!isNew && <Button permission="order.create" variant="secondary" onClick={() => setQuoteToOrderOpen(true)}>生成订单</Button>}</div></div>
     <div className="qc-quote-functional-stack">
       <div className={`qc-quick-navigation-normal ${headerActionMode === "full" ? "" : "is-collapsed"}`}><QuoteQuickNavigation items={quickNavigationItems} /></div>
       <ValidationSummary issues={liveRevisionValidationIssues} title={isNew ? "完成新建报价前请完成以下内容" : isHistorical ? "当前报价版本尚有以下资料未完成" : "更新报价版本前请完成以下内容"} onSelect={isHistorical ? undefined : (issue) => { if (issue.priceVersionId) setActivePriceId(issue.priceVersionId); focusQuoteValidationIssue(issue); }} />
@@ -792,7 +922,7 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
       </Card></div>
       <div id="quote-section-other-costs" className="qc-page-section-anchor"><CostTable title="其他费用" description="包装、运输、管理分摊等费用" namePlaceholder="请输入费用名称" lines={activeVersion.otherCosts} onChange={updateOtherLine} onAdd={addOtherLine} onDelete={(lineId) => { defaultsStateRef.current.otherTouched = true; defaultsStateRef.current.otherAuto = false; updateActiveVersion((version) => ({ ...version, otherCosts: version.otherCosts.filter((line) => line.id !== lineId) })); }} /></div>
     </div></fieldset> : <Card className="qc-editor-surface qc-permission-cost-hidden"><strong>成本信息不可见</strong><p>暂无成本查看权限，请联系管理员。</p></Card>}
-    <section id="quote-section-confirmation" className="qc-workspace-reference qc-page-section-anchor"><div><span>客户确认</span><strong>{activeVersion.confirmation ? "当前价格方案已确认" : "当前价格方案未确认"}</strong><small>确认归属于 {revision.revisionLabel} · {activePriceDisplayName}</small></div>{!isNew && <Button permission="quote.confirm" variant="secondary" onClick={openConfirmation}>{activeVersion.confirmation ? "查看 / 更新确认" : "客户确认"}</Button>}</section>
+    <section id="quote-section-confirmation" className="qc-workspace-reference qc-page-section-anchor"><div><span>客户确认</span><strong>{isHistorical ? (activeVersion.confirmation ? "历史价格方案已确认" : "历史价格方案未确认") : activeServerTerms?.linkage === "linked" ? (activeServerTerms.current?.confirmedLaborPrice !== null && activeServerTerms.current?.confirmedLaborPrice !== undefined ? "Server 共享条款已确认" : "Server 共享条款未确认") : activeVersion.confirmation ? "当前价格方案已确认" : "当前价格方案未确认"}</strong><small>{isHistorical ? "历史快照只读" : activeServerTerms?.linkage === "linked" ? `Server current · v${activeServerTerms.current?.version ?? 0}` : activeServerTermsState === "ready" ? "未关联正式订单 · 保留本地确认流程" : "正在安全确认 Server 关联状态"} · {revision.revisionLabel} · {activePriceDisplayName}</small></div>{!isNew && <Button permission="quote.confirm" variant="secondary" onClick={openConfirmation}>{activeServerTerms?.linkage === "linked" ? "查看 / 更新共享条款" : activeVersion.confirmation ? "查看 / 更新确认" : "客户确认"}</Button>}</section>
     <div id="quote-section-attachments" className="qc-page-section-anchor"><QuoteAttachmentPanel revision={revision} readOnly={quoteReadOnly} createdBy={revision.baseInfo.salespersonName || currentUser.name} previewAttachmentId={attachmentPreviewId} onPreviewAttachmentIdChange={setAttachmentPreviewId} onChange={updateRevision} onAttachmentRemoved={(attachmentId) => { if (!quoteReferencesAttachment(quote, attachmentId, revision.revisionId)) pendingAttachmentDeletesRef.current.add(attachmentId); }} notify={notify} /></div>
     {!isNew && <section id="quote-section-history" className="qc-workspace-reference qc-page-section-anchor"><div><span>报价历史</span><strong>{revision.revisionLabel} · {revision.reason}</strong><small>QuoteRevision 是不可变报价快照；价格方案在当前快照内独立切换。</small></div><Button permission="quote.revision.view" variant="secondary" onClick={() => setRevisionManagerOpen(true)}>查看报价历史</Button></section>}
     </FormShell>
@@ -810,9 +940,9 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
     <Modal open={Boolean(pendingNavigation)} title="有未保存的修改" description="当前报价还有尚未保存的修改。离开后这些修改将丢失。" onClose={() => setPendingNavigation(null)} onSubmit={saveAndNavigate} footer={<><Button variant="danger" onClick={discardAndNavigate}>放弃修改</Button><Button variant="secondary" onClick={() => setPendingNavigation(null)}>继续编辑</Button><Button type="submit">保存并返回</Button></>}><p className="qc-unsaved-message">你可以保存当前报价后返回，也可以放弃本次修改。</p></Modal>
     <Modal open={deleteOpen} title="删除报价" description="删除后这张报价将从当前 mock repository 中移除。" onClose={() => setDeleteOpen(false)} onSubmit={deleteQuote} footer={<><Button variant="secondary" onClick={() => setDeleteOpen(false)}>取消</Button><Button type="submit" variant="danger">确认删除</Button></>}><p className="qc-unsaved-message">确定删除“{pageTitle}”吗？此操作需要再次确认。</p></Modal>
     <Modal open={Boolean(masterSwitchIntent)} title="更换默认资料来源" description="更换品牌 / 客户业务员可能会重新应用默认报价资料。" onClose={() => setMasterSwitchIntent(null)} onSubmit={() => { if (masterSwitchIntent) performMasterSwitch(masterSwitchIntent, "apply"); }} footer={<><Button variant="secondary" onClick={() => setMasterSwitchIntent(null)}>取消切换</Button><Button variant="secondary" onClick={() => masterSwitchIntent && performMasterSwitch(masterSwitchIntent, "keep")}>保留当前报价资料</Button><Button type="submit">应用新的默认资料</Button></>}><p className="qc-unsaved-message">应用新的默认资料会替换当前价格版本的默认辅料、汇率和默认其他费用；面料与工价不会被改写。</p></Modal>
-    <Modal open={confirmationOpen} title={`客户确认 · ${activePriceDisplayName}`} description={`确认结果归属于报价版本 ${revision.revisionLabel} + 当前价格版本，不会覆盖系统测算值。`} onClose={() => setConfirmationOpen(false)} onSubmit={saveConfirmation} footer={<><Button variant="secondary" onClick={() => setConfirmationOpen(false)}>取消</Button><Button type="submit">保存确认</Button></>}>
+    <Modal open={confirmationOpen} title={`客户确认 · ${activePriceDisplayName}`} description={activeServerTerms?.linkage === "linked" ? "当前数值写入 PostgreSQL 共享商业条款；不会改写 Quote 历史快照。" : `确认结果归属于报价版本 ${revision.revisionLabel} + 当前价格版本，不会覆盖系统测算值。`} onClose={() => setConfirmationOpen(false)} onSubmit={saveConfirmation} footer={<><Button variant="secondary" onClick={() => setConfirmationOpen(false)}>取消</Button><Button type="submit">保存确认</Button></>}>
       <div className="qc-confirmation-quoted"><span><small>系统报价工价</small><strong>{activeVersion.labor.value === null ? "—" : activeVersion.labor.value.toFixed(2)} {activeVersion.pricingParameters.laborCurrency} / 件</strong></span>{revision.baseInfo.quoteType === "distribution" && <span><small>系统报价成衣销售单价</small><strong>{metrics?.garmentSellingPrice === null || metrics?.garmentSellingPrice === undefined ? "—" : `${formatFinalGarmentPrice(metrics.garmentSellingPrice)} RMB / 件`}</strong></span>}</div>
-      <div className="qc-modal-form" data-validation-anchor="confirmation-fields"><FormItem label={`客户确认工价（${activeVersion.pricingParameters.laborCurrency} / 件）`} required><input className="qc-control" inputMode="decimal" value={confirmationDraft.labor} onChange={(event) => { if (/^\d*(?:\.\d*)?$/.test(event.target.value)) setConfirmationDraft({ ...confirmationDraft, labor: event.target.value }); }} placeholder="请输入客户确认工价" /></FormItem>{revision.baseInfo.quoteType === "distribution" && <FormItem label="客户确认成衣价格（RMB / 件）" required><input className="qc-control" inputMode="decimal" value={confirmationDraft.garment} onChange={(event) => { if (/^\d*(?:\.\d*)?$/.test(event.target.value)) setConfirmationDraft({ ...confirmationDraft, garment: event.target.value }); }} placeholder="请输入客户确认工价" /></FormItem>}<FormItem label="确认备注"><textarea className="qc-control" value={confirmationDraft.note} onChange={(event) => setConfirmationDraft({ ...confirmationDraft, note: event.target.value })} placeholder="可选" /></FormItem>{confirmationError && <p className="qc-form-alert">{confirmationError}</p>}</div>
+      <div className="qc-modal-form" data-validation-anchor="confirmation-fields"><FormItem label={`客户确认工价（${activeVersion.pricingParameters.laborCurrency} / 件）`} required><input className="qc-control" inputMode="decimal" value={confirmationDraft.labor} onChange={(event) => { if (/^\d*(?:\.\d*)?$/.test(event.target.value)) setConfirmationDraft({ ...confirmationDraft, labor: event.target.value }); }} placeholder="请输入客户确认工价" /></FormItem>{revision.baseInfo.quoteType === "distribution" && <FormItem label="客户确认成衣价格（RMB / 件）" required><input className="qc-control" inputMode="decimal" value={confirmationDraft.garment} onChange={(event) => { if (/^\d*(?:\.\d*)?$/.test(event.target.value)) setConfirmationDraft({ ...confirmationDraft, garment: event.target.value }); }} placeholder="请输入客户确认工价" /></FormItem>}{activeServerTerms?.linkage === "linked" ? <p>确认备注仍属于 Quote 快照，不作为共享 current 条款写入；本次仅保存两个确认金额及工价币种。</p> : <FormItem label="确认备注"><textarea className="qc-control" value={confirmationDraft.note} onChange={(event) => setConfirmationDraft({ ...confirmationDraft, note: event.target.value })} placeholder="可选" /></FormItem>}{confirmationError && <p className="qc-form-alert">{confirmationError}</p>}</div>
     </Modal>
     {!isNew && <RevisionManagerModal open={revisionManagerOpen} quote={quote} viewedRevisionId={revision.revisionId} onClose={() => setRevisionManagerOpen(false)} canUpdate={can("quote.revision.update")} canViewEstimate={can("estimate.view")} canEditEstimate={can("estimate.edit")} onView={selectViewedRevision} onCanUpdate={canUpdateRevision} onCreate={createRevision} onEstimateChange={changeEstimate} onEstimateGenerate={requestEstimateGeneration} onEstimateIgnoreStale={() => { setQuote((current) => ignoreEstimateCostForCurrentRevision(current)); setIsDirty(true); }} onEstimateRestore={restoreEstimate} />}
     {!isNew && <OperationLogModal open={operationLogOpen} quoteId={quote.id} onClose={() => setOperationLogOpen(false)} />}

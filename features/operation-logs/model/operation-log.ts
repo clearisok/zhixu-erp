@@ -96,6 +96,8 @@ export type OperationLogAction =
   | "修改交期"
   | "作废交期"
   | "修改订单基础信息"
+  | "确认商业条款"
+  | "修改确认商业条款"
   | "创建生产计划"
   | "修改生产计划"
   | "取消生产计划"
@@ -226,7 +228,7 @@ export type OperationLog = {
   /** 保存操作发生时的姓名快照，避免后续账号改名污染历史展示。 */
   userName: string;
   module: "报价中心" | "模板设置" | "权限管理" | "基础设置" | "系统设置" | "生产基础资料" | "订单中心" | "生产排单" | "关账中心" | "关账设置" | "艾诺科同步" | "艾诺科个人账号" | "款式进度";
-  entityType: "Quote" | "QuoteRevision" | "PriceVersion" | "FabricCostLine" | "TrimCostLine" | "LaborCost" | "OtherCostLine" | "Attachment" | "EstimateCost" | "Export" | "Template" | "User" | "Role" | "Brand" | "CustomerSalesperson" | "ManufacturingPreset" | "QuoteSettings" | "SalesOrder" | "OrderItem" | "DeliveryPlan" | "OrderQuantityChange" | "OrderPriceVersion" | "ProductionPlan" | "ScheduleAssignment" | "OrderExecutionTracking" | "ClosingPeriod" | "ClosingAllocation" | "ProductionGroup" | "OutsourceFactory" | "ProductionCalendar" | "ProductionSite" | "SupplyHub" | "SupplyRoute" | "TransportMode" | "MonthlyProductionTarget" | "ClosingSettings" | "AinuokeContract" | "AinuokeImportReview" | "AinuokeAccount" | "OrderColorLine" | "BrandAlias" | "PurchasedTrimCostRule" | "MaterialImportBatch" | "MaterialDemand" | "MaterialExpectedArrivalBatch";
+  entityType: "Quote" | "QuoteRevision" | "PriceVersion" | "FabricCostLine" | "TrimCostLine" | "LaborCost" | "OtherCostLine" | "Attachment" | "EstimateCost" | "Export" | "Template" | "User" | "Role" | "Brand" | "CustomerSalesperson" | "ManufacturingPreset" | "QuoteSettings" | "SalesOrder" | "OrderItem" | "DeliveryPlan" | "OrderQuantityChange" | "OrderPriceVersion" | "ConfirmedCommercialTerms" | "ProductionPlan" | "ScheduleAssignment" | "OrderExecutionTracking" | "ClosingPeriod" | "ClosingAllocation" | "ProductionGroup" | "OutsourceFactory" | "ProductionCalendar" | "ProductionSite" | "SupplyHub" | "SupplyRoute" | "TransportMode" | "MonthlyProductionTarget" | "ClosingSettings" | "AinuokeContract" | "AinuokeImportReview" | "AinuokeAccount" | "OrderColorLine" | "BrandAlias" | "PurchasedTrimCostRule" | "MaterialImportBatch" | "MaterialDemand" | "MaterialExpectedArrivalBatch";
   entityId: string;
   /** 独立索引字段，用于从报价详情聚合其 Revision、成本和附件日志。 */
   quoteId: string | null;

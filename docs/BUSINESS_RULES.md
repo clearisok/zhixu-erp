@@ -116,6 +116,7 @@
 - Ainuoke 工艺单/合同交期是只读 source fact。Zhixu `DeliveryPlan` 是可编辑、可展开多行的客户交付要求/计划 domain，修改计划不得改写 source delivery date；详情后续必须将 source date 以弱化的次要文字另行保留。
 - Ainuoke SalesOrder 首次创建且存在有效 source delivery date 时，初始化一条同日期的默认 DeliveryPlan。只要用户从未编辑、拆分、新增或其他手工改动整个集合，该 untouched system-derived default 才可跟随后续 source date 变化。一旦发生任何用户介入，整个 DeliveryPlan collection 转为 Zhixu-owned；后续 source refresh 只更新 source fact，不覆写用户计划，差异只通过 drift/reconciliation 显式呈现。具体 flag/列名由后续实现决定，但必须能确定性区分两种所有权状态。
 - 对已在同一业务流中关联的 Quote 与 SalesOrder，“客户确认价格”和“确认工价”分别是一个共享的当前业务事实。Quote Center 与 Order Detail 都可编辑这两项当前值，任一修改都必须在另一表面读到同一结果，并用可信 actor 记录 timestamp、old value 和 new value。概念 domain 可称为 `ConfirmedCommercialTerms`，但本规则不锁定 SQL/API 名称。历史 Quote Revision/PriceVersion 快照不回写；完整 Quote/Order PriceVersion 不做 live-link，面辅料成本、margin、汇率、加工假设、Quote production country 及其他字段仍独立。未关联 Quote 的 SalesOrder 不得伪造 Quote 关系。
+- C4.2 implementation 将该规则落为独立 Server current domain：客户确认价格固定解释为 CNY/件；确认工价保留明确的 `CNY|USD` 币种，金额缺失保持 `NULL` 而不是 0。精确 Quote provenance 可由多张 formal SalesOrder 共享同一个 terms identity；无 Quote provenance 的 SalesOrder 只创建自己的 order-owned context。该实现规则不迁移 Browser confirmation，不改变历史 Quote snapshot，也不授权真实数据库 activation。
 - 上述 C4 规则已经确认，但尚未实现。Customer/Brand master mapping、orderDate 语义、source style 向 Zhixu Style master 的长期关系、超出当前 source/adjustment 规则的颜色人工模型、settlement/pricing basis、execution snapshots、attachments、process/customer requirement/inspection/remark 语义以及 Browser retirement 细节仍为 pending。
 
 - `SalesOrder` 同时是订单身份和单款执行单位；一张 SalesOrder 只允许一个款式。同一客户 PO 可以对应多张不同订单，但订单号 trim + case normalize 后必须唯一。

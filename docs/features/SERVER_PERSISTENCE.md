@@ -33,8 +33,22 @@ Browser
 - `GET /api/v1/operation-logs`（需要 `audit_log.view`）
 - `GET /api/v1/sales-orders`（需要 `order.view`；支持 bounded limit/offset、search、lifecycle/source filters、allowlisted sorting 与 page metadata）
 - `GET /api/v1/sales-orders/:id`（需要 `order.view`）
+- `GET|PATCH /api/v1/sales-orders/:id/confirmed-commercial-terms`（分别需要 `order.view` / `order.edit`）
+- `GET|PATCH /api/v1/quotes/:quoteId/revisions/:revisionId/price-versions/:priceVersionId/confirmed-commercial-terms`（分别需要 `quote.view` / `quote.confirm`；只按 exact provenance resolve）
 
 错误统一返回 `{ error: { code, message, requestId } }`。Health 只有在 PostgreSQL `SELECT 1` 成功时返回 200/ready，数据库不可用时返回 503，不伪报健康。SalesOrder read API 对非法 list query、未登录、无 `order.view` 和不存在的 ID 分别返回 400、401、403、404；返回 typed composed DTO，不直接暴露数据库行、source hash、source metadata 或 raw payload。List 仅暴露 `colorCount`，完整颜色行只在 detail 返回。API 不接受 SQL、表名、数据库操作名、actor userId、role 或授权结果；未知 `/api/*` 路径返回结构化 404。
+
+ConfirmedCommercialTerms mutation 使用 decimal string + `expectedVersion` typed body，要求 normal trusted cookie、exact allowlisted Origin 与 `X-Zhixu-Request: 1`。未知字段（包括 actor/user/role spoof）拒绝为 400；stale version 为 409。Quote provenance 未关联时 read 返回显式 `unlinked`，write fail closed 为 409，绝不 fuzzy match 或创建 SalesOrder。
+
+## Phase C4.2 ConfirmedCommercialTerms implementation
+
+- `0004_confirmed_commercial_terms.sql` 建立 `confirmed_commercial_terms` current context 与 `confirmed_commercial_terms_sales_orders` association。migration 是 forward-only、无 backfill，并继续由既有 ledger/checksum/transaction runner 管理。
+- `ConfirmedCommercialTerms` 有独立 PostgreSQL UUID 与 optimistic version。客户确认价格按 CNY/件解释；确认工价的 `NUMERIC` amount 必须有 `CNY|USD` qualifier。`NULL` 表示未确认，和明确的 `0` 不同；API 不使用 JS float 作为 persisted representation，也不引入新舍入规则。
+- 当前 schema/repository 没有证明 Quote provenance 1:1；多个 SalesOrder 可持有相同 exact `source_quote_id/source_revision_id/source_price_version_id`。因此 linked context 的 exact provenance 唯一而 association 为 1→N；所有相同 provenance 的订单和 Quote endpoint 解析到同一 terms UUID。DB trigger 拒绝 provenance mismatch 与 association 改绑。
+- 无完整 Quote provenance 的 SalesOrder 仅能拥有自己的 order-scoped context；服务不会填充或改变 `source_quote_id/source_revision_id/source_price_version_id`。partial provenance 被视为不安全状态并返回 409。
+- 每次真实 terms mutation 与一条 existing append-only `operation_logs` action 在同一 transaction 中提交。OperationLog actor 只来自 `TrustedIdentity`，记录 old/new amount/currency/version、mutation surface、exact Quote provenance（如有）和关联 SalesOrder IDs；审计失败会回滚 terms/association。
+- terms version 与 SalesOrder aggregate version 分离。C4.2 不修改 SalesOrder source mirrors、source quantity、order number/sequence、lifecycle、DeliveryPlan 或任何其他 PriceVersion field。
+- 本实现只在 disposable PostgreSQL 验证。真实 `zhixu` 未应用 0004、真实业务写入为 0；由于 Node startup 自动运行 pending migration，当前分支/未来 merge 后的 Server 都不得连接真实目标启动，直到单独 rollout 授权。
 
 ## Phase 2B1 SalesOrder foundation
 
@@ -101,7 +115,7 @@ Browser
 - Color-row delivery remains typed/internal and is not rendered. Zero-color masters remain valid. Customer PO and every unpersisted/blocked master, DeliveryPlan, commercial-term, production-country, price, attachment, execution and mutation field remain absent.
 - C4.1 changes no schema, API endpoint, permission catalog or server business-write behavior. Implementation validation uses mocks/source contracts and disposable PostgreSQL only.
 - PR #35 merged main `c38e80a44eed384c0d09f9a0317bd14122763865` subsequently passed real production-detail Browser acceptance at the production-shaped 3002 runtime: anonymous protection, user-entered admin login, list → detail UUID parity, normal authoritative source parity, hard refresh, return/reopen, zero-color, explicit 404, 1280/wide visual checks, logout and post-logout protection all passed without Browser fallback. Real 403 was not manufactured; automated 403 remains PASS.
-- SalesOrder counts/fingerprint/sequence stayed `511/511/511/1348/511`, `580696ff5c562493dea67f883df501cc` and `511/true`. app_users and RBAC fingerprints stayed unchanged. Only authorized auth/session metadata changed from `6/0/0/0/0` to `8/0/2/1/1`; business writes were 0. **C4.1 = COMPLETE**. C4 overall remains incomplete; next recommended separately authorized Gate is C4.2 `ConfirmedCommercialTerms`, while DeliveryPlan remains not implemented and C5 has not started.
+- SalesOrder counts/fingerprint/sequence stayed `511/511/511/1348/511`, `580696ff5c562493dea67f883df501cc` and `511/true`. app_users and RBAC fingerprints stayed unchanged. Only authorized auth/session metadata changed from `6/0/0/0/0` to `8/0/2/1/1`; business writes were 0. **C4.1 = COMPLETE**. C4.2 `ConfirmedCommercialTerms` was subsequently implemented on an isolated branch and validated only against disposable PostgreSQL; real 0004 activation and real Browser acceptance remain unauthorized. DeliveryPlan remains not implemented and C5 has not started, so C4 overall remains incomplete.
 
 ## RBAC
 
@@ -183,4 +197,4 @@ Phase 2B3A.1 on 2026-09-12 applied migrations 0001/0002/0003 to the fixed real `
 - legacy root ERP 是待退役兼容路径，不是新业务表设计、字段语义或 migration source。
 - 后续每个业务领域仍必须独立完成 reconciliation/read cutover/write cutover/browser-store retirement；不得长期保留未对账双写。
 - Phase C1 已完成真实 Server RBAC activation 与 authenticated shadow acceptance。真实 permission catalog/`role-server-admin`/existing-admin binding/`order.view` 已激活；admin core、SalesOrder business state、sequence 与 legacy business state 均保持不变。Post-C1 backup 为 `D:\workspace\preparesystem\backups\zhixu-20260913-085419.dump`（649,290 bytes，SHA-256 `A9346C786828F919A6A372565CE2652E20B444C498CC01EBEADAF82D42A6E333`，`pg_restore --list` PASS）。
-- `SERVER_AUTH_READY_FOR_SHADOW_READ=YES`；C2、C3 与 C4.1 authoritative base-detail read 均已完成。Production `/order-center` base list/detail 已从 PostgreSQL 读取；write cutover 与 Browser retirement 均未执行。C4 overall 仍不完整；下一建议 Gate 是尚未授权的 C4.2 `ConfirmedCommercialTerms` Server Domain。
+- `SERVER_AUTH_READY_FOR_SHADOW_READ=YES`；C2、C3 与 C4.1 authoritative base-detail read 均已完成。Production `/order-center` base list/detail 已从 PostgreSQL 读取；通用 write cutover 与 Browser retirement 均未执行。C4.2 `ConfirmedCommercialTerms` 已在独立分支实现并仅完成 disposable PostgreSQL 验证；真实 0004 activation 与真实 Browser acceptance 尚未授权。DeliveryPlan/C4.3 未实现、C5 未开始，因此 C4 overall 仍不完整。

@@ -1,5 +1,14 @@
 # SalesOrder PostgreSQL Persistence Foundation
 
+## C4.2 ConfirmedCommercialTerms extension
+
+- Forward-only migration `0004_confirmed_commercial_terms.sql` adds a separate shared-current commercial-terms domain; it does not rewrite the four Phase 2B1 SalesOrder/source tables and performs no data backfill.
+- Formal `sourceQuoteId/sourceRevisionId/sourcePriceVersionId` has no 1:1 guarantee. One unique exact Quote provenance terms context can therefore associate with multiple SalesOrder UUIDs; all such orders read and update the same context. An order with no Quote provenance uses an isolated SalesOrder-owned context and never receives fabricated provenance.
+- Current customer-confirmed price is CNY/件. Current confirmed labor price retains explicit `CNY|USD`; values persist as PostgreSQL `NUMERIC` and cross the API as decimal strings. Null remains unconfirmed, not zero.
+- Terms have an independent optimistic version. Atomic service writes append exactly one trusted existing OperationLog with old/new values; they do not increment SalesOrder version or mutate source mirror/quantity/sequence.
+- Order and Quote APIs use exact UUID/provenance lookup and existing `order.view`/`order.edit`/`quote.view`/`quote.confirm` permissions. There is no generic SQL/table endpoint and no fuzzy Quote relation.
+- Real `zhixu` migration/data activation and real Browser write acceptance are not authorized and were not executed. C4.2 implementation is complete in PR using disposable PostgreSQL only; C4 overall remains incomplete.
+
 ## Status and scope
 
 - Phase: PostgreSQL Phase 2B1 Server Foundation complete; Phase 2B2.3 final fresh Preview complete; Phase 2B3A.1 real PostgreSQL schema activation complete; Phase 2B3B.1 production runner merged; Phase 2B3B.2a transport hardening in progress.

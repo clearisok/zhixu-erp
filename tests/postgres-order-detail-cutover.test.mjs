@@ -111,7 +111,7 @@ test("color detail displays only source color and quantity and accepts an empty 
   assert.match(modelSource, /deliveryDate:\s*string \| null/u);
 });
 
-test("all C4.1 blocked Browser fields and mutation controls are absent", () => {
+test("C4.2 exposes only Server current terms while the remaining blocked Browser fields stay absent", () => {
   for (const blocked of [
     "customerPoNo",
     "customerId",
@@ -125,8 +125,6 @@ test("all C4.1 blocked Browser fields and mutation controls are absent", () => {
     "businessConfirmedDeliveryDate",
     "quantityChanges",
     "colorAdjustments",
-    "confirmedGarmentPrice",
-    "confirmedLaborPrice",
     "priceVersions",
     "attachment",
     "executionSnapshots",
@@ -134,8 +132,14 @@ test("all C4.1 blocked Browser fields and mutation controls are absent", () => {
     "customerRequirement",
     "processDescription",
   ]) assert.doesNotMatch(detailSource, new RegExp(blocked, "iu"));
-  assert.doesNotMatch(detailSource, /\.(?:save|saveAll|delete|remove|update|create|cancel)\s*\(/u);
-  assert.doesNotMatch(detailSource, /<Button[^>]*>\s*(?:编辑|保存|删除|取消订单|创建订单)\s*<\/Button>/u);
+  assert.match(detailSource, /SERVER CURRENT TERMS/u);
+  assert.match(detailSource, /terms\?\.current\?\.customerConfirmedPrice/u);
+  assert.match(detailSource, /terms\?\.current\?\.confirmedLaborPrice/u);
+  assert.match(detailSource, /serverSession\.hasPermission\("order\.edit"\)/u);
+  assert.match(detailSource, /confirmedCommercialTermsServerClient\.updateBySalesOrder/u);
+  assert.doesNotMatch(detailSource, /orderRepository|OrderPriceVersion|salePrice|processingUnitPrice/u);
+  assert.doesNotMatch(detailSource, /\.(?:saveAll|deleteSalesOrder|removeSalesOrder|updateSalesOrder|createSalesOrder|cancelSalesOrder)\s*\(/u);
+  assert.doesNotMatch(detailSource, /<Button[^>]*>\s*(?:删除|取消订单|创建订单|编辑订单|保存订单)\s*<\/Button>/u);
 });
 
 test("Server detail route skips Browser local-data initialization without changing legacy routes", () => {

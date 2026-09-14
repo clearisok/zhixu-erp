@@ -13,6 +13,7 @@ export const REQUIRED_BOOTSTRAP_MIGRATIONS = [
   "0001_trusted_auth_rbac_operation_logs.sql",
   "0002_sales_order_foundation.sql",
   "0003_sales_order_number_sequence.sql",
+  "0004_confirmed_commercial_terms.sql",
 ] as const;
 
 const REAL_BOOTSTRAP_LOCK_ID = "873215970215";

@@ -1,5 +1,9 @@
 # 权限系统
 
+## C4.2 ConfirmedCommercialTerms enforcement
+
+C4.2 reuses the existing catalog without adding a super-permission: Order terms GET/PATCH require `order.view`/`order.edit`; exact Quote-provenance terms GET/PATCH require `quote.view`/`quote.confirm`. Authorization uses the trusted Server session permission set, never a role-name bypass or Browser mock identity. PATCH also retains exact Origin and `X-Zhixu-Request: 1` mutation protection.
+
 ## Purpose
 
 为 Quote Center 与基础设置提供可扩展的前端 RBAC 框架。第一阶段验证账号、角色、权限目录和 UI 权限反馈；它不替代未来服务端认证与授权。

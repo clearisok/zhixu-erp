@@ -1,5 +1,9 @@
 # 织序 ERP 前端操作日志
 
+## C4.2 Server ConfirmedCommercialTerms audit
+
+Every actual shared-current terms create/update appends exactly one existing PostgreSQL `operation_logs` row in the same transaction. The trusted session supplies actor ID/name; request bodies cannot supply or override actor. The log records old/new customer-confirmed price, confirmed labor price, labor currency and terms version, plus mutation surface, exact Quote provenance when linked, and associated formal SalesOrder UUIDs. Audit failure rolls back the terms and association; existing logs remain append-only. Adding the shared TypeScript action/entity labels does not create a second Browser persistence authority or require a Browser storage migration.
+
 ## Purpose
 
 为 Quote Center、新订单中心与设置模块的关键业务写操作提供可追溯的追加式记录，回答“谁、何时、对哪个对象做了什么、修改前后是什么”。操作日志是独立审计数据，不替代 Quote Revision、订单数量或价格历史，也不进入业务聚合。

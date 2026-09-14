@@ -18,14 +18,24 @@
 
 ## Active
 
+### D-085 ConfirmedCommercialTerms uses a shared Quote-provenance context with explicit SalesOrder associations
+
+- 日期：2026-09-14
+- 状态：Active（implementation complete in PR；real migration not authorized）
+- 决定：`ConfirmedCommercialTerms` 使用独立 PostgreSQL UUID identity。完整 `quoteId + revisionId + priceVersionId` 是可选的精确 provenance，并在 terms context 上唯一；一个该 context 可关联一张或多张 formal SalesOrder，所有关联订单因此读取/修改同一个 current row。没有 Quote provenance 的 SalesOrder 使用一对一的 order-owned context，绝不填充伪造 Quote 字段。
+- 金额：客户确认价格是 CNY/件；确认工价使用 PostgreSQL `NUMERIC` 并携带 `CNY|USD` qualifier。API 以 decimal string 传输，不引入浮点或新舍入规则；`NULL` 与 `0` 严格不同。
+- 并发与审计：terms 自有 optimistic `version`，Quote/Order mutation 都要求 `expectedVersion`，stale 返回 409。terms 与单条 append-only `OperationLog` 在同一 transaction 提交，actor 只来自 trusted Server session；SalesOrder aggregate version、source mirrors 与 sequence 不变。
+- 边界：历史 Quote Revision/PriceVersion confirmation 保持 Browser snapshot；未关联当前 Quote 仍走 legacy local confirmation。精确 linked current Quote 只读写 Server terms，不回退写本地 numeric copy。0004 无 backfill，真实 `zhixu` activation/data migration/Browser write acceptance 均需后续单独授权。
+- 代码证据：`database/migrations/0004_confirmed_commercial_terms.sql`、`server/confirmed-commercial-terms/`、`server/app.ts`、`features/confirmed-commercial-terms/`。
+
 ### D-084 Linked Quote and SalesOrder share only current confirmed commercial terms
 
 - 日期：2026-09-14
-- 状态：Active；确认 C4.0 审计 C4-D10，取代“Quote 与 Order 的当前客户确认价格和确认工价各自独立维护”的旧 AI 建议。C4 实现仍未开始。
+- 状态：Active；确认 C4.0 审计 C4-D10，取代“Quote 与 Order 的当前客户确认价格和确认工价各自独立维护”的旧 AI 建议。C4.2 implementation 由 D-085 落地，真实 activation 尚未授权。
 - 决定：在同一业务流中已稳定关联的 Quote 与 SalesOrder，“客户确认价格”和“确认工价”分别是一个共享的当前业务事实，不得在 Quote 与 Order 各保存一份可独立漂移的当前值。Quote Center 与 Order Detail 都可编辑这两项共享当前值，任一表面的修改都必须在另一表面读到同一结果。概念上可称为 `ConfirmedCommercialTerms`，本 docs-only 决策不锁定 SQL 表名或 API 名称。
 - 审计/历史：每次修改必须通过可信身份记录 actor、timestamp、old value 和 new value，遵守 server OperationLog 原则。Quote Revision / PriceVersion 历史快照仍为 immutable historical facts，共享当前值变化不回写历史快照。
 - 边界：不对 Quote PriceVersion 与 Order PriceVersion 做全量 live-link。面辅料成本、margin、汇率、加工假设、Quote 制作国家及其他 PriceVersion 事实仍相互独立。未关联 Quote 的 SalesOrder 不得伪造 Quote 关系。
-- 现状证据：`features/quote-center/model/quote-view-model.ts` 与 `features/order-center/model/order.ts` 当前仍是两套 Browser-local 价格结构，所以本条是已确认的目标业务规则，不是已实现状态。
+- 现状证据：Browser `PriceVersionConfirmation` 与 `OrderPriceVersion` 仍是保留的 legacy/independent structures；C4.2 通过 D-085 的专用 Server domain 实现 linked current authority，不把两套 Browser numeric fields 作为 shared writer。
 
 ### D-083 Ainuoke source delivery date and Zhixu DeliveryPlan are separate domains
 

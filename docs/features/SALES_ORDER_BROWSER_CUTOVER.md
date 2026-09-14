@@ -147,6 +147,16 @@ C0 direct SQL and C1 authenticated API acceptance both verified total=511 and th
 
 All five have version 1; their detail color counts match the mirror table. No Browser repository was read or written for this verification.
 
+## C4.2 ConfirmedCommercialTerms implementation
+
+C4.2 implements only the two D-084 shared current business facts. `confirmed_commercial_terms` owns a UUID, exact decimal amounts, labor currency, optimistic version and timestamps; `confirmed_commercial_terms_sales_orders` associates one or more formal SalesOrders. Exact Quote provenance is unique per terms context, not per SalesOrder, because current formal schema permits multiple SalesOrders with the same Quote/Revision/PriceVersion provenance.
+
+Order Detail reads/writes this domain through its formal UUID with `order.view`/`order.edit`. Quote Center resolves by exact `quoteId/revisionId/priceVersionId` and uses `quote.view`/`quote.confirm`. Both mutate the same current row, use `expectedVersion`, receive 409 on stale state and atomically append one trusted old/new OperationLog. Unlinked Quote continues legacy local confirmation; linked Quote has no local numeric fallback. Unlinked SalesOrder can have order-owned terms but receives no fake Quote relation.
+
+The new Order card displays null as “未确认” and never reads Browser `salePrice` or `processingUnitPrice`. It cannot edit source facts, lifecycle or DeliveryPlans. Historical Quote snapshots and all other Quote/Order PriceVersion fields remain independent and unchanged.
+
+This implementation and its 0001→0004 migration validation ran only on disposable PostgreSQL. Real `zhixu` migration, real data reconciliation and real Browser write acceptance are not authorized or executed. Because Server startup applies pending migrations, this PR must stay open until a separate rollout Gate.
+
 ## C4.1 production base-detail implementation
 
 The production list now routes “查看” to the static-export-compatible Server-owned URL `/order-center/server-detail?id=<PG UUID>`. This route renders only `ServerSalesOrderDetailPage`; it never enters the legacy `/order-center/detail` / `OrderDetailLoader`, never calls Browser `orderRepository`, and has no Browser fallback or mutation control. The three exact Server-read paths `/order-center`, `/order-center/server-preview` and `/order-center/server-detail` skip Browser local-data initialization, while legacy new/detail and all other Browser-owned routes retain it.
@@ -181,7 +191,7 @@ SalesOrder aggregate/source-link/contract/color/log counts stayed `511/511/511/1
 - prove the concrete Customer PO source field before exposing any value;
 - design customer/brand and brand-salesperson master/snapshot relationships while keeping merchandiser semantics pending;
 - design multi-row DeliveryPlan persistence, deterministic derived-default ownership transition, drift projection and trusted audit;
-- design a linked Quote/SalesOrder shared-current-terms domain with trusted audit and immutable historical snapshots, without full PriceVersion live-link;
+- activate/reconcile the implemented linked Quote/SalesOrder shared-current-terms domain only through a separately authorized real rollout; implementation/disposable validation is complete, but real 0004 is not applied;
 - decide the remaining Customer/Brand, orderDate, style-master, color, settlement, execution, attachment and free-text semantics before implementing those slices;
 - design identity joins for future Scheduling/Closing/Style Progress extensions against stable PG UUID.
 
@@ -211,8 +221,9 @@ SalesOrder aggregate/source-link/contract/color/log counts stayed `511/511/511/1
 6. **C3.2 — Real production-list Browser acceptance:** complete. The formal route passed trusted session restore, list/search/filter/server-sort/pagination, same-page inspectors, zero-color semantics, 1280/wide visuals, logout and post-logout anonymous checks without business mutation.
 7. **C4.0 — Ownership audit and decisions:** read-only audit complete; D-082–D-084 record the user-confirmed source, quantity/people/country, delivery-plan and shared-current-terms boundaries. Documentation is complete; implementation is not started.
 8. **C4.1 — Server Base Detail Read Cutover:** complete. Implementation, automated validation and real Browser acceptance all passed with unchanged business fingerprint.
-9. **C4.2+ — Separately authorized server extensions:** next recommended Gate is `ConfirmedCommercialTerms`, so Quote and Order share one current customer-confirmed price and one current confirmed labor price with trusted audit while immutable Quote history stays unchanged. DeliveryPlan remains a separate later sub-gate; ambiguous fields stay deferred.
-10. **C5 — Server mutation Gates:** add narrowly scoped create/update APIs, optimistic concurrency, trusted audit and domain-specific authorization.
-11. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
+9. **C4.2 — ConfirmedCommercialTerms implementation:** complete in code/disposable validation and held in an unmerged PR. Real 0004 activation, Browser-data reconciliation and real write acceptance are not authorized or executed.
+10. **C4.3+ — Separately authorized server extensions:** DeliveryPlan remains a separate later sub-gate; ambiguous fields stay deferred.
+11. **C5 — Server mutation Gates:** add remaining narrowly scoped create/update APIs, trusted audit and domain-specific authorization; C4.2 terms mutation does not authorize general SalesOrder mutation.
+12. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
 
-C4.1 does not migrate or retire Browser data and does not cut over writes. Production base-list and authoritative base-detail implementation/real acceptance are complete. C4 overall remains incomplete; C4.2+ extensions and C5 mutations have not started.
+C4.1 does not migrate or retire Browser data. Production base-list and authoritative base-detail implementation/real acceptance are complete. C4.2 implementation adds only the terms slice and remains unactivated on real `zhixu`; C4 overall remains incomplete, with DeliveryPlan/C4.3 and C5 not started.
