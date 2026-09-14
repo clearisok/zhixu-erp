@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   AlertBanner,
   AppShell,
   Button,
   Card,
   DataTable,
-  DescriptionList,
-  Drawer,
   EmptyState,
   ErrorState,
   FormItem,
@@ -25,7 +24,6 @@ import { OrderCenterNavigation } from "@/features/style-progress/components/orde
 import { SalesOrderServerReadError } from "../server/sales-order-server-client";
 import {
   initialServerOrderCenterQuery,
-  loadServerOrderCenterDetail,
   loadServerOrderCenterPage,
   normalizeServerOrderSearch,
   SERVER_ORDER_CENTER_PAGE_SIZE,
@@ -33,7 +31,6 @@ import {
 } from "../server/server-order-center-query";
 import { serverSalesOrderReadRepository } from "../server/server-sales-order-read-repository";
 import type {
-  OrderCenterServerDetailViewModel,
   OrderCenterServerListViewModel,
   ServerSalesOrderCreationSource,
   ServerSalesOrderLifecycleState,
@@ -101,6 +98,7 @@ function OrderCenterFrame({
 }
 
 export function ServerOrderCenterPage() {
+  const router = useRouter();
   const serverSession = useServerSession();
   const [items, setItems] = useState<OrderCenterServerListViewModel[]>([]);
   const [page, setPage] = useState<ServerSalesOrderPage>(emptyPage);
@@ -110,25 +108,16 @@ export function ServerOrderCenterPage() {
   const [listError, setListError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [sessionActionError, setSessionActionError] = useState<string | null>(null);
-  const [inspectorOpen, setInspectorOpen] = useState(false);
-  const [detail, setDetail] = useState<OrderCenterServerDetailViewModel | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [detailError, setDetailError] = useState<string | null>(null);
-
   const handleReadFailure = useCallback((error: unknown): "session" | "read" => {
     if (error instanceof SalesOrderServerReadError && error.status === 401) {
       setItems([]);
       setPage(emptyPage);
-      setDetail(null);
-      setInspectorOpen(false);
       serverSession.invalidate();
       return "session";
     }
     if (error instanceof SalesOrderServerReadError && error.status === 403) {
       setItems([]);
       setPage(emptyPage);
-      setDetail(null);
-      setInspectorOpen(false);
       setPermissionDenied(true);
       return "session";
     }
@@ -161,18 +150,8 @@ export function ServerOrderCenterPage() {
     }
   }, [loadList, serverSession]);
 
-  const openInspector = async (item: OrderCenterServerListViewModel) => {
-    setInspectorOpen(true);
-    setDetail(null);
-    setDetailError(null);
-    setDetailLoading(true);
-    try {
-      setDetail(await loadServerOrderCenterDetail(serverSalesOrderReadRepository, item.id));
-    } catch (error) {
-      if (handleReadFailure(error) === "read") setDetailError(readError(error));
-    } finally {
-      setDetailLoading(false);
-    }
+  const openDetail = (item: OrderCenterServerListViewModel) => {
+    router.push(`/order-center/server-detail?id=${encodeURIComponent(item.id)}`);
   };
 
   const logout = async () => {
@@ -181,8 +160,6 @@ export function ServerOrderCenterPage() {
       await serverSession.logout();
       setItems([]);
       setPage(emptyPage);
-      setDetail(null);
-      setInspectorOpen(false);
     } catch {
       setSessionActionError("无法退出 Server 会话，请稍后重试。");
     }
@@ -192,8 +169,6 @@ export function ServerOrderCenterPage() {
     key: Key,
     value: ServerOrderCenterQueryState[Key],
   ) => {
-    setDetail(null);
-    setInspectorOpen(false);
     setQuery((current) => ({ ...current, offset: 0, [key]: value }));
   };
 
@@ -293,7 +268,7 @@ export function ServerOrderCenterPage() {
           variant="text"
           onClick={(event) => {
             event.stopPropagation();
-            void openInspector(item);
+            openDetail(item);
           }}
         >
           查看
@@ -425,7 +400,7 @@ export function ServerOrderCenterPage() {
           loadingLabel="读取 PostgreSQL 正式订单"
           error={listError}
           onRetry={() => void loadList()}
-          onRowActivate={(item) => void openInspector(item)}
+          onRowActivate={openDetail}
           renderRecord={renderRecord}
           ariaLabel="PostgreSQL 正式订单列表"
           moduleKey="order-center"
@@ -438,43 +413,6 @@ export function ServerOrderCenterPage() {
           <Button variant="secondary" disabled={!page.hasMore || loading} onClick={() => setQuery((current) => ({ ...current, offset: current.offset + SERVER_ORDER_CENTER_PAGE_SIZE }))}>下一页</Button>
         </div>
       </Card>
-      <Drawer
-        open={inspectorOpen}
-        title={detail?.orderNo ?? "正式订单只读详情"}
-        description="PostgreSQL 基础事实；完整业务详情将在后续阶段开放。"
-        eyebrow="READ ONLY"
-        className="oc-server-inspector"
-        onClose={() => setInspectorOpen(false)}
-        footer={<Button variant="secondary" onClick={() => setInspectorOpen(false)}>关闭</Button>}
-      >
-        {detailLoading ? <LoadingState label="读取 PostgreSQL 订单详情" compact /> : detailError ? <ErrorState description={detailError} /> : detail ? (
-          <div className="oc-server-inspector-content">
-            <DescriptionList columns={2} items={[
-              { key: "identity", label: "正式身份", value: detail.orderNo, secondary: `UUID ${detail.id} · version ${detail.version}` },
-              { key: "billNo", label: "BillNo", value: detail.billNo },
-              { key: "insideOrderNo", label: "工厂款号 / InsideOrderNo", value: detail.factoryStyleNo },
-              { key: "styleNo", label: "款号", value: detail.styleNo },
-              { key: "customer", label: "客户", value: detail.customerName },
-              { key: "brand", label: "品牌", value: detail.brandName },
-              { key: "quantity", label: "合同数量", value: detail.initialQuantity?.toLocaleString("zh-CN") },
-              { key: "lifecycle", label: "SalesOrder 生命周期", value: lifecycleLabels[detail.lifecycleState], secondary: detail.lifecycleState },
-              { key: "sourceStatus", label: "艾诺科来源状态", value: detail.sourceLifecycleStatus },
-              { key: "delivery", label: "合同交期", value: detail.contractDeliveryDate },
-              { key: "source", label: "创建来源", value: creationSourceLabels[detail.creationSource] },
-              { key: "updatedAt", label: "更新时间", value: detail.updatedAt },
-            ]} />
-            {detail.colors.length === 0 ? (
-              <EmptyState compact title="该正式订单没有可用颜色明细" description="颜色 enrichment 为空不影响 SalesOrder master 有效性。" />
-            ) : (
-              <div className="oc-server-color-table" role="region" aria-label="正式订单颜色明细">
-                <table><thead><tr><th>颜色</th><th>数量</th><th>交期</th></tr></thead><tbody>{detail.colors.map((color) => (
-                  <tr key={color.sourceLineIdentity}><td>{color.colorName}</td><td>{color.quantity.toLocaleString("zh-CN")}</td><td>{color.deliveryDate ?? "—"}</td></tr>
-                ))}</tbody></table>
-              </div>
-            )}
-          </div>
-        ) : <EmptyState compact title="未选择正式订单" />}
-      </Drawer>
     </OrderCenterFrame>
   );
 }

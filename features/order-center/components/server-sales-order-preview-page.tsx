@@ -270,11 +270,11 @@ export function ServerSalesOrderPreviewPage() {
             <DescriptionList columns={3} items={[
               { key: "orderNo", label: "正式订单号", value: detail.orderNo, secondary: `UUID ${detail.id} · version ${detail.version}` },
               { key: "billNo", label: "BillNo", value: detail.billNo },
-              { key: "insideOrderNo", label: "InsideOrderNo / 工厂款号", value: detail.factoryStyleNo },
+              { key: "insideOrderNo", label: "InsideOrderNo / 工厂款号", value: detail.insideOrderNo },
               { key: "styleNo", label: "款号", value: detail.styleNo },
               { key: "customer", label: "客户", value: detail.customerName },
               { key: "brand", label: "品牌", value: detail.brandName },
-              { key: "quantity", label: "合同数量", value: detail.initialQuantity?.toLocaleString("zh-CN") },
+              { key: "quantity", label: "合同数量", value: detail.quantity?.toLocaleString("zh-CN") },
               { key: "status", label: "生命周期 / Source status", value: detail.lifecycleState, secondary: detail.sourceLifecycleStatus },
               { key: "delivery", label: "合同交期", value: detail.contractDeliveryDate },
             ]} />

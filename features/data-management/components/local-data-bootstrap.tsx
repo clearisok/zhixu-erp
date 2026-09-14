@@ -5,7 +5,9 @@ import { useEffect, type ReactNode } from "react";
 import { initializeLocalDataLifecycle } from "../service/data-management-service";
 
 export function shouldInitializeBrowserLocalData(pathname: string): boolean {
-  return pathname !== "/order-center" && pathname !== "/order-center/server-preview";
+  return pathname !== "/order-center"
+    && pathname !== "/order-center/server-preview"
+    && pathname !== "/order-center/server-detail";
 }
 
 export function LocalDataBootstrap({ children }: { children: ReactNode }) {

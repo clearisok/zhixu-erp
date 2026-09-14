@@ -93,6 +93,14 @@ Browser
 - Logout and post-logout refresh returned to anonymous state with zero visible SalesOrder rows. Only authorized auth/session metadata changed: successful/failed/v1 sessions/active/revoked=`5/0/4/2/2` → `6/0/5/2/3`. SalesOrder counts remained `511/511/511/1348/511`, fingerprint and sequence `511/true` were unchanged, and app_users/admin/RBAC fingerprints stayed unchanged.
 - Browser OrderRepository was retained, unmigrated and unmodified. Manual/Quote/reorder/full-detail writes, Scheduling, Closing, Style Progress and Ainuoke remained untouched. `PRODUCTION_ORDER_LIST_POSTGRESQL_READY=YES`, `REAL_PRODUCTION_ORDER_LIST_ACCEPTANCE=PASS`, and C3 is complete; C4 Base Detail + Server Extensions is the next Gate but is not authorized.
 
+### C4.1 production Order Center base-detail read cutover
+
+- The production list now navigates by stable PG UUID to `/order-center/server-detail?id=<uuid>`, a dedicated static-export-compatible Server route. It does not use the Browser `/order-center/detail` loader, Browser OrderRepository or any create/edit/save/delete path. Exact Server-read routes skip Browser local-data initialization; legacy Browser routes are retained and unchanged.
+- The page calls only the typed `ServerSalesOrderReadRepository.getById` path and preserves trusted session + `order.view`. Anonymous/login-required, detail 401 session invalidation, explicit 403, explicit 404 and Server-unavailable states never fall back to Browser data.
+- Detail UI separates Zhixu aggregate facts from read-only Ainuoke source facts. It exposes only persisted authoritative identity/provenance/lifecycle/timestamps, BillNo/InsideOrderNo/style/company/customer/brand/source quantity/contract dates/source lifecycle, colorCount and source color name/quantity. Customer/brand source snapshots are not canonicalized through Browser masters. InsideOrderNo is labeled as a mutable source attribute; source quantity and process/contract delivery have no edit control.
+- Color-row delivery remains typed/internal and is not rendered. Zero-color masters remain valid. Customer PO and every unpersisted/blocked master, DeliveryPlan, commercial-term, production-country, price, attachment, execution and mutation field remain absent.
+- C4.1 changes no schema, API endpoint, permission catalog or server business-write behavior. Implementation validation uses mocks/source contracts and disposable PostgreSQL only; real production-detail Browser acceptance is not executed in this PR. C4.2+ and C5 are not started.
+
 ## RBAC
 
 - PostgreSQL 关系为 `app_users -> app_user_roles -> app_roles -> app_role_permissions -> app_permissions`。

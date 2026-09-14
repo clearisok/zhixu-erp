@@ -71,7 +71,12 @@ export type OrderCenterServerListViewModel = {
   updatedAt: string;
 };
 
-export type OrderCenterServerDetailViewModel = OrderCenterServerListViewModel & {
+export type OrderCenterServerDetailViewModel = Omit<
+  OrderCenterServerListViewModel,
+  "factoryStyleNo" | "initialQuantity"
+> & {
+  insideOrderNo: string | null;
+  quantity: number | null;
   colors: ServerSalesOrderColorDto[];
 };
 
@@ -99,5 +104,25 @@ export function adaptServerSalesOrderListItem(dto: ServerSalesOrderReadDto): Ord
 }
 
 export function adaptServerSalesOrderDetail(dto: ServerSalesOrderDetailDto): OrderCenterServerDetailViewModel {
-  return { ...adaptServerSalesOrderListItem(dto), colors: dto.colors };
+  return {
+    id: dto.id,
+    version: dto.version,
+    orderNo: dto.orderNo,
+    creationSource: dto.creationSource,
+    lifecycleState: dto.lifecycleState,
+    billNo: dto.salesContractNo,
+    insideOrderNo: dto.insideOrderNo,
+    styleNo: dto.styleNo,
+    companyName: dto.companyName,
+    customerName: dto.customerName,
+    brandName: dto.brandName,
+    quantity: dto.quantity,
+    sourceLifecycleStatus: dto.sourceLifecycleStatus,
+    contractDate: dto.contractDate,
+    contractDeliveryDate: dto.contractDeliveryDate,
+    colorCount: dto.colorCount,
+    createdAt: dto.createdAt,
+    updatedAt: dto.updatedAt,
+    colors: dto.colors,
+  };
 }

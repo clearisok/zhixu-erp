@@ -100,11 +100,10 @@ test("production loader uses only the injected Server read repository", async ()
 
 test("production list cannot route PostgreSQL UUIDs into the Browser editor", () => {
   assert.doesNotMatch(productionSource, /orderRepository|browserLocalDataStore/u);
-  assert.doesNotMatch(productionSource, /\/order-center\/(?:detail|new)/u);
+  assert.doesNotMatch(productionSource, /\/order-center\/(?:detail|new)(?:[?`"'])/u);
   assert.doesNotMatch(productionSource, /\.(?:save|saveAll|delete|remove|update)\s*\(/u);
-  assert.match(productionSource, /loadServerOrderCenterDetail/u);
-  assert.match(productionSource, /READ ONLY/u);
-  assert.match(productionSource, /颜色 enrichment 为空不影响 SalesOrder master 有效性/u);
+  assert.match(productionSource, /\/order-center\/server-detail\?id=\$\{encodeURIComponent\(item\.id\)\}/u);
+  assert.doesNotMatch(productionSource, /loadServerOrderCenterDetail|<Drawer/u);
 });
 
 test("production states are explicit and never fall back to local orders", () => {
@@ -136,6 +135,7 @@ test("server search, filters, allowlisted sorting, and pagination stay server-si
 test("Browser repositories and legacy write routes remain preserved but isolated", () => {
   assert.match(localBootstrapSource, /pathname !== "\/order-center"/u);
   assert.match(localBootstrapSource, /pathname !== "\/order-center\/server-preview"/u);
+  assert.match(localBootstrapSource, /pathname !== "\/order-center\/server-detail"/u);
   assert.match(browserPageSource, /export function OrderCenterPage/u);
   assert.match(browserPageSource, /export function OrderNewLoader/u);
   assert.match(browserPageSource, /export function OrderDetailLoader/u);

@@ -11,13 +11,17 @@
 
 ## Current Stable Main
 
-`dd5121d99a7b86e433303f7bd2698651e27a2cae`（Phase C3.2 docs PR #33 已 merged）
+`7b8c483487514f77de546db178edfbffc52bfd69`（C4.0 confirmed ownership docs PR #34 已 merged）
 
 ## Current Active Task
 
-- Branch: `docs/c4-confirmed-business-decisions`
-- Baseline: `dd5121d99a7b86e433303f7bd2698651e27a2cae` (`origin/main`, PR #33 merge commit).
-- This branch is docs-only. D-082–D-084 record the user-confirmed C4.0 ownership rules; there is no schema, API, application, PostgreSQL or Browser change, and C4 implementation is **NOT STARTED**.
+- Branch: `feat/postgres-order-detail-cutover`
+- Baseline: `7b8c483487514f77de546db178edfbffc52bfd69` (`origin/main`, PR #34 merge commit).
+- C4.1 implements the production PostgreSQL base-detail read cutover at `/order-center/server-detail?id=<PG UUID>`. The static route is deliberately separate from legacy Browser `/order-center/detail`; the production list now navigates to it and never sends a PG UUID to `OrderDetailLoader`.
+- The dedicated detail uses only `serverSalesOrderReadRepository.getById` and the trusted Server session + `order.view` boundary. It provides explicit anonymous/login-required, 401 expiry invalidation, 403, 404 and server-unavailable states without Browser fallback. The exact route skips `LocalDataBootstrap`, while Browser new/detail and other legacy routes retain their existing initialization path.
+- UI sections distinguish Zhixu-owned aggregate facts from read-only Ainuoke source facts. It displays only id/orderNo/version/creationSource/lifecycle/timestamps, BillNo/InsideOrderNo/style/company/customer/brand/source quantity/contract dates/source status, colorCount and color name/quantity. Color-row delivery remains typed/internal but is not displayed; a zero-color slice remains a valid SalesOrder.
+- Customer PO, master IDs, personnel, order date, production country, DeliveryPlans, quantity/color adjustments, confirmed commercial terms, prices, attachments, execution/settlement and free-text fields remain absent. No schema, mutation API, Browser migration or real environment write is part of C4.1.
+- C4.1 automated implementation validation passed: targeted C3/C4.1/shadow-read `21/21`, ServerSession frontend `7/7`, disposable PostgreSQL `31/31`, full tests `622/622`, typecheck, lint, server build, frontend production build (`32` static routes) and `git diff --check`. Real production-detail Browser acceptance is a separate post-merge Gate and has **NOT BEEN EXECUTED**. C4 overall is not complete; C4.2+ and C5 have not started.
 - For Ainuoke-backed SalesOrders, proven Ainuoke facts remain authoritative/read-only and distinct from Zhixu-owned values. Customer PO is Ainuoke-owned/non-unique but its Direct API mapping is **NOT YET PROVEN**, so it remains null/read-only until actual evidence exists. Source order quantity is read-only; Scheduling quantities remain separate.
 - Business salesperson means brand/customer-side personnel and must never map to `app_users`; merchandiser semantics remain pending. Production country remains only in Quote/Quote PriceVersion and must not be added to formal SalesOrder; Scheduling `ProductionSite` is distinct.
 - Ainuoke contract/process delivery remains immutable source. Zhixu `DeliveryPlan` is a separate editable multi-row collection. A valid source date initializes one derived default; only an untouched collection may follow later source changes, while any user intervention protects the collection from source overwrite and leaves differences as explicit drift.
