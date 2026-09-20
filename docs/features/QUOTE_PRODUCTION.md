@@ -27,7 +27,7 @@ Quote Production v1 在启用前至少需要以下能力达到 production-grade�
 - PostgreSQL 与 Object Storage 协同的 backup/restore、完整性校验和恢复演练；
 - Quote production Browser acceptance、安全验证与运营交接。
 
-这些是目标条件。当前 main 尚未实现 Quote Server domain、Quote Server API、Server attachment pipeline 或 Quote production deployment，也未购买或冻结任何服务器方案。
+这些是生产启用目标条件。Q1 分支已实现下述 Quote Server/PostgreSQL foundation；Quote Server API、Server attachment pipeline 和 Quote production deployment 仍未实现，也未购买或冻结任何服务器方案。
 
 ## Authentication Target
 
@@ -109,7 +109,31 @@ Quote Production v1 可以先部署在低成本 VPS，但应用架构不得绑�
 
 阶段顺序不构成自动授权。每个模块都必须由 production feature gate + Server RBAC 控制，并通过自己的真实 acceptance；未完成模块继续保留但不冒充 production-ready。
 
-## Current Engineering Status
+## Q1 Server/PostgreSQL foundation — 2026-09-20
+
+Q1 implements an internal persistence foundation, validated only with disposable PostgreSQL. It is not production-activated. Browser Quote Center still uses `mockQuoteRepository` and `zhixu.erp.local.quotes`; no API route, UI flag, trusted-writer cutover, real import or startup against real `zhixu` is included.
+
+- Migration `0005_quote_foundation.sql` creates `quote_center_quotes`, `quote_center_revisions`, `quote_center_price_versions`, `quote_center_estimates`, `quote_center_cost_snapshots`, `quote_center_fabric_lines`, `quote_center_trim_lines`, and `quote_center_other_cost_lines`. The legacy `quotes` table is untouched.
+- Quote identity is existing TEXT `Quote.id`; Revision and PriceVersion keys retain their original IDs within the owning aggregate/revision. Cost-row keys are scoped to a deterministic cost-snapshot owner tuple. New revisions legitimately reuse PriceVersion/cost IDs. Positions preserve array ordering.
+- Entity metadata JSONB retains the complete remaining formal snapshot fields (including baseInfo, names, branch/creation metadata, legacy compatibility, confirmation summary, attachment references and optional fields). It is not a duplicate whole-aggregate JSON store. Decimal business values occupy NUMERIC columns: quantity, pricing rates/freight, labor, confirmation amounts and every cost-row decimal.
+- Server DTOs derive structurally from the current Quote model with decimal values represented as strings. The pure `quoteSnapshotFromBrowser` projection uses existing finite number values without recalculating or rounding; reads explicitly cast NUMERIC to text, even if a global driver numeric parser is overridden. Canonical strings remove insignificant zeroes, not business precision. Null remains null and explicit zero remains zero. Browser calculator types and display/rounding rules are unchanged.
+- Master IDs are provenance without live Brand/CustomerSalesperson/material/preset FKs. Dangling references, duplicate material names, empty country/preset and historical confirmation amounts remain readable without master resolution or recomputation. Quote code is preserved without a newly invented unique/case-normalization constraint.
+- `createQuoteService` exposes internal create/read/list/save-aggregate operations. Create and save are single transactions; aggregate row locking plus expected version prevents silent last-write-wins. Read assembly runs in a repeatable-read read-only transaction. List is bounded metadata pagination, not the future production search API.
+- Existing historical Revision content/order cannot change or disappear, and historical revisions cannot become writable. A new default may append while freezing the prior default unchanged. Current revision persistence replaces its cost slice atomically; unchanged historical children remain in place. Q2 still owns production workflow authorization and API validation.
+- Estimate current/history is a first-class Quote-owned snapshot. Prior histories are immutable; replacing active requires archiving it unchanged. Editing the same active estimate preserves provenance and cost-row identity/order. Source PriceVersion ID remains provenance, not a live FK to a mutable PriceVersion collection. Staleness and ignored-for-revision fields are preserved without recomputation.
+- Attachment ID/legacy URL references round-trip structurally; binary data URLs are rejected. No attachment metadata/blob tables, Object Storage, upload API or binary migration are included. Future authorized migration projection can explicitly clear references to `[] / [] / null`; Q1 does not clear them.
+- Q1 does not import Browser OperationLogs or treat `createdBy/generatedBy` strings as trusted actors. The internal persistence service is not exposed to users; trusted authorization and transaction OperationLog integration are explicitly Q2 prerequisites. No current shared ConfirmedCommercialTerms writer is created. Exact Quote/Revision/PriceVersion identities remain the future provenance integration point.
+- Synthetic disposable tests cover processing/distribution, incomplete drafts, multiple revisions/PVs, CNY/USD, null/zero, precision, dangling masters, duplicate names, no preset, confirmation snapshots, Estimate history, immutable boundaries, concurrent conflict, rollback and untouched SalesOrder/log/sequence state.
+
+Q1 validation: targeted Quote PostgreSQL 13/13; complete PostgreSQL 46/46; full tests 622/622; typecheck, lint, server build, frontend production build (32 routes) and `git diff --check` PASS. The first PostgreSQL run exposed historical runner fixtures consuming the expanded migration set. Those fixtures now use temporary 0001-0003-only directories; additional tests retain the production guards' rejection of newer migration sets. Production bootstrap/RBAC code was not changed. Test containers and temporary stacking directories were removed; no real database was connected or migrated.
+
+### Migration numbering and PR #37
+
+`0004_confirmed_commercial_terms.sql` remains reserved by independent OPEN PR #37 (head `1299ec5d532f1872d26e7acabe58ab6e78c27755`). Q1 uses only version 5 and has no dependency on its tables/functions. The runner discovers/sorts numeric versions and applies every version absent from the ledger; it does not demand a contiguous prefix or reject a lower pending version. Both actual migration orders `0001/2/3 → 0004 → 0005` and `0001/2/3 → 0005 → 0004` were validated on disposable databases using the unchanged local Git object for PR #37. No PR #37 SQL is copied into this branch.
+
+A deployment must always include every already-applied migration file with its original checksum. Running this unmerged branch against a database already containing version 4 would intentionally fail the existing missing-file guard. A future merged tree includes both independent migrations regardless of merge order. Q1 does not weaken that guard or authorize any real migration; `server/index.ts` auto-migrates on startup and must not be started against real `zhixu` for Q1.
+
+## Pre-Q1 Engineering Status (historical)
 
 - Authoritative main：`20d334d5043749250fae468e15bf47d1e281efe2`。
 - C4.1 PostgreSQL Base Detail Read Cutover：**COMPLETE on merged main**。
@@ -118,7 +142,7 @@ Quote Production v1 可以先部署在低成本 VPS，但应用架构不得绑�
 - Real `zhixu` migration 0004 activation：**NOT AUTHORIZED / NOT EXECUTED**。
 - C4.2 real Browser acceptance：**NOT EXECUTED**。
 - Quote PostgreSQL domain/API、Server attachment architecture、Quote data migration 与 Quote production deployment：**NOT IMPLEMENTED / NOT READY**。
-- 下一任务：**Q0 Quote Production Readiness & Migration Audit**。Q0 仍是 audit，不由本文自动启动。
+- Q0 于 2026-09-14 完成 read-only audit（8 Quotes / 9 Revisions / 12 PriceVersions）；未发现 Quote aggregate corruption blocker。Q1 不读取或提交真实 backup。下一阶段是需独立授权的 **Q2 Quote Server API + trusted writer + single-login cutover**，尚未实施。
 
 ## Follow-up Documentation Sync
 

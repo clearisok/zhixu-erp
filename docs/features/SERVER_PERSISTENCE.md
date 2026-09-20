@@ -130,6 +130,10 @@ Browser
 
 ## Migration contract
 
+Q1 adds independent `0005_quote_foundation.sql` and internal `server/quotes/` aggregate persistence. The eight `quote_center_*` tables preserve original IDs, owner-scoped child identity, ordered Revision/PriceVersion/Estimate snapshots and NUMERIC decimal strings. Legacy `quotes`, SalesOrder and master-data tables are untouched. Historical Revision/Estimate content is protected by the repository/service boundary; aggregate save uses row lock + optimistic version + one transaction, reads use repeatable-read snapshots. This is disposable-validated engineering foundation only: no Quote HTTP API, trusted production writer/audit integration, Browser cutover, real migration, attachment pipeline or master authority transfer. Details and exact tables are in `QUOTE_PRODUCTION.md`.
+
+Version 4 stays reserved to OPEN PR #37. The existing runner supports non-contiguous versions and applies lower pending versions too; actual 4→5 and 5→4 orders passed disposable validation. All applied files must still be present with matching checksums when deploying a merged tree. Q1 does not activate 0004/0005 on real `zhixu`; do not run `server/index.ts` against it because startup applies pending migrations automatically.
+
 - 文件目录：`database/migrations/`，命名 `NNNN_description.sql`，只前进。
 - `schema_migrations` ledger 保存 `version`、`filename`、SHA-256 `checksum`、`applied_at`、`duration_ms`。
 - runner 使用 session-level PostgreSQL advisory lock 串行化并发进程；每个 migration 在独立 transaction 内执行，DDL 或 ledger 写失败会整体 rollback。

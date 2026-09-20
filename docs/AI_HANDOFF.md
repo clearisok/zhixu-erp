@@ -11,9 +11,19 @@
 
 ## Current Stable Main
 
-`c38e80a44eed384c0d09f9a0317bd14122763865`（C4.1 implementation PR #35 已 merged）
+`4c69773f92fc1334a018e51cf76b6ee6146192d8`（Quote-first decisions PR #38 已 merged）
 
 ## Current Active Task
+
+- Q1 branch: `feat/quote-server-foundation`, clean baseline `4c69773f92fc1334a018e51cf76b6ee6146192d8`.
+- Internal Quote PostgreSQL foundation is implemented in `server/quotes/` and migration `0005_quote_foundation.sql`. Browser runtime remains on mock/localStorage. Read `docs/features/QUOTE_PRODUCTION.md` Q1 section for exact table/model/decimal/immutability boundaries.
+- Final validation: targeted disposable Quote integration 13/13, complete PostgreSQL integration 46/46, full tests 622/622, typecheck, lint, server build, frontend build (32 routes), and diff-check PASS. Actual unchanged PR #37 SQL stacked both before and after 0005: PASS on disposable databases.
+- Initial PostgreSQL regression exposed historical bootstrap/RBAC test fixtures reading the expanded migration directory. Their disposable fixtures now explicitly freeze 0001-0003; production guards are unchanged and new tests confirm they still reject the expanded repository migration set. PostgreSQL was rerun after this test-only correction; the passing full frontend suite/build was not repeated.
+- PR #37 remains OPEN/unmerged and independent; reserved 0004 is not in this branch. No real zhixu migration, real Quote import, Browser business write, attachment implementation or master authority transfer was performed. Do not start this branch's server against real zhixu.
+- The outside-repository architecture report is not a Q1 authority or deliverable; do not restore/commit it. Use executable model/tests and formal docs.
+- Next after Q1 delivery: separately authorized Q2 typed API + trusted writer/audit + single-login cutover. Q1 has no user-facing Quote mutation API and does not make Browser provenance strings trusted actors.
+
+## Previous C4.1 acceptance context
 
 - Branch: `docs/c4-1-production-detail-acceptance`
 - Baseline: `c38e80a44eed384c0d09f9a0317bd14122763865` (`origin/main`, PR #35 merge commit).

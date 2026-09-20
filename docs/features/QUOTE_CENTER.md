@@ -68,7 +68,7 @@ Quote Center 是面向成衣报价工作的新版前端模块，提供完整报�
 - 当前实现：`mock-quote-repository.ts`，以内存缓存 + 稳定 localStorage `zhixu.erp.local.quotes` 保存；旧 sessionStorage `zhixu.quote-center.slice-1.2` 只作为一次性兼容迁移来源。
 - 附件二进制：IndexedDB `zhixu-quote-attachments`，Quote repository 只保存 ID 引用。
 - 全局费用和列表偏好使用 `zhixu.erp.local.*` 稳定 localStorage envelope，定义在 `model/quote-settings.ts`。
-- 当前没有 Quote Center 后端 API、数据库表或 migration。
+- Q1 已提供独立 `server/quotes/` 和 `0005_quote_foundation.sql`，只通过 disposable PostgreSQL 验证完整聚合持久化、历史保护、NUMERIC 和 optimistic version；尚无 Quote Center HTTP API 或 Browser writer cutover。完整 schema/边界见 `QUOTE_PRODUCTION.md` 的 Q1 节。
 - 不调用根路径 ERP 的旧 `/api/quotes`。
 - Repository delete interface 预留 `hard` / `soft` 模式；当前 mock UI 实际执行硬删除。
 - 操作日志使用独立 localStorage repository `zhixu.erp.local.operation-logs`，旧 key 只作为迁移来源，不改变 Quote repository 和 Revision 数据结构。

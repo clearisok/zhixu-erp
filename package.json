@@ -18,7 +18,7 @@
     "test:server-auth-frontend": "tsx --test features/server-auth/__tests__/*.test.ts",
     "test:server-auth-integration": "tsx --test --test-concurrency=1 server/integration/browser-session-e2e.integration.test.ts",
     "test:shadow-read": "node --test tests/sales-order-server-shadow-read.test.mjs",
-    "test:postgres": "tsx --test --test-concurrency=1 server/integration/postgres.integration.test.ts server/integration/bootstrap-runner.integration.test.ts server/integration/rbac-activation.integration.test.ts server/integration/browser-session-e2e.integration.test.ts",
+    "test:postgres": "tsx --test --test-concurrency=1 server/integration/postgres.integration.test.ts server/integration/bootstrap-runner.integration.test.ts server/integration/rbac-activation.integration.test.ts server/integration/browser-session-e2e.integration.test.ts server/integration/quote-foundation.integration.test.ts",
     "qa:data:prepare": "node scripts/generate-ui-qa-data.mjs prepare",
     "qa:data:cleanup": "node scripts/generate-ui-qa-data.mjs cleanup",
     "build": "vinext build",
