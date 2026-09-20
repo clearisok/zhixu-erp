@@ -16,7 +16,7 @@ Browser
 ```
 
 - API 入口位于 `server/`，使用 Node 内置 HTTP server 和 `pg` pool；没有任意 SQL/table/op dispatch endpoint。
-- Node server 启动时按顺序执行 migration、同步共享权限目录、可选 bootstrap 管理员，然后监听请求。
+- Node server 正常启动只读验证 migration ledger、文件名与 checksum；只有数据库已完整应用当前 migration 集合时，才继续同步共享权限目录、可选 bootstrap 管理员并监听请求。缺失 ledger、pending migration 或完整性异常均 fail closed，启动路径不会创建 ledger 或执行 DDL。Schema activation 只能通过另行授权的 `npm run db:migrate` 显式执行。
 - 生产目标由同一 Node 进程提供 `dist/client` 静态文件和 `/api/v1/*`。Phase 1 在 Compose 中以 `server-foundation` profile 提供该路径；legacy `zhixu` service 暂时保留。
 - Pool 有明确最大连接数、连接/idle timeout 和 SIGINT/SIGTERM graceful shutdown。数据库 URL/密码只从 server process environment 读取，不进入前端 bundle。
 - `NODE_ENV=production` 时必须配置 `ZHIXU_ALLOWED_ORIGINS`，且 Secure cookie 不允许关闭；本机 HTTP 开发必须使用 development 模式。
@@ -134,6 +134,8 @@ Browser
 - `schema_migrations` ledger 保存 `version`、`filename`、SHA-256 `checksum`、`applied_at`、`duration_ms`。
 - runner 使用 session-level PostgreSQL advisory lock 串行化并发进程；每个 migration 在独立 transaction 内执行，DDL 或 ledger 写失败会整体 rollback。
 - rerun 已应用文件为 no-op；checksum/filename 改动、已应用文件缺失或重复 version 均 fail closed。已应用 migration 不允许编辑，修复使用新 forward migration。
+- `server/index.ts` 不再调用 migration apply runner。启动 preflight 在 PostgreSQL `READ ONLY` transaction 中读取 ledger 并复用同一 filename/checksum/missing-file guard；pending 时输出不含 connection string/credential 的安全错误，并在 permission catalog sync、admin bootstrap 与 HTTP listen 前退出。
+- `npm run db:migrate:status` 是只读 operator status；返回 applied、pending、ledger existence 与 integrity，不创建 ledger。`npm run db:migrate` 是唯一正式 apply 入口，仍保留 advisory lock、逐 migration transaction、ledger、rerun skip 和 rollback 语义。部署顺序固定为 backup/preflight → 显式 migration activation → status verification → application startup。
 - 没有自动 down。回退方式是经过验证的新 forward-fix migration，或在明确授权和已验证备份下恢复数据库。
 - legacy `database/001_schema.sql` / `002_admin.sql` 仍只服务旧 runtime，不会由 Node migration runner 执行。Phase 1 migration 只演进共享 identity/session 并新增 RBAC/OperationLog，不修改 `customers/quotes/orders/schedules/audit_logs/api_dispatch`。
 

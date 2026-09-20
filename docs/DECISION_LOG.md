@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-086 Server startup verifies migrations but never activates schema
+
+- 日期：2026-09-20
+- 状态：Active；M0 migration activation safety gate。它约束所有现有及未来 server migrations，包括尚在独立 OPEN PR 中的 0004/0005，但不授权任何真实 migration。
+- 决定：正常 `server:dev`、`server:start` 与生产容器启动不得执行 migration DDL 或初始化 `schema_migrations`。启动只在 read-only transaction 中验证 ledger、applied filename/checksum、missing-file 与 pending 状态；缺失 ledger、pending migration、checksum mismatch 或已应用文件缺失都必须在 permission catalog sync、admin bootstrap 与 HTTP listen 前 fail closed。
+- Activation：schema 只可由经过单独授权的 `npm run db:migrate` 显式激活。该 apply path 继续使用 session advisory lock、逐 migration transaction、checksum ledger、失败 rollback 与 rerun skip。标准顺序为 backup/preflight → explicit migration → read-only status verification → server startup，不允许用启动/重启隐式升级数据库。
+- Operator UX：`npm run db:migrate:status` 只报告 ledger existence、applied、pending 与 integrity，不写 schema。pending 错误只含安全 migration filenames 与显式 operator action，不含 DB URL、password 或 credential。
+- 证据：`server/db/migration-runner.ts`、`server/startup.ts`、`server/index.ts`、`server/integration/migration-activation.integration.test.ts` 与 `tests/server-migration-activation-safety.test.mjs`。M0 只在 disposable PostgreSQL 16 验证；真实 0004/0005 与任何业务写均未执行。
+
 ### D-084 Linked Quote and SalesOrder share only current confirmed commercial terms
 
 - 日期：2026-09-14

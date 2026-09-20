@@ -1,11 +1,11 @@
 # 当前状态
 
-> 状态快照：2026-09-14。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-20。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
-- 当前 Active Task 为 docs-only `docs/c4-1-production-detail-acceptance`，起点为 `c38e80a44eed384c0d09f9a0317bd14122763865`（C4.1 implementation PR #35 merge）。C4.1 真实 production-detail Browser 验收已 PASS；本分支只记录验收事实，不修改 code/schema/API 或业务数据。
-- 当前稳定基线：GitHub `main` 为 `c38e80a44eed384c0d09f9a0317bd14122763865`（PR #35 已 merged）。
+- 当前 Active Task 为 M0 migration activation safety gate，分支 `chore/migration-activation-safety`，起点为 `4c69773f92fc1334a018e51cf76b6ee6146192d8`。本 Gate 只解耦 server startup 与 schema activation，并以 disposable PostgreSQL 验证；不执行真实 migration 或业务写。
+- 当前稳定基线：GitHub `main` 为 `4c69773f92fc1334a018e51cf76b6ee6146192d8`（PR #38 已 merged）。PR #37（migration 0004）与 PR #39（Q1 migration 0005）仍 OPEN / unmerged，彼此独立；M0 不复制或修改其 migration。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -43,6 +43,13 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### M0 — Migration Activation Safety Gate
+
+- 正常 Node startup 不再调用 migration apply runner。它先用 read-only transaction 验证 `schema_migrations`、文件名、checksum、missing applied file 与 pending 集合；missing ledger 或 pending/incompatible state 都在 permission sync、admin bootstrap 和 HTTP listen 前 fail closed。
+- `npm run db:migrate` 继续是唯一 schema apply 入口，并保留 advisory lock、逐文件 transaction、ledger、checksum、rollback 与 rerun skip。新增 `npm run db:migrate:status` 作为无 schema write 的 operator status 命令。
+- Disposable PG16 覆盖 missing ledger、pending 0004/0005 fixture、正常 fully-migrated startup、显式 apply、checksum mismatch、missing file、业务表/OperationLog/sequence 不变与 startup ordering。测试 fixture 不复制 PR #37/#39 migration 内容。
+- M0 未连接或修改真实 `zhixu` PostgreSQL；0004/0005 real activation、Quote import、Browser writer cutover、PR #37/#39 merge、Q2 与部署均未执行。
 
 ### Phase C4.0 — confirmed business ownership decisions (docs only)
 

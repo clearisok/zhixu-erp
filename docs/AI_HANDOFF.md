@@ -11,12 +11,18 @@
 
 ## Current Stable Main
 
-`c38e80a44eed384c0d09f9a0317bd14122763865`（C4.1 implementation PR #35 已 merged）
+`4c69773f92fc1334a018e51cf76b6ee6146192d8`（PR #38 已 merged）
 
 ## Current Active Task
 
-- Branch: `docs/c4-1-production-detail-acceptance`
-- Baseline: `c38e80a44eed384c0d09f9a0317bd14122763865` (`origin/main`, PR #35 merge commit).
+- Branch: `chore/migration-activation-safety`
+- Baseline: `4c69773f92fc1334a018e51cf76b6ee6146192d8` (`origin/main`, PR #38 merge commit).
+- M0 removes automatic schema activation from normal Node startup. `server/index.ts` calls read-only `verifyMigrationsCurrent` before permission sync, admin bootstrap or listen; missing ledger, pending migrations and integrity failures stop startup without schema writes.
+- `npm run db:migrate` remains the sole explicit apply path with advisory lock, per-file transactions, checksum ledger, rollback and rerun skip. `npm run db:migrate:status` reports applied/pending/integrity read-only. Deployment order is backup/preflight → authorized explicit migration → status verification → server startup.
+- PR #37 (0004 ConfirmedCommercialTerms) and PR #39 (Q1 Quote foundation 0005) remain OPEN / unmerged and independent. M0 does not copy, edit, activate or merge either migration. Real 0004/0005, real Quote migration, Browser writes, Q2 and deployment remain NOT EXECUTED.
+
+## Relevant inherited state
+
 - C4.1 implements the production PostgreSQL base-detail read cutover at `/order-center/server-detail?id=<PG UUID>`. The static route is deliberately separate from legacy Browser `/order-center/detail`; the production list now navigates to it and never sends a PG UUID to `OrderDetailLoader`.
 - The dedicated detail uses only `serverSalesOrderReadRepository.getById` and the trusted Server session + `order.view` boundary. It provides explicit anonymous/login-required, 401 expiry invalidation, 403, 404 and server-unavailable states without Browser fallback. The exact route skips `LocalDataBootstrap`, while Browser new/detail and other legacy routes retain their existing initialization path.
 - UI sections distinguish Zhixu-owned aggregate facts from read-only Ainuoke source facts. It displays only id/orderNo/version/creationSource/lifecycle/timestamps, BillNo/InsideOrderNo/style/company/customer/brand/source quantity/contract dates/source status, colorCount and color name/quantity. Color-row delivery remains typed/internal but is not displayed; a zero-color slice remains a valid SalesOrder.
