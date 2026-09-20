@@ -1,5 +1,9 @@
 # 织序 ERP 前端操作日志
 
+## Q2A Server Quote aggregate audit
+
+Q2A create and real aggregate-save mutations append exactly one existing PostgreSQL `operation_logs` row inside the same Q1 write transaction. The actor comes only from the trusted Server session. The event stores Quote ID, create/save action, aggregate version transition, bounded Quote/default-Revision/count summary and safe request ID/method/path context; it never dumps the full Quote, attachment content or request body. Audit failure rolls back every aggregate row. Unauthorized, malformed, stale, immutable-history and no-op writes append no event. Browser-local Quote logs remain on their existing repository until Q2B cutover; Q2A does not dual-write them.
+
 ## C4.2 Server ConfirmedCommercialTerms audit
 
 Every actual shared-current terms create/update appends exactly one existing PostgreSQL `operation_logs` row in the same transaction. The trusted session supplies actor ID/name; request bodies cannot supply or override actor. The log records old/new customer-confirmed price, confirmed labor price, labor currency and terms version, plus mutation surface, exact Quote provenance when linked, and associated formal SalesOrder UUIDs. Audit failure rolls back the terms and association; existing logs remain append-only. Adding the shared TypeScript action/entity labels does not create a second Browser persistence authority or require a Browser storage migration.
