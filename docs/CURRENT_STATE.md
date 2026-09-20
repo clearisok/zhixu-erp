@@ -4,9 +4,9 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 Q1 `feat/quote-server-foundation`；基线为 merged main `4c69773f92fc1334a018e51cf76b6ee6146192d8`（PR #38）。PR #37 仍 OPEN / UNMERGED，独立保留 migration 0004。
-- Q1 已实现 Quote/Revision/PriceVersion/Estimate 与成本快照的 Server/PostgreSQL foundation，migration 为 `0005_quote_foundation.sql`。仅使用 disposable PostgreSQL；定向 13/13、PostgreSQL 46/46、full tests 622/622、typecheck、lint、server build、frontend build（32 routes）、diff-check 及实际 0004/0005 双顺序兼容性验证全部 PASS。工程边界详见 `features/QUOTE_PRODUCTION.md`。
-- Quote production 尚未激活；Browser Quote 仍使用 mockQuoteRepository/localStorage。没有真实 migration/import/business write，没有 Q2 API/writer/single-login cutover、Q3 master transfer、Q4 attachments 或 PR #37 merge。下一阶段是独立授权的 Q2。
+- 当前 Active Task 为 Q1 post-M0 integration closeout，分支 `feat/quote-server-foundation`。当前稳定 `main` 为 `9d8dac5f7c3a5a7db8e3419eff02e8d8942a3003`（Migration Activation Safety Gate PR #40 merged）；Q1 PR #39 仍 OPEN / unmerged，PR #37 仍 OPEN / unmerged。
+- Q1 已实现 Quote/Revision/PriceVersion/Estimate 与成本快照的 Server/PostgreSQL foundation，migration 为 `0005_quote_foundation.sql`。M0 已集成：正常 server startup 只读验证 migration 状态，pending 0005 fail closed，不执行 0005，也不会进入 permission sync、admin bootstrap 或 listen；显式 `npm run db:migrate` 仍是唯一 activation path。Post-M0 targeted 19/19、PostgreSQL 52/52、full tests 624/624、typecheck、lint、server/frontend build（32 routes）与 diff-check 均 PASS。
+- Quote production 尚未激活；0005 只存在于 Q1 PR #39，0004 只存在于独立 PR #37，真实 0004/0005 均未执行。Browser Quote 仍使用 mockQuoteRepository/localStorage；没有真实 Quote import/business write、Q2 API/writer/single-login cutover、Q3 master transfer或 Q4 attachments。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -44,6 +44,13 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### M0 — Migration Activation Safety Gate
+
+- 正常 Node startup 不再调用 migration apply runner。它先用 read-only transaction 验证 `schema_migrations`、文件名、checksum、missing applied file 与 pending 集合；missing ledger 或 pending/incompatible state 都在 permission sync、admin bootstrap 和 HTTP listen 前 fail closed。
+- `npm run db:migrate` 继续是唯一 schema apply 入口，并保留 advisory lock、逐文件 transaction、ledger、checksum、rollback 与 rerun skip。新增 `npm run db:migrate:status` 作为无 schema write 的 operator status 命令。
+- Disposable PG16 覆盖 missing ledger、pending 0004/0005 fixture、正常 fully-migrated startup、显式 apply、checksum mismatch、missing file、业务表/OperationLog/sequence 不变与 startup ordering。测试 fixture 不复制 PR #37/#39 migration 内容。
+- M0 未连接或修改真实 `zhixu` PostgreSQL；0004/0005 real activation、Quote import、Browser writer cutover、PR #37/#39 merge、Q2 与部署均未执行。
 
 ### Phase C4.0 — confirmed business ownership decisions (docs only)
 
