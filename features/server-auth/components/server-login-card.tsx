@@ -10,7 +10,13 @@ function loginErrorMessage(error: unknown): string {
   return "无法连接织序 Server，请稍后再试。";
 }
 
-export function ServerLoginCard({ defaultUsername = "" }: { defaultUsername?: string }) {
+export function ServerLoginCard({
+  defaultUsername = "",
+  description = "请登录织序 Server 以读取 PostgreSQL 正式订单。",
+}: {
+  defaultUsername?: string;
+  description?: string;
+}) {
   const { login } = useServerSession();
   const [username, setUsername] = useState(defaultUsername);
   const [password, setPassword] = useState("");
@@ -38,7 +44,7 @@ export function ServerLoginCard({ defaultUsername = "" }: { defaultUsername?: st
   return (
     <Card className="server-login-card">
       <h2>登录织序 Server</h2>
-      <p>请登录织序 Server 以读取 PostgreSQL 正式订单。</p>
+      <p>{description}</p>
       {error && <div ref={errorRef} className="qc-field-error" role="alert" tabIndex={-1}>{error}</div>}
       <form onSubmit={(event) => void submit(event)}>
         <FormItem label="Server 用户名" required>

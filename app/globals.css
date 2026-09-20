@@ -654,6 +654,14 @@ html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 .qc-test-user-switcher { min-width: 188px; height: 38px; display: flex; align-items: center; gap: 8px; padding: 3px 9px 3px 4px; border: 1px solid var(--line); border-radius: 20px; background: #fff; }
 .qc-test-user-switcher > span { width: 30px; height: 30px; display: grid; place-items: center; color: #fff; border-radius: 50%; background: var(--forest); font-weight: 700; }
 .qc-test-user-switcher select { min-width: 0; flex: 1; color: #33463e; border: 0; outline: 0; background: transparent; font: inherit; font-size: 11px; }
+.qc-server-identity { min-width: 188px; min-height: 38px; display: flex; align-items: center; gap: 8px; padding: 3px 10px 3px 4px; border: 1px solid #c8ddd4; border-radius: 20px; background: #f2f8f5; }
+.qc-server-identity > span { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; color: #fff; border-radius: 50%; background: var(--forest); font-weight: 700; }
+.qc-server-identity > div { min-width: 0; display: grid; gap: 1px; }
+.qc-server-identity strong, .qc-server-identity small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qc-server-identity strong { color: #29453a; font-size: 10px; }
+.qc-server-identity small { color: #667a71; font-size: 8px; }
+.ops-server-user { cursor: default; }
+.ops-server-user:hover { background: transparent; }
 .qc-permission-layout { display: grid; grid-template-columns: minmax(250px, 310px) minmax(0, 1fr); gap: 18px; align-items: start; }
 .qc-permission-user-list, .qc-permission-detail { overflow: hidden; }
 .qc-permission-user-list > header, .qc-permission-detail > header { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 19px; border-bottom: 1px solid var(--line); }
@@ -690,6 +698,6 @@ html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 .qc-permission-groups input { margin-top: 3px; accent-color: var(--forest); }
 .qc-permission-groups label > span { min-width: 0; display: grid; gap: 2px; }.qc-permission-groups label strong { color: #344840; font-size: 11px; }.qc-permission-groups label small { color: #7a8781; font-size: 10px; line-height: 1.45; }
 .qc-permission-detail-empty { min-height: 260px; display: grid; place-content: center; color: #7a8781; text-align: center; }
-@media (max-width: 900px) { .qc-permission-groups { grid-template-columns: 1fr; }.qc-test-user-switcher { min-width: 42px; width: 42px; padding: 4px; }.qc-test-user-switcher select { position: absolute; width: 42px; height: 38px; opacity: 0; cursor: pointer; } }
+@media (max-width: 900px) { .qc-permission-groups { grid-template-columns: 1fr; }.qc-test-user-switcher { min-width: 42px; width: 42px; padding: 4px; }.qc-test-user-switcher select { position: absolute; width: 42px; height: 38px; opacity: 0; cursor: pointer; }.qc-server-identity { min-width: 42px; width: 42px; padding: 4px; }.qc-server-identity > div { display: none; } }
 @media (max-width: 1099px) { .qc-permission-layout { grid-template-columns: 1fr; }.qc-permission-layout[data-selected] > aside { display: none; }.qc-permission-layout:not([data-selected]) > section { display: none; } }
 @media (max-width: 699px) { .qc-permission-account-fields { grid-template-columns: 1fr; }.qc-permission-layout { gap: 12px; }.qc-permission-user-list > header, .qc-permission-detail > header { align-items: flex-start; flex-direction: column; }.qc-permission-user-records > button { min-height: 72px; grid-template-columns:minmax(0,1fr) auto; }.qc-permission-user-records .qc-status-tag { grid-column:2;grid-row:1 / span 2;}.qc-permission-groups { padding-inline:12px;}.qc-permission-search { padding-inline:12px;} }
