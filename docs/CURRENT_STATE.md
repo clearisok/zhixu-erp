@@ -4,8 +4,9 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 M0 migration activation safety gate，分支 `chore/migration-activation-safety`，起点为 `4c69773f92fc1334a018e51cf76b6ee6146192d8`。本 Gate 只解耦 server startup 与 schema activation，并以 disposable PostgreSQL 验证；不执行真实 migration 或业务写。
-- 当前稳定基线：GitHub `main` 为 `4c69773f92fc1334a018e51cf76b6ee6146192d8`（PR #38 已 merged）。PR #37（migration 0004）与 PR #39（Q1 migration 0005）仍 OPEN / unmerged，彼此独立；M0 不复制或修改其 migration。
+- 当前 Active Task 为 Q1 post-M0 integration closeout，分支 `feat/quote-server-foundation`。当前稳定 `main` 为 `9d8dac5f7c3a5a7db8e3419eff02e8d8942a3003`（Migration Activation Safety Gate PR #40 merged）；Q1 PR #39 仍 OPEN / unmerged，PR #37 仍 OPEN / unmerged。
+- Q1 已实现 Quote/Revision/PriceVersion/Estimate 与成本快照的 Server/PostgreSQL foundation，migration 为 `0005_quote_foundation.sql`。M0 已集成：正常 server startup 只读验证 migration 状态，pending 0005 fail closed，不执行 0005，也不会进入 permission sync、admin bootstrap 或 listen；显式 `npm run db:migrate` 仍是唯一 activation path。Post-M0 targeted 19/19、PostgreSQL 52/52、full tests 624/624、typecheck、lint、server/frontend build（32 routes）与 diff-check 均 PASS。
+- Quote production 尚未激活；0005 只存在于 Q1 PR #39，0004 只存在于独立 PR #37，真实 0004/0005 均未执行。Browser Quote 仍使用 mockQuoteRepository/localStorage；没有真实 Quote import/business write、Q2 API/writer/single-login cutover、Q3 master transfer或 Q4 attachments。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。

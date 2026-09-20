@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-085 Quote Q1 persistence preserves owner-scoped identity and snapshot values
+
+- 日期：2026-09-20；状态：Active engineering decision within Q1, not production activation.
+- `0005_quote_foundation.sql` uses a distinct `quote_center_*` table family; legacy `quotes` is not the new model. Existing TEXT IDs survive, with Revision/PriceVersion/cost identities scoped to their owners because a new Revision legitimately reuses child IDs.
+- Monetary/decimal fields use NUMERIC and typed decimal-string boundaries without new rounding. Metadata remains snapshot-owned, including dangling master IDs/names, missing country/preset, legacy fields and historical confirmations. No master FK or recomputation may destroy historical values.
+- Internal aggregate transactions enforce optimistic version and immutable historical Revision/Estimate content. Trusted production API authorization/audit remains Q2. Shared current ConfirmedCommercialTerms remains independent PR #37, not duplicated in Q1.
+- Version 4 is reserved for PR #37; version 5 has no dependency on it. Existing runner supports either application order while retaining checksum/missing-file guards. Only disposable databases are authorized for Q1.
+- Evidence: `server/quotes/`, `server/integration/quote-foundation.integration.test.ts`, `database/migrations/0005_quote_foundation.sql`, `docs/features/QUOTE_PRODUCTION.md`.
+
 ### D-086 Server startup verifies migrations but never activates schema
 
 - 日期：2026-09-20

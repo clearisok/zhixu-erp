@@ -19,9 +19,10 @@ import {
 import { parseRbacActivationCliArguments } from "../auth/rbac-activation-cli.js";
 import { readBootstrapBusinessCounts, readBootstrapSequenceState } from "../sales-orders/bootstrap-runner.js";
 import { startDisposablePostgres } from "./postgres-container.js";
+import { frozenFoundationMigrations } from "./frozen-foundation-migrations.js";
 
 const { Pool } = pg;
-const migrationsDirectory = resolve("database/migrations");
+let migrationsDirectory: string;
 
 const emptySafety = (): RbacSafetyExpectation => ({
   salesOrderCounts: {
@@ -77,9 +78,21 @@ async function rbacCounts(pool: pg.Pool) {
 }
 
 test("guarded existing-admin RBAC activation rehearses only in disposable PostgreSQL", async (context) => {
+  const frozen = await frozenFoundationMigrations();
+  migrationsDirectory = frozen.directory;
+  context.after(frozen.dispose);
   const postgres = await startDisposablePostgres();
   const pools: pg.Pool[] = [];
   try {
+    await context.test("current expanded migration set still fails the frozen RBAC guard closed", async () => {
+      const database = await migratedDatabase(postgres, "expanded_migrations");
+      pools.push(database.pool);
+      await seedUser(database.pool, { username: "admin" });
+      const report = await inspectRbacActivationPlan(database.pool, {
+        username: "admin", migrationsDirectory: resolve("database/migrations"), expectedDatabase: database.database, expectedSafety: emptySafety(),
+      });
+      assert.ok(report.reasons.includes("repository_migration_set_mismatch"));
+    });
     await context.test("CLI and execute require exact admin target plus both confirmations", () => {
       assert.throws(() => parseRbacActivationCliArguments([]), RbacActivationGuardError);
       assert.throws(() => parseRbacActivationCliArguments(["--plan", "--execute", "--username=admin"]), RbacActivationGuardError);

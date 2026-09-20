@@ -11,18 +11,20 @@
 
 ## Current Stable Main
 
-`4c69773f92fc1334a018e51cf76b6ee6146192d8`（PR #38 已 merged）
+`9d8dac5f7c3a5a7db8e3419eff02e8d8942a3003`（Migration Activation Safety Gate PR #40 已 merged）
 
 ## Current Active Task
 
-- Branch: `chore/migration-activation-safety`
-- Baseline: `4c69773f92fc1334a018e51cf76b6ee6146192d8` (`origin/main`, PR #38 merge commit).
-- M0 removes automatic schema activation from normal Node startup. `server/index.ts` calls read-only `verifyMigrationsCurrent` before permission sync, admin bootstrap or listen; missing ledger, pending migrations and integrity failures stop startup without schema writes.
-- `npm run db:migrate` remains the sole explicit apply path with advisory lock, per-file transactions, checksum ledger, rollback and rerun skip. `npm run db:migrate:status` reports applied/pending/integrity read-only. Deployment order is backup/preflight → authorized explicit migration → status verification → server startup.
-- PR #37 (0004 ConfirmedCommercialTerms) and PR #39 (Q1 Quote foundation 0005) remain OPEN / unmerged and independent. M0 does not copy, edit, activate or merge either migration. Real 0004/0005, real Quote migration, Browser writes, Q2 and deployment remain NOT EXECUTED.
+- Q1 branch: `feat/quote-server-foundation`; pre-integration head `7959748d8d9ea63b3ed2e9731ed104a4b0eb01d3`, now integrating merged main `9d8dac5f7c3a5a7db8e3419eff02e8d8942a3003` without rebase.
+- Internal Quote PostgreSQL foundation is implemented in `server/quotes/` and migration `0005_quote_foundation.sql`. Browser runtime remains on mock/localStorage. Read `docs/features/QUOTE_PRODUCTION.md` Q1 section for exact table/model/decimal/immutability boundaries.
+- M0 startup safety is preserved: `server/index.ts` performs read-only migration verification before permission sync, admin bootstrap and listen. Pending 0005 fails closed without creating Quote tables; only an explicitly authorized `npm run db:migrate` may activate schema. `npm run db:migrate:status` remains read-only.
+- Post-M0 final validation passed targeted migration-safety + Quote integration 19/19, complete PostgreSQL integration 52/52, full tests 624/624, typecheck, lint, server build, frontend build (32 routes) and diff-check. The unchanged PR #37 SQL was also revalidated from its local Git object in both 0004→0005 and 0005→0004 orders on disposable PostgreSQL; no 0004 file was added to Q1.
+- Initial PostgreSQL regression exposed historical bootstrap/RBAC test fixtures reading the expanded migration directory. Their disposable fixtures now explicitly freeze 0001-0003; production guards are unchanged and new tests confirm they still reject the expanded repository migration set. PostgreSQL was rerun after this test-only correction; the passing full frontend suite/build was not repeated.
+- PR #37 remains OPEN/unmerged and independent; reserved 0004 is not in this branch. PR #39 remains Q1 foundation only. No real zhixu migration, real Quote import, Browser business write, attachment implementation or master authority transfer was performed.
+- The outside-repository architecture report is not a Q1 authority or deliverable; do not restore/commit it. Use executable model/tests and formal docs.
+- Next after Q1 delivery: separately authorized Q2 typed API + trusted writer/audit + single-login cutover. Q1 has no user-facing Quote mutation API and does not make Browser provenance strings trusted actors.
 
 ## Relevant inherited state
-
 - C4.1 implements the production PostgreSQL base-detail read cutover at `/order-center/server-detail?id=<PG UUID>`. The static route is deliberately separate from legacy Browser `/order-center/detail`; the production list now navigates to it and never sends a PG UUID to `OrderDetailLoader`.
 - The dedicated detail uses only `serverSalesOrderReadRepository.getById` and the trusted Server session + `order.view` boundary. It provides explicit anonymous/login-required, 401 expiry invalidation, 403, 404 and server-unavailable states without Browser fallback. The exact route skips `LocalDataBootstrap`, while Browser new/detail and other legacy routes retain their existing initialization path.
 - UI sections distinguish Zhixu-owned aggregate facts from read-only Ainuoke source facts. It displays only id/orderNo/version/creationSource/lifecycle/timestamps, BillNo/InsideOrderNo/style/company/customer/brand/source quantity/contract dates/source status, colorCount and color name/quantity. Color-row delivery remains typed/internal but is not displayed; a zero-color slice remains a valid SalesOrder.

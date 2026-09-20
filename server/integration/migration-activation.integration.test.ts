@@ -160,6 +160,72 @@ test("server migration activation safety uses only a disposable PG16 container",
     }
   });
 
+  await t.test("actual Q1 0005 stays pending until explicit apply and has no 0004 dependency", async () => {
+    const databaseUrl = await postgres.createDatabase("q1_0005_explicit_activation");
+    const baselineFiles = {
+      "0001_trusted_auth_rbac_operation_logs.sql": await readFile(resolve("database/migrations/0001_trusted_auth_rbac_operation_logs.sql"), "utf8"),
+      "0002_sales_order_foundation.sql": await readFile(resolve("database/migrations/0002_sales_order_foundation.sql"), "utf8"),
+      "0003_sales_order_number_sequence.sql": await readFile(resolve("database/migrations/0003_sales_order_number_sequence.sql"), "utf8"),
+    };
+    const baselineDirectory = await migrationDirectory(baselineFiles);
+    const q1Directory = await migrationDirectory({
+      ...baselineFiles,
+      "0005_quote_foundation.sql": await readFile(resolve("database/migrations/0005_quote_foundation.sql"), "utf8"),
+    });
+    const pool = new Pool({ connectionString: databaseUrl });
+    try {
+      await runMigrations(pool, baselineDirectory);
+      assert.deepEqual(await inspectMigrationStatus(pool, q1Directory), {
+        ledgerExists: true,
+        applied: Object.keys(baselineFiles),
+        pending: ["0005_quote_foundation.sql"],
+        integrity: "valid",
+      });
+
+      const calls: string[] = [];
+      await assert.rejects(
+        () => initializeServer({
+          verifyMigrations: () => verifyMigrationsCurrent(pool, q1Directory),
+          synchronizePermissions: async () => { calls.push("permissions"); },
+          bootstrapAdmin: async () => { calls.push("bootstrap"); },
+          listen: async () => { calls.push("listen"); },
+        }),
+        (error: unknown) => error instanceof PendingMigrationsError
+          && error.pending.join(",") === "0005_quote_foundation.sql",
+      );
+      assert.deepEqual(calls, []);
+      const beforeApply = await pool.query<{ quote_tables: number; version_0005: number }>(
+        `SELECT
+           (SELECT count(*)::int FROM information_schema.tables
+             WHERE table_schema = 'public' AND table_name LIKE 'quote_center_%') AS quote_tables,
+           (SELECT count(*)::int FROM schema_migrations WHERE version = 5) AS version_0005`,
+      );
+      assert.deepEqual(beforeApply.rows[0], { quote_tables: 0, version_0005: 0 });
+
+      assert.deepEqual((await runMigrations(pool, q1Directory)).applied, ["0005_quote_foundation.sql"]);
+      assert.deepEqual(await verifyMigrationsCurrent(pool, q1Directory), {
+        ledgerExists: true,
+        applied: [...Object.keys(baselineFiles), "0005_quote_foundation.sql"],
+        pending: [],
+        integrity: "valid",
+      });
+      const afterApply = await pool.query<{ quote_tables: number; version_0004: number; version_0005: number }>(
+        `SELECT
+           (SELECT count(*)::int FROM information_schema.tables
+             WHERE table_schema = 'public' AND table_name LIKE 'quote_center_%') AS quote_tables,
+           (SELECT count(*)::int FROM schema_migrations WHERE version = 4) AS version_0004,
+           (SELECT count(*)::int FROM schema_migrations WHERE version = 5) AS version_0005`,
+      );
+      assert.deepEqual(afterApply.rows[0], { quote_tables: 8, version_0004: 0, version_0005: 1 });
+    } finally {
+      await pool.end();
+      await Promise.all([
+        rm(baselineDirectory, { recursive: true, force: true }),
+        rm(q1Directory, { recursive: true, force: true }),
+      ]);
+    }
+  });
+
   await t.test("explicit migration command path applies pending migrations and startup then continues", async () => {
     const databaseUrl = await postgres.createDatabase("explicit_apply");
     const directory = await migrationDirectory({

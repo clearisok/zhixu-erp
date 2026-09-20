@@ -16,9 +16,10 @@ import {
   parseBootstrapCliArguments,
 } from "../sales-orders/bootstrap-runner.js";
 import { startDisposablePostgres } from "./postgres-container.js";
+import { frozenFoundationMigrations } from "./frozen-foundation-migrations.js";
 
 const { Pool } = pg;
-const migrationsDirectory = resolve("database/migrations");
+let migrationsDirectory: string;
 
 function databaseName(databaseUrl: string): string {
   return decodeURIComponent(new URL(databaseUrl).pathname.slice(1));
@@ -131,9 +132,18 @@ const fixedPreview = () => previewWithCandidates([
 ]);
 
 test("guarded production SalesOrder bootstrap runner rehearses only in disposable PostgreSQL", async (context) => {
+  const frozen = await frozenFoundationMigrations();
+  migrationsDirectory = frozen.directory;
+  context.after(frozen.dispose);
   const postgres = await startDisposablePostgres();
   const pools: pg.Pool[] = [];
   try {
+    await context.test("current expanded migration set still fails the frozen production guard closed", async () => {
+      const database = await migratedDatabase(postgres, "expanded_migrations");
+      pools.push(database.pool);
+      const report = await inspectFirstBootstrapPreconditions(database.pool, resolve("database/migrations"), database.database);
+      assert.ok(report.reasons.includes("repository_migration_set_mismatch"));
+    });
     await context.test("requires one CLI mode, Ainuoke user ID, and both execute confirmations", () => {
       assert.throws(() => parseBootstrapCliArguments([]), BootstrapGuardError);
       assert.throws(() => parseBootstrapCliArguments(["--plan", "--execute", "--ainuoke-user-id=user-1"]), BootstrapGuardError);
