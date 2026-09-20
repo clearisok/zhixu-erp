@@ -146,10 +146,10 @@ A deployment must always include every already-applied migration file with its o
 
 ## Follow-up Documentation Sync
 
-PR #37 已修改下列文档，因此本 docs-only PR 刻意不触碰它们。PR #37 最终 merge 后，必须把本文中已确认的 single-login production rule 与 Quote-first rollout boundary 同步到：
+PR #38 最初因 PR #37 与相关文档存在重叠，暂缓了部分同步。Q1 此后已按本阶段真实工程事实更新部分文档；PR #37 目前仍为 OPEN / UNMERGED，未激活 migration 0004。PR #37 最终 merge 后，仍必须基于届时 main 的实际代码和文档，对本文已确认的 single-login production rule 与 Quote-first rollout boundary 做最后 reconciliation：
 
 - `docs/DECISION_LOG.md`；
 - `docs/features/PERMISSIONS.md`；
 - `docs/features/SERVER_PERSISTENCE.md`。
 
-该 follow-up 是对 **USER CONFIRMED** 决策的必要同步，不是可选 AI 建议。同步时还需以 merge 后代码和 docs 为准消解表述，不得把 C4.2 implementation 误写成 real activation。
+该 follow-up 是对 **USER CONFIRMED** 决策的必要同步，不是可选 AI 建议。最终 reconciliation 必须以 PR #37 merge 后的代码和 docs 为准消解表述，不得把 Q1 或 C4.2 implementation 误写成 real activation。
