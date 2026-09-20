@@ -4,9 +4,10 @@
 
 ## 当前阶段
 
-- 当前 Active Task 为 Q1 post-M0 integration closeout，分支 `feat/quote-server-foundation`。当前稳定 `main` 为 `9d8dac5f7c3a5a7db8e3419eff02e8d8942a3003`（Migration Activation Safety Gate PR #40 merged）；Q1 PR #39 仍 OPEN / unmerged，PR #37 仍 OPEN / unmerged。
-- Q1 已实现 Quote/Revision/PriceVersion/Estimate 与成本快照的 Server/PostgreSQL foundation，migration 为 `0005_quote_foundation.sql`。M0 已集成：正常 server startup 只读验证 migration 状态，pending 0005 fail closed，不执行 0005，也不会进入 permission sync、admin bootstrap 或 listen；显式 `npm run db:migrate` 仍是唯一 activation path。Post-M0 targeted 19/19、PostgreSQL 52/52、full tests 624/624、typecheck、lint、server/frontend build（32 routes）与 diff-check 均 PASS。
-- Quote production 尚未激活；0005 只存在于 Q1 PR #39，0004 只存在于独立 PR #37，真实 0004/0005 均未执行。Browser Quote 仍使用 mockQuoteRepository/localStorage；没有真实 Quote import/business write、Q2 API/writer/single-login cutover、Q3 master transfer或 Q4 attachments。
+- C4.2 `ConfirmedCommercialTerms` implementation 已完成，并已对照 merged M0 migration safety 与 Q1 Quote PostgreSQL foundation 完成 integration validation。该工程完成状态不等于真实 schema activation 或生产 Browser write acceptance。
+- Q1 已实现 Quote/Revision/PriceVersion/Estimate 与成本快照的 Server/PostgreSQL foundation，migration 为 `0005_quote_foundation.sql`。`0004_confirmed_commercial_terms.sql` 是独立共享 current domain；Q1 Quote confirmation columns 仅为 aggregate snapshot，不是第二个 current writer，terms mutation 不回写 Quote snapshot。
+- M0 已集成：正常 server startup 只读验证 migration 状态；pending 0004、pending 0005 或两者同时 pending 均 fail closed，不执行 schema migration，也不会进入 permission sync、admin bootstrap 或 listen。显式 `npm run db:migrate` 仍是唯一 activation path。
+- Quote production 尚未激活；真实 0004/0005 均未执行。Browser Quote 仍使用 mockQuoteRepository/localStorage；没有真实 Quote import/business write、Q2 API/writer/single-login cutover、Q3 master transfer 或 Q4 attachments。下一工程阶段是 Q2 Quote Server API + trusted writer + single-login cutover；尚未开始，也不由 C4.2 completion 自动授权。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -18,16 +19,29 @@
 - 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
 - Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实 API、Browser shadow UI、production `/order-center` list 与 C4.1 production detail 验收。Production base list/detail 均使用 trusted Server session + `order.view` 下的 PostgreSQL read model；`/order-center/server-preview` 继续保留为诊断入口，legacy 3000 runtime 暂时保留。
 
+### Phase C4.2 — ConfirmedCommercialTerms Server Domain implementation
+
+- Forward-only `0004_confirmed_commercial_terms.sql` 新增 `confirmed_commercial_terms` 与 `confirmed_commercial_terms_sales_orders`。terms 使用独立 UUID/optimistic version/`NUMERIC` amounts/timestamps；客户确认价格语义固定为 CNY/件，确认工价保留 `CNY|USD`。migration 无 backfill，旧 migration 未修改。
+- 当前模型允许多个 SalesOrder 带相同精确 `sourceQuoteId/sourceRevisionId/sourcePriceVersionId`，因此 schema 不假设 1:1：Quote provenance 在 terms context 上唯一，多张 formal SalesOrder 可关联同一 context；无 provenance 的 SalesOrder 使用独立 order-owned context。trigger 拒绝 provenance 不匹配、linked/unlinked 混用及 association 改绑。
+- Order endpoints 为 `GET|PATCH /api/v1/sales-orders/:id/confirmed-commercial-terms`，分别要求 `order.view` / `order.edit`。Quote endpoints 为 `GET|PATCH /api/v1/quotes/:quoteId/revisions/:revisionId/price-versions/:priceVersionId/confirmed-commercial-terms`，分别要求 `quote.view` / `quote.confirm`。PATCH 还要求可信 HttpOnly session、allowlisted exact Origin、`X-Zhixu-Request: 1`、typed decimal-string input 与 `expectedVersion`；stale 返回 409。
+- 每个实际 mutation 将 terms 与一条 append-only OperationLog 放在同一 transaction，actor 仅来自 trusted session，记录 old/new、surface、Quote provenance 与关联 SalesOrder UUIDs。terms 使用独立 version，不改变 SalesOrder aggregate version、source mirrors、quantity 或 order-number sequence。
+- Formal Order Detail 新增“确认商业条款”Server card；`order.view` 只读，`order.edit` 可编辑两个 current 数值。Quote-linked context 的工价币种由 Quote PriceVersion 建立，Order 只读显示并由 Server 409 拒绝改币种或在未建立时发明币种；unlinked order-owned context 才允许 Order 明确选择 `CNY|USD`。UI 不读取 Browser `OrderPriceVersion.salePrice/processingUnitPrice`，也不开放 source/lifecycle/DeliveryPlan 编辑。
+- Quote linkage integration 使用默认关闭的 build-time `NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE=true` activation prerequisite。关闭时保留既有 Browser-local confirmation，且 rollout 必须禁止形成正式 Quote-linked SalesOrder；因此 merge implementation 不会中断 Quote-first 生产。显式开启后才按 exact provenance resolve：proven-unlinked 保留 local，known-linked 只读写 Server，anonymous/unavailable/lookup 未完成均作为 unknown fail closed，无 local fallback。
+- Linked active confirmation status 复用既有 Quote type 规则：加工报价有确认工价即 confirmed；经销报价必须同时有确认工价与客户确认成衣价，任一单独存在均不确认。该 projection 不向 `PriceVersion.confirmation` 回写第二份数值；历史 revision snapshot 不变。
+- Disposable PostgreSQL 与前端 contract 已证明 0001→0004/rerun/checksum、1→N shared context、cross-surface parity、linked Order currency ownership、unlinked Order explicit currency、Quote establishment、type-aware status、null≠0、negative rejection、rollback、trusted actor、401/403/404、mutation boundary、exact/no-fuzzy linkage 与 conflict。真实 `zhixu` 未运行 0004，真实业务写入为 0；validation 未连接真实数据库启动 Server。
+- C4.2 post-Q1/post-M0 integration 最终门禁：ConfirmedCommercialTerms targeted `16/16`、migration-safety + Q1 targeted `20/20`、Order detail/shadow `13/13`、Server auth frontend `7/7`、disposable PostgreSQL `60/60`、full tests `631/631`、typecheck、lint、server build、frontend production build（`32` static routes）与 `git diff --check` 全部 PASS。
+- **C4.2 implementation = COMPLETE**。**C4.2 real migration/data migration/Browser write acceptance = NOT AUTHORIZED / NOT EXECUTED**。C4 overall 仍为 INCOMPLETE；DeliveryPlan/C4.3、Customer PO mapping 与 C5 均未开始。
+
 ### Phase C4.1 — PostgreSQL Base Detail Read Cutover implementation
 
 - Production list 的“查看”现导航到静态可导出的独立 Server route `/order-center/server-detail?id=<PG UUID>`。该 route 只加载 `ServerSalesOrderDetailPage`，不会进入仍由 Browser `OrderDetailLoader` 驱动的 `/order-center/detail`，也不调用 Browser OrderRepository 或任何 SalesOrder mutation。
 - 详情延续 trusted Server session + `order.view`：anonymous 显示登录要求，detail 401 invalidate session，403 保留明确 permission-denied，404 明确订单不存在，Server/network failure 明确报错且没有 Browser fallback。`LocalDataBootstrap` 精确跳过 `/order-center`、`/order-center/server-preview` 与 `/order-center/server-detail`；legacy new/detail 及其他 Browser-owned route 仍按原逻辑初始化。
 - UI 将 Zhixu-owned aggregate facts 与 Ainuoke-authoritative source facts 分区。展示字段严格限定为 id/orderNo/version/creationSource/lifecycleState/createdAt/updatedAt、BillNo/InsideOrderNo/style/company/customer/brand/source quantity/contract dates/source lifecycle、colorCount 及 color name/quantity；InsideOrderNo 明确为 mutable source attribute，source quantity 与 contract/process delivery 均不可编辑。
-- 6087105 color-row `deliveryDate` 继续留在 typed/internal DTO，但初始 C4.1 UI 不展示。零颜色是合法 detail empty state。Customer PO、production country、DeliveryPlans、人员/master IDs、orderDate、quantity/color adjustments、共享确认价/工价、PriceVersion、附件、execution/settlement 与其他 blocked fields 全部缺席。
+- 6087105 color-row `deliveryDate` 继续留在 typed/internal DTO，但初始 C4.1 UI 不展示。零颜色是合法 detail empty state。C4.1 当时未展示的共享确认价/工价现由 C4.2 专用 Server domain/card 提供；Customer PO、production country、DeliveryPlans、人员/master IDs、orderDate、quantity/color adjustments、其余 PriceVersion、附件、execution/settlement 与其他 blocked fields 仍缺席。
 - PR #35 merged main `c38e80a44eed384c0d09f9a0317bd14122763865` 已在 production-shaped `http://127.0.0.1:3002` 完成真实 C4.1 Browser 验收。Anonymous protection、本人输入 admin 密码、511-row list、list → Server detail PG UUID parity、normal source parity、hard refresh、return/reopen、zero-color、real 404、1280/wide visual、logout 与 post-logout protection 全部 PASS；未进入 Browser `/order-center/detail`。
 - 代表 normal order 为 `SO-00000001` / UUID `cae075db-e0b7-4d2c-8648-db092c7501a3` / BillNo `PI2505-075`；UI 的 InsideOrderNo、style/company/customer/brand source snapshots、5,000 source quantity、contract/process-sheet dates、Ainuoke/Zhixu lifecycle 与颜色 `酱紫色:5000` 全部匹配 PostgreSQL。`SO-00000015` 的 zero-color valid empty state PASS；不存在的合法 UUID 显示明确 404。
 - 验收前后 SalesOrder aggregate/link/contract/color/log 保持 `511/511/511/1348/511`，fingerprint 保持 `580696ff5c562493dea67f883df501cc`，sequence 保持 `511/true`。`app_users=2`、permissions=54、user/RBAC fingerprints 与 admin `order.view` 全部未变。Safe auth counts successful/failed/sessions/active/revoked 仅从 `6/0/0/0/0` 变为 `8/0/2/1/1`；测试 session 已 logout revoke，另一 active session 按协议保留。SalesOrder、Browser、Quote、DeliveryPlan、Scheduling、Closing、Style Progress、Ainuoke business writes 均为 0。
-- **C4.1 = COMPLETE**，但 C4 overall 仍为 INCOMPLETE。Customer PO mapping 仍未证明/未实现，DeliveryPlan 未实现。最终 Order Detail 必须显示共享当前“客户确认价格”和“确认工价”；它们在 C4.1 中缺席只是因为 `ConfirmedCommercialTerms` Server domain 尚未实现，下一建议 Gate 为需单独授权的 C4.2。C4.2 与 C5 均未开始。
+- **C4.1 = COMPLETE**。C4.2 implementation 已在后续独立分支完成并等待 review；真实 activation 未授权。Customer PO mapping 仍未证明/未实现，DeliveryPlan/C4.3 未实现，C5 未开始，因此 C4 overall 仍为 INCOMPLETE。
 - 最终自动验证通过：C3/C4.1/shadow-read targeted `21/21`、ServerSession frontend `7/7`、disposable PostgreSQL `31/31`、full tests `622/622`，typecheck、lint、server build、frontend production build（`32` static routes）与 `git diff --check` 全部 PASS。
 
 ### Phase C3.1 — PostgreSQL Base Order List Cutover implementation
@@ -49,8 +63,8 @@
 
 - 正常 Node startup 不再调用 migration apply runner。它先用 read-only transaction 验证 `schema_migrations`、文件名、checksum、missing applied file 与 pending 集合；missing ledger 或 pending/incompatible state 都在 permission sync、admin bootstrap 和 HTTP listen 前 fail closed。
 - `npm run db:migrate` 继续是唯一 schema apply 入口，并保留 advisory lock、逐文件 transaction、ledger、checksum、rollback 与 rerun skip。新增 `npm run db:migrate:status` 作为无 schema write 的 operator status 命令。
-- Disposable PG16 覆盖 missing ledger、pending 0004/0005 fixture、正常 fully-migrated startup、显式 apply、checksum mismatch、missing file、业务表/OperationLog/sequence 不变与 startup ordering。测试 fixture 不复制 PR #37/#39 migration 内容。
-- M0 未连接或修改真实 `zhixu` PostgreSQL；0004/0005 real activation、Quote import、Browser writer cutover、PR #37/#39 merge、Q2 与部署均未执行。
+- Disposable PG16 覆盖 missing ledger、pending 0004/0005、正常 fully-migrated startup、显式 apply、checksum mismatch、missing file、业务表/OperationLog/sequence 不变与 startup ordering。历史 bootstrap/RBAC runner 的成功 rehearsal 固定使用其已审阅的 0001–0004 contract，并继续对新增 0005 fail closed；这不扩大任何真实执行授权。
+- M0 未连接或修改真实 `zhixu` PostgreSQL；0004/0005 real activation、Quote import、Browser writer cutover、Q2 与部署均未执行。
 
 ### Phase C4.0 — confirmed business ownership decisions (docs only)
 
@@ -382,7 +396,7 @@
 
 ## 尚未落地
 
-- Production `/order-center` base list 与 authoritative base-detail read cutover 均已完成；write cutover 与 Browser store retirement 尚未落地。C4.1 已完成但 C4 overall 仍不完整；下一建议 Gate 是需单独授权的 C4.2 `ConfirmedCommercialTerms` Server Domain。
+- Production `/order-center` base list 与 authoritative base-detail read cutover 均已完成；通用 write cutover 与 Browser store retirement 尚未落地。C4.2 `ConfirmedCommercialTerms` Server Domain 已在当前独立分支实现并仅通过 disposable PostgreSQL 验证，仍待 review，真实 0004 activation 与真实 Browser acceptance 均未授权；DeliveryPlan/C4.3 未实现，C5 未开始，因此 C4 overall 仍不完整。
 - Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
 - SalesOrder 已有 bounded search/filter/sort/pagination；其他服务端业务列表与通用全文搜索仍未落地。migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。

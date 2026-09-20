@@ -56,6 +56,16 @@ export function validateCustomerConfirmation(quoteType: QuoteType, labor: Nullab
   return null;
 }
 
+export function isQuoteConfirmationComplete(
+  quoteType: QuoteType,
+  confirmedLaborPrice: string | number | null | undefined,
+  customerConfirmedPrice: string | number | null | undefined,
+): boolean {
+  return confirmedLaborPrice !== null
+    && confirmedLaborPrice !== undefined
+    && (quoteType === "processing" || (customerConfirmedPrice !== null && customerConfirmedPrice !== undefined));
+}
+
 function clone<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; }
 
 export function summarizeRevisionConfirmations(revision: Pick<QuoteRevision, "priceVersions">) {

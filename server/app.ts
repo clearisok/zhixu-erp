@@ -6,6 +6,14 @@ import { HttpError } from "./http/errors.js";
 import { assertMutationBoundary, readJsonBody } from "./http/request.js";
 import { requestId, sendError, sendJson } from "./http/responses.js";
 import { listOperationLogs } from "./operation-logs/repository.js";
+import type { UpdateConfirmedCommercialTermsInput } from "../features/confirmed-commercial-terms/model.js";
+import {
+  isConfirmedLaborCurrency,
+  readConfirmedCommercialTermsByQuote,
+  readConfirmedCommercialTermsBySalesOrder,
+  updateConfirmedCommercialTermsByQuote,
+  updateConfirmedCommercialTermsBySalesOrder,
+} from "./confirmed-commercial-terms/service.js";
 import { getSalesOrderById, listSalesOrders } from "./sales-orders/repository.js";
 import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales-orders/model.js";
 import { serveStatic } from "./static-files.js";
@@ -33,6 +41,57 @@ const SALES_ORDER_LIST_MAX_LIMIT = 200;
 const salesOrderLifecycleStates = new Set<SalesOrderLifecycleState>(["draft", "confirmed", "active", "completed", "cancelled"]);
 const salesOrderCreationSources = new Set<SalesOrderCreationSource>(["quote", "reorder", "manual", "ainuoke"]);
 const salesOrderSortFields = new Set<string>(["orderNo", "updatedAt", "contractDeliveryDate", "salesContractNo"]);
+const commercialTermsInputKeys = new Set([
+  "expectedVersion",
+  "customerConfirmedPrice",
+  "confirmedLaborPrice",
+  "laborCurrency",
+]);
+
+function commercialAmount(value: unknown, label: string): string | null {
+  if (value === null) return null;
+  if (typeof value !== "string" || value.length > 128 || !/^(?:0|[1-9]\d*)(?:\.\d+)?$/u.test(value)) {
+    throw new HttpError(400, "invalid_confirmed_commercial_terms", `${label} must be a non-negative decimal string or null`);
+  }
+  return value;
+}
+
+function confirmedCommercialTermsInput(body: Record<string, unknown>): UpdateConfirmedCommercialTermsInput {
+  if (Object.keys(body).some((key) => !commercialTermsInputKeys.has(key))) {
+    throw new HttpError(400, "invalid_confirmed_commercial_terms", "Request contains unsupported fields");
+  }
+  if (!Number.isSafeInteger(body.expectedVersion) || (body.expectedVersion as number) < 0) {
+    throw new HttpError(400, "invalid_confirmed_commercial_terms", "expectedVersion must be a non-negative integer");
+  }
+  const customerConfirmedPrice = commercialAmount(body.customerConfirmedPrice, "customerConfirmedPrice");
+  const confirmedLaborPrice = commercialAmount(body.confirmedLaborPrice, "confirmedLaborPrice");
+  const laborCurrency = body.laborCurrency === null ? null : body.laborCurrency;
+  if (laborCurrency !== null && !isConfirmedLaborCurrency(laborCurrency)) {
+    throw new HttpError(400, "invalid_confirmed_commercial_terms", "laborCurrency must be CNY, USD, or null");
+  }
+  if (confirmedLaborPrice !== null && laborCurrency === null) {
+    throw new HttpError(400, "invalid_confirmed_commercial_terms", "laborCurrency is required when confirmedLaborPrice is present");
+  }
+  return {
+    expectedVersion: body.expectedVersion as number,
+    customerConfirmedPrice,
+    confirmedLaborPrice,
+    laborCurrency,
+  };
+}
+
+function requiredPathIdentity(value: string, label: string): string {
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(value).normalize("NFKC").trim();
+  } catch {
+    throw new HttpError(400, "invalid_quote_provenance", `${label} is invalid`);
+  }
+  if (!decoded || decoded.length > 256) {
+    throw new HttpError(400, "invalid_quote_provenance", `${label} is invalid`);
+  }
+  return decoded;
+}
 
 function integerQuery(value: string | null, fallback: number, label: string, minimum: number): number {
   if (value === null) return fallback;
@@ -173,6 +232,48 @@ async function route(
         hasMore: query.offset + result.items.length < result.total,
       },
     });
+    return;
+  }
+
+  const salesOrderTermsMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/confirmed-commercial-terms$/.exec(path);
+  if (salesOrderTermsMatch && (request.method === "GET" || request.method === "PATCH")) {
+    if (request.method === "PATCH") assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await authenticate(dependencies.pool, request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    requirePermission(identity.permissions, request.method === "GET" ? "order.view" : "order.edit");
+    const salesOrderId = requiredPathIdentity(salesOrderTermsMatch[1], "salesOrderId");
+    const terms = request.method === "GET"
+      ? await readConfirmedCommercialTermsBySalesOrder(dependencies.pool, salesOrderId)
+      : await updateConfirmedCommercialTermsBySalesOrder(
+        dependencies.pool,
+        identity,
+        salesOrderId,
+        confirmedCommercialTermsInput(await readJsonBody(request)),
+      );
+    sendJson(response, 200, { confirmedCommercialTerms: terms });
+    return;
+  }
+
+  const quoteTermsMatch = /^\/api\/v1\/quotes\/([^/]+)\/revisions\/([^/]+)\/price-versions\/([^/]+)\/confirmed-commercial-terms$/.exec(path);
+  if (quoteTermsMatch && (request.method === "GET" || request.method === "PATCH")) {
+    if (request.method === "PATCH") assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await authenticate(dependencies.pool, request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    requirePermission(identity.permissions, request.method === "GET" ? "quote.view" : "quote.confirm");
+    const provenance = {
+      quoteId: requiredPathIdentity(quoteTermsMatch[1], "quoteId"),
+      revisionId: requiredPathIdentity(quoteTermsMatch[2], "revisionId"),
+      priceVersionId: requiredPathIdentity(quoteTermsMatch[3], "priceVersionId"),
+    };
+    const terms = request.method === "GET"
+      ? await readConfirmedCommercialTermsByQuote(dependencies.pool, provenance)
+      : await updateConfirmedCommercialTermsByQuote(
+        dependencies.pool,
+        identity,
+        provenance,
+        confirmedCommercialTermsInput(await readJsonBody(request)),
+      );
+    sendJson(response, 200, { confirmedCommercialTerms: terms });
     return;
   }
 

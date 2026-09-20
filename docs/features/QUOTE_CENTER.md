@@ -1,5 +1,15 @@
 # Quote Center
 
+## C4.2 linked current confirmation boundary
+
+- Quote linkage integration is guarded by the build-time `NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE=true` activation prerequisite and is disabled by default. While disabled, the existing Browser-local confirmation flow remains unchanged; rollout must prohibit creating or using formal Quote-linked SalesOrders in that mode. Merging implementation code therefore neither silently activates a second authority nor blocks current Quote-first production.
+- Once explicitly activated, the current default Quote Revision/PriceVersion resolves formal linkage through the trusted Server by exact `quoteId + revisionId + priceVersionId` only. No quote code/style/customer/brand/date/price or Browser SalesOrder ID inference is allowed. Anonymous session, Server unavailability and incomplete lookup are `unknown`, not inferred-unlinked, and cannot write local confirmation.
+- If the activated exact lookup proves provenance unlinked, the existing Browser-local confirmation workflow remains active. If it proves linked, customer-confirmed price and confirmed labor price read/write shared Server `ConfirmedCommercialTerms`; the linked PriceVersion's actual `CNY|USD` qualifier is established by the Quote surface and is read-only from Order. The linked branch does not call `mockQuoteRepository.save` and never falls back locally.
+- Linked stale `expectedVersion` returns 409; the UI reloads current Server values and asks the user to review. The trusted session and `quote.view`/`quote.confirm` remain distinct from Browser mock identity/permissions.
+- The active PriceVersion confirmation card, cockpit and sticky summary project linked confirmation from Server current terms using the existing quote-type rule: processing requires labor; distribution requires both labor and customer-confirmed garment price. Labor-only and garment-only distribution terms remain unconfirmed. The quote-wide `aggregateStatus` remains the legacy Browser aggregate until a later formal Quote migration can resolve every PriceVersion together; C4.2 does not duplicate numeric values locally merely to rewrite that aggregate.
+- Historical Quote Revision/PriceVersion pages continue to display their embedded immutable confirmation snapshots. New revisions and copied PriceVersions are not assumed linked and do not inherit a Server relationship. Confirmation note and every other PriceVersion field remain local/snapshot semantics; fabric/trim costs, markup, exchange rate, manufacturing country and assumptions are not live-linked.
+- C4.2 contains no migration of real Browser confirmations and no real Browser write acceptance. Real PostgreSQL activation is separately gated.
+
 ## Purpose
 
 Quote Center 是面向成衣报价工作的新版前端模块，提供完整报价快照、并列价格版本、细分成本、客户确认和报价列表管理。它目前与根路径 ERP 的旧报价模型隔离。

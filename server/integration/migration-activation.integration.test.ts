@@ -226,6 +226,120 @@ test("server migration activation safety uses only a disposable PG16 container",
     }
   });
 
+  await t.test("actual 0004 and 0005 fail closed together and explicitly apply in either order", async () => {
+    const baselineFiles = {
+      "0001_trusted_auth_rbac_operation_logs.sql": await readFile(resolve("database/migrations/0001_trusted_auth_rbac_operation_logs.sql"), "utf8"),
+      "0002_sales_order_foundation.sql": await readFile(resolve("database/migrations/0002_sales_order_foundation.sql"), "utf8"),
+      "0003_sales_order_number_sequence.sql": await readFile(resolve("database/migrations/0003_sales_order_number_sequence.sql"), "utf8"),
+    };
+    const migration0004 = await readFile(resolve("database/migrations/0004_confirmed_commercial_terms.sql"), "utf8");
+    const migration0005 = await readFile(resolve("database/migrations/0005_quote_foundation.sql"), "utf8");
+    const baselineDirectory = await migrationDirectory(baselineFiles);
+    const finalDirectory = await migrationDirectory({
+      ...baselineFiles,
+      "0004_confirmed_commercial_terms.sql": migration0004,
+      "0005_quote_foundation.sql": migration0005,
+    });
+    const q1FirstDirectory = await migrationDirectory({
+      ...baselineFiles,
+      "0005_quote_foundation.sql": migration0005,
+    });
+    const bothPendingUrl = await postgres.createDatabase("actual_0004_0005_pending");
+    const q1FirstUrl = await postgres.createDatabase("actual_0005_then_0004");
+    const bothPendingPool = new Pool({ connectionString: bothPendingUrl });
+    const q1FirstPool = new Pool({ connectionString: q1FirstUrl });
+    try {
+      await runMigrations(bothPendingPool, baselineDirectory);
+      assert.deepEqual((await inspectMigrationStatus(bothPendingPool, finalDirectory)).pending, [
+        "0004_confirmed_commercial_terms.sql",
+        "0005_quote_foundation.sql",
+      ]);
+      const startupCalls: string[] = [];
+      await assert.rejects(
+        () => initializeServer({
+          verifyMigrations: () => verifyMigrationsCurrent(bothPendingPool, finalDirectory),
+          synchronizePermissions: async () => { startupCalls.push("permissions"); },
+          bootstrapAdmin: async () => { startupCalls.push("bootstrap"); },
+          listen: async () => { startupCalls.push("listen"); },
+        }),
+        (error: unknown) => error instanceof PendingMigrationsError
+          && error.pending.join(",") === "0004_confirmed_commercial_terms.sql,0005_quote_foundation.sql",
+      );
+      assert.deepEqual(startupCalls, []);
+      const beforeApply = await bothPendingPool.query<{ terms: string | null; quotes: string | null; ledger_count: number }>(
+        `SELECT
+           to_regclass('public.confirmed_commercial_terms')::text AS terms,
+           to_regclass('public.quote_center_quotes')::text AS quotes,
+           (SELECT count(*)::int FROM schema_migrations) AS ledger_count`,
+      );
+      assert.deepEqual(beforeApply.rows[0], { terms: null, quotes: null, ledger_count: 3 });
+
+      assert.deepEqual((await runMigrations(bothPendingPool, finalDirectory)).applied, [
+        "0004_confirmed_commercial_terms.sql",
+        "0005_quote_foundation.sql",
+      ]);
+      assert.equal((await verifyMigrationsCurrent(bothPendingPool, finalDirectory)).pending.length, 0);
+      const orderedApply = await bothPendingPool.query<{ terms: string; quotes: string; ledger_count: number }>(
+        `SELECT
+           to_regclass('public.confirmed_commercial_terms')::text AS terms,
+           to_regclass('public.quote_center_quotes')::text AS quotes,
+           (SELECT count(*)::int FROM schema_migrations) AS ledger_count`,
+      );
+      assert.deepEqual(orderedApply.rows[0], {
+        terms: "confirmed_commercial_terms",
+        quotes: "quote_center_quotes",
+        ledger_count: 5,
+      });
+
+      await runMigrations(q1FirstPool, q1FirstDirectory);
+      const q1FirstStatus = await inspectMigrationStatus(q1FirstPool, finalDirectory);
+      assert.deepEqual(q1FirstStatus.applied, [
+        "0001_trusted_auth_rbac_operation_logs.sql",
+        "0002_sales_order_foundation.sql",
+        "0003_sales_order_number_sequence.sql",
+        "0005_quote_foundation.sql",
+      ]);
+      assert.deepEqual(q1FirstStatus.pending, ["0004_confirmed_commercial_terms.sql"]);
+      const q1FirstCalls: string[] = [];
+      await assert.rejects(
+        () => initializeServer({
+          verifyMigrations: () => verifyMigrationsCurrent(q1FirstPool, finalDirectory),
+          synchronizePermissions: async () => { q1FirstCalls.push("permissions"); },
+          bootstrapAdmin: async () => { q1FirstCalls.push("bootstrap"); },
+          listen: async () => { q1FirstCalls.push("listen"); },
+        }),
+        (error: unknown) => error instanceof PendingMigrationsError
+          && error.pending.join(",") === "0004_confirmed_commercial_terms.sql",
+      );
+      assert.deepEqual(q1FirstCalls, []);
+      const before0004 = await q1FirstPool.query<{ terms: string | null; quote_tables: number; ledger_count: number }>(
+        `SELECT
+           to_regclass('public.confirmed_commercial_terms')::text AS terms,
+           (SELECT count(*)::int FROM information_schema.tables
+             WHERE table_schema = 'public' AND table_name LIKE 'quote_center_%') AS quote_tables,
+           (SELECT count(*)::int FROM schema_migrations) AS ledger_count`,
+      );
+      assert.deepEqual(before0004.rows[0], { terms: null, quote_tables: 8, ledger_count: 4 });
+      assert.deepEqual((await runMigrations(q1FirstPool, finalDirectory)).applied, ["0004_confirmed_commercial_terms.sql"]);
+      assert.equal((await verifyMigrationsCurrent(q1FirstPool, finalDirectory)).pending.length, 0);
+      const after0004 = await q1FirstPool.query<{ terms: string; quote_tables: number; ledger_count: number }>(
+        `SELECT
+           to_regclass('public.confirmed_commercial_terms')::text AS terms,
+           (SELECT count(*)::int FROM information_schema.tables
+             WHERE table_schema = 'public' AND table_name LIKE 'quote_center_%') AS quote_tables,
+           (SELECT count(*)::int FROM schema_migrations) AS ledger_count`,
+      );
+      assert.deepEqual(after0004.rows[0], { terms: "confirmed_commercial_terms", quote_tables: 8, ledger_count: 5 });
+    } finally {
+      await Promise.all([bothPendingPool.end(), q1FirstPool.end()]);
+      await Promise.all([
+        rm(baselineDirectory, { recursive: true, force: true }),
+        rm(finalDirectory, { recursive: true, force: true }),
+        rm(q1FirstDirectory, { recursive: true, force: true }),
+      ]);
+    }
+  });
+
   await t.test("explicit migration command path applies pending migrations and startup then continues", async () => {
     const databaseUrl = await postgres.createDatabase("explicit_apply");
     const directory = await migrationDirectory({

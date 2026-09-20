@@ -10,13 +10,21 @@ import {
   DescriptionList,
   EmptyState,
   ErrorState,
+  FormItem,
   LoadingState,
+  Modal,
   PageBackButton,
   PageContainer,
   PageHeader,
   StatusTag,
 } from "@/components/foundation";
 import { ServerLoginCard, useServerSession } from "@/features/server-auth";
+import {
+  ConfirmedCommercialTermsServerError,
+  confirmedCommercialTermsServerClient,
+  type ConfirmedCommercialTermsDto,
+  type ConfirmedLaborCurrency,
+} from "@/features/confirmed-commercial-terms";
 import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import { SalesOrderServerReadError } from "../server/sales-order-server-client";
 import { loadServerOrderCenterDetail } from "../server/server-order-center-query";
@@ -57,6 +65,10 @@ function unavailableMessage(error: unknown): string {
   return "订单服务暂时不可用，请稍后重试。不会切换到 Browser 本地订单。";
 }
 
+function commercialAmount(value: string | null, currency: string): string {
+  return value === null ? "未确认" : `${value} ${currency} / 件`;
+}
+
 function ServerDetailFrame({
   detail,
   children,
@@ -94,6 +106,11 @@ export function ServerSalesOrderDetailPage() {
   const [sessionExpired, setSessionExpired] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionActionError, setSessionActionError] = useState<string | null>(null);
+  const [terms, setTerms] = useState<ConfirmedCommercialTermsDto | null>(null);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [termsDraft, setTermsDraft] = useState({ customerPrice: "", laborPrice: "", laborCurrency: "" as "" | ConfirmedLaborCurrency });
+  const [termsMutationError, setTermsMutationError] = useState<string | null>(null);
+  const [termsSaving, setTermsSaving] = useState(false);
 
   const loadDetail = useCallback(async () => {
     if (serverSession.status !== "authenticated" || !serverSession.hasPermission("order.view")) return;
@@ -110,14 +127,19 @@ export function ServerSalesOrderDetailPage() {
     setSessionExpired(false);
     setError(null);
     try {
-      setDetail(await loadServerOrderCenterDetail(serverSalesOrderReadRepository, salesOrderId));
+      const [nextDetail, nextTerms] = await Promise.all([
+        loadServerOrderCenterDetail(serverSalesOrderReadRepository, salesOrderId),
+        confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId),
+      ]);
+      setDetail(nextDetail);
+      setTerms(nextTerms);
     } catch (nextError) {
-      if (nextError instanceof SalesOrderServerReadError && nextError.status === 401) {
+      if ((nextError instanceof SalesOrderServerReadError || nextError instanceof ConfirmedCommercialTermsServerError) && nextError.status === 401) {
         setSessionExpired(true);
         serverSession.invalidate();
-      } else if (nextError instanceof SalesOrderServerReadError && nextError.status === 403) {
+      } else if ((nextError instanceof SalesOrderServerReadError || nextError instanceof ConfirmedCommercialTermsServerError) && nextError.status === 403) {
         setPermissionDenied(true);
-      } else if (nextError instanceof SalesOrderServerReadError && nextError.status === 404) {
+      } else if ((nextError instanceof SalesOrderServerReadError || nextError instanceof ConfirmedCommercialTermsServerError) && nextError.status === 404) {
         setNotFound(true);
       } else {
         setError(unavailableMessage(nextError));
@@ -140,6 +162,64 @@ export function ServerSalesOrderDetailPage() {
       setDetail(null);
     } catch {
       setSessionActionError("无法退出 Server 会话，请稍后重试。");
+    }
+  };
+
+  const openTermsEditor = () => {
+    setTermsDraft({
+      customerPrice: terms?.current?.customerConfirmedPrice ?? "",
+      laborPrice: terms?.current?.confirmedLaborPrice ?? "",
+      laborCurrency: terms?.current?.laborCurrency ?? "",
+    });
+    setTermsMutationError(null);
+    setTermsOpen(true);
+  };
+
+  const saveTerms = async () => {
+    const linkedLaborCurrency = terms?.linkage === "linked" ? terms.current?.laborCurrency ?? null : null;
+    if (termsDraft.laborPrice && terms?.linkage === "linked" && !linkedLaborCurrency) {
+      setTermsMutationError("关联 Quote 尚未建立工价币种；请先从对应 PriceVersion 确认，订单端不会猜测币种。");
+      return;
+    }
+    if (termsDraft.laborPrice && terms?.linkage !== "linked" && !termsDraft.laborCurrency) {
+      setTermsMutationError("填写确认工价时必须明确选择币种。");
+      return;
+    }
+    setTermsSaving(true);
+    setTermsMutationError(null);
+    try {
+      const next = await confirmedCommercialTermsServerClient.updateBySalesOrder(salesOrderId, {
+        expectedVersion: terms?.current?.version ?? 0,
+        customerConfirmedPrice: termsDraft.customerPrice || null,
+        confirmedLaborPrice: termsDraft.laborPrice || null,
+        laborCurrency: terms?.linkage === "linked" ? linkedLaborCurrency : termsDraft.laborCurrency || null,
+      });
+      setTerms(next);
+      setTermsOpen(false);
+    } catch (nextError) {
+      if (nextError instanceof ConfirmedCommercialTermsServerError && nextError.status === 401) {
+        serverSession.invalidate();
+        setTermsOpen(false);
+        return;
+      }
+      if (nextError instanceof ConfirmedCommercialTermsServerError && nextError.status === 409) {
+        try {
+          setTerms(await confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId));
+        } catch {
+          // Keep the explicit conflict as the primary safe error.
+        }
+        setTermsMutationError(nextError.code === "linked_labor_currency_not_established"
+          ? "关联 Quote 尚未建立工价币种；请先从对应 PriceVersion 确认，订单端未写入任何条款。"
+          : nextError.code === "linked_labor_currency_order_conflict"
+            ? "订单端不能更改关联 Quote PriceVersion 的工价币种；本次未写入。"
+            : "条款已被其他页面更新，已重新读取当前值；请核对后再保存。");
+        return;
+      }
+      setTermsMutationError(nextError instanceof ConfirmedCommercialTermsServerError && nextError.status === 403
+        ? "当前 Server 账号没有 order.edit 权限。"
+        : "确认商业条款保存失败；未写入 Browser 本地订单。");
+    } finally {
+      setTermsSaving(false);
     }
   };
 
@@ -234,6 +314,21 @@ export function ServerSalesOrderDetailPage() {
             ]} />
           </Card>
 
+          <Card className="oc-server-detail-section oc-server-detail-commercial-terms">
+            <header>
+              <div><small>SERVER CURRENT TERMS</small><h2>确认商业条款</h2></div>
+              <span>PostgreSQL · v{terms?.current?.version ?? 0}</span>
+            </header>
+            <DescriptionList columns={3} items={[
+              { key: "customerConfirmedPrice", label: "客户确认价格", value: commercialAmount(terms?.current?.customerConfirmedPrice ?? null, "CNY") },
+              { key: "confirmedLaborPrice", label: "确认工价", value: commercialAmount(terms?.current?.confirmedLaborPrice ?? null, terms?.current?.laborCurrency ?? "币种未指定") },
+              { key: "termsLinkage", label: "共享范围", value: terms?.linkage === "linked" ? "精确 Quote provenance 共享" : "仅当前 SalesOrder", secondary: terms?.linkage === "linked" ? `${terms.associatedSalesOrderIds.length} 张正式订单共享` : "未伪造 Quote 关联" },
+            ]} />
+            {serverSession.hasPermission("order.edit")
+              ? <Button variant="secondary" onClick={openTermsEditor}>编辑确认商业条款</Button>
+              : <small>当前账号仅有 order.view；确认商业条款只读。</small>}
+          </Card>
+
           <Card className="oc-server-detail-section oc-server-detail-colors">
             <header>
               <div><small>COLOR SOURCE SLICE</small><h2>颜色明细</h2></div>
@@ -255,6 +350,23 @@ export function ServerSalesOrderDetailPage() {
               </div>
             )}
           </Card>
+          <Modal
+            open={termsOpen}
+            title="编辑确认商业条款"
+            description={terms?.linkage === "linked" ? "仅修改 Server current 确认金额；工价币种由精确关联的 Quote PriceVersion 确定且订单端只读。" : "仅修改当前 SalesOrder-owned 商业条款；不会修改订单来源事实。"}
+            onClose={() => setTermsOpen(false)}
+            onSubmit={() => void saveTerms()}
+            footer={<><Button variant="secondary" onClick={() => setTermsOpen(false)}>取消</Button><Button type="submit" disabled={termsSaving}>{termsSaving ? "保存中" : "保存"}</Button></>}
+          >
+            <div className="qc-modal-form">
+              <FormItem label="客户确认价格（CNY / 件）"><input className="qc-control" inputMode="decimal" value={termsDraft.customerPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, customerPrice: event.target.value }); }} placeholder="未确认" /></FormItem>
+              <FormItem label="确认工价"><input className="qc-control" inputMode="decimal" value={termsDraft.laborPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, laborPrice: event.target.value }); }} placeholder="未确认" /></FormItem>
+              {terms?.linkage === "linked"
+                ? <FormItem label="工价币种（Quote PriceVersion，只读）"><div className="qc-create-readonly"><strong>{terms.current?.laborCurrency ?? "尚未建立"}</strong><small>{terms.current?.laborCurrency ? "订单端保存时必须保持该币种。" : "请先从关联 Quote 建立；订单端不会猜测 CNY/USD。"}</small></div></FormItem>
+                : <FormItem label="工价币种"><select className="qc-control" value={termsDraft.laborCurrency} onChange={(event) => setTermsDraft({ ...termsDraft, laborCurrency: event.target.value as "" | ConfirmedLaborCurrency })}><option value="">请选择</option><option value="CNY">CNY</option><option value="USD">USD</option></select></FormItem>}
+              {termsMutationError && <p className="qc-form-alert">{termsMutationError}</p>}
+            </div>
+          </Modal>
         </div>
       ) : (
         <EmptyState title="未读取到正式订单详情" />

@@ -95,7 +95,7 @@
 - 权威生产数据库定义：`database/001_schema.sql`。
 - 初始化管理员：`database/002_admin.sql`。
 - 当前没有 Alembic、SQLAlchemy、FastAPI 或 Python backend；已新增 Node/TypeScript migration runner 与 `database/migrations/`。
-- Legacy `001_schema.sql`/`002_admin.sql` 仍会在旧容器启动时重复执行；新 Node runtime 只运行带 ledger/advisory lock/checksum/transaction 的 forward-only migrations。
+- Legacy `001_schema.sql`/`002_admin.sql` 仍会在旧容器启动时重复执行；新 Node runtime 正常启动只读验证 migration ledger，schema activation 仅由显式 `npm run db:migrate` 运行带 advisory lock/checksum/transaction 的 forward-only migrations。
 - `db/`、`drizzle/` 指向 SQLite/D1 scaffold，当前不承载业务表，不能作为 PostgreSQL schema 的替代事实源。
 
 ## 根路径 API 概览
