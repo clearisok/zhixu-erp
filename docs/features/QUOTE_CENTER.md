@@ -1,5 +1,11 @@
 # Quote Center
 
+## Q2A Server API foundation (not Browser cutover)
+
+- Q2A adds typed Server list/detail/create/full-replacement-save contracts backed by the existing Q1 aggregate repository. The API preserves stable Quote/Revision/PriceVersion/cost/Estimate IDs, decimal strings, null versus zero, immutable history and optimistic aggregate version.
+- A same-origin `quote-server-client` and `quote-server-repository` foundation uses `credentials: include`, `cache: no-store`, and the existing mutation boundary headers. It is deliberately not imported by the current Quote list/editor.
+- Current `/quote-center` runtime remains `mockQuoteRepository` + localStorage, including existing Browser confirmation and attachment behavior. No page load performs Server Quote writes or migration. Q2B owns Server repository and single-login UX/writer cutover.
+
 ## C4.2 linked current confirmation boundary
 
 - Quote linkage integration is guarded by the build-time `NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE=true` activation prerequisite and is disabled by default. While disabled, the existing Browser-local confirmation flow remains unchanged; rollout must prohibit creating or using formal Quote-linked SalesOrders in that mode. Merging implementation code therefore neither silently activates a second authority nor blocks current Quote-first production.
@@ -78,7 +84,7 @@ Quote Center 是面向成衣报价工作的新版前端模块，提供完整报�
 - 当前实现：`mock-quote-repository.ts`，以内存缓存 + 稳定 localStorage `zhixu.erp.local.quotes` 保存；旧 sessionStorage `zhixu.quote-center.slice-1.2` 只作为一次性兼容迁移来源。
 - 附件二进制：IndexedDB `zhixu-quote-attachments`，Quote repository 只保存 ID 引用。
 - 全局费用和列表偏好使用 `zhixu.erp.local.*` 稳定 localStorage envelope，定义在 `model/quote-settings.ts`。
-- Q1 已提供独立 `server/quotes/` 和 `0005_quote_foundation.sql`，只通过 disposable PostgreSQL 验证完整聚合持久化、历史保护、NUMERIC 和 optimistic version；尚无 Quote Center HTTP API 或 Browser writer cutover。完整 schema/边界见 `QUOTE_PRODUCTION.md` 的 Q1 节。
+- Q1 已提供独立 `server/quotes/` 和 `0005_quote_foundation.sql`；Q2A 已在其上增加 trusted typed HTTP API、aggregate writer、optimistic conflict 与 atomic OperationLog，并只通过 disposable PostgreSQL 验证。Browser writer cutover 仍未执行。完整 schema/边界见 `QUOTE_PRODUCTION.md` 的 Q1/Q2A 节。
 - 不调用根路径 ERP 的旧 `/api/quotes`。
 - Repository delete interface 预留 `hard` / `soft` 模式；当前 mock UI 实际执行硬删除。
 - 操作日志使用独立 localStorage repository `zhixu.erp.local.operation-logs`，旧 key 只作为迁移来源，不改变 Quote repository 和 Revision 数据结构。

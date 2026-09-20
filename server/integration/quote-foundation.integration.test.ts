@@ -4,39 +4,12 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
 import pg from "pg";
-import { createQuoteDraft, type Quote } from "../../features/quote-center/model/quote-view-model.js";
-import { createRevisionFromSnapshot } from "../../features/quote-center/model/quote-workflows.js";
-import { createEstimateCostFromRevision } from "../../features/quote-center/model/estimate-cost.js";
+import { createQuoteDraft } from "../../features/quote-center/model/quote-view-model.js";
 import { quoteSnapshotFromBrowser, QuoteConflictError, QuoteInvariantError } from "../quotes/model.js";
 import { createQuoteService } from "../quotes/service.js";
 import { runMigrations } from "../db/migration-runner.js";
 import { startDisposablePostgres } from "./postgres-container.js";
-
-function fixture(id: string, type: "processing" | "distribution" = "distribution"): Quote {
-  let q = createQuoteDraft(id, "Synthetic Code", "2026-01-01");
-  const r = q.revisions[0];
-  r.createdAt = "2026-01-01T00:00:00.000Z";
-  r.createdBy = "synthetic provenance";
-  r.baseInfo = { ...r.baseInfo, brandId: "missing-brand", brandName: "Snapshot Brand", salespersonId: "missing-person", salespersonName: "Snapshot Person", quoteType: type };
-  r.imageAttachmentIds = ["synthetic-image"]; r.fileAttachmentIds = ["synthetic-file"]; r.styleImageAttachmentId = "synthetic-image";
-  r.garmentMedia = [{ id: "legacy-ref", fileName: "synthetic.png", fileType: "image/png", url: "https://example.invalid/synthetic.png" }];
-  const v = r.priceVersions[0];
-  v.quantity = 0;
-  v.pricingParameters = { ...v.pricingParameters, usdCnyRate: 7.123456789, markupRate: 0, freightAmount: null };
-  v.labor = { value: 0, description: "Synthetic labor" };
-  v.fabrics = ["fabric-a", "fabric-b"].map((id) => ({ id, lineGroupId: "same-group", independentFields: ["unitPrice"], sourceLibraryItemId: "missing-fabric", name: "Same Fabric", composition: "Synthetic", segmentLengthCm: null, netWidthCm: 0, gsm: 123.4567, lossRate: null, supplier: "", unitPrice: 0, purchaseUnit: "kg" }));
-  v.trims = ["trim-a", "trim-b"].map((id) => ({ id, name: "Same Trim", sourceLibraryItemId: null, specification: "", supplier: "", usage: null, unit: "piece", lossRate: 0, unitPrice: 1.25 }));
-  v.otherCosts = [{ id: "other-a", name: "Other", specification: "", usage: 0, unit: "", lossRate: null, unitPrice: null, amount: 0, source: "global", globalSettingId: "missing-setting", overridden: true }];
-  // Deliberately not today's calculated values.
-  v.confirmation = { quotedGarmentPrice: 987.654321, confirmedGarmentPrice: null, quotedLaborPrice: 32.1, confirmedLaborPrice: 0, note: "Historical value", confirmedAt: "2026-01-01T00:00:00Z" };
-  r.confirmationSummary = { confirmedCount: 1, totalCount: 2 };
-  r.priceVersions.push({ ...structuredClone(v), id: "parallel-pv", quantity: null, pricingParameters: { ...v.pricingParameters, laborCurrency: "USD" }, confirmation: null });
-  q = createRevisionFromSnapshot(q, { sourceRevisionId: r.revisionId, revisionId: "revision-two", createdBy: "synthetic provenance", nowIso: "2026-02-01T00:00:00Z", reason: "其他" });
-  q.estimateCostHistory = [createEstimateCostFromRevision({ quoteId: id, revision: q.revisions[0], id: "estimate-old", generatedAt: "2026-01-02", generatedBy: "synthetic" })];
-  q.activeEstimateCost = createEstimateCostFromRevision({ quoteId: id, revision: q.revisions[0], id: "estimate-active", generatedAt: "2026-02-02", generatedBy: "synthetic" });
-  q.activeEstimateCost.ignoredForRevisionId = q.defaultRevisionId;
-  return q;
-}
+import { createSyntheticQuoteFixture } from "./quote-fixture.js";
 
 test("Quote Q1 disposable PostgreSQL foundation", { timeout: 120_000 }, async (t) => {
   const postgres = await startDisposablePostgres();
@@ -62,7 +35,7 @@ test("Quote Q1 disposable PostgreSQL foundation", { timeout: 120_000 }, async (t
   const service = createQuoteService(pool);
   await t.test("full distribution and processing aggregates round-trip with exact IDs and snapshots", async () => {
     for (const type of ["distribution", "processing"] as const) {
-      const quote = quoteSnapshotFromBrowser(fixture(type, type));
+      const quote = quoteSnapshotFromBrowser(createSyntheticQuoteFixture(type, type));
       assert.deepEqual(await service.createAggregate(quote), { quote, version: 1 });
       assert.deepEqual(await service.getById(quote.id), { quote, version: 1 });
       assert.equal(quote.revisions[0].priceVersions[0].id, quote.revisions[1].priceVersions[0].id);
@@ -71,7 +44,7 @@ test("Quote Q1 disposable PostgreSQL foundation", { timeout: 120_000 }, async (t
     assert.equal(await service.getById("missing"), null);
   });
   await t.test("NUMERIC preserves decimal precision, null and explicit zero without recalculation", async () => {
-    const quote = quoteSnapshotFromBrowser(fixture("precision"));
+    const quote = quoteSnapshotFromBrowser(createSyntheticQuoteFixture("precision"));
     const v = quote.revisions[1].priceVersions[0];
     v.fabrics[0].unitPrice = "12345678901234567890.1234567890123456789";
     await service.createAggregate(quote);
@@ -84,7 +57,7 @@ test("Quote Q1 disposable PostgreSQL foundation", { timeout: 120_000 }, async (t
     delete draft.currentRevisionId;
     await service.createAggregate(draft);
     assert.deepEqual((await service.getById("draft"))?.quote, draft);
-    const q = quoteSnapshotFromBrowser(fixture("removed-source"));
+    const q = quoteSnapshotFromBrowser(createSyntheticQuoteFixture("removed-source"));
     q.activeEstimateCost!.sourcePriceVersionId = "previously-removed-price-version";
     await service.createAggregate(q);
     assert.deepEqual((await service.getById(q.id))?.quote, q);
@@ -143,7 +116,7 @@ test("Quote Q1 disposable PostgreSQL foundation", { timeout: 120_000 }, async (t
   await t.test("database failure mid-child-write rolls back create and update including version", async () => {
     await pool.query(`CREATE FUNCTION q1_reject_line() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.metadata->>'name' = 'FAIL_CHILD' THEN RAISE EXCEPTION 'synthetic child failure'; END IF; RETURN NEW; END $$;
       CREATE TRIGGER q1_reject_line BEFORE INSERT ON quote_center_other_cost_lines FOR EACH ROW EXECUTE FUNCTION q1_reject_line();`);
-    const quote = quoteSnapshotFromBrowser(fixture("rollback"));
+    const quote = quoteSnapshotFromBrowser(createSyntheticQuoteFixture("rollback"));
     quote.revisions[1].priceVersions[0].otherCosts[0].name = "FAIL_CHILD";
     await assert.rejects(() => service.createAggregate(quote), /synthetic child failure/);
     assert.equal(await service.getById("rollback"), null);

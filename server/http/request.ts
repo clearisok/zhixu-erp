@@ -3,7 +3,7 @@ import { HttpError } from "./errors.js";
 
 const MAX_JSON_BODY_BYTES = 32 * 1024;
 
-export async function readJsonBody(request: IncomingMessage): Promise<Record<string, unknown>> {
+export async function readJsonBody(request: IncomingMessage, maxBytes = MAX_JSON_BODY_BYTES): Promise<Record<string, unknown>> {
   const contentType = request.headers["content-type"]?.split(";", 1)[0]?.trim().toLowerCase();
   if (contentType !== "application/json") {
     throw new HttpError(415, "unsupported_media_type", "Content-Type must be application/json");
@@ -14,7 +14,7 @@ export async function readJsonBody(request: IncomingMessage): Promise<Record<str
   for await (const chunk of request) {
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
     size += buffer.length;
-    if (size > MAX_JSON_BODY_BYTES) {
+    if (size > maxBytes) {
       throw new HttpError(413, "payload_too_large", "Request body is too large");
     }
     chunks.push(buffer);

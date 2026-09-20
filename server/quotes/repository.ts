@@ -5,6 +5,12 @@ import { canonicalDecimal, normalizeServerQuote, QuoteConflictError, validateQuo
 type ObjectData = Record<string, unknown>;
 type Snapshot = ServerQuote["revisions"][number]["priceVersions"][number] | NonNullable<ServerQuote["activeEstimateCost"]>;
 type NumericFields = Readonly<Record<string, string>>;
+export type QuoteMutation = {
+  kind: "create" | "save";
+  before: QuoteRecord | null;
+  after: QuoteRecord;
+};
+export type QuoteMutationHook = (client: PoolClient, mutation: QuoteMutation) => Promise<void>;
 const pricingFields = { usdCnyRate: "usd_cny_rate", markupRate: "markup_rate", freightAmount: "freight_amount" };
 const confirmationFields = { quotedGarmentPrice: "quoted_garment_price", confirmedGarmentPrice: "confirmed_garment_price", quotedLaborPrice: "quoted_labor_price", confirmedLaborPrice: "confirmed_labor_price" };
 const lineSpecs = [
@@ -132,15 +138,17 @@ export function createQuoteRepository(pool: Pool) {
       const rows = await pool.query("SELECT id,quote_code,default_revision_id,version FROM quote_center_quotes ORDER BY id LIMIT $1 OFFSET $2", [limit, offset]);
       return rows.rows.map((r) => ({ id: r.id, quoteCode: r.quote_code, defaultRevisionId: r.default_revision_id, version: r.version }));
     },
-    create(input: ServerQuote): Promise<QuoteRecord> {
+    create(input: ServerQuote, afterWrite?: QuoteMutationHook): Promise<QuoteRecord> {
       const quote = normalizeServerQuote(input); validateQuote(quote);
       return transaction(pool, false, async (client) => {
         await insert(client, "quote_center_quotes", { id: quote.id, quote_code: quote.quoteCode, default_revision_id: quote.defaultRevisionId, metadata: omit(quote, ["id", "quoteCode", "defaultRevisionId", "revisions", "activeEstimateCost", "estimateCostHistory"]) });
         await writeChildren(client, quote);
-        return { quote, version: 1 };
+        const result = { quote, version: 1 };
+        await afterWrite?.(client, { kind: "create", before: null, after: result });
+        return result;
       });
     },
-    save(input: ServerQuote, expectedVersion: number): Promise<QuoteRecord> {
+    save(input: ServerQuote, expectedVersion: number, afterWrite?: QuoteMutationHook): Promise<QuoteRecord> {
       const quote = normalizeServerQuote(input); validateQuote(quote);
       if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1) throw new QuoteConflictError();
       return transaction(pool, false, async (client) => {
@@ -151,7 +159,9 @@ export function createQuoteRepository(pool: Pool) {
         validateQuoteReplacement(previous.quote, quote);
         await writeChildren(client, quote, previous.quote);
         await client.query("UPDATE quote_center_quotes SET quote_code=$2,default_revision_id=$3,metadata=$4,version=version+1 WHERE id=$1", [quote.id, quote.quoteCode, quote.defaultRevisionId, omit(quote, ["id", "quoteCode", "defaultRevisionId", "revisions", "activeEstimateCost", "estimateCostHistory"])]);
-        return { quote, version: expectedVersion + 1 };
+        const result = { quote, version: expectedVersion + 1 };
+        await afterWrite?.(client, { kind: "save", before: previous, after: result });
+        return result;
       });
     },
   };

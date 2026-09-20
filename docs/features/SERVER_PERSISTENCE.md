@@ -35,10 +35,15 @@ Browser
 - `GET /api/v1/sales-orders/:id`（需要 `order.view`）
 - `GET|PATCH /api/v1/sales-orders/:id/confirmed-commercial-terms`（分别需要 `order.view` / `order.edit`）
 - `GET|PATCH /api/v1/quotes/:quoteId/revisions/:revisionId/price-versions/:priceVersionId/confirmed-commercial-terms`（分别需要 `quote.view` / `quote.confirm`；只按 exact provenance resolve）
+- `GET /api/v1/quotes`、`GET /api/v1/quotes/:quoteId`（需要 `quote.view`）
+- `POST /api/v1/quotes`（需要 `quote.create`）
+- `PUT /api/v1/quotes/:quoteId`（全 aggregate replacement，要求 `quote.edit`、`expectedVersion`，并按实际变化追加现有细粒度权限）
 
 错误统一返回 `{ error: { code, message, requestId } }`。Health 只有在 PostgreSQL `SELECT 1` 成功时返回 200/ready，数据库不可用时返回 503，不伪报健康。SalesOrder read API 对非法 list query、未登录、无 `order.view` 和不存在的 ID 分别返回 400、401、403、404；返回 typed composed DTO，不直接暴露数据库行、source hash、source metadata 或 raw payload。List 仅暴露 `colorCount`，完整颜色行只在 detail 返回。API 不接受 SQL、表名、数据库操作名、actor userId、role 或授权结果；未知 `/api/*` 路径返回结构化 404。
 
 ConfirmedCommercialTerms mutation 使用 decimal string + `expectedVersion` typed body，要求 normal trusted cookie、exact allowlisted Origin 与 `X-Zhixu-Request: 1`。未知字段（包括 actor/user/role spoof）拒绝为 400；stale version 为 409。Quote provenance 未关联时 read 返回显式 `unlinked`，write fail closed 为 409，绝不 fuzzy match 或创建 SalesOrder。
+
+Q2A Quote create/save 复用 Q1 repository，POST/PUT 还要求 exact Origin 与 `X-Zhixu-Request: 1`。PUT 是完整 aggregate replacement，不是任意字段 SQL PATCH；stale 返回 409，历史 Revision/Estimate mutation 返回 409。DTO 保留 decimal string、stable IDs、null/zero。成功的真实 mutation 与一条 bounded Quote OperationLog 在同一 transaction 提交；审计失败整体回滚，无变化 PUT 不递增版本或写日志。没有 DELETE、附件 binary、master transfer、Browser cutover 或新 migration。
 
 ## Phase C4.2 ConfirmedCommercialTerms implementation
 

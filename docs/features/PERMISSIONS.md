@@ -1,5 +1,9 @@
 # 权限系统
 
+## Q2A Quote aggregate API enforcement
+
+Q2A uses the existing catalog and trusted Server session. List/detail require `quote.view`; create requires `quote.create`; full aggregate replacement requires `quote.edit`. Because one replacement can contain independently protected operations, the Server compares before/after and additionally requires the existing `quote.cost.edit`, `quote.settings.edit`, `quote.revision.update`, `quote.price_version.create/delete`, `quote.confirm`, or `estimate.edit` permission when the corresponding slice changes. It does not infer authority from Browser roles, `createdBy/generatedBy`, request headers or body actor fields. DELETE is not exposed.
+
 ## C4.2 ConfirmedCommercialTerms enforcement
 
 C4.2 reuses the existing catalog without adding a super-permission: Order terms GET/PATCH require `order.view`/`order.edit`; exact Quote-provenance terms GET/PATCH require `quote.view`/`quote.confirm`. Authorization uses the trusted Server session permission set, never a role-name bypass or Browser mock identity. PATCH also retains exact Origin and `X-Zhixu-Request: 1` mutation protection.
@@ -98,5 +102,5 @@ PostgreSQL Server Persistence Phase 1 已增加可信 server RBAC foundation，�
 
 - 当前是单浏览器 mock 登录/切换，不是真实身份认证。
 - localStorage 可被客户端修改，不能用于生产安全控制。
-- 已有 Phase 1 服务端 session、permission enforcement 和 OperationLog 基础；尚无 SSO、组织隔离、数据范围权限，也尚未把 Quote/Order/Scheduling 等业务 mutation 切入该边界。
+- 已有 Phase 1 服务端 session、permission enforcement 和 OperationLog 基础；Q2A Quote aggregate mutation 已接入该 trusted boundary，但 Browser UI 尚未 cutover。仍无 SSO、组织隔离、数据范围权限，Order 通用写入、Scheduling 等其他业务 mutation 也尚未接入。
 - 现有报价 Revision 没有删除功能，因此该权限仅预留。

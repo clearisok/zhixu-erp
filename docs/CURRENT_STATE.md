@@ -4,10 +4,13 @@
 
 ## 当前阶段
 
+- Q2A 已实现 Q1 Quote aggregate 的 trusted Server HTTP boundary：`GET /api/v1/quotes`、`GET /api/v1/quotes/:quoteId`、`POST /api/v1/quotes` 与 `PUT /api/v1/quotes/:quoteId`。读取使用 `quote.view`，创建使用 `quote.create`，替换至少使用 `quote.edit`，并对成本、报价设置、Revision、PriceVersion、确认与 Estimate 变更继续执行现有细粒度 Server permission。PUT 使用 aggregate `expectedVersion`，stale 与历史不可变冲突返回安全 409。
+- Quote create/save 与既有 PostgreSQL `operation_logs` 在同一 transaction 提交；actor 只来自 trusted Server session，日志只保存有界 aggregate/version 摘要和 request context，不保存完整 Quote/附件。审计失败回滚 aggregate；无变化 save 不递增版本也不写日志。Q2A 新增同源 typed Browser client/adapter foundation，但没有接入 Quote 页面。
+- Q2A 最终门禁：targeted `13/13`、disposable PostgreSQL `73/73`、Server auth frontend `7/7`、full tests `631/631`、typecheck、lint、server build、frontend production build（32 routes）与 `git diff --check` 全部 PASS。
 - C4.2 `ConfirmedCommercialTerms` implementation 已完成，并已对照 merged M0 migration safety 与 Q1 Quote PostgreSQL foundation 完成 integration validation。该工程完成状态不等于真实 schema activation 或生产 Browser write acceptance。
 - Q1 已实现 Quote/Revision/PriceVersion/Estimate 与成本快照的 Server/PostgreSQL foundation，migration 为 `0005_quote_foundation.sql`。`0004_confirmed_commercial_terms.sql` 是独立共享 current domain；Q1 Quote confirmation columns 仅为 aggregate snapshot，不是第二个 current writer，terms mutation 不回写 Quote snapshot。
 - M0 已集成：正常 server startup 只读验证 migration 状态；pending 0004、pending 0005 或两者同时 pending 均 fail closed，不执行 schema migration，也不会进入 permission sync、admin bootstrap 或 listen。显式 `npm run db:migrate` 仍是唯一 activation path。
-- Quote production 尚未激活；真实 0004/0005 均未执行。Browser Quote 仍使用 mockQuoteRepository/localStorage；没有真实 Quote import/business write、Q2 API/writer/single-login cutover、Q3 master transfer 或 Q4 attachments。下一工程阶段是 Q2 Quote Server API + trusted writer + single-login cutover；尚未开始，也不由 C4.2 completion 自动授权。
+- Quote production 尚未激活；真实 0004/0005 均未执行。Browser Quote 仍使用 mockQuoteRepository/localStorage；没有真实 Quote import/business write、Q2B Browser writer/single-login cutover、Q3 master transfer 或 Q4 attachments。Q2A 仅通过 disposable PostgreSQL 验证；下一工程阶段是 Q2B Browser Server Repository + single-login UX/writer cutover，且不由 Q2A completion 自动授权。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -397,7 +400,7 @@
 ## 尚未落地
 
 - Production `/order-center` base list 与 authoritative base-detail read cutover 均已完成；通用 write cutover 与 Browser store retirement 尚未落地。C4.2 `ConfirmedCommercialTerms` Server Domain 已在当前独立分支实现并仅通过 disposable PostgreSQL 验证，仍待 review，真实 0004 activation 与真实 Browser acceptance 均未授权；DeliveryPlan/C4.3 未实现，C5 未开始，因此 C4 overall 仍不完整。
-- Quote、Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
+- Quote 的 Q1 schema/repository 与 Q2A trusted API/concurrency/audit foundation 已落地并仅在 disposable PostgreSQL 验证，Browser writer 与真实数据仍未 cutover；Scheduling、Style Progress、Closing 的真实后端、数据库 schema/API、多用户并发与服务端权限尚未落地。
 - 浏览器附件的对象存储、跨设备同步与服务端安全扫描。
 - SalesOrder 已有 bounded search/filter/sort/pagination；其他服务端业务列表与通用全文搜索仍未落地。migration 没有自动 down，其他业务领域的事务内日志仍需随各领域 cutover 接入。
 - True Mobile 的真实 coarse-pointer 设备级复验；当前自动回归验证的是指定 CSS viewport。
