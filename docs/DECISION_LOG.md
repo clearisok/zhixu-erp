@@ -23,14 +23,14 @@
 - 日期：2026-09-20；状态：Active engineering decision within Q1, not production activation.
 - `0005_quote_foundation.sql` uses a distinct `quote_center_*` table family; legacy `quotes` is not the new model. Existing TEXT IDs survive, with Revision/PriceVersion/cost identities scoped to their owners because a new Revision legitimately reuses child IDs.
 - Monetary/decimal fields use NUMERIC and typed decimal-string boundaries without new rounding. Metadata remains snapshot-owned, including dangling master IDs/names, missing country/preset, legacy fields and historical confirmations. No master FK or recomputation may destroy historical values.
-- Internal aggregate transactions enforce optimistic version and immutable historical Revision/Estimate content. Trusted production API authorization/audit remains Q2. Shared current ConfirmedCommercialTerms remains independent PR #37, not duplicated in Q1.
-- Version 4 is reserved for PR #37; version 5 has no dependency on it. Existing runner supports either application order while retaining checksum/missing-file guards. Only disposable databases are authorized for Q1.
+- Internal aggregate transactions enforce optimistic version and immutable historical Revision/Estimate content. Trusted production aggregate API authorization/audit remains Q2. Shared current ConfirmedCommercialTerms is a separate domain implemented by migration 0004, not duplicated in Q1.
+- Version 4 owns ConfirmedCommercialTerms; version 5 has no dependency on it. The runner supports either explicit application order while retaining checksum/missing-file guards. Integration validation used disposable databases only; real 0004/0005 activation remains separately unauthorized and unexecuted.
 - Evidence: `server/quotes/`, `server/integration/quote-foundation.integration.test.ts`, `database/migrations/0005_quote_foundation.sql`, `docs/features/QUOTE_PRODUCTION.md`.
 
 ### D-086 Server startup verifies migrations but never activates schema
 
 - 日期：2026-09-20
-- 状态：Active；M0 migration activation safety gate。它约束所有现有及未来 server migrations，包括尚在独立 OPEN PR 中的 0004/0005，但不授权任何真实 migration。
+- 状态：Active；M0 migration activation safety gate。它约束所有现有及未来 server migrations，包括 0004/0005，但不授权任何真实 migration。
 - 决定：正常 `server:dev`、`server:start` 与生产容器启动不得执行 migration DDL 或初始化 `schema_migrations`。启动只在 read-only transaction 中验证 ledger、applied filename/checksum、missing-file 与 pending 状态；缺失 ledger、pending migration、checksum mismatch 或已应用文件缺失都必须在 permission catalog sync、admin bootstrap 与 HTTP listen 前 fail closed。
 - Activation：schema 只可由经过单独授权的 `npm run db:migrate` 显式激活。该 apply path 继续使用 session advisory lock、逐 migration transaction、checksum ledger、失败 rollback 与 rerun skip。标准顺序为 backup/preflight → explicit migration → read-only status verification → server startup，不允许用启动/重启隐式升级数据库。
 - Operator UX：`npm run db:migrate:status` 只报告 ledger existence、applied、pending 与 integrity，不写 schema。pending 错误只含安全 migration filenames 与显式 operator action，不含 DB URL、password 或 credential。

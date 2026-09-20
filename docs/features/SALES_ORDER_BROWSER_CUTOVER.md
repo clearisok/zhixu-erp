@@ -223,7 +223,7 @@ SalesOrder aggregate/source-link/contract/color/log counts stayed `511/511/511/1
 6. **C3.2 — Real production-list Browser acceptance:** complete. The formal route passed trusted session restore, list/search/filter/server-sort/pagination, same-page inspectors, zero-color semantics, 1280/wide visuals, logout and post-logout anonymous checks without business mutation.
 7. **C4.0 — Ownership audit and decisions:** read-only audit complete; D-082–D-084 record the user-confirmed source, quantity/people/country, delivery-plan and shared-current-terms boundaries. Documentation is complete; implementation is not started.
 8. **C4.1 — Server Base Detail Read Cutover:** complete. Implementation, automated validation and real Browser acceptance all passed with unchanged business fingerprint.
-9. **C4.2 — ConfirmedCommercialTerms implementation:** complete in code/disposable validation and held in an unmerged PR. Real 0004 activation, Browser-data reconciliation and real write acceptance are not authorized or executed.
+9. **C4.2 — ConfirmedCommercialTerms implementation:** complete and fully validated against M0 + Q1 using disposable PostgreSQL. Real 0004/0005 activation, Browser-data reconciliation and real write acceptance are not authorized or executed.
 10. **C4.3+ — Separately authorized server extensions:** DeliveryPlan remains a separate later sub-gate; ambiguous fields stay deferred.
 11. **C5 — Server mutation Gates:** add remaining narrowly scoped create/update APIs, trusted audit and domain-specific authorization; C4.2 terms mutation does not authorize general SalesOrder mutation.
 12. **C6 — Browser repository retirement:** only after data classification, export/recovery evidence and explicit destructive authorization.
