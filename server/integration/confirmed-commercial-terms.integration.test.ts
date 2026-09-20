@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { resolve } from "node:path";
 import test from "node:test";
 import pg from "pg";
+import { createQuoteDraft } from "../../features/quote-center/model/quote-view-model.js";
 import { createApp } from "../app.js";
 import { synchronizePermissionCatalog } from "../auth/permissions.js";
 import type { TrustedIdentity } from "../auth/session.js";
@@ -13,6 +14,8 @@ import {
   updateConfirmedCommercialTermsBySalesOrder,
 } from "../confirmed-commercial-terms/service.js";
 import { runMigrations } from "../db/migration-runner.js";
+import { quoteSnapshotFromBrowser } from "../quotes/model.js";
+import { createQuoteService } from "../quotes/service.js";
 import { createSalesOrder } from "../sales-orders/repository.js";
 import { createAinuokeSalesOrder } from "../sales-orders/service.js";
 import { startDisposablePostgres } from "./postgres-container.js";
@@ -118,10 +121,12 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     "0002_sales_order_foundation.sql",
     "0003_sales_order_number_sequence.sql",
     "0004_confirmed_commercial_terms.sql",
+    "0005_quote_foundation.sql",
   ]);
   const rerun = await runMigrations(pool, resolve("database/migrations"));
   assert.deepEqual(rerun.applied, []);
   assert.ok(rerun.skipped.includes("0004_confirmed_commercial_terms.sql"));
+  assert.ok(rerun.skipped.includes("0005_quote_foundation.sql"));
   const ledger = await pool.query<{ checksum: string }>("SELECT checksum FROM schema_migrations WHERE version = 4");
   assert.match(ledger.rows[0].checksum, /^[a-f0-9]{64}$/u);
 
@@ -131,6 +136,43 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
   const denied = await seedUser(pool, "terms-denied", []);
 
   const provenance = { quoteId: "quote-exact-1", revisionId: "revision-exact-1", priceVersionId: "price-exact-1" };
+  const quoteDraft = createQuoteDraft(provenance.quoteId, "QT-C4.2-INTEGRATION", "2026-09-14");
+  const currentRevision = quoteDraft.revisions[0];
+  currentRevision.revisionId = provenance.revisionId;
+  currentRevision.revisionLabel = "V2";
+  currentRevision.mainlineVersion = 2;
+  currentRevision.parentRevisionId = "revision-historical-1";
+  currentRevision.priceVersions[0].id = provenance.priceVersionId;
+  currentRevision.priceVersions[0].confirmation = {
+    quotedGarmentPrice: 120,
+    confirmedGarmentPrice: 118,
+    quotedLaborPrice: 8,
+    confirmedLaborPrice: 7.5,
+    note: "Q1 current snapshot",
+    confirmedAt: "2026-09-14T00:00:00.000Z",
+  };
+  const historicalRevision = structuredClone(currentRevision);
+  historicalRevision.revisionId = "revision-historical-1";
+  historicalRevision.revisionLabel = "V1";
+  historicalRevision.mainlineVersion = 1;
+  historicalRevision.parentRevisionId = null;
+  historicalRevision.readOnly = true;
+  historicalRevision.priceVersions[0].id = "price-historical-1";
+  historicalRevision.priceVersions[0].confirmation = {
+    quotedGarmentPrice: 110,
+    confirmedGarmentPrice: 108,
+    quotedLaborPrice: 7,
+    confirmedLaborPrice: 6.5,
+    note: "Q1 historical snapshot",
+    confirmedAt: "2026-09-01T00:00:00.000Z",
+  };
+  quoteDraft.defaultRevisionId = provenance.revisionId;
+  quoteDraft.currentRevisionId = provenance.revisionId;
+  quoteDraft.revisions = [historicalRevision, currentRevision];
+  const quoteService = createQuoteService(pool);
+  const q1Created = await quoteService.createAggregate(quoteSnapshotFromBrowser(quoteDraft));
+  const q1BeforeTerms = await quoteService.getById(provenance.quoteId);
+  assert.deepEqual(q1BeforeTerms, q1Created);
   const firstOrder = await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: provenance.quoteId, sourceRevisionId: provenance.revisionId, sourcePriceVersionId: provenance.priceVersionId });
   const secondOrder = await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: provenance.quoteId, sourceRevisionId: provenance.revisionId, sourcePriceVersionId: provenance.priceVersionId });
   const currencyUnsetProvenance = { quoteId: "quote-currency-unset", revisionId: "revision-currency-unset", priceVersionId: "price-currency-unset" };
@@ -383,4 +425,22 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
   assert.deepEqual(sourceAfter.rows[0], sourceBefore.rows[0]);
   const salesOrders = await pool.query<{ version: number }>("SELECT version FROM sales_orders");
   assert.ok(salesOrders.rows.every((row) => row.version === 1));
+  await t.test("shared current terms preserve exact Q1 provenance and never mutate Quote snapshots", async () => {
+    const q1AfterTerms = await quoteService.getById(provenance.quoteId);
+    assert.deepEqual(q1AfterTerms, q1BeforeTerms);
+    assert.equal(q1AfterTerms?.version, 1);
+    assert.equal(q1AfterTerms?.quote.defaultRevisionId, provenance.revisionId);
+    assert.equal(q1AfterTerms?.quote.revisions[1].priceVersions[0].id, provenance.priceVersionId);
+    assert.equal(q1AfterTerms?.quote.revisions[0].priceVersions[0].confirmation?.confirmedGarmentPrice, "108");
+    assert.equal(q1AfterTerms?.quote.revisions[1].priceVersions[0].confirmation?.confirmedGarmentPrice, "118");
+    const termsProvenance = await pool.query<{ quote_id: string; revision_id: string; price_version_id: string }>(
+      "SELECT quote_id, revision_id, price_version_id FROM confirmed_commercial_terms WHERE quote_id = $1",
+      [provenance.quoteId],
+    );
+    assert.deepEqual(termsProvenance.rows[0], {
+      quote_id: provenance.quoteId,
+      revision_id: provenance.revisionId,
+      price_version_id: provenance.priceVersionId,
+    });
+  });
 });

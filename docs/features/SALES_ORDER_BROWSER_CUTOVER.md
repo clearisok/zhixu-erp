@@ -157,7 +157,7 @@ Quote linkage integration is disabled by default behind `NEXT_PUBLIC_ZHIXU_CONFI
 
 The new Order card displays null as “未确认” and never reads Browser `salePrice` or `processingUnitPrice`. It cannot edit linked labor currency, source facts, lifecycle or DeliveryPlans. Historical Quote snapshots and all other Quote/Order PriceVersion fields remain independent and unchanged.
 
-This implementation and its 0001→0004 migration validation ran only on disposable PostgreSQL. Real `zhixu` migration, real data reconciliation and real Browser write acceptance are not authorized or executed. Because Server startup applies pending migrations, this PR must stay open until a separate rollout Gate.
+This implementation and its 0001→0004 migration validation ran only on disposable PostgreSQL. Real `zhixu` migration, real data reconciliation and real Browser write acceptance are not authorized or executed. Normal Server startup is migration verify-only and fails closed while 0004 or 0005 is pending; only a separately authorized explicit `npm run db:migrate` may activate schema. This PR remains open until a separate rollout Gate.
 
 ## C4.1 production base-detail implementation
 

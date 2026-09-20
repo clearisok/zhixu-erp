@@ -18,6 +18,27 @@ export type MigrationRunResult = {
   skipped: string[];
 };
 
+export type MigrationStatusResult = {
+  ledgerExists: boolean;
+  applied: string[];
+  pending: string[];
+  integrity: "valid" | "migration_required";
+};
+
+export class PendingMigrationsError extends Error {
+  readonly code = "pending_migrations";
+  readonly ledgerExists: boolean;
+  readonly pending: string[];
+
+  constructor(status: MigrationStatusResult) {
+    const pending = status.pending.length > 0 ? status.pending.join(", ") : "migration ledger initialization";
+    super(`Database migrations are pending: ${pending}. Run npm run db:migrate only after explicit migration authorization.`);
+    this.name = "PendingMigrationsError";
+    this.ledgerExists = status.ledgerExists;
+    this.pending = [...status.pending];
+  }
+}
+
 type AppliedMigration = {
   version: string;
   filename: string;
@@ -99,6 +120,66 @@ function verifyAppliedMigrations(
     appliedVersions.add(applied.version);
   }
   return appliedVersions;
+}
+
+async function migrationLedgerExists(client: PoolClient): Promise<boolean> {
+  const result = await client.query<{ exists: boolean }>(
+    "SELECT to_regclass('public.schema_migrations') IS NOT NULL AS exists",
+  );
+  return result.rows[0]?.exists === true;
+}
+
+export async function inspectMigrationStatus(
+  pool: Pool,
+  migrationsDirectory: string,
+): Promise<MigrationStatusResult> {
+  const migrations = await discoverMigrations(migrationsDirectory);
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN READ ONLY");
+    try {
+      const ledgerExists = await migrationLedgerExists(client);
+      if (!ledgerExists) {
+        await client.query("COMMIT");
+        return {
+          ledgerExists: false,
+          applied: [],
+          pending: migrations.map((migration) => migration.filename),
+          integrity: "migration_required",
+        };
+      }
+
+      const appliedMigrations = await readAppliedMigrations(client);
+      const appliedVersions = verifyAppliedMigrations(migrations, appliedMigrations);
+      const status: MigrationStatusResult = {
+        ledgerExists: true,
+        applied: appliedMigrations.map((migration) => migration.filename),
+        pending: migrations
+          .filter((migration) => !appliedVersions.has(migration.version))
+          .map((migration) => migration.filename),
+        integrity: "valid",
+      };
+      await client.query("COMMIT");
+      return status;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    }
+  } finally {
+    client.release();
+  }
+}
+
+export async function verifyMigrationsCurrent(
+  pool: Pool,
+  migrationsDirectory: string,
+): Promise<MigrationStatusResult> {
+  const status = await inspectMigrationStatus(pool, migrationsDirectory);
+  if (!status.ledgerExists || status.pending.length > 0) {
+    throw new PendingMigrationsError(status);
+  }
+  return status;
 }
 
 export async function runMigrations(

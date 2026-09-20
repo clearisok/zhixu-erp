@@ -229,6 +229,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         "0002_sales_order_foundation.sql",
         "0003_sales_order_number_sequence.sql",
         "0004_confirmed_commercial_terms.sql",
+        "0005_quote_foundation.sql",
       ]);
       const identity = await pool.query<{ public_id: string }>("SELECT public_id::text FROM app_users WHERE username = 'legacy-user'");
       assert.match(identity.rows[0].public_id, /^[0-9a-f-]{36}$/);
@@ -287,6 +288,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         "0002_sales_order_foundation.sql",
         "0003_sales_order_number_sequence.sql",
         "0004_confirmed_commercial_terms.sql",
+        "0005_quote_foundation.sql",
       ]);
       const tables = await pool.query<{ table_name: string }>(
         `SELECT table_name FROM information_schema.tables

@@ -16,7 +16,7 @@ Browser
 ```
 
 - API 入口位于 `server/`，使用 Node 内置 HTTP server 和 `pg` pool；没有任意 SQL/table/op dispatch endpoint。
-- Node server 启动时按顺序执行 migration、同步共享权限目录、可选 bootstrap 管理员，然后监听请求。
+- Node server 正常启动只读验证 migration ledger、文件名与 checksum；只有数据库已完整应用当前 migration 集合时，才继续同步共享权限目录、可选 bootstrap 管理员并监听请求。缺失 ledger、pending migration 或完整性异常均 fail closed，启动路径不会创建 ledger 或执行 DDL。Schema activation 只能通过另行授权的 `npm run db:migrate` 显式执行。
 - 生产目标由同一 Node 进程提供 `dist/client` 静态文件和 `/api/v1/*`。Phase 1 在 Compose 中以 `server-foundation` profile 提供该路径；legacy `zhixu` service 暂时保留。
 - Pool 有明确最大连接数、连接/idle timeout 和 SIGINT/SIGTERM graceful shutdown。数据库 URL/密码只从 server process environment 读取，不进入前端 bundle。
 - `NODE_ENV=production` 时必须配置 `ZHIXU_ALLOWED_ORIGINS`，且 Secure cookie 不允许关闭；本机 HTTP 开发必须使用 development 模式。
@@ -50,7 +50,8 @@ ConfirmedCommercialTerms mutation 使用 decimal string + `expectedVersion` type
 - 每次真实 terms mutation 与一条 existing append-only `operation_logs` action 在同一 transaction 中提交。OperationLog actor 只来自 `TrustedIdentity`，记录 old/new amount/currency/version、mutation surface、exact Quote provenance（如有）和关联 SalesOrder IDs；审计失败会回滚 terms/association。
 - terms version 与 SalesOrder aggregate version 分离。C4.2 不修改 SalesOrder source mirrors、source quantity、order number/sequence、lifecycle、DeliveryPlan 或任何其他 PriceVersion field。
 - Browser Quote linkage 使用默认关闭的 `NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE=true` build-time activation gate。关闭时现有 Quote-local production flow 保持原样，并要求不得形成/使用 formal Quote-linked SalesOrder；开启后 authenticated exact lookup 才能证明 linked/unlinked，anonymous/unavailable/loading 均为 unknown 并禁止 local fallback。linked confirmation projection 按 Quote type 判断：processing 需要 labor，distribution 需要 labor + customer price。
-- 本实现只在 disposable PostgreSQL 验证。真实 `zhixu` 未应用 0004、真实业务写入为 0；由于 Node startup 自动运行 pending migration，当前分支/未来 merge 后的 Server 都不得连接真实目标启动，直到单独 rollout 授权。
+- 本实现只在 disposable PostgreSQL 验证。真实 `zhixu` 未应用 0004/0005、真实业务写入为 0。Node startup 只读验证 migration 状态，任一 pending migration 都在 permission sync/admin bootstrap/listen 前 fail closed 且不写 schema；只有另行明确授权的 `npm run db:migrate` 可执行 activation。
+- Post-Q1/post-M0 integration 证明 0004/0005 同时 pending 与仅 0004 pending 都保持 startup 零 schema write；显式 disposable apply 的 0004→0005 与 0005→0004 均 PASS。C4.2 current mutation 不改变 Q1 Quote aggregate version、当前/历史 confirmation snapshots 或 exact Quote/Revision/PriceVersion IDs。
 
 ## Phase 2B1 SalesOrder foundation
 
@@ -146,10 +147,16 @@ ConfirmedCommercialTerms mutation 使用 decimal string + `expectedVersion` type
 
 ## Migration contract
 
+Q1 adds independent `0005_quote_foundation.sql` and internal `server/quotes/` aggregate persistence. The eight `quote_center_*` tables preserve original IDs, owner-scoped child identity, ordered Revision/PriceVersion/Estimate snapshots and NUMERIC decimal strings. Legacy `quotes`, SalesOrder and master-data tables are untouched. Historical Revision/Estimate content is protected by the repository/service boundary; aggregate save uses row lock + optimistic version + one transaction, reads use repeatable-read snapshots. This is disposable-validated engineering foundation only: no Quote HTTP API, trusted production writer/audit integration, Browser cutover, real migration, attachment pipeline or master authority transfer. Details and exact tables are in `QUOTE_PRODUCTION.md`.
+
+Version 4 belongs to OPEN PR #37 and version 5 is merged on main. The existing runner supports non-contiguous versions and explicit apply includes a lower pending version; actual 4→5 and 5→4 orders pass disposable validation. All applied files must still be present with matching checksums when deploying a merged tree. Neither 0004 nor 0005 has been activated on real `zhixu`; after M0, `server/index.ts` verifies pending migrations read-only and refuses to start instead of applying them.
+
 - 文件目录：`database/migrations/`，命名 `NNNN_description.sql`，只前进。
 - `schema_migrations` ledger 保存 `version`、`filename`、SHA-256 `checksum`、`applied_at`、`duration_ms`。
 - runner 使用 session-level PostgreSQL advisory lock 串行化并发进程；每个 migration 在独立 transaction 内执行，DDL 或 ledger 写失败会整体 rollback。
 - rerun 已应用文件为 no-op；checksum/filename 改动、已应用文件缺失或重复 version 均 fail closed。已应用 migration 不允许编辑，修复使用新 forward migration。
+- `server/index.ts` 不再调用 migration apply runner。启动 preflight 在 PostgreSQL `READ ONLY` transaction 中读取 ledger 并复用同一 filename/checksum/missing-file guard；pending 时输出不含 connection string/credential 的安全错误，并在 permission catalog sync、admin bootstrap 与 HTTP listen 前退出。
+- `npm run db:migrate:status` 是只读 operator status；返回 applied、pending、ledger existence 与 integrity，不创建 ledger。`npm run db:migrate` 是唯一正式 apply 入口，仍保留 advisory lock、逐 migration transaction、ledger、rerun skip 和 rollback 语义。部署顺序固定为 backup/preflight → 显式 migration activation → status verification → application startup。
 - 没有自动 down。回退方式是经过验证的新 forward-fix migration，或在明确授权和已验证备份下恢复数据库。
 - legacy `database/001_schema.sql` / `002_admin.sql` 仍只服务旧 runtime，不会由 Node migration runner 执行。Phase 1 migration 只演进共享 identity/session 并新增 RBAC/OperationLog，不修改 `customers/quotes/orders/schedules/audit_logs/api_dispatch`。
 

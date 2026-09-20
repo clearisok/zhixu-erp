@@ -1,11 +1,13 @@
 # 当前状态
 
-> 状态快照：2026-09-14。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-20。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
-- 当前 Active Task 为 `feat/confirmed-commercial-terms-server-domain`，起点为 `20d334d5043749250fae468e15bf47d1e281efe2`（PR #36 merge）。C4.2 implementation 与 disposable validation 已完成，正在 PR 收口；真实 migration、真实 terms data migration 与真实 Browser write acceptance 均未授权、未执行。
-- 当前稳定基线：GitHub `main` 为 `20d334d5043749250fae468e15bf47d1e281efe2`。
+- 当前 Active Task 为 PR #37 post-Q1/post-M0 integration closeout，分支 `feat/confirmed-commercial-terms-server-domain`。当前稳定 `main` 为 `68e83ea27b1b1589d4064ff217f3bda340594ea5`（Q1 PR #39 与 M0 PR #40 均已 merged）；PR #37 仍 OPEN / unmerged。
+- Q1 已实现 Quote/Revision/PriceVersion/Estimate 与成本快照的 Server/PostgreSQL foundation，migration 为 `0005_quote_foundation.sql`。PR #37 的 `0004_confirmed_commercial_terms.sql` 是独立共享 current domain；Q1 Quote confirmation columns 仅为 aggregate snapshot，不是第二个 current writer，terms mutation 不回写 Quote snapshot。
+- M0 已集成：正常 server startup 只读验证 migration 状态；pending 0004、pending 0005 或两者同时 pending 均 fail closed，不执行 schema migration，也不会进入 permission sync、admin bootstrap 或 listen。显式 `npm run db:migrate` 仍是唯一 activation path。
+- Quote production 尚未激活；真实 0004/0005 均未执行。Browser Quote 仍使用 mockQuoteRepository/localStorage；没有真实 Quote import/business write、Q2 API/writer/single-login cutover、Q3 master transfer 或 Q4 attachments。C4.2 implementation 已完成，正在基于 merged Q1/M0 做 disposable integration 收口；真实 terms data migration 与 Browser write acceptance 未授权、未执行。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。
@@ -27,7 +29,7 @@
 - Quote linkage integration 使用默认关闭的 build-time `NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE=true` activation prerequisite。关闭时保留既有 Browser-local confirmation，且 rollout 必须禁止形成正式 Quote-linked SalesOrder；因此 merge implementation 不会中断 Quote-first 生产。显式开启后才按 exact provenance resolve：proven-unlinked 保留 local，known-linked 只读写 Server，anonymous/unavailable/lookup 未完成均作为 unknown fail closed，无 local fallback。
 - Linked active confirmation status 复用既有 Quote type 规则：加工报价有确认工价即 confirmed；经销报价必须同时有确认工价与客户确认成衣价，任一单独存在均不确认。该 projection 不向 `PriceVersion.confirmation` 回写第二份数值；历史 revision snapshot 不变。
 - Disposable PostgreSQL 与前端 contract 已证明 0001→0004/rerun/checksum、1→N shared context、cross-surface parity、linked Order currency ownership、unlinked Order explicit currency、Quote establishment、type-aware status、null≠0、negative rejection、rollback、trusted actor、401/403/404、mutation boundary、exact/no-fuzzy linkage 与 conflict。真实 `zhixu` 未运行 0004，真实业务写入为 0，当前分支 Server 未连接真实数据库启动。
-- PR #37 review hardening 最终门禁：ConfirmedCommercialTerms targeted `15/15`、Server auth frontend `7/7`、disposable PostgreSQL `37/37`、full tests `629/629`、typecheck、lint、server build、frontend production build（`32` static routes）与 `git diff --check` 全部 PASS。
+- PR #37 post-Q1/post-M0 integration 最终门禁：ConfirmedCommercialTerms targeted `16/16`、migration-safety + Q1 targeted `20/20`、Order detail/shadow `13/13`、Server auth frontend `7/7`、disposable PostgreSQL `60/60`、full tests `631/631`、typecheck、lint、server build、frontend production build（`32` static routes）与 `git diff --check` 全部 PASS。
 - **C4.2 implementation = COMPLETE / IN PR**。**C4.2 real migration/data migration/Browser write acceptance = NOT AUTHORIZED / NOT EXECUTED**。C4 overall 仍为 INCOMPLETE；DeliveryPlan/C4.3、Customer PO mapping 与 C5 均未开始。
 
 ### Phase C4.1 — PostgreSQL Base Detail Read Cutover implementation
@@ -56,6 +58,13 @@
 - 当前浏览器 local data `schemaVersion = 13`，Style Progress IndexedDB version = 4；旧记录只做非破坏迁移，不自动清空或用 Seed 覆盖。
 
 ## 本轮完成状态
+
+### M0 — Migration Activation Safety Gate
+
+- 正常 Node startup 不再调用 migration apply runner。它先用 read-only transaction 验证 `schema_migrations`、文件名、checksum、missing applied file 与 pending 集合；missing ledger 或 pending/incompatible state 都在 permission sync、admin bootstrap 和 HTTP listen 前 fail closed。
+- `npm run db:migrate` 继续是唯一 schema apply 入口，并保留 advisory lock、逐文件 transaction、ledger、checksum、rollback 与 rerun skip。新增 `npm run db:migrate:status` 作为无 schema write 的 operator status 命令。
+- Disposable PG16 覆盖 missing ledger、pending 0004/0005、正常 fully-migrated startup、显式 apply、checksum mismatch、missing file、业务表/OperationLog/sequence 不变与 startup ordering。PR #37 integration 中，历史 bootstrap/RBAC runner 的成功 rehearsal 固定使用其已审阅的 0001–0004 contract，并继续对新增 0005 fail closed；这不扩大任何真实执行授权。
+- M0 未连接或修改真实 `zhixu` PostgreSQL；0004/0005 real activation、Quote import、Browser writer cutover、Q2 与部署均未执行。PR #39 已 merged；PR #37 仍 OPEN / unmerged。
 
 ### Phase C4.0 — confirmed business ownership decisions (docs only)
 

@@ -18,7 +18,25 @@
 
 ## Active
 
-### D-085 ConfirmedCommercialTerms uses a shared Quote-provenance context with explicit SalesOrder associations
+### D-085 Quote Q1 persistence preserves owner-scoped identity and snapshot values
+
+- 日期：2026-09-20；状态：Active engineering decision within Q1, not production activation.
+- `0005_quote_foundation.sql` uses a distinct `quote_center_*` table family; legacy `quotes` is not the new model. Existing TEXT IDs survive, with Revision/PriceVersion/cost identities scoped to their owners because a new Revision legitimately reuses child IDs.
+- Monetary/decimal fields use NUMERIC and typed decimal-string boundaries without new rounding. Metadata remains snapshot-owned, including dangling master IDs/names, missing country/preset, legacy fields and historical confirmations. No master FK or recomputation may destroy historical values.
+- Internal aggregate transactions enforce optimistic version and immutable historical Revision/Estimate content. Trusted production API authorization/audit remains Q2. Shared current ConfirmedCommercialTerms remains independent PR #37, not duplicated in Q1.
+- Version 4 is reserved for PR #37; version 5 has no dependency on it. Existing runner supports either application order while retaining checksum/missing-file guards. Only disposable databases are authorized for Q1.
+- Evidence: `server/quotes/`, `server/integration/quote-foundation.integration.test.ts`, `database/migrations/0005_quote_foundation.sql`, `docs/features/QUOTE_PRODUCTION.md`.
+
+### D-086 Server startup verifies migrations but never activates schema
+
+- 日期：2026-09-20
+- 状态：Active；M0 migration activation safety gate。它约束所有现有及未来 server migrations，包括尚在独立 OPEN PR 中的 0004/0005，但不授权任何真实 migration。
+- 决定：正常 `server:dev`、`server:start` 与生产容器启动不得执行 migration DDL 或初始化 `schema_migrations`。启动只在 read-only transaction 中验证 ledger、applied filename/checksum、missing-file 与 pending 状态；缺失 ledger、pending migration、checksum mismatch 或已应用文件缺失都必须在 permission catalog sync、admin bootstrap 与 HTTP listen 前 fail closed。
+- Activation：schema 只可由经过单独授权的 `npm run db:migrate` 显式激活。该 apply path 继续使用 session advisory lock、逐 migration transaction、checksum ledger、失败 rollback 与 rerun skip。标准顺序为 backup/preflight → explicit migration → read-only status verification → server startup，不允许用启动/重启隐式升级数据库。
+- Operator UX：`npm run db:migrate:status` 只报告 ledger existence、applied、pending 与 integrity，不写 schema。pending 错误只含安全 migration filenames 与显式 operator action，不含 DB URL、password 或 credential。
+- 证据：`server/db/migration-runner.ts`、`server/startup.ts`、`server/index.ts`、`server/integration/migration-activation.integration.test.ts` 与 `tests/server-migration-activation-safety.test.mjs`。M0 只在 disposable PostgreSQL 16 验证；真实 0004/0005 与任何业务写均未执行。
+
+### D-087 ConfirmedCommercialTerms uses a shared Quote-provenance context with explicit SalesOrder associations
 
 - 日期：2026-09-14
 - 状态：Active（implementation complete in PR；real migration not authorized）
@@ -26,17 +44,17 @@
 - 金额：客户确认价格是 CNY/件；确认工价使用 PostgreSQL `NUMERIC` 并携带 `CNY|USD` qualifier。API 以 decimal string 传输，不引入浮点或新舍入规则；`NULL` 与 `0` 严格不同。
 - 币种所有权：linked context 的工价币种由 exact Quote PriceVersion 建立和变更。Order surface 只能保留该 qualifier；双向变更或未建立时由 Order 发明币种均返回 409，且不产生 terms/OperationLog。unlinked order-owned context 仍允许 Order 明确选择 `CNY|USD`。
 - 并发与审计：terms 自有 optimistic `version`，Quote/Order mutation 都要求 `expectedVersion`，stale 返回 409。terms 与单条 append-only `OperationLog` 在同一 transaction 提交，actor 只来自 trusted Server session；SalesOrder aggregate version、source mirrors 与 sequence 不变。
-- 边界：历史 Quote Revision/PriceVersion confirmation 保持 Browser snapshot；未关联当前 Quote 仍走 legacy local confirmation。精确 linked current Quote 只读写 Server terms，不回退写本地 numeric copy。为避免 implementation merge 破坏既有 Quote-first Browser 生产，Quote linkage integration 由默认关闭的显式 build-time activation gate 控制；关闭时禁止形成正式 Quote-linked SalesOrder 是 rollout prerequisite，开启后 anonymous/unavailable/未完成 lookup 均视为 unknown 并禁止 local fallback。0004 无 backfill，真实 `zhixu` activation/data migration/Browser write acceptance 均需后续单独授权。
-- 代码证据：`database/migrations/0004_confirmed_commercial_terms.sql`、`server/confirmed-commercial-terms/`、`server/app.ts`、`features/confirmed-commercial-terms/`。
+- 边界：Q1 `quote_center_cost_snapshots.confirmation_*` 只保存 Quote aggregate snapshot，不是共享 current writer；ConfirmedCommercialTerms mutation 不回写 Q1 Quote aggregate。未关联当前 Quote 仍走 legacy local confirmation；精确 linked current Quote 只读写 Server terms，不回退写本地 numeric copy。Quote linkage integration 由默认关闭的显式 build-time activation gate 控制；关闭时禁止形成正式 Quote-linked SalesOrder 是 rollout prerequisite，开启后 anonymous/unavailable/未完成 lookup 均视为 unknown 并禁止 local fallback。0004 无 backfill，真实 `zhixu` activation/data migration/Browser write acceptance 均需后续单独授权。
+- 代码证据：`database/migrations/0004_confirmed_commercial_terms.sql`、`database/migrations/0005_quote_foundation.sql`、`server/confirmed-commercial-terms/`、`server/quotes/`、`server/app.ts`、`features/confirmed-commercial-terms/`。
 
 ### D-084 Linked Quote and SalesOrder share only current confirmed commercial terms
 
 - 日期：2026-09-14
-- 状态：Active；确认 C4.0 审计 C4-D10，取代“Quote 与 Order 的当前客户确认价格和确认工价各自独立维护”的旧 AI 建议。C4.2 implementation 由 D-085 落地，真实 activation 尚未授权。
+- 状态：Active；确认 C4.0 审计 C4-D10，取代“Quote 与 Order 的当前客户确认价格和确认工价各自独立维护”的旧 AI 建议。C4.2 implementation 由 D-087 落地，真实 activation 尚未授权。
 - 决定：在同一业务流中已稳定关联的 Quote 与 SalesOrder，“客户确认价格”和“确认工价”分别是一个共享的当前业务事实，不得在 Quote 与 Order 各保存一份可独立漂移的当前值。Quote Center 与 Order Detail 都可编辑这两项共享当前值，任一表面的修改都必须在另一表面读到同一结果。概念上可称为 `ConfirmedCommercialTerms`，本 docs-only 决策不锁定 SQL 表名或 API 名称。
 - 审计/历史：每次修改必须通过可信身份记录 actor、timestamp、old value 和 new value，遵守 server OperationLog 原则。Quote Revision / PriceVersion 历史快照仍为 immutable historical facts，共享当前值变化不回写历史快照。
 - 边界：不对 Quote PriceVersion 与 Order PriceVersion 做全量 live-link。面辅料成本、margin、汇率、加工假设、Quote 制作国家及其他 PriceVersion 事实仍相互独立。未关联 Quote 的 SalesOrder 不得伪造 Quote 关系。
-- 现状证据：Browser `PriceVersionConfirmation` 与 `OrderPriceVersion` 仍是保留的 legacy/independent structures；C4.2 通过 D-085 的专用 Server domain 实现 linked current authority，不把两套 Browser numeric fields 作为 shared writer。
+- 现状证据：Browser `PriceVersionConfirmation` 与 `OrderPriceVersion` 仍是保留的 legacy/independent structures；C4.2 通过 D-087 的专用 Server domain 实现 linked current authority，不把两套 Browser numeric fields 作为 shared writer。
 
 ### D-083 Ainuoke source delivery date and Zhixu DeliveryPlan are separate domains
 
