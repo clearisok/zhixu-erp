@@ -1364,6 +1364,38 @@ textarea.qc-note-control { min-height: 72px; height: 72px; }
   .qc-server-quote-section > header, .qc-server-quote-version > header, .qc-server-quote-version-list > header { align-items: flex-start; flex-direction: column; }
 }
 
+/* Q2B2A isolated Server Quote writer workspace. */
+.qc-server-writer-page, .qc-server-writer-stack { display: grid; gap: 16px; }
+.qc-server-writer-boundary { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 14px; color: #60736a; border: 1px solid #d9e5df; border-radius: 9px; background: #f6faf8; font-size: 10px; }
+.qc-server-writer-boundary span { padding: 5px 8px; border: 1px solid #dce7e2; border-radius: 999px; background: #fff; }
+.qc-server-writer-boundary strong { color: var(--qc-green, #175c4b); }
+.qc-server-writer-section { overflow: hidden; }
+.qc-server-writer-section > header { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 18px; border-bottom: 1px solid #e4eae7; }
+.qc-server-writer-section > header h2 { margin: 3px 0 0; color: var(--qc-green, #175c4b); font: 600 18px Georgia, "Songti SC", serif; }
+.qc-server-writer-section > header small { color: #759087; font-size: 8px; letter-spacing: .12em; }
+.qc-server-writer-section > header > span { color: #6a7c73; font-size: 9px; }
+.qc-server-writer-section > h3 { margin: 0; padding: 15px 18px 9px; color: #3e594e; border-top: 1px solid #e9eeeb; font-size: 12px; }
+.qc-server-writer-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 16px 18px; }
+.qc-server-writer-grid textarea { min-height: 72px; resize: vertical; }
+.qc-server-writer-tabs { display: flex; gap: 7px; padding: 12px 18px 0; overflow-x: auto; }
+.qc-server-writer-tabs button { min-height: 34px; flex: 0 0 auto; padding: 0 12px; color: #5e7068; border: 1px solid #d9e4df; border-radius: 999px; background: #fff; cursor: pointer; font: inherit; font-size: 10px; }
+.qc-server-writer-tabs button.active { color: #fff; border-color: var(--qc-green, #175c4b); background: var(--qc-green, #175c4b); }
+.qc-server-writer-rows { display: grid; gap: 10px; padding: 0 18px 16px; }
+.qc-server-writer-rows article { overflow: hidden; border: 1px solid #e0e8e4; border-radius: 9px; background: #fbfdfc; }
+.qc-server-writer-rows article > header { display: flex; justify-content: space-between; gap: 10px; padding: 10px 13px; border-bottom: 1px solid #e6ece9; background: #f6faf8; }
+.qc-server-writer-rows article > header strong { color: #365247; font-size: 11px; }
+.qc-server-writer-rows article > header code, .qc-server-writer-section code { color: #687970; font: 9px/1.5 ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+.qc-server-writer-rows article > small { display: block; padding: 0 13px 12px; color: #7a8881; font-size: 9px; }
+.qc-server-writer-check { min-height: 38px; display: flex; align-items: center; gap: 8px; color: #455a51; font-size: 11px; }
+.qc-server-writer-check input { accent-color: var(--qc-green, #175c4b); }
+.qc-server-writer-deferred ul { display: grid; gap: 7px; margin: 0; padding: 16px 36px 18px; color: #66766f; font-size: 10px; line-height: 1.6; }
+.qc-server-writer-savebar { position: sticky; z-index: 20; bottom: 12px; min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 14px; border: 1px solid #cddfd7; border-radius: 10px; background: rgba(255,255,255,.96); box-shadow: 0 10px 30px rgba(21, 57, 45, .12); backdrop-filter: blur(10px); }
+.qc-server-writer-savebar span { color: #566a61; font-size: 10px; }
+.qc-server-writer-back { padding: 0; border: 0; background: transparent; cursor: pointer; }
+
+@media (max-width: 980px) { .qc-server-writer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .qc-server-writer-grid { grid-template-columns: 1fr; }.qc-server-writer-section > header { align-items: flex-start; flex-direction: column; }.qc-server-writer-savebar { bottom: 76px; }.qc-server-writer-savebar { align-items: stretch; flex-direction: column; }.qc-server-writer-savebar .qc-button { width: 100%; } }
+
 @media (max-width: 767px) {
   .qc-data-management-section > header { align-items: stretch; flex-direction: column; }
   .qc-data-management-section > header aside, .qc-data-management-actions { display: grid; }

@@ -145,6 +145,15 @@ Post-M0 Q1 validation: targeted migration-safety + Quote PostgreSQL 19/19; compl
 - Production `/quote-center`, `/quote-center/detail` and `/quote-center/new` remain Browser/local and continue using `mockQuoteRepository`; Browser writer and global single-login production cutover are not complete. Real 0004/0005, real Quote import and real Quote business writes remain NOT EXECUTED. Q2B2 is the next separately gated writer phase.
 - Final Q2B1 validation passed: shadow contract 7/7, Server auth/read frontend 10/10, disposable PostgreSQL 73/73, full tests 638/638, typecheck, lint, server build, frontend production build (34 routes), and `git diff --check`.
 
+## Q2B2A isolated Server writer workspace — 2026-09-21
+
+- `/quote-center/server-edit?id=<quoteId>` edits only an existing Server Quote's default/current Revision and saves only through the typed Q2A GET/PUT boundary. It retains aggregate `expectedVersion`, replaces the local baseline/version only with the Server response, and treats 409 as an explicit conflict with no automatic retry, merge or overwrite.
+- The writer's editable Browser-number projection is admitted only when every non-null Server decimal string round-trips through `quoteSnapshotFromBrowser` to the exact canonical decimal. There is no epsilon or invented rounding. `null` and explicit zero remain distinct; any unsafe high-precision value makes the aggregate non-editable and prevents PUT.
+- AppShell remains in Server identity mode. A scoped permission authority makes foundation Buttons/Guards use `ServerSession.hasPermission`; Browser mock roles cannot grant Server edit. Server still enforces `quote.view`, `quote.edit` and operation-specific permissions, immutable history, transaction and trusted OperationLog actor.
+- The workspace never reads or writes `mockQuoteRepository`, Browser OperationLog, IndexedDB attachments, Browser Basic Settings or OrderRepository. Attachments, master switching/quick-create, delete, export, Quote-to-Order, new Quote, Revision/Estimate/PriceVersion destructive actions and confirmation mutation are disabled. Existing attachment IDs and C4.2 current terms remain untouched.
+- `LocalDataBootstrap` skips the exact server-edit route. Production `/quote-center`, `/quote-center/detail` and `/quote-center/new` remain Browser/local. Server new-Quote UI is not implemented because its multi-user numbering/creation authority remains a Q2B2B blocker. Real 0004/0005, real Quote import, real Quote business writes and production writer activation remain NOT EXECUTED.
+- Final Q2B2A validation passed: writer contract 8/8, Server auth/frontend 13/13, disposable PostgreSQL 73/73, full tests 646/646, typecheck, zero-warning lint, server build, frontend production build (35 routes), and `git diff --check`.
+
 ### Migration numbering and C4.2 compatibility
 
 `0004_confirmed_commercial_terms.sql` owns the separate shared-current terms domain; `0005_quote_foundation.sql` owns the Quote aggregate foundation and has no dependency on 0004 tables/functions. The runner discovers/sorts numeric versions and explicitly applies every version absent from the ledger; it does not demand a contiguous prefix or reject a lower pending version. Both actual orders `0001/2/3 → 0004 → 0005` and `0001/2/3 → 0005 → 0004` are validated on disposable databases.
@@ -159,7 +168,7 @@ A deployment must always include every already-applied migration file with its o
 - Real `zhixu` migration 0004 activation：**NOT AUTHORIZED / NOT EXECUTED**。
 - C4.2 real Browser acceptance：**NOT EXECUTED**。
 - Quote PostgreSQL foundation：**IMPLEMENTED / MERGED, NOT PRODUCTION-ACTIVATED**。Quote aggregate API/writer cutover、Server attachment architecture、Quote data migration 与 Quote production deployment：**NOT IMPLEMENTED / NOT READY**。
-- Q0 于 2026-09-14 完成 read-only audit（8 Quotes / 9 Revisions / 12 PriceVersions）；未发现 Quote aggregate corruption blocker。Q1/Q2A/Q2B1 不读取或提交真实 backup。下一阶段是需独立授权的 **Q2B2 Server writer integration behind explicit production gate**；production Browser writer/global single-login cutover 尚未实施。
+- Q0 于 2026-09-14 完成 read-only audit（8 Quotes / 9 Revisions / 12 PriceVersions）；未发现 Quote aggregate corruption blocker。Q1/Q2A/Q2B1/Q2B2A 不读取或提交真实 backup。下一阶段是 **Q2B2B production-writer preparation**，先解决 Server new-Quote creation/numbering 与剩余 cutover blockers；production Browser writer/global single-login cutover 尚未实施。
 
 ## Follow-up Documentation Sync
 

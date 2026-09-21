@@ -199,7 +199,7 @@ export function ServerQuoteDetailPage() {
 
   return (
     <ServerQuoteDetailFrame quote={record}>
-      <AlertBanner tone="info" title="Read only · source = PostgreSQL" actions={<Button variant="text" onClick={() => void logout()}>退出 Server 会话</Button>}>Server identity：{trustedIdentity}。本页没有 Quote POST、PUT 或 DELETE。</AlertBanner>
+      <AlertBanner tone="info" title="Read only · source = PostgreSQL" actions={<><Link className="qc-server-quote-link" href={`/quote-center/server-edit?id=${encodeURIComponent(quoteId)}`}>打开 Server 编辑工作区</Link><Button variant="text" onClick={() => void logout()}>退出 Server 会话</Button></>}>Server identity：{trustedIdentity}。本页没有 Quote POST、PUT 或 DELETE；编辑入口仍是隔离测试工作区。</AlertBanner>
       {sessionActionError && <ErrorState description={sessionActionError} />}
       {loading ? <LoadingState label="读取完整 Server Quote 聚合" />
         : notFound ? <ErrorState title="Server Quote 不存在（404）" description="Quote ID 缺失、不存在或链接无效。" />
