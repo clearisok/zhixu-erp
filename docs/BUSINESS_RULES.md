@@ -213,9 +213,10 @@
 
 ### 全局费用和个人视图
 
-- 全局费用允许 0..N 条，包含名称、金额、启用状态和备注。
-- 启用的全局费用应用到当前默认 Revision 的全部 PriceVersion；以 `globalSettingId` 防止重复。
-- 用户已覆盖的全局费用行保留覆盖状态；停用或删除设置时，未覆盖的对应行可被移除。
+- System、Brand、CustomerSalesperson 每个作用域最多保存一个 nullable `DefaultOtherCost`；非空默认只包含业务名称和 nullable 金额，不拥有启用状态、备注或 Quote 行身份。
+- 默认优先级为 CustomerSalesperson > Brand > System；应用到新 Quote 时复制为独立 `OtherCostLine` 快照。后续默认设置变化不得回写已有 Quote。
+- 单张 Quote 的 `OtherCostLine` 仍允许 0..N 条；历史 Quote 已保存的多条明细必须原样保留。
+- 旧版 0..N 全局费用只作为 legacy migration source，兼容投影只取首条 enabled 且 name 或 amount 有效的记录作为新 `DefaultOtherCost`。
 - 报价列表字段偏好按 `userId` 隔离，不是系统唯一全局配置。
 - 全局工序说明为一个字符串；未来新报价继承。同步当前默认 Revision 时，若当前说明已单独修改，必须由用户选择保留、应用新说明或取消；历史 Revision 永不修改。
 
@@ -271,7 +272,7 @@
 - DefaultTrimConfig 只引用 `trimLibraryItemId`，可覆盖损耗率和单价，不保存本次报价的数量/用量。
 - 默认汇率和默认其他费用优先级：CustomerSalesperson > Brand > System。
 - 默认辅料：业务员配置非空时使用整套业务员配置，否则使用品牌配置；两套不自动合并。
-- 默认其他费用必须包含业务名称和金额，不能只存无语义数字。
+- 非空默认其他费用必须包含业务名称，金额可为 `null` 或明确的数值；`null` 与 `0` 不得混同。
 - 默认辅料应用到报价时读取库记录、应用 override、深复制为新成本行并分配新 `row.id`；用量保持 `null`。
 - 修改报价成本行不得回写库；之后修改库也不得污染既有 Quote Revision 快照。
 - 删除辅料库记录时，相关品牌/客户业务员默认辅料引用一并清理。

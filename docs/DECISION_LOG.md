@@ -18,6 +18,14 @@
 
 ## Active
 
+### D-089 默认其他费用按作用域最多一条并作为报价快照复制
+
+- 日期：2026-09-21；状态：Active，用户已确认。本决定取代 D-009 对默认设置 0..N 的旧定义，但不改变 Quote `OtherCostLine` 的 0..N 明细语义。
+- System、Brand、CustomerSalesperson 每个作用域最多保存一个 nullable `DefaultOtherCost`；非空对象只包含业务 `name` 和 nullable `amount`。解析优先级保持 CustomerSalesperson > Brand > System。
+- 默认值应用到新 Quote 时必须复制成具有独立身份的 `OtherCostLine` 快照。之后任何作用域的默认设置变化均不得回写已有 Quote；历史 Quote 中已保存的多条 `OtherCostLine` 必须原样保留。
+- 旧版 0..N 全局费用只作为 legacy migration source；沿用现有兼容投影，只取首条 enabled 且 name 或 amount 有效的记录作为新的 `DefaultOtherCost`。该投影不授权修改 Browser 数据，也不把 enabled、note 或旧设置 ID 带入新默认模型。
+- 证据：用户确认的 Q3A 业务规则、`features/quote-center/model/quote-settings.ts` 的 legacy normalization、`features/basic-settings/model/basic-settings.ts` 的 `DefaultOtherCost` 与新报价默认值复制逻辑。
+
 ### D-088 Server owns immutable Quote business numbers and runtime Quote identity
 
 - 日期：2026-09-21；状态：Active，用户已确认。本规则不是 AI 建议；Q2B2B 实现不等于真实数据库 activation。
@@ -314,8 +322,9 @@
 
 ### D-009 全局费用允许多条并保护覆盖
 
-- 日期：2026-08-21 前已形成
+- 日期：2026-08-21 前已形成；状态：Superseded by D-089（2026-09-21）
 - 决定：全局费用为 0..N 条，通过稳定设置 ID 同步到当前默认 Revision；用户覆盖过的行不被静默覆盖。
+- 取代原因：正式默认设置模型已收敛为每个 System / Brand / CustomerSalesperson 作用域最多一个 nullable `DefaultOtherCost`，并在新建 Quote 时复制为独立快照；Quote 自身的 `OtherCostLine` 仍为 0..N，历史明细不变。
 - 证据：global cost model/service 和测试。
 
 ### D-010 表单提交优先使用 HTML form 语义
