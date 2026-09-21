@@ -18,6 +18,17 @@
 
 ## Active
 
+### D-088 Server owns immutable Quote business numbers and runtime Quote identity
+
+- 日期：2026-09-21；状态：Active，用户已确认。本规则不是 AI 建议；Q2B2B 实现不等于真实数据库 activation。
+- Runtime authority：新建 Server Quote 的技术 ID、初始 Revision ID、初始 PriceVersion ID 均由 Server 生成 UUID；Quote business number 也只能由 Server 生成。Browser/API caller 不得选择、编辑、覆盖、回收或复用 ID/编号，`quoteCode` 创建后不可变且数据库唯一。
+- 编号格式为 `QT-YYYY-MMDD-NNN`。日期取 Server creation instant 在 `Asia/Shanghai` 的年月日，Browser 时钟/时区不参与。数字后缀来自一个 Quote Center 全局、单调递增、永不按日重置的 PostgreSQL BIGINT sequence；最小显示宽度为 3，超过 999 自然扩展。并发分配必须安全，rollback/失败可留下永久 gap，已消费值绝不回收。
+- Schema：migration `0006_quote_number_sequence.sql` 使用独立的 `quote_center_quote_number_seq`，避免与 legacy 根 ERP 已存在的 `quote_number_seq` 混同。初始化取既有合法 `^QT-[0-9]{4}-[0-9]{4}-([0-9]+)$` 编号最大 suffix + 1，无合法值时从 1 开始；allocator 若遇到已占用 exact candidate，只消费下一值，不修改历史行。
+- Runtime/import 分离：`POST /api/v1/quotes` 只接受 `{}`，trusted Server session + `quote.create` 触发 neutral draft、Server identity/number 与同 transaction trusted OperationLog。Q1 internal aggregate persistence 继续保留给未来受控 Q5 migration，且不是 Browser HTTP endpoint。
+- Historical migration：Q5 必须原样保留 Browser Quote/Revision/PriceVersion/cost technical IDs 与 `quoteCode`，不得调用 runtime allocator 或重编号。import 前必须扫描 exact legacy `quoteCode` 唯一性，duplicate 时 fail closed；import 后按最大合法 suffix 校准 sequence 并验证下一 candidate，collision-skip 是最后防线。
+- Activation boundary：规则已确认且 Q2B2B implementation 提供 0006、runtime create 和 isolated lazy-create UI；真实 0004/0005/0006、真实 Quote migration 与 production `/quote-center` cutover 均未授权/未执行。
+- 证据：`database/migrations/0006_quote_number_sequence.sql`、`server/quotes/numbering.ts`、`server/quotes/draft.ts`、`server/quotes/service.ts`、`server/integration/quote-numbering.integration.test.ts`。
+
 ### D-085 Quote Q1 persistence preserves owner-scoped identity and snapshot values
 
 - 日期：2026-09-20；状态：Active engineering decision within Q1, not production activation.

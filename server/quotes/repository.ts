@@ -129,6 +129,15 @@ async function transaction<T>(pool: Pool, readOnly: boolean, action: (client: Po
   } catch (error) { await client.query("ROLLBACK"); throw error; }
   finally { client.release(); }
 }
+async function createInTransaction(client: PoolClient, input: ServerQuote, afterWrite?: QuoteMutationHook): Promise<QuoteRecord> {
+  const quote = normalizeServerQuote(input);
+  validateQuote(quote);
+  await insert(client, "quote_center_quotes", { id: quote.id, quote_code: quote.quoteCode, default_revision_id: quote.defaultRevisionId, metadata: omit(quote, ["id", "quoteCode", "defaultRevisionId", "revisions", "activeEstimateCost", "estimateCostHistory"]) });
+  await writeChildren(client, quote);
+  const result = { quote, version: 1 };
+  await afterWrite?.(client, { kind: "create", before: null, after: result });
+  return result;
+}
 /** Internal Q1 persistence only. No HTTP routes, authentication or Browser writer. */
 export function createQuoteRepository(pool: Pool) {
   return {
@@ -139,14 +148,10 @@ export function createQuoteRepository(pool: Pool) {
       return rows.rows.map((r) => ({ id: r.id, quoteCode: r.quote_code, defaultRevisionId: r.default_revision_id, version: r.version }));
     },
     create(input: ServerQuote, afterWrite?: QuoteMutationHook): Promise<QuoteRecord> {
-      const quote = normalizeServerQuote(input); validateQuote(quote);
-      return transaction(pool, false, async (client) => {
-        await insert(client, "quote_center_quotes", { id: quote.id, quote_code: quote.quoteCode, default_revision_id: quote.defaultRevisionId, metadata: omit(quote, ["id", "quoteCode", "defaultRevisionId", "revisions", "activeEstimateCost", "estimateCostHistory"]) });
-        await writeChildren(client, quote);
-        const result = { quote, version: 1 };
-        await afterWrite?.(client, { kind: "create", before: null, after: result });
-        return result;
-      });
+      return transaction(pool, false, (client) => createInTransaction(client, input, afterWrite));
+    },
+    createGenerated(build: (client: PoolClient) => Promise<ServerQuote>, afterWrite?: QuoteMutationHook): Promise<QuoteRecord> {
+      return transaction(pool, false, async (client) => createInTransaction(client, await build(client), afterWrite));
     },
     save(input: ServerQuote, expectedVersion: number, afterWrite?: QuoteMutationHook): Promise<QuoteRecord> {
       const quote = normalizeServerQuote(input); validateQuote(quote);

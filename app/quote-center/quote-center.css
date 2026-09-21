@@ -1392,6 +1392,8 @@ textarea.qc-note-control { min-height: 72px; height: 72px; }
 .qc-server-writer-savebar { position: sticky; z-index: 20; bottom: 12px; min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 14px; border: 1px solid #cddfd7; border-radius: 10px; background: rgba(255,255,255,.96); box-shadow: 0 10px 30px rgba(21, 57, 45, .12); backdrop-filter: blur(10px); }
 .qc-server-writer-savebar span { color: #566a61; font-size: 10px; }
 .qc-server-writer-back { padding: 0; border: 0; background: transparent; cursor: pointer; }
+.qc-server-new-card > ul { display: grid; gap: 8px; margin: 0; padding: 18px 36px; color: #5e7168; font-size: 10px; line-height: 1.6; }
+.qc-server-new-action { display: flex; justify-content: flex-end; padding: 0 18px 18px; }
 
 @media (max-width: 980px) { .qc-server-writer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 620px) { .qc-server-writer-grid { grid-template-columns: 1fr; }.qc-server-writer-section > header { align-items: flex-start; flex-direction: column; }.qc-server-writer-savebar { bottom: 76px; }.qc-server-writer-savebar { align-items: stretch; flex-direction: column; }.qc-server-writer-savebar .qc-button { width: 100%; } }

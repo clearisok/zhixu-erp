@@ -6,11 +6,11 @@ import {
   type QuoteServerPage,
 } from "./quote-server-client";
 
-/** Q2A foundation only. The Browser Quote Center is not wired to this adapter. */
+/** Isolated Server workspaces only. Production Browser Quote Center is not wired to this adapter. */
 export interface QuoteServerRepository {
   list(query?: { limit?: number; offset?: number }): Promise<{ items: QuoteServerListItem[]; page: QuoteServerPage }>;
   getById(id: string): Promise<QuoteRecord>;
-  create(quote: ServerQuote): Promise<QuoteRecord>;
+  create(): Promise<QuoteRecord>;
   save(quote: ServerQuote, expectedVersion: number): Promise<QuoteRecord>;
 }
 
@@ -21,7 +21,7 @@ export function createQuoteServerRepository(client: QuoteServerClient = quoteSer
       return { items: result.quotes, page: result.page };
     },
     getById: (id) => client.getById(id),
-    create: (quote) => client.create(quote),
+    create: () => client.create(),
     save: (quote, expectedVersion) => client.save(quote, expectedVersion),
   };
 }

@@ -10,7 +10,8 @@ export function shouldInitializeBrowserLocalData(pathname: string): boolean {
     && pathname !== "/order-center/server-detail"
     && pathname !== "/quote-center/server-preview"
     && pathname !== "/quote-center/server-detail"
-    && pathname !== "/quote-center/server-edit";
+    && pathname !== "/quote-center/server-edit"
+    && pathname !== "/quote-center/server-new";
 }
 
 export function LocalDataBootstrap({ children }: { children: ReactNode }) {

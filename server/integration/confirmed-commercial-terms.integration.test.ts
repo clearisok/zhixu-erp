@@ -122,11 +122,13 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     "0003_sales_order_number_sequence.sql",
     "0004_confirmed_commercial_terms.sql",
     "0005_quote_foundation.sql",
+    "0006_quote_number_sequence.sql",
   ]);
   const rerun = await runMigrations(pool, resolve("database/migrations"));
   assert.deepEqual(rerun.applied, []);
   assert.ok(rerun.skipped.includes("0004_confirmed_commercial_terms.sql"));
   assert.ok(rerun.skipped.includes("0005_quote_foundation.sql"));
+  assert.ok(rerun.skipped.includes("0006_quote_number_sequence.sql"));
   const ledger = await pool.query<{ checksum: string }>("SELECT checksum FROM schema_migrations WHERE version = 4");
   assert.match(ledger.rows[0].checksum, /^[a-f0-9]{64}$/u);
 
