@@ -1,5 +1,9 @@
 # 织序 ERP 前端操作日志
 
+## Q3A Server Quote master/settings audit
+
+Every actual Q3A Brand, CustomerSalesperson, Fabric/Trim library, scoped-default, global-settings or manufacturing-preset mutation appends one bounded PostgreSQL OperationLog in the same transaction. Actor ID/name comes only from `TrustedIdentity`; request actor fields are rejected. Before/after captures identity, name, version, status and bounded setting counts/values rather than request bodies or complete collections. Audit failure rolls back the master/settings mutation. Existing Browser logs remain local until Q3B/production cutover and Q3A never dual-writes them.
+
 ## Q2B2A isolated writer audit boundary
 
 The isolated Server writer performs one Q2A aggregate PUT and never appends Browser `operationLogRepository` records. The Server transaction remains the sole authority: a successful real change appends its one trusted PostgreSQL Quote OperationLog using the Server session actor; audit failure rolls back the aggregate. Stale 409, 401/403, unsafe decimal projection, no-op and client/network failure perform no Browser fallback or second log. C4.2 current terms are not mutated or audited by an aggregate save.

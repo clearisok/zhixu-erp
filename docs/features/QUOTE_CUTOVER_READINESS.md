@@ -33,7 +33,7 @@ The labels used below are intentional:
 | Q2B1 shadow read | Complete on isolated Server preview/detail routes. | Engineering workspace only. |
 | Q2B2A existing-Quote writer | Complete on isolated Server edit route with exact decimal bridge and conflict handling. | Deliberately omits major production editor capabilities. |
 | Q2B2B creation/numbering | Complete after PR #44. Server-only runtime identity/numbering and `0006` are merged. | Isolated lazy-create workspace only; real `0006` not applied. |
-| Q3 Server masters/settings | Not implemented. | **BLOCKER.** |
+| Q3 Server masters/settings | Q3A schema/repository/service/typed API/RBAC/audit foundation is disposable-validated. | **BLOCKER remains for Q3B UI adapter, real-data preview/import and separately authorized activation.** |
 | Q4 Server attachments | Not implemented. | **BLOCKER.** |
 | Q5 migration preview/rehearsal | Not implemented. | **BLOCKER.** |
 | Real Quote production cutover | Not complete. | No real Quote business write performed. |
@@ -149,7 +149,7 @@ Historical Quote readability and new-Quote live authority are different concerns
 
 Q0 durable evidence records 8 Quotes / 9 Revisions / 12 PriceVersions, no aggregate corruption blocker, zero Estimate records, dangling optional brand/salesperson references with intact names, valid duplicate material names, and missing country/preset in some snapshots. Exact Q0 master counts are not reproduced in durable repository docs and must be re-read from a fresh authorized backup during Q5A rather than guessed here.
 
-**Q3 BLOCKER = YES.** New Quote creation, master switching, library selection, defaults and quick-create cannot remain Browser business authorities after cutover.
+**Q3 PRODUCTION BLOCKER = YES.** Q3A now provides the isolated Server authority foundation, but new Quote creation, master switching, library selection, defaults and quick-create still use Browser repositories until Q3B integration plus later migration/activation gates complete.
 
 ## Q4 attachment and Object Storage audit
 

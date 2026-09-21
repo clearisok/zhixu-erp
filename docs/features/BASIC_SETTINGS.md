@@ -56,7 +56,8 @@
 - 当前 repository：`features/basic-settings/repository/basic-settings-repository.ts`。
 - 当前存储：稳定 localStorage `zhixu.erp.local.basic-settings`，`schemaVersion` 位于 envelope；`zhixu.basic-settings.v1.5` / `v1.3` 仅作为非破坏迁移来源。
 - 兼容读取并归一化旧 key `zhixu.basic-settings.v1.3`。
-- 没有真实 API、数据库表或服务端唯一约束。
+- Q3A 已建立隔离的 Server authority foundation：migration `0007_quote_master_settings.sql`、`server/quote-masters/` typed model/repository/service/routes，以及 domain-specific `/api/v1/quote-masters/*`、`/api/v1/quote-settings/*` endpoints。它包含 normalized name constraints、NUMERIC/decimal-string、optimistic version、trusted RBAC/OperationLog 和 transaction rollback。
+- Q3A 没有把现有 `/basic-settings/*` 或 Quote UI 接到 Server；Browser repository/localStorage 仍是 production UI 当前使用的 authority。真实 0007 与 real master/settings import 均未执行，也没有 dual write。
 
 ## Frontend behavior
 
@@ -85,6 +86,7 @@
 
 主要测试：
 
+- `server/integration/quote-master-settings.integration.test.ts`（Q3A disposable PostgreSQL schema/API/RBAC/audit/default-resolution foundation）
 - `tests/basic-settings-v15.test.mjs`
 - `tests/material-libraries.test.mjs`
 - `tests/quick-master-data.test.mjs`
@@ -93,6 +95,9 @@
 覆盖名称唯一性、重复物料名、品牌归属、默认优先级、override、快照隔离和个人列表偏好等规则。
 
 ## Known gaps
+
+- Q3B 尚未把现有 Basic Settings UI/Quick Create 接到 typed Server APIs，也未执行真实 master migration/reconciliation。
+- Q4 attachment authority、Q5 data preview/import 与 Q6 production activation 仍是单独 gates。
 
 - 浏览器 localStorage 不支持真实多用户并发和服务端唯一约束；当前权限系统也仅是前端 mock RBAC，不是服务端安全边界。
 - 当前没有 Supplier 主数据。

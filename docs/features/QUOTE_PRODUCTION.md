@@ -6,6 +6,13 @@
 
 这是架构和 rollout 决策，不是实现完成声明。本文不授权 migration、真实数据写入、部署、Browser 数据修改或 C4.2 activation。
 
+## Q3A Server master/settings foundation — 2026-09-21
+
+- `0007_quote_master_settings.sql` adds Server-owned Brand, CustomerSalesperson, Fabric/Trim library, scoped DefaultTrimConfig, global Quote settings and manufacturing preset tables without adding historical Quote FKs or a Supplier table. Runtime IDs are Server UUIDs; future controlled import can preserve legacy TEXT identities.
+- Typed `/api/v1/quote-masters/*` and `/api/v1/quote-settings/*` routes use trusted session RBAC, bounded validation, decimal strings, optimistic version and same-transaction OperationLog. Fabric/Trim duplicate names remain valid; normalized Brand/Salesperson names are unique.
+- D-089 owns one nullable `DefaultOtherCost` per System/Brand/Salesperson scope and preserves Quote 0..N OtherCostLine snapshots. Server DefaultTrimConfig intentionally has no Browser compatibility quantity/usage. Default resolution preserves null/zero, Salesperson > Brand > System, and whole-set salesperson trims without merging Brand rows.
+- Q3A is disposable-foundation only. Production Quote and Basic Settings routes remain Browser/local, real 0007/master/Quote migration and business writes are not executed, and Q3B/Q4/Q5/Q6 remain required before cutover.
+
 ## Q2B2B Server creation and numbering foundation
 
 - D-088 is user-confirmed: runtime Server Quote IDs and business numbers are Server-only. `quoteCode` uses `QT-YYYY-MMDD-NNN`, Server `Asia/Shanghai` date and one global non-resetting BIGINT sequence; minimum width is 3, values above 999 expand, rollback gaps are allowed and never reclaimed. The code is immutable and exact-unique.

@@ -38,12 +38,20 @@ Browser
 - `GET /api/v1/quotes`、`GET /api/v1/quotes/:quoteId`（需要 `quote.view`）
 - `POST /api/v1/quotes`（需要 `quote.create`；runtime body 只能是 `{}`，ID/code/timestamps/actor 由 Server 决定）
 - `PUT /api/v1/quotes/:quoteId`（全 aggregate replacement，要求 `quote.edit`、`expectedVersion`，并按实际变化追加现有细粒度权限）
+- `GET|POST /api/v1/quote-masters/brands` 与 `GET|PATCH /api/v1/quote-masters/brands/:id`
+- `GET|POST /api/v1/quote-masters/customer-salespeople` 与 `GET|PATCH /api/v1/quote-masters/customer-salespeople/:id`
+- `GET|POST /api/v1/quote-masters/fabrics|trims` 与对应 `GET|PATCH /:id`，以及只读 supplier suggestions
+- `GET|PATCH /api/v1/quote-settings`、manufacturing preset list/create/read/update 与 resolved-defaults read
 
 错误统一返回 `{ error: { code, message, requestId } }`。Health 只有在 PostgreSQL `SELECT 1` 成功时返回 200/ready，数据库不可用时返回 503，不伪报健康。SalesOrder read API 对非法 list query、未登录、无 `order.view` 和不存在的 ID 分别返回 400、401、403、404；返回 typed composed DTO，不直接暴露数据库行、source hash、source metadata 或 raw payload。List 仅暴露 `colorCount`，完整颜色行只在 detail 返回。API 不接受 SQL、表名、数据库操作名、actor userId、role 或授权结果；未知 `/api/*` 路径返回结构化 404。
 
 ConfirmedCommercialTerms mutation 使用 decimal string + `expectedVersion` typed body，要求 normal trusted cookie、exact allowlisted Origin 与 `X-Zhixu-Request: 1`。未知字段（包括 actor/user/role spoof）拒绝为 400；stale version 为 409。Quote provenance 未关联时 read 返回显式 `unlinked`，write fail closed 为 409，绝不 fuzzy match 或创建 SalesOrder。
 
 Q2A/Q2B2B Quote create/save 复用 Q1 repository，POST/PUT 还要求 exact Origin 与 `X-Zhixu-Request: 1`。Runtime POST 只接受 `{}`，由 Server transaction 分配 UUID、`quoteCode`、neutral draft 和 trusted OperationLog；Q1 exact aggregate create remains internal for future migration. PUT 是完整 aggregate replacement，不是任意字段 SQL PATCH；stale、历史 Revision/Estimate mutation 或 `quoteCode` mutation 返回 409。DTO 保留 decimal string、stable IDs、null/zero。成功 mutation 与一条 bounded Quote OperationLog 同 transaction 提交；审计失败回滚 Quote，但 sequence 的已消费值不回收。没有 DELETE、附件 binary、master transfer 或 Browser cutover。
+
+Q3A master/settings reads require trusted `quote.view`; mutations map exactly to existing `settings.global/brand/salesperson/fabric/trim.edit` permissions and never authorize by role name. POST does not accept caller identity; PATCH uses `expectedVersion`. Business decimals are PostgreSQL NUMERIC and HTTP strings. Every actual master/settings write and bounded audit event share one transaction; audit failure rolls back the business row. The APIs do not read Browser repositories and do not mutate Quote aggregates or SalesOrders.
+
+Migration `0007_quote_master_settings.sql` is schema-only: it creates no real settings seed/import. It enforces normalized Brand/Salesperson uniqueness, permits duplicate material names, stores one nullable default other cost per supported owner and excludes quantity/usage from authoritative DefaultTrimConfig. All Q3A activation evidence is disposable PostgreSQL only; real 0007 is NOT EXECUTED.
 
 ## Q2B2B Quote numbering and runtime create
 
