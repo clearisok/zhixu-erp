@@ -3,10 +3,12 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const read=(path)=>readFile(new URL(path,import.meta.url),"utf8");
-const [candidate,ui,globalUi,basicAdapter,globalAdapter,client,bootstrap,appShell,...routes]=await Promise.all([
+const [candidate,ui,globalUi,globalModel,preview,basicAdapter,globalAdapter,client,bootstrap,appShell,...routes]=await Promise.all([
   read("../features/basic-settings/components/server-basic-settings-candidate-page.tsx"),
   read("../features/basic-settings/components/basic-settings-pages.tsx"),
   read("../features/quote-center/components/global-quote-settings-page.tsx"),
+  read("../features/quote-center/model/quote-settings.ts"),
+  read("../features/basic-settings/server/master-settings-migration-preview.ts"),
   read("../features/basic-settings/server/server-basic-settings-adapter.ts"),
   read("../features/basic-settings/server/server-global-quote-settings-adapter.ts"),
   read("../features/basic-settings/server/quote-master-server-client.ts"),
@@ -53,6 +55,11 @@ test("Server adapter uses optimistic versions, Server IDs, exact decimals and no
 test("candidate hides hard delete, uses supplier endpoint and bounded Server navigation",()=>{
   assert.match(ui,/!serverCandidate&&<PermissionButton[^>]+variant="danger"/u);
   assert.match(globalUi,/selectedPreset\.status==="inactive"\?"启用预设":"停用预设"/u);
+  assert.match(globalUi,/activeManufacturingPresets\(settings\)\.map/u);
+  assert.match(globalUi,/setManufacturingPresetStatus\(current, id, status\)/u);
+  assert.match(globalModel,/preset\.id === requestedPresetId && preset\.status !== "inactive"/u);
+  assert.match(globalModel,/status === "inactive" && settings\.defaultManufacturingPresetId === presetId/u);
+  assert.match(preview,/Default manufacturing preset references an inactive preset and will be cleared/u);
   assert.match(basicAdapter,/client\.supplierSuggestions\(\)/u);
   assert.match(appShell,/serverBasicRoutes/u);assert.match(appShell,/serverSystemRoutes/u);assert.match(appShell,/serverSettingsMode/u);
 });

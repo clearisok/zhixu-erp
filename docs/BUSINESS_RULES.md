@@ -199,6 +199,7 @@
 ### 制作国家与报价预设
 
 - 制作预设是系统级可维护配置，至少包含名称、制作国家、加工币种、成本加成率、是否带运费、运费名称和可空金额；当前 Seed 提供“中国制作（CNY、13%、无运费）”和“柬埔寨制作（USD、5%、带运费）”。
+- `defaultManufacturingPresetId` 只能为空或引用当前 active 制作预设。停用当前 default 必须由 Server 在同一 transaction 自动清空默认关系；重新启用只恢复可选状态，绝不自动恢复 default，必须由用户显式重新选择。默认解析与新 Quote 初始化遇到 inactive reference 时一律按无默认预设处理。
 - 每个 PriceVersion 独立保存预设 ID、预设名称、制作国家、加工币种、USD/CNY 汇率、`markupRate` 与运费策略的完整报价参数快照；同一 Revision 的不同 PriceVersion 可以采用不同制作口径。
 - 应用预设只更新当前 PriceVersion 及其预设专属运费行，不得修改其他 PriceVersion，也不得删除人工费用或其他来源的全局费用。
 - 报价详情只允许为当前 PriceVersion 选择/重新应用制作预设，国家、币种、加成率和运费规则只读；预设内容只能在系统设置维护。系统预设后续变化不得污染已有 PriceVersion 或历史 QuoteRevision。

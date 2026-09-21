@@ -4,6 +4,7 @@ import { createServerBasicSettingsAdapter } from "../../../basic-settings/server
 import { createServerGlobalQuoteSettingsAdapter } from "../../../basic-settings/server/server-global-quote-settings-adapter";
 import { previewMasterSettingsMigration } from "../../../basic-settings/server/master-settings-migration-preview";
 import type { QuoteMasterServerClient } from "../../../basic-settings/server/quote-master-server-client";
+import { activeManufacturingPresets, applySystemDefaultsToNewQuoteRevision, normalizeGlobalQuoteSettings, setManufacturingPresetStatus } from "../../model/quote-settings";
 
 const time="2026-09-21T00:00:00.000Z";
 const emptyClient=():QuoteMasterServerClient=>({
@@ -56,6 +57,34 @@ test("Global settings adapter submits one atomic bundle and receives Server pres
   assert.equal(saved.defaultMarkupRate,0);
 });
 
+test("inactive manufacturing defaults fail safe and status toggles never restore a default implicitly",async()=>{
+  const normalized=normalizeGlobalQuoteSettings({
+    defaultManufacturingPresetId:"inactive",
+    manufacturingPresets:[
+      {id:"active",name:"Active",country:"中国",laborCurrency:"CNY",markupRate:0,includeFreight:false,freightName:"运费",freightAmount:null,status:"active"},
+      {id:"inactive",name:"Inactive",country:"越南",laborCurrency:"USD",markupRate:null,includeFreight:false,freightName:"运费",freightAmount:null,status:"inactive"},
+    ],
+  });
+  assert.equal(normalized.defaultManufacturingPresetId,null);
+  assert.deepEqual(activeManufacturingPresets(normalized).map((preset)=>preset.id),["active"]);
+
+  const defaulted={...normalized,defaultManufacturingPresetId:"active"};
+  const deactivated=setManufacturingPresetStatus(defaulted,"active","inactive");
+  assert.equal(deactivated.defaultManufacturingPresetId,null);
+  const reactivated=setManufacturingPresetStatus(deactivated,"active","active");
+  assert.equal(reactivated.defaultManufacturingPresetId,null);
+
+  const revision={priceVersions:[{id:"version",pricingParameters:{manufacturingCountry:"",manufacturingPresetId:null,manufacturingPresetName:"",laborCurrency:"CNY",usdCnyRate:null,markupRate:null,includeFreight:false,freightName:"运费",freightAmount:null},labor:{description:""},otherCosts:[]}]} as unknown as Parameters<typeof applySystemDefaultsToNewQuoteRevision>[0];
+  const unsafeSettings={...normalized,defaultManufacturingPresetId:"inactive"};
+  const initialized=applySystemDefaultsToNewQuoteRevision(revision,unsafeSettings,"new");
+  assert.equal(initialized.priceVersions[0].pricingParameters.manufacturingPresetId,null);
+
+  const client=emptyClient();
+  client.getSettings=async()=>({defaultUsdCnyRate:null,defaultMarkupRate:null,defaultLaborCurrency:"CNY",defaultLaborDescription:"",defaultOtherCost:null,defaultManufacturingPresetId:"inactive",version:1,createdAt:time,updatedAt:time});
+  client.listPresets=async()=>[{id:"inactive",name:"Inactive",country:"越南",laborCurrency:"USD",markupRate:null,includeFreight:false,freightName:"运费",freightAmount:null,status:"inactive",version:1,createdAt:time,updatedAt:time}];
+  assert.equal((await createServerGlobalQuoteSettingsAdapter(client).load()).defaultManufacturingPresetId,null);
+});
+
 test("pure migration preview reports blockers, preserves duplicate materials and drops legacy trim quantity",()=>{
   const preview=previewMasterSettingsMigration({basicSettings:{
     brands:[{id:"brand-a",name:"ＡＣＭＥ",defaults:{defaultUsdCnyRate:null,defaultTrims:[{id:"dt",trimLibraryItemId:"missing",quantity:2,overrideLossRate:null,overrideUnitPrice:0}],costs:[{name:"first",amount:0,enabled:true},{name:"second",amount:2,enabled:true}] }},{id:"brand-b",name:"acme",defaults:{defaultTrims:[]}}],
@@ -79,4 +108,17 @@ test("migration preview reports absent manufacturing preset configuration withou
   assert.equal(preview.projectedCounts.manufacturingPresets,0);
   assert.ok(preview.warnings.includes("Manufacturing preset configuration is absent"));
   assert.equal(preview.projection.globalQuoteSettings?.manufacturingPresets,undefined);
+});
+
+test("migration preview clears an inactive referenced default without treating it as missing",()=>{
+  const preview=previewMasterSettingsMigration({
+    basicSettings:{brands:[],customerSalespeople:[],fabricLibrary:[],trimLibrary:[]},
+    globalQuoteSettings:{
+      manufacturingPresets:[{id:"inactive",name:"Inactive",status:"inactive"}],
+      defaultManufacturingPresetId:"inactive",
+    },
+  });
+  assert.equal(preview.projection.globalQuoteSettings?.defaultManufacturingPresetId,null);
+  assert.ok(preview.warnings.includes("Default manufacturing preset references an inactive preset and will be cleared"));
+  assert.ok(!preview.blockingErrors.includes("defaultManufacturingPresetId does not reference a projected preset"));
 });

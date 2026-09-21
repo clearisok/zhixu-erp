@@ -1,13 +1,14 @@
 # 当前状态
 
-> 状态快照：2026-09-21。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-22。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
 - Q3B1 已在隔离 routes 完成 existing Basic Settings / Quote Settings UI 的 Server candidate integration：`/basic-settings/server/{brands,customer-salespeople,fabrics,trims}` 与 `/system-settings/server/quote-settings` 复用正式页面组件，使用 trusted Server session、scoped Server permission authority、typed Q3A client/adapter、exact decimal fail-closed projection 与 optimistic version。401 invalidate session，403/network fail closed，409 保留草稿且只允许用户确认后 reload；Server candidate 没有 Browser persistence/audit fallback，也没有 hard delete。
 - Global Quote Settings 的一个 Save 现在通过 domain-specific `/api/v1/quote-settings/bundle` 在单 transaction 内验证并保存 global settings、existing/new manufacturing presets 与 trusted OperationLogs；新 preset identity 由 Server UUID 生成，stale/invalid/audit failure 不产生 partial state。Q3A GET authorization 已按 endpoint 支持相应 settings edit permission 与 `quote.view` 的 any-of 读取，未新增权限键。
+- D-090 已落实为 Server domain invariant：Global Settings default 只能引用 active preset；standalone 停用当前 default 会在同一 transaction 清空 default、递增各自 optimistic version 并写两条 trusted audit，audit failure 全部 rollback。Bundle 对同一停用动作自动清空，但拒绝显式选择既有/new inactive preset；重新启用不恢复 default，`resolveDefaults`、Browser normalization 与新 Quote 初始化均 fail safe，既有 Quote/PriceVersion 快照不变。
 - Q3B1 新增 pure/read-only Browser master/settings migration preview helper，报告 source/projected counts、normalized-name/ID duplicates、缺失 Brand/Trim references、legacy quantity 丢弃、D-089 multi-cost collapse、invalid numerics、warnings 与 blockers；它不连接或写入数据库。真实 backup preview/import 属于 Q3B2，尚未执行。
-- Q3B1 final validation：disposable PostgreSQL `94/94`、Server auth/frontend `18/18`、full tests `658/658`、typecheck、零警告 lint、server build、frontend production build（41 routes）与 `git diff --check` PASS。
+- Q3B1 follow-up final validation：targeted Q3A integration `14/14`、candidate model/adapter `7/7`、source-contract `6/6`、disposable PostgreSQL `95/95`、Server auth/frontend `20/20`、full tests `658/658`、typecheck、零警告 lint、server build、frontend production build（41 routes）与 `git diff --check` PASS。
 - Q3A Quote master/settings Server foundation 已实现：`0007_quote_master_settings.sql`、typed repositories/services 和 `/api/v1/quote-masters/*`、`/api/v1/quote-settings/*` trusted APIs 覆盖 Brand、CustomerSalesperson、Fabric/Trim libraries、owner defaults、DefaultTrimConfig、global settings、manufacturing presets、default resolution 与 supplier suggestions。所有 mutation 使用既有细粒度 permission、optimistic version 与同 transaction trusted OperationLog；日志以 allowlist 保存完整 bounded business before/after，DefaultTrimConfig 以稳定 Trim ID + position + nullable overrides 审计，HTTP/audit decimal 均保持 string，`null` 与 `"0"` 分离。
 - Q3A authoritative `DefaultTrimConfig` 没有 quantity/usage；Browser compatibility property 保持未改，未来 Q5 只投影 ID/reference/override。D-089 已把 System / Brand / CustomerSalesperson 默认其他费用收敛为各自最多一个 nullable `name + amount`，优先级 Salesperson > Brand > System；Quote 自身与历史 `OtherCostLine` 仍为 0..N 且不会被默认变化回写。
 - Q3A/Q3B1 只在 disposable PostgreSQL 与隔离 candidate routes 验证。真实 0007、真实 master/settings import、production `/basic-settings`、production `/system-settings/quote-settings` 与 `/quote-center` cutover 均未执行；现有 production Browser routes 继续使用 localStorage/mock repositories，不存在 dual write。下一阶段是 Q3B2 real-backup master/settings preview/rehearsal。

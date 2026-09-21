@@ -17,7 +17,8 @@
 
 - Five isolated Server routes reuse `BrandSettingsPage`, `CustomerSalespeopleSettingsPage`, `FabricLibraryPage`, `TrimLibraryPage`, and `GlobalQuoteSettingsPage` through bounded controllers. They use trusted Server identity/RBAC, exact decimal projection, optimistic versions, Server UUIDs and fail-closed auth/network states; production Browser settings and Quote routes are unchanged.
 - Global settings and manufacturing presets now have one domain-specific atomic bundle mutation with trusted same-transaction audit. Candidate removal is explicit preset status change, not hard delete. DefaultTrim compatibility quantity is projected into UI only as `null` and is never sent to Server; suppliers remain free text backed by authorized suggestions.
-- A deterministic read-only migration preview helper exists for Q3B2, but no real backup, real 0007, master import, Quote migration, production settings cutover or production Quote cutover has occurred.
+- D-090 makes active status a Server-enforced default-reference invariant. Standalone or bundled deactivation of the current default clears the relation atomically; inactive assignment is rejected, re-enable does not restore it, and resolved/new-Quote defaults fail safe while all existing Quote snapshots stay unchanged.
+- A deterministic read-only migration preview helper exists for Q3B2; inactive default references project to `null` with a warning, while missing references remain blockers. No real backup, real 0007, master import, Quote migration, production settings cutover or production Quote cutover has occurred.
 
 ## Q2B2B Server creation and numbering foundation
 

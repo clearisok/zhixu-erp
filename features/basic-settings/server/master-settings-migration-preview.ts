@@ -99,15 +99,20 @@ export function previewMasterSettingsMigration(source: MasterSettingsMigrationSo
   for(const [index,item] of trims.entries())for(const key of ["defaultLossRate","unitPrice"])invalidNumbers(item[key],`trim.${text(item.id)||index}.${key}`,result.invalidNumericValues);
   for(const [index,item] of presets.entries())for(const key of ["markupRate","freightAmount"])invalidNumbers(item[key],`manufacturingPreset.${text(item.id)||index}.${key}`,result.invalidNumericValues);
   const systemDefaults=record(source.basicSettings.systemDefaults);
-  const projectedGlobal={...clone(global),defaultOtherCost:projectDefaultOtherCost(global,"globalQuoteSettings",result)};
-  const projectedSystemDefaults={...clone(systemDefaults),defaultOtherCost:projectDefaultOtherCost(systemDefaults,"systemDefaults",result)};
+  const projectedGlobal:UnknownRecord={...clone(global),defaultOtherCost:projectDefaultOtherCost(global,"globalQuoteSettings",result)};
+  const projectedSystemDefaults:UnknownRecord={...clone(systemDefaults),defaultOtherCost:projectDefaultOtherCost(systemDefaults,"systemDefaults",result)};
   for(const key of ["usdCnyRate","markupRate"])invalidNumbers(systemDefaults[key],`systemDefaults.${key}`,result.invalidNumericValues);
   for(const key of ["defaultUsdCnyRate","defaultMarkupRate"])invalidNumbers(global[key],`globalQuoteSettings.${key}`,result.invalidNumericValues);
   invalidNumbers(record(projectedGlobal.defaultOtherCost).amount,"globalQuoteSettings.defaultOtherCost.amount",result.invalidNumericValues);
   invalidNumbers(record(projectedSystemDefaults.defaultOtherCost).amount,"systemDefaults.defaultOtherCost.amount",result.invalidNumericValues);
   if(!source.globalQuoteSettings||!Array.isArray(global.manufacturingPresets))result.warnings.push("Manufacturing preset configuration is absent");
   const defaultPresetId=global.defaultManufacturingPresetId;
-  if(defaultPresetId!==null&&defaultPresetId!==undefined&&!presets.some((preset)=>preset.id===defaultPresetId))result.blockingErrors.push("defaultManufacturingPresetId does not reference a projected preset");
+  const referencedPreset=presets.find((preset)=>preset.id===defaultPresetId);
+  if(defaultPresetId!==null&&defaultPresetId!==undefined&&!referencedPreset)result.blockingErrors.push("defaultManufacturingPresetId does not reference a projected preset");
+  if(referencedPreset?.status==="inactive"){
+    projectedGlobal.defaultManufacturingPresetId=null;
+    result.warnings.push("Default manufacturing preset references an inactive preset and will be cleared");
+  }
   if(result.duplicateNormalizedBrandNames.length)result.blockingErrors.push("Duplicate normalized Brand names");
   if(result.duplicateNormalizedSalespersonNames.length)result.blockingErrors.push("Duplicate normalized CustomerSalesperson names");
   if(result.duplicateStableIds.length)result.blockingErrors.push("Duplicate stable IDs");

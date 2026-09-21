@@ -28,6 +28,10 @@ function presetFromServer(value: ManufacturingPresetDto): ManufacturingPreset {
 }
 
 function settingsFromServer(settings: GlobalQuoteSettingsDto | null, presets: ManufacturingPresetDto[]): GlobalQuoteSettings {
+  const activeDefaultId = settings?.defaultManufacturingPresetId !== null
+    && presets.some((preset) => preset.id === settings?.defaultManufacturingPresetId && preset.status === "active")
+    ? settings?.defaultManufacturingPresetId ?? null
+    : null;
   return {
     ...defaultGlobalQuoteSettings,
     defaultUsdCnyRate: fromDecimal(settings?.defaultUsdCnyRate ?? null, "quoteSettings.defaultUsdCnyRate"),
@@ -37,7 +41,7 @@ function settingsFromServer(settings: GlobalQuoteSettingsDto | null, presets: Ma
       ? { name: settings.defaultOtherCost.name, amount: fromDecimal(settings.defaultOtherCost.amount, "quoteSettings.defaultOtherCost.amount") }
       : null,
     defaultLaborDescription: settings?.defaultLaborDescription ?? "",
-    defaultManufacturingPresetId: settings?.defaultManufacturingPresetId ?? null,
+    defaultManufacturingPresetId: activeDefaultId,
     manufacturingPresets: presets.map(presetFromServer),
   };
 }

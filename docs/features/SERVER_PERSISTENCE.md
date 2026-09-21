@@ -42,6 +42,7 @@ Browser
 - `GET|POST /api/v1/quote-masters/customer-salespeople` 与 `GET|PATCH /api/v1/quote-masters/customer-salespeople/:id`
 - `GET|POST /api/v1/quote-masters/fabrics|trims` 与对应 `GET|PATCH /:id`，以及只读 supplier suggestions
 - `GET|PATCH /api/v1/quote-settings`、manufacturing preset list/create/read/update 与 resolved-defaults read
+- D-090 invariant：Global Quote Settings default 只能引用 active Manufacturing Preset；停用当前 default 时 preset/default/version/trusted audits 同 transaction，inactive assignment fail closed，`resolveDefaults` 不返回 inactive preset，且不触碰历史 Quote snapshot。
 
 错误统一返回 `{ error: { code, message, requestId } }`。Health 只有在 PostgreSQL `SELECT 1` 成功时返回 200/ready，数据库不可用时返回 503，不伪报健康。SalesOrder read API 对非法 list query、未登录、无 `order.view` 和不存在的 ID 分别返回 400、401、403、404；返回 typed composed DTO，不直接暴露数据库行、source hash、source metadata 或 raw payload。List 仅暴露 `colorCount`，完整颜色行只在 detail 返回。API 不接受 SQL、表名、数据库操作名、actor userId、role 或授权结果；未知 `/api/*` 路径返回结构化 404。
 
