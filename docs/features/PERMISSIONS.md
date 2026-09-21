@@ -1,5 +1,11 @@
 # 权限系统
 
+## Q2B1 Server Quote read identity
+
+`/quote-center/server-preview` and `/quote-center/server-detail` authorize only with the trusted Server Session and `quote.view`. They do not call Browser `usePermissions().can("quote.view")`, do not map Browser test users to Server users, and show only the Server session identity. Anonymous users receive the common Server login, a read-time 401 invalidates that session, and 403 remains an explicit permission-denied state with no Browser fallback.
+
+The AppShell server identity mode hides Browser test-account switching plus Browser-permission-backed settings and global-search controls on these routes. This is a scoped UI convergence, not a global single-login production cutover: existing Browser Quote routes still use the mock PermissionProvider until Q2B2.
+
 ## Q2A Quote aggregate API enforcement
 
 Q2A uses the existing catalog and trusted Server session. List/detail require `quote.view`; create requires `quote.create`; full aggregate replacement requires `quote.edit`. Because one replacement can contain independently protected operations, the Server compares before/after and additionally requires the existing `quote.cost.edit`, `quote.settings.edit`, `quote.revision.update`, `quote.price_version.create/delete`, `quote.confirm`, or `estimate.edit` permission when the corresponding slice changes. It does not infer authority from Browser roles, `createdBy/generatedBy`, request headers or body actor fields. DELETE is not exposed.
@@ -102,5 +108,5 @@ PostgreSQL Server Persistence Phase 1 已增加可信 server RBAC foundation，�
 
 - 当前是单浏览器 mock 登录/切换，不是真实身份认证。
 - localStorage 可被客户端修改，不能用于生产安全控制。
-- 已有 Phase 1 服务端 session、permission enforcement 和 OperationLog 基础；Q2A Quote aggregate mutation 已接入该 trusted boundary，但 Browser UI 尚未 cutover。仍无 SSO、组织隔离、数据范围权限，Order 通用写入、Scheduling 等其他业务 mutation 也尚未接入。
+- 已有 Phase 1 服务端 session、permission enforcement 和 OperationLog 基础；Q2A Quote aggregate mutation 已接入该 trusted boundary，Q2B1 仅把隔离的 Quote shadow-read UI 接入 trusted identity。Production Browser writer/global single-login 尚未 cutover。仍无 SSO、组织隔离、数据范围权限，Order 通用写入、Scheduling 等其他业务 mutation 也尚未接入。
 - 现有报价 Revision 没有删除功能，因此该权限仅预留。

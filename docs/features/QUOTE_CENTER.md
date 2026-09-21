@@ -1,10 +1,17 @@
 # Quote Center
 
-## Q2A Server API foundation (not Browser cutover)
+## Q2B1 Server shadow read (not Browser cutover)
+
+- `/quote-center/server-preview` is an isolated PostgreSQL metadata list; `/quote-center/server-detail?id=<quoteId>` presents the full Server Quote aggregate read-only. They use only the Q2A typed `quoteServerRepository` and never fall back to `mockQuoteRepository`.
+- These routes use trusted Server Session + `quote.view` as their sole visible identity/authorization. Browser test-account switching, Browser settings/global-search controls and mock roles are hidden in Server shell mode; 401 invalidates the Server session and 403/404/network failures remain explicit.
+- The detail preserves decimal strings, null-versus-zero, stored confirmation/Estimate snapshots and historical Revision read-only state. It does not mount `QuoteEditor`, resolve attachment references through IndexedDB, recalculate snapshots, or expose create/save/delete controls.
+- `LocalDataBootstrap` skips those two exact routes. The production Browser routes below remain unchanged; Q2B1 is not writer cutover or global single-login production cutover. Q2B2 remains next.
+
+## Q2A Server API foundation
 
 - Q2A adds typed Server list/detail/create/full-replacement-save contracts backed by the existing Q1 aggregate repository. The API preserves stable Quote/Revision/PriceVersion/cost/Estimate IDs, decimal strings, null versus zero, immutable history and optimistic aggregate version.
 - A same-origin `quote-server-client` and `quote-server-repository` foundation uses `credentials: include`, `cache: no-store`, and the existing mutation boundary headers. It is deliberately not imported by the current Quote list/editor.
-- Current `/quote-center` runtime remains `mockQuoteRepository` + localStorage, including existing Browser confirmation and attachment behavior. No page load performs Server Quote writes or migration. Q2B owns Server repository and single-login UX/writer cutover.
+- Current `/quote-center` runtime remains `mockQuoteRepository` + localStorage, including existing Browser confirmation and attachment behavior. No page load performs Server Quote writes or migration. Q2B2 owns the separately gated writer integration/cutover.
 
 ## C4.2 linked current confirmation boundary
 
@@ -96,6 +103,8 @@ Quote Center 是面向成衣报价工作的新版前端模块，提供完整报�
 - `app/quote-center/page.tsx`
 - `app/quote-center/new/page.tsx`
 - `app/quote-center/detail/page.tsx`
+- `app/quote-center/server-preview/page.tsx`（Q2B1 Server-only shadow read）
+- `app/quote-center/server-detail/page.tsx`（Q2B1 Server-only aggregate detail）
 - `features/quote-center/components/quote-list.tsx`
 - `features/quote-center/components/quote-editor.tsx`
 - 权限接入：`features/permissions/` 与 Foundation `Button.permission`

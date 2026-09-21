@@ -7,7 +7,9 @@ import { initializeLocalDataLifecycle } from "../service/data-management-service
 export function shouldInitializeBrowserLocalData(pathname: string): boolean {
   return pathname !== "/order-center"
     && pathname !== "/order-center/server-preview"
-    && pathname !== "/order-center/server-detail";
+    && pathname !== "/order-center/server-detail"
+    && pathname !== "/quote-center/server-preview"
+    && pathname !== "/quote-center/server-detail";
 }
 
 export function LocalDataBootstrap({ children }: { children: ReactNode }) {

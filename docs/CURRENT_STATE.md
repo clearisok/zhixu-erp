@@ -1,16 +1,19 @@
 # 当前状态
 
-> 状态快照：2026-09-20。这里只保留当前真实状态，不记录开发流水账。
+> 状态快照：2026-09-21。这里只保留当前真实状态，不记录开发流水账。
 
 ## 当前阶段
 
 - Q2A 已实现 Q1 Quote aggregate 的 trusted Server HTTP boundary：`GET /api/v1/quotes`、`GET /api/v1/quotes/:quoteId`、`POST /api/v1/quotes` 与 `PUT /api/v1/quotes/:quoteId`。读取使用 `quote.view`，创建使用 `quote.create`，替换至少使用 `quote.edit`，并对成本、报价设置、Revision、PriceVersion、确认与 Estimate 变更继续执行现有细粒度 Server permission。PUT 使用 aggregate `expectedVersion`，stale 与历史不可变冲突返回安全 409。
-- Quote create/save 与既有 PostgreSQL `operation_logs` 在同一 transaction 提交；actor 只来自 trusted Server session，日志只保存有界 aggregate/version 摘要和 request context，不保存完整 Quote/附件。审计失败回滚 aggregate；无变化 save 不递增版本也不写日志。Q2A 新增同源 typed Browser client/adapter foundation，但没有接入 Quote 页面。
+- Quote create/save 与既有 PostgreSQL `operation_logs` 在同一 transaction 提交；actor 只来自 trusted Server session，日志只保存有界 aggregate/version 摘要和 request context，不保存完整 Quote/附件。审计失败回滚 aggregate；无变化 save 不递增版本也不写日志。
+- Q2B1 新增隔离只读 shadow routes：`/quote-center/server-preview` 只调用 typed repository `list`，`/quote-center/server-detail?id=<quoteId>` 只调用 `getById` 并展示完整 Server aggregate。两条 route 使用 trusted Server Session + `quote.view`，Server shell 只显示 Server identity，隐藏 Browser 测试账号、Browser 权限设置/全局搜索等不可信控制；401 invalidate session，403/404/network 显式 fail closed，且无 Browser Quote fallback。
+- Q2B1 detail 保留 decimal string 原值、`null` 与 `"0"` 区分、历史 Revision 只读语义、Estimate/confirmation snapshot 与 attachment reference 边界；不读取 Browser IndexedDB attachment，不调用 Quote POST/PUT/DELETE。`LocalDataBootstrap` 精确跳过两条 shadow route。
+- Q2B1 最终门禁：shadow contract `7/7`、Server auth/read frontend `10/10`、disposable PostgreSQL `73/73`、full tests `638/638`、typecheck、lint、server build、frontend production build（34 routes）与 `git diff --check` 全部 PASS。
 - Q2A 最终门禁：targeted `13/13`、disposable PostgreSQL `73/73`、Server auth frontend `7/7`、full tests `631/631`、typecheck、lint、server build、frontend production build（32 routes）与 `git diff --check` 全部 PASS。
 - C4.2 `ConfirmedCommercialTerms` implementation 已完成，并已对照 merged M0 migration safety 与 Q1 Quote PostgreSQL foundation 完成 integration validation。该工程完成状态不等于真实 schema activation 或生产 Browser write acceptance。
 - Q1 已实现 Quote/Revision/PriceVersion/Estimate 与成本快照的 Server/PostgreSQL foundation，migration 为 `0005_quote_foundation.sql`。`0004_confirmed_commercial_terms.sql` 是独立共享 current domain；Q1 Quote confirmation columns 仅为 aggregate snapshot，不是第二个 current writer，terms mutation 不回写 Quote snapshot。
 - M0 已集成：正常 server startup 只读验证 migration 状态；pending 0004、pending 0005 或两者同时 pending 均 fail closed，不执行 schema migration，也不会进入 permission sync、admin bootstrap 或 listen。显式 `npm run db:migrate` 仍是唯一 activation path。
-- Quote production 尚未激活；真实 0004/0005 均未执行。Browser Quote 仍使用 mockQuoteRepository/localStorage；没有真实 Quote import/business write、Q2B Browser writer/single-login cutover、Q3 master transfer 或 Q4 attachments。Q2A 仅通过 disposable PostgreSQL 验证；下一工程阶段是 Q2B Browser Server Repository + single-login UX/writer cutover，且不由 Q2A completion 自动授权。
+- Quote production 尚未激活；真实 0004/0005 均未执行。Production `/quote-center`、`/quote-center/detail`、`/quote-center/new` 仍使用 `mockQuoteRepository`/localStorage，Q2B1 只增加隔离 shadow read；没有真实 Quote import/business write、Browser writer cutover、全局 single-login production cutover、Q3 master transfer 或 Q4 attachments。下一工程阶段是 Q2B2 Server writer integration behind explicit production gate，且不由 Q2B1 completion 自动授权。
 - PR #6 已 merged；Navigation / Quote Cockpit / name-only Canonical Material / Production Infrastructure 与 ExpectedArrivalBatch migration hardening 已正式进入 `main`。
 - PR #4 已 merged；Material Control Tower V2 Gate 1–5 已正式进入 `main`。
 - PR #3 对应的 Full UI Workflow Correction 与 Second Acceptance 提交也已进入 `main`。

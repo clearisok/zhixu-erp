@@ -1331,6 +1331,39 @@ textarea.qc-note-control { min-height: 72px; height: 72px; }
 .qc-backup-summary p { margin: 0; }
 .qc-backup-summary strong { color: #7c5a22; }
 
+/* Q2B1 isolated Server Quote shadow read. */
+.qc-server-quote-page { display: grid; gap: 16px; }
+.qc-server-quote-card, .qc-server-quote-section, .qc-server-quote-version { overflow: hidden; }
+.qc-server-quote-table-wrap { width: 100%; overflow-x: auto; }
+.qc-server-quote-table-wrap table { width: 100%; min-width: 760px; border-collapse: collapse; }
+.qc-server-quote-table-wrap th, .qc-server-quote-table-wrap td { padding: 12px 14px; border-bottom: 1px solid #e7ece9; text-align: left; vertical-align: top; font-size: 11px; }
+.qc-server-quote-table-wrap th { color: #708078; background: #f7faf8; font-size: 9px; letter-spacing: .03em; }
+.qc-server-quote-table-wrap td strong { color: var(--qc-green, #175c4b); }
+.qc-server-quote-table-wrap code, .qc-server-quote-section code, .qc-server-quote-version code { color: #486258; font: 10px/1.5 ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+.qc-server-quote-table-wrap code.is-null, .qc-server-quote-version code.is-null { color: #8b6d63; }
+.qc-server-quote-link { color: var(--qc-green, #175c4b); font-size: 11px; font-weight: 700; text-decoration: none; }
+.qc-server-quote-link:hover { text-decoration: underline; }
+.qc-server-quote-pagination { min-height: 58px; display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 10px 14px; }
+.qc-server-quote-pagination span { color: #718078; font-size: 10px; }
+.qc-server-quote-detail, .qc-server-quote-version-list { display: grid; gap: 16px; }
+.qc-server-quote-section > header, .qc-server-quote-version > header, .qc-server-quote-version-list > header { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 18px; border-bottom: 1px solid #e4eae7; }
+.qc-server-quote-section > header h2, .qc-server-quote-version > header h3, .qc-server-quote-version-list > header h2 { margin: 3px 0 0; color: var(--qc-green, #175c4b); font: 600 18px Georgia, "Songti SC", serif; }
+.qc-server-quote-section > header small, .qc-server-quote-version > header small, .qc-server-quote-version-list > header small { color: #759087; font-size: 8px; letter-spacing: .12em; }
+.qc-server-quote-section > header > span, .qc-server-quote-version-list > header > span { color: #667970; font-size: 10px; }
+.qc-server-quote-section > p, .qc-server-quote-section > small { display: block; margin: 14px 18px; color: #697871; font-size: 10px; line-height: 1.7; }
+.qc-server-quote-version-list > header { border: 1px solid #dfe7e3; border-radius: 10px; background: #f7faf8; }
+.qc-server-quote-version { display: grid; gap: 0; }
+.qc-server-quote-subsection, .qc-server-quote-confirmation { display: grid; gap: 10px; padding: 14px 18px; border-top: 1px solid #e9eeeb; }
+.qc-server-quote-subsection h4, .qc-server-quote-confirmation h4 { margin: 0; color: #3f584e; font-size: 11px; }
+.qc-server-quote-confirmation > p, .qc-server-quote-confirmation > small { margin: 0; color: #697871; font-size: 10px; line-height: 1.65; }
+.qc-server-quote-history-ids { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px; border-top: 1px solid #e9eeeb; }
+.qc-server-quote-history-ids strong { width: 100%; color: #4d6259; font-size: 10px; }
+
+@media (max-width: 680px) {
+  .qc-server-quote-pagination { justify-content: space-between; }
+  .qc-server-quote-section > header, .qc-server-quote-version > header, .qc-server-quote-version-list > header { align-items: flex-start; flex-direction: column; }
+}
+
 @media (max-width: 767px) {
   .qc-data-management-section > header { align-items: stretch; flex-direction: column; }
   .qc-data-management-section > header aside, .qc-data-management-actions { display: grid; }

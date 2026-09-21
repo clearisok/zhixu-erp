@@ -136,6 +136,15 @@ Post-M0 Q1 validation: targeted migration-safety + Quote PostgreSQL 19/19; compl
 - A same-origin credentialed/no-store typed client and repository adapter exist for Q2B, but current Quote list/editor remain wired to `mockQuoteRepository`/localStorage. Q2A does not activate single-login UI, real 0004/0005, real Quote import or production writes.
 - Final Q2A validation passed: targeted 13/13, disposable PostgreSQL 73/73, Server auth frontend 7/7, full tests 631/631, typecheck, lint, server build, frontend production build (32 routes), and `git diff --check`.
 
+## Q2B1 Server shadow read and identity convergence — 2026-09-21
+
+- Isolated `/quote-center/server-preview` and `/quote-center/server-detail?id=<quoteId>` routes use only the Q2A typed `quoteServerRepository` list/detail reads. They never initialize or fall back to the Browser Quote repository and expose no Quote create/save/delete action.
+- Both routes require trusted Server Session + `quote.view`. Their AppShell server identity mode displays only the Server user, hides the Browser test-user selector and Browser permission-dependent settings/global-search controls, and keeps 401 invalidation plus explicit 403/404/unavailable states.
+- Detail renders stored aggregate identity, default/current and historical Revisions, PriceVersions, cost/labor/pricing snapshots, Estimate current/history and historical confirmation snapshots. Decimal DTO strings remain strings, `null` remains visibly distinct from `"0"`, and historical facts are not recomputed.
+- Server attachment references receive a neutral migration-boundary indication; Q2B1 does not query Browser IndexedDB or implement attachment binary migration. The exact shadow routes skip `LocalDataBootstrap`.
+- Production `/quote-center`, `/quote-center/detail` and `/quote-center/new` remain Browser/local and continue using `mockQuoteRepository`; Browser writer and global single-login production cutover are not complete. Real 0004/0005, real Quote import and real Quote business writes remain NOT EXECUTED. Q2B2 is the next separately gated writer phase.
+- Final Q2B1 validation passed: shadow contract 7/7, Server auth/read frontend 10/10, disposable PostgreSQL 73/73, full tests 638/638, typecheck, lint, server build, frontend production build (34 routes), and `git diff --check`.
+
 ### Migration numbering and C4.2 compatibility
 
 `0004_confirmed_commercial_terms.sql` owns the separate shared-current terms domain; `0005_quote_foundation.sql` owns the Quote aggregate foundation and has no dependency on 0004 tables/functions. The runner discovers/sorts numeric versions and explicitly applies every version absent from the ledger; it does not demand a contiguous prefix or reject a lower pending version. Both actual orders `0001/2/3 → 0004 → 0005` and `0001/2/3 → 0005 → 0004` are validated on disposable databases.
@@ -150,7 +159,7 @@ A deployment must always include every already-applied migration file with its o
 - Real `zhixu` migration 0004 activation：**NOT AUTHORIZED / NOT EXECUTED**。
 - C4.2 real Browser acceptance：**NOT EXECUTED**。
 - Quote PostgreSQL foundation：**IMPLEMENTED / MERGED, NOT PRODUCTION-ACTIVATED**。Quote aggregate API/writer cutover、Server attachment architecture、Quote data migration 与 Quote production deployment：**NOT IMPLEMENTED / NOT READY**。
-- Q0 于 2026-09-14 完成 read-only audit（8 Quotes / 9 Revisions / 12 PriceVersions）；未发现 Quote aggregate corruption blocker。Q1/Q2A 不读取或提交真实 backup。下一阶段是需独立授权的 **Q2B Browser Server Repository + single-login UX/writer cutover**，尚未实施。
+- Q0 于 2026-09-14 完成 read-only audit（8 Quotes / 9 Revisions / 12 PriceVersions）；未发现 Quote aggregate corruption blocker。Q1/Q2A/Q2B1 不读取或提交真实 backup。下一阶段是需独立授权的 **Q2B2 Server writer integration behind explicit production gate**；production Browser writer/global single-login cutover 尚未实施。
 
 ## Follow-up Documentation Sync
 
