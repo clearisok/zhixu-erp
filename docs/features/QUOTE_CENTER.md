@@ -1,11 +1,19 @@
 # Quote Center
 
+## Q2B2A isolated Server writer (not Browser cutover)
+
+- `/quote-center/server-edit?id=<quoteId>` is a clearly labeled test workspace for an EXISTING Server Quote. It loads and saves only through a dedicated typed adapter over Q2A `GET`/`PUT`; it does not reuse the Browser `QuoteEditor` or its repository/audit/attachment/master/Order side effects.
+- The workspace uses trusted Server Session identity and a scoped Server permission authority. `quote.view` controls load, `quote.edit` controls aggregate save, and Server-side Q2A checks retain the finer cost/settings/workflow permissions. Browser test users and Browser PermissionProvider cannot grant Server edit.
+- Server decimal strings enter the Browser numeric model only after exact canonical round-trip proof. Unsafe precision fails the whole edit projection closed. Successful PUT adopts the returned aggregate/version; a stale `expectedVersion` leaves dirty state visible and offers only an explicitly confirmed reload, never auto-overwrite/retry.
+- Q2B2A edits a deliberately narrow existing default Revision surface. Attachments, Browser master resolution/quick create, delete, export, Quote-to-Order, new Quote, destructive advanced workflows and confirmation mutation are unavailable. Existing attachment references, historical snapshots and C4.2 current terms are preserved.
+- Dirty navigation and `beforeunload` remain guarded; save-and-leave performs Server PUT only. The exact route skips `LocalDataBootstrap`. Production `/quote-center`, `/quote-center/detail` and `/quote-center/new` remain Browser/local, and Server new-Quote creation/numbering is deferred to Q2B2B.
+
 ## Q2B1 Server shadow read (not Browser cutover)
 
 - `/quote-center/server-preview` is an isolated PostgreSQL metadata list; `/quote-center/server-detail?id=<quoteId>` presents the full Server Quote aggregate read-only. They use only the Q2A typed `quoteServerRepository` and never fall back to `mockQuoteRepository`.
 - These routes use trusted Server Session + `quote.view` as their sole visible identity/authorization. Browser test-account switching, Browser settings/global-search controls and mock roles are hidden in Server shell mode; 401 invalidates the Server session and 403/404/network failures remain explicit.
 - The detail preserves decimal strings, null-versus-zero, stored confirmation/Estimate snapshots and historical Revision read-only state. It does not mount `QuoteEditor`, resolve attachment references through IndexedDB, recalculate snapshots, or expose create/save/delete controls.
-- `LocalDataBootstrap` skips those two exact routes. The production Browser routes below remain unchanged; Q2B1 is not writer cutover or global single-login production cutover. Q2B2 remains next.
+- `LocalDataBootstrap` skips those two exact routes. The production Browser routes below remain unchanged; Q2B1 is not writer cutover or global single-login production cutover. Q2B2A later adds only the isolated existing-Quote writer described above.
 
 ## Q2A Server API foundation
 
@@ -162,7 +170,7 @@ Quote Center 是面向成衣报价工作的新版前端模块，提供完整报�
 
 ## Known gaps
 
-- 无真实后端、数据库和多用户并发；当前只有 localStorage mock RBAC，没有服务端权限 enforcement。
+- Production Quote Center 尚未切到真实后端或多用户写入；legacy routes 仍只有 localStorage mock RBAC。Q2A Server API 与 Q2B1/Q2B2A isolated routes 已有 trusted Server enforcement，但不是 production cutover。
 - 已提供从明确 Quote Revision + PriceVersion 生成新订单中心 SalesOrder 的浏览器流程；尚无真实后端订单 API 或与根路径旧订单的数据整合。
 - 附件当前仅为单设备 IndexedDB 原型，没有真实上传 API、对象存储和跨设备共享。
 - 列表无分页/服务端筛选。

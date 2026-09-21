@@ -1,5 +1,9 @@
 # 织序 ERP 前端操作日志
 
+## Q2B2A isolated writer audit boundary
+
+The isolated Server writer performs one Q2A aggregate PUT and never appends Browser `operationLogRepository` records. The Server transaction remains the sole authority: a successful real change appends its one trusted PostgreSQL Quote OperationLog using the Server session actor; audit failure rolls back the aggregate. Stale 409, 401/403, unsafe decimal projection, no-op and client/network failure perform no Browser fallback or second log. C4.2 current terms are not mutated or audited by an aggregate save.
+
 ## Q2A Server Quote aggregate audit
 
 Q2A create and real aggregate-save mutations append exactly one existing PostgreSQL `operation_logs` row inside the same Q1 write transaction. The actor comes only from the trusted Server session. The event stores Quote ID, create/save action, aggregate version transition, bounded Quote/default-Revision/count summary and safe request ID/method/path context; it never dumps the full Quote, attachment content or request body. Audit failure rolls back every aggregate row. Unauthorized, malformed, stale, immutable-history and no-op writes append no event. Browser-local Quote logs remain on their existing repository until Q2B cutover; Q2A does not dual-write them.
