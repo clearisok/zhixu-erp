@@ -2,7 +2,7 @@
 
 ## Q3A Server Quote master/settings audit
 
-Every actual Q3A Brand, CustomerSalesperson, Fabric/Trim library, scoped-default, global-settings or manufacturing-preset mutation appends one bounded PostgreSQL OperationLog in the same transaction. Actor ID/name comes only from `TrustedIdentity`; request actor fields are rejected. Before/after captures identity, name, version, status and bounded setting counts/values rather than request bodies or complete collections. Audit failure rolls back the master/settings mutation. Existing Browser logs remain local until Q3B/production cutover and Q3A never dual-writes them.
+Every actual Q3A Brand, CustomerSalesperson, Fabric/Trim library, scoped-default, global-settings or manufacturing-preset mutation appends one bounded PostgreSQL OperationLog in the same transaction. Actor ID/name comes only from `TrustedIdentity`; request actor fields are rejected. Before/after uses an explicit business-field allowlist: master names/status/relationships, decimal-string prices and rates, fabric/trim attributes, manufacturing/freight settings, and global Quote defaults. Nullable decimals remain distinct from `"0"`. DefaultOtherCost is recorded as separate name/amount values; the bounded DefaultTrimConfig set records each stable `trimLibraryItemId`, position and nullable loss/unit-price overrides, so add/remove/reorder/override changes appear in `changes[]`. It never stores request bodies, complete Quote aggregates, credentials or unbounded collections. Audit failure rolls back the master/settings mutation. Existing Browser logs remain local until Q3B/production cutover and Q3A never dual-writes them.
 
 ## Q2B2A isolated writer audit boundary
 

@@ -21,6 +21,34 @@ const migrations = [
 ];
 const origin = "http://127.0.0.1:3001";
 const emptyDefaults = { defaultUsdCnyRate: null, defaultOtherCost: null, defaultTrims: [] };
+type AuditValues = Record<string, string | number | null>;
+type AuditChange = { field: string; beforeValue: string | number | null; afterValue: string | number | null };
+type AuditRow = {
+  actor_public_id: string;
+  before_data: { values?: AuditValues } | null;
+  after_data: { values?: AuditValues } | null;
+  changes: AuditChange[];
+};
+
+async function auditForVersion(pool: pg.Pool, entityType: string, entityId: string, version: number): Promise<AuditRow> {
+  const row = (await pool.query<AuditRow>(
+    `SELECT actor_public_id::text, before_data, after_data, changes
+       FROM operation_logs
+      WHERE entity_type=$1 AND entity_id=$2
+        AND after_data->'values'->>'version'=$3
+      ORDER BY created_at DESC, id DESC
+      LIMIT 1`,
+    [entityType, entityId, String(version)],
+  )).rows[0];
+  assert.ok(row, `missing audit for ${entityType}/${entityId} version ${version}`);
+  return row;
+}
+
+function auditChange(row: AuditRow, field: string): AuditChange {
+  const change = row.changes.find((item) => item.field === field);
+  assert.ok(change, `missing audit change for ${field}`);
+  return change;
+}
 
 async function copyMigrations(names: string[]) {
   const directory=await mkdtemp(join(tmpdir(),"zhixu-q3a-"));
@@ -125,6 +153,53 @@ test("Q3A Quote master/settings foundation uses disposable PostgreSQL 16 only",{
     await service.updatePreset(actor.identity,preset.id,preset.version,{name:"中国制作新版",country:"越南",laborCurrency:preset.laborCurrency,markupRate:preset.markupRate,includeFreight:preset.includeFreight,freightName:preset.freightName,freightAmount:preset.freightAmount,status:preset.status});
     assert.equal((await service.resolveDefaults(brandId,salespersonId)).manufacturingPreset?.country,"越南");
     assert.deepEqual((await createQuoteService(pool).getById(quote.id))?.quote,created.quote);
+  });
+
+  await t.test("trusted audit preserves bounded master and settings business before/after values",async()=>{
+    const fabric=await service.createFabric(actor.identity,{name:"审计面料",composition:"棉",netWidthCm:"150",gsm:"180",defaultLossRate:"3",supplier:"供应商甲",unitPrice:"23.5",purchaseUnit:"meter"});
+    const priced=await service.updateFabric(actor.identity,fabric.id,fabric.version,{name:"审计面料",composition:"棉涤",netWidthCm:"151",gsm:"181",defaultLossRate:"4",supplier:"供应商乙",unitPrice:"24.2",purchaseUnit:"kg"});
+    const priceLog=await auditForVersion(pool,"FabricLibraryItem",fabric.id,priced.version);
+    assert.equal(priceLog.before_data?.values?.unitPrice,"23.5");assert.equal(priceLog.after_data?.values?.unitPrice,"24.2");
+    assert.deepEqual(auditChange(priceLog,"unitPrice"),{field:"unitPrice",beforeValue:"23.5",afterValue:"24.2"});
+    for(const field of ["name","composition","netWidthCm","gsm","defaultLossRate","supplier","unitPrice","purchaseUnit"])assert.ok(Object.hasOwn(priceLog.after_data?.values??{},field));
+    const nullable=await service.updateFabric(actor.identity,fabric.id,priced.version,{name:priced.name,composition:priced.composition,netWidthCm:priced.netWidthCm,gsm:priced.gsm,defaultLossRate:priced.defaultLossRate,supplier:priced.supplier,unitPrice:null,purchaseUnit:priced.purchaseUnit});
+    const zero=await service.updateFabric(actor.identity,fabric.id,nullable.version,{name:nullable.name,composition:nullable.composition,netWidthCm:nullable.netWidthCm,gsm:nullable.gsm,defaultLossRate:nullable.defaultLossRate,supplier:nullable.supplier,unitPrice:"0",purchaseUnit:nullable.purchaseUnit});
+    assert.deepEqual(auditChange(await auditForVersion(pool,"FabricLibraryItem",fabric.id,zero.version),"unitPrice"),{field:"unitPrice",beforeValue:null,afterValue:"0"});
+
+    const secondTrim=await service.createTrim(actor.identity,{name:"审计洗标",specification:"缎面",supplier:"供应商乙",unit:"枚",defaultLossRate:"1",unitPrice:"0.5"});
+    const updatedTrim=await service.updateTrim(actor.identity,secondTrim.id,secondTrim.version,{name:"审计洗标新版",specification:"棉质",supplier:"供应商丙",unit:"条",defaultLossRate:"2",unitPrice:"0"});
+    const trimLog=await auditForVersion(pool,"TrimLibraryItem",secondTrim.id,updatedTrim.version);
+    for(const field of ["name","specification","supplier","unit","defaultLossRate","unitPrice"])assert.ok(auditChange(trimLog,field));
+    const auditBrand=await service.createBrand(actor.identity,{name:"审计品牌甲",status:"active",defaults:{defaultUsdCnyRate:"7.10",defaultOtherCost:{name:"包装费",amount:"1"},defaultTrims:[{trimLibraryItemId:trimId,overrideLossRate:null,overrideUnitPrice:"1"},{trimLibraryItemId:secondTrim.id,overrideLossRate:"1",overrideUnitPrice:null}]}});
+    const auditBrandUpdated=await service.updateBrand(actor.identity,auditBrand.id,auditBrand.version,{name:"审计品牌甲新版",status:"inactive",defaults:{defaultUsdCnyRate:"7.20",defaultOtherCost:{name:"检测费",amount:"0"},defaultTrims:[{trimLibraryItemId:secondTrim.id,overrideLossRate:"2",overrideUnitPrice:"0"}]}});
+    const brandLog=await auditForVersion(pool,"Brand",auditBrand.id,auditBrandUpdated.version);
+    assert.deepEqual(auditChange(brandLog,"defaultUsdCnyRate"),{field:"defaultUsdCnyRate",beforeValue:"7.10",afterValue:"7.20"});
+    assert.deepEqual(auditChange(brandLog,"defaultOtherCost.name"),{field:"defaultOtherCost.name",beforeValue:"包装费",afterValue:"检测费"});
+    assert.deepEqual(auditChange(brandLog,"defaultOtherCost.amount"),{field:"defaultOtherCost.amount",beforeValue:"1",afterValue:"0"});
+    assert.deepEqual(auditChange(brandLog,`defaultTrims.${trimId}.trimLibraryItemId`),{field:`defaultTrims.${trimId}.trimLibraryItemId`,beforeValue:trimId,afterValue:null});
+    assert.deepEqual(auditChange(brandLog,`defaultTrims.${secondTrim.id}.position`),{field:`defaultTrims.${secondTrim.id}.position`,beforeValue:1,afterValue:0});
+    assert.deepEqual(auditChange(brandLog,`defaultTrims.${secondTrim.id}.overrideLossRate`),{field:`defaultTrims.${secondTrim.id}.overrideLossRate`,beforeValue:"1",afterValue:"2"});
+    const auditBrandAdded=await service.updateBrand(actor.identity,auditBrand.id,auditBrandUpdated.version,{name:auditBrandUpdated.name,status:auditBrandUpdated.status,defaults:{defaultUsdCnyRate:auditBrandUpdated.defaults.defaultUsdCnyRate,defaultOtherCost:auditBrandUpdated.defaults.defaultOtherCost,defaultTrims:[{trimLibraryItemId:secondTrim.id,overrideLossRate:"2",overrideUnitPrice:"0"},{trimLibraryItemId:trimId,overrideLossRate:"0",overrideUnitPrice:null}]}});
+    assert.deepEqual(auditChange(await auditForVersion(pool,"Brand",auditBrand.id,auditBrandAdded.version),`defaultTrims.${trimId}.trimLibraryItemId`),{field:`defaultTrims.${trimId}.trimLibraryItemId`,beforeValue:null,afterValue:trimId});
+
+    const otherBrand=await service.createBrand(actor.identity,{name:"审计品牌乙",status:"active",defaults:{...emptyDefaults}});
+    const person=await service.createSalesperson(actor.identity,{name:"审计业务员",brandId:auditBrand.id,status:"active",defaults:{...emptyDefaults}});
+    const personUpdated=await service.updateSalesperson(actor.identity,person.id,person.version,{name:"审计业务员新版",brandId:otherBrand.id,status:"inactive",defaults:{defaultUsdCnyRate:"0",defaultOtherCost:{name:"跟单费",amount:null},defaultTrims:[{trimLibraryItemId:trimId,overrideLossRate:null,overrideUnitPrice:"0"}]}});
+    const personLog=await auditForVersion(pool,"CustomerSalesperson",person.id,personUpdated.version);
+    for(const field of ["name","brandId","status","defaultUsdCnyRate","defaultOtherCost.name",`defaultTrims.${trimId}.trimLibraryItemId`])assert.ok(auditChange(personLog,field));
+    assert.equal(personLog.before_data?.values?.["defaultOtherCost.amount"],null);assert.equal(personLog.after_data?.values?.["defaultOtherCost.amount"],null);
+
+    const auditPreset=await service.createPreset(actor.identity,{name:"审计预设",country:"中国",laborCurrency:"CNY",markupRate:"10",includeFreight:false,freightName:"旧运费",freightAmount:null,status:"active"});
+    const presetUpdated=await service.updatePreset(actor.identity,auditPreset.id,auditPreset.version,{name:"审计预设新版",country:"越南",laborCurrency:"USD",markupRate:"15",includeFreight:true,freightName:"新运费",freightAmount:"0",status:"inactive"});
+    const presetLog=await auditForVersion(pool,"ManufacturingPreset",auditPreset.id,presetUpdated.version);
+    for(const [field,beforeValue,afterValue] of [["country","中国","越南"],["laborCurrency","CNY","USD"],["markupRate","10","15"],["includeFreight","false","true"],["freightName","旧运费","新运费"],["freightAmount",null,"0"],["status","active","inactive"]] as const)assert.deepEqual(auditChange(presetLog,field),{field,beforeValue,afterValue});
+
+    const settingsBefore=(await service.getGlobalSettings())!;
+    const settingsAfter=await service.updateGlobalSettings(actor.identity,settingsBefore.version,{defaultUsdCnyRate:"7.20",defaultMarkupRate:"18",defaultLaborCurrency:"USD",defaultLaborDescription:"审计工价",defaultOtherCost:{name:"系统审计费",amount:"0"},defaultManufacturingPresetId:auditPreset.id});
+    const settingsLog=await auditForVersion(pool,"QuoteSettings","global",settingsAfter.version);
+    for(const field of ["defaultUsdCnyRate","defaultMarkupRate","defaultLaborCurrency","defaultLaborDescription","defaultOtherCost.name","defaultOtherCost.amount","defaultManufacturingPresetId"])assert.ok(Object.hasOwn(settingsLog.after_data?.values??{},field));
+    assert.deepEqual(auditChange(settingsLog,"defaultManufacturingPresetId"),{field:"defaultManufacturingPresetId",beforeValue:settingsBefore.defaultManufacturingPresetId,afterValue:auditPreset.id});
+    assert.equal(settingsLog.actor_public_id,actor.identity.userId);
   });
 
   await t.test("optimistic conflict and audit failure roll back business rows atomically",async()=>{
