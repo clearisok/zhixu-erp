@@ -57,7 +57,9 @@
 - 当前存储：稳定 localStorage `zhixu.erp.local.basic-settings`，`schemaVersion` 位于 envelope；`zhixu.basic-settings.v1.5` / `v1.3` 仅作为非破坏迁移来源。
 - 兼容读取并归一化旧 key `zhixu.basic-settings.v1.3`。
 - Q3A 已建立隔离的 Server authority foundation：migration `0007_quote_master_settings.sql`、`server/quote-masters/` typed model/repository/service/routes，以及 domain-specific `/api/v1/quote-masters/*`、`/api/v1/quote-settings/*` endpoints。它包含 normalized name constraints、NUMERIC/decimal-string、optimistic version、trusted RBAC/OperationLog 和 transaction rollback。
-- Q3A 没有把现有 `/basic-settings/*` 或 Quote UI 接到 Server；Browser repository/localStorage 仍是 production UI 当前使用的 authority。真实 0007 与 real master/settings import 均未执行，也没有 dual write。
+- Q3B1 在隔离 `/basic-settings/server/{brands,customer-salespeople,fabrics,trims}` 与 `/system-settings/server/quote-settings` 上复用同一套正式 UI 组件，通过 trusted Server session、scoped Server permissions、typed adapters、exact decimal projection、Server UUID 与 optimistic version 操作 Q3A authority。409 保留草稿并要求确认 reload；401 invalidate；403/network fail closed；Server candidate 不写 Browser repository/OperationLog、不访问附件，也没有 hard delete。
+- Production `/basic-settings/*` 与 `/system-settings/quote-settings` 仍使用 Browser repository/localStorage。真实 0007 与 real master/settings import 均未执行，也没有 dual read/write。Global Settings candidate 的单 Save 使用 `/api/v1/quote-settings/bundle` 原子保存 settings + presets + trusted audit，新 preset ID 由 Server 生成。
+- Q3B1 pure migration preview 只投影/校验 Browser Brand、CustomerSalesperson、Fabric、Trim、DefaultTrim、Global Settings、Manufacturing Preset 与 D-089 DefaultOtherCost；它报告重复/缺失引用/legacy quantity/invalid numeric/blocker，不读真实 backup 且数据库写入为 0。
 
 ## Frontend behavior
 
@@ -96,7 +98,7 @@
 
 ## Known gaps
 
-- Q3B 尚未把现有 Basic Settings UI/Quick Create 接到 typed Server APIs，也未执行真实 master migration/reconciliation。
+- Q3B1 已完成隔离 candidate UI/Quick Trim 接线；production cutover、真实 backup preview、master migration/reconciliation 与 Quote Editor master integration 仍未执行。下一 gate 是 Q3B2 real-backup preview/rehearsal。
 - Q4 attachment authority、Q5 data preview/import 与 Q6 production activation 仍是单独 gates。
 
 - 浏览器 localStorage 不支持真实多用户并发和服务端唯一约束；当前权限系统也仅是前端 mock RBAC，不是服务端安全边界。

@@ -13,6 +13,12 @@
 - D-089 owns one nullable `DefaultOtherCost` per System/Brand/Salesperson scope and preserves Quote 0..N OtherCostLine snapshots. Server DefaultTrimConfig intentionally has no Browser compatibility quantity/usage. Default resolution preserves null/zero, Salesperson > Brand > System, and whole-set salesperson trims without merging Brand rows.
 - Q3A is disposable-foundation only. Production Quote and Basic Settings routes remain Browser/local, real 0007/master/Quote migration and business writes are not executed, and Q3B/Q4/Q5/Q6 remain required before cutover.
 
+## Q3B1 existing settings UI Server candidate — 2026-09-21
+
+- Five isolated Server routes reuse `BrandSettingsPage`, `CustomerSalespeopleSettingsPage`, `FabricLibraryPage`, `TrimLibraryPage`, and `GlobalQuoteSettingsPage` through bounded controllers. They use trusted Server identity/RBAC, exact decimal projection, optimistic versions, Server UUIDs and fail-closed auth/network states; production Browser settings and Quote routes are unchanged.
+- Global settings and manufacturing presets now have one domain-specific atomic bundle mutation with trusted same-transaction audit. Candidate removal is explicit preset status change, not hard delete. DefaultTrim compatibility quantity is projected into UI only as `null` and is never sent to Server; suppliers remain free text backed by authorized suggestions.
+- A deterministic read-only migration preview helper exists for Q3B2, but no real backup, real 0007, master import, Quote migration, production settings cutover or production Quote cutover has occurred.
+
 ## Q2B2B Server creation and numbering foundation
 
 - D-088 is user-confirmed: runtime Server Quote IDs and business numbers are Server-only. `quoteCode` uses `QT-YYYY-MMDD-NNN`, Server `Asia/Shanghai` date and one global non-resetting BIGINT sequence; minimum width is 3, values above 999 expand, rollback gaps are allowed and never reclaimed. The code is immutable and exact-unique.

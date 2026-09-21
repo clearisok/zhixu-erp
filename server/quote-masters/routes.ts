@@ -9,7 +9,7 @@ import {
   decimal, defaultOtherCost, exactObject, expectedVersion, quoteDefaults, status, text,
   type MasterStatus, type QuoteDefaultsInput,
 } from "./model.js";
-import { createQuoteMasterService, type BrandWrite, type FabricWrite, type PresetWrite, type SalespersonWrite, type SettingsWrite, type TrimWrite } from "./service.js";
+import { createQuoteMasterService, type BrandWrite, type FabricWrite, type PresetWrite, type SalespersonWrite, type SettingsBundlePresetWrite, type SettingsWrite, type TrimWrite } from "./service.js";
 
 type Dependencies = { pool: Pool; allowedOrigins: readonly string[]; security: SessionSecurityConfig };
 const neutralDefaults = (): QuoteDefaultsInput => ({ defaultUsdCnyRate: null, defaultOtherCost: null, defaultTrims: [] });
@@ -63,6 +63,26 @@ function settingsWrite(body: Record<string,unknown>):{input:SettingsWrite;expect
   const preset=body.defaultManufacturingPresetId===null?null:text(body.defaultManufacturingPresetId,"defaultManufacturingPresetId",{required:true,max:256});
   return {expectedVersion:expectedVersion(body.expectedVersion),input:{defaultUsdCnyRate:decimal(body.defaultUsdCnyRate,"defaultUsdCnyRate"),defaultMarkupRate:decimal(body.defaultMarkupRate,"defaultMarkupRate"),defaultLaborCurrency:currency(body.defaultLaborCurrency),defaultLaborDescription:text(body.defaultLaborDescription,"defaultLaborDescription",{max:2000}),defaultOtherCost:defaultOtherCost(body.defaultOtherCost),defaultManufacturingPresetId:preset}};
 }
+function object(value: unknown, field: string): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new HttpError(400,"invalid_quote_master_input",`${field} must be an object`);
+  return value as Record<string, unknown>;
+}
+function settingsBundleWrite(body: Record<string, unknown>) {
+  exactObject(body,["expectedVersion","settings","manufacturingPresets"]);
+  const expectedSettingsVersion=expectedVersion(body.expectedVersion);
+  const parsedSettings=settingsWrite({ expectedVersion:expectedSettingsVersion,...object(body.settings,"settings") }).input;
+  if(!Array.isArray(body.manufacturingPresets)||body.manufacturingPresets.length>100)throw new HttpError(400,"invalid_quote_master_input","manufacturingPresets must be a bounded array");
+  const manufacturingPresets=body.manufacturingPresets.map((value,index):SettingsBundlePresetWrite=>{
+    const item=object(value,`manufacturingPresets[${index}]`);
+    const existing=typeof item.id==="string";
+    exactObject(item,[existing?"id":"clientId",...(existing?["expectedVersion"]:[]),"name","country","laborCurrency","markupRate","includeFreight","freightName","freightAmount","status"]);
+    const parsed=presetWrite(item,existing);
+    return existing
+      ? {id:text(item.id,"id",{required:true,max:256}),expectedVersion:parsed.expectedVersion!,...parsed.input}
+      : {clientId:text(item.clientId,"clientId",{required:true,max:256}),...parsed.input};
+  });
+  return {expectedSettingsVersion,settings:parsedSettings,manufacturingPresets};
+}
 
 export async function routeQuoteMasters(request: IncomingMessage,response:ServerResponse,dependencies:Dependencies,requestId:string):Promise<boolean>{
   const path=new URL(request.url??"/","http://localhost").pathname;
@@ -73,47 +93,50 @@ export async function routeQuoteMasters(request: IncomingMessage,response:Server
   if(!actor)throw new HttpError(401,"authentication_required","Authentication is required");
   const service=createQuoteMasterService(dependencies.pool);
   const context={requestId,method:request.method,path};
-  const read=()=>requirePermission(actor.permissions,"quote.view");
+  const readAny=(...permissions: Parameters<typeof requirePermission>[1][])=>{
+    if(!permissions.some((permission)=>actor.permissions.includes(permission)))requirePermission(actor.permissions,permissions[0]);
+  };
 
   if(path==="/api/v1/quote-masters/brands"){
-    if(request.method==="GET"){read();const p=query(request,["status"]);sendJson(response,200,{brands:await service.listBrands(queryStatus(p.get("status")))});return true;}
+    if(request.method==="GET"){readAny("quote.view","settings.brand.edit","settings.salesperson.edit");const p=query(request,["status"]);sendJson(response,200,{brands:await service.listBrands(queryStatus(p.get("status")))});return true;}
     if(request.method==="POST"){const parsed=brandWrite(await readJsonBody(request),false);sendJson(response,201,{brand:await service.createBrand(actor,parsed.input,context)});return true;}
   }
   const brand=/^\/api\/v1\/quote-masters\/brands\/([^/]+)$/.exec(path);
-  if(brand){const id=pathId(brand[1]);if(request.method==="GET"){read();const value=await service.getBrand(id);if(!value)throw new HttpError(404,"quote_master_not_found","Brand was not found");sendJson(response,200,{brand:value});return true;}if(request.method==="PATCH"){const parsed=brandWrite(await readJsonBody(request),true);sendJson(response,200,{brand:await service.updateBrand(actor,id,parsed.expectedVersion!,parsed.input,context)});return true;}}
+  if(brand){const id=pathId(brand[1]);if(request.method==="GET"){readAny("quote.view","settings.brand.edit","settings.salesperson.edit");const value=await service.getBrand(id);if(!value)throw new HttpError(404,"quote_master_not_found","Brand was not found");sendJson(response,200,{brand:value});return true;}if(request.method==="PATCH"){const parsed=brandWrite(await readJsonBody(request),true);sendJson(response,200,{brand:await service.updateBrand(actor,id,parsed.expectedVersion!,parsed.input,context)});return true;}}
 
   if(path==="/api/v1/quote-masters/customer-salespeople"){
-    if(request.method==="GET"){read();const p=query(request,["status","brandId"]);sendJson(response,200,{customerSalespeople:await service.listSalespeople({status:queryStatus(p.get("status")),brandId:p.get("brandId")||undefined})});return true;}
+    if(request.method==="GET"){readAny("quote.view","settings.salesperson.edit");const p=query(request,["status","brandId"]);sendJson(response,200,{customerSalespeople:await service.listSalespeople({status:queryStatus(p.get("status")),brandId:p.get("brandId")||undefined})});return true;}
     if(request.method==="POST"){const parsed=salespersonWrite(await readJsonBody(request),false);sendJson(response,201,{customerSalesperson:await service.createSalesperson(actor,parsed.input,context)});return true;}
   }
   const salesperson=/^\/api\/v1\/quote-masters\/customer-salespeople\/([^/]+)$/.exec(path);
-  if(salesperson){const id=pathId(salesperson[1]);if(request.method==="GET"){read();const value=await service.getSalesperson(id);if(!value)throw new HttpError(404,"quote_master_not_found","Customer salesperson was not found");sendJson(response,200,{customerSalesperson:value});return true;}if(request.method==="PATCH"){const parsed=salespersonWrite(await readJsonBody(request),true);sendJson(response,200,{customerSalesperson:await service.updateSalesperson(actor,id,parsed.expectedVersion!,parsed.input,context)});return true;}}
+  if(salesperson){const id=pathId(salesperson[1]);if(request.method==="GET"){readAny("quote.view","settings.salesperson.edit");const value=await service.getSalesperson(id);if(!value)throw new HttpError(404,"quote_master_not_found","Customer salesperson was not found");sendJson(response,200,{customerSalesperson:value});return true;}if(request.method==="PATCH"){const parsed=salespersonWrite(await readJsonBody(request),true);sendJson(response,200,{customerSalesperson:await service.updateSalesperson(actor,id,parsed.expectedVersion!,parsed.input,context)});return true;}}
 
   if(path==="/api/v1/quote-masters/fabrics"){
-    if(request.method==="GET"){read();const p=query(request,["search"]);sendJson(response,200,{fabrics:await service.listFabrics((p.get("search")??"").normalize("NFKC").trim().toLocaleLowerCase("zh-CN"))});return true;}
+    if(request.method==="GET"){readAny("quote.view","settings.fabric.edit");const p=query(request,["search"]);sendJson(response,200,{fabrics:await service.listFabrics((p.get("search")??"").normalize("NFKC").trim().toLocaleLowerCase("zh-CN"))});return true;}
     if(request.method==="POST"){const parsed=fabricWrite(await readJsonBody(request),false);sendJson(response,201,{fabric:await service.createFabric(actor,parsed.input,context)});return true;}
   }
   const fabric=/^\/api\/v1\/quote-masters\/fabrics\/([^/]+)$/.exec(path);
-  if(fabric){const id=pathId(fabric[1]);if(request.method==="GET"){read();const value=await service.getFabric(id);if(!value)throw new HttpError(404,"quote_master_not_found","Fabric was not found");sendJson(response,200,{fabric:value});return true;}if(request.method==="PATCH"){const parsed=fabricWrite(await readJsonBody(request),true);sendJson(response,200,{fabric:await service.updateFabric(actor,id,parsed.expectedVersion!,parsed.input,context)});return true;}}
+  if(fabric){const id=pathId(fabric[1]);if(request.method==="GET"){readAny("quote.view","settings.fabric.edit");const value=await service.getFabric(id);if(!value)throw new HttpError(404,"quote_master_not_found","Fabric was not found");sendJson(response,200,{fabric:value});return true;}if(request.method==="PATCH"){const parsed=fabricWrite(await readJsonBody(request),true);sendJson(response,200,{fabric:await service.updateFabric(actor,id,parsed.expectedVersion!,parsed.input,context)});return true;}}
 
   if(path==="/api/v1/quote-masters/trims"){
-    if(request.method==="GET"){read();const p=query(request,["search"]);sendJson(response,200,{trims:await service.listTrims((p.get("search")??"").normalize("NFKC").trim().toLocaleLowerCase("zh-CN"))});return true;}
+    if(request.method==="GET"){readAny("quote.view","settings.trim.edit","settings.brand.edit","settings.salesperson.edit");const p=query(request,["search"]);sendJson(response,200,{trims:await service.listTrims((p.get("search")??"").normalize("NFKC").trim().toLocaleLowerCase("zh-CN"))});return true;}
     if(request.method==="POST"){const parsed=trimWrite(await readJsonBody(request),false);sendJson(response,201,{trim:await service.createTrim(actor,parsed.input,context)});return true;}
   }
   const trim=/^\/api\/v1\/quote-masters\/trims\/([^/]+)$/.exec(path);
-  if(trim){const id=pathId(trim[1]);if(request.method==="GET"){read();const value=await service.getTrim(id);if(!value)throw new HttpError(404,"quote_master_not_found","Trim was not found");sendJson(response,200,{trim:value});return true;}if(request.method==="PATCH"){const parsed=trimWrite(await readJsonBody(request),true);sendJson(response,200,{trim:await service.updateTrim(actor,id,parsed.expectedVersion!,parsed.input,context)});return true;}}
+  if(trim){const id=pathId(trim[1]);if(request.method==="GET"){readAny("quote.view","settings.trim.edit","settings.brand.edit","settings.salesperson.edit");const value=await service.getTrim(id);if(!value)throw new HttpError(404,"quote_master_not_found","Trim was not found");sendJson(response,200,{trim:value});return true;}if(request.method==="PATCH"){const parsed=trimWrite(await readJsonBody(request),true);sendJson(response,200,{trim:await service.updateTrim(actor,id,parsed.expectedVersion!,parsed.input,context)});return true;}}
 
-  if(path==="/api/v1/quote-masters/supplier-suggestions"&&request.method==="GET"){read();const p=query(request,["search"]);sendJson(response,200,{suppliers:await service.supplierSuggestions((p.get("search")??"").normalize("NFKC").trim().toLocaleLowerCase("zh-CN"))});return true;}
+  if(path==="/api/v1/quote-masters/supplier-suggestions"&&request.method==="GET"){readAny("quote.view","settings.fabric.edit","settings.trim.edit");const p=query(request,["search"]);sendJson(response,200,{suppliers:await service.supplierSuggestions((p.get("search")??"").normalize("NFKC").trim().toLocaleLowerCase("zh-CN"))});return true;}
+  if(path==="/api/v1/quote-settings/bundle"&&request.method==="PATCH"){const parsed=settingsBundleWrite(await readJsonBody(request));sendJson(response,200,await service.saveSettingsBundle(actor,parsed,context));return true;}
   if(path==="/api/v1/quote-settings"){
-    if(request.method==="GET"){read();sendJson(response,200,{settings:await service.getGlobalSettings()});return true;}
+    if(request.method==="GET"){readAny("quote.view","settings.global.edit");sendJson(response,200,{settings:await service.getGlobalSettings()});return true;}
     if(request.method==="PATCH"){const parsed=settingsWrite(await readJsonBody(request));sendJson(response,200,{settings:await service.updateGlobalSettings(actor,parsed.expectedVersion,parsed.input,context)});return true;}
   }
   if(path==="/api/v1/quote-settings/manufacturing-presets"){
-    if(request.method==="GET"){read();const p=query(request,["status"]);sendJson(response,200,{manufacturingPresets:await service.listPresets(queryStatus(p.get("status")))});return true;}
+    if(request.method==="GET"){readAny("quote.view","settings.global.edit");const p=query(request,["status"]);sendJson(response,200,{manufacturingPresets:await service.listPresets(queryStatus(p.get("status")))});return true;}
     if(request.method==="POST"){const parsed=presetWrite(await readJsonBody(request),false);sendJson(response,201,{manufacturingPreset:await service.createPreset(actor,parsed.input,context)});return true;}
   }
   const preset=/^\/api\/v1\/quote-settings\/manufacturing-presets\/([^/]+)$/.exec(path);
-  if(preset){const id=pathId(preset[1]);if(request.method==="GET"){read();const value=await service.getPreset(id);if(!value)throw new HttpError(404,"quote_master_not_found","Manufacturing preset was not found");sendJson(response,200,{manufacturingPreset:value});return true;}if(request.method==="PATCH"){const parsed=presetWrite(await readJsonBody(request),true);sendJson(response,200,{manufacturingPreset:await service.updatePreset(actor,id,parsed.expectedVersion!,parsed.input,context)});return true;}}
-  if(path==="/api/v1/quote-settings/resolved-defaults"&&request.method==="GET"){read();const p=query(request,["brandId","salespersonId"]);sendJson(response,200,{defaults:await service.resolveDefaults(p.get("brandId")||undefined,p.get("salespersonId")||undefined)});return true;}
+  if(preset){const id=pathId(preset[1]);if(request.method==="GET"){readAny("quote.view","settings.global.edit");const value=await service.getPreset(id);if(!value)throw new HttpError(404,"quote_master_not_found","Manufacturing preset was not found");sendJson(response,200,{manufacturingPreset:value});return true;}if(request.method==="PATCH"){const parsed=presetWrite(await readJsonBody(request),true);sendJson(response,200,{manufacturingPreset:await service.updatePreset(actor,id,parsed.expectedVersion!,parsed.input,context)});return true;}}
+  if(path==="/api/v1/quote-settings/resolved-defaults"&&request.method==="GET"){readAny("quote.view");const p=query(request,["brandId","salespersonId"]);sendJson(response,200,{defaults:await service.resolveDefaults(p.get("brandId")||undefined,p.get("salespersonId")||undefined)});return true;}
   throw new HttpError(404,"not_found","Route not found");
 }

@@ -88,6 +88,11 @@ test("Q3A Quote master/settings foundation uses disposable PostgreSQL 16 only",{
   await synchronizePermissionCatalog(pool);
   const actor=await seedActor(pool,"q3a-admin",["quote.view","settings.global.edit","settings.brand.edit","settings.salesperson.edit","settings.fabric.edit","settings.trim.edit"]);
   const denied=await seedActor(pool,"q3a-denied",[]);
+  const brandEditor=await seedActor(pool,"q3b1-brand",["settings.brand.edit"]);
+  const salespersonEditor=await seedActor(pool,"q3b1-sales",["settings.salesperson.edit"]);
+  const fabricEditor=await seedActor(pool,"q3b1-fabric",["settings.fabric.edit"]);
+  const trimEditor=await seedActor(pool,"q3b1-trim",["settings.trim.edit"]);
+  const globalEditor=await seedActor(pool,"q3b1-global",["settings.global.edit"]);
   const service=createQuoteMasterService(pool);
   const initialSafety=await pool.query(`SELECT
     (SELECT count(*)::int FROM sales_orders) sales_orders,
@@ -205,12 +210,56 @@ test("Q3A Quote master/settings foundation uses disposable PostgreSQL 16 only",{
   await t.test("optimistic conflict and audit failure roll back business rows atomically",async()=>{
     const brand=(await service.getBrand(brandId))!;
     await assert.rejects(()=>service.updateBrand(actor.identity,brandId,brand.version-1,{name:brand.name,status:brand.status,defaults:{defaultUsdCnyRate:brand.defaults.defaultUsdCnyRate,defaultOtherCost:brand.defaults.defaultOtherCost,defaultTrims:brand.defaults.defaultTrims.map(({trimLibraryItemId,overrideLossRate,overrideUnitPrice})=>({trimLibraryItemId,overrideLossRate,overrideUnitPrice}))}}),(error:unknown)=>(error as {status?:number}).status===409);
+    const fabric=await service.createFabric(actor.identity,{name:"并发面料",composition:"",netWidthCm:null,gsm:null,defaultLossRate:null,supplier:"",unitPrice:"1",purchaseUnit:"kg"});
+    const first=await service.updateFabric(actor.identity,fabric.id,fabric.version,{name:fabric.name,composition:"first",netWidthCm:null,gsm:null,defaultLossRate:null,supplier:"",unitPrice:"1",purchaseUnit:"kg"});
+    const auditCountBefore=(await pool.query<{n:number}>("SELECT count(*)::int n FROM operation_logs WHERE entity_type='FabricLibraryItem' AND entity_id=$1",[fabric.id])).rows[0].n;
+    await assert.rejects(()=>service.updateFabric(actor.identity,fabric.id,fabric.version,{name:fabric.name,composition:"stale",netWidthCm:null,gsm:null,defaultLossRate:null,supplier:"",unitPrice:"2",purchaseUnit:"kg"}),(error:unknown)=>(error as {status?:number}).status===409);
+    assert.deepEqual(await service.getFabric(fabric.id),first);
+    assert.equal((await pool.query<{n:number}>("SELECT count(*)::int n FROM operation_logs WHERE entity_type='FabricLibraryItem' AND entity_id=$1",[fabric.id])).rows[0].n,auditCountBefore);
     await pool.query(`CREATE FUNCTION q3a_reject_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.entity_type='Brand' AND NEW.action='新增品牌' THEN RAISE EXCEPTION 'synthetic audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER q3a_reject_audit BEFORE INSERT ON operation_logs FOR EACH ROW EXECUTE FUNCTION q3a_reject_audit();`);
     await assert.rejects(()=>service.createBrand(actor.identity,{name:"Must Roll Back",status:"active",defaults:{...emptyDefaults}}));
     assert.equal((await pool.query("SELECT count(*)::int AS n FROM quote_master_brands WHERE name='Must Roll Back'")).rows[0].n,0);
     await pool.query("DROP TRIGGER q3a_reject_audit ON operation_logs; DROP FUNCTION q3a_reject_audit()");
     const logs=await pool.query("SELECT actor_public_id::text FROM operation_logs WHERE entity_type IN ('Brand','CustomerSalesperson','FabricLibraryItem','TrimLibraryItem','ManufacturingPreset','QuoteSettings')");
     assert.ok((logs.rowCount??0)>=10);assert.ok(logs.rows.every((row)=>row.actor_public_id===actor.identity.userId));
+  });
+
+  await t.test("global settings bundle commits settings, presets and trusted audit atomically",async()=>{
+    const beforeSettings=(await service.getGlobalSettings())!;
+    const beforePresets=await service.listPresets();
+    const existing=beforePresets.map((preset)=>({
+      id:preset.id,expectedVersion:preset.version,name:preset.name,country:preset.country,laborCurrency:preset.laborCurrency,
+      markupRate:preset.markupRate,includeFreight:preset.includeFreight,freightName:preset.freightName,freightAmount:preset.freightAmount,status:preset.status,
+    }));
+    const saved=await service.saveSettingsBundle(actor.identity,{
+      expectedSettingsVersion:beforeSettings.version,
+      settings:{defaultUsdCnyRate:"0",defaultMarkupRate:null,defaultLaborCurrency:"USD",defaultLaborDescription:"bundle",defaultOtherCost:{name:"Bundle fee",amount:"0"},defaultManufacturingPresetId:"new-client-preset"},
+      manufacturingPresets:[...existing,{clientId:"new-client-preset",name:"Bundle preset",country:"中国",laborCurrency:"CNY",markupRate:"0",includeFreight:false,freightName:"运费",freightAmount:null,status:"active"}],
+    });
+    const createdId=saved.createdPresetIds["new-client-preset"];
+    assert.match(createdId,/^[0-9a-f-]{36}$/i);
+    assert.equal(saved.settings.defaultManufacturingPresetId,createdId);
+    assert.ok(saved.manufacturingPresets.some((preset)=>preset.id===createdId));
+    assert.equal((await auditForVersion(pool,"QuoteSettings","global",saved.settings.version)).actor_public_id,actor.identity.userId);
+    assert.equal((await auditForVersion(pool,"ManufacturingPreset",createdId,saved.manufacturingPresets.find((preset)=>preset.id===createdId)!.version)).actor_public_id,actor.identity.userId);
+
+    const stableSettings=(await service.getGlobalSettings())!;
+    const stablePreset=(await service.getPreset(createdId))!;
+    const all=await service.listPresets();
+    const staleInputs=all.map((preset)=>({id:preset.id,expectedVersion:preset.id===createdId?preset.version-1:preset.version,name:preset.name,country:preset.country,laborCurrency:preset.laborCurrency,markupRate:preset.markupRate,includeFreight:preset.includeFreight,freightName:preset.freightName,freightAmount:preset.freightAmount,status:preset.status}));
+    const settingsAuditBefore=(await pool.query<{n:number}>("SELECT count(*)::int n FROM operation_logs WHERE entity_type='QuoteSettings' AND entity_id='global'")).rows[0].n;
+    await assert.rejects(()=>service.saveSettingsBundle(actor.identity,{expectedSettingsVersion:stableSettings.version,settings:{defaultUsdCnyRate:"9",defaultMarkupRate:stableSettings.defaultMarkupRate,defaultLaborCurrency:stableSettings.defaultLaborCurrency,defaultLaborDescription:"must rollback",defaultOtherCost:stableSettings.defaultOtherCost,defaultManufacturingPresetId:stableSettings.defaultManufacturingPresetId},manufacturingPresets:staleInputs}),(error:unknown)=>(error as {status?:number}).status===409);
+    assert.deepEqual(await service.getGlobalSettings(),stableSettings);
+    assert.deepEqual(await service.getPreset(createdId),stablePreset);
+    assert.equal((await pool.query<{n:number}>("SELECT count(*)::int n FROM operation_logs WHERE entity_type='QuoteSettings' AND entity_id='global'")).rows[0].n,settingsAuditBefore);
+
+    const rollbackPresets=await service.listPresets();
+    const rollbackInputs=rollbackPresets.map((preset)=>({id:preset.id,expectedVersion:preset.version,name:preset.id===createdId?`${preset.name} rejected`:preset.name,country:preset.country,laborCurrency:preset.laborCurrency,markupRate:preset.markupRate,includeFreight:preset.includeFreight,freightName:preset.freightName,freightAmount:preset.freightAmount,status:preset.status}));
+    await pool.query(`CREATE FUNCTION q3b1_reject_bundle_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.entity_type='QuoteSettings' THEN RAISE EXCEPTION 'synthetic bundle audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER q3b1_reject_bundle_audit BEFORE INSERT ON operation_logs FOR EACH ROW EXECUTE FUNCTION q3b1_reject_bundle_audit();`);
+    await assert.rejects(()=>service.saveSettingsBundle(actor.identity,{expectedSettingsVersion:stableSettings.version,settings:{defaultUsdCnyRate:"8",defaultMarkupRate:stableSettings.defaultMarkupRate,defaultLaborCurrency:stableSettings.defaultLaborCurrency,defaultLaborDescription:"audit rollback",defaultOtherCost:stableSettings.defaultOtherCost,defaultManufacturingPresetId:stableSettings.defaultManufacturingPresetId},manufacturingPresets:rollbackInputs}));
+    await pool.query("DROP TRIGGER q3b1_reject_bundle_audit ON operation_logs; DROP FUNCTION q3b1_reject_bundle_audit()");
+    assert.deepEqual(await service.getGlobalSettings(),stableSettings);
+    assert.deepEqual(await service.getPreset(createdId),stablePreset);
   });
 
   await t.test("HTTP surface requires trusted session, rejects caller ID/actor spoof and preserves permission boundaries",async()=>{
@@ -228,6 +277,29 @@ test("Q3A Quote master/settings foundation uses disposable PostgreSQL 16 only",{
       const spoof=await fetch(`${base}/api/v1/quote-masters/brands`,{method:"POST",headers:{"Content-Type":"application/json",Origin:origin,"X-Zhixu-Request":"1",Cookie:cookie},body:JSON.stringify({id:"caller",actor:{userId:"spoof"},name:"Spoof"})});
       assert.equal(spoof.status,400);
       const read=await fetch(`${base}/api/v1/quote-settings/resolved-defaults?brandId=${brandId}&salespersonId=${salespersonId}`,{headers:{Cookie:cookie}});assert.equal(read.status,200);
+
+      const loginCookie=async(user:typeof brandEditor)=>{
+        const response=await fetch(`${base}/api/v1/auth/login`,{method:"POST",headers:{"Content-Type":"application/json",Origin:origin,"X-Zhixu-Request":"1"},body:JSON.stringify({username:user.identity.username,password:user.password})});
+        assert.equal(response.status,200);return response.headers.get("set-cookie")?.split(";",1)[0]??"";
+      };
+      const brandCookie=await loginCookie(brandEditor);
+      assert.equal((await fetch(`${base}/api/v1/quote-masters/brands`,{headers:{Cookie:brandCookie}})).status,200);
+      assert.equal((await fetch(`${base}/api/v1/quote-masters/trims`,{headers:{Cookie:brandCookie}})).status,200);
+      const salespersonCookie=await loginCookie(salespersonEditor);
+      assert.equal((await fetch(`${base}/api/v1/quote-masters/brands`,{headers:{Cookie:salespersonCookie}})).status,200);
+      assert.equal((await fetch(`${base}/api/v1/quote-masters/customer-salespeople`,{headers:{Cookie:salespersonCookie}})).status,200);
+      const fabricCookie=await loginCookie(fabricEditor);
+      assert.equal((await fetch(`${base}/api/v1/quote-masters/fabrics`,{headers:{Cookie:fabricCookie}})).status,200);
+      assert.equal((await fetch(`${base}/api/v1/quote-masters/supplier-suggestions`,{headers:{Cookie:fabricCookie}})).status,200);
+      const trimCookie=await loginCookie(trimEditor);
+      assert.equal((await fetch(`${base}/api/v1/quote-masters/trims`,{headers:{Cookie:trimCookie}})).status,200);
+      assert.equal((await fetch(`${base}/api/v1/quote-masters/supplier-suggestions`,{headers:{Cookie:trimCookie}})).status,200);
+      const globalCookie=await loginCookie(globalEditor);
+      assert.equal((await fetch(`${base}/api/v1/quote-settings`,{headers:{Cookie:globalCookie}})).status,200);
+      assert.equal((await fetch(`${base}/api/v1/quote-settings/manufacturing-presets`,{headers:{Cookie:globalCookie}})).status,200);
+      const beforeInvalid=(await service.getGlobalSettings())!;
+      const invalid=await fetch(`${base}/api/v1/quote-settings/bundle`,{method:"PATCH",headers:{"Content-Type":"application/json",Origin:origin,"X-Zhixu-Request":"1",Cookie:globalCookie},body:JSON.stringify({expectedVersion:beforeInvalid.version,settings:{defaultUsdCnyRate:beforeInvalid.defaultUsdCnyRate,defaultMarkupRate:beforeInvalid.defaultMarkupRate,defaultLaborCurrency:beforeInvalid.defaultLaborCurrency,defaultLaborDescription:beforeInvalid.defaultLaborDescription,defaultOtherCost:beforeInvalid.defaultOtherCost,defaultManufacturingPresetId:beforeInvalid.defaultManufacturingPresetId},manufacturingPresets:[{clientId:"invalid",name:"",country:"中国",laborCurrency:"CNY",markupRate:null,includeFreight:false,freightName:"运费",freightAmount:null,status:"active"}]})});
+      assert.equal(invalid.status,400);assert.deepEqual(await service.getGlobalSettings(),beforeInvalid);
     }finally{await new Promise<void>((done,reject)=>server.close((error)=>error?reject(error):done()));}
   });
 

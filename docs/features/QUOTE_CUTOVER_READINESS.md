@@ -33,7 +33,7 @@ The labels used below are intentional:
 | Q2B1 shadow read | Complete on isolated Server preview/detail routes. | Engineering workspace only. |
 | Q2B2A existing-Quote writer | Complete on isolated Server edit route with exact decimal bridge and conflict handling. | Deliberately omits major production editor capabilities. |
 | Q2B2B creation/numbering | Complete after PR #44. Server-only runtime identity/numbering and `0006` are merged. | Isolated lazy-create workspace only; real `0006` not applied. |
-| Q3 Server masters/settings | Q3A schema/repository/service/typed API/RBAC/audit foundation is disposable-validated. | **BLOCKER remains for Q3B UI adapter, real-data preview/import and separately authorized activation.** |
+| Q3 Server masters/settings | Q3A foundation plus Q3B1 isolated same-UI Server candidate, exact decimal adapter, atomic settings bundle and pure migration preview are disposable-validated. | **BLOCKER remains for Q3B2 real-backup preview/rehearsal, import, production Quote integration and separately authorized activation/cutover.** |
 | Q4 Server attachments | Not implemented. | **BLOCKER.** |
 | Q5 migration preview/rehearsal | Not implemented. | **BLOCKER.** |
 | Real Quote production cutover | Not complete. | No real Quote business write performed. |
@@ -59,7 +59,7 @@ It does not mean promoting the reduced Server test pages into production UI. The
 - Production components import concrete Browser repositories directly instead of depending on a production-swappable aggregate/master/attachment interface.
 - `QuoteList` loads every complete aggregate and computes search, filters, metrics and selection client-side. Q2A list returns only `id`, `quoteCode`, `defaultRevisionId`, `version`, and a page count.
 - `QuoteEditor` combines pure domain behavior with Browser repositories for Quote save, master/settings mutation, attachment blobs, audit, identity and Quote-to-Order.
-- AppShell Server mode proves trusted identity but hides settings and global search because those consumers are still Browser-owned. Production convergence cannot simply turn this mode on without completing Q3 and Server search/settings adapters.
+- AppShell Server mode now provides bounded navigation among the five isolated Q3B1 settings candidates while keeping unrelated Browser-authorized controls hidden. Production convergence still cannot simply turn this mode on: real master migration, Quote editor/list integration, global search and later cutover gates remain incomplete.
 - The isolated Server writer is intentionally reduced; using it as the production editor would discard accepted functionality.
 
 ## Production Quote list audit
@@ -149,7 +149,7 @@ Historical Quote readability and new-Quote live authority are different concerns
 
 Q0 durable evidence records 8 Quotes / 9 Revisions / 12 PriceVersions, no aggregate corruption blocker, zero Estimate records, dangling optional brand/salesperson references with intact names, valid duplicate material names, and missing country/preset in some snapshots. Exact Q0 master counts are not reproduced in durable repository docs and must be re-read from a fresh authorized backup during Q5A rather than guessed here.
 
-**Q3 PRODUCTION BLOCKER = YES.** Q3A now provides the isolated Server authority foundation, but new Quote creation, master switching, library selection, defaults and quick-create still use Browser repositories until Q3B integration plus later migration/activation gates complete.
+**Q3 PRODUCTION BLOCKER = YES.** Q3B1 proves the existing settings UI against Server authority on isolated candidate routes, including quick Trim create and atomic global settings save. Production settings and Quote creation/editor still use Browser repositories; Q3B2 real-backup preview/rehearsal, import/reconciliation, Quote-side production adapters and later activation/cutover gates remain incomplete.
 
 ## Q4 attachment and Object Storage audit
 

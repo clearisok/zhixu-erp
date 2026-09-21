@@ -31,6 +31,7 @@ export type ManufacturingPreset = {
   includeFreight: boolean;
   freightName: string;
   freightAmount: NullableNumber;
+  status?: "active" | "inactive";
 };
 
 export const defaultManufacturingPresets: ManufacturingPreset[] = [
@@ -163,6 +164,7 @@ function normalizeManufacturingPresets(value: unknown): ManufacturingPreset[] {
       includeFreight: item.includeFreight === true,
       freightName: typeof item.freightName === "string" && item.freightName.trim() ? item.freightName.trim() : "运费",
       freightAmount: nullableNumber(item.freightAmount, null),
+      status: item.status === "inactive" ? "inactive" : "active",
     }];
   });
 }

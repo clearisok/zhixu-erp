@@ -1,8 +1,10 @@
 # 权限系统
 
-## Q3A Quote master/settings Server authority
+## Q3A/Q3B1 Quote master/settings Server authority
 
-Q3A reuses the existing catalog without a new super-permission. Trusted reads require `quote.view`; mutations require exactly `settings.global.edit`, `settings.brand.edit`, `settings.salesperson.edit`, `settings.fabric.edit`, or `settings.trim.edit` for their domain. Authorization uses the Server session permission set, never role names or Browser PermissionProvider. Mutation routes also require the existing exact same-origin boundary; caller ID/actor/role/permission fields are rejected. Production Basic Settings UI remains Browser-owned until Q3B and cannot grant Server authority.
+Q3A/Q3B1 reuse the existing catalog without a new super-permission. Reads use endpoint-specific any-of authorization: Brands allow `quote.view|settings.brand.edit|settings.salesperson.edit`; CustomerSalespeople allow `quote.view|settings.salesperson.edit`; Fabrics allow `quote.view|settings.fabric.edit`; Trims allow `quote.view|settings.trim.edit|settings.brand.edit|settings.salesperson.edit`; supplier suggestions allow `quote.view|settings.fabric.edit|settings.trim.edit`; global settings/presets allow `quote.view|settings.global.edit`; resolved defaults remain `quote.view`. Mutations still require the exact owning settings-edit permission.
+
+The isolated Q3B1 candidate pages bind foundation permission controls to `ServerSession.hasPermission()` via `PermissionAuthorityProvider`; Browser roles cannot authorize a Server mutation. 401 invalidates the Server session, while 403/network fail closed without Browser fallback. Production Basic Settings routes remain Browser-owned and unchanged until a later authorized cutover.
 
 ## Q2B2B Server Quote create authority
 
