@@ -35,7 +35,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
 export type QuoteServerClient = {
   list(query?: { limit?: number; offset?: number }): Promise<{ quotes: QuoteServerListItem[]; page: QuoteServerPage }>;
   getById(quoteId: string): Promise<QuoteRecord>;
-  create(quote: ServerQuote): Promise<QuoteRecord>;
+  create(): Promise<QuoteRecord>;
   save(quote: ServerQuote, expectedVersion: number): Promise<QuoteRecord>;
 };
 
@@ -62,8 +62,8 @@ export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?:
     getById(quoteId) {
       return request<{ quote: QuoteRecord }>(`/api/v1/quotes/${encodeURIComponent(quoteId)}`).then((payload) => payload.quote);
     },
-    create(quote) {
-      return mutation("POST", "/api/v1/quotes", { quote });
+    create() {
+      return mutation("POST", "/api/v1/quotes", {});
     },
     save(quote, expectedVersion) {
       return mutation("PUT", `/api/v1/quotes/${encodeURIComponent(quote.id)}`, { quote, expectedVersion });

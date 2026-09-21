@@ -1,12 +1,19 @@
 # Quote Center
 
+## Q2B2B isolated Server new Quote (not Browser cutover)
+
+- `/quote-center/server-new` uses `AppShell identityMode="server"`, trusted Server Session and scoped `quote.create`. It does not authorize through Browser PermissionProvider. The preview navigation entry is visible only with trusted `quote.create` and only navigates to the preparation page.
+- Opening the route performs zero POST and `LocalDataBootstrap` skips that exact path. Only the explicit “创建 Server 报价草稿” action calls `POST /api/v1/quotes` with `{}`; pending disables double submit. Success redirects to `/quote-center/server-edit?id=<Server UUID>`. 401 invalidates Server session, 403 is explicit, and an ambiguous network outcome disables repeat creation until the Server list is checked; there is no hidden retry or Browser fallback.
+- Browser cannot enter Quote ID, business number, date or suffix. The Server creates UUID identities, `QT-YYYY-MMDD-NNN` with Asia/Shanghai date, neutral draft fields and trusted `createdBy`. The page reads no `mockQuoteRepository`, Browser masters/settings, Browser OperationLog, IndexedDB attachments or OrderRepository.
+- This route does not create attachment metadata, ConfirmedCommercialTerms or SalesOrder data. Production `/quote-center`, `/quote-center/detail` and `/quote-center/new` remain Browser/local. Q3/Q4/Q5 and production single-login/writer cutover remain incomplete.
+
 ## Q2B2A isolated Server writer (not Browser cutover)
 
 - `/quote-center/server-edit?id=<quoteId>` is a clearly labeled test workspace for an EXISTING Server Quote. It loads and saves only through a dedicated typed adapter over Q2A `GET`/`PUT`; it does not reuse the Browser `QuoteEditor` or its repository/audit/attachment/master/Order side effects.
 - The workspace uses trusted Server Session identity and a scoped Server permission authority. `quote.view` controls load, `quote.edit` controls aggregate save, and Server-side Q2A checks retain the finer cost/settings/workflow permissions. Browser test users and Browser PermissionProvider cannot grant Server edit.
 - Server decimal strings enter the Browser numeric model only after exact canonical round-trip proof. Unsafe precision fails the whole edit projection closed. Successful PUT adopts the returned aggregate/version; a stale `expectedVersion` leaves dirty state visible and offers only an explicitly confirmed reload, never auto-overwrite/retry.
 - Q2B2A edits a deliberately narrow existing default Revision surface. Attachments, Browser master resolution/quick create, delete, export, Quote-to-Order, new Quote, destructive advanced workflows and confirmation mutation are unavailable. Existing attachment references, historical snapshots and C4.2 current terms are preserved.
-- Dirty navigation and `beforeunload` remain guarded; save-and-leave performs Server PUT only. The exact route skips `LocalDataBootstrap`. Production `/quote-center`, `/quote-center/detail` and `/quote-center/new` remain Browser/local, and Server new-Quote creation/numbering is deferred to Q2B2B.
+- Dirty navigation and `beforeunload` remain guarded; save-and-leave performs Server PUT only. The exact route skips `LocalDataBootstrap`. Production `/quote-center`, `/quote-center/detail` and `/quote-center/new` remain Browser/local; Q2B2B adds only the isolated Server new workspace described above.
 
 ## Q2B1 Server shadow read (not Browser cutover)
 
@@ -17,7 +24,7 @@
 
 ## Q2A Server API foundation
 
-- Q2A adds typed Server list/detail/create/full-replacement-save contracts backed by the existing Q1 aggregate repository. The API preserves stable Quote/Revision/PriceVersion/cost/Estimate IDs, decimal strings, null versus zero, immutable history and optimistic aggregate version.
+- Q2A adds typed Server list/detail/full-replacement-save contracts backed by the existing Q1 aggregate repository. Q2B2B replaces caller-supplied runtime aggregate creation with Server-owned `{}` → neutral draft creation while preserving Q1's internal exact aggregate path for future migration. The API preserves stable Quote/Revision/PriceVersion/cost/Estimate IDs, decimal strings, null versus zero, immutable history and optimistic aggregate version.
 - A same-origin `quote-server-client` and `quote-server-repository` foundation uses `credentials: include`, `cache: no-store`, and the existing mutation boundary headers. It is deliberately not imported by the current Quote list/editor.
 - Current `/quote-center` runtime remains `mockQuoteRepository` + localStorage, including existing Browser confirmation and attachment behavior. No page load performs Server Quote writes or migration. Q2B2 owns the separately gated writer integration/cutover.
 

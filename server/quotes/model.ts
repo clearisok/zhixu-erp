@@ -39,6 +39,7 @@ export function validateQuote(quote: ServerQuote): void {
 /** Q1 aggregate save preserves every existing history row and its ordering. */
 export function validateQuoteReplacement(previous: ServerQuote, next: ServerQuote): void {
   requireInvariant(previous.id === next.id, "Quote identity immutable");
+  requireInvariant(previous.quoteCode === next.quoteCode, "Quote code immutable");
   for (const [index, revision] of previous.revisions.entries()) {
     const replacement = next.revisions[index];
     requireInvariant(replacement?.revisionId === revision.revisionId, "Revision removal/reordering forbidden");

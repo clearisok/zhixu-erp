@@ -36,14 +36,21 @@ Browser
 - `GET|PATCH /api/v1/sales-orders/:id/confirmed-commercial-terms`（分别需要 `order.view` / `order.edit`）
 - `GET|PATCH /api/v1/quotes/:quoteId/revisions/:revisionId/price-versions/:priceVersionId/confirmed-commercial-terms`（分别需要 `quote.view` / `quote.confirm`；只按 exact provenance resolve）
 - `GET /api/v1/quotes`、`GET /api/v1/quotes/:quoteId`（需要 `quote.view`）
-- `POST /api/v1/quotes`（需要 `quote.create`）
+- `POST /api/v1/quotes`（需要 `quote.create`；runtime body 只能是 `{}`，ID/code/timestamps/actor 由 Server 决定）
 - `PUT /api/v1/quotes/:quoteId`（全 aggregate replacement，要求 `quote.edit`、`expectedVersion`，并按实际变化追加现有细粒度权限）
 
 错误统一返回 `{ error: { code, message, requestId } }`。Health 只有在 PostgreSQL `SELECT 1` 成功时返回 200/ready，数据库不可用时返回 503，不伪报健康。SalesOrder read API 对非法 list query、未登录、无 `order.view` 和不存在的 ID 分别返回 400、401、403、404；返回 typed composed DTO，不直接暴露数据库行、source hash、source metadata 或 raw payload。List 仅暴露 `colorCount`，完整颜色行只在 detail 返回。API 不接受 SQL、表名、数据库操作名、actor userId、role 或授权结果；未知 `/api/*` 路径返回结构化 404。
 
 ConfirmedCommercialTerms mutation 使用 decimal string + `expectedVersion` typed body，要求 normal trusted cookie、exact allowlisted Origin 与 `X-Zhixu-Request: 1`。未知字段（包括 actor/user/role spoof）拒绝为 400；stale version 为 409。Quote provenance 未关联时 read 返回显式 `unlinked`，write fail closed 为 409，绝不 fuzzy match 或创建 SalesOrder。
 
-Q2A Quote create/save 复用 Q1 repository，POST/PUT 还要求 exact Origin 与 `X-Zhixu-Request: 1`。PUT 是完整 aggregate replacement，不是任意字段 SQL PATCH；stale 返回 409，历史 Revision/Estimate mutation 返回 409。DTO 保留 decimal string、stable IDs、null/zero。成功的真实 mutation 与一条 bounded Quote OperationLog 在同一 transaction 提交；审计失败整体回滚，无变化 PUT 不递增版本或写日志。没有 DELETE、附件 binary、master transfer、Browser cutover 或新 migration。
+Q2A/Q2B2B Quote create/save 复用 Q1 repository，POST/PUT 还要求 exact Origin 与 `X-Zhixu-Request: 1`。Runtime POST 只接受 `{}`，由 Server transaction 分配 UUID、`quoteCode`、neutral draft 和 trusted OperationLog；Q1 exact aggregate create remains internal for future migration. PUT 是完整 aggregate replacement，不是任意字段 SQL PATCH；stale、历史 Revision/Estimate mutation 或 `quoteCode` mutation 返回 409。DTO 保留 decimal string、stable IDs、null/zero。成功 mutation 与一条 bounded Quote OperationLog 同 transaction 提交；审计失败回滚 Quote，但 sequence 的已消费值不回收。没有 DELETE、附件 binary、master transfer 或 Browser cutover。
+
+## Q2B2B Quote numbering and runtime create
+
+- Forward-only `0006_quote_number_sequence.sql` creates `quote_center_quote_number_seq AS BIGINT MINVALUE 1 INCREMENT 1 NO CYCLE`, calibrates its next value to max valid existing `QT-YYYY-MMDD-<suffix>` + 1 (or 1), and adds exact `quote_code` uniqueness plus an immutable-update trigger. It never rewrites unusual historical codes; pre-existing duplicates make the migration transaction fail and leave ledger/data unchanged.
+- The Quote Center sequence is deliberately separate from legacy root ERP `quote_number_seq`. New runtime numbers use one global non-resetting suffix and Server creation date interpreted in `Asia/Shanghai`; minimum width is three, values above 999 expand, and occupied exact candidates are skipped by consuming the next sequence value.
+- Runtime create atomically allocates the number, constructs one neutral Server draft, persists its full child graph and appends trusted OperationLog. Initial Quote/Revision/PriceVersion IDs use Server UUIDs; `createdBy` comes from `TrustedIdentity`. Browser masters/settings/clock are absent. Audit failure rolls back all Quote rows, while PostgreSQL `nextval` deliberately leaves a permanent gap.
+- Normal startup with pending 0006 fails before permission sync, admin bootstrap or listen and does not create the sequence/constraint/trigger. Only separately authorized `npm run db:migrate` can activate it. Q2B2B validation applies 0006 only to disposable PostgreSQL; real 0004/0005/0006 and real Quote writes remain unexecuted.
 
 ## Phase C4.2 ConfirmedCommercialTerms implementation
 

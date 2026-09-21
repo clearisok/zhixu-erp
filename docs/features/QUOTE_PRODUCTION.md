@@ -6,6 +6,15 @@
 
 这是架构和 rollout 决策，不是实现完成声明。本文不授权 migration、真实数据写入、部署、Browser 数据修改或 C4.2 activation。
 
+## Q2B2B Server creation and numbering foundation
+
+- D-088 is user-confirmed: runtime Server Quote IDs and business numbers are Server-only. `quoteCode` uses `QT-YYYY-MMDD-NNN`, Server `Asia/Shanghai` date and one global non-resetting BIGINT sequence; minimum width is 3, values above 999 expand, rollback gaps are allowed and never reclaimed. The code is immutable and exact-unique.
+- `0006_quote_number_sequence.sql` adds the isolated `quote_center_quote_number_seq`, max-valid-suffix calibration, unique constraint and DB immutability trigger. The distinct sequence name is required because legacy root ERP already owns an unrelated `quote_number_seq`.
+- Runtime `POST /api/v1/quotes` accepts `{}` only. Trusted `quote.create` creates a Server UUID aggregate with one UUID Revision/PriceVersion, neutral structural defaults, trusted `createdBy`, Server time and one transactional OperationLog. It does not read Browser masters/settings or create attachment, ConfirmedCommercialTerms or SalesOrder data.
+- `/quote-center/server-new` is an isolated lazy-create workspace: page open writes nothing; only an explicit click creates and redirects to Server edit. Production `/quote-center/new` remains Browser/local. Real 0004/0005/0006, Quote import and production writer cutover are not executed.
+
+Before Q5 import, source IDs/codes must be preserved exactly, duplicate legacy `quoteCode` must fail closed, and the Server sequence must be calibrated after import. Historical aggregates use the internal Q1 import boundary, never the runtime allocator. Q3 master/settings and Q4 attachments remain separate prerequisites.
+
 ## Confirmed Direction
 
 以下方向均为 **USER CONFIRMED**，不是 AI 建议：
@@ -27,7 +36,7 @@ Quote Production v1 在启用前至少需要以下能力达到 production-grade�
 - PostgreSQL 与 Object Storage 协同的 backup/restore、完整性校验和恢复演练；
 - Quote production Browser acceptance、安全验证与运营交接。
 
-这些是生产启用目标条件。Q1 已实现下述 Quote Server/PostgreSQL foundation，Q2A 已实现 trusted typed API 与 aggregate writer；二者都只通过 disposable PostgreSQL 验证。Browser writer/single-login cutover、Server attachment pipeline、真实 migration 与 Quote production deployment 仍未实现，也未购买或冻结任何服务器方案。
+这些是生产启用目标条件。Q1 已实现下述 Quote Server/PostgreSQL foundation，Q2A 已实现 trusted typed API 与 aggregate writer，Q2B1/Q2B2A/Q2B2B 已实现隔离的 Server read、existing-Quote edit 与 Server lazy-create/numbering workspace；这些只通过 disposable PostgreSQL 验证。Production Browser writer/single-login cutover、Server attachment pipeline、真实 migration 与 Quote production deployment 仍未实现，也未购买或冻结任何服务器方案。
 
 ## Authentication Target
 

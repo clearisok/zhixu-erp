@@ -222,6 +222,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
       const columnsBefore = await pool.query<{ column_name: string }>(
         "SELECT column_name FROM information_schema.columns WHERE table_name = 'quotes' ORDER BY ordinal_position",
       );
+      const legacyQuoteSequenceBefore = (await pool.query("SELECT last_value::text,is_called FROM quote_number_seq")).rows[0];
       const directory = resolve("database/migrations");
       const first = await runMigrations(pool, directory);
       assert.deepEqual(first.applied, [
@@ -230,6 +231,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         "0003_sales_order_number_sequence.sql",
         "0004_confirmed_commercial_terms.sql",
         "0005_quote_foundation.sql",
+        "0006_quote_number_sequence.sql",
       ]);
       const identity = await pool.query<{ public_id: string }>("SELECT public_id::text FROM app_users WHERE username = 'legacy-user'");
       assert.match(identity.rows[0].public_id, /^[0-9a-f-]{36}$/);
@@ -237,6 +239,8 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         "SELECT column_name FROM information_schema.columns WHERE table_name = 'quotes' ORDER BY ordinal_position",
       );
       assert.deepEqual(columns.rows, columnsBefore.rows);
+      assert.deepEqual((await pool.query("SELECT last_value::text,is_called FROM quote_number_seq")).rows[0], legacyQuoteSequenceBefore);
+      assert.equal((await pool.query("SELECT to_regclass('public.quote_center_quote_number_seq')::text AS name")).rows[0].name, "quote_center_quote_number_seq");
       assert.equal((await pool.query("SELECT to_regprocedure('api_dispatch(text,text,jsonb,text)') AS function")).rows[0].function, "api_dispatch(text,text,jsonb,text)");
       await runMigrations(pool, directory);
       const stable = await pool.query<{ public_id: string }>("SELECT public_id::text FROM app_users WHERE username = 'legacy-user'");
@@ -289,6 +293,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         "0003_sales_order_number_sequence.sql",
         "0004_confirmed_commercial_terms.sql",
         "0005_quote_foundation.sql",
+        "0006_quote_number_sequence.sql",
       ]);
       const tables = await pool.query<{ table_name: string }>(
         `SELECT table_name FROM information_schema.tables

@@ -128,8 +128,8 @@ export function ServerQuotePreviewPage() {
 
   return (
     <ServerQuoteFrame count={`本页 ${page.count} 条`}>
-      <AlertBanner tone="info" title="Shadow read · source = PostgreSQL" actions={<Button variant="text" onClick={() => void logout()}>退出 Server 会话</Button>}>
-        Server identity：{trustedIdentity}。此隔离页面没有 Quote 创建、保存、删除或 Browser fallback。
+      <AlertBanner tone="info" title="Shadow read · source = PostgreSQL" actions={<>{serverSession.hasPermission("quote.create") && <Link className="qc-server-quote-link" href="/quote-center/server-new">新建 Server 报价草稿</Link>}<Button variant="text" onClick={() => void logout()}>退出 Server 会话</Button></>}>
+        Server identity：{trustedIdentity}。新建入口只导航到 lazy-create 准备页，不会在此处创建 Quote。
       </AlertBanner>
       {sessionActionError && <ErrorState description={sessionActionError} />}
       {loading ? (

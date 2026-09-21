@@ -1,5 +1,11 @@
 # 权限系统
 
+## Q2B2B Server Quote create authority
+
+`/quote-center/server-new` and runtime `POST /api/v1/quotes` require a trusted Server Session with `quote.create`; Browser PermissionProvider roles cannot grant this action. The POST body is `{}` only, so actor, `createdBy`, Quote ID and `quoteCode` cannot be supplied by the caller. The Server derives actor/createdBy from the trusted identity and commits the Quote plus one OperationLog atomically.
+
+Opening the isolated page does not call POST. The explicit action is pending-disabled, 401 invalidates Server session, 403 remains explicit, and ambiguous network outcomes do not auto-retry or fall back to Browser. No new permission or role-name/superuser bypass was added. Production Browser Quote routes continue their existing mock permission behavior until a later separately authorized cutover.
+
 ## Q2B2A Server Quote writer authority
 
 `/quote-center/server-edit` uses `ServerSession.hasPermission()` as the scoped authority for its own controls and foundation `Button permission=` / `PermissionGuard` decisions. The Browser PermissionProvider remains the default only outside that bounded scope and cannot grant Server Quote edit. Load requires trusted `quote.view`; save requires trusted `quote.edit`, while the Server Q2A diff enforcement still requires `quote.cost.edit`, `quote.settings.edit` and the existing workflow-specific permissions when those slices change. A 401 invalidates only the Server session without clearing in-memory dirty state; 403 remains fail closed. No Browser role mapping or super-permission was introduced.

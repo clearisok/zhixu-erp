@@ -174,6 +174,9 @@
 
 ### 报价识别展示
 
+- 新 runtime Server Quote 的技术 ID、初始 Revision/PriceVersion ID 均由 Server 生成；业务编号也仅由 Server 生成，Browser/API caller 不得提供或修改。编号创建后 immutable 且数据库 exact unique。
+- Server Quote 编号格式固定为 `QT-YYYY-MMDD-NNN`：日期来自 Server creation instant 的 `Asia/Shanghai` 日历日期；数字后缀来自一个 Quote Center 全局 BIGINT sequence，永不按日重置，至少三位、超过 999 自然扩展。失败/rollback 可留下永久 gap，已消费号码不得回收。
+- 历史 Browser Quote 的未来 Q5 import 必须原样保留现有 ID 与 `quoteCode`；import 前发现 duplicate legacy `quoteCode` 必须 fail closed，不能重编号、加后缀或静默去重。import 后按最大合法 suffix 校准 sequence，runtime candidate 已占用时跳到下一 sequence 值，不改历史行。
 - `Quote.quoteCode` 保留在模型、repository、搜索、日志、调试与导出 filename fallback 中，不删除或改作款号。
 - 常规报价详情标题、Sticky 摘要、全局搜索/最近访问卡片和移动报价卡以款号、款式名称和报价版本识别，不主动展示 `quoteCode`。
 - 报价中心“报价编号”仍是可配置列；新用户默认隐藏，已有用户个人列偏好不被强制覆盖。
@@ -202,8 +205,8 @@
 
 ### 保存、确认与删除
 
-- 新建报价在未保存前只存在于内存；直接返回不创建报价记录。
-- 当前保存使用 mock repository，并不写入 PostgreSQL。
+- 新建报价页面必须保持 Lazy Create；仅打开页面不创建记录。隔离 Server 新建页也只有用户明确点击后才调用 runtime POST。
+- Production Browser Quote 保存当前仍使用 mock repository/localStorage；Q2B2B 的隔离 Server 新建/编辑工作区写 PostgreSQL，但不构成 production cutover。
 - 客户确认属于单个 PriceVersion，保存报价值和确认值快照。
 - 确认状态可汇总为报价中、部分确认、已确认。
 - 当前 mock repository 可以硬删除报价，但接口已预留 soft delete 语义；不要把硬删除行为推断为未来后端规则。

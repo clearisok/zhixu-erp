@@ -52,7 +52,6 @@ const commercialTermsInputKeys = new Set([
   "confirmedLaborPrice",
   "laborCurrency",
 ]);
-const quoteCreateInputKeys = new Set(["quote"]);
 const quoteSaveInputKeys = new Set(["quote", "expectedVersion"]);
 
 function commercialAmount(value: unknown, label: string): string | null {
@@ -163,9 +162,8 @@ function quoteListQuery(requestUrl: string | undefined) {
   return { limit, offset: parse("offset", 0, 0) };
 }
 
-function quoteBody(body: Record<string, unknown>, mode: "create" | "save"): { quote: ServerQuote; expectedVersion?: number } {
-  const allowed = mode === "create" ? quoteCreateInputKeys : quoteSaveInputKeys;
-  if (Object.keys(body).some((key) => !allowed.has(key))) {
+function quoteBody(body: Record<string, unknown>): { quote: ServerQuote; expectedVersion: number } {
+  if (Object.keys(body).some((key) => !quoteSaveInputKeys.has(key))) {
     throw new HttpError(400, "invalid_quote_request", "Request contains unsupported fields");
   }
   if (!body.quote || typeof body.quote !== "object" || Array.isArray(body.quote)) {
@@ -180,13 +178,13 @@ function quoteBody(body: Record<string, unknown>, mode: "create" | "save"): { qu
   if (containsAuthorityField(body.quote)) {
     throw new HttpError(400, "invalid_quote_request", "Quote aggregate contains unsupported authority fields");
   }
-  if (mode === "save" && (!Number.isSafeInteger(body.expectedVersion) || (body.expectedVersion as number) < 1)) {
+  if (!Number.isSafeInteger(body.expectedVersion) || (body.expectedVersion as number) < 1) {
     throw new HttpError(400, "invalid_quote_request", "expectedVersion must be a positive integer");
   }
   try {
     const quote = normalizeServerQuote(body.quote as ServerQuote);
     validateQuote(quote);
-    return { quote, ...(mode === "save" ? { expectedVersion: body.expectedVersion as number } : {}) };
+    return { quote, expectedVersion: body.expectedVersion as number };
   } catch (error) {
     if (error instanceof QuoteInvariantError || error instanceof TypeError) {
       throw new HttpError(400, "invalid_quote", "Quote aggregate is invalid");
@@ -199,11 +197,18 @@ function asQuoteHttpError(error: unknown): never {
   if (error instanceof HttpError) throw error;
   if (error instanceof QuoteConflictError) throw new HttpError(409, "quote_version_conflict", "Quote version is stale");
   if (error instanceof QuoteInvariantError) {
+    if (/Quote code immutable/i.test(error.message)) {
+      throw new HttpError(409, "quote_code_immutable", "Quote business number is immutable");
+    }
     const immutable = /immutable|Historical|removal\/reordering|Frozen|Previous estimate|structure/i.test(error.message);
     throw new HttpError(immutable ? 409 : 400, immutable ? "quote_immutable_history" : "invalid_quote", immutable ? "Quote history is immutable" : "Quote aggregate is invalid");
   }
   if ((error as { code?: string } | null)?.code === "23505") {
     throw new HttpError(409, "quote_already_exists", "Quote already exists");
+  }
+  if ((error as { code?: string; constraint?: string } | null)?.code === "23514"
+      && (error as { constraint?: string }).constraint === "quote_center_quote_code_immutable") {
+    throw new HttpError(409, "quote_code_immutable", "Quote business number is immutable");
   }
   throw error;
 }
@@ -320,9 +325,12 @@ async function route(
     const identity = await authenticate(dependencies.pool, request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "quote.create");
-    const input = quoteBody(await readJsonBody(request, QUOTE_AGGREGATE_MAX_BODY_BYTES), "create");
+    const input = await readJsonBody(request, QUOTE_AGGREGATE_MAX_BODY_BYTES);
+    if (Object.keys(input).length > 0) {
+      throw new HttpError(400, "invalid_quote_create_request", "Runtime Quote creation accepts an empty object only");
+    }
     try {
-      const quote = await createTrustedQuoteService(dependencies.pool).createAggregate(identity, input.quote, {
+      const quote = await createTrustedQuoteService(dependencies.pool).createRuntimeDraft(identity, {
         requestId: correlationId,
         method: request.method,
         path,
@@ -389,10 +397,10 @@ async function route(
       return;
     }
     requirePermission(identity.permissions, "quote.edit");
-    const input = quoteBody(await readJsonBody(request, QUOTE_AGGREGATE_MAX_BODY_BYTES), "save");
+    const input = quoteBody(await readJsonBody(request, QUOTE_AGGREGATE_MAX_BODY_BYTES));
     if (input.quote.id !== quoteId) throw new HttpError(400, "quote_identity_mismatch", "Path and aggregate Quote IDs must match");
     try {
-      const quote = await service.saveAggregate(identity, input.quote, input.expectedVersion!, {
+      const quote = await service.saveAggregate(identity, input.quote, input.expectedVersion, {
         requestId: correlationId,
         method: request.method,
         path,

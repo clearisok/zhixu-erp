@@ -1,4 +1,5 @@
 import { isDeepStrictEqual } from "node:util";
+import { randomUUID } from "node:crypto";
 import type { Pool } from "pg";
 import type { PermissionKey } from "../../features/permissions/model/permissions.js";
 import { requirePermission } from "../auth/permissions.js";
@@ -7,9 +8,11 @@ import { HttpError } from "../http/errors.js";
 import { appendOperationLog } from "../operation-logs/repository.js";
 import { QuoteConflictError, type QuoteRecord, type ServerQuote } from "./model.js";
 import { createQuoteRepository, type QuoteMutationHook } from "./repository.js";
+import { createServerQuoteDraft } from "./draft.js";
+import { allocateQuoteCode } from "./numbering.js";
 
-/** Q1 application foundation. Q2 must add trusted authorization and transaction
- * audit before exposing mutations. Browser createdBy fields are provenance only. */
+/** Internal Q1 persistence/import foundation. It is not exposed by the runtime
+ * Browser API; callers here preserve exact historical aggregate identities. */
 export function createQuoteService(pool: Pool) {
   const repository = createQuoteRepository(pool);
   return { createAggregate: repository.create, saveAggregate: repository.save, getById: repository.getById, list: repository.list };
@@ -19,6 +22,11 @@ export type QuoteMutationContext = {
   requestId?: string;
   method?: string;
   path?: string;
+};
+
+export type QuoteRuntimeDependencies = {
+  now?: () => Date;
+  randomUuid?: () => string;
 };
 
 function requireChangedPermission(
@@ -105,8 +113,10 @@ function auditSnapshot(record: QuoteRecord | null) {
   };
 }
 
-export function createTrustedQuoteService(pool: Pool) {
+export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntimeDependencies = {}) {
   const repository = createQuoteRepository(pool);
+  const now = dependencies.now ?? (() => new Date());
+  const nextUuid = dependencies.randomUuid ?? randomUUID;
   const audit = (actor: TrustedIdentity, context: QuoteMutationContext): QuoteMutationHook => async (client, mutation) => {
     await appendOperationLog(client, actor, {
       module: "报价中心",
@@ -132,12 +142,15 @@ export function createTrustedQuoteService(pool: Pool) {
   return {
     getById: repository.getById,
     list: repository.list,
-    async createAggregate(actor: TrustedIdentity, input: ServerQuote, context: QuoteMutationContext = {}) {
+    async createRuntimeDraft(actor: TrustedIdentity, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.create");
-      if (input.deletedAt !== null) {
-        throw new HttpError(400, "invalid_quote", "A new Quote cannot be deleted");
-      }
-      return repository.create(input, audit(actor, context));
+      const createdAt = now();
+      return repository.createGenerated(async (client) => createServerQuoteDraft({
+        quoteId: nextUuid(),
+        revisionId: nextUuid(),
+        priceVersionId: nextUuid(),
+        quoteCode: await allocateQuoteCode(client, createdAt),
+      }, actor, createdAt), audit(actor, context));
     },
     async saveAggregate(actor: TrustedIdentity, input: ServerQuote, expectedVersion: number, context: QuoteMutationContext = {}) {
       const before = await repository.getById(input.id);
