@@ -33,7 +33,7 @@ The labels used below are intentional:
 | Q2B1 shadow read | Complete on isolated Server preview/detail routes. | Engineering workspace only. |
 | Q2B2A existing-Quote writer | Complete on isolated Server edit route with exact decimal bridge and conflict handling. | Deliberately omits major production editor capabilities. |
 | Q2B2B creation/numbering | Complete after PR #44. Server-only runtime identity/numbering and `0006` are merged. | Isolated lazy-create workspace only; real `0006` not applied. |
-| Q3 Server masters/settings | Not implemented. | **BLOCKER.** |
+| Q3 Server masters/settings | Q3A schema/repository/service/typed API/RBAC/audit foundation is disposable-validated. | **BLOCKER remains for Q3B UI adapter, real-data preview/import and separately authorized activation.** |
 | Q4 Server attachments | Not implemented. | **BLOCKER.** |
 | Q5 migration preview/rehearsal | Not implemented. | **BLOCKER.** |
 | Real Quote production cutover | Not complete. | No real Quote business write performed. |
@@ -143,13 +143,13 @@ Historical Quote readability and new-Quote live authority are different concerns
 | DefaultTrimConfig | Embedded in brand/salesperson defaults | Applied to new independent Trim rows | Server default model and explicit migration projection | Confirmed rule: no quantity/usage ownership. Q0 found all 10 legacy configs had non-null quantity; Q3/Q5 must explicitly drop/project that legacy field, not create a Server quantity column. |
 | Manufacturing presets | Quote global settings localStorage | Every PriceVersion stores ID/name/country/currency/markup/freight snapshot | Server settings authority, status/versioning, permissions/audit, migration | Missing/dangling preset remains valid historical snapshot; do not backfill country/preset. |
 | Global Quote settings | localStorage | Initialize only new facts | Server authority for exchange rate, markup, labor currency/description, other-cost and default preset | Changes never overwrite existing PriceVersions. |
-| Global other-cost default | Global settings; brand/salesperson has one default-other structure | Applied as independent OtherCost row | Preserve actual current model and source/override markers | The older business rule mentioning 0..N and current model's single default must be reconciled from actual real data before schema design; do not invent expansion in Q3. |
+| Default other cost | System, Brand and CustomerSalesperson each own at most one nullable `DefaultOtherCost` | Applied to a new Quote as an independent `OtherCostLine` snapshot | Server stores only `name` + nullable `amount`; resolution is Salesperson > Brand > System | D-089 supersedes the old 0..N default-setting rule. Quote `OtherCostLine` remains 0..N, historical rows remain unchanged, and legacy settings project only the first enabled valid row. |
 | Suppliers | Free string in library/cost rows | Snapshot string | Keep free string; suggestions from distinct authorized library values | No Supplier domain is confirmed. |
 | Quick create | Browser nested modal writes Basic Settings repository and Browser log | Newly saved master becomes selected; Quote draft stays lazy | Server master mutation with Q3 permission and trusted audit; preserve unsaved Quote fields | Requires network/error/conflict behavior and no Browser fallback. |
 
 Q0 durable evidence records 8 Quotes / 9 Revisions / 12 PriceVersions, no aggregate corruption blocker, zero Estimate records, dangling optional brand/salesperson references with intact names, valid duplicate material names, and missing country/preset in some snapshots. Exact Q0 master counts are not reproduced in durable repository docs and must be re-read from a fresh authorized backup during Q5A rather than guessed here.
 
-**Q3 BLOCKER = YES.** New Quote creation, master switching, library selection, defaults and quick-create cannot remain Browser business authorities after cutover.
+**Q3 PRODUCTION BLOCKER = YES.** Q3A now provides the isolated Server authority foundation, but new Quote creation, master switching, library selection, defaults and quick-create still use Browser repositories until Q3B integration plus later migration/activation gates complete.
 
 ## Q4 attachment and Object Storage audit
 

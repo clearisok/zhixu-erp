@@ -18,6 +18,7 @@ import { getSalesOrderById, listSalesOrders } from "./sales-orders/repository.js
 import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales-orders/model.js";
 import { normalizeServerQuote, QuoteConflictError, QuoteInvariantError, validateQuote, type ServerQuote } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
+import { routeQuoteMasters } from "./quote-masters/routes.js";
 import { serveStatic } from "./static-files.js";
 
 export type ServerLogger = {
@@ -291,6 +292,8 @@ async function route(
     sendJson(response, 200, { operationLogs: await listOperationLogs(dependencies.pool, limit) });
     return;
   }
+
+  if (await routeQuoteMasters(request, response, dependencies, correlationId)) return;
 
   if (request.method === "GET" && path === "/api/v1/sales-orders") {
     const identity = await authenticate(dependencies.pool, request);

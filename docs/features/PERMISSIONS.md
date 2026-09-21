@@ -1,5 +1,9 @@
 # 权限系统
 
+## Q3A Quote master/settings Server authority
+
+Q3A reuses the existing catalog without a new super-permission. Trusted reads require `quote.view`; mutations require exactly `settings.global.edit`, `settings.brand.edit`, `settings.salesperson.edit`, `settings.fabric.edit`, or `settings.trim.edit` for their domain. Authorization uses the Server session permission set, never role names or Browser PermissionProvider. Mutation routes also require the existing exact same-origin boundary; caller ID/actor/role/permission fields are rejected. Production Basic Settings UI remains Browser-owned until Q3B and cannot grant Server authority.
+
 ## Q2B2B Server Quote create authority
 
 `/quote-center/server-new` and runtime `POST /api/v1/quotes` require a trusted Server Session with `quote.create`; Browser PermissionProvider roles cannot grant this action. The POST body is `{}` only, so actor, `createdBy`, Quote ID and `quoteCode` cannot be supplied by the caller. The Server derives actor/createdBy from the trusted identity and commits the Quote plus one OperationLog atomically.

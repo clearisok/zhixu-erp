@@ -28,6 +28,9 @@
 - 面料/辅料名称允许重复；同名不同供应商是有效记录，稳定 ID 才是身份。
 - 供应商仍是自由字符串，建议从两个物料库的历史值去重生成。
 - 默认汇率、默认其他费用优先级为 CustomerSalesperson > Brand > System。
+- System、Brand、CustomerSalesperson 每个作用域最多保存一个 nullable `DefaultOtherCost`；非空对象只包含 `name` 和 nullable `amount`。
+- 默认其他费用应用到新 Quote 时复制为独立 `OtherCostLine` 快照；后续默认变化不得回写既有 Quote，单张 Quote 的其他费用明细仍允许 0..N 条。
+- 旧版 0..N 全局费用仅作为迁移来源，兼容读取只投影首条 enabled 且 name 或 amount 有效的记录；历史 Quote 多条 `OtherCostLine` 不参与该收敛。
 - 默认辅料优先使用非空的客户业务员整套配置，否则使用品牌配置；不自动合并。
 - DefaultTrimConfig 不含数量/用量。
 - 默认辅料进入报价时形成新行快照，用量为 `null`；报价和 Library 此后互不污染。
@@ -43,7 +46,7 @@
 - `FabricLibraryItem`：名称、成分、净门幅、克重、默认损耗、供应商、单价、采购单位、时间戳。
 - `TrimLibraryItem`：名称、规格、供应商、单位、默认损耗、单价、时间戳。
 - `DefaultTrimConfig`：稳定配置 ID、`trimLibraryItemId`、可选覆盖损耗率和单价。
-- `DefaultOtherCost`：有业务含义的 `name` 和可空 `amount`。
+- `DefaultOtherCost`：每个 System / Brand / CustomerSalesperson 作用域最多一个 nullable 默认；非空对象只有业务 `name` 和可空 `amount`。
 - `BasicSettingsState`：系统默认值和四类主数据集合。
 
 面料库不保存段长、单耗、面料成本；辅料默认配置不保存本次报价用量。
@@ -53,7 +56,8 @@
 - 当前 repository：`features/basic-settings/repository/basic-settings-repository.ts`。
 - 当前存储：稳定 localStorage `zhixu.erp.local.basic-settings`，`schemaVersion` 位于 envelope；`zhixu.basic-settings.v1.5` / `v1.3` 仅作为非破坏迁移来源。
 - 兼容读取并归一化旧 key `zhixu.basic-settings.v1.3`。
-- 没有真实 API、数据库表或服务端唯一约束。
+- Q3A 已建立隔离的 Server authority foundation：migration `0007_quote_master_settings.sql`、`server/quote-masters/` typed model/repository/service/routes，以及 domain-specific `/api/v1/quote-masters/*`、`/api/v1/quote-settings/*` endpoints。它包含 normalized name constraints、NUMERIC/decimal-string、optimistic version、trusted RBAC/OperationLog 和 transaction rollback。
+- Q3A 没有把现有 `/basic-settings/*` 或 Quote UI 接到 Server；Browser repository/localStorage 仍是 production UI 当前使用的 authority。真实 0007 与 real master/settings import 均未执行，也没有 dual write。
 
 ## Frontend behavior
 
@@ -73,6 +77,7 @@
 - 唯一性校验集中在模型/validation 函数，不散落到各组件。
 - 不得给 Fabric/Trim 名称增加唯一约束。
 - 不得把数量/用量存入 DefaultTrimConfig。
+- 不得把默认其他费用扩展成 0..N Server 设置，也不得用默认设置更新历史或既有 Quote 的 `OtherCostLine`。
 - 不得把品牌差异复制成重复 Library 物料；使用 override。
 - 不得让 Library 后续修改影响已保存 Quote Revision。
 - 暂不创建 Supplier 表或独立供应商主数据。
@@ -81,6 +86,7 @@
 
 主要测试：
 
+- `server/integration/quote-master-settings.integration.test.ts`（Q3A disposable PostgreSQL schema/API/RBAC/audit/default-resolution foundation）
 - `tests/basic-settings-v15.test.mjs`
 - `tests/material-libraries.test.mjs`
 - `tests/quick-master-data.test.mjs`
@@ -89,6 +95,9 @@
 覆盖名称唯一性、重复物料名、品牌归属、默认优先级、override、快照隔离和个人列表偏好等规则。
 
 ## Known gaps
+
+- Q3B 尚未把现有 Basic Settings UI/Quick Create 接到 typed Server APIs，也未执行真实 master migration/reconciliation。
+- Q4 attachment authority、Q5 data preview/import 与 Q6 production activation 仍是单独 gates。
 
 - 浏览器 localStorage 不支持真实多用户并发和服务端唯一约束；当前权限系统也仅是前端 mock RBAC，不是服务端安全边界。
 - 当前没有 Supplier 主数据。
