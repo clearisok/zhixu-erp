@@ -11,7 +11,12 @@ export function shouldInitializeBrowserLocalData(pathname: string): boolean {
     && pathname !== "/quote-center/server-preview"
     && pathname !== "/quote-center/server-detail"
     && pathname !== "/quote-center/server-edit"
-    && pathname !== "/quote-center/server-new";
+    && pathname !== "/quote-center/server-new"
+    && pathname !== "/basic-settings/server/brands"
+    && pathname !== "/basic-settings/server/customer-salespeople"
+    && pathname !== "/basic-settings/server/fabrics"
+    && pathname !== "/basic-settings/server/trims"
+    && pathname !== "/system-settings/server/quote-settings";
 }
 
 export function LocalDataBootstrap({ children }: { children: ReactNode }) {

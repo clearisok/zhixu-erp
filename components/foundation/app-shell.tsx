@@ -28,6 +28,13 @@ const systemRoutes = [
   { label: "生产与运输", href: "/system-settings/production-infrastructure" },
   { label: "数据管理", href: "/system-settings/data-management" },
 ];
+const serverBasicRoutes = [
+  { label: "品牌设置", href: "/basic-settings/server/brands" },
+  { label: "客户业务员设置", href: "/basic-settings/server/customer-salespeople" },
+  { label: "面料库", href: "/basic-settings/server/fabrics" },
+  { label: "辅料库", href: "/basic-settings/server/trims" },
+];
+const serverSystemRoutes = [{ label: "报价设置", href: "/system-settings/server/quote-settings" }];
 
 export type AppShellBackTarget = {
   href: string;
@@ -41,8 +48,11 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
   const basicTriggerRef = useRef<HTMLButtonElement | null>(null);
   const systemTriggerRef = useRef<HTMLButtonElement | null>(null);
   const viewportMode = useResponsiveMode();
-  const basicActive = basicRoutes.some((route) => pathname === route.href);
-  const systemActive = systemRoutes.some((route) => pathname === route.href);
+  const serverSettingsMode = identityMode === "server" && (pathname.startsWith("/basic-settings/server/") || pathname === "/system-settings/server/quote-settings");
+  const visibleBasicRoutes = serverSettingsMode ? serverBasicRoutes : basicRoutes;
+  const visibleSystemRoutes = serverSettingsMode ? serverSystemRoutes : systemRoutes;
+  const basicActive = visibleBasicRoutes.some((route) => pathname === route.href);
+  const systemActive = visibleSystemRoutes.some((route) => pathname === route.href);
   const personalActive = pathname.startsWith("/my-settings/");
   const [basicOpen, setBasicOpen] = useState(false);
   const [systemOpen, setSystemOpen] = useState(false);
@@ -102,10 +112,10 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
   ];
 
   const basicMenuItems = <>
-    {basicRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onClick={() => navigate(item.href)}>{item.label}</button>)}
+    {visibleBasicRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onClick={() => navigate(item.href)}>{item.label}</button>)}
   </>;
   const systemMenuItems = <>
-    {systemRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onClick={() => navigate(item.href)}>{item.label}</button>)}
+    {visibleSystemRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onClick={() => navigate(item.href)}>{item.label}</button>)}
   </>;
   const desktopSidebar = viewportMode === "wide" || viewportMode === "primary";
   const expandedSidebar = desktopSidebar && !sidebarCollapsed;
@@ -125,14 +135,14 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
       {desktopSidebar && <button type="button" className="ops-sidebar-toggle" aria-label={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} title={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} onClick={toggleSidebar}><span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "展开" : "收起"}</b></button>}
       <div className="organization"><span>苏</span><div><small>当前组织</small><strong>苏州织序服饰</strong></div><i>报价 UI V1</i></div>
       <nav aria-label="主导航">
-        {nav.slice(0, 2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
-        {!serverIdentityMode && <div className="ops-nav-item">
+        {!serverSettingsMode && nav.slice(0, 2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
+        {(!serverIdentityMode || serverSettingsMode) && <div className="ops-nav-item">
           <button ref={basicTriggerRef} type="button" title="基础设置" aria-label="基础设置" className={basicActive ? "active" : ""} aria-expanded={basicOpen} aria-haspopup="menu" aria-controls="sidebar-basic-menu" onClick={() => { setSystemOpen(false); setBasicOpen((open) => !open); }}><span>⚙</span><b>基础设置</b><i>{basicOpen ? "⌃" : "⌄"}</i></button>
           {basicOpen && expandedSidebar && <div className="ops-subnav" role="menu" aria-label="基础设置菜单">{basicMenuItems}</div>}
           <SidebarFloatingMenu id="sidebar-basic-menu" open={basicOpen && compactSidebar} anchorRef={basicTriggerRef} label="基础设置菜单" onClose={closeMenus}>{basicMenuItems}</SidebarFloatingMenu>
         </div>}
-        {nav.slice(2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
-        {!serverIdentityMode && <div className="ops-nav-item ops-system-entry">
+        {!serverSettingsMode && nav.slice(2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
+        {(!serverIdentityMode || serverSettingsMode) && <div className="ops-nav-item ops-system-entry">
           <button ref={systemTriggerRef} type="button" title="系统设置" aria-label="系统设置" className={systemActive ? "active" : ""} aria-expanded={systemOpen} aria-haspopup="menu" aria-controls="sidebar-system-menu" onClick={() => { setBasicOpen(false); setSystemOpen((open) => !open); }}><span>⋯</span><b>系统设置</b><i>{systemOpen ? "⌃" : "⌄"}</i></button>
           {systemOpen && expandedSidebar && <div className="ops-subnav" role="menu" aria-label="系统设置菜单">{systemMenuItems}</div>}
           <SidebarFloatingMenu id="sidebar-system-menu" open={systemOpen && compactSidebar} anchorRef={systemTriggerRef} label="系统设置菜单" onClose={closeMenus}>{systemMenuItems}</SidebarFloatingMenu>
@@ -156,8 +166,8 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
     </section>
     <Drawer open={navigationOpen && touchNavigation} className="ops-navigation-drawer" placement="left" title="业务导航" description="报价、订单、排单与系统设置" eyebrow="ZHIXU ERP" onClose={() => setNavigationOpen(false)}>
       <nav className="ops-touch-navigation" aria-label="完整业务导航">
-        <section><strong>业务工作区</strong>{nav.map((item) => <button key={item.href} type="button" className={item.active ? "active" : ""} aria-current={item.active ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">{item.symbol}</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section>
-        {!serverIdentityMode && <><section><strong>基础设置</strong>{basicRoutes.map((item) => <button key={item.href} type="button" className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">⚙</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section><section><strong>系统设置</strong>{systemRoutes.map((item) => <button key={item.href} type="button" className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">⋯</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section><section><strong>我的设置</strong><button type="button" className={personalActive ? "active" : ""} aria-current={personalActive ? "page" : undefined} onClick={() => navigate("/my-settings/ainuoke-account")}><span aria-hidden="true">我</span><b>艾诺科账号</b><i aria-hidden="true">›</i></button></section></>}
+        {!serverSettingsMode&&<section><strong>业务工作区</strong>{nav.map((item) => <button key={item.href} type="button" className={item.active ? "active" : ""} aria-current={item.active ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">{item.symbol}</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section>}
+        {(!serverIdentityMode||serverSettingsMode) && <><section><strong>基础设置</strong>{visibleBasicRoutes.map((item) => <button key={item.href} type="button" className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">⚙</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section><section><strong>系统设置</strong>{visibleSystemRoutes.map((item) => <button key={item.href} type="button" className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">⋯</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section>{!serverIdentityMode&&<section><strong>我的设置</strong><button type="button" className={personalActive ? "active" : ""} aria-current={personalActive ? "page" : undefined} onClick={() => navigate("/my-settings/ainuoke-account")}><span aria-hidden="true">我</span><b>艾诺科账号</b><i aria-hidden="true">›</i></button></section>}</>}
       </nav>
     </Drawer>
     {!serverIdentityMode && <GlobalSearchPalette open={globalSearchOpen} context={{ userId: currentUser.id, can }} onClose={() => setGlobalSearchOpen(false)} onNavigate={navigate} />}

@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-090 制作预设默认关系只能引用 active preset
+
+- 日期：2026-09-22；状态：Active，用户已确认。Server 是本规则的最终 authority，不得只依赖 Browser UI。
+- `defaultManufacturingPresetId` 只能为 `null` 或当前 `status=active` 的 Manufacturing Preset。单独 Global Settings 写入与 settings bundle 都必须拒绝不存在或 inactive preset；`resolveDefaults` 遇到旧数据中的 inactive reference 必须 fail safe 为无制作预设默认。
+- 当前 default preset 从 active 停用时，preset 状态更新、Global Quote Settings default 自动清为 `null`、各自 optimistic version 与两条 trusted OperationLog 必须在同一个 PostgreSQL transaction 中完成；任何一步失败全部 rollback。Bundle 同时停用当前 default 时也自动清空，但显式选择原本 inactive 或本次新建即 inactive 的 preset 必须拒绝。
+- inactive preset 重新启用只恢复可选状态，不自动恢复历史 default；用户必须显式重新选择。Browser candidate draft 在停用当前 default 时同步清空，默认下拉只列 active presets；migration preview 将 inactive default 安全投影为 `null` 并给出 warning。
+- 停用、重新启用或修改 preset 绝不改写已有 Quote、QuoteRevision 或 PriceVersion 中的制作预设、国家、币种、加成率、运费等快照。
+- 证据：`server/quote-masters/service.ts`、`features/quote-center/model/quote-settings.ts`、`features/quote-center/components/global-quote-settings-page.tsx`、`features/basic-settings/server/master-settings-migration-preview.ts` 与 Q3A/Q3B regression tests。
+
 ### D-089 默认其他费用按作用域最多一条并作为报价快照复制
 
 - 日期：2026-09-21；状态：Active，用户已确认。本决定取代 D-009 对默认设置 0..N 的旧定义，但不改变 Quote `OtherCostLine` 的 0..N 明细语义。

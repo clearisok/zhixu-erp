@@ -31,6 +31,7 @@ export type ManufacturingPreset = {
   includeFreight: boolean;
   freightName: string;
   freightAmount: NullableNumber;
+  status?: "active" | "inactive";
 };
 
 export const defaultManufacturingPresets: ManufacturingPreset[] = [
@@ -57,6 +58,24 @@ export const defaultGlobalQuoteSettings: GlobalQuoteSettings = {
   defaultManufacturingPresetId: "preset-china",
   manufacturingPresets: defaultManufacturingPresets,
 };
+
+export function activeManufacturingPresets(settings: GlobalQuoteSettings): ManufacturingPreset[] {
+  return settings.manufacturingPresets.filter((preset) => preset.status !== "inactive");
+}
+
+export function setManufacturingPresetStatus(
+  settings: GlobalQuoteSettings,
+  presetId: string,
+  status: "active" | "inactive",
+): GlobalQuoteSettings {
+  return {
+    ...settings,
+    defaultManufacturingPresetId: status === "inactive" && settings.defaultManufacturingPresetId === presetId
+      ? null
+      : settings.defaultManufacturingPresetId,
+    manufacturingPresets: settings.manufacturingPresets.map((preset) => preset.id === presetId ? { ...preset, status } : preset),
+  };
+}
 
 export const GLOBAL_QUOTE_SETTINGS_STORAGE_KEY = browserLocalDataStore.key("quote-global-settings");
 const LEGACY_BASIC_SETTINGS_STORAGE_KEYS = ["zhixu.basic-settings.v1.5", "zhixu.basic-settings.v1.3"] as const;
@@ -163,6 +182,7 @@ function normalizeManufacturingPresets(value: unknown): ManufacturingPreset[] {
       includeFreight: item.includeFreight === true,
       freightName: typeof item.freightName === "string" && item.freightName.trim() ? item.freightName.trim() : "运费",
       freightAmount: nullableNumber(item.freightAmount, null),
+      status: item.status === "inactive" ? "inactive" : "active",
     }];
   });
 }
@@ -184,7 +204,7 @@ export function normalizeGlobalQuoteSettings(value: Partial<GlobalQuoteSettings>
     defaultLaborCurrency: input.defaultLaborCurrency === "USD" ? "USD" : "CNY",
     defaultOtherCost: normalizeDefaultOtherCost(input.defaultOtherCost ?? legacyCost),
     defaultLaborDescription,
-    defaultManufacturingPresetId: hasPresetConfiguration && manufacturingPresets.some((preset) => preset.id === requestedPresetId)
+    defaultManufacturingPresetId: hasPresetConfiguration && manufacturingPresets.some((preset) => preset.id === requestedPresetId && preset.status !== "inactive")
       ? requestedPresetId
       : null,
     manufacturingPresets,
@@ -306,7 +326,7 @@ export function applySystemDefaultsToNewQuoteRevision(
       otherCosts: otherCost ? [{ ...otherCost, id: `${version.id}-default-other` }] : [],
     })),
   };
-  const preset = normalized.manufacturingPresets.find((item) => item.id === normalized.defaultManufacturingPresetId);
+  const preset = activeManufacturingPresets(normalized).find((item) => item.id === normalized.defaultManufacturingPresetId);
   return preset ? {
     ...initialized,
     priceVersions: initialized.priceVersions.map((version) => applyManufacturingPresetToPriceVersion(version, preset)),

@@ -82,6 +82,7 @@ Quote Center 是面向成衣报价工作的新版前端模块，提供完整报�
 - Quote Center 使用 `markupRate` 乘法加成，不使用根路径 ERP 的毛利率除法公式。
 - 面向用户的最终成衣销售单价保留一位小数并直接截断，不使用四舍五入；内部计算继续保留原始精度。
 - 制作预设应用到当前选中的 PriceVersion 快照，带出制作国家、加工币种、汇率、加成率和预设运费行；同一 Revision 的 PriceVersion 可使用不同预设，系统预设后续变化不回写已有快照。
+- 新 Quote 的系统默认制作预设只能是 active preset；inactive reference 按无默认处理。停用当前 default 会清空设置关系，重新启用不会自动恢复，但这些状态变化从不修改任何已保存的 PriceVersion 制作参数快照。
 - 报价详情的报价设置只选择当前 PriceVersion 制作预设并显示只读摘要；预设内容只在系统设置维护。
 - USD 工价人民币折合由 `convertedLaborRmb` 统一计算为 `原始 USD 工价 × 当前汇率 × 1.13`；`markupRate` 继续独立参与报价成本/售价加成，CNY 工价不走 USD 折算。
 - 详细公式见 `docs/BUSINESS_RULES.md` 和 `model/quote-calculations.ts`。

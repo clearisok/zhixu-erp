@@ -20,6 +20,15 @@ export type FabricWrite = Omit<FabricDto, "id" | "version" | "createdAt" | "upda
 export type TrimWrite = Omit<TrimDto, "id" | "version" | "createdAt" | "updatedAt">;
 export type PresetWrite = Omit<ManufacturingPresetDto, "id" | "version" | "createdAt" | "updatedAt">;
 export type SettingsWrite = Omit<GlobalQuoteSettingsDto, "version" | "createdAt" | "updatedAt">;
+export type SettingsBundlePresetWrite = PresetWrite & (
+  | { id: string; expectedVersion: number; clientId?: never }
+  | { clientId: string; id?: never; expectedVersion?: never }
+);
+export type SettingsBundleWrite = {
+  expectedSettingsVersion: number;
+  settings: SettingsWrite;
+  manufacturingPresets: SettingsBundlePresetWrite[];
+};
 
 async function transaction<T>(pool: Pool, work: (client: PoolClient) => Promise<T>): Promise<T> {
   const client = await pool.connect();
@@ -174,6 +183,21 @@ function stableDefaultTrimIds(
   return after.defaultTrims.map((config) => before?.defaults.defaultTrims.find((item) => item.trimLibraryItemId === config.trimLibraryItemId)?.id ?? randomUUID());
 }
 
+function samePreset(before: ManufacturingPresetDto, after: PresetWrite): boolean {
+  return before.name === after.name
+    && before.country === after.country
+    && before.laborCurrency === after.laborCurrency
+    && before.markupRate === after.markupRate
+    && before.includeFreight === after.includeFreight
+    && before.freightName === after.freightName
+    && before.freightAmount === after.freightAmount
+    && before.status === after.status;
+}
+
+function invalidDefaultPreset(): HttpError {
+  return new HttpError(400, "invalid_quote_master_input", "Default manufacturing preset must reference an active preset");
+}
+
 export function createQuoteMasterService(pool: Pool) {
   const ensure = (actor: TrustedIdentity, permission: PermissionKey) => requirePermission(actor.permissions, permission);
   return {
@@ -248,11 +272,124 @@ export function createQuoteMasterService(pool: Pool) {
     },
     updatePreset(actor: TrustedIdentity, id: string, expectedVersion: number, input: PresetWrite, context: MutationContext = {}) {
       ensure(actor, "settings.global.edit");
-      return transaction(pool,async(client)=>{const before=await repository.getPreset(client,id,true);const after=requireVersion(before,await repository.updatePreset(client,{id,expectedVersion,version:expectedVersion,...input}));await audit(client,actor,"修改制作预设","ManufacturingPreset",id,presetSnapshot(before),presetSnapshot(after),context);return after;});
+      return transaction(pool, async (client) => {
+        await client.query("SELECT pg_advisory_xact_lock(hashtextextended('quote-global-settings',0))");
+        const beforeSettings = await repository.getGlobalSettings(client, true);
+        const before = await repository.getPreset(client, id, true);
+        const after = requireVersion(before, await repository.updatePreset(client, { id, expectedVersion, version: expectedVersion, ...input }));
+        await audit(client, actor, "修改制作预设", "ManufacturingPreset", id, presetSnapshot(before), presetSnapshot(after), context);
+        if (before?.status === "active"
+          && after.status === "inactive"
+          && beforeSettings?.defaultManufacturingPresetId === id) {
+          const afterSettings = await repository.writeGlobalSettings(client, {
+            expectedVersion: beforeSettings.version,
+            defaultUsdCnyRate: beforeSettings.defaultUsdCnyRate,
+            defaultMarkupRate: beforeSettings.defaultMarkupRate,
+            defaultLaborCurrency: beforeSettings.defaultLaborCurrency,
+            defaultLaborDescription: beforeSettings.defaultLaborDescription,
+            defaultOtherCost: beforeSettings.defaultOtherCost,
+            defaultManufacturingPresetId: null,
+          });
+          if (!afterSettings) throw new HttpError(409, "quote_settings_version_conflict", "Quote settings version is stale");
+          await audit(client, actor, "修改报价设置", "QuoteSettings", "global", settingsSnapshot(beforeSettings), settingsSnapshot(afterSettings), context);
+        }
+        return after;
+      });
     },
     updateGlobalSettings(actor: TrustedIdentity, expectedVersion: number, input: SettingsWrite, context: MutationContext = {}) {
       ensure(actor, "settings.global.edit");
-      return transaction(pool,async(client)=>{await client.query("SELECT pg_advisory_xact_lock(hashtextextended('quote-global-settings',0))");const before=await repository.getGlobalSettings(client,true);if((before?.version??0)!==expectedVersion)throw new HttpError(409,"quote_settings_version_conflict","Quote settings version is stale");const after=await repository.writeGlobalSettings(client,{expectedVersion,...input});if(!after)throw new HttpError(409,"quote_settings_version_conflict","Quote settings version is stale");await audit(client,actor,"修改报价设置","QuoteSettings","global",settingsSnapshot(before),settingsSnapshot(after),context);return after;});
+      return transaction(pool, async (client) => {
+        await client.query("SELECT pg_advisory_xact_lock(hashtextextended('quote-global-settings',0))");
+        const before = await repository.getGlobalSettings(client, true);
+        if ((before?.version ?? 0) !== expectedVersion) throw new HttpError(409, "quote_settings_version_conflict", "Quote settings version is stale");
+        if (input.defaultManufacturingPresetId !== null) {
+          const preset = await repository.getPreset(client, input.defaultManufacturingPresetId, true);
+          if (preset?.status !== "active") throw invalidDefaultPreset();
+        }
+        const after = await repository.writeGlobalSettings(client, { expectedVersion, ...input });
+        if (!after) throw new HttpError(409, "quote_settings_version_conflict", "Quote settings version is stale");
+        await audit(client, actor, "修改报价设置", "QuoteSettings", "global", settingsSnapshot(before), settingsSnapshot(after), context);
+        return after;
+      });
+    },
+    saveSettingsBundle(actor: TrustedIdentity, input: SettingsBundleWrite, context: MutationContext = {}) {
+      ensure(actor, "settings.global.edit");
+      return transaction(pool, async (client) => {
+        await client.query("SELECT pg_advisory_xact_lock(hashtextextended('quote-global-settings',0))");
+        const beforeSettings = await repository.getGlobalSettings(client, true);
+        if ((beforeSettings?.version ?? 0) !== input.expectedSettingsVersion) {
+          throw new HttpError(409, "quote_settings_bundle_conflict", "Quote settings bundle is stale");
+        }
+        const currentPresets = await repository.listPresets(client, undefined, true);
+        const currentById = new Map(currentPresets.map((preset) => [preset.id, preset]));
+        const existingInputs = input.manufacturingPresets.filter((preset): preset is PresetWrite & { id: string; expectedVersion: number } => "id" in preset);
+        const submittedIds = new Set(existingInputs.map((preset) => preset.id));
+        if (submittedIds.size !== existingInputs.length
+          || submittedIds.size !== currentPresets.length
+          || currentPresets.some((preset) => !submittedIds.has(preset.id))) {
+          throw new HttpError(409, "quote_settings_bundle_conflict", "Manufacturing preset set is stale");
+        }
+        for (const preset of existingInputs) {
+          if (currentById.get(preset.id)?.version !== preset.expectedVersion) {
+            throw new HttpError(409, "quote_settings_bundle_conflict", "Manufacturing preset version is stale");
+          }
+        }
+        const newInputs = input.manufacturingPresets.filter((preset): preset is PresetWrite & { clientId: string } => "clientId" in preset);
+        const newIds = new Map<string, string>();
+        for (const preset of newInputs) {
+          if (newIds.has(preset.clientId) || currentById.has(preset.clientId)) {
+            throw new HttpError(400, "invalid_quote_master_input", "New manufacturing preset client identity is duplicated");
+          }
+          newIds.set(preset.clientId, randomUUID());
+        }
+        const requestedDefault = input.settings.defaultManufacturingPresetId;
+        const requestedExisting = requestedDefault === null ? undefined : existingInputs.find((preset) => preset.id === requestedDefault);
+        const requestedNew = requestedDefault === null ? undefined : newInputs.find((preset) => preset.clientId === requestedDefault);
+        const resolvedRequestedDefault = requestedDefault === null
+          ? null
+          : newIds.get(requestedDefault) ?? (currentById.has(requestedDefault) ? requestedDefault : null);
+        if (requestedDefault !== null && resolvedRequestedDefault === null) {
+          throw new HttpError(400, "invalid_quote_master_input", "Default manufacturing preset is not in the bundle");
+        }
+        const requestedStatus = requestedExisting?.status ?? requestedNew?.status;
+        const deactivatesCurrentDefault = requestedExisting?.status === "inactive"
+          && beforeSettings?.defaultManufacturingPresetId === requestedExisting.id
+          && currentById.get(requestedExisting.id)?.status === "active";
+        if (requestedDefault !== null && requestedStatus !== "active" && !deactivatesCurrentDefault) {
+          throw invalidDefaultPreset();
+        }
+        const defaultManufacturingPresetId = deactivatesCurrentDefault ? null : resolvedRequestedDefault;
+
+        const savedPresets: ManufacturingPresetDto[] = [];
+        for (const preset of existingInputs) {
+          const before = currentById.get(preset.id)!;
+          if (samePreset(before, preset)) {
+            savedPresets.push(before);
+            continue;
+          }
+          const after = requireVersion(before, await repository.updatePreset(client, { ...preset, version: preset.expectedVersion }));
+          await audit(client, actor, "修改制作预设", "ManufacturingPreset", after.id, presetSnapshot(before), presetSnapshot(after), context);
+          savedPresets.push(after);
+        }
+        for (const preset of newInputs) {
+          const id = newIds.get(preset.clientId)!;
+          const after = await repository.insertPreset(client, { id, ...preset });
+          await audit(client, actor, "新增制作预设", "ManufacturingPreset", id, null, presetSnapshot(after), context);
+          savedPresets.push(after);
+        }
+        const afterSettings = await repository.writeGlobalSettings(client, {
+          expectedVersion: input.expectedSettingsVersion,
+          ...input.settings,
+          defaultManufacturingPresetId,
+        });
+        if (!afterSettings) throw new HttpError(409, "quote_settings_bundle_conflict", "Quote settings bundle is stale");
+        await audit(client, actor, "修改报价设置", "QuoteSettings", "global", settingsSnapshot(beforeSettings), settingsSnapshot(afterSettings), context);
+        return {
+          settings: afterSettings,
+          manufacturingPresets: savedPresets.sort((left, right) => left.name.localeCompare(right.name, "zh-CN") || left.id.localeCompare(right.id)),
+          createdPresetIds: Object.fromEntries(newIds),
+        };
+      });
     },
     async resolveDefaults(brandId?: string, salespersonId?: string): Promise<ResolvedQuoteDefaultsDto> {
       const system = await repository.getGlobalSettings(pool);
@@ -265,9 +402,10 @@ export function createQuoteMasterService(pool: Pool) {
       const trimOwner = activeSalesperson?.defaults.defaultTrims.length ? "salesperson" : activeBrand?.defaults.defaultTrims.length ? "brand" : null;
       const configs = trimOwner === "salesperson" ? activeSalesperson!.defaults.defaultTrims : trimOwner === "brand" ? activeBrand!.defaults.defaultTrims : [];
       const trims = (await Promise.all(configs.map(async(config)=>{const item=await repository.getTrim(pool,config.trimLibraryItemId);return item?{...config,name:item.name,specification:item.specification,supplier:item.supplier,unit:item.unit,lossRate:config.overrideLossRate??item.defaultLossRate,unitPrice:config.overrideUnitPrice??item.unitPrice}:null;}))).filter((item):item is NonNullable<typeof item>=>item!==null);
-      const manufacturingPreset = system?.defaultManufacturingPresetId
+      const referencedManufacturingPreset = system?.defaultManufacturingPresetId
         ? await repository.getPreset(pool, system.defaultManufacturingPresetId)
         : null;
+      const manufacturingPreset = referencedManufacturingPreset?.status === "active" ? referencedManufacturingPreset : null;
       return { usdCnyRate:rate,markupRate:system?.defaultMarkupRate??null,laborCurrency:system?.defaultLaborCurrency??null,laborDescription:system?.defaultLaborDescription??null,otherCost:cost,manufacturingPreset,trims,source:{usdCnyRate:activeSalesperson?.defaults.defaultUsdCnyRate!==null&&activeSalesperson?.defaults.defaultUsdCnyRate!==undefined?"salesperson":activeBrand?.defaults.defaultUsdCnyRate!==null&&activeBrand?.defaults.defaultUsdCnyRate!==undefined?"brand":system?.defaultUsdCnyRate!==null&&system?.defaultUsdCnyRate!==undefined?"system":null,otherCost:activeSalesperson?.defaults.defaultOtherCost?"salesperson":activeBrand?.defaults.defaultOtherCost?"brand":system?.defaultOtherCost?"system":null,trims:trimOwner} };
     },
   };
