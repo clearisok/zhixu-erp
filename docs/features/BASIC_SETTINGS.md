@@ -61,6 +61,9 @@
 - Production `/basic-settings/*` 与 `/system-settings/quote-settings` 仍使用 Browser repository/localStorage。真实 0007 与 real master/settings import 均未执行，也没有 dual read/write。Global Settings candidate 的单 Save 使用 `/api/v1/quote-settings/bundle` 原子保存 settings + presets + trusted audit，新 preset ID 由 Server 生成。
 - D-090 要求 Global Settings default 只能引用 active Manufacturing Preset。Standalone 停用当前 default 与 bundle 停用均由 Server 在同一 transaction 清空 default 并审计；显式选择 inactive preset 拒绝，重新启用不自动恢复 default。Candidate 默认下拉仅列 active presets，但 inactive preset 仍在管理列表中可编辑/重新启用。
 - Q3B1 pure migration preview 只投影/校验 Browser Brand、CustomerSalesperson、Fabric、Trim、DefaultTrim、Global Settings、Manufacturing Preset 与 D-089 DefaultOtherCost；它报告重复/缺失引用/legacy quantity/invalid numeric/blocker，不读真实 backup 且数据库写入为 0。存在但 inactive 的 default preset reference 安全投影为 `null` 并单独 warning，missing reference 仍是 blocker。
+- Q3B2A 复用既有全量 `LocalDataBackup` 作为唯一 backup/export contract；不增加第二套 Browser exporter。只读 parser 按 artifact 的 `namespace` 精确取 `<namespace>.basic-settings` 与 `<namespace>.quote-global-settings`，支持 current、受支持的 legacy envelope 和 legacy unwrapped record；保留原 backup 中的 raw envelope/source schema/key/capture metadata，以 per-envelope SHA-256 证明来源。业务 `sourceHash` 只包含 namespace、精确 storage key、schema 与 source data，排除 capture/envelope timestamps，因而同一业务内容重复 preview 稳定。
+- `npm run preview:quote-master-settings -- --backup <backup.json>` 是离线只读 runner：只读用户显式指定的标准 backup，输出结构化 JSON，不访问 Browser storage、HTTP API 或 PostgreSQL，也不写 report/file。它忽略其他 local records、附件、模板、Style Progress 与个人/UI preferences，并对选中的 master/settings payload 出现 credential/session/token 字段 fail closed。
+- Q3B2A report 的 source/projected counts 包括五类实体及 Brand/Salesperson default trims；另给出最终 Server row totals、normalized Brand/Salesperson duplicates、所有 scoped stable-ID collisions、missing Brand/Trim references、dangling/inactive preset defaults、D-089 collapse、D-090 clear、legacy DefaultTrim quantity/usage discard、null/zero 与 exact decimal-string projection。Fabric/Trim 同名只产生保留信息，不合并也不阻断；Supplier 始终是 free string，projected Supplier master rows 固定为 0。warnings 与 blockingErrors 分离。
 
 ## Frontend behavior
 
@@ -98,9 +101,16 @@
 
 覆盖名称唯一性、重复物料名、品牌归属、默认优先级、override、快照隔离和个人列表偏好等规则。
 
+## Q3B2A source audit boundary
+
+- Production Browser authority 仍由 `basic-settings-repository.ts` 的 stable `basic-settings` record 与 `quote-settings.ts` 的 stable `quote-global-settings` record 构成；默认 namespace 下实际 keys 为 `zhixu.erp.local.basic-settings` 与 `zhixu.erp.local.quote-global-settings`。两者均使用 local-data `{ schemaVersion, initializedAt, updatedAt, data }` envelope，当前 schemaVersion 为 13。
+- Basic Settings 仍接受 `zhixu.basic-settings.v1.5` / `v1.3`，Global Quote Settings 仍接受 `zhixu.quote-center.global-settings.v1`；repository load 会 normalization、过滤或补默认，因此 migration preview 必须检查 backup 的原始 envelope data，不能先调用 runtime normalizer 而掩盖 duplicate/dangling/legacy evidence。
+- Browser numeric business values是 JSON number 或 `null`；目标 Q3A NUMERIC boundary 是 canonical decimal string 或 `null`。preview 仅以 `String(number)` + canonical exponent expansion 做无舍入 projection，非法、负数或非 finite 值列入 blocker，显式 `0` 与 `null` 分别计数并保留。
+- `0007_quote_master_settings.sql` 的 TEXT PK 明确允许未来受控 import 保留 Browser stable IDs；日常 candidate 新建仍由 Server 生成 UUID。DefaultTrim ID 的 collision 按 owner scope 判断；不同实体表之间相同文本 ID 不被误判为冲突。
+
 ## Known gaps
 
-- Q3B1 已完成隔离 candidate UI/Quick Trim 接线；production cutover、真实 backup preview、master migration/reconciliation 与 Quote Editor master integration 仍未执行。下一 gate 是 Q3B2 real-backup preview/rehearsal。
+- Q3B1 已完成隔离 candidate UI/Quick Trim 接线，Q3B2A 已完成只读 backup/parser/report tooling preparation；production cutover、真实 backup read/preview、disposable import rehearsal、master migration/reconciliation 与 Quote Editor master integration 仍未执行。下一 gate 只能是 `Q3B2B authorized real-backup read-only preview`。
 - Q4 attachment authority、Q5 data preview/import 与 Q6 production activation 仍是单独 gates。
 
 - 浏览器 localStorage 不支持真实多用户并发和服务端唯一约束；当前权限系统也仅是前端 mock RBAC，不是服务端安全边界。
