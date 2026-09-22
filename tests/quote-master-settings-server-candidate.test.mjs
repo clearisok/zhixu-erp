@@ -3,12 +3,15 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const read=(path)=>readFile(new URL(path,import.meta.url),"utf8");
-const [candidate,ui,globalUi,globalModel,preview,basicAdapter,globalAdapter,client,bootstrap,appShell,...routes]=await Promise.all([
+const [candidate,ui,globalUi,globalModel,preview,backupPreview,backupRunner,packageJson,basicAdapter,globalAdapter,client,bootstrap,appShell,...routes]=await Promise.all([
   read("../features/basic-settings/components/server-basic-settings-candidate-page.tsx"),
   read("../features/basic-settings/components/basic-settings-pages.tsx"),
   read("../features/quote-center/components/global-quote-settings-page.tsx"),
   read("../features/quote-center/model/quote-settings.ts"),
   read("../features/basic-settings/server/master-settings-migration-preview.ts"),
+  read("../features/basic-settings/server/master-settings-backup-preview.ts"),
+  read("../scripts/preview-quote-master-settings-backup.ts"),
+  read("../package.json"),
   read("../features/basic-settings/server/server-basic-settings-adapter.ts"),
   read("../features/basic-settings/server/server-global-quote-settings-adapter.ts"),
   read("../features/basic-settings/server/quote-master-server-client.ts"),
@@ -62,6 +65,17 @@ test("candidate hides hard delete, uses supplier endpoint and bounded Server nav
   assert.match(preview,/Default manufacturing preset references an inactive preset and will be cleared/u);
   assert.match(basicAdapter,/client\.supplierSuggestions\(\)/u);
   assert.match(appShell,/serverBasicRoutes/u);assert.match(appShell,/serverSystemRoutes/u);assert.match(appShell,/serverSettingsMode/u);
+});
+
+test("Q3B2A backup preview reuses the standard backup envelope and stays storage/database read-only",()=>{
+  assert.match(backupPreview,/LocalDataBackup|LOCAL_DATA_BACKUP_VERSION/u);
+  assert.match(backupPreview,/localDataKeys\(namespace\)/u);
+  assert.match(backupPreview,/excludedRecordPolicy/u);
+  assert.match(backupPreview,/databaseReads: 0/u);assert.match(backupPreview,/databaseWrites: 0/u);assert.match(backupPreview,/browserWrites: 0/u);
+  assert.match(backupPreview,/previewMasterSettingsMigration\(source\)/u);
+  assert.doesNotMatch(backupPreview,/localStorage|indexedDB|fetch\(|Pool|db\.query|saveBasicSettings|saveGlobalQuoteSettings/u);
+  assert.match(backupRunner,/readFile/u);assert.doesNotMatch(backupRunner,/writeFile|localStorage|fetch\(|db:migrate/u);
+  assert.match(packageJson,/preview:quote-master-settings/u);
 });
 
 test("Browser local-data bootstrap skips only the five candidate settings routes",()=>{

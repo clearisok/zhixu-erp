@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createServerBasicSettingsAdapter } from "../../../basic-settings/server/server-basic-settings-adapter";
 import { createServerGlobalQuoteSettingsAdapter } from "../../../basic-settings/server/server-global-quote-settings-adapter";
+import { previewMasterSettingsBackup } from "../../../basic-settings/server/master-settings-backup-preview";
 import { previewMasterSettingsMigration } from "../../../basic-settings/server/master-settings-migration-preview";
 import type { QuoteMasterServerClient } from "../../../basic-settings/server/quote-master-server-client";
 import { activeManufacturingPresets, applySystemDefaultsToNewQuoteRevision, normalizeGlobalQuoteSettings, setManufacturingPresetStatus } from "../../model/quote-settings";
@@ -85,9 +86,9 @@ test("inactive manufacturing defaults fail safe and status toggles never restore
   assert.equal((await createServerGlobalQuoteSettingsAdapter(client).load()).defaultManufacturingPresetId,null);
 });
 
-test("pure migration preview reports blockers, preserves duplicate materials and drops legacy trim quantity",()=>{
+test("pure migration preview reports blockers, preserves duplicate materials and drops legacy trim quantity/usage",()=>{
   const preview=previewMasterSettingsMigration({basicSettings:{
-    brands:[{id:"brand-a",name:"ＡＣＭＥ",defaults:{defaultUsdCnyRate:null,defaultTrims:[{id:"dt",trimLibraryItemId:"missing",quantity:2,overrideLossRate:null,overrideUnitPrice:0}],costs:[{name:"first",amount:0,enabled:true},{name:"second",amount:2,enabled:true}] }},{id:"brand-b",name:"acme",defaults:{defaultTrims:[]}}],
+    brands:[{id:"brand-a",name:"ＡＣＭＥ",defaults:{defaultUsdCnyRate:null,defaultTrims:[{id:"dt",trimLibraryItemId:"missing",quantity:2,usage:3,overrideLossRate:null,overrideUnitPrice:0}],costs:[{name:"first",amount:0,enabled:true},{name:"second",amount:2,enabled:true}] }},{id:"brand-b",name:"acme",defaults:{defaultTrims:[]}}],
     customerSalespeople:[{id:"sales-a",name:"林",brandId:"missing-brand",defaults:{defaultTrims:[]}},{id:"sales-b",name:" 林 ",brandId:"brand-a",defaults:{defaultTrims:[]}}],
     fabricLibrary:[{id:"fabric-a",name:"同名"},{id:"fabric-a",name:"同名"}],trimLibrary:[{id:"trim-a",name:"同名"},{id:"trim-b",name:"同名"}],systemDefaults:{usdCnyRate:0},
   },globalQuoteSettings:{manufacturingPresets:[],defaultManufacturingPresetId:"missing",costs:[{name:"disabled",amount:1,enabled:false},{name:"valid",amount:0,enabled:true}]}});
@@ -95,12 +96,15 @@ test("pure migration preview reports blockers, preserves duplicate materials and
   assert.equal(preview.duplicateNormalizedBrandNames.length,1);assert.equal(preview.duplicateNormalizedSalespersonNames.length,1);
   assert.deepEqual(preview.duplicateStableIds,["fabric:fabric-a"]);
   assert.equal(preview.missingBrandReferences.length,1);assert.equal(preview.missingTrimReferences.length,1);
-  assert.equal(preview.discardedLegacyDefaultTrimQuantityCount,1);assert.equal(preview.legacyMultipleDefaultCostCollapseCount,1);
+  assert.equal(preview.discardedLegacyDefaultTrimQuantityCount,1);assert.equal(preview.discardedLegacyDefaultTrimUsageCount,1);assert.equal(preview.legacyMultipleDefaultCostCollapseCount,1);
+  assert.equal(preview.duplicateFabricNameGroups.length,1);assert.equal(preview.duplicateTrimNameGroups.length,1);assert.equal(preview.supplierMasterRows,0);
   assert.ok(preview.blockingErrors.includes("defaultManufacturingPresetId does not reference a projected preset"));
   const projectedTrim=((preview.projection.basicSettings.brands[0].defaults as Record<string,unknown>).defaultTrims as Array<Record<string,unknown>>)[0];
-  assert.equal(Object.hasOwn(projectedTrim,"quantity"),false);assert.equal(projectedTrim.overrideUnitPrice,0);
-  assert.equal((preview.projection.basicSettings.systemDefaults as Record<string,unknown>).usdCnyRate,0);
+  assert.equal(Object.hasOwn(projectedTrim,"quantity"),false);assert.equal(Object.hasOwn(projectedTrim,"usage"),false);assert.equal(projectedTrim.overrideUnitPrice,"0");
+  assert.equal((preview.projection.basicSettings.systemDefaults as Record<string,unknown>).usdCnyRate,"0");
   assert.equal((preview.projection.basicSettings.brands[0].defaults as Record<string,unknown>).defaultUsdCnyRate,null);
+  assert.ok(preview.zeroDecimalValuesPreserved>=2);assert.ok(preview.nullDecimalValuesPreserved>=1);
+  assert.equal(preview.projectedServerRows.total,10);
 });
 
 test("migration preview reports absent manufacturing preset configuration without inventing it",()=>{
@@ -119,6 +123,65 @@ test("migration preview clears an inactive referenced default without treating i
     },
   });
   assert.equal(preview.projection.globalQuoteSettings?.defaultManufacturingPresetId,null);
-  assert.ok(preview.warnings.includes("Default manufacturing preset references an inactive preset and will be cleared"));
+  assert.equal(preview.inactiveManufacturingPresetDefault,"inactive");
+  assert.ok(preview.warnings.includes("Default manufacturing preset references an inactive preset and will be cleared under D-090"));
   assert.ok(!preview.blockingErrors.includes("defaultManufacturingPresetId does not reference a projected preset"));
+});
+
+const backupFixture=(options:{schemaVersion?:number;createdAt?:string;basic?:Record<string,unknown>;global?:Record<string,unknown>;legacyUnwrapped?:boolean}={})=>{
+  const namespace="zhixu.erp.synthetic-q3b2a";
+  const schemaVersion=options.schemaVersion??13;
+  const envelope=(data:Record<string,unknown>)=>options.legacyUnwrapped?data:{schemaVersion,initializedAt:"2026-09-01T00:00:00.000Z",updatedAt:"2026-09-20T00:00:00.000Z",data};
+  return {
+    product:"zhixu-erp",backupVersion:1,schemaVersion:13,createdAt:options.createdAt??"2026-09-22T00:00:00.000Z",environment:"production",origin:"http://127.0.0.1:3001",namespace,
+    localRecords:{
+      [`${namespace}.basic-settings`]:JSON.stringify(envelope(options.basic??{brands:[],customerSalespeople:[],fabricLibrary:[],trimLibrary:[],systemDefaults:{usdCnyRate:null,markupRate:0,defaultOtherCost:null}})),
+      [`${namespace}.quote-global-settings`]:JSON.stringify(envelope(options.global??{defaultUsdCnyRate:null,defaultMarkupRate:0,defaultOtherCost:null,defaultManufacturingPresetId:null,manufacturingPresets:[]})),
+      [`${namespace}.quote-preferences.user`]:JSON.stringify({schemaVersion:13,data:{visibleColumns:["name"]}}),
+    },attachments:[],templates:[],styleProgress:{},
+  };
+};
+
+test("backup preview accepts current envelopes, excludes preferences and is deterministic across capture timestamps",async()=>{
+  const first=await previewMasterSettingsBackup(backupFixture());
+  const second=await previewMasterSettingsBackup(backupFixture({createdAt:"2026-09-23T12:34:56.000Z"}));
+  assert.equal(first.sourceHash,second.sourceHash);
+  assert.equal(first.sourceRecords.basicSettings.storageKey,"zhixu.erp.synthetic-q3b2a.basic-settings");
+  assert.equal(first.sourceRecords.basicSettings.format,"current-envelope");
+  assert.equal(first.excludedRecordCount,1);assert.equal(first.databaseReads,0);assert.equal(first.databaseWrites,0);assert.equal(first.browserWrites,0);
+  assert.deepEqual(first.preview.sourceCounts,{brands:0,customerSalespeople:0,fabrics:0,trims:0,manufacturingPresets:0,brandDefaultTrims:0,salespersonDefaultTrims:0});
+  assert.equal(first.preview.blockingErrors.length,0);
+});
+
+test("backup preview accepts supported legacy and unwrapped envelopes without changing business identity",async()=>{
+  const legacy=await previewMasterSettingsBackup(backupFixture({schemaVersion:12}));
+  const unwrapped=await previewMasterSettingsBackup(backupFixture({legacyUnwrapped:true}));
+  assert.equal(legacy.sourceRecords.basicSettings.format,"legacy-envelope");
+  assert.equal(legacy.sourceRecords.basicSettings.schemaVersion,12);
+  assert.equal(unwrapped.sourceRecords.globalQuoteSettings.format,"legacy-unwrapped");
+  assert.equal(legacy.preview.blockingErrors.length,0);assert.equal(unwrapped.preview.blockingErrors.length,0);
+});
+
+test("migration preview preserves exact decimals/null/zero and blocks invalid decimals and scoped IDs",()=>{
+  const preview=previewMasterSettingsMigration({
+    basicSettings:{
+      brands:[{id:"b",name:"B",defaults:{defaultUsdCnyRate:0,defaultTrims:[{id:"same",trimLibraryItemId:"t",overrideLossRate:0.125,overrideUnitPrice:null},{id:"same",trimLibraryItemId:"t",overrideLossRate:null,overrideUnitPrice:1e-7}],defaultOtherCost:{name:"fee",amount:0}}}],
+      customerSalespeople:[],
+      fabricLibrary:[{id:"f",name:"Fabric",netWidthCm:1e-7,gsm:null,defaultLossRate:-1,unitPrice:0}],
+      trimLibrary:[{id:"t",name:"Trim",defaultLossRate:null,unitPrice:0}],
+      systemDefaults:{usdCnyRate:null,markupRate:0,defaultOtherCost:null},
+    },
+    globalQuoteSettings:{defaultUsdCnyRate:null,defaultMarkupRate:0,defaultOtherCost:null,defaultManufacturingPresetId:null,manufacturingPresets:[]},
+  });
+  const fabric=preview.projection.basicSettings.fabricLibrary[0];
+  assert.equal(fabric.netWidthCm,"0.0000001");assert.equal(fabric.gsm,null);assert.equal(fabric.unitPrice,"0");
+  assert.equal(preview.invalidNumericValues.length,1);assert.ok(preview.blockingErrors.includes("Invalid decimal values"));
+  assert.deepEqual(preview.scopedIdentityCollisions,[{scope:"brandDefaultTrim",ownerId:"b",id:"same",count:2}]);
+  assert.ok(preview.blockingErrors.includes("Duplicate scoped stable IDs"));
+});
+
+test("backup preview blocks forbidden credential/session fields in selected source only",async()=>{
+  const report=await previewMasterSettingsBackup(backupFixture({basic:{brands:[],customerSalespeople:[],fabricLibrary:[],trimLibrary:[],systemDefaults:{sessionToken:"forbidden"}}}));
+  assert.deepEqual(report.sensitiveFieldPaths,["source.basicSettings.systemDefaults.sessionToken"]);
+  assert.ok(report.preview.blockingErrors.includes("Master/settings source contains forbidden credential/session fields"));
 });
