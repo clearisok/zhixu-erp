@@ -199,7 +199,7 @@ npm run dev:local
 docker compose --profile server-foundation up --build server
 ```
 
-该 profile 等待现有 `database` PG16 health，保留 `zhixu_data` named volume，并由 `/api/v1/health` 检查新 server。`Backup-Zhixu.ps1` / `Restore-Zhixu.ps1` 仍面向 `database` service；Phase 1 未修改或执行备份恢复，也未删除 volume。
+该 profile 等待现有 `database` PG16 health，保留 `zhixu_data` named volume，并由 `/api/v1/health` 检查新 server。Phase 1 未修改或执行备份恢复，也未删除 volume。Q3B2G 后 `Backup-Zhixu.ps1` / `Restore-Zhixu.ps1` 不再依赖当前 checkout 的 Compose 解析目标，而是共用显式 exact-target guard；真实库仅执行了只读 `-VerifyTargetOnly`，本 Gate 未真实备份或恢复。目标/冻结/双重确认规则见 `docs/features/QUOTE_MASTER_SETTINGS_ACTIVATION.md`。
 
 ## Verification
 
