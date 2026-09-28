@@ -1,6 +1,6 @@
 # Quote Master / Settings 激活规划与 Q3B2H schema 执行记录
 
-> 2026-09-28：Q3B2H 已经在独立用户授权和停写/最终备份/隔离恢复后，完成真实 PostgreSQL schema migration 0004–0007。本文件后续 Q3B2D–G 的“pending/未授权”描述保留为各阶段历史证据，不再代表当前 ledger。本文**不授权** master/settings import、Quote import、Browser authority cutover、真实 restore 或 Node 部署。
+> 2026-09-28：**Q3B2H CLOSED / PASS**。真实 PostgreSQL schema migration 0004–0007 和用户自行完成的 Windows/local Compose Node post-migration recovery 均已验收。本文件后续 Q3B2D–G 的“pending/未授权”描述保留为各阶段历史证据，不代表当前 ledger。此验收不是 Linux production deployment readiness，也不授权 master/settings import、Quote import、Browser authority cutover 或真实 restore。
 
 ## Q3B2H 真实 schema activation — 当前状态
 
@@ -8,7 +8,7 @@
 - 停止 `preparesystem-server-1` 与 `zhixu-factory-system`，保留数据库运行；共用 writer guard 证实其余同项目应用容器与真实 DB client backend 均为 0。停写后最终 rollback backup `zhixu-20260928T090305Z-23506a4a.dump`，`649357` bytes、SHA-256 `68b7d953157a62ae9e023868f3e6035477708035adc98f6e23627b8f8df7adc6`；archive list、跨副本 hash、无网络/host port/生产卷的 PostgreSQL 16 disposable restore、ledger/关键 schema/业务计数读回均 PASS。备份及 D-091 执行证据只保留于 Git-ignored 本机 `backups/`，没有执行真实 restore。
 - 已提交的 `scripts/Invoke-ZhixuGuardedMigration.ps1 -VerifyOnly` 返回 applied=3/pending=4；同一 wrapper `-Execute` 经目标/来源/备份 hash/writer guard 后调用仓库 `runMigrations`，依序应用 0004、0005、0006、0007，跳过既有 0001–0003。每文件 ledger filename/checksum 的真实 `BEGIN READ ONLY` 读回全部 PASS。0004 terms 两表、0005 Quote foundation 八表、0006 sequence/unique/immutability trigger、0007 七张 master/settings 表与关键约束均存在，没有 partial state。
 - 新 terms/Quote/master-settings 表全部 **EMPTY**，Quote sequence `last_value=1/is_called=false`；SalesOrder/source link/contract mirror/color mirror/SalesOrder OperationLog 仍为 `511/511/511/1348/511`，零关联孤儿。没有生成 fake per-row runtime OperationLog，也没有 master/settings import、Quote import、Browser write/authority cutover 或 real restore。D-091 独立 typed COMMITTED evidence 与安全 manifest 的 execution ID 为 `e6fff29579a7455287e688e9a5eac599`，typed validation PASS；当前仅是本机 Git-ignored 留存，**不宣称具备防篡改远端证据库**。
-- 旧 `preparesystem-server-1` 镜像只包含 0001–0003，迁移后 **DO NOT RESTART**；它与 legacy writer 继续保持停止。用户后续自行部署此前在 disposable 0001–0007 数据库验收的 current-main Node 镜像，Codex 本 Gate 未部署或修改 workflow。**DATABASE SCHEMA ACTIVATED — WAITING FOR USER NODE SERVER DEPLOYMENT**。Browser 3000→3002 切换不是 migration 的副作用；生产 Browser authority 保持原状。
+- 旧 Node 镜像只包含 0001–0003，迁移后 **DO NOT RESTART**；用户已自行将 `preparesystem-server-1` 更新为 revision `f0c252b52b6a626037e8ba70cf51d0e976e45447` 的 current-main 镜像。当前容器 running/healthy、restart count 0；`/api/v1/health` 返回 `ok/ready`，镜像的只读 migration status 返回 0001–0007 applied、pending `[]`、integrity `valid`、current `true`。七张 Q3 master/settings 表仍各为 0 行。**Q3B2H CLOSED / PASS；Q3B2I FRESH MASTER/SETTINGS SOURCE GATE NEXT。**当前 Windows/local Compose Server 仍运行于 development environment，不可写成 Linux production deployment ready；Codex 本 Gate 未修改部署 workflow。Browser 3000→3002 切换不是 migration 的副作用，Browser authority 保持原状。
 
 ## 已证实的基线与边界
 
@@ -141,7 +141,7 @@ Q3B2H 的真实 schema activation 在 writer freeze、final backup、0004–0007
 10. 验证新 Server 认识真实 ledger 的全部 0001–0007 文件与 checksum，确认没有旧镜像 missing-file 故障。
 11. 仅在以上全部 PASS、责任人签核及单一 authority 边界明确后恢复正常使用。
 
-本地 prepared image 的结论是 **DISPOSABLE STARTUP READY**，不是当前生产可用性或真实 migration 授权。**Q3B2H remains NOT EXECUTED and PAUSED, awaiting renewed real migration authorization**；真实 0004–0007、final backup、writer freeze、restore、Server replacement、Quote/master import 均未执行。
+本段只记录当时的 **disposable prerequisite**：在该时点 Q3B2H 尚未执行，prepared image 也不是生产部署。此后用户已分别授权真实 schema activation 并自行完成本地 Node replacement；当前结果见文件开头的 Q3B2H CLOSED / PASS 记录。Quote/master import 仍未执行。
 
 Q3B2F 当时的 `Backup-Zhixu.ps1` 依据脚本 checkout 的 `.env` 与当前 Compose project 解析 `database`，缺少 exact container/fingerprint guard；`Restore-Zhixu.ps1` 还会 `--clean --if-exists` 覆盖数据并重启应用。因此当时结论为 **HARDENING REQUIRED**。Q3B2G 的后续实现见下；Q3B2F 本身未运行两份生产脚本，也未操作另一个未挂载的 `zhixu-ainuoke-api_zhixu_data` 卷。
 
@@ -214,7 +214,7 @@ Browser master/settings/Quick Create 写入冻结从 fresh source export **之�
 | Real DB identity/ledger/checksum/status preflight | YES | Q3B2H fresh exact-target preflight 和 post-activation read-only verification PASS；现在 0001–0007 applied/checksum consistent | schema activation 已完成；未来 import 仍需 fresh check |
 | Real DB backup + isolated restore evidence | YES | Q3B2H 停写后 final archive + hash + isolated PostgreSQL 16 restore/read-back PASS；Git-ignored 本机保存 | schema activation 已满足；未来 import 另需自己的 rollback 窗口检查 |
 | Backup/restore script target hardening | YES | Q3B2G shared guard；Q3B2H 正式 backup 与 guarded migration 均通过 exact target 验证 | schema activation PASS；真实 restore 仍未授权 |
-| Maintenance/full writer freeze | YES | Q3B2H 冻结 Node/legacy，验证 0 client；当前维持停止 | schema activation PASS；解冻/新 Node 部署由后续独立操作决定 |
+| Maintenance/full writer freeze | YES | Q3B2H 冻结 Node/legacy 并验证 0 client；用户随后自行部署新 Node，当前 running/healthy | schema activation 与本地 Node recovery PASS；后续 import 另需 fresh freeze |
 | Production Basic/Global Server adapters on formal routes | YES | 仅隔离 candidate | **cutover blocker** |
 | Quote Editor master/default/Quick Create Server integration | YES | Browser/local | **cutover blocker** |
 | Trusted identity/RBAC | YES | Server foundation ready；production convergence incomplete | **cutover blocker** |
@@ -222,7 +222,7 @@ Browser master/settings/Quick Create 写入冻结从 fresh source export **之�
 | Guarded real import CLI + rollback mechanism | YES | 未实现/未验收 | **import blocker** |
 | Manual UI acceptance and rollback switch | YES | 未验收 | **cutover blocker** |
 
-**当前结果：Q3B2H REAL SCHEMA ACTIVATION COMPLETE；WAITING FOR USER NODE SERVER DEPLOYMENT；NOT READY FOR MASTER/QUOTE IMPORT OR BROWSER CUTOVER。** 0004–0007 已正式应用，但七张 Q3 表仍空；旧 Node 镜像不可重启。未来导入仍需要 fresh Browser source/Preview/rehearsal、受控 importer、可保管的 D-091 evidence、生产集成和独立授权。Q4 attachments、Q5 Quote data migration 与 Quote production cutover 均属后续独立阶段。
+**当前结果：Q3B2H CLOSED / PASS；Q3B2I FRESH MASTER/SETTINGS SOURCE GATE NEXT；NOT READY FOR MASTER/QUOTE IMPORT OR BROWSER CUTOVER。** 0004–0007 已正式应用，七张 Q3 表仍空，用户自行完成的 Windows/local Compose Node recovery 已通过 health 与 migration-ledger recognition。旧 Node 镜像不可重启；当前 development 环境验收不等于 Linux production deployment ready。未来导入仍需要 fresh Browser source/Preview/rehearsal、受控 importer、可保管的 D-091 evidence、生产集成和独立授权。Q4 attachments、Q5 Quote data migration 与 Quote production cutover 均属后续独立阶段。
 
 ## 审计依据
 
