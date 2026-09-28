@@ -1,3 +1,3 @@
-import { CustomerSalespeopleSettingsPage } from "@/features/basic-settings/components/basic-settings-pages";
+import { ProductionBasicSettingsPage } from "@/features/basic-settings/components/production-master-settings-page";
 
-export default function Page() { return <CustomerSalespeopleSettingsPage />; }
+export default function Page() { return <ProductionBasicSettingsPage scope="salespeople" />; }

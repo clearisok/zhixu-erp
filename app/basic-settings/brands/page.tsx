@@ -1,3 +1,3 @@
-import { BrandSettingsPage } from "@/features/basic-settings/components/basic-settings-pages";
+import { ProductionBasicSettingsPage } from "@/features/basic-settings/components/production-master-settings-page";
 
-export default function Page() { return <BrandSettingsPage />; }
+export default function Page() { return <ProductionBasicSettingsPage scope="brands" />; }

@@ -1,4 +1,5 @@
 import { defaultBasicSettings, normalizeBasicSettings, type BasicSettingsState } from "../model/basic-settings";
+import { assertBrowserMasterRead, assertBrowserMasterWrite, masterSettingsAuthority, readFrozenBrowserMasterRecord } from "../authority/master-settings-authority.ts";
 import {
   browserLocalDataStore,
   LEGACY_LOCAL_DATA_KEYS,
@@ -29,10 +30,13 @@ export function createBasicSettingsRepository(store: LocalDataStore = browserLoc
 const basicSettingsRepository = createBasicSettingsRepository();
 
 export function loadBasicSettings(): BasicSettingsState {
+  assertBrowserMasterRead();
+  if (masterSettingsAuthority() === "frozen") return normalizeBasicSettings(readFrozenBrowserMasterRecord(BASIC_SETTINGS_STORAGE_NAME) as Partial<BasicSettingsState>);
   return basicSettingsRepository.load();
 }
 
 export function saveBasicSettings(state: BasicSettingsState): BasicSettingsState {
+  assertBrowserMasterWrite();
   return basicSettingsRepository.save(state);
 }
 

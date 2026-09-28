@@ -1,3 +1,3 @@
-import { TrimLibraryPage } from "@/features/basic-settings/components/basic-settings-pages";
+import { ProductionBasicSettingsPage } from "@/features/basic-settings/components/production-master-settings-page";
 
-export default function Page() { return <TrimLibraryPage />; }
+export default function Page() { return <ProductionBasicSettingsPage scope="trims" />; }

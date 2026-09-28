@@ -17,6 +17,10 @@ import {
   type TrimLibraryItem,
 } from "../model/basic-settings";
 import { saveBasicSettings } from "../repository/basic-settings-repository";
+import { dispatchMasterMutation, type MasterSettingsAuthority } from "../authority/master-settings-authority";
+import type { BasicSettingsServerScope } from "../server/server-basic-settings-adapter";
+import type { BasicSettingsPersistResult } from "./basic-settings-controller";
+import type { PermissionKey } from "../../permissions/model/permissions";
 import {
   appendDefaultTrim,
   BrandFormFields,
@@ -42,6 +46,9 @@ type QuickMasterDataCreateProps = {
   onBrandCreated: (brand: BrandRecord, state: BasicSettingsState) => void;
   onSalespersonCreated: (salesperson: CustomerSalespersonRecord, state: BasicSettingsState) => void;
   notify: (message: string) => void;
+  authority?: MasterSettingsAuthority;
+  canMaster?: (permission: PermissionKey) => boolean;
+  persistMaster?: (scope: BasicSettingsServerScope, next: BasicSettingsState) => Promise<BasicSettingsPersistResult>;
 };
 
 function SaveAndUseButton() {
@@ -64,25 +71,41 @@ function QuickMasterDataCreateSession({
   onBrandCreated,
   onSalespersonCreated,
   notify,
+  authority = "browser",
+  canMaster,
+  persistMaster,
 }: Omit<QuickMasterDataCreateProps, "request"> & { request: QuickMasterDataRequest }) {
-  const { can, currentUser } = usePermissions();
+  const { can: browserCan, currentUser } = usePermissions();
+  const can = canMaster ?? browserCan;
   const [brandDraft, setBrandDraft] = useState<BrandDraft | null>(() => request.kind === "brand" ? createBrandDraft(request.query) : null);
   const [salespersonDraft, setSalespersonDraft] = useState<SalespersonDraft | null>(() => request.kind === "salesperson" ? createSalespersonDraft(request.brandId, request.query) : null);
   const [trimDraft, setTrimDraft] = useState<TrimLibraryItem | null>(null);
   const [error, setError] = useState("");
   const [trimError, setTrimError] = useState("");
 
-  const persist = (next: BasicSettingsState) => {
-    const saved = saveBasicSettings(next);
-    const logs = createBasicSettingsOperationLogs(state, saved, { userId: currentUser.id, userName: currentUser.name });
-    onStateChange(saved);
-    void operationLogRepository.appendMany(logs).catch((technicalError) => reportFailure(technicalError));
-    return saved;
+  const persist = async (scope: BasicSettingsServerScope, next: BasicSettingsState): Promise<BasicSettingsPersistResult> => {
+    return dispatchMasterMutation(authority,
+      persistMaster ? async () => {
+        const result = await persistMaster(scope, next);
+        onStateChange(result.state);
+        return result;
+      } : undefined,
+      () => {
+        const saved = saveBasicSettings(next);
+        const logs = createBasicSettingsOperationLogs(state, saved, { userId: currentUser.id, userName: currentUser.name });
+        onStateChange(saved);
+        void operationLogRepository.appendMany(logs).catch((technicalError) => reportFailure(technicalError));
+        return { state: saved };
+      });
   };
 
   const reportFailure = (technicalError: unknown) => {
     if (process.env.NODE_ENV !== "production") console.error("Quick master data save failed", technicalError);
-    notify("保存失败，请重试");
+    const status = technicalError && typeof technicalError === "object" && "status" in technicalError ? (technicalError as { status?: unknown }).status : undefined;
+    const message = status === 401 ? "Server 会话已失效；未写入 Browser。" : status === 403 ? "Server 权限不足；未写入 Browser。" : status === 409 ? "Server 数据已变更；当前草稿保留，请重新核对。" : "保存失败；当前草稿保留，未回退 Browser。";
+    setError(message);
+    setTrimError(message);
+    notify(message);
   };
 
   const saveBrand = async () => {
@@ -91,9 +114,11 @@ function QuickMasterDataCreateSession({
     if (validationError) { setError(validationError); return; }
     const brand: BrandRecord = { id: brandDraft.id, name: brandDraft.name.trim(), status: "active", defaults: draftToDefaultConfiguration(brandDraft.defaults, brandDraft.id) };
     try {
-      const saved = persist(upsertBrand(state, brand));
+      const saved = await persist("brands", upsertBrand(state, brand));
+      const created = saved.state.brands.find((item) => item.id === (saved.createdId ?? brand.id));
+      if (!created) throw new Error("Created Server brand is missing");
       onClose();
-      onBrandCreated(brand, saved);
+      onBrandCreated(created, saved.state);
     } catch (technicalError) { reportFailure(technicalError); }
   };
 
@@ -104,9 +129,11 @@ function QuickMasterDataCreateSession({
     if (!salespersonDraft.brandId || !state.brands.some((brand) => brand.id === salespersonDraft.brandId)) { setError("请选择有效的归属品牌"); return; }
     const salesperson: CustomerSalespersonRecord = { id: salespersonDraft.id, name: salespersonDraft.name.trim(), brandId: salespersonDraft.brandId, status: "active", defaults: draftToDefaultConfiguration(salespersonDraft.defaults, salespersonDraft.id) };
     try {
-      const saved = persist(upsertCustomerSalesperson(state, salesperson));
+      const saved = await persist("salespeople", upsertCustomerSalesperson(state, salesperson));
+      const created = saved.state.customerSalespeople.find((item) => item.id === (saved.createdId ?? salesperson.id));
+      if (!created) throw new Error("Created Server salesperson is missing");
       onClose();
-      onSalespersonCreated(salesperson, saved);
+      onSalespersonCreated(created, saved.state);
     } catch (technicalError) { reportFailure(technicalError); }
   };
 
@@ -122,9 +149,10 @@ function QuickMasterDataCreateSession({
     if (!trimDraft.unit.trim()) { setTrimError("请填写辅料单位"); return; }
     try {
       const item = { ...trimDraft, name: trimDraft.name.trim(), unit: trimDraft.unit.trim() };
-      persist(upsertTrimLibraryItem(state, item));
-      if (brandDraft) setBrandDraft({ ...brandDraft, defaults: appendDefaultTrim(brandDraft.defaults, item.id) });
-      if (salespersonDraft) setSalespersonDraft({ ...salespersonDraft, defaults: appendDefaultTrim(salespersonDraft.defaults, item.id) });
+      const saved = await persist("trims", upsertTrimLibraryItem(state, item));
+      const trimId = saved.createdId ?? item.id;
+      if (brandDraft) setBrandDraft({ ...brandDraft, defaults: appendDefaultTrim(brandDraft.defaults, trimId) });
+      if (salespersonDraft) setSalespersonDraft({ ...salespersonDraft, defaults: appendDefaultTrim(salespersonDraft.defaults, trimId) });
       setTrimDraft(null);
       notify(`辅料“${item.name}”已保存到辅料库并选用`);
     } catch (technicalError) { reportFailure(technicalError); }

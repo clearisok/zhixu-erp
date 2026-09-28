@@ -2,6 +2,14 @@
 
 > 2026-09-28：**Q3B2H CLOSED / PASS**。真实 PostgreSQL schema migration 0004–0007 和用户自行完成的 Windows/local Compose Node post-migration recovery 均已验收。本文件后续 Q3B2D–G 的“pending/未授权”描述保留为各阶段历史证据，不代表当前 ledger。此验收不是 Linux production deployment readiness，也不授权 master/settings import、Quote import、Browser authority cutover 或真实 restore。
 
+## Q3B2I-A production authority wiring — implemented, not activated
+
+- `NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY` 的唯一有效值为 `browser`（未配置时默认）、`frozen`、`server`；未知值抛错，不落回 Browser。它是当前前端构建的部署配置，**本 Gate 没有设置为 frozen/server，也没有部署**。受控切换必须核对实际构建值与所有旧标签页/客户端已停写；仅有新 bundle 的 guard 不足以证明旧代码停止写入。
+- 正式四个 Basic Settings 页面及 Global Quote Settings 复用 Q3B1 Server candidate/controller；`frozen` 页面保持现有 Browser Q3 只读，禁止编辑；`server` 使用 trusted Server session、细粒度 RBAC、optimistic version、原有 transaction + trusted OperationLog，失败不写 Browser Q3 或 Browser Q3 OperationLog。Browser 模式保持原路径和数据结构。
+- Browser Quote Editor 仍以 `mockQuoteRepository` 保存 Quote aggregate，但 Q3 master selectors、供应商提示、制作预设、默认资料解析、新报价系统默认、Quick Create（含嵌套 Trim）与“保存到面/辅料库”均依 authority 选择来源/写入。Server default 通过既有 `/api/v1/quote-settings/resolved-defaults`；Server decimal 不可精确投影、401/403/409、网络及无效响应均 fail closed，不补读 Browser Q3。D-089/D-090 与 Quote 历史快照语义不变；复制报价的品牌/业务员读取也不在 Server 模式回退 Browser。
+- Frozen Q3 读取已存在的 Browser envelope 时绕过会隐式 seed/migrate 的 `initialize()`；缺失或损坏的 Q3 来源直接报错。`saveBasicSettings`、`saveGlobalQuoteSettings`、Quick Create dispatcher，以及可整库替换/清空 Q3 记录的 Browser 备份恢复与本地数据重置入口，均在 frozen/server 模式拒绝写入。此保证适用于新构建中的这些路径，不是对旧 bundle、外部手动 localStorage 写入或尚未执行的维护窗口的现场证明。
+- Q3B2I-A 不读取 fresh backup、不运行 Preview/Rehearsal/import、不连接真实 PostgreSQL、不执行 migration 或部署。Q3B2H 确认的七表 empty 是最新已有基线，不是本 Gate 的新 SQL 读回。B fresh import 与 C Server authority cutover 仍必须在同一个受控 Browser 停写窗口；guarded real import runner、D-091 import-level evidence 与 rollback/smoke Gate 尚未完成。
+
 ## Q3B2H 真实 schema activation — 当前状态
 
 - 执行 commit `e209b855ecbb456d69c7a4298aeafffe460f19f2`；已审查 migration source commit `f0c252b52b6a626037e8ba70cf51d0e976e45447`。唯一目标 `zhixu-database` / `preparesystem` / `preparesystem_zhixu_data` / `zhixu`，fresh canonical fingerprint `28f587685bdf587bc21b4e348ac07da2297cc57029a81280b1c82208518d7ba1`。preflight 逐一确认 0001–0003 filename/checksum applied、0004–0007 pending、无 partial Q3 对象及 SalesOrder `511/511/511/1348/511`、零关联孤儿。

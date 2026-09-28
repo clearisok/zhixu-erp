@@ -13,7 +13,7 @@ const emptyClient=():QuoteMasterServerClient=>({
   listSalespeople:async()=>[],createSalesperson:async()=>{throw new Error("unused");},updateSalesperson:async()=>{throw new Error("unused");},
   listFabrics:async()=>[],createFabric:async()=>{throw new Error("unused");},updateFabric:async()=>{throw new Error("unused");},
   listTrims:async()=>[],createTrim:async()=>{throw new Error("unused");},updateTrim:async()=>{throw new Error("unused");},supplierSuggestions:async()=>[],
-  getSettings:async()=>null,listPresets:async()=>[],saveSettingsBundle:async()=>{throw new Error("unused");},
+  getSettings:async()=>null,listPresets:async()=>[],resolveDefaults:async()=>{throw new Error("unused");},saveSettingsBundle:async()=>{throw new Error("unused");},
 });
 
 test("Server basic-settings adapter preserves null/zero, gets Server IDs and omits legacy quantity",async()=>{

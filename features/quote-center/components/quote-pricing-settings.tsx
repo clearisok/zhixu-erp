@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, FormItem, Modal } from "@/components/foundation";
-import { applyManufacturingPresetToPriceVersion, loadGlobalQuoteSettings } from "../model/quote-settings";
+import { applyManufacturingPresetToPriceVersion, loadGlobalQuoteSettings, type GlobalQuoteSettings } from "../model/quote-settings";
 import type { PriceVersion } from "../model/quote-view-model";
 
 const amount = (value: number | null) => value === null ? "未设置" : `¥${value.toFixed(2)} / 件`;
@@ -10,17 +10,19 @@ export function QuotePricingSettings({
   open,
   priceVersion,
   readOnly = false,
+  settings,
   onPriceVersionChange,
   onClose,
 }: {
   open: boolean;
   priceVersion: PriceVersion;
   readOnly?: boolean;
+  settings?: GlobalQuoteSettings;
   onPriceVersionChange: (priceVersion: PriceVersion) => void;
   onClose: () => void;
 }) {
   const pricing = priceVersion.pricingParameters;
-  const presets = loadGlobalQuoteSettings().manufacturingPresets;
+  const presets = (settings ?? loadGlobalQuoteSettings()).manufacturingPresets;
   const selectedPresetExists = presets.some((preset) => preset.id === pricing.manufacturingPresetId);
   const selectPreset = (presetId: string) => {
     const preset = presets.find((item) => item.id === presetId);
