@@ -1,12 +1,20 @@
-# Quote Master / Settings 真实激活规划（Q3B2D）
+# Quote Master / Settings 激活规划与 Q3B2H schema 执行记录
 
-> 2026-09-28，planning / safety audit only。本文不是连接真实 PostgreSQL、执行 migration、导入、恢复或切换生产路由的授权。所有真实操作都需要后续独立 Gate 和明确授权。Q3B2B/Q3B2C 的成功只证明当时的只读 Preview 与 disposable PostgreSQL rehearsal。
+> 2026-09-28：**Q3B2H CLOSED / PASS**。真实 PostgreSQL schema migration 0004–0007 和用户自行完成的 Windows/local Compose Node post-migration recovery 均已验收。本文件后续 Q3B2D–G 的“pending/未授权”描述保留为各阶段历史证据，不代表当前 ledger。此验收不是 Linux production deployment readiness，也不授权 master/settings import、Quote import、Browser authority cutover 或真实 restore。
+
+## Q3B2H 真实 schema activation — 当前状态
+
+- 执行 commit `e209b855ecbb456d69c7a4298aeafffe460f19f2`；已审查 migration source commit `f0c252b52b6a626037e8ba70cf51d0e976e45447`。唯一目标 `zhixu-database` / `preparesystem` / `preparesystem_zhixu_data` / `zhixu`，fresh canonical fingerprint `28f587685bdf587bc21b4e348ac07da2297cc57029a81280b1c82208518d7ba1`。preflight 逐一确认 0001–0003 filename/checksum applied、0004–0007 pending、无 partial Q3 对象及 SalesOrder `511/511/511/1348/511`、零关联孤儿。
+- 停止 `preparesystem-server-1` 与 `zhixu-factory-system`，保留数据库运行；共用 writer guard 证实其余同项目应用容器与真实 DB client backend 均为 0。停写后最终 rollback backup `zhixu-20260928T090305Z-23506a4a.dump`，`649357` bytes、SHA-256 `68b7d953157a62ae9e023868f3e6035477708035adc98f6e23627b8f8df7adc6`；archive list、跨副本 hash、无网络/host port/生产卷的 PostgreSQL 16 disposable restore、ledger/关键 schema/业务计数读回均 PASS。备份及 D-091 执行证据只保留于 Git-ignored 本机 `backups/`，没有执行真实 restore。
+- 已提交的 `scripts/Invoke-ZhixuGuardedMigration.ps1 -VerifyOnly` 返回 applied=3/pending=4；同一 wrapper `-Execute` 经目标/来源/备份 hash/writer guard 后调用仓库 `runMigrations`，依序应用 0004、0005、0006、0007，跳过既有 0001–0003。每文件 ledger filename/checksum 的真实 `BEGIN READ ONLY` 读回全部 PASS。0004 terms 两表、0005 Quote foundation 八表、0006 sequence/unique/immutability trigger、0007 七张 master/settings 表与关键约束均存在，没有 partial state。
+- 新 terms/Quote/master-settings 表全部 **EMPTY**，Quote sequence `last_value=1/is_called=false`；SalesOrder/source link/contract mirror/color mirror/SalesOrder OperationLog 仍为 `511/511/511/1348/511`，零关联孤儿。没有生成 fake per-row runtime OperationLog，也没有 master/settings import、Quote import、Browser write/authority cutover 或 real restore。D-091 独立 typed COMMITTED evidence 与安全 manifest 的 execution ID 为 `e6fff29579a7455287e688e9a5eac599`，typed validation PASS；当前仅是本机 Git-ignored 留存，**不宣称具备防篡改远端证据库**。
+- 旧 Node 镜像只包含 0001–0003，迁移后 **DO NOT RESTART**；用户已自行将 `preparesystem-server-1` 更新为 revision `f0c252b52b6a626037e8ba70cf51d0e976e45447` 的 current-main 镜像。当前容器 running/healthy、restart count 0；`/api/v1/health` 返回 `ok/ready`，镜像的只读 migration status 返回 0001–0007 applied、pending `[]`、integrity `valid`、current `true`。七张 Q3 master/settings 表仍各为 0 行。**Q3B2H CLOSED / PASS；Q3B2I FRESH MASTER/SETTINGS SOURCE GATE NEXT。**当前 Windows/local Compose Server 仍运行于 development environment，不可写成 Linux production deployment ready；Codex 本 Gate 未修改部署 workflow。Browser 3000→3002 切换不是 migration 的副作用，Browser authority 保持原状。
 
 ## 已证实的基线与边界
 
 - Q3B2B 对一份捕获于 `2026-09-22T03:16:14.008Z` 的标准 Browser backup 只读 Preview：`sourceHash=102b13d60b8bece83104bc5c516eb22c6c9b32bd4b540931fa9c49152339175c`，`blockingErrors=0`，投影 49 行。该文件和 hash **不是**未来真实导入的默认 source/授权。
 - Q3B2C 消费同一个 Q3B2A Preview transformation，在 disposable PostgreSQL 16 上应用至 0007；49/49 行、stable IDs/FK、投影与读回内容 hash、decimal、null/zero、故障回滚及重复导入拒绝均通过。它没有真实数据库读写，也没有生成 runtime CRUD OperationLog。
-- 真实 PostgreSQL 已承载正式 SalesOrder 等数据；Q3B2D 时，以往的 511 单证据不能代替对实际目标的现场 read-only preflight。Q3B2E 已单独完成该检查，证据见下文。真实 0004–0007、Quote/master import 和 Browser authority cutover 均未执行。
+- 真实 PostgreSQL 已承载正式 SalesOrder 等数据；Q3B2D 时，以往的 511 单证据不能代替对实际目标的现场 read-only preflight。Q3B2E 已单独完成历史检查，Q3B2H 已做执行窗口 fresh check 并应用 0004–0007；Quote/master import 和 Browser authority cutover 均未执行。
 - 生产 `/basic-settings/*`、`/system-settings/quote-settings`、`/quote-center` 仍使用 Browser/localStorage/mock。隔离的 `/basic-settings/server/*` 和 `/system-settings/server/quote-settings` 只是 Server candidate，不是生产路由。没有 Browser↔Server 自动同步或双写。
 - 已确认规则保持：D-089 每个 System/Brand/CustomerSalesperson 作用域最多一个 nullable `DefaultOtherCost`，不改变 Quote `OtherCostLine` 0..N；D-090 默认制作预设必须 active；DefaultTrim 目标没有 quantity/usage；同名 Fabric/Trim 按 ID 保留；Supplier 仍为自由字符串。
 
@@ -14,7 +22,7 @@
 
 `server/index.ts` 正常启动只调用 `verifyMigrationsCurrent`：在 read-only transaction 中验证 ledger、filename/checksum 与 pending，异常时在权限同步、管理员 bootstrap 和 HTTP listen 前 fail closed，不会隐式建表。只有另外授权的 `npm run db:migrate` 才调用 `runMigrations`。后者按版本排序，使用 advisory lock，**每个待执行文件各自 `BEGIN`/`COMMIT`**；失败只回滚当前文件，之前成功的文件仍已提交，重新运行会跳过 ledger 中已应用的文件。0004–0007 不是一个总事务，也不能以“仅应用 0007”描述现有命令。
 
-Q3B2E 已只读确认 ledger 仍仅有 0001–0003；若后续授权执行 `db:migrate` 且当时状态未变化，一次运行将依次尝试：
+以下是 Q3B2H **执行前**依据 Q3B2E 只读 ledger（当时仅有 0001–0003）制定的顺序与失败语义；Q3B2H 已依此成功应用全部四个文件。不要把下表的“若执行”视为当前 pending 状态：
 
 | 版本 | 已审计行为 | 对既有数据的边界 | 失败后的状态 |
 | --- | --- | --- | --- |
@@ -113,6 +121,28 @@ Q3B2D 设计的后续 Gate 须先核对连接目标的 DB name/host/port/server 
 
 现有 migrations 为 forward-only，没有 down。某个 migration 文件失败时，之前成功的文件可能已提交：立即 STOP、保持冻结、记录 ledger/object 实际状态，优先审查可验证的 forward fix，不假装总回滚。schema verification mismatch、smoke failure 或意外业务数据 mutation 均先停流量、保持冻结并评估具体影响；只有 forward fix 不安全、rollback backup 与隔离恢复证据可信、RPO（含窗口内所有数据库写入）可接受，且另获**破坏性恢复授权**时才考虑真实 restore。若 backup/hash/restore 证据不可信，禁止 migration 和 restore，先重建可信备份；绝不自动恢复。Q3B2F 备份是在未冻结 writer 时捕获的工程证据，不是未来执行窗口的最终恢复点。
 
+### Q3B2H Node Server image recovery readiness — disposable only
+
+Q3B2H 的真实 schema activation 在 writer freeze、final backup、0004–0007 执行前已安全暂停。运行中的 `preparesystem-server-1` 旧镜像只包含 0001–0003；一旦真实 ledger 出现 0004–0007，该旧镜像的 `verifyMigrationsCurrent` 会因已应用文件缺失而拒绝启动，**NOT SAFE TO RESTART AFTER MIGRATION**。本 prerequisite 没有停止、重启或替换该容器。
+
+从未修改的 main Server/Dockerfile/migration 源 commit `f0c252b52b6a626037e8ba70cf51d0e976e45447` 构建的本地 prepared 镜像 `zhixu-server:q3b2h-ready-f0c252b52b6a`（build-id `q3b2h-readiness-f0c252b52b6a`）实际包含 0001–0007，七份 SQL 的镜像内 SHA-256 与仓库源文件相同。它只在两个随机命名、`--network none`、无 host port/生产 volume、PGDATA tmpfs 的 PostgreSQL 16 disposable 容器中测试：完整库使用正式 migration runner 应用 0001–0007，ledger filename/checksum 全部匹配；该镜像通过 verify-only startup，随后完成 permission catalog sync、测试管理员 bootstrap、HTTP listen 与 `/api/v1/health`。另一库仅有 0001–0003，镜像以 `pending_migrations` 退出，permission sync、admin bootstrap 和 listen 均未发生。测试后精确 disposable Server/DB 容器已删除；prepared image 留在本机，不是生产部署或未来环境的镜像身份保证。
+
+未来窗口在另行授权后必须按以下顺序执行；每步失败保持停写并停止推进：
+
+1. Fresh exact-target preflight：核对运行目标、部署 commit、migration source/ledger/checksum 与业务基线。
+2. 冻结当前所有 DB writers（legacy、Server、job、人工连接等）。
+3. 证明 business writers = 0，且持续监控重连；不能仅依赖 Node pending fail-closed。
+4. 在停写状态创建新的 final rollback backup，核对大小与 SHA-256；不复用 Q3B2F 旧备份。
+5. 在独立 disposable PostgreSQL 完成这份 final backup 的 restore/read-back 验证。
+6. 仅以另行授权的 guarded runner 显式应用 0004→0007；逐文件确认结果，不用 Server startup 隐式迁移。
+7. 对真实目标做 read-only post-migration ledger、对象和业务计数核验。
+8. **用户自行**以经核对的 current-main Node Server image 替换/启动 Server；Codex 在本 Gate 不部署、不触碰运行容器。
+9. 验证 `/api/v1/health`。
+10. 验证新 Server 认识真实 ledger 的全部 0001–0007 文件与 checksum，确认没有旧镜像 missing-file 故障。
+11. 仅在以上全部 PASS、责任人签核及单一 authority 边界明确后恢复正常使用。
+
+本段只记录当时的 **disposable prerequisite**：在该时点 Q3B2H 尚未执行，prepared image 也不是生产部署。此后用户已分别授权真实 schema activation 并自行完成本地 Node replacement；当前结果见文件开头的 Q3B2H CLOSED / PASS 记录。Quote/master import 仍未执行。
+
 Q3B2F 当时的 `Backup-Zhixu.ps1` 依据脚本 checkout 的 `.env` 与当前 Compose project 解析 `database`，缺少 exact container/fingerprint guard；`Restore-Zhixu.ps1` 还会 `--clean --if-exists` 覆盖数据并重启应用。因此当时结论为 **HARDENING REQUIRED**。Q3B2G 的后续实现见下；Q3B2F 本身未运行两份生产脚本，也未操作另一个未挂载的 `zhixu-ainuoke-api_zhixu_data` 卷。
 
 ### Q3B2G exact-target ops guard 与审计证据契约 — 2026-09-28
@@ -181,18 +211,18 @@ Browser master/settings/Quick Create 写入冻结从 fresh source export **之�
 | Fresh Browser backup + write freeze | YES | 未执行 | **真实 import blocker** |
 | Fresh source/file hash + Preview blockers 0 | YES | 未执行 | **真实 import blocker** |
 | Fresh disposable rehearsal same file | YES | 未执行 | **真实 import blocker** |
-| Real DB identity/ledger/checksum/status preflight | YES | Q3B2E 在精确运行容器以只读事务 PASS；0001–0003 applied，0004–0007 pending，checksum/object consistent | 当前不阻断下一安全 Gate；真实执行前仍须 fresh check |
-| Real DB backup + isolated restore evidence | YES | Q3B2F exact-container custom dump + hash + isolated PostgreSQL 16 full restore/read-back PASS；但尚未停写 | 工程能力已验证；真实 activation 窗口仍需 fresh final backup/restore evidence |
-| Backup/restore script target hardening | YES | Q3B2G shared exact-target guard、双重确认与 writer check 已在 disposable PASS；真实仅 `-VerifyTargetOnly` PASS | 代码层已实现；真实 activation 仍需窗口内 fresh target/freeze/backup 验证 |
-| Maintenance/full writer freeze | YES | 未安排 | **activation/import blocker** |
+| Real DB identity/ledger/checksum/status preflight | YES | Q3B2H fresh exact-target preflight 和 post-activation read-only verification PASS；现在 0001–0007 applied/checksum consistent | schema activation 已完成；未来 import 仍需 fresh check |
+| Real DB backup + isolated restore evidence | YES | Q3B2H 停写后 final archive + hash + isolated PostgreSQL 16 restore/read-back PASS；Git-ignored 本机保存 | schema activation 已满足；未来 import 另需自己的 rollback 窗口检查 |
+| Backup/restore script target hardening | YES | Q3B2G shared guard；Q3B2H 正式 backup 与 guarded migration 均通过 exact target 验证 | schema activation PASS；真实 restore 仍未授权 |
+| Maintenance/full writer freeze | YES | Q3B2H 冻结 Node/legacy 并验证 0 client；用户随后自行部署新 Node，当前 running/healthy | schema activation 与本地 Node recovery PASS；后续 import 另需 fresh freeze |
 | Production Basic/Global Server adapters on formal routes | YES | 仅隔离 candidate | **cutover blocker** |
 | Quote Editor master/default/Quick Create Server integration | YES | Browser/local | **cutover blocker** |
 | Trusted identity/RBAC | YES | Server foundation ready；production convergence incomplete | **cutover blocker** |
-| Migration audit policy | YES | CONFIRMED — D-091；typed evidence contract 已实现，正式 durable storage 尚未接入 runner | 政策已定；执行证据落地仍是 **import blocker** |
+| Migration audit policy | YES | CONFIRMED — D-091；Q3B2H 本地 Git-ignored typed schema execution evidence 已生成并验证；正式防篡改远端 storage 尚未接入 runner | schema attempt 有独立证据；未来 import 的 durable storage 仍待审查 |
 | Guarded real import CLI + rollback mechanism | YES | 未实现/未验收 | **import blocker** |
 | Manual UI acceptance and rollback switch | YES | 未验收 | **cutover blocker** |
 
-**结果：READY FOR FINAL MAINTENANCE SAFETY GATE；NOT READY FOR REAL MIGRATION / IMPORT / CUTOVER。** Q3B2E 只读 preflight、Q3B2F 一次真实 backup/隔离 restore drill 与 Q3B2G exact-target script hardening/D-091 政策均已完成；仍未执行 maintenance freeze、停写后的 final rollback backup，也未实现正式 migration-evidence durable storage、生产集成或 guarded import runner。下一 Gate 需独立授权并核对这些 blocker；本文件不是 migration 授权。Q4 attachments、Q5 Quote data migration 和整个 Quote production cutover 仍属独立阶段。
+**当前结果：Q3B2H CLOSED / PASS；Q3B2I FRESH MASTER/SETTINGS SOURCE GATE NEXT；NOT READY FOR MASTER/QUOTE IMPORT OR BROWSER CUTOVER。** 0004–0007 已正式应用，七张 Q3 表仍空，用户自行完成的 Windows/local Compose Node recovery 已通过 health 与 migration-ledger recognition。旧 Node 镜像不可重启；当前 development 环境验收不等于 Linux production deployment ready。未来导入仍需要 fresh Browser source/Preview/rehearsal、受控 importer、可保管的 D-091 evidence、生产集成和独立授权。Q4 attachments、Q5 Quote data migration 与 Quote production cutover 均属后续独立阶段。
 
 ## 审计依据
 
