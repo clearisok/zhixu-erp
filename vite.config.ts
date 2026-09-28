@@ -14,7 +14,15 @@ type ZhixuBuildInfo = {
   buildId: string;
   gitCommit: string;
   buildTime: string;
+  masterSettingsAuthority: "browser" | "frozen" | "server" | "invalid";
 };
+
+function buildMasterSettingsAuthority(): ZhixuBuildInfo["masterSettingsAuthority"] {
+  const value = process.env.NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY;
+  if (value === undefined || value === "" || value === "browser") return "browser";
+  if (value === "frozen" || value === "server") return value;
+  return "invalid";
+}
 
 function shanghaiTimestamp(date: Date): { buildId: string; buildTime: string } {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -57,6 +65,7 @@ function createBuildInfo(command: "build" | "serve"): ZhixuBuildInfo {
     buildId: process.env.ZHIXU_BUILD_ID?.trim() || generated.buildId,
     gitCommit: currentGitCommit(),
     buildTime: process.env.ZHIXU_BUILD_TIME?.trim() || generated.buildTime,
+    masterSettingsAuthority: buildMasterSettingsAuthority(),
   };
 }
 

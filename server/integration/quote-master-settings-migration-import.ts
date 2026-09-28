@@ -72,6 +72,23 @@ export class QuoteMasterSettingsMigrationError extends Error {
   }
 }
 
+/** The transaction committed; callers must KEEP FREEZE and must never label this rolled back. */
+export class QuoteMasterSettingsPostCommitError extends Error {
+  readonly code = "committed_unverified";
+  constructor(readonly committedCounts: QuoteMasterSettingsRowCounts, cause: unknown) {
+    super("Quote master/settings transaction committed, but post-commit readback did not verify", { cause });
+    this.name = "QuoteMasterSettingsPostCommitError";
+  }
+}
+
+export class QuoteMasterSettingsCommitUnknownError extends Error {
+  readonly code = "commit_outcome_unknown";
+  constructor(cause: unknown) {
+    super("Quote master/settings COMMIT outcome is unknown; keep all writers frozen", { cause });
+    this.name = "QuoteMasterSettingsCommitUnknownError";
+  }
+}
+
 const record = (value: unknown): UnknownRecord => value !== null && typeof value === "object" && !Array.isArray(value) ? value as UnknownRecord : {};
 const list = (value: unknown): UnknownRecord[] => Array.isArray(value) ? value.map(record) : [];
 
@@ -358,6 +375,8 @@ export async function importQuoteMasterSettingsProjection(
   const content = migrationContentFromPreview(report);
   const projectionContentHash = migrationContentHash(content);
   const client = await pool.connect();
+  let committedCounts: QuoteMasterSettingsRowCounts | null = null;
+  let commitAttempted = false;
   try {
     await client.query("BEGIN");
     try {
@@ -402,8 +421,11 @@ export async function importQuoteMasterSettingsProjection(
           .some((key) => inTransactionCounts[key] !== expectedCounts[key])) {
         throw new QuoteMasterSettingsMigrationError("reconciliation_failed", "Imported target differs from Preview projection");
       }
+      commitAttempted = true;
       await client.query("COMMIT");
+      committedCounts = inTransactionCounts;
     } catch (error) {
+      if (commitAttempted) throw new QuoteMasterSettingsCommitUnknownError(error);
       await client.query("ROLLBACK");
       throw error;
     }
@@ -411,15 +433,25 @@ export async function importQuoteMasterSettingsProjection(
     client.release();
   }
 
-  const postgresContent = await readQuoteMasterSettingsMigrationContent(pool);
-  const postgresContentHash = migrationContentHash(postgresContent);
-  return {
-    rowCounts: await readQuoteMasterSettingsRowCounts(pool),
-    projectionContentHash,
-    postgresContentHash,
-    contentHashesEqual: projectionContentHash === postgresContentHash,
-    decimalEvidence: decimalEvidence(postgresContent),
-  };
+  try {
+    const postgresContent = await readQuoteMasterSettingsMigrationContent(pool);
+    const postgresContentHash = migrationContentHash(postgresContent);
+    const rowCounts = await readQuoteMasterSettingsRowCounts(pool);
+    if (postgresContentHash !== projectionContentHash || !committedCounts ||
+      (Object.keys(rowCounts) as Array<keyof QuoteMasterSettingsRowCounts>).some((key) => rowCounts[key] !== committedCounts[key])) {
+      throw new Error("post_commit_reconciliation_mismatch");
+    }
+    return {
+      rowCounts,
+      projectionContentHash,
+      postgresContentHash,
+      contentHashesEqual: true,
+      decimalEvidence: decimalEvidence(postgresContent),
+    };
+  } catch (cause) {
+    if (!committedCounts) throw cause;
+    throw new QuoteMasterSettingsPostCommitError(committedCounts, cause);
+  }
 }
 
 export async function inspectDefaultTrimSchema(pool: Pool): Promise<{ columns: string[]; exact: boolean; quantity: boolean; usage: boolean }> {

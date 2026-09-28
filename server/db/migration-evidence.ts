@@ -1,6 +1,6 @@
 // A pure, storage-neutral contract for future guarded migration/import runners.
 // It is not a runtime OperationLog and does not write to PostgreSQL.
-export type MigrationExecutionOutcome = "PREPARED" | "COMMITTED" | "FAILED";
+export type MigrationExecutionOutcome = "PREPARED" | "COMMITTED" | "FAILED" | "COMMITTED_UNVERIFIED" | "COMMIT_OUTCOME_UNKNOWN";
 export type MigrationExecutionType = "schema_migration" | "quote_master_settings_import" | "quote_import";
 
 export type MigrationLedgerEvidence = {
@@ -25,9 +25,13 @@ export type MigrationExecutionEvidence = {
   postgresVersion: string;
   migrationLedger: MigrationLedgerEvidence[];
   rollbackBackupSha256: string;
+  rollbackBackupManifestSha256?: string;
   sourceFileSha256?: string;
   sourceHash?: string;
   projectionContentHash?: string;
+  reviewedCommit?: string;
+  rehearsalProofSha256?: string;
+  freezeEvidenceSha256?: string;
   plannedCounts?: Record<string, number>;
   committedCounts?: Record<string, number>;
   readbackCounts?: Record<string, number>;
@@ -77,15 +81,15 @@ export function parseMigrationExecutionEvidence(input: unknown): MigrationExecut
   const source = record(input, [
     "evidenceVersion", "executionId", "executionType", "outcome", "startedAt", "finishedAt",
     "operator", "authorizationRef", "repoCommit", "targetFingerprint", "databaseName",
-    "postgresVersion", "migrationLedger", "rollbackBackupSha256", "sourceFileSha256",
-    "sourceHash", "projectionContentHash", "plannedCounts", "committedCounts", "readbackCounts",
+    "postgresVersion", "migrationLedger", "rollbackBackupSha256", "rollbackBackupManifestSha256", "sourceFileSha256",
+    "sourceHash", "projectionContentHash", "reviewedCommit", "rehearsalProofSha256", "freezeEvidenceSha256", "plannedCounts", "committedCounts", "readbackCounts",
     "readbackContentHash", "failure",
   ]);
   if (source.evidenceVersion !== 1) fail();
   const executionType = source.executionType;
   if (executionType !== "schema_migration" && executionType !== "quote_master_settings_import" && executionType !== "quote_import") fail();
   const outcome = source.outcome;
-  if (outcome !== "PREPARED" && outcome !== "COMMITTED" && outcome !== "FAILED") fail();
+  if (outcome !== "PREPARED" && outcome !== "COMMITTED" && outcome !== "FAILED" && outcome !== "COMMITTED_UNVERIFIED" && outcome !== "COMMIT_OUTCOME_UNKNOWN") fail();
   const startedAt = timestamp(source.startedAt);
   const finishedAt = timestamp(source.finishedAt);
   if (Date.parse(finishedAt) < Date.parse(startedAt)) fail();
@@ -100,11 +104,14 @@ export function parseMigrationExecutionEvidence(input: unknown): MigrationExecut
   if (new Set(migrationLedger.map((row) => row.version)).size !== migrationLedger.length) fail();
   migrationLedger.sort((left, right) => Number(left.version) - Number(right.version));
   const failure = source.failure === undefined ? undefined : record(source.failure, ["code", "phase"]);
-  if ((outcome === "FAILED") !== (failure !== undefined)) fail();
+  if ((outcome === "FAILED" || outcome === "COMMITTED_UNVERIFIED" || outcome === "COMMIT_OUTCOME_UNKNOWN") !== (failure !== undefined)) fail();
   if (outcome === "PREPARED" && (source.committedCounts !== undefined || source.readbackCounts !== undefined)) fail();
-  if (source.plannedCounts === undefined) fail();
+  if (executionType === "quote_master_settings_import" && source.plannedCounts === undefined) fail();
   if (outcome === "COMMITTED" && (source.committedCounts === undefined || source.readbackCounts === undefined || source.readbackContentHash === undefined)) fail();
+  if (outcome === "COMMITTED_UNVERIFIED" && source.committedCounts === undefined) fail();
   if (executionType !== "schema_migration" && (source.sourceFileSha256 === undefined || source.sourceHash === undefined || source.projectionContentHash === undefined)) fail();
+  if (executionType === "quote_master_settings_import" && (source.reviewedCommit === undefined || source.rehearsalProofSha256 === undefined || source.freezeEvidenceSha256 === undefined)) fail();
+  if (executionType === "quote_master_settings_import" && source.rollbackBackupManifestSha256 === undefined) fail();
   if (source.sourceHash !== undefined && (source.sourceFileSha256 === undefined || source.projectionContentHash === undefined)) fail();
   const evidence: MigrationExecutionEvidence = {
     evidenceVersion: 1,
@@ -123,8 +130,12 @@ export function parseMigrationExecutionEvidence(input: unknown): MigrationExecut
     rollbackBackupSha256: safeString(source.rollbackBackupSha256, SHA256),
   };
   if (source.sourceFileSha256 !== undefined) evidence.sourceFileSha256 = safeString(source.sourceFileSha256, SHA256);
+  if (source.rollbackBackupManifestSha256 !== undefined) evidence.rollbackBackupManifestSha256 = safeString(source.rollbackBackupManifestSha256, SHA256);
   if (source.sourceHash !== undefined) evidence.sourceHash = safeString(source.sourceHash, SHA256);
   if (source.projectionContentHash !== undefined) evidence.projectionContentHash = safeString(source.projectionContentHash, SHA256);
+  if (source.reviewedCommit !== undefined) evidence.reviewedCommit = safeString(source.reviewedCommit, COMMIT);
+  if (source.rehearsalProofSha256 !== undefined) evidence.rehearsalProofSha256 = safeString(source.rehearsalProofSha256, SHA256);
+  if (source.freezeEvidenceSha256 !== undefined) evidence.freezeEvidenceSha256 = safeString(source.freezeEvidenceSha256, SHA256);
   if (source.plannedCounts !== undefined) evidence.plannedCounts = counts(source.plannedCounts);
   if (source.committedCounts !== undefined) evidence.committedCounts = counts(source.committedCounts);
   if (source.readbackCounts !== undefined) evidence.readbackCounts = counts(source.readbackCounts);
