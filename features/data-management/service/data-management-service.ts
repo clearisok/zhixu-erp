@@ -1,6 +1,7 @@
 "use client";
 
 import { loadBasicSettings } from "../../basic-settings/repository/basic-settings-repository";
+import { assertBrowserMasterWrite, masterSettingsAuthority } from "../../basic-settings/authority/master-settings-authority";
 import { recentSearchRepository } from "../../global-search/repository/recent-search-repository";
 import { operationLogRepository } from "../../operation-logs/repository/operation-log-repository";
 import { permissionRepository } from "../../permissions/repository/permission-repository";
@@ -74,8 +75,10 @@ async function encodeBlob(blob: Blob): Promise<EncodedBlob> {
 
 export async function initializeLocalDataLifecycle(): Promise<void> {
   if (typeof window === "undefined") return;
-  loadBasicSettings();
-  loadGlobalQuoteSettings();
+  if (masterSettingsAuthority() !== "server") {
+    loadBasicSettings();
+    loadGlobalQuoteSettings();
+  }
   loadQuoteSettings(CURRENT_MOCK_USER_ID);
   const legacyPreferenceUserIds: string[] = [];
   for (let index = 0; index < window.localStorage.length; index += 1) {
@@ -196,6 +199,9 @@ const browserRestoreAdapters: LocalDataRestoreAdapters<AttachmentBackupRecord, T
 };
 
 export async function restoreValidatedLocalDataBackup(backup: LocalDataBackup, adapters: LocalDataRestoreAdapters<AttachmentBackupRecord, TemplateBackupRecord, ReturnType<typeof emptyStyleProgressData>> = browserRestoreAdapters): Promise<void> {
+  // A full Browser restore also replaces Q3 master/settings records. It cannot run
+  // during the freeze or after Server ownership has been selected.
+  assertBrowserMasterWrite();
   const nextAttachments: AttachmentBackupRecord[] = backup.attachments.map((entry) => ({ attachment: entry.attachment, blob: base64ToBlob(entry.file) }));
   const nextTemplates: TemplateBackupRecord[] = backup.templates.map((entry) => ({ definition: entry.definition, blob: base64ToBlob(entry.file) }));
   await restoreLocalDataStores({ attachments: nextAttachments, templates: nextTemplates, styleProgress: backup.styleProgress, localRecords: backup.localRecords }, adapters);
@@ -227,6 +233,7 @@ function removeLegacyLocalStorageRecords(): void {
 }
 
 export async function resetAllLocalBusinessData(confirmation: string): Promise<void> {
+  assertBrowserMasterWrite();
   if (confirmation !== RESET_ALL_LOCAL_DATA_CONFIRMATION) throw new Error("重置全部本地业务数据需要输入完整确认文字");
   await Promise.all([replaceStoredAttachments([]), replaceStoredTemplates([]), clearStyleProgressData()]);
   browserLocalDataStore.clearNamespace();

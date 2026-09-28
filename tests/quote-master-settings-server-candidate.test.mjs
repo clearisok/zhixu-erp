@@ -30,10 +30,16 @@ test("five isolated Server routes reuse the accepted production UI components",(
   assert.match(ui,/useScopedBasicSettingsController/u);assert.match(globalUi,/serverController/u);
 });
 
-test("production settings routes remain Browser/local and do not opt into Server controller",()=>{
-  for(const [index,name] of ["BrandSettingsPage","CustomerSalespeopleSettingsPage","FabricLibraryPage","TrimLibraryPage","GlobalQuoteSettingsPage"].entries()){
-    assert.match(routes[index+5],new RegExp(`<${name}`));assert.doesNotMatch(routes[index+5],/serverCandidate|serverController/u);
-  }
+test("production settings routes use the single Q3 authority boundary; Browser remains the default",async()=>{
+  for(const route of routes.slice(5)) assert.match(route,/Production(?:BasicSettings|GlobalQuoteSettings)Page/u);
+  const authority = await read("../features/basic-settings/authority/master-settings-authority.ts");
+  const production = await read("../features/basic-settings/components/production-master-settings-page.tsx");
+  assert.match(authority,/value === undefined \|\| value === "" \|\| value === "browser"/u);
+  assert.match(authority,/Invalid Q3 master\/settings authority configuration/u);
+  assert.match(production,/authority === "server"/u);
+  assert.match(production,/authority === "frozen"/u);
+  assert.match(production,/return <BrowserBasicSettings scope=/u);
+  assert.match(production,/return <GlobalQuoteSettingsPage/u);
   assert.match(ui,/loadBasicSettings/u);assert.match(ui,/saveBasicSettings/u);assert.match(globalUi,/loadGlobalQuoteSettings/u);assert.match(globalUi,/saveGlobalQuoteSettings/u);
 });
 

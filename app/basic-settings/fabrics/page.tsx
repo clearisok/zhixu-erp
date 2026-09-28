@@ -1,3 +1,3 @@
-import { FabricLibraryPage } from "@/features/basic-settings/components/basic-settings-pages";
+import { ProductionBasicSettingsPage } from "@/features/basic-settings/components/production-master-settings-page";
 
-export default function Page() { return <FabricLibraryPage />; }
+export default function Page() { return <ProductionBasicSettingsPage scope="fabrics" />; }

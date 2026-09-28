@@ -6,6 +6,7 @@ import type {
   SalespersonDto,
   TrimDto,
   QuoteDefaultsInput,
+  ResolvedQuoteDefaultsDto,
 } from "../../../server/quote-masters/model";
 
 export class QuoteMasterServerError extends Error {
@@ -47,6 +48,18 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return payload as T;
 }
 
+function requiredObject<T>(value: T, key: string): T[keyof T] {
+  const field = value[key as keyof T];
+  if (!field || typeof field !== "object" || Array.isArray(field)) throw new QuoteMasterServerError(0, "invalid_server_response", `Quote master Server ${key} response is invalid`);
+  return field;
+}
+
+function requiredArray<T>(value: T, key: string): T[keyof T] {
+  const field = value[key as keyof T];
+  if (!Array.isArray(field)) throw new QuoteMasterServerError(0, "invalid_server_response", `Quote master Server ${key} response is invalid`);
+  return field;
+}
+
 export type QuoteMasterServerClient = {
   listBrands(): Promise<BrandDto[]>;
   createBrand(input: BrandWrite): Promise<BrandDto>;
@@ -63,6 +76,7 @@ export type QuoteMasterServerClient = {
   supplierSuggestions(): Promise<string[]>;
   getSettings(): Promise<GlobalQuoteSettingsDto | null>;
   listPresets(): Promise<ManufacturingPresetDto[]>;
+  resolveDefaults(brandId?: string, salespersonId?: string): Promise<ResolvedQuoteDefaultsDto>;
   saveSettingsBundle(input: { expectedVersion: number; settings: SettingsWrite; manufacturingPresets: SettingsBundlePreset[] }): Promise<{ settings: GlobalQuoteSettingsDto; manufacturingPresets: ManufacturingPresetDto[]; createdPresetIds: Record<string,string> }>;
 };
 
@@ -84,22 +98,37 @@ export function createQuoteMasterServerClient(options: { baseUrl?: string; fetch
     body: JSON.stringify(body),
   });
   return {
-    listBrands: () => request<{ brands: BrandDto[] }>("/api/v1/quote-masters/brands").then((value) => value.brands),
-    createBrand: (input) => mutation<{ brand: BrandDto }>("POST","/api/v1/quote-masters/brands",input).then((value) => value.brand),
-    updateBrand: (id,expectedVersion,input) => mutation<{ brand: BrandDto }>("PATCH",`/api/v1/quote-masters/brands/${encodeURIComponent(id)}`,{expectedVersion,...input}).then((value) => value.brand),
-    listSalespeople: () => request<{ customerSalespeople: SalespersonDto[] }>("/api/v1/quote-masters/customer-salespeople").then((value) => value.customerSalespeople),
-    createSalesperson: (input) => mutation<{ customerSalesperson: SalespersonDto }>("POST","/api/v1/quote-masters/customer-salespeople",input).then((value) => value.customerSalesperson),
-    updateSalesperson: (id,expectedVersion,input) => mutation<{ customerSalesperson: SalespersonDto }>("PATCH",`/api/v1/quote-masters/customer-salespeople/${encodeURIComponent(id)}`,{expectedVersion,...input}).then((value) => value.customerSalesperson),
-    listFabrics: () => request<{ fabrics: FabricDto[] }>("/api/v1/quote-masters/fabrics").then((value) => value.fabrics),
-    createFabric: (input) => mutation<{ fabric: FabricDto }>("POST","/api/v1/quote-masters/fabrics",input).then((value) => value.fabric),
-    updateFabric: (id,expectedVersion,input) => mutation<{ fabric: FabricDto }>("PATCH",`/api/v1/quote-masters/fabrics/${encodeURIComponent(id)}`,{expectedVersion,...input}).then((value) => value.fabric),
-    listTrims: () => request<{ trims: TrimDto[] }>("/api/v1/quote-masters/trims").then((value) => value.trims),
-    createTrim: (input) => mutation<{ trim: TrimDto }>("POST","/api/v1/quote-masters/trims",input).then((value) => value.trim),
-    updateTrim: (id,expectedVersion,input) => mutation<{ trim: TrimDto }>("PATCH",`/api/v1/quote-masters/trims/${encodeURIComponent(id)}`,{expectedVersion,...input}).then((value) => value.trim),
-    supplierSuggestions: () => request<{ suppliers: string[] }>("/api/v1/quote-masters/supplier-suggestions").then((value) => value.suppliers),
-    getSettings: () => request<{ settings: GlobalQuoteSettingsDto | null }>("/api/v1/quote-settings").then((value) => value.settings),
-    listPresets: () => request<{ manufacturingPresets: ManufacturingPresetDto[] }>("/api/v1/quote-settings/manufacturing-presets").then((value) => value.manufacturingPresets),
-    saveSettingsBundle: (input) => mutation<{ settings: GlobalQuoteSettingsDto; manufacturingPresets: ManufacturingPresetDto[]; createdPresetIds: Record<string,string> }>("PATCH","/api/v1/quote-settings/bundle",input),
+    listBrands: () => request<{ brands: BrandDto[] }>("/api/v1/quote-masters/brands").then((value) => requiredArray(value,"brands")),
+    createBrand: (input) => mutation<{ brand: BrandDto }>("POST","/api/v1/quote-masters/brands",input).then((value) => requiredObject(value,"brand")),
+    updateBrand: (id,expectedVersion,input) => mutation<{ brand: BrandDto }>("PATCH",`/api/v1/quote-masters/brands/${encodeURIComponent(id)}`,{expectedVersion,...input}).then((value) => requiredObject(value,"brand")),
+    listSalespeople: () => request<{ customerSalespeople: SalespersonDto[] }>("/api/v1/quote-masters/customer-salespeople").then((value) => requiredArray(value,"customerSalespeople")),
+    createSalesperson: (input) => mutation<{ customerSalesperson: SalespersonDto }>("POST","/api/v1/quote-masters/customer-salespeople",input).then((value) => requiredObject(value,"customerSalesperson")),
+    updateSalesperson: (id,expectedVersion,input) => mutation<{ customerSalesperson: SalespersonDto }>("PATCH",`/api/v1/quote-masters/customer-salespeople/${encodeURIComponent(id)}`,{expectedVersion,...input}).then((value) => requiredObject(value,"customerSalesperson")),
+    listFabrics: () => request<{ fabrics: FabricDto[] }>("/api/v1/quote-masters/fabrics").then((value) => requiredArray(value,"fabrics")),
+    createFabric: (input) => mutation<{ fabric: FabricDto }>("POST","/api/v1/quote-masters/fabrics",input).then((value) => requiredObject(value,"fabric")),
+    updateFabric: (id,expectedVersion,input) => mutation<{ fabric: FabricDto }>("PATCH",`/api/v1/quote-masters/fabrics/${encodeURIComponent(id)}`,{expectedVersion,...input}).then((value) => requiredObject(value,"fabric")),
+    listTrims: () => request<{ trims: TrimDto[] }>("/api/v1/quote-masters/trims").then((value) => requiredArray(value,"trims")),
+    createTrim: (input) => mutation<{ trim: TrimDto }>("POST","/api/v1/quote-masters/trims",input).then((value) => requiredObject(value,"trim")),
+    updateTrim: (id,expectedVersion,input) => mutation<{ trim: TrimDto }>("PATCH",`/api/v1/quote-masters/trims/${encodeURIComponent(id)}`,{expectedVersion,...input}).then((value) => requiredObject(value,"trim")),
+    supplierSuggestions: () => request<{ suppliers: string[] }>("/api/v1/quote-masters/supplier-suggestions").then((value) => requiredArray(value,"suppliers")),
+    getSettings: () => request<{ settings: GlobalQuoteSettingsDto | null }>("/api/v1/quote-settings").then((value) => {
+      if (!Object.hasOwn(value,"settings")) throw new QuoteMasterServerError(0,"invalid_server_response","Quote settings response is invalid");
+      if (value.settings !== null) requiredObject(value,"settings");
+      return value.settings;
+    }),
+    listPresets: () => request<{ manufacturingPresets: ManufacturingPresetDto[] }>("/api/v1/quote-settings/manufacturing-presets").then((value) => requiredArray(value,"manufacturingPresets")),
+    resolveDefaults: (brandId, salespersonId) => {
+      const params = new URLSearchParams();
+      if (brandId) params.set("brandId", brandId);
+      if (salespersonId) params.set("salespersonId", salespersonId);
+      return request<{ defaults: ResolvedQuoteDefaultsDto }>(`/api/v1/quote-settings/resolved-defaults?${params}`).then((value) => requiredObject(value,"defaults"));
+    },
+    saveSettingsBundle: (input) => mutation<{ settings: GlobalQuoteSettingsDto; manufacturingPresets: ManufacturingPresetDto[]; createdPresetIds: Record<string,string> }>("PATCH","/api/v1/quote-settings/bundle",input).then((value) => {
+      requiredObject(value,"settings");
+      requiredArray(value,"manufacturingPresets");
+      requiredObject(value,"createdPresetIds");
+      return value;
+    }),
   };
 }
 

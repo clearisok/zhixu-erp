@@ -1,5 +1,5 @@
-import { GlobalQuoteSettingsPage } from "@/features/quote-center/components/global-quote-settings-page";
+import { ProductionGlobalQuoteSettingsPage } from "@/features/basic-settings/components/production-master-settings-page";
 
 export default function QuoteSettingsPage() {
-  return <GlobalQuoteSettingsPage />;
+  return <ProductionGlobalQuoteSettingsPage />;
 }

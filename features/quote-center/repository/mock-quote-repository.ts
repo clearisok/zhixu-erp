@@ -176,10 +176,10 @@ export function createMockQuoteRepository(options: {
     }
     writeQuotes(readQuotes().filter((quote) => quote.id !== id));
   },
-  async createDraft(today) {
+  async createDraft(today, masterSettings) {
     const suffix = String(readQuotes().length + 1).padStart(3, "0");
     const id = `quote-draft-${Date.now()}`;
-    const globalSettings = loadGlobalQuoteSettings();
+    const globalSettings = masterSettings ?? loadGlobalQuoteSettings();
     const quote = createQuoteDraft(id, `QT-2026-0817-${suffix}`, today, {
       usdCnyRate: globalSettings.defaultUsdCnyRate,
       markupRate: globalSettings.defaultMarkupRate,

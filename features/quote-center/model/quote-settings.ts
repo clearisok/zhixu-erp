@@ -1,6 +1,7 @@
 import { createCostLineGroupId, type LaborCurrency, type NullableNumber, type OtherCostLine, type PriceVersion, type PriceVersionPricingParameters, type QuoteRevision } from "./quote-view-model.ts";
 import { quoteListColumnDefinitions, type ListColumnKey } from "./quote-list-column-definitions.ts";
 import { browserLocalDataStore, LEGACY_LOCAL_DATA_KEYS } from "../../data-management/repository/local-data-store.ts";
+import { assertBrowserMasterRead, assertBrowserMasterWrite, masterSettingsAuthority, readFrozenBrowserMasterRecord } from "../../basic-settings/authority/master-settings-authority.ts";
 
 export type { ListColumnKey } from "./quote-list-column-definitions.ts";
 
@@ -212,6 +213,8 @@ export function normalizeGlobalQuoteSettings(value: Partial<GlobalQuoteSettings>
 }
 
 export function loadGlobalQuoteSettings(): GlobalQuoteSettings {
+  if (masterSettingsAuthority() === "frozen") return normalizeGlobalQuoteSettings(readFrozenBrowserMasterRecord("quote-global-settings") as Partial<GlobalQuoteSettings>);
+  assertBrowserMasterRead();
   if (typeof window === "undefined") return defaultGlobalQuoteSettings;
   return normalizeGlobalQuoteSettings(browserLocalDataStore.initialize("quote-global-settings", {
     seed: () => {
@@ -239,6 +242,7 @@ export function loadGlobalQuoteSettings(): GlobalQuoteSettings {
 }
 
 export function saveGlobalQuoteSettings(settings: GlobalQuoteSettings): GlobalQuoteSettings {
+  assertBrowserMasterWrite();
   const normalized = normalizeGlobalQuoteSettings(settings);
   if (typeof window !== "undefined") browserLocalDataStore.save("quote-global-settings", normalized);
   return normalized;

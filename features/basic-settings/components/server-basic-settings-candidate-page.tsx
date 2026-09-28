@@ -53,15 +53,16 @@ export function ServerBasicSettingsCandidatePage({ scope }: { scope: BasicSettin
     } finally { setLoading(false); }
   }, [adapter, session]);
 
+  const canRead = session.hasPermission(required) || session.hasPermission("quote.view");
   useEffect(() => {
-    if (session.status === "authenticated" && session.hasPermission(required)) void Promise.resolve().then(load);
+    if (session.status === "authenticated" && canRead) void Promise.resolve().then(load);
     else void Promise.resolve().then(() => setLoading(false));
-  }, [load, required, session]);
+  }, [canRead, load, session]);
 
   if (session.status === "checking") return <Frame title={title}><LoadingState label="确认织序 Server 登录状态" /></Frame>;
   if (session.status === "error") return <Frame title={title}><ErrorState title="无法确认 Server 登录状态" description={session.error} onRetry={() => void session.refresh()} /></Frame>;
   if (session.status === "anonymous") return <Frame title={title}><ServerLoginCard defaultUsername={process.env.NODE_ENV === "development" ? "admin" : ""} description="登录后进入 PostgreSQL 基础资料 candidate；不会回退到 Browser 数据。" /></Frame>;
-  if (!session.hasPermission(required)) return <Frame title={title}><ErrorState permission title="Server 权限不足（403）" description={`需要 ${required} 权限。`} /></Frame>;
+  if (!canRead) return <Frame title={title}><ErrorState permission title="Server 权限不足（403）" description={`需要 ${required} 或 quote.view 权限。`} /></Frame>;
   if (loading) return <Frame title={title}><LoadingState label="读取 PostgreSQL 基础资料" /></Frame>;
   if (error) return <Frame title={title}><ErrorState title="Server candidate 不可用" description={error} onRetry={() => void load()} /></Frame>;
 
@@ -91,7 +92,7 @@ export function ServerGlobalQuoteSettingsCandidatePage() {
   if (session.status === "checking") return <Frame title="报价设置"><LoadingState label="确认织序 Server 登录状态" /></Frame>;
   if (session.status === "error") return <Frame title="报价设置"><ErrorState title="无法确认 Server 登录状态" description={session.error} onRetry={() => void session.refresh()} /></Frame>;
   if (session.status === "anonymous") return <Frame title="报价设置"><ServerLoginCard defaultUsername={process.env.NODE_ENV === "development" ? "admin" : ""} description="登录后进入 PostgreSQL 报价设置 candidate；不会回退到 Browser 设置。" /></Frame>;
-  if (!session.hasPermission("settings.global.edit")) return <Frame title="报价设置"><ErrorState permission title="Server 权限不足（403）" description="需要 settings.global.edit 权限。" /></Frame>;
+  if (!session.hasPermission("settings.global.edit") && !session.hasPermission("quote.view")) return <Frame title="报价设置"><ErrorState permission title="Server 权限不足（403）" description="需要 settings.global.edit 或 quote.view 权限。" /></Frame>;
   const controller = {
     load: () => adapter.load().catch((error) => { if (error instanceof QuoteMasterServerError && error.status === 401) session.invalidate(); throw error; }),
     save: (settings: Parameters<typeof adapter.save>[0]) => adapter.save(settings).catch((error) => { if (error instanceof QuoteMasterServerError && error.status === 401) session.invalidate(); throw error; }),

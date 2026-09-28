@@ -83,8 +83,8 @@ test("R41-R44 权限与历史只读不会暴露 Quick Create mutation", async ()
   const quick = await readFile(new URL("../features/basic-settings/components/quick-master-data-create.tsx", import.meta.url), "utf8");
   assert.match(base, /!readOnly && onCreateBrand/);
   assert.match(base, /!readOnly && base\.brandId && onCreateSalesperson/);
-  assert.match(editor, /canCreateBrand=\{can\("settings\.brand\.edit"\)\}/);
-  assert.match(editor, /canCreateSalesperson=\{can\("settings\.salesperson\.edit"\)\}/);
+  assert.match(editor, /canCreateBrand=\{canQ3\("settings\.brand\.edit"\)\}/);
+  assert.match(editor, /canCreateSalesperson=\{canQ3\("settings\.salesperson\.edit"\)\}/);
   assert.match(quick, /can\("settings\.trim\.edit"\)/);
   assert.match(quick, /if \(!brandDraft \|\| !can\("settings\.brand\.edit"\)\) return/);
 });

@@ -1,4 +1,5 @@
 import type { Quote } from "../model/quote-view-model";
+import type { GlobalQuoteSettings } from "../model/quote-settings";
 import type { CopyQuoteInput } from "../model/quote-copy";
 
 export type QuoteDeleteOptions = { mode?: "hard" | "soft"; deletedAt?: string };
@@ -8,6 +9,6 @@ export interface QuoteRepository {
   getById(id: string): Promise<Quote | null>;
   save(quote: Quote): Promise<void>;
   delete(id: string, options?: QuoteDeleteOptions): Promise<void>;
-  createDraft(today: string): Promise<Quote>;
+  createDraft(today: string, masterSettings?: GlobalQuoteSettings): Promise<Quote>;
   copyFromDefaultRevision(sourceQuoteId: string, input: CopyQuoteInput): Promise<Quote>;
 }
