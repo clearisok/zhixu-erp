@@ -33,7 +33,7 @@ The labels used below are intentional:
 | Q2B1 shadow read | Complete on isolated Server preview/detail routes. | Engineering workspace only. |
 | Q2B2A existing-Quote writer | Complete on isolated Server edit route with exact decimal bridge and conflict handling. | Deliberately omits major production editor capabilities. |
 | Q2B2B creation/numbering | Complete after PR #44. Server-only runtime identity/numbering and `0006` are merged. | Isolated lazy-create workspace only; real `0006` not applied. |
-| Q3 Server masters/settings | Q3A foundation plus Q3B1 isolated same-UI Server candidate, exact decimal adapter, atomic settings bundle and pure migration preview are disposable-validated. | **BLOCKER remains for Q3B2 real-backup preview/rehearsal, import, production Quote integration and separately authorized activation/cutover.** |
+| Q3 Server masters/settings | Q3A foundation and Q3B1 isolated candidate are disposable-validated; Q3B2B authorized read-only real-backup Preview and Q3B2C disposable import rehearsal passed. Q3B2D records a code-grounded activation/import safety plan in `QUOTE_MASTER_SETTINGS_ACTIVATION.md`. | **BLOCKER remains for fresh source, real DB preflight/backup, authorized schema/import, migration audit policy, production Settings/Quote Editor integration and authority cutover.** |
 | Q4 Server attachments | Not implemented. | **BLOCKER.** |
 | Q5 migration preview/rehearsal | Not implemented. | **BLOCKER.** |
 | Real Quote production cutover | Not complete. | No real Quote business write performed. |
@@ -149,7 +149,7 @@ Historical Quote readability and new-Quote live authority are different concerns
 
 Q0 durable evidence records 8 Quotes / 9 Revisions / 12 PriceVersions, no aggregate corruption blocker, zero Estimate records, dangling optional brand/salesperson references with intact names, valid duplicate material names, and missing country/preset in some snapshots. Exact Q0 master counts are not reproduced in durable repository docs and must be re-read from a fresh authorized backup during Q5A rather than guessed here.
 
-**Q3 PRODUCTION BLOCKER = YES.** Q3B1 proves the existing settings UI against Server authority on isolated candidate routes, including quick Trim create and atomic global settings save. Production settings and Quote creation/editor still use Browser repositories; Q3B2 real-backup preview/rehearsal, import/reconciliation, Quote-side production adapters and later activation/cutover gates remain incomplete.
+**Q3 PRODUCTION BLOCKER = YES.** Q3B1 proves the existing settings UI against Server authority on isolated candidate routes, including quick Trim create and atomic global settings save. Q3B2B real-backup read-only Preview and Q3B2C disposable rehearsal passed; Q3B2D recorded the non-executed activation plan. Production settings and Quote creation/editor still use Browser repositories; fresh-source import/reconciliation, Quote-side production adapters and separately authorized activation/cutover gates remain incomplete.
 
 ## Q4 attachment and Object Storage audit
 
@@ -383,7 +383,7 @@ Current Browser `delete()` hard-removes the aggregate by default; a soft-delete 
 | Q5A | Fresh real-backup read-only projection/preview | Q3/Q4 target contracts | No writes | Read-only backup authorization only | Exact counts/hashes/rejections/attachment clearing/master diagnostics |
 | Q5B | Disposable import rehearsal and reconciliation | Q5A clean preview | No new design beyond reviewed migrations | No real write | Exact identity/value/hash/rerun/rollback/sequence evidence |
 | Q6A | Production-shaped deployment/restore rehearsal and same-UI candidate route | Q3/Q4/Q5B | Existing reviewed schema | Staging-only authorization | Full automated checks, restore drill, security/availability and manual UI acceptance |
-| Q6B | Explicit real preflight/backup, `0004/0005/0006` activation, Q3/Q4 schema activation and Quote/master import | Q6A pass and explicit user authorization | Apply reviewed migrations only | **YES, explicit** | Migration/read-back/reconciliation/sequence/zero-duplicate pass; Browser source unchanged |
+| Q6B | Explicit real preflight/backup, all pending migrations including `0004`–`0007` when applicable, later reviewed Q4 schema, and Quote/master import | Q6A pass and explicit user authorization; Q3B2D safety plan | Apply reviewed migrations only, per-file transaction | **YES, explicit** | Migration/read-back/reconciliation/sequence/zero-duplicate pass; Browser source unchanged and writes frozen |
 | Q6C | Switch existing `/quote-center*` UI to Server-only adapters and accept production | Q6B and explicit cutover authorization | No surprise schema | Auth/session/audit writes only as authorized acceptance | All workflow/viewports pass, no Browser fallback/dual write, rollback window opened |
 
 Q3 and Q4 implementation may proceed in parallel only if their ownership contracts and migration order are coordinated. Q5 must consume their reviewed target contracts rather than inventing provisional mappings.
