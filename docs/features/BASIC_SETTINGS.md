@@ -68,6 +68,7 @@
 - Q3B2C controlled import 直接消费上述 Preview projection。`rehearse:quote-master-settings` 要求精确 source hash，自行启动 tmpfs disposable PostgreSQL 16、应用正式 migrations 至 `0007`、检查七类 target tables 为空、在单 transaction 导入并从 PostgreSQL 读回逐字段内容。成功 rehearsal 为 Brand `4`、CustomerSalesperson `5`、Fabric `9`、Trim `18`、ManufacturingPreset `2`、Brand/Salesperson DefaultTrim 各 `5`、Global Settings `1`，共 `49` 行；投影与 read-back content hash 相同，稳定 ID/FK/decimal/null/zero 通过，故障回滚后七类表均空，重复 import 拒绝。runner 不接受外部数据库 URL，也不调用正常 HTTP/runtime create service。
 - 目标 `DefaultTrimConfig` 只存 ID、owner、position、Trim reference 与 nullable overrides；Q3B2B 检出的 10 个 legacy quantity 和 0 个 usage 没有进入目标 schema 或其他字段。同名 Fabric/Trim 仍各自按稳定 ID 保留，Supplier 仅为自由字符串，不新建 Supplier master。D-089 的每作用域单个 nullable DefaultOtherCost 与 D-090 的 active/null preset 关系均通过；这份真实 backup 的 Global default preset 为 `null`，没有自动选择或推断预设。
 - Q3B2B 的 `103` 个非空 canonical decimal 包括 Basic record 旧 `systemDefaults.usdCnyRate/markupRate` 两项；正式 Q3A Server system defaults 以独立 Global Quote Settings 为 authority，所以 49 行目标含 `101` 个非空 decimal、`8` 个 null、`20` 个显式 zero。真实 backup 中旧 Basic 两值与 Global 对应值不同；rehearsal 把差异单独记录，未来激活规划不得用旧副本覆盖 Global。migration audit policy 尚未确认，rehearsal 不伪造 runtime CRUD OperationLogs。
+- Q3B2D 的真实 activation/import **规划**见 `QUOTE_MASTER_SETTINGS_ACTIVATION.md`。它确认 `db:migrate` 对所有 pending migrations 逐文件提交（若真实目标仍仅有 0001–0003，则涉及 0004–0007），真实 ledger 尚未现场核验；旧 backup 不自动成为最终 source。生产 Basic/Global Settings 与 Quote Editor 继续使用 Browser authority，因此真实导入前必须有 fresh source、全体 write freeze、DB backup/restore、生产 Server 集成与 authority switch，不能先导入再继续编辑 Browser。Q3B2D 没有真实 DB 连接、migration、import 或 production route cutover。
 
 ## Frontend behavior
 
@@ -114,7 +115,7 @@
 
 ## Known gaps
 
-- Q3B1 已完成隔离 candidate UI/Quick Trim 接线，Q3B2B 的真实 backup 只读 Preview 与 Q3B2C 的 disposable PostgreSQL import rehearsal 已完成；真实 0007 activation、真实 master/settings import、production cutover 与 Quote Editor master integration 仍未执行。下一 gate 为 `Q3B2D real master/settings activation/import planning — authorization required`。
+- Q3B1 已完成隔离 candidate UI/Quick Trim 接线，Q3B2B 的真实 backup 只读 Preview 与 Q3B2C 的 disposable PostgreSQL import rehearsal 已完成；Q3B2D 已记录未执行的 activation/import runbook。真实 0007 activation、真实 master/settings import、production cutover 与 Quote Editor master integration 仍未执行；下一次真实 DB read-only preflight 必须另获授权。
 - Q4 attachment authority、Q5 data preview/import 与 Q6 production activation 仍是单独 gates。
 
 - 浏览器 localStorage 不支持真实多用户并发和服务端唯一约束；当前权限系统也仅是前端 mock RBAC，不是服务端安全边界。
