@@ -1,0 +1,91 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: zhixu-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - weaveops-prod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build metadata
+        run: |
+          echo "ZHIXU_BUILD_ID=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
+          echo "ZHIXU_GIT_COMMIT=${GITHUB_SHA}" >> "$GITHUB_ENV"
+          echo "ZHIXU_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
+      - name: Validate production config
+        run: |
+          docker compose \
+            -p zhixu-prod \
+            --env-file /etc/zhixu/production.env \
+            config -q
+
+      - name: Start database
+        run: |
+          docker compose \
+            -p zhixu-prod \
+            --env-file /etc/zhixu/production.env \
+            up -d database
+
+      - name: Wait for database
+        run: |
+          for i in {1..30}; do
+            STATUS="$(docker inspect -f '{{.State.Health.Status}}' zhixu-database 2>/dev/null || true)"
+            echo "database health: $STATUS"
+            if [ "$STATUS" = "healthy" ]; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Database did not become healthy"
+          docker logs --tail 100 zhixu-database
+          exit 1
+
+      - name: Build production app
+        run: |
+          docker compose \
+            -p zhixu-prod \
+            --env-file /etc/zhixu/production.env \
+            build zhixu
+
+      - name: Deploy production app
+        run: |
+          docker compose \
+            -p zhixu-prod \
+            --env-file /etc/zhixu/production.env \
+            up -d --no-deps zhixu
+
+      - name: Wait for application
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:3000/api/health >/dev/null; then
+              echo "ZHIXU production is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs --tail 150 zhixu-factory-system
+          exit 1
+
+      - name: Show deployment status
+        run: |
+          docker compose \
+            -p zhixu-prod \
+            --env-file /etc/zhixu/production.env \
+            ps
+
+          echo
+          echo "Build info:"
+          curl -fsS http://127.0.0.1:3000/build-info.json
