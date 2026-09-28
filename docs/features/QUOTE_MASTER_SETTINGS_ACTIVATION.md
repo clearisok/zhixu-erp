@@ -113,6 +113,28 @@ Q3B2D 设计的后续 Gate 须先核对连接目标的 DB name/host/port/server 
 
 现有 migrations 为 forward-only，没有 down。某个 migration 文件失败时，之前成功的文件可能已提交：立即 STOP、保持冻结、记录 ledger/object 实际状态，优先审查可验证的 forward fix，不假装总回滚。schema verification mismatch、smoke failure 或意外业务数据 mutation 均先停流量、保持冻结并评估具体影响；只有 forward fix 不安全、rollback backup 与隔离恢复证据可信、RPO（含窗口内所有数据库写入）可接受，且另获**破坏性恢复授权**时才考虑真实 restore。若 backup/hash/restore 证据不可信，禁止 migration 和 restore，先重建可信备份；绝不自动恢复。Q3B2F 备份是在未冻结 writer 时捕获的工程证据，不是未来执行窗口的最终恢复点。
 
+### Q3B2H Node Server image recovery readiness — disposable only
+
+Q3B2H 的真实 schema activation 在 writer freeze、final backup、0004–0007 执行前已安全暂停。运行中的 `preparesystem-server-1` 旧镜像只包含 0001–0003；一旦真实 ledger 出现 0004–0007，该旧镜像的 `verifyMigrationsCurrent` 会因已应用文件缺失而拒绝启动，**NOT SAFE TO RESTART AFTER MIGRATION**。本 prerequisite 没有停止、重启或替换该容器。
+
+从未修改的 main Server/Dockerfile/migration 源 commit `f0c252b52b6a626037e8ba70cf51d0e976e45447` 构建的本地 prepared 镜像 `zhixu-server:q3b2h-ready-f0c252b52b6a`（build-id `q3b2h-readiness-f0c252b52b6a`）实际包含 0001–0007，七份 SQL 的镜像内 SHA-256 与仓库源文件相同。它只在两个随机命名、`--network none`、无 host port/生产 volume、PGDATA tmpfs 的 PostgreSQL 16 disposable 容器中测试：完整库使用正式 migration runner 应用 0001–0007，ledger filename/checksum 全部匹配；该镜像通过 verify-only startup，随后完成 permission catalog sync、测试管理员 bootstrap、HTTP listen 与 `/api/v1/health`。另一库仅有 0001–0003，镜像以 `pending_migrations` 退出，permission sync、admin bootstrap 和 listen 均未发生。测试后精确 disposable Server/DB 容器已删除；prepared image 留在本机，不是生产部署或未来环境的镜像身份保证。
+
+未来窗口在另行授权后必须按以下顺序执行；每步失败保持停写并停止推进：
+
+1. Fresh exact-target preflight：核对运行目标、部署 commit、migration source/ledger/checksum 与业务基线。
+2. 冻结当前所有 DB writers（legacy、Server、job、人工连接等）。
+3. 证明 business writers = 0，且持续监控重连；不能仅依赖 Node pending fail-closed。
+4. 在停写状态创建新的 final rollback backup，核对大小与 SHA-256；不复用 Q3B2F 旧备份。
+5. 在独立 disposable PostgreSQL 完成这份 final backup 的 restore/read-back 验证。
+6. 仅以另行授权的 guarded runner 显式应用 0004→0007；逐文件确认结果，不用 Server startup 隐式迁移。
+7. 对真实目标做 read-only post-migration ledger、对象和业务计数核验。
+8. **用户自行**以经核对的 current-main Node Server image 替换/启动 Server；Codex 在本 Gate 不部署、不触碰运行容器。
+9. 验证 `/api/v1/health`。
+10. 验证新 Server 认识真实 ledger 的全部 0001–0007 文件与 checksum，确认没有旧镜像 missing-file 故障。
+11. 仅在以上全部 PASS、责任人签核及单一 authority 边界明确后恢复正常使用。
+
+本地 prepared image 的结论是 **DISPOSABLE STARTUP READY**，不是当前生产可用性或真实 migration 授权。**Q3B2H remains NOT EXECUTED and PAUSED, awaiting renewed real migration authorization**；真实 0004–0007、final backup、writer freeze、restore、Server replacement、Quote/master import 均未执行。
+
 Q3B2F 当时的 `Backup-Zhixu.ps1` 依据脚本 checkout 的 `.env` 与当前 Compose project 解析 `database`，缺少 exact container/fingerprint guard；`Restore-Zhixu.ps1` 还会 `--clean --if-exists` 覆盖数据并重启应用。因此当时结论为 **HARDENING REQUIRED**。Q3B2G 的后续实现见下；Q3B2F 本身未运行两份生产脚本，也未操作另一个未挂载的 `zhixu-ainuoke-api_zhixu_data` 卷。
 
 ### Q3B2G exact-target ops guard 与审计证据契约 — 2026-09-28
