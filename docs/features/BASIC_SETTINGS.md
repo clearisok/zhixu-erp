@@ -64,6 +64,10 @@
 - Q3B2A 复用既有全量 `LocalDataBackup` 作为唯一 backup/export contract；不增加第二套 Browser exporter。只读 parser 按 artifact 的 `namespace` 精确取 `<namespace>.basic-settings` 与 `<namespace>.quote-global-settings`，支持 current、受支持的 legacy envelope 和 legacy unwrapped record；保留原 backup 中的 raw envelope/source schema/key/capture metadata，以 per-envelope SHA-256 证明来源。业务 `sourceHash` 只包含 namespace、精确 storage key、schema 与 source data，排除 capture/envelope timestamps，因而同一业务内容重复 preview 稳定。
 - `npm run preview:quote-master-settings -- --backup <backup.json>` 是离线只读 runner：只读用户显式指定的标准 backup，输出结构化 JSON，不访问 Browser storage、HTTP API 或 PostgreSQL，也不写 report/file。它忽略其他 local records、附件、模板、Style Progress 与个人/UI preferences，并对选中的 master/settings payload 出现 credential/session/token 字段 fail closed。
 - Q3B2A report 的 source/projected counts 包括五类实体及 Brand/Salesperson default trims；另给出最终 Server row totals、normalized Brand/Salesperson duplicates、所有 scoped stable-ID collisions、missing Brand/Trim references、dangling/inactive preset defaults、D-089 collapse、D-090 clear、legacy DefaultTrim quantity/usage discard、null/zero 与 exact decimal-string projection。Fabric/Trim 同名只产生保留信息，不合并也不阻断；Supplier 始终是 free string，projected Supplier master rows 固定为 0。warnings 与 blockingErrors 分离。
+- Q3B2B 已对 capture `2026-09-22T03:16:14.008Z` 的标准 Browser backup 完成授权的只读 Preview：`development` / `http://127.0.0.1:3001` / `zhixu.erp.local`，backupVersion `1`，schemaVersion `13`，sourceHash `102b13d60b8bece83104bc5c516eb22c6c9b32bd4b540931fa9c49152339175c`；blockingErrors `0`，目标 Server rows `49`，Browser writes `0`，PostgreSQL reads/writes `0`，无 migrations/import。仓库不保存原 backup 或其本机路径。
+- Q3B2C controlled import 直接消费上述 Preview projection。`rehearse:quote-master-settings` 要求精确 source hash，自行启动 tmpfs disposable PostgreSQL 16、应用正式 migrations 至 `0007`、检查七类 target tables 为空、在单 transaction 导入并从 PostgreSQL 读回逐字段内容。成功 rehearsal 为 Brand `4`、CustomerSalesperson `5`、Fabric `9`、Trim `18`、ManufacturingPreset `2`、Brand/Salesperson DefaultTrim 各 `5`、Global Settings `1`，共 `49` 行；投影与 read-back content hash 相同，稳定 ID/FK/decimal/null/zero 通过，故障回滚后七类表均空，重复 import 拒绝。runner 不接受外部数据库 URL，也不调用正常 HTTP/runtime create service。
+- 目标 `DefaultTrimConfig` 只存 ID、owner、position、Trim reference 与 nullable overrides；Q3B2B 检出的 10 个 legacy quantity 和 0 个 usage 没有进入目标 schema 或其他字段。同名 Fabric/Trim 仍各自按稳定 ID 保留，Supplier 仅为自由字符串，不新建 Supplier master。D-089 的每作用域单个 nullable DefaultOtherCost 与 D-090 的 active/null preset 关系均通过；这份真实 backup 的 Global default preset 为 `null`，没有自动选择或推断预设。
+- Q3B2B 的 `103` 个非空 canonical decimal 包括 Basic record 旧 `systemDefaults.usdCnyRate/markupRate` 两项；正式 Q3A Server system defaults 以独立 Global Quote Settings 为 authority，所以 49 行目标含 `101` 个非空 decimal、`8` 个 null、`20` 个显式 zero。真实 backup 中旧 Basic 两值与 Global 对应值不同；rehearsal 把差异单独记录，未来激活规划不得用旧副本覆盖 Global。migration audit policy 尚未确认，rehearsal 不伪造 runtime CRUD OperationLogs。
 
 ## Frontend behavior
 
@@ -110,7 +114,7 @@
 
 ## Known gaps
 
-- Q3B1 已完成隔离 candidate UI/Quick Trim 接线，Q3B2A 已完成只读 backup/parser/report tooling preparation；production cutover、真实 backup read/preview、disposable import rehearsal、master migration/reconciliation 与 Quote Editor master integration 仍未执行。下一 gate 只能是 `Q3B2B authorized real-backup read-only preview`。
+- Q3B1 已完成隔离 candidate UI/Quick Trim 接线，Q3B2B 的真实 backup 只读 Preview 与 Q3B2C 的 disposable PostgreSQL import rehearsal 已完成；真实 0007 activation、真实 master/settings import、production cutover 与 Quote Editor master integration 仍未执行。下一 gate 为 `Q3B2D real master/settings activation/import planning — authorization required`。
 - Q4 attachment authority、Q5 data preview/import 与 Q6 production activation 仍是单独 gates。
 
 - 浏览器 localStorage 不支持真实多用户并发和服务端唯一约束；当前权限系统也仅是前端 mock RBAC，不是服务端安全边界。
