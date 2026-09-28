@@ -1,0 +1,43 @@
+name: Runner Smoke Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - weaveops-prod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Runner info
+        run: |
+          hostname
+          whoami
+          id
+          git --version
+          docker --version
+          docker compose version
+
+      - name: Docker access
+        run: docker ps
+
+      - name: Production config exists
+        run: |
+          test -r /etc/zhixu/production.env
+          echo "production.env readable"
+
+      - name: Validate production compose
+        run: |
+          docker compose \
+            -p zhixu-prod \
+            --env-file /etc/zhixu/production.env \
+            config -q
+
+      - name: Success
+        run: echo "weaveops-server runner is ready"
