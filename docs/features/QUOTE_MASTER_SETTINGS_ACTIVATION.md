@@ -84,7 +84,7 @@ Q3B2D 设计的后续 Gate 须先核对连接目标的 DB name/host/port/server 
 
 数据库大小 `13,876,247` bytes（约 `13.23 MiB`）。连接聚合在检查时点为：本次 `psql` 1 个 active read-only session、`zhixu-server` 1 个 idle session、5 个无业务 database/application name 的系统连接；未读取其他 session 的 query text。未来 maintenance 仍须冻结 Server、legacy ERP 和其他可能写同库的 client，单次 `pg_stat_activity` 快照不能证明没有其他写入。
 
-**Q3B2E 分类：EXPECTED PRE-ACTIVATION STATE / READY FOR NEXT SAFETY GATE。** 这只表示真实库 read-only preflight 在该时点 PASS，**不授权 migration、backup、import、Browser cutover 或 real business writes**。下一独立 Gate 应取得明确授权，完成真实 PostgreSQL backup + 隔离 restore drill 与 maintenance/write-freeze 准备；之后重新核对 target/ledger/source 并另行申请 schema activation。Q3B2E 是窗口前早期检查，不能替代下方 runbook Phase 6 在备份和冻结后的 fresh preflight。2026-09-22 Browser backup 仍只作 rehearsal evidence，fresh Browser source 未读取，migration audit policy 仍是 USER DECISION REQUIRED。本 Gate 的 PostgreSQL writes、Browser writes 均为 0。
+**Q3B2E 分类：EXPECTED PRE-ACTIVATION STATE / READY FOR NEXT SAFETY GATE。** 这只表示真实库 read-only preflight 在该时点 PASS，**不授权 migration、backup、import、Browser cutover 或 real business writes**。下一独立 Gate 应取得明确授权，完成真实 PostgreSQL backup + 隔离 restore drill 与 maintenance/write-freeze 准备；之后重新核对 target/ledger/source 并另行申请 schema activation。Q3B2E 是窗口前早期检查，不能替代下方 runbook Phase 6 在备份和冻结后的 fresh preflight。2026-09-22 Browser backup 仍只作 rehearsal evidence，fresh Browser source 未读取；当时 migration audit policy 未决定，后由 D-091 确认。本 Gate 的 PostgreSQL writes、Browser writes 均为 0。
 
 ### Q3B2F 真实备份与隔离恢复演练 — 2026-09-28
 
@@ -113,25 +113,27 @@ Q3B2D 设计的后续 Gate 须先核对连接目标的 DB name/host/port/server 
 
 现有 migrations 为 forward-only，没有 down。某个 migration 文件失败时，之前成功的文件可能已提交：立即 STOP、保持冻结、记录 ledger/object 实际状态，优先审查可验证的 forward fix，不假装总回滚。schema verification mismatch、smoke failure 或意外业务数据 mutation 均先停流量、保持冻结并评估具体影响；只有 forward fix 不安全、rollback backup 与隔离恢复证据可信、RPO（含窗口内所有数据库写入）可接受，且另获**破坏性恢复授权**时才考虑真实 restore。若 backup/hash/restore 证据不可信，禁止 migration 和 restore，先重建可信备份；绝不自动恢复。Q3B2F 备份是在未冻结 writer 时捕获的工程证据，不是未来执行窗口的最终恢复点。
 
-`Backup-Zhixu.ps1` 依据脚本 checkout 的 `.env` 与当前 Compose project 解析 `database`，缺少 exact container/fingerprint guard；多 checkout 下可能选错目标。`Restore-Zhixu.ps1` 同样依赖 checkout/Compose 解析，且 `--clean --if-exists` 会覆盖数据并重启应用。两者对未来真实 activation 的结论均为 **HARDENING REQUIRED / FUTURE IMPLEMENTATION REQUIRED**。AI 建议另行审查显式 Compose project、预期 target fingerprint、DB identity guard，以及 restore 的双重目标确认和独立授权；本 Gate 未修改或运行两份生产脚本，也未操作另一个未挂载的 `zhixu-ainuoke-api_zhixu_data` 卷。
+Q3B2F 当时的 `Backup-Zhixu.ps1` 依据脚本 checkout 的 `.env` 与当前 Compose project 解析 `database`，缺少 exact container/fingerprint guard；`Restore-Zhixu.ps1` 还会 `--clean --if-exists` 覆盖数据并重启应用。因此当时结论为 **HARDENING REQUIRED**。Q3B2G 的后续实现见下；Q3B2F 本身未运行两份生产脚本，也未操作另一个未挂载的 `zhixu-ainuoke-api_zhixu_data` 卷。
+
+### Q3B2G exact-target ops guard 与审计证据契约 — 2026-09-28
+
+`scripts/database-target-guard.ps1` 是 Backup/Restore 共同使用的唯一目标检查：调用者必须显式给出 container、Compose project、PGDATA volume、database 与 expected fingerprint；新鲜 Docker metadata 必须证明精确容器正在运行、service=`database`、project 一致且 PGDATA 只有一个指定持久卷，其 volume Compose label 也一致。disposable 测试专用 `ExpectedVolumeName=tmpfs` 分支要求 PGDATA tmpfs 且无 Docker volume mounts。然后在**该精确容器内部**以 `BEGIN READ ONLY`/`transaction_read_only=on` 查询 DB identity，引用容器内 `POSTGRES_USER/POSTGRES_DB`，不打印或提取密码/Env。任一歧义、缺失、服务/卷/DB/指纹不匹配均 fail closed；不会因当前 checkout 名称或第一个 `zhixu*` 容器自动选择目标。
+
+唯一 operational fingerprint v1 的 canonical UTF-8 字节是 `composeProject|containerName|pgdataMountName|databaseName|serverAddressOrLocal_socket|port`，对其计算 lowercase SHA-256。字段顺序、竖线分隔、`inet_server_addr()` 为 null 时使用字面量 `local_socket` 与 Q3B2E/Q3B2F 完全相同；`com.docker.compose.service=database` 是**强制独立校验**，虽未进入历史 hash，也不得绕过。v1 对当前真实目标复现 `28f587685bdf587bc21b4e348ac07da2297cc57029a81280b1c82208518d7ba1`；该值只属于旧 checkpoint，未来操作者必须先获取新的预期值并在执行前重新校验，不得永久硬编码 `preparesystem` 或此 hash。共享 helper 的 disposable 测试通过后，真实环境仅执行了 Backup 的 `-VerifyTargetOnly`：返回相同 fingerprint 和 PostgreSQL `160014`，没有创建本 Gate 的真实 dump。
+
+`Backup-Zhixu.ps1` 现在先验证目标，再允许 custom-format `pg_dump --no-owner` 到该容器 `/tmp`，核对容器与 host SHA-256、非空大小和 `pg_restore --list`，并只在 Git-ignored `backups/` 留 host copy；`-VerifyTargetOnly` 不创建 dump。`Restore-Zhixu.ps1` 默认拒绝执行，须同时提供 allowed backups 目录内 `.dump`、expected backup hash、同一套 expected target、`-ConfirmDataLoss` 和与 expected hash 精确相同的第二个 `-ConfirmTargetFingerprint`。归档/list、复制 hash 与执行前第二次 writer 检查不通过则不调用 destructive `pg_restore --clean --if-exists`。Writer guard 拒绝同 Compose project 下除数据库外仍 running 的容器，以及数据库中除自身外的 client backend；不 stop/kill writer，也不能取代正式 maintenance 人工停写证明。restore 成功后只重新验证目标 identity，**默认不自动重启/恢复任何 writer**，操作者须另行做 ledger/业务对账再决定恢复。Q3B2G 只在随机命名、`--network none`、无 host port/生产卷的 disposable PostgreSQL 上测试实际备份与恢复；未对真实库执行 backup/restore/migration/schema/business write。
+
+`server/db/migration-evidence.ts` 定义纯 typed、storage-neutral 的 `MigrationExecutionEvidence` v1 与 strict validation/serialization：execution ID/type/outcome、起止时间、operator ID、授权引用、repo commit、target fingerprint、DB/version、ledger 文件名/checksum、rollback backup hash、planned/committed/readback counts 与 readback hash；import 还强制 source file SHA、sourceHash、projection content hash；失败需 bounded code/phase，PREPARED 不得声称 commit。未知字段、敏感键/值、raw rows 和非安全计数被拒绝。它不写 DB、不生成 runtime OperationLog，也不是 real execute runner。未来 guarded runner 须为**每次 attempt**持久保存一份可验证证据，包含失败 attempt；具体 durable storage/retention 仍需独立实现审查，但 D-091 政策已经确认。
 
 ## Maintenance/write freeze 与 backup/restore
 
 Browser master/settings/Quick Create 写入冻结从 fresh source export **之前**开始；在真实 PostgreSQL backup **之前**将冻结扩至 Server API、后台任务、legacy 根 ERP 等所有会写同一数据库的进程，持续到 migration、import、read-back、authority switch 和 smoke acceptance 明确结束。SalesOrder 当前正式 writer 也不得在完整数据库冻结窗口写入。Node Server 在 pending migration 下本来会 fail closed，但不能把这一点当作对其他 DB client 或 Browser localStorage 的冻结。若窗口内仍有其他业务写入，整库 restore 会回退它们，不能声称只回退 Quote masters。
 
-真实 migration 前仍须单独授权并完成停写后的 final backup；不能直接在多 checkout 场景运行当前 `Backup-Zhixu.ps1` 或 `Restore-Zhixu.ps1` 并假定目标正确。先实施并审查上文的 script hardening，核实确切容器/Compose project/DB/卷与预期 fingerprint，检查 dump exit、大小、跨复制 hash、isolated restore/read-back。真实 restore 还需独立破坏性授权和双重目标确认；现有脚本的 `--clean --if-exists` 会覆盖数据、重启应用，Q3B2F 未运行它。若失败可由 forward fix 安全解决，先审查 forward fix；不能自动 down migration 或自动 restore。恢复后也须验证 Browser source/Server authority 指向一致，不得产生双写窗口。
+真实 migration 前仍须单独授权并完成停写后的 final backup；即使 Q3B2G 已加入 exact-target guard，也不能仅凭本轮 disposable tests 或 `-VerifyTargetOnly` 代替生产维护窗口的 full writer freeze、final dump/restore evidence 和独立批准。真实 restore 还需破坏性授权及脚本的双重确认；`--clean --if-exists` 仍会覆盖数据，但脚本已不再自动重启应用。若失败可由 forward fix 安全解决，先审查 forward fix；不能自动 down migration 或自动 restore。恢复后也须验证 Browser source/Server authority 指向一致，不得产生双写窗口。
 
-## Migration audit policy — USER DECISION REQUIRED
+## Migration audit policy — CONFIRMED D-091
 
-现有 Server `operation_logs` 是 trusted session 下 runtime business mutation 的 append-only 审计，actor FK/快照必须来自可信身份；Q3B2C import 并未产生此类日志。不能把 49 个历史 Browser master rows 伪造成 49 次用户 CRUD。
-
-| 方案 | actor/provenance 与 rollback | 后续审计 UX |
-| --- | --- | --- |
-| 1. 不写 runtime OperationLog；保留一次 migration execution evidence（操作者/授权、source/file/content hash、ledger、counts、结果、backup 与部署 commit）。 | 不冒充历史用户；技术证据与 import transaction 分开，需明确不可篡改保管及失败记录。整库恢复须连同证据注明。 | Runtime timeline 不显示一次“用户修改”；运维/迁移记录另行可查。 |
-| 2. 单条 bounded migration-level OperationLog。 | 需有真实受信迁移 actor、明确 entity/action、provenance、原子提交及失败回滚；现有 CRUD action/actor 模型是否容纳该事件须先实现/审查，不能借用 admin 身份伪造。 | 可在 timeline 看见一次导入，但展示和权限需适配。 |
-| 3. 专用受保护 migration-event ledger/审计存储。 | 可保存完整技术来源而不污染业务日志；如新建 DB 表则另需 schema、事务、权限和备份/恢复设计。 | 需新增查询/保留/展示能力。 |
-
-**AI recommendation（非确认政策）：**倾向方案 1，以审计可验证的 migration execution evidence 记录一次受控导入，并保持 runtime OperationLog 只表示真实 trusted mutation。证据载体/保留期限、是否还需单条 bounded event 由用户确认；未经决定不得执行真实 import，也不修改 `DECISION_LOG.md`。
+用户已确认 D-091：Server `operation_logs` 只记录真实 trusted runtime business mutation。历史 migration/import 不导入 Browser OperationLogs、不伪造 Server session/actor、不创建 49 条逐 row CRUD；每次受控 execute attempt 留**一份独立 migration-level execution evidence**，成功与失败均记录真实 outcome/commit 边界。至少要能核验 operator/授权、时间、code、target/ledger、rollback backup、适用时的 source/projection、planned/committed/readback counts/hash 与脱敏 failure code/phase，不含 password、URL、raw backup 或敏感业务 payload。Typed validation contract 已实现；正式不可篡改保管载体和失败证据写入时机仍需未来 guarded execute-runner Gate 实现审查。此决定不授权真实 import 或 schema activation。
 
 ## 生产集成 prerequisites
 
@@ -168,7 +170,7 @@ Browser master/settings/Quick Create 写入冻结从 fresh source export **之�
 | 11 — smoke acceptance | Phase 10 完成，人工验收计划就绪。 | trusted session 下验证 list/read、细粒度权限、默认解析、可控 write/audit、刷新、错误路径。 | 逐项 PASS、业务/审计前后 counts、无 Browser write。 | 401/403/409/保存/回读异常或 drift。 | 冻结不解除；安全切回/恢复需单独授权。 |
 | 12 — rollback-window close | Phase 11 PASS，所有证据留存，用户确认。 | 明确关闭窗口、解冻指定 writer、持续监控。 | final source/DB hashes、backup retention、责任人签核。 | 未解决差异或恢复方案不可用。 | 解冻后整库 restore 的 RPO 变大；不能自动回退。 |
 
-## Go / No-Go（Q3B2D 规划，Q3B2F 备份/恢复演练后更新）
+## Go / No-Go（Q3B2D 规划，Q3B2G 安全实现后更新）
 
 下表 `Required` 指**真实 import/cutover 前**；read-only preflight 本身仍需单独用户授权。旧 Preview/Rehearsal 不替代 fresh evidence。
 
@@ -181,16 +183,16 @@ Browser master/settings/Quick Create 写入冻结从 fresh source export **之�
 | Fresh disposable rehearsal same file | YES | 未执行 | **真实 import blocker** |
 | Real DB identity/ledger/checksum/status preflight | YES | Q3B2E 在精确运行容器以只读事务 PASS；0001–0003 applied，0004–0007 pending，checksum/object consistent | 当前不阻断下一安全 Gate；真实执行前仍须 fresh check |
 | Real DB backup + isolated restore evidence | YES | Q3B2F exact-container custom dump + hash + isolated PostgreSQL 16 full restore/read-back PASS；但尚未停写 | 工程能力已验证；真实 activation 窗口仍需 fresh final backup/restore evidence |
-| Backup/restore script target hardening | YES | 当前多 checkout 选目标不安全；FUTURE IMPLEMENTATION REQUIRED | **activation blocker** |
+| Backup/restore script target hardening | YES | Q3B2G shared exact-target guard、双重确认与 writer check 已在 disposable PASS；真实仅 `-VerifyTargetOnly` PASS | 代码层已实现；真实 activation 仍需窗口内 fresh target/freeze/backup 验证 |
 | Maintenance/full writer freeze | YES | 未安排 | **activation/import blocker** |
 | Production Basic/Global Server adapters on formal routes | YES | 仅隔离 candidate | **cutover blocker** |
 | Quote Editor master/default/Quick Create Server integration | YES | Browser/local | **cutover blocker** |
 | Trusted identity/RBAC | YES | Server foundation ready；production convergence incomplete | **cutover blocker** |
-| Migration audit policy | YES | USER DECISION REQUIRED | **import blocker** |
+| Migration audit policy | YES | CONFIRMED — D-091；typed evidence contract 已实现，正式 durable storage 尚未接入 runner | 政策已定；执行证据落地仍是 **import blocker** |
 | Guarded real import CLI + rollback mechanism | YES | 未实现/未验收 | **import blocker** |
 | Manual UI acceptance and rollback switch | YES | 未验收 | **cutover blocker** |
 
-**结果：READY FOR NEXT SAFETY GATE；NOT READY FOR REAL MIGRATION / IMPORT / CUTOVER。** Q3B2E 只读 preflight 与 Q3B2F 一次真实 backup/隔离 restore drill 已完成；仍未执行 maintenance freeze、停写后的 final rollback backup、script hardening、migration audit policy、生产集成或 guarded runner。下一步须分别审查这些 blocker、规划并申请新的执行授权。Q4 attachments、Q5 Quote data migration 和整个 Quote production cutover 仍属独立阶段。
+**结果：READY FOR FINAL MAINTENANCE SAFETY GATE；NOT READY FOR REAL MIGRATION / IMPORT / CUTOVER。** Q3B2E 只读 preflight、Q3B2F 一次真实 backup/隔离 restore drill 与 Q3B2G exact-target script hardening/D-091 政策均已完成；仍未执行 maintenance freeze、停写后的 final rollback backup，也未实现正式 migration-evidence durable storage、生产集成或 guarded import runner。下一 Gate 需独立授权并核对这些 blocker；本文件不是 migration 授权。Q4 attachments、Q5 Quote data migration 和整个 Quote production cutover 仍属独立阶段。
 
 ## 审计依据
 

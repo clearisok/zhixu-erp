@@ -85,8 +85,8 @@ API 不是 Node/Python controller，而是 PostgreSQL 函数 `api_dispatch(metho
 - `scripts/rebuild-local.ps1` / `scripts/rebuild-local-clean.ps1`：`127.0.0.1:3000` 常规/无缓存 production rebuild。
 - `Start-Zhixu.ps1`：委托生产重建脚本或复用已有镜像，再执行健康检查。
 - `/build-info.json`：运行实例版本事实源；页面底部和浏览器控制台显示同一信息。
-- `Backup-Zhixu.ps1`：使用 `pg_dump`。
-- `Restore-Zhixu.ps1`：只接受备份目录内 `.dump`，并要求显式 `-ConfirmDataLoss`。
+- `Backup-Zhixu.ps1`：要求显式容器/Compose project/PGDATA 卷/DB/指纹并通过共享 exact-target guard 后才使用 custom-format `pg_dump`；`-VerifyTargetOnly` 不产生备份。
+- `Restore-Zhixu.ps1`：仅接受仓库 `backups/` 内 hash 匹配的 `.dump`，除目标身份外还要求 `-ConfirmDataLoss` 与第二次精确指纹确认；归档和 writer-freeze 检查通过才恢复，默认不自动重启应用。真实恢复仍需单独破坏性授权。
 - `.env.example`：端口、绑定地址和数据库/初始管理员变量示例。
 
 ## Important constraints

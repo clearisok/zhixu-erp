@@ -18,6 +18,14 @@
 
 ## Active
 
+### D-091 Historical migration/import uses migration-level evidence, not fabricated runtime CRUD audit
+
+- 日期：2026-09-28；状态：Active，用户已确认。此决定不授权任何真实 migration/import。
+- Server runtime `OperationLog` 只表示可信 runtime 身份下实际发生的业务 mutation。历史 migration/import 不伪造逐 row CRUD、Server session 或 actor，不导入 Browser 历史 OperationLogs，也不为 49 条 master/settings row 生成 49 条伪日志。
+- 每一次受控 execute attempt 对应一份独立的 migration-level execution evidence。最低内容为 execution identity/type/outcome、startedAt/finishedAt、operator identity、授权/checkpoint 引用、repo commit、target fingerprint、脱敏 database identity、migration ledger/filenames/checksums、rollback backup SHA-256；适用时还包含 source backup file SHA-256、sourceHash、projection/content hash，以及 planned/committed/readback counts 与 readback hash。失败 attempt 同样留存脱敏 failure evidence，不能把未提交事务表述为成功。
+- Evidence 不得包含 password、DATABASE_URL、raw backup 或敏感业务 payload，也不得冒充普通业务 CRUD OperationLog。正式保管载体（DB table、append-only artifact 或其他 durable storage）留待未来 guarded execute-runner Gate 根据既有架构审查；本决定不擅自新增 production table。
+- 证据：用户本轮明确确认；`server/db/migration-evidence.ts` 的纯 typed validation/serialization contract 与对应测试。该 contract 尚未接入真实 execute runner，未写真实数据库。
+
 ### D-090 制作预设默认关系只能引用 active preset
 
 - 日期：2026-09-22；状态：Active，用户已确认。Server 是本规则的最终 authority，不得只依赖 Browser UI。
