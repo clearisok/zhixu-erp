@@ -69,7 +69,7 @@ function counts(value: unknown): Record<string, number> {
   const source = value as Record<string, unknown>;
   const result: Record<string, number> = {};
   for (const key of Object.keys(source).sort()) {
-    if (!/^[a-z][a-z0-9_]{0,63}$/.test(key) || SECRET_LIKE.test(key)) fail();
+    if (!/^[a-z][A-Za-z0-9_]{0,63}$/.test(key) || SECRET_LIKE.test(key)) fail();
     const count = source[key];
     if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0) fail();
     result[key] = count;

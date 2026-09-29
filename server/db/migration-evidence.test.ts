@@ -39,6 +39,13 @@ test("migration evidence preserves bounded sanitized provenance and deterministi
   assert.equal(parsed.outcome, "COMMITTED");
 });
 
+test("Q3 import evidence accepts the canonical camelCase projected row-count keys", () => {
+  const projected = { brands: 1, customerSalespeople: 1, fabrics: 1, trims: 1, manufacturingPresets: 1,
+    brandDefaultTrims: 1, salespersonDefaultTrims: 1, globalSettings: 1, total: 8 };
+  const parsed = parseMigrationExecutionEvidence({ ...fixture, plannedCounts: projected, committedCounts: projected, readbackCounts: projected });
+  assert.deepEqual(parsed.plannedCounts, projected);
+});
+
 test("migration evidence rejects missing required fields, unknown keys and secret-like values", () => {
   assert.throws(() => parseMigrationExecutionEvidence({ ...fixture, operator: undefined }));
   assert.throws(() => parseMigrationExecutionEvidence({ ...fixture, password: "unsafe" }));
