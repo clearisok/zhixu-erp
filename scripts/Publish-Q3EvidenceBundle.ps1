@@ -83,6 +83,24 @@ function Copy-Q3NewFile {
         finally { $output.Dispose() }
     } finally { $input.Dispose() }
 }
+function Assert-Q3Fields {
+    param($Value, [string[]]$Required, [string[]]$Optional = @())
+    if ($null -eq $Value -or $Value -is [array] -or $Value -isnot [pscustomobject]) { throw 'evidence_artifact_shape_invalid' }
+    $actual = @($Value.PSObject.Properties.Name)
+    if (@($Required | Where-Object { $_ -cnotin $actual }).Count -ne 0 -or
+        @($actual | Where-Object { $_ -cnotin $Required -and $_ -cnotin $Optional }).Count -ne 0) {
+        throw 'evidence_unexpected_field_forbidden'
+    }
+}
+function Assert-Q3Counts {
+    param($Value)
+    $keys = @('brands', 'customerSalespeople', 'fabrics', 'trims', 'manufacturingPresets', 'brandDefaultTrims', 'salespersonDefaultTrims', 'globalSettings', 'total')
+    Assert-Q3Fields -Value $Value -Required $keys
+    foreach ($key in $keys) {
+        if ($Value.$key -isnot [int] -and $Value.$key -isnot [long]) { throw 'evidence_count_invalid' }
+        if ($Value.$key -lt 0) { throw 'evidence_count_invalid' }
+    }
+}
 function Assert-Q3ArtifactShape {
     param([string]$Kind, $Value)
     if ($null -eq $Value -or $Value -is [array]) { throw 'evidence_artifact_shape_invalid' }
@@ -92,11 +110,20 @@ function Assert-Q3ArtifactShape {
     }
     switch ($Kind) {
         'freeze_evidence' {
+            Assert-Q3Fields -Value $Value -Required @('evidenceVersion', 'result', 'browserOrigin', 'browserProfileLabel', 'namespace', 'schemaVersion', 'expected', 'observed', 'freezeStartedAt', 'verifiedAt', 'operatorLabel', 'allOldTabsClosedBeforeFrozenReopen') -Optional @('frozenFrontend')
+            Assert-Q3Fields -Value $Value.expected -Required @('gitCommit', 'buildId', 'buildTime', 'masterSettingsAuthority')
+            Assert-Q3Fields -Value $Value.observed -Required @('gitCommit', 'buildId', 'buildTime', 'masterSettingsAuthority')
+            if ($Value.PSObject.Properties['frozenFrontend']) {
+                Assert-Q3Fields -Value $Value.frozenFrontend -Required @('topology', 'containerName', 'containerId', 'imageId', 'startedAt', 'restartCount')
+            }
             if ($Value.evidenceVersion -ne 1 -or $Value.result -cne 'PASS' -or
                 $Value.allOldTabsClosedBeforeFrozenReopen -ne $true -or
                 $Value.observed.masterSettingsAuthority -cne 'frozen') { throw 'evidence_freeze_invalid' }
         }
         'source_identity_summary' {
+            Assert-Q3Fields -Value $Value -Required @('contract', 'capture', 'bytes', 'fileSha256', 'sourceHash', 'projectionContentHash', 'projectedCounts', 'blockingErrors', 'warnings')
+            Assert-Q3Fields -Value $Value.capture -Required @('timestamp', 'environment', 'origin', 'namespace', 'backupVersion', 'schemaVersion')
+            Assert-Q3Counts -Value $Value.projectedCounts
             if ($Value.contract -cne 'zhixu-q3-source-identity.v1' -or
                 $Value.fileSha256 -cnotmatch '^[0-9a-f]{64}$' -or
                 $Value.sourceHash -cnotmatch '^[0-9a-f]{64}$' -or
@@ -104,10 +131,14 @@ function Assert-Q3ArtifactShape {
                 $Value.bytes -lt 32 -or $Value.blockingErrors -ne 0) { throw 'evidence_source_summary_invalid' }
         }
         'rehearsal_proof' {
+            Assert-Q3Fields -Value $Value -Required @('proofVersion', 'result', 'sourceFileSha256', 'sourceHash', 'projectionContentHash', 'projectedCounts', 'reviewedCommit', 'migrationLedger', 'postgresMajor', 'rehearsedAt', 'importCounts', 'readbackCounts', 'readbackContentHash', 'rollbackValidated', 'postCommitUnverifiedValidated', 'secondImportRejected', 'disposableContainerRemoved')
+            foreach ($counts in @($Value.projectedCounts, $Value.importCounts, $Value.readbackCounts)) { Assert-Q3Counts -Value $counts }
+            foreach ($entry in @($Value.migrationLedger)) { Assert-Q3Fields -Value $entry -Required @('version', 'filename', 'checksum') }
             if ($Value.proofVersion -ne 1 -or $Value.result -cne 'PASS' -or
                 $Value.disposableContainerRemoved -ne $true) { throw 'evidence_rehearsal_invalid' }
         }
         'rollback_manifest' {
+            Assert-Q3Fields -Value $Value -Required @('contract', 'createdAt', 'filename', 'bytes', 'sha256', 'targetFingerprint', 'containerName', 'composeProject', 'volumeName', 'databaseName', 'archiveListVerified')
             if ($Value.contract -cne 'zhixu-exact-target-backup.v1' -or
                 $Value.sha256 -cnotmatch '^[0-9a-f]{64}$' -or
                 $Value.targetFingerprint -cnotmatch '^[0-9a-f]{64}$' -or
