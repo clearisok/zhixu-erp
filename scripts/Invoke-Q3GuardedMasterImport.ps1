@@ -51,6 +51,7 @@ $critical = @(
     'server/maintenance-static.ts', 'server/maintenance-static-app.ts', 'server/static-files.ts',
     'database/migrations',
     'scripts/Invoke-Q3GuardedMasterImport.ps1', 'scripts/Invoke-Q3IsolatedRehearsal.ps1',
+    'scripts/Publish-Q3EvidenceBundle.ps1',
     'scripts/verify-q3-frozen-build.ts', 'scripts/Invoke-Q3MaintenanceStaticHandoff.ps1',
     'scripts/q3-split-topology.ps1', 'scripts/Invoke-Q3IndependentFrozenFrontend.ps1',
     'scripts/Invoke-Q3IndependentWriterFreeze.ps1',
@@ -111,14 +112,14 @@ if ($running.gitCommit -cne $ExpectedImportSourceCommit -or $running.buildId -cn
 
 $target = Get-ZhixuVerifiedTarget -ExpectedContainerName $ExpectedContainerName -ExpectedComposeProject $ExpectedComposeProject `
     -ExpectedVolumeName $ExpectedVolumeName -ExpectedDatabaseName $ExpectedDatabaseName -ExpectedTargetFingerprint $ExpectedTargetFingerprint
-if ($Execute) { Assert-ZhixuWritersFrozen -Target $target }
+Assert-ZhixuWritersFrozen -Target $target
 $backupRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot 'backups'))
 $rollbackPath = Assert-ImmutableFile -Path $RollbackBackupFile -Hash $ExpectedRollbackBackupSha256 -Kind 'rollback_backup'
 $manifestPath = Assert-ImmutableFile -Path $RollbackBackupManifestFile -Hash $ExpectedRollbackBackupManifestSha256 -Kind 'rollback_manifest'
 if (-not $rollbackPath.StartsWith($backupRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
     -not $rollbackPath.EndsWith('.dump', [StringComparison]::OrdinalIgnoreCase) -or (Get-Item -LiteralPath $rollbackPath).Length -lt 1024) { throw 'final_rollback_backup_invalid' }
 if ($manifestPath -cne "$rollbackPath.manifest.json") { throw 'rollback_manifest_path_mismatch' }
-$backupManifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+$backupManifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json -DateKind String
 if ($backupManifest.contract -cne 'zhixu-exact-target-backup.v1' -or $backupManifest.filename -cne [IO.Path]::GetFileName($rollbackPath) -or
     $backupManifest.bytes -ne (Get-Item -LiteralPath $rollbackPath).Length -or $backupManifest.sha256 -cne $ExpectedRollbackBackupSha256 -or
     $backupManifest.targetFingerprint -cne $target.Fingerprint -or $backupManifest.containerName -cne $target.ContainerName -or
@@ -126,8 +127,8 @@ if ($backupManifest.contract -cne 'zhixu-exact-target-backup.v1' -or $backupMani
     $backupManifest.databaseName -cne $ExpectedDatabaseName -or $backupManifest.archiveListVerified -ne $true) { throw 'rollback_manifest_identity_mismatch' }
 try { $backupCreatedAt = [DateTime]::Parse($backupManifest.createdAt).ToUniversalTime() }
 catch { throw 'rollback_manifest_time_invalid' }
-if ($Execute -and ($backupCreatedAt -lt [DateTime]::Parse($freeze.freezeStartedAt).ToUniversalTime() -or
-    $backupCreatedAt -gt [DateTime]::UtcNow -or (Get-Item -LiteralPath $rollbackPath).LastWriteTimeUtc -lt [DateTime]::Parse($freeze.freezeStartedAt).ToUniversalTime())) { throw 'rollback_backup_predates_freeze' }
+if ($backupCreatedAt -lt [DateTime]::Parse($freeze.freezeStartedAt).ToUniversalTime() -or
+    $backupCreatedAt -gt [DateTime]::UtcNow -or (Get-Item -LiteralPath $rollbackPath).LastWriteTimeUtc -lt [DateTime]::Parse($freeze.freezeStartedAt).ToUniversalTime()) { throw 'rollback_backup_predates_freeze' }
 & docker run --rm --network none --read-only --mount "type=bind,source=$rollbackPath,target=/rollback.dump,readonly" `
     --entrypoint pg_restore postgres:16-alpine --list /rollback.dump 2>$null | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'rollback_backup_archive_invalid' }
@@ -147,7 +148,7 @@ $imageRevision = (& docker image inspect $imageTag --format '{{index .Config.Lab
 if ($LASTEXITCODE -ne 0 -or $imageRevision -cne $head) { throw 'import_runner_image_mismatch' }
 $fresh = Get-ZhixuVerifiedTarget -ExpectedContainerName $ExpectedContainerName -ExpectedComposeProject $ExpectedComposeProject `
     -ExpectedVolumeName $ExpectedVolumeName -ExpectedDatabaseName $ExpectedDatabaseName -ExpectedTargetFingerprint $ExpectedTargetFingerprint
-if ($Execute) { Assert-ZhixuWritersFrozen -Target $fresh }
+Assert-ZhixuWritersFrozen -Target $fresh
 $inspection = @(Invoke-ZhixuDockerJson -Arguments @('inspect', '--type', 'container', $fresh.ContainerName))
 $settings = @{}
 foreach ($entry in @($inspection[0].Config.Env)) {

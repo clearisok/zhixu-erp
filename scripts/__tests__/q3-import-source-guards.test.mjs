@@ -20,7 +20,7 @@ test("reviewed-source guards bind maintenance static and handoff safety paths", 
   for (const path of ["server/build-identity.ts", "server/maintenance-static.ts", "server/maintenance-static-app.ts",
     "server/static-files.ts", "scripts/Invoke-Q3MaintenanceStaticHandoff.ps1",
     "scripts/q3-split-topology.ps1", "scripts/Invoke-Q3IndependentFrozenFrontend.ps1",
-    "scripts/Invoke-Q3IndependentWriterFreeze.ps1", "features/data-management",
+    "scripts/Invoke-Q3IndependentWriterFreeze.ps1", "scripts/Publish-Q3EvidenceBundle.ps1", "features/data-management",
     "features/permissions", "Dockerfile.server", "vite.config.ts"]) {
     assert.ok(guarded.includes(path), `guarded importer misses ${path}`);
     assert.ok(rehearsal.includes(path), `rehearsal misses ${path}`);
