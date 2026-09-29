@@ -12,7 +12,7 @@ export type RuntimeBuildIdentity = {
 export async function assertRuntimeBuildIdentity(
   staticDirectory: string,
   expectedAuthority?: RuntimeBuildIdentity["masterSettingsAuthority"],
-  environment: NodeJS.ProcessEnv = process.env,
+  environment: Readonly<Record<string, string | undefined>> = process.env,
 ): Promise<RuntimeBuildIdentity> {
   let value: unknown;
   try { value = JSON.parse(await readFile(resolve(staticDirectory, "build-info.json"), "utf8")) as unknown; }

@@ -18,6 +18,14 @@
 
 ## Active
 
+### D-092 Q3 maintenance serves the reviewed frozen bundle without a database writer
+
+- 日期：2026-09-29；状态：Active engineering safety decision，非真实 cutover 授权。
+- Q3 master/settings 的 Browser freeze 与真实 DB writer freeze 必须同时成立。原 Node Server 既提供 `/build-info.json` 又持有 DB client，因此停掉 writer 后，不能由同一容器继续证明 frozen bundle 在线。
+- `frozen` 正常 Server 与 maintenance-static 必须使用**同一 image ID**、reviewed revision、build ID/time 和编译进前端的 authority，交接前后保持操作者明确指定的同一 Browser origin。交接脚本核对镜像/端口/运行中 build-info，停止精确匹配的 writer，使用 standalone、无 DB env/volume/Compose DB network 的 static-only 容器继续服务并再次核对 build-info。静态模式不加载 DB config/pool/migration/RBAC/admin，不提供 API；`/maintenance-health` 只表示静态服务在线。不得通过忽略任意容器来放宽 writer guard。
+- Docker build 仅接受 `browser | frozen | server`；默认仍为 Browser。生产 runtime 配置与已编译的 build-info 不符时 fail closed；新的静态、构建、handoff 路径被纳入 import/rehearsal reviewed-source guard。真实 Browser profile、独立 D-091 保管位置和实际部署交接仍需后续确认。
+- 证据：`Dockerfile.server`、`vite.config.ts`、`features/basic-settings/authority/master-settings-authority.ts`、`server/maintenance-static*.ts`、`scripts/Invoke-Q3MaintenanceStaticHandoff.ps1`、`scripts/Invoke-Q3GuardedMasterImport.ps1` 与 `scripts/__tests__/q3-maintenance-topology.test.mjs`；测试只用 disposable 容器。
+
 ### D-091 Historical migration/import uses migration-level evidence, not fabricated runtime CRUD audit
 
 - 日期：2026-09-28；状态：Active，用户已确认。此决定不授权任何真实 migration/import。

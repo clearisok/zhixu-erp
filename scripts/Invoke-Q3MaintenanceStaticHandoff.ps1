@@ -33,7 +33,7 @@ function Inspect-DockerObject {
     param([string[]]$Arguments)
     $result = @(& docker @Arguments 2>$null)
     if ($LASTEXITCODE -ne 0) { throw 'handoff_docker_identity_unavailable' }
-    try { return @($result | ConvertFrom-Json -DateKind String)[0] }
+    try { return @($result | ConvertFrom-Json)[0] }
     catch { throw 'handoff_docker_metadata_invalid' }
 }
 function Assert-NoDbEnvironment {
@@ -53,9 +53,11 @@ function Assert-FrozenBuild {
 }
 
 $image = Inspect-DockerObject -Arguments @('image', 'inspect', $ExpectedImageId)
+$imageBuildTime = @(& docker image inspect $ExpectedImageId --format '{{index .Config.Labels "org.opencontainers.image.created"}}' 2>$null)
+if ($LASTEXITCODE -ne 0 -or $imageBuildTime.Count -ne 1) { throw 'handoff_image_identity_unavailable' }
 if ($image.Id -cne $ExpectedImageId -or
     $image.Config.Labels.'org.opencontainers.image.revision' -cne $ExpectedImageRevision -or
-    $image.Config.Labels.'org.opencontainers.image.created' -cne $ExpectedBuildTime -or
+    $imageBuildTime[0] -cne $ExpectedBuildTime -or
     $image.Config.Labels.'io.zhixu.build-id' -cne $ExpectedBuildId -or
     $image.Config.Labels.'io.zhixu.master-settings-authority' -cne 'frozen') { throw 'handoff_image_identity_mismatch' }
 Assert-NoDbEnvironment -ContainerOrImage $image

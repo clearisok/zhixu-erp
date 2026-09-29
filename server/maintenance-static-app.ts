@@ -3,7 +3,7 @@ import { serveStatic } from "./static-files.js";
 
 const forbiddenEnvironment = /^(?:DB_|DATABASE_URL$|POSTGRES_|PGHOST$|PGPORT$|PGDATABASE$|PGUSER$|PGPASSWORD$|ZHIXU_ADMIN_PASSWORD$)/u;
 
-export function assertMaintenanceEnvironment(environment: NodeJS.ProcessEnv = process.env): void {
+export function assertMaintenanceEnvironment(environment: Readonly<Record<string, string | undefined>> = process.env): void {
   if (Object.keys(environment).some((key) => forbiddenEnvironment.test(key))) {
     throw new Error("maintenance_database_environment_forbidden");
   }
