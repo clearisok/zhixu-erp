@@ -102,7 +102,10 @@ try {
     $unconfirmed = & $runGuard @('--mount', "type=bind,source=$evidencePath,target=/evidence") 'execute'
     if ($LASTEXITCODE -eq 0 -or (Test-Path -LiteralPath (Join-Path $evidencePath 'import-evidence.json'))) { throw 'disposable_guarded_unconfirmed_execute_accepted' }
     $executed = @(& $runGuard $executeArgs 'execute')
-    if ($LASTEXITCODE -ne 0 -or $executed.Count -ne 1 -or ($executed[0] | ConvertFrom-Json).outcome -cne 'COMMITTED') { throw 'disposable_guarded_execute_failed' }
+    $executeExit = $LASTEXITCODE
+    if ($executed.Count -ne 1) { throw "disposable_guarded_execute_failed exit=$executeExit lines=$($executed.Count)" }
+    $executeResult = $executed[0] | ConvertFrom-Json
+    if ($executeExit -ne 0 -or $executeResult.outcome -cne 'COMMITTED') { throw "disposable_guarded_execute_failed exit=$executeExit outcome=$($executeResult.outcome)" }
     $record = Get-Content -LiteralPath (Join-Path $evidencePath 'import-evidence.json') -Raw | ConvertFrom-Json
     if ($record.outcome -cne 'COMMITTED' -or $record.readbackContentHash -cne $proof.projectionContentHash -or
         $record.targetFingerprint -cne ('a' * 64)) { throw 'disposable_guarded_readback_evidence_invalid' }
