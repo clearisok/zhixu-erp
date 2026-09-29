@@ -32,6 +32,7 @@ if ((Get-Item -LiteralPath $evidencePath).Attributes -band [IO.FileAttributes]::
 $nonce = [Guid]::NewGuid().ToString('N').Substring(0, 12)
 $container = "zhixu-q3-guarded-test-$nonce"
 $database = "zhixu_it_q3_guarded_$nonce"
+$invalidLedgerDatabase = "zhixu_it_q3_invalid_$nonce"
 $password = [Guid]::NewGuid().ToString('N')
 $imageTag = "zhixu-q3-guarded-test:$($head.Substring(0, 12))"
 $started = $false
@@ -52,6 +53,8 @@ try {
     if (-not $ready) { throw 'disposable_guarded_database_unavailable' }
     & docker exec $container psql -X -q -w -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE $database" 2>$null | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'disposable_guarded_database_create_failed' }
+    & docker exec $container psql -X -q -w -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE DATABASE $invalidLedgerDatabase" 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'disposable_guarded_invalid_ledger_database_create_failed' }
     & docker build --progress quiet -f (Join-Path $repoRoot 'Dockerfile.server') -t $imageTag `
         --build-arg "ZHIXU_BUILD_ID=q3-guarded-$nonce" --build-arg "ZHIXU_GIT_COMMIT=$head" `
         --build-arg "ZHIXU_BUILD_TIME=$([DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'))" $repoRoot 2>$null | Out-Null
@@ -81,9 +84,26 @@ try {
         -e DB_HOST=127.0.0.1 -e DB_PORT=5432 -e "DB_PASSWORD=$password" -e "Q3_DISPOSABLE_SUCCESS_DB=$database" `
         -e "Q3_REVIEWED_COMMIT=$head" --entrypoint node $imageTag dist/server/q3/disposable-rehearsal-cli.mjs prepare-guarded-test 2>$null | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'disposable_guarded_migration_setup_failed' }
+    & docker run --rm --network "container:$container" --read-only --tmpfs '/tmp:rw,size=64m' `
+        -e DB_HOST=127.0.0.1 -e DB_PORT=5432 -e "DB_PASSWORD=$password" -e "Q3_DISPOSABLE_SUCCESS_DB=$invalidLedgerDatabase" `
+        -e "Q3_REVIEWED_COMMIT=$head" --entrypoint node $imageTag dist/server/q3/disposable-rehearsal-cli.mjs prepare-guarded-test 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'disposable_guarded_invalid_ledger_setup_failed' }
+    & docker exec $container psql -X -q -w -v ON_ERROR_STOP=1 -U postgres -d $invalidLedgerDatabase `
+        -c "UPDATE schema_migrations SET checksum=repeat('0',64) WHERE version='7'" 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'disposable_guarded_invalid_ledger_fixture_failed' }
     $verifyArgs = @('-e', 'PGOPTIONS=-c default_transaction_read_only=on')
     $verified = @(& $runGuard $verifyArgs 'verify')
     if ($LASTEXITCODE -ne 0 -or $verified.Count -ne 1 -or ($verified[0] | ConvertFrom-Json).ready -ne $true) { throw 'disposable_guarded_verify_failed' }
+    $invalidLedger = & $runGuard ($verifyArgs + @('-e', "DB_NAME=$invalidLedgerDatabase")) 'verify'
+    if ($LASTEXITCODE -eq 0) { throw 'disposable_guarded_invalid_ledger_accepted' }
+    $withoutFreezeMount = [System.Collections.Generic.List[string]]::new()
+    for ($index = 0; $index -lt $common.Count; $index++) {
+        if ($common[$index] -ceq '--mount' -and $common[$index + 1] -match 'target=/input/freeze.json') { $index++; continue }
+        $withoutFreezeMount.Add($common[$index])
+    }
+    $withoutFreezeArgs = $withoutFreezeMount.ToArray()
+    & docker @withoutFreezeArgs @verifyArgs --entrypoint node $imageTag dist/server/q3/guarded-import-cli.mjs verify 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) { throw 'disposable_guarded_missing_freeze_accepted' }
     $wrongDatabase = & $runGuard ($verifyArgs + @('-e', "DB_NAME=zhixu_it_q3_missing_$nonce")) 'verify'
     if ($LASTEXITCODE -eq 0) { throw 'disposable_guarded_wrong_database_accepted' }
     foreach ($bad in @(
