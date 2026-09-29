@@ -149,6 +149,7 @@ export type Q3RehearsalProof = {
   readbackCounts: QuoteMasterSettingsRowCounts;
   readbackContentHash: string;
   rollbackValidated: true;
+  postCommitUnverifiedValidated: true;
   secondImportRejected: true;
   disposableContainerRemoved: true;
 };
@@ -159,7 +160,7 @@ export function validateRehearsalProof(proof: Q3RehearsalProof, source: Q3Source
     proof.projectionContentHash !== requireSha(source.projectionContentHash, "projection_hash") ||
     proof.readbackContentHash !== source.projectionContentHash || proof.reviewedCommit !== requireCommit(reviewedCommit) ||
     !sameCounts(proof.projectedCounts, source.projectedCounts) || !sameCounts(proof.importCounts, source.projectedCounts) ||
-    !sameCounts(proof.readbackCounts, source.projectedCounts) || !proof.rollbackValidated || !proof.secondImportRejected ||
+    !sameCounts(proof.readbackCounts, source.projectedCounts) || !proof.rollbackValidated || !proof.postCommitUnverifiedValidated || !proof.secondImportRejected ||
     !proof.disposableContainerRemoved || JSON.stringify(proof.migrationLedger) !== JSON.stringify(ledger)) throw new Error("rehearsal_proof_mismatch");
   requireTimestamp(proof.rehearsedAt, "rehearsed_at");
   return proof;

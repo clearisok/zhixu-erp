@@ -67,12 +67,12 @@ test("rehearsal proof rejects wrong source/hash/code/ledger/rollback/readback", 
     const canonicalPath = await realpath(path);
     const { identity } = await inspectQ3SourceFile(canonicalPath);
     const ledger = Array.from({ length: 7 }, (_, index) => ({ version: String(index + 1), filename: `000${index + 1}_synthetic.sql`, checksum: "b".repeat(64) }));
-    const proof: Q3RehearsalProof = { proofVersion: 1, result: "PASS", sourceFileSha256: identity.fileSha256, sourceHash: identity.sourceHash, projectionContentHash: identity.projectionContentHash, projectedCounts: identity.projectedCounts, reviewedCommit: commit, migrationLedger: ledger, postgresMajor: 16, rehearsedAt: "2026-09-28T10:03:00Z", importCounts: identity.projectedCounts, readbackCounts: identity.projectedCounts, readbackContentHash: identity.projectionContentHash, rollbackValidated: true, secondImportRejected: true, disposableContainerRemoved: true };
+    const proof: Q3RehearsalProof = { proofVersion: 1, result: "PASS", sourceFileSha256: identity.fileSha256, sourceHash: identity.sourceHash, projectionContentHash: identity.projectionContentHash, projectedCounts: identity.projectedCounts, reviewedCommit: commit, migrationLedger: ledger, postgresMajor: 16, rehearsedAt: "2026-09-28T10:03:00Z", importCounts: identity.projectedCounts, readbackCounts: identity.projectedCounts, readbackContentHash: identity.projectionContentHash, rollbackValidated: true, postCommitUnverifiedValidated: true, secondImportRejected: true, disposableContainerRemoved: true };
     assert.equal(validateRehearsalProof(proof, identity, commit, ledger).result, "PASS");
     for (const wrong of [
       { ...proof, sourceFileSha256: "c".repeat(64) }, { ...proof, sourceHash: "c".repeat(64) },
       { ...proof, projectionContentHash: "c".repeat(64) }, { ...proof, reviewedCommit: "c".repeat(40) },
-      { ...proof, rollbackValidated: false as true }, { ...proof, readbackContentHash: "c".repeat(64) },
+      { ...proof, rollbackValidated: false as true }, { ...proof, postCommitUnverifiedValidated: false as true }, { ...proof, readbackContentHash: "c".repeat(64) },
       { ...proof, disposableContainerRemoved: false as true },
     ]) assert.throws(() => validateRehearsalProof(wrong, identity, commit, ledger), /mismatch/u);
     assert.throws(() => validateRehearsalProof(proof, identity, commit, []), /mismatch/u);

@@ -10,7 +10,7 @@ function argumentsFrom(argv: string[]): Record<string, string> {
     if (!key || !allowed.has(key) || !argv[index]?.startsWith("--") || !argv[index + 1] || result[key]) throw new Error("invalid_frozen_verifier_arguments");
     result[key] = argv[index + 1];
   }
-  if (Object.keys(result).length !== allowed.size || !argv.includes("--confirm-old-tabs-closed")) throw new Error("explicit_old_tab_closure_confirmation_required");
+  if (Object.keys(result).length !== allowed.size) throw new Error("frozen_verifier_arguments_missing");
   return result;
 }
 

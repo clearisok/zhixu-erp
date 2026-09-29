@@ -370,7 +370,7 @@ async function assertEmptyTarget(client: PoolClient): Promise<void> {
 export async function importQuoteMasterSettingsProjection(
   pool: Pool,
   report: MasterSettingsBackupPreviewReport,
-  options: { intentionalFailureAfterBrands?: boolean } = {},
+  options: { intentionalFailureAfterBrands?: boolean; intentionalPostCommitReadbackFailure?: boolean } = {},
 ): Promise<QuoteMasterSettingsImportResult> {
   const content = migrationContentFromPreview(report);
   const projectionContentHash = migrationContentHash(content);
@@ -434,6 +434,7 @@ export async function importQuoteMasterSettingsProjection(
   }
 
   try {
+    if (options.intentionalPostCommitReadbackFailure) throw new Error("intentional_disposable_post_commit_readback_failure");
     const postgresContent = await readQuoteMasterSettingsMigrationContent(pool);
     const postgresContentHash = migrationContentHash(postgresContent);
     const rowCounts = await readQuoteMasterSettingsRowCounts(pool);

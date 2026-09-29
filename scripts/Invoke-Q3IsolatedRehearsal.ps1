@@ -12,10 +12,10 @@ $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $head = (& git -C $repoRoot rev-parse HEAD).Trim()
 if ($LASTEXITCODE -ne 0 -or $head -cne $ReviewedCommit) { throw 'reviewed_commit_mismatch' }
 $critical = @(
-    'features/basic-settings', 'features/data-management', 'features/runtime/build-info.ts',
+    'features/basic-settings', 'features/data-management', 'features/runtime/build-info.ts', 'vite.config.ts',
     'server/integration/quote-master-settings-migration-import.ts', 'server/quote-masters', 'server/db',
     'database/migrations', 'scripts/Invoke-Q3IsolatedRehearsal.ps1', 'scripts/Invoke-Q3GuardedMasterImport.ps1',
-    'scripts/build-q3-import-runners.mjs', 'scripts/database-target-guard.ps1',
+    'scripts/build-q3-import-runners.mjs', 'scripts/database-target-guard.ps1', 'scripts/verify-q3-frozen-build.ts',
     'Dockerfile.server', 'Backup-Zhixu.ps1', 'server/tsconfig.json', 'package.json', 'package-lock.json'
 )
 & git -C $repoRoot diff --quiet -- $critical

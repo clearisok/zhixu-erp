@@ -2,7 +2,7 @@ import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import pg from "pg";
 import { discoverMigrations, inspectMigrationStatus, runMigrations } from "../db/migration-runner.js";
-import { importQuoteMasterSettingsProjection, inspectDefaultTrimSchema, QuoteMasterSettingsMigrationError, readQuoteMasterSettingsRowCounts } from "../integration/quote-master-settings-migration-import.js";
+import { importQuoteMasterSettingsProjection, inspectDefaultTrimSchema, QuoteMasterSettingsMigrationError, QuoteMasterSettingsPostCommitError, readQuoteMasterSettingsRowCounts } from "../integration/quote-master-settings-migration-import.js";
 import { inspectQ3SourceFile, type Q3RehearsalProof } from "./import-readiness.js";
 
 const { Pool } = pg;
@@ -22,7 +22,7 @@ async function main(): Promise<void> {
   }
   const options = (database: string) => ({ host: "127.0.0.1", port: 5432, database, user: "postgres", password, max: 2, connectionTimeoutMillis: 3000 });
   if (prepareOnly) {
-    const target = new Pool(options(successDatabase));
+    const target = new Pool(options(successDatabase!));
     try {
       const version = Number((await target.query<{ server_version_num: string }>("SHOW server_version_num")).rows[0].server_version_num);
       if (version < 160000 || version >= 170000) throw new Error("disposable_postgres_major_mismatch");
@@ -37,8 +37,8 @@ async function main(): Promise<void> {
   if (source.identity.fileSha256 !== process.env.Q3_EXPECTED_FILE_SHA256 || source.identity.sourceHash !== process.env.Q3_EXPECTED_SOURCE_HASH || source.identity.blockers !== 0) {
     throw new Error("disposable_rehearsal_source_mismatch");
   }
-  const success = new Pool(options(successDatabase));
-  const rollback = new Pool(options(rollbackDatabase));
+  const success = new Pool(options(successDatabase!));
+  const rollback = new Pool(options(rollbackDatabase!));
   try {
     const version = Number((await success.query<{ server_version_num: string }>("SHOW server_version_num")).rows[0].server_version_num);
     if (version < 160000 || version >= 170000) throw new Error("disposable_postgres_major_mismatch");
@@ -55,6 +55,12 @@ async function main(): Promise<void> {
     try { await importQuoteMasterSettingsProjection(rollback, source.report, { intentionalFailureAfterBrands: true }); }
     catch (error) { rolledBack = error instanceof QuoteMasterSettingsMigrationError && error.code === "intentional_rehearsal_failure"; if (!rolledBack) throw error; }
     if ((await readQuoteMasterSettingsRowCounts(rollback)).total !== 0) throw new Error("disposable_rollback_failed");
+    let postCommitUnverified = false;
+    try { await importQuoteMasterSettingsProjection(rollback, source.report, { intentionalPostCommitReadbackFailure: true }); }
+    catch (error) { postCommitUnverified = error instanceof QuoteMasterSettingsPostCommitError; if (!postCommitUnverified) throw error; }
+    if (!postCommitUnverified || (await readQuoteMasterSettingsRowCounts(rollback)).total !== source.identity.projectedCounts.total) {
+      throw new Error("disposable_post_commit_outcome_misclassified");
+    }
     const imported = await importQuoteMasterSettingsProjection(success, source.report);
     if (!imported.contentHashesEqual || imported.postgresContentHash !== source.identity.projectionContentHash) throw new Error("disposable_readback_mismatch");
     let secondRejected = false;
@@ -73,7 +79,7 @@ async function main(): Promise<void> {
       projectionContentHash: source.identity.projectionContentHash, projectedCounts: source.identity.projectedCounts,
       reviewedCommit, migrationLedger: ledger, postgresMajor: 16, rehearsedAt: new Date().toISOString(),
       importCounts: imported.rowCounts, readbackCounts: await readQuoteMasterSettingsRowCounts(success),
-      readbackContentHash: imported.postgresContentHash, rollbackValidated: true, secondImportRejected: true,
+      readbackContentHash: imported.postgresContentHash, rollbackValidated: true, postCommitUnverifiedValidated: true, secondImportRejected: true,
       disposableContainerRemoved: false,
     };
     // The outer harness publishes the proof only after actual container removal.

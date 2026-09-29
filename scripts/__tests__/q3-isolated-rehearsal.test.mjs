@@ -55,6 +55,7 @@ test("Q3 rehearsal uses a portless tmpfs PostgreSQL 16 and publishes proof only 
     assert.equal(proof.sourceFileSha256, fileSha);
     assert.equal(proof.sourceHash, report.sourceHash);
     assert.equal(proof.rollbackValidated, true);
+    assert.equal(proof.postCommitUnverifiedValidated, true);
     assert.equal(proof.secondImportRejected, true);
     assert.equal(proof.disposableContainerRemoved, true);
     assert.equal(proof.importCounts.total, proof.projectedCounts.total);

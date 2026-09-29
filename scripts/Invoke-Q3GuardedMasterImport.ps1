@@ -170,7 +170,7 @@ try {
     catch { throw 'guarded_import_result_invalid_keep_freeze' }
     if ($VerifyOnly) {
         if ($result.event -cne 'q3_import_verify_only' -or $result.ready -ne $true) { throw 'guarded_import_verify_failed' }
-        Write-Output "q3_import_verify_only_ready fingerprint=$($fresh.Fingerprint) source_hash=$ExpectedSourceHash rows=$($result.projectedRows)"
+        Write-Output "q3_import_verify_only_ready fingerprint=$($fresh.Fingerprint) source_hash=$ExpectedSourceHash rows=$($result.projectedCounts.total)"
     } else {
         if ($result.event -cne 'q3_import_result' -or $result.outcome -cne 'COMMITTED') { throw 'guarded_import_not_verified_keep_freeze' }
         Write-Output "q3_import_committed_readback_verified execution_id=$($result.executionId) writers_remain_frozen=YES"
