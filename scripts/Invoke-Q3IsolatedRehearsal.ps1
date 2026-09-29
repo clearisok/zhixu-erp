@@ -17,6 +17,7 @@ $critical = @(
     'server/build-identity.ts', 'server/index.ts', 'server/maintenance-static.ts',
     'server/maintenance-static-app.ts', 'server/static-files.ts', 'database/migrations',
     'scripts/Invoke-Q3IsolatedRehearsal.ps1', 'scripts/Invoke-Q3GuardedMasterImport.ps1',
+    'scripts/Publish-Q3EvidenceBundle.ps1',
     'scripts/Invoke-Q3MaintenanceStaticHandoff.ps1', 'scripts/q3-split-topology.ps1',
     'scripts/Invoke-Q3IndependentFrozenFrontend.ps1', 'scripts/Invoke-Q3IndependentWriterFreeze.ps1',
     'scripts/build-q3-import-runners.mjs', 'scripts/database-target-guard.ps1', 'scripts/verify-q3-frozen-build.ts',

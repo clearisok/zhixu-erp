@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { createServer } from "node:http";
-import { existsSync, readFileSync, rmdirSync, unlinkSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, rmdirSync, statSync, unlinkSync, utimesSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { join } from "node:path";
+import { join, resolve, sep } from "node:path";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const token = randomUUID().replaceAll("-", "").slice(0, 10);
@@ -62,6 +63,8 @@ test("same frozen image hands off from disposable writer to isolated static at t
   assert.match(revision, /^[0-9a-f]{40}$/u);
   let frozenId;
   let oldFrontend;
+  let guardTemp;
+  let rollbackPath;
   let stage = "build-frozen";
   try {
     docker(["build", "--progress", "quiet", "-f", "Dockerfile.server", "-t", frozenTag,
@@ -222,6 +225,99 @@ test("same frozen image hands off from disposable writer to isolated static at t
     assert.equal((await (await fetch(`${splitOrigin}/maintenance-health`)).json()).database, "not_connected");
     assert.equal((await fetch(`${splitOrigin}/api/v1/health`)).status, 503);
 
+    stage = "guarded-preexecute-disposable";
+    guardTemp = mkdtempSync(join(tmpdir(), `${prefix}-proof-`));
+    assert.ok(resolve(guardTemp).startsWith(resolve(tmpdir()) + sep));
+    const sourceFixturePath = join(guardTemp, "synthetic-browser-backup.json");
+    const envelope = (data) => JSON.stringify({ schemaVersion: 13, initializedAt: new Date().toISOString(), updatedAt: new Date().toISOString(), data });
+    const sourceBackup = { product: "zhixu-erp", backupVersion: 1, schemaVersion: 13, createdAt: new Date().toISOString(),
+      environment: "development", origin: splitOrigin, namespace: "synthetic", attachments: [], templates: [],
+      localRecords: {
+        "synthetic.basic-settings": envelope({ brands: [], customerSalespeople: [], fabricLibrary: [], trimLibrary: [],
+          systemDefaults: { usdCnyRate: null, markupRate: null, laborCurrency: "CNY", defaultOtherCost: null } }),
+        "synthetic.quote-global-settings": envelope({ defaultUsdCnyRate: null, defaultMarkupRate: null,
+          defaultLaborCurrency: "CNY", defaultLaborDescription: "Synthetic labor", defaultOtherCost: null,
+          defaultManufacturingPresetId: null, manufacturingPresets: [] }),
+      } };
+    writeFileSync(sourceFixturePath, JSON.stringify(sourceBackup), { flag: "wx" });
+    const sourcePath = realpathSync.native(sourceFixturePath);
+    const sourceInspection = run(process.execPath, ["--import", "tsx", "--input-type=module", "-e",
+      "import { inspectQ3SourceFile } from './server/quote-masters/import-readiness.ts'; const result=await inspectQ3SourceFile(process.argv[1]); console.log(JSON.stringify(result.identity));", sourcePath]);
+    assert.equal(sourceInspection.status, 0, sourceInspection.stderr?.slice(-900));
+    const sourceIdentity = JSON.parse(sourceInspection.stdout.trim());
+    assert.equal(sourceIdentity.blockers, 0);
+    const ledger = readdirSync(join(root, "database", "migrations")).filter((name) => /^000[1-7]_.*\.sql$/u.test(name)).sort()
+      .map((filename) => ({ version: String(Number(filename.slice(0, 4))), filename,
+        checksum: createHash("sha256").update(readFileSync(join(root, "database", "migrations", filename))).digest("hex") }));
+    assert.equal(ledger.length, 7);
+    const proofPath = join(guardTemp, "synthetic-proof.json");
+    const proof = { proofVersion: 1, result: "PASS", sourceFileSha256: sourceIdentity.fileSha256,
+      sourceHash: sourceIdentity.sourceHash, projectionContentHash: sourceIdentity.projectionContentHash,
+      projectedCounts: sourceIdentity.projectedCounts, reviewedCommit: revision, migrationLedger: ledger,
+      postgresMajor: 16, rehearsedAt: new Date().toISOString(), importCounts: sourceIdentity.projectedCounts,
+      readbackCounts: sourceIdentity.projectedCounts, readbackContentHash: sourceIdentity.projectionContentHash,
+      rollbackValidated: true, postCommitUnverifiedValidated: true, secondImportRejected: true, disposableContainerRemoved: true };
+    writeFileSync(proofPath, JSON.stringify(proof), { flag: "wx" });
+    const backup = run("pwsh", ["-NoProfile", "-NonInteractive", "-File", join(root, "Backup-Zhixu.ps1"),
+      "-ExpectedContainerName", database, "-ExpectedComposeProject", prefix, "-ExpectedVolumeName", "tmpfs",
+      "-ExpectedDatabaseName", "synthetic", "-ExpectedTargetFingerprint", fingerprint], 120_000);
+    assert.equal(backup.status, 0, backup.stderr?.slice(-900));
+    const backupName = /backup_verified filename=([^\s]+)/u.exec(backup.stdout)?.[1];
+    assert.match(backupName ?? "", /^zhixu-.*\.dump$/u);
+    rollbackPath = join(root, "backups", backupName);
+    const manifestPath = `${rollbackPath}.manifest.json`;
+    const originalManifest = readFileSync(manifestPath);
+    const fileSha = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
+    const guardArgs = ["-ExpectedContainerName", database, "-ExpectedComposeProject", prefix,
+      "-ExpectedVolumeName", "tmpfs", "-ExpectedDatabaseName", "synthetic", "-ExpectedTargetFingerprint", fingerprint,
+      "-ExpectedImportSourceCommit", revision, "-ExpectedBrowserOrigin", splitOrigin,
+      "-ExpectedBrowserNamespace", "synthetic", "-ExpectedBrowserEnvironment", "development",
+      "-ExpectedBrowserSchemaVersion", "13", "-ExpectedFrozenBuildId", buildId, "-ExpectedFrontendTopology", "split",
+      "-FreshBackupFile", sourcePath, "-ExpectedBackupFileSha256", sourceIdentity.fileSha256,
+      "-ExpectedSourceHash", sourceIdentity.sourceHash, "-ExpectedProjectionContentHash", sourceIdentity.projectionContentHash,
+      "-RehearsalProofFile", proofPath, "-ExpectedRehearsalProofSha256", fileSha(proofPath),
+      "-FrozenEvidenceFile", freezeEvidencePath, "-ExpectedFrozenEvidenceSha256", fileSha(freezeEvidencePath),
+      "-RollbackBackupFile", rollbackPath, "-ExpectedRollbackBackupSha256", fileSha(rollbackPath),
+      "-RollbackBackupManifestFile", manifestPath, "-ExpectedRollbackBackupManifestSha256", fileSha(manifestPath)];
+    const guardScript = join(root, "scripts", "Invoke-Q3GuardedMasterImport.ps1");
+    const guard = (mode, args = guardArgs) => run("pwsh", ["-NoProfile", "-NonInteractive", "-File", guardScript, ...args,
+      mode, ...(mode === "-Execute" ? ["-ConfirmImport", "I_UNDERSTAND_Q3_IMPORT_IS_IRREVERSIBLE",
+        "-OperatorLabel", "synthetic-operator", "-AuthorizationRef", "synthetic-test"] : [])], 240_000);
+    docker(["start", splitWriter]);
+    const activeVerify = guard("-VerifyOnly");
+    assert.notEqual(activeVerify.status, 0);
+    assert.match(activeVerify.stderr, /application_writer_not_frozen/u);
+    const activeExecute = guard("-Execute");
+    assert.notEqual(activeExecute.status, 0);
+    assert.match(activeExecute.stderr, /application_writer_not_frozen/u);
+    docker(["stop", splitWriter]);
+    const manifestDate = (date) => {
+      const value = JSON.parse(originalManifest.toString("utf8"));
+      value.createdAt = date.toISOString();
+      writeFileSync(manifestPath, JSON.stringify(value));
+      const args = [...guardArgs];
+      args[args.indexOf("-ExpectedRollbackBackupManifestSha256") + 1] = fileSha(manifestPath);
+      return args;
+    };
+    const freezeStartedAt = new Date(JSON.parse(readFileSync(freezeEvidencePath, "utf8")).freezeStartedAt);
+    const preFreeze = guard("-VerifyOnly", manifestDate(new Date(freezeStartedAt.getTime() - 60_000)));
+    assert.notEqual(preFreeze.status, 0);
+    assert.match(preFreeze.stderr, /rollback_backup_predates_freeze/u);
+    const future = guard("-VerifyOnly", manifestDate(new Date(Date.now() + 3_600_000)));
+    assert.notEqual(future.status, 0);
+    assert.match(future.stderr, /rollback_backup_predates_freeze/u);
+    writeFileSync(manifestPath, originalManifest);
+    const restoredCreatedAt = JSON.parse(readFileSync(manifestPath, "utf8")).createdAt;
+    const backupTimes = statSync(rollbackPath);
+    utimesSync(rollbackPath, new Date(freezeStartedAt.getTime() - 60_000), new Date(freezeStartedAt.getTime() - 60_000));
+    const staleDump = guard("-VerifyOnly");
+    assert.notEqual(staleDump.status, 0);
+    assert.match(staleDump.stderr, /rollback_backup_predates_freeze/u);
+    utimesSync(rollbackPath, backupTimes.atime, backupTimes.mtime);
+    const postFreeze = guard("-VerifyOnly");
+    assert.equal(postFreeze.status, 0, `freeze=${freezeStartedAt.toISOString()} manifest=${restoredCreatedAt} dump=${statSync(rollbackPath).mtime.toISOString()} ${postFreeze.stdout?.slice(-500)} ${postFreeze.stderr?.slice(-1200)}`);
+    assert.match(postFreeze.stdout, /q3_import_verify_only_ready/u);
+
     stage = "build-server";
     docker(["build", "--progress", "quiet", "-f", "Dockerfile.server", "-t", serverTag,
       "--build-arg", `ZHIXU_BUILD_ID=${buildId}-server`, "--build-arg", `ZHIXU_GIT_COMMIT=${revision}`,
@@ -251,6 +347,11 @@ test("same frozen image hands off from disposable writer to isolated static at t
   } finally {
     if (existsSync(freezeEvidencePath)) unlinkSync(freezeEvidencePath);
     if (existsSync(freezeEvidenceDirectory)) rmdirSync(freezeEvidenceDirectory);
+    if (rollbackPath && resolve(rollbackPath).startsWith(resolve(root, "backups") + sep)) {
+      if (existsSync(rollbackPath)) unlinkSync(rollbackPath);
+      if (existsSync(`${rollbackPath}.manifest.json`)) unlinkSync(`${rollbackPath}.manifest.json`);
+    }
+    if (guardTemp && resolve(guardTemp).startsWith(resolve(tmpdir()) + sep)) rmSync(guardTemp, { recursive: true, force: true });
     if (oldFrontend?.listening) await new Promise((resolve) => oldFrontend.close(resolve));
     safeCleanupContainer(serverRuntime);
     safeCleanupContainer(splitStatic, frozenId);

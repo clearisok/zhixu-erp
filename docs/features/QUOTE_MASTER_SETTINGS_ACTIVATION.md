@@ -2,6 +2,10 @@
 
 > 2026-09-28：**Q3B2H CLOSED / PASS**。真实 PostgreSQL schema migration 0004–0007 和用户自行完成的 Windows/local Compose Node post-migration recovery 均已验收。本文件后续 Q3B2D–G 的“pending/未授权”描述保留为各阶段历史证据，不代表当前 ledger。此验收不是 Linux production deployment readiness，也不授权 master/settings import、Quote import、Browser authority cutover 或真实 restore。
 
+## Q3B2I-C0.3 pre-Execute proof closure — code/disposable only
+
+Guarded VerifyOnly and Execute now both require frozen DB writers on the initial and fresh exact-target checks and a rollback manifest/dump created after Browser freeze (with manifest time not in the future). VerifyOnly remains read-only; it establishes machine-checkable Execute prerequisites but never grants independent human Execute authorization. The D-091 pre-execute second-copy tool uses an allowlisted JSON bundle and destination readback SHA-256, not raw Browser backups or PostgreSQL dumps. The selected real OneDrive path is documented in `docs/features/Q3B2I_CUTOVER_RUNBOOK.md`; this Gate does not access it. Real 3001/3002, Browser, PostgreSQL, freeze/export/backup/import/deployment and authority remain unchanged. Next: Q3B2I-C0 FINAL RE-PREFLIGHT again.
+
 ## Q3B2I-C0.2 split Browser/frontend and DB writer — engineering only
 
 Authoritative origin is operator-attested `http://127.0.0.1:3001` in Chrome (`Chrome-authoritative`). The observed pre-cutover topology is a Windows-host `npm run dev:local`/Vinext frontend at 3001, with `/api/v1` proxied to the separate `preparesystem-server-1` DB-capable Docker writer at 3002. Vinext dev/HMR is **not** an immutable freeze artifact. The colocated same-image handoff remains available for a different topology, but cannot stop the 3002 writer and claim to replace the 3001 provider.
