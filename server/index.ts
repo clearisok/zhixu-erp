@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import { createApp } from "./app.js";
+import { assertRuntimeBuildIdentity } from "./build-identity.js";
 import { bootstrapAdmin } from "./auth/bootstrap.js";
 import { synchronizePermissionCatalog } from "./auth/permissions.js";
 import { loadServerConfig } from "./config.js";
@@ -7,6 +8,7 @@ import { closeDatabasePool, createDatabasePool } from "./db/pool.js";
 import { PendingMigrationsError, verifyMigrationsCurrent } from "./db/migration-runner.js";
 import { initializeServer } from "./startup.js";
 
+if (process.env.NODE_ENV === "production") await assertRuntimeBuildIdentity(process.env.ZHIXU_STATIC_DIR?.trim() || "dist/client");
 const config = loadServerConfig();
 const pool = createDatabasePool({
   connectionString: config.databaseUrl,

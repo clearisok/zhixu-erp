@@ -8,10 +8,13 @@ COPY . .
 ARG ZHIXU_BUILD_ID
 ARG ZHIXU_GIT_COMMIT
 ARG ZHIXU_BUILD_TIME
+ARG NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY=browser
+RUN case "$NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY" in browser|frozen|server) ;; *) echo 'invalid_master_settings_authority_build_input' >&2; exit 1 ;; esac
 ENV ZHIXU_BUILD_ENV=production \
     ZHIXU_BUILD_ID=${ZHIXU_BUILD_ID} \
     ZHIXU_GIT_COMMIT=${ZHIXU_GIT_COMMIT} \
-    ZHIXU_BUILD_TIME=${ZHIXU_BUILD_TIME}
+    ZHIXU_BUILD_TIME=${ZHIXU_BUILD_TIME} \
+    NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY=${NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY}
 RUN npm run build && npm run server:build && node scripts/build-q3-import-runners.mjs
 
 FROM docker.m.daocloud.io/library/node:22-alpine
@@ -19,12 +22,15 @@ FROM docker.m.daocloud.io/library/node:22-alpine
 ARG ZHIXU_BUILD_ID
 ARG ZHIXU_GIT_COMMIT
 ARG ZHIXU_BUILD_TIME
+ARG NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY=browser
 ENV NODE_ENV=production \
     ZHIXU_BUILD_ENV=production \
     ZHIXU_BUILD_ID=${ZHIXU_BUILD_ID} \
     ZHIXU_GIT_COMMIT=${ZHIXU_GIT_COMMIT} \
-    ZHIXU_BUILD_TIME=${ZHIXU_BUILD_TIME}
+    ZHIXU_BUILD_TIME=${ZHIXU_BUILD_TIME} \
+    NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY=${NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY}
 LABEL io.zhixu.build-id=${ZHIXU_BUILD_ID} \
+      io.zhixu.master-settings-authority=${NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY} \
       org.opencontainers.image.revision=${ZHIXU_GIT_COMMIT} \
       org.opencontainers.image.created=${ZHIXU_BUILD_TIME}
 
