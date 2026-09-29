@@ -1,7 +1,7 @@
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
 import { serveStatic } from "./static-files.js";
 
-const forbiddenEnvironment = /^(?:DB_|DATABASE_URL$|POSTGRES_|PGHOST$|PGPORT$|PGDATABASE$|PGUSER$|PGPASSWORD$|ZHIXU_ADMIN_PASSWORD$)/u;
+const forbiddenEnvironment = /^(?:DB_|DATABASE_URL$|ZHIXU_DB_|ZHIXU_DATABASE_URL$|POSTGRES_|PGHOST$|PGPORT$|PGDATABASE$|PGUSER$|PGPASSWORD$|PGPASSFILE$|ZHIXU_ADMIN_PASSWORD$)/u;
 
 export function assertMaintenanceEnvironment(environment: Readonly<Record<string, string | undefined>> = process.env): void {
   if (Object.keys(environment).some((key) => forbiddenEnvironment.test(key))) {

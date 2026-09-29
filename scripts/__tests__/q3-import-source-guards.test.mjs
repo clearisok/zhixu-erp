@@ -18,7 +18,10 @@ test("reviewed-source guards bind maintenance static and handoff safety paths", 
   const guarded = readFileSync(join(root, "scripts", "Invoke-Q3GuardedMasterImport.ps1"), "utf8");
   const rehearsal = readFileSync(join(root, "scripts", "Invoke-Q3IsolatedRehearsal.ps1"), "utf8");
   for (const path of ["server/build-identity.ts", "server/maintenance-static.ts", "server/maintenance-static-app.ts",
-    "server/static-files.ts", "scripts/Invoke-Q3MaintenanceStaticHandoff.ps1", "Dockerfile.server", "vite.config.ts"]) {
+    "server/static-files.ts", "scripts/Invoke-Q3MaintenanceStaticHandoff.ps1",
+    "scripts/q3-split-topology.ps1", "scripts/Invoke-Q3IndependentFrozenFrontend.ps1",
+    "scripts/Invoke-Q3IndependentWriterFreeze.ps1", "features/data-management",
+    "features/permissions", "Dockerfile.server", "vite.config.ts"]) {
     assert.ok(guarded.includes(path), `guarded importer misses ${path}`);
     assert.ok(rehearsal.includes(path), `rehearsal misses ${path}`);
   }
@@ -31,6 +34,7 @@ function verifyWithReviewedCommit(commit) {
     "-ExpectedImportSourceCommit", commit, "-ExpectedBrowserOrigin", "http://127.0.0.1:3001",
     "-ExpectedBrowserNamespace", "synthetic", "-ExpectedBrowserEnvironment", "development",
     "-ExpectedBrowserSchemaVersion", "13", "-ExpectedFrozenBuildId", "synthetic-build",
+    "-ExpectedFrontendTopology", "colocated",
     "-FreshBackupFile", "nonexistent", "-ExpectedBackupFileSha256", hash,
     "-ExpectedSourceHash", hash, "-ExpectedProjectionContentHash", hash,
     "-RehearsalProofFile", "nonexistent", "-ExpectedRehearsalProofSha256", hash,

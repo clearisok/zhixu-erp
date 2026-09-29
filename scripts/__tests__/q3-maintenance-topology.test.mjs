@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import { createServer } from "node:http";
+import { existsSync, readFileSync, rmdirSync, unlinkSync } from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
@@ -12,10 +14,15 @@ const network = `${prefix}-net`;
 const database = `${prefix}-db`;
 const writer = `${prefix}-writer`;
 const staticName = `${prefix}-static`;
+const splitWriter = `${prefix}-split-writer`;
+const splitStatic = `${prefix}-split-static`;
+const serverRuntime = `${prefix}-server-runtime`;
 const frozenTag = `zhixu-q3-c01-frozen:${token}`;
 const serverTag = `zhixu-q3-c01-server:${token}`;
 const buildId = `${prefix}-build`;
 const buildTime = "2026-09-29T06:00:00Z";
+const freezeEvidenceDirectory = join(root, "backups", prefix);
+const freezeEvidencePath = join(freezeEvidenceDirectory, "freeze.json");
 const password = `DisposableOnly-${randomUUID()}`;
 
 function run(command, args, timeout = 120_000) {
@@ -54,6 +61,7 @@ test("same frozen image hands off from disposable writer to isolated static at t
   const revision = run("git", ["rev-parse", "HEAD"]).stdout.trim();
   assert.match(revision, /^[0-9a-f]{40}$/u);
   let frozenId;
+  let oldFrontend;
   let stage = "build-frozen";
   try {
     docker(["build", "--progress", "quiet", "-f", "Dockerfile.server", "-t", frozenTag,
@@ -76,6 +84,7 @@ test("same frozen image hands off from disposable writer to isolated static at t
     docker(["network", "create", network]);
     docker(["run", "-d", "--pull=never", "--name", database, "--network", network,
       "--tmpfs", "/var/lib/postgresql/data:rw,size=256m", "--label", "io.zhixu.disposable-test=q3c01",
+      "--label", `com.docker.compose.project=${prefix}`, "--label", "com.docker.compose.service=database",
       "-e", "POSTGRES_USER=synthetic", "-e", "POSTGRES_DB=synthetic", `-e`, `POSTGRES_PASSWORD=${password}`, "postgres:16-alpine"]);
     const pg = inspect("container", database);
     assert.deepEqual(pg.HostConfig.PortBindings, {});
@@ -138,6 +147,81 @@ test("same frozen image hands off from disposable writer to isolated static at t
     assert.equal((await fetch(`${origin}/api/v1/quote-masters/brands`, { method: "POST" })).status, 503);
     assert.deepEqual((await (await fetch(`${origin}/build-info.json`)).json()), frozenInfo);
 
+    stage = "split-front-end";
+    oldFrontend = createServer((_request, response) => { response.writeHead(200); response.end("synthetic old frontend"); });
+    await new Promise((resolve) => oldFrontend.listen(0, "127.0.0.1", resolve));
+    const splitPort = oldFrontend.address().port;
+    const splitOrigin = `http://127.0.0.1:${splitPort}`;
+    const frontendIntent = ["-ExpectedImageId", frozenId, "-ExpectedImageRevision", revision,
+      "-ExpectedBuildId", buildId, "-ExpectedBuildTime", buildTime,
+      "-ExpectedBrowserOrigin", splitOrigin, "-ExpectedStaticContainerName", splitStatic,
+      "-ExpectedHostPort", String(splitPort)];
+    const frontendScript = join(root, "scripts", "Invoke-Q3IndependentFrozenFrontend.ps1");
+    const occupied = run("pwsh", ["-NoProfile", "-NonInteractive", "-File", frontendScript, ...frontendIntent, "-VerifyOnly"]);
+    assert.notEqual(occupied.status, 0);
+    assert.match(occupied.stderr, /frontend_port_not_released/u);
+    await new Promise((resolve) => oldFrontend.close(resolve));
+    const frontendPlan = run("pwsh", ["-NoProfile", "-NonInteractive", "-File", frontendScript, ...frontendIntent, "-VerifyOnly"]);
+    assert.equal(frontendPlan.status, 0, frontendPlan.stderr?.slice(-900));
+    const noFrontendConfirmation = run("pwsh", ["-NoProfile", "-NonInteractive", "-File", frontendScript, ...frontendIntent, "-Execute"]);
+    assert.notEqual(noFrontendConfirmation.status, 0);
+    assert.match(noFrontendConfirmation.stderr, /independent_frontend_confirmation_required/u);
+    const frontendStart = run("pwsh", ["-NoProfile", "-NonInteractive", "-File", frontendScript, ...frontendIntent,
+      "-Execute", "-ConfirmFrontendReplacement", "I_UNDERSTAND_Q3_FROZEN_FRONTEND_REPLACES_CURRENT_3001"], 120_000);
+    assert.equal(frontendStart.status, 0, frontendStart.stderr?.slice(-900));
+    const splitStaticBefore = inspect("container", splitStatic);
+    assert.equal(splitStaticBefore.Image, frozenId);
+    assert.equal((await (await fetch(`${splitOrigin}/build-info.json`)).json()).masterSettingsAuthority, "frozen");
+    assert.equal((await fetch(`${splitOrigin}/system-settings/data-management`)).status, 200);
+    assert.equal((await fetch(`${splitOrigin}/api/v1/health`)).status, 503);
+    const freezeEvidence = run("node", ["--import", "tsx", join(root, "scripts", "verify-q3-frozen-build.ts"),
+      "--origin", splitOrigin, "--namespace", "synthetic", "--schema-version", "13", "--commit", revision,
+      "--build-id", buildId, "--build-time", buildTime, "--freeze-started-at", new Date().toISOString(),
+      "--operator", "synthetic-operator", "--browser-profile", "synthetic-profile", "--evidence", freezeEvidencePath,
+      "--split-static-container-name", splitStatic, "--split-static-container-id", splitStaticBefore.Id,
+      "--split-static-image-id", frozenId, "--confirm-old-tabs-closed"]);
+    assert.equal(freezeEvidence.status, 0, freezeEvidence.stderr?.slice(-900));
+    assert.equal(JSON.parse(readFileSync(freezeEvidencePath, "utf8")).frozenFrontend.containerId, splitStaticBefore.Id);
+
+    stage = "split-writer";
+    docker(["run", "-d", "--pull=never", "--name", splitWriter, "--network", network,
+      "--label", "io.zhixu.disposable-test=q3c01", "--label", `com.docker.compose.project=${prefix}`,
+      "--label", "com.docker.compose.service=server", ...dbEnv,
+      "-e", "ZHIXU_SERVER_HOST=0.0.0.0", "-e", "ZHIXU_SERVER_PORT=3000", frozenTag]);
+    const splitWriterInfo = inspect("container", splitWriter);
+    const fingerprint = createHash("sha256").update([prefix, database, "tmpfs", "synthetic", "local_socket", "5432"].join("|")).digest("hex");
+    const freezeIntent = ["-ExpectedContainerName", database, "-ExpectedComposeProject", prefix,
+      "-ExpectedVolumeName", "tmpfs", "-ExpectedDatabaseName", "synthetic", "-ExpectedTargetFingerprint", fingerprint,
+      "-ExpectedWriterContainerName", splitWriter, "-ExpectedWriterContainerId", splitWriterInfo.Id,
+      "-ExpectedWriterImageId", frozenId, "-ExpectedBrowserOrigin", splitOrigin,
+      "-ExpectedHostPort", String(splitPort), "-ExpectedStaticContainerName", splitStatic,
+      "-ExpectedStaticContainerId", splitStaticBefore.Id, "-ExpectedFrozenImageId", frozenId,
+      "-ExpectedFrozenRevision", revision, "-ExpectedFrozenBuildId", buildId,
+      "-ExpectedFrozenBuildTime", buildTime, "-FrozenEvidenceFile", freezeEvidencePath,
+      "-ExpectedFrozenEvidenceSha256", createHash("sha256").update(readFileSync(freezeEvidencePath)).digest("hex")];
+    const freezeScript = join(root, "scripts", "Invoke-Q3IndependentWriterFreeze.ps1");
+    const wrongStatic = [...freezeIntent];
+    wrongStatic[wrongStatic.indexOf("-ExpectedStaticContainerId") + 1] = "a".repeat(64);
+    const wrongStaticResult = run("pwsh", ["-NoProfile", "-NonInteractive", "-File", freezeScript, ...wrongStatic, "-VerifyOnly"]);
+    assert.notEqual(wrongStaticResult.status, 0);
+    assert.match(wrongStaticResult.stderr, /split_frozen_container_identity_mismatch/u);
+    assert.equal(inspect("container", splitWriter).State.Running, true);
+    const freezePlan = run("pwsh", ["-NoProfile", "-NonInteractive", "-File", freezeScript, ...freezeIntent, "-VerifyOnly"]);
+    assert.equal(freezePlan.status, 0, freezePlan.stderr?.slice(-900));
+    const noFreezeConfirmation = run("pwsh", ["-NoProfile", "-NonInteractive", "-File", freezeScript, ...freezeIntent, "-Execute"]);
+    assert.notEqual(noFreezeConfirmation.status, 0);
+    assert.match(noFreezeConfirmation.stderr, /independent_writer_confirmation_required/u);
+    const writerStopped = run("pwsh", ["-NoProfile", "-NonInteractive", "-File", freezeScript, ...freezeIntent,
+      "-Execute", "-ConfirmWriterFreeze", "I_UNDERSTAND_Q3_INDEPENDENT_WRITER_STOP_KEEPS_FRONTEND_FROZEN"], 120_000);
+    assert.equal(writerStopped.status, 0, writerStopped.stderr?.slice(-900));
+    assert.equal(inspect("container", splitWriter).State.Running, false);
+    assert.equal(inspect("container", splitStatic).Id, splitStaticBefore.Id);
+    assert.equal(inspect("container", splitStatic).State.StartedAt, splitStaticBefore.State.StartedAt);
+    assert.equal(inspect("container", splitStatic).RestartCount, splitStaticBefore.RestartCount);
+    await until(async () => (await fetch(`${splitOrigin}/maintenance-health`)).ok, "split static after writer stop");
+    assert.equal((await (await fetch(`${splitOrigin}/maintenance-health`)).json()).database, "not_connected");
+    assert.equal((await fetch(`${splitOrigin}/api/v1/health`)).status, 503);
+
     stage = "build-server";
     docker(["build", "--progress", "quiet", "-f", "Dockerfile.server", "-t", serverTag,
       "--build-arg", `ZHIXU_BUILD_ID=${buildId}-server`, "--build-arg", `ZHIXU_GIT_COMMIT=${revision}`,
@@ -147,14 +231,30 @@ test("same frozen image hands off from disposable writer to isolated static at t
     assert.equal(serverInfo.masterSettingsAuthority, "server");
     assert.equal(inspect("image", serverTag).Config.Labels["io.zhixu.master-settings-authority"], "server");
     assert.match(compiledAuthorityEvidence(serverTag, "server"), /compiled_authority=server/u);
+    stage = "split-server-authority-smoke";
+    assert.equal(inspect("container", splitWriter).State.Running, false);
+    docker(["stop", splitStatic]);
+    docker(["run", "-d", "--pull=never", "--name", serverRuntime, "--network", network,
+      "--publish", `127.0.0.1:${splitPort}:3000`, "--label", "io.zhixu.disposable-test=q3c01",
+      ...dbEnv, "-e", "ZHIXU_SERVER_HOST=0.0.0.0", "-e", "ZHIXU_SERVER_PORT=3000", serverTag]);
+    await until(async () => (await fetch(`${splitOrigin}/api/v1/health`)).ok, "split server authority");
+    assert.equal((await (await fetch(`${splitOrigin}/build-info.json`)).json()).masterSettingsAuthority, "server");
+    assert.equal(inspect("container", splitWriter).State.Running, false);
     const invalid = run("docker", ["build", "--progress", "quiet", "-f", "Dockerfile.server",
       "--build-arg", "NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY=invalid", "."], 120_000);
     assert.notEqual(invalid.status, 0);
     assert.match(invalid.stderr, /invalid_master_settings_authority_build_input/u);
   } catch (error) {
     const staticLogs = run("docker", ["logs", staticName]);
-    throw new Error(`stage=${stage}; ${error instanceof Error ? error.message : String(error)}; static_logs=${staticLogs.stdout.slice(-600)} ${staticLogs.stderr.slice(-600)}`);
+    const splitLogs = run("docker", ["logs", splitStatic]);
+    throw new Error(`stage=${stage}; ${error instanceof Error ? error.message : String(error)}; static_logs=${staticLogs.stdout.slice(-600)} ${staticLogs.stderr.slice(-600)}; split_logs=${splitLogs.stdout.slice(-600)} ${splitLogs.stderr.slice(-600)}`);
   } finally {
+    if (existsSync(freezeEvidencePath)) unlinkSync(freezeEvidencePath);
+    if (existsSync(freezeEvidenceDirectory)) rmdirSync(freezeEvidenceDirectory);
+    if (oldFrontend?.listening) await new Promise((resolve) => oldFrontend.close(resolve));
+    safeCleanupContainer(serverRuntime);
+    safeCleanupContainer(splitStatic, frozenId);
+    safeCleanupContainer(splitWriter, frozenId);
     safeCleanupContainer(staticName, frozenId);
     safeCleanupContainer(writer, frozenId);
     safeCleanupContainer(database);

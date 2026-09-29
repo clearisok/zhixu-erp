@@ -1,9 +1,11 @@
 import { mkdir, realpath, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { validateFreezeEvidence, verifyRunningFrozenBuild, type FrozenBuildIdentity, type Q3FreezeEvidence } from "../server/quote-masters/import-readiness.js";
 
 function argumentsFrom(argv: string[]): Record<string, string> {
-  const allowed = new Set(["origin", "namespace", "schema-version", "commit", "build-id", "build-time", "freeze-started-at", "operator", "browser-profile", "evidence"]);
+  const allowed = new Set(["origin", "namespace", "schema-version", "commit", "build-id", "build-time", "freeze-started-at", "operator", "browser-profile", "evidence",
+    "split-static-container-name", "split-static-container-id", "split-static-image-id"]);
   const result: Record<string, string> = {};
   for (let index = 0; index < argv.length; index += 2) {
     const key = argv[index]?.replace(/^--/u, "");
@@ -28,9 +30,35 @@ async function main(argv: string[]): Promise<void> {
   const confirmation = argv.indexOf("--confirm-old-tabs-closed");
   if (confirmation < 0 || argv.lastIndexOf("--confirm-old-tabs-closed") !== confirmation) throw new Error("old_tab_confirmation_invalid");
   const input = argumentsFrom(argv.filter((_, index) => index !== confirmation));
-  if (Object.keys(input).length !== 9) throw new Error("frozen_verifier_arguments_missing");
+  const splitKeys = ["split-static-container-name", "split-static-container-id", "split-static-image-id"];
+  const splitCount = splitKeys.filter((key) => Boolean(input[key])).length;
+  if ((Object.keys(input).length !== 10 && Object.keys(input).length !== 13) || (splitCount !== 0 && splitCount !== 3)) {
+    throw new Error("frozen_verifier_arguments_missing");
+  }
   if (!/^[A-Za-z0-9_.:@/-]{1,128}$/u.test(input.operator) || !/^[A-Za-z0-9_.:@/-]{1,128}$/u.test(input["browser-profile"])) {
     throw new Error("freeze_operator_label_invalid");
+  }
+  let splitRuntime: { startedAt: string; restartCount: number } | undefined;
+  if (splitCount === 3) {
+    let container: Record<string, unknown>;
+    try {
+      const inspected = JSON.parse(execFileSync("docker", ["inspect", "--type", "container", input["split-static-container-name"]],
+        { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })) as unknown;
+      container = (inspected as Record<string, unknown>[])[0];
+    } catch { throw new Error("split_frontend_identity_unavailable"); }
+    const state = container.State as Record<string, unknown> | undefined;
+    const network = container.NetworkSettings as Record<string, unknown> | undefined;
+    const ports = network?.Ports as Record<string, Array<{ HostIp: string; HostPort: string }>> | undefined;
+    const config = container.Config as Record<string, unknown> | undefined;
+    const labels = config?.Labels as Record<string, string> | undefined;
+    if (container.Name !== `/${input["split-static-container-name"]}` || container.Id !== input["split-static-container-id"] ||
+      container.Image !== input["split-static-image-id"] || state?.Running !== true ||
+      labels?.["io.zhixu.maintenance-static"] !== "true" || labels?.["com.docker.compose.project"] ||
+      (container.Mounts as unknown[])?.length !== 0 ||
+      ports?.["3000/tcp"]?.length !== 1 || ports["3000/tcp"][0].HostIp !== "127.0.0.1" ||
+      ports["3000/tcp"][0].HostPort !== new URL(input.origin).port) throw new Error("split_frontend_identity_mismatch");
+    if (typeof state.StartedAt !== "string" || typeof container.RestartCount !== "number") throw new Error("split_frontend_runtime_invalid");
+    splitRuntime = { startedAt: state.StartedAt, restartCount: container.RestartCount };
   }
   const expected: FrozenBuildIdentity = {
     gitCommit: input.commit,
@@ -52,6 +80,10 @@ async function main(argv: string[]): Promise<void> {
     verifiedAt: new Date().toISOString(),
     operatorLabel: input.operator,
     allOldTabsClosedBeforeFrozenReopen: true,
+    ...(splitCount === 3 ? { frozenFrontend: { topology: "split" as const,
+      containerName: input["split-static-container-name"], containerId: input["split-static-container-id"],
+      imageId: input["split-static-image-id"], startedAt: splitRuntime!.startedAt,
+      restartCount: splitRuntime!.restartCount } } : {}),
   }, { origin: input.origin, namespace: input.namespace, schemaVersion: Number(input["schema-version"]), commit: input.commit, buildId: input["build-id"] });
   const output = input.evidence;
   const backupRoot = resolve("backups");

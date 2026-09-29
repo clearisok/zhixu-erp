@@ -10,6 +10,7 @@ param(
     [Parameter(Mandatory = $true)][string]$ExpectedBrowserEnvironment,
     [Parameter(Mandatory = $true)][int]$ExpectedBrowserSchemaVersion,
     [Parameter(Mandatory = $true)][string]$ExpectedFrozenBuildId,
+    [Parameter(Mandatory = $true)][ValidateSet('colocated', 'split')][string]$ExpectedFrontendTopology,
     [Parameter(Mandatory = $true)][string]$FreshBackupFile,
     [Parameter(Mandatory = $true)][string]$ExpectedBackupFileSha256,
     [Parameter(Mandatory = $true)][string]$ExpectedSourceHash,
@@ -31,6 +32,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'database-target-guard.ps1')
+. (Join-Path $PSScriptRoot 'q3-split-topology.ps1')
 if ($VerifyOnly -eq $Execute) { throw 'select_exactly_one_import_mode' }
 foreach ($sha in @($ExpectedTargetFingerprint, $ExpectedBackupFileSha256, $ExpectedSourceHash, $ExpectedProjectionContentHash, $ExpectedRehearsalProofSha256, $ExpectedFrozenEvidenceSha256, $ExpectedRollbackBackupSha256, $ExpectedRollbackBackupManifestSha256)) {
     if ($sha -cnotmatch '^[0-9a-f]{64}$') { throw 'invalid_import_hash_intent' }
@@ -43,13 +45,15 @@ if ($LASTEXITCODE -ne 0 -or $head -cnotmatch '^[0-9a-f]{40}$') { throw 'source_c
 & git -C $repoRoot merge-base --is-ancestor $ExpectedImportSourceCommit $head 2>$null
 if ($LASTEXITCODE -ne 0) { throw 'import_source_not_ancestor' }
 $critical = @(
-    'features/basic-settings', 'features/data-management', 'features/runtime/build-info.ts', 'vite.config.ts',
+    'features/basic-settings', 'features/data-management', 'features/permissions', 'features/runtime/build-info.ts', 'vite.config.ts',
     'server/integration/quote-master-settings-migration-import.ts',
     'server/quote-masters', 'server/db', 'server/build-identity.ts', 'server/index.ts',
     'server/maintenance-static.ts', 'server/maintenance-static-app.ts', 'server/static-files.ts',
     'database/migrations',
     'scripts/Invoke-Q3GuardedMasterImport.ps1', 'scripts/Invoke-Q3IsolatedRehearsal.ps1',
     'scripts/verify-q3-frozen-build.ts', 'scripts/Invoke-Q3MaintenanceStaticHandoff.ps1',
+    'scripts/q3-split-topology.ps1', 'scripts/Invoke-Q3IndependentFrozenFrontend.ps1',
+    'scripts/Invoke-Q3IndependentWriterFreeze.ps1',
     'scripts/build-q3-import-runners.mjs', 'scripts/database-target-guard.ps1',
     'Dockerfile.server', 'Backup-Zhixu.ps1', 'server/tsconfig.json', 'package.json', 'package-lock.json'
 )
@@ -83,13 +87,24 @@ function Assert-ImmutableFile {
 $sourcePath = Assert-ImmutableFile -Path $FreshBackupFile -Hash $ExpectedBackupFileSha256 -Kind 'fresh_source'
 $proofPath = Assert-ImmutableFile -Path $RehearsalProofFile -Hash $ExpectedRehearsalProofSha256 -Kind 'rehearsal_proof'
 $freezePath = Assert-ImmutableFile -Path $FrozenEvidenceFile -Hash $ExpectedFrozenEvidenceSha256 -Kind 'frozen_evidence'
-$freeze = Get-Content -LiteralPath $freezePath -Raw | ConvertFrom-Json
+$freeze = Get-Content -LiteralPath $freezePath -Raw | ConvertFrom-Json -DateKind String
 if ($freeze.result -cne 'PASS' -or $freeze.allOldTabsClosedBeforeFrozenReopen -ne $true -or $freeze.browserOrigin -cne $ExpectedBrowserOrigin -or
     $freeze.namespace -cne $ExpectedBrowserNamespace -or $freeze.schemaVersion -ne $ExpectedBrowserSchemaVersion -or
     $freeze.expected.gitCommit -cne $ExpectedImportSourceCommit -or $freeze.observed.buildId -cne $ExpectedFrozenBuildId -or
     $freeze.observed.masterSettingsAuthority -cne 'frozen') { throw 'browser_freeze_evidence_mismatch' }
+$frontendProperty = $freeze.PSObject.Properties['frozenFrontend']
+$frozenFrontend = if ($frontendProperty) { $frontendProperty.Value } else { $null }
+if ($ExpectedFrontendTopology -ceq 'split') {
+    if (-not $frozenFrontend -or $frozenFrontend.topology -cne 'split') { throw 'split_freeze_identity_missing' }
+    $port = ([Uri]::new($ExpectedBrowserOrigin)).Port
+    $splitStatic = Assert-Q3FrozenStatic -ContainerName $frozenFrontend.containerName -ContainerId $frozenFrontend.containerId `
+        -ImageId $frozenFrontend.imageId -Origin $ExpectedBrowserOrigin -Port $port `
+        -Revision $ExpectedImportSourceCommit -BuildId $ExpectedFrozenBuildId -BuildTime $freeze.expected.buildTime
+    if ($splitStatic.State.StartedAt -cne $frozenFrontend.startedAt -or
+        $splitStatic.RestartCount -ne $frozenFrontend.restartCount) { throw 'split_frozen_continuity_lost_keep_freeze' }
+} elseif ($frozenFrontend) { throw 'frontend_topology_evidence_mismatch' }
 try {
-    $running = Invoke-RestMethod -Method Get -Uri "$ExpectedBrowserOrigin/build-info.json" -MaximumRedirection 0 -TimeoutSec 15 -Headers @{ 'Cache-Control' = 'no-cache' }
+    $running = (Invoke-WebRequest -Method Get -Uri "$ExpectedBrowserOrigin/build-info.json" -MaximumRedirection 0 -TimeoutSec 15 -Headers @{ 'Cache-Control' = 'no-cache' }).Content | ConvertFrom-Json -DateKind String
 } catch { throw 'running_frozen_build_unavailable' }
 if ($running.gitCommit -cne $ExpectedImportSourceCommit -or $running.buildId -cne $ExpectedFrozenBuildId -or $running.masterSettingsAuthority -cne 'frozen' -or
     $running.buildTime -cne $freeze.expected.buildTime) { throw 'running_frozen_build_mismatch' }

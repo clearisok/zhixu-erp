@@ -2,6 +2,14 @@
 
 > 2026-09-28：**Q3B2H CLOSED / PASS**。真实 PostgreSQL schema migration 0004–0007 和用户自行完成的 Windows/local Compose Node post-migration recovery 均已验收。本文件后续 Q3B2D–G 的“pending/未授权”描述保留为各阶段历史证据，不代表当前 ledger。此验收不是 Linux production deployment readiness，也不授权 master/settings import、Quote import、Browser authority cutover 或真实 restore。
 
+## Q3B2I-C0.2 split Browser/frontend and DB writer — engineering only
+
+Authoritative origin is operator-attested `http://127.0.0.1:3001` in Chrome (`Chrome-authoritative`). The observed pre-cutover topology is a Windows-host `npm run dev:local`/Vinext frontend at 3001, with `/api/v1` proxied to the separate `preparesystem-server-1` DB-capable Docker writer at 3002. Vinext dev/HMR is **not** an immutable freeze artifact. The colocated same-image handoff remains available for a different topology, but cannot stop the 3002 writer and claim to replace the 3001 provider.
+
+Q3B2I-C0.2 adds standalone frozen-frontend and independent writer-freeze operator scripts. The future frozen build must bind a reviewed full Git commit/build ID/time and compiled `frozen` authority. Only after the operator releases 3001 may the isolated, DB-free maintenance-static image occupy that exact origin. Following Chrome old-tab closure and freeze evidence, the independent 3002 writer stop must recheck the same static container ID/image/build before and after, then pass the unchanged exact-target writer guard. Split freeze evidence binds the static container ID; a rebuild/replacement invalidates that evidence. Standard Browser export in frozen mode reads existing Q3 envelopes without invoking seed/migration, and restore/reset remain forbidden. The eventual server-authority Node can be planned at the same 3001 origin with the old 3002 writer stopped; Quote aggregate remains Browser-owned.
+
+**These are future states, not actual deployment:** pre-cutover 3001 host frontend + 3002 Docker writer; planned maintenance 3001 frozen static + 3002 stopped; planned activated 3001 Server authority + 3002 stopped. This Gate performs only code, docs and disposable tests. No real 3001/3002 operation, Browser freeze/export, rollback backup, PostgreSQL write, import, or authority switch occurred. D-092 retains both colocated and split safety clauses; C0 final re-preflight and separate C1 authorization remain required.
+
 ## Q3B2I-C0.1 same-image maintenance topology — engineering only
 
 Q3B2I-C0 的两个工程阻断已在源码和 disposable 容器中处理：`Dockerfile.server` 将严格校验的 `browser | frozen | server` authority 注入 Vite/build-info、镜像标签和 runtime；正式前端的 master/settings authority 来自与 `build-info.json` 同一个编译常量，production runtime 不一致则拒绝启动。`server/maintenance-static.ts` 只服务同一 image 中的 `dist/client`，没有 DB config/pool、migration、permission sync 或 admin bootstrap；`/api/*` 一律 503，`/maintenance-health` 只表示 static alive，不冒充 DB health。
