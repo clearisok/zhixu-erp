@@ -82,7 +82,7 @@ try {
         -e "Q3_REVIEWED_COMMIT=$head" --entrypoint node $imageTag dist/server/q3/disposable-rehearsal-cli.mjs prepare-guarded-test 2>$null | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'disposable_guarded_migration_setup_failed' }
     $verifyArgs = @('-e', 'PGOPTIONS=-c default_transaction_read_only=on')
-    $verified = & $runGuard $verifyArgs 'verify'
+    $verified = @(& $runGuard $verifyArgs 'verify')
     if ($LASTEXITCODE -ne 0 -or $verified.Count -ne 1 -or ($verified[0] | ConvertFrom-Json).ready -ne $true) { throw 'disposable_guarded_verify_failed' }
     $wrongDatabase = & $runGuard ($verifyArgs + @('-e', "DB_NAME=zhixu_it_q3_missing_$nonce")) 'verify'
     if ($LASTEXITCODE -eq 0) { throw 'disposable_guarded_wrong_database_accepted' }
@@ -101,7 +101,7 @@ try {
         '-e', 'Q3_OPERATOR_LABEL=synthetic-operator', '-e', 'Q3_AUTHORIZATION_REF=synthetic-test')
     $unconfirmed = & $runGuard @('--mount', "type=bind,source=$evidencePath,target=/evidence") 'execute'
     if ($LASTEXITCODE -eq 0 -or (Test-Path -LiteralPath (Join-Path $evidencePath 'import-evidence.json'))) { throw 'disposable_guarded_unconfirmed_execute_accepted' }
-    $executed = & $runGuard $executeArgs 'execute'
+    $executed = @(& $runGuard $executeArgs 'execute')
     if ($LASTEXITCODE -ne 0 -or $executed.Count -ne 1 -or ($executed[0] | ConvertFrom-Json).outcome -cne 'COMMITTED') { throw 'disposable_guarded_execute_failed' }
     $record = Get-Content -LiteralPath (Join-Path $evidencePath 'import-evidence.json') -Raw | ConvertFrom-Json
     if ($record.outcome -cne 'COMMITTED' -or $record.readbackContentHash -cne $proof.projectionContentHash -or
