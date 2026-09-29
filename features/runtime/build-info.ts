@@ -3,7 +3,7 @@ export type BuildInfo = {
   buildId: string;
   gitCommit: string;
   buildTime: string;
-  masterSettingsAuthority: "browser" | "frozen" | "server" | "invalid";
+  masterSettingsAuthority: "browser" | "frozen" | "server";
 };
 
 declare const __ZHIXU_BUILD_INFO__: BuildInfo;

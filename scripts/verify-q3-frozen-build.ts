@@ -10,14 +10,25 @@ function argumentsFrom(argv: string[]): Record<string, string> {
     if (!key || !allowed.has(key) || !argv[index]?.startsWith("--") || !argv[index + 1] || result[key]) throw new Error("invalid_frozen_verifier_arguments");
     result[key] = argv[index + 1];
   }
-  if (Object.keys(result).length !== allowed.size) throw new Error("frozen_verifier_arguments_missing");
   return result;
 }
 
 async function main(argv: string[]): Promise<void> {
+  const verifyOnly = argv.indexOf("--verify-only");
+  if (verifyOnly >= 0) {
+    if (argv.lastIndexOf("--verify-only") !== verifyOnly) throw new Error("frozen_verifier_arguments_invalid");
+    const input = argumentsFrom(argv.filter((_, index) => index !== verifyOnly));
+    if (Object.keys(input).sort().join(",") !== "build-id,build-time,commit,origin") throw new Error("frozen_verifier_arguments_invalid");
+    await verifyRunningFrozenBuild(input.origin, {
+      gitCommit: input.commit, buildId: input["build-id"], buildTime: input["build-time"], masterSettingsAuthority: "frozen",
+    });
+    process.stdout.write(`${JSON.stringify({ event: "q3_frozen_build_verify_only", result: "PASS", authority: "frozen" })}\n`);
+    return;
+  }
   const confirmation = argv.indexOf("--confirm-old-tabs-closed");
   if (confirmation < 0 || argv.lastIndexOf("--confirm-old-tabs-closed") !== confirmation) throw new Error("old_tab_confirmation_invalid");
   const input = argumentsFrom(argv.filter((_, index) => index !== confirmation));
+  if (Object.keys(input).length !== 9) throw new Error("frozen_verifier_arguments_missing");
   if (!/^[A-Za-z0-9_.:@/-]{1,128}$/u.test(input.operator) || !/^[A-Za-z0-9_.:@/-]{1,128}$/u.test(input["browser-profile"])) {
     throw new Error("freeze_operator_label_invalid");
   }

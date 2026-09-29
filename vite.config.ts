@@ -14,14 +14,14 @@ type ZhixuBuildInfo = {
   buildId: string;
   gitCommit: string;
   buildTime: string;
-  masterSettingsAuthority: "browser" | "frozen" | "server" | "invalid";
+  masterSettingsAuthority: "browser" | "frozen" | "server";
 };
 
 function buildMasterSettingsAuthority(): ZhixuBuildInfo["masterSettingsAuthority"] {
   const value = process.env.NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY;
   if (value === undefined || value === "" || value === "browser") return "browser";
   if (value === "frozen" || value === "server") return value;
-  return "invalid";
+  throw new Error("invalid_master_settings_authority_build_input");
 }
 
 function shanghaiTimestamp(date: Date): { buildId: string; buildTime: string } {
@@ -127,6 +127,7 @@ export default defineConfig(async ({ command }) => {
   return {
     define: {
       __ZHIXU_BUILD_INFO__: JSON.stringify(buildInfo),
+      "process.env.NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY": JSON.stringify(buildInfo.masterSettingsAuthority),
     },
     server: {
       proxy: {

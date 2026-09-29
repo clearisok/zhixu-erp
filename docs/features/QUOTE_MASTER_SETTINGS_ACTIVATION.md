@@ -2,6 +2,14 @@
 
 > 2026-09-28：**Q3B2H CLOSED / PASS**。真实 PostgreSQL schema migration 0004–0007 和用户自行完成的 Windows/local Compose Node post-migration recovery 均已验收。本文件后续 Q3B2D–G 的“pending/未授权”描述保留为各阶段历史证据，不代表当前 ledger。此验收不是 Linux production deployment readiness，也不授权 master/settings import、Quote import、Browser authority cutover 或真实 restore。
 
+## Q3B2I-C0.1 same-image maintenance topology — engineering only
+
+Q3B2I-C0 的两个工程阻断已在源码和 disposable 容器中处理：`Dockerfile.server` 将严格校验的 `browser | frozen | server` authority 注入 Vite/build-info、镜像标签和 runtime；正式前端的 master/settings authority 来自与 `build-info.json` 同一个编译常量，production runtime 不一致则拒绝启动。`server/maintenance-static.ts` 只服务同一 image 中的 `dist/client`，没有 DB config/pool、migration、permission sync 或 admin bootstrap；`/api/*` 一律 503，`/maintenance-health` 只表示 static alive，不冒充 DB health。
+
+显式 `scripts/Invoke-Q3MaintenanceStaticHandoff.ps1` 在 VerifyOnly/未来需独立确认的 Execute 模式核对 image ID/revision、build ID/time、`frozen`、writer/project、操作者提供的同一 Browser origin/port。真实 Execute 尚未调用；disposable 测试证明停止随机测试 writer 后，从**同一 image ID**启动无 DB env/mount/Compose DB network 的 standalone static container，重新验证 frozen build-info 且 API 不可用。现有 `Assert-ZhixuWritersFrozen` 没有放宽；importer/rehearsal 的 reviewed-source guard 增列新静态及交接路径。D-092 记录该工程边界。完整未执行顺序见 `docs/features/Q3B2I_CUTOVER_RUNBOOK.md`。
+
+**Q3B2I-C0.1 = ENGINEERING READY / NOT EXECUTED。** 当前真实 Windows/local Compose 镜像仍是旧部署；本 Gate 没有部署 frozen/server、停止真实 writer、Browser freeze/export、final rollback backup、real VerifyOnly/import 或真实 PostgreSQL write。实际 authoritative Browser origin/profile 仍须用户现场确认；D-091 第二份独立耐久保管目的地仍须用户决定。disposable PASS 不等于 C1 已获授权，必须先重跑 C0 现场 preflight。
+
 ## Q3B2I-B operational readiness tooling — implemented, not executed on real resources
 
 Disposable validation on 2026-09-29 passed with an isolated PostgreSQL 16 tmpfs container: rehearsal proof was published only after cleanup; guarded VerifyOnly and Execute reconciled the same synthetic projection; failed pre-commit writes rolled back; injected post-commit readback failure was classified as committed-but-unverified; a second import was rejected. Reject checks include missing freeze evidence, invalid/pending ledger, wrong DB/source/projection/proof hashes, reviewed-code drift and untracked critical source. The existing Q3B2G database-ops safety suite also rejects wrong target fingerprint, corrupt backup and active writers. Targeted source-guard tests `2/2`, isolated rehearsal/guarded import `1/1`, database-ops `2/2` plus D-091 evidence `6/6`, Server auth/frontend `24/24`, full Browser tests `662/662`, typecheck, lint, Server build, frontend production build (`41` routes) and diff-check passed. This is engineering readiness only, not evidence of an actual Browser freeze, fresh export, final rollback dump, real import or authority deployment.

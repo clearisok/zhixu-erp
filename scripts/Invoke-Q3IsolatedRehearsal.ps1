@@ -14,7 +14,10 @@ if ($LASTEXITCODE -ne 0 -or $head -cne $ReviewedCommit) { throw 'reviewed_commit
 $critical = @(
     'features/basic-settings', 'features/data-management', 'features/runtime/build-info.ts', 'vite.config.ts',
     'server/integration/quote-master-settings-migration-import.ts', 'server/quote-masters', 'server/db',
-    'database/migrations', 'scripts/Invoke-Q3IsolatedRehearsal.ps1', 'scripts/Invoke-Q3GuardedMasterImport.ps1',
+    'server/build-identity.ts', 'server/index.ts', 'server/maintenance-static.ts',
+    'server/maintenance-static-app.ts', 'server/static-files.ts', 'database/migrations',
+    'scripts/Invoke-Q3IsolatedRehearsal.ps1', 'scripts/Invoke-Q3GuardedMasterImport.ps1',
+    'scripts/Invoke-Q3MaintenanceStaticHandoff.ps1',
     'scripts/build-q3-import-runners.mjs', 'scripts/database-target-guard.ps1', 'scripts/verify-q3-frozen-build.ts',
     'Dockerfile.server', 'Backup-Zhixu.ps1', 'server/tsconfig.json', 'package.json', 'package-lock.json'
 )

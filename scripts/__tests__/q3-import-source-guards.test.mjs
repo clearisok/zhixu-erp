@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { existsSync, writeFileSync, unlinkSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -13,6 +13,16 @@ const git = (...args) => {
   return result.stdout.trim();
 };
 const hash = "a".repeat(64);
+
+test("reviewed-source guards bind maintenance static and handoff safety paths", () => {
+  const guarded = readFileSync(join(root, "scripts", "Invoke-Q3GuardedMasterImport.ps1"), "utf8");
+  const rehearsal = readFileSync(join(root, "scripts", "Invoke-Q3IsolatedRehearsal.ps1"), "utf8");
+  for (const path of ["server/build-identity.ts", "server/maintenance-static.ts", "server/maintenance-static-app.ts",
+    "server/static-files.ts", "scripts/Invoke-Q3MaintenanceStaticHandoff.ps1", "Dockerfile.server", "vite.config.ts"]) {
+    assert.ok(guarded.includes(path), `guarded importer misses ${path}`);
+    assert.ok(rehearsal.includes(path), `rehearsal misses ${path}`);
+  }
+});
 
 function verifyWithReviewedCommit(commit) {
   return spawnSync("pwsh", ["-NoProfile", "-NonInteractive", "-File", join(root, "scripts", "Invoke-Q3GuardedMasterImport.ps1"),

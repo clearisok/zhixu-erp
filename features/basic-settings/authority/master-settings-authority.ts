@@ -3,6 +3,8 @@ export type MasterSettingsAuthority = "browser" | "frozen" | "server";
 
 import { browserLocalDataStore, LOCAL_DATA_SCHEMA_VERSION } from "../../data-management/repository/local-data-store.ts";
 
+declare const __ZHIXU_BUILD_INFO__: { masterSettingsAuthority: string };
+
 export function parseMasterSettingsAuthority(value: string | undefined): MasterSettingsAuthority {
   if (value === undefined || value === "" || value === "browser") return "browser";
   if (value === "frozen" || value === "server") return value;
@@ -10,6 +12,9 @@ export function parseMasterSettingsAuthority(value: string | undefined): MasterS
 }
 
 export function masterSettingsAuthority(): MasterSettingsAuthority {
+  if (typeof __ZHIXU_BUILD_INFO__ !== "undefined") {
+    return parseMasterSettingsAuthority(__ZHIXU_BUILD_INFO__.masterSettingsAuthority);
+  }
   return parseMasterSettingsAuthority(process.env.NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY);
 }
 
