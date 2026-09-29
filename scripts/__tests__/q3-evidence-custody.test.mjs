@@ -15,6 +15,8 @@ const sourceHash = "b".repeat(64);
 const projectionHash = "c".repeat(64);
 const attempt = "synthetic-attempt-001";
 const confirm = "I_UNDERSTAND_Q3_EVIDENCE_COPY_CREATES_INDEPENDENT_CUSTODY";
+const counts = { brands: 0, customerSalespeople: 0, fabrics: 0, trims: 0, manufacturingPresets: 0,
+  brandDefaultTrims: 0, salespersonDefaultTrims: 0, globalSettings: 0, total: 0 };
 
 function run(args) {
   return spawnSync("pwsh", ["-NoProfile", "-NonInteractive", "-File", script, ...args],
@@ -38,11 +40,16 @@ function fixture() {
     freezeStartedAt: "2026-09-29T09:00:00Z", verifiedAt: "2026-09-29T09:00:01Z",
     operatorLabel: "synthetic-operator", allOldTabsClosedBeforeFrozenReopen: true };
   const proof = { proofVersion: 1, result: "PASS", sourceFileSha256: backupSha, sourceHash, projectionContentHash: projectionHash,
-    reviewedCommit: commit, projectedCounts: { total: 0 }, disposableContainerRemoved: true };
+    reviewedCommit: commit, projectedCounts: counts, migrationLedger: [{ version: "7", filename: "0007_quote_master_settings.sql", checksum: "f".repeat(64) }],
+    postgresMajor: 16, rehearsedAt: "2026-09-29T09:02:00Z", importCounts: counts, readbackCounts: counts,
+    readbackContentHash: projectionHash, rollbackValidated: true, postCommitUnverifiedValidated: true,
+    secondImportRejected: true, disposableContainerRemoved: true };
   const rollback = { contract: "zhixu-exact-target-backup.v1", sha256: "d".repeat(64),
-    targetFingerprint: "e".repeat(64), archiveListVerified: true, filename: "synthetic.dump" };
+    targetFingerprint: "e".repeat(64), archiveListVerified: true, filename: "synthetic.dump",
+    createdAt: "2026-09-29T09:03:00Z", bytes: 2048, containerName: "synthetic-db",
+    composeProject: "synthetic", volumeName: "tmpfs", databaseName: "synthetic" };
   const preview = { contract: "quote-master-settings-backup-preview.v1", capture, sourceHash,
-    sensitiveFieldPaths: [], preview: { blockingErrors: [], warnings: [], projectedServerRows: { total: 0 } } };
+    sensitiveFieldPaths: [], preview: { blockingErrors: [], warnings: [], projectedServerRows: counts } };
   const files = { freeze: join(temp, "freeze.json"), proof: join(temp, "proof.json"),
     rollback: join(temp, "rollback.manifest.json"), preview: join(temp, "preview.json") };
   for (const [key, value] of Object.entries({ freeze, proof, rollback, preview })) writeFileSync(files[key], JSON.stringify(value));
@@ -52,7 +59,7 @@ function fixture() {
     "-FreshBackupFile", backupPath, "-CanonicalPreviewReportFile", files.preview,
     "-RehearsalProofFile", files.proof, "-RollbackManifestFile", files.rollback, "-Prepare"];
   const close = () => { if (resolve(temp).startsWith(resolve(tmpdir()) + sep)) rmSync(temp, { recursive: true, force: true }); };
-  return { temp, anchor, destination, source, common, prepare, close };
+  return { temp, anchor, destination, source, common, prepare, files, close };
 }
 
 test("D-091 disposable custody: prepare, zero-write VerifyOnly, confirmed copy, destination readback, duplicate reject", () => {
@@ -99,6 +106,46 @@ test("D-091 custody rejects source drift, unknown files, raw dump and raw Browse
       else writeFileSync(join(f.source, filename), "synthetic prohibited artifact");
       const result = run([...f.common, "-VerifyOnly"]);
       assert.notEqual(result.status, 0, filename);
+      assert.equal(existsSync(f.destination), false);
+    } finally { f.close(); }
+  }
+});
+
+test("D-091 custody rejects extra, raw payload-like and credential fields inside allowlisted JSON", () => {
+  for (const [file, mutate] of [
+    ["freeze", (value) => { value.unexpectedBusinessField = "synthetic"; }],
+    ["proof", (value) => { value.payload = { businessRows: ["synthetic"] }; }],
+    ["freeze", (value) => { value.password = "synthetic-test-only"; }],
+    ["freeze", (value) => { value.expected.rawBusinessFact = "synthetic"; }],
+  ]) {
+    const f = fixture();
+    try {
+      const value = JSON.parse(readFileSync(f.files[file], "utf8"));
+      mutate(value);
+      writeFileSync(f.files[file], JSON.stringify(value));
+      const result = run(f.prepare);
+      assert.notEqual(result.status, 0, file);
+      assert.match(result.stderr, /evidence_unexpected_field_forbidden|evidence_secret_field_forbidden/u);
+      assert.equal(existsSync(f.source), false);
+      assert.equal(existsSync(f.destination), false);
+    } finally { f.close(); }
+  }
+});
+
+test("D-091 custody rejects unknown artifact kind and extra pre-execute manifest fields", () => {
+  for (const mutate of [
+    (manifest) => { manifest.artifacts[0].kind = "unknown_artifact"; },
+    (manifest) => { manifest.rawPayload = { synthetic: true }; },
+  ]) {
+    const f = fixture();
+    try {
+      assert.equal(run(f.prepare).status, 0);
+      const path = join(f.source, "manifest.json");
+      const manifest = JSON.parse(readFileSync(path, "utf8"));
+      mutate(manifest);
+      writeFileSync(path, JSON.stringify(manifest));
+      const result = run([...f.common, "-VerifyOnly"]);
+      assert.notEqual(result.status, 0);
       assert.equal(existsSync(f.destination), false);
     } finally { f.close(); }
   }
