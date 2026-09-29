@@ -54,6 +54,11 @@ test("freeze evidence requires explicit old-tab attestation and exact reviewed i
   const evidence: Q3FreezeEvidence = { evidenceVersion: 1, result: "PASS", browserOrigin: "http://127.0.0.1:3001", browserProfileLabel: "synthetic-profile", namespace: "synthetic", schemaVersion: 13, expected: frozen, observed: frozen, freezeStartedAt: "2026-09-28T10:00:00Z", verifiedAt: "2026-09-28T10:00:01Z", operatorLabel: "operator-1", allOldTabsClosedBeforeFrozenReopen: true };
   const expected = { origin: evidence.browserOrigin, namespace: evidence.namespace, schemaVersion: 13, commit, buildId: "build-1" };
   assert.equal(validateFreezeEvidence(evidence, expected).result, "PASS");
+  const split = { ...evidence, frozenFrontend: { topology: "split" as const, containerName: "q3-disposable-static",
+    containerId: "a".repeat(64), imageId: `sha256:${"b".repeat(64)}`,
+    startedAt: "2026-09-28T09:59:00.000000000Z", restartCount: 0 } };
+  assert.equal(validateFreezeEvidence(split, expected).frozenFrontend?.containerId, "a".repeat(64));
+  assert.throws(() => validateFreezeEvidence({ ...split, frozenFrontend: { ...split.frozenFrontend, containerId: "short" } }, expected), /frozen_frontend_identity_invalid/u);
   assert.throws(() => validateFreezeEvidence({ ...evidence, allOldTabsClosedBeforeFrozenReopen: false as true }, expected), /mismatch/u);
   assert.throws(() => validateFreezeEvidence(evidence, { ...expected, commit: "b".repeat(40) }), /mismatch/u);
 });

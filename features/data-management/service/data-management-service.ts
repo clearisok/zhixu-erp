@@ -75,6 +75,12 @@ async function encodeBlob(blob: Blob): Promise<EncodedBlob> {
 
 export async function initializeLocalDataLifecycle(): Promise<void> {
   if (typeof window === "undefined") return;
+  if (masterSettingsAuthority() === "frozen") {
+    // A frozen build must not seed or migrate the source before its fresh export.
+    loadBasicSettings();
+    loadGlobalQuoteSettings();
+    return;
+  }
   if (masterSettingsAuthority() !== "server") {
     loadBasicSettings();
     loadGlobalQuoteSettings();
@@ -101,7 +107,13 @@ export async function initializeLocalDataLifecycle(): Promise<void> {
 }
 
 export async function exportLocalDataBackup(): Promise<LocalDataBackup> {
-  await initializeLocalDataLifecycle();
+  if (masterSettingsAuthority() === "frozen") {
+    // Both Q3 source envelopes must already exist; never initialize them for export.
+    loadBasicSettings();
+    loadGlobalQuoteSettings();
+  } else {
+    await initializeLocalDataLifecycle();
+  }
   const [attachments, templates, styleProgress] = await Promise.all([exportStoredAttachments(), exportStoredTemplates(), exportStyleProgressData()]);
   return {
     product: "zhixu-erp",

@@ -62,6 +62,14 @@ export type Q3FreezeEvidence = {
   verifiedAt: string;
   operatorLabel: string;
   allOldTabsClosedBeforeFrozenReopen: true;
+  frozenFrontend?: {
+    topology: "split";
+    containerName: string;
+    containerId: string;
+    imageId: string;
+    startedAt: string;
+    restartCount: number;
+  };
 };
 
 /** Only checks the running bundle; old-tab closure is an explicit operator attestation. */
@@ -93,6 +101,15 @@ export function validateFreezeEvidence(input: Q3FreezeEvidence, expected: { orig
     input.expected.gitCommit !== requireCommit(expected.commit) || input.observed.gitCommit !== expected.commit ||
     input.expected.buildId !== expected.buildId || input.observed.buildId !== expected.buildId ||
     input.expected.buildTime !== input.observed.buildTime) throw new Error("frozen_build_evidence_mismatch");
+  if (input.frozenFrontend && (input.frozenFrontend.topology !== "split" ||
+    !/^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/u.test(input.frozenFrontend.containerName) ||
+    !/^[0-9a-f]{64}$/u.test(input.frozenFrontend.containerId) ||
+    !/^sha256:[0-9a-f]{64}$/u.test(input.frozenFrontend.imageId) ||
+    !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,9})?Z$/u.test(input.frozenFrontend.startedAt) ||
+    !Number.isFinite(Date.parse(input.frozenFrontend.startedAt)) ||
+    !Number.isSafeInteger(input.frozenFrontend.restartCount) || input.frozenFrontend.restartCount < 0)) {
+    throw new Error("frozen_frontend_identity_invalid");
+  }
   const start = requireTimestamp(input.freezeStartedAt, "freeze_started_at");
   const verified = requireTimestamp(input.verifiedAt, "freeze_verified_at");
   if (Date.parse(verified) < Date.parse(start)) throw new Error("freeze_evidence_time_mismatch");
