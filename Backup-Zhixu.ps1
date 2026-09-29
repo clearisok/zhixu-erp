@@ -50,6 +50,23 @@ try {
 
     & docker exec $target.ContainerName pg_restore --list $remotePath 2>$null | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'backup_archive_invalid' }
+    $manifestPath = "$backupPath.manifest.json"
+    $manifest = [ordered]@{
+        contract = 'zhixu-exact-target-backup.v1'
+        createdAt = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
+        filename = $name
+        bytes = $item.Length
+        sha256 = $hostHash
+        targetFingerprint = $target.Fingerprint
+        containerName = $target.ContainerName
+        composeProject = $ExpectedComposeProject
+        volumeName = $ExpectedVolumeName
+        databaseName = $target.DatabaseName
+        archiveListVerified = $true
+    }
+    $bytes = [Text.Encoding]::UTF8.GetBytes(($manifest | ConvertTo-Json -Depth 4) + "`n")
+    $stream = [IO.File]::Open($manifestPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
+    try { $stream.Write($bytes, 0, $bytes.Length); $stream.Flush($true) } finally { $stream.Dispose() }
     Write-Output "backup_verified filename=$name bytes=$($item.Length) sha256=$hostHash target_fingerprint=$($target.Fingerprint)"
 } finally {
     if ($created) {

@@ -12,7 +12,7 @@ ENV ZHIXU_BUILD_ENV=production \
     ZHIXU_BUILD_ID=${ZHIXU_BUILD_ID} \
     ZHIXU_GIT_COMMIT=${ZHIXU_GIT_COMMIT} \
     ZHIXU_BUILD_TIME=${ZHIXU_BUILD_TIME}
-RUN npm run build && npm run server:build
+RUN npm run build && npm run server:build && node scripts/build-q3-import-runners.mjs
 
 FROM docker.m.daocloud.io/library/node:22-alpine
 
