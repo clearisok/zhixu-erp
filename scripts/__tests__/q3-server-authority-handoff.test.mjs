@@ -239,6 +239,31 @@ test("Q3 B0 exact handoff and real-Chromium secure session use only isolated res
     docker(["start", writer]);
     rejectIntent("-ExpectedOldWriterId", writerInfo.Id, /application_writer_not_frozen/u, true);
     docker(["stop", writer]);
+    phase = "optional-failure-evidence";
+    const omittedFailure = { ...importEvidence };
+    delete omittedFailure.failure;
+    const evidenceCases = [
+      { name: "failure-omitted", evidence: omittedFailure, accepted: true },
+      { name: "failure-null", evidence: importEvidence, accepted: true },
+      { name: "failure-non-null", evidence: { ...importEvidence, failure: { code: "synthetic_failure" } }, accepted: false },
+    ];
+    for (const evidenceCase of evidenceCases) {
+      const casePath = join(evidenceDir, `${evidenceCase.name}.json`);
+      writeFileSync(casePath, JSON.stringify(evidenceCase.evidence), { flag: "wx" });
+      const caseIntent = [...intent];
+      caseIntent[caseIntent.indexOf("-ImportEvidenceFile") + 1] = casePath;
+      caseIntent[caseIntent.indexOf("-ExpectedImportEvidenceSha256") + 1] = sha(readFileSync(casePath));
+      const result = invoke([...caseIntent, "-VerifyOnly"]);
+      if (evidenceCase.accepted) {
+        assert.equal(result.status, 0, `${evidenceCase.name}: ${result.stderr.slice(-900)}`);
+        assert.match(result.stdout, /q3_server_handoff_verify_only_ready/u);
+      } else {
+        assert.notEqual(result.status, 0, `${evidenceCase.name} must fail closed`);
+        assert.match(result.stderr, /handoff_import_evidence_mismatch/u);
+      }
+      assert.equal(inspect("container", frozen).State.Running, true);
+      assert.equal(inspect("container", writer).State.Running, false);
+    }
     const verify = invoke([...intent, "-VerifyOnly"]);
     assert.equal(verify.status, 0, verify.stderr.slice(-900));
     assert.match(verify.stdout, /verify_only_ready/u);
