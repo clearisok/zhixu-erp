@@ -34,7 +34,8 @@ function run(command, args, { cwd = root, timeout = 120_000, env = process.env }
 }
 function docker(args, options) {
   const result = run("docker", args, options);
-  assert.equal(result.status, 0, `disposable Docker ${args[0]} failed (${result.status})`);
+  const safeError = (result.stderr ?? "").replaceAll(password, "[REDACTED]").replaceAll(adminPassword, "[REDACTED]").slice(-900);
+  assert.equal(result.status, 0, `disposable Docker ${args[0]} failed (${result.status}): ${safeError}`);
   return result.stdout.trim();
 }
 function inspect(type, name) { return JSON.parse(docker(["inspect", "--type", type, name]))[0]; }
