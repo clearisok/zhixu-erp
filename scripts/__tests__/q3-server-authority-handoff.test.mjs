@@ -100,17 +100,18 @@ async function chromeSessionProof(origin) {
       const result = await command("Runtime.evaluate", { expression: "location.origin", returnByValue: true }, sessionId);
       return result.result.value === origin;
     }, "Chrome same origin");
-    const expression = `(async()=>{const login=await fetch("/api/v1/auth/login",{method:"POST",credentials:"include",headers:{"content-type":"application/json","x-zhixu-request":"1"},body:JSON.stringify({username:"admin",password:${JSON.stringify(adminPassword)}})});const cookie=login.headers.get("set-cookie");const me=await fetch("/api/v1/auth/me",{credentials:"include"});const permissions=await fetch("/api/v1/auth/permissions",{credentials:"include"});const brands=await fetch("/api/v1/quote-masters/brands",{credentials:"include"});return {login:login.status,me:me.status,permissions:permissions.status,brands:brands.status,user:(await me.json()).user?.username,permissionList:(await permissions.json()).permissions,brandBody:await brands.json(),setCookieVisible:cookie!==null};})()`;
+    const expression = `(async()=>{const login=await fetch("/api/v1/auth/login",{method:"POST",credentials:"include",headers:{"content-type":"application/json","x-zhixu-request":"1"},body:JSON.stringify({username:"admin",password:${JSON.stringify(adminPassword)}})});const cookie=login.headers.get("set-cookie");const me=await fetch("/api/v1/auth/me",{credentials:"include"});const permissions=await fetch("/api/v1/auth/permissions",{credentials:"include"});const paths=["/api/v1/quote-masters/brands","/api/v1/quote-masters/customer-salespeople","/api/v1/quote-masters/fabrics","/api/v1/quote-masters/trims","/api/v1/quote-masters/supplier-suggestions","/api/v1/quote-settings","/api/v1/quote-settings/manufacturing-presets","/api/v1/quote-settings/resolved-defaults"];const reads=await Promise.all(paths.map(async p=>{const r=await fetch(p,{credentials:"include"});return {path:p,status:r.status,body:await r.json()}}));return {login:login.status,me:me.status,permissions:permissions.status,reads,user:(await me.json()).user?.username,permissionList:(await permissions.json()).permissions,setCookieVisible:cookie!==null};})()`;
     const evaluated = await command("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true }, sessionId);
     assert.equal(evaluated.exceptionDetails, undefined, "Chrome login execution failed");
     const result = evaluated.result.value;
     assert.equal(result.login, 200);
     assert.equal(result.me, 200);
     assert.equal(result.permissions, 200);
-    assert.equal(result.brands, 200);
+    assert.equal(result.reads.length, 8);
+    assert.ok(result.reads.every((item) => item.status === 200), "all eight Q3 read endpoints require a trusted session");
     assert.equal(result.user, "admin");
     assert.ok(result.permissionList.includes("settings.brand.edit"));
-    assert.match(JSON.stringify(result.brandBody), /Synthetic Brand/u);
+    assert.match(JSON.stringify(result.reads[0].body), /Synthetic Brand/u);
     const cookies = await command("Network.getCookies", { urls: [origin] }, sessionId);
     assert.ok(cookies.cookies.some((cookie) => cookie.secure && cookie.httpOnly), "Secure HttpOnly cookie accepted by Chromium");
     return "login/me/permissions/Q3 read PASS; Secure cookie accepted";
@@ -152,6 +153,8 @@ test("Q3 B0 exact handoff and real-Chromium secure session use only isolated res
     }
     frozenImageId = inspect("image", frozenTag).Id;
     serverImageId = inspect("image", serverTag).Id;
+    const compiledAuthority = 'const fs=require("fs"),path=require("path");let found=false;function scan(d){for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);if(e.isDirectory())scan(p);else if(p.endsWith(".js")){const s=fs.readFileSync(p,"utf8");if(s.includes("Q3 master/settings Browser writes are disabled")&&s.includes("server"))found=true}}}scan("/app/dist/client/assets");if(!found)process.exit(1)';
+    docker(["run", "--rm", "--pull=never", "--network", "none", "--entrypoint", "node", serverImageId, "-e", compiledAuthority]);
     phase = "database";
     docker(["network", "create", "--label", `com.docker.compose.project=${prefix}`, network]);
     networkCreated = true;
@@ -225,7 +228,14 @@ test("Q3 B0 exact handoff and real-Chromium secure session use only isolated res
     rejectIntent("-ExpectedFrozenContainerId", "a".repeat(64), /split_frozen_container_identity_mismatch/u);
     rejectIntent("-ExpectedServerImageId", frozenImageId, /handoff_server_image_identity_mismatch/u);
     rejectIntent("-ExpectedServerBuildId", "wrong-build", /handoff_server_image_identity_mismatch/u);
+    rejectIntent("-ExpectedServerBuildTime", "2026-09-30T03:00:01Z", /handoff_server_image_identity_mismatch/u);
     rejectIntent("-ExpectedTargetFingerprint", "b".repeat(64), /target_fingerprint_mismatch/u);
+    const badEvidence = [...intent];
+    badEvidence[badEvidence.indexOf("-ExpectedImportEvidenceSha256") + 1] = "c".repeat(64);
+    const secretSafe = invoke([...badEvidence, "-VerifyOnly"]);
+    assert.notEqual(secretSafe.status, 0);
+    assert.equal(`${secretSafe.stdout}${secretSafe.stderr}`.includes(password), false);
+    assert.equal(`${secretSafe.stdout}${secretSafe.stderr}`.includes(adminPassword), false);
     docker(["start", writer]);
     rejectIntent("-ExpectedOldWriterId", writerInfo.Id, /application_writer_not_frozen/u, true);
     docker(["stop", writer]);
