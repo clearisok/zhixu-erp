@@ -19,8 +19,8 @@ const frozen = `${prefix}-frozen`;
 const candidate = `${prefix}-candidate`;
 const network = `${prefix}-net`;
 const buildTime = "2026-09-30T03:00:00Z";
-const frozenBuildId = `${prefix}-frozen`;
-const serverBuildId = `${prefix}-server`;
+const frozenBuildId = "q3b0-disposable-frozen";
+const serverBuildId = "q3b0-disposable-server";
 const password = `DisposableOnly-${randomUUID()}`;
 const adminPassword = `DisposableAdmin-${randomUUID()}`;
 const temp = mkdtempSync(join(tmpdir(), `${prefix}-`));
@@ -163,7 +163,8 @@ test("Q3 B0 exact handoff and real-Chromium secure session use only isolated res
     await until(() => run("docker", ["exec", database, "pg_isready", "-U", "synthetic", "-d", "synthetic"]).status === 0, "PG16");
     const dbEnv = ["-e", `DB_HOST=${database}`, "-e", "DB_PORT=5432", "-e", "DB_NAME=synthetic",
       "-e", "DB_USER=synthetic", "-e", "DB_PASSWORD"];
-    docker(["run", "--rm", "--pull=never", "--network", network, ...dbEnv, "--entrypoint", "node",
+    docker(["run", "--rm", "--pull=never", "--network", network, ...dbEnv,
+      "-e", `ZHIXU_ALLOWED_ORIGINS=${origin}`, "--entrypoint", "node",
       serverImageId, "dist/server/server/db/migrate.js"], { timeout: 180_000 });
     const seedSql = "INSERT INTO quote_master_brands(id,name,normalized_name) VALUES ('synthetic-brand','Synthetic Brand','synthetic brand'); INSERT INTO quote_global_settings(singleton_id,default_labor_currency,default_labor_description) VALUES (1,'CNY','Synthetic labor');";
     docker(["exec", database, "psql", "-X", "-w", "-v", "ON_ERROR_STOP=1", "-U", "synthetic", "-d", "synthetic", "-c", seedSql]);
