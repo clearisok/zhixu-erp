@@ -34,6 +34,7 @@ param(
     [string]$ConfirmHandoff,
     [string]$OperatorLabel,
     [string]$AuthorizationRef,
+    [switch]$DisposableForceHealthFailure,
     [ValidateRange(1, 120)][int]$HealthTimeoutSeconds = 45
 )
 
@@ -72,6 +73,12 @@ if ($ServerContainerName -cin @($ExpectedFrozenContainerName, $ExpectedContainer
     throw 'server_handoff_intent_invalid'
 }
 Assert-Q3SplitOrigin -Origin $ExpectedBrowserOrigin -Port $ExpectedHostPort
+if ($DisposableForceHealthFailure -and ($ExpectedVolumeName -cne 'tmpfs' -or
+    $ExpectedHostPort -in @(3001, 3002) -or
+    $ExpectedComposeProject -cnotmatch '^q3b0-disposable-[0-9a-f]{10}$' -or
+    $ExpectedContainerName -cnotlike "$ExpectedComposeProject-*")) {
+    throw 'handoff_disposable_fault_injection_forbidden'
+}
 
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..')).TrimEnd('\', '/')
 $head = (& git -C $repoRoot rev-parse HEAD 2>$null).Trim()
@@ -249,6 +256,7 @@ try {
         $dbPassword = $null
     }
     if ($runExitCode -ne 0) { throw 'handoff_server_start_failed' }
+    if ($DisposableForceHealthFailure) { throw 'handoff_candidate_health_failed' }
     $deadline = [DateTime]::UtcNow.AddSeconds($HealthTimeoutSeconds)
     $healthy = $false
     while ([DateTime]::UtcNow -lt $deadline) {

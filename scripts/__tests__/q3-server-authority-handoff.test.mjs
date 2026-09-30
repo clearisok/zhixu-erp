@@ -236,8 +236,9 @@ test("Q3 B0 exact handoff and real-Chromium secure session use only isolated res
     phase = "failure-recovery";
     const confirm = ["-Execute", "-ConfirmHandoff", "I_UNDERSTAND_Q3_SERVER_AUTHORITY_REPLACES_FROZEN_FRONTEND",
       "-OperatorLabel", "synthetic", "-AuthorizationRef", "synthetic-disposable-only"];
-    const tooShort = invoke([...intent, ...confirm, "-HealthTimeoutSeconds", "1"], 90_000);
-    assert.notEqual(tooShort.status, 0, "1-second startup must fail for rollback exercise");
+    const injectedFailure = invoke([...intent, ...confirm, "-DisposableForceHealthFailure"], 90_000);
+    assert.notEqual(injectedFailure.status, 0, "disposable injected startup failure must fail closed");
+    assert.match(injectedFailure.stderr, /handoff_candidate_health_failed/u);
     assert.equal(inspect("container", frozen).State.Running, true);
     assert.equal(inspect("container", writer).State.Running, false);
     assert.equal(run("docker", ["inspect", "--type", "container", candidate]).status, 1);
