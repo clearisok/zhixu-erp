@@ -167,13 +167,15 @@ if ((Get-Item -LiteralPath $evidencePath).Attributes -band [IO.FileAttributes]::
 }
 try { $import = Get-Content -LiteralPath $evidencePath -Raw | ConvertFrom-Json -DateKind String }
 catch { throw 'handoff_import_evidence_invalid' }
+$failureProperty = $import.PSObject.Properties['failure']
+$hasFailure = $null -ne $failureProperty -and $null -ne $failureProperty.Value
 if ($import.evidenceVersion -ne 1 -or $import.executionType -cne 'quote_master_settings_import' -or
     $import.outcome -cne 'COMMITTED' -or $import.executionId -cne $ExpectedImportExecutionId -or
     $import.repoCommit -cne $ExpectedProductSourceCommit -or $import.reviewedCommit -cne $ExpectedProductSourceCommit -or
     $import.targetFingerprint -cne $ExpectedTargetFingerprint -or
     $import.projectionContentHash -cne $ExpectedProjectionContentHash -or
     $import.readbackContentHash -cne $ExpectedProjectionContentHash -or
-    $null -ne $import.failure) { throw 'handoff_import_evidence_mismatch' }
+    $hasFailure) { throw 'handoff_import_evidence_mismatch' }
 $countKeys = @('brands','customerSalespeople','fabrics','trims','manufacturingPresets',
     'brandDefaultTrims','salespersonDefaultTrims','globalSettings','total')
 if ($import.plannedCounts.total -ne $ExpectedImportedRows) { throw 'handoff_import_count_mismatch' }
