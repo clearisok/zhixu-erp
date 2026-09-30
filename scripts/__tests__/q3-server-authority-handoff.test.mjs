@@ -212,13 +212,13 @@ test("Q3 B0 exact handoff and real-Chromium secure session use only isolated res
       "-ExpectedImportedRows", "2", "-ServerContainerName", candidate,
       "-HandoffEvidenceDirectory", join(evidenceDir, "handoff")];
     const invoke = (args, timeout = 90_000) => run("pwsh", ["-NoProfile", "-NonInteractive", "-File", handoffScript, ...args], { timeout });
-    function rejectIntent(key, bad, pattern) {
+    function rejectIntent(key, bad, pattern, expectedWriterRunning = false) {
       const copy = [...intent]; copy[copy.indexOf(key) + 1] = bad;
       const result = invoke([...copy, "-VerifyOnly"]);
       assert.notEqual(result.status, 0);
       assert.match(result.stderr, pattern);
       assert.equal(inspect("container", frozen).State.Running, true);
-      assert.equal(inspect("container", writer).State.Running, false);
+      assert.equal(inspect("container", writer).State.Running, expectedWriterRunning);
       assert.equal(run("docker", ["inspect", "--type", "container", candidate]).status, 1);
     }
     phase = "negative-preflight";
@@ -227,7 +227,7 @@ test("Q3 B0 exact handoff and real-Chromium secure session use only isolated res
     rejectIntent("-ExpectedServerBuildId", "wrong-build", /handoff_server_image_identity_mismatch/u);
     rejectIntent("-ExpectedTargetFingerprint", "b".repeat(64), /target_fingerprint_mismatch/u);
     docker(["start", writer]);
-    rejectIntent("-ExpectedOldWriterId", writerInfo.Id, /application_writer_not_frozen/u);
+    rejectIntent("-ExpectedOldWriterId", writerInfo.Id, /application_writer_not_frozen/u, true);
     docker(["stop", writer]);
     const verify = invoke([...intent, "-VerifyOnly"]);
     assert.equal(verify.status, 0, verify.stderr.slice(-900));
