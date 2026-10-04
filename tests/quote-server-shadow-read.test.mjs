@@ -64,7 +64,8 @@ test("Server shell hides Browser identity and permission-backed legacy controls"
   assert.match(appShell, /serverSession\.user\?\.name/u);
   assert.match(appShell, /serverIdentityMode \|\| localSingleUser \? <div className="qc-server-identity"/u);
   assert.match(appShell, /!serverIdentityMode && <GlobalSearchPalette/u);
-  assert.match(appShell, /\(!serverIdentityMode\|\|serverSettingsMode\) && <><section><strong>基础设置/u);
+  assert.match(appShell, /const showSettingsNavigation = localSingleUser \|\| !serverIdentityMode \|\| serverSettingsMode/u);
+  assert.match(appShell, /showSettingsNavigation && <><section><strong>基础设置/u);
   assert.match(appShell, /pathname\.startsWith\("\/basic-settings\/server\/"\)/u);
   assert.doesNotMatch(`${previewSource}\n${detailSource}`, /usePermissions|currentUser|currentRole|setCurrentUser/u);
 });

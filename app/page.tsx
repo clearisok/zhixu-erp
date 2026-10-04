@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { browserIdentityMode } from "@/features/server-auth/identity-mode";
 
 type Role = "admin" | "sales" | "planner" | "viewer";
 type Module = "dashboard" | "quotes" | "orders" | "schedules" | "users" | "audit";
@@ -87,7 +89,17 @@ function Empty({ text }: { text: string }) {
   return <div className="empty-state"><span>◇</span><strong>{text}</strong><small>使用右上角按钮创建第一条业务记录</small></div>;
 }
 
+function LocalSingleUserLanding() {
+  const router = useRouter();
+  useEffect(() => { router.replace("/quote-center"); }, [router]);
+  return <div className="loading-screen"><div className="loading-mark">纫</div><strong>正在进入报价中心</strong><span /></div>;
+}
+
 export default function Home() {
+  return browserIdentityMode() === "local-single-user" ? <LocalSingleUserLanding /> : <LegacyHome />;
+}
+
+function LegacyHome() {
   const [booting, setBooting] = useState(true);
   const [loginBusy, setLoginBusy] = useState(false);
   const [data, setData] = useState<Bootstrap | null>(null);

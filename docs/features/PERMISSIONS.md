@@ -1,6 +1,6 @@
 # 权限系统
 
-> 当前开发模式（D-093）：显式 Local Single-User Mode 为每个 Server 请求提供同一可信技术身份和完整 `PermissionKey` catalog，不要求织序账号/密码/Cookie。旧 Server Session/RBAC 与 Browser mock 用户界面说明是 session-mode/历史行为，不再构成当前 Q3 验收门禁；旧 schema 和服务权限检查仍保留。新模式尚未部署至真实 3001。
+> 当前开发模式（D-093）：显式 Local Single-User Mode 已部署至真实本机 3001，提供同一可信技术身份和完整 `PermissionKey` catalog，不要求织序账号/密码/Cookie。旧 Server Session/RBAC 与 Browser mock 用户界面说明是 session-mode/历史行为，不再构成当前 Q3 验收门禁；旧 schema 和服务权限检查仍保留。根路径旧登录与正式基础设置侧栏的 UI 修复仍待独立部署验收。
 
 本地单用户 UI 不呈现登录表单、logout、Browser 测试用户切换或用户权限管理入口；直接打开旧管理路由只显示模式说明。Browser Quote aggregate 仍为 mock Repository，不能因此声称已完成 Quote writer cutover。Server service 的细粒度权限校验和可信 OperationLog actor 不被删除。未来正式多用户认证需要独立设计/验收，不将本模式扩展为生产安全模型。
 

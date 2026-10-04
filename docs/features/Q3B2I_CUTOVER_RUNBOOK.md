@@ -2,9 +2,9 @@
 
 ## Current superseding development decision (D-093, 2026-10-04)
 
-Q3B2I-C2 Stage B2 已将真实 3001 切至 Server Authority；旧 3002 writer 和 frozen container 保持停止/保留，真实 Q3 57 行/hash 已读回。Stage B3/B3-R 的 trusted-admin 登录/Cookie/session Gate 被用户取消，不能继续作为当前验收或重新开放编辑的门槛。下方 2026-09-30 及更早的“Stage B 尚未执行”“trusted session 必须验收”等段落是历史计划，不得照此重跑 import、handoff 或登录。
+Q3B2I-C2 Stage B2 已将真实 3001 切至 Server Authority，之后独立授权部署了 `identityMode=local-single-user`；其 health、无 Cookie 身份/54 权限、8 个 Q3 GET、57 行/hash 只读验收通过。旧 3002 writer 和 frozen container 保持停止/保留。用户人工 UI 发现根路径仍显示 legacy 登录、正式基础设置 Server 页面侧栏缺失；本分支仅修 UI，**尚未部署**，不得宣称 Q3 final closure。Stage B3/B3-R trusted-admin 登录/Cookie/session Gate 已取消。下方 2026-09-30 及更早的“Stage B 尚未执行”“trusted session 必须验收”等段落是历史计划，不得照此重跑 import、handoff 或登录。
 
-下一独立 Gate 应审阅本地单用户 PR、构建 `authority=server` 且 `identityMode=local-single-user` 的新镜像，核对 image/build-info/runtime mode、精确容器与 loopback host-port，获得单独部署授权后才替换现有 3001。替换后验收 health、无 Cookie me/完整权限目录、8 个 Q3 GET、Basic Settings、Quote Editor dependencies、Quick Create/save-to-library Server wiring、无 Browser Q3 fallback，以及真实 Q3 57 行/hash/关联不变。不得在此代码 Gate 自动部署、恢复旧 3002、再次 import 或以本地单用户冒充生产认证；Quote aggregate 仍由 Browser 持有，Q3 编辑仍冻结至独立验收通过。
+下一独立 Gate 应审阅并合并本 UI 修复，重新构建 `authority=server` 且 `identityMode=local-single-user` 的镜像，核对 image/build-info/runtime mode、精确容器与 loopback host-port，并获得单独部署授权后才替换现有 3001。验收须覆盖根路径无登录跳转、正式基础/系统设置统一导航和数据、Quote Browser aggregate 不变、Quote Editor Q3 dependencies、Quick Create/save-to-library Server wiring、无 Browser Q3 fallback，以及真实 Q3 57 行/hash/关联不变。本代码 Gate 不部署、恢复旧 3002、再次 import 或以本地单用户冒充生产认证；Q3 编辑仍冻结至独立验收通过。
 
 旧 `Invoke-Q3ServerAuthorityHandoff.ps1` 的运行时变量 allowlist 为 session-mode handoff 设计，尚未传递新的身份模式与显式无认证确认；不能不经修改/复核就拿它替换当前 3001。下一部署 Gate 必须先独立审查 exact-target、loopback 绑定、build/runtime mode 与旧容器保留/回退边界。
 

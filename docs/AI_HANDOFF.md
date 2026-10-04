@@ -1,6 +1,6 @@
 # AI 接力棒
 
-> 2026-10-04 当前接力：用户选择 D-093 Local Single-User Mode，取消 Q3B2I-C2 B3/B3-R 登录验收。当前工作是代码/测试/文档 PR，不触碰真实 3001；已有 B2 Server Authority handoff 不重做，Q3 57 行不改，3002/frozen 不启动。旧“等待 B1/B3 trusted login”条目均为历史。下一独立 Gate 才能审阅并授权 loopback 3001 新镜像部署与无登录只读验收；Q3 编辑仍冻结，Quote aggregate 仍 Browser-owned。
+> 2026-10-04 当前接力：D-093 的 local-single-user 真实 3001 已部署，API/DB 只读验收通过；用户人工发现根路径旧登录和正式 Basic Settings Server 页面侧栏缺失。本分支只修 UI shell/提示文案，尚未部署，不做 Q3 final closure。B3/B3-R 登录 Gate 已取消；Q3 57 行与 hash 不改，3002/frozen 不启动，Quote aggregate 仍 Browser-owned。
 
 ## Repository
 
@@ -13,7 +13,7 @@
 
 ## Current Engineering State
 
-- **2026-10-04 current:** D-093 Local Single-User Mode 已在 `feat/local-single-user-mode` 实现并通过 disposable PostgreSQL/源码测试；旧 3001 Server Authority 仍运行此前 session 镜像，本任务不部署。Q3B2I-C2 B3/B3-R 登录验收取消；下一 Gate 是独立授权的 loopback 3001 新镜像部署与无登录只读验收。真实 Q3 数据、旧 3002/frozen 和 Browser Quote aggregate 均未在本任务修改。
+- **2026-10-04 current:** PR #63 已并入 main，真实 3001 运行 `authority=server` / `identityMode=local-single-user` 且 API/DB 只读验收通过。人工 UI 阻塞：`/` 仍为 legacy 登录，正式基础设置 Server 页面侧栏缺少基础/系统设置；`/quote-center` 的 Browser Quote aggregate 与 Server Q3 defaults 工作正常。本修复分支 `fix/local-single-user-ui-shell` 仅处理 root local-mode 跳转、导航与正式路径文案，代码不触碰真实 3001/DB/Browser 数据；合并后还需单独部署及 UI 验收，Q3 closure 暂缓。
 
 ### Historical checkpoints — not current action instructions
 

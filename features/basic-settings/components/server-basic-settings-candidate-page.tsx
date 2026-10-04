@@ -31,7 +31,7 @@ function safeError(error: unknown): string {
   return "Server 基础资料不可用；未回退到 Browser 数据。";
 }
 
-export function ServerBasicSettingsCandidatePage({ scope }: { scope: BasicSettingsServerScope }) {
+export function ServerBasicSettingsCandidatePage({ scope, production = false }: { scope: BasicSettingsServerScope; production?: boolean }) {
   const session = useServerSession();
   const [state, setState] = useState<BasicSettingsState>(defaultBasicSettings);
   const [supplierOptions, setSupplierOptions] = useState<string[]>([]);
@@ -62,10 +62,10 @@ export function ServerBasicSettingsCandidatePage({ scope }: { scope: BasicSettin
 
   if (session.status === "checking") return <Frame title={title}><LoadingState label="确认织序 Server 登录状态" /></Frame>;
   if (session.status === "error") return <Frame title={title}><ErrorState title="无法确认 Server 登录状态" description={session.error} onRetry={() => void session.refresh()} /></Frame>;
-  if (session.status === "anonymous") return <Frame title={title}><ServerLoginCard defaultUsername={process.env.NODE_ENV === "development" ? "admin" : ""} description="登录后进入 PostgreSQL 基础资料 candidate；不会回退到 Browser 数据。" /></Frame>;
+  if (session.status === "anonymous") return <Frame title={title}><ServerLoginCard defaultUsername={process.env.NODE_ENV === "development" ? "admin" : ""} description={production ? "登录后读取 PostgreSQL 基础资料；不会回退到 Browser 数据。" : "登录后进入 PostgreSQL 基础资料 candidate；不会回退到 Browser 数据。"} /></Frame>;
   if (!canRead) return <Frame title={title}><ErrorState permission title="Server 权限不足（403）" description={`需要 ${required} 或 quote.view 权限。`} /></Frame>;
   if (loading) return <Frame title={title}><LoadingState label="读取 PostgreSQL 基础资料" /></Frame>;
-  if (error) return <Frame title={title}><ErrorState title="Server candidate 不可用" description={error} onRetry={() => void load()} /></Frame>;
+  if (error) return <Frame title={title}><ErrorState title={production ? "Server 基础资料不可用" : "Server candidate 不可用"} description={error} onRetry={() => void load()} /></Frame>;
 
   const persist = async (next: BasicSettingsState) => {
     try {
@@ -80,23 +80,23 @@ export function ServerBasicSettingsCandidatePage({ scope }: { scope: BasicSettin
   };
   const controller = { state, supplierOptions, persist, reload: load };
   const logout = browserIdentityMode() === "local-single-user" ? undefined : () => { void session.logout(); };
-  const page = scope === "brands" ? <BrandSettingsPage serverCandidate onServerLogout={logout} />
-    : scope === "salespeople" ? <CustomerSalespeopleSettingsPage serverCandidate onServerLogout={logout} />
-      : scope === "fabrics" ? <FabricLibraryPage serverCandidate onServerLogout={logout} />
-        : <TrimLibraryPage serverCandidate onServerLogout={logout} />;
+  const page = scope === "brands" ? <BrandSettingsPage serverCandidate serverProduction={production} onServerLogout={logout} />
+    : scope === "salespeople" ? <CustomerSalespeopleSettingsPage serverCandidate serverProduction={production} onServerLogout={logout} />
+      : scope === "fabrics" ? <FabricLibraryPage serverCandidate serverProduction={production} onServerLogout={logout} />
+        : <TrimLibraryPage serverCandidate serverProduction={production} onServerLogout={logout} />;
   return <PermissionAuthorityProvider can={session.hasPermission}><BasicSettingsControllerProvider value={controller}>{page}</BasicSettingsControllerProvider></PermissionAuthorityProvider>;
 }
 
-export function ServerGlobalQuoteSettingsCandidatePage() {
+export function ServerGlobalQuoteSettingsCandidatePage({ production = false }: { production?: boolean } = {}) {
   const session = useServerSession();
   const adapter = useMemo(() => createServerGlobalQuoteSettingsAdapter(), []);
   if (session.status === "checking") return <Frame title="报价设置"><LoadingState label="确认织序 Server 登录状态" /></Frame>;
   if (session.status === "error") return <Frame title="报价设置"><ErrorState title="无法确认 Server 登录状态" description={session.error} onRetry={() => void session.refresh()} /></Frame>;
-  if (session.status === "anonymous") return <Frame title="报价设置"><ServerLoginCard defaultUsername={process.env.NODE_ENV === "development" ? "admin" : ""} description="登录后进入 PostgreSQL 报价设置 candidate；不会回退到 Browser 设置。" /></Frame>;
+  if (session.status === "anonymous") return <Frame title="报价设置"><ServerLoginCard defaultUsername={process.env.NODE_ENV === "development" ? "admin" : ""} description={production ? "登录后读取 PostgreSQL 报价设置；不会回退到 Browser 设置。" : "登录后进入 PostgreSQL 报价设置 candidate；不会回退到 Browser 设置。"} /></Frame>;
   if (!session.hasPermission("settings.global.edit") && !session.hasPermission("quote.view")) return <Frame title="报价设置"><ErrorState permission title="Server 权限不足（403）" description="需要 settings.global.edit 或 quote.view 权限。" /></Frame>;
   const controller = {
     load: () => adapter.load().catch((error) => { if (error instanceof QuoteMasterServerError && error.status === 401) session.invalidate(); throw error; }),
     save: (settings: Parameters<typeof adapter.save>[0]) => adapter.save(settings).catch((error) => { if (error instanceof QuoteMasterServerError && error.status === 401) session.invalidate(); throw error; }),
   };
-  return <PermissionAuthorityProvider can={session.hasPermission}><GlobalQuoteSettingsPage serverController={controller} onServerLogout={browserIdentityMode() === "local-single-user" ? undefined : () => { void session.logout(); }} /></PermissionAuthorityProvider>;
+  return <PermissionAuthorityProvider can={session.hasPermission}><GlobalQuoteSettingsPage serverController={controller} serverProduction={production} onServerLogout={browserIdentityMode() === "local-single-user" ? undefined : () => { void session.logout(); }} /></PermissionAuthorityProvider>;
 }

@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-- **D-093 Local Single-User Mode：代码/可丢弃数据库测试已完成，待 PR 审阅；真实 3001 尚未替换。** 用户取消当前开发阶段账号密码/session/RBAC 登录验收与 Q3B2I-C2 B3/B3-R Gate；Server 在显式无认证模式下提供单一可信本地身份和完整 PermissionKey，同时保留 service 权限、事务、Origin 防护及 OperationLog FK。旧 auth schema/code dormant，不清理。新模式不是公网生产认证；未来多用户认证另立 Gate。当前真实 3001 仍是此前 B2 的 Server Authority 镜像，3002/frozen 停止，Q3 master/settings 57 行/hash 保持既有基线；本代码 Gate 不部署、不 import、不重开编辑。下一步为独立部署及只读 acceptance 授权。
+- **D-093 Local Single-User Mode：真实 3001 已部署，API/数据库只读验收 PASS；UI closure 仍受阻。** 用户取消当前开发阶段账号密码/session/RBAC 登录验收与 Q3B2I-C2 B3/B3-R Gate；真实 3001 现为 `authority=server`、`identityMode=local-single-user`，只绑定本机端口。无 Cookie identity、54 权限、8 个 Q3 GET、57 行及 canonical hash 均通过；旧 3002/frozen 停止，旧 Server 容器停止保留。人工 UI 发现根路径仍呈现 legacy ERP 登录、正式 Basic Settings 的 Server 页面丢失完整侧栏；本分支仅修根路径 local-mode 跳转、统一导航与正式 Server 提示文案，**尚未部署该修复**，不得声明 Q3 final closure 或重开编辑。Browser Quote aggregate/localStorage 仍保留；本 Gate 不触碰真实数据库、Docker、Browser 业务数据。旧 auth schema/code dormant，未来多用户认证另立 Gate。
 - **Q3B2I-C2 Stage B2 已完成，B3/B3-R 登录验收已由 D-093 supersede。** 旧 B1 “handoff 尚未执行”和 Stage A “Stage B 未执行”均为历史快照，不得用作当前操作指令。
 
 ## 历史 Gate 快照（以下旧状态不得作为当前操作指令）
