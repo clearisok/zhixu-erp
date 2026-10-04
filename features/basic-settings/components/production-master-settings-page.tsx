@@ -31,14 +31,14 @@ function BrowserBasicSettings({ scope }: { scope: BasicSettingsServerScope }) {
 
 export function ProductionBasicSettingsPage({ scope }: { scope: BasicSettingsServerScope }) {
   const authority = masterSettingsAuthority();
-  if (authority === "server") return <ServerBasicSettingsCandidatePage scope={scope} />;
+  if (authority === "server") return <ServerBasicSettingsCandidatePage scope={scope} production />;
   if (authority === "frozen") return <FrozenAuthority><BrowserBasicSettings scope={scope} /></FrozenAuthority>;
   return <BrowserBasicSettings scope={scope} />;
 }
 
 export function ProductionGlobalQuoteSettingsPage() {
   const authority = masterSettingsAuthority();
-  if (authority === "server") return <ServerGlobalQuoteSettingsCandidatePage />;
+  if (authority === "server") return <ServerGlobalQuoteSettingsCandidatePage production />;
   if (authority === "frozen") return <FrozenAuthority><GlobalQuoteSettingsPage /></FrozenAuthority>;
   return <GlobalQuoteSettingsPage />;
 }

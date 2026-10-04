@@ -11,7 +11,7 @@ export type GlobalQuoteSettingsController = {
   save(settings: GlobalQuoteSettings): Promise<GlobalQuoteSettings>;
 };
 
-export function GlobalQuoteSettingsPage({ serverController, onServerLogout }: { serverController?: GlobalQuoteSettingsController; onServerLogout?: () => void } = {}) {
+export function GlobalQuoteSettingsPage({ serverController, serverProduction = false, onServerLogout }: { serverController?: GlobalQuoteSettingsController; serverProduction?: boolean; onServerLogout?: () => void } = {}) {
   const browser = usePermissions();
   const can = usePermissionAuthority();
   const currentUser = browser.currentUser;
@@ -83,8 +83,8 @@ export function GlobalQuoteSettingsPage({ serverController, onServerLogout }: { 
 
   return <AppShell title="报价设置" identityMode={serverController?"server":"browser"}><PageContainer>
     <PageHeader eyebrow="SYSTEM SETTINGS" title="报价设置" />
-    {serverController&&<AlertBanner tone="info" title="Server candidate · source = PostgreSQL" actions={onServerLogout?<Button variant="text" onClick={onServerLogout}>退出 Server 会话</Button>:undefined}>本页复用正式报价设置 UI，保存通过一个 Server transaction 原子提交全局设置与制作预设；不会读写 Browser 设置。</AlertBanner>}
-    {error&&<AlertBanner tone="danger" title="Server candidate 未保存" actions={serverController&&error.includes("其他用户")?<Button variant="secondary" onClick={()=>void reloadServer()}>重新载入 Server 版本</Button>:undefined}>{error}</AlertBanner>}
+    {serverController&&<AlertBanner tone="info" title={serverProduction ? "报价默认值来源：PostgreSQL" : "Server candidate · source = PostgreSQL"} actions={onServerLogout?<Button variant="text" onClick={onServerLogout}>退出 Server 会话</Button>:undefined}>{serverProduction ? "报价默认值与制作预设由 Server 管理；保存时在单一 transaction 提交，不回退到 Browser 设置。" : "本页复用正式报价设置 UI，保存通过一个 Server transaction 原子提交全局设置与制作预设；不会读写 Browser 设置。"}</AlertBanner>}
+    {error&&<AlertBanner tone="danger" title={serverProduction ? "Server 设置未保存" : "Server candidate 未保存"} actions={serverController&&error.includes("其他用户")?<Button variant="secondary" onClick={()=>void reloadServer()}>重新载入 Server 版本</Button>:undefined}>{error}</AlertBanner>}
     <FormShell className="qc-card qc-system-settings-card" onSubmit={save}>
       <fieldset disabled={!editable} className="qc-readonly-fieldset" title={!editable ? "暂无权限，请联系管理员" : undefined}>
         <section className="qc-system-settings-section">

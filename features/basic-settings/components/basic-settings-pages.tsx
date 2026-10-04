@@ -84,10 +84,10 @@ function useBasicSettingsState() {
   return { state: scoped?.state ?? state, persist, reload: scoped?.reload, supplierOptions: scoped?.supplierOptions };
 }
 
-type SettingsPageProps = { serverCandidate?: boolean; onServerLogout?: () => void };
+type SettingsPageProps = { serverCandidate?: boolean; serverProduction?: boolean; onServerLogout?: () => void };
 
-function ServerCandidateNotice({ onLogout }: { onLogout?: () => void }) {
-  return <AlertBanner tone="info" title="Server candidate · source = PostgreSQL" actions={onLogout?<Button variant="text" onClick={onLogout}>退出 Server 会话</Button>:undefined}>本页复用正式 UI，但只读取和写入 Server candidate；不会读取、写入或回退到 Browser 基础资料。</AlertBanner>;
+function ServerCandidateNotice({ onLogout, production }: { onLogout?: () => void; production: boolean }) {
+  return <AlertBanner tone="info" title={production ? "基础资料来源：PostgreSQL" : "Server candidate · source = PostgreSQL"} actions={onLogout?<Button variant="text" onClick={onLogout}>退出 Server 会话</Button>:undefined}>{production ? "品牌、业务员与面辅料由 Server 管理；不会回退到 Browser 基础资料。" : "本页复用正式 UI，但只读取和写入 Server candidate；不会读取、写入或回退到 Browser 基础资料。"}</AlertBanner>;
 }
 
 function mutationMessage(error: unknown): string {
@@ -123,7 +123,7 @@ function MasterDataToolbar({
   return <Toolbar search={<SearchField value={query} onChange={onQuery} placeholder={placeholder} label={placeholder} />} moreFilters={moreFilters} resultSummary={<span>{resultCount} 条结果</span>} />;
 }
 
-export function BrandSettingsPage({serverCandidate=false,onServerLogout}:SettingsPageProps={}) {
+export function BrandSettingsPage({serverCandidate=false,serverProduction=false,onServerLogout}:SettingsPageProps={}) {
   const can = usePermissionAuthority();
   const canManage = can("settings.brand.edit");
   const { state, persist, reload, supplierOptions } = useBasicSettingsState();
@@ -169,7 +169,7 @@ export function BrandSettingsPage({serverCandidate=false,onServerLogout}:Setting
   ];
   return <AppShell title="品牌设置" identityMode={serverCandidate?"server":"browser"}><PageContainer>
     <PageHeader eyebrow="BASIC SETTINGS" title="品牌设置" count={`${rows.length} 条`} primaryAction={<PermissionButton permission="settings.brand.edit" onClick={openNew}>＋ 新增品牌</PermissionButton>} />
-    {serverCandidate&&<ServerCandidateNotice onLogout={onServerLogout}/>}
+    {serverCandidate&&<ServerCandidateNotice production={serverProduction} onLogout={onServerLogout}/>}
     <MasterDataToolbar
       query={query}
       onQuery={setQuery}
@@ -187,7 +187,7 @@ export function BrandSettingsPage({serverCandidate=false,onServerLogout}:Setting
   </PageContainer></AppShell>;
 }
 
-export function CustomerSalespeopleSettingsPage({serverCandidate=false,onServerLogout}:SettingsPageProps={}) {
+export function CustomerSalespeopleSettingsPage({serverCandidate=false,serverProduction=false,onServerLogout}:SettingsPageProps={}) {
   const can = usePermissionAuthority();
   const canManage = can("settings.salesperson.edit");
   const { state, persist, reload, supplierOptions } = useBasicSettingsState();
@@ -256,7 +256,7 @@ export function CustomerSalespeopleSettingsPage({serverCandidate=false,onServerL
 
   return <AppShell title="客户业务员设置" identityMode={serverCandidate?"server":"browser"}><PageContainer>
     <PageHeader eyebrow="BASIC SETTINGS" title="客户业务员设置" count={`${rows.length} 条`} primaryAction={<PermissionButton permission="settings.salesperson.edit" onClick={openNew}>＋ 新增客户业务员</PermissionButton>} />
-    {serverCandidate&&<ServerCandidateNotice onLogout={onServerLogout}/>}
+    {serverCandidate&&<ServerCandidateNotice production={serverProduction} onLogout={onServerLogout}/>}
     <MasterDataToolbar query={query} onQuery={setQuery} resultCount={rows.length} placeholder="输入姓名或品牌查询" />
     <Card className="qc-master-list"><DataTable rows={rows} columns={[
       { key: "name", header: "客户业务员", width: 170, sticky: "left", responsivePriority: "primary", render: (item: CustomerSalespersonRecord) => <strong>{item.name}</strong> },
@@ -278,7 +278,7 @@ export function CustomerSalespeopleSettingsPage({serverCandidate=false,onServerL
 
 const emptyFabric = (): FabricLibraryItem => { const now = new Date().toISOString(); return { id: createMasterDataId("fabric"), name: "", composition: "", netWidthCm: null, gsm: null, defaultLossRate: null, supplier: "", unitPrice: null, purchaseUnit: "kg", createdAt: now, updatedAt: now }; };
 
-export function FabricLibraryPage({serverCandidate=false,onServerLogout}:SettingsPageProps={}) {
+export function FabricLibraryPage({serverCandidate=false,serverProduction=false,onServerLogout}:SettingsPageProps={}) {
   const can = usePermissionAuthority();
   const canManage = can("settings.fabric.edit");
   const { state, persist, reload, supplierOptions } = useBasicSettingsState();
@@ -305,7 +305,7 @@ export function FabricLibraryPage({serverCandidate=false,onServerLogout}:Setting
   };
   return <AppShell title="面料库" identityMode={serverCandidate?"server":"browser"}><PageContainer>
     <PageHeader eyebrow="MATERIAL LIBRARY" title="面料库" count={`${rows.length} 条`} description="同名面料可由不同供应商提供；系统使用稳定 ID 区分。段长、单耗和成本不会存入库。" primaryAction={<PermissionButton permission="settings.fabric.edit" onClick={() => { setError(""); openDraft(emptyFabric()); }}>＋ 新增面料</PermissionButton>} />
-    {serverCandidate&&<ServerCandidateNotice onLogout={onServerLogout}/>}
+    {serverCandidate&&<ServerCandidateNotice production={serverProduction} onLogout={onServerLogout}/>}
     <MasterDataToolbar query={query} onQuery={setQuery} resultCount={rows.length} placeholder="搜索名称、成分或供应商" />
     <Card className="qc-master-list"><DataTable rows={rows} columns={[
       { key: "name", header: "面料名称", width: 190, sticky: "left", responsivePriority: "primary", render: (item: FabricLibraryItem) => <span className="qc-master-identity"><strong>{item.name}</strong><small>{item.id}</small></span> },
@@ -324,7 +324,7 @@ export function FabricLibraryPage({serverCandidate=false,onServerLogout}:Setting
   </PageContainer></AppShell>;
 }
 
-export function TrimLibraryPage({serverCandidate=false,onServerLogout}:SettingsPageProps={}) {
+export function TrimLibraryPage({serverCandidate=false,serverProduction=false,onServerLogout}:SettingsPageProps={}) {
   const can = usePermissionAuthority();
   const canManage = can("settings.trim.edit");
   const { state, persist, reload, supplierOptions } = useBasicSettingsState();
@@ -351,7 +351,7 @@ export function TrimLibraryPage({serverCandidate=false,onServerLogout}:SettingsP
   };
   return <AppShell title="辅料库" identityMode={serverCandidate?"server":"browser"}><PageContainer>
     <PageHeader eyebrow="MATERIAL LIBRARY" title="辅料库" count={`${rows.length} 条`} description="同名辅料可由不同供应商提供；系统使用稳定 ID 区分。报价用量始终由具体报价填写。" primaryAction={<PermissionButton permission="settings.trim.edit" onClick={() => { setError(""); openDraft(createTrimLibraryDraft()); }}>＋ 新增辅料</PermissionButton>} />
-    {serverCandidate&&<ServerCandidateNotice onLogout={onServerLogout}/>}
+    {serverCandidate&&<ServerCandidateNotice production={serverProduction} onLogout={onServerLogout}/>}
     <MasterDataToolbar query={query} onQuery={setQuery} resultCount={rows.length} placeholder="搜索名称、规格或供应商" />
     <Card className="qc-master-list"><DataTable rows={rows} columns={[
       { key: "name", header: "辅料名称", width: 190, sticky: "left", responsivePriority: "primary", render: (item: TrimLibraryItem) => <span className="qc-master-identity"><strong>{item.name}</strong><small>{item.id}</small></span> },

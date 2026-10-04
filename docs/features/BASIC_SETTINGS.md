@@ -1,5 +1,7 @@
 # 基础设置
 
+> 2026-10-04 当前事实：正式四类基础设置及 `/system-settings/quote-settings` 在 `masterSettingsAuthority=server` 下读取 PostgreSQL，绝不回退 Browser Q3 Repository。真实 3001 已启用 Local Single-User；本分支修正式 Server 页面统一侧栏与“PostgreSQL 来源”提示，但尚未部署此 UI 修复。下文 Browser CRUD 描述属于 `authority=browser` 兼容路径或早期历史，不能用来判断当前正式数据来源。
+
 ## Purpose
 
 基础设置维护 Quote Center 使用的品牌、客户业务员、面料库、辅料库以及默认报价资料。它建立主数据与 Quote Revision 快照之间的边界。

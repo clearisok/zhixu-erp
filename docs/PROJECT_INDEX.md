@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 身份模式现状：D-093 已决定当前本地开发阶段改用显式 Local Single-User Mode；代码/测试 PR 尚未部署至真实 3001。下文关于 trusted session/RBAC 的表述保留为既有 schema/session-mode 历史与 service 权限边界，不代表仍需完成 B3/B3-R 登录验收。见 `CURRENT_STATE.md`、`features/SERVER_PERSISTENCE.md` 与 `features/PERMISSIONS.md`。
+> 身份模式现状：D-093 Local Single-User Mode 已部署至真实本机 3001，API/DB 只读验收通过；根路径登录与正式基础设置侧栏的 UI 修复尚未部署，Q3 final closure 暂缓。下文 trusted session/RBAC 说明保留为 schema/session-mode 历史与 service 权限边界，不代表仍需 B3/B3-R 登录验收。见 `CURRENT_STATE.md`、`features/SERVER_PERSISTENCE.md` 与 `features/PERMISSIONS.md`。
 
 ## 系统简介
 

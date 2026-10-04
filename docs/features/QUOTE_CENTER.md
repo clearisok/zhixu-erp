@@ -1,5 +1,7 @@
 # Quote Center
 
+> 当前 `/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有，Q3 master/default dependencies 在 `masterSettingsAuthority=server` 下来自 PostgreSQL。本轮 Local Single-User UI 修复仅将 `/` 在该身份模式下引至 `/quote-center` 并恢复统一侧栏；不迁移、重置、重新 seed 或改变既有 Quote 数据与 storage namespace，且尚未部署。
+
 ## Q2B2B isolated Server new Quote (not Browser cutover)
 
 - `/quote-center/server-new` uses `AppShell identityMode="server"`, trusted Server Session and scoped `quote.create`. It does not authorize through Browser PermissionProvider. The preview navigation entry is visible only with trusted `quote.create` and only navigates to the preparation page.
