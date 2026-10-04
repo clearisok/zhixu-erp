@@ -1,13 +1,13 @@
 # 当前状态
 
-> 状态快照：2026-10-04。下方较早 Gate 的“未开始/未授权”陈述是当时的历史快照，不代表当前状态。
+> 状态快照：2026-10-05。下方“历史 Gate 快照”的“未开始/未授权”陈述只记录当时状态，不代表当前状态或操作授权。
 
 ## 当前阶段
 
-- **D-093 Local Single-User Mode：真实 3001 已部署，API/数据库只读验收 PASS；UI closure 仍受阻。** 用户取消当前开发阶段账号密码/session/RBAC 登录验收与 Q3B2I-C2 B3/B3-R Gate；真实 3001 现为 `authority=server`、`identityMode=local-single-user`，只绑定本机端口。无 Cookie identity、54 权限、8 个 Q3 GET、57 行及 canonical hash 均通过；旧 3002/frozen 停止，旧 Server 容器停止保留。人工 UI 发现根路径仍呈现 legacy ERP 登录、正式 Basic Settings 的 Server 页面丢失完整侧栏；本分支仅修根路径 local-mode 跳转、统一导航与正式 Server 提示文案，**尚未部署该修复**，不得声明 Q3 final closure 或重开编辑。Browser Quote aggregate/localStorage 仍保留；本 Gate 不触碰真实数据库、Docker、Browser 业务数据。旧 auth schema/code dormant，未来多用户认证另立 Gate。
-- **Q3B2I-C2 Stage B2 已完成，B3/B3-R 登录验收已由 D-093 supersede。** 旧 B1 “handoff 尚未执行”和 Stage A “Stage B 未执行”均为历史快照，不得用作当前操作指令。
+- **Q3B2I-C2 = CLOSED / PASS；D-093 Local Single-User Mode = Active。** Stage A 单事务导入 `COMMITTED_PASS`，Stage B2 Server Authority handoff PASS；B3/B3-R 账号密码/Cookie/session 验收由 D-093 取代。PR #64 merged main `7658663038b1da504c95086711f627b6dce5c7a0` 的 UI 修复已部署：`zhixu-q3-local-single-user-ui-20261004t160656z` 在 `127.0.0.1:3001` RUNNING/healthy，`masterSettingsAuthority=server`、`identityMode=local-single-user`。用户已以真实浏览器回复“全部通过”：根路径进入 `/quote-center`、无旧登录、原 Browser 报价数据保留；正式品牌页 4 条、完整基础/系统及业务侧栏、其余三类基础设置页面和正式 PostgreSQL 来源文案均通过，用户权限入口隐藏。
+- **当前 Q3 authority / runtime。** 真实 `zhixu-database` RUNNING/healthy，migration 0001–0007 current、pending `0`、integrity valid；8/8 Q3 Server GET PASS，计数 `4/6/10/21/2/5/8/1` = `57`，canonical hash `b8cb63088ff343154f138f196930b2105c81d90ddc73485487867c3a2b2d0914`。Q3 master/settings 由 Server 持有，正式编辑已重新开放；Browser Q3 无 fallback。`preparesystem-server-1` / 3002 正常保持 STOPPED，不再作为当前 3001 的启动流程；旧 3001 容器停止保留。Quote aggregate、历史报价与附件仍归 Browser Repository/localStorage，未做 Quote historical migration 或 Server writer cutover。Local Single-User 仅限本机开发；LAN/WAN、香港服务器或多人使用前必须另行建立真实 authentication/authorization Gate。
 
-## 历史 Gate 快照（以下旧状态不得作为当前操作指令）
+## HISTORICAL / SUPERSEDED Gate 快照（以下旧状态不得作为当前操作指令）
 
 - **Q3B2I-C2 Stage B1 VerifyOnly engineering fix（未在真实环境重试）。** 唯一真实候选镜像已构建并通过 image label / compiled build-info 校验：`zhixu-q3-c2-server:20260930t030902z`，image ID `sha256:37375e0434754e2d8bf61226732d9d4e0d3c8f653e797f3e0e3a4cc530bfe104`，build ID `q3b2i-c2-20260930T030902Z-server`，product source 仍为 `cbe4d7f52d461f93eb4fce22c1550dbc5ed2330a`。B1 真实只读预检的 ledger、57 行/hash、关联/default、admin/RBAC 与 durable evidence 均通过，但 handoff `-VerifyOnly` 因 StrictMode 直接读取合法缺省的 `failure` 属性而 BLOCKED。此分支仅修复 operational script 的 optional-property 兼容并加入 disposable 回归测试；须审阅/合并后才可用新的 operational commit 重试真实 B1。真实 3001 仍为原 frozen static，3002 停止，PostgreSQL healthy；候选未运行，未执行 Execute、真实 login 或真实 Q3 business/master 写入。
 - **Q3B2I-C2 Stage A = COMMITTED_PASS；Stage B 尚未执行。** 真实 Q3 master/settings 导入已单事务提交并读回：brands/customerSalespeople/fabrics/trims/manufacturingPresets/brandDefaultTrims/salespersonDefaultTrims/globalSettings = `4/6/10/21/2/5/8/1`，合计 `57`。execution ID `q3-import-4cfff45a-40f6-4da0-86fc-eb51cf230980`；import evidence SHA-256 `183e14d1c0d2a0b8596a9e847cc297e8dedd63e51d05baddfdec30ccac199ba9`；projection/readback content hash `b8cb63088ff343154f138f196930b2105c81d90ddc73485487867c3a2b2d0914`；reviewed product source `cbe4d7f52d461f93eb4fce22c1550dbc5ed2330a`。真实 3001 仍是 frozen static，3002 writer 仍 STOPPED，PostgreSQL running/healthy；Browser Q3 editing 未重新开放，`authority=server` 未部署。C1 已 COMPLETE/PASS，不能把 Stage A 导入回写为“未执行”。
@@ -69,8 +69,8 @@
 
 ## 当前可运行边界
 
-- 根路径 ERP 已具备本地 Docker + PostgreSQL 的可运行形态。
-- Node server 可独立运行：DEV API 默认 `127.0.0.1:3100` 并由 3001 Vite 同源代理；Compose `server-foundation` profile 在 3002 提供 Node static + `/api/v1/*`。真实 `zhixu` 数据库现已启用 versioned migration ledger、511 单 SalesOrder bootstrap 与 Server RBAC；现有 admin 的 trusted session 已通过真实 API、Browser shadow UI、production `/order-center` list 与 C4.1 production detail 验收。Production base list/detail 均使用 trusted Server session + `order.view` 下的 PostgreSQL read model；`/order-center/server-preview` 继续保留为诊断入口，legacy 3000 runtime 暂时保留。
+- 旧根路径 ERP 组件仍保留本地 Docker + PostgreSQL 兼容能力；当前 Local Single-User 访问 `/` 会进入 `/quote-center`，不会显示旧登录。
+- 当前正常本机开发 runtime 是 `127.0.0.1:3001` 的 Local Single-User Server Authority Node 容器，连接 `zhixu-database`；`preparesystem-server-1` / 3002 保持停止。早期 `3001 Vite → 3002 Compose writer` 以及 trusted-admin session 的验收记录仅为历史拓扑，不是现行启动指引。真实 `zhixu` 已有 versioned migration ledger 与 511 单 SalesOrder bootstrap；Server service 仍保留细粒度 permission 检查与可信 OperationLog actor，当前开发身份由 Local Single-User `IdentityAuthority` 提供。正式 `/order-center` base list/detail 使用 PostgreSQL read model，`/order-center/server-preview` 是诊断入口；Quote aggregate 仍由 Browser 持有。
 
 ### Phase C4.2 — ConfirmedCommercialTerms Server Domain implementation
 

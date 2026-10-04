@@ -1,6 +1,6 @@
 # Quote Master / Settings 激活规划与 Q3B2H schema 执行记录
 
-> 2026-09-28：**Q3B2H CLOSED / PASS**。真实 PostgreSQL schema migration 0004–0007 和用户自行完成的 Windows/local Compose Node post-migration recovery 均已验收。本文件后续 Q3B2D–G 的“pending/未授权”描述保留为各阶段历史证据，不代表当前 ledger。此验收不是 Linux production deployment readiness，也不授权 master/settings import、Quote import、Browser authority cutover 或真实 restore。
+> 当前状态（2026-10-05）：**Q3B2I-C2 CLOSED / PASS**。Q3B2H 的 0004–0007 真实 schema activation、后续 Stage A master/settings import 与 Stage B2 Server Authority handoff 均已分别授权并完成；D-093 Local Single-User 与 PR #64 UI 已在本机 3001 验收，Q3 编辑重开。本文件下方 Q3B2D–H 及 C0/C1 的“pending/未授权/未来”仅为各阶段历史证据和当时计划，**不得**当作重新导入、重新切换或正常启动 3002 的指令。Quote aggregate 仍由 Browser 持有；此状态不代表 Linux production deployment 或未来多用户认证 ready，也不授权 Quote import/restore。
 
 ## Q3B2I-C0.3 pre-Execute proof closure — code/disposable only
 
