@@ -13,7 +13,7 @@ import {
   PageContainer,
   PageHeader,
 } from "@/components/foundation";
-import { ServerLoginCard, useServerSession } from "@/features/server-auth";
+import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
 import type { QuoteServerListItem, QuoteServerPage } from "../server/quote-server-client";
 import { quoteServerRepository } from "../server/quote-server-repository";
 import { classifyQuoteServerReadFailure, quoteServerReadErrorLabel } from "../server/quote-server-read-model";
@@ -117,7 +117,7 @@ export function ServerQuotePreviewPage() {
   if (permissionDenied || !serverSession.hasPermission("quote.view")) {
     return (
       <ServerQuoteFrame>
-        <AlertBanner tone="warning" title="当前 Server 账号没有报价查看权限" actions={<Button variant="secondary" onClick={() => void logout()}>退出 Server 会话</Button>}>
+        <AlertBanner tone="warning" title="当前 Server 账号没有报价查看权限" actions={<ServerLogoutAction variant="secondary" onLogout={() => void logout()} />}>
           已登录为 {trustedIdentity}；读取 Server Quote 需要 quote.view。
         </AlertBanner>
         {sessionActionError && <ErrorState description={sessionActionError} />}
@@ -128,7 +128,7 @@ export function ServerQuotePreviewPage() {
 
   return (
     <ServerQuoteFrame count={`本页 ${page.count} 条`}>
-      <AlertBanner tone="info" title="Shadow read · source = PostgreSQL" actions={<>{serverSession.hasPermission("quote.create") && <Link className="qc-server-quote-link" href="/quote-center/server-new">新建 Server 报价草稿</Link>}<Button variant="text" onClick={() => void logout()}>退出 Server 会话</Button></>}>
+      <AlertBanner tone="info" title="Shadow read · source = PostgreSQL" actions={<>{serverSession.hasPermission("quote.create") && <Link className="qc-server-quote-link" href="/quote-center/server-new">新建 Server 报价草稿</Link>}<ServerLogoutAction onLogout={() => void logout()} /></>}>
         Server identity：{trustedIdentity}。新建入口只导航到 lazy-create 准备页，不会在此处创建 Quote。
       </AlertBanner>
       {sessionActionError && <ErrorState description={sessionActionError} />}

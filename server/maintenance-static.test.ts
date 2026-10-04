@@ -9,13 +9,14 @@ import { assertMaintenanceEnvironment, createMaintenanceStaticApp } from "./main
 
 const identity = {
   gitCommit: "a".repeat(40), buildId: "synthetic-frozen", buildTime: "2026-09-29T00:00:00Z",
-  masterSettingsAuthority: "frozen" as const,
+  masterSettingsAuthority: "frozen" as const, identityMode: "session" as const,
 };
 const environment = {
   ZHIXU_GIT_COMMIT: identity.gitCommit,
   ZHIXU_BUILD_ID: identity.buildId,
   ZHIXU_BUILD_TIME: identity.buildTime,
   NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY: "frozen",
+  ZHIXU_IDENTITY_MODE: "session",
 };
 
 test("compiled authority must match runtime identity", async () => {
@@ -24,7 +25,10 @@ test("compiled authority must match runtime identity", async () => {
     await writeFile(join(directory, "build-info.json"), JSON.stringify(identity));
     assert.deepEqual(await assertRuntimeBuildIdentity(directory, "frozen", environment), identity);
     await assert.rejects(assertRuntimeBuildIdentity(directory, "frozen", { ...environment, NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY: "server" }), /runtime_compiled_build_identity_mismatch/u);
+    await assert.rejects(assertRuntimeBuildIdentity(directory, "frozen", { ...environment, ZHIXU_IDENTITY_MODE: "local-single-user" }), /runtime_compiled_build_identity_mismatch/u);
     await assert.rejects(assertRuntimeBuildIdentity(directory, "server", environment), /unexpected_compiled_authority/u);
+    await writeFile(join(directory, "build-info.json"), JSON.stringify({ ...identity, identityMode: "local-single-user" }));
+    assert.deepEqual(await assertRuntimeBuildIdentity(directory, "frozen", { ...environment, ZHIXU_IDENTITY_MODE: "local-single-user" }), { ...identity, identityMode: "local-single-user" });
     await writeFile(join(directory, "build-info.json"), JSON.stringify({ ...identity, masterSettingsAuthority: "invalid" }));
     await assert.rejects(assertRuntimeBuildIdentity(directory, "frozen", environment), /compiled_build_identity_invalid/u);
   } finally { await rm(directory, { recursive: true }); }

@@ -15,6 +15,7 @@ type ZhixuBuildInfo = {
   gitCommit: string;
   buildTime: string;
   masterSettingsAuthority: "browser" | "frozen" | "server";
+  identityMode: "session" | "local-single-user";
 };
 
 function buildMasterSettingsAuthority(): ZhixuBuildInfo["masterSettingsAuthority"] {
@@ -22,6 +23,13 @@ function buildMasterSettingsAuthority(): ZhixuBuildInfo["masterSettingsAuthority
   if (value === undefined || value === "" || value === "browser") return "browser";
   if (value === "frozen" || value === "server") return value;
   throw new Error("invalid_master_settings_authority_build_input");
+}
+
+function buildIdentityMode(): ZhixuBuildInfo["identityMode"] {
+  const value = process.env.NEXT_PUBLIC_ZHIXU_IDENTITY_MODE;
+  if (value === undefined || value === "" || value === "session") return "session";
+  if (value === "local-single-user") return value;
+  throw new Error("invalid_identity_mode_build_input");
 }
 
 function shanghaiTimestamp(date: Date): { buildId: string; buildTime: string } {
@@ -66,6 +74,7 @@ function createBuildInfo(command: "build" | "serve"): ZhixuBuildInfo {
     gitCommit: currentGitCommit(),
     buildTime: process.env.ZHIXU_BUILD_TIME?.trim() || generated.buildTime,
     masterSettingsAuthority: buildMasterSettingsAuthority(),
+    identityMode: buildIdentityMode(),
   };
 }
 
@@ -128,6 +137,7 @@ export default defineConfig(async ({ command }) => {
     define: {
       __ZHIXU_BUILD_INFO__: JSON.stringify(buildInfo),
       "process.env.NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY": JSON.stringify(buildInfo.masterSettingsAuthority),
+      "process.env.NEXT_PUBLIC_ZHIXU_IDENTITY_MODE": JSON.stringify(buildInfo.identityMode),
     },
     server: {
       proxy: {

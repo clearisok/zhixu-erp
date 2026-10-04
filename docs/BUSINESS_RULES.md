@@ -52,7 +52,13 @@
 - 3000 与 3001 是不同 Origin，默认不共享浏览器数据；复制验收数据必须使用显式备份/恢复。
 - 自动化测试只使用注入的 test namespace，不得清理或读写 DEV 浏览器数据。
 
-### 第一阶段账号与权限
+### 当前本地单用户开发身份（D-093）
+
+- 当前开发阶段的 Server Authority 使用显式 `local-single-user` 身份模式，不要求用户输入织序账号密码或持有 session cookie；其权限集合为完整 `PermissionKey` 目录。该模式不是生产多用户认证模型，不得在未经单独安全评审的公网部署中启用。
+- 所有 Server business service 仍通过可信 `TrustedIdentity`、权限键、事务和 OperationLog 边界工作；请求 body/header 不能选择 actor。现有 `app_users` 兼容行只承担审计 FK，不是当前登录账号。Legacy 根路径 ERP 登录不在本规则变更范围。
+- Browser Quote aggregate 暂仍由 mock Repository/localStorage 持有；当前 UI 隐藏 mock 测试用户切换和权限管理，相关历史记录与存储不清理。真实多用户认证未来另立 Gate。
+
+### 第一阶段账号与权限（历史 mock 模式；当前 UX 由 D-093 替代）
 
 - Quote Center mock 权限采用 User -> Role -> Permission；业务授权只判断稳定权限键，不判断角色名称。
 - 管理员默认拥有完整权限目录。

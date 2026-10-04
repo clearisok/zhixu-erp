@@ -1,6 +1,14 @@
 # Q3B2I-C master/settings maintenance and Server handoff runbook
 
-## Current gate state (2026-09-30)
+## Current superseding development decision (D-093, 2026-10-04)
+
+Q3B2I-C2 Stage B2 已将真实 3001 切至 Server Authority；旧 3002 writer 和 frozen container 保持停止/保留，真实 Q3 57 行/hash 已读回。Stage B3/B3-R 的 trusted-admin 登录/Cookie/session Gate 被用户取消，不能继续作为当前验收或重新开放编辑的门槛。下方 2026-09-30 及更早的“Stage B 尚未执行”“trusted session 必须验收”等段落是历史计划，不得照此重跑 import、handoff 或登录。
+
+下一独立 Gate 应审阅本地单用户 PR、构建 `authority=server` 且 `identityMode=local-single-user` 的新镜像，核对 image/build-info/runtime mode、精确容器与 loopback host-port，获得单独部署授权后才替换现有 3001。替换后验收 health、无 Cookie me/完整权限目录、8 个 Q3 GET、Basic Settings、Quote Editor dependencies、Quick Create/save-to-library Server wiring、无 Browser Q3 fallback，以及真实 Q3 57 行/hash/关联不变。不得在此代码 Gate 自动部署、恢复旧 3002、再次 import 或以本地单用户冒充生产认证；Quote aggregate 仍由 Browser 持有，Q3 编辑仍冻结至独立验收通过。
+
+旧 `Invoke-Q3ServerAuthorityHandoff.ps1` 的运行时变量 allowlist 为 session-mode handoff 设计，尚未传递新的身份模式与显式无认证确认；不能不经修改/复核就拿它替换当前 3001。下一部署 Gate 必须先独立审查 exact-target、loopback 绑定、build/runtime mode 与旧容器保留/回退边界。
+
+## Historical gate state (2026-09-30; superseded by B2 and D-093)
 
 C2 Stage B1 read-only preflight passed target identity, migration ledger, current 57-row canonical hash, FK/default checks, admin/RBAC readiness and durable evidence hashes. One `authority=server` candidate image was built and preserved: `sha256:37375e0434754e2d8bf61226732d9d4e0d3c8f653e797f3e0e3a4cc530bfe104` (`q3b2i-c2-20260930T030902Z-server`, build time `2026-09-30T03:09:02Z`). The real handoff `-VerifyOnly` **blocked** because StrictMode dereferenced an optional omitted `failure` property in valid COMMITTED import evidence; B0 tests had only used `failure: null`. An operational-script-only fix and synthetic omitted/null/non-null regression tests must be reviewed and merged before retrying B1 with its new operational commit. Do not alter the real import evidence or rebuild the existing candidate for this fix. The real 3001 frozen container and stopped 3002 writer were unchanged; no candidate runtime, real login, Execute or Q3 business/master write occurred.
 

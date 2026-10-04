@@ -1,8 +1,13 @@
 # 当前状态
 
-> 状态快照：2026-09-30。顶部为当前真实状态；下方较早 Gate 的“未开始/未授权”陈述是当时的历史快照，不代表当前状态。
+> 状态快照：2026-10-04。下方较早 Gate 的“未开始/未授权”陈述是当时的历史快照，不代表当前状态。
 
 ## 当前阶段
+
+- **D-093 Local Single-User Mode：代码/可丢弃数据库测试已完成，待 PR 审阅；真实 3001 尚未替换。** 用户取消当前开发阶段账号密码/session/RBAC 登录验收与 Q3B2I-C2 B3/B3-R Gate；Server 在显式无认证模式下提供单一可信本地身份和完整 PermissionKey，同时保留 service 权限、事务、Origin 防护及 OperationLog FK。旧 auth schema/code dormant，不清理。新模式不是公网生产认证；未来多用户认证另立 Gate。当前真实 3001 仍是此前 B2 的 Server Authority 镜像，3002/frozen 停止，Q3 master/settings 57 行/hash 保持既有基线；本代码 Gate 不部署、不 import、不重开编辑。下一步为独立部署及只读 acceptance 授权。
+- **Q3B2I-C2 Stage B2 已完成，B3/B3-R 登录验收已由 D-093 supersede。** 旧 B1 “handoff 尚未执行”和 Stage A “Stage B 未执行”均为历史快照，不得用作当前操作指令。
+
+## 历史 Gate 快照（以下旧状态不得作为当前操作指令）
 
 - **Q3B2I-C2 Stage B1 VerifyOnly engineering fix（未在真实环境重试）。** 唯一真实候选镜像已构建并通过 image label / compiled build-info 校验：`zhixu-q3-c2-server:20260930t030902z`，image ID `sha256:37375e0434754e2d8bf61226732d9d4e0d3c8f653e797f3e0e3a4cc530bfe104`，build ID `q3b2i-c2-20260930T030902Z-server`，product source 仍为 `cbe4d7f52d461f93eb4fce22c1550dbc5ed2330a`。B1 真实只读预检的 ledger、57 行/hash、关联/default、admin/RBAC 与 durable evidence 均通过，但 handoff `-VerifyOnly` 因 StrictMode 直接读取合法缺省的 `failure` 属性而 BLOCKED。此分支仅修复 operational script 的 optional-property 兼容并加入 disposable 回归测试；须审阅/合并后才可用新的 operational commit 重试真实 B1。真实 3001 仍为原 frozen static，3002 停止，PostgreSQL healthy；候选未运行，未执行 Execute、真实 login 或真实 Q3 business/master 写入。
 - **Q3B2I-C2 Stage A = COMMITTED_PASS；Stage B 尚未执行。** 真实 Q3 master/settings 导入已单事务提交并读回：brands/customerSalespeople/fabrics/trims/manufacturingPresets/brandDefaultTrims/salespersonDefaultTrims/globalSettings = `4/6/10/21/2/5/8/1`，合计 `57`。execution ID `q3-import-4cfff45a-40f6-4da0-86fc-eb51cf230980`；import evidence SHA-256 `183e14d1c0d2a0b8596a9e847cc297e8dedd63e51d05baddfdec30ccac199ba9`；projection/readback content hash `b8cb63088ff343154f138f196930b2105c81d90ddc73485487867c3a2b2d0914`；reviewed product source `cbe4d7f52d461f93eb4fce22c1550dbc5ed2330a`。真实 3001 仍是 frozen static，3002 writer 仍 STOPPED，PostgreSQL running/healthy；Browser Q3 editing 未重新开放，`authority=server` 未部署。C1 已 COMPLETE/PASS，不能把 Stage A 导入回写为“未执行”。

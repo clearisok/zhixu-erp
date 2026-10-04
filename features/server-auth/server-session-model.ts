@@ -1,5 +1,6 @@
 import type { PermissionKey } from "../permissions/model/permissions";
 import type { ServerSessionUser } from "./server-auth-client";
+import type { BrowserIdentityMode } from "./identity-mode";
 
 export type ServerSessionState =
   | { status: "checking"; user: null; permissions: readonly PermissionKey[]; error: null }
@@ -20,6 +21,13 @@ export const anonymousServerSession: ServerSessionState = {
   permissions: [],
   error: null,
 };
+
+export function enforceIdentityMode(state: ServerSessionState, mode: BrowserIdentityMode): ServerSessionState {
+  if (mode === "local-single-user" && state.status === "anonymous") {
+    return { status: "error", user: null, permissions: [], error: "本地单用户身份不可用；请检查 Server 配置。" };
+  }
+  return state;
+}
 
 export function authenticatedServerSession(
   user: ServerSessionUser,

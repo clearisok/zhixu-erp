@@ -6,6 +6,7 @@ export type RuntimeBuildIdentity = {
   buildId: string;
   buildTime: string;
   masterSettingsAuthority: "browser" | "frozen" | "server";
+  identityMode: "session" | "local-single-user";
 };
 
 /** Never let runtime configuration claim an authority other than the compiled bundle. */
@@ -22,7 +23,8 @@ export async function assertRuntimeBuildIdentity(
   if (typeof info.gitCommit !== "string" || !info.gitCommit ||
       typeof info.buildId !== "string" || !info.buildId ||
       typeof info.buildTime !== "string" || !info.buildTime ||
-      !["browser", "frozen", "server"].includes(String(info.masterSettingsAuthority))) {
+      !["browser", "frozen", "server"].includes(String(info.masterSettingsAuthority)) ||
+      !["session", "local-single-user"].includes(String(info.identityMode))) {
     throw new Error("compiled_build_identity_invalid");
   }
   for (const [key, actual] of [
@@ -30,6 +32,7 @@ export async function assertRuntimeBuildIdentity(
     ["ZHIXU_BUILD_ID", info.buildId],
     ["ZHIXU_BUILD_TIME", info.buildTime],
     ["NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY", info.masterSettingsAuthority],
+    ["ZHIXU_IDENTITY_MODE", info.identityMode],
   ] as const) {
     if (environment[key] !== actual) throw new Error("runtime_compiled_build_identity_mismatch");
   }

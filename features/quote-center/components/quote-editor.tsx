@@ -930,6 +930,7 @@ export function QuoteEditor({ initialQuote, isNew = false }: { initialQuote: Quo
   const q3AuthorityNotice = q3Authority === "browser" ? null : <AlertBanner tone="warning" title={q3Authority === "frozen" ? "基础资料迁移维护中" : "基础资料来自 PostgreSQL"}>{q3Authority === "frozen" ? "Browser 基础资料只读；报价聚合仍保存在 Browser。" : "品牌、业务员、面辅料库和报价默认值来自可信 Server；报价聚合仍保存在 Browser。"}</AlertBanner>;
 
   if (q3Authority === "server" && serverSession.status === "anonymous") return <AppShell title="Server 基础资料登录"><PageContainer><ServerLoginCard description="登录后读取 PostgreSQL 基础资料；不会回退到 Browser 设置。" /></PageContainer></AppShell>;
+  if (q3Authority === "server" && serverSession.status === "error") return <AppShell title="Server 基础资料不可用"><PageContainer><ErrorState title="无法确认 Server 身份" description={serverSession.error} onRetry={() => void serverSession.refresh()} /></PageContainer></AppShell>;
   if (q3Authority === "server" && serverSession.status !== "authenticated") return <AppShell title="Server 基础资料"><PageContainer><LoadingState label="确认 Server 会话" /></PageContainer></AppShell>;
   if (q3Authority === "server" && !serverSession.hasPermission("quote.view")) return <AppShell title="Server 基础资料"><PageContainer><ErrorState permission title="Server 权限不足" description="需要 quote.view 才能读取报价基础资料。" /></PageContainer></AppShell>;
   if (masterStatus === "error") return <AppShell title="基础资料不可用"><PageContainer><ErrorState title="基础资料读取失败" description={masterError} /></PageContainer></AppShell>;
@@ -1132,6 +1133,7 @@ export function QuoteNewLoader() {
     });
   }, [authority, session]);
   if (authority === "server" && session.status === "anonymous") return <AppShell title="Server 基础资料登录"><PageContainer><ServerLoginCard description="登录后从 PostgreSQL 读取新报价默认资料。" /></PageContainer></AppShell>;
+  if (authority === "server" && session.status === "error") return <AppShell title="Server 基础资料不可用"><PageContainer><ErrorState title="无法确认 Server 身份" description={session.error} onRetry={() => void session.refresh()} /></PageContainer></AppShell>;
   if (authority === "server" && session.status === "authenticated" && !session.hasPermission("quote.view")) return <AppShell title="Server 基础资料"><PageContainer><ErrorState permission title="Server 权限不足" description="读取新报价默认资料需要 quote.view。" /></PageContainer></AppShell>;
   if (error) return <AppShell title="新建报价不可用"><PageContainer><ErrorState title="Server 默认资料读取失败" description={error} /></PageContainer></AppShell>;
   if (!quote) return <AppShell title="新建报价" backTarget={{ href: "/quote-center", label: "返回报价中心" }}><PageContainer><div className="loading-screen qc-inline-loading"><div className="loading-mark">纫</div><strong>正在准备报价草稿</strong><span /></div></PageContainer></AppShell>;

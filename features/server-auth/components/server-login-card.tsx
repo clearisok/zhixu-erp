@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Button, Card, FormItem } from "@/components/foundation";
 import { ServerAuthError } from "../server-auth-client";
 import { useServerSession } from "./server-session-provider";
+import { browserIdentityMode } from "../identity-mode";
 
 function loginErrorMessage(error: unknown): string {
   if (error instanceof ServerAuthError) return error.message;
@@ -40,6 +41,10 @@ export function ServerLoginCard({
       setSubmitting(false);
     }
   };
+
+  if (browserIdentityMode() === "local-single-user") {
+    return <Card className="server-login-card"><h2>本地单用户身份不可用</h2><p>请检查 Server 身份模式；当前不提供账号密码登录。</p></Card>;
+  }
 
   return (
     <Card className="server-login-card">

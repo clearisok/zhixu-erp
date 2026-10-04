@@ -1,5 +1,9 @@
 # 权限系统
 
+> 当前开发模式（D-093）：显式 Local Single-User Mode 为每个 Server 请求提供同一可信技术身份和完整 `PermissionKey` catalog，不要求织序账号/密码/Cookie。旧 Server Session/RBAC 与 Browser mock 用户界面说明是 session-mode/历史行为，不再构成当前 Q3 验收门禁；旧 schema 和服务权限检查仍保留。新模式尚未部署至真实 3001。
+
+本地单用户 UI 不呈现登录表单、logout、Browser 测试用户切换或用户权限管理入口；直接打开旧管理路由只显示模式说明。Browser Quote aggregate 仍为 mock Repository，不能因此声称已完成 Quote writer cutover。Server service 的细粒度权限校验和可信 OperationLog actor 不被删除。未来正式多用户认证需要独立设计/验收，不将本模式扩展为生产安全模型。
+
 ## Q3A/Q3B1 Quote master/settings Server authority
 
 Q3A/Q3B1 reuse the existing catalog without a new super-permission. Reads use endpoint-specific any-of authorization: Brands allow `quote.view|settings.brand.edit|settings.salesperson.edit`; CustomerSalespeople allow `quote.view|settings.salesperson.edit`; Fabrics allow `quote.view|settings.fabric.edit`; Trims allow `quote.view|settings.trim.edit|settings.brand.edit|settings.salesperson.edit`; supplier suggestions allow `quote.view|settings.fabric.edit|settings.trim.edit`; global settings/presets allow `quote.view|settings.global.edit`; resolved defaults remain `quote.view`. Mutations still require the exact owning settings-edit permission.
@@ -36,9 +40,9 @@ C4.2 reuses the existing catalog without adding a super-permission: Order terms 
 
 为 Quote Center 与基础设置提供可扩展的前端 RBAC 框架。第一阶段验证账号、角色、权限目录和 UI 权限反馈；它不替代未来服务端认证与授权。
 
-PostgreSQL Server Persistence Phase 1 已增加可信 server RBAC foundation，但尚未把浏览器业务 API 切到服务器。前端 mock 仍只负责当前 UI 状态；生产授权以 server session + PostgreSQL role/permission relationship 为准。
+历史 Phase 1 建立了可信 Server Session/RBAC foundation；这些关系和 API 在 session 兼容模式继续存在。当前本地开发模式以 D-093 的 `IdentityAuthority` 为身份来源，完整 PermissionKey 仍在 Server service 侧逐操作检查；下面的 mock 用户说明是早期 UI 模式，不是当前登录前置条件。
 
-## Current behavior
+## Historical Browser mock/session behavior (not local single-user UX)
 
 - 权限关系为 `User.roleId -> Role.permissions[]`，业务组件只判断权限键，不判断角色名称。
 - 默认测试账号为管理员 `admin`、报价员 `quote.operator`、查看员 `viewer`。

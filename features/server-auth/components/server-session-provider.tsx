@@ -12,9 +12,11 @@ import {
 } from "react";
 import type { PermissionKey } from "../../permissions/model/permissions";
 import { ServerAuthError, serverAuthClient, type ServerAuthClient } from "../server-auth-client";
+import { browserIdentityMode } from "../identity-mode";
 import {
   anonymousServerSession,
   checkingServerSession,
+  enforceIdentityMode,
   serverSessionHasPermission,
   type ServerSessionState,
 } from "../server-session-model";
@@ -35,6 +37,7 @@ type ServerSessionContextValue = ServerSessionState & {
 const ServerSessionContext = createContext<ServerSessionContextValue | null>(null);
 
 function safeRestoreError(error: unknown): string {
+  if (browserIdentityMode() === "local-single-user") return "本地单用户身份不可用；请检查 Server 配置。不会回退到登录或 Browser 权限。";
   if (error instanceof ServerAuthError) return error.message;
   return "无法确认织序 Server 登录状态，请稍后重试。";
 }
@@ -54,7 +57,7 @@ export function ServerSessionProvider({
     setState(checkingServerSession);
     try {
       const next = await restoreServerSession(client);
-      if (operation.current === currentOperation) setState(next);
+      if (operation.current === currentOperation) setState(enforceIdentityMode(next, browserIdentityMode()));
     } catch (error) {
       if (operation.current === currentOperation) {
         setState({ status: "error", user: null, permissions: [], error: safeRestoreError(error) });
@@ -65,7 +68,7 @@ export function ServerSessionProvider({
   useEffect(() => {
     const currentOperation = ++operation.current;
     void restoreServerSession(client).then(
-      (next) => { if (operation.current === currentOperation) setState(next); },
+      (next) => { if (operation.current === currentOperation) setState(enforceIdentityMode(next, browserIdentityMode())); },
       (error: unknown) => {
         if (operation.current === currentOperation) {
           setState({ status: "error", user: null, permissions: [], error: safeRestoreError(error) });
@@ -76,6 +79,7 @@ export function ServerSessionProvider({
   }, [client]);
 
   const login = useCallback(async (username: string, password: string) => {
+    if (browserIdentityMode() === "local-single-user") throw new Error("Login is disabled in local single-user mode");
     const currentOperation = ++operation.current;
     try {
       const next = await loginServerSession(client, username, password);
@@ -87,6 +91,7 @@ export function ServerSessionProvider({
   }, [client]);
 
   const logout = useCallback(async () => {
+    if (browserIdentityMode() === "local-single-user") throw new Error("Logout is disabled in local single-user mode");
     const currentOperation = ++operation.current;
     const next = await logoutServerSession(client);
     if (operation.current === currentOperation) setState(next);
@@ -94,7 +99,7 @@ export function ServerSessionProvider({
 
   const invalidate = useCallback(() => {
     operation.current += 1;
-    setState(anonymousServerSession);
+    setState(enforceIdentityMode(anonymousServerSession, browserIdentityMode()));
   }, []);
 
   const value = useMemo<ServerSessionContextValue>(() => ({

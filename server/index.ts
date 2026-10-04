@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { createApp } from "./app.js";
 import { assertRuntimeBuildIdentity } from "./build-identity.js";
 import { bootstrapAdmin } from "./auth/bootstrap.js";
+import { createIdentityAuthority } from "./auth/identity-authority.js";
 import { synchronizePermissionCatalog } from "./auth/permissions.js";
 import { loadServerConfig } from "./config.js";
 import { closeDatabasePool, createDatabasePool } from "./db/pool.js";
@@ -14,6 +15,7 @@ const pool = createDatabasePool({
   connectionString: config.databaseUrl,
   max: config.databasePoolMax,
 });
+const identityAuthority = createIdentityAuthority(pool, config.identityMode);
 
 let server: ReturnType<typeof createServer> | null = null;
 let shuttingDown = false;
@@ -36,8 +38,8 @@ async function shutdown(signal: string): Promise<void> {
 try {
   await initializeServer({
     verifyMigrations: () => verifyMigrationsCurrent(pool, config.migrationsDirectory),
-    synchronizePermissions: () => synchronizePermissionCatalog(pool),
-    bootstrapAdmin: () => bootstrapAdmin(pool, config.bootstrapAdmin),
+    synchronizePermissions: () => config.identityMode === "session" ? synchronizePermissionCatalog(pool) : Promise.resolve(),
+    bootstrapAdmin: () => config.identityMode === "session" ? bootstrapAdmin(pool, config.bootstrapAdmin) : identityAuthority.verify(),
     listen: async () => {
       server = createServer(createApp({
         pool,
@@ -47,6 +49,7 @@ try {
           sessionTtlSeconds: config.sessionTtlSeconds,
         },
         staticDirectory: config.staticDirectory,
+        identityAuthority,
       }));
       await new Promise<void>((resolve, reject) => {
         const onError = (error: Error) => reject(error);
@@ -56,6 +59,7 @@ try {
           process.stdout.write(`${JSON.stringify({
             event: "server_listening",
             environment: config.environment,
+            identityMode: config.identityMode,
             host: config.host,
             port: config.port,
           })}\n`);
