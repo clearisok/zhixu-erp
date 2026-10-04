@@ -70,6 +70,10 @@ function authorizeReplacement(actor: TrustedIdentity, before: ServerQuote, after
   for (const nextRevision of after.revisions) {
     const previousRevision = before.revisions.find((revision) => revision.revisionId === nextRevision.revisionId);
     if (!previousRevision) continue;
+    if (!isDeepStrictEqual(
+      [previousRevision.imageAttachmentIds, previousRevision.fileAttachmentIds, previousRevision.styleImageAttachmentId],
+      [nextRevision.imageAttachmentIds, nextRevision.fileAttachmentIds, nextRevision.styleImageAttachmentId],
+    )) throw new HttpError(409, "quote_attachment_command_required", "Use the dedicated attachment command API");
     const previousIds = previousRevision.priceVersions.map((version) => version.id);
     const nextIds = nextRevision.priceVersions.map((version) => version.id);
     if (nextIds.some((id) => !previousIds.includes(id))) requirePermission(actor.permissions, "quote.price_version.create");
@@ -137,6 +141,21 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
         afterVersion: mutation.after.version,
       },
     });
+    // A new Revision inherits relationship rows in the repository transaction.
+    // Each inherited link must retain the same trusted audit boundary.
+    const oldIds = new Set(mutation.before?.quote.revisions.map((revision) => revision.revisionId) ?? []);
+    for (const revision of mutation.after.quote.revisions) {
+      if (oldIds.has(revision.revisionId)) continue;
+      for (const attachmentId of [...revision.imageAttachmentIds, ...revision.fileAttachmentIds]) {
+        await appendOperationLog(client, actor, {
+          module: "报价中心", action: "关联附件", entityType: "Attachment", entityId: attachmentId,
+          quoteId: mutation.after.quote.id,
+          context: { revisionId: revision.revisionId },
+          beforeData: null,
+          afterData: { attachmentId, values: { revisionId: revision.revisionId } },
+        });
+      }
+    }
   };
 
   return {

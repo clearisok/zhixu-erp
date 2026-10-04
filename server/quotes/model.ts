@@ -9,12 +9,18 @@ function requireInvariant(condition: unknown, message: string): asserts conditio
   if (!condition) throw new QuoteInvariantError(message);
 }
 function unique(ids: string[]) { requireInvariant(ids.every((id) => typeof id === "string" && id.length > 0) && new Set(ids).size === ids.length, "Invalid or duplicate owner-scoped identity"); }
+export function isWritableDefaultRevision(
+  quote: { defaultRevisionId: string; revisions: Array<{ revisionId: string; readOnly: boolean }> },
+  revisionId: string,
+): boolean {
+  return quote.defaultRevisionId === revisionId && quote.revisions.some((revision) => revision.revisionId === revisionId && !revision.readOnly);
+}
 export function validateQuote(quote: ServerQuote): void {
   requireInvariant(typeof quote.id === "string" && quote.id.length > 0, "Quote identity required");
   requireInvariant(quote.revisions.length > 0, "Revision required");
   unique(quote.revisions.map((r) => r.revisionId));
   const defaultRevision = quote.revisions.find((r) => r.revisionId === quote.defaultRevisionId);
-  requireInvariant(defaultRevision && !defaultRevision.readOnly, "Writable default Revision required");
+  requireInvariant(defaultRevision && isWritableDefaultRevision(quote, defaultRevision.revisionId), "Writable default Revision required");
   if (quote.currentRevisionId !== undefined) requireInvariant(quote.revisions.some((r) => r.revisionId === quote.currentRevisionId), "Invalid legacy revision pointer");
   for (const revision of quote.revisions) {
     requireInvariant(revision.revisionId === quote.defaultRevisionId || revision.readOnly, "Historical Revision must be read-only");

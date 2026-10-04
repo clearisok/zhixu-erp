@@ -70,12 +70,12 @@ test("Q3A Quote master/settings foundation uses disposable PostgreSQL 16 only",{
   t.after(async()=>{await pool.end();await postgres.stop();});
 
   await t.test("0001 through 0007 apply, rerun skips, checksum and pending guards hold",async()=>{
-    assert.deepEqual((await runMigrations(pool,resolve("database/migrations"))).applied,migrations);
-    assert.deepEqual((await runMigrations(pool,resolve("database/migrations"))).skipped,migrations);
     const checksumDir=await copyMigrations(migrations);
     const pendingDir=await copyMigrations(migrations.slice(0,-1));
     const pendingPool=new pg.Pool({connectionString:await postgres.createDatabase("q3a_pending")});
     try{
+      assert.deepEqual((await runMigrations(pool,checksumDir)).applied,migrations);
+      assert.deepEqual((await runMigrations(pool,checksumDir)).skipped,migrations);
       await runMigrations(pendingPool,pendingDir);
       assert.deepEqual((await inspectMigrationStatus(pendingPool,checksumDir)).pending,["0007_quote_master_settings.sql"]);
       await assert.rejects(()=>verifyMigrationsCurrent(pendingPool,checksumDir),(error:unknown)=>error instanceof PendingMigrationsError&&error.pending[0]==="0007_quote_master_settings.sql");

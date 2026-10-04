@@ -1,6 +1,6 @@
 # AI 接力棒
 
-> 2026-10-05 当前接力：Q3B2I-C2 **CLOSED / PASS**。PR #64 UI 修复已在真实本机 3001 部署并经用户真实浏览器确认“全部通过”；Q3 master/settings 为 Server authority，编辑已重新开放。D-093 Local Single-User 仍 Active，B3/B3-R 已被取代；3002 保持停止，Quote aggregate 仍 Browser-owned。以下旧 Gate 状态为历史快照，不得作为重做 import/handoff 的指令。
+> 2026-10-05 当前接力：Q3B2I-C2 **CLOSED / PASS**；Q4A Server Attachment Foundation 已工程实现并仅用 disposable PostgreSQL/fake storage 验证，真实 0008 未执行、生产 provider 未选、未部署。PR #64 UI 修复已在真实本机 3001 部署并经用户真实浏览器确认“全部通过”；Q3 master/settings 为 Server authority，编辑已重新开放。D-093 Local Single-User 仍 Active，B3/B3-R 已被取代；3002 保持停止，Quote aggregate/现有附件仍 Browser-owned。以下旧 Gate 状态为历史快照，不得作为重做 import/handoff 的指令。
 
 ## Repository
 
@@ -13,7 +13,8 @@
 
 ## Current Engineering State
 
-- **2026-10-05 current:** GitHub main `7658663038b1da504c95086711f627b6dce5c7a0`（PR #64 merged）运行于 `zhixu-q3-local-single-user-ui-20261004t160656z`，仅绑定 `127.0.0.1:3001`，healthy；模式为 `masterSettingsAuthority=server`、`identityMode=local-single-user`。用户真实浏览器确认 root → `/quote-center`、无 legacy 登录、原 Browser Quote 数据保留、四类正式基础设置与统一侧栏正常、4 个品牌、无 production “Server candidate”文案、用户权限隐藏。8/8 Q3 Server GET、54/54 权限、57 行与 canonical hash `b8cb63088ff343154f138f196930b2105c81d90ddc73485487867c3a2b2d0914` PASS；0001–0007 ledger current。Stage A `COMMITTED_PASS`、B2 handoff PASS，Q3B2I-C2 CLOSED / PASS，Q3 编辑已重开。`zhixu-database` healthy，旧 `preparesystem-server-1` / 3002 停止。后续可继续业务开发；Quote historical migration / Server ownership 另立 Gate，本次文档收口不执行 runtime/DB/Docker/import/restore。Local Single-User 不得用于 LAN/WAN/香港服务器/多人场景，届时须重新建立真实 authentication/authorization Gate。
+- **Q4A 未激活 foundation：** `database/migrations/0008_quote_attachments.sql`、`server/attachments/` 与 Q4A disposable integration test；新 Server Revision 附件命令复用 `quote.view`/`quote.edit`、TrustedIdentity 与 same-transaction bounded OperationLog。关系表为权威，Quote JSON 附件数组为事务镜像，通用 PUT 禁止直接改引用；storage 需要显式注入生产 adapter，默认 fail closed。未选 Object Storage vendor，未执行真实 0008/部署/Quote 或 Browser 附件迁移。先读 `docs/features/ATTACHMENTS.md` 和实际代码；Q4B/Q5 各需独立 Gate。
+- **2026-10-05 current:** Q4A base main `8f1eb288e3c3803076663d951ef4b4a663b53189`；真实 3001 仍运行 PR #64 来源的 `zhixu-q3-local-single-user-ui-20261004t160656z`，仅绑定 `127.0.0.1:3001`，healthy；模式为 `masterSettingsAuthority=server`、`identityMode=local-single-user`。用户真实浏览器确认 root → `/quote-center`、无 legacy 登录、原 Browser Quote 数据保留、四类正式基础设置与统一侧栏正常、4 个品牌、无 production “Server candidate”文案、用户权限隐藏。8/8 Q3 Server GET、54/54 权限、57 行与 canonical hash `b8cb63088ff343154f138f196930b2105c81d90ddc73485487867c3a2b2d0914` PASS；真实库 0001–0007 ledger current。Stage A `COMMITTED_PASS`、B2 handoff PASS，Q3B2I-C2 CLOSED / PASS，Q3 编辑已重开。`zhixu-database` healthy，旧 `preparesystem-server-1` / 3002 停止。Quote historical migration / Server ownership 另立 Gate；Q4A 未执行 runtime/DB/Docker/import/restore。Local Single-User 不得用于 LAN/WAN/香港服务器/多人场景，届时须重新建立真实 authentication/authorization Gate。
 
 ### Historical checkpoints — not current action instructions
 

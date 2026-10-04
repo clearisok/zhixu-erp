@@ -2,6 +2,8 @@
 
 > 当前开发阶段（D-093，2026-10-05）：Q3B2I-C2 CLOSED / PASS。PR #64 本地单用户根路径/统一侧栏修复已部署至真实本机 3001，API、数据库与用户真实浏览器验收通过；Q3 master/settings authority 为 Server、编辑已重开。以下早期 Trusted Session 描述是历史/session-mode 兼容，不是当前 B3/B3-R 登录验收门禁。
 
+Q4A foundation 新增待激活的 `0008_quote_attachments.sql` 与 Server Attachment API。正常启动仍只读核验 migration，真实库只有 0001–0007 时，含 0008 的代码若部署会在 pending 处 fail closed；本任务**不部署、不在真实库应用 0008**。未注入 production object-storage adapter 时附件 API 返回 503，不会落到本地文件或 Browser IndexedDB。详见 `ATTACHMENTS.md`。
+
 ## Local Single-User Mode (development only)
 
 `ZHIXU_IDENTITY_MODE=local-single-user` 加 `ZHIXU_LOCAL_SINGLE_USER_ACK=I_UNDERSTAND_NO_AUTH` 才启用无登录模式；缺省仍为 `session`，非 loopback Browser origin 拒绝。`Dockerfile.server` 将模式同时编入前端 `build-info.json`、镜像 label 和 Node runtime；production startup 校验 compiled/runtime 一致。真实当前容器仅绑定 `127.0.0.1:3001`；任何后续替换仍须重新核对精确 host-port，不能把此模式当作公网生产认证。
@@ -48,6 +50,7 @@ Browser
 - `GET /api/v1/quotes`、`GET /api/v1/quotes/:quoteId`（需要 `quote.view`）
 - `POST /api/v1/quotes`（需要 `quote.create`；runtime body 只能是 `{}`，ID/code/timestamps/actor 由 Server 决定）
 - `PUT /api/v1/quotes/:quoteId`（全 aggregate replacement，要求 `quote.edit`、`expectedVersion`，并按实际变化追加现有细粒度权限）
+- Q4A：`GET|POST /api/v1/quotes/:quoteId/revisions/:revisionId/attachments`、`GET|PATCH|DELETE /.../attachments/:attachmentId`、`GET /.../:attachmentId/download`、`POST /.../:attachmentId/link`、`PUT /.../attachments/style-image`；只在显式注入 object-storage adapter 的 Server 上可用，未生产激活。
 - `GET|POST /api/v1/quote-masters/brands` 与 `GET|PATCH /api/v1/quote-masters/brands/:id`
 - `GET|POST /api/v1/quote-masters/customer-salespeople` 与 `GET|PATCH /api/v1/quote-masters/customer-salespeople/:id`
 - `GET|POST /api/v1/quote-masters/fabrics|trims` 与对应 `GET|PATCH /:id`，以及只读 supplier suggestions
@@ -58,11 +61,11 @@ Browser
 
 ConfirmedCommercialTerms mutation 使用 decimal string + `expectedVersion` typed body，要求 normal trusted cookie、exact allowlisted Origin 与 `X-Zhixu-Request: 1`。未知字段（包括 actor/user/role spoof）拒绝为 400；stale version 为 409。Quote provenance 未关联时 read 返回显式 `unlinked`，write fail closed 为 409，绝不 fuzzy match 或创建 SalesOrder。
 
-Q2A/Q2B2B Quote create/save 复用 Q1 repository，POST/PUT 还要求 exact Origin 与 `X-Zhixu-Request: 1`。Runtime POST 只接受 `{}`，由 Server transaction 分配 UUID、`quoteCode`、neutral draft 和 trusted OperationLog；Q1 exact aggregate create remains internal for future migration. PUT 是完整 aggregate replacement，不是任意字段 SQL PATCH；stale、历史 Revision/Estimate mutation 或 `quoteCode` mutation 返回 409。DTO 保留 decimal string、stable IDs、null/zero。成功 mutation 与一条 bounded Quote OperationLog 同 transaction 提交；审计失败回滚 Quote，但 sequence 的已消费值不回收。没有 DELETE、附件 binary、master transfer 或 Browser cutover。
+Q2A/Q2B2B Quote create/save 复用 Q1 repository，POST/PUT 还要求 exact Origin 与 `X-Zhixu-Request: 1`。Runtime POST 只接受 `{}`，由 Server transaction 分配 UUID、`quoteCode`、neutral draft 和 trusted OperationLog；Q1 exact aggregate create remains internal for future migration. PUT 是完整 aggregate replacement，不是任意字段 SQL PATCH；stale、历史 Revision/Estimate mutation 或 `quoteCode` mutation 返回 409。Q4A 后，已有 Revision 附件 ID 变化必须走专用附件命令，通用 PUT 不能绕开关系表。DTO 保留 decimal string、stable IDs、null/zero。成功 mutation 与 bounded Quote OperationLog 同 transaction 提交；审计失败回滚 Quote，但 sequence 的已消费值不回收。仍无 Quote DELETE、Browser cutover；Q4A binary API 是独立待激活 foundation。
 
 Q3A master/settings reads require trusted `quote.view`; mutations map exactly to existing `settings.global/brand/salesperson/fabric/trim.edit` permissions and never authorize by role name. POST does not accept caller identity; PATCH uses `expectedVersion`. Business decimals are PostgreSQL NUMERIC and HTTP strings. Every actual master/settings write and bounded audit event share one transaction; the audit uses an explicit business-field allowlist, preserves decimal strings and null/zero, and records stable-ID DefaultTrimConfig add/remove/order/override detail. Audit failure rolls back the business row. The APIs do not read Browser repositories and do not mutate Quote aggregates or SalesOrders.
 
-Migration `0007_quote_master_settings.sql` is schema-only: it creates no real settings seed/import. It enforces normalized Brand/Salesperson uniqueness, permits duplicate material names, stores one nullable default other cost per supported owner and excludes quantity/usage from authoritative DefaultTrimConfig. All Q3A activation evidence is disposable PostgreSQL only; real 0007 is NOT EXECUTED.
+Migration `0007_quote_master_settings.sql` is schema-only: it creates no settings seed/import by itself. It enforces normalized Brand/Salesperson uniqueness, permits duplicate material names, stores one nullable default other cost per supported owner and excludes quantity/usage from authoritative DefaultTrimConfig. Q3A's original evidence was disposable-only; later Q3B2I-C2 separately activated real 0007, imported master/settings and switched formal authority to Server. That later activation does not imply Quote aggregate cutover or authorize Q4A 0008.
 
 ## Q2B2B Quote numbering and runtime create
 

@@ -31,6 +31,22 @@ export async function readJsonBody(request: IncomingMessage, maxBytes = MAX_JSON
   }
 }
 
+export async function readBinaryBody(request: IncomingMessage, maxBytes: number): Promise<Buffer> {
+  const declared = Number(request.headers["content-length"]);
+  if (Number.isFinite(declared) && declared > maxBytes) {
+    throw new HttpError(413, "payload_too_large", "Request body is too large");
+  }
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const chunk of request) {
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    size += buffer.length;
+    if (size > maxBytes) throw new HttpError(413, "payload_too_large", "Request body is too large");
+    chunks.push(buffer);
+  }
+  return Buffer.concat(chunks, size);
+}
+
 export function assertMutationBoundary(request: IncomingMessage, allowedOrigins: readonly string[]): void {
   if (request.headers["x-zhixu-request"] !== "1") {
     throw new HttpError(403, "request_boundary_required", "Trusted request header is required");
