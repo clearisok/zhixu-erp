@@ -1,12 +1,12 @@
 # Q3B2I-C master/settings maintenance and Server handoff runbook
 
-## Current superseding development decision (D-093, 2026-10-04)
+## Current closure (D-093, 2026-10-05)
 
-Q3B2I-C2 Stage B2 已将真实 3001 切至 Server Authority，之后独立授权部署了 `identityMode=local-single-user`；其 health、无 Cookie 身份/54 权限、8 个 Q3 GET、57 行/hash 只读验收通过。旧 3002 writer 和 frozen container 保持停止/保留。用户人工 UI 发现根路径仍显示 legacy 登录、正式基础设置 Server 页面侧栏缺失；本分支仅修 UI，**尚未部署**，不得宣称 Q3 final closure。Stage B3/B3-R trusted-admin 登录/Cookie/session Gate 已取消。下方 2026-09-30 及更早的“Stage B 尚未执行”“trusted session 必须验收”等段落是历史计划，不得照此重跑 import、handoff 或登录。
+**Q3B2I-C2 = CLOSED / PASS。** Stage A 为 `COMMITTED_PASS`，Stage B2 Server Authority handoff PASS；B3/B3-R trusted-admin 登录/Cookie/session Gate 已被 Active D-093 取代。PR #64 merged main `7658663038b1da504c95086711f627b6dce5c7a0` 的 UI 修复已部署为 `zhixu-q3-local-single-user-ui-20261004t160656z`：真实 `127.0.0.1:3001` RUNNING/healthy，仅 loopback，`masterSettingsAuthority=server`、`identityMode=local-single-user`。用户真实浏览器回复“全部通过”：`/` 自动进入 `/quote-center`、无 legacy 登录、原 Browser Quote 数据仍在；品牌页 4 条、基础/系统及业务侧栏完整、其他正式基础设置页正常、无 production “Server candidate”文案，用户权限入口隐藏。
 
-下一独立 Gate 应审阅并合并本 UI 修复，重新构建 `authority=server` 且 `identityMode=local-single-user` 的镜像，核对 image/build-info/runtime mode、精确容器与 loopback host-port，并获得单独部署授权后才替换现有 3001。验收须覆盖根路径无登录跳转、正式基础/系统设置统一导航和数据、Quote Browser aggregate 不变、Quote Editor Q3 dependencies、Quick Create/save-to-library Server wiring、无 Browser Q3 fallback，以及真实 Q3 57 行/hash/关联不变。本代码 Gate 不部署、恢复旧 3002、再次 import 或以本地单用户冒充生产认证；Q3 编辑仍冻结至独立验收通过。
+无 Cookie identity / 54 权限、8/8 Q3 Server GET、计数 `4/6/10/21/2/5/8/1` = `57` 与 canonical hash `b8cb63088ff343154f138f196930b2105c81d90ddc73485487867c3a2b2d0914` 均 PASS；真实 `zhixu-database` RUNNING/healthy，0001–0007 current、pending `0`、integrity valid。旧 `preparesystem-server-1` / 3002 正常保持 STOPPED，不用旧 3002 Compose 启动命令恢复日常服务。Q3 master/settings 正式 authority 是 Server，编辑已重新开放；Browser Q3 不回退。Quote aggregate 仍由 Browser Repository/localStorage 持有，Quote historical migration/Server ownership 另立阶段。Local Single-User 仅供本机开发；LAN/WAN、香港服务器或多人使用前必须另立真实 authentication/authorization Gate。
 
-旧 `Invoke-Q3ServerAuthorityHandoff.ps1` 的运行时变量 allowlist 为 session-mode handoff 设计，尚未传递新的身份模式与显式无认证确认；不能不经修改/复核就拿它替换当前 3001。下一部署 Gate 必须先独立审查 exact-target、loopback 绑定、build/runtime mode 与旧容器保留/回退边界。
+**HISTORICAL / SUPERSEDED：** 以下 C0/C1/B0/B1 清单与旧 `Invoke-Q3ServerAuthorityHandoff.ps1` 的 session-mode 手续保留作追溯，不是当前 3001 启动、再次导入或重新交接的操作指令。当前 3001 的 PR #64 部署已独立验收；本 docs-only closure 不操作 runtime、Docker、数据库、import 或 restore。
 
 ## Historical gate state (2026-09-30; superseded by B2 and D-093)
 
@@ -14,7 +14,7 @@ C2 Stage B1 read-only preflight passed target identity, migration ledger, curren
 
 C1 completed and C2 Stage A import is **COMMITTED_PASS**. The real PostgreSQL Q3 count vector is `4/6/10/21/2/5/8/1` (`57` total) in brands, customer salespeople, fabrics, trims, presets, brand default trims, salesperson default trims and global settings. Stage A execution ID is `q3-import-4cfff45a-40f6-4da0-86fc-eb51cf230980`; import evidence SHA-256 is `183e14d1c0d2a0b8596a9e847cc297e8dedd63e51d05baddfdec30ccac199ba9`; projection/readback content hash is `b8cb63088ff343154f138f196930b2105c81d90ddc73485487867c3a2b2d0914`. Product source reviewed for import was `cbe4d7f52d461f93eb4fce22c1550dbc5ed2330a`. Real 3001 remains frozen static, old 3002 writer stopped, PostgreSQL running/healthy, editing closed. **C2 Stage B has not run**; B0 work is code/disposable validation only. The older C0/C1 plans below are historical and must not be re-executed as if the import had not happened.
 
-## C2 Stage B0 engineering contract — not real deployment authorization
+## Historical C2 Stage B0 engineering contract — superseded operational plan
 
 `scripts/Invoke-Q3ServerAuthorityHandoff.ps1` has `-VerifyOnly` and a separately confirmed `-Execute`. The operational script commit may advance, but the Server image must still report the separately pinned product source `cbe4d7f52d461f93eb4fce22c1550dbc5ed2330a` in image labels, compiled build-info and runtime. Any application source change needs a new review; do not silently promote the B0 commit. The script binds exact Server image ID/build ID/time/authority, frozen container full ID/image/StartedAt/restart count/origin, stopped old writer full ID/image, DB container/project/volume/network/name/fingerprint, import evidence file SHA-256/execution ID/counts/hash, and a new Git-ignored post-import evidence location. VerifyOnly reads only; Execute requires its own confirmation, operator and authorization reference. The test-only health-failure switch is restricted to disposable project/tmpfs and non-production ports.
 
@@ -32,13 +32,13 @@ Q3B2I-C0 FINAL RE-PREFLIGHT passed read-only on 2026-09-29 against reviewed `mai
 - `server/maintenance-static.ts` serves only `dist/client` plus `/maintenance-health` without importing Server DB config, creating a pool, verifying migrations, syncing permissions or bootstrapping admin. `/api/*` returns 503, with no HTML fallback. It rejects DB/admin environment keys and requires the compiled frozen identity. `scripts/Invoke-Q3MaintenanceStaticHandoff.ps1` supports `-VerifyOnly` and separately confirmed `-Execute`: it binds explicit image ID/revision/build ID/time and Browser origin/port, then stops only the verified writer and starts a standalone static container from the **same image ID**, on Docker `bridge` rather than the PostgreSQL Compose network, without DB env or mounts. It re-verifies the frozen build on the same origin after handoff. It does **not** weaken `Assert-ZhixuWritersFrozen` or restart the writer automatically on failure.
 - The handoff was exercised only with randomly named disposable containers and a tmpfs PostgreSQL 16 database without a host PostgreSQL port or production volume/network. This is an engineering test, **not** a real frozen deployment or proof that a particular Browser profile is authoritative. Source/rehearsal/import guards include the new static and handoff paths; a new reviewed code commit is required. The older Q3B2I-B commit `e92df9279376cd5e74f10abf95dcef2f70f687ac` must not be reused as `ExpectedImportSourceCommit` after these changes.
 
-## Operational checks for a separately authorized C1
+## Historical operational checks for C1 — completed window, not current instructions
 
 1. The user has attested the authoritative Chrome origin `http://127.0.0.1:3001` and profile label `Chrome-authoritative`. The live origin/build and fresh export's `origin`, `environment`, `namespace` (`zhixu.erp.local`) and `schemaVersion` (`13`) must still be checked in the actual window; do not inspect Chrome private storage to re-prove the profile. The 2026-09-22 backup is not a final source.
 2. The user selected `D:\OneDrive\Zhixu-ERP\Evidence\Q3B2I-C` for the second D-091 evidence copy. C0.3 implements a strict pre-execute bundle copier and destination readback hash check, tested only with disposable paths. Real OneDrive target-directory creation, copy and custody remain future authorized C1 operations. Never place the raw Browser backup or PostgreSQL dump in this evidence bundle, and never commit credentials or secrets.
 3. The observed topology was split: 3001 had been a Windows-host `vinext dev` frontend proxying API to the independent 3002 Compose DB writer; at final C0 inspection, 3001 was offline while 3002 remained healthy. Dev/HMR cannot be the freeze artifact. The colocated same-image handoff is **not** the split procedure. A frozen full-commit image, 3001 replacement and independent 3002 stop remain unexecuted and require separate C1 authorization. Final 3001 server-authority deployment belongs only after a separately authorized import/readback Gate.
 
-## Split-topology C1 plan — not authorized
+## Historical split-topology C1 plan — completed window, not current instructions
 
 For the current 3001/3002 site, use this plan instead of the colocated checklist's handoff step. The actual operator must provide full 40-character reviewed commit, image ID, build ID/time, exact target fingerprint, explicit Docker identities and separate confirmations. Never kill an arbitrary Windows PID from an operator script.
 
@@ -48,7 +48,7 @@ For the current 3001/3002 site, use this plan instead of the colocated checklist
 4. While 3001 static remains online and 3002 stopped, export the fresh standard Browser backup from the attested Chrome profile. Frozen export reads existing Q3 envelopes without initialization/seed/migration. Then run the existing canonical Preview, isolated rehearsal, new post-freeze exact-target dump+manifest and guarded `-VerifyOnly` with `-ExpectedFrontendTopology split`. VerifyOnly checks writers frozen on both fresh target inspections, the post-freeze rollback manifest and dump timestamp, and the read-only import runner. Prepare/copy/verify the D-091 pre-execute evidence bundle to the independent OneDrive destination and require destination readback hash PASS. **STOP before Execute** and seek new authorization.
 5. After a separately authorized successful import/readback, a reviewed `authority=server` Node image may replace the 3001 frozen static at the **same origin**, with the old 3002 writer remaining stopped. This is a future cutover, not part of C1; it must pass trusted session/RBAC, Server-only master/default/Quick Create/saving smoke without Browser Q3 fallback. Quote aggregate remains Browser-owned.
 
-## Colocated C1 ordered checklist — planning only, not the current 3001/3002 topology
+## Historical colocated C1 checklist — not the current 3001/3002 topology
 
 Each item below requires a separately authorized maintenance window. Record UTC times and safe IDs, not credentials or raw customer data. Any failed condition stops the window with Browser master/settings frozen until a separately authorized recovery decision.
 

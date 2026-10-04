@@ -1,6 +1,6 @@
 # 基础设置
 
-> 2026-10-04 当前事实：正式四类基础设置及 `/system-settings/quote-settings` 在 `masterSettingsAuthority=server` 下读取 PostgreSQL，绝不回退 Browser Q3 Repository。真实 3001 已启用 Local Single-User；本分支修正式 Server 页面统一侧栏与“PostgreSQL 来源”提示，但尚未部署此 UI 修复。下文 Browser CRUD 描述属于 `authority=browser` 兼容路径或早期历史，不能用来判断当前正式数据来源。
+> 2026-10-05 当前事实：Q3B2I-C2 CLOSED / PASS。正式四类基础设置及 `/system-settings/quote-settings` 在真实 3001 的 `masterSettingsAuthority=server` 下读取/编辑 PostgreSQL，绝不回退 Browser Q3 Repository；编辑已重新开放。PR #64 的 Local Single-User 统一侧栏与正式“PostgreSQL 来源”文案已部署并经用户浏览器验收（品牌 4 条，其他三类页面正常）。下文 Browser CRUD 描述属于 `authority=browser` 兼容路径或历史，不是当前正式数据来源。
 
 ## Purpose
 
@@ -108,19 +108,19 @@
 
 覆盖名称唯一性、重复物料名、品牌归属、默认优先级、override、快照隔离和个人列表偏好等规则。
 
-## Q3B2A source audit boundary
+## Historical Q3B2A source audit boundary (pre-cutover)
 
 - Production Browser authority 仍由 `basic-settings-repository.ts` 的 stable `basic-settings` record 与 `quote-settings.ts` 的 stable `quote-global-settings` record 构成；默认 namespace 下实际 keys 为 `zhixu.erp.local.basic-settings` 与 `zhixu.erp.local.quote-global-settings`。两者均使用 local-data `{ schemaVersion, initializedAt, updatedAt, data }` envelope，当前 schemaVersion 为 13。
 - Basic Settings 仍接受 `zhixu.basic-settings.v1.5` / `v1.3`，Global Quote Settings 仍接受 `zhixu.quote-center.global-settings.v1`；repository load 会 normalization、过滤或补默认，因此 migration preview 必须检查 backup 的原始 envelope data，不能先调用 runtime normalizer 而掩盖 duplicate/dangling/legacy evidence。
 - Browser numeric business values是 JSON number 或 `null`；目标 Q3A NUMERIC boundary 是 canonical decimal string 或 `null`。preview 仅以 `String(number)` + canonical exponent expansion 做无舍入 projection，非法、负数或非 finite 值列入 blocker，显式 `0` 与 `null` 分别计数并保留。
 - `0007_quote_master_settings.sql` 的 TEXT PK 明确允许未来受控 import 保留 Browser stable IDs；日常 candidate 新建仍由 Server 生成 UUID。DefaultTrim ID 的 collision 按 owner scope 判断；不同实体表之间相同文本 ID 不被误判为冲突。
 
-## Known gaps
+## Historical Q3 gaps and remaining independent domains
 
-- Q3B1 已完成隔离 candidate UI/Quick Trim 接线，Q3B2B 的真实 backup 只读 Preview 与 Q3B2C 的 disposable PostgreSQL import rehearsal 已完成；Q3B2D 已记录未执行的 activation/import runbook，Q3B2E 完成早期真实 DB 只读 preflight。真实 0007 activation、真实 master/settings import、production cutover 与 Quote Editor master integration 仍未执行；下一 Gate 的真实 backup/restore drill 和随后每次真实执行均须另获授权。
+- 历史 Q3B1/B2A–E 的 candidate/Preview/rehearsal/只读 preflight 已由后续 0007 activation、Stage A import、Stage B2 handoff、D-093 与 PR #64 UI 验收收口；这些早期“未执行/下一 Gate”陈述不得用于重新启动 Q3 导入。当前 Q3 master/settings 正式 Server authority 与编辑已验收。未来 Quote aggregate 的历史迁移/Server ownership 仍是独立 Gate。
 - Q4 attachment authority、Q5 data preview/import 与 Q6 production activation 仍是单独 gates。
 
-- 浏览器 localStorage 不支持真实多用户并发和服务端唯一约束；当前权限系统也仅是前端 mock RBAC，不是服务端安全边界。
+- Browser Quote aggregate/localStorage 仍不提供真实多用户并发；Q3 Server mutation 已有服务端权限、optimistic version 与可信审计，但当前 Local Single-User 身份仅适用于本机开发，不是未来多用户认证方案。
 - 当前没有 Supplier 主数据。
 - 与根路径 ERP 的客户/用户/供应商资料未整合。
 - 真实后端落地时需要明确迁移旧 localStorage 数据还是仅以其为原型。

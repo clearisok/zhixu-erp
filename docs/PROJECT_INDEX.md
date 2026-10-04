@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 身份模式现状：D-093 Local Single-User Mode 已部署至真实本机 3001，API/DB 只读验收通过；根路径登录与正式基础设置侧栏的 UI 修复尚未部署，Q3 final closure 暂缓。下文 trusted session/RBAC 说明保留为 schema/session-mode 历史与 service 权限边界，不代表仍需 B3/B3-R 登录验收。见 `CURRENT_STATE.md`、`features/SERVER_PERSISTENCE.md` 与 `features/PERMISSIONS.md`。
+> 当前开发运行态：Q3B2I-C2 CLOSED / PASS。PR #64 的 Local Single-User UI 修复已部署至真实本机 `127.0.0.1:3001` 并经用户真实浏览器验收；Q3 master/settings 为 Server authority 且编辑已重开，旧 3002 保持停止。D-093 Active、B3/B3-R 已被取代；Quote aggregate 仍由 Browser 持有。下文 trusted session/RBAC 与旧 Gate 描述如无另行标注均为历史/session-mode 兼容，不是当前登录或部署指引。见 `CURRENT_STATE.md`、`features/Q3B2I_CUTOVER_RUNBOOK.md`。
 
 ## 系统简介
 
@@ -66,7 +66,7 @@
 | --- | --- | --- |
 | 根路径 ERP、登录、报价/订单/排单 | `features/LEGACY_ERP.md` | `app/page.tsx`、`database/001_schema.sql`、根目录 `docker-serve.sh` |
 | Quote Center | `features/QUOTE_CENTER.md` | `app/quote-center/`、`features/quote-center/` |
-| Quote production、Server migration 与 progressive rollout | `features/QUOTE_PRODUCTION.md`、`features/QUOTE_CUTOVER_READINESS.md`、`features/QUOTE_MASTER_SETTINGS_ACTIVATION.md`、`features/Q3B2I_CUTOVER_RUNBOOK.md`、`features/QUOTE_CENTER.md`、`features/DATA_LIFECYCLE.md`、`features/ATTACHMENTS.md`、`features/SERVER_PERSISTENCE.md`、`features/PERMISSIONS.md` | Route B、当前 Server foundation、Q2B2C production-cutover dependency map，以及 Q3B2I-C0 blocked preflight / C1 draft runbook；实现事实仍以 Quote/Server/master/attachment 代码和测试为准 |
+| Quote production、Server migration 与 progressive rollout | `features/QUOTE_PRODUCTION.md`、`features/QUOTE_CUTOVER_READINESS.md`、`features/QUOTE_MASTER_SETTINGS_ACTIVATION.md`、`features/Q3B2I_CUTOVER_RUNBOOK.md`、`features/QUOTE_CENTER.md`、`features/DATA_LIFECYCLE.md`、`features/ATTACHMENTS.md`、`features/SERVER_PERSISTENCE.md`、`features/PERMISSIONS.md` | Route B、Server foundation、Q2B2C Quote aggregate cutover dependency map，以及 Q3B2I-C2 已完成的 master/settings Server authority；C0/C1 runbook 为历史执行证据，实现事实仍以 Quote/Server/master/attachment 代码和测试为准 |
 | 新订单中心、报价转订单、翻单、交期、订单价格历史与 PostgreSQL SalesOrder foundation/bootstrap/shadow read | `features/ORDER_CENTER.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`、`features/SALES_ORDER_BROWSER_CUTOVER.md`、`features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`、`features/SERVER_PERSISTENCE.md`、`features/OPERATIONS_FOUNDATION.md`、`features/DATA_LIFECYCLE.md` | Browser runtime：`app/order-center/`、`features/order-center/`；server foundation/read：`server/sales-orders/`、`features/order-center/server/`、`features/ainuoke-sync/service/sales-order-final-bootstrap-preview.ts`、`features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts`、`database/migrations/0002_sales_order_foundation.sql`、`0003_sales_order_number_sequence.sql` |
 | 生产队列、排单中心、物料运输、订单预警与交期风险 | `features/PRODUCTION_SCHEDULING.md`、`features/ORDER_CENTER.md`、`features/OPERATIONS_FOUNDATION.md`、`features/PERMISSIONS.md` | `app/production-scheduling/`、`features/production-scheduling/`、`tests/production-scheduling.test.mjs` |
 | 款式进度、面辅料跟进、逐物料物流与真实 Excel 导入 | `features/STYLE_PROGRESS.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/DATA_LIFECYCLE.md` | `app/order-center/style-progress/`、`features/style-progress/`、`tests/style-progress.test.mjs` |

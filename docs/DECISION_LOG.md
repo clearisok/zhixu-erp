@@ -21,9 +21,9 @@
 ### D-093 Development phase uses a local single-user identity; real authentication is deferred
 
 - 日期：2026-10-04；状态：Active、临时开发架构决定；用户明确确认。此决定取代当前开发阶段 Q3B2I-C2 B3/B3-R 的登录/Cookie/session 验收要求，不是生产安全模型。
-- 本地 Server Authority 必须显式选择 `ZHIXU_IDENTITY_MODE=local-single-user`，确认无认证风险，并限制 Browser origin 为 loopback。编译产物 `build-info.json` 与运行时模式必须一致；默认 `session`，缺少显式选择不会暗中开启无认证模式。真实 3001 已部署本地模式；根路径及正式基础设置统一侧栏的 UI 修复仍待独立部署验收，不构成 Q3 final closure。
+- 本地 Server Authority 必须显式选择 `ZHIXU_IDENTITY_MODE=local-single-user`，确认无认证风险，并限制 Browser origin 为 loopback。编译产物 `build-info.json` 与运行时模式必须一致；默认 `session`，缺少显式选择不会暗中开启无认证模式。执行状态（2026-10-05）：真实 3001 已部署 PR #64 根路径/正式基础设置统一侧栏修复并通过用户真实浏览器验收，Q3B2I-C2 CLOSED / PASS；本条架构决定保持 Active。
 - 每个请求由单一 Server `IdentityAuthority` 提供同一个 `TrustedIdentity` 与完整 `PermissionKey` 目录。`app_users` 既有 admin 行只作为 OperationLog 非空 FK 的技术兼容 actor，公开身份显示“本地开发用户”，不暴露为登录账号，也不要求密码或 session。业务 service 的权限、事务、Origin/`X-Zhixu-Request` 与可信 actor 边界保留；body/header 不能提供 actor。
-- 当前 UI 不提供账号密码登录、logout、测试账号切换或用户权限管理入口。旧 `app_users`/`app_sessions`/RBAC schema 与 session 实现保留为 dormant compatibility infrastructure，不清理真实数据或 migration 历史；未来正式多用户认证须独立重新设计、实施和验收。Legacy 根路径 ERP 登录不在本决定范围，Browser Quote aggregate 仍由 Browser Repository 持有。
+- 当前 UI 不提供账号密码登录、logout、测试账号切换或用户权限管理入口。旧 `app_users`/`app_sessions`/RBAC schema 与 session 实现保留为 dormant compatibility infrastructure，不清理真实数据或 migration 历史；未来正式多用户认证须独立重新设计、实施和验收。旧根路径 ERP 登录组件保留供非本地身份模式兼容；Local Single-User 的 `/` 已跳转 `/quote-center`，Browser Quote aggregate 仍由 Browser Repository 持有。
 - D-076 的 Node/PostgreSQL/migration/逐领域切换与 OperationLog 完整性仍有效；其中“当前必须由 trusted session 派生 actor”仅对旧 session 模式及历史 Gate 有效。D-026 的 Browser mock 账号切换只保留兼容代码/历史数据，不再是当前 local-single-user UX。
 - 证据：`server/auth/identity-authority.ts`、`server/config.ts`、`server/app.ts`、`server/index.ts`、`vite.config.ts`、`features/server-auth/`、`features/permissions/components/permission-provider.tsx` 与 disposable PostgreSQL/前端测试。
 

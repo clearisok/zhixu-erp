@@ -1,6 +1,6 @@
 # Quote Center
 
-> 当前 `/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有，Q3 master/default dependencies 在 `masterSettingsAuthority=server` 下来自 PostgreSQL。本轮 Local Single-User UI 修复仅将 `/` 在该身份模式下引至 `/quote-center` 并恢复统一侧栏；不迁移、重置、重新 seed 或改变既有 Quote 数据与 storage namespace，且尚未部署。
+> 2026-10-05：`/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有；Q3 master/default dependencies 在真实 3001 的 `masterSettingsAuthority=server` 下来自 PostgreSQL，Q3 编辑已重开。PR #64 Local Single-User UI 修复已部署：`/` 自动进入 `/quote-center`、统一侧栏恢复；用户真实浏览器确认原 Quote 数据保留。此收口没有迁移、重置、重新 seed 或改变 Quote storage namespace；Quote historical migration/Server ownership 另立 Gate。
 
 ## Q2B2B isolated Server new Quote (not Browser cutover)
 

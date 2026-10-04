@@ -1,6 +1,6 @@
 # 权限系统
 
-> 当前开发模式（D-093）：显式 Local Single-User Mode 已部署至真实本机 3001，提供同一可信技术身份和完整 `PermissionKey` catalog，不要求织序账号/密码/Cookie。旧 Server Session/RBAC 与 Browser mock 用户界面说明是 session-mode/历史行为，不再构成当前 Q3 验收门禁；旧 schema 和服务权限检查仍保留。根路径旧登录与正式基础设置侧栏的 UI 修复仍待独立部署验收。
+> 当前开发模式（D-093）：显式 Local Single-User Mode 与 PR #64 UI 修复已部署至真实本机 3001，用户真实浏览器验收通过；同一可信技术身份拥有完整 54 项 `PermissionKey` catalog，不要求织序账号/密码/Cookie。Q3B2I-C2 CLOSED / PASS，Q3 master/settings 为 Server authority、编辑已重开。旧 Server Session/RBAC 与 Browser mock 用户界面说明是 session-mode/历史行为；旧 schema 和服务权限检查仍保留。此模式只限本机开发，未来 LAN/WAN/香港服务器/多人使用须另建真实 authentication/authorization Gate。
 
 本地单用户 UI 不呈现登录表单、logout、Browser 测试用户切换或用户权限管理入口；直接打开旧管理路由只显示模式说明。Browser Quote aggregate 仍为 mock Repository，不能因此声称已完成 Quote writer cutover。Server service 的细粒度权限校验和可信 OperationLog actor 不被删除。未来正式多用户认证需要独立设计/验收，不将本模式扩展为生产安全模型。
 
@@ -8,7 +8,7 @@
 
 Q3A/Q3B1 reuse the existing catalog without a new super-permission. Reads use endpoint-specific any-of authorization: Brands allow `quote.view|settings.brand.edit|settings.salesperson.edit`; CustomerSalespeople allow `quote.view|settings.salesperson.edit`; Fabrics allow `quote.view|settings.fabric.edit`; Trims allow `quote.view|settings.trim.edit|settings.brand.edit|settings.salesperson.edit`; supplier suggestions allow `quote.view|settings.fabric.edit|settings.trim.edit`; global settings/presets allow `quote.view|settings.global.edit`; resolved defaults remain `quote.view`. Mutations still require the exact owning settings-edit permission.
 
-The isolated Q3B1 candidate pages bind foundation permission controls to `ServerSession.hasPermission()` via `PermissionAuthorityProvider`; Browser roles cannot authorize a Server mutation. 401 invalidates the Server session, while 403/network fail closed without Browser fallback. Production Basic Settings routes remain Browser-owned and unchanged until a later authorized cutover.
+Historically, isolated Q3B1 candidate pages bound foundation permission controls to `ServerSession.hasPermission()` via `PermissionAuthorityProvider`; Browser roles could not authorize a Server mutation. In session mode, 401 invalidates the Server session; 403/network failures have no Browser fallback. After Q3B2I-C2, formal Basic/Global Settings routes use Server authority with no Browser Q3 fallback. D-093 local identity replaces the current login/Cookie requirement without removing Server permission checks or trusted actor boundaries.
 
 ## Q2B2B Server Quote create authority
 

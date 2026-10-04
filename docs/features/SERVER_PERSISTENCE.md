@@ -1,12 +1,14 @@
 # PostgreSQL Server Persistence Foundation
 
-> 当前开发阶段变更（D-093，2026-10-04）：本地单用户身份已部署至真实本机 3001，API/DB 只读验收通过；根路径与统一侧栏的 UI 修复仍待独立部署验收。以下早期 Trusted Session 描述保留为历史/session-mode 兼容说明，不再是 Q3B2I-C2 B3/B3-R 的当前验收门禁。
+> 当前开发阶段（D-093，2026-10-05）：Q3B2I-C2 CLOSED / PASS。PR #64 本地单用户根路径/统一侧栏修复已部署至真实本机 3001，API、数据库与用户真实浏览器验收通过；Q3 master/settings authority 为 Server、编辑已重开。以下早期 Trusted Session 描述是历史/session-mode 兼容，不是当前 B3/B3-R 登录验收门禁。
 
 ## Local Single-User Mode (development only)
 
 `ZHIXU_IDENTITY_MODE=local-single-user` 加 `ZHIXU_LOCAL_SINGLE_USER_ACK=I_UNDERSTAND_NO_AUTH` 才启用无登录模式；缺省仍为 `session`，非 loopback Browser origin 拒绝。`Dockerfile.server` 将模式同时编入前端 `build-info.json`、镜像 label 和 Node runtime；production startup 校验 compiled/runtime 一致。真实当前容器仅绑定 `127.0.0.1:3001`；任何后续替换仍须重新核对精确 host-port，不能把此模式当作公网生产认证。
 
-`server/auth/identity-authority.ts` 是单一请求身份来源。本地模式从现有 active `app_users.username=admin` 行只读取得内部 FK/public UUID；该行只是兼容 actor，不提供登录、不读取密码、不创建 session，也不作为未来正式用户模型。公开身份为 `local-single-user` / “本地开发用户”，权限来自完整代码 `PERMISSION_KEYS`。缺少兼容行时启动 fail closed；不会 bootstrap 或修改 `app_users`。Runtime POST login/logout 返回 404，GET me/permissions 无 Cookie 即可使用。服务/仓库仍按 `TrustedIdentity`、`requirePermission`、Origin 与 `X-Zhixu-Request` 处理写入，OperationLog actor 继续使用非空 FK 与快照；禁止 caller actor。旧 auth/schema/session 代码保留但在此模式 dormant。Legacy 根路径 ERP 登录不在范围。
+当前正常本机开发服务是 `zhixu-q3-local-single-user-ui-20261004t160656z`（3001，RUNNING/healthy），连接 `zhixu-database`（RUNNING/healthy）；`preparesystem-server-1` / 3002 正常保持 STOPPED，不应使用旧 3002 Compose 启动命令恢复日常服务。真实 PostgreSQL migration 0001–0007 current、pending `0`、integrity valid，Q3 Server read 8/8 与 57 行/hash 验收通过。Local Single-User 仅限本机开发；LAN/WAN、香港服务器或多人使用前须另行设计、实施、验收真实 authentication/authorization。
+
+`server/auth/identity-authority.ts` 是单一请求身份来源。本地模式从现有 active `app_users.username=admin` 行只读取得内部 FK/public UUID；该行只是兼容 actor，不提供登录、不读取密码、不创建 session，也不作为未来正式用户模型。公开身份为 `local-single-user` / “本地开发用户”，权限来自完整代码 `PERMISSION_KEYS`。缺少兼容行时启动 fail closed；不会 bootstrap 或修改 `app_users`。Runtime POST login/logout 返回 404，GET me/permissions 无 Cookie 即可使用。服务/仓库仍按 `TrustedIdentity`、`requirePermission`、Origin 与 `X-Zhixu-Request` 处理写入，OperationLog actor 继续使用非空 FK 与快照；禁止 caller actor。旧 auth/schema/session 代码保留但在此模式 dormant。旧根路径 ERP 登录组件仍留给非本地模式；本地单用户访问 `/` 自动进入 `/quote-center`。
 
 ## Purpose
 
