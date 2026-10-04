@@ -4,6 +4,7 @@ export type BuildInfo = {
   gitCommit: string;
   buildTime: string;
   masterSettingsAuthority: "browser" | "frozen" | "server";
+  identityMode: "session" | "local-single-user";
 };
 
 declare const __ZHIXU_BUILD_INFO__: BuildInfo;

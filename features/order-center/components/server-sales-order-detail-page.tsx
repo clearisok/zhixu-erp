@@ -18,7 +18,7 @@ import {
   PageHeader,
   StatusTag,
 } from "@/components/foundation";
-import { ServerLoginCard, useServerSession } from "@/features/server-auth";
+import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
 import {
   ConfirmedCommercialTermsServerError,
   confirmedCommercialTermsServerClient,
@@ -253,7 +253,7 @@ export function ServerSalesOrderDetailPage() {
         <AlertBanner
           tone="warning"
           title="当前 Server 账号没有订单查看权限"
-          actions={<Button variant="secondary" onClick={() => void logout()}>退出 Server 会话</Button>}
+          actions={<ServerLogoutAction variant="secondary" onLogout={() => void logout()} />}
         >
           已登录为 {trustedIdentity}；读取详情需要 order.view 权限。
         </AlertBanner>

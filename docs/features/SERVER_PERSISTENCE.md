@@ -1,8 +1,16 @@
 # PostgreSQL Server Persistence Foundation
 
+> 当前开发阶段变更（D-093，2026-10-04）：本地单用户身份代码已实现、仅在 disposable PostgreSQL 验证，尚未替换真实 3001。以下早期 Trusted Session 描述保留为历史/session-mode 兼容说明，不再是 Q3B2I-C2 B3/B3-R 的当前验收门禁。
+
+## Local Single-User Mode (development only)
+
+`ZHIXU_IDENTITY_MODE=local-single-user` 加 `ZHIXU_LOCAL_SINGLE_USER_ACK=I_UNDERSTAND_NO_AUTH` 才启用无登录模式；缺省仍为 `session`，非 loopback Browser origin 拒绝。`Dockerfile.server` 将模式同时编入前端 `build-info.json`、镜像 label 和 Node runtime；production startup 校验 compiled/runtime 一致。下一独立部署 Gate 还必须证明 Docker host port 仅绑定 `127.0.0.1:3001`，不得把此模式当成公网生产认证。
+
+`server/auth/identity-authority.ts` 是单一请求身份来源。本地模式从现有 active `app_users.username=admin` 行只读取得内部 FK/public UUID；该行只是兼容 actor，不提供登录、不读取密码、不创建 session，也不作为未来正式用户模型。公开身份为 `local-single-user` / “本地开发用户”，权限来自完整代码 `PERMISSION_KEYS`。缺少兼容行时启动 fail closed；不会 bootstrap 或修改 `app_users`。Runtime POST login/logout 返回 404，GET me/permissions 无 Cookie 即可使用。服务/仓库仍按 `TrustedIdentity`、`requirePermission`、Origin 与 `X-Zhixu-Request` 处理写入，OperationLog actor 继续使用非空 FK 与快照；禁止 caller actor。旧 auth/schema/session 代码保留但在此模式 dormant。Legacy 根路径 ERP 登录不在范围。
+
 ## Purpose
 
-Phase 1 建立未来正式业务持久化所需的可信服务器边界：Node/TypeScript API、PostgreSQL 连接池、版本化 migration、可信 Auth/RBAC，以及服务器追加式 OperationLog。Phase 2B1 在该边界内加入 PostgreSQL SalesOrder schema/repository/transactional service/read API foundation。Browser Order Center 仍使用既有 Browser Repository；没有迁移、双写或切换现有浏览器数据。
+Phase 1 建立 Node/TypeScript API、PostgreSQL pool、版本化 migration、Session/RBAC 基础设施与 Server OperationLog；Phase 2B1 加入 SalesOrder schema/repository/service/read API。此处是历史 foundation 说明；后续正式 `/order-center` 列表/基础详情已切到 PostgreSQL 只读，但通用写入和 Browser Quote aggregate 尚未 cutover。D-093 当前本地模式替代用户可见 Session 登录，不删除旧 schema/代码。
 
 ## Runtime architecture
 

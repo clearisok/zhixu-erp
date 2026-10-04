@@ -19,7 +19,7 @@ import {
   StatusTag,
 } from "@/components/foundation";
 import { PermissionAuthorityProvider } from "@/features/permissions";
-import { ServerLoginCard, useServerSession } from "@/features/server-auth";
+import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
 import type { FabricCostLine, OtherCostLine, PriceVersion, Quote, QuoteRevision, TrimCostLine } from "../model/quote-view-model";
 import { QuoteServerError } from "../server/quote-server-client";
 import {
@@ -339,7 +339,7 @@ function ServerQuoteWriterWorkspace() {
       : notFound ? <ErrorState title="Server Quote 不存在（404）" description="Quote ID 缺失、不存在或链接无效。" />
         : error ? <ErrorState title="Quote Server 暂时不可用" description={`${error}；没有 Browser fallback。`} onRetry={() => void load()} />
           : quote && revision && activeVersion && record ? <div className="qc-server-writer-stack">
-            <AlertBanner tone="info" title={`Server aggregate v${record.expectedVersion}`} actions={<Button variant="text" onClick={() => void logout()}>退出 Server 会话</Button>}>
+            <AlertBanner tone="info" title={`Server aggregate v${record.expectedVersion}`} actions={<ServerLogoutAction onLogout={() => void logout()} />}>
               只编辑已有 default Revision；Server 负责 optimistic lock、细粒度权限、历史不可变校验、transaction 与可信 OperationLog。
             </AlertBanner>
             {!canEdit && <AlertBanner tone="warning" title="当前账号为只读">加载需要 quote.view；保存还需要 quote.edit，成本/报价设置变更分别需要 quote.cost.edit / quote.settings.edit。</AlertBanner>}

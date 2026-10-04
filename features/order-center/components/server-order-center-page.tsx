@@ -19,7 +19,7 @@ import {
   Toolbar,
   type DataColumn,
 } from "@/components/foundation";
-import { ServerLoginCard, useServerSession } from "@/features/server-auth";
+import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
 import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import { SalesOrderServerReadError } from "../server/sales-order-server-client";
 import {
@@ -329,7 +329,7 @@ export function ServerOrderCenterPage() {
         <AlertBanner
           tone="warning"
           title="当前 Server 账号没有订单查看权限"
-          actions={<Button variant="secondary" onClick={() => void logout()}>退出 Server 会话</Button>}
+          actions={<ServerLogoutAction variant="secondary" onLogout={() => void logout()} />}
         >
           已登录为 {trustedIdentity}；需要 order.view 权限。
         </AlertBanner>

@@ -6,7 +6,6 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import {
   AlertBanner,
   AppShell,
-  Button,
   Card,
   DescriptionList,
   EmptyState,
@@ -16,7 +15,7 @@ import {
   PageHeader,
   StatusTag,
 } from "@/components/foundation";
-import { ServerLoginCard, useServerSession } from "@/features/server-auth";
+import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
 import type { QuoteRecord, ServerQuote } from "../../../server/quotes/model";
 import { quoteServerRepository } from "../server/quote-server-repository";
 import { classifyQuoteServerReadFailure, displayServerDecimal, quoteServerReadErrorLabel } from "../server/quote-server-read-model";
@@ -185,7 +184,7 @@ export function ServerQuoteDetailPage() {
   const trustedIdentity = `${serverSession.user.name}（${serverSession.user.username}）`;
   if (permissionDenied || !serverSession.hasPermission("quote.view")) return (
     <ServerQuoteDetailFrame quote={null}>
-      <AlertBanner tone="warning" title="当前 Server 账号没有报价查看权限" actions={<Button variant="secondary" onClick={() => void logout()}>退出 Server 会话</Button>}>已登录为 {trustedIdentity}；读取详情需要 quote.view。</AlertBanner>
+      <AlertBanner tone="warning" title="当前 Server 账号没有报价查看权限" actions={<ServerLogoutAction variant="secondary" onLogout={() => void logout()} />}>已登录为 {trustedIdentity}；读取详情需要 quote.view。</AlertBanner>
       {sessionActionError && <ErrorState description={sessionActionError} />}
       <ErrorState permission title="Server 权限不足（403）" description="请联系管理员分配 quote.view 权限。" />
     </ServerQuoteDetailFrame>
@@ -199,7 +198,7 @@ export function ServerQuoteDetailPage() {
 
   return (
     <ServerQuoteDetailFrame quote={record}>
-      <AlertBanner tone="info" title="Read only · source = PostgreSQL" actions={<><Link className="qc-server-quote-link" href={`/quote-center/server-edit?id=${encodeURIComponent(quoteId)}`}>打开 Server 编辑工作区</Link><Button variant="text" onClick={() => void logout()}>退出 Server 会话</Button></>}>Server identity：{trustedIdentity}。本页没有 Quote POST、PUT 或 DELETE；编辑入口仍是隔离测试工作区。</AlertBanner>
+      <AlertBanner tone="info" title="Read only · source = PostgreSQL" actions={<><Link className="qc-server-quote-link" href={`/quote-center/server-edit?id=${encodeURIComponent(quoteId)}`}>打开 Server 编辑工作区</Link><ServerLogoutAction onLogout={() => void logout()} /></>}>Server identity：{trustedIdentity}。本页没有 Quote POST、PUT 或 DELETE；编辑入口仍是隔离测试工作区。</AlertBanner>
       {sessionActionError && <ErrorState description={sessionActionError} />}
       {loading ? <LoadingState label="读取完整 Server Quote 聚合" />
         : notFound ? <ErrorState title="Server Quote 不存在（404）" description="Quote ID 缺失、不存在或链接无效。" />

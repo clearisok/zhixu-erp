@@ -1,5 +1,7 @@
 # 项目知识索引
 
+> 身份模式现状：D-093 已决定当前本地开发阶段改用显式 Local Single-User Mode；代码/测试 PR 尚未部署至真实 3001。下文关于 trusted session/RBAC 的表述保留为既有 schema/session-mode 历史与 service 权限边界，不代表仍需完成 B3/B3-R 登录验收。见 `CURRENT_STATE.md`、`features/SERVER_PERSISTENCE.md` 与 `features/PERMISSIONS.md`。
+
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：

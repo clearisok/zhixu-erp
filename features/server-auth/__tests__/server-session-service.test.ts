@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { PermissionKey } from "../../permissions/model/permissions";
 import { ServerAuthError, type ServerAuthClient, type ServerSessionUser } from "../server-auth-client";
-import { serverSessionHasPermission } from "../server-session-model";
+import { anonymousServerSession, enforceIdentityMode, serverSessionHasPermission } from "../server-session-model";
 import {
   loginServerSession,
   logoutServerSession,
@@ -27,6 +27,13 @@ test("session restore maps missing cookie to anonymous without treating 401 as a
   }));
   assert.equal(state.status, "anonymous");
   assert.equal(state.user, null);
+});
+
+test("local single-user never turns a missing Server identity into a login gate", () => {
+  assert.equal(enforceIdentityMode(anonymousServerSession, "session").status, "anonymous");
+  const local = enforceIdentityMode(anonymousServerSession, "local-single-user");
+  assert.equal(local.status, "error");
+  assert.match(local.error ?? "", /本地单用户身份不可用/u);
 });
 
 test("session restore returns trusted identity and permissions", async () => {

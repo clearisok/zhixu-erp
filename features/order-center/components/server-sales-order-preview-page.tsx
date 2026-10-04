@@ -16,7 +16,7 @@ import {
   SearchField,
   StatusTag,
 } from "@/components/foundation";
-import { ServerLoginCard, useServerSession } from "@/features/server-auth";
+import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
 import { SalesOrderServerReadError } from "../server/sales-order-server-client";
 import { serverSalesOrderReadRepository } from "../server/server-sales-order-read-repository";
 import type {
@@ -182,7 +182,7 @@ export function ServerSalesOrderPreviewPage() {
         <AlertBanner
           tone="warning"
           title="当前 Server 账号没有查看订单权限。"
-          actions={<Button variant="secondary" onClick={() => void logout()}>退出 Server 会话</Button>}
+          actions={<ServerLogoutAction variant="secondary" onLogout={() => void logout()} />}
         >
           {trustedIdentity}。这是 Server RBAC 拒绝，不会转换成登录提示，也不会修改 Browser 本地权限。
         </AlertBanner>
@@ -197,7 +197,7 @@ export function ServerSalesOrderPreviewPage() {
       <AlertBanner
         tone="info"
         title="Shadow read · source = PostgreSQL"
-        actions={<Button variant="secondary" onClick={() => void logout()}>退出 Server 会话</Button>}
+        actions={<ServerLogoutAction variant="secondary" onLogout={() => void logout()} />}
       >
         {trustedIdentity}。此页面没有保存、编辑或删除动作；Browser 本地用户保持独立。
       </AlertBanner>

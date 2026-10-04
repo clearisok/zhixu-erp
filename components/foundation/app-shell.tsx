@@ -8,6 +8,7 @@ import { Drawer } from "./drawer";
 import { usePermissions } from "@/features/permissions";
 import { GlobalSearchPalette } from "@/features/global-search";
 import { useServerSession } from "@/features/server-auth";
+import { browserIdentityMode } from "@/features/server-auth/identity-mode";
 import { loadSidebarPreference, saveSidebarPreference } from "./sidebar-preference";
 
 const basicRoutes = [
@@ -49,8 +50,9 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
   const systemTriggerRef = useRef<HTMLButtonElement | null>(null);
   const viewportMode = useResponsiveMode();
   const serverSettingsMode = identityMode === "server" && (pathname.startsWith("/basic-settings/server/") || pathname === "/system-settings/server/quote-settings");
+  const localSingleUser = browserIdentityMode() === "local-single-user";
   const visibleBasicRoutes = serverSettingsMode ? serverBasicRoutes : basicRoutes;
-  const visibleSystemRoutes = serverSettingsMode ? serverSystemRoutes : systemRoutes;
+  const visibleSystemRoutes = (serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => !localSingleUser || route.href !== "/basic-settings/user-permissions");
   const basicActive = visibleBasicRoutes.some((route) => pathname === route.href);
   const systemActive = visibleSystemRoutes.some((route) => pathname === route.href);
   const personalActive = pathname.startsWith("/my-settings/");
@@ -62,11 +64,11 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
   const { state: permissionState, currentUser, currentRole, can, setCurrentUser } = usePermissions();
   const serverSession = useServerSession();
   const serverIdentityMode = identityMode === "server";
-  const visibleUserName = serverIdentityMode ? serverSession.user?.name ?? "Server 会话" : currentUser.name;
-  const visibleUserDetail = serverIdentityMode
+  const visibleUserName = localSingleUser ? "本地开发用户" : serverIdentityMode ? serverSession.user?.name ?? "Server 会话" : currentUser.name;
+  const visibleUserDetail = localSingleUser ? "Local Development · Single User" : serverIdentityMode
     ? serverSession.user ? `${serverSession.user.username} · Server identity` : "Trusted Server identity"
     : `${currentRole.name} · 我的设置`;
-  const preferenceUserId = serverIdentityMode ? serverSession.user?.id ?? "server-session" : currentUser.id;
+  const preferenceUserId = localSingleUser ? "local-single-user" : serverIdentityMode ? serverSession.user?.id ?? "server-session" : currentUser.id;
   const userInitial = visibleUserName.trim().slice(0, 1) || "用";
 
   const closeMenus = useCallback(() => {
@@ -148,7 +150,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
           <SidebarFloatingMenu id="sidebar-system-menu" open={systemOpen && compactSidebar} anchorRef={systemTriggerRef} label="系统设置菜单" onClose={closeMenus}>{systemMenuItems}</SidebarFloatingMenu>
         </div>}
       </nav>
-      {serverIdentityMode
+      {serverIdentityMode || localSingleUser
         ? <div className="ops-user ops-server-user" aria-label="可信 Server 身份"><span>{userInitial}</span><div><strong>{visibleUserName}</strong><small>{visibleUserDetail}</small></div></div>
         : <button type="button" className={`ops-user ${personalActive ? "active" : ""}`} title="我的设置" onClick={() => navigate("/my-settings/ainuoke-account")}><span>{userInitial}</span><div><strong>{visibleUserName}</strong><small>{visibleUserDetail}</small></div></button>}
     </aside>
@@ -160,7 +162,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
           {backTarget && <button type="button" className="ops-topbar-back" aria-label={backTarget.label} title={backTarget.label} onClick={() => navigateRequest(backTarget.href)}><span aria-hidden="true">‹</span></button>}
           <div className="ops-topbar-title"><small>织序 / 业务中心 / {personalActive ? "我的设置" : basicActive ? "基础设置" : systemActive ? "系统设置" : pathname.startsWith("/ainuoke-sync") || pathname.startsWith("/order-center") ? "订单中心" : pathname.startsWith("/closing-center") ? "关账中心" : pathname.startsWith("/production-scheduling") ? "生产排单" : "报价中心"}</small><strong>{title}</strong></div>
         </div>
-        <div className="topbar-actions">{serverIdentityMode ? <div className="qc-server-identity" aria-label="可信 Server 身份"><span>{userInitial}</span><div><strong>{visibleUserName}</strong><small>{visibleUserDetail}</small></div></div> : <><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></>}</div>
+        <div className="topbar-actions">{serverIdentityMode || localSingleUser ? <div className="qc-server-identity" aria-label={localSingleUser ? "本地单用户模式" : "可信 Server 身份"}><span>{userInitial}</span><div><strong>{visibleUserName}</strong><small>{visibleUserDetail}</small></div></div> : <><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></>}</div>
       </header>
       {children}
     </section>

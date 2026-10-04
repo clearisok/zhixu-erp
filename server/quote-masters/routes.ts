@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Pool } from "pg";
 import { requirePermission } from "../auth/permissions.js";
-import { authenticate, type SessionSecurityConfig } from "../auth/session.js";
+import type { IdentityAuthority } from "../auth/identity-authority.js";
 import { HttpError } from "../http/errors.js";
 import { assertMutationBoundary, readJsonBody } from "../http/request.js";
 import { sendJson } from "../http/responses.js";
@@ -11,7 +11,7 @@ import {
 } from "./model.js";
 import { createQuoteMasterService, type BrandWrite, type FabricWrite, type PresetWrite, type SalespersonWrite, type SettingsBundlePresetWrite, type SettingsWrite, type TrimWrite } from "./service.js";
 
-type Dependencies = { pool: Pool; allowedOrigins: readonly string[]; security: SessionSecurityConfig };
+type Dependencies = { pool: Pool; allowedOrigins: readonly string[]; identityAuthority: IdentityAuthority };
 const neutralDefaults = (): QuoteDefaultsInput => ({ defaultUsdCnyRate: null, defaultOtherCost: null, defaultTrims: [] });
 
 function query(request: IncomingMessage, allowed: readonly string[]) {
@@ -89,7 +89,7 @@ export async function routeQuoteMasters(request: IncomingMessage,response:Server
   if(!path.startsWith("/api/v1/quote-masters")&&!path.startsWith("/api/v1/quote-settings"))return false;
   const mutation=request.method==="POST"||request.method==="PATCH";
   if(mutation)assertMutationBoundary(request,dependencies.allowedOrigins);
-  const actor=await authenticate(dependencies.pool,request);
+  const actor=await dependencies.identityAuthority.resolve(request);
   if(!actor)throw new HttpError(401,"authentication_required","Authentication is required");
   const service=createQuoteMasterService(dependencies.pool);
   const context={requestId,method:request.method,path};

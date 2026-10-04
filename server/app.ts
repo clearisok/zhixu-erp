@@ -1,6 +1,7 @@
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
 import type { Pool } from "pg";
-import { authenticate, login, revokeSession, sessionCookie, type SessionSecurityConfig, type TrustedIdentity } from "./auth/session.js";
+import { login, revokeSession, sessionCookie, type SessionSecurityConfig, type TrustedIdentity } from "./auth/session.js";
+import { createIdentityAuthority, type IdentityAuthority } from "./auth/identity-authority.js";
 import { requirePermission } from "./auth/permissions.js";
 import { HttpError } from "./http/errors.js";
 import { assertMutationBoundary, readJsonBody } from "./http/request.js";
@@ -31,6 +32,7 @@ export type AppDependencies = {
   allowedOrigins?: readonly string[];
   security?: SessionSecurityConfig;
   staticDirectory?: string;
+  identityAuthority?: IdentityAuthority;
 };
 
 const defaultLogger: ServerLogger = {
@@ -244,6 +246,7 @@ async function route(
   }
 
   if (request.method === "POST" && path === "/api/v1/auth/login") {
+    if (dependencies.identityAuthority.mode === "local-single-user") throw new HttpError(404, "not_found", "Route not found");
     assertMutationBoundary(request, dependencies.allowedOrigins);
     const body = await readJsonBody(request);
     const result = await login(dependencies.pool, body.username, body.password, dependencies.security);
@@ -256,8 +259,9 @@ async function route(
   }
 
   if (request.method === "POST" && path === "/api/v1/auth/logout") {
+    if (dependencies.identityAuthority.mode === "local-single-user") throw new HttpError(404, "not_found", "Route not found");
     assertMutationBoundary(request, dependencies.allowedOrigins);
-    const identity = await authenticate(dependencies.pool, request);
+    const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     await revokeSession(dependencies.pool, request);
     response.setHeader("Set-Cookie", sessionCookie(null, dependencies.security));
@@ -266,9 +270,9 @@ async function route(
   }
 
   if (request.method === "GET" && (path === "/api/v1/auth/me" || path === "/api/v1/auth/permissions")) {
-    const identity = await authenticate(dependencies.pool, request);
+    const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) {
-      response.setHeader("Set-Cookie", sessionCookie(null, dependencies.security));
+      if (dependencies.identityAuthority.mode === "session") response.setHeader("Set-Cookie", sessionCookie(null, dependencies.security));
       throw new HttpError(401, "authentication_required", "Authentication is required");
     }
     sendJson(
@@ -282,7 +286,7 @@ async function route(
   }
 
   if (request.method === "GET" && path === "/api/v1/operation-logs") {
-    const identity = await authenticate(dependencies.pool, request);
+    const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "audit_log.view");
     const limit = Number.parseInt(new URL(request.url ?? "/", "http://localhost").searchParams.get("limit") ?? "100", 10);
@@ -296,7 +300,7 @@ async function route(
   if (await routeQuoteMasters(request, response, dependencies, correlationId)) return;
 
   if (request.method === "GET" && path === "/api/v1/sales-orders") {
-    const identity = await authenticate(dependencies.pool, request);
+    const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "order.view");
     const query = salesOrderListQuery(request.url);
@@ -314,7 +318,7 @@ async function route(
   }
 
   if (request.method === "GET" && path === "/api/v1/quotes") {
-    const identity = await authenticate(dependencies.pool, request);
+    const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "quote.view");
     const query = quoteListQuery(request.url);
@@ -325,7 +329,7 @@ async function route(
 
   if (request.method === "POST" && path === "/api/v1/quotes") {
     assertMutationBoundary(request, dependencies.allowedOrigins);
-    const identity = await authenticate(dependencies.pool, request);
+    const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "quote.create");
     const input = await readJsonBody(request, QUOTE_AGGREGATE_MAX_BODY_BYTES);
@@ -346,7 +350,7 @@ async function route(
   const salesOrderTermsMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/confirmed-commercial-terms$/.exec(path);
   if (salesOrderTermsMatch && (request.method === "GET" || request.method === "PATCH")) {
     if (request.method === "PATCH") assertMutationBoundary(request, dependencies.allowedOrigins);
-    const identity = await authenticate(dependencies.pool, request);
+    const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, request.method === "GET" ? "order.view" : "order.edit");
     const salesOrderId = requiredPathIdentity(salesOrderTermsMatch[1], "salesOrderId");
@@ -365,7 +369,7 @@ async function route(
   const quoteTermsMatch = /^\/api\/v1\/quotes\/([^/]+)\/revisions\/([^/]+)\/price-versions\/([^/]+)\/confirmed-commercial-terms$/.exec(path);
   if (quoteTermsMatch && (request.method === "GET" || request.method === "PATCH")) {
     if (request.method === "PATCH") assertMutationBoundary(request, dependencies.allowedOrigins);
-    const identity = await authenticate(dependencies.pool, request);
+    const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, request.method === "GET" ? "quote.view" : "quote.confirm");
     const provenance = {
@@ -388,7 +392,7 @@ async function route(
   const quoteMatch = /^\/api\/v1\/quotes\/([^/]+)$/.exec(path);
   if (quoteMatch && (request.method === "GET" || request.method === "PUT")) {
     if (request.method === "PUT") assertMutationBoundary(request, dependencies.allowedOrigins);
-    const identity = await authenticate(dependencies.pool, request);
+    const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     const service = createTrustedQuoteService(dependencies.pool);
     const quoteId = requiredPathIdentity(quoteMatch[1], "quoteId");
@@ -415,7 +419,7 @@ async function route(
 
   const salesOrderMatch = /^\/api\/v1\/sales-orders\/([^/]+)$/.exec(path);
   if (request.method === "GET" && salesOrderMatch) {
-    const identity = await authenticate(dependencies.pool, request);
+    const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "order.view");
     const salesOrder = await getSalesOrderById(dependencies.pool, decodeURIComponent(salesOrderMatch[1]));
@@ -438,6 +442,7 @@ export function createApp(dependencies: AppDependencies): RequestListener {
     allowedOrigins: dependencies.allowedOrigins ?? ["http://127.0.0.1:3001"],
     security: dependencies.security ?? { secureCookies: false, sessionTtlSeconds: 43_200 },
     staticDirectory: dependencies.staticDirectory ?? "",
+    identityAuthority: dependencies.identityAuthority ?? createIdentityAuthority(dependencies.pool, "session"),
   };
   return (request, response) => {
     const correlationId = requestId();

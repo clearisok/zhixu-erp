@@ -1,9 +1,11 @@
 import { resolve } from "node:path";
+import type { IdentityMode } from "./auth/identity-authority.js";
 
 export type ServerEnvironment = "development" | "test" | "production";
 
 export type ServerConfig = {
   environment: ServerEnvironment;
+  identityMode: IdentityMode;
   host: string;
   port: number;
   databaseUrl: string;
@@ -39,6 +41,19 @@ function parseBoolean(value: string | undefined, fallback: boolean, label: strin
   if (value === "true") return true;
   if (value === "false") return false;
   throw new Error(`${label} must be true or false`);
+}
+
+function parseIdentityMode(values: NodeJS.ProcessEnv, origins: readonly string[]): IdentityMode {
+  const mode = values.ZHIXU_IDENTITY_MODE?.trim() || "session";
+  if (mode === "session") return mode;
+  if (mode !== "local-single-user") throw new Error("ZHIXU_IDENTITY_MODE must be session or local-single-user");
+  if (values.ZHIXU_LOCAL_SINGLE_USER_ACK !== "I_UNDERSTAND_NO_AUTH") {
+    throw new Error("Local single-user mode requires explicit no-auth acknowledgement");
+  }
+  if (origins.some((origin) => !["127.0.0.1", "localhost", "[::1]"].includes(new URL(origin).hostname))) {
+    throw new Error("Local single-user mode allows only loopback Browser origins");
+  }
+  return mode;
 }
 
 function parseOrigins(environment: ServerEnvironment, value: string | undefined): readonly string[] {
@@ -87,19 +102,22 @@ function databaseUrlFromEnvironment(
 
 export function loadServerConfig(values: NodeJS.ProcessEnv = process.env): ServerConfig {
   const environment = parseEnvironment(values.NODE_ENV);
+  const allowedOrigins = parseOrigins(environment, values.ZHIXU_ALLOWED_ORIGINS);
+  const identityMode = parseIdentityMode(values, allowedOrigins);
   const secureCookies = parseBoolean(values.ZHIXU_COOKIE_SECURE, environment === "production", "ZHIXU_COOKIE_SECURE");
   if (environment === "production" && !secureCookies) {
     throw new Error("ZHIXU_COOKIE_SECURE cannot be disabled in production");
   }
   return {
     environment,
+    identityMode,
     host: values.ZHIXU_SERVER_HOST?.trim() || "127.0.0.1",
     port: parseInteger(values.ZHIXU_SERVER_PORT, 3100, "ZHIXU_SERVER_PORT"),
     databaseUrl: databaseUrlFromEnvironment(environment, values),
     databasePoolMax: parseInteger(values.DB_POOL_MAX, 10, "DB_POOL_MAX"),
     migrationsDirectory: resolve(values.ZHIXU_MIGRATIONS_DIR?.trim() || "database/migrations"),
     staticDirectory: resolve(values.ZHIXU_STATIC_DIR?.trim() || "dist/client"),
-    allowedOrigins: parseOrigins(environment, values.ZHIXU_ALLOWED_ORIGINS),
+    allowedOrigins,
     secureCookies,
     sessionTtlSeconds: parseInteger(values.ZHIXU_SESSION_TTL_SECONDS, 43_200, "ZHIXU_SESSION_TTL_SECONDS"),
     bootstrapAdmin: {

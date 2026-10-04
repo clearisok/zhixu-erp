@@ -5,6 +5,7 @@ import { AppShell, ErrorState, LoadingState, PageContainer } from "@/components/
 import { PermissionAuthorityProvider } from "@/features/permissions";
 import type { PermissionKey } from "@/features/permissions/model/permissions";
 import { ServerLoginCard, useServerSession } from "@/features/server-auth";
+import { browserIdentityMode } from "@/features/server-auth/identity-mode";
 import { defaultBasicSettings, type BasicSettingsState } from "../model/basic-settings";
 import { BasicSettingsControllerProvider } from "./basic-settings-controller";
 import { BrandSettingsPage, CustomerSalespeopleSettingsPage, FabricLibraryPage, TrimLibraryPage } from "./basic-settings-pages";
@@ -78,7 +79,7 @@ export function ServerBasicSettingsCandidatePage({ scope }: { scope: BasicSettin
     }
   };
   const controller = { state, supplierOptions, persist, reload: load };
-  const logout = () => { void session.logout(); };
+  const logout = browserIdentityMode() === "local-single-user" ? undefined : () => { void session.logout(); };
   const page = scope === "brands" ? <BrandSettingsPage serverCandidate onServerLogout={logout} />
     : scope === "salespeople" ? <CustomerSalespeopleSettingsPage serverCandidate onServerLogout={logout} />
       : scope === "fabrics" ? <FabricLibraryPage serverCandidate onServerLogout={logout} />
@@ -97,5 +98,5 @@ export function ServerGlobalQuoteSettingsCandidatePage() {
     load: () => adapter.load().catch((error) => { if (error instanceof QuoteMasterServerError && error.status === 401) session.invalidate(); throw error; }),
     save: (settings: Parameters<typeof adapter.save>[0]) => adapter.save(settings).catch((error) => { if (error instanceof QuoteMasterServerError && error.status === 401) session.invalidate(); throw error; }),
   };
-  return <PermissionAuthorityProvider can={session.hasPermission}><GlobalQuoteSettingsPage serverController={controller} onServerLogout={() => { void session.logout(); }} /></PermissionAuthorityProvider>;
+  return <PermissionAuthorityProvider can={session.hasPermission}><GlobalQuoteSettingsPage serverController={controller} onServerLogout={browserIdentityMode() === "local-single-user" ? undefined : () => { void session.logout(); }} /></PermissionAuthorityProvider>;
 }
