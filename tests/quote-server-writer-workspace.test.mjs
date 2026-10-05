@@ -58,7 +58,8 @@ test("writer permission scope uses trusted Server authority, never Browser permi
 test("writer has no Browser repository, audit, attachment, master, or Order side effects", () => {
   assert.doesNotMatch(writerSource, /mockQuoteRepository|operationLogRepository|indexedDbAttachmentRepository|basicSettingsRepository|saveBasicSettings|orderRepository|QuoteToOrderModal/u);
   assert.doesNotMatch(adapterSource, /localStorage|sessionStorage|indexedDB|operationLogRepository|orderRepository/u);
-  assert.match(writerSource, /Server 附件将在 Q4 接入/u);
+  assert.match(writerSource, /Attachments = Server candidate/u);
+  assert.match(writerSource, /QuoteAttachmentPanel/u);
   assert.match(writerSource, /删除、导出、生成订单、新建 Quote：不可用/u);
   assert.match(writerSource, /客户确认 mutation：不可用/u);
 });

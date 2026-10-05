@@ -94,7 +94,7 @@ test("R16 Mobile 相册 / Camera 不退化", async () => {
   const panel = await read("features/quote-center/components/attachment-panel.tsx");
   assert.match(panel, /accept="image\/\*" multiple/);
   assert.match(panel, /accept="image\/\*" capture="environment"/);
-  assert.match(panel, /indexedDbAttachmentRepository/);
+  assert.match(panel, /browserQuoteAttachmentController/);
 });
 
 test("R17 Tablet touch mode 正常", () => {

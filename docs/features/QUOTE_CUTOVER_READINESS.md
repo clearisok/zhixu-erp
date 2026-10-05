@@ -6,7 +6,7 @@ This document is the Q2B2C production-cutover readiness audit for Quote Center. 
 
 This is an engineering audit and implementation plan. It does not activate migrations, import data, change production routes, authorize a real write, or replace a confirmed business rule.
 
-> 2026-10-05 更新：本文件原 Q2B2C milestone 表是历史基线。Q3B2I-C2 已 CLOSED/PASS，master/settings 现为 Server authority。Q4A Server attachment schema/API/storage interface 已工程实现并仅 disposable 验证；真实 0008 未激活、production Object Storage adapter 未选/未部署、正式 AttachmentPanel 仍在 IndexedDB，故 Quote aggregate cutover 仍 NOT READY。Q5 仍未开始。
+> 2026-10-05 更新：本文件原 Q2B2C milestone 表是历史基线。Q3B2I-C2 已 CLOSED/PASS，master/settings 现为 Server authority。Q4A schema/API 与 Q4B 共享 AttachmentPanel 的 isolated Server UI candidate 均为工程实现；真实 0008 未激活、production Object Storage adapter 未选/未部署、正式 Browser Quote attachments 仍在 IndexedDB，故 Quote aggregate cutover 仍 NOT READY。Q5 仍未开始。
 
 The labels used below are intentional:
 
@@ -36,7 +36,7 @@ The labels used below are intentional:
 | Q2B2A existing-Quote writer | Complete on isolated Server edit route with exact decimal bridge and conflict handling. | Deliberately omits major production editor capabilities. |
 | Q2B2B creation/numbering | Complete after PR #44. Server-only runtime identity/numbering and `0006` are merged. | Isolated lazy-create workspace only; real `0006` not applied. |
 | Q3 Server masters/settings | Q3B2I-C2 CLOSED/PASS: real 0007, controlled import and Server authority handoff completed; formal editing reopened. | Not a current Quote cutover blocker. Quote aggregate remains Browser-owned. |
-| Q4 Server attachments | Q4A foundation implemented/disposable-validated: 0008 metadata/relation, trusted API and provider-neutral storage boundary. | **BLOCKER:** real 0008 activation, provider/deployment and Q4B UI repository switch remain separate. |
+| Q4 Server attachments | Q4A foundation and Q4B isolated Server writer UI candidate implemented; one AttachmentPanel, separate Browser/Server controllers. | **BLOCKER:** real 0008 activation, provider/deployment, historical shared-name policy and production Quote ownership/cutover remain separate. |
 | Q5 migration preview/rehearsal | Not implemented. | **BLOCKER.** |
 | Real Quote production cutover | Not complete. | No real Quote business write performed. |
 
