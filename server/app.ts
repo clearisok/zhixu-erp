@@ -20,6 +20,8 @@ import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales
 import { normalizeServerQuote, QuoteConflictError, QuoteInvariantError, validateQuote, type ServerQuote } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
 import { routeQuoteMasters } from "./quote-masters/routes.js";
+import { routeQuoteAttachments } from "./attachments/routes.js";
+import type { AttachmentStorage } from "./attachments/storage.js";
 import { serveStatic } from "./static-files.js";
 
 export type ServerLogger = {
@@ -33,7 +35,9 @@ export type AppDependencies = {
   security?: SessionSecurityConfig;
   staticDirectory?: string;
   identityAuthority?: IdentityAuthority;
+  attachmentStorage?: AttachmentStorage;
 };
+type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage">> & Pick<AppDependencies, "attachmentStorage">;
 
 const defaultLogger: ServerLogger = {
   error(event) {
@@ -227,7 +231,7 @@ function publicIdentity(identity: TrustedIdentity): {
 async function route(
   request: IncomingMessage,
   response: ServerResponse,
-  dependencies: Required<AppDependencies>,
+  dependencies: ResolvedAppDependencies,
   correlationId: string,
 ): Promise<void> {
   const path = new URL(request.url ?? "/", "http://localhost").pathname;
@@ -298,6 +302,7 @@ async function route(
   }
 
   if (await routeQuoteMasters(request, response, dependencies, correlationId)) return;
+  if (await routeQuoteAttachments(request, response, dependencies)) return;
 
   if (request.method === "GET" && path === "/api/v1/sales-orders") {
     const identity = await dependencies.identityAuthority.resolve(request);
@@ -436,7 +441,7 @@ async function route(
 }
 
 export function createApp(dependencies: AppDependencies): RequestListener {
-  const resolved: Required<AppDependencies> = {
+  const resolved: ResolvedAppDependencies = {
     ...dependencies,
     logger: dependencies.logger ?? defaultLogger,
     allowedOrigins: dependencies.allowedOrigins ?? ["http://127.0.0.1:3001"],

@@ -1,5 +1,9 @@
 # 织序 ERP 前端操作日志
 
+## Q4A Server attachment audit boundary（未生产激活）
+
+上传、关联、重命名、移除关系及款式图设定/清空在 PostgreSQL 附件命令事务中追加 bounded `Attachment` OperationLog；actor 永远来自 `TrustedIdentity`，只含 Quote/Revision/附件 ID 与短名称/状态，不含 binary、完整请求、storage key、签名 URL 或 secret。审计失败回滚关系、兼容镜像和 Quote version；跨对象存储 PUT 不具 ACID，先前对象与 pending metadata 进入可识别 `pending_cleanup`，不自动物理删除。现有 Browser OperationLogs/附件继续由 Browser 持有，Q4A 不双写。
+
 ## Q3A Server Quote master/settings audit
 
 Every actual Q3A Brand, CustomerSalesperson, Fabric/Trim library, scoped-default, global-settings or manufacturing-preset mutation appends one bounded PostgreSQL OperationLog in the same transaction. Actor ID/name comes only from `TrustedIdentity`; request actor fields are rejected. Before/after uses an explicit business-field allowlist: master names/status/relationships, decimal-string prices and rates, fabric/trim attributes, manufacturing/freight settings, and global Quote defaults. Nullable decimals remain distinct from `"0"`. DefaultOtherCost is recorded as separate name/amount values; the bounded DefaultTrimConfig set records each stable `trimLibraryItemId`, position and nullable loss/unit-price overrides, so add/remove/reorder/override changes appear in `changes[]`. It never stores request bodies, complete Quote aggregates, credentials or unbounded collections. Audit failure rolls back the master/settings mutation. Existing Browser logs remain local until Q3B/production cutover and Q3A never dual-writes them.

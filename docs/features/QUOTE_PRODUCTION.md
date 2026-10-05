@@ -6,19 +6,23 @@
 
 这是架构和 rollout 决策，不是实现完成声明。本文不授权 migration、真实数据写入、部署、Browser 数据修改或 C4.2 activation。
 
+## Q4A Server Attachment Foundation — 2026-10-05
+
+Q4A 新增 `0008_quote_attachments.sql`、Server metadata/Revision relationship、provider-neutral binary storage interface、trusted API/OperationLog 与 disposable PostgreSQL/fake-storage 测试。Revision 关系为 Server 权威；Quote Revision 原三个附件 ID 字段是同事务兼容镜像，通用 Quote PUT 不得直接改写；新 Revision 继承关系但不复制 binary。Production adapter 未选/未配置，未执行真实 0008、真实部署、Browser 附件迁移、Quote writer cutover 或 Q5。Q3 master/settings 已完成真实 Server authority cutover；下方早期 Q3A/Q3B1 的“未真实执行”是其**历史 Gate 当时状态**，不是当前 Q3 状态。
+
 ## Q3A Server master/settings foundation — 2026-09-21
 
 - `0007_quote_master_settings.sql` adds Server-owned Brand, CustomerSalesperson, Fabric/Trim library, scoped DefaultTrimConfig, global Quote settings and manufacturing preset tables without adding historical Quote FKs or a Supplier table. Runtime IDs are Server UUIDs; future controlled import can preserve legacy TEXT identities.
 - Typed `/api/v1/quote-masters/*` and `/api/v1/quote-settings/*` routes use trusted session RBAC, bounded validation, decimal strings, optimistic version and same-transaction OperationLog. Fabric/Trim duplicate names remain valid; normalized Brand/Salesperson names are unique.
 - D-089 owns one nullable `DefaultOtherCost` per System/Brand/Salesperson scope and preserves Quote 0..N OtherCostLine snapshots. Server DefaultTrimConfig intentionally has no Browser compatibility quantity/usage. Default resolution preserves null/zero, Salesperson > Brand > System, and whole-set salesperson trims without merging Brand rows.
-- Q3A is disposable-foundation only. Production Quote and Basic Settings routes remain Browser/local, real 0007/master/Quote migration and business writes are not executed, and Q3B/Q4/Q5/Q6 remain required before cutover.
+- At the Q3A checkpoint this was disposable-foundation only. Q3B2I-C2 later applied real 0007, imported master/settings and switched their formal UI to Server authority. Quote aggregate, its Browser data and attachments remain Browser-owned; Q4B/Q5 and separate Quote cutover gates remain.
 
 ## Q3B1 existing settings UI Server candidate — 2026-09-21
 
 - Five isolated Server routes reuse `BrandSettingsPage`, `CustomerSalespeopleSettingsPage`, `FabricLibraryPage`, `TrimLibraryPage`, and `GlobalQuoteSettingsPage` through bounded controllers. They use trusted Server identity/RBAC, exact decimal projection, optimistic versions, Server UUIDs and fail-closed auth/network states; production Browser settings and Quote routes are unchanged.
 - Global settings and manufacturing presets now have one domain-specific atomic bundle mutation with trusted same-transaction audit. Candidate removal is explicit preset status change, not hard delete. DefaultTrim compatibility quantity is projected into UI only as `null` and is never sent to Server; suppliers remain free text backed by authorized suggestions.
 - D-090 makes active status a Server-enforced default-reference invariant. Standalone or bundled deactivation of the current default clears the relation atomically; inactive assignment is rejected, re-enable does not restore it, and resolved/new-Quote defaults fail safe while all existing Quote snapshots stay unchanged.
-- At the Q3B1 checkpoint, a deterministic read-only migration preview helper existed; inactive default references projected to `null` with a warning, while missing references remained blockers. Q3B2B subsequently read one authorized real Browser backup without modifying it, Q3B2C completed disposable import rehearsal, and Q3B2D documented an unexecuted activation plan in `QUOTE_MASTER_SETTINGS_ACTIVATION.md`. Real 0007, master import, Quote migration, production settings cutover and production Quote cutover have not occurred.
+- At the Q3B1 checkpoint, a deterministic read-only migration preview helper existed; inactive default references projected to `null` with a warning, while missing references remained blockers. Q3B2B subsequently read one authorized real Browser backup without modifying it, Q3B2C completed disposable import rehearsal, and Q3B2D documented its then-unexecuted activation plan. Later Q3B2I-C2 completed real 0007, master/settings import and Server settings cutover; Quote aggregate migration and production Quote cutover have **not** occurred.
 
 ## Q2B2B Server creation and numbering foundation
 

@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
 import type { Pool, PoolClient } from "pg";
-import { canonicalDecimal, normalizeServerQuote, QuoteConflictError, validateQuote, validateQuoteReplacement, type QuoteRecord, type ServerQuote } from "./model.js";
+import { canonicalDecimal, normalizeServerQuote, QuoteConflictError, QuoteInvariantError, validateQuote, validateQuoteReplacement, type QuoteRecord, type ServerQuote } from "./model.js";
 
 type ObjectData = Record<string, unknown>;
 type Snapshot = ServerQuote["revisions"][number]["priceVersions"][number] | NonNullable<ServerQuote["activeEstimateCost"]>;
@@ -86,6 +86,27 @@ async function writeChildren(client: PoolClient, quote: ServerQuote, previous?: 
     await writeSnapshot(client, quote.id, e, null);
   }
 }
+async function inheritAttachmentRelations(client: PoolClient, quote: ServerQuote, previous: ServerQuote) {
+  // Historical Q1-only migration fixtures do not have 0008. Runtime Q4A quotes do.
+  if (!(await client.query("SELECT to_regclass('public.quote_revision_attachments') AS name")).rows[0].name) return;
+  for (const revision of quote.revisions) {
+    if (previous.revisions.some((item) => item.revisionId === revision.revisionId)) continue;
+    const source = revision.parentRevisionId && previous.revisions.find((item) => item.revisionId === revision.parentRevisionId);
+    const relations = source ? (await client.query<{ attachment_id: string; kind: "image" | "file"; is_style_image: boolean }>(
+      `SELECT attachment_id::text,kind,is_style_image FROM quote_revision_attachments
+       WHERE quote_id=$1 AND revision_id=$2
+       ORDER BY CASE kind WHEN 'image' THEN 0 ELSE 1 END,position`, [quote.id, source.revisionId])).rows : [];
+    const images = relations.filter((row) => row.kind === "image").map((row) => row.attachment_id);
+    const files = relations.filter((row) => row.kind === "file").map((row) => row.attachment_id);
+    const style = relations.find((row) => row.is_style_image)?.attachment_id ?? null;
+    if (!isDeepStrictEqual([revision.imageAttachmentIds, revision.fileAttachmentIds, revision.styleImageAttachmentId], [images, files, style]))
+      throw new QuoteInvariantError("New Revision attachment references must inherit authoritative relationships");
+    if (source) await client.query(
+      `INSERT INTO quote_revision_attachments(quote_id,revision_id,attachment_id,kind,position,is_style_image)
+       SELECT quote_id,$3,attachment_id,kind,position,is_style_image FROM quote_revision_attachments
+       WHERE quote_id=$1 AND revision_id=$2`, [quote.id, source.revisionId, revision.revisionId]);
+  }
+}
 async function readSnapshot(client: PoolClient, row: ObjectData): Promise<ObjectData> {
   const output: ObjectData = { pricingParameters: restore(row, "pricing_metadata", pricingFields), labor: { ...(row.labor_metadata as ObjectData), value: row.labor_value === null ? null : canonicalDecimal(String(row.labor_value)) } };
   if (row.price_version_id !== null) output.confirmation = row.confirmation_metadata === null ? null : restore(row, "confirmation_metadata", confirmationFields);
@@ -163,6 +184,7 @@ export function createQuoteRepository(pool: Pool) {
         if (!previous) throw new QuoteConflictError();
         validateQuoteReplacement(previous.quote, quote);
         await writeChildren(client, quote, previous.quote);
+        await inheritAttachmentRelations(client, quote, previous.quote);
         await client.query("UPDATE quote_center_quotes SET quote_code=$2,default_revision_id=$3,metadata=$4,version=version+1 WHERE id=$1", [quote.id, quote.quoteCode, quote.defaultRevisionId, omit(quote, ["id", "quoteCode", "defaultRevisionId", "revisions", "activeEstimateCost", "estimateCostHistory"])]);
         const result = { quote, version: expectedVersion + 1 };
         await afterWrite?.(client, { kind: "save", before: previous, after: result });

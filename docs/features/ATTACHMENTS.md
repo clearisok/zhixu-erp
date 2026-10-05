@@ -2,7 +2,7 @@
 
 ## Purpose
 
-附件模块为单张 Quote Revision 提供图片和文件管理。图片可预览并指定款式图；普通文件只允许下载。模块当前属于纯前端原型，不接入根路径 ERP API。
+附件模块为单张 Quote Revision 提供图片和文件管理。图片可预览并指定款式图；普通文件只允许下载。正式 Browser Quote Center 仍使用 IndexedDB；Q4A 另建了尚未部署/激活的 Server foundation，不接入根路径旧 ERP API。
 
 ## Current behavior
 
@@ -57,18 +57,27 @@ QuoteRevision 的附件字段位于 `quote-view-model.ts`。旧 `garmentMedia` /
 - 当前实现：`indexeddb-attachment-repository.ts`。
 - IndexedDB database：`zhixu-quote-attachments`；object store：`attachments`。
 - metadata 与 Blob 存在 IndexedDB；Quote mock repository 的稳定 localStorage envelope 中只保存附件 ID，不保存 Base64/Blob。旧 sessionStorage 只作为 Quote 数据迁移来源。
-- 当前没有上传 API、对象存储、服务端病毒扫描、权限校验或跨设备同步。
+- 当前正式 Browser 路径没有 Server 上传 API、对象存储、服务端病毒扫描或跨设备同步；Q4A 的独立 Server API 见下节，不代表已切换正式 UI。
+
+## Q4A Server foundation（工程实现；未真实激活）
+
+- `0008_quote_attachments.sql` 定义 `quote_attachments` metadata/lifecycle 和 `quote_revision_attachments` 有序关系；UUID 由 Server 生成，关系精确 FK 到 `(quote_id, revision_id)`，一个附件可被多个 Revision 引用。同一 Revision 附件不可重复、款式图最多一个且必须是 image。PostgreSQL 不保存 Blob/Base64；metadata 包含原始/显示名、MIME、大小、SHA-256、kind、provider/container/key、可信创建人/时间及 upload token。
+- `server/attachments/repository.ts` 持有事务、Revision/关系读取与兼容镜像投影；`service.ts` 负责授权、上传一致性及业务命令。`storage.ts` 是 provider-neutral put/head/get/remove interface；Q4A 只有 disposable-test 内存 adapter，正常 Server runtime **不默认配置 storage**，访问附件 API 会 fail closed。Production Object Storage provider/bucket、凭据与部署仍待选定；`remove` 只是未来 GC 能力，Q4A 从不调用。
+- API 为 `/api/v1/quotes/:quoteId/revisions/:revisionId/attachments` 的 list/raw upload，`/:attachmentId` metadata/rename/unlink，`/:attachmentId/download`、`/:attachmentId/link` 和 `/style-image`。上传为 bounded raw binary（非 Base64 JSON），`name`/`kind` 查询参数、`Content-Type`、`Idempotency-Key` UUID 和 `X-Quote-Version`；mutation 仍需 exact Origin + `X-Zhixu-Request: 1`。服务端计算 SHA-256、验证图片 JPEG/PNG/WEBP signature；普通文件只拒绝 video、无效 MIME 与已作为图片的 MIME。100 MiB 是 Q4A 技术内存上限，不是最终产品大小/文件类型政策；产品政策仍待确认。
+- 读/下载需可信 `quote.view`，上传/重命名/关联/移除/款式图需可信 `quote.edit`；历史 Revision 关系不可改，通用 Quote PUT 不能直接改已有附件引用。创建继承 Revision 时从关系表复制同一附件引用而不复制 binary。关系表为 Server 权威；Revision JSON 中三个既有 ID 字段是同事务兼容镜像。删除当前关系不会删除 object；无引用 metadata 标为 `pending_cleanup`，没有自动 GC。
+- 上传先写 `pending_upload` metadata，再 PUT/head 校验对象，最后在 PostgreSQL 一次事务中提交 available+关系+兼容镜像+Quote version+可信 OperationLog。PUT 失败或事务失败保留可识别的 cleanup 状态；对象存储与 PostgreSQL **不是 ACID 跨系统事务**。同一上传 token 重放成功结果或 fail closed，绝不默默创建第二份。失败/不确定响应要按 token 查询，不得盲目换 token 重试。
+- Q4A 没有修改 Browser `AttachmentRepository`、IndexedDB、localStorage namespace、Quote 编辑器或 Order attachment wiring。旧 Browser blob/ref 在 Q5 projection 中清零但源数据仍保护；Q4B 才考虑复用现有 AttachmentPanel 改接 Server repository。
 
 未来真实后端可用 Object Storage/API repository 替换 IndexedDB implementation，业务组件继续依赖 AttachmentRepository 边界。
 
 ## Future production architecture — USER CONFIRMED
 
-以下是 Quote Production 的目标与 migration 边界，不是当前已实现行为：
+以下是 Quote Production 的已确认目标与 migration 边界；其中 schema/API 的工程基础已由 Q4A 实现但未生产激活：
 
 - 当前 Browser IndexedDB Quote attachment blobs 不作为 Server Quote migration source，现有 QuoteRevision attachment references 也不迁移为正式关系。新 Server attachments 在 Quote cutover 后从空的正式 attachment domain 开始。
 - 旧 Browser blobs 和引用不是损坏或 disposable test data；migration development、production acceptance 与 rollback window 内均保持原状。删除需要后续独立 destructive-data authorization。
 - Server attachment metadata 与 Quote/Revision business relationships 持久化在 PostgreSQL；图片/文件 binary content 持久化在 Object Storage。VPS local filesystem 和 PostgreSQL large binary 均不是 production source of truth。
-- Metadata 目标概念包括 stable attachment UUID、original file name、MIME type、size、content hash、kind、storage provider/bucket/key、createdBy、createdAt，以及需要时的 lifecycle/status。具体 SQL schema、API 和 Object Storage provider 尚未冻结。
+- Metadata 所列 UUID、文件名、MIME、大小、hash、kind、provider/container/key、可信 actor/time 与 lifecycle 已在 Q4A schema 中实现；Object Storage provider、生产配置、大小/文件 type 产品政策仍未冻结。
 - PostgreSQL 保存稳定 storage identity/key，而不是 server-specific absolute filesystem path。推荐 key 形态为 `attachments/<attachment-uuid>/original`，不使用易变化的业务名称组织 object identity。
 - 同一 Object Storage 继续使用时，更换 VPS 应只需部署兼容应用、移动/恢复 PostgreSQL、重建配置与 secrets、验证并切换 DNS，不应再次搬迁 attachment blobs。
 - Local filesystem / IndexedDB 可以继续作为 development adapter，不能据此宣称 production attachment architecture 已完成。
