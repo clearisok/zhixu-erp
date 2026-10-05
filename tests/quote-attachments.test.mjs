@@ -2,6 +2,23 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+test("Q4B shares one panel; production Browser keeps IndexedDB controller and only isolated writer injects Server controller", async () => {
+  const [panel, browserController, editor, writer] = await Promise.all([
+    readFile(new URL("../features/quote-center/components/attachment-panel.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../features/quote-center/model/quote-attachment-controller.ts", import.meta.url), "utf8"),
+    readFile(new URL("../features/quote-center/components/quote-editor.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../features/quote-center/components/server-quote-writer-page.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(panel, /controller = browserQuoteAttachmentController/u);
+  assert.match(browserController, /indexedDbAttachmentRepository/u);
+  assert.match(editor, /<QuoteAttachmentPanel/u);
+  assert.doesNotMatch(editor, /createServerQuoteAttachmentController/u);
+  assert.match(writer, /<QuoteAttachmentPanel/u);
+  assert.match(writer, /createServerQuoteAttachmentController/u);
+  assert.match(panel, /URL\.createObjectURL/u);
+  assert.match(panel, /URL\.revokeObjectURL/u);
+});
+
 import {
   addAttachmentToRevision,
   adjacentPreviewAttachmentId,

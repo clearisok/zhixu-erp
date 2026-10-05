@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   AlertBanner,
   AppShell,
@@ -22,6 +22,11 @@ import { PermissionAuthorityProvider } from "@/features/permissions";
 import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
 import type { FabricCostLine, OtherCostLine, PriceVersion, Quote, QuoteRevision, TrimCostLine } from "../model/quote-view-model";
 import { QuoteServerError } from "../server/quote-server-client";
+import { QuoteAttachmentPanel } from "./attachment-panel";
+import { createServerQuoteAttachmentController } from "../model/quote-attachment-controller";
+import { advanceAttachmentRecord, mergeAttachmentMirror } from "../server/quote-attachment-draft";
+import { PartialAttachmentBatchError } from "../model/quote-attachment-controller";
+import { QuoteAttachmentServerError, QuoteAttachmentTransportError } from "../server/quote-attachment-client";
 import {
   UnsafeServerQuoteDecimalError,
   browserNumberFromExactDecimal,
@@ -93,7 +98,7 @@ function WriterFrame({ children, quote, onNavigate }: { children: ReactNode; quo
         eyebrow="Q2B2A · SERVER WRITER TEST WORKSPACE"
         title={quote?.quoteCode ?? "Server 报价编辑工作区"}
         status={<StatusTag tone="warning">Production cutover = NOT ACTIVE</StatusTag>}
-        description="Source = PostgreSQL · Identity = Server · Attachments = unavailable · Masters = snapshot-only"
+        description="Source = PostgreSQL · Identity = Server · Attachments = Server candidate · Masters = snapshot-only"
         back={<button type="button" className="qc-server-quote-link qc-server-writer-back" onClick={() => onNavigate(quote ? `/quote-center/server-detail?id=${encodeURIComponent(quote.id)}` : "/quote-center/server-preview")}>← 返回 Server 只读区</button>}
       />
       {children}
@@ -187,6 +192,9 @@ function ServerQuoteWriterWorkspace() {
   const [conflict, setConflict] = useState(false);
   const [reloadConfirmOpen, setReloadConfirmOpen] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [attachmentPreviewId, setAttachmentPreviewId] = useState<string | null>(null);
+  const [attachmentNotice, setAttachmentNotice] = useState<string | null>(null);
+  const [attachmentBusy, setAttachmentBusy] = useState(false);
 
   const dirty = isDirty(record, baseline);
   const quote = record?.quote ?? null;
@@ -195,6 +203,16 @@ function ServerQuoteWriterWorkspace() {
   const canEdit = serverSession.status === "authenticated" && serverSession.hasPermission("quote.edit");
   const canEditCost = canEdit && serverSession.hasPermission("quote.cost.edit");
   const canEditSettings = canEdit && serverSession.hasPermission("quote.settings.edit");
+  const attachmentController = useMemo(() => revision ? createServerQuoteAttachmentController({
+    quoteId, revisionId: revision.revisionId,
+    getVersion: () => record?.expectedVersion ?? 0,
+    isSharedWithHistorical: (id) => Boolean(quote?.revisions.some((item) => item.readOnly && (item.imageAttachmentIds.includes(id) || item.fileAttachmentIds.includes(id)))),
+    onCommitted: (snapshot) => {
+      setRecord((current) => current ? advanceAttachmentRecord(current, snapshot.revision.revisionId, snapshot) : current);
+      setBaseline((currentBaseline) => currentBaseline ? mergeAttachmentMirror(currentBaseline, snapshot.revision.revisionId, snapshot) : currentBaseline);
+      setAttachmentNotice(`Server 附件已同步 · aggregate v${snapshot.version}`);
+    },
+  }) : null, [quoteId, revision, record?.expectedVersion, quote?.revisions]);
 
   const load = useCallback(async () => {
     if (serverSession.status !== "authenticated" || !serverSession.hasPermission("quote.view")) return;
@@ -242,11 +260,11 @@ function ServerQuoteWriterWorkspace() {
   }, [load, record, serverSession, unsafeAggregate]);
 
   useEffect(() => {
-    if (!dirty) return;
+    if (!dirty && !attachmentBusy) return;
     const beforeUnload = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
     window.addEventListener("beforeunload", beforeUnload);
     return () => window.removeEventListener("beforeunload", beforeUnload);
-  }, [dirty]);
+  }, [dirty, attachmentBusy]);
 
   const setUnsafeField = useCallback((fieldId: string, unsafe: boolean) => {
     setUnsafeDraftFields((current) => {
@@ -257,7 +275,10 @@ function ServerQuoteWriterWorkspace() {
   }, []);
 
   const updateQuote = (transform: (quote: Quote) => Quote) => {
-    setRecord((current) => current ? { ...current, quote: transform(current.quote) } : current);
+    setRecord((current) => {
+      const next = current ? { ...current, quote: transform(current.quote) } : current;
+      return next;
+    });
     setSaveMessage(null);
   };
   const updateRevision = (transform: (revision: QuoteRevision) => QuoteRevision) => updateQuote((current) => ({
@@ -270,7 +291,7 @@ function ServerQuoteWriterWorkspace() {
   }));
 
   const save = async (navigateAfter?: string) => {
-    if (!record || !dirty || conflict || unsafeDraftFields.size > 0 || !canEdit) return;
+    if (!record || !dirty || attachmentBusy || conflict || unsafeDraftFields.size > 0 || !canEdit) return;
     setSaving(true);
     setSaveError(null);
     setSaveMessage(null);
@@ -303,7 +324,7 @@ function ServerQuoteWriterWorkspace() {
   };
 
   const requestNavigation = (target: string) => {
-    if (dirty) setPendingNavigation(target);
+    if (dirty || attachmentBusy) setPendingNavigation(target);
     else router.push(target);
   };
 
@@ -333,7 +354,7 @@ function ServerQuoteWriterWorkspace() {
     {serverSession.status === "authenticated" && sessionExpired && <AlertBanner tone="warning" title="Server 会话已恢复">未保存内容仍保留；请重新执行保存，Server 会再次验证版本与权限。</AlertBanner>}
     {sessionActionError && <ErrorState title="Server 会话操作失败" description={sessionActionError} />}
     <section className="qc-server-writer-boundary">
-      <span>Source <strong>PostgreSQL</strong></span><span>Identity <strong>Server</strong></span><span>Attachments <strong>unavailable</strong></span><span>Masters <strong>snapshot-only</strong></span><span>Cutover <strong>NOT ACTIVE</strong></span>
+      <span>Source <strong>PostgreSQL</strong></span><span>Identity <strong>Server</strong></span><span>Attachments <strong>Server candidate</strong></span><span>Masters <strong>snapshot-only</strong></span><span>Cutover <strong>NOT ACTIVE</strong></span>
     </section>
     {loading ? <LoadingState label="加载 Server Quote 编辑快照" />
       : notFound ? <ErrorState title="Server Quote 不存在（404）" description="Quote ID 缺失、不存在或链接无效。" />
@@ -347,6 +368,7 @@ function ServerQuoteWriterWorkspace() {
             {conflict && <AlertBanner tone="danger" title="检测到 optimistic version conflict" actions={<Button variant="secondary" onClick={() => setReloadConfirmOpen(true)}>重新读取 Server 当前版本</Button>}>未自动覆盖、未自动合并、未自动重试，当前 dirty 内容仍保留。</AlertBanner>}
             {saveError && <ErrorState title="Server 保存未完成" description={saveError} />}
             {saveMessage && <AlertBanner tone="info" title={saveMessage}>返回版本完全来自 Server response；前端未自行推算版本号。</AlertBanner>}
+            {attachmentNotice && <AlertBanner tone="info" title={attachmentNotice}>附件命令独立提交；其它未保存报价草稿仍保留。</AlertBanner>}
 
             <Card className="qc-server-writer-section">
               <header><div><small>AGGREGATE IDENTITY</small><h2>Server Quote</h2></div><StatusTag tone={dirty ? "warning" : "active"}>{dirty ? "未保存" : "已同步"}</StatusTag></header>
@@ -415,14 +437,28 @@ function ServerQuoteWriterWorkspace() {
               <h3>其他费用</h3><OtherCostRows scope={activeVersion.id} rows={activeVersion.otherCosts} disabled={!canEditCost} numberField={numberField} update={(id, transform) => updatePriceVersion(activeVersion.id, (version) => ({ ...version, otherCosts: version.otherCosts.map((row) => row.id === id ? transform(row) : row) }))} />
             </Card>
 
+            {attachmentController && <div className="qc-server-writer-section">
+              <QuoteAttachmentPanel revision={revision} readOnly={!canEdit || conflict || revision.readOnly}
+                createdBy="" controller={attachmentController} previewAttachmentId={attachmentPreviewId}
+                onPreviewAttachmentIdChange={setAttachmentPreviewId} onChange={() => undefined}
+                onAttachmentRemoved={() => undefined} notify={setAttachmentNotice}
+                onBusyChange={setAttachmentBusy}
+                onMutationError={(failure) => {
+                  const cause = failure instanceof PartialAttachmentBatchError ? failure.cause : failure;
+                  if (cause instanceof QuoteAttachmentServerError && cause.status === 401) serverSession.invalidate();
+                  setConflict(true);
+                  setSaveError(`附件命令未完成（${cause instanceof QuoteAttachmentServerError ? `${cause.code} / HTTP ${cause.status}` : cause instanceof QuoteAttachmentTransportError ? "transport outcome unknown" : "unknown"}）。其它未保存修改保留；请显式重新读取并核对 Server 当前状态，不要使用新 token 盲目重试。`);
+                }} />
+            </div>}
+
             <Card className="qc-server-writer-section qc-server-writer-deferred">
               <header><div><small>INTENTIONALLY DEFERRED</small><h2>未接入动作</h2></div><span>Q2B2A safety boundary</span></header>
-              <ul><li>附件：Server 附件将在 Q4 接入；现有引用原样保留。</li><li>品牌/业务员/面辅料 master：只显示 snapshot，不加载 Browser Basic Settings。</li><li>删除、导出、生成订单、新建 Quote：不可用。</li><li>Revision / Estimate / PriceVersion destructive actions：不可用。</li><li>客户确认 mutation：不可用；C4.2 current terms 仍是唯一共享 current authority。</li></ul>
+              <ul><li>附件仅在本 Server candidate 工作区调用 Q4A API；未配置 storage 时 fail closed，不切换正式 Browser 附件。</li><li>品牌/业务员/面辅料 master：只显示 snapshot，不加载 Browser Basic Settings。</li><li>删除、导出、生成订单、新建 Quote：不可用。</li><li>Revision / Estimate / PriceVersion destructive actions：不可用。</li><li>客户确认 mutation：不可用；C4.2 current terms 仍是唯一共享 current authority。</li></ul>
             </Card>
 
             <div className="qc-server-writer-savebar">
               <span>{dirty ? "有未保存修改" : "已与 Server baseline 同步"} · expectedVersion {record.expectedVersion}</span>
-              <Button permission="quote.edit" disabled={!dirty || saving || conflict || unsafeDraftFields.size > 0 || serverSession.status !== "authenticated"} onClick={() => void save()}>{saving ? "保存中…" : "保存到 Server"}</Button>
+              <Button permission="quote.edit" disabled={!dirty || saving || attachmentBusy || conflict || unsafeDraftFields.size > 0 || serverSession.status !== "authenticated"} onClick={() => void save()}>{saving ? "保存中…" : "保存到 Server"}</Button>
             </div>
           </div> : <EmptyState title="未加载 Server Quote 编辑快照" />}
 

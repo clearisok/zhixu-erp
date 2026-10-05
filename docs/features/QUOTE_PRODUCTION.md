@@ -10,12 +10,16 @@
 
 Q4A 新增 `0008_quote_attachments.sql`、Server metadata/Revision relationship、provider-neutral binary storage interface、trusted API/OperationLog 与 disposable PostgreSQL/fake-storage 测试。Revision 关系为 Server 权威；Quote Revision 原三个附件 ID 字段是同事务兼容镜像，通用 Quote PUT 不得直接改写；新 Revision 继承关系但不复制 binary。Production adapter 未选/未配置，未执行真实 0008、真实部署、Browser 附件迁移、Quote writer cutover 或 Q5。Q3 master/settings 已完成真实 Server authority cutover；下方早期 Q3A/Q3B1 的“未真实执行”是其**历史 Gate 当时状态**，不是当前 Q3 状态。
 
+## Q4B isolated Attachment UI candidate — 2026-10-05
+
+Q4B 复用唯一 `QuoteAttachmentPanel`，以高层 Browser/Server controller 分离低层 IndexedDB blob repository 与 Q4A 的版本化关系命令。Server 接线只在 `/quote-center/server-edit?id=...` 的现有测试工作区；正式 `/quote-center`、`/quote-center/new`、`/quote-center/detail` 与 Quote aggregate 仍是 Browser authority。附件命令返回的 Quote version/关系镜像与未保存 writer draft 合并，409/503/不确定结果 fail closed，批量上传按文件顺序推进版本且不宣称全批次原子回滚。Q4B 不执行真实 0008、不部署、不选择 Object Storage provider、不迁移 Browser 附件/Quote，Q5 仍未执行。共享历史附件 metadata 改名的长期名称快照规则待用户确认，Server candidate 暂禁此类改名。
+
 ## Q3A Server master/settings foundation — 2026-09-21
 
 - `0007_quote_master_settings.sql` adds Server-owned Brand, CustomerSalesperson, Fabric/Trim library, scoped DefaultTrimConfig, global Quote settings and manufacturing preset tables without adding historical Quote FKs or a Supplier table. Runtime IDs are Server UUIDs; future controlled import can preserve legacy TEXT identities.
 - Typed `/api/v1/quote-masters/*` and `/api/v1/quote-settings/*` routes use trusted session RBAC, bounded validation, decimal strings, optimistic version and same-transaction OperationLog. Fabric/Trim duplicate names remain valid; normalized Brand/Salesperson names are unique.
 - D-089 owns one nullable `DefaultOtherCost` per System/Brand/Salesperson scope and preserves Quote 0..N OtherCostLine snapshots. Server DefaultTrimConfig intentionally has no Browser compatibility quantity/usage. Default resolution preserves null/zero, Salesperson > Brand > System, and whole-set salesperson trims without merging Brand rows.
-- At the Q3A checkpoint this was disposable-foundation only. Q3B2I-C2 later applied real 0007, imported master/settings and switched their formal UI to Server authority. Quote aggregate, its Browser data and attachments remain Browser-owned; Q4B/Q5 and separate Quote cutover gates remain.
+- At the Q3A checkpoint this was disposable-foundation only. Q3B2I-C2 later applied real 0007, imported master/settings and switched their formal UI to Server authority. Quote aggregate, its Browser data and attachments remain Browser-owned; Q4B is now an isolated UI candidate only, while Q5 and separate Quote cutover gates remain.
 
 ## Q3B1 existing settings UI Server candidate — 2026-09-21
 

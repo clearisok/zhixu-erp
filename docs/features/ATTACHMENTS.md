@@ -2,7 +2,7 @@
 
 ## Purpose
 
-附件模块为单张 Quote Revision 提供图片和文件管理。图片可预览并指定款式图；普通文件只允许下载。正式 Browser Quote Center 仍使用 IndexedDB；Q4A 另建了尚未部署/激活的 Server foundation，不接入根路径旧 ERP API。
+附件模块为单张 Quote Revision 提供图片和文件管理。图片可预览并指定款式图；普通文件只允许下载。正式 Browser Quote Center 仍使用 IndexedDB；Q4A Server foundation 与 Q4B isolated UI candidate 均未部署/激活，不接入根路径旧 ERP API。
 
 ## Current behavior
 
@@ -66,9 +66,17 @@ QuoteRevision 的附件字段位于 `quote-view-model.ts`。旧 `garmentMedia` /
 - API 为 `/api/v1/quotes/:quoteId/revisions/:revisionId/attachments` 的 list/raw upload，`/:attachmentId` metadata/rename/unlink，`/:attachmentId/download`、`/:attachmentId/link` 和 `/style-image`。上传为 bounded raw binary（非 Base64 JSON），`name`/`kind` 查询参数、`Content-Type`、`Idempotency-Key` UUID 和 `X-Quote-Version`；mutation 仍需 exact Origin + `X-Zhixu-Request: 1`。服务端计算 SHA-256、验证图片 JPEG/PNG/WEBP signature；普通文件只拒绝 video、无效 MIME 与已作为图片的 MIME。100 MiB 是 Q4A 技术内存上限，不是最终产品大小/文件类型政策；产品政策仍待确认。
 - 读/下载需可信 `quote.view`，上传/重命名/关联/移除/款式图需可信 `quote.edit`；历史 Revision 关系不可改，通用 Quote PUT 不能直接改已有附件引用。创建继承 Revision 时从关系表复制同一附件引用而不复制 binary。关系表为 Server 权威；Revision JSON 中三个既有 ID 字段是同事务兼容镜像。删除当前关系不会删除 object；无引用 metadata 标为 `pending_cleanup`，没有自动 GC。
 - 上传先写 `pending_upload` metadata，再 PUT/head 校验对象，最后在 PostgreSQL 一次事务中提交 available+关系+兼容镜像+Quote version+可信 OperationLog。PUT 失败或事务失败保留可识别的 cleanup 状态；对象存储与 PostgreSQL **不是 ACID 跨系统事务**。同一上传 token 重放成功结果或 fail closed，绝不默默创建第二份。失败/不确定响应要按 token 查询，不得盲目换 token 重试。
-- Q4A 没有修改 Browser `AttachmentRepository`、IndexedDB、localStorage namespace、Quote 编辑器或 Order attachment wiring。旧 Browser blob/ref 在 Q5 projection 中清零但源数据仍保护；Q4B 才考虑复用现有 AttachmentPanel 改接 Server repository。
+- Q4A 没有修改 Browser `AttachmentRepository`、IndexedDB、localStorage namespace、Quote 编辑器或 Order attachment wiring。旧 Browser blob/ref 在 Q5 projection 中清零但源数据仍保护。
 
-未来真实后端可用 Object Storage/API repository 替换 IndexedDB implementation，业务组件继续依赖 AttachmentRepository 边界。
+## Q4B isolated UI candidate（未部署/未切正式路由）
+
+- 同一个 `QuoteAttachmentPanel` 通过高层 `QuoteAttachmentController` 复用现有图片/文件、粘贴/拖放、预览、下载、命名、移除与款式图 UI。默认 Browser controller 继续使用原 `indexedDbAttachmentRepository`、`saveQuoteAttachments` 和同一 localStorage/IndexedDB 语义；未改变正式 `/quote-center`、`/quote-center/new`、`/quote-center/detail` 或 SalesOrder 的附件 authority。
+- 仅独立 `/quote-center/server-edit?id=...` 注入 Server controller/typed Q4A client，显式标记 `Source = PostgreSQL`、`Attachments = Server candidate`、`Production cutover = NOT ACTIVE`。请求使用同源 credentials、mutation boundary、expected Quote version 与每个 File 一次逻辑尝试的稳定 UUID `Idempotency-Key`，不提交 caller actor/attachment ID/hash/storage key。下载走 authenticated binary Blob/object URL，并在组件卸载/切图后 revoke。
+- Server 每次成功命令读回该 Revision 的权威关系列表，按 Server 返回版本更新 writer 的 `expectedVersion` 与三个附件镜像；其它未保存 base/cost draft 和 dirty baseline 均保留。409、传输不确定或 503 不自动重试/回退 Browser，要求显式重新读取核对。多文件顺序上传并逐次链式推进版本；失败仅报告已确认完成数量及不确定状态，不宣称跨 PostgreSQL/Object Storage 的全批次 ACID 回滚。UI“删除”仅 unlink 关系，不物理删除 object。
+- 历史 Revision 由 Q4A API 保持只读；当前 writer 仍只编辑 default Revision，不新增完整历史导航。继承的同一 attachment metadata 名称可由多个 Revision 共享；D-012 仅定义引用快照，未确认历史显示名是否必须冻结。为避免当前改名影响历史显示，Server candidate 暂时禁止对被历史 Revision 共享的附件重命名。正式产品规则仍 **USER DECISION REQUIRED**；Browser 现有 rename 行为未改。款式图只属于每个 Revision 的关系属性。
+- Q4B 仅前端工程 candidate。真实 PostgreSQL 0008 未应用，真实 3001 未部署，正常 Server runtime 没有 production Object Storage adapter，附件 API 可按 Q4A 规则返回 503。Q5 historical Quote migration、正式 Quote writer cutover、附件 provider/security/GC 均仍需独立 Gate。
+
+未来正式 Server cutover 应使用 Q4B 高层 controller 及受控部署，不把关系/版本命令硬塞进低层 Browser `AttachmentRepository`。
 
 ## Future production architecture — USER CONFIRMED
 
