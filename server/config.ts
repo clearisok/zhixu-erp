@@ -3,6 +3,16 @@ import type { IdentityMode } from "./auth/identity-authority.js";
 
 export type ServerEnvironment = "development" | "test" | "production";
 
+export type AttachmentStorageConfig = { kind: "disabled" } | {
+  kind: "s3";
+  endpoint: string;
+  region: string;
+  bucket: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  forcePathStyle: boolean;
+};
+
 export type ServerConfig = {
   environment: ServerEnvironment;
   identityMode: IdentityMode;
@@ -20,7 +30,36 @@ export type ServerConfig = {
     displayName: string;
     password?: string;
   };
+  attachmentStorage: AttachmentStorageConfig;
 };
+
+function parseAttachmentStorage(environment: ServerEnvironment, values: NodeJS.ProcessEnv): AttachmentStorageConfig {
+  const kind = values.ZHIXU_ATTACHMENT_STORAGE?.trim() || "disabled";
+  if (kind === "disabled") return { kind: "disabled" };
+  if (kind !== "s3") throw new Error("ZHIXU_ATTACHMENT_STORAGE must be disabled or s3");
+  const required = (name: string): string => {
+    const value = values[name]?.trim();
+    if (!value) throw new Error(`${name} is required for s3 attachment storage`);
+    return value;
+  };
+  const endpoint = required("ZHIXU_ATTACHMENT_S3_ENDPOINT");
+  let url: URL;
+  try { url = new URL(endpoint); } catch { throw new Error("ZHIXU_ATTACHMENT_S3_ENDPOINT must be an absolute URL"); }
+  if (!["http:", "https:"].includes(url.protocol) || !url.hostname || url.username || url.password || url.search || url.hash) {
+    throw new Error("ZHIXU_ATTACHMENT_S3_ENDPOINT is invalid");
+  }
+  if (environment === "production" && url.protocol !== "https:") {
+    throw new Error("ZHIXU_ATTACHMENT_S3_ENDPOINT requires HTTPS in production");
+  }
+  const bucket = required("ZHIXU_ATTACHMENT_S3_BUCKET");
+  if (!/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/u.test(bucket)) throw new Error("ZHIXU_ATTACHMENT_S3_BUCKET is invalid");
+  return {
+    kind: "s3", endpoint: url.toString(), region: required("ZHIXU_ATTACHMENT_S3_REGION"), bucket,
+    accessKeyId: required("ZHIXU_ATTACHMENT_S3_ACCESS_KEY_ID"),
+    secretAccessKey: required("ZHIXU_ATTACHMENT_S3_SECRET_ACCESS_KEY"),
+    forcePathStyle: parseBoolean(values.ZHIXU_ATTACHMENT_S3_FORCE_PATH_STYLE, false, "ZHIXU_ATTACHMENT_S3_FORCE_PATH_STYLE"),
+  };
+}
 
 function parseInteger(value: string | undefined, fallback: number, label: string): number {
   const parsed = value === undefined ? fallback : Number.parseInt(value, 10);
@@ -125,5 +164,6 @@ export function loadServerConfig(values: NodeJS.ProcessEnv = process.env): Serve
       displayName: values.ZHIXU_ADMIN_DISPLAY_NAME?.trim() || "系统管理员",
       password: values.ZHIXU_ADMIN_PASSWORD || undefined,
     },
+    attachmentStorage: parseAttachmentStorage(environment, values),
   };
 }

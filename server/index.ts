@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import { createApp } from "./app.js";
+import { S3AttachmentStorage } from "./attachments/s3-storage.js";
 import { assertRuntimeBuildIdentity } from "./build-identity.js";
 import { bootstrapAdmin } from "./auth/bootstrap.js";
 import { createIdentityAuthority } from "./auth/identity-authority.js";
@@ -11,6 +12,7 @@ import { initializeServer } from "./startup.js";
 
 if (process.env.NODE_ENV === "production") await assertRuntimeBuildIdentity(process.env.ZHIXU_STATIC_DIR?.trim() || "dist/client");
 const config = loadServerConfig();
+const attachmentStorage = config.attachmentStorage.kind === "s3" ? new S3AttachmentStorage(config.attachmentStorage) : undefined;
 const pool = createDatabasePool({
   connectionString: config.databaseUrl,
   max: config.databasePoolMax,
@@ -50,6 +52,7 @@ try {
         },
         staticDirectory: config.staticDirectory,
         identityAuthority,
+        attachmentStorage,
       }));
       await new Promise<void>((resolve, reject) => {
         const onError = (error: Error) => reject(error);

@@ -6,6 +6,8 @@ Q4A foundation 新增待激活的 `0008_quote_attachments.sql` 与 Server Attach
 
 Q4B 在 isolated `/quote-center/server-edit` 增加 typed Attachment client/controller 和共享 UI candidate；它只对实际存在的 Server Quote/Revision 发 Q4A 命令，并把返回版本/权威关系列表并入未保存 writer draft 的附件镜像。正式 Browser Quote 附件仍为 IndexedDB；Q4B 未部署、未应用真实 0008、未选择 Object Storage provider，不表示 Quote production cutover。
 
+Q4C-A 已加入 `server/attachments/s3-storage.ts` 与显式 runtime `ZHIXU_ATTACHMENT_STORAGE=s3` 配置。必须配置 endpoint、region、bucket、access key ID、secret access key；`forcePathStyle` 可选，生产 endpoint 必须 HTTPS，disposable MinIO 可用 HTTP。配置缺失/非法时启动 fail closed；未启用时附件 API 仍为 503。密钥只用于 Server SDK，不写入 build-info/响应/OperationLog；对象键继续是 `attachments/<uuid>/original`，PUT/HEAD 使用 SHA-256 metadata 与 size，GET 流式，remove 没有 runtime 调用。仅 disposable MinIO/PostgreSQL 验证；真实 0008、生产 provider/bucket、部署和 Browser 附件 authority 均未改变。
+
 ## Local Single-User Mode (development only)
 
 `ZHIXU_IDENTITY_MODE=local-single-user` 加 `ZHIXU_LOCAL_SINGLE_USER_ACK=I_UNDERSTAND_NO_AUTH` 才启用无登录模式；缺省仍为 `session`，非 loopback Browser origin 拒绝。`Dockerfile.server` 将模式同时编入前端 `build-info.json`、镜像 label 和 Node runtime；production startup 校验 compiled/runtime 一致。真实当前容器仅绑定 `127.0.0.1:3001`；任何后续替换仍须重新核对精确 host-port，不能把此模式当作公网生产认证。

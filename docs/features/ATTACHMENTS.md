@@ -78,6 +78,12 @@ QuoteRevision 的附件字段位于 `quote-view-model.ts`。旧 `garmentMedia` /
 
 未来正式 Server cutover 应使用 Q4B 高层 controller 及受控部署，不把关系/版本命令硬塞进低层 Browser `AttachmentRepository`。
 
+## Q4C-A S3-compatible adapter（工程实现；未生产激活）
+
+- `server/attachments/s3-storage.ts` 基于 S3 SDK v3 实现 provider-neutral `AttachmentStorage`：PUT 按 MIME 设置 Content-Type，计算 lowercase SHA-256 并写入对象 metadata；HEAD 读取 ContentLength/sha256；GET 返回 Node stream；remove 仅为 interface/isolated test，runtime 不自动调用、无 GC。HEAD 404 会额外执行 HeadBucket 确认 bucket 存在，避免把错误 bucket 误判为缺对象；因此未来生产凭据需要允许此只读检查，否则会 fail closed。认证/网络/provider 故障以安全 storage failure fail closed，不转储 SDK 错误。
+- `server/config.ts` 仅在 `ZHIXU_ATTACHMENT_STORAGE=s3` 时要求 `ZHIXU_ATTACHMENT_S3_ENDPOINT`、`_REGION`、`_BUCKET`、`_ACCESS_KEY_ID`、`_SECRET_ACCESS_KEY`；`ZHIXU_ATTACHMENT_S3_FORCE_PATH_STYLE=true|false` 可按 provider 设置。生产 endpoint 必须 HTTPS，disposable MinIO 允许 HTTP。无配置时保持原 503，不默认启用内存 adapter；密钥不进入 build-info、日志、Browser 或 OperationLog。
+- 对象键仍由 Q4A service 生成 `attachments/<attachment-uuid>/original`，不使用文件名、Quote 编号或本地绝对路径。Browser 仍通过织序 Server API 下载，不直接访问 bucket。隔离 MinIO + PostgreSQL 集成验证 PUT/HEAD/GET、大小/hash/MIME、错误凭据/bucket/网络 fail-closed 及 Service 上传→关系→下载；无真实 bucket、生产 provider、真实 0008、Ubuntu 部署或 Browser authority 切换。
+
 ## Future production architecture — USER CONFIRMED
 
 以下是 Quote Production 的已确认目标与 migration 边界；其中 schema/API 的工程基础已由 Q4A 实现但未生产激活：
