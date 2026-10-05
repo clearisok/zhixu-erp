@@ -14,6 +14,10 @@ Q4A 新增 `0008_quote_attachments.sql`、Server metadata/Revision relationship�
 
 Q4B 复用唯一 `QuoteAttachmentPanel`，以高层 Browser/Server controller 分离低层 IndexedDB blob repository 与 Q4A 的版本化关系命令。Server 接线只在 `/quote-center/server-edit?id=...` 的现有测试工作区；正式 `/quote-center`、`/quote-center/new`、`/quote-center/detail` 与 Quote aggregate 仍是 Browser authority。附件命令返回的 Quote version/关系镜像与未保存 writer draft 合并，409/503/不确定结果 fail closed，批量上传按文件顺序推进版本且不宣称全批次原子回滚。Q4B 不执行真实 0008、不部署、不选择 Object Storage provider、不迁移 Browser 附件/Quote，Q5 仍未执行。共享历史附件 metadata 改名的长期名称快照规则待用户确认，Server candidate 暂禁此类改名。
 
+## Q4C-A S3-compatible storage adapter — 2026-10-05
+
+已实现通用 S3-compatible Server adapter、显式且 fail-closed 的运行时配置，以及 MinIO + PostgreSQL disposable round-trip。对象保留 UUID key、Content-Type 和 SHA-256 metadata；没有直接 Browser→Object Storage、公开 ACL、自动 GC 或 provider 特定逻辑。**仅 engineering implementation**：production provider PENDING，real bucket NOT CONFIGURED，real migration 0008/Ubuntu deployment NOT EXECUTED；正式附件与 Quote aggregate 仍由 Browser 持有。后续真实激活、Object Storage backup/restore 和 authority cutover 均需独立 Gate。
+
 ## Q3A Server master/settings foundation — 2026-09-21
 
 - `0007_quote_master_settings.sql` adds Server-owned Brand, CustomerSalesperson, Fabric/Trim library, scoped DefaultTrimConfig, global Quote settings and manufacturing preset tables without adding historical Quote FKs or a Supplier table. Runtime IDs are Server UUIDs; future controlled import can preserve legacy TEXT identities.
@@ -58,7 +62,7 @@ Quote Production v1 在启用前至少需要以下能力达到 production-grade�
 - PostgreSQL 与 Object Storage 协同的 backup/restore、完整性校验和恢复演练；
 - Quote production Browser acceptance、安全验证与运营交接。
 
-这些是生产启用目标条件。Q1 已实现下述 Quote Server/PostgreSQL foundation，Q2A 已实现 trusted typed API 与 aggregate writer，Q2B1/Q2B2A/Q2B2B 已实现隔离的 Server read、existing-Quote edit 与 Server lazy-create/numbering workspace；这些只通过 disposable PostgreSQL 验证。Production Browser writer/single-login cutover、Server attachment pipeline、真实 migration 与 Quote production deployment 仍未实现，也未购买或冻结任何服务器方案。
+这些是生产启用目标条件。Q1 已实现下述 Quote Server/PostgreSQL foundation，Q2A 已实现 trusted typed API 与 aggregate writer，Q2B1/Q2B2A/Q2B2B 已实现隔离的 Server read、existing-Quote edit 与 Server lazy-create/numbering workspace。Q4A/B/C-A 已形成 Server attachment schema/API/UI candidate/S3-compatible adapter 的工程基础，但仅经 disposable 验证。Production Browser writer/attachment cutover、真实 0008 activation 与 Quote production deployment 仍未实现；生产 Object Storage provider/bucket 未选定。
 
 ## Authentication Target
 
