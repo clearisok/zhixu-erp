@@ -98,7 +98,7 @@ function AttachmentThumbnail({ attachment, onOpen, controller }: { attachment: A
   </button>;
 }
 
-function AttachmentPreviewModal({ openId, images, onChange, onClose, controller }: { openId: string | null; images: AttachmentViewModel[]; onChange: (id: string) => void; onClose: () => void; controller: QuoteAttachmentController }) {
+function AttachmentPreviewModal({ openId, images, onChange, onClose, controller, onDownloadError }: { openId: string | null; images: AttachmentViewModel[]; onChange: (id: string) => void; onClose: () => void; controller: QuoteAttachmentController; onDownloadError: (error: unknown) => void }) {
   const attachment = images.find((item) => item.id === openId) ?? null;
   const legacy = attachment?.legacyUrl ? { id: attachment.id, fileName: attachment.name, fileType: attachment.mimeType, url: attachment.legacyUrl } : undefined;
   const asset = useAttachmentAsset(attachment?.id ?? null, legacy, controller);
@@ -112,7 +112,7 @@ function AttachmentPreviewModal({ openId, images, onChange, onClose, controller 
   return <Modal open={Boolean(attachment)} className="qc-attachment-preview-modal" title={attachment?.name ?? "图片预览"} description={attachment ? `${index + 1} / ${images.length}` : undefined} onClose={onClose} footer={<>
     <Button variant="secondary" onClick={() => move(-1)} disabled={images.length <= 1}>上一张</Button>
     <Button variant="secondary" onClick={() => move(1)} disabled={images.length <= 1}>下一张</Button>
-    <Button onClick={() => attachment && downloadAttachment(attachment, controller)}>下载</Button>
+    <Button onClick={() => { if (attachment) void downloadAttachment(attachment, controller).catch(onDownloadError); }}>下载</Button>
   </>}>
     <div className="qc-attachment-preview-stage">
       {asset ? <Image src={asset.url} alt={attachment?.name ?? "图片预览"} fill sizes="90vw" unoptimized /> : <span>正在载入图片…</span>}
@@ -320,7 +320,7 @@ export function QuoteAttachmentPanel({ revision, readOnly, createdBy, previewAtt
       </article>)}</div>}
       {tab === "file" && files.length > 0 && <div className="qc-attachment-file-wrap"><table className="qc-attachment-file-table"><thead><tr><th>文件名</th><th>类型</th><th>大小</th><th>上传时间</th><th>上传人</th><th>操作</th></tr></thead><tbody>{files.map((attachment) => <tr key={attachment.id}><td><strong title={attachment.name}>{attachment.name}</strong></td><td>{fileTypeLabel(attachment)}</td><td>{formatFileSize(attachment.size)}</td><td>{formatCreatedAt(attachment.createdAt)}</td><td>{attachment.createdBy || "—"}</td><td><div className="qc-file-actions"><Button variant="text" onClick={() => safeDownload(attachment)}>下载</Button>{!readOnly && <button type="button" className="qc-file-delete" disabled={uploading} onClick={() => requestDelete(attachment)}>删除</button>}</div></td></tr>)}</tbody></table></div>}
     </div>
-    <AttachmentPreviewModal openId={previewAttachmentId} images={images} controller={controller} onChange={onPreviewAttachmentIdChange} onClose={() => onPreviewAttachmentIdChange(null)} />
+    <AttachmentPreviewModal openId={previewAttachmentId} images={images} controller={controller} onChange={onPreviewAttachmentIdChange} onClose={() => onPreviewAttachmentIdChange(null)} onDownloadError={(error) => notify(error instanceof Error ? error.message : "附件下载失败，请核对 Server 状态。") } />
     <Modal open={Boolean(deleteStyleTarget)} title="删除当前款式图？" description="该图片当前被设为款式图。删除后当前报价将暂无款式图。" onClose={() => setDeleteStyleTarget(null)} onSubmit={async () => { if (!deleteStyleTarget) return; try { await remove(deleteStyleTarget); setDeleteStyleTarget(null); } catch (error) { mutationFailed(error, "附件移除失败，请核对当前状态。"); } }} footer={<><Button variant="secondary" onClick={() => setDeleteStyleTarget(null)}>取消</Button><Button type="submit" variant="danger">确认删除</Button></>}><p className="qc-unsaved-message">确认后将删除附件关系，并把 styleImageAttachmentId 清空；不会自动指定另一张图片。</p></Modal>
     <Modal open={Boolean(renameTarget)} title="编辑图片名称" description="只修改附件显示名称；图片内容、附件 ID 与文件格式保持不变。" onClose={() => { setRenameTarget(null); setRenameDraft(""); }} onSubmit={renameAttachment} footer={<><Button variant="secondary" onClick={() => { setRenameTarget(null); setRenameDraft(""); }}>取消</Button><Button type="submit" disabled={!renameDraft.trim()}>保存名称</Button></>}><FormItem label="图片名称" required><input className="qc-control" value={renameDraft} onChange={(event) => setRenameDraft(event.target.value)} autoFocus /></FormItem></Modal>
   </Card>;
