@@ -14,6 +14,13 @@ test("Q5 verifies exact frozen build and stages capture evidence without invente
   const expected = { ...info, browserOrigin: `http://127.0.0.1:${address.port}` };
   try {
     assert.equal((await verifyQuoteFrozenBuild(expected)).quoteWriterMode, "frozen");
+    info.buildTime = "2026-10-07T23:00:00+08:00";
+    assert.equal((await verifyQuoteFrozenBuild({ ...expected, buildTime: info.buildTime })).buildTime, info.buildTime);
+    info.buildTime = expected.buildTime;
+    for (const invalid of ["invalid text", "2026-02-30T15:00:00Z", "2026-13-07T15:00:00Z",
+      "2026-10-07T24:00:00Z", "2026-10-07T23:60:00+08:00", "2026-10-07T23:00:00+24:00"])
+      await assert.rejects(verifyQuoteFrozenBuild({ ...expected, buildTime: invalid }));
+    await assert.rejects(verifyQuoteFrozenBuild({ ...expected, gitCommit: info.gitCommit.slice(0, 7) }));
     for (const change of [{ gitCommit: "b".repeat(40) }, { buildId: "wrong" }, { buildTime: "2026-10-06T00:00:00Z" },
       { browserOrigin: `${expected.browserOrigin}/wrong` }]) await assert.rejects(verifyQuoteFrozenBuild({ ...expected, ...change }));
     info.quoteWriterMode = "writable";
@@ -24,6 +31,7 @@ test("Q5 verifies exact frozen build and stages capture evidence without invente
       oldTabsClosedAt: "2026-10-07T00:02:00Z", frozenReopenedAt: "2026-10-07T00:03:00Z", verifiedAt: "2026-10-07T00:04:00Z",
       operatorConfirmedOldTabsClosed: true };
     await assert.rejects(prepareQuoteFreezeEvidence({ ...input, operatorConfirmedOldTabsClosed: false }));
+    await assert.rejects(prepareQuoteFreezeEvidence({ ...input, freezeStartedAt: "2026-10-07T08:01:00+08:00" }));
     await assert.rejects(prepareQuoteFreezeEvidence({ ...input, oldTabsClosedAt: input.freezeStartedAt.replace("00:01", "00:05") }));
     const preparation = await prepareQuoteFreezeEvidence(input);
     assert.equal(Object.hasOwn(preparation, "noMutationAfterCapture"), false);

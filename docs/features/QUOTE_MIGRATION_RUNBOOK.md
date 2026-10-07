@@ -25,7 +25,9 @@ Q5-A 的 canonical Browser full-backup Quote projection 与 disposable PostgreSQ
 
 Attachment preview/download still reads existing IndexedDB/legacy references; D-094 clearing does not run in Browser. Existing schema migration must finish in a writable build before a future frozen deployment; frozen code cannot repair source.
 
-`npx tsx scripts/verify-q5-frozen-build.ts --origin <same-origin> --commit <sha> --build-id <id> --build-time <UTC> --identity-mode local-single-user` only performs a GET of build-info, requiring exact identity, Quote frozen and Q3 server. It does not close tabs, capture backup or grant readiness. Redirects/wrong origin/build/writable identity reject.
+`npx tsx scripts/verify-q5-frozen-build.ts --origin <same-origin> --commit <full-40-char-sha> --build-id <id> --build-time <ISO-8601> --identity-mode local-single-user` only performs a GET of build-info, requiring exact identity, Quote frozen and Q3 server. It does not close tabs, capture backup or grant readiness. Redirects/wrong origin/build/writable identity reject.
+
+Future Q5 frozen builds must inject the full reviewed 40-character Git commit; build-info `buildTime` accepts the repository's ISO-8601 timezone-offset convention (including `+08:00`) as well as UTC `Z`. The Q5-B freeze/source evidence timestamps retain their stricter UTC `Z` contract.
 
 `prepareQuoteFreezeEvidence` requires explicit operator old-tabs attestation and emits `quote-writer-freeze-preparation.v1`, without `noMutationAfterCapture`. Only `finalizeQuoteFreezeEvidence`, after capture, with explicit no-mutation attestation, equal before/after raw-source SHA-256 and ordered timestamps can emit the existing Q5-B `quote-writer-freeze.v1`; the Q5-B parser remains unchanged. Preparation alone is never accepted as final proof. These helpers do not create real operational evidence in this engineering Gate.
 

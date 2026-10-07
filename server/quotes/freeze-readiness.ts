@@ -11,12 +11,28 @@ function timestamp(value: string): number {
   requireValue(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?Z$/.test(value));
   const result = Date.parse(value); requireValue(Number.isFinite(result)); return result;
 }
+/** Build identity permits the repository's ISO-8601 offset; Q5-B evidence timestamps remain UTC Z. */
+function buildIdentityTimestamp(value: string): void {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,3})?(Z|[+-]\d{2}:\d{2})$/.exec(value);
+  requireValue(match);
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText, zone] = match;
+  const [year, month, day, hour, minute, second] = [yearText, monthText, dayText, hourText, minuteText, secondText].map(Number);
+  requireValue(year >= 1000 && month >= 1 && month <= 12 && day >= 1
+    && day <= new Date(Date.UTC(year, month, 0)).getUTCDate()
+    && hour <= 23 && minute <= 59 && second <= 59);
+  if (zone !== "Z") {
+    const offsetHour = Number(zone.slice(1, 3));
+    const offsetMinute = Number(zone.slice(4, 6));
+    requireValue(offsetHour <= 23 && offsetMinute <= 59);
+  }
+  requireValue(Number.isFinite(Date.parse(value)));
+}
 export async function verifyQuoteFrozenBuild(expected: FrozenBuildExpectation, fetcher: typeof fetch = fetch) {
   const origin = new URL(expected.browserOrigin);
   requireValue(origin.origin === expected.browserOrigin && ["http:", "https:"].includes(origin.protocol));
   requireValue(/^[a-f0-9]{40}$/.test(expected.gitCommit));
   requireValue(/^[A-Za-z0-9_.:@/-]{1,128}$/.test(expected.buildId));
-  timestamp(expected.buildTime);
+  buildIdentityTimestamp(expected.buildTime);
   requireValue(["session", "local-single-user"].includes(expected.identityMode));
   const url = `${origin.origin}/build-info.json`;
   const response = await fetcher(url, { redirect: "error", cache: "no-store", signal: AbortSignal.timeout(10_000) });
