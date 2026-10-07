@@ -1,5 +1,7 @@
 # Quote Production Cutover Readiness
 
+> Q5-C（2026-10-07）：QUOTE-SPECIFIC FREEZE ENGINEERING ONLY / PASS。独立 QuoteWriterMode 默认 writable；candidate frozen 提供只读 list/detail/附件预览/full backup 与 mutation fail-closed。真实 runtime 仍 WRITABLE，Q3 master/settings SERVER，Quote aggregate BROWSER。真实 frozen deployment、旧标签页关闭、fresh Browser source、0008、COS、Q5 Execute 均未执行/未授权。完整 write-path audit 和 evidence 时序见 QUOTE_MIGRATION_RUNBOOK.md；此状态不等于 production cutover ready。
+
 ## Purpose and status
 
 This document is the Q2B2C production-cutover readiness audit for Quote Center. It answers what remains before the existing production Quote UI can move from Browser storage to the trusted Server/PostgreSQL stack without losing accepted business behavior, history, permissions, attachments, settings, or rollback capability.
@@ -10,7 +12,7 @@ This is an engineering audit and implementation plan. It does not activate migra
 
 > 2026-10-07 更新：上段“Q5 仍未开始”和下方 milestone 表均为历史基线。Q5-A 纯 Preview + disposable PostgreSQL rehearsal 已实现；未捕获真实 Browser Quote source、未执行真实 import/0008/COS/deployment。正式 Quote aggregate/附件仍由 Browser 持有，cutover 仍 NOT READY。真实 Q5 execute 前须独立授权及 production Object Storage、0008、备份/回滚、fresh source、writer freeze/cutover。D-094 已确认目标清空 legacy URL 兼容字段；Q4B 共享附件 metadata 改名规则仍待决定。
 
-> Q5-B 更新：reviewed-source/evidence/advisory-lock/commit-uncertainty 的 guarded engineering boundary 已建立；运维 VerifyOnly 无真实 Execute。Quote-specific Browser writer freeze 尚无产品实现，0008 与 COS 仍未真实激活，故 real Execute 和 production cutover 继续 BLOCKED。参阅 `QUOTE_MIGRATION_RUNBOOK.md`。
+> Q5-B 更新：reviewed-source/evidence/advisory-lock/commit-uncertainty 的 guarded engineering boundary 已建立；运维 VerifyOnly 无真实 Execute。Quote-specific Browser writer freeze 已由 Q5-C 实现并工程验证，但尚未真实部署，0008 与 COS 仍未真实激活，故 real Execute 和 production cutover 继续 BLOCKED。参阅 `QUOTE_MIGRATION_RUNBOOK.md`。
 
 The labels used below are intentional:
 

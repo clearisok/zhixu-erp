@@ -1,12 +1,35 @@
 # Q5 Historical Quote migration — guarded operational boundary
 
-## Current state (Q5-B, 2026-10-07)
+## Current state (Q5-C, 2026-10-07)
 
 Q5-A 的 canonical Browser full-backup Quote projection 与 disposable PostgreSQL import/readback 已完成。Q5-B 增加 reviewed-source、source/freeze/rollback/rehearsal/Object Storage 证据契约、一次性数据库 advisory lock、COMMIT 不确定性与新连接 readback；`Invoke-Q5GuardedQuoteImport.ps1` **只有 VerifyOnly**，没有真实 Execute 参数或连接真实数据库写入的入口。合成证据能在 disposable PG16 覆盖同一前置验证模型。Q5-B 未捕获真实 Browser source，未配置 COS，未执行真实 0008、Quote import、部署或 authority switch。
 
-当前真实目标缺 0008；Quote Center 尚无独立的 Quote-writer frozen/read-only build。Q3 `masterSettingsAuthority=frozen` 仅冻结 Q3 master/settings，**不**证明 Quote aggregate 停写。真实 Q5 Execute 仍为 `NOT AUTHORIZED / NOT READY`。现有真实 3001 的 Q3 master/settings 可继续 Server 编辑；旧 3002 不应被启动或因 Q5 任务重跑 Q3 import。
+当前真实目标缺 0008；Q5-C 已实现独立 Quote-writer frozen/read-only candidate，尚未真实部署。Q3 `masterSettingsAuthority=frozen` 仅冻结 Q3 master/settings，**不**证明 Quote aggregate 停写。真实 Q5 Execute 仍为 `NOT AUTHORIZED / NOT READY`。现有真实 3001 的 Q3 master/settings 可继续 Server 编辑；旧 3002 不应被启动或因 Q5 任务重跑 Q3 import。
 
 ## Evidence contracts and source order
+
+### Q5-C engineering freeze boundary (not deployed)
+
+`NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE` defaults to `writable`; only `writable|frozen` are accepted. Vite build-info, Docker build/runtime env and `io.zhixu.quote-writer-mode` label bind this value. Server startup rejects compiled/runtime mismatch. Q3 authority and identity are independent; the future combination is `server` / `frozen` / `local-single-user`, not static maintenance mode.
+
+| Browser Quote write path | Frozen enforcement |
+| --- | --- |
+| list/detail / canonical source / legacy compatibility | Pure current-v13 envelope validation; bypass initialize/cache/normalization/seed/legacy merge/remove; invalid source shows 报价冻结源不可安全读取 |
+| save / delete / createDraft / copy | First-line repository `assertBrowserQuoteWrite`; `/new` and copy modal stop before defaults/IDs |
+| base info / costs / status / Revision / PriceVersion / Estimate | Read-only props, hidden mutation actions, handler guards and repository guard; navigation/search/preferences/export remain |
+| customer confirmation / Server current terms from Quote | Quote UI confirmation action hidden and handler guarded; independent Server domain unchanged |
+| Quote → Order | Frozen modal never mounts; submit guard; unrelated Order domain unchanged |
+| upload / rename / unlink / style / pending blob delete | Browser Quote controller and Quote-specific deletion guard; shared IndexedDB repository stays usable by unrelated domains |
+| bootstrap / standard backup | Pure frozen source validation; skip Quote initialization; full backup checks identical Quote raw string before/after |
+| restore / reset | Explicit Quote guard in service and disabled UI, independent of Q3 authority |
+
+Attachment preview/download still reads existing IndexedDB/legacy references; D-094 clearing does not run in Browser. Existing schema migration must finish in a writable build before a future frozen deployment; frozen code cannot repair source.
+
+`npx tsx scripts/verify-q5-frozen-build.ts --origin <same-origin> --commit <sha> --build-id <id> --build-time <UTC> --identity-mode local-single-user` only performs a GET of build-info, requiring exact identity, Quote frozen and Q3 server. It does not close tabs, capture backup or grant readiness. Redirects/wrong origin/build/writable identity reject.
+
+`prepareQuoteFreezeEvidence` requires explicit operator old-tabs attestation and emits `quote-writer-freeze-preparation.v1`, without `noMutationAfterCapture`. Only `finalizeQuoteFreezeEvidence`, after capture, with explicit no-mutation attestation, equal before/after raw-source SHA-256 and ordered timestamps can emit the existing Q5-B `quote-writer-freeze.v1`; the Q5-B parser remains unchanged. Preparation alone is never accepted as final proof. These helpers do not create real operational evidence in this engineering Gate.
+
+Validation uses synthetic current Browser records and temporary IndexedDB. The isolated Chromium harness uses a fresh temporary profile, ephemeral loopback port and a synthetic route backed by production repositories/controller/export; it closes only its own test tabs and verifies same-origin writable → frozen list/detail/export raw-byte continuity. It is not real 3001 UI acceptance. Production UI restrictions are additionally checked by source-contract regression. No real profile/backup/DB/COS is read.
 
 Q5 只消费现有标准 Browser full backup，不建立第二套备份格式或 Quote 归一化。`quote-history-source-identity.v1` 仅保存 file SHA-256、Q5 source/projection hash、origin、namespace、environment、schema/backup version、capture time、file mtime 与 reviewed commit；不保存 localRecords、Quote payload 或附件 blob。`quote-writer-freeze.v1` 绑定同一 origin/commit、build ID/runtime identity、用户确认关闭旧可写标签页、重开只读界面、Quote 写路径已禁用，以及 capture 后无 Quote mutation 证明。时间必须满足 freeze start ≤ old tabs closed ≤ frozen reopen ≤ frozen verification ≤ fresh capture ≤ source file mtime；文件名时间不作证明。
 
@@ -22,7 +45,7 @@ Q5 只消费现有标准 Browser full backup，不建立第二套备份格式或
 
 ## Remaining real Gate blockers
 
-- 实现并验收 Quote-specific frozen/read-only Browser build 与旧标签页关闭/连续性证明；Q3 master/settings frozen 不可代用。
+- 独立授权部署已实现的 Quote-specific frozen/read-only candidate，验收真实旧标签页关闭/同源连续性；Q3 master/settings frozen 不可代用。
 - 真实生产 Object Storage private bucket、runtime config 与 PUT/HEAD/GET/delete preflight；本 Gate 不接 COS。
 - 独立授权执行真实 0008，并验证真实 ledger current。
 - fresh authoritative Browser backup、一次性排练 proof、exact-target post-freeze rollback dump/manifest 与独立 evidence custody。

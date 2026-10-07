@@ -4,6 +4,12 @@
 
 保护 Quote Center 在浏览器中的长期验收数据，使页面刷新、HMR、DEV 重启、Production Build、Docker rebuild、Seed 变化和前端 schema 演进均不会自动清空或覆盖用户数据。
 
+## Q5-C independent Quote freeze
+
+`NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE=frozen` 只读既有 canonical `zhixu.erp.local.quotes` schema v13；缺失/损坏/旧 schema/非法 aggregate 显示“报价冻结源不可安全读取”，不调用 initialize、seed、migration、legacy merge/remove。正常 writable 默认行为不变，namespace/schema 不变。
+
+Frozen bootstrap 只验证 Quote，其他允许初始化的 Browser domain 保持原行为；Q3 Server authority 不变。标准 full backup v1 的 localRecords/attachments/templates/styleProgress 格式不变，导出前后比对 Quote raw string；Quote 附件与旧 URL 原样保留。restore/reset 有独立 service guard，不依赖 Q3 偶然限制；UI preferences 仍可写。真实 freeze 与 fresh export 尚未执行。
+
 ## Current behavior
 
 - DEV `127.0.0.1:3001` 与 PROD Docker `127.0.0.1:3000` 继续依靠浏览器 Origin 隔离，不做跨 Origin 共享。

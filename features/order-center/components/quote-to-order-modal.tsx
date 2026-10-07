@@ -7,6 +7,7 @@ import { createOperationId, createOrderOperationLog, operationLogRepository } fr
 import { usePermissions } from "@/features/permissions";
 import { calculatePriceVersionMetrics } from "@/features/quote-center/model/quote-calculations";
 import type { Quote } from "@/features/quote-center/model/quote-view-model";
+import { isBrowserQuoteFrozen } from "@/features/quote-center/authority/quote-writer-mode";
 import { orderRepository } from "../repository/order-repository";
 import { createOrderFromQuote, suggestOrderNo } from "../service/order-service";
 
@@ -21,7 +22,12 @@ type Props = {
 const today = () => new Date().toISOString().slice(0, 10);
 const nullableMoney = (value: number | null, symbol = "¥") => value === null ? "—" : `${symbol}${value.toFixed(2)}`;
 
-export function QuoteToOrderModal({ open, quote, defaultRevisionId, defaultPriceVersionId, onClose }: Props) {
+export function QuoteToOrderModal(props: Props) {
+  if (isBrowserQuoteFrozen()) return null;
+  return <QuoteToOrderSession {...props} />;
+}
+
+function QuoteToOrderSession({ open, quote, defaultRevisionId, defaultPriceVersionId, onClose }: Props) {
   const router = useRouter();
   const { can, currentUser } = usePermissions();
   const defaultRevision = quote.revisions.find((candidate) => candidate.revisionId === defaultRevisionId) ?? quote.revisions[0];
@@ -60,6 +66,7 @@ export function QuoteToOrderModal({ open, quote, defaultRevisionId, defaultPrice
   };
 
   const submit = async () => {
+    if (isBrowserQuoteFrozen()) return;
     if (!can("order.create") || submitting || !revision || !priceVersion) return;
     if (!orderNo.trim()) { setError("请填写订单号"); return; }
     if (initialQuantity === null || initialQuantity < 0) { setError("请确认订单初始数量"); return; }

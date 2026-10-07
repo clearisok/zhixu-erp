@@ -2,9 +2,16 @@
 
 > 2026-10-07 当前接力：Q5-A 只完成标准 Browser full backup → 纯 Quote 历史投影 → 一次性 PostgreSQL 16 导入/读回工程验证；没有捕获真实 Browser source、真实 Quote import、真实 0008、COS 配置或部署。D-094 要求目标投影同时清空旧 URL 兼容字段，源 Browser 数据保持不变。Q3B2I-C2 **CLOSED / PASS**，Q3 master/settings 为 Server authority；Q4A/B/C-A 仍是附件工程实现，生产 provider/bucket 未配置。D-093 Local Single-User 仍 Active；Quote aggregate/现有附件仍 Browser-owned。以下旧 Gate 状态为历史快照，不得作为重做 import/handoff 的指令。
 
-- **Q5-B operational foundation：** reviewed Git critical-source guard、严格脱敏 source/freeze/rehearsal/backup/Object Storage 与 D-091 attempt evidence parser、`quote_import_readiness.v1`、advisory lock 与 COMMIT-unknown connection destroy/fresh readback 已实现并仅在 synthetic/disposable 环境验证。`scripts/Invoke-Q5GuardedQuoteImport.ps1` 只有 read-only `-VerifyOnly`、调用既有 exact-target guard，缺真实 0008 明确 BLOCKED；**没有真实 Execute**。Quote-specific frozen UI/COS/真实 0008/真实 fresh source/rollback/evidence custody 与 DB competing-writer freeze 都仍是后续 Gate blocker，不能把 Q3 frozen mode 当作 Quote freeze。详见 `docs/features/QUOTE_MIGRATION_RUNBOOK.md`。
+- **Q5-B operational foundation：** reviewed Git critical-source guard、严格脱敏 source/freeze/rehearsal/backup/Object Storage 与 D-091 attempt evidence parser、`quote_import_readiness.v1`、advisory lock 与 COMMIT-unknown connection destroy/fresh readback 已实现并仅在 synthetic/disposable 环境验证。`scripts/Invoke-Q5GuardedQuoteImport.ps1` 只有 read-only `-VerifyOnly`、调用既有 exact-target guard，缺真实 0008 明确 BLOCKED；**没有真实 Execute**。真实 Quote-specific frozen deployment/COS/真实 0008/真实 fresh source/rollback/evidence custody 与 DB competing-writer freeze 都仍是后续 Gate blocker，不能把 Q3 frozen mode 当作 Quote freeze。详见 `docs/features/QUOTE_MIGRATION_RUNBOOK.md`。
 
 - **Q5-A 工程接点：**`server/quotes/historical-preview.ts` 从标准 v13 full backup 只抽取 Quote scope，计算 source/projection hash、实体与附件排除计数、exact code/owner-scoped ID blockers 和合法 suffix；`historical-import.ts` 是 internal-only 空目标/ledger/sequence guard、单事务 Q1 插入及 commit 后对账。`scripts/preview-quote-history-backup.ts` 只读源文件；`scripts/rehearse-quote-history-backup.ts` 只启动 disposable PostgreSQL。未执行真实 Q5，真实执行还需 Q4 Object Storage、0008、备份、fresh source、freeze 与单独授权。Q4B 共享历史附件 metadata 改名仍待用户决定。
+
+## Q5-C engineering handoff
+
+- Branch `feat/q5c-quote-browser-freeze`，base `a6639c9989d12fe94d5f351c547180ecf26e5ca2`。D-095 独立 QuoteWriterMode、pure frozen v13 read、Repository/attachment/service/UI guards、Q5 build verifier 与分阶段 freeze evidence 已实现。
+- 已验证：targeted 6/6、source-contract 3/3、isolated Chromium harness 1/1、full tests 671/671、Server auth/frontend 33/33、disposable PostgreSQL 117/117、typecheck/lint/两端 build。Chromium 测试是 synthetic route + 正式 repositories/export，不是生产 3001 人工 UI acceptance。
+- Normal runtime 保持 WRITABLE；candidate frozen build READ ONLY；Q3 authority SERVER；Quote authority BROWSER。没有真实 frozen deployment、old-tabs closure、fresh backup、DB write、0008、COS、import、restore 或 cutover。3002 未触碰。Q5 Execute NOT AUTHORIZED。
+- 下一步按既定顺序回到 COS 配置/Q4C-B real preflight、独立 0008 activation，再进入获授权的 Q5 real source/import Gate；不能仅凭本工程 PASS 执行。运行边界和 write-path matrix 见 `features/QUOTE_MIGRATION_RUNBOOK.md`。
 
 ## Repository
 

@@ -9,7 +9,7 @@ import { assertMaintenanceEnvironment, createMaintenanceStaticApp } from "./main
 
 const identity = {
   gitCommit: "a".repeat(40), buildId: "synthetic-frozen", buildTime: "2026-09-29T00:00:00Z",
-  masterSettingsAuthority: "frozen" as const, identityMode: "session" as const,
+  masterSettingsAuthority: "frozen" as const, identityMode: "session" as const, quoteWriterMode: "writable" as const,
 };
 const environment = {
   ZHIXU_GIT_COMMIT: identity.gitCommit,
@@ -24,6 +24,7 @@ test("compiled authority must match runtime identity", async () => {
   try {
     await writeFile(join(directory, "build-info.json"), JSON.stringify(identity));
     assert.deepEqual(await assertRuntimeBuildIdentity(directory, "frozen", environment), identity);
+    await assert.rejects(assertRuntimeBuildIdentity(directory, "frozen", { ...environment, NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE: "frozen" }), /runtime_compiled_build_identity_mismatch/u);
     await assert.rejects(assertRuntimeBuildIdentity(directory, "frozen", { ...environment, NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY: "server" }), /runtime_compiled_build_identity_mismatch/u);
     await assert.rejects(assertRuntimeBuildIdentity(directory, "frozen", { ...environment, ZHIXU_IDENTITY_MODE: "local-single-user" }), /runtime_compiled_build_identity_mismatch/u);
     await assert.rejects(assertRuntimeBuildIdentity(directory, "server", environment), /unexpected_compiled_authority/u);

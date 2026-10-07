@@ -10,6 +10,7 @@ import { useServerSession } from "@/features/server-auth";
 import { validateCopyQuoteStyleNo } from "../model/quote-copy";
 import type { Quote, QuoteType } from "../model/quote-view-model";
 import { mockQuoteRepository } from "../repository/mock-quote-repository";
+import { isBrowserQuoteFrozen } from "../authority/quote-writer-mode";
 
 type Draft = {
   brandId: string;
@@ -29,7 +30,7 @@ type CopyQuoteModalProps = {
 };
 
 export function CopyQuoteModal(props: CopyQuoteModalProps) {
-  if (!props.open || !props.source) return null;
+  if (isBrowserQuoteFrozen() || !props.open || !props.source) return null;
   return <CopyQuoteModalSession key={`${props.source.id}:${props.source.defaultRevisionId}`} {...props} source={props.source} />;
 }
 

@@ -3,6 +3,7 @@ import vinext from "vinext";
 import { defineConfig, type Plugin } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
+import { parseQuoteWriterMode } from "./features/quote-center/authority/quote-writer-mode";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
@@ -16,6 +17,7 @@ type ZhixuBuildInfo = {
   buildTime: string;
   masterSettingsAuthority: "browser" | "frozen" | "server";
   identityMode: "session" | "local-single-user";
+  quoteWriterMode: "writable" | "frozen";
 };
 
 function buildMasterSettingsAuthority(): ZhixuBuildInfo["masterSettingsAuthority"] {
@@ -75,6 +77,7 @@ function createBuildInfo(command: "build" | "serve"): ZhixuBuildInfo {
     buildTime: process.env.ZHIXU_BUILD_TIME?.trim() || generated.buildTime,
     masterSettingsAuthority: buildMasterSettingsAuthority(),
     identityMode: buildIdentityMode(),
+    quoteWriterMode: parseQuoteWriterMode(process.env.NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE),
   };
 }
 
@@ -138,6 +141,7 @@ export default defineConfig(async ({ command }) => {
       __ZHIXU_BUILD_INFO__: JSON.stringify(buildInfo),
       "process.env.NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY": JSON.stringify(buildInfo.masterSettingsAuthority),
       "process.env.NEXT_PUBLIC_ZHIXU_IDENTITY_MODE": JSON.stringify(buildInfo.identityMode),
+      "process.env.NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE": JSON.stringify(buildInfo.quoteWriterMode),
     },
     server: {
       proxy: {

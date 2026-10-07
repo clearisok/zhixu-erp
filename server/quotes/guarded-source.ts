@@ -6,7 +6,9 @@ const SHA = /^[0-9a-f]{40}$/u;
 
 /** Q5-specific reviewed source surface. Broad script scope is intentionally conservative. */
 export const Q5_CRITICAL_PATHS = [
-  "server/quotes/", "server/db/", "features/data-management/", "features/quote-center/model/",
+  "server/quotes/", "server/db/", "features/data-management/", "features/quote-center/",
+  "features/runtime/build-info.ts", "server/build-identity.ts", "app/quote-center/",
+  "features/order-center/components/quote-to-order-modal.tsx",
   "database/migrations/", "scripts/", "package.json", "package-lock.json",
   "Dockerfile.server", "server/config.ts", "server/index.ts", "vite.config.ts",
 ] as const;

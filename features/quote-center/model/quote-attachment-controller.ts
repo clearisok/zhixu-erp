@@ -1,4 +1,5 @@
 import type { QuoteRevision } from "./quote-view-model";
+import { assertBrowserQuoteWrite, isBrowserQuoteFrozen } from "../authority/quote-writer-mode";
 import {
   legacyAttachmentViewModel, removeAttachmentFromRevision, setRevisionStyleImage,
   type AttachmentKind, type AttachmentViewModel,
@@ -33,24 +34,34 @@ export const browserQuoteAttachmentController: QuoteAttachmentController = {
   blob: (id) => indexedDbAttachmentRepository.getBlob(id),
   get: (id) => indexedDbAttachmentRepository.get(id),
   async upload(revision, files, kind, createdBy, onProgress) {
+    assertBrowserQuoteWrite();
     const saved = await saveQuoteAttachments({ revision, files, kind, repository: indexedDbAttachmentRepository, createdBy });
     onProgress({ revision: saved.revision, attachments: await this.load(saved.revision) });
     return saved.attachments.length;
   },
   async rename(revision, attachment, name) {
+    assertBrowserQuoteWrite();
     await indexedDbAttachmentRepository.rename(attachment.id, name);
     return { revision, attachments: await this.load(revision) };
   },
   async unlink(revision, attachmentId) {
+    assertBrowserQuoteWrite();
     const next = removeAttachmentFromRevision(revision, attachmentId);
     return { revision: next, attachments: await this.load(next) };
   },
   async style(revision, attachmentId) {
+    assertBrowserQuoteWrite();
     const next = attachmentId === null ? { ...revision, styleImageAttachmentId: null } : setRevisionStyleImage(revision, attachmentId);
     return { revision: next, attachments: await this.load(next) };
   },
-  canRename: () => true,
+  canRename: () => !isBrowserQuoteFrozen(),
 };
+
+/** Quote-specific deletion boundary; other IndexedDB consumers retain their own authority. */
+export async function deleteBrowserQuoteAttachment(id: string): Promise<void> {
+  assertBrowserQuoteWrite();
+  await indexedDbAttachmentRepository.delete(id);
+}
 
 function view(item: ServerAttachment): AttachmentViewModel {
   return { id: item.id, name: item.name, mimeType: item.mimeType, size: item.size,

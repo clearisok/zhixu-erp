@@ -23,6 +23,8 @@ import {
   type AttachmentBackupRecord,
 } from "../../quote-center/repository/indexeddb-attachment-repository";
 import { mockQuoteRepository } from "../../quote-center/repository/mock-quote-repository";
+import { assertBrowserQuoteWrite, isBrowserQuoteFrozen } from "../../quote-center/authority/quote-writer-mode";
+import { readFrozenBrowserQuoteCollection } from "../../quote-center/authority/frozen-quote-source";
 import {
   CURRENT_MOCK_USER_ID,
   loadGlobalQuoteSettings,
@@ -75,6 +77,7 @@ async function encodeBlob(blob: Blob): Promise<EncodedBlob> {
 
 export async function initializeLocalDataLifecycle(): Promise<void> {
   if (typeof window === "undefined") return;
+  if (isBrowserQuoteFrozen()) readFrozenBrowserQuoteCollection(browserLocalDataStore);
   if (masterSettingsAuthority() === "frozen") {
     // A frozen build must not seed or migrate the source before its fresh export.
     loadBasicSettings();
@@ -100,13 +103,15 @@ export async function initializeLocalDataLifecycle(): Promise<void> {
   await closingRepository.load();
   await ainuokeRepository.load();
   await exportStyleProgressData();
-  await mockQuoteRepository.list();
+  if (!isBrowserQuoteFrozen()) await mockQuoteRepository.list();
   await operationLogRepository.list();
   recentSearchRepository.list(CURRENT_MOCK_USER_ID);
   await indexedDbTemplateRepository.list();
 }
 
 export async function exportLocalDataBackup(): Promise<LocalDataBackup> {
+  const frozenRaw = isBrowserQuoteFrozen() ? browserLocalDataStore.getRawRecords()[browserLocalDataStore.key("quotes")] : null;
+  if (isBrowserQuoteFrozen()) readFrozenBrowserQuoteCollection(browserLocalDataStore);
   if (masterSettingsAuthority() === "frozen") {
     // Both Q3 source envelopes must already exist; never initialize them for export.
     loadBasicSettings();
@@ -115,6 +120,8 @@ export async function exportLocalDataBackup(): Promise<LocalDataBackup> {
     await initializeLocalDataLifecycle();
   }
   const [attachments, templates, styleProgress] = await Promise.all([exportStoredAttachments(), exportStoredTemplates(), exportStyleProgressData()]);
+  if (isBrowserQuoteFrozen() && browserLocalDataStore.getRawRecords()[browserLocalDataStore.key("quotes")] !== frozenRaw)
+    throw new Error("quote_frozen_source_changed_during_export");
   return {
     product: "zhixu-erp",
     backupVersion: LOCAL_DATA_BACKUP_VERSION,
@@ -211,6 +218,7 @@ const browserRestoreAdapters: LocalDataRestoreAdapters<AttachmentBackupRecord, T
 };
 
 export async function restoreValidatedLocalDataBackup(backup: LocalDataBackup, adapters: LocalDataRestoreAdapters<AttachmentBackupRecord, TemplateBackupRecord, ReturnType<typeof emptyStyleProgressData>> = browserRestoreAdapters): Promise<void> {
+  assertBrowserQuoteWrite();
   // A full Browser restore also replaces Q3 master/settings records. It cannot run
   // during the freeze or after Server ownership has been selected.
   assertBrowserMasterWrite();
@@ -220,6 +228,7 @@ export async function restoreValidatedLocalDataBackup(backup: LocalDataBackup, a
 }
 
 export async function restoreLocalDataBackup(input: unknown): Promise<void> {
+  assertBrowserQuoteWrite();
   await restoreValidatedLocalDataBackup(validateLocalDataBackup(input));
 }
 
@@ -245,6 +254,7 @@ function removeLegacyLocalStorageRecords(): void {
 }
 
 export async function resetAllLocalBusinessData(confirmation: string): Promise<void> {
+  assertBrowserQuoteWrite();
   assertBrowserMasterWrite();
   if (confirmation !== RESET_ALL_LOCAL_DATA_CONFIRMATION) throw new Error("重置全部本地业务数据需要输入完整确认文字");
   await Promise.all([replaceStoredAttachments([]), replaceStoredTemplates([]), clearStyleProgressData()]);
