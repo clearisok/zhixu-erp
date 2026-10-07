@@ -159,6 +159,10 @@ async function createInTransaction(client: PoolClient, input: ServerQuote, after
   await afterWrite?.(client, { kind: "create", before: null, after: result });
   return result;
 }
+/** Q5 internal historical import hook. Caller owns one guarded transaction; no runtime allocator/audit. */
+export function insertHistoricalQuoteInTransaction(client: PoolClient, input: ServerQuote): Promise<QuoteRecord> {
+  return createInTransaction(client, input);
+}
 /** Internal Q1 persistence only. No HTTP routes, authentication or Browser writer. */
 export function createQuoteRepository(pool: Pool) {
   return {

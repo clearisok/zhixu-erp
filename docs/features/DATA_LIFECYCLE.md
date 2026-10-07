@@ -17,6 +17,7 @@
 
 - Quote Center 的 Quote、QuoteRevision、PriceVersion、EstimateCost、provenance 与其他经审计确认的实际 Quote 业务事实是真实 production migration assets，必须保护；不是 Order/Scheduling test-data retirement 的一部分。
 - **USER CONFIRMED migration exclusion：**当前 Browser IndexedDB Quote attachment blobs 不作为未来 Quote Production Server migration source；现有 `imageAttachmentIds[]`、`fileAttachmentIds[]`、`styleImageAttachmentId` 也不迁移为 Server attachment relationships。未来 migration projection 可将目标 QuoteRevision 的这些引用显式转换为 `[]` / `[]` / `null`，且 preview 必须报告被清空的引用数量和受影响 Quote/Revision 数量。
+- **D-094 legacy URL compatibility：**`garmentMedia` 与 `quoteDocuments` 也仅在 Q5 目标投影中清空为 `[]`，并分别统计源引用；不把旧 URL 当作正式 Server 附件关系或迁移文件。Q5-A 仅以合成标准备份验证，未捕获或修改真实 Browser 源。
 - 这项 exclusion 不表示旧附件损坏、属于测试数据或可以立即删除。当前 Quote attachment references 与 IndexedDB blobs 在 migration development、production acceptance 和 rollback window 内必须保持不变；任何后续删除都需要独立 destructive-data decision、backup/recovery evidence 与用户明确授权。
 - 当前 Browser Order Center 与 Scheduling 是功能测试数据，不作为正式 PostgreSQL migration source、bootstrap authority 或正式 SalesOrder ID continuity source。未来正式订单走 Ainuoke clean discovery/detail bootstrap，之后产生新的正式 Scheduling。
 - 这项分类不是删除授权。本阶段和任何普通 migration/load/test 流程都不得读取后清空或修改这些 Browser 数据。真正 retirement 必须是独立 Gate：先完整导出 backup、完成 dependency audit、列出精确删除与保护范围，再取得用户 explicit destructive confirmation。

@@ -8,6 +8,8 @@ This is an engineering audit and implementation plan. It does not activate migra
 
 > 2026-10-05 更新：本文件原 Q2B2C milestone 表是历史基线。Q3B2I-C2 已 CLOSED/PASS，master/settings 现为 Server authority。Q4A schema/API 与 Q4B 共享 AttachmentPanel 的 isolated Server UI candidate 均为工程实现；真实 0008 未激活、production Object Storage adapter 未选/未部署、正式 Browser Quote attachments 仍在 IndexedDB，故 Quote aggregate cutover 仍 NOT READY。Q5 仍未开始。
 
+> 2026-10-07 更新：上段“Q5 仍未开始”和下方 milestone 表均为历史基线。Q5-A 纯 Preview + disposable PostgreSQL rehearsal 已实现；未捕获真实 Browser Quote source、未执行真实 import/0008/COS/deployment。正式 Quote aggregate/附件仍由 Browser 持有，cutover 仍 NOT READY。真实 Q5 execute 前须独立授权及 production Object Storage、0008、备份/回滚、fresh source、writer freeze/cutover。D-094 已确认目标清空 legacy URL 兼容字段；Q4B 共享附件 metadata 改名规则仍待决定。
+
 The labels used below are intentional:
 
 - **CONFIRMED FACT** — established by current code, tests, an Active decision, or an explicit user instruction.
@@ -37,7 +39,7 @@ The labels used below are intentional:
 | Q2B2B creation/numbering | Complete after PR #44. Server-only runtime identity/numbering and `0006` are merged. | Isolated lazy-create workspace only; real `0006` not applied. |
 | Q3 Server masters/settings | Q3B2I-C2 CLOSED/PASS: real 0007, controlled import and Server authority handoff completed; formal editing reopened. | Not a current Quote cutover blocker. Quote aggregate remains Browser-owned. |
 | Q4 Server attachments | Q4A foundation and Q4B isolated Server writer UI candidate implemented; one AttachmentPanel, separate Browser/Server controllers. | **BLOCKER:** real 0008 activation, provider/deployment, historical shared-name policy and production Quote ownership/cutover remain separate. |
-| Q5 migration preview/rehearsal | Not implemented. | **BLOCKER.** |
+| Q5 migration preview/rehearsal | Q5-A deterministic Quote-only preview and disposable PostgreSQL 16 import/readback rehearsal implemented. | **BLOCKER:** fresh real Browser source, authorized real import, production prerequisites and cutover remain separate. |
 | Real Quote production cutover | Not complete. | No real Quote business write performed. |
 
 Primary code evidence for this audit is `features/quote-center/components/quote-list.tsx`, `quote-editor.tsx` and their mounted children; `features/quote-center/repository/`; `features/quote-center/server/`; `features/basic-settings/`; `features/global-search/`; `features/template-settings/`; `features/operation-logs/`; `features/order-center/components/quote-to-order-modal.tsx`; `server/quotes/`; `server/sales-orders/`; `server/app.ts`; and migrations `0004`–`0006`. The milestone claims above are also backed by their merged integration/contract tests; this docs-only audit did not rerun PostgreSQL tests or connect to a database.

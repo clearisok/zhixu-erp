@@ -18,6 +18,13 @@
 
 ## Active
 
+### D-094 Q5 historical Quote migration clears legacy attachment URL compatibility fields
+
+- 日期：2026-10-07；状态：Active，用户明确确认。Q5-A 只建立工程投影与一次性数据库排练，不授权真实导入或删除 Browser 数据。
+- 旧 Browser QuoteRevision 的 `garmentMedia`、`quoteDocuments` 在 Server historical projection 中均清空为 `[]`；正式附件 ID 引用同时依既有排除规则投影为 `[]` / `[]` / `null`。Preview 分别统计源引用与受影响 Quote/Revision；源 Browser backup、localStorage 和 IndexedDB blob 不修改、不删除。
+- 这不是附件损坏判定，也不是新的 Server attachment relationship。Q4B 的共享历史附件 metadata 改名/名称快照规则仍是独立的 USER DECISION REQUIRED，不由此决策推导。
+- 证据：用户 2026-10-07 明确确认；`server/quotes/historical-preview.ts` 与 Q5-A synthetic/disposable tests。
+
 ### D-093 Development phase uses a local single-user identity; real authentication is deferred
 
 - 日期：2026-10-04；状态：Active、临时开发架构决定；用户明确确认。此决定取代当前开发阶段 Q3B2I-C2 B3/B3-R 的登录/Cookie/session 验收要求，不是生产安全模型。

@@ -1,6 +1,8 @@
 # AI 接力棒
 
-> 2026-10-05 当前接力：Q3B2I-C2 **CLOSED / PASS**；Q4A/B 与 Q4C-A S3-compatible storage adapter 均为工程实现，Q4C-A 仅使用 disposable MinIO/PostgreSQL 验证，真实 0008 未执行、生产 provider/bucket 未选/未配置、未部署。PR #64 UI 修复已在真实本机 3001 部署并经用户真实浏览器确认“全部通过”；Q3 master/settings 为 Server authority，编辑已重新开放。D-093 Local Single-User 仍 Active，B3/B3-R 已被取代；3002 保持停止，Quote aggregate/现有附件仍 Browser-owned。以下旧 Gate 状态为历史快照，不得作为重做 import/handoff 的指令。
+> 2026-10-07 当前接力：Q5-A 只完成标准 Browser full backup → 纯 Quote 历史投影 → 一次性 PostgreSQL 16 导入/读回工程验证；没有捕获真实 Browser source、真实 Quote import、真实 0008、COS 配置或部署。D-094 要求目标投影同时清空旧 URL 兼容字段，源 Browser 数据保持不变。Q3B2I-C2 **CLOSED / PASS**，Q3 master/settings 为 Server authority；Q4A/B/C-A 仍是附件工程实现，生产 provider/bucket 未配置。D-093 Local Single-User 仍 Active；Quote aggregate/现有附件仍 Browser-owned。以下旧 Gate 状态为历史快照，不得作为重做 import/handoff 的指令。
+
+- **Q5-A 工程接点：**`server/quotes/historical-preview.ts` 从标准 v13 full backup 只抽取 Quote scope，计算 source/projection hash、实体与附件排除计数、exact code/owner-scoped ID blockers 和合法 suffix；`historical-import.ts` 是 internal-only 空目标/ledger/sequence guard、单事务 Q1 插入及 commit 后对账。`scripts/preview-quote-history-backup.ts` 只读源文件；`scripts/rehearse-quote-history-backup.ts` 只启动 disposable PostgreSQL。未执行真实 Q5，真实执行还需 Q4 Object Storage、0008、备份、fresh source、freeze 与单独授权。Q4B 共享历史附件 metadata 改名仍待用户决定。
 
 ## Repository
 
