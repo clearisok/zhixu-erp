@@ -6,6 +6,12 @@
 
 这是架构和 rollout 决策，不是实现完成声明。本文不授权 migration、真实数据写入、部署、Browser 数据修改或 C4.2 activation。
 
+## Q5-A Historical Quote preview and disposable rehearsal — 2026-10-07
+
+Q5-A 复用现有标准 Browser full backup v13 格式和 Q1 aggregate repository，建立纯 Quote-scope deterministic projection、文件 SHA-256/sourceHash/projectionHash、exact duplicate `quoteCode` 与 owner-scoped ID/invariant blocker、合法 suffix sequence calibration plan。历史 Quote/Revision/PriceVersion/Estimate/cost 身份、顺序、decimal-string 快照、null/zero、旧 confirmation/provenance 均不重算或重编号。D-094 确认目标同时清空正式附件 ID 引用 `[] / [] / null` 和 legacy URL 兼容字段 `garmentMedia=[]`、`quoteDocuments=[]`；Preview 分别统计源引用与受影响范围，Browser source/IndexedDB 不变。
+
+内部 importer 不提供 HTTP 入口、不调用 runtime Quote allocator、不制造 trusted runtime CRUD OperationLog；在 disposable PostgreSQL 16 上应用 0001–当前 migrations 后，验证 ledger/空目标、完整 aggregate 单事务写入、逐表行数与 canonical hash 读回、sequence、失败 rollback、二次执行拒绝和 commit 后读回失败的 `COMMITTED_BUT_UNVERIFIED` 语义。Q5-A **不是**真实 Quote 数据排练：未读取真实 Browser backup，未连接真实数据库，未执行真实 0008/Quote import/COS/deployment。真实 Q5 execute 仍须独立授权，且至少等待 Q4 production Object Storage、真实 0008、备份/回滚、fresh Browser Quote source 和 writer freeze/cutover 方案。Q4B 共享历史附件改名规则仍为待决定项。
+
 ## Q4A Server Attachment Foundation — 2026-10-05
 
 Q4A 新增 `0008_quote_attachments.sql`、Server metadata/Revision relationship、provider-neutral binary storage interface、trusted API/OperationLog 与 disposable PostgreSQL/fake-storage 测试。Revision 关系为 Server 权威；Quote Revision 原三个附件 ID 字段是同事务兼容镜像，通用 Quote PUT 不得直接改写；新 Revision 继承关系但不复制 binary。Production adapter 未选/未配置，未执行真实 0008、真实部署、Browser 附件迁移、Quote writer cutover 或 Q5。Q3 master/settings 已完成真实 Server authority cutover；下方早期 Q3A/Q3B1 的“未真实执行”是其**历史 Gate 当时状态**，不是当前 Q3 状态。

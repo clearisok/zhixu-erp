@@ -183,6 +183,7 @@
 - 新 runtime Server Quote 的技术 ID、初始 Revision/PriceVersion ID 均由 Server 生成；业务编号也仅由 Server 生成，Browser/API caller 不得提供或修改。编号创建后 immutable 且数据库 exact unique。
 - Server Quote 编号格式固定为 `QT-YYYY-MMDD-NNN`：日期来自 Server creation instant 的 `Asia/Shanghai` 日历日期；数字后缀来自一个 Quote Center 全局 BIGINT sequence，永不按日重置，至少三位、超过 999 自然扩展。失败/rollback 可留下永久 gap，已消费号码不得回收。
 - 历史 Browser Quote 的未来 Q5 import 必须原样保留现有 ID 与 `quoteCode`；import 前发现 duplicate legacy `quoteCode` 必须 fail closed，不能重编号、加后缀或静默去重。import 后按最大合法 suffix 校准 sequence，runtime candidate 已占用时跳到下一 sequence 值，不改历史行。
+- D-094：Q5 historical Server projection 清空旧 QuoteRevision 附件 ID 关系 `imageAttachmentIds=[]`、`fileAttachmentIds=[]`、`styleImageAttachmentId=null`，并清空旧 URL 兼容字段 `garmentMedia=[]`、`quoteDocuments=[]`；Preview 保留源引用计数与受影响范围。原 Browser Quote、标准备份和 IndexedDB blob 不因此修改或删除；Q4B 共享历史附件改名规则仍待单独确认。
 - `Quote.quoteCode` 保留在模型、repository、搜索、日志、调试与导出 filename fallback 中，不删除或改作款号。
 - 常规报价详情标题、Sticky 摘要、全局搜索/最近访问卡片和移动报价卡以款号、款式名称和报价版本识别，不主动展示 `quoteCode`。
 - 报价中心“报价编号”仍是可配置列；新用户默认隐藏，已有用户个人列偏好不被强制覆盖。

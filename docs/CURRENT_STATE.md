@@ -1,9 +1,10 @@
 # 当前状态
 
-> 状态快照：2026-10-05。下方“历史 Gate 快照”的“未开始/未授权”陈述只记录当时状态，不代表当前状态或操作授权。
+> 状态快照：2026-10-07。下方“历史 Gate 快照”的“未开始/未授权”陈述只记录当时状态，不代表当前状态或操作授权。
 
 ## 当前阶段
 
+- **Q5-A Historical Quote migration preview / disposable rehearsal = 工程实现，未真实导入。** 现有标准 Browser full backup 是唯一输入格式；纯投影验证 schema、Quote/Revision/PriceVersion/Estimate/cost 身份与 invariant，保留旧 `quoteCode`、快照和精确 decimal，报告 exact duplicate、引用排除、source/projection hash 与合法编号 suffix 校准。内部 importer 复用 Q1 aggregate transaction，只在 disposable PostgreSQL 16 对 0001–当前 migration、空目标、回滚、重复执行、逐表数量与完整 aggregate hash 做排练；不制造 runtime OperationLog。D-094 将旧 URL 兼容字段和正式附件引用仅在目标投影清空，源数据不变。**未捕获真实 Browser Quote source，未连接/修改真实数据库，真实 0008 未激活，COS 未配置，未部署；Quote aggregate 与附件 authority 仍为 Browser。** 真实 Q5 execute 仍受独立授权、Q4 production Object Storage、真实 0008、备份/回滚、fresh Browser capture 和 writer freeze/cutover 约束。Q4B 历史共享附件改名规则仍待用户决定。
 - **Q4C-A S3-compatible AttachmentStorage = 工程实现 / disposable 验证，未部署。** Server 仅在显式 `ZHIXU_ATTACHMENT_STORAGE=s3` 且 endpoint/region/bucket/credentials 完整时注入通用 S3-compatible adapter；生产 endpoint 要求 HTTPS，未启用时 Q4A 附件 API 仍 fail closed。PUT 保存 Content-Type 与 lowercase SHA-256 metadata，HEAD 校验大小/hash 并区分缺对象与缺 bucket，GET 流式返回；没有自动 remove/GC。仅隔离 MinIO + PostgreSQL 测试，不选择生产 provider、不配置真实 bucket、不执行真实 0008/部署/Browser 附件切换。Quote aggregate 与正式附件 authority 仍为 Browser。
 - **Q4B Server Attachment UI Candidate = 工程实现/测试，未部署。** 一个 `QuoteAttachmentPanel` 通过高层 controller 保持正式 Browser IndexedDB 行为，并仅在 isolated Server writer 工作区使用 typed Q4A API。附件命令以 Server 版本链式推进且保留未保存报价草稿；共享历史附件的改名因名称快照规则未确认而在 Server candidate 保守禁用。正式 Browser Quote/附件 authority 仍为 Browser，Q5 未执行；真实 0008、Object Storage provider、3001 部署均未发生。
 - **Q4A Server Attachment Foundation = 工程实现/一次性数据库验证，未真实激活。** 基于 merged main `8f1eb288e3c3803076663d951ef4b4a663b53189` 新增待执行 `0008_quote_attachments.sql`、Revision 关系/metadata、provider-neutral binary interface、可信 Server API/权限/OperationLog、失败及孤儿生命周期。生产 Object Storage provider 未选/未配置；真实库仍为 0001–0007，真实 3001 未部署 Q4A。Browser Quote aggregate、附件 IndexedDB 和旧数据均未变；Q4B candidate 接线已完成工程验证，但 Q5 historical migration、真实 0008 activation 与正式切换仍需独立授权 Gate。
