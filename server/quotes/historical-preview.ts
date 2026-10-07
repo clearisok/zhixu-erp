@@ -28,7 +28,7 @@ export class QuoteBackupContractError extends Error {
 
 export type HistoricalQuotePreview = {
   contract: typeof HISTORICAL_QUOTE_PREVIEW_CONTRACT;
-  capture: { timestamp: string; environment: string; origin: string; namespace: string; schemaVersion: number };
+  capture: { timestamp: string; environment: string; origin: string; namespace: string; schemaVersion: number; backupVersion: number };
   sourceHash: string;
   projectionHash: string | null;
   counts: { quotes: number; revisions: number; priceVersions: number; estimatesCurrent: number; estimatesHistory: number;
@@ -160,7 +160,7 @@ export function previewHistoricalQuoteBackup(value: unknown): HistoricalQuotePre
   const next = maxSuffix === null ? BigInt(1) : maxSuffix + BigInt(1);
   return {
     contract: HISTORICAL_QUOTE_PREVIEW_CONTRACT,
-    capture: { timestamp, environment, origin, namespace, schemaVersion: backup.schemaVersion as number },
+    capture: { timestamp, environment, origin, namespace, schemaVersion: backup.schemaVersion as number, backupVersion: backup.backupVersion as number },
     sourceHash, projectionHash: blockers.length ? null : quoteContentHash(projected), counts, attachmentExclusion,
     legacyAttachmentCompatibility: "cleared_to_empty_arrays",
     sequence: { maximumValidSuffix: maxSuffix?.toString() ?? null, nextValue: next <= maxBigint ? next.toString() : null, malformedCodeCount },

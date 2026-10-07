@@ -7,6 +7,7 @@ import { createQuoteRepository, insertHistoricalQuoteInTransaction } from "./rep
 const QUOTE_TABLES = ["quote_center_quotes", "quote_center_revisions", "quote_center_price_versions", "quote_center_estimates",
   "quote_center_cost_snapshots", "quote_center_fabric_lines", "quote_center_trim_lines", "quote_center_other_cost_lines"] as const;
 const ATTACHMENT_TABLES = ["quote_attachments", "quote_revision_attachments"] as const;
+const Q5_IMPORT_LOCK_ID = "873215970215";
 
 export class HistoricalQuoteImportError extends Error {
   constructor(readonly code: string) { super(code); this.name = "HistoricalQuoteImportError"; }
@@ -55,7 +56,35 @@ export type HistoricalQuoteImportResult = {
   readbackCounts: Record<string, number> | null;
 };
 
-function expectedRowCounts(preview: HistoricalQuotePreview): Record<string, number> {
+/** Fresh-connection readback; also used after an uncertain COMMIT before any retry decision. */
+export async function reconcileHistoricalQuoteProjection(
+  pool: Pool, preview: HistoricalQuotePreview, readback?: (ids: string[]) => Promise<unknown[]>,
+): Promise<HistoricalQuoteImportResult> {
+  if (!preview.projectionHash || !preview.sequence.nextValue) throw new HistoricalQuoteImportError("blocked_preview");
+  const ids = preview.projection.map((quote) => quote.id);
+  try {
+    const records = readback ? await readback(ids) : await Promise.all(ids.map(async (id) => {
+      const item = await createQuoteRepository(pool).getById(id);
+      if (!item) throw new HistoricalQuoteImportError("missing_readback_quote");
+      return item.quote;
+    }));
+    const readbackHash = quoteContentHash(records);
+    if (readbackHash !== preview.projectionHash) throw new HistoricalQuoteImportError("readback_hash_mismatch");
+    const verified = await inspectHistoricalQuoteTarget(pool);
+    if (Object.entries(expectedHistoricalQuoteRowCounts(preview)).some(([name, count]) => verified.rowCounts[name] !== count)
+        || verified.sequence?.lastValue !== preview.sequence.nextValue || verified.sequence.isCalled)
+      throw new HistoricalQuoteImportError("readback_count_or_sequence_mismatch");
+    return { outcome: "COMMITTED_PASS", plannedCount: ids.length, committedCount: ids.length,
+      projectionHash: preview.projectionHash, readbackHash, sequenceNext: preview.sequence.nextValue, failureCode: null,
+      readbackCounts: verified.rowCounts };
+  } catch (error) {
+    return { outcome: "COMMITTED_BUT_UNVERIFIED", plannedCount: ids.length, committedCount: ids.length,
+      projectionHash: preview.projectionHash, readbackHash: null, sequenceNext: preview.sequence.nextValue,
+      failureCode: error instanceof HistoricalQuoteImportError ? error.code : "readback_failed", readbackCounts: null };
+  }
+}
+
+export function expectedHistoricalQuoteRowCounts(preview: HistoricalQuotePreview): Record<string, number> {
   return {
     quote_center_quotes: preview.counts.quotes,
     quote_center_revisions: preview.counts.revisions,
@@ -73,7 +102,9 @@ function expectedRowCounts(preview: HistoricalQuotePreview): Record<string, numb
 /** Internal Q5 migration boundary: no HTTP entrypoint, actor, runtime ID/number allocation or CRUD logs. */
 export async function importHistoricalQuoteProjection(
   pool: Pool, preview: HistoricalQuotePreview,
-  options: { expectedSourceHash: string; expectedProjectionHash: string; readback?: (ids: string[]) => Promise<unknown[]> },
+  options: { expectedSourceHash: string; expectedProjectionHash: string; readback?: (ids: string[]) => Promise<unknown[]>;
+    /** Disposable fault injection only; may return after sending COMMIT and simulate a lost response. */
+    commitForTest?: (query: (sql: string) => Promise<unknown>) => Promise<void> },
 ): Promise<HistoricalQuoteImportResult> {
   if (preview.blockers.length || !preview.projectionHash || !preview.sequence.nextValue || preview.projection.length !== preview.counts.quotes)
     throw new HistoricalQuoteImportError("blocked_preview");
@@ -88,8 +119,11 @@ export async function importHistoricalQuoteProjection(
   const client = await pool.connect();
   let committed = false;
   let commitStarted = false;
+  let connectionUnknown = false;
   try {
     await client.query("BEGIN");
+    const locked = (await client.query<{ acquired: boolean }>("SELECT pg_try_advisory_xact_lock($1::bigint) AS acquired", [Q5_IMPORT_LOCK_ID])).rows[0]?.acquired;
+    if (!locked) throw new HistoricalQuoteImportError("import_lock_unavailable");
     await client.query("LOCK TABLE quote_center_quotes IN ACCESS EXCLUSIVE MODE");
     // Recheck under lock, not only against the earlier read-only inspection.
     for (const name of [...QUOTE_TABLES, ...ATTACHMENT_TABLES]) {
@@ -100,35 +134,18 @@ export async function importHistoricalQuoteProjection(
     // RESTART is transactional; unlike setval it rolls back with a failed import.
     await client.query(`ALTER SEQUENCE quote_center_quote_number_seq RESTART WITH ${preview.sequence.nextValue}`);
     commitStarted = true;
-    await client.query("COMMIT");
+    if (options.commitForTest) await options.commitForTest((sql) => client.query(sql));
+    else await client.query("COMMIT");
     committed = true;
   } catch (error) {
+    if (commitStarted) {
+      connectionUnknown = true;
+      throw new HistoricalQuoteImportError("commit_outcome_unknown");
+    }
     if (!committed) await client.query("ROLLBACK").catch(() => undefined);
-    if (commitStarted) throw new HistoricalQuoteImportError("commit_outcome_unknown");
     throw error;
-  } finally { client.release(); }
+  } finally { client.release(connectionUnknown); }
 
   // A failure here is a committed-but-unverified state, never called a rollback.
-  try {
-    const ids = preview.projection.map((quote) => quote.id);
-    const records = options.readback ? await options.readback(ids) : await Promise.all(ids.map(async (id) => {
-      const item = await createQuoteRepository(pool).getById(id);
-      if (!item) throw new HistoricalQuoteImportError("missing_readback_quote");
-      return item.quote;
-    }));
-    const readbackHash = quoteContentHash(records);
-    if (readbackHash !== preview.projectionHash) throw new HistoricalQuoteImportError("readback_hash_mismatch");
-    const verified = await inspectHistoricalQuoteTarget(pool);
-    if (Object.entries(expectedRowCounts(preview)).some(([name, count]) => verified.rowCounts[name] !== count)
-        || verified.sequence?.lastValue !== preview.sequence.nextValue || verified.sequence.isCalled)
-      throw new HistoricalQuoteImportError("readback_count_or_sequence_mismatch");
-    return { outcome: "COMMITTED_PASS", plannedCount: ids.length, committedCount: ids.length,
-      projectionHash: preview.projectionHash, readbackHash, sequenceNext: preview.sequence.nextValue, failureCode: null,
-      readbackCounts: verified.rowCounts };
-  } catch (error) {
-    return { outcome: "COMMITTED_BUT_UNVERIFIED", plannedCount: preview.projection.length,
-      committedCount: preview.projection.length, projectionHash: preview.projectionHash,
-      readbackHash: null, sequenceNext: preview.sequence.nextValue,
-      failureCode: error instanceof HistoricalQuoteImportError ? error.code : "readback_failed", readbackCounts: null };
-  }
+  return reconcileHistoricalQuoteProjection(pool, preview, options.readback);
 }

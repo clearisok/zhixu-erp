@@ -9,8 +9,11 @@ import { HistoricalQuoteImportError, importHistoricalQuoteProjection, inspectHis
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  if (args.length !== 2 || args[0] !== "--backup" || !args[1])
+  if (!((args.length === 2 && args[0] === "--backup" && args[1])
+      || (args.length === 4 && args[0] === "--backup" && args[1]
+        && args[2] === "--reviewed-commit" && /^[0-9a-f]{40}$/u.test(args[3]))))
     throw new QuoteBackupContractError("backup_argument_required");
+  const reviewedCommit = args.length === 4 ? args[3] : null;
   const bytes = await readFile(resolve(args[1]));
   const fileSha256 = createHash("sha256").update(bytes).digest("hex");
   const preview = previewHistoricalQuoteBackup(JSON.parse(bytes.toString("utf8")) as unknown);
@@ -32,6 +35,7 @@ async function main(): Promise<void> {
       { expectedSourceHash: preview.sourceHash, expectedProjectionHash: preview.projectionHash });
     const after = await inspectHistoricalQuoteTarget(pool);
     const evidence = { evidenceKind: "quote_import_disposable_rehearsal.v1", outcome: result.outcome,
+      reviewedCommit,
       sourceFileSha256: fileSha256, sourceHash: preview.sourceHash, projectionHash: preview.projectionHash,
       migrationLedger, plannedCounts: preview.counts, readbackCounts: result.readbackCounts,
       readbackHash: result.readbackHash, sequenceNext: result.sequenceNext, failureCode: result.failureCode };

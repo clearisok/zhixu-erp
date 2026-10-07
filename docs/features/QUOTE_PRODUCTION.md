@@ -12,6 +12,10 @@ Q5-A 复用现有标准 Browser full backup v13 格式和 Q1 aggregate repositor
 
 内部 importer 不提供 HTTP 入口、不调用 runtime Quote allocator、不制造 trusted runtime CRUD OperationLog；在 disposable PostgreSQL 16 上应用 0001–当前 migrations 后，验证 ledger/空目标、完整 aggregate 单事务写入、逐表行数与 canonical hash 读回、sequence、失败 rollback、二次执行拒绝和 commit 后读回失败的 `COMMITTED_BUT_UNVERIFIED` 语义。Q5-A **不是**真实 Quote 数据排练：未读取真实 Browser backup，未连接真实数据库，未执行真实 0008/Quote import/COS/deployment。真实 Q5 execute 仍须独立授权，且至少等待 Q4 production Object Storage、真实 0008、备份/回滚、fresh Browser Quote source 和 writer freeze/cutover 方案。Q4B 共享历史附件改名规则仍为待决定项。
 
+## Q5-B guarded operational foundation — 2026-10-07
+
+Q5-B 建立 exact reviewed Git source、`quote-history-source-identity.v1`、Quote-specific freeze/time ordering、严格 rehearsal/rollback/COS evidence、D-091 import attempt 与 `quote_import_readiness.v1` contract。内部 importer 增加 Q5 advisory lock；COMMIT 已发出而响应丢失时销毁不确定连接，以全新只读连接对账，绝不自动重跑。运维脚本复用 canonical Docker/PG exact-target guard，仅暴露 read-only VerifyOnly；真实 Execute 物理缺席。本阶段只用合成证据与 disposable PostgreSQL 验证，不连接 COS 或真实 Quote 数据库写入。真实 0008、Quote-specific frozen build、fresh source/rollback/evidence custody 与生产 Object Storage 仍未就绪；Q3 master/settings frozen mode 不等价于 Quote aggregate freeze。完整运行边界见 `QUOTE_MIGRATION_RUNBOOK.md`。
+
 ## Q4A Server Attachment Foundation — 2026-10-05
 
 Q4A 新增 `0008_quote_attachments.sql`、Server metadata/Revision relationship、provider-neutral binary storage interface、trusted API/OperationLog 与 disposable PostgreSQL/fake-storage 测试。Revision 关系为 Server 权威；Quote Revision 原三个附件 ID 字段是同事务兼容镜像，通用 Quote PUT 不得直接改写；新 Revision 继承关系但不复制 binary。Production adapter 未选/未配置，未执行真实 0008、真实部署、Browser 附件迁移、Quote writer cutover 或 Q5。Q3 master/settings 已完成真实 Server authority cutover；下方早期 Q3A/Q3B1 的“未真实执行”是其**历史 Gate 当时状态**，不是当前 Q3 状态。
