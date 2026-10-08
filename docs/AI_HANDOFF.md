@@ -6,10 +6,10 @@
 - A 未关联确认工程 PASS：加工/经销、0、更新、多PV部分/全部、dirty取消/保存后确认失败、409/network、可信权限、CAS/审计/历史保护均验收。Linked current writer 明确禁用：共享服务尚缺 saved-PV 币种与 Quote CAS 编辑资格闭合，不回退独立快照；不是新业务规则。
 - B/C/D 工程 PASS：内置模板 current/explicit history、单/多PV、客户 XLSX/跨页 ZIP；当前linked价来自CCT、历史snapshot、不完整provenance拒绝、PNG CRC/安全warnings；ZIP真实集合/重名/部分与全失败/边界。Quote modal与全局DataTable/Drawer显示持久化context/metadata/before/after，无当前Quote反推；严格Server筛选/paging/total、audit/Estimate权限隔离，读取不写日志。
 - 仅 disposable PG/tmpfs、临时 Chromium/合成账号/storage；不操作真实 runtime、DB、Browser、COS、secrets。默认 Browser不变；D-096 historical import NOT REQUIRED。
-- A 本地 checkpoint `760abb9`；push 一次明确 connection reset，REMOTE DELIVERY BLOCKED。停止后续远端写入，按本任务授权继续独立本地 B/C/D/E。最后确认远端 base 为 `abd2587959fa3341c6de61d0bcd2d67b4cb66802`；未确认任务分支存在。
+- HISTORICAL：A 本地 checkpoint `760abb9` 首次 push 明确 connection reset；当时停止后续远端写入，按本任务授权继续独立本地 B/C/D/E。现用户已人工恢复 push，本地 HEAD 与 origin 任务分支均核实为工程 checkpoint `cea18264edffdf3f9718ee4656536844f8073084`，恢复时工作树 clean；旧网络阻塞不再是当前状态。
 - Checkpoints：A `760abb9`、B `46f9994`、C `198c734`、D `1df82bfd276d85f783a03ba490c4f2a643617918`。D 收口包括 B/C 自审发现的 warning/provenance/安全身份摘要修正与回归；无继承未知dirty。E 仅补实际下载动态行/null-zero和无estimate.view合法导出探针，再统一文档，不扩展runtime。
 - E 最终实跑：A API8/8、B10/10、C8/8、D7/7，与 Revision/Estimate/附件/CCT 合计64/64；QuoteAPI/foundation/编号34/34；auth/frontend58/58；npm674/674；实际 Chromium **47/47**（保留原33项、实际XLSX/ZIP bytes/SHA/解析、历史图片、动态行/null/0、两工价币种、受限账号、无Browser IO/rejection、owned资源cleanup）。Typecheck/lint/Server build/diff-check PASS；显式Server与最终默认Browser frontend均41 routes，最终build-info Quote/master=browser、writer=writable。没有临时env/.env遗留；模板Git object与base同为`2e87e66cbba317a5ffe61129c27041f1ca9878c2`。此前失败是测试等待/DOM目标/将模板parser用于填好表格的定位错误，均修正后真实重跑，未删断言/skip/放宽业务保护。没有重跑真实COS或无关fullPG/history suites。
-- 交付仍 PARTIAL / REMOTE DELIVERY BLOCKED：push曾 connection reset 后不再远端写；尚未创建PR，不假称远端branch/HEAD一致。恢复只需人工 `git push -u origin feat/server-quote-confirm-export-audit`，核对HEAD与origin同分支且clean，再查询该head已有PR，创建/更新同一个Draft PR到main（linked writer明确剩余，不能auto-merge）。PR标题/正文草案见任务文件。无需重跑已PASS工程或重开分支。
+- 工程范围仍 PARTIAL：linked writer 缺口保持禁用。上述 E 测试对应工程 checkpoint `cea18264edffdf3f9718ee4656536844f8073084`，远端工程推送已恢复；本次仅文档/PR 交付收口，不重复工程测试或 checkpoint push，不修改运行时代码。Draft PR 尚待实时查询后创建/核实，不能 auto-merge；PR标题/正文草案见任务文件，实际交付结果以最终报告与 PR 为准。
 
 ## HISTORICAL: Server EstimateCost workflows + Quote / Estimate permission follow-up（2026-10-09）
 
