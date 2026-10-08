@@ -1,8 +1,12 @@
 # 当前状态
 
-> 状态快照：2026-10-07。下方“历史 Gate 快照”的“未开始/未授权”陈述只记录当时状态，不代表当前状态或操作授权。
+> 状态快照：2026-10-08。下方“历史 Gate 快照”的“未开始/未授权”陈述只记录当时状态，不代表当前状态或操作授权。
 
 ## 当前阶段
+
+- Q4C-B 工程验证 PASS：preflight 15/15、既有 S3 adapter 2/2、full tests 671/671、disposable PostgreSQL 117/117；typecheck/lint/server build/frontend build（41 routes）/diff-check PASS，test containers cleanup，无残留。真实 COS/PG/Browser/部署未操作；这是工具交付，不是正式 Node real preflight。
+- **Q4C-B Object Storage preflight tooling = ENGINEERING / DISPOSABLE ONLY。** 独立 `npm run preflight:object-storage` 与 runtime 共用纯配置解析，不加载 DB/auth。每次仅生成 64 KiB 随机 probe `zhixu-preflight/<uuid>/probe`，执行 HeadBucket → PUT → HEAD → GET/SHA-256 → DELETE → HEAD 404 + HeadBucket；单步 10s 上限、SDK 最多 2 attempts，清理不确定即 `FAIL_CLEANUP_REQUIRED`。Evidence `zhixu-object-storage-preflight.v1` 不包含密钥，也不替代 Q5 runtime config/private bucket proof。正式 `attachments/<uuid>/original` validator 未放宽，无 LIST/批量删除/GC。
+- **USER-CONFIRMED COS infrastructure（不是本 Gate 实测）：** 私有 bucket `weaveops-prod-1501437430` / `ap-hongkong` / `https://cos.ap-hongkong.myqcloud.com` / `forcePathStyle=false` 已建立，无 CDN/anonymous/public-read/static website；用户在宁波 Ubuntu `weaveops-server` 的 Python SDK 1 MB PUT 已 PASS。直接复用此 bucket，代码无 bucket 命名依赖。**正式 Node Q4C-B real preflight NOT RUN，runtime storage 未激活。** 本任务不读取真实凭据、不接 COS/真实 PostgreSQL、不部署；真实 0008 NOT EXECUTED、Quote migration NO、Quote/附件 authority BROWSER、Q5 Execute NOT AUTHORIZED。以下 Q4C-A/Q5 工程段落的“未配置 COS”仅指当时工程 Gate，不能覆盖此用户确认的基础设施事实。
 
 - **Q5-C Quote-specific Browser Freeze = ENGINEERING PASS / 未真实部署。** 独立 build-time `QuoteWriterMode=writable|frozen`（默认 writable）已纳入 build-info/Docker/runtime 校验。Frozen 只读现有 canonical v13 Quote source，Repository/附件 controller/UI mutation fail closed；list/detail、附件预览和标准 full backup 保留，Quote raw bytes 与 legacy source 不变。Q3 master/settings 保持 SERVER、正常编辑，Quote aggregate/附件 authority 仍 BROWSER。真实 frozen 部署/旧标签页关闭/fresh backup/0008/COS/Quote import 均 NO，真实 Q5 Execute NOT AUTHORIZED。见 D-095 与 `features/QUOTE_MIGRATION_RUNBOOK.md`。
 - Q5-C 验证：targeted 6/6、UI/build contract 3/3、隔离 Chromium synthetic same-origin harness 1/1；full tests 671/671、Server auth/frontend 33/33、disposable PostgreSQL 117/117；typecheck/lint/server build/frontend build（41 routes）PASS。Chromium 不使用用户 profile，production UI 仍需未来真实独立验收。

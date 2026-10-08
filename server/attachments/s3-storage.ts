@@ -3,7 +3,7 @@ import { Readable } from "node:stream";
 import {
   DeleteObjectCommand, GetObjectCommand, HeadBucketCommand, HeadObjectCommand, PutObjectCommand, S3Client,
 } from "@aws-sdk/client-s3";
-import type { AttachmentStorageConfig } from "../config.js";
+import type { AttachmentStorageConfig } from "./storage-config.js";
 import type { AttachmentStorage, ObjectStat } from "./storage.js";
 
 export class AttachmentStorageFailure extends Error {

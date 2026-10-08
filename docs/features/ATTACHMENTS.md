@@ -86,6 +86,30 @@ QuoteRevision 的附件字段位于 `quote-view-model.ts`。旧 `garmentMedia` /
 
 ## Future production architecture — USER CONFIRMED
 
+### Q4C-B official Node preflight（工程/disposable only，2026-10-08）
+
+USER CONFIRMED infrastructure（不是本代码 Gate 实测）：Tencent COS 私有 bucket `weaveops-prod-1501437430` 已建立，region `ap-hongkong`，endpoint `https://cos.ap-hongkong.myqcloud.com`，`forcePathStyle=false`；无 CDN、anonymous access、public read 或 static website。CAM 子账号 `weaveops-cos` 的凭据由用户安全保存。宁波 Ubuntu `weaveops-server` 的 Python SDK 1 MB PUT 已 PASS；不重复该测试、不接触原 `connection-test/*` 对象。直接复用 bucket，runtime `storage_container` 无特定命名依赖；早期 Q4A/C-A 的“provider 未选”是工程 Gate 历史状态。
+
+`scripts/preflight-object-storage.ts` / `npm run preflight:object-storage` 与 Server runtime 共用纯 `storage-config.ts`；不读取 `.env` 文件、不调用 Server startup、DB 或 auth。配置仅来自 process environment：`ZHIXU_ATTACHMENT_STORAGE=s3`、`ZHIXU_ATTACHMENT_S3_ENDPOINT`、`_REGION`、`_BUCKET`、`_ACCESS_KEY_ID`、`_SECRET_ACCESS_KEY`、`_FORCE_PATH_STYLE`。CLI 缺省按 production 校验 HTTPS；disposable 测试显式使用 test。Endpoint credentials/query/hash、空凭据、非法 region/bucket/style 拒绝；错误不打印值。真实 secrets 仅在用户环境中安全注入，不写 Git、文档、CLI 参数或聊天。
+
+Probe boundary 与正式 `attachments/<uuid>/original` 独立且不可由 caller 覆盖：每次 `crypto.randomUUID()` 生成唯一 `zhixu-preflight/<uuid>/probe`，64 KiB `randomBytes`，计算 lowercase SHA-256；依次 HeadBucket → PUT（exact length、octet-stream、sha256 metadata）→ HEAD 三项校验 → GET 完整 length/hash 校验 → 精确 DELETE → HEAD 404 + HeadBucket 证明 bucket 仍存在。所有阶段含 GET body 都有 10s timeout/AbortSignal，SDK 最多 2 attempts、使用同一 key。没有 LIST、multipart、public ACL、bucket administration 或 bulk delete。
+
+PUT 可能成功后的失败也执行精确 key best-effort cleanup。删除/absence 不能证明时输出 `FAIL_CLEANUP_REQUIRED` 与安全 bucket/probeKey；不得宣称 PASS。退出码非 0；不会物理删除正式附件、任意已有对象或 prefix。原始 SDK error/request/header/body 不进入 stdout/stderr/evidence。
+
+Evidence `zhixu-object-storage-preflight.v1` 包含安全 endpoint origin、region/bucket/style、key、bytes/hash、各 stage/cleanup flags、timings 和 UTC start/end。可选 `--evidence <absolute path>` 在 network 操作前 exclusive 新建文件，不覆盖已有证据；缺省只输出 stdout JSON，不默认写仓库。**它不证明 privateBucket、runtimeConfigReviewed，也不是 Q5 `quote-object-storage-readiness.v1` final proof。** 后续独立 activation Gate 要另核 private bucket、正式 runtime 配置与 evidence，再生成 Q5 proof。
+
+最小 CAM 目标：bucket HeadBucket；`zhixu-preflight/*` PutObject/HeadObject/GetObject/DeleteObject；`attachments/*` PutObject/HeadObject/GetObject，DeleteObject **explicitly denied**。不要求 LIST/GetBucket listing、DeleteMultipleObjects、multipart、public ACL 或 bucket 管理，不为工具扩大权限。
+
+未来用户 Ubuntu 独立运行（PR 合并后，secrets 仅安全注入环境）：
+
+```sh
+npm run preflight:object-storage -- --evidence /absolute/private-evidence/cos-preflight.json
+```
+
+本 Gate automated tests 仅 disposable MinIO/generated credentials，既有 adapter 回归仅 disposable PostgreSQL；不访问 Tencent COS。**Official Q4C-B real Tencent preflight NOT RUN，真实 0008 NOT EXECUTED，真实 PostgreSQL UNCHANGED，Quote migration NO，runtime deployment NO，Q5 Execute NOT AUTHORIZED，Quote/现有附件 authority BROWSER。** 运行时 S3 adapter 的逐操作公网 timeout 未在本 PR 改动，仍须后续 activation review；工具 PASS 不代表 runtime 生产激活或生产 ready。
+
+### Confirmed production attachment boundary
+
 以下是 Quote Production 的已确认目标与 migration 边界；其中 schema/API 的工程基础已由 Q4A 实现但未生产激活：
 
 - 当前 Browser IndexedDB Quote attachment blobs 不作为 Server Quote migration source，现有 QuoteRevision attachment references 也不迁移为正式关系。新 Server attachments 在 Quote cutover 后从空的正式 attachment domain 开始。
