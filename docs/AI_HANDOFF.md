@@ -6,6 +6,8 @@
 - A checkpoint：未关联确认 API 8/8、实际 Chromium 37/37 PASS，保留此前 33 项回归。linked current 写入明确禁用：共享 writer 尚缺 saved-PV 币种与 Quote CAS 编辑资格闭合，不回退独立快照。B pure workbook extraction 已准备但未纳入 A checkpoint；接下来 B/C/D/E。
 - 每阶段定向验收/接力/checkpoint commit/push，直接继续 A→E；一个 PR，不 merge。纯网络故障只尝试一次后停止远端写，允许可靠本地 checkpoints 继续（仅本任务例外）。
 - 仅 disposable PG/tmpfs、临时 Chromium/合成账号/storage；不操作真实 runtime、DB、Browser、COS、secrets。默认 Browser不变；D-096 historical import NOT REQUIRED。
+- A 本地 checkpoint `760abb9`；push 一次明确 connection reset，REMOTE DELIVERY BLOCKED。停止后续远端写入，按本任务授权继续独立本地 B/C/D/E。最后确认远端 base 为 `abd2587959fa3341c6de61d0bcd2d67b4cb66802`；未确认任务分支存在。
+- B：pure ExcelJS core / 内置模板已接 Server；disposable export API 7/7、Chromium 39/39（含真实 XLSX byte/SHA/解析）PASS。历史精确来源、CAS、PNG 合法关系、Estimate 不进入客户投影；审计失败不提供文件。模板未改；镜像仅增加模板资源 COPY（无真实 Docker 操作）。C/D 尚未验收。
 
 ## HISTORICAL: Server EstimateCost workflows + Quote / Estimate permission follow-up（2026-10-09）
 

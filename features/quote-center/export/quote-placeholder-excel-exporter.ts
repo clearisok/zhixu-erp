@@ -5,7 +5,7 @@ import { mapPriceVersionForExport, type ExportCostRow, type ExportPriceVersionDa
 import { placeholdersInText, validateQuoteCustomerTemplate } from "../../template-settings/model/template-definition.ts";
 import { truncateFinalQuoteValue } from "../model/final-quote-format.ts";
 import type { PriceVersion } from "../model/quote-view-model.ts";
-import type { QuoteExcelBuildInput, QuoteExcelBuildResult } from "./quote-excel-exporter.ts";
+import type { QuoteExcelBuildInput, QuoteExcelBuildResult } from "./quote-excel-core.ts";
 
 type DynamicGroup = "fabric" | "trim" | "labor" | "otherCost";
 type DynamicRegion = { group: DynamicGroup; templateRow: number; endRow: number };

@@ -165,7 +165,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   const router = useRouter();
   const q3Authority = masterSettingsAuthority();
   const { can: permissionCan, currentUser } = usePermissions();
-  const can: typeof permissionCan = (permission) => !(serverMode && ["quote.revision.delete", "quote.export", "quote.delete", "order.create"].includes(permission)) && permissionCan(permission);
+  const can: typeof permissionCan = (permission) => !(serverMode && ["quote.revision.delete", "quote.delete", "order.create"].includes(permission)) && permissionCan(permission);
   const serverSession = useServerSession();
   const serverMasters = useMemo(() => createServerQuoteMasterDependencies(serverSession.permissions), [serverSession.permissions]);
   const [quote, setQuote] = useState<Quote>(initialQuote);
@@ -675,6 +675,14 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   };
 
   const runExcelExport = async (targetQuote: Quote, targetRevision: QuoteRevision) => {
+    if (persistence) {
+      const { customerExport, downloadCustomerFile } = await import("../server/customer-export-client");
+      const ids = exportScope === "all" ? targetRevision.priceVersions.map(p => p.id) : [activePriceId];
+      const result = await customerExport(targetQuote.id, { expectedVersion: persistence.getVersion(), revisionId: targetRevision.revisionId, priceVersionIds: ids });
+      downloadCustomerFile(result);
+      notify(`${result.fileName} 已生成并提供下载${result.warnings.length ? `；${result.warnings.join("；")}` : ""}`);
+      return;
+    }
     const selectedPriceVersion = targetRevision.priceVersions.find((version) => version.id === activePriceId) ?? targetRevision.priceVersions[0];
     const priceVersions = exportScope === "all" ? targetRevision.priceVersions : selectedPriceVersion ? [selectedPriceVersion] : [];
     const { exportQuoteRevisionExcel } = await import("../export/quote-excel-exporter");
@@ -809,6 +817,12 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   const exportCurrentRevision = () => executeExport(async () => ({ targetQuote: quote, targetRevision: revision }));
 
   const exportSavedRevision = () => executeExport(async () => {
+    if (persistence) {
+      const baseline = persistence.getBaseline();
+      const saved = baseline.revisions.find(r => r.revisionId === revision.revisionId);
+      if (!saved) throw new Error("Selected saved Revision does not exist");
+      return { targetQuote: baseline, targetRevision: saved };
+    }
     const savedQuote = await mockQuoteRepository.getById(quote.id);
     if (!savedQuote) throw new Error("没有找到已保存报价");
     const savedRevision = savedQuote.revisions.find((item) => item.revisionId === revision.revisionId) ?? getDefaultRevision(savedQuote);
@@ -816,7 +830,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   });
 
   const saveAndExportRevision = async () => {
-    await requestPersist("export");
+    try { await requestPersist("export"); } catch (error) { if (persistence) reportServerSaveFailure(error); else throw error; }
   };
 
   const saveAndNavigate = async () => {
@@ -1219,7 +1233,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   // persistence callback or read its saved baseline ref during render.
   // eslint-disable-next-line react-hooks/refs
   for (const action of contextualActions) {
-    if (serverMode && !["revisions", "current-revision", "create-price-version", "edit-price-version", "confirmation"].includes(action.id)) continue;
+    if (serverMode && !["revisions", "current-revision", "create-price-version", "edit-price-version", "confirmation", "export"].includes(action.id)) continue;
     if (!serverMode && quoteFrozen && !["revisions", "operation-log", "export", "current-revision"].includes(action.id)) continue;
     visibleActions.push(action);
   }
@@ -1233,7 +1247,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   return <PermissionAuthorityProvider can={can}><NumberPrecisionContext.Provider value={serverMode ? precision : null}><AppShell title={isNew ? "新建报价" : "款式报价明细"} backTarget={{ href: "/quote-center", label: "返回报价中心" }} onRequestNavigation={requestNavigation}><PageContainer>
     {quoteFrozen && <div role="status" className="qc-form-alert">报价迁移冻结 · 只读。现有报价与附件可查看、下载和导出。</div>}
     {q3AuthorityNotice}
-    {serverMode && <AlertBanner tone="info" title={`Server 报价 · v${persistence?.getVersion()}`}>基础信息、价格方案、Revision / Estimate 工作流、未关联客户确认、报价设置与附件已接通。 linked current 写入 / 导出 / 整单复制或删除 / Revision 删除 / 转订单 / 日志查看尚未接线，禁用且不调用 Browser。<Button variant="text" disabled={serverBusy} onClick={() => void serverMasters.load().then((loaded) => { setMasterData(loaded.state); setMasterSettings(loaded.settings); setServerSupplierOptions(loaded.supplierOptions); }).catch(() => notify("Server 基础资料刷新失败；没有 fallback"))}>刷新基础资料</Button></AlertBanner>}
+    {serverMode && <AlertBanner tone="info" title={`Server 报价 · v${persistence?.getVersion()}`}>基础信息、价格方案、Revision / Estimate 工作流、未关联客户确认、内置客户 Excel、报价设置与附件已接通。 linked current 写入 / 整单复制或删除 / Revision 删除 / 转订单 / 日志查看尚未接线，禁用且不调用 Browser。<Button variant="text" disabled={serverBusy} onClick={() => void serverMasters.load().then((loaded) => { setMasterData(loaded.state); setMasterSettings(loaded.settings); setServerSupplierOptions(loaded.supplierOptions); }).catch(() => notify("Server 基础资料刷新失败；没有 fallback"))}>刷新基础资料</Button></AlertBanner>}
     {unsafeNumbers.size > 0 && <ErrorState title="数值无法安全精确读写，保存已阻止" description="请修正输入；系统不会舍入后保存。" />}
     {serverError && <ErrorState title="Server 写入需核对" description={serverError} onRetry={() => { if (window.confirm("放弃当前未保存草稿并重新读取 Server？")) { setIsDirty(false); window.setTimeout(() => window.location.reload(), 100); } }} />}
     <FormShell className="qc-page-form-shell" submitOnEnter={false} onSubmit={() => { if (!quoteReadOnly) return save(); }}>
@@ -1267,7 +1281,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     {priceSyncRequest && <PriceVersionCostSyncModal open candidates={priceSyncRequest.candidates} onClose={() => setPriceSyncRequest(null)} onConfirm={commitPriceVersionSync} onCurrentOnly={saveCurrentPriceVersionOnly} />}
     <PriceVersionDifferencesModal open={priceDifferencesOpen} differences={unconfirmedCostDifferences} onClose={() => setPriceDifferencesOpen(false)} />
     <Modal open={exportDifferenceWarningOpen} title="发现未确认的价格版本差异" description="建议确认后再导出；该提醒不会阻止你继续导出。" onClose={() => setExportDifferenceWarningOpen(false)} className="qc-export-difference-modal" footer={<><Button variant="secondary" onClick={() => { setExportDifferenceWarningOpen(false); setPriceDifferencesOpen(true); }}>查看差异</Button><Button onClick={() => { setExportDifferenceWarningOpen(false); setExportOpen(true); }}>仍然导出</Button></>}><div className="qc-export-difference-warning"><strong>{unconfirmedCostDifferences.length} 项未确认差异</strong><p>已明确标记为独立调整的版本差异不会出现在这里。</p></div></Modal>
-    <QuoteExportModal open={exportOpen} revisionLabel={revision.revisionLabel} scope={exportScope} guardMode={exportGuardMode} loading={exporting} onScopeChange={setExportScope} onClose={() => setExportOpen(false)} onExport={async () => { await exportCurrentRevision(); }} onExportSaved={async () => { await exportSavedRevision(); }} onSaveAndExport={saveAndExportRevision} />
+    <QuoteExportModal serverMode={serverMode} open={exportOpen} revisionLabel={revision.revisionLabel} scope={exportScope} guardMode={exportGuardMode} loading={exporting} onScopeChange={setExportScope} onClose={() => setExportOpen(false)} onExport={async () => { await exportCurrentRevision(); }} onExportSaved={async () => { await exportSavedRevision(); }} onSaveAndExport={saveAndExportRevision} />
     <Modal open={Boolean(versionModal)} title={creatingSecondPriceVersion ? "创建价格版本" : versionModal?.mode === "copy" ? "复制价格版本" : "编辑价格版本"} description={versionModal?.mode === "copy" ? `基于当前${creatingSecondPriceVersion ? "基础价格" : "查看的价格版本"}复制面料、辅料、工价和其他费用；不会复制数量与客户确认结果。` : "修改名称、数量和说明，不改变该版本成本。"} onClose={() => setVersionModal(null)} onSubmit={submitVersionModal} footer={versionModal?.mode === "edit" ? <div className="qc-modal-footer-split"><Button permission="quote.price_version.delete" variant="danger" onClick={() => requestDeletePriceVersion(versionModal.sourceId)}>删除价格版本</Button><div><Button variant="secondary" onClick={() => setVersionModal(null)}>取消</Button><Button type="submit">保存修改</Button></div></div> : <><Button variant="secondary" onClick={() => setVersionModal(null)}>取消</Button><Button type="submit">{creatingSecondPriceVersion ? "确认创建" : "确认复制"}</Button></>}><div className="qc-modal-form"><FormItem label="价格版本名称" required><input className={`qc-control ${versionError ? "qc-control-error" : ""}`} autoFocus value={versionDraft.name} placeholder="请填写价格版本名称" onChange={(event) => { setVersionDraft({ ...versionDraft, name: event.target.value }); if (versionError) setVersionError(""); }} /></FormItem>{versionError && <p className="qc-form-alert">{versionError}</p>}<FormItem label="数量" required><input className="qc-control" inputMode="decimal" placeholder="请输入数量" value={versionDraft.quantity} onChange={(event) => { if (/^\d*(?:\.\d*)?$/.test(event.target.value)) setVersionDraft({ ...versionDraft, quantity: event.target.value }); }} /></FormItem><FormItem label="说明"><textarea className="qc-control" value={versionDraft.description} onChange={(event) => setVersionDraft({ ...versionDraft, description: event.target.value })} /></FormItem></div></Modal>
     <Modal open={Boolean(priceVersionDeleteTargetId)} title="删除价格版本？" description="删除后，此价格版本将从当前报价中移除；mock 阶段允许删除，但操作不可撤销。" onClose={() => setPriceVersionDeleteTargetId(null)} onSubmit={confirmDeletePriceVersion} footer={<><Button variant="secondary" onClick={() => setPriceVersionDeleteTargetId(null)}>取消</Button><Button type="submit" variant="danger">确认删除</Button></>}>
       <div className="qc-delete-price-version-message"><p>确认删除“{revision.priceVersions.find((version) => version.id === priceVersionDeleteTargetId)?.name ?? "当前价格版本"}”吗？</p>{revision.priceVersions.find((version) => version.id === priceVersionDeleteTargetId)?.confirmation && <strong>该价格版本已有客户确认信息，请确认是否删除。</strong>}</div>

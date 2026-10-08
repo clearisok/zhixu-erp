@@ -8,6 +8,7 @@ import { resolve, join, sep } from "node:path";
 import { once } from "node:events";
 import { createHash } from "node:crypto";
 import test from "node:test";
+import ExcelJS from "exceljs";
 import pg from "pg";
 import { createApp } from "../app.ts";
 import { runMigrations } from "../db/migration-runner.ts";
@@ -92,6 +93,11 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     await command("Page.enable", {}, sessionId);
     await command("Network.enable", { maxPostDataSize: 1_000_000 }, sessionId);
     await command("Page.addScriptToEvaluateOnNewDocument", { source: `
+      window.generatedDownloads=[];
+      const objectURL=URL.createObjectURL.bind(URL);const blobs=new Map();
+      URL.createObjectURL=b=>{const u=objectURL(b);blobs.set(u,b);return u;};
+      const anchorClick=HTMLAnchorElement.prototype.click;
+      HTMLAnchorElement.prototype.click=function(){if(this.download&&blobs.has(this.href))window.generatedDownloads.push({name:this.download,blob:blobs.get(this.href)});return anchorClick.call(this);};
       const originalGet = Storage.prototype.getItem, originalSet = Storage.prototype.setItem;
       if(!originalGet.call(localStorage,'zhixu.erp.local.quotes')) originalSet.call(localStorage,'zhixu.erp.local.quotes','synthetic-old-business-sentinel');
       window.businessAccess=[];
@@ -668,6 +674,17 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       try{await click("保存确认");await hasText("确认输入保留");assert.equal(await evaluate("document.querySelector('textarea[placeholder=可选]')?.value"),"Retain confirmation draft");assert.deepEqual(await evaluate("unhandledRejections"),[]);}
       finally{await command("Fetch.disable",{},sessionId);failureStatus=0;}
       assert.deepEqual(await read(),before);assert.equal(requests.filter(r=>r.path.endsWith("/confirmation-workflows")).length,count+1);await isolated();
+    });
+    for(const type of ["processing","distribution"]) await t.test(`actual saved customer XLSX download ${type}: bytes/SHA/workbook and no Estimate`,async()=>{
+      await loginAs("admin");const {read}=await prepareEstimateQuote(type);
+      await action("导出报价");await hasText("发现未确认的价格版本差异");await click("仍然导出");await hasText("内置正式模板");await click("导出 Excel");await hasText("已生成并提供下载");
+      const file=await evaluate("(async()=>{const f=generatedDownloads.at(-1);return {name:f.name,bytes:Array.from(new Uint8Array(await f.blob.arrayBuffer()))}})()");
+      const bytes=Buffer.from(file.bytes);assert.ok(bytes.length>1000);assert.match(file.name,/\.xlsx$/);
+      const workbook=new ExcelJS.Workbook();await workbook.xlsx.load(bytes);
+      assert.equal(workbook.worksheets.length,2);assert.ok(workbook.worksheets.every(s=>s.pageSetup.printArea));
+      const cells=JSON.stringify(workbook.worksheets.map(s=>s.getSheetValues()));assert.ok(cells.includes("Synthetic estimate fabric"));assert.ok(!cells.includes("PRIVATE-ESTIMATE"));
+      assert.equal((await read()).quote.activeEstimateCost,null);await isolated();assert.deepEqual(await evaluate("unhandledRejections"),[]);
+      t.diagnostic(`Customer XLSX ${type}: ${bytes.length} bytes SHA-256 ${createHash("sha256").update(bytes).digest("hex")} parsed`);
     });
     await command("Browser.close");
   } finally {

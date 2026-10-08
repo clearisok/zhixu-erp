@@ -58,6 +58,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --ignore-scripts --no
 COPY --from=builder /build/dist/client ./dist/client/
 COPY --from=builder /build/dist/server ./dist/server/
 COPY database/migrations ./database/migrations/
+COPY templates/quote-export-template-v1.xlsx ./templates/quote-export-template-v1.xlsx
 
 EXPOSE 3000
 

@@ -22,6 +22,7 @@ import { QuoteConflictError, QuoteInvariantError } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
 import { parseQuoteVersionCommand } from "./quotes/version-workflows.js";
 import { parseQuoteConfirmationCommand } from "./quotes/confirmation-workflows.js";
+import { createCustomerExportService, parseCustomerExport } from "./quotes/customer-export.js";
 import { parseEstimateCommand } from "./quotes/estimate-workflows.js";
 import { routeQuoteMasters } from "./quote-masters/routes.js";
 import { routeQuoteAttachments } from "./attachments/routes.js";
@@ -383,6 +384,20 @@ async function route(
     } catch (error) { asQuoteHttpError(error); }
     return;
   }
+  const exportMatch = /^\/api\/v1\/quotes\/([^/]+)\/customer-export$/.exec(path);
+  if (request.method === "POST" && exportMatch) {
+    assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    const selection = parseCustomerExport(await readJsonBody(request));
+    const file = await createCustomerExportService(dependencies.pool, dependencies.attachmentStorage).generate(identity, requiredPathIdentity(exportMatch[1], "quoteId"), selection);
+    response.writeHead(200, { "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Content-Length": file.bytes.length,
+      "Cache-Control": "no-store", "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+      "X-Zhixu-File-Name": encodeURIComponent(file.fileName), "X-Zhixu-File-Sha256": file.sha256,
+      "X-Zhixu-Export-Warnings": encodeURIComponent(JSON.stringify(file.warnings)) });
+    response.end(file.bytes); return;
+  }
+
   const confirmationMatch = /^\/api\/v1\/quotes\/([^/]+)\/confirmation-workflows$/.exec(path);
   if (confirmationMatch && request.method === "POST") {
     assertMutationBoundary(request, dependencies.allowedOrigins);
