@@ -466,6 +466,107 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
         assert.ok(row?.includes(`经销 / ${saved.quote.aggregateStatus}`),"Formal list status agrees with draft readback"); await isolated();
       }
     });
+    const costTab = async () => { await evaluate("document.querySelector('.qc-estimate-pill').click()"); await hasText("估算成本"); };
+    const prepareEstimateQuote = async (type = "distribution") => {
+      await navigate("/quote-center/new"); await hasText("创建报价"); await selectType(type); await click("创建报价");
+      await until(async()=>await evaluate("location.pathname==='/quote-center/detail' && Boolean(new URLSearchParams(location.search).get('id'))"),"new Quote detail ready");await hasText("Server 报价 · v");
+      const id = await evaluate("new URLSearchParams(location.search).get('id')");
+      const read = () => evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(id)}).then(r=>r.json()).then(r=>r.quote)`);
+      const initial = await read(), r = initial.quote.revisions[0], p = r.priceVersions[0];
+      Object.assign(r.baseInfo,{brandId:"synthetic-brand",salespersonId:"synthetic-person",quoteStyleNo:"SYNTHETIC-ESTIMATE",styleName:"Synthetic estimate"});
+      p.quantity="1";p.labor.value="10";p.fabrics=[{id:"estimate-source-fabric",lineGroupId:"estimate-shared-fabric",name:"Synthetic estimate fabric",composition:"",sourceLibraryItemId:null,segmentLengthCm:null,netWidthCm:"0",gsm:"0",lossRate:null,supplier:"",unitPrice:"12",purchaseUnit:"kg"}];
+      const parallel=structuredClone(p);parallel.id="estimate-source-parallel";parallel.name="Alternate estimate source";parallel.labor.value="22";parallel.fabrics[0].unitPrice="99";
+      r.priceVersions.push(parallel);
+      await evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(id)},{method:'PUT',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:${JSON.stringify(JSON.stringify({quote:initial.quote,expectedVersion:initial.version}))}}).then(r=>{if(!r.ok)throw new Error('synthetic preparation failed')})`);
+      await navigate(`/quote-center/detail?id=${id}`);await hasText("Server 报价");
+      assert.equal((await read()).quote.activeEstimateCost,null);await isolated();return {id,read};
+    };
+    const generateEstimate = async (read, sourcePriceId) => {
+      await click("查看报价历史");await hasText("估算来源价格版本");
+      if(sourcePriceId) await evaluate(`(()=>{const s=document.querySelector('select[aria-label="估算来源价格版本"]');s.value=${JSON.stringify(sourcePriceId)};s.dispatchEvent(new Event('change',{bubbles:true}));})()`);
+      await click("生成估算成本");await click("确认生成");await until(async()=>Boolean((await read()).quote.activeEstimateCost),"explicit Estimate generation");await costTab();
+    };
+    for(const type of ["processing","distribution"]) await t.test(`actual Estimate full lifecycle, selected source and stale scope: ${type}`,async()=>{
+      const {id,read}=await prepareEstimateQuote(type), initial=await read();
+      await generateEstimate(read,"estimate-source-parallel");await hasText("来源价格版本：Alternate estimate source");
+      const generated=await read(), first=structuredClone(generated.quote.activeEstimateCost);
+      assert.equal(first.labor.value,"22");assert.equal(first.fabrics[0].unitPrice,"99");assert.equal(first.sourcePriceVersionId,"estimate-source-parallel");assert.deepEqual(generated.quote.revisions,initial.quote.revisions);assert.equal(generated.quote.aggregateStatus,"draft");
+      assert.equal(await evaluate("document.querySelector('.qc-estimate-cost-panel button')?.textContent"),"保存估算成本");
+      await labelInput("工价","77");await click("保存估算成本");await until(async()=> (await read()).quote.activeEstimateCost.labor.value==="77","Estimate value persisted");
+      const saved=await read();assert.deepEqual(saved.quote.revisions,initial.quote.revisions);assert.equal(saved.quote.activeEstimateCost.id,first.id);
+      await click("关闭");await navigate(`/quote-center/detail?id=${id}`);await hasText("Server 报价");await click("查看报价历史");await costTab();
+      assert.equal(await evaluate("[...document.querySelectorAll('.qc-estimate-cost-panel label')].find(n=>n.querySelector('span')?.textContent==='工价').querySelector('input').value"),"77");
+      await click("重新生成");await click("确认重新生成");await until(async()=> (await read()).quote.estimateCostHistory.length===1,"archive old active");await costTab();
+      const replaced=await read();assert.deepEqual(replaced.quote.estimateCostHistory[0],saved.quote.activeEstimateCost);assert.equal(replaced.quote.activeEstimateCost.labor.value,"10","default source is actual base price, not selected scenario");
+      await input('.qc-estimate-history input',"V1");await evaluate("document.querySelector('.qc-estimate-history button').click()");await hasText("历史只读");
+      assert.equal(await evaluate("document.querySelector('.qc-estimate-cost-panel fieldset').disabled"),true);assert.equal(await evaluate("document.querySelector('.qc-estimate-cost-panel button')?.textContent==='保存估算成本'"),false);
+      await click("恢复为新的当前估算");await until(async()=> (await read()).quote.activeEstimateCost.id!==replaced.quote.activeEstimateCost.id,"clone restore");
+      const restored=await read();assert.equal(restored.quote.activeEstimateCost.labor.value,"77");assert.notEqual(restored.quote.activeEstimateCost.id,first.id);assert.deepEqual(restored.quote.estimateCostHistory[0],saved.quote.activeEstimateCost);
+      assert.notEqual(restored.quote.activeEstimateCost.fabrics[0].id,first.fabrics[0].id);await hasText("当前估算");
+      await click("关闭");
+      for(let revisionNumber=2;revisionNumber<=3;revisionNumber++){
+        await click("查看报价历史");await click("更新");await click("是");
+        await evaluate("[...document.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent==='更新原因 *').querySelector('button').click()");await click("其他");await click("确认创建新报价版本");await until(async()=> (await read()).quote.revisions.length===revisionNumber,"new default Revision");
+        await click("查看报价历史");await costTab();await hasText("当前估算成本已过期");
+        if(revisionNumber===2){await click("忽略本次提醒");await until(async()=> (await read()).quote.activeEstimateCost.ignoredForRevisionId===(await read()).quote.defaultRevisionId,"scoped ignore");assert.equal(await evaluate("document.body.innerText.includes('当前估算成本已过期')"),false);await click("关闭");}
+      }
+      await click("按当前默认版本重新生成");await click("确认重新生成");await until(async()=> (await read()).quote.activeEstimateCost.basedOnRevisionId===(await read()).quote.defaultRevisionId,"regenerate current default");
+      await evaluate("[...document.querySelectorAll('.qc-revision-pill')].find(n=>n.querySelector('.qc-revision-label')?.textContent==='V1').click()");
+      await evaluate("(()=>{const s=document.querySelector('select[aria-label=\"估算来源价格版本\"]');s.value='estimate-source-parallel';s.dispatchEvent(new Event('change',{bubbles:true}));})()");
+      await click("生成估算成本");await click("确认重新生成");await until(async()=> (await read()).quote.activeEstimateCost.basedOnRevisionId===initial.quote.defaultRevisionId,"explicit selected historical source");
+      await click("查看");await hasText("历史只读");await click("查看报价历史");await costTab();
+      await labelInput("工价","88");await click("保存估算成本");await until(async()=> (await read()).quote.activeEstimateCost.labor.value==="88","Quote-level active estimate remains writable while viewing historical Revision");
+      assert.deepEqual((await read()).quote.revisions[0],{...initial.quote.revisions[0],readOnly:true});
+      assert.deepEqual(await evaluate("unhandledRejections"),[]);await isolated();
+    });
+    await t.test("Estimate dirty PV cost must finish visible explicit sync choice before generation",async()=>{
+      const {read}=await prepareEstimateQuote(); const before=await read();
+      await input('#quote-section-fabrics input[aria-label$="-单价"]',"33");
+      await click("查看报价历史");await click("生成估算成本");await click("确认生成");
+      await hasText("价格版本同步");
+      assert.equal(await evaluate("(()=>{const b=[...document.querySelectorAll('.qc-price-sync-modal button')].find(n=>n.textContent.trim()==='仅保存当前版本');const r=b.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===b;})()"),true,"Sync choice is not hidden by generation overlay");
+      assert.deepEqual(await read(),before,"No implicit save/generation before sync decision");
+      await click("仅保存当前版本");await until(async()=> (await read()).version===before.version+1,"explicit sync save before Estimate");
+      const saved=await read();assert.equal(saved.quote.activeEstimateCost,null);assert.deepEqual(saved.quote.revisions[0].priceVersions.map(p=>p.fabrics[0].unitPrice),["33","99"]);
+      await click("确认生成");await until(async()=>Boolean((await read()).quote.activeEstimateCost),"explicit continue after sync");
+      assert.equal((await read()).quote.activeEstimateCost.fabrics[0].unitPrice,"33");assert.deepEqual(await evaluate("unhandledRejections"),[]);await isolated();
+    });
+    for(const failure of [409,"network"]) await t.test(`actual Estimate saved-first ${failure}, preserves source choice, no repeat/unhandled rejection`,async()=>{
+      const {id,read}=await prepareEstimateQuote();const before=await read();
+      await labelInput("款式名称","Saved before estimate");await click("查看报价历史");
+      await evaluate("(()=>{const s=document.querySelector('select[aria-label=\"估算来源价格版本\"]');s.value='estimate-source-parallel';s.dispatchEvent(new Event('change',{bubbles:true}));})()");await click("生成估算成本");
+      const start=requests.length;failureStatus=failure===409?409:0;await command("Fetch.enable",{patterns:[{urlPattern:`*/api/v1/quotes/${id}/estimate-workflows`,requestStage:"Request"}]},sessionId);
+      try{
+        await click("确认生成");await hasText("前一步报价草稿已保存");await hasText("估算操作未确认");await hasText("Alternate estimate source");
+        await sleep(200);assert.deepEqual(await evaluate("unhandledRejections"),[]);
+        assert.equal(requests.slice(start).filter(r=>r.path.endsWith("/estimate-workflows")).length,1);assert.equal(requests.slice(start).filter(r=>r.method==="PUT").length,1);assert.equal(requests.slice(start).filter(r=>r.path.endsWith("/version-workflows")).length,0);
+        await click("关闭并核对");await hasText("请显式核对 Server");
+      }finally{await command("Fetch.disable",{},sessionId);failureStatus=0;}
+      const after=await read();assert.equal(after.version,before.version+1);assert.equal(after.quote.revisions[0].baseInfo.styleName,"Saved before estimate");assert.equal(after.quote.activeEstimateCost,null);await isolated();
+    });
+    await t.test("actual dirty Estimate operation cancelled without losing draft or creating",async()=>{
+      const {read}=await prepareEstimateQuote();await labelInput("款式名称","Unsaved estimate cancellation");const before=await read();
+      await click("查看报价历史");await click("生成估算成本");acceptDialogs=false;
+      try{await click("确认生成");await sleep(150);assert.deepEqual(await read(),before);await click("取消");await click("关闭");assert.ok(await evaluate("[...document.querySelectorAll('input')].some(n=>n.value==='Unsaved estimate cancellation')"));}finally{acceptDialogs=true;}
+      await isolated();
+    });
+    for(const operation of ["update","restore"]) for(const failure of [409,"network"]) await t.test(`actual Estimate ${operation} ${failure}: dirty/selection retained and Promise handled`,async()=>{
+      const {id,read}=await prepareEstimateQuote();await generateEstimate(read,"estimate-source-parallel");
+      if(operation==="restore"){
+        await click("重新生成");await click("确认重新生成");await until(async()=> (await read()).quote.estimateCostHistory.length===1,"prepare history via actual regeneration");await costTab();
+        await evaluate("document.querySelector('.qc-estimate-history button').click()");await hasText("历史只读");
+      }else await labelInput("工价","99");
+      const before=await read(),start=requests.length;failureStatus=failure===409?409:0;
+      await command("Fetch.enable",{patterns:[{urlPattern:`*/api/v1/quotes/${id}/estimate-workflows`,requestStage:"Request"}]},sessionId);
+      try{
+        await click(operation==="update"?"保存估算成本":"恢复为新的当前估算");await hasText(operation==="update"?"Server 保存未完成":"估算操作未确认");await hasText("关闭并核对");
+        if(operation==="update") assert.equal(await evaluate("[...document.querySelectorAll('.qc-estimate-cost-panel label')].find(n=>n.querySelector('span')?.textContent==='工价').querySelector('input').value"),"99");
+        else assert.equal(await evaluate("Boolean(document.querySelector('.qc-estimate-history button.selected'))"),true);
+        await sleep(200);assert.deepEqual(await evaluate("unhandledRejections"),[]);assert.equal(requests.slice(start).filter(r=>r.path.endsWith("/estimate-workflows")).length,1);
+        assert.equal(requests.slice(start).filter(r=>r.method==="PUT"||r.path.endsWith("/version-workflows")).length,0);
+      }finally{await command("Fetch.disable",{},sessionId);failureStatus=0;}
+      assert.deepEqual(await read(),before);await isolated();
+    });
     await command("Browser.close");
   } finally {
     ws?.close();

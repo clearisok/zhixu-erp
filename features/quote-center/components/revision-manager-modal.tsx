@@ -6,7 +6,7 @@ import { summarizeRevisionMetric } from "../model/quote-presentation";
 import { formatFinalGarmentPrice } from "../model/final-quote-format";
 import { getNextRevisionLabel, revisionLabelParts } from "../model/quote-revision-naming";
 import { confirmationSummaryLabel } from "../model/quote-workflows";
-import type { Quote, QuoteRevision, QuoteRevisionReason, SelectOption } from "../model/quote-view-model";
+import { BASE_PRICE_VERSION_NAME, type Quote, type QuoteRevision, type QuoteRevisionReason, type SelectOption } from "../model/quote-view-model";
 import type { EstimateCost } from "../model/quote-view-model";
 import { EstimateCostPanel } from "./estimate-cost-panel";
 import { PermissionButton } from "@/features/permissions";
@@ -29,6 +29,7 @@ function confirmationText(revision: QuoteRevision) {
 }
 
 type RevisionManagerModalProps = {
+  serverError?: string;
   serverMode?: boolean;
   open: boolean;
   quote: Quote;
@@ -41,7 +42,8 @@ type RevisionManagerModalProps = {
   onCanUpdate: (revision: QuoteRevision) => boolean;
   onCreate: (source: QuoteRevision, reason: QuoteRevisionReason, note: string) => Promise<void>;
   onEstimateChange: (estimate: EstimateCost) => void;
-  onEstimateGenerate: (source: QuoteRevision, regenerate: boolean) => void;
+  onEstimateGenerate: (source: QuoteRevision, regenerate: boolean, sourcePriceVersionId?: string) => void;
+  onEstimateSave?: () => Promise<void>;
   onEstimateIgnoreStale: () => void;
   onEstimateRestore: (historyId: string) => void;
 };
@@ -51,7 +53,7 @@ export function RevisionManagerModal(props: RevisionManagerModalProps) {
   return <RevisionManagerDialog key={`${props.viewedRevisionId}-${props.quote.defaultRevisionId}`} {...props} />;
 }
 
-function RevisionManagerDialog({ serverMode = false, quote, viewedRevisionId, canUpdate, canViewEstimate, canEditEstimate, onClose, onView, onCanUpdate, onCreate, onEstimateChange, onEstimateGenerate, onEstimateIgnoreStale, onEstimateRestore }: RevisionManagerModalProps) {
+function RevisionManagerDialog({ serverMode = false, serverError, quote, viewedRevisionId, canUpdate, canViewEstimate, canEditEstimate, onClose, onView, onCanUpdate, onCreate, onEstimateChange, onEstimateGenerate, onEstimateIgnoreStale, onEstimateRestore, onEstimateSave }: RevisionManagerModalProps) {
   const [selectedId, setSelectedId] = useState<string>(viewedRevisionId || quote.defaultRevisionId);
   const [mode, setMode] = useState<"overview" | "update">("overview");
   const [reason, setReason] = useState<QuoteRevisionReason | "">("");
@@ -59,11 +61,13 @@ function RevisionManagerDialog({ serverMode = false, quote, viewedRevisionId, ca
   const [reasonError, setReasonError] = useState("");
   const [copyDecisionOpen, setCopyDecisionOpen] = useState(false);
   const [copyBeforeUpdate, setCopyBeforeUpdate] = useState(true);
+  const [sourcePriceId, setSourcePriceId] = useState("");
 
   const revisions = useMemo(() => [...quote.revisions].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()), [quote.revisions]);
   const estimateSelected = selectedId === "estimate-cost";
   const selected = revisions.find((revision) => revision.revisionId === selectedId) ?? revisions.find((revision) => revision.revisionId === quote.defaultRevisionId) ?? revisions[0];
   if (!selected) return null;
+  const selectedSource = selected.priceVersions.find(p => p.id === sourcePriceId) ?? selected.priceVersions.find(p => p.name === BASE_PRICE_VERSION_NAME) ?? selected.priceVersions[0];
   const nextIdentity = getNextRevisionLabel({ selectedRevision: selected, allRevisions: revisions });
   const sourceRevision = selected.parentRevisionId ? revisions.find((revision) => revision.revisionId === selected.parentRevisionId) : null;
 
@@ -90,7 +94,7 @@ function RevisionManagerDialog({ serverMode = false, quote, viewedRevisionId, ca
 
   const footer = estimateSelected ? <Button variant="secondary" onClick={onClose}>关闭</Button> : mode === "overview" ? <>
     <Button variant="secondary" onClick={onClose}>关闭</Button>
-    {!serverMode && <PermissionButton permission="estimate.edit" variant="secondary" onClick={() => onEstimateGenerate(selected, Boolean(quote.activeEstimateCost))}>生成估算成本</PermissionButton>}
+    <PermissionButton permission="estimate.edit" disabled={!canEditEstimate} variant="secondary" onClick={() => onEstimateGenerate(selected, Boolean(quote.activeEstimateCost), serverMode ? selectedSource.id : undefined)}>生成估算成本</PermissionButton>
     <Button variant="secondary" onClick={() => { onView(selected); onClose(); }}>查看</Button>
     <PermissionButton permission="quote.revision.update" onClick={beginUpdate}>更新</PermissionButton>
   </> : <>
@@ -100,6 +104,7 @@ function RevisionManagerDialog({ serverMode = false, quote, viewedRevisionId, ca
 
   return <><Modal open className="qc-revision-manager-modal" title="报价版本" description="集中查看、追溯并基于任意历史快照创建新的报价版本。" onClose={onClose} onSubmit={mode === "update" ? submitUpdate : undefined} footer={footer}>
     <div className="qc-revision-manager">
+      {serverError && <div role="alert">{serverError}<Button variant="secondary" onClick={onClose}>关闭并核对</Button></div>}
       <div className="qc-revision-picker" aria-label="选择报价版本"><button type="button" disabled={!canViewEstimate} title={!canViewEstimate ? "暂无权限，请联系管理员" : undefined} className={`qc-revision-pill qc-estimate-pill ${estimateSelected ? "selected" : ""}`} onClick={() => { setSelectedId("estimate-cost"); setMode("overview"); }}><span>成本</span><span className="qc-revision-pill-badges">{quote.activeEstimateCost ? <StatusTag tone="active">已生成</StatusTag> : <StatusTag tone="neutral">未生成</StatusTag>}</span><small>内部估算口径</small></button>{revisions.map((revision) => {
         const isDefault = revision.revisionId === quote.defaultRevisionId;
         const confirmed = revision.confirmationSummary.confirmedCount > 0;
@@ -111,7 +116,8 @@ function RevisionManagerDialog({ serverMode = false, quote, viewedRevisionId, ca
         </button>;
       })}<button type="button" disabled={!canUpdate} title={!canUpdate ? "暂无权限，请联系管理员" : undefined} className="qc-revision-pill qc-revision-add" onClick={beginUpdate}>＋ 更新报价版本</button></div>
 
-      {estimateSelected ? <EstimateCostPanel quote={quote} readOnly={!canEditEstimate} onChange={onEstimateChange} onGenerate={(regenerate) => onEstimateGenerate(revisions.find((item) => item.revisionId === quote.defaultRevisionId) ?? selected, regenerate)} onIgnoreStale={onEstimateIgnoreStale} onRestore={onEstimateRestore} /> : mode === "overview" ? <div className="qc-revision-overview">
+      {estimateSelected ? <EstimateCostPanel key={quote.activeEstimateCost?.id ?? "empty"} quote={quote} readOnly={!canEditEstimate} onSave={onEstimateSave} onChange={onEstimateChange} onGenerate={(regenerate) => onEstimateGenerate(revisions.find((item) => item.revisionId === quote.defaultRevisionId) ?? selected, regenerate)} onIgnoreStale={onEstimateIgnoreStale} onRestore={onEstimateRestore} /> : mode === "overview" ? <div className="qc-revision-overview">
+        {serverMode && canViewEstimate && <FormItem label="估算来源价格版本"><select aria-label="估算来源价格版本" value={selectedSource.id} onChange={e => setSourcePriceId(e.target.value)}>{selected.priceVersions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></FormItem>}
         <header><div><small>报价版本</small><RevisionLabel revision={selected} className="large" /></div><span>{confirmationSummaryLabel(selected.confirmationSummary)}</span></header>
         <dl>
           <div><dt>更新原因</dt><dd>{selected.reason}</dd></div>

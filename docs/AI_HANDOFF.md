@@ -1,6 +1,16 @@
 # AI 接力棒
 
-## Current: Fresh Start Server Revision / PriceVersion workflows（2026-10-08）
+## Current: Server EstimateCost workflows + formal UI（2026-10-08）
+
+- Base 为 PR #76 merged main `e270a6786516f6f317034a0dc4cb36b8cf6e7b42`，branch `feat/server-estimate-cost-workflows`。Estimate 是 Quote 级独立快照，不归属 Revision/PV；新建/打开/重复启动不自动生成。复用正式 RevisionManagerModal / EstimateCostPanel / QuoteEditor，不创建第二套页面或计算器，默认 Browser 与旧 runtime 不变。
+- 聚焦 `POST /api/v1/quotes/:id/estimate-workflows`：generate / update / regenerate / restore / ignore，expectedVersion、来源/目标绑定、严格字段白名单。已保存 Server 来源；显式非法 PV 不回退；仅未指定来源 PV 时选基础价格/首项。Server 生成 ID/time/trusted actor，完整归档旧 active，恢复独立新 Estimate/行 ID 且保留历史与原 provenance，删除来源 PV 后仍可恢复。不重算、不反写状态/确认/Revision/PV/附件/基础资料。
+- 复用 0005 schema/原 repository 单事务，active/history/version/trusted Quote OperationLog 同事务；并发单赢家、child/audit 故障整体回滚。无新 SQL/migration。Fixed structure 编辑只接原面板字段，禁止增删/重排/换行身份/改 provenance 或 pricingParameters；Decimal string/null/zero 不经 Number 复制。stale/ignore 继续按当前 default Revision，估算编辑不把 draft 改 quoting。
+- Runtime 兼容收紧：generic PUT 不能改任何 Estimate slice，返回409 `estimate_command_required`，内部 repository 的合法持久化/测试仍保留。包含 current/history Estimate 的完整 DTO 读取/保存/版本响应另需 `estimate.view`；Estimate mutation 需 `quote.edit` + `estimate.view` + `estimate.edit`，不新增权限/改角色。
+- persistence 与 Quote 保存/附件/版本命令共用锁/version/baseline；估算-only edit 单命令，混合草稿先保存 Quote、再受控保存 Estimate。前一步已提交、后一步失败分别报告事实，不伪称整体回滚。dirty 要求保存或取消，成本同步必须先完成原显式选择，再主动继续；409/network 保留草稿/来源选择/历史选择、显示核对、blocked 后不重试/不回退 Browser，无 unhandled rejection。Quote 级当前估算在查看历史 Revision 时仍可按自身权限编辑，历史 Estimate 本身只读。
+- 本轮实际验证：Estimate API disposable7/7、相关 Quote foundation/API/Revision/附件43/43、fresh-start/repeated-startup7/7、auth/frontend55/55（新增 Estimate纯函数/persistence7项）、实际 Chromium30/30、npm test673/673；typecheck/lint/Server build/diff-check PASS。显式 Server frontend 后执行 Chromium；默认 Browser frontend独立子进程构建，均41 routes，默认 build-info Quote/master=browser、writer=writable。Chromium包含两类型完整估算流程、历史来源/历史 Revision 下当前估算编辑、同步选择前无写入、取消、save-first/保存/恢复各409/network及无rejection，保留原20项回归及下载 bytes/SHA-256，cleanup PASS。未重跑无关 full PG/COS/history import suite。
+- 当前完成工程验证 checkpoint，随后仅文档/最终交付收口。未接客户确认/导出/整单复制删除/Revision删除/转订单/完整日志UI；不宣称完整报价 production-ready。真实 Ubuntu/Docker runtime/3000–3002/DB/Browser/COS/secrets/schema activation 均未操作；D-096 historical import NOT REQUIRED。
+
+## HISTORICAL: Fresh Start Server Revision / PriceVersion workflows（2026-10-08）
 
 - Base PR #75 merge `0aa1a3ab81f82de3436910c55203184de7114fb7`；branch `feat/server-quote-version-workflows`。默认 Browser 不变，显式 Server 构建已接 PV 创建/复制、名称/数量/说明编辑、删除非最后版本、切换，以及 Revision 当前更新、所选历史分支、历史查看/返回当前。
 - Typed `POST /api/v1/quotes/:id/version-workflows` 仅接动作、绑定 source/PV/revision ID 与 expectedVersion；服务复用原纯复制/命名/完整性规则及 repository.save 单事务。新 Revision/PV 身份由 Server 生成，actor/time 来自可信上下文；Revision 保留 scoped child IDs，PV 复制生成新成本行 IDs，确认清空；不重算历史或创建 Estimate/CCT/订单。

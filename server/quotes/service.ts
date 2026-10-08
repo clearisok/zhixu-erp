@@ -11,6 +11,7 @@ import { createQuoteRepository, type QuoteMutationHook } from "./repository.js";
 import { createServerQuoteDraft } from "./draft.js";
 import { allocateQuoteCode } from "./numbering.js";
 import { applyQuoteVersionCommand, type QuoteVersionCommand } from "./version-workflows.js";
+import { applyEstimateCommand, type EstimateCommand } from "./estimate-workflows.js";
 
 /** Internal Q1 persistence/import foundation. It is not exposed by the runtime
  * Browser API; callers here preserve exact historical aggregate identities. */
@@ -42,6 +43,9 @@ function requireChangedPermission(
 
 function priceVersionById(revision: ServerQuote["revisions"][number], id: string) {
   return revision.priceVersions.find((version) => version.id === id);
+}
+function authorizeEstimateRead(actor: TrustedIdentity, quote: ServerQuote): void {
+  if (quote.activeEstimateCost || quote.estimateCostHistory.length) requirePermission(actor.permissions, "estimate.view");
 }
 
 /**
@@ -163,7 +167,23 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
 
   return {
     getById: repository.getById,
+    async getForActor(actor: TrustedIdentity, id: string) {
+      requirePermission(actor.permissions, "quote.view");
+      const record = await repository.getById(id);
+      if (record) authorizeEstimateRead(actor, record.quote);
+      return record;
+    },
     list: repository.list,
+    async estimateWorkflow(actor: TrustedIdentity, quoteId: string, command: EstimateCommand, context: QuoteMutationContext = {}) {
+      requirePermission(actor.permissions, "quote.edit");
+      requirePermission(actor.permissions, "estimate.view");
+      requirePermission(actor.permissions, "estimate.edit");
+      const before = await repository.getById(quoteId);
+      if (!before) throw new HttpError(404, "quote_not_found", "Quote not found");
+      if (before.version !== command.expectedVersion) throw new QuoteConflictError();
+      const next = applyEstimateCommand(before.quote, command, { id: nextUuid, actor: actor.userName, now: now().toISOString() });
+      return repository.save(next, command.expectedVersion, audit(actor, { ...context, workflowAction: command.action }));
+    },
     async versionWorkflow(actor: TrustedIdentity, quoteId: string, command: QuoteVersionCommand, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.edit");
       requirePermission(actor.permissions, command.action === "revision.create" ? "quote.revision.update" : command.action === "price.create" ? "quote.price_version.create" : command.action === "price.delete" ? "quote.price_version.delete" : "quote.edit");
@@ -171,6 +191,7 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
       if (!before) throw new HttpError(404, "quote_not_found", "Quote not found");
       if (before.version !== command.expectedVersion) throw new QuoteConflictError();
       const next = applyQuoteVersionCommand(before.quote, command, { id: nextUuid, actor: actor.userName, now: now().toISOString() });
+      authorizeEstimateRead(actor, before.quote);
       authorizeReplacement(actor, before.quote, next);
       return repository.save(next, command.expectedVersion, audit(actor, { ...context, workflowAction: command.action }));
     },
@@ -187,6 +208,10 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
     async saveAggregate(actor: TrustedIdentity, input: ServerQuote, expectedVersion: number, context: QuoteMutationContext = {}) {
       const before = await repository.getById(input.id);
       if (!before) throw new HttpError(404, "quote_not_found", "Quote was not found");
+      authorizeEstimateRead(actor, before.quote);
+      if (!isDeepStrictEqual([before.quote.activeEstimateCost, before.quote.estimateCostHistory], [input.activeEstimateCost, input.estimateCostHistory])) {
+        throw new HttpError(409, "estimate_command_required", "Use the dedicated Estimate command API");
+      }
       authorizeReplacement(actor, before.quote, input);
       if (expectedVersion !== before.version) throw new QuoteConflictError();
       if (isDeepStrictEqual(before.quote, input)) return before;

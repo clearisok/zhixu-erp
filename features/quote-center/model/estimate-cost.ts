@@ -64,7 +64,7 @@ export function estimateCostTotal(estimate: EstimateCost): number | null {
   return estimateCostMetrics(estimate).preMarkupTotal;
 }
 
-export function estimateCostIsStale(quote: Pick<Quote, "defaultRevisionId">, estimate: EstimateCost): boolean {
+export function estimateCostIsStale(quote: Pick<Quote, "defaultRevisionId">, estimate: Pick<EstimateCost, "basedOnRevisionId" | "ignoredForRevisionId">): boolean {
   return estimate.basedOnRevisionId !== quote.defaultRevisionId
     && estimate.ignoredForRevisionId !== quote.defaultRevisionId;
 }

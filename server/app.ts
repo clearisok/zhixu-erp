@@ -21,6 +21,7 @@ import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales
 import { normalizeServerQuote, QuoteConflictError, QuoteInvariantError, validateQuote, type ServerQuote } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
 import { parseQuoteVersionCommand } from "./quotes/version-workflows.js";
+import { parseEstimateCommand } from "./quotes/estimate-workflows.js";
 import { routeQuoteMasters } from "./quote-masters/routes.js";
 import { routeQuoteAttachments } from "./attachments/routes.js";
 import type { AttachmentStorage } from "./attachments/storage.js";
@@ -376,6 +377,18 @@ async function route(
     return;
   }
 
+  const estimateMatch = /^\/api\/v1\/quotes\/([^/]+)\/estimate-workflows$/.exec(path);
+  if (estimateMatch && request.method === "POST") {
+    assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    const command = parseEstimateCommand(await readJsonBody(request, QUOTE_AGGREGATE_MAX_BODY_BYTES));
+    try {
+      const quote = await createTrustedQuoteService(dependencies.pool).estimateWorkflow(identity, requiredPathIdentity(estimateMatch[1], "quoteId"), command, { requestId: correlationId, method: request.method, path });
+      sendJson(response, 200, { quote });
+    } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
   const workflowMatch = /^\/api\/v1\/quotes\/([^/]+)\/version-workflows$/.exec(path);
   if (workflowMatch && request.method === "POST") {
     assertMutationBoundary(request, dependencies.allowedOrigins);
@@ -420,7 +433,7 @@ async function route(
     const quoteId = requiredPathIdentity(quoteMatch[1], "quoteId");
     if (request.method === "GET") {
       requirePermission(identity.permissions, "quote.view");
-      const quote = await service.getById(quoteId);
+      const quote = await service.getForActor(identity, quoteId);
       if (!quote) throw new HttpError(404, "quote_not_found", "Quote was not found");
       sendJson(response, 200, { quote });
       return;

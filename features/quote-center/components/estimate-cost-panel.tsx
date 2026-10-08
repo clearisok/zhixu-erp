@@ -15,13 +15,14 @@ import { PermissionButton } from "@/features/permissions";
 
 const money = (value: number | null) => value === null ? "—" : `¥${value.toFixed(2)}`;
 
-export function EstimateCostPanel({ quote, readOnly: permissionReadOnly = false, onChange, onGenerate, onIgnoreStale, onRestore }: {
+export function EstimateCostPanel({ quote, readOnly: permissionReadOnly = false, onChange, onGenerate, onIgnoreStale, onRestore, onSave }: {
   quote: Quote;
   readOnly?: boolean;
   onChange: (estimate: EstimateCost) => void;
   onGenerate: (regenerate: boolean) => void;
   onIgnoreStale: () => void;
   onRestore: (historyId: string) => void;
+  onSave?: () => Promise<void>;
 }) {
   const [historyQuery, setHistoryQuery] = useState("");
   const [historyId, setHistoryId] = useState<string | null>(null);
@@ -33,7 +34,7 @@ export function EstimateCostPanel({ quote, readOnly: permissionReadOnly = false,
   const estimate = historical ?? quote.activeEstimateCost;
   const readOnly = Boolean(historical) || permissionReadOnly;
 
-  if (!estimate) return <div className="qc-estimate-empty"><span>◇</span><h3>尚未生成估算成本</h3><p>估算成本不会预先创建。请从一个报价版本快照生成独立估算，客户报价与导出不会读取这里的数据。</p><PermissionButton permission="estimate.edit" onClick={() => onGenerate(false)}>生成估算成本</PermissionButton></div>;
+  if (!estimate) return <div className="qc-estimate-empty"><span>◇</span><h3>尚未生成估算成本</h3><p>估算成本不会预先创建。请从一个报价版本快照生成独立估算，客户报价与导出不会读取这里的数据。</p><PermissionButton disabled={permissionReadOnly} permission="estimate.edit" onClick={() => onGenerate(false)}>生成估算成本</PermissionButton></div>;
 
   const metrics = estimateCostMetrics(estimate);
   const stale = !historical && estimateCostIsStale(quote, estimate);
@@ -42,8 +43,10 @@ export function EstimateCostPanel({ quote, readOnly: permissionReadOnly = false,
   const patch = (next: EstimateCost) => { if (!readOnly) onChange(next); };
 
   return <div className="qc-estimate-cost-panel">
-    <header className="qc-estimate-toolbar"><div><span>估算成本</span><strong>{readOnly ? "只读" : "当前估算"}</strong><small>基于报价版本 {revision?.revisionLabel ?? estimate.basedOnRevisionId} · {new Date(estimate.generatedAt).toLocaleString("zh-CN")} · {estimate.generatedBy}</small></div><div>{historical ? <><Button variant="secondary" onClick={() => setHistoryId(null)}>返回当前估算</Button><PermissionButton permission="estimate.edit" onClick={() => onRestore(estimate.id)}>恢复为新的当前估算</PermissionButton></> : <PermissionButton permission="estimate.edit" variant="secondary" onClick={() => onGenerate(true)}>重新生成</PermissionButton>}</div></header>
-    {stale && <div className="qc-estimate-stale"><div><strong>当前估算成本已过期</strong><span>默认报价版本已更新，当前估算仍基于 {revision?.revisionLabel ?? estimate.basedOnRevisionId}。</span></div><PermissionButton permission="estimate.edit" variant="secondary" onClick={onIgnoreStale}>忽略本次提醒</PermissionButton><PermissionButton permission="estimate.edit" onClick={() => onGenerate(true)}>按当前默认版本重新生成</PermissionButton></div>}
+    <p>来源价格版本：{revision?.priceVersions.find(p => p.id === estimate.sourcePriceVersionId)?.name ?? estimate.sourcePriceVersionId}</p>
+    {!historical && onSave && <Button disabled={permissionReadOnly} onClick={() => void onSave()}>保存估算成本</Button>}
+    <header className="qc-estimate-toolbar"><div><span>估算成本</span><strong>{readOnly ? "只读" : "当前估算"}</strong><small>基于报价版本 {revision?.revisionLabel ?? estimate.basedOnRevisionId} · {new Date(estimate.generatedAt).toLocaleString("zh-CN")} · {estimate.generatedBy}</small></div><div>{historical ? <><Button variant="secondary" onClick={() => setHistoryId(null)}>返回当前估算</Button><PermissionButton disabled={permissionReadOnly} permission="estimate.edit" onClick={() => onRestore(estimate.id)}>恢复为新的当前估算</PermissionButton></> : <PermissionButton disabled={permissionReadOnly} permission="estimate.edit" variant="secondary" onClick={() => onGenerate(true)}>重新生成</PermissionButton>}</div></header>
+    {stale && <div className="qc-estimate-stale"><div><strong>当前估算成本已过期</strong><span>默认报价版本已更新，当前估算仍基于 {revision?.revisionLabel ?? estimate.basedOnRevisionId}。</span></div><PermissionButton disabled={permissionReadOnly} permission="estimate.edit" variant="secondary" onClick={onIgnoreStale}>忽略本次提醒</PermissionButton><PermissionButton disabled={permissionReadOnly} permission="estimate.edit" onClick={() => onGenerate(true)}>按当前默认版本重新生成</PermissionButton></div>}
     <div className="qc-estimate-metrics"><span><small>面料成本</small><strong>{money(metrics.fabricCost)}</strong></span><span><small>辅料成本</small><strong>{money(metrics.trimCost)}</strong></span><span><small>工价 RMB</small><strong>{money(metrics.laborRmb)}</strong></span><span><small>其他费用</small><strong>{money(metrics.otherCost)}</strong></span><span className="total"><small>估算总成本</small><strong>{money(metrics.preMarkupTotal)}</strong></span></div>
     <fieldset disabled={readOnly} className="qc-readonly-fieldset"><div className="qc-cost-stack">
       <FabricCostTable fixedStructure lines={estimate.fabrics} library={[]} supplierOptions={suppliers} onChange={(id, value) => patch(patchEstimateFabricLine(estimate, id, value))} onPurchaseUnitChange={(id, purchaseUnit) => patch(patchEstimateFabricLine(estimate, id, { purchaseUnit }))} onSelectLibrary={() => undefined} />
