@@ -2,7 +2,7 @@
 
 ## CURRENT new Server Quote build — D-097 (not deployment)
 
-Server Revision/PV 命令沿用权限目录：`quote.edit` + Revision 创建 `quote.revision.update`、PV 创建 `quote.price_version.create`、删除 `quote.price_version.delete`；元数据更新仍 `quote.edit`，成本/参数变更继续通过原 aggregate diff 的细粒度检查。历史查看使用 `quote.revision.view`，不提供历史 writer。API IdentityAuthority 身份决定 actor/time，body 不接受 actor/createdAt/revisionLabel；事务失败时日志/关系/aggregate 一并回滚，无 Browser audit 副本或新增超级权限。对应 disposable API 验证401/403、forged fields、owner/version/历史/最后PV安全边界。Estimate/确认/导出/整单删除/转订单/日志查看权限不因本轮接线而启用。
+Server Revision/PV 命令沿用权限目录：`quote.edit` + Revision 创建 `quote.revision.update`、PV 创建 `quote.price_version.create`、删除 `quote.price_version.delete`；元数据更新仍 `quote.edit`，成本/参数变更继续通过原 aggregate diff 的细粒度检查。历史查看使用 `quote.revision.view`，不提供历史 writer。API IdentityAuthority 身份决定 actor/time，body 不接受 actor/createdAt/revisionLabel；事务失败时日志/关系/aggregate 一并回滚，无 Browser audit 副本或新增超级权限。Estimate 日常命令已接已有权限；确认/导出/整单删除/转订单/日志查看仍未接线，不因本次交付启用。
 
 显式 Quote authority=server 的 root 使用现有 ServerSessionProvider / IdentityAuthority / PermissionAuthorityProvider；可信 permission bridge 只映射 session 身份与权限，不 load Browser permissionRepository，不提供 Browser 用户/角色 mutation。session 模式复用唯一 ServerLoginCard，API 仍检查 quote.view/create/edit 与动作/基础设置细粒度权限；请求不能提供 actor。unsupported routes 不挂旧 Browser 模块；没有新 super permission。默认 browser 分支的 PermissionProvider/旧 Local Single-User runtime 保持，D-093 loopback-only 不放宽。
 
@@ -11,6 +11,22 @@ Server Revision/PV 命令沿用权限目录：`quote.edit` + Revision 创建 `qu
 本地单用户 UI 不呈现登录表单、logout、Browser 测试用户切换或用户权限管理入口；直接打开旧管理路由只显示模式说明。Browser Quote aggregate 仍为 mock Repository，不能因此声称已完成 Quote writer cutover。Server service 的细粒度权限校验和可信 OperationLog actor 不被删除。未来正式多用户认证需要独立设计/验收，不将本模式扩展为生产安全模型。
 
 Q4A Server attachment foundation 复用现有 `quote.view`（metadata/read/download）与 `quote.edit`（upload/rename/link/unlink/style-image），不新增超权限或默认角色政策。两种身份模式均经 `IdentityAuthority` 解析后交给服务层再次检查；请求 body/header 不能提供 actor。该 API 目前无 production storage adapter、未部署/未激活，不改变正式 Browser 附件权限。
+
+## Server Estimate 完整 DTO 兼容边界
+
+显式 Server Estimate `generate/update/regenerate/restore/ignore` 均需 **`quote.edit` + `estimate.view` + `estimate.edit`**。身份从可信上下文解析，不按角色名称授权；没有新权限键或默认角色调整。只读历史 Estimate 没有 writer，恢复是建立新 active，而非修改历史。查看历史 Revision 时，Quote 级 active Estimate 仍按自身状态/权限编辑。
+
+`server/quotes/service.ts` 的 `authorizeEstimateRead` 只在 active 非 null 或 history 非空时要求 `estimate.view`：
+
+- 完整 Quote GET 仍需 `quote.view`；若含 Estimate 且缺 `estimate.view`，**整个 API 返回403，Editor 不能加载该报价**，不会剔除 Estimate 后返回其他字段。
+- generic aggregate PUT（原 `quote.edit`/细粒度 diff 权限仍需满足）、Revision/PV command 返回完整 Quote，同样在含 Estimate 时额外拒绝缺 `estimate.view` 的用户；不产生业务写入。Estimate 未改动也不豁免这个读权限条件。
+- 不含 current/history Estimate 的报价不触发这个附加条件；只返回 minimal summary 的列表没有 Estimate 数据，继续按 `quote.view` 读取。
+- 前端成本页签由 `estimate.view` 控制，mutation 控件另受编辑权限/锁/错误状态控制；**UI 隐藏/禁用不等于上述 API 403**，也不能代替后端检查。
+- generic PUT 不能改变任何 Estimate slice，有权限者也须使用 Estimate 命令，差异返回409 `estimate_command_required`。内部 repository 的合法持久化/测试能力保留。
+
+**待审查兼容差异（未改变权限政策）：**现有 Browser 查看员模板 `viewerPermissions` 不含 `estimate.view`，而既有描述允许查看报价；旧 Browser 可只隐藏估算页签，当前 Server 完整 DTO 会拒绝该用户打开含 Estimate 的整张报价。这是比 UI 隐藏更强的读限制，不宣称与旧体验等价。后续是否分拆/裁剪 DTO 或调整授权须单独审查；本次 docs-only 收口不选择方案、不自动补权限，也不把这一影响文字化为新的默认角色规则。报价员模板有 `estimate.view`、没有 `estimate.edit`，查看估算不意味着获准 mutation；Server 实际授权仍以可信 permission keys 为准。
+
+本兼容边界在 checkpoint disposable API / frontend 验证，未在真实多用户环境启用。默认 Browser 与 D-093 local-only 限制不变，完整报价 production readiness 不由此成立。
 
 ## Q3A/Q3B1 Quote master/settings Server authority
 

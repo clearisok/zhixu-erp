@@ -2,6 +2,8 @@
 
 ## Current new-system plan: D-096 Fresh Start
 
+Server Quote Revision/PV 与 **Estimate 日常命令/正式 UI** 已实现并隔离验证，未真实部署。Estimate `POST /api/v1/quotes/:id/estimate-workflows` 复用 0005 schema/原 repository transaction，可信 actor/time、新身份、精确快照与完整历史归档不由请求决定；active/history/Quote version/Quote OperationLog 同事务。Runtime generic PUT 不可改变任何 Estimate slice（409 `estimate_command_required`），内部 repository 合法持久化保持。完整 Quote DTO 含 active/history 时，GET/save/Revision-PV command 边界需 `estimate.view`，缺少时整体403；Estimate mutation 需已有 `quote.edit` + `estimate.view` + `estimate.edit`。查看员模板兼容影响待审查而非默认角色新政策，详情见 `ESTIMATE_COST.md`、`PERMISSIONS.md`。无 schema/真实 migration/部署变化，旧 Browser runtime 未变，工程证据统一见 `AI_HANDOFF.md`。
+
 D-097：正式 Quote Server 基本 UI 已独立于 Browser 路线接线并 disposable/actual Chromium 验证。Quote authority 默认 browser，显式 server 要求 masters=server/writer=writable，build/runtime 校验拒绝失配。GET quotes 增加有界 saved summary/search/type/status/total（只读一致性 transaction），没有 per-row aggregate GET；mutation 复用原 trusted transactional service。没有 schema/migration/真实 startup 行为变更，0008 真实 activation 未执行；完整 workflow/真实部署/storage/远程身份仍有缺口，见 `FRESH_START_FOUNDATION.md`。
 
 新系统全部业务数据从空开始，旧环境不删不搬；Q5 historical import NOT REQUIRED。正式 runner 在独立 disposable PG16 通过 0001–0008 与 startup/重复启动验证；仅技术白名单，23 张业务表全 0，global settings 无记录代表未配置。没有修改发布 SQL、应用真实 0008、连接真实 DB 或部署。正常启动仍 verify-only。具体初始化 whitelist、Server-only 空行为与正式 UI 缺口见 `FRESH_START_FOUNDATION.md`；不代表所有模块 Server-ready。COS real Node preflight 已 PASS（PR #73 用户证据），runtime storage activation 未发生。
