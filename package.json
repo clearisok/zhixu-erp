@@ -19,6 +19,7 @@
     "test:server-auth-frontend": "tsx --test features/server-auth/__tests__/*.test.ts features/quote-center/server/__tests__/*.test.ts",
     "test:server-auth-integration": "tsx --test --test-concurrency=1 server/integration/browser-session-e2e.integration.test.ts",
     "test:shadow-read": "node --test tests/sales-order-server-shadow-read.test.mjs",
+    "test:fresh-start": "tsx --test --test-concurrency=1 server/integration/fresh-start.integration.test.ts",
     "test:database-ops": "node --test scripts/__tests__/database-ops-safety.test.mjs && tsx --test server/db/migration-evidence.test.ts",
     "preview:quote-master-settings": "tsx scripts/preview-quote-master-settings-backup.ts",
     "rehearse:quote-master-settings": "tsx scripts/rehearse-quote-master-settings.ts",

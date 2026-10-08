@@ -1,5 +1,7 @@
 # 项目知识索引
 
+> **当前新系统上线方向：D-096，全部业务数据从空开始。** 旧环境保留，Q5 historical import NOT REQUIRED；功能/安全/Quote-first 顺序不变，不代表正式 UI 已全接 Server。空库验证、技术初始化白名单、隔离部署说明与剩余接线文件见 [Fresh Start Foundation](features/FRESH_START_FOUNDATION.md)。下面既有部署/数据数量只描述旧环境，不是新系统的数据源或初始化指令。COS real Node preflight 已 PASS（PR #73 用户证据），不是 runtime storage activation。
+
 > 当前开发运行态：Q3B2I-C2 CLOSED / PASS。PR #64 的 Local Single-User UI 修复已部署至真实本机 `127.0.0.1:3001` 并经用户真实浏览器验收；Q3 master/settings 为 Server authority 且编辑已重开，旧 3002 保持停止。Q4A Server 附件 foundation 仅经一次性数据库验证，真实 0008/对象存储/部署均未激活。D-093 Active、B3/B3-R 已被取代；Quote aggregate 与现有附件仍由 Browser 持有。下文 trusted session/RBAC 与旧 Gate 描述如无另行标注均为历史/session-mode 兼容，不是当前登录或部署指引。见 `CURRENT_STATE.md`、`features/ATTACHMENTS.md`、`features/Q3B2I_CUTOVER_RUNBOOK.md`。
 
 ## 系统简介

@@ -1,5 +1,9 @@
 # PostgreSQL Server Persistence Foundation
 
+## Current new-system plan: D-096 Fresh Start
+
+新系统全部业务数据从空开始，旧环境不删不搬；Q5 historical import NOT REQUIRED。正式 runner 在独立 disposable PG16 通过 0001–0008 与 startup/重复启动验证；仅技术白名单，23 张业务表全 0，global settings 无记录代表未配置。没有修改发布 SQL、应用真实 0008、连接真实 DB 或部署。正常启动仍 verify-only。具体初始化 whitelist、Server-only 空行为与正式 UI 缺口见 `FRESH_START_FOUNDATION.md`；不代表所有模块 Server-ready。COS real Node preflight 已 PASS（PR #73 用户证据），runtime storage activation 未发生。
+
 > 当前开发阶段（D-093，2026-10-05）：Q3B2I-C2 CLOSED / PASS。PR #64 本地单用户根路径/统一侧栏修复已部署至真实本机 3001，API、数据库与用户真实浏览器验收通过；Q3 master/settings authority 为 Server、编辑已重开。以下早期 Trusted Session 描述是历史/session-mode 兼容，不是当前 B3/B3-R 登录验收门禁。
 
 Q4A foundation 新增待激活的 `0008_quote_attachments.sql` 与 Server Attachment API。正常启动仍只读核验 migration，真实库只有 0001–0007 时，含 0008 的代码若部署会在 pending 处 fail closed；本任务**不部署、不在真实库应用 0008**。未注入 production object-storage adapter 时附件 API 返回 503，不会落到本地文件或 Browser IndexedDB。详见 `ATTACHMENTS.md`。

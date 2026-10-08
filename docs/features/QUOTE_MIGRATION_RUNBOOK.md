@@ -1,6 +1,10 @@
 # Q5 Historical Quote migration — guarded operational boundary
 
-## Current state (Q4C-B / Q5-C, 2026-10-08)
+## CURRENT — 历史导入 NOT REQUIRED（D-096，2026-10-08）
+
+用户确认新系统所有业务数据从空开始，旧环境保留。本 runbook 作为 **HISTORICAL / DORMANT MIGRATION PATH** 留存，不是当前上线操作清单。Fresh Browser source、迁移专用 freeze/rehearsal、Q5 VerifyOnly/Execute 不再是当前上线 blocker；不删除工具/测试、不改历史 PASS、不清空任何源。未来新库 schema activation/安全/备份仍需单独授权，但不要求历史业务导入。空库初始化与正式 UI 缺口见 `FRESH_START_FOUNDATION.md`。
+
+## HISTORICAL state (Q4C-B / Q5-C, 2026-10-08)
 
 **Q4C-B REAL COS PREFLIGHT PASS** 已由用户提供 reviewed `a979d4b4...` 官方 Node 输出与原证据 checksum（不是本轮远程获取/重算，详见 ATTACHMENTS）。原 probe 全阶段、hash、cleanup PASS，不重测。Persistent credential loader/setup/offline check 本轮只工程交付，真实 host secrets installation NOT EXECUTED、production runtime storage NOT ACTIVATED。Q4C-B PASS 仍不证明 private policy/CAM `attachments/*` Delete deny 或 runtimeConfigReviewed；Q5 final storage readiness 不得自动置 true。真实 0008、Quote import、Q5 Execute 仍 NOT EXECUTED/NOT AUTHORIZED，Quote/附件 BROWSER，Q3 SERVER。下段 NOT RUN 是 original tooling Gate 的历史，不覆盖此次 closure。
 
@@ -49,7 +53,7 @@ Q5 只消费现有标准 Browser full backup，不建立第二套备份格式或
 
 内部 Q5 import 复用 Q1 aggregate transaction，不经 HTTP/runtime allocator/actor/OperationLog。`pg_try_advisory_xact_lock` 只允许一个 Q5 import；任一写入前失败可 rollback。COMMIT request 发出后的异常为 `COMMIT_OUTCOME_UNKNOWN`，销毁该连接，禁止称为 rollback 或自动重试；另用新连接执行只读 aggregate/count/sequence reconciliation。正常 COMMIT 后读回失败是 `COMMITTED_BUT_UNVERIFIED`，均须保留冻结并交由操作者处理。第二次执行因非空目标 fail closed。Q5 attempt evidence 包装仓库 D-091 `MigrationExecutionEvidence`，区分 `PRECHECK_FAILED`、`ROLLED_BACK`、`COMMIT_OUTCOME_UNKNOWN`、`COMMITTED_BUT_UNVERIFIED`、`COMMITTED_PASS`，不制造 runtime Quote CRUD log。
 
-## Remaining real Gate blockers
+## HISTORICAL migration-only Gate requirements — not current rollout blockers
 
 - 独立授权部署已实现的 Quote-specific frozen/read-only candidate，验收真实旧标签页关闭/同源连续性；Q3 master/settings frozen 不可代用。
 - 正式 Node Q4C-B PUT/HEAD/GET/delete/absence 已由用户执行 PASS，不要求重复。仍需 private/CAM policy（尤其正式附件 Delete deny）、实际 runtime identity/ro mount/config review 与公网逐操作 bounded timeout activation 核验；本轮不安装 secrets、不接 COS、不部署。Q4C-B evidence 不能自动生成 Q5 final storage proof，见 `ATTACHMENTS.md`。

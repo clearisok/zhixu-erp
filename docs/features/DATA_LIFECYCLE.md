@@ -1,5 +1,9 @@
 # 开发数据保护与非破坏性迁移
 
+## 当前新系统方向：空业务数据（D-096）
+
+新系统使用独立 DB/volume/origin，从空业务数据开始；不读取旧备份执行导入，不自动同步艾诺科，不发现/接管已有 COS 对象。旧 Browser namespace/IndexedDB、旧库、备份及对象全部保留，无 clear/reset/换 key。本文后续历史导入资产分类与 Q5 freeze 是保留的历史兼容路径，不是当前上线前置条件；已发生 Q3 import 与验收不被否定。详见 `FRESH_START_FOUNDATION.md`。
+
 ## Purpose
 
 保护 Quote Center 在浏览器中的长期验收数据，使页面刷新、HMR、DEV 重启、Production Build、Docker rebuild、Seed 变化和前端 schema 演进均不会自动清空或覆盖用户数据。
