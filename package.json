@@ -29,6 +29,8 @@
     "test:quote-history": "tsx --test --test-concurrency=1 server/integration/quote-history.integration.test.ts",
     "test:quote-guarded-import": "tsx --test --test-concurrency=1 server/integration/quote-guarded-import.integration.test.ts",
     "test:attachment-s3": "tsx --test --test-concurrency=1 server/integration/s3-storage.integration.test.ts",
+    "preflight:object-storage": "tsx scripts/preflight-object-storage.ts",
+    "test:object-storage-preflight": "tsx --test --test-concurrency=1 server/integration/object-storage-preflight.integration.test.ts",
     "qa:data:prepare": "node scripts/generate-ui-qa-data.mjs prepare",
     "qa:data:cleanup": "node scripts/generate-ui-qa-data.mjs cleanup",
     "build": "vinext build",

@@ -8,6 +8,12 @@ Q4B 在 isolated `/quote-center/server-edit` 增加 typed Attachment client/cont
 
 Q4C-A 已加入 `server/attachments/s3-storage.ts` 与显式 runtime `ZHIXU_ATTACHMENT_STORAGE=s3` 配置。必须配置 endpoint、region、bucket、access key ID、secret access key；`forcePathStyle` 可选，生产 endpoint 必须 HTTPS，disposable MinIO 可用 HTTP。配置缺失/非法时启动 fail closed；未启用时附件 API 仍为 503。密钥只用于 Server SDK，不写入 build-info/响应/OperationLog；对象键继续是 `attachments/<uuid>/original`，PUT/HEAD 使用 SHA-256 metadata 与 size，GET 流式，remove 没有 runtime 调用。仅 disposable MinIO/PostgreSQL 验证；真实 0008、生产 provider/bucket、部署和 Browser 附件 authority 均未改变。
 
+## Q4C-B independent Object Storage preflight
+
+Q4C-B 的 `server/attachments/storage-config.ts` 是上述 runtime 与独立 `scripts/preflight-object-storage.ts` 的唯一共享纯配置解析器，验证 endpoint/region/bucket/credentials/forcePathStyle；CLI 不依赖 `loadServerConfig`、DB URL、auth 或 Server startup。`npm run preflight:object-storage` 仅对自动生成 `zhixu-preflight/<uuid>/probe` 做 bounded HeadBucket/PUT/HEAD/GET/SHA-256/DELETE/absence 验证，输出脱敏 `zhixu-object-storage-preflight.v1`，不改变 runtime 正式 key 或自动 GC 行为。
+
+2026-10-08 USER CONFIRMED：Tencent COS private bucket `weaveops-prod-1501437430`（ap-hongkong、HTTPS regional endpoint、forcePathStyle=false）存在，宁波 Python SDK basic PUT PASS。**正式 Node real preflight NOT RUN**；本 Gate 仅 disposable MinIO（既有 adapter 回归使用 disposable PostgreSQL），没有真实 COS/DB 访问、0008 activation、Quote import 或部署。Runtime 的公网逐操作 timeout 仍是未来 activation review 项；此工具的 bounded timeout 不表示 runtime 已补齐或生产 ready。Preflight evidence 不能自行声称 privateBucket/runtimeConfigReviewed，也不能授权 Q5 Execute。
+
 ## Local Single-User Mode (development only)
 
 `ZHIXU_IDENTITY_MODE=local-single-user` 加 `ZHIXU_LOCAL_SINGLE_USER_ACK=I_UNDERSTAND_NO_AUTH` 才启用无登录模式；缺省仍为 `session`，非 loopback Browser origin 拒绝。`Dockerfile.server` 将模式同时编入前端 `build-info.json`、镜像 label 和 Node runtime；production startup 校验 compiled/runtime 一致。真实当前容器仅绑定 `127.0.0.1:3001`；任何后续替换仍须重新核对精确 host-port，不能把此模式当作公网生产认证。

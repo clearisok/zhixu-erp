@@ -1,6 +1,14 @@
 # AI 接力棒
 
-> 2026-10-07 当前接力：Q5-A 只完成标准 Browser full backup → 纯 Quote 历史投影 → 一次性 PostgreSQL 16 导入/读回工程验证；没有捕获真实 Browser source、真实 Quote import、真实 0008、COS 配置或部署。D-094 要求目标投影同时清空旧 URL 兼容字段，源 Browser 数据保持不变。Q3B2I-C2 **CLOSED / PASS**，Q3 master/settings 为 Server authority；Q4A/B/C-A 仍是附件工程实现，生产 provider/bucket 未配置。D-093 Local Single-User 仍 Active；Quote aggregate/现有附件仍 Browser-owned。以下旧 Gate 状态为历史快照，不得作为重做 import/handoff 的指令。
+> 2026-10-08 当前接力：Q4C-B 独立 Object Storage preflight 工具已实现，正式真实 Node preflight 尚未运行。用户确认 Tencent COS 私有 bucket 已建立且宁波 Python PUT PASS；不是本工具实测，也不表示 runtime storage 已激活。Q5-A/B/C 仍为工程/disposable 验证，未捕获真实 Quote source、未执行真实 Quote import/0008/部署。D-094/D-095 与 D-093 保持 Active；Q3 master/settings SERVER，Quote aggregate/现有附件 BROWSER。以下旧 Gate 的“COS 未配置”仅记录历史，不能作为当前基础设施状态或执行授权。
+
+## Q4C-B engineering handoff
+
+- Engineering PASS：targeted preflight 15/15、S3 adapter 2/2、full tests 671/671、disposable PostgreSQL 117/117、typecheck/lint/server build/frontend build（41 routes）/diff-check；disposable MinIO/PG 容器均已清理、无残留。正式真实 Node run 仍 NOT RUN。
+- Base main `d6bb072e385512d06ddae1748de78b903d832735`；branch `feat/q4cb-cos-real-preflight-tooling`。`server/attachments/storage-config.ts` 是 runtime/CLI 共用纯解析器；CLI 不导入 Server startup/DB、不要求 DATABASE_URL。`scripts/preflight-object-storage.ts` 输出 `zhixu-object-storage-preflight.v1`，可用 `--evidence <absolute path>` exclusive 创建新文件。
+- 仅操作随机 `zhixu-preflight/<uuid>/probe`；64 KiB random bytes，PUT/HEAD metadata 与 GET SHA-256 校验，精确 DELETE 和 404 + bucket existence 清理证明。单步 10s（含 GET stream）、SDK maxAttempts=2；PUT 可能成功后的失败做 best-effort cleanup，不确定输出 `FAIL_CLEANUP_REQUIRED`。原始 SDK error、headers、body、凭据均不进入 evidence；无 LIST，无 caller key，无正式附件 validator 放宽。
+- USER CONFIRMED：`weaveops-prod-1501437430`、`ap-hongkong`、`https://cos.ap-hongkong.myqcloud.com`、forcePathStyle false、private；宁波 Ubuntu Python 1 MB PUT PASS。直接复用，不新建 bucket。CAM 最小权限和未来用户 Ubuntu CLI 步骤见 `features/ATTACHMENTS.md`。
+- 正式 Node real preflight **NOT RUN**；本 Gate 不触碰真实 COS/凭据/PG/Browser/3001/3002。真实 0008、Quote migration、runtime deployment 均 NO，Q5 Execute NOT AUTHORIZED。Preflight PASS 不自动证明 private bucket 或 runtimeConfigReviewed，后续独立 activation Gate 才能组成 Q5 readiness proof。
 
 - **Q5-B operational foundation：** reviewed Git critical-source guard、严格脱敏 source/freeze/rehearsal/backup/Object Storage 与 D-091 attempt evidence parser、`quote_import_readiness.v1`、advisory lock 与 COMMIT-unknown connection destroy/fresh readback 已实现并仅在 synthetic/disposable 环境验证。`scripts/Invoke-Q5GuardedQuoteImport.ps1` 只有 read-only `-VerifyOnly`、调用既有 exact-target guard，缺真实 0008 明确 BLOCKED；**没有真实 Execute**。真实 Quote-specific frozen deployment/COS/真实 0008/真实 fresh source/rollback/evidence custody 与 DB competing-writer freeze 都仍是后续 Gate blocker，不能把 Q3 frozen mode 当作 Quote freeze。详见 `docs/features/QUOTE_MIGRATION_RUNBOOK.md`。
 

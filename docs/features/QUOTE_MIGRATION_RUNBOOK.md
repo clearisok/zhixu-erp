@@ -1,6 +1,8 @@
 # Q5 Historical Quote migration — guarded operational boundary
 
-## Current state (Q5-C, 2026-10-07)
+## Current state (Q4C-B / Q5-C, 2026-10-08)
+
+Q4C-B 已提供独立 Node/S3 preflight 工具与 `zhixu-object-storage-preflight.v1` evidence；仅 disposable MinIO 验证，正式真实 Node run **NOT RUN**。USER CONFIRMED：COS 私有 `weaveops-prod-1501437430` / ap-hongkong 已建立，宁波 Python PUT PASS，直接复用该 bucket，无命名依赖。Q5-B 的 `quote-object-storage-readiness.v1` 仍要求单独核验 private bucket 与正式 runtime config；不得将 Q4C-B evidence 自动当作 `runtimeConfigReviewed=true` 或 Q5 final PASS。真实 0008/Quote migration/部署仍 NO，Q5 Execute NOT AUTHORIZED。下段“未配置 COS”是原 Q5-B Gate 的历史工程边界，不代表当前 bucket 不存在。
 
 Q5-A 的 canonical Browser full-backup Quote projection 与 disposable PostgreSQL import/readback 已完成。Q5-B 增加 reviewed-source、source/freeze/rollback/rehearsal/Object Storage 证据契约、一次性数据库 advisory lock、COMMIT 不确定性与新连接 readback；`Invoke-Q5GuardedQuoteImport.ps1` **只有 VerifyOnly**，没有真实 Execute 参数或连接真实数据库写入的入口。合成证据能在 disposable PG16 覆盖同一前置验证模型。Q5-B 未捕获真实 Browser source，未配置 COS，未执行真实 0008、Quote import、部署或 authority switch。
 
@@ -48,7 +50,7 @@ Q5 只消费现有标准 Browser full backup，不建立第二套备份格式或
 ## Remaining real Gate blockers
 
 - 独立授权部署已实现的 Quote-specific frozen/read-only candidate，验收真实旧标签页关闭/同源连续性；Q3 master/settings frozen 不可代用。
-- 真实生产 Object Storage private bucket、runtime config 与 PUT/HEAD/GET/delete preflight；本 Gate 不接 COS。
+- 已由用户确认存在的 private COS bucket 仍需正式 Node Q4C-B PUT/HEAD/GET/delete/absence preflight、private configuration confirmation 与 runtime config review；本工程 Gate 不接 COS。真实 run 须在 PR 合并后由用户在宁波 Ubuntu 单独执行，见 `ATTACHMENTS.md`。Runtime 公网逐操作 bounded timeout 仍须在 activation review 核验。
 - 独立授权执行真实 0008，并验证真实 ledger current。
 - fresh authoritative Browser backup、一次性排练 proof、exact-target post-freeze rollback dump/manifest 与独立 evidence custody。
 - 设计并授权 Quote-only/受控 DB competing-writer freeze、最终 pre-execute freshness 与真实 Execute runner；当前脚本故意不暴露 Execute。
