@@ -1,5 +1,14 @@
 # AI 接力棒
 
+## Current checkpoint: Fresh Start formal Quote Server UI（2026-10-08，未最终收口）
+
+- Branch `feat/fresh-start-quote-server-ui`，base PR #74 merge `cf60096e3e8ded0d6801e5a516e8bf1bd6709acf`。显式 Quote authority 默认 browser；server 要求 masters=server / writer=writable，编译/运行身份一致。正式 list/new/detail 分流而非 candidate redirect。
+- 复用正式 QuoteEditor + exact adapter，页面实例版本/写锁协调 aggregate/附件；401/403/404/network fail-closed，409 保留草稿，危险/未接工作流仅 Server 模式禁用。全局 bootstrap/mock identity/未支持 URL 与 Browser 偏好 manifest 隔离；Browser 分支保持。
+- 已完成实际 Chromium + 新 tmpfs PG + memory storage：正式列表/new/master 空路径、主动 create/edit/save/refresh/list、材料/工价/其他费用与未配置 pricing、附件后保存、精度与409、404/403/network、合成旧 Browser sentinel 未触碰，6/6 PASS、cleanup PASS。不是旧环境部署验收。
+- 剩余：最终列表全库查询回归、完整质量检查和事实文档收口/PR。不要沿用上一 Gate 数字作本轮 PASS；不碰真实 runtime/DB/COS/旧 Browser。D-096 historical import NOT REQUIRED。
+
+## HISTORICAL — previous Foundation handoff
+
 ## Current: Fresh Start Foundation（2026-10-08，D-096）
 
 - 用户已确认新系统全部业务数据从空开始；不再询问保留/搬迁旧 Quote 或基础资料。历史导入 **NOT REQUIRED**；不得删除旧 DB/volume、Browser namespace、backup 或 COS。

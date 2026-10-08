@@ -1,5 +1,5 @@
-import { QuoteList } from "@/features/quote-center/components/quote-list";
+import { ProductionQuoteList } from "@/features/quote-center/components/production-quote-pages";
 
 export default function QuoteCenterPage() {
-  return <QuoteList />;
+  return <ProductionQuoteList />;
 }

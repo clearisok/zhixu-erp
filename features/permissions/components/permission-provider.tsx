@@ -5,6 +5,7 @@ import { DEFAULT_PERMISSION_STATE, permissionsForUser, type PermissionKey, type 
 import { PERMISSION_RESET_CONFIRMATION, permissionRepository } from "../repository/permission-repository";
 import { masterSettingsAuthority } from "../../basic-settings/authority/master-settings-authority";
 import { browserIdentityMode } from "../../server-auth/identity-mode";
+import { useServerSession } from "../../server-auth";
 
 type PermissionContextValue = {
   state: PermissionState;
@@ -17,6 +18,14 @@ type PermissionContextValue = {
 };
 
 const PermissionContext = createContext<PermissionContextValue | null>(null);
+
+export function TrustedPermissionProvider({ children }: { children: ReactNode }) {
+  const session = useServerSession();
+  const user: User = { id: session.user?.id ?? "anonymous", name: session.user?.name ?? "未登录", account: session.user?.username ?? "", roleId: "trusted-server", status: "active" };
+  const role: Role = { id: "trusted-server", name: "Server", description: "Trusted permissions only", permissions: [...session.permissions] };
+  const deny = () => { throw new Error("Browser permission writes disabled in Server Quote mode"); };
+  return <PermissionContext.Provider value={{ state: { schemaVersion: 1, users: [user], roles: [role], currentUserId: user.id }, currentUser: user, currentRole: role, can: session.hasPermission, setCurrentUser: deny, saveState: deny, resetState: deny }}>{children}</PermissionContext.Provider>;
+}
 
 export function PermissionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PermissionState>(DEFAULT_PERMISSION_STATE);

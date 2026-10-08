@@ -1,5 +1,5 @@
-import { QuoteDetailLoader } from "@/features/quote-center/components/quote-editor";
+import { ProductionQuoteDetail } from "@/features/quote-center/components/production-quote-pages";
 
 export default function QuoteDetailPage() {
-  return <QuoteDetailLoader />;
+  return <ProductionQuoteDetail />;
 }

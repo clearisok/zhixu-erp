@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type InputHTMLAttributes } from "react";
+import { createContext, useContext, useEffect, useId, useRef, useState, type InputHTMLAttributes } from "react";
+
+export const NumberPrecisionContext = createContext<{ valid(draft: string): boolean; unsafe(id: string, unsafe: boolean): void } | null>(null);
 
 type NullableNumber = number | null;
 
@@ -16,6 +18,9 @@ type Props = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "value" | "onC
 };
 
 export function NullableNumberInput({ value, onValueChange, onFocus, onBlur, ...props }: Props) {
+  const precision = useContext(NumberPrecisionContext);
+  const precisionId = useId();
+  useEffect(() => () => precision?.unsafe(precisionId, false), [precision, precisionId]);
   const [draft, setDraft] = useState(value === null ? "" : String(value));
   const editing = useRef(false);
 
@@ -31,6 +36,7 @@ export function NullableNumberInput({ value, onValueChange, onFocus, onBlur, ...
     onFocus={(event) => { editing.current = true; onFocus?.(event); }}
     onBlur={(event) => {
       editing.current = false;
+      if (precision && !precision.valid(draft)) { onBlur?.(event); return; }
       const parsed = parseDraft(draft);
       setDraft(parsed === null ? "" : String(parsed));
       onBlur?.(event);
@@ -39,6 +45,11 @@ export function NullableNumberInput({ value, onValueChange, onFocus, onBlur, ...
       const next = event.target.value;
       if (!/^\d*(?:\.\d*)?$/.test(next)) return;
       setDraft(next);
+      if (precision) {
+        const valid = precision.valid(next);
+        precision.unsafe(precisionId, !valid);
+        if (!valid) return;
+      }
       onValueChange(parseDraft(next));
     }}
   />;

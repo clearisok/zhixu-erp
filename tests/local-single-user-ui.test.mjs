@@ -41,7 +41,7 @@ test("local root enters Quote Center before the legacy ERP login or bootstrap ru
 test("local Server production pages retain unified navigation and hide user management", async () => {
   const shell = await read("components/foundation/app-shell.tsx");
   assert.match(shell, /const serverSettingsMode = identityMode === "server" && \(pathname\.startsWith\("\/basic-settings\/server\/"\) \|\| pathname === "\/system-settings\/server\/quote-settings"\)/u);
-  assert.match(shell, /const showSettingsNavigation = localSingleUser \|\| !serverIdentityMode \|\| serverSettingsMode/u);
+  assert.match(shell, /const showSettingsNavigation = freshServer \|\| localSingleUser \|\| !serverIdentityMode \|\| serverSettingsMode/u);
   assert.equal((shell.match(/\{showSettingsNavigation &&/gu) ?? []).length, 3);
   for (const label of ["经营工作台", "报价中心", "基础设置", "订单中心", "生产排单", "关账中心", "系统设置"]) {
     assert.match(shell, new RegExp(label, "u"));

@@ -1,5 +1,6 @@
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
 import type { Pool } from "pg";
+import { listQuoteSummaries } from "./quotes/list-summary.js";
 import { login, revokeSession, sessionCookie, type SessionSecurityConfig, type TrustedIdentity } from "./auth/session.js";
 import { createIdentityAuthority, type IdentityAuthority } from "./auth/identity-authority.js";
 import { requirePermission } from "./auth/permissions.js";
@@ -153,7 +154,7 @@ function salesOrderListQuery(requestUrl: string | undefined) {
 
 function quoteListQuery(requestUrl: string | undefined) {
   const params = new URL(requestUrl ?? "/", "http://localhost").searchParams;
-  if ([...params.keys()].some((key) => key !== "limit" && key !== "offset")) {
+  if ([...params.keys()].some((key) => !["limit", "offset", "search", "type", "status"].includes(key))) {
     throw new HttpError(400, "invalid_quote_list_query", "Quote list query contains unsupported fields");
   }
   const parse = (key: "limit" | "offset", fallback: number, minimum: number) => {
@@ -166,7 +167,11 @@ function quoteListQuery(requestUrl: string | undefined) {
   };
   const limit = parse("limit", QUOTE_LIST_DEFAULT_LIMIT, 1);
   if (limit > QUOTE_LIST_MAX_LIMIT) throw new HttpError(400, "invalid_quote_list_query", `limit cannot exceed ${QUOTE_LIST_MAX_LIMIT}`);
-  return { limit, offset: parse("offset", 0, 0) };
+  const search = params.get("search") ?? "";
+  const type = params.get("type") ?? undefined;
+  const status = params.get("status") ?? undefined;
+  if (search.length > 200 || (type && !["processing", "distribution"].includes(type)) || (status && !["draft", "quoting", "partially_confirmed", "confirmed"].includes(status))) throw new HttpError(400, "invalid_quote_list_query", "Quote filters are invalid");
+  return { limit, offset: parse("offset", 0, 0), search, type, status };
 }
 
 function quoteBody(body: Record<string, unknown>): { quote: ServerQuote; expectedVersion: number } {
@@ -327,8 +332,7 @@ async function route(
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "quote.view");
     const query = quoteListQuery(request.url);
-    const quotes = await createTrustedQuoteService(dependencies.pool).list(query.limit, query.offset);
-    sendJson(response, 200, { quotes, page: { ...query, count: quotes.length } });
+    sendJson(response, 200, await listQuoteSummaries(dependencies.pool, query));
     return;
   }
 

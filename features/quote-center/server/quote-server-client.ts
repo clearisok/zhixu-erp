@@ -5,12 +5,14 @@ export type QuoteServerListItem = {
   quoteCode: string;
   defaultRevisionId: string;
   version: number;
+  summary?: { quoteStyleNo: string; styleName: string; brandName: string; salespersonName: string; status: string; quoteType: string; quoteDate: string | null; revisionLabel: string; priceVersionCount: number };
 };
 
 export type QuoteServerPage = {
   limit: number;
   offset: number;
   count: number;
+  total?: number;
 };
 
 export class QuoteServerError extends Error {
@@ -33,7 +35,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
 }
 
 export type QuoteServerClient = {
-  list(query?: { limit?: number; offset?: number }): Promise<{ quotes: QuoteServerListItem[]; page: QuoteServerPage }>;
+  list(query?: { limit?: number; offset?: number; search?: string; type?: string; status?: string }): Promise<{ quotes: QuoteServerListItem[]; page: QuoteServerPage }>;
   getById(quoteId: string): Promise<QuoteRecord>;
   create(): Promise<QuoteRecord>;
   save(quote: ServerQuote, expectedVersion: number): Promise<QuoteRecord>;
@@ -57,6 +59,7 @@ export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?:
       const params = new URLSearchParams();
       if (query.limit !== undefined) params.set("limit", String(query.limit));
       if (query.offset !== undefined) params.set("offset", String(query.offset));
+      for (const key of ["search", "type", "status"] as const) if (query[key]) params.set(key, query[key]);
       return request(`/api/v1/quotes${params.size ? `?${params}` : ""}`);
     },
     getById(quoteId) {

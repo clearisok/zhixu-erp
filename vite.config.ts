@@ -4,6 +4,7 @@ import { defineConfig, type Plugin } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
 import { parseQuoteWriterMode } from "./features/quote-center/authority/quote-writer-mode";
+import { parseQuoteAuthority, validateQuoteAuthority } from "./features/quote-center/authority/quote-authority";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
@@ -18,6 +19,7 @@ type ZhixuBuildInfo = {
   masterSettingsAuthority: "browser" | "frozen" | "server";
   identityMode: "session" | "local-single-user";
   quoteWriterMode: "writable" | "frozen";
+  quoteAuthority: "browser" | "server";
 };
 
 function buildMasterSettingsAuthority(): ZhixuBuildInfo["masterSettingsAuthority"] {
@@ -67,6 +69,8 @@ function currentGitCommit(): string {
 
 function createBuildInfo(command: "build" | "serve"): ZhixuBuildInfo {
   const generated = shanghaiTimestamp(new Date());
+  const quoteAuthority = parseQuoteAuthority(process.env.NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY);
+  validateQuoteAuthority(quoteAuthority, buildMasterSettingsAuthority(), parseQuoteWriterMode(process.env.NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE));
   const requestedEnvironment = process.env.ZHIXU_BUILD_ENV;
   return {
     environment: requestedEnvironment === "development" || requestedEnvironment === "production"
@@ -78,6 +82,7 @@ function createBuildInfo(command: "build" | "serve"): ZhixuBuildInfo {
     masterSettingsAuthority: buildMasterSettingsAuthority(),
     identityMode: buildIdentityMode(),
     quoteWriterMode: parseQuoteWriterMode(process.env.NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE),
+    quoteAuthority,
   };
 }
 

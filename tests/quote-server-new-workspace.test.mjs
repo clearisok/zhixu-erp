@@ -62,10 +62,10 @@ test("Server number is not editable and neutral draft ownership boundaries are v
   assert.match(newPageSource, /附件、ConfirmedCommercialTerms、SalesOrder：不会创建/u);
 });
 
-test("preview link is quote.create-gated, local bootstrap skips exactly server-new, and production new stays Browser-owned", () => {
+test("candidate preview remains gated; formal new now explicitly selects authority", () => {
   assert.match(previewSource, /hasPermission\("quote\.create"\).*href="\/quote-center\/server-new"/su);
   assert.match(previewSource, /只导航到 lazy-create 准备页，不会在此处创建 Quote/u);
   assert.match(bootstrapSource, /pathname !== "\/quote-center\/server-new"/u);
   assert.doesNotMatch(bootstrapSource, /startsWith\("\/quote-center"\)/u);
-  assert.match(productionNewRoute, /<QuoteNewLoader\s*\/>/u);
+  assert.match(productionNewRoute, /<ProductionQuoteNew\s*\/>/u);
 });

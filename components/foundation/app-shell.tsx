@@ -10,6 +10,7 @@ import { GlobalSearchPalette } from "@/features/global-search";
 import { useServerSession } from "@/features/server-auth";
 import { browserIdentityMode } from "@/features/server-auth/identity-mode";
 import { loadSidebarPreference, saveSidebarPreference } from "./sidebar-preference";
+import { isServerQuoteRoute, quoteAuthority } from "@/features/quote-center/authority/quote-authority";
 
 const basicRoutes = [
   { label: "品牌设置", href: "/basic-settings/brands" },
@@ -43,6 +44,8 @@ export type AppShellBackTarget = {
 };
 
 export function AppShell({ title, children, onRequestNavigation, backTarget, identityMode = "browser" }: { title: string; children: ReactNode; onRequestNavigation?: (target: string) => void; backTarget?: AppShellBackTarget; identityMode?: "browser" | "server" }) {
+  const freshServer = quoteAuthority() === "server";
+  if (freshServer) identityMode = "server";
   const router = useRouter();
   const pathname = usePathname();
   const navigateRequest = onRequestNavigation ?? ((target: string) => router.push(target));
@@ -51,8 +54,8 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
   const viewportMode = useResponsiveMode();
   const serverSettingsMode = identityMode === "server" && (pathname.startsWith("/basic-settings/server/") || pathname === "/system-settings/server/quote-settings");
   const localSingleUser = browserIdentityMode() === "local-single-user";
-  const visibleBasicRoutes = serverSettingsMode ? serverBasicRoutes : basicRoutes;
-  const visibleSystemRoutes = (serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => !localSingleUser || route.href !== "/basic-settings/user-permissions");
+  const visibleBasicRoutes = (serverSettingsMode ? serverBasicRoutes : basicRoutes).filter((route) => !freshServer || isServerQuoteRoute(route.href));
+  const visibleSystemRoutes = (serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (!freshServer || isServerQuoteRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions"));
   const basicActive = visibleBasicRoutes.some((route) => pathname === route.href);
   const systemActive = visibleSystemRoutes.some((route) => pathname === route.href);
   const personalActive = pathname.startsWith("/my-settings/");
@@ -64,7 +67,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
   const { state: permissionState, currentUser, currentRole, can, setCurrentUser } = usePermissions();
   const serverSession = useServerSession();
   const serverIdentityMode = identityMode === "server";
-  const showSettingsNavigation = localSingleUser || !serverIdentityMode || serverSettingsMode;
+  const showSettingsNavigation = freshServer || localSingleUser || !serverIdentityMode || serverSettingsMode;
   const visibleUserName = localSingleUser ? "本地开发用户" : serverIdentityMode ? serverSession.user?.name ?? "Server 会话" : currentUser.name;
   const visibleUserDetail = localSingleUser ? "Local Development · Single User" : serverIdentityMode
     ? serverSession.user ? `${serverSession.user.username} · Server identity` : "Trusted Server identity"
@@ -97,8 +100,9 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
   }, [pathname]);
 
   useEffect(() => {
+    if (freshServer) return; // Legacy preference store also initializes the Browser business manifest.
     Promise.resolve().then(() => setSidebarCollapsed(loadSidebarPreference(preferenceUserId).collapsed));
-  }, [preferenceUserId]);
+  }, [preferenceUserId, freshServer]);
 
   const navigate = (target: string) => {
     setBasicOpen(false);
@@ -112,7 +116,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
     { label: "订单中心", symbol: "▣", href: "/order-center", active: pathname.startsWith("/order-center") || pathname.startsWith("/ainuoke-sync") },
     { label: "生产排单", symbol: "▦", href: "/production-scheduling", active: pathname.startsWith("/production-scheduling") },
     { label: "关账中心", symbol: "结", href: "/closing-center", active: pathname.startsWith("/closing-center") },
-  ];
+  ].filter((route) => !freshServer || route.href === "/quote-center");
 
   const basicMenuItems = <>
     {visibleBasicRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onClick={() => navigate(item.href)}>{item.label}</button>)}
@@ -128,7 +132,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
   const toggleSidebar = () => {
     const collapsed = !sidebarCollapsed;
     setSidebarCollapsed(collapsed);
-    saveSidebarPreference({ userId: preferenceUserId, collapsed });
+    if (!freshServer) saveSidebarPreference({ userId: preferenceUserId, collapsed });
     closeMenus();
   };
 
@@ -136,7 +140,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
     <aside className="ops-sidebar">
       <div className="ops-brand"><span>纫</span><div><strong>织序 ZHIXU</strong><small>GARMENT OPERATIONS</small></div></div>
       {desktopSidebar && <button type="button" className="ops-sidebar-toggle" aria-label={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} title={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} onClick={toggleSidebar}><span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "展开" : "收起"}</b></button>}
-      <div className="organization"><span>苏</span><div><small>当前组织</small><strong>苏州织序服饰</strong></div><i>报价 UI V1</i></div>
+      <div className="organization"><span>织</span><div><small>当前组织</small><strong>{quoteAuthority() === "server" ? "尚未配置组织" : "苏州织序服饰"}</strong></div><i>报价 UI V1</i></div>
       <nav aria-label="主导航">
         {!serverSettingsMode && nav.slice(0, 2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
         {showSettingsNavigation && <div className="ops-nav-item">
