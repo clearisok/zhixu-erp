@@ -646,6 +646,29 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const attempt = await evaluate(`fetch('/api/v1/quotes/${permissionQuote}').then(r=>r.json()).then(b=>fetch('/api/v1/quotes/${permissionQuote}/estimate-workflows',{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify({action:'estimate.ignore',expectedVersion:b.quote.version,estimateId:b.quote.quote.activeEstimateCost.id})})).then(r=>r.status)`);
       assert.equal(attempt,403);assert.deepEqual(await evaluate("unhandledRejections"),[]);await isolated();
     });
+    await loginAs("admin");
+    for (const type of ["processing", "distribution"]) await t.test(`actual customer confirmation ${type}: zero/update/refresh and saved source`, async () => {
+      const {id,read}=await prepareEstimateQuote(type);
+      await until(async()=> (await text()).includes("已证明未关联正式订单"),"confirmed unlinked source");
+      await action("客户确认");await hasText("客户确认工价");
+      await labelInput("客户确认工价","0");if(type==="distribution")await labelInput("客户确认成衣价格","0");
+      await labelInput("确认备注","Synthetic UI confirmation");await click("保存确认");await hasText("已保存 Server 客户确认");
+      let actual=await read(),rev=actual.quote.revisions[0],pv=rev.priceVersions[0];
+      assert.equal(pv.confirmation.confirmedLaborPrice,"0");assert.equal(pv.confirmation.confirmedGarmentPrice,type==="processing"?null:"0");
+      assert.equal(pv.confirmation.quotedLaborPrice,"10");assert.equal(actual.quote.aggregateStatus,"partially_confirmed");assert.equal(rev.priceVersions[1].confirmation,null);
+      await navigate(`/quote-center/detail?id=${id}`);await hasText("当前价格方案已确认");await action("客户确认");await hasText("客户确认工价");
+      await labelInput("客户确认工价","12.25");await click("保存确认");await hasText("已保存 Server 客户确认");actual=await read();
+      assert.equal(actual.quote.revisions[0].priceVersions[0].confirmation.confirmedLaborPrice,"12.25");await isolated();assert.deepEqual(await evaluate("unhandledRejections"),[]);
+    });
+    for(const status of [409,0])await t.test(`actual confirmation failure ${status||"network"} retains inputs/no retry`,async()=>{
+      const {read}=await prepareEstimateQuote();await until(async()=> (await text()).includes("已证明未关联正式订单"),"unlinked lookup");
+      await action("客户确认");await hasText("客户确认工价");await labelInput("客户确认工价","7.25");await labelInput("客户确认成衣价格","40");await labelInput("确认备注","Retain confirmation draft");
+      const before=await read(),count=requests.filter(r=>r.path.endsWith("/confirmation-workflows")).length;failureStatus=status;
+      await command("Fetch.enable",{patterns:[{urlPattern:"*/confirmation-workflows",requestStage:"Request"}]},sessionId);
+      try{await click("保存确认");await hasText("确认输入保留");assert.equal(await evaluate("document.querySelector('textarea[placeholder=可选]')?.value"),"Retain confirmation draft");assert.deepEqual(await evaluate("unhandledRejections"),[]);}
+      finally{await command("Fetch.disable",{},sessionId);failureStatus=0;}
+      assert.deepEqual(await read(),before);assert.equal(requests.filter(r=>r.path.endsWith("/confirmation-workflows")).length,count+1);await isolated();
+    });
     await command("Browser.close");
   } finally {
     ws?.close();

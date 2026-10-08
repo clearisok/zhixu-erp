@@ -13,6 +13,10 @@ import { createServerQuoteDraft } from "./draft.js";
 import { allocateQuoteCode } from "./numbering.js";
 import { applyQuoteVersionCommand, type QuoteVersionCommand } from "./version-workflows.js";
 import { applyEstimateCommand, type EstimateCommand } from "./estimate-workflows.js";
+import { applyQuoteConfirmation, type QuoteConfirmationCommand } from "./confirmation-workflows.js";
+import { findSalesOrderIdsByQuoteProvenance } from "../confirmed-commercial-terms/repository.js";
+import { aggregateStatusAfterRevisionEdit, summarizeRevisionConfirmations } from "../../features/quote-center/model/quote-workflows.js";
+import type { QuoteRevision } from "../../features/quote-center/model/quote-view-model.js";
 
 /** Internal Q1 persistence/import foundation. It is not exposed by the runtime
  * Browser API; callers here preserve exact historical aggregate identities. */
@@ -165,6 +169,20 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
 
   return {
     getById: repository.getById,
+    async confirmationWorkflow(actor: TrustedIdentity, quoteId: string, command: QuoteConfirmationCommand, context: QuoteMutationContext = {}) {
+      requirePermission(actor.permissions, "quote.view");
+      requirePermission(actor.permissions, "quote.confirm");
+      const before = await repository.getById(quoteId);
+      if (!before) throw new HttpError(404, "quote_not_found", "Quote not found");
+      if (before.version !== command.expectedVersion) throw new QuoteConflictError();
+      const next = applyQuoteConfirmation(before.quote, command, now().toISOString());
+      return projectQuoteResponse(actor, await repository.save(next, command.expectedVersion, async (client, mutation) => {
+        const linked = await findSalesOrderIdsByQuoteProvenance(client, { quoteId, revisionId: command.revisionId, priceVersionId: command.priceVersionId });
+        const partial = await client.query("SELECT 1 FROM sales_orders WHERE source_quote_id=$1 AND (source_revision_id IS NULL OR source_price_version_id IS NULL) LIMIT 1", [quoteId]);
+        if (linked.length || partial.rowCount) throw new HttpError(409, "quote_confirmation_linked_read_only", "Linked current confirmation must use shared terms; this writer is unavailable");
+        await audit(actor, { ...context, workflowAction: command.action })(client, mutation);
+      }));
+    },
     async getForActor(actor: TrustedIdentity, id: string) {
       requirePermission(actor.permissions, "quote.view");
       const record = await repository.getById(id);
@@ -224,6 +242,23 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
         throw error;
       }
       authorizeReplacement(actor, before.quote, input);
+      for (const revision of input.revisions) {
+        const previous = before.quote.revisions.find(r => r.revisionId === revision.revisionId);
+        for (const version of revision.priceVersions) {
+          const saved = previous?.priceVersions.find(p => p.id === version.id);
+          if (!isDeepStrictEqual(saved?.confirmation ?? null, version.confirmation))
+            throw new HttpError(409, "confirmation_command_required", "Use the dedicated confirmation command API");
+        }
+        const derived = summarizeRevisionConfirmations(revision as unknown as QuoteRevision);
+        if (previous && isDeepStrictEqual(previous.priceVersions.map(p => p.id), revision.priceVersions.map(p => p.id))
+          && !isDeepStrictEqual(revision.confirmationSummary, derived))
+          throw new HttpError(409, "confirmation_command_required", "Confirmation summary is derived on Server");
+        if (!revision.readOnly) revision.confirmationSummary = derived;
+      }
+      const current = input.revisions.find(r => r.revisionId === input.defaultRevisionId)!;
+      const allowedStatus = input.defaultRevisionId !== before.quote.defaultRevisionId ? "quoting"
+        : aggregateStatusAfterRevisionEdit(before.quote.aggregateStatus, current.confirmationSummary);
+      if (input.aggregateStatus !== allowedStatus) throw new HttpError(409, "confirmation_command_required", "Aggregate status is derived on Server");
       if (isDeepStrictEqual(before.quote, input)) return projectQuoteResponse(actor, before);
       return projectQuoteResponse(actor, await repository.save(input, expectedVersion, audit(actor, context)));
     },

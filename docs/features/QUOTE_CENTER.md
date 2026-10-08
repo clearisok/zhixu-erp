@@ -1,5 +1,11 @@
 # Quote Center
 
+2026-10-09 overnight checkpoint: explicit Server mode supports trusted current
+unlinked PV confirmation, including zero, processing/distribution, saved-source
+values/time and same-transaction version/audit. Generic PUT preserves unchanged
+confirmations but cannot forge them. Linked shared current remains read-only pending
+saved-PV currency/CAS eligibility; no local fallback. No real activation.
+
 ## CURRENT — Fresh Start formal Server basic loop (D-097, 2026-10-08)
 
 正式 `/quote-center` / `new` / `detail` 通过显式 `NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY` 原地分流。默认 browser 保留原 mock/localStorage 行为；server 必须 masters=server、writer=writable，编译/运行身份一致。Server 分支复用 QuoteEditor 的基础信息、当前价格版本材料/工价/其他成本、报价设置、保存与附件 panel，而不是简化 workspace。

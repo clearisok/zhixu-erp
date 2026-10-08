@@ -1,6 +1,13 @@
 # AI 接力棒
 
-## Current: Server EstimateCost workflows + Quote / Estimate permission follow-up（2026-10-09）
+## Current: Quote Server confirmation / export / audit batch（2026-10-09）
+
+- Base PR #77 merge `abd2587959fa3341c6de61d0bcd2d67b4cb66802`，branch `feat/server-quote-confirm-export-audit`，起始 clean。规格/阶段表见 `tasks/active/server-quote-confirm-export-audit.md`。
+- A checkpoint：未关联确认 API 8/8、实际 Chromium 37/37 PASS，保留此前 33 项回归。linked current 写入明确禁用：共享 writer 尚缺 saved-PV 币种与 Quote CAS 编辑资格闭合，不回退独立快照。B pure workbook extraction 已准备但未纳入 A checkpoint；接下来 B/C/D/E。
+- 每阶段定向验收/接力/checkpoint commit/push，直接继续 A→E；一个 PR，不 merge。纯网络故障只尝试一次后停止远端写，允许可靠本地 checkpoints 继续（仅本任务例外）。
+- 仅 disposable PG/tmpfs、临时 Chromium/合成账号/storage；不操作真实 runtime、DB、Browser、COS、secrets。默认 Browser不变；D-096 historical import NOT REQUIRED。
+
+## HISTORICAL: Server EstimateCost workflows + Quote / Estimate permission follow-up（2026-10-09）
 
 - Base 为 PR #76 merged main `e270a6786516f6f317034a0dc4cb36b8cf6e7b42`，branch `feat/server-estimate-cost-workflows`。Estimate 是 Quote 级独立快照，不归属 Revision/PV；新建/打开/重复启动不自动生成。复用正式 RevisionManagerModal / EstimateCostPanel / QuoteEditor，不创建第二套页面或计算器，默认 Browser 与旧 runtime 不变。
 - 聚焦 `POST /api/v1/quotes/:id/estimate-workflows`：generate / update / regenerate / restore / ignore，expectedVersion、来源/目标绑定、严格字段白名单。已保存 Server 来源；显式非法 PV 不回退；仅未指定来源 PV 时选基础价格/首项。Server 生成 ID/time/trusted actor，完整归档旧 active，恢复独立新 Estimate/行 ID 且保留历史与原 provenance，删除来源 PV 后仍可恢复。不重算、不反写状态/确认/Revision/PV/附件/基础资料。

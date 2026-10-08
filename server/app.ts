@@ -21,6 +21,7 @@ import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales
 import { QuoteConflictError, QuoteInvariantError } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
 import { parseQuoteVersionCommand } from "./quotes/version-workflows.js";
+import { parseQuoteConfirmationCommand } from "./quotes/confirmation-workflows.js";
 import { parseEstimateCommand } from "./quotes/estimate-workflows.js";
 import { routeQuoteMasters } from "./quote-masters/routes.js";
 import { routeQuoteAttachments } from "./attachments/routes.js";
@@ -378,6 +379,18 @@ async function route(
     const command = parseEstimateCommand(await readJsonBody(request, QUOTE_AGGREGATE_MAX_BODY_BYTES));
     try {
       const quote = await createTrustedQuoteService(dependencies.pool).estimateWorkflow(identity, requiredPathIdentity(estimateMatch[1], "quoteId"), command, { requestId: correlationId, method: request.method, path });
+      sendJson(response, 200, { quote });
+    } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
+  const confirmationMatch = /^\/api\/v1\/quotes\/([^/]+)\/confirmation-workflows$/.exec(path);
+  if (confirmationMatch && request.method === "POST") {
+    assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    const command = parseQuoteConfirmationCommand(await readJsonBody(request, QUOTE_AGGREGATE_MAX_BODY_BYTES));
+    try {
+      const quote = await createTrustedQuoteService(dependencies.pool).confirmationWorkflow(identity, requiredPathIdentity(confirmationMatch[1], "quoteId"), command, { requestId: correlationId, method: request.method, path });
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
     return;
