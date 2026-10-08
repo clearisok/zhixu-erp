@@ -6,7 +6,9 @@
 - Typed `POST /api/v1/quotes/:id/version-workflows` 仅接动作、绑定 source/PV/revision ID 与 expectedVersion；服务复用原纯复制/命名/完整性规则及 repository.save 单事务。新 Revision/PV 身份由 Server 生成，actor/time 来自可信上下文；Revision 保留 scoped child IDs，PV 复制生成新成本行 IDs，确认清空；不重算历史或创建 Estimate/CCT/订单。
 - Decimal string 在 Server 克隆流程中不转 JS number，null/zero 保留；UI 对不可无损表示数值 fail closed。脏草稿须保存或取消，存在关联成本候选须完成原显式同步选择后再继续；命令使用最新已确认版本。保存已成功、后续命令失败会分别报告，不自动重试。保存/附件/版本命令共用实例写锁。
 - 附件关系通过既有 repository transaction 继承并记录可信关联日志；不复制/删除二进制，共享历史禁止改名，新版本解绑不改历史。修复 portal 附件确认提交冒泡导致外层 aggregate save 的问题，保留排他锁而非放宽。Server manager 不再将所选历史来源重置到当前；Browser 成本页签原行为不变。
-- 本轮实跑：版本 service/API disposable 9/9、相关 Quote API/附件/foundation 33/33、实际 Chromium 14/14（两类型完整版本流程、409/网络未知、附件继承/解绑后保存、原下载 bytes/SHA 与 Browser sentinel），cleanup PASS；auth/frontend39/39（persistence6/6）、npm test673/673。typecheck/lint/Server build/diff-check PASS。Server frontend 重建后跑实际页面；默认 Browser frontend 重建41 routes且 build-info Quote/master=browser、writer=writable。临时构建 env 仅限子进程，没有 .env 修改。未机械重跑 full PostgreSQL/COS suite。
+- PR #76 follow-up：Browser updateRevision / Server PV 命令共用状态纯函数；零确认 draft/quoting 编辑保持原状态，已确认/部分确认按新摘要推导，Revision 创建仍进入 quoting。不开放客户端 status，不改 schema/业务政策。先跑出 draft 回归失败，再修复。
+- 成本同步两个保存入口共用 Server 失败处理；完成请求后才关闭弹窗，409/网络失败显示核对入口、保留已应用同步范围的 dirty 草稿并阻止后续命令，不重试/不回退 Browser。成功仍采用 Server version/baseline。实际弹窗故障测试先失败后通过，无 unhandled rejection；未改同步范围/lineGroup/独立调整语义。
+- Follow-up 最新实跑：版本状态纯测试4/4（包含于 auth/frontend）、版本 service/API disposable10/10、auth/frontend48/48（persistence11/11）、实际 Chromium20/20、npm test673/673；typecheck/lint/Server build/diff-check PASS。Chromium 新增两保存入口 × success/409/network 六个实际弹窗用例，保留历史/附件/download bytes+SHA/精度等断言，cleanup PASS。显式 Server frontend 后跑页面，默认 Browser frontend 独立子进程重建，两者41 routes；默认 build-info Quote/master=browser、writer=writable，无 .env 修改。原 Gate 的相关 Quote API/附件/foundation33/33为此前证据，本 follow-up 未重跑 full PostgreSQL/COS suite。
 - 未接线：Estimate、客户确认、导出、整单复制/删除、Revision 删除、转订单、日志查看。完整报价不宣称 production-ready；没有 schema/真实 runtime/DB/Browser/COS/部署改动；D-096 historical import NOT REQUIRED。下一项应独立接线所需业务动作，不恢复历史迁移 Gate。
 
 ## HISTORICAL: Fresh Start formal Quote Server UI（2026-10-08，D-097）

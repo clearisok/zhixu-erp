@@ -2,7 +2,7 @@ import { HttpError } from "../http/errors.js";
 import { canonicalDecimal, isWritableDefaultRevision, type ServerQuote } from "./model.js";
 import type { Quote, PriceVersion, QuoteRevision, QuoteRevisionReason } from "../../features/quote-center/model/quote-view-model.js";
 import { normalizeSinglePriceVersionName } from "../../features/quote-center/model/quote-view-model.js";
-import { createRevisionFromSnapshot, removePriceVersion, summarizeRevisionConfirmations, confirmationAggregateStatus } from "../../features/quote-center/model/quote-workflows.js";
+import { createRevisionFromSnapshot, removePriceVersion, summarizeRevisionConfirmations, aggregateStatusAfterRevisionEdit } from "../../features/quote-center/model/quote-workflows.js";
 import { validateRevisionUpdate } from "../../features/quote-center/model/quote-validation.js";
 import { copyPriceVersion } from "../../features/quote-center/model/quote-calculations.js";
 import { ensurePriceVersionLineGroups } from "../../features/quote-center/model/price-version-cost-sync.js";
@@ -56,6 +56,6 @@ export function applyQuoteVersionCommand(quote: ServerQuote, command: QuoteVersi
     revision.priceVersions = normalizeSinglePriceVersionName(removePriceVersion(revision as unknown as QuoteRevision, source.id).priceVersions) as unknown as typeof revision.priceVersions;
   }
   revision.confirmationSummary = summarizeRevisionConfirmations(revision as unknown as QuoteRevision);
-  next.aggregateStatus = confirmationAggregateStatus(revision.confirmationSummary);
+  next.aggregateStatus = aggregateStatusAfterRevisionEdit(quote.aggregateStatus, revision.confirmationSummary);
   return next;
 }

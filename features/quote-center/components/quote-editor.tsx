@@ -60,7 +60,7 @@ import {
   parseNumberDraft,
   patchStableRow,
 } from "../model/quote-editor-state";
-import { applyCustomerConfirmation, confirmationAggregateStatus, confirmationSummaryLabel, createRevisionFromSnapshot, isQuoteConfirmationComplete, removePriceVersion, summarizeRevisionConfirmations } from "../model/quote-workflows";
+import { applyCustomerConfirmation, aggregateStatusAfterRevisionEdit, confirmationSummaryLabel, createRevisionFromSnapshot, isQuoteConfirmationComplete, removePriceVersion, summarizeRevisionConfirmations } from "../model/quote-workflows";
 import { nullablePriceVersionMetrics } from "../model/quote-presentation";
 import { formatFinalGarmentPrice } from "../model/final-quote-format";
 import { quoteReferencesAttachment } from "../model/quote-attachments";
@@ -150,6 +150,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   const [serverBusy, setServerBusy] = useState(false);
   const [serverError, setServerError] = useState("");
   const versionActionPending = useRef(false);
+  const costSyncPending = useRef(false);
   const [unsafeNumbers, setUnsafeNumbers] = useState<Set<string>>(() => new Set());
   const precisionUnsafe = useCallback((id: string, unsafe: boolean) => setUnsafeNumbers((current) => {
     if (current.has(id) === unsafe) return current;
@@ -284,7 +285,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     const normalized = { ...next, confirmationSummary };
     setQuote((current) => ({
       ...current,
-      aggregateStatus: confirmationSummary.confirmedCount > 0 || current.aggregateStatus === "confirmed" || current.aggregateStatus === "partially_confirmed" ? confirmationAggregateStatus(confirmationSummary) : current.aggregateStatus,
+      aggregateStatus: aggregateStatusAfterRevisionEdit(current.aggregateStatus, confirmationSummary),
       revisions: current.revisions.map((item) => item.revisionId === normalized.revisionId ? normalized : item),
     }));
     setIsDirty(true);
@@ -707,8 +708,15 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     return true;
   };
 
+  const reportServerSaveFailure = (error: unknown) => {
+    const status = error && typeof error === "object" && "status" in error ? `HTTP ${String(error.status)}` : "网络/精度";
+    setServerError(`Server 保存未完成（${status}）；未保存草稿保留。请显式重新读取并核对，不自动重试、不保存至 Browser。`);
+  };
+
   const commitPriceVersionSync = async (decisions: Record<string, CostSyncDecision>) => {
-    if (!priceSyncRequest) return;
+    if (!priceSyncRequest || costSyncPending.current || (persistence && (serverBusy || serverError || unsafeNumbers.size))) return;
+    costSyncPending.current = true;
+    try {
     const applied = applyCostSyncDecisions(revision, priceSyncRequest.candidates, decisions);
     const finalQuote: Quote = {
       ...quote,
@@ -730,10 +738,18 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
       },
     });
     const intent = priceSyncRequest.intent;
-    setPriceSyncRequest(null);
     setQuote(finalQuote);
+    setIsDirty(true);
     await persistQuote(finalQuote, [syncLog]);
+    setPriceSyncRequest(null);
     await finishPersistIntent(intent, finalQuote);
+    } catch (error) {
+      if (!persistence) throw error;
+      // The chosen scope is already reflected in finalQuote, including independent
+      // flags. Keep that dirty draft; close the overlay to expose reconciliation.
+      setPriceSyncRequest(null);
+      reportServerSaveFailure(error);
+    } finally { costSyncPending.current = false; }
   };
 
   const saveCurrentPriceVersionOnly = () => {
@@ -746,8 +762,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     if (persistence && (serverBusy || serverError || unsafeNumbers.size)) return;
     try { await requestPersist("save"); } catch (error) {
       if (!persistence) throw error;
-      const status = error && typeof error === "object" && "status" in error ? String(error.status) : "网络/精度";
-      setServerError(`Server 保存未完成（${status}）；未保存草稿保留。请显式重新读取并核对，不自动重试、不保存至 Browser。`);
+      reportServerSaveFailure(error);
     }
   };
 

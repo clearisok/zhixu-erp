@@ -36,7 +36,9 @@ Foundation 原 Gate 验证新 disposable DB；后续 D-097 已接通正式 Serve
 
 ### Latest Server version workflows verification (2026-10-08)
 
-上方 12/12、38/38、21/21 是 PR #75 基本闭环历史证据，不作本轮数字。本轮实跑版本 command service/API disposable 9/9、Quote API/附件/foundation33/33、auth/frontend39/39（persistence6/6）、实际 Chromium14/14、npm test673/673；typecheck/lint/Server build/显式 Server frontend/默认 Browser frontend/diff-check PASS，两个 frontend 均41 routes，默认 build-info Quote/master=browser、writer=writable。未重跑 full PostgreSQL/COS suite。
+上方 12/12、38/38、21/21 是 PR #75 基本闭环历史证据，不作本轮数字。PR #76 原 Gate service/API9/9、Quote API/附件/foundation33/33、auth/frontend39/39、Chromium14/14是修复前证据。最新 follow-up 实跑状态纯测试4/4、版本 command service/API disposable10/10、auth/frontend48/48（含状态4/4与persistence11/11）、实际 Chromium20/20、npm test673/673；typecheck/lint/Server build/显式 Server frontend/默认 Browser frontend/diff-check PASS，两个 frontend 均41 routes，默认 build-info Quote/master=browser、writer=writable。未重跑 full PostgreSQL/COS suite。
+
+Follow-up 先证实 draft PV 创建错误变 quoting、两个同步入口 409/network 缺少核对提示，再修复并运行实际页面。PV 创建/编辑/删除共用 Browser 状态纯函数：零确认 draft/quoting 保持，confirmed/partially_confirmed 按摘要推导；Revision.create 仍 quoting。真实同步弹窗两按钮 × success/409/network 六用例证明所选范围成功保存，失败显示错误/核对、保留已应用 dirty 草稿与选择、无自动追加请求/后续版本命令/Browser 写入/unhandled rejection。Persistence 单测验证 blocked/version/baseline、独立标记与成功 Server 响应收口；未改成本同步语义、schema 或确认政策。
 
 版本命令复用原快照与命名逻辑，不以 number 复制历史 decimal；null/zero 保留。dirty 先保存或取消、成本差异走显式同步选择；命令使用最新 expectedVersion，与保存/附件共用实例锁。前一步保存成功而后一步失败据实提示，不自动再次创建；409 与未知网络结果均阻止后续 mutation。实际 Chromium 同时覆盖加工/经销当前更新与历史分支、PV 独立编辑/删除/切换、历史只读、附件继承/新版本解绑后保存及旧关系不变；保留原下载 bytes/SHA、精度、Quick Create、Browser 隔离。Service API 测试强制关系插入/关联审计失败，完整 aggregate/版本/关系/日志均回滚；附件 binary 不复制或删除。
 

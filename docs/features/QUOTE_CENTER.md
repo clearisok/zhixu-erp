@@ -12,7 +12,9 @@ Server Revision / PriceVersion workflows 已接线：PV 以所选已保存方案
 
 Typed `POST /api/v1/quotes/:id/version-workflows` 的小命令严格 allowlist + expectedVersion；沿用动作权限与可信审计，拒绝跨 owner/历史修改/最后 PV 删除/stale 或伪造 actor/time/label。Server 仅复用纯克隆/命名/存在性规则，不将 Decimal string 转 number 或重算历史。页面共用 aggregate/附件/版本写锁；dirty 须保存或取消，关联成本差异走原明确同步选择后再继续。前一步保存成功/后续命令未确认分别呈现；冲突/网络未知不重复创建、不落 Browser。Portal 弹窗表单提交不再冒泡触发外层 aggregate save。
 
-Estimate、客户确认、导出、整单复制/删除、Revision 删除、转订单与日志查看仍未接线，Server 模式禁用；Browser 模式原功能保留。最新实际 Chromium 14/14（新 PG/tmpfs、memory storage、新 profile），覆盖两类型版本流程/历史分支/附件继承与解绑后继续保存、409/网络未知、原下载字节/SHA 与 Browser sentinel；不是生产部署验收。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
+PV 普通编辑与 Browser updateRevision 共用状态推导：有确认或原状态 confirmed/partially_confirmed 时按摘要更新，否则保留原 draft/quoting；新 Revision 创建仍进入 quoting。成本同步“同步并保存”/“仅保存当前版本”在 Server 模式统一处理失败：请求完成前不自动关闭弹窗，失败关闭 overlay 展示错误/显式核对，保留已应用范围与独立标记的 dirty 草稿、不继续后续版本命令、不自动重试；成功使用 Server 响应的版本/baseline 收口。同步规则与 persistence blocked 保护不变。
+
+Estimate、客户确认、导出、整单复制/删除、Revision 删除、转订单与日志查看仍未接线，Server 模式禁用；Browser 模式原功能保留。最新实际 Chromium20/20（新 PG/tmpfs、memory storage、新 profile），新增两个同步保存入口各 success/409/network 的真实弹窗用例、无 unhandled rejection、一次请求/选择草稿保留及列表 draft/readback 一致；保留两类型版本流程/历史分支/附件继承与解绑后继续保存、原下载字节/SHA 与 Browser sentinel。不是生产部署验收。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
 
 > 2026-10-05：`/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有；Q3 master/default dependencies 在真实 3001 的 `masterSettingsAuthority=server` 下来自 PostgreSQL，Q3 编辑已重开。PR #64 Local Single-User UI 修复已部署：`/` 自动进入 `/quote-center`、统一侧栏恢复；用户真实浏览器确认原 Quote 数据保留。此收口没有迁移、重置、重新 seed 或改变 Quote storage namespace；Quote historical migration/Server ownership 另立 Gate。
 

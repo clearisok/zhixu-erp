@@ -62,7 +62,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const reply = JSON.parse(String(data));
       const entry = pending.get(reply.id);
       if (entry) { pending.delete(reply.id); if (reply.error) entry.reject(new Error(JSON.stringify(reply.error))); else entry.done(reply.result); }
-      if (reply.method === "Network.requestWillBeSent" && reply.params.request.url.includes("/api/")) requests.push({ requestId: reply.params.requestId, method: reply.params.request.method, path: new URL(reply.params.request.url).pathname });
+      if (reply.method === "Network.requestWillBeSent" && reply.params.request.url.includes("/api/")) requests.push({ requestId: reply.params.requestId, method: reply.params.request.method, path: new URL(reply.params.request.url).pathname, ...(reply.params.request.method === "PUT" && reply.params.request.url.includes("/api/v1/quotes/") ? { body: reply.params.request.postData } : {}) });
       if (reply.method === "Network.loadingFinished") completedRequests.add(reply.params.requestId);
       if (reply.method === "Page.javascriptDialogOpening") void command("Page.handleJavaScriptDialog", { accept: acceptDialogs }, sessionId);
       if (reply.method === "Fetch.requestPaused") void command(failureStatus ? "Fetch.fulfillRequest" : "Fetch.failRequest", failureStatus ? { requestId: reply.params.requestId, responseCode: failureStatus, responseHeaders: [{ name: "Content-Type", value: "application/json" }], body: Buffer.from(JSON.stringify({ error: { code: "quote_conflict", message: "Synthetic version conflict" } })).toString("base64") } : { requestId: reply.params.requestId, errorReason: "ConnectionFailed" }, sessionId);
@@ -78,11 +78,13 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       return result.result.value;
     };
     await command("Page.enable", {}, sessionId);
-    await command("Network.enable", {}, sessionId);
+    await command("Network.enable", { maxPostDataSize: 1_000_000 }, sessionId);
     await command("Page.addScriptToEvaluateOnNewDocument", { source: `
       const originalGet = Storage.prototype.getItem, originalSet = Storage.prototype.setItem;
       if(!originalGet.call(localStorage,'zhixu.erp.local.quotes')) originalSet.call(localStorage,'zhixu.erp.local.quotes','synthetic-old-business-sentinel');
       window.businessAccess=[];
+      window.unhandledRejections=[];
+      window.addEventListener('unhandledrejection', event => window.unhandledRejections.push(String(event.reason)));
       const business=k=>k.startsWith('zhixu.')&&!/preference|sidebar/.test(k);
       Storage.prototype.getItem=function(k){if(business(k))businessAccess.push('read:'+k);return originalGet.call(this,k)};
       Storage.prototype.setItem=function(k,v){if(business(k))businessAccess.push('write:'+k);return originalSet.call(this,k,v)};
@@ -410,6 +412,59 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       finally { await command("Fetch.disable",{},sessionId); }
       assert.equal(requests.filter(r=>r.path.endsWith("/version-workflows")).length, mutationCount + 1);
       assert.deepEqual(await read(), beforeNetwork); await isolated();
+    });
+    for (const button of ["同步并保存", "仅保存当前版本"]) for (const failure of [null, 409, "network"]) await t.test(`actual cost-sync modal: ${button}, ${failure ?? "success"}, preserves draft and handles rejection`, async () => {
+      await navigate("/quote-center/new"); await hasText("创建报价"); await click("创建报价"); await hasText("Server 报价 · v1");
+      const id = await evaluate("new URLSearchParams(location.search).get('id')");
+      const read = () => evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(id)}).then(r=>r.json()).then(body=>body.quote)`);
+      await click("＋ 增加面料"); await input('#quote-section-fabrics input[aria-label$="-名称"]', "Linked synthetic fabric");
+      await input('#quote-section-fabrics input[aria-label$="-单价"]', "12"); await click("保存草稿");
+      await until(async()=> (await read()).version===2,"initial linked cost save");
+      await action("创建价格版本"); await labelInput("价格版本名称", "Linked scenario"); await labelInput("数量", "1"); await click("确认创建");
+      await until(async()=> (await read()).version===3,"linked PV created");
+      const before = await read();
+      assert.equal(before.quote.aggregateStatus,"draft","PV creation is not a draft lifecycle transition");
+      assert.equal(before.quote.revisions[0].priceVersions[0].fabrics[0].lineGroupId, before.quote.revisions[0].priceVersions[1].fabrics[0].lineGroupId);
+      await input('#quote-section-fabrics input[aria-label$="-单价"]', "33"); await click("保存草稿"); await hasText("价格版本同步");
+      await evaluate("(()=>{const n=document.querySelector('.qc-price-sync-toolbar select');n.value='all';n.dispatchEvent(new Event('change',{bubbles:true}));})()");
+      const writesBefore = requests.filter(r=>r.method==="PUT"&&r.path===`/api/v1/quotes/${id}`).length;
+      const workflowBefore = requests.filter(r=>r.path.endsWith("/version-workflows")).length;
+      if (failure !== null) {
+        failureStatus = failure === 409 ? 409 : 0;
+        await command("Fetch.enable", { patterns: [{ urlPattern: `*/api/v1/quotes/${id}`, requestStage: "Request" }] }, sessionId);
+      }
+      try {
+        await click(button);
+        if (failure === null) {
+          await until(async()=> (await read()).version===4,"cost sync commit"); await hasText("Server 报价 · v4");
+          assert.equal(await evaluate("Boolean(document.querySelector('.qc-price-sync-modal'))"),false);
+          assert.equal(await evaluate("document.body.innerText.includes('有未保存修改')"),false);
+          const saved = await read();
+          assert.deepEqual(saved.quote.revisions[0].priceVersions.map(p=>p.fabrics[0].unitPrice),button==="同步并保存"?["33","33"]:["12","33"]);
+        } else {
+          await hasText("Server 保存未完成"); await hasText("请显式重新读取并核对");
+          if (failure === 409) await hasText("409");
+          assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='重试')"),true,"Explicit reconcile entry");
+          assert.equal(await evaluate("document.querySelector('#quote-section-fabrics input[aria-label$=\"-单价\"]').value"),"33","Applied draft survives failed save");
+          await hasText("有未保存修改");
+          await sleep(300);
+          assert.equal(await evaluate("location.pathname"),"/quote-center/detail");
+          assert.deepEqual(await evaluate("unhandledRejections"),[],"Cost-sync Promise is handled");
+        }
+      } finally { if(failure!==null) await command("Fetch.disable",{},sessionId); failureStatus=0; }
+      if (failure !== null) assert.deepEqual(await read(), before,"Failure neither commits nor restores dirty source silently");
+      const writes = requests.filter(r=>r.method==="PUT"&&r.path===`/api/v1/quotes/${id}`);
+      assert.equal(writes.length,writesBefore+1,"One save, no automatic retry");
+      const attempted = JSON.parse(writes.at(-1).body).quote.revisions[0].priceVersions;
+      assert.deepEqual(attempted.map(p=>p.fabrics[0].unitPrice),button==="同步并保存"?["33","33"]:["12","33"],"Explicit sync choice preserved in attempted draft");
+      assert.equal(requests.filter(r=>r.path.endsWith("/version-workflows")).length,workflowBefore,"No subsequent version command");
+      await isolated();
+      if (failure === null) {
+        const saved = await read(); assert.equal(saved.quote.aggregateStatus,"draft");
+        await navigate("/quote-center"); await input('input[aria-label="搜索报价"]', saved.quote.quoteCode); await hasText("本页 1 / 总计 1");
+        const row = await evaluate(`([...document.querySelectorAll('tr')].find(n=>n.innerText.includes(${JSON.stringify(saved.quote.quoteCode)})))?.innerText`);
+        assert.ok(row?.includes(`经销 / ${saved.quote.aggregateStatus}`),"Formal list status agrees with draft readback"); await isolated();
+      }
     });
     await command("Browser.close");
   } finally {

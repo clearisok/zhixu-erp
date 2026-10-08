@@ -41,6 +41,22 @@ test("Quote version commands: disposable PostgreSQL, trusted API and exact snaps
   const action = (name: string) => ({ action: name, expectedVersion: record.version, revisionId: record.quote.defaultRevisionId, priceVersionId: record.quote.revisions.at(-1)!.priceVersions[0].id });
   const create = () => ({ ...action("price.create"), name: "Parallel", quantity: "0", description: "Independent" });
   try {
+    await t.test("draft PV commands persist draft and list/readback agree; no client status override", async () => {
+      const value = structuredClone(quote); value.id = "status-api-synthetic"; value.quoteCode = "QT-STATUS-API";
+      value.activeEstimateCost = null; value.estimateCostHistory = []; value.aggregateStatus = "draft";
+      const revision = value.revisions.at(-1)!;
+      revision.priceVersions = [revision.priceVersions[0]]; revision.confirmationSummary = { confirmedCount: 0, totalCount: 1 };
+      let saved = await repo.create(value);
+      for (const action of ["price.create", "price.update", "price.delete"] as const) {
+        const base = { action, revisionId: value.defaultRevisionId, priceVersionId: revision.priceVersions[0].id, expectedVersion: saved.version };
+        const body = action === "price.delete" ? base : { ...base, name: "Status scenario", quantity: "0", description: "" };
+        assert.equal((await post({ ...body, aggregateStatus: "quoting" }, value.id)).status, 400);
+        const result = await post(body, value.id); assert.equal(result.status, 200); saved = result.body.quote;
+        assert.equal(saved.quote.aggregateStatus, "draft"); assert.deepEqual(await repo.getById(value.id), saved);
+      }
+      const list = await fetch(`${origin}/api/v1/quotes?search=QT-STATUS-API`).then(r => r.json());
+      assert.equal(list.quotes.find((q: { id: string }) => q.id === value.id).summary.status, "draft");
+    });
     await t.test("anonymous and missing action permissions reject without write", async () => {
       active = null; assert.equal((await post(create())).status, 401);
       active = { ...actor, permissions: ["quote.edit"] }; assert.equal((await post(create())).status, 403); active = actor;
