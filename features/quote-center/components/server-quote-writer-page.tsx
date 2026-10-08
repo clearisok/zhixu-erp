@@ -20,7 +20,8 @@ import {
 } from "@/components/foundation";
 import { PermissionAuthorityProvider } from "@/features/permissions";
 import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
-import type { FabricCostLine, OtherCostLine, PriceVersion, Quote, QuoteRevision, TrimCostLine } from "../model/quote-view-model";
+import type { FabricCostLine, OtherCostLine, PriceVersion, QuoteRevision, TrimCostLine } from "../model/quote-view-model";
+import type { QuoteEditorData as Quote } from "../model/quote-editor-data";
 import { QuoteServerError } from "../server/quote-server-client";
 import { QuoteAttachmentPanel } from "./attachment-panel";
 import { createServerQuoteAttachmentController } from "../model/quote-attachment-controller";

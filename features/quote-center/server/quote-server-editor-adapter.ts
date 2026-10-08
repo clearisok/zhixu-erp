@@ -6,7 +6,8 @@ import {
   quoteSnapshotFromBrowser,
   type ServerQuote,
 } from "../../../server/quotes/decimal-projection";
-import type { QuoteRecord } from "../../../server/quotes/model";
+import type { QuoteResponseRecord as QuoteRecord } from "../../../server/quotes/quote-response";
+import type { QuoteEditorData } from "../model/quote-editor-data";
 import { quoteServerRepository, type QuoteServerRepository } from "./quote-server-repository";
 
 export class UnsafeServerQuoteDecimalError extends Error {
@@ -17,8 +18,9 @@ export class UnsafeServerQuoteDecimalError extends Error {
 }
 
 export type EditableServerQuoteRecord = {
-  quote: Quote;
+  quote: QuoteEditorData;
   expectedVersion: number;
+  estimateVisibility?: "restricted";
 };
 
 function projectForBrowser(value: unknown, key = "", path = "quote"): unknown {
@@ -54,25 +56,32 @@ function sameSnapshot(left: unknown, right: unknown): boolean {
   return false;
 }
 
-export function editableQuoteFromServer(serverQuote: ServerQuote): Quote {
-  const editable = projectForBrowser(serverQuote) as Quote;
-  const source = normalizeServerQuote(serverQuote);
-  const roundTrip = quoteSnapshotFromBrowser(editable);
+export function editableQuoteFromServer(serverQuote: ServerQuote): Quote;
+export function editableQuoteFromServer(serverQuote: QuoteRecord["quote"]): QuoteEditorData;
+export function editableQuoteFromServer(serverQuote: QuoteRecord["quote"]): QuoteEditorData {
+  const editable = projectForBrowser(serverQuote) as QuoteEditorData;
+  const source = normalizeServerQuote(serverQuote as ServerQuote);
+  const roundTrip = quoteSnapshotFromBrowser(editable as Quote);
   if (!sameSnapshot(source, roundTrip)) throw new UnsafeServerQuoteDecimalError("quote", "aggregate-round-trip");
   return editable;
 }
 
-export function serverQuoteFromEditable(quote: Quote): ServerQuote {
-  return quoteSnapshotFromBrowser(quote);
+export function serverQuoteFromEditable(quote: Quote): ServerQuote;
+export function serverQuoteFromEditable(quote: QuoteEditorData): import("../../../server/quotes/quote-response").QuoteSaveContent;
+export function serverQuoteFromEditable(quote: QuoteEditorData): import("../../../server/quotes/quote-response").QuoteSaveContent {
+  return quoteSnapshotFromBrowser(quote as Quote);
 }
 
-function editableRecord(record: QuoteRecord): EditableServerQuoteRecord {
-  return { quote: editableQuoteFromServer(record.quote), expectedVersion: record.version };
+export function editableRecord(record: QuoteRecord): EditableServerQuoteRecord {
+  if ("estimateVisibility" in record && record.estimateVisibility === "restricted" &&
+    (Object.hasOwn(record.quote, "activeEstimateCost") || Object.hasOwn(record.quote, "estimateCostHistory"))) throw new Error("Invalid restricted Quote response");
+  return { quote: editableQuoteFromServer(record.quote), expectedVersion: record.version,
+    ...("estimateVisibility" in record ? { estimateVisibility: record.estimateVisibility } : {}) };
 }
 
 export type QuoteServerEditorAdapter = {
   load(id: string): Promise<EditableServerQuoteRecord>;
-  save(quote: Quote, expectedVersion: number): Promise<EditableServerQuoteRecord>;
+  save(quote: QuoteEditorData, expectedVersion: number): Promise<EditableServerQuoteRecord>;
 };
 
 export function createQuoteServerEditorAdapter(repository: QuoteServerRepository = quoteServerRepository): QuoteServerEditorAdapter {

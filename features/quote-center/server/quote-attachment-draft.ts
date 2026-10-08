@@ -9,7 +9,7 @@ function mirror(revision: QuoteRevision, snapshot: AttachmentSnapshot): QuoteRev
     styleImageAttachmentId: snapshot.revision.styleImageAttachmentId };
 }
 
-export function mergeAttachmentMirror(quote: Quote, revisionId: string, snapshot: AttachmentSnapshot): Quote {
+export function mergeAttachmentMirror<T extends Pick<Quote, "revisions">>(quote: T, revisionId: string, snapshot: AttachmentSnapshot): T {
   return { ...quote, revisions: quote.revisions.map((revision) => revision.revisionId === revisionId ? mirror(revision, snapshot) : revision) };
 }
 

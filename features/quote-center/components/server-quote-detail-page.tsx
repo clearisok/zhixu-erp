@@ -16,7 +16,8 @@ import {
   StatusTag,
 } from "@/components/foundation";
 import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
-import type { QuoteRecord, ServerQuote } from "../../../server/quotes/model";
+import type { ServerQuote } from "../../../server/quotes/model";
+import type { QuoteResponseRecord as QuoteRecord } from "../../../server/quotes/quote-response";
 import { quoteServerRepository } from "../server/quote-server-repository";
 import { classifyQuoteServerReadFailure, displayServerDecimal, quoteServerReadErrorLabel } from "../server/quote-server-read-model";
 
@@ -247,9 +248,9 @@ export function ServerQuoteDetailPage() {
               </Card>
 
               <Card className="qc-server-quote-section">
-                <header><div><small>ESTIMATE COST</small><h2>估算成本</h2></div><span>历史 {quote.estimateCostHistory.length} 个</span></header>
+                {"estimateCostHistory" in quote ? <><header><div><small>ESTIMATE COST</small><h2>估算成本</h2></div><span>历史 {quote.estimateCostHistory.length} 个</span></header>
                 {quote.activeEstimateCost ? <EstimateSummary estimate={quote.activeEstimateCost} /> : <EmptyState compact title="当前无 active Estimate（null）" />}
-                {quote.estimateCostHistory.length > 0 && <div className="qc-server-quote-history-ids"><strong>历史 Estimate IDs</strong>{quote.estimateCostHistory.map((estimate) => <code key={estimate.id}>{estimate.id}</code>)}</div>}
+                {quote.estimateCostHistory.length > 0 && <div className="qc-server-quote-history-ids"><strong>历史 Estimate IDs</strong>{quote.estimateCostHistory.map((estimate) => <code key={estimate.id}>{estimate.id}</code>)}</div>}</> : <p>无估算查看权限</p>}
               </Card>
 
               <Card className="qc-server-quote-section">

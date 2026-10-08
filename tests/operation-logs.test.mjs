@@ -151,7 +151,7 @@ test("Quote Editor 在保存成功后统一追加日志并提供只读时间线�
   const editor = await readFile(new URL("../features/quote-center/components/quote-editor.tsx", import.meta.url), "utf8");
   const panel = await readFile(new URL("../features/operation-logs/components/operation-log-modal.tsx", import.meta.url), "utf8");
   const quoteModel = await readFile(new URL("../features/quote-center/model/quote-view-model.ts", import.meta.url), "utf8");
-  assert.match(editor, /await mockQuoteRepository\.save\(targetQuote\);\s+await appendSavedOperationLogs\(targetQuote, additionalLogs\)/);
+  assert.match(editor, /await mockQuoteRepository\.save\(readableEstimateQuote\(targetQuote\)\);\s+await appendSavedOperationLogs\(targetQuote, additionalLogs\)/);
   assert.match(editor, /await mockQuoteRepository\.save\(next\);\s+await appendSavedOperationLogs\(next\)/);
   assert.match(editor, /const operationId = createOperationId\(\)/);
   assert.match(editor, /assignOperationMetadata/);

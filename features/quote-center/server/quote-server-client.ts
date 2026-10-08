@@ -1,5 +1,6 @@
-import type { QuoteRecord, ServerQuote } from "../../../server/quotes/model";
+import type { QuoteResponseRecord as QuoteRecord, QuoteSaveContent as ServerQuote } from "../../../server/quotes/quote-response";
 import type { QuoteVersionCommand } from "../../../server/quotes/version-workflows";
+import type { EstimateCommand } from "../../../server/quotes/estimate-workflows";
 
 export type QuoteServerListItem = {
   id: string;
@@ -41,6 +42,7 @@ export type QuoteServerClient = {
   create(): Promise<QuoteRecord>;
   save(quote: ServerQuote, expectedVersion: number): Promise<QuoteRecord>;
   versionWorkflow(quoteId: string, command: QuoteVersionCommand): Promise<QuoteRecord>;
+  estimateWorkflow(quoteId: string, command: EstimateCommand): Promise<QuoteRecord>;
 };
 
 export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?: typeof fetch } = {}): QuoteServerClient {
@@ -71,10 +73,16 @@ export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?:
       return mutation("POST", "/api/v1/quotes", {});
     },
     save(quote, expectedVersion) {
-      return mutation("PUT", `/api/v1/quotes/${encodeURIComponent(quote.id)}`, { quote, expectedVersion });
+      const content = { ...quote };
+      delete content.activeEstimateCost;
+      delete content.estimateCostHistory;
+      return mutation("PUT", `/api/v1/quotes/${encodeURIComponent(quote.id)}`, { quote: content, expectedVersion });
     },
     versionWorkflow(quoteId, command) {
       return mutation("POST", `/api/v1/quotes/${encodeURIComponent(quoteId)}/version-workflows`, command);
+    },
+    estimateWorkflow(quoteId, command) {
+      return mutation("POST", `/api/v1/quotes/${encodeURIComponent(quoteId)}/estimate-workflows`, command);
     },
   };
 }

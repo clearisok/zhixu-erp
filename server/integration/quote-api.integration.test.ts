@@ -115,7 +115,7 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
   const editor = await seedUser(pool, "editor", ["quote.edit"]);
   const full = await seedUser(pool, "full", [
     "quote.view", "quote.create", "quote.edit", "quote.confirm", "quote.revision.update",
-    "quote.price_version.create", "quote.price_version.delete", "quote.cost.edit", "quote.settings.edit", "estimate.edit",
+    "quote.price_version.create", "quote.price_version.delete", "quote.cost.edit", "quote.settings.edit", "estimate.edit", "estimate.view",
   ]);
   const cookies = {
     denied: await login(api.baseUrl, denied.identity.username, denied.password),
@@ -239,15 +239,15 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
     const quote = serverFixture("immutable-history");
     await createQuoteService(pool).createAggregate(quote);
     const current = (await createTrustedQuoteService(pool).getById(quote.id))!;
-    for (const mutate of [
+    for (const [index, mutate] of [
       (quote: ServerQuote) => { quote.revisions[0].baseInfo.note = "tamper"; },
       (quote: ServerQuote) => { quote.estimateCostHistory[0].labor.value = "999"; },
-    ]) {
+    ].entries()) {
       const changed = structuredClone(current.quote);
       mutate(changed);
       const response = await apiRequest<{ error: { code: string } }>(api.baseUrl, `/api/v1/quotes/${changed.id}`, { cookie: cookies.full, method: "PUT", mutationBoundary: true, body: { quote: changed, expectedVersion: current.version } });
       assert.equal(response.response.status, 409);
-      assert.equal(response.payload.error.code, "quote_immutable_history");
+      assert.equal(response.payload.error.code, index === 0 ? "quote_immutable_history" : "estimate_command_required");
     }
     assert.equal((await pool.query("SELECT count(*)::int AS n FROM operation_logs WHERE entity_type='Quote' AND entity_id=$1", [quote.id])).rows[0].n, 0);
   });
@@ -256,7 +256,9 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
     if (!createdRecord) throw new Error("runtime Quote was not created");
     const before = (await createTrustedQuoteService(pool).getById(createdRecord.quote.id))!;
     const beforeLogs = (await pool.query("SELECT count(*)::int AS n FROM operation_logs WHERE entity_type='Quote' AND entity_id=$1", [before.quote.id])).rows[0].n;
-    const changed = structuredClone(before.quote);
+    const changed: import("../quotes/quote-response.js").QuoteSaveContent = structuredClone(before.quote);
+    delete changed.activeEstimateCost;
+    delete changed.estimateCostHistory;
     changed.quoteCode = "QT-2099-0101-999";
     const response = await apiRequest<{ error: { code: string } }>(api.baseUrl, `/api/v1/quotes/${changed.id}`, { cookie: cookies.editor, method: "PUT", mutationBoundary: true, body: { quote: changed, expectedVersion: before.version } });
     assert.equal(response.response.status, 409);
