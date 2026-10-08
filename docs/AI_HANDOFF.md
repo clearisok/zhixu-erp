@@ -8,6 +8,7 @@
 - 仅 disposable PG/tmpfs、临时 Chromium/合成账号/storage；不操作真实 runtime、DB、Browser、COS、secrets。默认 Browser不变；D-096 historical import NOT REQUIRED。
 - A 本地 checkpoint `760abb9`；push 一次明确 connection reset，REMOTE DELIVERY BLOCKED。停止后续远端写入，按本任务授权继续独立本地 B/C/D/E。最后确认远端 base 为 `abd2587959fa3341c6de61d0bcd2d67b4cb66802`；未确认任务分支存在。
 - B：pure ExcelJS core / 内置模板已接 Server；disposable export API 7/7、Chromium 39/39（含真实 XLSX byte/SHA/解析）PASS。历史精确来源、CAS、PNG 合法关系、Estimate 不进入客户投影；审计失败不提供文件。模板未改；镜像仅增加模板资源 COPY（无真实 Docker 操作）。C/D 尚未验收。
+- C 定向：disposable batch API 7/7；跨页真实 ZIP/部分 stale/25 项上限 3 个页面用例 PASS。42 项联合回归此前1个旧 cost-sync用例在导航后 search input 尚未 mount 时失败；已补显式 mount 等待，E 必须重跑，不把40/42写成全套PASS。ZIP白名单 manifest/哈希/重名/全失败无下载，技术25张/100MB/串行。D API7/7已准备，UI尚待验收。
 
 ## HISTORICAL: Server EstimateCost workflows + Quote / Estimate permission follow-up（2026-10-09）
 

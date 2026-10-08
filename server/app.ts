@@ -23,6 +23,7 @@ import { createTrustedQuoteService } from "./quotes/service.js";
 import { parseQuoteVersionCommand } from "./quotes/version-workflows.js";
 import { parseQuoteConfirmationCommand } from "./quotes/confirmation-workflows.js";
 import { createCustomerExportService, parseCustomerExport } from "./quotes/customer-export.js";
+import { generateCustomerBatch, parseCustomerBatch } from "./quotes/customer-batch-export.js";
 import { parseEstimateCommand } from "./quotes/estimate-workflows.js";
 import { routeQuoteMasters } from "./quote-masters/routes.js";
 import { routeQuoteAttachments } from "./attachments/routes.js";
@@ -383,6 +384,18 @@ async function route(
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
     return;
+  }
+  if (request.method === "POST" && path === "/api/v1/quotes/customer-batch-export") {
+    assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    const items = parseCustomerBatch(await readJsonBody(request));
+    const result = await generateCustomerBatch(dependencies.pool, dependencies.attachmentStorage, identity, items);
+    if (!result.bytes) { sendJson(response, 200, {report:result.report});return; }
+    response.writeHead(200,{"Content-Type":"application/zip","Content-Length":result.bytes.length,"Cache-Control":"no-store",
+      "X-Zhixu-File-Name":encodeURIComponent(result.fileName!),"X-Zhixu-File-Sha256":result.sha256!,
+      "X-Zhixu-Export-Warnings":"%5B%5D","X-Zhixu-Batch-Report":encodeURIComponent(JSON.stringify(result.report))});
+    response.end(result.bytes);return;
   }
   const exportMatch = /^\/api\/v1\/quotes\/([^/]+)\/customer-export$/.exec(path);
   if (request.method === "POST" && exportMatch) {

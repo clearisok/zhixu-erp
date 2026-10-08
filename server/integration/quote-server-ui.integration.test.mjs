@@ -9,6 +9,7 @@ import { once } from "node:events";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import ExcelJS from "exceljs";
+import JSZip from "jszip";
 import pg from "pg";
 import { createApp } from "../app.ts";
 import { runMigrations } from "../db/migration-runner.ts";
@@ -482,7 +483,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await isolated();
       if (failure === null) {
         const saved = await read(); assert.equal(saved.quote.aggregateStatus,"draft");
-        await navigate("/quote-center"); await input('input[aria-label="搜索报价"]', saved.quote.quoteCode); await hasText("本页 1 / 总计 1");
+          await navigate("/quote-center"); await until(async()=>Boolean(await evaluate('document.querySelector(\'input[aria-label="搜索报价"]\')')),"formal list search mounted"); await input('input[aria-label="搜索报价"]', saved.quote.quoteCode); await hasText("本页 1 / 总计 1");
         const row = await evaluate(`([...document.querySelectorAll('tr')].find(n=>n.innerText.includes(${JSON.stringify(saved.quote.quoteCode)})))?.innerText`);
         assert.ok(row?.includes(`经销 / ${saved.quote.aggregateStatus}`),"Formal list status agrees with draft readback"); await isolated();
       }
@@ -685,6 +686,27 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const cells=JSON.stringify(workbook.worksheets.map(s=>s.getSheetValues()));assert.ok(cells.includes("Synthetic estimate fabric"));assert.ok(!cells.includes("PRIVATE-ESTIMATE"));
       assert.equal((await read()).quote.activeEstimateCost,null);await isolated();assert.deepEqual(await evaluate("unhandledRejections"),[]);
       t.diagnostic(`Customer XLSX ${type}: ${bytes.length} bytes SHA-256 ${createHash("sha256").update(bytes).digest("hex")} parsed`);
+    });
+    for(const partial of [false,true])await t.test(`actual cross-page customer ZIP ${partial?"partial stale failure":"saved collection"}`,async()=>{
+      await loginAs("admin");await navigate("/quote-center");await hasText("本页 25");await click("批量客户报价");
+      const first=await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').getAttribute('aria-label').slice(3)");
+      await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').click()");await click("下一页");await hasText("本页 25");
+      const second=await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').getAttribute('aria-label').slice(3)");
+      await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').click()");await hasText("已选 2 / 25");assert.notEqual(first,second);
+      if(partial)await evaluate(`fetch('/api/v1/quotes/${first}').then(r=>r.json()).then(b=>{b.quote.quote.revisions.find(r=>r.revisionId===b.quote.quote.defaultRevisionId).baseInfo.notes='Synthetic concurrent change';return fetch('/api/v1/quotes/${first}',{method:'PUT',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify({quote:b.quote.quote,expectedVersion:b.quote.version})})}).then(r=>{if(!r.ok)throw new Error('concurrency fixture failed')})`);
+      const count=requests.filter(r=>r.path.endsWith('/customer-batch-export')).length;
+      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(b=>b.textContent==='生成客户报价 ZIP');b.click();b.click()})()");
+      await hasText(`选中 2 / 成功 ${partial?1:2} / 失败 ${partial?1:0}`);
+      const downloaded=await evaluate("(async()=>{const f=generatedDownloads.at(-1);return Array.from(new Uint8Array(await f.blob.arrayBuffer()))})()");
+      const zip=await JSZip.loadAsync(Buffer.from(downloaded)),manifest=JSON.parse(await zip.file('export-results.json').async('string'));
+      assert.deepEqual(manifest.items.map(i=>i.quoteId),[first,second]);assert.equal(manifest.success,partial?1:2);
+      const files=Object.keys(zip.files).filter(n=>n.endsWith('.xlsx'));assert.equal(files.length,partial?1:2);
+      for(const name of files){const bytes=await zip.file(name).async('nodebuffer');const wb=new ExcelJS.Workbook();await wb.xlsx.load(bytes);assert.ok(wb.worksheets.length>=1);assert.equal(createHash('sha256').update(bytes).digest('hex'),manifest.items.find(i=>i.fileName===name).sha256);}
+      assert.equal(requests.filter(r=>r.path.endsWith('/customer-batch-export')).length,count+1);assert.deepEqual(await evaluate('unhandledRejections'),[]);await isolated();
+    });
+    await t.test("actual bounded selection rejects 26th item without truncation",async()=>{
+      await navigate('/quote-center');await hasText('本页 25');await click('批量客户报价');await click('本页全选');await hasText('已选 25 / 25');await click('下一页');await hasText('本页 25');
+      await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').click()");await hasText('最多选择 25 张');await hasText('已选 25 / 25');await isolated();
     });
     await command("Browser.close");
   } finally {

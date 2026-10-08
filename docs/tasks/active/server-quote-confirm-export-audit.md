@@ -7,7 +7,7 @@ Branch: `feat/server-quote-confirm-export-audit`; initial working tree clean.
 | --- | --- | --- |
 | A | Trusted current PV confirmation; linked-current ownership; existing UI | Unlinked API 8/8 + Chromium 37/37 PASS; linked write disabled (saved-PV currency/CAS gap) |
 | B | Built-in formal template, exact saved current/history Excel, trusted generation audit | API 7/7; Chromium 39/39 PASS (XLSX bytes/SHA/parse) |
-| C | Cross-page stable selection, customer XLSX ZIP, honest partial failures | NOT RUN |
+| C | Cross-page stable selection, customer XLSX ZIP, honest partial failures | API 7/7 + 3 new Chromium cases PASS; full rerun due old search mount race |
 | D | Server event pagination/filtering, Quote/global read-only logs, sensitive isolation | NOT RUN |
 | E | Combined disposable API/Chromium/regression/build validation and one PR | NOT RUN |
 
