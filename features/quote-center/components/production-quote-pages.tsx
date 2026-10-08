@@ -9,6 +9,7 @@ import { quoteServerEditorAdapter, type EditableServerQuoteRecord } from "../ser
 import { createQuoteEditorPersistence } from "../server/quote-editor-persistence";
 import { QuoteList } from "./quote-list";
 import { QuoteDetailLoader, QuoteEditor, QuoteNewLoader } from "./quote-editor";
+import type { QuoteType } from "../model/quote-view-model";
 
 const safeError = (error: unknown) => error && typeof error === "object" && "status" in error ? `Server HTTP ${String(error.status)}；无 Browser fallback。` : "Server 读取失败或数值无法安全转换；无 Browser fallback。";
 function ServerList() {
@@ -53,14 +54,31 @@ function ServerNew() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [uncertain, setUncertain] = useState(false);
+  const [quoteType, setQuoteType] = useState<QuoteType>("distribution");
+  const [createdId, setCreatedId] = useState("");
   const create = async () => {
     if (pending.current || uncertain) return;
     pending.current = true; setBusy(true);
-    try { const result = await quoteServerClient.create(); router.replace(`/quote-center/detail?id=${encodeURIComponent(result.quote.id)}`); }
-    catch (cause) { setError(`${safeError(cause)} 创建结果待核对，请返回列表检查；不会自动重复 POST。`); setUncertain(true); }
+    let draftId = "";
+    try {
+      const result = await quoteServerClient.create();
+      draftId = result.quote.id; setCreatedId(draftId);
+      const initialRevision = result.quote.revisions.find((revision) => revision.revisionId === result.quote.defaultRevisionId);
+      if (!initialRevision) throw new Error("Missing initial Revision");
+      if (initialRevision.baseInfo.quoteType !== quoteType) {
+        const selected = structuredClone(result.quote);
+        selected.revisions.find((revision) => revision.revisionId === selected.defaultRevisionId)!.baseInfo.quoteType = quoteType;
+        await quoteServerClient.save(selected, result.version);
+      }
+      router.replace(`/quote-center/detail?id=${encodeURIComponent(draftId)}`);
+    }
+    catch (cause) {
+      setError(`${safeError(cause)} ${draftId ? "草稿已创建，但所选类型尚未确认保存；请打开已创建草稿核对实际状态。" : "创建结果待核对，请返回列表检查。"} 不会重复 POST。`);
+      setUncertain(true);
+    }
     finally { pending.current = false; setBusy(false); }
   };
-  return <AppShell title="新建报价" backTarget={{ href: "/quote-center", label: "返回报价中心" }}><PageContainer><PageHeader title="新建报价" description="打开此页不写数据库、不消耗编号。创建后进入正式编辑器。" />{error && <ErrorState title="Server 创建未确认" description={error} />}<EmptyState title="准备创建空白 Server 报价" description="ID、编号和初始版本由 Server 提供；不导入 Browser 草稿。" /><Button permission="quote.create" disabled={busy || uncertain} onClick={() => void create()}>{busy ? "创建中…" : "创建报价"}</Button></PageContainer></AppShell>;
+  return <AppShell title="新建报价" backTarget={{ href: "/quote-center", label: "返回报价中心" }}><PageContainer><PageHeader title="新建报价" description="打开此页不写数据库、不消耗编号。类型保存完成后进入正式编辑器。" />{error && <ErrorState title="Server 创建未确认" description={error} />}{uncertain && createdId && <a href={`/quote-center/detail?id=${encodeURIComponent(createdId)}`}>打开已创建草稿（类型待核对）</a>}<EmptyState title="准备创建空白 Server 报价" description="ID、编号和初始版本由 Server 提供；不导入 Browser 草稿。" /><FormItem label="报价类型" required><select className="qc-control" disabled={busy || uncertain} value={quoteType} onChange={(event) => setQuoteType(event.target.value as QuoteType)}><option value="processing">加工报价</option><option value="distribution">经销报价</option></select></FormItem><Button permission="quote.create" disabled={busy || uncertain} onClick={() => void create()}>{busy ? "创建 / 保存类型中…" : "创建报价"}</Button></PageContainer></AppShell>;
 }
 function ServerDetail() {
   const id = useSearchParams().get("id") ?? "";

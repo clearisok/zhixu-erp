@@ -9,6 +9,7 @@
 - **新 Server Quote 基本闭环已实现并隔离验收（D-097），未真实部署。** 显式 quoteAuthority=server + masters=server + writer=writable 时，正式 `/quote-center` / `new` / `detail` 复用 QuoteEditor、typed Server writer、Q3 defaults 与附件专用 controller。默认 browser 分支与当前旧 runtime 保持 mockQuoteRepository，不改变旧数据。
 - 新入口隔离 LocalDataBootstrap、Browser mock identity/global search、业务 namespace/IndexedDB 与未支持模块；Server list 有界全库查询/准确 total，无逐行 aggregate GET。页面实例版本/写锁协调保存与附件，409 草稿保留、不确定写 fail closed、精度无损/null≠0。
 - 已支持基础信息、当前价格材料/工价/其他成本、报价设置、Quick Master Create/刷新 selectors、保存/读回/列表、当前 Revision 附件。Revision/PV workflow、Estimate、确认、导出、整单复制/删除、转订单、日志查看在 Server 模式明确未接线。**基本闭环 PASS 不等于全报价 production-ready**；完整动作清单与实际文件见 `features/FRESH_START_FOUNDATION.md`。
+- PR #75 合并前类型补齐：正式 new 页可选加工/经销，Server POST `{}`/默认经销不变，加工用返回版本正常 PUT；失败保留已创建 ID 并禁重建，详情/历史不新增类型编辑。最新 Chromium12/12、auth/frontend38/38、disposable API/编号21/21、npm test673/673；typecheck/lint、显式 Server/默认 Browser frontend build PASS，下载 bytes/SHA与版本冲突回归保留。以下8/8为上一基本闭环收口快照。
 - 本轮旧真实 DB/Browser/COS/Ubuntu/Docker runtime 均未操作，无新环境真实部署。下方 Q4/Q5 段落属于 **HISTORICAL engineering snapshots**，其历史导入条件不再是当前操作清单。COS real Node preflight 已 PASS（PR #73 用户证据），runtime storage activation 仍另行核验。
 
 - 本轮基本闭环最终重跑：实际 Chromium 正式 routes 8/8（PG16/tmpfs、memory storage、新 profile，含实际附件下载字节/SHA-256、Quick Create、27 条分页/全库搜索、精度/409、附件版本、401/403/404/network，cleanup PASS）；Server auth/frontend 38/38（persistence 5/5）。显式 Server 与默认 Browser frontend 构建均 41 routes，默认 build-info 确认 browser。此前本任务 fresh-start 7/7、Quote API/附件 disposable 20/20、Server build PASS；对应源码未变，未重跑全 PG/COS。最终质量结果见本轮 AI_HANDOFF。

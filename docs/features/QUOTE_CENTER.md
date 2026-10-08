@@ -6,7 +6,9 @@
 
 页面实例 persistence 控制 expectedVersion/baseline 与 aggregate/附件排他锁；成功才推进版本，409 草稿保留、精度无法无损 round-trip 拒绝；Server list 最小 saved summary + 有界全库搜索/filter/真实 total，不读 Browser。Root trusted identity + 业务 bootstrap/unsupported-route 隔离，不添加 Browser logs；empty masters/defaults 明示未配置，Quick Create 走 Server。
 
-Revision/PV workflow、Estimate、客户确认、导出、复制/删除、转订单与日志查看尚未接线，Server 模式禁用；Browser 模式原功能不删。实际 Chromium 正式路线8/8（新 PG/tmpfs、memory storage、新 profile），不是真实部署/全报价 production-ready。详细支持矩阵与缺口见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述仅为历史工程上下文或默认 Browser 分支。
+Server new 页提供原有加工 processing / 经销 distribution 选择；只在用户点击后 POST `{}`，Server 默认经销不变。加工选择使用返回 aggregate/ID/version 做正常 PUT，成功后才进入详情；失败保留已创建 ID、明确类型未确认并禁止再次 POST，用户可打开该草稿核对。详情不新增任意类型修改入口，历史 Revision 不可变、计算规则和权限不变。
+
+Revision/PV workflow、Estimate、客户确认、导出、复制/删除、转订单与日志查看尚未接线，Server 模式禁用；Browser 模式原功能不删。最新实际 Chromium 正式路线12/12（新 PG/tmpfs、memory storage、新 profile），包含两类创建/save/readback/filter、初始化失败不重复创建，不是真实部署/全报价 production-ready。详细支持矩阵与缺口见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述仅为历史工程上下文或默认 Browser 分支。
 
 > 2026-10-05：`/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有；Q3 master/default dependencies 在真实 3001 的 `masterSettingsAuthority=server` 下来自 PostgreSQL，Q3 编辑已重开。PR #64 Local Single-User UI 修复已部署：`/` 自动进入 `/quote-center`、统一侧栏恢复；用户真实浏览器确认原 Quote 数据保留。此收口没有迁移、重置、重新 seed 或改变 Quote storage namespace；Quote historical migration/Server ownership 另立 Gate。
 

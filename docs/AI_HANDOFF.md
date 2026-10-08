@@ -2,6 +2,8 @@
 
 ## Current: Fresh Start formal Quote Server UI（2026-10-08，D-097）
 
+- PR #75 类型补齐：当前分支追加修复 Server new 加工/经销选择；先实际 Chromium red（缺 selector），再恢复创建页选择。POST `{}` 不变，加工用返回 version 正常 PUT；失败保留 ID/核对链接、类型未确认、禁止重复 POST。无详情/历史类型编辑或计算政策改变。最新 Chromium12/12、auth/frontend38/38（persistence5/5）、disposable Quote API/编号21/21；typecheck/lint/npm test673/673 PASS。Server frontend 重建后执行页面测试，默认 Browser 重建且 build-info browser，原下载 bytes/SHA、精度、409、附件版本断言保留，cleanup PASS。下面8/8为上一收口证据，不作本次测试数。
+
 - Branch `feat/fresh-start-quote-server-ui`，base PR #74 merge `cf60096e3e8ded0d6801e5a516e8bf1bd6709acf`。显式 Quote authority 默认 browser；server 要求 masters=server / writer=writable，编译/运行身份一致。正式 list/new/detail 分流而非 candidate redirect。
 - 复用正式 QuoteEditor + exact adapter，页面实例版本/写锁协调 aggregate/附件；401/403/404/network fail-closed，409 保留草稿，危险/未接工作流仅 Server 模式禁用。全局 bootstrap/mock identity/未支持 URL 与 Browser 偏好 manifest 隔离；Browser 分支保持。
 - 实际 Chromium 正式 routes + tmpfs PG + memory storage：空 list/new/master、主动 create/edit/save/refresh/list、材料/工价/其他费用/未配置 pricing、附件后保存、精度/409、404/403/network、Quick Create 与快照保留、27 条跨页搜索与准确 total，8/8 PASS，合成旧 Browser sentinel 未触碰，cleanup PASS。不是旧环境部署验收。

@@ -23,6 +23,7 @@
 - 日期：2026-10-08；状态：Active。用户授权聚焦接通正式 Quote list/new/detail，非部署、非历史导入、非全模块重写。
 - `NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY=browser|server` 独立于 masters authority 和 writer mode，默认 browser；server 必须 masters=server、writer=writable，build-info/runtime 一致性检查 fail closed。普通构建不得默默切旧环境。
 - Server 入口复用现有 Session/Identity/RBAC、正式 QuoteEditor、exact adapter、Q3 master dependencies 与唯一附件 panel/controller；不初始化 Browser 业务 namespace/mock permissions，不以 localStorage/IndexedDB 兜底；不支持的模块直接 URL 也不挂 Browser 页面。
+- 创建页恢复既有 processing/distribution 用户选择；不改 POST `{}`/Server 默认经销。加工通过已返回 ID/version 正常 PUT 初始化，失败保留 ID、停止重复 POST、明确类型未确认；仅补创建入口，不放开详情或历史 Revision 类型编辑，不改变计算/权限政策。
 - 每个编辑器持有版本/保存 baseline，aggregate 与专用附件命令共用写锁；成功才推进版本，409/不确定结果保留草稿、停止自动重试，精度不可无损读写即拒绝。当前 UI 只支持明确列出的基本动作；Revision/PV workflow、Estimate、客户确认、导出、复制/删除、转订单与日志查看仍待独立接线，不更改旧 Browser 行为或历史不可变规则。
 - D-096 historical import NOT REQUIRED 不变；D-093 local-only 与未来远程认证要求不变。代码 merge 不部署、不激活真实 0008/新 DB/storage。
 - 证据：`quote-authority.ts`、`production-quote-pages.tsx`、`quote-server-boundary.tsx`、`quote-editor-persistence.ts`、`server/quotes/list-summary.ts` 与 disposable actual Chromium `quote-server-ui.integration.test.mjs`。
