@@ -16,6 +16,8 @@ import type { TrustedIdentity } from "../auth/session.js";
 import { runMigrations } from "../db/migration-runner.js";
 import { quoteSnapshotFromBrowser } from "../quotes/model.js";
 import { createQuoteRepository } from "../quotes/repository.js";
+import { updateConfirmedCommercialTermsByQuote } from "../confirmed-commercial-terms/service.js";
+import { createSalesOrder } from "../sales-orders/repository.js";
 import { startDisposablePostgres } from "./postgres-container.js";
 import { createSyntheticQuoteFixture } from "./quote-fixture.js";
 
@@ -46,7 +48,7 @@ test("Customer Quote export: disposable PostgreSQL, saved snapshots and trusted 
   const templateHash = digest(template);
   const layout = parseQuoteExportTemplateLayout((await workbook(template)).worksheets[0]);
   const post = (id: string, body: object) => fetch(`${base}/api/v1/quotes/${id}/customer-export`, { method: "POST", headers: { "Content-Type": "application/json", Origin: origin, "X-Zhixu-Request": "1" }, body: JSON.stringify(body) });
-  const seeded = async (id: string, type: "processing" | "distribution" = "distribution") => {
+  const seeded = async (id: string, type: "processing" | "distribution" = "distribution", customize?: (quote: ReturnType<typeof createSyntheticQuoteFixture>) => void) => {
     const browser = createSyntheticQuoteFixture(id, type);
     for (const revision of browser.revisions) {
       revision.imageAttachmentIds = []; revision.fileAttachmentIds = []; revision.styleImageAttachmentId = null; revision.garmentMedia = []; revision.quoteDocuments = [];
@@ -60,6 +62,7 @@ test("Customer Quote export: disposable PostgreSQL, saved snapshots and trusted 
     }
     browser.activeEstimateCost!.fabrics[0].name = probe;
     browser.estimateCostHistory[0].fabrics[0].name = probe;
+    customize?.(browser);
     const record = await repo.create(quoteSnapshotFromBrowser(browser));
     return { browser, record };
   };
@@ -130,13 +133,71 @@ test("Customer Quote export: disposable PostgreSQL, saved snapshots and trusted 
 
   await t.test("server-linked legal PNG is embedded from memory object storage", async () => {
     const image = await seeded("export-image"); const attachments = createAttachmentService(pool, storage);
-    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jZxoAAAAASUVORK5CYII=", "base64");
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=", "base64");
     const uploaded = await attachments.upload(actor, image.record.quote.id, image.record.quote.defaultRevisionId, image.record.version, { name: "synthetic.png", mimeType: "image/png", kind: "image", bytes: png, uploadToken: randomUUID() });
     await attachments.style(actor, image.record.quote.id, image.record.quote.defaultRevisionId, uploaded.attachment.id, uploaded.version);
     const saved = (await repo.getById(image.record.quote.id))!; const revision = saved.quote.revisions.at(-1)!;
     const response = await post(saved.quote.id, { expectedVersion: saved.version, revisionId: revision.revisionId, priceVersionIds: [revision.priceVersions[0].id] });
     assert.equal(response.status, 200); assert.equal((await workbook(new Uint8Array(await response.arrayBuffer()))).worksheets[0].getImages().length, 1);
     assert.deepEqual(await repo.getById(saved.quote.id), saved);
+  });
+
+  await t.test("linked current customer confirmation is shared CCT truth while history retains its own snapshot", async () => {
+    const linked = await seeded("export-linked-confirmation", "distribution", quote => {
+      for (const revision of quote.revisions) revision.priceVersions[0].confirmation = {
+        quotedGarmentPrice: 21, confirmedGarmentPrice: revision.readOnly ? 19 : 17,
+        quotedLaborPrice: 2, confirmedLaborPrice: 1, note: "Synthetic saved snapshot", confirmedAt: "2026-01-01T00:00:00Z",
+      };
+    });
+    const current = linked.record.quote.revisions.at(-1)!;
+    const provenance = { quoteId: linked.record.quote.id, revisionId: current.revisionId, priceVersionId: current.priceVersions[0].id };
+    await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: provenance.quoteId, sourceRevisionId: provenance.revisionId, sourcePriceVersionId: provenance.priceVersionId });
+    const confirmedCell = layout.summary.customerConfirmedPrice;
+    const exportedPrice = async (revision: typeof current) => {
+      const response = await post(linked.record.quote.id, { expectedVersion: linked.record.version, revisionId: revision.revisionId, priceVersionIds: [revision.priceVersions[0].id] });
+      assert.equal(response.status, 200);
+      return (await workbook(new Uint8Array(await response.arrayBuffer()))).worksheets[0].getCell(confirmedCell.row, confirmedCell.column).value;
+    };
+    assert.equal(await exportedPrice(current), null, "linked but unconfigured CCT must not fall back to saved PV confirmation 17");
+    await updateConfirmedCommercialTermsByQuote(pool, actor, provenance, { expectedVersion: 0, customerConfirmedPrice: "88.25", confirmedLaborPrice: "1", laborCurrency: "CNY" });
+    assert.equal(await exportedPrice(current), 88.25);
+    assert.equal(await exportedPrice(linked.record.quote.revisions[0]), 19);
+    assert.deepEqual(await repo.getById(linked.record.quote.id), linked.record, "CCT and export must not rewrite current or historical Quote snapshots");
+  });
+
+  await t.test("corrupt PNG and unsupported WebP produce warnings and no embedded image; authorization errors never become warnings", async () => {
+    for (const [kind, bytes, mimeType] of [
+      ["corrupt-png", Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), "image/png"],
+      ["crc-damaged-png", Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jZxoAAAAASUVORK5CYII=", "base64"), "image/png"],
+      ["unsupported-webp", Buffer.from("RIFF0000WEBPsynthetic", "ascii"), "image/webp"],
+    ] as const) {
+      const image = await seeded(`export-${kind}`); const attachments = createAttachmentService(pool, storage);
+      const uploaded = await attachments.upload(actor, image.record.quote.id, image.record.quote.defaultRevisionId, image.record.version, { name: `${kind}.${mimeType.split("/")[1]}`, mimeType, kind: "image", bytes, uploadToken: randomUUID() });
+      await attachments.style(actor, image.record.quote.id, image.record.quote.defaultRevisionId, uploaded.attachment.id, uploaded.version);
+      const saved = (await repo.getById(image.record.quote.id))!; const revision = saved.quote.revisions.at(-1)!;
+      const selection = { expectedVersion: saved.version, revisionId: revision.revisionId, priceVersionIds: [revision.priceVersions[0].id] };
+      active = null; const unauthorized = await post(saved.quote.id, selection); assert.equal(unauthorized.status, 401); assert.equal(unauthorized.headers.get("x-zhixu-export-warnings"), null);
+      active = { ...actor, permissions: ["quote.view", "quote.export"] }; const forbidden = await post(saved.quote.id, selection); assert.equal(forbidden.status, 403); assert.equal(forbidden.headers.get("x-zhixu-export-warnings"), null);
+      active = actor; const response = await post(saved.quote.id, selection); assert.equal(response.status, 200);
+      const warnings = JSON.parse(decodeURIComponent(response.headers.get("x-zhixu-export-warnings") ?? "")) as string[];
+      assert.ok(warnings.some(warning => /款式图/.test(warning)));
+      assert.equal((await workbook(new Uint8Array(await response.arrayBuffer()))).worksheets[0].getImages().length, 0);
+      assert.deepEqual(await repo.getById(saved.quote.id), saved);
+    }
+  });
+
+  await t.test("incomplete order Quote provenance rejects current export but leaves historical snapshot export available", async () => {
+    const partial = await seeded("export-partial-provenance");
+    await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: partial.record.quote.id });
+    const current = partial.record.quote.revisions.at(-1)!;
+    const before = await logCount(partial.record.quote.id);
+    const response = await post(partial.record.quote.id, { expectedVersion: partial.record.version, revisionId: current.revisionId, priceVersionIds: [current.priceVersions[0].id] });
+    assert.equal(response.status, 409); assert.equal(response.headers.get("x-zhixu-file-name"), null);
+    assert.equal(await logCount(partial.record.quote.id), before);
+    const history = partial.record.quote.revisions[0];
+    const historical = await post(partial.record.quote.id, { expectedVersion: partial.record.version, revisionId: history.revisionId, priceVersionIds: [history.priceVersions[0].id] });
+    assert.equal(historical.status, 200); assert.equal((await workbook(new Uint8Array(await historical.arrayBuffer()))).worksheets.length, 1);
+    assert.deepEqual(await repo.getById(partial.record.quote.id), partial.record);
   });
 
   await t.test("audit failure returns no workbook and rolls back export log without changing Quote", async () => {

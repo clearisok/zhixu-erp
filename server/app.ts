@@ -7,7 +7,8 @@ import { requirePermission } from "./auth/permissions.js";
 import { HttpError } from "./http/errors.js";
 import { assertMutationBoundary, readJsonBody } from "./http/request.js";
 import { requestId, sendError, sendJson } from "./http/responses.js";
-import { listOperationLogs } from "./operation-logs/repository.js";
+import { queryOperationLogs } from "./operation-logs/repository.js";
+import { parseOperationLogQuery } from "./operation-logs/query.js";
 import type { UpdateConfirmedCommercialTermsInput } from "../features/confirmed-commercial-terms/model.js";
 import {
   isConfirmedLaborCurrency,
@@ -296,11 +297,13 @@ async function route(
     const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "audit_log.view");
-    const limit = Number.parseInt(new URL(request.url ?? "/", "http://localhost").searchParams.get("limit") ?? "100", 10);
-    if (!Number.isSafeInteger(limit) || limit <= 0) {
-      throw new HttpError(400, "invalid_limit", "limit must be a positive integer");
+    const query = parseOperationLogQuery(new URL(request.url ?? "/", "http://localhost").searchParams);
+    if (query.quoteId) {
+      requirePermission(identity.permissions,"quote.view");
+      if (!await createTrustedQuoteService(dependencies.pool).getById(query.quoteId)) throw new HttpError(404,"quote_not_found","Quote not found");
     }
-    sendJson(response, 200, { operationLogs: await listOperationLogs(dependencies.pool, limit) });
+    const result=await queryOperationLogs(dependencies.pool,query,identity);
+    sendJson(response, 200, {...result,operationLogs:result.logs});
     return;
   }
 
@@ -394,7 +397,7 @@ async function route(
     if (!result.bytes) { sendJson(response, 200, {report:result.report});return; }
     response.writeHead(200,{"Content-Type":"application/zip","Content-Length":result.bytes.length,"Cache-Control":"no-store",
       "X-Zhixu-File-Name":encodeURIComponent(result.fileName!),"X-Zhixu-File-Sha256":result.sha256!,
-      "X-Zhixu-Export-Warnings":"%5B%5D","X-Zhixu-Batch-Report":encodeURIComponent(JSON.stringify(result.report))});
+      "X-Zhixu-Export-Warnings":encodeURIComponent(JSON.stringify(result.report.warnings.length?["部分文件有警告，详见 ZIP export-results.json。"]:[])),"X-Zhixu-Batch-Report":encodeURIComponent(JSON.stringify(result.report))});
     response.end(result.bytes);return;
   }
   const exportMatch = /^\/api\/v1\/quotes\/([^/]+)\/customer-export$/.exec(path);

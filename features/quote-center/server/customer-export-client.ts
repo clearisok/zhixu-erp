@@ -10,7 +10,7 @@ export async function customerExport(quoteId: string, selection: { expectedVersi
   return readFileResponse(await fetch(`/api/v1/quotes/${encodeURIComponent(quoteId)}/customer-export`, { method: "POST", credentials: "include", cache: "no-store",
     headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1" }, body: JSON.stringify(selection) }));
 }
-export type CustomerBatchReport={selected:number;success:number;failed:Array<{index:number;code:string}>};
+export type CustomerBatchReport={selected:number;success:number;failed:Array<{index:number;code:string}>;warnings:Array<{index:number;count:number}>};
 export async function customerBatchExport(items:Array<{quoteId:string;expectedVersion:number}>):Promise<{report:CustomerBatchReport;file:CustomerExportFile|null}>{
   const response=await fetch("/api/v1/quotes/customer-batch-export",{method:"POST",credentials:"include",cache:"no-store",
     headers:{"Content-Type":"application/json","X-Zhixu-Request":"1"},body:JSON.stringify({items})});

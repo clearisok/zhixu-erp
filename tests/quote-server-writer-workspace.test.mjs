@@ -66,11 +66,17 @@ test("writer has no Browser repository, audit, attachment, master, or Order side
 
 test("writer uses lossless decimal projection and fails unsafe values closed", () => {
   assert.match(adapterSource, /quoteSnapshotFromBrowser/u);
-  assert.match(adapterSource, /canonicalDecimal\(String\(browserNumber\)\) !== canonicalSource/u);
+  assert.match(adapterSource, /projectForBrowser, UnsafeServerQuoteDecimalError.*exact-decimal-view/u);
   assert.match(adapterSource, /UnsafeServerQuoteDecimalError/u);
   assert.match(writerSource, /此 Quote 不能安全进入 Browser 数字编辑模型/u);
   assert.match(writerSource, /保存已禁用/u);
   assert.doesNotMatch(adapterSource, /epsilon|toFixed|Math\.round/u);
+});
+
+test("shared exact decimal projection retains canonical round-trip rejection", async () => {
+  const decimalSource = await read("../features/quote-center/model/exact-decimal-view.ts");
+  assert.match(decimalSource, /canonicalDecimal\(String\(browserNumber\)\) !== canonicalSource/u);
+  assert.doesNotMatch(decimalSource, /epsilon|toFixed|Math\.round/u);
 });
 
 test("optimistic conflict preserves dirty state and requires explicit reload", () => {

@@ -9,6 +9,7 @@
 - A 本地 checkpoint `760abb9`；push 一次明确 connection reset，REMOTE DELIVERY BLOCKED。停止后续远端写入，按本任务授权继续独立本地 B/C/D/E。最后确认远端 base 为 `abd2587959fa3341c6de61d0bcd2d67b4cb66802`；未确认任务分支存在。
 - B：pure ExcelJS core / 内置模板已接 Server；disposable export API 7/7、Chromium 39/39（含真实 XLSX byte/SHA/解析）PASS。历史精确来源、CAS、PNG 合法关系、Estimate 不进入客户投影；审计失败不提供文件。模板未改；镜像仅增加模板资源 COPY（无真实 Docker 操作）。C/D 尚未验收。
 - C 定向：disposable batch API 7/7；跨页真实 ZIP/部分 stale/25 项上限 3 个页面用例 PASS。42 项联合回归此前1个旧 cost-sync用例在导航后 search input 尚未 mount 时失败；已补显式 mount 等待，E 必须重跑，不把40/42写成全套PASS。ZIP白名单 manifest/哈希/重名/全失败无下载，技术25张/100MB/串行。D API7/7已准备，UI尚待验收。
+- D checkpoint closure：Server query/Quote modal/global DataTable/Drawer 已接线，API7/7与独立实际UI用例PASS（精确筛选/分页/空结果/故障/可信快照/无Estimate权限隔离/无读写日志）。完整联合正在46项最终重跑，此前失败仅测试等待/错误DOM目标已修，未skip/删除断言。B follow-up当前linked价来自CCT、历史保留snapshot、不完整provenance拒绝、PNG CRC与warning；B10/10，C8/8（ZIP警告/安全身份manifest）。联合disposable64/64 + QuoteAPI/foundation/编号34/34、auth/frontend58/58、npm674/674、typecheck/lint/Server与显式Server frontend PASS；默认Browser最终build尚待。所有新runtime增量属于本任务，无SQL/角色/真实环境变化；push仍blocked。
 
 ## HISTORICAL: Server EstimateCost workflows + Quote / Estimate permission follow-up（2026-10-09）
 

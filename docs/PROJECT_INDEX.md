@@ -1,5 +1,7 @@
 # 项目知识索引
 
+> 当前 Quote Server overnight batch（工程、非部署）：未关联确认、客户 Excel/ZIP 与只读 Server 日志；任务规格/恢复点见 `tasks/active/server-quote-confirm-export-audit.md` / AI_HANDOFF，能力矩阵见 FRESH_START_FOUNDATION。Linked current writer 仍明确禁用；没有新增历史迁移门禁。
+
 > D-097：Fresh Start **正式 Quote Server 基本闭环工程/隔离验收完成，非真实部署**。显式 Quote authority=server（默认 browser）接原地 list/new/detail、正式 Editor/附件；全局 Browser bootstrap/mock identity 与未支持 URL 隔离。支持/未接动作、实际 Chromium 与质量证据见 `features/FRESH_START_FOUNDATION.md`、CURRENT_STATE/AI_HANDOFF。旧 runtime 与旧数据不变，历史导入 NOT REQUIRED。
 
 > **当前新系统上线方向：D-096，全部业务数据从空开始。** 旧环境保留，Q5 historical import NOT REQUIRED；功能/安全/Quote-first 顺序不变，不代表正式 UI 已全接 Server。空库验证、技术初始化白名单、隔离部署说明与剩余接线文件见 [Fresh Start Foundation](features/FRESH_START_FOUNDATION.md)。下面既有部署/数据数量只描述旧环境，不是新系统的数据源或初始化指令。COS real Node preflight 已 PASS（PR #73 用户证据），不是 runtime storage activation。

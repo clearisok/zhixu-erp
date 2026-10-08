@@ -26,9 +26,10 @@ Foundation 原 Gate 验证新 disposable DB；后续 D-097 已接通正式 Serve
 | Revision creation/management/history navigation | Supported；当前/所选历史创建新默认快照、原 Vn/分支规则、历史只读/返回当前；可信 command + 原 repository 单事务 |
 | PV create/delete/name workflow | Supported；复制所选已保存 PV、编辑名称/数量/说明、删除非最后 PV/切换；新 owner IDs，独立成本/参数快照，清除复制确认 |
 | Estimate current/history | Supported；显式生成/来源选择、固定结构编辑保存、重新生成/归档、历史搜索/只读/克隆恢复、stale/ignore；专用可信命令，共用版本锁 |
-| customer confirmation | Deferred；历史 snapshot / current C4.2 ownership 命令需明确接线，不能走 Browser confirmation |
-| export/batch metrics/copy/delete | Deferred；完整 saved-source export 与 workflow/audit 命令尚未接，不新增危险删除 |
-| Quote-to-Order / log viewer | Deferred；跨领域命令/可信日志读取 UI 尚未接，不读旧 Browser order/log |
+| customer confirmation | Supported for proven unlinked current PV；可信金额输入、saved-source/time、CAS/审计；历史只读，linked current writer 明确禁用，待 saved-PV 币种/Quote 编辑资格闭合 |
+| customer Excel / ZIP | Supported；内置正式模板、精确当前/所选历史、单/多PV；跨页稳定ID/版本、25张/100MB、警告/部分失败清单；不含 Estimate |
+| read-only log viewer | Supported；可信 Quote详情/全局有界分页与筛选、事件快照、audit_log.view/Estimate隔离，无 Browser IO |
+| internal batch metrics/copy/delete/Quote-to-Order | Deferred；未开放命令，不调用旧 Browser order/log |
 
 `npm run test:quote-server-ui` **requires a Server frontend build first** (Quote/master server, writable). Actual exported formal routes served by createApp + new PG/tmpfs + memory storage, fresh temporary Chromium profile,随机 loopback port（非3000/3001/3002）。**HISTORICAL PR #75 类型补齐12/12：**加工/经销 UI 创建、编辑保存、刷新/readback/list filter；打开页不创建、双击一次、类型初始化409/network保留ID且不重复POST、后续保存失败不重建；保留原 empty/auth/old sentinel、基础/三类成本/工价/未配置pricing/save/reload/list、附件后保存、实际页面 Blob 下载字节与 SHA-256、precision/409、404/403/network、Quick Create、27 条跨页搜索/准确total/无逐行GET。cleanup PASS。该阶段 Server auth/frontend38/38（persistence5/5）、disposable Quote API/编号21/21；API仍只接受POST `{}`。此前 API/附件20/20、fresh-start7/7 与 Server build PASS，不冒充当前 Estimate 测试数；其余 controller/source checks不是实际页面证据。
 
@@ -52,7 +53,7 @@ Follow-up 先证实 draft PV 创建错误变 quoting、两个同步入口 409/ne
 
 版本命令复用原快照与命名逻辑，不以 number 复制历史 decimal；null/zero 保留。dirty 先保存或取消、成本差异走显式同步选择；命令使用最新 expectedVersion，与保存/附件共用实例锁。前一步保存成功而后一步失败据实提示，不自动再次创建；409 与未知网络结果均阻止后续 mutation。实际 Chromium 同时覆盖加工/经销当前更新与历史分支、PV 独立编辑/删除/切换、历史只读、附件继承/新版本解绑后保存及旧关系不变；保留原下载 bytes/SHA、精度、Quick Create、Browser 隔离。Service API 测试强制关系插入/关联审计失败，完整 aggregate/版本/关系/日志均回滚；附件 binary 不复制或删除。
 
-该历史阶段旧 runtime/数据库/Browser/COS 完全不变，新 Server build 未部署。没有 SQL/schema/业务政策变化，D-096 historical import NOT REQUIRED。当时 Estimate/确认/导出/整单复制与删除/Revision 删除/转订单/日志查看仍未接；Estimate 的当前工程状态已由上节更新，其他动作仍未接，不是完整 Quote production-ready。
+该历史阶段旧 runtime/数据库/Browser/COS 完全不变，新 Server build 未部署。没有 SQL/schema/业务政策变化，D-096 historical import NOT REQUIRED。当时 Estimate/确认/导出/整单复制与删除/Revision 删除/转订单/日志查看仍未接；当前支持状态以本文件上方矩阵为准，不是完整 Quote production-ready。
 
 ## Actual initialization audit
 

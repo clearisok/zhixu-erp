@@ -26,7 +26,7 @@ export async function generateCustomerBatch(pool:Pool,storage:AttachmentStorage|
   // a global simultaneous multi-Quote snapshot. CAS is rechecked at generation.
   const jobs=await Promise.all(items.map(async(item,index)=>({item,index,record:await repository.getById(item.quoteId)})));
   const zip=new JSZip(), names=new Set<string>();let size=0, success=0;
-  const manifest:Array<{index:number;quoteId:string;sourceVersion:number;revisionId?:string;priceVersionIds?:string[];fileName?:string;sha256?:string;status:"success"|"failed";code?:string}>=[];
+  const manifest:Array<{index:number;quoteId:string;sourceVersion:number;quoteCode?:string;quoteStyleNo?:string;styleName?:string;revisionId?:string;revisionLabel?:string;priceVersionIds?:string[];priceVersions?:Array<{id:string;name:string;manufacturingCountry:string|null}>;warnings?:string[];fileName?:string;sha256?:string;status:"success"|"failed";code?:string}>=[];
   for(const {item,index,record}of jobs){
     try{
       if(!record)throw new HttpError(404,"quote_not_found","Quote not found");
@@ -37,11 +37,16 @@ export async function generateCustomerBatch(pool:Pool,storage:AttachmentStorage|
       let fileName=file.fileName, suffix=2;
       while(names.has(fileName.toLowerCase()))fileName=file.fileName.replace(/\.xlsx$/u,`_${suffix++}.xlsx`);
       names.add(fileName.toLowerCase());size+=file.bytes.length;zip.file(fileName,file.bytes);success++;
-      manifest.push({index,quoteId:item.quoteId,sourceVersion:file.sourceVersion,revisionId:file.revisionId,priceVersionIds:file.priceVersionIds,fileName,sha256:file.sha256,status:"success"});
+      manifest.push({index,quoteId:item.quoteId,sourceVersion:file.sourceVersion,quoteCode:record.quote.quoteCode,
+        quoteStyleNo:revision.baseInfo.quoteStyleNo,styleName:revision.baseInfo.styleName,revisionLabel:revision.revisionLabel,
+        revisionId:file.revisionId,priceVersionIds:file.priceVersionIds,
+        priceVersions:revision.priceVersions.map(p=>({id:p.id,name:p.name,manufacturingCountry:p.pricingParameters.manufacturingCountry})),
+        warnings:file.warnings,fileName,sha256:file.sha256,status:"success"});
     }catch(error){manifest.push({index,quoteId:item.quoteId,sourceVersion:item.expectedVersion,status:"failed",code:error instanceof HttpError?error.code:"customer_export_failed"});}
   }
   const failed=manifest.filter(i=>i.status==="failed").map(i=>({index:i.index,code:i.code}));
-  const report={selected:items.length,success,failed};
+  const warnings=manifest.filter(i=>i.warnings?.length).map(i=>({index:i.index,count:i.warnings!.length}));
+  const report={selected:items.length,success,failed,warnings};
   if(!success)return {report,bytes:null,fileName:null,sha256:null};
   zip.file("export-results.json",JSON.stringify({snapshot:"independent saved per-Quote versions; not a global snapshot",...report,items:manifest},null,2));
   const bytes=await zip.generateAsync({type:"nodebuffer",compression:"DEFLATE"});

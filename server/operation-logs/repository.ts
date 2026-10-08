@@ -7,6 +7,7 @@ import {
   type OperationLogData,
 } from "../../features/operation-logs/model/operation-log.js";
 import type { TrustedIdentity } from "../auth/session.js";
+import { projectOperationLogResponse, type OperationLogQuery } from "./query.js";
 
 export type ServerOperationLogInput = {
   operationId?: string;
@@ -58,7 +59,7 @@ type OperationLogRow = {
   after_data: OperationLogData | null;
   changes: OperationLogChange[];
   metadata: Record<string, unknown>;
-  created_at: Date;
+  created_at: Date | string;
 };
 
 function mapRow(row: OperationLogRow): ServerOperationLog {
@@ -78,7 +79,7 @@ function mapRow(row: OperationLogRow): ServerOperationLog {
     afterData: row.after_data,
     changes: row.changes,
     metadata: row.metadata,
-    createdAt: row.created_at.toISOString(),
+    createdAt: new Date(row.created_at).toISOString(),
   };
 }
 
@@ -136,4 +137,48 @@ export async function listOperationLogs(pool: Pool, limit = 100): Promise<Server
     [boundedLimit],
   );
   return result.rows.map(mapRow);
+}
+
+export type ServerOperationLogPage = {
+  logs: ServerOperationLog[];
+  page: { limit: number; offset: number; count: number; total: number; hasMore: boolean };
+};
+
+export async function queryOperationLogs(
+  pool: Pool,
+  query: OperationLogQuery,
+  actor: TrustedIdentity,
+): Promise<ServerOperationLogPage> {
+  const values: (string | number)[] = [];
+  const where: string[] = [];
+  const parameter = (value: string | number) => { values.push(value); return `$${values.length}`; };
+  if (query.quoteId !== undefined) where.push(`quote_id = ${parameter(query.quoteId)}`);
+  if (query.module !== undefined) where.push(`module = ${parameter(query.module)}`);
+  if (query.action !== undefined) where.push(`action = ${parameter(query.action)}`);
+  if (query.from !== undefined) where.push(`created_at >= ${parameter(query.from)}::timestamptz`);
+  if (query.to !== undefined) where.push(`created_at <= ${parameter(query.to)}::timestamptz`);
+  if (!actor.permissions.includes("estimate.view")) {
+    // Omit protected events before counting/paging: a smaller or empty page
+    // cannot expose their existence through total, hasMore or action filters.
+    where.push("entity_type <> 'EstimateCost'");
+    where.push("COALESCE(metadata->>'workflowAction','') NOT LIKE 'estimate.%'");
+    where.push("action NOT IN ('生成估算成本','恢复历史估算成本')");
+  }
+  const limit = parameter(query.limit), offset = parameter(query.offset);
+  const result = await pool.query<{ total: string; rows: OperationLogRow[] }>(
+    `WITH filtered AS (
+       SELECT * FROM operation_logs ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+     ), page AS (
+       SELECT * FROM filtered ORDER BY created_at DESC, id DESC LIMIT ${limit} OFFSET ${offset}
+     )
+     SELECT (SELECT count(*) FROM filtered)::text AS total,
+       COALESCE((SELECT jsonb_agg(to_jsonb(page) ORDER BY created_at DESC, id DESC) FROM page), '[]'::jsonb) AS rows`,
+    values,
+  );
+  const total = Number(result.rows[0].total);
+  const logs = result.rows[0].rows.map(row => projectOperationLogResponse(actor, mapRow(row)));
+  return {
+    logs,
+    page: { limit: query.limit, offset: query.offset, count: logs.length, total, hasMore: query.offset + logs.length < total },
+  };
 }

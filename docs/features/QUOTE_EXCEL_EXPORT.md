@@ -1,5 +1,13 @@
 # Quote Center Excel 报价导出
 
+## Current explicit Server export (2026-10-09; not deployment)
+
+`POST /api/v1/quotes/:id/customer-export` accepts only expectedVersion and exact Revision/PV selection. It reads saved snapshots, requires quote.view/export/cost.view (historical sources also quote.revision.view), uses the unchanged built-in template and shared pure ExcelJS core. Browser IndexedDB/custom-template/image IO stays in the original Browser adapter. One Revision is one workbook, one/all selected PVs are separate sheets; dirty UI offers saved-source export or save first, with no export after failed save.
+
+Current linked customer price comes from exact ConfirmedCommercialTerms, not a second editable PV current; an incomplete provenance fails closed. Historical export uses its own confirmation snapshot. Generation rechecks Quote CAS and linked terms before recording the trusted generation event. No Quote mutation, Estimate projection or claim about saving to user disk. Audit failure returns no file.
+
+Images use legal Server relations/storage and byte/SHA checks; PNG chunk CRC/decompression/dimensions and bounded JPEG structure are checked. Missing, corrupt or unsupported formats (including WebP without a Server conversion adapter) warn and omit the image; 401/403 do not become warnings. Server templates are not user-uploadable in this phase. Customer downloads are verified/parsed in isolated Chromium; exact executed counts are in AI_HANDOFF. The sections below describe the preserved Browser exporter unless explicitly stated otherwise.
+
 ## Purpose
 
 从已保存的 Quote Revision 生成正式 Excel 报价文件。导出以仓库模板为唯一视觉基准，不改变 Quote、QuoteRevision、PriceVersion 或 Repository。

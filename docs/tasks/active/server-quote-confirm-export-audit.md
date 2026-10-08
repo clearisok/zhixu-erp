@@ -6,10 +6,10 @@ Branch: `feat/server-quote-confirm-export-audit`; initial working tree clean.
 | Stage | Scope | Status |
 | --- | --- | --- |
 | A | Trusted current PV confirmation; linked-current ownership; existing UI | Unlinked API 8/8 + Chromium 37/37 PASS; linked write disabled (saved-PV currency/CAS gap) |
-| B | Built-in formal template, exact saved current/history Excel, trusted generation audit | API 7/7; Chromium 39/39 PASS (XLSX bytes/SHA/parse) |
-| C | Cross-page stable selection, customer XLSX ZIP, honest partial failures | API 7/7 + 3 new Chromium cases PASS; full rerun due old search mount race |
-| D | Server event pagination/filtering, Quote/global read-only logs, sensitive isolation | NOT RUN |
-| E | Combined disposable API/Chromium/regression/build validation and one PR | NOT RUN |
+| B | Built-in formal template, exact saved current/history Excel, trusted generation audit | API 10/10 PASS; current linked terms / history snapshot / incomplete provenance / image CRC included |
+| C | Cross-page stable selection, customer XLSX ZIP, honest partial failures | API 8/8 PASS; per-item warnings and safe identity snapshots retained |
+| D | Server event pagination/filtering, Quote/global read-only logs, sensitive isolation | API 7/7 + actual Quote/global UI case PASS; >100 events, detail, paging, empty/filter/fault/permissions |
+| E | Combined disposable API/Chromium/regression/build validation and one PR | API 64/64 + foundation/API/numbering 34/34; auth/frontend58/58; npm674/674; final Chromium/default build pending |
 
 One branch, stage checkpoint commits, one PR; no automatic merge/deployment. Default Browser behavior preserved; explicit Server only. All data/storage/accounts are synthetic/disposable. No real runtime/ports 3000–3002, DB, Browser profile, COS or secrets. D-096 historical import NOT REQUIRED.
 

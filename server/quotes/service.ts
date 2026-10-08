@@ -30,6 +30,8 @@ export type QuoteMutationContext = {
   method?: string;
   path?: string;
   workflowAction?: string;
+  revisionId?: string;
+  priceVersionId?: string;
 };
 
 export type QuoteRuntimeDependencies = {
@@ -106,21 +108,26 @@ function authorizeReplacement(actor: TrustedIdentity, before: ServerQuote, after
   }
 }
 
-function auditSnapshot(record: QuoteRecord | null) {
+function auditSnapshot(record: QuoteRecord | null, context: QuoteMutationContext = {}) {
   if (!record) return null;
-  const revision = record.quote.revisions.find((item) => item.revisionId === record.quote.defaultRevisionId);
+  const revision = record.quote.revisions.find((item) => item.revisionId === (context.revisionId ?? record.quote.defaultRevisionId));
+  const pv = revision?.priceVersions.find(p => p.id === context.priceVersionId);
   return {
     quoteCode: record.quote.quoteCode,
     quoteStyleNo: revision?.baseInfo.quoteStyleNo,
     styleName: revision?.baseInfo.styleName,
     revisionId: revision?.revisionId,
     revisionLabel: revision?.revisionLabel,
+    ...(pv ? {priceVersionId:pv.id,priceVersionName:pv.name,laborCurrency:pv.pricingParameters.laborCurrency} : {}),
     values: {
       aggregateVersion: record.version,
       aggregateStatus: record.quote.aggregateStatus,
       revisionCount: record.quote.revisions.length,
       priceVersionCount: revision?.priceVersions.length ?? 0,
       estimateHistoryCount: record.quote.estimateCostHistory.length,
+      ...(context.workflowAction === "confirmation.save" ? {confirmedLaborPrice:pv?.confirmation?.confirmedLaborPrice ?? null,
+        confirmedGarmentPrice:pv?.confirmation?.confirmedGarmentPrice ?? null, confirmationNote:pv?.confirmation?.note ?? null,
+        confirmedAt:pv?.confirmation?.confirmedAt ?? null} : {}),
     },
   };
 }
@@ -140,9 +147,11 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
         requestId: context.requestId ?? null,
         method: context.method ?? null,
         path: context.path ?? null,
+        ...(context.revisionId ? {revisionId:context.revisionId} : {}),
+        ...(context.priceVersionId ? {priceVersionId:context.priceVersionId} : {}),
       },
-      beforeData: auditSnapshot(mutation.before),
-      afterData: auditSnapshot(mutation.after),
+      beforeData: auditSnapshot(mutation.before, context),
+      afterData: auditSnapshot(mutation.after, context),
       metadata: {
         mutationKind: mutation.kind,
         beforeVersion: mutation.before?.version ?? null,
@@ -180,7 +189,7 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
         const linked = await findSalesOrderIdsByQuoteProvenance(client, { quoteId, revisionId: command.revisionId, priceVersionId: command.priceVersionId });
         const partial = await client.query("SELECT 1 FROM sales_orders WHERE source_quote_id=$1 AND (source_revision_id IS NULL OR source_price_version_id IS NULL) LIMIT 1", [quoteId]);
         if (linked.length || partial.rowCount) throw new HttpError(409, "quote_confirmation_linked_read_only", "Linked current confirmation must use shared terms; this writer is unavailable");
-        await audit(actor, { ...context, workflowAction: command.action })(client, mutation);
+        await audit(actor, { ...context, workflowAction: command.action, revisionId:command.revisionId,priceVersionId:command.priceVersionId })(client, mutation);
       }));
     },
     async getForActor(actor: TrustedIdentity, id: string) {
@@ -207,7 +216,9 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
       if (before.version !== command.expectedVersion) throw new QuoteConflictError();
       const next = applyQuoteVersionCommand(before.quote, command, { id: nextUuid, actor: actor.userName, now: now().toISOString() });
       authorizeReplacement(actor, before.quote, next);
-      return projectQuoteResponse(actor, await repository.save(next, command.expectedVersion, audit(actor, { ...context, workflowAction: command.action })));
+      return projectQuoteResponse(actor, await repository.save(next, command.expectedVersion, audit(actor, { ...context, workflowAction: command.action,
+        revisionId:command.action==="revision.create"?next.defaultRevisionId:command.revisionId,
+        ...(command.action!=="revision.create"?{priceVersionId:command.action==="price.create"?next.revisions.find(r=>r.revisionId===command.revisionId)?.priceVersions.at(-1)?.id:command.priceVersionId}:{}) })));
     },
     async createRuntimeDraft(actor: TrustedIdentity, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.create");
