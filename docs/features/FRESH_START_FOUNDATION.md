@@ -23,8 +23,8 @@ Foundation 原 Gate 验证新 disposable DB；后续 D-097 已接通正式 Serve
 | basic info/current PV costs/pricing/save/reload | Supported；原 Editor + exact adapter/expectedVersion |
 | Q3 selectors/defaults/Quick Create | Supported；原 Server master dependencies，无 Browser writer |
 | current Revision upload/rename/unlink/style/preview/download | Supported；既有专用 controller，历史共享 rename 限制保持 |
-| Revision creation/management/history navigation | Deferred；需可信 workflow commands + 不可变历史 UI，不恢复 mock workflow |
-| PV create/delete/name workflow | Deferred；需可信独立 workflow；单个当前 PV 数量与成本可编辑 |
+| Revision creation/management/history navigation | Supported；当前/所选历史创建新默认快照、原 Vn/分支规则、历史只读/返回当前；可信 command + 原 repository 单事务 |
+| PV create/delete/name workflow | Supported；复制所选已保存 PV、编辑名称/数量/说明、删除非最后 PV/切换；新 owner IDs，独立成本/参数快照，清除复制确认 |
 | Estimate current/history | Deferred；schema 可保存，但生成/恢复/归档命令和正式 UI 尚未接 |
 | customer confirmation | Deferred；历史 snapshot / current C4.2 ownership 命令需明确接线，不能走 Browser confirmation |
 | export/batch metrics/copy/delete | Deferred；完整 saved-source export 与 workflow/audit 命令尚未接，不新增危险删除 |
@@ -34,7 +34,13 @@ Foundation 原 Gate 验证新 disposable DB；后续 D-097 已接通正式 Serve
 
 最终显式 Server frontend 与独立子进程默认 Browser frontend 均构建41 routes；默认 build-info Quote/master authority=browser、writer=writable，未修改 .env 或生产默认值，未留下临时 authority 环境。最终质量结果见 AI_HANDOFF；无完整 PG/COS suite 重跑或真实部署。
 
-当前旧 runtime/数据库/Browser/COS 完全不变，新 Server build 未部署。没有 SQL/schema/业务政策变化，D-096 historical import NOT REQUIRED。
+### Latest Server version workflows verification (2026-10-08)
+
+上方 12/12、38/38、21/21 是 PR #75 基本闭环历史证据，不作本轮数字。本轮实跑版本 command service/API disposable 9/9、Quote API/附件/foundation33/33、auth/frontend39/39（persistence6/6）、实际 Chromium14/14、npm test673/673；typecheck/lint/Server build/显式 Server frontend/默认 Browser frontend/diff-check PASS，两个 frontend 均41 routes，默认 build-info Quote/master=browser、writer=writable。未重跑 full PostgreSQL/COS suite。
+
+版本命令复用原快照与命名逻辑，不以 number 复制历史 decimal；null/zero 保留。dirty 先保存或取消、成本差异走显式同步选择；命令使用最新 expectedVersion，与保存/附件共用实例锁。前一步保存成功而后一步失败据实提示，不自动再次创建；409 与未知网络结果均阻止后续 mutation。实际 Chromium 同时覆盖加工/经销当前更新与历史分支、PV 独立编辑/删除/切换、历史只读、附件继承/新版本解绑后保存及旧关系不变；保留原下载 bytes/SHA、精度、Quick Create、Browser 隔离。Service API 测试强制关系插入/关联审计失败，完整 aggregate/版本/关系/日志均回滚；附件 binary 不复制或删除。
+
+当前旧 runtime/数据库/Browser/COS 完全不变，新 Server build 未部署。没有 SQL/schema/业务政策变化，D-096 historical import NOT REQUIRED。Estimate/确认/导出/整单复制与删除/Revision 删除/转订单/日志查看仍未接，不是完整 Quote production-ready。
 
 ## Actual initialization audit
 

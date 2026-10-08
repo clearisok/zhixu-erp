@@ -9,6 +9,8 @@ import { tmpdir } from "node:os";
 import { join, resolve, sep } from "node:path";
 import { assertRuntimeBuildIdentity } from "../../../../server/build-identity";
 import type { QuoteAttachmentController } from "../../model/quote-attachment-controller";
+import { quoteServerClient } from "../quote-server-client";
+import { quoteSnapshotFromBrowser } from "../../../../server/quotes/model";
 
 test("compiled Quote authority and runtime must agree; malformed identity/illegal master combination reject", async () => {
   const directory = await mkdtemp(join(tmpdir(), "quote-authority-test-"));
@@ -118,4 +120,37 @@ test("attachment/aggregate share the write lock; uncertain attachment failure pr
   await assert.rejects(controller.unlink(quote.revisions[0], "synthetic-id"));
   assert.equal(unlinkCalls, 1);
   assert.deepEqual(versions, [2]);
+});
+
+test("version commands share save/attachment lock, use latest confirmed version and block after uncertainty", async () => {
+  const quote = createSyntheticQuoteFixture("version-write-lock");
+  let release!: () => void;
+  const wait = new Promise<void>(done => { release = done; });
+  const versions: number[] = [];
+  let calls = 0;
+  const persistence = createQuoteEditorPersistence({ quote, expectedVersion: 4 }, {
+    async load() { throw new Error("not used"); },
+    async save(next, expectedVersion) { return { quote: next, expectedVersion: expectedVersion + 1 }; },
+  }, { ...quoteServerClient, async versionWorkflow(_id, command) {
+    calls++; versions.push(command.expectedVersion);
+    if (calls > 1) throw new Error("Uncertain transport outcome");
+    await wait;
+    return { quote: quoteSnapshotFromBrowser(quote), version: command.expectedVersion + 1 };
+  } });
+  await persistence.save(quote);
+  const command = { action: "revision.create" as const, sourceRevisionId: quote.defaultRevisionId, reason: "其他" as const, note: "" };
+  const pending = persistence.workflow(command);
+  await assert.rejects(persistence.workflow(command));
+  await assert.rejects(persistence.save(quote));
+  const reject = async () => { throw new Error("must not be called"); };
+  const raw: QuoteAttachmentController = { mode: "server", style: reject, load: reject, get: reject, blob: reject, upload: reject, rename: reject, unlink: reject, canRename: () => false };
+  await assert.rejects(persistence.coordinate(raw).style(quote.revisions[0], null));
+  release(); await pending;
+  assert.equal(persistence.getVersion(), 6);
+  const before = persistence.getBaseline();
+  await assert.rejects(persistence.workflow(command));
+  await assert.rejects(persistence.workflow(command));
+  await assert.rejects(persistence.save(quote));
+  assert.equal(calls, 2); assert.deepEqual(versions, [5, 6]);
+  assert.equal(persistence.getVersion(), 6); assert.deepEqual(persistence.getBaseline(), before);
 });

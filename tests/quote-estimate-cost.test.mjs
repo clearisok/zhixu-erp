@@ -73,7 +73,7 @@ test("EstimateCost UI 将成本入口置于 V1 前，固定结构没有新增或
   assert.doesNotMatch(panel, /onDelete=/);
 });
 
-test("从成本页签发起更新时先回到当前默认 Revision，更新表单不会被成本分支遮挡", async () => {
+test("Browser 成本页签更新保持默认 Revision；Server 更新保留已选历史来源", async () => {
   const source = await readFile(new URL("../features/quote-center/components/revision-manager-modal.tsx", import.meta.url), "utf8");
-  assert.match(source, /const beginUpdate = \(\) => \{\s*setSelectedId\(quote\.defaultRevisionId\);\s*setCopyDecisionOpen\(true\);/);
+  assert.match(source, /const beginUpdate = \(\) => \{\s*if \(!serverMode\) setSelectedId\(quote\.defaultRevisionId\);\s*setCopyDecisionOpen\(true\);/);
 });

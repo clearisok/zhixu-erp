@@ -54,6 +54,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     let commandId = 0;
     const pending = new Map();
     let sessionId;
+    let acceptDialogs = true;
     const requests = [];
     const completedRequests = new Set();
     let failureStatus = 0;
@@ -63,7 +64,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       if (entry) { pending.delete(reply.id); if (reply.error) entry.reject(new Error(JSON.stringify(reply.error))); else entry.done(reply.result); }
       if (reply.method === "Network.requestWillBeSent" && reply.params.request.url.includes("/api/")) requests.push({ requestId: reply.params.requestId, method: reply.params.request.method, path: new URL(reply.params.request.url).pathname });
       if (reply.method === "Network.loadingFinished") completedRequests.add(reply.params.requestId);
-      if (reply.method === "Page.javascriptDialogOpening") void command("Page.handleJavaScriptDialog", { accept: true }, sessionId);
+      if (reply.method === "Page.javascriptDialogOpening") void command("Page.handleJavaScriptDialog", { accept: acceptDialogs }, sessionId);
       if (reply.method === "Fetch.requestPaused") void command(failureStatus ? "Fetch.fulfillRequest" : "Fetch.failRequest", failureStatus ? { requestId: reply.params.requestId, responseCode: failureStatus, responseHeaders: [{ name: "Content-Type", value: "application/json" }], body: Buffer.from(JSON.stringify({ error: { code: "quote_conflict", message: "Synthetic version conflict" } })).toString("base64") } : { requestId: reply.params.requestId, errorReason: "ConnectionFailed" }, sessionId);
     });
     const command = (method, params = {}, session) => new Promise((done, reject) => {
@@ -92,9 +93,15 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     const hasText = (value) => until(async () => (await text()).includes(value), value);
     const navigate = async (path) => { await command("Page.navigate", { url: origin + path }, sessionId); await until(async () => await evaluate(`location.pathname===${JSON.stringify(path.split("?")[0])} && document.readyState==='complete'`), path); };
     const input = async (selector, value) => evaluate(`(()=>{const node=document.querySelector(${JSON.stringify(selector)});if(!node)throw new Error('input missing');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));node.dispatchEvent(new Event('change',{bubbles:true}));})()`);
-    const labelInput = async (label, value) => evaluate(`(()=>{const node=[...document.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent?.startsWith(${JSON.stringify(label)}))?.querySelector('input,textarea');if(!node)throw new Error('label input missing: '+${JSON.stringify(label)});Object.getOwnPropertyDescriptor(node.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+    const labelInput = async (label, value) => evaluate(`(()=>{const root=[...document.querySelectorAll('[role="dialog"]')].filter(n=>n.getClientRects().length).at(-1)||document;const node=[...root.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent?.startsWith(${JSON.stringify(label)}))?.querySelector('input,textarea');if(!node)throw new Error('label input missing: '+${JSON.stringify(label)});Object.getOwnPropertyDescriptor(node.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));})()`);
     const click = async (label) => evaluate(`(()=>{const node=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()===${JSON.stringify(label)}&&!n.disabled&&n.getClientRects().length);if(!node)throw new Error('button missing: '+${JSON.stringify(label)});node.click();})()`);
     const selectType = async (type) => evaluate(`(() => { const select=[...document.querySelectorAll('label.qc-form-item')].find(n=>n.getClientRects().length && n.querySelector('span')?.textContent?.startsWith('报价类型'))?.querySelector('select');if(!select)throw new Error('Formal new Quote type selector missing');select.value=${JSON.stringify(type)};select.dispatchEvent(new Event('change',{bubbles:true})); })()`);
+    const action = async (label) => {
+      if (!await evaluate(`[...document.querySelectorAll('button')].some(n=>n.textContent.trim()===${JSON.stringify(label)} && n.getClientRects().length)`)) {
+        await evaluate("[...document.querySelectorAll('button')].find(n=>n.getAttribute('aria-label')==='更多报价操作').click()");
+      }
+      await click(label);
+    };
     const isolated = async () => {
       assert.deepEqual(await evaluate("businessAccess"), [], "No Browser business repository access");
       assert.equal(await evaluate("oldSentinel()"), "synthetic-old-business-sentinel");
@@ -254,6 +261,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       assert.equal(literal.page.total, 0, "LIKE wildcard is escaped");
       assert.equal(await quoteCount(), 27);
     });
+    let processingQuoteId;
     await t.test("formal new UI selects processing, saves and reloads it, list type filter finds it", async () => {
       const countBefore = await quoteCount();
       await navigate("/quote-center/new"); await hasText("创建报价");
@@ -263,6 +271,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await until(async () => await evaluate("location.pathname==='/quote-center/detail'"), "processing detail");
       await hasText("加工报价"); await hasText("Server 报价 · v2");
       const processingId = await evaluate("new URLSearchParams(location.search).get('id')");
+      processingQuoteId = processingId;
       const processingRecord = () => evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(processingId)}).then(r=>r.json()).then(r=>r.quote)`);
       assert.equal((await processingRecord()).quote.revisions[0].baseInfo.quoteType, "processing");
       await labelInput("款式名称", "Synthetic processing Quote"); await click("保存草稿");
@@ -316,6 +325,91 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await navigate("/quote-center"); await hasText("本页"); await selectType("distribution");
       await input('input[aria-label="搜索报价"]', "SYNTHETIC-UI-STYLE");
       await hasText("本页 1 / 总计 1"); await hasText(code); await hasText("经销 / draft"); await isolated();
+    });
+    for (const workflowId of [quoteId, processingQuoteId]) await t.test(`actual PV/Revision workflows, saved selected history and attachment inheritance: ${workflowId === quoteId ? "distribution" : "processing"}`, async () => {
+      const read = () => evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(workflowId)}).then(r=>r.json()).then(r=>r.quote)`);
+      // Complete synthetic source requirements; workflow mutations themselves use actual UI only.
+      await navigate(`/quote-center/detail?id=${workflowId}`); await hasText("Server 报价");
+      const initial = await read(); const base = initial.quote.revisions[0];
+      base.baseInfo.brandId ||= "synthetic-brand"; base.baseInfo.salespersonId = "synthetic-person"; base.baseInfo.salespersonName = "Synthetic Person";
+      base.baseInfo.quoteStyleNo ||= "SYNTHETIC-WORKFLOW"; base.baseInfo.styleName ||= "Synthetic workflow";
+      base.priceVersions[0].quantity = "1"; base.priceVersions[0].labor.value = "0";
+      base.priceVersions[0].trims.forEach(row=>{row.usage??="0";row.unitPrice??="0";});
+      await evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(workflowId)},{method:'PUT',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:${JSON.stringify(JSON.stringify({quote:initial.quote,expectedVersion:initial.version}))}}).then(r=>{if(!r.ok)throw new Error('synthetic preparation failed')})`);
+      await navigate(`/quote-center/detail?id=${workflowId}`); await hasText(`Server 报价 · v${initial.version + 1}`);
+      const original = await read();
+      await labelInput("款式名称", "UNSAVED-CANCELLED-WORKFLOW");
+      acceptDialogs = false;
+      await action("创建价格版本"); await labelInput("价格版本名称", "Cancelled"); await labelInput("数量", "2"); await click("确认创建");
+      await sleep(150); assert.equal((await read()).version,original.version); assert.ok(await evaluate("[...document.querySelectorAll('input')].some(n=>n.value==='UNSAVED-CANCELLED-WORKFLOW')"));
+      await click("取消"); acceptDialogs = true;
+      // Reopening explicitly discards this synthetic cancelled draft, not business data.
+      await navigate(`/quote-center/detail?id=${workflowId}`); await hasText(`Server 报价 · v${original.version}`);
+      await action("创建价格版本"); await hasText("价格版本名称");
+      await labelInput("价格版本名称", "Synthetic parallel"); await labelInput("数量", "2"); await labelInput("说明", "Independent scenario");
+      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='确认创建');b.click();b.click();})()"); await until(async()=> (await read()).version===original.version+1,"PV create");
+      const copied = await read(); const pv = copied.quote.revisions[0].priceVersions[1];
+      assert.equal(pv.quantity,"2"); assert.equal(copied.quote.revisions[0].priceVersions[0].quantity,"1");
+      assert.notEqual(pv.id,original.quote.revisions[0].priceVersions[0].id); assert.equal(pv.confirmation,null);
+      if(pv.fabrics.length) assert.notEqual(pv.fabrics[0].id,original.quote.revisions[0].priceVersions[0].fabrics[0].id);
+      await labelInput("原始工价", "19"); await click("保存草稿"); await until(async()=> (await read()).version===copied.version+1,"parallel cost save");
+      assert.equal((await read()).quote.revisions[0].priceVersions[0].labor.value,"0");
+      await action("编辑价格版本"); await labelInput("价格版本名称", "Renamed scenario"); await labelInput("数量", "3"); await click("保存修改");
+      await until(async()=> (await read()).quote.revisions[0].priceVersions[1].name==="Renamed scenario","PV rename");
+      await navigate(`/quote-center/detail?id=${workflowId}`); await hasText("Renamed scenario");
+      await evaluate("[...document.querySelectorAll('.qc-version-card')].find(n=>n.innerText.includes('Renamed scenario')).click()");
+      await action("编辑价格版本"); await click("删除价格版本"); await click("确认删除");
+      await until(async()=> (await read()).quote.revisions[0].priceVersions.length===1,"PV delete");
+      await action("编辑价格版本"); await click("删除价格版本"); await hasText("不能删除最后一个"); await click("取消");
+      const source = await read();
+      await click("查看报价历史"); await click("更新"); await click("是");
+      await evaluate("[...document.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent==='更新原因 *').querySelector('button').click()");
+      await click("其他"); await click("确认创建新报价版本");
+      await until(async()=> (await read()).quote.revisions.length===2,"Revision V2");
+      const v2 = await read(); assert.equal(v2.quote.revisions[0].readOnly,true); assert.equal(v2.quote.revisions[1].revisionLabel,"V2");
+      assert.equal(v2.quote.revisions[1].priceVersions[0].id,source.quote.revisions[0].priceVersions[0].id);
+      assert.deepEqual(v2.quote.revisions[1].imageAttachmentIds,source.quote.revisions[0].imageAttachmentIds);
+      assert.equal(storage.objects.size,1,"No binary copy for new Revision");
+      if (workflowId === quoteId) {
+        await evaluate("document.querySelector('button[aria-label=\"synthetic.png 更多操作\"]').click()"); await click("删除"); await click("确认删除");
+        await until(async()=> (await read()).quote.revisions[1].imageAttachmentIds.length===0,"new Revision unlink");
+        assert.equal((await read()).quote.revisions[0].imageAttachmentIds.length,1,"Unlink leaves history relationship unchanged");
+        assert.equal(storage.objects.size,1,"Unlink never deletes binary");
+        await until(async()=> evaluate("![...document.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent?.startsWith('原始工价')).querySelector('input').matches(':disabled')"),"attachment write lock released");
+      }
+      await labelInput("原始工价", "55"); await click("保存草稿"); await until(async()=> (await read()).quote.revisions[1].priceVersions[0].labor.value==="55","V2 independent edit");
+      await click("查看报价历史");
+      await evaluate("[...document.querySelectorAll('.qc-revision-pill')].find(n=>n.querySelector('.qc-revision-label')?.textContent==='V1').click()");
+      await click("更新"); await click("是");
+      await evaluate("[...document.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent==='更新原因 *').querySelector('button').click()");
+      await click("其他"); await click("确认创建新报价版本");
+      await until(async()=> (await read()).quote.revisions.length===3,"selected historical branch");
+      const branch = await read(); assert.equal(branch.quote.revisions[2].revisionLabel,"V1²"); assert.equal(branch.quote.revisions[2].parentRevisionId,source.quote.defaultRevisionId);
+      assert.equal(branch.quote.revisions[2].priceVersions[0].labor.value,"0","Branch uses selected saved V1, not V2");
+      await navigate(`/quote-center/detail?id=${workflowId}`); await hasText("V1");
+      const beforeView = requests.filter(r=>r.method!=="GET").length;
+      await click("查看报价历史"); await evaluate("[...document.querySelectorAll('.qc-revision-pill')].find(n=>n.querySelector('.qc-revision-label')?.textContent==='V1').click()"); await click("查看"); await hasText("历史只读");
+      assert.equal(requests.filter(r=>r.method!=="GET").length,beforeView,"History view is read-only");
+      await action("返回当前版本"); await hasText("当前编辑"); await isolated();
+      const beforeFailure = await read();
+      // A dirty-save succeeds first; failing the subsequent command must report both stages truthfully.
+      await labelInput("款式名称", "SAVED-BEFORE-WORKFLOW-FAILURE");
+      await action("创建价格版本"); await labelInput("价格版本名称", "Must not exist"); await labelInput("数量", "2");
+      failureStatus=409;
+      await command("Fetch.enable",{patterns:[{urlPattern:"*/version-workflows",requestStage:"Request"}]},sessionId);
+      try { await click("确认创建"); await hasText("前一步草稿已保存"); await hasText("HTTP 409"); }
+      finally { await command("Fetch.disable",{},sessionId); failureStatus=0; }
+      const failed = await read(); assert.equal(failed.version,beforeFailure.version+1); assert.equal(failed.quote.revisions.at(-1).priceVersions.length,1);
+      assert.equal(failed.quote.defaultRevisionId,beforeFailure.quote.defaultRevisionId); await isolated();
+      await navigate(`/quote-center/detail?id=${workflowId}`); await hasText("当前编辑");
+      const beforeNetwork = await read();
+      await action("创建价格版本"); await labelInput("价格版本名称", "Uncertain scenario"); await labelInput("数量", "2");
+      const mutationCount = requests.filter(r=>r.path.endsWith("/version-workflows")).length;
+      await command("Fetch.enable",{patterns:[{urlPattern:"*/version-workflows",requestStage:"Request"}]},sessionId);
+      try { await click("确认创建"); await hasText("版本操作未确认"); }
+      finally { await command("Fetch.disable",{},sessionId); }
+      assert.equal(requests.filter(r=>r.path.endsWith("/version-workflows")).length, mutationCount + 1);
+      assert.deepEqual(await read(), beforeNetwork); await isolated();
     });
     await command("Browser.close");
   } finally {

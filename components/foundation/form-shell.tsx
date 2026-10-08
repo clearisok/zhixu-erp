@@ -17,6 +17,9 @@ export const FormShell = forwardRef<HTMLFormElement, Omit<FormHTMLAttributes<HTM
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    // Portal dialogs remain React descendants of the editor form. Their submit
+    // must not also invoke the outer aggregate save while an attachment is busy.
+    event.stopPropagation();
     if (submittingRef.current) return;
     submittingRef.current = true;
     setSubmitting(true);
