@@ -4,6 +4,8 @@
 
 ## 当前阶段
 
+- **Quote Server overnight batch 工程验收完成，远端交付 PARTIAL。** 未关联当前PV确认、客户Excel/跨页ZIP、Quote详情/全局只读日志已接线；linked current writer仍明确禁用，缺saved-PV币种/Quote CAS编辑资格，不回退本地。最终Chromium47/47、相关disposable集成64/64+34/34、auth/frontend58/58、npm674/674、质量/Server与两模式frontend/cleanup PASS；最终默认build-info browser/browser/writable。首次push connection reset后按本轮授权只继续本地checkpoints，PR尚未创建；恢复命令与阶段commit见AI_HANDOFF。没有真实部署、schema/角色变更或历史导入，完整报价production-ready仍不宣称。
+
 - **当前上线方向：D-096 Fresh Start Foundation。** 用户确认新系统所有业务数据（含基础资料/订单）从空开始，旧环境保留。Q5 historical import = **NOT REQUIRED**；fresh Browser source、迁移 freeze/rehearsal、Q5 VerifyOnly/Execute 不再是当前上线 blocker。历史 Gate PASS、已完成 Q3 import/cutover、旧数据保护均保持。
 - **空库工程验证 PASS（非真实部署）。** 新 disposable PG16/tmpfs 由正式 runner 应用 0001–0008；实际 startup sequence + 临时 HTTP API 首次/再次启动仅生成技术白名单，23 张业务表全部 0；Server-only 空读/未配置 defaults/故障 fail-closed、显式新 Quote 保存读回及新品牌创建验证通过。未改 SQL checksum、业务初始化逻辑或旧 Browser namespace。
 - **新 Server Quote 基本闭环已实现并隔离验收（D-097），未真实部署。** 显式 quoteAuthority=server + masters=server + writer=writable 时，正式 `/quote-center` / `new` / `detail` 复用 QuoteEditor、typed Server writer、Q3 defaults 与附件专用 controller。默认 browser 分支与当前旧 runtime 保持 mockQuoteRepository，不改变旧数据。

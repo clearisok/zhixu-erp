@@ -18,6 +18,7 @@ import { synchronizePermissionCatalog } from "../auth/permissions.ts";
 import { MemoryAttachmentStorage } from "../attachments/storage.ts";
 import { startDisposablePostgres } from "./postgres-container.ts";
 import { appendOperationLog } from "../operation-logs/repository.ts";
+import { parseQuoteExportTemplateLayout } from "../../features/quote-center/export/quote-export-template-layout.ts";
 
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 async function until(read, label) {
@@ -710,6 +711,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await loginAs("admin");const {id,read}=await prepareEstimateQuote(type);
       if(type==="processing"){
         const fixture=await read(),pv=fixture.quote.revisions[0].priceVersions[1];pv.pricingParameters.laborCurrency="USD";pv.pricingParameters.usdCnyRate="6.75";pv.pricingParameters.markupRate="0.25";
+        const original=pv.fabrics[0];pv.fabrics.push(...Array.from({length:6},(_,i)=>({...original,id:`dynamic-fabric-${i}`,lineGroupId:`dynamic-group-${i}`,name:`Synthetic dynamic fabric ${i}`,unitPrice:i===0?null:i===1?"0":"12.25"})));
         await evaluate(`fetch('/api/v1/quotes/${id}',{method:'PUT',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(${JSON.stringify({quote:fixture.quote,expectedVersion:fixture.version})})}).then(r=>{if(!r.ok)throw new Error('currency fixture failed')})`);
         await navigate(`/quote-center/detail?id=${id}`);await hasText('Server 报价 · v');
       }
@@ -720,7 +722,12 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const workbook=new ExcelJS.Workbook();await workbook.xlsx.load(bytes);
       assert.equal(workbook.worksheets.length,2);assert.ok(workbook.worksheets.every(s=>s.pageSetup.printArea));
       const cells=JSON.stringify(workbook.worksheets.map(s=>s.getSheetValues()));assert.ok(cells.includes("Synthetic estimate fabric"));assert.ok(!cells.includes("PRIVATE-ESTIMATE"));
-      if(type==="processing")assert.ok(cells.includes("USD"),"Selected PV keeps its own USD labor snapshot");
+      if(type==="processing"){
+        assert.ok(cells.includes("USD"),"Selected PV keeps its own USD labor snapshot");const sheet=workbook.worksheets[1],templateWorkbook=new ExcelJS.Workbook();await templateWorkbook.xlsx.load(readFileSync(resolve('templates/quote-export-template-v1.xlsx')));const layout=parseQuoteExportTemplateLayout(templateWorkbook.worksheets[0]);
+        for(let i=0;i<6;i++)assert.ok(cells.includes(`Synthetic dynamic fabric ${i}`),"Dynamic cost rows are not clipped");
+        const findPrice=name=>{let row;sheet.eachRow(r=>{if(r.getCell(layout.sections.fabric.columns.name).value===name)row=r;});assert.ok(row);return row.getCell(layout.sections.fabric.columns.unitPrice).value;};
+        assert.equal(findPrice('Synthetic dynamic fabric 0'),null);assert.equal(findPrice('Synthetic dynamic fabric 1'),0);assert.equal(findPrice('Synthetic dynamic fabric 2'),12.25);
+      }
       assert.deepEqual(await read(),before);await isolated();assert.deepEqual(await evaluate("unhandledRejections"),[]);
       t.diagnostic(`Customer XLSX ${type}: ${bytes.length} bytes SHA-256 ${createHash("sha256").update(bytes).digest("hex")} parsed`);
     });
@@ -732,6 +739,15 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const file=await evaluate("(async()=>{const f=generatedDownloads.at(-1);return {name:f.name,bytes:Array.from(new Uint8Array(await f.blob.arrayBuffer()))}})()");
       const bytes=Buffer.from(file.bytes),wb=new ExcelJS.Workbook();await wb.xlsx.load(bytes);assert.equal(wb.worksheets.length,1);assert.equal(wb.worksheets[0].getImages().length,1);assert.ok(JSON.stringify(wb.worksheets[0].getSheetValues()).includes(history.baseInfo.styleName));
       assert.ok(file.name.includes('V1'));assert.deepEqual(await record(),before);await isolated();t.diagnostic(`Historical customer XLSX: ${bytes.length} bytes SHA-256 ${createHash('sha256').update(bytes).digest('hex')} image/source parsed`);
+    });
+    await t.test('actual trusted export without estimate.view omits active/history leakage probes',async()=>{
+      await loginAs('viewer');
+      try{
+        await navigate(`/quote-center/detail?id=${permissionQuote}`);await hasText('Server 报价 · v');await action('导出报价');
+        if((await text()).includes('发现未确认的价格版本差异'))await click('仍然导出');await hasText('内置正式模板');await click('导出 Excel');await hasText('已生成并提供下载');
+        const raw=await evaluate("(async()=>Array.from(new Uint8Array(await generatedDownloads.at(-1).blob.arrayBuffer())))()"),wb=new ExcelJS.Workbook();await wb.xlsx.load(Buffer.from(raw));
+        assert.doesNotMatch(JSON.stringify(wb.worksheets.map(s=>s.getSheetValues())),/PRIVATE-ESTIMATE-UI-PROBE|activeEstimateCost|estimateCostHistory/);await assertNoEstimate();
+      }finally{await loginAs('admin');}
     });
     for(const partial of [false,true])await t.test(`actual cross-page customer ZIP ${partial?"partial stale failure":"saved collection"}`,async()=>{
       await loginAs("admin");await navigate("/quote-center");await hasText("本页 25");await click("批量客户报价");

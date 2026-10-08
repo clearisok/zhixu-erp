@@ -3,13 +3,13 @@
 ## Current: Quote Server confirmation / export / audit batch（2026-10-09）
 
 - Base PR #77 merge `abd2587959fa3341c6de61d0bcd2d67b4cb66802`，branch `feat/server-quote-confirm-export-audit`，起始 clean。规格/阶段表见 `tasks/active/server-quote-confirm-export-audit.md`。
-- A checkpoint：未关联确认 API 8/8、实际 Chromium 37/37 PASS，保留此前 33 项回归。linked current 写入明确禁用：共享 writer 尚缺 saved-PV 币种与 Quote CAS 编辑资格闭合，不回退独立快照。B pure workbook extraction 已准备但未纳入 A checkpoint；接下来 B/C/D/E。
-- 每阶段定向验收/接力/checkpoint commit/push，直接继续 A→E；一个 PR，不 merge。纯网络故障只尝试一次后停止远端写，允许可靠本地 checkpoints 继续（仅本任务例外）。
+- A 未关联确认工程 PASS：加工/经销、0、更新、多PV部分/全部、dirty取消/保存后确认失败、409/network、可信权限、CAS/审计/历史保护均验收。Linked current writer 明确禁用：共享服务尚缺 saved-PV 币种与 Quote CAS 编辑资格闭合，不回退独立快照；不是新业务规则。
+- B/C/D 工程 PASS：内置模板 current/explicit history、单/多PV、客户 XLSX/跨页 ZIP；当前linked价来自CCT、历史snapshot、不完整provenance拒绝、PNG CRC/安全warnings；ZIP真实集合/重名/部分与全失败/边界。Quote modal与全局DataTable/Drawer显示持久化context/metadata/before/after，无当前Quote反推；严格Server筛选/paging/total、audit/Estimate权限隔离，读取不写日志。
 - 仅 disposable PG/tmpfs、临时 Chromium/合成账号/storage；不操作真实 runtime、DB、Browser、COS、secrets。默认 Browser不变；D-096 historical import NOT REQUIRED。
 - A 本地 checkpoint `760abb9`；push 一次明确 connection reset，REMOTE DELIVERY BLOCKED。停止后续远端写入，按本任务授权继续独立本地 B/C/D/E。最后确认远端 base 为 `abd2587959fa3341c6de61d0bcd2d67b4cb66802`；未确认任务分支存在。
-- B：pure ExcelJS core / 内置模板已接 Server；disposable export API 7/7、Chromium 39/39（含真实 XLSX byte/SHA/解析）PASS。历史精确来源、CAS、PNG 合法关系、Estimate 不进入客户投影；审计失败不提供文件。模板未改；镜像仅增加模板资源 COPY（无真实 Docker 操作）。C/D 尚未验收。
-- C 定向：disposable batch API 7/7；跨页真实 ZIP/部分 stale/25 项上限 3 个页面用例 PASS。42 项联合回归此前1个旧 cost-sync用例在导航后 search input 尚未 mount 时失败；已补显式 mount 等待，E 必须重跑，不把40/42写成全套PASS。ZIP白名单 manifest/哈希/重名/全失败无下载，技术25张/100MB/串行。D API7/7已准备，UI尚待验收。
-- D checkpoint closure：Server query/Quote modal/global DataTable/Drawer 已接线，API7/7与独立实际UI用例PASS（精确筛选/分页/空结果/故障/可信快照/无Estimate权限隔离/无读写日志）。完整联合正在46项最终重跑，此前失败仅测试等待/错误DOM目标已修，未skip/删除断言。B follow-up当前linked价来自CCT、历史保留snapshot、不完整provenance拒绝、PNG CRC与warning；B10/10，C8/8（ZIP警告/安全身份manifest）。联合disposable64/64 + QuoteAPI/foundation/编号34/34、auth/frontend58/58、npm674/674、typecheck/lint/Server与显式Server frontend PASS；默认Browser最终build尚待。所有新runtime增量属于本任务，无SQL/角色/真实环境变化；push仍blocked。
+- Checkpoints：A `760abb9`、B `46f9994`、C `198c734`、D `1df82bfd276d85f783a03ba490c4f2a643617918`。D 收口包括 B/C 自审发现的 warning/provenance/安全身份摘要修正与回归；无继承未知dirty。E 仅补实际下载动态行/null-zero和无estimate.view合法导出探针，再统一文档，不扩展runtime。
+- E 最终实跑：A API8/8、B10/10、C8/8、D7/7，与 Revision/Estimate/附件/CCT 合计64/64；QuoteAPI/foundation/编号34/34；auth/frontend58/58；npm674/674；实际 Chromium **47/47**（保留原33项、实际XLSX/ZIP bytes/SHA/解析、历史图片、动态行/null/0、两工价币种、受限账号、无Browser IO/rejection、owned资源cleanup）。Typecheck/lint/Server build/diff-check PASS；显式Server与最终默认Browser frontend均41 routes，最终build-info Quote/master=browser、writer=writable。没有临时env/.env遗留；模板Git object与base同为`2e87e66cbba317a5ffe61129c27041f1ca9878c2`。此前失败是测试等待/DOM目标/将模板parser用于填好表格的定位错误，均修正后真实重跑，未删断言/skip/放宽业务保护。没有重跑真实COS或无关fullPG/history suites。
+- 交付仍 PARTIAL / REMOTE DELIVERY BLOCKED：push曾 connection reset 后不再远端写；尚未创建PR，不假称远端branch/HEAD一致。恢复只需人工 `git push -u origin feat/server-quote-confirm-export-audit`，核对HEAD与origin同分支且clean，再查询该head已有PR，创建/更新同一个Draft PR到main（linked writer明确剩余，不能auto-merge）。PR标题/正文草案见任务文件。无需重跑已PASS工程或重开分支。
 
 ## HISTORICAL: Server EstimateCost workflows + Quote / Estimate permission follow-up（2026-10-09）
 
