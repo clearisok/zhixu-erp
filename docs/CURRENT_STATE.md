@@ -4,7 +4,16 @@
 
 ## 当前阶段
 
-- 本轮凭据工程验证 PASS：credential/offline/Linux mount 4/4（含 fail-closed 与失败补偿）、preflight 16/16、S3 adapter 2/2、disposable startup/local identity 9/9、Server auth/frontend 33/33、full npm test 671/671；typecheck/lint/server build/portable tools/diff-check PASS。另在 disposable Linux TTY 完成隐藏输入→保存→offline check，输出无输入值；未使用真实 secrets。未重跑 full PostgreSQL suite/frontend build：本轮仅 config/startup/工具改动，已执行对应 disposable startup/auth/storage 回归，无 schema/UI 变更；不能沿用旧 117/117 作为本轮结果。
+- **当前上线方向：D-096 Fresh Start Foundation。** 用户确认新系统所有业务数据（含基础资料/订单）从空开始，旧环境保留。Q5 historical import = **NOT REQUIRED**；fresh Browser source、迁移 freeze/rehearsal、Q5 VerifyOnly/Execute 不再是当前上线 blocker。历史 Gate PASS、已完成 Q3 import/cutover、旧数据保护均保持。
+- **空库工程验证 PASS（非真实部署）。** 新 disposable PG16/tmpfs 由正式 runner 应用 0001–0008；实际 startup sequence + 临时 HTTP API 首次/再次启动仅生成技术白名单，23 张业务表全部 0；Server-only 空读/未配置 defaults/故障 fail-closed、显式新 Quote 保存读回及新品牌创建验证通过。未改 SQL checksum、业务初始化逻辑或旧 Browser namespace。
+- 正式 `/quote-center` / `new` / `detail` 仍使用 mockQuoteRepository；Server candidate 未接管正式 Quote UI。生产配置必须显式选 Server masters；遗留 LocalDataBootstrap/其它模块 Browser seed 入口不能成为新系统入口。**不是 production-ready**。具体文件与后续最小任务见 `features/FRESH_START_FOUNDATION.md`。
+- 本轮旧真实 DB/Browser/COS/Ubuntu/Docker runtime 均未操作，无新环境真实部署。下方 Q4/Q5 段落属于 **HISTORICAL engineering snapshots**，其历史导入条件不再是当前操作清单。COS real Node preflight 已 PASS（PR #73 用户证据），runtime storage activation 仍另行核验。
+
+- Fresh Start 本轮验证：fresh-start 7/7、disposable migration activation safety 7/7、Server auth/frontend 33/33、npm test 671/671；typecheck/lint/Server build/frontend build（41 routes）/diff-check PASS，disposable cleanup PASS。Full test:postgres 未重跑：schema/importer/runtime 未改，已执行本任务对应隔离空库与 startup safety 验证。
+
+### HISTORICAL — prior engineering validation snapshots (not current rollout prerequisites)
+
+- 之前凭据工程验证 PASS：credential/offline/Linux mount 4/4（含 fail-closed 与失败补偿）、preflight 16/16、S3 adapter 2/2、disposable startup/local identity 9/9、Server auth/frontend 33/33、full npm test 671/671；typecheck/lint/server build/portable tools/diff-check PASS。另在 disposable Linux TTY 完成隐藏输入→保存→offline check，输出无输入值；未使用真实 secrets。该历史 Gate 未重跑 full PostgreSQL suite/frontend build；不能沿用旧 117/117 作为当前验证结果。
 - **Q4C-B REAL COS PREFLIGHT = PASS（用户提供执行证据，2026-10-08）。** Reviewed `a979d4b4dd65edcb29473d6e7bfc036942b94b4b` 官方 Node 工具于 UTC 09:26:15.212–09:26:17.163 全阶段/cleanup/hash PASS；probe 已清理。原证据路径、用户 checksum、工具副本依赖调整限制见 `ATTACHMENTS.md`；本轮未获取原文件、远程重算或重测。这个 PASS 不证明正式附件 Delete deny 或 runtimeConfigReviewed，不等于 production attachments active。
 - **Persistent credential loading = 工程实现 / 临时文件与 disposable 验证。** Env 或两个 FILE 每项单来源；共享同步 loader、非敏感 config file、独立 offline check、hidden TTY setup 与 portable offline tools。未在真实主机安装 secrets、未部署，真实 0008/Quote import/Q5 Execute NO；Q3 SERVER、Quote/附件 BROWSER。下面 Q4C-B tooling 的 NOT RUN/测试数只记录该原工程 Gate，已由此用户真实执行结果更新。
 - Q4C-B 工程验证 PASS：preflight 15/15、既有 S3 adapter 2/2、full tests 671/671、disposable PostgreSQL 117/117；typecheck/lint/server build/frontend build（41 routes）/diff-check PASS，test containers cleanup，无残留。真实 COS/PG/Browser/部署未操作；这是工具交付，不是正式 Node real preflight。

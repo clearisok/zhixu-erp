@@ -18,7 +18,20 @@
 
 ## Active
 
+### D-096 新系统全部业务数据从空开始，旧环境保留
+
+- 日期：2026-10-08；状态：Active，用户明确确认：“新系统所有业务数据，包括基础资料和订单，都从空开始。”
+- 新系统不导入旧品牌、客户业务员、面辅料、制造预设、业务设置、Quote/Revision/PriceVersion、订单、排单、关账、款式进度、附件关系、Browser OperationLog 或旧业务账号，不自动同步艾诺科来补数据。保留功能、模型、算法与 API/UI，不重写 ERP。
+- Q5 historical import 对当前上线为 **NOT REQUIRED**。Fresh Browser source、迁移专用 freeze、historical rehearsal、Q5 VerifyOnly/Execute 不再是当前上线前置条件；旧工具/测试与历史 PASS 留存。已发生的 Q3 import/cutover 不被撤销。
+- “不导入”不是删除授权：旧数据库、volume、Browser namespace/IndexedDB、备份和 COS 对象原样保留。新环境必须使用独立 DB/volume/访问入口，不复用旧 dump 或自动恢复旧 Browser 数据。
+- 技术初始化可包含 schema ledger、权限目录、必要角色、显式新建管理员；业务设置无记录即未配置，不自动填公司汇率/加成/运费/预设。新产生的历史 Revision 不可变、null/zero、快照、正常事务/权限/审计/备份规则不变。
+- D-091 仍约束真实 schema activation 等运维执行证据与禁止伪造 CRUD；历史 source/projection/rehearsal 字段只适用于不再采用的历史导入路径。D-093 仍仅允许本机开发，无认证 Local Single-User 不可用于 LAN/WAN/多人。D-094 仅是保留的历史附件投影规则，不授权清理源或 COS。D-095 仅在另行授权的历史迁移路径中要求迁移 freeze，不是新空系统上线条件。
+- COS real preflight 已 PASS，沿用 PR #73 来源受限的真实证据；不重做 COS 联调，不宣称 runtime storage 已激活。多人/远程认证授权及 Quote-first 逐模块 Server 能力验收仍必须完成。
+- 证据：用户本轮明确决定；`server/integration/fresh-start.integration.test.ts`、`server/startup.ts`、`server/auth/bootstrap.ts`、现有 0001–0008 runner 与 Server-only clients；详细空库边界见 `features/FRESH_START_FOUNDATION.md`。
+
 ### D-095 Quote migration freeze is independent of Q3 master/settings authority
+
+- D-096 适用范围补充：保留历史迁移 engineering safety contract；迁移专用 freeze/source 时序不再是当前空数据上线前置条件，不改变旧 Browser 数据保护。
 
 - 日期：2026-10-07；状态：Active。落实用户 Q5-C 指令，仅工程实现，不授权真实冻结部署或迁移。
 - Build-time `QuoteWriterMode=writable|frozen` 默认 writable；独立于 `MasterSettingsAuthority`。目标组合是 Q3 `server` + Quote `frozen`，不能拿 Q3 frozen 代替 Quote freeze。
@@ -29,12 +42,16 @@
 
 ### D-094 Q5 historical Quote migration clears legacy attachment URL compatibility fields
 
+- D-096 适用范围补充：仅用于 dormant historical projection；当前新系统不导入旧附件/URL/关系，不要求执行此投影，也不清理旧来源。
+
 - 日期：2026-10-07；状态：Active，用户明确确认。Q5-A 只建立工程投影与一次性数据库排练，不授权真实导入或删除 Browser 数据。
 - 旧 Browser QuoteRevision 的 `garmentMedia`、`quoteDocuments` 在 Server historical projection 中均清空为 `[]`；正式附件 ID 引用同时依既有排除规则投影为 `[]` / `[]` / `null`。Preview 分别统计源引用与受影响 Quote/Revision；源 Browser backup、localStorage 和 IndexedDB blob 不修改、不删除。
 - 这不是附件损坏判定，也不是新的 Server attachment relationship。Q4B 的共享历史附件 metadata 改名/名称快照规则仍是独立的 USER DECISION REQUIRED，不由此决策推导。
 - 证据：用户 2026-10-07 明确确认；`server/quotes/historical-preview.ts` 与 Q5-A synthetic/disposable tests。
 
 ### D-093 Development phase uses a local single-user identity; real authentication is deferred
+
+- D-096 适用范围补充：空业务数据不降低此模式的本机限制；新远程/多人系统必须先完成真实 authentication/authorization Gate，旧账号资料不复制。
 
 - 日期：2026-10-04；状态：Active、临时开发架构决定；用户明确确认。此决定取代当前开发阶段 Q3B2I-C2 B3/B3-R 的登录/Cookie/session 验收要求，不是生产安全模型。
 - 本地 Server Authority 必须显式选择 `ZHIXU_IDENTITY_MODE=local-single-user`，确认无认证风险，并限制 Browser origin 为 loopback。编译产物 `build-info.json` 与运行时模式必须一致；默认 `session`，缺少显式选择不会暗中开启无认证模式。执行状态（2026-10-05）：真实 3001 已部署 PR #64 根路径/正式基础设置统一侧栏修复并通过用户真实浏览器验收，Q3B2I-C2 CLOSED / PASS；本条架构决定保持 Active。
@@ -53,6 +70,8 @@
 - 证据：`Dockerfile.server`、`vite.config.ts`、`features/basic-settings/authority/master-settings-authority.ts`、`server/maintenance-static*.ts`、`scripts/Invoke-Q3MaintenanceStaticHandoff.ps1`、`scripts/Invoke-Q3GuardedMasterImport.ps1` 与 `scripts/__tests__/q3-maintenance-topology.test.mjs`；测试只用 disposable 容器。
 
 ### D-091 Historical migration/import uses migration-level evidence, not fabricated runtime CRUD audit
+
+- D-096 适用范围补充：schema activation/运维安全证据及禁止伪造 CRUD 继续有效；历史 source backup/projection/导入排练证明只用于另行授权的历史迁移，不作为当前空数据上线 blocker。
 
 - 日期：2026-09-28；状态：Active，用户已确认。此决定不授权任何真实 migration/import。
 - Server runtime `OperationLog` 只表示可信 runtime 身份下实际发生的业务 mutation。历史 migration/import 不伪造逐 row CRUD、Server session 或 actor，不导入 Browser 历史 OperationLogs，也不为 49 条 master/settings row 生成 49 条伪日志。

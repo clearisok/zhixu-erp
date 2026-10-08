@@ -1,6 +1,14 @@
 # AI 接力棒
 
-## Current closure: COS real PASS + credential tooling (2026-10-08)
+## Current: Fresh Start Foundation（2026-10-08，D-096）
+
+- 用户已确认新系统全部业务数据从空开始；不再询问保留/搬迁旧 Quote 或基础资料。历史导入 **NOT REQUIRED**；不得删除旧 DB/volume、Browser namespace、backup 或 COS。
+- Base 为 PR #73 merge `2363831ff32147d6775ef4f4cee2e3e806e0c58d`，branch `feat/fresh-start-foundation`。未修改已发布 migration/运行时初始化/旧 Browser 路线。新增 fresh-start 可执行测试：独立 PG16 tmpfs，0001–0008、重复启动、技术白名单、23 张业务表零行、Server-only adapters 与显式新数据写读。
+- 下一项最小工程任务：正式 Quote list/new/detail 接 Server repository 的聚焦接线计划与实施，复用已有 candidate/workflow；隔离旧 Browser 初始化入口并展示未配置资料。不是重新排 Q5 historical Gate，不扩展全模块 UI。具体缺口与未启用部署配置边界见 `features/FRESH_START_FOUNDATION.md`。
+- 真实部署/新库 activation/运行时 COS/多人认证仍需独立授权和验证；D-093 仅本机。原 Q3 已导入/Server authority 事实保留，当前旧 Quote aggregate 仍 BROWSER。下方旧接力仅 **HISTORICAL / SUPERSEDED AS CURRENT TASK**；COS real preflight PASS 沿用 PR #73，未重测。
+- 本 Gate 验证：`test:fresh-start` 7/7、disposable migration activation 7/7、Server auth/frontend 33/33、npm test 671/671；typecheck/lint/Server build/frontend build（41 routes）/diff-check PASS，cleanup 无残留。未重跑 full PG suite、未运行旧 Q5 import 或 COS 联调。
+
+## HISTORICAL closure: COS real PASS + credential tooling (2026-10-08)
 
 - 本轮验证 PASS：credential/offline/Linux 4/4、preflight 16/16、S3 2/2、disposable startup/local identity 9/9、Server auth/frontend 33/33、npm test 671/671、typecheck/lint/server build/portable tools/diff-check；实际 disposable hidden TTY setup/check PASS，无输入回显。Full PG suite/frontend build 未重跑（无 schema/UI 改动，已跑对应启动/auth/storage 回归），不引用旧测试结果充数。
 - **Q4C-B REAL PREFLIGHT PASS**：用户提供 reviewed `a979d4b4dd65edcb29473d6e7bfc036942b94b4b` Node 执行输出/checksum；65536-byte probe、全阶段/hash/cleanup true、exit 0，UTC 09:26:15.212–09:26:17.163。原 evidence `/home/jackson/zhixu-evidence/cos-preflight-20261008T092614Z-2001623.json`，用户 SHA-256 `327d3e40f49e4edc925b390c516e9be84cccd4da771f84dd2052b24938ae59d8`。本轮未远程获取/重算或重跑，完整来源限制见 ATTACHMENTS；不伪造原 JSON。
