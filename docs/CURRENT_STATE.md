@@ -1,6 +1,6 @@
 # 当前状态
 
-> 状态快照：2026-10-08。下方“历史 Gate 快照”的“未开始/未授权”陈述只记录当时状态，不代表当前状态或操作授权。
+> 状态快照：2026-10-09。下方“历史 Gate 快照”的“未开始/未授权”陈述只记录当时状态，不代表当前状态或操作授权。
 
 ## 当前阶段
 
@@ -9,8 +9,9 @@
 - **新 Server Quote 基本闭环已实现并隔离验收（D-097），未真实部署。** 显式 quoteAuthority=server + masters=server + writer=writable 时，正式 `/quote-center` / `new` / `detail` 复用 QuoteEditor、typed Server writer、Q3 defaults 与附件专用 controller。默认 browser 分支与当前旧 runtime 保持 mockQuoteRepository，不改变旧数据。
 - 新入口隔离 LocalDataBootstrap、Browser mock identity/global search、业务 namespace/IndexedDB 与未支持模块；Server list 有界全库查询/准确 total，无逐行 aggregate GET。页面实例版本/写锁协调保存与附件，409 草稿保留、不确定写 fail closed、精度无损/null≠0。
 - 已支持基础信息、当前价格材料/工价/其他成本、报价设置、Quick Master Create/刷新 selectors、保存/读回/列表、当前 Revision 附件；PV 创建/复制、名称/数量/说明编辑、非最后 PV 删除/切换，以及 Revision 当前更新/所选历史分支/历史只读/返回当前。显式 Server **Estimate 日常闭环已接通并隔离验证**：主动生成、固定结构编辑保存、重新生成/归档、历史搜索/只读/克隆恢复、stale/ignore；来源 PV 删除后仍可独立查看/恢复。Quote 级 active 在查看历史 Revision 时仍按自身权限编辑。确认、导出、整单复制/删除、Revision 删除、转订单、日志查看仍未接线。**工程 PASS 不等于全报价 production-ready**；动作矩阵见 `features/FRESH_START_FOUNDATION.md`。
-- Estimate 复用 0005 schema/原单事务与可信审计，不反写来源、状态、确认、默认 Revision 或附件；精确 decimal-string/null/zero、历史不可变保持。与 Quote/附件/版本共用写锁，混合草稿分步保存；前一步成功后失败如实报告、保留草稿/选择并阻止重试，关联成本须先完成同步选择。generic PUT 不能改变 Estimate slice（409）；含 Estimate 完整 DTO 的读取/保存/版本命令另需 `estimate.view`（缺少时整单403，不是只隐藏页签）。既有查看员模板的兼容影响列为待审查，未调整角色/政策，见 `features/PERMISSIONS.md`。
-- 本轮工程测试对应 checkpoint `3da2234b82cca7baebb59febca42c3fdad00352b`，具体 suite 数字见 `AI_HANDOFF.md`；实际 Chromium30/30，下载字节/SHA、无 unhandled rejection、cleanup PASS，显式 Server 与默认 Browser frontend 构建通过且默认 build-info=browser。**工程测试在 checkpoint 已执行；本次文档收口未重复运行**，无运行时代码/测试增量。新能力尚未真实部署，旧 runtime/Browser authority 不变。
+- Estimate 复用 0005 schema/原单事务与可信审计，不反写来源、状态、确认、默认 Revision 或附件；精确 decimal-string/null/zero、历史不可变保持。与 Quote/附件/版本共用写锁，混合草稿分步保存；前一步成功后失败如实报告、保留草稿/选择并阻止重试，关联成本须先完成同步选择。Quote/Estimate 权限耦合已在本 PR 修复，非新角色政策。无 `estimate.view` 的可信身份仍可读取/编辑已授权 Quote/历史/Revision/PV；GET/create/save/version 响应集中投影为 `estimateVisibility: restricted`，省略 active/history 字段，无存在性/条数/汇总泄露。Editor 独立视图类型保留省略状态，非 authoritative null/[]，不加载估算面板/计算/缓存。 generic PUT 只提交 Quote 内容，Server 校验 expectedVersion 后合并当前保护切片，再执行原完整 normalize/validate、细粒度权限、不可变/事务/CAS 检查。无读权限的 Estimate 注入（含 null/[]）返回409；有读权限的旧完整 DTO 只兼容原样切片，任何变化仍需专用命令。管理员并发 Estimate 更新后旧保存409，不覆盖新切片。Estimate mutation 仍需 quote.edit + estimate.view + estimate.edit，默认角色/目录不变。 见 `features/PERMISSIONS.md`。
+- HISTORICAL 初始工程测试对应 checkpoint `3da2234b82cca7baebb59febca42c3fdad00352b`，具体 suite 数字见 `AI_HANDOFF.md`；实际 Chromium30/30，下载字节/SHA、无 unhandled rejection、cleanup PASS，显式 Server 与默认 Browser frontend 构建通过且默认 build-info=browser。当时 docs-only 收口没有重跑工程测试；当前权限 follow-up 有服务/DTO/UI/测试增量，最新结果见 AI_HANDOFF。新能力尚未真实部署，旧 runtime/Browser authority 不变。
+- 当前权限 follow-up：可信 A/B/C/D 的 API/persistence/实际页面隔离已验证；实际 Chromium33/33、相关 disposable API/Revision/附件38/38、auth/frontend58/58、npm test673/673及质量/两模式构建PASS，默认 build-info仍browser，最新执行详情统一见 AI_HANDOFF。不调整角色/权限目录，不改SQL，不开始确认/导出/订单，也未真实部署。
 - PR #76 follow-up 已隔离验证：PV 编辑沿用 Browser 状态推导，零确认 draft 不再意外变 quoting；Revision 创建仍 quoting。成本同步/仅保存当前两个入口捕获 Server 409/网络失败，明确核对、保留已应用范围的 dirty 草稿，阻止自动重试/后续命令；成功采用 Server version/baseline，无 unhandled rejection。
 - **HISTORICAL PR #76 follow-up 实测：**disposable service/API10/10、实际 Chromium20/20（两保存入口 × success/409/network 实际同步弹窗，保留加工/经销、历史、附件、下载 bytes/SHA、精度和 Browser 隔离），auth/frontend48/48（状态4/4、persistence11/11）、npm test673/673；typecheck/lint/Server build/Server 与默认 Browser frontend（41 routes）/diff-check PASS。默认 build-info Quote/master=browser、writer=writable。原 Gate 相关 Quote API/附件/foundation33/33为此前验证，该 follow-up 未机械重跑 full PG/COS。不是本次 Estimate checkpoint 测试数。
 - **HISTORICAL PR #75** 合并前类型补齐：正式 new 页可选加工/经销，Server POST `{}`/默认经销不变，加工用返回版本正常 PUT；失败保留已创建 ID 并禁重建，详情/历史不新增类型编辑。最新 Chromium12/12、auth/frontend38/38、disposable API/编号21/21、npm test673/673；typecheck/lint、显式 Server/默认 Browser frontend build PASS，下载 bytes/SHA与版本冲突回归保留。以下8/8为上一基本闭环收口快照。

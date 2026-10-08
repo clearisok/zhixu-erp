@@ -39,6 +39,18 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     await runMigrations(pool, resolve("database/migrations"));
     await synchronizePermissionCatalog(pool);
     await bootstrapAdmin(pool, { username: "synthetic-ui-admin", displayName: "Synthetic UI administrator", password: "disposable-ui-password" });
+    const permissionSets = {
+      viewer: ["quote.view", "quote.export", "quote.revision.view", "quote.cost.view", "user_permissions.view"],
+      editor: ["quote.view", "quote.revision.view", "quote.cost.view", "quote.edit", "quote.cost.edit", "quote.settings.edit", "quote.revision.update", "quote.price_version.create", "quote.price_version.delete"],
+      estimateReader: ["quote.view", "quote.revision.view", "quote.cost.view", "estimate.view"],
+    };
+    for (const [name, permissions] of Object.entries(permissionSets)) {
+      const user = (await pool.query("INSERT INTO app_users(username,password_hash,display_name,role,active) VALUES($1,crypt('disposable-ui-password',gen_salt('bf',4)),$1,'viewer',true) RETURNING id", [`synthetic-ui-${name.toLowerCase()}`])).rows[0];
+      const role = `synthetic-ui-role-${name}`;
+      await pool.query("INSERT INTO app_roles(id,name,description) VALUES($1,$1,'Synthetic disposable role')", [role]);
+      await pool.query("INSERT INTO app_user_roles(user_id,role_id) VALUES($1,$2)", [user.id, role]);
+      for (const permission of permissions) await pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES($1,$2)", [role, permission]);
+    }
     await new Promise((done) => server.listen(0, "127.0.0.1", done));
     const port = server.address().port;
     assert.ok(![3000, 3001, 3002].includes(port));
@@ -84,6 +96,9 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       if(!originalGet.call(localStorage,'zhixu.erp.local.quotes')) originalSet.call(localStorage,'zhixu.erp.local.quotes','synthetic-old-business-sentinel');
       window.businessAccess=[];
       window.unhandledRejections=[];
+      window.quoteResponses=[];
+      const originalFetch=window.fetch.bind(window);
+      window.fetch=async(...args)=>{const response=await originalFetch(...args);if(String(args[0]).includes('/api/v1/quotes/'))window.quoteResponses.push(await response.clone().text());return response};
       window.addEventListener('unhandledrejection', event => window.unhandledRejections.push(String(event.reason)));
       const business=k=>k.startsWith('zhixu.')&&!/preference|sidebar/.test(k);
       Storage.prototype.getItem=function(k){if(business(k))businessAccess.push('read:'+k);return originalGet.call(this,k)};
@@ -91,8 +106,8 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const open=indexedDB.open.bind(indexedDB);indexedDB.open=(...args)=>{businessAccess.push('indexedDB:'+args[0]);return open(...args)};
       window.oldSentinel=()=>originalGet.call(localStorage,'zhixu.erp.local.quotes');
     ` }, sessionId);
-    const text = () => evaluate("document.body.innerText");
-    const hasText = (value) => until(async () => (await text()).includes(value), value);
+    const text = () => evaluate("document.body?.innerText ?? ''");
+    const hasText = async (value) => { try { await until(async () => (await text()).includes(value), value); } catch (error) { throw new Error(`${error.message}; synthetic page: ${await text()}`); } };
     const navigate = async (path) => { await command("Page.navigate", { url: origin + path }, sessionId); await until(async () => await evaluate(`location.pathname===${JSON.stringify(path.split("?")[0])} && document.readyState==='complete'`), path); };
     const input = async (selector, value) => evaluate(`(()=>{const node=document.querySelector(${JSON.stringify(selector)});if(!node)throw new Error('input missing');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));node.dispatchEvent(new Event('change',{bubbles:true}));})()`);
     const labelInput = async (label, value) => evaluate(`(()=>{const root=[...document.querySelectorAll('[role="dialog"]')].filter(n=>n.getClientRects().length).at(-1)||document;const node=[...root.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent?.startsWith(${JSON.stringify(label)}))?.querySelector('input,textarea');if(!node)throw new Error('label input missing: '+${JSON.stringify(label)});Object.getOwnPropertyDescriptor(node.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));})()`);
@@ -222,7 +237,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
 
     await t.test("404, 403 and network failure are explicit on actual routes; no silent Browser fallback", async () => {
       await navigate("/quote-center/detail?id=synthetic-missing-id"); await hasText("404"); await isolated();
-      await pool.query("DELETE FROM app_role_permissions WHERE permission_key='quote.view'");
+      await pool.query("DELETE FROM app_role_permissions WHERE permission_key='quote.view' AND role_id='role-server-admin'");
       await navigate("/quote-center"); await hasText("403"); await isolated();
       await pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('role-server-admin','quote.view')");
       await command("Fetch.enable", { patterns: [{ urlPattern: "*/api/v1/quotes*", requestStage: "Request" }] }, sessionId);
@@ -566,6 +581,70 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
         assert.equal(requests.slice(start).filter(r=>r.method==="PUT"||r.path.endsWith("/version-workflows")).length,0);
       }finally{await command("Fetch.disable",{},sessionId);failureStatus=0;}
       assert.deepEqual(await read(),before);await isolated();
+    });
+    const loginAs = async (name) => {
+      await evaluate("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
+      await navigate("/quote-center"); await hasText("登录织序 Server");
+      await input("input[name=username]", `synthetic-ui-${name.toLowerCase()}`);
+      await input("input[name=password]", "disposable-ui-password");
+      await click("登录 Server"); await hasText("PostgreSQL 报价快照");
+      const trustedPermissions = await evaluate("fetch('/api/v1/auth/permissions').then(r=>r.json()).then(b=>b.permissions)");
+      assert.ok(trustedPermissions.includes("quote.view"), `Synthetic ${name} must have trusted quote.view: ${JSON.stringify(trustedPermissions)}`);
+    };
+    let permissionQuote, preservedEstimate;
+    const assertNoEstimate = async () => {
+      const responses = await evaluate("quoteResponses");
+      assert.ok(responses.length > 0);
+      for (const response of responses) {
+        assert.equal(response.includes("PRIVATE-ESTIMATE-UI-PROBE"), false);
+        assert.equal(response.includes('"activeEstimateCost"'), false);
+        assert.equal(response.includes('"estimateCostHistory"'), false);
+      }
+      assert.equal((await text()).includes("PRIVATE-ESTIMATE-UI-PROBE"), false);
+      assert.equal(await evaluate("JSON.stringify({...localStorage,...sessionStorage}).includes('PRIVATE-ESTIMATE-UI-PROBE')"), false);
+      assert.equal(await evaluate("caches.keys().then(keys=>keys.length)"), 0);
+      assert.deepEqual(await evaluate("unhandledRejections"), []); await isolated();
+    };
+    await t.test("trusted viewer login: Quote readable before/after admin Estimate generation; network/DOM/cache isolation", async () => {
+      const prepared = await prepareEstimateQuote(); permissionQuote = prepared.id;
+      await loginAs("viewer"); await navigate(`/quote-center/detail?id=${permissionQuote}`); await hasText("Server 报价 · v");
+      await assertNoEstimate();
+      await loginAs("admin"); await navigate(`/quote-center/detail?id=${permissionQuote}`); await hasText("Server 报价 · v");
+      await generateEstimate(prepared.read);
+      const first = await prepared.read();
+      first.quote.activeEstimateCost.labor.description = "PRIVATE-ESTIMATE-UI-PROBE";
+      const updated = await evaluate(`fetch('/api/v1/quotes/${permissionQuote}/estimate-workflows',{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(${JSON.stringify({action:"estimate.update",expectedVersion:first.version,estimate:first.quote.activeEstimateCost})})}).then(r=>r.status)`);
+      assert.equal(updated,200);
+      await navigate(`/quote-center/detail?id=${permissionQuote}`);await hasText("Server 报价 · v");await click("查看报价历史");await costTab();await click("重新生成");await click("确认重新生成");await until(async()=> (await prepared.read()).quote.estimateCostHistory.length===1,"permission history prepared");
+      const all = await prepared.read(); preservedEstimate = [all.quote.activeEstimateCost, all.quote.estimateCostHistory];
+      await loginAs("viewer");await navigate(`/quote-center/detail?id=${permissionQuote}`);await hasText("Server 报价 · v");
+      const previousLoader = (await command("Page.getFrameTree",{},sessionId)).frameTree.frame.loaderId;
+      await command("Page.reload",{ignoreCache:true},sessionId);
+      await until(async () => (await command("Page.getFrameTree",{},sessionId)).frameTree.frame.loaderId !== previousLoader && await evaluate("document.readyState==='complete'"), "trusted viewer hard reload");
+      await hasText("Server 报价 · v");
+      await click("查看报价历史");await hasText("无查看权限");
+      assert.equal(await evaluate("document.querySelector('.qc-estimate-pill').innerText.includes('未生成')"),false);
+      assert.equal(await evaluate("Boolean(document.querySelector('.qc-estimate-cost-panel'))"),false);
+      await assertNoEstimate();
+    });
+    await t.test("trusted Quote editor without Estimate permissions: ordinary save/version response isolated and protected slice preserved", async () => {
+      await loginAs("editor");await navigate(`/quote-center/detail?id=${permissionQuote}`);await hasText("Server 报价 · v");
+      await labelInput("款式名称","Quote-only permission edit");await click("保存草稿");await hasText("报价已保存到 Server");
+      await assertNoEstimate();
+      await click("查看报价历史");await click("更新");await click("是");
+      await evaluate("[...document.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent==='更新原因 *').querySelector('button').click()");await click("其他");await click("确认创建新报价版本");await hasText("版本操作已保存到 Server");
+      await assertNoEstimate();
+      await loginAs("admin");
+      const actual = await evaluate(`fetch('/api/v1/quotes/${permissionQuote}').then(r=>r.json()).then(b=>b.quote)`);
+      assert.deepEqual([actual.quote.activeEstimateCost,actual.quote.estimateCostHistory],preservedEstimate);
+      assert.equal(actual.quote.revisions.at(-1).baseInfo.styleName,"Quote-only permission edit");
+    });
+    await t.test("trusted Estimate reader login: full read visible, write controls and mutation API denied", async () => {
+      await loginAs("estimateReader");await navigate(`/quote-center/detail?id=${permissionQuote}`);await hasText("Server 报价 · v");await click("查看报价历史");await costTab();
+      assert.equal(await evaluate("document.querySelector('.qc-estimate-cost-panel fieldset').disabled"),true);
+      assert.equal(await evaluate("[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='保存估算成本'&&!b.disabled)"),false);
+      const attempt = await evaluate(`fetch('/api/v1/quotes/${permissionQuote}').then(r=>r.json()).then(b=>fetch('/api/v1/quotes/${permissionQuote}/estimate-workflows',{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify({action:'estimate.ignore',expectedVersion:b.quote.version,estimateId:b.quote.quote.activeEstimateCost.id})})).then(r=>r.status)`);
+      assert.equal(attempt,403);assert.deepEqual(await evaluate("unhandledRejections"),[]);await isolated();
     });
     await command("Browser.close");
   } finally {

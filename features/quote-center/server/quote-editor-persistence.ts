@@ -1,8 +1,8 @@
-import type { Quote } from "../model/quote-view-model";
+import type { QuoteEditorData as Quote } from "../model/quote-editor-data";
 import type { QuoteAttachmentController, AttachmentSnapshot } from "../model/quote-attachment-controller";
 import { advanceAttachmentRecord } from "./quote-attachment-draft";
 import { quoteServerEditorAdapter, type EditableServerQuoteRecord, type QuoteServerEditorAdapter } from "./quote-server-editor-adapter";
-import { editableQuoteFromServer } from "./quote-server-editor-adapter";
+import { editableRecord } from "./quote-server-editor-adapter";
 import { quoteServerClient } from "./quote-server-client";
 import type { QuoteVersionCommand } from "../../../server/quotes/version-workflows";
 import type { EstimateCommand } from "../../../server/quotes/estimate-workflows";
@@ -23,7 +23,13 @@ export function createQuoteEditorPersistence(initial: EditableServerQuoteRecord,
   return {
     getVersion: () => record.expectedVersion,
     getBaseline: () => structuredClone(record.quote),
+    canReadEstimate: () => record.estimateVisibility !== "restricted" && Array.isArray(record.quote.estimateCostHistory),
     save: (quote: Quote) => exclusive(async () => {
+      if (record.estimateVisibility === "restricted") {
+        if (Object.hasOwn(quote, "activeEstimateCost") || Object.hasOwn(quote, "estimateCostHistory")) throw new Error("Estimate content is restricted");
+        record = structuredClone(await adapter.save(quote, record.expectedVersion));
+        return structuredClone(record);
+      }
       // Estimate lifecycle/value edits use their dedicated trusted boundary;
       // generic aggregate PUT carries the last confirmed Estimate snapshot.
       const target = { ...quote, activeEstimateCost: record.quote.activeEstimateCost, estimateCostHistory: record.quote.estimateCostHistory };
@@ -38,7 +44,7 @@ export function createQuoteEditorPersistence(initial: EditableServerQuoteRecord,
       if (estimateChanged) {
         try {
           const updated = await workflowClient.estimateWorkflow(quote.id, { action: "estimate.update", expectedVersion: record.expectedVersion, estimate: serverQuoteFromEditable(quote).activeEstimateCost! });
-          record = { quote: editableQuoteFromServer(updated.quote), expectedVersion: updated.version };
+          record = editableRecord(updated);
         } catch (error) {
           if (quoteSavedVersion && error instanceof Error) Object.assign(error, { quoteSavedVersion });
           throw error;
@@ -47,13 +53,14 @@ export function createQuoteEditorPersistence(initial: EditableServerQuoteRecord,
       return structuredClone(record);
     }),
     estimate: (command: EstimateAction) => exclusive(async () => {
+      if (record.estimateVisibility === "restricted") throw new Error("Estimate content is restricted");
       const saved = await workflowClient.estimateWorkflow(record.quote.id, { ...command, expectedVersion: record.expectedVersion });
-      record = { quote: editableQuoteFromServer(saved.quote), expectedVersion: saved.version };
+      record = editableRecord(saved);
       return structuredClone(record);
     }),
     workflow: (command: QuoteVersionAction) => exclusive(async () => {
       const saved = await workflowClient.versionWorkflow(record.quote.id, { ...command, expectedVersion: record.expectedVersion });
-      record = { quote: editableQuoteFromServer(saved.quote), expectedVersion: saved.version };
+      record = editableRecord(saved);
       return structuredClone(record);
     }),
     acceptAttachment(snapshot: AttachmentSnapshot) {

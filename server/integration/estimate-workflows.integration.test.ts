@@ -12,6 +12,7 @@ import { quoteSnapshotFromBrowser, type QuoteRecord } from "../quotes/model.js";
 import { createSyntheticQuoteFixture } from "./quote-fixture.js";
 import { PERMISSION_KEYS } from "../../features/permissions/model/permissions.js";
 import type { TrustedIdentity } from "../auth/session.js";
+import type { QuoteResponseRecord } from "../quotes/quote-response.js";
 
 test("Estimate trusted commands: disposable PostgreSQL exact snapshots and atomic lifecycle", { timeout: 180000 }, async t => {
   const postgres = await startDisposablePostgres();
@@ -38,8 +39,90 @@ test("Estimate trusted commands: disposable PostgreSQL exact snapshots and atomi
   };
   const generate = () => ({ action: "estimate.generate", expectedVersion: record.version, sourceRevisionId: value.defaultRevisionId });
   const commit = async (body: object) => { const result = await post({ ...body, expectedVersion: record.version }); assert.equal(result.status, 200); record = result.body.quote; assert.deepEqual(await repo.getById(value.id), record); };
-  const countLogs = async () => (await pool.query("SELECT count(*)::int AS n FROM operation_logs WHERE quote_id=$1", [value.id])).rows[0].n;
+  const countLogs = async (id = value.id) => (await pool.query("SELECT count(*)::int AS n FROM operation_logs WHERE quote_id=$1", [id])).rows[0].n;
   try {
+    await t.test("trusted A/B/C/D identities: Quote access independent of empty/active/history Estimate; protected writes and CAS", async () => {
+      const identities: TrustedIdentity[] = [];
+      const sets: TrustedIdentity["permissions"][] = [
+        ["quote.view", "quote.export", "quote.revision.view", "quote.cost.view", "user_permissions.view"],
+        ["quote.view", "quote.revision.view", "quote.cost.view", "quote.edit", "quote.create", "quote.cost.edit", "quote.settings.edit", "quote.revision.update", "quote.price_version.create", "quote.price_version.delete"],
+        ["quote.view", "quote.revision.view", "quote.cost.view", "quote.edit", "estimate.view"],
+        ["quote.view", "quote.edit", "estimate.view", "estimate.edit"],
+      ];
+      for (const [index, permissions] of sets.entries()) {
+        const row = (await pool.query("INSERT INTO app_users(username,password_hash,display_name,role,active) VALUES($1,'unused','Synthetic permission identity','viewer',true) RETURNING id::text,public_id::text", [`estimate-role-${index}`])).rows[0];
+        identities.push({ ...actor, internalUserId: row.id, userId: row.public_id, username: `estimate-role-${index}`, userName: `Synthetic ${index}`, permissions });
+      }
+      const [A, B, C, D] = identities;
+      const service = createTrustedQuoteService(pool);
+      const restricted = (record: QuoteResponseRecord) => {
+        assert.ok("estimateVisibility" in record && record.estimateVisibility === "restricted");
+        assert.equal(Object.hasOwn(record.quote, "activeEstimateCost"), false);
+        assert.equal(Object.hasOwn(record.quote, "estimateCostHistory"), false);
+        assert.equal(JSON.stringify(record).includes("PRIVATE-ESTIMATE-PROBE"), false);
+      };
+      active = B;
+      const created = await fetch(`${origin}/api/v1/quotes`, { method: "POST", headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1", Origin: "http://127.0.0.1:39991" }, body: "{}" });
+      assert.equal(created.status, 201); restricted((await created.json()).quote);
+      for (const state of ["empty", "active", "history", "both"] as const) {
+        const q = quoteSnapshotFromBrowser(createSyntheticQuoteFixture(`permission-${state}`));
+        q.activeEstimateCost = null; q.estimateCostHistory = [];
+        for (const revision of q.revisions) {
+          revision.imageAttachmentIds = []; revision.fileAttachmentIds = []; revision.styleImageAttachmentId = null;
+          revision.baseInfo.quoteStyleNo = "SYNTHETIC-PERMISSION"; revision.baseInfo.styleName = "Synthetic permission test";
+          for (const pv of revision.priceVersions) { pv.quantity = "0"; pv.trims.forEach(row => { row.usage = "0"; }); }
+        }
+        let saved = await repo.create(q);
+        active = A;
+        assert.equal((await fetch(`${origin}/api/v1/quotes/${q.id}`)).status, 200, "before Estimate generation");
+        if (state !== "empty") {
+          await service.estimateWorkflow(D, q.id, { action: "estimate.generate", expectedVersion: saved.version, sourceRevisionId: q.defaultRevisionId });
+          saved = (await repo.getById(q.id))!;
+          const estimate = structuredClone(saved.quote.activeEstimateCost!); estimate.labor.description = "PRIVATE-ESTIMATE-PROBE";
+          await service.estimateWorkflow(D, q.id, { action: "estimate.update", expectedVersion: saved.version, estimate });
+          saved = (await repo.getById(q.id))!;
+          if (state === "both") { await service.estimateWorkflow(D, q.id, { action: "estimate.regenerate", expectedVersion: saved.version, sourceRevisionId: q.defaultRevisionId }); saved = (await repo.getById(q.id))!; }
+          if (state === "history") { const historyOnly = structuredClone(saved.quote); historyOnly.estimateCostHistory = [historyOnly.activeEstimateCost!]; historyOnly.activeEstimateCost = null; saved = await repo.save(historyOnly, saved.version); }
+        }
+        const protectedSlice = () => [saved.quote.activeEstimateCost, saved.quote.estimateCostHistory];
+        const preserved = structuredClone(protectedSlice());
+        active = A;
+        const view = await fetch(`${origin}/api/v1/quotes/${q.id}`); assert.equal(view.status, 200);
+        const restrictedRecord: QuoteResponseRecord = (await view.json()).quote; restricted(restrictedRecord);
+        assert.equal((await post({ quote: restrictedRecord.quote, expectedVersion: saved.version }, q.id, "PUT", "")).status, 403);
+        active = B;
+        const content = structuredClone(restrictedRecord.quote);
+        content.revisions.find(r => r.revisionId === q.defaultRevisionId)!.baseInfo.note = "Authorized ordinary Quote edit";
+        const result = await post({ quote: content, expectedVersion: saved.version }, q.id, "PUT", ""); assert.equal(result.status, 200); restricted(result.body.quote);
+        saved = (await repo.getById(q.id))!; assert.deepEqual(protectedSlice(), preserved);
+        const logs = await countLogs(q.id); const beforeInjection = structuredClone(saved);
+        for (const injected of [{ activeEstimateCost: null }, { estimateCostHistory: [] }, { activeEstimateCost: preserved[0], estimateCostHistory: preserved[1] }]) {
+          assert.equal((await post({ quote: { ...content, ...injected }, expectedVersion: saved.version }, q.id, "PUT", "")).status, 409);
+        }
+        assert.equal((await post({ quote: { ...content, estimateVisibility: "visible" }, expectedVersion: saved.version }, q.id, "PUT", "")).status, 400);
+        assert.deepEqual(await repo.getById(q.id), beforeInjection); assert.equal(await countLogs(q.id), logs);
+        const revision = saved.quote.revisions.find(r => r.revisionId === q.defaultRevisionId)!;
+        for (const command of [
+          { action: "price.create", revisionId: revision.revisionId, priceVersionId: revision.priceVersions[0].id, name: "Permission scenario", quantity: "0", description: "" },
+          { action: "revision.create", sourceRevisionId: revision.revisionId, reason: "其他", note: "Permission branch" },
+        ]) {
+          const response = await post({ ...command, expectedVersion: saved.version }, q.id, "POST", "/version-workflows");
+          assert.equal(response.status, 200); restricted(response.body.quote); saved = (await repo.getById(q.id))!; assert.deepEqual(protectedSlice(), preserved);
+        }
+        active = C;
+        const readable = await fetch(`${origin}/api/v1/quotes/${q.id}`); assert.equal(readable.status, 200); assert.deepEqual((await readable.json()).quote, saved);
+        assert.equal((await post({ action: "estimate.generate", expectedVersion: saved.version, sourceRevisionId: saved.quote.defaultRevisionId }, q.id)).status, 403);
+        const altered = structuredClone(saved.quote); altered.estimateCostHistory = [];
+        if (altered.activeEstimateCost) altered.activeEstimateCost.labor.description = "forged"; else altered.activeEstimateCost = preserved[0] as typeof altered.activeEstimateCost;
+        if (state !== "empty") assert.equal((await post({ quote: altered, expectedVersion: saved.version }, q.id, "PUT", "")).status, 409);
+        active = B; const staleVersion = saved.version;
+        await service.estimateWorkflow(D, q.id, { action: saved.quote.activeEstimateCost ? "estimate.regenerate" : "estimate.generate", expectedVersion: saved.version, sourceRevisionId: saved.quote.defaultRevisionId });
+        const concurrent = (await repo.getById(q.id))!;
+        assert.equal((await post({ quote: content, expectedVersion: staleVersion }, q.id, "PUT", "")).status, 409);
+        assert.deepEqual(await repo.getById(q.id), concurrent);
+      }
+      active = actor;
+    });
     await t.test("no automatic Estimate, 401/403 and exact source ownership", async () => {
       assert.equal((await repo.getById(value.id))!.quote.activeEstimateCost, null);
       active = null; assert.equal((await post(generate())).status, 401);
@@ -57,7 +140,14 @@ test("Estimate trusted commands: disposable PostgreSQL exact snapshots and atomi
       assert.equal((await post(generate())).status, 409);
       const logs = (await pool.query("SELECT actor_user_id::text,metadata FROM operation_logs WHERE quote_id=$1", [value.id])).rows;
       assert.equal(logs.length, 1); assert.equal(logs[0].actor_user_id, actor.internalUserId); assert.equal(logs[0].metadata.workflowAction, "estimate.generate");
-      active = { ...actor, permissions: ["quote.view"] }; assert.equal((await fetch(`${origin}/api/v1/quotes/${value.id}`)).status, 403); active = actor;
+      active = { ...actor, permissions: ["quote.view", "quote.revision.view", "quote.cost.view"] };
+      const viewerResponse = await fetch(`${origin}/api/v1/quotes/${value.id}`);
+      assert.equal(viewerResponse.status, 200, "Generating internal Estimate must not revoke Quote access");
+      const viewerRecord = (await viewerResponse.json()).quote;
+      assert.equal(viewerRecord.estimateVisibility, "restricted");
+      assert.equal(Object.hasOwn(viewerRecord.quote, "activeEstimateCost"), false);
+      assert.equal(Object.hasOwn(viewerRecord.quote, "estimateCostHistory"), false);
+      active = actor;
     });
     await t.test("controlled edits; generic PUT and structure/provenance tamper reject", async () => {
       const e = structuredClone(record.quote.activeEstimateCost!); e.labor.value = null; e.fabrics[0].unitPrice = "0";

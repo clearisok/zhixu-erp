@@ -18,7 +18,7 @@ import {
 } from "./confirmed-commercial-terms/service.js";
 import { getSalesOrderById, listSalesOrders } from "./sales-orders/repository.js";
 import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales-orders/model.js";
-import { normalizeServerQuote, QuoteConflictError, QuoteInvariantError, validateQuote, type ServerQuote } from "./quotes/model.js";
+import { QuoteConflictError, QuoteInvariantError } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
 import { parseQuoteVersionCommand } from "./quotes/version-workflows.js";
 import { parseEstimateCommand } from "./quotes/estimate-workflows.js";
@@ -176,14 +176,14 @@ function quoteListQuery(requestUrl: string | undefined) {
   return { limit, offset: parse("offset", 0, 0), search, type, status };
 }
 
-function quoteBody(body: Record<string, unknown>): { quote: ServerQuote; expectedVersion: number } {
+function quoteBody(body: Record<string, unknown>): { quote: import("./quotes/quote-response.js").QuoteSaveContent; expectedVersion: number } {
   if (Object.keys(body).some((key) => !quoteSaveInputKeys.has(key))) {
     throw new HttpError(400, "invalid_quote_request", "Request contains unsupported fields");
   }
   if (!body.quote || typeof body.quote !== "object" || Array.isArray(body.quote)) {
     throw new HttpError(400, "invalid_quote_request", "quote must be an object");
   }
-  const authorityKeys = new Set(["actor", "actorUserId", "internalUserId", "userId", "role", "permissions"]);
+  const authorityKeys = new Set(["actor", "actorUserId", "internalUserId", "userId", "role", "permissions", "estimateVisibility"]);
   const containsAuthorityField = (value: unknown): boolean => {
     if (Array.isArray(value)) return value.some(containsAuthorityField);
     if (!value || typeof value !== "object") return false;
@@ -195,16 +195,9 @@ function quoteBody(body: Record<string, unknown>): { quote: ServerQuote; expecte
   if (!Number.isSafeInteger(body.expectedVersion) || (body.expectedVersion as number) < 1) {
     throw new HttpError(400, "invalid_quote_request", "expectedVersion must be a positive integer");
   }
-  try {
-    const quote = normalizeServerQuote(body.quote as ServerQuote);
-    validateQuote(quote);
-    return { quote, expectedVersion: body.expectedVersion as number };
-  } catch (error) {
-    if (error instanceof QuoteInvariantError || error instanceof TypeError) {
-      throw new HttpError(400, "invalid_quote", "Quote aggregate is invalid");
-    }
-    throw error;
-  }
+  // Validation of the complete domain entity happens after the trusted service
+  // merges the current protected Estimate slice. This input is not a DB row.
+  return { quote: body.quote as import("./quotes/quote-response.js").QuoteSaveContent, expectedVersion: body.expectedVersion as number };
 }
 
 function asQuoteHttpError(error: unknown): never {

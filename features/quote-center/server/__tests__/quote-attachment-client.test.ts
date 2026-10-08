@@ -83,7 +83,7 @@ test("sequential Server upload chains versions and mirrors without dropping unsa
   const original = getDefaultRevision(quote);
   original.revisionId = revisionId;
   original.baseInfo.styleName = "unsaved local draft";
-  let record = { quote, expectedVersion: 1 };
+  let record: import("../quote-server-editor-adapter").EditableServerQuoteRecord = { quote, expectedVersion: 1 };
   let baseline = structuredClone(quote);
   baseline.revisions[0].baseInfo.styleName = "saved baseline";
   const rows: ReturnType<typeof image>[] = [];

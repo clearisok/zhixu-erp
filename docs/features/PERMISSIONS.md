@@ -12,21 +12,15 @@ Server Revision/PV 命令沿用权限目录：`quote.edit` + Revision 创建 `qu
 
 Q4A Server attachment foundation 复用现有 `quote.view`（metadata/read/download）与 `quote.edit`（upload/rename/link/unlink/style-image），不新增超权限或默认角色政策。两种身份模式均经 `IdentityAuthority` 解析后交给服务层再次检查；请求 body/header 不能提供 actor。该 API 目前无 production storage adapter、未部署/未激活，不改变正式 Browser 附件权限。
 
-## Server Estimate 完整 DTO 兼容边界
+## Server Quote / Estimate DTO 权限边界
 
-显式 Server Estimate `generate/update/regenerate/restore/ignore` 均需 **`quote.edit` + `estimate.view` + `estimate.edit`**。身份从可信上下文解析，不按角色名称授权；没有新权限键或默认角色调整。只读历史 Estimate 没有 writer，恢复是建立新 active，而非修改历史。查看历史 Revision 时，Quote 级 active Estimate 仍按自身状态/权限编辑。
+Quote / Estimate 权限耦合已在本 PR 内修复，而非新增角色政策。`quote.view` 可读报价及已授权历史，不因他人生成 Estimate 而整体403。可信身份无 `estimate.view` 时，GET、创建、普通保存与 Revision/PV 响应集中投影为 `estimateVisibility: restricted`，完全省略 active/history 字段，不返回存在性、历史条数或汇总；有权限则保留完整 Estimate。Editor 使用独立视图类型保留“未授权返回”状态，不伪造成 null/[]，不加载估算面板/计算/缓存；成本入口显示无查看权限。
 
-`server/quotes/service.ts` 的 `authorizeEstimateRead` 只在 active 非 null 或 history 非空时要求 `estimate.view`：
+普通 PUT 只提交 Quote 内容；Server 在 expectedVersion 校验后合并当前已保存 Estimate，仍对完整领域实体执行原 normalize/validate、细粒度权限、历史不可变与 repository CAS/事务检查。缺失字段不是清空命令；无 Estimate 读权限者注入任何 Estimate 字段（包括 null/[]）返回409 `estimate_command_required`。有读权限者的旧完整请求仅兼容原样切片，任何变化仍拒绝；Estimate 修改只走专用命令，需要 `quote.edit` + `estimate.view` + `estimate.edit`。读权限不授予写权限，默认角色/权限目录不变。
 
-- 完整 Quote GET 仍需 `quote.view`；若含 Estimate 且缺 `estimate.view`，**整个 API 返回403，Editor 不能加载该报价**，不会剔除 Estimate 后返回其他字段。
-- generic aggregate PUT（原 `quote.edit`/细粒度 diff 权限仍需满足）、Revision/PV command 返回完整 Quote，同样在含 Estimate 时额外拒绝缺 `estimate.view` 的用户；不产生业务写入。Estimate 未改动也不豁免这个读权限条件。
-- 不含 current/history Estimate 的报价不触发这个附加条件；只返回 minimal summary 的列表没有 Estimate 数据，继续按 `quote.view` 读取。
-- 前端成本页签由 `estimate.view` 控制，mutation 控件另受编辑权限/锁/错误状态控制；**UI 隐藏/禁用不等于上述 API 403**，也不能代替后端检查。
-- generic PUT 不能改变任何 Estimate slice，有权限者也须使用 Estimate 命令，差异返回409 `estimate_command_required`。内部 repository 的合法持久化/测试能力保留。
+管理员另窗更新估算会推进 Quote aggregate version；旧 expectedVersion 保存返回409，不能用旧保护切片覆盖新值。历史 Estimate 仍只读，恢复建立新 active；内部 repository 完整持久化能力保留。客户端可见性标记不是权限来源，body 不能提供它授权或写入。
 
-**待审查兼容差异（未改变权限政策）：**现有 Browser 查看员模板 `viewerPermissions` 不含 `estimate.view`，而既有描述允许查看报价；旧 Browser 可只隐藏估算页签，当前 Server 完整 DTO 会拒绝该用户打开含 Estimate 的整张报价。这是比 UI 隐藏更强的读限制，不宣称与旧体验等价。后续是否分拆/裁剪 DTO 或调整授权须单独审查；本次 docs-only 收口不选择方案、不自动补权限，也不把这一影响文字化为新的默认角色规则。报价员模板有 `estimate.view`、没有 `estimate.edit`，查看估算不意味着获准 mutation；Server 实际授权仍以可信 permission keys 为准。
-
-本兼容边界在 checkpoint disposable API / frontend 验证，未在真实多用户环境启用。默认 Browser 与 D-093 local-only 限制不变，完整报价 production readiness 不由此成立。
+此前“含 Estimate 整单403”的实现是本 PR 修复的兼容问题，不是正式查看员政策。测试按可信 permission keys 区分查看员、无估算权限的报价编辑者、估算只读者和合法估算编辑者，不按角色名称分支，不给查看员补 estimate.view。无真实部署/角色修改，默认 Browser 与 D-093 本机限制保持。
 
 ## Q3A/Q3B1 Quote master/settings Server authority
 

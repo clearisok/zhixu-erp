@@ -40,18 +40,22 @@
 
 Runtime generic aggregate PUT **不能改变任何 Estimate slice**，即使调用者有编辑权限也须走专用命令；差异返回409 `estimate_command_required`。内部 repository 合法持久化/测试仍保留，不削弱历史不可变。
 
-Estimate mutation 使用已有 `quote.edit` + `estimate.view` + `estimate.edit`。包含 active 或非空 history 的完整 Quote GET、generic save 和 Revision/PV 命令响应边界另要求 `estimate.view`；缺少时是 API 403，不是隐藏页签后返回其余完整 DTO。无 Estimate 的 Quote read 与列表 metadata 不受这个条件影响。具体查看员兼容差异与待审查事项见 [权限系统](PERMISSIONS.md#server-estimate-完整-dto-兼容边界)；不修改默认角色或新增超级权限。
+Quote / Estimate 权限耦合已在本 PR 内修复，而非新增角色政策。`quote.view` 可读报价及已授权历史，不因他人生成 Estimate 而整体403。可信身份无 `estimate.view` 时，GET、创建、普通保存与 Revision/PV 响应集中投影为 `estimateVisibility: restricted`，完全省略 active/history 字段，不返回存在性、历史条数或汇总；有权限则保留完整 Estimate。Editor 使用独立视图类型保留“未授权返回”状态，不伪造成 null/[]，不加载估算面板/计算/缓存；成本入口显示无查看权限。
+
+普通 PUT 只提交 Quote 内容；Server 在 expectedVersion 校验后合并当前已保存 Estimate，仍对完整领域实体执行原 normalize/validate、细粒度权限、历史不可变与 repository CAS/事务检查。缺失字段不是清空命令；无 Estimate 读权限者注入任何 Estimate 字段（包括 null/[]）返回409 `estimate_command_required`。有读权限者的旧完整请求仅兼容原样切片，任何变化仍拒绝；Estimate 修改只走专用命令，需要 `quote.edit` + `estimate.view` + `estimate.edit`。读权限不授予写权限，默认角色/权限目录不变。
 
 ## Draft and failure behavior
 
 - Estimate 与整单保存、附件、Revision/PV 共用每个 Editor 的 expectedVersion、baseline 和排他锁。
-- 仅编辑当前 Estimate 时发送一个专用 update；混合 Quote/Estimate 草稿先保存 Quote（携带已确认 Estimate slice），再用最新版本保存 Estimate。它们是分步事务，不是跨两个请求的原子保存。
+- 仅编辑当前 Estimate 时发送一个专用 update；混合 Quote/Estimate 草稿先保存 Quote 内容（Server 保留受保护 Estimate slice），再用最新版本保存 Estimate。它们是分步事务，不是跨两个请求的原子保存。
 - 生成/重新生成/恢复前 dirty 必须明确保存后继续或取消；关联成本差异先完成既有同步范围选择并保存，再由用户主动继续，不能自动跳过。
 - 前一步保存成功、后一步失败如实分别提示；409/网络未知保留未保存草稿、来源或历史选择，立即提供核对入口。blocked 后不自动重试、不继续后续命令、不落 Browser；成功采用 Server 响应更新 version/baseline/current UI。
 
 ## Engineering verification and rollout
 
-工程 tests 在 checkpoint `3da2234b82cca7baebb59febca42c3fdad00352b` 已执行，本次文档收口未重复运行。实际 Chromium 包括两类型完整流程、来源选择、历史只读/克隆、stale/ignore、历史 Revision 下当前估算编辑、dirty 取消/同步、save-first 与保存/恢复409/network；保留下载字节/SHA-256等回归，无 unhandled rejection、cleanup PASS。各 suite 数字统一见 `AI_HANDOFF.md`，不在此重复流水账。
+本 PR 的权限 follow-up 增加不同可信身份的 API/实际 Chromium 验收：普通报价读取/保存/版本命令不耦合 Estimate 权限，响应/页面/缓存隔离、注入拒绝与并发保护；原生命周期、精度、事务回滚和失败草稿回归保持。最终实测数字统一见 `AI_HANDOFF.md`。
+
+HISTORICAL 工程 tests 在 checkpoint `3da2234b82cca7baebb59febca42c3fdad00352b` 已执行，当时文档收口未重复运行。实际 Chromium 包括两类型完整流程、来源选择、历史只读/克隆、stale/ignore、历史 Revision 下当前估算编辑、dirty 取消/同步、save-first 与保存/恢复409/network；保留下载字节/SHA-256等回归，无 unhandled rejection、cleanup PASS。各 suite 数字统一见 `AI_HANDOFF.md`，不在此重复流水账。
 
 仅 disposable PostgreSQL、合成数据、临时 Chromium profile 与测试 storage 验证；**尚未真实部署，不代表全报价 production-ready**。默认 Browser/旧 runtime 未变，D-096 historical import NOT REQUIRED；无真实 schema activation/DB/Browser/COS/secret 操作。
 

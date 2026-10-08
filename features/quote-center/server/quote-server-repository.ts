@@ -1,4 +1,4 @@
-import type { QuoteRecord, ServerQuote } from "../../../server/quotes/model";
+import type { QuoteResponseRecord as QuoteRecord, QuoteSaveContent as ServerQuote } from "../../../server/quotes/quote-response";
 import {
   quoteServerClient,
   type QuoteServerClient,

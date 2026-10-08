@@ -32,7 +32,7 @@ test("unlinked Quote keeps the legacy confirmation path while historical revisio
   assert.equal(resolveQuoteTermsConfirmationAuthority({ activated: true, lookupReady: true, linkage: "unlinked" }), "proven_unlinked_local");
   assert.equal(resolveQuoteTermsConfirmationAuthority({ activated: true, lookupReady: true, linkage: "linked" }), "linked_server");
   assert.equal(resolveQuoteTermsConfirmationAuthority({ activated: true, lookupReady: false, linkage: null }), "unknown_blocked");
-  assert.match(quoteEditor, /applyCustomerConfirmation\(quote, activeVersion\.id/u);
+  assert.match(quoteEditor, /applyCustomerConfirmation\(readableEstimateQuote\(quote\), activeVersion\.id/u);
   assert.match(quoteEditor, /await mockQuoteRepository\.save\(next\)/u);
   assert.match(quoteEditor, /setServerTermsState\("legacy_pre_activation"\)/u);
   assert.match(quoteEditor, /Server linkage 未激活 · 保留现有本地确认流程/u);

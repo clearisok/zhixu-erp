@@ -256,7 +256,9 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
     if (!createdRecord) throw new Error("runtime Quote was not created");
     const before = (await createTrustedQuoteService(pool).getById(createdRecord.quote.id))!;
     const beforeLogs = (await pool.query("SELECT count(*)::int AS n FROM operation_logs WHERE entity_type='Quote' AND entity_id=$1", [before.quote.id])).rows[0].n;
-    const changed = structuredClone(before.quote);
+    const changed: import("../quotes/quote-response.js").QuoteSaveContent = structuredClone(before.quote);
+    delete changed.activeEstimateCost;
+    delete changed.estimateCostHistory;
     changed.quoteCode = "QT-2099-0101-999";
     const response = await apiRequest<{ error: { code: string } }>(api.baseUrl, `/api/v1/quotes/${changed.id}`, { cookie: cookies.editor, method: "PUT", mutationBoundary: true, body: { quote: changed, expectedVersion: before.version } });
     assert.equal(response.response.status, 409);

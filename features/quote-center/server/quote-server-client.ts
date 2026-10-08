@@ -1,4 +1,4 @@
-import type { QuoteRecord, ServerQuote } from "../../../server/quotes/model";
+import type { QuoteResponseRecord as QuoteRecord, QuoteSaveContent as ServerQuote } from "../../../server/quotes/quote-response";
 import type { QuoteVersionCommand } from "../../../server/quotes/version-workflows";
 import type { EstimateCommand } from "../../../server/quotes/estimate-workflows";
 
@@ -73,7 +73,10 @@ export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?:
       return mutation("POST", "/api/v1/quotes", {});
     },
     save(quote, expectedVersion) {
-      return mutation("PUT", `/api/v1/quotes/${encodeURIComponent(quote.id)}`, { quote, expectedVersion });
+      const content = { ...quote };
+      delete content.activeEstimateCost;
+      delete content.estimateCostHistory;
+      return mutation("PUT", `/api/v1/quotes/${encodeURIComponent(quote.id)}`, { quote: content, expectedVersion });
     },
     versionWorkflow(quoteId, command) {
       return mutation("POST", `/api/v1/quotes/${encodeURIComponent(quoteId)}/version-workflows`, command);

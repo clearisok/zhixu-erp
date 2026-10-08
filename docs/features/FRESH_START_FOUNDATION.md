@@ -38,9 +38,11 @@ Foundation 原 Gate 验证新 disposable DB；后续 D-097 已接通正式 Serve
 
 Quote 级 Estimate 从 Server 已保存来源主动克隆；生成与已存在 active 的重新生成明确分开，旧 active 完整归档，恢复生成新 Estimate/行 ID 与可信创建信息，原 history/provenance 不变，来源 PV 删除后仍独立可读/可恢复。编辑仅原固定结构面板字段，Decimal string/null/zero 保持；不反写来源 Revision/PV、确认、状态/default 或附件。Quote 当前估算并不随所查看历史 Revision 变成历史只读。
 
-草稿保存/Estimate/附件/版本共用实例版本锁；估算-only 单命令，混合草稿分步事务，先保存成功后的失败如实提示并保留草稿/选择、核对后才可继续。关联成本须先完成显式同步选择。generic PUT 不可改 Estimate slice；含 Estimate 的完整 DTO 读/保存/版本响应条件性要求 `estimate.view`，缺少时整体403。查看员模板兼容差异待审查，非本次权限政策调整；详见 `ESTIMATE_COST.md`、`PERMISSIONS.md`。
+草稿保存/Estimate/附件/版本共用实例版本锁；估算-only 单命令，混合草稿分步事务，先保存成功后的失败如实提示并保留草稿/选择、核对后才可继续。关联成本须先完成显式同步选择。Quote / Estimate 权限耦合已在本 PR 内修复，而非新增角色政策。`quote.view` 可读报价及已授权历史，不因他人生成 Estimate 而整体403。可信身份无 `estimate.view` 时，GET、创建、普通保存与 Revision/PV 响应集中投影为 `estimateVisibility: restricted`，完全省略 active/history 字段，不返回存在性、历史条数或汇总；有权限则保留完整 Estimate。Editor 使用独立视图类型保留“未授权返回”状态，不伪造成 null/[]，不加载估算面板/计算/缓存；成本入口显示无查看权限。
 
-工程验证及各 suite 数字统一见 `AI_HANDOFF.md`，对应 checkpoint `3da2234b82cca7baebb59febca42c3fdad00352b`。actual Chromium30/30 保留原20项回归，增加两类型估算、历史来源/历史 Revision 下当前估算编辑、dirty取消/同步决策及各409/network失败入口；下载 bytes/SHA-256、无rejection、cleanup PASS。Server/default Browser frontend 均PASS，默认 build-info=browser。**工程测试在 checkpoint 已执行；本次文档收口未重复运行**，仅文档验证，无 runtime/schema/test 增量。尚未真实部署，默认 Browser/旧环境不变，历史导入 NOT REQUIRED；完整报价功能并非 production-ready。
+普通 PUT 只提交 Quote 内容；Server 在 expectedVersion 校验后合并当前已保存 Estimate，仍对完整领域实体执行原 normalize/validate、细粒度权限、历史不可变与 repository CAS/事务检查。缺失字段不是清空命令；无 Estimate 读权限者注入任何 Estimate 字段（包括 null/[]）返回409 `estimate_command_required`。有读权限者的旧完整请求仅兼容原样切片，任何变化仍拒绝；Estimate 修改只走专用命令，需要 `quote.edit` + `estimate.view` + `estimate.edit`。读权限不授予写权限，默认角色/权限目录不变。 详见 `ESTIMATE_COST.md`、`PERMISSIONS.md`。
+
+HISTORICAL 初始工程验证及各 suite 数字统一见 `AI_HANDOFF.md`，对应 checkpoint `3da2234b82cca7baebb59febca42c3fdad00352b`。actual Chromium30/30 保留原20项回归，增加两类型估算、历史来源/历史 Revision 下当前估算编辑、dirty取消/同步决策及各409/network失败入口；下载 bytes/SHA-256、无rejection、cleanup PASS。Server/default Browser frontend 均PASS，默认 build-info=browser。当前权限 follow-up 修改 DTO/服务/视图与测试，重新验证结果见 AI_HANDOFF；无 schema 增量。尚未真实部署，默认 Browser/旧环境不变，历史导入 NOT REQUIRED；完整报价功能并非 production-ready。
 
 ### HISTORICAL Server version workflows verification (2026-10-08, PR #76)
 
@@ -127,4 +129,4 @@ EmptyState/missing-master UI 文案通过实际组件审计确认；本轮只执
 
 ## Next smallest engineering task
 
-Server Revision / PriceVersion 与 Estimate 日常工作流工程验证已完成；后续只聚焦用户另行选择的未接线动作，保留历史不可变、可信权限/审计与版本冲突，先审查上述完整 DTO 对查看员的兼容影响。不得通过 mock 或 generic 不受限 mutation 补功能；不自动开始确认/导出等工作、不做历史导入、不清旧环境、不扩大到 Order/Scheduling/Closing。真实新环境部署另行授权。
+Server Revision / PriceVersion 与 Estimate 日常工作流工程验证已完成；后续只聚焦用户另行选择的未接线动作，保留历史不可变、可信权限/审计与版本冲突，Quote/Estimate 权限隔离已在本 PR 修复。不得通过 mock 或 generic 不受限 mutation 补功能；不自动开始确认/导出等工作、不做历史导入、不清旧环境、不扩大到 Order/Scheduling/Closing。真实新环境部署另行授权。

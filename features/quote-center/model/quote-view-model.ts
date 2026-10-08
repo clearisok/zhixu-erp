@@ -195,7 +195,7 @@ export function normalizeSinglePriceVersionName(priceVersions: PriceVersion[]): 
   return [{ ...priceVersions[0], name: BASE_PRICE_VERSION_NAME }];
 }
 
-export function getDefaultRevision(quote: Quote): QuoteRevision {
+export function getDefaultRevision(quote: Pick<Quote, "revisions" | "defaultRevisionId" | "currentRevisionId">): QuoteRevision {
   return quote.revisions.find((revision) => revision.revisionId === quote.defaultRevisionId)
     ?? quote.revisions.find((revision) => revision.revisionId === quote.currentRevisionId)
     ?? quote.revisions[quote.revisions.length - 1];

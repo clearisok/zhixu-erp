@@ -18,9 +18,11 @@ Server Estimate 日常闭环已接正式版本管理/成本面板：从所选已
 
 Estimate 与 Quote/附件/版本共用 lock/version/baseline；估算-only 保存一个专用命令，混合草稿先保存 Quote 再保存 Estimate，前一步已提交、后一步未确认须分别显示。dirty 要求保存后继续或取消，成本同步选择完成后再主动继续；失败保留草稿/来源/历史选择、立即提供核对、blocked 不重试、不回退 Browser。
 
-**兼容变化：**generic PUT 不允许任何 Estimate slice 变化（409）；包含 active/history 的完整 DTO GET、save、Revision/PV command 返回边界需 `estimate.view`，缺少时整体403而非隐藏成本页签后加载其余报价。列表 summary 与无 Estimate 报价不受这个附加条件影响；Estimate mutation 使用已有 `quote.edit` + `estimate.view` + `estimate.edit`。现有查看员模板的读体验差异明确列为待审查，不在本次改权限政策；详见 `PERMISSIONS.md`。
+Quote / Estimate 权限耦合已在本 PR 内修复，而非新增角色政策。`quote.view` 可读报价及已授权历史，不因他人生成 Estimate 而整体403。可信身份无 `estimate.view` 时，GET、创建、普通保存与 Revision/PV 响应集中投影为 `estimateVisibility: restricted`，完全省略 active/history 字段，不返回存在性、历史条数或汇总；有权限则保留完整 Estimate。Editor 使用独立视图类型保留“未授权返回”状态，不伪造成 null/[]，不加载估算面板/计算/缓存；成本入口显示无查看权限。
 
-客户确认、导出、整单复制/删除、Revision 删除、转订单与日志查看仍未接线，Server 模式禁用；Browser 模式原功能保留。工程 checkpoint 的 actual Chromium30/30 包含 Estimate 与此前版本/成本同步/附件/下载字节SHA回归，suite 数字及验证来源统一见 `AI_HANDOFF.md`。工程测试在 checkpoint 已执行；本次文档收口未重复运行。不是真实部署或全报价 production-ready，默认 Browser/旧 runtime 不变，历史导入 NOT REQUIRED。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
+普通 PUT 只提交 Quote 内容；Server 在 expectedVersion 校验后合并当前已保存 Estimate，仍对完整领域实体执行原 normalize/validate、细粒度权限、历史不可变与 repository CAS/事务检查。缺失字段不是清空命令；无 Estimate 读权限者注入任何 Estimate 字段（包括 null/[]）返回409 `estimate_command_required`。有读权限者的旧完整请求仅兼容原样切片，任何变化仍拒绝；Estimate 修改只走专用命令，需要 `quote.edit` + `estimate.view` + `estimate.edit`。读权限不授予写权限，默认角色/权限目录不变。
+
+客户确认、导出、整单复制/删除、Revision 删除、转订单与日志查看仍未接线，Server 模式禁用；Browser 模式原功能保留。HISTORICAL 初始工程 checkpoint 的 actual Chromium30/30 包含 Estimate 与此前版本/成本同步/附件/下载字节SHA回归，suite 数字及验证来源统一见 `AI_HANDOFF.md`。当前权限 follow-up 重新执行相关 API、persistence、实际 Chromium 与构建；最新结果见 AI_HANDOFF，不沿用旧数字。不是真实部署或全报价 production-ready，默认 Browser/旧 runtime 不变，历史导入 NOT REQUIRED。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
 
 > 2026-10-05：`/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有；Q3 master/default dependencies 在真实 3001 的 `masterSettingsAuthority=server` 下来自 PostgreSQL，Q3 编辑已重开。PR #64 Local Single-User UI 修复已部署：`/` 自动进入 `/quote-center`、统一侧栏恢复；用户真实浏览器确认原 Quote 数据保留。此收口没有迁移、重置、重新 seed 或改变 Quote storage namespace；Quote historical migration/Server ownership 另立 Gate。
 

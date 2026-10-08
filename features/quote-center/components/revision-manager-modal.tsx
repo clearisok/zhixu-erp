@@ -6,8 +6,9 @@ import { summarizeRevisionMetric } from "../model/quote-presentation";
 import { formatFinalGarmentPrice } from "../model/final-quote-format";
 import { getNextRevisionLabel, revisionLabelParts } from "../model/quote-revision-naming";
 import { confirmationSummaryLabel } from "../model/quote-workflows";
-import { BASE_PRICE_VERSION_NAME, type Quote, type QuoteRevision, type QuoteRevisionReason, type SelectOption } from "../model/quote-view-model";
+import { BASE_PRICE_VERSION_NAME, type QuoteRevision, type QuoteRevisionReason, type SelectOption } from "../model/quote-view-model";
 import type { EstimateCost } from "../model/quote-view-model";
+import { readableEstimateQuote, type QuoteEditorData as Quote } from "../model/quote-editor-data";
 import { EstimateCostPanel } from "./estimate-cost-panel";
 import { PermissionButton } from "@/features/permissions";
 
@@ -105,7 +106,7 @@ function RevisionManagerDialog({ serverMode = false, serverError, quote, viewedR
   return <><Modal open className="qc-revision-manager-modal" title="报价版本" description="集中查看、追溯并基于任意历史快照创建新的报价版本。" onClose={onClose} onSubmit={mode === "update" ? submitUpdate : undefined} footer={footer}>
     <div className="qc-revision-manager">
       {serverError && <div role="alert">{serverError}<Button variant="secondary" onClick={onClose}>关闭并核对</Button></div>}
-      <div className="qc-revision-picker" aria-label="选择报价版本"><button type="button" disabled={!canViewEstimate} title={!canViewEstimate ? "暂无权限，请联系管理员" : undefined} className={`qc-revision-pill qc-estimate-pill ${estimateSelected ? "selected" : ""}`} onClick={() => { setSelectedId("estimate-cost"); setMode("overview"); }}><span>成本</span><span className="qc-revision-pill-badges">{quote.activeEstimateCost ? <StatusTag tone="active">已生成</StatusTag> : <StatusTag tone="neutral">未生成</StatusTag>}</span><small>内部估算口径</small></button>{revisions.map((revision) => {
+      <div className="qc-revision-picker" aria-label="选择报价版本"><button type="button" disabled={!canViewEstimate} title={!canViewEstimate ? "暂无权限，请联系管理员" : undefined} className={`qc-revision-pill qc-estimate-pill ${estimateSelected ? "selected" : ""}`} onClick={() => { setSelectedId("estimate-cost"); setMode("overview"); }}><span>成本</span><span className="qc-revision-pill-badges">{!canViewEstimate ? <StatusTag tone="neutral">无查看权限</StatusTag> : quote.activeEstimateCost ? <StatusTag tone="active">已生成</StatusTag> : <StatusTag tone="neutral">未生成</StatusTag>}</span><small>内部估算口径</small></button>{revisions.map((revision) => {
         const isDefault = revision.revisionId === quote.defaultRevisionId;
         const confirmed = revision.confirmationSummary.confirmedCount > 0;
         const parent = revision.parentRevisionId ? revisions.find((item) => item.revisionId === revision.parentRevisionId) : null;
@@ -116,7 +117,7 @@ function RevisionManagerDialog({ serverMode = false, serverError, quote, viewedR
         </button>;
       })}<button type="button" disabled={!canUpdate} title={!canUpdate ? "暂无权限，请联系管理员" : undefined} className="qc-revision-pill qc-revision-add" onClick={beginUpdate}>＋ 更新报价版本</button></div>
 
-      {estimateSelected ? <EstimateCostPanel key={quote.activeEstimateCost?.id ?? "empty"} quote={quote} readOnly={!canEditEstimate} onSave={onEstimateSave} onChange={onEstimateChange} onGenerate={(regenerate) => onEstimateGenerate(revisions.find((item) => item.revisionId === quote.defaultRevisionId) ?? selected, regenerate)} onIgnoreStale={onEstimateIgnoreStale} onRestore={onEstimateRestore} /> : mode === "overview" ? <div className="qc-revision-overview">
+      {estimateSelected && canViewEstimate ? <EstimateCostPanel key={quote.activeEstimateCost?.id ?? "empty"} quote={readableEstimateQuote(quote)} readOnly={!canEditEstimate} onSave={onEstimateSave} onChange={onEstimateChange} onGenerate={(regenerate) => onEstimateGenerate(revisions.find((item) => item.revisionId === quote.defaultRevisionId) ?? selected, regenerate)} onIgnoreStale={onEstimateIgnoreStale} onRestore={onEstimateRestore} /> : mode === "overview" ? <div className="qc-revision-overview">
         {serverMode && canViewEstimate && <FormItem label="估算来源价格版本"><select aria-label="估算来源价格版本" value={selectedSource.id} onChange={e => setSourcePriceId(e.target.value)}>{selected.priceVersions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></FormItem>}
         <header><div><small>报价版本</small><RevisionLabel revision={selected} className="large" /></div><span>{confirmationSummaryLabel(selected.confirmationSummary)}</span></header>
         <dl>
