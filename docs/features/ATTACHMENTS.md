@@ -4,7 +4,39 @@
 
 附件模块为单张 Quote Revision 提供图片和文件管理。图片可预览并指定款式图；普通文件只允许下载。正式 Browser Quote Center 仍使用 IndexedDB；Q4A Server foundation 与 Q4B isolated UI candidate 均未部署/激活，不接入根路径旧 ERP API。
 
-## Current behavior
+## Q4C-B REAL COS closure + persistent credentials (2026-10-08)
+
+**Real COS preflight PASS，来源为用户提供的官方 Node 执行输出与 checksum；本轮未远程获取原文件或重算 hash，未重跑 COS。** Reviewed source `a979d4b4dd65edcb29473d6e7bfc036942b94b4b`，宁波 Ubuntu 工具目录 `/home/jackson/zhixu-q4cb-tool.BaG86d29`。工具源码来自该提交且未重写；工具副本的 package/lock 根依赖清单调整过，**不是原仓库完整 npm ci 验收**。
+
+- `zhixu-object-storage-preflight.v1` / PASS / exitCode 0 / 65536 bytes；HeadBucket、PUT、HEAD、GET、DELETE、postDeleteAbsent、cleanupConfirmed、metadataSha256Match、downloadSha256Match 全 true。
+- UTC `2026-10-08T09:26:15.212Z` → `2026-10-08T09:26:17.163Z`；probe `zhixu-preflight/53643f60-b760-40ab-80ba-537c55d8cab0/probe` 已确认清理；probe SHA-256 `4ce972f8b9d978a4a8177753b90f1431bfa93fdc41014e82847712005b3be27d`。
+- 原证据 `/home/jackson/zhixu-evidence/cos-preflight-20261008T092614Z-2001623.json`；用户提供文件 SHA-256 `327d3e40f49e4edc925b390c516e9be84cccd4da771f84dd2052b24938ae59d8`。仅文字追溯，不重建/伪造原 JSON。
+- s3 / `https://cos.ap-hongkong.myqcloud.com` / ap-hongkong / weaveops-prod-1501437430 / forcePathStyle false。Private bucket 无 anonymous/CDN/static website 是 USER CONFIRMED；probe 不证明 `attachments/*` Delete 已 explicit deny，也不证明 runtimeConfigReviewed。**PASS != production attachments active**。
+
+### Persistent credential engineering (not installed on real host)
+
+`storage-config.ts` 继续纯解析；`storage-config-loader.ts` 是 Server/runtime/preflight/offline check 共用同步 IO 边界。保留 env-only；新增 `ZHIXU_ATTACHMENT_S3_ACCESS_KEY_ID_FILE` 与 `_SECRET_ACCESS_KEY_FILE`，必须 absolute path。每个 credential 的原文 env 与对应 FILE 只可选一项，声明空 env 也不能绕过冲突。Regular file only、拒绝 symlink/missing/unreadable/empty/oversized/非法内容；上限 4096 ASCII non-whitespace bytes，可带一个 LF 或 CRLF。只将内容传给 parser/SDK，不回写 process.env、不输出秘密、片段或密钥 hash。
+
+可选 `ZHIXU_ATTACHMENT_CONFIG_FILE=/etc/zhixu/cos.env` 只加载 allowlisted 非敏感 `KEY=value` 配置及两个 FILE 路径，绝不 shell source/eval；不接受明文密钥或未知字段。明确 env 非敏感配置覆盖文件值，但 env credential + FILE 冲突始终拒绝。显式 storage=disabled 不打开 config/secret 文件，缺省 disabled 不读 secrets。Server config 在 pool、同步和 listen 前验证，失败仅 code/field，不输出 raw error stack。HTTP/Browser 不能指定 secret path。
+
+`npm run check:object-storage-config -- --config <absolute cos.env>` 完全 offline、无需 DB/auth/S3Client。只输出安全 identity 与来源 env/file，`networkContacted=false`、`databaseContacted=false`、`runtimeDeployed=false`；不证明凭据有效或 IAM 完整。现有 preflight evidence contract 不变。
+
+`npm run build:object-storage-tools` 生成 `dist/cos-tools/`：仅 setup script、三个 compiled offline modules 和 type=module package manifest，无 node_modules、业务数据或密钥。可将这个经过测试的目录独立传到未来 Ubuntu；Node >=22.13 即可运行，不需整套前端依赖。以下命令从该工具目录执行，**仅提供将来人工步骤，本轮不执行真实安装**：
+
+```sh
+sudo node scripts/setup-object-storage-credentials.mjs --directory /etc/zhixu --uid "$(id -u)" --gid "$(id -g)" --endpoint https://cos.ap-hongkong.myqcloud.com --region ap-hongkong --bucket weaveops-prod-1501437430 --force-path-style false
+node dist/server/server/attachments/check-config-cli.js --config /etc/zhixu/cos.env
+```
+
+UID/GID 在上述 host CLI 场景取当前管理员的实际 numeric identity，**不代表未来 service identity**。Setup 从 `/dev/tty` raw hidden prompt 读取两项，不接受命令行/历史/日志/env 密钥；默认拒绝覆盖，所有 target/ancestor symlink 拒绝。目录必须由指定 uid 持有且 0700，文件指定 uid/gid + 0600；两份 secret exclusive 发布后最后发布 cos.env，中途失败补偿本 attempt 的文件、保护 racing/existing target，不误报成功。既有目录权限不符合则拒绝，绝不自动放宽。轮换需明确选择新版本目录（同一 `--directory` 流程），offline 验证后另行授权切换配置，不做 in-place overwrite/自动轮换。
+
+Host：`/etc/zhixu/cos.env` 仅非敏感配置；`/etc/zhixu/secrets/cos/secret-id`、`secret-key` 为明文受限文件。容器只读挂载至 `/run/secrets/zhixu_cos_secret_id` / `zhixu_cos_secret_key`，FILE 指向 container path，不能用 host path。`ops/examples/cos-secrets.compose.yml` 是不自动启用片段，默认 Compose/Dockerfile 未接线。file-source secrets 的 YAML uid/gid/mode **不保证宿主 bind 文件权限**；未来须核对真实服务 numeric UID/GID（不能假设 root/jackson）、实际可读性与 ro mount。Disposable Linux 已验证 owner 1001 可读/错误 1002 被拒绝、0600、ro 阻止写入；这不是实际主机证明。
+
+受限明文文件不是保险箱：root/Docker 管理员仍可读取，须保护主机、备份与管理权限。无 Vault/KMS/自动轮换平台；不得放 actions-runner/_work、Git、镜像、build args/build-info。`.dockerignore` 排除 env/secrets；不要自行把 tool 输出或真实安装目录放构建 context。
+
+**Real host secret installation NOT EXECUTED；production runtime storage NOT ACTIVATED；真实 0008 NOT EXECUTED；Quote/attachment authority BROWSER；Q3 master/settings SERVER；Q5 Execute NOT AUTHORIZED。** Runtime 公网 timeout 硬化、CAM 正式附件删除拒绝、runtime config/IAM/身份/挂载核验仍是独立 activation prerequisites，本轮不扩张实现。下文早期 Q4C-B “NOT RUN”是合并前工程历史状态，不覆盖上述真实 PASS。
+
+## Current Browser behavior (unchanged)
 
 - 报价详情使用一个“附件”Card，固定放在当前报价明细的最后：面料成本 → 辅料成本 → 工价 → 其他费用 → 附件；即使没有附件也保留空状态和上传入口。
 - 历史 Revision 的附件 Card 保持相同位置，只允许图片预览、图片下载和文件下载。
@@ -86,7 +118,7 @@ QuoteRevision 的附件字段位于 `quote-view-model.ts`。旧 `garmentMedia` /
 
 ## Future production architecture — USER CONFIRMED
 
-### Q4C-B official Node preflight（工程/disposable only，2026-10-08）
+### HISTORICAL: Q4C-B tooling before real run（工程/disposable only，2026-10-08）
 
 USER CONFIRMED infrastructure（不是本代码 Gate 实测）：Tencent COS 私有 bucket `weaveops-prod-1501437430` 已建立，region `ap-hongkong`，endpoint `https://cos.ap-hongkong.myqcloud.com`，`forcePathStyle=false`；无 CDN、anonymous access、public read 或 static website。CAM 子账号 `weaveops-cos` 的凭据由用户安全保存。宁波 Ubuntu `weaveops-server` 的 Python SDK 1 MB PUT 已 PASS；不重复该测试、不接触原 `connection-test/*` 对象。直接复用 bucket，runtime `storage_container` 无特定命名依赖；早期 Q4A/C-A 的“provider 未选”是工程 Gate 历史状态。
 

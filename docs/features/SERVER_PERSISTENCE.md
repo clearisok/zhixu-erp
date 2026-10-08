@@ -10,6 +10,10 @@ Q4C-A 已加入 `server/attachments/s3-storage.ts` 与显式 runtime `ZHIXU_ATTA
 
 ## Q4C-B independent Object Storage preflight
 
+**Current 2026-10-08：REAL COS preflight PASS（用户执行输出/checksum，非本轮重算），production runtime storage NOT ACTIVATED。** 原 probe 已清理；来源和完整证据记录见 ATTACHMENTS。新增共用 `storage-config-loader.ts` 在纯 parser 前读取指定绝对 FILE；each credential env/FILE 冲突（含空声明）拒绝，内容限长/普通文件/单 LF 或 CRLF，失败输出 code/field。`loadServerConfig` 同步完成验证再创建 pool、同步/listen，disabled 不读 secrets；没有 migration/DB write 因配置检查而执行。
+
+Offline `check:object-storage-config` / compiled CLI 不导入 SDK/Server/DB，只证明当前 identity 可读、解析正确。可选非敏感 `ZHIXU_ATTACHMENT_CONFIG_FILE` 是数据格式 allowlist，不 shell source；两项 FILE 内容不回写 env。Portable tools / inert Compose ro secrets 示例与未来 numeric UID/GID 核验流程见 ATTACHMENTS；无真实安装、部署、0008、Quote import，Q5 Execute NOT AUTHORIZED。原 runtime 公网 timeout 未扩张修改。以下 tooling-only NOT RUN 是历史，不覆盖真实 PASS。
+
 Q4C-B 的 `server/attachments/storage-config.ts` 是上述 runtime 与独立 `scripts/preflight-object-storage.ts` 的唯一共享纯配置解析器，验证 endpoint/region/bucket/credentials/forcePathStyle；CLI 不依赖 `loadServerConfig`、DB URL、auth 或 Server startup。`npm run preflight:object-storage` 仅对自动生成 `zhixu-preflight/<uuid>/probe` 做 bounded HeadBucket/PUT/HEAD/GET/SHA-256/DELETE/absence 验证，输出脱敏 `zhixu-object-storage-preflight.v1`，不改变 runtime 正式 key 或自动 GC 行为。
 
 2026-10-08 USER CONFIRMED：Tencent COS private bucket `weaveops-prod-1501437430`（ap-hongkong、HTTPS regional endpoint、forcePathStyle=false）存在，宁波 Python SDK basic PUT PASS。**正式 Node real preflight NOT RUN**；本 Gate 仅 disposable MinIO（既有 adapter 回归使用 disposable PostgreSQL），没有真实 COS/DB 访问、0008 activation、Quote import 或部署。Runtime 的公网逐操作 timeout 仍是未来 activation review 项；此工具的 bounded timeout 不表示 runtime 已补齐或生产 ready。Preflight evidence 不能自行声称 privateBucket/runtimeConfigReviewed，也不能授权 Q5 Execute。

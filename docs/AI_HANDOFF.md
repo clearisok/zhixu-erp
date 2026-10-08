@@ -1,5 +1,15 @@
 # AI 接力棒
 
+## Current closure: COS real PASS + credential tooling (2026-10-08)
+
+- 本轮验证 PASS：credential/offline/Linux 4/4、preflight 16/16、S3 2/2、disposable startup/local identity 9/9、Server auth/frontend 33/33、npm test 671/671、typecheck/lint/server build/portable tools/diff-check；实际 disposable hidden TTY setup/check PASS，无输入回显。Full PG suite/frontend build 未重跑（无 schema/UI 改动，已跑对应启动/auth/storage 回归），不引用旧测试结果充数。
+- **Q4C-B REAL PREFLIGHT PASS**：用户提供 reviewed `a979d4b4dd65edcb29473d6e7bfc036942b94b4b` Node 执行输出/checksum；65536-byte probe、全阶段/hash/cleanup true、exit 0，UTC 09:26:15.212–09:26:17.163。原 evidence `/home/jackson/zhixu-evidence/cos-preflight-20261008T092614Z-2001623.json`，用户 SHA-256 `327d3e40f49e4edc925b390c516e9be84cccd4da771f84dd2052b24938ae59d8`。本轮未远程获取/重算或重跑，完整来源限制见 ATTACHMENTS；不伪造原 JSON。
+- Branch `feat/cos-persistent-credentials`，base `a979d4b4dd65edcb29473d6e7bfc036942b94b4b`。Pure parser + shared sync file loader，Server 在 pool/同步/listen 前校验；preflight 与 offline check 共用，无第二套 credential policy。两项 env/FILE 各自排他、bounded regular-file read、stable errors；disabled 不读 secrets。原 preflight evidence 格式不变。
+- Hidden `/dev/tty` Linux setup 默认不覆盖，0700 directories/0600 specified uid/gid，失败不发布完整 cos.env；`build:object-storage-tools` 输出不含 dependencies/secrets 的 portable offline directory，future 用户仅 Node 即可保存/检查。默认 Compose 不变，示例不自动启用。真实 UID/GID/权限须未来部署核对。
+- **Real host secret installation NOT EXECUTED，production runtime storage NOT ACTIVATED，0008/Quote import/Q5 Execute NO。** 未触碰真实 COS/credentials/Ubuntu/3001/3002/PG/Browser。Q3 authority SERVER；Quote/附件 BROWSER。Runtime 公网 timeout、runtimeConfigReviewed、private/IAM/attachments Delete deny 与真实 ro mount 是后续独立 prerequisites。
+
+## HISTORICAL: original Q4C-B tooling delivery before real run
+
 > 2026-10-08 当前接力：Q4C-B 独立 Object Storage preflight 工具已实现，正式真实 Node preflight 尚未运行。用户确认 Tencent COS 私有 bucket 已建立且宁波 Python PUT PASS；不是本工具实测，也不表示 runtime storage 已激活。Q5-A/B/C 仍为工程/disposable 验证，未捕获真实 Quote source、未执行真实 Quote import/0008/部署。D-094/D-095 与 D-093 保持 Active；Q3 master/settings SERVER，Quote aggregate/现有附件 BROWSER。以下旧 Gate 的“COS 未配置”仅记录历史，不能作为当前基础设施状态或执行授权。
 
 ## Q4C-B engineering handoff
