@@ -2,6 +2,8 @@
 
 ## CURRENT new Server Quote build — D-097 (not deployment)
 
+Server Revision/PV 命令沿用权限目录：`quote.edit` + Revision 创建 `quote.revision.update`、PV 创建 `quote.price_version.create`、删除 `quote.price_version.delete`；元数据更新仍 `quote.edit`，成本/参数变更继续通过原 aggregate diff 的细粒度检查。历史查看使用 `quote.revision.view`，不提供历史 writer。API IdentityAuthority 身份决定 actor/time，body 不接受 actor/createdAt/revisionLabel；事务失败时日志/关系/aggregate 一并回滚，无 Browser audit 副本或新增超级权限。对应 disposable API 验证401/403、forged fields、owner/version/历史/最后PV安全边界。Estimate/确认/导出/整单删除/转订单/日志查看权限不因本轮接线而启用。
+
 显式 Quote authority=server 的 root 使用现有 ServerSessionProvider / IdentityAuthority / PermissionAuthorityProvider；可信 permission bridge 只映射 session 身份与权限，不 load Browser permissionRepository，不提供 Browser 用户/角色 mutation。session 模式复用唯一 ServerLoginCard，API 仍检查 quote.view/create/edit 与动作/基础设置细粒度权限；请求不能提供 actor。unsupported routes 不挂旧 Browser 模块；没有新 super permission。默认 browser 分支的 PermissionProvider/旧 Local Single-User runtime 保持，D-093 loopback-only 不放宽。
 
 > 当前开发模式（D-093）：显式 Local Single-User Mode 与 PR #64 UI 修复已部署至真实本机 3001，用户真实浏览器验收通过；同一可信技术身份拥有完整 54 项 `PermissionKey` catalog，不要求织序账号/密码/Cookie。Q3B2I-C2 CLOSED / PASS，Q3 master/settings 为 Server authority、编辑已重开。旧 Server Session/RBAC 与 Browser mock 用户界面说明是 session-mode/历史行为；旧 schema 和服务权限检查仍保留。此模式只限本机开发，未来 LAN/WAN/香港服务器/多人使用须另建真实 authentication/authorization Gate。

@@ -24,6 +24,7 @@ type QuoteActionBarProps = {
   quickNavigationItems: QuoteQuickNavigationItem[];
   className?: string;
   onModeChange?: (mode: QuoteActionBarMode) => void;
+  keepPrimaryVisible?: boolean;
 };
 
 function ActionButton({ action, inMenu = false, onAfterClick }: {
@@ -56,6 +57,7 @@ export function QuoteActionBar({
   quickNavigationItems,
   className = "",
   onModeChange,
+  keepPrimaryVisible = false,
 }: QuoteActionBarProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const probeRefs = useRef<Record<QuoteActionBarMode, HTMLDivElement | null>>({
@@ -93,7 +95,7 @@ export function QuoteActionBar({
   }, [measure]);
 
   const showNavigation = mode === "compact-navigation";
-  const showPrimary = mode !== "minimal" && primaryAction;
+  const showPrimary = (keepPrimaryVisible || mode !== "minimal") && primaryAction;
   const hasMore = actions.length > 0;
 
   return <div

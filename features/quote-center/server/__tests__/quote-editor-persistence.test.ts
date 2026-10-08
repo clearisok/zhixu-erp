@@ -9,6 +9,10 @@ import { tmpdir } from "node:os";
 import { join, resolve, sep } from "node:path";
 import { assertRuntimeBuildIdentity } from "../../../../server/build-identity";
 import type { QuoteAttachmentController } from "../../model/quote-attachment-controller";
+import { quoteServerClient } from "../quote-server-client";
+import { quoteSnapshotFromBrowser } from "../../../../server/quotes/model";
+import { getDefaultRevision } from "../../model/quote-view-model";
+import { applyCostSyncDecisions, createCostSyncCandidates } from "../../model/price-version-cost-sync";
 
 test("compiled Quote authority and runtime must agree; malformed identity/illegal master combination reject", async () => {
   const directory = await mkdtemp(join(tmpdir(), "quote-authority-test-"));
@@ -118,4 +122,77 @@ test("attachment/aggregate share the write lock; uncertain attachment failure pr
   await assert.rejects(controller.unlink(quote.revisions[0], "synthetic-id"));
   assert.equal(unlinkCalls, 1);
   assert.deepEqual(versions, [2]);
+});
+
+test("version commands share save/attachment lock, use latest confirmed version and block after uncertainty", async () => {
+  const quote = createSyntheticQuoteFixture("version-write-lock");
+  let release!: () => void;
+  const wait = new Promise<void>(done => { release = done; });
+  const versions: number[] = [];
+  let calls = 0;
+  const persistence = createQuoteEditorPersistence({ quote, expectedVersion: 4 }, {
+    async load() { throw new Error("not used"); },
+    async save(next, expectedVersion) { return { quote: next, expectedVersion: expectedVersion + 1 }; },
+  }, { ...quoteServerClient, async versionWorkflow(_id, command) {
+    calls++; versions.push(command.expectedVersion);
+    if (calls > 1) throw new Error("Uncertain transport outcome");
+    await wait;
+    return { quote: quoteSnapshotFromBrowser(quote), version: command.expectedVersion + 1 };
+  } });
+  await persistence.save(quote);
+  const command = { action: "revision.create" as const, sourceRevisionId: quote.defaultRevisionId, reason: "其他" as const, note: "" };
+  const pending = persistence.workflow(command);
+  await assert.rejects(persistence.workflow(command));
+  await assert.rejects(persistence.save(quote));
+  const reject = async () => { throw new Error("must not be called"); };
+  const raw: QuoteAttachmentController = { mode: "server", style: reject, load: reject, get: reject, blob: reject, upload: reject, rename: reject, unlink: reject, canRename: () => false };
+  await assert.rejects(persistence.coordinate(raw).style(quote.revisions[0], null));
+  release(); await pending;
+  assert.equal(persistence.getVersion(), 6);
+  const before = persistence.getBaseline();
+  await assert.rejects(persistence.workflow(command));
+  await assert.rejects(persistence.workflow(command));
+  await assert.rejects(persistence.save(quote));
+  assert.equal(calls, 2); assert.deepEqual(versions, [5, 6]);
+  assert.equal(persistence.getVersion(), 6); assert.deepEqual(persistence.getBaseline(), before);
+});
+
+function syncDraft(scope: "all" | "current") {
+  const quote = createSyntheticQuoteFixture("sync-persistence");
+  const baseline = getDefaultRevision(quote);
+  baseline.priceVersions.forEach(p => { p.fabrics = [{ ...p.fabrics[0], unitPrice: 10, independentFields: undefined }]; });
+  const changed = structuredClone(baseline); changed.priceVersions[0].fabrics[0].unitPrice = 22;
+  const candidates = createCostSyncCandidates(baseline, changed, changed.priceVersions[0].id);
+  const applied = applyCostSyncDecisions(changed, candidates, Object.fromEntries(candidates.map(c => [c.id, { scope, selectedVersionIds: [c.sourcePriceVersionId] }])));
+  return { quote, draft: { ...quote, revisions: quote.revisions.map(r => r.revisionId === baseline.revisionId ? applied.revision : r) } };
+}
+for (const scope of ["all", "current"] as const) for (const failure of ["409", "network"] as const) test(`applied cost-sync ${scope} draft survives ${failure}; baseline/version stay blocked`, async () => {
+  const { quote, draft } = syncDraft(scope);
+  let calls = 0, commands = 0;
+  const persistence = createQuoteEditorPersistence({ quote, expectedVersion: 7 }, {
+    async load() { throw new Error("not used"); },
+    async save(value, version) {
+      calls++; assert.equal(version, 7);
+      assert.deepEqual(getDefaultRevision(value).priceVersions.map(p => p.fabrics[0].unitPrice), scope === "all" ? [22, 22] : [22, 10]);
+      throw failure === "409" ? Object.assign(new Error("Synthetic conflict"), { status: 409 }) : new Error("Synthetic transport uncertainty");
+    },
+  }, { ...quoteServerClient, async versionWorkflow() { commands++; throw new Error("must not run"); } });
+  await assert.rejects(persistence.save(draft));
+  assert.equal(persistence.getVersion(), 7); assert.deepEqual(persistence.getBaseline(), quote);
+  assert.deepEqual(getDefaultRevision(draft).priceVersions.map(p => p.fabrics[0].unitPrice), scope === "all" ? [22, 22] : [22, 10]);
+  if (scope === "current") assert.ok(getDefaultRevision(draft).priceVersions[0].fabrics[0].independentFields?.includes("unitPrice"));
+  await assert.rejects(persistence.save(draft));
+  await assert.rejects(persistence.workflow({ action: "revision.create", sourceRevisionId: quote.defaultRevisionId, reason: "其他", note: "" }));
+  assert.equal(calls, 1); assert.equal(commands, 0);
+});
+test("successful cost-sync advances version and adopts the authoritative Server baseline", async () => {
+  const { quote, draft } = syncDraft("all");
+  const response = structuredClone(draft); getDefaultRevision(response).baseInfo.note = "Server response";
+  const persistence = createQuoteEditorPersistence({ quote, expectedVersion: 7 }, {
+    async load() { throw new Error("not used"); },
+    async save() { return { quote: response, expectedVersion: 8 }; },
+  });
+  const saved = await persistence.save(draft);
+  assert.equal(saved.expectedVersion, 8); assert.equal(persistence.getVersion(), 8);
+  assert.deepEqual(persistence.getBaseline(), response);
 });

@@ -10,6 +10,7 @@ import { QuoteConflictError, type QuoteRecord, type ServerQuote } from "./model.
 import { createQuoteRepository, type QuoteMutationHook } from "./repository.js";
 import { createServerQuoteDraft } from "./draft.js";
 import { allocateQuoteCode } from "./numbering.js";
+import { applyQuoteVersionCommand, type QuoteVersionCommand } from "./version-workflows.js";
 
 /** Internal Q1 persistence/import foundation. It is not exposed by the runtime
  * Browser API; callers here preserve exact historical aggregate identities. */
@@ -22,6 +23,7 @@ export type QuoteMutationContext = {
   requestId?: string;
   method?: string;
   path?: string;
+  workflowAction?: string;
 };
 
 export type QuoteRuntimeDependencies = {
@@ -139,6 +141,7 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
         mutationKind: mutation.kind,
         beforeVersion: mutation.before?.version ?? null,
         afterVersion: mutation.after.version,
+        ...(context.workflowAction ? { workflowAction: context.workflowAction } : {}),
       },
     });
     // A new Revision inherits relationship rows in the repository transaction.
@@ -161,6 +164,16 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
   return {
     getById: repository.getById,
     list: repository.list,
+    async versionWorkflow(actor: TrustedIdentity, quoteId: string, command: QuoteVersionCommand, context: QuoteMutationContext = {}) {
+      requirePermission(actor.permissions, "quote.edit");
+      requirePermission(actor.permissions, command.action === "revision.create" ? "quote.revision.update" : command.action === "price.create" ? "quote.price_version.create" : command.action === "price.delete" ? "quote.price_version.delete" : "quote.edit");
+      const before = await repository.getById(quoteId);
+      if (!before) throw new HttpError(404, "quote_not_found", "Quote not found");
+      if (before.version !== command.expectedVersion) throw new QuoteConflictError();
+      const next = applyQuoteVersionCommand(before.quote, command, { id: nextUuid, actor: actor.userName, now: now().toISOString() });
+      authorizeReplacement(actor, before.quote, next);
+      return repository.save(next, command.expectedVersion, audit(actor, { ...context, workflowAction: command.action }));
+    },
     async createRuntimeDraft(actor: TrustedIdentity, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.create");
       const createdAt = now();

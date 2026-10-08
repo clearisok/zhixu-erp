@@ -81,6 +81,12 @@ export function confirmationAggregateStatus(summary: { confirmedCount: number; t
   return "partially_confirmed";
 }
 
+/** Ordinary Revision/PV edits are not a transition from draft to quoting. */
+export function aggregateStatusAfterRevisionEdit(current: QuoteAggregateStatus, summary: { confirmedCount: number; totalCount: number }): QuoteAggregateStatus {
+  return summary.confirmedCount > 0 || current === "confirmed" || current === "partially_confirmed"
+    ? confirmationAggregateStatus(summary) : current;
+}
+
 export function confirmationSummaryLabel(summary: { confirmedCount: number; totalCount: number }): string {
   if (summary.confirmedCount === 0) return `未确认 · 0/${summary.totalCount}`;
   if (summary.confirmedCount === summary.totalCount) return `全部确认 · ${summary.confirmedCount}/${summary.totalCount}`;

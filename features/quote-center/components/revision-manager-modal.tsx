@@ -29,6 +29,7 @@ function confirmationText(revision: QuoteRevision) {
 }
 
 type RevisionManagerModalProps = {
+  serverMode?: boolean;
   open: boolean;
   quote: Quote;
   viewedRevisionId: string;
@@ -50,7 +51,7 @@ export function RevisionManagerModal(props: RevisionManagerModalProps) {
   return <RevisionManagerDialog key={`${props.viewedRevisionId}-${props.quote.defaultRevisionId}`} {...props} />;
 }
 
-function RevisionManagerDialog({ quote, viewedRevisionId, canUpdate, canViewEstimate, canEditEstimate, onClose, onView, onCanUpdate, onCreate, onEstimateChange, onEstimateGenerate, onEstimateIgnoreStale, onEstimateRestore }: RevisionManagerModalProps) {
+function RevisionManagerDialog({ serverMode = false, quote, viewedRevisionId, canUpdate, canViewEstimate, canEditEstimate, onClose, onView, onCanUpdate, onCreate, onEstimateChange, onEstimateGenerate, onEstimateIgnoreStale, onEstimateRestore }: RevisionManagerModalProps) {
   const [selectedId, setSelectedId] = useState<string>(viewedRevisionId || quote.defaultRevisionId);
   const [mode, setMode] = useState<"overview" | "update">("overview");
   const [reason, setReason] = useState<QuoteRevisionReason | "">("");
@@ -67,7 +68,7 @@ function RevisionManagerDialog({ quote, viewedRevisionId, canUpdate, canViewEsti
   const sourceRevision = selected.parentRevisionId ? revisions.find((revision) => revision.revisionId === selected.parentRevisionId) : null;
 
   const beginUpdate = () => {
-    setSelectedId(quote.defaultRevisionId);
+    if (!serverMode) setSelectedId(quote.defaultRevisionId);
     setCopyDecisionOpen(true);
     if (!canUpdate) setCopyDecisionOpen(false);
   };
@@ -89,7 +90,7 @@ function RevisionManagerDialog({ quote, viewedRevisionId, canUpdate, canViewEsti
 
   const footer = estimateSelected ? <Button variant="secondary" onClick={onClose}>关闭</Button> : mode === "overview" ? <>
     <Button variant="secondary" onClick={onClose}>关闭</Button>
-    <PermissionButton permission="estimate.edit" variant="secondary" onClick={() => onEstimateGenerate(selected, Boolean(quote.activeEstimateCost))}>生成估算成本</PermissionButton>
+    {!serverMode && <PermissionButton permission="estimate.edit" variant="secondary" onClick={() => onEstimateGenerate(selected, Boolean(quote.activeEstimateCost))}>生成估算成本</PermissionButton>}
     <Button variant="secondary" onClick={() => { onView(selected); onClose(); }}>查看</Button>
     <PermissionButton permission="quote.revision.update" onClick={beginUpdate}>更新</PermissionButton>
   </> : <>
