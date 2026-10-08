@@ -4,6 +4,31 @@ import { createSyntheticQuoteFixture } from "../../../../server/integration/quot
 import { parseQuoteAuthority, validateQuoteAuthority, isServerQuoteRoute } from "../../authority/quote-authority";
 import { createQuoteEditorPersistence } from "../quote-editor-persistence";
 import type { QuoteServerEditorAdapter } from "../quote-server-editor-adapter";
+import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve, sep } from "node:path";
+import { assertRuntimeBuildIdentity } from "../../../../server/build-identity";
+import type { QuoteAttachmentController } from "../../model/quote-attachment-controller";
+
+test("compiled Quote authority and runtime must agree; malformed identity/illegal master combination reject", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "quote-authority-test-"));
+  const identity = { gitCommit: "a".repeat(40), buildId: "synthetic", buildTime: "2026-10-08T10:00:00+08:00", masterSettingsAuthority: "server", identityMode: "session", quoteWriterMode: "writable", quoteAuthority: "server" };
+  const environment = { ZHIXU_GIT_COMMIT: identity.gitCommit, ZHIXU_BUILD_ID: identity.buildId, ZHIXU_BUILD_TIME: identity.buildTime, NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY: "server", ZHIXU_IDENTITY_MODE: "session", NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY: "server" };
+  try {
+    await writeFile(join(directory, "build-info.json"), JSON.stringify(identity));
+    assert.equal((await assertRuntimeBuildIdentity(directory, "server", environment)).quoteAuthority, "server");
+    await assert.rejects(assertRuntimeBuildIdentity(directory, "server", { ...environment, NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY: "browser" }));
+    for (const quoteAuthority of [null, false, 0, "unknown"]) {
+      await writeFile(join(directory, "build-info.json"), JSON.stringify({ ...identity, quoteAuthority }));
+      await assert.rejects(assertRuntimeBuildIdentity(directory, "server", environment));
+    }
+    await writeFile(join(directory, "build-info.json"), JSON.stringify({ ...identity, masterSettingsAuthority: "browser" }));
+    await assert.rejects(assertRuntimeBuildIdentity(directory, undefined, environment));
+  } finally {
+    assert.ok(resolve(directory).startsWith(resolve(tmpdir()) + sep) && directory.includes("quote-authority-test-"));
+    await rm(directory, { recursive: true, force: true });
+  }
+});
 
 test("explicit Quote authority defaults Browser, rejects illegal combinations, isolates unsupported routes", () => {
   assert.equal(parseQuoteAuthority(), "browser");
@@ -55,4 +80,42 @@ test("409/network failure keeps prior baseline/version and dirty draft; no autom
   assert.equal(draft.revisions[0].baseInfo.note, "Unsaved synthetic draft");
   await assert.rejects(persistence.save(draft));
   assert.equal(calls, 1);
+});
+
+test("attachment/aggregate share the write lock; uncertain attachment failure preserves baseline and blocks retry", async () => {
+  const quote = createSyntheticQuoteFixture("persistence-attachment-lock");
+  let release!: () => void;
+  const wait = new Promise<void>(done => { release = done; });
+  const versions: number[] = [];
+  const persistence = createQuoteEditorPersistence({ quote, expectedVersion: 1 }, {
+    async load() { throw new Error("not used"); },
+    async save(next, expectedVersion) { versions.push(expectedVersion); return { quote: structuredClone(next), expectedVersion: expectedVersion + 1 }; },
+  });
+  let unlinkCalls = 0;
+  const raw: QuoteAttachmentController = {
+    mode: "server", load: async () => [], get: async () => null, blob: async () => null, canRename: () => true,
+    upload: async () => { throw new Error("not used"); }, rename: async () => { throw new Error("not used"); },
+    async style(revision) {
+      await wait;
+      const snapshot = { revision: { ...revision, styleImageAttachmentId: null }, attachments: [], version: 2 };
+      persistence.acceptAttachment(snapshot);
+      return snapshot;
+    },
+    async unlink() { unlinkCalls++; throw new Error("Synthetic transport outcome unknown"); },
+  };
+  const controller = persistence.coordinate(raw);
+  const command = controller.style(quote.revisions[0], null);
+  await assert.rejects(persistence.save(quote));
+  release(); await command;
+  assert.equal(persistence.getVersion(), 2);
+  await persistence.save(persistence.getBaseline());
+  assert.deepEqual(versions, [2]);
+  const before = persistence.getBaseline();
+  await assert.rejects(controller.unlink(quote.revisions[0], "synthetic-id"));
+  assert.equal(persistence.getVersion(), 3);
+  assert.deepEqual(persistence.getBaseline(), before);
+  await assert.rejects(persistence.save(quote));
+  await assert.rejects(controller.unlink(quote.revisions[0], "synthetic-id"));
+  assert.equal(unlinkCalls, 1);
+  assert.deepEqual(versions, [2]);
 });

@@ -2,6 +2,8 @@
 
 ## Current new-system plan: D-096 Fresh Start
 
+D-097：正式 Quote Server 基本 UI 已独立于 Browser 路线接线并 disposable/actual Chromium 验证。Quote authority 默认 browser，显式 server 要求 masters=server/writer=writable，build/runtime 校验拒绝失配。GET quotes 增加有界 saved summary/search/type/status/total（只读一致性 transaction），没有 per-row aggregate GET；mutation 复用原 trusted transactional service。没有 schema/migration/真实 startup 行为变更，0008 真实 activation 未执行；完整 workflow/真实部署/storage/远程身份仍有缺口，见 `FRESH_START_FOUNDATION.md`。
+
 新系统全部业务数据从空开始，旧环境不删不搬；Q5 historical import NOT REQUIRED。正式 runner 在独立 disposable PG16 通过 0001–0008 与 startup/重复启动验证；仅技术白名单，23 张业务表全 0，global settings 无记录代表未配置。没有修改发布 SQL、应用真实 0008、连接真实 DB 或部署。正常启动仍 verify-only。具体初始化 whitelist、Server-only 空行为与正式 UI 缺口见 `FRESH_START_FOUNDATION.md`；不代表所有模块 Server-ready。COS real Node preflight 已 PASS（PR #73 用户证据），runtime storage activation 未发生。
 
 > 当前开发阶段（D-093，2026-10-05）：Q3B2I-C2 CLOSED / PASS。PR #64 本地单用户根路径/统一侧栏修复已部署至真实本机 3001，API、数据库与用户真实浏览器验收通过；Q3 master/settings authority 为 Server、编辑已重开。以下早期 Trusted Session 描述是历史/session-mode 兼容，不是当前 B3/B3-R 登录验收门禁。

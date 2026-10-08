@@ -6,6 +6,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve, join, sep } from "node:path";
 import { once } from "node:events";
+import { createHash } from "node:crypto";
 import test from "node:test";
 import pg from "pg";
 import { createApp } from "../app.ts";
@@ -54,11 +55,13 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     const pending = new Map();
     let sessionId;
     const requests = [];
+    const completedRequests = new Set();
     ws.addEventListener("message", ({ data }) => {
       const reply = JSON.parse(String(data));
       const entry = pending.get(reply.id);
       if (entry) { pending.delete(reply.id); if (reply.error) entry.reject(new Error(JSON.stringify(reply.error))); else entry.done(reply.result); }
-      if (reply.method === "Network.requestWillBeSent" && reply.params.request.url.includes("/api/")) requests.push({ method: reply.params.request.method, path: new URL(reply.params.request.url).pathname });
+      if (reply.method === "Network.requestWillBeSent" && reply.params.request.url.includes("/api/")) requests.push({ requestId: reply.params.requestId, method: reply.params.request.method, path: new URL(reply.params.request.url).pathname });
+      if (reply.method === "Network.loadingFinished") completedRequests.add(reply.params.requestId);
       if (reply.method === "Page.javascriptDialogOpening") void command("Page.handleJavaScriptDialog", { accept: true }, sessionId);
       if (reply.method === "Fetch.requestPaused") void command("Fetch.failRequest", { requestId: reply.params.requestId, errorReason: "ConnectionFailed" }, sessionId);
     });
@@ -114,7 +117,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     const save = async (version) => { await click("保存草稿"); await until(async () => (await record()).version === version, `saved v${version}`); await hasText(`Server 报价 · v${version}`); };
     await t.test("explicit create only once, real QuoteEditor edit/save/refresh/list, null and zero preserved", async () => {
       await navigate("/quote-center/new"); await hasText("创建报价");
-      await click("创建报价");
+      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='创建报价');b.click();b.click();})()");
       await until(async () => await evaluate("location.pathname==='/quote-center/detail'"), "created detail route");
       await hasText("Server 报价 · v1");
       quoteId = await evaluate("new URLSearchParams(location.search).get('id')");
@@ -155,7 +158,8 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await navigate(`/quote-center/detail?id=${quoteId}`); await hasText("Server 报价 · v2");
       await labelInput("款式名称", "Dirty draft survives attachment");
       const png = join(temp, "synthetic.png");
-      await writeFile(png, Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aL1cAAAAASUVORK5CYII=", "base64"));
+      const expectedBytes = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aL1cAAAAASUVORK5CYII=", "base64");
+      await writeFile(png, expectedBytes);
       const document = await command("DOM.getDocument", {}, sessionId);
       const fileInput = await command("DOM.querySelector", { nodeId: document.root.nodeId, selector: '#quote-section-attachments input[type="file"]' }, sessionId);
       assert.ok(fileInput.nodeId);
@@ -168,7 +172,22 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       assert.equal(saved.quote.revisions[0].baseInfo.styleName, "Dirty draft survives attachment");
       assert.equal(saved.quote.revisions[0].imageAttachmentIds.length, 1);
       assert.equal(storage.objects.size, 1); await isolated();
+      const requestStart = requests.length;
       await navigate(`/quote-center/detail?id=${quoteId}`); await hasText("Server 报价 · v4"); await hasText("synthetic.png"); await isolated();
+      const assetDownload = () => requests.slice(requestStart).find(r => r.method === "GET" && r.path.includes("/attachments/") && r.path.endsWith("/download") && completedRequests.has(r.requestId));
+      await until(async () => Boolean(assetDownload()), "Server preview/blob loader download complete");
+      // Inspect the actual page loader's Blob; CDP may decode binary response bodies as text.
+      // This does not issue a second Server download request.
+      await until(async () => evaluate(`Boolean(document.querySelector('#quote-section-attachments img[src^="blob:"]'))`), "attachment Blob rendered");
+      const downloadedBytes = await evaluate(`(async () => {
+        const image = document.querySelector('#quote-section-attachments img[src^="blob:"]');
+        const response = await fetch(image.src);
+        return Array.from(new Uint8Array(await response.arrayBuffer()));
+      })()`);
+      const actualBytes = Buffer.from(downloadedBytes);
+      assert.deepEqual(actualBytes, expectedBytes, "Downloaded attachment bytes match the uploaded synthetic file");
+      assert.equal(createHash("sha256").update(actualBytes).digest("hex"), createHash("sha256").update(expectedBytes).digest("hex"));
+      t.diagnostic("Actual page attachment download: byte equality + SHA-256 PASS");
     });
 
     await t.test("unsafe numeric draft rejected; 409 retains unsaved draft without retry/fallback", async () => {
@@ -196,6 +215,38 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await command("Fetch.disable", {}, sessionId);
       assert.equal(await quoteCount(), 1); assert.equal(await masterCount(), 0);
       assert.equal((await pool.query("SELECT count(*)::int n FROM sales_orders")).rows[0].n, 0);
+    });
+    await t.test("real UI Quick Create uses Server masters and reloads selectors without resnapshot on reopen", async () => {
+      await navigate(`/quote-center/detail?id=${quoteId}`); await hasText("Server 报价 · v5");
+      await evaluate("[...document.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent==='品牌 *').querySelector('button').click()");
+      await input(".qc-select-search input", "Synthetic quick brand");
+      await click("＋ 新建品牌「Synthetic quick brand」");
+      await hasText("最快只需填写品牌名称"); await click("保存并使用");
+      await until(async () => await masterCount() === 1, "explicit Server brand");
+      await hasText("更换默认资料来源");
+      await click("保留当前报价资料");
+      await hasText("Synthetic quick brand");
+      await save(6); await isolated();
+      const saved = await record();
+      assert.equal(saved.quote.revisions[0].baseInfo.brandName, "Synthetic quick brand");
+      assert.equal(saved.quote.revisions[0].priceVersions[0].pricingParameters.markupRate, null);
+      await navigate(`/quote-center/detail?id=${quoteId}`); await hasText("Server 报价 · v6");
+      assert.deepEqual(await record(), saved); await isolated();
+    });
+    await t.test("bounded global list search/filter/pagination, accurate total and no per-row aggregate GET", async () => {
+      // Explicit synthetic user creates, not automatic seed/bootstrap/import.
+      await evaluate("(async()=>{for(let n=0;n<26;n++){const r=await fetch('/api/v1/quotes',{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:'{}'});if(r.status!==201)throw new Error('synthetic create failed')}})()");
+      await navigate("/quote-center"); await hasText("本页 25 / 总计 27");
+      const before = requests.length;
+      await click("下一页"); await hasText("本页 2 / 总计 27");
+      await input('input[aria-label="搜索报价"]', "SYNTHETIC-UI-STYLE");
+      await hasText("本页 1 / 总计 1"); await hasText(code); await isolated();
+      assert.equal(requests.slice(before).filter(r => r.method === "GET" && /^\/api\/v1\/quotes\//u.test(r.path)).length, 0);
+      const invalid = await evaluate("fetch('/api/v1/quotes?limit=101').then(r=>r.status)");
+      assert.equal(invalid, 400);
+      const literal = await evaluate("fetch('/api/v1/quotes?search=%25').then(r=>r.json())");
+      assert.equal(literal.page.total, 0, "LIKE wildcard is escaped");
+      assert.equal(await quoteCount(), 27);
     });
     await command("Browser.close");
   } finally {

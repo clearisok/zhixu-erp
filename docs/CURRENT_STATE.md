@@ -6,10 +6,12 @@
 
 - **当前上线方向：D-096 Fresh Start Foundation。** 用户确认新系统所有业务数据（含基础资料/订单）从空开始，旧环境保留。Q5 historical import = **NOT REQUIRED**；fresh Browser source、迁移 freeze/rehearsal、Q5 VerifyOnly/Execute 不再是当前上线 blocker。历史 Gate PASS、已完成 Q3 import/cutover、旧数据保护均保持。
 - **空库工程验证 PASS（非真实部署）。** 新 disposable PG16/tmpfs 由正式 runner 应用 0001–0008；实际 startup sequence + 临时 HTTP API 首次/再次启动仅生成技术白名单，23 张业务表全部 0；Server-only 空读/未配置 defaults/故障 fail-closed、显式新 Quote 保存读回及新品牌创建验证通过。未改 SQL checksum、业务初始化逻辑或旧 Browser namespace。
-- 正式 `/quote-center` / `new` / `detail` 仍使用 mockQuoteRepository；Server candidate 未接管正式 Quote UI。生产配置必须显式选 Server masters；遗留 LocalDataBootstrap/其它模块 Browser seed 入口不能成为新系统入口。**不是 production-ready**。具体文件与后续最小任务见 `features/FRESH_START_FOUNDATION.md`。
+- **新 Server Quote 基本闭环已实现并隔离验收（D-097），未真实部署。** 显式 quoteAuthority=server + masters=server + writer=writable 时，正式 `/quote-center` / `new` / `detail` 复用 QuoteEditor、typed Server writer、Q3 defaults 与附件专用 controller。默认 browser 分支与当前旧 runtime 保持 mockQuoteRepository，不改变旧数据。
+- 新入口隔离 LocalDataBootstrap、Browser mock identity/global search、业务 namespace/IndexedDB 与未支持模块；Server list 有界全库查询/准确 total，无逐行 aggregate GET。页面实例版本/写锁协调保存与附件，409 草稿保留、不确定写 fail closed、精度无损/null≠0。
+- 已支持基础信息、当前价格材料/工价/其他成本、报价设置、Quick Master Create/刷新 selectors、保存/读回/列表、当前 Revision 附件。Revision/PV workflow、Estimate、确认、导出、整单复制/删除、转订单、日志查看在 Server 模式明确未接线。**基本闭环 PASS 不等于全报价 production-ready**；完整动作清单与实际文件见 `features/FRESH_START_FOUNDATION.md`。
 - 本轮旧真实 DB/Browser/COS/Ubuntu/Docker runtime 均未操作，无新环境真实部署。下方 Q4/Q5 段落属于 **HISTORICAL engineering snapshots**，其历史导入条件不再是当前操作清单。COS real Node preflight 已 PASS（PR #73 用户证据），runtime storage activation 仍另行核验。
 
-- Fresh Start 本轮验证：fresh-start 7/7、disposable migration activation safety 7/7、Server auth/frontend 33/33、npm test 671/671；typecheck/lint/Server build/frontend build（41 routes）/diff-check PASS，disposable cleanup PASS。Full test:postgres 未重跑：schema/importer/runtime 未改，已执行本任务对应隔离空库与 startup safety 验证。
+- 本轮基本闭环最终重跑：实际 Chromium 正式 routes 8/8（PG16/tmpfs、memory storage、新 profile，含实际附件下载字节/SHA-256、Quick Create、27 条分页/全库搜索、精度/409、附件版本、401/403/404/network，cleanup PASS）；Server auth/frontend 38/38（persistence 5/5）。显式 Server 与默认 Browser frontend 构建均 41 routes，默认 build-info 确认 browser。此前本任务 fresh-start 7/7、Quote API/附件 disposable 20/20、Server build PASS；对应源码未变，未重跑全 PG/COS。最终质量结果见本轮 AI_HANDOFF。
 
 ### HISTORICAL — prior engineering validation snapshots (not current rollout prerequisites)
 

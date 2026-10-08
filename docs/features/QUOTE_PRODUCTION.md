@@ -4,7 +4,7 @@
 
 用户确认新系统所有业务数据（基础资料、设置、Quote、订单等）从空开始，旧环境保留。**Q5 historical import NOT REQUIRED**：fresh Browser source、迁移专用 freeze/rehearsal、Q5 VerifyOnly/Execute 不再是当前上线 blocker。下方 Q5-A/B/C 与原迁移 phase sequence 全部为 **HISTORICAL / OPTIONAL MIGRATION PATH**，历史 PASS 与工具保留，不授权删除源数据。
 
-Quote-first Server rollout 不变；后续新 Quote 历史 Revision 不可变、正常事务/RBAC/备份不变。COS real Node preflight 已 PASS（继承 PR #73 用户证据，见 ATTACHMENTS），不重跑、不声称 runtime storage active。当前旧环境 Q3 SERVER、Quote/附件 BROWSER 不变；新系统正式 UI wiring、运行时 storage 与远程认证仍未完成。空库能力和具体缺口见 `FRESH_START_FOUNDATION.md`。不导入旧账号/OperationLog/附件关系，也不自动同步艾诺科。
+Quote-first Server rollout 不变；新 Quote 历史 Revision 不可变、正常事务/RBAC/备份不变。COS real Node preflight 已 PASS（PR #73 用户证据，见 ATTACHMENTS），不重跑、不声称 runtime storage active。D-097 正式 list/new/detail Server **基本闭环工程/隔离 Chromium 验证已完成**；默认 browser/旧 runtime 仍 Q3 SERVER、Quote/附件 BROWSER，不自动切换。运行时 storage、真实部署/远程认证及未接完整 workflow 仍未完成。具体支持/缺口见 `FRESH_START_FOUNDATION.md`；不导入旧账号/日志/附件关系，不自动同步艾诺科。
 
 > Q5-C（2026-10-07）：QUOTE-SPECIFIC FREEZE ENGINEERING ONLY / PASS。独立 QuoteWriterMode 默认 writable；candidate frozen 提供只读 list/detail/附件预览/full backup 与 mutation fail-closed。真实 runtime 仍 WRITABLE，Q3 master/settings SERVER，Quote aggregate BROWSER。真实 frozen deployment、旧标签页关闭、fresh Browser source、0008、COS、Q5 Execute 均未执行/未授权。完整 write-path audit 和 evidence 时序见 QUOTE_MIGRATION_RUNBOOK.md；此状态不等于 production cutover ready。
 

@@ -1,5 +1,13 @@
 # Quote Center
 
+## CURRENT — Fresh Start formal Server basic loop (D-097, 2026-10-08)
+
+正式 `/quote-center` / `new` / `detail` 通过显式 `NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY` 原地分流。默认 browser 保留原 mock/localStorage 行为；server 必须 masters=server、writer=writable，编译/运行身份一致。Server 分支复用 QuoteEditor 的基础信息、当前价格版本材料/工价/其他成本、报价设置、保存与附件 panel，而不是简化 workspace。
+
+页面实例 persistence 控制 expectedVersion/baseline 与 aggregate/附件排他锁；成功才推进版本，409 草稿保留、精度无法无损 round-trip 拒绝；Server list 最小 saved summary + 有界全库搜索/filter/真实 total，不读 Browser。Root trusted identity + 业务 bootstrap/unsupported-route 隔离，不添加 Browser logs；empty masters/defaults 明示未配置，Quick Create 走 Server。
+
+Revision/PV workflow、Estimate、客户确认、导出、复制/删除、转订单与日志查看尚未接线，Server 模式禁用；Browser 模式原功能不删。实际 Chromium 正式路线8/8（新 PG/tmpfs、memory storage、新 profile），不是真实部署/全报价 production-ready。详细支持矩阵与缺口见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述仅为历史工程上下文或默认 Browser 分支。
+
 > 2026-10-05：`/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有；Q3 master/default dependencies 在真实 3001 的 `masterSettingsAuthority=server` 下来自 PostgreSQL，Q3 编辑已重开。PR #64 Local Single-User UI 修复已部署：`/` 自动进入 `/quote-center`、统一侧栏恢复；用户真实浏览器确认原 Quote 数据保留。此收口没有迁移、重置、重新 seed 或改变 Quote storage namespace；Quote historical migration/Server ownership 另立 Gate。
 
 ## Q2B2B isolated Server new Quote (not Browser cutover)
@@ -27,8 +35,8 @@
 ## Q2A Server API foundation
 
 - Q2A adds typed Server list/detail/full-replacement-save contracts backed by the existing Q1 aggregate repository. Q2B2B replaces caller-supplied runtime aggregate creation with Server-owned `{}` → neutral draft creation while preserving Q1's internal exact aggregate path for future migration. The API preserves stable Quote/Revision/PriceVersion/cost/Estimate IDs, decimal strings, null versus zero, immutable history and optimistic aggregate version.
-- A same-origin `quote-server-client` and `quote-server-repository` foundation uses `credentials: include`, `cache: no-store`, and the existing mutation boundary headers. It is deliberately not imported by the current Quote list/editor.
-- Current `/quote-center` runtime remains `mockQuoteRepository` + localStorage, including existing Browser confirmation and attachment behavior. No page load performs Server Quote writes or migration. Q2B2 owns the separately gated writer integration/cutover.
+- The same-origin `quote-server-client`/repository uses `credentials: include`, `cache: no-store`, mutation boundary headers；D-097 显式 Server 分支已复用它，默认 Browser 分支不调用它。
+- 当前旧部署与默认 browser 构建仍为 mock/localStorage；显式 server 构建正式 routes 走上述基本闭环。页面 load 不执行 Server create/migration；真实 cutover/完整 workflows 未发生。
 
 ## C4.2 linked current confirmation boundary
 

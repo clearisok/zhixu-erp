@@ -2,7 +2,9 @@
 
 ## Purpose
 
-附件模块为单张 Quote Revision 提供图片和文件管理。图片可预览并指定款式图；普通文件只允许下载。正式 Browser Quote Center 仍使用 IndexedDB；Q4A Server foundation 与 Q4B isolated UI candidate 均未部署/激活，不接入根路径旧 ERP API。
+附件模块为单张 Quote Revision 提供图片和文件管理。图片可预览并指定款式图；普通文件只允许下载。默认 Browser 与旧真实 runtime 仍 IndexedDB；D-097 显式 Server 构建的正式 QuoteEditor 已注入同一 Q4B Server controller/panel，实际 Chromium 使用 memory storage/新 PG 验证上传、mirror/version、后续 dirty aggregate save 与实际页面下载 Blob 字节/SHA-256，未真实部署/激活，不接根路径旧 ERP API。
+
+Server 所有缩略图/款式图/预览/下载均由 controller metadata/blob loader，不回退 IndexedDB；页面 persistence 统一写锁、baseline 与版本推进，generic PUT 不可改关系。保留历史共享 rename 禁止、503 storage 未配置与不确定命令 fail-closed，不扫描 COS/删对象/新增GC。rename/link/unlink/style 的实际 API/controller 回归与当前页面上传验收须区分，不能声称每一按钮均人工生产验收。
 
 ## Q4C-B REAL COS closure + persistent credentials (2026-10-08)
 
