@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { browserIdentityMode } from "@/features/server-auth/identity-mode";
+import { quoteAuthority } from "@/features/quote-center/authority/quote-authority";
 
 type Role = "admin" | "sales" | "planner" | "viewer";
 type Module = "dashboard" | "quotes" | "orders" | "schedules" | "users" | "audit";
@@ -96,7 +97,7 @@ function LocalSingleUserLanding() {
 }
 
 export default function Home() {
-  return browserIdentityMode() === "local-single-user" ? <LocalSingleUserLanding /> : <LegacyHome />;
+  return quoteAuthority() === "server" || browserIdentityMode() === "local-single-user" ? <LocalSingleUserLanding /> : <LegacyHome />;
 }
 
 function LegacyHome() {

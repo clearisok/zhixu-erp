@@ -142,7 +142,7 @@ test("Browser repositories and legacy write routes remain preserved but isolated
   assert.match(browserRepositorySource, /export const orderRepository = createOrderRepository\(\)/u);
   assert.match(quoteToOrderSource, /orderRepository\.save\(order\)/u);
   assert.match(permissionProviderSource, /permissionRepository\.load\(\)/u);
-  assert.doesNotMatch(permissionProviderSource, /ServerSession|serverAuthClient/u);
+  assert.doesNotMatch(permissionProviderSource.slice(permissionProviderSource.indexOf("export function PermissionProvider(")), /useServerSession|serverAuthClient/u);
 });
 
 test("production columns contain only current PostgreSQL or lossless projection facts", () => {

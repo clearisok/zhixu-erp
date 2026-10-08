@@ -3,8 +3,10 @@
 import { usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { initializeLocalDataLifecycle } from "../service/data-management-service";
+import { quoteAuthority } from "../../quote-center/authority/quote-authority";
 
 export function shouldInitializeBrowserLocalData(pathname: string): boolean {
+  if (quoteAuthority() === "server") return false;
   return pathname !== "/order-center"
     && pathname !== "/order-center/server-preview"
     && pathname !== "/order-center/server-detail"

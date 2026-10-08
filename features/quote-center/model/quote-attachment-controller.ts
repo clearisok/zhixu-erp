@@ -105,6 +105,7 @@ export function createServerQuoteAttachmentController(options: {
     async get(id) { return view(await client.read(options.quoteId, options.revisionId, id)); },
     blob: (id) => client.download(options.quoteId, options.revisionId, id),
     async upload(revision, files, kind, _createdBy, onProgress) {
+      latestVersion = Math.max(latestVersion, options.getVersion());
       let current = revision;
       let completed = 0;
       // Each File receives one token before its request. Never mint another token for a network retry.
@@ -121,15 +122,18 @@ export function createServerQuoteAttachmentController(options: {
       return completed;
     },
     async rename(revision, attachment, name) {
+      latestVersion = Math.max(latestVersion, options.getVersion());
       if (options.isSharedWithHistorical(attachment.id)) throw new Error("附件被历史 Revision 共享；名称快照规则待确认，Server candidate 暂不允许重命名。");
       const result = await client.rename(options.quoteId, options.revisionId, attachment.id, latestVersion, name);
       return commit(revision, result.version);
     },
     async unlink(revision, attachmentId) {
+      latestVersion = Math.max(latestVersion, options.getVersion());
       const result = await client.unlink(options.quoteId, options.revisionId, attachmentId, latestVersion);
       return commit(revision, result.version);
     },
     async style(revision, attachmentId) {
+      latestVersion = Math.max(latestVersion, options.getVersion());
       const result = await client.style(options.quoteId, options.revisionId, latestVersion, attachmentId);
       return commit(revision, result.version);
     },

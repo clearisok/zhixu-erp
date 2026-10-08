@@ -64,7 +64,7 @@ test("Server shell hides Browser identity and permission-backed legacy controls"
   assert.match(appShell, /serverSession\.user\?\.name/u);
   assert.match(appShell, /serverIdentityMode \|\| localSingleUser \? <div className="qc-server-identity"/u);
   assert.match(appShell, /!serverIdentityMode && <GlobalSearchPalette/u);
-  assert.match(appShell, /const showSettingsNavigation = localSingleUser \|\| !serverIdentityMode \|\| serverSettingsMode/u);
+  assert.match(appShell, /const showSettingsNavigation = freshServer \|\| localSingleUser \|\| !serverIdentityMode \|\| serverSettingsMode/u);
   assert.match(appShell, /showSettingsNavigation && <><section><strong>基础设置/u);
   assert.match(appShell, /pathname\.startsWith\("\/basic-settings\/server\/"\)/u);
   assert.doesNotMatch(`${previewSource}\n${detailSource}`, /usePermissions|currentUser|currentRole|setCurrentUser/u);
@@ -93,10 +93,10 @@ test("detail proves aggregate fidelity without lossy decimal conversion", () => 
   assert.match(detailSource, /C4\.2 ConfirmedCommercialTerms 是独立的当前共享业务事实/u);
 });
 
-test("existing production Quote routes remain Browser repository workflows", () => {
-  assert.match(browserListRoute, /<QuoteList\s*\/>/u);
-  assert.match(browserDetailRoute, /<QuoteDetailLoader\s*\/>/u);
-  assert.match(browserNewRoute, /<QuoteNewLoader\s*\/>/u);
+test("production routes explicitly select authority; legacy Browser workflow remains available", () => {
+  assert.match(browserListRoute, /<ProductionQuoteList\s*\/>/u);
+  assert.match(browserDetailRoute, /<ProductionQuoteDetail\s*\/>/u);
+  assert.match(browserNewRoute, /<ProductionQuoteNew\s*\/>/u);
   assert.match(browserList, /mockQuoteRepository\.list/u);
   assert.match(browserEditor, /mockQuoteRepository\.getById/u);
   assert.match(browserEditor, /mockQuoteRepository\.createDraft/u);

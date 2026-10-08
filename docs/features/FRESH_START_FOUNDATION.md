@@ -6,7 +6,35 @@
 
 不导入旧 master/settings、Quote/history、SalesOrder、Scheduling、Closing、Style Progress、附件关系、业务账号或 Browser OperationLog；不自动同步艾诺科。不删除旧环境，不改业务模型/计算/历史 Revision 不可变规则。Q5 historical import **NOT REQUIRED**；其 source capture、迁移 freeze、rehearsal、VerifyOnly/Execute 工具与历史 PASS 保留为 dormant compatibility，非当前上线 blockers。已发生的 Q3 57 行 import/cutover 与旧环境 SERVER masters / BROWSER Quote 事实不被撤销。
 
-本 Gate 只验证新 disposable DB、现有 Server/candidate boundary，**不是正式 UI cutover 或 production-ready**。未执行真实 deployment/schema activation/import/restore/COS 操作，未读取真实 secrets/backup，未操作 Ubuntu 或旧 checkout。
+Foundation 原 Gate 验证新 disposable DB；后续 D-097 已接通正式 Server Quote 基本闭环并实际 Chromium 隔离验收，仍**不是真实部署或完整报价 production-ready**。未执行真实 deployment/schema activation/import/restore/COS 操作，未读取真实 secrets/backup，未操作 Ubuntu 或旧 checkout。
+
+## Current formal Quote Server basic loop — D-097
+
+- 显式 `NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY=server`；必须同时 masters=server、writer=writable。默认 browser，独立于 QuoteWriterMode，不由 masters 推断。Vite/build-info/Dockerfile.server ARG/runtime 比对一致；非法组合拒绝，未修改现有 Compose/部署。
+- 正式 list/new/detail 原地切 typed Server path，不 redirect candidate。List 基于默认 Revision saved snapshot 的最小 summary，limit≤100、offset、literal ILIKE search、type/status filter、准确 total、同一只读一致性 transaction；不读 Browser、不 N+1 aggregate GET。
+- New 页面提供加工/经销选择，无 effect POST，只显式点击 `{}` create、即时 pending 防双击；默认经销不变，加工使用返回的 aggregate/version 正常 PUT 初始化，成功才进入详情。PUT 失败保留已创建 ID，明确类型尚未确认，提供草稿核对链接并停止 POST/自动重试；不新增详情/历史类型编辑入口。Detail 复用 QuoteEditor 的原基础/材料/工价/其他成本/价格设置与金额展示，版本由每个 persistence 实例持有；成功响应才更新版本/baseline。
+- 共用 trusted Session/Identity/RBAC，Server 事务负责可信日志；无 Browser CRUD 第二份权威日志。Root boundary 隔离 legacy bootstrap/mock permissions/global search，直接 URL 的 Order/Scheduling/Closing/StyleProgress 等只显示未接线；不挂旧业务组件。新模式侧栏/表格 UI preference 暂为内存，避免旧 preference repository 顺带初始化业务 manifest；Browser preferences 不变。
+- Q3 空 masters/settings 明示未配置，Quick Create/刷新走 Server；已保存快照 reopen 不套最新 defaults。NullableNumberInput 仅在 Server Editor 启用无损 precision gate，保留 raw unsafe draft、null/zero，409/network 不自动覆盖、不写 Browser。
+- 唯一 QuoteAttachmentPanel 注入既有 Server controller，所有预览/缩略图/下载走 Server blob；专用命令更新 mirror/version，不覆盖脏基础字段。aggregate/附件共用排他锁；generic PUT 仍不能改关系；共享历史附件禁改名；storage 未配置 API 503、无 IndexedDB fallback；不触 COS/对象删除/GC。
+
+| Action | Server formal status / actual gap |
+| --- | --- |
+| list/search/filter/page/detail/create | Supported；bounded saved summary + lazy POST |
+| basic info/current PV costs/pricing/save/reload | Supported；原 Editor + exact adapter/expectedVersion |
+| Q3 selectors/defaults/Quick Create | Supported；原 Server master dependencies，无 Browser writer |
+| current Revision upload/rename/unlink/style/preview/download | Supported；既有专用 controller，历史共享 rename 限制保持 |
+| Revision creation/management/history navigation | Deferred；需可信 workflow commands + 不可变历史 UI，不恢复 mock workflow |
+| PV create/delete/name workflow | Deferred；需可信独立 workflow；单个当前 PV 数量与成本可编辑 |
+| Estimate current/history | Deferred；schema 可保存，但生成/恢复/归档命令和正式 UI 尚未接 |
+| customer confirmation | Deferred；历史 snapshot / current C4.2 ownership 命令需明确接线，不能走 Browser confirmation |
+| export/batch metrics/copy/delete | Deferred；完整 saved-source export 与 workflow/audit 命令尚未接，不新增危险删除 |
+| Quote-to-Order / log viewer | Deferred；跨领域命令/可信日志读取 UI 尚未接，不读旧 Browser order/log |
+
+`npm run test:quote-server-ui` **requires a Server frontend build first** (Quote/master server, writable). Actual exported formal routes served by createApp + new PG/tmpfs + memory storage, fresh temporary Chromium profile,随机 loopback port（非3000/3001/3002）。最新类型补齐12/12：加工/经销 UI 创建、编辑保存、刷新/readback/list filter；打开页不创建、双击一次、类型初始化409/network保留ID且不重复POST、后续保存失败不重建；保留原 empty/auth/old sentinel、基础/三类成本/工价/未配置pricing/save/reload/list、附件后保存、实际页面 Blob 下载字节与 SHA-256、precision/409、404/403/network、Quick Create、27 条跨页搜索/准确total/无逐行GET。cleanup PASS。最新 Server auth/frontend38/38（persistence5/5）、disposable Quote API/编号21/21；API仍只接受POST `{}`。此前 API/附件20/20、fresh-start7/7 与 Server build PASS，不冒充本次重跑；其余 controller/source checks不是实际页面证据。
+
+最终显式 Server frontend 与独立子进程默认 Browser frontend 均构建41 routes；默认 build-info Quote/master authority=browser、writer=writable，未修改 .env 或生产默认值，未留下临时 authority 环境。最终质量结果见 AI_HANDOFF；无完整 PG/COS suite 重跑或真实部署。
+
+当前旧 runtime/数据库/Browser/COS 完全不变，新 Server build 未部署。没有 SQL/schema/业务政策变化，D-096 historical import NOT REQUIRED。
 
 ## Actual initialization audit
 
@@ -53,7 +81,7 @@
 
 本 Gate 回归：migration activation disposable 7/7（缺 ledger/pending 在 bootstrap 前拒绝）、Server auth/frontend 33/33、npm test 671/671；typecheck、lint、Server build、frontend production build（41 routes）、diff-check PASS。Frontend 有既有 large chunk warning，无 build failure；full `test:postgres` 未机械重跑（未改 schema/importer/runtime，已跑本任务 fresh DB 与 migration safety tests）。两个自建 PG 容器均 cleanup，无 `zhixu-pg-it-*` 残留。测试生成数据只存在 tmpfs，不是正式系统 seed。
 
-## Production wiring gaps — actual files, not inferred rollout readiness
+## HISTORICAL — Foundation production wiring audit before D-097
 
 | Entry | Actual authority / evidence | Gap before new system enablement |
 | --- | --- | --- |
@@ -83,4 +111,4 @@ EmptyState/missing-master UI 文案通过实际组件审计确认；本轮只执
 
 ## Next smallest engineering task
 
-正式 Quote list/new/detail 的 **Server-only route/repository 接线**：复用既有 candidate 与 aggregate writer，明确支持/未支持动作，隔离 legacy LocalDataBootstrap、展示空资料和未配置设置、验证错误不回退。不做历史导入，不清旧环境，不将 Order/Scheduling/Closing 全部接线夹入该任务。真实新环境部署另行授权。
+Server Revision / PriceVersion workflow 命令与正式 UI 接线：复用现有模型、历史不可变与可信权限/审计、版本冲突；不通过 mock 或 generic 不受限 mutation 补功能。不做历史导入，不清旧环境，不扩大到 Order/Scheduling/Closing。真实新环境部署另行授权。

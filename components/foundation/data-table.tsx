@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type Keyboard
 import { usePermissions } from "@/features/permissions/components/permission-provider";
 import { EmptyState, ErrorState } from "./states";
 import { loadTablePreference, normalizeColumnOrder, saveTablePreference, type TablePreference } from "./table-preference";
+import { quoteAuthority } from "@/features/quote-center/authority/quote-authority";
 
 export type DataColumn<T> = {
   key: string;
@@ -71,7 +72,7 @@ export function DataTable<T>({ rows, columns, rowKey, rowClassName, empty, empty
   const dragKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (tablePreference) return;
+    if (tablePreference || quoteAuthority() === "server") return;
     Promise.resolve().then(() => setLocalPreference(loadTablePreference(currentUser.id, moduleKey, stableTableKey, defaults, defaultOrder, preferenceAliases)));
     // Column definitions are intentionally tracked by their stable serialized signatures.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,7 +88,7 @@ export function DataTable<T>({ rows, columns, rowKey, rowClassName, empty, empty
   const applyPreference = (next: TablePreference, persist: boolean) => {
     if (!tablePreference) setLocalPreference(next);
     onTablePreferenceChange?.(next);
-    if (persist) saveTablePreference(currentUser.id, next, defaults, defaultOrder, preferenceAliases);
+    if (persist && quoteAuthority() !== "server") saveTablePreference(currentUser.id, next, defaults, defaultOrder, preferenceAliases);
   };
 
   const resizeColumn = (key: string, nextWidth: number, persist: boolean) => {

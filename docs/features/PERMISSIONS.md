@@ -1,5 +1,9 @@
 # 权限系统
 
+## CURRENT new Server Quote build — D-097 (not deployment)
+
+显式 Quote authority=server 的 root 使用现有 ServerSessionProvider / IdentityAuthority / PermissionAuthorityProvider；可信 permission bridge 只映射 session 身份与权限，不 load Browser permissionRepository，不提供 Browser 用户/角色 mutation。session 模式复用唯一 ServerLoginCard，API 仍检查 quote.view/create/edit 与动作/基础设置细粒度权限；请求不能提供 actor。unsupported routes 不挂旧 Browser 模块；没有新 super permission。默认 browser 分支的 PermissionProvider/旧 Local Single-User runtime 保持，D-093 loopback-only 不放宽。
+
 > 当前开发模式（D-093）：显式 Local Single-User Mode 与 PR #64 UI 修复已部署至真实本机 3001，用户真实浏览器验收通过；同一可信技术身份拥有完整 54 项 `PermissionKey` catalog，不要求织序账号/密码/Cookie。Q3B2I-C2 CLOSED / PASS，Q3 master/settings 为 Server authority、编辑已重开。旧 Server Session/RBAC 与 Browser mock 用户界面说明是 session-mode/历史行为；旧 schema 和服务权限检查仍保留。此模式只限本机开发，未来 LAN/WAN/香港服务器/多人使用须另建真实 authentication/authorization Gate。
 
 本地单用户 UI 不呈现登录表单、logout、Browser 测试用户切换或用户权限管理入口；直接打开旧管理路由只显示模式说明。Browser Quote aggregate 仍为 mock Repository，不能因此声称已完成 Quote writer cutover。Server service 的细粒度权限校验和可信 OperationLog actor 不被删除。未来正式多用户认证需要独立设计/验收，不将本模式扩展为生产安全模型。

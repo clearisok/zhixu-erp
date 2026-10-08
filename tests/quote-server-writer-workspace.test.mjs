@@ -95,10 +95,10 @@ test("Server edit route skips Browser bootstrap exactly", () => {
   assert.doesNotMatch(bootstrapSource, /startsWith\("\/quote-center"\)/u);
 });
 
-test("production Quote routes remain Browser/local", () => {
-  assert.match(browserListRoute, /<QuoteList\s*\/>/u);
-  assert.match(browserDetailRoute, /<QuoteDetailLoader\s*\/>/u);
-  assert.match(browserNewRoute, /<QuoteNewLoader\s*\/>/u);
+test("production routes explicitly select authority without removing Browser/local workflows", () => {
+  assert.match(browserListRoute, /<ProductionQuoteList\s*\/>/u);
+  assert.match(browserDetailRoute, /<ProductionQuoteDetail\s*\/>/u);
+  assert.match(browserNewRoute, /<ProductionQuoteNew\s*\/>/u);
   assert.match(browserListSource, /mockQuoteRepository\.list/u);
   assert.match(browserEditorSource, /mockQuoteRepository\.getById/u);
   assert.match(browserEditorSource, /mockQuoteRepository\.createDraft/u);

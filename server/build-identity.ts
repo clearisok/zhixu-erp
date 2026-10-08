@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { parseQuoteAuthority, validateQuoteAuthority } from "../features/quote-center/authority/quote-authority.js";
 
 export type RuntimeBuildIdentity = {
   gitCommit: string;
@@ -8,6 +9,7 @@ export type RuntimeBuildIdentity = {
   masterSettingsAuthority: "browser" | "frozen" | "server";
   identityMode: "session" | "local-single-user";
   quoteWriterMode: "writable" | "frozen";
+  quoteAuthority?: "browser" | "server";
 };
 
 /** Never let runtime configuration claim an authority other than the compiled bundle. */
@@ -21,6 +23,10 @@ export async function assertRuntimeBuildIdentity(
   catch { throw new Error("compiled_build_identity_unavailable"); }
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("compiled_build_identity_invalid");
   const info = value as Record<string, unknown>;
+  if (info.quoteAuthority !== undefined && info.quoteAuthority !== "browser" && info.quoteAuthority !== "server") throw new Error("compiled_build_identity_invalid");
+  const compiledQuoteAuthority = parseQuoteAuthority(info.quoteAuthority as string | undefined);
+  validateQuoteAuthority(compiledQuoteAuthority, String(info.masterSettingsAuthority), String(info.quoteWriterMode));
+  if (parseQuoteAuthority(environment.NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY) !== compiledQuoteAuthority) throw new Error("runtime_compiled_build_identity_mismatch");
   if (typeof info.gitCommit !== "string" || !info.gitCommit ||
       typeof info.buildId !== "string" || !info.buildId ||
       typeof info.buildTime !== "string" || !info.buildTime ||

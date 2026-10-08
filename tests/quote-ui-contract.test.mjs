@@ -12,8 +12,8 @@ test("报价中心三个静态路由均存在并共享独立样式", async () =>
     read("app/quote-center/layout.tsx"),
   ]);
   assert.match(list, /QuoteList/);
-  assert.match(detail, /QuoteDetailLoader/);
-  assert.match(create, /QuoteNewLoader/);
+  assert.match(detail, /ProductionQuoteDetail/);
+  assert.match(create, /ProductionQuoteNew/);
   assert.match(layout, /quote-center\.css/);
 });
 

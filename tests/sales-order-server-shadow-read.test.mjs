@@ -43,12 +43,12 @@ test("DEV shadow route is read-only and leaves Browser OrderRepository unchanged
 });
 
 test("trusted ServerSession remains separate from Browser PermissionProvider", () => {
-  assert.match(layoutSource, /<PermissionProvider><ServerSessionProvider>/u);
+  assert.match(layoutSource, /<ServerSessionProvider>[\s\S]*<QuoteServerBoundary>/u);
   assert.match(sessionProviderSource, /ServerSessionContext/u);
   assert.match(sessionProviderSource, /restoreServerSession/u);
   assert.match(permissionProviderSource, /permissionRepository\.load\(\)/u);
   assert.match(permissionProviderSource, /currentUser/u);
-  assert.doesNotMatch(permissionProviderSource, /ServerSession|serverAuthClient/u);
+  assert.doesNotMatch(permissionProviderSource.slice(permissionProviderSource.indexOf("export function PermissionProvider(")), /useServerSession|serverAuthClient/u);
 });
 
 test("auth client keeps the HttpOnly session opaque and uses same-origin credentialed requests", () => {

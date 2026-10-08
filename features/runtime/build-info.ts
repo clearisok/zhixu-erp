@@ -6,6 +6,7 @@ export type BuildInfo = {
   masterSettingsAuthority: "browser" | "frozen" | "server";
   identityMode: "session" | "local-single-user";
   quoteWriterMode: "writable" | "frozen";
+  quoteAuthority: "browser" | "server";
 };
 
 declare const __ZHIXU_BUILD_INFO__: BuildInfo;
