@@ -17,6 +17,7 @@ import {
 } from "../model/quote-attachments";
 import type { AttachmentReference, QuoteRevision } from "../model/quote-view-model";
 import { browserQuoteAttachmentController, type AttachmentSnapshot, type QuoteAttachmentController } from "../model/quote-attachment-controller";
+import { isBrowserQuoteFrozen } from "../authority/quote-writer-mode";
 
 type AttachmentAsset = { attachment: AttachmentViewModel; url: string };
 
@@ -136,7 +137,8 @@ type QuoteAttachmentPanelProps = {
   onBusyChange?: (busy: boolean) => void;
 };
 
-export function QuoteAttachmentPanel({ revision, readOnly, createdBy, previewAttachmentId, onPreviewAttachmentIdChange, onChange, onAttachmentRemoved, notify, controller = browserQuoteAttachmentController, onServerSnapshot, onMutationError, onBusyChange }: QuoteAttachmentPanelProps) {
+export function QuoteAttachmentPanel({ revision, readOnly: requestedReadOnly, createdBy, previewAttachmentId, onPreviewAttachmentIdChange, onChange, onAttachmentRemoved, notify, controller = browserQuoteAttachmentController, onServerSnapshot, onMutationError, onBusyChange }: QuoteAttachmentPanelProps) {
+  const readOnly = requestedReadOnly || (controller.mode === "browser" && isBrowserQuoteFrozen());
   const [tab, setTab] = useState<AttachmentKind>("image");
   const [attachments, setAttachments] = useState<AttachmentViewModel[]>([]);
   const [deleteStyleTarget, setDeleteStyleTarget] = useState<AttachmentViewModel | null>(null);

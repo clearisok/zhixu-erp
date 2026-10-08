@@ -7,6 +7,7 @@ export type RuntimeBuildIdentity = {
   buildTime: string;
   masterSettingsAuthority: "browser" | "frozen" | "server";
   identityMode: "session" | "local-single-user";
+  quoteWriterMode: "writable" | "frozen";
 };
 
 /** Never let runtime configuration claim an authority other than the compiled bundle. */
@@ -24,6 +25,7 @@ export async function assertRuntimeBuildIdentity(
       typeof info.buildId !== "string" || !info.buildId ||
       typeof info.buildTime !== "string" || !info.buildTime ||
       !["browser", "frozen", "server"].includes(String(info.masterSettingsAuthority)) ||
+      !["writable", "frozen"].includes(String(info.quoteWriterMode)) ||
       !["session", "local-single-user"].includes(String(info.identityMode))) {
     throw new Error("compiled_build_identity_invalid");
   }
@@ -33,8 +35,10 @@ export async function assertRuntimeBuildIdentity(
     ["ZHIXU_BUILD_TIME", info.buildTime],
     ["NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY", info.masterSettingsAuthority],
     ["ZHIXU_IDENTITY_MODE", info.identityMode],
+    ["NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE", info.quoteWriterMode],
   ] as const) {
-    if (environment[key] !== actual) throw new Error("runtime_compiled_build_identity_mismatch");
+    const configured = key === "NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE" ? (environment[key] || "writable") : environment[key];
+    if (configured !== actual) throw new Error("runtime_compiled_build_identity_mismatch");
   }
   if (expectedAuthority && info.masterSettingsAuthority !== expectedAuthority) throw new Error("unexpected_compiled_authority");
   return info as RuntimeBuildIdentity;

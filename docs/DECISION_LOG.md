@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-095 Quote migration freeze is independent of Q3 master/settings authority
+
+- 日期：2026-10-07；状态：Active。落实用户 Q5-C 指令，仅工程实现，不授权真实冻结部署或迁移。
+- Build-time `QuoteWriterMode=writable|frozen` 默认 writable；独立于 `MasterSettingsAuthority`。目标组合是 Q3 `server` + Quote `frozen`，不能拿 Q3 frozen 代替 Quote freeze。
+- Frozen Quote 只读现有 canonical schema v13 envelope；无 seed、normalize/migration rewrite、legacy merge 或删除。缺失/无效 source fail closed。Repository 和 Quote attachment controller 双层保护；Quote surface 的共享条款和转订单动作也停用。Q3 Server 编辑、无关 Order 附件及 UI preference 不受全局冻结。
+- 标准 full backup 保持既有格式且不改 Quote raw bytes；restore/reset 拒绝。旧 URL、附件引用和 IndexedDB 源不清理，D-094 仅作用于 Server projection。
+- Frozen preparation 不声称 capture 后无变化，旧标签页关闭必须 operator 显式确认；capture 后才可结合 raw SHA 一致性生成 Q5-B v1 freeze proof。真实窗口和 Execute 另行授权。
+- 证据：`features/quote-center/authority/`、`server/quotes/freeze-readiness.ts`、Q5-C repository/export tests 和 isolated Chromium harness。
+
 ### D-094 Q5 historical Quote migration clears legacy attachment URL compatibility fields
 
 - 日期：2026-10-07；状态：Active，用户明确确认。Q5-A 只建立工程投影与一次性数据库排练，不授权真实导入或删除 Browser 数据。

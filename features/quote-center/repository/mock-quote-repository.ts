@@ -1,6 +1,8 @@
 "use client";
 
 import { quoteFixtures } from "../fixtures/quote-fixtures.ts";
+import { assertBrowserQuoteWrite, isBrowserQuoteFrozen } from "../authority/quote-writer-mode.ts";
+import { readFrozenBrowserQuoteCollection } from "../authority/frozen-quote-source.ts";
 import { createQuoteDraft, getDefaultRevision, normalizeSinglePriceVersionName, type PriceVersion, type PriceVersionPricingParameters, type Quote, type QuotePricingParameters, type QuoteRevision, type QuoteRevisionReason } from "../model/quote-view-model.ts";
 import { parseLegacyRevisionLabel } from "../model/quote-revision-naming.ts";
 import { applySystemDefaultsToNewQuoteRevision, loadGlobalQuoteSettings } from "../model/quote-settings.ts";
@@ -134,6 +136,7 @@ export function createMockQuoteRepository(options: {
     ? typeof window === "undefined" ? null : window.sessionStorage
     : options.legacySessionStorage;
   const readQuotes = (): Quote[] => {
+    if (isBrowserQuoteFrozen()) return readFrozenBrowserQuoteCollection(store);
     if (memoryQuotes) return memoryQuotes;
     const legacyStorage = legacySessionStorage();
     const stableQuotes = store.initialize(QUOTE_STORAGE_NAME, {
@@ -151,6 +154,7 @@ export function createMockQuoteRepository(options: {
     return memoryQuotes;
   };
   const writeQuotes = (quotes: Quote[]) => {
+    assertBrowserQuoteWrite();
     memoryQuotes = store.save(QUOTE_STORAGE_NAME, migrateQuoteCollection(quotes));
   };
 
@@ -162,6 +166,7 @@ export function createMockQuoteRepository(options: {
     return clone(readQuotes().find((quote) => quote.id === id && !quote.deletedAt) ?? null);
   },
   async save(quote) {
+    assertBrowserQuoteWrite();
     const quotes = readQuotes();
     const index = quotes.findIndex((item) => item.id === quote.id);
     if (index >= 0) quotes[index] = clone(quote);
@@ -169,6 +174,7 @@ export function createMockQuoteRepository(options: {
     writeQuotes(quotes);
   },
   async delete(id, options) {
+    assertBrowserQuoteWrite();
     if (options?.mode === "soft") {
       const deletedAt = options.deletedAt ?? new Date().toISOString();
       writeQuotes(readQuotes().map((quote) => quote.id === id ? { ...quote, deletedAt } : quote));
@@ -177,6 +183,7 @@ export function createMockQuoteRepository(options: {
     writeQuotes(readQuotes().filter((quote) => quote.id !== id));
   },
   async createDraft(today, masterSettings) {
+    assertBrowserQuoteWrite();
     const suffix = String(readQuotes().length + 1).padStart(3, "0");
     const id = `quote-draft-${Date.now()}`;
     const globalSettings = masterSettings ?? loadGlobalQuoteSettings();
@@ -191,6 +198,7 @@ export function createMockQuoteRepository(options: {
     return clone({ ...quote, revisions: quote.revisions.map((revision) => revision.revisionId === initialized.revisionId ? initialized : revision) });
   },
   async copyFromDefaultRevision(sourceQuoteId, input) {
+    assertBrowserQuoteWrite();
     const quotes = readQuotes();
     const source = quotes.find((quote) => quote.id === sourceQuoteId && !quote.deletedAt);
     if (!source) throw new Error("复制来源报价不存在");

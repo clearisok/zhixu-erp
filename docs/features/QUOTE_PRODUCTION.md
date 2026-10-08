@@ -1,5 +1,7 @@
 # Quote Production
 
+> Q5-C（2026-10-07）：QUOTE-SPECIFIC FREEZE ENGINEERING ONLY / PASS。独立 QuoteWriterMode 默认 writable；candidate frozen 提供只读 list/detail/附件预览/full backup 与 mutation fail-closed。真实 runtime 仍 WRITABLE，Q3 master/settings SERVER，Quote aggregate BROWSER。真实 frozen deployment、旧标签页关闭、fresh Browser source、0008、COS、Q5 Execute 均未执行/未授权。完整 write-path audit 和 evidence 时序见 QUOTE_MIGRATION_RUNBOOK.md；此状态不等于 production cutover ready。
+
 ## Purpose
 
 本文记录用户已确认的 **Quote-first Route B** 正式生产方向。目标是在不等待整个 ERP 完成 Server migration 的前提下，先把 Quote Center 及其必要依赖推进到可信 Server/PostgreSQL 生产形态，再让 Order、Scheduling、Closing 分别通过自己的 migration 与 production acceptance Gate 后逐步启用。
@@ -14,7 +16,7 @@ Q5-A 复用现有标准 Browser full backup v13 格式和 Q1 aggregate repositor
 
 ## Q5-B guarded operational foundation — 2026-10-07
 
-Q5-B 建立 exact reviewed Git source、`quote-history-source-identity.v1`、Quote-specific freeze/time ordering、严格 rehearsal/rollback/COS evidence、D-091 import attempt 与 `quote_import_readiness.v1` contract。内部 importer 增加 Q5 advisory lock；COMMIT 已发出而响应丢失时销毁不确定连接，以全新只读连接对账，绝不自动重跑。运维脚本复用 canonical Docker/PG exact-target guard，仅暴露 read-only VerifyOnly；真实 Execute 物理缺席。本阶段只用合成证据与 disposable PostgreSQL 验证，不连接 COS 或真实 Quote 数据库写入。真实 0008、Quote-specific frozen build、fresh source/rollback/evidence custody 与生产 Object Storage 仍未就绪；Q3 master/settings frozen mode 不等价于 Quote aggregate freeze。完整运行边界见 `QUOTE_MIGRATION_RUNBOOK.md`。
+Q5-B 建立 exact reviewed Git source、`quote-history-source-identity.v1`、Quote-specific freeze/time ordering、严格 rehearsal/rollback/COS evidence、D-091 import attempt 与 `quote_import_readiness.v1` contract。内部 importer 增加 Q5 advisory lock；COMMIT 已发出而响应丢失时销毁不确定连接，以全新只读连接对账，绝不自动重跑。运维脚本复用 canonical Docker/PG exact-target guard，仅暴露 read-only VerifyOnly；真实 Execute 物理缺席。本阶段只用合成证据与 disposable PostgreSQL 验证，不连接 COS 或真实 Quote 数据库写入。真实 0008、Quote-specific frozen deployment/acceptance、fresh source/rollback/evidence custody 与生产 Object Storage 仍未就绪；Q3 master/settings frozen mode 不等价于 Quote aggregate freeze。完整运行边界见 `QUOTE_MIGRATION_RUNBOOK.md`。
 
 ## Q4A Server Attachment Foundation — 2026-10-05
 

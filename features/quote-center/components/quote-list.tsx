@@ -11,6 +11,7 @@ import { formatFinalGarmentPrice } from "../model/final-quote-format";
 import { defaultQuoteSettings, loadQuoteSettings, saveQuoteSettings, type ListColumnKey, type QuoteUserSettings } from "../model/quote-settings";
 import { confirmationSummaryLabel, matchesQuoteRecordSearch, QUOTE_STRUCTURED_SEARCH_FIELDS } from "../model/quote-workflows";
 import { getCurrentRevision, type Quote } from "../model/quote-view-model";
+import { isBrowserQuoteFrozen } from "../authority/quote-writer-mode";
 import { mockQuoteRepository } from "../repository/mock-quote-repository";
 import { ListFieldSettingsModal } from "./quote-settings-modals";
 import { BatchExportModal } from "./batch-export-modal";
@@ -48,6 +49,7 @@ function QuoteSearchField({ value, onChange }: { value: string; onChange: (value
 }
 
 export function QuoteList() {
+  const quoteFrozen = isBrowserQuoteFrozen();
   const router = useRouter();
   const { can, currentUser } = usePermissions();
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -114,7 +116,8 @@ export function QuoteList() {
   const filters = <><FormItem label="报价类型"><select className="qc-control" value={type} onChange={(event) => setType(event.target.value)}><option value="all">全部类型</option><option value="distribution">经销</option><option value="processing">加工</option></select></FormItem><FormItem label="报价状态"><select className="qc-control" value={status} onChange={(event) => setStatus(event.target.value)}><option value="all">全部状态</option><option value="draft">草稿</option><option value="quoting">报价中</option><option value="partially_confirmed">部分确认</option><option value="confirmed">全部确认</option></select></FormItem></>;
 
   return <AppShell title="报价中心"><PageContainer className="qc-quote-center-page">
-    <PageHeader eyebrow="QUOTE CENTER" title="报价中心" count={`${rows.length} 条`} description="按款式识别报价，区分报价历史、价格方案与客户确认。" secondaryActions={<FloatingMenu className="qc-list-more-actions" menuClassName="qc-list-more-menu" label="更多报价操作"><PermissionButton permission="quote.export" variant="text" onClick={() => { setSelectionMode("batch-export"); setSelectedIds([]); setSelectedQuoteId(""); }}>批量导出</PermissionButton><PermissionButton permission="quote.create" variant="text" onClick={() => { setSelectionMode("copy-quote"); setSelectedQuoteId(""); setSelectedIds([]); }}>复制报价</PermissionButton><Button variant="text" onClick={() => setSettingsOpen(true)}>页面设置</Button></FloatingMenu>} primaryAction={<PermissionButton permission="quote.create" onClick={() => router.push("/quote-center/new")}>＋ 新建报价</PermissionButton>} />
+    {quoteFrozen && <div role="status" className="qc-form-alert">报价迁移冻结 · 只读。可以搜索、查看与导出；新建和复制已暂停。</div>}
+    <PageHeader eyebrow="QUOTE CENTER" title="报价中心" count={`${rows.length} 条`} description="按款式识别报价，区分报价历史、价格方案与客户确认。" secondaryActions={<FloatingMenu className="qc-list-more-actions" menuClassName="qc-list-more-menu" label="更多报价操作"><PermissionButton permission="quote.export" variant="text" onClick={() => { setSelectionMode("batch-export"); setSelectedIds([]); setSelectedQuoteId(""); }}>批量导出</PermissionButton><PermissionButton permission="quote.create" disabled={quoteFrozen} variant="text" onClick={() => { setSelectionMode("copy-quote"); setSelectedQuoteId(""); setSelectedIds([]); }}>复制报价</PermissionButton><Button variant="text" onClick={() => setSettingsOpen(true)}>页面设置</Button></FloatingMenu>} primaryAction={<PermissionButton permission="quote.create" disabled={quoteFrozen} onClick={() => router.push("/quote-center/new")}>＋ 新建报价</PermissionButton>} />
     <Toolbar className="qc-quote-toolbar" search={<QuoteSearchField value={query} onChange={setQuery} />} moreFilters={filters} resultSummary={`显示 ${rows.length} / ${quotes.length} 条`} mobileFilterTitle="报价筛选" />
     {selectionMode === "batch-export" && can("quote.export") && <div className="qc-batch-selection-toolbar"><strong>批量导出 · 已选择 {selectedIds.length} 个报价</strong><Button variant="text" onClick={() => setSelectedIds((current) => [...new Set([...current, ...rows.map((quote) => quote.id)])])}>全选当前筛选结果</Button><Button disabled={!selectedIds.length} onClick={() => setBatchExportOpen(true)}>导出所选</Button><Button variant="secondary" onClick={() => { setSelectionMode(null); setSelectedIds([]); }}>退出选择</Button></div>}
     {selectionMode === "copy-quote" && can("quote.create") && <div className="qc-batch-selection-toolbar qc-copy-selection-toolbar"><strong>复制报价 · {selectedQuoteId ? "已选择 1 个报价" : "请选择一个来源报价"}</strong><span>复制来源为所选报价的当前默认报价版本</span><Button disabled={!selectedQuoteId} onClick={() => setCopyQuoteOpen(true)}>继续复制</Button><Button variant="secondary" onClick={() => { setSelectionMode(null); setSelectedQuoteId(""); }}>取消复制</Button></div>}
@@ -151,6 +154,6 @@ export function QuoteList() {
     </Card>
     <ListFieldSettingsModal open={settingsOpen} settings={settings} tablePreference={tablePreference} defaultColumnWidths={QUOTE_LIST_DEFAULT_COLUMN_WIDTHS} defaultColumnOrder={QUOTE_LIST_DEFAULT_COLUMN_ORDER} onClose={() => setSettingsOpen(false)} onSave={(next, preference) => { setSettings(saveQuoteSettings(next)); setTablePreference(saveTablePreference(currentUser.id, preference, QUOTE_LIST_DEFAULT_COLUMN_WIDTHS, QUOTE_LIST_DEFAULT_COLUMN_ORDER, QUOTE_LIST_PREFERENCE_ALIASES)); setSettingsOpen(false); }} />
     <BatchExportModal open={batchExportOpen} quotes={quotes.filter((quote) => selectedIds.includes(quote.id))} visibleColumns={settings.visibleColumns} onClose={() => setBatchExportOpen(false)} />
-    <CopyQuoteModal open={copyQuoteOpen} source={quotes.find((quote) => quote.id === selectedQuoteId) ?? null} quotes={quotes} createdBy={currentUser.name} onClose={() => setCopyQuoteOpen(false)} onCreated={async (copied) => { await operationLogRepository.appendMany(createQuoteOperationLogs(null, copied, { userId: currentUser.id, userName: currentUser.name })); setQuotes((current) => [copied, ...current]); setCopyQuoteOpen(false); setSelectionMode(null); setSelectedQuoteId(""); router.push(`/quote-center/detail?id=${encodeURIComponent(copied.id)}`); }} />
+    <CopyQuoteModal open={!quoteFrozen && copyQuoteOpen} source={quotes.find((quote) => quote.id === selectedQuoteId) ?? null} quotes={quotes} createdBy={currentUser.name} onClose={() => setCopyQuoteOpen(false)} onCreated={async (copied) => { await operationLogRepository.appendMany(createQuoteOperationLogs(null, copied, { userId: currentUser.id, userName: currentUser.name })); setQuotes((current) => [copied, ...current]); setCopyQuoteOpen(false); setSelectionMode(null); setSelectedQuoteId(""); router.push(`/quote-center/detail?id=${encodeURIComponent(copied.id)}`); }} />
   </PageContainer></AppShell>;
 }
