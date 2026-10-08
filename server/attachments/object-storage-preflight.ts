@@ -5,7 +5,8 @@ import {
   DeleteObjectCommand, GetObjectCommand, HeadBucketCommand, HeadObjectCommand, PutObjectCommand, S3Client,
   type HeadObjectCommandOutput, type GetObjectCommandOutput,
 } from "@aws-sdk/client-s3";
-import { parseAttachmentStorageConfig, type AttachmentStorageEnvironment } from "./storage-config.js";
+import type { AttachmentStorageEnvironment } from "./storage-config.js";
+import { loadAttachmentStorageConfig } from "./storage-config-loader.js";
 
 type ProbeCommand = HeadBucketCommand | PutObjectCommand | HeadObjectCommand | GetObjectCommand | DeleteObjectCommand;
 export type ProbeTransport = {
@@ -86,7 +87,7 @@ export async function preflightObjectStorage(values: Readonly<Record<string, str
     evidence.cleanupConfirmed = true;
   }
   try {
-    const config = parseAttachmentStorageConfig(options.environment ?? "production", values);
+    const config = loadAttachmentStorageConfig(options.environment ?? "production", values);
     if (config.kind !== "s3" || !Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30_000)
       throw new Error("invalid_preflight_config");
     Object.assign(evidence, { endpointIdentity: new URL(config.endpoint).origin, region: config.region, bucket: config.bucket,

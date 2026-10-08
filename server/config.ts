@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import type { IdentityMode } from "./auth/identity-authority.js";
-import { parseAttachmentStorageConfig, type AttachmentStorageConfig } from "./attachments/storage-config.js";
+import type { AttachmentStorageConfig } from "./attachments/storage-config.js";
+import { loadAttachmentStorageConfig } from "./attachments/storage-config-loader.js";
 export type { AttachmentStorageConfig } from "./attachments/storage-config.js";
 
 export type ServerEnvironment = "development" | "test" | "production";
@@ -128,6 +129,6 @@ export function loadServerConfig(values: NodeJS.ProcessEnv = process.env): Serve
       displayName: values.ZHIXU_ADMIN_DISPLAY_NAME?.trim() || "系统管理员",
       password: values.ZHIXU_ADMIN_PASSWORD || undefined,
     },
-    attachmentStorage: parseAttachmentStorageConfig(environment, values),
+    attachmentStorage: loadAttachmentStorageConfig(environment, values),
   };
 }

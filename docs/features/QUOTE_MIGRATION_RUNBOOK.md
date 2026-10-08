@@ -2,6 +2,8 @@
 
 ## Current state (Q4C-B / Q5-C, 2026-10-08)
 
+**Q4C-B REAL COS PREFLIGHT PASS** 已由用户提供 reviewed `a979d4b4...` 官方 Node 输出与原证据 checksum（不是本轮远程获取/重算，详见 ATTACHMENTS）。原 probe 全阶段、hash、cleanup PASS，不重测。Persistent credential loader/setup/offline check 本轮只工程交付，真实 host secrets installation NOT EXECUTED、production runtime storage NOT ACTIVATED。Q4C-B PASS 仍不证明 private policy/CAM `attachments/*` Delete deny 或 runtimeConfigReviewed；Q5 final storage readiness 不得自动置 true。真实 0008、Quote import、Q5 Execute 仍 NOT EXECUTED/NOT AUTHORIZED，Quote/附件 BROWSER，Q3 SERVER。下段 NOT RUN 是 original tooling Gate 的历史，不覆盖此次 closure。
+
 Q4C-B 已提供独立 Node/S3 preflight 工具与 `zhixu-object-storage-preflight.v1` evidence；仅 disposable MinIO 验证，正式真实 Node run **NOT RUN**。USER CONFIRMED：COS 私有 `weaveops-prod-1501437430` / ap-hongkong 已建立，宁波 Python PUT PASS，直接复用该 bucket，无命名依赖。Q5-B 的 `quote-object-storage-readiness.v1` 仍要求单独核验 private bucket 与正式 runtime config；不得将 Q4C-B evidence 自动当作 `runtimeConfigReviewed=true` 或 Q5 final PASS。真实 0008/Quote migration/部署仍 NO，Q5 Execute NOT AUTHORIZED。下段“未配置 COS”是原 Q5-B Gate 的历史工程边界，不代表当前 bucket 不存在。
 
 Q5-A 的 canonical Browser full-backup Quote projection 与 disposable PostgreSQL import/readback 已完成。Q5-B 增加 reviewed-source、source/freeze/rollback/rehearsal/Object Storage 证据契约、一次性数据库 advisory lock、COMMIT 不确定性与新连接 readback；`Invoke-Q5GuardedQuoteImport.ps1` **只有 VerifyOnly**，没有真实 Execute 参数或连接真实数据库写入的入口。合成证据能在 disposable PG16 覆盖同一前置验证模型。Q5-B 未捕获真实 Browser source，未配置 COS，未执行真实 0008、Quote import、部署或 authority switch。
@@ -50,7 +52,7 @@ Q5 只消费现有标准 Browser full backup，不建立第二套备份格式或
 ## Remaining real Gate blockers
 
 - 独立授权部署已实现的 Quote-specific frozen/read-only candidate，验收真实旧标签页关闭/同源连续性；Q3 master/settings frozen 不可代用。
-- 已由用户确认存在的 private COS bucket 仍需正式 Node Q4C-B PUT/HEAD/GET/delete/absence preflight、private configuration confirmation 与 runtime config review；本工程 Gate 不接 COS。真实 run 须在 PR 合并后由用户在宁波 Ubuntu 单独执行，见 `ATTACHMENTS.md`。Runtime 公网逐操作 bounded timeout 仍须在 activation review 核验。
+- 正式 Node Q4C-B PUT/HEAD/GET/delete/absence 已由用户执行 PASS，不要求重复。仍需 private/CAM policy（尤其正式附件 Delete deny）、实际 runtime identity/ro mount/config review 与公网逐操作 bounded timeout activation 核验；本轮不安装 secrets、不接 COS、不部署。Q4C-B evidence 不能自动生成 Q5 final storage proof，见 `ATTACHMENTS.md`。
 - 独立授权执行真实 0008，并验证真实 ledger current。
 - fresh authoritative Browser backup、一次性排练 proof、exact-target post-freeze rollback dump/manifest 与独立 evidence custody。
 - 设计并授权 Quote-only/受控 DB competing-writer freeze、最终 pre-execute freshness 与真实 Execute runner；当前脚本故意不暴露 Execute。

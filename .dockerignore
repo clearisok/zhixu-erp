@@ -1,5 +1,9 @@
 .git
 .gitignore
+.env
+.env.*
+*.env
+secrets
 node_modules
 node_modules_incomplete
 .codex-latest-*.log

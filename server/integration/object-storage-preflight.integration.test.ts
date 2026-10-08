@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Readable } from "node:stream";
@@ -192,5 +192,18 @@ test("official preflight operations use only isolated MinIO probes and clean up"
       const invalid = await cli(args); assert.notEqual(invalid.code, 0); assert.match(invalid.stderr, /ARGUMENTS_INVALID/u);
     }
     assert.ok(![first.stdout, first.stderr, second.stdout, second.stderr].join("").includes(minio.secretAccessKey));
+  });
+  await t.test("preflight CLI shares file credential loader without changing evidence format", async () => {
+    const idPath = join(temp, "secret-id"), keyPath = join(temp, "secret-key");
+    await writeFile(idPath, minio.accessKeyId + "\n", { mode: 0o600 });
+    await writeFile(keyPath, minio.secretAccessKey + "\r\n", { mode: 0o600 });
+    const env: NodeJS.ProcessEnv = { PATH: process.env.PATH, SystemRoot: process.env.SystemRoot, NODE_ENV: "test", ...values,
+      ZHIXU_ATTACHMENT_S3_ACCESS_KEY_ID: undefined, ZHIXU_ATTACHMENT_S3_SECRET_ACCESS_KEY: undefined,
+      ZHIXU_ATTACHMENT_S3_ACCESS_KEY_ID_FILE: idPath, ZHIXU_ATTACHMENT_S3_SECRET_ACCESS_KEY_FILE: keyPath };
+    const result = await exec(process.execPath, ["--import", "tsx", "scripts/preflight-object-storage.ts"], { env, encoding: "utf8", windowsHide: true });
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.contract, "zhixu-object-storage-preflight.v1"); assert.equal(report.result, "PASS");
+    assert.equal(report.cleanupConfirmed, true); assert.ok(!result.stdout.includes(minio.secretAccessKey));
+    assert.equal(Object.hasOwn(report, "credentialSources"), false);
   });
 });

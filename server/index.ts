@@ -5,13 +5,21 @@ import { assertRuntimeBuildIdentity } from "./build-identity.js";
 import { bootstrapAdmin } from "./auth/bootstrap.js";
 import { createIdentityAuthority } from "./auth/identity-authority.js";
 import { synchronizePermissionCatalog } from "./auth/permissions.js";
-import { loadServerConfig } from "./config.js";
+import { loadServerConfig, type ServerConfig } from "./config.js";
+import { StorageConfigLoadError } from "./attachments/storage-config-loader.js";
 import { closeDatabasePool, createDatabasePool } from "./db/pool.js";
 import { PendingMigrationsError, verifyMigrationsCurrent } from "./db/migration-runner.js";
 import { initializeServer } from "./startup.js";
 
 if (process.env.NODE_ENV === "production") await assertRuntimeBuildIdentity(process.env.ZHIXU_STATIC_DIR?.trim() || "dist/client");
-const config = loadServerConfig();
+let config: ServerConfig;
+try { config = loadServerConfig(); }
+catch (error) {
+  process.stderr.write(`${JSON.stringify({ event: "server_config_failed",
+    code: error instanceof StorageConfigLoadError ? error.code : "SERVER_CONFIG_INVALID",
+    field: error instanceof StorageConfigLoadError ? error.field : "serverConfig" })}\n`);
+  process.exit(1); // before S3 construction, pool, permissions/bootstrap and listen
+}
 const attachmentStorage = config.attachmentStorage.kind === "s3" ? new S3AttachmentStorage(config.attachmentStorage) : undefined;
 const pool = createDatabasePool({
   connectionString: config.databaseUrl,
