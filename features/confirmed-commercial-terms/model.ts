@@ -23,6 +23,8 @@ export type ConfirmedCommercialTermsDto = {
   } | null;
   associatedSalesOrderIds: string[];
   current: ConfirmedCommercialTermsCurrentDto | null;
+  /** Quote version checked under the transaction lock; not a new saved version. */
+  verifiedQuoteVersion?: number;
 };
 
 export type UpdateConfirmedCommercialTermsInput = {
@@ -30,6 +32,10 @@ export type UpdateConfirmedCommercialTermsInput = {
   customerConfirmedPrice: string | null;
   confirmedLaborPrice: string | null;
   laborCurrency: ConfirmedLaborCurrency | null;
+};
+
+export type UpdateQuoteConfirmedCommercialTermsInput = UpdateConfirmedCommercialTermsInput & {
+  expectedQuoteVersion: number;
 };
 
 export function isQuoteTermsServerLinkageActivated(value: string | undefined): boolean {

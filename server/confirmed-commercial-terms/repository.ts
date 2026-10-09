@@ -8,6 +8,13 @@ import type {
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
+/** All paths needing both locks acquire sorted terms contexts, then Quote row. */
+export async function lockQuoteTermsContext(client: Queryable, provenance: QuoteProvenance): Promise<void> {
+  await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [
+    `commercial-terms:quote:${provenance.quoteId}:${provenance.revisionId}:${provenance.priceVersionId}`,
+  ]);
+}
+
 export type QuoteProvenance = {
   quoteId: string;
   revisionId: string;
