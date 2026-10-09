@@ -24,6 +24,7 @@ import { createQuoteDraft } from "../../features/quote-center/model/quote-view-m
 import { createSyntheticQuoteFixture } from "./quote-fixture.ts";
 import { createQuoteRepository } from "../quotes/repository.ts";
 import { quoteSnapshotFromBrowser } from "../quotes/model.ts";
+import { runD099ListAcceptance } from "./d099-list-acceptance.mjs";
 
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 async function until(read, label) {
@@ -284,6 +285,10 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       return;
     }
 
+    if (process.env.ZHIXU_D099_LIST_ACCEPTANCE === '1') {
+      await runD099ListAcceptance({ t, pool, navigate, hasText, input, click, action, evaluate, command, sessionId, sleep, isolated });
+      return;
+    }
     await t.test("production shell/new view stays within desktop viewport without creating business rows", async () => {
       await navigate('/quote-center');await hasText('登录织序 Server');
       for(const [width,height] of [[1920,1080],[1440,900],[1280,800],[900,800]]) {

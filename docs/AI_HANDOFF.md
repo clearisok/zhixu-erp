@@ -1,5 +1,10 @@
 # AI handoff
 
+## Active — Codex A D-099 list acceptance repair
+
+- Independent `fix/d099-quote-list-acceptance`, fetched main `49a82c9f970e158ded589300b4aa04fc4c809038`. Gate0 reproduced grouped-width contamination, missing grouped settings and four real DOM resize failures; [checkpoint and scoped read-only image contract](tasks/active/d099-list-acceptance.md).
+- Continue minimum width/presentation + relation-backed thumbnail repairs, then actual disposable Chromium/API/quality validation. Real18443 and Preview18444 untouched; deploy handoff only, USER ACCEPTANCE PENDING.
+
 ## Active — Codex D PR #84 integration (2026-10-09)
 
 - Independent worktree `D:\workspace\zhixu-pr84-integration`, original branch `ops/update-quote-trial-windows-ui`; clean baseline `62af9d33fd1de9a981972405b0d1ef01b503d351`. Normal merge of fetched/GitHub-confirmed main `6e40b4318e59f8cc54adfe1aeb3d3e3d90a72613` (PR #85/#86 merged).
