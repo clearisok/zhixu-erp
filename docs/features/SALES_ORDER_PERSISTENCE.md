@@ -1,5 +1,15 @@
 # SalesOrder PostgreSQL Persistence Foundation
 
+## C4.3 DeliveryPlan domain (2026-10-09)
+
+`0009_sales_order_delivery_plans.sql` adds `sales_order_delivery_plan_sets` and `sales_order_delivery_plans`, without changing prior migrations or backfilling existing orders. The collection has an independent version and irreversible `source_derived → user_managed` transition. Rows use server UUIDs, exact NUMERIC quantity/API decimal strings, nullable date only for a suspended derived default, and retained void history. SalesOrder version/number/provenance and shared terms remain independent.
+
+New source-mirror insertion initializes the collection and, only with a valid date, one default row. Its quantity snapshots first source quantity including zero; later quantity changes never reallocate. Date changes update only the untouched existing default. Null suspends that same ID, restoration resumes it. An initially empty collection receives no later fabricated default. Source date/quantity changes also increment collection version in the same transaction. Mirror updates on pre-C4.3 orders lacking evidence do not infer ownership or backfill plans.
+
+The internal typed `refreshAinuokeSalesOrderSource` service preserves binding, checks source hash/fetch-time and collection CAS, and atomically updates source link/mirrors, source-follow projection and trusted audit. It has no HTTP source-write route. Human plan commands require order.view/order.edit, reject identity/ownership/source fields, preserve stable IDs and permanently claim the entire collection even for same-value intervention. Reconciliation reports actual source date/quantity, active plan dates and date drift/quantity balance; source disappearance does not rewrite human rows. A subsequent matching date projection resolves current drift while prior audit evidence remains append-only.
+
+Gate 1: typecheck, Server build and disposable PostgreSQL 12/12 passed. Narrow HTTP API and final regression results are recorded in the [task report](../tasks/active/2026-10-09-order-c43-delivery-plan.md). No real migration/deployment/Browser import is performed; D-096/D-098 remain unchanged.
+
 ## C4.2 ConfirmedCommercialTerms extension
 
 2026-10-09 linked follow-up: exact saved Server Quote provenance is now required for Quote mutation; both terms expectedVersion and positive expectedQuoteVersion must pass the locked saved-source check. Order current uses only its existing terms CAS/permissions and established currency, not the Quote's current/default edit eligibility. Multiple formal Orders read/write the same context; no source binding/aggregate/version/sequence/mirror mutation occurs. This does not expose Order creation or implement a new Order UI.

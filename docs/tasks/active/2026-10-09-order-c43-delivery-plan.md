@@ -23,3 +23,11 @@ The user confirmed in this task on 2026-10-09:
 ## Safety and delivery
 
 Only disposable PostgreSQL/synthetic fixtures are authorized. D-096 empty-data and D-098 Quote-first scope remain unchanged. Engineering results and remote checkpoint SHAs are recorded per Gate below; no real environment acceptance is implied.
+
+## Gate 1 — domain PASS
+
+- Baseline checkpoint `d6d3c94` (Gate 0), pushed successfully; Gate 1 begins with clean tracked baseline.
+- New 0009 schema/ownership triggers, typed collection projection, human upsert/void transaction and internal source-refresh transaction. D-099 records confirmed rules and technical evidence. No source HTTP writer.
+- Typecheck and Server build PASS. Disposable PostgreSQL domain 12/12 PASS: migration/idempotency/startup guard, initialization/date absence/zero, null recovery/stable IDs, multi-row/permanent ownership/drift, void history, concurrent CAS/source-user competition, audit rollback, permissions/spoofing/source guards and untouched aggregate/terms.
+- Initial npm ci failed ECONNRESET; offline lockfile install succeeded. First compilation attempt before dependencies were available did not run; subsequent actual compilation passed.
+- Sandbox execution helper failed to start; authorized repository reads/builds/test commands use reviewed escalation. One-off approval-service transport failures were resubmitted unchanged and succeeded. No shared sandbox/proxy/TLS configuration was changed.

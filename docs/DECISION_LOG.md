@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-099 C4.3 DeliveryPlan collection ownership and source-null recovery
+
+- 日期：2026-10-09；状态：Active。落实 D-083；数量与 null 边界由本任务用户明确确认。
+- 首次 Ainuoke 创建有有效来源日期时初始化唯一默认行，数量固定为首次 source quantity（含 0）；后续数量变化只投影 short/matched/excess，不自动重分配。首次无日期不建默认行，后续出现日期不自动补建。
+- untouched 默认日期清空时保留 UUID/数量并变为无有效日期，日期恢复复用同一 UUID。任何人工 upsert/void（包括同值提交）将整个集合永久变为 user_managed；source 更新不能重新取得所有权。
+- 技术：0009 独立集合/行表，集合独立 CAS；source date/quantity 更新在 Mirror 同事务触发器中推进集合版本，防止弱底层 upsert 绕过 D-083。用户命令与内部 source-refresh 依次锁 order root、mirror（仅 refresh）、collection；可信 audit 与业务同事务。行只能作废，不删除/换 owner/重建默认 ID。
+- 旧订单无所有权证据保持 uninitialized；migration 无 backfill，首次人工命令可创建 user_managed 集合，不伪造 untouched。
+- 证据：`database/migrations/0009_sales_order_delivery_plans.sql`、`server/sales-orders/delivery-plan-*.ts`、`server/integration/delivery-plans.integration.test.ts`。仅 disposable PG；不代表真实 activation、UI 接线或通用订单写入。
+
 ### D-098 优先形成可使用的报价试用版，由实际使用反馈驱动后续范围
 
 - 日期：2026-10-09；状态：Active。用户明确要求按可使用版本组织工作，尽早实际完成报价，不无限追加功能。
