@@ -1,68 +1,89 @@
 import { quoteAttachmentClient } from "./quote-attachment-client";
+import { inspectListImage, LIST_IMAGE_MAX_BYTES, LIST_IMAGE_MAX_PIXELS, LIST_IMAGE_TOTAL_BYTES, LIST_IMAGE_TOTAL_PIXELS, ListImagePolicyError, type ListImageFailure } from "./list-image-policy";
 import type { QuoteServerListItem } from "./quote-server-client";
 type Reference = { quoteId: string; revisionId: string; image: NonNullable<QuoteServerListItem["styleImage"]> };
-type Entry = { reference: Reference; listeners: Set<(url: string | null) => void>; controller: AbortController; url?: string; settled: boolean; running: boolean };
+type Listener = (url: string | null, reason?: ListImageFailure) => void;
+type Entry = { reference: Reference; listeners: Set<Listener>; controller: AbortController; url?: string; reason?: ListImageFailure; settled: boolean; running: boolean; reserved: boolean; pixels: number };
 
-/** Page-scoped cache. Never survives trusted identity changes; no automatic retry. */
+/** Visible-consumer cache. Byte/pixel reservations include cancelled in-flight work.
+ * No offscreen LRU; last visible consumer leaving releases its URL immediately.
+ */
 export function createListImageLoader(options: {
-  scope?: string;
-  download?: typeof quoteAttachmentClient.download;
-  createURL?: (blob: Blob) => string;
-  revokeURL?: (url: string) => void;
+  scope?: string; download?: typeof quoteAttachmentClient.download;
+  createURL?: (blob: Blob) => string; revokeURL?: (url: string) => void;
 } = {}) {
   const download = options.download ?? quoteAttachmentClient.download;
   const createURL = options.createURL ?? (blob => URL.createObjectURL(blob));
   const revokeURL = options.revokeURL ?? (url => URL.revokeObjectURL(url));
   const entries = new Map<string, Entry>();
-  let running = 0, disposed = false;
+  let running = 0, reservedBytes = 0, reservedPixels = 0, disposed = false;
+  const free = (entry: Entry) => { if (entry.reserved) { entry.reserved = false; reservedBytes -= entry.reference.image.byteSize; reservedPixels -= entry.pixels; } };
   const pump = () => {
     for (const entry of entries.values()) {
-      if (disposed || running >= 3) break;
+      if (disposed) break;
       if (entry.running || entry.settled || !entry.listeners.size) continue;
-      entry.running = true; running++;
+      if (running >= 3 || reservedBytes + entry.reference.image.byteSize > LIST_IMAGE_TOTAL_BYTES || reservedPixels + LIST_IMAGE_MAX_PIXELS > LIST_IMAGE_TOTAL_PIXELS) {
+        if (entry.reason !== "budget") { entry.reason = "budget"; for (const listener of entry.listeners) listener(null, "budget"); }
+        continue;
+      }
+      entry.running = true; entry.reserved = true; running++; reservedBytes += entry.reference.image.byteSize; reservedPixels += entry.pixels;
       const timer = setTimeout(() => entry.controller.abort(), 30_000);
       const { quoteId, revisionId, image } = entry.reference;
       void (async () => {
         try {
-          const blob = await download(quoteId, revisionId, image.attachmentId, entry.controller.signal);
-          if (blob.size !== image.byteSize || blob.type !== image.mimeType) throw new Error("Invalid image object");
-          const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", await blob.arrayBuffer()))].map(byte => byte.toString(16).padStart(2, "0")).join("");
+          const blob = await download(quoteId, revisionId, image.attachmentId, entry.controller.signal, image.byteSize);
+          if (blob.size !== image.byteSize || blob.size > LIST_IMAGE_MAX_BYTES || blob.type !== image.mimeType) throw new Error("Invalid image object");
+          if (disposed || !entry.listeners.size || entry.controller.signal.aborted) return;
+          const bytes = new Uint8Array(await blob.arrayBuffer());
+          const dimensions = inspectListImage(bytes, image.mimeType);
+          const actualPixels = dimensions.width * dimensions.height;
+          reservedPixels -= entry.pixels - actualPixels; entry.pixels = actualPixels;
+          const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map(byte => byte.toString(16).padStart(2, "0")).join("");
           if (hash !== image.sha256) throw new Error("Invalid image hash");
           if (!disposed && entry.listeners.size && !entry.controller.signal.aborted) entry.url = createURL(blob);
-        } catch { /* Safe unavailable state. No provider errors/content/credentials. */ }
+        } catch (error) { entry.reason = error instanceof ListImagePolicyError ? error.reason : "unavailable"; }
         finally {
-          clearTimeout(timer); running--; entry.settled = true;
-          if (!disposed) for (const listener of entry.listeners) listener(entry.url ?? null);
+          clearTimeout(timer); running--; entry.running = false; entry.settled = true;
+          if (!entry.url) free(entry);
+          if (!disposed) for (const listener of entry.listeners) listener(entry.url ?? null, entry.url ? undefined : entry.reason ?? "unavailable");
           pump();
         }
       })();
     }
   };
   return {
-    acquire(reference: Reference, listener: (url: string | null) => void) {
-      if (disposed || !["image/png", "image/jpeg", "image/webp"].includes(reference.image.mimeType)) { listener(null); return () => {}; }
-      const key = JSON.stringify([options.scope, reference.quoteId, reference.revisionId, reference.image.attachmentId, reference.image.sha256]);
+    acquire(reference: Reference, listener: Listener) {
+      const { image } = reference;
+      if (disposed || !["image/png", "image/jpeg", "image/webp"].includes(image.mimeType) || !Number.isSafeInteger(image.byteSize) || image.byteSize < 1) { listener(null, "unavailable"); return () => {}; }
+      if (image.byteSize > LIST_IMAGE_MAX_BYTES) { listener(null, "too_large"); return () => {}; }
+      const key = JSON.stringify([options.scope, reference.quoteId, reference.revisionId, image.attachmentId, image.sha256]);
       let entry = entries.get(key);
       if (!entry) {
-        if (entries.size >= 25) { listener(null); return () => {}; }
-        entry = { reference, listeners: new Set(), controller: new AbortController(), settled: false, running: false };
+        if (entries.size >= 25) { listener(null, "budget"); return () => {}; }
+        entry = { reference, listeners: new Set(), controller: new AbortController(), settled: false, running: false, reserved: false, pixels: LIST_IMAGE_MAX_PIXELS };
         entries.set(key, entry);
       }
       entry.listeners.add(listener);
-      if (entry.settled) listener(entry.url ?? null);
+      if (entry.settled) listener(entry.url ?? null, entry.reason);
       pump();
       return () => {
         entry.listeners.delete(listener);
         if (!entry.listeners.size) {
           entry.controller.abort();
-          if (entry.url) revokeURL(entry.url);
-          entries.delete(key);
+          if (entry.url) { revokeURL(entry.url); entry.url = undefined; }
+          if (!entry.running) free(entry); // Do not release ignored-abort buffers' reservation early.
+          if (entries.get(key) === entry) entries.delete(key);
+          pump();
         }
       };
     },
     dispose() {
       disposed = true;
-      for (const entry of entries.values()) { entry.listeners.clear(); entry.controller.abort(); if (entry.url) revokeURL(entry.url); }
+      for (const entry of entries.values()) {
+        entry.listeners.clear(); entry.controller.abort();
+        if (entry.url) { revokeURL(entry.url); entry.url = undefined; }
+        if (!entry.running) free(entry);
+      }
       entries.clear();
     },
   };

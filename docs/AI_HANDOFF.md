@@ -2,14 +2,16 @@
 
 ## Active — Codex A D-099 list acceptance repair
 
+- PR #89 P2 follow-up (2026-10-10), clean start/local+remote `f450e25c4cb5de28158500b732eab1ea63890dc8`, same independent worktree/branch. Continuous viewport leases cancel/revoke on last consumer exit; table/touch references remain deduplicated. List-only 2MiB/1,048,576 pixels/4096 edge, total8MiB/4,194,304 pixel reservations (including cancelled in-flight work); larger originals use detail-view placeholder, upload rules unchanged. New actual Chromium memory8/8, resource unit12/12, auth/frontend80/80, API31/31, npm679/679, typecheck/lint/Server build PASS. Final focused/full Chromium, final frontend builds and documentation closure still pending at this checkpoint. [Detailed limits/failures/evidence](tasks/active/d099-list-acceptance.md). No real runtime/DB/COS/profile access; USER ACCEPTANCE PENDING.
+
 - Independent `fix/d099-quote-list-acceptance`, fetched main `49a82c9f970e158ded589300b4aa04fc4c809038`. Gate0 reproduced grouped-width contamination, missing grouped settings and four real DOM resize failures; [checkpoint and scoped read-only image contract](tasks/active/d099-list-acceptance.md).
 - Gates1–3 checkpoint `e569eb951bebc313690e384ef6aa790468d3d598` verified remotely after one uncertain push: additive groupWidths, fixed-pixel opt-in and protected relation-backed48px images. Final focused Chromium16/16/full62/62, API31/31, auth/frontend71/71, presentation/SSR7/7, npm679/679, typecheck/lint/Server/two frontend builds/diff-check PASS; default browser/browser/writable/session. [Synthetic pixels/screenshots](tasks/assets/d099-list-acceptance/README.md). Engineering complete, independent PR review/remote delivery checked separately; Codex D may update18444 only after its review/authorization. Real18443/18444 untouched by Codex A, USER ACCEPTANCE PENDING. No repeated implementation/deployment or real credential access.
 
-## Active — Codex D PR #84 integration (2026-10-09)
+## Historical — Codex D PR #84 integration (2026-10-09; merged)
 
 - Independent worktree `D:\workspace\zhixu-pr84-integration`, original branch `ops/update-quote-trial-windows-ui`; clean baseline `62af9d33fd1de9a981972405b0d1ef01b503d351`. Normal merge of fetched/GitHub-confirmed main `6e40b4318e59f8cc54adfe1aeb3d3e3d90a72613` (PR #85/#86 merged).
 - Only three shared documents had conflicts: AI_HANDOFF, CURRENT_STATE, PROJECT_INDEX. Manually combined current D-099/Source facts and PR #84 executed deployment evidence; existing tools/tests/deployment report retained. No business code reconciliation or real environment operation.
-- PR #84 remains pending user merge review. PR #88 is a separate D-099 candidate preparation, not a deployment; do not treat its candidate identity as the running 878de image. This PR #84 merge run: synthetic ops12/12, Bridge44/44, npm679/679 (0 skipped), typecheck/lint/frontend build41 routes/diff-check PASS. Validation is recorded in the PR #84 update report.
+- PR #84 MERGED at `49a82c9f970e158ded589300b4aa04fc4c809038` (`2026-10-09T14:28:22Z`), confirmed via GitHub metadata in the PR #89 P2 follow-up. PR #88 is a separate D-099 candidate preparation, not a deployment; do not infer any runtime change from merge. Historical PR #84 merge run: synthetic ops12/12, Bridge44/44, npm679/679 (0 skipped), typecheck/lint/frontend build41 routes/diff-check PASS. Validation is recorded in the PR #84 update report.
 
 ## Active — Codex C Ainuoke Source validation (2026-10-09)
 

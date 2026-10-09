@@ -2,15 +2,18 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import { createListImageLoader } from "../list-image-loader.ts";
-const bytes = new Blob(["synthetic"], { type: "image/png" });
-const image = { attachmentId: "synthetic-image", mimeType: "image/png", byteSize: bytes.size, sha256: createHash("sha256").update("synthetic").digest("hex") };
+import { syntheticPNG } from "./list-image-fixture.ts";
+const png = syntheticPNG();
+const bytes = new Blob([png], { type: "image/png" });
+const image = { attachmentId: "synthetic-image", mimeType: "image/png", byteSize: bytes.size, sha256: createHash("sha256").update(png).digest("hex") };
 const reference = { quoteId: "q", revisionId: "r", image };
 const tick = () => new Promise(done => setTimeout(done, 30));
+const until = async (read: () => boolean) => { for (let i=0;i<100;i++) { if(read())return;await tick(); } assert.fail("image completion timed out"); };
 test("same relation deduplicates table/touch, validates hash, last subscriber revokes URL", async () => {
   let requests = 0; const revoked: string[] = []; const values: Array<string | null> = [];
   const loader = createListImageLoader({ download: async () => { requests++; return bytes; }, createURL: () => "blob:synthetic", revokeURL: url => revoked.push(url) });
   const a = loader.acquire(reference, v => values.push(v)), b = loader.acquire(reference, v => values.push(v));
-  await tick(); assert.equal(requests, 1); assert.deepEqual(values, ["blob:synthetic", "blob:synthetic"]);
+  await until(()=>values.length===2); assert.equal(requests, 1); assert.deepEqual(values, ["blob:synthetic", "blob:synthetic"]);
   a(); assert.deepEqual(revoked, []); b(); assert.deepEqual(revoked, ["blob:synthetic"]); loader.dispose();
 });
 test("at most three active downloads; removal/logout aborts, never creates a late URL", async () => {

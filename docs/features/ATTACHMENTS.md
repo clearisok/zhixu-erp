@@ -8,7 +8,7 @@
 
 Server 详情缩略图/款式图/预览/下载由 controller metadata/blob loader，不回退 IndexedDB；页面 persistence 统一写锁、baseline 与版本推进，generic PUT 不可改关系。保留历史共享 rename 禁止、503 storage 未配置与不确定命令 fail-closed，不扫描 COS/删对象/新增GC。rename/link/unlink/style 的实际 API/controller 回归与当前页面上传验收须区分，不能声称每一按钮均人工生产验收。
 
-D-099 用户列表验收反馈授权接通只读款式图：有界 summary 仅在选择 styleImage 时返回默认 Revision mirror 与同 Quote/Revision 正式 style/image relation 一致、available 且 PNG/JPEG/WEBP 的 `{ attachmentId, mimeType, byteSize, sha256 }`，否则null；不选择则省略。不返回 storage key/URL/文件名/binary/历史聚合。仍使用现有 quote.view/session 受保护 scoped download，并复核实际对象。列表按48px contain 显示原图，max3并发/max25页内关系/30s timeout、MIME/size/hash校验、hide/unmount/身份变化释放URL和取消；无效或不可访问显示明确占位。不新增缩略图对象/公开 COS 接口/写端点/schema。合成 API 与实际 Chromium 图片切换/移除/失效/权限/bytes/hash/cleanup已通过，[独立证据](../tasks/active/d099-list-acceptance.md)；真实 COS/数据库/运行环境未操作。
+D-099 用户列表验收反馈授权接通只读款式图：有界 summary 仅在选择 styleImage 时返回默认 Revision mirror 与同 Quote/Revision 正式 style/image relation 一致、available 且 PNG/JPEG/WEBP 的 `{ attachmentId, mimeType, byteSize, sha256 }`，否则null；不选择则省略。不返回 storage key/URL/文件名/binary/历史聚合。仍使用现有 quote.view/session 受保护 scoped download，并复核实际对象。列表48px contain，max3并发/30s timeout，MIME/size/hash校验；持续可见性观察与引用计数在最后可见消费者退出时取消下载、清空img并释放URL。列表技术阈值为每图2MiB/1,048,576像素/4096边长，总预留8MiB/4,194,304像素；未知尺寸先预留单图最大像素，已取消但未完成的下载不提前释放预算。超过阈值提示在详情查看，不修改100MiB上传契约；动画、16bit PNG和不支持的头部在解码前拒绝。max25页内关系不是主要内存限制。预算不等于浏览器RSS硬上限或即时GC保证。不新增缩略图对象/公开 COS 接口/写端点/schema。[独立资源生命周期与大图证据](../tasks/active/d099-list-acceptance.md#pr-89-p2--image-memory-follow-up-2026-10-10)；真实 COS/数据库/运行环境未操作。
 
 ## Q4C-B REAL COS closure + persistent credentials (2026-10-08)
 

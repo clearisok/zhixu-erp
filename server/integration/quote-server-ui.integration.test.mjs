@@ -25,6 +25,7 @@ import { createSyntheticQuoteFixture } from "./quote-fixture.ts";
 import { createQuoteRepository } from "../quotes/repository.ts";
 import { quoteSnapshotFromBrowser } from "../quotes/model.ts";
 import { runD099ListAcceptance } from "./d099-list-acceptance.mjs";
+import { runD099ImageMemory } from "./d099-image-memory.mjs";
 
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 async function until(read, label) {
@@ -115,9 +116,11 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       window.generatedDownloads=[];
       window.revokedObjectURLs=[];
       const revokeObjectURL=URL.revokeObjectURL.bind(URL);
-      URL.revokeObjectURL=url=>{window.revokedObjectURLs.push(url);revokeObjectURL(url)};
+      URL.revokeObjectURL=url=>{window.revokedObjectURLs.push(url);blobs.delete(url);revokeObjectURL(url)};
       const objectURL=URL.createObjectURL.bind(URL);const blobs=new Map();
       URL.createObjectURL=b=>{const u=objectURL(b);blobs.set(u,b);return u;};
+      window.activeObjectURLs=()=>[...blobs.keys()];
+      window.activeObjectBytes=()=>[...blobs.values()].reduce((n,b)=>n+b.size,0);
       const anchorClick=HTMLAnchorElement.prototype.click;
       HTMLAnchorElement.prototype.click=function(){if(this.download&&blobs.has(this.href))window.generatedDownloads.push({name:this.download,blob:blobs.get(this.href)});return anchorClick.call(this);};
       const originalGet = Storage.prototype.getItem, originalSet = Storage.prototype.setItem;
@@ -127,7 +130,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       window.quoteResponses=[];
       window.logResponses=[];
       const originalFetch=window.fetch.bind(window);
-      window.fetch=async(...args)=>{const response=await originalFetch(...args);if(String(args[0]).includes('/api/v1/quotes/'))window.quoteResponses.push(await response.clone().text());if(String(args[0]).includes('/api/v1/operation-logs'))window.logResponses.push(await response.clone().text());return response};
+      window.fetch=async(...args)=>{const response=await originalFetch(...args);if(String(args[0]).includes('/api/v1/quotes/')&&response.headers.get('content-type')?.includes('application/json'))window.quoteResponses.push(await response.clone().text());if(String(args[0]).includes('/api/v1/operation-logs'))window.logResponses.push(await response.clone().text());return response};
       window.addEventListener('unhandledrejection', event => window.unhandledRejections.push(String(event.reason)));
       const business=k=>k.startsWith('zhixu.')&&!/preference|sidebar/.test(k)&&!k.startsWith('zhixu.ui.server.quote-list.v1.');
       Storage.prototype.getItem=function(k){if(business(k))businessAccess.push('read:'+k);return originalGet.call(this,k)};
@@ -290,6 +293,10 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
 
     if (process.env.ZHIXU_D099_LIST_ACCEPTANCE === '1') {
       await runD099ListAcceptance({ t, pool, storage, requests, navigate, hasText, input, labelInput, click, action, evaluate, command, sessionId, sleep, until, isolated });
+      return;
+    }
+    if (process.env.ZHIXU_D099_IMAGE_MEMORY === '1') {
+      await runD099ImageMemory({ t, pool, storage, requests, navigate, hasText, input, labelInput, click, action, evaluate, command, sessionId, sleep, until, isolated });
       return;
     }
     await t.test("production shell/new view stays within desktop viewport without creating business rows", async () => {
