@@ -3,7 +3,8 @@
 ## Active — PR #87 DeliveryPlan integration Gate (2026-10-09)
 
 - Dedicated worktree `D:\workspace\zhixu-order-b`, branch `feat/order-c43-delivery-plan`; clean local/remote baseline `cb202db33cea06fbe0a917b33a49daf0e03222c1`. Fresh fetch confirms main `49a82c9f970e158ded589300b4aa04fc4c809038`; ordinary merge, only AI_HANDOFF conflicted. Shared documents manually preserve #84 deployed evidence, #85 Source/Bridge, #86 D-099 and #87 C4.3.
-- Integration scope: test entry, populated 0001–0008 upgrade, deterministic concurrency/full rollback and synthetic session API demo. Prior test counts below are historical, not this Gate evidence. No real environment/database/deployment or decision change.
+- Gate 1 merged checkpoint `c976b89441af0aa6b8d6073817a1a2b64f5d10f9`; push reported ref-lock but read-only remote exact SHA verified delivery. Gate 2: independent `test:delivery-plans`, regular `test:postgres` inclusion, populated 0001–0008 upgrade, binding/fetchedAt/sync permission, three explicit lock-barrier concurrency schedules and full audit rollback snapshots; current standalone 17/17 PASS.
+- Synthetic demo exposed C4.3 source audit date shifting through the old Date DTO under local timezone; only its audit now reads the existing ISO source-date projection, with regression assertions. Rules/schema unchanged. Gate 3/4 demo and full validation in progress. Prior test counts below remain historical. No real environment/database/deployment or decision change.
 
 ## Completed — Order C4.3 independent engineering (2026-10-09)
 

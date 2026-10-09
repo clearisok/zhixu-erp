@@ -52,12 +52,12 @@ export async function refreshAinuokeSalesOrderSource(
     const after = await getSalesOrderById(client, salesOrderId);
     await appendOperationLog(client, actor, {
       module: '艾诺科同步', action: '艾诺科同步订单', entityType: 'SalesOrder', entityId: salesOrderId,
-      beforeData: { orderId: salesOrderId, values: { sourceDeliveryDate: before?.contractDeliveryDate ?? null,
+      beforeData: { orderId: salesOrderId, values: { sourceDeliveryDate: beforePlans.sourceDeliveryDate,
         sourceQuantity: beforePlans.sourceQuantity, insideOrderNo: before?.insideOrderNo ?? null,
         planVersion: beforePlans.version, ownership: beforePlans.ownership,
         derivedDefault: JSON.stringify(beforePlans.plans.find(row => row.isDerivedDefault) ?? null),
         dateStatus: beforePlans.reconciliation.dateStatus, quantityStatus: beforePlans.reconciliation.quantityStatus } },
-      afterData: { orderId: salesOrderId, values: { sourceDeliveryDate: after?.contractDeliveryDate ?? null,
+      afterData: { orderId: salesOrderId, values: { sourceDeliveryDate: afterPlans.sourceDeliveryDate,
         sourceQuantity: afterPlans.sourceQuantity, insideOrderNo: after?.insideOrderNo ?? null,
         planVersion: afterPlans.version, ownership: afterPlans.ownership,
         derivedDefault: JSON.stringify(afterPlans.plans.find(row => row.isDerivedDefault) ?? null),
