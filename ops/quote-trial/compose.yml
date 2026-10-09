@@ -61,8 +61,18 @@ services:
     ports: ["127.0.0.1:${TRIAL_PORT:?new loopback port required}:8443"]
     environment:
       TRIAL_PROXY_HOST: app
+      TRIAL_HTTPS_ORIGIN: ${TRIAL_HTTPS_ORIGIN:?}
+    healthcheck:
+      test: ["CMD", "node", "/trial/gateway-health.mjs"]
+      interval: 2s
+      timeout: 4s
+      start_period: 5s
+      retries: 3
     volumes:
       - ./tls-gateway.mjs:/trial/tls-gateway.mjs:ro
+      - ./gateway-health.mjs:/trial/gateway-health.mjs:ro
+      - ./readiness.mjs:/trial/readiness.mjs:ro
+      - ${TRIAL_TLS_CA_FILE:-${TRIAL_TLS_CERT_FILE:?}}:/run/tls/ca.pem:ro
       - ${TRIAL_TLS_CERT_FILE:?absolute certificate file required}:/run/tls/cert.pem:ro
       - ${TRIAL_TLS_KEY_FILE:?absolute key file required}:/run/tls/key.pem:ro
 volumes:

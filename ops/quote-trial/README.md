@@ -45,6 +45,9 @@ SHA), not an on-server frontend dependency installation. Copy the reviewed
 Node and PowerShell 7 are sufficient for these operation entrypoints. Any image
 rebuild uses the same Dockerfile with all six identity/authority build arguments
 and a full reviewed commit; do not relabel a different build as this candidate.
+Load both the reviewed candidate and `postgres:16-alpine` images before these
+checks; expected immutable image IDs are resolved locally, not guessed from tags
+or silently pulled during offline checking.
 
 Create an explicit operator config **outside Git**, protected against other users;
 never source it as shell code. No `.env` is implicitly adopted. Required keys:
@@ -93,11 +96,53 @@ node ops/quote-trial/trial.mjs restart <config> --execute=<exact-project>
 
 Check has no persistent mutation (it briefly runs the reviewed image offline to
 read compiled identity). It validates resolved Compose isolation and image/
-compiled/runtime inputs without printing environment or secrets. Init requires
+compiled identity and configured inputs, **not running readiness**, without printing environment or secrets. Init requires
 no application writers and a **new empty public schema**, then calls the canonical
 runner; it is not a day-to-day command. Start/restart never run migration/import.
 Logs show only allowlisted structured event names; raw errors are not forwarded.
-`/api/v1/health` and `/build-info.json` provide running health/version evidence.
+Status is `STATUS_ONLY`: per-service running/health facts, never an overall PASS.
+
+Start/restart first emit `COMMAND_SUBMITTED`, **not readiness success**. They emit
+`READY` / `readiness: PASS` only after all three exact-project services are running
+and healthy, immutable container image IDs and private Compose configuration
+fingerprints match, and the actual HTTPS `/api/v1/health` reports DB ready with
+matching `/build-info.json` (full commit/build ID/time, server/server/writable/session).
+The readiness polling window defaults to 90 seconds; optional
+`TRIAL_READY_TIMEOUT_MS` is bounded to 1000–120000. Docker commands also have
+separate finite timeouts. Failed/timed-out checks exit nonzero with safe categories
+such as `app_not_ready`, `gateway_unhealthy`, `https_entry_not_ready` or
+`runtime_identity_mismatch`; no raw environment/config fingerprints/password
+hashes/errors are printed. Failure does **not** trigger migration, restore,
+database recreation, rollback or cleanup of a potentially populated environment.
+
+The gateway overrides the app image's local-3000 healthcheck with its own verified
+TLS request to port 8443 and the proxied DB-aware health API. Its safe probe result
+distinguishes `gateway_tls_unavailable` from `gateway_upstream_not_ready`; success
+means both TLS and upstream are ready. The app's original DB-aware healthcheck is
+unchanged. Host CLI and gateway trust `TRIAL_TLS_CA_FILE` when supplied (absolute
+PEM CA path); otherwise they explicitly trust `TRIAL_TLS_CERT_FILE`, suitable for
+the tested self-signed certificate. Supply the appropriate reviewed CA chain for
+other certificates. No `-k` or disabled certificate/hostname verification.
+
+Restart is **not update**: candidate/config drift is rejected *before* restart,
+requiring explicit reviewed configuration reconciliation/recreation instead. It
+does not replace containers or apply new images/environment. Start retains normal
+Compose `up` semantics for app/gateway (may recreate those services to apply the
+explicit configuration); an existing database image/config drift is rejected,
+not silently recreated. In particular, older gateway configuration needs explicit
+start/reconciliation, not a restart falsely reporting new configuration active.
+The new probes are reviewed ops files mounted read-only; this follow-up reuses
+the above unchanged candidate image/source SHA, not a newly relabeled image.
+
+PR #81 follow-up validation (2026-10-09): config/TLS/readiness tests **10/10**;
+actual candidate CLI/production smoke/isolated restore **11/11**, including pending
+schema rejection without migration, successful start/restart, candidate/config
+drift rejection before restart, proxy/TLS trust faults with nonzero safe exits,
+no extra business writes, gateway remaining healthy beyond the old image probe
+interval, and preserved Quote/admin/attachment bytes. Disposable cleanup,
+typecheck, lint and diff-check PASS. Prior business/build results above are earlier
+engineering evidence, not rerun numbers; application/Dockerfile/build inputs did
+not change. Real deployment NOT EXECUTED; manual business acceptance NOT RUN.
 Do not call a responding gateway alone “healthy” if the app health fails.
 
 The harness verifies these entrypoints, explicit acknowledgement rejection,

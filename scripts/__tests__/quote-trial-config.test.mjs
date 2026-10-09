@@ -1,15 +1,25 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import { validateTrial, validateComposeTarget, readTrialConfig } from '../../ops/quote-trial/trial.mjs';
-import { mkdtempSync,writeFileSync,rmSync } from 'node:fs';
+import { mkdtempSync,writeFileSync,rmSync,readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 const v={TRIAL_PROJECT:'zhixu-quote-trial-synthetic',TRIAL_PORT:'18443',TRIAL_COMMIT:'a'.repeat(40),TRIAL_HTTPS_ORIGIN:'https://localhost:18443',TRIAL_S3_ENDPOINT:'https://objects.invalid',TRIAL_IMAGE:'synthetic:test',TRIAL_BUILD_ID:'test',TRIAL_BUILD_TIME:'2026-10-09T00:00:00Z',TRIAL_DB_PASSWORD:'synthetic',TRIAL_ADMIN_PASSWORD:'synthetic',TRIAL_S3_REGION:'ap-hongkong',TRIAL_S3_BUCKET:'synthetic',TRIAL_SECRET_ID_FILE:'/test/id',TRIAL_SECRET_KEY_FILE:'/test/key',TRIAL_TLS_CERT_FILE:'/test/cert',TRIAL_TLS_KEY_FILE:'/test/tlskey'};
 test('explicit isolated trial config, no defaults to old stack',()=>assert.equal(validateTrial(v).project,v.TRIAL_PROJECT));
+test('readiness polling is bounded and certificate trust path is explicit',()=>{
+  validateTrial({...v,TRIAL_READY_TIMEOUT_MS:'120000',TRIAL_TLS_CA_FILE:'/test/ca'});
+  for(const timeout of ['0','NaN','999','120001'])assert.throws(()=>validateTrial({...v,TRIAL_READY_TIMEOUT_MS:timeout}),/readiness_timeout_invalid/);
+  assert.throws(()=>validateTrial({...v,TRIAL_TLS_CA_FILE:'relative.pem'}));
+});
+test('gateway overrides app-image healthcheck with a trusted TLS/upstream probe',()=>{
+  const gateway=readFileSync('ops/quote-trial/compose.yml','utf8').split('  gateway:')[1];
+  assert.match(gateway,/healthcheck:/);assert.match(gateway,/gateway-health\.mjs/);
+});
 test('old project/ports/short commit/no TLS rejected',()=>{for(const override of [{TRIAL_PROJECT:'preparesystem'},{TRIAL_PORT:'3001'},{TRIAL_COMMIT:'short'},{TRIAL_HTTPS_ORIGIN:'http://localhost:18443'},{TRIAL_S3_ENDPOINT:'http://objects.invalid'}])assert.throws(()=>validateTrial({...v,...override}));});
 const model=()=>({name:v.TRIAL_PROJECT,services:{database:{image:'postgres:16-alpine',volumes:[{type:'volume',source:'data',target:'/var/lib/postgresql/data'}]},app:{image:v.TRIAL_IMAGE,environment:{DB_HOST:'database',DB_NAME:'quote_trial',DB_USER:'quote_trial',NODE_ENV:'production',ZHIXU_IDENTITY_MODE:'session',ZHIXU_COOKIE_SECURE:'true',ZHIXU_GIT_COMMIT:v.TRIAL_COMMIT,ZHIXU_BUILD_ID:v.TRIAL_BUILD_ID,ZHIXU_BUILD_TIME:v.TRIAL_BUILD_TIME,NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE:'writable'}},gateway:{image:v.TRIAL_IMAGE,ports:[{host_ip:'127.0.0.1',published:v.TRIAL_PORT}]}},volumes:{data:{name:`${v.TRIAL_PROJECT}_data`}},networks:{default:{name:`${v.TRIAL_PROJECT}_default`}}});
 test('resolved Compose cannot adopt a legacy volume/network/DB/container or expose DB/app',()=>{
-  validateComposeTarget(model(),validateTrial(v));
-  for(const mutate of [m=>m.volumes.data.external=true,m=>m.volumes.data.name='preparesystem_zhixu_data',m=>m.networks.default.external=true,m=>m.services.app.environment.DB_HOST='old-database',m=>m.services.app.container_name='preparesystem-server-1',m=>m.services.database.ports=[{published:'5432'}],m=>m.services.app.ports=[{published:'3002'}],m=>m.services.gateway.ports[0].host_ip='0.0.0.0',m=>m.services.app.environment.ZHIXU_IDENTITY_MODE='local-single-user']){const m=model();mutate(m);assert.throws(()=>validateComposeTarget(m,validateTrial(v)));}
+  const valid=()=>{const m=model();m.services.gateway.healthcheck={test:['CMD','node','/trial/gateway-health.mjs']};return m;};
+  validateComposeTarget(valid(),validateTrial(v));
+  for(const mutate of [m=>m.volumes.data.external=true,m=>m.volumes.data.name='preparesystem_zhixu_data',m=>m.networks.default.external=true,m=>m.services.app.environment.DB_HOST='old-database',m=>m.services.app.container_name='preparesystem-server-1',m=>m.services.database.ports=[{published:'5432'}],m=>m.services.app.ports=[{published:'3002'}],m=>m.services.gateway.ports[0].host_ip='0.0.0.0',m=>m.services.app.environment.ZHIXU_IDENTITY_MODE='local-single-user',m=>delete m.services.gateway.healthcheck,m=>m.services.gateway.healthcheck.disable=true]){const m=valid();mutate(m);assert.throws(()=>validateComposeTarget(m,validateTrial(v)));}
 });
 test('explicit config is data, rejects duplicate keys and malformed lines',()=>{
   const dir=mkdtempSync(join(tmpdir(),'zhixu-trial-config-'));try{const p=join(dir,'input.conf');writeFileSync(p,'TRIAL_PORT=18443\n');assert.deepEqual(readTrialConfig(p),{TRIAL_PORT:'18443'});for(const text of ['TRIAL_PORT=18443\nTRIAL_PORT=3001','exec something']){writeFileSync(p,text);assert.throws(()=>readTrialConfig(p));}}finally{rmSync(dir,{recursive:true});}

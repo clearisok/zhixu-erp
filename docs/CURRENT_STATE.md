@@ -19,6 +19,7 @@
 - A/B 完成：一页状态、短接力、原始历史归档、D-098；AGENTS 新网络恢复协议与分类6/6。fetch reset 根因仍 unresolved；不改共享 Git/TLS/代理配置。
 - C 完成：实际 Dockerfile.server 候选 `zhixu-quote-trial:9ee254db89c6`（源fullSHA `9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23`），server/server/writable/session，编译/labels/runtime一致；独立 production TLS/MinIO/私有DB、非root600/ro凭据、显式0001–0008、空业务数据、认证/权限、重启/重建与管理员保留已验证。
 - D 完成：第二个独立目标恢复Quote/历史/Estimate/附件字节SHA和页面；实际镜像smoke+恢复9/9、cleanup PASS。只清理本轮合成资源；用户未来录入数据不是可自动清理的测试数据。
+- PR #81 启动 follow-up：原9/9是此前阶段证据；本次真实用户CLI start/restart/故障/恢复11/11、配置/TLS/就绪10/10，typecheck/lint/diff-check PASS。网关专用可信TLS+上游探针；仅精确运行镜像/配置、三服务healthy、HTTPS health与build-info一致才READY，restart配置漂移拒绝，status只报事实。沿用上述镜像、只更新ops/测试；未重跑无关业务suite。
 - [最短操作入口与三张卡](../ops/quote-trial/README.md)已准备；人工业务验收 **NOT RUN**、真实部署 **NOT EXECUTED**。默认 Browser 保持；后续ops/docs commit不冒称既有候选镜像已重建。
 - 剩余最小前置：审查候选，确认**独立新目标**、HTTPS访问与真实file mount/CAM/权限，另行授权部署后做三张卡。云机器/域名未提供不阻塞本轮工程；不将 Q5 或可选增强加回。
 

@@ -3,6 +3,7 @@ import { resolve, dirname, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { probeJson, verifyRuntime, waitReady, safeFailure } from './readiness.mjs';
 export function validateTrial(values) {
   if(!/^zhixu-quote-trial-[a-z0-9-]{3,40}$/.test(values.TRIAL_PROJECT||''))throw Error('invalid_trial_project');
   const port=Number(values.TRIAL_PORT);if(!Number.isInteger(port)||port<1024||port>65535||[3000,3001,3002].includes(port))throw Error('invalid_trial_port');
@@ -13,6 +14,8 @@ export function validateTrial(values) {
   for(const key of ['TRIAL_IMAGE','TRIAL_BUILD_ID','TRIAL_BUILD_TIME','TRIAL_DB_PASSWORD','TRIAL_ADMIN_PASSWORD','TRIAL_S3_REGION','TRIAL_S3_BUCKET','TRIAL_SECRET_ID_FILE','TRIAL_SECRET_KEY_FILE','TRIAL_TLS_CERT_FILE','TRIAL_TLS_KEY_FILE'])if(!values[key])throw Error('missing_'+key);
   for(const key of ['TRIAL_SECRET_ID_FILE','TRIAL_SECRET_KEY_FILE','TRIAL_TLS_CERT_FILE','TRIAL_TLS_KEY_FILE'])if(!isAbsolute(values[key]))throw Error('absolute_file_required');
   if(values.TRIAL_COMPOSE_OVERRIDE&&!isAbsolute(values.TRIAL_COMPOSE_OVERRIDE))throw Error('absolute_override_required');
+  if(values.TRIAL_TLS_CA_FILE&&!isAbsolute(values.TRIAL_TLS_CA_FILE))throw Error('absolute_file_required');
+  if(values.TRIAL_READY_TIMEOUT_MS!==undefined&&(!/^\d+$/.test(values.TRIAL_READY_TIMEOUT_MS)||Number(values.TRIAL_READY_TIMEOUT_MS)<1000||Number(values.TRIAL_READY_TIMEOUT_MS)>120000))throw Error('readiness_timeout_invalid');
   return {project:values.TRIAL_PROJECT,image:values.TRIAL_IMAGE,commit:values.TRIAL_COMMIT,buildId:values.TRIAL_BUILD_ID,buildTime:values.TRIAL_BUILD_TIME,origin:origin.origin,port};
 }
 export function readTrialConfig(path) {
@@ -32,13 +35,20 @@ export function validateComposeTarget(model,safe) {
   if(app.environment.ZHIXU_IDENTITY_MODE!=='session'||app.environment.ZHIXU_COOKIE_SECURE!=='true'||app.environment.NODE_ENV!=='production')throw Error('unsafe_identity');
   for(const [key,value] of Object.entries({ZHIXU_GIT_COMMIT:safe.commit,ZHIXU_BUILD_ID:safe.buildId,ZHIXU_BUILD_TIME:safe.buildTime,NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE:'writable'}))if(app.environment[key]!==value)throw Error('runtime_identity_mismatch');
   if(gateway.ports?.length!==1||gateway.ports[0].host_ip!=='127.0.0.1'||String(gateway.ports[0].published)!==String(safe.port))throw Error('unsafe_binding');
+  if(gateway.healthcheck?.disable||JSON.stringify(gateway.healthcheck?.test)!==JSON.stringify(['CMD','node','/trial/gateway-health.mjs']))throw Error('gateway_probe_required');
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   try {
     const [action='check',configPath,ack]=process.argv.slice(2);if(!configPath)throw Error('explicit_config_required');
     const config=resolve(configPath), values=readTrialConfig(config), safe=validateTrial(values);
     const args=['compose','--env-file',config,'-f',resolve(dirname(fileURLToPath(import.meta.url)),'compose.yml'),...(values.TRIAL_COMPOSE_OVERRIDE?['-f',values.TRIAL_COMPOSE_OVERRIDE]:[]),'-p',safe.project];
-    const docker=a=>execFileSync('docker',[...args,...a],{encoding:'utf8',env:{...process.env,...values},stdio:['ignore','pipe','pipe'],timeout:180000});
+    const docker=(a,timeout=180000)=>execFileSync('docker',[...args,...a],{encoding:'utf8',env:{...process.env,...values},stdio:['ignore','pipe','pipe'],timeout});
+    const rawDocker=a=>execFileSync('docker',a,{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:10000});
+    const expected={project:safe.project,images:Object.fromEntries(['database','app','gateway'].map(service=>[service,rawDocker(['image','inspect','--format','{{.Id}}',service==='database'?'postgres:16-alpine':safe.image]).trim()])),hashes:Object.fromEntries(docker(['config','--hash','*']).trim().split(/\r?\n/).map(line=>line.trim().split(/\s+/)))};
+    const inspect=()=>{
+      const ids=docker(['ps','-a','-q','database','app','gateway'],10000).trim().split(/\r?\n/).filter(Boolean);
+      return ids.map(id=>JSON.parse(rawDocker(['inspect','--format','{"image":{{json .Image}},"running":{{json .State.Running}},"health":{{if .State.Health}}{{json .State.Health.Status}}{{else}}"missing"{{end}},"project":{{json (index .Config.Labels "com.docker.compose.project")}},"service":{{json (index .Config.Labels "com.docker.compose.service")}},"configHash":{{json (index .Config.Labels "com.docker.compose.config-hash")}}}',id])));
+    };
     docker(['config','-q']);
     validateComposeTarget(JSON.parse(docker(['config','--format','json'])),safe);
     const image=JSON.parse(execFileSync('docker',['image','inspect','--format','{{json .Config.Labels}}',safe.image],{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:10000}));
@@ -59,9 +69,20 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
         if(count!=='0')throw Error('init_requires_new_empty_database');
         // This command is intentionally explicit; normal app startup stays verify-only.
         docker(['run','--rm','--no-deps','app','node','dist/server/server/db/migrate.js']);
-      } else docker(action==='start'?['up','-d','app','gateway']:['restart','app','gateway']);
-      console.log(JSON.stringify({project:safe.project,operation:action,result:'PASS'}));
-    } else if(action==='status')console.log(docker(['ps','--format','json']));
+      } else {
+        if(action==='restart')verifyRuntime(inspect(),expected);
+        else {
+          // Never silently recreate an existing database because its configuration changed.
+          const db=inspect().find(r=>r.service==='database');
+          if(db&&(db.image!==expected.images.database||db.configHash!==expected.hashes.database))throw Error('runtime_identity_mismatch');
+        }
+        docker(action==='start'?['up','-d','app','gateway']:['restart','app','gateway']);
+        console.log(JSON.stringify({project:safe.project,operation:action,result:'COMMAND_SUBMITTED'}));
+        const ca=readFileSync(values.TRIAL_TLS_CA_FILE||values.TRIAL_TLS_CERT_FILE);
+        await waitReady({inspect,expected,safe,timeoutMs:Number(values.TRIAL_READY_TIMEOUT_MS||90000),probe:(path,timeoutMs)=>probeJson(`${safe.origin}${path}`,ca,{timeoutMs})});
+      }
+      console.log(JSON.stringify({project:safe.project,operation:action,result:action==='init'?'PASS':'READY',...(action==='init'?{}:{readiness:'PASS'})}));
+    } else if(action==='status')console.log(JSON.stringify({project:safe.project,operation:'STATUS_ONLY',services:inspect().map(({service,running,health})=>({service,running,health}))}));
     else if(action==='logs') {
       for(const line of docker(['logs','--no-log-prefix','--tail','100','app']).split('\n'))try{
         const item=JSON.parse(line);if(typeof item.event==='string'&&/^[a-z_]{1,80}$/.test(item.event))console.log(JSON.stringify({event:item.event}));
@@ -92,5 +113,5 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
       }
     }
     else throw Error('unsupported_operation');
-  } catch {console.error('trial_operation_failed_review_config_or_safe_service_logs');process.exitCode=1;}
+  } catch(error) {console.error(safeFailure(error));process.exitCode=1;}
 }

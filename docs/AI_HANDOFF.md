@@ -1,16 +1,13 @@
 # AI 接力棒
 
-## Quote Trial Release Preparation — final delivery (2026-10-09)
+## Quote Trial Release Preparation — PR #81 startup follow-up (2026-10-09)
 
-- Base 已人工恢复并本地核验：`d25aac7aa19a90ac1c1f573fbb60e420b7899e98`；branch `feat/quote-trial-release-preparation`，起始 clean。本次未重复 fetch/PR 查询。
-- A→B→C→D 连续执行，阶段独立 checkpoint；不扩已锁定报价范围、不真实部署。历史验收已移动至 [归档](tasks/completed/2026-10-09-pre-trial-state-history.md)，不是本任务测试。
-- A：CURRENT_STATE 一页、接力精简、导航/规则修正、D-098。验证：文档归档一致性/本地链接/diff-check；尚未运行本任务业务/容器验证。
-- 既有网络证据：HTTP/1.1、schannel；proxy env 未配置；GitHub HEAD200；fetch reset 根因 unresolved。共享 common-dir 不修改持久 Git/代理/TLS 配置。
-- A checkpoint `d1ae6c3` 已推送，归档原文一致性/链接与 diff-check PASS。B 已实际更新 AGENTS 新网络恢复协议；纯分类测试6/6，覆盖网络/送达响应丢失/认证/分歧/缺基线/未知 dirty，无命令重试或秘密输出。既有网络根因仍 unresolved，不重复诊断或修改共享配置。
-- B checkpoint `0659fa4` 已推送。C 增加 SDK 请求30s/流90s硬上限、连接5s/socket30s、真实 abort/destroy 与消费断开传播；本地受控 SDK HTTP 故障7/7、typecheck/lint PASS，不触真实 COS。候选独立 Compose 无固定容器/external卷、非root1000:1000、session/server/server/writable与只读 FILE mount。
-- C runtime checkpoint `9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23` 已推送，实际 Dockerfile.server 候选 `zhixu-quote-trial:9ee254db89c6` 全SHA、server/server/writable/session 编译/labels/runtime一致；local image ID `sha256:c496a93c3f895448f65b3ede533105dc832c6be8ec61682badece39cb32a3d57`。初始短SHA临时镜像不作为候选。后续ops/docs提交不冒称此镜像使用新SHA。
-- 最终实际镜像+独立Compose/TLS/MinIO/私有DB smoke及独立恢复9/9：空库26张非技术表0、仅6张技术表初始化；显式0001–0008 runner，重复init拒绝；Secure session/Origin/401/403/logout/expiry、文件600/1000:1000/ro、主动Quote/PV/Revision/Estimate/附件/客户XLSX+ZIP/汇总/日志/page、重启/重建/管理员hash保留与恢复字节SHA、tamper拒绝、cleanup PASS。最短check/init/status/target/maintenance/objects/restore-check入口已实际验证。无真实操作/人工业务验收NOT RUN。
-- 本轮测试：Git分类6/6，配置guard4/4，S3故障8/8，credentials4/4（先server:build），MinIO adapter2/2，auth/frontend66/66，npm test674/674；typecheck/lint/Server build、实际镜像Server frontend、默认frontend及browser/browser/writable build-info、diff-check PASS。不把既有60 Chromium当成本轮结果；未重跑无关历史迁移/真实COS。
-- C isolated checkpoint `532b1c5` 已推送；D已收口最短入口与三张卡，见 [操作说明](../ops/quote-trial/README.md)。最终增补含active/history Estimate的受限账号GET内容隔离及专用写入403，实际镜像完整smoke+恢复9/9再次PASS；未改变应用源码/构建输入。下一步：独立新目标与真实TLS/file mount/CAM核对、另行授权部署、人工三卡；不是补历史迁移Gate。本轮真实操作NO，人工验收NOT RUN。
-- 远端交付以最终工具核对为准；不在文档预写自身最终SHA或PR成功。恢复只需核对branch/HEAD/status和该分支唯一PR，不重做A/B/C/D；无代码变化不重复昂贵验证。已清理合成资源与生成dump，镜像保留；旧环境、用户数据、COS不动。
-- 恢复入口：AGENTS → PROJECT_INDEX → CURRENT_STATE → 本文件 → ops/quote-trial/README.md；不依据历史旧命令启动3002，不操作真实 secrets/COS/DB/Browser。
+- 同一branch `feat/quote-trial-release-preparation`，本次baseline `244e5143ffc6eda15a031dfe8f90acbdbe5240d0` / clean；不重做A/B/C/D，不创建新PR。原base `d25aac7aa19a90ac1c1f573fbb60e420b7899e98`。
+- 已完成阶段保留：A `d1ae6c3`、B `0659fa4`、C runtime `9ee254d`、C isolated `532b1c5`、D `244e514`。原历史归档见 [归档](tasks/completed/2026-10-09-pre-trial-state-history.md)，本任务范围与三张卡见 [操作说明](../ops/quote-trial/README.md)。
+- 镜像仍为 `zhixu-quote-trial:9ee254db89c6`，应用source `9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23`，image ID `sha256:c496a93c3f895448f65b3ede533105dc832c6be8ec61682badece39cb32a3d57`，server/server/writable/session。新ops commit不冒称镜像已重建；应用/Dockerfile/构建输入未变。
+- 本次已修复：gateway覆盖错误local3000探针，可信8443 TLS+上游health；start/restart先COMMAND_SUBMITTED，精确容器镜像/私有配置指纹、三服务healthy、HTTPS DB-ready和build-info一致才READY。restart漂移在重启前拒绝，不自动升级；status仅安全运行事实。失败不迁移/恢复/清理/自动回滚。
+- 本次最终验证：配置/TLS/就绪10/10；实际候选CLI与完整smoke/独立恢复11/11（未初始化拒绝、正常start/restart、配置/候选漂移、代理/TLS故障、有界非零安全输出、无额外业务写、持续网关health、Quote/history/Estimate/admin/附件字节保持）；cleanup、typecheck、lint、diff-check PASS。
+- 此前工程结果（本次未重复）：原镜像smoke9/9、Git6/6、SDK8/8、credentials4/4、MinIO2/2、auth/frontend66/66、npm674/674、Server/两种frontend build PASS，默认browser/browser/writable。不得将其写成本次重跑。未重跑无关Chromium、历史迁移或真实COS。
+- AGENTS新网络恢复协议继续适用；fetch reset根因unresolved，不修改共享Git/代理/TLS配置。交付以实际local/remote/PR head核对为准，不预写自身最终SHA。
+- 真实Ubuntu/3000/3001/3002/DB/Browser/COS/keys未操作；真实部署NOT EXECUTED，人工业务验收NOT RUN，历史导入NOT REQUIRED。下一步仍是审查独立新目标、真实TLS/file mount/CAM，另行授权部署后人工三卡，不扩大报价范围。
+- 恢复：AGENTS → PROJECT_INDEX → CURRENT_STATE → 本文件 → ops README；不得使用旧3002启动流程。合成资源/dump已清理，候选镜像保留；用户未来试用数据不属于可自动清理测试数据。
