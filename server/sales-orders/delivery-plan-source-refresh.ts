@@ -56,12 +56,12 @@ export async function refreshAinuokeSalesOrderSource(
         sourceQuantity: beforePlans.sourceQuantity, insideOrderNo: before?.insideOrderNo ?? null,
         planVersion: beforePlans.version, ownership: beforePlans.ownership,
         derivedDefault: JSON.stringify(beforePlans.plans.find(row => row.isDerivedDefault) ?? null),
-        reconciliation: JSON.stringify(beforePlans.reconciliation) } },
+        dateStatus: beforePlans.reconciliation.dateStatus, quantityStatus: beforePlans.reconciliation.quantityStatus } },
       afterData: { orderId: salesOrderId, values: { sourceDeliveryDate: after?.contractDeliveryDate ?? null,
         sourceQuantity: afterPlans.sourceQuantity, insideOrderNo: after?.insideOrderNo ?? null,
         planVersion: afterPlans.version, ownership: afterPlans.ownership,
         derivedDefault: JSON.stringify(afterPlans.plans.find(row => row.isDerivedDefault) ?? null),
-        reconciliation: JSON.stringify(afterPlans.reconciliation) } },
+        dateStatus: afterPlans.reconciliation.dateStatus, quantityStatus: afterPlans.reconciliation.quantityStatus } },
       metadata: { domain: 'DeliveryPlan', mutationSurface: 'source_refresh' },
     });
     await client.query('COMMIT');

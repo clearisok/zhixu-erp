@@ -20,7 +20,8 @@ export async function updateDeliveryPlans(pool: Pool, actor: TrustedIdentity, sa
     const before = await readDeliveryPlanSet(client, salesOrderId);
     if (input.expectedVersion !== before.version) throw new HttpError(409, 'delivery_plan_version_conflict', 'DeliveryPlan collection version is stale');
     const rows = new Map(before.plans.map(row => [row.id, row]));
-    for (const id of [...input.upserts.flatMap(row => row.id ? [row.id] : []), ...input.voidIds]) {
+    const affectedIds = new Set([...input.upserts.flatMap(row => row.id ? [row.id] : []), ...input.voidIds]);
+    for (const id of affectedIds) {
       if (!rows.has(id) || rows.get(id)?.voidedAt !== null) throw new HttpError(409, 'delivery_plan_row_conflict', 'DeliveryPlan row is absent or voided');
     }
     if (before.ownership === 'uninitialized') {
@@ -42,9 +43,9 @@ export async function updateDeliveryPlans(pool: Pool, actor: TrustedIdentity, sa
     await appendOperationLog(client, actor, {
       module: '订单中心', action: '修改交期', entityType: 'SalesOrder', entityId: salesOrderId,
       beforeData: { orderId: salesOrderId, values: { ownership: before.ownership, version: before.version,
-        plans: JSON.stringify(before.plans.filter(row => rows.has(row.id) && [...input.upserts.map(item => item.id), ...input.voidIds].includes(row.id))) } },
+        plans: JSON.stringify(before.plans.filter(row => affectedIds.has(row.id))) } },
       afterData: { orderId: salesOrderId, values: { ownership: after.ownership, version: after.version,
-        plans: JSON.stringify(after.plans.filter(row => !rows.has(row.id) || [...input.upserts.map(item => item.id), ...input.voidIds].includes(row.id))) } },
+        plans: JSON.stringify(after.plans.filter(row => !rows.has(row.id) || affectedIds.has(row.id))) } },
       metadata: { domain: 'DeliveryPlan', mutationSurface: 'order' },
     });
     await client.query('COMMIT');

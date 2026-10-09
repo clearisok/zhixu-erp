@@ -56,6 +56,10 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
     const logs=(await pool.query('SELECT count(*)::int AS n FROM operation_logs')).rows[0].n;
     assert.equal((await createAinuokeSalesOrder(pool,actor,order.input)).salesOrder.id,order.id);
     assert.deepEqual(await read(order.id),before);assert.equal((await pool.query('SELECT count(*)::int AS n FROM operation_logs')).rows[0].n,logs);
+    for(let repeat=0;repeat<2;repeat++) {
+      await refreshAinuokeSalesOrderSource(pool,actor,order.id,{...order.input,expectedSourceHash:order.input.source.sourceHash,expectedPlanVersion:before.version});
+      assert.deepEqual(await read(order.id),before);
+    }
   });
   await t.test('no date has no row, later date does not fabricate a default; zero remains zero',async()=>{
     const order=await create(fixture(null,0));assert.equal((await read(order.id)).plans.length,0);
@@ -103,7 +107,12 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
       updateDeliveryPlans(pool,actor,order.id,{expectedVersion:1,upserts:[{id:row.id,deliveryDate:'2026-12-01',quantity:'100'}],voidIds:[]}),
       refreshAinuokeSalesOrderSource(pool,actor,order.id,{...order.input,source:{...order.input.source,contractDeliveryDate:'2027-01-01',sourceHash:'compete'},expectedSourceHash:order.input.source.sourceHash,expectedPlanVersion:1}),
     ]);
-    assert.equal(results.filter(r=>r.status==='fulfilled').length,1);assert.equal((await read(order.id)).version,2);
+    assert.equal(results.filter(r=>r.status==='fulfilled').length,1);const plans=await read(order.id);assert.equal(plans.version,2);
+    if(plans.ownership==='source_derived') {
+      assert.equal(plans.sourceDeliveryDate,'2027-01-01');assert.equal(plans.plans[0].deliveryDate,'2027-01-01');
+    } else {
+      assert.equal(plans.sourceDeliveryDate,'2026-11-01');assert.equal(plans.plans[0].deliveryDate,'2026-12-01');
+    }
   });
   await t.test('audit failure rolls back ownership, rows, source mirrors and versions',async()=>{
     const order=await create();const before=await read(order.id);const badActor={...actor,internalUserId:'999999999'};

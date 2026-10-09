@@ -1,5 +1,9 @@
 # SalesOrder Browser Cutover Readiness
 
+## C4.3 Server engineering update — 2026-10-09
+
+DeliveryPlan is implemented through independent 0009 collection/rows, permanent user ownership, stable default null recovery, date/quantity reconciliation, trusted transactions/audit and narrow GET/PATCH commands. See [persistence/API](SALES_ORDER_PERSISTENCE.md) and [delivery report](../tasks/active/2026-10-09-order-c43-delivery-plan.md). Below, statements that DeliveryPlan/C4.3 is not implemented describe the historical pre-C4.3 audit. Plan UI, real activation/acceptance, general Order writing, ambiguous fields and Browser retirement remain separate. No fallback/Browser repository change is introduced.
+
 ## Current boundary
 
 Phase 2B3C0 established read-path/model/UI readiness, C1 activated real Server RBAC plus authenticated API acceptance, C2.1 implemented a separate Browser trusted Server session boundary, and C2.2 completed real Browser same-origin shadow acceptance. C3.1 cut production `/order-center` base-list reads to PostgreSQL, and C3.2 completed real production-route Browser acceptance. Real PostgreSQL is authoritative for the 511 bootstrapped Ainuoke SalesOrder masters, immutable source bindings and current contract/color mirrors. Browser OrderRepository remains retained for its existing test/execution dataset and legacy write/detail paths, but it is no longer the production base-list source.

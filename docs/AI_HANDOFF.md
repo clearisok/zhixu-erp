@@ -3,7 +3,7 @@
 ## Active — Order C4.3 independent engineering (2026-10-09)
 
 - Branch `feat/order-c43-delivery-plan`; clean baseline/fetched origin main `edc3598764266de087c0f669f8bcf5452c6d3fd2`. Gate 0 read-only audit complete; actual Server has no DeliveryPlan domain. [Audit and confirmed edge rules](tasks/active/2026-10-09-order-c43-delivery-plan.md).
-- Gate 1 `d5f872a0ac1195961ada9744eec8aad77b82b66b` exact remote verified; independent 0009 domain PASS. Gate 2 narrow session GET/PATCH and upgrade tests: PG14/14, typecheck/Server build; final Gate reruns latest validation and broader regressions. Source HTTP/general SalesOrder writer/UI remain absent. No real migration/deploy/Browser import or parallel Source/Quote UI edits; deployment history below intact.
+- Gate 1 `d5f872a0ac1195961ada9744eec8aad77b82b66b` exact remote verified; Gate 2 `3db3288f695a59b49e27e110852ddb6723ca1383` pushed. Final engineering PG87/87 (domain/session14/14), npm674/674, typecheck/lint/Server/frontend build PASS. D-100 avoids new main Quote D-099 collision. Next ordinary main integration/shared-doc reconciliation and PR, never reset/rebase/auto-merge. No real migration/deploy/Browser import or Source/Quote UI implementation edits.
 
 ## Active — PR #82 main integration / review closure (2026-10-09)
 

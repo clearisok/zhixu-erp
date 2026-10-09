@@ -1,5 +1,11 @@
 # PostgreSQL Server Persistence Foundation
 
+## Order C4.3 independent engineering — 2026-10-09
+
+Forward-only 0009 adds independent collection version/irreversible ownership and stable plans. New Ainuoke creation derives one default only with a valid date; quantity snapshots first source quantity, null recovery preserves ID, and human intervention permanently prevents source overwrite. Existing orders receive no ownership inference/backfill. Source date/quantity and collection version follow in the same mirror transaction; internal typed refresh and human edits append trusted audits atomically. GET/PATCH `/api/v1/sales-orders/:uuid/delivery-plans` uses existing identity/RBAC/Origin. No source HTTP writer/general SalesOrder mutation is added.
+
+Only disposable PG/synthetic fixtures are used. Normal startup remains verify-only and fails closed when 0009 is pending; no real instance/DB/Quote trial is started or modified. Historical 0001–0008 deployment evidence below remains historical; 0009 presence does not authorize activation or add an Order prerequisite to D-098. Plan UI/full Order cutover remain deferred. [Rules/API/verification](SALES_ORDER_PERSISTENCE.md).
+
 ## Linked saved-source writer (2026-10-09, engineering only)
 
 Quote terms PATCH/service locks the canonical terms advisory context before the Quote root `FOR UPDATE`, then reads the aggregate using that same PoolClient. Positive Quote CAS, exact current writable default Revision/PV, saved labor currency and complete immutable formal association are checked while locks remain held through commit. Terms CAS, association and trusted audit share the transaction. Export final verification uses the same context key and stable PV order before the Quote lock; generic save/Revision/Estimate and unlinked snapshot confirmation do not acquire a reverse terms lock. Controlled lock-wait/barrier tests cover currency save, new Revision, PV deletion, Quote/Order competition and one/multiple-PV export.

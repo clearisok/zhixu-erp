@@ -27,7 +27,7 @@ Only disposable PostgreSQL/synthetic fixtures are authorized. D-096 empty-data a
 ## Gate 1 — domain PASS
 
 - Baseline checkpoint `d6d3c94` (Gate 0), pushed successfully; Gate 1 begins with clean tracked baseline.
-- New 0009 schema/ownership triggers, typed collection projection, human upsert/void transaction and internal source-refresh transaction. D-099 records confirmed rules and technical evidence. No source HTTP writer.
+- New 0009 schema/ownership triggers, typed collection projection, human upsert/void transaction and internal source-refresh transaction. D-100 records confirmed rules and technical evidence. No source HTTP writer.
 - Typecheck and Server build PASS. Disposable PostgreSQL domain 12/12 PASS: migration/idempotency/startup guard, initialization/date absence/zero, null recovery/stable IDs, multi-row/permanent ownership/drift, void history, concurrent CAS/source-user competition, audit rollback, permissions/spoofing/source guards and untouched aggregate/terms.
 - Initial npm ci failed ECONNRESET; offline lockfile install succeeded. First compilation attempt before dependencies were available did not run; subsequent actual compilation passed.
 - Sandbox execution helper failed to start; authorized repository reads/builds/test commands use reviewed escalation. One-off approval-service transport failures were resubmitted unchanged and succeeded. No shared sandbox/proxy/TLS configuration was changed.
@@ -38,3 +38,12 @@ Only disposable PostgreSQL/synthetic fixtures are authorized. D-096 empty-data a
 - Added GET/PATCH `/api/v1/sales-orders/:uuid/delivery-plans` using existing identity authority, order.view/order.edit, Origin/header boundary and strict typed command validation. User-entered quantities follow the existing positive plan-input rule; system-derived zero is preserved as explicitly confirmed.
 - Actual session API + upgrade safety added to disposable domain suite; 14/14, typecheck/Server build passed before the additional positive-zero validation. Final Gate reruns the changed validator and full regressions.
 - No UI/Source/Bridge changes, no source HTTP writer or general SalesOrder write API.
+
+## Gate 3 — final engineering PASS
+
+- Start: Gate 2 `3db3288f695a59b49e27e110852ddb6723ca1383`, pushed successfully; no inherited dirty hunks. Scope: necessary migration test lists, bounded audit projections, repeat/source-user assertions and documentation closure.
+- Latest typecheck, full lint, Server build PASS. Default frontend build PASS. Full npm tests 674/674 PASS. Unified disposable PostgreSQL regression 87/87 PASS (DeliveryPlan 14/14, SalesOrder foundation, shared/linked commercial terms, Quote foundation/API, Fresh Start and frozen bootstrap). All generated PG containers used tmpfs/dynamic loopback ports and were removed by fixture cleanup. No process DB environment or real DB was used.
+- Initial broader PG run: 66/67, one existing confirmed-terms exact migration-list assertion omitted 0009. Corrected only precise test lists (including Quote API), targeted rerun 35/35, then unified final 87/87. No failure concealed.
+- Audit deltas are bounded to affected plan rows/scalar reconciliation; repeated create does not duplicate rows/logs, repeated source refresh retains rows/version while recording the intentional refresh audit. User commands with stale CAS cannot duplicate creates.
+- Latest main read-only checked at `330aad7d1bfc8e93326e1eb4971a7a9f34a74514` (Quote UI PR86). No domain/runtime/migration code changes there. Main used D-099 for Quote visual policy; this task decision is D-100. Ordinary integration/reverification follows this independent Gate commit; no reset/rebase/force.
+- Deferred: formal plan UI/conflict UX and wiring future Source orchestration to the internal refresh contract. Real 0009 activation, real data reconciliation/manual business acceptance and deployment are NOT RUN/NOT AUTHORIZED. General creation/editing, ambiguous fields and Browser retirement remain separate.

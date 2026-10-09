@@ -17,5 +17,7 @@
 
 ## 永久边界
 
+- 并行订单 C4.3 Server 领域已实现：独立 0009、集合 CAS/永久人工所有权、稳定默认行/null 恢复、drift 与专属 GET/PATCH。只 disposable PG；真实 0009、计划 UI、通用订单写入未执行，不增加 D-098 Quote-first 前置。工程验证/checkpoint 见 [独立报告](tasks/active/2026-10-09-order-c43-delivery-plan.md)。以上试用部署状态保持不变。
+
 - D-096 历史导入 **NOT REQUIRED**；不导入不是删除授权。D-097 显式 Server 不回退旧数据；权限/CAS/事务/精度及历史 Revision 不可变保持。
 - 用户持久试用数据不得自动清理；远程必须真实 session/RBAC 与 HTTPS。延期：整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理。
