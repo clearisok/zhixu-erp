@@ -2,6 +2,10 @@
 
 > 2026-10-09；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及本轮验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
 
+## 本机用户 Preview
+
+- 新独立 D099 Preview **READY / USER ACCEPTANCE PENDING**：https://localhost:18444/quote-center，专属project/新PG卷/独立MinIO/合成账号、loopback/session/TLS。批准103901Z候选固定运行；不是win01部署。API seed65/65、最终auth/storage18/18、实际Chromium11/11通过；用户现场保留。[入口/账号获取/截图及限制](tasks/active/d099-user-preview.md)。本轮未连接18443或读取真实凭据；治理修改仅提案。
+
 ## 当前工程能力
 
 - D-099：PR #64 报价中心是视觉/信息架构基线，当前 Server 是数据、安全和业务能力基线；Server 化不能成为重新设计 UI 的理由。绿色侧栏/暖灰/白卡片、标题/更多/搜索筛选、组合单元格恢复。

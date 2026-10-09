@@ -1,5 +1,11 @@
 # AI handoff
 
+## Active — Codex D D-099 user Preview (2026-10-09)
+
+- Branch `chore/d099-user-preview`, clean baseline/latest main `49a82c9f970e158ded589300b4aa04fc4c809038` (PR84/86 merged); PR88 still preparation/OPEN. No87/88 integration or win01 change.
+- Separate running Preview https://localhost:18444/quote-center, project `zhixu-preview-d099-18444`; pinned approved103901Z image/source330aad7, new PostgreSQL+local MinIO+networks+synthetic accounts. Private runtime `D:\zhixu-local-preview\d099-18444`, account/launcher only there; no global certificate trust changes.
+- USER ACCEPTANCE PENDING. Actual API seed65/65, final auth/storage18/18, Chromium11/11 PASS; seven screenshots; final typecheck/lint/diff-check and npm679/679 PASS. [User steps, evidence and pending governance proposal](tasks/active/d099-user-preview.md). Keep environment/data running for feedback; do not reseed/reset/cleanup. Do not update real18443 or auto-merge any PR.
+
 ## Active — Codex D PR #84 integration (2026-10-09)
 
 - Independent worktree `D:\workspace\zhixu-pr84-integration`, original branch `ops/update-quote-trial-windows-ui`; clean baseline `62af9d33fd1de9a981972405b0d1ef01b503d351`. Normal merge of fetched/GitHub-confirmed main `6e40b4318e59f8cc54adfe1aeb3d3e3d90a72613` (PR #85/#86 merged).
