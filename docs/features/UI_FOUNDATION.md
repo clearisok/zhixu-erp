@@ -6,6 +6,8 @@ UI Foundation 为 Quote Center 和基础设置提供统一的 ERP 页面、表�
 
 ## Current behavior
 
+D-099 Quote UI convergence: PR #64 is the visual/IA baseline, current Server the security/data/business baseline. Reuse this Foundation, not a new UI library/theme. Original Server list grouping is a feature-level opt-in over independent authorized fields and stable UI preferences; other `DataTable` consumers retain fit-first behavior. More/Portal/keyboard actions, trusted Shell, local scrolling and PR83 sticky/compact-cost fixes remain. Server type-first creation uses shared PageHeader/Card/FormItem without changing write timing. [Audit and synthetic evidence](../tasks/active/quote-original-ui-convergence.md); ENGINEERING PASS, human UI approval PENDING, no runtime deployment.
+
 `components/foundation/` 当前包含：
 
 - `AppShell`

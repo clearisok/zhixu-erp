@@ -46,7 +46,7 @@ Archived when UI convergence started; dated observations, not current operating 
 ## Quote Trial Release Preparation — PR #81 startup follow-up (2026-10-09)
 
 - 同一branch `feat/quote-trial-release-preparation`，本次baseline `244e5143ffc6eda15a031dfe8f90acbdbe5240d0` / clean；不重做A/B/C/D，不创建新PR。原base `d25aac7aa19a90ac1c1f573fbb60e420b7899e98`。
-- 已完成阶段保留：A `d1ae6c3`、B `0659fa4`、C runtime `9ee254d`、C isolated `532b1c5`、D `244e514`。原历史归档见 [归档](completed/2026-10-09-pre-trial-state-history.md)，本任务范围与三张卡见 [操作说明](../../../ops/quote-trial/README.md)。
+- 已完成阶段保留：A `d1ae6c3`、B `0659fa4`、C runtime `9ee254d`、C isolated `532b1c5`、D `244e514`。原历史归档见 [归档](2026-10-09-pre-trial-state-history.md)，本任务范围与三张卡见 [操作说明](../../../ops/quote-trial/README.md)。
 - 镜像仍为 `zhixu-quote-trial:9ee254db89c6`，应用source `9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23`，image ID `sha256:c496a93c3f895448f65b3ede533105dc832c6be8ec61682badece39cb32a3d57`，server/server/writable/session。新ops commit不冒称镜像已重建；应用/Dockerfile/构建输入未变。
 - 本次已修复：gateway覆盖错误local3000探针，可信8443 TLS+上游health；start/restart先COMMAND_SUBMITTED，精确容器镜像/私有配置指纹、三服务healthy、HTTPS DB-ready和build-info一致才READY。restart漂移在重启前拒绝，不自动升级；status仅安全运行事实。失败不迁移/恢复/清理/自动回滚。
 - 本次最终验证：配置/TLS/就绪10/10；实际候选CLI与完整smoke/独立恢复11/11（未初始化拒绝、正常start/restart、配置/候选漂移、代理/TLS故障、有界非零安全输出、无额外业务写、持续网关health、Quote/history/Estimate/admin/附件字节保持）；cleanup、typecheck、lint、diff-check PASS。

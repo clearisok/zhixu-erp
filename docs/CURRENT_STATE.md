@@ -1,21 +1,21 @@
 # 当前状态
 
-> 2026-10-09；当前任务：PR #82 合并冲突与审查收口。历史工程见 [归档](tasks/completed/2026-10-09-pre-trial-state-history.md)，部署/UI 详细证据见 AI_HANDOFF 历史段与 [试用操作说明](../ops/quote-trial/README.md)。
+> 2026-10-09；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及本轮验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
 
-## 试用状态与工程版本
+## 当前工程能力
 
-- Windows 独立目标 `zhixu-quote-trial-win01` / `https://localhost:18443` 此前已部署 **READY**：独立新 DB 0001–0008、session/RBAC、COS 新对象、重启持久化与首次备份已验收。用户已解决密码问题、成功登录并打开页面；完整三张人工业务卡尚未确认通过。
-- 当前真实应用仍 `zhixu-quote-trial:9ee254db89c6`，source `9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23`。没有后续部署证据，不能以 Git merge 替代真实更新。
-- PR #83 UI 修复已合并 main `dd5fc62e6a4cdf5920528c71cfbd4dbae3c9013d`；新候选 `zhixu-quote-trial-ui:878de323d618` **BUILT / NOT DEPLOYED**，应用source `878de323d618b25fca1f51ccf3f024e932641742`。列表/新建/详情、成本与滚动修复及合成对比图保留。
-- PR #82 Windows 工具/部署证据继续保留，在原分支普通整合 main、隔离验证原生命令失败处理，等待审查；Git 冲突解决不等于完整运维安全审查 PASS。
+- D-099：PR #64 报价中心是视觉/信息架构基线，当前 Server 是数据、安全和业务能力基线；Server 化不能成为重新设计 UI 的理由。绿色侧栏/暖灰/白卡片、标题/更多/搜索筛选、组合单元格恢复。
+- 新用户默认九个信息单元格 + 固定操作；十五个正式业务字段仍独立配置/导出。旧个人列顺序/宽度/可见性和 key 保留，不自动重写；主动恢复默认可切新组合布局。权限过滤包含子字段、tooltip 和 touch records。
+- 新建 type-first 卡片主动创建、POST{} / processing CAS PUT、已创建 ID 和未知结果保护保持。共享 Editor 不重写，保留 PR83 常用成本字段、局部滚动/sticky/Portal，以及版本/Estimate/确认/附件/客户文件/内部汇总/日志能力。
+- 本轮 Chromium62/62、隔离 API/版本/Estimate/附件38/38、auth/frontend67/67、presentation4/4、SSR2/2、npm674/674 PASS；typecheck/lint/Server及两种frontend build PASS，默认 build-info browser/browser/writable/session。四档桌面 + 390 touch、合成参考/前后截图146张；cleanup PASS。不是人工 UI 定稿。
 
-## 验证来源与下一步
+## 真实环境与下一步
 
-- #82 部署阶段定向 14/14 与真实验收是历史证据；#83 Chromium61/61、auth/persistence67/67、SSR2/2、npm674/674、两种frontend与质量检查是 UI 工程证据。本次不重复运行上述测试或真实验收。
-- 下一步：审查收口后，另行授权**现有试用环境应用更新**并做人工业务卡；不重新 setup/init，不重新创建账号/验收数据，不将历史导入门禁加回。
-- 默认 Browser、旧 3000/3001/3002、旧数据库/Browser 数据不变；本轮不读取真实 secrets、操作 Docker runtime、DB、COS、备份或部署目录。
+- Windows win01 历史部署 READY，用户已解决密码问题并登录；完整三张人工业务卡未确认。PR82 已合并；PR83 已合并；PR84 在本任务起始核实 OPEN。本轮未复核真实运行镜像，也未访问/更新试用目录、数据库、Browser、COS、秘密或旧3000/3001/3002。不能用本 PR 或 Git merge 声称已部署。
+- 下一步：独立 UI PR 审查，并由用户人工查看列表/偏好、加工/经销新建、详情/成本、900 fine-pointer 与 touch。任何真实应用更新仍需独立授权，不重新 setup/init。
+- 明确差异/延期：列表款式图占位，无 country/PV-name summary 接线；Server 新建不是 Browser 未保存整单编辑。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理仍未支持，不伪造按钮能力。
 
 ## 永久边界
 
-- D-096 历史导入 **NOT REQUIRED**；不导入不是删除授权。D-097 显式 Server 不回退旧数据；权限/CAS/事务/精度及历史 Revision 不可变保持。
-- 用户持久试用数据不得自动清理；远程必须真实 session/RBAC 与 HTTPS。延期：整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理。
+- D-096 历史导入 NOT REQUIRED；旧数据保留，不导入不是删除授权。D-097 Server 不读旧业务、不回退 mock/IndexedDB；D-098 Quote-first 试用范围保持。可信 session/RBAC、细粒度字段权限、精确 Decimal/null/zero、CAS/事务/审计和历史不可变不变。
+- 工程、候选、真实部署、人工验收分开；默认 Browser 保持，正式远程必须认证授权/HTTPS；持久试用数据不得当作 disposable 清理。
