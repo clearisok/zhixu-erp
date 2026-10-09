@@ -1,9 +1,45 @@
 # Quote trial candidate (2026-10-09)
 
-Engineering preparation, **not a real deployment**. D-098 locks the merged Quote-first
+The candidate engineering evidence below is **not deployment evidence**. D-098 locks the merged Quote-first
 scope; D-096 historical import is NOT REQUIRED. The old environments/data remain
 untouched. User business acceptance: **NOT RUN**. Do not use the legacy
 `deploy-production.yml`, old Compose or ports 3000/3001/3002 for this candidate.
+
+## Authorized Windows target — input checkpoint (2026-10-09)
+
+PR81 merged baseline `cc3c450562e692b696024558706954816227cb8a` and ops source
+`1e71d773c2d578029f42267b16999167b393c49f` are verified. The user authorized a
+new local deployment (including new empty-schema init), **not old-environment changes**.
+Target identity is fixed outside Git at `D:\zhixu-local-trial\win01\target.json`:
+project `zhixu-quote-trial-win01`, `https://localhost:18443`, DB `quote_trial`,
+owned `_data` / `_default`. Do not create another target on continuation.
+
+`windows-setup.ps1 -PrepareOnly` has made the restricted Windows directory,
+fixed ops/backup dependency snapshot and a 30-day localhost-only certificate.
+No DB/volume/runtime/COS operation has occurred. The new wrapper is **not** a
+Windows claim for the existing Linux `/dev/tty` installer. Its noninteractive
+library tests use only fake inputs; real values must be entered locally:
+
+```powershell
+& 'C:\Program Files\PowerShell\7\pwsh.exe' -NoProfile -File 'D:\zhixu-local-trial\win01\tools\ops\quote-trial\windows-setup.ps1'
+```
+
+The script shows the public certificate SHA-256, expiry and **CurrentUser Root**
+scope, then requires `TRUST LOCALHOST`. No LocalMachine change/TLS bypass.
+SecretId, SecretKey and new `trial-admin` / `trial-viewer` passwords use hidden
+input; only restricted local files are written, DB password is random. No values
+or credential hashes are printed. Input failure/partial publication is fail-closed:
+preserve it for explicit review, never overwrite/delete files or start another target.
+It does not deploy, grant CAM permissions or claim live credentials validity.
+
+Pending: input/trust receipt and non-sensitive CAM binding/private-bucket/no-extra-
+wide-permissions evidence. Supplied policy content is compatible but account details
+alone do not prove binding/public access. Next use two dedicated owned Linux secret
+volumes: COS only for app, TLS only for gateway, actual 1000:1000/0600/read-only;
+verify the canonical offline checker before canonical check/init/start. Do not
+confuse tested fake mounts or CHECK_ONLY with actual new target READY.
+Real attachment, restart/persistence and first backup remain pending; the target
+will be left running after deployment. Never run test cleanup or COS DELETE on it.
 
 ## Candidate and verified boundary
 
