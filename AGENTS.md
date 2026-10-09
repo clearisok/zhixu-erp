@@ -84,8 +84,7 @@ npm run build
    - 更新 `docs/AI_HANDOFF.md`；
    - 创建 checkpoint commit；
    - 自动 push 当前任务分支到 `origin`。
-5. 多 Gate / 长时间任务不得把全部进度只留在未提交 working tree 中。
-   上下文压缩、额度中断或工具中断后，GitHub 上必须存在最近一个安全 checkpoint。
+5. 多 Gate / 长时间任务不得把全部进度只留在未提交 working tree 中。正常推送阶段 checkpoint；纯网络失败时至少有可靠本地 commit 与短接力，独立记录 LOCAL ENGINEERING / REMOTE DELIVERY，不冒称 GitHub 已送达。
 6. 最终 Gate PASS 后：
    - 更新 CURRENT_STATE；
    - 更新相关 feature docs；
@@ -111,22 +110,12 @@ npm run build
    - tests
    - remaining dirty
 
-### GitHub Push 网络故障 fallback
+### GitHub 网络故障恢复（2026-10-09 用户授权，立即适用）
 
-1. 每个 Gate 完成验证并创建 checkpoint commit 后，自动 push 当前任务分支一次。
-2. 如果 push 明确失败于 `Failed to connect`、`Could not connect to server`、`Connection reset` 或 TLS/network timeout，不得无限重试；停止网络操作并报告：
-   - Branch
-   - HEAD
-   - checkpoint commit SHA
-   - working tree 状态
-   - 人工 PowerShell push 命令：`git push -u origin <branch>`
-   - push 后本地验证命令：
-
-     ```powershell
-     git rev-parse HEAD
-     git rev-parse origin/<branch>
-     git status --short
-     ```
-3. 用户人工 push 后，可以只使用上述本地命令验证。仅当 `HEAD == origin/<branch>` 且 working tree clean 时，才允许继续下一 Gate。
-4. 该 fallback 只适用于明确网络故障。`authentication failed`、`permission denied`、`rejected`、`non-fast-forward`、branch divergence 或 merge/rebase conflict 必须停止并报告，不得绕过。
-5. 网络故障处理禁止使用 `git push --force`、`git reset --hard`、`git clean`，也禁止为绕过网络问题擅自 rebase。
+1. 正常每个可靠 checkpoint push 一次，最终核对远端 SHA 并创建/更新唯一 PR。纯网络错误不无限重试、不在每个小步骤再次撞远端。
+2. Connection reset / connect / TLS timeout 等纯网络失败：保存本地 commit 与接力；允许同一已验证基线的独立本地阶段继续，分开记录 LOCAL ENGINEERING 与 REMOTE DELIVERY。**不因此授权真实部署或数据库操作。**
+3. 结果不确定时允许一次只读核实；远端为 exact full target SHA 时确认已送达，不盲推；不能核实时记 REMOTE PENDING，不假报成功。PR 创建 EOF/timeout 先查 head 已有 PR，不换标题重复创建。
+4. 起始 fetch 失败仅在用户/可信来源核对的完整 baseline commit 在本地、对象/工作树可验证时继续，注明本次未刷新远端；缺对象仍 BLOCKED，不能退用旧分支猜基线。
+5. authentication/permission denied、rejected/non-fast-forward、分歧、冲突、未知 dirty 停止相关执行并保护现场。不 force/reset/clean/自动 rebase，不关闭证书验证。
+6. 不输出 token/Authorization/Cookie/代理密码/credential helper 内容，不读取 gh auth token / git credential fill，不上传 raw trace；网络原因区分 confirmed/suspected/unresolved。共享 common-dir/全局代理/SSH/TLS 配置不得擅改；仅有界进程级对照，持久修改需证据与另行确认。
+7. 最终待人工恢复只给一组命令：git push -u origin <branch>；git rev-parse HEAD；git rev-parse origin/<branch>；git status --short。明确最后确认远端/本地 checkpoint 与 dirty。故障分类测试：scripts/__tests__/git-delivery-state.test.mjs。
