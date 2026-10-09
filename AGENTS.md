@@ -39,7 +39,8 @@
 
 - 当前没有 Alembic 或 Python 后端。不要把 `database/*.sql`、空的 Drizzle/D1 scaffold 或聊天中的未来方案描述成已经存在的 migration/backend。
 - 修改 PostgreSQL schema、`api_dispatch`、初始化管理员或备份恢复流程前，先阅读 `docs/features/LEGACY_ERP.md`、相关 SQL 和脚本。
-- Quote Center 当前使用 mock repository、稳定 schemaVersion localStorage namespace 与 IndexedDB；旧 `sessionStorage`/带版本 localStorage key 只用于兼容迁移。它没有接入根路径的 `/api/quotes`。除非用户明确启动后端迁移任务，否则不得擅自接线。
+- Quote Center 默认 Browser 使用 mock repository、稳定 localStorage namespace 与 IndexedDB；显式 Server authority 使用 Node `/api/v1/quotes`、可信 session/RBAC 和 PostgreSQL，绝不回退旧 Browser 数据。根路径 legacy `/api/quotes` 不是新 Quote 接口。旧真实部署与最新工程能力分开记录，不擅改默认值或清理旧数据。
+- 按可使用的发布范围组织任务；工程验收、候选构建、真实部署和用户人工业务验收分别记录。延期功能不自动成为首次试用前置。CURRENT_STATE 约一页，AI_HANDOFF 只保留当前恢复点；历史证据归档到 docs/tasks/completed 并维护链接，不删除日期、hash、结果和限制。
 
 ## 验证与交付
 

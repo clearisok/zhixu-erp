@@ -18,6 +18,14 @@
 
 ## Active
 
+### D-098 优先形成可使用的报价试用版，由实际使用反馈驱动后续范围
+
+- 日期：2026-10-09；状态：Active。用户明确要求按可使用版本组织工作，尽早实际完成报价，不无限追加功能。
+- 首轮范围使用已合并的基础资料、新报价/成本、Revision/PV、Estimate、确认、附件、客户 Excel/ZIP、内部汇总和只读日志。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理、缩略图暂缓，不自动成为首次试用前置。
+- 工程验证、候选构建/隔离部署、真实部署、人工业务验收分开记录；人工未执行就是 NOT RUN。用户反馈证明必要的范围再单独实施。
+- D-096 空数据、旧环境保护、Quote-first、权限/CAS/事务/备份与历史不可变不变。范围锁定不是迁移冻结；新环境和真实部署必须明确目标/授权，不能用 Local Single-User 公网试用。
+- 证据：用户 Quote Trial Release Preparation 指令；CURRENT_STATE、AGENTS 与本轮候选验证/交接记录。发布和 Git 参数约定属于工作/运维文档，不是计算政策。
+
 ### D-097 Fresh Start Quote authority 显式选择与正式 UI 基本闭环
 
 - 日期：2026-10-08；状态：Active。用户授权聚焦接通正式 Quote list/new/detail，非部署、非历史导入、非全模块重写。
