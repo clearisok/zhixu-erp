@@ -116,7 +116,8 @@ async function readSnapshot(client: PoolClient, row: ObjectData): Promise<Object
   }
   return output;
 }
-async function readAggregate(client: PoolClient, id: string): Promise<QuoteRecord | null> {
+/** Caller owns transaction/locking. Never obtains another connection. */
+export async function readQuoteAggregateInTransaction(client: PoolClient, id: string): Promise<QuoteRecord | null> {
   const roots = await client.query("SELECT * FROM quote_center_quotes WHERE id=$1", [id]);
   if (!roots.rowCount) return null;
   const root = roots.rows[0];
@@ -166,7 +167,7 @@ export function insertHistoricalQuoteInTransaction(client: PoolClient, input: Se
 /** Internal Q1 persistence only. No HTTP routes, authentication or Browser writer. */
 export function createQuoteRepository(pool: Pool) {
   return {
-    getById(id: string) { return transaction(pool, true, (client) => readAggregate(client, id)); },
+    getById(id: string) { return transaction(pool, true, (client) => readQuoteAggregateInTransaction(client, id)); },
     async list(limit = 50, offset = 0): Promise<Array<{ id: string; quoteCode: string; defaultRevisionId: string; version: number }>> {
       if (!Number.isInteger(limit) || limit < 1 || limit > 100 || !Number.isInteger(offset) || offset < 0) throw new Error("Invalid Quote pagination");
       const rows = await pool.query("SELECT id,quote_code,default_revision_id,version FROM quote_center_quotes ORDER BY id LIMIT $1 OFFSET $2", [limit, offset]);
@@ -184,7 +185,7 @@ export function createQuoteRepository(pool: Pool) {
       return transaction(pool, false, async (client) => {
         const locked = await client.query("SELECT version FROM quote_center_quotes WHERE id=$1 FOR UPDATE", [quote.id]);
         if (locked.rows[0]?.version !== expectedVersion) throw new QuoteConflictError();
-        const previous = await readAggregate(client, quote.id);
+        const previous = await readQuoteAggregateInTransaction(client, quote.id);
         if (!previous) throw new QuoteConflictError();
         validateQuoteReplacement(previous.quote, quote);
         await writeChildren(client, quote, previous.quote);

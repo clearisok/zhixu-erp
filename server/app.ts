@@ -9,7 +9,7 @@ import { assertMutationBoundary, readJsonBody } from "./http/request.js";
 import { requestId, sendError, sendJson } from "./http/responses.js";
 import { queryOperationLogs } from "./operation-logs/repository.js";
 import { parseOperationLogQuery } from "./operation-logs/query.js";
-import type { UpdateConfirmedCommercialTermsInput } from "../features/confirmed-commercial-terms/model.js";
+import type { UpdateConfirmedCommercialTermsInput, UpdateQuoteConfirmedCommercialTermsInput } from "../features/confirmed-commercial-terms/model.js";
 import {
   isConfirmedLaborCurrency,
   readConfirmedCommercialTermsByQuote,
@@ -76,8 +76,8 @@ function commercialAmount(value: unknown, label: string): string | null {
   return value;
 }
 
-function confirmedCommercialTermsInput(body: Record<string, unknown>): UpdateConfirmedCommercialTermsInput {
-  if (Object.keys(body).some((key) => !commercialTermsInputKeys.has(key))) {
+function confirmedCommercialTermsInput(body: Record<string, unknown>, quoteSurface = false): UpdateConfirmedCommercialTermsInput {
+  if (Object.keys(body).some((key) => !commercialTermsInputKeys.has(key) && !(quoteSurface && key === "expectedQuoteVersion"))) {
     throw new HttpError(400, "invalid_confirmed_commercial_terms", "Request contains unsupported fields");
   }
   if (!Number.isSafeInteger(body.expectedVersion) || (body.expectedVersion as number) < 0) {
@@ -93,6 +93,7 @@ function confirmedCommercialTermsInput(body: Record<string, unknown>): UpdateCon
     throw new HttpError(400, "invalid_confirmed_commercial_terms", "laborCurrency is required when confirmedLaborPrice is present");
   }
   return {
+    ...(quoteSurface ? { expectedQuoteVersion: body.expectedQuoteVersion } : {}),
     expectedVersion: body.expectedVersion as number,
     customerConfirmedPrice,
     confirmedLaborPrice,
@@ -455,7 +456,7 @@ async function route(
         dependencies.pool,
         identity,
         provenance,
-        confirmedCommercialTermsInput(await readJsonBody(request)),
+        confirmedCommercialTermsInput(await readJsonBody(request), true) as UpdateQuoteConfirmedCommercialTermsInput,
       );
     sendJson(response, 200, { confirmedCommercialTerms: terms });
     return;

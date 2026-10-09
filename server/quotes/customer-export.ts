@@ -7,7 +7,7 @@ import { isDeepStrictEqual } from "node:util";
 import { buildQuoteExcel, type QuoteExcelImage } from "../../features/quote-center/export/quote-excel-core.js";
 import { projectForBrowser, browserNumberFromExactDecimal } from "../../features/quote-center/model/exact-decimal-view.js";
 import { mapPriceVersionForExport } from "../../features/quote-center/export/quote-export-mappers.js";
-import { findSalesOrderIdsByQuoteProvenance, findTermsByQuoteProvenance } from "../confirmed-commercial-terms/repository.js";
+import { findSalesOrderIdsByQuoteProvenance, findTermsByQuoteProvenance, lockQuoteTermsContext } from "../confirmed-commercial-terms/repository.js";
 import type { QuoteRevision } from "../../features/quote-center/model/quote-view-model.js";
 import { requirePermission } from "../auth/permissions.js";
 import type { TrustedIdentity } from "../auth/session.js";
@@ -121,7 +121,7 @@ export function createCustomerExportService(pool: Pool, storage?: AttachmentStor
       try{
         await client.query("BEGIN");
         for(const [id,binding]of [...bindings].sort(([a],[b])=>a.localeCompare(b))){
-          await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))",[`commercial-terms:quote:${quoteId}:${source.revisionId}:${id}`]);
+          await lockQuoteTermsContext(client,{quoteId,revisionId:source.revisionId,priceVersionId:id});
           if(!isDeepStrictEqual(binding,await readBinding(client,id)))throw new HttpError(409,"commercial_terms_version_conflict","Current confirmation source changed during generation");
         }
         const locked=await client.query("SELECT version FROM quote_center_quotes WHERE id=$1 FOR UPDATE",[quoteId]);

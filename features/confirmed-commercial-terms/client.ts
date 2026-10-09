@@ -1,6 +1,7 @@
 import type {
   ConfirmedCommercialTermsDto,
   UpdateConfirmedCommercialTermsInput,
+  UpdateQuoteConfirmedCommercialTermsInput,
 } from "./model";
 
 export class ConfirmedCommercialTermsServerError extends Error {
@@ -18,7 +19,7 @@ export type ConfirmedCommercialTermsServerClient = {
   getBySalesOrder(salesOrderId: string): Promise<ConfirmedCommercialTermsDto>;
   updateBySalesOrder(salesOrderId: string, input: UpdateConfirmedCommercialTermsInput): Promise<ConfirmedCommercialTermsDto>;
   getByQuote(quoteId: string, revisionId: string, priceVersionId: string): Promise<ConfirmedCommercialTermsDto>;
-  updateByQuote(quoteId: string, revisionId: string, priceVersionId: string, input: UpdateConfirmedCommercialTermsInput): Promise<ConfirmedCommercialTermsDto>;
+  updateByQuote(quoteId: string, revisionId: string, priceVersionId: string, input: UpdateQuoteConfirmedCommercialTermsInput): Promise<ConfirmedCommercialTermsDto>;
 };
 
 async function parseResponse(response: Response): Promise<ConfirmedCommercialTermsDto> {
@@ -40,6 +41,16 @@ function quotePath(quoteId: string, revisionId: string, priceVersionId: string):
   return `/api/v1/quotes/${encodeURIComponent(quoteId)}/revisions/${encodeURIComponent(revisionId)}/price-versions/${encodeURIComponent(priceVersionId)}/confirmed-commercial-terms`;
 }
 
+function verifiedQuoteResponse(dto: ConfirmedCommercialTermsDto, quoteId: string, revisionId: string, priceVersionId: string) {
+  const provenance = dto.quoteProvenance;
+  if (!provenance || provenance.quoteId !== quoteId || provenance.revisionId !== revisionId || provenance.priceVersionId !== priceVersionId
+    || !["linked", "unlinked"].includes(dto.linkage) || !Array.isArray(dto.associatedSalesOrderIds)
+    || (dto.linkage === "linked" ? dto.scope !== "quote" || !dto.associatedSalesOrderIds.length : dto.scope !== null || dto.current !== null || dto.associatedSalesOrderIds.length !== 0)) {
+    throw new ConfirmedCommercialTermsServerError(502, "confirmed_commercial_terms_provenance_mismatch", "共享条款响应来源不匹配；请显式核对");
+  }
+  return dto;
+}
+
 export function createConfirmedCommercialTermsServerClient(options: {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -59,8 +70,8 @@ export function createConfirmedCommercialTermsServerClient(options: {
   return {
     getBySalesOrder: (salesOrderId) => request(`/api/v1/sales-orders/${encodeURIComponent(salesOrderId)}/confirmed-commercial-terms`),
     updateBySalesOrder: (salesOrderId, input) => request(`/api/v1/sales-orders/${encodeURIComponent(salesOrderId)}/confirmed-commercial-terms`, input),
-    getByQuote: (quoteId, revisionId, priceVersionId) => request(quotePath(quoteId, revisionId, priceVersionId)),
-    updateByQuote: (quoteId, revisionId, priceVersionId, input) => request(quotePath(quoteId, revisionId, priceVersionId), input),
+    getByQuote: async (quoteId, revisionId, priceVersionId) => verifiedQuoteResponse(await request(quotePath(quoteId, revisionId, priceVersionId)), quoteId, revisionId, priceVersionId),
+    updateByQuote: async (quoteId, revisionId, priceVersionId, input) => verifiedQuoteResponse(await request(quotePath(quoteId, revisionId, priceVersionId), input), quoteId, revisionId, priceVersionId),
   };
 }
 

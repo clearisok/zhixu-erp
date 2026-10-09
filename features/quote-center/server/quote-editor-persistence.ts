@@ -8,11 +8,13 @@ import type { QuoteVersionCommand } from "../../../server/quotes/version-workflo
 import type { EstimateCommand } from "../../../server/quotes/estimate-workflows";
 import type { QuoteConfirmationCommand } from "../../../server/quotes/confirmation-workflows";
 import { serverQuoteFromEditable } from "./quote-server-editor-adapter";
+import { confirmedCommercialTermsServerClient } from "../../confirmed-commercial-terms/client";
+import type { UpdateConfirmedCommercialTermsInput } from "../../confirmed-commercial-terms/model";
 export type EstimateAction = EstimateCommand extends infer C ? C extends EstimateCommand ? Omit<C, "expectedVersion"> : never : never;
 export type QuoteVersionAction = QuoteVersionCommand extends infer C ? C extends QuoteVersionCommand ? Omit<C, "expectedVersion"> : never : never;
 
 /** One per mounted editor, never a global expectedVersion or Browser writer. */
-export function createQuoteEditorPersistence(initial: EditableServerQuoteRecord, adapter: QuoteServerEditorAdapter = quoteServerEditorAdapter, workflowClient = quoteServerClient) {
+export function createQuoteEditorPersistence(initial: EditableServerQuoteRecord, adapter: QuoteServerEditorAdapter = quoteServerEditorAdapter, workflowClient = quoteServerClient, termsClient = confirmedCommercialTermsServerClient) {
   let record = structuredClone(initial);
   let busy = false;
   let blocked = false;
@@ -67,6 +69,14 @@ export function createQuoteEditorPersistence(initial: EditableServerQuoteRecord,
     confirmation: (command: Omit<QuoteConfirmationCommand, "expectedVersion">) => exclusive(async () => {
       record = editableRecord(await workflowClient.confirmationWorkflow(record.quote.id, { ...command, expectedVersion: record.expectedVersion }));
       return structuredClone(record);
+    }),
+    linkedConfirmation: (target: { revisionId: string; priceVersionId: string; expectedQuoteVersion: number }, input: UpdateConfirmedCommercialTermsInput) => exclusive(async () => {
+      if (target.expectedQuoteVersion !== record.expectedVersion) throw new Error("确认来源版本已变化；请显式核对");
+      const result = await termsClient.updateByQuote(record.quote.id, target.revisionId, target.priceVersionId, { ...input, expectedQuoteVersion: record.expectedVersion });
+      const provenance = result.quoteProvenance;
+      if (result.verifiedQuoteVersion !== record.expectedVersion || !provenance || provenance.quoteId !== record.quote.id || provenance.revisionId !== target.revisionId || provenance.priceVersionId !== target.priceVersionId) throw new Error("共享条款响应来源或版本不匹配；请显式核对");
+      // Terms CAS is separate: no aggregate version/baseline or snapshot update.
+      return result;
     }),
     acceptAttachment(snapshot: AttachmentSnapshot) {
       record = advanceAttachmentRecord(record, snapshot.revision.revisionId, snapshot);

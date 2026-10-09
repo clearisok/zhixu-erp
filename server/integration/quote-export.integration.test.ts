@@ -144,6 +144,10 @@ test("Customer Quote export: disposable PostgreSQL, saved snapshots and trusted 
 
   await t.test("linked current customer confirmation is shared CCT truth while history retains its own snapshot", async () => {
     const linked = await seeded("export-linked-confirmation", "distribution", quote => {
+      for (const revision of quote.revisions) {
+        revision.baseInfo.styleName = "Synthetic linked export";
+        revision.priceVersions[0].trims.forEach(r => r.usage = 0);
+      }
       for (const revision of quote.revisions) revision.priceVersions[0].confirmation = {
         quotedGarmentPrice: 21, confirmedGarmentPrice: revision.readOnly ? 19 : 17,
         quotedLaborPrice: 2, confirmedLaborPrice: 1, note: "Synthetic saved snapshot", confirmedAt: "2026-01-01T00:00:00Z",
@@ -159,7 +163,7 @@ test("Customer Quote export: disposable PostgreSQL, saved snapshots and trusted 
       return (await workbook(new Uint8Array(await response.arrayBuffer()))).worksheets[0].getCell(confirmedCell.row, confirmedCell.column).value;
     };
     assert.equal(await exportedPrice(current), null, "linked but unconfigured CCT must not fall back to saved PV confirmation 17");
-    await updateConfirmedCommercialTermsByQuote(pool, actor, provenance, { expectedVersion: 0, customerConfirmedPrice: "88.25", confirmedLaborPrice: "1", laborCurrency: "CNY" });
+    await updateConfirmedCommercialTermsByQuote(pool, actor, provenance, { expectedQuoteVersion: 1, expectedVersion: 0, customerConfirmedPrice: "88.25", confirmedLaborPrice: "1", laborCurrency: "CNY" });
     assert.equal(await exportedPrice(current), 88.25);
     assert.equal(await exportedPrice(linked.record.quote.revisions[0]), 19);
     assert.deepEqual(await repo.getById(linked.record.quote.id), linked.record, "CCT and export must not rewrite current or historical Quote snapshots");

@@ -13,6 +13,7 @@ import { quoteServerClient } from "../quote-server-client";
 import { quoteSnapshotFromBrowser } from "../../../../server/quotes/model";
 import { getDefaultRevision } from "../../model/quote-view-model";
 import { applyCostSyncDecisions, createCostSyncCandidates } from "../../model/price-version-cost-sync";
+import { confirmedCommercialTermsServerClient } from "../../../confirmed-commercial-terms/client";
 
 test("compiled Quote authority and runtime must agree; malformed identity/illegal master combination reject", async () => {
   const directory = await mkdtemp(join(tmpdir(), "quote-authority-test-"));
@@ -84,6 +85,44 @@ test("409/network failure keeps prior baseline/version and dirty draft; no autom
   assert.equal(draft.revisions[0].baseInfo.note, "Unsaved synthetic draft");
   await assert.rejects(persistence.save(draft));
   assert.equal(calls, 1);
+});
+
+test("linked terms shares editor lock, binds Quote CAS, and does not advance aggregate baseline/version", async () => {
+  const quote = createSyntheticQuoteFixture("linked-persistence");
+  const revision = getDefaultRevision(quote), price = revision.priceVersions[0];
+  let release!: () => void;
+  const gate = new Promise<void>(done => { release = done; });
+  let calls = 0;
+  const persistence = createQuoteEditorPersistence({ quote, expectedVersion: 7 }, undefined, undefined, { ...confirmedCommercialTermsServerClient,
+    async updateByQuote(quoteId, revisionId, priceVersionId, input) {
+      calls++; assert.equal(input.expectedVersion, 0); assert.equal(input.expectedQuoteVersion, 7);
+      assert.equal(input.confirmedLaborPrice, "1.23456789"); await gate;
+      return { linkage: "linked", scope: "quote", quoteProvenance: { quoteId, revisionId, priceVersionId }, associatedSalesOrderIds: ["synthetic-order"], current: null, verifiedQuoteVersion: 7 };
+    },
+  });
+  const write = persistence.linkedConfirmation({ revisionId: revision.revisionId, priceVersionId: price.id, expectedQuoteVersion: 7 }, { expectedVersion: 0, customerConfirmedPrice: "0", confirmedLaborPrice: "1.23456789", laborCurrency: "CNY" });
+  await assert.rejects(persistence.save(quote));
+  await assert.rejects(persistence.workflow({ action: "price.delete", revisionId: revision.revisionId, priceVersionId: price.id }));
+  release(); await write;
+  assert.equal(calls, 1); assert.equal(persistence.getVersion(), 7); assert.deepEqual(persistence.getBaseline(), quote);
+});
+
+test("linked conflict/unknown outcome preserves exact input and blocks replay; stale captured Quote CAS makes no request", async () => {
+  for (const status of [409, 0]) {
+    const quote = createSyntheticQuoteFixture(`linked-failure-${status}`);
+    const revision = getDefaultRevision(quote), price = revision.priceVersions[0]; let calls = 0;
+    const persistence = createQuoteEditorPersistence({ quote, expectedVersion: 7 }, undefined, undefined, { ...confirmedCommercialTermsServerClient,
+      async updateByQuote() { calls++; throw Object.assign(new Error("Synthetic unknown result"), { status }); },
+    });
+    const target = { revisionId: revision.revisionId, priceVersionId: price.id, expectedQuoteVersion: 7 };
+    const input = { expectedVersion: 3, customerConfirmedPrice: "0", confirmedLaborPrice: "1.23456789", laborCurrency: "CNY" as const };
+    await assert.rejects(persistence.linkedConfirmation(target, input), { status });
+    assert.deepEqual(input, { expectedVersion: 3, customerConfirmedPrice: "0", confirmedLaborPrice: "1.23456789", laborCurrency: "CNY" });
+    await assert.rejects(persistence.linkedConfirmation(target, input));
+    assert.equal(calls, 1); assert.equal(persistence.getVersion(), 7); assert.deepEqual(persistence.getBaseline(), quote);
+    const stale = createQuoteEditorPersistence({ quote, expectedVersion: 8 }, undefined, undefined, { ...confirmedCommercialTermsServerClient, async updateByQuote() { calls++; throw new Error("must not call"); } });
+    await assert.rejects(stale.linkedConfirmation(target, input)); assert.equal(calls, 1);
+  }
 });
 
 test("attachment/aggregate share the write lock; uncertain attachment failure preserves baseline and blocks retry", async () => {

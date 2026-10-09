@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 当前 Quote Server overnight batch（工程、非部署）：未关联确认、客户 Excel/ZIP 与只读 Server 日志；任务规格/恢复点见 `tasks/active/server-quote-confirm-export-audit.md` / AI_HANDOFF，能力矩阵见 FRESH_START_FOUNDATION。Linked current writer 仍明确禁用；没有新增历史迁移门禁。
+> 当前 Linked ConfirmedCommercialTerms：补齐已合并 PR #78 的延期 writer，双 CAS/saved-PV 币种/事务资格、正式弹窗、Order API shared-current 与导出/审计回归。最新恢复点/验证见 AI_HANDOFF；边界见 QUOTE_CENTER / SERVER_PERSISTENCE / SALES_ORDER_PERSISTENCE；能力矩阵见 FRESH_START_FOUNDATION。没有真实部署或新增历史迁移 Gate。
 
 > D-097：Fresh Start **正式 Quote Server 基本闭环工程/隔离验收完成，非真实部署**。显式 Quote authority=server（默认 browser）接原地 list/new/detail、正式 Editor/附件；全局 Browser bootstrap/mock identity 与未支持 URL 隔离。支持/未接动作、实际 Chromium 与质量证据见 `features/FRESH_START_FOUNDATION.md`、CURRENT_STATE/AI_HANDOFF。旧 runtime 与旧数据不变，历史导入 NOT REQUIRED。
 

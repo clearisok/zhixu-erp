@@ -147,6 +147,10 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
   currentRevision.mainlineVersion = 2;
   currentRevision.parentRevisionId = "revision-historical-1";
   currentRevision.priceVersions[0].id = provenance.priceVersionId;
+  currentRevision.baseInfo = { ...currentRevision.baseInfo, brandId: "synthetic-brand", salespersonId: "synthetic-person", quoteStyleNo: "SYNTHETIC", styleName: "Synthetic terms" };
+  currentRevision.priceVersions[0].quantity = 0;
+  currentRevision.priceVersions[0].labor.value = 0;
+  currentRevision.priceVersions[0].pricingParameters.laborCurrency = "CNY";
   currentRevision.priceVersions[0].confirmation = {
     quotedGarmentPrice: 120,
     confirmedGarmentPrice: 118,
@@ -175,12 +179,22 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
   quoteDraft.revisions = [historicalRevision, currentRevision];
   const quoteService = createQuoteService(pool);
   const q1Created = await quoteService.createAggregate(quoteSnapshotFromBrowser(quoteDraft));
-  const q1BeforeTerms = await quoteService.getById(provenance.quoteId);
+  let q1BeforeTerms = await quoteService.getById(provenance.quoteId);
   assert.deepEqual(q1BeforeTerms, q1Created);
   const firstOrder = await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: provenance.quoteId, sourceRevisionId: provenance.revisionId, sourcePriceVersionId: provenance.priceVersionId });
   const secondOrder = await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: provenance.quoteId, sourceRevisionId: provenance.revisionId, sourcePriceVersionId: provenance.priceVersionId });
   const currencyUnsetProvenance = { quoteId: "quote-currency-unset", revisionId: "revision-currency-unset", priceVersionId: "price-currency-unset" };
   const currencyUnsetOrder = await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: currencyUnsetProvenance.quoteId, sourceRevisionId: currencyUnsetProvenance.revisionId, sourcePriceVersionId: currencyUnsetProvenance.priceVersionId });
+  const currencyQuote = structuredClone(quoteDraft);
+  currencyQuote.id = currencyUnsetProvenance.quoteId; currencyQuote.quoteCode = "QT-SYNTHETIC-CURRENCY";
+  currencyQuote.revisions = [structuredClone(currentRevision)];
+  currencyQuote.revisions[0].revisionId = currencyUnsetProvenance.revisionId;
+  currencyQuote.revisions[0].parentRevisionId = null;
+  currencyQuote.revisions[0].baseInfo.quoteType = "processing";
+  currencyQuote.revisions[0].priceVersions[0].id = currencyUnsetProvenance.priceVersionId;
+  currencyQuote.revisions[0].priceVersions[0].pricingParameters.laborCurrency = "USD";
+  currencyQuote.defaultRevisionId = currencyUnsetProvenance.revisionId; currencyQuote.currentRevisionId = currencyUnsetProvenance.revisionId;
+  await quoteService.createAggregate(quoteSnapshotFromBrowser(currencyQuote));
   const unlinkedOrder = (await createAinuokeSalesOrder(pool, editor.identity, {
     source: {
       sourceId: "terms-source-unlinked",
@@ -212,6 +226,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
 
   await t.test("multiple SalesOrders with exact provenance share one context across both surfaces", async () => {
     const quoteUpdated = await updateConfirmedCommercialTermsByQuote(pool, editor.identity, provenance, {
+      expectedQuoteVersion: 1,
       expectedVersion: 0,
       customerConfirmedPrice: "125.50",
       confirmedLaborPrice: "8.75",
@@ -247,7 +262,12 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     assert.equal(quoteRead.current?.customerConfirmedPrice, "126.00");
     assert.equal(quoteRead.current?.confirmedLaborPrice, "9.00");
     assert.equal(quoteRead.current?.laborCurrency, "CNY");
+    const currencySource = (await quoteService.getById(provenance.quoteId))!;
+    currencySource.quote.revisions.find(r => r.revisionId === provenance.revisionId)!.priceVersions[0].pricingParameters.laborCurrency = "USD";
+    await createQuoteService(pool).saveAggregate(currencySource.quote, currencySource.version);
+    q1BeforeTerms = await quoteService.getById(provenance.quoteId); // explicit saved-PV edit, not a terms mutation
     const currencyUpdated = await updateConfirmedCommercialTermsByQuote(pool, editor.identity, provenance, {
+      expectedQuoteVersion: 2,
       expectedVersion: 2,
       customerConfirmedPrice: "126.00",
       confirmedLaborPrice: "9.00",
@@ -284,6 +304,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     });
     await assert.rejects(
       () => updateConfirmedCommercialTermsByQuote(pool, editor.identity, provenance, {
+        expectedQuoteVersion: 2,
         expectedVersion: 1,
         customerConfirmedPrice: "130",
         confirmedLaborPrice: "10",
@@ -309,6 +330,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     assert.equal((await pool.query("SELECT count(*)::int AS count FROM operation_logs WHERE entity_type = 'ConfirmedCommercialTerms'")).rows[0].count, logsBefore);
 
     const establishedByQuote = await updateConfirmedCommercialTermsByQuote(pool, editor.identity, currencyUnsetProvenance, {
+      expectedQuoteVersion: 1,
       expectedVersion: 0,
       customerConfirmedPrice: null,
       confirmedLaborPrice: "7.25",
@@ -412,7 +434,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     const unlinkedQuote = await apiRequest<{ confirmedCommercialTerms: { linkage: string } }>(api.baseUrl, quotePath("quote-none", "revision-none", "price-none"), { cookie: editorCookie });
     assert.equal(unlinkedQuote.response.status, 200);
     assert.equal(unlinkedQuote.payload.confirmedCommercialTerms.linkage, "unlinked");
-    assert.equal((await apiRequest(api.baseUrl, quotePath("quote-none", "revision-none", "price-none"), { cookie: editorCookie, method: "PATCH", origin: browserOrigin, trustedHeader: true, body: { ...mutationBody, expectedVersion: 0 } })).response.status, 409);
+    assert.equal((await apiRequest(api.baseUrl, quotePath("quote-none", "revision-none", "price-none"), { cookie: editorCookie, method: "PATCH", origin: browserOrigin, trustedHeader: true, body: { ...mutationBody, expectedQuoteVersion: 1, expectedVersion: 0 } })).response.status, 409);
     assert.equal((await apiRequest<{ confirmedCommercialTerms: { linkage: string } }>(api.baseUrl, quotePath("quote-exact", provenance.revisionId, provenance.priceVersionId), { cookie: editorCookie })).payload.confirmedCommercialTerms.linkage, "unlinked");
     assert.equal((await apiRequest(api.baseUrl, "/api/v1/confirmed-commercial-terms", { cookie: editorCookie })).response.status, 404);
   });
@@ -432,7 +454,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
   await t.test("shared current terms preserve exact Q1 provenance and never mutate Quote snapshots", async () => {
     const q1AfterTerms = await quoteService.getById(provenance.quoteId);
     assert.deepEqual(q1AfterTerms, q1BeforeTerms);
-    assert.equal(q1AfterTerms?.version, 1);
+    assert.equal(q1AfterTerms?.version, 2); // only the explicit saved currency edit advanced Quote
     assert.equal(q1AfterTerms?.quote.defaultRevisionId, provenance.revisionId);
     assert.equal(q1AfterTerms?.quote.revisions[1].priceVersions[0].id, provenance.priceVersionId);
     assert.equal(q1AfterTerms?.quote.revisions[0].priceVersions[0].confirmation?.confirmedGarmentPrice, "108");

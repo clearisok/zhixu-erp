@@ -7,12 +7,14 @@ import { formatFinalGarmentPrice } from "../model/final-quote-format";
 import type { PriceVersion, QuoteRevision } from "../model/quote-view-model";
 import { PermissionButton } from "@/features/permissions";
 
-export function PriceVersionSelector({ revision, activeId, readOnly = false, canEdit = true, sectionId, onSelect, onEdit }: {
+export function PriceVersionSelector({ revision, activeId, readOnly = false, canEdit = true, sectionId, activeConfirmation, snapshotLabels = false, onSelect, onEdit }: {
   revision: QuoteRevision;
   activeId: string;
   readOnly?: boolean;
   canEdit?: boolean;
   sectionId?: string;
+  activeConfirmation?: { label: string; detail?: string };
+  snapshotLabels?: boolean;
   onSelect: (id: string) => void;
   onEdit: (version: PriceVersion) => void;
 }) {
@@ -28,7 +30,7 @@ export function PriceVersionSelector({ revision, activeId, readOnly = false, can
       <div className="qc-version-actions">{!readOnly ? canEdit ? <button type="button" onClick={(event) => { event.stopPropagation(); onEdit(version); }}>编辑</button> : <PermissionButton permission="quote.edit" variant="text" onClick={(event) => event.stopPropagation()}>编辑</PermissionButton> : <span>只读快照</span>}<StatusTag tone={active ? "success" : "neutral"}>{active ? "当前查看" : "可切换"}</StatusTag></div>
       <h3>{version.name}<span>· {productionLabel}</span></h3>
       <div className="qc-version-facts"><span><small>数量</small><strong>{version.quantity === null ? "—" : `${version.quantity.toLocaleString()} 件`}</strong></span><span><small>测算销售单价</small><strong>{formatFinalGarmentPrice(metrics.garmentSellingPrice)}</strong></span></div>
-      <div className={`qc-version-confirmation ${confirmation ? "confirmed" : ""}`}><span>{confirmation ? "已客户确认" : "未客户确认"}</span>{confirmation && <small>工价 {formatMoney(confirmation.confirmedLaborPrice)}{revision.baseInfo.quoteType === "distribution" ? ` · 成衣 ${formatMoney(confirmation.confirmedGarmentPrice)}` : ""}</small>}</div>
+      {active && activeConfirmation ? <div className="qc-version-confirmation"><span>{activeConfirmation.label}</span>{activeConfirmation.detail && <small>{activeConfirmation.detail}</small>}</div> : <div className={`qc-version-confirmation ${confirmation ? "confirmed" : ""}`}><span>{confirmation ? "已客户确认" : "未客户确认"}{snapshotLabels ? "（快照）" : ""}</span>{confirmation && <small>工价 {formatMoney(confirmation.confirmedLaborPrice)}{revision.baseInfo.quoteType === "distribution" ? ` · 成衣 ${formatMoney(confirmation.confirmedGarmentPrice)}` : ""}</small>}</div>}
       <p>{version.description || "暂无说明"}</p>
     </article>;
   })}</div></section>;

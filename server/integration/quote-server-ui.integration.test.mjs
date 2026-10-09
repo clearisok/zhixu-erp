@@ -18,6 +18,7 @@ import { synchronizePermissionCatalog } from "../auth/permissions.ts";
 import { MemoryAttachmentStorage } from "../attachments/storage.ts";
 import { startDisposablePostgres } from "./postgres-container.ts";
 import { appendOperationLog } from "../operation-logs/repository.ts";
+import { createSalesOrder } from "../sales-orders/repository.ts";
 import { parseQuoteExportTemplateLayout } from "../../features/quote-center/export/quote-export-template-layout.ts";
 
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
@@ -48,6 +49,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       editor: ["quote.view", "quote.revision.view", "quote.cost.view", "quote.edit", "quote.cost.edit", "quote.settings.edit", "quote.revision.update", "quote.price_version.create", "quote.price_version.delete"],
       estimateReader: ["quote.view", "quote.revision.view", "quote.cost.view", "estimate.view"],
       auditReader:["quote.view","quote.revision.view","quote.cost.view","audit_log.view"],
+      confirmer:["quote.view","quote.confirm","quote.revision.view","quote.cost.view"],
     };
     for (const [name, permissions] of Object.entries(permissionSets)) {
       const user = (await pool.query("INSERT INTO app_users(username,password_hash,display_name,role,active) VALUES($1,crypt('disposable-ui-password',gen_salt('bf',4)),$1,'viewer',true) RETURNING id", [`synthetic-ui-${name.toLowerCase()}`])).rows[0];
@@ -75,14 +77,18 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     const requests = [];
     const completedRequests = new Set();
     let failureStatus = 0;
+    let holdTermsPath = null, heldTermsRequest = null;
     ws.addEventListener("message", ({ data }) => {
       const reply = JSON.parse(String(data));
       const entry = pending.get(reply.id);
       if (entry) { pending.delete(reply.id); if (reply.error) entry.reject(new Error(JSON.stringify(reply.error))); else entry.done(reply.result); }
-      if (reply.method === "Network.requestWillBeSent" && reply.params.request.url.includes("/api/")) requests.push({ requestId: reply.params.requestId, method: reply.params.request.method, path: new URL(reply.params.request.url).pathname, ...(reply.params.request.method === "PUT" && reply.params.request.url.includes("/api/v1/quotes/") ? { body: reply.params.request.postData } : {}) });
+      if (reply.method === "Network.requestWillBeSent" && reply.params.request.url.includes("/api/")) requests.push({ requestId: reply.params.requestId, method: reply.params.request.method, path: new URL(reply.params.request.url).pathname, ...(["PUT","PATCH"].includes(reply.params.request.method) ? { body: reply.params.request.postData } : {}) });
       if (reply.method === "Network.loadingFinished") completedRequests.add(reply.params.requestId);
       if (reply.method === "Page.javascriptDialogOpening") void command("Page.handleJavaScriptDialog", { accept: acceptDialogs }, sessionId);
-      if (reply.method === "Fetch.requestPaused") void command(failureStatus ? "Fetch.fulfillRequest" : "Fetch.failRequest", failureStatus ? { requestId: reply.params.requestId, responseCode: failureStatus, responseHeaders: [{ name: "Content-Type", value: "application/json" }], body: Buffer.from(JSON.stringify({ error: { code: "quote_conflict", message: "Synthetic version conflict" } })).toString("base64") } : { requestId: reply.params.requestId, errorReason: "ConnectionFailed" }, sessionId);
+      if (reply.method === "Fetch.requestPaused") {
+        if(holdTermsPath && new URL(reply.params.request.url).pathname===holdTermsPath && reply.params.request.method==="GET") heldTermsRequest=reply.params;
+        else void command(failureStatus ? "Fetch.fulfillRequest" : "Fetch.failRequest", failureStatus ? { requestId: reply.params.requestId, responseCode: failureStatus, responseHeaders: [{ name: "Content-Type", value: "application/json" }], body: Buffer.from(JSON.stringify({ error: { code: "quote_conflict", message: "Synthetic version conflict" } })).toString("base64") } : { requestId: reply.params.requestId, errorReason: "ConnectionFailed" }, sessionId);
+      }
     });
     const command = (method, params = {}, session) => new Promise((done, reject) => {
       pending.set(++commandId, { done, reject }); ws.send(JSON.stringify({ id: commandId, method, params, sessionId: session }));
@@ -706,6 +712,83 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       try{await click("保存确认");await hasText("确认输入保留");assert.equal(await evaluate("document.querySelector('textarea[placeholder=可选]')?.value"),"Retain confirmation draft");assert.deepEqual(await evaluate("unhandledRejections"),[]);}
       finally{await command("Fetch.disable",{},sessionId);failureStatus=0;}
       assert.deepEqual(await read(),before);assert.equal(requests.filter(r=>r.path.endsWith("/confirmation-workflows")).length,count+1);await isolated();
+    });
+    const prepareLinkedQuote = async (type="distribution", currency="CNY") => {
+      const prepared=await prepareEstimateQuote(type), initial=await prepared.read(), r=initial.quote.revisions[0], p=r.priceVersions[0];
+      if(currency!==p.pricingParameters.laborCurrency){p.pricingParameters.laborCurrency=currency;p.pricingParameters.usdCnyRate="6.75";
+        await evaluate(`fetch('/api/v1/quotes/${prepared.id}',{method:'PUT',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(${JSON.stringify({quote:initial.quote,expectedVersion:initial.version})})}).then(r=>{if(!r.ok)throw new Error('linked fixture failed')})`);
+      }
+      const orders=await Promise.all([1,2].map(()=>createSalesOrder(pool,{creationSource:"quote",sourceQuoteId:prepared.id,sourceRevisionId:r.revisionId,sourcePriceVersionId:p.id})));
+      const path=`/api/v1/quotes/${prepared.id}/revisions/${r.revisionId}/price-versions/${p.id}/confirmed-commercial-terms`;
+      const terms=()=>evaluate(`fetch(${JSON.stringify(path)}).then(r=>r.json()).then(b=>b.confirmedCommercialTerms)`);
+      await navigate(`/quote-center/detail?id=${prepared.id}`);await hasText("Server 共享条款未确认");
+      return {...prepared,orders,path,terms,revisionId:r.revisionId,priceVersionId:p.id};
+    };
+    for(const type of ["processing","distribution"]) await t.test(`actual linked ${type}: trusted confirmer, first/update, multiple Order read/write and independent versions`,async()=>{
+      await loginAs("admin");const linked=await prepareLinkedQuote(type,type==="processing"?"USD":"CNY");
+      if(type==="distribution"){await generateEstimate(linked.read,"estimate-source-parallel");await navigate(`/quote-center/detail?id=${linked.id}`);await hasText("Server 报价 · v");}
+      const before=await linked.read();
+      await loginAs("confirmer");await navigate(`/quote-center/detail?id=${linked.id}`);await hasText("Server 共享条款未确认");
+      assert.ok(!(await text()).includes("查看估算成本"));
+      await click("查看 / 更新共享条款");await hasText("客户确认工价");assert.equal(await evaluate("Boolean(document.querySelector('textarea[placeholder=可选]'))"),false);
+      await labelInput("客户确认工价","0");if(type==="distribution")await labelInput("客户确认成衣价格","0");await click("保存确认");await hasText("Server 共享条款已确认");
+      let terms=await linked.terms();assert.equal(terms.current.version,1);assert.equal(terms.current.confirmedLaborPrice,"0");
+      const attempted=JSON.parse(requests.filter(r=>r.method==="PATCH"&&r.path===linked.path).at(-1).body);assert.equal(attempted.expectedQuoteVersion,before.version);assert.equal(attempted.expectedVersion,0);
+      await click("查看 / 更新共享条款");await hasText("客户确认工价");await labelInput("客户确认工价","1.23456789");if(type==="distribution")await labelInput("客户确认成衣价格","42.25");await click("保存确认");await until(async()=>(await linked.terms()).current.version===2,"linked update committed");
+      await loginAs("admin");assert.deepEqual(await linked.read(),before,"Terms-only writes leave the full aggregate unchanged");terms=await linked.terms();
+      for(const order of linked.orders){const fromOrder=await evaluate(`fetch('/api/v1/sales-orders/${order.id}/confirmed-commercial-terms').then(r=>r.json()).then(b=>b.confirmedCommercialTerms)`);assert.deepEqual(fromOrder.current,terms.current);}
+      const orderVersion=linked.orders[0].version;
+      const response=await evaluate(`fetch('/api/v1/sales-orders/${linked.orders[0].id}/confirmed-commercial-terms',{method:'PATCH',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(${JSON.stringify({expectedVersion:2,customerConfirmedPrice:type==="processing"?null:"43.25",confirmedLaborPrice:"5.125",laborCurrency:type==="processing"?"USD":"CNY"})})}).then(r=>({status:r.status}))`);assert.equal(response.status,200);
+      assert.equal((await pool.query("SELECT version FROM sales_orders WHERE id=$1",[linked.orders[0].id])).rows[0].version,orderVersion);
+      await navigate(`/quote-center/detail?id=${linked.id}`);await hasText("工价 5.125");await isolated();assert.deepEqual(await linked.read(),before);
+      await loginAs("viewer");await navigate(`/quote-center/detail?id=${linked.id}`);await hasText("工价 5.125");assert.equal(await evaluate("[...document.querySelectorAll('button')].some(b=>b.textContent==='查看 / 更新共享条款'&&!b.disabled)"),false);await isolated();
+      await loginAs("admin");
+    });
+    await t.test("actual linked PV fast switch rejects late lookup and does not mix confirmation targets",async()=>{
+      const linked=await prepareLinkedQuote();const initial=await linked.read(),rev=initial.quote.revisions[0],parallel=rev.priceVersions[1];
+      await createSalesOrder(pool,{creationSource:"quote",sourceQuoteId:linked.id,sourceRevisionId:rev.revisionId,sourcePriceVersionId:parallel.id});
+      await click("查看 / 更新共享条款");await hasText("客户确认工价");await labelInput("客户确认工价","11");await labelInput("客户确认成衣价格","41");await click("保存确认");await hasText("工价 11");
+      await evaluate("[...document.querySelectorAll('.qc-version-card')].find(n=>n.innerText.includes('Alternate estimate source')).click()");await hasText("Server 共享条款未确认");
+      await click("查看 / 更新共享条款");await hasText("客户确认工价");await labelInput("客户确认工价","22");await labelInput("客户确认成衣价格","52");await click("保存确认");await until(()=>evaluate("[...document.querySelectorAll('[role=dialog]')].every(n=>!n.getClientRects().length)"),"parallel confirmation modal closed after commit");await hasText("工价 22");
+      holdTermsPath=linked.path;heldTermsRequest=null;
+      await command("Fetch.enable",{patterns:[{urlPattern:`*${linked.path}`,requestStage:"Request"}]},sessionId);
+      try {
+        await evaluate("document.querySelectorAll('.qc-version-card')[0].click()");await until(()=>Boolean(heldTermsRequest),"held real first-PV lookup");
+        await evaluate("document.querySelectorAll('.qc-version-card')[1].click()");await until(()=>evaluate("document.querySelector('.qc-version-card.active')?.innerText.includes('Alternate estimate source')"),"parallel target active");await hasText("工价 22");
+        const paused=heldTermsRequest;await command("Fetch.continueRequest",{requestId:paused.requestId},sessionId);await until(()=>completedRequests.has(paused.networkId),"late first-PV lookup completed");await hasText("工价 22");
+      } finally { await command("Fetch.disable",{},sessionId);holdTermsPath=null;heldTermsRequest=null; }
+      assert.ok(!(await evaluate("document.querySelector('#quote-section-confirmation').innerText")).includes("工价 11"));
+      await click("查看 / 更新共享条款");await hasText("客户确认工价");assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] input')].find(n=>n.inputMode==='decimal')?.value"),"22");await click("取消");
+      assert.deepEqual(await linked.read(),initial);assert.deepEqual(await evaluate("unhandledRejections"),[]);await isolated();
+    });
+    await t.test("actual linked saved currency drift requires human review, no conversion or historical snapshot overwrite",async()=>{
+      const linked=await prepareLinkedQuote();await click("查看 / 更新共享条款");await hasText("客户确认工价");await labelInput("客户确认工价","8.125");await labelInput("客户确认成衣价格","39");await click("保存确认");await hasText("工价 8.125");
+      const changed=await linked.read();changed.quote.revisions[0].priceVersions[0].pricingParameters.laborCurrency="USD";changed.quote.revisions[0].priceVersions[0].pricingParameters.usdCnyRate="6.75";
+      await evaluate(`fetch('/api/v1/quotes/${linked.id}',{method:'PUT',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(${JSON.stringify({quote:changed.quote,expectedVersion:changed.version})})}).then(r=>{if(!r.ok)throw new Error('saved currency change failed')})`);
+      await navigate(`/quote-center/detail?id=${linked.id}`);await hasText("Server 共享条款已确认");const baseline=await linked.read();
+      await click("查看 / 更新共享条款");await hasText("原共享币种 CNY；已保存 PV 币种 USD");await labelInput("客户确认工价","2.375");const count=requests.filter(r=>r.method==="PATCH"&&r.path===linked.path).length;
+      await click("保存确认");await hasText("请明确核对已保存来源币种");assert.equal(requests.filter(r=>r.method==="PATCH"&&r.path===linked.path).length,count);
+      await evaluate("[...document.querySelectorAll('[role=dialog] input')].find(n=>n.type==='checkbox').click()");await click("保存确认");await until(async()=>(await linked.terms()).current.version===2,"currency-reviewed linked commit");
+      const terms=await linked.terms();assert.equal(terms.current.laborCurrency,"USD");assert.equal(terms.current.confirmedLaborPrice,"2.375");assert.deepEqual(await linked.read(),baseline);await isolated();
+    });
+    await t.test("actual linked customer XLSX and audit show shared current without replacing system cost",async()=>{
+      const linked=await prepareLinkedQuote();await click("查看 / 更新共享条款");await hasText("客户确认工价");await labelInput("客户确认工价","1.23456789");await labelInput("客户确认成衣价格","88.25");await click("保存确认");await hasText("Server 共享条款已确认");const before=await linked.read();
+      await action("导出报价");await hasText("发现未确认的价格版本差异");await click("仍然导出");await hasText("内置正式模板");await click("导出 Excel");await hasText("已生成并提供下载");
+      const file=await evaluate("(async()=>{const f=generatedDownloads.at(-1);return {name:f.name,bytes:Array.from(new Uint8Array(await f.blob.arrayBuffer()))}})()");
+      const bytes=Buffer.from(file.bytes),wb=new ExcelJS.Workbook();await wb.xlsx.load(bytes);const template=new ExcelJS.Workbook();await template.xlsx.load(readFileSync(resolve('templates/quote-export-template-v1.xlsx')));const layout=parseQuoteExportTemplateLayout(template.worksheets[0]),point=layout.summary.customerConfirmedPrice;
+      assert.equal(wb.worksheets[0].getCell(point.row,point.column).value,88.25);assert.equal(wb.worksheets[1].getCell(point.row,point.column).value,null);assert.ok(!JSON.stringify(wb.worksheets.map(s=>s.getSheetValues())).includes("1.23456789"),"Shared labor is not substituted for the system cost");
+      const logs=(await pool.query("SELECT count(*)::int n FROM operation_logs")).rows[0].n;await action("操作记录");await hasText("确认商业条款");await hasText("88.25");assert.equal((await pool.query("SELECT count(*)::int n FROM operation_logs")).rows[0].n,logs);
+      assert.deepEqual(await linked.read(),before);await isolated();assert.deepEqual(await evaluate("unhandledRejections"),[]);t.diagnostic(`Linked XLSX: ${bytes.length} bytes SHA-256 ${createHash('sha256').update(bytes).digest('hex')} shared price/system separation parsed`);
+    });
+    for(const status of [409,0])await t.test(`actual linked ${status||"network"}: saved-first, retained inputs/target, explicit read never resubmits`,async()=>{
+      const linked=await prepareLinkedQuote(),before=await linked.read();await labelInput("款式名称","Linked saved before failure");acceptDialogs=false;await click("查看 / 更新共享条款");await sleep(100);acceptDialogs=true;assert.deepEqual(await linked.read(),before);
+      await click("查看 / 更新共享条款");await hasText("客户确认工价");const saved=await linked.read();assert.equal(saved.version,before.version+1);
+      await labelInput("客户确认工价","7.123456789");await labelInput("客户确认成衣价格","44.25");const start=requests.length;failureStatus=status;
+      await command("Fetch.enable",{patterns:[{urlPattern:`*${linked.path}`,requestStage:"Request"}]},sessionId);
+      try{await click("保存确认");await hasText("确认输入保留");}finally{await command("Fetch.disable",{},sessionId);failureStatus=0;}
+      await click("读取共享 current 核对");await hasText("原输入未替换");assert.equal(await evaluate("[...document.querySelectorAll('.qc-form-item')].find(n=>n.innerText.includes('客户确认工价'))?.querySelector('input')?.value"),"7.123456789");
+      assert.equal(requests.slice(start).filter(r=>r.method==="PATCH"&&r.path===linked.path).length,1);assert.equal(requests.slice(start).filter(r=>r.path.endsWith('/confirmation-workflows')||r.path.endsWith('/version-workflows')).length,0);
+      assert.deepEqual(await linked.read(),saved);assert.equal((await linked.terms()).current,null);assert.deepEqual(await evaluate("unhandledRejections"),[]);await isolated();
     });
     for(const type of ["processing","distribution"]) await t.test(`actual saved customer XLSX download ${type}: bytes/SHA/workbook and no Estimate`,async()=>{
       await loginAs("admin");const {id,read}=await prepareEstimateQuote(type);

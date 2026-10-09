@@ -3,8 +3,8 @@
 2026-10-09 overnight engineering: explicit Server mode supports trusted current
 unlinked PV confirmation, including zero, processing/distribution, saved-source
 values/time and same-transaction version/audit. Generic PUT preserves unchanged
-confirmations but cannot forge them. Linked shared current remains read-only pending
-saved-PV currency/CAS eligibility; no local fallback. No real activation.
+confirmations but cannot forge them. Linked shared current now uses saved-PV
+currency/eligibility with Quote CAS and independent terms CAS under transaction locks; no fallback or real activation.
 
 Also connected: saved current/explicit history customer XLSX (one/all PVs, built-in template), bounded cross-page customer ZIP with truthful partial/warning manifest, and read-only Quote/global Server logs with audit/Estimate permissions. These reuse the existing Editor/export core/log components; they do not enable internal summary, whole-Quote copy/delete, Revision deletion or Quote-to-Order. Counts/checkpoints and remote delivery status are centralized in AI_HANDOFF.
 
@@ -30,7 +30,7 @@ Quote / Estimate 权限耦合已在本 PR 内修复，而非新增角色政策�
 
 普通 PUT 只提交 Quote 内容；Server 在 expectedVersion 校验后合并当前已保存 Estimate，仍对完整领域实体执行原 normalize/validate、细粒度权限、历史不可变与 repository CAS/事务检查。缺失字段不是清空命令；无 Estimate 读权限者注入任何 Estimate 字段（包括 null/[]）返回409 `estimate_command_required`。有读权限者的旧完整请求仅兼容原样切片，任何变化仍拒绝；Estimate 修改只走专用命令，需要 `quote.edit` + `estimate.view` + `estimate.edit`。读权限不授予写权限，默认角色/权限目录不变。
 
-整单复制/删除、Revision 删除、转订单、内部汇总与 linked current writer 仍未接线，Server 模式禁用；Browser 模式原功能保留。HISTORICAL 初始工程 checkpoint 的 actual Chromium30/30 包含 Estimate 与此前版本/成本同步/附件/下载字节SHA回归，suite 数字及验证来源统一见 `AI_HANDOFF.md`。本轮确认/导出/日志联合测试的新结果见 AI_HANDOFF，不沿用旧数字。不是真实部署或全报价 production-ready，默认 Browser/旧 runtime 不变，历史导入 NOT REQUIRED。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
+整单复制/删除、Revision 删除、转订单、内部汇总仍未接线，Server 模式禁用；Browser 模式原功能保留。HISTORICAL 初始工程 checkpoint 的 actual Chromium30/30 包含 Estimate 与此前版本/成本同步/附件/下载字节SHA回归，suite 数字及验证来源统一见 `AI_HANDOFF.md`。本轮确认/导出/日志联合测试的新结果见 AI_HANDOFF，不沿用旧数字。不是真实部署或全报价 production-ready，默认 Browser/旧 runtime 不变，历史导入 NOT REQUIRED。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
 
 > 2026-10-05：`/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有；Q3 master/default dependencies 在真实 3001 的 `masterSettingsAuthority=server` 下来自 PostgreSQL，Q3 编辑已重开。PR #64 Local Single-User UI 修复已部署：`/` 自动进入 `/quote-center`、统一侧栏恢复；用户真实浏览器确认原 Quote 数据保留。此收口没有迁移、重置、重新 seed 或改变 Quote storage namespace；Quote historical migration/Server ownership 另立 Gate。
 
@@ -64,11 +64,11 @@ Quote / Estimate 权限耦合已在本 PR 内修复，而非新增角色政策�
 
 ## C4.2 linked current confirmation boundary
 
-- Quote linkage integration is guarded by the build-time `NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE=true` activation prerequisite and is disabled by default. While disabled, the existing Browser-local confirmation flow remains unchanged; rollout must prohibit creating or using formal Quote-linked SalesOrders in that mode. Merging implementation code therefore neither silently activates a second authority nor blocks current Quote-first production.
+- Default Browser linkage still requires `NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE=true`; explicit Quote authority=server resolves linkage independently of that legacy flag. Disabled Browser linkage retains local confirmation and must not maintain formal linked current. Merge activates neither runtime nor migration.
 - Once explicitly activated, the current default Quote Revision/PriceVersion resolves formal linkage through the trusted Server by exact `quoteId + revisionId + priceVersionId` only. No quote code/style/customer/brand/date/price or Browser SalesOrder ID inference is allowed. Anonymous session, Server unavailability and incomplete lookup are `unknown`, not inferred-unlinked, and cannot write local confirmation.
-- If the activated exact lookup proves provenance unlinked, the existing Browser-local confirmation workflow remains active. If it proves linked, customer-confirmed price and confirmed labor price read/write shared Server `ConfirmedCommercialTerms`; the linked PriceVersion's actual `CNY|USD` qualifier is established by the Quote surface and is read-only from Order. The linked branch does not call `mockQuoteRepository.save` and never falls back locally.
-- Linked stale `expectedVersion` returns 409; the UI reloads current Server values and asks the user to review. The trusted session and `quote.view`/`quote.confirm` remain distinct from Browser mock identity/permissions.
-- The active PriceVersion confirmation card, cockpit and sticky summary project linked confirmation from Server current terms using the existing quote-type rule: processing requires labor; distribution requires both labor and customer-confirmed garment price. Labor-only and garment-only distribution terms remain unconfirmed. The quote-wide `aggregateStatus` remains the legacy Browser aggregate until a later formal Quote migration can resolve every PriceVersion together; C4.2 does not duplicate numeric values locally merely to rewrite that aggregate.
+- Explicit Quote Server mode always resolves exact trusted linkage: proven-unlinked uses its Server snapshot confirmation command; linked uses shared CCT with saved-source qualification and two versions. Default Browser remains local with linkage disabled; if enabled there, proven-unlinked remains local, but legacy linked mutation without a verifiable saved Server Quote is read-only. No fabricated source/weaker PATCH or linked `mockQuoteRepository.save` fallback.
+- Linked mutation pins Quote/Revision/PV, saved currency, terms expectedVersion (first 0) and positive expectedQuoteVersion. 409/network preserves input/target and blocks mutation; explicit read only shows evidence, never replaces input/CAS or resubmits. Dirty work first saves/cancels with original permissions/cost-sync/Estimate sequencing. Currency drift explicitly shows previous/shared and saved-PV currencies for human review, not conversion. Linked notes are not saved.
+- Active card/cockpit/reference distinguish shared current, unlinked snapshot, immutable history and unknown. Linked without current is unconfirmed; unknown never uses embedded confirmation as current. Processing requires labor, distribution requires both amounts. Terms-only changes leave aggregateStatus, Quote/Order versions, Estimate, calculations/confirmation snapshots and history unchanged; terms DTO is not QuoteRecord. Late/wrong-provenance lookup cannot replace another selected PV.
 - Historical Quote Revision/PriceVersion pages continue to display their embedded immutable confirmation snapshots. New revisions and copied PriceVersions are not assumed linked and do not inherit a Server relationship. Confirmation note and every other PriceVersion field remain local/snapshot semantics; fabric/trim costs, markup, exchange rate, manufacturing country and assumptions are not live-linked.
 - C4.2 contains no migration of real Browser confirmations and no real Browser write acceptance. Real PostgreSQL activation is separately gated.
 

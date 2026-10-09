@@ -163,7 +163,18 @@ test("Quote audit read: disposable exact filters, pagination and trusted Estimat
     assert.equal(first.status, 200); assert.equal(first.body.page.total, 106);
     assert.equal(second.body.page.count, 6); assert.equal(second.body.page.hasMore, false);
     const json = JSON.stringify([first.body, second.body]);
-    for (const secret of [probe, "estimateHistoryCount", "7331", "7332", "estimate.update", "synthetic-estimate"]) assert.equal(json.includes(secret), false, `protected ${secret}`);
+    for (const secret of [probe, "estimateHistoryCount", "estimate.update", "synthetic-estimate"]) assert.equal(json.includes(secret), false, `protected ${secret}`);
+    // Counts are leaf values, not substrings: a random public UUID can contain
+    // "7331" without containing a protected estimate count. Check all slices.
+    const assertNoProtectedCount = (value: unknown): void => {
+      if (Array.isArray(value)) value.forEach(assertNoProtectedCount);
+      else if (value && typeof value === "object") Object.values(value).forEach(assertNoProtectedCount);
+      else assert.ok(![7331, 7332, "7331", "7332"].includes(value as number | string), "protected count value");
+    };
+    assertNoProtectedCount([first.body, second.body]);
+    assert.doesNotThrow(() => assertNoProtectedCount({ id: "00000000-0000-4000-8000-000000007331" }));
+    assert.throws(() => assertNoProtectedCount({ afterData: { values: { hidden: 7331 } } }));
+    assert.throws(() => assertNoProtectedCount({ changes: [{ afterValue: "7332" }] }));
     assert.ok([...first.body.logs, ...second.body.logs].some(log => log.changes.some(change => change.field === "aggregateVersion")));
     assert.equal((await get()).body.page.total, 109);
     assert.equal((await get(`action=${encodeURIComponent("生成估算成本")}`)).body.page.total, 0);

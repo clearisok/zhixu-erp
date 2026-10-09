@@ -8,6 +8,7 @@ import { applyCustomerConfirmation, createRevisionFromSnapshot, isQuoteConfirmat
 const quoteEditor = await readFile("features/quote-center/components/quote-editor.tsx", "utf8");
 const orderDetail = await readFile("features/order-center/components/server-sales-order-detail-page.tsx", "utf8");
 const workflows = await readFile("features/quote-center/model/quote-workflows.ts", "utf8");
+const persistence = await readFile("features/quote-center/server/quote-editor-persistence.ts", "utf8");
 
 test("linked Quote confirmation uses Server truth and has no local numeric fallback", () => {
   const linkedBranchStart = quoteEditor.indexOf('if (activeConfirmationAuthority === "linked_server"');
@@ -15,8 +16,13 @@ test("linked Quote confirmation uses Server truth and has no local numeric fallb
   const linkedReturn = quoteEditor.indexOf("return;", linkedBranchStart);
   assert.ok(linkedBranchStart > 0);
   assert.ok(linkedReturn > linkedBranchStart && linkedReturn < legacyWriter);
-  assert.match(quoteEditor.slice(linkedBranchStart, legacyWriter), /updateByQuote/u);
+  assert.match(quoteEditor.slice(linkedBranchStart, legacyWriter), /没有可核验的 Server 来源版本/u);
   assert.doesNotMatch(quoteEditor.slice(linkedBranchStart, linkedReturn), /mockQuoteRepository\.save/u);
+  assert.doesNotMatch(quoteEditor.slice(linkedBranchStart, legacyWriter), /updateByQuote/u, "Legacy source cannot invoke a weaker linked writer");
+  assert.match(quoteEditor, /await persistence\.linkedConfirmation\(target/u);
+  assert.match(persistence, /termsClient\.updateByQuote/u);
+  assert.match(persistence, /expectedQuoteVersion: record\.expectedVersion/u);
+  assert.match(persistence, /result\.verifiedQuoteVersion !== record\.expectedVersion/u);
   assert.match(quoteEditor, /resolveQuoteTermsConfirmationAuthority/u);
   assert.match(quoteEditor, /未写入本地确认值/u);
   assert.match(quoteEditor, /NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE/u);
