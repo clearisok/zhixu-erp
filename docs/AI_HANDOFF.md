@@ -1,5 +1,15 @@
 # AI 接力棒
 
+## Active — Windows Quote Trial UI In-Place Update (2026-10-09)
+
+- 用户明确授权现有 win01 备份与 app/gateway 原地更新，DB/卷/账号/附件/密钥/偏好保留。branch `ops/update-quote-trial-windows-ui`，clean base `edc3598764266de087c0f669f8bcf5452c6d3fd2`（PR82 merged，含 PR83）；不重新 init、不 migration/restore/COS DELETE。
+- Preflight PASS：本机 desktop-linux/npipe，原三服务 healthy；旧9ee镜像、新878de镜像 ID/labels/编译身份核对，schema文件/checksum一致；resolved模型仅镜像与build身份变化，database config hash unchanged。当前真实库已有2 Quote/2 Revision/2 PV/2附件，必须保留用户新增数据。
+- 更新前完整备份 PASS：`zhixu-20261009T083516Z-2b5042a5.dump`，120482 bytes，SHA256 `7e5e8c6e2c154b9e11476905cc35d6e5b7bffd54a0ce808e27b96998455f899b`；2 DB-owned对象 bytes/hash 与manifest已核对，原应用恢复READY。所有业务/账号/权限内容一致；已有正常启动仅刷新 app_roles.updated_at，经离线dump逐列比对证实其他role字段完全一致，不隐瞒为全库逐字节不变。
+- 配置投影/完整resolved模型白名单隔离7/7、Windows原生失败5/5，共12/12；定向lint/diff-check PASS。仅新增小型update identity纯函数，不修改已部署守卫；受限快照/升级证据在私有root，配置/secret/dump/原始业务不入Git。镜像不重建/重贴标签。
+- 当前checkpoint停在真实替换前：仅backup已执行，新镜像尚未启动；继续经canonical trial start的Compose up与READY守卫，核对DB容器不变和读回，再交接用户人工UI。不得通过旧verify-deploy创建数据或用过期配置密码反复登录。
+
+## Historical — PR #82 integration closure
+
 ## Active — PR #82 main integration / review closure (2026-10-09)
 
 - 原分支 `ops/deploy-quote-trial-windows`，baseline `45ee50dd01f410b9ccfecc8c2bbeb99523593480` / clean。普通 merge 已验证 main `dd5fc62e6a4cdf5920528c71cfbd4dbae3c9013d`（PR #83）；只冲突 AI_HANDOFF / CURRENT_STATE / PROJECT_INDEX，Windows 工具及 UI 自动合并保留。
