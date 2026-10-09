@@ -28,4 +28,9 @@ test('actual SDK HTTP transport deadlines, stream cancellation and safe error wr
   await t.test('external abort cancels pending GET before headers',async()=>{mode='stall';const c=new AbortController();const p=storage.get(key,c.signal);setTimeout(()=>c.abort(),30);await assert.rejects(p,safe);});
   await t.test('broken stream yields sanitized failure',async()=>{mode='break';const body=await storage.get(key);assert.ok(body);await assert.rejects(async()=>{for await(const chunk of body)void chunk;},safe);});
   await t.test('permission failure is not missing; confirmed bucket plus 404 is missing',async()=>{mode='denied';await assert.rejects(storage.head(key),safe);mode='missing';assert.equal(await storage.head(key),null);});
+  await t.test('unreachable local endpoint fails within bounded request, no raw SDK error',async()=>{
+    const unused=createServer();await new Promise<void>(done=>unused.listen(0,'127.0.0.1',done));const address=unused.address();assert.ok(address&&typeof address!=='string');await new Promise<void>(done=>unused.close(()=>done()));
+    const unavailable=new S3AttachmentStorage({kind:'s3',endpoint:`http://127.0.0.1:${address.port}`,region:'us-east-1',bucket:'test-bucket',accessKeyId:'synthetic-key',secretAccessKey:'PRIVATE',forcePathStyle:true},{requestMs:250,streamMs:250});
+    try{const started=Date.now();await assert.rejects(unavailable.head(key),safe);assert.ok(Date.now()-started<2000);}finally{unavailable.destroy();}
+  });
 });

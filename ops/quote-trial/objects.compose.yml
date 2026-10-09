@@ -1,0 +1,6 @@
+# Reviewed, optional offline object backup/restore mount, never a new API.
+services:
+  app:
+    volumes:
+      - ./object-bundle.mjs:/trial/object-bundle.mjs:ro
+      - ${TRIAL_OBJECT_BUNDLE_DIR:?explicit new bundle directory required}:/bundle
