@@ -1,5 +1,10 @@
 # AI 接力棒
 
+## Active — Order C4.3 independent engineering (2026-10-09)
+
+- Branch `feat/order-c43-delivery-plan`; clean baseline/fetched origin main `edc3598764266de087c0f669f8bcf5452c6d3fd2`. Gate 0 read-only audit complete; actual Server has no DeliveryPlan domain. [Audit and confirmed edge rules](tasks/active/2026-10-09-order-c43-delivery-plan.md).
+- Next: independent collection/row schema, D-083 permanent ownership, collection CAS, trusted audit, narrow plan API and internal source refresh; disposable-only verification. No real migration/deploy/Browser import or parallel Source/Quote UI edits. Existing deployment history below remains intact.
+
 ## Active — PR #82 main integration / review closure (2026-10-09)
 
 - 原分支 `ops/deploy-quote-trial-windows`，baseline `45ee50dd01f410b9ccfecc8c2bbeb99523593480` / clean。普通 merge 已验证 main `dd5fc62e6a4cdf5920528c71cfbd4dbae3c9013d`（PR #83）；只冲突 AI_HANDOFF / CURRENT_STATE / PROJECT_INDEX，Windows 工具及 UI 自动合并保留。
