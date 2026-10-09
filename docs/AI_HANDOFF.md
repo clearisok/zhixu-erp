@@ -2,11 +2,15 @@
 
 ## Current: Server Quote List + Internal Summary（2026-10-09，IN PROGRESS）
 
-- PR #79 已 MERGED，base `b1ffa5da9b2af0751889470e453cc150f2a2718c`；branch `feat/server-quote-list-summary`，起始 clean。A 列表投影正在收口，B 个人列设置/内部汇总与 C 实际 Chromium/文件联合验收尚未完成；不得引用 #79 测试作为本任务结果。
+- PR #79 已 MERGED，base `b1ffa5da9b2af0751889470e453cc150f2a2718c`；branch `feat/server-quote-list-summary`，起始 clean。A checkpoint `c6e8be6` 已提交推送。B 个人列设置/内部汇总已实现且定向验证通过；C 实际 Chromium/视觉/最终联合验收尚未完成，不得引用 #79 测试作为本任务结果。
 - A：旧无 columns 调用保持最小 DTO；显式 columns 固定白名单/重复及长度拒绝、可信 quote.view + 金额列 quote.cost.view。同一只读 repeatable-read 事务先分页，再批量读取所选默认 Revision/PV 与成本；25 条成本列表固定9条 SQL（含 BEGIN/COMMIT），不读取 aggregate/历史/Estimate。数量/null/zero、成本区间、CNY/USD、最终成衣显示沿用原 calculator/formatter。
 - 默认 Revision 逐 PV 精确核验 provenance：linked 使用 CCT current、空 current 不回退旧确认；unlinked 使用合法保存快照；partial 明确未知。响应以逐 PV linkage/termsVersion 标明来源，Quote 状态/版本/历史不被改写；金额只在请求对应列时输出。正式 Server 列表已接业务投影，无逐行 aggregate HTTP。
 - 本轮 A 实跑：业务纯函数4/4，disposable 列表/API6/6（含 harness；27条分页、固定查询、权限/非法请求、linked/unlinked/空/partial、隐藏 unsafe Estimate、请求 unsafe decimal拒绝）；typecheck/lint/diff-check PASS。阶段提交以交付记录为准。尚未进行本任务实际 Chromium/Excel/最终回归，不能宣称整个任务 PASS。
 - 仅隔离合成数据/PG16 tmpfs/随机端口，真实 Ubuntu/runtime/DB/Browser/COS/secrets 未操作；默认 Browser 不变，D-096 历史导入 NOT REQUIRED。
+- B：正式列表复用 ListFieldSettingsModal 与受控 Foundation 表格，可信 userId 隔离的新本机 UI key 只保存 key/order/width，不调用 loadQuoteSettings/旧默认初始化；当前权限重新过滤。内部汇总弹窗默认当前可见列、Estimate 默认不选、临时列不改偏好。POST internal-summary 严格 items/expectedVersion/columns/rowMode/estimateColumns，有界25张/500行/20MB，不接受客户端金额/actor/来源URL。
+- 共用原汇总 ExcelJS 纯构建核心；Browser 原映射/样式保留，Server 只传真实选中投影，每款/每PV、typed numbers/null/zero、分币种/原成衣 formatter、确认来源批注。显式 Estimate 仅 active/原独立快照；来源PV删除仍能读，history不替代active，差额沿用未经显示截断的销售价减原估算成本。
+- 一致 readonly snapshot → 无锁 Excel 构建 → 稳定排序 terms contexts → sorted Quote rows → 独立 Quote/CCT 来源复核 → trusted append-only generation audit。任一冲突/审计失败不返回文件，不自动重试；审计只记最小来源身份/选项/行数/文件证据，不记金额或 Estimate 对象/存在性。
+- B 实跑：新汇总 disposable6/6、个人偏好2/2、旧 Browser 汇总4/4，auth/frontend66/66；typecheck/lint PASS；Server build/最终交付以 C 记录为准。实际下载/两种 frontend/文件视觉与完整回归尚待 C，不宣称整轮 PASS。
 
 ## HISTORICAL: Linked ConfirmedCommercialTerms（2026-10-09）
 

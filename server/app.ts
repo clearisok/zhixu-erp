@@ -2,6 +2,7 @@ import type { IncomingMessage, RequestListener, ServerResponse } from "node:http
 import type { Pool } from "pg";
 import { listQuoteSummaries } from "./quotes/list-summary.js";
 import { parseBusinessColumns } from "./quotes/business-source.js";
+import { createInternalSummaryService, parseInternalSummary } from "./quotes/internal-summary.js";
 import { login, revokeSession, sessionCookie, type SessionSecurityConfig, type TrustedIdentity } from "./auth/session.js";
 import { createIdentityAuthority, type IdentityAuthority } from "./auth/identity-authority.js";
 import { requirePermission } from "./auth/permissions.js";
@@ -391,6 +392,16 @@ async function route(
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
     return;
+  }
+  if (request.method === "POST" && path === "/api/v1/quotes/internal-summary") {
+    assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    const file = await createInternalSummaryService(dependencies.pool).generate(identity, parseInternalSummary(await readJsonBody(request)));
+    response.writeHead(200, { "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Content-Length": file.bytes.length, "Cache-Control": "no-store",
+      "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`, "X-Zhixu-File-Name": encodeURIComponent(file.fileName), "X-Zhixu-File-Sha256": file.sha256,
+      "X-Zhixu-Export-Warnings": "%5B%5D", "X-Zhixu-Summary-Rows": String(file.rowCount) });
+    response.end(file.bytes); return;
   }
   if (request.method === "POST" && path === "/api/v1/quotes/customer-batch-export") {
     assertMutationBoundary(request, dependencies.allowedOrigins);

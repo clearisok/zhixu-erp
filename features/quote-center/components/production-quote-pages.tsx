@@ -10,14 +10,29 @@ import { createQuoteEditorPersistence } from "../server/quote-editor-persistence
 import { QuoteList } from "./quote-list";
 import { QuoteDetailLoader, QuoteEditor, QuoteNewLoader } from "./quote-editor";
 import type { QuoteType } from "../model/quote-view-model";
-import { customerBatchExport, downloadCustomerFile } from "../server/customer-export-client";
-import { allowedBusinessColumns, businessColumns } from "../model/quote-business-view";
+import { customerBatchExport, downloadCustomerFile, internalSummaryExport } from "../server/customer-export-client";
+import { allowedBusinessColumns, businessColumns, type BusinessColumn, type EstimateColumn } from "../model/quote-business-view";
+import { listTablePreference, loadServerListPreferences, normalizeServerListPreferences, saveServerListPreferences, type ServerListPreferences } from "../server/list-preferences";
+import { ListFieldSettingsModal } from "./quote-settings-modals";
+import { ServerSummaryModal } from "./server-summary-modal";
 
 const safeError = (error: unknown) => error && typeof error === "object" && "status" in error ? `Server HTTP ${String(error.status)}；无 Browser fallback。` : "Server 读取失败或数值无法安全转换；无 Browser fallback。";
 function ServerList() {
   const router = useRouter();
   const session = useServerSession();
-  const visibleBusinessColumns = useMemo(() => allowedBusinessColumns(session.permissions), [session.permissions]);
+  const userId = session.user?.id ?? "";
+  const allowedColumns = useMemo(() => allowedBusinessColumns(session.permissions), [session.permissions]);
+  const [storedPreferences, setStoredPreferences] = useState<ServerListPreferences | null>(null);
+  const preferences = useMemo(() => normalizeServerListPreferences(userId, session.permissions, storedPreferences?.userId === userId ? storedPreferences : undefined), [userId, session.permissions, storedPreferences]);
+  const visibleBusinessColumns = preferences.columnOrder.filter(k => preferences.visibleColumns.includes(k));
+  const columnSignature = visibleBusinessColumns.join(",");
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [summaryError, setSummaryError] = useState("");
+  const persistPreferences = (next: ServerListPreferences) => {
+    try { setStoredPreferences(saveServerListPreferences(window.localStorage, next, session.permissions)); }
+    catch { setStoredPreferences(next); setBatchMessage("个人 UI 设置未能存到本机；本次布局可用，不影响报价数据。"); }
+  };
   const [rows, setRows] = useState<QuoteServerListItem[]>([]);
   const [page, setPage] = useState<QuoteServerPage | null>(null);
   const [query, setQuery] = useState({ search: "", type: "", status: "", offset: 0 });
@@ -29,6 +44,13 @@ function ServerList() {
   const [batchBusy,setBatchBusy]=useState(false);
   const [batchMessage,setBatchMessage]=useState("");
   const batchPending=useRef(false);
+  useEffect(() => {
+    void Promise.resolve().then(() => {
+      if (userId) setStoredPreferences(loadServerListPreferences(window.localStorage, userId, session.permissions));
+      else setStoredPreferences(null);
+      setSelected({}); setSummaryOpen(false); setSummaryError(""); setSettingsOpen(false);
+    });
+  }, [userId, session.permissions]);
   const choose=(items:QuoteServerListItem[],checked:boolean)=>{
     const next={...selected};for(const row of items){if(checked)next[row.id]={version:row.version,label:row.summary?.quoteStyleNo||row.quoteCode};else delete next[row.id];}
     if(Object.keys(next).length>25){setBatchMessage("最多选择 25 张；未截断或改变原选择。");return;}
@@ -42,17 +64,26 @@ function ServerList() {
     }catch(cause){setBatchMessage(cause instanceof Error?cause.message:"Server 批量导出未完成；无 Browser fallback");}
     finally{batchPending.current=false;setBatchBusy(false);}
   };
+  const exportSummary = async (columns: BusinessColumn[], rowMode: "quote" | "price-version", estimateColumns: EstimateColumn[]) => {
+    if (batchPending.current) return;
+    batchPending.current = true; setBatchBusy(true); setSummaryError("");
+    try {
+      const file = await internalSummaryExport({ items: Object.entries(selected).map(([quoteId, item]) => ({ quoteId, expectedVersion: item.version })), columns, rowMode, estimateColumns });
+      downloadCustomerFile(file); setSummaryOpen(false); setBatchMessage("内部汇总文件已生成；不代表 Server 已确认保存到本机。");
+    } catch (cause) { setSummaryError(cause instanceof Error ? cause.message : "Server 汇总未完成；无 Browser fallback"); }
+    finally { batchPending.current = false; setBatchBusy(false); }
+  };
   useEffect(() => {
     let active = true;
     void Promise.resolve().then(() => { setLoading(true); setError(""); });
     if (!session.hasPermission("quote.view")) return;
-    void quoteServerClient.list({ ...query, limit: 25, columns: visibleBusinessColumns }).then((result) => {
+    void quoteServerClient.list({ ...query, limit: 25, ...(columnSignature ? { columns: columnSignature.split(",") as BusinessColumn[] } : {}) }).then((result) => {
       if (!active) return;
       if (result.page.total === undefined || result.quotes.some((row) => !row.summary)) throw new Error("Incomplete Server summary");
       setRows(result.quotes); setPage(result.page);
     }).catch((cause) => { if (active) setError(safeError(cause)); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [query, retry, session, visibleBusinessColumns]);
+  }, [query, retry, session, columnSignature]);
   const columns: DataColumn<QuoteServerListItem>[] = [
     ...(selectionMode?[{key:"select",header:"选择",render:(row:QuoteServerListItem)=><input type="checkbox" aria-label={`选择 ${row.id}`} disabled={batchBusy} checked={Boolean(selected[row.id])} onChange={e=>choose([row],e.target.checked)} />}]:[]),
     ...visibleBusinessColumns.map(key => ({ key, header: businessColumns.find(c => c.key === key)!.label, minWidth: 100, width: key === "styleIdentity" ? 220 : 145,
@@ -64,7 +95,10 @@ function ServerList() {
     <Toolbar search={<input className="qc-control" aria-label="搜索报价" placeholder="全库搜索编号、款号、款名、品牌、业务员" value={query.search} onChange={(event) => setQuery({ ...query, search: event.target.value, offset: 0 })} />}
       moreFilters={<><FormItem label="报价类型"><select className="qc-control" value={query.type} onChange={(event) => setQuery({ ...query, type: event.target.value, offset: 0 })}><option value="">全部类型</option><option value="distribution">经销</option><option value="processing">加工</option></select></FormItem><FormItem label="报价状态"><select className="qc-control" value={query.status} onChange={(event) => setQuery({ ...query, status: event.target.value, offset: 0 })}><option value="">全部状态</option><option value="draft">草稿</option><option value="quoting">报价中</option><option value="partially_confirmed">部分确认</option><option value="confirmed">已确认</option></select></FormItem></>} />
     <div className="qc-batch-selection-toolbar"><Button disabled={batchBusy||!session.hasPermission("quote.export")||!session.hasPermission("quote.cost.view")} onClick={()=>{setSelectionMode(!selectionMode);setSelected({});setBatchMessage("");}}>{selectionMode?"退出选择":"批量客户报价"}</Button>{selectionMode&&<><Button disabled={batchBusy||loading} onClick={()=>choose(rows,true)}>本页全选</Button><Button disabled={batchBusy||!Object.keys(selected).length} onClick={()=>void exportBatch()}>生成客户报价 ZIP</Button><span>已选 {Object.keys(selected).length} / 25（跨页 ID；100MB 技术上限）</span></>}{batchMessage&&<p role="status">{batchMessage}</p>}</div>
-    {!session.hasPermission("quote.view") ? <ErrorState permission title="Server HTTP 403 · 需要 quote.view" /> : loading ? <LoadingState label="读取 Server 报价" /> : error ? <ErrorState title="Server 报价不可用" description={error} onRetry={() => setRetry(retry + 1)} /> : <><Card><DataTable columns={columns} rows={rows} rowKey={(row) => row.id} ariaLabel="报价列表" emptyTitle="暂无 Server 报价" emptyDescription="用户主动新建后才会出现；旧 Browser 报价不会补入。" /></Card><div className="qc-batch-selection-toolbar"><Button variant="secondary" disabled={batchBusy||!query.offset} onClick={() => setQuery({ ...query, offset: Math.max(0, query.offset - 25) })}>上一页</Button><span>本页 {page?.count} / 总计 {page?.total}</span><Button variant="secondary" disabled={batchBusy||!page || query.offset + page.count >= (page.total ?? 0)} onClick={() => setQuery({ ...query, offset: query.offset + 25 })}>下一页</Button></div></>}
+    <div className="qc-batch-selection-toolbar"><Button disabled={batchBusy} variant="secondary" onClick={() => setSettingsOpen(true)}>列表页面设置</Button><Button disabled={batchBusy || !session.hasPermission("quote.export")} onClick={() => { if (!selectionMode) { setSelectionMode(true); setBatchMessage("请选择报价后打开内部汇总（支持跨页，最多25张）。"); } else if (Object.keys(selected).length) { setSummaryError(""); setSummaryOpen(true); } }}>{selectionMode ? "打开内部汇总" : "内部报价汇总"}</Button></div>
+    <ListFieldSettingsModal open={settingsOpen} settings={preferences} tablePreference={listTablePreference(preferences)} defaultColumnWidths={normalizeServerListPreferences(userId, session.permissions).columnWidths} defaultColumnOrder={allowedColumns} onClose={() => setSettingsOpen(false)} onSave={(next, table) => { persistPreferences({ ...next, columnOrder: table.columnOrder as BusinessColumn[], columnWidths: table.columnWidths }); setSettingsOpen(false); }} />
+    {summaryOpen && <ServerSummaryModal visibleColumns={visibleBusinessColumns} permissions={session.permissions} busy={batchBusy} error={summaryError} onClose={() => { if (!batchBusy) setSummaryOpen(false); }} onGenerate={(columns, mode, estimate) => void exportSummary(columns, mode, estimate)} />}
+    {!session.hasPermission("quote.view") ? <ErrorState permission title="Server HTTP 403 · 需要 quote.view" /> : loading ? <LoadingState label="读取 Server 报价" /> : error ? <ErrorState title="Server 报价不可用" description={error} onRetry={() => setRetry(retry + 1)} /> : <><Card><DataTable columns={columns} rows={rows} rowKey={(row) => row.id} ariaLabel="报价列表" tablePreference={listTablePreference(preferences)} onTablePreferenceChange={next => persistPreferences({ ...preferences, columnOrder: next.columnOrder as BusinessColumn[], columnWidths: next.columnWidths })} emptyTitle="暂无 Server 报价" emptyDescription="用户主动新建后才会出现；旧 Browser 报价不会补入。" /></Card><div className="qc-batch-selection-toolbar"><Button variant="secondary" disabled={batchBusy||!query.offset} onClick={() => setQuery({ ...query, offset: Math.max(0, query.offset - 25) })}>上一页</Button><span>本页 {page?.count} / 总计 {page?.total}</span><Button variant="secondary" disabled={batchBusy||!page || query.offset + page.count >= (page.total ?? 0)} onClick={() => setQuery({ ...query, offset: query.offset + 25 })}>下一页</Button></div></>}
   </PageContainer></AppShell>;
 }
 function ServerNew() {
