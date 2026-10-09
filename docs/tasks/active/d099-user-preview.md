@@ -23,3 +23,7 @@ Recorded win01 source878de (old PR83 UI) remains separate; this task did not rec
 A/B/C complete feature code/tests and a scoped evidence report; Codex D verifies current integration state, candidate identity and isolation, then supplies a user-accessible UI/API Preview before requesting a merge decision. Keep Preview and feedback until explicit user disposition. Automated PASS never substitutes for USER ACCEPTANCE. Backend-only PRs provide concrete API/business demonstrations; where no UI exists, say so and let the user decide whether to allow an earlier merge. Merge and real deployment remain distinct authorizations. Secrets and real business data never enter Preview fixtures. This is a proposal only; AGENTS.md/Active decisions unchanged.
 
 No real Ainuoke/credentials/PG/COS/win01/legacy browser operation, real migration, deployment, PR merge, or87/88 integration occurred.
+
+## Local / remote delivery
+
+Local checkpoint82da27a and follow-up46901e9 preserve all tools/screenshots/results. Normal push failed RPC/curl65 connection reset; one bounded exact-branch lookup returned absent and head PR lookup returned none. REMOTE PENDING; no PR created or merged. Preview continues independently. Final handoff commit contains this status; credentials and private runtime remain outside Git.
