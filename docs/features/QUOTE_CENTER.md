@@ -1,8 +1,19 @@
 # Quote Center
 
-## Server trial usability (2026-10-09; engineering, not deployed)
+## Original UI / Server convergence (2026-10-09; ENGINEERING PASS / USER UI ACCEPTANCE PENDING)
 
-- 正式 Server 列表合并搜索/筛选/批量/内部汇总/列设置；只有选择模式显示本页全选与跨页计数。新用户默认 9 个身份、状态、数量及成本/价格字段，其余仍可显式开启；已有账号偏好不清空。恢复默认同时恢复可见列/顺序/宽度，不改 Browser 的旧恢复契约。
+D-099: PR #64 `7658663038b1da504c95086711f627b6dce5c7a0` is the visual/information-architecture baseline; current Server is the data, security and business baseline. Server persistence is not permission to redesign the product. The [audit, capability/permission matrix and current test evidence](../tasks/active/quote-original-ui-convergence.md) and [synthetic screenshots](../tasks/assets/quote-original-convergence/README.md) record the engineering result, not human approval or deployment.
+
+- New users get nine data cells plus fixed action: style placeholder, style identity, brand/person, type/status, quantity, costs, selling/confirmation, revision/PV count, date. Fifteen independent formal BusinessColumn fields remain configurable and exportable. Each group renders only authorized, visible children; tooltips/mobile records follow the same rule. No guessed country, PV-name or image metadata is added to the summary.
+- Existing v1 preferences without presentation metadata retain the independent field layout, visibility, order and widths. The key is unchanged; loading never rewrites it. Explicit group/field view switches and “恢复默认布局” are user actions. Export selection remains independent of visual grouping and temporary choices never overwrite list preferences.
+- Shared original PageHeader/More/search/filter/card language is restored, while bounded global search, real totals/paging, cross-page ZIP/internal summary and trusted permissions remain. Normal 1280 desktop grouped defaults fit; wider personal selections scroll inside the table with fixed right actions, never the whole document. True touch devices use authorized record cards, not a hidden table without actions.
+- New uses CREATE QUOTE and the shared base-information card. The necessary Server difference is a type-first preparation step: opening/canceling does not create; explicit creation retains POST{}, ID/version and processing PUT, then enters the complete shared Editor. The old Browser unsaved full draft is not recreated through mock persistence. Failure/unknown result retains ID and never repeats POST.
+- Editor runtime is unchanged by this convergence: PR83 compact costs, sticky summary, Portal, width floors and failure feedback are retained. Current/history, PV/Revision, Estimate, confirmation, attachments, saved-source exports, logs, CAS and precision remain covered by actual trusted Chromium regression. No new business actions are enabled.
+- Known visual differences: no real list thumbnail or list country/PV-name metadata; trusted identity replaces old local-user identity; type-first creation replaces Browser pre-create aggregate editing; safe totals/paging remain. Whole copy/delete, Revision delete and Order creation remain unsupported. Human review must include list/preferences, both new types, detail/costs, 900 fine-pointer and touch layouts. This task never inspected/updated the real trial runtime.
+
+## Historical PR83 usability work (2026-10-09; deployment status below is the original observation)
+
+- 当时正式 Server 列表合并搜索/筛选/批量/内部汇总/列设置；只有选择模式显示本页全选与跨页计数。当时默认 9 个独立字段已被上方 D-099 组合展示取代；已有账号偏好不清空，Browser 的恢复契约不变。
 - 此列表显式使用 `DataTable layout="readable"`：像素列宽下限、局部横向滚动、可读完整编号/两行款名/右对齐数值及 sticky 操作。其他表格默认 fit-first 未改变。
 - 新建类型选择采用小面板与创建/取消；打开不创建，POST `{}`、必要类型 PUT、ID 保留及不重复创建保护不变。
 - Server 详情正常说明收进资料/诊断入口；版本号保留，资料未配置引导可查看。真实写入失败、权限/精度、冻结、校验未隐藏。常用成本直接显示，空行密度收紧；1100–1439px 桌面复用现有展开式紧凑成本字段，避免右侧操作裁切，不折叠或改变计算。
