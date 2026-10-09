@@ -10,6 +10,14 @@ The internal typed `refreshAinuokeSalesOrderSource` service preserves binding, c
 
 Gate 1: typecheck, Server build and disposable PostgreSQL 12/12 passed. Narrow HTTP API and final regression results are recorded in the [task report](../tasks/completed/2026-10-09-order-c43-delivery-plan.md). No real migration/deployment/Browser import is performed; D-096/D-098 remain unchanged.
 
+### PR #87 integration verification (2026-10-10)
+
+`test:delivery-plans` runs the isolated domain/session suite; it is also in regular `test:postgres` without adding Docker to `npm test`. The populated 0001–0008 upgrade preserves orders/colors/associated terms/logs/ledger with no backfill; deterministic root-lock barriers cover user-first/source-first/source-source, and deliberate audit failure compares all transactional domains. C4.3 source audit dates use the existing ISO date projection rather than the legacy Date DTO.
+
+`demo:delivery-plans` runs the synthetic internal-source/authenticated GET/PATCH sequence in disposable PG16 with dynamic loopback API and explicit cleanup. Current evidence: DeliveryPlan17/17, PostgreSQL152/152, npm679/679, typecheck/lint/Server/frontend build and demo PASS. [Integration report and release risk](../tasks/completed/2026-10-10-pr87-delivery-plan-integration.md); [synthetic snapshots](../tasks/assets/pr87-delivery-plan-integration/README.md).
+
+Release requires a separate coupled app/schema Activation Gate: new app + pre-0009 DB fails pending-migration startup; pre-0009 app + upgraded DB fails missing-ledger-file integrity. Image-only rollback is incompatible. No real activation was performed.
+
 ### C4.3 narrow API
 
 - `GET /api/v1/sales-orders/:uuid/delivery-plans` requires trusted identity + `order.view`, returns `{ deliveryPlanSet }` with independent ownership/version, source references, stable rows (including void history) and reconciliation.
