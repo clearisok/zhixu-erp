@@ -59,4 +59,3 @@ assert.equal(count,'0');
 dc(['run','--rm','--no-deps','app','node','dist/server/server/db/migrate.js']);
 dc(['up','-d','objects','objects-tls','app','gateway']);
 console.log(JSON.stringify({project,origin,imageId,commit,status:'START_SUBMITTED',acceptance:'USER ACCEPTANCE PENDING'}));
-
