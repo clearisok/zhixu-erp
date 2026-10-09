@@ -30,7 +30,8 @@ export class S3AttachmentStorage implements AttachmentStorage {
   readonly container: string;
   private readonly client: S3Client;
 
-  constructor(config: Extract<AttachmentStorageConfig, { kind: "s3" }>) {
+  constructor(config: Extract<AttachmentStorageConfig, { kind: "s3" }>, private readonly deadlines = { requestMs: 30_000, streamMs: 90_000 }) {
+    if (!Number.isSafeInteger(deadlines.requestMs) || deadlines.requestMs <= 0 || !Number.isSafeInteger(deadlines.streamMs) || deadlines.streamMs <= 0) throw new AttachmentStorageFailure();
     this.container = config.bucket;
     this.client = new S3Client({
       endpoint: config.endpoint,
@@ -38,28 +39,38 @@ export class S3AttachmentStorage implements AttachmentStorage {
       forcePathStyle: config.forcePathStyle,
       credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
       maxAttempts: 2,
+      requestHandler: { connectionTimeout: 5_000, socketTimeout: 30_000, requestTimeout: 30_000, throwOnRequestTimeout: true },
     });
   }
+
+  private async bounded<T>(action: (signal: AbortSignal) => Promise<T>): Promise<T> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.deadlines.requestMs);
+    try { return await action(controller.signal); }
+    finally { clearTimeout(timer); }
+  }
+
+  destroy(): void { this.client.destroy(); }
 
   private async missingObject(error: unknown): Promise<boolean> {
     if (!isMissingObject(error)) return false;
     // HEAD 404 can mean either missing key or missing bucket. Verify the bucket before returning null.
-    try { await this.client.send(new HeadBucketCommand({ Bucket: this.container })); return true; }
+    try { await this.bounded(signal => this.client.send(new HeadBucketCommand({ Bucket: this.container }), { abortSignal: signal })); return true; }
     catch { return false; }
   }
 
   async put(key: string, bytes: Buffer, mimeType: string): Promise<ObjectStat> {
     const sha256 = createHash("sha256").update(bytes).digest("hex");
     try {
-      await this.client.send(new PutObjectCommand({ Bucket: this.container, Key: objectKey(key),
-        Body: bytes, ContentLength: bytes.length, ContentType: mimeType, Metadata: { sha256 } }));
+      await this.bounded(signal => this.client.send(new PutObjectCommand({ Bucket: this.container, Key: objectKey(key),
+        Body: bytes, ContentLength: bytes.length, ContentType: mimeType, Metadata: { sha256 } }), { abortSignal: signal }));
       return { byteSize: bytes.length, sha256 };
     } catch { throw new AttachmentStorageFailure(); }
   }
 
   async head(key: string): Promise<ObjectStat | null> {
     try {
-      const result = await this.client.send(new HeadObjectCommand({ Bucket: this.container, Key: objectKey(key) }));
+      const result = await this.bounded(signal => this.client.send(new HeadObjectCommand({ Bucket: this.container, Key: objectKey(key) }), { abortSignal: signal }));
       const sha256 = result.Metadata?.sha256;
       if (!Number.isSafeInteger(result.ContentLength) || (result.ContentLength ?? -1) < 0
           || !sha256 || !/^[0-9a-f]{64}$/u.test(sha256)) throw new AttachmentStorageFailure();
@@ -70,16 +81,32 @@ export class S3AttachmentStorage implements AttachmentStorage {
     }
   }
 
-  async get(key: string): Promise<Readable | null> {
+  async get(key: string, externalSignal?: AbortSignal): Promise<Readable | null> {
+    const controller = new AbortController();
+    let body: Readable | undefined;
+    let output: Readable | undefined;
+    let timer = setTimeout(() => controller.abort(), this.deadlines.requestMs);
+    const cancel = () => { controller.abort(); body?.destroy(); output?.destroy(new AttachmentStorageFailure()); };
+    const cleanup = () => { clearTimeout(timer); externalSignal?.removeEventListener("abort", cancel); controller.abort(); body?.destroy(); };
+    externalSignal?.addEventListener("abort", cancel, { once: true });
+    if (externalSignal?.aborted) controller.abort();
     try {
-      const result = await this.client.send(new GetObjectCommand({ Bucket: this.container, Key: objectKey(key) }));
+      const result = await this.client.send(new GetObjectCommand({ Bucket: this.container, Key: objectKey(key) }), { abortSignal: controller.signal });
       if (!(result.Body instanceof Readable)) throw new AttachmentStorageFailure();
-      const body = result.Body;
-      return Readable.from((async function* () {
-        try { for await (const chunk of body) yield chunk; }
+      body = result.Body;
+      clearTimeout(timer);
+      timer = setTimeout(() => { cancel(); }, this.deadlines.streamMs);
+      const upstream = body;
+      output = Readable.from((async function* () {
+        try { for await (const chunk of upstream) yield chunk; }
         catch { throw new AttachmentStorageFailure(); }
+        finally { cleanup(); }
       })(), { objectMode: false });
+      output._destroy = (error, callback) => { cleanup(); callback(error ? new AttachmentStorageFailure() : null); };
+      output.once("end", cleanup);
+      return output;
     } catch (error) {
+      cleanup();
       if (await this.missingObject(error)) return null;
       throw new AttachmentStorageFailure();
     }
@@ -87,7 +114,7 @@ export class S3AttachmentStorage implements AttachmentStorage {
 
   /** Reserved for an isolated test or a future separately authorized retention/GC gate. */
   async remove(key: string): Promise<void> {
-    try { await this.client.send(new DeleteObjectCommand({ Bucket: this.container, Key: objectKey(key) })); }
+    try { await this.bounded(signal => this.client.send(new DeleteObjectCommand({ Bucket: this.container, Key: objectKey(key) }), { abortSignal: signal })); }
     catch { throw new AttachmentStorageFailure(); }
   }
 }

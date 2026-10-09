@@ -62,14 +62,20 @@ export async function routeQuoteAttachments(request: IncomingMessage, response: 
     sendJson(response, 200, { attachment: found.attachment }); return true;
   }
   if (request.method === "GET" && attachmentId && command === "download") {
-    const found = await service.download(actor, quoteId, revisionId, attachmentId);
+    const controller = new AbortController();
+    const cancel = () => controller.abort();
+    response.once("close", cancel);
+    try {
+    const found = await service.download(actor, quoteId, revisionId, attachmentId, controller.signal);
+    if (response.destroyed) { found.stream.destroy(); return true; }
     response.statusCode = 200;
     response.setHeader("Content-Type", found.attachment.mimeType);
     response.setHeader("Content-Length", found.attachment.size);
     response.setHeader("Content-Disposition", `attachment; filename="attachment"; filename*=UTF-8''${encodeURIComponent(found.attachment.name)}`);
     response.setHeader("Cache-Control", "no-store");
     response.setHeader("X-Content-Type-Options", "nosniff");
-    await pipeline(found.stream, response); return true;
+    await pipeline(found.stream, response, { signal: controller.signal }); return true;
+    } finally { response.off("close", cancel); }
   }
   if (request.method === "PATCH" && attachmentId && !command) {
     const body = await readJsonBody(request); exact(body, ["expectedVersion", "name"]);

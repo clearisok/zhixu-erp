@@ -82,12 +82,12 @@ export function createAttachmentService(pool: Pool, storage: AttachmentStorage) 
         const row = (await relatedAttachments(client, quoteId, revisionId, attachmentId))[0];
         if (!row) problem(404, "attachment_not_found"); return { attachment: publicView(row), key: row.storage_key }; });
     },
-    async download(actor: TrustedIdentity, quoteId: string, revisionId: string, attachmentId: string) {
+    async download(actor: TrustedIdentity, quoteId: string, revisionId: string, attachmentId: string, signal?: AbortSignal) {
       const found = await this.read(actor, quoteId, revisionId, attachmentId);
       const stat = await storage.head(found.key);
       if (!stat || stat.byteSize !== found.attachment.size || stat.sha256 !== found.attachment.sha256)
         problem(503, "attachment_object_unavailable");
-      const stream = await storage.get(found.key);
+      const stream = await storage.get(found.key, signal);
       if (!stream) problem(503, "attachment_object_unavailable");
       return { attachment: found.attachment, stream };
     },
