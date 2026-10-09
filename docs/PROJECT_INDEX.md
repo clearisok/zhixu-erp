@@ -1,8 +1,8 @@
 # 项目知识索引
 
-> 当前任务：Quote Trial UI Usability Repair，基线 PR #81 merge `cc3c450562e692b696024558706954816227cb8a`。修复 Server 列表/新建/详情与滚动；独立视觉验收、新候选，不自动替换 Windows 18443。用户已登录，完整人工业务卡尚未确认通过。当前摘要见 CURRENT_STATE、恢复点见 AI_HANDOFF；试用三张卡见 [操作说明](../ops/quote-trial/README.md)，旧证据见 [历史归档](tasks/completed/2026-10-09-pre-trial-state-history.md)。
+> 当前任务：PR #82 原分支整合 main / 审查收口；#83 已合并 `dd5fc62e6a4cdf5920528c71cfbd4dbae3c9013d`。Windows win01 此前已部署 READY，用户已登录；新 UI 候选已构建未部署，18443 仍原镜像，完整人工业务卡尚未确认通过。下一步是另行授权现有环境应用更新，不重新 setup/init。当前摘要见 CURRENT_STATE、恢复/两边历史证据见 AI_HANDOFF；[操作说明](../ops/quote-trial/README.md)保留 Windows 工具与部署结果。
 
-> D-097：Fresh Start **正式 Quote Server 基本闭环工程/隔离验收完成，非真实部署**。显式 Quote authority=server（默认 browser）接原地 list/new/detail、正式 Editor/附件；全局 Browser bootstrap/mock identity 与未支持 URL 隔离。支持/未接动作、实际 Chromium 与质量证据见 `features/FRESH_START_FOUNDATION.md`、CURRENT_STATE/AI_HANDOFF。旧 runtime 与旧数据不变，历史导入 NOT REQUIRED。
+> D-097 工程阶段历史：Fresh Start **正式 Quote Server 基本闭环工程/隔离验收完成，当时未真实部署**；本次 win01 已部署事实见上方及 CURRENT_STATE。显式 Quote authority=server（默认 browser）接原地 list/new/detail、正式 Editor/附件；全局 Browser bootstrap/mock identity 与未支持 URL 隔离。支持/未接动作、实际 Chromium 与质量证据见 `features/FRESH_START_FOUNDATION.md`、CURRENT_STATE/AI_HANDOFF。旧 runtime 与旧数据不变，历史导入 NOT REQUIRED。
 
 > **当前新系统上线方向：D-096，全部业务数据从空开始。** 旧环境保留，Q5 historical import NOT REQUIRED；功能/安全/Quote-first 顺序不变，不代表正式 UI 已全接 Server。空库验证、技术初始化白名单、隔离部署说明与剩余接线文件见 [Fresh Start Foundation](features/FRESH_START_FOUNDATION.md)。下面既有部署/数据数量只描述旧环境，不是新系统的数据源或初始化指令。COS real Node preflight 已 PASS（PR #73 用户证据），不是 runtime storage activation。
 

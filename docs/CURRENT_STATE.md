@@ -1,24 +1,21 @@
 # 当前状态
 
-> 2026-10-09；当前任务：Quote Trial UI Usability Repair。历史证据见 [归档](tasks/completed/2026-10-09-pre-trial-state-history.md)与 AI_HANDOFF 历史段。
+> 2026-10-09；当前任务：PR #82 合并冲突与审查收口。历史工程见 [归档](tasks/completed/2026-10-09-pre-trial-state-history.md)，部署/UI 详细证据见 AI_HANDOFF 历史段与 [试用操作说明](../ops/quote-trial/README.md)。
 
-## 当前试用与工程边界
+## 试用状态与工程版本
 
-- 工程基线：PR #81 merge `cc3c450562e692b696024558706954816227cb8a`。保留报价试用范围（D-098），不新增业务模块。
-- Windows 独立试用目标 `zhixu-quote-trial-win01` / `https://localhost:18443` 已部署 READY（用户提供的已完成证据）；原应用镜像 `zhixu-quote-trial:9ee254db89c6`。用户确认密码问题已解决、已登录并打开页面；完整三张人工业务卡尚未确认通过。
-- 本轮不访问或更换该运行环境，不操作其数据库、Browser profile、COS、密钥、备份或旧 3000/3001/3002。PR #82 Windows 运维交付与本轮 UI 修复分开。
+- Windows 独立目标 `zhixu-quote-trial-win01` / `https://localhost:18443` 此前已部署 **READY**：独立新 DB 0001–0008、session/RBAC、COS 新对象、重启持久化与首次备份已验收。用户已解决密码问题、成功登录并打开页面；完整三张人工业务卡尚未确认通过。
+- 当前真实应用仍 `zhixu-quote-trial:9ee254db89c6`，source `9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23`。没有后续部署证据，不能以 Git merge 替代真实更新。
+- PR #83 UI 修复已合并 main `dd5fc62e6a4cdf5920528c71cfbd4dbae3c9013d`；新候选 `zhixu-quote-trial-ui:878de323d618` **BUILT / NOT DEPLOYED**，应用source `878de323d618b25fca1f51ccf3f024e932641742`。列表/新建/详情、成本与滚动修复及合成对比图保留。
+- PR #82 Windows 工具/部署证据继续保留，在原分支普通整合 main、隔离验证原生命令失败处理，等待审查；Git 冲突解决不等于完整运维安全审查 PASS。
 
-## UI 修复与验证
+## 验证来源与下一步
 
-- Server 列表：紧凑工具区、选择模式上下文；9 列默认包含成本，既有列偏好不覆盖，显式恢复默认。可选 readable 表格提供真实像素下限、表内横向滚动与右侧操作；其他共享表格默认 fit-first。
-- 新建：紧凑加工/经销选择和创建/取消。详情：正常技术文案收进诊断入口，真实阻断提示保留；首屏可开始填写，成本不折叠。中等桌面复用展开的紧凑成本布局；退出按钮不再撑高文档；sticky 在资料就绪后绑定实际 workspace。
-- 隔离实际 Chromium 61/61、auth/persistence 67/67、共享表格 SSR 2/2、npm test 674/674；typecheck/lint/Server build PASS。Server/default Browser frontend 均构建验证，默认 identity 为 browser/browser/writable/session。
-- 同尺寸 before/after：1920×1080、1440×900、1280×800、900×800，100% 缩放；合成截图与 DOM 证据保存在仓库外，不发布用户业务画面。功能回归包含精度/null/0、成本同步失败、CAS、版本/Estimate 权限、导出与附件下载字节。
-- 新候选构建与独立 PR 交付见 AI_HANDOFF；代码修复不代表真实 18443 已更新。下一步是审查新候选，再单独授权应用更新与用户业务卡，不重新引入历史迁移门禁。
+- #82 部署阶段定向 14/14 与真实验收是历史证据；#83 Chromium61/61、auth/persistence67/67、SSR2/2、npm674/674、两种frontend与质量检查是 UI 工程证据。本次不重复运行上述测试或真实验收。
+- 下一步：审查收口后，另行授权**现有试用环境应用更新**并做人工业务卡；不重新 setup/init，不重新创建账号/验收数据，不将历史导入门禁加回。
+- 默认 Browser、旧 3000/3001/3002、旧数据库/Browser 数据不变；本轮不读取真实 secrets、操作 Docker runtime、DB、COS、备份或部署目录。
 
 ## 永久边界
 
-- D-096：全部业务数据从空开始，历史导入 **NOT REQUIRED**；不导入不是删除授权。
-- D-097：默认 Browser 保持，显式 Server 不回退旧数据。权限、CAS、事务、精度和历史 Revision 不可变规则保留。
-- COS real preflight 已 PASS（历史证据），本轮不重测。延期：整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理。
-- 用户试用数据不是可自动清理的测试数据。工程验收、候选构建、真实部署、人工业务验收分别记录。
+- D-096 历史导入 **NOT REQUIRED**；不导入不是删除授权。D-097 显式 Server 不回退旧数据；权限/CAS/事务/精度及历史 Revision 不可变保持。
+- 用户持久试用数据不得自动清理；远程必须真实 session/RBAC 与 HTTPS。延期：整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理。

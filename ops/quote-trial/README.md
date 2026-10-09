@@ -1,9 +1,78 @@
 # Quote trial candidate (2026-10-09)
 
-Engineering preparation, **not a real deployment**. D-098 locks the merged Quote-first
+The candidate engineering evidence below is **not deployment evidence**. D-098 locks the merged Quote-first
 scope; D-096 historical import is NOT REQUIRED. The old environments/data remain
 untouched. User business acceptance: **NOT RUN**. Do not use the legacy
 `deploy-production.yml`, old Compose or ports 3000/3001/3002 for this candidate.
+
+## Authorized Windows target — READY (2026-10-09)
+
+PR81 merged baseline `cc3c450562e692b696024558706954816227cb8a` and ops source
+`1e71d773c2d578029f42267b16999167b393c49f` are verified. The user authorized a
+new local deployment (including new empty-schema init), **not old-environment changes**.
+Target identity is fixed outside Git at `D:\zhixu-local-trial\win01\target.json`:
+project `zhixu-quote-trial-win01`, `https://localhost:18443`, DB `quote_trial`,
+owned `_data` / `_default`. Do not create another target on continuation.
+
+The user completed hidden input and explicitly approved CurrentUser localhost
+trust (not LocalMachine). The restricted directory, fixed ops/backup snapshot,
+1000:1000/0600/read-only separate COS/TLS volumes and canonical offline checker
+are verified. The certificate expires 2026-11-08 UTC; Windows HTTPS/CLI validation
+passed without any bypass. The wrapper is **not** a Windows claim for the Linux
+`/dev/tty` installer. Input is already complete: **do not rerun setup/init**.
+For historical traceability, the one-time local input command was:
+
+```powershell
+& 'C:\Program Files\PowerShell\7\pwsh.exe' -NoProfile -File 'D:\zhixu-local-trial\win01\tools\ops\quote-trial\windows-setup.ps1'
+```
+
+The script shows the public certificate SHA-256, expiry and **CurrentUser Root**
+scope, then requires `TRUST LOCALHOST`. No LocalMachine change/TLS bypass.
+SecretId, SecretKey and new `trial-admin` / `trial-viewer` passwords use hidden
+input; only restricted local files are written, DB password is random. No values
+or credential hashes are printed. Input failure/partial publication is fail-closed:
+preserve it for explicit review, never overwrite/delete files or start another target.
+It does not deploy, grant CAM permissions or claim live credentials validity.
+
+CAM policy + direct binding/only attached policy/private bucket evidence was
+provided by the user: HeadBucket and attachments PUT/HEAD/GET allow, attachments
+DELETE explicit deny. No cloud policy changes, bucket scan, legacy-object adoption
+or DELETE. canonical init applied 0001–0008 to the **new** empty schema; initial
+six technical tables are whitelisted, other 26 tables zero. Current ledger valid/
+current, pending=0; actual start/restart emitted READY, three services healthy.
+
+New accounts `trial-admin` and `trial-viewer` (only quote.view), passwords entered
+locally, never printed. Real API smoke passed 401/login/restricted read/403/
+Estimate isolation/save/readback, customer/internal XLSX parsing, read-only logs
+and static pages. Exactly 1 DEPLOY-VERIFY brand/person/Quote/Revision/PV/attachment
+was deliberately created, not seeded; no company defaults/materials/presets/orders.
+Quote ID `a1f8e54a-fb5f-45be-a7b2-754feace53a6`, code `QT-2026-1009-001`.
+Formal API-owned COS key `attachments/a6eba969-dd51-4a36-bcd0-7761b4a05db1/original`,
+68 bytes, SHA256 `431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460`;
+download/restart/backup-resume readback passed. All records/objects are preserved.
+
+First exact-target dump `zhixu-20261009T053144Z-2e1cc761.dump`, 117420 bytes, SHA256
+`ca699208efc0feacd4cf747f75be5aa7c97ab8a123c19d81d6d08cc4588d62ca`; archive/host-
+container hash and one DB-owned object bundle verified. A later daily backup
+exposed a fixed bundle mount: fail-closed, no data cleanup; corrected to explicit
+TRIAL_OBJECT_BUNDLE_DIR, preserved/resumed that export and completed full daily
+backup verification. Latest daily verification dump `zhixu-20261009T053900Z-dfd90e42.dump`
+and matching object bundle are preserved. No real restore performed.
+
+Daily `Start/Status/Restart/Logs/Backup-Trial.cmd` and `Invoke-Trial.ps1` are under
+the protected root; all executed successfully. They use fixed ops, not the current
+development checkout; Docker Desktop must run after computer restart. Backup
+creates a fresh protected bundle, pauses only this project's app/gateway and
+resumes READY only on success. Failure keeps maintenance for review, no restore.
+Environment remains running/healthy. Old 3001/3002/DB container IDs/states unchanged.
+This is Windows loopback trial, not Ubuntu/LAN/WAN production deployment.
+
+Current targeted adapter/config tests **14/14**, lint/diff-check PASS; app/image
+unchanged. Local one-PV XLSX assertion corrected (header + 1 data row), no duplicate
+business create/upload. Chrome control failed twice loading request-header policy;
+actual automated browser acceptance unavailable, **manual cards NOT RUN**. User
+now opens the new URL with the locally entered passwords and starts card 1.
+Never run test cleanup, prune/down --volumes or COS DELETE on this persistent target.
 
 ## Candidate and verified boundary
 
@@ -30,7 +99,7 @@ pages, attachment bytes/SHA, customer XLSX/ZIP, internal XLSX and read-only logs
 Existing historical immutability, exact decimals/CAS and Estimate isolation are not
 redefined. Current default frontend remains browser/browser/writable.
 
-## New target setup — separately authorized, not performed here
+## Other new targets — require separate authorization
 
 Use a **new** project `zhixu-quote-trial-<unique-name>`, DB `quote_trial`, owned
 `<project>_data`, private `<project>_default` network. No external/legacy volume,
@@ -249,9 +318,10 @@ Final synthetic drill evidence: `zhixu-20261009T033605Z-18ad39f5.dump`, SHA-256
 dump/object integrity and restored readback PASS. This disposable dump and its
 objects were cleaned up after verification, **not a real rollback backup**.
 
-Next user action: review this candidate, supply/confirm an explicitly **new** target,
-access/TLS and real file-mount/CAM boundary, authorize its deployment separately,
-then do the three cards. No historical source/freeze/import Gate is required.
+Next user action for **win01**: use the already deployed new URL and start the
+three cards. Its deployment authorization/input is complete, do not ask again.
+Any other new deployment target still needs explicit authorization and its own
+TLS/file/CAM review. No historical source/freeze/import Gate is required.
 Formal multi-user production still requires target HTTPS/auth/RBAC, real storage
 permissions/mount evidence and operator backup practice; this disposable run does
 not claim Linux/cloud production deployment ready.
