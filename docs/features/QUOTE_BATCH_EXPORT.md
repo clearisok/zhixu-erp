@@ -1,5 +1,14 @@
 # 报价批量导出
 
+Explicit Server mode supports temporary cross-page selection by Quote ID/version,
+accurate “本页全选”, maximum 25 Quotes/100MB and sequential generation with the
+shared customer workbook core. Each default Revision/all PV selection is bound
+before generation; no simultaneous global snapshot claim. ZIP contains a verified
+minimal manifest and collision-safe names; partial/all-failed results are explicit,
+all-failed produces no empty download. Estimate is excluded; no Browser IO.
+
+Per-item image/build warnings survive in `export-results.json`; the bounded response and UI show the affected selections/counts rather than silently calling the batch clean. Manifest/audit preserve safe Quote style identity, Revision label and PV ID/name/manufacturing-country snapshots, not internal amounts or Estimate. One-item generation logs remain factual even if a later ZIP stage fails; partial success never claims rollback of generated items. Internal estimate summary export remains deferred. The following legacy Browser batch/summarization behavior is unchanged, not an enabled Server summary path.
+
 ## Current behavior
 
 - 每次成功导出后追加 OperationLog：除选择数、成功/失败数或导出行数外，还保存全部所选 Quote 的稳定 ID、款号、款名、Revision ID/Label 与 PriceVersion 制作快照摘要。日志详情页可以折叠查看完整清单，折叠不会截断持久化数据。

@@ -2,4 +2,4 @@
 
 当前正在实施的正式任务规格。
 
-当前无 Active Task。
+当前任务：[Quote Server confirmation / customer export / read-only audit batch](server-quote-confirm-export-audit.md)。

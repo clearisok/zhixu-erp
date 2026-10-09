@@ -10,6 +10,7 @@ import { createQuoteEditorPersistence } from "../server/quote-editor-persistence
 import { QuoteList } from "./quote-list";
 import { QuoteDetailLoader, QuoteEditor, QuoteNewLoader } from "./quote-editor";
 import type { QuoteType } from "../model/quote-view-model";
+import { customerBatchExport, downloadCustomerFile } from "../server/customer-export-client";
 
 const safeError = (error: unknown) => error && typeof error === "object" && "status" in error ? `Server HTTP ${String(error.status)}；无 Browser fallback。` : "Server 读取失败或数值无法安全转换；无 Browser fallback。";
 function ServerList() {
@@ -21,6 +22,24 @@ function ServerList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
+  const [selectionMode,setSelectionMode]=useState(false);
+  const [selected,setSelected]=useState<Record<string,{version:number;label:string}>>({});
+  const [batchBusy,setBatchBusy]=useState(false);
+  const [batchMessage,setBatchMessage]=useState("");
+  const batchPending=useRef(false);
+  const choose=(items:QuoteServerListItem[],checked:boolean)=>{
+    const next={...selected};for(const row of items){if(checked)next[row.id]={version:row.version,label:row.summary?.quoteStyleNo||row.quoteCode};else delete next[row.id];}
+    if(Object.keys(next).length>25){setBatchMessage("最多选择 25 张；未截断或改变原选择。");return;}
+    setSelected(next);setBatchMessage("");
+  };
+  const exportBatch=async()=>{
+    if(batchPending.current)return;batchPending.current=true;setBatchBusy(true);setBatchMessage("");
+    const items=Object.entries(selected).map(([quoteId,value])=>({quoteId,expectedVersion:value.version}));
+    try{const result=await customerBatchExport(items);if(result.file)downloadCustomerFile(result.file);
+      setBatchMessage(`选中 ${result.report.selected} / 成功 ${result.report.success} / 失败 ${result.report.failed.length}${result.report.failed.map(f=>`；${selected[items[f.index].quoteId].label} (${items[f.index].quoteId}): ${f.code}`).join("")}${result.report.warnings.map(w=>`；${selected[items[w.index].quoteId].label}: ${w.count} 项警告（见 ZIP 清单）`).join("")}${!result.file?"；全失败，不提供空 ZIP":"；已生成项不是全库同时快照"}`);
+    }catch(cause){setBatchMessage(cause instanceof Error?cause.message:"Server 批量导出未完成；无 Browser fallback");}
+    finally{batchPending.current=false;setBatchBusy(false);}
+  };
   useEffect(() => {
     let active = true;
     void Promise.resolve().then(() => { setLoading(true); setError(""); });
@@ -33,6 +52,7 @@ function ServerList() {
     return () => { active = false; };
   }, [query, retry, session]);
   const columns: DataColumn<QuoteServerListItem>[] = [
+    ...(selectionMode?[{key:"select",header:"选择",render:(row:QuoteServerListItem)=><input type="checkbox" aria-label={`选择 ${row.id}`} disabled={batchBusy} checked={Boolean(selected[row.id])} onChange={e=>choose([row],e.target.checked)} />}]:[]),
     { key: "quote", header: "报价编号", render: (row) => <strong>{row.quoteCode}</strong> },
     { key: "style", header: "款号 / 款名", render: (row) => <div className="qc-primary-cell"><strong>{row.summary?.quoteStyleNo || "未填写款号"}</strong><small>{row.summary?.styleName || "未填写款名"}</small></div> },
     { key: "brand", header: "品牌 / 业务员", render: (row) => <div className="qc-primary-cell"><strong>{row.summary?.brandName || "未填写品牌"}</strong><small>{row.summary?.salespersonName || "未填写业务员"}</small></div> },
@@ -42,10 +62,11 @@ function ServerList() {
     { key: "action", header: "操作", render: (row) => <Button variant="text" onClick={() => router.push(`/quote-center/detail?id=${encodeURIComponent(row.id)}`)}>打开报价 →</Button> },
   ];
   return <AppShell title="报价中心"><PageContainer className="qc-quote-center-page">
-    <PageHeader eyebrow="QUOTE CENTER · SERVER" title="报价中心" count={page ? `${page.total} 条` : ""} description="PostgreSQL 报价快照；成本统计、批量导出和整单复制尚未接线。" primaryAction={<Button permission="quote.create" onClick={() => router.push("/quote-center/new")}>＋ 新建报价</Button>} />
+    <PageHeader eyebrow="QUOTE CENTER · SERVER" title="报价中心" count={page ? `${page.total} 条` : ""} description="PostgreSQL 报价快照与客户报价 ZIP；内部成本汇总和整单复制尚未接线。" primaryAction={<Button permission="quote.create" onClick={() => router.push("/quote-center/new")}>＋ 新建报价</Button>} />
     <Toolbar search={<input className="qc-control" aria-label="搜索报价" placeholder="全库搜索编号、款号、款名、品牌、业务员" value={query.search} onChange={(event) => setQuery({ ...query, search: event.target.value, offset: 0 })} />}
       moreFilters={<><FormItem label="报价类型"><select className="qc-control" value={query.type} onChange={(event) => setQuery({ ...query, type: event.target.value, offset: 0 })}><option value="">全部类型</option><option value="distribution">经销</option><option value="processing">加工</option></select></FormItem><FormItem label="报价状态"><select className="qc-control" value={query.status} onChange={(event) => setQuery({ ...query, status: event.target.value, offset: 0 })}><option value="">全部状态</option><option value="draft">草稿</option><option value="quoting">报价中</option><option value="partially_confirmed">部分确认</option><option value="confirmed">已确认</option></select></FormItem></>} />
-    {!session.hasPermission("quote.view") ? <ErrorState permission title="Server HTTP 403 · 需要 quote.view" /> : loading ? <LoadingState label="读取 Server 报价" /> : error ? <ErrorState title="Server 报价不可用" description={error} onRetry={() => setRetry(retry + 1)} /> : <><Card><DataTable columns={columns} rows={rows} rowKey={(row) => row.id} ariaLabel="报价列表" emptyTitle="暂无 Server 报价" emptyDescription="用户主动新建后才会出现；旧 Browser 报价不会补入。" /></Card><div className="qc-batch-selection-toolbar"><Button variant="secondary" disabled={!query.offset} onClick={() => setQuery({ ...query, offset: Math.max(0, query.offset - 25) })}>上一页</Button><span>本页 {page?.count} / 总计 {page?.total}</span><Button variant="secondary" disabled={!page || query.offset + page.count >= (page.total ?? 0)} onClick={() => setQuery({ ...query, offset: query.offset + 25 })}>下一页</Button></div></>}
+    <div className="qc-batch-selection-toolbar"><Button disabled={batchBusy||!session.hasPermission("quote.export")||!session.hasPermission("quote.cost.view")} onClick={()=>{setSelectionMode(!selectionMode);setSelected({});setBatchMessage("");}}>{selectionMode?"退出选择":"批量客户报价"}</Button>{selectionMode&&<><Button disabled={batchBusy||loading} onClick={()=>choose(rows,true)}>本页全选</Button><Button disabled={batchBusy||!Object.keys(selected).length} onClick={()=>void exportBatch()}>生成客户报价 ZIP</Button><span>已选 {Object.keys(selected).length} / 25（跨页 ID；100MB 技术上限）</span></>}{batchMessage&&<p role="status">{batchMessage}</p>}</div>
+    {!session.hasPermission("quote.view") ? <ErrorState permission title="Server HTTP 403 · 需要 quote.view" /> : loading ? <LoadingState label="读取 Server 报价" /> : error ? <ErrorState title="Server 报价不可用" description={error} onRetry={() => setRetry(retry + 1)} /> : <><Card><DataTable columns={columns} rows={rows} rowKey={(row) => row.id} ariaLabel="报价列表" emptyTitle="暂无 Server 报价" emptyDescription="用户主动新建后才会出现；旧 Browser 报价不会补入。" /></Card><div className="qc-batch-selection-toolbar"><Button variant="secondary" disabled={batchBusy||!query.offset} onClick={() => setQuery({ ...query, offset: Math.max(0, query.offset - 25) })}>上一页</Button><span>本页 {page?.count} / 总计 {page?.total}</span><Button variant="secondary" disabled={batchBusy||!page || query.offset + page.count >= (page.total ?? 0)} onClick={() => setQuery({ ...query, offset: query.offset + 25 })}>下一页</Button></div></>}
   </PageContainer></AppShell>;
 }
 function ServerNew() {

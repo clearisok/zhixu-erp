@@ -1,5 +1,13 @@
 # Quote Center Excel 报价导出
 
+## Current explicit Server export (2026-10-09; not deployment)
+
+`POST /api/v1/quotes/:id/customer-export` accepts only expectedVersion and exact Revision/PV selection. It reads saved snapshots, requires quote.view/export/cost.view (historical sources also quote.revision.view), uses the unchanged built-in template and shared pure ExcelJS core. Browser IndexedDB/custom-template/image IO stays in the original Browser adapter. One Revision is one workbook, one/all selected PVs are separate sheets; dirty UI offers saved-source export or save first, with no export after failed save.
+
+Current linked customer price comes from exact ConfirmedCommercialTerms, not a second editable PV current; an incomplete provenance fails closed. Historical export uses its own confirmation snapshot. Generation rechecks Quote CAS and linked terms before recording the trusted generation event. No Quote mutation, Estimate projection or claim about saving to user disk. Audit failure returns no file.
+
+Images use legal Server relations/storage and byte/SHA checks; PNG chunk CRC/decompression/dimensions and bounded JPEG structure are checked. Missing, corrupt or unsupported formats (including WebP without a Server conversion adapter) warn and omit the image; 401/403 do not become warnings. Server templates are not user-uploadable in this phase. Customer downloads are verified/parsed in isolated Chromium; exact executed counts are in AI_HANDOFF. The sections below describe the preserved Browser exporter unless explicitly stated otherwise.
+
 ## Purpose
 
 从已保存的 Quote Revision 生成正式 Excel 报价文件。导出以仓库模板为唯一视觉基准，不改变 Quote、QuoteRevision、PriceVersion 或 Repository。
@@ -31,7 +39,7 @@
 - 加工币种为 CNY 时，“RMB/件”写入原始 CNY 工价，“USD/件”留空；加工币种为 USD 时，“RMB/件”写入 Quote Center 现有计算结果中的人民币工价，“USD/件”写入用户原始录入的 USD 工价。导出器不自行执行 USD × 汇率。
 - 面料说明只组合非空的成分、净门幅和克重，不导出段长或损耗率；分隔符只在相邻有效内容之间生成。
 - 面料数据行的“面料说明”单元格统一使用宋体 9 号，并保留模板换行与动态行高；该规则同样应用于动态扩展行，不修改表头或其他列字体。
-- 最终报价按确定性的十进制四舍五入规则输出 `FOB RMB x.x`。
+- 最终报价按 Active D-033 与共享 formatter 的一位小数截断规则输出 `FOB RMB x.x`，不是四舍五入。
 - 款式图仅通过 `styleImageAttachmentId` 读取现有 AttachmentRepository；图片 contain 居中，不拉伸。缺失或损坏时保持图片区空白并给出导出警告。
 
 ## Data model

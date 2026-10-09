@@ -1,5 +1,13 @@
 # Quote Center
 
+2026-10-09 overnight engineering: explicit Server mode supports trusted current
+unlinked PV confirmation, including zero, processing/distribution, saved-source
+values/time and same-transaction version/audit. Generic PUT preserves unchanged
+confirmations but cannot forge them. Linked shared current remains read-only pending
+saved-PV currency/CAS eligibility; no local fallback. No real activation.
+
+Also connected: saved current/explicit history customer XLSX (one/all PVs, built-in template), bounded cross-page customer ZIP with truthful partial/warning manifest, and read-only Quote/global Server logs with audit/Estimate permissions. These reuse the existing Editor/export core/log components; they do not enable internal summary, whole-Quote copy/delete, Revision deletion or Quote-to-Order. Counts/checkpoints and remote delivery status are centralized in AI_HANDOFF.
+
 ## CURRENT — Fresh Start formal Server basic loop (D-097, 2026-10-08)
 
 正式 `/quote-center` / `new` / `detail` 通过显式 `NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY` 原地分流。默认 browser 保留原 mock/localStorage 行为；server 必须 masters=server、writer=writable，编译/运行身份一致。Server 分支复用 QuoteEditor 的基础信息、当前价格版本材料/工价/其他成本、报价设置、保存与附件 panel，而不是简化 workspace。
@@ -22,7 +30,7 @@ Quote / Estimate 权限耦合已在本 PR 内修复，而非新增角色政策�
 
 普通 PUT 只提交 Quote 内容；Server 在 expectedVersion 校验后合并当前已保存 Estimate，仍对完整领域实体执行原 normalize/validate、细粒度权限、历史不可变与 repository CAS/事务检查。缺失字段不是清空命令；无 Estimate 读权限者注入任何 Estimate 字段（包括 null/[]）返回409 `estimate_command_required`。有读权限者的旧完整请求仅兼容原样切片，任何变化仍拒绝；Estimate 修改只走专用命令，需要 `quote.edit` + `estimate.view` + `estimate.edit`。读权限不授予写权限，默认角色/权限目录不变。
 
-客户确认、导出、整单复制/删除、Revision 删除、转订单与日志查看仍未接线，Server 模式禁用；Browser 模式原功能保留。HISTORICAL 初始工程 checkpoint 的 actual Chromium30/30 包含 Estimate 与此前版本/成本同步/附件/下载字节SHA回归，suite 数字及验证来源统一见 `AI_HANDOFF.md`。当前权限 follow-up 重新执行相关 API、persistence、实际 Chromium 与构建；最新结果见 AI_HANDOFF，不沿用旧数字。不是真实部署或全报价 production-ready，默认 Browser/旧 runtime 不变，历史导入 NOT REQUIRED。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
+整单复制/删除、Revision 删除、转订单、内部汇总与 linked current writer 仍未接线，Server 模式禁用；Browser 模式原功能保留。HISTORICAL 初始工程 checkpoint 的 actual Chromium30/30 包含 Estimate 与此前版本/成本同步/附件/下载字节SHA回归，suite 数字及验证来源统一见 `AI_HANDOFF.md`。本轮确认/导出/日志联合测试的新结果见 AI_HANDOFF，不沿用旧数字。不是真实部署或全报价 production-ready，默认 Browser/旧 runtime 不变，历史导入 NOT REQUIRED。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
 
 > 2026-10-05：`/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有；Q3 master/default dependencies 在真实 3001 的 `masterSettingsAuthority=server` 下来自 PostgreSQL，Q3 编辑已重开。PR #64 Local Single-User UI 修复已部署：`/` 自动进入 `/quote-center`、统一侧栏恢复；用户真实浏览器确认原 Quote 数据保留。此收口没有迁移、重置、重新 seed 或改变 Quote storage namespace；Quote historical migration/Server ownership 另立 Gate。
 

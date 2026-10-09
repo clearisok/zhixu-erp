@@ -1,6 +1,7 @@
 import type { QuoteResponseRecord as QuoteRecord, QuoteSaveContent as ServerQuote } from "../../../server/quotes/quote-response";
 import type { QuoteVersionCommand } from "../../../server/quotes/version-workflows";
 import type { EstimateCommand } from "../../../server/quotes/estimate-workflows";
+import type { QuoteConfirmationCommand } from "../../../server/quotes/confirmation-workflows";
 
 export type QuoteServerListItem = {
   id: string;
@@ -43,6 +44,7 @@ export type QuoteServerClient = {
   save(quote: ServerQuote, expectedVersion: number): Promise<QuoteRecord>;
   versionWorkflow(quoteId: string, command: QuoteVersionCommand): Promise<QuoteRecord>;
   estimateWorkflow(quoteId: string, command: EstimateCommand): Promise<QuoteRecord>;
+  confirmationWorkflow(quoteId: string, command: QuoteConfirmationCommand): Promise<QuoteRecord>;
 };
 
 export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?: typeof fetch } = {}): QuoteServerClient {
@@ -83,6 +85,9 @@ export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?:
     },
     estimateWorkflow(quoteId, command) {
       return mutation("POST", `/api/v1/quotes/${encodeURIComponent(quoteId)}/estimate-workflows`, command);
+    },
+    confirmationWorkflow(quoteId, command) {
+      return mutation("POST", `/api/v1/quotes/${encodeURIComponent(quoteId)}/confirmation-workflows`, command);
     },
   };
 }

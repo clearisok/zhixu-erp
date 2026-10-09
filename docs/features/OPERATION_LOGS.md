@@ -1,5 +1,11 @@
 # 织序 ERP 前端操作日志
 
+## Current explicit Quote Server read UI (2026-10-09; not deployment)
+
+Quote detail reuses OperationLogModal/group details; `/system-settings/operation-logs` reuses the read-only DataTable/Drawer. They query only Server events, never Browser repositories. `GET /api/v1/operation-logs` validates exact quoteId, module/action/date, bounded limit/offset; parameterized filtering and stable createdAt DESC/id DESC happen before pagination/counts, not over the latest 100. `audit_log.view` is mandatory; detail additionally requires quote.view and an existing exact Quote.
+
+Without estimate.view, Estimate workflow events are excluded before filtering/counting/paging, and ordinary Quote count summaries are projected without estimateHistoryCount. No role/catalog changes. Details display persisted actor/name/time, trusted context/metadata and before/after, never current-Quote reconstruction; absent differences explicitly say “该事件未记录字段明细”. New confirmation and version events bind exact Revision/PV context. Reads append nothing; no public client append/edit/delete/clear routes.
+
 ## Q4A Server attachment audit boundary（未生产激活）
 
 上传、关联、重命名、移除关系及款式图设定/清空在 PostgreSQL 附件命令事务中追加 bounded `Attachment` OperationLog；actor 永远来自 `TrustedIdentity`，只含 Quote/Revision/附件 ID 与短名称/状态，不含 binary、完整请求、storage key、签名 URL 或 secret。审计失败回滚关系、兼容镜像和 Quote version；跨对象存储 PUT 不具 ACID，先前对象与 pending metadata 进入可识别 `pending_cleanup`，不自动物理删除。现有 Browser OperationLogs/附件继续由 Browser 持有，Q4A 不双写。

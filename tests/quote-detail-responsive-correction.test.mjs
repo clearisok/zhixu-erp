@@ -16,7 +16,7 @@ test("操作区按实际可用宽度依次降级，不依赖固定 viewport brea
 test("普通 Header 使用完整 QuoteActionBar，Sticky 只保留最小业务操作", async () => {
   const editor = await read("features/quote-center/components/quote-editor.tsx");
   assert.match(editor, /const quoteActionBarProps = \{ actions: visibleActions/);
-  assert.match(editor, /serverMode && !\["revisions", "current-revision", "create-price-version", "edit-price-version"\].includes\(action.id\)/);
+  assert.match(editor, /serverMode && !\["revisions", "current-revision", "create-price-version", "edit-price-version", "confirmation", "export", "operation-log"\].includes\(action.id\)/);
   assert.match(editor, /!serverMode && quoteFrozen && !\["revisions", "operation-log", "export", "current-revision"\].includes\(action.id\)/);
   assert.match(editor, /primaryAction: quoteFrozen \? undefined : primaryAction, quickNavigationItems/);
   assert.match(editor, /backTarget=\{\{ href: "\/quote-center", label: "返回报价中心" \}\} onRequestNavigation=\{requestNavigation\}/);

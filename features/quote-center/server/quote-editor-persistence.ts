@@ -6,6 +6,7 @@ import { editableRecord } from "./quote-server-editor-adapter";
 import { quoteServerClient } from "./quote-server-client";
 import type { QuoteVersionCommand } from "../../../server/quotes/version-workflows";
 import type { EstimateCommand } from "../../../server/quotes/estimate-workflows";
+import type { QuoteConfirmationCommand } from "../../../server/quotes/confirmation-workflows";
 import { serverQuoteFromEditable } from "./quote-server-editor-adapter";
 export type EstimateAction = EstimateCommand extends infer C ? C extends EstimateCommand ? Omit<C, "expectedVersion"> : never : never;
 export type QuoteVersionAction = QuoteVersionCommand extends infer C ? C extends QuoteVersionCommand ? Omit<C, "expectedVersion"> : never : never;
@@ -61,6 +62,10 @@ export function createQuoteEditorPersistence(initial: EditableServerQuoteRecord,
     workflow: (command: QuoteVersionAction) => exclusive(async () => {
       const saved = await workflowClient.versionWorkflow(record.quote.id, { ...command, expectedVersion: record.expectedVersion });
       record = editableRecord(saved);
+      return structuredClone(record);
+    }),
+    confirmation: (command: Omit<QuoteConfirmationCommand, "expectedVersion">) => exclusive(async () => {
+      record = editableRecord(await workflowClient.confirmationWorkflow(record.quote.id, { ...command, expectedVersion: record.expectedVersion }));
       return structuredClone(record);
     }),
     acceptAttachment(snapshot: AttachmentSnapshot) {

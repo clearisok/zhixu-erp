@@ -7,7 +7,8 @@ import { requirePermission } from "./auth/permissions.js";
 import { HttpError } from "./http/errors.js";
 import { assertMutationBoundary, readJsonBody } from "./http/request.js";
 import { requestId, sendError, sendJson } from "./http/responses.js";
-import { listOperationLogs } from "./operation-logs/repository.js";
+import { queryOperationLogs } from "./operation-logs/repository.js";
+import { parseOperationLogQuery } from "./operation-logs/query.js";
 import type { UpdateConfirmedCommercialTermsInput } from "../features/confirmed-commercial-terms/model.js";
 import {
   isConfirmedLaborCurrency,
@@ -21,6 +22,9 @@ import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales
 import { QuoteConflictError, QuoteInvariantError } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
 import { parseQuoteVersionCommand } from "./quotes/version-workflows.js";
+import { parseQuoteConfirmationCommand } from "./quotes/confirmation-workflows.js";
+import { createCustomerExportService, parseCustomerExport } from "./quotes/customer-export.js";
+import { generateCustomerBatch, parseCustomerBatch } from "./quotes/customer-batch-export.js";
 import { parseEstimateCommand } from "./quotes/estimate-workflows.js";
 import { routeQuoteMasters } from "./quote-masters/routes.js";
 import { routeQuoteAttachments } from "./attachments/routes.js";
@@ -293,11 +297,13 @@ async function route(
     const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "audit_log.view");
-    const limit = Number.parseInt(new URL(request.url ?? "/", "http://localhost").searchParams.get("limit") ?? "100", 10);
-    if (!Number.isSafeInteger(limit) || limit <= 0) {
-      throw new HttpError(400, "invalid_limit", "limit must be a positive integer");
+    const query = parseOperationLogQuery(new URL(request.url ?? "/", "http://localhost").searchParams);
+    if (query.quoteId) {
+      requirePermission(identity.permissions,"quote.view");
+      if (!await createTrustedQuoteService(dependencies.pool).getById(query.quoteId)) throw new HttpError(404,"quote_not_found","Quote not found");
     }
-    sendJson(response, 200, { operationLogs: await listOperationLogs(dependencies.pool, limit) });
+    const result=await queryOperationLogs(dependencies.pool,query,identity);
+    sendJson(response, 200, {...result,operationLogs:result.logs});
     return;
   }
 
@@ -378,6 +384,44 @@ async function route(
     const command = parseEstimateCommand(await readJsonBody(request, QUOTE_AGGREGATE_MAX_BODY_BYTES));
     try {
       const quote = await createTrustedQuoteService(dependencies.pool).estimateWorkflow(identity, requiredPathIdentity(estimateMatch[1], "quoteId"), command, { requestId: correlationId, method: request.method, path });
+      sendJson(response, 200, { quote });
+    } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
+  if (request.method === "POST" && path === "/api/v1/quotes/customer-batch-export") {
+    assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    const items = parseCustomerBatch(await readJsonBody(request));
+    const result = await generateCustomerBatch(dependencies.pool, dependencies.attachmentStorage, identity, items);
+    if (!result.bytes) { sendJson(response, 200, {report:result.report});return; }
+    response.writeHead(200,{"Content-Type":"application/zip","Content-Length":result.bytes.length,"Cache-Control":"no-store",
+      "X-Zhixu-File-Name":encodeURIComponent(result.fileName!),"X-Zhixu-File-Sha256":result.sha256!,
+      "X-Zhixu-Export-Warnings":encodeURIComponent(JSON.stringify(result.report.warnings.length?["部分文件有警告，详见 ZIP export-results.json。"]:[])),"X-Zhixu-Batch-Report":encodeURIComponent(JSON.stringify(result.report))});
+    response.end(result.bytes);return;
+  }
+  const exportMatch = /^\/api\/v1\/quotes\/([^/]+)\/customer-export$/.exec(path);
+  if (request.method === "POST" && exportMatch) {
+    assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    const selection = parseCustomerExport(await readJsonBody(request));
+    const file = await createCustomerExportService(dependencies.pool, dependencies.attachmentStorage).generate(identity, requiredPathIdentity(exportMatch[1], "quoteId"), selection);
+    response.writeHead(200, { "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Content-Length": file.bytes.length,
+      "Cache-Control": "no-store", "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+      "X-Zhixu-File-Name": encodeURIComponent(file.fileName), "X-Zhixu-File-Sha256": file.sha256,
+      "X-Zhixu-Export-Warnings": encodeURIComponent(JSON.stringify(file.warnings)) });
+    response.end(file.bytes); return;
+  }
+
+  const confirmationMatch = /^\/api\/v1\/quotes\/([^/]+)\/confirmation-workflows$/.exec(path);
+  if (confirmationMatch && request.method === "POST") {
+    assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    const command = parseQuoteConfirmationCommand(await readJsonBody(request, QUOTE_AGGREGATE_MAX_BODY_BYTES));
+    try {
+      const quote = await createTrustedQuoteService(dependencies.pool).confirmationWorkflow(identity, requiredPathIdentity(confirmationMatch[1], "quoteId"), command, { requestId: correlationId, method: request.method, path });
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
     return;

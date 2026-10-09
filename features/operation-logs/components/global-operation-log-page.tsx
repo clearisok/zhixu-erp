@@ -16,6 +16,8 @@ import {
 } from "../model/operation-log-presentation";
 import { operationLogRepository } from "../repository/operation-log-repository";
 import { OperationLogGroupList } from "./operation-log-group-list";
+import { quoteAuthority } from "@/features/quote-center/authority/quote-authority";
+import { ServerGlobalOperationLogPage } from "./server-operation-log-viewer";
 
 const formatTime = (iso: string) => new Intl.DateTimeFormat("zh-CN", {
   year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
@@ -48,7 +50,7 @@ function TechnicalDetails({ group }: { group: OperationLogGroup }) {
   </section>)}</div>;
 }
 
-export function GlobalOperationLogPage() {
+function BrowserGlobalOperationLogPage() {
   const [logs, setLogs] = useState<OperationLog[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,3 +120,4 @@ export function GlobalOperationLogPage() {
     </PermissionGuard>
   </PageContainer></AppShell>;
 }
+export function GlobalOperationLogPage(){return quoteAuthority()==="server"?<ServerGlobalOperationLogPage />:<BrowserGlobalOperationLogPage />;}
