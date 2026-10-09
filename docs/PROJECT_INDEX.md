@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> PR #89 D-099 列表修复正在单 Codex 整合与重新验证；Preview 更新有条件授权，用户验收 PENDING。[宽度/只读图片契约与历史测试](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。以下运行状态为原阶段证据，不能推断本修复已部署。
+> PR #89 D-099 列表修复已完成单 Codex 整合/重测与独立18444更新，用户验收 PENDING，大尺寸照片仍明确占位。[宽度/图片契约、本轮测试与Preview备份恢复](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。18443及旧环境未变；下面部署摘要是其原阶段证据。
 
 > 当前：D-099 Quote 原版 UI / Server 工程已由 PR #86 合并，人工 UI 验收 PENDING；PR #85 Source/Bridge 修复也已合并。PR #84 已 MERGED 于 `49a82c9f970e158ded589300b4aa04fc4c809038`；原 Windows 更新有[备份/运行身份/持久数据验收证据](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)，合并不代表新的运行更新。PR #88 D-099 新候选准备不等于已部署。当前摘要见 CURRENT_STATE，恢复点见 AI_HANDOFF；[UI审计](tasks/active/quote-original-ui-convergence.md)、[合成视觉索引](tasks/assets/quote-original-convergence/README.md)、[部署历史归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)与[操作说明](../ops/quote-trial/README.md)均保留。本轮不复核或更新真实环境，不重新 setup/init。
 > PR #87 已合并至 `7ed9204d552384730bf93c992b500c530d639c38`；[历史补测、合成 API 演示与0009发布风险](tasks/completed/2026-10-10-pr87-delivery-plan-integration.md)保留。真实业务环境0009未获本轮授权，只有隔离18444 Preview通过安全检查后可以前向迁移。

@@ -2,7 +2,7 @@
 
 > 2026-10-10；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及原工程验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
 
-> PR #89 原修复及 P2 验证为历史工程证据：可见性引用释放、列表2MiB/1M像素单图、8MiB/4M像素总预算，大图详情占位，上传规则未改。[阈值与原测试](tasks/active/d099-list-acceptance.md)。本轮单 Codex 整合 main、重新验证及有条件的18444更新尚在进行，**USER ACCEPTANCE PENDING**；不操作18443。
+> PR #89 单 Codex 整合/重测完成，独立18444 Preview已更新为 `0d684f4d922c9d4c9b628eeeacbc60a6a06b9516`，仅Preview0009前向迁移，原演示数据保留。Chromium列宽16/16、内存/手机JPEG9/9、全量62/62、Preview只读8/8；[备份恢复、身份与本轮证据](tasks/active/d099-list-acceptance.md)。**大手机照片仍占位，USER ACCEPTANCE PENDING**；18443未操作。
 
 ## 当前工程能力
 
@@ -15,7 +15,7 @@
 
 - 本轮 fetch/GitHub 已核实 main `7ed9204d552384730bf93c992b500c530d639c38`，PR #87 已合并；在 #89 原独立工作树正常整合。PR #84 已合并，原部署不代表 #89 已部署；#88 不在本轮范围。
 - PR #84 已执行的 Windows win01 更新：app/gateway `zhixu-quote-trial-ui:878de323d618`，source `878de323d618b25fca1f51ccf3f024e932641742`，build `quote-trial-ui-20261009` / `2026-10-09T07:20:46Z`；当时真实 HTTPS、CLI READY、三服务 healthy，数据库容器/镜像/卷、TLS和持久业务保持。完整备份、部署身份与管理员/受限账号、2 Quote/Revision/PV及2附件 bytes/SHA验收见[独立更新报告](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)。这些是原执行证据，本轮未复核真实运行环境。
-- 用户新 UI 与完整三张业务卡人工验收 PENDING。18444 独立 Preview 只有通过隔离、可恢复备份及0009兼容检查后才可按本轮授权更新；18443和旧环境保持，不重新 setup/init。
+- 用户新 UI 与完整三张业务卡人工验收 PENDING。18444已通过隔离、可恢复备份/附件恢复及0009检查，https://localhost:18444/quote-center 可人工验收；数据库/卷/TLS/原演示账号数据与个人偏好保留。18443及旧环境不变，不重新 setup/init。
 - 明确差异/延期：合法款式图列表读取本轮已接通（现有原图按48px展示，不新增缩略图服务），country/PV-name summary 仍未接线；Server 新建不是 Browser 未保存整单编辑。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理仍未支持，不伪造按钮能力。
 
 ## 已合并订单工程（历史验证，非激活指令）
