@@ -1,19 +1,18 @@
 # 当前状态
 
-> 2026-10-09；当前任务：PR #82 合并冲突与审查收口。历史工程见 [归档](tasks/completed/2026-10-09-pre-trial-state-history.md)，部署/UI 详细证据见 AI_HANDOFF 历史段与 [试用操作说明](../ops/quote-trial/README.md)。
+> 2026-10-09；当前任务：Windows Quote Trial UI 原地更新。历史工程见 [归档](tasks/completed/2026-10-09-pre-trial-state-history.md)，本次运行证据见 [更新记录](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)，日常入口见 [试用操作说明](../ops/quote-trial/README.md)。
 
 ## 试用状态与工程版本
 
 - Windows 独立目标 `zhixu-quote-trial-win01` / `https://localhost:18443` 此前已部署 **READY**：独立新 DB 0001–0008、session/RBAC、COS 新对象、重启持久化与首次备份已验收。用户已解决密码问题、成功登录并打开页面；完整三张人工业务卡尚未确认通过。
-- 当前真实应用仍 `zhixu-quote-trial:9ee254db89c6`，source `9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23`。没有后续部署证据，不能以 Git merge 替代真实更新。
-- PR #83 UI 修复已合并 main `dd5fc62e6a4cdf5920528c71cfbd4dbae3c9013d`；新候选 `zhixu-quote-trial-ui:878de323d618` **BUILT / NOT DEPLOYED**，应用source `878de323d618b25fca1f51ccf3f024e932641742`。列表/新建/详情、成本与滚动修复及合成对比图保留。
-- PR #82 Windows 工具/部署证据继续保留，在原分支普通整合 main、隔离验证原生命令失败处理，等待审查；Git 冲突解决不等于完整运维安全审查 PASS。
+- 已授权并实际更新 app/gateway 至 `zhixu-quote-trial-ui:878de323d618`，source `878de323d618b25fca1f51ccf3f024e932641742`，build `quote-trial-ui-20261009` / `2026-10-09T07:20:46Z`。实际 HTTPS build-info、三服务 healthy、CLI READY 已核对；数据库容器/镜像/卷、TLS/端口及业务内容保持。不是仅以 Git merge 宣称部署。
+- PR #82/#83 已合并；本次从 main `edc3598764266de087c0f669f8bcf5452c6d3fd2` 保留 Windows 工具、UI 修复和合成对比图。新旧镜像 schema checksum 一致，未 migration/init/restore。日常工具快照未改，仅更新受限配置的四个非秘密镜像/build字段及目标身份记录。
 
 ## 验证来源与下一步
 
-- #82 部署阶段定向 14/14 与真实验收是历史证据；#83 Chromium61/61、auth/persistence67/67、SSR2/2、npm674/674、两种frontend与质量检查是 UI 工程证据。本次不重复运行上述测试或真实验收。
-- 下一步：审查收口后，另行授权**现有试用环境应用更新**并做人工业务卡；不重新 setup/init，不重新创建账号/验收数据，不将历史导入门禁加回。
-- 默认 Browser、旧 3000/3001/3002、旧数据库/Browser 数据不变；本轮不读取真实 secrets、操作 Docker runtime、DB、COS、备份或部署目录。
+- 本次配置白名单/漂移拒绝与 Windows 原生失败回归12/12、定向lint/diff-check PASS；完整新 dump 与2个现有附件对象备份、原应用恢复、新候选 READY、全业务表保护及旧备份保持均实跑。启动只刷新 `app_roles.updated_at`，离线 dump 逐列证实其余角色内容不变。旧14/14、Chromium61/61等仍按原工程阶段引用，未重跑。
+- 管理员/受限账号实际session、列表/详情、2 Quote/2 Revision/2 PV与2附件下载bytes/SHA只读验收 PASS；401/受限权限、Estimate裁剪和403检查通过，验收会话已注销，业务/账号内容保持。**用户新 UI 人工验收 PENDING**：在原地址查看列表/新建/详情/成本/滚动；既有列偏好不清理，采用新默认布局须用户显式恢复默认。
+- 默认 Browser、旧 3000/3001/3002、旧数据库/Browser 数据不变。本轮只操作授权 win01 的备份、应用替换和只读验收；不创建业务数据、不写 COS 新对象、不重设账号或密钥。
 
 ## 永久边界
 

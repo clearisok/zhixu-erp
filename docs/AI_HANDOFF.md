@@ -6,11 +6,13 @@
 - Preflight PASS：本机 desktop-linux/npipe，原三服务 healthy；旧9ee镜像、新878de镜像 ID/labels/编译身份核对，schema文件/checksum一致；resolved模型仅镜像与build身份变化，database config hash unchanged。当前真实库已有2 Quote/2 Revision/2 PV/2附件，必须保留用户新增数据。
 - 更新前完整备份 PASS：`zhixu-20261009T083516Z-2b5042a5.dump`，120482 bytes，SHA256 `7e5e8c6e2c154b9e11476905cc35d6e5b7bffd54a0ce808e27b96998455f899b`；2 DB-owned对象 bytes/hash 与manifest已核对，原应用恢复READY。所有业务/账号/权限内容一致；已有正常启动仅刷新 app_roles.updated_at，经离线dump逐列比对证实其他role字段完全一致，不隐瞒为全库逐字节不变。
 - 配置投影/完整resolved模型白名单隔离7/7、Windows原生失败5/5，共12/12；定向lint/diff-check PASS。仅新增小型update identity纯函数，不修改已部署守卫；受限快照/升级证据在私有root，配置/secret/dump/原始业务不入Git。镜像不重建/重贴标签。
-- 当前checkpoint停在真实替换前：仅backup已执行，新镜像尚未启动；继续经canonical trial start的Compose up与READY守卫，核对DB容器不变和读回，再交接用户人工UI。不得通过旧verify-deploy创建数据或用过期配置密码反复登录。
+- 安全工具checkpoint `b27dc579fa25d9d34b71382cfce5427fa6e245c9` 已推送；真实更新现已执行 **READY**。app/gateway 为878de镜像；HTTPS实际build `quote-trial-ui-20261009` / `2026-10-09T07:20:46Z`，server/server/writable/session。DB原容器/镜像/卷、TLS和业务内容保持，日常Status三服务healthy；首dump和原对象backup hash保持。具体见[更新记录](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)。
+- 真实API只读验收已 **PASS**：用户隐藏输入当前密码，一次admin/一次viewer可信登录、401/权限/403/Estimate裁剪、2Quote/2Revision/2PV、2附件metadata/download bytes/SHA均通过；两验收session已logout，全业务/账号/日志内容保持。首次命令路径拼错在执行前、未登录，修正后本机结果文件已核实；不使用配置旧密码，不读取浏览器Cookie。人工新UI仍PENDING。
+- 运行更新/只读验收/文档收口完成；Git交付以实际local/remote/唯一PR head核对，不以部署READY替代合并审查。下一步用户原URL验收列表/新建/详情/成本/滚动，列偏好保持且恢复默认必须用户显式操作。不要重做更新/备份/init，或通过旧verify-deploy创建数据。以下全部是历史证据，不是当前操作指令。
 
 ## Historical — PR #82 integration closure
 
-## Active — PR #82 main integration / review closure (2026-10-09)
+## Historical — PR #82 main integration / review closure (2026-10-09)
 
 - 原分支 `ops/deploy-quote-trial-windows`，baseline `45ee50dd01f410b9ccfecc8c2bbeb99523593480` / clean。普通 merge 已验证 main `dd5fc62e6a4cdf5920528c71cfbd4dbae3c9013d`（PR #83）；只冲突 AI_HANDOFF / CURRENT_STATE / PROJECT_INDEX，Windows 工具及 UI 自动合并保留。
 - Windows win01 此前真实部署 READY，用户已解决密码问题并打开页面；完整三张人工业务卡尚未确认通过。当前 18443 仍原 `9ee254d…` 镜像；#83 已合并，新 UI 候选 `zhixu-quote-trial-ui:878de323d618` 已构建未部署。下一步是另行授权现有环境应用更新，不重新 setup/init。
@@ -36,7 +38,7 @@
 
 ## Historical — UI implementation / delivery evidence (PR #83 now merged)
 
-## Active — Quote Trial UI Usability Repair (2026-10-09)
+## Historical — Quote Trial UI Usability Repair (2026-10-09)
 
 - Branch `fix/quote-trial-ui-usability`，base `cc3c450562e692b696024558706954816227cb8a` / clean。独立于 PR #82 Windows 运维交付。
 - 用户确认密码问题已解决、已登录并打开真实页面；完整三张业务卡仍未确认通过。真实 `https://localhost:18443` 继续运行原 `9ee254d…` 镜像，本任务不访问试用 DB/COS/credentials，不替换运行环境。
