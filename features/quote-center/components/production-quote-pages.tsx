@@ -11,11 +11,13 @@ import { QuoteList } from "./quote-list";
 import { QuoteDetailLoader, QuoteEditor, QuoteNewLoader } from "./quote-editor";
 import type { QuoteType } from "../model/quote-view-model";
 import { customerBatchExport, downloadCustomerFile } from "../server/customer-export-client";
+import { allowedBusinessColumns, businessColumns } from "../model/quote-business-view";
 
 const safeError = (error: unknown) => error && typeof error === "object" && "status" in error ? `Server HTTP ${String(error.status)}；无 Browser fallback。` : "Server 读取失败或数值无法安全转换；无 Browser fallback。";
 function ServerList() {
   const router = useRouter();
   const session = useServerSession();
+  const visibleBusinessColumns = useMemo(() => allowedBusinessColumns(session.permissions), [session.permissions]);
   const [rows, setRows] = useState<QuoteServerListItem[]>([]);
   const [page, setPage] = useState<QuoteServerPage | null>(null);
   const [query, setQuery] = useState({ search: "", type: "", status: "", offset: 0 });
@@ -44,25 +46,21 @@ function ServerList() {
     let active = true;
     void Promise.resolve().then(() => { setLoading(true); setError(""); });
     if (!session.hasPermission("quote.view")) return;
-    void quoteServerClient.list({ ...query, limit: 25 }).then((result) => {
+    void quoteServerClient.list({ ...query, limit: 25, columns: visibleBusinessColumns }).then((result) => {
       if (!active) return;
       if (result.page.total === undefined || result.quotes.some((row) => !row.summary)) throw new Error("Incomplete Server summary");
       setRows(result.quotes); setPage(result.page);
     }).catch((cause) => { if (active) setError(safeError(cause)); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [query, retry, session]);
+  }, [query, retry, session, visibleBusinessColumns]);
   const columns: DataColumn<QuoteServerListItem>[] = [
     ...(selectionMode?[{key:"select",header:"选择",render:(row:QuoteServerListItem)=><input type="checkbox" aria-label={`选择 ${row.id}`} disabled={batchBusy} checked={Boolean(selected[row.id])} onChange={e=>choose([row],e.target.checked)} />}]:[]),
-    { key: "quote", header: "报价编号", render: (row) => <strong>{row.quoteCode}</strong> },
-    { key: "style", header: "款号 / 款名", render: (row) => <div className="qc-primary-cell"><strong>{row.summary?.quoteStyleNo || "未填写款号"}</strong><small>{row.summary?.styleName || "未填写款名"}</small></div> },
-    { key: "brand", header: "品牌 / 业务员", render: (row) => <div className="qc-primary-cell"><strong>{row.summary?.brandName || "未填写品牌"}</strong><small>{row.summary?.salespersonName || "未填写业务员"}</small></div> },
-    { key: "type", header: "类型 / 状态", render: (row) => `${row.summary?.quoteType === "processing" ? "加工" : "经销"} / ${row.summary?.status}` },
-    { key: "revision", header: "报价版本 / 价格方案", render: (row) => `${row.summary?.revisionLabel} / ${row.summary?.priceVersionCount}` },
-    { key: "date", header: "报价日期", render: (row) => row.summary?.quoteDate || "未填写" },
+    ...visibleBusinessColumns.map(key => ({ key, header: businessColumns.find(c => c.key === key)!.label, minWidth: 100, width: key === "styleIdentity" ? 220 : 145,
+      render: (row: QuoteServerListItem) => <span title={key === "confirmationStatus" ? row.confirmationSources?.map(s => `${s.priceVersionId}: ${s.linkage}${s.termsVersion === null ? "" : ` / CCT v${s.termsVersion}`}`).join("；") : undefined}>{row.business?.[key]?.display ?? "—"}</span> })),
     { key: "action", header: "操作", render: (row) => <Button variant="text" onClick={() => router.push(`/quote-center/detail?id=${encodeURIComponent(row.id)}`)}>打开报价 →</Button> },
   ];
   return <AppShell title="报价中心"><PageContainer className="qc-quote-center-page">
-    <PageHeader eyebrow="QUOTE CENTER · SERVER" title="报价中心" count={page ? `${page.total} 条` : ""} description="PostgreSQL 报价快照与客户报价 ZIP；内部成本汇总和整单复制尚未接线。" primaryAction={<Button permission="quote.create" onClick={() => router.push("/quote-center/new")}>＋ 新建报价</Button>} />
+    <PageHeader eyebrow="QUOTE CENTER · SERVER" title="报价中心" count={page ? `${page.total} 条` : ""} description="当前默认版本的业务投影；客户确认按逐 PV 真实关联读取，报价状态不被改写。" primaryAction={<Button permission="quote.create" onClick={() => router.push("/quote-center/new")}>＋ 新建报价</Button>} />
     <Toolbar search={<input className="qc-control" aria-label="搜索报价" placeholder="全库搜索编号、款号、款名、品牌、业务员" value={query.search} onChange={(event) => setQuery({ ...query, search: event.target.value, offset: 0 })} />}
       moreFilters={<><FormItem label="报价类型"><select className="qc-control" value={query.type} onChange={(event) => setQuery({ ...query, type: event.target.value, offset: 0 })}><option value="">全部类型</option><option value="distribution">经销</option><option value="processing">加工</option></select></FormItem><FormItem label="报价状态"><select className="qc-control" value={query.status} onChange={(event) => setQuery({ ...query, status: event.target.value, offset: 0 })}><option value="">全部状态</option><option value="draft">草稿</option><option value="quoting">报价中</option><option value="partially_confirmed">部分确认</option><option value="confirmed">已确认</option></select></FormItem></>} />
     <div className="qc-batch-selection-toolbar"><Button disabled={batchBusy||!session.hasPermission("quote.export")||!session.hasPermission("quote.cost.view")} onClick={()=>{setSelectionMode(!selectionMode);setSelected({});setBatchMessage("");}}>{selectionMode?"退出选择":"批量客户报价"}</Button>{selectionMode&&<><Button disabled={batchBusy||loading} onClick={()=>choose(rows,true)}>本页全选</Button><Button disabled={batchBusy||!Object.keys(selected).length} onClick={()=>void exportBatch()}>生成客户报价 ZIP</Button><span>已选 {Object.keys(selected).length} / 25（跨页 ID；100MB 技术上限）</span></>}{batchMessage&&<p role="status">{batchMessage}</p>}</div>

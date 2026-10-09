@@ -1,6 +1,14 @@
 # AI 接力棒
 
-## Current: Linked ConfirmedCommercialTerms（2026-10-09）
+## Current: Server Quote List + Internal Summary（2026-10-09，IN PROGRESS）
+
+- PR #79 已 MERGED，base `b1ffa5da9b2af0751889470e453cc150f2a2718c`；branch `feat/server-quote-list-summary`，起始 clean。A 列表投影正在收口，B 个人列设置/内部汇总与 C 实际 Chromium/文件联合验收尚未完成；不得引用 #79 测试作为本任务结果。
+- A：旧无 columns 调用保持最小 DTO；显式 columns 固定白名单/重复及长度拒绝、可信 quote.view + 金额列 quote.cost.view。同一只读 repeatable-read 事务先分页，再批量读取所选默认 Revision/PV 与成本；25 条成本列表固定9条 SQL（含 BEGIN/COMMIT），不读取 aggregate/历史/Estimate。数量/null/zero、成本区间、CNY/USD、最终成衣显示沿用原 calculator/formatter。
+- 默认 Revision 逐 PV 精确核验 provenance：linked 使用 CCT current、空 current 不回退旧确认；unlinked 使用合法保存快照；partial 明确未知。响应以逐 PV linkage/termsVersion 标明来源，Quote 状态/版本/历史不被改写；金额只在请求对应列时输出。正式 Server 列表已接业务投影，无逐行 aggregate HTTP。
+- 本轮 A 实跑：业务纯函数4/4，disposable 列表/API6/6（含 harness；27条分页、固定查询、权限/非法请求、linked/unlinked/空/partial、隐藏 unsafe Estimate、请求 unsafe decimal拒绝）；typecheck/lint/diff-check PASS。阶段提交以交付记录为准。尚未进行本任务实际 Chromium/Excel/最终回归，不能宣称整个任务 PASS。
+- 仅隔离合成数据/PG16 tmpfs/随机端口，真实 Ubuntu/runtime/DB/Browser/COS/secrets 未操作；默认 Browser 不变，D-096 历史导入 NOT REQUIRED。
+
+## HISTORICAL: Linked ConfirmedCommercialTerms（2026-10-09）
 
 - Base PR #78 已 MERGED，`78245ac6905072354fb3edc12c45ced09e5d67cb`；branch `feat/linked-confirmed-commercial-terms`，起始 clean。A 服务端、B 正式 UI/订单 API、C 联合回归工程均 PASS；A checkpoint `066b83011018de063e3c53d7da1305db8c81f430`、B checkpoint `48b2934f21e59097ccbd67845c8168b145f456aa` 已分别提交并推送，C 最终提交/PR 以交付报告为准。不操作真实环境，D-096 历史导入 NOT REQUIRED。
 - A：Quote PATCH/service 必须有正整数 expectedQuoteVersion + terms expectedVersion（首次0）；同事务 terms advisory context → Quote FOR UPDATE → 同连接 aggregate读取/当前default Revision/PV/币种/完整正式关联核验 → terms CAS/关系/可信审计。不修改 Quote/Order aggregate、历史、Estimate、镜像/编号，不新增 SQL。Order current 仍可编辑旧关联 provenance，不套 Quote当前编辑限制；币种必须保留已建立 qualifier。Quote仅以 saved PV currency 作断言，金额无换汇/舍入；legacy 无可核验 Server Quote 的 writer fail closed，不以缺参数选择弱入口。

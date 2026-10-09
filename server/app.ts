@@ -1,6 +1,7 @@
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
 import type { Pool } from "pg";
 import { listQuoteSummaries } from "./quotes/list-summary.js";
+import { parseBusinessColumns } from "./quotes/business-source.js";
 import { login, revokeSession, sessionCookie, type SessionSecurityConfig, type TrustedIdentity } from "./auth/session.js";
 import { createIdentityAuthority, type IdentityAuthority } from "./auth/identity-authority.js";
 import { requirePermission } from "./auth/permissions.js";
@@ -161,7 +162,7 @@ function salesOrderListQuery(requestUrl: string | undefined) {
 
 function quoteListQuery(requestUrl: string | undefined) {
   const params = new URL(requestUrl ?? "/", "http://localhost").searchParams;
-  if ([...params.keys()].some((key) => !["limit", "offset", "search", "type", "status"].includes(key))) {
+  if ([...params.keys()].some((key) => !["limit", "offset", "search", "type", "status", "columns"].includes(key) || params.getAll(key).length !== 1)) {
     throw new HttpError(400, "invalid_quote_list_query", "Quote list query contains unsupported fields");
   }
   const parse = (key: "limit" | "offset", fallback: number, minimum: number) => {
@@ -178,7 +179,9 @@ function quoteListQuery(requestUrl: string | undefined) {
   const type = params.get("type") ?? undefined;
   const status = params.get("status") ?? undefined;
   if (search.length > 200 || (type && !["processing", "distribution"].includes(type)) || (status && !["draft", "quoting", "partially_confirmed", "confirmed"].includes(status))) throw new HttpError(400, "invalid_quote_list_query", "Quote filters are invalid");
-  return { limit, offset: parse("offset", 0, 0), search, type, status };
+  const rawColumns = params.get("columns");
+  if (rawColumns !== null && rawColumns.length > 400) throw new HttpError(400, "invalid_quote_columns", "Column selection is too long");
+  return { limit, offset: parse("offset", 0, 0), search, type, status, ...(rawColumns !== null ? { columns: parseBusinessColumns(rawColumns.split(",")) } : {}) };
 }
 
 function quoteBody(body: Record<string, unknown>): { quote: import("./quotes/quote-response.js").QuoteSaveContent; expectedVersion: number } {
@@ -334,7 +337,7 @@ async function route(
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "quote.view");
     const query = quoteListQuery(request.url);
-    sendJson(response, 200, await listQuoteSummaries(dependencies.pool, query));
+    sendJson(response, 200, await listQuoteSummaries(dependencies.pool, query, identity));
     return;
   }
 

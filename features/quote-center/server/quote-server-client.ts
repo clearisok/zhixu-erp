@@ -2,12 +2,15 @@ import type { QuoteResponseRecord as QuoteRecord, QuoteSaveContent as ServerQuot
 import type { QuoteVersionCommand } from "../../../server/quotes/version-workflows";
 import type { EstimateCommand } from "../../../server/quotes/estimate-workflows";
 import type { QuoteConfirmationCommand } from "../../../server/quotes/confirmation-workflows";
+import type { BusinessColumn, BusinessValues } from "../model/quote-business-view";
 
 export type QuoteServerListItem = {
   id: string;
   quoteCode: string;
   defaultRevisionId: string;
   version: number;
+  business?: BusinessValues;
+  confirmationSources?: Array<{ priceVersionId: string; linkage: "linked" | "unlinked" | "unknown"; termsVersion: number | null }>;
   summary?: { quoteStyleNo: string; styleName: string; brandName: string; salespersonName: string; status: string; quoteType: string; quoteDate: string | null; revisionLabel: string; priceVersionCount: number };
 };
 
@@ -38,7 +41,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
 }
 
 export type QuoteServerClient = {
-  list(query?: { limit?: number; offset?: number; search?: string; type?: string; status?: string }): Promise<{ quotes: QuoteServerListItem[]; page: QuoteServerPage }>;
+  list(query?: { limit?: number; offset?: number; search?: string; type?: string; status?: string; columns?: BusinessColumn[] }): Promise<{ quotes: QuoteServerListItem[]; page: QuoteServerPage }>;
   getById(quoteId: string): Promise<QuoteRecord>;
   create(): Promise<QuoteRecord>;
   save(quote: ServerQuote, expectedVersion: number): Promise<QuoteRecord>;
@@ -66,6 +69,7 @@ export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?:
       if (query.limit !== undefined) params.set("limit", String(query.limit));
       if (query.offset !== undefined) params.set("offset", String(query.offset));
       for (const key of ["search", "type", "status"] as const) if (query[key]) params.set(key, query[key]);
+      if (query.columns) params.set("columns", query.columns.join(","));
       return request(`/api/v1/quotes${params.size ? `?${params}` : ""}`);
     },
     getById(quoteId) {

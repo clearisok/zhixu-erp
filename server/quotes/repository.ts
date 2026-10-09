@@ -116,6 +116,23 @@ async function readSnapshot(client: PoolClient, row: ObjectData): Promise<Object
   }
   return output;
 }
+/** Bounded current-source reader. Uses the same restoration contract, no history/Estimate query. */
+export async function readCostSnapshots(client: PoolClient, ids: string[]): Promise<Map<string, ObjectData>> {
+  const output = new Map<string, ObjectData>();
+  if (!ids.length) return output;
+  const rows = (await client.query(`SELECT ${snapshotProjection} FROM quote_center_cost_snapshots WHERE id=ANY($1::text[])`, [ids])).rows;
+  for (const row of rows) output.set(row.id, { pricingParameters: restore(row, "pricing_metadata", pricingFields), labor: { ...row.labor_metadata, value: row.labor_value === null ? null : canonicalDecimal(String(row.labor_value)) } });
+  for (const spec of lineSpecs) {
+    const lines = (await client.query(`SELECT *,${numericProjection(spec.fields)} FROM ${spec.table} WHERE snapshot_id=ANY($1::text[]) ORDER BY snapshot_id,position`, [ids])).rows;
+    const groups = new Map<string, ObjectData[]>();
+    for (const line of lines) {
+      const group = groups.get(line.snapshot_id) ?? [];
+      group.push({ ...restore(line, "metadata", spec.fields), id: line.id }); groups.set(line.snapshot_id, group);
+    }
+    for (const [id, slice] of output) slice[spec.key] = groups.get(id) ?? [];
+  }
+  return output;
+}
 /** Caller owns transaction/locking. Never obtains another connection. */
 export async function readQuoteAggregateInTransaction(client: PoolClient, id: string): Promise<QuoteRecord | null> {
   const roots = await client.query("SELECT * FROM quote_center_quotes WHERE id=$1", [id]);
