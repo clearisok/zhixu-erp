@@ -201,7 +201,15 @@ npm run preflight:object-storage -- --evidence /absolute/private-evidence/cos-pr
 
 ## Known gaps
 
+下面旧 IndexedDB gaps 属于 Browser 路线，不代表显式 Server 附件没有大小/hash 保护。
+
 - IndexedDB 只在当前浏览器设备可用，不是生产级共享附件存储。
 - 报价整体删除后的孤儿 Blob 尚无回收任务。
 - 没有上传进度、大小上限、文件哈希、重复检测和安全扫描。
 - 系统相册与摄像头 UI 需要目标手机实机验收；自动浏览器已通过文件注入验证多图、首图款式图与不覆盖既有款式图。
+
+## Quote trial Server runtime protection（2026-10-09，未真实部署）
+
+S3 adapter 保持原对象身份与 bounded retry，连接5s、socket/request30s、单次请求30s、GET headers 后整体读取90s硬上限；超时真实 abort/destroy，不只 Promise.race。下载消费者断开传播到上游；安全失败无 SDK message/cause/credential。403不伪装成缺对象，404仍须确认 bucket。实际 SDK 受控慢响应/断流/取消/不可达8/8，本地 MinIO adapter2/2；不重测真实 COS。
+
+实际 session/server/server/writable production 候选镜像在隔离 TLS/MinIO/私有 PostgreSQL 中验证：非root1000:1000、文件凭据600与只读 mount、上传/下载字节SHA、重启/重建与数据库+对象独立恢复。最短入口及维护边界见 [试用操作说明](../../ops/quote-trial/README.md)。对象备份只读取数据库 metadata 所拥有的 available 对象（含合法 replay 的未关联对象），不扫描 bucket/接管旧对象；未完成上传或其他 DB clients fail closed。无新增删除/GC，无真实存储操作。目标环境 CAM/挂载与真实部署另行验收。

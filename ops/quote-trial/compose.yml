@@ -1,0 +1,79 @@
+# Independent candidate; no legacy container_name/external network/volume/default .env.
+name: ${TRIAL_PROJECT:?explicit isolated project required}
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: quote_trial
+      POSTGRES_USER: quote_trial
+      POSTGRES_PASSWORD: ${TRIAL_DB_PASSWORD:?explicit new password required}
+    volumes: ["data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quote_trial -d quote_trial"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  app:
+    image: ${TRIAL_IMAGE:?reviewed candidate image required}
+    user: "1000:1000"
+    environment:
+      NODE_ENV: production
+      ZHIXU_SERVER_HOST: 0.0.0.0
+      ZHIXU_SERVER_PORT: "3000"
+      DB_HOST: database
+      DB_PORT: "5432"
+      DB_NAME: quote_trial
+      DB_USER: quote_trial
+      DB_PASSWORD: ${TRIAL_DB_PASSWORD:?}
+      ZHIXU_ALLOWED_ORIGINS: ${TRIAL_HTTPS_ORIGIN:?HTTPS gateway origin required}
+      ZHIXU_COOKIE_SECURE: "true"
+      ZHIXU_IDENTITY_MODE: session
+      NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY: server
+      NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY: server
+      NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE: writable
+      ZHIXU_GIT_COMMIT: ${TRIAL_COMMIT:?}
+      ZHIXU_BUILD_ID: ${TRIAL_BUILD_ID:?}
+      ZHIXU_BUILD_TIME: ${TRIAL_BUILD_TIME:?}
+      ZHIXU_ADMIN_USERNAME: ${TRIAL_ADMIN_USERNAME:-admin}
+      ZHIXU_ADMIN_PASSWORD: ${TRIAL_ADMIN_PASSWORD:?new administrator required}
+      ZHIXU_ATTACHMENT_STORAGE: s3
+      ZHIXU_ATTACHMENT_S3_ENDPOINT: ${TRIAL_S3_ENDPOINT:?HTTPS endpoint required}
+      ZHIXU_ATTACHMENT_S3_REGION: ${TRIAL_S3_REGION:?}
+      ZHIXU_ATTACHMENT_S3_BUCKET: ${TRIAL_S3_BUCKET:?}
+      ZHIXU_ATTACHMENT_S3_FORCE_PATH_STYLE: ${TRIAL_S3_PATH_STYLE:-false}
+      ZHIXU_ATTACHMENT_S3_ACCESS_KEY_ID_FILE: /run/secrets/cos-id
+      ZHIXU_ATTACHMENT_S3_SECRET_ACCESS_KEY_FILE: /run/secrets/cos-key
+    volumes:
+      - type: bind
+        source: ${TRIAL_SECRET_ID_FILE:?absolute credential path required}
+        target: /run/secrets/cos-id
+        read_only: true
+      - type: bind
+        source: ${TRIAL_SECRET_KEY_FILE:?absolute credential path required}
+        target: /run/secrets/cos-key
+        read_only: true
+    depends_on:
+      database: {condition: service_healthy}
+  gateway:
+    image: ${TRIAL_IMAGE:?}
+    user: "1000:1000"
+    command: ["node", "/trial/tls-gateway.mjs"]
+    ports: ["127.0.0.1:${TRIAL_PORT:?new loopback port required}:8443"]
+    environment:
+      TRIAL_PROXY_HOST: app
+      TRIAL_HTTPS_ORIGIN: ${TRIAL_HTTPS_ORIGIN:?}
+    healthcheck:
+      test: ["CMD", "node", "/trial/gateway-health.mjs"]
+      interval: 2s
+      timeout: 4s
+      start_period: 5s
+      retries: 3
+    volumes:
+      - ./tls-gateway.mjs:/trial/tls-gateway.mjs:ro
+      - ./gateway-health.mjs:/trial/gateway-health.mjs:ro
+      - ./readiness.mjs:/trial/readiness.mjs:ro
+      - ${TRIAL_TLS_CA_FILE:-${TRIAL_TLS_CERT_FILE:?}}:/run/tls/ca.pem:ro
+      - ${TRIAL_TLS_CERT_FILE:?absolute certificate file required}:/run/tls/cert.pem:ro
+      - ${TRIAL_TLS_KEY_FILE:?absolute key file required}:/run/tls/key.pem:ro
+volumes:
+  data:
