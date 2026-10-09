@@ -35,7 +35,7 @@ test("commercial terms client uses exact provenance and trusted mutation headers
     }) as typeof fetch,
   });
 
-  assert.deepEqual(await client.getByQuote("quote /1", "revision-1", "price-1"), dto);
+  assert.deepEqual(await client.getByQuote("quote-1", "revision-1", "price-1"), dto);
   await client.updateBySalesOrder("order-1", {
     expectedVersion: 2,
     customerConfirmedPrice: "13.00",
@@ -43,11 +43,23 @@ test("commercial terms client uses exact provenance and trusted mutation headers
     laborCurrency: "CNY",
   });
 
-  assert.match(requests[0].url, /quotes\/quote%20%2F1\/revisions\/revision-1\/price-versions\/price-1/u);
+  assert.match(requests[0].url, /quotes\/quote-1\/revisions\/revision-1\/price-versions\/price-1/u);
   assert.equal(requests[0].init?.method, "GET");
   assert.equal(requests[1].init?.method, "PATCH");
   assert.equal(new Headers(requests[1].init?.headers).get("X-Zhixu-Request"), "1");
   assert.equal(requests[1].init?.credentials, "include");
+});
+
+test("Quote terms mutation serializes both CAS versions; mismatched provenance rejects read/write", async () => {
+  let body = "";
+  const client = createConfirmedCommercialTermsServerClient({ fetchImpl: (async (_url, init) => {
+    body = String(init?.body ?? "");
+    return new Response(JSON.stringify({ confirmedCommercialTerms: dto }));
+  }) as typeof fetch });
+  await client.updateByQuote("quote-1", "revision-1", "price-1", { expectedVersion: 2, expectedQuoteVersion: 9, customerConfirmedPrice: "0", confirmedLaborPrice: "1.23456789", laborCurrency: "USD" });
+  assert.deepEqual(JSON.parse(body), { expectedVersion: 2, expectedQuoteVersion: 9, customerConfirmedPrice: "0", confirmedLaborPrice: "1.23456789", laborCurrency: "USD" });
+  await assert.rejects(client.getByQuote("other", "revision-1", "price-1"), { code: "confirmed_commercial_terms_provenance_mismatch" });
+  await assert.rejects(client.updateByQuote("quote-1", "revision-1", "other", { expectedVersion: 2, expectedQuoteVersion: 9, customerConfirmedPrice: "0", confirmedLaborPrice: "0", laborCurrency: "USD" }), { code: "confirmed_commercial_terms_provenance_mismatch" });
 });
 
 test("commercial terms client preserves safe conflict status and code", async () => {

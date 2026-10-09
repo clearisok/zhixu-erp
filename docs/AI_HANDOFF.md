@@ -5,6 +5,8 @@
 - Base PR #78 已 MERGED，`78245ac6905072354fb3edc12c45ced09e5d67cb`；branch `feat/linked-confirmed-commercial-terms`，起始 clean。继续 A 服务端 → B 正式 UI/订单 API → C 联合回归/交付；不操作真实环境，D-096 历史导入 NOT REQUIRED。
 - A：Quote PATCH/service 必须有正整数 expectedQuoteVersion + terms expectedVersion（首次0）；同事务 terms advisory context → Quote FOR UPDATE → 同连接 aggregate读取/当前default Revision/PV/币种/完整正式关联核验 → terms CAS/关系/可信审计。不修改 Quote/Order aggregate、历史、Estimate、镜像/编号，不新增 SQL。Order current 仍可编辑旧关联 provenance，不套 Quote当前编辑限制；币种必须保留已建立 qualifier。Quote仅以 saved PV currency 作断言，金额无换汇/舍入；legacy 无可核验 Server Quote 的 writer fail closed，不以缺参数选择弱入口。
 - A 已实跑：CCT/linked/unlinked确认/Excel disposable 32/32；再补导出锁交错/关联故障后 linked 9/9；typecheck PASS。真实锁 wait + barrier 覆盖首次唯一赢家、Quote/Order同版竞争、币种/PV删除/Revision创建、单/多PV导出冲突。原CCT fixtures 已升级保存来源与双版本，未放宽校验。UI 尚未开放，下一步接排他 persistence/弹窗与错误核对；最终整合测试未执行。
+- B 已完成正式弹窗/persistence排他接线：目标/双CAS/已保存币种独立捕获；terms返回不推进Quote版本/基线，legacy缺可验证Server来源时只读。409/network保留输入，显式read只展示核对证据、不替换输入或自动重提；币种漂移明确人工核对；晚到/错provenance响应不覆盖当前PV。当前卡片区分shared current/快照/未知，备注不作为shared字段。
+- B 实跑：实际Chromium **54/54**、auth/frontend60/60、CCT client3/3；当前Server frontend41 routes、typecheck/lint/Server build PASS。真实两类linked弹窗、多个Order API双向current、独立版本、带Estimate且无estimate.view的确认者、viewer只读、dirty取消/保存后失败、409/network、CDP受控晚到GET、币种漂移、linked XLSX/日志、原成本同步/历史/附件下载bytes+SHA/无Browser IO与rejection/cleanup均通过。C 最终服务联合74/74已跑；另查audit suite出现纯数字7331探针失败，待准确核查（未声称全套PASS）；npm旧源码断言假定legacy直接PATCH，已改为核对新Server双CAS与legacy关闭，targeted7/7。接下来完成C文档/最终质量/默认Browser构建，不扩展功能或真实环境。
 
 ## HISTORICAL: Quote Server confirmation / export / audit batch（2026-10-09）
 
