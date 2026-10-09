@@ -82,6 +82,8 @@ Foundation 不拥有业务数据模型，也不直接调用业务 API。它通�
 
 ## Known gaps
 
+Server Quote trial exception: `DataTable` 的默认 `layout="fit"` 仍按比例布局；仅正式 Server 报价列表选择 `layout="readable"`，以实际 px 下限和 table-local 横向滚动保留可读性。不会静默改写保存的窄列偏好。共享 SSR 回归验证两种布局；实际生产 Chromium 验证页面/操作列/窄桌面。Server 退出控件不占 AppShell 外文档流，workspace 为主滚动拥有者。详情资料加载后才挂载标题时，sticky observer 必须随 ready 状态绑定，不可仅 mount 一次。
+
 - AppShell 当前显示固定 mock 用户，尚未绑定根路径真实会话。
 - AppShell 的订单/生产导航仍回到根路径 ERP，没有统一路由领域。
 - 当前测试中含源码文本契约，无法替代完整的可访问性、焦点陷阱和浏览器端到端测试。

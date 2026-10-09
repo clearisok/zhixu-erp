@@ -1,5 +1,15 @@
 # Quote Center
 
+## Server trial usability (2026-10-09; engineering, not deployed)
+
+- 正式 Server 列表合并搜索/筛选/批量/内部汇总/列设置；只有选择模式显示本页全选与跨页计数。新用户默认 9 个身份、状态、数量及成本/价格字段，其余仍可显式开启；已有账号偏好不清空。恢复默认同时恢复可见列/顺序/宽度，不改 Browser 的旧恢复契约。
+- 此列表显式使用 `DataTable layout="readable"`：像素列宽下限、局部横向滚动、可读完整编号/两行款名/右对齐数值及 sticky 操作。其他表格默认 fit-first 未改变。
+- 新建类型选择采用小面板与创建/取消；打开不创建，POST `{}`、必要类型 PUT、ID 保留及不重复创建保护不变。
+- Server 详情正常说明收进资料/诊断入口；版本号保留，资料未配置引导可查看。真实写入失败、权限/精度、冻结、校验未隐藏。常用成本直接显示，空行密度收紧。
+- AppShell 外退出控件不再产生额外纵向滚动。资料载入后绑定 workspace 的 sticky observer，展开侧栏与 sticky 左边界一致；锚点保留 sticky 空间，Portal、dirty guard、保存/CAS 仍沿用原实现。Server 转订单入口继续禁用。
+- 加工/经销在隔离正式 UI 创建、保存、刷新及列表筛选读回均通过；未复现“选择加工却保存为经销”。用户原截图是否同一次创建未证实，不归因为用户操作。
+- 真实试用环境未更新；已登录不等于完整人工业务卡 PASS。功能范围不增加，历史导入 NOT REQUIRED。
+
 ## Current Server business list and internal summary (2026-10-09; engineering only)
 
 Explicit Server mode requests typed, selected business columns from a bounded page of saved default Revisions. Quantity sums all PVs (all null stays null); costs use the existing calculator/range, mixed CNY/USD labor remains qualified, final garment display uses the shared formatter. Missing style images remain a clear placeholder: no old URL or IndexedDB read. Quote aggregate status/filter is distinct from current customer confirmation, never rewritten by this read projection.

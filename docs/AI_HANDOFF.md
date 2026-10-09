@@ -1,5 +1,16 @@
 # AI 接力棒
 
+## Active — Quote Trial UI Usability Repair (2026-10-09)
+
+- Branch `fix/quote-trial-ui-usability`，base `cc3c450562e692b696024558706954816227cb8a` / clean。独立于 PR #82 Windows 运维交付。
+- 用户确认密码问题已解决、已登录并打开真实页面；完整三张业务卡仍未确认通过。真实 `https://localhost:18443` 继续运行原 `9ee254d…` 镜像，本任务不访问试用 DB/COS/credentials，不替换运行环境。
+- 本轮修复：Server 列表紧凑工具区、9 列默认组合与显式恢复默认（已有偏好不清空）；可选 readable DataTable 像素下限、表内横向滚动及 sticky 操作列。默认共享表格保持 fit-first。
+- 新建页紧凑类型面板；POST/类型初始化 PUT 与失败保留 ID 不变。详情正常技术说明移入诊断入口，真实错误/冻结/校验保留；成本不折叠。退出按钮脱离文档流，修复额外页面滚动；sticky observer 在资料就绪后绑定 workspace，并纠正 expanded sidebar 左边界。Server 未接通转订单仍禁用。
+- 已执行业务 Chromium 61/61（合成 PG/tmpfs、临时 profile、memory storage；附件下载 bytes/SHA、加工/经销、CAS/成本同步/Revision/PV/Estimate 权限/导出保留）、auth/persistence 67/67、共享表格实际 SSR 2/2、npm test 674/674；typecheck/lint/Server build PASS。Server/default Browser frontend PASS，默认 build-info 为 browser/browser/writable/session。视觉 capture 1/1 PASS：40 组配对图、额外全列/Portal/数值成本图，已打开图片复核；document 无横向/重复页面滚动，1280 首屏基础输入可用，cleanup PASS。
+- 同尺寸 before/after 合成截图与 DOM 在仓库外 `C:\Users\Administrator\.codex\tmp\quote-trial-ui-visual`；1920×1080、1440×900、1280×800、900×800，100% 缩放。默认 Browser 与真实旧环境不变；历史导入 NOT REQUIRED。
+
+## Historical / superseded task — PR #81 startup follow-up
+
 ## Quote Trial Release Preparation — PR #81 startup follow-up (2026-10-09)
 
 - 同一branch `feat/quote-trial-release-preparation`，本次baseline `244e5143ffc6eda15a031dfe8f90acbdbe5240d0` / clean；不重做A/B/C/D，不创建新PR。原base `d25aac7aa19a90ac1c1f573fbb60e420b7899e98`。

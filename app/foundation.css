@@ -286,3 +286,41 @@
 @media (prefers-reduced-motion: reduce) {
   .qc-table-skeleton i, .qc-loading-state i { animation: none; }
 }
+.qc-business-table[data-layout="readable"] .qc-table-wrap { overflow-x: auto; overscroll-behavior-x: contain; }
+.qc-business-table[data-layout="readable"] .qc-table-heading { white-space: normal; }
+.qc-business-table[data-layout="readable"] .qc-table-heading > span:last-child { display: block; }
+.qc-business-table[data-layout="readable"] .qc-data-table td { font-size: 13px; font-variant-numeric: tabular-nums; }
+.qc-business-table[data-layout="readable"] .qc-server-style-cell { white-space: normal; overflow-wrap: anywhere; }
+.qc-business-table[data-layout="readable"] .is-sticky-right { background: #fff; box-shadow: -1px 0 var(--qc-line); }
+.qc-server-session-actions.qc-server-session-floating { position: fixed; z-index: 40; left: 12px; bottom: 88px; }
+.qc-server-session-floating .qc-button { width: 64px; min-height: 40px; padding: 6px; color: #e5f2eb; background: #254e40; white-space: normal; }
+.qc-server-new .qc-server-create-panel { width: min(100%, 520px); padding: 24px; display: grid; gap: 16px; }
+.qc-server-create-panel p { margin: 0; color: var(--qc-muted); }
+.qc-server-create-actions { display: flex; gap: 10px; }
+.qc-server-business-list .qc-server-list-toolbar { flex-wrap: wrap; gap: 10px; }
+.qc-server-business-list .qc-toolbar-query { flex: 1 1 500px; }
+.qc-server-business-list .qc-toolbar-actions { flex-wrap: wrap; }
+.qc-server-business-list .qc-batch-selection-toolbar { min-height: 40px; padding: 8px 12px; }
+.qc-server-detail-status { display: flex; align-items: baseline; gap: 16px; color: var(--qc-muted); font-size: 12px; }
+.qc-server-detail-status details { position: relative; }
+.qc-server-detail-status summary { cursor: pointer; }
+.qc-server-detail-status details[open] { padding: 10px; border: 1px solid var(--qc-line); background: #fff; border-radius: 8px; }
+.qc-server-quote-detail .qc-base-card > header,
+.qc-server-quote-detail .qc-cost-card > header,
+.qc-server-quote-detail .qc-labor-card > header { padding: 14px 20px; }
+.qc-server-quote-detail .qc-inline-empty { padding: 10px 16px; font-size: 12px; }
+.qc-server-quote-detail .qc-sticky-header { grid-template-columns: minmax(0, 1fr) minmax(200px, 1fr) auto; min-height: 76px; }
+.qc-server-quote-detail .qc-page-section-anchor { scroll-margin-top: 164px; }
+.qc-server-quote-detail .qc-sticky-actions { width: auto; display: flex; gap: 8px; }
+.qc-app-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"])[data-sidebar-state="expanded"] .qc-server-quote-detail .qc-sticky-header { left: 186px; }
+@media (min-width: 1100px) and (max-width: 1439px) {
+  .qc-server-quote-detail .qc-cost-section :is(.qc-cost-wide-renderer, .qc-cost-mobile-renderer) { display: none !important; }
+  .qc-server-quote-detail .qc-cost-section .qc-cost-compact-renderer { display: grid !important; }
+  .qc-server-quote-detail .qc-compact-cost-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .qc-server-quote-detail .qc-fabric-compact-grid :is(.is-name, .is-composition, .is-supplier) { grid-column: span 4; }
+  .qc-server-quote-detail .qc-fabric-compact-grid :is(.is-segment, .is-width, .is-gsm, .is-loss, .is-price, .is-purchase-unit) { grid-column: span 2; }
+  .qc-server-quote-detail .qc-trim-compact-grid :is(.is-name, .is-specification, .is-supplier) { grid-column: span 4; }
+  .qc-server-quote-detail .qc-trim-compact-grid :is(.is-usage, .is-unit, .is-loss, .is-price) { grid-column: span 3; }
+  .qc-server-quote-detail .qc-other-compact-grid :is(.is-name, .is-specification) { grid-column: span 6; }
+  .qc-server-quote-detail .qc-other-compact-grid :is(.is-usage, .is-unit, .is-loss, .is-price) { grid-column: span 3; }
+}
