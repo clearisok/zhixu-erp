@@ -9,7 +9,7 @@
 - 已执行业务 Chromium 61/61（合成 PG/tmpfs、临时 profile、memory storage；附件下载 bytes/SHA、加工/经销、CAS/成本同步/Revision/PV/Estimate 权限/导出保留）、auth/persistence 67/67、共享表格实际 SSR 2/2、npm test 674/674；typecheck/lint/Server build PASS。Server/default Browser frontend PASS，默认 build-info 为 browser/browser/writable/session。视觉 capture 1/1 PASS：40 组配对图、额外全列/Portal/数值成本图，已打开图片复核；document 无横向/重复页面滚动，1280 首屏基础输入可用，cleanup PASS。
 - 同尺寸 before/after 合成截图与 DOM 在仓库外 `C:\Users\Administrator\.codex\tmp\quote-trial-ui-visual`；1920×1080、1440×900、1280×800、900×800，100% 缩放。默认 Browser 与真实旧环境不变；历史导入 NOT REQUIRED。
 - 本地工程 commit `878de323d618b25fca1f51ccf3f024e932641742`。新候选 `zhixu-quote-trial-ui:878de323d618`，image ID `sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4`；build ID `quote-trial-ui-20261009`、full source SHA 为上述工程 commit、server/server/writable/session。实际 Dockerfile 构建及 network-none 临时容器 build-info/labels 核对 PASS；真实 18443 未部署更新。
-- 该工程 checkpoint push 一次后 Connection reset；随后唯一只读 GitHub API 核实 branch 返回 404（Branch not found），REMOTE DELIVERY BLOCKED，未创建 PR、不冒称已送达。本地独立候选继续完成，随后 docs-only 记录不改变镜像内应用。恢复只需人工 `git push -u origin fix/quote-trial-ui-usability`，核对 local/remote/clean 后创建唯一 UI PR；再另行授权真实应用更新，不重复 setup/init、不接真实试用数据。
+- 历史交付故障：工程 checkpoint push Connection reset，随后只读 API 返回 branch 404；用户现已人工推送恢复。恢复 baseline 为 `c35462a222744c1d6fa7f2340f77aae777b67ceb`，local HEAD = origin 分支，clean。本轮只更新交付状态及收录已有合成对比图，再创建唯一 OPEN UI PR，等待合并审查；不重跑工程测试/截图/构建。代表图见 `docs/assets/quote-trial-ui/`，完整本机证据目录如上，不是公开图片 URL。
 
 ## Historical / superseded task — PR #81 startup follow-up
 
