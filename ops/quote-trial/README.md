@@ -5,7 +5,26 @@ scope; D-096 historical import is NOT REQUIRED. The old environments/data remain
 untouched. User business acceptance: **NOT RUN**. Do not use the legacy
 `deploy-production.yml`, old Compose or ports 3000/3001/3002 for this candidate.
 
-## Authorized Windows target — READY (2026-10-09)
+## Windows win01 UI in-place update — READY (2026-10-09)
+
+The existing target now actually runs `zhixu-quote-trial-ui:878de323d618`, full
+source `878de323d618b25fca1f51ccf3f024e932641742`, build
+`quote-trial-ui-20261009` / `2026-10-09T07:20:46Z`. Canonical start returned READY;
+HTTPS build-info and all three healthy services were checked. The original DB
+container/volume, TLS, ports, accounts and business content remain. No rebuild,
+init, migration or restore. The protected config/manifest now identify this image;
+fixed daily tools are unchanged. Current Status was executed; do not rerun init
+or use restart to apply a future image change.
+
+Pre-update dump/object backup and data-preservation details are in the
+[update record](../../docs/tasks/completed/2026-10-09-windows-quote-trial-ui-update.md).
+Admin/viewer session, Quote readback and two attachment downloads passed read-only
+acceptance; user UI acceptance is **PENDING**. Use the original URL and current password. Existing column preferences
+are preserved; restoring the new defaults is an explicit user action, not a
+storage clear. The next section is original deployment history, not current counts
+or permission to recreate its acceptance data.
+
+## Historical — original authorized Windows deployment (2026-10-09)
 
 PR81 merged baseline `cc3c450562e692b696024558706954816227cb8a` and ops source
 `1e71d773c2d578029f42267b16999167b393c49f` are verified. The user authorized a
