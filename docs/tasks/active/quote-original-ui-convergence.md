@@ -97,3 +97,5 @@ Screenshot index: [146 synthetic reference/before/after PNGs](../assets/quote-or
 ## Delivery recovery
 
 Gate A push failed with Connection reset. Under AGENTS, reliable LOCAL checkpoints continued; no repeated remote push per small edit, no shared network configuration change. Final delivery is determined by exact local/remote/PR SHA checks, not presumed from the local commits. No PR84 Windows operations/config files mixed into this branch. USER UI ACCEPTANCE PENDING and deployment separately unauthorized even after delivery succeeds.
+
+Delivery subsequently recovered: PR86 MERGED at `330aad7d1bfc8e93326e1eb4971a7a9f34a74514`, UI head `460a9c1ef29ef69c21a0d0e02162ffb23d0528d8`, verified2026-10-09. Network failures above remain historical, not a current blocker. The separate [win01 preparation](d099-win01-update-preparation.md) records its actual audit/build/tests and approval boundary; merge did not deploy this UI.

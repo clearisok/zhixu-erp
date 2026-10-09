@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 当前任务：D-099 Quote 原版 UI / Server 收敛；ENGINEERING PASS / USER UI ACCEPTANCE PENDING。[审计与本轮测试](tasks/active/quote-original-ui-convergence.md)、[合成视觉索引](tasks/assets/quote-original-convergence/README.md)。PR82/83 已合并；PR84 起始核实 OPEN，部署专属修改不混入 UI 分支。本轮不复核或更新真实运行环境；历史部署证据见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，操作入口见 [说明](../ops/quote-trial/README.md)。下一步是人工 UI 审查，真实更新仍需单独授权。
+> 当前任务：D-099 Windows UI 更新准备，READY FOR UPDATE / 等待明确批准；PR86已合并，独立候选已构建/隔离验证，真实win01只读核实仍878de323，未更新。[本轮身份/checksum风险/测试/受控计划](tasks/active/d099-win01-update-preparation.md)。PR84 OPEN，仅审查未合并；[原版UI审计](tasks/active/quote-original-ui-convergence.md)、[历史视觉索引](tasks/assets/quote-original-convergence/README.md)、[部署历史](tasks/completed/2026-10-09-windows-trial-delivery-history.md)、[操作入口](../ops/quote-trial/README.md)。真实Backup/替换/重启与用户UI验收均未执行，下一步先取得更新授权。
 
 > D-097 工程阶段历史：Fresh Start **正式 Quote Server 基本闭环工程/隔离验收完成，当时未真实部署**；本次 win01 已部署事实见上方及 CURRENT_STATE。显式 Quote authority=server（默认 browser）接原地 list/new/detail、正式 Editor/附件；全局 Browser bootstrap/mock identity 与未支持 URL 隔离。支持/未接动作、实际 Chromium 与质量证据见 `features/FRESH_START_FOUNDATION.md`、CURRENT_STATE/AI_HANDOFF。旧 runtime 与旧数据不变，历史导入 NOT REQUIRED。
 

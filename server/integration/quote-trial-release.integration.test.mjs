@@ -16,7 +16,13 @@ import { CreateBucketCommand, S3Client } from '@aws-sdk/client-s3';
 import { startDisposableMinio } from './minio-container.ts';
 
 const exec=promisify(execFile), root=resolve('.');
-const image='zhixu-quote-trial:9ee254db89c6', commit='9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23';
+// Explicit non-secret candidate identity lets the same isolated harness verify a
+// new image without relabelling it or changing any deployed trial configuration.
+const candidate=JSON.parse(process.env.ZHIXU_TRIAL_TEST_CANDIDATE||JSON.stringify({image:'zhixu-quote-trial:9ee254db89c6',commit:'9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23',buildId:'quote-trial-20261009',buildTime:'2026-10-09T03:00:00Z'}));
+assert.deepEqual(Object.keys(candidate).sort(),['buildId','buildTime','commit','image']);
+assert.match(candidate.commit,/^[a-f0-9]{40}$/);assert.match(candidate.image,/^[a-z0-9][a-z0-9._/-]*:[A-Za-z0-9_][A-Za-z0-9_.-]*$/);
+assert.match(candidate.buildId,/^[a-zA-Z0-9._-]+$/);assert.ok(Number.isFinite(Date.parse(candidate.buildTime)));
+const {image,commit}=candidate;
 const sha=b=>createHash('sha256').update(b).digest('hex');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function command(bin,args,input) {
@@ -56,7 +62,7 @@ test('Quote trial: actual production image, TLS/session/S3, persistent recreatio
     });await new Promise(r=>proxy.listen(0,'127.0.0.1',r));proxies.push(proxy);
     const port=await freePort(),origin=`https://localhost:${port}`,config=join(temp,`${project}.conf`),override=join(temp,`${project}.yml`);
     const slash=p=>p.replaceAll('\\','/');
-    const values={TRIAL_PROJECT:project,TRIAL_PORT:String(port),TRIAL_IMAGE:image,TRIAL_COMMIT:commit,TRIAL_BUILD_ID:'quote-trial-20261009',TRIAL_BUILD_TIME:'2026-10-09T03:00:00Z',TRIAL_HTTPS_ORIGIN:origin,TRIAL_DB_PASSWORD:randomBytes(24).toString('hex'),TRIAL_ADMIN_USERNAME:'trial-admin',TRIAL_ADMIN_PASSWORD:'synthetic-trial-password-only',TRIAL_S3_ENDPOINT:`https://host.docker.internal:${proxy.address().port}`,TRIAL_S3_REGION:store.region,TRIAL_S3_BUCKET:originalBucket||store.bucket,TRIAL_S3_PATH_STYLE:'true',TRIAL_SECRET_ID_FILE:slash(join(temp,`${project}-id`)),TRIAL_SECRET_KEY_FILE:slash(join(temp,`${project}-key`)),TRIAL_TLS_CERT_FILE:slash(certPath),TRIAL_TLS_KEY_FILE:slash(keyPath)};
+    const values={TRIAL_PROJECT:project,TRIAL_PORT:String(port),TRIAL_IMAGE:image,TRIAL_COMMIT:commit,TRIAL_BUILD_ID:candidate.buildId,TRIAL_BUILD_TIME:candidate.buildTime,TRIAL_HTTPS_ORIGIN:origin,TRIAL_DB_PASSWORD:randomBytes(24).toString('hex'),TRIAL_ADMIN_USERNAME:'trial-admin',TRIAL_ADMIN_PASSWORD:'synthetic-trial-password-only',TRIAL_S3_ENDPOINT:`https://host.docker.internal:${proxy.address().port}`,TRIAL_S3_REGION:store.region,TRIAL_S3_BUCKET:originalBucket||store.bucket,TRIAL_S3_PATH_STYLE:'true',TRIAL_SECRET_ID_FILE:slash(join(temp,`${project}-id`)),TRIAL_SECRET_KEY_FILE:slash(join(temp,`${project}-key`)),TRIAL_TLS_CERT_FILE:slash(certPath),TRIAL_TLS_KEY_FILE:slash(keyPath)};
     await writeFile(values.TRIAL_SECRET_ID_FILE,store.accessKeyId,{mode:0o600});await writeFile(values.TRIAL_SECRET_KEY_FILE,store.secretAccessKey,{mode:0o600});
     values.TRIAL_COMPOSE_OVERRIDE=slash(override);values.TRIAL_OBJECT_BUNDLE_DIR=slash(bundle);
     await writeFile(config,Object.entries(values).map(([k,v])=>`${k}=${v}`).join('\n')+'\n',{mode:0o600});
@@ -146,6 +152,23 @@ test('Quote trial: actual production image, TLS/session/S3, persistent recreatio
     await assert.rejects(a.compose(['run','--rm','--no-deps','-e','ZHIXU_COOKIE_SECURE=false','app','node','dist/server/server/index.js']));
   });
   let backupHash,b;
+  if(process.env.ZHIXU_TRIAL_TEST_CANDIDATE)await t.test('app/gateway-only candidate update preserves database identity, Quote/history/Estimate/admin and attachment',async()=>{
+    const original=await readFile(a.config,'utf8');
+    const databaseIdentity=await docker(['inspect','--format','{{.Id}}|{{.Image}}|{{json .Mounts}}|{{json .NetworkSettings.Networks}}|{{json .NetworkSettings.Ports}}',a.db]);
+    const old={image:'zhixu-quote-trial-ui:878de323d618',commit:'878de323d618b25fca1f51ccf3f024e932641742',buildId:'quote-trial-ui-20261009',buildTime:'2026-10-09T07:20:46Z'};
+    const changes={TRIAL_IMAGE:'image',TRIAL_COMMIT:'commit',TRIAL_BUILD_ID:'buildId',TRIAL_BUILD_TIME:'buildTime'};
+    try{
+      await writeFile(a.config,original.split('\n').map(line=>{const key=line.split('=')[0];return Object.hasOwn(changes,key)?`${key}=${old[changes[key]]}`:line;}).join('\n'));
+      const oldReady=await cli(a,'start');assert.equal(oldReady.code,0,oldReady.err);
+      assert.equal((await a.request('/build-info.json')).json().gitCommit,old.commit);
+      await writeFile(a.config,original);const updated=await cli(a,'start');assert.equal(updated.code,0,updated.err);assert.match(updated.out,/"result":"READY"/);
+      assert.equal((await a.request('/build-info.json')).json().gitCommit,commit);
+      assert.equal(await docker(['inspect','--format','{{.Id}}|{{.Image}}|{{json .Mounts}}|{{json .NetworkSettings.Networks}}|{{json .NetworkSettings.Ports}}',a.db]),databaseIdentity);
+      cookie=await a.login();assert.deepEqual(await read(a),baseline);assert.deepEqual((await a.request(`${path}/${attachmentId}/download`,{cookie})).bytes,png);
+      assert.equal(await a.sql("SELECT password_hash FROM app_users WHERE username='trial-admin';"),passwordHash);
+      assert.equal(await a.sql('SELECT count(*) FROM schema_migrations;'),'8');
+    }finally{await writeFile(a.config,original);}
+  });
   await t.test('actual restart rejects configured candidate/identity drift before restarting, no secret output',async()=>{
     const original=await readFile(a.config,'utf8'),startedAt=await docker(['inspect','--format','{{.State.StartedAt}}',a.app]);
     const alias=`zhixu-quote-trial:alias-${nonce}`;await docker(['tag',image,alias]);

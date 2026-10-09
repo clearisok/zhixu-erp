@@ -308,6 +308,25 @@ necessary screenshot. These cards are **not** automated or user acceptance PASS.
 
 ## Evidence and next action
 
+### D-099 win01 candidate — preparation only (2026-10-09)
+
+[Exact candidate, real read-only baseline and proposed guarded update](../../docs/tasks/active/d099-win01-update-preparation.md): PR86 merged; image
+`zhixu-quote-trial-d099:20261009T103901Z` is BUILT / NOT DEPLOYED. win01
+still runs878de323; no real Backup/config/restart happened in this Gate.
+Do not use rejected image ending103523Z. Fresh Windows checkout newline conversion
+changed the0008 checksum; the approved artifact preserves all eight unchanged
+released migration-byte checksums (0001–7 CRLF, 0008 LF), checked against Git
+content and real ledger. Never fix this by editing a real ledger or executing SQL.
+
+Next explicit approval must cover maintenance, the existing daily Backup
+entrypoint with fresh dump/manifest/object-byte SHA validation, four identity-field
+projection and app/gateway-only recreation. PR84's pinned whitelist is reviewed
+independently, not implicitly merged. Database image/container/config/volume/network/
+ports, accounts/reset password, TLS, COS and preferences must stay preserved.
+`restart` is not an upgrade. Backup resumes the old app; reassert stopped writers
+and a current baseline before update. Failure means STOP/keep evidence, not restore/
+cleanup/reinitialize. Human UI/business cards remain unconfirmed.
+
 Executable sources: `server/integration/quote-trial-release.integration.test.mjs`,
 `s3-runtime-bounds.test.ts`, `scripts/__tests__/quote-trial-config.test.mjs`,
 `git-delivery-state.test.mjs`. Current execution numbers belong in AI_HANDOFF/
