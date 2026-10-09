@@ -105,6 +105,14 @@ class ReportContractTests(unittest.TestCase):
             with self.subTest(query=query), self.assertRaisesRegex(SourceContractError, "invalid_query"):
                 build_report_request(definition, page=1, page_size=50, query_context=query)
 
+    def test_snapshot_serialization_is_detached_from_hash_content(self) -> None:
+        snapshot = build_report_snapshot(report_key="order_discovery", rows=[{"id": 1, "nested": {"values": [2]}}], page=1, page_size=50, total=1, query_context={})
+        exported = snapshot.to_dict()
+        exported["rows"][0]["values"]["nested"]["values"].append(3)
+        exported["queryContext"]["injected"] = "value"
+        self.assertEqual(snapshot.rows[0].values["nested"]["values"], [2])
+        self.assertEqual(snapshot.query_context, {})
+
     def test_6087050_repeated_id_uses_distinct_stable_row_fingerprints(self) -> None:
         rows = [
             {"id": 71001, "insideorderno": "D1935", "GoodsNo": "MATERIAL-A", "CnColor": "BLACK"},

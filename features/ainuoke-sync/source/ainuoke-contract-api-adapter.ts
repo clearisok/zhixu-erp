@@ -27,6 +27,7 @@ function requiredText(row: AinuokeSourceRow, field: string, reportId: AinuokeApi
 
 function requiredNumber(row: AinuokeSourceRow, field: string, reportId: AinuokeApiReportId): number {
   const raw = row.values[field];
+  if ((typeof raw !== "number" && typeof raw !== "string") || !normalizeText(raw)) throw new Error(`艾诺科报表 ${reportId} 字段 ${field} 数量无效`);
   const value = typeof raw === "number" ? raw : Number(normalizeText(raw).replaceAll(",", ""));
   if (!Number.isFinite(value) || value < 0) throw new Error(`艾诺科报表 ${reportId} 字段 ${field} 数量无效`);
   return value;
@@ -43,10 +44,19 @@ function optionalDate(value: unknown): string | null {
 
 function assertSnapshotSet<T extends AinuokeReportSnapshot["reportId"]>(snapshots: AinuokeReportSnapshot[], reportId: T): asserts snapshots is Array<AinuokeReportSnapshot & { reportId: T }> {
   if (!snapshots.length || snapshots.some((snapshot) => snapshot.reportId !== reportId)) throw new Error(`艾诺科 API Source 缺少报表 ${reportId}`);
+  const pages = [...snapshots].sort((left, right) => left.page - right.page);
+  const { pageSize, total } = pages[0];
+  if (!Number.isSafeInteger(pageSize) || pageSize < 1 || !Number.isSafeInteger(total) || total < 0
+    || pages.some((snapshot, index) => snapshot.schemaVersion !== "ainuoke-direct-read.v2"
+      || snapshot.page !== index + 1 || snapshot.pageSize !== pageSize || snapshot.total !== total
+      || snapshot.rows.length > pageSize || (index < pages.length - 1 && snapshot.rows.length !== pageSize))
+    || pages.reduce((count, snapshot) => count + snapshot.rows.length, 0) !== total
+    || (total === 0 && pages.length !== 1)
+    || (total > 0 && pages.at(-1)!.rows.length === 0)) throw new Error(`艾诺科报表 ${reportId} Source 协议或分页不完整`);
   const query = snapshots[0].queryContext.insideOrderNo.normalize("NFKC").trim();
   if (!query || snapshots.some((snapshot) => snapshot.queryContext.insideOrderNo.normalize("NFKC").trim() !== query)) throw new Error(`艾诺科报表 ${reportId} query context 不一致`);
   const identities = snapshots.flatMap((snapshot) => snapshot.rows.map((row) => row.sourceRowIdentity));
-  if (new Set(identities).size !== identities.length) throw new Error(`艾诺科报表 ${reportId} source row identity 重复`);
+  if (identities.some((identity) => !normalizeText(identity)) || new Set(identities.map(normalizeText)).size !== identities.length) throw new Error(`艾诺科报表 ${reportId} source row identity 重复或无效`);
 }
 
 function snapshotTrace(snapshots: AinuokeReportSnapshot[], reportId: AinuokeApiReportId, identities: string[], normalizedValues: ReadonlyArray<string | number | null>) {

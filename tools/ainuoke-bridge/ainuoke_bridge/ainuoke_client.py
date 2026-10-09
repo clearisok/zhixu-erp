@@ -8,7 +8,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urljoin
 from urllib.request import Request, urlopen
 
-from .contracts import ReportDefinition, build_report_request
+from .contracts import ReportDefinition, build_report_request, parse_non_negative_integer
 
 
 class AinuokeClientError(RuntimeError):
@@ -171,15 +171,10 @@ def _looks_like_auth_expired(response: Mapping[str, Any]) -> bool:
 
 
 def _required_non_negative_int(value: Any) -> int:
-    if isinstance(value, bool):
-        raise UpstreamSchemaError("upstream_schema_error")
     try:
-        parsed = int(value)
-    except (TypeError, ValueError):
+        return parse_non_negative_integer(value)
+    except ValueError:
         raise UpstreamSchemaError("upstream_schema_error") from None
-    if parsed < 0:
-        raise UpstreamSchemaError("upstream_schema_error")
-    return parsed
 
 
 def _parse_report_page(response: Mapping[str, Any], *, requested_page: int, requested_page_size: int) -> tuple[list[Mapping[str, Any]], int, int, int]:
