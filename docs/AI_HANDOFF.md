@@ -1,6 +1,22 @@
 # AI 接力棒
 
-## Current: Linked ConfirmedCommercialTerms（2026-10-09）
+## Current: Server Quote List + Internal Summary（2026-10-09，ENGINEERING PASS / not deployment）
+
+- PR #79 已 MERGED，base `b1ffa5da9b2af0751889470e453cc150f2a2718c`；branch `feat/server-quote-list-summary`，起始 clean。A checkpoint `c6e8be6`、B checkpoint `e6e8da8` 均已提交推送。C 最终结果见下方；不引用 #79 测试作为本任务结果。
+- A：旧无 columns 调用保持最小 DTO；显式 columns 固定白名单/重复及长度拒绝、可信 quote.view + 金额列 quote.cost.view。同一只读 repeatable-read 事务先分页，再批量读取所选默认 Revision/PV 与成本；25 条成本列表固定9条 SQL（含 BEGIN/COMMIT），不读取 aggregate/历史/Estimate。数量/null/zero、成本区间、CNY/USD、最终成衣显示沿用原 calculator/formatter。
+- 默认 Revision 逐 PV 精确核验 provenance：linked 使用 CCT current、空 current 不回退旧确认；unlinked 使用合法保存快照；partial 明确未知。响应以逐 PV linkage/termsVersion 标明来源，Quote 状态/版本/历史不被改写；金额只在请求对应列时输出。正式 Server 列表已接业务投影，无逐行 aggregate HTTP。
+- 本轮 A 实跑：业务纯函数4/4，disposable 列表/API6/6（含 harness；27条分页、固定查询、权限/非法请求、linked/unlinked/空/partial、隐藏 unsafe Estimate、请求 unsafe decimal拒绝）；typecheck/lint/diff-check PASS。阶段提交以交付记录为准。尚未进行本任务实际 Chromium/Excel/最终回归，不能宣称整个任务 PASS。
+- 仅隔离合成数据/PG16 tmpfs/随机端口，真实 Ubuntu/runtime/DB/Browser/COS/secrets 未操作；默认 Browser 不变，D-096 历史导入 NOT REQUIRED。
+- B：正式列表复用 ListFieldSettingsModal 与受控 Foundation 表格，可信 userId 隔离的新本机 UI key 只保存 key/order/width，不调用 loadQuoteSettings/旧默认初始化；当前权限重新过滤。内部汇总弹窗默认当前可见列、Estimate 默认不选、临时列不改偏好。POST internal-summary 严格 items/expectedVersion/columns/rowMode/estimateColumns，有界25张/500行/20MB，不接受客户端金额/actor/来源URL。
+- 共用原汇总 ExcelJS 纯构建核心；Browser 原映射/样式保留，Server 只传真实选中投影，每款/每PV、typed numbers/null/zero、分币种/原成衣 formatter、确认来源批注。显式 Estimate 仅 active/原独立快照；来源PV删除仍能读，history不替代active，差额沿用未经显示截断的销售价减原估算成本。
+- 一致 readonly snapshot → 无锁 Excel 构建 → 稳定排序 terms contexts → sorted Quote rows → 独立 Quote/CCT 来源复核 → trusted append-only generation audit。任一冲突/审计失败不返回文件，不自动重试；审计只记最小来源身份/选项/行数/文件证据，不记金额或 Estimate 对象/存在性。
+- B 实跑：新汇总 disposable6/6、个人偏好2/2、旧 Browser 汇总4/4，auth/frontend66/66；typecheck/lint PASS；Server build/最终交付以 C 记录为准。
+- C 已执行联合 disposable 列表/汇总/linked/确认/客户 Excel/ZIP/日志/Estimate/版本回归65/65；没有真实 COS/history/full PG 重跑。实际文件解析检查 typed/null/zero/币种/来源、无公式/外链、字节/SHA。Spreadsheets skill 导入实际合成下载文件渲染检查，不替换正式 ExcelJS builder；视觉检查发现整数数量尾点，仅修显示格式（整数格式/小数 General），未改数值或业务舍入。
+- Chromium 测试保留所有原历史/附件/成本同步/失败断言；新增可信账户偏好隔离/权限撤销、跨页选择/临时列、每 PV 与显式 Estimate/CCT 文件、无 Estimate 权限普通导出/伪造请求拒绝、409/network 草稿选择保留与无自动重提。修正测试同路径导航旧 document ready 竞态；最终固定 Server 构建运行 **60/60 PASS**（含 harness），实际内部 XLSX/客户文件 bytes/SHA-256/解析、无 unhandled rejection、owned profile/PG/tmpfs cleanup PASS。没有删除或跳过原断言。
+- 最终显示格式修正后，列表/内部汇总 disposable **12/12** 再次执行；最终 typecheck/lint/npm test **674/674**/diff-check PASS。Server build、显式 Server frontend 与最终默认 Browser frontend 都 PASS（41 routes）；默认 build-info 为 browser/browser/writable。临时配置仅子进程，不修改 .env。最终合成下载 workbook 经 skill 导入渲染复核，长标题换行、两 PV 行/币种/数值/空值/零与数量整数显示清楚；正式文件数值独立由 ExcelJS 解析验证，不以图片代替精度断言。
+- 已支持范围不等于全报价 production-ready；整单复制/删除、Revision 删除、转订单、完整 Order UI 仍未启用。默认 Browser 与旧真实 runtime 不变，无 schema/角色/算法/历史迁移或真实部署。后续按实际业务需要独立接线剩余动作，不恢复 Q5 导入前置 Gate。
+
+## HISTORICAL: Linked ConfirmedCommercialTerms（2026-10-09）
 
 - Base PR #78 已 MERGED，`78245ac6905072354fb3edc12c45ced09e5d67cb`；branch `feat/linked-confirmed-commercial-terms`，起始 clean。A 服务端、B 正式 UI/订单 API、C 联合回归工程均 PASS；A checkpoint `066b83011018de063e3c53d7da1305db8c81f430`、B checkpoint `48b2934f21e59097ccbd67845c8168b145f456aa` 已分别提交并推送，C 最终提交/PR 以交付报告为准。不操作真实环境，D-096 历史导入 NOT REQUIRED。
 - A：Quote PATCH/service 必须有正整数 expectedQuoteVersion + terms expectedVersion（首次0）；同事务 terms advisory context → Quote FOR UPDATE → 同连接 aggregate读取/当前default Revision/PV/币种/完整正式关联核验 → terms CAS/关系/可信审计。不修改 Quote/Order aggregate、历史、Estimate、镜像/编号，不新增 SQL。Order current 仍可编辑旧关联 provenance，不套 Quote当前编辑限制；币种必须保留已建立 qualifier。Quote仅以 saved PV currency 作断言，金额无换汇/舍入；legacy 无可核验 Server Quote 的 writer fail closed，不以缺参数选择弱入口。
@@ -9,7 +25,7 @@
 - C 最终实跑：linked/CCT/unlinked confirmation/Excel/ZIP/Quote API/Revision/Estimate 八个 disposable suites **74/74**，另行执行 Quote audit read **7/7**；auth/frontend **60/60**、CCT client **4/4**、npm test **674/674**；typecheck/lint/Server build/diff-check PASS。最后 client 增补 malformed linkage fail-closed 后，显式 Server frontend（41 routes）重建并再次实际 Chromium **54/54**；最终默认 Browser frontend（41 routes）独立进程清除临时 authority 环境构建，build-info=browser/browser/writable，无 .env 修改。没有拿旧 47/47 代替本轮验证。
 - Chromium 覆盖真实两类 linked 弹窗、多个 Order API 双向 current、独立版本、带 Estimate 且无 estimate.view 的确认者、viewer 只读、dirty 取消/保存后失败、409/network、CDP 受控晚到 GET、币种漂移、linked XLSX/日志与原成本同步/历史/估算/附件。实际下载 bytes/SHA-256 + workbook 解析确认共享客户价与系统工价分离；正式模板 Git blob 与 base 均为 `2e87e66cbba317a5ffe61129c27041f1ca9878c2`，未改模板/算法。无 Browser IO/unhandled rejection，owned PG/tmpfs/memory storage/Chromium profile cleanup PASS。
 - C 回归探针修正：audit 数字计数不再对含随机 public UUID 的完整 JSON 做 substring 匹配，改为所有切片 exact leaf 数值/字符串拒绝，补 UUID 合法与嵌套计数泄露拒绝断言；保留敏感字段/事件/文本探针，未改审计 runtime 或放宽权限。旧源码断言已核对 Server 双 CAS 与 legacy 关闭，而非要求旧 Browser 直接 PATCH。没有 skipped/deleted assertions、SQL/角色/新业务决策或真实 COS/history/full PG 重跑。
-- 本轮 engineering PASS 不等于完整报价 production-ready；未启用完整 Order UI、关联创建/修复、整单复制删除、Revision 删除、转订单或内部汇总。legacy 无 saved Server 来源的 linked writer 保守只读，默认 Browser 未关联确认仍保持。D-084/D-087 不变，旧真实 runtime/DB/Browser/COS/secrets 均未访问，新能力未部署。下一步先完成本分支最终 commit/push/新 PR 交付，不自动 merge 或另开功能开发。
+- HISTORICAL 本轮 engineering PASS 不等于完整报价 production-ready；当时未启用完整 Order UI、关联创建/修复、整单复制删除、Revision 删除、转订单或内部汇总。legacy 无 saved Server 来源的 linked writer 保守只读，默认 Browser 未关联确认仍保持。D-084/D-087 不变，旧真实 runtime/DB/Browser/COS/secrets 均未访问，新能力未部署。当时的 commit/push/PR 交付已完成且 PR #79 已合并，不是当前操作指令；内部汇总的新进展见本页 Current。
 
 ## HISTORICAL: Quote Server confirmation / export / audit batch（2026-10-09）
 

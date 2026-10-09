@@ -14,7 +14,7 @@ export type NullablePriceVersionMetrics = {
   preMarkupTotal: NullableNumber;
 };
 
-export function nullablePriceVersionMetrics(version: PriceVersion): NullablePriceVersionMetrics {
+export function nullablePriceVersionMetrics(version: Pick<PriceVersion, "pricingParameters" | "fabrics" | "trims" | "labor" | "otherCosts">): NullablePriceVersionMetrics {
   const metrics = calculatePriceVersionMetrics(version);
   const hasFabric = version.fabrics.some((line) => line.unitPrice !== null);
   const hasTrim = version.trims.some((line) => line.usage !== null && line.unitPrice !== null);

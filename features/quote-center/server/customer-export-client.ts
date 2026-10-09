@@ -1,4 +1,5 @@
 export type CustomerExportFile = { blob: Blob; fileName: string; sha256: string; warnings: string[] };
+import type { InternalSummarySelection } from "../../../server/quotes/internal-summary";
 async function readFileResponse(response:Response):Promise<CustomerExportFile> {
   if (!response.ok) throw new Error(`Server HTTP ${response.status}; export not completed`);
   const blob = await response.blob(), sha256 = response.headers.get("x-zhixu-file-sha256") ?? "";
@@ -8,6 +9,10 @@ async function readFileResponse(response:Response):Promise<CustomerExportFile> {
 }
 export async function customerExport(quoteId: string, selection: { expectedVersion: number; revisionId: string; priceVersionIds: string[] }): Promise<CustomerExportFile> {
   return readFileResponse(await fetch(`/api/v1/quotes/${encodeURIComponent(quoteId)}/customer-export`, { method: "POST", credentials: "include", cache: "no-store",
+    headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1" }, body: JSON.stringify(selection) }));
+}
+export async function internalSummaryExport(selection: InternalSummarySelection): Promise<CustomerExportFile> {
+  return readFileResponse(await fetch("/api/v1/quotes/internal-summary", { method: "POST", credentials: "include", cache: "no-store",
     headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1" }, body: JSON.stringify(selection) }));
 }
 export type CustomerBatchReport={selected:number;success:number;failed:Array<{index:number;code:string}>;warnings:Array<{index:number;count:number}>};

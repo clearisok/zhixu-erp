@@ -1,4 +1,4 @@
-import ExcelJS from "exceljs";
+import { buildQuoteSummaryTable } from "./quote-summary-core.ts";
 import type { AttachmentRepository } from "../repository/attachment-repository.ts";
 import { quoteListColumnDefinitionMap, type ListColumnKey } from "../model/quote-list-column-definitions.ts";
 import { estimateCostTotal } from "../model/estimate-cost.ts";
@@ -57,18 +57,7 @@ export async function buildQuoteSummaryExcel(input: QuoteSummaryExportInput): Pr
       rows.push(row);
     }
   }
-  const workbook = new ExcelJS.Workbook();
-  workbook.creator = "织序 ERP"; workbook.created = now;
-  const sheet = workbook.addWorksheet("报价汇总", { views: [{ state: "frozen", ySplit: 1 }] });
-  sheet.addRow(headers);
-  rows.forEach((row) => sheet.addRow(row));
-  sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: Math.max(1, sheet.rowCount), column: headers.length } };
-  sheet.getRow(1).height = 42;
-  sheet.getRow(1).eachCell((cell) => { cell.font = { bold: true, color: { argb: "FFFFFFFF" } }; cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF164D3A" } }; cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true }; });
-  sheet.columns.forEach((column, index) => { const longest = Math.max(headers[index]?.length ?? 8, ...rows.map((row) => String(row[index] ?? "").length)); column.width = Math.min(34, Math.max(12, longest * 1.6)); });
-  for (let row = 2; row <= sheet.rowCount; row += 1) sheet.getRow(row).eachCell((cell) => { cell.alignment = { vertical: "middle" }; cell.border = { bottom: { style: "hair", color: { argb: "FFE4E1DA" } } }; });
-  const output = await workbook.xlsx.writeBuffer();
-  return { buffer: new Uint8Array(output as ArrayBuffer).buffer, fileName: `报价汇总_${dateStamp(now)}.xlsx`, rowCount: rows.length, headers };
+  return buildQuoteSummaryTable({ headers, rows: rows.map(row => row.map(value => ({ value }))), now });
 }
 
 export async function exportQuoteSummary(input: QuoteSummaryExportInput) {

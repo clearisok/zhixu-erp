@@ -122,7 +122,7 @@ export type PriceVersionMetrics = {
 };
 
 export function calculatePriceVersionMetrics(
-  version: PriceVersion,
+  version: Pick<PriceVersion, "pricingParameters" | "fabrics" | "trims" | "labor" | "otherCosts">,
 ): PriceVersionMetrics {
   const { laborCurrency, usdCnyRate, markupRate } = version.pricingParameters;
   const fabricCost = sumFabricCosts(version.fabrics);

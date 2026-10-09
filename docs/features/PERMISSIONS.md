@@ -1,5 +1,19 @@
 # 权限系统
 
+## Server list / internal summary field boundary (2026-10-09)
+
+No new role/catalog or role-name branch. Old legal list calls stay compatible with `quote.view`; explicit `columns` reject unsupported/duplicate/repeated/oversized input before reading. Identity-driven column authorization applies before the bounded source read, not after sending full data to UI.
+
+| Fields / action | Existing required permissions |
+| --- | --- |
+| Quote code, style text/placeholder, brand, salesperson, type, PV count, quantity, qualitative current confirmation status/source, Revision, aggregate status, date | quote.view |
+| Fabric/trim cost, labor, garment selling price, confirmed labor/garment amounts | quote.view + quote.cost.view |
+| Internal summary action | quote.view + quote.export, plus selected field dependencies |
+| estimateRevision | quote.view + quote.export + estimate.view |
+| estimateTotal / estimateDifference | quote.view + quote.export + estimate.view + quote.cost.view |
+
+Estimate amount/difference require both protected estimate and underlying cost access; qualitative confirmation status reveals no amount. Unrequested Estimate is not queried or placed in builder/cache/log. No estimate.view still permits ordinary authorized list/summary. Forged protected requests return403; unsupported filters/sorts cannot infer protected values through totals. UI settings re-filter current permissions after account change/revocation and are never an authorization token. Successful generation events contain only selection/file evidence, no estimate existence or history, and existing sensitive-event/DTO protections remain.
+
 ## CURRENT new Server Quote build — D-097 (not deployment)
 
 Server Revision/PV 命令沿用权限目录：`quote.edit` + Revision 创建 `quote.revision.update`、PV 创建 `quote.price_version.create`、删除 `quote.price_version.delete`；元数据更新仍 `quote.edit`，成本/参数变更继续通过原 aggregate diff 的细粒度检查。历史查看使用 `quote.revision.view`，不提供历史 writer。API IdentityAuthority 身份决定 actor/time，body 不接受 actor/createdAt/revisionLabel；事务失败时日志/关系/aggregate 一并回滚，无 Browser audit 副本或新增超级权限。Estimate 日常命令已接已有权限；整单删除/转订单仍未接线；linked权限见下文。

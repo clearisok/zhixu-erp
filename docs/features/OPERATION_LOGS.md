@@ -1,5 +1,9 @@
 # 织序 ERP 前端操作日志
 
+## Server internal summary generation（2026-10-09，engineering only）
+
+内部汇总生成在独立 Quote/CCT 来源复核后追加可信 `Export` / `导出报价汇总表` 事件。只记录来源 Quote/Revision/PV 与版本、选项、行数、文件大小/SHA-256，不记录金额、Estimate 内容/存在性、工作簿二进制或客户端 actor。来源冲突或审计失败不交付文件；该日志不是业务确认/历史重写，也不是下载完成证明。读取权限和 Estimate 日志裁剪保持原契约。
+
 ## Current explicit Quote Server read UI (2026-10-09; not deployment)
 
 Quote detail reuses OperationLogModal/group details; `/system-settings/operation-logs` reuses the read-only DataTable/Drawer. They query only Server events, never Browser repositories. `GET /api/v1/operation-logs` validates exact quoteId, module/action/date, bounded limit/offset; parameterized filtering and stable createdAt DESC/id DESC happen before pagination/counts, not over the latest 100. `audit_log.view` is mandatory; detail additionally requires quote.view and an existing exact Quote.
