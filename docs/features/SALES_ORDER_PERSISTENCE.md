@@ -8,7 +8,7 @@ New source-mirror insertion initializes the collection and, only with a valid da
 
 The internal typed `refreshAinuokeSalesOrderSource` service preserves binding, checks source hash/fetch-time and collection CAS, and atomically updates source link/mirrors, source-follow projection and trusted audit. It has no HTTP source-write route. Human plan commands require order.view/order.edit, reject identity/ownership/source fields, preserve stable IDs and permanently claim the entire collection even for same-value intervention. Reconciliation reports actual source date/quantity, active plan dates and date drift/quantity balance; source disappearance does not rewrite human rows. A subsequent matching date projection resolves current drift while prior audit evidence remains append-only.
 
-Gate 1: typecheck, Server build and disposable PostgreSQL 12/12 passed. Narrow HTTP API and final regression results are recorded in the [task report](../tasks/active/2026-10-09-order-c43-delivery-plan.md). No real migration/deployment/Browser import is performed; D-096/D-098 remain unchanged.
+Gate 1: typecheck, Server build and disposable PostgreSQL 12/12 passed. Narrow HTTP API and final regression results are recorded in the [task report](../tasks/completed/2026-10-09-order-c43-delivery-plan.md). No real migration/deployment/Browser import is performed; D-096/D-098 remain unchanged.
 
 ### C4.3 narrow API
 

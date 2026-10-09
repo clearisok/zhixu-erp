@@ -27,6 +27,15 @@
 - 旧订单无所有权证据保持 uninitialized；migration 无 backfill，首次人工命令可创建 user_managed 集合，不伪造 untouched。
 - 证据：`database/migrations/0009_sales_order_delivery_plans.sql`、`server/sales-orders/delivery-plan-*.ts`、`server/integration/delivery-plans.integration.test.ts`。仅 disposable PG；不代表真实 activation、UI 接线或通用订单写入。
 
+### D-099 Quote 原版视觉基线与 Server 能力底线
+
+- 日期：2026-10-09；状态：Active，用户明确批准 UI Baseline Restoration / Server UI Convergence。
+- PR64 merge `7658663038b1da504c95086711f627b6dce5c7a0` 的 Quote Center 是视觉/信息架构基线，当前正式 Server 是数据、安全和业务能力基线；Server 化不得成为重新设计 UI 的理由。
+- 优先级：数据安全 > 正式业务行为 > 原版信息架构 > 视觉一致 > 代码整洁。复用共享组件；不得回退 Browser 数据/权限、改公式/API/schema、覆盖个人列设置或开放未支持动作。
+- 组合单元格只呈现有权限且个人允许显示的正式字段，导出仍使用独立业务字段；缺失缩略图与列表制作快照不猜测/不逐行请求 aggregate。
+- 这是 UI/架构边界，不是报价计算规则；工程浏览器回归与用户人工 UI 验收分开，真实部署另需授权。D-096/097/098 保持。
+- 证据：用户本轮指令；`tasks/active/quote-original-ui-convergence.md` 的版本/代码审计与后续隔离验收。
+
 ### D-098 优先形成可使用的报价试用版，由实际使用反馈驱动后续范围
 
 - 日期：2026-10-09；状态：Active。用户明确要求按可使用版本组织工作，尽早实际完成报价，不无限追加功能。

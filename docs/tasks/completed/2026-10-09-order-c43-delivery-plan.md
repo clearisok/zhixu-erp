@@ -47,3 +47,16 @@ Only disposable PostgreSQL/synthetic fixtures are authorized. D-096 empty-data a
 - Audit deltas are bounded to affected plan rows/scalar reconciliation; repeated create does not duplicate rows/logs, repeated source refresh retains rows/version while recording the intentional refresh audit. User commands with stale CAS cannot duplicate creates.
 - Latest main read-only checked at `330aad7d1bfc8e93326e1eb4971a7a9f34a74514` (Quote UI PR86). No domain/runtime/migration code changes there. Main used D-099 for Quote visual policy; this task decision is D-100. Ordinary integration/reverification follows this independent Gate commit; no reset/rebase/force.
 - Deferred: formal plan UI/conflict UX and wiring future Source orchestration to the internal refresh contract. Real 0009 activation, real data reconciliation/manual business acceptance and deployment are NOT RUN/NOT AUTHORIZED. General creation/editing, ambiguous fields and Browser retirement remain separate.
+
+## Main integration and final delivery
+
+- Gate 3 `23721dc0c3294ae8e672b10d37c9ab65c131e039` push returned ref-lock with the same target already present; one read-only exact SHA verification confirmed delivery. No blind repeat/force.
+- Ordinary merge of verified main `330aad7d1bfc8e93326e1eb4971a7a9f34a74514` (PR86) preserves all merged Quote UI code and evidence. Only AI_HANDOFF/CURRENT_STATE/DECISION_LOG conflicted; main content and historical archive were retained, with C4.3 evidence/D-100 added. No manual edits to Quote UI/Source/Bridge. No reset/rebase.
+- Post-integration typecheck, full lint, Server build, default frontend build and npm674/674 PASS. The PostgreSQL runtime/domain/migrations did not change on that main increment, so final PG87/87 remains the applicable domain evidence. Main's separate Chromium evidence is not claimed as rerun here; this Server-only task has no new plan UI or Browser acceptance.
+- Final merge checkpoint and unique PR are reported by exact Git/remote/PR-head checks. The report is now archived; transient local test logs are excluded and removed after counts were recorded.
+
+## Next-stage contract
+
+The future Source orchestration must call internal `refreshAinuokeSalesOrderSource(pool, trustedActor, salesOrderId, { source, colors, expectedSourceHash, expectedPlanVersion })` with verified existing binding and fresh typed evidence. Source hash remains internal. It requires order.view + ainuoke.sync, preserves stable binding, rejects stale source/plan versions and atomically audits refresh. It must never call a Browser sync writer or reset collection ownership. This task makes no changes inside the parallel Source modules and opens no source HTTP mutation route.
+
+The next UI Gate can consume GET/PATCH delivery-plans with explicit collection CAS/409 recovery, multi-row editing and subdued read-only source-date reference. Real migration activation requires a separate explicit target/backup/authorization Gate. None of these are Quote-first trial prerequisites.
