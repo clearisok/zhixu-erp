@@ -4,13 +4,13 @@
 
 ## 0. 恢复基线与证据
 
-- GitHub API 与 fetch 一致：main `49a82c9f970e158ded589300b4aa04fc4c809038`，PR84 已合并。独立 docs worktree 从此 SHA 创建，初始 clean；branch `chore/quote-intake-v1-contract`。
-- PR87 OPEN/mergeable：`a6a59a9e269d0635f61b6564b2aec66dede4a6d2`，0009 DeliveryPlan 与 D-100；工程更新已普通合并最新 main。PR88 OPEN/not mergeable：`a21a3703482af2fd44a993357243bfde2549858a`，候选构建源 `330aad7`，不是新 UI 修复后的候选。PR89 OPEN/mergeable：`f450e25c4cb5de28158500b732eab1ea63890dc8`，报价列表/保护图片修复，人工验收未完成。
+- 初始 GitHub API/fetch main `49a82c9f970e158ded589300b4aa04fc4c809038`（PR84已合并），独立docs worktree从此clean基线创建，branch `chore/quote-intake-v1-contract`。提交前main并发合并PR87，最新API/fetch一致 `7ed9204d552384730bf93c992b500c530d639c38`；保存文档checkpoint `d56a6d859a656f350ec9b06dfa8f31b6797bcaf7`后普通merge，人工整合AI_HANDOFF/CURRENT_STATE/DECISION_LOG/PROJECT_INDEX四处文档冲突，保留上游代码/SQL原样。最终PR相对最新main仅文档增量。
+- PR87已合并：`a6a59a9e269d0635f61b6564b2aec66dede4a6d2`，0009 DeliveryPlan 与 D-100；工程更新已普通合并最新 main。PR88 OPEN/not mergeable：`a21a3703482af2fd44a993357243bfde2549858a`，候选构建源 `330aad7`，不是新 UI 修复后的候选。PR89 OPEN/mergeable：`f450e25c4cb5de28158500b732eab1ea63890dc8`，报价列表/保护图片修复，人工验收未完成。
 - #89 若纳入部署范围，#88 旧镜像不含此修复，必须从最终获审源码重新构建、重新验证镜像身份及 migration 原始字节；本轮不构建/部署。#87 若同时纳入，另需 app/schema 配套 Activation/rollback Gate，不能沿用仅镜像替换计划。
 - 已恢复此前只读《Quote Intake 与两步报价流程契约审查》的结论并核对实际代码；该报告先前是会话交付，仓库未找到独立同名文档。本文件是此次永久固化，不虚构旧文件。
 - 实际代码：`server/app.ts` 仅接受 POST quotes 空对象；`quotes/draft.ts` neutral distribution/CNY/null 参数；`quotes/service.ts` 的可信创建、差异权限、普通 PUT；`quotes/repository.ts` 的 createGenerated/createInTransaction/CAS；`quotes/version-workflows.ts` 的现有完整性校验/克隆；`quote-masters/model.ts/service.ts` 的 active preset 和默认解析；`attachments/service.ts/storage.ts` 及 0008 非空 Quote owner FK；calculator 无 QuoteType 排除材料分支。
 - 实际测试阅读：quote-numbering、quote-api、quote-version-workflows、quote-attachments integration。已有覆盖 Server 编号/中性草稿、精确小数、readonly/CAS/可信 actor、上传失败/审计失败；这些不是 Intake 或新类型切换测试。本轮未运行测试/迁移。
-- main 最新正式编号 D-099；#87 预留 D-100；#89 未新增 D-10x。本次 D-101；不更改其他未合并分支。
+- 最新main已含D-100/0009（#87）；#89未新增D-10x。本次 D-101；不更改其他未合并分支。
 
 ### worktree 只读 baseline（可能继续变化）
 
@@ -25,7 +25,7 @@
 | D:/workspace/zhixu-pr84-integration | chore/d099-user-preview / 2b59244e714d94b3d38e0413953e99e2eed58d4a | clean |
 | D:/workspace/zhixu-server-deploy | detached / f0c252b52b6a626037e8ba70cf51d0e976e45447 | clean |
 
-以上只读，不代表占用这些分支开展新任务；A/B/C 未来应从届时最新 main 各建独立任务 worktree。#87/#89 改动 AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX/DECISION_LOG/QUOTE_CENTER，后续普通合并需逐块保留，不互相覆盖。当前 main 文档仍有 PR84 待合并历史文字；本任务仅新增恢复提示，不改写原部署证据。
+以上只读，不代表占用这些分支开展新任务；A/B/C 未来应从届时最新 main 各建独立任务 worktree。#87/#89 改动 AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX/DECISION_LOG/QUOTE_CENTER，后续普通合并需逐块保留，不互相覆盖。本任务保留上游原部署/工程证据，最新状态提示区分#87合并与0009真实activation。
 
 ## 1. 已确认与既有规则的关系
 
@@ -163,7 +163,7 @@ genericPUT：任何已有Revision type变化都调用同保护检查；确认后
 
 ## 7. Migration 与实施验证计划
 
-main目前0001–0008，PR87占0009。B开始前核对最新main/open PR与编号owner，先协调#87集成顺序；**本轮不预留、不创建0010**。若#87合并且无人占用，下一个可能0010，仅届时正式分配。若#87延期，需要单独协商次序，不冒用0009或跳号造成运行/ledger不兼容。不能修改0001–0009原始字节/checksum；新增独立forward-only迁移，不backfill伪Intake或Quote。未来对象manifest/receipt/配置metadata是否拆migration由B决定并记录。
+最新main已含0001–0009（#87刚合并）。B开始前再次核对最新main/open PR与编号owner，**本轮不预留、不创建0010**；若届时仍无人占用，下一个可分配0010。#87工程合并不是0009真实activation，Intake release需明确app/schema配套Gate；不冒用0009或跳号造成运行/ledger不兼容。不能修改0001–0009原始字节/checksum；新增独立forward-only迁移，不backfill伪Intake或Quote。未来对象manifest/receipt/配置metadata是否拆migration由B决定并记录。
 
 以下是未来计划，**本轮全部 NOT RUN**；只用disposable PG与MemoryAttachmentStorage/合成图，不能连18443/18444 DB或真实COS。
 
@@ -233,7 +233,7 @@ main目前0001–0008，PR87占0009。B开始前核对最新main/open PR与编�
 - B确认配置metadata持久化/legacy读取、draft缺资料最低门槛、权限键/授予流程、preview有效期、receipt租约/保留、权限撤销序列化；这些是提案不冒称用户字段选择。
 - 对“任一价格版本已确认”需涵盖linked-only及历史确认，默认保守不绕过；新Revision完整性和basedOnConfirmedRevisionId精确一致，不能清共享current。旧首次processing PUT的兼容路径须有可信可审设计。
 - 图片限额/HEIC支持/EXIF/离线同步尚未获产品决定，V1不默认实现；copy-on-convert需成本/带宽与恢复设计评审，但保留源图不变是已确认规则。
-- #87/#89文档普通合并要保留D-100/D-101及双方证据；#88候选需按最终纳入代码重新准备。所有migration编号仅B启动时分配。
+- #87本轮已普通整合，后续#89文档合并仍要保留D-100/D-101及双方证据；#88候选需按最终纳入代码重新准备。所有migration编号仅B启动时分配。
 
 ## 10. 本轮交付边界
 

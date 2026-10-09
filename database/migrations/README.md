@@ -14,3 +14,5 @@ Do not edit an applied migration. Add a new forward-fix migration instead.
 `0005_quote_foundation.sql` and `0006_quote_number_sequence.sql` own the Quote aggregate persistence graph and Server-only runtime numbering boundary. `0007_quote_master_settings.sql` adds the isolated Quote master/settings authority without importing Browser data; its authoritative DefaultTrimConfig intentionally has no quantity/usage column.
 
 Normal Node startup is verify-only and fails closed on pending migrations. Every real-target activation requires a separately authorized `npm run db:migrate`; existence of a migration file or merged implementation never authorizes activation.
+
+`0009_sales_order_delivery_plans.sql` adds independent collection CAS/irreversible ownership and stable rows/void history, with no backfill. New Ainuoke creation derives a default only with a source date; subsequent date/null recovery preserves its ID only while untouched. Source quantity never reallocates plans. Existing mirrors lacking collection evidence remain uninitialized. This migration was exercised only on disposable PostgreSQL; real activation is not authorized.

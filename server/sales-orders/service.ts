@@ -85,6 +85,7 @@ export async function createAinuokeSalesOrder(
           quantity: input.source.quantity,
           colorCount: input.colors.length,
           creationSource: "ainuoke",
+          sourceDeliveryDate: input.source.contractDeliveryDate,
         },
       },
       metadata: {

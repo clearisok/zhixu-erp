@@ -1,5 +1,9 @@
 # SalesOrder Browser Cutover Readiness
 
+## C4.3 Server engineering update — 2026-10-09
+
+DeliveryPlan is implemented through independent 0009 collection/rows, permanent user ownership, stable default null recovery, date/quantity reconciliation, trusted transactions/audit and narrow GET/PATCH commands. See [persistence/API](SALES_ORDER_PERSISTENCE.md) and [delivery report](../tasks/completed/2026-10-09-order-c43-delivery-plan.md). Below, statements that DeliveryPlan/C4.3 is not implemented describe the historical pre-C4.3 audit. Plan UI, real activation/acceptance, general Order writing, ambiguous fields and Browser retirement remain separate. No fallback/Browser repository change is introduced.
+
 ## Current boundary
 
 Phase 2B3C0 established read-path/model/UI readiness, C1 activated real Server RBAC plus authenticated API acceptance, C2.1 implemented a separate Browser trusted Server session boundary, and C2.2 completed real Browser same-origin shadow acceptance. C3.1 cut production `/order-center` base-list reads to PostgreSQL, and C3.2 completed real production-route Browser acceptance. Real PostgreSQL is authoritative for the 511 bootstrapped Ainuoke SalesOrder masters, immutable source bindings and current contract/color mirrors. Browser OrderRepository remains retained for its existing test/execution dataset and legacy write/detail paths, but it is no longer the production base-list source.
@@ -70,7 +74,7 @@ Classification meanings:
 | `fabricExecutionSnapshots` | BROWSER_EXECUTION_DATA | Requires future execution snapshot persistence. |
 | `trimExecutionSnapshots` | BROWSER_EXECUTION_DATA | Requires future execution snapshot persistence. |
 | `quantityChanges` | NEEDS_SEPARATE_SERVER_DOMAIN | Do not migrate the Browser editable commercial-quantity baseline for Ainuoke orders. Source quantity drift is reconciliation evidence; existing color-adjustment rules remain separate, while any broader server history model still needs a later decision. |
-| `deliveryPlans` | NEEDS_SEPARATE_SERVER_DOMAIN | Zhixu-owned editable multi-row customer delivery plan. A valid source date initializes one system-derived default; only an untouched collection may track later source-date changes, and any user intervention permanently protects the collection from source overwrite. Exact technical markers remain unfrozen. |
+| `deliveryPlans` | AVAILABLE_FROM_PG (separate C4.3 DTO) | Independent collection/rows and GET/PATCH are implemented with permanent ownership, stable IDs, CAS and reconciliation. Plan UI is deferred; never cast Browser JSON into this domain. Existing orders lacking evidence are uninitialized, with no backfill. |
 | `priceVersions` | NEEDS_SEPARATE_SERVER_DOMAIN | Do not live-link full Quote/Order PriceVersions. Linked Quote/Order share only the two current confirmed commercial terms; historical Quote snapshots and all other pricing facts stay independent. |
 | `currentPriceVersionId` | NEEDS_SEPARATE_SERVER_DOMAIN | Browser legacy pointer is not the future cross-domain shared-value authority. Exact server price-history design remains later work. |
 | `imageAttachmentIds` | NEEDS_SEPARATE_SERVER_DOMAIN | Requires server attachment/blob ownership and references. |
