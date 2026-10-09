@@ -1,6 +1,6 @@
 # AI 接力棒
 
-## Windows 独立 Quote Trial — READY / remote delivery pending（2026-10-09）
+## Windows 独立 Quote Trial — READY / remote push recovered（2026-10-09）
 
 - 用户已授权真实新本机部署，见当前任务附件与 [操作说明](../ops/quote-trial/README.md)。branch `ops/deploy-quote-trial-windows`，起始 clean HEAD/main `cc3c450562e692b696024558706954816227cb8a`（PR81 merged）。本次 fetch 成功；不重做 PR81、不再询问部署/新库初始化授权。
 - app source `9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23`，镜像 `zhixu-quote-trial:9ee254db89c6` / `sha256:c496a93c3f895448f65b3ede533105dc832c6be8ec61682badece39cb32a3d57`，build `quote-trial-20261009` / `2026-10-09T03:00:00Z`；ops source `1e71d773c2d578029f42267b16999167b393c49f`。均已核对；不重贴标签。PR81 原 10/10、11/11 及早期业务证据是历史结果，不是此次重跑；此前阶段 A `d1ae6c3`、B `0659fa4`、C `9ee254d`/`532b1c5`、D `244e514` 保留在 Git 与操作说明。
@@ -12,4 +12,4 @@
 - `Invoke-Trial.ps1`及Start/Status/Restart/Logs/Backup.cmd已在私有root，实际全部验证；入口snapshot guard，日常不init，失败不自动restore/删除/恢复编辑。源 `ops/quote-trial/windows-control.ps1` 与已部署入口SHA一致；canonical ops源仍1e71、应用仍9ee，Windows适配另有本分支提交。不重新打镜像标签。
 - 此次定向14/14、lint/diff-check PASS；未改应用/SQL/Dockerfile、不重跑旧业务/历史导入suite。Chrome独立会话两次request-header policy加载失败，自动浏览器验收未完成；人工三卡NOT RUN。下一步用户用新密码访问新URL做卡1，再卡2/3；不要再制造迁移Gate。首次card与日常入口见私有root/README、仓库ops README。
 - 旧 3001容器ID `2af703487293` healthy，3002 `0d95a18ef3dd`仍stopped，旧DB `419dce9da0da` healthy，端口/ID未变；只读metadata，不连接旧DB/Browser/Ubuntu。当前新目标database/app/gateway保持running/healthy；禁止down/cleanup/prune/COS DELETE。新用户数据是真实持久数据，历史导入NOT REQUIRED。
-- Git：本地checkpoint `8fd7e8f` push失败Connection reset；已按用户授权继续独立真实部署。最终本地收口提交后一次只读核实远端，不能冒称已送达；遵守AGENTS，不 force/rebase/改共享设置。PR与本机READY分开，远端恢复后仅交付同一分支PR，不重做部署/测试。
+- Git历史：checkpoint `8fd7e8f` push失败Connection reset，按用户授权继续部署；最终部署提交 `70953a6ca85d7478750809dc8c61484e322038e1` 的只读远端核实亦超时。现用户已人工 push 恢复，本轮本地核对 HEAD=origin/ops/deploy-quote-trial-windows、working tree clean。仅追加必要交付状态文档并创建/复用唯一PR；本次不重跑工程/部署测试，不操作运行环境或受限部署快照。PR交付不代表合并审查通过，不自动merge。

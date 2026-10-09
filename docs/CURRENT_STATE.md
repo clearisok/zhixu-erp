@@ -23,7 +23,7 @@
 - 少量真实新目标 API 验收 PASS：401、可信登录、viewer读取/禁止写入与Estimate隔离、保存读回、正式 COS上传/下载字节SHA、客户Excel/内部汇总解析、日志和静态页、重启/备份后持久化。保留1个 DEPLOY-VERIFY 品牌/业务员/Quote/附件，1 Revision/PV；全局设置/制造预设/面辅料/订单仍0。仅修本地汇总验收的一PV行数假设，未重复创建/上传。
 - 首备份 `zhixu-20261009T053144Z-2e1cc761.dump`，117420 bytes，SHA256 `ca699208efc0feacd4cf747f75be5aa7c97ab8a123c19d81d6d08cc4588d62ca`；archive/hash和1个 DB-owned 对象备份 PASS。日常备份入口暴露的固定bundle路径已修为显式配置，失败产物保留并完成对应对象导出；最终日常 Backup/Start/Status/Restart/Logs 实际验证 PASS，恢复READY，无restore/数据清理。
 - 本次适配定向14/14、lint/diff-check PASS；候选/应用未改，不重复旧全业务suite。独立Chrome控制因 request-header policy不可加载两次失败，自动浏览器验收未完成；人工三卡 **NOT RUN**。下一步用户访问新入口做 [三张卡](../ops/quote-trial/README.md)，不是新的历史迁移Gate。
-- 运维快照与日常入口保存在新受限目录，电脑重启后先启动 Docker Desktop。Git checkpoint push Connection reset，本地部署与远端交付分开；本地提交继续保留，远端/PR交付待核实，不自动merge。
+- 运维快照与日常入口保存在新受限目录，电脑重启后先启动 Docker Desktop。此前 Git checkpoint push Connection reset、最终只读核实超时；现用户人工 push 已恢复，部署提交 `70953a6ca85d7478750809dc8c61484e322038e1` 的 HEAD/远端跟踪 SHA 一致且 clean。本轮仅文档/PR交付收口，不重做部署或测试，不自动merge。
 
 ## 永久边界
 
