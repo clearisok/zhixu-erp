@@ -6,6 +6,8 @@
 
 Current linked customer price comes from exact ConfirmedCommercialTerms, not a second editable PV current; an incomplete provenance fails closed. Historical export uses its own confirmation snapshot. Generation rechecks Quote CAS and linked terms before recording the trusted generation event. No Quote mutation, Estimate projection or claim about saving to user disk. Audit failure returns no file.
 
+The linked writer and export final verification share canonical context locks: sorted exact PV terms contexts before Quote row. A terms change during generation is a source conflict, not a mixed-current workbook. Linked without configured current leaves customer-confirmed price empty instead of falling back to embedded PV confirmation. Shared labor amounts/currency do not replace system labor, assumptions or calculator outputs. The unchanged template/unique ExcelJS builder is regression-parsed from actual Chromium download bytes/SHA-256, including shared price 88.25 with independent system costs; history and null/zero remain covered.
+
 Images use legal Server relations/storage and byte/SHA checks; PNG chunk CRC/decompression/dimensions and bounded JPEG structure are checked. Missing, corrupt or unsupported formats (including WebP without a Server conversion adapter) warn and omit the image; 401/403 do not become warnings. Server templates are not user-uploadable in this phase. Customer downloads are verified/parsed in isolated Chromium; exact executed counts are in AI_HANDOFF. The sections below describe the preserved Browser exporter unless explicitly stated otherwise.
 
 ## Purpose

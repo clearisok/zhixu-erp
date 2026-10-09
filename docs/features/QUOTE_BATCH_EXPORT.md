@@ -7,6 +7,8 @@ before generation; no simultaneous global snapshot claim. ZIP contains a verifie
 minimal manifest and collision-safe names; partial/all-failed results are explicit,
 all-failed produces no empty download. Estimate is excluded; no Browser IO.
 
+Linked current selections reuse the same customer-export service and canonical terms→Quote final verification; no second mapping/normalization or batch shared-current writer exists. Missing linked current does not fall back to PV confirmation. History continues to use its own snapshot. Controlled one/multi-PV export conflict tests and actual cross-page ZIP/partial-failure regressions preserve these existing boundaries.
+
 Per-item image/build warnings survive in `export-results.json`; the bounded response and UI show the affected selections/counts rather than silently calling the batch clean. Manifest/audit preserve safe Quote style identity, Revision label and PV ID/name/manufacturing-country snapshots, not internal amounts or Estimate. One-item generation logs remain factual even if a later ZIP stage fails; partial success never claims rollback of generated items. Internal estimate summary export remains deferred. The following legacy Browser batch/summarization behavior is unchanged, not an enabled Server summary path.
 
 ## Current behavior

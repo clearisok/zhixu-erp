@@ -26,7 +26,7 @@ Foundation 原 Gate 验证新 disposable DB；后续 D-097 已接通正式 Serve
 | Revision creation/management/history navigation | Supported；当前/所选历史创建新默认快照、原 Vn/分支规则、历史只读/返回当前；可信 command + 原 repository 单事务 |
 | PV create/delete/name workflow | Supported；复制所选已保存 PV、编辑名称/数量/说明、删除非最后 PV/切换；新 owner IDs，独立成本/参数快照，清除复制确认 |
 | Estimate current/history | Supported；显式生成/来源选择、固定结构编辑保存、重新生成/归档、历史搜索/只读/克隆恢复、stale/ignore；专用可信命令，共用版本锁 |
-| customer confirmation | Supported for proven unlinked current PV；可信金额输入、saved-source/time、CAS/审计；历史只读，linked current writer 明确禁用，待 saved-PV 币种/Quote 编辑资格闭合 |
+| customer confirmation | Supported；proven-unlinked 专用快照命令、linked shared current 双CAS/saved-PV币种/事务资格；历史只读，legacy无saved Server来源的linked writer fail closed，未知不回退 |
 | customer Excel / ZIP | Supported；内置正式模板、精确当前/所选历史、单/多PV；跨页稳定ID/版本、25张/100MB、警告/部分失败清单；不含 Estimate |
 | read-only log viewer | Supported；可信 Quote详情/全局有界分页与筛选、事件快照、audit_log.view/Estimate隔离，无 Browser IO |
 | internal batch metrics/copy/delete/Quote-to-Order | Deferred；未开放命令，不调用旧 Browser order/log |

@@ -2,14 +2,16 @@
 
 ## C4.2 ConfirmedCommercialTerms extension
 
+2026-10-09 linked follow-up: exact saved Server Quote provenance is now required for Quote mutation; both terms expectedVersion and positive expectedQuoteVersion must pass the locked saved-source check. Order current uses only its existing terms CAS/permissions and established currency, not the Quote's current/default edit eligibility. Multiple formal Orders read/write the same context; no source binding/aggregate/version/sequence/mirror mutation occurs. This does not expose Order creation or implement a new Order UI.
+
 - Forward-only migration `0004_confirmed_commercial_terms.sql` adds a separate shared-current commercial-terms domain; it does not rewrite the four Phase 2B1 SalesOrder/source tables and performs no data backfill.
 - Formal `sourceQuoteId/sourceRevisionId/sourcePriceVersionId` has no 1:1 guarantee. One unique exact Quote provenance terms context can therefore associate with multiple SalesOrder UUIDs; all such orders read and update the same context. An order with no Quote provenance uses an isolated SalesOrder-owned context and never receives fabricated provenance.
 - Current customer-confirmed price is CNY/件. Current confirmed labor price retains explicit `CNY|USD`; values persist as PostgreSQL `NUMERIC` and cross the API as decimal strings. Null remains unconfirmed, not zero.
 - For a Quote-linked context, the Quote surface establishes or changes labor currency from its exact PriceVersion. Order may edit current amounts but must preserve that qualifier; changing it or submitting labor before Quote establishes it returns 409 with no terms/log write. An unlinked SalesOrder-owned context permits explicit Order-selected currency.
 - Terms have an independent optimistic version. Atomic service writes append exactly one trusted existing OperationLog with old/new values; they do not increment SalesOrder version or mutate source mirror/quantity/sequence.
 - Order and Quote APIs use exact UUID/provenance lookup and existing `order.view`/`order.edit`/`quote.view`/`quote.confirm` permissions. There is no generic SQL/table endpoint and no fuzzy Quote relation.
-- Quote linkage integration is disabled by default and requires `NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE=true`. Before that explicit activation, existing Browser-local Quote confirmation remains unchanged and no formal Quote-linked SalesOrder may be created/used. After activation, unknown linkage fails closed; only a proven-unlinked Quote can use the local path.
-- Real `zhixu` migration/data activation and real Browser write acceptance are not authorized and were not executed. C4.2 implementation is complete in PR using disposable PostgreSQL only; C4 overall remains incomplete.
+- Default Browser linkage flag remains disabled; explicit Quote Server mode always resolves exact trusted linkage. Unknown fails closed; unlinked uses its appropriate snapshot path. Legacy Browser-linked mutation without a verifiable saved Server Quote is read-only, never a weak compatibility writer.
+- HISTORICAL original C4.2 Gate was disposable-only without real activation/Browser acceptance, not a current migration-ledger statement; later activation is recorded in CURRENT_STATE/SERVER_PERSISTENCE. This linked-writer follow-up also performs no real activation/deployment; C4 overall remains incomplete.
 
 ## Status and scope
 

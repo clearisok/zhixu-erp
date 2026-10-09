@@ -75,3 +75,10 @@ test("commercial terms client preserves safe conflict status and code", async ()
       && error.code === "confirmed_commercial_terms_version_conflict",
   );
 });
+
+test("incomplete linkage response is unknown, never inferred unlinked or a snapshot fallback", async () => {
+  for (const malformed of [{ ...dto, linkage: undefined }, { ...dto, linkage: "unlinked" }, { ...dto, associatedSalesOrderIds: [] }]) {
+    const client = createConfirmedCommercialTermsServerClient({ fetchImpl: (async () => new Response(JSON.stringify({ confirmedCommercialTerms: malformed }))) as typeof fetch });
+    await assert.rejects(client.getByQuote("quote-1", "revision-1", "price-1"), { code: "confirmed_commercial_terms_provenance_mismatch" });
+  }
+});

@@ -26,6 +26,8 @@ Q2A create and real aggregate-save mutations append exactly one existing Postgre
 
 ## C4.2 Server ConfirmedCommercialTerms audit
 
+Linked saved-source writer uses the existing terms event, not a second Quote-confirmation or Browser event. Context persists exact Quote/Revision/PV, associated Order IDs and Quote/Order mutation surface; before/after retains old/new decimal values, currency and terms version from the transaction. Actor is TrustedIdentity only. Numeric no-op adds no version/event, CAS/association/audit failure adds no success event. Shared current reads contain no Estimate content and do not require estimate.view; log viewer still enforces audit_log.view and existing Estimate projection. Controlled transaction tests prove single-winner writes and rollback; actual linked UI/download/log read tests leave aggregates unchanged.
+
 Every actual shared-current terms create/update appends exactly one existing PostgreSQL `operation_logs` row in the same transaction. The trusted session supplies actor ID/name; request bodies cannot supply or override actor. The log records old/new customer-confirmed price, confirmed labor price, labor currency and terms version, plus mutation surface, exact Quote provenance when linked, and associated formal SalesOrder UUIDs. Audit failure rolls back the terms and association; existing logs remain append-only. Adding the shared TypeScript action/entity labels does not create a second Browser persistence authority or require a Browser storage migration.
 
 ## Purpose
