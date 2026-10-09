@@ -1,5 +1,7 @@
 # 当前状态
 
+> 2026-10-10 文档恢复提示：GitHub main `49a82c9` 已合并PR84；保留下方原部署证据。Quote Intake V1 的 QI-01–06 / D-101 是已确认、尚未实现目标；[实施契约](tasks/active/quote-intake-v1-implementation-contract.md)给出字段/API/图片恢复/分工。PR87 `a6a59a9`（0009）、PR88 `a21a370`（旧候选准备）、PR89 `f450e25`（UI修复待人工验收）均未合并。本轮只读/文档，不启动开发、不更新18443/18444、不执行migration。
+
 > 2026-10-09；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及本轮验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
 
 ## 当前工程能力

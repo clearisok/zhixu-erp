@@ -1,5 +1,11 @@
 # AI handoff
 
+## Active — Quote Intake V1 documentation (2026-10-10)
+
+- Independent docs branch `chore/quote-intake-v1-contract`, clean baseline GitHub/fetched main `49a82c9f970e158ded589300b4aa04fc4c809038`. QI-01–06 / D-101 are user-confirmed targets, NOT IMPLEMENTED. [Field/API/transaction/test and A/B/C/D implementation contract](tasks/active/quote-intake-v1-implementation-contract.md) is complete; [domain contract](features/QUOTE_INTAKE.md) separates confirmed rules from technical proposals. No code/SQL/tests/runtime changes; A/B/C development has not started.
+- PR87 `a6a59a9` owns 0009/D-100; PR88 `a21a370` candidate remains preparation; PR89 `f450e25` UI engineering awaiting user acceptance, with later dirty image work preserved. No Preview/deployment operation in this task.
+
+
 ## Active — Codex D PR #84 integration (2026-10-09)
 
 - Independent worktree `D:\workspace\zhixu-pr84-integration`, original branch `ops/update-quote-trial-windows-ui`; clean baseline `62af9d33fd1de9a981972405b0d1ef01b503d351`. Normal merge of fetched/GitHub-confirmed main `6e40b4318e59f8cc54adfe1aeb3d3e3d90a72613` (PR #85/#86 merged).
