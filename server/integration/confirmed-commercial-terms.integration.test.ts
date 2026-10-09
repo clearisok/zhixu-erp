@@ -125,6 +125,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     "0006_quote_number_sequence.sql",
     "0007_quote_master_settings.sql",
     "0008_quote_attachments.sql",
+    "0009_sales_order_delivery_plans.sql",
   ]);
   const rerun = await runMigrations(pool, resolve("database/migrations"));
   assert.deepEqual(rerun.applied, []);

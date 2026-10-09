@@ -1,8 +1,9 @@
 # 项目知识索引
 
-> Codex A D-099 列表三项验收反馈修复：独立分支工程 PASS，Preview 更新/用户验收仍待 Codex D 与用户完成。[宽度/只读图片契约与本轮测试](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。以下既有运行状态为各原阶段证据，不能推断本修复已部署。
+> PR #89 D-099 列表修复正在单 Codex 整合与重新验证；Preview 更新有条件授权，用户验收 PENDING。[宽度/只读图片契约与历史测试](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。以下运行状态为原阶段证据，不能推断本修复已部署。
 
 > 当前：D-099 Quote 原版 UI / Server 工程已由 PR #86 合并，人工 UI 验收 PENDING；PR #85 Source/Bridge 修复也已合并。PR #84 已 MERGED 于 `49a82c9f970e158ded589300b4aa04fc4c809038`；原 Windows 更新有[备份/运行身份/持久数据验收证据](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)，合并不代表新的运行更新。PR #88 D-099 新候选准备不等于已部署。当前摘要见 CURRENT_STATE，恢复点见 AI_HANDOFF；[UI审计](tasks/active/quote-original-ui-convergence.md)、[合成视觉索引](tasks/assets/quote-original-convergence/README.md)、[部署历史归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)与[操作说明](../ops/quote-trial/README.md)均保留。本轮不复核或更新真实环境，不重新 setup/init。
+> PR #87 已合并至 `7ed9204d552384730bf93c992b500c530d639c38`；[历史补测、合成 API 演示与0009发布风险](tasks/completed/2026-10-10-pr87-delivery-plan-integration.md)保留。真实业务环境0009未获本轮授权，只有隔离18444 Preview通过安全检查后可以前向迁移。
 
 > D-097 工程阶段历史：Fresh Start **正式 Quote Server 基本闭环工程/隔离验收完成，当时未真实部署**；本次 win01 已部署事实见上方及 CURRENT_STATE。显式 Quote authority=server（默认 browser）接原地 list/new/detail、正式 Editor/附件；全局 Browser bootstrap/mock identity 与未支持 URL 隔离。支持/未接动作、实际 Chromium 与质量证据见 `features/FRESH_START_FOUNDATION.md`、CURRENT_STATE/AI_HANDOFF。旧 runtime 与旧数据不变，历史导入 NOT REQUIRED。
 
@@ -11,6 +12,8 @@
 > 最后确认的旧开发运行态（本轮未复核，非新候选）：Q3B2I-C2 CLOSED / PASS。PR #64 的 Local Single-User UI 修复已部署至真实本机 `127.0.0.1:3001` 并经用户真实浏览器验收；Q3 master/settings 为 Server authority 且编辑已重开，旧 3002 最后确认停止，旧 Quote aggregate 与附件仍由 Browser 持有。真实 0008/对象存储未激活；D-093 Active、B3/B3-R 已被取代。这不是新 session 试用候选的部署或登录指引。见 CURRENT_STATE 与 Q3B2I_CUTOVER_RUNBOOK 的历史执行证据。
 
 ## 系统简介
+
+并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
 

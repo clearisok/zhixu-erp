@@ -1,5 +1,9 @@
 # 新订单中心
 
+## Formal Server C4.3 boundary — 2026-10-09
+
+正式 Server 在既有 C3/C4.1 只读列表/详情和 C4.2 current terms 上增加独立 DeliveryPlan 领域；[Server persistence](SALES_ORDER_PERSISTENCE.md) 记录 0009、集合 CAS、永久人工所有权、stable IDs/null recovery、drift 与专属 GET/PATCH。只 disposable PG 验证，没有真实 activation、计划编辑 UI、通用 SalesOrder writer 或 Browser import。下文 Browser model/service/legacy 数量历史不自动成为正式 Server 规则，D-082/D-083/D-100 优先。下一步另立正式计划 UI/冲突 UX Gate，不增加 D-098 报价上线前置。
+
 ## Purpose
 
 在 Quote Center 浏览器路径中提供可独立演进的单款订单领域：支持手工订单、报价转订单、翻单、确认、数量/交期/价格历史、附件引用、权限、搜索、日志、备份恢复及旧数据非破坏迁移。它不复用根路径 PostgreSQL 的旧订单模型；生产排单由独立 feature 引用 SalesOrder，不把排单事实嵌入订单。

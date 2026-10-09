@@ -120,6 +120,8 @@
 
 ### C4 已确认的正式所有权边界
 
+- C4.3 用户于 2026-10-09 确认：默认计划数量固定为首次 source quantity（允许 0），后续数量变化只提示、不自动重分配；首次无日期不建默认行，后来出现日期也不补建。已有 untouched 默认日期变为 null 时保留 ID/数量，恢复日期仍使用原 ID。人工计划输入保持既有正数规则；同值人工提交也是介入。既有订单无所有权证据不推定 untouched、不 backfill。技术实现见 D-100/0009；只完成隔离工程验证，未真实激活。
+
 - 对 Ainuoke-backed SalesOrder，经真实 report metadata/rows 证明的 Ainuoke 字段是权威 source facts，织序不得直接覆写。需要不同运营/业务值时，必须放入可与 source mirror 区分的 Zhixu-owned 字段或独立 domain。Source drift/conflict 可显式呈现，不得通过改写用户业务值静默解决。该原则覆盖已证明的 BillNo/SalesContractNo、InsideOrderNo、source lifecycle、contract/process delivery date、source quantity、source style/customer/brand/company 和 6087105 color enrichment；未证明字段不得猜测映射。
 - Customer PO 属于 Ainuoke source，织序用户不可编辑，它不是唯一订单身份，也不得成为用户维护的替代值。当前 6086103 `QuotationNo` 已证明不是 Customer PO，具体 Direct API source mapping 仍为 **NOT YET PROVEN**；在真实 metadata/rows 证明前，正式 server/UI 值必须保持 null/只读。
 - Ainuoke source order quantity 为正式 Ainuoke-backed SalesOrder 的权威数量且不可由织序用户编辑；不建立可编辑的正式商业数量 baseline。Scheduling quantities 是独立事实，order quantity 变化不自动改写 schedule quantities。后续 source quantity 变化可生成 drift/reconciliation evidence，但不授权人工改写 source quantity。
