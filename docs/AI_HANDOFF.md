@@ -1,6 +1,6 @@
 # AI 接力棒
 
-## Quote Trial Release Preparation — C isolated candidate checkpoint (2026-10-09)
+## Quote Trial Release Preparation — final delivery (2026-10-09)
 
 - Base 已人工恢复并本地核验：`d25aac7aa19a90ac1c1f573fbb60e420b7899e98`；branch `feat/quote-trial-release-preparation`，起始 clean。本次未重复 fetch/PR 查询。
 - A→B→C→D 连续执行，阶段独立 checkpoint；不扩已锁定报价范围、不真实部署。历史验收已移动至 [归档](tasks/completed/2026-10-09-pre-trial-state-history.md)，不是本任务测试。
@@ -11,5 +11,6 @@
 - C runtime checkpoint `9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23` 已推送，实际 Dockerfile.server 候选 `zhixu-quote-trial:9ee254db89c6` 全SHA、server/server/writable/session 编译/labels/runtime一致；local image ID `sha256:c496a93c3f895448f65b3ede533105dc832c6be8ec61682badece39cb32a3d57`。初始短SHA临时镜像不作为候选。后续ops/docs提交不冒称此镜像使用新SHA。
 - 最终实际镜像+独立Compose/TLS/MinIO/私有DB smoke及独立恢复9/9：空库26张非技术表0、仅6张技术表初始化；显式0001–0008 runner，重复init拒绝；Secure session/Origin/401/403/logout/expiry、文件600/1000:1000/ro、主动Quote/PV/Revision/Estimate/附件/客户XLSX+ZIP/汇总/日志/page、重启/重建/管理员hash保留与恢复字节SHA、tamper拒绝、cleanup PASS。最短check/init/status/target/maintenance/objects/restore-check入口已实际验证。无真实操作/人工业务验收NOT RUN。
 - 本轮测试：Git分类6/6，配置guard4/4，S3故障8/8，credentials4/4（先server:build），MinIO adapter2/2，auth/frontend66/66，npm test674/674；typecheck/lint/Server build、实际镜像Server frontend、默认frontend及browser/browser/writable build-info、diff-check PASS。不把既有60 Chromium当成本轮结果；未重跑无关历史迁移/真实COS。
-- D余项仅文档收口：核对操作说明/三张卡、当前状态/导航、最终commit/push/唯一PR。当前已确认远端9ee254d；此checkpoint push后以工具核对为准，dirty/HEAD以Git为准。不预写PR成功。
-- 恢复入口：AGENTS → PROJECT_INDEX → CURRENT_STATE → 本文件 → ops/quote-trial（实现后）；不依据历史旧命令启动3002，不操作真实 secrets/COS/DB/Browser。
+- C isolated checkpoint `532b1c5` 已推送；D已收口最短入口与三张卡，见 [操作说明](../ops/quote-trial/README.md)。最终增补含active/history Estimate的受限账号GET内容隔离及专用写入403，实际镜像完整smoke+恢复9/9再次PASS；未改变应用源码/构建输入。下一步：独立新目标与真实TLS/file mount/CAM核对、另行授权部署、人工三卡；不是补历史迁移Gate。本轮真实操作NO，人工验收NOT RUN。
+- 远端交付以最终工具核对为准；不在文档预写自身最终SHA或PR成功。恢复只需核对branch/HEAD/status和该分支唯一PR，不重做A/B/C/D；无代码变化不重复昂贵验证。已清理合成资源与生成dump，镜像保留；旧环境、用户数据、COS不动。
+- 恢复入口：AGENTS → PROJECT_INDEX → CURRENT_STATE → 本文件 → ops/quote-trial/README.md；不依据历史旧命令启动3002，不操作真实 secrets/COS/DB/Browser。

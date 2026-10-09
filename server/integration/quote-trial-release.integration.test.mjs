@@ -112,6 +112,9 @@ test('Quote trial: actual production image, TLS/session/S3, persistent recreatio
     await post('/version-workflows',{action:'revision.create',expectedVersion:record.version,sourceRevisionId:r.revisionId,reason:'其他',note:'Synthetic revision'});
     await post('/estimate-workflows',{action:'estimate.generate',expectedVersion:record.version,sourceRevisionId:record.quote.defaultRevisionId});
     await post('/estimate-workflows',{action:'estimate.regenerate',expectedVersion:record.version,sourceRevisionId:record.quote.defaultRevisionId});assert.equal(record.quote.revisions.length,2);assert.equal(record.quote.estimateCostHistory.length,1);
+    const viewer=await a.login('trial-viewer','synthetic-viewer-only');
+    const restricted=await a.request(`/api/v1/quotes/${record.quote.id}`,{cookie:viewer});assert.equal(restricted.status,200);assert.equal(restricted.json().quote.estimateVisibility,'restricted');assert.equal(Object.hasOwn(restricted.json().quote.quote,'activeEstimateCost'),false);assert.equal(Object.hasOwn(restricted.json().quote.quote,'estimateCostHistory'),false);
+    assert.equal((await a.request(`/api/v1/quotes/${record.quote.id}/estimate-workflows`,{cookie:viewer,method:'POST',body:{action:'estimate.ignore',expectedVersion:record.version,estimateId:record.quote.activeEstimateCost.id}})).status,403);
     assert.equal(await a.sql('SELECT count(*) FROM sales_orders;'),'0');assert.equal(await a.sql('SELECT count(*) FROM quote_center_quotes;'),'1');
   });
   await t.test('actual production S3 upload/download, confirmation, XLSX/summary/logs and pages',async()=>{

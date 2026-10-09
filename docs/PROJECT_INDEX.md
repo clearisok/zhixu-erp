@@ -1,12 +1,12 @@
 # 项目知识索引
 
-> 当前任务：Quote Trial Release Preparation（D-098），基线 PR #80 merge `d25aac7aa19a90ac1c1f573fbb60e420b7899e98`。锁定已合并报价能力，准备独立候选和实际使用交接；不是增加业务功能或真实部署。当前摘要见 CURRENT_STATE、恢复点见 AI_HANDOFF；旧证据见 [历史归档](tasks/completed/2026-10-09-pre-trial-state-history.md)。
+> 当前任务：Quote Trial Release Preparation（D-098），基线 PR #80 merge `d25aac7aa19a90ac1c1f573fbb60e420b7899e98`。锁定已合并报价能力，独立候选/启动/恢复与三张卡见 [操作说明](../ops/quote-trial/README.md)；不是增加业务功能或真实部署。当前摘要见 CURRENT_STATE、恢复点见 AI_HANDOFF；旧证据见 [历史归档](tasks/completed/2026-10-09-pre-trial-state-history.md)。
 
 > D-097：Fresh Start **正式 Quote Server 基本闭环工程/隔离验收完成，非真实部署**。显式 Quote authority=server（默认 browser）接原地 list/new/detail、正式 Editor/附件；全局 Browser bootstrap/mock identity 与未支持 URL 隔离。支持/未接动作、实际 Chromium 与质量证据见 `features/FRESH_START_FOUNDATION.md`、CURRENT_STATE/AI_HANDOFF。旧 runtime 与旧数据不变，历史导入 NOT REQUIRED。
 
 > **当前新系统上线方向：D-096，全部业务数据从空开始。** 旧环境保留，Q5 historical import NOT REQUIRED；功能/安全/Quote-first 顺序不变，不代表正式 UI 已全接 Server。空库验证、技术初始化白名单、隔离部署说明与剩余接线文件见 [Fresh Start Foundation](features/FRESH_START_FOUNDATION.md)。下面既有部署/数据数量只描述旧环境，不是新系统的数据源或初始化指令。COS real Node preflight 已 PASS（PR #73 用户证据），不是 runtime storage activation。
 
-> 当前开发运行态：Q3B2I-C2 CLOSED / PASS。PR #64 的 Local Single-User UI 修复已部署至真实本机 `127.0.0.1:3001` 并经用户真实浏览器验收；Q3 master/settings 为 Server authority 且编辑已重开，旧 3002 保持停止。Q4A Server 附件 foundation 仅经一次性数据库验证，真实 0008/对象存储/部署均未激活。D-093 Active、B3/B3-R 已被取代；Quote aggregate 与现有附件仍由 Browser 持有。下文 trusted session/RBAC 与旧 Gate 描述如无另行标注均为历史/session-mode 兼容，不是当前登录或部署指引。见 `CURRENT_STATE.md`、`features/ATTACHMENTS.md`、`features/Q3B2I_CUTOVER_RUNBOOK.md`。
+> 最后确认的旧开发运行态（本轮未复核，非新候选）：Q3B2I-C2 CLOSED / PASS。PR #64 的 Local Single-User UI 修复已部署至真实本机 `127.0.0.1:3001` 并经用户真实浏览器验收；Q3 master/settings 为 Server authority 且编辑已重开，旧 3002 最后确认停止，旧 Quote aggregate 与附件仍由 Browser 持有。真实 0008/对象存储未激活；D-093 Active、B3/B3-R 已被取代。这不是新 session 试用候选的部署或登录指引。见 CURRENT_STATE 与 Q3B2I_CUTOVER_RUNBOOK 的历史执行证据。
 
 ## 系统简介
 

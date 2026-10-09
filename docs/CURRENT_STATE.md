@@ -16,11 +16,11 @@
 
 ## 本轮实际进度与下一步
 
-- A：精简当前状态/接力、保留历史证据、同步规则与导航；仅文档检查。
-- B：安全 Git 故障分类/恢复规则与模拟验证。
-- C：独立 session + Server authority 候选镜像、新 DB/volume/network、合成 S3/凭据与启动/重启验证。
-- D：独立备份恢复读回和三张人工试用卡；人工业务验收 **NOT RUN**。
-- 真正试用前置：可运行候选与正确身份/隔离持久化、附件运行保护、基本恢复能力。本轮完成后按证据缩减剩余项，不将可选运营增强或 Q5 Gate 加回。
+- A/B 完成：一页状态、短接力、原始历史归档、D-098；AGENTS 新网络恢复协议与分类6/6。fetch reset 根因仍 unresolved；不改共享 Git/TLS/代理配置。
+- C 完成：实际 Dockerfile.server 候选 `zhixu-quote-trial:9ee254db89c6`（源fullSHA `9ee254db89c6b02dbbb95e7a4b3d7c7e02763f23`），server/server/writable/session，编译/labels/runtime一致；独立 production TLS/MinIO/私有DB、非root600/ro凭据、显式0001–0008、空业务数据、认证/权限、重启/重建与管理员保留已验证。
+- D 完成：第二个独立目标恢复Quote/历史/Estimate/附件字节SHA和页面；实际镜像smoke+恢复9/9、cleanup PASS。只清理本轮合成资源；用户未来录入数据不是可自动清理的测试数据。
+- [最短操作入口与三张卡](../ops/quote-trial/README.md)已准备；人工业务验收 **NOT RUN**、真实部署 **NOT EXECUTED**。默认 Browser 保持；后续ops/docs commit不冒称既有候选镜像已重建。
+- 剩余最小前置：审查候选，确认**独立新目标**、HTTPS访问与真实file mount/CAM/权限，另行授权部署后做三张卡。云机器/域名未提供不阻塞本轮工程；不将 Q5 或可选增强加回。
 
 ## 永久边界
 
