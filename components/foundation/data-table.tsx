@@ -20,6 +20,8 @@ export type DataColumn<T> = {
 };
 
 type DataTableProps<T> = {
+  /** Opt-in pixel floors with local horizontal overflow; other tables remain fit-first. */
+  layout?: "fit" | "readable";
   rows: T[];
   columns: DataColumn<T>[];
   rowKey: (row: T) => string;
@@ -60,7 +62,7 @@ function isInteractiveTarget(target: EventTarget | null) {
   return target instanceof Element && Boolean(target.closest("button,a,input,select,textarea,[role='button'],[data-table-control]"));
 }
 
-export function DataTable<T>({ rows, columns, rowKey, rowClassName, empty, emptyTitle = "暂无记录", emptyDescription, loading = false, loadingLabel = "正在加载数据", error, onRetry, selectedRowKey, onRowActivate, renderRecord, ariaLabel = "业务数据表格", className = "", moduleKey = "workspace", tableKey, tablePreference, preferenceAliases = {}, onTablePreferenceChange }: DataTableProps<T>) {
+export function DataTable<T>({ layout = "fit", rows, columns, rowKey, rowClassName, empty, emptyTitle = "暂无记录", emptyDescription, loading = false, loadingLabel = "正在加载数据", error, onRetry, selectedRowKey, onRowActivate, renderRecord, ariaLabel = "业务数据表格", className = "", moduleKey = "workspace", tableKey, tablePreference, preferenceAliases = {}, onTablePreferenceChange }: DataTableProps<T>) {
   const { currentUser } = usePermissions();
   const stableTableKey = tableKey ?? `${moduleKey}.${ariaLabel}`;
   const defaults = useMemo(() => Object.fromEntries(columns.map((column) => [column.key, column.width ?? column.minWidth ?? 120])), [columns]);
@@ -82,7 +84,7 @@ export function DataTable<T>({ rows, columns, rowKey, rowClassName, empty, empty
   const normalizedOrder = normalizeColumnOrder(preference.columnOrder, defaultOrder, preferenceAliases);
   const columnMap = new Map(columns.map((column) => [column.key, column]));
   const orderedColumns = normalizedOrder.map((key) => columnMap.get(key)).filter((column): column is DataColumn<T> => Boolean(column));
-  const widths = Object.fromEntries(orderedColumns.map((column) => [column.key, preference.columnWidths[column.key] ?? defaults[column.key] ?? 120]));
+  const widths = Object.fromEntries(orderedColumns.map((column) => [column.key, Math.max(layout === "readable" ? column.minWidth ?? MIN_COLUMN_WIDTH : 0, preference.columnWidths[column.key] ?? defaults[column.key] ?? 120)]));
   const totalWidth = Math.max(1, Object.values(widths).reduce((sum, width) => sum + width, 0));
 
   const applyPreference = (next: TablePreference, persist: boolean) => {
@@ -127,7 +129,7 @@ export function DataTable<T>({ rows, columns, rowKey, rowClassName, empty, empty
   const styleFor = (column: DataColumn<T>): CSSProperties => {
     const percent = widths[column.key] / totalWidth * 100;
     return {
-      width: `${percent}%`,
+      width: layout === "readable" ? widths[column.key] : `${percent}%`,
       ...(column.sticky === "left" ? { left: 0 } : {}),
       ...(column.sticky === "right" ? { right: 0 } : {}),
     };
@@ -137,9 +139,9 @@ export function DataTable<T>({ rows, columns, rowKey, rowClassName, empty, empty
   if (error) return <ErrorState title="数据加载失败" description={error} onRetry={onRetry} />;
   if (!loading && !rows.length) return <>{empty ?? <EmptyState title={emptyTitle} description={emptyDescription} />}</>;
 
-  return <div className={`qc-business-table ${className}`.trim()} data-loading={loading || undefined} data-table-key={stableTableKey}>
+  return <div className={`qc-business-table ${className}`.trim()} data-layout={layout} data-loading={loading || undefined} data-table-key={stableTableKey}>
     <div className="qc-table-wrap" role="region" aria-label={ariaLabel}>
-      <table className="qc-data-table" aria-label={ariaLabel} aria-busy={loading || undefined}>
+      <table className="qc-data-table" style={layout === "readable" ? { minWidth: totalWidth } : undefined} aria-label={ariaLabel} aria-busy={loading || undefined}>
         <colgroup>{orderedColumns.map((column) => <col key={column.key} data-column-key={column.key} style={styleFor(column)} />)}</colgroup>
         <thead><tr>{orderedColumns.map((column) => <th key={column.key} scope="col" className={classFor(column)} data-column-key={column.key} data-priority={column.responsivePriority ?? "secondary"} style={styleFor(column)} draggable onDragStart={(event) => { dragKeyRef.current = column.key; event.dataTransfer.effectAllowed = "move"; }} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); const source = dragKeyRef.current; dragKeyRef.current = null; if (source) moveColumn(source, column.key); }}>
           <span className="qc-table-heading"><span className="qc-column-drag-handle" aria-hidden="true">⋮⋮</span><span>{column.header}</span></span>

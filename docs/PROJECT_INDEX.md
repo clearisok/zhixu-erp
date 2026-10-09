@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 当前任务：用户已授权的 Windows 独立 Quote Trial 已部署至 **READY**，基线 PR #81 merge `cc3c450562e692b696024558706954816227cb8a`。新目标 `zhixu-quote-trial-win01` / `https://localhost:18443`，新空DB0001–0008、session/RBAC、正式COS附件、重启/首备份已验证并保留运行；旧环境不变。人工业务三卡 NOT RUN，Chrome自动控制不可用；远端交付与真实部署分别记录。范围/操作/三卡见 [操作说明](../ops/quote-trial/README.md)，事实见 CURRENT_STATE、恢复点见 AI_HANDOFF；旧证据见 [历史归档](tasks/completed/2026-10-09-pre-trial-state-history.md)。
+> 当前任务：PR #82 原分支整合 main / 审查收口；#83 已合并 `dd5fc62e6a4cdf5920528c71cfbd4dbae3c9013d`。Windows win01 此前已部署 READY，用户已登录；新 UI 候选已构建未部署，18443 仍原镜像，完整人工业务卡尚未确认通过。下一步是另行授权现有环境应用更新，不重新 setup/init。当前摘要见 CURRENT_STATE、恢复/两边历史证据见 AI_HANDOFF；[操作说明](../ops/quote-trial/README.md)保留 Windows 工具与部署结果。
 
 > D-097 工程阶段历史：Fresh Start **正式 Quote Server 基本闭环工程/隔离验收完成，当时未真实部署**；本次 win01 已部署事实见上方及 CURRENT_STATE。显式 Quote authority=server（默认 browser）接原地 list/new/detail、正式 Editor/附件；全局 Browser bootstrap/mock identity 与未支持 URL 隔离。支持/未接动作、实际 Chromium 与质量证据见 `features/FRESH_START_FOUNDATION.md`、CURRENT_STATE/AI_HANDOFF。旧 runtime 与旧数据不变，历史导入 NOT REQUIRED。
 
