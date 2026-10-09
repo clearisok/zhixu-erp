@@ -693,7 +693,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       assert.equal(await evaluate("document.querySelector('.qc-estimate-cost-panel button')?.textContent"),"保存估算成本");
       await labelInput("工价","77");await click("保存估算成本");await until(async()=> (await read()).quote.activeEstimateCost.labor.value==="77","Estimate value persisted");
       const saved=await read();assert.deepEqual(saved.quote.revisions,initial.quote.revisions);assert.equal(saved.quote.activeEstimateCost.id,first.id);
-      await click("关闭");await navigate(`/quote-center/detail?id=${id}`);await hasText("Server 报价");await click("查看报价历史");await costTab();
+      await click("关闭");await navigate(`/quote-center/detail?id=${id}`);await hasText("查看报价历史");await click("查看报价历史");await costTab();
       assert.equal(await evaluate("[...document.querySelectorAll('.qc-estimate-cost-panel label')].find(n=>n.querySelector('span')?.textContent==='工价').querySelector('input').value"),"77");
       await click("重新生成");await click("确认重新生成");await until(async()=> (await read()).quote.estimateCostHistory.length===1,"archive old active");await costTab();
       const replaced=await read();assert.deepEqual(replaced.quote.estimateCostHistory[0],saved.quote.activeEstimateCost);assert.equal(replaced.quote.activeEstimateCost.labor.value,"10","default source is actual base price, not selected scenario");

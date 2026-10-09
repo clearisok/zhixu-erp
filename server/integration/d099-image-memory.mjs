@@ -94,6 +94,32 @@ export async function runD099ImageMemory({ t, pool, storage, requests, navigate,
     assert.equal(requests.filter(r=>r.path.includes(pixels.attachment.id)&&r.path.endsWith('/download')).length,1);
     await service.style(actor,quoteId,revisionId,first,10);
   });
+  await t.test('Phone-size genuine JPEG: large pixels and large encoded bytes remain explicit list placeholders',async()=>{
+    // Browser encoder produces valid synthetic phone-sized JPEGs, not forged headers.
+    // One canvas at a time (<50MiB); no real photos or multi-GB allocation.
+    for (const [width,height,noisy] of [[4032,3024,false],[2048,1536,true]]) {
+      const length=await evaluate(`(()=>{const c=document.createElement('canvas');c.width=${width};c.height=${height};const x=c.getContext('2d');if(${noisy}){const p=x.createImageData(c.width,c.height);let n=7;for(let i=0;i<p.data.length;i+=4){for(let j=0;j<3;j++){n=(Math.imul(n,1664525)+1013904223)>>>0;p.data[i+j]=n>>>24;}p.data[i+3]=255;}x.putImageData(p,0,0);}else{x.fillStyle='#39705e';x.fillRect(0,0,c.width,c.height);}window.qaPhoneJPEG=c.toDataURL('image/jpeg',0.95).split(',')[1];c.width=c.height=0;return qaPhoneJPEG.length})()`);
+      // Keep each CDP response bounded; don't send a multi-MB protocol frame.
+      assert.ok(length<12*1024*1024);
+      let base64='';
+      for(let at=0;at<length;at+=65536) base64+=await evaluate(`qaPhoneJPEG.slice(${at},${at+65536})`);
+      await evaluate('delete window.qaPhoneJPEG');
+      const jpeg=Buffer.from(base64,'base64');
+      if(noisy) assert.ok(jpeg.length>2*1024*1024); else assert.ok(jpeg.length<2*1024*1024);
+      const latest=await repository.getById(quoteId);
+      const photo=await service.upload(actor,quoteId,revisionId,latest.version,{name:'synthetic-phone.jpg',mimeType:'image/jpeg',kind:'image',bytes:jpeg,uploadToken:crypto.randomUUID()});
+      await service.style(actor,quoteId,revisionId,photo.attachment.id,latest.version+1);
+      await input('input[placeholder^="全库搜索"]',noisy?'MEMORY-24':'MEMORY-24  ');
+      await hasText('本页 1');
+      if(!noisy) await until(()=>requests.some(r=>r.path.includes(photo.attachment.id)&&r.path.endsWith('/download')),'bounded phone JPEG read');
+      await until(()=>evaluate("Boolean(document.querySelector('tbody [aria-label=\"原图较大，请在报价详情查看\"]'))"),'phone JPEG explicit placeholder');
+      assert.equal(await evaluate("document.querySelectorAll('tbody img').length"),0);
+      assert.equal(await evaluate('activeObjectURLs().length'),0);
+      if(noisy) assert.equal(requests.filter(r=>r.path.includes(photo.attachment.id)&&r.path.endsWith('/download')).length,0);
+      t.diagnostic(`Synthetic valid JPEG ${width}x${height}, bytes=${jpeg.length}: PLACEHOLDER, NOT DISPLAYED`);
+      await service.style(actor,quoteId,revisionId,first,latest.version+2);
+    }
+  });
   await t.test('P2 unavailable image settles to safe placeholder without retry loop',async()=>{
     storage.objects.delete(`attachments/${first}/original`);
     await input('input[placeholder^="全库搜索"]','');await hasText('本页 25');await input('input[placeholder^="全库搜索"]','MEMORY-24');await hasText('本页 1');
