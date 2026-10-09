@@ -172,7 +172,7 @@ services:
     volumes: !override
       - secrets:/run/secrets:ro
       - ./object-bundle.mjs:/trial/object-bundle.mjs:ro
-      - $portable/object-backup:/bundle
+      - `${TRIAL_OBJECT_BUNDLE_DIR:?explicit protected bundle directory required}:/bundle
   gateway:
     volumes: !override
       - ./tls-gateway.mjs:/trial/tls-gateway.mjs:ro
