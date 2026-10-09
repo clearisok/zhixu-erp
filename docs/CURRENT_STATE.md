@@ -2,6 +2,8 @@
 
 > 2026-10-09；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及本轮验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
 
+> Codex A 已修复 D-099 列表三项反馈：组合/独立列宽分离、单列拖动不牵动其他列、合法款式图受保护展示。本轮 focused Chromium16/16/full62/62、API31/31、auth/frontend71/71、npm679/679及质量/构建 PASS；[契约与 Codex D Preview 交接](tasks/active/d099-list-acceptance.md)。工程未更新18443/18444，**USER ACCEPTANCE PENDING**。
+
 ## 当前工程能力
 
 - D-099：PR #64 报价中心是视觉/信息架构基线，当前 Server 是数据、安全和业务能力基线；Server 化不能成为重新设计 UI 的理由。绿色侧栏/暖灰/白卡片、标题/更多/搜索筛选、组合单元格恢复。
@@ -11,10 +13,10 @@
 
 ## 真实环境与下一步
 
-- PR #82/#83/#85/#86 已合并；最新 main `6e40b4318e59f8cc54adfe1aeb3d3e3d90a72613`。PR #84 本轮普通 merge 并人工整合文档，仍待用户合并；PR #88 D-099 新候选仅构建/准备，尚未部署。
+- Codex A 本轮已核实 main 基线 `49a82c9f970e158ded589300b4aa04fc4c809038`，独立工作树，不占用 Codex D 中枢。PR #84 原整合记录基于 `6e40b4318e59f8cc54adfe1aeb3d3e3d90a72613`；其运行及 PR #88 准备状态见对应历史报告，不能当成本修复的部署证据。
 - PR #84 已执行的 Windows win01 更新：app/gateway `zhixu-quote-trial-ui:878de323d618`，source `878de323d618b25fca1f51ccf3f024e932641742`，build `quote-trial-ui-20261009` / `2026-10-09T07:20:46Z`；当时真实 HTTPS、CLI READY、三服务 healthy，数据库容器/镜像/卷、TLS和持久业务保持。完整备份、部署身份与管理员/受限账号、2 Quote/Revision/PV及2附件 bytes/SHA验收见[独立更新报告](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)。这些是原执行证据，本轮未复核真实运行环境。
 - 用户新 UI 与完整三张业务卡人工验收 PENDING；旧候选已部署不代表 D-099 新候选已部署。下一步用户审查 #84、人工查看列表/偏好、两类型新建、详情/成本及窄屏/touch；任何后续真实更新需独立授权，不重新 setup/init。
-- 明确差异/延期：列表款式图占位，无 country/PV-name summary 接线；Server 新建不是 Browser 未保存整单编辑。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理仍未支持，不伪造按钮能力。
+- 明确差异/延期：合法款式图列表读取本轮已接通（现有原图按48px展示，不新增缩略图服务），country/PV-name summary 仍未接线；Server 新建不是 Browser 未保存整单编辑。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理仍未支持，不伪造按钮能力。
 
 ## 永久边界
 

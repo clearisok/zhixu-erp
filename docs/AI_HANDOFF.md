@@ -3,7 +3,7 @@
 ## Active — Codex A D-099 list acceptance repair
 
 - Independent `fix/d099-quote-list-acceptance`, fetched main `49a82c9f970e158ded589300b4aa04fc4c809038`. Gate0 reproduced grouped-width contamination, missing grouped settings and four real DOM resize failures; [checkpoint and scoped read-only image contract](tasks/active/d099-list-acceptance.md).
-- Gates1–3 implemented: stable additive groupWidths, exact fixed-pixel opt-in, scoped relation-backed48px images/lazy bounded loader. Focused actual Chromium16/16, API31/31, auth/frontend71/71, SSR7/7, typecheck/lint/Server frontend/diff-check PASS. Continue final complete Chromium/npm/default Browser build and final docs/PR; do not repeat implementation. Real18443 and Preview18444 untouched; deploy handoff only, USER ACCEPTANCE PENDING.
+- Gates1–3 checkpoint `e569eb951bebc313690e384ef6aa790468d3d598` verified remotely after one uncertain push: additive groupWidths, fixed-pixel opt-in and protected relation-backed48px images. Final focused Chromium16/16/full62/62, API31/31, auth/frontend71/71, presentation/SSR7/7, npm679/679, typecheck/lint/Server/two frontend builds/diff-check PASS; default browser/browser/writable/session. [Synthetic pixels/screenshots](tasks/assets/d099-list-acceptance/README.md). Engineering complete, independent PR review/remote delivery checked separately; Codex D may update18444 only after its review/authorization. Real18443/18444 untouched by Codex A, USER ACCEPTANCE PENDING. No repeated implementation/deployment or real credential access.
 
 ## Active — Codex D PR #84 integration (2026-10-09)
 

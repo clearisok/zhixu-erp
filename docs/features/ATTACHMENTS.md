@@ -6,7 +6,9 @@
 
 附件模块为单张 Quote Revision 提供图片和文件管理。图片可预览并指定款式图；普通文件只允许下载。默认 Browser 与旧真实 runtime 仍 IndexedDB；D-097 显式 Server 构建的正式 QuoteEditor 已注入同一 Q4B Server controller/panel，实际 Chromium 使用 memory storage/新 PG 验证上传、mirror/version、后续 dirty aggregate save 与实际页面下载 Blob 字节/SHA-256，未真实部署/激活，不接根路径旧 ERP API。
 
-Server 所有缩略图/款式图/预览/下载均由 controller metadata/blob loader，不回退 IndexedDB；页面 persistence 统一写锁、baseline 与版本推进，generic PUT 不可改关系。保留历史共享 rename 禁止、503 storage 未配置与不确定命令 fail-closed，不扫描 COS/删对象/新增GC。rename/link/unlink/style 的实际 API/controller 回归与当前页面上传验收须区分，不能声称每一按钮均人工生产验收。
+Server 详情缩略图/款式图/预览/下载由 controller metadata/blob loader，不回退 IndexedDB；页面 persistence 统一写锁、baseline 与版本推进，generic PUT 不可改关系。保留历史共享 rename 禁止、503 storage 未配置与不确定命令 fail-closed，不扫描 COS/删对象/新增GC。rename/link/unlink/style 的实际 API/controller 回归与当前页面上传验收须区分，不能声称每一按钮均人工生产验收。
+
+D-099 用户列表验收反馈授权接通只读款式图：有界 summary 仅在选择 styleImage 时返回默认 Revision mirror 与同 Quote/Revision 正式 style/image relation 一致、available 且 PNG/JPEG/WEBP 的 `{ attachmentId, mimeType, byteSize, sha256 }`，否则null；不选择则省略。不返回 storage key/URL/文件名/binary/历史聚合。仍使用现有 quote.view/session 受保护 scoped download，并复核实际对象。列表按48px contain 显示原图，max3并发/max25页内关系/30s timeout、MIME/size/hash校验、hide/unmount/身份变化释放URL和取消；无效或不可访问显示明确占位。不新增缩略图对象/公开 COS 接口/写端点/schema。合成 API 与实际 Chromium 图片切换/移除/失效/权限/bytes/hash/cleanup已通过，[独立证据](../tasks/active/d099-list-acceptance.md)；真实 COS/数据库/运行环境未操作。
 
 ## Q4C-B REAL COS closure + persistent credentials (2026-10-08)
 
