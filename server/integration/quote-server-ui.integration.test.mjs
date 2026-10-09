@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve, join, sep } from "node:path";
 import { once } from "node:events";
@@ -150,13 +150,86 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     const quoteCount = async () => (await pool.query("SELECT count(*)::int n FROM quote_center_quotes")).rows[0].n;
     const masterCount = async () => (await pool.query("SELECT count(*)::int n FROM quote_master_brands")).rows[0].n;
 
+    // Opt-in visual evidence uses this same isolated runtime/profile, never the trial.
+    if (process.env.ZHIXU_UI_VISUAL_STAGE) {
+      const folder = resolve(process.env.ZHIXU_UI_VISUAL_OUTPUT);
+      await mkdir(folder, { recursive: true });
+      await navigate("/quote-center"); await hasText("登录织序 Server");
+      await input("input[name=username]", "synthetic-ui-admin");
+      await input("input[name=password]", "disposable-ui-password");
+      await click("登录 Server"); await hasText("暂无 Server 报价");
+      const captures = [];
+      const capture = async (state, width, height) => {
+        await command("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false }, sessionId);
+        await evaluate("document.fonts.ready"); await sleep(200);
+        const metrics = await evaluate(`(()=>{const rect=n=>{const r=n.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}};return {viewport:[innerWidth,innerHeight],document:[document.documentElement.clientWidth,document.documentElement.scrollWidth,document.documentElement.scrollHeight],workspace:[...document.querySelectorAll('.ops-workspace')].map(n=>({rect:rect(n),height:n.clientHeight,scrollHeight:n.scrollHeight,overflow:getComputedStyle(n).overflowY})),headers:[...document.querySelectorAll('th')].map(n=>({text:n.innerText,rect:rect(n)})),firstBaseInput:(()=>{const n=document.querySelector('#quote-section-base-info input');return n?rect(n):null})(),unhandled:window.unhandledRejections}})()`);
+        const { data } = await command("Page.captureScreenshot", { format: "png", captureBeyondViewport: false }, sessionId);
+        if (process.env.ZHIXU_UI_VISUAL_STAGE === "after") {
+          assert.equal(metrics.document[0], metrics.document[1], `${state}: no document horizontal overflow`);
+          assert.equal(metrics.document[2], height, `${state}: workspace, not document, owns vertical scrolling`);
+          assert.deepEqual(metrics.unhandled, []);
+          if (state === "draft-detail" && width === 1280) assert.ok(metrics.firstBaseInput.y + metrics.firstBaseInput.height < height, "First base input is usable in initial 1280x800 viewport");
+          if (state === "scrolled-costs") assert.ok(await evaluate("document.querySelector('.qc-sticky-header').classList.contains('is-visible')"), "Saved/source summary remains available after workspace scroll");
+        }
+        const name = `${state}-${width}x${height}`;
+        await writeFile(join(folder, name + ".png"), Buffer.from(data, "base64"));
+        captures.push({ name, ...metrics });
+      };
+      const viewports = [[1920,1080],[1440,900],[1280,800],[900,800]];
+      for (const [w,h] of viewports) { await navigate('/quote-center'); await hasText('暂无 Server 报价'); await capture('empty-list',w,h); await navigate('/quote-center/new'); await hasText('报价类型'); await capture('new-distribution',w,h); await selectType('processing'); await capture('new-processing',w,h); }
+      await selectType('processing'); await click('创建报价'); await hasText('Server 报价 · v2');
+      const detailPath = await evaluate('location.pathname+location.search');
+      for(const [w,h] of viewports){await navigate(detailPath);await hasText('Server 报价 · v2');await capture('draft-detail',w,h);await navigate('/quote-center');await hasText('打开报价');await capture('one-row-list',w,h);}
+      await navigate(detailPath); await hasText('Server 报价 · v2');
+      await labelInput('报价款号','SYNTHETIC-LONG-STYLE-2026');
+      await labelInput('款式名称','Synthetic long garment name / 秋冬长款夹克合成验收');
+      await labelInput('原始工价','0');
+      await click('保存草稿');await hasText('Server 报价 · v3');
+      for(const [w,h] of viewports){await navigate(detailPath);await hasText('Server 报价 · v3');await capture('filled-detail',w,h);}
+      for(let i=0;i<4;i++){await click('＋ 增加面料');await evaluate(`(()=>{const n=[...document.querySelectorAll('#quote-section-fabrics input[aria-label$="-名称"]')].filter(n=>n.getClientRects().length).at(-1);Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,'Synthetic long fabric ${i+1} / 宽幅复合面料');n.dispatchEvent(new Event('input',{bubbles:true}));})()`);}
+      await click('保存草稿');await hasText('Server 报价 · v4');
+      for(const [w,h] of viewports){await navigate(detailPath);await hasText('Server 报价 · v4');await capture('cost-rows-detail',w,h);await evaluate("document.querySelector('#quote-section-fabrics').scrollIntoView({block:'start'})");await sleep(250);await capture('scrolled-costs',w,h);}
+      await navigate(detailPath);await hasText('Server 报价 · v4');await labelInput('款式名称','Unsaved conflict draft');failureStatus=409;
+      await command('Fetch.enable',{patterns:[{urlPattern:'*/api/v1/quotes/*',requestStage:'Request'}]},sessionId);
+      try{await click('保存草稿');await hasText('Server 写入需核对');for(const [w,h] of viewports)await capture('conflict-detail',w,h);}finally{await command('Fetch.disable',{},sessionId);failureStatus=0;}
+      await navigate('/quote-center');await hasText('打开报价');
+      await evaluate(`(async()=>{for(let i=0;i<26;i++){const r=await fetch('/api/v1/quotes',{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:'{}'});if(!r.ok)throw new Error('Synthetic fixture creation failed')}})()`);
+      for(const [w,h] of viewports){await navigate('/quote-center');await hasText('本页 25');await capture('paged-list',w,h);}
+      await click('列表页面设置');await hasText('报价列表页面设置');
+      await evaluate("[...document.querySelectorAll('.qc-column-order-settings input')].filter(n=>!n.checked).forEach(n=>n.click())");await click('保存设置');await hasText('本页 25');
+      for(const [w,h] of viewports){await capture('all-columns-list',w,h);await evaluate("(()=>{const n=document.querySelector('.qc-business-table .qc-table-wrap');n.scrollLeft=n.scrollWidth})()");await capture('all-columns-end',w,h);await evaluate("document.querySelector('.qc-business-table .qc-table-wrap').scrollLeft=0");}
+      await navigate(detailPath);await hasText('Server 报价 · v4');
+      await evaluate("document.querySelector('#quote-section-base-info').scrollIntoView({block:'start'})");
+      await evaluate("[...document.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent?.startsWith('品牌'))?.querySelector('button').click()");
+      await input('.qc-select-search input','Synthetic portal brand');
+      await hasText('新建品牌');
+      for(const [w,h] of viewports) await capture('brand-portal',w,h);
+      await evaluate("document.activeElement.blur();document.body.click()");
+      await input('#quote-section-fabrics input[aria-label$="-段长"]', '125.25');
+      await input('#quote-section-fabrics input[aria-label$="-单价"]', '12.75');
+      for(const [w,h] of viewports){await evaluate("document.querySelector('#quote-section-fabrics').scrollIntoView({block:'start'})");await capture('cost-values',w,h);}
+      await isolated();
+      await writeFile(join(folder,'metrics.json'),JSON.stringify(captures,null,2));
+      return;
+    }
+
+    await t.test("production shell/new view stays within desktop viewport without creating business rows", async () => {
+      await navigate('/quote-center');await hasText('登录织序 Server');
+      for(const [width,height] of [[1920,1080],[1440,900],[1280,800],[900,800]]) {
+        await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false},sessionId);
+        assert.equal(await evaluate('document.documentElement.scrollWidth'),width);
+        assert.equal(await evaluate('document.documentElement.scrollHeight'),height);
+      }
+      assert.equal(await quoteCount(),0); await isolated();
+    });
+
     await t.test("401/common identity, empty formal list/new/master pages; old Browser sentinel untouched", async () => {
       assert.equal((await fetch(`${origin}/api/v1/quotes`)).status, 401);
       await navigate("/quote-center"); await hasText("登录织序 Server");
       await input("input[name=username]", "synthetic-ui-admin");
       await input("input[name=password]", "disposable-ui-password");
       await click("登录 Server"); await hasText("暂无 Server 报价"); await isolated();
-      await navigate("/quote-center/new"); await hasText("准备创建空白 Server 报价"); await isolated();
+      await navigate("/quote-center/new"); await hasText("报价类型"); await isolated();
       await navigate("/basic-settings/brands"); await hasText("品牌"); await sleep(500); await isolated();
       assert.equal(await quoteCount(), 0); assert.equal(await masterCount(), 0);
       await navigate("/order-center"); await hasText("当前新系统只启用报价"); await isolated();
@@ -611,7 +684,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await navigate("/quote-center"); await hasText("登录织序 Server");
       await input("input[name=username]", `synthetic-ui-${name.toLowerCase()}`);
       await input("input[name=password]", "disposable-ui-password");
-      await click("登录 Server"); await hasText("PostgreSQL 报价快照");
+      await click("登录 Server"); await hasText("本页 25");
       const trustedPermissions = await evaluate("fetch('/api/v1/auth/permissions').then(r=>r.json()).then(b=>b.permissions)");
       assert.ok(trustedPermissions.includes("quote.view"), `Synthetic ${name} must have trusted quote.view: ${JSON.stringify(trustedPermissions)}`);
     };
@@ -707,7 +780,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
         await evaluate("(()=>{const more=document.querySelector('button[aria-label=\"更多报价操作\"]');if(more?.getClientRects().length)more.click()})()");
         const actions=await evaluate("[...document.querySelectorAll('.qc-quote-action-visible button,.qc-quote-action-menu button')].filter(b=>['客户确认','导出报价'].includes(b.textContent.trim())).map(b=>({label:b.textContent.trim(),disabled:b.disabled}))");
         assert.ok(actions.some(a=>a.label==='客户确认'));assert.ok(actions.some(a=>a.label==='导出报价'));assert.ok(actions.every(a=>a.disabled),"Business action buttons disabled; section navigation is not a mutation");
-        await navigate('/quote-center');await hasText('PostgreSQL 报价快照');assert.equal(await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent==='批量客户报价').disabled"),true);
+        await navigate('/quote-center');await hasText('本页 25');assert.equal(await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent==='批量客户报价').disabled"),true);
         assert.equal(requests.filter(r=>/confirmation-workflows|customer-export|customer-batch-export/.test(r.path)).length,count);await isolated();
       }finally{await loginAs('admin');}
     });

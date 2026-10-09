@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 当前任务：Quote Trial Release Preparation（D-098），基线 PR #80 merge `d25aac7aa19a90ac1c1f573fbb60e420b7899e98`。锁定已合并报价能力，独立候选/启动/恢复与三张卡见 [操作说明](../ops/quote-trial/README.md)；不是增加业务功能或真实部署。当前摘要见 CURRENT_STATE、恢复点见 AI_HANDOFF；旧证据见 [历史归档](tasks/completed/2026-10-09-pre-trial-state-history.md)。
+> 当前任务：Quote Trial UI Usability Repair，基线 PR #81 merge `cc3c450562e692b696024558706954816227cb8a`。修复 Server 列表/新建/详情与滚动；独立视觉验收、新候选，不自动替换 Windows 18443。用户已登录，完整人工业务卡尚未确认通过。当前摘要见 CURRENT_STATE、恢复点见 AI_HANDOFF；试用三张卡见 [操作说明](../ops/quote-trial/README.md)，旧证据见 [历史归档](tasks/completed/2026-10-09-pre-trial-state-history.md)。
 
 > D-097：Fresh Start **正式 Quote Server 基本闭环工程/隔离验收完成，非真实部署**。显式 Quote authority=server（默认 browser）接原地 list/new/detail、正式 Editor/附件；全局 Browser bootstrap/mock identity 与未支持 URL 隔离。支持/未接动作、实际 Chromium 与质量证据见 `features/FRESH_START_FOUNDATION.md`、CURRENT_STATE/AI_HANDOFF。旧 runtime 与旧数据不变，历史导入 NOT REQUIRED。
 

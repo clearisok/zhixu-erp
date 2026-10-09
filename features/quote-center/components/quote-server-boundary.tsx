@@ -17,6 +17,6 @@ export function QuoteServerBoundary({ children }: { children: ReactNode }) {
       : session.status === "checking" ? <LoadingState label="恢复 Server 身份" />
       : session.status === "error" ? <ErrorState title="Server 身份不可用" description={session.error} onRetry={() => void session.refresh()} />
       : session.status === "anonymous" ? <AppShell title="登录织序"><PageContainer><ServerLoginCard description="使用同一 Server 身份访问报价和基础设置；不读取 Browser mock 权限。" /></PageContainer></AppShell>
-      : <>{browserIdentityMode() !== "local-single-user" && <div className="qc-server-session-actions"><Button variant="text" onClick={() => void session.logout()}>退出 Server</Button></div>}{children}</>}
+      : <>{browserIdentityMode() !== "local-single-user" && <div className="qc-server-session-actions qc-server-session-floating"><Button variant="text" onClick={() => void session.logout()}>退出 Server</Button></div>}{children}</>}
   </PermissionAuthorityProvider></TrustedPermissionProvider>;
 }
