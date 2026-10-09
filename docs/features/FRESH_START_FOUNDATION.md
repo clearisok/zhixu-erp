@@ -11,9 +11,9 @@ Foundation 原 Gate 验证新 disposable DB；后续 D-097 已接通正式 Serve
 ## Current formal Quote Server basic loop — D-097
 
 - 显式 `NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY=server`；必须同时 masters=server、writer=writable。默认 browser，独立于 QuoteWriterMode，不由 masters 推断。Vite/build-info/Dockerfile.server ARG/runtime 比对一致；非法组合拒绝，未修改现有 Compose/部署。
-- 正式 list/new/detail 原地切 typed Server path，不 redirect candidate。List 基于默认 Revision saved snapshot 的最小 summary，limit≤100、offset、literal ILIKE search、type/status filter、准确 total、同一只读一致性 transaction；不读 Browser、不 N+1 aggregate GET。
+- 正式 list/new/detail 原地切 typed Server path，不 redirect candidate。List 基于默认 Revision saved snapshot 的有界业务投影，limit≤100、offset、literal ILIKE search、type/status filter、准确 total、同一只读一致性 transaction；先选分页IDs再批量当前来源，不读 Browser、不 N+1 aggregate GET/全库历史。数量/成本/售价/确认来源与权限边界见 QUOTE_CENTER / PERMISSIONS。
 - New 页面提供加工/经销选择，无 effect POST，只显式点击 `{}` create、即时 pending 防双击；默认经销不变，加工使用返回的 aggregate/version 正常 PUT 初始化，成功才进入详情。PUT 失败保留已创建 ID，明确类型尚未确认，提供草稿核对链接并停止 POST/自动重试；不新增详情/历史类型编辑入口。Detail 复用 QuoteEditor 的原基础/材料/工价/其他成本/价格设置与金额展示，版本由每个 persistence 实例持有；成功响应才更新版本/baseline。
-- 共用 trusted Session/Identity/RBAC，Server 事务负责可信日志；无 Browser CRUD 第二份权威日志。Root boundary 隔离 legacy bootstrap/mock permissions/global search，直接 URL 的 Order/Scheduling/Closing/StyleProgress 等只显示未接线；不挂旧业务组件。新模式侧栏/表格 UI preference 暂为内存，避免旧 preference repository 顺带初始化业务 manifest；Browser preferences 不变。
+- 共用 trusted Session/Identity/RBAC，Server 事务负责可信日志；无 Browser CRUD 第二份权威日志。Root boundary 隔离 legacy bootstrap/mock permissions/global search，直接 URL 的 Order/Scheduling/Closing/StyleProgress 等只显示未接线；不挂旧业务组件。Server Quote 列设置使用新可信账号隔离本机 UI key，仅保存列/顺序/宽度，不调用旧业务初始化或读取旧偏好；其他未持久化新模式布局仍保留内存边界，Browser preferences 不变。
 - Q3 空 masters/settings 明示未配置，Quick Create/刷新走 Server；已保存快照 reopen 不套最新 defaults。NullableNumberInput 仅在 Server Editor 启用无损 precision gate，保留 raw unsafe draft、null/zero，409/network 不自动覆盖、不写 Browser。
 - 唯一 QuoteAttachmentPanel 注入既有 Server controller，所有预览/缩略图/下载走 Server blob；专用命令更新 mirror/version，不覆盖脏基础字段。aggregate/附件共用排他锁；generic PUT 仍不能改关系；共享历史附件禁改名；storage 未配置 API 503、无 IndexedDB fallback；不触 COS/对象删除/GC。
 
@@ -29,7 +29,8 @@ Foundation 原 Gate 验证新 disposable DB；后续 D-097 已接通正式 Serve
 | customer confirmation | Supported；proven-unlinked 专用快照命令、linked shared current 双CAS/saved-PV币种/事务资格；历史只读，legacy无saved Server来源的linked writer fail closed，未知不回退 |
 | customer Excel / ZIP | Supported；内置正式模板、精确当前/所选历史、单/多PV；跨页稳定ID/版本、25张/100MB、警告/部分失败清单；不含 Estimate |
 | read-only log viewer | Supported；可信 Quote详情/全局有界分页与筛选、事件快照、audit_log.view/Estimate隔离，无 Browser IO |
-| internal batch metrics/copy/delete/Quote-to-Order | Deferred；未开放命令，不调用旧 Browser order/log |
+| internal summary / personal columns | Supported；真实默认来源、每款/每PV、显式权限内 active Estimate、来源双版本复核、独立下载；UI偏好仅本机账号隔离 |
+| copy/delete/Quote-to-Order | Deferred；未开放命令，不调用旧 Browser order/log |
 
 `npm run test:quote-server-ui` **requires a Server frontend build first** (Quote/master server, writable). Actual exported formal routes served by createApp + new PG/tmpfs + memory storage, fresh temporary Chromium profile,随机 loopback port（非3000/3001/3002）。**HISTORICAL PR #75 类型补齐12/12：**加工/经销 UI 创建、编辑保存、刷新/readback/list filter；打开页不创建、双击一次、类型初始化409/network保留ID且不重复POST、后续保存失败不重建；保留原 empty/auth/old sentinel、基础/三类成本/工价/未配置pricing/save/reload/list、附件后保存、实际页面 Blob 下载字节与 SHA-256、precision/409、404/403/network、Quick Create、27 条跨页搜索/准确total/无逐行GET。cleanup PASS。该阶段 Server auth/frontend38/38（persistence5/5）、disposable Quote API/编号21/21；API仍只接受POST `{}`。此前 API/附件20/20、fresh-start7/7 与 Server build PASS，不冒充当前 Estimate 测试数；其余 controller/source checks不是实际页面证据。
 

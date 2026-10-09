@@ -1,5 +1,13 @@
 # Quote Center
 
+## Current Server business list and internal summary (2026-10-09; engineering only)
+
+Explicit Server mode requests typed, selected business columns from a bounded page of saved default Revisions. Quantity sums all PVs (all null stays null); costs use the existing calculator/range, mixed CNY/USD labor remains qualified, final garment display uses the shared formatter. Missing style images remain a clear placeholder: no old URL or IndexedDB read. Quote aggregate status/filter is distinct from current customer confirmation, never rewritten by this read projection.
+
+Confirmation is checked per PV: exact linked uses CCT current/version, linked empty never falls back, proven unlinked uses its saved confirmation, incomplete provenance is unknown. JSON includes minimal per-PV source qualifiers; internal XLSX confirmation cells carry the same source in notes. No historical snapshot mutation or first-PV aggregate shortcut.
+
+Personal list columns/order/width use a new local UI-only key scoped by trusted session userId and re-filtered by current permissions, not `loadQuoteSettings`, legacy preferences or master defaults. This is not cross-device synchronization. The formal summary dialog uses current visible columns by default and keeps temporary export choices separate. It exports one row per Quote or PV; Estimate is opt-in and protected. Contracts and technical limits are in `QUOTE_BATCH_EXPORT.md`; field permissions are in `PERMISSIONS.md`.
+
 2026-10-09 overnight engineering: explicit Server mode supports trusted current
 unlinked PV confirmation, including zero, processing/distribution, saved-source
 values/time and same-transaction version/audit. Generic PUT preserves unchanged
@@ -30,7 +38,7 @@ Quote / Estimate 权限耦合已在本 PR 内修复，而非新增角色政策�
 
 普通 PUT 只提交 Quote 内容；Server 在 expectedVersion 校验后合并当前已保存 Estimate，仍对完整领域实体执行原 normalize/validate、细粒度权限、历史不可变与 repository CAS/事务检查。缺失字段不是清空命令；无 Estimate 读权限者注入任何 Estimate 字段（包括 null/[]）返回409 `estimate_command_required`。有读权限者的旧完整请求仅兼容原样切片，任何变化仍拒绝；Estimate 修改只走专用命令，需要 `quote.edit` + `estimate.view` + `estimate.edit`。读权限不授予写权限，默认角色/权限目录不变。
 
-整单复制/删除、Revision 删除、转订单、内部汇总仍未接线，Server 模式禁用；Browser 模式原功能保留。HISTORICAL 初始工程 checkpoint 的 actual Chromium30/30 包含 Estimate 与此前版本/成本同步/附件/下载字节SHA回归，suite 数字及验证来源统一见 `AI_HANDOFF.md`。本轮确认/导出/日志联合测试的新结果见 AI_HANDOFF，不沿用旧数字。不是真实部署或全报价 production-ready，默认 Browser/旧 runtime 不变，历史导入 NOT REQUIRED。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
+整单复制/删除、Revision 删除、转订单仍未接线，Server 模式禁用；内部汇总现已接线。Browser 模式原功能保留。HISTORICAL 初始工程 checkpoint 的 actual Chromium30/30 包含 Estimate 与此前版本/成本同步/附件/下载字节SHA回归，suite 数字及验证来源统一见 `AI_HANDOFF.md`。本轮列表/汇总的新结果见 AI_HANDOFF，不沿用旧数字。不是真实部署或全报价 production-ready，默认 Browser/旧 runtime 不变，历史导入 NOT REQUIRED。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
 
 > 2026-10-05：`/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有；Q3 master/default dependencies 在真实 3001 的 `masterSettingsAuthority=server` 下来自 PostgreSQL，Q3 编辑已重开。PR #64 Local Single-User UI 修复已部署：`/` 自动进入 `/quote-center`、统一侧栏恢复；用户真实浏览器确认原 Quote 数据保留。此收口没有迁移、重置、重新 seed 或改变 Quote storage namespace；Quote historical migration/Server ownership 另立 Gate。
 

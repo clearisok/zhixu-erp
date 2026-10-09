@@ -117,7 +117,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const originalFetch=window.fetch.bind(window);
       window.fetch=async(...args)=>{const response=await originalFetch(...args);if(String(args[0]).includes('/api/v1/quotes/'))window.quoteResponses.push(await response.clone().text());if(String(args[0]).includes('/api/v1/operation-logs'))window.logResponses.push(await response.clone().text());return response};
       window.addEventListener('unhandledrejection', event => window.unhandledRejections.push(String(event.reason)));
-      const business=k=>k.startsWith('zhixu.')&&!/preference|sidebar/.test(k);
+      const business=k=>k.startsWith('zhixu.')&&!/preference|sidebar/.test(k)&&!k.startsWith('zhixu.ui.server.quote-list.v1.');
       Storage.prototype.getItem=function(k){if(business(k))businessAccess.push('read:'+k);return originalGet.call(this,k)};
       Storage.prototype.setItem=function(k,v){if(business(k))businessAccess.push('write:'+k);return originalSet.call(this,k,v)};
       const open=indexedDB.open.bind(indexedDB);indexedDB.open=(...args)=>{businessAccess.push('indexedDB:'+args[0]);return open(...args)};
@@ -125,7 +125,14 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     ` }, sessionId);
     const text = () => evaluate("document.body?.innerText ?? ''");
     const hasText = async (value) => { try { await until(async () => (await text()).includes(value), value); } catch (error) { throw new Error(`${error.message}; synthetic page: ${await text()}`); } };
-    const navigate = async (path) => { await command("Page.navigate", { url: origin + path }, sessionId); await until(async () => await evaluate(`location.pathname===${JSON.stringify(path.split("?")[0])} && document.readyState==='complete'`), path); };
+    const navigate = async (path) => {
+      // A same-path hard navigation must wait for the NEW document, not an old
+      // document whose path/readyState already matches while unload aborts fetch.
+      const epoch = `navigation-${Date.now()}-${Math.random()}`;
+      await evaluate(`window.qaNavigationEpoch=${JSON.stringify(epoch)}`);
+      await command("Page.navigate", { url: origin + path }, sessionId);
+      await until(async () => await evaluate(`window.qaNavigationEpoch!==${JSON.stringify(epoch)} && location.pathname===${JSON.stringify(path.split("?")[0])} && document.readyState==='complete'`), path);
+    };
     const input = async (selector, value) => evaluate(`(()=>{const node=document.querySelector(${JSON.stringify(selector)});if(!node)throw new Error('input missing');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));node.dispatchEvent(new Event('change',{bubbles:true}));})()`);
     const labelInput = async (label, value) => evaluate(`(()=>{const root=[...document.querySelectorAll('[role="dialog"]')].filter(n=>n.getClientRects().length).at(-1)||document;const node=[...root.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent?.startsWith(${JSON.stringify(label)}))?.querySelector('input,textarea');if(!node)throw new Error('label input missing: '+${JSON.stringify(label)});Object.getOwnPropertyDescriptor(node.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));})()`);
     const click = async (label) => evaluate(`(()=>{const node=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()===${JSON.stringify(label)}&&!n.disabled&&n.getClientRects().length);if(!node)throw new Error('button missing: '+${JSON.stringify(label)});node.click();})()`);
@@ -327,7 +334,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       assert.equal(await quoteCount(), countBefore + 1);
       await navigate("/quote-center"); await hasText("Synthetic processing Quote");
       await selectType("processing");
-      await hasText("本页 1 / 总计 1"); await hasText("加工 / draft"); await isolated();
+      await hasText("本页 1 / 总计 1"); assert.ok(await evaluate("document.querySelector('tbody').innerText.includes('加工') && document.querySelector('tbody').innerText.includes('草稿')")); await isolated();
     });
     for (const failure of ["conflict", "network"]) await t.test(`processing initialization ${failure} retains created ID and never repeats POST`, async () => {
       const countBefore = await quoteCount();
@@ -358,7 +365,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       assert.equal((await record()).quote.revisions[0].baseInfo.quoteType, "distribution");
       await navigate("/quote-center"); await hasText("本页"); await selectType("distribution");
       await input('input[aria-label="搜索报价"]', "SYNTHETIC-UI-STYLE");
-      await hasText("本页 1 / 总计 1"); await hasText(code); await hasText("经销 / draft"); await isolated();
+      await hasText("本页 1 / 总计 1"); await hasText(code); assert.ok(await evaluate("document.querySelector('tbody').innerText.includes('经销') && document.querySelector('tbody').innerText.includes('草稿')")); await isolated();
     });
     for (const workflowId of [quoteId, processingQuoteId]) await t.test(`actual PV/Revision workflows, saved selected history and attachment inheritance: ${workflowId === quoteId ? "distribution" : "processing"}`, async () => {
       const read = () => evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(workflowId)}).then(r=>r.json()).then(r=>r.quote)`);
@@ -495,7 +502,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
         const saved = await read(); assert.equal(saved.quote.aggregateStatus,"draft");
           await navigate("/quote-center"); await until(async()=>await evaluate('Boolean(document.querySelector(\'input[aria-label="搜索报价"]\'))'),"formal list search mounted"); await input('input[aria-label="搜索报价"]', saved.quote.quoteCode); await hasText("本页 1 / 总计 1");
         const row = await evaluate(`([...document.querySelectorAll('tr')].find(n=>n.innerText.includes(${JSON.stringify(saved.quote.quoteCode)})))?.innerText`);
-        assert.ok(row?.includes(`经销 / ${saved.quote.aggregateStatus}`),"Formal list status agrees with draft readback"); await isolated();
+        assert.ok(row?.includes('经销') && row?.includes('草稿'),"Separate formal type/status columns agree with draft readback"); await isolated();
       }
     });
     const costTab = async () => { await evaluate("document.querySelector('.qc-estimate-pill').click()"); await hasText("估算成本"); };
@@ -869,6 +876,93 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       try{await click('刷新记录');await hasText('操作记录读取失败');await hasText('HTTP 503');}finally{await command('Fetch.disable',{},sessionId);failureStatus=0;}
       assert.equal((await pool.query('SELECT count(*)::int n FROM operation_logs')).rows[0].n,before);assert.deepEqual(await evaluate('unhandledRejections'),[]);
       await loginAs('viewer');await navigate('/system-settings/operation-logs');await hasText('需要 audit_log.view');assert.deepEqual(await evaluate('logResponses'),[]);await isolated();
+    });
+    const summaryColumns = async (labels) => evaluate(`(()=>{const root=[...document.querySelectorAll('[role=dialog]')].find(n=>n.textContent.includes('内部报价汇总'));for(const label of root.querySelectorAll('.qc-setting-options label')){const input=label.querySelector('input');const wanted=${JSON.stringify(labels)}.includes(label.textContent.trim());if(input.checked!==wanted)input.click();}})()`);
+    const parsedDownload = async () => {
+      const file = await evaluate("(async()=>{const f=generatedDownloads.at(-1);return {name:f.name,bytes:Array.from(new Uint8Array(await f.blob.arrayBuffer()))}})()");
+      const bytes = Buffer.from(file.bytes), workbook = new ExcelJS.Workbook(); await workbook.xlsx.load(bytes);
+      assert.ok(file.name.endsWith('.xlsx')); assert.equal(workbook.worksheets.length, 1);
+      const sheet = workbook.worksheets[0], zip = await JSZip.loadAsync(bytes);
+      assert.ok(!Object.keys(zip.files).some(n=>n.includes('externalLink')));
+      for(const name of Object.keys(zip.files).filter(n=>/^xl\/worksheets\/.*xml$/.test(n))) assert.doesNotMatch(await zip.file(name).async('string'),/<f[ >]/);
+      const sha256=createHash('sha256').update(bytes).digest('hex');
+      t.diagnostic(`Actual internal summary ${file.name}: ${bytes.length} bytes SHA-256 ${sha256}, parsed`);
+      return {sheet,bytes,sha256};
+    };
+    await t.test("actual trusted-user columns/order/width restore, account separation and permission re-filter", async()=>{
+      await loginAs('admin'); await navigate('/quote-center'); await hasText('本页 25');
+      await click('列表页面设置'); await hasText('报价列表页面设置');
+      const labels=['报价编号','款号 / 款式名称','总数量','工价','报价状态'];
+      await evaluate(`(()=>{for(const label of document.querySelectorAll('.qc-column-order-settings label')){const input=label.querySelector('input');const wanted=${JSON.stringify(labels)}.includes(label.querySelector('strong').textContent);if(input.checked!==wanted)input.click();}})()`);
+      await labelInput('工价','275'); await click('保存设置'); await hasText('本页 25');
+      const prefs=await evaluate("Object.entries(localStorage).filter(([k])=>k.startsWith('zhixu.ui.server.quote-list.v1.')).map(([k,v])=>({key:k,value:JSON.parse(v)}))");
+      assert.equal(prefs.length,1); assert.equal(prefs[0].value.columnWidths.labor,275); assert.equal(prefs[0].value.visibleColumns.length,5);
+      assert.doesNotMatch(JSON.stringify(prefs),/newQuoteDefaults|PRIVATE-ESTIMATE|activeEstimateCost/);
+      await navigate('/quote-center');await hasText('本页 25');assert.equal(await evaluate("[...document.querySelectorAll('thead th')].some(n=>n.textContent.includes('面料成本'))"),false);
+      await loginAs('viewer');await hasText('本页 25');assert.equal(await evaluate("[...document.querySelectorAll('thead th')].some(n=>n.textContent.includes('面料成本'))"),true,'Different trusted user keeps its own defaults');
+      await pool.query("DELETE FROM app_role_permissions WHERE role_id='synthetic-ui-role-viewer' AND permission_key='quote.cost.view'");
+      await navigate('/quote-center');await hasText('本页 25');assert.equal(await evaluate("[...document.querySelectorAll('thead th')].some(n=>n.textContent.includes('工价'))"),false);
+      assert.equal(await evaluate("fetch('/api/v1/quotes?columns=labor').then(r=>r.status)"),403);
+      await pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('synthetic-ui-role-viewer','quote.cost.view')");
+      await loginAs('admin');await hasText('本页 25');assert.equal(await evaluate("[...document.querySelectorAll('thead th')].some(n=>n.textContent.includes('面料成本'))"),false);await isolated();
+    });
+    await t.test("actual cross-page internal Quote XLSX with default visible columns and temporary changes",async()=>{
+      await navigate('/quote-center');await hasText('本页 25');await click('内部报价汇总');
+      const first=await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').getAttribute('aria-label').slice(3)");
+      await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').click()");await click('下一页');await hasText('本页 25');
+      const second=await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').getAttribute('aria-label').slice(3)");await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').click()");await hasText('已选 2 / 25');
+      await click('打开内部汇总');await hasText('本次列调整不改变个人列表偏好');
+      assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] .qc-setting-options input:checked')].length"),5);
+      const before=await evaluate("JSON.stringify(Object.entries(localStorage).filter(([k])=>k.startsWith('zhixu.ui.server.quote-list.v1.')))");
+      await summaryColumns(['报价编号','总数量']);
+      const start=requests.length;await click('生成内部汇总 Excel');await hasText('内部汇总文件已生成');
+      const {sheet}=await parsedDownload();assert.equal(sheet.rowCount,3);assert.deepEqual(sheet.getRow(1).values.slice(1),['报价编号','总数量']);
+      const expected=(await pool.query('SELECT id,quote_code FROM quote_center_quotes WHERE id=ANY($1::text[])',[[first,second]])).rows;
+      assert.deepEqual([sheet.getCell('A2').value,sheet.getCell('A3').value],[first,second].map(id=>expected.find(r=>r.id===id).quote_code));
+      assert.equal(requests.slice(start).filter(r=>r.path.endsWith('/internal-summary')).length,1);
+      assert.equal(requests.slice(start).filter(r=>r.method==='GET'&&/^\/api\/v1\/quotes\//.test(r.path)).length,0);
+      assert.equal(await evaluate("JSON.stringify(Object.entries(localStorage).filter(([k])=>k.startsWith('zhixu.ui.server.quote-list.v1.')))") ,before);await isolated();
+    });
+    let summaryQuote, summaryCode;
+    await t.test("actual per-PV XLSX explicitly selects Estimate, typed values and current CCT source",async()=>{
+      await loginAs('admin');const prepared=await prepareLinkedQuote('distribution');summaryQuote=prepared.id;
+      await generateEstimate(prepared.read,'estimate-source-parallel');await click('关闭');
+      const saved=await prepared.read();summaryCode=saved.quote.quoteCode;
+      const updated=await evaluate(`fetch(${JSON.stringify(prepared.path)},{method:'PATCH',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify({expectedQuoteVersion:${saved.version},expectedVersion:0,confirmedLaborPrice:'3.125',customerConfirmedPrice:'55.25',laborCurrency:'CNY'})}).then(r=>r.status)`);assert.equal(updated,200);
+      await navigate('/quote-center');await hasText('本页 25');await input('input[aria-label="搜索报价"]',summaryCode);await hasText('本页 1 / 总计 1');
+      await click('内部报价汇总');await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').click()");await click('打开内部汇总');
+      await summaryColumns(['报价编号','总数量','客户确认工价','客户确认成衣价格','估算总成本','估算成本来源报价版本','销售价与估算成本差额']);
+      await evaluate("(()=>{const s=document.querySelector('select[aria-label=\"汇总行模式\"]');s.value='price-version';s.dispatchEvent(new Event('change',{bubbles:true}))})()");
+      await click('生成内部汇总 Excel');await hasText('内部汇总文件已生成');
+      const {sheet,bytes}=await parsedDownload();assert.equal(sheet.rowCount,3);assert.equal(sheet.getCell('B1').value,'价格版本');assert.equal(sheet.getCell('C1').value,'数量');
+      assert.equal(sheet.getCell('D2').value,3.125);assert.equal(sheet.getCell('E2').value,55.25);assert.equal(sheet.getCell('D3').value,null);
+      assert.equal(sheet.getCell('F2').value,22);assert.equal(sheet.getCell('F3').value,22);assert.equal(sheet.getCell('G2').value,'V1');assert.equal(sheet.getCell('H2').value,-12);assert.equal(sheet.getCell('H3').value,0);
+      assert.ok(JSON.stringify(sheet.getCell('D2').note).includes('CCT current v1'));
+      assert.deepEqual(await prepared.read(),saved,'Summary cannot modify saved Quote/Estimate');
+      const filePath=join(temp,'synthetic-internal-summary.xlsx');await writeFile(filePath,bytes);
+      // Optional synthetic-only QA artifact: supplied by a dedicated external disposable output directory, never a business backup.
+      if(process.env.ZHIXU_SYNTHETIC_XLSX_QA_DIR){const dir=resolve(process.env.ZHIXU_SYNTHETIC_XLSX_QA_DIR);assert.ok(dir.includes('zhixu-summary-qa-'));await writeFile(join(dir,'synthetic-internal-summary.xlsx'),bytes);}
+      await isolated();
+    });
+    await t.test("actual no-Estimate reader summary succeeds; forged columns rejected with no protected content",async()=>{
+      await loginAs('viewer');await navigate('/quote-center');await hasText('本页 25');await input('input[aria-label="搜索报价"]',summaryCode);await hasText('本页 1 / 总计 1');
+      await click('内部报价汇总');await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').click()");await click('打开内部汇总');
+      assert.equal(await evaluate("document.querySelector('[role=dialog]').innerText.includes('估算总成本')"),false);
+      await summaryColumns(['报价编号','总数量']);await click('生成内部汇总 Excel');await hasText('内部汇总文件已生成');
+      const {sheet}=await parsedDownload();assert.doesNotMatch(JSON.stringify(sheet.getSheetValues()),/Estimate|估算|PRIVATE-ESTIMATE/);
+      const version=(await pool.query('SELECT version FROM quote_center_quotes WHERE id=$1',[summaryQuote])).rows[0].version;
+      assert.equal(await evaluate(`fetch('/api/v1/quotes/internal-summary',{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify({items:[{quoteId:${JSON.stringify(summaryQuote)},expectedVersion:${version}}],columns:['quote'],rowMode:'quote',estimateColumns:['estimateTotal']})}).then(r=>r.status)`),403);
+      await assertNoEstimate();
+    });
+    for(const failure of [409,'network'])await t.test(`actual internal summary ${failure} preserves selection and has no automatic replay/download`,async()=>{
+      await loginAs('admin');await navigate('/quote-center');await hasText('本页 25');await input('input[aria-label="搜索报价"]',summaryCode);await hasText('本页 1 / 总计 1');
+      await click('内部报价汇总');await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').click()");await click('打开内部汇总');
+      failureStatus=failure===409?409:0;const start=requests.length, downloads=await evaluate('generatedDownloads.length');
+      await command('Fetch.enable',{patterns:[{urlPattern:'*/api/v1/quotes/internal-summary',requestStage:'Request'}]},sessionId);
+      try{await click('生成内部汇总 Excel');await hasText('选择已保留');if(failure===409)await hasText('409');await sleep(200);
+        assert.equal(await evaluate('generatedDownloads.length'),downloads);assert.equal(requests.slice(start).filter(r=>r.path.endsWith('/internal-summary')).length,1);
+        assert.ok(await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').checked"));assert.deepEqual(await evaluate('unhandledRejections'),[]);await isolated();
+      }finally{await command('Fetch.disable',{},sessionId);failureStatus=0;}
     });
     await command("Browser.close");
   } finally {

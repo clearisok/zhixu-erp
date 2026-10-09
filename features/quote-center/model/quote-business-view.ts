@@ -69,7 +69,7 @@ export function businessValues(source: BusinessSource, keys: BusinessColumn[], v
         const present = versions.filter(v => v.quantity !== null).map(v => browserNumberFromExactDecimal(v.quantity!, "quantity"));
         const total = present.reduce((a, b) => a + b, 0);
         if (!Number.isFinite(total)) throw new Error("Unsafe quantity total");
-        output = present.length ? cell(total, undefined, "#,##0.####") : cell(null); break;
+        output = present.length ? cell(total, undefined, Number.isInteger(total) ? "#,##0" : "General") : cell(null); break;
       }
       case "fabricCost": output = range(costs.map(c => c.metrics.fabricCost)); break;
       case "trimCost": output = range(costs.map(c => c.metrics.trimCost)); break;
