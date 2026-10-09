@@ -74,16 +74,16 @@
 .qc-app-shell[data-responsive-mode="compact"] .qc-quote-center-page .qc-mobile-quote-card > footer,
 .qc-app-shell[data-responsive-mode="tablet"] .qc-quote-center-page .qc-mobile-quote-card > footer { grid-column: 1; margin-top: 4px; }
 
-.qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table {
+.qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page:not(.qc-server-business-list) .qc-data-table {
   width: 100%;
   min-width: 100%;
   table-layout: fixed;
 }
-.qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td) {
+.qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page:not(.qc-server-business-list) .qc-data-table :is(col, th, td) {
   width: auto !important;
   min-width: 0 !important;
 }
-.qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(th, td) {
+.qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page:not(.qc-server-business-list) .qc-data-table :is(th, td) {
   overflow: hidden;
   box-sizing: border-box;
   padding-inline: 8px;
@@ -91,12 +91,12 @@
 }
 
 @media (min-width: 1024px) and (max-width: 1300px) and (hover: hover) and (pointer: fine) {
-  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="salesperson"],
-  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="status"] { display: none; }
-  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="style"] { width: 24% !important; }
-  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="brand"] { width: 15% !important; }
-  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="confirmationStatus"] { width: 15% !important; }
-  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page .qc-data-table :is(col, th, td)[data-column-key="action"] { width: 12% !important; }
+  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page:not(.qc-server-business-list) .qc-data-table :is(col, th, td)[data-column-key="salesperson"],
+  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page:not(.qc-server-business-list) .qc-data-table :is(col, th, td)[data-column-key="status"] { display: none; }
+  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page:not(.qc-server-business-list) .qc-data-table :is(col, th, td)[data-column-key="style"] { width: 24% !important; }
+  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page:not(.qc-server-business-list) .qc-data-table :is(col, th, td)[data-column-key="brand"] { width: 15% !important; }
+  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page:not(.qc-server-business-list) .qc-data-table :is(col, th, td)[data-column-key="confirmationStatus"] { width: 15% !important; }
+  .qc-app-shell[data-responsive-mode="primary"] .qc-quote-center-page:not(.qc-server-business-list) .qc-data-table :is(col, th, td)[data-column-key="action"] { width: 12% !important; }
   .qc-quote-list-thumbnail { width: 48px; height: 48px; }
 }
 

@@ -34,7 +34,8 @@ test("group move/resize preserves all IDs and hidden child widths", () => {
   const table = presentedTablePreference(preferences);
   const next = applyPresentedTablePreference(preferences, { ...table, columnOrder: [...table.columnOrder].reverse(), columnWidths: { ...table.columnWidths, brand: 300, salesperson: 999 } });
   assert.deepEqual([...next.columnOrder].sort(), [...preferences.columnOrder].sort());
-  assert.equal(next.columnWidths.brand, 300);
+  assert.equal(next.groupWidths["group.brand"], 300);
+  assert.equal(next.columnWidths.brand, preferences.columnWidths.brand);
   assert.equal(next.columnWidths.salesperson, preferences.columnWidths.salesperson);
   assert.equal(presentedListColumns(next)[0].key, "date");
 });

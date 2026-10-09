@@ -3,7 +3,7 @@
 ## Active — Codex A D-099 list acceptance repair
 
 - Independent `fix/d099-quote-list-acceptance`, fetched main `49a82c9f970e158ded589300b4aa04fc4c809038`. Gate0 reproduced grouped-width contamination, missing grouped settings and four real DOM resize failures; [checkpoint and scoped read-only image contract](tasks/active/d099-list-acceptance.md).
-- Continue minimum width/presentation + relation-backed thumbnail repairs, then actual disposable Chromium/API/quality validation. Real18443 and Preview18444 untouched; deploy handoff only, USER ACCEPTANCE PENDING.
+- Gates1–3 implemented: stable additive groupWidths, exact fixed-pixel opt-in, scoped relation-backed48px images/lazy bounded loader. Focused actual Chromium16/16, API31/31, auth/frontend71/71, SSR7/7, typecheck/lint/Server frontend/diff-check PASS. Continue final complete Chromium/npm/default Browser build and final docs/PR; do not repeat implementation. Real18443 and Preview18444 untouched; deploy handoff only, USER ACCEPTANCE PENDING.
 
 ## Active — Codex D PR #84 integration (2026-10-09)
 

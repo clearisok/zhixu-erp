@@ -44,8 +44,8 @@ export function createQuoteAttachmentClient(options: { baseUrl?: string; fetchIm
     async read(quoteId: string, revisionId: string, attachmentId: string) {
       return (await (await request(`${scope(quoteId, revisionId)}/${encodeURIComponent(attachmentId)}`)).json() as { attachment: ServerAttachment }).attachment;
     },
-    async download(quoteId: string, revisionId: string, attachmentId: string) {
-      return (await request(`${scope(quoteId, revisionId)}/${encodeURIComponent(attachmentId)}/download`)).blob();
+    async download(quoteId: string, revisionId: string, attachmentId: string, signal?: AbortSignal) {
+      return (await request(`${scope(quoteId, revisionId)}/${encodeURIComponent(attachmentId)}/download`, { signal })).blob();
     },
     async upload(quoteId: string, revisionId: string, expectedVersion: number, file: File, kind: AttachmentKind, token: string) {
       const url = `${scope(quoteId, revisionId)}?${new URLSearchParams({ name: file.name, kind })}`;
