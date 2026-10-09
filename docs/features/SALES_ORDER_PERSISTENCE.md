@@ -1,5 +1,29 @@
 # SalesOrder PostgreSQL Persistence Foundation
 
+## C4.3 DeliveryPlan domain (2026-10-09)
+
+`0009_sales_order_delivery_plans.sql` adds `sales_order_delivery_plan_sets` and `sales_order_delivery_plans`, without changing prior migrations or backfilling existing orders. The collection has an independent version and irreversible `source_derived → user_managed` transition. Rows use server UUIDs, exact NUMERIC quantity/API decimal strings, nullable date only for a suspended derived default, and retained void history. SalesOrder version/number/provenance and shared terms remain independent.
+
+New source-mirror insertion initializes the collection and, only with a valid date, one default row. Its quantity snapshots first source quantity including zero; later quantity changes never reallocate. Date changes update only the untouched existing default. Null suspends that same ID, restoration resumes it. An initially empty collection receives no later fabricated default. Source date/quantity changes also increment collection version in the same transaction. Mirror updates on pre-C4.3 orders lacking evidence do not infer ownership or backfill plans.
+
+The internal typed `refreshAinuokeSalesOrderSource` service preserves binding, checks source hash/fetch-time and collection CAS, and atomically updates source link/mirrors, source-follow projection and trusted audit. It has no HTTP source-write route. Human plan commands require order.view/order.edit, reject identity/ownership/source fields, preserve stable IDs and permanently claim the entire collection even for same-value intervention. Reconciliation reports actual source date/quantity, active plan dates and date drift/quantity balance; source disappearance does not rewrite human rows. A subsequent matching date projection resolves current drift while prior audit evidence remains append-only.
+
+Gate 1: typecheck, Server build and disposable PostgreSQL 12/12 passed. Narrow HTTP API and final regression results are recorded in the [task report](../tasks/completed/2026-10-09-order-c43-delivery-plan.md). No real migration/deployment/Browser import is performed; D-096/D-098 remain unchanged.
+
+### PR #87 integration verification (2026-10-10)
+
+`test:delivery-plans` runs the isolated domain/session suite; it is also in regular `test:postgres` without adding Docker to `npm test`. The populated 0001–0008 upgrade preserves orders/colors/associated terms/logs/ledger with no backfill; deterministic root-lock barriers cover user-first/source-first/source-source, and deliberate audit failure compares all transactional domains. C4.3 source audit dates use the existing ISO date projection rather than the legacy Date DTO.
+
+`demo:delivery-plans` runs the synthetic internal-source/authenticated GET/PATCH sequence in disposable PG16 with dynamic loopback API and explicit cleanup. Current evidence: DeliveryPlan17/17, PostgreSQL152/152, npm679/679, typecheck/lint/Server/frontend build and demo PASS. [Integration report and release risk](../tasks/completed/2026-10-10-pr87-delivery-plan-integration.md); [synthetic snapshots](../tasks/assets/pr87-delivery-plan-integration/README.md).
+
+Release requires a separate coupled app/schema Activation Gate: new app + pre-0009 DB fails pending-migration startup; pre-0009 app + upgraded DB fails missing-ledger-file integrity. Image-only rollback is incompatible. No real activation was performed.
+
+### C4.3 narrow API
+
+- `GET /api/v1/sales-orders/:uuid/delivery-plans` requires trusted identity + `order.view`, returns `{ deliveryPlanSet }` with independent ownership/version, source references, stable rows (including void history) and reconciliation.
+- `PATCH` on the same path additionally requires `order.edit`, allowlisted Origin and `X-Zhixu-Request: 1`. Body: `{ expectedVersion, upserts: [{ id: UUID|null, deliveryDate: YYYY-MM-DD, quantity: decimal-string }], voidIds: [UUID] }`. Null row ID creates a server UUID; existing ID edits that same row. Upserts/voids are atomic and bounded to 100 affected rows per command. Empty commands, duplicate/foreign/voided IDs, invalid dates/amounts and caller actor/ownership/source fields fail closed. User amounts retain the established strictly positive plan-input rule; the explicitly confirmed zero exception belongs to system-derived defaults.
+- Authentication/permission/invalid input/absent order/stale collection return 401/403/400/404/409. No generic SalesOrder PATCH/POST or source-refresh HTTP route is added. Raw source hashes/metadata remain internal. No UI cutover occurs in this Server-domain task.
+
 ## C4.2 ConfirmedCommercialTerms extension
 
 2026-10-09 linked follow-up: exact saved Server Quote provenance is now required for Quote mutation; both terms expectedVersion and positive expectedQuoteVersion must pass the locked saved-source check. Order current uses only its existing terms CAS/permissions and established currency, not the Quote's current/default edit eligibility. Multiple formal Orders read/write the same context; no source binding/aggregate/version/sequence/mirror mutation occurs. This does not expose Order creation or implement a new Order UI.

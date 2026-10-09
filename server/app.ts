@@ -21,6 +21,9 @@ import {
 } from "./confirmed-commercial-terms/service.js";
 import { getSalesOrderById, listSalesOrders } from "./sales-orders/repository.js";
 import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales-orders/model.js";
+import { readDeliveryPlanSet } from "./sales-orders/delivery-plan-repository.js";
+import { updateDeliveryPlans } from "./sales-orders/delivery-plan-service.js";
+import { UUID_PATTERN } from "./sales-orders/delivery-plan-model.js";
 import { QuoteConflictError, QuoteInvariantError } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
 import { parseQuoteVersionCommand } from "./quotes/version-workflows.js";
@@ -359,6 +362,22 @@ async function route(
       });
       sendJson(response, 201, { quote });
     } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
+
+  const deliveryPlansMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/delivery-plans$/.exec(path);
+  if (deliveryPlansMatch && (request.method === "GET" || request.method === "PATCH")) {
+    if (request.method === "PATCH") assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    requirePermission(identity.permissions, "order.view");
+    if (request.method === "PATCH") requirePermission(identity.permissions, "order.edit");
+    const salesOrderId = requiredPathIdentity(deliveryPlansMatch[1], "salesOrderId");
+    if (!UUID_PATTERN.test(salesOrderId)) throw new HttpError(400, "invalid_sales_order_id", "SalesOrder ID must be a UUID");
+    const deliveryPlanSet = request.method === "GET"
+      ? await readDeliveryPlanSet(dependencies.pool, salesOrderId)
+      : await updateDeliveryPlans(dependencies.pool, identity, salesOrderId, await readJsonBody(request));
+    sendJson(response, 200, { deliveryPlanSet });
     return;
   }
 

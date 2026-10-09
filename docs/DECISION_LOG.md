@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-100 C4.3 DeliveryPlan collection ownership and source-null recovery
+
+- 日期：2026-10-09；状态：Active。落实 D-083；数量与 null 边界由本任务用户明确确认。
+- 首次 Ainuoke 创建有有效来源日期时初始化唯一默认行，数量固定为首次 source quantity（含 0）；后续数量变化只投影 short/matched/excess，不自动重分配。首次无日期不建默认行，后续出现日期不自动补建。
+- untouched 默认日期清空时保留 UUID/数量并变为无有效日期，日期恢复复用同一 UUID。任何人工 upsert/void（包括同值提交）将整个集合永久变为 user_managed；source 更新不能重新取得所有权。
+- 技术：0009 独立集合/行表，集合独立 CAS；source date/quantity 更新在 Mirror 同事务触发器中推进集合版本，防止弱底层 upsert 绕过 D-083。用户命令与内部 source-refresh 依次锁 order root、mirror（仅 refresh）、collection；可信 audit 与业务同事务。行只能作废，不删除/换 owner/重建默认 ID。
+- 旧订单无所有权证据保持 uninitialized；migration 无 backfill，首次人工命令可创建 user_managed 集合，不伪造 untouched。
+- 证据：`database/migrations/0009_sales_order_delivery_plans.sql`、`server/sales-orders/delivery-plan-*.ts`、`server/integration/delivery-plans.integration.test.ts`。仅 disposable PG；不代表真实 activation、UI 接线或通用订单写入。
+
 ### D-099 Quote 原版视觉基线与 Server 能力底线
 
 - 日期：2026-10-09；状态：Active，用户明确批准 UI Baseline Restoration / Server UI Convergence。
@@ -175,7 +184,7 @@
 ### D-083 Ainuoke source delivery date and Zhixu DeliveryPlan are separate domains
 
 - 日期：2026-09-14
-- 状态：Active；确认 C4.0 审计 C4-D09，取代“将单个业务确认交期标量或每次 source refresh 重建的计划直接作为未来交付真值”的旧 C4.0 AI 建议。C4 实现仍未开始。
+- 状态：Active；确认 C4.0 审计 C4-D09，取代“将单个业务确认交期标量或每次 source refresh 重建的计划直接作为未来交付真值”的旧 C4.0 AI 建议。C4.3 Server 领域由 D-100 落地；真实 0009 activation 未执行。
 - 决定：Ainuoke 工艺单/合同交期是不可由织序用户覆写的 source fact。`DeliveryPlan` 是织序拥有、可编辑的客户交付要求/计划集合，支持多行；Order Detail 必须能展开多条计划，同时以弱化的次要文字保留 source delivery date，不得因用户修改 DeliveryPlan 而改写 source mirror。
 - 初始化：Ainuoke SalesOrder 首次创建且存在有效 source delivery date 时，初始化一条日期相同的默认 DeliveryPlan。当且仅当用户从未编辑、拆分、新增或其他手工改动整个集合时，该 untouched system-derived default 才可在后续 source delivery-date 变化时同步。
 - 用户所有权：一旦发生任何用户介入，整个 DeliveryPlan collection 转为 Zhixu-owned；后续 Ainuoke refresh 只更新 source fact，不覆写用户计划，有差异时显式呈现 drift/reconciliation evidence。后续实现必须能确定性区分 untouched derived default 与 user-managed collection，本条不预设具体 flag/列名。

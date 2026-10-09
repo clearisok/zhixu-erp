@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-09；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及本轮验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
+> 2026-10-10；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及本轮验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
 
 ## 当前工程能力
 
@@ -11,10 +11,14 @@
 
 ## 真实环境与下一步
 
-- PR #82/#83/#85/#86 已合并；最新 main `6e40b4318e59f8cc54adfe1aeb3d3e3d90a72613`。PR #84 本轮普通 merge 并人工整合文档，仍待用户合并；PR #88 D-099 新候选仅构建/准备，尚未部署。
+- PR #82/#83/#84/#85/#86 已合并；本轮 fetch 确认 main `49a82c9f970e158ded589300b4aa04fc4c809038`。PR #87 集成 Gate 全部 PASS，最新 main 冲突已解决，待合并审查；PR #88 D-099 新候选仅构建/准备，尚未部署。
 - PR #84 已执行的 Windows win01 更新：app/gateway `zhixu-quote-trial-ui:878de323d618`，source `878de323d618b25fca1f51ccf3f024e932641742`，build `quote-trial-ui-20261009` / `2026-10-09T07:20:46Z`；当时真实 HTTPS、CLI READY、三服务 healthy，数据库容器/镜像/卷、TLS和持久业务保持。完整备份、部署身份与管理员/受限账号、2 Quote/Revision/PV及2附件 bytes/SHA验收见[独立更新报告](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)。这些是原执行证据，本轮未复核真实运行环境。
-- 用户新 UI 与完整三张业务卡人工验收 PENDING；旧候选已部署不代表 D-099 新候选已部署。下一步用户审查 #84、人工查看列表/偏好、两类型新建、详情/成本及窄屏/touch；任何后续真实更新需独立授权，不重新 setup/init。
+- 用户新 UI 与完整三张业务卡人工验收 PENDING；旧候选已部署不代表 D-099 新候选已部署。下一步用户人工查看列表/偏好、两类型新建、详情/成本及窄屏/touch；任何后续真实更新需独立授权，不重新 setup/init。
 - 明确差异/延期：列表款式图占位，无 country/PV-name summary 接线；Server 新建不是 Browser 未保存整单编辑。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理仍未支持，不伪造按钮能力。
+
+## 并行订单工程
+
+- 并行订单 C4.3 Server 领域已实现：独立 0009、集合 CAS/永久人工所有权、稳定默认行/null 恢复、drift 与专属 GET/PATCH。只 disposable PG；真实 0009、计划 UI、通用订单写入未执行，不增加 D-098 Quote-first 前置。原实现见 [独立报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)；本轮 #87 集成 DeliveryPlan17/17、PostgreSQL152/152、npm679/679、质量/构建及合成 session API 演示/清理 PASS，见 [集成报告](tasks/completed/2026-10-10-pr87-delivery-plan-integration.md)。0009 应用/旧库双向不兼容，必须独立 Activation Gate。以上试用部署状态保持不变。
 
 ## 永久边界
 

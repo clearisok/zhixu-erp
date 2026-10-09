@@ -1,12 +1,23 @@
 # AI handoff
 
-## Active — Codex D PR #84 integration (2026-10-09)
+## Active — PR #87 ready for merge review (2026-10-10)
+
+- Dedicated worktree `D:\workspace\zhixu-order-b`, branch `feat/order-c43-delivery-plan`; clean local/remote baseline `cb202db33cea06fbe0a917b33a49daf0e03222c1`. Fresh fetch confirms main `49a82c9f970e158ded589300b4aa04fc4c809038`; ordinary merge, only AI_HANDOFF conflicted. Shared documents manually preserve #84 deployed evidence, #85 Source/Bridge, #86 D-099 and #87 C4.3.
+- Gate 1 merged checkpoint `c976b89441af0aa6b8d6073817a1a2b64f5d10f9`; push reported ref-lock but read-only remote exact SHA verified delivery. Gate 2: independent `test:delivery-plans`, regular `test:postgres` inclusion, populated 0001–0008 upgrade, binding/fetchedAt/sync permission, three explicit lock-barrier concurrency schedules and full audit rollback snapshots; current standalone 17/17 PASS.
+- Synthetic demo exposed C4.3 source audit date shifting through the old Date DTO under local timezone; only its audit now reads the existing ISO source-date projection, with regression assertions. Rules/schema unchanged. Gate 2 checkpoint `7930b08` pushed. Gate 3 synthetic demo PASS: 14 checked snapshots, authenticated human GET/PATCH, exact NUMERIC differences, extra boundaries and explicit container removal; [evidence](tasks/assets/pr87-delivery-plan-integration/README.md). Gate 3 checkpoint `151528d` pushed. Gate 4 PASS: standalone17/17, regular PostgreSQL152/152, npm679/679, typecheck/lint/Server/frontend build/diff-check. Latest fetch main remains `49a82c9…`; #87 OPEN/MERGEABLE. [Current report, limits and proposed Activation Gate](tasks/completed/2026-10-10-pr87-delivery-plan-integration.md). New app/old DB and old app/upgraded DB are incompatible under migration verification; no real 0009 activation. Prior test counts below remain historical. No real environment/database/deployment or decision change.
+
+## Completed — Order C4.3 independent engineering (2026-10-09)
+
+- Branch `feat/order-c43-delivery-plan`; clean start/fetched main `edc3598764266de087c0f669f8bcf5452c6d3fd2`. [Completed audit, rules and engineering evidence](tasks/completed/2026-10-09-order-c43-delivery-plan.md). C4.3 domain/API implemented; real 0009/UI/deployment remain separate.
+- Gates: audit d6d3c94; domain d5f872a; API 3db3288; final engineering `23721dc0c3294ae8e672b10d37c9ab65c131e039` exact remote verified. PG87/87 (domain/session14/14), npm674/674 and quality/build PASS. Ordinary integration of main `330aad7d1bfc8e93326e1eb4971a7a9f34a74514` preserves Quote UI/D-099; Order is D-100. Only shared docs conflicted; latest main content/history plus Order evidence retained. Post-integration npm674/674, typecheck/lint/Server/frontend build PASS. Next: review unique task PR, then separately scoped plan UI/Source contract; real 0009/deployment require separate authorization. No reset/rebase/force/auto-merge or real DB/deploy/Browser import.
+
+## Completed — Codex D PR #84 integration (2026-10-09)
 
 - Independent worktree `D:\workspace\zhixu-pr84-integration`, original branch `ops/update-quote-trial-windows-ui`; clean baseline `62af9d33fd1de9a981972405b0d1ef01b503d351`. Normal merge of fetched/GitHub-confirmed main `6e40b4318e59f8cc54adfe1aeb3d3e3d90a72613` (PR #85/#86 merged).
 - Only three shared documents had conflicts: AI_HANDOFF, CURRENT_STATE, PROJECT_INDEX. Manually combined current D-099/Source facts and PR #84 executed deployment evidence; existing tools/tests/deployment report retained. No business code reconciliation or real environment operation.
-- PR #84 remains pending user merge review. PR #88 is a separate D-099 candidate preparation, not a deployment; do not treat its candidate identity as the running 878de image. This PR #84 merge run: synthetic ops12/12, Bridge44/44, npm679/679 (0 skipped), typecheck/lint/frontend build41 routes/diff-check PASS. Validation is recorded in the PR #84 update report.
+- PR #84 MERGED at `49a82c9f970e158ded589300b4aa04fc4c809038`. PR #88 is a separate D-099 candidate preparation, not a deployment; do not treat its candidate identity as the running 878de image. This PR #84 merge run: synthetic ops12/12, Bridge44/44, npm679/679 (0 skipped), typecheck/lint/frontend build41 routes/diff-check PASS. Validation is recorded in the PR #84 update report.
 
-## Active — Codex C Ainuoke Source validation (2026-10-09)
+## Completed — Codex C Ainuoke Source validation (2026-10-09)
 
 - Independent branch `feat/ainuoke-source-validation`; clean baseline/refreshed main `edc3598764266de087c0f669f8bcf5452c6d3fd2`.
 - Gate 0–4 scoped engineering complete: [matrix, repairs, limits](tasks/completed/2026-10-09-ainuoke-source-validation.md). Audit checkpoint `63eaf615b00b2eb4a91a7e2865ee5cc1c4d13606` pushed. Existing 6086103 Discovery, 6087105 formal color source, 6086997 legacy mirror and 6087050 Material pipeline reused.
