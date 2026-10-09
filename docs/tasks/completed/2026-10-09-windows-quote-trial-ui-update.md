@@ -41,3 +41,10 @@
 - 列表准确total=2，全部已有Quote ID/version、2 Revision/2 PV读回；DEPLOY-VERIFY旧附件及用户后加附件共2个经正式metadata/download路径读回，字节数/SHA与数据库保存值逐一一致。只读API验收前后所有非session/login-attempt表内容一致，业务/账号/日志未额外写入，COS只GET、无PUT/DELETE。页面静态路径200不是用户浏览器验收PASS，不冒称执行了保存或新建UI动作。
 - **真实 UI 人工验收 PENDING**：原URL登录后看列表工具区/列宽、新建加工/经销选择、详情首屏、面辅料成本字段及按钮、滚动/sticky。既有个人偏好保持；若需要九列新默认，由用户显式在列表页面设置恢复默认，不自动清理站点存储。
 - 旧3000/3001/3002/Ubuntu/旧DB/Browser不变；不创建报价/附件/账号，不新初始化，不业务删除，不COS DELETE。D-096历史导入NOT REQUIRED；人工业务验收不由自动检查替代。Git PR不自动merge。
+
+## Codex D integration — 2026-10-09 (no real environment operations)
+
+- Independent worktree `D:\workspace\zhixu-pr84-integration`, branch `ops/update-quote-trial-windows-ui`; clean baseline `62af9d33fd1de9a981972405b0d1ef01b503d351`, normal merge of refreshed/GitHub-confirmed main `6e40b4318e59f8cc54adfe1aeb3d3e3d90a72613`.
+- Manually reconciled AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX. Preserved D-099 and merged PR #85/#86, Source/Bridge repairs and 6087050 separate ownership gap; preserved this report, tools/tests, backup/deployment identity and durable data evidence. Retained historical archive links. Old 878de real deployment, PR86 engineering merge and PR88 candidate BUILT / NOT DEPLOYED remain separate.
+- This run (distinct from original real operations): synthetic update whitelist7/7 + fake-native PowerShell5/5 =12/12; Python Bridge44/44; npm679/679, 0 skipped; typecheck/lint/frontend build41 routes PASS. Build has the existing non-failing chunk-size advisory. Conflict marker/unmerged path scans and staged diff-check PASS. No SQL/API/Quote/Material/Source business changes authored by this integration.
+- No real Ainuoke request, credential access, database/COS/Browser/trial environment operation, backup, migration, deployment or PR merge. Normal push updates original PR #84 only; user merge review remains pending. The same physical directory will become a clean local neutral hub from latest origin/main after exact remote delivery verification; no unmerged PR84 code is carried into that hub.

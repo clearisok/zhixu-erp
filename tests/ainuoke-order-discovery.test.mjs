@@ -80,6 +80,12 @@ test("Discovery adapter accepts the single complete empty snapshot", async () =>
   assert.match(result.snapshotHash, /^[a-f0-9]{64}$/);
 });
 
+test("Discovery BillNo follows the formal color-source whitespace normalization", async () => {
+  const source = await adaptAinuokeOrderDiscoverySnapshots([snapshot({ page: 1, pageSize: 2, total: 1, rows: [row(1, "D1", " ｐｉ - １ ")] })]);
+  assert.equal(source.rows[0].salesContractNo, "PI-1");
+  await assert.rejects(() => adaptAinuokeOrderDiscoverySnapshots([snapshot({ page: 1, pageSize: 2, total: 2, rows: [row(1, "D1", "PI-1"), row(2, "D2", "PI -1")] })]), /BillNo.*重复/);
+});
+
 test("Typed discovery client sends no filter and requires complete constant-total pagination", async () => {
   const calls = [];
   const responses = [

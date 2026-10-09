@@ -1,0 +1,86 @@
+[
+  {
+    "name": "one-row-list",
+    "width": 1920,
+    "height": 1080,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "filled-detail",
+    "width": 1920,
+    "height": 1080,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "new-distribution",
+    "width": 1920,
+    "height": 1080,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "one-row-list",
+    "width": 1440,
+    "height": 900,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "filled-detail",
+    "width": 1440,
+    "height": 900,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "new-distribution",
+    "width": 1440,
+    "height": 900,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "one-row-list",
+    "width": 1280,
+    "height": 800,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "filled-detail",
+    "width": 1280,
+    "height": 800,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "new-distribution",
+    "width": 1280,
+    "height": 800,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "one-row-list",
+    "width": 900,
+    "height": 800,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "filled-detail",
+    "width": 900,
+    "height": 800,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  },
+  {
+    "name": "new-distribution",
+    "width": 900,
+    "height": 800,
+    "commit": "7658663038b1da504c95086711f627b6dce5c7a0",
+    "synthetic": true
+  }
+]

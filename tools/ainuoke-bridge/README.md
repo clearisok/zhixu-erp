@@ -2,7 +2,7 @@
 
 This directory contains the loopback-only Python bridge for the local Windows prototype. It is not a production identity or multi-user security boundary.
 
-The fixed read catalog contains reports `6086103`, `6086997`, `6087050`, and the candidate garment color/size source `6087105`. Browser callers select a catalog key and cannot submit an arbitrary report ID. `6087105` is validation-only and has not replaced the existing `6086997` contract-color path. Ainuoke passwords are reserved for the OS credential store and Ainuoke JWT/session data is process memory only.
+The fixed read catalog contains reports `6086103`, `6086997`, `6087050`, and the formal SalesOrder garment color/size source `6087105`. Browser callers select a catalog key and cannot submit an arbitrary report ID. `6087105` uses BillNo lookup and exact post-filtering after complete pagination; `6086997` remains available for the legacy contract-color mirror. Ainuoke passwords are reserved for the OS credential store and Ainuoke JWT/session data is process memory only.
 
 Run the contract tests from the repository root:
 
@@ -31,7 +31,7 @@ The 2026-09-08 requests/Scanner evidence confirms:
 
 The base URL and report path remain overridable by command-line parameter or current-process environment variable, but the confirmed values above are the defaults. The upstream link is plain HTTP and does not protect credentials or report data with TLS. Startup rejects non-loopback hosts and non-Windows-Credential-Manager keyring backends.
 
-Login requires `data.isOk === true`, a non-empty `data.jwtToken`, and a non-empty `data.sessionId`. Report reads send the token exactly as captured in `Authorization`, `Token`, and `kaijin_my_token`; they never use `Bearer`. Browser input is restricted to `insideOrderNo`, which a report-specific adapter converts to the captured `sqlCdtn.conditionList` contract. Browser callers cannot supply raw `reportId`, `formId`, `sqlCdtn`, or `conditionList`.
+Login requires `data.isOk === true`, a non-empty `data.jwtToken`, and a non-empty `data.sessionId`. Report reads send the token exactly as captured in `Authorization`, `Token`, and `kaijin_my_token`; they never use `Bearer`. Browser queries are fixed by catalog: empty for Discovery, `{ salesContractNo }` for 6087105, and `{ insideOrderNo }` for the legacy detail/material paths. Browser callers cannot supply raw `reportId`, `formId`, `sqlCdtn`, or `conditionList`. A candidate account connection test does not replace the saved account or its cached read token; only PUT saves a different account.
 
 The response parser requires `dataList` to be a JSON string containing `rows`, reads `dataCount`, and validates paging metadata. The confirmed endpoint returns top-level `pageIndex=0` and `pageSize=0` sentinels even for successful reads, so the adapter explicitly retains the validated request `sqlCdtn.pageIndex/pageSize` in that case. Malformed or missing fields fail closed.
 

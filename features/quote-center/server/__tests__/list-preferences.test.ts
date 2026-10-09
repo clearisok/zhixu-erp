@@ -21,11 +21,13 @@ test("preferences fail safe for corrupted inputs and do not restore revoked colu
 test("new Server layout is compact but existing explicit columns and widths survive", () => {
   const permissions = ["quote.view", "quote.cost.view"];
   const defaults = normalizeServerListPreferences("trusted", permissions);
-  assert.equal(defaults.visibleColumns.length, 9);
+  assert.equal(defaults.visibleColumns.length, 15);
   assert.ok(defaults.visibleColumns.includes("fabricCost"));
-  assert.ok(defaults.visibleColumns.includes("quote"));
+  assert.ok(!defaults.visibleColumns.includes("quote"));
+  assert.equal(defaults.presentation, "original");
   const existing = normalizeServerListPreferences("trusted", permissions, { visibleColumns: ["salesperson", "confirmedLabor", "confirmedGarment", "date"], columnOrder: ["date", "salesperson"], columnWidths: { salesperson: 320 } });
   assert.deepEqual(existing.visibleColumns, ["salesperson", "confirmedLabor", "confirmedGarment", "date"]);
   assert.equal(existing.columnWidths.salesperson, 320);
   assert.deepEqual(existing.columnOrder.slice(0, 2), ["date", "salesperson"]);
+  assert.equal(existing.presentation, "fields");
 });

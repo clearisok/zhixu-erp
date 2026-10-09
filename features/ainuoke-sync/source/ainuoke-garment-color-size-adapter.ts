@@ -125,12 +125,12 @@ function mapSizeFacts(row: AinuokeSourceRow, quantity: number | null) {
   const populatedBeyondSizeRule = highestPopulatedSizeSlot > sizeRule.tokens.length;
   const sizeQuantityTotal = slots.reduce((sum, { parsed }) => sum + (parsed.value ?? 0), 0);
   const sizeAllocations = sizeRule.tokens.flatMap((sizeName, index): AinuokeSizeAllocation[] => sizeName
-    ? [{ slot: index + 1, sizeName, quantity: slots[index].parsed.value }]
+    ? [{ slot: index + 1, sizeName, quantity: slots[index]?.parsed.value ?? null }]
     : []);
 
   let sizeMatrixStatus: AinuokeSizeMatrixStatus;
   if (!sizeRule.raw) sizeMatrixStatus = "SIZE_RULE_MISSING";
-  else if (populatedBeyondSizeRule) sizeMatrixStatus = "SIZE_MATRIX_RULE_OVERFLOW";
+  else if (populatedBeyondSizeRule || sizeRule.tokens.length > slots.length) sizeMatrixStatus = "SIZE_MATRIX_RULE_OVERFLOW";
   else if (quantity === null || invalidSizeValue) sizeMatrixStatus = "SIZE_MATRIX_QUANTITY_MISMATCH";
   else if (quantity === 0 && sizeQuantityTotal !== 0) sizeMatrixStatus = "SIZE_MATRIX_QUANTITY_MISMATCH";
   else if (quantity === 0) sizeMatrixStatus = populatedSizeSlots.length ? "ZERO_QUANTITY_WITH_SIZE" : "ZERO_QUANTITY_WITHOUT_SIZE";
@@ -160,14 +160,18 @@ function assertSnapshotSet(
   const total = ordered[0].total;
   let rows = 0;
   for (const [index, snapshot] of ordered.entries()) {
-    if (snapshot.schemaVersion !== "ainuoke-direct-read.v2"
+    if (!Number.isSafeInteger(pageSize) || pageSize < 1 || !Number.isSafeInteger(total) || total < 0
+      || snapshot.schemaVersion !== "ainuoke-direct-read.v2"
       || snapshot.reportId !== "6087105"
       || snapshot.page !== index + 1
       || snapshot.pageSize !== pageSize
       || snapshot.total !== total
       || normalizeAinuokeSalesContractNo(snapshot.queryContext.salesContractNo) !== requestedSalesContractNo
       || Object.keys(snapshot.queryContext).length !== 1
-      || snapshot.rows.length > pageSize) {
+      || snapshot.rows.length > pageSize
+      || (index < ordered.length - 1 && snapshot.rows.length !== pageSize)
+      || (total === 0 && ordered.length !== 1)
+      || (total > 0 && index === ordered.length - 1 && snapshot.rows.length === 0)) {
       throw new Error("6087105 Source 协议、query context 或分页不一致");
     }
     rows += snapshot.rows.length;

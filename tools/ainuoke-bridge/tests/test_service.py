@@ -103,6 +103,24 @@ class PersonalAccountServiceTests(unittest.TestCase):
         self.assertEqual(result["username"], "candidate")
         self.assertEqual(self.credentials.get("user-a"), old)
 
+    def test_candidate_test_preserves_saved_account_token_and_read_identity(self) -> None:
+        self.service.put_account("user-a", "alice", "old-secret")
+        original = self.tokens.get("user-a")
+        self.service.test_account("user-a", "candidate", "candidate-secret")
+        self.assertEqual(self.tokens.get("user-a"), original)
+        self.service.read_report("user-a", report_key="order_discovery", page=1, page_size=50, query_context={})
+        self.assertEqual(self.client.read_tokens, ["jwt-alice"])
+
+    def test_candidate_test_without_saved_account_does_not_cache_token(self) -> None:
+        self.service.test_account("user-a", "candidate", "candidate-secret")
+        self.assertIsNone(self.tokens.get("user-a"))
+
+    def test_saved_account_test_refreshes_its_token(self) -> None:
+        self.service.put_account("user-a", "alice", "old-secret")
+        self.tokens.delete("user-a")
+        self.service.test_account("user-a")
+        self.assertEqual(self.tokens.get("user-a").jwt_token, "jwt-alice")
+
 
 class FakeKeyring:
     class errors:
