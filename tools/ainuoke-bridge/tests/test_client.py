@@ -6,6 +6,7 @@ import pathlib
 import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
+from unittest.mock import patch
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
@@ -16,6 +17,7 @@ from ainuoke_bridge.ainuoke_client import (  # noqa: E402
     InvalidCredentialError,
     NetworkAinuokeError,
     UpstreamSchemaError,
+    UrllibJsonTransport,
 )
 from ainuoke_bridge.contracts import resolve_report  # noqa: E402
 
@@ -51,6 +53,16 @@ class AinuokeClientProtocolTests(unittest.TestCase):
         with self.assertRaises(NetworkAinuokeError):
             client.login("alice", "synthetic-password")
         self.assertEqual(len(transport.calls), 3)
+
+    def test_transport_timeout_is_sanitized_and_retried_with_configured_bound(self) -> None:
+        output = io.StringIO()
+        with patch("ainuoke_bridge.ainuoke_client.urlopen", side_effect=TimeoutError("synthetic-secret-in-url")) as opened, redirect_stdout(output), redirect_stderr(output):
+            client = AinuokeClient(transport=UrllibJsonTransport(), timeout_seconds=0.5, network_retries=2, sleeper=lambda _: None)
+            with self.assertRaises(NetworkAinuokeError) as raised:
+                client.login("synthetic-user", "synthetic-secret-in-url")
+        self.assertEqual(opened.call_count, 3)
+        self.assertTrue(all(call.kwargs["timeout"] == 0.5 for call in opened.call_args_list))
+        self.assertNotIn("synthetic-secret-in-url", str(raised.exception) + output.getvalue())
 
     def test_login_matches_verified_query_headers_and_response_shape(self) -> None:
         transport = SequenceTransport([fixture("login-success.redacted.json")])
@@ -118,6 +130,16 @@ class AinuokeClientProtocolTests(unittest.TestCase):
             AinuokeClient(transport=SequenceTransport([malformed])).read_report(
                 resolve_report("sales_contracts"), jwt_token="synthetic-token", page=1, page_size=50, query_context={"insideOrderNo": "D1935"}
             )
+
+    def test_paging_numbers_do_not_truncate_or_accept_nonfinite_values(self) -> None:
+        for field in ("dataCount", "pageIndex", "pageSize"):
+            for value in (True, 1.5, float("inf"), float("nan"), "1.5", None):
+                response = fixture("report-6087050-d1935.redacted.json")
+                response[field] = value
+                with self.subTest(field=field, value=value), self.assertRaises(UpstreamSchemaError):
+                    AinuokeClient(transport=SequenceTransport([response])).read_report(
+                        resolve_report("material_purchase_statistics"), jwt_token="synthetic-token", page=1, page_size=50, query_context={"insideOrderNo": "D1935"}
+                    )
 
     def test_explicit_not_logged_in_without_report_data_is_auth_expired(self) -> None:
         from ainuoke_bridge.ainuoke_client import AuthExpiredError

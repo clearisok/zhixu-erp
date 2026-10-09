@@ -49,6 +49,8 @@ Same BillNo with a changed InsideOrderNo is valid detail and produces informatio
 
 ## Typed row mapping
 
+2026-10-09 hardening: the adapter independently checks nonnegative integer total, positive integer pageSize, contiguous constant-size/total pages and full nonfinal pages, including valid single-page empty results. A SizeRule with more than 26 tokens retains all tokens and produces existing `SIZE_MATRIX_RULE_OVERFLOW` evidence; slots beyond the proven Size1..26 receive null allocation rather than throwing or inventing quantities. This remains a non-blocking size anomaly, preserving the existing color missing/invalid/usable policy.
+
 | Typed fact | 6087105 field |
 | --- | --- |
 | `salesContractNo` | `BillNo` |

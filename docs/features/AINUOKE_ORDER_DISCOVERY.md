@@ -66,6 +66,8 @@ These counts and dates are an observed upstream snapshot, not permanent business
 
 ## Fields, identity, and status
 
+2026-10-09: Discovery BillNo normalization uses the same NFKC/whitespace removal/uppercase convention as formal 6087105 exact filtering. Whitespace-only BillNo variants therefore cannot form two Discovery identities. This does not change the current-account visibility or status inclusion policy.
+
 Observed list fields include stable report `id`, `InsideOrderNo`, `BillNo`, `Status`, `ContractDate`, `DeliveryDate`, `GoodsDesc`, and additional report columns such as customer/brand data. The minimal domain boundary intentionally maps only:
 
 - `sourceId`

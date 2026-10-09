@@ -64,11 +64,12 @@ class AinuokeBridgeService:
                 self.credentials.set(user_id, replace(stored, status="error", last_verified_at=self.clock(), last_error_code=error.code))
             raise
         timestamp = self.clock()
-        self.token_cache.set(user_id, AinuokeAuthSession(jwt_token=login_session.jwt_token, session_id=login_session.session_id, authenticated_at=timestamp))
         if stored is not None and tested.username == stored.username and tested.password == stored.password:
+            self.token_cache.set(user_id, AinuokeAuthSession(jwt_token=login_session.jwt_token, session_id=login_session.session_id, authenticated_at=timestamp))
             stored = replace(stored, status="verified", last_verified_at=timestamp, last_successful_login_at=timestamp, last_error_code=None)
             self.credentials.set(user_id, stored)
             return stored.public_view()
+        # Unsaved candidate tests must not change the saved report-read identity.
         return {**tested.public_view(), "lastVerifiedAt": timestamp, "lastSuccessfulLoginAt": timestamp}
 
     def delete_account(self, user_id: str) -> dict[str, bool]:

@@ -9,7 +9,7 @@ from typing import Any, Mapping
 from urllib.parse import urlparse
 
 from .ainuoke_client import AinuokeClientError
-from .contracts import SourceContractError, sanitized_source_error
+from .contracts import SourceContractError, sanitized_source_error, parse_non_negative_integer
 from .security import SecurityContract, SecurityContractError
 from .service import AccountNotConfiguredError, AinuokeBridgeService
 from .session_store import BrowserSessionStore, SessionError
@@ -62,11 +62,12 @@ class BridgeApplication:
                     {"csrfToken": session.csrf_nonce, "expiresAt": session.expires_at, "identitySecurity": "browser_local_mock"},
                     {**cors, "Set-Cookie": f"{SESSION_COOKIE}={session.session_id}; Path=/; HttpOnly; SameSite=Strict"},
                 )
-            csrf_nonce = request.headers.get("X-Zhixu-CSRF") if request.method in {"PUT", "POST", "DELETE"} else None
+            headers = {key.lower(): value for key, value in request.headers.items()}
+            csrf_nonce = headers.get("x-zhixu-csrf") if request.method in {"PUT", "POST", "DELETE"} else None
             if request.method in {"PUT", "POST", "DELETE"} and not csrf_nonce:
                 raise SessionError("csrf_required")
             session = self.sessions.resolve(
-                _session_cookie(request.headers.get("Cookie")),
+                _session_cookie(headers.get("cookie")),
                 origin,
                 csrf_nonce,
             )
@@ -94,8 +95,11 @@ class BridgeApplication:
                 if not set(request.body).issubset({"page", "pageSize", "query"}):
                     raise ValueError("invalid_query")
                 report_key = request.path[len(prefix) : -len(suffix)]
-                page = int(request.body.get("page", 1))
-                page_size = int(request.body.get("pageSize", 100))
+                try:
+                    page = parse_non_negative_integer(request.body.get("page", 1))
+                    page_size = parse_non_negative_integer(request.body.get("pageSize", 100))
+                except ValueError:
+                    raise ValueError("invalid_paging") from None
                 if page < 1 or page_size < 1 or page_size > 500:
                     raise ValueError("invalid_paging")
                 query = request.body.get("query", {})
