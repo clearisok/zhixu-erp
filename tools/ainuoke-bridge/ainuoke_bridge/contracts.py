@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from copy import deepcopy
 from datetime import datetime, timezone
 from hashlib import sha256
 from json import dumps
+from math import isfinite
 from typing import Any, Literal, Mapping
 
 from .security import sanitize_mapping
@@ -86,6 +88,22 @@ class SourceContractError(ValueError):
     pass
 
 
+def parse_non_negative_integer(value: Any) -> int:
+    if isinstance(value, bool):
+        raise ValueError("invalid_integer")
+    if isinstance(value, int):
+        parsed = value
+    elif isinstance(value, float) and isfinite(value) and value.is_integer():
+        parsed = int(value)
+    elif isinstance(value, str) and value.strip().isascii() and value.strip().isdigit():
+        parsed = int(value.strip())
+    else:
+        raise ValueError("invalid_integer")
+    if parsed < 0:
+        raise ValueError("invalid_integer")
+    return parsed
+
+
 @dataclass(frozen=True)
 class SourceRow:
     source_row_identity: str
@@ -112,10 +130,10 @@ class ReportSnapshot:
             "page": self.page,
             "pageSize": self.page_size,
             "total": self.total,
-            "queryContext": self.query_context,
+            "queryContext": deepcopy(self.query_context),
             "snapshotHash": self.snapshot_hash,
             "rows": [
-                {"sourceRowIdentity": row.source_row_identity, "values": row.values}
+                {"sourceRowIdentity": row.source_row_identity, "values": deepcopy(row.values)}
                 for row in self.rows
             ],
         }

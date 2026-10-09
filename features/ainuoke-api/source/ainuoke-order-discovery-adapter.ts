@@ -23,7 +23,7 @@ function mapRow(row: AinuokeSourceRow): AinuokeOrderDiscoveryRow {
     sourceId: requiredText(row, "id"),
     sourceRowIdentity,
     insideOrderNo: normalizeIdentity(requiredText(row, "InsideOrderNo")),
-    salesContractNo: normalizeIdentity(requiredText(row, "BillNo")),
+    salesContractNo: normalizeIdentity(requiredText(row, "BillNo")).replace(/\s+/gu, ""),
     lifecycleStatusRaw: requiredText(row, "Status"),
     contractDate: nullableText(row.values.ContractDate),
     deliveryDate: nullableText(row.values.DeliveryDate),

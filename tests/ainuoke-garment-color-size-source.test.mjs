@@ -152,6 +152,17 @@ test("zero-quantity rows only accept absent or zero SizeN values", async () => {
   assert.equal(rejected.rows.find((row) => row.sourceRowIdentity === invalidZeroRow.sourceRowIdentity).sizeMatrixStatus, "SIZE_MATRIX_QUANTITY_MISMATCH");
 });
 
+test("SizeRule beyond 26 slots preserves evidence without crashing or inventing sizes", async () => {
+  const snapshot = clone(fixtures.D1935);
+  snapshot.rows[0].values.SizeRule = Array.from({ length: 28 }, (_, index) => `S${index + 1}`).join(",");
+  const source = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [snapshot], requestedSalesContractNo: "PI2607-235", discoveryInsideOrderNo: "D1935", expectedStyleNo: "D1935" });
+  const row = source.rows.find((row) => row.sourceRowIdentity === snapshot.rows[0].sourceRowIdentity);
+  assert.equal(source.colorDetailStatus, "usable");
+  assert.equal(row.sizeRuleTokens.length, 28);
+  assert.equal(row.sizeMatrixStatus, "SIZE_MATRIX_RULE_OVERFLOW");
+  assert.deepEqual(row.sizeAllocations.slice(26), [{ slot: 27, sizeName: "S27", quantity: null }, { slot: 28, sizeName: "S28", quantity: null }]);
+});
+
 test("row ordering and source hash are deterministic and color name alone is not identity", async () => {
   const firstSnapshot = clone(fixtures.D1935);
   const reversedSnapshot = clone(fixtures.D1935);
@@ -213,6 +224,17 @@ test("typed client rejects mixed or wrong query kinds before transport", async (
     (error) => error.code === "report_query_invalid",
   );
   assert.equal(calls, 0);
+});
+
+test("6087105 adapter rejects compensated short pages and malformed totals independently of client", async () => {
+  const base = clone(fixtures.D1935);
+  const adapt = (snapshots) => adaptAinuokeGarmentColorSizeSnapshots({ snapshots, requestedSalesContractNo: "PI2607-235", discoveryInsideOrderNo: "D1935", expectedStyleNo: "D1935" });
+  await assert.rejects(() => adapt([
+    { ...base, page: 1, pageSize: 3, total: 5, rows: base.rows.slice(0, 2) },
+    { ...base, page: 2, pageSize: 3, total: 5, rows: base.rows.slice(2) },
+  ]), /分页不一致/);
+  await assert.rejects(() => adapt([{ ...base, pageSize: 0, total: 0, rows: [] }]), /分页不一致/);
+  await assert.rejects(() => adapt([{ ...base, total: "5" }]), /分页不一致/);
 });
 
 test("validation report aggregates coverage, quantity, size, PO, delivery and selected old blockers", async () => {

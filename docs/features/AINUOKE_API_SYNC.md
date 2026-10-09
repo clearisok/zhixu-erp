@@ -8,6 +8,10 @@
 
 ## Security contract
 
+2026-10-09 Source validation hardening: testing an unsaved candidate credential does not replace the saved account's cached read identity; only a successful PUT changes the saved account. HTTP Cookie/CSRF header names are case insensitive. Request/upstream paging accepts only nonnegative integer values (no bool/fraction/nonfinite truncation), retaining the proven 0/0 sentinel. Snapshot `to_dict()` returns detached nested values/query so response consumers cannot mutate the internal hash content. This is detached serialization, not deep immutability of the internal Python dataclass.
+
+The legacy 6086103/6086997 source adapter now independently requires a complete, contiguous, constant-total/pageSize snapshot set with unique nonblank row identities. Missing/null/blank quantity is invalid; explicit zero remains valid. 6086997's historical join folding and empty unproven size/PO mapping remain intact. Review findings, unresolved Material ownership boundary and current-run validation are in [Codex C review](../tasks/completed/2026-10-09-ainuoke-source-validation.md).
+
 - Password 只能进入 Windows OS Secure Credential Store；实现优先使用 Python `keyring` 与 Windows Credential Manager。禁止进入 localStorage、sessionStorage、IndexedDB、浏览器备份、Quote、SalesOrder、Style Progress、OperationLog payload、console、文件日志、telemetry、Git 或已提交 `.env`。
 - Ainuoke JWT/token/session 只存在 Local Bridge 进程内存，并按 bridge session 所绑定的 `Zhixu User.id` 隔离。Bridge 重启后 token 消失并要求重新登录。
 - Bridge 只允许绑定字面量 `127.0.0.1` 或 `::1`，拒绝 `0.0.0.0`、局域网地址和可解析主机名。CORS 使用精确 Origin allowlist，禁止 `*`。

@@ -94,6 +94,26 @@ test("legacy Excel trace remains readable without a fabricated sourceKind", () =
   assert.doesNotThrow(() => validateAinuokeSyncState({ contracts: [legacy], reviews: [], importRuns: [] }));
 });
 
+test("legacy adapter rejects incomplete or changing snapshots independently of client", () => {
+  for (const patch of [{ total: contractSnapshot.total + 1 }, { page: 2 }, { schemaVersion: "unknown" }, { pageSize: 0 }]) {
+    assert.throws(() => adaptAinuokeContractApiSnapshots({ contractSnapshots: [{ ...contractSnapshot, ...patch }], colorSnapshots: [colorSnapshot] }), /Source 协议|分页/);
+  }
+  const blankIdentity = structuredClone(contractSnapshot);
+  blankIdentity.rows[0].sourceRowIdentity = " ";
+  assert.throws(() => adaptAinuokeContractApiSnapshots({ contractSnapshots: [blankIdentity], colorSnapshots: [colorSnapshot] }), /source row identity/);
+});
+
+test("legacy quantity mapping keeps missing/null distinct from explicit zero", () => {
+  for (const value of [null, undefined, "", " ", true]) {
+    const snapshot = structuredClone(contractSnapshot);
+    snapshot.rows[0].values.Num = value;
+    assert.throws(() => adaptAinuokeContractApiSnapshots({ contractSnapshots: [snapshot], colorSnapshots: [colorSnapshot] }), /数量无效/);
+  }
+  const zero = structuredClone(contractSnapshot);
+  zero.rows[0].values.Num = 0;
+  assert.equal(adaptAinuokeContractApiSnapshots({ contractSnapshots: [zero], colorSnapshots: [colorSnapshot] }).contracts[0].quantity, 0);
+});
+
 test("redacted API fixtures contain no credential or token material", () => {
   const raw = JSON.stringify({ contractSnapshot, colorSnapshot }).toLocaleLowerCase();
   for (const forbidden of ["password", "jwttoken", "sessionid", "authorization", "kaijin_my_token", "rungingsysid"]) assert.equal(raw.includes(forbidden), false);

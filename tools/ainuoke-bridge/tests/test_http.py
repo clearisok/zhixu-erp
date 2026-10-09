@@ -52,6 +52,11 @@ class BridgeHttpContractTests(unittest.TestCase):
         valid = self.request("PUT", "/v1/ainuoke/account", cookie=cookie, csrf=csrf, body={"username": "alice", "password": "secret"})
         self.assertEqual((missing.status, wrong.status, valid.status), (400, 400, 200))
 
+    def test_http_headers_are_case_insensitive(self) -> None:
+        cookie, csrf = self.create_session()
+        response = self.app.handle(BridgeRequest("PUT", "/v1/ainuoke/account", ORIGIN, headers={"cookie": cookie, "x-zhixu-csrf": csrf}, body={"username": "alice", "password": "synthetic-secret"}))
+        self.assertEqual(response.status, 200)
+
     def test_unknown_report_and_write_like_endpoint_are_rejected(self) -> None:
         cookie, csrf = self.create_session()
         self.request("PUT", "/v1/ainuoke/account", cookie=cookie, csrf=csrf, body={"username": "alice", "password": "secret"})
@@ -85,6 +90,17 @@ class BridgeHttpContractTests(unittest.TestCase):
         self.assertEqual(accepted.body["queryContext"], {})
         self.assertEqual(rejected.status, 400)
         self.assertEqual(rejected.body["error"]["code"], "invalid_query")
+
+    def test_request_paging_rejects_fractional_boolean_and_nonfinite_before_read(self) -> None:
+        cookie, csrf = self.create_session()
+        self.service.put_account("user-a", "alice", "synthetic-secret")
+        for field in ("page", "pageSize"):
+            for value in (True, 1.5, float("inf"), "1.5", None):
+                body = {"page": 1, "pageSize": 50, "query": {}, field: value}
+                response = self.request("POST", "/v1/ainuoke/reports/order_discovery/query", cookie=cookie, csrf=csrf, body=body)
+                self.assertEqual(response.status, 400, (field, value))
+                self.assertEqual(response.body["error"]["code"], "invalid_paging")
+        self.assertEqual(self.service.client.read_tokens, [])
 
     def test_garment_color_size_endpoint_is_fixed_and_rejects_condition_injection(self) -> None:
         cookie, csrf = self.create_session()

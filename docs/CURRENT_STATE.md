@@ -17,5 +17,7 @@
 
 ## 永久边界
 
+- Codex C 独立 Source/Bridge 审查与最小修复完成，branch `feat/ainuoke-source-validation`；[报告](tasks/completed/2026-10-09-ainuoke-source-validation.md)。本轮 Python44/44、npm679/679、typecheck/lint/build41 routes PASS。6087050 独立 Preview/commit 完整性收紧另属 Material 任务；本地 mock Bridge/上游 HTTP 尚不满足正式多人 Server 集成。本轮未真实联调、写业务数据或部署，不改变上方试用状态。
+
 - D-096 历史导入 **NOT REQUIRED**；不导入不是删除授权。D-097 显式 Server 不回退旧数据；权限/CAS/事务/精度及历史 Revision 不可变保持。
 - 用户持久试用数据不得自动清理；远程必须真实 session/RBAC 与 HTTPS。延期：整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理。

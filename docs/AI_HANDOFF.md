@@ -3,8 +3,8 @@
 ## Active — Codex C Ainuoke Source validation (2026-10-09)
 
 - Independent branch `feat/ainuoke-source-validation`; clean baseline/refreshed main `edc3598764266de087c0f669f8bcf5452c6d3fd2`.
-- Gate 0–2 read-only review complete: [matrix and scope](tasks/active/2026-10-09-ainuoke-source-validation.md). Reuse existing 6086103 Discovery, 6087105 formal color source, 6086997 legacy mirror and 6087050 Material pipeline. Local mock-user Bridge is not formal multi-user Server integration.
-- Next: evidence-backed candidate-token isolation, strict paging, legacy source completeness/null checks, SizeRule overflow and detached snapshot serialization; synthetic tests only. Material Preview/commit ownership gaps remain a separate contract proposal. No real Ainuoke/credentials/DB/Browser/trial/COS/deployment operations.
+- Gate 0–4 scoped engineering complete: [matrix, repairs, limits](tasks/completed/2026-10-09-ainuoke-source-validation.md). Audit checkpoint `63eaf615b00b2eb4a91a7e2865ee5cc1c4d13606` pushed. Existing 6086103 Discovery, 6087105 formal color source, 6086997 legacy mirror and 6087050 Material pipeline reused.
+- Fixed candidate-token isolation, strict paging, case-insensitive Cookie/CSRF, legacy source completeness/null checks, BillNo normalization, SizeRule overflow and detached serialization. Python44/44, final npm679/679, typecheck/lint/build41 routes/diff-check PASS; synthetic tests only. Material Preview/commit ownership gaps remain a separate contract proposal. Local mock-user Bridge is not formal multi-user Server integration; no real Ainuoke/credentials/DB/Browser/trial/COS/deployment/merge operations. Next: independent PR review, then separately scoped Material contract and trusted Server integration.
 
 ## Active — PR #82 main integration / review closure (2026-10-09)
 
