@@ -44,7 +44,8 @@ export function parseDeliveryPlanCommand(value: Record<string, unknown>): Delive
     if (Object.keys(input).some(key => !['id', 'deliveryDate', 'quantity'].includes(key))
         || !(input.id === null || typeof input.id === 'string' && UUID_PATTERN.test(input.id))
         || !validDeliveryDate(input.deliveryDate) || typeof input.quantity !== 'string'
-        || input.quantity.length > 64 || !/^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(input.quantity)) return invalid();
+        || input.quantity.length > 64 || !/^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(input.quantity)
+        || /^0(?:\.0+)?$/.test(input.quantity)) return invalid();
     return { id: input.id as string | null, deliveryDate: input.deliveryDate as string, quantity: input.quantity as string };
   });
   const voidIds = value.voidIds as string[];

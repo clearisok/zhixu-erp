@@ -31,3 +31,10 @@ Only disposable PostgreSQL/synthetic fixtures are authorized. D-096 empty-data a
 - Typecheck and Server build PASS. Disposable PostgreSQL domain 12/12 PASS: migration/idempotency/startup guard, initialization/date absence/zero, null recovery/stable IDs, multi-row/permanent ownership/drift, void history, concurrent CAS/source-user competition, audit rollback, permissions/spoofing/source guards and untouched aggregate/terms.
 - Initial npm ci failed ECONNRESET; offline lockfile install succeeded. First compilation attempt before dependencies were available did not run; subsequent actual compilation passed.
 - Sandbox execution helper failed to start; authorized repository reads/builds/test commands use reviewed escalation. One-off approval-service transport failures were resubmitted unchanged and succeeded. No shared sandbox/proxy/TLS configuration was changed.
+
+## Gate 2 — API and security
+
+- Gate 1 checkpoint `d5f872a0ac1195961ada9744eec8aad77b82b66b`. Push returned a ref-lock rejection with target already present; one read-only `ls-remote` verified exact full target SHA. REMOTE DELIVERED, no blind retry or history rewrite.
+- Added GET/PATCH `/api/v1/sales-orders/:uuid/delivery-plans` using existing identity authority, order.view/order.edit, Origin/header boundary and strict typed command validation. User-entered quantities follow the existing positive plan-input rule; system-derived zero is preserved as explicitly confirmed.
+- Actual session API + upgrade safety added to disposable domain suite; 14/14, typecheck/Server build passed before the additional positive-zero validation. Final Gate reruns the changed validator and full regressions.
+- No UI/Source/Bridge changes, no source HTTP writer or general SalesOrder write API.

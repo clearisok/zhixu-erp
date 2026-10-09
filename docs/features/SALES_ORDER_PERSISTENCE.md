@@ -10,6 +10,12 @@ The internal typed `refreshAinuokeSalesOrderSource` service preserves binding, c
 
 Gate 1: typecheck, Server build and disposable PostgreSQL 12/12 passed. Narrow HTTP API and final regression results are recorded in the [task report](../tasks/active/2026-10-09-order-c43-delivery-plan.md). No real migration/deployment/Browser import is performed; D-096/D-098 remain unchanged.
 
+### C4.3 narrow API
+
+- `GET /api/v1/sales-orders/:uuid/delivery-plans` requires trusted identity + `order.view`, returns `{ deliveryPlanSet }` with independent ownership/version, source references, stable rows (including void history) and reconciliation.
+- `PATCH` on the same path additionally requires `order.edit`, allowlisted Origin and `X-Zhixu-Request: 1`. Body: `{ expectedVersion, upserts: [{ id: UUID|null, deliveryDate: YYYY-MM-DD, quantity: decimal-string }], voidIds: [UUID] }`. Null row ID creates a server UUID; existing ID edits that same row. Upserts/voids are atomic and bounded to 100 affected rows per command. Empty commands, duplicate/foreign/voided IDs, invalid dates/amounts and caller actor/ownership/source fields fail closed. User amounts retain the established strictly positive plan-input rule; the explicitly confirmed zero exception belongs to system-derived defaults.
+- Authentication/permission/invalid input/absent order/stale collection return 401/403/400/404/409. No generic SalesOrder PATCH/POST or source-refresh HTTP route is added. Raw source hashes/metadata remain internal. No UI cutover occurs in this Server-domain task.
+
 ## C4.2 ConfirmedCommercialTerms extension
 
 2026-10-09 linked follow-up: exact saved Server Quote provenance is now required for Quote mutation; both terms expectedVersion and positive expectedQuoteVersion must pass the locked saved-source check. Order current uses only its existing terms CAS/permissions and established currency, not the Quote's current/default edit eligibility. Multiple formal Orders read/write the same context; no source binding/aggregate/version/sequence/mirror mutation occurs. This does not expose Order creation or implement a new Order UI.
