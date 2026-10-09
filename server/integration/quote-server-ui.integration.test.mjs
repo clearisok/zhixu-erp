@@ -21,6 +21,9 @@ import { appendOperationLog } from "../operation-logs/repository.ts";
 import { createSalesOrder } from "../sales-orders/repository.ts";
 import { parseQuoteExportTemplateLayout } from "../../features/quote-center/export/quote-export-template-layout.ts";
 import { createQuoteDraft } from "../../features/quote-center/model/quote-view-model.ts";
+import { createSyntheticQuoteFixture } from "./quote-fixture.ts";
+import { createQuoteRepository } from "../quotes/repository.ts";
+import { quoteSnapshotFromBrowser } from "../quotes/model.ts";
 
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 async function until(read, label) {
@@ -202,6 +205,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
           assert.deepEqual(metrics.unhandled, []);
           if (state === "draft-detail" && width === 1280) assert.ok(metrics.firstBaseInput.y + metrics.firstBaseInput.height < height, "First base input is usable in initial 1280x800 viewport");
           if (state === "scrolled-costs") assert.ok(await evaluate("document.querySelector('.qc-sticky-header').classList.contains('is-visible')"), "Saved/source summary remains available after workspace scroll");
+          if (state === "cost-values" && width === 1280) assert.ok(await evaluate("[...document.querySelectorAll('#quote-section-fabrics .qc-compact-cost-grid input')].filter(n=>n.getClientRects().length).slice(0,8).every(n=>{const r=n.getBoundingClientRect();return r.width>=60&&r.x>=0&&r.right<=innerWidth})"), "Frequent fabric fields remain readable without internal horizontal scrolling at 1280");
         }
         const name = `${state}-${width}x${height}`;
         await writeFile(join(folder, name + ".png"), Buffer.from(data, "base64"));
@@ -240,6 +244,41 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await input('#quote-section-fabrics input[aria-label$="-段长"]', '125.25');
       await input('#quote-section-fabrics input[aria-label$="-单价"]', '12.75');
       for(const [w,h] of viewports){await evaluate("document.querySelector('#quote-section-fabrics').scrollIntoView({block:'start'})");await capture('cost-values',w,h);}
+      const historyFixture=createSyntheticQuoteFixture('synthetic-visual-history');
+      for(const revision of historyFixture.revisions){revision.imageAttachmentIds=[];revision.fileAttachmentIds=[];revision.styleImageAttachmentId=null;revision.garmentMedia=[];revision.baseInfo.quoteStyleNo='SYNTHETIC-HISTORY-STYLE';}
+      await createQuoteRepository(pool).create(quoteSnapshotFromBrowser(historyFixture));
+      await navigate('/quote-center/detail?id=synthetic-visual-history');await hasText('Server 报价 · v1');await hasText('SYNTHETIC-HISTORY-STYLE');await click('查看报价历史');
+      await evaluate("[...document.querySelectorAll('.qc-revision-pill')].find(n=>n.querySelector('.qc-revision-label')?.textContent==='V1').click()");await click('查看');await hasText('历史只读');
+      for(const [w,h] of viewports)await capture('historical-readonly',w,h);
+      await evaluate("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
+      await navigate('/quote-center');await hasText('登录织序 Server');await input('input[name=username]','synthetic-ui-viewer');await input('input[name=password]','disposable-ui-password');await click('登录 Server');await hasText('本页 25');
+      await navigate('/quote-center/detail?id=synthetic-visual-history');await hasText('Server 报价 · v1');await hasText('SYNTHETIC-HISTORY-STYLE');
+      assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent==='保存草稿'&&!n.disabled)"),false);
+      for(const [w,h] of viewports)await capture('viewer-detail',w,h);
+      holdTermsPath='/api/v1/quotes';await command('Fetch.enable',{patterns:[{urlPattern:'*/api/v1/quotes?*',requestStage:'Request'}]},sessionId);
+      try{await navigate('/quote-center');await hasText('读取 Server 报价');for(const [w,h] of viewports)await capture('loading-list',w,h);}
+      finally{holdTermsPath=null;await command('Fetch.disable',{},sessionId);}
+      failureStatus=503;await command('Fetch.enable',{patterns:[{urlPattern:'*/api/v1/quotes?*',requestStage:'Request'}]},sessionId);
+      try{await navigate('/quote-center');await hasText('Server 报价不可用');for(const [w,h] of viewports)await capture('error-list',w,h);}
+      finally{await command('Fetch.disable',{},sessionId);failureStatus=0;}
+      await navigate('/quote-center');await hasText('本页 25');
+      await evaluate("document.querySelector('tbody tr').focus()");
+      await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13},sessionId);
+      await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13},sessionId);
+      await hasText('Server 报价 · v');
+      await pool.query("DELETE FROM app_role_permissions WHERE role_id='synthetic-ui-role-viewer' AND permission_key='quote.cost.view'");
+      await navigate('/quote-center');await hasText('本页 25');
+      assert.equal(await evaluate("document.body.innerText.includes('成本摘要')"),false);
+      for(const [w,h] of viewports)await capture('restricted-cost-list',w,h);
+      await pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('synthetic-ui-role-viewer','quote.cost.view')");
+      await command('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1},sessionId);
+      await command('Emulation.setEmulatedMedia',{features:[{name:'pointer',value:'coarse'},{name:'hover',value:'none'}]},sessionId);
+      await navigate('/quote-center');await hasText('本页 25');await capture('true-mobile-list',390,844);
+      assert.equal(await evaluate("matchMedia('(pointer: coarse)').matches && matchMedia('(hover: none)').matches && navigator.maxTouchPoints>0"),true);
+      assert.ok(await evaluate("[...document.querySelectorAll('.qc-responsive-record-list button')].some(n=>n.getClientRects().length)"));
+      await navigate('/quote-center/detail?id=synthetic-visual-history');await hasText('Server 报价 · v1');await capture('true-mobile-detail',390,844);
+      await command('Emulation.setTouchEmulationEnabled',{enabled:false},sessionId);
+      await command('Emulation.setEmulatedMedia',{features:[{name:'pointer',value:'fine'},{name:'hover',value:'hover'}]},sessionId);
       await isolated();
       await writeFile(join(folder,'metrics.json'),JSON.stringify(captures,null,2));
       return;
@@ -1047,9 +1086,9 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const before=await evaluate("JSON.stringify(Object.entries(localStorage).filter(([k])=>k.startsWith('zhixu.ui.server.quote-list.v1.')))");
       await summaryColumns(['报价编号','总数量']);
       const start=requests.length;await click('生成内部汇总 Excel');await hasText('内部汇总文件已生成');
-      const {sheet}=await parsedDownload();assert.equal(sheet.rowCount,3);assert.deepEqual(sheet.getRow(1).values.slice(1),['报价编号','总数量']);
+      const {sheet}=await parsedDownload();assert.equal(sheet.rowCount,3);const headers=sheet.getRow(1).values.slice(1);assert.deepEqual([...headers].sort(),['报价编号','总数量'].sort());const codeColumn=headers.indexOf('报价编号')+1;
       const expected=(await pool.query('SELECT id,quote_code FROM quote_center_quotes WHERE id=ANY($1::text[])',[[first,second]])).rows;
-      assert.deepEqual([sheet.getCell('A2').value,sheet.getCell('A3').value],[first,second].map(id=>expected.find(r=>r.id===id).quote_code));
+      assert.deepEqual([sheet.getCell(2,codeColumn).value,sheet.getCell(3,codeColumn).value],[first,second].map(id=>expected.find(r=>r.id===id).quote_code));
       assert.equal(requests.slice(start).filter(r=>r.path.endsWith('/internal-summary')).length,1);
       assert.equal(requests.slice(start).filter(r=>r.method==='GET'&&/^\/api\/v1\/quotes\//.test(r.path)).length,0);
       assert.equal(await evaluate("JSON.stringify(Object.entries(localStorage).filter(([k])=>k.startsWith('zhixu.ui.server.quote-list.v1.')))") ,before);await isolated();
@@ -1065,10 +1104,11 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await summaryColumns(['报价编号','总数量','客户确认工价','客户确认成衣价格','估算总成本','估算成本来源报价版本','销售价与估算成本差额']);
       await evaluate("(()=>{const s=document.querySelector('select[aria-label=\"汇总行模式\"]');s.value='price-version';s.dispatchEvent(new Event('change',{bubbles:true}))})()");
       await click('生成内部汇总 Excel');await hasText('内部汇总文件已生成');
-      const {sheet,bytes}=await parsedDownload();assert.equal(sheet.rowCount,3);assert.equal(sheet.getCell('B1').value,'价格版本');assert.equal(sheet.getCell('C1').value,'数量');
-      assert.equal(sheet.getCell('D2').value,3.125);assert.equal(sheet.getCell('E2').value,55.25);assert.equal(sheet.getCell('D3').value,null);
-      assert.equal(sheet.getCell('F2').value,22);assert.equal(sheet.getCell('F3').value,22);assert.equal(sheet.getCell('G2').value,'V1');assert.equal(sheet.getCell('H2').value,-12);assert.equal(sheet.getCell('H3').value,0);
-      assert.ok(JSON.stringify(sheet.getCell('D2').note).includes('CCT current v1'));
+      const {sheet,bytes}=await parsedDownload();assert.equal(sheet.rowCount,3);const headers=sheet.getRow(1).values.slice(1);const cell=(row,label)=>{assert.ok(headers.includes(label),`Missing export field ${label}`);return sheet.getCell(row,headers.indexOf(label)+1)};
+      assert.ok(headers.includes('价格版本'));assert.ok(headers.includes('数量'));
+      assert.equal(cell(2,'客户确认工价').value,3.125);assert.equal(cell(2,'客户确认成衣价格').value,55.25);assert.equal(cell(3,'客户确认工价').value,null);
+      assert.equal(cell(2,'估算总成本').value,22);assert.equal(cell(3,'估算总成本').value,22);assert.equal(cell(2,'估算成本来源报价版本').value,'V1');assert.equal(cell(2,'销售价与估算成本差额').value,-12);assert.equal(cell(3,'销售价与估算成本差额').value,0);
+      assert.ok(JSON.stringify(cell(2,'客户确认工价').note).includes('CCT current v1'));
       assert.deepEqual(await prepared.read(),saved,'Summary cannot modify saved Quote/Estimate');
       const filePath=join(temp,'synthetic-internal-summary.xlsx');await writeFile(filePath,bytes);
       // Optional synthetic-only QA artifact: supplied by a dedicated external disposable output directory, never a business backup.
