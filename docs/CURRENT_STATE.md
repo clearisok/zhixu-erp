@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-10：PR #91 / D-102 用户验收修正。普通电脑“新建报价”立即原子创建有编号草稿、进入正式详情，不再要求两步页。API/实际Chromium通过；最终候选验证收口中。**USER ACCEPTANCE PENDING**，不自动合并。
+> 2026-10-10：PR #91 / D-102 用户验收修正。普通电脑“新建报价”立即原子创建有编号草稿、进入正式详情，不再要求两步页。**ENGINEERING PASS / USER ACCEPTANCE PENDING**；Linux候选已验证但尚未更新Preview，不自动合并。
 
 ## 当前工程
 
@@ -12,7 +12,7 @@
 
 ## 验证与交付
 
-本轮实际创建28/28、Quote/Q3 API28/28、local3/3、版本/Estimate/附件24/24、auth/frontend85/85；最终完整Chromium66/66及列表像素/缩略图27/27、typecheck/lint/Server与Server frontend PASS。当前快照的完整性显示已用共享纯函数完成对应API/Chromium复核；最终默认Browser/npm和Linux候选收口继续中，历史数字不冒充本轮新结果。[详细测试、合成截图与候选](tasks/active/quote-two-step-creation.md)。
+本轮实际创建28/28、Quote/Q3 API28/28、local3/3、版本/Estimate/附件24/24、auth/frontend85/85；最终完整Chromium66/66、列表像素/缩略图27/27、npm679/679、typecheck/lint/Server和两种frontend PASS，默认build-info browser/browser/writable/session。源码236cc9b的不可变Linux候选已验证发布checksum、非空库仅升级0011、原数据/回执/重启保持及cleanup；packaging12/12 PASS。[详细测试、合成截图与候选](tasks/active/quote-two-step-creation.md)。
 
 原分支 `feat/quote-two-step-creation`；checkpoint9da5047的push遇纯网络失败，一次GitHub确认remote仍a3335ed。LOCAL ENGINEERING与REMOTE DELIVERY分开；最终候选/source/PR见接力，不无限重试或强推。
 
@@ -20,6 +20,6 @@
 
 **18444仍是旧bb451fe/66de两步版、0001–0010**（上轮已授权部署/完整备份恢复证据保留；本轮没有访问或变更Preview）。新的0011必须另行授权备份/隔离恢复及app/schema配套升级；当前页面尚不能验收本修正。不改18443、真实库/COS/秘密/旧3000–3002。
 
-后续先交付已验证候选与0011证据，用户批准Preview更新后才进行新交互/默认设置/响应式人工验收；工程PASS不是人工PASS。[历史部署接力](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md)和[旧项目证据](tasks/completed/2026-10-10-pre-two-step-state-history.md)保留，旧“取消零创建”不再是当前普通电脑规则。
+后续用户批准Preview备份/隔离恢复及0011/app更新后，才进行新交互/默认设置/响应式人工验收；工程PASS不是人工PASS。[历史部署接力](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md)和[旧项目证据](tasks/completed/2026-10-10-pre-two-step-state-history.md)保留，旧“取消零创建”不再是当前普通电脑规则。
 
 D-096历史导入NOT REQUIRED；D-097无Browser业务回退、D-098 Quote-first、D-099原版视觉与Server能力底线、D-101剩余业务目标保持。默认Browser不变；新Server能力与真实部署分别记录。
