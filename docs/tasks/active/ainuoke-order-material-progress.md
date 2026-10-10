@@ -1,6 +1,6 @@
 # Ainuoke Order Material Progress — isolated read-only slice
 
-2026-10-10. ENGINEERING IN PROGRESS / SYNTHETIC UI ACCEPTANCE PENDING.
+2026-10-10. ENGINEERING PASS / SYNTHETIC UI ACCEPTANCE PENDING.
 
 ## Scope and baseline
 
@@ -42,3 +42,39 @@ Audit HEAD `1323d2fccf686f8d7407374578f764003a73f332`. Audit push failed with cu
 Pure projection, generated snapshots, scoped component/CSS and independent app route implemented. The developer preview starts only this component with Vite middleware on Node's dynamic loopback HTTP port, with no ERP root bootstrap, permissions mock or business stores. Initial Vite port=0 defaulted to5173; corrected to Node listen(0), and actual Chromium rerun used52459. Initial domain22/22 and Chromium9/9 (34 assertions) PASS; initial typecheck/build/npm701/701 PASS. A harmless unnecessary useMemo dependency warning was corrected using explicit in-memory source state. Added boolean/whitespace unknown-quantity guards; final reruns follow.
 
 Desktop1440 and touch390 screenshots are checked under `features/ainuoke-material-progress/__tests__/evidence/`. Source equality, unique event totals, color/spec variants, zero/null, factory exclusion, stable BillNo/Inside drift, missing paging, source collision and no persistence/network writes are covered. Large5000 projection/search measured~485ms and UI renders at most30 rows.
+
+## Final engineering validation (2026-10-10)
+
+Implementation HEAD `8b30f8e3ee701c4b1c4ba042a0dc6a8f99c5ba2c` on the verified main baseline. All results below were executed for this task, not inherited from #91:
+
+| Check | Result |
+| --- | --- |
+| `node --test tests/ainuoke-material-progress.test.mjs` | PASS23/23, zero skipped |
+| `node --test features/ainuoke-material-progress/__tests__/browser.test.mjs` | PASS9/9,34 Chromium assertions, zero skipped; private profile/server cleanup PASS |
+| `npm test` | PASS702/702, zero skipped, including the23 new domain tests |
+| `npm run typecheck` | PASS |
+| `npm run lint` | PASS, zero warnings after source-state fix |
+| `npm run build` | PASS,42 prerendered routes including independent preview; existing non-failing chunk advisory |
+| `git diff --check` | PASS |
+
+5000-demand Source projection/search measured1.09s in the isolated targeted run (10s guard); earlier unloaded runs~0.46–0.49s. Final Chromium bulk load/page/search subtest1.92s while quality checks ran in parallel. UI caps visible demands at30 and preserves group/child identities across pages. Desktop1440 and true touch390 no horizontal overflow; screenshots inspected. Test browser made zero storage writes, zero IndexedDB databases and zero business API/external-origin requests. Temporary synthetic profiles were removed. No real DB/Bridge/COS/account/runtime or Quote candidate image operation; PostgreSQL tests/Server build are NOT RUN because this slice changes no Server/schema code.
+
+## File ownership / parallel intersection
+
+Exactly13 task paths: one new app route; this independent task document; the new `features/ainuoke-material-progress/` module, isolated preview, Chromium test and two synthetic screenshots; independently named `tests/ainuoke-material-progress.test.mjs`. No shared state/decision/rules/package/config/migration/Quote/ops changes. Read-only reuse imports existing source/normalization/canonical/factory/readiness functions; no new order matcher or state algorithm.
+
+Before implementation checkpoint, GitHub #91 OPEN HEAD `8c6578b98311a9a14211d236d18b2376f8cb4343` was re-read, and the actual task paths were compared to all its changed files: **intersection=[]**. Final check is repeated before delivery. If future #91 files overlap or main integration conflicts, stop and preserve the worktree for the integration owner; no automatic resolution/rebase. No new migration or 0010 reservation.
+
+## Browse and manual acceptance (five steps)
+
+1. In this dedicated worktree run `node features/ainuoke-material-progress/preview-server.mjs`; open the printed dynamic loopback URL ending `/order-center/material-progress-preview/`. This preferred standalone preview has no ERP global bootstrap and writes no business store. The app route is also included; current Quote-Server production boundary intentionally keeps unapproved Order routes unavailable, and its shared whitelist is not modified.
+2. Confirm the synthetic/non-live banner, contract/style/source time; check fabric/trim groups, black/blue color/spec variants, quantities and four readiness states. Unknown purchase displays unknown; factory supply is excluded.
+3. Search `160cm` or `PO-SYNTHETIC-partial-b`; expand purchasing/ready rows to check two unique purchase events, dates/supplier and inbound document. Click refresh: fixture time and IDs remain stable.
+4. Switch no-data/incomplete-page/identity-mismatch/collision scenes: warnings appear and no fabricated procurement states. Switch5000 scene: at most30 rows, next page and search05000 work.
+5. Use a390px touch viewport: filters/details remain visible without horizontal overflow. Stop the local preview with Ctrl+C after review.
+
+## Remaining scope / delivery
+
+No new business semantics awaiting confirmation for this synthetic-only slice. Formal trusted Server material API and persistence, session/RBAC/order visibility, personal Bridge account isolation, source-snapshot freshness/version/transactional audit, real6087050 reads via current Inside lookup and confirmed unit semantics are still missing. Submit their design differences/risk for user approval after #91 merge and latest main synchronization; never guess a BillNo query field or use Browser IndexedDB as formal PostgreSQL.
+
+No automatic merge/deploy, no real Ainuoke live Server sync. Final local/remote full SHA and unique PR are verified at Git delivery and reported to the user; this document records full code-validation HEAD above to avoid pretending a self-referential commit hash can be embedded in its own commit. Audit network failure remains historical until final delivery is confirmed. Completed engineering stops here for user feedback.
