@@ -33,7 +33,7 @@ assert.match(labels["org.opencontainers.image.revision"], /^[a-f0-9]{40}$/u);
 assert.equal(labels["io.zhixu.quote-authority"], "server"); assert.equal(labels["io.zhixu.master-settings-authority"], "server");
 assert.equal(labels["io.zhixu.quote-writer-mode"], "writable"); assert.equal(labels["io.zhixu.identity-mode"], "session");
 const manifest = JSON.parse(await docker(["run", "--rm", "--network", "none", "--entrypoint", "node", image, "--input-type=module", "-e",
-  "import {readFileSync,readdirSync} from 'node:fs';import {createHash} from 'node:crypto';console.log(JSON.stringify({build:JSON.parse(readFileSync('dist/client/build-info.json','utf8')),migrations:Object.fromEntries(readdirSync('database/migrations').map(n=>[n,createHash('sha256').update(readFileSync('database/migrations/'+n)).digest('hex')]))}));"]));
+  "import {readFileSync,readdirSync} from 'node:fs';import {createHash} from 'node:crypto';console.log(JSON.stringify({build:JSON.parse(readFileSync('dist/client/build-info.json','utf8')),migrations:Object.fromEntries(readdirSync('database/migrations').filter(n=>n.endsWith('.sql')).map(n=>[n,createHash('sha256').update(readFileSync('database/migrations/'+n)).digest('hex')]))}));"]));
 assert.equal(manifest.build.gitCommit, labels["org.opencontainers.image.revision"]);
 assert.equal(manifest.build.buildId, labels["io.zhixu.build-id"]); assert.equal(manifest.build.buildTime, labels["org.opencontainers.image.created"]);
 for (const [field, value] of Object.entries({ quoteAuthority: "server", masterSettingsAuthority: "server", quoteWriterMode: "writable", identityMode: "session" })) assert.equal(manifest.build[field], value);
