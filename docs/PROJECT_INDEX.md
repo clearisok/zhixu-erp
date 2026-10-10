@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 2026-10-10 PR91第二轮反馈：制作方案→默认值两区、卡片选择、详情去冗余、Server默认列表铺满已实现并隔离验证；源码eb9530a **ENGINEERING PASS / USER ACCEPTANCE PENDING，未更新18444**。见[本轮证据](tasks/active/quote-two-step-creation.md#second-user-acceptance-revision-2026-10-10)、[合成截图/像素索引](tasks/active/evidence/quote-pr91-second-acceptance/README.md)。下面b7c2080部署记录为此前历史，不代表新版已运行。
+> 2026-10-10 PR91第二轮反馈：制作方案→默认值两区、卡片选择、详情去冗余和列表铺满已授权更新18444；实际源码eb9530a/image1707a8e54159，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。本次新备份/完整隔离恢复、30报价及3对象保持、只读Chromium PASS，未执行迁移/创建报价/保存设置。见[当前部署证据](tasks/active/quote-two-step-creation.md#second-acceptance-preview-deployment-pass-2026-10-10)、[工程测试](tasks/active/quote-two-step-creation.md#second-user-acceptance-revision-2026-10-10)、[合成截图索引](tasks/active/evidence/quote-pr91-second-acceptance/README.md)。下面b7c2080等为此前历史；18443/真实业务库/COS/订单工作树未动，不自动合并。
 
 > 2026-10-10 D-102：默认设置/直接新建已实施，18444运行0011及b7c2080候选。两处精确挂载/identity、授权有界HTTPS重试、实际隔离Chromium及最终旧数据/对象SHA验收PASS，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。见[本次验收](tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)、[领域契约](features/QUOTE_INTAKE.md)；此前STOP/恢复证据保留。D-101其余目标保持；Intake/手机/转换及已有类型切换 **NOT IMPLEMENTED**。18443/订单工作树未动，不自动合并。
 

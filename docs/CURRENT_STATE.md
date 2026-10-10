@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-10：PR #91 / D-102 第二轮人工反馈 **ENGINEERING PASS / USER ACCEPTANCE PENDING**；新源码eb9530a未部署。本轮不更新18444/18443。此前b7c2080的18444部署验收PASS仍是历史环境证据，不是本轮新版验收。
+> 2026-10-10：PR #91 / D-102 第二轮反馈新版已按用户授权更新隔离18444，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。实际源码eb9530a/image1707a8e54159；18443、真实业务库/COS和订单工作树未动。
 
 ## 当前工程
 
@@ -13,17 +13,17 @@
 
 ## 验证与交付
 
-本轮实际完整Chromium78/78、列表/图片专项27/27、创建29/29、资料14/14、Revision/PV10/10、Estimate8/8、附件/资料迁移11/11、auth/frontend86/86、SSR9/9、npm679/679；typecheck/lint/Server及Server/默认Browser前端构建PASS，默认build-info browser/browser/writable/session。40张合成截图及像素证据见[本轮索引](tasks/active/evidence/quote-pr91-second-acceptance/README.md)，源码和候选与最终文档提交分开记录；[历史与当前任务证据](tasks/active/quote-two-step-creation.md)。
+源码eb9530a工程阶段实际完整Chromium78/78、列表/图片专项27/27、创建29/29、资料14/14、Revision/PV10/10、Estimate8/8、附件/资料迁移11/11、auth/frontend86/86、SSR9/9、npm679/679；typecheck/lint/Server及两种前端PASS，默认build-info browser/browser/writable/session。部署收口未重复上述工程测试/构建。40张合成截图见[工程索引](tasks/active/evidence/quote-pr91-second-acceptance/README.md)；本次另行实际执行备份/完整隔离恢复、运行身份/对象SHA和全新只读Chromium，结果PASS，见[部署证据](tasks/active/quote-two-step-creation.md#second-acceptance-preview-deployment-pass-2026-10-10)。
 
-原分支 `feat/quote-two-step-creation`；本轮从local/remote/PR91 f2d7886 / clean继续，main84c8c5b。工程checkpoint eb9530ac9a2e1b7f68299d97c4d424662a6622f7；与订单PR92文件交集为零，未访问其工作树。此前网络故障/STOP/部署证据保留，不改写成当前工程结果。
+原分支 `feat/quote-two-step-creation`；工程从f2d7886继续，本次授权部署从local/remote/PR91 676035b / clean继续，main84c8c5b。工程checkpoint eb9530ac9a2e1b7f68299d97c4d424662a6622f7；与订单PR92文件交集为零，未访问其工作树。此前网络故障/STOP/部署证据保留，不改写成当前工程结果。
 
-新Linux候选 `zhixu-quote-two-step:eb9530ac9a2e-ux-20261010t141559z` / image1707a8e54159，实际隔离运行/可信创建及receipt恢复/重启保持/cleanup PASS；**BUILT, NOT DEPLOYED**。最终文档SHA不冒充镜像源码；[完整身份](tasks/active/evidence/quote-pr91-second-acceptance/candidate.json)。
+Linux候选 `zhixu-quote-two-step:eb9530ac9a2e-ux-20261010t141559z` / image1707a8e54159 **已部署18444**，HTTPS/编译/labels一致，server/server/writable/session。最终文档SHA不冒充镜像源码；[构建时完整身份](tasks/active/evidence/quote-pr91-second-acceptance/candidate.json)中的NOT DEPLOYED为当时历史状态。
 
 ## 环境与下一步
 
-**此前最后核实18444运行b7c2080/8538a923，0001–0011 current**；备份 `pr91-d102-2026-10-10T09-14-25-289Z` 完整恢复及当时28报价/28Revision/PV、2账号、3附件、1回执保护PASS。用户后来可能新增数据（本轮截图已有30条），不能把旧28条当当前升级基线。本轮没有环境读取、备份、登录或更新；下一次更新须单独授权并重新核对当前数据与恢复证明。
+**18444当前运行eb9530a/1707a8e54159，0001–0011 current；本次未执行迁移。** 新备份 `pr91-second-2026-10-10T15-26-38-395Z`及完整隔离PG/对象/配置恢复PASS。暂停前无上传/创建/写事务，最终30报价/30Revision/PV、2账号、3附件/对象、3回执/67日志及所有业务表哈希保持；database/对象容器、卷/网络/TLS不变，仅app/gateway及白名单构建身份更新。历史28条备份仍保留但不充当本次恢复依据。
 
-本轮新版须等待用户批准18444更新后再人工验收制作方案/默认值、列表铺满、详情与PV卡片；工程浏览器测试全部使用disposable PG、合成账号/对象与临时profile。18443/真实库/COS/旧环境及订单工作树未动。此前真实环境的TLS、挂载、技术登录记录和完整读回见[历史部署验收](tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)，不重复堆入当前摘要。
+用户可以恢复使用[18444](https://localhost:18444/quote-center)并人工验收。新隔离profile实测默认列表铺满、100px×8组合、拖宽不挤邻列、六种桌面/移动布局、详情去冗余和方案卡片PASS；既有手机大图原件7770409字节，列表实际下载256×192/4767字节缩略数据。现库0制作方案/0全局设置，诚实空态而非自动Seed。未创建报价或保存设置；单次正常登录/注销仅新增1 session/1登录记录。完整人工业务体验仍PENDING，不自动合并或继续功能开发；此前部署/STOP证据保留。
 
 [历史部署接力](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md)和[旧项目证据](tasks/completed/2026-10-10-pre-two-step-state-history.md)保留，旧“取消零创建”不再是当前普通电脑规则；工程PASS不是人工PASS。
 
