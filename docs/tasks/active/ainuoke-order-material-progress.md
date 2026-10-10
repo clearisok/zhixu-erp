@@ -80,3 +80,7 @@ No new business semantics awaiting confirmation for this synthetic-only slice. F
 No automatic merge/deploy, no real Ainuoke live Server sync. Final local/remote full SHA and unique PR are verified at Git delivery and reported to the user; this document records full code-validation HEAD above as the reproducible code-validation checkpoint. Remote delivery recovered: checkpoint `cd35c9087578d2caaa165ce32ead2fc159153abc` pushed and exact local/remote SHA verified by final fetch. Earlier audit network failure is historical. Completed engineering stops here for user feedback.
 
 Human-review standalone preview was started on dynamic loopback `http://127.0.0.1:56755/order-center/material-progress-preview/`; no ERP bootstrap/DB/Bridge. It is intentionally available for user acceptance; all automated test preview/profile processes were cleaned up.
+
+## GitHub delivery receipt
+
+Unique Draft PR [#92](https://github.com/clearisok/zhixu-erp/pull/92), branch `feat/ainuoke-order-material-progress`, created at full delivery HEAD `a3905f5e57d0baf06f2b07e2da5f27a5a483aa03`. GraphQL create returned EOF; REST read confirmed no existing PR for this head before a single REST create succeeded. No duplicate/doc-only PR. Final REST verification of #91 head `8c6578b98311a9a14211d236d18b2376f8cb4343`, state `open`, again confirms intersection=[] against its full changed-file list. Engineering PASS; Draft/manual synthetic UI acceptance remains pending. Final receipt-only checkpoint is reported by exact remote/PR head verification, not treated as another implementation phase.
