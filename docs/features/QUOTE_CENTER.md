@@ -11,7 +11,9 @@
 新API/DTO/参数来源、幂等回执、字段权限、0010及本轮测试见 [实现证据](../tasks/active/quote-two-step-creation.md)。已有报价类型切换（包括确认前明确切换、确认后新Revision）、Intake/手机/转换仍 **NOT IMPLEMENTED**，上段是保留的业务目标，不是已开放按钮/API。领域见 [QUOTE_INTAKE](QUOTE_INTAKE.md)，原 [契约](../tasks/active/quote-intake-v1-implementation-contract.md)剩余方案继续保留。新UI未知结果只GET原token回执；URL保留凭据以便刷新后核对，不写Browser业务存储、不自动重POST。默认单Codex，独立Preview/人工验收及批准后合并；本轮Preview新增migration先等用户批准。
 
 
-## Original UI / Server convergence (2026-10-09; ENGINEERING PASS / USER UI ACCEPTANCE PENDING)
+## Historical — Original UI / Server convergence (2026-10-09 engineering evidence)
+
+Below describes the original PR #86 implementation, not today's creation chain. D-099 visual/security boundaries remain Active; ordinary Server new now uses the atomic two-step flow above. Prior screenshot counts and type-first POST/PUT are historical, not new deployment/acceptance claims.
 
 D-099: PR #64 `7658663038b1da504c95086711f627b6dce5c7a0` is the visual/information-architecture baseline; current Server is the data, security and business baseline. Server persistence is not permission to redesign the product. The [audit, capability/permission matrix and current test evidence](../tasks/active/quote-original-ui-convergence.md) and [synthetic screenshots](../tasks/assets/quote-original-convergence/README.md) record the engineering result, not human approval or deployment.
 

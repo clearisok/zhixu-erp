@@ -114,4 +114,3 @@ HISTORICAL / SUPERSEDED as a current instruction. Original dates, SHAs, test cou
 - 安全工具checkpoint `b27dc579fa25d9d34b71382cfce5427fa6e245c9` 已推送；真实更新现已执行 **READY**。app/gateway 为878de镜像；HTTPS实际build `quote-trial-ui-20261009` / `2026-10-09T07:20:46Z`，server/server/writable/session。DB原容器/镜像/卷、TLS和业务内容保持，日常Status三服务healthy；首dump和原对象backup hash保持。具体见[更新记录](2026-10-09-windows-quote-trial-ui-update.md)。
 - 真实API只读验收已 **PASS**：用户隐藏输入当前密码，一次admin/一次viewer可信登录、401/权限/403/Estimate裁剪、2Quote/2Revision/2PV、2附件metadata/download bytes/SHA均通过；两验收session已logout，全业务/账号/日志内容保持。首次命令路径拼错在执行前、未登录，修正后本机结果文件已核实；不使用配置旧密码，不读取浏览器Cookie。人工新UI仍PENDING。
 - 运行更新/只读验收/文档收口完成；Git交付以实际local/remote/唯一PR head核对，不以部署READY替代合并审查。下一步用户原URL验收列表/新建/详情/成本/滚动，列偏好保持且恢复默认必须用户显式操作。不要重做更新/备份/init，或通过旧verify-deploy创建数据。以下全部是历史证据，不是当前操作指令。
-

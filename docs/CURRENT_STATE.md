@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-10：电脑端两步 Server 新建报价正在工程收口。基线 main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`，PR #89/#90 已合并；默认单主 Codex。本任务不合并、不部署。详情：[两步创建证据](tasks/active/quote-two-step-creation.md)。
+> 2026-10-10：电脑端两步 Server 新建报价 **ENGINEERING PASS / USER ACCEPTANCE PENDING**。基线 main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`，PR #89/#90 已合并；默认单主 Codex。本任务不合并、不部署。详情：[两步创建证据](tasks/active/quote-two-step-creation.md)。
 
 ## 当前工程能力
 
@@ -11,7 +11,7 @@
 
 ## 验证、候选与 Preview
 
-- 本轮实际 Chromium67/67、创建API/事务/升级25/25、auth/frontend83/83、npm679/679 PASS；最终构建/候选及补充回归结果集中在任务证据，不沿用历史数字。
+- 本轮实际 Chromium67/67、列表像素/图片27/27、创建25/25、相关API63/63、基础/CCT/空库28/28、auth/frontend83/83、npm679/679及质量/两种构建 PASS；独立Linux候选实际启动/原子创建/重启回执/清理 PASS，身份集中在任务证据，不沿用历史数字。
 - 新 forward-only0010 只增加预检和创建回执；非空0001–0009升级、全旧表读回、custom dump/隔离恢复/再升级 PASS。0001–0009历史文件未改；0010固定LF。正常Server启动仍 verify-only。
 - **18444 未更新，0010 未对 Preview 执行**。因新增migration，须先审阅本轮证据并另行批准可恢复备份/Preview迁移及app/gateway更新；现有演示账号、报价、附件及偏好全部保留。现有地址不是两步功能已部署的证明。
 - 18443/旧3000–3002/真实库/COS/秘密/其他工作树均未操作；本轮人工 UI 验收 PENDING。历史Windows部署、D-099/订单/Source验证保留在 [历史状态与接力](tasks/completed/2026-10-10-pre-two-step-state-history.md)，不作为当前操作指令。
