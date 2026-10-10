@@ -2,7 +2,7 @@
 
 > 2026-10-10；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及原工程验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
 
-> PR #89 的100px列宽已获用户人工确认PASS，下限80px/默认156px及既有偏好保持。本轮只补真正受保护的Server缩略图：原图完整验证后按需生成256px以内JPEG，列表不再下载原图；无COS副本、schema或关联修改。最终工程验证、Node22 Alpine候选和18444安全更新证据正在收口；当前18444仍为 `da9be82a41a9017d0646fa37901170cf6fb0bc1e`，不能把源码完成写成已部署。[本轮及历史证据](tasks/active/d099-list-acceptance.md)。**USER ACCEPTANCE PENDING（仅大图缩略图）**；18443未操作，Excel式筛选尚未开始。
+> PR #89 的100px列宽已获用户人工确认PASS，规则和旧偏好未改。受保护的Server按需缩略图已实现并更新隔离18444，运行源码 `d2a3509f3973980a2016e1f46760cf3664bd2d77`；列表只收256px内JPEG，无COS副本/schema/原图修改。Chromium全回归62/62、列宽27/27、图片生命周期14/14及Node22 Alpine候选PASS；新备份/隔离恢复/既有数据核对PASS，9份迁移字节兼容、执行0。新增授权合成演示 `SYNTHETIC-LARGE-PHONE-4032`：7.77MB/4032×3024→4767字节/256×192，实际四档桌面+触屏PASS；既有26报价保留，现27张。[本轮及历史证据](tasks/active/d099-list-acceptance.md)。**USER ACCEPTANCE PENDING（仅大图缩略图）**；18443未操作，不合并，Excel筛选尚未开始。
 
 ## 当前工程能力
 
