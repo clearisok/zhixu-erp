@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-10：PR #91 / D-102 普通电脑新建与默认设置 **ENGINEERING PASS / USER ACCEPTANCE PENDING**。授权18444升级已执行0011及新app/gateway，但完整挂载身份检查STOP：**PREVIEW UPDATE BLOCKED**，未完成浏览器验收，不自动合并。
+> 2026-10-10：PR #91 / D-102 **ENGINEERING PASS / USER ACCEPTANCE PENDING**。18444已更新；两处挂载别名已严格核验、身份记录已收口。但一次最终HTTPS请求异常触发新的STOP，浏览器验收尚未执行：**PREVIEW UPDATE BLOCKED**，不自动合并。
 
 ## 当前工程
 
@@ -20,7 +20,7 @@
 
 **18444已运行指定b7c2080/8538a923候选，0001–0011 checksum current**；DB/app/gateway健康，数据库和对象服务未重建。新备份 `pr91-d102-2026-10-10T09-14-25-289Z` 完整隔离DB/对象/恢复配置验证PASS，原28报价/28Revision/28PV、2账号、3附件及对象、1committed回执保持。真实只执行0011，无业务seed或新报价/设置写入。
 
-**当前STOP**：gateway两个只读脚本的原始mount Source由Docker Desktop Linux映射路径变为`D:/...`；其余字段与文件SHA一致，但未擅自放宽完整字段核验。HTTPS200/source正确；root identity.json仍旧值，最终化、登录/Chromium及用户UI验收未执行。保持现场、等待用户确认精确路径等价核验与只读收尾，不重跑升级/自动回滚。详见[本轮备份、恢复、执行与STOP证据](tasks/active/quote-two-step-creation.md#authorized-d-102-preview-update--post-mount-stop-2026-10-10)。18443/真实库/COS/旧环境及订单工作树未动。
+**当前STOP**：已按用户批准仅核验gateway两个精确Source别名，同设备/inode/宿主+备份+容器SHA、其他全部字段与只读权限PASS，identity.json已更新并与实际版本一致。随后一次只读HTTPS请求异常（根因未确定）；独立严格复核HTTPS200/完整build-info/labels/35张旧表hash与ledger PASS，服务健康，但未擅自越过新异常继续登录/Chromium。等待剩余只读验收继续授权；不再备份、迁移、重启或替换。详见[精确路径证明与当前STOP](tasks/active/quote-two-step-creation.md#authorized-exact-path-closure--https-request-stop-2026-10-10)。18443/真实库/COS/旧环境及订单工作树未动。
 
 [历史部署接力](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md)和[旧项目证据](tasks/completed/2026-10-10-pre-two-step-state-history.md)保留，旧“取消零创建”不再是当前普通电脑规则；工程PASS不是人工PASS。
 

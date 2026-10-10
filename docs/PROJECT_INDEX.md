@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 2026-10-10 D-102：普通电脑点击新建即保留有编号Server草稿、直接进入现有详情，默认设置与布局已实施。授权18444窗口完成新备份/隔离恢复、仅0011与b7c2080候选app更新，**部署后原始mount Source差异STOP / PREVIEW UPDATE BLOCKED**；不继续验收或自动回滚。见[当前STOP与执行证据](tasks/active/quote-two-step-creation.md#authorized-d-102-preview-update--post-mount-stop-2026-10-10)、[领域契约](features/QUOTE_INTAKE.md)。D-101其余目标保留；Intake/手机/转换及已有类型切换仍 **NOT IMPLEMENTED**。默认单主Codex，main84c8c5b；18443/订单工作树未动，USER ACCEPTANCE PENDING。
+> 2026-10-10 D-102：默认设置/直接新建已实施，18444已有0011及b7c2080候选。两处挂载别名精确核验与identity记录PASS；随后只读HTTPS请求异常STOP，独立复核身份/数据/健康PASS但Chromium尚未开始，**PREVIEW UPDATE BLOCKED**。见[当前STOP](tasks/active/quote-two-step-creation.md#authorized-exact-path-closure--https-request-stop-2026-10-10)、[领域契约](features/QUOTE_INTAKE.md)。D-101其余目标保留；Intake/手机/转换及已有类型切换 **NOT IMPLEMENTED**。单主Codex/main84c8c5b；18443/订单工作树未动，USER ACCEPTANCE PENDING。
 
 > PR #89 D-099 列表/100px/受保护Server缩略图已合并；原工程、18444更新和人工验收历史见[宽度/图片契约、测试与Preview备份恢复](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。普通手机大图已通过工程验证，不再是原图大小占位路径。本轮未复核环境或新增人工验收结论，18443及旧环境不操作。
 
