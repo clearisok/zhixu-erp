@@ -2,11 +2,21 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { normalizeServerListPreferences } from "../list-preferences.ts";
-import { applyPresentedTablePreference, presentedListColumns, presentedTablePreference } from "../list-presentation.ts";
+import { applyPresentedTablePreference, presentedListColumns, presentedMinWidth, presentedTablePreference } from "../list-presentation.ts";
 import { ServerListCell } from "../../components/server-list-cell.tsx";
 import type { QuoteServerListItem } from "../quote-server-client.ts";
 
 const permissions = ["quote.view", "quote.cost.view"];
+test("style identity floor is 80px while default and saved personal widths remain unchanged", () => {
+  const defaults = normalizeServerListPreferences("u", permissions);
+  assert.equal(defaults.columnWidths.styleIdentity, 156);
+  assert.equal(presentedMinWidth("styleIdentity", ["styleIdentity"]), 80);
+  for (const presentation of ["original", "fields"] as const) {
+    const saved = normalizeServerListPreferences("u", permissions, { ...defaults, presentation, columnWidths: { ...defaults.columnWidths, styleIdentity: 100 } });
+    assert.equal(presentedTablePreference(saved).columnWidths.styleIdentity, 100);
+    assert.deepEqual(normalizeServerListPreferences("u", permissions, saved), saved);
+  }
+});
 test("original default has nine visual cells plus action, formal fields remain independent", () => {
   const defaults = normalizeServerListPreferences("u", permissions);
   const columns = presentedListColumns(defaults);

@@ -10,6 +10,8 @@ import { resolve, join } from 'node:path';
 /** Uses only the existing formal UI harness's disposable pool and fresh profile. */
 export async function runD099ListAcceptance({ t, pool, storage, requests, navigate, hasText, input, labelInput, click, action, evaluate, command, sessionId, sleep, until, isolated }) {
   const fixture = createQuoteDraft('synthetic-d099-list', 'SYNTHETIC-D099', '2026-10-09');
+  fixture.revisions[0].baseInfo.quoteStyleNo = 'SYNTHETIC-LONG-STYLE-IDENTITY-100PX';
+  fixture.revisions[0].baseInfo.styleName = 'Synthetic long garment name for narrow column ellipsis';
   const price = fixture.revisions[0].priceVersions[0];
   price.quantity = 1200;
   price.labor = {value: 7.5, description: 'Synthetic alignment labor'};
@@ -87,6 +89,58 @@ export async function runD099ListAcceptance({ t, pool, storage, requests, naviga
     });
   }
   await action('原版组合视图');
+  await t.test('D099 style identity numeric 100px persists after reload and presentation switches',async()=>{
+    assert.equal((await measure()).styleIdentity,156,'Unconfigured default is unchanged');
+    await action('列表页面设置');await hasText('报价列表页面设置');
+    await evaluate("[...document.querySelectorAll('.qc-column-width-settings label')].find(n=>n.textContent.includes('款号 / 款式名称')).querySelector('input').focus()");
+    await labelInput('款号 / 款式名称','100');await click('保存设置');await sleep(100);
+    assert.equal((await measure()).styleIdentity,100,'Displayed column must match requested 100px');
+    await navigate('/quote-center');await hasText('本页 1');assert.equal((await measure()).styleIdentity,100);
+    await action('列表页面设置');await hasText('报价列表页面设置');
+    assert.equal(await evaluate("[...document.querySelectorAll('.qc-column-width-settings label')].find(n=>n.textContent.includes('款号 / 款式名称')).querySelector('input').value"),'100');
+    await click('取消');
+    for(const mode of ['fields','original']) {
+      await action(mode==='fields'?'独立字段视图':'原版组合视图');
+      for(const width of [1920,1440,1280,900]) {
+        await command('Emulation.setDeviceMetricsOverride',{width,height:800,deviceScaleFactor:1,mobile:false},sessionId);await sleep(100);
+        assert.equal((await measure()).styleIdentity,100);
+        const actual=await evaluate(`(()=>{const th=document.querySelector('th[data-column-key=styleIdentity]'),td=document.querySelector('tbody td[data-column-key=styleIdentity]'),title=th.querySelector('.qc-table-heading > span:last-child'),range=document.createRange();range.selectNodeContents(title);return{headerWidth:th.getBoundingClientRect().width,cellWidth:td.getBoundingClientRect().width,titleWrap:getComputedStyle(title).whiteSpace,titleHeight:title.getBoundingClientRect().height,titleLines:range.getClientRects().length,lines:[...td.querySelectorAll('.qc-primary-cell > *')].map(n=>({overflow:getComputedStyle(n).overflow,textOverflow:getComputedStyle(n).textOverflow,width:n.getBoundingClientRect().width,client:n.clientWidth,scroll:n.scrollWidth}))}})()`);
+        assert.equal(actual.cellWidth,100);assert.equal(actual.titleWrap,'normal');assert.ok(actual.titleLines>=2,'Narrow title actually wraps');
+        for(const line of actual.lines){assert.equal(line.overflow,'hidden');assert.equal(line.textOverflow,'ellipsis');assert.ok(line.width<=76);assert.ok(line.scroll>line.client,'Long text is truncated, not widening column');}
+        t.diagnostic(JSON.stringify({mode,width,style100:actual}));
+      }
+    }
+  });
+  await t.test('D099 invalid width remains visible with explicit validation and no preference write',async()=>{
+    await action('列表页面设置');await hasText('报价列表页面设置');
+    const prior=await evaluate("Object.fromEntries(Object.entries(localStorage).filter(([k])=>k.startsWith('zhixu.ui.server.quote-list.v1.'))) ");
+    for(const raw of ['79','721','100.5','','invalid']) {
+      await labelInput('款号 / 款式名称',raw);
+      assert.equal(await evaluate("[...document.querySelectorAll('.qc-column-width-settings label')].find(n=>n.textContent.includes('款号 / 款式名称')).querySelector('input').value"),raw);
+      assert.equal(await evaluate("[...document.querySelectorAll('button')].find(n=>n.textContent==='保存设置').disabled"),true);
+      await hasText('当前输入不会保存');
+      await evaluate("document.querySelector('form[role=dialog]').requestSubmit()");await sleep(30);
+      assert.deepEqual(await evaluate("Object.fromEntries(Object.entries(localStorage).filter(([k])=>k.startsWith('zhixu.ui.server.quote-list.v1.')))"),prior);
+    }
+    await labelInput('款号 / 款式名称','100');await click('保存设置');assert.equal((await measure()).styleIdentity,100);
+  });
+  await t.test('D099 style drag/keyboard share 80px floor without squeezing other columns',async()=>{
+    for(const mode of ['fields','original']) {
+      await action(mode==='fields'?'独立字段视图':'原版组合视图');await sleep(100);
+      const before=await measure(),point=await evaluate("(()=>{const r=document.querySelector('th[data-column-key=styleIdentity] .qc-column-resize-handle').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}})()");
+      await command('Input.dispatchMouseEvent',{type:'mousePressed',...point,button:'left',clickCount:1},sessionId);
+      await command('Input.dispatchMouseEvent',{type:'mouseMoved',x:point.x-60,y:point.y,button:'left',buttons:1},sessionId);
+      await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:point.x-60,y:point.y,button:'left',clickCount:1},sessionId);await sleep(100);
+      assert.equal((await measure()).styleIdentity,80);
+      await evaluate("document.querySelector('th[data-column-key=styleIdentity] .qc-column-resize-handle').focus()");
+      await command('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowLeft',code:'ArrowLeft',windowsVirtualKeyCode:37},sessionId);await sleep(50);
+      assert.equal((await measure()).styleIdentity,80);
+      await command('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39},sessionId);await sleep(50);
+      const after=await measure();assert.equal(after.styleIdentity,88);
+      for(const key of Object.keys(before).filter(k=>k!=='styleIdentity'))assert.ok(Math.abs(after[key]-before[key])<=1,`${key} remains unchanged`);
+      await action('列表页面设置');await labelInput('款号 / 款式名称','100');await click('保存设置');
+    }
+  });
   await t.test('D099 numeric settings address actual grouped cost cell',async()=>{
     await action('列表页面设置');await hasText('报价列表页面设置');
     assert.equal(await evaluate("[...document.querySelectorAll('.qc-column-width-settings label')].some(n=>n.textContent.includes('成本摘要'))"),true);
@@ -112,7 +166,7 @@ export async function runD099ListAcceptance({ t, pool, storage, requests, naviga
   };
   await t.test('D099 relogin preserves group width; another trusted account has independent defaults',async()=>{
     await login('viewer');assert.equal((await measure()).fabricCost,126);
-    await login('admin');assert.equal((await measure()).fabricCost,285);
+    await login('admin');assert.equal((await measure()).fabricCost,285);assert.equal((await measure()).styleIdentity,100);
   });
   await t.test('D099 old v1 preferences are read-only compatible; explicit restore only',async()=>{
     const old={visibleColumns:['brand','salesperson'],columnOrder:['salesperson','brand'],columnWidths:{brand:255,salesperson:310}};
