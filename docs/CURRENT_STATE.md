@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-10：PR #91 / D-102 用户验收修正。普通电脑“新建报价”立即原子创建有编号草稿、进入正式详情，不再要求两步页。**ENGINEERING PASS / USER ACCEPTANCE PENDING**；Linux候选已验证但尚未更新Preview，不自动合并。
+> 2026-10-10：PR #91 / D-102 普通电脑新建与默认设置 **ENGINEERING PASS / USER ACCEPTANCE PENDING**。授权18444升级已执行0011及新app/gateway，但完整挂载身份检查STOP：**PREVIEW UPDATE BLOCKED**，未完成浏览器验收，不自动合并。
 
 ## 当前工程
 
@@ -14,12 +14,14 @@
 
 发布审查实际创建29/29、Revision/PV10/10、roleless-local3/3、auth/frontend85/85、完整Chromium66/66、npm679/679、packaging12/12及typecheck/lint/Server和两种frontend PASS，默认build-info browser/browser/writable/session。补丁源码b7c2080的新不可变Linux候选验证了当前发布checksum、非空库仅升级0011、原数据/回执/重启保持及cleanup。此前236cc9b的列表像素/缩略图27/27等证据保留，未冒称本次重跑。[详细测试、合成截图与候选](tasks/active/quote-two-step-creation.md)。
 
-原分支 `feat/quote-two-step-creation`；前次push网络故障已由用户恢复，发布审查起点local/tracking/PR91均e58e6de。发布审查补齐generic PUT追加不同类型Revision的绕过保护；补丁b7c2080正常push已确认，新候选已验证但未部署，旧236cc9b镜像不能代替补丁版本。当前来源/PR见接力，不无限重试或强推。
+原分支 `feat/quote-two-step-creation`；前次push网络故障已由用户恢复，本窗口local/tracking/PR91均91f78137/clean。发布审查补齐generic PUT追加不同类型Revision的绕过保护；补丁/实际运行源码b7c2080，旧236cc9b镜像不能代替它。当前STOP与交付见接力，不无限重试或强推。
 
 ## 环境与下一步
 
-**18444仍是旧bb451fe/66de两步版、0001–0010**。2026-10-10 16:48(+08)只读复核：健康、28报价/2启用账号/3附件及对象、1committed回执无pending；完整挂载/配置/TLS连续性与新候选前十份checksum PASS。旧备份缺少后续业务变更，不能代替本次新备份。READY FOR CONTROLLED UPDATE AUTHORIZATION；0011及app更新仍须单独授权维护、当前完整备份/隔离恢复。本轮未修改Preview，不改18443/真实库/COS/旧3000–3002。
+**18444已运行指定b7c2080/8538a923候选，0001–0011 checksum current**；DB/app/gateway健康，数据库和对象服务未重建。新备份 `pr91-d102-2026-10-10T09-14-25-289Z` 完整隔离DB/对象/恢复配置验证PASS，原28报价/28Revision/28PV、2账号、3附件及对象、1committed回执保持。真实只执行0011，无业务seed或新报价/设置写入。
 
-后续用户批准Preview备份/隔离恢复及0011/app更新后，才进行新交互/默认设置/响应式人工验收；工程PASS不是人工PASS。[历史部署接力](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md)和[旧项目证据](tasks/completed/2026-10-10-pre-two-step-state-history.md)保留，旧“取消零创建”不再是当前普通电脑规则。
+**当前STOP**：gateway两个只读脚本的原始mount Source由Docker Desktop Linux映射路径变为`D:/...`；其余字段与文件SHA一致，但未擅自放宽完整字段核验。HTTPS200/source正确；root identity.json仍旧值，最终化、登录/Chromium及用户UI验收未执行。保持现场、等待用户确认精确路径等价核验与只读收尾，不重跑升级/自动回滚。详见[本轮备份、恢复、执行与STOP证据](tasks/active/quote-two-step-creation.md#authorized-d-102-preview-update--post-mount-stop-2026-10-10)。18443/真实库/COS/旧环境及订单工作树未动。
+
+[历史部署接力](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md)和[旧项目证据](tasks/completed/2026-10-10-pre-two-step-state-history.md)保留，旧“取消零创建”不再是当前普通电脑规则；工程PASS不是人工PASS。
 
 D-096历史导入NOT REQUIRED；D-097无Browser业务回退、D-098 Quote-first、D-099原版视觉与Server能力底线、D-101剩余业务目标保持。默认Browser不变；新Server能力与真实部署分别记录。
