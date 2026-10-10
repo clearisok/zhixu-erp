@@ -1,6 +1,8 @@
 # 项目知识索引
 
-> PR #89 D-099 列表修复已完成单 Codex 整合/重测与独立18444更新，用户验收 PENDING，大尺寸照片仍明确占位。[宽度/图片契约、本轮测试与Preview备份恢复](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。18443及旧环境未变；下面部署摘要是其原阶段证据。
+> 2026-10-10 Quote Intake V1：QI-01–06 / D-101 用户目标已确认，功能 **NOT IMPLEMENTED**；[领域契约](features/QUOTE_INTAKE.md)、[字段/API/事务/测试与可选工作包](tasks/active/quote-intake-v1-implementation-contract.md)。默认一个主 Codex 完成可验收目标，必要时才独立审查；本轮仅收口原 #90 文档，不启动开发或操作Preview。最新 main `5d79cbb` 已合并 #89；D-100/0009 与既有工程证据保留。
+
+> PR #89 D-099 列表/100px/受保护Server缩略图已合并；原工程、18444更新和人工验收历史见[宽度/图片契约、测试与Preview备份恢复](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。普通手机大图已通过工程验证，不再是原图大小占位路径。本轮未复核环境或新增人工验收结论，18443及旧环境不操作。
 
 > 当前：D-099 Quote 原版 UI / Server 工程已由 PR #86 合并，人工 UI 验收 PENDING；PR #85 Source/Bridge 修复也已合并。PR #84 已 MERGED 于 `49a82c9f970e158ded589300b4aa04fc4c809038`；原 Windows 更新有[备份/运行身份/持久数据验收证据](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)，合并不代表新的运行更新。PR #88 D-099 新候选准备不等于已部署。当前摘要见 CURRENT_STATE，恢复点见 AI_HANDOFF；[UI审计](tasks/active/quote-original-ui-convergence.md)、[合成视觉索引](tasks/assets/quote-original-convergence/README.md)、[部署历史归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)与[操作说明](../ops/quote-trial/README.md)均保留。本轮不复核或更新真实环境，不重新 setup/init。
 > PR #87 已合并至 `7ed9204d552384730bf93c992b500c530d639c38`；[历史补测、合成 API 演示与0009发布风险](tasks/completed/2026-10-10-pr87-delivery-plan-integration.md)保留。真实业务环境0009未获本轮授权，只有隔离18444 Preview通过安全检查后可以前向迁移。
@@ -76,6 +78,7 @@
 | 要修改的模块 | 先读文档 | 主要代码/事实源 |
 | --- | --- | --- |
 | 根路径 ERP、登录、报价/订单/排单 | `features/LEGACY_ERP.md` | `app/page.tsx`、`database/001_schema.sql`、根目录 `docker-serve.sh` |
+| Quote Intake / 手机款式收集（计划，NOT IMPLEMENTED） | `features/QUOTE_INTAKE.md`、`tasks/active/quote-intake-v1-implementation-contract.md` | 计划独立 `server/quote-intakes/` / `features/quote-intake/`，现有 Quote writer 复用 |
 | Quote Center | `features/QUOTE_CENTER.md` | `app/quote-center/`、`features/quote-center/` |
 | Quote production、Server migration 与 progressive rollout | `features/QUOTE_PRODUCTION.md`、`features/QUOTE_CUTOVER_READINESS.md`、`features/QUOTE_MIGRATION_RUNBOOK.md`、`features/QUOTE_MASTER_SETTINGS_ACTIVATION.md`、`features/Q3B2I_CUTOVER_RUNBOOK.md`、`features/QUOTE_CENTER.md`、`features/DATA_LIFECYCLE.md`、`features/ATTACHMENTS.md`、`features/SERVER_PERSISTENCE.md`、`features/PERMISSIONS.md` | Route B、Server foundation、Q2B2C Quote aggregate cutover dependency map、Q5-A/B historical Quote preview/guarded operational boundary，以及 Q3B2I-C2 已完成的 master/settings Server authority；C0/C1 runbook 为历史执行证据，实现事实仍以 Quote/Server/master/attachment 代码和测试为准 |
 | 新订单中心、报价转订单、翻单、交期、订单价格历史与 PostgreSQL SalesOrder foundation/bootstrap/shadow read | `features/ORDER_CENTER.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`、`features/SALES_ORDER_BROWSER_CUTOVER.md`、`features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`、`features/SERVER_PERSISTENCE.md`、`features/OPERATIONS_FOUNDATION.md`、`features/DATA_LIFECYCLE.md` | Browser runtime：`app/order-center/`、`features/order-center/`；server foundation/read：`server/sales-orders/`、`features/order-center/server/`、`features/ainuoke-sync/service/sales-order-final-bootstrap-preview.ts`、`features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts`、`database/migrations/0002_sales_order_foundation.sql`、`0003_sales_order_number_sequence.sql` |

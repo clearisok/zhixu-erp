@@ -1,5 +1,14 @@
 # Quote Center
 
+## Quote Intake V1 / 两步新建目标（D-101，2026-10-10；NOT IMPLEMENTED）
+
+普通新建与 Intake 转换使用同一两步创建流程：类型/国家/可用预设 → 参数确认/资料完善 → 可信原子创建。无预设允许待完善正式草稿；未完成、返回、取消不生成正式 Quote。制作预设新增配置独立页面，settings.global.edit 仍有效。旧 POST /api/v1/quotes {} 保持不变；新 UI 不通过 POST 后 PUT 拼接创建，不增加第二套 writer。
+
+加工突出工价/工序，默认隐藏已有面辅料编辑但保留全部事实及现有公式。确认前明确修改当前可写 Revision；任一 PV 或 exact linked current 已确认则新 Revision 切换，旧历史/共享 CCT/SalesOrder provenance 不变；generic PUT 须防绕过。经销恢复前明确确认，恢复原材料明细不自动应用预设。含材料成衣价不可冒称纯工价；客户 Excel 范围不变。
+
+当前仍是下方记载的 type-first POST{} + 必要 PUT，新目标尚无 API/UI。新命令须在 creation-preview 与最终事务分别验证业务员启用/所选品牌归属、可信预设国家一致性和状态/版本，不能静默忽略非法选择；这些校验仍 **NOT IMPLEMENTED**。当前 calculator 不以 QuoteType 排除材料；隐藏的不完整材料仍受原业务节点校验，不能静默跳过。领域/权限见 [QUOTE_INTAKE](QUOTE_INTAKE.md)，字段、配置状态、命令、失败恢复及可选工作包见 [契约](../tasks/active/quote-intake-v1-implementation-contract.md)。默认单 Codex 实现/测试/独立 Preview/用户验收，批准后合并，必要时独立审查；不要求固定 A/B/C/D 交接。
+
+
 ## Original UI / Server convergence (2026-10-09; ENGINEERING PASS / USER UI ACCEPTANCE PENDING)
 
 D-099: PR #64 `7658663038b1da504c95086711f627b6dce5c7a0` is the visual/information-architecture baseline; current Server is the data, security and business baseline. Server persistence is not permission to redesign the product. The [audit, capability/permission matrix and current test evidence](../tasks/active/quote-original-ui-convergence.md) and [synthetic screenshots](../tasks/assets/quote-original-convergence/README.md) record the engineering result, not human approval or deployment.

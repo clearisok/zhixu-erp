@@ -6,7 +6,18 @@
 - 不导入不授权删除旧环境。现有业务功能和计算规则不变，后续新 Quote 的历史 Revision 仍不可变。Q5 历史迁移对当前上线 NOT REQUIRED，数据保护、事务、权限、备份继续有效。
 - 无业务设置记录表示未配置，禁止自动填旧汇率、加成、运费或生产预设。Server 路径空列表不回退旧 Browser 数据。新远程/多人环境必须有真实认证授权，不能沿用 D-093 无认证模式。
 
-本文件只记录可由当前代码、数据库约束或测试确认的规则。根路径 ERP 与 Quote Center 的同名概念有不同口径，未经明确迁移决定不得互相套用。
+本文件记录用户明确确认的业务规则及可由当前代码、数据库约束或测试确认的规则；未实现目标必须明确标注。根路径 ERP 与 Quote Center 的同名概念有不同口径，未经明确迁移决定不得互相套用。
+
+## Quote Intake V1：用户确认规则（2026-10-10；D-101，目标契约，NOT IMPLEMENTED）
+
+以下六项来自用户本轮明确确认；实现状态与技术建议见 [Quote Intake](features/QUOTE_INTAKE.md) 和 [实施契约](tasks/active/quote-intake-v1-implementation-contract.md)。不得把确认规则等同于已上线能力。
+
+- **QI-01 加工显示与计算**：加工报价突出工价与工序；面辅料编辑默认隐藏，但已有数据、ID、价格、数量、来源不删除或清零。现有公式保持不变，UI 隐藏不排除内部材料成本，包含材料的成衣价格不能标成纯加工报价。对外 Excel 计算范围变更须另行确认。
+- **QI-02 类型切换**：QuoteType 属于整个 Revision。未发生客户确认时，经明确确认可修改当前可编辑 Revision；任一价格版本已有客户确认时必须创建新 Revision，再切换类型，保留旧历史及确认事实，新 Revision 沿用现有创建规则。必须检查 linked ConfirmedCommercialTerms 与 SalesOrder provenance，不清空共享当前确认，不允许 generic PUT 绕过。
+- **QI-03 权限范围**：Intake 默认本人可见；查看或编辑他人记录须明确授权，不按管理员或前端角色名称推断数据范围。收集权限不授予 Quote 成本、正式报价管理或全局设置权限；actor/创建人仅由可信 Server session 派生。
+- **QI-04 转换与保留**：V1 每条 Intake 最多转为一张正式 Quote，具有数据库唯一约束、幂等命令与恢复查询；成功后冻结原始资料、保留原图与来源快照。允许重复款号，不以款号/图片 hash 自动合并；正常转换不物理删除原图或来源。
+- **QI-05 成衣交期**：目标交期是成衣完成/应交付日期，转换到 `QuoteRevision.baseInfo.garmentLeadDate`；不自动修改 SalesOrder source date、DeliveryPlan、ScheduleAssignment 或其他订单交付事实。空值保留 null，按合法日历日期校验，不因时区偏移一天。
+- **QI-06 无预设草稿**：无有效制作预设时允许正式 Quote 草稿，参数待完善；不擅自选国家、预设、汇率、加成或运费。非空 laborCurrency 技术默认值不代表用户选择，必须有真正配置完成的判断契约；旧 Quote/PV 快照、币种、公式不受损。
 
 ## 新生产计划与排单路径
 
