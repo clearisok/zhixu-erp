@@ -2,7 +2,7 @@
 
 ## Active — Desktop two-step Server Quote creation (2026-10-10)
 
-- **恢复Gate FULL RESTORE PASS（用户已再次明确授权继续）**：使用本维护窗口`pr91-upgrade-2026-10-10T05-20-53-187Z`备份，修正整数排序后实际恢复隔离PG，27Quotes/2账号/3附件及全部旧表哈希、0001–9 ledger一致；隔离仅0010/verify-only/旧行不变PASS。全部3对象实际隔离恢复并Get读回大小/SHA/附件关系PASS，大图7770409字节；19项恢复文件/配置和TLS/凭据archive提取字节核对PASS。新manifest SHA `a43cf332a0ba14d8a14bdb1c648359661d4790b5400e55a96479667b85cc1b5d`；owned cleanup PASS。18444仍app/gateway暂停、正式0010未执行；下一步直接按本轮授权重核现场/无writer/对象读回/checksum，仅0010和指定66de镜像替换。不得重新init或修改18443。详细hash与下一阶段结果见[任务证据](tasks/active/quote-two-step-creation.md)。
+- **FULL RESTORE PASS / 执行前再次STOP（未执行0010）**：本窗口备份的隔离PG/3对象/19恢复文件实际恢复、旧表哈希/关系/对象逐个大小SHA和大图7770409字节读回全部PASS，manifest SHA `a43cf332a0ba14d8a14bdb1c648359661d4790b5400e55a96479667b85cc1b5d`，owned cleanup PASS。恢复checkpoint `bc8303e861d286dd537d0d70c54d7c1e8d406c3d` push返回ref-lock但一次GitHub核实exact送达，无重推。最终execute在比较Docker Mounts数组原始顺序时停止，未触及迁移/配置。逐项只读差异为空；修正仅排序、保留全部字段，6项正/反例PASS，随后实际verify-execute **READ-ONLY PASS**（精确目标/备份/config/旧表/全部对象重读/无writer/前9checksum/只pending0010）。遵守用户异常即STOP，未再次调用execute。18444 app/gateway仍STOPPED，DB/object保留、27报价/3附件/2账号、ledger0001–9、旧d2a3509f不变。下一步需用户确认继续这一停点，然后使用既定66de/bb451fe执行仅0010和app/gateway更新；不自动恢复或重init，不动18443。详见[任务证据](tasks/active/quote-two-step-creation.md)。
 
 ### Historical — previous stopped window (resumed by explicit user authorization)
 
