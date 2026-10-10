@@ -20,13 +20,13 @@
 
 ### D-101 Quote Intake V1 与共同两步报价创建
 
-- 日期：2026-10-10；状态：**Active 业务目标 / NOT IMPLEMENTED**。来源：用户《Quote Intake V1 最终契约固化与实施任务拆分》明确确认 QI-01–QI-06，并要求手机收集、电脑完成两步创建。技术字段、状态、权限键及图片方案仍是实施提案。
+- 日期：2026-10-10；状态：**Active 业务目标 / 普通电脑两步创建已实现；Intake/转换及已有类型切换 NOT IMPLEMENTED**。来源：用户《Quote Intake V1 最终契约固化与实施任务拆分》确认 QI-01–QI-06，后续授权本轮普通电脑两步创建。Intake字段、状态、权限键及图片方案仍是实施提案，不由此升级为新业务政策。
 - Intake 独立于 Quote/Revision/PriceVersion；不生成 Quote 编号或历史，不自动创建 SalesOrder。默认本人范围，可信 session、显式团队权限、一次转换、原图与来源冻结保留。
 - 普通新建与 Intake 转换复用两步流程：第一页类型/国家/可用预设，第二页确认参数并完善资料；取消/返回不创建。制作预设维护独立页面，继续要求 settings.global.edit。最终创建复用原 Quote Service/allocator/Repository/审计，保留旧 POST {}。
 - 加工隐藏材料不改公式；确认前明确切换当前可编辑 Revision，确认后新 Revision 切换。linked CCT/SalesOrder 事实不清空，generic PUT 必须防绕过。无预设可建待完善草稿，技术币种默认不等于已配置。六项完整规则见 BUSINESS_RULES。
 - **精确关系**：补充 D-003 的历史保护与新 Revision 清确认、D-035 的 PV 参数快照、D-088 的 Server 编号及旧 POST、D-090 active preset、D-096 空设置不猜默认、D-084/D-087 共享确认边界。D-029（新建报价主数据 Quick Create）仍适用于品牌/业务员，不适用于将制作预设维护嵌入新建页；未废止其显式保存与保留成本保护。D-097/D-099 的 POST{} 后加工 PUT 是当前实现/历史过渡，新的两步原子命令实施后仅替代新 UI 创建路径；旧 API 仍兼容。D-057 是订单/关账默认币种，不作为 Quote 新默认依据。
-- D-100 已由现已合并的 PR #87 使用，本条不重用。代码事实：server/quotes/{draft,service,repository,version-workflows}.ts、server/app.ts、server/quote-masters/{model,service}.ts、server/attachments/{service,storage}.ts、0008；当前没有 Intake 或新创建命令。详见 [实施契约](tasks/active/quote-intake-v1-implementation-contract.md)。
-- 本决定不授权开发启动、migration、部署、真实数据读取或自动合并。
+- D-100 已由现已合并的 PR #87 使用，本条不重用。电脑端实现复用原Service/allocator/Repository/审计：server/quotes/creation-contract.ts、creation-workflows.ts、server/app.ts、QuoteCreationWizard；0010提供可信用户隔离的持久预检/回执。普通创建两阶段校验业务员/品牌、预设/国家及受审版本；取消不创建，无预设CNY仅技术默认。实施证据见 [两步创建](tasks/active/quote-two-step-creation.md)，原 [实施契约](tasks/active/quote-intake-v1-implementation-contract.md) 的未实施部分仍是目标。
+- 本决定本身不授权真实migration、部署、真实数据读取或自动合并。本轮只disposable验证/候选构建，18444新增migration需另行批准。
 
 
 

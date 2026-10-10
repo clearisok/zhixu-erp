@@ -1,6 +1,6 @@
 # Quote Intake V1
 
-> 2026-10-10：**用户业务目标已确认 / 技术实施提案 / NOT IMPLEMENTED**。当前 main 无 Intake schema、API、收集箱或共同两步原子创建。正式规则 QI-01–06 见 [BUSINESS_RULES](../BUSINESS_RULES.md)，Active 目标为 D-101；完整任务规格见 [实施契约](../tasks/active/quote-intake-v1-implementation-contract.md)。
+> 2026-10-10：**普通电脑两步原子创建已实现；Intake/手机收集/转换及已有报价类型切换 NOT IMPLEMENTED**。正式规则QI-01–06见 [BUSINESS_RULES](../BUSINESS_RULES.md)，Active D-101；实际子集/DTO/事务/测试见 [两步创建证据](../tasks/active/quote-two-step-creation.md)，剩余技术提案见 [原实施契约](../tasks/active/quote-intake-v1-implementation-contract.md)。本文件的Intake权限/生命周期/附件转换仍为未来方案。
 
 ## 领域边界
 
@@ -38,10 +38,10 @@
 
 第一页明确类型/国家/active preset，多个预设不能静默选首个；无预设/国家待设置允许进入第二页。第二页显示参数是否来自用户/已确认预设/技术默认，完善基础资料；预设维护在独立设置页，返回后保留草稿，主动刷新与确认变更。最后只调用共同可信创建命令。转换额外校验 Intake version/范围与图片，普通创建没有 Intake freeze。
 
-创建校验要求（**NOT IMPLEMENTED**）：非空 salespersonId 必须由 Server 证明记录启用且 brandId 等于所选品牌；缺失/停用/跨品牌明确拒绝，不以 resolveDefaults 忽略该记录代替校验。非空 presetId 必须由 Server 证明预设启用，所提交国家与其可信 country 一致；国家为空或不一致明确拒绝，不静默换国家、换预设或改用另一国参数。creation-preview 在一致读中校验并记录受审版本；最终创建事务重新读取/锁定资料，复核归属、国家、状态及版本，漂移要求重新 preview，失败不创建 Quote/编号/正式关系或成功审计。无 preset 仍允许参数待完善草稿；不收紧旧 POST {}。具体字段/错误及未来回归见实施契约。
+普通两步创建已落实校验：非空salespersonId必须启用且属于所选active品牌；非空presetId必须启用且country与提交一致，缺失/停用/跨品牌/国家不匹配明确拒绝。preview一致读记录受审版本；最终事务重新读取/锁定归属、国家、状态及版本，漂移要求重新核对。资料拒绝发生在编号分配前；技术/审计故障回滚可能保留合法sequence gap，不回收编号。无preset允许待完善草稿，旧POST{}未收紧。配置metadata是**创建时来源快照**，不是对已有PV编辑的全新产品政策；后续设置不反写。Intake转换的额外校验尚未实现。
 
 加工隐藏编辑保留内部成本公式、材料事实、客户确认和历史；纯工价摘要与含材料内部成衣价分开准确标示。经销恢复经明确确认后重新显示原明细，不自动应用预设。确认后新 Revision 切类型：检查任一 PV 及 exact linked CCT，保留 SalesOrder provenance/共享当前确认；旧历史只读。generic PUT 必须同样防绕过。无 preset 的 technical CNY 不能当作配置完成，具体状态方案见契约。
 
 ## 当前事实与后续验证
 
-现有 createRuntimeDraft/POST{}、allocator、Repository TX、OperationLog、版本克隆及 AttachmentStorage 可复用；Intake/new command/configuration metadata/type-switch guard 均未实现。已有测试只证明旧能力，不证明 Intake 通过。默认一个主 Codex 按可验收目标完成实现、disposable PG + MemoryAttachmentStorage/真实 Chromium 测试、独立 Preview，等待用户人工验收及批准后合并；不得自动 merge/部署。契约中的 A/B/C/D 仅可选工作包，无固定 Agent 或强制多层交接，不要求每个功能另建契约 PR；大型数据库、安全、权限或跨模块复杂变更必要时才安排独立审查，严格验证不减免。
+普通creation command/configuration metadata已实现并实际disposable/Chromium验证；Intake、转换及类型切换guard仍未实现，不以两步创建测试冒充Intake通过。新UI组件与typed client可复用，但当前source/imageSelection必须null，未来需要合法adapter/领域校验，不能伪造Intake来源。默认一个主Codex完成一个可验收目标；Preview、人工验收和批准后合并分开，新增migration先独立获批。A/B/C/D仅可选工作包；复杂数据库/安全/跨模块确有必要才独立审查，严格验证不减免。

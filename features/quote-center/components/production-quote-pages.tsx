@@ -9,7 +9,7 @@ import { quoteServerEditorAdapter, type EditableServerQuoteRecord } from "../ser
 import { createQuoteEditorPersistence } from "../server/quote-editor-persistence";
 import { QuoteList } from "./quote-list";
 import { QuoteDetailLoader, QuoteEditor, QuoteNewLoader } from "./quote-editor";
-import type { QuoteType } from "../model/quote-view-model";
+import { QuoteCreationWizard } from "./quote-creation-wizard";
 import { customerBatchExport, downloadCustomerFile, internalSummaryExport } from "../server/customer-export-client";
 import { type BusinessColumn, type EstimateColumn } from "../model/quote-business-view";
 import { listTablePreference, loadServerListPreferences, normalizeServerListPreferences, saveServerListPreferences, type ServerListPreferences } from "../server/list-preferences";
@@ -128,45 +128,8 @@ function ServerList() {
   </PageContainer></AppShell>;
 }
 function ServerNew() {
-  const router = useRouter();
-  const pending = useRef(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [uncertain, setUncertain] = useState(false);
-  const [quoteType, setQuoteType] = useState<QuoteType>("distribution");
-  const [createdId, setCreatedId] = useState("");
-  const create = async () => {
-    if (pending.current || uncertain) return;
-    pending.current = true; setBusy(true);
-    let draftId = "";
-    try {
-      const result = await quoteServerClient.create();
-      draftId = result.quote.id; setCreatedId(draftId);
-      const initialRevision = result.quote.revisions.find((revision) => revision.revisionId === result.quote.defaultRevisionId);
-      if (!initialRevision) throw new Error("Missing initial Revision");
-      if (initialRevision.baseInfo.quoteType !== quoteType) {
-        const selected = structuredClone(result.quote);
-        selected.revisions.find((revision) => revision.revisionId === selected.defaultRevisionId)!.baseInfo.quoteType = quoteType;
-        await quoteServerClient.save(selected, result.version);
-      }
-      router.replace(`/quote-center/detail?id=${encodeURIComponent(draftId)}`);
-    }
-    catch (cause) {
-      setError(`${safeError(cause)} ${draftId ? "草稿已创建，但所选类型尚未确认保存；请打开已创建草稿核对实际状态。" : "创建结果待核对，请返回列表检查。"} 不会重复 POST。`);
-      setUncertain(true);
-    }
-    finally { pending.current = false; setBusy(false); }
-  };
-  return <AppShell title="新建报价" backTarget={{ href: "/quote-center", label: "返回报价中心" }}><PageContainer className="qc-server-new qc-original-quote-new">
-    <PageHeader eyebrow="CREATE QUOTE" title="新建报价" count="尚未创建" description="选择加工或经销，创建后进入报价详情继续维护成本、附件与客户确认。" />
-    {error && <ErrorState title="Server 创建未确认" description={error} />}
-    {uncertain && createdId && <a href={`/quote-center/detail?id=${encodeURIComponent(createdId)}`}>打开已创建草稿（类型待核对）</a>}
-    <Card className="qc-base-card qc-server-create-panel">
-      <header><div><span className="qc-section-index">01</span><h2>报价基础信息</h2></div><p>加工报价与经销报价沿用各自的成本与报价规则。</p></header>
-      <div className="qc-server-create-fields"><FormItem label="报价类型" required><select className="qc-control" disabled={busy || uncertain} value={quoteType} onChange={(event) => setQuoteType(event.target.value as QuoteType)}><option value="processing">加工报价</option><option value="distribution">经销报价</option></select></FormItem><p>点击创建后继续编辑款式、品牌、业务员及成本明细。返回或取消不会创建报价。</p></div>
-      <footer className="qc-server-create-actions"><Button variant="secondary" disabled={busy} onClick={() => router.push('/quote-center')}>取消</Button><Button permission="quote.create" disabled={busy || uncertain} onClick={() => void create()}>{busy ? "创建 / 保存类型中…" : "创建报价"}</Button></footer>
-    </Card>
-  </PageContainer></AppShell>;
+  const session = useServerSession();
+  return <QuoteCreationWizard key={session.user?.id ?? "anonymous"} />;
 }
 function ServerDetail() {
   const id = useSearchParams().get("id") ?? "";

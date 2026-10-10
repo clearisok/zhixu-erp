@@ -1,3 +1,9 @@
+/* Explicit wizard layout only; existing Browser creation and tables are unchanged. */
+.qc-two-step-fields { border: 0; margin: 0; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.qc-two-step-fields .qc-form-item { width: 100%; }
+.qc-two-step-fields > p, .qc-two-step-fields > a, .qc-two-step-fields > [data-creation-preview] { grid-column: 1 / -1; }
+@media (max-width: 599px) { .qc-two-step-fields { grid-template-columns: minmax(0, 1fr); } }
+
 .qc-app-shell,
 .qc-foundation-portal {
   --qc-green: #175c4b;

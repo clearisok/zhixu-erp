@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { randomUUID } from "node:crypto";
 import { createServer } from "node:http";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { mkdtemp, readdir, readFile, copyFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -16,6 +18,10 @@ import { createTrustedQuoteService } from "../quotes/service.js";
 import type { CreationInput, CreationCommand } from "../quotes/creation-contract.js";
 import { createQuoteMasterService } from "../quote-masters/service.js";
 import { startDisposablePostgres } from "./postgres-container.js";
+import { createSyntheticQuoteFixture } from "./quote-fixture.js";
+import { createQuoteRepository } from "../quotes/repository.js";
+import { quoteSnapshotFromBrowser } from "../quotes/model.js";
+const executeFile = promisify(execFile);
 
 test("Two-step creation: real trusted API, durable receipts and populated 0009 upgrade, disposable only", { timeout: 240_000 }, async t => {
   const postgres = await startDisposablePostgres(); const directory = await mkdtemp(join(tmpdir(), "zhixu-creation-upgrade-"));
@@ -29,6 +35,7 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
   const user = (await pool.query("SELECT id::text,public_id::text FROM app_users WHERE username='synthetic-creation-admin'")).rows[0];
   const actor: TrustedIdentity = { internalUserId: user.id, userId: user.public_id, username: "synthetic-creation-admin", userName: "Synthetic creator", permissions: await permissionsForUser(pool, user.id) };
   const old = await createTrustedQuoteService(pool).createRuntimeDraft(actor);
+  await createQuoteRepository(pool).create(quoteSnapshotFromBrowser(createSyntheticQuoteFixture("synthetic-populated-upgrade")));
   const masters = createQuoteMasterService(pool);
   const defaults = { defaultUsdCnyRate: "7.1234567890123456789", defaultOtherCost: null, defaultTrims: [] };
   const brand = await masters.createBrand(actor, { name: "Synthetic Brand", status: "active", defaults });
@@ -36,9 +43,27 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
   const person = await masters.createSalesperson(actor, { name: "Synthetic Person", brandId: brand.id, status: "active", defaults });
   const preset = await masters.createPreset(actor, { name: "Synthetic preset", country: "Cambodia", laborCurrency: "USD", markupRate: "0", includeFreight: true, freightName: "Synthetic freight", freightAmount: "0", status: "active" });
   await masters.createPreset(actor, { name: "Second same-country preset", country: "Cambodia", laborCurrency: "CNY", markupRate: "0.15", includeFreight: false, freightName: "", freightAmount: null, status: "active" });
-  const snapshot = async () => (await pool.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' AND table_name NOT IN ('schema_migrations','quote_creation_previews','quote_creation_receipts') ORDER BY table_name")).rows.reduce(async (previous, { table_name }) => ({ ...await previous, [table_name]: (await pool.query(`SELECT to_jsonb(t) AS row FROM "${table_name}" t ORDER BY to_jsonb(t)::text`)).rows }), Promise.resolve({} as Record<string, unknown>));
+  const snapshot = async (database = pool) => (await database.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' AND table_name NOT IN ('schema_migrations','quote_creation_previews','quote_creation_receipts') ORDER BY table_name")).rows.reduce(async (previous, { table_name }) => ({ ...await previous, [table_name]: (await database.query(`SELECT to_jsonb(t) AS row FROM "${table_name}" t ORDER BY to_jsonb(t)::text`)).rows }), Promise.resolve({} as Record<string, unknown>));
   await t.test("0010 forward-only upgrade preserves every populated old table and all nine published migration bytes", async () => {
     const before = await snapshot();
+    const dump = `/tmp/synthetic-creation-${randomUUID()}.dump`;
+    const docker = async (arguments_: string[]) => (await executeFile("docker", ["exec", postgres.containerName, ...arguments_], { windowsHide: true, timeout: 60_000, maxBuffer: 4 * 1024 * 1024 })).stdout;
+    const databaseName = new URL(pool.options.connectionString!).pathname.slice(1);
+    await docker(["pg_dump", "-U", "postgres", "-d", databaseName, "--format=custom", "--file", dump]);
+    const checksum = (await docker(["sha256sum", dump])).split(" ")[0];
+    assert.match(checksum, /^[a-f0-9]{64}$/u);
+    const restoreUrl = await postgres.createDatabase("creation_restore");
+    const restored = new pg.Pool({ connectionString: restoreUrl, max: 1 });
+    try {
+      assert.ok((await docker(["pg_restore", "--list", dump])).includes("quote_center_quotes"));
+      await docker(["pg_restore", "-U", "postgres", "--exit-on-error", "--dbname", new URL(restoreUrl).pathname.slice(1), dump]);
+      assert.equal((await docker(["sha256sum", dump])).split(" ")[0], checksum);
+      assert.deepEqual(await snapshot(restored), before, "recoverable pre-upgrade dump preserves all old business/technical rows");
+      assert.deepEqual((await runMigrations(restored, resolve("database/migrations"))).applied, ["0010_quote_creation_receipts.sql"]);
+      assert.deepEqual(await snapshot(restored), before, "restore then forward migration preserves existing data");
+      assert.deepEqual((await verifyMigrationsCurrent(restored, resolve("database/migrations"))).pending, []);
+      t.diagnostic(`Synthetic pre-upgrade PostgreSQL custom dump SHA-256 ${checksum}; isolated restore/readback/0010 upgrade PASS`);
+    } finally { await restored.end(); }
     assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, ["0010_quote_creation_receipts.sql"]);
     assert.deepEqual(await snapshot(), before);
     assert.equal((await runMigrations(pool, resolve("database/migrations"))).applied.length, 0);
@@ -86,6 +111,14 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
     const changed = { ...input, fields: { ...input.fields, styleNo: "Different request" } }; const other = await command(changed); other.clientRequestId = cmd.clientRequestId;
     assert.equal((await call("creation-workflows", other)).body.error.code, "idempotency_payload_mismatch"); assert.equal(await count(), before + 1);
   });
+  await t.test("Later preset edits do not rewrite a created PriceVersion parameter snapshot", async () => {
+    const created = await creation.execute(actor, await command());
+    const id = created.receipt.result!.quoteId;
+    const before = await createTrustedQuoteService(pool).getById(id);
+    await pool.query("UPDATE quote_manufacturing_presets SET markup_rate='0.3',freight_amount='19.1234567890123456789',version=version+1 WHERE id=$1", [preset.id]);
+    try { assert.deepEqual(await createTrustedQuoteService(pool).getById(id), before); }
+    finally { await pool.query("UPDATE quote_manufacturing_presets SET markup_rate=$2,freight_amount=$3,version=version+1 WHERE id=$1", [preset.id, preset.markupRate, preset.freightAmount]); }
+  });
   for (const [label, value] of [["cross-brand person", { ...input, fields: { ...input.fields, brandId: secondBrand.id } }], ["missing brand", { ...input, fields: { ...input.fields, brandId: null } }], ["wrong country", { ...input, selection: { ...input.selection, country: "Other country" } }], ["null country", { ...input, selection: { ...input.selection, country: null } }]] as const) await t.test(`Preview rejects ${label} without number/Quote`, async () => { const before = [await count(), await seq()]; assert.equal((await call("creation-preview", value)).status, 400); assert.deepEqual([await count(), await seq()], before); });
   for (const table of ["quote_master_brands", "quote_master_customer_salespeople", "quote_manufacturing_presets"] as const) await t.test(`Final transaction rejects reviewed version/state drift in ${table}`, async () => {
     const cmd = await command(); const id = table === "quote_master_brands" ? brand.id : table === "quote_master_customer_salespeople" ? person.id : preset.id; const before = [await count(), await seq()];
@@ -121,8 +154,29 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
     await assert.rejects(creation.preview(limited, { ...input, parameterOverrides: { markupRate: "0" } }), { code: "permission_denied" });
     assert.equal((await call("creation-options", undefined, "")).status, 401);
   });
+  await t.test("Trusted create-only identity receives no numeric parameters or another actor's receipt", async () => {
+    const id = (await pool.query("INSERT INTO app_users(username,password_hash,display_name,role) VALUES('synthetic-create-only',crypt('disposable-only-password',gen_salt('bf',4)),'Synthetic create-only','viewer') RETURNING id::text")).rows[0].id;
+    await pool.query("INSERT INTO app_roles(id,name) VALUES('synthetic-create-only','Synthetic create-only'); INSERT INTO app_role_permissions(role_id,permission_key) VALUES('synthetic-create-only','quote.create')");
+    await pool.query("INSERT INTO app_user_roles(user_id,role_id) VALUES($1,'synthetic-create-only')", [id]);
+    const login = await fetch(`${origin}/api/v1/auth/login`, { method: "POST", headers: { Origin: origin, "X-Zhixu-Request": "1", "Content-Type": "application/json" }, body: JSON.stringify({ username: "synthetic-create-only", password: "disposable-only-password" }) });
+    assert.equal(login.status, 200); const limitedCookie = login.headers.get("set-cookie")!.split(";")[0];
+    const preview = await call("creation-preview", input, limitedCookie); assert.equal(preview.status, 200); assert.equal(preview.body.parametersVisibility, "redacted"); assert.ok(!JSON.stringify(preview.body).includes(defaults.defaultUsdCnyRate));
+    const own = { ...input, previewId: preview.body.previewId, clientRequestId: randomUUID(), imageSelection: null };
+    assert.equal((await call("creation-workflows", own, limitedCookie)).status, 201);
+    const other = await command(); await call("creation-workflows", other);
+    assert.deepEqual((await call(`creation-receipts/${other.clientRequestId}`, undefined, limitedCookie)).body, { state: "pending", retryable: false });
+    assert.equal((await call("creation-workflows", other, limitedCookie)).status, 404);
+    assert.equal((await call("creation-preview", { ...input, parameterOverrides: { markupRate: "0" } }, limitedCookie)).status, 403);
+  });
+  await t.test("Transaction rechecks database permissions after preview, not request's old permission array", async () => {
+    const cmd = await command(); const before = [await count(), await seq()];
+    await pool.query("DELETE FROM app_role_permissions WHERE role_id='role-server-admin' AND permission_key='quote.create'");
+    try { await assert.rejects(creation.execute(actor, cmd), { code: "permission_denied" }); assert.deepEqual([await count(), await seq()], before); }
+    finally { await pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('role-server-admin','quote.create')"); }
+  });
   await t.test("Legacy POST{} remains neutral, rejects new fields and does not require receipts", async () => {
     const response = await fetch(`${origin}/api/v1/quotes`, { method: "POST", headers: { Cookie: cookie, Origin: origin, "X-Zhixu-Request": "1", "Content-Type": "application/json" }, body: "{}" }); assert.equal(response.status, 201);
     const record = (await response.json()).quote; assert.equal(record.quote.revisions[0].baseInfo.quoteType, "distribution"); assert.equal(record.version, 1); assert.equal(record.quote.revisions[0].priceVersions[0].pricingParameters.configuration, undefined);
+    const rejected = await fetch(`${origin}/api/v1/quotes`, { method: "POST", headers: { Cookie: cookie, Origin: origin, "X-Zhixu-Request": "1", "Content-Type": "application/json" }, body: JSON.stringify({ quoteType: "processing" }) }); assert.equal(rejected.status, 400);
   });
 });

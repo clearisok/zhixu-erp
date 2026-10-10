@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 2026-10-10 Quote Intake V1：QI-01–06 / D-101 用户目标已确认，功能 **NOT IMPLEMENTED**；[领域契约](features/QUOTE_INTAKE.md)、[字段/API/事务/测试与可选工作包](tasks/active/quote-intake-v1-implementation-contract.md)。默认一个主 Codex 完成可验收目标，必要时才独立审查；本轮仅收口原 #90 文档，不启动开发或操作Preview。最新 main `5d79cbb` 已合并 #89；D-100/0009 与既有工程证据保留。
+> 2026-10-10 D-101：普通电脑端两步 Server 创建已实现，见 [本轮证据/0010迁移与Preview边界](tasks/active/quote-two-step-creation.md)；Intake/手机收集/转换及已有报价类型切换仍 **NOT IMPLEMENTED**。[领域契约](features/QUOTE_INTAKE.md)、[原实施契约](tasks/active/quote-intake-v1-implementation-contract.md)保留未实施目标。默认单主Codex；main基线 `84c8c5b` 已合并 #89/#90，未自动更新Preview或真实环境。
 
 > PR #89 D-099 列表/100px/受保护Server缩略图已合并；原工程、18444更新和人工验收历史见[宽度/图片契约、测试与Preview备份恢复](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。普通手机大图已通过工程验证，不再是原图大小占位路径。本轮未复核环境或新增人工验收结论，18443及旧环境不操作。
 

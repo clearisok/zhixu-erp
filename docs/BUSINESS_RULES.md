@@ -8,7 +8,9 @@
 
 本文件记录用户明确确认的业务规则及可由当前代码、数据库约束或测试确认的规则；未实现目标必须明确标注。根路径 ERP 与 Quote Center 的同名概念有不同口径，未经明确迁移决定不得互相套用。
 
-## Quote Intake V1：用户确认规则（2026-10-10；D-101，目标契约，NOT IMPLEMENTED）
+## Quote Intake V1：用户确认规则（2026-10-10；D-101）
+
+普通电脑端两步创建已实现，见 [QUOTE_CENTER](features/QUOTE_CENTER.md)；手机 Intake/转换和已有报价类型切换仍 NOT IMPLEMENTED。以下业务规则未改变，实现子集不代表全部目标完成。
 
 以下六项来自用户本轮明确确认；实现状态与技术建议见 [Quote Intake](features/QUOTE_INTAKE.md) 和 [实施契约](tasks/active/quote-intake-v1-implementation-contract.md)。不得把确认规则等同于已上线能力。
 
