@@ -2,7 +2,7 @@
 
 > 2026-10-10；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及原工程验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
 
-> PR #89 总数量/组合成本左对齐修正已更新独立18444 Preview，运行SHA `138f97bca539d410f438074fbfff85c47abd2565`。本轮Chromium24/24、Preview只读12项/四档文本左边缘0px偏差；新备份/隔离恢复及数据保留PASS，0001–0009无新增迁移。[当前身份与历史证据](tasks/active/d099-list-acceptance.md)。**大手机照片仍占位，USER ACCEPTANCE PENDING**；18443未操作，Excel式筛选等待本PR人工验收及获批合并后独立开始。
+> PR #89 款号/款式名称列宽100px修正已更新独立18444 Preview，运行SHA `da9be82a41a9017d0646fa37901170cf6fb0bc1e`。下限80px/默认156px，非法输入明确报错、不静默保存钳制值；本轮Chromium27/27、Preview16项/两种视图四档宽度实测100px，刷新/重开保持。既有数量/成本左对齐保留；新备份/隔离恢复/账号数据保留PASS，0001–0009无新增迁移。[当前身份与历史证据](tasks/active/d099-list-acceptance.md)。**大手机照片仍占位，USER ACCEPTANCE PENDING**；18443未操作，Excel式筛选等待本PR人工验收及获批合并后独立开始。
 
 ## 当前工程能力
 
