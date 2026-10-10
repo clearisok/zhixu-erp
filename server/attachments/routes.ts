@@ -31,7 +31,7 @@ function exact(body: Record<string, unknown>, keys: string[]) {
 export async function routeQuoteAttachments(request: IncomingMessage, response: ServerResponse, dependencies: Dependencies): Promise<boolean> {
   const url = new URL(request.url ?? "/", "http://localhost");
   const path = url.pathname;
-  const match = /^\/api\/v1\/quotes\/([^/]+)\/revisions\/([^/]+)\/attachments(?:\/(style-image)|\/([^/]+)(?:\/(download|link))?)?$/.exec(path);
+  const match = /^\/api\/v1\/quotes\/([^/]+)\/revisions\/([^/]+)\/attachments(?:\/(style-image)|\/([^/]+)(?:\/(download|thumbnail|link))?)?$/.exec(path);
   if (!match) return false;
   const mutation = request.method !== "GET";
   if (mutation) assertMutationBoundary(request, dependencies.allowedOrigins);
@@ -75,6 +75,25 @@ export async function routeQuoteAttachments(request: IncomingMessage, response: 
     response.setHeader("Cache-Control", "no-store");
     response.setHeader("X-Content-Type-Options", "nosniff");
     await pipeline(found.stream, response, { signal: controller.signal }); return true;
+    } finally { response.off("close", cancel); }
+  }
+  if (request.method === "GET" && attachmentId && command === "thumbnail") {
+    if (url.search) throw new HttpError(400, "invalid_attachment_query", "Query is not supported");
+    const controller = new AbortController();
+    const cancel = () => controller.abort();
+    response.once("close", cancel);
+    try {
+      const thumbnail = await service.thumbnail(actor, quoteId, revisionId, attachmentId, controller.signal);
+      if (!response.destroyed) {
+        response.statusCode = 200;
+        response.setHeader("Content-Type", thumbnail.mimeType);
+        response.setHeader("Content-Length", thumbnail.bytes.length);
+        response.setHeader("X-Thumbnail-SHA256", thumbnail.sha256);
+        response.setHeader("Cache-Control", "no-store");
+        response.setHeader("X-Content-Type-Options", "nosniff");
+        response.end(thumbnail.bytes);
+      }
+      return true;
     } finally { response.off("close", cancel); }
   }
   if (request.method === "PATCH" && attachmentId && !command) {

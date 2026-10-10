@@ -38,14 +38,51 @@ export function createQuoteAttachmentClient(options: { baseUrl?: string; fetchIm
   const json = async <T>(url: string, method: string, body: Record<string, unknown>): Promise<T> =>
     (await request(url, { method, headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1" }, body: JSON.stringify(body) })).json() as Promise<T>;
   return {
+    async thumbnail(quoteId: string, revisionId: string, attachmentId: string, signal?: AbortSignal) {
+      const response = await request(`${scope(quoteId, revisionId)}/${encodeURIComponent(attachmentId)}/thumbnail`, { signal });
+      const sha256 = response.headers.get("x-thumbnail-sha256");
+      const length = Number(response.headers.get("content-length"));
+      if (!sha256 || !/^[0-9a-f]{64}$/u.test(sha256) || !Number.isSafeInteger(length) || length < 1 || length > 96 * 1024
+          || response.headers.get("content-type") !== "image/jpeg" || !response.body) {
+        await response.body?.cancel(); throw new QuoteAttachmentTransportError();
+      }
+      const reader = response.body.getReader(), chunks: BlobPart[] = [];
+      let size = 0;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          size += value.byteLength;
+          if (size > length) throw new QuoteAttachmentTransportError();
+          chunks.push(value);
+        }
+        if (size !== length) throw new QuoteAttachmentTransportError();
+        return { blob: new Blob(chunks, { type: "image/jpeg" }), sha256 };
+      } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
+    },
     async list(quoteId: string, revisionId: string) {
       return (await (await request(scope(quoteId, revisionId))).json() as { attachments: ServerAttachment[] }).attachments;
     },
     async read(quoteId: string, revisionId: string, attachmentId: string) {
       return (await (await request(`${scope(quoteId, revisionId)}/${encodeURIComponent(attachmentId)}`)).json() as { attachment: ServerAttachment }).attachment;
     },
-    async download(quoteId: string, revisionId: string, attachmentId: string) {
-      return (await request(`${scope(quoteId, revisionId)}/${encodeURIComponent(attachmentId)}/download`)).blob();
+    async download(quoteId: string, revisionId: string, attachmentId: string, signal?: AbortSignal, maxBytes?: number) {
+      const response = await request(`${scope(quoteId, revisionId)}/${encodeURIComponent(attachmentId)}/download`, { signal });
+      if (maxBytes === undefined) return response.blob();
+      if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || !response.body) throw new QuoteAttachmentTransportError();
+      const reader = response.body.getReader(), chunks: BlobPart[] = [];
+      let size = 0;
+      try {
+        if (Number(response.headers.get("content-length")) > maxBytes) throw new QuoteAttachmentTransportError();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          size += value.byteLength;
+          if (size > maxBytes) throw new QuoteAttachmentTransportError();
+          chunks.push(value);
+        }
+        return new Blob(chunks, { type: response.headers.get("content-type") ?? "" });
+      } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
     },
     async upload(quoteId: string, revisionId: string, expectedVersion: number, file: File, kind: AttachmentKind, token: string) {
       const url = `${scope(quoteId, revisionId)}?${new URLSearchParams({ name: file.name, kind })}`;

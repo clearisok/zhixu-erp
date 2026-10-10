@@ -1,5 +1,7 @@
 import type { QuoteServerListItem } from "../server/quote-server-client";
 import { businessColumns, type BusinessColumn } from "../model/quote-business-view";
+import { ServerListThumbnail } from "./server-list-thumbnail";
+import type { ListImageLoader } from "../server/list-image-loader";
 
 const labels = (fields: BusinessColumn[]) => fields.map(key => businessColumns.find(item => item.key === key)!.label).join(" / ");
 export function serverListHeader(fields: BusinessColumn[]) {
@@ -11,8 +13,8 @@ export function serverListHeader(fields: BusinessColumn[]) {
   if (fields.every(key => ["type", "status"].includes(key))) return "类型 / 状态";
   return labels(fields);
 }
-export function ServerListCell({ fields, row }: { fields: BusinessColumn[]; row: QuoteServerListItem }) {
-  if (fields.length === 1 && fields[0] === "styleImage") return <span className="qc-quote-list-thumbnail" role="img" aria-label="款式图暂未接线"><span aria-hidden="true">◇</span></span>;
+export function ServerListCell({ fields, row, imageLoader }: { fields: BusinessColumn[]; row: QuoteServerListItem; imageLoader?: ListImageLoader }) {
+  if (fields.length === 1 && fields[0] === "styleImage") return <ServerListThumbnail row={row} loader={imageLoader} />;
   if (fields.length === 1 && fields[0] === "styleIdentity") return <div className="qc-primary-cell"><strong title={row.summary?.quoteStyleNo}>{row.summary?.quoteStyleNo || "—"}</strong><small title={row.summary?.styleName}>{row.summary?.styleName || "未填写款式名称"}</small></div>;
   const sourceTitle = fields.includes("confirmationStatus") ? row.confirmationSources?.map(source => `${source.priceVersionId}: ${source.linkage}${source.termsVersion === null ? "" : ` / CCT v${source.termsVersion}`}`).join("；") : undefined;
   const prefix: Partial<Record<BusinessColumn, string>> = { fabricCost: "面 ", trimCost: "辅 ", labor: "工 " };

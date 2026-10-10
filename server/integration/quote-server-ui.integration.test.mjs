@@ -24,6 +24,8 @@ import { createQuoteDraft } from "../../features/quote-center/model/quote-view-m
 import { createSyntheticQuoteFixture } from "./quote-fixture.ts";
 import { createQuoteRepository } from "../quotes/repository.ts";
 import { quoteSnapshotFromBrowser } from "../quotes/model.ts";
+import { runD099ListAcceptance } from "./d099-list-acceptance.mjs";
+import { runD099ImageMemory } from "./d099-image-memory.mjs";
 
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 async function until(read, label) {
@@ -112,8 +114,13 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     await command("Network.enable", { maxPostDataSize: 1_000_000 }, sessionId);
     await command("Page.addScriptToEvaluateOnNewDocument", { source: `
       window.generatedDownloads=[];
+      window.revokedObjectURLs=[];
+      const revokeObjectURL=URL.revokeObjectURL.bind(URL);
+      URL.revokeObjectURL=url=>{window.revokedObjectURLs.push(url);blobs.delete(url);revokeObjectURL(url)};
       const objectURL=URL.createObjectURL.bind(URL);const blobs=new Map();
       URL.createObjectURL=b=>{const u=objectURL(b);blobs.set(u,b);return u;};
+      window.activeObjectURLs=()=>[...blobs.keys()];
+      window.activeObjectBytes=()=>[...blobs.values()].reduce((n,b)=>n+b.size,0);
       const anchorClick=HTMLAnchorElement.prototype.click;
       HTMLAnchorElement.prototype.click=function(){if(this.download&&blobs.has(this.href))window.generatedDownloads.push({name:this.download,blob:blobs.get(this.href)});return anchorClick.call(this);};
       const originalGet = Storage.prototype.getItem, originalSet = Storage.prototype.setItem;
@@ -123,7 +130,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       window.quoteResponses=[];
       window.logResponses=[];
       const originalFetch=window.fetch.bind(window);
-      window.fetch=async(...args)=>{const response=await originalFetch(...args);if(String(args[0]).includes('/api/v1/quotes/'))window.quoteResponses.push(await response.clone().text());if(String(args[0]).includes('/api/v1/operation-logs'))window.logResponses.push(await response.clone().text());return response};
+      window.fetch=async(...args)=>{const response=await originalFetch(...args);if(String(args[0]).includes('/api/v1/quotes/')&&response.headers.get('content-type')?.includes('application/json'))window.quoteResponses.push(await response.clone().text());if(String(args[0]).includes('/api/v1/operation-logs'))window.logResponses.push(await response.clone().text());return response};
       window.addEventListener('unhandledrejection', event => window.unhandledRejections.push(String(event.reason)));
       const business=k=>k.startsWith('zhixu.')&&!/preference|sidebar/.test(k)&&!k.startsWith('zhixu.ui.server.quote-list.v1.');
       Storage.prototype.getItem=function(k){if(business(k))businessAccess.push('read:'+k);return originalGet.call(this,k)};
@@ -284,6 +291,14 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       return;
     }
 
+    if (process.env.ZHIXU_D099_LIST_ACCEPTANCE === '1') {
+      await runD099ListAcceptance({ t, pool, storage, requests, navigate, hasText, input, labelInput, click, action, evaluate, command, sessionId, sleep, until, isolated });
+      return;
+    }
+    if (process.env.ZHIXU_D099_IMAGE_MEMORY === '1') {
+      await runD099ImageMemory({ t, pool, storage, requests, navigate, hasText, input, labelInput, click, action, evaluate, command, sessionId, sleep, until, isolated });
+      return;
+    }
     await t.test("production shell/new view stays within desktop viewport without creating business rows", async () => {
       await navigate('/quote-center');await hasText('登录织序 Server');
       for(const [width,height] of [[1920,1080],[1440,900],[1280,800],[900,800]]) {
@@ -440,7 +455,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await click("下一页"); await hasText("本页 2 / 总计 27");
       await input('input[aria-label="搜索报价"]', "SYNTHETIC-UI-STYLE");
       await hasText("本页 1 / 总计 1"); await hasText('SYNTHETIC-UI-STYLE'); await isolated();
-      assert.equal(requests.slice(before).filter(r => r.method === "GET" && /^\/api\/v1\/quotes\//u.test(r.path)).length, 0);
+      assert.equal(requests.slice(before).filter(r => r.method === "GET" && /^\/api\/v1\/quotes\/[^/]+$/u.test(r.path)).length, 0, "No per-row full aggregate GET; scoped authorized image downloads are separate");
       const invalid = await evaluate("fetch('/api/v1/quotes?limit=101').then(r=>r.status)");
       assert.equal(invalid, 400);
       const literal = await evaluate("fetch('/api/v1/quotes?search=%25').then(r=>r.json())");
@@ -678,7 +693,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       assert.equal(await evaluate("document.querySelector('.qc-estimate-cost-panel button')?.textContent"),"保存估算成本");
       await labelInput("工价","77");await click("保存估算成本");await until(async()=> (await read()).quote.activeEstimateCost.labor.value==="77","Estimate value persisted");
       const saved=await read();assert.deepEqual(saved.quote.revisions,initial.quote.revisions);assert.equal(saved.quote.activeEstimateCost.id,first.id);
-      await click("关闭");await navigate(`/quote-center/detail?id=${id}`);await hasText("Server 报价");await click("查看报价历史");await costTab();
+      await click("关闭");await navigate(`/quote-center/detail?id=${id}`);await hasText("查看报价历史");await click("查看报价历史");await costTab();
       assert.equal(await evaluate("[...document.querySelectorAll('.qc-estimate-cost-panel label')].find(n=>n.querySelector('span')?.textContent==='工价').querySelector('input').value"),"77");
       await click("重新生成");await click("确认重新生成");await until(async()=> (await read()).quote.estimateCostHistory.length===1,"archive old active");await costTab();
       const replaced=await read();assert.deepEqual(replaced.quote.estimateCostHistory[0],saved.quote.activeEstimateCost);assert.equal(replaced.quote.activeEstimateCost.labor.value,"10","default source is actual base price, not selected scenario");
@@ -1066,7 +1081,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await evaluate(`(()=>{for(const label of document.querySelectorAll('.qc-column-order-settings label')){const input=label.querySelector('input');const wanted=${JSON.stringify(labels)}.includes(label.querySelector('strong').textContent);if(input.checked!==wanted)input.click();}})()`);
       await labelInput('工价','275'); await click('保存设置'); await hasText('本页 25');
       const prefs=await evaluate("Object.entries(localStorage).filter(([k])=>k.startsWith('zhixu.ui.server.quote-list.v1.')).map(([k,v])=>({key:k,value:JSON.parse(v)}))");
-      assert.equal(prefs.length,1); assert.equal(prefs[0].value.columnWidths.labor,275); assert.equal(prefs[0].value.visibleColumns.length,5);
+      assert.equal(prefs.length,1); assert.equal(prefs[0].value.groupWidths['group.cost'],275); assert.equal(prefs[0].value.columnWidths.labor,92,'Independent field width preserved'); assert.equal(prefs[0].value.visibleColumns.length,5);
       assert.doesNotMatch(JSON.stringify(prefs),/newQuoteDefaults|PRIVATE-ESTIMATE|activeEstimateCost/);
       await navigate('/quote-center');await hasText('本页 25');assert.equal(await evaluate("[...document.querySelectorAll('thead th')].some(n=>n.textContent.includes('面料成本'))"),false);
       await loginAs('viewer');await hasText('本页 25');assert.equal(await evaluate("[...document.querySelectorAll('thead th')].some(n=>n.textContent.includes('成本摘要'))"),true,'Different trusted user keeps its own defaults');

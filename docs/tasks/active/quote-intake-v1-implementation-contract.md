@@ -1,8 +1,11 @@
 # Quote Intake V1 最终业务契约与实施任务
 
-> 2026-10-10；BUSINESS CONTRACT CONFIRMATION / DOCUMENTATION ONLY。**QI-01–06 已确认；下列字段名、状态、权限键、端点与存储方案是可执行技术提案，NOT IMPLEMENTED**。本报告不启动 A/B/C 开发。规则入口：[BUSINESS_RULES](../../BUSINESS_RULES.md)、[D-101](../../DECISION_LOG.md)、[QUOTE_INTAKE](../../features/QUOTE_INTAKE.md)。
+> 2026-10-10；BUSINESS CONTRACT CONFIRMATION / DOCUMENTATION ONLY。**QI-01–06 已确认；下列字段名、状态、权限键、端点与存储方案是可执行技术提案，NOT IMPLEMENTED**。本轮只收口原 PR #90，不启动开发或新的架构审查。默认一个主 Codex，可选工作包不等于固定 Agent 流水线。规则入口：[BUSINESS_RULES](../../BUSINESS_RULES.md)、[D-101](../../DECISION_LOG.md)、[QUOTE_INTAKE](../../features/QUOTE_INTAKE.md)。
 
 ## 0. 恢复基线与证据
+
+- **本轮收口**：PR #90 原工作树/分支 `chore/quote-intake-v1-contract`，clean local/remote HEAD `2b278f086a80a0372a7834faaa732ae57d89f17a`；fetch/GitHub 核实最新 main `5d79cbb3cf880cab4ea84b0ebb61440c3152cc48`，PR #89 已 MERGED。普通 merge 仅 AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX 冲突，人工逐块保留两边文档；PR #89 最新代码/测试/缩略图证据及 D-100/0009 原样继承。两条 P2 修正为第4/5/7节的明确校验/拒绝/未来测试要求，不声称已实现；不操作其他 worktree/18443/18444/数据库/COS。
+- **以下初始审计为 HISTORICAL**：当时 PR/工作树状态与测试来源保留，不作为当前 OPEN 状态、固定分工或环境操作指令。
 
 - 初始 GitHub API/fetch main `49a82c9f970e158ded589300b4aa04fc4c809038`（PR84已合并），独立docs worktree从此clean基线创建，branch `chore/quote-intake-v1-contract`。提交前main并发合并PR87，最新API/fetch一致 `7ed9204d552384730bf93c992b500c530d639c38`；保存文档checkpoint `d56a6d859a656f350ec9b06dfa8f31b6797bcaf7`后普通merge，人工整合AI_HANDOFF/CURRENT_STATE/DECISION_LOG/PROJECT_INDEX四处文档冲突，保留上游代码/SQL原样。最终PR相对最新main仅文档增量。
 - PR87已合并：`a6a59a9e269d0635f61b6564b2aec66dede4a6d2`，0009 DeliveryPlan 与 D-100；工程更新已普通合并最新 main。PR88 OPEN/not mergeable：`a21a3703482af2fd44a993357243bfde2549858a`，候选构建源 `330aad7`，不是新 UI 修复后的候选。PR89 OPEN/mergeable：`f450e25c4cb5de28158500b732eab1ea63890dc8`，报价列表/保护图片修复，人工验收未完成。
@@ -12,7 +15,7 @@
 - 实际测试阅读：quote-numbering、quote-api、quote-version-workflows、quote-attachments integration。已有覆盖 Server 编号/中性草稿、精确小数、readonly/CAS/可信 actor、上传失败/审计失败；这些不是 Intake 或新类型切换测试。本轮未运行测试/迁移。
 - 最新main已含D-100/0009（#87）；#89未新增D-10x。本次 D-101；不更改其他未合并分支。
 
-### worktree 只读 baseline（可能继续变化）
+### 历史 worktree 只读 baseline（初始审计快照，非当前状态）
 
 | 路径 | Branch / HEAD | dirty |
 | --- | --- | --- |
@@ -25,7 +28,7 @@
 | D:/workspace/zhixu-pr84-integration | chore/d099-user-preview / 2b59244e714d94b3d38e0413953e99e2eed58d4a | clean |
 | D:/workspace/zhixu-server-deploy | detached / f0c252b52b6a626037e8ba70cf51d0e976e45447 | clean |
 
-以上只读，不代表占用这些分支开展新任务；A/B/C 未来应从届时最新 main 各建独立任务 worktree。#87/#89 改动 AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX/DECISION_LOG/QUOTE_CENTER，后续普通合并需逐块保留，不互相覆盖。本任务保留上游原部署/工程证据，最新状态提示区分#87合并与0009真实activation。
+以上只是历史只读快照，不代表占用这些分支开展新任务。后续默认一个主 Codex 从届时已核实 main 开始一个可验收目标，使用安全工作树，不强制每个工作包另建分支/PR或多人交接。#87/#89 共享文档合并需逐块保留，不互相覆盖；合并与真实 activation/部署授权分开。
 
 ## 1. 已确认与既有规则的关系
 
@@ -70,7 +73,7 @@ QI-01–06 全文只在 BUSINESS_RULES 维护；D-101 补充 D-003/D-035/D-088/D
 | 进入正式编辑器 | quote.view | quote.view | 保存另需 quote.edit，成本/settings按现有键 |
 | 全局制作预设维护 | 无自动授权 | 无自动授权 | settings.global.edit |
 
-客户端 creator filter 不能扩大范围。无权对象统一404避免枚举；无功能权限403；失效session401。已有权限目录没有 Intake键，B负责审核后 additive catalog/migration，不按admin名称跳过。跨设备相同 session用户可读本人保存资料；离线与自动同步不在V1已确认范围。
+客户端 creator filter 不能扩大范围。无权对象统一404避免枚举；无功能权限403；失效session401。已有权限目录没有 Intake键，实施者核对后采用 additive catalog/migration，复杂权限变更必要时独立审查，不按admin名称跳过。跨设备相同 session用户可读本人保存资料；离线与自动同步不在V1已确认范围。
 
 ## 3. 共同两步 UI 与配置状态
 
@@ -82,7 +85,7 @@ QI-01–06 全文只在 BUSINESS_RULES 维护；D-101 补充 D-003/D-035/D-088/D
 
 ### 无预设参数待完善表示（技术提案）
 
-建议在新 PV `pricingParameters.configuration` 增加 additive metadata：`{schemaVersion:1, status:incomplete|configured, sources:{manufacturingCountry,laborCurrency,usdCnyRate,markupRate,freight}}`，每项值 `unset|technical_default|explicit|preset|accepted_default`。由Server根据受审输入计算，不信客户端status。字段名称需B Gate确认。
+建议在新 PV `pricingParameters.configuration` 增加 additive metadata：`{schemaVersion:1, status:incomplete|configured, sources:{manufacturingCountry,laborCurrency,usdCnyRate,markupRate,freight}}`，每项值 `unset|technical_default|explicit|preset|accepted_default`。由Server根据受审输入计算，不信客户端status。字段名称需实际实施时核对，仍为技术提案。
 
 - laborCurrency保留现有非空 CNY 技术默认，但 source=technical_default、status=incomplete；country为空/preset=null/rate及markup/freightAmount=null，不能制造可用方案。includeFreight=false技术结构默认同样不等于用户明确“不含运费”。
 - 明确币种可标explicit；选中且确认active preset所给字段标preset，确认真实既有defaults才标accepted_default。不猜缺失预设中的汇率，也不因有preset就自动configured。
@@ -114,7 +117,16 @@ Intake create/patch也需要receipt恢复，可统一`GET /api/v1/quote-intake-r
 
 Preview input：`{source:null|{intakeId,expectedVersion}, quoteType, selection:{country:null|string,presetId:null|UUID}, fields:{brandId:null|id,salespersonId:null|id,styleNo,styleName:null|string,quantity:null|decimal,garmentLeadDate:null|date,note}, parameterOverrides:{可编辑参数值}}`。`parameterOverrides` strict允许 `laborCurrency:null|CNY|USD`、`usdCnyRate:null|非负decimal string`、`markupRate:null|非负decimal string`、`includeFreight:null|boolean`、`freightName:null|string`、`freightAmount:null|非负decimal string`；字段缺失表示沿用已审核选择，null表示待完善，不混用false/0。country仅selection.country，preset名称/ID及source/status不能override；Server从active preset读取并生成snapshot。Null includeFreight在新DTO保留待配置语义，转旧结构false时configuration必须标unset。参数override不是随意客户端快照：quote.settings.edit等原权限；来源/default应用保护沿用现有规则。Preview权限至少quote.create；Intake source需对应scope/convert；不因无quote.view就泄漏master完整成本，使用权限过滤的创建选项projection，不能直接放宽既有master GET。
 
-Preview响应 reviewedVersions：`{intakeVersion:null|n,brandVersion:null|n,salespersonVersion:null|n,presetVersion:null|n,globalSettingsVersion:null|n}`及有变更影响的默认资料版本。previewId是Server签发、绑定actor+payloadhash+versions+有效期的review token，不能把它当永久存储或idempotency receipt；过期需重新确认，草稿保留。无某记录使用null，不拿0伪装未配置。preview使用一致读；当前resolveDefaults多查询需B扩展同一事务/版本读能力。
+Preview响应 reviewedVersions：`{intakeVersion:null|n,brandVersion:null|n,salespersonVersion:null|n,presetVersion:null|n,globalSettingsVersion:null|n}`及有变更影响的默认资料版本。previewId是Server签发、绑定actor+payloadhash+versions+有效期的review token，不能把它当永久存储或idempotency receipt；过期需重新确认，草稿保留。无某记录使用null，不拿0伪装未配置。preview使用一致读；当前resolveDefaults多查询需扩展同一事务/版本读能力，不能把现有默认解析当成创建输入验证。
+
+### 创建选择的可信校验（两条 P2 收口；NOT IMPLEMENTED）
+
+- **客户业务员/品牌**：提交非空 `fields.salespersonId` 时，Server 必须读取该业务员与所选 `fields.brandId`，证明业务员存在、`status=active` 且可信 `salesperson.brandId === fields.brandId`。无所选品牌、不存在/不可用业务员、停用或跨品牌组合均明确拒绝，不清空业务员、不猜另一品牌、不回退品牌/系统默认后继续创建。客户端过滤不是校验；现有 `resolveDefaults` 将不匹配业务员忽略为 null 的行为不能作为该命令接受输入的依据。salespersonId=null 不伪造业务员，草稿缺字段仍按既有节点/待完善契约处理，不借此新增必填政策。
+- **国家/预设**：提交非空 `selection.presetId` 时，Server 读取可授权使用且 `status=active` 的可信预设；`selection.country` 必须非空且与该记录 `country` 一致。比较只沿用现行 DTO 文本规范，不猜国家别名或新增 Country master。国家为空/不同、预设缺失/停用明确拒绝，不静默用预设国家替换提交、不把无效预设清空后继续，也不按提交国家应用另一预设。参数及预设 ID/名称/country 快照来自这一可信记录；显式参数 override 仍受原权限/白名单约束，不能 override 国家或预设身份。
+- **无预设分支**：`presetId=null` 不应用任何预设；country=null 及参数待完善仍可作为 QI-06 草稿，不选首个预设/国家或猜汇率/加成/运费。不把不一致的非空预设请求降级到此分支。
+- **creation-preview**：在一致读中独立执行上述校验，校验成功才解析参数/默认并签发 previewId；受审 Brand、Salesperson、Preset 版本及相关字段绑定 token/payload。失败建议400 `invalid_salesperson_selection` / `preset_country_mismatch` / `invalid_preset_selection`，不创建 Quote/编号/正式关联或成功审计；错误不泄漏无权 master 内容。错误码是技术提案，校验和明确拒绝是实施要求。
+- **最终创建事务**：不能只信 preview token 或旧内存记录；按第5节锁序重新读取受审 master，独立重验业务员启用/品牌归属、预设启用/国家一致及所有受审版本，再调用编号/Quote 创建。preview 后停用、改归属、改country或任何受审版本变化建议409 `stale_parameters`，保留草稿并要求重新 preview/确认；不 silently refresh 参数，不换国家，不继续提交。直接伪造不一致输入同样拒绝；payload 与 token 不同先按原 hash 校验拒绝。
+- 两阶段验证只约束新的创建命令，**不重写历史 Quote/PV 快照，不改变编号、公式或旧 POST {}**。当前尚无这些新端点/事务校验，第7节相关测试是未来要求，本轮 NOT RUN。
 
 Final command：`{clientRequestId,previewId,source,quoteType,selection,fields,parameterOverrides,imageSelection:null|{sourceImageIdsInOrder,primarySourceImageId}}`。普通新建imageSelection=null，创建后沿用正式附件上传；若以后支持普通新建预上传，应复用相同staging而非伪造Intake。Intake转换默认全部源图，改变选图须明确用户操作且原图全部保留；最终mapping写receipt。最终数据hash必须与preview一致；不接受整单ServerQuote。
 
@@ -142,18 +154,18 @@ Final command：`{clientRequestId,previewId,source,quoteType,selection,fields,pa
 1. session/scope/输入和receipt查验；同token hash冲突拒绝、已committed直接受权重放。短事务登记pending receipt/lease，避免并发worker重复执行；尚未分配正式quoteCode。
 2. 获取授权source快照/版本，要求所有选图available，记录manifest；源Intake此时可继续编辑，最终CAS会阻止旧source提交。
 3. 通过AttachmentStorage.get读取授权原图，验证size/SHA/signature；对每图新Server UUID/key执行put/head校验，保留源原图。目标attachment UUID与未来Quote UUID可提前作为staging identity，**不写正式Quote或编号**。失败记录staging状态，普通业务不调用remove。
-4. 最终一个PostgreSQL事务：锁receipt→Intake root（如有）→受审master版本（按固定ID顺序）→已有Quote root/CCT（仅type switch）；复核当前session授权、receipt/唯一转换、IntakeCAS、master active/version和payload；一致读权限撤销需定义与auth更新的序列化点，不能只在请求开头查旧permission cache。
+4. 最终一个PostgreSQL事务：锁receipt→Intake root（如有）→受审master版本（按固定ID顺序）→已有Quote root/CCT（仅type switch）；复核当前session授权、receipt/唯一转换、IntakeCAS和payload。以事务内可信记录重验第4节业务员 active/所选品牌归属、预设 active/提交国家一致及 Brand/Salesperson/Preset/其他受审版本；preview 后漂移拒绝并重新review，不在事务外校验后盲信旧结果。失败在调用 allocator、写 Quote/初始Revision/PV/正式附件关系及成功审计之前停止；已有 staging/receipt 的恢复语义保持，不伪称对象回滚。一致读权限撤销需定义与auth更新的序列化点，不能只在请求开头查旧permission cache。
 5. 调用**原可信Quote Service**的transaction-scoped创建能力，复用allocator/createServerQuoteDraft/原repository写入；不在外层调用自行BEGIN/COMMIT的createRuntimeDraft形成假嵌套事务。Repository复用createInTransaction，仅扩展内部组合能力，不暴露任意aggregate公共writer。
 6. 同事务写正式Quote/初始Revision/PV、已验证Quote附件metadata/关系、源→目标image mapping、conversion原始/最终snapshot，CAS冻结Intake，提交唯一result/receipt及可信OperationLog。一次Quote业务create事件及一次Intake转换事件，attachment事件遵循现有审计，不重复日志；审计失败全部DB rollback。
 7. COMMIT成功才返回正式结果；COMMIT响应丢失查receipt/uniqueconversion。rollback后对象可存在，但没有正式Quote/关系/converted；保留manifest证据，显式retry复用校验对象。唯一性保证同Intake不同token并发最多一Quote，其余返回existing结果；不把sequence gap当数据损坏。
 
 对象存储不可参与DB原子事务；staging中途崩溃、租约过期/worker接管、DB成功但响应丢失分别有恢复测试。无pending对象自动GC；仅未来审批的保留策略可清理确认未引用对象。日志记录IDs/version/hash/errorCode，禁止原图bytes/base64/凭据及敏感备注全文。源图下载对creator及显式scope开放；Quote图走现有Quote权限，不能借转换映射跨域绕权。
 
-## 6. 类型切换服务契约（B 拥有；NOT IMPLEMENTED）
+## 6. 类型切换服务契约（Server 工作包；NOT IMPLEMENTED）
 
 建议专用 `POST /api/v1/quotes/:id/type-workflows`：`{clientRequestId,expectedVersion,sourceRevisionId,targetType,mode:current|new_revision,acknowledged:true,reason,note,expectedTermsVersions:[{termsId,version}]}`；response沿用record/receipt。targetType整Revision，不能PV级；no-op不能重复Revision/日志。
 
-未确认当前可写Revision：quote.edit+明确确认，保留所有cost/params/IDs/confirmation不动，CAS与audit。确认保护既看任一PV local snapshot，也按exact quoteId/revisionId/pvId查linked CCT当前；linked不可用/provenance不完整必须fail closed，不猜未确认。保守实施提案把已有任意历史确认也纳入new_revision保护；B Gate须明确其范围，不得将当前/linked确认漏判为未确认。
+未确认当前可写Revision：quote.edit+明确确认，保留所有cost/params/IDs/confirmation不动，CAS与audit。确认保护既看任一PV local snapshot，也按exact quoteId/revisionId/pvId查linked CCT当前；linked不可用/provenance不完整必须fail closed，不猜未确认。保守实施提案把已有任意历史确认也纳入new_revision保护；实际实施须明确其范围，不得将当前/linked确认漏判为未确认。
 
 已确认：quote.revision.update+quote.edit，沿现有完整性校验/命名/clone规则创建新Revision后切type，旧历史保持readonly；清除的只是新PV确认，保留旧snapshot与所有CCT/SalesOrder links/current值。不能把新Revision自动重新链接旧CCT、清空/覆盖共享terms，不能删除association。source必须明确所选完整snapshot，不以“重新新建Quote”绕过。
 
@@ -163,7 +175,7 @@ genericPUT：任何已有Revision type变化都调用同保护检查；确认后
 
 ## 7. Migration 与实施验证计划
 
-最新main已含0001–0009（#87刚合并）。B开始前再次核对最新main/open PR与编号owner，**本轮不预留、不创建0010**；若届时仍无人占用，下一个可分配0010。#87工程合并不是0009真实activation，Intake release需明确app/schema配套Gate；不冒用0009或跳号造成运行/ledger不兼容。不能修改0001–0009原始字节/checksum；新增独立forward-only迁移，不backfill伪Intake或Quote。未来对象manifest/receipt/配置metadata是否拆migration由B决定并记录。
+最新main已含0001–0009（#87已合并）。实施开始前再次核对最新main/open PR与编号owner，**本轮不预留、不创建0010**；若届时仍无人占用，下一个可分配0010。#87工程合并不是0009真实activation，Intake release需明确app/schema配套Gate；不冒用0009或跳号造成运行/ledger不兼容。不能修改0001–0009原始字节/checksum；新增独立forward-only迁移，不backfill伪Intake或Quote。未来对象manifest/receipt/配置metadata是否拆migration由实施者核对并记录，复杂数据库改动仍严格独立验证。
 
 以下是未来计划，**本轮全部 NOT RUN**；只用disposable PG与MemoryAttachmentStorage/合成图，不能连18443/18444 DB或真实COS。
 
@@ -177,6 +189,8 @@ genericPUT：任何已有Revision type变化都调用同保护检查；确认后
 | 原子回滚 | Quote写入/关联/sourcefreeze/receipt/audit任一步失败DB全部rollback，无converted孤儿；编号gap允许 |
 | 图片失败恢复 | put/head/get/SHA错误/DB提交失败/响应丢失/进程崩溃/lease接管；原图不变，无remove，staging可查 |
 | 预设漂移 | preview后停用/版本变化/品牌业务员变动→409主动review；返回settings保留用户输入 |
+| 业务员/品牌双阶段校验（P2） | preview拒绝停用、不存在、无品牌或跨品牌业务员；最终事务再验 active/brandId/受审版本。preview后停用/改归属/改版本→409且无Quote/编号分配/正式关系/成功日志；正确同品牌启用记录成功。直接请求不能绕过；历史快照保持 |
+| 国家/预设双阶段校验（P2） | preview拒绝有效预设配另一国家/null国家及缺失/停用预设；正确国家仅用可信预设快照。preview后停用/改country/改版本→409，最终事务不换国家或混参数；无preset且country/参数待完善仍允许draft，旧POST{}正常 |
 | 配置状态 | 无preset允许draft、technical CNY非configured；明确0/false有效，旧PV缺metadata不被重算 |
 | 类型切换 | 未确认明确switch；local/linked确认后新Revision；genericPUT伪造/历史/新revision绕过拒绝 |
 | confirmation竞争 | terms-first/type-first锁顺序，CAS/audit一致；CCT/SalesOrder provenance前后完全保留 |
@@ -186,55 +200,52 @@ genericPUT：任何已有Revision type变化都调用同保护检查；确认后
 
 业务节点仍用原完整性验证；如隐藏材料阻止确认，显示授权错误定位，不能靠删除材料/更换公式让测试通过。自动化工程PASS不等于用户验收PASS。
 
-## 8. 独立实施任务与依赖
+## 8. 默认单 Codex 流程与可选工作包（NOT IMPLEMENTED）
 
-启动顺序：用户审查本契约 → B Gate0 migration/DTO/权限/原子命令设计审核 → A/C采用同DTO；A可先做不写业务的交互原型 → B完成可信API/类型保护/附件 → A接最终创建 → C接收集与同wizard → D审查/隔离Preview/业务验收。每阶段从届时最新main独立worktree，记录branch/fullHEAD/dirty baseline；可验证Gate只stage自己增量，checkpoint commit/push/AI_HANDOFF，唯一PR，不自动merge。共享入口app.ts/权限目录/文档由owner提交，其他人提契约变更不直接改。
+默认：一个主 Codex 读取 GitHub 当前状态 → 确认安全工作树/分支 → 实现一个可验收功能目标 → 定向及必要联合测试 → 获授权提供独立 Preview → 等待用户人工验收 → 经用户批准后合并。没有固定 A/B/C/D Agent、强制多层交接、每功能独立契约 PR 或每工作包单独 PR。下面 A/B/C/D 只保留为可选工作范围；技术依赖是可信 API/共同 DTO 的依赖，不是另一名 Agent 批准的依赖。
 
-### Codex A — 两步报价 UI
+可验证阶段仍记录 baseline/full SHA/dirty，显式 stage 本阶段增量、checkpoint commit/push 和短接力；最终围绕一个可验收目标交付唯一 PR，不在每个阶段重写全局状态。大型数据库、迁移、权限、安全或跨模块复杂变更仍需独立严格验证，确有必要时才安排第二名 Codex 审查；分工时明确共享文件负责人、防止并写，不默认另建集成 PR。所有能力尚未实现，本轮不启动下列工作。
 
-- 前置：当前#89及其后续dirty修复先明确交付边界；本契约获审；B批准creation/type DTO。API未完成可用合成fixture测试交互，最终创建禁用且显示待接通，不能假成功。
-- 所有权：`features/quote-center/components/production-quote-pages.tsx`、新`quote-creation-wizard.tsx`/参数展示；`quote-editor.tsx`、`quote-pricing-settings.tsx`中条件显示与明确type操作；`features/quote-center/server/quote-creation-client.ts`；对应UI/client测试。正式route仅必要接线，不盲用历史server-new页面。普通与Intake使用同wizard。
-- 禁止：server writer/SQL/allocator/成本计算公式/Quote repository/附件storage与Source；不修改C收集箱，保留既有材料/工价/确认，不覆盖#89列表修复。
-- Gate A0 baseline/原型与DTO → A1两步/独立preset入口/返回保护checkpoint → A2真实API幂等恢复/processing详情/type guard反馈checkpoint → A3隔离UI回归/交付PR。每Gate更新自己任务证据/接力，实际API接线未完成不得宣称业务PASS。
-- 自动测试：取消/back零创建、多preset/no preset、技术默认提示、settings回程不覆盖、双击/409/未知网络receipt、普通/Intake统一、材料IDs值不变、确认后revision/type、旧PV/权限/精度/export UI回归；使用原calc。
-- 用户验收：两种类型分别走两页；无preset草稿；主动配置返回；加工工价/说明与内部含材料金额标签；明确切经销原明细恢复；确认后新Revision旧history不变。
-- PR标准：真实B API隔离验收、typecheck/lint/npm test/build及合成浏览器证据；明确尚未实现/用户验收，代码owner文件最小范围。
+### 可选工作包 A — 两步报价 UI
 
-### Codex B — Intake Server 与创建事务
+- 前置：#89 已合并成果保留；实际创建/type DTO 与 Server 接口核对。API未完成可用合成fixture测试交互，最终创建禁用并标待接通，不能假成功。
+- 范围：`features/quote-center/components/production-quote-pages.tsx`、拟新增`quote-creation-wizard.tsx`/参数展示；`quote-editor.tsx`、`quote-pricing-settings.tsx`条件显示与明确type操作；拟新增`features/quote-center/server/quote-creation-client.ts`及UI/client测试。普通与Intake复用同wizard，正式route仅必要接线，不盲用历史server-new页面。
+- 边界：UI不绕过writer/allocator/权限，不复制或改计算公式，不覆盖#89列表/偏好修复。API依赖由同一主 Codex 在对应Server工作中实现；可选分工不授予额外修改范围。
+- 验证：取消/back零创建、多preset/no preset、技术默认提示、settings回程不覆盖、双击/409/未知网络receipt、普通/Intake统一、材料IDs/值不变、确认后revision/type、旧PV/权限/精度/export回归；使用原calc和真实隔离API，不把原型标业务PASS。
+- 用户验收：两种类型分别走两页；无preset草稿；主动配置返回；加工工价/说明与内部含材料金额标签；明确切经销恢复原明细；确认后新Revision旧history不变。
 
-- 前置：#87 migration顺序/发布兼容明确；latestmain baseline；DTO/参数status/permissionkeys/附件manifest设计先审。不开真实activation。
-- 所有权：新`server/quote-intakes/{model,repository,service,routes}.ts`；`server/quotes/{service,repository,draft,version-workflows,model}.ts`必要组合与type guard，新`creation-workflows.ts`/receipt；`server/app.ts`路由唯一owner；`server/attachments/`抽取复用验证/manifest；`server/quote-masters/`一致版本读取；权限catalog/session相关只additive；届时获分配migration；server integration tests。共享model配置metadata由B先定DTO，A/C不并改。
-- 禁止：Quote UI、A列表改动、calculator复制/改公式、旧SQL字节、运行配置/COS/真实DB/容器、Browser storage schema。
-- Gate B0依赖/DTO/RBAC/TX设计checkpoint → B1 schema/own scope/CAS/可信审计与非空迁移tests → B2 Intakeimages/staging/restore → B3共同creation/receipt/uniqueconversion/旧POST兼容 → B4type guard与linked CCT竞争 → B5全矩阵回归/PR。每Gate独立commit/push/接力，禁止提交未知dirty。
-- 自动测试：第7节Server矩阵全部在disposablePG/mockstorage执行；不能把Docker不可用写成通过。必要typecheck/lint/npmtest/server/frontendbuild，保留旧API/Source/Order/报价测试。
-- 用户验收支持：提供合成API脚本/数据，演示一次转换/同token恢复、源freeze、两类确认type路径、原图与Quote图映射；脚本不能默认连接持久库。
-- PR标准：数据库唯一约束证据、可控并发/撤权/审计rollback/图片恢复；server DTO可供A/C消费；migration编号/activation限制明示，不把合并当真实migration授权。
+### 可选工作包 B — Intake Server 与创建事务
 
-### Codex C — 手机速录与电脑收集箱
+- 前置：当前main/schema/编号归属明确，实际DTO/参数status/权限/附件manifest契约核对；不开真实activation。
+- 范围：拟新增`server/quote-intakes/{model,repository,service,routes}.ts`；`server/quotes/{service,repository,draft,version-workflows,model}.ts`必要组合与type guard，拟新增`creation-workflows.ts`/receipt；`server/app.ts`路由；`server/attachments/`复用验证/manifest；`server/quote-masters/`一致版本读取；additive权限catalog/session、届时获分配的forward migration与integration tests。共享DTO只维护一套，UI引用同契约。
+- 边界：不复制calculator/改公式/旧SQL字节/Browser storage schema，不碰真实配置/COS/DB/容器。schema/own scope/CAS/可信审计、图片恢复、共同creation/receipt/uniqueconversion/旧POST兼容、type与linked CCT保护均需实际验证，不减为源码断言。
+- 验证：第7节Server矩阵，包括两条P2的preview及最终事务拒绝、版本漂移和正确选择；disposable PG/mock storage、可控并发/撤权/审计rollback/图片恢复/非空迁移。Docker不可用写BLOCKED，不沿用旧PASS；必要typecheck/lint/npm test/Server/frontend build，保留既有API/Source/Order/报价回归。
+- 交付证据：唯一转换约束、真实返回IDs/receipt、源freeze、两类确认type路径、原图/Quote图映射；合成脚本不能默认连接持久库。migration编号与activation限制明示，合并不是真实migration授权。
 
-- 前置：B审核DTO/API/权限/上传恢复；A已确定共同wizard入口；没有API时只原型，不生产mockRepository。
-- 所有权：新`features/quote-intake/{model,server,components}/`客户端DTO引用/页面/图片卡；`app/quote-intake/`速录与箱路由；导航最小接线（与A协调，单owner）；对应客户端/UI测试。转Quote入口调用A的wizard，不自写Quotecreate。
-- 禁止：server Repository/API/SQL/RBAC策略、Quote writer/calculator/Browser namespace、A wizard内部并改、真实图片/凭据/离线后台队列未审先做。
-- Gate C0恢复DTO/手机交互 → C1拍照/逐款字段/失败保留/同token恢复checkpoint → C2电脑own/team权限箱、编辑、图片排序主图/共wizard接入checkpoint → C3真实隔离API跨设备与手机验收/PR。
-- 自动测试：camera/file input取消、unsupported MIME明确反馈、上传部分失败不丢字段、CAS编辑冲突、双击save&next、conversion未知结果、restricted图片无请求/Blob清理、本人/团队scope、convertedreadonly与原图保留；跨session数据来自Server，无Browserfallback。
-- 用户验收：手机连收3款（含null/0/有交期/多图）；断网后原卡保留；恢复查结果后下一款；电脑同人查看完善；无授权其他用户不可见；转入A两步仅一Quote且返回来源。
-- PR标准：真实API合成端到端、typecheck/lint/npmtest/build、手机实际camera/HTTPS若未跑需标NOT RUN；不能把桌面文件选择等同真机拍照PASS。
+### 可选工作包 C — 手机速录与电脑收集箱
 
-### Codex D — 独立集成与验收（下一轮另行启动）
+- 前置：可信DTO/API/权限/上传恢复及共同wizard可用；无API时只原型，不引入生产mockRepository。
+- 范围：拟新增`features/quote-intake/{model,server,components}/`客户端DTO引用/页面/图片卡、`app/quote-intake/`路由、导航最小接线及客户端/UI测试。转换调用同wizard，不另写Quote create；分工时不并改共享入口。
+- 边界：不绕过Server Repository/API/RBAC，不改Quote calculator/Browser namespace，不擅自接真实图/凭据/未审离线后台队列。
+- 验证：camera/file input取消、unsupported MIME反馈、上传部分失败保留字段、CAS冲突、双击save&next、未知结果、restricted图片无请求/Blob清理、own/team scope、converted readonly及原图保留；跨session数据来自Server，无Browser fallback。
+- 用户验收：手机连收3款（null/0/交期/多图）、断网保留原卡/恢复查结果后下一款、电脑同人完善、他人无授权不可见、同两步仅一Quote并返回来源。真机camera/HTTPS未跑标NOT RUN，不把桌面文件选择当真机PASS。
 
-- 前置：用户启动授权、A/B/C完整交付、DTO一致且无未知dirty；从最新main建独立集成worktree，先只读审各PR/fullSHA。
-- 所有权：集成冲突、恢复文档/证据、隔离Preview方案；不能替各owner补业务规则而不复审。现有18444数据/账号/网络/volume保护，更新Preview需届时独立授权，不能用本次docs授权。
-- Gate D0审API/migration/公式/权限/历史/附件 → D1普通merge冲突与最小回归checkpoint → D2获授权隔离候选与exactimage/migrationbytes核对 → D3四条业务卡/手机-电脑验收 → D4用户明确接受后提出合并建议。不得自动merge/真实activation/部署。
-- 自动/人工：聚合第7节、真实返回IDs与scope、历史snapshot/CCT完整性；工程/候选/Preview/人工验收各记状态。不因自动测试通过代用户签业务验收。
-- PR标准：各owner提交/来源SHA/合并delta清楚，测试实际新跑，remainingdirty/未验收列明；真实更新需后续明确授权。
+### 可选工作包 D — 必要时独立审查与集成验证
+
+- 仅数据库/安全/权限或跨模块复杂性确有必要时安排独立审查，不要求另一个Codex常驻中枢，也不默认另建集成worktree/PR。普通功能的实现、测试、Preview交付仍由主 Codex 完成；人工验收与批准始终由用户进行。
+- 检查实际delta/fullSHA、API/schema/公式/权限/历史/附件、可控并发和第7节证据；不得补未经确认的业务规则或把自动PASS当用户验收。
+- 获授权后才准备独立候选，核对exactimage/migration bytes及隔离/备份；现有18444账号/数据/网络/volume受保护，本轮docs授权不包含任何更新。工程、候选、Preview、人工验收分别记录。
+- 有分工时来源/集成冲突/必要新回归/remaining dirty透明可追踪；无分工时不制造额外交接层。用户明确验收并批准前不得合并，不自动merge/真实activation/部署。
 
 ## 9. 待技术落实与业务复核点
 
-- B确认配置metadata持久化/legacy读取、draft缺资料最低门槛、权限键/授予流程、preview有效期、receipt租约/保留、权限撤销序列化；这些是提案不冒称用户字段选择。
+- 实施者核对配置metadata持久化/legacy读取、draft缺资料最低门槛、权限键/授予流程、preview有效期、receipt租约/保留、权限撤销序列化；这些是提案不冒称用户字段选择，业务政策若需改变仍单独确认。
 - 对“任一价格版本已确认”需涵盖linked-only及历史确认，默认保守不绕过；新Revision完整性和basedOnConfirmedRevisionId精确一致，不能清共享current。旧首次processing PUT的兼容路径须有可信可审设计。
 - 图片限额/HEIC支持/EXIF/离线同步尚未获产品决定，V1不默认实现；copy-on-convert需成本/带宽与恢复设计评审，但保留源图不变是已确认规则。
-- #87本轮已普通整合，后续#89文档合并仍要保留D-100/D-101及双方证据；#88候选需按最终纳入代码重新准备。所有migration编号仅B启动时分配。
+- #87/#89已在本轮最新main中，普通整合保留D-100/D-101及双方代码/证据；#88不在本轮范围，不启动其候选任务。migration编号仅在未来获准实施时分配，本轮不预留。
 
 ## 10. 本轮交付边界
 
-仅修改文档；未修改生产代码、SQL、测试、AGENTS；未执行真实或隔离migration/测试/容器操作，未读凭据/真实业务图、未访问18443/18444运行态或COS，未部署/merge，未启动A/B/C。验证仅docs diff-check、链接/字段/owner/编号一致性、代码事实只读核对。提交和远端PR证据由最终交付报告给出，Git commit不在自身文档中伪填。
+仅修改文档；相对最新main无生产代码、SQL、测试或AGENTS改动；正常Git merge仅继承已合并代码，不撤回#89。未执行真实或隔离migration/运行时测试/容器操作，未读凭据/真实业务图、未访问18443/18444运行态或COS，未部署/合并PR，未启动Intake实施。验证仅docs diff-check、链接/字段/决策编号/冲突标记与继承代码一致性、实际代码只读核对；两条P2的可执行回归仍 NOT RUN。提交和远端PR证据由最终交付报告给出，Git commit不在自身文档中伪填。
+
+本轮核对：55个本地文档/文件链接存在；D-100/D-101各唯一，D-101与QI-01–06原文保持，D-100与main相同。决策日志既有D-026/027/028/029/044/076各两处标题，main与原PR90均已存在，本轮未引入或重编号；不将全日志称为无重号。冲突标记/diff-check与非文档文件对main一致性在提交前核验，不用历史业务测试冒充本轮结果。

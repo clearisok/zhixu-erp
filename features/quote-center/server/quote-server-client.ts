@@ -9,6 +9,8 @@ export type QuoteServerListItem = {
   quoteCode: string;
   defaultRevisionId: string;
   version: number;
+  /** Only selected styleImage, proven default Revision relation; never an object URL/key. */
+  styleImage?: { attachmentId: string; mimeType: string; byteSize: number; sha256: string } | null;
   business?: BusinessValues;
   confirmationSources?: Array<{ priceVersionId: string; linkage: "linked" | "unlinked" | "unknown"; termsVersion: number | null }>;
   summary?: { quoteStyleNo: string; styleName: string; brandName: string; salespersonName: string; status: string; quoteType: string; quoteDate: string | null; revisionLabel: string; priceVersionCount: number };

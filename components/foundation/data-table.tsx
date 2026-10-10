@@ -21,7 +21,7 @@ export type DataColumn<T> = {
 
 type DataTableProps<T> = {
   /** Opt-in pixel floors with local horizontal overflow; other tables remain fit-first. */
-  layout?: "fit" | "readable";
+  layout?: "fit" | "readable" | "fixed";
   rows: T[];
   columns: DataColumn<T>[];
   rowKey: (row: T) => string;
@@ -84,7 +84,7 @@ export function DataTable<T>({ layout = "fit", rows, columns, rowKey, rowClassNa
   const normalizedOrder = normalizeColumnOrder(preference.columnOrder, defaultOrder, preferenceAliases);
   const columnMap = new Map(columns.map((column) => [column.key, column]));
   const orderedColumns = normalizedOrder.map((key) => columnMap.get(key)).filter((column): column is DataColumn<T> => Boolean(column));
-  const widths = Object.fromEntries(orderedColumns.map((column) => [column.key, Math.max(layout === "readable" ? column.minWidth ?? MIN_COLUMN_WIDTH : 0, preference.columnWidths[column.key] ?? defaults[column.key] ?? 120)]));
+  const widths = Object.fromEntries(orderedColumns.map((column) => [column.key, Math.max(layout !== "fit" ? column.minWidth ?? MIN_COLUMN_WIDTH : 0, preference.columnWidths[column.key] ?? defaults[column.key] ?? 120)]));
   const totalWidth = Math.max(1, Object.values(widths).reduce((sum, width) => sum + width, 0));
 
   const applyPreference = (next: TablePreference, persist: boolean) => {
@@ -129,7 +129,7 @@ export function DataTable<T>({ layout = "fit", rows, columns, rowKey, rowClassNa
   const styleFor = (column: DataColumn<T>): CSSProperties => {
     const percent = widths[column.key] / totalWidth * 100;
     return {
-      width: layout === "readable" ? widths[column.key] : `${percent}%`,
+      width: layout !== "fit" ? widths[column.key] : `${percent}%`,
       ...(column.sticky === "left" ? { left: 0 } : {}),
       ...(column.sticky === "right" ? { right: 0 } : {}),
     };
@@ -141,9 +141,9 @@ export function DataTable<T>({ layout = "fit", rows, columns, rowKey, rowClassNa
 
   return <div className={`qc-business-table ${className}`.trim()} data-layout={layout} data-loading={loading || undefined} data-table-key={stableTableKey}>
     <div className="qc-table-wrap" role="region" aria-label={ariaLabel}>
-      <table className="qc-data-table" style={layout === "readable" ? { minWidth: totalWidth } : undefined} aria-label={ariaLabel} aria-busy={loading || undefined}>
+      <table className="qc-data-table" style={layout === "fixed" ? { width: totalWidth, minWidth: totalWidth, maxWidth: totalWidth } : layout === "readable" ? { minWidth: totalWidth } : undefined} aria-label={ariaLabel} aria-busy={loading || undefined}>
         <colgroup>{orderedColumns.map((column) => <col key={column.key} data-column-key={column.key} style={styleFor(column)} />)}</colgroup>
-        <thead><tr>{orderedColumns.map((column) => <th key={column.key} scope="col" className={classFor(column)} data-column-key={column.key} data-priority={column.responsivePriority ?? "secondary"} style={styleFor(column)} draggable onDragStart={(event) => { dragKeyRef.current = column.key; event.dataTransfer.effectAllowed = "move"; }} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); const source = dragKeyRef.current; dragKeyRef.current = null; if (source) moveColumn(source, column.key); }}>
+        <thead><tr>{orderedColumns.map((column) => <th key={column.key} scope="col" className={classFor(column)} data-column-key={column.key} data-priority={column.responsivePriority ?? "secondary"} style={styleFor(column)} draggable onDragStart={(event) => { if (resizeRef.current || isInteractiveTarget(event.target)) { event.preventDefault(); return; } dragKeyRef.current = column.key; event.dataTransfer.effectAllowed = "move"; }} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); const source = dragKeyRef.current; dragKeyRef.current = null; if (source) moveColumn(source, column.key); }}>
           <span className="qc-table-heading"><span className="qc-column-drag-handle" aria-hidden="true">⋮⋮</span><span>{column.header}</span></span>
           <button type="button" className="qc-column-resize-handle" data-table-control aria-label={`调整${typeof column.header === "string" ? column.header : column.key}列宽`} onPointerDown={(event) => startResize(event, column)} onKeyDown={(event) => { if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return; event.preventDefault(); event.stopPropagation(); resizeColumn(column.key, widths[column.key] + (event.key === "ArrowRight" ? 8 : -8), true); }} />
         </th>)}</tr></thead>

@@ -84,7 +84,7 @@ Foundation 不拥有业务数据模型，也不直接调用业务 API。它通�
 
 ## Known gaps
 
-Server Quote trial exception: `DataTable` 的默认 `layout="fit"` 仍按比例布局；仅正式 Server 报价列表选择 `layout="readable"`，以实际 px 下限和 table-local 横向滚动保留可读性。不会静默改写保存的窄列偏好。共享 SSR 回归验证两种布局；实际生产 Chromium 验证页面/操作列/窄桌面。Server 退出控件不占 AppShell 外文档流，workspace 为主滚动拥有者。详情资料加载后才挂载标题时，sticky observer 必须随 ready 状态绑定，不可仅 mount 一次。
+Server Quote trial exception: `DataTable` 默认 `layout="fit"` 仍按比例布局，原 `readable` 行为保留；D-099 列表验收修复显式选择新增 `layout="fixed"`，table width/min/max 为列 px 总和，拖动一列不再重新分配其他列或容器余宽。Resize handle 位于本表头内，交互目标/resize 不触发 reorder；键盘调整、内部横向滚动和右侧 sticky 保留。不会静默改写保存的窄列偏好，实际显示遵守可读下限。SSR 验证三种布局；隔离 Chromium 两种列表视图/四档桌面实测选中列+40px、其他列0px。其他模块无需接受该 opt-in。[证据](../tasks/active/d099-list-acceptance.md)。Server 退出控件不占 AppShell 外文档流，workspace 为主滚动拥有者。详情资料加载后才挂载标题时，sticky observer 必须随 ready 状态绑定，不可仅 mount 一次。
 
 - AppShell 当前显示固定 mock 用户，尚未绑定根路径真实会话。
 - AppShell 的订单/生产导航仍回到根路径 ERP，没有统一路由领域。

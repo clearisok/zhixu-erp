@@ -18,7 +18,7 @@
 
 默认 creator 本人可见；团队读写需显式范围权限，与 quote.create/view/edit、成本/设置权限分开。actor/creator/time/ID/version 均由 Server 提供或校验；管理员名称不绕过。附件 owner 是 Intake，不借用不存在的 Quote ID。转换时保持收集 creator，不用转换操作者改写作者；另记 converter。
 
-技术提案：独立 intake.create/read/edit/convert 与 intake.read_all/edit_all/convert_all，最终键名由 B 的 DTO/RBAC Gate 审核。不自动为任何角色增权，不把收集权当作正式报价权；receipt 仅返回已授权的最小结果，完整 Quote 另需 quote.view。字段与权限矩阵在实施契约。
+技术提案：独立 intake.create/read/edit/convert 与 intake.read_all/edit_all/convert_all，最终键名由主 Codex 在实际 DTO/RBAC 实施时核对；复杂权限变更必要时独立审查。不自动为任何角色增权，不把收集权当作正式报价权；receipt 仅返回已授权的最小结果，完整 Quote 另需 quote.view。字段与权限矩阵在实施契约。
 
 ## 生命周期
 
@@ -38,8 +38,10 @@
 
 第一页明确类型/国家/active preset，多个预设不能静默选首个；无预设/国家待设置允许进入第二页。第二页显示参数是否来自用户/已确认预设/技术默认，完善基础资料；预设维护在独立设置页，返回后保留草稿，主动刷新与确认变更。最后只调用共同可信创建命令。转换额外校验 Intake version/范围与图片，普通创建没有 Intake freeze。
 
+创建校验要求（**NOT IMPLEMENTED**）：非空 salespersonId 必须由 Server 证明记录启用且 brandId 等于所选品牌；缺失/停用/跨品牌明确拒绝，不以 resolveDefaults 忽略该记录代替校验。非空 presetId 必须由 Server 证明预设启用，所提交国家与其可信 country 一致；国家为空或不一致明确拒绝，不静默换国家、换预设或改用另一国参数。creation-preview 在一致读中校验并记录受审版本；最终创建事务重新读取/锁定资料，复核归属、国家、状态及版本，漂移要求重新 preview，失败不创建 Quote/编号/正式关系或成功审计。无 preset 仍允许参数待完善草稿；不收紧旧 POST {}。具体字段/错误及未来回归见实施契约。
+
 加工隐藏编辑保留内部成本公式、材料事实、客户确认和历史；纯工价摘要与含材料内部成衣价分开准确标示。经销恢复经明确确认后重新显示原明细，不自动应用预设。确认后新 Revision 切类型：检查任一 PV 及 exact linked CCT，保留 SalesOrder provenance/共享当前确认；旧历史只读。generic PUT 必须同样防绕过。无 preset 的 technical CNY 不能当作配置完成，具体状态方案见契约。
 
 ## 当前事实与后续验证
 
-现有 createRuntimeDraft/POST{}、allocator、Repository TX、OperationLog、版本克隆及 AttachmentStorage 可复用；Intake/new command/configuration metadata/type-switch guard 均未实现。已有测试只证明旧能力，不证明 Intake 通过。B 在 disposable PG + MemoryAttachmentStorage 完成向前迁移/幂等/CAS/审计/图片恢复；A/C 完成真实 API 的隔离 UI 验收后，D 提交用户业务验收建议。不得自动 merge/部署。
+现有 createRuntimeDraft/POST{}、allocator、Repository TX、OperationLog、版本克隆及 AttachmentStorage 可复用；Intake/new command/configuration metadata/type-switch guard 均未实现。已有测试只证明旧能力，不证明 Intake 通过。默认一个主 Codex 按可验收目标完成实现、disposable PG + MemoryAttachmentStorage/真实 Chromium 测试、独立 Preview，等待用户人工验收及批准后合并；不得自动 merge/部署。契约中的 A/B/C/D 仅可选工作包，无固定 Agent 或强制多层交接，不要求每个功能另建契约 PR；大型数据库、安全、权限或跨模块复杂变更必要时才安排独立审查，严格验证不减免。

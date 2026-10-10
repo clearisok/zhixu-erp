@@ -1,8 +1,10 @@
 # 当前状态
 
-> 2026-10-10 文档恢复提示：最新 GitHub main `7ed9204d552384730bf93c992b500c530d639c38` 已合并PR84/PR87；原部署与工程证据保留。Quote Intake V1 的 QI-01–06 / D-101 是已确认、尚未实现目标；[实施契约](tasks/active/quote-intake-v1-implementation-contract.md)给出字段/API/图片恢复/分工。0009已在main但真实activation未授权；PR88旧候选准备、PR89 UI修复仍待人工验收。本轮仅文档，不启动开发、不更新18443/18444、不执行migration。
+> 2026-10-10 PR #90 文档收口：最新 main `5d79cbb3cf880cab4ea84b0ebb61440c3152cc48` 已合并 #89；正常整合保留 D-100/0009 及最新 UI/缩略图代码和证据。QI-01–06 / D-101 保持 Active / **NOT IMPLEMENTED**；[契约](tasks/active/quote-intake-v1-implementation-contract.md)补齐业务员启用/品牌归属和预设/国家一致性双阶段校验要求，默认单 Codex，分工可选。本轮仅文档检查，不开发、不操作环境，等待用户批准 #90 合并。
 
-> 2026-10-10；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及本轮验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
+> 2026-10-10；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及原工程验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
+
+> PR #89 已合并。其100px列宽 USER ACCEPTANCE PASS、Server缩略图工程/18444更新证据保留：运行源码 `d2a3509f3973980a2016e1f46760cf3664bd2d77`，4032×3024/7.77MB→256×192/4767字节；原26报价保留，新增授权合成演示后27张。原阶段 Chromium62/62、列宽27/27、生命周期14/14、Node22 Alpine及备份恢复PASS，9份迁移字节兼容/执行0。[完整工程、备份及人工验收历史](tasks/active/d099-list-acceptance.md)。以上非本轮复测；本轮未操作18443/18444，未新增人工UI验收结论，Excel筛选未开始。
 
 ## 当前工程能力
 
@@ -13,12 +15,12 @@
 
 ## 真实环境与下一步
 
-- PR #82/#83/#84/#85/#86 已合并；本轮 fetch 确认 main `49a82c9f970e158ded589300b4aa04fc4c809038`。PR #87 集成 Gate 全部 PASS，最新 main 冲突已解决，待合并审查；PR #88 D-099 新候选仅构建/准备，尚未部署。
+- 本轮 fetch/GitHub 已核实 main `5d79cbb3cf880cab4ea84b0ebb61440c3152cc48`，#87/#89 已合并；#90 原工作树仅整合文档。PR #84 原部署不代表18443已更新为D-099；#88 不在本轮范围。
 - PR #84 已执行的 Windows win01 更新：app/gateway `zhixu-quote-trial-ui:878de323d618`，source `878de323d618b25fca1f51ccf3f024e932641742`，build `quote-trial-ui-20261009` / `2026-10-09T07:20:46Z`；当时真实 HTTPS、CLI READY、三服务 healthy，数据库容器/镜像/卷、TLS和持久业务保持。完整备份、部署身份与管理员/受限账号、2 Quote/Revision/PV及2附件 bytes/SHA验收见[独立更新报告](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)。这些是原执行证据，本轮未复核真实运行环境。
-- 用户新 UI 与完整三张业务卡人工验收 PENDING；旧候选已部署不代表 D-099 新候选已部署。下一步用户人工查看列表/偏好、两类型新建、详情/成本及窄屏/touch；任何后续真实更新需独立授权，不重新 setup/init。
-- 明确差异/延期：列表款式图占位，无 country/PV-name summary 接线；Server 新建不是 Browser 未保存整单编辑。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理仍未支持，不伪造按钮能力。
+- 用户新 UI 与完整三张业务卡人工验收 PENDING。18444已通过隔离、可恢复备份/附件恢复及0009检查，https://localhost:18444/quote-center 可人工验收；数据库/卷/TLS/原演示账号数据与个人偏好保留。18443及旧环境不变，不重新 setup/init。
+- 明确差异/延期：合法款式图列表改用受保护的按需Server缩略数据，48px比例展示；本轮部署状态以上方实际证据为准。country/PV-name summary 仍未接线；Server 新建不是 Browser 未保存整单编辑。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理仍未支持，不伪造按钮能力。
 
-## 并行订单工程
+## 已合并订单工程（历史验证，非激活指令）
 
 - 并行订单 C4.3 Server 领域已实现：独立 0009、集合 CAS/永久人工所有权、稳定默认行/null 恢复、drift 与专属 GET/PATCH。只 disposable PG；真实 0009、计划 UI、通用订单写入未执行，不增加 D-098 Quote-first 前置。原实现见 [独立报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)；本轮 #87 集成 DeliveryPlan17/17、PostgreSQL152/152、npm679/679、质量/构建及合成 session API 演示/清理 PASS，见 [集成报告](tasks/completed/2026-10-10-pr87-delivery-plan-integration.md)。0009 应用/旧库双向不兼容，必须独立 Activation Gate。以上试用部署状态保持不变。
 
