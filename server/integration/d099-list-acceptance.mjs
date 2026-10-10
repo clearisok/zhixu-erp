@@ -9,7 +9,13 @@ import { resolve, join } from 'node:path';
 
 /** Uses only the existing formal UI harness's disposable pool and fresh profile. */
 export async function runD099ListAcceptance({ t, pool, storage, requests, navigate, hasText, input, labelInput, click, action, evaluate, command, sessionId, sleep, until, isolated }) {
-  await createQuoteRepository(pool).create(quoteSnapshotFromBrowser(createQuoteDraft('synthetic-d099-list', 'SYNTHETIC-D099', '2026-10-09')));
+  const fixture = createQuoteDraft('synthetic-d099-list', 'SYNTHETIC-D099', '2026-10-09');
+  const price = fixture.revisions[0].priceVersions[0];
+  price.quantity = 1200;
+  price.labor = {value: 7.5, description: 'Synthetic alignment labor'};
+  price.fabrics = [{id:'alignment-fabric',sourceLibraryItemId:null,name:'Synthetic fabric',composition:'',segmentLengthCm:100,netWidthCm:100,gsm:200,lossRate:0,supplier:'',unitPrice:36.5,purchaseUnit:'meter'}];
+  price.trims = [{id:'alignment-trim',sourceLibraryItemId:null,name:'Synthetic trim',specification:'',usage:1,unit:'piece',lossRate:0,supplier:'',unitPrice:6.69}];
+  await createQuoteRepository(pool).create(quoteSnapshotFromBrowser(fixture));
   await navigate('/quote-center'); await hasText('登录织序 Server');
   await input('input[name=username]', 'synthetic-ui-admin'); await input('input[name=password]', 'disposable-ui-password'); await click('登录 Server'); await hasText('本页 1');
   const measure = () => evaluate(`Object.fromEntries([...document.querySelectorAll('thead th')].map(n=>[n.dataset.columnKey,n.getBoundingClientRect().width]))`);
@@ -18,10 +24,49 @@ export async function runD099ListAcceptance({ t, pool, storage, requests, naviga
   if(folder) await mkdir(folder,{recursive:true});
   for (const mode of ['original','fields']) {
     if(mode==='fields') await action('独立字段视图');
-    for (const width of [1920,1440,1280,900]) await t.test(`D099 actual DOM pixel resize ${mode}/${width} (fine-pointer desktop)`, async () => {
+    for (const width of [1920,1440,1280,900]) await t.test(`D099 actual DOM pixel resize ${mode}/${width} (fine-pointer desktop)`, async (resizeTest) => {
     await command('Emulation.setDeviceMetricsOverride', { width, height:800, deviceScaleFactor:1, mobile:false }, sessionId);
     await sleep(150);
     assert.equal(await evaluate("matchMedia('(pointer: fine)').matches && matchMedia('(hover: hover)').matches"), true);
+    await resizeTest.test(`quantity${mode === 'original' ? ' and grouped costs' : ''} header/content left edges`, async () => {
+      const alignment = await evaluate(`(() => {
+        const keys = ${JSON.stringify(mode === 'original' ? ['quantity', 'fabricCost'] : ['quantity'])};
+        return keys.map(key => {
+          const th = document.querySelector('th[data-column-key="'+key+'"]');
+          const td = document.querySelector('tbody td[data-column-key="'+key+'"]');
+          const title = th.querySelector('.qc-table-heading > span:last-child');
+          const lines = [...td.querySelectorAll('.qc-primary-cell > strong, .qc-primary-cell > small')];
+          const textLeft = node => { const range = document.createRange(); range.selectNodeContents(node); return range.getBoundingClientRect().left; };
+          return { key, headerAlign: getComputedStyle(th).textAlign, cellAlign: getComputedStyle(td).textAlign,
+            padding: parseFloat(getComputedStyle(td).paddingLeft), headerPadding: parseFloat(getComputedStyle(th).paddingLeft),
+            titleLeft: textLeft(title), cellLeft: td.getBoundingClientRect().left,
+            lines: lines.map(n => ({left: textLeft(n), align: getComputedStyle(n).textAlign, text: n.textContent})) };
+        });
+      })()`);
+      t.diagnostic(JSON.stringify({mode,width,alignment}));
+      for (const cell of alignment) {
+        assert.equal(cell.headerAlign, 'left', `${cell.key} header is left aligned`);
+        assert.equal(cell.cellAlign, 'left', `${cell.key} data is left aligned`);
+        assert.ok(cell.padding >= 8 && cell.padding === cell.headerPadding, 'Normal matching padding');
+        for (const line of cell.lines) {
+          assert.equal(line.align, 'left');
+          assert.ok(Math.abs(line.left - cell.titleLeft) <= 1, 'Header and actual text share left edge');
+          assert.ok(Math.abs(line.left - cell.cellLeft - cell.padding) <= 1, 'Content starts at normal cell padding');
+        }
+        if (cell.key === 'fabricCost') {
+          assert.equal(cell.lines.length, 2);
+          assert.match(cell.lines[0].text, /^面 /);
+          assert.match(cell.lines[1].text, /^辅 .* · 工 /);
+          assert.match(cell.lines[0].text, /\d/);
+          assert.match(cell.lines[1].text, /6\.69/);
+          assert.match(cell.lines[1].text, /7\.50/);
+        }
+        if (cell.key === 'quantity') assert.equal(cell.lines[0].text.replaceAll(',', ''), '1200');
+      }
+      if (mode === 'fields') assert.deepEqual(await evaluate(`['fabricCost','trimCost','labor'].map(key =>
+        ['th','tbody td'].map(selector => getComputedStyle(document.querySelector(selector+'[data-column-key="'+key+'"]')).textAlign))`),
+        [['right','right'],['right','right'],['right','right']], 'Independent monetary columns retain their existing numeric alignment');
+    });
     const before = await measure();
     const point = await evaluate(`(()=>{const r=document.querySelector('th[data-column-key=brand] .qc-column-resize-handle').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
     await command('Input.dispatchMouseEvent', {type:'mousePressed',...point,button:'left',clickCount:1},sessionId);

@@ -1,5 +1,14 @@
 # Codex A — D-099 list acceptance repairs
 
+## Alignment follow-up (2026-10-10)
+
+- Same PR89/branch, clean local/remote `2a8cefb1f8094055ff06c09bd3070f9a8c0bb183`. Actual Server column definition marked quantity and grouped costs right; the shared heading's decorative drag handle also shifted title text relative to data. No shared table defect needs a global numeric-rule change.
+- Minimal Server-only class/align correction makes quantity and grouped cost-summary left, with matching12px header/body inset. The decorative hint is hidden only on those two headers; whole-header reorder/keyboard resize remain. Independent fabric/trim/labor money columns retain right alignment. No width, preference, sort, value, formula, API/schema or business writer change.
+- New failure regression rejected unmodified computed `right`. A first nested-test prototype accidentally queued a sibling inside its parent and timed out; corrected to the proper child context, then actual failing regression reproduced. That aborted synthetic browser/owned PG were stopped/removed; scoped temporary-profile removal was policy-blocked and no workaround attempted. A subsequent first repair showed computed `start`, so the scoped CSS now explicitly uses `left`; no assertion weakened.
+- Final synthetic numeric fixture (quantity1200, fabric cost, trim6.69/labor7.50) focused actual Chromium **24/24**,0 skipped. Eight computed-style/Range/getBoundingClientRect cases in original/fields ×1920/1440/1280/900 assert equal header/content text edges and12px padding; two cost lines and unchanged independent monetary alignment verified. Existing target+40px/others0px, numeric width/reload/relogin/account isolation, legacy preference, legal-image bytes/SHA and no aggregate-per-row assertions remain. Successful test PG/profile cleanup PASS.
+- This follow-up ran auth/frontend80/80,SSR7/7,npm679/679,typecheck/lint/Server build/explicit Server frontend/default Browser frontend/diff-check PASS. Default build-info browser/browser/writable/session. Full62-case business/COS/PostgreSQL suites were not rerun for this alignment-only delta; previous results above/below remain prior evidence.
+- Candidate and safe18444 update pending at this checkpoint;18443/old environments/real DB/COS untouched. USER ACCEPTANCE PENDING. Excel-style filters are a separate future task only after PR89 human acceptance and approved merge, not included here.
+
 ## Single-Codex PR #89 integration (2026-10-10)
 
 - Clean original worktree at `20c559d17163574a3ee1a394a9e8fb9a4798537f`; fetched/GitHub-confirmed main `7ed9204d552384730bf93c992b500c530d639c38`. Ordinary merge `0d684f4d922c9d4c9b628eeeacbc60a6a06b9516`, only AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX manually reconciled; D-100/0009 and existing UI/P2 retained. Push returned ref-lock but one read-only exact remote check confirmed delivery. No other worktree modified.

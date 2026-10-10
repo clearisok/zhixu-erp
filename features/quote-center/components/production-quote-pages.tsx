@@ -91,13 +91,16 @@ function ServerList() {
   }, [query, retry, session, columnSignature]);
   const columns: DataColumn<QuoteServerListItem>[] = [
     ...(selectionMode?[{key:"select",header:"选择",render:(row:QuoteServerListItem)=><input type="checkbox" aria-label={`选择 ${row.id}`} disabled={batchBusy} checked={Boolean(selected[row.id])} onChange={e=>choose([row],e.target.checked)} />}]:[]),
-    ...presentedListColumns(preferences).map(({ key, fields }) => ({
+    ...presentedListColumns(preferences).map(({ key, fields }) => {
+      const leftSummary = (fields.length === 1 && fields[0] === "quantity") || (fields.length > 1 && fields.every(field => ["fabricCost", "trimCost", "labor"].includes(field)));
+      return {
       key, header: serverListHeader(fields),
+      className: leftSummary ? "qc-server-left-summary" : undefined,
       minWidth: presentedMinWidth(key, fields),
       width: presentedWidth(preferences, key),
-      align: (fields.every(field => ["quantity", "fabricCost", "trimCost", "labor", "garmentPrice", "confirmedLabor", "confirmedGarment"].includes(field)) ? "right" : "left") as "left" | "right",
+      align: (!leftSummary && fields.every(field => ["quantity", "fabricCost", "trimCost", "labor", "garmentPrice", "confirmedLabor", "confirmedGarment"].includes(field)) ? "right" : "left") as "left" | "right",
       render: (row: QuoteServerListItem) => <ServerListCell fields={fields} row={row} imageLoader={imageLoader} />,
-    })),
+    }; }),
     { key: "action", header: "操作", minWidth: 104, width: 104, sticky: "right", render: (row) => <Button variant="text" onClick={() => router.push(`/quote-center/detail?id=${encodeURIComponent(row.id)}`)}>打开报价 →</Button> },
   ];
   return <AppShell title="报价中心"><PageContainer className="qc-quote-center-page qc-server-business-list">
