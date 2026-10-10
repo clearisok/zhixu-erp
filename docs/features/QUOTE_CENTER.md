@@ -6,7 +6,7 @@
 
 全局设置新增可空 defaultQuoteType/defaultManufacturingCountry（0011），复用 defaultManufacturingPresetId；旧客户端省略新增字段不清空已配置值。未配置类型有经销技术回退来源标记，其余业务值不猜。新草稿复制有效匹配预设和系统默认补充项；后续设置不回写。详情条类型只读，制作编辑复用现有权限；generic PUT 类型变更拒绝，也不能追加不同于已保存当前类型的客户端 Revision 绕过保护（409 quote_type_workflow_required，草稿及已确认数据/审计保持）。完整已有类型切换未实施。
 
-设置 UI 顶部创建默认值/通用计价参数、制作预设主从表单、补充项及保存区；失败/409保留输入，撤销只放弃本页草稿，读失败不显示 Browser demo 默认。settings.global.edit 不变。工程/候选最终验证见任务证据；本修正尚未更新18444，等待另行授权及人工验收。
+设置 UI 顶部创建默认值/通用计价参数、制作预设主从表单、补充项及保存区；失败/409保留输入，撤销只放弃本页草稿，读失败不显示 Browser demo 默认。settings.global.edit 不变。已单独授权更新18444，指定b7c2080/8538a923与0011运行/数据/实际隔离Chromium验收完成，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**；自动化未点击即时创建按钮或保存业务设置，最终体验由用户确认。[本次部署验收证据](../tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)。不授权18443更新或合并。
 
 ## Historical — Desktop two-step Server creation（D-101，D-102替代普通电脑交互）
 
