@@ -84,3 +84,7 @@ Human-review standalone preview was started on dynamic loopback `http://127.0.0.
 ## GitHub delivery receipt
 
 Unique Draft PR [#92](https://github.com/clearisok/zhixu-erp/pull/92), branch `feat/ainuoke-order-material-progress`, created at full delivery HEAD `a3905f5e57d0baf06f2b07e2da5f27a5a483aa03`. GraphQL create returned EOF; REST read confirmed no existing PR for this head before a single REST create succeeded. No duplicate/doc-only PR. Final REST verification of #91 head `8c6578b98311a9a14211d236d18b2376f8cb4343`, state `open`, again confirms intersection=[] against its full changed-file list. Engineering PASS; Draft/manual synthetic UI acceptance remains pending. Final receipt-only checkpoint is reported by exact remote/PR head verification, not treated as another implementation phase.
+
+## 2026-10-10 follow-up — isolated formal read Gate 1
+
+The latest [Gate 1 contract, permission audit, tests and shared-file approval list](order-material-read-gate1.md) supersedes earlier next-step suggestions. Ainuoke procurement unit prices/amounts are team-shared execution facts for authorized Order/Material readers; Quote internal cost, sale prices, confirmed labor and profit remain separate. Future sale-price Excel comes from another C/S system without API. The same pure projection now serves this synthetic preview and the prepared stateless Server read capability; actual HTTP/UI/Bridge/DB integration remains blocked by the explicit next-Gate approval boundary. #92 stays Draft.

@@ -76,7 +76,7 @@ test('matching query or style cannot override a mismatched stable contract', () 
   const view=project(createSyntheticMaterialSource('identity_mismatch'));assert.equal(view.sourceStatus,'identity_mismatch');assert.equal(view.rows.length,0);
 });
 test('same source identity with conflicting row content blocks projection', () => {
-  const view=project(createSyntheticMaterialSource('collision'));assert.equal(view.sourceStatus,'incomplete');assert.match(view.message,/identity collision/);assert.equal(view.rows.length,0);
+  const view=project(createSyntheticMaterialSource('collision'));assert.equal(view.sourceStatus,'incomplete');assert.match(view.message,/来源身份、分页或字段校验失败/);assert.equal(view.rows.length,0);
 });
 test('incomplete paging cannot claim zero purchase even when trailing page is empty', () => {
   const pages=complete();pages[0].total=20;pages.push({...structuredClone(pages[0]),page:2,rows:[]});
