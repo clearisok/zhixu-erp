@@ -19,3 +19,11 @@ Actual disposable PG16 + trusted session HTTP audit1/1 proves ordinary order.vie
 Independent injectable field projection2/2 uses default-denied sale/labor decisions, whitelisted result and omitted restricted fields, preserves null/zero/currency and original terms. No new keys, role defaults or catalog/schema changes. Policy is preparatory and not installed on legacy routes; CCT transaction/CAS/history unchanged. Required future decision: exact sales/labor/profit view/edit policy and compatible response/write contracts. Production Order/Style routes remain outside Quote Server whitelist.
 
 Typecheck PASS. Files: independent commercial-read-policy.ts, unit test, actual HTTP security-audit test, task report/handoff. Own disposable random loopback/temp PG cleaned; no actual business database or accounts used.
+
+## Gate 2 — isolated session HTTP
+
+Gate1 checkpoint `2dca6381b765a7e5b616281a52c21638d25dfacd` exact remote verified after same target-present ref-lock.
+
+`GET /api/v1/sales-orders/:uuid/material-progress` is registered but disabled unless AppDependencies explicitly installs `orderMaterialRead` trusted capability. Default createApp/index does not install it: 503 not connected, no real provider. Configured resolver must enforce team visibility; client accepts UUID only, query selectors rejected, auth/session + order.view/style_progress.read precede Source, success Cache-Control no-store. With resolver but no Source reader, result is not_connected; no Browser fallback. No Source write API.
+
+Actual HTTP10/10 PASS in own random disposable PG16 (0010/0011 only on this temporary database) with real login cookies, two actor/order scopes, fixed synthetic Discovery/Material providers. Covers401/403/404, arbitrary account rejection, account switch, source procurement prices, protected sentinel omission, unknown/zero, drift, missing/failed/stale/incomplete/empty/async-time. Container/database cleaned. Typecheck PASS. Normal coarse list/detail remains unchanged and is not proven team scoped; production whitelist remains blocked.

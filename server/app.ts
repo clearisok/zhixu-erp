@@ -1,3 +1,4 @@
+import { createOrderMaterialReader, type MaterialReadPorts } from '../features/ainuoke-material-progress/read-service.js';
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
 import type { Pool } from "pg";
 import { listQuoteSummaries } from "./quotes/list-summary.js";
@@ -50,8 +51,9 @@ export type AppDependencies = {
   staticDirectory?: string;
   identityAuthority?: IdentityAuthority;
   attachmentStorage?: AttachmentStorage;
+  orderMaterialRead?: MaterialReadPorts;
 };
-type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage">> & Pick<AppDependencies, "attachmentStorage">;
+type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead">;
 
 const defaultLogger: ServerLogger = {
   error(event) {
@@ -391,6 +393,21 @@ async function route(
       });
       sendJson(response, 201, { quote });
     } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
+
+  const materialProgressMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/material-progress$/.exec(path);
+  if (materialProgressMatch && request.method === 'GET') {
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, 'authentication_required', 'Authentication is required');
+    requirePermission(identity.permissions, 'order.view');
+    requirePermission(identity.permissions, 'style_progress.read');
+    if (new URL(request.url ?? '', 'http://localhost').search) throw new HttpError(400, 'invalid_order_request', 'Only SalesOrder UUID is accepted');
+    if (!dependencies.orderMaterialRead) throw new HttpError(503, 'material_read_not_connected', 'Trusted material read capability is not connected');
+    const result = await createOrderMaterialReader(dependencies.orderMaterialRead)(identity, { salesOrderId: materialProgressMatch[1] });
+    response.setHeader('Cache-Control', 'no-store');
+    if (result.status !== 200) throw new HttpError(result.status, result.error.code, result.error.message);
+    sendJson(response, 200, result.body);
     return;
   }
 
