@@ -34,7 +34,7 @@ export type MaterialSummary = {
 };
 export type MaterialProgressView = {
   schemaVersion: 'order-material-read.v1';
-  sourceStatus: 'ready' | 'not_fetched' | 'not_connected' | 'incomplete' | 'identity_mismatch';
+  sourceStatus: 'ready' | 'not_fetched' | 'not_connected' | 'incomplete' | 'identity_mismatch' | 'source_failed' | 'source_missing' | 'stale';
   message: string; order: PreviewOrder;
   fetchedAt: string | null; queryInsideOrderNo: string | null; insideOrderDrift: boolean;
   groups: Array<{ key: string; name: string; type: 'fabric' | 'trim'; rows: ProgressRow[] }>;

@@ -1,3 +1,4 @@
+import type { MaterialSourceIssue } from './source-adapter.ts';
 import type { TrustedIdentity } from '../../server/auth/session.ts';
 import type { SalesOrderReadModel } from '../../server/sales-orders/model.ts';
 import type { AinuokeReportSnapshot } from '../ainuoke-api/model/ainuoke-api.ts';
@@ -8,7 +9,7 @@ import { projectMaterialProgress, type MaterialProgressView } from './projection
 export type VisibleMaterialOrder = Pick<SalesOrderReadModel, 'id' | 'version' | 'salesContractNo' | 'styleNo' | 'insideOrderNo'>;
 export type BoundMaterialSource = {
   salesOrderId: string; salesContractNo: string;
-  provenance: 'synthetic' | 'server_snapshot'; snapshots: AinuokeReportSnapshot[];
+  provenance: 'synthetic' | 'server_snapshot'; snapshots: AinuokeReportSnapshot[]; issue?: MaterialSourceIssue;
 };
 export type OrderMaterialReadModel = {
   salesOrderId: string; orderVersion: number; navigation: OrderMaterialNavigation;
@@ -21,7 +22,7 @@ export type MaterialReadPorts = {
    * This is an injected read capability, not a Repository or a client-provided trust flag.
    */
   resolveVisibleOrder: (identity: TrustedIdentity, salesOrderId: string) => Promise<VisibleMaterialOrder | null>;
-  /** Absent by default. Gate 1 supplies this only in synthetic tests; no Bridge/DB wiring. */
+  /** Absent by default. Gate 1.5 supplies an isolated injected adapter; no Bridge/DB wiring. */
   loadSource?: (order: VisibleMaterialOrder, identity: TrustedIdentity) => Promise<BoundMaterialSource | null>;
 };
 const failure = (status: 400 | 401 | 403 | 404 | 503, code: string, message: string): MaterialReadResult => ({ status, error: { code, message } });
@@ -64,7 +65,11 @@ export function createOrderMaterialReader(ports: MaterialReadPorts) {
         return failure(503, 'source_binding_invalid', '物料来源与可信订单关联不一致。');
       }
       return { status: 200, body: { salesOrderId: order.id, orderVersion: order.version, navigation,
-        provenance: source.provenance, progress: projectMaterialProgress(progressOrder, source.snapshots) } };
+        provenance: source.provenance, progress: source.issue ? { ...projectMaterialProgress(progressOrder, null), sourceStatus: source.issue,
+          message: ({ source_failed: '物料来源读取失败；未使用缓存或 Browser 数据。', source_missing: '当前来源缺少合同关联或物料 Snapshot。',
+            stale: '来源已超出可信读取时效；暂停物料状态判定。', incomplete: '来源分页或字段不完整；暂停物料状态判定。',
+            identity_mismatch: '来源查询身份不一致；未关联物料。' } as const)[source.issue] }
+          : projectMaterialProgress(progressOrder, source.snapshots) } };
     } catch {
       return failure(503, 'material_source_unavailable', '正式物料来源暂不可用；不会读取 Browser 本地数据。');
     }
