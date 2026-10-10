@@ -46,11 +46,15 @@ export function createMaterialSourceLoader(ports: MaterialSourceAdapterPorts): N
       salesContractNo: resolved.salesContractNo, styleNo: resolved.styleNo, insideOrderNo: resolved.insideOrderNo };
     const contract = normalizeAinuokeSalesContractNo(order.salesContractNo);
     if (!contract) return failed(order, 'source_missing');
-    const now = ports.now();
-    if (!Number.isFinite(now)) return failed(order, 'source_failed');
-    const current = (pages: ReadonlyArray<{ fetchedAt: string }>) => pages.every(page => {
-      const time = Date.parse(page.fetchedAt); return Number.isFinite(time) && time <= now && now - time <= ports.maxAgeMs;
-    });
+    const freshnessIssue = (pages: ReadonlyArray<{ fetchedAt: string }>): MaterialSourceIssue | null => {
+      // Sample the trusted clock at validation, after the asynchronous snapshot read.
+      const validationTime = ports.now();
+      if (!Number.isFinite(validationTime)) return 'source_failed';
+      return pages.every(page => {
+        const time = Date.parse(page.fetchedAt);
+        return Number.isFinite(time) && time <= validationTime && validationTime - time <= ports.maxAgeMs;
+      }) ? null : 'stale';
+    };
     let discoveryPages: Awaited<ReturnType<MaterialSourceAdapterPorts['readDiscovery']>>;
     try { discoveryPages = await ports.readDiscovery(identity); } catch { return failed(order, 'source_failed'); }
     if (discoveryPages === null) return null;
@@ -63,7 +67,8 @@ export function createMaterialSourceLoader(ports: MaterialSourceAdapterPorts): N
       }
       discovery = await adaptAinuokeOrderDiscoverySnapshots(discoveryPages);
     } catch { return failed(order, 'incomplete'); }
-    if (!current(discoveryPages)) return failed(order, 'stale');
+    const discoveryIssue = freshnessIssue(discoveryPages);
+    if (discoveryIssue) return failed(order, discoveryIssue);
     const relationship = discovery.rows.find(row => row.salesContractNo === contract);
     if (!relationship) return failed(order, 'source_missing');
     // Exact normalized BillNo only; never style matching or a second Matcher.
@@ -79,7 +84,8 @@ export function createMaterialSourceLoader(ports: MaterialSourceAdapterPorts): N
       return failed(order, 'identity_mismatch');
     }
     if (pages.some(page => !Number.isFinite(Date.parse(page.fetchedAt)))) return failed(order, 'incomplete');
-    if (!current(pages)) return failed(order, 'stale');
+    const materialIssue = freshnessIssue(pages);
+    if (materialIssue) return failed(order, materialIssue);
     // Detach provider snapshots; sole read projection performs Material Normalize/Dedup/Validate and completeness checks.
     return { salesOrderId: order.id, salesContractNo: contract, provenance: ports.provenance, snapshots: structuredClone(pages) };
   };

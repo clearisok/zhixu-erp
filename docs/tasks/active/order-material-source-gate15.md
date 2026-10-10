@@ -56,3 +56,15 @@
 ## Checkpoint 协议
 
 只 stage 上述本轮五个文件并正常 commit/push 原分支，保持唯一 #92 Draft。继承 Gate 1 文档 dirty 原样保留，完整 commit 和远端 receipt 在交付消息及 #92 中记录。共享状态文档继续遵守并行隔离，不修改。等待 #91 合并和用户正式集成 Gate 批准。
+
+## Gate 1.5 定向时钟审查修复（2026-10-10）
+
+Baseline：`578c247cf1b76a4d5a27c3993a5ceb1aaaca3f99`；fetch 后 main 仍为 `84c8c5b520dbcb956ae27a24103e6607a1c227c3`。#91 当前核对 `b7c20802cf13ad9d1e06a8f19f0fca359f81ba21`，64 files；完整 #92 范围及本轮增量交集 `[]`。
+
+先新增两个确定性失败测试：分别在异步 Discovery / Material 读取中推进注入时钟 100ms，并以完成时刻生成 fetchedAt。旧代码两项均 FAIL：实际 stale，预期 ready，确认请求开始时钟误判新 Snapshot。
+
+修复仅将可信时钟采样移至每次 fetchedAt 校验时；Discovery 与 Material 各自使用完成读取后的 validationTime。maxAgeMs 不变，没有容差。真实过期、超出校验时间的未来 Snapshot 仍 stale；无效 fetchedAt 仍 incomplete；非法可信时钟仍 source_failed。
+
+修复后 Adapter29/29，连同 Gate 1/原投影定向测试76/76 PASS（0 skipped）。typecheck、lint（0 warnings）、Server build、diff-check PASS。本轮未重跑 npm 全量、前端 build、浏览器、真实 HTTP/Source/DB；本次仅来源时钟逻辑，不沿用历史 PASS 作为本轮证据。
+
+本轮只提交 source-adapter.ts、独立测试和本报告三个文件。继承 order-material-read-gate1.md 的 30 行补充未修改/未 stage，SHA256 仍为 `8B24F58EB42F2141778F1EBE69138C64449BE04F522757CBC50325FB5286E21E`。不进入正式集成，不修改共享路由、权限、0010/0011、#91、18444、真实账号或数据库。正常 checkpoint/push #92，保持 Draft，完成后停止新增功能。

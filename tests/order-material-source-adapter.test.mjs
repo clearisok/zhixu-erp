@@ -136,3 +136,26 @@ test('purchase, inbound and shipment duplicate join events retain one event per 
   assert.equal(row.purchases.length, 2); assert.equal(row.inbounds.length, 1); assert.equal(row.shipments.length, 1);
   assert.equal(row.inbound, 10); assert.equal(row.shipped, 8);
 });
+
+for (const stage of ['readDiscovery', 'readMaterial']) test(`${stage} validates fetchedAt against clock after async read`, async () => {
+  let clock = now;
+  const h = harness({ now: () => clock, [stage]: async () => {
+    await Promise.resolve(); clock += 100;
+    const pages = stage === 'readDiscovery' ? discovery() : createSyntheticMaterialSource();
+    for (const page of pages) page.fetchedAt = new Date(clock).toISOString();
+    return pages;
+  } });
+  assert.equal((await progress(h)).sourceStatus, 'ready');
+});
+
+for (const kind of ['expired', 'future', 'invalid_clock']) test(`Material post-read validation remains fail-closed for ${kind}`, async () => {
+  let clock = now;
+  const h = harness({ now: () => clock, readMaterial: async () => {
+    await Promise.resolve(); clock += 1001;
+    const pages = createSyntheticMaterialSource();
+    if (kind === 'future') pages[0].fetchedAt = new Date(clock + 1).toISOString();
+    if (kind === 'invalid_clock') clock = NaN;
+    return pages;
+  } });
+  assert.equal((await progress(h)).sourceStatus, kind === 'invalid_clock' ? 'source_failed' : 'stale');
+});
