@@ -1,6 +1,7 @@
 import { isDeepStrictEqual } from "node:util";
 import { randomUUID } from "node:crypto";
-import type { Pool } from "pg";
+import type { Pool, PoolClient } from "pg";
+import type { CreationInput } from "./creation-contract.js";
 import type { PermissionKey } from "../../features/permissions/model/permissions.js";
 import { requirePermission } from "../auth/permissions.js";
 import type { TrustedIdentity } from "../auth/session.js";
@@ -79,7 +80,16 @@ function authorizeReplacement(actor: TrustedIdentity, before: ServerQuote, after
 
   for (const nextRevision of after.revisions) {
     const previousRevision = before.revisions.find((revision) => revision.revisionId === nextRevision.revisionId);
-    if (!previousRevision) continue;
+    if (!previousRevision) {
+      // Appending a client-built Revision must not turn generic PUT into the
+      // dedicated type-switch workflow that is not implemented yet.
+      const current = before.revisions.find(revision => revision.revisionId === before.defaultRevisionId)!;
+      if (nextRevision.baseInfo.quoteType !== current.baseInfo.quoteType)
+        throw new HttpError(409, "quote_type_workflow_required", "Quote type changes require a dedicated protected workflow");
+      continue;
+    }
+    if (previousRevision.baseInfo.quoteType !== nextRevision.baseInfo.quoteType)
+      throw new HttpError(409, "quote_type_workflow_required", "Quote type changes require a dedicated protected workflow");
     if (!isDeepStrictEqual(
       [previousRevision.imageAttachmentIds, previousRevision.fileAttachmentIds, previousRevision.styleImageAttachmentId],
       [nextRevision.imageAttachmentIds, nextRevision.fileAttachmentIds, nextRevision.styleImageAttachmentId],
@@ -178,6 +188,21 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
 
   return {
     getById: repository.getById,
+    /** Trusted workflow composition only; caller owns its receipt transaction. */
+    async createPreparedDraftInTransaction(client: PoolClient, actor: TrustedIdentity, input: CreationInput, parameters: ServerQuote["revisions"][number]["priceVersions"][number]["pricingParameters"], names: { brand: string; salesperson: string }, context: QuoteMutationContext = {}, defaults?: {laborDescription:string;otherCost:{name:string;amount:string|null}|null}) {
+      requirePermission(actor.permissions, "quote.create");
+      const createdAt = now();
+      const draft = createServerQuoteDraft({ quoteId: nextUuid(), revisionId: nextUuid(), priceVersionId: nextUuid(), quoteCode: await allocateQuoteCode(client, createdAt) }, actor, createdAt);
+      const revision = draft.revisions[0];
+      revision.baseInfo = { ...revision.baseInfo, quoteType: input.quoteType, brandId: input.fields.brandId ?? "", brandName: names.brand, salespersonId: input.fields.salespersonId ?? "", salespersonName: names.salesperson, quoteStyleNo: input.fields.styleNo, styleName: input.fields.styleName, garmentLeadDate: input.fields.garmentLeadDate, note: input.fields.note };
+      revision.priceVersions[0].quantity = input.fields.quantity;
+      revision.priceVersions[0].pricingParameters = parameters;
+      if(defaults){
+        revision.priceVersions[0].labor.description=defaults.laborDescription;
+        if(defaults.otherCost)revision.priceVersions[0].otherCosts=[{id:nextUuid(),lineGroupId:nextUuid(),name:defaults.otherCost.name,specification:"",usage:"1",unit:"件",lossRate:"0",unitPrice:defaults.otherCost.amount,amount:defaults.otherCost.amount,source:"global",globalSettingId:"system-default-other-cost",overridden:false}];
+      }
+      return repository.createInTransaction(client, draft, audit(actor, { ...context, workflowAction: context.workflowAction ?? "quote.create.two_step" }));
+    },
     async confirmationWorkflow(actor: TrustedIdentity, quoteId: string, command: QuoteConfirmationCommand, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.view");
       requirePermission(actor.permissions, "quote.confirm");

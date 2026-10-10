@@ -36,6 +36,8 @@ export type ManufacturingPresetDto = VersionedRecord & {
   includeFreight: boolean; freightName: string; freightAmount: NullableDecimalString; status: MasterStatus;
 };
 export type GlobalQuoteSettingsDto = VersionedRecord & {
+  defaultQuoteType?: "processing" | "distribution" | null;
+  defaultManufacturingCountry?: string | null;
   defaultUsdCnyRate: NullableDecimalString;
   defaultMarkupRate: NullableDecimalString;
   defaultLaborCurrency: LaborCurrency;

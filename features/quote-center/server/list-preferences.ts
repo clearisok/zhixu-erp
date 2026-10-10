@@ -5,7 +5,7 @@ export const listWidthGroups = {
   "group.cost": ["fabricCost", "trimCost", "labor"], "group.price": ["garmentPrice", "confirmationStatus"],
   "group.revision": ["revision", "versions"],
 } as const;
-export type ServerListPreferences = { userId: string; visibleColumns: BusinessColumn[]; columnOrder: BusinessColumn[]; columnWidths: Record<string, number>; groupWidths: Record<string, number>; presentation: "original" | "fields" };
+export type ServerListPreferences = { userId: string; visibleColumns: BusinessColumn[]; columnOrder: BusinessColumn[]; columnWidths: Record<string, number>; groupWidths: Record<string, number>; presentation: "original" | "fields"; widthMode: "fill" | "manual" };
 const key = (id: string) => `zhixu.ui.server.quote-list.v1.${encodeURIComponent(id)}`;
 export const defaultServerListColumns: BusinessColumn[] = ["styleImage", "styleIdentity", "brand", "salesperson", "type", "status", "quantity", "fabricCost", "trimCost", "labor", "garmentPrice", "confirmationStatus", "revision", "versions", "date"];
 const originalWidths: Partial<Record<BusinessColumn, number>> = { styleImage: 56, styleIdentity: 156, brand: 120, salesperson: 104, type: 80, status: 88, quantity: 72, fabricCost: 126, trimCost: 96, labor: 92, garmentPrice: 120, confirmationStatus: 112, revision: 88, versions: 108, date: 80 };
@@ -23,7 +23,10 @@ export function normalizeServerListPreferences(userId: string, permissions: read
     const width = data.groupWidths?.[k];
     return typeof width === "number" && Number.isFinite(width) ? [[k, Math.round(Math.max(56, Math.min(720, width)))]] : [];
   }));
-  return { userId, visibleColumns: keys(data.visibleColumns, defaultServerListColumns.filter(k => allowed.includes(k))), columnOrder, columnWidths, groupWidths, presentation };
+  // Only first use / an explicit reset opt in to filling the container. Existing
+  // saved v1 objects have no flag and retain their exact personal pixel widths.
+  const widthMode = value === undefined || data.widthMode === "fill" ? "fill" : "manual";
+  return { userId, visibleColumns: keys(data.visibleColumns, defaultServerListColumns.filter(k => allowed.includes(k))), columnOrder, columnWidths, groupWidths, presentation, widthMode };
 }
 export function loadServerListPreferences(store: Pick<Storage, "getItem">, userId: string, permissions: readonly string[]): ServerListPreferences {
   try { const raw = store.getItem(key(userId)); return normalizeServerListPreferences(userId, permissions, raw ? JSON.parse(raw) : undefined); }

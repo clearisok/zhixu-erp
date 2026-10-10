@@ -26,6 +26,8 @@ import { updateDeliveryPlans } from "./sales-orders/delivery-plan-service.js";
 import { UUID_PATTERN } from "./sales-orders/delivery-plan-model.js";
 import { QuoteConflictError, QuoteInvariantError } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
+import { createQuoteCreationService } from "./quotes/creation-workflows.js";
+import { creationId, parseCreationInput, parseCreationCommand } from "./quotes/creation-contract.js";
 import { parseQuoteVersionCommand } from "./quotes/version-workflows.js";
 import { parseQuoteConfirmationCommand } from "./quotes/confirmation-workflows.js";
 import { createCustomerExportService, parseCustomerExport } from "./quotes/customer-export.js";
@@ -316,6 +318,33 @@ async function route(
   }
 
   if (await routeQuoteMasters(request, response, dependencies, correlationId)) return;
+  const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
+  if ((request.method === "GET" && (path === "/api/v1/quotes/creation-options" || creationReceipt))
+    || (request.method === "POST" && ["/api/v1/quotes/creation-preview", "/api/v1/quotes/creation-workflows", "/api/v1/quotes/creation-defaults"].includes(path))) {
+    if (request.method === "POST") assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    const creation = createQuoteCreationService(dependencies.pool, dependencies.identityAuthority.mode);
+    if (creationReceipt) sendJson(response, 200, await creation.receipt(identity, creationId(creationReceipt[1])));
+    else if (path === "/api/v1/quotes/creation-defaults") {
+      const body = await readJsonBody(request, 1024);
+      if(Object.keys(body).length!==1 || !("clientRequestId" in body)) throw new HttpError(400,"invalid_creation_input","Only clientRequestId is accepted");
+      const id=creationId(body.clientRequestId);
+      const result=await creation.executeDefaults(identity,id,{requestId:correlationId,method:request.method,path});
+      sendJson(response,result.replayed?200:201,{receiptId:id,...result.receipt});
+    }
+    else if (request.method === "GET") {
+      const search = new URL(request.url!, "http://local").searchParams.get("search") ?? "";
+      if (search.length > 200) throw new HttpError(400, "invalid_creation_input", "Search is too long");
+      sendJson(response, 200, await creation.options(identity, search));
+    } else if (path.endsWith("creation-preview")) sendJson(response, 200, await creation.preview(identity, parseCreationInput(await readJsonBody(request, 16_384))));
+    else {
+      const command = parseCreationCommand(await readJsonBody(request, 16_384));
+      const result = await creation.execute(identity, command, { requestId: correlationId, method: request.method, path });
+      sendJson(response, result.replayed ? 200 : 201, { receiptId: command.clientRequestId, ...result.receipt });
+    }
+    return;
+  }
   if (await routeQuoteAttachments(request, response, dependencies)) return;
 
   if (request.method === "GET" && path === "/api/v1/sales-orders") {

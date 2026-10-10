@@ -1,32 +1,30 @@
 # 当前状态
 
-> 2026-10-10 PR #90 文档收口：最新 main `5d79cbb3cf880cab4ea84b0ebb61440c3152cc48` 已合并 #89；正常整合保留 D-100/0009 及最新 UI/缩略图代码和证据。QI-01–06 / D-101 保持 Active / **NOT IMPLEMENTED**；[契约](tasks/active/quote-intake-v1-implementation-contract.md)补齐业务员启用/品牌归属和预设/国家一致性双阶段校验要求，默认单 Codex，分工可选。本轮仅文档检查，不开发、不操作环境，等待用户批准 #90 合并。
+> 2026-10-10：PR #91 / D-102 第二轮反馈新版已按用户授权更新隔离18444，**PREVIEW UPDATE PASS / USER ACCEPTANCE PASS（2026-10-11 用户明确批准合并 PR #91）**。实际源码eb9530a/image1707a8e54159；18443、真实业务库/COS和订单工作树未动。
 
-> 2026-10-10；Quote Center 原版 UI / Server 收敛：**ENGINEERING PASS / USER UI ACCEPTANCE PENDING**。[审计、能力/权限及原工程验证](tasks/active/quote-original-ui-convergence.md)；[原版/Before/After 截图](tasks/assets/quote-original-convergence/README.md)。部署历史见 [归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)，不是当前部署指令。
+## 当前工程
 
-> PR #89 已合并。其100px列宽 USER ACCEPTANCE PASS、Server缩略图工程/18444更新证据保留：运行源码 `d2a3509f3973980a2016e1f46760cf3664bd2d77`，4032×3024/7.77MB→256×192/4767字节；原26报价保留，新增授权合成演示后27张。原阶段 Chromium62/62、列宽27/27、生命周期14/14、Node22 Alpine及备份恢复PASS，9份迁移字节兼容/执行0。[完整工程、备份及人工验收历史](tasks/active/d099-list-acceptance.md)。以上非本轮复测；本轮未操作18443/18444，未新增人工UI验收结论，Excel筛选未开始。
+- 同一可信 receipt/Quote writer/编号/事务/审计；双击防重，挂载/刷新不创建，未知结果只核对原 token。空草稿保留；类型只读，generic PUT不能绕过专用类型切换保护。
+- 设置页只保留制作方案管理→新建默认值，复用原ManufacturingPreset及0011；同国多个工厂按明确ID选择，卡片同步默认国家，未选择不伪造参数。通用汇率仍在第一部分；默认变化不回写旧PV。停用/修改默认方案国家时明确清除当前默认组合。
+- Server删除全局补充项UI，并停止未来新报价静默继承旧系统费用/工序说明；旧DTO精确金额/DB字段/历史保留，品牌/业务员及单据级能力、Browser旧行为不变。详情两块冗余区移除，保存状态保留在原头部；基础资料失败局部重试，不回退Browser。PV制作方案用横向卡片，保留权限/历史/CAS。
+- 首次/主动恢复默认的Server列表铺满实际容器；旧个人v1像素不覆盖，手动拖宽后全部列保持像素，100px及正式缩略图保留。窄屏内部滚动，不改Foundation其他表格。
+- 已有列表100px/偏好/正式缩略图、编辑、Revision/PV、Estimate、确认、附件、Excel/ZIP/内部汇总/日志保留。Intake、完整已有报价类型切换、Excel列筛选、整单复制/删除、Revision删除及转订单不在本轮。
+- 本轮不新增或修改migration，复用已发布0011；新候选的0001–0011原始checksum兼容验证、非空disposable仅0011升级/重跑/旧数据保持PASS。正常启动verify-only。订单PR92文件交集为零，未操作其工作树。
 
-## 当前工程能力
+## 验证与交付
 
-- D-099：PR #64 报价中心是视觉/信息架构基线，当前 Server 是数据、安全和业务能力基线；Server 化不能成为重新设计 UI 的理由。绿色侧栏/暖灰/白卡片、标题/更多/搜索筛选、组合单元格恢复。
-- 新用户默认九个信息单元格 + 固定操作；十五个正式业务字段仍独立配置/导出。旧个人列顺序/宽度/可见性和 key 保留，不自动重写；主动恢复默认可切新组合布局。权限过滤包含子字段、tooltip 和 touch records。
-- 新建 type-first 卡片主动创建、POST{} / processing CAS PUT、已创建 ID 和未知结果保护保持。共享 Editor 不重写，保留 PR83 常用成本字段、局部滚动/sticky/Portal，以及版本/Estimate/确认/附件/客户文件/内部汇总/日志能力。
-- PR #86 原工程验证：Chromium62/62、隔离 API/版本/Estimate/附件38/38、auth/frontend67/67、presentation4/4、SSR2/2、npm674/674 PASS；typecheck/lint/Server及两种frontend build PASS，默认 build-info browser/browser/writable/session。四档桌面 + 390 touch、合成参考/前后截图146张；cleanup PASS。不是人工 UI 定稿，也不是本次 PR #84 合并验证结果。
+源码eb9530a工程阶段实际完整Chromium78/78、列表/图片专项27/27、创建29/29、资料14/14、Revision/PV10/10、Estimate8/8、附件/资料迁移11/11、auth/frontend86/86、SSR9/9、npm679/679；typecheck/lint/Server及两种前端PASS，默认build-info browser/browser/writable/session。部署收口未重复上述工程测试/构建。40张合成截图见[工程索引](tasks/active/evidence/quote-pr91-second-acceptance/README.md)；本次另行实际执行备份/完整隔离恢复、运行身份/对象SHA和全新只读Chromium，结果PASS，见[部署证据](tasks/active/quote-two-step-creation.md#second-acceptance-preview-deployment-pass-2026-10-10)。
 
-## 真实环境与下一步
+原分支 `feat/quote-two-step-creation`；工程从f2d7886继续，本次授权部署从local/remote/PR91 676035b / clean继续，main84c8c5b。工程checkpoint eb9530ac9a2e1b7f68299d97c4d424662a6622f7；与订单PR92文件交集为零，未访问其工作树。此前网络故障/STOP/部署证据保留，不改写成当前工程结果。
 
-- 本轮 fetch/GitHub 已核实 main `5d79cbb3cf880cab4ea84b0ebb61440c3152cc48`，#87/#89 已合并；#90 原工作树仅整合文档。PR #84 原部署不代表18443已更新为D-099；#88 不在本轮范围。
-- PR #84 已执行的 Windows win01 更新：app/gateway `zhixu-quote-trial-ui:878de323d618`，source `878de323d618b25fca1f51ccf3f024e932641742`，build `quote-trial-ui-20261009` / `2026-10-09T07:20:46Z`；当时真实 HTTPS、CLI READY、三服务 healthy，数据库容器/镜像/卷、TLS和持久业务保持。完整备份、部署身份与管理员/受限账号、2 Quote/Revision/PV及2附件 bytes/SHA验收见[独立更新报告](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)。这些是原执行证据，本轮未复核真实运行环境。
-- 用户新 UI 与完整三张业务卡人工验收 PENDING。18444已通过隔离、可恢复备份/附件恢复及0009检查，https://localhost:18444/quote-center 可人工验收；数据库/卷/TLS/原演示账号数据与个人偏好保留。18443及旧环境不变，不重新 setup/init。
-- 明确差异/延期：合法款式图列表改用受保护的按需Server缩略数据，48px比例展示；本轮部署状态以上方实际证据为准。country/PV-name summary 仍未接线；Server 新建不是 Browser 未保存整单编辑。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理仍未支持，不伪造按钮能力。
+Linux候选 `zhixu-quote-two-step:eb9530ac9a2e-ux-20261010t141559z` / image1707a8e54159 **已部署18444**，HTTPS/编译/labels一致，server/server/writable/session。最终文档SHA不冒充镜像源码；[构建时完整身份](tasks/active/evidence/quote-pr91-second-acceptance/candidate.json)中的NOT DEPLOYED为当时历史状态。
 
-## 已合并订单工程（历史验证，非激活指令）
+## 环境与下一步
 
-- 并行订单 C4.3 Server 领域已实现：独立 0009、集合 CAS/永久人工所有权、稳定默认行/null 恢复、drift 与专属 GET/PATCH。只 disposable PG；真实 0009、计划 UI、通用订单写入未执行，不增加 D-098 Quote-first 前置。原实现见 [独立报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)；本轮 #87 集成 DeliveryPlan17/17、PostgreSQL152/152、npm679/679、质量/构建及合成 session API 演示/清理 PASS，见 [集成报告](tasks/completed/2026-10-10-pr87-delivery-plan-integration.md)。0009 应用/旧库双向不兼容，必须独立 Activation Gate。以上试用部署状态保持不变。
+**18444当前运行eb9530a/1707a8e54159，0001–0011 current；本次未执行迁移。** 新备份 `pr91-second-2026-10-10T15-26-38-395Z`及完整隔离PG/对象/配置恢复PASS。暂停前无上传/创建/写事务，最终30报价/30Revision/PV、2账号、3附件/对象、3回执/67日志及所有业务表哈希保持；database/对象容器、卷/网络/TLS不变，仅app/gateway及白名单构建身份更新。历史28条备份仍保留但不充当本次恢复依据。
 
-## 永久边界
+用户可继续使用[18444](https://localhost:18444/quote-center)；2026-10-11 用户已正式确认 PR #91 人工验收通过并授权合并。新隔离profile实测默认列表铺满、100px×8组合、拖宽不挤邻列、六种桌面/移动布局、详情去冗余和方案卡片PASS；既有手机大图原件7770409字节，列表实际下载256×192/4767字节缩略数据。现库0制作方案/0全局设置，诚实空态而非自动Seed。未创建报价或保存设置；单次正常登录/注销仅新增1 session/1登录记录。此前部署/STOP证据保留；汇率日期政策、影响预览与批量更新属于后续独立任务，PR #91 的验收与合并不代表该功能已实现。此次授权不涉及新的数据库/环境更新。
 
-- Codex C PR85 已合并，Source/Bridge 修复完成，branch `feat/ainuoke-source-validation`；[报告](tasks/completed/2026-10-09-ainuoke-source-validation.md)。原交付 Python44/44、npm679/679、typecheck/lint/build41 routes PASS；PR85 整合阶段从 clean `8e94221…` 普通合并上述 main，仅人工整合两份状态文档，该阶段重跑 Python44/44、npm679/679、typecheck/lint/build/diff-check PASS，既有 Source 代码/测试/报告未改。6087050 Preview/commit 完整性收紧另属 Material 任务；本地 mock Bridge/上游 HTTP 不满足正式多人 Server 集成。未真实联调、写业务数据或部署。
+[历史部署接力](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md)和[旧项目证据](tasks/completed/2026-10-10-pre-two-step-state-history.md)保留，旧“取消零创建”不再是当前普通电脑规则；工程PASS不是人工PASS。
 
-- D-096 历史导入 NOT REQUIRED；旧数据保留，不导入不是删除授权。D-097 Server 不读旧业务、不回退 mock/IndexedDB；D-098 Quote-first 试用范围保持。可信 session/RBAC、细粒度字段权限、精确 Decimal/null/zero、CAS/事务/审计和历史不可变不变。
-- 工程、候选、真实部署、人工验收分开；默认 Browser 保持，正式远程必须认证授权/HTTPS；持久试用数据不得当作 disposable 清理。
+D-096历史导入NOT REQUIRED；D-097无Browser业务回退、D-098 Quote-first、D-099原版视觉与Server能力底线、D-101剩余业务目标保持。默认Browser不变；新Server能力与真实部署分别记录。

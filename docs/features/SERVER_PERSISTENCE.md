@@ -1,5 +1,11 @@
 # PostgreSQL Server Persistence Foundation
 
+## PR #91 / D-102 immediate creation defaults（2026-10-10 engineering only）
+
+0011 adds nullable type/country to existing quote_global_settings, no backfill and no changes to0001–0010. `creation-defaults {clientRequestId}` uses the original trusted Quote writer, receipt/actor-bound idempotency, allocator, two guarded transactions (technical registration then atomic Quote/receipt/audit commit) and active/state/version revalidation. Empty numbered drafts are kept; unknown results use original receipt GET, not an automatic second POST. Existing POST{} remains compatible. Global settings/presets still use Bundle CAS/audit; omitted new fields do not clear stored values. Type changes through aggregate PUT fail closed pending a dedicated workflow. Normal startup remains verify-only.
+
+Nonempty0001–0010→only0011 data preservation and legacy migration bytes are tested on disposable PostgreSQL. Linux packaging restores only published0008 line endings in a tracked-only temporary context, never changes Git SQL or a database ledger. Candidate and Preview authorization are separate; no0011/upgrade of18444 is authorized by this engineering task. [Current evidence](../tasks/active/quote-two-step-creation.md).
+
 ## Order C4.3 independent engineering — 2026-10-09
 
 Forward-only 0009 adds independent collection version/irreversible ownership and stable plans. New Ainuoke creation derives one default only with a valid date; quantity snapshots first source quantity, null recovery preserves ID, and human intervention permanently prevents source overwrite. Existing orders receive no ownership inference/backfill. Source date/quantity and collection version follow in the same mirror transaction; internal typed refresh and human edits append trusted audits atomically. GET/PATCH `/api/v1/sales-orders/:uuid/delivery-plans` uses existing identity/RBAC/Origin. No source HTTP writer/general SalesOrder mutation is added.

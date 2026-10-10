@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
 import test from "node:test";
@@ -67,6 +68,42 @@ test("local identity uses one technical FK actor without login and keeps busines
   assert.equal((await fetch(`${baseUrl}/api/v1/quote-masters/brands`, { method: "POST", headers: mutationHeaders, body: JSON.stringify({ ...createBody, actorUserId: "forged" }) })).status, 400);
   const created = await fetch(`${baseUrl}/api/v1/quote-masters/brands`, { method: "POST", headers: mutationHeaders, body: JSON.stringify(createBody) });
   assert.equal(created.status, 201);
+  const brand = (await created.json()).brand;
+  await t.test("roleless trusted local authority completes options/preview/atomic create/readback/receipt for both types", async () => {
+    assert.equal((await pool.query("SELECT count(*)::int AS count FROM app_user_roles WHERE user_id=$1", [actor.id])).rows[0].count, 0);
+    const call = async (path: string, body?: unknown) => {
+      const response = await fetch(`${baseUrl}/api/v1/quotes/${path}`, { headers: mutationHeaders, ...(body === undefined ? {} : { method: "POST", body: JSON.stringify(body) }) });
+      return { status: response.status, body: await response.json() };
+    };
+    const before = (await pool.query("SELECT count(*)::int AS count FROM quote_center_quotes")).rows[0].count;
+    assert.equal((await call("creation-options")).status, 200);
+    for (const quoteType of ["processing", "distribution"]) {
+      const input = { source: null, quoteType, selection: { country: "Cambodia", presetId: null }, fields: { brandId: brand.id, salespersonId: null, styleNo: "SYNTHETIC-LOCAL-CREATION", styleName: "Roleless local draft", quantity: "0", garmentLeadDate: "2028-02-29", note: "Synthetic" }, parameterOverrides: {} };
+      const preview = await call("creation-preview", input);
+      assert.equal(preview.status, 200);
+      assert.equal(preview.body.parametersVisibility, "visible");
+      const command = { ...input, previewId: preview.body.previewId, clientRequestId: randomUUID(), imageSelection: null };
+      const result = await call("creation-workflows", command);
+      assert.equal(result.status, 201);
+      const saved = await call(result.body.result.quoteId);
+      assert.equal(saved.status, 200);
+      assert.equal(saved.body.quote.quote.revisions[0].baseInfo.quoteType, quoteType);
+      assert.equal(saved.body.quote.quote.revisions[0].baseInfo.brandId, brand.id);
+      assert.equal(saved.body.quote.quote.revisions[0].priceVersions[0].quantity, "0");
+      assert.deepEqual((await call(`creation-receipts/${command.clientRequestId}`)).body.result, result.body.result);
+      assert.equal((await call("creation-workflows", command)).status, 200);
+      const audit = (await pool.query("SELECT actor_user_id::text,actor_public_id::text,actor_name FROM operation_logs WHERE quote_id=$1 AND action='创建报价'", [result.body.result.quoteId])).rows;
+      assert.deepEqual(audit, [{ actor_user_id: actor.id, actor_public_id: actor.public_id, actor_name: "本地开发用户" }]);
+    }
+    assert.equal((await pool.query("SELECT count(*)::int AS count FROM quote_center_quotes")).rows[0].count, before + 2);
+    const directId=randomUUID();
+    const direct=await call("creation-defaults",{clientRequestId:directId});
+    assert.equal(direct.status,201);
+    assert.equal((await call(direct.body.result.quoteId)).body.quote.quote.revisions[0].baseInfo.quoteType,"distribution");
+    assert.deepEqual((await call("creation-defaults",{clientRequestId:directId})).body.result,direct.body.result);
+    assert.equal((await pool.query("SELECT count(*)::int AS count FROM quote_center_quotes")).rows[0].count,before+3);
+    assert.equal((await pool.query("SELECT count(*)::int AS count FROM app_user_roles WHERE user_id=$1", [actor.id])).rows[0].count, 0);
+  });
   const log = (await pool.query<{ actor_user_id: string; actor_public_id: string; actor_name: string }>(
     "SELECT actor_user_id::text, actor_public_id::text, actor_name FROM operation_logs WHERE entity_type = 'Brand' ORDER BY created_at DESC LIMIT 1",
   )).rows[0];

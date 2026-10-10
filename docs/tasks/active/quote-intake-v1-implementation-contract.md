@@ -2,6 +2,8 @@
 
 > 2026-10-10；BUSINESS CONTRACT CONFIRMATION / DOCUMENTATION ONLY。**QI-01–06 已确认；下列字段名、状态、权限键、端点与存储方案是可执行技术提案，NOT IMPLEMENTED**。本轮只收口原 PR #90，不启动开发或新的架构审查。默认一个主 Codex，可选工作包不等于固定 Agent 流水线。规则入口：[BUSINESS_RULES](../../BUSINESS_RULES.md)、[D-101](../../DECISION_LOG.md)、[QUOTE_INTAKE](../../features/QUOTE_INTAKE.md)。
 
+**后续实施状态（2026-10-10）**：上段及以下“本轮/当前代码/未实现”描述为PR #90文档阶段历史。普通电脑两步创建已在后续独立功能任务实现；统一preview/workflows/receipts复用原writer，加入0010，不再用POST后PUT。实际DTO、TEXT master ID兼容、配置来源数组及验证见 [两步创建证据](quote-two-step-creation.md)。Intake schema/API/手机收集/图片转换、已有报价类型切换、团队权限仍NOT IMPLEMENTED；这里的技术提案不能冒充已实现或新的业务规则。原历史审计/hash/方案全部保留。
+
 ## 0. 恢复基线与证据
 
 - **本轮收口**：PR #90 原工作树/分支 `chore/quote-intake-v1-contract`，clean local/remote HEAD `2b278f086a80a0372a7834faaa732ae57d89f17a`；fetch/GitHub 核实最新 main `5d79cbb3cf880cab4ea84b0ebb61440c3152cc48`，PR #89 已 MERGED。普通 merge 仅 AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX 冲突，人工逐块保留两边文档；PR #89 最新代码/测试/缩略图证据及 D-100/0009 原样继承。两条 P2 修正为第4/5/7节的明确校验/拒绝/未来测试要求，不声称已实现；不操作其他 worktree/18443/18444/数据库/COS。
