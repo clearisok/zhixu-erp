@@ -1,5 +1,7 @@
 # 项目知识索引
 
+> 2026-10-10 PR91第二轮反馈：制作方案→默认值两区、卡片选择、详情去冗余、Server默认列表铺满已实现并隔离验证；源码eb9530a **ENGINEERING PASS / USER ACCEPTANCE PENDING，未更新18444**。见[本轮证据](tasks/active/quote-two-step-creation.md#second-user-acceptance-revision-2026-10-10)、[合成截图/像素索引](tasks/active/evidence/quote-pr91-second-acceptance/README.md)。下面b7c2080部署记录为此前历史，不代表新版已运行。
+
 > 2026-10-10 D-102：默认设置/直接新建已实施，18444运行0011及b7c2080候选。两处精确挂载/identity、授权有界HTTPS重试、实际隔离Chromium及最终旧数据/对象SHA验收PASS，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。见[本次验收](tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)、[领域契约](features/QUOTE_INTAKE.md)；此前STOP/恢复证据保留。D-101其余目标保持；Intake/手机/转换及已有类型切换 **NOT IMPLEMENTED**。18443/订单工作树未动，不自动合并。
 
 > PR #89 D-099 列表/100px/受保护Server缩略图已合并；原工程、18444更新和人工验收历史见[宽度/图片契约、测试与Preview备份恢复](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。普通手机大图已通过工程验证，不再是原图大小占位路径。本轮未复核环境或新增人工验收结论，18443及旧环境不操作。

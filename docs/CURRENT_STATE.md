@@ -1,26 +1,29 @@
 # 当前状态
 
-> 2026-10-10：PR #91 / D-102 **PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。18444已运行指定版本，剩余TLS/身份、隔离Chromium及旧数据/对象读回验收完成。用户可恢复18444人工验收；不自动合并，不更新18443。
+> 2026-10-10：PR #91 / D-102 第二轮人工反馈 **ENGINEERING PASS / USER ACCEPTANCE PENDING**；新源码eb9530a未部署。本轮不更新18444/18443。此前b7c2080的18444部署验收PASS仍是历史环境证据，不是本轮新版验收。
 
 ## 当前工程
 
 - 同一可信 receipt/Quote writer/编号/事务/审计；双击防重，挂载/刷新不创建，未知结果只核对原 token。空草稿保留；类型只读，generic PUT不能绕过专用类型切换保护。
-- PostgreSQL全局设置保存可空默认类型/国家、已有默认制作预设；active/国家/版本校验，未配置类型明确为经销技术回退。新PV、工序和其他费用为独立快照，设置变化不回写已有报价。
-- 设置页整理为创建默认值/通用计价、制作预设主从管理、补充项；权限只读、409草稿保护、重置未保存修改与离开提示。详情顶部紧凑制作信息条，参数编辑复用现有权限/UI。
+- 设置页只保留制作方案管理→新建默认值，复用原ManufacturingPreset及0011；同国多个工厂按明确ID选择，卡片同步默认国家，未选择不伪造参数。通用汇率仍在第一部分；默认变化不回写旧PV。停用/修改默认方案国家时明确清除当前默认组合。
+- Server删除全局补充项UI，并停止未来新报价静默继承旧系统费用/工序说明；旧DTO精确金额/DB字段/历史保留，品牌/业务员及单据级能力、Browser旧行为不变。详情两块冗余区移除，保存状态保留在原头部；基础资料失败局部重试，不回退Browser。PV制作方案用横向卡片，保留权限/历史/CAS。
+- 首次/主动恢复默认的Server列表铺满实际容器；旧个人v1像素不覆盖，手动拖宽后全部列保持像素，100px及正式缩略图保留。窄屏内部滚动，不改Foundation其他表格。
 - 已有列表100px/偏好/正式缩略图、编辑、Revision/PV、Estimate、确认、附件、Excel/ZIP/内部汇总/日志保留。Intake、完整已有报价类型切换、Excel列筛选、整单复制/删除、Revision删除及转订单不在本轮。
-- 新forward-only0011只增加两列，旧0001–0010 Git字节不变；非空升级只应用0011、旧业务数据/原checksum保持。正常启动verify-only。订单PR92文件交集为零，未操作其工作树。
+- 本轮不新增或修改migration，复用已发布0011；新候选的0001–0011原始checksum兼容验证、非空disposable仅0011升级/重跑/旧数据保持PASS。正常启动verify-only。订单PR92文件交集为零，未操作其工作树。
 
 ## 验证与交付
 
-发布审查实际创建29/29、Revision/PV10/10、roleless-local3/3、auth/frontend85/85、完整Chromium66/66、npm679/679、packaging12/12及typecheck/lint/Server和两种frontend PASS，默认build-info browser/browser/writable/session。补丁源码b7c2080的新不可变Linux候选验证了当前发布checksum、非空库仅升级0011、原数据/回执/重启保持及cleanup。此前236cc9b的列表像素/缩略图27/27等证据保留，未冒称本次重跑。[详细测试、合成截图与候选](tasks/active/quote-two-step-creation.md)。
+本轮实际完整Chromium78/78、列表/图片专项27/27、创建29/29、资料14/14、Revision/PV10/10、Estimate8/8、附件/资料迁移11/11、auth/frontend86/86、SSR9/9、npm679/679；typecheck/lint/Server及Server/默认Browser前端构建PASS，默认build-info browser/browser/writable/session。40张合成截图及像素证据见[本轮索引](tasks/active/evidence/quote-pr91-second-acceptance/README.md)，源码和候选与最终文档提交分开记录；[历史与当前任务证据](tasks/active/quote-two-step-creation.md)。
 
-原分支 `feat/quote-two-step-creation`；本次从local/PR91 `55cd29ac` / clean继续剩余只读验收。发布审查补齐generic PUT追加不同类型Revision的绕过保护；实际源码b7c2080，后续文档提交不改变镜像。此前网络故障及STOP历史保留于任务记录，不无限重试或强推。
+原分支 `feat/quote-two-step-creation`；本轮从local/remote/PR91 f2d7886 / clean继续，main84c8c5b。工程checkpoint eb9530ac9a2e1b7f68299d97c4d424662a6622f7；与订单PR92文件交集为零，未访问其工作树。此前网络故障/STOP/部署证据保留，不改写成当前工程结果。
+
+新Linux候选 `zhixu-quote-two-step:eb9530ac9a2e-ux-20261010t141559z` / image1707a8e54159，实际隔离运行/可信创建及receipt恢复/重启保持/cleanup PASS；**BUILT, NOT DEPLOYED**。最终文档SHA不冒充镜像源码；[完整身份](tasks/active/evidence/quote-pr91-second-acceptance/candidate.json)。
 
 ## 环境与下一步
 
-**18444已运行指定b7c2080/8538a923候选，0001–0011 checksum current**；DB/app/gateway健康，数据库和对象服务未重建。新备份 `pr91-d102-2026-10-10T09-14-25-289Z` 完整隔离DB/对象/恢复配置验证PASS，原28报价/28Revision/28PV、2账号、3附件及对象、1committed回执保持。真实只执行0011，无业务seed或新报价/设置写入。
+**此前最后核实18444运行b7c2080/8538a923，0001–0011 current**；备份 `pr91-d102-2026-10-10T09-14-25-289Z` 完整恢复及当时28报价/28Revision/PV、2账号、3附件、1回执保护PASS。用户后来可能新增数据（本轮截图已有30条），不能把旧28条当当前升级基线。本轮没有环境读取、备份、登录或更新；下一次更新须单独授权并重新核对当前数据与恢复证明。
 
-**剩余验收PASS**：保留此前两处精确挂载等价证明与identity收口；本次一次有界HTTPS重试build-info200/57ms、health200/19ms，严格TLS/运行身份一致，旧异常根因仍未确定。全新隔离Chromium验证100px保存/刷新/重开、8组列宽、15组详情/设置/入口布局（1920/1440/1280/900及390触摸）、权限与受保护256×192/4767字节大图缩略图；未点击新建、未保存业务设置。最终33张非认证旧表hash、28报价/Revision/PV、2账号、3附件/对象SHA、1committed回执及11份checksum保持。临时验收脚本误用触摸参数及把HTML title当可见文字，修正后完整通过；共5次受控成功登录（4次脚本中断、1次完成/注销），sessions25→30、login_attempts28→33，技术记录不冒称零数据库写入。没有重复备份/恢复/迁移/构建/重启/替换。[本次证据](tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)。18443/真实库/COS/旧环境及订单工作树未动。
+本轮新版须等待用户批准18444更新后再人工验收制作方案/默认值、列表铺满、详情与PV卡片；工程浏览器测试全部使用disposable PG、合成账号/对象与临时profile。18443/真实库/COS/旧环境及订单工作树未动。此前真实环境的TLS、挂载、技术登录记录和完整读回见[历史部署验收](tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)，不重复堆入当前摘要。
 
 [历史部署接力](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md)和[旧项目证据](tasks/completed/2026-10-10-pre-two-step-state-history.md)保留，旧“取消零创建”不再是当前普通电脑规则；工程PASS不是人工PASS。
 
