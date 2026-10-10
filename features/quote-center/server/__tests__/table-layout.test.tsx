@@ -6,7 +6,7 @@ import { PermissionProvider } from "../../../permissions/components/permission-p
 
 const columns = [{ key: "identity", header: "Identity", minWidth: 180, width: 220, render: (row: { id: string }) => row.id }, { key: "action", header: "Action", width: 120, render: () => "Open" }];
 const preference = { moduleKey: "synthetic", tableKey: "test", columnOrder: ["identity", "action"], columnWidths: { identity: 56, action: 120 } };
-function render(layout?: "fit" | "readable") {
+function render(layout?: "fit" | "readable" | "fixed") {
   return renderToStaticMarkup(<PermissionProvider><DataTable rows={[{ id: "synthetic" }]} columns={columns} rowKey={row => row.id} tablePreference={preference} layout={layout} /></PermissionProvider>);
 }
 test("shared Browser/basic-settings default remains percentage fit-first without pixel table floor", () => {
@@ -21,4 +21,10 @@ test("explicit Server readable layout enforces actual pixel floors despite narro
   assert.match(html, /min-width:300px/);
   assert.match(html, /data-column-key="identity" style="width:180px/);
   assert.equal(preference.columnWidths.identity, 56, "Existing preference is not silently rewritten");
+});
+test("fixed pixel layout opts out of container surplus distribution without changing defaults", () => {
+  const html = render("fixed");
+  assert.match(html, /data-layout="fixed"/);
+  assert.match(html, /width:300px;min-width:300px;max-width:300px/);
+  assert.match(html, /data-column-key="identity" style="width:180px/);
 });

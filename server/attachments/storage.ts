@@ -9,7 +9,7 @@ export interface AttachmentStorage {
   readonly provider: string;
   readonly container: string;
   put(key: string, bytes: Buffer, mimeType: string): Promise<ObjectStat>;
-  head(key: string): Promise<ObjectStat | null>;
+  head(key: string, signal?: AbortSignal): Promise<ObjectStat | null>;
   get(key: string, signal?: AbortSignal): Promise<Readable | null>;
   /** Reserved for a separately authorized retention/GC gate; Q4A never calls it. */
   remove(key: string): Promise<void>;

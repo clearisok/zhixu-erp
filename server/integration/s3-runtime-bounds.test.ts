@@ -26,6 +26,11 @@ test('actual SDK HTTP transport deadlines, stream cancellation and safe error wr
   await t.test('GET headers then stalled body aborts/destroys socket',async()=>{mode='stream';const n=closed;const body=await storage.get(key);assert.ok(body);await assert.rejects(async()=>{for await(const chunk of body)void chunk;},safe);await new Promise(r=>setTimeout(r,30));assert.ok(closed>n);});
   await t.test('consumer destroy releases pending upstream read',async()=>{const n=closed;const body=await storage.get(key);assert.ok(body);body.on('error',()=>{});body.resume();body.destroy();await new Promise(r=>setTimeout(r,30));assert.ok(closed>n);});
   await t.test('external abort cancels pending GET before headers',async()=>{mode='stall';const c=new AbortController();const p=storage.get(key,c.signal);setTimeout(()=>c.abort(),30);await assert.rejects(p,safe);});
+  await t.test('thumbnail disconnect cancels pending HEAD before its regular deadline',async()=>{
+    mode='stall';const c=new AbortController(),started=Date.now(),n=closed;
+    const p=storage.head(key,c.signal);setTimeout(()=>c.abort(),30);await assert.rejects(p,safe);
+    assert.ok(Date.now()-started<200);await new Promise(r=>setTimeout(r,30));assert.ok(closed>n);
+  });
   await t.test('broken stream yields sanitized failure',async()=>{mode='break';const body=await storage.get(key);assert.ok(body);await assert.rejects(async()=>{for await(const chunk of body)void chunk;},safe);});
   await t.test('permission failure is not missing; confirmed bucket plus 404 is missing',async()=>{mode='denied';await assert.rejects(storage.head(key),safe);mode='missing';assert.equal(await storage.head(key),null);});
   await t.test('unreachable local endpoint fails within bounded request, no raw SDK error',async()=>{

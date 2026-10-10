@@ -12,6 +12,7 @@ import {
   type AttachmentRow, type RevisionScope,
 } from "./repository.js";
 import type { AttachmentStorage } from "./storage.js";
+import { generateThumbnail } from "./thumbnail.js";
 export type { AttachmentKind, AttachmentView } from "./repository.js";
 
 const MAX_BYTES = 100 * 1024 * 1024; // Q4A technical resource ceiling; product limit remains undecided.
@@ -90,6 +91,20 @@ export function createAttachmentService(pool: Pool, storage: AttachmentStorage) 
       const stream = await storage.get(found.key, signal);
       if (!stream) problem(503, "attachment_object_unavailable");
       return { attachment: found.attachment, stream };
+    },
+    async thumbnail(actor: TrustedIdentity, quoteId: string, revisionId: string, attachmentId: string, signal?: AbortSignal) {
+      // Same trusted scope/lifecycle check as originals; no authorization-bypassing cache.
+      const found = await this.read(actor, quoteId, revisionId, attachmentId);
+      if (found.attachment.kind !== "image" || !IMAGE_MIMES.has(found.attachment.mimeType))
+        problem(404, "attachment_not_found");
+      return generateThumbnail(found.attachment, async readSignal => {
+        const stat = await storage.head(found.key, readSignal);
+        if (!stat || stat.byteSize !== found.attachment.size || stat.sha256 !== found.attachment.sha256)
+          problem(503, "attachment_object_unavailable");
+        const stream = await storage.get(found.key, readSignal);
+        if (!stream) problem(503, "attachment_object_unavailable");
+        return stream;
+      }, signal);
     },
     async upload(actor: TrustedIdentity, quoteId: string, revisionId: string, expectedVersion: number,
       input: { name: unknown; mimeType: unknown; kind: unknown; bytes: Buffer; uploadToken: unknown }) {
