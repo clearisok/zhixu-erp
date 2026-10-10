@@ -9,6 +9,7 @@ import { OrderCenterNavigation } from './order-center-navigation';
 function MaterialBody({id}:{id:string}) {
   const state=useOrderMaterial(id);const route=orderMaterialNavigation(id)!;
   return <><PageHeader eyebrow="SERVER · READ ONLY" title={state.model?.progress.order.styleNo||'款式物料跟进'} description={`合同 ${state.model?.progress.order.salesContractNo??'—'} · 正式订单 ${id}`} back={<a className="qc-button qc-button-secondary" href={route.returnHref}>返回订单详情</a>} actions={<button className="qc-button qc-button-secondary" onClick={state.reload}>刷新来源</button>}/>
+    <p data-server-sales-order-id={id}>合同 <strong>{state.model?.progress.order.salesContractNo??'—'}</strong> · 来源只读</p>
     {state.model?.provenance==='synthetic'&&<AlertBanner tone="warning" title="合成隔离验收数据">不是实时艾诺科同步记录。</AlertBanner>}
     {state.loading?<p>读取可信物料来源…</p>:state.error?<p role="alert">{state.error}</p>:state.model&&<ReadOnlyMaterialControlTower view={state.model.progress}/>}</>;
 }

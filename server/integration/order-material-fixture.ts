@@ -58,9 +58,11 @@ export async function startOrderMaterialFixture() {
         for(const row of pages[0].rows) Object.assign(row.values,{cgprice:12.75,goodsamount:255,CurrencyName:'CNY',customerConfirmedPrice:'protected-commercial-sentinel'});
         return pages;
       }});
-    server=createServer(createApp({pool,allowedOrigins:['http://127.0.0.1'],security:{secureCookies:false,sessionTtlSeconds:3600},orderMaterialRead:{resolveVisibleOrder,loadSource}}));
+    const allowedOrigins=['http://127.0.0.1'];
+    server=createServer(createApp({pool,allowedOrigins,security:{secureCookies:false,sessionTtlSeconds:3600},orderMaterialRead:{resolveVisibleOrder,loadSource}}));
     await new Promise<void>(done=>server!.listen(0,'127.0.0.1',done));const address=server.address();assert.ok(address&&typeof address==='object');const base=`http://127.0.0.1:${address.port}`;
     return {pool,orders,base,containerName:postgres.containerName,
+      allowPreviewOrigin:(origin:string)=>{const address=new URL(origin);if(address.protocol!=='http:'||address.hostname!=='127.0.0.1'||!address.port||['3000','3001','3002','18443','18444'].includes(address.port))throw new Error('invalid_isolated_preview_origin');allowedOrigins.push(address.origin);},
       scenario:(next:string)=>{scenario=next;clock=Date.parse(syntheticFetchedAt);},sourceReads:()=>sourceReads,
       login:async(name:string)=> {const response=await fetch(base+'/api/v1/auth/login',{method:'POST',headers:{'Content-Type':'application/json',Origin:'http://127.0.0.1','X-Zhixu-Request':'1'},body:JSON.stringify({username:name,password:'synthetic-only'})});assert.equal(response.status,200);return response.headers.get('set-cookie')!.split(';')[0];},
       close:async()=>{await new Promise<void>(done=>server!.close(()=>done()));await pool.end();await postgres.stop();}};

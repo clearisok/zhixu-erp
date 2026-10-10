@@ -39,3 +39,26 @@ Control Tower shares extracted existing card/table display with Browser mode; Ca
 Isolated Vite adapter mounts actual list/detail/Control Tower components (not old standalone preview), uses dynamic loopback API, fresh private Chromium and synthetic session users. 1440/1280/390 UI5/5 PASS,37 assertions; shared layout/green sidebar/card density retained. Six screenshots in evidence/order-material-night. Search/refresh/return, color details, no CCT/Quote API, no Browser business writes, no external origins, zero root horizontal overflow PASS. Table overflow stays inside its scroll container. All browser/profile/API/Vite/disposable PG cleaned.
 
 Initial browser isolation assertion matched source-module URLs containing confirmed-commercial-terms; fixed to classify only actual /api/ paths, retaining strict no-sensitive-API assertion. JSX review found the commercial condition also wrapped colors; corrected and added actual three-width color assertion. Typecheck/full npm757/757/Server+frontend42 routes PASS. Full lint initially had only test ternary warning; targeted final touched-code lint PASS after replacing it with explicit if/else. No real business runtime touched.
+
+## Gate 4 — final isolated acceptance
+
+- Final focused Source/Gate1/policy:78/78 PASS,0 skipped (Adapter29 + Gate1/old projection47 + policy2).
+- Final real trusted-session HTTP / CCT regressions / known-exposure audit:19/19 PASS,0 skipped (Material11, CCT7, exposure audit1). Audit PASS is still SECURITY PENDING, not a repaired legacy API.
+- Actual Chromium components:7/7 PASS,43 assertions at1440/1280/390. Added real synthetic session switch A→B→A, unauthorized B rejection with no cached material, unconnected UI and DOM summary/detail item-count parity. First added switch assertion relied on PageHeader description, which is hidden on narrow screens; now Source contract is explicitly visible in a compact line, and tests wait for target BillNo+rows. Cookies restore in finally. No security assertion skipped/weakened.
+- Full npm757/757,0 skipped; final typecheck/lint0 warnings/Server build/frontend42 routes/diff-check PASS. Server and frontend builds serial. Repeated only for subsequent code fixes/integration assertions.
+- Existing CCT test inherited main's expected migration list ending0010 while actual ledger contains0011. Added exact0011 filename to the expected array; no SQL/migration bytes changed. CAS/shared current/currency/history/audit rollback remain tested.
+- Developer manual preview `npx tsx features/ainuoke-material-progress/integration-preview/demo.ts` uses this same disposable fixture/API/actual components. `--verify` smoke passed real login proxy and cleanup. Fixture allows only explicitly registered dynamic127.0.0.1 origins, rejects3000/3001/3002/18443/18444. Synthetic users only; no deployment/env/credentials loaded.
+- All private browser profiles, loopback API/Vite servers and own random PostgreSQL16 containers cleaned. Final `docker ps --filter name=zhixu-pg-it` empty. Only temporary DBs received repository migrations; no real business DB, Preview, COS or original Browser data touched.
+
+### Commercial path matrix
+
+| Path | Evidence / remaining boundary |
+| --- | --- |
+| Order/Quote CCT GET | Actual ordinary view-only session returns sensitive current prices; remains unpatched pending exact independent policy |
+| Quote aggregate detail | Actual quote.view actor receives internal labor-cost sentinel without quote.cost.view; existing estimate filtering does not cover it |
+| Quote list/internal summary | Existing projections/guards separately mask or require cost permission; no generalization to aggregate detail |
+| Customer Excel and ZIP | Code requires quote.view+quote.export+quote.cost.view; current shared CCT overlay is preserved, future independent sale/labor export rules still require policy review |
+| Client memory/cache | Server clients use no-store but that does not redact response or React memory; existing unsafe read paths remain a risk. New Material client uses no-store/abort/scope check, only safe Material DTO |
+| Execution-only detail / read Control Tower | Actual browser makes no CCT/Quote request, no Browser business storage writes; server response excludes protected commercial fields; default-denied preparatory CCT projection never becomes part of Material DTO |
+
+Future color-level CNY sale price is not inferred from the existing scalar CCT. No new field/schema/key/default role policy is selected. Synthetic account switch proves injected scope/session isolation, not real personal Ainuoke binding.

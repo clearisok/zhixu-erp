@@ -58,6 +58,22 @@ test('actual Order list/detail/Control Tower closed loop at 1440/1280/390 with i
       assert.ok(requests.every(r=>r.url.startsWith(origin)||r.url.startsWith('data:')));checks++;
       assert.deepEqual(errors,[]);checks++;
     });
+    await t.test('actual account switch clears A and rejects unauthorized B instead of cached data',async()=>{
+      const b=await fixture.login('tracker-b');const [bname,bvalue]=b.split('=');await command('Network.setCookie',{name:bname,value:bvalue,domain:'127.0.0.1',path:'/',httpOnly:true});
+      try { await navigate(`/order-center/style-progress/detail?orderId=${fixture.orders[1].id}`);await until(()=>evaluate("document.body.innerText.includes('SC-SYNTHETIC-B') && document.querySelectorAll('[data-canonical-material-key]').length===4"),'B material scope');
+      assert.ok(await evaluate("document.body.innerText.includes('SC-SYNTHETIC-B') && !document.body.innerText.includes('SC-SYNTHETIC-001')"));checks++; } finally { await command('Network.setCookie',{name,value,domain:'127.0.0.1',path:'/',httpOnly:true}); }
+      await command('Network.setCookie',{name,value,domain:'127.0.0.1',path:'/',httpOnly:true});await navigate(`/order-center/style-progress/detail?orderId=${fixture.orders[1].id}`);
+      await until(()=>evaluate("document.querySelector('[role=alert]')?.textContent.includes('不会回退 Browser')"),'unauthorized B after switch');assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);checks++;
+    });
+    await t.test('unconnected UI and actual summary/detail use same item counts',async()=>{
+      fixture.scenario('unconnected');await navigate(`/order-center/style-progress/detail?orderId=${fixture.orders[0].id}`);await until(()=>evaluate("document.body.innerText.includes('正式物料来源尚未接通')"),'unconnected actual page');assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);checks++;
+      fixture.scenario('complete');await navigate(`/order-center/server-detail?id=${fixture.orders[0].id}`);await waitDetail();
+      const data=await(await fetch(fixture.base+`/api/v1/sales-orders/${fixture.orders[0].id}/material-progress`,{headers:{Cookie:cookie}})).json();
+      assert.ok(await evaluate(`document.querySelector('.sp-server-summary').innerText.includes('面料 ${data.progress.summary.fabric.demands} 项') && document.querySelector('.sp-server-summary').innerText.includes('辅料 ${data.progress.summary.trim.demands} 项')`));checks++;
+      await navigate(`/order-center/style-progress/detail?orderId=${fixture.orders[0].id}`);await until(()=>evaluate("document.querySelectorAll('[data-canonical-material-key]').length===4"),'same source detail');
+      assert.equal(await evaluate("document.querySelectorAll('.sp-v4-material-list > section > .sp-v4-inner-scroll tbody tr').length"),data.progress.rows.length);checks++;
+      assert.deepEqual(await evaluate('window.businessWrites'),[]);checks++;
+    });
     console.log(`Actual synthetic components ${checks} assertions, disposable ${fixture.containerName}, private preview ${origin}`);
     await command('Browser.close',{},undefined);
   } finally {
