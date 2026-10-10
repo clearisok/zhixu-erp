@@ -25,6 +25,30 @@ export async function runTwoStepCreation({ t, pool, requests, navigate, hasText,
     await until(async () => await evaluate("Boolean(document.querySelector('[data-creation-preview]'))"), "completed creation preview");
     await hasText(presetId ? "制作参数已配置" : "制作参数待完善");
   };
+  await t.test("options network failure has reachable retry, preserves later inputs, and only final create allocates", async () => {
+    const before = await count(), sequence = (await pool.query("SELECT last_value::text,is_called FROM quote_center_quote_number_seq")).rows[0];
+    const offset = requests.length;
+    await command("Fetch.enable", { patterns: [{ urlPattern: "*/api/v1/quotes/creation-options*", requestStage: "Request" }] }, sessionId);
+    try {
+      await navigate("/quote-center/new"); await hasText("网络结果未确认");
+      assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='搜索 / 刷新可用资料'&&!n.disabled&&!n.closest('fieldset[disabled]'))"), true, "retry stays outside disabled fieldset");
+    } finally { await command("Fetch.disable", {}, sessionId); }
+    await click("搜索 / 刷新可用资料");
+    await until(async () => await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='下一步'&&!n.disabled)"), "retry restored options");
+    await select("报价类型", "processing"); await labelInput("制作国家", "Cambodia"); await select("制作预设", presetA.id);
+    await click("下一步"); await select("品牌", brand.id); await select("客户业务员", person.id); await labelInput("款号", "SYNTHETIC-OPTIONS-RETRY"); await labelInput("数量", "0");
+    await command("Fetch.enable", { patterns: [{ urlPattern: "*/api/v1/quotes/creation-options*", requestStage: "Request" }] }, sessionId);
+    try { await click("搜索 / 刷新可用资料"); await hasText("网络结果未确认"); } finally { await command("Fetch.disable", {}, sessionId); }
+    await click("搜索 / 刷新可用资料");
+    await until(async () => await evaluate("!document.body.textContent.includes('网络结果未确认')"), "second retry succeeded");
+    assert.ok(await evaluate("[...document.querySelectorAll('input')].some(n=>n.value==='SYNTHETIC-OPTIONS-RETRY')"));
+    assert.equal(await evaluate("[...document.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent==='品牌').querySelector('select').value"), brand.id);
+    assert.equal(await count(), before); assert.deepEqual((await pool.query("SELECT last_value::text,is_called FROM quote_center_quote_number_seq")).rows[0], sequence);
+    assert.equal(requests.slice(offset).filter(r=>r.method==='POST').length, 0, "all options attempts are read-only");
+    await click("核对制作参数"); await until(async () => await evaluate("Boolean(document.querySelector('[data-creation-preview]'))"), "retry preview"); await click("创建报价");
+    await until(async () => await evaluate("location.pathname==='/quote-center/detail'"), "retry final detail"); await hasText("Server 报价 · v1");
+    assert.equal(await count(), before + 1); assert.equal(requests.slice(offset).filter(r=>r.method==='POST'&&r.path.endsWith('/creation-workflows')).length, 1); await isolated();
+  });
   await t.test("actual two-step back/cancel and incomplete preview never create Quote or allocate number", async () => {
     const before = await count(), sequence = (await pool.query("SELECT last_value::text,is_called FROM quote_center_quote_number_seq")).rows[0];
     await start("processing", null); await click("上一步"); await hasText("制作国家"); await click("下一步");

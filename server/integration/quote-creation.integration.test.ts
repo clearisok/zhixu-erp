@@ -171,7 +171,13 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
   await t.test("Transaction rechecks database permissions after preview, not request's old permission array", async () => {
     const cmd = await command(); const before = [await count(), await seq()];
     await pool.query("DELETE FROM app_role_permissions WHERE role_id='role-server-admin' AND permission_key='quote.create'");
-    try { await assert.rejects(creation.execute(actor, cmd), { code: "permission_denied" }); assert.deepEqual([await count(), await seq()], before); }
+    try {
+      await assert.rejects(creation.execute({ ...actor, username: "local-single-user", userName: "本地开发用户" }, cmd), { code: "permission_denied" });
+      const forgedMode = await fetch(`${origin}/api/v1/quotes/creation-workflows`, { method: "POST", headers: { Cookie: cookie, Origin: origin, "X-Zhixu-Request": "1", "Content-Type": "application/json", "X-Zhixu-Identity-Mode": "local-single-user", "X-User-Role": "admin" }, body: JSON.stringify(cmd) });
+      assert.equal(forgedMode.status, 403, "client identity-mode/role headers cannot bypass Session revocation");
+      assert.equal((await forgedMode.json()).error.code, "permission_denied");
+      assert.deepEqual([await count(), await seq()], before);
+    }
     finally { await pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('role-server-admin','quote.create')"); }
   });
   await t.test("Legacy POST{} remains neutral, rejects new fields and does not require receipts", async () => {

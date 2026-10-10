@@ -324,7 +324,7 @@ async function route(
     if (request.method === "POST") assertMutationBoundary(request, dependencies.allowedOrigins);
     const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
-    const creation = createQuoteCreationService(dependencies.pool);
+    const creation = createQuoteCreationService(dependencies.pool, dependencies.identityAuthority.mode);
     if (creationReceipt) sendJson(response, 200, await creation.receipt(identity, creationId(creationReceipt[1])));
     else if (request.method === "GET") {
       const search = new URL(request.url!, "http://local").searchParams.get("search") ?? "";

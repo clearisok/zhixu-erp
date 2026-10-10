@@ -101,11 +101,11 @@ export function QuoteCreationWizard({ initialFields }: { initialFields?: Partial
           <p>{input.quoteType === "processing" ? "加工报价" : "经销报价"} · {input.selection.country || "制作国家待设置"} · {options?.presets.find(item => item.id === input.selection.presetId)?.name ?? "无预设"}</p>
           {preview && <div role="status" data-creation-preview><strong>{preview.configuration.status === "configured" ? "制作参数已配置" : "制作参数待完善"}</strong>{p ? <p>币种 {p.laborCurrency} · 汇率 {p.usdCnyRate ?? "待设置"} · 加成 {p.markupRate ?? "待设置"} · {p.includeFreight ? `运费 ${p.freightName} ${p.freightAmount ?? "待设置"}` : input.selection.presetId ? "预设不含运费" : "运费策略待设置"}</p> : <p>无报价成本/设置查看权限；不返回受保护参数数值。</p>}<p>{preview.configuration.sources.map(item => `${fieldNames[item.field] ?? item.field}：${sourceNames[item.source]}`).join(" · ")}</p>{preview.missingFields.length > 0 && <p>草稿待完善：{preview.missingFields.join("、")}</p>}</div>}
         </>}
-        <FormItem label="查找可用资料"><input className="qc-control" value={search} maxLength={200} onChange={event => setSearch(event.target.value)} /><Button variant="text" onClick={() => void refresh(search)}>搜索 / 刷新可用资料</Button></FormItem>
         {options?.truncated && <p>候选已限量，请输入名称搜索；不会加载无限主数据。</p>}
         {missingSelection && <p role="status">候选搜索或状态变化未包含已选资料；输入仍保留，未冒充“未选择”。请刷新核对，最终创建由 Server 重新校验。</p>}
         {session.hasPermission("settings.global.edit") && <a href="/system-settings/quote-settings" target="_blank" rel="noopener noreferrer">在独立页面维护制作预设（返回后主动刷新）</a>}
       </fieldset>
+      <FormItem label="查找可用资料"><input className="qc-control" value={search} maxLength={200} disabled={busy || unknown} onChange={event => setSearch(event.target.value)} /><Button variant="text" disabled={busy || unknown} onClick={() => void refresh(search)}>搜索 / 刷新可用资料</Button></FormItem>
       <footer className="qc-server-create-actions"><Button variant="secondary" disabled={busy || unknown} onClick={() => router.push("/quote-center")}>取消</Button>{step === 2 && <Button variant="secondary" disabled={busy || unknown} onClick={() => { setStep(1); setPreview(null); }}>上一步</Button>}{unknown ? <Button disabled={busy} onClick={() => void reconcile()}>核对创建结果</Button> : step === 1 ? <Button disabled={busy || !options} onClick={() => setStep(2)}>下一步</Button> : preview ? <Button disabled={busy} onClick={() => void create()}>{busy ? "创建中…" : "创建报价"}</Button> : <Button disabled={busy || !options} onClick={() => void review()}>核对制作参数</Button>}</footer>
     </Card>}
   </PageContainer></AppShell>;

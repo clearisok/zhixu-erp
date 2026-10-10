@@ -3,6 +3,7 @@ import { isDeepStrictEqual } from "node:util";
 import type { Pool, PoolClient } from "pg";
 import { permissionsForUser, requirePermission } from "../auth/permissions.js";
 import type { TrustedIdentity } from "../auth/session.js";
+import type { IdentityMode } from "../auth/identity-authority.js";
 import { HttpError } from "../http/errors.js";
 import * as masters from "../quote-masters/repository.js";
 import { createServerQuoteDraft } from "./draft.js";
@@ -23,10 +24,16 @@ async function transaction<T>(pool: Pool, readOnly: boolean, run: (client: PoolC
     const result = await run(client); await client.query("COMMIT"); return result;
   } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
 }
-async function currentActor(client: PoolClient, actor: TrustedIdentity): Promise<TrustedIdentity> {
+async function currentActor(client: PoolClient, actor: TrustedIdentity, identityMode: IdentityMode): Promise<TrustedIdentity> {
   // A permission revocation / user deactivation cannot commit through this serialisation point.
   const user = (await client.query("SELECT active,public_id::text FROM app_users WHERE id=$1 FOR SHARE", [actor.internalUserId])).rows[0];
   if (!user?.active || user.public_id !== actor.userId) failure(401, "authentication_required");
+  // The mode is bound by createApp's server-owned IdentityAuthority, never request data.
+  // Its local compatibility actor has no role links by design. Still lock/check its FK row.
+  if (identityMode === "local-single-user") {
+    requirePermission(actor.permissions, "quote.create");
+    return { ...actor, permissions: [...actor.permissions] };
+  }
   await client.query("SELECT ur.user_id FROM app_user_roles ur JOIN app_role_permissions rp ON rp.role_id=ur.role_id WHERE ur.user_id=$1 FOR SHARE OF ur,rp", [actor.internalUserId]);
   const permissions = await permissionsForUser(client, actor.internalUserId);
   requirePermission(permissions, "quote.create");
@@ -73,7 +80,7 @@ async function review(client: PoolClient, actor: TrustedIdentity, input: Creatio
   parameters.configuration = { schemaVersion: 1, status: configured ? "configured" : "incomplete", sources };
   return { versions: { brand: brand?.version ?? null, salesperson: person?.version ?? null, preset: preset?.version ?? null, settings: settings?.version ?? null }, parameters, names: { brand: brand?.name ?? "", salesperson: person?.name ?? "" } };
 }
-export function createQuoteCreationService(pool: Pool) {
+export function createQuoteCreationService(pool: Pool, identityMode: IdentityMode = "session") {
   return {
     async options(actor: TrustedIdentity, search = ""): Promise<CreationOptions> {
       requirePermission(actor.permissions, "quote.create");
@@ -115,7 +122,7 @@ export function createQuoteCreationService(pool: Pool) {
       const input = parseCreationInput(raw); const payloadHash = hash(input);
       // Registration is durable before work, with no allocator/Quote/business audit writes.
       await transaction(pool, false, async client => {
-        const trusted = await currentActor(client, actor); ensureOverrides(trusted, input);
+        const trusted = await currentActor(client, actor, identityMode); ensureOverrides(trusted, input);
         const preview = (await client.query("SELECT actor_id::text,payload_hash FROM quote_creation_previews WHERE id=$1", [previewId])).rows[0];
         if (!preview || preview.actor_id !== actor.internalUserId) failure(404, "creation_preview_not_found");
         if (preview.payload_hash !== payloadHash) failure(409, "creation_payload_mismatch");
@@ -124,7 +131,7 @@ export function createQuoteCreationService(pool: Pool) {
       try {
         return await transaction(pool, false, async client => {
           const receipt = (await client.query("SELECT * FROM quote_creation_receipts WHERE actor_id=$1 AND client_request_id=$2 FOR UPDATE", [actor.internalUserId, clientRequestId])).rows[0];
-          const trusted = await currentActor(client, actor); ensureOverrides(trusted, input);
+          const trusted = await currentActor(client, actor, identityMode); ensureOverrides(trusted, input);
           if (receipt.payload_hash !== payloadHash || receipt.preview_id !== previewId) failure(409, "idempotency_payload_mismatch");
           if (receipt.state === "committed") return { replayed: true, receipt: { state: "committed" as const, result: receipt.result as CreationResult, retryable: false as const } };
           if (receipt.state === "rejected") failure(409, "creation_rejected");
