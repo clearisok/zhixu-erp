@@ -30,7 +30,7 @@ export async function startOrderMaterialFixture() {
       for(const key of permissions) await pool.query('INSERT INTO app_role_permissions(role_id,permission_key) VALUES ($1,$2)',[name,key]);
       actors.push({internalUserId:row.rows[0].id,userId:row.rows[0].public_id,username:name,userName:name,permissions:permissions as TrustedIdentity['permissions']});
     }
-    const orders = [];
+    const orders: Awaited<ReturnType<typeof createAinuokeSalesOrder>>['salesOrder'][] = [];
     for(const [i, contract] of [syntheticOrder.salesContractNo,'SC-SYNTHETIC-B'].entries()) {
       orders.push((await createAinuokeSalesOrder(pool,actors[0],{source:{sourceId:`synthetic-${i}`,sourceRowIdentity:`synthetic-row-${i}`,salesContractNo:contract,insideOrderNo:'SYNTHETIC-IN-CURRENT',lifecycleStatusRaw:'生效',contractDate:'2026-10-11',contractDeliveryDate:'2026-11-01',styleNo:syntheticOrder.styleNo,companyNameSnapshot:'合成公司',customerNameSnapshot:'合成客户',brandNameSnapshot:'合成品牌',quantity:100,sourceHash:`synthetic-hash-${i}`,fetchedAt:syntheticFetchedAt},colors:[{sourceLineIdentity:`color-${i}`,colorName:'蓝色',quantity:100,deliveryDate:null,sourceHash:`synthetic-color-${i}`}]})).salesOrder);
     }
