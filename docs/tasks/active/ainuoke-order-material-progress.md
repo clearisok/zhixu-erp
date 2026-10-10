@@ -34,3 +34,11 @@ The page uses safe generated 6087050-format snapshots clearly labelled SYNTHETIC
 ## Future trusted Server gap
 
 Formal material read API/repository/storage, trusted Zhixu user to personal Ainuoke account binding, permission/visibility contract, complete snapshot lifecycle, source-version/transactional audit policy and explicit material unit semantics need a separately reviewed design. 6087050 only proves InsideOrderNo transport lookup; BillNo fieldName/compareType must not be invented. No migration number (including #91's 0010) reserved. Await #91 integration and user confirmation before formal wiring.
+
+## Local implementation checkpoint
+
+Audit HEAD `1323d2fccf686f8d7407374578f764003a73f332`. Audit push failed with curl56/schannel missing close_notify; the single read-only remote verification also failed. REMOTE PENDING, no credential/configuration changes or blind push retries. Independent local phases continue on the same verified main baseline; next delivery attempt is the final reliable checkpoint.
+
+Pure projection, generated snapshots, scoped component/CSS and independent app route implemented. The developer preview starts only this component with Vite middleware on Node's dynamic loopback HTTP port, with no ERP root bootstrap, permissions mock or business stores. Initial Vite port=0 defaulted to5173; corrected to Node listen(0), and actual Chromium rerun used52459. Initial domain22/22 and Chromium9/9 (34 assertions) PASS; initial typecheck/build/npm701/701 PASS. A harmless unnecessary useMemo dependency warning was corrected using explicit in-memory source state. Added boolean/whitespace unknown-quantity guards; final reruns follow.
+
+Desktop1440 and touch390 screenshots are checked under `features/ainuoke-material-progress/__tests__/evidence/`. Source equality, unique event totals, color/spec variants, zero/null, factory exclusion, stable BillNo/Inside drift, missing paging, source collision and no persistence/network writes are covered. Large5000 projection/search measured~485ms and UI renders at most30 rows.
