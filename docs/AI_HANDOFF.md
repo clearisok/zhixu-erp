@@ -2,6 +2,10 @@
 
 ## Active — Desktop two-step Server Quote creation (2026-10-10)
 
+- **当前授权窗口 STOP / Preview维护暂停**：用户已授权指定bb451fe/66de候选更新隔离18444并确认无未完成操作。GitHub PR91/local为`8c6578b98311a9a14211d236d18b2376f8cb4343`，main仍84c8c5b。新完整备份已保存；隔离PG恢复、仅0010、verify-only及旧行读回通过，随后检查脚本把ledger数字版本按text别名排序成1,10,2导致比较失败；不是已证实的checksum漂移。脚本已修正ORDER BY限定整数列，但**未继续执行**，对象存储恢复NOT RUN，完整恢复证明未完成。18444 app/gateway保持STOPPED；DB/object服务保留，27Quotes/3附件/2账号、真实ledger0001–9不变，真实0010和应用替换NOT EXECUTED。隔离资源cleanup PASS。下一步须用户确认继续，先完成完整隔离恢复证明；不得自动恢复服务、迁移或初始化。备份hash/详细停止点见[任务证据](tasks/active/quote-two-step-creation.md)。18443及其他环境未动。
+
+### Historical — previous packaging checkpoint (authorization status superseded above)
+
 - 当前候选打包收口 **CANDIDATE COMPATIBILITY PASS / PREVIEW UPDATE NOT AUTHORIZED**。源码/打包checkpoint `bb451fe1895ef48eed7a8215dd1d88acd2cc0e9f`远端exact核实；镜像 `zhixu-quote-two-step:bb451fe1895e-compat-20261010t044707z`，ID `sha256:66de9c0df09c98b1b50659f2fd53096e8b4a0ff06ba26de4bd03ec353011efce`。仅临时tracked-only context0008恢复已发布LF字节，语义/Git历史SQL/0010不改。新镜像前9份原始checksum与18444当前ledger逐项一致，仅0010pending；实际Linux非空旧镜像基线→仅0010→旧表哈希不变/重跑skip→可信创建重放→重启GET回执/cleanup PASS。本轮packaging12/12、creation25/25、database-ops2/2+evidence6/6、typecheck/lint/Server镜像构建PASS；未重跑Chromium/npm全套/默认Browser构建/COS。详细10份hash与工具命令在[任务证据](tasks/active/quote-two-step-creation.md)。
 
 - P1/P2工程源码 `71f8b6a9c7e550f5551e79cd9c8ec832b7cf9b04`及既有Chromium68/68/local+Session4/4/auth83/83/npm679/679证据保留（不是本轮重跑）。旧71f8镜像checksum阻塞由上述新候选关闭，旧tag不改。本轮前后只读18444仍healthy/source d2a3509f/27Quotes/3附件/2账号/0001–9 applied/0010 absent，全表快照hash不变。旧26Quote/2object备份不覆盖当前状态；下一轮须另行明确批准Preview维护停机、新完整备份与隔离恢复、仅0010升级、仅app/gateway替换和只读验收。本轮这些操作均NOT EXECUTED，用户验收PENDING。

@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-10：电脑端两步 Server 新建报价 **ENGINEERING PASS / USER ACCEPTANCE PENDING**。基线 main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`，PR #89/#90 已合并；默认单主 Codex。本任务不合并、不部署。详情：[两步创建证据](tasks/active/quote-two-step-creation.md)。
+> 2026-10-10：电脑端两步 Server 新建报价 **ENGINEERING PASS / USER ACCEPTANCE PENDING**。基线 main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`，PR #89/#90 已合并；默认单主 Codex。用户授权的隔离18444升级窗口目前 **STOP / 维护暂停**，未执行真实Preview0010或应用替换；不合并、不更新18443。详情：[两步创建证据](tasks/active/quote-two-step-creation.md)。
 
 ## 当前工程能力
 
@@ -11,11 +11,11 @@
 
 ## 验证、候选与 Preview
 
-- PR91 P1/P2修复及工程证据保留。新bb451fe不可变Linux候选 **CANDIDATE COMPATIBILITY PASS**：只在临时打包上下文恢复已发布0008原始字节，前9份checksum与18444 ledger一致；非空disposable只升级0010、旧表读回/重跑skip/创建重放/重启回执PASS。Git历史SQL和业务源码不改。本轮定向12+25及database-ops2/evidence6项、typecheck/lint/镜像构建PASS，历史Chromium68不冒称重跑。**PREVIEW UPDATE NOT AUTHORIZED**：18444仍healthy/d2a3509f/27报价/3附件/2账号，0010未执行；旧26报价/2对象备份不新鲜，须另行授权新备份、隔离恢复、维护窗口和配套升级。详见任务证据。
+- PR91 P1/P2及bb451fe/66de不可变候选 **CANDIDATE COMPATIBILITY PASS**，工程测试来源保留任务证据，不冒称本轮重跑。此次已获隔离18444更新授权，重新核实前9份raw checksum匹配、仅0010 pending；新完整备份含27报价/3对象/2账号及恢复配置。隔离PG恢复/0010/旧行读回通过，但ledger比较脚本误按text排序失败，已STOP；对象存储恢复未执行，不能宣称完整可恢复。检查脚本已修正，未继续操作。18444 app/gateway暂停，database/对象服务保留；数据、配置、TLS、旧镜像均未替换，真实0010未执行。等待用户确认继续完成恢复证明后再升级。
 
 - 初始工程验收（历史，不是本次打包重跑）：Chromium67/67、列表像素/图片27/27、创建25/25、相关API63/63、基础/CCT/空库28/28、auth/frontend83/83、npm679/679及质量/两种构建 PASS。P1/P2后Chromium68及本次打包验证分开记录，候选身份集中在任务证据。
 - 新 forward-only0010 只增加预检和创建回执；非空0001–0009升级、全旧表读回、custom dump/隔离恢复/再升级 PASS。0001–0009历史文件未改；0010固定LF。正常Server启动仍 verify-only。
-- **18444 未更新，0010 未对 Preview 执行**。因新增migration，须先审阅本轮证据并另行批准可恢复备份/Preview迁移及app/gateway更新；现有演示账号、报价、附件及偏好全部保留。现有地址不是两步功能已部署的证明。
+- **18444 未更新，0010 未对 Preview 执行**；当前维护暂停地址不可用于两步验收。现有演示账号、报价、附件和个人偏好未重置；失败不自动回滚、恢复或重开服务。完整恢复证明及用户确认后续操作仍待完成。
 - 18443/旧3000–3002/真实库/COS/秘密/其他工作树均未操作；本轮人工 UI 验收 PENDING。历史Windows部署、D-099/订单/Source验证保留在 [历史状态与接力](tasks/completed/2026-10-10-pre-two-step-state-history.md)，不作为当前操作指令。
 
 ## 永久边界
