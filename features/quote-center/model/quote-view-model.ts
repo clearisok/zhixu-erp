@@ -83,6 +83,8 @@ export type PriceVersionConfirmation = {
  * later edits to a system ManufacturingPreset cannot change a saved quote.
  */
 export type PriceVersionPricingParameters = {
+  /** Creation provenance; absent on legacy PVs, never inferred from technical CNY. */
+  configuration?: { schemaVersion: 1; status: "incomplete" | "configured"; sources: Array<{ field: string; source: "unset" | "technical_default" | "explicit" | "preset" | "accepted_default" }> };
   manufacturingCountry: string;
   manufacturingPresetId: string | null;
   manufacturingPresetName: string;

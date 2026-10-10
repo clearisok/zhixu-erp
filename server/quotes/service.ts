@@ -1,6 +1,7 @@
 import { isDeepStrictEqual } from "node:util";
 import { randomUUID } from "node:crypto";
-import type { Pool } from "pg";
+import type { Pool, PoolClient } from "pg";
+import type { CreationInput } from "./creation-contract.js";
 import type { PermissionKey } from "../../features/permissions/model/permissions.js";
 import { requirePermission } from "../auth/permissions.js";
 import type { TrustedIdentity } from "../auth/session.js";
@@ -178,6 +179,17 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
 
   return {
     getById: repository.getById,
+    /** Trusted workflow composition only; caller owns its receipt transaction. */
+    async createPreparedDraftInTransaction(client: PoolClient, actor: TrustedIdentity, input: CreationInput, parameters: ServerQuote["revisions"][number]["priceVersions"][number]["pricingParameters"], names: { brand: string; salesperson: string }, context: QuoteMutationContext = {}) {
+      requirePermission(actor.permissions, "quote.create");
+      const createdAt = now();
+      const draft = createServerQuoteDraft({ quoteId: nextUuid(), revisionId: nextUuid(), priceVersionId: nextUuid(), quoteCode: await allocateQuoteCode(client, createdAt) }, actor, createdAt);
+      const revision = draft.revisions[0];
+      revision.baseInfo = { ...revision.baseInfo, quoteType: input.quoteType, brandId: input.fields.brandId ?? "", brandName: names.brand, salespersonId: input.fields.salespersonId ?? "", salespersonName: names.salesperson, quoteStyleNo: input.fields.styleNo, styleName: input.fields.styleName, garmentLeadDate: input.fields.garmentLeadDate, note: input.fields.note };
+      revision.priceVersions[0].quantity = input.fields.quantity;
+      revision.priceVersions[0].pricingParameters = parameters;
+      return repository.createInTransaction(client, draft, audit(actor, { ...context, workflowAction: "quote.create.two_step" }));
+    },
     async confirmationWorkflow(actor: TrustedIdentity, quoteId: string, command: QuoteConfirmationCommand, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.view");
       requirePermission(actor.permissions, "quote.confirm");

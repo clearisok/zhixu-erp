@@ -1,6 +1,12 @@
 # AI handoff
 
-## Active — PR #90 Quote Intake V1 docs closeout (2026-10-10)
+## Active — Desktop two-step Server Quote creation (2026-10-10)
+
+- Single primary Codex; isolated `D:\workspace\zhixu-quote-two-step`, branch `feat/quote-two-step-creation`, clean base/latest verified main `84c8c5b520dbcb956ae27a24103e6607a1c227c3` (#89/#90 merged). Other worktrees/runtime untouched.
+- First implementation checkpoint: strict ordinary-creation DTO/options/preview/receipt APIs; existing trusted draft/allocator/repository/audit composed into one creation transaction, legacy POST{} unchanged. Forward-only0010 adds durable previews/actor-bound receipts;0001–0009 unchanged. New DTO/client/API/disposable upgrade checks22/22 PASS (this task). Wizard/editor changes are still uncommitted and unvalidated; full Chromium/regression/builds remain to run. No claim of completion or Preview update.
+- Final unknown result queries original token (no automatic re-POST); final transaction rechecks active same-brand person, exact preset/country and reviewed versions. No-preset CNY is explicitly technical/incomplete. Sources use an array, not decimal-named object keys (existing lossless decimal projection); master IDs retain existing TEXT contract. No Intake/type-switch/Excel filters/real deployment.18444 migration/update requires separate user approval after disposable migration/backup evidence;18443/real DB/COS untouched.
+
+## Historical — PR #90 Quote Intake V1 docs closeout (merged)
 
 - Original worktree/branch `chore/quote-intake-v1-contract`, clean local/remote start `2b278f086a80a0372a7834faaa732ae57d89f17a`. Fetch/GitHub verify main `5d79cbb3cf880cab4ea84b0ebb61440c3152cc48` (PR #89 MERGED); ordinary merge manually reconciles only AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX conflicts, preserving upstream code, D-100/0009 and PR #89 evidence. No other worktree or runtime touched.
 - QI-01–06 / D-101 remain confirmed targets, NOT IMPLEMENTED. [Implementation contract](tasks/active/quote-intake-v1-implementation-contract.md) now explicitly requires active, same-brand salesperson and exact Server preset/country consistency in both preview and final transaction, including version/status rechecks and future rejection tests. These are docs requirements, not implemented/runtime-tested guards. [Domain contract](features/QUOTE_INTAKE.md) keeps proposals distinct. Default single primary Codex; A/B/C/D are optional work packages, not mandatory agents, handoffs or separate PRs. Only docs/link/decision/conflict/diff checks this round; no code/SQL/tests/DB/Preview changes. Await PR #90 review and user merge approval; do not start implementation or #88/Excel filters.
