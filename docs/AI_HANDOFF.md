@@ -2,6 +2,10 @@
 
 ## Active — Desktop two-step Server Quote creation (2026-10-10)
 
+- **恢复Gate FULL RESTORE PASS（用户已再次明确授权继续）**：使用本维护窗口`pr91-upgrade-2026-10-10T05-20-53-187Z`备份，修正整数排序后实际恢复隔离PG，27Quotes/2账号/3附件及全部旧表哈希、0001–9 ledger一致；隔离仅0010/verify-only/旧行不变PASS。全部3对象实际隔离恢复并Get读回大小/SHA/附件关系PASS，大图7770409字节；19项恢复文件/配置和TLS/凭据archive提取字节核对PASS。新manifest SHA `a43cf332a0ba14d8a14bdb1c648359661d4790b5400e55a96479667b85cc1b5d`；owned cleanup PASS。18444仍app/gateway暂停、正式0010未执行；下一步直接按本轮授权重核现场/无writer/对象读回/checksum，仅0010和指定66de镜像替换。不得重新init或修改18443。详细hash与下一阶段结果见[任务证据](tasks/active/quote-two-step-creation.md)。
+
+### Historical — previous stopped window (resumed by explicit user authorization)
+
 - **当前授权窗口 STOP / Preview维护暂停**：用户已授权指定bb451fe/66de候选更新隔离18444并确认无未完成操作。GitHub PR91/local为`8c6578b98311a9a14211d236d18b2376f8cb4343`，main仍84c8c5b。新完整备份已保存；隔离PG恢复、仅0010、verify-only及旧行读回通过，随后检查脚本把ledger数字版本按text别名排序成1,10,2导致比较失败；不是已证实的checksum漂移。脚本已修正ORDER BY限定整数列，但**未继续执行**，对象存储恢复NOT RUN，完整恢复证明未完成。18444 app/gateway保持STOPPED；DB/object服务保留，27Quotes/3附件/2账号、真实ledger0001–9不变，真实0010和应用替换NOT EXECUTED。隔离资源cleanup PASS。下一步须用户确认继续，先完成完整隔离恢复证明；不得自动恢复服务、迁移或初始化。备份hash/详细停止点见[任务证据](tasks/active/quote-two-step-creation.md)。18443及其他环境未动。
 
 ### Historical — previous packaging checkpoint (authorization status superseded above)
