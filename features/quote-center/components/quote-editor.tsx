@@ -1,4 +1,5 @@
 "use client";
+import { parameterConfigurationIsComplete } from "../model/parameter-configuration";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NumberPrecisionContext } from "@/components/foundation/nullable-number-input";
@@ -1258,7 +1259,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
         {activeVersion.pricingParameters.configuration?.sources.some(item=>item.field==="quoteType"&&item.source==="technical_default")&&<small>类型未配置 · 经销为技术回退</small>}
         <span>制作国家 <strong>{activeVersion.pricingParameters.manufacturingCountry || "待设置"}</strong></span>
         <span>制作预设 <strong>{activeVersion.pricingParameters.manufacturingPresetName || "无预设"}</strong></span>
-        <span>参数状态 <strong>{activeVersion.pricingParameters.configuration?.status === "configured" ? "已配置" : "待完善"}</strong></span>
+        <span>参数状态 <strong>{parameterConfigurationIsComplete(activeVersion.pricingParameters) ? "已配置" : "待完善"}</strong></span>
         <Button permission="quote.settings.edit" disabled={quoteReadOnly || isHistorical} variant="text" onClick={()=>setPricingOpen(true)}>修改制作参数</Button>
         {quote.aggregateStatus === "draft" && <small>草稿已创建并保留 · {isDirty ? "有未保存修改" : "已保存"}</small>}
       </div>}

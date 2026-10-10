@@ -31,7 +31,7 @@
 
 ### D-101 Quote Intake V1 与共同两步报价创建
 
-- 日期：2026-10-10；状态：**Active 业务目标 / 普通电脑两步创建已实现；Intake/转换及已有类型切换 NOT IMPLEMENTED**。来源：用户《Quote Intake V1 最终契约固化与实施任务拆分》确认 QI-01–QI-06，后续授权本轮普通电脑两步创建。Intake字段、状态、权限键及图片方案仍是实施提案，不由此升级为新业务政策。
+- 日期：2026-10-10；状态：**Active 业务目标 / 普通电脑两步交互由 D-102 Superseded；Intake/转换及已有类型切换 NOT IMPLEMENTED**。来源：用户《Quote Intake V1 最终契约固化与实施任务拆分》确认 QI-01–QI-06，后续授权普通电脑两步创建（历史实现）及 D-102 验收修正。Intake字段、状态、权限键及图片方案仍是实施提案，不由此升级为新业务政策。
 - Intake 独立于 Quote/Revision/PriceVersion；不生成 Quote 编号或历史，不自动创建 SalesOrder。默认本人范围，可信 session、显式团队权限、一次转换、原图与来源冻结保留。
 - 普通新建与 Intake 转换复用两步流程：第一页类型/国家/可用预设，第二页确认参数并完善资料；取消/返回不创建。制作预设维护独立页面，继续要求 settings.global.edit。最终创建复用原 Quote Service/allocator/Repository/审计，保留旧 POST {}。
 - 加工隐藏材料不改公式；确认前明确切换当前可编辑 Revision，确认后新 Revision 切换。linked CCT/SalesOrder 事实不清空，generic PUT 必须防绕过。无预设可建待完善草稿，技术币种默认不等于已配置。六项完整规则见 BUSINESS_RULES。

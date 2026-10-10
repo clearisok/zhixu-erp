@@ -21,7 +21,7 @@
 
 ## Historical — Original UI / Server convergence (2026-10-09 engineering evidence)
 
-Below describes the original PR #86 implementation, not today's creation chain. D-099 visual/security boundaries remain Active; ordinary Server new now uses the atomic two-step flow above. Prior screenshot counts and type-first POST/PUT are historical, not new deployment/acceptance claims.
+Below describes the original PR #86 implementation, not today's creation chain. D-099 visual/security boundaries remain Active; ordinary Server new uses the D-102 immediate atomic draft command above. Prior two-step screenshots/counts and type-first POST/PUT are historical, not new deployment/acceptance claims.
 
 D-099: PR #64 `7658663038b1da504c95086711f627b6dce5c7a0` is the visual/information-architecture baseline; current Server is the data, security and business baseline. Server persistence is not permission to redesign the product. The [audit, capability/permission matrix and current test evidence](../tasks/active/quote-original-ui-convergence.md) and [synthetic screenshots](../tasks/assets/quote-original-convergence/README.md) record the engineering result, not human approval or deployment.
 

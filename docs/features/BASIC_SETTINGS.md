@@ -1,5 +1,11 @@
 # 基础设置
 
+## PR #91 / D-102 报价创建默认值（工程，未部署）
+
+Server `/system-settings/quote-settings` 的同一 Bundle/CAS/单事务保存可空 `defaultQuoteType`、可空 `defaultManufacturingCountry` 及已有默认预设。0011仅新增两列，无旧业务回填；旧客户端省略新字段保留已存值。国家变化清除不匹配选择、多个预设显式选择，Server再次验证active/国家/版本；停用或改默认预设国家不回写旧报价。未配置类型仅为经销技术回退，其余未配置参数不猜。
+
+页面以创建默认值/通用计价、制作预设主从管理、默认补充项组织。`settings.global.edit`与可信身份不变；无权限只读，409保留输入，重置只放弃本页未保存修改。默认设置仅形成未来报价当前PV/补充项快照；历史保持。[本轮工程/候选与验收证据](../tasks/active/quote-two-step-creation.md)。本修正未更新18444或其他真实运行环境。
+
 > 2026-10-05 当前事实：Q3B2I-C2 CLOSED / PASS。正式四类基础设置及 `/system-settings/quote-settings` 在真实 3001 的 `masterSettingsAuthority=server` 下读取/编辑 PostgreSQL，绝不回退 Browser Q3 Repository；编辑已重新开放。PR #64 的 Local Single-User 统一侧栏与正式“PostgreSQL 来源”文案已部署并经用户浏览器验收（品牌 4 条，其他三类页面正常）。下文 Browser CRUD 描述属于 `authority=browser` 兼容路径或历史，不是当前正式数据来源。
 
 ## Purpose

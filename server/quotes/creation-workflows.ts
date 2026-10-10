@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
+import { parameterConfigurationIsComplete } from "../../features/quote-center/model/parameter-configuration.js";
 import type { Pool, PoolClient } from "pg";
 import { permissionsForUser, requirePermission } from "../auth/permissions.js";
 import type { TrustedIdentity } from "../auth/session.js";
@@ -74,10 +75,7 @@ async function review(client: PoolClient, actor: TrustedIdentity, input: Creatio
     else if (field === "freightName") parameters.freightName = value as string ?? "";
     else { (parameters as unknown as Record<string, unknown>)[field] = value; if (field !== "freightAmount") source(field, value === null ? "unset" : "explicit"); }
   }
-  const configured = Boolean(parameters.manufacturingCountry) && sources.find(item => item.field === "laborCurrency")!.source !== "technical_default" && parameters.markupRate !== null
-    && !["technical_default", "unset"].includes(sources.find(item => item.field === "freight")!.source)
-    && (!parameters.includeFreight || Boolean(parameters.freightName) && parameters.freightAmount !== null)
-    && (parameters.laborCurrency !== "USD" || parameters.usdCnyRate !== null);
+  const configured = parameterConfigurationIsComplete(parameters, sources);
   parameters.configuration = { schemaVersion: 1, status: configured ? "configured" : "incomplete", sources };
   if(defaultCreation){sources.push({field:"quoteType",source:settings?.defaultQuoteType?"accepted_default":"technical_default"});source("manufacturingCountry",input.selection.country?"accepted_default":"unset");}
   return { versions: { brand: brand?.version ?? null, salesperson: person?.version ?? null, preset: preset?.version ?? null, settings: settings?.version ?? null }, parameters, names: { brand: brand?.name ?? "", salesperson: person?.name ?? "" },...(defaultCreation?{defaults:{laborDescription:settings?.defaultLaborDescription??"",otherCost:settings?.defaultOtherCost??null}}:{}) };
