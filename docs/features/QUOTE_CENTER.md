@@ -1,15 +1,29 @@
 # Quote Center
 
-## Quote Intake V1 / 两步新建目标（D-101，2026-10-10；NOT IMPLEMENTED）
+> 2026-10-11：用户已明确确认 PR #91 人工验收 PASS 并授权合并。18444 的第二轮部署验收与 2026-10-10 历史 PENDING 记录保留；本次只批准 GitHub 合并，不是新的 Preview/生产部署授权。按报价日期生效的汇率政策及受控批量更新尚未实施，属于后续独立功能。
+
+## 普通电脑立即创建（D-102，PR #91 验收修正）
+
+新交互使用 POST /api/v1/quotes/creation-defaults，仅接受 clientRequestId；可信 Server 读取设置、审核预设、持久 receipt、原编号/Writer/事务/审计，创建类型及初始 PV 一次完成。列表点击后直达现有详情；空草稿保留。/new 是显式按钮或只读 receipt 恢复页，挂载/刷新不写入。未知结果保留原 token、只核对、不自动 POST。
+
+全局设置新增可空 defaultQuoteType/defaultManufacturingCountry（0011），复用 defaultManufacturingPresetId；旧客户端省略新增字段不清空已配置值。未配置类型有经销技术回退来源标记，其余业务值不猜。新草稿复制有效匹配方案形成独立 PV 快照；第二轮用户明确取消未来 Server 自动套用系统工序/其他费用，旧字段与已保存费用/历史完整保留。品牌/业务员自身默认费用及单据级编辑不变。类型仅在既有头部展示，制作方案通过正式 PV 报价设置查看；generic PUT 类型变更拒绝，也不能追加不同于已保存当前类型的客户端 Revision 绕过保护（409 quote_type_workflow_required，草稿及已确认数据/审计保持）。完整已有类型切换未实施。
+
+第二轮设置 UI 为制作方案管理 → 新建报价默认值两区，默认及 PV 选择均使用明确 ID 的横向卡片（键盘/触摸），全局标准与当前 PV 快照分开；失败/409保留输入、权限不变。详情移除 Server 资料诊断大区及重复绿色信息条，保存状态留在已有头部；资料失败在基础信息局部显示并可显式重试，绝不回退 Browser。列表首次/显式恢复默认按容器分配真实像素宽度，个人 v1 偏好原样保留；第一次手动宽度调整固定全部列，邻列不受挤压，不改变 Foundation 默认布局或导出字段契约。100px、受保护缩略图、真实分页保留。[本轮证据](../tasks/active/quote-two-step-creation.md#second-user-acceptance-revision-2026-10-10)。上轮b7c2080/8538a923与0011的18444部署验收仍为历史有效证据；本轮无 Preview 更新授权，工程修正不代表部署或用户通过。[上轮部署验收](../tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)。
+
+## Historical — Desktop two-step Server creation（D-101，D-102替代普通电脑交互）
 
 普通新建与 Intake 转换使用同一两步创建流程：类型/国家/可用预设 → 参数确认/资料完善 → 可信原子创建。无预设允许待完善正式草稿；未完成、返回、取消不生成正式 Quote。制作预设新增配置独立页面，settings.global.edit 仍有效。旧 POST /api/v1/quotes {} 保持不变；新 UI 不通过 POST 后 PUT 拼接创建，不增加第二套 writer。
 
 加工突出工价/工序，默认隐藏已有面辅料编辑但保留全部事实及现有公式。确认前明确修改当前可写 Revision；任一 PV 或 exact linked current 已确认则新 Revision 切换，旧历史/共享 CCT/SalesOrder provenance 不变；generic PUT 须防绕过。经销恢复前明确确认，恢复原材料明细不自动应用预设。含材料成衣价不可冒称纯工价；客户 Excel 范围不变。
 
-当前仍是下方记载的 type-first POST{} + 必要 PUT，新目标尚无 API/UI。新命令须在 creation-preview 与最终事务分别验证业务员启用/所选品牌归属、可信预设国家一致性和状态/版本，不能静默忽略非法选择；这些校验仍 **NOT IMPLEMENTED**。当前 calculator 不以 QuoteType 排除材料；隐藏的不完整材料仍受原业务节点校验，不能静默跳过。领域/权限见 [QUOTE_INTAKE](QUOTE_INTAKE.md)，字段、配置状态、命令、失败恢复及可选工作包见 [契约](../tasks/active/quote-intake-v1-implementation-contract.md)。默认单 Codex 实现/测试/独立 Preview/用户验收，批准后合并，必要时独立审查；不要求固定 A/B/C/D 交接。
+普通电脑端正式 `/quote-center/new` 的显式Server分支已替代type-first POST{}后PUT：主动两步输入，参数预检，不消耗编号，最后一次creation-workflows事务创建完整初始类型/资料/PV快照，进入原详情。两阶段验证active同品牌业务员、可信预设国家/状态/版本；无预设允许未配置草稿，技术CNY不表示用户已确认币种。加工Server详情默认隐藏面辅料，可显式打开内部材料；不删除事实、不跳过原业务节点校验、不改公式，含材料成衣金额不冒称纯工价。普通Browser及隔离legacy server-new入口保持。
+
+新API/DTO/参数来源、幂等回执、字段权限、0010及本轮测试见 [实现证据](../tasks/active/quote-two-step-creation.md)。已有报价类型切换（包括确认前明确切换、确认后新Revision）、Intake/手机/转换仍 **NOT IMPLEMENTED**，上段是保留的业务目标，不是已开放按钮/API。领域见 [QUOTE_INTAKE](QUOTE_INTAKE.md)，原 [契约](../tasks/active/quote-intake-v1-implementation-contract.md)剩余方案继续保留。新UI未知结果只GET原token回执；URL保留凭据以便刷新后核对，不写Browser业务存储、不自动重POST。默认单Codex，独立Preview/人工验收及批准后合并。2026-10-10用户已单独授权18444新增0010及app/gateway更新，现已完成运行/数据只读验收，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**；这不授权18443或其他环境升级。
 
 
-## Original UI / Server convergence (2026-10-09; ENGINEERING PASS / USER UI ACCEPTANCE PENDING)
+## Historical — Original UI / Server convergence (2026-10-09 engineering evidence)
+
+Below describes the original PR #86 implementation, not today's creation chain. D-099 visual/security boundaries remain Active; ordinary Server new uses the D-102 immediate atomic draft command above. Prior two-step screenshots/counts and type-first POST/PUT are historical, not new deployment/acceptance claims.
 
 D-099: PR #64 `7658663038b1da504c95086711f627b6dce5c7a0` is the visual/information-architecture baseline; current Server is the data, security and business baseline. Server persistence is not permission to redesign the product. The [audit, capability/permission matrix and current test evidence](../tasks/active/quote-original-ui-convergence.md) and [synthetic screenshots](../tasks/assets/quote-original-convergence/README.md) record the engineering result, not human approval or deployment.
 
@@ -61,7 +75,7 @@ Also connected: saved current/explicit history customer XLSX (one/all PVs, built
 
 页面实例 persistence 控制 expectedVersion/baseline 与 aggregate/附件排他锁；成功才推进版本，409 草稿保留、精度无法无损 round-trip 拒绝；Server list 最小 saved summary + 有界全库搜索/filter/真实 total，不读 Browser。Root trusted identity + 业务 bootstrap/unsupported-route 隔离，不添加 Browser logs；empty masters/defaults 明示未配置，Quick Create 走 Server。
 
-Server new 页提供原有加工 processing / 经销 distribution 选择；只在用户点击后 POST `{}`，Server 默认经销不变。加工选择使用返回 aggregate/ID/version 做正常 PUT，成功后才进入详情；失败保留已创建 ID、明确类型未确认并禁止再次 POST，用户可打开该草稿核对。详情不新增任意类型修改入口，历史 Revision 不可变、计算规则和权限不变。
+Server new 现使用本页顶部记载的两步原子创建；旧 POST{} 中性经销草稿API保持兼容，正式新UI不再以POST后PUT初始化加工类型。历史type-first阶段测试证据留在归档，不作为当前创建链。详情不新增任意类型修改入口，历史Revision、计算和权限规则不变。
 
 Server Revision / PriceVersion workflows 已接线：PV 以所选已保存方案复制并建立新 PV/成本行 ID，可编辑名称/数量/说明、删除非最后 PV、独立成本/设置与切换；Revision 从当前或明确所选历史快照创建新默认版本，沿用 Vn/分支命名和完整性验证，可信创建身份/时间，保留 scoped child IDs，清除新快照确认并冻结旧版本。历史只读/返回当前不写业务数据；附件关系由原 repository 事务继承，不复制 binary。
 

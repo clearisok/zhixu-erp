@@ -69,7 +69,9 @@ function settingsIntoState(state: BasicSettingsState, settings: GlobalQuoteSetti
     usdCnyRate:numberFromDecimal(settings.defaultUsdCnyRate,"settings.defaultUsdCnyRate"),
     markupRate:numberFromDecimal(settings.defaultMarkupRate,"settings.defaultMarkupRate"),
     laborCurrency:settings.defaultLaborCurrency,
-    defaultOtherCost:settings.defaultOtherCost?{name:settings.defaultOtherCost.name,amount:numberFromDecimal(settings.defaultOtherCost.amount,"settings.defaultOtherCost.amount")}:null,
+    // Retained legacy global fees are no longer automatic Server Quote defaults.
+    // Do not project a hidden exact decimal into this editable number-based view.
+    defaultOtherCost:null,
   } };
 }
 

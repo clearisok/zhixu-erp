@@ -34,13 +34,15 @@ function settingsFromServer(settings: GlobalQuoteSettingsDto | null, presets: Ma
     : null;
   return {
     ...defaultGlobalQuoteSettings,
+    defaultQuoteType: settings?.defaultQuoteType ?? null,
+    defaultManufacturingCountry: settings?.defaultManufacturingCountry ?? null,
     defaultUsdCnyRate: fromDecimal(settings?.defaultUsdCnyRate ?? null, "quoteSettings.defaultUsdCnyRate"),
     defaultMarkupRate: fromDecimal(settings?.defaultMarkupRate ?? null, "quoteSettings.defaultMarkupRate"),
     defaultLaborCurrency: settings?.defaultLaborCurrency ?? "CNY",
-    defaultOtherCost: settings?.defaultOtherCost
-      ? { name: settings.defaultOtherCost.name, amount: fromDecimal(settings.defaultOtherCost.amount, "quoteSettings.defaultOtherCost.amount") }
-      : null,
-    defaultLaborDescription: settings?.defaultLaborDescription ?? "",
+    // These legacy supplements are no longer editable/applied on the Server
+    // page. Keep their raw DTO in the adapter instead of rounding hidden money.
+    defaultOtherCost: null,
+    defaultLaborDescription: "",
     defaultManufacturingPresetId: activeDefaultId,
     manufacturingPresets: presets.map(presetFromServer),
   };
@@ -48,11 +50,13 @@ function settingsFromServer(settings: GlobalQuoteSettingsDto | null, presets: Ma
 
 export function createServerGlobalQuoteSettingsAdapter(client: QuoteMasterServerClient = quoteMasterServerClient) {
   let settingsVersion = 0;
+  let savedSettings: GlobalQuoteSettingsDto | null = null;
   let presetVersions = new Map<string, number>();
 
   const load = async (): Promise<GlobalQuoteSettings> => {
     const [settings, presets] = await Promise.all([client.getSettings(), client.listPresets()]);
     settingsVersion = settings?.version ?? 0;
+    savedSettings = settings;
     presetVersions = new Map(presets.map((preset) => [preset.id, preset.version]));
     return settingsFromServer(settings, presets);
   };
@@ -75,16 +79,19 @@ export function createServerGlobalQuoteSettingsAdapter(client: QuoteMasterServer
     const result = await client.saveSettingsBundle({
       expectedVersion: settingsVersion,
       settings: {
+        defaultQuoteType: value.defaultQuoteType ?? null,
+        defaultManufacturingCountry: value.defaultManufacturingCountry?.trim() || null,
         defaultUsdCnyRate: toDecimal(value.defaultUsdCnyRate),
         defaultMarkupRate: toDecimal(value.defaultMarkupRate),
         defaultLaborCurrency: value.defaultLaborCurrency,
-        defaultLaborDescription: value.defaultLaborDescription,
-        defaultOtherCost: value.defaultOtherCost ? { name: value.defaultOtherCost.name, amount: toDecimal(value.defaultOtherCost.amount) } : null,
+        defaultLaborDescription: savedSettings?.defaultLaborDescription ?? "",
+        defaultOtherCost: savedSettings?.defaultOtherCost ?? null,
         defaultManufacturingPresetId: value.defaultManufacturingPresetId,
       },
       manufacturingPresets,
     });
     settingsVersion = result.settings.version;
+    savedSettings = result.settings;
     presetVersions = new Map(result.manufacturingPresets.map((preset) => [preset.id, preset.version]));
     return settingsFromServer(result.settings, result.manufacturingPresets);
   };

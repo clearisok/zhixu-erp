@@ -29,6 +29,44 @@ export function presentedListColumns(preferences: ServerListPreferences): Presen
 export function presentedTablePreference(preferences: ServerListPreferences): TablePreference {
   return { moduleKey: "server-quote", tableKey: "quote-list", columnOrder: presentedListColumns(preferences).map(column => column.key), columnWidths: Object.fromEntries(presentedListColumns(preferences).map(column => [column.key, presentedWidth(preferences, column.key)])) };
 }
+/** Server Quote opt-in only: distribute unused space as real pixel widths.
+ * A user's first resize materializes this full map, so neighbours never shrink.
+ * No writes on measurement; legacy preferences and Foundation defaults unchanged.
+ */
+export function fittedPresentedTablePreference(preferences: ServerListPreferences, containerWidth: number, auxiliaryWidth = 104): TablePreference {
+  const table = presentedTablePreference(preferences);
+  if (preferences.widthMode !== "fill" || !Number.isFinite(containerWidth) || containerWidth <= 0) return table;
+  const columns = presentedListColumns(preferences);
+  for (const {key, fields} of columns) {
+    const readable = key === "type" || key === "status" ? 100 : key === "date" ? 110 : fields.includes("versions") ? 128 : 0;
+    table.columnWidths[key] = Math.max(table.columnWidths[key], presentedMinWidth(key, fields), readable);
+  }
+  const target = Math.floor(containerWidth - auxiliaryWidth);
+  // Only automatic defaults adapt downwards; saved/manual pixels never enter here.
+  const floor = ({ key, fields }: PresentedColumn) => Math.max(presentedMinWidth(key, fields), key === "styleIdentity" ? 156 : key === "type" || key === "status" || key === "date" ? 100 : 0);
+  let excess = Object.values(table.columnWidths).reduce((sum, width) => sum + width, 0) - target;
+  while (excess > 0) {
+    const shrinking = columns.filter(column => table.columnWidths[column.key] > floor(column));
+    if (!shrinking.length) break;
+    const step = Math.max(1, Math.floor(excess / shrinking.length));
+    for (const column of shrinking) {
+      const remove = Math.min(step, table.columnWidths[column.key] - floor(column), excess);
+      table.columnWidths[column.key] -= remove; excess -= remove;
+    }
+  }
+  let remainder = Math.max(0, target - Object.values(table.columnWidths).reduce((sum, width) => sum + width, 0));
+  const content = columns.filter(column => !["styleImage", "quantity"].includes(column.key));
+  while (remainder > 0) {
+    const growing = content.filter(column => table.columnWidths[column.key] < 720);
+    if (!growing.length) break;
+    const step = Math.max(1, Math.floor(remainder / growing.length));
+    for (const column of growing) {
+      const add = Math.min(step, 720 - table.columnWidths[column.key], remainder);
+      table.columnWidths[column.key] += add; remainder -= add;
+    }
+  }
+  return table;
+}
 /** Expand a user-initiated group move; never drop hidden fields or child widths. */
 export function applyPresentedTablePreference(preferences: ServerListPreferences, next: TablePreference): ServerListPreferences {
   const columns = presentedListColumns(preferences);
@@ -44,5 +82,5 @@ export function applyPresentedTablePreference(preferences: ServerListPreferences
       else columnWidths[widthKey] = width;
     }
   }
-  return { ...preferences, columnOrder: ordered, columnWidths, groupWidths };
+  return { ...preferences, widthMode: "manual", columnOrder: ordered, columnWidths, groupWidths };
 }

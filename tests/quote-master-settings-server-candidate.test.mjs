@@ -63,7 +63,7 @@ test("Server adapter uses optimistic versions, Server IDs, exact decimals and no
 
 test("candidate hides hard delete, uses supplier endpoint and bounded Server navigation",()=>{
   assert.match(ui,/!serverCandidate&&<PermissionButton[^>]+variant="danger"/u);
-  assert.match(globalUi,/selectedPreset\.status==="inactive"\?"启用预设":"停用预设"/u);
+  assert.match(globalUi,/selectedPreset\.status==="inactive"\?"启用方案":"停用方案"/u);
   assert.match(globalUi,/activeManufacturingPresets\(settings\)\.map/u);
   assert.match(globalUi,/setManufacturingPresetStatus\(current, id, status\)/u);
   assert.match(globalModel,/preset\.id === requestedPresetId && preset\.status !== "inactive"/u);

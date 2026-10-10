@@ -1,5 +1,12 @@
 # 权限系统
 
+## Desktop two-step Quote creation（2026-10-10）
+
+- `creation-options`、`creation-preview`、`creation-workflows`、本人`creation-receipts`均要求可信IdentityAuthority + `quote.create`；Session最终事务再次检查用户active及数据库权限/撤权。本机显式local-single-user沿用Authority有效授权，不要求技术actor具有角色关联，仍锁定校验active/public ID；模式仅来自Server Authority配置，客户端username/role/header/body不能切换模式。options只返回active品牌/同品牌业务员/预设的最小ID/name/country，候选有界且支持搜索，不返回受保护数值。
+- preview参数数值仅向`quote.cost.view`或`quote.settings.edit`提供；其余只见本次创建的配置来源/待完善状态。override需要`quote.settings.edit`，不扩大默认角色。预设新增/编辑仍由独立设置页的`settings.global.edit`控制。
+- 创建/回执只返回最小Quote/Revision/PV ID和version，不返回完整Estimate等内容；完整详情另需`quote.view`及原字段权限。未拥有`quote.view`的create-only身份可创建但不能借回执读取整单。receipt actor-bound，不泄露另一用户的创建结果。
+- 旧POST{}、普通保存、版本、Estimate、客户确认、附件权限边界不变；本轮没有Intake权限键或已有类型切换接口。来源、事务/测试见 [两步创建证据](../tasks/active/quote-two-step-creation.md)。
+
 ## Server list / internal summary field boundary (2026-10-09)
 
 D-099 protected list `/thumbnail` uses the existing session/quote.view and exact available Quote/Revision/Attachment relation on every request, even after an earlier successful image read. It returns only reduced JPEG bytes, not storage identity or a public URL. No cache bypass, new permission or role change; original attachment writes/downloads remain unchanged.

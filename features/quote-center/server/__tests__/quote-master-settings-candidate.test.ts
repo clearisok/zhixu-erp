@@ -58,6 +58,23 @@ test("Global settings adapter submits one atomic bundle and receives Server pres
   assert.equal(saved.defaultMarkupRate,0);
 });
 
+test("hidden legacy supplements preserve raw decimal DTO across a visible settings save without being applied or rounded",async()=>{
+  const client=emptyClient();
+  const settings={defaultUsdCnyRate:null,defaultMarkupRate:null,defaultLaborCurrency:"CNY" as const,defaultLaborDescription:"Legacy retained",defaultOtherCost:{name:"Legacy exact",amount:"9.1234567890123456789"},defaultManufacturingPresetId:null,version:3,createdAt:time,updatedAt:time};
+  client.getSettings=async()=>settings;
+  client.saveSettingsBundle=async(input)=>{
+    assert.deepEqual(input.settings.defaultOtherCost,settings.defaultOtherCost);
+    assert.equal(input.settings.defaultLaborDescription,settings.defaultLaborDescription);
+    assert.equal(input.expectedVersion,3);
+    return {settings:{...settings,version:4},manufacturingPresets:[],createdPresetIds:{}};
+  };
+  const adapter=createServerGlobalQuoteSettingsAdapter(client),loaded=await adapter.load();
+  assert.equal(loaded.defaultOtherCost,null);assert.equal(loaded.defaultLaborDescription,"");
+  await adapter.save({...loaded,defaultQuoteType:"processing"});
+  const basic=await createServerBasicSettingsAdapter({scope:"brands",permissions:["quote.view"],client}).load();
+  assert.equal(basic.systemDefaults.defaultOtherCost,null,"hidden legacy decimal cannot block master loading or become a default");
+});
+
 test("inactive manufacturing defaults fail safe and status toggles never restore a default implicitly",async()=>{
   const normalized=normalizeGlobalQuoteSettings({
     defaultManufacturingPresetId:"inactive",

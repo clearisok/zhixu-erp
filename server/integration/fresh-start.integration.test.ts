@@ -46,12 +46,12 @@ test("Fresh start: schema, technical-only bootstrap and Server-only empty paths"
     listen,
   });
 
-  await t.test("formal migrations 0001–0009 apply; no legacy or business seeds", async () => {
+  await t.test("formal migrations 0001–0010 apply; no legacy or business seeds", async () => {
     const applied = await runMigrations(pool, migrations);
-    assert.equal(applied.applied.length, 9);
-    assert.equal(applied.applied.at(-1), "0009_sales_order_delivery_plans.sql");
+    assert.equal(applied.applied.length, 10);
+    assert.equal(applied.applied.at(-1), "0010_quote_creation_receipts.sql");
     const actual = await counts();
-    assert.equal(actual.schema_migrations, 9);
+    assert.equal(actual.schema_migrations, 10);
     for (const [table, n] of Object.entries(actual)) if (table !== "schema_migrations") assert.equal(n, 0, table);
     for (const legacy of ["customers", "quotes", "orders", "schedules", "audit_logs"]) assert.equal(actual[legacy], undefined);
     assert.equal(await bootstrapAdmin(pool, { username: "not-created", displayName: "Not created" }), false);
@@ -59,7 +59,7 @@ test("Fresh start: schema, technical-only bootstrap and Server-only empty paths"
 
   await t.test("startup and repeated startup only produce the explicit technical whitelist", async () => {
     await initialize(() => new Promise<void>((done) => server.listen(0, "127.0.0.1", done)));
-    const whitelist = { schema_migrations: 9, app_permissions: PERMISSION_KEYS.length, app_roles: 1, app_users: 1, app_user_roles: 1, app_role_permissions: PERMISSION_KEYS.length };
+    const whitelist = { schema_migrations: 10, app_permissions: PERMISSION_KEYS.length, app_roles: 1, app_users: 1, app_user_roles: 1, app_role_permissions: PERMISSION_KEYS.length };
     const first = await counts();
     for (const [table, n] of Object.entries(first)) assert.equal(n, whitelist[table as keyof typeof whitelist] ?? 0, table);
     await new Promise<void>((done, reject) => server.close((error) => error ? reject(error) : done()));
@@ -67,7 +67,7 @@ test("Fresh start: schema, technical-only bootstrap and Server-only empty paths"
     assert.deepEqual(await counts(), first);
     const rerun = await runMigrations(pool, migrations);
     assert.deepEqual(rerun.applied, []);
-    assert.equal(rerun.skipped.length, 9);
+    assert.equal(rerun.skipped.length, 10);
     for (const sequence of ["sales_order_number_seq", "quote_center_quote_number_seq"]) {
       assert.deepEqual((await pool.query(`SELECT last_value::int,is_called FROM ${sequence}`)).rows[0], { last_value: 1, is_called: false });
     }

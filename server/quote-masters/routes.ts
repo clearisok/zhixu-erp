@@ -56,12 +56,13 @@ function trimWrite(body: Record<string, unknown>, update: boolean): { input: Tri
 }
 function presetWrite(body: Record<string, unknown>, update: boolean): { input: PresetWrite; expectedVersion?: number } {
   exactObject(body,[...(update?["expectedVersion"]:[]),"name","country","laborCurrency","markupRate","includeFreight","freightName","freightAmount","status"]);
-  return {input:{name:text(body.name,"name",{required:true,max:200}),country:text(body.country,"country",{required:true,max:200}),laborCurrency:currency(body.laborCurrency),markupRate:decimal(body.markupRate,"markupRate"),includeFreight:boolean(body.includeFreight,"includeFreight"),freightName:text(body.freightName,"freightName",{required:true,max:200}),freightAmount:decimal(body.freightAmount,"freightAmount"),status:status(body.status)},...(update?{expectedVersion:expectedVersion(body.expectedVersion)}:{})};
+  return {input:{name:text(body.name,"name",{required:true,max:200}),country:text(body.country,"country",{required:true,max:200}),laborCurrency:currency(body.laborCurrency),markupRate:decimal(body.markupRate,"markupRate"),includeFreight:boolean(body.includeFreight,"includeFreight"),freightName:text(body.freightName,"freightName",{required:body.includeFreight===true,max:200}),freightAmount:decimal(body.freightAmount,"freightAmount"),status:status(body.status)},...(update?{expectedVersion:expectedVersion(body.expectedVersion)}:{})};
 }
 function settingsWrite(body: Record<string,unknown>):{input:SettingsWrite;expectedVersion:number}{
-  exactObject(body,["expectedVersion","defaultUsdCnyRate","defaultMarkupRate","defaultLaborCurrency","defaultLaborDescription","defaultOtherCost","defaultManufacturingPresetId"]);
+  exactObject(body,["expectedVersion","defaultUsdCnyRate","defaultMarkupRate","defaultLaborCurrency","defaultLaborDescription","defaultOtherCost","defaultManufacturingPresetId","defaultQuoteType","defaultManufacturingCountry"]);
+  if(body.defaultQuoteType!==undefined && body.defaultQuoteType!==null && !["processing","distribution"].includes(body.defaultQuoteType as string)) throw new HttpError(400,"invalid_quote_master_input","defaultQuoteType is invalid");
   const preset=body.defaultManufacturingPresetId===null?null:text(body.defaultManufacturingPresetId,"defaultManufacturingPresetId",{required:true,max:256});
-  return {expectedVersion:expectedVersion(body.expectedVersion),input:{defaultUsdCnyRate:decimal(body.defaultUsdCnyRate,"defaultUsdCnyRate"),defaultMarkupRate:decimal(body.defaultMarkupRate,"defaultMarkupRate"),defaultLaborCurrency:currency(body.defaultLaborCurrency),defaultLaborDescription:text(body.defaultLaborDescription,"defaultLaborDescription",{max:2000}),defaultOtherCost:defaultOtherCost(body.defaultOtherCost),defaultManufacturingPresetId:preset}};
+  return {expectedVersion:expectedVersion(body.expectedVersion),input:{...(body.defaultQuoteType===undefined?{}:{defaultQuoteType:body.defaultQuoteType as "processing"|"distribution"|null}),...(body.defaultManufacturingCountry===undefined?{}:{defaultManufacturingCountry:body.defaultManufacturingCountry===null?null:text(body.defaultManufacturingCountry,"defaultManufacturingCountry",{required:true,max:200})}),defaultUsdCnyRate:decimal(body.defaultUsdCnyRate,"defaultUsdCnyRate"),defaultMarkupRate:decimal(body.defaultMarkupRate,"defaultMarkupRate"),defaultLaborCurrency:currency(body.defaultLaborCurrency),defaultLaborDescription:text(body.defaultLaborDescription,"defaultLaborDescription",{max:2000}),defaultOtherCost:defaultOtherCost(body.defaultOtherCost),defaultManufacturingPresetId:preset}};
 }
 function object(value: unknown, field: string): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new HttpError(400,"invalid_quote_master_input",`${field} must be an object`);
@@ -76,7 +77,10 @@ function settingsBundleWrite(body: Record<string, unknown>) {
     const item=object(value,`manufacturingPresets[${index}]`);
     const existing=typeof item.id==="string";
     exactObject(item,[existing?"id":"clientId",...(existing?["expectedVersion"]:[]),"name","country","laborCurrency","markupRate","includeFreight","freightName","freightAmount","status"]);
-    const parsed=presetWrite(item,existing);
+    // Bundle identity belongs to the envelope, not the standalone preset DTO.
+    // It was validated above; never pass id/clientId into the exact field parser.
+    const fields={...item};delete fields.id;delete fields.clientId;
+    const parsed=presetWrite(fields,existing);
     return existing
       ? {id:text(item.id,"id",{required:true,max:256}),expectedVersion:parsed.expectedVersion!,...parsed.input}
       : {clientId:text(item.clientId,"clientId",{required:true,max:256}),...parsed.input};

@@ -184,6 +184,8 @@ export function insertHistoricalQuoteInTransaction(client: PoolClient, input: Se
 /** Internal Q1 persistence only. No HTTP routes, authentication or Browser writer. */
 export function createQuoteRepository(pool: Pool) {
   return {
+    /** Internal trusted composition only: caller owns the transaction and audit hook. */
+    createInTransaction,
     getById(id: string) { return transaction(pool, true, (client) => readQuoteAggregateInTransaction(client, id)); },
     async list(limit = 50, offset = 0): Promise<Array<{ id: string; quoteCode: string; defaultRevisionId: string; version: number }>> {
       if (!Number.isInteger(limit) || limit < 1 || limit > 100 || !Number.isInteger(offset) || offset < 0) throw new Error("Invalid Quote pagination");

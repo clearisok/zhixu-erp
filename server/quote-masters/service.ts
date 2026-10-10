@@ -142,6 +142,8 @@ function settingsSnapshot(value: GlobalQuoteSettingsDto | null): OperationLogDat
     "defaultOtherCost.name": value.defaultOtherCost?.name ?? null,
     "defaultOtherCost.amount": value.defaultOtherCost?.amount ?? null,
     defaultManufacturingPresetId: value.defaultManufacturingPresetId,
+    defaultQuoteType: value.defaultQuoteType ?? null,
+    defaultManufacturingCountry: value.defaultManufacturingCountry ?? null,
   }) : null;
 }
 
@@ -279,7 +281,7 @@ export function createQuoteMasterService(pool: Pool) {
         const after = requireVersion(before, await repository.updatePreset(client, { id, expectedVersion, version: expectedVersion, ...input }));
         await audit(client, actor, "修改制作预设", "ManufacturingPreset", id, presetSnapshot(before), presetSnapshot(after), context);
         if (before?.status === "active"
-          && after.status === "inactive"
+          && (after.status === "inactive" || (beforeSettings?.defaultManufacturingCountry != null && after.country !== beforeSettings.defaultManufacturingCountry))
           && beforeSettings?.defaultManufacturingPresetId === id) {
           const afterSettings = await repository.writeGlobalSettings(client, {
             expectedVersion: beforeSettings.version,
@@ -305,6 +307,8 @@ export function createQuoteMasterService(pool: Pool) {
         if (input.defaultManufacturingPresetId !== null) {
           const preset = await repository.getPreset(client, input.defaultManufacturingPresetId, true);
           if (preset?.status !== "active") throw invalidDefaultPreset();
+          const country=input.defaultManufacturingCountry===undefined?before?.defaultManufacturingCountry:input.defaultManufacturingCountry;
+          if ((input.defaultManufacturingCountry!==undefined || country!=null) && preset.country !== country) throw new HttpError(400,"preset_country_mismatch","Default preset country must match default country");
         }
         const after = await repository.writeGlobalSettings(client, { expectedVersion, ...input });
         if (!after) throw new HttpError(409, "quote_settings_version_conflict", "Quote settings version is stale");
@@ -359,6 +363,9 @@ export function createQuoteMasterService(pool: Pool) {
           throw invalidDefaultPreset();
         }
         const defaultManufacturingPresetId = deactivatesCurrentDefault ? null : resolvedRequestedDefault;
+        const country=input.settings.defaultManufacturingCountry===undefined?beforeSettings?.defaultManufacturingCountry:input.settings.defaultManufacturingCountry;
+        if(defaultManufacturingPresetId!==null && (input.settings.defaultManufacturingCountry!==undefined || country!=null) && (requestedExisting??requestedNew)?.country!==country)
+          throw new HttpError(400,"preset_country_mismatch","Default preset country must match default country");
 
         const savedPresets: ManufacturingPresetDto[] = [];
         for (const preset of existingInputs) {
@@ -398,7 +405,9 @@ export function createQuoteMasterService(pool: Pool) {
       const activeBrand = brand?.status === "active" ? brand : null;
       const activeSalesperson = salesperson?.status === "active" && salesperson.brandId === activeBrand?.id ? salesperson : null;
       const rate = activeSalesperson?.defaults.defaultUsdCnyRate ?? activeBrand?.defaults.defaultUsdCnyRate ?? system?.defaultUsdCnyRate ?? null;
-      const cost = activeSalesperson?.defaults.defaultOtherCost ?? activeBrand?.defaults.defaultOtherCost ?? system?.defaultOtherCost ?? null;
+      // Explicit brand/person defaults remain; hidden legacy system supplements
+      // must not be reintroduced when a user chooses a brand on a Server draft.
+      const cost = activeSalesperson?.defaults.defaultOtherCost ?? activeBrand?.defaults.defaultOtherCost ?? null;
       const trimOwner = activeSalesperson?.defaults.defaultTrims.length ? "salesperson" : activeBrand?.defaults.defaultTrims.length ? "brand" : null;
       const configs = trimOwner === "salesperson" ? activeSalesperson!.defaults.defaultTrims : trimOwner === "brand" ? activeBrand!.defaults.defaultTrims : [];
       const trims = (await Promise.all(configs.map(async(config)=>{const item=await repository.getTrim(pool,config.trimLibraryItemId);return item?{...config,name:item.name,specification:item.specification,supplier:item.supplier,unit:item.unit,lossRate:config.overrideLossRate??item.defaultLossRate,unitPrice:config.overrideUnitPrice??item.unitPrice}:null;}))).filter((item):item is NonNullable<typeof item>=>item!==null);
@@ -406,7 +415,7 @@ export function createQuoteMasterService(pool: Pool) {
         ? await repository.getPreset(pool, system.defaultManufacturingPresetId)
         : null;
       const manufacturingPreset = referencedManufacturingPreset?.status === "active" ? referencedManufacturingPreset : null;
-      return { usdCnyRate:rate,markupRate:system?.defaultMarkupRate??null,laborCurrency:system?.defaultLaborCurrency??null,laborDescription:system?.defaultLaborDescription??null,otherCost:cost,manufacturingPreset,trims,source:{usdCnyRate:activeSalesperson?.defaults.defaultUsdCnyRate!==null&&activeSalesperson?.defaults.defaultUsdCnyRate!==undefined?"salesperson":activeBrand?.defaults.defaultUsdCnyRate!==null&&activeBrand?.defaults.defaultUsdCnyRate!==undefined?"brand":system?.defaultUsdCnyRate!==null&&system?.defaultUsdCnyRate!==undefined?"system":null,otherCost:activeSalesperson?.defaults.defaultOtherCost?"salesperson":activeBrand?.defaults.defaultOtherCost?"brand":system?.defaultOtherCost?"system":null,trims:trimOwner} };
+      return { usdCnyRate:rate,markupRate:system?.defaultMarkupRate??null,laborCurrency:system?.defaultLaborCurrency??null,laborDescription:null,otherCost:cost,manufacturingPreset,trims,source:{usdCnyRate:activeSalesperson?.defaults.defaultUsdCnyRate!==null&&activeSalesperson?.defaults.defaultUsdCnyRate!==undefined?"salesperson":activeBrand?.defaults.defaultUsdCnyRate!==null&&activeBrand?.defaults.defaultUsdCnyRate!==undefined?"brand":system?.defaultUsdCnyRate!==null&&system?.defaultUsdCnyRate!==undefined?"system":null,otherCost:activeSalesperson?.defaults.defaultOtherCost?"salesperson":activeBrand?.defaults.defaultOtherCost?"brand":null,trims:trimOwner} };
     },
   };
 }

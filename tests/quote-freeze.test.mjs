@@ -13,7 +13,7 @@ test("Q5 frozen repository/export/evidence and runtime build unit suite", () => 
 });
 test("Q5 production UI routes and attachment boundary block writes, not navigation", async () => {
   const editor = await read("features/quote-center/components/quote-editor.tsx");
-  assert.match(editor, /const canEditQuote = !quoteFrozen/);
+  assert.match(editor, /const canEditQuote = [^;]*!quoteFrozen/);
   assert.match(editor, /if \(quoteFrozen\) return;/);
   assert.match(editor, /canUpdate=\{!quoteFrozen/);
   assert.match(editor, /canEditEstimate=\{!quoteFrozen/);

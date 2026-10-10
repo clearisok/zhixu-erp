@@ -18,15 +18,27 @@
 
 ## Active
 
+### D-102 普通电脑新建立即保留 Server 草稿与可信创建默认值
+
+- 日期：2026-10-10；状态：Active。来源：用户 PR #91 Preview 验收修正明确授权；不是新的计算规则。
+- 普通电脑点击“新建报价”即通过可信原子命令创建有编号的草稿，直接进入现有 QuoteEditor；空草稿返回后保留。挂载、刷新、返回及未点击不创建；双击与未知结果使用同一 receipt 核对，不重复 POST。
+- 仅替代 D-101 普通电脑两步向导及“取消/返回零创建”的交互要求；加工材料显示不改公式、历史与 linked 来源保护、主数据/预设校验、无预设待完善及 Intake 未实施边界继续有效。原两步验收保留为历史，不作为新交互 PASS。
+- PostgreSQL 全局设置保存可空默认报价类型、可空默认制作国家及已有默认预设；预设须 active 且国家一致，多预设不自动选首个。未配置类型仅使用明确标注的经销技术回退；无国家/预设不猜汇率、加成、运费。默认变更只影响未来新草稿的独立 PV 快照。
+- **第二轮人工反馈确认（同日）**：正式 Server 设置仅“制作方案管理 → 新建报价默认值”；方案代表工厂/标准，可同国多 ID，横向选择明确 ID 并兼容维护国家。移除系统默认费用/工序 UI，停止未来 Server 创建及品牌资料解析中自动套用这些不可见系统值；保留旧字段原始精度、旧 Quote/历史、单据级与品牌/业务员默认费用。此项仅替代 D-089 的 Server System 自动费用回退及旧全局工序继承，不改变 Browser 兼容规则、公式或既有费用。删除详情两块重复摘要，必要加载重试局部保留；列表首次/主动恢复默认铺满，已有偏好不自动改写。用户确认范围，不是新增推测政策。
+- 本轮类型摘要只读；已有类型切换仍 NOT IMPLEMENTED，generic PUT 不开放类型修改。制作参数沿用现有权限及 PV 编辑器；全局保存仍为 settings.global.edit、Bundle CAS/单事务/审计。
+- 工程入口：creation-defaults / creation-receipts、QuoteCreationRecovery、QuoteEditor、GlobalQuoteSettingsPage；新增 forward-only 0011，0001–0010 SQL 不改。本决定不授权18444 migration/更新或自动合并。
+
+> D-101 的普通电脑两步交互部分由 D-102 替代；下列原实现及验收是历史证据，其余六项业务目标保持 Active。
+
 ### D-101 Quote Intake V1 与共同两步报价创建
 
-- 日期：2026-10-10；状态：**Active 业务目标 / NOT IMPLEMENTED**。来源：用户《Quote Intake V1 最终契约固化与实施任务拆分》明确确认 QI-01–QI-06，并要求手机收集、电脑完成两步创建。技术字段、状态、权限键及图片方案仍是实施提案。
+- 日期：2026-10-10；状态：**Active 业务目标 / 普通电脑两步交互由 D-102 Superseded；Intake/转换及已有类型切换 NOT IMPLEMENTED**。来源：用户《Quote Intake V1 最终契约固化与实施任务拆分》确认 QI-01–QI-06，后续授权普通电脑两步创建（历史实现）及 D-102 验收修正。Intake字段、状态、权限键及图片方案仍是实施提案，不由此升级为新业务政策。
 - Intake 独立于 Quote/Revision/PriceVersion；不生成 Quote 编号或历史，不自动创建 SalesOrder。默认本人范围，可信 session、显式团队权限、一次转换、原图与来源冻结保留。
 - 普通新建与 Intake 转换复用两步流程：第一页类型/国家/可用预设，第二页确认参数并完善资料；取消/返回不创建。制作预设维护独立页面，继续要求 settings.global.edit。最终创建复用原 Quote Service/allocator/Repository/审计，保留旧 POST {}。
 - 加工隐藏材料不改公式；确认前明确切换当前可编辑 Revision，确认后新 Revision 切换。linked CCT/SalesOrder 事实不清空，generic PUT 必须防绕过。无预设可建待完善草稿，技术币种默认不等于已配置。六项完整规则见 BUSINESS_RULES。
 - **精确关系**：补充 D-003 的历史保护与新 Revision 清确认、D-035 的 PV 参数快照、D-088 的 Server 编号及旧 POST、D-090 active preset、D-096 空设置不猜默认、D-084/D-087 共享确认边界。D-029（新建报价主数据 Quick Create）仍适用于品牌/业务员，不适用于将制作预设维护嵌入新建页；未废止其显式保存与保留成本保护。D-097/D-099 的 POST{} 后加工 PUT 是当前实现/历史过渡，新的两步原子命令实施后仅替代新 UI 创建路径；旧 API 仍兼容。D-057 是订单/关账默认币种，不作为 Quote 新默认依据。
-- D-100 已由现已合并的 PR #87 使用，本条不重用。代码事实：server/quotes/{draft,service,repository,version-workflows}.ts、server/app.ts、server/quote-masters/{model,service}.ts、server/attachments/{service,storage}.ts、0008；当前没有 Intake 或新创建命令。详见 [实施契约](tasks/active/quote-intake-v1-implementation-contract.md)。
-- 本决定不授权开发启动、migration、部署、真实数据读取或自动合并。
+- D-100 已由现已合并的 PR #87 使用，本条不重用。电脑端实现复用原Service/allocator/Repository/审计：server/quotes/creation-contract.ts、creation-workflows.ts、server/app.ts、QuoteCreationWizard；0010提供可信用户隔离的持久预检/回执。普通创建两阶段校验业务员/品牌、预设/国家及受审版本；取消不创建，无预设CNY仅技术默认。实施证据见 [两步创建](tasks/active/quote-two-step-creation.md)，原 [实施契约](tasks/active/quote-intake-v1-implementation-contract.md) 的未实施部分仍是目标。
+- 本决定本身不授权真实migration、部署、真实数据读取或自动合并。本轮只disposable验证/候选构建，18444新增migration需另行批准。
 
 
 
@@ -139,7 +151,7 @@
 
 ### D-089 默认其他费用按作用域最多一条并作为报价快照复制
 
-- 日期：2026-09-21；状态：Active，用户已确认。本决定取代 D-009 对默认设置 0..N 的旧定义，但不改变 Quote `OtherCostLine` 的 0..N 明细语义。
+- 日期：2026-09-21；状态：Active（Server System 自动回退部分于2026-10-10由 D-102 第二轮确认替代；Browser/品牌/业务员及历史保持）。本决定取代 D-009 对默认设置 0..N 的旧定义，但不改变 Quote `OtherCostLine` 的 0..N 明细语义。
 - System、Brand、CustomerSalesperson 每个作用域最多保存一个 nullable `DefaultOtherCost`；非空对象只包含业务 `name` 和 nullable `amount`。解析优先级保持 CustomerSalesperson > Brand > System。
 - 默认值应用到新 Quote 时必须复制成具有独立身份的 `OtherCostLine` 快照。之后任何作用域的默认设置变化均不得回写已有 Quote；历史 Quote 中已保存的多条 `OtherCostLine` 必须原样保留。
 - 旧版 0..N 全局费用只作为 legacy migration source；沿用现有兼容投影，只取首条 enabled 且 name 或 amount 有效的记录作为新的 `DefaultOtherCost`。该投影不授权修改 Browser 数据，也不把 enabled、note 或旧设置 ID 带入新默认模型。

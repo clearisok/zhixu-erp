@@ -1,5 +1,13 @@
 # 基础设置
 
+## PR #91 / D-102 第二轮设置验收修正（工程，尚未更新 Preview）
+
+Server `/system-settings/quote-settings` 的同一 Bundle/CAS/单事务保存可空 `defaultQuoteType`、可空 `defaultManufacturingCountry` 及已有默认预设。0011仅新增两列，无旧业务回填；旧客户端省略新字段保留已存值。国家变化清除不匹配选择、多个预设显式选择，Server再次验证active/国家/版本；停用或改默认预设国家不回写旧报价。未配置类型仅为经销技术回退，其余未配置参数不猜。
+
+正式 Server 页面仅两区：01 制作方案管理（复用 ManufacturingPreset，按工厂/标准命名，同国可多 ID，启用/停用/设默认；通用汇率等仍独立维护），02 新建报价默认值（加工/经销分段、横向方案卡片）。显式方案 ID 同步维护0011的默认国家，不按国家选首个，不 Seed；无方案可暂不选择，参数待完善。改变默认方案国家或停用默认方案会清空默认 ID/国家，重新启用不自动恢复。
+
+Server 不再提供系统默认其他费用/工序说明 UI，未来创建及品牌资料默认解析不再自动套用这些不可见系统值；旧数据库字段/金额和既有报价/单据级编辑不删除，设置 Bundle 保存按原始 decimal DTO 保留隐藏旧值。品牌/客户业务员自身费用默认值仍有效，Browser 兼容路径不变。`settings.global.edit`、可信身份、Bundle CAS/审计不变；无权限只读，409保留输入，撤销仅放弃未保存修改。复用0011，不新增 migration。[本轮测试与合成截图](../tasks/active/quote-two-step-creation.md#second-user-acceptance-revision-2026-10-10)。上轮b7c2080/0011已部署18444，本轮修正未更新任何运行环境。
+
 > 2026-10-05 当前事实：Q3B2I-C2 CLOSED / PASS。正式四类基础设置及 `/system-settings/quote-settings` 在真实 3001 的 `masterSettingsAuthority=server` 下读取/编辑 PostgreSQL，绝不回退 Browser Q3 Repository；编辑已重新开放。PR #64 的 Local Single-User 统一侧栏与正式“PostgreSQL 来源”文案已部署并经用户浏览器验收（品牌 4 条，其他三类页面正常）。下文 Browser CRUD 描述属于 `authority=browser` 兼容路径或历史，不是当前正式数据来源。
 
 ## Purpose
@@ -29,7 +37,7 @@
 - 报价中客户业务员选项按已选品牌和启用状态过滤。
 - 面料/辅料名称允许重复；同名不同供应商是有效记录，稳定 ID 才是身份。
 - 供应商仍是自由字符串，建议从两个物料库的历史值去重生成。
-- 默认汇率、默认其他费用优先级为 CustomerSalesperson > Brand > System。
+- 默认汇率优先级为 CustomerSalesperson > Brand > System；费用在 Browser 兼容路径相同，D-102 第二轮正式 Server 仅 CustomerSalesperson > Brand，隐藏系统费用不再自动套用。
 - System、Brand、CustomerSalesperson 每个作用域最多保存一个 nullable `DefaultOtherCost`；非空对象只包含 `name` 和 nullable `amount`。
 - 默认其他费用应用到新 Quote 时复制为独立 `OtherCostLine` 快照；后续默认变化不得回写既有 Quote，单张 Quote 的其他费用明细仍允许 0..N 条。
 - 旧版 0..N 全局费用仅作为迁移来源，兼容读取只投影首条 enabled 且 name 或 amount 有效的记录；历史 Quote 多条 `OtherCostLine` 不参与该收敛。
@@ -80,7 +88,7 @@
 - 供应商输入使用 Creatable Combobox，既提示历史值又允许自由输入。
 - 报价选择 Library 项后复制字段，并用来源状态标记库快照、报价修改或手工输入。
 - 默认资料应用和品牌/业务员切换保护在基础设置模型服务与 Quote Editor 协同实现。
-- 全局工序说明使用普通 Textarea；同步当前默认 Revision 时保护已单独编辑的内容，历史 Revision 不变。
+- Browser 兼容路径全局工序说明使用 Textarea 并保护已编辑内容；D-102 第二轮正式 Server 移除此设置 UI 和未来自动继承，旧数据库字段及单据说明/历史不清理。
 - 品牌、客户业务员、面料库、辅料库、模板和全局默认值的 mutation 按权限键控制；无权限操作保持可见 disabled。
 - 品牌和客户业务员表单复用共享 Draft/Fields；默认配置默认折叠。固定辅料选择器引用正式 Trim Library，并允许在当前 Modal 内打开 Drawer 新建辅料后立即选用，上层未保存字段不会丢失。
 - 新建报价中的 Quick Create 复用同一模型校验和 repository：品牌只要求名称，客户业务员固定归属当前品牌；保存失败时弹层保持打开并显示错误。

@@ -41,6 +41,9 @@ export const defaultManufacturingPresets: ManufacturingPreset[] = [
 ];
 
 export type GlobalQuoteSettings = {
+  /** Server-owned creation defaults; absent in the legacy Browser contract. */
+  defaultQuoteType?: "processing" | "distribution" | null;
+  defaultManufacturingCountry?: string | null;
   defaultUsdCnyRate: NullableNumber;
   defaultMarkupRate: NullableNumber;
   defaultLaborCurrency: LaborCurrency;

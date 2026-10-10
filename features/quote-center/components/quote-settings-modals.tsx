@@ -7,12 +7,12 @@ import { businessColumns as listColumnOptions } from "../model/quote-business-vi
 type WidthOption = { key: string; label: string; min: number; width: number };
 type WidthOptions<T> = { getWidthOptions?: (settings: T, order: string[], restored: boolean) => WidthOption[] };
 
-export function ListFieldSettingsModal<T extends QuoteListViewPreferences>({ open, settings, tablePreference, defaultColumnWidths, defaultColumnOrder, defaultVisibleColumns, onClose, onSave, getWidthOptions }: { open: boolean; settings: T; tablePreference: TablePreference; defaultColumnWidths: Record<string, number>; defaultColumnOrder: string[]; defaultVisibleColumns?: ListColumnKey[]; onClose: () => void; onSave: (settings: T, preference: TablePreference, restoredDefaults: boolean) => void } & WidthOptions<T>) {
+export function ListFieldSettingsModal<T extends QuoteListViewPreferences>({ open, settings, tablePreference, defaultColumnWidths, defaultColumnOrder, defaultVisibleColumns, onClose, onSave, getWidthOptions }: { open: boolean; settings: T; tablePreference: TablePreference; defaultColumnWidths: Record<string, number>; defaultColumnOrder: string[]; defaultVisibleColumns?: ListColumnKey[]; onClose: () => void; onSave: (settings: T, preference: TablePreference, restoredDefaults: boolean, widthEdited: boolean) => void } & WidthOptions<T>) {
   if (!open) return null;
   return <ListFieldSettingsDialog settings={settings} tablePreference={tablePreference} defaultColumnWidths={defaultColumnWidths} defaultColumnOrder={defaultColumnOrder} defaultVisibleColumns={defaultVisibleColumns} onClose={onClose} onSave={onSave} getWidthOptions={getWidthOptions} />;
 }
 
-function ListFieldSettingsDialog<T extends QuoteListViewPreferences>({ settings, tablePreference, defaultColumnWidths, defaultColumnOrder, defaultVisibleColumns, onClose, onSave, getWidthOptions }: { settings: T; tablePreference: TablePreference; defaultColumnWidths: Record<string, number>; defaultColumnOrder: string[]; defaultVisibleColumns?: ListColumnKey[]; onClose: () => void; onSave: (settings: T, preference: TablePreference, restoredDefaults: boolean) => void } & WidthOptions<T>) {
+function ListFieldSettingsDialog<T extends QuoteListViewPreferences>({ settings, tablePreference, defaultColumnWidths, defaultColumnOrder, defaultVisibleColumns, onClose, onSave, getWidthOptions }: { settings: T; tablePreference: TablePreference; defaultColumnWidths: Record<string, number>; defaultColumnOrder: string[]; defaultVisibleColumns?: ListColumnKey[]; onClose: () => void; onSave: (settings: T, preference: TablePreference, restoredDefaults: boolean, widthEdited: boolean) => void } & WidthOptions<T>) {
   const [restoredDefaults, setRestoredDefaults] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<ListColumnKey[]>(settings.visibleColumns);
   const [columnWidths, setColumnWidths] = useState(tablePreference.columnWidths);
@@ -36,7 +36,7 @@ function ListFieldSettingsDialog<T extends QuoteListViewPreferences>({ settings,
     if (invalidWidth) return;
     const widths = { ...columnWidths };
     widthOptions?.forEach(option => { widths[option.key] = Number(widthValue(option)); });
-    onSave({ ...settings, visibleColumns }, { ...tablePreference, columnWidths: widths, columnOrder }, restoredDefaults);
+    onSave({ ...settings, visibleColumns }, { ...tablePreference, columnWidths: widths, columnOrder }, restoredDefaults, Object.keys(widthDrafts).length > 0);
   };
   return <Modal open title="报价列表页面设置" description="显示字段、顺序与列宽仅属于当前用户，不影响单张报价设置。" onClose={onClose} onSubmit={save} footer={<><Button variant="secondary" onClick={() => { setRestoredDefaults(true); setWidthDrafts({}); setColumnWidths(defaultColumnWidths); setColumnOrder(defaultColumnOrder); if (defaultVisibleColumns) setVisibleColumns(defaultVisibleColumns); }}>恢复默认布局</Button><Button variant="secondary" onClick={onClose}>取消</Button><Button type="submit" disabled={invalidWidth}>保存设置</Button></>}>
     <div className="qc-setting-options qc-column-order-settings">{orderedOptions.map((option) => <label key={option.key} draggable onDragStart={() => { dragKey.current = option.key; }} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); if (dragKey.current) reorder(dragKey.current, option.key); dragKey.current = null; }}><span className="qc-setting-drag-handle" aria-hidden="true">⋮⋮</span><input type="checkbox" checked={visibleColumns.includes(option.key)} onChange={() => toggle(option.key)} /><span><strong>{option.label}</strong><small>{["fabricCost", "trimCost", "labor", "garmentPrice", "confirmedLabor", "confirmedGarment"].includes(option.key) ? "多价格版本在列表中合并为摘要" : "拖动手柄调整显示顺序"}</small></span></label>)}</div>
