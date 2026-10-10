@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 2026-10-10 D-101：普通电脑端两步 Server 创建已实现，见 [本轮证据/0010迁移与Preview边界](tasks/active/quote-two-step-creation.md)；Intake/手机收集/转换及已有报价类型切换仍 **NOT IMPLEMENTED**。[领域契约](features/QUOTE_INTAKE.md)、[原实施契约](tasks/active/quote-intake-v1-implementation-contract.md)保留未实施目标。默认单主Codex；main基线 `84c8c5b` 已合并 #89/#90，未自动更新Preview或真实环境。
+> 2026-10-10 D-101：普通电脑端两步 Server 创建已实现，见 [本轮证据/0010迁移与Preview边界](tasks/active/quote-two-step-creation.md)；Intake/手机收集/转换及已有报价类型切换仍 **NOT IMPLEMENTED**。[领域契约](features/QUOTE_INTAKE.md)、[原实施契约](tasks/active/quote-intake-v1-implementation-contract.md)保留未实施目标。默认单主Codex；main基线 `84c8c5b` 已合并 #89/#90。明确授权的18444已升级0010并运行bb451fe/66de，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**；18443及其他环境未更新。
 
 > PR #89 D-099 列表/100px/受保护Server缩略图已合并；原工程、18444更新和人工验收历史见[宽度/图片契约、测试与Preview备份恢复](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。普通手机大图已通过工程验证，不再是原图大小占位路径。本轮未复核环境或新增人工验收结论，18443及旧环境不操作。
 

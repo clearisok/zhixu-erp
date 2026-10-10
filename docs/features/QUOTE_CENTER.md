@@ -8,7 +8,7 @@
 
 普通电脑端正式 `/quote-center/new` 的显式Server分支已替代type-first POST{}后PUT：主动两步输入，参数预检，不消耗编号，最后一次creation-workflows事务创建完整初始类型/资料/PV快照，进入原详情。两阶段验证active同品牌业务员、可信预设国家/状态/版本；无预设允许未配置草稿，技术CNY不表示用户已确认币种。加工Server详情默认隐藏面辅料，可显式打开内部材料；不删除事实、不跳过原业务节点校验、不改公式，含材料成衣金额不冒称纯工价。普通Browser及隔离legacy server-new入口保持。
 
-新API/DTO/参数来源、幂等回执、字段权限、0010及本轮测试见 [实现证据](../tasks/active/quote-two-step-creation.md)。已有报价类型切换（包括确认前明确切换、确认后新Revision）、Intake/手机/转换仍 **NOT IMPLEMENTED**，上段是保留的业务目标，不是已开放按钮/API。领域见 [QUOTE_INTAKE](QUOTE_INTAKE.md)，原 [契约](../tasks/active/quote-intake-v1-implementation-contract.md)剩余方案继续保留。新UI未知结果只GET原token回执；URL保留凭据以便刷新后核对，不写Browser业务存储、不自动重POST。默认单Codex，独立Preview/人工验收及批准后合并；本轮Preview新增migration先等用户批准。
+新API/DTO/参数来源、幂等回执、字段权限、0010及本轮测试见 [实现证据](../tasks/active/quote-two-step-creation.md)。已有报价类型切换（包括确认前明确切换、确认后新Revision）、Intake/手机/转换仍 **NOT IMPLEMENTED**，上段是保留的业务目标，不是已开放按钮/API。领域见 [QUOTE_INTAKE](QUOTE_INTAKE.md)，原 [契约](../tasks/active/quote-intake-v1-implementation-contract.md)剩余方案继续保留。新UI未知结果只GET原token回执；URL保留凭据以便刷新后核对，不写Browser业务存储、不自动重POST。默认单Codex，独立Preview/人工验收及批准后合并。2026-10-10用户已单独授权18444新增0010及app/gateway更新，现已完成运行/数据只读验收，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**；这不授权18443或其他环境升级。
 
 
 ## Historical — Original UI / Server convergence (2026-10-09 engineering evidence)

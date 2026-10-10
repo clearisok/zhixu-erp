@@ -2,6 +2,10 @@
 
 ## Active — Desktop two-step Server Quote creation (2026-10-10)
 
+- **PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**：用户从`4bb0df4`执行前停点再次明确授权。重核完整字段/重复项、备份manifest/config/恢复卷字节、旧表哈希/全部3对象/无writer/前9checksum PASS；复用`pr91-upgrade-2026-10-10T05-20-53-187Z`（FULL RESTORE PASS），正式runner只应用0010。18444仅app/gateway替换为66de不可变镜像，实际HTTPS源码`bb451fe1895ef48eed7a8215dd1d88acd2cc0e9f`，0001–0010 current/三个主要服务healthy。DB/object容器、卷、网络、TLS保持；27报价/3附件及关系/2账号、原图SHA和业务日志完整保留。实际只读Chromium：可信登录权限、100px/刷新/四档桌面、大图256×192/4767字节及390触屏、两步前进返回取消零创建PASS。没有新增演示报价；两个正常登录注销仅产生认证技术记录，用户profile/偏好未触碰。更新后挂载核对曾暂停：三个gateway Source为同一Windows路径的Docker Desktop表示，完整原始差异保留，Compose来源不变+权限/其他字段+主机/备份/容器SHA逐项证明后仅继续只读验收，未重复部署/迁移或回滚。详见[任务证据](tasks/active/quote-two-step-creation.md)。下一步用户打开18444/new验收；不自动merge，不动18443/其他环境。
+
+### Historical — pre-execute stop (resumed under explicit authorization)
+
 - **FULL RESTORE PASS / 执行前再次STOP（未执行0010）**：本窗口备份的隔离PG/3对象/19恢复文件实际恢复、旧表哈希/关系/对象逐个大小SHA和大图7770409字节读回全部PASS，manifest SHA `a43cf332a0ba14d8a14bdb1c648359661d4790b5400e55a96479667b85cc1b5d`，owned cleanup PASS。恢复checkpoint `bc8303e861d286dd537d0d70c54d7c1e8d406c3d` push返回ref-lock但一次GitHub核实exact送达，无重推。最终execute在比较Docker Mounts数组原始顺序时停止，未触及迁移/配置。逐项只读差异为空；修正仅排序、保留全部字段，6项正/反例PASS，随后实际verify-execute **READ-ONLY PASS**（精确目标/备份/config/旧表/全部对象重读/无writer/前9checksum/只pending0010）。遵守用户异常即STOP，未再次调用execute。18444 app/gateway仍STOPPED，DB/object保留、27报价/3附件/2账号、ledger0001–9、旧d2a3509f不变。下一步需用户确认继续这一停点，然后使用既定66de/bb451fe执行仅0010和app/gateway更新；不自动恢复或重init，不动18443。详见[任务证据](tasks/active/quote-two-step-creation.md)。
 
 ### Historical — previous stopped window (resumed by explicit user authorization)

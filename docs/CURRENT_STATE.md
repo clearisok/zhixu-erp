@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-10：电脑端两步 Server 新建报价 **ENGINEERING PASS / USER ACCEPTANCE PENDING**。基线 main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`，PR #89/#90 已合并；默认单主 Codex。用户授权的隔离18444升级窗口目前 **STOP / 维护暂停**，未执行真实Preview0010或应用替换；不合并、不更新18443。详情：[两步创建证据](tasks/active/quote-two-step-creation.md)。
+> 2026-10-10：电脑端两步 Server 新建报价 **ENGINEERING PASS / PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。基线 main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`，PR #89/#90 已合并；默认单主 Codex。明确授权的隔离18444已仅升级0010并更新app/gateway；不合并PR91，不更新18443。详情：[两步创建证据](tasks/active/quote-two-step-creation.md)。
 
 ## 当前工程能力
 
@@ -11,11 +11,11 @@
 
 ## 验证、候选与 Preview
 
-- PR91 bb451fe/66de候选 **CANDIDATE COMPATIBILITY PASS**，历史工程测试来源保留。用户再次授权后，本窗口新完整备份的隔离PG/仅0010/旧行读回、全部3对象实际恢复及逐个大小/SHA/关系、19恢复配置校验 **FULL RESTORE PASS**，临时资源cleanup PASS。最终execute因Docker Mounts数组顺序比较停止，未迁移/改配置；只读查证全部身份与挂载内容一致，修正仅数组排序后6项检查及实际只读pre-execute核对PASS。遵守STOP约定未再次execute；18444 app/gateway保持暂停，数据库/对象服务、27报价/3附件/2账号、TLS/配置/原镜像保留。真实0010未执行，等待用户确认从此执行前停点继续。
+- 18444实际运行源码 `bb451fe1895ef48eed7a8215dd1d88acd2cc0e9f`，不可变镜像66de；HTTPS/数据库、app、gateway健康，0001–0010 ledger current、checksum精确一致。复用本窗口已 **FULL RESTORE PASS** 的新完整备份，最终只读现场核对PASS后仅应用0010、仅替换app/gateway；数据库/对象服务容器、卷、网络、TLS和非身份配置保持。原27报价/3附件及关系/2账号完整读回，全部3对象大小与SHA不变；未新增演示数据。
 
 - 初始工程验收（历史，不是本次打包重跑）：Chromium67/67、列表像素/图片27/27、创建25/25、相关API63/63、基础/CCT/空库28/28、auth/frontend83/83、npm679/679及质量/两种构建 PASS。P1/P2后Chromium68及本次打包验证分开记录，候选身份集中在任务证据。
 - 新 forward-only0010 只增加预检和创建回执；非空0001–0009升级、全旧表读回、custom dump/隔离恢复/再升级 PASS。0001–0009历史文件未改；0010固定LF。正常Server启动仍 verify-only。
-- **18444 未更新，0010 未对 Preview 执行**；当前维护暂停地址不可用于两步验收。现有演示账号、报价、附件和个人偏好未重置；失败不自动回滚、恢复或重开服务。完整恢复证明已PASS，最终执行/运行验收待用户确认继续。
+- **18444已更新，可人工验收**：[列表](https://localhost:18444/quote-center)、[两步新建](https://localhost:18444/quote-center/new)。本次实际只读Chromium：登录权限、两步前进/返回/取消零创建、组合/独立100px保存刷新、四档桌面布局及大图缩略图/触屏视图PASS。原图7770409字节，列表只下载256×192/4767字节缩略图。用户Browser个人设置未读取/清理；测试仅用临时profile。完整创建流程本轮未在Preview执行，等待用户人工验收。历史STOP和Docker Desktop路径表示差异的逐字段/文件SHA证明保留在任务证据；未自动回滚、恢复或初始化。
 - 18443/旧3000–3002/真实库/COS/秘密/其他工作树均未操作；本轮人工 UI 验收 PENDING。历史Windows部署、D-099/订单/Source验证保留在 [历史状态与接力](tasks/completed/2026-10-10-pre-two-step-state-history.md)，不作为当前操作指令。
 
 ## 永久边界
