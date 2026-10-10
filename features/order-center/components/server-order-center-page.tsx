@@ -82,7 +82,7 @@ function OrderCenterFrame({
   children: React.ReactNode;
 }) {
   return (
-    <AppShell title="订单中心">
+    <AppShell title="订单中心" identityMode="server">
       <PageContainer className="oc-order-center-page oc-server-order-center-page">
         <OrderCenterNavigation />
         <PageHeader

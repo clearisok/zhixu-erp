@@ -160,3 +160,8 @@
   .sp-v4-batch > header label { grid-template-columns: 1fr; justify-content: stretch; }
   .sp-v4-batch input { min-height: 44px; }
 }
+
+/* Shared Source-only execution presentation; per-row quantities never aggregate across units. */
+.sp-server-summary { display:grid; gap:10px; grid-template-columns:1fr 1fr; }
+.sp-server-summary section { display:grid; gap:6px; }
+@media(max-width:640px) { .sp-server-summary { grid-template-columns:1fr; } .sp-server-material .sp-v4-detail-table { min-width:680px; } .sp-server-material .sp-v4-material-head { flex-wrap:wrap; } }

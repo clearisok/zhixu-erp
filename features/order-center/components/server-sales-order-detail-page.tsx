@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { OrderMaterialSummary } from '@/features/ainuoke-material-progress/order-material-summary';
 import { useSearchParams } from "next/navigation";
 import {
   AlertBanner,
@@ -77,7 +78,7 @@ function ServerDetailFrame({
   children: React.ReactNode;
 }) {
   return (
-    <AppShell title="正式订单详情">
+    <AppShell title="正式订单详情" identityMode="server">
       <PageContainer className="oc-order-center-page oc-server-detail-page">
         <OrderCenterNavigation />
         <PageHeader
@@ -95,7 +96,7 @@ function ServerDetailFrame({
   );
 }
 
-export function ServerSalesOrderDetailPage() {
+export function ServerSalesOrderDetailPage({ executionOnly = false }: { executionOnly?: boolean } = {}) {
   const searchParams = useSearchParams();
   const salesOrderId = searchParams.get("id")?.normalize("NFKC").trim() ?? "";
   const serverSession = useServerSession();
@@ -112,7 +113,9 @@ export function ServerSalesOrderDetailPage() {
   const [termsMutationError, setTermsMutationError] = useState<string | null>(null);
   const [termsSaving, setTermsSaving] = useState(false);
 
+  const loadGeneration = useRef(0);
   const loadDetail = useCallback(async () => {
+    const generation = ++loadGeneration.current;
     if (serverSession.status !== "authenticated" || !serverSession.hasPermission("order.view")) return;
     if (!salesOrderId) {
       setDetail(null);
@@ -129,11 +132,13 @@ export function ServerSalesOrderDetailPage() {
     try {
       const [nextDetail, nextTerms] = await Promise.all([
         loadServerOrderCenterDetail(serverSalesOrderReadRepository, salesOrderId),
-        confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId),
+        executionOnly ? Promise.resolve(null) : confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId),
       ]);
+      if (generation !== loadGeneration.current) return;
       setDetail(nextDetail);
       setTerms(nextTerms);
     } catch (nextError) {
+      if (generation !== loadGeneration.current) return;
       if ((nextError instanceof SalesOrderServerReadError || nextError instanceof ConfirmedCommercialTermsServerError) && nextError.status === 401) {
         setSessionExpired(true);
         serverSession.invalidate();
@@ -145,14 +150,15 @@ export function ServerSalesOrderDetailPage() {
         setError(unavailableMessage(nextError));
       }
     } finally {
-      setLoading(false);
+      if (generation === loadGeneration.current) setLoading(false);
     }
-  }, [salesOrderId, serverSession]);
+  }, [salesOrderId, serverSession, executionOnly]);
 
   useEffect(() => {
     if (serverSession.status === "authenticated" && serverSession.hasPermission("order.view")) {
       void Promise.resolve().then(loadDetail);
     }
+    const currentLoads = loadGeneration; return () => { currentLoads.current++; };
   }, [loadDetail, serverSession]);
 
   const logout = async () => {
@@ -197,6 +203,7 @@ export function ServerSalesOrderDetailPage() {
       setTerms(next);
       setTermsOpen(false);
     } catch (nextError) {
+
       if (nextError instanceof ConfirmedCommercialTermsServerError && nextError.status === 401) {
         serverSession.invalidate();
         setTermsOpen(false);
@@ -314,7 +321,8 @@ export function ServerSalesOrderDetailPage() {
             ]} />
           </Card>
 
-          <Card className="oc-server-detail-section oc-server-detail-commercial-terms">
+          <OrderMaterialSummary salesOrderId={detail.id} />
+          {!executionOnly && <Card className="oc-server-detail-section oc-server-detail-commercial-terms">
             <header>
               <div><small>SERVER CURRENT TERMS</small><h2>确认商业条款</h2></div>
               <span>PostgreSQL · v{terms?.current?.version ?? 0}</span>
@@ -327,7 +335,7 @@ export function ServerSalesOrderDetailPage() {
             {serverSession.hasPermission("order.edit")
               ? <Button variant="secondary" onClick={openTermsEditor}>编辑确认商业条款</Button>
               : <small>当前账号仅有 order.view；确认商业条款只读。</small>}
-          </Card>
+          </Card>}
 
           <Card className="oc-server-detail-section oc-server-detail-colors">
             <header>
@@ -350,7 +358,7 @@ export function ServerSalesOrderDetailPage() {
               </div>
             )}
           </Card>
-          <Modal
+          {!executionOnly && <Modal
             open={termsOpen}
             title="编辑确认商业条款"
             description={terms?.linkage === "linked" ? "仅修改 Server current 确认金额；工价币种由精确关联的 Quote PriceVersion 确定且订单端只读。" : "仅修改当前 SalesOrder-owned 商业条款；不会修改订单来源事实。"}
@@ -366,7 +374,7 @@ export function ServerSalesOrderDetailPage() {
                 : <FormItem label="工价币种"><select className="qc-control" value={termsDraft.laborCurrency} onChange={(event) => setTermsDraft({ ...termsDraft, laborCurrency: event.target.value as "" | ConfirmedLaborCurrency })}><option value="">请选择</option><option value="CNY">CNY</option><option value="USD">USD</option></select></FormItem>}
               {termsMutationError && <p className="qc-form-alert">{termsMutationError}</p>}
             </div>
-          </Modal>
+          </Modal>}
         </div>
       ) : (
         <EmptyState title="未读取到正式订单详情" />
