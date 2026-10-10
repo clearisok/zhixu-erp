@@ -6,6 +6,7 @@ import { createAttachmentService } from '../attachments/service.ts';
 import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
+import sharp from 'sharp';
 
 /** Uses only the existing formal UI harness's disposable pool and fresh profile. */
 export async function runD099ListAcceptance({ t, pool, storage, requests, navigate, hasText, input, labelInput, click, action, evaluate, command, sessionId, sleep, until, isolated }) {
@@ -179,14 +180,19 @@ export async function runD099ListAcceptance({ t, pool, storage, requests, naviga
   const actor={internalUserId:user.id,userId:user.public_id,username:'synthetic-ui-admin',userName:'Synthetic',permissions:['quote.view','quote.edit']};
   const service=createAttachmentService(pool,storage),quoteId='synthetic-d099-list';
   const revisionId=(await pool.query('SELECT default_revision_id FROM quote_center_quotes WHERE id=$1',[quoteId])).rows[0].default_revision_id;
-  const bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=','base64');
+  const bytes=await sharp({create:{width:600,height:300,channels:3,background:'#39705e'}}).png().toBuffer();
   const first=await service.upload(actor,quoteId,revisionId,1,{name:'synthetic-list.png',mimeType:'image/png',kind:'image',bytes,uploadToken:'00000000-0000-4000-8000-000000000001'});
   await t.test('D099 real related image renders bytes/hash, no per-row full aggregate read',async()=>{
     const start=requests.length;await navigate('/quote-center');await hasText('本页 1');
     await until(()=>evaluate("Boolean(document.querySelector('tbody .qc-quote-list-thumbnail img')?.naturalWidth)"),'actual list image decode');
     const actual=Buffer.from(await evaluate("fetch(document.querySelector('tbody .qc-quote-list-thumbnail img').src).then(r=>r.arrayBuffer()).then(b=>Array.from(new Uint8Array(b)))"));
-    assert.deepEqual(actual,bytes);assert.equal(createHash('sha256').update(actual).digest('hex'),first.attachment.sha256);
-    assert.equal(requests.slice(start).filter(r=>r.path.endsWith('/download')).length,1);
+    assert.notDeepEqual(actual,bytes);
+    const meta=await sharp(actual).metadata();assert.deepEqual([meta.width,meta.height],[256,128]);
+    const original=await service.download(actor,quoteId,revisionId,first.attachment.id);
+    const chunks=[];for await(const chunk of original.stream)chunks.push(chunk);
+    assert.equal(createHash('sha256').update(Buffer.concat(chunks)).digest('hex'),first.attachment.sha256);
+    assert.equal(requests.slice(start).filter(r=>r.path.endsWith('/thumbnail')).length,1);
+    assert.equal(requests.slice(start).filter(r=>r.path.endsWith('/download')).length,0,'List receives no originals');
     assert.equal(requests.slice(start).filter(r=>/^\/api\/v1\/quotes\/[^/]+$/.test(r.path)).length,0);
     assert.ok(await evaluate("(()=>{const r=document.querySelector('tbody .qc-quote-list-thumbnail img').getBoundingClientRect();return r.width<=48&&r.height<=48})()"));
     if(folder){const{data}=await command('Page.captureScreenshot',{format:'png'},sessionId);await writeFile(join(folder,'related-image.png'),Buffer.from(data,'base64'));}

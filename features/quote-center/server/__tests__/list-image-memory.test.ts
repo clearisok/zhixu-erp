@@ -1,24 +1,24 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import sharp from "sharp";
 import { createHash } from "node:crypto";
 import { createListImageLoader } from "../list-image-loader.ts";
 import { inspectListImage, LIST_IMAGE_MAX_BYTES, LIST_IMAGE_MAX_PIXELS } from "../list-image-policy.ts";
 import { createQuoteAttachmentClient } from "../quote-attachment-client.ts";
 import { syntheticPNG } from "./list-image-fixture.ts";
 
-const png = syntheticPNG(), blob = new Blob([png], { type: "image/png" });
+const png = syntheticPNG(), jpeg = await sharp(png).jpeg().toBuffer(), blob = new Blob([jpeg], { type: "image/jpeg" });
+const thumbnail = {blob, sha256:createHash("sha256").update(jpeg).digest("hex")};
 const reference = { quoteId: "q", revisionId: "r", image: { attachmentId: "i", mimeType: "image/png", byteSize: blob.size, sha256: createHash("sha256").update(png).digest("hex") } };
 const tick = () => new Promise(done => setTimeout(done, 50));
 const until = async (read: () => boolean) => { for(let i=0;i<50;i++) {if(read())return;await tick();}assert.fail("resource completion timed out");};
 
-test("list rejects oversized metadata before any original download (no large allocation)", () => {
-  let downloads = 0;
-  const loader = createListImageLoader({ download: async () => { downloads++; return new Blob(); } });
-  const results: Array<string | null> = [];
-  loader.acquire({ quoteId: "q", revisionId: "r", image: { attachmentId: "large", mimeType: "image/png", byteSize: 100 * 1024 * 1024, sha256: "0".repeat(64) } }, url => results.push(url));
-  assert.equal(downloads, 0);
-  assert.deepEqual(results, [null]);
-  loader.dispose();
+test("large original metadata still requests only the bounded derivative, never original", async () => {
+  let downloads=0;
+  const loader=createListImageLoader({download:async()=>{downloads++;return thumbnail},createURL:()=>"blob:thumbnail"});
+  const results:Array<string|null>=[];
+  loader.acquire({...reference,image:{...reference.image,byteSize:100*256*256}},url=>results.push(url));
+  await until(()=>results.length===1);assert.deepEqual(results,["blob:thumbnail"]);assert.equal(downloads,1);loader.dispose();
 });
 
 test("exact encoded limit accepted, limit+1 rejected; no GB fixture", async () => {
@@ -28,19 +28,15 @@ test("exact encoded limit accepted, limit+1 rejected; no GB fixture", async () =
   const large = new Uint8Array(LIST_IMAGE_MAX_BYTES+1);
   assert.throws(()=>inspectListImage(large,"image/png"),/too_large/);
   let accepted = false;
-  const loader=createListImageLoader({download:async()=>new Blob([exact],{type:"image/png"}),createURL:()=>{accepted=true;return "blob:exact";}});
-  loader.acquire({...reference,image:{...reference.image,byteSize:exact.length,sha256:createHash("sha256").update(exact).digest("hex")}},()=>{});
-  await until(()=>accepted);assert.equal(accepted,true);loader.dispose();
+  const loader=createListImageLoader({download:async()=>thumbnail,createURL:()=>{accepted=true;return "blob:exact";}});
+  loader.acquire(reference,()=>{});await until(()=>accepted);loader.dispose();
 });
 
 test("pixel/dimension limit and animated PNG reject before URL/decode",async()=>{
-  assert.deepEqual(inspectListImage(syntheticPNG(1024,1024,0,true),"image/png"),{width:1024,height:1024});
-  assert.equal(LIST_IMAGE_MAX_PIXELS,1024*1024);
-  for(const bytes of [syntheticPNG(1024,1025,0,true),syntheticPNG(4097,1,0,true)]) {
-    let created=false;const results: Array<string|undefined>=[];
-    const loader=createListImageLoader({download:async()=>new Blob([bytes],{type:"image/png"}),createURL:()=>{created=true;return "blob:forbidden"}});
-    loader.acquire({...reference,image:{...reference.image,byteSize:bytes.length,sha256:createHash("sha256").update(bytes).digest("hex")}},(_url,reason)=>results.push(reason));
-    await until(()=>results.length>0);assert.equal(created,false);assert.deepEqual(results,["too_large"]);loader.dispose();
+  assert.deepEqual(inspectListImage(syntheticPNG(256,256,0,true),"image/png"),{width:256,height:256});
+  assert.equal(LIST_IMAGE_MAX_PIXELS,256*256);
+  for(const bytes of [syntheticPNG(256,257,0,true),syntheticPNG(257,1,0,true)]) {
+    assert.throws(()=>inspectListImage(bytes,"image/png"),/too_large/);
   }
   const animation = Buffer.from(png);animation.write("acTL",37);
   assert.throws(()=>inspectListImage(animation,"image/png"),/unavailable/);
@@ -64,42 +60,42 @@ test("bounded WebP/JPEG header inspection, canvas mismatch/animation/truncation 
   const huge=Buffer.from(jpeg);huge.writeUInt16BE(4097,9);assert.throws(()=>inspectListImage(huge,"image/jpeg"),/too_large/);
 });
 
-test("four MAX-pixel resident resources across many rows; release wakes budget waiters",async()=>{
+test("25 bounded derivatives: byte/pixel caps, no 26th entry, disposal releases all",async()=>{
   let serial=0;const live=new Set<string>(),releases:Array<()=>void>=[];
-  const maxPixels=syntheticPNG(1024,1024),maxBlob=new Blob([maxPixels],{type:"image/png"});
-  const loader=createListImageLoader({download:async()=>maxBlob,createURL:()=>{const url=`blob:${++serial}`;live.add(url);assert.ok(live.size<=4);return url},revokeURL:url=>live.delete(url)});
-  for(let i=0;i<12;i++)releases.push(loader.acquire({...reference,quoteId:String(i),image:{...reference.image,byteSize:maxBlob.size,sha256:createHash("sha256").update(maxPixels).digest("hex")}},()=>{}));
-  await until(()=>live.size===4);assert.equal(serial,4);
-  releases[0]();await until(()=>serial===5);assert.equal(live.size,4);
+  const maxPixels=await sharp(syntheticPNG(256,256)).jpeg().toBuffer(),maxBlob=new Blob([maxPixels],{type:"image/jpeg"});
+  const loader=createListImageLoader({download:async()=>({blob:maxBlob,sha256:createHash("sha256").update(maxPixels).digest("hex")}),createURL:()=>{const url=`blob:${++serial}`;live.add(url);assert.ok(live.size<=25);return url},revokeURL:url=>live.delete(url)});
+  for(let i=0;i<30;i++)releases.push(loader.acquire({...reference,quoteId:String(i),image:{...reference.image,byteSize:maxBlob.size,sha256:createHash("sha256").update(maxPixels).digest("hex")}},()=>{}));
+  await until(()=>live.size===25);assert.equal(serial,25);
+  releases[0]();await tick();assert.equal(serial,25);assert.equal(live.size,24);
   loader.dispose();assert.equal(live.size,0);
 });
 
-test("actual encoded byte budget bounds small-pixel padded images independently",async()=>{
-  const padded=syntheticPNG(96,48,LIST_IMAGE_MAX_BYTES-png.length-12),paddedBlob=new Blob([padded],{type:"image/png"});
-  const live=new Set<string>();let count=0;
-  const loader=createListImageLoader({download:async()=>paddedBlob,createURL:()=>{const url=`blob:bytes-${++count}`;live.add(url);assert.ok(live.size<=4);return url},revokeURL:url=>live.delete(url)});
-  for(let i=0;i<8;i++)loader.acquire({...reference,quoteId:String(i),image:{...reference.image,byteSize:padded.length,sha256:createHash("sha256").update(padded).digest("hex")}},()=>{});
-  await until(()=>count===4);assert.equal(live.size,4);loader.dispose();assert.equal(live.size,0);
+test("dishonest oversized derivative fails before URL; original size is not thumbnail size",async()=>{
+  let created=false;const result:Array<string|null>=[];
+  const oversized=new Blob([new Uint8Array(LIST_IMAGE_MAX_BYTES+1)],{type:"image/jpeg"});
+  const loader=createListImageLoader({download:async()=>({blob:oversized,sha256:"0".repeat(64)}),createURL:()=>{created=true;return "blob:bad"}});
+  loader.acquire(reference,url=>result.push(url));await until(()=>result.length===1);
+  assert.deepEqual(result,[null]);assert.equal(created,false);loader.dispose();
 });
 
 test("leave/re-enter with a late ignored abort never revokes/deletes a newer same-key lease",async()=>{
-  const finishes:Array<(b:Blob)=>void>=[],signals:AbortSignal[]=[],urls:string[]=[],revoked:string[]=[];
-  const loader=createListImageLoader({download:async(_q,_r,_id,signal)=>{signals.push(signal!);return new Promise<Blob>(done=>finishes.push(done));},createURL:()=>{const url=`blob:${urls.length}`;urls.push(url);return url},revokeURL:url=>revoked.push(url)});
+  const finishes:Array<(b:typeof thumbnail)=>void>=[],signals:AbortSignal[]=[],urls:string[]=[],revoked:string[]=[];
+  const loader=createListImageLoader({download:async(_q,_r,_id,signal)=>{signals.push(signal!);return new Promise<typeof thumbnail>(done=>finishes.push(done));},createURL:()=>{const url=`blob:${urls.length}`;urls.push(url);return url},revokeURL:url=>revoked.push(url)});
   const first=loader.acquire(reference,()=>{});first();assert.equal(signals[0].aborted,true);
   const received:Array<string|null>=[];const second=loader.acquire(reference,url=>received.push(url));
-  finishes[0](blob);await tick();assert.deepEqual(urls,[]);
-  finishes[1](blob);await until(()=>received.length===1);assert.deepEqual(received,["blob:0"]);
+  finishes[0](thumbnail);await tick();assert.deepEqual(urls,[]);
+  finishes[1](thumbnail);await until(()=>received.length===1);assert.deepEqual(received,["blob:0"]);
   const duplicate=loader.acquire(reference,()=>{});second();assert.deepEqual(revoked,[]);
   duplicate();assert.deepEqual(revoked,["blob:0"]);loader.dispose();
 });
 
 test("fast-scroll ignored aborts retain slots until work settles; identity disposal clears all",async()=>{
-  const finishes:Array<(b:Blob)=>void>=[];let downloads=0,urls=0;
-  const loader=createListImageLoader({download:async()=>{downloads++;return new Promise<Blob>(done=>finishes.push(done));},createURL:()=>{urls++;return "blob:never"}});
+  const finishes:Array<(b:typeof thumbnail)=>void>=[];let downloads=0,urls=0;
+  const loader=createListImageLoader({download:async()=>{downloads++;return new Promise<typeof thumbnail>(done=>finishes.push(done));},createURL:()=>{urls++;return "blob:never"}});
   for(let i=0;i<40;i++)loader.acquire({...reference,quoteId:String(i)},()=>{})();
   assert.equal(downloads,3);
-  loader.dispose();for(const finish of finishes)finish(blob);await tick();assert.equal(urls,0);assert.equal(downloads,3);
-  const replacement=createListImageLoader({scope:"new-user",download:async()=>blob,createURL:()=>"blob:new"});
+  loader.dispose();for(const finish of finishes)finish(thumbnail);await tick();assert.equal(urls,0);assert.equal(downloads,3);
+  const replacement=createListImageLoader({scope:"new-user",download:async()=>thumbnail,createURL:()=>"blob:new"});
   const values:Array<string|null>=[];replacement.acquire(reference,url=>values.push(url));await until(()=>values.length===1);assert.deepEqual(values,["blob:new"]);replacement.dispose();
 });
 

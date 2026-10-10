@@ -1,9 +1,9 @@
 // List-only technical limits, never attachment upload/product limits.
-export const LIST_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
-export const LIST_IMAGE_MAX_PIXELS = 1024 * 1024;
-export const LIST_IMAGE_MAX_DIMENSION = 4096;
-export const LIST_IMAGE_TOTAL_BYTES = 8 * 1024 * 1024;
-export const LIST_IMAGE_TOTAL_PIXELS = 4 * LIST_IMAGE_MAX_PIXELS;
+export const LIST_IMAGE_MAX_BYTES = 96 * 1024;
+export const LIST_IMAGE_MAX_PIXELS = 256 * 256;
+export const LIST_IMAGE_MAX_DIMENSION = 256;
+export const LIST_IMAGE_TOTAL_BYTES = 25 * LIST_IMAGE_MAX_BYTES;
+export const LIST_IMAGE_TOTAL_PIXELS = 25 * LIST_IMAGE_MAX_PIXELS;
 export type ListImageFailure = "unavailable" | "too_large" | "budget";
 export class ListImagePolicyError extends Error {
   constructor(readonly reason: Exclude<ListImageFailure, "budget">) { super(reason); }

@@ -2,6 +2,8 @@
 
 ## Server list / internal summary field boundary (2026-10-09)
 
+D-099 protected list `/thumbnail` uses the existing session/quote.view and exact available Quote/Revision/Attachment relation on every request, even after an earlier successful image read. It returns only reduced JPEG bytes, not storage identity or a public URL. No cache bypass, new permission or role change; original attachment writes/downloads remain unchanged.
+
 No new role/catalog or role-name branch. Old legal list calls stay compatible with `quote.view`; explicit `columns` reject unsupported/duplicate/repeated/oversized input before reading. Identity-driven column authorization applies before the bounded source read, not after sending full data to UI.
 
 | Fields / action | Existing required permissions |

@@ -20,8 +20,8 @@ export async function runD099ImageMemory({ t, pool, storage, requests, navigate,
   const scroll = async index => { await evaluate(`document.querySelectorAll('tbody tr')[${index}].scrollIntoView({block:'center'})`); await sleep(150); };
   const decoded = index => evaluate(`Boolean(document.querySelectorAll('tbody tr')[${index}].querySelector('img')?.naturalWidth)`);
   const bounded = async () => {
-    assert.ok((await evaluate('activeObjectBytes()'))<=8*1024*1024);
-    assert.ok((await evaluate("(()=>{const seen=new Set();return [...document.querySelectorAll('.qc-quote-list-thumbnail img')].reduce((n,img)=>{if(seen.has(img.src))return n;seen.add(img.src);return n+img.naturalWidth*img.naturalHeight},0)})()"))<=4*1024*1024);
+    assert.ok((await evaluate('activeObjectBytes()'))<=25*96*1024);
+    assert.ok((await evaluate("(()=>{const seen=new Set();return [...document.querySelectorAll('.qc-quote-list-thumbnail img')].reduce((n,img)=>{if(seen.has(img.src))return n;seen.add(img.src);return n+img.naturalWidth*img.naturalHeight},0)})()"))<=25*256*256);
   };
   await t.test('P2 actual multiple-row scroll releases offscreen img/src and Blob URLs without row unmount',async()=>{
     await until(()=>evaluate("Boolean(document.querySelector('tbody tr:first-child img')?.naturalWidth)"),'first96x48 decode');
@@ -49,6 +49,7 @@ export async function runD099ImageMemory({ t, pool, storage, requests, navigate,
     } finally {storage.get=get;}
   });
   await t.test('P2 actual component unmount removes decoded img and revokes every live URL',async()=>{
+    await scroll(0);await until(()=>decoded(0),'post-delay visible image ready');
     const before=await evaluate('activeObjectURLs()');assert.ok(before.length);
     const toggleImage=async()=>{
       await evaluate("document.querySelector('[aria-label=\"更多报价操作\"]').click()");await click('列表页面设置');await hasText('报价列表页面设置');
@@ -76,31 +77,23 @@ export async function runD099ImageMemory({ t, pool, storage, requests, navigate,
     await until(()=>evaluate("Boolean(document.querySelector('tbody tr:first-child [aria-label=未设置款式图]'))"),'unlink placeholder');
     assert.ok(await evaluate(`revokedObjectURLs.includes(${JSON.stringify(changed)})`));await service.style(actor,quoteId,revisionId,first,5);
   });
-  await t.test('P2 large source bytes skipped before GET; oversized decoded dimensions skipped before img',async()=>{
-    const big=syntheticPNG(96,48,2*1024*1024-bytes.length-12+1);
-    assert.equal(big.length,2*1024*1024+1);
-    const large=await service.upload(actor,quoteId,revisionId,6,{name:'large-encoded.png',mimeType:'image/png',kind:'image',bytes:big,uploadToken:'00000000-0000-4000-8000-000000000101'});
-    await service.style(actor,quoteId,revisionId,large.attachment.id,7);
+  await t.test('P2 extreme decode dimensions safely fail without retained browser original',async()=>{
+    const pixels=await service.upload(actor,quoteId,revisionId,6,{name:'bomb.png',mimeType:'image/png',kind:'image',bytes:syntheticPNG(100000,100000,0,true),uploadToken:'00000000-0000-4000-8000-000000000102'});
+    await service.style(actor,quoteId,revisionId,pixels.attachment.id,7);
     await input('input[placeholder^="全库搜索"]','MEMORY-24');await hasText('本页 1');
-    await until(()=>evaluate("Boolean(document.querySelector('tbody [aria-label=\"原图较大，请在报价详情查看\"]'))"),'encoded size placeholder');
-    assert.equal(requests.filter(r=>r.path.includes(large.attachment.id)&&r.path.endsWith('/download')).length,0);
-    const pixels=await service.upload(actor,quoteId,revisionId,8,{name:'large-pixels.png',mimeType:'image/png',kind:'image',bytes:syntheticPNG(2048,1024),uploadToken:'00000000-0000-4000-8000-000000000102'});
-    await service.style(actor,quoteId,revisionId,pixels.attachment.id,9);
-    // One bounded refresh, rather than deliberately visiting two result sets.
-    await input('input[placeholder^="全库搜索"]','MEMORY-24 ');
-    await until(()=>requests.some(r=>r.path.includes(pixels.attachment.id)&&r.path.endsWith('/download')),'pixel original read');
-    await until(()=>evaluate("Boolean(document.querySelector('tbody [aria-label=\"原图较大，请在报价详情查看\"]'))"),'pixel size placeholder');
-    assert.equal(await evaluate('activeObjectURLs().length'),0);assert.equal(await evaluate("document.querySelectorAll('tbody img').length"),0);
-    assert.equal(requests.filter(r=>r.path.includes(pixels.attachment.id)&&r.path.endsWith('/download')).length,1);
-    await service.style(actor,quoteId,revisionId,first,10);
+    await until(()=>evaluate("Boolean(document.querySelector('tbody [aria-label=款式图不可用]'))"),'decode bound placeholder');
+    assert.equal(await evaluate('activeObjectURLs().length'),0);
+    assert.equal(requests.filter(r=>r.path.includes(pixels.attachment.id)&&r.path.endsWith('/thumbnail')).length,1);
+    assert.equal(requests.filter(r=>r.path.includes(pixels.attachment.id)&&r.path.endsWith('/download')).length,0);
+    await service.style(actor,quoteId,revisionId,first,8);
   });
-  await t.test('Phone-size genuine JPEG: large pixels and large encoded bytes remain explicit list placeholders',async()=>{
+  await t.test('Phone-size genuine JPEG: 4032x3024 >2MiB renders actual small server data',async(t)=>{
     // Browser encoder produces valid synthetic phone-sized JPEGs, not forged headers.
     // One canvas at a time (<50MiB); no real photos or multi-GB allocation.
-    for (const [width,height,noisy] of [[4032,3024,false],[2048,1536,true]]) {
+    for (const [width,height,noisy] of [[4032,3024,true],[2048,1536,true]]) {
       const length=await evaluate(`(()=>{const c=document.createElement('canvas');c.width=${width};c.height=${height};const x=c.getContext('2d');if(${noisy}){const p=x.createImageData(c.width,c.height);let n=7;for(let i=0;i<p.data.length;i+=4){for(let j=0;j<3;j++){n=(Math.imul(n,1664525)+1013904223)>>>0;p.data[i+j]=n>>>24;}p.data[i+3]=255;}x.putImageData(p,0,0);}else{x.fillStyle='#39705e';x.fillRect(0,0,c.width,c.height);}window.qaPhoneJPEG=c.toDataURL('image/jpeg',0.95).split(',')[1];c.width=c.height=0;return qaPhoneJPEG.length})()`);
       // Keep each CDP response bounded; don't send a multi-MB protocol frame.
-      assert.ok(length<12*1024*1024);
+      assert.ok(length<24*1024*1024);
       let base64='';
       for(let at=0;at<length;at+=65536) base64+=await evaluate(`qaPhoneJPEG.slice(${at},${at+65536})`);
       await evaluate('delete window.qaPhoneJPEG');
@@ -109,14 +102,32 @@ export async function runD099ImageMemory({ t, pool, storage, requests, navigate,
       const latest=await repository.getById(quoteId);
       const photo=await service.upload(actor,quoteId,revisionId,latest.version,{name:'synthetic-phone.jpg',mimeType:'image/jpeg',kind:'image',bytes:jpeg,uploadToken:crypto.randomUUID()});
       await service.style(actor,quoteId,revisionId,photo.attachment.id,latest.version+1);
-      await input('input[placeholder^="全库搜索"]',noisy?'MEMORY-24':'MEMORY-24  ');
+      const oldURL=await evaluate("document.querySelector('tbody img')?.src??null");
+      await input('input[placeholder^="全库搜索"]',width===4032?'MEMORY-24 ':'MEMORY-24  ');
       await hasText('本页 1');
-      if(!noisy) await until(()=>requests.some(r=>r.path.includes(photo.attachment.id)&&r.path.endsWith('/download')),'bounded phone JPEG read');
-      await until(()=>evaluate("Boolean(document.querySelector('tbody [aria-label=\"原图较大，请在报价详情查看\"]'))"),'phone JPEG explicit placeholder');
-      assert.equal(await evaluate("document.querySelectorAll('tbody img').length"),0);
-      assert.equal(await evaluate('activeObjectURLs().length'),0);
-      if(noisy) assert.equal(requests.filter(r=>r.path.includes(photo.attachment.id)&&r.path.endsWith('/download')).length,0);
-      t.diagnostic(`Synthetic valid JPEG ${width}x${height}, bytes=${jpeg.length}: PLACEHOLDER, NOT DISPLAYED`);
+      await until(()=>requests.some(r=>r.path.includes(photo.attachment.id)&&r.path.endsWith('/thumbnail')),'current phone request');
+      await until(()=>evaluate(`document.querySelector('tbody img')?.naturalWidth===256&&document.querySelector('tbody img')?.src!==${JSON.stringify(oldURL)}`),'new small server thumbnail displayed');
+      const thumb=Buffer.from(await evaluate("fetch(document.querySelector('tbody img').src).then(r=>r.arrayBuffer()).then(b=>Array.from(new Uint8Array(b)))"));
+      assert.ok(thumb.length<96*1024&&thumb.length<jpeg.length/100);
+      assert.equal(await evaluate("document.querySelector('tbody img').naturalHeight"),192);
+      assert.equal(requests.filter(r=>r.path.includes(photo.attachment.id)&&r.path.endsWith('/download')).length,0);
+      assert.ok(requests.some(r=>r.path.includes(photo.attachment.id)&&r.path.endsWith('/thumbnail')));
+      const original=await service.download(actor,quoteId,revisionId,photo.attachment.id);
+      const chunks=[];for await(const chunk of original.stream)chunks.push(chunk);
+      assert.equal(Buffer.compare(Buffer.concat(chunks),jpeg),0);
+      t.diagnostic(`Synthetic valid JPEG ${width}x${height}, bytes=${jpeg.length} ->256x192, bytes=${thumb.length}, original unchanged`);
+      if(width===4032) for(const viewport of [1920,1440,1280,900,390]) await t.test(`large phone thumbnail actual viewport ${viewport}`,async()=>{
+        const mobile=viewport===390;
+        await command('Emulation.setTouchEmulationEnabled',{enabled:mobile,maxTouchPoints:1},sessionId);
+        await command('Emulation.setEmulatedMedia',{features:[{name:'pointer',value:mobile?'coarse':'fine'},{name:'hover',value:mobile?'none':'hover'}]},sessionId);
+        await command('Emulation.setDeviceMetricsOverride',{width:viewport,height:800,deviceScaleFactor:1,mobile},sessionId);
+        await until(()=>evaluate("[...document.querySelectorAll('.qc-quote-list-thumbnail img')].some(n=>n.naturalWidth===256&&n.getBoundingClientRect().width>0)"),'visible derivative');
+        assert.ok(await evaluate("(()=>{const n=[...document.querySelectorAll('.qc-quote-list-thumbnail img')].find(n=>n.getBoundingClientRect().width>0),r=n.getBoundingClientRect();return n.naturalWidth===256&&n.naturalHeight===192&&r.width<=48&&r.height<=48})()"));
+        await bounded();assert.deepEqual(await evaluate('unhandledRejections'),[]);
+      });
+      await command('Emulation.setTouchEmulationEnabled',{enabled:false},sessionId);
+      await command('Emulation.setEmulatedMedia',{features:[{name:'pointer',value:'fine'},{name:'hover',value:'hover'}]},sessionId);
+      await command('Emulation.setDeviceMetricsOverride',{width:1280,height:550,deviceScaleFactor:1,mobile:false},sessionId);
       await service.style(actor,quoteId,revisionId,first,latest.version+2);
     }
   });
@@ -124,8 +135,8 @@ export async function runD099ImageMemory({ t, pool, storage, requests, navigate,
     storage.objects.delete(`attachments/${first}/original`);
     await input('input[placeholder^="全库搜索"]','');await hasText('本页 25');await input('input[placeholder^="全库搜索"]','MEMORY-24');await hasText('本页 1');
     await until(()=>evaluate("Boolean(document.querySelector('tbody [aria-label=款式图不可用]'))"),'missing image placeholder');
-    const count=requests.filter(r=>r.path.includes(first)&&r.path.endsWith('/download')).length;await sleep(300);
-    assert.equal(requests.filter(r=>r.path.includes(first)&&r.path.endsWith('/download')).length,count);assert.equal(await evaluate('activeObjectURLs().length'),0);
+    const count=requests.filter(r=>r.path.includes(first)&&r.path.endsWith('/thumbnail')).length;await sleep(300);
+    assert.equal(requests.filter(r=>r.path.includes(first)&&r.path.endsWith('/thumbnail')).length,count);assert.equal(await evaluate('activeObjectURLs().length'),0);
     storage.objects.set(`attachments/${first}/original`,bytes);
   });
   await t.test('P2 trusted identity logout revokes live URLs before viewer login',async()=>{

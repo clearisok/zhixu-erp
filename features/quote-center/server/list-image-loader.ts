@@ -9,37 +9,37 @@ type Entry = { reference: Reference; listeners: Set<Listener>; controller: Abort
  * No offscreen LRU; last visible consumer leaving releases its URL immediately.
  */
 export function createListImageLoader(options: {
-  scope?: string; download?: typeof quoteAttachmentClient.download;
+  scope?: string; download?: typeof quoteAttachmentClient.thumbnail;
   createURL?: (blob: Blob) => string; revokeURL?: (url: string) => void;
 } = {}) {
-  const download = options.download ?? quoteAttachmentClient.download;
+  const download = options.download ?? quoteAttachmentClient.thumbnail;
   const createURL = options.createURL ?? (blob => URL.createObjectURL(blob));
   const revokeURL = options.revokeURL ?? (url => URL.revokeObjectURL(url));
   const entries = new Map<string, Entry>();
   let running = 0, reservedBytes = 0, reservedPixels = 0, disposed = false;
-  const free = (entry: Entry) => { if (entry.reserved) { entry.reserved = false; reservedBytes -= entry.reference.image.byteSize; reservedPixels -= entry.pixels; } };
+  const free = (entry: Entry) => { if (entry.reserved) { entry.reserved = false; reservedBytes -= LIST_IMAGE_MAX_BYTES; reservedPixels -= entry.pixels; } };
   const pump = () => {
     for (const entry of entries.values()) {
       if (disposed) break;
       if (entry.running || entry.settled || !entry.listeners.size) continue;
-      if (running >= 3 || reservedBytes + entry.reference.image.byteSize > LIST_IMAGE_TOTAL_BYTES || reservedPixels + LIST_IMAGE_MAX_PIXELS > LIST_IMAGE_TOTAL_PIXELS) {
+      if (running >= 3 || reservedBytes + LIST_IMAGE_MAX_BYTES > LIST_IMAGE_TOTAL_BYTES || reservedPixels + LIST_IMAGE_MAX_PIXELS > LIST_IMAGE_TOTAL_PIXELS) {
         if (entry.reason !== "budget") { entry.reason = "budget"; for (const listener of entry.listeners) listener(null, "budget"); }
         continue;
       }
-      entry.running = true; entry.reserved = true; running++; reservedBytes += entry.reference.image.byteSize; reservedPixels += entry.pixels;
-      const timer = setTimeout(() => entry.controller.abort(), 30_000);
+      entry.running = true; entry.reserved = true; running++; reservedBytes += LIST_IMAGE_MAX_BYTES; reservedPixels += entry.pixels;
+      const timer = setTimeout(() => entry.controller.abort(), 35_000);
       const { quoteId, revisionId, image } = entry.reference;
       void (async () => {
         try {
-          const blob = await download(quoteId, revisionId, image.attachmentId, entry.controller.signal, image.byteSize);
-          if (blob.size !== image.byteSize || blob.size > LIST_IMAGE_MAX_BYTES || blob.type !== image.mimeType) throw new Error("Invalid image object");
+          const { blob, sha256 } = await download(quoteId, revisionId, image.attachmentId, entry.controller.signal);
+          if (!blob.size || blob.size > LIST_IMAGE_MAX_BYTES || blob.type !== "image/jpeg") throw new Error("Invalid thumbnail object");
           if (disposed || !entry.listeners.size || entry.controller.signal.aborted) return;
           const bytes = new Uint8Array(await blob.arrayBuffer());
-          const dimensions = inspectListImage(bytes, image.mimeType);
+          const dimensions = inspectListImage(bytes, blob.type);
           const actualPixels = dimensions.width * dimensions.height;
           reservedPixels -= entry.pixels - actualPixels; entry.pixels = actualPixels;
           const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map(byte => byte.toString(16).padStart(2, "0")).join("");
-          if (hash !== image.sha256) throw new Error("Invalid image hash");
+          if (hash !== sha256) throw new Error("Invalid thumbnail hash");
           if (!disposed && entry.listeners.size && !entry.controller.signal.aborted) entry.url = createURL(blob);
         } catch (error) { entry.reason = error instanceof ListImagePolicyError ? error.reason : "unavailable"; }
         finally {
@@ -55,7 +55,6 @@ export function createListImageLoader(options: {
     acquire(reference: Reference, listener: Listener) {
       const { image } = reference;
       if (disposed || !["image/png", "image/jpeg", "image/webp"].includes(image.mimeType) || !Number.isSafeInteger(image.byteSize) || image.byteSize < 1) { listener(null, "unavailable"); return () => {}; }
-      if (image.byteSize > LIST_IMAGE_MAX_BYTES) { listener(null, "too_large"); return () => {}; }
       const key = JSON.stringify([options.scope, reference.quoteId, reference.revisionId, image.attachmentId, image.sha256]);
       let entry = entries.get(key);
       if (!entry) {
