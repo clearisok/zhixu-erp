@@ -44,6 +44,9 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
   const preset = await masters.createPreset(actor, { name: "Synthetic preset", country: "Cambodia", laborCurrency: "USD", markupRate: "0", includeFreight: true, freightName: "Synthetic freight", freightAmount: "0", status: "active" });
   await masters.createPreset(actor, { name: "Second same-country preset", country: "Cambodia", laborCurrency: "CNY", markupRate: "0.15", includeFreight: false, freightName: "", freightAmount: null, status: "active" });
   const snapshot = async (database = pool) => (await database.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' AND table_name NOT IN ('schema_migrations','quote_creation_previews','quote_creation_receipts') ORDER BY table_name")).rows.reduce(async (previous, { table_name }) => ({ ...await previous, [table_name]: (await database.query(`SELECT to_jsonb(t) AS row FROM "${table_name}" t ORDER BY to_jsonb(t)::text`)).rows }), Promise.resolve({} as Record<string, unknown>));
+  const throughTen = await mkdtemp(join(tmpdir(), "zhixu-through-ten-"));
+  t.after(() => rm(throughTen, {recursive:true,force:true}));
+  for (const name of (await readdir(resolve("database/migrations"))).filter(name => /^00(?:0[1-9]|10)_/u.test(name))) await copyFile(resolve("database/migrations",name),join(throughTen,name));
   await t.test("0010 forward-only upgrade preserves every populated old table and all nine published migration bytes", async () => {
     const before = await snapshot();
     const dump = `/tmp/synthetic-creation-${randomUUID()}.dump`;
@@ -59,17 +62,29 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
       await docker(["pg_restore", "-U", "postgres", "--exit-on-error", "--dbname", new URL(restoreUrl).pathname.slice(1), dump]);
       assert.equal((await docker(["sha256sum", dump])).split(" ")[0], checksum);
       assert.deepEqual(await snapshot(restored), before, "recoverable pre-upgrade dump preserves all old business/technical rows");
-      assert.deepEqual((await runMigrations(restored, resolve("database/migrations"))).applied, ["0010_quote_creation_receipts.sql"]);
+      assert.deepEqual((await runMigrations(restored, throughTen)).applied, ["0010_quote_creation_receipts.sql"]);
       assert.deepEqual(await snapshot(restored), before, "restore then forward migration preserves existing data");
-      assert.deepEqual((await verifyMigrationsCurrent(restored, resolve("database/migrations"))).pending, []);
+      assert.deepEqual((await verifyMigrationsCurrent(restored, throughTen)).pending, []);
       t.diagnostic(`Synthetic pre-upgrade PostgreSQL custom dump SHA-256 ${checksum}; isolated restore/readback/0010 upgrade PASS`);
     } finally { await restored.end(); }
-    assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, ["0010_quote_creation_receipts.sql"]);
+    assert.deepEqual((await runMigrations(pool, throughTen)).applied, ["0010_quote_creation_receipts.sql"]);
     assert.deepEqual(await snapshot(), before);
-    assert.equal((await runMigrations(pool, resolve("database/migrations"))).applied.length, 0);
+    assert.equal((await runMigrations(pool, throughTen)).applied.length, 0);
     for (const name of await readdir(directory)) assert.deepEqual(await readFile(join(directory, name)), await readFile(resolve("database/migrations", name)));
-    assert.deepEqual((await verifyMigrationsCurrent(pool, resolve("database/migrations"))).pending, []);
+    assert.deepEqual((await verifyMigrationsCurrent(pool, throughTen)).pending, []);
     assert.equal((await createTrustedQuoteService(pool).getById(old.quote.id))?.version, 1);
+  });
+  await t.test("0011 upgrades nonempty 0001–0010 without changing business data or historical checksums", async () => {
+    await pool.query("INSERT INTO quote_global_settings(singleton_id,default_labor_currency,default_labor_description) VALUES(1,'CNY','Synthetic old description')");
+    const before = await snapshot();
+    assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, ["0011_quote_creation_defaults.sql"]);
+    const after=await snapshot() as Record<string,Array<{row:Record<string,unknown>}>>;
+    assert.equal(after.quote_global_settings[0].row.default_quote_type,null);
+    assert.equal(after.quote_global_settings[0].row.default_manufacturing_country,null);
+    delete after.quote_global_settings[0].row.default_quote_type;delete after.quote_global_settings[0].row.default_manufacturing_country;
+    assert.deepEqual(after, before);
+    assert.deepEqual((await verifyMigrationsCurrent(pool, resolve("database/migrations"))).pending, []);
+    for (const name of await readdir(throughTen)) assert.deepEqual(await readFile(join(throughTen,name)),await readFile(resolve("database/migrations",name)));
   });
   await new Promise<void>(done => server.listen(0, "127.0.0.1", done));
   const address = server.address(); assert.ok(address && typeof address === "object" && ![3000, 3001, 3002, 18443, 18444].includes(address.port));
@@ -78,10 +93,62 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
   assert.equal(login.status, 200); const cookie = login.headers.get("set-cookie")!.split(";")[0];
   const call = async (path: string, body?: unknown, credentials = cookie) => { const response = await fetch(`${origin}/api/v1/quotes/${path}`, { headers: { Cookie: credentials, Origin: origin, "X-Zhixu-Request": "1", "Content-Type": "application/json" }, ...(body === undefined ? {} : { method: "POST", body: JSON.stringify(body) }) }); return { status: response.status, body: await response.json() }; };
   const creation = createQuoteCreationService(pool);
+  await t.test("Direct defaults creation is atomic, receipt-bound and preserves empty drafts", async () => {
+    const countQuotes = async () => Number((await pool.query("SELECT count(*) FROM quote_center_quotes")).rows[0].count);
+    const before = await countQuotes();
+    const requestId = randomUUID();
+    const result = await call("creation-defaults", { clientRequestId: requestId });
+    assert.equal(result.status,201);
+    assert.equal(result.body.state,"committed");
+    const quote = (await createTrustedQuoteService(pool).getById(result.body.result.quoteId))!.quote;
+    assert.equal(quote.revisions[0].baseInfo.quoteType,"distribution");
+    assert.equal(quote.revisions[0].priceVersions[0].pricingParameters.manufacturingCountry,"");
+    assert.equal(quote.revisions[0].priceVersions[0].pricingParameters.configuration?.status,"incomplete");
+    assert.equal((await call("creation-defaults",{clientRequestId:requestId})).body.result.quoteId,quote.id);
+    assert.equal(await countQuotes(),before+1);
+    const settings = await masters.updateGlobalSettings(actor,1,{defaultQuoteType:"processing",defaultManufacturingCountry:"Cambodia",defaultManufacturingPresetId:preset.id,defaultUsdCnyRate:"7.1234567890123456789",defaultMarkupRate:null,defaultLaborCurrency:"CNY",defaultLaborDescription:"Synthetic default description",defaultOtherCost:{name:"Synthetic default",amount:"0"}});
+    const configured = await call("creation-defaults",{clientRequestId:randomUUID()});
+    assert.equal(configured.status,201);
+    const next = (await createTrustedQuoteService(pool).getById(configured.body.result.quoteId))!.quote;
+    assert.equal(next.revisions[0].baseInfo.quoteType,"processing");
+    assert.equal(next.revisions[0].priceVersions[0].pricingParameters.manufacturingPresetId,preset.id);
+    assert.equal(next.revisions[0].priceVersions[0].pricingParameters.usdCnyRate,"7.1234567890123456789");
+    assert.equal(next.revisions[0].priceVersions[0].labor.description,"Synthetic default description");
+    assert.equal(next.revisions[0].priceVersions[0].otherCosts[0].unitPrice,"0");
+    const injected=structuredClone(next);injected.revisions[0].baseInfo.quoteType="distribution";
+    await assert.rejects(async()=>createTrustedQuoteService(pool).saveAggregate(actor,injected,1),{code:"quote_type_workflow_required"});
+    await assert.rejects(masters.updateGlobalSettings(actor,settings.version,{...settings,defaultManufacturingCountry:"China"}), /country/u);
+    await masters.updateGlobalSettings(actor,settings.version,{...settings,defaultManufacturingCountry:"China",defaultManufacturingPresetId:null});
+    const incomplete = await call("creation-defaults",{clientRequestId:randomUUID()});
+    assert.equal(incomplete.status,201);
+    assert.equal((await createTrustedQuoteService(pool).getById(incomplete.body.result.quoteId))!.quote.revisions[0].priceVersions[0].pricingParameters.configuration?.status,"incomplete");
+    assert.deepEqual((await createTrustedQuoteService(pool).getById(next.id))!.quote,next,"settings changes never rewrite existing snapshot");
+    await assert.rejects(async()=>masters.updateGlobalSettings({...actor,permissions:["quote.create"]},settings.version+1,{...settings}), /permission/iu);
+    const current=await masters.getGlobalSettings();
+    const allPresets=await masters.listPresets();
+    const bundle={expectedVersion:current!.version,settings:{defaultQuoteType:current!.defaultQuoteType,defaultManufacturingCountry:current!.defaultManufacturingCountry,defaultManufacturingPresetId:null,defaultUsdCnyRate:current!.defaultUsdCnyRate,defaultMarkupRate:current!.defaultMarkupRate,defaultLaborCurrency:current!.defaultLaborCurrency,defaultLaborDescription:current!.defaultLaborDescription,defaultOtherCost:current!.defaultOtherCost},manufacturingPresets:allPresets.map(({id,version,name,country,laborCurrency,markupRate,includeFreight,freightName,freightAmount,status})=>({id,expectedVersion:version,name,country,laborCurrency,markupRate,includeFreight,freightName,freightAmount,status}))};
+    const saveBundle=()=>fetch(`${origin}/api/v1/quote-settings/bundle`,{method:"PATCH",headers:{Cookie:cookie,Origin:origin,"X-Zhixu-Request":"1","Content-Type":"application/json"},body:JSON.stringify(bundle)});
+    assert.equal((await saveBundle()).status,200,"actual bundle API must parse existing preset identities independently of field DTO");
+    assert.equal((await saveBundle()).status,409,"bundle CAS preserved");
+  });
   const input: CreationInput = { source: null, quoteType: "processing", selection: { country: "Cambodia", presetId: preset.id }, fields: { brandId: brand.id, salespersonId: person.id, styleNo: "SYNTHETIC-TWO-STEP", styleName: "Synthetic normal creation", quantity: "0", garmentLeadDate: "2028-02-29", note: "Synthetic note" }, parameterOverrides: {} };
   const count = async () => Number((await pool.query("SELECT count(*) FROM quote_center_quotes")).rows[0].count);
   const seq = async () => (await pool.query("SELECT last_value::text,is_called FROM quote_center_quote_number_seq")).rows[0];
   const command = async (value = input): Promise<CreationCommand> => ({ ...value, previewId: (await creation.preview(actor, value)).previewId, clientRequestId: randomUUID(), imageSelection: null });
+  await t.test("Default command concurrency, rollback, stale defaults and revoked Session permissions fail closed",async()=>{
+    const token=randomUUID(),before=await count();
+    const [first,second]=await Promise.all([call("creation-defaults",{clientRequestId:token}),call("creation-defaults",{clientRequestId:token})]);
+    assert.deepEqual([first.status,second.status].sort(),[200,201]);assert.deepEqual(first.body.result,second.body.result);assert.equal(await count(),before+1);
+    assert.equal((await call("creation-workflows",{...await command(),clientRequestId:token})).body.error.code,"idempotency_payload_mismatch");
+    const failedToken=randomUUID(),rollbackCount=await count();
+    await pool.query("CREATE FUNCTION synthetic_default_audit_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'synthetic failure'; END $$; CREATE TRIGGER synthetic_default_audit_failure BEFORE INSERT ON operation_logs FOR EACH ROW EXECUTE FUNCTION synthetic_default_audit_failure()");
+    try{assert.equal((await call("creation-defaults",{clientRequestId:failedToken})).status,500);assert.equal(await count(),rollbackCount);assert.equal((await call(`creation-receipts/${failedToken}`)).body.state,"pending");}finally{await pool.query("DROP TRIGGER synthetic_default_audit_failure ON operation_logs; DROP FUNCTION synthetic_default_audit_failure()");}
+    const settings=await masters.getGlobalSettings();await masters.updateGlobalSettings(actor,settings!.version,{...settings!});
+    assert.equal((await call("creation-defaults",{clientRequestId:failedToken})).body.error.code,"stale_parameters");assert.equal(await count(),rollbackCount);
+    assert.equal((await call(`creation-receipts/${failedToken}`)).body.state,"rejected");
+    await pool.query("DELETE FROM app_role_permissions WHERE role_id='role-server-admin' AND permission_key='quote.create'");
+    try{await assert.rejects(creation.executeDefaults({...actor,username:"local-single-user"},randomUUID()),{code:"permission_denied"});assert.equal(await count(),rollbackCount);}finally{await pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('role-server-admin','quote.create')");}
+  });
   await t.test("Options are bounded minimal projections; preview consumes no number/Quote/audit", async () => {
     const before = [await count(), await seq(), (await pool.query("SELECT count(*) FROM operation_logs")).rows[0].count];
     const options = await call("creation-options"); assert.equal(options.status, 200); assert.equal(options.body.presets.length, 2);

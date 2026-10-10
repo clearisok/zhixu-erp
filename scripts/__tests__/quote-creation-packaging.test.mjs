@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
-import { attachmentMigration, receiptMigration, verifyPackaging, logicalBytes } from "../quote-creation-packaging-policy.mjs";
+import { attachmentMigration, receiptMigration, defaultsMigration, verifyPackaging, logicalBytes } from "../quote-creation-packaging-policy.mjs";
 
 // Synthetic baseline derived from committed SQL; no Docker, credentials or DB.
 const source = Object.fromEntries(readdirSync("database/migrations").filter(n => n.endsWith(".sql")).map(n => [n, readFileSync("database/migrations/" + n)]));
 const committed = Object.fromEntries(Object.keys(source).map(n => [n, execFileSync("git", ["show", "HEAD:database/migrations/" + n])]));
-const published = Object.fromEntries(Object.entries(source).filter(([n]) => n !== receiptMigration));
+const published = Object.fromEntries(Object.entries(source).filter(([n]) => n !== defaultsMigration));
 published[attachmentMigration] = logicalBytes(source[attachmentMigration]);
 test("only published 0008 LF bytes restored; other files including 0010 unchanged", () => {
   const hashes = verifyPackaging(source, published, committed);
@@ -28,9 +28,9 @@ test("checkout semantic drift rejected", () => {
 });
 test("missing published migration rejected", () => {
   const partial = { ...published }; delete partial[attachmentMigration];
-  assert.throws(() => verifyPackaging(source, partial), /exact_nine_published_migrations_required/u);
+  assert.throws(() => verifyPackaging(source, partial), /exact_ten_published_migrations_required/u);
 });
-test("extra source migration rejected", () => assert.throws(() => verifyPackaging({ ...source, "0011_extra.sql": Buffer.from("SELECT 1;") }, published), /exact_ten_source_migrations_required/u));
+test("extra source migration rejected", () => assert.throws(() => verifyPackaging({ ...source, "0012_extra.sql": Buffer.from("SELECT 1;") }, published), /exact_eleven_source_migrations_required/u));
 test("lone CR, whitespace and BOM are not normalised away", () => {
   assert.ok(!logicalBytes(Buffer.from("a\rb")).equals(logicalBytes(Buffer.from("a\nb"))));
   assert.ok(!logicalBytes(Buffer.from(" a\n")).equals(logicalBytes(Buffer.from("a\n"))));

@@ -34,6 +34,8 @@ function settingsFromServer(settings: GlobalQuoteSettingsDto | null, presets: Ma
     : null;
   return {
     ...defaultGlobalQuoteSettings,
+    defaultQuoteType: settings?.defaultQuoteType ?? null,
+    defaultManufacturingCountry: settings?.defaultManufacturingCountry ?? null,
     defaultUsdCnyRate: fromDecimal(settings?.defaultUsdCnyRate ?? null, "quoteSettings.defaultUsdCnyRate"),
     defaultMarkupRate: fromDecimal(settings?.defaultMarkupRate ?? null, "quoteSettings.defaultMarkupRate"),
     defaultLaborCurrency: settings?.defaultLaborCurrency ?? "CNY",
@@ -75,6 +77,8 @@ export function createServerGlobalQuoteSettingsAdapter(client: QuoteMasterServer
     const result = await client.saveSettingsBundle({
       expectedVersion: settingsVersion,
       settings: {
+        defaultQuoteType: value.defaultQuoteType ?? null,
+        defaultManufacturingCountry: value.defaultManufacturingCountry?.trim() || null,
         defaultUsdCnyRate: toDecimal(value.defaultUsdCnyRate),
         defaultMarkupRate: toDecimal(value.defaultMarkupRate),
         defaultLaborCurrency: value.defaultLaborCurrency,

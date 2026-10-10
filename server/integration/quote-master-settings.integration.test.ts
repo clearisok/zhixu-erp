@@ -85,6 +85,9 @@ test("Q3A Quote master/settings foundation uses disposable PostgreSQL 16 only",{
     }finally{await pendingPool.end();await Promise.all([rm(checksumDir,{recursive:true,force:true}),rm(pendingDir,{recursive:true,force:true})]);}
   });
 
+  // Historical foundation checksum tests above remain 0001–7. Current CRUD runs
+  // on the current schema, including additive forward migrations.
+  await runMigrations(pool,resolve("database/migrations"));
   await synchronizePermissionCatalog(pool);
   const actor=await seedActor(pool,"q3a-admin",["quote.view","settings.global.edit","settings.brand.edit","settings.salesperson.edit","settings.fabric.edit","settings.trim.edit"]);
   const denied=await seedActor(pool,"q3a-denied",[]);

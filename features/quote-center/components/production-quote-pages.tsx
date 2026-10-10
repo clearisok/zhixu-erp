@@ -9,7 +9,7 @@ import { quoteServerEditorAdapter, type EditableServerQuoteRecord } from "../ser
 import { createQuoteEditorPersistence } from "../server/quote-editor-persistence";
 import { QuoteList } from "./quote-list";
 import { QuoteDetailLoader, QuoteEditor, QuoteNewLoader } from "./quote-editor";
-import { QuoteCreationWizard } from "./quote-creation-wizard";
+import { DirectQuoteCreateButton, QuoteCreationRecovery } from "./quote-direct-create";
 import { customerBatchExport, downloadCustomerFile, internalSummaryExport } from "../server/customer-export-client";
 import { type BusinessColumn, type EstimateColumn } from "../model/quote-business-view";
 import { listTablePreference, loadServerListPreferences, normalizeServerListPreferences, saveServerListPreferences, type ServerListPreferences } from "../server/list-preferences";
@@ -111,7 +111,7 @@ function ServerList() {
         <Button disabled={batchBusy || !session.hasPermission("quote.export")} variant="text" onClick={() => { if (!selectionMode) { setSelectionMode(true); setBatchMessage("请选择报价后打开内部汇总（支持跨页，最多25张）。"); } else if (Object.keys(selected).length) { setSummaryError(""); setSummaryOpen(true); } }}>{selectionMode ? "打开内部汇总" : "内部报价汇总"}</Button>
         <Button disabled={batchBusy} variant="text" onClick={() => persistPreferences({ ...preferences, presentation: preferences.presentation === "original" ? "fields" : "original" })}>{preferences.presentation === "original" ? "独立字段视图" : "原版组合视图"}</Button>
       </FloatingMenu>}
-      primaryAction={<Button permission="quote.create" onClick={() => router.push("/quote-center/new")}>＋ 新建报价</Button>} />
+      primaryAction={<DirectQuoteCreateButton />} />
     <Toolbar className="qc-quote-toolbar" search={<label className="qc-search-field"><span aria-hidden="true">⌕</span><input aria-label="搜索报价" placeholder="全库搜索编号、款号、款名、品牌、业务员" value={query.search} onChange={(event) => setQuery({ ...query, search: event.target.value, offset: 0 })} /></label>}
       resultSummary={page ? `显示 ${page.count} / ${page.total} 条` : ""} mobileFilterTitle="报价筛选"
       moreFilters={<><FormItem label="报价类型"><select className="qc-control" value={query.type} onChange={(event) => setQuery({ ...query, type: event.target.value, offset: 0 })}><option value="">全部类型</option><option value="distribution">经销</option><option value="processing">加工</option></select></FormItem><FormItem label="报价状态"><select className="qc-control" value={query.status} onChange={(event) => setQuery({ ...query, status: event.target.value, offset: 0 })}><option value="">全部状态</option><option value="draft">草稿</option><option value="quoting">报价中</option><option value="partially_confirmed">部分确认</option><option value="confirmed">已确认</option></select></FormItem></>} />
@@ -129,7 +129,7 @@ function ServerList() {
 }
 function ServerNew() {
   const session = useServerSession();
-  return <QuoteCreationWizard key={session.user?.id ?? "anonymous"} />;
+  return <QuoteCreationRecovery key={session.user?.id ?? "anonymous"} />;
 }
 function ServerDetail() {
   const id = useSearchParams().get("id") ?? "";

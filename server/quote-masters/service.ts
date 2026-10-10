@@ -142,6 +142,8 @@ function settingsSnapshot(value: GlobalQuoteSettingsDto | null): OperationLogDat
     "defaultOtherCost.name": value.defaultOtherCost?.name ?? null,
     "defaultOtherCost.amount": value.defaultOtherCost?.amount ?? null,
     defaultManufacturingPresetId: value.defaultManufacturingPresetId,
+    defaultQuoteType: value.defaultQuoteType ?? null,
+    defaultManufacturingCountry: value.defaultManufacturingCountry ?? null,
   }) : null;
 }
 
@@ -279,7 +281,7 @@ export function createQuoteMasterService(pool: Pool) {
         const after = requireVersion(before, await repository.updatePreset(client, { id, expectedVersion, version: expectedVersion, ...input }));
         await audit(client, actor, "修改制作预设", "ManufacturingPreset", id, presetSnapshot(before), presetSnapshot(after), context);
         if (before?.status === "active"
-          && after.status === "inactive"
+          && (after.status === "inactive" || (beforeSettings?.defaultManufacturingCountry != null && after.country !== beforeSettings.defaultManufacturingCountry))
           && beforeSettings?.defaultManufacturingPresetId === id) {
           const afterSettings = await repository.writeGlobalSettings(client, {
             expectedVersion: beforeSettings.version,
@@ -305,6 +307,8 @@ export function createQuoteMasterService(pool: Pool) {
         if (input.defaultManufacturingPresetId !== null) {
           const preset = await repository.getPreset(client, input.defaultManufacturingPresetId, true);
           if (preset?.status !== "active") throw invalidDefaultPreset();
+          const country=input.defaultManufacturingCountry===undefined?before?.defaultManufacturingCountry:input.defaultManufacturingCountry;
+          if ((input.defaultManufacturingCountry!==undefined || country!=null) && preset.country !== country) throw new HttpError(400,"preset_country_mismatch","Default preset country must match default country");
         }
         const after = await repository.writeGlobalSettings(client, { expectedVersion, ...input });
         if (!after) throw new HttpError(409, "quote_settings_version_conflict", "Quote settings version is stale");
@@ -359,6 +363,9 @@ export function createQuoteMasterService(pool: Pool) {
           throw invalidDefaultPreset();
         }
         const defaultManufacturingPresetId = deactivatesCurrentDefault ? null : resolvedRequestedDefault;
+        const country=input.settings.defaultManufacturingCountry===undefined?beforeSettings?.defaultManufacturingCountry:input.settings.defaultManufacturingCountry;
+        if(defaultManufacturingPresetId!==null && (input.settings.defaultManufacturingCountry!==undefined || country!=null) && (requestedExisting??requestedNew)?.country!==country)
+          throw new HttpError(400,"preset_country_mismatch","Default preset country must match default country");
 
         const savedPresets: ManufacturingPresetDto[] = [];
         for (const preset of existingInputs) {

@@ -12,7 +12,8 @@ import type { ServerQuote } from "./model.js";
 import { creationId, parseCreationInput, type CreationCommand, type CreationInput, type CreationReceipt, type CreationResult } from "./creation-contract.js";
 
 type Parameters = ServerQuote["revisions"][number]["priceVersions"][number]["pricingParameters"];
-type Review = { versions: { brand: number | null; salesperson: number | null; preset: number | null; settings: number | null }; parameters: Parameters; names: { brand: string; salesperson: string } };
+type Review = { versions: { brand: number | null; salesperson: number | null; preset: number | null; settings: number | null }; parameters: Parameters; names: { brand: string; salesperson: string }; defaults?: {laborDescription:string;otherCost:mastersDefaultOtherCost} };
+type mastersDefaultOtherCost = {name:string;amount:string|null}|null;
 export type CreationPreview = { previewId: string; expiresAt: string; parametersVisibility: "visible" | "redacted"; pricingParameters?: Parameters; configuration: NonNullable<Parameters["configuration"]>; missingFields: string[] };
 export type CreationOptions = { brands: Array<{ id: string; name: string }>; salespeople: Array<{ id: string; name: string; brandId: string }>; presets: Array<{ id: string; name: string; country: string }>; truncated: boolean };
 const hash = (input: CreationInput) => createHash("sha256").update(JSON.stringify(input)).digest("hex");
@@ -42,7 +43,7 @@ async function currentActor(client: PoolClient, actor: TrustedIdentity, identity
 function ensureOverrides(actor: TrustedIdentity, input: CreationInput) {
   if (Object.keys(input.parameterOverrides).length) requirePermission(actor.permissions, "quote.settings.edit");
 }
-async function review(client: PoolClient, actor: TrustedIdentity, input: CreationInput, lock: boolean): Promise<Review> {
+async function review(client: PoolClient, actor: TrustedIdentity, input: CreationInput, lock: boolean, defaultCreation=false): Promise<Review> {
   ensureOverrides(actor, input);
   // Fixed order: global settings -> brand -> salesperson -> explicitly selected preset.
   const settings = await masters.getGlobalSettings(client, lock);
@@ -78,10 +79,53 @@ async function review(client: PoolClient, actor: TrustedIdentity, input: Creatio
     && (!parameters.includeFreight || Boolean(parameters.freightName) && parameters.freightAmount !== null)
     && (parameters.laborCurrency !== "USD" || parameters.usdCnyRate !== null);
   parameters.configuration = { schemaVersion: 1, status: configured ? "configured" : "incomplete", sources };
-  return { versions: { brand: brand?.version ?? null, salesperson: person?.version ?? null, preset: preset?.version ?? null, settings: settings?.version ?? null }, parameters, names: { brand: brand?.name ?? "", salesperson: person?.name ?? "" } };
+  if(defaultCreation){sources.push({field:"quoteType",source:settings?.defaultQuoteType?"accepted_default":"technical_default"});source("manufacturingCountry",input.selection.country?"accepted_default":"unset");}
+  return { versions: { brand: brand?.version ?? null, salesperson: person?.version ?? null, preset: preset?.version ?? null, settings: settings?.version ?? null }, parameters, names: { brand: brand?.name ?? "", salesperson: person?.name ?? "" },...(defaultCreation?{defaults:{laborDescription:settings?.defaultLaborDescription??"",otherCost:settings?.defaultOtherCost??null}}:{}) };
 }
 export function createQuoteCreationService(pool: Pool, identityMode: IdentityMode = "session") {
   return {
+    /** Explicit user command only. Shares the existing receipt and Quote writer. */
+    async executeDefaults(actor: TrustedIdentity, clientRequestId: string, context: QuoteMutationContext = {}): Promise<{receipt: CreationReceipt; replayed: boolean}> {
+      requirePermission(actor.permissions, "quote.create"); creationId(clientRequestId);
+      const payloadHash = createHash("sha256").update("quote.create.defaults.v1").digest("hex");
+      await transaction(pool, false, async client => {
+        await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))", [`quote-create:${actor.internalUserId}:${clientRequestId}`]);
+        const trusted = await currentActor(client, actor, identityMode);
+        const existing = (await client.query("SELECT payload_hash FROM quote_creation_receipts WHERE actor_id=$1 AND client_request_id=$2", [actor.internalUserId,clientRequestId])).rows[0];
+        if (existing) { if (existing.payload_hash !== payloadHash) failure(409,"idempotency_payload_mismatch"); return; }
+        const settings = await masters.getGlobalSettings(client,true);
+        const input: CreationInput = { source:null,quoteType:settings?.defaultQuoteType??"distribution",
+          selection:{country:settings?.defaultManufacturingCountry??null,presetId:settings?.defaultManufacturingPresetId??null},
+          fields:{brandId:null,salespersonId:null,styleNo:"",styleName:"",quantity:null,garmentLeadDate:null,note:""},parameterOverrides:{} };
+        const reviewed = await review(client,trusted,input,true,true);
+        const previewId=randomUUID();
+        await client.query("INSERT INTO quote_creation_previews(id,actor_id,payload_hash,reviewed,expires_at) VALUES($1,$2,$3,$4,$5)",[previewId,actor.internalUserId,payloadHash,{input,reviewed},new Date(Date.now()+10*60_000)]);
+        await client.query("INSERT INTO quote_creation_receipts(actor_id,client_request_id,preview_id,payload_hash,state) VALUES($1,$2,$3,$4,'pending')",[actor.internalUserId,clientRequestId,previewId,payloadHash]);
+      });
+      try {
+        return await transaction(pool,false,async client=>{
+          const receipt=(await client.query("SELECT * FROM quote_creation_receipts WHERE actor_id=$1 AND client_request_id=$2 FOR UPDATE",[actor.internalUserId,clientRequestId])).rows[0];
+          const trusted=await currentActor(client,actor,identityMode);
+          if(receipt.payload_hash!==payloadHash) failure(409,"idempotency_payload_mismatch");
+          if(receipt.state==="committed") return {replayed:true,receipt:{state:"committed" as const,result:receipt.result as CreationResult,retryable:false as const}};
+          if(receipt.state==="rejected") failure(409,"creation_rejected");
+          const preview=(await client.query("SELECT reviewed,expires_at FROM quote_creation_previews WHERE id=$1 AND actor_id=$2",[receipt.preview_id,actor.internalUserId])).rows[0];
+          if(new Date(preview.expires_at).getTime()<=Date.now()) failure(409,"preview_expired");
+          const input=parseCreationInput(preview.reviewed.input);
+          let current: Review;
+          try {current=await review(client,trusted,input,true,true);} catch(error){if(error instanceof HttpError&&error.status===400)failure(409,"stale_parameters");throw error;}
+          if(!isDeepStrictEqual(current,preview.reviewed.reviewed)) failure(409,"stale_parameters");
+          const record=await createTrustedQuoteService(pool).createPreparedDraftInTransaction(client,trusted,input,current.parameters,current.names,{...context,workflowAction:"quote.create.defaults"},current.defaults);
+          const result={quoteId:record.quote.id,revisionId:record.quote.defaultRevisionId,priceVersionId:record.quote.revisions[0].priceVersions[0].id,version:record.version};
+          await client.query("UPDATE quote_creation_receipts SET state='committed',result=$3 WHERE actor_id=$1 AND client_request_id=$2",[actor.internalUserId,clientRequestId,result]);
+          return {replayed:false,receipt:{state:"committed" as const,result,retryable:false as const}};
+        });
+      } catch(error){
+        if(error instanceof HttpError&&[400,409].includes(error.status)&&!["idempotency_payload_mismatch","creation_rejected"].includes(error.code))
+          await pool.query("UPDATE quote_creation_receipts SET state='rejected',error_code=$3 WHERE actor_id=$1 AND client_request_id=$2 AND state='pending' AND payload_hash=$4",[actor.internalUserId,clientRequestId,error.code,payloadHash]);
+        throw error;
+      }
+    },
     async options(actor: TrustedIdentity, search = ""): Promise<CreationOptions> {
       requirePermission(actor.permissions, "quote.create");
       return transaction(pool, true, async client => {

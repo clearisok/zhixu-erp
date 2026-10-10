@@ -1,10 +1,11 @@
 # 当前状态
 
-> 2026-10-10：电脑端两步 Server 新建报价 **ENGINEERING PASS / PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。基线 main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`，PR #89/#90 已合并；默认单主 Codex。明确授权的隔离18444已仅升级0010并更新app/gateway；不合并PR91，不更新18443。详情：[两步创建证据](tasks/active/quote-two-step-creation.md)。
+> 2026-10-10：PR #91 用户验收修正（D-102）实施中：点击新建立刻保留 Server 草稿、默认类型/国家/预设及设置布局。新增0011未部署；18444仍为以下历史两步版。以下电脑端两步 Server 新建报价 **ENGINEERING PASS / PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。基线 main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`，PR #89/#90 已合并；默认单主 Codex。明确授权的隔离18444已仅升级0010并更新app/gateway；不合并PR91，不更新18443。详情：[两步创建证据](tasks/active/quote-two-step-creation.md)。
 
 ## 当前工程能力
 
-- D-099 原版组合列表、100px 列宽、个人偏好、受保护 Server 缩略图保留；类型/国家/预设 → 品牌/业务员/款号/名称/数量/成衣交期/备注 → 参数预检 → 原子草稿创建，成功进入现有详情。取消/返回不创建，多个预设不自动选首个，无预设允许参数待完善。
+- **当前修正**：creation-defaults/原receipt/writer、全局默认值CAS及0011、详情只读制作摘要和设置布局正在验证；普通电脑不再要求两步表单，已有类型切换仍未实现。工程完成与 Preview/用户验收分开记录。
+- **历史两步实现（D-102替代交互）**：D-099 原版组合列表、100px 列宽、个人偏好、受保护 Server 缩略图保留；类型/国家/预设 → 品牌/业务员/款号/名称/数量/成衣交期/备注 → 参数预检 → 原子草稿创建，成功进入现有详情。取消/返回不创建，多个预设不自动选首个，无预设允许参数待完善。
 - 新 creation-options/preview/workflows/receipts 复用可信 session/RBAC、Quote Service/编号/Repository/事务/审计；旧 POST{} 兼容。预检和最终事务校验 active 同品牌业务员、预设国家/状态/版本；结果未知只查询原 token，不自动重复 POST。加工默认隐藏材料编辑，显式可查看/编辑内部材料；数据和原公式不变，成衣金额不冒称纯工价。
 - 已有编辑、Revision/PV、Estimate、linked/unlinked 确认、附件、客户 Excel/ZIP、内部汇总及只读日志保留。完整功能/权限边界见 [QUOTE_CENTER](features/QUOTE_CENTER.md)、[PERMISSIONS](features/PERMISSIONS.md)。
 - Intake/手机连续收集/转换、已有报价类型切换、Excel列筛选仍 NOT IMPLEMENTED；整单复制/删除、Revision删除、转订单及完整 Order/Scheduling/Closing UI 仍未启用。D-101 六条业务目标保留，普通两步创建只是其中本轮子集。

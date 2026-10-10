@@ -26,7 +26,7 @@ import { createQuoteRepository } from "../quotes/repository.ts";
 import { quoteSnapshotFromBrowser } from "../quotes/model.ts";
 import { runD099ListAcceptance } from "./d099-list-acceptance.mjs";
 import { runD099ImageMemory } from "./d099-image-memory.mjs";
-import { runTwoStepCreation } from "./two-step-creation-ui.mjs";
+import { runDirectCreation } from "./direct-creation-ui.mjs";
 
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 async function until(read, label) {
@@ -154,12 +154,9 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     const click = async (label) => evaluate(`(()=>{const node=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()===${JSON.stringify(label)}&&!n.disabled&&n.getClientRects().length);if(!node)throw new Error('button missing: '+${JSON.stringify(label)});node.click();})()`);
     const selectType = async (type) => evaluate(`(() => { const select=[...document.querySelectorAll('label.qc-form-item')].find(n=>n.getClientRects().length && n.querySelector('span')?.textContent?.startsWith('报价类型'))?.querySelector('select');if(!select)throw new Error('Formal new Quote type selector missing');select.value=${JSON.stringify(type)};select.dispatchEvent(new Event('change',{bubbles:true})); })()`);
     const prepareCreation = async (type = "distribution") => {
-      await hasText("报价类型"); await selectType(type);
-      if (!referenceDirectory) {
-        await until(async () => await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='下一步'&&!n.disabled)"), "creation options ready");
-        await click("下一步"); await click("核对制作参数"); await hasText("制作参数待完善");
-        await until(async () => await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='创建报价'&&!n.disabled)"), "reviewed creation ready");
-      }
+      if(referenceDirectory){await hasText("报价类型");await selectType(type);return;}
+      await evaluate(`(async()=>{const value=(await fetch('/api/v1/quote-settings').then(r=>r.json())).settings;const body={expectedVersion:value?.version??0,defaultQuoteType:${JSON.stringify(type)},defaultManufacturingCountry:null,defaultManufacturingPresetId:null,defaultUsdCnyRate:value?.defaultUsdCnyRate??null,defaultMarkupRate:value?.defaultMarkupRate??null,defaultLaborCurrency:value?.defaultLaborCurrency??'CNY',defaultLaborDescription:value?.defaultLaborDescription??'',defaultOtherCost:value?.defaultOtherCost??null};const r=await fetch('/api/v1/quote-settings',{method:'PATCH',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(body)});if(!r.ok)throw Error('Synthetic default configuration failed');})()`);
+      await until(()=>evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='＋ 新建报价'&&!n.disabled)"),'hydrated creation command');
     };
     const action = async (label) => {
       if (!await evaluate(`[...document.querySelectorAll('button')].some(n=>n.textContent.trim()===${JSON.stringify(label)} && n.getClientRects().length)`)) {
@@ -229,7 +226,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       };
       const viewports = [[1920,1080],[1440,900],[1280,800],[900,800]];
       for (const [w,h] of viewports) { await navigate('/quote-center'); await hasText('暂无 Server 报价'); await capture('empty-list',w,h); await navigate('/quote-center/new'); await hasText('报价类型'); await capture('new-distribution',w,h); await selectType('processing'); await capture('new-processing',w,h); }
-      await prepareCreation('processing'); await click('创建报价'); await hasText('Server 报价 · v1');
+      await prepareCreation('processing'); await click('＋ 新建报价'); await hasText('Server 报价 · v1');
       const detailPath = await evaluate('location.pathname+location.search');
       for(const [w,h] of viewports){await navigate(detailPath);await hasText('Server 报价 · v2');await capture('draft-detail',w,h);await navigate('/quote-center');await hasText('打开报价');await capture('one-row-list',w,h);}
       await navigate(detailPath); await hasText('Server 报价 · v2');
@@ -324,7 +321,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await input("input[name=username]", "synthetic-ui-admin");
       await input("input[name=password]", "disposable-ui-password");
       await click("登录 Server"); await hasText("暂无 Server 报价"); await isolated();
-      await navigate("/quote-center/new"); await hasText("报价类型"); await isolated();
+      await navigate("/quote-center/new"); await hasText("新建报价"); await isolated();
       await navigate("/basic-settings/brands"); await hasText("品牌"); await sleep(500); await isolated();
       assert.equal(await quoteCount(), 0); assert.equal(await masterCount(), 0);
       await navigate("/order-center"); await hasText("当前新系统只启用报价"); await isolated();
@@ -334,9 +331,9 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     const record = async () => evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(quoteId)}).then(r=>r.json()).then(body=>body.quote)`);
     const save = async (version) => { await click("保存草稿"); await until(async () => (await record()).version === version, `saved v${version}`); await hasText(`Server 报价 · v${version}`); };
     await t.test("explicit create only once, real QuoteEditor edit/save/refresh/list, null and zero preserved", async () => {
-      await navigate("/quote-center/new"); await hasText("创建报价");
+      await navigate("/quote-center/new"); await hasText("新建报价");
       await prepareCreation("distribution");
-      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='创建报价');b.click();b.click();})()");
+      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='＋ 新建报价');b.click();b.click();})()");
       await until(async () => await evaluate("location.pathname==='/quote-center/detail'"), "created detail route");
       await hasText("Server 报价 · v1");
       await hasText("经销报价");
@@ -372,7 +369,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await isolated();
       await navigate(`/quote-center/detail?id=${quoteId}`); await hasText("SYNTHETIC-UI-STYLE"); await isolated();
       await navigate("/quote-center"); await hasText('SYNTHETIC-UI-STYLE'); await hasText("SYNTHETIC-UI-STYLE"); await isolated();
-      assert.equal(requests.filter(r => r.path === "/api/v1/quotes/creation-workflows" && r.method === "POST").length, 1);
+      assert.equal(requests.filter(r => r.path === "/api/v1/quotes/creation-defaults" && r.method === "POST").length, 1);
       assert.equal(requests.filter(r => r.path === "/api/v1/quotes" && r.method === "POST").length, 0);
     });
 
@@ -475,10 +472,10 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     let processingQuoteId;
     await t.test("formal new UI selects processing, saves and reloads it, list type filter finds it", async () => {
       const countBefore = await quoteCount();
-      await navigate("/quote-center/new"); await hasText("创建报价");
+      await navigate("/quote-center/new"); await hasText("新建报价");
       assert.equal(await quoteCount(), countBefore, "Opening new never creates a Quote");
       await prepareCreation("processing");
-      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='创建报价');b.click();b.click();})()");
+      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='＋ 新建报价');b.click();b.click();})()");
       await until(async () => await evaluate("location.pathname==='/quote-center/detail'"), "processing detail");
       await hasText("加工报价"); await hasText("Server 报价 · v1");
       const processingId = await evaluate("new URLSearchParams(location.search).get('id')");
@@ -508,24 +505,24 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     });
     for (const failure of ["conflict", "network"]) await t.test(`atomic processing submission ${failure} retains original token, zero Quote and never repeats POST`, async () => {
       const countBefore = await quoteCount();
-      await navigate("/quote-center/new"); await hasText("创建报价");
+      await navigate("/quote-center/new"); await hasText("新建报价");
       assert.equal(await quoteCount(), countBefore);
       await prepareCreation("processing");
       const requestStart = requests.length;
       failureStatus = failure === "conflict" ? 409 : 0;
-      await command("Fetch.enable", { patterns: [{ urlPattern: "*/api/v1/quotes/creation-workflows", requestStage: "Request" }] }, sessionId);
+      await command("Fetch.enable", { patterns: [{ urlPattern: "*/api/v1/quotes/creation-defaults", requestStage: "Request" }] }, sessionId);
       try {
-        await click("创建报价"); await hasText("核对创建结果");
+        await click("＋ 新建报价"); await hasText("核对创建结果");
         if (failure === "conflict") await hasText("409");
         assert.equal(await evaluate("location.pathname"), "/quote-center/new");
         assert.ok(await evaluate("new URLSearchParams(location.search).get('creationRequestId')"));
-        assert.ok(await evaluate("![...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='创建报价')"));
+        assert.ok(await evaluate("![...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='＋ 新建报价')"));
         await sleep(200);
-        assert.equal(requests.slice(requestStart).filter(r=>r.method==='POST' && r.path==='/api/v1/quotes/creation-workflows').length, 1);
+        assert.equal(requests.slice(requestStart).filter(r=>r.method==='POST' && r.path==='/api/v1/quotes/creation-defaults').length, 1);
         assert.equal(requests.slice(requestStart).filter(r=>r.method==='POST' && r.path==='/api/v1/quotes').length, 0);
         assert.equal(requests.slice(requestStart).filter(r=>r.method==='PUT').length, 0);
       } finally { await command("Fetch.disable", {}, sessionId); failureStatus = 0; }
-      await click("核对创建结果"); await hasText("创建结果仍待核对");
+      await click("核对创建结果"); await hasText("结果尚未确认");
       assert.equal(await quoteCount(), countBefore); await isolated();
     });
     await t.test("distribution readback and formal list filter remain available", async () => {
@@ -621,7 +618,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       assert.deepEqual(await read(), beforeNetwork); await isolated();
     });
     for (const button of ["同步并保存", "仅保存当前版本"]) for (const failure of [null, 409, "network"]) await t.test(`actual cost-sync modal: ${button}, ${failure ?? "success"}, preserves draft and handles rejection`, async () => {
-      await navigate("/quote-center/new"); await prepareCreation(); await click("创建报价"); await hasText("Server 报价 · v1");
+      await navigate("/quote-center/new"); await prepareCreation(); await click("＋ 新建报价"); await hasText("Server 报价 · v1");
       const id = await evaluate("new URLSearchParams(location.search).get('id')");
       const read = () => evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(id)}).then(r=>r.json()).then(body=>body.quote)`);
       await click("＋ 增加面料"); await input('#quote-section-fabrics input[aria-label$="-名称"]', "Linked synthetic fabric");
@@ -675,7 +672,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     });
     const costTab = async () => { await evaluate("document.querySelector('.qc-estimate-pill').click()"); await hasText("估算成本"); };
     const prepareEstimateQuote = async (type = "distribution") => {
-      await navigate("/quote-center/new"); await prepareCreation(type); await click("创建报价");
+      await navigate("/quote-center/new"); await prepareCreation(type); await click("＋ 新建报价");
       await until(async()=>await evaluate("location.pathname==='/quote-center/detail' && Boolean(new URLSearchParams(location.search).get('id'))"),"new Quote detail ready");await hasText("Server 报价 · v");
       const id = await evaluate("new URLSearchParams(location.search).get('id')");
       const read = () => evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(id)}).then(r=>r.json()).then(r=>r.quote)`);
@@ -1158,7 +1155,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
         assert.ok(await evaluate("document.querySelector('input[aria-label^=\"选择 \" ]').checked"));assert.deepEqual(await evaluate('unhandledRejections'),[]);await isolated();
       }finally{await command('Fetch.disable',{},sessionId);failureStatus=0;}
     });
-    await runTwoStepCreation({ t, pool, requests, navigate, hasText, labelInput, click, evaluate, command, sessionId, sleep, until, isolated, loginAs });
+    await runDirectCreation({ t, pool, requests, navigate, hasText, labelInput, click, evaluate, command, sessionId, sleep, until, isolated, loginAs });
     await command("Browser.close");
   } finally {
     ws?.close();

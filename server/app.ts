@@ -320,12 +320,19 @@ async function route(
   if (await routeQuoteMasters(request, response, dependencies, correlationId)) return;
   const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
   if ((request.method === "GET" && (path === "/api/v1/quotes/creation-options" || creationReceipt))
-    || (request.method === "POST" && ["/api/v1/quotes/creation-preview", "/api/v1/quotes/creation-workflows"].includes(path))) {
+    || (request.method === "POST" && ["/api/v1/quotes/creation-preview", "/api/v1/quotes/creation-workflows", "/api/v1/quotes/creation-defaults"].includes(path))) {
     if (request.method === "POST") assertMutationBoundary(request, dependencies.allowedOrigins);
     const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     const creation = createQuoteCreationService(dependencies.pool, dependencies.identityAuthority.mode);
     if (creationReceipt) sendJson(response, 200, await creation.receipt(identity, creationId(creationReceipt[1])));
+    else if (path === "/api/v1/quotes/creation-defaults") {
+      const body = await readJsonBody(request, 1024);
+      if(Object.keys(body).length!==1 || !("clientRequestId" in body)) throw new HttpError(400,"invalid_creation_input","Only clientRequestId is accepted");
+      const id=creationId(body.clientRequestId);
+      const result=await creation.executeDefaults(identity,id,{requestId:correlationId,method:request.method,path});
+      sendJson(response,result.replayed?200:201,{receiptId:id,...result.receipt});
+    }
     else if (request.method === "GET") {
       const search = new URL(request.url!, "http://local").searchParams.get("search") ?? "";
       if (search.length > 200) throw new HttpError(400, "invalid_creation_input", "Search is too long");

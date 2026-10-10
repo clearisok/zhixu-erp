@@ -18,6 +18,17 @@
 
 ## Active
 
+### D-102 普通电脑新建立即保留 Server 草稿与可信创建默认值
+
+- 日期：2026-10-10；状态：Active。来源：用户 PR #91 Preview 验收修正明确授权；不是新的计算规则。
+- 普通电脑点击“新建报价”即通过可信原子命令创建有编号的草稿，直接进入现有 QuoteEditor；空草稿返回后保留。挂载、刷新、返回及未点击不创建；双击与未知结果使用同一 receipt 核对，不重复 POST。
+- 仅替代 D-101 普通电脑两步向导及“取消/返回零创建”的交互要求；加工材料显示不改公式、历史与 linked 来源保护、主数据/预设校验、无预设待完善及 Intake 未实施边界继续有效。原两步验收保留为历史，不作为新交互 PASS。
+- PostgreSQL 全局设置保存可空默认报价类型、可空默认制作国家及已有默认预设；预设须 active 且国家一致，多预设不自动选首个。未配置类型仅使用明确标注的经销技术回退；无国家/预设不猜汇率、加成、运费。默认变更只影响未来新草稿的独立 PV 和补充项快照。
+- 本轮类型摘要只读；已有类型切换仍 NOT IMPLEMENTED，generic PUT 不开放类型修改。制作参数沿用现有权限及 PV 编辑器；全局保存仍为 settings.global.edit、Bundle CAS/单事务/审计。
+- 工程入口：creation-defaults / creation-receipts、QuoteCreationRecovery、QuoteEditor、GlobalQuoteSettingsPage；新增 forward-only 0011，0001–0010 SQL 不改。本决定不授权18444 migration/更新或自动合并。
+
+> D-101 的普通电脑两步交互部分由 D-102 替代；下列原实现及验收是历史证据，其余六项业务目标保持 Active。
+
 ### D-101 Quote Intake V1 与共同两步报价创建
 
 - 日期：2026-10-10；状态：**Active 业务目标 / 普通电脑两步创建已实现；Intake/转换及已有类型切换 NOT IMPLEMENTED**。来源：用户《Quote Intake V1 最终契约固化与实施任务拆分》确认 QI-01–QI-06，后续授权本轮普通电脑两步创建。Intake字段、状态、权限键及图片方案仍是实施提案，不由此升级为新业务政策。

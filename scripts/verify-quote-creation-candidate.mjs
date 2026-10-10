@@ -38,7 +38,7 @@ assert.equal(manifest.build.gitCommit, labels["org.opencontainers.image.revision
 assert.equal(manifest.build.buildId, labels["io.zhixu.build-id"]); assert.equal(manifest.build.buildTime, labels["org.opencontainers.image.created"]);
 for (const [field, value] of Object.entries({ quoteAuthority: "server", masterSettingsAuthority: "server", quoteWriterMode: "writable", identityMode: "session" })) assert.equal(manifest.build[field], value);
 const migrationNames = (await readdir(resolve("database/migrations"))).filter(n => n.endsWith(".sql")).sort();
-assert.equal(migrationNames.length, 10);
+assert.equal(migrationNames.length, 11);
 assert.deepEqual(Object.keys(manifest.migrations).sort(), migrationNames);
 const sourceBytes = Object.fromEntries(await Promise.all(migrationNames.map(async name => [name, await readFile(resolve("database/migrations", name))])));
 if (compatibility) {
@@ -81,7 +81,7 @@ try {
   `]));
   if (compatibility) {
     const baseline = JSON.parse(await docker(["run", "--rm", "--network", network, ...env, "--entrypoint", "node", publishedImage, "dist/server/server/db/migrate.js"]));
-    assert.deepEqual(baseline.applied, migrationNames.slice(0, 9));
+    assert.deepEqual(baseline.applied, migrationNames.slice(0, 10));
     await docker(["run", "--detach", "--name", app, "--network", network, ...env, publishedImage]); owned.add(app); await ready();
     await probe(`import assert from 'node:assert/strict';const base='http://127.0.0.1:3000';
       const auth=await fetch(base+'/api/v1/auth/login',{method:'POST',headers:{Origin:'https://candidate.invalid','X-Zhixu-Request':'1','Content-Type':'application/json'},body:JSON.stringify({username:'synthetic-candidate-admin',password:process.env.ZHIXU_ADMIN_PASSWORD})});assert.equal(auth.status,200);
@@ -92,18 +92,18 @@ try {
     const pending = JSON.parse(await docker(["run", "--rm", "--network", network, ...env, "--entrypoint", "node", image, "--input-type=module", "-e", `
       import assert from 'node:assert/strict';import pg from 'pg';import{inspectMigrationStatus,verifyMigrationsCurrent}from './dist/server/server/db/migration-runner.js';
       const p=new pg.Pool({host:process.env.DB_HOST,user:'postgres',password:process.env.DB_PASSWORD,database:'quote_creation_candidate'});
-      const status=await inspectMigrationStatus(p,'database/migrations');assert.equal(status.integrity,'valid');assert.equal(status.applied.length,9);
+      const status=await inspectMigrationStatus(p,'database/migrations');assert.equal(status.integrity,'valid');assert.equal(status.applied.length,10);
       await assert.rejects(()=>verifyMigrationsCurrent(p,'database/migrations'),e=>e.code==='pending_migrations'&&e.pending.length===1);
       console.log(JSON.stringify(status));await p.end();
     `]));
-    assert.deepEqual(pending.pending, [migrationNames[9]]);
+    assert.deepEqual(pending.pending, [migrationNames[10]]);
     assert.deepEqual(await snapshot(), priorSnapshot, "verify-only must preserve all prior rows");
   }
   const migrationOutput = await docker(["run", "--rm", "--network", network, ...env, "--entrypoint", "node", image, "dist/server/server/db/migrate.js"]);
-  const migrated = JSON.parse(migrationOutput); assert.deepEqual(migrated.applied, compatibility ? [migrationNames[9]] : migrationNames);
+  const migrated = JSON.parse(migrationOutput); assert.deepEqual(migrated.applied, compatibility ? [migrationNames[10]] : migrationNames);
   if (compatibility) {
-    assert.deepEqual(migrated.skipped, migrationNames.slice(0, 9));
-    assert.deepEqual(await snapshot(), priorSnapshot, "0010 preserves every old public-table row");
+    assert.deepEqual(migrated.skipped, migrationNames.slice(0, 10));
+    assert.deepEqual(await snapshot(), priorSnapshot, "0011 preserves every old public-table row");
     const rerun = JSON.parse(await docker(["run", "--rm", "--network", network, ...env, "--entrypoint", "node", image, "dist/server/server/db/migrate.js"]));
     assert.deepEqual(rerun.applied, []); assert.deepEqual(rerun.skipped, migrationNames);
     assert.deepEqual(await snapshot(), priorSnapshot);
@@ -120,6 +120,7 @@ try {
     const request=async(path,body)=>{const r=await fetch(base+'/api/v1/quotes/'+path,{headers:{Cookie:cookie,Origin:'https://candidate.invalid','X-Zhixu-Request':'1','Content-Type':'application/json'},...(body===undefined?{}:{method:'POST',body:JSON.stringify(body)})});return{status:r.status,body:await r.json()}};
     assert.deepEqual((await request('creation-options')).body,{brands:[],salespeople:[],presets:[],truncated:false});
     const input={source:null,quoteType:'processing',selection:{country:null,presetId:null},fields:{brandId:null,salespersonId:null,styleNo:'SYNTHETIC-CANDIDATE',styleName:'',quantity:'0',garmentLeadDate:'2028-02-29',note:''},parameterOverrides:{}};
+    const defaultToken=randomUUID();const direct=await request('creation-defaults',{clientRequestId:defaultToken});assert.equal(direct.status,201);const directReplay=await request('creation-defaults',{clientRequestId:defaultToken});assert.equal(directReplay.status,200);assert.deepEqual(direct.body.result,directReplay.body.result);
     const review=await request('creation-preview',input);assert.equal(review.status,200);assert.equal(review.body.configuration.status,'incomplete');
     const token=randomUUID();const command={...input,previewId:review.body.previewId,clientRequestId:token,imageSelection:null};
     const made=await request('creation-workflows',command);assert.equal(made.status,201);
@@ -127,8 +128,8 @@ try {
     const record=(await request(made.body.result.quoteId)).body.quote;assert.equal(record.version,1);
     const revision=record.quote.revisions[0];assert.equal(revision.baseInfo.quoteType,'processing');assert.equal(revision.baseInfo.garmentLeadDate,'2028-02-29');assert.equal(revision.priceVersions[0].quantity,'0');assert.equal(revision.priceVersions[0].pricingParameters.markupRate,null);
     const pool=new pg.Pool({host:process.env.DB_HOST,port:5432,user:'postgres',password:process.env.DB_PASSWORD,database:'quote_creation_candidate'});
-    assert.equal((await pool.query('SELECT count(*) FROM quote_center_quotes')).rows[0].count,${JSON.stringify(compatibility ? "2" : "1")});assert.equal((await pool.query('SELECT count(*) FROM schema_migrations')).rows[0].count,'10');
-    console.log(JSON.stringify({result:'PASS',token,quoteId:record.quote.id,version:record.version,quoteCount:${compatibility ? 2 : 1},ledgerCount:10,build}));await pool.end();
+    assert.equal((await pool.query('SELECT count(*) FROM quote_center_quotes')).rows[0].count,${JSON.stringify(compatibility ? "3" : "2")});assert.equal((await pool.query('SELECT count(*) FROM schema_migrations')).rows[0].count,'11');
+    console.log(JSON.stringify({result:'PASS',token,quoteId:record.quote.id,version:record.version,quoteCount:${compatibility ? 3 : 2},ledgerCount:11,build}));await pool.end();
   `));
   await docker(["restart", app]); await ready();
   await probe(`import assert from 'node:assert/strict';const base='http://127.0.0.1:3000';
@@ -136,15 +137,15 @@ try {
     const response=await fetch(base+'/api/v1/quotes/creation-receipts/'+${JSON.stringify(result.token)},{headers:{Cookie:auth.headers.get('set-cookie').split(';')[0]}});assert.equal(response.status,200);
     const receipt=await response.json();assert.equal(receipt.state,'committed');assert.equal(receipt.result.quoteId,${JSON.stringify(result.quoteId)});
   `);
-  await probe(`import assert from 'node:assert/strict';import pg from 'pg';const p=new pg.Pool({host:process.env.DB_HOST,port:5432,user:'postgres',password:process.env.DB_PASSWORD,database:'quote_creation_candidate'});const r=(await p.query('SELECT state,result FROM quote_creation_receipts WHERE client_request_id=$1',[${JSON.stringify(result.token)}])).rows[0];assert.equal(r.state,'committed');assert.equal(r.result.quoteId,${JSON.stringify(result.quoteId)});assert.equal((await p.query('SELECT count(*) FROM quote_center_quotes')).rows[0].count,${JSON.stringify(compatibility ? "2" : "1")});await p.end();`);
+  await probe(`import assert from 'node:assert/strict';import pg from 'pg';const p=new pg.Pool({host:process.env.DB_HOST,port:5432,user:'postgres',password:process.env.DB_PASSWORD,database:'quote_creation_candidate'});const r=(await p.query('SELECT state,result FROM quote_creation_receipts WHERE client_request_id=$1',[${JSON.stringify(result.token)}])).rows[0];assert.equal(r.state,'committed');assert.equal(r.result.quoteId,${JSON.stringify(result.quoteId)});assert.equal((await p.query('SELECT count(*) FROM quote_center_quotes')).rows[0].count,${JSON.stringify(compatibility ? "3" : "2")});await p.end();`);
   for (const name of [database, app]) {
     const binding = JSON.parse(await docker(["inspect", name, "--format", "{{json .NetworkSettings.Ports}}"]));
     assert.ok(Object.values(binding).every(value => value === null), "no host port publishing");
     const mounts = JSON.parse(await docker(["inspect", name, "--format", "{{json .Mounts}}"])); assert.ok(mounts.every(m => m.Type === "tmpfs"), "no business or host volume mounted");
   }
   verifiedReport = { result: "CANDIDATE_VERIFIED", candidate: image, imageId: await docker(["image", "inspect", image, "--format", "{{.Id}}"]), build: manifest.build, migrations: manifest.migrations,
-    compatibility: compatibility ? { baselineImage: publishedImage, pendingBefore: [migrationNames[9]], applied: migrated.applied, priorSnapshot, allOldRowsPreserved: true, rerunSkipped: true } : null,
-    checks: { linuxNode22: true, imageMigrationBytes: true, startupVerifyOnly: true, tenMigrationsDisposable: true, trustedAtomicCreateReplay: true, restartDurableReceipt: true, isolatedInternalNetwork: true, hostPorts: 0, mountedPersistentVolumes: 0, realEnvironmentOperations: false } };
+    compatibility: compatibility ? { baselineImage: publishedImage, pendingBefore: [migrationNames[10]], applied: migrated.applied, priorSnapshot, allOldRowsPreserved: true, rerunSkipped: true } : null,
+    checks: { linuxNode22: true, imageMigrationBytes: true, startupVerifyOnly: true, elevenMigrationsDisposable: true, trustedAtomicCreateReplay: true, restartDurableReceipt: true, isolatedInternalNetwork: true, hostPorts: 0, mountedPersistentVolumes: 0, realEnvironmentOperations: false } };
 } finally {
   for (const name of owned) await docker(["rm", "--force", name]);
   if (networkCreated) await docker(["network", "rm", network]);

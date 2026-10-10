@@ -96,6 +96,12 @@ test("local identity uses one technical FK actor without login and keeps busines
       assert.deepEqual(audit, [{ actor_user_id: actor.id, actor_public_id: actor.public_id, actor_name: "本地开发用户" }]);
     }
     assert.equal((await pool.query("SELECT count(*)::int AS count FROM quote_center_quotes")).rows[0].count, before + 2);
+    const directId=randomUUID();
+    const direct=await call("creation-defaults",{clientRequestId:directId});
+    assert.equal(direct.status,201);
+    assert.equal((await call(direct.body.result.quoteId)).body.quote.quote.revisions[0].baseInfo.quoteType,"distribution");
+    assert.deepEqual((await call("creation-defaults",{clientRequestId:directId})).body.result,direct.body.result);
+    assert.equal((await pool.query("SELECT count(*)::int AS count FROM quote_center_quotes")).rows[0].count,before+3);
     assert.equal((await pool.query("SELECT count(*)::int AS count FROM app_user_roles WHERE user_id=$1", [actor.id])).rows[0].count, 0);
   });
   const log = (await pool.query<{ actor_user_id: string; actor_public_id: string; actor_name: string }>(

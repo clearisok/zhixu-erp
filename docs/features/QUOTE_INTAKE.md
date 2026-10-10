@@ -1,5 +1,7 @@
 # Quote Intake V1
 
+> 当前普通电脑入口由 D-102 改为立即创建有编号草稿、直达详情；本文两步交互是历史实现及未实施 Intake 转换提案，不是当前普通电脑操作指令。Intake/类型切换仍 NOT IMPLEMENTED，其余 D-101 业务保护保留。
+
 > 2026-10-10：**普通电脑两步原子创建已实现；Intake/手机收集/转换及已有报价类型切换 NOT IMPLEMENTED**。正式规则QI-01–06见 [BUSINESS_RULES](../BUSINESS_RULES.md)，Active D-101；实际子集/DTO/事务/测试见 [两步创建证据](../tasks/active/quote-two-step-creation.md)，剩余技术提案见 [原实施契约](../tasks/active/quote-intake-v1-implementation-contract.md)。本文件的Intake权限/生命周期/附件转换仍为未来方案。
 
 ## 领域边界

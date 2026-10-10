@@ -10,7 +10,7 @@
 
 ## Quote Intake V1：用户确认规则（2026-10-10；D-101）
 
-普通电脑端两步创建已实现，见 [QUOTE_CENTER](features/QUOTE_CENTER.md)；手机 Intake/转换和已有报价类型切换仍 NOT IMPLEMENTED。以下业务规则未改变，实现子集不代表全部目标完成。
+普通电脑端现按 D-102 改为点击即创建并保留有编号草稿，使用可信 PostgreSQL 默认类型/国家/预设；参数快照不回写、无预设待完善、历史保护及下列六项不变。旧两步取消零创建仅为历史交互，见 [QUOTE_CENTER](features/QUOTE_CENTER.md)；手机 Intake/转换和已有报价类型切换仍 NOT IMPLEMENTED。以下业务规则未改变，实现子集不代表全部目标完成。
 
 以下六项来自用户本轮明确确认；实现状态与技术建议见 [Quote Intake](features/QUOTE_INTAKE.md) 和 [实施契约](tasks/active/quote-intake-v1-implementation-contract.md)。不得把确认规则等同于已上线能力。
 

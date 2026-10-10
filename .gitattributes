@@ -1,3 +1,4 @@
 # New receipt migration must retain its reviewed byte checksum across Windows/Linux.
 # Do not change line endings of already published 0001-0009.
 database/migrations/0010_quote_creation_receipts.sql text eol=lf
+database/migrations/0011_quote_creation_defaults.sql text eol=lf

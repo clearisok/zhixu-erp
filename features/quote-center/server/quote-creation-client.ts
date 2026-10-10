@@ -10,6 +10,7 @@ export function createQuoteCreationClient(fetchImpl: typeof fetch = fetch) {
     return body as T;
   };
   return {
+    defaults: (clientRequestId: string) => request<CreationReceipt>("creation-defaults", {clientRequestId}),
     options: (search = "") => request<CreationOptions>(`creation-options?search=${encodeURIComponent(search)}`),
     preview: (input: CreationInput) => request<CreationPreview>("creation-preview", input),
     execute: (input: CreationCommand) => request<CreationReceipt>("creation-workflows", input),

@@ -81,6 +81,8 @@ function authorizeReplacement(actor: TrustedIdentity, before: ServerQuote, after
   for (const nextRevision of after.revisions) {
     const previousRevision = before.revisions.find((revision) => revision.revisionId === nextRevision.revisionId);
     if (!previousRevision) continue;
+    if (previousRevision.baseInfo.quoteType !== nextRevision.baseInfo.quoteType)
+      throw new HttpError(409, "quote_type_workflow_required", "Quote type changes require a dedicated protected workflow");
     if (!isDeepStrictEqual(
       [previousRevision.imageAttachmentIds, previousRevision.fileAttachmentIds, previousRevision.styleImageAttachmentId],
       [nextRevision.imageAttachmentIds, nextRevision.fileAttachmentIds, nextRevision.styleImageAttachmentId],
@@ -180,7 +182,7 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
   return {
     getById: repository.getById,
     /** Trusted workflow composition only; caller owns its receipt transaction. */
-    async createPreparedDraftInTransaction(client: PoolClient, actor: TrustedIdentity, input: CreationInput, parameters: ServerQuote["revisions"][number]["priceVersions"][number]["pricingParameters"], names: { brand: string; salesperson: string }, context: QuoteMutationContext = {}) {
+    async createPreparedDraftInTransaction(client: PoolClient, actor: TrustedIdentity, input: CreationInput, parameters: ServerQuote["revisions"][number]["priceVersions"][number]["pricingParameters"], names: { brand: string; salesperson: string }, context: QuoteMutationContext = {}, defaults?: {laborDescription:string;otherCost:{name:string;amount:string|null}|null}) {
       requirePermission(actor.permissions, "quote.create");
       const createdAt = now();
       const draft = createServerQuoteDraft({ quoteId: nextUuid(), revisionId: nextUuid(), priceVersionId: nextUuid(), quoteCode: await allocateQuoteCode(client, createdAt) }, actor, createdAt);
@@ -188,7 +190,11 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
       revision.baseInfo = { ...revision.baseInfo, quoteType: input.quoteType, brandId: input.fields.brandId ?? "", brandName: names.brand, salespersonId: input.fields.salespersonId ?? "", salespersonName: names.salesperson, quoteStyleNo: input.fields.styleNo, styleName: input.fields.styleName, garmentLeadDate: input.fields.garmentLeadDate, note: input.fields.note };
       revision.priceVersions[0].quantity = input.fields.quantity;
       revision.priceVersions[0].pricingParameters = parameters;
-      return repository.createInTransaction(client, draft, audit(actor, { ...context, workflowAction: "quote.create.two_step" }));
+      if(defaults){
+        revision.priceVersions[0].labor.description=defaults.laborDescription;
+        if(defaults.otherCost)revision.priceVersions[0].otherCosts=[{id:nextUuid(),lineGroupId:nextUuid(),name:defaults.otherCost.name,specification:"",usage:"1",unit:"件",lossRate:"0",unitPrice:defaults.otherCost.amount,amount:defaults.otherCost.amount,source:"global",globalSettingId:"system-default-other-cost",overridden:false}];
+      }
+      return repository.createInTransaction(client, draft, audit(actor, { ...context, workflowAction: context.workflowAction ?? "quote.create.two_step" }));
     },
     async confirmationWorkflow(actor: TrustedIdentity, quoteId: string, command: QuoteConfirmationCommand, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.view");
