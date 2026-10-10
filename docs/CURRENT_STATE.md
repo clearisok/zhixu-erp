@@ -14,11 +14,11 @@
 
 本轮实际创建28/28、Quote/Q3 API28/28、local3/3、版本/Estimate/附件24/24、auth/frontend85/85；最终完整Chromium66/66、列表像素/缩略图27/27、npm679/679、typecheck/lint/Server和两种frontend PASS，默认build-info browser/browser/writable/session。源码236cc9b的不可变Linux候选已验证发布checksum、非空库仅升级0011、原数据/回执/重启保持及cleanup；packaging12/12 PASS。[详细测试、合成截图与候选](tasks/active/quote-two-step-creation.md)。
 
-原分支 `feat/quote-two-step-creation`；checkpoint9da5047的push遇纯网络失败，一次GitHub确认remote仍a3335ed。LOCAL ENGINEERING与REMOTE DELIVERY分开；最终候选/source/PR见接力，不无限重试或强推。
+原分支 `feat/quote-two-step-creation`；前次push网络故障已由用户恢复，发布审查起点local/tracking/PR91均e58e6de。发布审查补齐generic PUT追加不同类型Revision的绕过保护（29/29创建、10/10版本回归）；新修复候选收口中，旧236cc9b镜像不能代替补丁版本。当前来源/PR见接力，不无限重试或强推。
 
 ## 环境与下一步
 
-**18444仍是旧bb451fe/66de两步版、0001–0010**（上轮已授权部署/完整备份恢复证据保留；本轮没有访问或变更Preview）。新的0011必须另行授权备份/隔离恢复及app/schema配套升级；当前页面尚不能验收本修正。不改18443、真实库/COS/秘密/旧3000–3002。
+**18444仍是旧bb451fe/66de两步版、0001–0010**。2026-10-10本轮只读复核：健康、28报价/2启用账号/3附件及对象、1committed回执无pending；完整挂载/配置/TLS连续性与前十份checksum PASS。旧备份缺少后续业务变更，不能代替本次新备份。0011及app更新仍须单独授权维护、当前完整备份/隔离恢复；本轮未修改Preview，不改18443/真实库/COS/旧3000–3002。
 
 后续用户批准Preview备份/隔离恢复及0011/app更新后，才进行新交互/默认设置/响应式人工验收；工程PASS不是人工PASS。[历史部署接力](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md)和[旧项目证据](tasks/completed/2026-10-10-pre-two-step-state-history.md)保留，旧“取消零创建”不再是当前普通电脑规则。
 

@@ -133,6 +133,32 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
   });
   const input: CreationInput = { source: null, quoteType: "processing", selection: { country: "Cambodia", presetId: preset.id }, fields: { brandId: brand.id, salespersonId: person.id, styleNo: "SYNTHETIC-TWO-STEP", styleName: "Synthetic normal creation", quantity: "0", garmentLeadDate: "2028-02-29", note: "Synthetic note" }, parameterOverrides: {} };
   const count = async () => Number((await pool.query("SELECT count(*) FROM quote_center_quotes")).rows[0].count);
+  await t.test("Generic PUT cannot evade type protection by appending a client-built Revision",async()=>{
+    const result=await call("creation-defaults",{clientRequestId:randomUUID()});
+    const service=createTrustedQuoteService(pool);
+    let saved=(await service.getById(result.body.result.quoteId))!;
+    for(const confirmed of [false,true]){
+      if(confirmed){
+        // Internal repository fixture only; no public confirmation bypass.
+        const fixture=structuredClone(saved.quote),pv=fixture.revisions[0].priceVersions[0];
+        pv.confirmation={quotedGarmentPrice:"0",quotedLaborPrice:"0",confirmedLaborPrice:"0",confirmedGarmentPrice:fixture.revisions[0].baseInfo.quoteType==="processing"?null:"0",note:"Synthetic confirmed preservation probe",confirmedAt:new Date().toISOString()};
+        fixture.revisions[0].confirmationSummary={confirmedCount:1,totalCount:1};fixture.aggregateStatus="confirmed";
+        saved=await createQuoteRepository(pool).save(fixture,saved.version);
+      }
+      const injected=structuredClone(saved.quote),previous=injected.revisions[0],revision=structuredClone(previous);
+      previous.readOnly=true;
+      revision.revisionId=randomUUID();revision.revisionLabel="V2";revision.mainlineVersion=2;revision.parentRevisionId=previous.revisionId;
+      revision.priceVersions[0].id=randomUUID();revision.priceVersions[0].confirmation=null;revision.confirmationSummary={confirmedCount:0,totalCount:1};
+      revision.baseInfo.quoteType=previous.baseInfo.quoteType==="processing"?"distribution":"processing";
+      injected.revisions.push(revision);injected.defaultRevisionId=revision.revisionId;injected.currentRevisionId=revision.revisionId;injected.aggregateStatus="quoting";
+      const logs=Number((await pool.query("SELECT count(*) FROM operation_logs WHERE quote_id=$1",[injected.id])).rows[0].count);
+      await assert.rejects(service.saveAggregate(actor,injected,saved.version),{code:"quote_type_workflow_required"});
+      const response=await fetch(`${origin}/api/v1/quotes/${injected.id}`,{method:"PUT",headers:{Cookie:cookie,Origin:origin,"X-Zhixu-Request":"1","Content-Type":"application/json"},body:JSON.stringify({quote:injected,expectedVersion:saved.version})});
+      assert.equal(response.status,409);assert.equal((await response.json()).error.code,"quote_type_workflow_required");
+      assert.deepEqual(await service.getById(injected.id),saved);
+      assert.equal(Number((await pool.query("SELECT count(*) FROM operation_logs WHERE quote_id=$1",[injected.id])).rows[0].count),logs);
+    }
+  });
   const seq = async () => (await pool.query("SELECT last_value::text,is_called FROM quote_center_quote_number_seq")).rows[0];
   const command = async (value = input): Promise<CreationCommand> => ({ ...value, previewId: (await creation.preview(actor, value)).previewId, clientRequestId: randomUUID(), imageSelection: null });
   await t.test("Default command concurrency, rollback, stale defaults and revoked Session permissions fail closed",async()=>{

@@ -80,7 +80,14 @@ function authorizeReplacement(actor: TrustedIdentity, before: ServerQuote, after
 
   for (const nextRevision of after.revisions) {
     const previousRevision = before.revisions.find((revision) => revision.revisionId === nextRevision.revisionId);
-    if (!previousRevision) continue;
+    if (!previousRevision) {
+      // Appending a client-built Revision must not turn generic PUT into the
+      // dedicated type-switch workflow that is not implemented yet.
+      const current = before.revisions.find(revision => revision.revisionId === before.defaultRevisionId)!;
+      if (nextRevision.baseInfo.quoteType !== current.baseInfo.quoteType)
+        throw new HttpError(409, "quote_type_workflow_required", "Quote type changes require a dedicated protected workflow");
+      continue;
+    }
     if (previousRevision.baseInfo.quoteType !== nextRevision.baseInfo.quoteType)
       throw new HttpError(409, "quote_type_workflow_required", "Quote type changes require a dedicated protected workflow");
     if (!isDeepStrictEqual(

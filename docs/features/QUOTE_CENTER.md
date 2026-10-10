@@ -4,7 +4,7 @@
 
 新交互使用 POST /api/v1/quotes/creation-defaults，仅接受 clientRequestId；可信 Server 读取设置、审核预设、持久 receipt、原编号/Writer/事务/审计，创建类型及初始 PV 一次完成。列表点击后直达现有详情；空草稿保留。/new 是显式按钮或只读 receipt 恢复页，挂载/刷新不写入。未知结果保留原 token、只核对、不自动 POST。
 
-全局设置新增可空 defaultQuoteType/defaultManufacturingCountry（0011），复用 defaultManufacturingPresetId；旧客户端省略新增字段不清空已配置值。未配置类型有经销技术回退来源标记，其余业务值不猜。新草稿复制有效匹配预设和系统默认补充项；后续设置不回写。详情条类型只读，制作编辑复用现有权限；generic PUT 类型变更拒绝，完整已有类型切换未实施。
+全局设置新增可空 defaultQuoteType/defaultManufacturingCountry（0011），复用 defaultManufacturingPresetId；旧客户端省略新增字段不清空已配置值。未配置类型有经销技术回退来源标记，其余业务值不猜。新草稿复制有效匹配预设和系统默认补充项；后续设置不回写。详情条类型只读，制作编辑复用现有权限；generic PUT 类型变更拒绝，也不能追加不同于已保存当前类型的客户端 Revision 绕过保护（409 quote_type_workflow_required，草稿及已确认数据/审计保持）。完整已有类型切换未实施。
 
 设置 UI 顶部创建默认值/通用计价参数、制作预设主从表单、补充项及保存区；失败/409保留输入，撤销只放弃本页草稿，读失败不显示 Browser demo 默认。settings.global.edit 不变。工程/候选最终验证见任务证据；本修正尚未更新18444，等待另行授权及人工验收。
 
