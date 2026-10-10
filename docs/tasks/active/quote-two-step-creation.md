@@ -4,6 +4,11 @@
 
 ## Current — D-102 immediate draft/defaults/settings repair (2026-10-10)
 
+### 2026-10-11 — User acceptance PASS / merge authorized
+
+- User explicitly confirmed “#91 人工验收通过，授权合并。” following completed second-round Preview acceptance. This is final human acceptance of the delivered PR #91 scope. Date-effective FX policies, batch rate updates, and formal reorder repricing remain NOT IMPLEMENTED and belong to a separate later task.
+- Authorized action: merge PR #91 into main via GitHub after checking the exact PR head and clean mergeability. Do not conflate merge with deployment or migrate/modify 18444,18443, real databases or COS; PR #92 is independent. Check GitHub PR for actual merged status and merge commit; all earlier PENDING evidence below is time-scoped historical status.
+
 ### Second acceptance Preview deployment PASS (2026-10-10)
 
 - User explicitly authorized this immutable candidate and confirmed no unfinished18444 operations. Resumed clean original worktree/branch at local/remote/PR91 **676035bd1a0323e928383b340f1cbfec9e0572eb**, verified GitHub main84c8c5b. Only project **zhixu-preview-d099-18444**, DB **quote_preview**, loopback HTTPS18444 allowed. No new code, image build, SQL or business-policy change in this deployment.

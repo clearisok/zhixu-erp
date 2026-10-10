@@ -1,5 +1,7 @@
 # Quote Center
 
+> 2026-10-11：用户已明确确认 PR #91 人工验收 PASS 并授权合并。18444 的第二轮部署验收与 2026-10-10 历史 PENDING 记录保留；本次只批准 GitHub 合并，不是新的 Preview/生产部署授权。按报价日期生效的汇率政策及受控批量更新尚未实施，属于后续独立功能。
+
 ## 普通电脑立即创建（D-102，PR #91 验收修正）
 
 新交互使用 POST /api/v1/quotes/creation-defaults，仅接受 clientRequestId；可信 Server 读取设置、审核预设、持久 receipt、原编号/Writer/事务/审计，创建类型及初始 PV 一次完成。列表点击后直达现有详情；空草稿保留。/new 是显式按钮或只读 receipt 恢复页，挂载/刷新不写入。未知结果保留原 token、只核对、不自动 POST。
