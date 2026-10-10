@@ -1,5 +1,12 @@
 # 新订单中心
 
+## Formal Server material execution slice — 2026-10-11 / PR #92 Draft
+
+原有正式列表与详情增加 execution-only 详情模式及紧凑物料摘要，使用唯一 `order-material-read.v1` 投影。详情不读取 CCT；来源基本信息、颜色分码与物料执行事实通过正式 UUID 展示。摘要进入 `/order-center/style-progress/detail?orderId=<uuid>` 的 Server 只读 Control Tower，并以固定 UUID 返回原订单，不接受任意 return URL。采购来源单价/金额可见，销售价、工价、Quote 内部成本及利润不进入物料 DTO。
+
+本轮仅完成实际组件、可信 session HTTP 与合成来源的隔离闭环；生产 Quote Server 路由白名单未开放，默认运行入口未安装 Source capability，没有 Browser 数据回退。既有 Order/Quote 商业金额 GET 仍有经实际 HTTP 复现的越权风险，**SECURITY GATE PENDING**；团队订单可见范围、真实受控账号和字段权限政策须另行批准。工程验收不等于正式可用或真实艾诺科同步。[完整报告、测试与人工复验](../tasks/active/order-material-night-integration.md)。
+
+
 ## Formal Server C4.3 boundary — 2026-10-09
 
 正式 Server 在既有 C3/C4.1 只读列表/详情和 C4.2 current terms 上增加独立 DeliveryPlan 领域；[Server persistence](SALES_ORDER_PERSISTENCE.md) 记录 0009、集合 CAS、永久人工所有权、stable IDs/null recovery、drift 与专属 GET/PATCH。只 disposable PG 验证，没有真实 activation、计划编辑 UI、通用 SalesOrder writer 或 Browser import。下文 Browser model/service/legacy 数量历史不自动成为正式 Server 规则，D-082/D-083/D-100 优先。下一步另立正式计划 UI/冲突 UX Gate，不增加 D-098 报价上线前置。

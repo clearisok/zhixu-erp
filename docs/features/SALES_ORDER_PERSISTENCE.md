@@ -1,5 +1,12 @@
 # SalesOrder PostgreSQL Persistence Foundation
 
+## Isolated material read HTTP contract — 2026-10-11 / PR #92 Draft
+
+`GET /api/v1/sales-orders/:uuid/material-progress` requires trusted session, `order.view` and `style_progress.read`. Client supplies UUID only; all query selectors are rejected. An injected trusted `resolveVisibleOrder` must enforce the authorized order scope before fixed Discovery → BillNo relation → current InsideOrderNo → 6087050 `insideorderno is` Source read. The existing adapter/projection returns completeness, freshness, unknown/zero, canonical items and separate events; procurement Source prices are shared, protected commercial prices are absent. Success is `Cache-Control: no-store`; provider errors are replaced with fixed public messages.
+
+The capability is optional and **not installed by server/index.ts**: default authenticated use returns 503 `material_read_not_connected`. A configured scope resolver without Source returns explicit `not_connected`; no Browser fallback, source-write API, new schema or live collection. Synthetic real-session HTTP11/11 and CCT regression7/7 passed on owned disposable PG16 only. Existing CCT/Quote aggregate price exposure was separately reproduced and remains **SECURITY GATE PENDING**, so this contract does not claim production security or team-scoped general Order list/detail. [Full scope, evidence and activation prerequisites](../tasks/active/order-material-night-integration.md).
+
+
 ## C4.3 DeliveryPlan domain (2026-10-09)
 
 `0009_sales_order_delivery_plans.sql` adds `sales_order_delivery_plan_sets` and `sales_order_delivery_plans`, without changing prior migrations or backfilling existing orders. The collection has an independent version and irreversible `source_derived → user_managed` transition. Rows use server UUIDs, exact NUMERIC quantity/API decimal strings, nullable date only for a suspended derived default, and retained void history. SalesOrder version/number/provenance and shared terms remain independent.

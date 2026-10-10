@@ -1,5 +1,12 @@
 # 款式进度、面辅料跟进与逐物料物流
 
+## Formal order read-only component integration — 2026-10-11 / PR #92 Draft
+
+带正式 `orderId` 的详情分支使用可信 Server session、订单/物料读权限与 UUID 物料 HTTP 投影，挂载原 Control Tower 抽离出的共用卡片/表格展示。分组、状态、厂供排除及事件去重仍来自唯一已有 Material pipeline；采购、入库、物料出运与出库各自保留事件身份。未知与零、合法空结果与未接通分开显示，不跨单位加总或推算采购金额。
+
+Server 分支不挂载 Browser Repository、旧权限 Provider、导入、人工编辑或排单写入；不带 `orderId` 的原 Browser 路径继续原行为。显式 Browser authority 收到正式 UUID 时拒绝回退。返回入口固定到经过校验的原订单 UUID。实际组件在独立动态 loopback / disposable PG16 / 私有 Chromium 中完成 1440、1280、390px 验收，生产全局路由白名单保持禁用，真实 Source 未接线。既有商业金额 API 风险仍待权限 Gate。[工程报告](../tasks/active/order-material-night-integration.md) / [合成截图](../tasks/active/evidence/order-material-night/README.md)。
+
+
 ## Purpose
 
 款式进度是订单中心内的 Material Control Tower。它把艾诺科《面辅料申购统计》作为跟进来源，通过 `salesContractNo` 投影到现有单款 SalesOrder，并复用正式 ScheduleAssignment、ProductionSite、SupplyHub、SupplyRoute 与 TransportMode 计算逐物料物流建议。它不创建订单、不做第二套订单匹配，也不复制订单权威字段。

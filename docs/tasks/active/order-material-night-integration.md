@@ -62,3 +62,51 @@ Initial browser isolation assertion matched source-module URLs containing confir
 | Execution-only detail / read Control Tower | Actual browser makes no CCT/Quote request, no Browser business storage writes; server response excludes protected commercial fields; default-denied preparatory CCT projection never becomes part of Material DTO |
 
 Future color-level CNY sale price is not inferred from the existing scalar CCT. No new field/schema/key/default role policy is selected. Synthetic account switch proves injected scope/session isolation, not real personal Ainuoke binding.
+
+## Gate 5 — engineering handoff / approval boundary
+
+**LOCAL ISOLATED ENGINEERING PASS / SECURITY GATE PENDING / SYNTHETIC UI ACCEPTANCE PENDING**. PR #92 remains the only Draft. This handoff is docs-only; no new business policy is marked Active.
+
+| Phase | Checkpoint / actual incremental files |
+| --- | --- |
+| Gate0 | `d321e0700b97d007f812bd5333a4bb6d86f43640`: ordinary merge of exact main fcf36e5, existing PR91 paths preserved; B recovery note in AI_HANDOFF and this independent task report |
+| Gate1 | `2dca6381b765a7e5b616281a52c21638d25dfacd`: commercial-read-policy.ts, tests/order-material-commercial-policy.test.mjs, server/integration/order-material-security-audit.test.ts, this report |
+| Gate2 | `d98ccec8ceb617670894e0e02089d04b3c14a233`: server/app.ts, order-material-fixture.ts, order-material-http.test.ts and this report; fixture type-only correction `58f647c61966c24ea7fb2a978d8446c4991fb7ed` |
+| Gate3 | `e7c79d1abb24a8542a6628edec3a7c488d0ace76`: actual order/list/detail and style detail/CSS entries, shared Control Tower display+readonly components, material HTTP client/summary, independent integration-preview driver/CDP test, six synthetic screenshots and this report |
+| Gate4 | `43b6675286922565f3f26cc191ea9f55e0e9cdc2`: final browser assertions/screenshots/README, manual demo.ts, compact contract identity line, isolated fixture/default-disabled HTTP assertion, CCT migration-ledger expected0011 filename, this report |
+| Gate5 | Minimal ORDER_CENTER/STYLE_PROGRESS/SALES_ORDER_PERSISTENCE docs, CURRENT_STATE/AI_HANDOFF and this task handoff; final docs checkpoint is recorded in the final delivery receipt/PR |
+
+Exact per-checkpoint file lists remain reviewable with `git diff-tree --no-commit-id --name-only -r <checkpoint>`; for the merge, use its first-parent diff. The pre-main strict zero intersection policy is superseded by this explicitly authorized post-PR91 merge task: shared server/app.ts and minimal state/handoff docs are now intentional incremental changes. No Quote feature, shared permission catalog, 0010/0011 migration bytes, deployment configuration or Codex A worktree change. The CCT integration test only reconciles its expected ledger with main's existing0011. Final PR91 intersection is exactly four paths: docs/AI_HANDOFF.md, docs/CURRENT_STATE.md, server/app.ts and server/integration/confirmed-commercial-terms.integration.test.ts. All are the authorized post-merge increments described above; Quote UI, migrations and permissions do not intersect.
+
+Gate4 initial push failed with curl56/schannel close_notify disconnect. One read-only verification confirmed remote and PR still `e7c79d1abb24a8542a6628edec3a7c488d0ace76`; `43b6675286922565f3f26cc191ea9f55e0e9cdc2` remained local then. This is a confirmed transport failure, not permission/divergence evidence. No force/rebase/reset/clean, credentials/config change or blind retry. Final Gate5 has one normal checkpoint delivery attempt; its exact receipt is reported separately, never inferred from “Everything up-to-date”.
+
+Remaining dirty is only inherited `docs/tasks/active/order-material-read-gate1.md`, preserved byte-for-byte SHA256 `8B24F58EB42F2141778F1EBE69138C64449BE04F522757CBC50325FB5286E21E` and never staged. Latest independently verified origin/main remains fcf36e5. No merge conflicts remain.
+
+### At most five manual acceptance steps
+
+1. In this worktree with Docker/Node available, run `npx tsx features/ainuoke-material-progress/integration-preview/demo.ts`. This creates only its own random PG16/tmpfs/loopback ports and prints a synthetic entry URL.
+2. Use a separate private browser profile; open that URL and login as printed synthetic `tracker-a / synthetic-only`. All orders and Source are test data.
+3. From the actual formal list, open the first order; inspect source identity, color/size rows and compact material counts. There is no CCT/price editor in this execution-only detail.
+4. Open material follow-up; search, refresh and expand purchase/inbound/shipment/outbound rows, then return to the same UUID. Review1440/1280/390 widths; procurement Source prices are visible, protected commercial domains are absent.
+5. Ctrl+C terminates the driver and cleans only its owned Vite/API/disposable PG. The existing business/Preview environments are never involved.
+
+Reproducible focused commands (all executed this round):
+
+```powershell
+node --test tests/order-material-source-adapter.test.mjs tests/order-material-read-gate1.test.mjs tests/ainuoke-material-progress.test.mjs tests/order-material-commercial-policy.test.mjs
+npx tsx --test --test-concurrency=1 server/integration/order-material-http.test.ts server/integration/confirmed-commercial-terms.integration.test.ts server/integration/order-material-security-audit.test.ts
+npx tsx --test features/ainuoke-material-progress/__tests__/integration-browser.test.mjs
+npx tsx features/ainuoke-material-progress/integration-preview/demo.ts --verify
+```
+
+Full `test:postgres` was NOT RUN this night Gate; the19 focused disposable HTTP/CCT/audit tests and actual UI disposable fixture were run, not substituted with old152 results. Typecheck/lint/npm test/serial Server+frontend builds/diff-check were separately executed as recorded above.
+
+### Required next authorization, not implemented
+
+- Approve exact independent sale/labor/profit view/edit policies and role defaults; define the existing CCT/Quote aggregate/list/export response compatibility, then install Server-side redaction on every relevant read path. Preparatory injectable deny policy alone is insufficient.
+- Define company/team Order list/detail scope and controlled collection identity; actual personal Ainuoke binding is unimplemented. Synthetic trusted users prove test scope only.
+- Approve real Source retention, explicit freshness SLA and runtime account/report configuration. No live fields, units, currencies or prices are inferred from this synthetic fixture.
+- After security and scope proofs, separately approve global route whitelist/production capability activation and real environment acceptance. This task is not deployment authority.
+- Quote/Reorder business-source backfill, future color-level CNY sale prices/non-API C/S Excel reconciliation and finance/profit remain separate design work; do not block this read-only slice with invented source/provenance.
+
+Completed all safely executable night work. Stop after final receipt; keep #92 Draft and await user review.

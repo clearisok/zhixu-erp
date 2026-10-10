@@ -1,5 +1,7 @@
 # 当前状态
 
+> 2026-10-11 / B：PR #91 已合并，main `fcf36e5eab6c78254f808c1cba38f3a63a66d4f8`。PR #92 Draft 普通 merge 后，原正式订单组件 → 物料摘要 → 原款式只读 Control Tower → UUID 返回的隔离工程验收通过。Source78/78、实际 HTTP/CCT/风险审计19/19、Chromium7/7（43断言）、npm757/757及质量构建通过；**SECURITY GATE PENDING / SYNTHETIC UI ACCEPTANCE PENDING**。既有金额读取漏洞未修复，生产路由与真实 Source 未启用。下方 PR91部署证据保留；本轮不改变18444或真实业务环境。[B接力与复验](tasks/active/order-material-night-integration.md)。
+
 > 2026-10-10：PR #91 / D-102 第二轮反馈新版已按用户授权更新隔离18444，**PREVIEW UPDATE PASS / USER ACCEPTANCE PASS（2026-10-11 用户明确批准合并 PR #91）**。实际源码eb9530a/image1707a8e54159；18443、真实业务库/COS和订单工作树未动。
 
 ## 当前工程

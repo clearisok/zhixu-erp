@@ -1,7 +1,7 @@
 # AI handoff
 ## Active — PR #92 isolated Order/Material integration (2026-10-11)
 
-PR #91 is MERGED at fcf36e5eab6c78254f808c1cba38f3a63a66d4f8; #92 ordinary main integration and recovery evidence: [task](tasks/active/order-material-night-integration.md). Keep Draft; inherited task-note dirty preserved. Production security/Source/route activation remain pending; no Preview or real-data operation.
+PR #91 is MERGED at fcf36e5eab6c78254f808c1cba38f3a63a66d4f8; #92 ordinary merge checkpoint d321e0700b97d007f812bd5333a4bb6d86f43640. Actual order list/detail → same material summary → shared readonly Control Tower → UUID return passed isolated session HTTP and private Chromium. Source78/78, HTTP/CCT/exposure audit19/19, UI7/7 with43 assertions, npm757/757 and quality builds PASS. **SECURITY GATE PENDING / SYNTHETIC UI ACCEPTANCE PENDING**: legacy commercial GET exposure is reproduced, not repaired; default Source capability and production route activation remain disabled. [Full checkpoints, remote receipt, evidence and manual driver](tasks/active/order-material-night-integration.md). Keep Draft; inherited order-material-read-gate1.md 30-line dirty remains unstaged with original hash. No Preview or real-data operation; only owned disposable PG16 was migrated and cleaned.
 
 
 ## Active — PR #91 User Acceptance PASS / GitHub merge authorized (2026-10-11)
