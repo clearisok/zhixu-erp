@@ -27,6 +27,7 @@ import { quoteSnapshotFromBrowser } from "../quotes/model.ts";
 import { runD099ListAcceptance } from "./d099-list-acceptance.mjs";
 import { runD099ImageMemory } from "./d099-image-memory.mjs";
 import { runDirectCreation } from "./direct-creation-ui.mjs";
+import { runSecondAcceptance } from "./pr91-second-acceptance-ui.mjs";
 
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 async function until(read, label) {
@@ -128,6 +129,8 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       if(!originalGet.call(localStorage,'zhixu.erp.local.quotes')) originalSet.call(localStorage,'zhixu.erp.local.quotes','synthetic-old-business-sentinel');
       window.businessAccess=[];
       window.unhandledRejections=[];
+      window.browserErrors=[];
+      window.addEventListener('error', event=>window.browserErrors.push(event.message));
       window.quoteResponses=[];
       window.logResponses=[];
       const originalFetch=window.fetch.bind(window);
@@ -140,7 +143,17 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       window.oldSentinel=()=>originalGet.call(localStorage,'zhixu.erp.local.quotes');
     ` }, sessionId);
     const text = () => evaluate("document.body?.innerText ?? ''");
-    const hasText = async (value) => { try { await until(async () => (await text()).includes(value), value); } catch (error) { throw new Error(`${error.message}; synthetic page: ${await text()}`); } };
+    const hasText = async (value) => {
+      // The user removed the diagnostic version label. Preserve the old CAS
+      // assertions against actual Server readback, not a deleted visual panel.
+      if (value === 'Server 报价' || value.startsWith('Server 报价 · v')) {
+        await until(()=>evaluate("Boolean(document.querySelector('.qc-quote-object-header'))"),'formal detail loaded');
+        const version=Number(value.slice('Server 报价 · v'.length));
+        if(version) await until(()=>evaluate(`fetch('/api/v1/quotes/'+new URLSearchParams(location.search).get('id')).then(r=>r.json()).then(b=>b.quote.version===${version})`),'saved Server version '+version);
+        return;
+      }
+      try { await until(async () => (await text()).includes(value), value); } catch (error) { throw new Error(`${error.message}; synthetic page: ${await text()}`); }
+    };
     const navigate = async (path) => {
       // A same-path hard navigation must wait for the NEW document, not an old
       // document whose path/readyState already matches while unload aborts fetch.
@@ -170,6 +183,23 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     };
     const quoteCount = async () => (await pool.query("SELECT count(*)::int n FROM quote_center_quotes")).rows[0].n;
     const masterCount = async () => (await pool.query("SELECT count(*)::int n FROM quote_master_brands")).rows[0].n;
+
+    const loginAs = async (name) => {
+      await evaluate("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
+      await navigate("/quote-center"); await hasText("登录织序 Server");
+      await input("input[name=username]", `synthetic-ui-${name.toLowerCase()}`);
+      await input("input[name=password]", "disposable-ui-password");
+      await click("登录 Server"); await hasText("本页 25");
+      const trustedPermissions = await evaluate("fetch('/api/v1/auth/permissions').then(r=>r.json()).then(b=>b.permissions)");
+      assert.ok(trustedPermissions.includes("quote.view"), `Synthetic ${name} must have trusted quote.view: ${JSON.stringify(trustedPermissions)}`);
+    };
+    if (process.env.ZHIXU_PR91_SECOND_ACCEPTANCE === '1') {
+      await navigate('/quote-center'); await hasText('登录织序 Server');
+      await input('input[name=username]','synthetic-ui-admin'); await input('input[name=password]','disposable-ui-password'); await click('登录 Server'); await hasText('暂无 Server 报价');
+      await evaluate(`(async()=>{for(let i=0;i<26;i++){const r=await fetch('/api/v1/quotes',{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:'{}'});if(!r.ok)throw Error('Synthetic fixture failed')}})()`);
+      await runSecondAcceptance({ t, pool, requests, navigate, hasText, labelInput, click, action, evaluate, command, sessionId, sleep, until, isolated, loginAs });
+      return;
+    }
 
     if (referenceDirectory) {
       // Render the actual archived PR64 build, not a reconstructed UI or real Browser data.
@@ -354,8 +384,8 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await click("＋ 增加行");
       await input('#quote-section-other-costs input[aria-label$="-名称"]', "Synthetic other cost");
       await input('#quote-section-other-costs input[aria-label$="-单价"]', "0");
-      await click("报价设置"); await hasText("请选择制作预设");
-      assert.equal(await evaluate("document.querySelector('.qc-pricing-settings-modal select').options.length"), 1);
+      await click("报价设置"); await hasText("请先新增制作方案");
+      assert.equal(await evaluate("document.querySelectorAll('.qc-pricing-settings-modal [role=radio]').length"), 0);
       await click("完成");
       await save(2);
       const saved = await record();
@@ -771,15 +801,6 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       }finally{await command("Fetch.disable",{},sessionId);failureStatus=0;}
       assert.deepEqual(await read(),before);await isolated();
     });
-    const loginAs = async (name) => {
-      await evaluate("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
-      await navigate("/quote-center"); await hasText("登录织序 Server");
-      await input("input[name=username]", `synthetic-ui-${name.toLowerCase()}`);
-      await input("input[name=password]", "disposable-ui-password");
-      await click("登录 Server"); await hasText("本页 25");
-      const trustedPermissions = await evaluate("fetch('/api/v1/auth/permissions').then(r=>r.json()).then(b=>b.permissions)");
-      assert.ok(trustedPermissions.includes("quote.view"), `Synthetic ${name} must have trusted quote.view: ${JSON.stringify(trustedPermissions)}`);
-    };
     let permissionQuote, preservedEstimate;
     const assertNoEstimate = async () => {
       const responses = await evaluate("quoteResponses");
@@ -1156,6 +1177,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       }finally{await command('Fetch.disable',{},sessionId);failureStatus=0;}
     });
     await runDirectCreation({ t, pool, requests, navigate, hasText, labelInput, click, evaluate, command, sessionId, sleep, until, isolated, loginAs });
+    await runSecondAcceptance({ t, pool, requests, navigate, hasText, labelInput, click, action, evaluate, command, sessionId, sleep, until, isolated, loginAs });
     await command("Browser.close");
   } finally {
     ws?.close();

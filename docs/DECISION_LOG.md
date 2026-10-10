@@ -23,7 +23,8 @@
 - 日期：2026-10-10；状态：Active。来源：用户 PR #91 Preview 验收修正明确授权；不是新的计算规则。
 - 普通电脑点击“新建报价”即通过可信原子命令创建有编号的草稿，直接进入现有 QuoteEditor；空草稿返回后保留。挂载、刷新、返回及未点击不创建；双击与未知结果使用同一 receipt 核对，不重复 POST。
 - 仅替代 D-101 普通电脑两步向导及“取消/返回零创建”的交互要求；加工材料显示不改公式、历史与 linked 来源保护、主数据/预设校验、无预设待完善及 Intake 未实施边界继续有效。原两步验收保留为历史，不作为新交互 PASS。
-- PostgreSQL 全局设置保存可空默认报价类型、可空默认制作国家及已有默认预设；预设须 active 且国家一致，多预设不自动选首个。未配置类型仅使用明确标注的经销技术回退；无国家/预设不猜汇率、加成、运费。默认变更只影响未来新草稿的独立 PV 和补充项快照。
+- PostgreSQL 全局设置保存可空默认报价类型、可空默认制作国家及已有默认预设；预设须 active 且国家一致，多预设不自动选首个。未配置类型仅使用明确标注的经销技术回退；无国家/预设不猜汇率、加成、运费。默认变更只影响未来新草稿的独立 PV 快照。
+- **第二轮人工反馈确认（同日）**：正式 Server 设置仅“制作方案管理 → 新建报价默认值”；方案代表工厂/标准，可同国多 ID，横向选择明确 ID 并兼容维护国家。移除系统默认费用/工序 UI，停止未来 Server 创建及品牌资料解析中自动套用这些不可见系统值；保留旧字段原始精度、旧 Quote/历史、单据级与品牌/业务员默认费用。此项仅替代 D-089 的 Server System 自动费用回退及旧全局工序继承，不改变 Browser 兼容规则、公式或既有费用。删除详情两块重复摘要，必要加载重试局部保留；列表首次/主动恢复默认铺满，已有偏好不自动改写。用户确认范围，不是新增推测政策。
 - 本轮类型摘要只读；已有类型切换仍 NOT IMPLEMENTED，generic PUT 不开放类型修改。制作参数沿用现有权限及 PV 编辑器；全局保存仍为 settings.global.edit、Bundle CAS/单事务/审计。
 - 工程入口：creation-defaults / creation-receipts、QuoteCreationRecovery、QuoteEditor、GlobalQuoteSettingsPage；新增 forward-only 0011，0001–0010 SQL 不改。本决定不授权18444 migration/更新或自动合并。
 
@@ -150,7 +151,7 @@
 
 ### D-089 默认其他费用按作用域最多一条并作为报价快照复制
 
-- 日期：2026-09-21；状态：Active，用户已确认。本决定取代 D-009 对默认设置 0..N 的旧定义，但不改变 Quote `OtherCostLine` 的 0..N 明细语义。
+- 日期：2026-09-21；状态：Active（Server System 自动回退部分于2026-10-10由 D-102 第二轮确认替代；Browser/品牌/业务员及历史保持）。本决定取代 D-009 对默认设置 0..N 的旧定义，但不改变 Quote `OtherCostLine` 的 0..N 明细语义。
 - System、Brand、CustomerSalesperson 每个作用域最多保存一个 nullable `DefaultOtherCost`；非空对象只包含业务 `name` 和 nullable `amount`。解析优先级保持 CustomerSalesperson > Brand > System。
 - 默认值应用到新 Quote 时必须复制成具有独立身份的 `OtherCostLine` 快照。之后任何作用域的默认设置变化均不得回写已有 Quote；历史 Quote 中已保存的多条 `OtherCostLine` 必须原样保留。
 - 旧版 0..N 全局费用只作为 legacy migration source；沿用现有兼容投影，只取首条 enabled 且 name 或 amount 有效的记录作为新的 `DefaultOtherCost`。该投影不授权修改 Browser 数据，也不把 enabled、note 或旧设置 ID 带入新默认模型。

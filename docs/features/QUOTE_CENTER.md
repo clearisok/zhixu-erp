@@ -4,9 +4,9 @@
 
 新交互使用 POST /api/v1/quotes/creation-defaults，仅接受 clientRequestId；可信 Server 读取设置、审核预设、持久 receipt、原编号/Writer/事务/审计，创建类型及初始 PV 一次完成。列表点击后直达现有详情；空草稿保留。/new 是显式按钮或只读 receipt 恢复页，挂载/刷新不写入。未知结果保留原 token、只核对、不自动 POST。
 
-全局设置新增可空 defaultQuoteType/defaultManufacturingCountry（0011），复用 defaultManufacturingPresetId；旧客户端省略新增字段不清空已配置值。未配置类型有经销技术回退来源标记，其余业务值不猜。新草稿复制有效匹配预设和系统默认补充项；后续设置不回写。详情条类型只读，制作编辑复用现有权限；generic PUT 类型变更拒绝，也不能追加不同于已保存当前类型的客户端 Revision 绕过保护（409 quote_type_workflow_required，草稿及已确认数据/审计保持）。完整已有类型切换未实施。
+全局设置新增可空 defaultQuoteType/defaultManufacturingCountry（0011），复用 defaultManufacturingPresetId；旧客户端省略新增字段不清空已配置值。未配置类型有经销技术回退来源标记，其余业务值不猜。新草稿复制有效匹配方案形成独立 PV 快照；第二轮用户明确取消未来 Server 自动套用系统工序/其他费用，旧字段与已保存费用/历史完整保留。品牌/业务员自身默认费用及单据级编辑不变。类型仅在既有头部展示，制作方案通过正式 PV 报价设置查看；generic PUT 类型变更拒绝，也不能追加不同于已保存当前类型的客户端 Revision 绕过保护（409 quote_type_workflow_required，草稿及已确认数据/审计保持）。完整已有类型切换未实施。
 
-设置 UI 顶部创建默认值/通用计价参数、制作预设主从表单、补充项及保存区；失败/409保留输入，撤销只放弃本页草稿，读失败不显示 Browser demo 默认。settings.global.edit 不变。已单独授权更新18444，指定b7c2080/8538a923与0011运行/数据/实际隔离Chromium验收完成，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**；自动化未点击即时创建按钮或保存业务设置，最终体验由用户确认。[本次部署验收证据](../tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)。不授权18443更新或合并。
+第二轮设置 UI 为制作方案管理 → 新建报价默认值两区，默认及 PV 选择均使用明确 ID 的横向卡片（键盘/触摸），全局标准与当前 PV 快照分开；失败/409保留输入、权限不变。详情移除 Server 资料诊断大区及重复绿色信息条，保存状态留在已有头部；资料失败在基础信息局部显示并可显式重试，绝不回退 Browser。列表首次/显式恢复默认按容器分配真实像素宽度，个人 v1 偏好原样保留；第一次手动宽度调整固定全部列，邻列不受挤压，不改变 Foundation 默认布局或导出字段契约。100px、受保护缩略图、真实分页保留。[本轮证据](../tasks/active/quote-two-step-creation.md#second-user-acceptance-revision-2026-10-10)。上轮b7c2080/8538a923与0011的18444部署验收仍为历史有效证据；本轮无 Preview 更新授权，工程修正不代表部署或用户通过。[上轮部署验收](../tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)。
 
 ## Historical — Desktop two-step Server creation（D-101，D-102替代普通电脑交互）
 

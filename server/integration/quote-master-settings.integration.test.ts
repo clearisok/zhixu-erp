@@ -142,7 +142,7 @@ test("Q3A Quote master/settings foundation uses disposable PostgreSQL 16 only",{
     const settings=await service.updateGlobalSettings(actor.identity,0,{defaultUsdCnyRate:"7.12",defaultMarkupRate:"0",defaultLaborCurrency:"CNY",defaultLaborDescription:"工序",defaultOtherCost:{name:"系统费",amount:"1"},defaultManufacturingPresetId:null});
     assert.equal(settings.defaultMarkupRate,"0");
     let resolved=await service.resolveDefaults(brandId,salespersonId);
-    assert.equal(resolved.usdCnyRate,"0");assert.equal(resolved.markupRate,"0");assert.equal(resolved.laborCurrency,"CNY");assert.equal(resolved.laborDescription,"工序");assert.deepEqual(resolved.otherCost,{name:"检测费",amount:null});assert.equal(resolved.trims.length,1);assert.equal(resolved.source.trims,"salesperson");
+    assert.equal(resolved.usdCnyRate,"0");assert.equal(resolved.markupRate,"0");assert.equal(resolved.laborCurrency,"CNY");assert.equal(resolved.laborDescription,null);assert.deepEqual(resolved.otherCost,{name:"检测费",amount:null});assert.equal(resolved.trims.length,1);assert.equal(resolved.source.trims,"salesperson");
     const person=(await service.getSalesperson(salespersonId))!;
     await service.updateSalesperson(actor.identity,salespersonId,person.version,{name:person.name,brandId,status:"active",defaults:{defaultUsdCnyRate:null,defaultOtherCost:null,defaultTrims:[]}});
     resolved=await service.resolveDefaults(brandId,salespersonId);

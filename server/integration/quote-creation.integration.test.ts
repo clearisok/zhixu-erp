@@ -113,8 +113,12 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
     assert.equal(next.revisions[0].baseInfo.quoteType,"processing");
     assert.equal(next.revisions[0].priceVersions[0].pricingParameters.manufacturingPresetId,preset.id);
     assert.equal(next.revisions[0].priceVersions[0].pricingParameters.usdCnyRate,"7.1234567890123456789");
-    assert.equal(next.revisions[0].priceVersions[0].labor.description,"Synthetic default description");
-    assert.equal(next.revisions[0].priceVersions[0].otherCosts[0].unitPrice,"0");
+    assert.equal(next.revisions[0].priceVersions[0].labor.description,"");
+    assert.ok(next.revisions[0].priceVersions[0].otherCosts.every(line => line.name !== "Synthetic default"), "hidden legacy global supplement must not enter new Server drafts");
+    assert.equal((await masters.getGlobalSettings())?.defaultLaborDescription,"Synthetic default description","legacy setting retained without data cleanup");
+    assert.deepEqual((await masters.getGlobalSettings())?.defaultOtherCost,{name:"Synthetic default",amount:"0"});
+    assert.equal((await masters.resolveDefaults()).laborDescription,null);
+    assert.equal((await masters.resolveDefaults()).otherCost,null,"brand selection must not silently reapply hidden system fees");
     const injected=structuredClone(next);injected.revisions[0].baseInfo.quoteType="distribution";
     await assert.rejects(async()=>createTrustedQuoteService(pool).saveAggregate(actor,injected,1),{code:"quote_type_workflow_required"});
     await assert.rejects(masters.updateGlobalSettings(actor,settings.version,{...settings,defaultManufacturingCountry:"China"}), /country/u);

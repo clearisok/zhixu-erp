@@ -2,11 +2,28 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { normalizeServerListPreferences } from "../list-preferences.ts";
-import { applyPresentedTablePreference, presentedListColumns, presentedMinWidth, presentedTablePreference } from "../list-presentation.ts";
+import { applyPresentedTablePreference, fittedPresentedTablePreference, presentedListColumns, presentedMinWidth, presentedTablePreference } from "../list-presentation.ts";
 import { ServerListCell } from "../../components/server-list-cell.tsx";
 import type { QuoteServerListItem } from "../quote-server-client.ts";
 
 const permissions = ["quote.view", "quote.cost.view"];
+test("first/reset layout fills available space without changing persisted defaults; manual and legacy pixels never refit", () => {
+  const defaults = normalizeServerListPreferences("u", permissions);
+  assert.equal(defaults.widthMode,"fill");
+  for (const container of [1018,1200,1440,1740]) {
+    const fitted = fittedPresentedTablePreference(defaults,container);
+    assert.equal(Object.values(fitted.columnWidths).reduce((a,b)=>a+b,104),container);
+    assert.ok(fitted.columnWidths.type>=100);
+    assert.equal(defaults.columnWidths.styleIdentity,156);
+    const resized=applyPresentedTablePreference(defaults,{...fitted,columnWidths:{...fitted.columnWidths,styleIdentity:100}});
+    assert.equal(resized.widthMode,"manual");
+    assert.deepEqual(fittedPresentedTablePreference(resized,container+300).columnWidths,{...fitted.columnWidths,styleIdentity:100});
+  }
+  const legacy=normalizeServerListPreferences("u",permissions,{...defaults,widthMode:undefined,columnWidths:{...defaults.columnWidths,styleIdentity:100}});
+  assert.equal(legacy.widthMode,"manual");assert.equal(fittedPresentedTablePreference(legacy,1700).columnWidths.styleIdentity,100);
+  const narrow=fittedPresentedTablePreference(defaults,700);
+  assert.ok(Object.values(narrow.columnWidths).reduce((a,b)=>a+b,104)>700,"internal scrolling instead of crushing columns");
+});
 test("style identity floor is 80px while default and saved personal widths remain unchanged", () => {
   const defaults = normalizeServerListPreferences("u", permissions);
   assert.equal(defaults.columnWidths.styleIdentity, 156);

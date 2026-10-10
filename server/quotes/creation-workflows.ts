@@ -78,7 +78,9 @@ async function review(client: PoolClient, actor: TrustedIdentity, input: Creatio
   const configured = parameterConfigurationIsComplete(parameters, sources);
   parameters.configuration = { schemaVersion: 1, status: configured ? "configured" : "incomplete", sources };
   if(defaultCreation){sources.push({field:"quoteType",source:settings?.defaultQuoteType?"accepted_default":"technical_default"});source("manufacturingCountry",input.selection.country?"accepted_default":"unset");}
-  return { versions: { brand: brand?.version ?? null, salesperson: person?.version ?? null, preset: preset?.version ?? null, settings: settings?.version ?? null }, parameters, names: { brand: brand?.name ?? "", salesperson: person?.name ?? "" },...(defaultCreation?{defaults:{laborDescription:settings?.defaultLaborDescription??"",otherCost:settings?.defaultOtherCost??null}}:{}) };
+  // D-102 second acceptance: retain legacy settings, but never silently apply
+  // supplements removed from the formal Server global settings UI.
+  return { versions: { brand: brand?.version ?? null, salesperson: person?.version ?? null, preset: preset?.version ?? null, settings: settings?.version ?? null }, parameters, names: { brand: brand?.name ?? "", salesperson: person?.name ?? "" },...(defaultCreation?{defaults:{laborDescription:"",otherCost:null}}:{}) };
 }
 export function createQuoteCreationService(pool: Pool, identityMode: IdentityMode = "session") {
   return {

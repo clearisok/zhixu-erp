@@ -15,7 +15,7 @@ import { type BusinessColumn, type EstimateColumn } from "../model/quote-busines
 import { listTablePreference, loadServerListPreferences, normalizeServerListPreferences, saveServerListPreferences, type ServerListPreferences } from "../server/list-preferences";
 import { ListFieldSettingsModal } from "./quote-settings-modals";
 import { ServerSummaryModal } from "./server-summary-modal";
-import { applyPresentedTablePreference, presentedListColumns, presentedTablePreference, presentedMinWidth, presentedWidth, presentedWidthKey } from "../server/list-presentation";
+import { applyPresentedTablePreference, presentedListColumns, fittedPresentedTablePreference, presentedMinWidth, presentedWidth, presentedWidthKey } from "../server/list-presentation";
 import { ServerListCell, serverListHeader } from "./server-list-cell";
 import { createListImageLoader } from "../server/list-image-loader";
 
@@ -44,6 +44,15 @@ function ServerList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
+  const tableContainer = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  useEffect(() => {
+    const node = tableContainer.current;
+    if (!node) return;
+    const observer = new ResizeObserver(([entry]) => setContainerWidth(entry.contentRect.width));
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [loading, error]);
   const [selectionMode,setSelectionMode]=useState(false);
   const [selected,setSelected]=useState<Record<string,{version:number;label:string}>>({});
   const [batchBusy,setBatchBusy]=useState(false);
@@ -89,15 +98,21 @@ function ServerList() {
     }).catch((cause) => { if (active) setError(safeError(cause)); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [query, retry, session, columnSignature]);
+  const displayedTable = fittedPresentedTablePreference(preferences, containerWidth, selectionMode ? 160 : 104);
+  const modalWidths = (value: ServerListPreferences) => {
+    const fitted = fittedPresentedTablePreference(value, containerWidth, selectionMode ? 160 : 104);
+    return { ...listTablePreference(value).columnWidths, ...Object.fromEntries(presentedListColumns(value).map(({key}) => [presentedWidthKey(value,key),fitted.columnWidths[key]])) };
+  };
+  const defaults = normalizeServerListPreferences(userId, session.permissions);
   const columns: DataColumn<QuoteServerListItem>[] = [
-    ...(selectionMode?[{key:"select",header:"选择",render:(row:QuoteServerListItem)=><input type="checkbox" aria-label={`选择 ${row.id}`} disabled={batchBusy} checked={Boolean(selected[row.id])} onChange={e=>choose([row],e.target.checked)} />}]:[]),
+    ...(selectionMode?[{key:"select",header:"选择",width:56,minWidth:56,render:(row:QuoteServerListItem)=><input type="checkbox" aria-label={`选择 ${row.id}`} disabled={batchBusy} checked={Boolean(selected[row.id])} onChange={e=>choose([row],e.target.checked)} />}]:[]),
     ...presentedListColumns(preferences).map(({ key, fields }) => {
       const leftSummary = (fields.length === 1 && fields[0] === "quantity") || (fields.length > 1 && fields.every(field => ["fabricCost", "trimCost", "labor"].includes(field)));
       return {
       key, header: serverListHeader(fields),
       className: leftSummary ? "qc-server-left-summary" : undefined,
       minWidth: presentedMinWidth(key, fields),
-      width: presentedWidth(preferences, key),
+      width: displayedTable.columnWidths[key],
       align: (!leftSummary && fields.every(field => ["quantity", "fabricCost", "trimCost", "labor", "garmentPrice", "confirmedLabor", "confirmedGarment"].includes(field)) ? "right" : "left") as "left" | "right",
       render: (row: QuoteServerListItem) => <ServerListCell fields={fields} row={row} imageLoader={imageLoader} />,
     }; }),
@@ -117,14 +132,18 @@ function ServerList() {
       moreFilters={<><FormItem label="报价类型"><select className="qc-control" value={query.type} onChange={(event) => setQuery({ ...query, type: event.target.value, offset: 0 })}><option value="">全部类型</option><option value="distribution">经销</option><option value="processing">加工</option></select></FormItem><FormItem label="报价状态"><select className="qc-control" value={query.status} onChange={(event) => setQuery({ ...query, status: event.target.value, offset: 0 })}><option value="">全部状态</option><option value="draft">草稿</option><option value="quoting">报价中</option><option value="partially_confirmed">部分确认</option><option value="confirmed">已确认</option></select></FormItem></>} />
     {selectionMode && <div className="qc-batch-selection-toolbar qc-server-selection-context"><Button disabled={batchBusy||loading} onClick={()=>choose(rows,true)}>本页全选</Button><Button disabled={batchBusy||!Object.keys(selected).length||!session.hasPermission("quote.export")||!session.hasPermission("quote.cost.view")} onClick={()=>void exportBatch()}>生成客户报价 ZIP</Button><span>已选 {Object.keys(selected).length} / 25 · 支持跨页</span></div>}{batchMessage&&<p role="status">{batchMessage}</p>}
 
-    <ListFieldSettingsModal open={settingsOpen} settings={preferences} tablePreference={listTablePreference(preferences)} defaultVisibleColumns={normalizeServerListPreferences(userId, session.permissions).visibleColumns} defaultColumnWidths={normalizeServerListPreferences(userId, session.permissions).columnWidths} defaultColumnOrder={normalizeServerListPreferences(userId, session.permissions).columnOrder}
+    <ListFieldSettingsModal open={settingsOpen} settings={preferences} tablePreference={{...listTablePreference(preferences),columnWidths:modalWidths(preferences)}} defaultVisibleColumns={defaults.visibleColumns} defaultColumnWidths={modalWidths(defaults)} defaultColumnOrder={defaults.columnOrder}
       getWidthOptions={(draft, order, restored) => {
         const current = { ...(restored ? normalizeServerListPreferences(userId, session.permissions) : draft), visibleColumns: draft.visibleColumns, presentation: restored ? "original" as const : draft.presentation, columnOrder: order as BusinessColumn[] };
         return presentedListColumns(current).map(({ key, fields }) => ({ key: presentedWidthKey(current, key), label: serverListHeader(fields), min: presentedMinWidth(key, fields), width: presentedWidth(current, key) }));
       }}
-      onClose={() => setSettingsOpen(false)} onSave={(next, table, restored) => { persistPreferences({ ...next, presentation: restored ? "original" : preferences.presentation, columnOrder: table.columnOrder as BusinessColumn[], columnWidths: table.columnWidths, groupWidths: Object.fromEntries(Object.entries(table.columnWidths).filter(([key]) => key.startsWith("group."))) }); setSettingsOpen(false); }} />
+      onClose={() => setSettingsOpen(false)} onSave={(next, table, restored, widthEdited) => {
+        const fill = restored && !widthEdited;
+        persistPreferences({ ...next, widthMode: fill ? "fill" : "manual", presentation: restored ? "original" : preferences.presentation, columnOrder: table.columnOrder as BusinessColumn[], columnWidths: fill ? defaults.columnWidths : table.columnWidths, groupWidths: fill ? {} : Object.fromEntries(Object.entries(table.columnWidths).filter(([key]) => key.startsWith("group."))) });
+        setSettingsOpen(false);
+      }} />
     {summaryOpen && <ServerSummaryModal visibleColumns={visibleBusinessColumns} permissions={session.permissions} busy={batchBusy} error={summaryError} onClose={() => { if (!batchBusy) setSummaryOpen(false); }} onGenerate={(columns, mode, estimate) => void exportSummary(columns, mode, estimate)} />}
-    {!session.hasPermission("quote.view") ? <ErrorState permission title="Server HTTP 403 · 需要 quote.view" /> : loading ? <LoadingState label="读取 Server 报价" /> : error ? <ErrorState title="Server 报价不可用" description={error} onRetry={() => setRetry(retry + 1)} /> : <><Card className="qc-list-card"><DataTable layout="fixed" columns={columns} rows={rows} rowKey={(row) => row.id} ariaLabel="报价列表" tablePreference={presentedTablePreference(preferences)} onTablePreferenceChange={next => persistPreferences(applyPresentedTablePreference(preferences, next))} onRowActivate={selectionMode ? undefined : row => router.push(`/quote-center/detail?id=${encodeURIComponent(row.id)}`)} renderRecord={row => <div className="qc-server-quote-record">{selectionMode && <input type="checkbox" aria-label={`选择 ${row.id}`} checked={Boolean(selected[row.id])} disabled={batchBusy} onChange={event => choose([row], event.target.checked)} />}{presentedListColumns(preferences).map(column => <div key={column.key}><small>{serverListHeader(column.fields)}</small><ServerListCell fields={column.fields} row={row} imageLoader={imageLoader} /></div>)}<Button variant="text" onClick={() => router.push(`/quote-center/detail?id=${encodeURIComponent(row.id)}`)}>打开报价 →</Button></div>} emptyTitle="暂无 Server 报价" emptyDescription="用户主动新建后才会出现；旧 Browser 报价不会补入。" /></Card><div className="qc-batch-selection-toolbar"><Button variant="secondary" disabled={batchBusy||!query.offset} onClick={() => setQuery({ ...query, offset: Math.max(0, query.offset - 25) })}>上一页</Button><span>本页 {page?.count} / 总计 {page?.total}</span><Button variant="secondary" disabled={batchBusy||!page || query.offset + page.count >= (page.total ?? 0)} onClick={() => setQuery({ ...query, offset: query.offset + 25 })}>下一页</Button></div></>}
+    {!session.hasPermission("quote.view") ? <ErrorState permission title="Server HTTP 403 · 需要 quote.view" /> : loading ? <LoadingState label="读取 Server 报价" /> : error ? <ErrorState title="Server 报价不可用" description={error} onRetry={() => setRetry(retry + 1)} /> : <><Card className="qc-list-card"><div ref={tableContainer} className="qc-server-table-container"><DataTable layout="fixed" columns={columns} rows={rows} rowKey={(row) => row.id} ariaLabel="报价列表" tablePreference={displayedTable} onTablePreferenceChange={next => persistPreferences(applyPresentedTablePreference(preferences, next))} onRowActivate={selectionMode ? undefined : row => router.push(`/quote-center/detail?id=${encodeURIComponent(row.id)}`)} renderRecord={row => <div className="qc-server-quote-record">{selectionMode && <input type="checkbox" aria-label={`选择 ${row.id}`} checked={Boolean(selected[row.id])} disabled={batchBusy} onChange={event => choose([row], event.target.checked)} />}{presentedListColumns(preferences).map(column => <div key={column.key}><small>{serverListHeader(column.fields)}</small><ServerListCell fields={column.fields} row={row} imageLoader={imageLoader} /></div>)}<Button variant="text" onClick={() => router.push(`/quote-center/detail?id=${encodeURIComponent(row.id)}`)}>打开报价 →</Button></div>} emptyTitle="暂无 Server 报价" emptyDescription="用户主动新建后才会出现；旧 Browser 报价不会补入。" /></div></Card><div className="qc-batch-selection-toolbar"><Button variant="secondary" disabled={batchBusy||!query.offset} onClick={() => setQuery({ ...query, offset: Math.max(0, query.offset - 25) })}>上一页</Button><span>本页 {page?.count} / 总计 {page?.total}</span><Button variant="secondary" disabled={batchBusy||!page || query.offset + page.count >= (page.total ?? 0)} onClick={() => setQuery({ ...query, offset: query.offset + 25 })}>下一页</Button></div></>}
   </PageContainer></AppShell>;
 }
 function ServerNew() {

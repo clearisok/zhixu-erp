@@ -405,7 +405,9 @@ export function createQuoteMasterService(pool: Pool) {
       const activeBrand = brand?.status === "active" ? brand : null;
       const activeSalesperson = salesperson?.status === "active" && salesperson.brandId === activeBrand?.id ? salesperson : null;
       const rate = activeSalesperson?.defaults.defaultUsdCnyRate ?? activeBrand?.defaults.defaultUsdCnyRate ?? system?.defaultUsdCnyRate ?? null;
-      const cost = activeSalesperson?.defaults.defaultOtherCost ?? activeBrand?.defaults.defaultOtherCost ?? system?.defaultOtherCost ?? null;
+      // Explicit brand/person defaults remain; hidden legacy system supplements
+      // must not be reintroduced when a user chooses a brand on a Server draft.
+      const cost = activeSalesperson?.defaults.defaultOtherCost ?? activeBrand?.defaults.defaultOtherCost ?? null;
       const trimOwner = activeSalesperson?.defaults.defaultTrims.length ? "salesperson" : activeBrand?.defaults.defaultTrims.length ? "brand" : null;
       const configs = trimOwner === "salesperson" ? activeSalesperson!.defaults.defaultTrims : trimOwner === "brand" ? activeBrand!.defaults.defaultTrims : [];
       const trims = (await Promise.all(configs.map(async(config)=>{const item=await repository.getTrim(pool,config.trimLibraryItemId);return item?{...config,name:item.name,specification:item.specification,supplier:item.supplier,unit:item.unit,lossRate:config.overrideLossRate??item.defaultLossRate,unitPrice:config.overrideUnitPrice??item.unitPrice}:null;}))).filter((item):item is NonNullable<typeof item>=>item!==null);
@@ -413,7 +415,7 @@ export function createQuoteMasterService(pool: Pool) {
         ? await repository.getPreset(pool, system.defaultManufacturingPresetId)
         : null;
       const manufacturingPreset = referencedManufacturingPreset?.status === "active" ? referencedManufacturingPreset : null;
-      return { usdCnyRate:rate,markupRate:system?.defaultMarkupRate??null,laborCurrency:system?.defaultLaborCurrency??null,laborDescription:system?.defaultLaborDescription??null,otherCost:cost,manufacturingPreset,trims,source:{usdCnyRate:activeSalesperson?.defaults.defaultUsdCnyRate!==null&&activeSalesperson?.defaults.defaultUsdCnyRate!==undefined?"salesperson":activeBrand?.defaults.defaultUsdCnyRate!==null&&activeBrand?.defaults.defaultUsdCnyRate!==undefined?"brand":system?.defaultUsdCnyRate!==null&&system?.defaultUsdCnyRate!==undefined?"system":null,otherCost:activeSalesperson?.defaults.defaultOtherCost?"salesperson":activeBrand?.defaults.defaultOtherCost?"brand":system?.defaultOtherCost?"system":null,trims:trimOwner} };
+      return { usdCnyRate:rate,markupRate:system?.defaultMarkupRate??null,laborCurrency:system?.defaultLaborCurrency??null,laborDescription:null,otherCost:cost,manufacturingPreset,trims,source:{usdCnyRate:activeSalesperson?.defaults.defaultUsdCnyRate!==null&&activeSalesperson?.defaults.defaultUsdCnyRate!==undefined?"salesperson":activeBrand?.defaults.defaultUsdCnyRate!==null&&activeBrand?.defaults.defaultUsdCnyRate!==undefined?"brand":system?.defaultUsdCnyRate!==null&&system?.defaultUsdCnyRate!==undefined?"system":null,otherCost:activeSalesperson?.defaults.defaultOtherCost?"salesperson":activeBrand?.defaults.defaultOtherCost?"brand":null,trims:trimOwner} };
     },
   };
 }

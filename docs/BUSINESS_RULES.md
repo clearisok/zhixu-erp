@@ -12,6 +12,8 @@
 
 普通电脑端现按 D-102 改为点击即创建并保留有编号草稿，使用可信 PostgreSQL 默认类型/国家/预设；参数快照不回写、无预设待完善、历史保护及下列六项不变。旧两步取消零创建仅为历史交互，见 [QUOTE_CENTER](features/QUOTE_CENTER.md)；手机 Intake/转换和已有报价类型切换仍 NOT IMPLEMENTED。以下业务规则未改变，实现子集不代表全部目标完成。
 
+D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不同工厂/标准，同国可多 ID；默认方案显式选择，国家随选中方案兼容维护，无方案不自动 Seed/选首个。正式 Server 全局设置只管理方案、通用计价及新建默认，不再自动复制不可见的系统其他费用/工序说明；旧字段精确值、已有 Quote/PV/历史费用和工序不清理。品牌/客户业务员自身费用默认、单张报价编辑及默认 Browser 行为保持。
+
 以下六项来自用户本轮明确确认；实现状态与技术建议见 [Quote Intake](features/QUOTE_INTAKE.md) 和 [实施契约](tasks/active/quote-intake-v1-implementation-contract.md)。不得把确认规则等同于已上线能力。
 
 - **QI-01 加工显示与计算**：加工报价突出工价与工序；面辅料编辑默认隐藏，但已有数据、ID、价格、数量、来源不删除或清零。现有公式保持不变，UI 隐藏不排除内部材料成本，包含材料的成衣价格不能标成纯加工报价。对外 Excel 计算范围变更须另行确认。
@@ -226,7 +228,7 @@
 
 ### 制作国家与报价预设
 
-- 制作预设是系统级可维护配置，至少包含名称、制作国家、加工币种、成本加成率、是否带运费、运费名称和可空金额；当前 Seed 提供“中国制作（CNY、13%、无运费）”和“柬埔寨制作（USD、5%、带运费）”。
+- 制作预设（正式 UI 称“制作方案”）是系统级可维护配置，至少包含名称、制作国家、加工币种、成本加成率、是否带运费、运费名称和可空金额；名称可代表工厂/标准，同国多套且按独立 ID 选择。Browser 历史 Seed 有中国/柬埔寨示例，正式 Server 空库不自动创建这些方案。
 - `defaultManufacturingPresetId` 只能为空或引用当前 active 制作预设。停用当前 default 必须由 Server 在同一 transaction 自动清空默认关系；重新启用只恢复可选状态，绝不自动恢复 default，必须由用户显式重新选择。默认解析与新 Quote 初始化遇到 inactive reference 时一律按无默认预设处理。
 - 每个 PriceVersion 独立保存预设 ID、预设名称、制作国家、加工币种、USD/CNY 汇率、`markupRate` 与运费策略的完整报价参数快照；同一 Revision 的不同 PriceVersion 可以采用不同制作口径。
 - 应用预设只更新当前 PriceVersion 及其预设专属运费行，不得修改其他 PriceVersion，也不得删除人工费用或其他来源的全局费用。
@@ -243,11 +245,11 @@
 ### 全局费用和个人视图
 
 - System、Brand、CustomerSalesperson 每个作用域最多保存一个 nullable `DefaultOtherCost`；非空默认只包含业务名称和 nullable 金额，不拥有启用状态、备注或 Quote 行身份。
-- 默认优先级为 CustomerSalesperson > Brand > System；应用到新 Quote 时复制为独立 `OtherCostLine` 快照。后续默认设置变化不得回写已有 Quote。
+- 默认费用优先级在 Browser 兼容路径为 CustomerSalesperson > Brand > System；D-102 第二轮正式 Server 只使用 CustomerSalesperson > Brand，不再自动套用隐藏系统费用。应用时复制独立 `OtherCostLine` 快照，后续变化不得回写已有 Quote。
 - 单张 Quote 的 `OtherCostLine` 仍允许 0..N 条；历史 Quote 已保存的多条明细必须原样保留。
 - 旧版 0..N 全局费用只作为 legacy migration source，兼容投影只取首条 enabled 且 name 或 amount 有效的记录作为新 `DefaultOtherCost`。
 - 报价列表字段偏好按 `userId` 隔离，不是系统唯一全局配置。
-- 全局工序说明为一个字符串；未来新报价继承。同步当前默认 Revision 时，若当前说明已单独修改，必须由用户选择保留、应用新说明或取消；历史 Revision 永不修改。
+- 全局工序说明旧字段为一个字符串；Browser 兼容路径未来新报价继承，正式 Server 按 D-102 第二轮不再自动继承。单据级说明编辑保留；旧值和历史 Revision 永不删除或修改。
 
 ### 估算成本
 
@@ -299,7 +301,7 @@
 - 面料名称和辅料名称不唯一；`libraryItem.id` 才是身份依据，同名不同供应商记录允许共存。
 - 供应商当前是字符串，不是独立主数据；建议从面料库和辅料库历史供应商去重生成，并允许自由输入。
 - DefaultTrimConfig 只引用 `trimLibraryItemId`，可覆盖损耗率和单价，不保存本次报价的数量/用量。
-- 默认汇率和默认其他费用优先级：CustomerSalesperson > Brand > System。
+- 默认汇率优先级：CustomerSalesperson > Brand > System。费用在 Browser 兼容路径相同；D-102 第二轮正式 Server 不再回退隐藏 System 费用，仍保留 CustomerSalesperson > Brand。
 - 默认辅料：业务员配置非空时使用整套业务员配置，否则使用品牌配置；两套不自动合并。
 - 非空默认其他费用必须包含业务名称，金额可为 `null` 或明确的数值；`null` 与 `0` 不得混同。
 - 默认辅料应用到报价时读取库记录、应用 override、深复制为新成本行并分配新 `row.id`；用量保持 `null`。

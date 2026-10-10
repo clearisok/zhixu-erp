@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertBanner, AppShell, Button, Card, FormItem, FormShell, MasterDetail, NullableNumberInput, PageContainer, PageHeader, StatusTag, Toast } from "@/components/foundation";
+import { ManufacturingSchemeSelector } from "./manufacturing-scheme-selector";
 import { PermissionButton, usePermissionAuthority, usePermissions } from "@/features/permissions";
 import { createGlobalQuoteSettingsOperationLogs, operationLogRepository } from "@/features/operation-logs";
 import { activeManufacturingPresets, defaultGlobalQuoteSettings, loadGlobalQuoteSettings, saveGlobalQuoteSettings, setManufacturingPresetStatus, type GlobalQuoteSettings, type ManufacturingPreset } from "../model/quote-settings";
@@ -62,14 +63,15 @@ export function GlobalQuoteSettingsPage({ serverController, serverProduction = f
   };
   const updatePreset = (id: string, patch: Partial<ManufacturingPreset>) => setSettings((current) => ({
     ...current,
-    ...(serverController&&id===current.defaultManufacturingPresetId&&patch.country!==undefined&&patch.country!==current.defaultManufacturingCountry?{defaultManufacturingPresetId:null}:{}),
+    ...(serverController&&id===current.defaultManufacturingPresetId&&patch.country!==undefined&&patch.country!==current.defaultManufacturingCountry?{defaultManufacturingPresetId:null,defaultManufacturingCountry:null}:{}),
     manufacturingPresets: current.manufacturingPresets.map((preset) => preset.id === id ? { ...preset, ...patch } : preset),
   }));
   const togglePresetStatus = (id: string) => setSettings((current) => {
     const preset = current.manufacturingPresets.find((item) => item.id === id);
     if (!preset) return current;
     const status = preset.status === "inactive" ? "active" : "inactive";
-    return setManufacturingPresetStatus(current, id, status);
+    const next = setManufacturingPresetStatus(current, id, status);
+    return serverController && current.defaultManufacturingPresetId === id && status === "inactive" ? {...next, defaultManufacturingCountry:null} : next;
   });
   const addPreset = () => {
     const id = serverController ? `server-preset-draft-${crypto.randomUUID()}` : `manufacturing-preset-${Date.now()}`;
@@ -96,20 +98,10 @@ export function GlobalQuoteSettingsPage({ serverController, serverProduction = f
     {error&&<AlertBanner tone="danger" title={serverProduction ? "Server 设置未保存" : "Server candidate 未保存"} actions={serverController&&error.includes("其他用户")?<Button variant="secondary" onClick={()=>void reloadServer()}>重新载入 Server 版本</Button>:undefined}>{error}</AlertBanner>}
     <FormShell className="qc-card qc-system-settings-card" onSubmit={save}>
       <fieldset disabled={!editable || !baseline || saving} className="qc-readonly-fieldset" title={!editable ? "暂无权限，请联系管理员" : undefined}>
+{!serverController && <>
         <section className="qc-system-settings-section">
           <header><span className="qc-section-index">01</span><div><strong>{serverController?"新建报价默认值":"报价默认参数"}</strong><small>作为品牌与客户业务员均未配置时的系统回退值。</small></div></header>
-          {serverController&&<div className="qc-creation-defaults">
-            <div className="qc-system-default-grid">
-              <FormItem label="默认报价类型"><div className="qc-segmented">
-                <button type="button" aria-pressed={settings.defaultQuoteType==="processing"} className={settings.defaultQuoteType==="processing"?"selected":""} onClick={()=>setSettings(current=>({...current,defaultQuoteType:"processing"}))}>加工报价</button>
-                <button type="button" aria-pressed={settings.defaultQuoteType==="distribution"} className={settings.defaultQuoteType==="distribution"?"selected":""} onClick={()=>setSettings(current=>({...current,defaultQuoteType:"distribution"}))}>经销报价</button>
-              </div>{!settings.defaultQuoteType&&<small>未配置；新建仅使用技术回退“经销”，不是已配置默认。</small>}</FormItem>
-              <FormItem label="默认制作国家"><input className="qc-control" list="qc-default-countries" value={settings.defaultManufacturingCountry??""} placeholder="未设置" onChange={event=>setSettings(current=>({...current,defaultManufacturingCountry:event.target.value||null,defaultManufacturingPresetId:null}))}/><datalist id="qc-default-countries">{[...new Set(activeManufacturingPresets(settings).map(p=>p.country))].map(country=><option key={country} value={country}/>)}</datalist></FormItem>
-              <FormItem label="默认制作预设"><select className="qc-control" value={settings.defaultManufacturingPresetId??""} onChange={event=>setSettings(current=>({...current,defaultManufacturingPresetId:event.target.value||null}))}><option value="">无预设 · 参数待完善</option>{activeManufacturingPresets(settings).filter(p=>p.country===settings.defaultManufacturingCountry).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></FormItem>
-            </div>
-            <p className="qc-default-summary">{settings.defaultQuoteType==="processing"?"加工":settings.defaultQuoteType==="distribution"?"经销":"经销（技术回退）"} · {settings.defaultManufacturingCountry||"国家待设置"} · {settings.manufacturingPresets.find(p=>p.id===settings.defaultManufacturingPresetId)?.name||"无预设，参数待完善"}。仅影响以后新建报价。</p>
-            <h3>通用计价参数</h3><small>系统回退参数与用户选定制作预设分别维护；不会推定国家或预设汇率。</small>
-          </div>}
+
           <div className="qc-system-default-grid">
             <FormItem label="系统默认 USD/CNY 汇率"><NullableNumberInput className="qc-control" min="0" value={settings.defaultUsdCnyRate} onValueChange={(defaultUsdCnyRate) => setSettings((current) => ({ ...current, defaultUsdCnyRate }))} /></FormItem>
             <FormItem label="默认成本加成率"><div className="qc-number-suffix qc-control-wrap"><NullableNumberInput className="qc-control" min="0" value={settings.defaultMarkupRate} onValueChange={(defaultMarkupRate) => setSettings((current) => ({ ...current, defaultMarkupRate }))} /><span>%</span></div></FormItem>
@@ -117,12 +109,34 @@ export function GlobalQuoteSettingsPage({ serverController, serverProduction = f
           </div>
         </section>
 
+</>}
         <section className="qc-system-settings-section qc-preset-settings-section">
-          <header><span className="qc-section-index">02</span><div><strong>制作预设管理</strong><small>统一维护制作国家、加工币种、成本加成率与运费；报价明细选择后形成当前价格版本的独立快照。</small></div><Button type="button" variant="secondary" onClick={addPreset}>＋ 新增预设</Button></header>
+          <header><span className="qc-section-index">{serverController ? "01" : "02"}</span><div><strong>制作方案管理</strong><small>按工厂或制作标准维护方案，同一国家可有多个方案；报价选择后形成独立快照。</small></div><Button type="button" variant="secondary" onClick={addPreset}>＋ 新增制作方案</Button></header>
           {!serverController&&<FormItem label="新报价默认预设"><select className="qc-control" value={settings.defaultManufacturingPresetId ?? ""} onChange={(event) => setSettings((current) => ({ ...current, defaultManufacturingPresetId: event.target.value || null }))}><option value="">不使用预设</option>{activeManufacturingPresets(settings).map((preset) => <option key={preset.id} value={preset.id}>{preset.name}</option>)}</select></FormItem>}
-          <MasterDetail className="qc-preset-master-detail" selected={Boolean(selectedPreset)} master={<Card className="qc-preset-master">{settings.manufacturingPresets.map((preset) => <button type="button" key={preset.id} className={preset.id === selectedPreset?.id ? "selected" : ""} onClick={() => setSelectedPresetId(preset.id)}><span><strong>{preset.name}</strong><small>{preset.country || "未填写制作国家"} · {preset.laborCurrency}</small></span>{preset.status === "inactive"&&<StatusTag tone="neutral">停用</StatusTag>}{settings.defaultManufacturingPresetId === preset.id && <StatusTag tone="success">默认</StatusTag>}</button>)}</Card>} detail={selectedPreset ? <Card className="qc-preset-detail"><header><div><strong>{selectedPreset.name}</strong><small>默认仅表示新建时带入；当前预设仍可编辑。</small></div>{settings.defaultManufacturingPresetId === selectedPreset.id && <StatusTag tone="success">新报价默认</StatusTag>}</header><div className="qc-manufacturing-preset-grid"><FormItem label="预设名称" required><input className="qc-control" value={selectedPreset.name} onChange={(event) => updatePreset(selectedPreset.id, { name: event.target.value })} /></FormItem><FormItem label="制作国家" required><input className="qc-control" value={selectedPreset.country} onChange={(event) => updatePreset(selectedPreset.id, { country: event.target.value })} /></FormItem><FormItem label="加工币种"><div className="qc-segmented"><button type="button" className={selectedPreset.laborCurrency === "CNY" ? "selected" : ""} onClick={() => updatePreset(selectedPreset.id, { laborCurrency: "CNY" })}>CNY</button><button type="button" className={selectedPreset.laborCurrency === "USD" ? "selected" : ""} onClick={() => updatePreset(selectedPreset.id, { laborCurrency: "USD" })}>USD</button></div></FormItem><FormItem label="成本加成率"><div className="qc-number-suffix qc-control-wrap"><NullableNumberInput className="qc-control" min="0" value={selectedPreset.markupRate} onValueChange={(markupRate) => updatePreset(selectedPreset.id, { markupRate })} /><span>%</span></div></FormItem><FormItem label="运费策略"><label className="qc-manufacturing-freight-toggle"><input type="checkbox" checked={selectedPreset.includeFreight} onChange={(event) => updatePreset(selectedPreset.id, { includeFreight: event.target.checked })} /><span>默认带出运费项</span></label></FormItem><FormItem label="默认运费名称"><input className="qc-control" disabled={!selectedPreset.includeFreight} value={selectedPreset.freightName} onChange={(event) => updatePreset(selectedPreset.id, { freightName: event.target.value })} /></FormItem><FormItem label="默认运费金额"><div className="qc-number-prefix"><span>¥</span><NullableNumberInput className="qc-control" disabled={!selectedPreset.includeFreight} min="0" value={selectedPreset.freightAmount} onValueChange={(freightAmount) => updatePreset(selectedPreset.id, { freightAmount })} placeholder="允许为空" /></div></FormItem></div><footer><small>修改只影响未来使用的默认值，不会改写已有 QuoteRevision / PriceVersion 快照。</small>{serverController&&<Button type="button" variant="secondary" disabled={selectedPreset.status==="inactive"||!selectedPreset.country.trim()} onClick={()=>setSettings(current=>({...current,defaultManufacturingCountry:selectedPreset.country,defaultManufacturingPresetId:selectedPreset.id}))}>设为默认制作方案</Button>}{serverController?<Button type="button" variant="secondary" onClick={() => togglePresetStatus(selectedPreset.id)}>{selectedPreset.status==="inactive"?"启用预设":"停用预设"}</Button>:<Button type="button" variant="danger" disabled={settings.manufacturingPresets.length <= 1} onClick={() => removePreset(selectedPreset.id)}>删除预设</Button>}</footer></Card> : <Card>暂无制作预设</Card>} />
+          <MasterDetail className="qc-preset-master-detail" selected={Boolean(selectedPreset)} master={<Card className="qc-preset-master">{settings.manufacturingPresets.map((preset) => <button type="button" key={preset.id} className={preset.id === selectedPreset?.id ? "selected" : ""} onClick={() => setSelectedPresetId(preset.id)}><span><strong>{preset.name}</strong><small>{preset.country || "未填写制作国家"} · {preset.laborCurrency}</small></span>{preset.status === "inactive"&&<StatusTag tone="neutral">停用</StatusTag>}{settings.defaultManufacturingPresetId === preset.id && <StatusTag tone="success">默认</StatusTag>}</button>)}</Card>} detail={selectedPreset ? <Card className="qc-preset-detail"><header><div><strong>{selectedPreset.name}</strong><small>默认仅表示新建时带入；当前预设仍可编辑。</small></div>{settings.defaultManufacturingPresetId === selectedPreset.id && <StatusTag tone="success">新报价默认</StatusTag>}</header><div className="qc-manufacturing-preset-grid"><FormItem label="方案名称" required><input className="qc-control" value={selectedPreset.name} onChange={(event) => updatePreset(selectedPreset.id, { name: event.target.value })} /></FormItem><FormItem label="制作国家" required><input className="qc-control" value={selectedPreset.country} onChange={(event) => updatePreset(selectedPreset.id, { country: event.target.value })} /></FormItem><FormItem label="加工币种"><div className="qc-segmented"><button type="button" className={selectedPreset.laborCurrency === "CNY" ? "selected" : ""} onClick={() => updatePreset(selectedPreset.id, { laborCurrency: "CNY" })}>CNY</button><button type="button" className={selectedPreset.laborCurrency === "USD" ? "selected" : ""} onClick={() => updatePreset(selectedPreset.id, { laborCurrency: "USD" })}>USD</button></div></FormItem><FormItem label="成本加成率"><div className="qc-number-suffix qc-control-wrap"><NullableNumberInput className="qc-control" min="0" value={selectedPreset.markupRate} onValueChange={(markupRate) => updatePreset(selectedPreset.id, { markupRate })} /><span>%</span></div></FormItem><FormItem label="运费策略"><label className="qc-manufacturing-freight-toggle"><input type="checkbox" checked={selectedPreset.includeFreight} onChange={(event) => updatePreset(selectedPreset.id, { includeFreight: event.target.checked })} /><span>默认带出运费项</span></label></FormItem><FormItem label="默认运费名称"><input className="qc-control" disabled={!selectedPreset.includeFreight} value={selectedPreset.freightName} onChange={(event) => updatePreset(selectedPreset.id, { freightName: event.target.value })} /></FormItem><FormItem label="默认运费金额"><div className="qc-number-prefix"><span>¥</span><NullableNumberInput className="qc-control" disabled={!selectedPreset.includeFreight} min="0" value={selectedPreset.freightAmount} onValueChange={(freightAmount) => updatePreset(selectedPreset.id, { freightAmount })} placeholder="允许为空" /></div></FormItem></div><footer><small>修改只影响未来使用的默认值，不会改写已有 QuoteRevision / PriceVersion 快照。</small>{serverController&&<Button type="button" variant="secondary" disabled={selectedPreset.status==="inactive"||!selectedPreset.country.trim()} onClick={()=>setSettings(current=>({...current,defaultManufacturingCountry:selectedPreset.country,defaultManufacturingPresetId:selectedPreset.id}))}>设为默认制作方案</Button>}{serverController?<Button type="button" variant="secondary" onClick={() => togglePresetStatus(selectedPreset.id)}>{selectedPreset.status==="inactive"?"启用方案":"停用方案"}</Button>:<Button type="button" variant="danger" disabled={settings.manufacturingPresets.length <= 1} onClick={() => removePreset(selectedPreset.id)}>删除预设</Button>}</footer></Card> : <Card>尚无制作方案，请先新增制作方案</Card>} />
+          {serverController && <div className="qc-general-pricing"><h3>通用计价参数</h3><small>系统 USD/CNY 汇率等通用参数独立维护，不作为工厂专属汇率。</small>
+          <div className="qc-system-default-grid">
+            <FormItem label="系统默认 USD/CNY 汇率"><NullableNumberInput className="qc-control" min="0" value={settings.defaultUsdCnyRate} onValueChange={(defaultUsdCnyRate) => setSettings((current) => ({ ...current, defaultUsdCnyRate }))} /></FormItem>
+            <FormItem label="默认成本加成率"><div className="qc-number-suffix qc-control-wrap"><NullableNumberInput className="qc-control" min="0" value={settings.defaultMarkupRate} onValueChange={(defaultMarkupRate) => setSettings((current) => ({ ...current, defaultMarkupRate }))} /><span>%</span></div></FormItem>
+            <FormItem label="默认加工币种"><div className="qc-segmented"><button type="button" className={settings.defaultLaborCurrency === "CNY" ? "selected" : ""} onClick={() => setSettings((current) => ({ ...current, defaultLaborCurrency: "CNY" }))}>CNY / 件</button><button type="button" className={settings.defaultLaborCurrency === "USD" ? "selected" : ""} onClick={() => setSettings((current) => ({ ...current, defaultLaborCurrency: "USD" }))}>USD / 件</button></div></FormItem>
+          </div>
+          </div>}
         </section>
 
+        {serverController && <section className="qc-system-settings-section qc-new-quote-defaults">
+          <header><span className="qc-section-index">02</span><div><strong>新建报价默认值</strong><small>仅影响以后新建报价，不回写已有报价及历史快照。</small></div></header>
+          <FormItem label="默认报价类型"><div className="qc-segmented qc-default-type">
+            <button type="button" aria-pressed={settings.defaultQuoteType==="processing"} className={settings.defaultQuoteType==="processing"?"selected":""} onClick={()=>setSettings(current=>({...current,defaultQuoteType:"processing"}))}>加工报价</button>
+            <button type="button" aria-pressed={settings.defaultQuoteType==="distribution"} className={settings.defaultQuoteType==="distribution"?"selected":""} onClick={()=>setSettings(current=>({...current,defaultQuoteType:"distribution"}))}>经销报价</button>
+          </div>{!settings.defaultQuoteType&&<small>未配置；新建仅使用技术回退“经销”，不是已配置默认。</small>}</FormItem>
+          <div><h3>默认制作方案</h3><ManufacturingSchemeSelector presets={settings.manufacturingPresets} value={settings.defaultManufacturingPresetId} label="默认制作方案" allowNone onChange={id=>{
+            const preset=settings.manufacturingPresets.find(p=>p.id===id&&p.status!=="inactive");
+            setSettings(current=>({...current,defaultManufacturingPresetId:preset?.id??null,defaultManufacturingCountry:preset?.country??null}));
+          }}/></div>
+          <p className="qc-default-summary">{settings.defaultQuoteType==="processing"?"加工":settings.defaultQuoteType==="distribution"?"经销":"经销（技术回退）"} · {settings.manufacturingPresets.find(p=>p.id===settings.defaultManufacturingPresetId)?.name||"未选择制作方案"} · {settings.defaultManufacturingCountry||"国家待设置"}。未配置参数保持待完善。</p>
+        </section>}
+
+{!serverController && <>
         <section className="qc-system-settings-section">
           <header><span className="qc-section-index">03</span><div><strong>默认补充项</strong><small>只在新建报价时形成一条费用快照，不会回写任何已有报价。</small></div></header>
           <div className="qc-system-default-grid">
@@ -132,6 +146,7 @@ export function GlobalQuoteSettingsPage({ serverController, serverProduction = f
 
           <FormItem label="默认工序说明"><textarea className="qc-control qc-global-labor-description" value={settings.defaultLaborDescription} onChange={(event) => setSettings((current) => ({ ...current, defaultLaborDescription: event.target.value }))} placeholder="例如：裁剪、车缝、整烫、质检包装" /></FormItem>
         </section>
+</>}
       </fieldset>
       <footer className="qc-system-settings-actions"><small>{dirty?"有未保存修改 · ":""}保存不会修改现有 Quote 或历史 QuoteRevision。</small><Button type="button" variant="secondary" disabled={!dirty||saving} onClick={()=>{if(baseline&&window.confirm("仅放弃本页未保存修改？")){setSettings(baseline);setError("");}}}>撤销本页修改</Button><PermissionButton permission="settings.global.edit" disabled={!baseline||saving} type="submit">保存报价设置</PermissionButton></footer>
     </FormShell>

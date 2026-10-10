@@ -139,8 +139,8 @@ test("常规 Header 保留价格摘要，Sticky 收敛为对象、版本与保�
 
 test("报价设置只允许选择当前 PriceVersion 制作预设，其余参数只读展示", async () => {
   const settings = await read("features/quote-center/components/quote-pricing-settings.tsx");
-  assert.match(settings, /只负责选择当前价格版本/);
-  assert.match(settings, /<select[^>]+disabled=\{readOnly\}/);
+  assert.match(settings, /为当前价格版本[\s\S]*选择制作方案/);
+  assert.match(settings, /<ManufacturingSchemeSelector[\s\S]*disabled=\{readOnly\}/);
   assert.match(settings, /qc-pricing-preset-summary/);
   assert.match(settings, /制作国家[\s\S]*加工币种[\s\S]*成本加成率[\s\S]*运费规则/);
   assert.doesNotMatch(settings, /NullableNumberInput|setPricing|onRevisionChange|制作国家[^\n]*<input/);
