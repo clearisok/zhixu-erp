@@ -1,0 +1,3 @@
+/* Test-environment marker only; does not occupy or intercept the original UI. */
+.order-integration-synthetic-notice { position: fixed; z-index: 1000; top: 22px; left: 50%; transform: translateX(-50%); padding: 3px 8px; border-radius: 3px; background: #fff4d8; color: #76694f; font-size: 10px; pointer-events: none; }
+@media (max-width: 599px) { .order-integration-synthetic-notice { top: 18px; right: 70px; left: auto; transform: none; } }

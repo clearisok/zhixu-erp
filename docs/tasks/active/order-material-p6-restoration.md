@@ -33,3 +33,15 @@ Initial detail run checked hidden content height and failed because Chromium kee
 Fixed only scoped display rules: bind original named header areas, reset two-column formal color table minimum width, add summary padding/disclosure arrow. Synthetic preview notice now floats outside layout, so it neither hides behind fixed sidebar nor creates an extra page scroller. Real final browser7/7,104assertions,0skipped; desktop overview3columns/mobile1, return/identity rectangles never overlap, both color columns fit, technical fields actually hidden/default and readable/expanded. Typecheck/lint0warnings PASS; full npm757/757 was run this round and remains recorded separately from the subsequent minor display fix.
 
 Desktop and390 detail screenshots now visually checked after the fix. **USER UI ACCEPTANCE PENDING**; no claim that user has approved them. Material display changes are isolated in the following Gate3 checkpoint.
+
+## Gate 3 — 原 Control Tower 展示恢复
+
+Gate2 本地 checkpoint `1164663d6fbadfca21159a5c2216a2b0216a470b` 已保存；当次 push 遇到 TLS close_notify，随后唯一只读核实显示远端仍为 `2e0960cd79b64d91591a3a58a533f144528fbfe3`，因此如实记为 REMOTE PENDING。继续同一已验证基线的独立本地阶段，无 force/reset/rebase。
+
+仅调整 Server 专属展示：原 Control Tower 搜索框不再保留 Browser 排期控件的空列；物料组标题、展开明细标题使用原页面字体和留白；合同替代默认大段 UUID 说明。原共用 MaterialReadCard/Table、分组/颜色规格、采购/入库/出运/出库事件、投影与状态算法保持原实现，固定 UUID 返回不变。Server 分支继续不挂载 Browser 导入、人工排期或写入。
+
+合成数据标识移到隔离预览页头的空白位置，独立 preview.css 只控制该标识，不覆盖正式组件样式。移动端实际滚动到页面底部，技术详情入口完整可见且不被标识遮挡；采购明细通过表格内部横向滚动读取单价和金额，页面本身不横向溢出。
+
+最终实际组件 Chromium：**7/7，115 断言，0 skipped**。含三个宽度的 CSS/computed styles、列表唯一性、网格/折叠可见性、标题非重叠、搜索区域、金额可读、UUID 返回、账号切换隔离、未连接、摘要/详情一致性、GET-only、无 CCT/Quote 请求、无 Browser 业务存储/IndexedDB、无非隔离来源请求或 JS 异常。新增断言未移除既有业务和安全断言。
+
+已检查最终桌面/移动截图，明确与此前被否决的截图区分。**USER UI ACCEPTANCE PENDING**；截图结构与 computed-style 检查不是用户批准。详见 [截图及 P6 要求逐项对照](evidence/order-material-p6-restoration/README.md)。

@@ -165,3 +165,12 @@
 .sp-server-summary { display:grid; gap:10px; grid-template-columns:1fr 1fr; }
 .sp-server-summary section { display:grid; gap:6px; }
 @media(max-width:640px) { .sp-server-summary { grid-template-columns:1fr; } .sp-server-material .sp-v4-detail-table { min-width:680px; } .sp-server-material .sp-v4-material-head { flex-wrap:wrap; } }
+
+/* Source-only display reuses Control Tower shells with no empty planner columns. */
+.sp-server-material .sp-v4-filter { grid-template-columns: minmax(240px, 1fr) auto; }
+.sp-server-material .sp-v4-material-head { grid-template-columns: minmax(0, 1fr) auto; }
+.sp-server-material .sp-v4-material-body section > h3 { margin: 13px 15px 8px; color: #254038; font-size: 15px; }
+.sp-server-material .sp-v4-material-body section > h4 { margin: 12px 15px 8px; color: #40544c; font-size: 12px; }
+@media (max-width: 600px) {
+  .sp-server-material .sp-v4-filter { grid-template-columns: 1fr; }
+}

@@ -81,6 +81,13 @@
     "overflow": false
   },
   {
+    "page": "material",
+    "width": 1440,
+    "headerOverlap": false,
+    "inputRatio": 0.8601725377426312,
+    "pageDisplay": "grid"
+  },
+  {
     "page": {
       "display": "grid",
       "direction": "row",
@@ -162,6 +169,13 @@
     "overflow": false
   },
   {
+    "page": "material",
+    "width": 1280,
+    "headerOverlap": false,
+    "inputRatio": 0.8392168268936379,
+    "pageDisplay": "grid"
+  },
+  {
     "page": {
       "display": "grid",
       "direction": "row",
@@ -221,5 +235,12 @@
     "technicalVisible": false,
     "hasSizeNotice": true,
     "overflow": false
+  },
+  {
+    "page": "material",
+    "width": 390,
+    "headerOverlap": false,
+    "inputRatio": 0.9508196721311475,
+    "pageDisplay": "grid"
   }
 ]
