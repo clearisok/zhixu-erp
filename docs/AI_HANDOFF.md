@@ -1,5 +1,9 @@
 # AI handoff
 
+## Active — PR93 commercial RBAC continuation (2026-10-11)
+
+User-approved four independent commercial sale/labor view/edit permissions. Resumed clean `fix/commercial-amount-read-security` / local and GitHub `ed91bc18596202641ea8497068d4a180f2f200a5`; prior REMOTE PENDING is recovered by the user's push, historical record below retained. Gate1 adds the catalog and idempotent grants to the existing trusted `role-server-admin` during catalog synchronization; new bootstrap already grants the catalog. No other role inherits commercial access. Disposable PG/actual session permission refresh and guarded RBAC regressions **10/10 PASS**. No schema/migration or actual role/database changes. Server role-management UI/API remains absent; Browser management is not an authorization interface. CCT endpoint projection/PATCH and whole read-surface protection are the next gates; not yet SECURITY PASS. Same Draft PR93, no PR92/UI or runtime operations.
+
 ## Active — 独立商业金额安全修复 / PR93 Draft / REMOTE PENDING（2026-10-11）
 
 LOCAL ENGINEERING PASS：源码195f6b73e99935b7823c723c8032dfa03c8c139c；TLS两种进程级传输push失败且停止重试，exact remote3b8f3836b2d77f8a20e6c085403c659f41c4cee9。[唯一PR93](https://github.com/clearisok/zhixu-erp/pull/93)已创建Draft，Gate2/3未送达、不建议合并；恢复四条命令见任务报告。A 原工作树干净，从最新 main fcf36e5eab6c78254f808c1cba38f3a63a66d4f8 建立 fix/commercial-amount-read-security。Gate0实际合成 session HTTP4/4复现三路径；现 Quote成本 allowlist+metadata-only保存/日志/no-store已修复，最终定向43/43、PG179/179、npm679/679及typecheck/lint/串行构建通过（CCT投影3项仅独立测试；两条HTTP泄露断言仍证明问题存在），按既有 quote.cost.view，销售价/工价四键（commercial.sale.view/edit、commercial.labor.view/edit）及管理员拥有/其他默认无、独立 PATCH 方案已记录，独立可注入投影默认deny且3/3通过；新权限与角色尚待用户批准，CCT SECURITY PENDING。用户明确 PR92 订单 UI 已人工验收 PASS，仍 Draft；本任务不修改 B 工作树/UI，不合并其代码。真实环境/凭据/数据库/0010/0011不操作。[安全任务报告](tasks/active/commercial-amount-read-security.md)。
