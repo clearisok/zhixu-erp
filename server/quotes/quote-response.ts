@@ -3,6 +3,7 @@ import type { TrustedIdentity } from "../auth/session.js";
 
 type Revision=ServerQuote["revisions"][number];
 type Price=Revision["priceVersions"][number];
+const attachmentReference = (ref: NonNullable<Revision["garmentMedia"]>[number]) => ({ id: ref.id, fileName: ref.fileName, fileType: ref.fileType, url: ref.url });
 export type QuoteContent=Omit<ServerQuote,"activeEstimateCost"|"estimateCostHistory">;
 export type CostRestrictedPrice=Pick<Price,"id"|"name"|"quantity"|"description">;
 export type CostRestrictedRevision=Omit<Revision,"priceVersions"> & {priceVersions:CostRestrictedPrice[]};
@@ -26,7 +27,7 @@ export function costRestrictedQuote(quote:ServerQuote):CostRestrictedQuote {
     fabricLeadDate:r.baseInfo.fabricLeadDate,garmentLeadDate:r.baseInfo.garmentLeadDate,note:r.baseInfo.note},
    priceVersions:r.priceVersions.map(p=>({id:p.id,name:p.name,quantity:p.quantity,description:p.description})),
    imageAttachmentIds:[...r.imageAttachmentIds],fileAttachmentIds:[...r.fileAttachmentIds],styleImageAttachmentId:r.styleImageAttachmentId,
-   ...(r.garmentMedia?{garmentMedia:structuredClone(r.garmentMedia)}:{}),...(r.quoteDocuments?{quoteDocuments:structuredClone(r.quoteDocuments)}:{}),
+   ...(r.garmentMedia?{garmentMedia:r.garmentMedia.map(attachmentReference)}:{}),...(r.quoteDocuments?{quoteDocuments:r.quoteDocuments.map(attachmentReference)}:{}),
    confirmationSummary:{confirmedCount:r.confirmationSummary.confirmedCount,totalCount:r.confirmationSummary.totalCount},
   })),
  };

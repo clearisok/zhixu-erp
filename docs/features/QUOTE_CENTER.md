@@ -1,5 +1,9 @@
 # Quote Center
 
+## Quote内部成本读取修复（2026-10-11，独立安全工程）
+
+Server Quote响应先执行既有 quote.cost.view字段白名单：无权仍可查看基础资料/版本/数量，明确costVisibility restricted；完整成本行/参数/确认金额及Estimate不进入DTO，Estimate另需estimate.view。受限metadata-only保存恢复DB保护切片，旧历史/CAS/审计不变，禁止以缺失DTO清空；基础资料消费者不挂完整成本Editor/计算器。原有权Editor、物料采购来源共享金额与报价创建编号不变。详细契约见[权限](PERMISSIONS.md)及[本轮43/43、PG179/179安全报告](../tasks/active/commercial-amount-read-security.md)。两个CCT GET仍存在销售价/工价独立权限缺口，SECURITY PENDING；独立投影仅准备，未部署/迁移/新角色授权。
+
 > 2026-10-11：用户已明确确认 PR #91 人工验收 PASS 并授权合并。18444 的第二轮部署验收与 2026-10-10 历史 PENDING 记录保留；本次只批准 GitHub 合并，不是新的 Preview/生产部署授权。按报价日期生效的汇率政策及受控批量更新尚未实施，属于后续独立功能。
 
 ## 普通电脑立即创建（D-102，PR #91 验收修正）

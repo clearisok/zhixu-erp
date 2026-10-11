@@ -51,3 +51,38 @@ PATCH 建议保留 route 基础权限（Quote quote.view+quote.confirm、Order o
 保持 D-084/D-087：terms expectedVersion、Quote expectedQuoteVersion、锁顺序、精确 NUMERIC、linked qualifier 由原 Quote PV 所有、unlinked Order 明确 CNY/USD、共享 current、不可变历史、append-only OperationLog/可信 actor 与同事务回滚。金额变更审计在 DB 保留 old/new，审计响应也按各字段读权限裁剪。两个已暴露 CCT GET/PATCH 和 CCT 日志目前没有接入这个方案，必须继续标 SECURITY PENDING。
 
 准备代码 `server/confirmed-commercial-terms/read-projection.ts` 是独立可注入 factory，默认 sale/labor 均 deny；没有客户端可传权限参数、没有任何 endpoint 调用。确定性3/3测试覆盖不同字段独立授权、Quote/Order same identity/current、linked/unlinked、null/zero/精确小数和输入不变；不把此测试当成现有 HTTP 已安全。
+## Gate3 — 最终验证与集成边界
+
+本轮最终代码补强：兼容 garmentMedia/quoteDocuments 也仅返回 id/fileName/fileType/url；一个合成扩展金额测试先实际失败，再修复通过。受限保存保留 DB 中未返回的 BaseInfo/附件扩展元数据，不以 DTO 缺失清空；标量属性中的对象注入拒绝。原 Quote 成本、历史和 Estimate 精确保存/CAS/审计规则保持。
+
+| 本轮实际执行 | 结果与范围 |
+| --- | --- |
+| Gate0 实际 session HTTP 漏洞复现 | 初始4/4；确认三条泄露路径，不代表安全 |
+| 最终 Quote 安全/原 API/日志/客户端 + 独立 CCT 投影 | 43/43、0 skipped；包括两条仍存在的 CCT 泄露断言，只有成本路径已由负向断言证明修复 |
+| linked CCT/Quote confirmation/Excel/ZIP/internal-summary/全部 Server client 定向回归 | 121/121、0 skipped；补强前执行，补强后受影响投影/保存已含在43项中 |
+| npm run test:postgres | 179/179、0 skipped；随机 PG16/tmpfs/dynamic loopback，临时对象存储仅为 disposable MinIO；无真实业务库或 COS |
+| npm test | 679/679、0 skipped |
+| npm run typecheck / npm run lint | PASS / PASS |
+| npm run server:build → npm run build | 串行 PASS；41 routes，现有大于500kB chunk提示保留 |
+| git diff --check / owned PG cleanup | PASS；最终按 zhixu-pg-it- 名称只读检查无残留容器，无全局清理 |
+
+完整 PG 首次166/173、7个失败（含父测试失败）：三处账本断言漏了 main 已发布0011，附件 full-save 测试身份无 quote.cost.view。仅补齐断言与该合成 full actor 的既有读权限；普通 viewer/denied 不增加权限，0010/0011 SQL/schema/目录不改。修正后整套179/179；不把首次失败隐藏或当成新 migration 实施。
+
+### Git 与网络记录
+
+- 起始可验证 main 与结束 GitHub connector compare 均为 fcf36e5eab6c78254f808c1cba38f3a63a66d4f8；结束 git fetch 因 schannel missing close_notify 失败，没有 reset/rebase 或改共享代理/TLS设置。connector 比较 main 与 baseline 为 identical（ahead/behind均0）。
+- Gate0 checkpoint12ecb07e01e1c21211470cd42a84ced2dd7beb62、Gate1 checkpoint3b8f3836b2d77f8a20e6c085403c659f41c4cee9已正常 push。
+- Gate2 checkpoint1b29725a7b4bb7c398ba88be629a613bbcc15896正常 push遭相同TLS错误，一次只读核实远端仍3b8f383；之后继续独立已验证本地阶段。最终 Gate3另建 checkpoint，正常 push 后按 exact SHA核实；最终交付状态以安全PR与当次报告为准，不冒称此前失败已送达。
+- PR92最新03b1078e99ff44ceb875dd0b01a1e22358f4dab6 / OPEN Draft；用户本轮明确2026-10-11 HUMAN UI ACCEPTANCE PASS。其旧PR正文仍含当时 PENDING/REMOTE PENDING，不能用旧正文覆盖用户确认或当前head。未编辑B工作树或PR92。
+
+### 与 PR92 的影响
+
+本安全分支从 main 独立实施。共享文件交集为 docs/AI_HANDOFF.md、docs/CURRENT_STATE.md、server/app.ts、server/integration/confirmed-commercial-terms.integration.test.ts；前三项需后续人工保留双方恢复点及可选物料route边界，最后账本补0011是同一基线修正。PR92业务UI/CSS/Material投影和已认可截图不在本分支。没有把其77个changed-files合入。
+
+PR92的现有 known-exposure 审计中 Quote成本读取应在安全PR合并后的集成Gate改成负向；CCT两条正向复现仍应标 SECURITY PENDING。Material响应的采购来源价格继续团队共享，与本次 Quote内部成本保护无冲突。QuoteResponse新增 restricted union，所有未来 full Editor/导出/缓存消费者必须守卫；不得补零或伪造完整DTO。正式 Order/CCT response目前没有改变，下一Gate在批准独立商业键后统一接线，避免将 quote.cost.view当成销售价/工价授权。
+
+### 未完成/待批准
+
+本轮无新 schema/migration、权限目录键、角色默认授权或配置API。没有部署、业务数据写入、艾诺科/COS访问，18443/18444保持未操作；采购来源/报价编号/正式订单来源/shared CCT writer/CAS/历史所有权不变。
+
+**QUOTE COST READ FIX ENGINEERING PASS / CCT SECURITY PENDING。** 建议先审查独立成本安全PR；不是整个系统安全通过，也不授权PR92生产激活。等待用户批准 Gate2四键、管理员/普通角色默认配置、字段envelope、当前/历史/日志/导出覆盖范围与PATCH的view+edit/省略保留规则后，再独立实施销售价/工价权限接线。一般订单/company可见范围仍需单独可信范围审查，不由字段投影解决。

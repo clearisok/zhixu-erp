@@ -33,3 +33,20 @@ test("restricted client sends metadata only, no visibility authority; no-store a
   const read=await client.getById(projected.quote.id);assert.ok(read.costVisibility==="restricted");await client.save(read.quote,read.version);assert.equal(calls,2);
  }finally{if(original)Object.defineProperty(globalThis,"window",original);else Reflect.deleteProperty(globalThis,"window");}
 });
+test("legacy attachment extension costs are restricted and retained on a metadata save", () => {
+  const record = full();
+  const revision = record.quote.revisions.at(-1)!;
+  revision.garmentMedia = [{ id: "legacy-image", fileName: "style.png", fileType: "image/png", url: "https://synthetic.invalid/style.png" }];
+  Object.assign(revision.garmentMedia[0], { internalPricing: { amount: "SECRET-ATTACHMENT-COST" } });
+  Object.assign(revision.baseInfo, { futureInternalCost: "SECRET-BASEINFO-COST" });
+  const view = costRestrictedQuote(record.quote);
+  assert.equal(JSON.stringify(view).includes("SECRET-ATTACHMENT-COST"), false);
+  assert.equal(JSON.stringify(view).includes("SECRET-BASEINFO-COST"), false);
+  view.revisions.at(-1)!.baseInfo.styleName = "NEW-METADATA";
+  const next = restoreRestrictedQuoteCosts(view, record.quote);
+  assert.deepEqual(next.revisions.at(-1)!.garmentMedia, revision.garmentMedia);
+  assert.equal((next.revisions.at(-1)!.baseInfo as unknown as Record<string, unknown>).futureInternalCost, "SECRET-BASEINFO-COST");
+  const malformed = structuredClone(view);
+  Object.assign(malformed.revisions.at(-1)!.baseInfo, { styleName: { labor: { value: "INJECTED" } } });
+  assert.throws(() => restoreRestrictedQuoteCosts(malformed, record.quote), /metadata is invalid/);
+});
