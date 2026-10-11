@@ -2,11 +2,11 @@
 
 ## 当前 — PR93 独立商业金额权限（2026-10-11）
 
-分支 fix/commercial-amount-read-security；本轮 clean local/origin/PR93 基线5185d776e54bdd3b328d1611d8283f00e16fcd92。用户最终决定已补入D-103：测算销售价/最终报价必须sale.view，cost.view单独只看内部成本，列表garmentPrice仍需两者。六处展示及estimateDifference汇总/派生日志已保护。实际完整PG/HTTP261/261、auth/frontend90/90、npm680/680 PASS；SSR/最终Chromium及质量结果待本轮最终收口，不沿用此前13/13。无布局/公式/历史/SQL改动，无部署，PR93保持Draft等待最终审查。
+分支 fix/commercial-amount-read-security；本轮 clean local/origin/PR93 基线5185d776e54bdd3b328d1611d8283f00e16fcd92，实现checkpoint84f8a38。用户最终决定已补入D-103：测算销售价/最终报价必须sale.view，cost.view单独只看内部成本，列表garmentPrice仍需两者。六处展示及estimateDifference汇总/派生日志已保护。本轮实际PG/HTTP261/261、auth/frontend90/90、npm680/680、最终Chromium14/14、额外SSR/列表/HTTP18/18及typecheck/lint/Server和两种frontend构建/diff-check PASS。最终默认browser/browser/writable/session；不是不可变候选或真实部署。无新增安全阻塞、布局/公式/历史/SQL改动，PR93保持Draft等待最终审查，不自动ready/merge。
 
 字段投影/部分PATCH、隐藏历史保护/安全保存、导出/日志/客户端隔离保持。linked CCT工价单字段PATCH通过；加工旧完整confirmation.save仍要求两套商业授权，不擅改完整确认语义。Server管理员目录升级幂等授予；其他角色不默认授予。Server角色管理UI/API仍未实现。无schema/migration/真实数据变更。PR92 head03b1078仅5文件交集；后续保留executionOnly/P6/物料/UUID，同时接金额投影/部分PATCH，人工逐hunk整合并补两模式回归，本轮没有合入B代码。
 
-Gate1 97a3f21 push曾遇Schannel missing-close-notify，一次只读确认当时远端ed91bc1；Gate2/3本地720de05128e59be4f9522ff1327d583981f45a8d。最终远端交付以本轮工具核实/PR正文为准，不沿用旧REMOTE PENDING或冒称推送成功。完整阶段历史、失败修正、范围和测试见[安全报告](tasks/active/commercial-amount-read-security.md)。18443/18444/真实DB/COS不操作，不合并。
+本轮84f8a38199b7962a0adce29a83b792318a623337实现push遇Schannel missing-close-notify；一次只读GitHub branch ref核实仍5185d776e54bdd3b328d1611d8283f00e16fcd92。LOCAL ENGINEERING PASS，REMOTE DELIVERY尚待最终文档checkpoint正常push及exact核实；不得把本地新测试/代码冒称已送达。旧97a3f21/720de05网络历史保留在[安全报告](tasks/active/commercial-amount-read-security.md)。18443/18444/真实DB/COS不操作，不合并。
 
 ## Historical recovery — PR #91 accepted and now MERGED (2026-10-11)
 

@@ -11,6 +11,14 @@
 - 合成浏览器使用全新 profile、disposable PG、MemoryAttachmentStorage，实际 Quote 构建和原 Order 组件；Order 仍是测试专属 Vite 宿主，未开放生产路由、未验证 #92 合并结果。截图仅本地 `outputs/commercial-security/`。无 schema/migration、真实数据、18443/18444、COS或部署操作。
 - 旧完整 unlinked confirmation.save 仍需两套金额 view+edit；linked 单工价 PATCH 正常。Server 角色管理 UI/API 尚未实施；这两项既有边界未借本次展示修复放宽。整体 PR93 与 PR92 仍五处历史交集，后续逐 hunk 整合 executionOnly/P6/物料/UUID 与金额投影/部分PATCH；本轮运行代码/测试增量不碰这五处。
 
+最终本轮证据：实现 checkpoint `84f8a38`。`npx tsx --test --test-concurrency=1 server/integration/commercial-browser-security.integration.test.mjs` **14/14 PASS**：七身份实际列表/详情/历史概览与历史页面、PV卡片、价格构成、确认弹窗、Order独立金额、权限撤销/账号切换/刷新；DOM（含隐藏属性）/实际响应/存储精确探针，1920/1280/390布局无溢出/未捕获异常。最终 SSR/列表/表格/读取面 HTTP 联合 **18/18 PASS**（commercial-sale-display.test.tsx、list-presentation.test.tsx、table-layout.test.tsx、commercial-read-surfaces.integration.test.ts）；独立模型/默认Browser/null/zero **9/9 PASS**，亦纳入npm680。typecheck、lint **0 errors/0 warnings**、Server build、串行显式Server/defaultBrowser frontend及diff-check PASS；默认build-info browser/browser/writable/session。构建为已测工作树代码，不是不可变镜像；>500kB既有chunk提示保留。完整PG261在最终测试夹具补充前完成，新增派生日志HTTP与最终SSR另实际跑过18/18，未复用旧260/13计数。所有测试本轮实际执行，0 skipped。
+
+运行文件仅：QuoteEditor、QuoteCockpit/metrics model、PriceVersionSelector、RevisionManagerModal、quote-business-view、operation-logs/query；无CSS/UI结构、Order源码、API写协议或数据库变更。测试增量为真实Chromium/HTTP、销售展示SSR、已有列表SSR及模型测试；文档为本任务规则/权限/D-103与简短状态/接力。截图 `outputs/commercial-security/cost-quote.png`、`cost-breakdown.png`、`sale-quote.png` 与七角色list/order系列为合成数据，仅本地证据。
+
+**CCT HTTP SECURITY PASS / SALES DISPLAY SECURITY PASS / CHROMIUM PASS**。本轮没有新的未确认业务规则或安全阻塞；可进入正式合并审查，依用户要求PR93仍Draft，不自行标Ready或合并。最终文档提交/remote/PR SHA以交付核对为准。未验证真实角色管理或#92整合后行为，不冒充部署或用户人工验收。
+
+交付网络：实现checkpoint `84f8a38199b7962a0adce29a83b792318a623337` 正常push一次遭Schannel missing-close-notify；一次只读GitHub ref核实远端仍 `5185d776e54bdd3b328d1611d8283f00e16fcd92`。工程及独立最终文档收口继续，不擅改共享网络/凭据/TLS。最终文档checkpoint正常push结果及exact远端以最终报告/PR正文为准；未确认前为 REMOTE PENDING，不冒充新代码已经在GitHub。
+
 ## 最终合并前定向验收（2026-10-11，历史恢复点）
 
 从原工作树 `D:/workspace/zhixu-quote-two-step`、原分支 clean `91d000ffa45f3af0ca7034b67f5a3921fc3b4ab4` 开始；GitHub PR93 与远端同 SHA，OPEN/Draft。main/base `fcf36e5eab6c78254f808c1cba38f3a63a66d4f8`；PR92 最新 `03b1078e99ff44ceb875dd0b01a1e22358f4dab6`，没有合并/修改其分支、工作树或已验收布局。

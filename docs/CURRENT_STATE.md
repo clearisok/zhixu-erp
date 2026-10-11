@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-11 PR93 Draft：D-103四键/CCT部分PATCH与历史/导出/日志保护保持；最终定向验收本轮完整PG/HTTP260/260、Chromium13/13、auth/frontend90/90、npm679/679 PASS。原Order cleanup-ref lint提示已最小修正。测算销售单价（非成交确认价）的详情/列表展示权限口径待用户确认，不能无条件宣告可合并；正式Server角色管理UI/API仍未实现。未部署，不改PR92/B工作树；五处交集人工整合策略见[证据与历史记录](tasks/active/commercial-amount-read-security.md)。以下为既有PR91部署历史，不是本轮重新验收。
+> 2026-10-11 PR93 Draft：D-103最终展示决定已实施，测算销售价/最终报价须sale.view，成本与CCT四键独立；派生汇总/日志也受保护。本轮PG/HTTP261/261、Chromium14/14、SSR/列表/HTTP18/18、auth/frontend90/90、npm680/680及质量/串行构建 PASS，无新增安全阻塞。正式Server角色管理UI/API仍未实现，完整确认命令原权限保留；可进入最终审查但不自动ready/merge。未部署，不改PR92/B工作树；五处交集整合策略及历史见[证据](tasks/active/commercial-amount-read-security.md)。以下为既有PR91部署历史，不是本轮重新验收。
 
 > 2026-10-10：PR #91 / D-102 第二轮反馈新版已按用户授权更新隔离18444，**PREVIEW UPDATE PASS / USER ACCEPTANCE PASS（2026-10-11 用户明确批准合并 PR #91）**。实际源码eb9530a/image1707a8e54159；18443、真实业务库/COS和订单工作树未动。
 
