@@ -45,6 +45,7 @@ Gate2 本地 checkpoint `1164663d6fbadfca21159a5c2216a2b0216a470b` 已保存；�
 最终实际组件 Chromium：**7/7，115 断言，0 skipped**。含三个宽度的 CSS/computed styles、列表唯一性、网格/折叠可见性、标题非重叠、搜索区域、金额可读、UUID 返回、账号切换隔离、未连接、摘要/详情一致性、GET-only、无 CCT/Quote 请求、无 Browser 业务存储/IndexedDB、无非隔离来源请求或 JS 异常。新增断言未移除既有业务和安全断言。
 
 已检查最终桌面/移动截图，明确与此前被否决的截图区分。**USER UI ACCEPTANCE PENDING**；截图结构与 computed-style 检查不是用户批准。详见 [截图及 P6 要求逐项对照](evidence/order-material-p6-restoration/README.md)。
+
 ## Gate 4 — 本轮工程结果与交付边界
 
 Gate3 checkpoint `802b104abad4c2995ea53f3fc68663d553c22e87`。所有产品改动完成后，最终截图已人工检查；不再新增 UI 或业务功能。用户人工 UI 验收仍为 PENDING，真实环境未部署。
@@ -72,3 +73,18 @@ Gate3 checkpoint `802b104abad4c2995ea53f3fc68663d553c22e87`。所有产品改动
 GitHub 交付使用原分支/唯一 Draft #92。Gate2 纯 TLS 故障的本地/远端状态已分开记录；最终正常 checkpoint push 后，以只读 exact SHA 核实并在 PR/最终交付回复记录收据，不猜测送达、不 force push。
 
 本轮相对起始 d18b5db3 的文件与已合并 PR91（HEAD `cf57074185412e323e2f3308bddc2fd3f73be063`）交集仅 `docs/AI_HANDOFF.md`、`docs/CURRENT_STATE.md`，为必要状态接力；未触及 PR91 业务代码、迁移或部署证据。整个历史 PR92 的 post-merge 交集另含此前已批准的 server/app.ts 和 CCT ledger 测试，不是本轮 UI 增量。
+
+### Final remote delivery — REMOTE PENDING
+
+最终本地工程/文档 checkpoint `bb151f12f7ba468eaaeeda1154e96e3d771db5ef` 的正常 push 报 curl55 Connection was reset / sideband disconnect。随后唯一只读 `git ls-remote` 确认：远端仍为 `2e0960cd79b64d91591a3a58a533f144528fbfe3`，main 仍为 `fcf36e5eab6c78254f808c1cba38f3a63a66d4f8`。没有送达证明，不反复盲推；Gate2/3/4 及本交付接力保存在本地 commits。PR #92 更新为 Draft/REMOTE PENDING，测试结果明确针对本地已验证修复，而非远端当前较早代码。
+
+LOCAL ENGINEERING 检查已完成 / REMOTE DELIVERY PENDING / USER UI ACCEPTANCE PENDING / SECURITY GATE PENDING。仅剩继承 Gate1 文档 dirty，hash 不变。网络传输恢复后可执行一组命令：
+
+```powershell
+git push -u origin feat/ainuoke-order-material-progress
+git rev-parse HEAD
+git rev-parse origin/feat/ainuoke-order-material-progress
+git status --short
+```
+
+本地当前完整 HEAD 见 PR #92 和最终交付回复；不把尚未上传的 SHA 写成远端收据。继续保护真实环境，不以网络恢复为部署或合并授权。

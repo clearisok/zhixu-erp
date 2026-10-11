@@ -10,6 +10,7 @@
 ## P6 原版展示恢复 — 2026-10-11 / PR #92 Draft
 
 用户否决此前夜间 UI。根因是隔离入口未加载正式 `app/foundation.css`；补齐后仍直接使用原 ServerOrderCenterPage/Toolbar/DataTable，1440/1280 横排单表格、390 原移动记录。正式详情按基础事实 → 颜色摘要 → 物料摘要排序；UUID、版本、provenance、创建/更新时间默认收于「来源与技术详情」，展开保留事实。没有 API/schema/权限或来源所有权改动，也没有新增商业字段。三宽度 computed-style/真实浏览器检查通过，**用户人工 UI 验收仍 PENDING**。[本轮报告与截图](../tasks/active/order-material-p6-restoration.md)。
+
 ## Formal Server C4.3 boundary — 2026-10-09
 
 正式 Server 在既有 C3/C4.1 只读列表/详情和 C4.2 current terms 上增加独立 DeliveryPlan 领域；[Server persistence](SALES_ORDER_PERSISTENCE.md) 记录 0009、集合 CAS、永久人工所有权、stable IDs/null recovery、drift 与专属 GET/PATCH。只 disposable PG 验证，没有真实 activation、计划编辑 UI、通用 SalesOrder writer 或 Browser import。下文 Browser model/service/legacy 数量历史不自动成为正式 Server 规则，D-082/D-083/D-100 优先。下一步另立正式计划 UI/冲突 UX Gate，不增加 D-098 报价上线前置。

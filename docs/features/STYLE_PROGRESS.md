@@ -10,6 +10,7 @@ Server 分支不挂载 Browser Repository、旧权限 Provider、导入、人工
 ## Server 只读展示修正 — 2026-10-11
 
 原夜间截图未获用户认可。本轮仅在 Server 专属 class 下修正搜索区域空列和事件标题留白，复用共用 Control Tower 卡片/表格，保留颜色规格、采购/入库/物料出运/出库与 UUID 返回。390 采购来源单价/金额通过表格内部滚动读取；无页面横向溢出。没有新算法、Browser 导入/排期写入或真实 Source 接线。默认物料页不展示 UUID，受控返回关联仍保留。**用户人工 UI 验收 PENDING**。[最新合成截图](../tasks/active/evidence/order-material-p6-restoration/README.md)。
+
 ## Purpose
 
 款式进度是订单中心内的 Material Control Tower。它把艾诺科《面辅料申购统计》作为跟进来源，通过 `salesContractNo` 投影到现有单款 SalesOrder，并复用正式 ScheduleAssignment、ProductionSite、SupplyHub、SupplyRoute 与 TransportMode 计算逐物料物流建议。它不创建订单、不做第二套订单匹配，也不复制订单权威字段。
