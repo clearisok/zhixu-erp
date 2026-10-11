@@ -272,11 +272,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
 
   return (
     <ServerDetailFrame detail={detail}>
-      <div className="oc-server-source-bar">
-        <span><i aria-hidden="true" />数据源：PostgreSQL</span>
-        <small>Server identity：{trustedIdentity}</small>
-        <Button variant="text" onClick={() => void logout()}>退出登录</Button>
-      </div>
+
       {sessionActionError && <ErrorState description={sessionActionError} />}
       {loading ? (
         <LoadingState label="读取 PostgreSQL 正式订单详情" />
@@ -286,62 +282,26 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
         <ErrorState title="订单服务暂时不可用" description={error} onRetry={() => void loadDetail()} />
       ) : detail ? (
         <div className="oc-server-detail-content">
-          <Card className="oc-server-detail-section oc-server-detail-zhixu">
-            <header>
-              <div><small>ZHIXU FACTS</small><h2>织序订单事实</h2></div>
-              <span>Server-owned · 只读</span>
-            </header>
-            <DescriptionList columns={3} items={[
-              { key: "orderNo", label: "正式订单号", value: detail.orderNo, secondary: `UUID ${detail.id}` },
-              { key: "version", label: "数据版本", value: `v${detail.version}` },
-              { key: "lifecycle", label: "织序生命周期", value: lifecycleLabels[detail.lifecycleState], secondary: detail.lifecycleState },
-              { key: "creationSource", label: "创建来源", value: creationSourceLabels[detail.creationSource], secondary: detail.creationSource },
-              { key: "createdAt", label: "创建时间", value: detail.createdAt },
-              { key: "updatedAt", label: "更新时间", value: detail.updatedAt },
-            ]} />
-          </Card>
-
-          <Card className="oc-server-detail-section oc-server-detail-source">
-            <header>
-              <div><small>AINUOKE SOURCE FACTS</small><h2>艾诺科来源事实</h2></div>
-              <span>来源权威 · 不可编辑</span>
-            </header>
-            <DescriptionList columns={3} items={[
-              { key: "billNo", label: "BillNo", value: detail.billNo },
-              { key: "insideOrderNo", label: "工厂单号 / InsideOrderNo", value: detail.insideOrderNo, secondary: "可变来源属性，不是稳定订单身份" },
+          <Card className="oc-server-detail-section oc-server-detail-zhixu oc-server-detail-overview">
+            <header><div><h2>订单概况</h2></div><span>来源权威 · 不可编辑</span></header>
+            <DescriptionList columns={3} compact items={[
               { key: "styleNo", label: "款号", value: detail.styleNo },
-              { key: "company", label: "公司", value: detail.companyName },
+              { key: "orderNo", label: "正式订单号", value: detail.orderNo },
+              { key: "billNo", label: "BillNo", value: detail.billNo },
               { key: "customer", label: "客户", value: detail.customerName },
               { key: "brand", label: "品牌", value: detail.brandName },
               { key: "quantity", label: "订单数量（来源只读）", value: detail.quantity?.toLocaleString("zh-CN") },
-              { key: "contractDate", label: "合同日期", value: detail.contractDate },
-              { key: "contractDelivery", label: "工艺单交期（来源）", value: detail.contractDeliveryDate },
+              { key: "contractDelivery", label: "合同交期（来源）", value: detail.contractDeliveryDate },
+              { key: "lifecycle", label: "订单状态", value: lifecycleLabels[detail.lifecycleState] },
               { key: "sourceLifecycle", label: "艾诺科状态", value: detail.sourceLifecycleStatus },
-              { key: "colorCount", label: "有效颜色数", value: detail.colorCount.toLocaleString("zh-CN") },
             ]} />
           </Card>
-
-          <OrderMaterialSummary salesOrderId={detail.id} />
-          {!executionOnly && <Card className="oc-server-detail-section oc-server-detail-commercial-terms">
-            <header>
-              <div><small>SERVER CURRENT TERMS</small><h2>确认商业条款</h2></div>
-              <span>PostgreSQL · v{terms?.current?.version ?? 0}</span>
-            </header>
-            <DescriptionList columns={3} items={[
-              { key: "customerConfirmedPrice", label: "客户确认价格", value: commercialAmount(terms?.current?.customerConfirmedPrice ?? null, "CNY") },
-              { key: "confirmedLaborPrice", label: "确认工价", value: commercialAmount(terms?.current?.confirmedLaborPrice ?? null, terms?.current?.laborCurrency ?? "币种未指定") },
-              { key: "termsLinkage", label: "共享范围", value: terms?.linkage === "linked" ? "精确 Quote provenance 共享" : "仅当前 SalesOrder", secondary: terms?.linkage === "linked" ? `${terms.associatedSalesOrderIds.length} 张正式订单共享` : "未伪造 Quote 关联" },
-            ]} />
-            {serverSession.hasPermission("order.edit")
-              ? <Button variant="secondary" onClick={openTermsEditor}>编辑确认商业条款</Button>
-              : <small>当前账号仅有 order.view；确认商业条款只读。</small>}
-          </Card>}
-
           <Card className="oc-server-detail-section oc-server-detail-colors">
             <header>
-              <div><small>COLOR SOURCE SLICE</small><h2>颜色明细</h2></div>
+              <div><h2>颜色明细</h2></div>
               <span>{detail.colors.length} 个颜色 · 来源只读</span>
             </header>
+            <p className="oc-server-color-note">分码数据尚未接线；不依据颜色数量推算尺码。</p>
             {detail.colors.length === 0 ? (
               <EmptyState compact title="当前订单主档有效；颜色明细暂无有效数据。" description="颜色 enrichment 为空不影响 SalesOrder master 有效性。" />
             ) : (
@@ -358,6 +318,45 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
               </div>
             )}
           </Card>
+
+          <OrderMaterialSummary salesOrderId={detail.id} />
+          <Card className="oc-server-detail-section">
+            <details className="oc-server-technical-details">
+              <summary>来源与技术详情 <span>只读</span></summary>
+              <DescriptionList columns={3} compact items={[
+                { key: "uuid", label: "UUID", value: detail.id },
+                { key: "version", label: "数据版本", value: `v${detail.version}` },
+                { key: "creationSource", label: "创建来源", value: creationSourceLabels[detail.creationSource], secondary: detail.creationSource },
+                { key: "lifecycleCode", label: "生命周期原值", value: detail.lifecycleState },
+                { key: "insideOrderNo", label: "工厂单号 / InsideOrderNo", value: detail.insideOrderNo, secondary: "可变来源属性，不是稳定订单身份" },
+                { key: "company", label: "公司", value: detail.companyName },
+                { key: "contractDate", label: "合同日期", value: detail.contractDate },
+                { key: "colorCount", label: "有效颜色数", value: detail.colorCount.toLocaleString("zh-CN") },
+                { key: "createdAt", label: "创建时间", value: detail.createdAt },
+                { key: "updatedAt", label: "更新时间", value: detail.updatedAt },
+              ]} />
+              <div className="oc-server-source-bar">
+                <span><i aria-hidden="true" />数据源：PostgreSQL</span>
+                <small>Server identity：{trustedIdentity}</small>
+                <Button variant="text" onClick={() => void logout()}>退出登录</Button>
+              </div>
+            </details>
+          </Card>
+          {!executionOnly && <Card className="oc-server-detail-section oc-server-detail-commercial-terms">
+            <header>
+              <div><small>SERVER CURRENT TERMS</small><h2>确认商业条款</h2></div>
+              <span>PostgreSQL · v{terms?.current?.version ?? 0}</span>
+            </header>
+            <DescriptionList columns={3} items={[
+              { key: "customerConfirmedPrice", label: "客户确认价格", value: commercialAmount(terms?.current?.customerConfirmedPrice ?? null, "CNY") },
+              { key: "confirmedLaborPrice", label: "确认工价", value: commercialAmount(terms?.current?.confirmedLaborPrice ?? null, terms?.current?.laborCurrency ?? "币种未指定") },
+              { key: "termsLinkage", label: "共享范围", value: terms?.linkage === "linked" ? "精确 Quote provenance 共享" : "仅当前 SalesOrder", secondary: terms?.linkage === "linked" ? `${terms.associatedSalesOrderIds.length} 张正式订单共享` : "未伪造 Quote 关联" },
+            ]} />
+            {serverSession.hasPermission("order.edit")
+              ? <Button variant="secondary" onClick={openTermsEditor}>编辑确认商业条款</Button>
+              : <small>当前账号仅有 order.view；确认商业条款只读。</small>}
+          </Card>}
+
           {!executionOnly && <Modal
             open={termsOpen}
             title="编辑确认商业条款"

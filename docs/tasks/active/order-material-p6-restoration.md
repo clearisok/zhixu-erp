@@ -23,3 +23,13 @@ Actual browser7/7,71assertions,0skipped and typecheck PASS. Desktop toolbar now 
 The first green-attempt checked control top edges and incorrectly rejected different native input/button heights despite common centers. Changed measurement to vertical center with stricter5px threshold; final centers are exactly equal. This is a metric correction, not a CSS workaround or relaxed business/security test.
 
 Desktop1440/1280 and390 screenshots visually inspected: compact one-row toolbar, one table, green sidebar/warm gray/white card, no duplicated records. This satisfies the listed P6 structure checks, **not user acceptance or pixel-level original-image comparison**. The two synthetic orders are intentionally unchanged; no real511-order data accessed.
+
+## Gate 2 — compact formal detail, facts retained
+
+Gate1 checkpoint2e0960cd79b64d91591a3a58a533f144528fbfe3 pushed normally. Reordered the same detail into overview → color summary → existing material summary → native collapsed Source/technical details. UUID/version/creation-source/raw lifecycle/InsideOrderNo/company/contract date/created+updated times and trusted identity remain readable on expansion. Existing commercial executionOnly gate stays intact; no API/DB/permission/source logic change. Garment size remains explicitly not connected; existing unconfirmed color delivery field is not promoted into UI.
+
+Initial detail run checked hidden content height and failed because Chromium keeps internal rectangles for native closed-details content; switched to actual checkVisibility=false and body.innerText omission. Expanded UUID/version/time visibility and re-collapse are asserted. The subsequent7/7,98assertions result was **visually rejected by Codex screenshot inspection**:390 return/title overlap and global1000px minimum width hid color quantity. It was not accepted as a visual Gate success.
+
+Fixed only scoped display rules: bind original named header areas, reset two-column formal color table minimum width, add summary padding/disclosure arrow. Synthetic preview notice now floats outside layout, so it neither hides behind fixed sidebar nor creates an extra page scroller. Real final browser7/7,104assertions,0skipped; desktop overview3columns/mobile1, return/identity rectangles never overlap, both color columns fit, technical fields actually hidden/default and readable/expanded. Typecheck/lint0warnings PASS; full npm757/757 was run this round and remains recorded separately from the subsequent minor display fix.
+
+Desktop and390 detail screenshots now visually checked after the fix. **USER UI ACCEPTANCE PENDING**; no claim that user has approved them. Material display changes are isolated in the following Gate3 checkpoint.

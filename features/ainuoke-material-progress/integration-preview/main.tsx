@@ -11,4 +11,4 @@ import '@/app/order-center/order-center.css';
 import '@/app/order-center/style-progress/style-progress.css';
 import '@/app/foundation.css';
 const page=location.pathname.includes('/style-progress/detail')?<ServerStyleProgressDetailPage/>:location.pathname.includes('/server-detail')?<ServerSalesOrderDetailPage executionOnly/>:<ServerOrderCenterPage/>;
-createRoot(document.getElementById('root')!).render(<ServerSessionProvider><TrustedPermissionProvider><div style={{background:'#fff4d8',padding:'5px 16px',fontSize:12}}>合成隔离工程验收 · 未连接真实艾诺科 · 生产路由未开放</div>{page}</TrustedPermissionProvider></ServerSessionProvider>);
+createRoot(document.getElementById('root')!).render(<ServerSessionProvider><TrustedPermissionProvider><div style={{position:'fixed',right:8,bottom:8,zIndex:1000,maxWidth:'calc(100vw - 16px)',background:'#fff4d8',padding:'5px 12px',fontSize:12}}>合成隔离工程验收 · 未连接真实艾诺科 · 生产路由未开放</div>{page}</TrustedPermissionProvider></ServerSessionProvider>);
