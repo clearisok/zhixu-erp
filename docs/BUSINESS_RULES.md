@@ -3,6 +3,7 @@
 ## Server 商业金额独立授权（D-103，2026-10-11 用户批准）
 
 - 销售价与确认工价分别由 commercial.sale.view/edit、commercial.labor.view/edit 控制；每项修改需对应查看及修改授权，加上原 Quote/Order 动作权限。Server 管理员默认四项；其他角色不默认授予，不从 Quote 成本或旧动作权限推导。
+- 用户最终确认：测算销售单价和系统最终报价同属成衣销售价展示，Server 必须有 `commercial.sale.view`；仅 `quote.cost.view` 可看内部成本，不授予这些结果。仅 sale.view 不授予内部成本；列表 `garmentPrice` 继续同时要求 cost.view + sale.view。销售价减估算成本的派生汇总另需 sale.view，Estimate/成本原权限不取消。无权显示“无权查看”，与未填/null、零不同。授权成本输入可能被用户自行推算，本规则不声称阻止这种数学推导；公式、精度、历史与默认 Browser 行为不变。
 - CCT 部分 PATCH 只处理实际提交字段，未提交保留事务内旧值；有权 null 清空、零有效。仍是 Quote/Order 一个共享 current，Quote/CCT 各自 CAS、精确 decimal、linked 币种及审计事务不变，不改历史快照。
 - 受限字段在当前值、历史、导出、日志和客户端中都不得泄露或假作空值；普通订单数量/颜色/交期/物料进度不因商业金额权限被取消。Quote 内部成本保留既有独立保护。艾诺科采购价格/金额仍为团队共享执行信息，织序不可改写。
 - 现有完整 unlinked Quote 确认快照命令需两类金额授权；CCT 支持单字段修改。Server 角色管理页面/API 尚未实施，不能用 Browser mock 用户管理当作正式配置。颜色级销售价格不在本轮。

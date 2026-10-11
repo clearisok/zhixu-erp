@@ -66,20 +66,31 @@ test("Actual Quote/Order Chromium isolates commercial fields across grants, revo
   const checkLeaks=async(sale,labor,cost)=>{
    const body=await text();const responses=await evalJs("(()=>{const out=[];function walk(x){if(x&&typeof x==='object')Object.values(x).forEach(walk);else out.push(String(x));}safeResponses.filter(r=>!r.url.includes('/auth/')).forEach(r=>walk(JSON.parse(r.body)));return out})()");
    const stored=await evalJs("(()=>{const out=[];function walk(x){if(x&&typeof x==='object')Object.values(x).forEach(walk);else out.push(String(x));}for(const s of [localStorage,sessionStorage])for(const v of Object.values(s)){try{walk(JSON.parse(v));}catch{out.push(v);}}return out})()");
-   for(const [allowed,values] of [[sale,["12345","54321","987.654321"]],[labor,["67890","76543"]],[cost,["98765"]]])if(!allowed)for(const value of values){assert.equal(body.includes(value),false,"DOM leak "+value);assert.equal(responses.includes(value),false,"response leak "+value);assert.equal(stored.includes(value),false,"storage leak");}
+   for(const [allowed,values] of [[sale,["12345","54321","987.654321"]],[labor,["67890","76543"]],[cost,["98765"]]])if(!allowed)for(const value of values){const exact=new RegExp("(?<![\\d.])"+value.replaceAll(".","\\.")+"(?!\\d)","u");assert.equal(exact.test(body),false,"DOM leak "+value+" (not a substring of authorized exchange rate)");assert.equal(responses.includes(value),false,"response leak "+value);assert.equal(stored.includes(value),false,"storage leak");}
+   if(!sale){
+    assert.equal(/¥795009\.4(?!\d)/u.test(body),false,"derived selling-price DOM leak (not the distinct, permitted ¥795009.48 internal cost)");
+    assert.equal(await evalJs("/¥795009\\.4(?!\\d)/u.test(document.body.outerHTML)"),false,"selling price must not be stored in hidden DOM attributes");
+   }
   };
   const screenshots=resolve("outputs/commercial-security");
   await mkdir(screenshots,{recursive:true});
   const shot=async name=>{const r=await command("Page.captureScreenshot",{format:"png",captureBeyondViewport:false});await writeFile(join(screenshots,name+".png"),Buffer.from(r.data,"base64"));};
   for(const [name,sale,labor,cost] of [["viewer",false,false,false],["cost",false,false,true],["sale",true,false,true],["labor",false,true,true],["both",true,true,true],["saleNoCost",true,false,false],["laborNoCost",false,true,false]]){
    await t.test(name+" actual detail/history/Order fields",async()=>{
-    await login(name);await navigate("/quote-center/detail?id="+q.id);await has("SYNTHETIC-SECURITY");if(cost)await until(()=>evalJs("safeResponses.some(r=>r.url.includes('confirmed-commercial-terms'))"),"CCT");
+    await login(name);await checkLeaks(sale,labor,cost);await shot(name+"-list");await navigate("/quote-center/detail?id="+q.id);await has("SYNTHETIC-SECURITY");if(cost)await until(()=>evalJs("safeResponses.some(r=>r.url.includes('confirmed-commercial-terms'))"),"CCT");
     if(cost)await has("测算销售单价");
     await checkLeaks(sale,labor,cost);await shot(name+"-quote");
     if(cost){
+     assert.equal(await evalJs("document.querySelector('.qc-cockpit-final strong').textContent"),sale?"¥795009.4":"无权查看");
+     assert.equal(await evalJs("[...document.querySelectorAll('.qc-version-facts span')].filter(n=>n.querySelector('small')?.textContent==='测算销售单价').every(n=>n.querySelector('strong').textContent==="+JSON.stringify(sale?"¥795009.4":"无权查看")+")"),true);
+     await evalJs("document.querySelector('[aria-label=\"查看成衣销售价格构成\"]').click()");await has("最终报价");await checkLeaks(sale,labor,cost);
+     assert.equal(await evalJs("document.querySelector('.qc-price-breakdown .is-total dd').textContent.includes('无权查看')"),!sale);
+     await shot(name+"-breakdown");await evalJs("[...document.querySelectorAll('[role=dialog] button')].find(n=>n.getAttribute('aria-label')?.startsWith('关闭')).click()");
+    }
+    if(cost){
      await evalJs("[...document.querySelectorAll('button')].find(n=>n.getAttribute('aria-label')==='更多报价操作')?.click()");
      const history=await evalJs("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='查看报价历史'&&!n.disabled)");
-     if(history){await click("查看报价历史");await evalJs("[...document.querySelectorAll('.qc-revision-pill')].find(n=>n.querySelector('.qc-revision-label')?.textContent==='V1').click()");await click("查看");await has("历史只读");await checkLeaks(sale,labor,cost);}
+     if(history){await click("查看报价历史");await evalJs("[...document.querySelectorAll('.qc-revision-pill')].find(n=>n.querySelector('.qc-revision-label')?.textContent==='V1').click()");await checkLeaks(sale,labor,cost);await click("查看");await has("历史只读");await checkLeaks(sale,labor,cost);}
     }
     await navigate("/order-center/server-detail?id="+orderId);await has("客户确认价格");await checkLeaks(sale,labor,cost);
     const labels=await text();assert.equal(labels.includes("12345"),sale);assert.equal(labels.includes("67890"),labor);
@@ -108,12 +119,20 @@ test("Actual Quote/Order Chromium isolates commercial fields across grants, revo
   await t.test("Quote linked confirmation modal allows only granted input without full snapshot write",async()=>{
    for(const [name,canSale,canLabor] of [["sale",true,false],["labor",false,true]]){
     await login(name);await navigate("/quote-center/detail?id="+q.id);await has("SYNTHETIC-SECURITY");await until(()=>evalJs("safeResponses.some(r=>r.url.includes('confirmed-commercial-terms'))"),"CCT");
-    await click("查看 / 更新共享条款");await has("客户确认工价");
+    await click("查看 / 更新共享条款");await has("客户确认工价");await checkLeaks(canSale,canLabor,true);
     const disabled=await evalJs("[...document.querySelectorAll('[role=dialog] input')].filter(n=>n.inputMode==='decimal').map(n=>n.disabled)");
     assert.deepEqual(disabled,[!canLabor,!canSale]);await click("保存确认");await until(()=>evalJs("[...document.querySelectorAll('[role=dialog]')].every(n=>!n.getClientRects().length)"),"Quote save closed");
     const write=await evalJs("safeWrites.at(-1).body");assert.equal(Object.hasOwn(write,"customerConfirmedPrice"),canSale);assert.equal(Object.hasOwn(write,"confirmedLaborPrice"),canLabor);assert.equal(Object.hasOwn(write,"expectedQuoteVersion"),true);
     await checkLeaks(canSale,canLabor,true);
    }
+  });
+  await t.test("Quote permission revocation, identity switch and refresh remove calculated sales prices",async()=>{
+   await login("sale");await navigate("/quote-center/detail?id="+q.id);await has("¥795009.4");
+   await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='browser-sale' AND permission_key LIKE 'commercial.sale.%'");
+   await navigate("/quote-center/detail?id="+q.id);await has("测算销售单价");await checkLeaks(false,false,true);
+   assert.equal(await evalJs("document.querySelector('.qc-cockpit-final strong').textContent"),"无权查看");
+   await login("viewer");await navigate("/quote-center/detail?id="+q.id);await has("SYNTHETIC-SECURITY");await checkLeaks(false,false,false);
+   await navigate("/quote-center/detail?id="+q.id);await has("SYNTHETIC-SECURITY");await checkLeaks(false,false,false);
   });
   await t.test("desktop and mobile preserve operational layout",async()=>{
    await login("cost");

@@ -66,7 +66,7 @@ function omitCost(value:unknown):unknown {
  if(value&&typeof value==="object")return Object.fromEntries(Object.entries(value).filter(([key])=>!costKeys.has(key)).map(([key,child])=>[key,omitCost(child)]));
  return value;
 }
-const saleKeys = new Set(["customerConfirmedPrice", "customerConfirmedPriceCurrency", "confirmedGarmentPrice", "quotedGarmentPrice"]);
+const saleKeys = new Set(["customerConfirmedPrice", "customerConfirmedPriceCurrency", "confirmedGarmentPrice", "quotedGarmentPrice", "garmentSellingPrice", "garmentPrice", "finalQuote"]);
 const laborKeys = new Set(["confirmedLaborPrice", "laborCurrency"]);
 function omitFields(value: unknown, keys: Set<string>): unknown {
  if (Array.isArray(value)) return value.map(item => omitFields(item, keys));

@@ -1,6 +1,17 @@
 # 商业金额读取安全修复 — 2026-10-11
 
-## 最终合并前定向验收（2026-10-11，当前恢复点）
+## 最终价格展示权限收口（2026-10-11）
+
+本轮 clean local/origin/PR93 基线 `5185d776e54bdd3b328d1611d8283f00e16fcd92`，main `fcf36e5eab6c78254f808c1cba38f3a63a66d4f8`；PR92 仍 `03b1078e99ff44ceb875dd0b01a1e22358f4dab6`。用户已正式将测算销售单价与系统最终报价归入 sale.view，以下历史“待确认”不再是当前 blocker。原 PR93 保持 Draft，不修改或合入 PR92。
+
+- QuoteEditor 使用可信 Server Session 的 sale.view，将同一展示授权传给摘要、PV卡片、历史概览；sticky、确认弹窗的系统销售价、最终报价构成同步保护。无权展示“无权查看”，实际数值不进入隐藏 DOM/展示模型；合法内部成本、参数及运算保持，不能声称阻止成本用户自行计算。Browser 消费者默认展示未改，未重排 UI。
+- 实际 API 旁路：内部汇总 estimateDifference 原为销售价减估算成本，只校验成本/Estimate。本轮先复现成本-only 收到 XLSX **200**，再补 sale.view；现 **403**，无构建文件或误写审计。普通 estimateTotal 及有权 estimateDifference **200** 保留。列表 garmentPrice 仍 cost.view + sale.view。日志增加已知派生销售字段投影，数据库事实不改写。
+- 本轮先复现原 Chromium **8/13 PASS、5 FAIL**（成本-only 派生销售 DOM），修复后最终 Chromium 结果见下；不将先前13/13冒充新政策通过。新增 SSR 首次误命中合法加成工价小数前缀、零格式与实际既有格式不符，抽屉探针误命中合法汇率子串；改为金额完整边界，保留全部安全否定。旧列表SSR确认工价偏好用例补唯一需要的 labor.view，另验证撤权必须过滤；不把所有身份变成管理员。
+- 本轮完整 PostgreSQL/HTTP **261/261 PASS，0 skipped**，含四键16组合、CAS/事务回滚、原创建/历史/附件/汇总/文件回归；`npm test` **680/680 PASS**；auth/frontend **90/90 PASS**。额外最终 SSR/列表/布局/HTTP 与 Chromium、质量结果由最终收口补记，不复用历史数字。
+- 合成浏览器使用全新 profile、disposable PG、MemoryAttachmentStorage，实际 Quote 构建和原 Order 组件；Order 仍是测试专属 Vite 宿主，未开放生产路由、未验证 #92 合并结果。截图仅本地 `outputs/commercial-security/`。无 schema/migration、真实数据、18443/18444、COS或部署操作。
+- 旧完整 unlinked confirmation.save 仍需两套金额 view+edit；linked 单工价 PATCH 正常。Server 角色管理 UI/API 尚未实施；这两项既有边界未借本次展示修复放宽。整体 PR93 与 PR92 仍五处历史交集，后续逐 hunk 整合 executionOnly/P6/物料/UUID 与金额投影/部分PATCH；本轮运行代码/测试增量不碰这五处。
+
+## 最终合并前定向验收（2026-10-11，历史恢复点）
 
 从原工作树 `D:/workspace/zhixu-quote-two-step`、原分支 clean `91d000ffa45f3af0ca7034b67f5a3921fc3b4ab4` 开始；GitHub PR93 与远端同 SHA，OPEN/Draft。main/base `fcf36e5eab6c78254f808c1cba38f3a63a66d4f8`；PR92 最新 `03b1078e99ff44ceb875dd0b01a1e22358f4dab6`，没有合并/修改其分支、工作树或已验收布局。
 

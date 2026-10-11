@@ -2,7 +2,7 @@
 
 ## Server 商业金额（D-103，2026-10-11）
 
-最终定向审查发现的待确认展示口径：详情/卡片“测算销售单价”（摘要称“成衣销售价格”）为成本推导值，不是 CCT/确认成交价，目前由 cost.view 展示；列表 garmentPrice 另要求 sale.view。须由用户决定测算值归属后统一，不将这项观察写成新授权政策。加工报价旧 confirmation.save 仍为完整快照（含 quotedGarmentPrice），要求两套商业 view+edit；linked CCT PATCH 的工价单字段修改只需对应工价权限，实际 HTTP 已验证。见[定向验收](../tasks/active/commercial-amount-read-security.md)。
+用户最终确认并实施：详情/卡片“测算销售单价”、摘要/构成“成衣销售价格/最终报价”均须可信 Session 的 commercial.sale.view；cost.view 单独只授内部成本。仅 sale.view 不授内部成本；列表 garmentPrice 保留 cost.view + sale.view。无权不向子组件/隐藏 DOM 传实际展示金额，显示“无权查看”。保留授权成本输入和公式，不声称阻止用户自行推算。此前待确认口径已由本次决定收口，历史证据不删除。加工报价旧 confirmation.save 仍为完整快照（含 quotedGarmentPrice），要求两套商业 view+edit；linked CCT PATCH 的工价单字段修改只需对应工价权限，实际 HTTP 已验证。见[定向验收](../tasks/active/commercial-amount-read-security.md)。
 
 用户已批准并实施四键 commercial.sale.view/edit、commercial.labor.view/edit。Server `role-server-admin` 目录同步幂等升级，新 bootstrap 管理员具备四项；非管理员角色无隐式新增。只检查可信权限集合，不依赖前端名称。正式角色管理 UI/API 仍未实现；本轮不开放生产授权路由，不用 Browser mock 替代，真实角色未操作。
 
@@ -10,7 +10,7 @@
 
 Quote 有内部成本查看权但无商业权限时，仍返回内部成本及独立 Estimate；历史 confirmation 的销售价/确认工价分别省略，带 commercialVisibility。普通保存恢复这些缺失字段，注入拒绝，CAS/历史不可变不弱化。现有 cost-restricted metadata-only 保存继续保护全部成本。
 
-列表与内部汇总的 garmentPrice/confirmedGarment 另需 sale.view、confirmedLabor 另需 labor.view（原成本权限仍保留）。客户 Excel/ZIP 同时需要两项商业查看权限，否则生成前拒绝。日志响应过滤保护金额，DB 原始审计保留。CCT 客户端拒绝旧完整响应协议，隐藏金额不进入客户端适配对象；Order 仅调整金额协议和权限状态，不重排已验收页面。
+列表与内部汇总的 garmentPrice/confirmedGarment 另需 sale.view、confirmedLabor 另需 labor.view（原成本权限仍保留）。estimateDifference 是销售价减估算成本，要求 cost.view + estimate.view + sale.view；普通 estimateTotal 仍不额外要求商业权限。Server 在读来源/构建/审计前拒绝越权请求。客户 Excel/ZIP 同时需要两项商业查看权限，否则生成前拒绝。日志响应过滤保护金额及已知派生销售字段，DB 原始审计保留。CCT 客户端拒绝旧完整响应协议，隐藏金额不进入客户端适配对象；Order 仅调整金额协议和权限状态，不重排已验收页面。
 
 ## Quote aggregate 成本读取安全边界（2026-10-11）
 

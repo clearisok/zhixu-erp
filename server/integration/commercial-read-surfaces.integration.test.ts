@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { startCommercialSecurityFixture } from "./commercial-security-fixture.js";
 import { createQuoteRepository } from "../quotes/repository.js";
+import { appendOperationLog } from "../operation-logs/repository.js";
 
 test("HTTP commercial grants protect historical aggregate, save, list, export and logs",async t=>{
  const x=await startCommercialSecurityFixture();t.after(x.close);
@@ -43,11 +44,27 @@ test("HTTP commercial grants protect historical aggregate, save, list, export an
    assert.equal((await x.request("/api/v1/quotes/internal-summary",restricted,{items:[{quoteId:saved.quote.id,expectedVersion:saved.version}],columns:[field],rowMode:"quote",estimateColumns:[]},"POST")).response.status,403);
   }
  });
+ await t.test("sales-minus-Estimate export requires sale.view before reading/building or logging",async()=>{
+  const saved=(await repo.getById(x.record.quote.id))!;
+  const logs=(await x.pool.query("SELECT count(*)::int n FROM operation_logs")).rows[0].n;
+  const result=await fetch(x.base+"/api/v1/quotes/internal-summary",{method:"POST",headers:{Cookie:restricted,Origin:"http://127.0.0.1","X-Zhixu-Request":"1","Content-Type":"application/json"},body:JSON.stringify({items:[{quoteId:saved.quote.id,expectedVersion:saved.version}],columns:["quote"],rowMode:"quote",estimateColumns:["estimateDifference"]})});
+  assert.equal(result.status,403,"protected derived export must reject, not deliver XLSX bytes");
+  assert.equal((await x.pool.query("SELECT count(*)::int n FROM operation_logs")).rows[0].n,logs);
+  for (const [cookie,field] of [[restricted,"estimateTotal"],[sale,"estimateDifference"]] as const) {
+   const allowed=await fetch(x.base+"/api/v1/quotes/internal-summary",{method:"POST",headers:{Cookie:cookie,Origin:"http://127.0.0.1","X-Zhixu-Request":"1","Content-Type":"application/json"},body:JSON.stringify({items:[{quoteId:saved.quote.id,expectedVersion:saved.version}],columns:["quote"],rowMode:"quote",estimateColumns:[field]})});
+   assert.equal(allowed.status,200,field+" retains authorized export");
+   assert.match(allowed.headers.get("content-type")!,/spreadsheetml/);
+   assert.ok((await allowed.arrayBuffer()).byteLength>1000);
+  }
+ });
  await t.test("CCT audit persists full facts but HTTP strips hidden amounts",async()=>{
+  const actor=(await x.pool.query("SELECT id::text,public_id,username,display_name FROM app_users WHERE username='sale-only-surfaces'")).rows[0];
+  await appendOperationLog(x.pool,{internalUserId:actor.id,userId:actor.public_id,username:actor.username,userName:actor.display_name,permissions:[]},{module:"报价中心",action:"保存报价",entityType:"Quote",entityId:x.record.quote.id,quoteId:x.record.quote.id,metadata:{nested:{garmentSellingPrice:"314159.26",garmentPrice:"271828.18",finalQuote:"161803.39"}},changes:[{field:"priceVersion.garmentSellingPrice",beforeValue:"314159.26",afterValue:"161803.39"}]});
   assert.equal((await x.request(x.orderPath,sale,{expectedVersion:1,customerConfirmedPrice:"23456"},"PATCH")).response.status,200);
   const result=await x.request("/api/v1/operation-logs",restricted);assert.equal(result.response.status,200,result.text);
-  assert.equal(/12345|23456|67890/.test(result.text),false);
+  assert.equal(/12345|23456|67890|314159\.26|271828\.18|161803\.39/.test(result.text),false);
   const withSale=await x.request("/api/v1/operation-logs",sale);assert.equal(withSale.text.includes("23456"),true);assert.equal(withSale.text.includes("67890"),false);
+  assert.equal(withSale.text.includes("314159.26"),true,"authorized derived audit remains readable");
  });
  await t.test("revoking grants affects existing session reads and writes without account changes",async()=>{
   await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='sale-only-surfaces' AND permission_key='commercial.sale.view'");

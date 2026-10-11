@@ -2,7 +2,7 @@
 
 ## 当前 — PR93 独立商业金额权限（2026-10-11）
 
-分支 fix/commercial-amount-read-security；最终定向验收从 clean local/remote/PR93 91d000ffa45f3af0ca7034b67f5a3921fc3b4ab4 恢复。本轮实际完整PG/HTTP260/260、auth/frontend90/90、npm679/679、真实Chromium13/13 PASS；Order cleanup同一epoch ref的最小修正消除原lint警告，不改布局/时序。无部署。测算销售单价（非CCT成交价）详情由成本权限展示、列表另需sale.view，口径待用户确认；不改政策、不自动ready/merge，PR93保持Draft。
+分支 fix/commercial-amount-read-security；本轮 clean local/origin/PR93 基线5185d776e54bdd3b328d1611d8283f00e16fcd92。用户最终决定已补入D-103：测算销售价/最终报价必须sale.view，cost.view单独只看内部成本，列表garmentPrice仍需两者。六处展示及estimateDifference汇总/派生日志已保护。实际完整PG/HTTP261/261、auth/frontend90/90、npm680/680 PASS；SSR/最终Chromium及质量结果待本轮最终收口，不沿用此前13/13。无布局/公式/历史/SQL改动，无部署，PR93保持Draft等待最终审查。
 
 字段投影/部分PATCH、隐藏历史保护/安全保存、导出/日志/客户端隔离保持。linked CCT工价单字段PATCH通过；加工旧完整confirmation.save仍要求两套商业授权，不擅改完整确认语义。Server管理员目录升级幂等授予；其他角色不默认授予。Server角色管理UI/API仍未实现。无schema/migration/真实数据变更。PR92 head03b1078仅5文件交集；后续保留executionOnly/P6/物料/UUID，同时接金额投影/部分PATCH，人工逐hunk整合并补两模式回归，本轮没有合入B代码。
 
