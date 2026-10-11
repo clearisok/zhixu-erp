@@ -13,3 +13,13 @@ Red test:7tests,3pass/4fail,0skipped (three width cases fail + parent). Business
 The current formal DTO exposes colorName,quantity,deliveryDate but no garment size grid. This Gate may rearrange/display those facts and honestly label size data as not connected; it must not fabricate sizes or change API/DB.
 
 The P6 image itself is not present in this turn's readable attachment context. Comparison will cover every explicit P6 requirement in the user's message and the existing formal component/CSS; no pixel-identical claim or user acceptance will be inferred.
+
+## Gate 1 — original list CSS restored
+
+Gate0 checkpoint ca9bcb7ad4193220942ea79209206ab26b345144 exact remote verified after push reported target-present ref-lock. Added exactly the missing `import '@/app/foundation.css'` after feature CSS, matching RootLayout order. ServerOrderCenterPage, Toolbar, DataTable and formal list CSS were not rewritten.
+
+Actual browser7/7,71assertions,0skipped and typecheck PASS. Desktop toolbar now flex/row,height65 rather than412. Both1440/1280 mobile records display:none, one original desktop table spans the white card (2px border difference). Search/query/four filters share the exact same vertical center.390 original responsive record grid is visible and desktop table hidden. PageContainer grid and zero document overflow hold at all widths. No API/provider/storage assertions removed; original account/Source/return checks pass.
+
+The first green-attempt checked control top edges and incorrectly rejected different native input/button heights despite common centers. Changed measurement to vertical center with stricter5px threshold; final centers are exactly equal. This is a metric correction, not a CSS workaround or relaxed business/security test.
+
+Desktop1440/1280 and390 screenshots visually inspected: compact one-row toolbar, one table, green sidebar/warm gray/white card, no duplicated records. This satisfies the listed P6 structure checks, **not user acceptance or pixel-level original-image comparison**. The two synthetic orders are intentionally unchanged; no real511-order data accessed.
