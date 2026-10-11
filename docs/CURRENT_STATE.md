@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-11 独立安全工程 LOCAL PASS / REMOTE PENDING：[唯一PR93](https://github.com/clearisok/zhixu-erp/pull/93)为Draft，源码195f6b7尚未送达，exact remote3b8f383，TLS失败接力见报告。PR91已合并，main fcf36e5；从干净A工作树建立 fix/commercial-amount-read-security。既有 quote.cost.view 已保护完整成本/历史/Estimate响应、受限保存及日志；43/43定向、PG179/179、npm679/679与质量构建通过。销售价/工价独立权限未批准，两个CCT GET仍 **SECURITY PENDING**，未部署或操作18443/18444。PR92仍Draft，用户已明确其订单UI HUMAN ACCEPTANCE PASS；本任务未修改B/UI。[安全报告与待审政策](tasks/active/commercial-amount-read-security.md)。下文部署证据原样保留，为此前授权阶段事实。
+> 2026-10-11 PR93 Draft：用户批准D-103独立商业金额四键已实施；CCT SECURITY GATE PASS，实际disposable PG/HTTP260/260、auth/frontend90/90、npm679/679、typecheck及串行构建通过。既有Quote成本保护保留，CCT部分PATCH与历史/导出/日志/缓存投影落地。正式Server角色管理UI/API仍未实现；本轮Chromium未运行、未部署。PR92仅必要协议/文档交集，不修改其工作树或布局。远端最终交付以PR/本轮报告为准。[完整证据及历史网络记录](tasks/active/commercial-amount-read-security.md)。以下为既有PR91部署历史，不是本轮重新验收。
 
 > 2026-10-10：PR #91 / D-102 第二轮反馈新版已按用户授权更新隔离18444，**PREVIEW UPDATE PASS / USER ACCEPTANCE PASS（2026-10-11 用户明确批准合并 PR #91）**。实际源码eb9530a/image1707a8e54159；18443、真实业务库/COS和订单工作树未动。
 

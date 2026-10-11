@@ -267,10 +267,11 @@ async function mutate(
         throw new HttpError(409, "saved_quote_labor_currency_conflict", "Compare saved PV currency with shared current; no automatic conversion");
       const partial = await client.query("SELECT 1 FROM sales_orders WHERE source_quote_id=$1 AND (source_revision_id IS NULL OR source_price_version_id IS NULL) LIMIT 1", [provenance.quoteId]);
       if (partial.rowCount) throw new HttpError(409, "incomplete_quote_provenance", "Quote linkage is incomplete");
-      // Presence validation only: no calculator or float conversion of snapshots.
+      // Validate the saved Quote prerequisites, not completeness of the other
+      // commercial field. Each authorized scalar may explicitly be cleared.
       const view = revision as unknown as QuoteRevision;
       const validation = validateCustomerConfirmation(view, view.priceVersions.find(p => p.id === pv.id)!, {
-        labor: values.confirmedLaborPrice === null ? null : 0, garment: values.customerConfirmedPrice === null ? null : 0,
+        labor: 0, garment: revision.baseInfo.quoteType === "processing" ? null : 0,
       });
       if (!validation.valid || revision.baseInfo.quoteType === "processing" && values.customerConfirmedPrice !== null)
         throw new HttpError(400, "quote_confirmation_incomplete", "Complete required saved Quote fields and confirmation amounts");

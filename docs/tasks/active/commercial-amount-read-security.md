@@ -1,5 +1,40 @@
 # 商业金额读取安全修复 — 2026-10-11
 
+## 2026-10-11 用户批准权限后的实施收口（当前）
+
+四键 commercial.sale.view/edit、commercial.labor.view/edit 已按 D-103 实施。可信 Server 管理员 bootstrap/catalog synchronization 幂等授予；其他角色不继承。复用现有 RBAC 表，无 migration。正式 Server 角色管理 UI/API 尚未实现，Browser mock 不能作为授权入口；生产按角色配置仍需后续可信管理能力/受控运维批准，本轮未修改真实角色。
+
+两个 CCT GET/PATCH 返回 commercial-terms-read.v1 独立 allowed/restricted 投影；PATCH 只检查实际提交字段的 view+edit，遗漏值保留事务锁定当前值，null/0、两套 CAS、币种所有权和审计回滚均保留。旧全量请求若含无权字段明确403，旧原始响应被新版客户端拒绝。Quote/Order 只做现有协议适配，未新增第二套当前条款。unlinked Quote confirmation.save 仍是完整快照命令，要求两套商业写权限，不冒充部分 PATCH。
+
+历史 Quote confirmation、列表/内部汇总字段、客户 Excel/ZIP、日志读取均检查新增权限；Quote 内部成本仍由原权限保护。受限基础资料保存从 CAS 基线恢复隐藏切片，不清空金额、附件或历史。客户端账号切换清理和异步响应隔离，缓存不作为授权来源。源数据库审计保留完整事实，读取时投影。
+
+### 本轮最终实跑
+- npm run test:postgres：**260/260 PASS，0 skipped**。完整原有 suite 加入四键16组合实际 Session HTTP、跨读取面负向、Quote 成本、linked CCT、内部汇总与导出回归；disposable PG/模拟对象存储，含事务故障注入与回滚。
+- auth/frontend：**90/90 PASS**；CCT client/projection：**8/8 PASS**。
+- npm test：**679/679 PASS**；typecheck PASS；lint 0 errors、1个 React cleanup ref 警告（Order 加载 epoch 用于取消陈旧结果，不是 DOM ref）。
+- Server build → Server frontend → default Browser frontend 串行 PASS；41 routes。默认 build-info browser/browser/writable/session。构建基于720de05加本次工作树代码，不是该旧 SHA 的不可变候选；未构建或部署生产镜像。
+- git diff --check PASS；无历史 SQL/migration 改动。
+- Chromium：本轮 NOT RUN，不能沿用旧视觉结果；本 Gate 要求的真实 Server HTTP 负向验收已执行。
+- 早期失败保留：首轮 PG159/178（19含父测试失败）、附加集24/41、auth89/90，原因是旧 full-reader/editor fixture 未显式授新键和投影预期。仅修正合法身份夹具/响应契约；负向用户未提权、未跳过或删除断言。最终完整260/260覆盖修正。
+
+### PR92 交集与限制
+GitHub PR92 head03b1078e99ff44ceb875dd0b01a1e22358f4dab6与本地引用一致。交集为 docs/AI_HANDOFF.md、docs/CURRENT_STATE.md、server/app.ts、server/integration/confirmed-commercial-terms.integration.test.ts、features/order-center/components/server-sales-order-detail-page.tsx。最后一项只适配商业金额 DTO、分字段编辑权限及身份缓存，不改已验收布局/CSS/物料采购展示；没有进入或修改 B 工作树。合并时须保留双方增量，不能整文件覆盖。
+
+CCT SECURITY GATE PASS / 工程验证 PASS，PR93 保持 Draft 等待审查。没有真实 DB/账号/COS/18443/18444 操作，无部署/自动合并。独立 Server 角色管理缺口和实际 Chromium 未运行不能被该结论掩盖。
+
+### 本轮中间接力历史（保留）
+## Active — PR93 commercial RBAC continuation (2026-10-11)
+
+Gate4 integration in progress: historical Quote confirmation projection and CAS-preserving omitted-field save, customer exports, independent list fields and audit projection are implemented. CCT clients use an explicit allowed/restricted adapter, reject legacy responses, and submit only editable fields. Minimal Order detail amount protocol adaptation is an additional PR92 changed-file intersection (no B worktree/layout/CSS changes). HTTP read surfaces + existing Quote cost regression **13/13 PASS**; client/projection **8/8 PASS**; npm **679/679 PASS**. First full PostgreSQL run **159/178 PASS, 19 failures** (including parent failures), identifying old full-permission fixtures and projection expectations; corrections are being verified, not declared PASS. Auth/frontend first run **89/90**, list full-reader fixture now explicitly grants new read keys. typecheck/lint PASS before final integration; final reruns pending. No deployment or real data access.
+
+Gate2/3 Server checkpoint: both actual CCT GET/PATCH responses now use the existing independent allowed/restricted projection. Partial PATCH requires submitted fields' view+edit; omitted values come from the locked current row, null/zero and linked currency/CAS/audit rollback preserved. Actual session HTTP matrix **20/20**, prior exposure assertions converted to negative protection plus projection **7/7 PASS**. Client adaptation and aggregate/history/export/log protections remain in progress, so whole CCT SECURITY GATE is not yet declared PASS. Gate1 local97a3f21 push failed with Schannel missing-close-notify; one GitHub read confirmed remote remainsed91bc1. Reliable local work continues under network protocol; no repeated push or shared TLS configuration change.
+
+User-approved four independent commercial sale/labor view/edit permissions. Resumed clean `fix/commercial-amount-read-security` / local and GitHub `ed91bc18596202641ea8497068d4a180f2f200a5`; prior REMOTE PENDING is recovered by the user's push, historical record below retained. Gate1 adds the catalog and idempotent grants to the existing trusted `role-server-admin` during catalog synchronization; new bootstrap already grants the catalog. No other role inherits commercial access. Disposable PG/actual session permission refresh and guarded RBAC regressions **10/10 PASS**. No schema/migration or actual role/database changes. Server role-management UI/API remains absent; Browser management is not an authorization interface. CCT endpoint projection/PATCH and whole read-surface protection are the next gates; not yet SECURITY PASS. Same Draft PR93, no PR92/UI or runtime operations.
+
+## Active — 独立商业金额安全修复 / PR93 Draft / REMOTE PENDING（2026-10-11）
+
+LOCAL ENGINEERING PASS：源码195f6b73e99935b7823c723c8032dfa03c8c139c；TLS两种进程级传输push失败且停止重试，exact remote3b8f3836b2d77f8a20e6c085403c659f41c4cee9。[唯一PR93](https://github.com/clearisok/zhixu-erp/pull/93)已创建Draft，Gate2/3未送达、不建议合并；恢复四条命令见任务报告。A 原工作树干净，从最新 main fcf36e5eab6c78254f808c1cba38f3a63a66d4f8 建立 fix/commercial-amount-read-security。Gate0实际合成 session HTTP4/4复现三路径；现 Quote成本 allowlist+metadata-only保存/日志/no-store已修复，最终定向43/43、PG179/179、npm679/679及typecheck/lint/串行构建通过（CCT投影3项仅独立测试；两条HTTP泄露断言仍证明问题存在），按既有 quote.cost.view，销售价/工价四键（commercial.sale.view/edit、commercial.labor.view/edit）及管理员拥有/其他默认无、独立 PATCH 方案已记录，独立可注入投影默认deny且3/3通过；新权限与角色尚待用户批准，CCT SECURITY PENDING。用户明确 PR92 订单 UI 已人工验收 PASS，仍 Draft；本任务不修改 B 工作树/UI，不合并其代码。真实环境/凭据/数据库/0010/0011不操作。[安全任务报告](tasks/active/commercial-amount-read-security.md)。
+
 ## Gate0 baseline 与复现
 
 用户授权独立 Server 安全任务，不合并 PR92、不修改 B 工作树或其认可 UI。原 A 工作树 D:/workspace/zhixu-quote-two-step 的 feat/quote-two-step-creation / HEAD19043f8457c458d60568e479d8238fb1d520bc58 干净，仅落后远端一个提交，无分歧；保留原分支，正常 switch 新分支 fix/commercial-amount-read-security，基线为最新 origin/main fcf36e5eab6c78254f808c1cba38f3a63a66d4f8。

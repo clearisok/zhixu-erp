@@ -28,7 +28,7 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
   await synchronizePermissionCatalog(pool);
   const user = (await pool.query<{id:string;public_id:string}>(`INSERT INTO app_users(username,password_hash,display_name,role)
     VALUES ('plan-test',crypt('synthetic-password',gen_salt('bf',4)),'Plan actor','admin') RETURNING id::text,public_id::text`)).rows[0];
-  const actor: TrustedIdentity = { internalUserId:user.id, userId:user.public_id, username:'plan-test',userName:'Plan actor',permissions:['order.view','order.edit','ainuoke.sync'] };
+  const actor: TrustedIdentity = { internalUserId:user.id, userId:user.public_id, username:'plan-test',userName:'Plan actor',permissions:['order.view','order.edit','ainuoke.sync','commercial.sale.view','commercial.sale.edit','commercial.labor.view','commercial.labor.edit'] };
   let serial = 0;
   function fixture(date: string | null = '2026-11-01', quantity = 100): CreateAinuokeSalesOrderInput {
     const n = ++serial;

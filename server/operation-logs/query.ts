@@ -66,7 +66,14 @@ function omitCost(value:unknown):unknown {
  if(value&&typeof value==="object")return Object.fromEntries(Object.entries(value).filter(([key])=>!costKeys.has(key)).map(([key,child])=>[key,omitCost(child)]));
  return value;
 }
-/** Persisted audit facts stay complete; unapproved CCT policy stays separate. */
+const saleKeys = new Set(["customerConfirmedPrice", "customerConfirmedPriceCurrency", "confirmedGarmentPrice", "quotedGarmentPrice"]);
+const laborKeys = new Set(["confirmedLaborPrice", "laborCurrency"]);
+function omitFields(value: unknown, keys: Set<string>): unknown {
+ if (Array.isArray(value)) return value.map(item => omitFields(item, keys));
+ if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).filter(([key]) => !keys.has(key)).map(([key, child]) => [key, omitFields(child, keys)]));
+ return value;
+}
+/** Persisted audit facts stay complete; each HTTP read uses current grants. */
 export function projectOperationLogResponse(actor: TrustedIdentity, log: ServerOperationLog): ServerOperationLog {
  let projected=log;
  if(!actor.permissions.includes("estimate.view")||!actor.permissions.includes("quote.cost.view")){
@@ -77,6 +84,13 @@ export function projectOperationLogResponse(actor: TrustedIdentity, log: ServerO
   projected=omitCost(projected) as ServerOperationLog;
   projected.changes=projected.changes.filter(change=>!change.field.split(/[.\[\]]/).some(key=>costKeys.has(key)));
   projected.costVisibility="restricted";
+ }
+ const restricted = new Set<string>();
+ if (!actor.permissions.includes("commercial.sale.view")) for (const key of saleKeys) restricted.add(key);
+ if (!actor.permissions.includes("commercial.labor.view")) for (const key of laborKeys) restricted.add(key);
+ if (restricted.size) {
+  projected = omitFields(projected, restricted) as ServerOperationLog;
+  projected.changes = projected.changes.filter(change => !change.field.split(/[.\[\]]/).some(key => restricted.has(key)));
  }
  return projected;
 }

@@ -9,7 +9,10 @@ export type CostRestrictedPrice=Pick<Price,"id"|"name"|"quantity"|"description">
 export type CostRestrictedRevision=Omit<Revision,"priceVersions"> & {priceVersions:CostRestrictedPrice[]};
 export type CostRestrictedQuote=Omit<QuoteContent,"revisions"> & {revisions:CostRestrictedRevision[]};
 export type CostRestrictedRecord={quote:CostRestrictedQuote;version:number;costVisibility:"restricted";estimateVisibility:"restricted"};
-export type ReadableQuoteRecord=(QuoteRecord | {quote:QuoteContent;version:number;estimateVisibility:"restricted"}) & {costVisibility?:never};
+export type CommercialVisibility = {sale:"allowed"|"restricted";labor:"allowed"|"restricted"};
+type ProjectedConfirmation = Omit<NonNullable<Price["confirmation"]>, "quotedGarmentPrice"|"confirmedGarmentPrice"|"confirmedLaborPrice"> & Partial<Pick<NonNullable<Price["confirmation"]>, "quotedGarmentPrice"|"confirmedGarmentPrice"|"confirmedLaborPrice">>;
+export type CommercialQuoteContent = Omit<QuoteContent,"revisions"> & Partial<Pick<ServerQuote,"activeEstimateCost"|"estimateCostHistory">> & {revisions:(Omit<Revision,"priceVersions"> & {priceVersions:(Omit<Price,"confirmation"> & {confirmation:ProjectedConfirmation|null})[]})[]};
+export type ReadableQuoteRecord=(QuoteRecord | {quote:QuoteContent;version:number;estimateVisibility:"restricted"} | {quote:CommercialQuoteContent;version:number;estimateVisibility?:"restricted";commercialVisibility:CommercialVisibility}) & {costVisibility?:never};
 export type QuoteResponseRecord=ReadableQuoteRecord|CostRestrictedRecord;
 export type QuoteSaveContent=(QuoteContent|CostRestrictedQuote)&Partial<Pick<ServerQuote,"activeEstimateCost"|"estimateCostHistory">>;
 
@@ -34,6 +37,22 @@ export function costRestrictedQuote(quote:ServerQuote):CostRestrictedQuote {
 }
 export function projectQuoteResponse(actor:TrustedIdentity,record:QuoteRecord):QuoteResponseRecord {
  if(!actor.permissions.includes("quote.cost.view")) return{quote:costRestrictedQuote(record.quote),version:record.version,costVisibility:"restricted",estimateVisibility:"restricted"};
+ const sale = actor.permissions.includes("commercial.sale.view"), labor = actor.permissions.includes("commercial.labor.view");
+ if (!sale || !labor) {
+  // EstimateCost has no confirmation fields; its existing grant stays independent.
+  const {activeEstimateCost: _active, estimateCostHistory: _history, ...content} = record.quote;
+  void _active; void _history;
+  const quote:CommercialQuoteContent = {...content,revisions:content.revisions.map(revision=>({...revision,priceVersions:revision.priceVersions.map(price=>{
+   if (!price.confirmation) return price;
+   const confirmation:ProjectedConfirmation={...price.confirmation};
+   if (!sale) {delete confirmation.quotedGarmentPrice;delete confirmation.confirmedGarmentPrice;}
+   if (!labor) delete confirmation.confirmedLaborPrice;
+   return {...price,confirmation};
+  })}))};
+  const estimateAllowed = actor.permissions.includes("estimate.view");
+  if (estimateAllowed) {quote.activeEstimateCost=record.quote.activeEstimateCost;quote.estimateCostHistory=record.quote.estimateCostHistory;}
+  return {quote,version:record.version,...(!estimateAllowed?{estimateVisibility:"restricted" as const}:{}),commercialVisibility:{sale:sale?"allowed":"restricted",labor:labor?"allowed":"restricted"}};
+ }
  if(actor.permissions.includes("estimate.view"))return record;
  const quote:QuoteContent & Partial<Pick<ServerQuote,"activeEstimateCost"|"estimateCostHistory">>={...record.quote}; delete quote.activeEstimateCost;delete quote.estimateCostHistory;
  return{quote,version:record.version,estimateVisibility:"restricted"};

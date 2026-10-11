@@ -6,16 +6,15 @@ import {
 } from "../client.js";
 
 const dto = {
+  contract: "commercial-terms-read.v1" as const,
   linkage: "linked" as const,
   scope: "quote" as const,
   quoteProvenance: { quoteId: "quote-1", revisionId: "revision-1", priceVersionId: "price-1" },
   associatedSalesOrderIds: ["order-1"],
   current: {
     id: "terms-1",
-    customerConfirmedPrice: "12.30",
-    customerConfirmedPriceCurrency: "CNY" as const,
-    confirmedLaborPrice: "3.25",
-    laborCurrency: "USD" as const,
+    sale:{visibility:"allowed" as const,value:{price:"12.30",currency:"CNY" as const}},
+    labor:{visibility:"allowed" as const,value:{price:"3.25",currency:"USD" as const}},
     version: 2,
     createdAt: "2026-09-14T00:00:00.000Z",
     updatedAt: "2026-09-14T01:00:00.000Z",
@@ -35,7 +34,11 @@ test("commercial terms client uses exact provenance and trusted mutation headers
     }) as typeof fetch,
   });
 
-  assert.deepEqual(await client.getByQuote("quote-1", "revision-1", "price-1"), dto);
+  assert.deepEqual(await client.getByQuote("quote-1", "revision-1", "price-1"), {
+    linkage:dto.linkage,scope:dto.scope,quoteProvenance:dto.quoteProvenance,associatedSalesOrderIds:dto.associatedSalesOrderIds,
+    current:{id:"terms-1",version:2,createdAt:dto.current.createdAt,updatedAt:dto.current.updatedAt,
+      customerConfirmedPrice:"12.30",customerConfirmedPriceCurrency:"CNY",confirmedLaborPrice:"3.25",laborCurrency:"USD",saleVisibility:"allowed",laborVisibility:"allowed"},
+  });
   await client.updateBySalesOrder("order-1", {
     expectedVersion: 2,
     customerConfirmedPrice: "13.00",
@@ -48,6 +51,23 @@ test("commercial terms client uses exact provenance and trusted mutation headers
   assert.equal(requests[1].init?.method, "PATCH");
   assert.equal(new Headers(requests[1].init?.headers).get("X-Zhixu-Request"), "1");
   assert.equal(requests[1].init?.credentials, "include");
+});
+
+test("restricted client values are absent, partial PATCH omits hidden fields and legacy replies fail closed",async()=>{
+ let sent="";
+ const restricted={...dto,current:{...dto.current,sale:{visibility:"restricted"},labor:{visibility:"restricted"}}};
+ const client=createConfirmedCommercialTermsServerClient({fetchImpl:(async(_url,init)=>{
+  sent=String(init?.body??"");return new Response(JSON.stringify({confirmedCommercialTerms:restricted}));
+ }) as typeof fetch});
+ const result=await client.updateBySalesOrder("order-1",{expectedVersion:2,customerConfirmedPrice:null});
+ assert.deepEqual(JSON.parse(sent),{expectedVersion:2,customerConfirmedPrice:null});
+ assert.equal(Object.hasOwn(result.current!,"customerConfirmedPrice"),false);
+ assert.equal(Object.hasOwn(result.current!,"confirmedLaborPrice"),false);
+ assert.equal(Object.hasOwn(result.current!,"laborCurrency"),false);
+ for(const malformed of [{...dto,contract:undefined},{...restricted,current:{...restricted.current,sale:{visibility:"restricted",value:{price:"secret"}}}}]){
+  const bad=createConfirmedCommercialTermsServerClient({fetchImpl:(async()=>new Response(JSON.stringify({confirmedCommercialTerms:malformed}))) as typeof fetch});
+  await assert.rejects(bad.getBySalesOrder("order-1"),{code:"commercial_read_contract_invalid"});
+ }
 });
 
 test("Quote terms mutation serializes both CAS versions; mismatched provenance rejects read/write", async () => {

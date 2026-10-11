@@ -117,6 +117,7 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
   const creator = await seedUser(pool, "creator", ["quote.create"]);
   const editor = await seedUser(pool, "editor", ["quote.edit"]);
   const full = await seedUser(pool, "full", [
+    "commercial.sale.view", "commercial.sale.edit", "commercial.labor.view", "commercial.labor.edit",
     "quote.view", "quote.create", "quote.edit", "quote.confirm", "quote.revision.update",
     "quote.price_version.create", "quote.price_version.delete", "quote.cost.view", "quote.cost.edit", "quote.settings.edit", "estimate.edit", "estimate.view",
   ]);
