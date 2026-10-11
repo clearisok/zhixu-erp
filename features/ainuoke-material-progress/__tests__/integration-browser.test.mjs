@@ -10,7 +10,7 @@ import {startOrderIntegrationPreview} from '../integration-preview/server.mjs';
 async function until(check,label){const deadline=Date.now()+30000;while(Date.now()<deadline){if(await check())return;await new Promise(done=>setTimeout(done,100));}throw new Error('timeout: '+label);}
 test('actual Order list/detail/Control Tower closed loop at 1440/1280/390 with isolated session API',async t=>{
   const fixture=await startOrderMaterialFixture(); const preview=await startOrderIntegrationPreview(fixture.base);const temp=await mkdtemp(join(tmpdir(),'zhixu-order-integration-'));const profile=join(temp,'profile');
-  let browser,ws,sessionId,sequence=0;const pending=new Map(),requests=[],errors=[];let checks=0;
+  let browser,ws,sessionId,sequence=0;const pending=new Map(),requests=[],errors=[];let checks=0;const visualMetrics=[];
   try {
     const port=new URL(preview.url).port;assert.ok(!['3000','3001','3002','18443','18444'].includes(port));
     const chrome='C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';assert.ok(existsSync(chrome));
@@ -27,10 +27,21 @@ test('actual Order list/detail/Control Tower closed loop at 1440/1280/390 with i
     const origin=new URL(preview.url).origin;
     const navigate=async path=>{await command('Page.navigate',{url:origin+path});};
     const waitDetail=()=>until(()=>evaluate("document.body.innerText.includes('物料采购汇总') && !document.body.innerText.includes('读取物料来源…')"),'actual order detail');
-    const capture=async label=>{const dir=new URL('../../../docs/tasks/active/evidence/order-material-night/',import.meta.url);await mkdir(dir,{recursive:true});const shot=await command('Page.captureScreenshot',{format:'png'});await writeFile(new URL(label,dir),Buffer.from(shot.data,'base64'));};
+    const capture=async label=>{const dir=new URL('../../../docs/tasks/active/evidence/order-material-p6-restoration/',import.meta.url);await mkdir(dir,{recursive:true});const shot=await command('Page.captureScreenshot',{format:'png'});await writeFile(new URL(label,dir),Buffer.from(shot.data,'base64'));};
     for(const width of [1440,1280,390]) await t.test(`${width}px actual components summary/detail/return`,async()=>{
       await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await navigate('/order-center');
       await until(()=>evaluate(`document.body.innerText.includes('${fixture.orders[0].orderNo}')`),'actual formal list');checks++;
+      const styles=await evaluate(`(()=>{const style=sel=>{const el=document.querySelector(sel);const css=el&&getComputedStyle(el);return el?{display:css.display,direction:css.flexDirection,width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height}:null;};const controls=[...document.querySelectorAll('.qc-toolbar input,.qc-toolbar button,.qc-toolbar-desktop-more select')].filter(el=>el.getBoundingClientRect().height>0).map(el=>({label:el.getAttribute('aria-label')||el.textContent,x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y}));return{width:innerWidth,foundationLoaded:[...document.querySelectorAll('style[data-vite-dev-id]')].some(el=>el.getAttribute('data-vite-dev-id').endsWith('/app/foundation.css')),toolbar:style('.qc-toolbar'),page:style('.qc-page-container'),records:style('.qc-responsive-record-list'),table:style('.qc-table-wrap'),card:style('.oc-list-card'),tableCount:document.querySelectorAll('.oc-server-order-table .qc-data-table').length,controls,overflow:document.documentElement.scrollWidth>innerWidth+1};})()`);
+      visualMetrics.push({page:'list',...styles});console.log('LIST COMPUTED '+JSON.stringify(styles));
+      await capture(`list-${width}.png`);
+      assert.equal(styles.toolbar.display,'flex','Foundation toolbar must use flex');checks++;
+      assert.equal(styles.toolbar.direction,'row','Toolbar controls remain horizontal');checks++;
+      assert.equal(styles.page.display,'grid','PageContainer Foundation grid');checks++;
+      assert.equal(styles.foundationLoaded,true,'Actual Foundation stylesheet loaded');checks++;
+      assert.equal(styles.tableCount,1,'One original DataTable');checks++;
+      assert.equal(styles.overflow,false,'List has no document overflow');checks++;
+      if(width>=1280){assert.equal(styles.records.display,'none','Desktop mobile cards hidden');assert.notEqual(styles.table.display,'none','Desktop table visible');assert.ok(Math.abs(styles.table.width-styles.card.width)<3,'Table fills white card');assert.ok(Math.max(...styles.controls.map(c=>c.y))-Math.min(...styles.controls.map(c=>c.y))<12,'Desktop controls form one row');checks+=4;}
+      else{assert.equal(styles.records.display,'grid','Original mobile records visible');assert.equal(styles.table.display,'none','Desktop table hidden on mobile');checks+=2;}
       await evaluate(`Array.from(document.querySelectorAll('tbody tr, [role="row"], .qc-record-card')).find(el=>el.innerText.includes('${fixture.orders[0].orderNo}'))?.click()`);
       // Narrow-screen records use actual Open detail actions rather than a table row.
       if(width===390) await evaluate("Array.from(document.querySelectorAll('button')).find(el=>el.textContent.includes('查看详情'))?.click()");
@@ -79,6 +90,7 @@ test('actual Order list/detail/Control Tower closed loop at 1440/1280/390 with i
   } finally {
     ws?.close();if(browser&&browser.exitCode===null){await until(()=>browser.exitCode!==null,'Chrome closed').catch(()=>browser.kill());}
     await preview.close();await fixture.close();assert.ok(resolve(temp).startsWith(resolve(tmpdir())+'\\zhixu-order-integration-'));await rm(temp,{recursive:true,force:true});
+        const evidence=new URL('../../../docs/tasks/active/evidence/order-material-p6-restoration/',import.meta.url);await mkdir(evidence,{recursive:true});await writeFile(new URL('computed-styles.json',evidence),JSON.stringify(visualMetrics,null,2)+'\n');
     console.log('Order integration cleanup PASS: private browser/profile/API/Vite/disposable PG removed');
   }
 });

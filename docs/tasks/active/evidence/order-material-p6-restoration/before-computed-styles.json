@@ -1,0 +1,201 @@
+[
+  {
+    "page": {
+      "display": "grid",
+      "direction": "row",
+      "width": 1220,
+      "height": 1391.796875
+    },
+    "width": 1440,
+    "foundationLoaded": false,
+    "toolbar": {
+      "display": "block",
+      "direction": "row",
+      "width": 1144,
+      "height": 412
+    },
+    "records": {
+      "display": "block",
+      "direction": "row",
+      "width": 1142,
+      "height": 328
+    },
+    "table": {
+      "display": "block",
+      "direction": "row",
+      "width": 1142,
+      "height": 186
+    },
+    "card": {
+      "display": "block",
+      "direction": "row",
+      "width": 1144,
+      "height": 579
+    },
+    "tableCount": 1,
+    "controls": [
+      {
+        "label": "搜索正式订单",
+        "x": 317.078125,
+        "y": 388.796875
+      },
+      {
+        "label": "查询",
+        "x": 225,
+        "y": 414.796875
+      },
+      {
+        "label": "全部生命周期草稿已确认执行中已完成已取消",
+        "x": 225,
+        "y": 482.796875
+      },
+      {
+        "label": "全部来源艾诺科报价翻单手工",
+        "x": 225,
+        "y": 551.796875
+      },
+      {
+        "label": "正式订单号更新时间合同交期BillNo",
+        "x": 225,
+        "y": 620.796875
+      },
+      {
+        "label": "升序降序",
+        "x": 225,
+        "y": 689.796875
+      },
+      {
+        "label": "筛选",
+        "x": 225,
+        "y": 734.796875
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "page": {
+      "display": "grid",
+      "direction": "row",
+      "width": 1060,
+      "height": 1391.796875
+    },
+    "width": 1280,
+    "foundationLoaded": false,
+    "toolbar": {
+      "display": "block",
+      "direction": "row",
+      "width": 984,
+      "height": 412
+    },
+    "records": {
+      "display": "block",
+      "direction": "row",
+      "width": 982,
+      "height": 328
+    },
+    "table": {
+      "display": "block",
+      "direction": "row",
+      "width": 982,
+      "height": 186
+    },
+    "card": {
+      "display": "block",
+      "direction": "row",
+      "width": 984,
+      "height": 579
+    },
+    "tableCount": 1,
+    "controls": [
+      {
+        "label": "搜索正式订单",
+        "x": 317.078125,
+        "y": 388.796875
+      },
+      {
+        "label": "查询",
+        "x": 225,
+        "y": 414.796875
+      },
+      {
+        "label": "全部生命周期草稿已确认执行中已完成已取消",
+        "x": 225,
+        "y": 482.796875
+      },
+      {
+        "label": "全部来源艾诺科报价翻单手工",
+        "x": 225,
+        "y": 551.796875
+      },
+      {
+        "label": "正式订单号更新时间合同交期BillNo",
+        "x": 225,
+        "y": 620.796875
+      },
+      {
+        "label": "升序降序",
+        "x": 225,
+        "y": 689.796875
+      },
+      {
+        "label": "筛选",
+        "x": 225,
+        "y": 734.796875
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "page": {
+      "display": "grid",
+      "direction": "row",
+      "width": 390,
+      "height": 995
+    },
+    "width": 390,
+    "foundationLoaded": false,
+    "toolbar": {
+      "display": "block",
+      "direction": "row",
+      "width": 366,
+      "height": 140
+    },
+    "records": {
+      "display": "grid",
+      "direction": "row",
+      "width": 364,
+      "height": 391
+    },
+    "table": {
+      "display": "none",
+      "direction": "row",
+      "width": 0,
+      "height": 0
+    },
+    "card": {
+      "display": "block",
+      "direction": "row",
+      "width": 366,
+      "height": 456
+    },
+    "tableCount": 1,
+    "controls": [
+      {
+        "label": "搜索正式订单",
+        "x": 105.078125,
+        "y": 373
+      },
+      {
+        "label": "查询",
+        "x": 13,
+        "y": 403
+      },
+      {
+        "label": "筛选",
+        "x": 13,
+        "y": 447
+      }
+    ],
+    "overflow": false
+  }
+]
