@@ -2,7 +2,7 @@
 
 ## 当前 — PR92 整合已合并 PR93（2026-10-12）
 
-最新main070d958008709d06636ba329a3bba0d14e4a023b，PR93已MERGED；D103四键、CCT字段投影/部分PATCH与Quote成本/销售价/历史/导出/日志保护保持。PR92原P6/精简详情/Control Tower用户人工验收已PASS，仍Draft。正在普通merge逐hunk整合五文件并执行联合回归，不能沿用旧测试数量；executionOnly不读写CCT，Source capability/生产route默认未开放，不回退Browser。
+最新main070d958008709d06636ba329a3bba0d14e4a023b，PR93已MERGED；D103四键、CCT字段投影/部分PATCH与Quote成本/销售价/历史/导出/日志保护保持。PR92原P6/精简详情/Control Tower用户人工验收已PASS，仍Draft。普通merge a252d82791d3b0cf2a216cc2939a64ec9caf50c7与负向审计5a603b60e09ab80547a69e63e3e85e180f0cc6c2已推送；本轮Source78/78、Material HTTP/安全19/19、实际Chromium闭环7/7(115断言)/商业15/15 PASS，全量质量Gate进行中；executionOnly不读写CCT，Source capability/生产route默认未开放，不回退Browser。
 
 起始B local/origin/PR92 03b1078e99ff44ceb875dd0b01a1e22358f4dab6；Gate0 checkpoint5925a4db8e77690c3308766d57e5039d59c99bde已正常push。唯一继承dirty为Gate1文档30行，SHA2568B24F58EB42F2141778F1EBE69138C64449BE04F522757CBC50325FB5286E21E，严禁stage/覆盖。当前Gate/test/remote记录见[本轮接力](tasks/active/order-material-pr93-integration.md)。旧B/Main恢复点的日期/hash/测试/网络结论保留在[合并前快照](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)、[P6修复报告](tasks/active/order-material-p6-restoration.md)与[PR93安全报告](tasks/active/commercial-amount-read-security.md)，不改写历史。
 

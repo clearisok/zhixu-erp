@@ -25,9 +25,9 @@ test('actual Order list/detail/Control Tower closed loop at 1440/1280/390 with i
     await command('Page.addScriptToEvaluateOnNewDocument',{source:`window.businessWrites=[];const set=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(/order|style-progress|quote|permission/i.test(key))window.businessWrites.push(key);return set.call(this,key,value)};const open=indexedDB.open.bind(indexedDB);indexedDB.open=(...args)=>{window.businessWrites.push('indexedDB');return open(...args)};`});
     const cookie=await fixture.login('tracker-a');const [name,value]=cookie.split('=');await command('Network.setCookie',{name,value,domain:'127.0.0.1',path:'/',httpOnly:true});
     const origin=new URL(preview.url).origin;
-    const navigate=async path=>{await command('Page.navigate',{url:origin+path});};
+    const navigate=async path=>{await evaluate('window.previousDocument=true');await command('Page.navigate',{url:origin+path});await until(()=>evaluate('window.previousDocument!==true && document.readyState==="complete"'),'fresh document');};
     const waitDetail=()=>until(()=>evaluate("document.body.innerText.includes('物料采购汇总') && !document.body.innerText.includes('读取物料来源…')"),'actual order detail');
-    const capture=async label=>{const dir=new URL('../../../docs/tasks/active/evidence/order-material-p6-restoration/',import.meta.url);await mkdir(dir,{recursive:true});const shot=await command('Page.captureScreenshot',{format:'png'});await writeFile(new URL(label,dir),Buffer.from(shot.data,'base64'));};
+    const capture=async label=>{const dir=new URL('../../../docs/tasks/active/evidence/order-material-pr93-integration/',import.meta.url);await mkdir(dir,{recursive:true});const shot=await command('Page.captureScreenshot',{format:'png'});await writeFile(new URL(label,dir),Buffer.from(shot.data,'base64'));};
     for(const width of [1440,1280,390]) await t.test(`${width}px actual components summary/detail/return`,async()=>{
       await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await navigate('/order-center');
       await until(()=>evaluate(`document.body.innerText.includes('${fixture.orders[0].orderNo}')`),'actual formal list');checks++;
@@ -87,7 +87,7 @@ test('actual Order list/detail/Control Tower closed loop at 1440/1280/390 with i
       await until(()=>evaluate("document.querySelector('[role=alert]')?.textContent.includes('不会回退 Browser')"),'unauthorized B after switch');assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);checks++;
     });
     await t.test('unconnected UI and actual summary/detail use same item counts',async()=>{
-      fixture.scenario('unconnected');await navigate(`/order-center/style-progress/detail?orderId=${fixture.orders[0].id}`);await until(()=>evaluate("document.body.innerText.includes('正式物料来源尚未接通')"),'unconnected actual page');assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);checks++;
+      fixture.scenario('unconnected');await navigate(`/order-center/style-progress/detail?orderId=${fixture.orders[0].id}`);try { await until(()=>evaluate("document.body.innerText.includes('正式物料来源尚未接通')"),'unconnected actual page'); } catch(error) { throw Error(error.message+'; synthetic page: '+await evaluate('document.body.innerText')); }assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);checks++;
       fixture.scenario('complete');await navigate(`/order-center/server-detail?id=${fixture.orders[0].id}`);await waitDetail();
       const data=await(await fetch(fixture.base+`/api/v1/sales-orders/${fixture.orders[0].id}/material-progress`,{headers:{Cookie:cookie}})).json();
       assert.ok(await evaluate(`document.querySelector('.sp-server-summary').innerText.includes('面料 ${data.progress.summary.fabric.demands} 项') && document.querySelector('.sp-server-summary').innerText.includes('辅料 ${data.progress.summary.trim.demands} 项')`));checks++;
@@ -100,7 +100,7 @@ test('actual Order list/detail/Control Tower closed loop at 1440/1280/390 with i
   } finally {
     ws?.close();if(browser&&browser.exitCode===null){await until(()=>browser.exitCode!==null,'Chrome closed').catch(()=>browser.kill());}
     await preview.close();await fixture.close();assert.ok(resolve(temp).startsWith(resolve(tmpdir())+'\\zhixu-order-integration-'));await rm(temp,{recursive:true,force:true});
-        const evidence=new URL('../../../docs/tasks/active/evidence/order-material-p6-restoration/',import.meta.url);await mkdir(evidence,{recursive:true});await writeFile(new URL('computed-styles.json',evidence),JSON.stringify(visualMetrics,null,2)+'\n');
+        const evidence=new URL('../../../docs/tasks/active/evidence/order-material-pr93-integration/',import.meta.url);await mkdir(evidence,{recursive:true});await writeFile(new URL('computed-styles.json',evidence),JSON.stringify(visualMetrics,null,2)+'\n');
     console.log('Order integration cleanup PASS: private browser/profile/API/Vite/disposable PG removed');
   }
 });

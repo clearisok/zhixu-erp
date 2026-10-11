@@ -25,3 +25,10 @@ Gate1 普通 merge checkpoint **a252d82791d3b0cf2a216cc2939a64ec9caf50c7** 已�
 rg证明早期 commercial-read-policy 仅有测试引用。它已移到 __tests__/historical-commercial-read-policy.ts，明确 deprecated/历史测试专用；原root测试仅验证历史边界，不充当生产授权。运行时唯一CCT权限投影保持 server/confirmed-commercial-terms/read-projection.ts；Material DTO不接商业字段。
 
 本轮实际：Source/Gate1/Gate1.5/物料纯投影/历史helper **78/78 PASS**（5000需求投影+搜索485.3ms）；Material HTTP+新负向审计 **19/19 PASS**；改动文件定向ESLint PASS。来源日期异步推进、unknown/zero、厂供、BillNo/Inside漂移、缺页/身份冲突、跨订单隔离、价格/事件去重均保持。尚未完成全量和浏览器Gate。继承dirty原hash未改变。
+## Gate3/4 — 联合实际 Chromium 与 P6 视觉
+
+Gate2 checkpoint **5a603b60e09ab80547a69e63e3e85e180f0cc6c2** 正常推送。复用原组件，隔离导航驱动增加真实 document 完成等待；商业夹具桥只调用真实 session.refresh，不注入身份/权限。Order无权输入断言从disabled加强为不挂载；Quote已有安全否定断言全部保留。新增确定性测试先收到真实授权CCT响应并阻止其交付，再撤权/刷新或A→B→A，最后按控制顺序释放旧/当前响应，证明旧值/草稿不能复活；第二订单仅在随机测试数据库合成。
+
+实际合成 Chromium：P6/物料闭环 **7/7，115断言 PASS**；商业安全 **15/15 PASS**。首轮驱动失败未计PASS：注入字符串语法和跨页面等待问题修复后全套重跑。1440/1280单桌面表格、flex/row/65px、records:none；390原移动records:grid/表格隐藏；详情3/1列、默认技术折叠、颜色完整、物料局部横滚/采购价格/精确UUID返回、无CCT请求/Browser业务存储写入均通过。已查看本轮桌面详情/物料、移动详情/采购价格截图，原绿色侧栏/暖灰/白色容器保留；原P6截图与当前像素SHA对照见新证据，原图未覆盖。[证据索引](evidence/order-material-pr93-integration/README.md)。原用户人工验收已PASS，本轮是工程回归。
+
+构建已实际串行：server:build PASS → 显式Server quote/master-settings/session/writable前端build PASS（42路由）。默认Browser构建及全量质量Gate待后续运行。Docker/私有profile/API/Vite清理成功，不操作真实环境。继承dirty哈希保持原值。
