@@ -18,3 +18,10 @@
 五文件审查：server/app.ts 保留可选 Material GET 的 session/order.view/style_progress.read/可信订单范围/固定 Source，以及 CCT commercial-terms-read.v1 投影与部分 PATCH；CCT 集成测试保留共享当前值、精确 provenance、null/0、币种、CAS/事务审计规则。订单详情保留 B 紧凑布局、颜色、物料摘要、技术折叠及 UUID 返回；采用 main ClientDto/四键和部分 PATCH。执行模式不发 CCT GET/PATCH、不挂载金额卡片/编辑器；非执行模式不挂载无权字段输入。统一单一请求 epoch，订单/用户/权限/模式 scope 变化先隐藏旧状态并清空草稿，忽略过期成功/失败及 PATCH/409 reload；物料摘要按同一 scope 重新挂载。
 
 本轮实际检查：typecheck PASS；订单详情定向 ESLint PASS；CCT Client + CCT/商业权限/linked terms/物料 HTTP **52/52 PASS**（随机 disposable PostgreSQL，真实 session，合成数据）；diff-check PASS。完整 PostgreSQL、浏览器及全量质量检查仍待执行。继承 dirty SHA256 保持 8B24F58EB42F2141778F1EBE69138C64449BE04F522757CBC50325FB5286E21E，未 stage。
+## Gate2 — 负向安全审计及历史 helper
+
+Gate1 普通 merge checkpoint **a252d82791d3b0cf2a216cc2939a64ec9caf50c7** 已正常推送。旧 order-material-security-audit 的泄露正向断言已全部替换为真实 HTTP 负向测试，复用 PR93 disposable fixture。匿名401，viewer/cost/sale/labor/full五种授权，Order/Quote同一CCT字段 envelope、敏感值缺失、no-store、只读不能PATCH、现有session撤权后无缓存值、默认Material503均验证；普通viewer未补商业授权。
+
+rg证明早期 commercial-read-policy 仅有测试引用。它已移到 __tests__/historical-commercial-read-policy.ts，明确 deprecated/历史测试专用；原root测试仅验证历史边界，不充当生产授权。运行时唯一CCT权限投影保持 server/confirmed-commercial-terms/read-projection.ts；Material DTO不接商业字段。
+
+本轮实际：Source/Gate1/Gate1.5/物料纯投影/历史helper **78/78 PASS**（5000需求投影+搜索485.3ms）；Material HTTP+新负向审计 **19/19 PASS**；改动文件定向ESLint PASS。来源日期异步推进、unknown/zero、厂供、BillNo/Inside漂移、缺页/身份冲突、跨订单隔离、价格/事件去重均保持。尚未完成全量和浏览器Gate。继承dirty原hash未改变。

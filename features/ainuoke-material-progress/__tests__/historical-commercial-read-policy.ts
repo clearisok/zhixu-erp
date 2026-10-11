@@ -1,5 +1,6 @@
-import type { ConfirmedCommercialTermsDto } from '../confirmed-commercial-terms/model.ts';
-import type { TrustedIdentity } from '../../server/auth/session.ts';
+/** @deprecated Gate1 historical test helper only. D103 runtime uses server/confirmed-commercial-terms/read-projection.ts. Never import into UI, Material DTO or HTTP. */
+import type { ConfirmedCommercialTermsDto } from '../../confirmed-commercial-terms/model.ts';
+import type { TrustedIdentity } from '../../../server/auth/session.ts';
 
 export type CommercialReadDecision = { salesPrice: boolean; laborPrice: boolean };
 export type CommercialReadPolicy = (actor: TrustedIdentity) => CommercialReadDecision;
