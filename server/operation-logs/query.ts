@@ -60,10 +60,23 @@ function omitEstimateSummary(value: unknown): unknown {
   return value;
 }
 
-/** Response projection only: persisted historical events remain unchanged. */
+const costKeys=new Set(["fabrics","trims","labor","otherCosts","pricingParameters","confirmation","unitPrice","amount","usage","lossRate","value","usdCnyRate","markupRate","freightAmount","quotedGarmentPrice","confirmedGarmentPrice","quotedLaborPrice","confirmedLaborPrice"]);
+function omitCost(value:unknown):unknown {
+ if(Array.isArray(value))return value.map(omitCost);
+ if(value&&typeof value==="object")return Object.fromEntries(Object.entries(value).filter(([key])=>!costKeys.has(key)).map(([key,child])=>[key,omitCost(child)]));
+ return value;
+}
+/** Persisted audit facts stay complete; unapproved CCT policy stays separate. */
 export function projectOperationLogResponse(actor: TrustedIdentity, log: ServerOperationLog): ServerOperationLog {
-  if (actor.permissions.includes("estimate.view")) return log;
-  const projected = omitEstimateSummary(log) as ServerOperationLog;
-  projected.changes = projected.changes.filter(change => change.field !== "estimateHistoryCount");
-  return projected;
+ let projected=log;
+ if(!actor.permissions.includes("estimate.view")||!actor.permissions.includes("quote.cost.view")){
+  projected=omitEstimateSummary(projected) as ServerOperationLog;
+  projected.changes=projected.changes.filter(change=>change.field!=="estimateHistoryCount");
+ }
+ if(!actor.permissions.includes("quote.cost.view")&&(log.entityType==="Quote"||log.entityType==="EstimateCost")){
+  projected=omitCost(projected) as ServerOperationLog;
+  projected.changes=projected.changes.filter(change=>!change.field.split(/[.\[\]]/).some(key=>costKeys.has(key)));
+  projected.costVisibility="restricted";
+ }
+ return projected;
 }

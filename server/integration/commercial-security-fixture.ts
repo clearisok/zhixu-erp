@@ -30,7 +30,8 @@ export async function startCommercialSecurityFixture() {
     const terms=(await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,quote_id,revision_id,price_version_id,customer_confirmed_price,confirmed_labor_price,labor_currency) VALUES ('quote',$1,$2,$3,12345,67890,'USD') RETURNING id",[quote.id,revision.revisionId,pv.id])).rows[0];
     await pool.query("INSERT INTO confirmed_commercial_terms_sales_orders(sales_order_id,confirmed_commercial_terms_id) VALUES ($1,$2)",[order.id,terms.id]);
     const origin="http://127.0.0.1";
-    server=createServer(createApp({pool,allowedOrigins:[origin],security:{secureCookies:false,sessionTtlSeconds:60}}));
+    const errors:Record<string,unknown>[]=[];
+    server=createServer(createApp({pool,logger:{error:event=>errors.push(event)},allowedOrigins:[origin],security:{secureCookies:false,sessionTtlSeconds:60}}));
     await new Promise<void>(done=>server!.listen(0,"127.0.0.1",done));
     const address=server.address(); assert.ok(address&&typeof address==="object");
     const base=`http://127.0.0.1:${address.port}`;
@@ -46,6 +47,6 @@ export async function startCommercialSecurityFixture() {
       const result=await request("/api/v1/auth/login",undefined,{username,password:"synthetic-only"},"POST"); assert.equal(result.response.status,200);
       return result.response.headers.get("set-cookie")!.split(";")[0];
     };
-    return { pool, record, quotePath:`/api/v1/quotes/${quote.id}`, orderPath:`/api/v1/sales-orders/${order.id}/confirmed-commercial-terms`, quoteTermsPath:`/api/v1/quotes/${quote.id}/revisions/${revision.revisionId}/price-versions/${pv.id}/confirmed-commercial-terms`, user,request,close };
+    return { pool, record, errors, quotePath:`/api/v1/quotes/${quote.id}`, orderPath:`/api/v1/sales-orders/${order.id}/confirmed-commercial-terms`, quoteTermsPath:`/api/v1/quotes/${quote.id}/revisions/${revision.revisionId}/price-versions/${pv.id}/confirmed-commercial-terms`, user,request,close };
   } catch(error) { await close(); throw error; }
 }

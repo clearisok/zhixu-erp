@@ -197,7 +197,7 @@ function quoteBody(body: Record<string, unknown>): { quote: import("./quotes/quo
   if (!body.quote || typeof body.quote !== "object" || Array.isArray(body.quote)) {
     throw new HttpError(400, "invalid_quote_request", "quote must be an object");
   }
-  const authorityKeys = new Set(["actor", "actorUserId", "internalUserId", "userId", "role", "permissions", "estimateVisibility"]);
+  const authorityKeys = new Set(["actor", "actorUserId", "internalUserId", "userId", "role", "permissions", "estimateVisibility", "costVisibility"]);
   const containsAuthorityField = (value: unknown): boolean => {
     if (Array.isArray(value)) return value.some(containsAuthorityField);
     if (!value || typeof value !== "object") return false;

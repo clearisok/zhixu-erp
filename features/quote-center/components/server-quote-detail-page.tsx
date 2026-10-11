@@ -21,6 +21,7 @@ import type { QuoteResponseRecord as QuoteRecord } from "../../../server/quotes/
 import { quoteServerRepository } from "../server/quote-server-repository";
 import { classifyQuoteServerReadFailure, displayServerDecimal, quoteServerReadErrorLabel } from "../server/quote-server-read-model";
 
+import { RestrictedQuoteContent } from "./restricted-quote-content";
 type Revision = ServerQuote["revisions"][number];
 type PriceVersion = Revision["priceVersions"][number];
 type Estimate = NonNullable<ServerQuote["activeEstimateCost"]>;
@@ -119,6 +120,8 @@ export function ServerQuoteDetailPage() {
   const quoteId = useSearchParams().get("id")?.normalize("NFKC").trim() ?? "";
   const serverSession = useServerSession();
   const [record, setRecord] = useState<QuoteRecord | null>(null);
+  const [loadedIdentity,setLoadedIdentity]=useState("");
+  const readIdentity=`${quoteId}/${serverSession.user?.id??""}/${serverSession.permissions.join("|")}`;
   const [loading, setLoading] = useState(true);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
@@ -139,7 +142,8 @@ export function ServerQuoteDetailPage() {
     setNotFound(false);
     setError(null);
     try {
-      setRecord(await quoteServerRepository.getById(quoteId));
+      const next=await quoteServerRepository.getById(quoteId);
+      setLoadedIdentity(readIdentity);setRecord(next);
     } catch (nextError) {
       const failure = classifyQuoteServerReadFailure(nextError);
       if (failure === "unauthorized") {
@@ -155,7 +159,7 @@ export function ServerQuoteDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [quoteId, serverSession]);
+  }, [quoteId, serverSession,readIdentity]);
 
   useEffect(() => {
     if (serverSession.status === "authenticated" && serverSession.hasPermission("quote.view")) {
@@ -191,6 +195,8 @@ export function ServerQuoteDetailPage() {
     </ServerQuoteDetailFrame>
   );
 
+  if(record && (loadedIdentity!==readIdentity || (!serverSession.hasPermission("quote.cost.view") && record.costVisibility!=="restricted"))) return <ServerQuoteDetailFrame quote={null}><LoadingState label="重新核对报价读取权限" /></ServerQuoteDetailFrame>;
+  if(record?.costVisibility==="restricted") return <RestrictedQuoteContent key={`${record.quote.id}/${serverSession.user?.id}`} initial={record}/>;
   const quote = record?.quote;
   const revision = quote?.revisions.find((item) => item.revisionId === quote.defaultRevisionId)
     ?? quote?.revisions.find((item) => item.revisionId === quote.currentRevisionId)

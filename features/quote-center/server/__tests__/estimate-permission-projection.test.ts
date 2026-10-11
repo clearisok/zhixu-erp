@@ -9,7 +9,7 @@ import { createQuoteServerClient } from "../quote-server-client";
 import { readableEstimateQuote } from "../../model/quote-editor-data";
 import type { TrustedIdentity } from "../../../../server/auth/session";
 
-const actor: TrustedIdentity = { internalUserId: "1", userId: "synthetic", username: "synthetic", userName: "Synthetic", permissions: ["quote.view", "quote.edit"] };
+const actor: TrustedIdentity = { internalUserId: "1", userId: "synthetic", username: "synthetic", userName: "Synthetic", permissions: ["quote.view", "quote.edit", "quote.cost.view"] };
 const record = () => ({ quote: quoteSnapshotFromBrowser(createSyntheticQuoteFixture("permission-editor")), version: 7 });
 
 test("restricted projection is independent of Estimate presence; adapter retains omitted fields rather than fake empty values", () => {

@@ -9,6 +9,7 @@ import { HttpError } from "../http/errors.js";
 import { appendOperationLog } from "../operation-logs/repository.js";
 import { QuoteConflictError, QuoteInvariantError, normalizeServerQuote, validateQuote, type QuoteRecord, type ServerQuote } from "./model.js";
 import { projectQuoteResponse, type QuoteSaveContent } from "./quote-response.js";
+import { restoreRestrictedQuoteCosts } from "./restricted-save.js";
 import { createQuoteRepository, type QuoteMutationHook } from "./repository.js";
 import { createServerQuoteDraft } from "./draft.js";
 import { allocateQuoteCode } from "./numbering.js";
@@ -271,7 +272,8 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
       // Repository CAS still protects races occurring after this read.
       let input: ServerQuote;
       try {
-        input = normalizeServerQuote({ ...content, activeEstimateCost: before.quote.activeEstimateCost, estimateCostHistory: before.quote.estimateCostHistory });
+        const restored = actor.permissions.includes("quote.cost.view") ? content : restoreRestrictedQuoteCosts(content, before.quote);
+        input = normalizeServerQuote({ ...restored, activeEstimateCost: before.quote.activeEstimateCost, estimateCostHistory: before.quote.estimateCostHistory } as ServerQuote);
         validateQuote(input);
       } catch (error) {
         if (error instanceof QuoteInvariantError || error instanceof TypeError) throw new HttpError(400, "invalid_quote", "Quote aggregate is invalid");

@@ -1,5 +1,13 @@
 # 权限系统
 
+## Quote aggregate 成本读取安全边界（2026-10-11）
+
+实际 Server aggregate 的所有响应在序列化前检查既有 `quote.cost.view`。无权身份仍可 quote.view 读取基础资料及数量，响应明确 `costVisibility: restricted`，不返回任何 Revision/PV 成本、参数、历史确认金额或派生字段；Estimate 完整数值同时要求 quote.cost.view 与 estimate.view。不能用 null/0/空数组冒充隐藏数据。
+
+metadata-only PUT 先校验版本再恢复当前数据库保护切片，不清空成本/Estimate/历史；成本注入、伪造 visibility/身份和移除行失败，成本写入/参数/确认/版本原权限保持。受限客户端只消费基础资料，不挂成本计算器/完整 Editor；有权用户原 Editor 保留。no-store 及身份/权限 cache scope 防止旧完整响应串用户。
+
+Quote/Estimate 操作日志响应按同一成本权限裁剪，保护事件在计数/分页前排除；DB 审计仍完整。采购执行来源价格团队共享不受此规则影响。两个 CCT GET 与独立销售价/工价政策仍 **SECURITY PENDING**；准备的可注入投影未安装、没有新权限键或默认角色授权。[安全证据与待审政策](../tasks/active/commercial-amount-read-security.md)。
+
 ## Desktop two-step Quote creation（2026-10-10）
 
 - `creation-options`、`creation-preview`、`creation-workflows`、本人`creation-receipts`均要求可信IdentityAuthority + `quote.create`；Session最终事务再次检查用户active及数据库权限/撤权。本机显式local-single-user沿用Authority有效授权，不要求技术actor具有角色关联，仍锁定校验active/public ID；模式仅来自Server Authority配置，客户端username/role/header/body不能切换模式。options只返回active品牌/同品牌业务员/预设的最小ID/name/country，候选有界且支持搜索，不返回受保护数值。

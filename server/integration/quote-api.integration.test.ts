@@ -10,6 +10,7 @@ import type { TrustedIdentity } from "../auth/session.js";
 import { runMigrations } from "../db/migration-runner.js";
 import { quoteSnapshotFromBrowser, type QuoteRecord, type ServerQuote } from "../quotes/model.js";
 import { createQuoteService, createTrustedQuoteService } from "../quotes/service.js";
+import { costRestrictedQuote } from "../quotes/quote-response.js";
 import { startDisposablePostgres } from "./postgres-container.js";
 import { createSyntheticQuoteFixture } from "./quote-fixture.js";
 
@@ -117,7 +118,7 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
   const editor = await seedUser(pool, "editor", ["quote.edit"]);
   const full = await seedUser(pool, "full", [
     "quote.view", "quote.create", "quote.edit", "quote.confirm", "quote.revision.update",
-    "quote.price_version.create", "quote.price_version.delete", "quote.cost.edit", "quote.settings.edit", "estimate.edit", "estimate.view",
+    "quote.price_version.create", "quote.price_version.delete", "quote.cost.view", "quote.cost.edit", "quote.settings.edit", "estimate.edit", "estimate.view",
   ]);
   const cookies = {
     denied: await login(api.baseUrl, denied.identity.username, denied.password),
@@ -153,7 +154,10 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
       body: {},
     });
     assert.equal(result.response.status, 201);
-    createdRecord = result.payload.quote;
+    assert.equal((result.payload.quote as unknown as {costVisibility:string}).costVisibility,"restricted");
+    assert.equal(Object.hasOwn(result.payload.quote.quote.revisions[0].priceVersions[0],"labor"),false);
+    createdRecord = await createQuoteService(pool).getById(result.payload.quote.quote.id);
+    assert.ok(createdRecord);
     const createdQuote = createdRecord.quote;
     assert.match(createdQuote.id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
     assert.match(createdQuote.quoteCode, /^QT-\d{4}-\d{4}-\d{3,}$/);
@@ -194,7 +198,7 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
     assert.equal(list.payload.page.count, list.payload.quotes.length);
     const detail = await apiRequest<{ quote: QuoteRecord }>(api.baseUrl, `/api/v1/quotes/${createdQuote.id}`, { cookie: cookies.viewer });
     assert.equal(detail.response.status, 200);
-    assert.deepEqual(detail.payload.quote.quote, createdQuote);
+    assert.deepEqual(detail.payload.quote.quote, costRestrictedQuote(createdQuote));
     assert.equal((await apiRequest(api.baseUrl, "/api/v1/quotes?limit=101", { cookie: cookies.viewer })).response.status, 400);
     assert.equal((await apiRequest(api.baseUrl, "/api/v1/quotes/missing", { cookie: cookies.viewer })).response.status, 404);
   });
@@ -205,14 +209,15 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
     const basic = structuredClone(createdQuote);
     basic.revisions[0].baseInfo.note = "base edit";
     assert.equal((await apiRequest(api.baseUrl, `/api/v1/quotes/${basic.id}`, { cookie: cookies.viewer, method: "PUT", mutationBoundary: true, body: { quote: basic, expectedVersion: 1 } })).response.status, 403);
-    const cost = structuredClone(createdQuote);
+    const cost = structuredClone(createdQuote) as import("../quotes/quote-response.js").QuoteContent & Partial<Pick<ServerQuote,"activeEstimateCost"|"estimateCostHistory">>;
+    delete cost.activeEstimateCost;delete cost.estimateCostHistory;
     cost.revisions[0].priceVersions[0].labor.value = "88";
     assert.equal((await apiRequest(api.baseUrl, `/api/v1/quotes/${cost.id}`, { cookie: cookies.editor, method: "PUT", mutationBoundary: true, body: { quote: cost, expectedVersion: 1 } })).response.status, 403);
-    const saved = await apiRequest<{ quote: QuoteRecord }>(api.baseUrl, `/api/v1/quotes/${basic.id}`, { cookie: cookies.editor, method: "PUT", mutationBoundary: true, body: { quote: basic, expectedVersion: 1 } });
+    const saved = await apiRequest<{ quote: QuoteRecord }>(api.baseUrl, `/api/v1/quotes/${basic.id}`, { cookie: cookies.editor, method: "PUT", mutationBoundary: true, body: { quote: costRestrictedQuote(basic), expectedVersion: 1 } });
     assert.equal(saved.response.status, 200);
     assert.equal(saved.payload.quote.version, 2);
     assert.equal((await pool.query("SELECT count(*)::int AS n FROM operation_logs WHERE entity_type='Quote' AND entity_id=$1", [basic.id])).rows[0].n, 2);
-    const noOp = await apiRequest<{ quote: QuoteRecord }>(api.baseUrl, `/api/v1/quotes/${basic.id}`, { cookie: cookies.editor, method: "PUT", mutationBoundary: true, body: { quote: basic, expectedVersion: 2 } });
+    const noOp = await apiRequest<{ quote: QuoteRecord }>(api.baseUrl, `/api/v1/quotes/${basic.id}`, { cookie: cookies.editor, method: "PUT", mutationBoundary: true, body: { quote: costRestrictedQuote(basic), expectedVersion: 2 } });
     assert.equal(noOp.response.status, 200);
     assert.equal(noOp.payload.quote.version, 2);
     const logs = await pool.query<{ actor_public_id: string; request_id: string }>(
@@ -262,7 +267,7 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
     delete changed.activeEstimateCost;
     delete changed.estimateCostHistory;
     changed.quoteCode = "QT-2099-0101-999";
-    const response = await apiRequest<{ error: { code: string } }>(api.baseUrl, `/api/v1/quotes/${changed.id}`, { cookie: cookies.editor, method: "PUT", mutationBoundary: true, body: { quote: changed, expectedVersion: before.version } });
+    const response = await apiRequest<{ error: { code: string } }>(api.baseUrl, `/api/v1/quotes/${changed.id}`, { cookie: cookies.editor, method: "PUT", mutationBoundary: true, body: { quote: costRestrictedQuote(changed as ServerQuote), expectedVersion: before.version } });
     assert.equal(response.response.status, 409);
     assert.equal(response.payload.error.code, "quote_code_immutable");
     assert.deepEqual(await createTrustedQuoteService(pool).getById(before.quote.id), before);

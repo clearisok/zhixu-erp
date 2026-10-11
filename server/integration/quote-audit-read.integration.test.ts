@@ -28,7 +28,7 @@ test("Quote audit read: disposable exact filters, pagination and trusted Estimat
   await synchronizePermissionCatalog(pool);
   const identities: TrustedIdentity[] = [];
   const permissionSets: TrustedIdentity["permissions"][] = [
-    ["audit_log.view", "quote.view", "estimate.view"],
+    ["audit_log.view", "quote.view", "estimate.view", "quote.cost.view"],
     ["audit_log.view", "quote.view"],
     ["audit_log.view"],
     ["quote.view"],
