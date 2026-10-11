@@ -1,10 +1,14 @@
 # SalesOrder PostgreSQL Persistence Foundation
 
+## PR93 integration verification — 2026-10-12
+
+Ordinary main merge 070d958 preserves both optional Material GET and the commercial-terms-read.v1 CCT projection/partial PATCH. New Material HTTP negative audit reuses the shared synthetic security fixture and covers 401, viewer/cost/sale/labor/full read grants, no-store, read-only write rejection, immediate session revocation and default unconfigured Material503. CCT null/zero, exact provenance, linked/unlinked currencies, CAS and trustworthy audit/transaction behavior remain intact. No migration, roles policy change, live Source or production activation occurred. [Joint verification and current counts](../tasks/active/order-material-pr93-integration.md).
+
 ## Isolated material read HTTP contract — 2026-10-11 / PR #92 Draft
 
 `GET /api/v1/sales-orders/:uuid/material-progress` requires trusted session, `order.view` and `style_progress.read`. Client supplies UUID only; all query selectors are rejected. An injected trusted `resolveVisibleOrder` must enforce the authorized order scope before fixed Discovery → BillNo relation → current InsideOrderNo → 6087050 `insideorderno is` Source read. The existing adapter/projection returns completeness, freshness, unknown/zero, canonical items and separate events; procurement Source prices are shared, protected commercial prices are absent. Success is `Cache-Control: no-store`; provider errors are replaced with fixed public messages.
 
-The capability is optional and **not installed by server/index.ts**: default authenticated use returns 503 `material_read_not_connected`. A configured scope resolver without Source returns explicit `not_connected`; no Browser fallback, source-write API, new schema or live collection. Synthetic real-session HTTP11/11 and CCT regression7/7 passed on owned disposable PG16 only. Existing CCT/Quote aggregate price exposure was separately reproduced and remains **SECURITY GATE PENDING**, so this contract does not claim production security or team-scoped general Order list/detail. [Full scope, evidence and activation prerequisites](../tasks/active/order-material-night-integration.md).
+The capability is optional and **not installed by server/index.ts**: default authenticated use returns 503 `material_read_not_connected`. A configured scope resolver without Source returns explicit `not_connected`; no Browser fallback, source-write API, new schema or live collection. Synthetic real-session HTTP11/11 and CCT regression7/7 passed on owned disposable PG16 only. The original CCT/Quote exposure was subsequently fixed by merged PR93 / Active D103: independent sale/labor field envelopes, Quote cost projection and partial PATCH. This does not activate Material collection or claim team-scoped production Order list/detail. [Full scope, evidence and activation prerequisites](../tasks/active/order-material-night-integration.md).
 
 
 ## C4.3 DeliveryPlan domain (2026-10-09)

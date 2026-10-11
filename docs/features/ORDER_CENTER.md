@@ -1,15 +1,19 @@
 # 新订单中心
 
+## PR93 联合整合 — 2026-10-12 / PR92 Draft
+
+基于 main 070d958 普通 merge，原正式列表/P6结构保持；executionOnly 严格不发 CCT GET/PATCH、不挂载商业卡片/编辑器。非执行模式解析 commercial-terms-read.v1，sale/labor 各自 view+edit 才挂载对应输入并提交部分 PATCH，缺失字段不清空。单一请求 epoch 加订单/身份/权限/模式 scope，清理旧状态及草稿并忽略过期回应；按 scope 重新挂载物料摘要。实际合成 session/HTTP及私有 Chromium 已覆盖撤权、可控延迟和A→B→A，不接真实 Source或扩大普通角色权限。[本轮完整报告](../tasks/active/order-material-pr93-integration.md) / [原 UI 联合截图与computed styles](../tasks/active/evidence/order-material-pr93-integration/README.md)。
+
 ## Formal Server material execution slice — 2026-10-11 / PR #92 Draft
 
 原有正式列表与详情增加 execution-only 详情模式及紧凑物料摘要，使用唯一 `order-material-read.v1` 投影。详情不读取 CCT；来源基本信息、已证明的颜色数量与物料执行事实通过正式 UUID 展示；分码尚未进入正式 DTO，页面明确提示未接线。摘要进入 `/order-center/style-progress/detail?orderId=<uuid>` 的 Server 只读 Control Tower，并以固定 UUID 返回原订单，不接受任意 return URL。采购来源单价/金额可见，销售价、工价、Quote 内部成本及利润不进入物料 DTO。
 
-本轮仅完成实际组件、可信 session HTTP 与合成来源的隔离闭环；生产 Quote Server 路由白名单未开放，默认运行入口未安装 Source capability，没有 Browser 数据回退。既有 Order/Quote 商业金额 GET 仍有经实际 HTTP 复现的越权风险，**SECURITY GATE PENDING**；团队订单可见范围、真实受控账号和字段权限政策须另行批准。工程验收不等于正式可用或真实艾诺科同步。[完整报告、测试与人工复验](../tasks/active/order-material-night-integration.md)。
+本轮仅完成实际组件、可信 session HTTP 与合成来源的隔离闭环；生产 Quote Server 路由白名单未开放，默认运行入口未安装 Source capability，没有 Browser 数据回退。既有 Order/Quote 商业金额 GET 的已知越权路径现已由合并 PR93 / Active D-103 修复，CCT 使用四键独立字段投影及部分 PATCH；团队订单可见范围、真实受控账号和生产接线仍须独立 Gate。工程验收不等于正式可用或真实艾诺科同步。[完整报告、测试与人工复验](../tasks/active/order-material-night-integration.md)。
 
 
 ## P6 原版展示恢复 — 2026-10-11 / PR #92 Draft
 
-用户否决此前夜间 UI。根因是隔离入口未加载正式 `app/foundation.css`；补齐后仍直接使用原 ServerOrderCenterPage/Toolbar/DataTable，1440/1280 横排单表格、390 原移动记录。正式详情按基础事实 → 颜色摘要 → 物料摘要排序；UUID、版本、provenance、创建/更新时间默认收于「来源与技术详情」，展开保留事实。没有 API/schema/权限或来源所有权改动，也没有新增商业字段。三宽度 computed-style/真实浏览器检查通过，**用户人工 UI 验收仍 PENDING**。[本轮报告与截图](../tasks/active/order-material-p6-restoration.md)。
+用户否决此前夜间 UI。根因是隔离入口未加载正式 `app/foundation.css`；补齐后仍直接使用原 ServerOrderCenterPage/Toolbar/DataTable，1440/1280 横排单表格、390 原移动记录。正式详情按基础事实 → 颜色摘要 → 物料摘要排序；UUID、版本、provenance、创建/更新时间默认收于「来源与技术详情」，展开保留事实。没有 API/schema/权限或来源所有权改动，也没有新增商业字段。三宽度 computed-style/真实浏览器检查通过，**原 P6/精简详情/只读物料 UI 已获用户人工验收 PASS（2026-10-11）**。[本轮报告与截图](../tasks/active/order-material-p6-restoration.md)。
 
 ## Formal Server C4.3 boundary — 2026-10-09
 

@@ -1,6 +1,6 @@
 # 当前状态
 
-> 2026-10-12 / B：最新main070d958，PR93已合并并落地D103商业四键、CCT部分PATCH与Quote成本/销售价/历史/导出/日志保护。PR92原P6/精简订单/只读Control Tower已有用户人工验收PASS，继续Draft；当前普通merge及联合安全/UI回归进行中，旧测试数量不是本轮证据。executionOnly不发CCT请求，可信物料能力/生产route默认未开放，不回退Browser。继承Gate1文档30行/hash保持未提交；A工作树、真实环境/数据、SQL/角色不操作。[本轮恢复点](tasks/active/order-material-pr93-integration.md) / [历史两侧快照](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)。
+> 2026-10-12 / B：main070d958及已合并PR93/D103已普通merge入PR92，冲突逐hunk解决。原P6/精简订单/只读Control Tower用户人工验收PASS保持；本轮工程回归Source78/78、Material HTTP/负向安全19/19、客户端/SSR25/25、实际Chromium物料7/7(115断言)/商业15/15、npm758/758、完整PG261/261、typecheck/lint/串行Server及双Authority构建/diff-check/清理均PASS。合并a252d82791d3b0cf2a216cc2939a64ec9caf50c7，已验证源码a537e750912eb8c415ce9de5f7403bc120271738正常push；PR92无合并冲突、继续Draft。executionOnly不读写CCT；真实Source/可信账号/团队scope/生产route未激活、不回退Browser。继承Gate1文档30行/hash保持未提交；A/真实环境/数据/migration/真实角色配置未操作。[完整交付与限制](tasks/active/order-material-pr93-integration.md) / [本轮截图](tasks/active/evidence/order-material-pr93-integration/README.md) / [历史快照](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)。
 
 
 > 2026-10-10：PR #91 / D-102 第二轮反馈新版已按用户授权更新隔离18444，**PREVIEW UPDATE PASS / USER ACCEPTANCE PASS（2026-10-11 用户明确批准合并 PR #91）**。实际源码eb9530a/image1707a8e54159；18443、真实业务库/COS和订单工作树未动。

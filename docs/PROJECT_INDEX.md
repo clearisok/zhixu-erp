@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 2026-10-12：[PR93](https://github.com/clearisok/zhixu-erp/pull/93) 已合并至 main **070d958008709d06636ba329a3bba0d14e4a023b**，D-103 四键及测算销售价边界已实施。PR92 保持 Draft，P6/精简详情/只读 Control Tower 用户人工验收已 PASS；当前 B 分支正在进行 main 整合与联合工程回归，未操作真实环境。当前证据见 [B 整合报告](tasks/active/order-material-pr93-integration.md)，PR93 原隔离证据见 [商业安全报告](tasks/active/commercial-amount-read-security.md)，合并前状态快照见 [历史接力](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)。
+> 2026-10-12：[PR93](https://github.com/clearisok/zhixu-erp/pull/93) 已合并至 main **070d958008709d06636ba329a3bba0d14e4a023b**，D-103 四键及测算销售价边界已实施。PR92 保持 Draft，P6/精简详情/只读 Control Tower 用户人工验收已 PASS；B已普通merge并完成联合工程回归：npm758/758、完整PG261/261、物料Chromium7/7/115断言与商业15/15、双Authority构建PASS，无合并冲突，未操作真实环境。当前证据见 [B 整合报告](tasks/active/order-material-pr93-integration.md)，PR93 原隔离证据见 [商业安全报告](tasks/active/commercial-amount-read-security.md)，合并前状态快照见 [历史接力](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)。
 
 > 2026-10-11：用户已明确确认 PR #91 人工验收 PASS 并授权 GitHub 合并；最终 GitHub 合并状态以 PR #91 为准。18444 保持已验收候选，合并不授权重新部署、迁移或操作 18443/COS。日期汇率政策、影响清单与受控批量应用属下一独立功能，应在 #91 合并后从最新 main 开发；订单 PR #92 继续独立 Draft。下述早期 USER ACCEPTANCE PENDING 为当时历史记录。
 

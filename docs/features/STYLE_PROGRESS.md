@@ -1,15 +1,19 @@
 # 款式进度、面辅料跟进与逐物料物流
 
+## PR93 联合回归 — 2026-10-12
+
+本轮保留已认可Control Tower结构和唯一Material算法，既有Source Adapter/Normalize/Dedup/Validate/厂供规则未改。1440/1280/390真实隔离Chromium执行订单→物料→原UUID返回、采购来源价格局部滚动、搜索/刷新/账号切换、无Browser业务存储写入及无CCT/Quote请求。已知商业读取漏洞由main PR93修复，早期商业投影准备helper仅放在__tests__历史辅助中，不成为物料运行时授权。默认Source capability和生产路由依旧关闭；真实账号/团队范围/运行环境需要独立Activation Gate。[联合证据](../tasks/active/evidence/order-material-pr93-integration/README.md)。
+
 ## Formal order read-only component integration — 2026-10-11 / PR #92 Draft
 
 带正式 `orderId` 的详情分支使用可信 Server session、订单/物料读权限与 UUID 物料 HTTP 投影，挂载原 Control Tower 抽离出的共用卡片/表格展示。分组、状态、厂供排除及事件去重仍来自唯一已有 Material pipeline；采购、入库、物料出运与出库各自保留事件身份。未知与零、合法空结果与未接通分开显示，不跨单位加总或推算采购金额。
 
-Server 分支不挂载 Browser Repository、旧权限 Provider、导入、人工编辑或排单写入；不带 `orderId` 的原 Browser 路径继续原行为。显式 Browser authority 收到正式 UUID 时拒绝回退。返回入口固定到经过校验的原订单 UUID。实际组件在独立动态 loopback / disposable PG16 / 私有 Chromium 中完成 1440、1280、390px 验收，生产全局路由白名单保持禁用，真实 Source 未接线。既有商业金额 API 风险仍待权限 Gate。[工程报告](../tasks/active/order-material-night-integration.md) / [合成截图](../tasks/active/evidence/order-material-night/README.md)。
+Server 分支不挂载 Browser Repository、旧权限 Provider、导入、人工编辑或排单写入；不带 `orderId` 的原 Browser 路径继续原行为。显式 Browser authority 收到正式 UUID 时拒绝回退。返回入口固定到经过校验的原订单 UUID。实际组件在独立动态 loopback / disposable PG16 / 私有 Chromium 中完成 1440、1280、390px 验收，生产全局路由白名单保持禁用，真实 Source 未接线。既有商业金额 API 已由合并 PR93/D103 独立修复；它不改变团队可读采购来源价格，Material DTO仍排除销售价/工价/Quote成本/利润。[工程报告](../tasks/active/order-material-night-integration.md) / [合成截图](../tasks/active/evidence/order-material-night/README.md)。
 
 
 ## Server 只读展示修正 — 2026-10-11
 
-原夜间截图未获用户认可。本轮仅在 Server 专属 class 下修正搜索区域空列和事件标题留白，复用共用 Control Tower 卡片/表格，保留颜色规格、采购/入库/物料出运/出库与 UUID 返回。390 采购来源单价/金额通过表格内部滚动读取；无页面横向溢出。没有新算法、Browser 导入/排期写入或真实 Source 接线。默认物料页不展示 UUID，受控返回关联仍保留。**用户人工 UI 验收 PENDING**。[最新合成截图](../tasks/active/evidence/order-material-p6-restoration/README.md)。
+原夜间截图未获用户认可。本轮仅在 Server 专属 class 下修正搜索区域空列和事件标题留白，复用共用 Control Tower 卡片/表格，保留颜色规格、采购/入库/物料出运/出库与 UUID 返回。390 采购来源单价/金额通过表格内部滚动读取；无页面横向溢出。没有新算法、Browser 导入/排期写入或真实 Source 接线。默认物料页不展示 UUID，受控返回关联仍保留。**原只读 UI 已获用户人工验收 PASS（2026-10-11）**。[最新合成截图](../tasks/active/evidence/order-material-p6-restoration/README.md)。
 
 ## Purpose
 
