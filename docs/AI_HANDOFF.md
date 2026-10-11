@@ -2,9 +2,9 @@
 
 ## 当前 — PR93 独立商业金额权限（2026-10-11）
 
-分支 fix/commercial-amount-read-security；本轮从 clean ed91bc18596202641ea8497068d4a180f2f200a5 恢复。D-103 四键已实施，CCT SECURITY GATE PASS：实际完整 disposable PostgreSQL/HTTP260/260、auth/frontend90/90、client/projection8/8、npm679/679；typecheck/串行Server与两种frontend build/diff-check PASS；lint 0 errors/1 cleanup-ref warning。Chromium本轮未运行，无部署。
+分支 fix/commercial-amount-read-security；最终定向验收从 clean local/remote/PR93 91d000ffa45f3af0ca7034b67f5a3921fc3b4ab4 恢复。本轮实际完整PG/HTTP260/260、auth/frontend90/90、npm679/679、真实Chromium13/13 PASS；Order cleanup同一epoch ref的最小修正消除原lint警告，不改布局/时序。无部署。测算销售单价（非CCT成交价）详情由成本权限展示、列表另需sale.view，口径待用户确认；不改政策、不自动ready/merge，PR93保持Draft。
 
-字段投影/部分PATCH、隐藏历史保护/安全保存、导出/日志/客户端隔离完成。Server管理员目录升级幂等授予；其他角色不默认授予。Server角色管理UI/API仍未实现，不得用Browser mock代替。无schema/migration/真实数据变更。PR93保持Draft等待审查；PR92仅5文件交集，其中Order组件仅协议/权限适配，B工作树未操作。
+字段投影/部分PATCH、隐藏历史保护/安全保存、导出/日志/客户端隔离保持。linked CCT工价单字段PATCH通过；加工旧完整confirmation.save仍要求两套商业授权，不擅改完整确认语义。Server管理员目录升级幂等授予；其他角色不默认授予。Server角色管理UI/API仍未实现。无schema/migration/真实数据变更。PR92 head03b1078仅5文件交集；后续保留executionOnly/P6/物料/UUID，同时接金额投影/部分PATCH，人工逐hunk整合并补两模式回归，本轮没有合入B代码。
 
 Gate1 97a3f21 push曾遇Schannel missing-close-notify，一次只读确认当时远端ed91bc1；Gate2/3本地720de05128e59be4f9522ff1327d583981f45a8d。最终远端交付以本轮工具核实/PR正文为准，不沿用旧REMOTE PENDING或冒称推送成功。完整阶段历史、失败修正、范围和测试见[安全报告](tasks/active/commercial-amount-read-security.md)。18443/18444/真实DB/COS不操作，不合并。
 

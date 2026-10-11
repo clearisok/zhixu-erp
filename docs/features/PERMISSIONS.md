@@ -2,6 +2,8 @@
 
 ## Server 商业金额（D-103，2026-10-11）
 
+最终定向审查发现的待确认展示口径：详情/卡片“测算销售单价”（摘要称“成衣销售价格”）为成本推导值，不是 CCT/确认成交价，目前由 cost.view 展示；列表 garmentPrice 另要求 sale.view。须由用户决定测算值归属后统一，不将这项观察写成新授权政策。加工报价旧 confirmation.save 仍为完整快照（含 quotedGarmentPrice），要求两套商业 view+edit；linked CCT PATCH 的工价单字段修改只需对应工价权限，实际 HTTP 已验证。见[定向验收](../tasks/active/commercial-amount-read-security.md)。
+
 用户已批准并实施四键 commercial.sale.view/edit、commercial.labor.view/edit。Server `role-server-admin` 目录同步幂等升级，新 bootstrap 管理员具备四项；非管理员角色无隐式新增。只检查可信权限集合，不依赖前端名称。正式角色管理 UI/API 仍未实现；本轮不开放生产授权路由，不用 Browser mock 替代，真实角色未操作。
 
 两个 CCT GET/PATCH 保留 quote.view / order.view；修改另需 quote.confirm / order.edit。实际提交销售价需 sale.view+edit，提交工价/币种需 labor.view+edit，未提交从事务锁定的数据库值保留。显式 null/零分别保留其语义，旧全量客户端提交隐藏字段（含 null）403，不静默清空。响应使用 `commercial-terms-read.v1`，每项 allowed/value 或 restricted；metadata 与共享 identity/version 保持。

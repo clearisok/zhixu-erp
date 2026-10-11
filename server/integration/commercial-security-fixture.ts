@@ -9,9 +9,11 @@ import { quoteSnapshotFromBrowser } from "../quotes/model.js";
 import { createQuoteService } from "../quotes/service.js";
 import { startDisposablePostgres } from "./postgres-container.js";
 import { createSyntheticQuoteFixture } from "./quote-fixture.js";
+import { createSalesOrder } from "../sales-orders/repository.js";
+import { MemoryAttachmentStorage } from "../attachments/storage.js";
 import type { PermissionKey } from "../../features/permissions/model/permissions.js";
 
-export async function startCommercialSecurityFixture() {
+export async function startCommercialSecurityFixture(staticDirectory?: string, prepare?: (quote: ReturnType<typeof createSyntheticQuoteFixture>) => void) {
   const disposable = await startDisposablePostgres();
   const pool = new pg.Pool({ connectionString: await disposable.createDatabase("commercial_security") });
   let server: ReturnType<typeof createServer> | undefined;
@@ -24,17 +26,20 @@ export async function startCommercialSecurityFixture() {
       revision.imageAttachmentIds=[]; revision.fileAttachmentIds=[]; revision.styleImageAttachmentId=null;
       for(const pv of revision.priceVersions) pv.labor.value=98765;
     }
+    prepare?.(quote);
     const record = await createQuoteService(pool).createAggregate(quoteSnapshotFromBrowser(quote));
     const revision=quote.revisions.at(-1)!; const pv=revision.priceVersions[0];
-    const order=(await pool.query("INSERT INTO sales_orders(creation_source,source_quote_id,source_revision_id,source_price_version_id) VALUES ('quote',$1,$2,$3) RETURNING id",[quote.id,revision.revisionId,pv.id])).rows[0];
+    const order=await createSalesOrder(pool,{creationSource:"quote",sourceQuoteId:quote.id,sourceRevisionId:revision.revisionId,sourcePriceVersionId:pv.id});
     const terms=(await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,quote_id,revision_id,price_version_id,customer_confirmed_price,confirmed_labor_price,labor_currency) VALUES ('quote',$1,$2,$3,12345,67890,'USD') RETURNING id",[quote.id,revision.revisionId,pv.id])).rows[0];
     await pool.query("INSERT INTO confirmed_commercial_terms_sales_orders(sales_order_id,confirmed_commercial_terms_id) VALUES ($1,$2)",[order.id,terms.id]);
-    const origin="http://127.0.0.1";
+    let origin="http://127.0.0.1";
+    const origins=[origin];
     const errors:Record<string,unknown>[]=[];
-    server=createServer(createApp({pool,logger:{error:event=>errors.push(event)},allowedOrigins:[origin],security:{secureCookies:false,sessionTtlSeconds:60}}));
+    server=createServer(createApp({pool,attachmentStorage:new MemoryAttachmentStorage(),logger:{error:event=>errors.push(event)},allowedOrigins:origins,staticDirectory,security:{secureCookies:false,sessionTtlSeconds:3600}}));
     await new Promise<void>(done=>server!.listen(0,"127.0.0.1",done));
     const address=server.address(); assert.ok(address&&typeof address==="object");
     const base=`http://127.0.0.1:${address.port}`;
+    if(staticDirectory) {origin=base;origins.push(base);}
     const request=async(path:string,cookie?:string,body?:unknown,method="GET")=> {
       const response=await fetch(base+path,{method,headers:{...(cookie?{Cookie:cookie}:{}),...(body!==undefined?{"Content-Type":"application/json",Origin:origin,"X-Zhixu-Request":"1"}:{})},body:body===undefined?undefined:JSON.stringify(body)});
       const text=await response.text(); return{response,text,body:JSON.parse(text)};
@@ -47,6 +52,6 @@ export async function startCommercialSecurityFixture() {
       const result=await request("/api/v1/auth/login",undefined,{username,password:"synthetic-only"},"POST"); assert.equal(result.response.status,200);
       return result.response.headers.get("set-cookie")!.split(";")[0];
     };
-    return { pool, record, errors, quotePath:`/api/v1/quotes/${quote.id}`, orderPath:`/api/v1/sales-orders/${order.id}/confirmed-commercial-terms`, quoteTermsPath:`/api/v1/quotes/${quote.id}/revisions/${revision.revisionId}/price-versions/${pv.id}/confirmed-commercial-terms`, user,request,close };
+    return { pool, record, errors, base, origins, quotePath:`/api/v1/quotes/${quote.id}`, orderPath:`/api/v1/sales-orders/${order.id}/confirmed-commercial-terms`, quoteTermsPath:`/api/v1/quotes/${quote.id}/revisions/${revision.revisionId}/price-versions/${pv.id}/confirmed-commercial-terms`, user,request,close };
   } catch(error) { await close(); throw error; }
 }

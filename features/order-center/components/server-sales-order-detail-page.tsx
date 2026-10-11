@@ -159,10 +159,11 @@ export function ServerSalesOrderDetailPage() {
   }, [salesOrderId, serverSession]);
 
   useEffect(() => {
+    const epochRef = loadEpoch;
     if (serverSession.status === "authenticated" && serverSession.hasPermission("order.view")) {
       void Promise.resolve().then(loadDetail);
     }
-    return ()=>{loadEpoch.current++;};
+    return ()=>{epochRef.current++;};
   }, [loadDetail, serverSession]);
 
   const logout = async () => {

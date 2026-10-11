@@ -1,6 +1,39 @@
 # 商业金额读取安全修复 — 2026-10-11
 
-## 2026-10-11 用户批准权限后的实施收口（当前）
+## 最终合并前定向验收（2026-10-11，当前恢复点）
+
+从原工作树 `D:/workspace/zhixu-quote-two-step`、原分支 clean `91d000ffa45f3af0ca7034b67f5a3921fc3b4ab4` 开始；GitHub PR93 与远端同 SHA，OPEN/Draft。main/base `fcf36e5eab6c78254f808c1cba38f3a63a66d4f8`；PR92 最新 `03b1078e99ff44ceb875dd0b01a1e22358f4dab6`，没有合并/修改其分支、工作树或已验收布局。
+
+本次唯一运行代码增量：Order effect cleanup 捕获同一个 epoch ref 对象，继续递增 current 取消陈旧加载，不捕获旧数值、不改变请求时序；消除原 React ref lint 提示。新增实际 Chromium 测试及隔离入口，复用原 QuoteEditor、Order detail、Session/RBAC provider 与 CSS。Quote 使用显式 Server 的正式构建；Order 用测试专属 Vite 路由装载真实组件（Quote-first 正式路由仍关闭），不把测试入口当作生产接线或 #92 executionOnly 验收。
+
+### 本次实际执行的安全/浏览器证据
+
+- 完整 `npm run test:postgres` **260/260 PASS**；`npm test` **679/679 PASS**；auth/frontend **90/90 PASS**，均为本轮重新执行，不沿用上轮结果。
+- 最终 Chromium/商业 HTTP/读取面/Quote 成本联合定向 **48/48 PASS**；typecheck、lint（0 errors/0 warnings）、Server build、串行 Server/default Browser frontend build、diff-check PASS。最终默认 build-info 为 browser/browser/writable/session；基于91d000f加本轮增量的普通工作树构建，不是新的不可变候选镜像；既有大于500kB chunk提示保留。
+- `npx tsx --test --test-concurrency=1 server/integration/commercial-browser-security.integration.test.mjs` **13/13 PASS**：七种合成 Session 身份（无商业/成本、仅成本、仅 sale、仅 labor、两者、sale 无成本、labor 无成本），DOM/实际 HTTP 响应/浏览器存储精确金额探针、历史只读、字段禁用与实际单字段保存、账号切换/注销、撤权后刷新、1920/1280/390 布局及无页面溢出/未捕获异常。保存提交原值，不改变合成商业金额；只产生隔离库合法版本/审计记录。
+- 加工报价实际 HTTP：仅 labor.view+edit 的 linked CCT PATCH **200**，未授权销售价 restricted，旧 Quote 快照保持；旧完整 `confirmation.save` **403** 且无误写审计。
+- 初期测试失败如实保留：夹具在持久化后改历史、unlinked PATCH 被保护拒绝；Quote-first 订单路由阻断；字符串探针误命中合法小数；七角色扩展夹具大小写账号导致401。修正隔离夹具/断言/测试入口与规范化账号，未提权负向身份、未跳过安全断言。附件仅注入 MemoryAttachmentStorage，不连接 COS；假图片引用不伪装成可用附件。
+- 合成截图由脚本生成至本地 `outputs/commercial-security/`（不包含真实数据，不冒称公开链接）；包括 viewer/cost/sale/labor/both/saleNoCost/laborNoCost 的 Quote 与 Order。只证明本分支现有布局未明显回退，不代表用户人工 UI 验收或 #92 整合后通过。
+
+### 需要确认的展示口径（不擅自更改 D-103）
+
+真实代码及成本用户 Chromium 证实：详情“测算销售单价”和摘要“成衣销售价格”是内部成本/参数推导的 `garmentSellingPrice`，不是客户确认成交价或 CCT current。成本查看者仍能看这一计算值；历史确认销售价/工价、CCT current 已按四键隔离。列表同一 `garmentPrice` 目前同时要求 sale.view 和 cost.view，存在展示口径差异。
+
+待用户确认：把该测算值归入内部成本查看范围，统一列表；或归入 sale.view 保护范围，统一详情/卡片/确认弹窗及派生输入。本轮不自行扩张/缩减政策，也不将其误称为已确认成交价泄露；不能给出无条件“全部商业金额语义已定稿”。PR93 保持 Draft，合并前应确定这一项。
+
+旧 `confirmation.save` 是完整快照，连加工报价也写入测算 quotedGarmentPrice 及确认工价，故现要求两套商业 view+edit。linked CCT PATCH 的单工价途径已通过，不能以放宽 PATCH 权限解决旧命令限制。如需工价用户在未关联 Quote 首次确认，也须先明确完整确认的业务授权或设计仅写允许字段的命令；本轮保留原确认语义，不伪装已支持。
+
+### 后续 #92 整合策略（本轮未执行）
+
+五处交集：`docs/AI_HANDOFF.md`、`docs/CURRENT_STATE.md`、`server/app.ts`、`server/integration/confirmed-commercial-terms.integration.test.ts`、`features/order-center/components/server-sales-order-detail-page.tsx`。
+
+1. app.ts 保留 #92 可选物料 read ports/只读路由 fail-closed/no-store，以及 #93 CCT/日志字段投影与 PATCH；不激活未批准路由。
+2. Order 组件保留 #92 executionOnly 不发 CCT 请求、不显示商业编辑，P6/物料摘要/Control Tower/UUID 返回；商业模式采用 #93 envelope、分字段输入和部分 PATCH。合并加载取消时只用一套 generation ref，不整文件 ours/theirs。
+3. CCT 测试保留 #92 0011 ledger 断言与 #93 新权限/负向身份；文档人工合并两边事实及历史证据。整合后必须重新验证 executionOnly 与商业模式、字段隔离/撤权/延迟响应，不把当前分支测试当作两 PR 合并测试。
+
+无 schema/migration、真实数据库/账号/COS/18443/18444/部署操作；Server 角色管理 UI/API 仍未实施。**CCT HTTP SECURITY PASS / CHROMIUM DIRECTED ACCEPTANCE PASS；商业测算值口径待确认，Draft 保留，不自动 ready/merge。** 最终增量 SHA/推送状态以 PR93 和最终交付报告为准。
+
+## 2026-10-11 用户批准权限后的首次实施收口（历史）
 
 四键 commercial.sale.view/edit、commercial.labor.view/edit 已按 D-103 实施。可信 Server 管理员 bootstrap/catalog synchronization 幂等授予；其他角色不继承。复用现有 RBAC 表，无 migration。正式 Server 角色管理 UI/API 尚未实现，Browser mock 不能作为授权入口；生产按角色配置仍需后续可信管理能力/受控运维批准，本轮未修改真实角色。
 
@@ -33,7 +66,7 @@ User-approved four independent commercial sale/labor view/edit permissions. Resu
 
 ## Active — 独立商业金额安全修复 / PR93 Draft / REMOTE PENDING（2026-10-11）
 
-LOCAL ENGINEERING PASS：源码195f6b73e99935b7823c723c8032dfa03c8c139c；TLS两种进程级传输push失败且停止重试，exact remote3b8f3836b2d77f8a20e6c085403c659f41c4cee9。[唯一PR93](https://github.com/clearisok/zhixu-erp/pull/93)已创建Draft，Gate2/3未送达、不建议合并；恢复四条命令见任务报告。A 原工作树干净，从最新 main fcf36e5eab6c78254f808c1cba38f3a63a66d4f8 建立 fix/commercial-amount-read-security。Gate0实际合成 session HTTP4/4复现三路径；现 Quote成本 allowlist+metadata-only保存/日志/no-store已修复，最终定向43/43、PG179/179、npm679/679及typecheck/lint/串行构建通过（CCT投影3项仅独立测试；两条HTTP泄露断言仍证明问题存在），按既有 quote.cost.view，销售价/工价四键（commercial.sale.view/edit、commercial.labor.view/edit）及管理员拥有/其他默认无、独立 PATCH 方案已记录，独立可注入投影默认deny且3/3通过；新权限与角色尚待用户批准，CCT SECURITY PENDING。用户明确 PR92 订单 UI 已人工验收 PASS，仍 Draft；本任务不修改 B 工作树/UI，不合并其代码。真实环境/凭据/数据库/0010/0011不操作。[安全任务报告](tasks/active/commercial-amount-read-security.md)。
+LOCAL ENGINEERING PASS：源码195f6b73e99935b7823c723c8032dfa03c8c139c；TLS两种进程级传输push失败且停止重试，exact remote3b8f3836b2d77f8a20e6c085403c659f41c4cee9。[唯一PR93](https://github.com/clearisok/zhixu-erp/pull/93)已创建Draft，Gate2/3未送达、不建议合并；恢复四条命令见任务报告。A 原工作树干净，从最新 main fcf36e5eab6c78254f808c1cba38f3a63a66d4f8 建立 fix/commercial-amount-read-security。Gate0实际合成 session HTTP4/4复现三路径；现 Quote成本 allowlist+metadata-only保存/日志/no-store已修复，最终定向43/43、PG179/179、npm679/679及typecheck/lint/串行构建通过（CCT投影3项仅独立测试；两条HTTP泄露断言仍证明问题存在），按既有 quote.cost.view，销售价/工价四键（commercial.sale.view/edit、commercial.labor.view/edit）及管理员拥有/其他默认无、独立 PATCH 方案已记录，独立可注入投影默认deny且3/3通过；新权限与角色尚待用户批准，CCT SECURITY PENDING。用户明确 PR92 订单 UI 已人工验收 PASS，仍 Draft；本任务不修改 B 工作树/UI，不合并其代码。真实环境/凭据/数据库/0010/0011不操作。[安全任务报告](commercial-amount-read-security.md)。
 
 ## Gate0 baseline 与复现
 
