@@ -29,9 +29,18 @@ export type ConfirmedCommercialTermsDto = {
 
 export type UpdateConfirmedCommercialTermsInput = {
   expectedVersion: number;
-  customerConfirmedPrice: string | null;
-  confirmedLaborPrice: string | null;
-  laborCurrency: ConfirmedLaborCurrency | null;
+  customerConfirmedPrice?: string | null;
+  confirmedLaborPrice?: string | null;
+  laborCurrency?: ConfirmedLaborCurrency | null;
+};
+
+export type CommercialField<T> = { visibility: "allowed"; value: T } | { visibility: "restricted" };
+export type ConfirmedCommercialTermsReadDto = Omit<ConfirmedCommercialTermsDto, "current"> & {
+  contract: "commercial-terms-read.v1";
+  current: (Pick<ConfirmedCommercialTermsCurrentDto, "id" | "version" | "createdAt" | "updatedAt"> & {
+    sale: CommercialField<{ price: string | null; currency: "CNY" }>;
+    labor: CommercialField<{ price: string | null; currency: ConfirmedLaborCurrency | null }>;
+  }) | null;
 };
 
 export type UpdateQuoteConfirmedCommercialTermsInput = UpdateConfirmedCommercialTermsInput & {

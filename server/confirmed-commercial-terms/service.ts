@@ -8,6 +8,7 @@ import type {
 import type { TrustedIdentity } from "../auth/session.js";
 import { HttpError } from "../http/errors.js";
 import { requirePermission } from "../auth/permissions.js";
+import { requireCommercialEdit } from "./permissions.js";
 import { canonicalDecimal, isWritableDefaultRevision } from "../quotes/model.js";
 import { readQuoteAggregateInTransaction } from "../quotes/repository.js";
 import { validateCustomerConfirmation } from "../../features/quote-center/model/quote-validation.js";
@@ -28,10 +29,11 @@ import {
 } from "./repository.js";
 
 export type ConfirmedCommercialTermsMutationSurface = "order" | "quote";
+type CompleteTermsInput = Required<UpdateConfirmedCommercialTermsInput>;
 
 function sameTerms(
   current: ConfirmedCommercialTermsRow,
-  input: UpdateConfirmedCommercialTermsInput,
+  input: CompleteTermsInput,
 ): boolean {
   const normalized = (value: string | null) => value === null ? null : canonicalDecimal(value);
   return normalized(current.customer_confirmed_price) === normalized(input.customerConfirmedPrice)
@@ -110,7 +112,7 @@ function assertExpectedVersion(current: ConfirmedCommercialTermsRow | null, expe
 
 function assertOrderPreservesLinkedLaborCurrency(
   current: ConfirmedCommercialTermsRow | null,
-  input: UpdateConfirmedCommercialTermsInput,
+  input: CompleteTermsInput,
 ): void {
   const establishedCurrency = current?.labor_currency ?? null;
   if (establishedCurrency === null) {
@@ -186,13 +188,18 @@ async function mutate(
     requirePermission(actor.permissions, input.surface === "quote" ? "quote.view" : "order.view");
     requirePermission(actor.permissions, input.surface === "quote" ? "quote.confirm" : "order.edit");
     const allowed = ["expectedVersion", "customerConfirmedPrice", "confirmedLaborPrice", "laborCurrency", ...(input.surface === "quote" ? ["expectedQuoteVersion"] : [])];
+    const saleSubmitted = Object.hasOwn(input.values, "customerConfirmedPrice");
+    const laborSubmitted = Object.hasOwn(input.values, "confirmedLaborPrice") || Object.hasOwn(input.values, "laborCurrency");
     const amount = (value: unknown) => value === null || typeof value === "string" && value.length <= 128 && /^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(value);
     if (Object.keys(input.values).some(key => !allowed.includes(key)) || !Number.isSafeInteger(input.values.expectedVersion) || input.values.expectedVersion < 0
-      || !amount(input.values.customerConfirmedPrice) || !amount(input.values.confirmedLaborPrice)
-      || !(input.values.laborCurrency === null || isConfirmedLaborCurrency(input.values.laborCurrency))
-      || (input.values.confirmedLaborPrice !== null && input.values.laborCurrency === null)
+      || (!saleSubmitted && !laborSubmitted)
+      || (saleSubmitted && !amount(input.values.customerConfirmedPrice))
+      || (Object.hasOwn(input.values, "confirmedLaborPrice") && !amount(input.values.confirmedLaborPrice))
+      || (Object.hasOwn(input.values, "laborCurrency") && !(input.values.laborCurrency === null || isConfirmedLaborCurrency(input.values.laborCurrency)))
       || (input.surface === "quote" && (!Number.isSafeInteger(input.values.expectedQuoteVersion) || input.values.expectedQuoteVersion! < 1)))
       throw new HttpError(400, "invalid_confirmed_commercial_terms", "Invalid terms command; Quote surface requires expectedQuoteVersion");
+    if (saleSubmitted) requireCommercialEdit(actor, "sale");
+    if (laborSubmitted) requireCommercialEdit(actor, "labor");
     await client.query("BEGIN");
     let verifiedQuoteVersion: number | undefined;
     let provenance: QuoteProvenance | null = input.provenance ?? null;
@@ -230,6 +237,19 @@ async function mutate(
       throw new Error("ConfirmedCommercialTerms mutation target is required");
     }
 
+    // All writers share the context lock; row lock also protects preservation
+    // of omitted values. Never interpret missing client fields as clearing.
+    if (current) {
+      await client.query("SELECT id FROM confirmed_commercial_terms WHERE id=$1 FOR UPDATE", [current.id]);
+      current = provenance ? await findTermsByQuoteProvenance(client, provenance) : await findTermsBySalesOrder(client, input.salesOrderId!);
+    }
+    assertExpectedVersion(current, input.values.expectedVersion);
+    const values: CompleteTermsInput = {
+      expectedVersion: input.values.expectedVersion,
+      customerConfirmedPrice: saleSubmitted ? input.values.customerConfirmedPrice! : current?.customer_confirmed_price ?? null,
+      confirmedLaborPrice: Object.hasOwn(input.values,"confirmedLaborPrice") ? input.values.confirmedLaborPrice! : current?.confirmed_labor_price ?? null,
+      laborCurrency: Object.hasOwn(input.values,"laborCurrency") ? input.values.laborCurrency! : current?.labor_currency ?? null,
+    };
     if (input.surface === "quote" && provenance) {
       const locked = await client.query("SELECT version FROM quote_center_quotes WHERE id=$1 FOR UPDATE", [provenance.quoteId]);
       if (!locked.rowCount) throw new HttpError(404, "quote_not_found", "Saved Server Quote not found; legacy provenance is not a writable Server source");
@@ -242,42 +262,44 @@ async function mutate(
       const pv = revision.priceVersions.find(p => p.id === provenance!.priceVersionId);
       if (!pv) throw new HttpError(404, "quote_price_version_not_found", "PriceVersion does not belong to Revision");
       const currency = pv.pricingParameters.laborCurrency;
-      if (!isConfirmedLaborCurrency(currency) || input.values.laborCurrency !== currency)
+      if (laborSubmitted && !Object.hasOwn(input.values,"laborCurrency") && !current) values.laborCurrency = currency;
+      if (laborSubmitted && (!isConfirmedLaborCurrency(currency) || values.laborCurrency !== currency))
         throw new HttpError(409, "saved_quote_labor_currency_conflict", "Compare saved PV currency with shared current; no automatic conversion");
       const partial = await client.query("SELECT 1 FROM sales_orders WHERE source_quote_id=$1 AND (source_revision_id IS NULL OR source_price_version_id IS NULL) LIMIT 1", [provenance.quoteId]);
       if (partial.rowCount) throw new HttpError(409, "incomplete_quote_provenance", "Quote linkage is incomplete");
       // Presence validation only: no calculator or float conversion of snapshots.
       const view = revision as unknown as QuoteRevision;
       const validation = validateCustomerConfirmation(view, view.priceVersions.find(p => p.id === pv.id)!, {
-        labor: input.values.confirmedLaborPrice === null ? null : 0, garment: input.values.customerConfirmedPrice === null ? null : 0,
+        labor: values.confirmedLaborPrice === null ? null : 0, garment: values.customerConfirmedPrice === null ? null : 0,
       });
-      if (!validation.valid || revision.baseInfo.quoteType === "processing" && input.values.customerConfirmedPrice !== null)
+      if (!validation.valid || revision.baseInfo.quoteType === "processing" && values.customerConfirmedPrice !== null)
         throw new HttpError(400, "quote_confirmation_incomplete", "Complete required saved Quote fields and confirmation amounts");
     }
-    assertExpectedVersion(current, input.values.expectedVersion);
-    if (input.surface === "order" && provenance) {
-      assertOrderPreservesLinkedLaborCurrency(current, input.values);
+    if (values.confirmedLaborPrice !== null && values.laborCurrency === null)
+      throw new HttpError(400,"invalid_confirmed_commercial_terms","Labor currency is required for a labor amount");
+    if (input.surface === "order" && provenance && laborSubmitted) {
+      assertOrderPreservesLinkedLaborCurrency(current, values);
     }
-    if (current && sameTerms(current, input.values)) {
+    if (current && sameTerms(current, values)) {
       await client.query("COMMIT");
       return { ...composeTermsDto({ linkage: provenance ? "linked" : "unlinked", scope, provenance, salesOrderIds, terms: current }), ...(verifiedQuoteVersion ? { verifiedQuoteVersion } : {}) };
     }
     if (!current
-      && input.values.customerConfirmedPrice === null
-      && input.values.confirmedLaborPrice === null
-      && input.values.laborCurrency === null) {
+      && values.customerConfirmedPrice === null
+      && values.confirmedLaborPrice === null
+      && values.laborCurrency === null) {
       await client.query("COMMIT");
       return composeTermsDto({ linkage: provenance ? "linked" : "unlinked", scope, provenance, salesOrderIds, terms: null });
     }
 
     const after = current
-      ? await updateTerms(client, { id: current.id, ...input.values })
+      ? await updateTerms(client, { id: current.id, ...values })
       : await createTerms(client, {
         scope,
         provenance,
-        customerConfirmedPrice: input.values.customerConfirmedPrice,
-        confirmedLaborPrice: input.values.confirmedLaborPrice,
-        laborCurrency: input.values.laborCurrency,
+        customerConfirmedPrice: values.customerConfirmedPrice,
+        confirmedLaborPrice: values.confirmedLaborPrice,
+        laborCurrency: values.laborCurrency,
       });
     if (!after) {
       throw new HttpError(409, "confirmed_commercial_terms_version_conflict", "ConfirmedCommercialTerms version is stale");

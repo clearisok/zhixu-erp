@@ -1,13 +1,8 @@
 import type { TrustedIdentity } from "../auth/session.js";
-import type { ConfirmedCommercialTermsDto, ConfirmedCommercialTermsCurrentDto } from "../../features/confirmed-commercial-terms/model.js";
+import type { ConfirmedCommercialTermsDto, ConfirmedCommercialTermsReadDto } from "../../features/confirmed-commercial-terms/model.js";
 export type CommercialReadGrant={sale:boolean;labor:boolean};
-export type CommercialField<T>={visibility:"allowed";value:T}|{visibility:"restricted"};
-type Current=Omit<ConfirmedCommercialTermsCurrentDto,"customerConfirmedPrice"|"customerConfirmedPriceCurrency"|"confirmedLaborPrice"|"laborCurrency">&{
- sale:CommercialField<{price:string|null;currency:"CNY"}>;
- labor:CommercialField<{price:string|null;currency:"CNY"|"USD"|null}>;
-};
-export type CommercialReadProjection=Omit<ConfirmedCommercialTermsDto,"current">&{contract:"commercial-terms-read.v1";current:Current|null};
-/** Prepared only: no catalog keys/default roles or endpoint/write-policy changes. */
+export type CommercialReadProjection=ConfirmedCommercialTermsReadDto;
+/** The domain row stays complete; only this trusted projection crosses HTTP. */
 export function createCommercialReadProjection(resolve:(actor:TrustedIdentity,dto:ConfirmedCommercialTermsDto)=>CommercialReadGrant=()=>({sale:false,labor:false})) {
  return(actor:TrustedIdentity,dto:ConfirmedCommercialTermsDto):CommercialReadProjection=>{
   const grant=resolve(actor,dto),c=dto.current;
@@ -20,3 +15,7 @@ export function createCommercialReadProjection(resolve:(actor:TrustedIdentity,dt
   };
  };
 }
+export const projectCommercialTerms = createCommercialReadProjection(actor => ({
+ sale: actor.permissions.includes("commercial.sale.view"),
+ labor: actor.permissions.includes("commercial.labor.view"),
+}));
