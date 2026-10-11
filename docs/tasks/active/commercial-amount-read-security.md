@@ -86,3 +86,19 @@ PR92的现有 known-exposure 审计中 Quote成本读取应在安全PR合并后�
 本轮无新 schema/migration、权限目录键、角色默认授权或配置API。没有部署、业务数据写入、艾诺科/COS访问，18443/18444保持未操作；采购来源/报价编号/正式订单来源/shared CCT writer/CAS/历史所有权不变。
 
 **QUOTE COST READ FIX ENGINEERING PASS / CCT SECURITY PENDING。** 建议先审查独立成本安全PR；不是整个系统安全通过，也不授权PR92生产激活。等待用户批准 Gate2四键、管理员/普通角色默认配置、字段envelope、当前/历史/日志/导出覆盖范围与PATCH的view+edit/省略保留规则后，再独立实施销售价/工价权限接线。一般订单/company可见范围仍需单独可信范围审查，不由字段投影解决。
+## Delivery reconciliation — LOCAL ENGINEERING PASS / REMOTE PENDING
+
+Gate3工程checkpoint **195f6b73e99935b7823c723c8032dfa03c8c139c** 已保存，提交后工作树clean。正常push实际失败：Schannel failed to receive handshake / SSL-TLS connection failed。按AGENTS2026-10-09授权做一次进程级OpenSSL+HTTP1.1只读对照，证书验证保持开启、无持久配置修改；ls-remote成功确认main fcf36e5及远端安全分支3b8f383。随后同传输正常push遭 unexpected EOF，停止推送重试。GitHub connector compare再确认远端exact **3b8f3836b2d77f8a20e6c085403c659f41c4cee9**，不是195f6b7；错误类型是已确认TLS传输失败，网络/代理根因未确定。
+
+唯一安全PR已创建：[PR #93](https://github.com/clearisok/zhixu-erp/pull/93)，**OPEN / Draft / base main**，目前只承载已送达Gate0/Gate1；正文明确本地最终结果、尚未送达Gate2/3、CCT SECURITY PENDING及不建议合并。没有通过API伪造不同commit或移动ref绕过正常Git交付。本次仅本地补记网络接力并提交，不再次触发同条件推送；最终本地HEAD由最终报告和git log确认，工程源码仍是195f6b7。
+
+后续先在 D:/workspace/zhixu-quote-two-step 执行一组恢复命令，再将PR93更新为exact新HEAD并复核主分支/差异：
+
+```powershell
+git push -u origin fix/commercial-amount-read-security
+git rev-parse HEAD
+git rev-parse origin/fix/commercial-amount-read-security
+git status --short
+```
+
+PR92继续Draft，用户认可UI未改变。只有成本修复的本地工程已完成；全部安全及GitHub最终送达均不得冒称PASS。新增四个商业权限键、角色默认、PATCH及CCT端点接线仍须用户明确批准。

@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 2026-10-11 独立商业金额安全任务：既有Quote成本读权限已在响应/受限保存/日志贯彻；销售价/工价四键及默认角色尚待批准，CCT仍SECURITY PENDING。[安全接力/测试/方案](tasks/active/commercial-amount-read-security.md)。PR91已经合并main fcf36e5；PR92仍Draft，用户明确订单UI验收PASS；本任务不改B工作树或其UI，不操作真实环境。
+> 2026-10-11 独立商业金额安全任务（本地工程PASS / [PR93 Draft](https://github.com/clearisok/zhixu-erp/pull/93)最终送达PENDING）：既有Quote成本读权限已在响应/受限保存/日志贯彻；销售价/工价四键及默认角色尚待批准，CCT仍SECURITY PENDING。[安全接力/测试/方案](tasks/active/commercial-amount-read-security.md)。PR91已经合并main fcf36e5；PR92仍Draft，用户明确订单UI验收PASS；本任务不改B工作树或其UI，不操作真实环境。
 
 > 2026-10-11：用户已明确确认 PR #91 人工验收 PASS 并授权 GitHub 合并；最终 GitHub 合并状态以 PR #91 为准。18444 保持已验收候选，合并不授权重新部署、迁移或操作 18443/COS。日期汇率政策、影响清单与受控批量应用属下一独立功能，应在 #91 合并后从最新 main 开发；订单 PR #92 继续独立 Draft。下述早期 USER ACCEPTANCE PENDING 为当时历史记录。
 
