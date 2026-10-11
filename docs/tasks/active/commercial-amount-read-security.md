@@ -30,3 +30,24 @@ Quote aggregate 的集中响应使用 allowlist 型 `CostRestrictedQuote`：所�
 定向统一执行：**42/42，0 skipped**（Quote cost/保存/导出/日志/CAS、实际暴露审计、原 Quote API/日志回归、两组客户端投影，以及独立 CCT 投影3项）。纯核心安全与相关回归39项；CCT3项仅针对未接入端点的投影。首次旧回归失败暴露了完整 fixture 未授既有成本读权限，以及创建-only 旧断言错误预期完整成本；已分别改为有权 full actor 和 restricted/DB-only 保存验证，不给真实角色或普通查看者增加权限。保留原权限否定、历史/CAS/回滚断言。
 
 无 schema/migration/权限目录/默认角色变化，0010/0011未修改；无真实环境操作。Gate3继续执行完整质量及相关 PostgreSQL 回归。
+## Gate2 — 待用户批准的最小独立销售价/工价方案
+
+以下是方案，不是 Active 新权限政策。未新增目录键、角色默认授权、配置 API、migration 或 CCT route/service 写入变更。
+
+| 业务字段 | 建议查看键 | 建议修改键 | 与现有权限关系 |
+| --- | --- | --- | --- |
+| 共享确认销售价（CNY/件） | commercial.sale.view | commercial.sale.edit | 不能从 quote.cost.view/edit、quote.confirm 或 order.edit 推定 |
+| 共享确认工价及币种 | commercial.labor.view | commercial.labor.edit | 不等于 Quote 内部成本 labor.value；不能由内部成本权限推定 |
+| Quote 面辅料/内部工价/费用/估算 | 既有 quote.cost.view（Estimate 还需 estimate.view） | 既有 quote.cost.edit / estimate.edit 等 | 本轮仅修复已确认目录行为，不给采购来源金额套用该权限 |
+
+建议只有管理员具备四个新增键，其他角色默认不授；已有角色有 quote.cost.view 也不自动迁移为商业字段权限。采用既有 app_permissions/app_roles/app_role_permissions/app_user_roles，无新增 schema 需求。现有 Server 权限读取是数据库角色关系，Browser mock 管理页不是可信 Server 配置 API。新目录及已有管理员授权必须在批准后的受控 Gate 实施并审计，不能假设重新启动就补齐旧管理员。Local Single-User 仍只是 D-093 本机全部目录技术身份，不扩展为生产模式。普通跟单员继续可看授权订单的采购来源执行价格；无新增商业权限则显示 restricted。
+
+Quote 与 Order 的同一 CCT identity/current/version 不复制、不迁移。字段范围建议同时覆盖当前值、确认金额历史、日志、导出和缓存；历史只改变响应可见性、不重写 snapshot。Quote 成本 view 不授予确认销售价/工价 view，未来利润继续独立，未引入利润字段。需要用户批准这组命名、默认角色与保护范围后，才能正式接线。
+
+响应采用 v1 只读投影的独立字段 envelope：`sale`/`labor` 各自 `{visibility:"allowed",value:{price:"0"|decimalString|null,currency}}` 或 `{visibility:"restricted"}`。restricted 无金额/币种值，不假装业务 null。无 current 保留 current:null；版本、context/provenance 与可信订单范围的处理仍需服务级授权，字段投影本身不能代替订单可见范围。
+
+PATCH 建议保留 route 基础权限（Quote quote.view+quote.confirm、Order order.view+order.edit），再要求每个实际提交字段对应 view+edit。写权限不自动授予读权限，角色应明确成对配置。只允许显式 sale/labor 字段与 version，隐藏/未提交的一方必须在原锁与 transaction 内从 current 保留；显式 null 仅作为有权清空命令，"0"是精确零。未知键、客户端 visibility/actor/role、无权提交、绕过旧全量 body 一律 fail closed；旧客户端兼容与禁用旧写入须在批准后做专门契约测试，不静默放行旧包。
+
+保持 D-084/D-087：terms expectedVersion、Quote expectedQuoteVersion、锁顺序、精确 NUMERIC、linked qualifier 由原 Quote PV 所有、unlinked Order 明确 CNY/USD、共享 current、不可变历史、append-only OperationLog/可信 actor 与同事务回滚。金额变更审计在 DB 保留 old/new，审计响应也按各字段读权限裁剪。两个已暴露 CCT GET/PATCH 和 CCT 日志目前没有接入这个方案，必须继续标 SECURITY PENDING。
+
+准备代码 `server/confirmed-commercial-terms/read-projection.ts` 是独立可注入 factory，默认 sale/labor 均 deny；没有客户端可传权限参数、没有任何 endpoint 调用。确定性3/3测试覆盖不同字段独立授权、Quote/Order same identity/current、linked/unlinked、null/zero/精确小数和输入不变；不把此测试当成现有 HTTP 已安全。

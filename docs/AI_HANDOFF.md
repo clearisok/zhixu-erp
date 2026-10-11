@@ -2,7 +2,7 @@
 
 ## Active — 独立商业金额安全修复 / Gate1（2026-10-11）
 
-A 原工作树干净，从最新 main fcf36e5eab6c78254f808c1cba38f3a63a66d4f8 建立 fix/commercial-amount-read-security。Gate0实际合成 session HTTP4/4复现三路径；现 Quote成本 allowlist+metadata-only保存/日志/no-store已修复，定向42/42通过（CCT投影3项仅独立测试），按既有 quote.cost.view，销售价/工价新权限与默认角色尚待用户批准，CCT SECURITY PENDING。用户明确 PR92 订单 UI 已人工验收 PASS，仍 Draft；本任务不修改 B 工作树/UI，不合并其代码。真实环境/凭据/数据库/0010/0011不操作。[安全任务报告](tasks/active/commercial-amount-read-security.md)。
+A 原工作树干净，从最新 main fcf36e5eab6c78254f808c1cba38f3a63a66d4f8 建立 fix/commercial-amount-read-security。Gate0实际合成 session HTTP4/4复现三路径；现 Quote成本 allowlist+metadata-only保存/日志/no-store已修复，定向42/42通过（CCT投影3项仅独立测试），按既有 quote.cost.view，销售价/工价四键（commercial.sale.view/edit、commercial.labor.view/edit）及管理员拥有/其他默认无、独立 PATCH 方案已记录，独立可注入投影默认deny且3/3通过；新权限与角色尚待用户批准，CCT SECURITY PENDING。用户明确 PR92 订单 UI 已人工验收 PASS，仍 Draft；本任务不修改 B 工作树/UI，不合并其代码。真实环境/凭据/数据库/0010/0011不操作。[安全任务报告](tasks/active/commercial-amount-read-security.md)。
 ## Active — PR #91 User Acceptance PASS / GitHub merge authorized (2026-10-11)
 
 - Original worktree `D:/workspace/zhixu-quote-two-step`, branch `feat/quote-two-step-creation`; authorized deployment resumed clean local/remote/PR91 `676035bd1a0323e928383b340f1cbfec9e0572eb`, main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`. No merge or other worktree changes.
