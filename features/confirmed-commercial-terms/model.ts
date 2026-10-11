@@ -29,14 +29,36 @@ export type ConfirmedCommercialTermsDto = {
 
 export type UpdateConfirmedCommercialTermsInput = {
   expectedVersion: number;
-  customerConfirmedPrice: string | null;
-  confirmedLaborPrice: string | null;
-  laborCurrency: ConfirmedLaborCurrency | null;
+  customerConfirmedPrice?: string | null;
+  confirmedLaborPrice?: string | null;
+  laborCurrency?: ConfirmedLaborCurrency | null;
+};
+
+export type CommercialField<T> = { visibility: "allowed"; value: T } | { visibility: "restricted" };
+export type ConfirmedCommercialTermsReadDto = Omit<ConfirmedCommercialTermsDto, "current"> & {
+  contract: "commercial-terms-read.v1";
+  current: (Pick<ConfirmedCommercialTermsCurrentDto, "id" | "version" | "createdAt" | "updatedAt"> & {
+    sale: CommercialField<{ price: string | null; currency: "CNY" }>;
+    labor: CommercialField<{ price: string | null; currency: ConfirmedLaborCurrency | null }>;
+  }) | null;
 };
 
 export type UpdateQuoteConfirmedCommercialTermsInput = UpdateConfirmedCommercialTermsInput & {
   expectedQuoteVersion: number;
 };
+
+/** UI compatibility shape: restricted values are absent, never null placeholders. */
+export type ConfirmedCommercialTermsClientDto = Omit<ConfirmedCommercialTermsDto,"current"> & {
+ current:(Pick<ConfirmedCommercialTermsCurrentDto,"id"|"version"|"createdAt"|"updatedAt"> & Partial<Omit<ConfirmedCommercialTermsCurrentDto,"id"|"version"|"createdAt"|"updatedAt">> & {
+  saleVisibility:"allowed"|"restricted";
+  laborVisibility:"allowed"|"restricted";
+ }) | null;
+};
+export function commercialTermsSummary(dto:ConfirmedCommercialTermsClientDto|null):string {
+ const c=dto?.current;
+ if (!c) return "尚无共享确认记录";
+ return `工价 ${c.laborVisibility==="restricted"?"无权查看":`${c.confirmedLaborPrice??"未确认"} ${c.laborCurrency??"未设置"}`} · 成衣 ${c.saleVisibility==="restricted"?"无权查看":`${c.customerConfirmedPrice??"未确认"} CNY`}`;
+}
 
 export function isQuoteTermsServerLinkageActivated(value: string | undefined): boolean {
   return value === "true";

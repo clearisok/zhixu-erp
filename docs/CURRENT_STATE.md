@@ -1,6 +1,7 @@
 # 当前状态
 
-> 2026-10-11 / B：PR #91 已合并，main `fcf36e5eab6c78254f808c1cba38f3a63a66d4f8`。用户否决 PR #92 夜间 UI，现已补回隔离入口缺失的 Foundation CSS，复用原正式单表格/移动布局、精简详情并默认折叠技术事实，保留原只读 Control Tower 与 UUID 返回。本轮实际 Chromium **7/7（115 断言）**、HTTP/风险审计 **12/12**、npm **757/757**、typecheck/lint/Server+前端 build/diff-check 通过；未重跑完整 test:postgres 或独立 CCT 回归，不沿用旧数量。**USER UI ACCEPTANCE PENDING / SECURITY GATE PENDING**：旧金额读取漏洞未修复，真实 Source 与生产路由未启用。PR #92 保持 Draft；18443/18444、真实业务数据和下方 PR91 部署证据保持。[修复报告](tasks/active/order-material-p6-restoration.md) / [三宽度合成截图与 P6 要求对照](tasks/active/evidence/order-material-p6-restoration/README.md)。
+> 2026-10-12 / B：最新main070d958，PR93已合并并落地D103商业四键、CCT部分PATCH与Quote成本/销售价/历史/导出/日志保护。PR92原P6/精简订单/只读Control Tower已有用户人工验收PASS，继续Draft；当前普通merge及联合安全/UI回归进行中，旧测试数量不是本轮证据。executionOnly不发CCT请求，可信物料能力/生产route默认未开放，不回退Browser。继承Gate1文档30行/hash保持未提交；A工作树、真实环境/数据、SQL/角色不操作。[本轮恢复点](tasks/active/order-material-pr93-integration.md) / [历史两侧快照](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)。
+
 
 > 2026-10-10：PR #91 / D-102 第二轮反馈新版已按用户授权更新隔离18444，**PREVIEW UPDATE PASS / USER ACCEPTANCE PASS（2026-10-11 用户明确批准合并 PR #91）**。实际源码eb9530a/image1707a8e54159；18443、真实业务库/COS和订单工作树未动。
 

@@ -34,6 +34,7 @@ test("typed Quote read client uses credentialed GET and preserves DTO decimal st
 
   const list = await client.list({ limit: 50, offset: 0 });
   const detail = await client.getById("quote-1");
+  assert.ok(detail.costVisibility !== "restricted");
 
   assert.equal(list.quotes[0].quoteCode, "Q-1");
   assert.equal((detail.quote.revisions[0].priceVersions[0].quantity), precise);

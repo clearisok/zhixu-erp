@@ -1,5 +1,11 @@
 # Quote Center
 
+> 2026-10-11 D-103：确认销售价/工价由独立 commercial.sale/labor.view/edit 保护，成本权限不授予商业权限。CCT读为allowed/restricted、PATCH按实际字段授权并保留遗漏值；历史确认、列表/汇总、客户导出和日志同样受保护。受限普通保存恢复数据库CAS基线隐藏字段，不清空历史。详见[权限](PERMISSIONS.md)与[本轮实际HTTP证据](../tasks/active/commercial-amount-read-security.md)。正式Server角色管理UI/API尚未实现。
+
+## Quote内部成本读取修复（2026-10-11，独立安全工程）
+
+Server Quote响应先执行既有 quote.cost.view字段白名单：无权仍可查看基础资料/版本/数量，明确costVisibility restricted；完整成本行/参数/确认金额及Estimate不进入DTO，Estimate另需estimate.view。受限metadata-only保存恢复DB保护切片，旧历史/CAS/审计不变，禁止以缺失DTO清空；基础资料消费者不挂完整成本Editor/计算器。原有权Editor、物料采购来源共享金额与报价创建编号不变。两个CCT GET已接D-103独立投影，授权前的SECURITY PENDING是历史。用户最终决定已实施：详情/PV卡片/历史/确认弹窗/构成/sticky的测算销售价及最终报价须可信sale.view；列表garmentPrice仍须cost.view+sale.view。成本与原计算保持，不声称阻止授权输入自行推算；派生estimateDifference汇总在Server额外校验sale.view。本轮PG261/261、Chromium14/14见[安全报告](../tasks/active/commercial-amount-read-security.md)及[权限](PERMISSIONS.md)。未部署或修改真实角色。
+
 > 2026-10-11：用户已明确确认 PR #91 人工验收 PASS 并授权合并。18444 的第二轮部署验收与 2026-10-10 历史 PENDING 记录保留；本次只批准 GitHub 合并，不是新的 Preview/生产部署授权。按报价日期生效的汇率政策及受控批量更新尚未实施，属于后续独立功能。
 
 ## 普通电脑立即创建（D-102，PR #91 验收修正）

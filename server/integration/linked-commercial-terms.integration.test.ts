@@ -23,8 +23,8 @@ test("Linked terms: saved-source authority, independent CAS, shared Order surfac
   await runMigrations(pool, resolve("database/migrations"));
   const row = (await pool.query("INSERT INTO app_users(username,password_hash,display_name,role,active) VALUES('linked-synthetic','unused','Trusted Linked','viewer',true) RETURNING id::text,public_id::text")).rows[0];
   const admin: TrustedIdentity = { internalUserId: row.id, userId: row.public_id, username: "linked-synthetic", userName: "Trusted Linked", permissions: [...PERMISSION_KEYS] };
-  const confirmer = { ...admin, permissions: ["quote.view", "quote.confirm"] as TrustedIdentity["permissions"] };
-  const orderEditor = { ...admin, permissions: ["order.view", "order.edit"] as TrustedIdentity["permissions"] };
+  const confirmer = { ...admin, permissions: ["quote.view", "quote.confirm", "commercial.sale.view", "commercial.sale.edit", "commercial.labor.view", "commercial.labor.edit"] as TrustedIdentity["permissions"] };
+  const orderEditor = { ...admin, permissions: ["order.view", "order.edit", "commercial.sale.view", "commercial.sale.edit", "commercial.labor.view", "commercial.labor.edit"] as TrustedIdentity["permissions"] };
   let active: TrustedIdentity | null = confirmer;
   const allowed = "http://127.0.0.1:39992";
   const server = createServer(createApp({ pool, allowedOrigins: [allowed], identityAuthority: { mode: "session", verify: async () => {}, resolve: async () => active } }));

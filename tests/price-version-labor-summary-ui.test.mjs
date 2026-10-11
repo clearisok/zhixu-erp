@@ -131,10 +131,27 @@ test("常规 Header 保留价格摘要，Sticky 收敛为对象、版本与保�
   assert.match(editor, /<QuoteCockpit version=\{activeVersion\}/);
   assert.match(editor, /qc-sticky-state/);
   assert.match(editor, /isDirty \? "有未保存修改" : "已保存"/);
-  assert.match(component, /createQuoteMetricsViewModel\(version\)/);
+  assert.match(component, /createQuoteMetricsViewModel\(version, canViewSale\)/);
   assert.match(component, /qc-quote-cockpit/);
   assert.match(responsiveCss, /\.qc-quote-cockpit/);
   assert.doesNotMatch(editor, /qc-price-version-context/);
+});
+
+test("销售价展示授权不改变成本模型，未填写、零及受限保持不同语义", () => {
+  const { first } = laborQuote();
+  const original = structuredClone(first);
+  const allowed = createQuoteMetricsViewModel(first);
+  const restricted = createQuoteMetricsViewModel(first, false);
+  assert.equal(restricted.find(item => item.key === "garment").value, "无权查看");
+  assert.deepEqual(restricted.filter(item => item.key !== "garment"), allowed.filter(item => item.key !== "garment"));
+  assert.equal(restricted.find(item => item.key === "garment").secondaryValue, allowed.find(item => item.key === "garment").secondaryValue);
+  assert.deepEqual(first, original);
+  first.labor.value = null;
+  assert.equal(createQuoteMetricsViewModel(first, true).find(item => item.key === "garment").value, "—");
+  first.labor.value = 0;
+  first.fabrics = []; first.trims = []; first.otherCosts = [];
+  assert.equal(createQuoteMetricsViewModel(first, true).find(item => item.key === "garment").value, "¥0.0");
+  assert.equal(createQuoteMetricsViewModel(first, false).find(item => item.key === "garment").value, "无权查看");
 });
 
 test("报价设置只允许选择当前 PriceVersion 制作预设，其余参数只读展示", async () => {

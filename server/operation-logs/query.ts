@@ -60,10 +60,37 @@ function omitEstimateSummary(value: unknown): unknown {
   return value;
 }
 
-/** Response projection only: persisted historical events remain unchanged. */
+const costKeys=new Set(["fabrics","trims","labor","otherCosts","pricingParameters","confirmation","unitPrice","amount","usage","lossRate","value","usdCnyRate","markupRate","freightAmount","quotedGarmentPrice","confirmedGarmentPrice","quotedLaborPrice","confirmedLaborPrice"]);
+function omitCost(value:unknown):unknown {
+ if(Array.isArray(value))return value.map(omitCost);
+ if(value&&typeof value==="object")return Object.fromEntries(Object.entries(value).filter(([key])=>!costKeys.has(key)).map(([key,child])=>[key,omitCost(child)]));
+ return value;
+}
+const saleKeys = new Set(["customerConfirmedPrice", "customerConfirmedPriceCurrency", "confirmedGarmentPrice", "quotedGarmentPrice", "garmentSellingPrice", "garmentPrice", "finalQuote"]);
+const laborKeys = new Set(["confirmedLaborPrice", "laborCurrency"]);
+function omitFields(value: unknown, keys: Set<string>): unknown {
+ if (Array.isArray(value)) return value.map(item => omitFields(item, keys));
+ if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).filter(([key]) => !keys.has(key)).map(([key, child]) => [key, omitFields(child, keys)]));
+ return value;
+}
+/** Persisted audit facts stay complete; each HTTP read uses current grants. */
 export function projectOperationLogResponse(actor: TrustedIdentity, log: ServerOperationLog): ServerOperationLog {
-  if (actor.permissions.includes("estimate.view")) return log;
-  const projected = omitEstimateSummary(log) as ServerOperationLog;
-  projected.changes = projected.changes.filter(change => change.field !== "estimateHistoryCount");
-  return projected;
+ let projected=log;
+ if(!actor.permissions.includes("estimate.view")||!actor.permissions.includes("quote.cost.view")){
+  projected=omitEstimateSummary(projected) as ServerOperationLog;
+  projected.changes=projected.changes.filter(change=>change.field!=="estimateHistoryCount");
+ }
+ if(!actor.permissions.includes("quote.cost.view")&&(log.entityType==="Quote"||log.entityType==="EstimateCost")){
+  projected=omitCost(projected) as ServerOperationLog;
+  projected.changes=projected.changes.filter(change=>!change.field.split(/[.\[\]]/).some(key=>costKeys.has(key)));
+  projected.costVisibility="restricted";
+ }
+ const restricted = new Set<string>();
+ if (!actor.permissions.includes("commercial.sale.view")) for (const key of saleKeys) restricted.add(key);
+ if (!actor.permissions.includes("commercial.labor.view")) for (const key of laborKeys) restricted.add(key);
+ if (restricted.size) {
+  projected = omitFields(projected, restricted) as ServerOperationLog;
+  projected.changes = projected.changes.filter(change => !change.field.split(/[.\[\]]/).some(key => restricted.has(key)));
+ }
+ return projected;
 }

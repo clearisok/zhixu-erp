@@ -71,7 +71,7 @@ test("Q4A attachment foundation uses disposable PostgreSQL and fake object stora
   assert.ok(!columns.includes("blob") && !columns.includes("binary") && !columns.includes("base64"));
 
   await synchronizePermissionCatalog(pool);
-  const editor = await seed(pool, "attachment-editor", ["quote.view", "quote.edit", "quote.revision.update", "estimate.view"]);
+  const editor = await seed(pool, "attachment-editor", ["quote.view", "quote.edit", "quote.cost.view", "quote.revision.update", "estimate.view", "commercial.sale.view", "commercial.labor.view"]);
   const viewer = await seed(pool, "attachment-viewer", ["quote.view"]);
   await seed(pool, "attachment-denied", []);
   const fixture = quoteSnapshotFromBrowser(createSyntheticQuoteFixture("q4a"));

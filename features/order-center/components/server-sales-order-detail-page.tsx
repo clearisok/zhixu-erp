@@ -23,7 +23,7 @@ import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/feature
 import {
   ConfirmedCommercialTermsServerError,
   confirmedCommercialTermsServerClient,
-  type ConfirmedCommercialTermsDto,
+  type ConfirmedCommercialTermsClientDto as ConfirmedCommercialTermsDto,
   type ConfirmedLaborCurrency,
 } from "@/features/confirmed-commercial-terms";
 import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
@@ -112,19 +112,29 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   const [termsDraft, setTermsDraft] = useState({ customerPrice: "", laborPrice: "", laborCurrency: "" as "" | ConfirmedLaborCurrency });
   const [termsMutationError, setTermsMutationError] = useState<string | null>(null);
   const [termsSaving, setTermsSaving] = useState(false);
+  const loadEpoch = useRef(0);
+  const [loadedScope, setLoadedScope] = useState("");
+  const scopeKey = `${salesOrderId}/${serverSession.user?.id ?? ""}/${serverSession.permissions.join("|")}/${executionOnly}`;
+  const canEditSale=serverSession.hasPermission("commercial.sale.view")&&serverSession.hasPermission("commercial.sale.edit");
+  const canEditLabor=serverSession.hasPermission("commercial.labor.view")&&serverSession.hasPermission("commercial.labor.edit");
 
-  const loadGeneration = useRef(0);
   const loadDetail = useCallback(async () => {
-    const generation = ++loadGeneration.current;
     if (serverSession.status !== "authenticated" || !serverSession.hasPermission("order.view")) return;
+    const epoch=++loadEpoch.current;
     if (!salesOrderId) {
       setDetail(null);
       setNotFound(true);
+      setLoadedScope(scopeKey);
       setLoading(false);
       return;
     }
     setLoading(true);
     setDetail(null);
+    setTerms(null);
+    setTermsOpen(false);
+    setTermsDraft({customerPrice:"",laborPrice:"",laborCurrency:""});
+    setTermsSaving(false);
+    setTermsMutationError(null);
     setNotFound(false);
     setPermissionDenied(false);
     setSessionExpired(false);
@@ -134,11 +144,11 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
         loadServerOrderCenterDetail(serverSalesOrderReadRepository, salesOrderId),
         executionOnly ? Promise.resolve(null) : confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId),
       ]);
-      if (generation !== loadGeneration.current) return;
+      if(epoch!==loadEpoch.current)return;
       setDetail(nextDetail);
       setTerms(nextTerms);
     } catch (nextError) {
-      if (generation !== loadGeneration.current) return;
+      if(epoch!==loadEpoch.current)return;
       if ((nextError instanceof SalesOrderServerReadError || nextError instanceof ConfirmedCommercialTermsServerError) && nextError.status === 401) {
         setSessionExpired(true);
         serverSession.invalidate();
@@ -150,44 +160,51 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
         setError(unavailableMessage(nextError));
       }
     } finally {
-      if (generation === loadGeneration.current) setLoading(false);
+      if (epoch === loadEpoch.current) { setLoadedScope(scopeKey); setLoading(false); }
     }
-  }, [salesOrderId, serverSession, executionOnly]);
+  }, [salesOrderId, serverSession, executionOnly, scopeKey]);
 
   useEffect(() => {
+    const epochRef = loadEpoch;
+    let active = true;
     if (serverSession.status === "authenticated" && serverSession.hasPermission("order.view")) {
-      void Promise.resolve().then(loadDetail);
+      void Promise.resolve().then(() => { if (active) void loadDetail(); });
     }
-    const currentLoads = loadGeneration; return () => { currentLoads.current++; };
+    return () => { active = false; epochRef.current++; };
   }, [loadDetail, serverSession]);
 
   const logout = async () => {
     setSessionActionError(null);
     try {
       await serverSession.logout();
+      loadEpoch.current++;
       setDetail(null);
+      setTerms(null);setTermsOpen(false);setTermsDraft({customerPrice:"",laborPrice:"",laborCurrency:""});
     } catch {
       setSessionActionError("无法退出 Server 会话，请稍后重试。");
     }
   };
 
   const openTermsEditor = () => {
+    if (executionOnly || loadedScope !== scopeKey || !serverSession.hasPermission("order.edit") || !(canEditSale || canEditLabor)) return;
     setTermsDraft({
-      customerPrice: terms?.current?.customerConfirmedPrice ?? "",
-      laborPrice: terms?.current?.confirmedLaborPrice ?? "",
-      laborCurrency: terms?.current?.laborCurrency ?? "",
+      customerPrice: serverSession.hasPermission("commercial.sale.view") ? terms?.current?.customerConfirmedPrice ?? "" : "",
+      laborPrice: serverSession.hasPermission("commercial.labor.view") ? terms?.current?.confirmedLaborPrice ?? "" : "",
+      laborCurrency: serverSession.hasPermission("commercial.labor.view") ? terms?.current?.laborCurrency ?? "" : "",
     });
     setTermsMutationError(null);
     setTermsOpen(true);
   };
 
   const saveTerms = async () => {
+    if (executionOnly || loadedScope !== scopeKey || !serverSession.hasPermission("order.edit") || !(canEditSale || canEditLabor)) return;
+    const epoch = loadEpoch.current;
     const linkedLaborCurrency = terms?.linkage === "linked" ? terms.current?.laborCurrency ?? null : null;
-    if (termsDraft.laborPrice && terms?.linkage === "linked" && !linkedLaborCurrency) {
+    if (canEditLabor && termsDraft.laborPrice && terms?.linkage === "linked" && !linkedLaborCurrency) {
       setTermsMutationError("关联 Quote 尚未建立工价币种；请先从对应 PriceVersion 确认，订单端不会猜测币种。");
       return;
     }
-    if (termsDraft.laborPrice && terms?.linkage !== "linked" && !termsDraft.laborCurrency) {
+    if (canEditLabor && termsDraft.laborPrice && terms?.linkage !== "linked" && !termsDraft.laborCurrency) {
       setTermsMutationError("填写确认工价时必须明确选择币种。");
       return;
     }
@@ -196,14 +213,14 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
     try {
       const next = await confirmedCommercialTermsServerClient.updateBySalesOrder(salesOrderId, {
         expectedVersion: terms?.current?.version ?? 0,
-        customerConfirmedPrice: termsDraft.customerPrice || null,
-        confirmedLaborPrice: termsDraft.laborPrice || null,
-        laborCurrency: terms?.linkage === "linked" ? linkedLaborCurrency : termsDraft.laborCurrency || null,
+        ...(canEditSale?{customerConfirmedPrice: termsDraft.customerPrice || null}:{}),
+        ...(canEditLabor?{confirmedLaborPrice: termsDraft.laborPrice || null,laborCurrency: terms?.linkage === "linked" ? linkedLaborCurrency : termsDraft.laborCurrency || null}:{}),
       });
+      if (epoch !== loadEpoch.current) return;
       setTerms(next);
       setTermsOpen(false);
     } catch (nextError) {
-
+      if (epoch !== loadEpoch.current) return;
       if (nextError instanceof ConfirmedCommercialTermsServerError && nextError.status === 401) {
         serverSession.invalidate();
         setTermsOpen(false);
@@ -211,10 +228,13 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
       }
       if (nextError instanceof ConfirmedCommercialTermsServerError && nextError.status === 409) {
         try {
-          setTerms(await confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId));
+          const current = await confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId);
+          if (epoch !== loadEpoch.current) return;
+          setTerms(current);
         } catch {
           // Keep the explicit conflict as the primary safe error.
         }
+        if (epoch !== loadEpoch.current) return;
         setTermsMutationError(nextError.code === "linked_labor_currency_not_established"
           ? "关联 Quote 尚未建立工价币种；请先从对应 PriceVersion 确认，订单端未写入任何条款。"
           : nextError.code === "linked_labor_currency_order_conflict"
@@ -226,7 +246,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
         ? "当前 Server 账号没有 order.edit 权限。"
         : "确认商业条款保存失败；未写入 Browser 本地订单。");
     } finally {
-      setTermsSaving(false);
+      if (epoch === loadEpoch.current) setTermsSaving(false);
     }
   };
 
@@ -269,6 +289,8 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
       </ServerDetailFrame>
     );
   }
+
+  if (loadedScope !== scopeKey) return <ServerDetailFrame detail={null}><LoadingState label="读取 PostgreSQL 正式订单详情" /></ServerDetailFrame>;
 
   return (
     <ServerDetailFrame detail={detail}>
@@ -319,7 +341,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
             )}
           </Card>
 
-          <OrderMaterialSummary salesOrderId={detail.id} />
+          <OrderMaterialSummary key={scopeKey} salesOrderId={detail.id} />
           <Card className="oc-server-detail-section">
             <details className="oc-server-technical-details">
               <summary>来源与技术详情 <span>只读</span></summary>
@@ -348,11 +370,11 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
               <span>PostgreSQL · v{terms?.current?.version ?? 0}</span>
             </header>
             <DescriptionList columns={3} items={[
-              { key: "customerConfirmedPrice", label: "客户确认价格", value: commercialAmount(terms?.current?.customerConfirmedPrice ?? null, "CNY") },
-              { key: "confirmedLaborPrice", label: "确认工价", value: commercialAmount(terms?.current?.confirmedLaborPrice ?? null, terms?.current?.laborCurrency ?? "币种未指定") },
+              { key: "customerConfirmedPrice", label: "客户确认价格", value: !serverSession.hasPermission("commercial.sale.view") || terms?.current?.saleVisibility === "restricted" ? "无权查看" : commercialAmount(terms?.current?.customerConfirmedPrice ?? null, "CNY") },
+              { key: "confirmedLaborPrice", label: "确认工价", value: !serverSession.hasPermission("commercial.labor.view") || terms?.current?.laborVisibility === "restricted" ? "无权查看" : commercialAmount(terms?.current?.confirmedLaborPrice ?? null, terms?.current?.laborCurrency ?? "币种未指定") },
               { key: "termsLinkage", label: "共享范围", value: terms?.linkage === "linked" ? "精确 Quote provenance 共享" : "仅当前 SalesOrder", secondary: terms?.linkage === "linked" ? `${terms.associatedSalesOrderIds.length} 张正式订单共享` : "未伪造 Quote 关联" },
             ]} />
-            {serverSession.hasPermission("order.edit")
+            {serverSession.hasPermission("order.edit") && (canEditSale || canEditLabor)
               ? <Button variant="secondary" onClick={openTermsEditor}>编辑确认商业条款</Button>
               : <small>当前账号仅有 order.view；确认商业条款只读。</small>}
           </Card>}
@@ -366,11 +388,11 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
             footer={<><Button variant="secondary" onClick={() => setTermsOpen(false)}>取消</Button><Button type="submit" disabled={termsSaving}>{termsSaving ? "保存中" : "保存"}</Button></>}
           >
             <div className="qc-modal-form">
-              <FormItem label="客户确认价格（CNY / 件）"><input className="qc-control" inputMode="decimal" value={termsDraft.customerPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, customerPrice: event.target.value }); }} placeholder="未确认" /></FormItem>
-              <FormItem label="确认工价"><input className="qc-control" inputMode="decimal" value={termsDraft.laborPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, laborPrice: event.target.value }); }} placeholder="未确认" /></FormItem>
-              {terms?.linkage === "linked"
+              {canEditSale && <FormItem label="客户确认价格（CNY / 件）"><input className="qc-control" inputMode="decimal" disabled={!canEditSale} value={termsDraft.customerPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, customerPrice: event.target.value }); }} placeholder="未确认" /></FormItem>}
+              {canEditLabor && <FormItem label="确认工价"><input className="qc-control" inputMode="decimal" disabled={!canEditLabor} value={termsDraft.laborPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, laborPrice: event.target.value }); }} placeholder="未确认" /></FormItem>}
+              {canEditLabor && (terms?.linkage === "linked"
                 ? <FormItem label="工价币种（Quote PriceVersion，只读）"><div className="qc-create-readonly"><strong>{terms.current?.laborCurrency ?? "尚未建立"}</strong><small>{terms.current?.laborCurrency ? "订单端保存时必须保持该币种。" : "请先从关联 Quote 建立；订单端不会猜测 CNY/USD。"}</small></div></FormItem>
-                : <FormItem label="工价币种"><select className="qc-control" value={termsDraft.laborCurrency} onChange={(event) => setTermsDraft({ ...termsDraft, laborCurrency: event.target.value as "" | ConfirmedLaborCurrency })}><option value="">请选择</option><option value="CNY">CNY</option><option value="USD">USD</option></select></FormItem>}
+                : <FormItem label="工价币种"><select className="qc-control" disabled={!canEditLabor} value={termsDraft.laborCurrency} onChange={(event) => setTermsDraft({ ...termsDraft, laborCurrency: event.target.value as "" | ConfirmedLaborCurrency })}><option value="">请选择</option><option value="CNY">CNY</option><option value="USD">USD</option></select></FormItem>)}
               {termsMutationError && <p className="qc-form-alert">{termsMutationError}</p>}
             </div>
           </Modal>}

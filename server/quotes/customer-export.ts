@@ -68,7 +68,7 @@ export function createCustomerExportService(pool: Pool, storage?: AttachmentStor
   const repository = createQuoteRepository(pool);
   return {
     async generate(actor: TrustedIdentity, quoteId: string, selection: CustomerExportSelection) {
-      for(const permission of ["quote.view","quote.export","quote.cost.view"] as const)requirePermission(actor.permissions,permission);
+      for(const permission of ["quote.view","quote.export","quote.cost.view","commercial.sale.view","commercial.labor.view"] as const)requirePermission(actor.permissions,permission);
       const record=await repository.getById(quoteId);
       if(!record)throw new HttpError(404,"quote_not_found","Quote not found");
       if(record.version!==selection.expectedVersion)throw new HttpError(409,"quote_version_conflict","Saved source changed");

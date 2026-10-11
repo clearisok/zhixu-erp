@@ -23,7 +23,7 @@ const formatCurrencyInput = (value: NullableNumber, currency: "CNY" | "USD") => 
  * Header and Sticky share this presentation model. All numeric values come
  * from the formal PriceVersion calculator through nullablePriceVersionMetrics.
  */
-export function createQuoteMetricsViewModel(version: PriceVersion): QuoteMetricViewModel[] {
+export function createQuoteMetricsViewModel(version: PriceVersion, canViewSale = true): QuoteMetricViewModel[] {
   const metrics = nullablePriceVersionMetrics(version);
   const laborCurrency = version.pricingParameters.laborCurrency;
 
@@ -67,7 +67,7 @@ export function createQuoteMetricsViewModel(version: PriceVersion): QuoteMetricV
     {
       key: "garment",
       label: "成衣销售单价",
-      value: formatFinalGarmentPrice(metrics.garmentSellingPrice),
+      value: canViewSale ? formatFinalGarmentPrice(metrics.garmentSellingPrice) : "无权查看",
       unit: "RMB / 件",
       secondaryLabel: "加成前",
       secondaryValue: formatMoney(metrics.preMarkupTotal),

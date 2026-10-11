@@ -73,11 +73,11 @@ test("Customer Quote export: disposable PostgreSQL, saved snapshots and trusted 
 
   await t.test("anonymous, each required permission and historical permission fail closed", async () => {
     active = null; assert.equal((await post(record.quote.id, body)).status, 401);
-    for (const permission of ["quote.view", "quote.export", "quote.cost.view"] as const) {
+    for (const permission of ["quote.view", "quote.export", "quote.cost.view", "commercial.sale.view", "commercial.labor.view"] as const) {
       active = { ...actor, permissions: actor.permissions.filter(p => p !== permission) };
       assert.equal((await post(record.quote.id, body)).status, 403);
     }
-    active = { ...actor, permissions: ["quote.view", "quote.export", "quote.cost.view"] };
+    active = { ...actor, permissions: ["quote.view", "quote.export", "quote.cost.view", "commercial.sale.view", "commercial.labor.view"] };
     const history = record.quote.revisions[0];
     assert.equal((await post(record.quote.id, { ...body, revisionId: history.revisionId, priceVersionIds: [history.priceVersions[0].id] })).status, 403);
     assert.equal(await logCount(record.quote.id), 0); active = actor;
@@ -95,7 +95,7 @@ test("Customer Quote export: disposable PostgreSQL, saved snapshots and trusted 
   });
 
   await t.test("one/all current and history exports match the formal builder, need no Estimate permission", async () => {
-    active = { ...actor, permissions: ["quote.view", "quote.export", "quote.cost.view", "quote.revision.view"] };
+    active = { ...actor, permissions: ["quote.view", "quote.export", "quote.cost.view", "quote.revision.view", "commercial.sale.view", "commercial.labor.view"] };
     for (const revision of browser.revisions) for (const selected of [[revision.priceVersions[0]], revision.priceVersions]) {
       const response = await post(record.quote.id, { ...body, revisionId: revision.revisionId, priceVersionIds: selected.map(p => p.id) });
       assert.equal(response.status, 200);

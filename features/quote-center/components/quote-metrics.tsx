@@ -10,6 +10,7 @@ type QuoteCockpitProps = {
   confirmationLabel: string;
   differenceCount: number;
   historical?: boolean;
+  canViewSale?: boolean;
   settingsAction: ReactNode;
   onDifferenceClick?: () => void;
   onFinalQuoteClick?: () => void;
@@ -28,11 +29,12 @@ export function QuoteCockpit({
   confirmationLabel,
   differenceCount,
   historical = false,
+  canViewSale = true,
   settingsAction,
   onDifferenceClick,
   onFinalQuoteClick,
 }: QuoteCockpitProps) {
-  const items = createQuoteMetricsViewModel(version);
+  const items = createQuoteMetricsViewModel(version, canViewSale);
   const metric = (key: "fabric" | "trim" | "labor" | "other" | "garment") => items.find((item) => item.key === key)!;
   const fabric = metric("fabric");
   const trim = metric("trim");

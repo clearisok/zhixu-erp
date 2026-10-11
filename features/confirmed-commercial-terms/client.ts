@@ -1,5 +1,6 @@
 import type {
-  ConfirmedCommercialTermsDto,
+  ConfirmedCommercialTermsClientDto as ConfirmedCommercialTermsDto,
+  ConfirmedCommercialTermsReadDto,
   UpdateConfirmedCommercialTermsInput,
   UpdateQuoteConfirmedCommercialTermsInput,
 } from "./model";
@@ -24,7 +25,7 @@ export type ConfirmedCommercialTermsServerClient = {
 
 async function parseResponse(response: Response): Promise<ConfirmedCommercialTermsDto> {
   const payload = await response.json() as {
-    confirmedCommercialTerms?: ConfirmedCommercialTermsDto;
+    confirmedCommercialTerms?: ConfirmedCommercialTermsReadDto;
     error?: { code?: string; message?: string };
   };
   if (!response.ok || !payload.confirmedCommercialTerms) {
@@ -34,7 +35,24 @@ async function parseResponse(response: Response): Promise<ConfirmedCommercialTer
       payload.error?.message ?? "确认商业条款请求失败",
     );
   }
-  return payload.confirmedCommercialTerms;
+  const dto=payload.confirmedCommercialTerms, c=dto.current;
+  const validField=(field:unknown)=>{
+    if(!field||typeof field!=="object")return false;
+    const f=field as Record<string,unknown>;
+    if(f.visibility==="restricted")return Object.keys(f).length===1;
+    if(f.visibility!=="allowed"||!f.value||typeof f.value!=="object")return false;
+    const v=f.value as Record<string,unknown>;
+    return (v.price===null||typeof v.price==="string"&&/^\d+(?:\.\d+)?$/.test(v.price))&&(v.currency===null||v.currency==="CNY"||v.currency==="USD");
+  };
+  if(dto.contract!=="commercial-terms-read.v1" || c && (!validField(c.sale)||!validField(c.labor))) {
+    throw new ConfirmedCommercialTermsServerError(502,"commercial_read_contract_invalid","商业条款响应不兼容，请重新加载核对");
+  }
+  return {linkage:dto.linkage,scope:dto.scope,quoteProvenance:dto.quoteProvenance,associatedSalesOrderIds:dto.associatedSalesOrderIds,
+    ...(dto.verifiedQuoteVersion!==undefined?{verifiedQuoteVersion:dto.verifiedQuoteVersion}:{}),
+    current:c?{id:c.id,version:c.version,createdAt:c.createdAt,updatedAt:c.updatedAt,saleVisibility:c.sale.visibility,laborVisibility:c.labor.visibility,
+      ...(c.sale.visibility==="allowed"?{customerConfirmedPrice:c.sale.value.price,customerConfirmedPriceCurrency:c.sale.value.currency}:{}),
+      ...(c.labor.visibility==="allowed"?{confirmedLaborPrice:c.labor.value.price,laborCurrency:c.labor.value.currency}:{}),
+    }:null};
 }
 
 function quotePath(quoteId: string, revisionId: string, priceVersionId: string): string {

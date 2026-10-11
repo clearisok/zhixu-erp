@@ -4,11 +4,14 @@ import type { Pool, PoolClient } from "pg";
 import type { CreationInput } from "./creation-contract.js";
 import type { PermissionKey } from "../../features/permissions/model/permissions.js";
 import { requirePermission } from "../auth/permissions.js";
+import { requireCommercialEdit } from "../confirmed-commercial-terms/permissions.js";
+import { restoreRestrictedConfirmation } from "./commercial-save.js";
 import type { TrustedIdentity } from "../auth/session.js";
 import { HttpError } from "../http/errors.js";
 import { appendOperationLog } from "../operation-logs/repository.js";
 import { QuoteConflictError, QuoteInvariantError, normalizeServerQuote, validateQuote, type QuoteRecord, type ServerQuote } from "./model.js";
 import { projectQuoteResponse, type QuoteSaveContent } from "./quote-response.js";
+import { restoreRestrictedQuoteCosts } from "./restricted-save.js";
 import { createQuoteRepository, type QuoteMutationHook } from "./repository.js";
 import { createServerQuoteDraft } from "./draft.js";
 import { allocateQuoteCode } from "./numbering.js";
@@ -206,6 +209,8 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
     async confirmationWorkflow(actor: TrustedIdentity, quoteId: string, command: QuoteConfirmationCommand, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.view");
       requirePermission(actor.permissions, "quote.confirm");
+      requireCommercialEdit(actor, "sale");
+      requireCommercialEdit(actor, "labor");
       const before = await repository.getById(quoteId);
       if (!before) throw new HttpError(404, "quote_not_found", "Quote not found");
       if (before.version !== command.expectedVersion) throw new QuoteConflictError();
@@ -271,7 +276,8 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
       // Repository CAS still protects races occurring after this read.
       let input: ServerQuote;
       try {
-        input = normalizeServerQuote({ ...content, activeEstimateCost: before.quote.activeEstimateCost, estimateCostHistory: before.quote.estimateCostHistory });
+        const restored = actor.permissions.includes("quote.cost.view") ? restoreRestrictedConfirmation(actor, content, before.quote) : restoreRestrictedQuoteCosts(content, before.quote);
+        input = normalizeServerQuote({ ...restored, activeEstimateCost: before.quote.activeEstimateCost, estimateCostHistory: before.quote.estimateCostHistory } as ServerQuote);
         validateQuote(input);
       } catch (error) {
         if (error instanceof QuoteInvariantError || error instanceof TypeError) throw new HttpError(400, "invalid_quote", "Quote aggregate is invalid");

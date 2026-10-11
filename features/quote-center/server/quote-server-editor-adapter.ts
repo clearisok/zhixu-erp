@@ -47,6 +47,7 @@ export function serverQuoteFromEditable(quote: QuoteEditorData): import("../../.
 }
 
 export function editableRecord(record: QuoteRecord): EditableServerQuoteRecord {
+  if (record.costVisibility === "restricted") throw new Error("Internal cost content is restricted; use the metadata view");
   if ("estimateVisibility" in record && record.estimateVisibility === "restricted" &&
     (Object.hasOwn(record.quote, "activeEstimateCost") || Object.hasOwn(record.quote, "estimateCostHistory"))) throw new Error("Invalid restricted Quote response");
   return { quote: editableQuoteFromServer(record.quote), expectedVersion: record.version,

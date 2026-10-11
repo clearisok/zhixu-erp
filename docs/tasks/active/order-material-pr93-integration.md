@@ -11,3 +11,10 @@
 审查现有B执行只读链路与main正式D103：commercial.sale.view/edit、commercial.labor.view/edit已经Active；Quote成本、测算销售价、历史/导出/日志的分离投影和CCT部分PATCH保留。五个共享文件须做语义核对：AI_HANDOFF、CURRENT_STATE、server/app.ts、CCT集成测试、server-sales-order-detail-page.tsx。旧物料安全审计不能继续正向断言泄露；早期commercial-read-policy须查清引用，不能再充当独立运行时授权。
 
 本轮无真实数据库/艾诺科/COS/18443/18444、migration、账号凭据或生产route激活。正常merge、不reset/clean/rebase/force/整文件ours-theirs。当前工程Gate尚未执行，旧测试数量不是本轮结果。
+## Gate1 — main 语义合并
+
+正常 merge --no-ff origin/main；真实冲突仅 AI_HANDOFF、CURRENT_STATE、server-sales-order-detail-page。两份文档逐段协调，双方历史恢复信息原文归档至 completed/2026-10-12-pr92-pr93-pre-integration-handoff.md；保留 PR84/PR91 部署证据、D103 Active 及原 P6 人工验收事实。PROJECT_INDEX 自动合并的 PR93 Draft 状态已改为已合并。
+
+五文件审查：server/app.ts 保留可选 Material GET 的 session/order.view/style_progress.read/可信订单范围/固定 Source，以及 CCT commercial-terms-read.v1 投影与部分 PATCH；CCT 集成测试保留共享当前值、精确 provenance、null/0、币种、CAS/事务审计规则。订单详情保留 B 紧凑布局、颜色、物料摘要、技术折叠及 UUID 返回；采用 main ClientDto/四键和部分 PATCH。执行模式不发 CCT GET/PATCH、不挂载金额卡片/编辑器；非执行模式不挂载无权字段输入。统一单一请求 epoch，订单/用户/权限/模式 scope 变化先隐藏旧状态并清空草稿，忽略过期成功/失败及 PATCH/409 reload；物料摘要按同一 scope 重新挂载。
+
+本轮实际检查：typecheck PASS；订单详情定向 ESLint PASS；CCT Client + CCT/商业权限/linked terms/物料 HTTP **52/52 PASS**（随机 disposable PostgreSQL，真实 session，合成数据）；diff-check PASS。完整 PostgreSQL、浏览器及全量质量检查仍待执行。继承 dirty SHA256 保持 8B24F58EB42F2141778F1EBE69138C64449BE04F522757CBC50325FB5286E21E，未 stage。

@@ -17,6 +17,8 @@ export function columnPermissions(key: BusinessColumn | EstimateColumn): Permiss
   const permissions: PermissionKey[] = ["quote.view"];
   if (costColumns.includes(key as BusinessColumn) || key === "estimateTotal" || key === "estimateDifference") permissions.push("quote.cost.view");
   if (estimateColumns.includes(key as EstimateColumn)) permissions.push("estimate.view");
+  if (key === "confirmedGarment" || key === "garmentPrice" || key === "estimateDifference") permissions.push("commercial.sale.view");
+  if (key === "confirmedLabor") permissions.push("commercial.labor.view");
   return permissions;
 }
 export function allowedBusinessColumns(permissions: readonly string[]): BusinessColumn[] {

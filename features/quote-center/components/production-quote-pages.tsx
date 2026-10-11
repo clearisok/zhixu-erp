@@ -5,7 +5,9 @@ import { AppShell, Button, Card, DataTable, ErrorState, FloatingMenu, FormItem, 
 import { useServerSession } from "@/features/server-auth";
 import { quoteAuthority } from "../authority/quote-authority";
 import { quoteServerClient, type QuoteServerListItem, type QuoteServerPage } from "../server/quote-server-client";
-import { quoteServerEditorAdapter, type EditableServerQuoteRecord } from "../server/quote-server-editor-adapter";
+import { editableRecord, type EditableServerQuoteRecord } from "../server/quote-server-editor-adapter";
+import type { CostRestrictedRecord } from "../../../server/quotes/quote-response";
+import { RestrictedQuoteContent } from "./restricted-quote-content";
 import { createQuoteEditorPersistence } from "../server/quote-editor-persistence";
 import { QuoteList } from "./quote-list";
 import { QuoteDetailLoader, QuoteEditor, QuoteNewLoader } from "./quote-editor";
@@ -155,15 +157,20 @@ function ServerDetail() {
   const session = useServerSession();
   const [record, setRecord] = useState<EditableServerQuoteRecord | null>(null);
   const [error, setError] = useState({ id: "", message: "" });
+  const [restricted,setRestricted]=useState<CostRestrictedRecord|null>(null);
+  const [loadedScope,setLoadedScope]=useState("");
+  const scope=`${id}/${session.user?.id??""}/${session.permissions.join("|")}`;
   useEffect(() => {
     let active = true;
     if (!id) { void Promise.resolve().then(() => setError({ id, message: "Server HTTP 404 · 缺少报价 ID" })); return; }
-    void quoteServerEditorAdapter.load(id).then((result) => { if (active) { setRecord(result); setError({ id, message: "" }); } }).catch((cause) => { if (active) setError({ id, message: safeError(cause) }); });
+    void quoteServerClient.getById(id).then((result) => { if (active) { setLoadedScope(scope);setRestricted(result.costVisibility==="restricted"?result:null);setRecord(result.costVisibility==="restricted"?null:editableRecord(result));setError({ id, message: "" }); } }).catch((cause) => { if (active) {setLoadedScope(scope);setError({ id, message: safeError(cause) });} });
     return () => { active = false; };
-  }, [id]);
+  }, [id,scope]);
   const persistence = useMemo(() => record ? createQuoteEditorPersistence(record) : undefined, [record]);
   if (!session.hasPermission("quote.view")) return <ErrorState permission title="Server HTTP 403 · 需要 quote.view" />;
+  if (loadedScope!==scope) return <LoadingState label="读取 Server 报价" />;
   if (error.id === id && error.message) return <AppShell title="报价详情不可用"><PageContainer><ErrorState title="Server 报价读取失败" description={error.message} /></PageContainer></AppShell>;
+  if (restricted?.quote.id===id) return <RestrictedQuoteContent key={scope} initial={restricted} editable={session.hasPermission("quote.edit")}/>;
   if (!record || !persistence || record.quote.id !== id) return <LoadingState label="读取 Server 报价" />;
   return <QuoteEditor key={record.quote.id} initialQuote={record.quote} persistence={persistence} />;
 }
