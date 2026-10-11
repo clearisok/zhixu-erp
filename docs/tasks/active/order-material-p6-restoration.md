@@ -45,3 +45,30 @@ Gate2 本地 checkpoint `1164663d6fbadfca21159a5c2216a2b0216a470b` 已保存；�
 最终实际组件 Chromium：**7/7，115 断言，0 skipped**。含三个宽度的 CSS/computed styles、列表唯一性、网格/折叠可见性、标题非重叠、搜索区域、金额可读、UUID 返回、账号切换隔离、未连接、摘要/详情一致性、GET-only、无 CCT/Quote 请求、无 Browser 业务存储/IndexedDB、无非隔离来源请求或 JS 异常。新增断言未移除既有业务和安全断言。
 
 已检查最终桌面/移动截图，明确与此前被否决的截图区分。**USER UI ACCEPTANCE PENDING**；截图结构与 computed-style 检查不是用户批准。详见 [截图及 P6 要求逐项对照](evidence/order-material-p6-restoration/README.md)。
+## Gate 4 — 本轮工程结果与交付边界
+
+Gate3 checkpoint `802b104abad4c2995ea53f3fc68663d553c22e87`。所有产品改动完成后，最终截图已人工检查；不再新增 UI 或业务功能。用户人工 UI 验收仍为 PENDING，真实环境未部署。
+
+| 本轮执行项目 | 结果 |
+| --- | --- |
+| `npx tsx --test features/ainuoke-material-progress/__tests__/integration-browser.test.mjs` | 7/7、115 断言、0 skipped；1440/1280/390 真实私有 Chromium |
+| `npx tsx --test --test-concurrency=1 server/integration/order-material-http.test.ts server/integration/order-material-security-audit.test.ts` | 12/12（HTTP 11 + 既有暴露审计 1），0 skipped；审计通过代表暴露被重现，不代表修复 |
+| `npm test` | 757/757，0 skipped；最终产品展示改动后重新执行 |
+| `npm run typecheck` / `npm run lint` | PASS / PASS，0 lint warnings；最终标识样式后另执行定向 lint |
+| `npm run server:build` → `npm run build` | 顺序 PASS；前端 42 路由，既有大于 500kB chunk 提示保留 |
+| `git diff --check` | PASS |
+| 完整 `npm run test:postgres`、独立 CCT 7 项、独立 Source/Gate1/1.5 78 项 | NOT RUN 本轮 UI 修复；不把此前结果当作本轮通过证据 |
+| 临时资源 | 浏览器/API/Vite/随机 PG16 由各 fixture finally 清理；只核对本任务已知容器，其他并行任务容器不动 |
+
+### 文件与风险
+
+- 本轮仅改现有订单/款式展示 CSS、正式详情组件、物料摘要展示 class、隔离预览入口/标识和定向浏览器测试、合成截图/任务报告及必要状态/feature 文档。
+- 未改正式订单列表组件/算法、数据库、共享权限目录、Quote 模块、Server API、0010/0011、任何部署环境。
+- 当前金额 GET 风险仍存在；Material DTO 不含销售价/工价/Quote 内部成本/利润。团队可见的采购来源单价/金额继续展示，来源所有权没有改变。
+- 正式分码数据尚未接线；默认真实 Source 和生产路由继续关闭。工程测试不能声明实时同步或生产安全。
+- P6 原图无法在当前附件上下文读取，逐项对照明确列出的要求与原组件；像素比较未验证，用户审批待定。
+- 继承 `order-material-read-gate1.md` 的 30 行修改始终未 stage，原 SHA256 保持不变。
+
+GitHub 交付使用原分支/唯一 Draft #92。Gate2 纯 TLS 故障的本地/远端状态已分开记录；最终正常 checkpoint push 后，以只读 exact SHA 核实并在 PR/最终交付回复记录收据，不猜测送达、不 force push。
+
+本轮相对起始 d18b5db3 的文件与已合并 PR91（HEAD `cf57074185412e323e2f3308bddc2fd3f73be063`）交集仅 `docs/AI_HANDOFF.md`、`docs/CURRENT_STATE.md`，为必要状态接力；未触及 PR91 业务代码、迁移或部署证据。整个历史 PR92 的 post-merge 交集另含此前已批准的 server/app.ts 和 CCT ledger 测试，不是本轮 UI 增量。

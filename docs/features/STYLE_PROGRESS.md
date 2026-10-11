@@ -7,6 +7,9 @@
 Server 分支不挂载 Browser Repository、旧权限 Provider、导入、人工编辑或排单写入；不带 `orderId` 的原 Browser 路径继续原行为。显式 Browser authority 收到正式 UUID 时拒绝回退。返回入口固定到经过校验的原订单 UUID。实际组件在独立动态 loopback / disposable PG16 / 私有 Chromium 中完成 1440、1280、390px 验收，生产全局路由白名单保持禁用，真实 Source 未接线。既有商业金额 API 风险仍待权限 Gate。[工程报告](../tasks/active/order-material-night-integration.md) / [合成截图](../tasks/active/evidence/order-material-night/README.md)。
 
 
+## Server 只读展示修正 — 2026-10-11
+
+原夜间截图未获用户认可。本轮仅在 Server 专属 class 下修正搜索区域空列和事件标题留白，复用共用 Control Tower 卡片/表格，保留颜色规格、采购/入库/物料出运/出库与 UUID 返回。390 采购来源单价/金额通过表格内部滚动读取；无页面横向溢出。没有新算法、Browser 导入/排期写入或真实 Source 接线。默认物料页不展示 UUID，受控返回关联仍保留。**用户人工 UI 验收 PENDING**。[最新合成截图](../tasks/active/evidence/order-material-p6-restoration/README.md)。
 ## Purpose
 
 款式进度是订单中心内的 Material Control Tower。它把艾诺科《面辅料申购统计》作为跟进来源，通过 `salesContractNo` 投影到现有单款 SalesOrder，并复用正式 ScheduleAssignment、ProductionSite、SupplyHub、SupplyRoute 与 TransportMode 计算逐物料物流建议。它不创建订单、不做第二套订单匹配，也不复制订单权威字段。
