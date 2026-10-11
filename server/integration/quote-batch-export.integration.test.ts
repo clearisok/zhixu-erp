@@ -34,7 +34,7 @@ test("Customer batch export uses disposable Quote snapshots, bounded selections 
   const pool = new pg.Pool({ connectionString: await postgres.createDatabase("quote_batch_export") });
   await runMigrations(pool, resolve("database/migrations"));
   const user = (await pool.query("INSERT INTO app_users(username,password_hash,display_name,role,active) VALUES('batch-export-test','synthetic-unused-hash','Trusted Batch Export','viewer',true) RETURNING id::text,public_id::text")).rows[0];
-  const actor: TrustedIdentity = { internalUserId: user.id, userId: user.public_id, username: "batch-export-test", userName: "Trusted Batch Export", permissions: ["quote.view", "quote.export", "quote.cost.view"] };
+  const actor: TrustedIdentity = { internalUserId: user.id, userId: user.public_id, username: "batch-export-test", userName: "Trusted Batch Export", permissions: ["quote.view", "quote.export", "quote.cost.view", "commercial.sale.view", "commercial.labor.view"] };
   let active: TrustedIdentity | null = actor;
   const storage = new MemoryAttachmentStorage();
   const server = createServer(createApp({ pool, attachmentStorage: storage, allowedOrigins: [origin], security: { secureCookies: false, sessionTtlSeconds: 3600 }, identityAuthority: { mode: "session", verify: async () => {}, resolve: async () => active } }));

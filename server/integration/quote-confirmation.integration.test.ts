@@ -24,7 +24,7 @@ test("Quote confirmation commands: trusted snapshots, independent Estimate permi
     return { internalUserId: row.id, userId: row.public_id, username: name, userName: `Trusted ${name}`, permissions };
   };
   const admin = await identity("confirmation-admin", [...PERMISSION_KEYS]);
-  const confirmer = await identity("confirmation-no-estimate", ["quote.view", "quote.confirm", "quote.cost.view", "quote.revision.view"]);
+  const confirmer = await identity("confirmation-no-estimate", ["quote.view", "quote.confirm", "quote.cost.view", "quote.revision.view", "commercial.sale.view", "commercial.sale.edit", "commercial.labor.view", "commercial.labor.edit"]);
   const viewer = await identity("confirmation-viewer", ["quote.view", "quote.cost.view", "quote.revision.view"]);
   let active: TrustedIdentity | null = admin;
   const requestOrigin = "http://127.0.0.1:39992";

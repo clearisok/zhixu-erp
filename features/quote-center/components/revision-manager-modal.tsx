@@ -32,6 +32,7 @@ function confirmationText(revision: QuoteRevision) {
 type RevisionManagerModalProps = {
   serverError?: string;
   serverMode?: boolean;
+  canViewSale?: boolean;
   open: boolean;
   quote: Quote;
   viewedRevisionId: string;
@@ -54,7 +55,7 @@ export function RevisionManagerModal(props: RevisionManagerModalProps) {
   return <RevisionManagerDialog key={`${props.viewedRevisionId}-${props.quote.defaultRevisionId}`} {...props} />;
 }
 
-function RevisionManagerDialog({ serverMode = false, serverError, quote, viewedRevisionId, canUpdate, canViewEstimate, canEditEstimate, onClose, onView, onCanUpdate, onCreate, onEstimateChange, onEstimateGenerate, onEstimateIgnoreStale, onEstimateRestore, onEstimateSave }: RevisionManagerModalProps) {
+function RevisionManagerDialog({ serverMode = false, canViewSale = true, serverError, quote, viewedRevisionId, canUpdate, canViewEstimate, canEditEstimate, onClose, onView, onCanUpdate, onCreate, onEstimateChange, onEstimateGenerate, onEstimateIgnoreStale, onEstimateRestore, onEstimateSave }: RevisionManagerModalProps) {
   const [selectedId, setSelectedId] = useState<string>(viewedRevisionId || quote.defaultRevisionId);
   const [mode, setMode] = useState<"overview" | "update">("overview");
   const [reason, setReason] = useState<QuoteRevisionReason | "">("");
@@ -130,7 +131,7 @@ function RevisionManagerDialog({ serverMode = false, serverError, quote, viewedR
           <div><dt>辅料成本</dt><dd>{summarizeRevisionMetric(selected, (metrics) => metrics.trimCost)} / 件</dd></div>
           <div><dt>工价（折合 RMB）</dt><dd>{summarizeRevisionMetric(selected, (metrics) => metrics.laborRmb)} / 件</dd></div>
           <div><dt>其他费用</dt><dd>{summarizeRevisionMetric(selected, (metrics) => metrics.otherCost)} / 件</dd></div>
-          <div><dt>成衣销售价</dt><dd>{summarizeRevisionMetric(selected, (metrics) => metrics.garmentSellingPrice, formatFinalGarmentPrice)} / 件</dd></div>
+          <div><dt>成衣销售价</dt><dd>{canViewSale ? summarizeRevisionMetric(selected, (metrics) => metrics.garmentSellingPrice, formatFinalGarmentPrice) : "无权查看"} / 件</dd></div>
           <div><dt>客户确认</dt><dd>{confirmationText(selected)}</dd></div>
           <div><dt>来源关系</dt><dd>{sourceRevision ? <>基于 <RevisionLabel revision={sourceRevision} /></> : "初始报价版本"}</dd></div>
         </dl>

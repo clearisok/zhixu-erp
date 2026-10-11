@@ -127,6 +127,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     "0008_quote_attachments.sql",
     "0009_sales_order_delivery_plans.sql",
     "0010_quote_creation_receipts.sql",
+    "0011_quote_creation_defaults.sql",
   ]);
   const rerun = await runMigrations(pool, resolve("database/migrations"));
   assert.deepEqual(rerun.applied, []);
@@ -137,7 +138,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
   assert.match(ledger.rows[0].checksum, /^[a-f0-9]{64}$/u);
 
   await synchronizePermissionCatalog(pool);
-  const editor = await seedUser(pool, "terms-editor", ["order.view", "order.edit", "quote.view", "quote.confirm"]);
+  const editor = await seedUser(pool, "terms-editor", ["order.view", "order.edit", "quote.view", "quote.confirm", "commercial.sale.view", "commercial.sale.edit", "commercial.labor.view", "commercial.labor.edit"]);
   const viewer = await seedUser(pool, "terms-viewer", ["order.view", "quote.view"]);
   const denied = await seedUser(pool, "terms-denied", []);
 

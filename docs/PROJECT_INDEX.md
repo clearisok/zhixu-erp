@@ -1,5 +1,7 @@
 # 项目知识索引
 
+> 2026-10-11 [PR93 Draft](https://github.com/clearisok/zhixu-erp/pull/93)：D-103四键及用户最终确认的测算销售价/最终报价sale.view边界已实施；本轮PG/HTTP261/261、Chromium14/14、SSR/列表/HTTP18/18、npm680/680 PASS。无新增安全阻塞，等待最终审查，不自动ready/merge。[当前证据/整合策略与历史记录](tasks/active/commercial-amount-read-security.md)。PR91已合并main fcf36e5；PR92仍Draft，订单UI用户验收PASS；本轮不改B工作树或真实环境。
+
 > 2026-10-11：用户已明确确认 PR #91 人工验收 PASS 并授权 GitHub 合并；最终 GitHub 合并状态以 PR #91 为准。18444 保持已验收候选，合并不授权重新部署、迁移或操作 18443/COS。日期汇率政策、影响清单与受控批量应用属下一独立功能，应在 #91 合并后从最新 main 开发；订单 PR #92 继续独立 Draft。下述早期 USER ACCEPTANCE PENDING 为当时历史记录。
 
 > 2026-10-10 PR91第二轮反馈：制作方案→默认值两区、卡片选择、详情去冗余和列表铺满已授权更新18444；实际源码eb9530a/image1707a8e54159，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。本次新备份/完整隔离恢复、30报价及3对象保持、只读Chromium PASS，未执行迁移/创建报价/保存设置。见[当前部署证据](tasks/active/quote-two-step-creation.md#second-acceptance-preview-deployment-pass-2026-10-10)、[工程测试](tasks/active/quote-two-step-creation.md#second-user-acceptance-revision-2026-10-10)、[合成截图索引](tasks/active/evidence/quote-pr91-second-acceptance/README.md)。下面b7c2080等为此前历史；18443/真实业务库/COS/订单工作树未动，不自动合并。

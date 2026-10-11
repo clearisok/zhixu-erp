@@ -136,6 +136,7 @@ test("Fresh start: schema, technical-only bootstrap and Server-only empty paths"
 
   await t.test("explicit new Quote create/save/read still works without masters or policy defaults", async () => {
     const created = await quotes.create();
+    assert.ok(created.costVisibility !== "restricted");
     const revision = created.quote.revisions[0];
     const parameters = revision.priceVersions[0].pricingParameters;
     assert.equal(revision.baseInfo.brandId, "");

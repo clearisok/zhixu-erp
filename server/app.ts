@@ -12,6 +12,7 @@ import { requestId, sendError, sendJson } from "./http/responses.js";
 import { queryOperationLogs } from "./operation-logs/repository.js";
 import { parseOperationLogQuery } from "./operation-logs/query.js";
 import type { UpdateConfirmedCommercialTermsInput, UpdateQuoteConfirmedCommercialTermsInput } from "../features/confirmed-commercial-terms/model.js";
+import { projectCommercialTerms } from "./confirmed-commercial-terms/read-projection.js";
 import {
   isConfirmedLaborCurrency,
   readConfirmedCommercialTermsByQuote,
@@ -90,21 +91,21 @@ function confirmedCommercialTermsInput(body: Record<string, unknown>, quoteSurfa
   if (!Number.isSafeInteger(body.expectedVersion) || (body.expectedVersion as number) < 0) {
     throw new HttpError(400, "invalid_confirmed_commercial_terms", "expectedVersion must be a non-negative integer");
   }
-  const customerConfirmedPrice = commercialAmount(body.customerConfirmedPrice, "customerConfirmedPrice");
-  const confirmedLaborPrice = commercialAmount(body.confirmedLaborPrice, "confirmedLaborPrice");
-  const laborCurrency = body.laborCurrency === null ? null : body.laborCurrency;
-  if (laborCurrency !== null && !isConfirmedLaborCurrency(laborCurrency)) {
+  const customerConfirmedPrice = Object.hasOwn(body,"customerConfirmedPrice") ? commercialAmount(body.customerConfirmedPrice, "customerConfirmedPrice") : undefined;
+  const confirmedLaborPrice = Object.hasOwn(body,"confirmedLaborPrice") ? commercialAmount(body.confirmedLaborPrice, "confirmedLaborPrice") : undefined;
+  const laborCurrency = body.laborCurrency;
+  if (Object.hasOwn(body,"laborCurrency") && laborCurrency !== null && !isConfirmedLaborCurrency(laborCurrency)) {
     throw new HttpError(400, "invalid_confirmed_commercial_terms", "laborCurrency must be CNY, USD, or null");
   }
-  if (confirmedLaborPrice !== null && laborCurrency === null) {
+  if (confirmedLaborPrice !== undefined && confirmedLaborPrice !== null && laborCurrency === null) {
     throw new HttpError(400, "invalid_confirmed_commercial_terms", "laborCurrency is required when confirmedLaborPrice is present");
   }
   return {
     ...(quoteSurface ? { expectedQuoteVersion: body.expectedQuoteVersion } : {}),
     expectedVersion: body.expectedVersion as number,
-    customerConfirmedPrice,
-    confirmedLaborPrice,
-    laborCurrency,
+    ...(customerConfirmedPrice !== undefined ? {customerConfirmedPrice} : {}),
+    ...(confirmedLaborPrice !== undefined ? {confirmedLaborPrice} : {}),
+    ...(Object.hasOwn(body,"laborCurrency") ? {laborCurrency: laborCurrency as "CNY"|"USD"|null} : {}),
   };
 }
 
@@ -197,7 +198,7 @@ function quoteBody(body: Record<string, unknown>): { quote: import("./quotes/quo
   if (!body.quote || typeof body.quote !== "object" || Array.isArray(body.quote)) {
     throw new HttpError(400, "invalid_quote_request", "quote must be an object");
   }
-  const authorityKeys = new Set(["actor", "actorUserId", "internalUserId", "userId", "role", "permissions", "estimateVisibility"]);
+  const authorityKeys = new Set(["actor", "actorUserId", "internalUserId", "userId", "role", "permissions", "estimateVisibility", "costVisibility"]);
   const containsAuthorityField = (value: unknown): boolean => {
     if (Array.isArray(value)) return value.some(containsAuthorityField);
     if (!value || typeof value !== "object") return false;
@@ -425,7 +426,7 @@ async function route(
         salesOrderId,
         confirmedCommercialTermsInput(await readJsonBody(request)),
       );
-    sendJson(response, 200, { confirmedCommercialTerms: terms });
+    sendJson(response, 200, { confirmedCommercialTerms: projectCommercialTerms(identity, terms) });
     return;
   }
 
@@ -520,7 +521,7 @@ async function route(
         provenance,
         confirmedCommercialTermsInput(await readJsonBody(request), true) as UpdateQuoteConfirmedCommercialTermsInput,
       );
-    sendJson(response, 200, { confirmedCommercialTerms: terms });
+    sendJson(response, 200, { confirmedCommercialTerms: projectCommercialTerms(identity, terms) });
     return;
   }
 

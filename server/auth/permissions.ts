@@ -28,6 +28,15 @@ export async function synchronizePermissionCatalogInTransaction(client: Queryabl
       [permission.key, permission.module, permission.label, permission.description],
     );
   }
+  // This stable server-owned role is created by bootstrap/guarded activation,
+  // never inferred from a client's role name or a legacy app_users.role value.
+  // Upgrade existing administrators even when bootstrap has no password input.
+  await client.query(`INSERT INTO app_role_permissions(role_id, permission_key)
+    SELECT r.id, p.key FROM app_roles r CROSS JOIN app_permissions p
+    WHERE r.id = 'role-server-admin'
+      AND p.key = ANY($1::text[]) ON CONFLICT DO NOTHING`, [[
+    "commercial.sale.view", "commercial.sale.edit", "commercial.labor.view", "commercial.labor.edit",
+  ]]);
 }
 
 export async function synchronizePermissionCatalog(pool: Pool): Promise<void> {

@@ -43,11 +43,13 @@ test("original default has nine visual cells plus action, formal fields remain i
 });
 test("existing v1 field layout/order/width remains lossless and normalization idempotent", () => {
   const old = { visibleColumns: ["status", "salesperson", "brand", "confirmedLabor"], columnOrder: ["salesperson", "status", "brand", "confirmedLabor"], columnWidths: { salesperson: 310, brand: 255 } };
-  const safe = normalizeServerListPreferences("u", permissions, old);
+  const grants = [...permissions, "commercial.labor.view"];
+  const safe = normalizeServerListPreferences("u", grants, old);
   assert.equal(safe.presentation, "fields");
   assert.deepEqual(presentedListColumns(safe).map(column => column.key), ["salesperson", "status", "brand", "confirmedLabor"]);
   assert.equal(safe.columnWidths.salesperson, 310);
-  assert.deepEqual(normalizeServerListPreferences("u", permissions, safe), safe);
+  assert.deepEqual(normalizeServerListPreferences("u", grants, safe), safe);
+  assert.equal(presentedListColumns(normalizeServerListPreferences("u", permissions, old)).some(column => column.key === "confirmedLabor"), false, "cost permission does not reveal a saved protected column");
 });
 test("hidden/revoked children never render, including tooltip/record markup", () => {
   const preferences = normalizeServerListPreferences("u", ["quote.view"], { presentation: "original", visibleColumns: ["brand", "fabricCost"], columnOrder: ["brand", "salesperson", "fabricCost"] });

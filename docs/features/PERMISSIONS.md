@@ -1,5 +1,25 @@
 # 权限系统
 
+## Server 商业金额（D-103，2026-10-11）
+
+用户最终确认并实施：详情/卡片“测算销售单价”、摘要/构成“成衣销售价格/最终报价”均须可信 Session 的 commercial.sale.view；cost.view 单独只授内部成本。仅 sale.view 不授内部成本；列表 garmentPrice 保留 cost.view + sale.view。无权不向子组件/隐藏 DOM 传实际展示金额，显示“无权查看”。保留授权成本输入和公式，不声称阻止用户自行推算。此前待确认口径已由本次决定收口，历史证据不删除。加工报价旧 confirmation.save 仍为完整快照（含 quotedGarmentPrice），要求两套商业 view+edit；linked CCT PATCH 的工价单字段修改只需对应工价权限，实际 HTTP 已验证。见[定向验收](../tasks/active/commercial-amount-read-security.md)。
+
+用户已批准并实施四键 commercial.sale.view/edit、commercial.labor.view/edit。Server `role-server-admin` 目录同步幂等升级，新 bootstrap 管理员具备四项；非管理员角色无隐式新增。只检查可信权限集合，不依赖前端名称。正式角色管理 UI/API 仍未实现；本轮不开放生产授权路由，不用 Browser mock 替代，真实角色未操作。
+
+两个 CCT GET/PATCH 保留 quote.view / order.view；修改另需 quote.confirm / order.edit。实际提交销售价需 sale.view+edit，提交工价/币种需 labor.view+edit，未提交从事务锁定的数据库值保留。显式 null/零分别保留其语义，旧全量客户端提交隐藏字段（含 null）403，不静默清空。响应使用 `commercial-terms-read.v1`，每项 allowed/value 或 restricted；metadata 与共享 identity/version 保持。
+
+Quote 有内部成本查看权但无商业权限时，仍返回内部成本及独立 Estimate；历史 confirmation 的销售价/确认工价分别省略，带 commercialVisibility。普通保存恢复这些缺失字段，注入拒绝，CAS/历史不可变不弱化。现有 cost-restricted metadata-only 保存继续保护全部成本。
+
+列表与内部汇总的 garmentPrice/confirmedGarment 另需 sale.view、confirmedLabor 另需 labor.view（原成本权限仍保留）。estimateDifference 是销售价减估算成本，要求 cost.view + estimate.view + sale.view；普通 estimateTotal 仍不额外要求商业权限。Server 在读来源/构建/审计前拒绝越权请求。客户 Excel/ZIP 同时需要两项商业查看权限，否则生成前拒绝。日志响应过滤保护金额及已知派生销售字段，DB 原始审计保留。CCT 客户端拒绝旧完整响应协议，隐藏金额不进入客户端适配对象；Order 仅调整金额协议和权限状态，不重排已验收页面。
+
+## Quote aggregate 成本读取安全边界（2026-10-11）
+
+实际 Server aggregate 的所有响应在序列化前检查既有 `quote.cost.view`。无权身份仍可 quote.view 读取基础资料及数量，响应明确 `costVisibility: restricted`，不返回任何 Revision/PV 成本、参数、历史确认金额或派生字段；Estimate 完整数值同时要求 quote.cost.view 与 estimate.view。不能用 null/0/空数组冒充隐藏数据。
+
+metadata-only PUT 先校验版本再恢复当前数据库保护切片，不清空成本/Estimate/历史；成本注入、伪造 visibility/身份和移除行失败，成本写入/参数/确认/版本原权限保持。受限客户端只消费基础资料，不挂成本计算器/完整 Editor；有权用户原 Editor 保留。no-store 及身份/权限 cache scope 防止旧完整响应串用户。
+
+Quote/Estimate 操作日志响应按同一成本权限裁剪，保护事件在计数/分页前排除；DB 审计仍完整。采购执行来源价格团队共享不受此规则影响。此前 CCT SECURITY PENDING 是授权前历史，现按上方 D-103 实施；实际验证与交付状态见[安全证据](../tasks/active/commercial-amount-read-security.md)。
+
 ## Desktop two-step Quote creation（2026-10-10）
 
 - `creation-options`、`creation-preview`、`creation-workflows`、本人`creation-receipts`均要求可信IdentityAuthority + `quote.create`；Session最终事务再次检查用户active及数据库权限/撤权。本机显式local-single-user沿用Authority有效授权，不要求技术actor具有角色关联，仍锁定校验active/public ID；模式仅来自Server Authority配置，客户端username/role/header/body不能切换模式。options只返回active品牌/同品牌业务员/预设的最小ID/name/country，候选有界且支持搜索，不返回受保护数值。

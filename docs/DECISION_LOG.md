@@ -18,6 +18,16 @@
 
 ## Active
 
+### D-103 Server 商业金额的独立查看与修改授权
+
+- 日期：2026-10-11；状态：Active；来源：用户 PR93 Gate2 正式批准。细化 D-084/D-087 的共享当前商业条款权限，不改变其唯一事实、精确金额、历史或币种所有权。
+- 新增 `commercial.sale.view/edit`、`commercial.labor.view/edit`。正式 Server 管理员默认拥有四键，其他角色默认不增加；不能从 quote.cost、quote.confirm、order.edit 或客户端角色名称推导。既有可信 `role-server-admin` 由目录同步幂等补授；新管理员复用 bootstrap。未绑定可信管理员角色的旧账号不会按名称自动提权。
+- 修改某类商业金额同时需要其 view+edit 及原领域动作权限。CCT PATCH 按实际提交字段授权，未提交字段由事务锁定的当前行保留；显式 null 为合法清空，零为有效值。Quote 端仍检查已保存来源资格、Quote CAS、CCT CAS；linked 工价币种仍由 PV 所有，不能通过空值绕过币种保护。
+- GET/PATCH 返回 `commercial-terms-read.v1` 的 sale/labor allowed 或 restricted；无权不返回 value、不伪造 null/0。Quote 历史确认字段、列表、客户文件、内部汇总和日志同样投影/授权，数据库历史与审计不改写。Quote 内部成本仍是 quote.cost.view/edit；物料采购执行价格不纳入商业金额授权。
+- 无 schema/migration 新增，不改已发布 SQL。Server 角色配置 UI/API 尚未实施，本次不以 Browser mock 冒充；可信角色关联仍由既有受控运维路径管理，普通角色不会自动获权，也不开放新的生产路由。代码：server/auth/permissions.ts、server/confirmed-commercial-terms/、server/quotes/quote-response.ts 与 commercial-save.ts、server/operation-logs/query.ts。
+- 本决定不授权真实角色写入、部署、18443/18444/真实数据库/COS操作或合并；当前标量不是未来颜色级价格模型。
+- 2026-10-11 用户最终展示补充：测算销售单价/系统最终报价由 `commercial.sale.view` 保护，不归入 cost.view 单独授权；仅 sale.view 也不授予内部成本，列表 garmentPrice 继续 cost.view + sale.view。详情摘要/sticky、PV 卡片、确认弹窗、历史概览、价格构成统一；销售价减 Estimate 汇总还需 sale.view，服务端生成前拒绝越权。保留原成本输入与计算，无法阻止获授权成本用户自行推算，不宣称数学不可推导。补充本条，不新建重复决策；此前待定口径保留为历史记录。证据：QuoteEditor、quote-metrics-view-model、quote-business-view.columnPermissions 与[本轮验收](tasks/active/commercial-amount-read-security.md#最终价格展示权限收口2026-10-11)。
+
 ### D-102 普通电脑新建立即保留 Server 草稿与可信创建默认值
 
 - 日期：2026-10-10；状态：Active。来源：用户 PR #91 Preview 验收修正明确授权；不是新的计算规则。

@@ -13,6 +13,7 @@ import { createSyntheticQuoteFixture } from "./quote-fixture.js";
 import { PERMISSION_KEYS } from "../../features/permissions/model/permissions.js";
 import type { TrustedIdentity } from "../auth/session.js";
 import type { QuoteResponseRecord } from "../quotes/quote-response.js";
+import { projectQuoteResponse } from "../quotes/quote-response.js";
 
 test("Estimate trusted commands: disposable PostgreSQL exact snapshots and atomic lifecycle", { timeout: 180000 }, async t => {
   const postgres = await startDisposablePostgres();
@@ -110,7 +111,7 @@ test("Estimate trusted commands: disposable PostgreSQL exact snapshots and atomi
           assert.equal(response.status, 200); restricted(response.body.quote); saved = (await repo.getById(q.id))!; assert.deepEqual(protectedSlice(), preserved);
         }
         active = C;
-        const readable = await fetch(`${origin}/api/v1/quotes/${q.id}`); assert.equal(readable.status, 200); assert.deepEqual((await readable.json()).quote, saved);
+        const readable = await fetch(`${origin}/api/v1/quotes/${q.id}`); assert.equal(readable.status, 200); assert.deepEqual((await readable.json()).quote, projectQuoteResponse(C,saved));
         assert.equal((await post({ action: "estimate.generate", expectedVersion: saved.version, sourceRevisionId: saved.quote.defaultRevisionId }, q.id)).status, 403);
         const altered = structuredClone(saved.quote); altered.estimateCostHistory = [];
         if (altered.activeEstimateCost) altered.activeEstimateCost.labor.description = "forged"; else altered.activeEstimateCost = preserved[0] as typeof altered.activeEstimateCost;

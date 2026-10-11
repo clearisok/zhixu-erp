@@ -41,6 +41,7 @@ export type ServerOperationLog = {
   changes: OperationLogChange[];
   metadata: Record<string, unknown>;
   createdAt: string;
+  costVisibility?: "restricted";
 };
 
 type OperationLogRow = {
@@ -157,7 +158,7 @@ export async function queryOperationLogs(
   if (query.action !== undefined) where.push(`action = ${parameter(query.action)}`);
   if (query.from !== undefined) where.push(`created_at >= ${parameter(query.from)}::timestamptz`);
   if (query.to !== undefined) where.push(`created_at <= ${parameter(query.to)}::timestamptz`);
-  if (!actor.permissions.includes("estimate.view")) {
+  if (!actor.permissions.includes("estimate.view") || !actor.permissions.includes("quote.cost.view")) {
     // Omit protected events before counting/paging: a smaller or empty page
     // cannot expose their existence through total, hasMore or action filters.
     where.push("entity_type <> 'EstimateCost'");
