@@ -1,25 +1,8 @@
 # 项目知识索引
 
-> 2026-10-12 开发流程：[Git 单次安全交付、脱敏对照与 NETWORK_DEGRADED 协议](tasks/active/git-delivery-resilience.md)。工具/临时仓库25/25验证，历史TLS根因未确定；不改变业务规则，不涉及运行环境。
+> 核实日期2026-10-12；main起点 `4adbc30845f99368caa77d3431cc67a6440ac623`。PR91/92/93/94均已合并；运行环境、人工验收和Source激活分别见[当前状态](CURRENT_STATE.md)与[机器可读清单](release/baseline.json)，不能从merge推断部署。原PR92 Draft等滚动状态完整保存在[前序快照](tasks/completed/2026-10-12-release-baseline-predecessor-state.md)。
 
-> 2026-10-12：[PR93](https://github.com/clearisok/zhixu-erp/pull/93) 已合并至 main **070d958008709d06636ba329a3bba0d14e4a023b**，D-103 四键及测算销售价边界已实施。PR92 保持 Draft，P6/精简详情/只读 Control Tower 用户人工验收已 PASS；B已普通merge并完成联合工程回归：npm758/758、完整PG261/261、物料Chromium7/7/115断言与商业15/15、双Authority构建PASS，无合并冲突，未操作真实环境。当前证据见 [B 整合报告](tasks/active/order-material-pr93-integration.md)，PR93 原隔离证据见 [商业安全报告](tasks/active/commercial-amount-read-security.md)，合并前状态快照见 [历史接力](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)。
-
-> 2026-10-11：用户已明确确认 PR #91 人工验收 PASS 并授权 GitHub 合并；最终 GitHub 合并状态以 PR #91 为准。18444 保持已验收候选，合并不授权重新部署、迁移或操作 18443/COS。日期汇率政策、影响清单与受控批量应用属下一独立功能，应在 #91 合并后从最新 main 开发；订单 PR #92 继续独立 Draft。下述早期 USER ACCEPTANCE PENDING 为当时历史记录。
-
-> 2026-10-10 PR91第二轮反馈：制作方案→默认值两区、卡片选择、详情去冗余和列表铺满已授权更新18444；实际源码eb9530a/image1707a8e54159，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。本次新备份/完整隔离恢复、30报价及3对象保持、只读Chromium PASS，未执行迁移/创建报价/保存设置。见[当前部署证据](tasks/active/quote-two-step-creation.md#second-acceptance-preview-deployment-pass-2026-10-10)、[工程测试](tasks/active/quote-two-step-creation.md#second-user-acceptance-revision-2026-10-10)、[合成截图索引](tasks/active/evidence/quote-pr91-second-acceptance/README.md)。下面b7c2080等为此前历史；18443/真实业务库/COS/订单工作树未动，不自动合并。
-
-> 2026-10-10 D-102：默认设置/直接新建已实施，18444运行0011及b7c2080候选。两处精确挂载/identity、授权有界HTTPS重试、实际隔离Chromium及最终旧数据/对象SHA验收PASS，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**。见[本次验收](tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)、[领域契约](features/QUOTE_INTAKE.md)；此前STOP/恢复证据保留。D-101其余目标保持；Intake/手机/转换及已有类型切换 **NOT IMPLEMENTED**。18443/订单工作树未动，不自动合并。
-
-> PR #89 D-099 列表/100px/受保护Server缩略图已合并；原工程、18444更新和人工验收历史见[宽度/图片契约、测试与Preview备份恢复](tasks/active/d099-list-acceptance.md)，[合成像素证据](tasks/assets/d099-list-acceptance/README.md)。普通手机大图已通过工程验证，不再是原图大小占位路径。本轮未复核环境或新增人工验收结论，18443及旧环境不操作。
-
-> 当前：D-099 Quote 原版 UI / Server 工程已由 PR #86 合并，人工 UI 验收 PENDING；PR #85 Source/Bridge 修复也已合并。PR #84 已 MERGED 于 `49a82c9f970e158ded589300b4aa04fc4c809038`；原 Windows 更新有[备份/运行身份/持久数据验收证据](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md)，合并不代表新的运行更新。PR #88 D-099 新候选准备不等于已部署。当前摘要见 CURRENT_STATE，恢复点见 AI_HANDOFF；[UI审计](tasks/active/quote-original-ui-convergence.md)、[合成视觉索引](tasks/assets/quote-original-convergence/README.md)、[部署历史归档](tasks/completed/2026-10-09-windows-trial-delivery-history.md)与[操作说明](../ops/quote-trial/README.md)均保留。本轮不复核或更新真实环境，不重新 setup/init。
-> PR #87 已合并至 `7ed9204d552384730bf93c992b500c530d639c38`；[历史补测、合成 API 演示与0009发布风险](tasks/completed/2026-10-10-pr87-delivery-plan-integration.md)保留。真实业务环境0009未获本轮授权，只有隔离18444 Preview通过安全检查后可以前向迁移。
-
-> D-097 工程阶段历史：Fresh Start **正式 Quote Server 基本闭环工程/隔离验收完成，当时未真实部署**；本次 win01 已部署事实见上方及 CURRENT_STATE。显式 Quote authority=server（默认 browser）接原地 list/new/detail、正式 Editor/附件；全局 Browser bootstrap/mock identity 与未支持 URL 隔离。支持/未接动作、实际 Chromium 与质量证据见 `features/FRESH_START_FOUNDATION.md`、CURRENT_STATE/AI_HANDOFF。旧 runtime 与旧数据不变，历史导入 NOT REQUIRED。
-
-> **当前新系统上线方向：D-096，全部业务数据从空开始。** 旧环境保留，Q5 historical import NOT REQUIRED；功能/安全/Quote-first 顺序不变，不代表正式 UI 已全接 Server。空库验证、技术初始化白名单、隔离部署说明与剩余接线文件见 [Fresh Start Foundation](features/FRESH_START_FOUNDATION.md)。下面既有部署/数据数量只描述旧环境，不是新系统的数据源或初始化指令。COS real Node preflight 已 PASS（PR #73 用户证据），不是 runtime storage activation。
-
-> 最后确认的旧开发运行态（本轮未复核，非新候选）：Q3B2I-C2 CLOSED / PASS。PR #64 的 Local Single-User UI 修复已部署至真实本机 `127.0.0.1:3001` 并经用户真实浏览器验收；Q3 master/settings 为 Server authority 且编辑已重开，旧 3002 最后确认停止，旧 Quote aggregate 与附件仍由 Browser 持有。真实 0008/对象存储未激活；D-093 Active、B3/B3-R 已被取代。这不是新 session 试用候选的部署或登录指引。见 CURRENT_STATE 与 Q3B2I_CUTOVER_RUNBOOK 的历史执行证据。
+> 当前开发任务：[Release baseline guard](features/RELEASE_BASELINE_GUARD.md) / [实施证据](tasks/active/release-baseline-guard.md)。此门禁只验证源码/历史证据契约，不代替真实UI/DB/发布验收。Git交付继续使用[PR94协议](tasks/active/git-delivery-resilience.md)。
 
 ## 系统简介
 
@@ -111,11 +94,12 @@
 | 本地 Docker/备份恢复 | `features/LEGACY_ERP.md`、README | `Dockerfile`、`docker-compose.yml`、根目录 `*.ps1`、`*.sh` |
 | 部署/静态构建 | `SYSTEM_OVERVIEW.md` | `next.config.ts`、`vite.config.ts`、`worker/`、`.openai/hosting.json` |
 | 业务规则 | `BUSINESS_RULES.md` + 对应 feature | 模型、validation、计算函数及测试 |
+| 发布基线/能力状态/最小阻断检查 | `features/RELEASE_BASELINE_GUARD.md` | `docs/release/baseline.json`、`scripts/check-release-baseline.mjs`、`tests/release-baseline-guard.test.mjs` |
 | 当前进度/风险 | `CURRENT_STATE.md` | 当前工作树和验证结果 |
 
 ## 知识文件职责
 
-事实优先级：当前用户明确要求 > `CURRENT_STATE` > Active `BUSINESS_RULES` / `DECISION_LOG` > 旧讨论 > AI 推测。`AI_HANDOFF` 只说明从哪里接着做，不构成第四个长期业务事实源。
+按事实类型核实：用户已批准规则表达业务意图；目标SHA的代码/SQL/实际测试证明实现；GitHub证明合并；运行镜像/发布记录证明部署；明确用户记录证明人工验收。CURRENT_STATE是有时间戳的摘要。代码与批准规则冲突必须显式报告，不凭旧状态或AI推测改规则。AI_HANDOFF只说明恢复点。
 
 - `SYSTEM_OVERVIEW.md`：架构、技术栈、运行路径、数据流。
 - `BUSINESS_RULES.md`：能够由代码、约束、测试或明确文档确认的规则。

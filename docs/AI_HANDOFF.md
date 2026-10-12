@@ -1,24 +1,12 @@
 # AI handoff
 
-## 当前 — Git delivery resilience（2026-10-12）
+## 当前恢复点 — Release baseline guard（2026-10-12）
 
-独立分支 `chore/git-delivery-resilience`，clean A 基线 bfa987c，从实际已 fetch/核实 main70ff95e 新建。只改开发交付工具/测试/流程，未操作 ERP/其他工作树/任何运行环境。进程级脱敏诊断、默认Dry Run的单次安全push与独立GitHub API精确SHA核验、AGENTS统一NETWORK_DEGRADED规则已实施；未知dirty/认证/分歧/证书身份错误STOP，已知dirty须完整SHA256保护。最终工具定向25/25（无skip）、lint零警告/语法/解析/diff-check及实际PowerShell诊断PASS；三种只读HTTPS对照均成功，历史TLS根因仍unresolved，普通用户PowerShell对照待执行。工具checkpoint ffc7b142cdfd521c1e46123d55dd00ec6b71609c 通过实际PowerShell入口push一次，GitHub API独立核实DELIVERED_VERIFIED；最终文档SHA/唯一PR见交付消息，不循环写自身SHA。完整事实/用法见[任务证据](tasks/active/git-delivery-resilience.md)。下一步只待流程审查及用户一次脱敏对照；下方既有工程证据保持。
+- 任务起点main：`4adbc30845f99368caa77d3431cc67a6440ac623`；独立worktree `C:/Users/Administrator/.codex/worktrees/release-baseline-guard/zhixu-ainuoke-api`，分支 `chore/release-baseline-guard`，起始clean。
+- 用户授权：基线与能力清单、状态对齐、最小阻断检查、测试和唯一PR；禁止UI重设计、生产路由/数据库/18443/18444变更，不自动merge。
+- [清单](release/baseline.json) / [检查与更新契约](features/RELEASE_BASELINE_GUARD.md) / [本任务结果与网络证据](tasks/active/release-baseline-guard.md)。
+- PR91/92/93/94已MERGED，旧PR92 Draft描述已归档；D103已入main，但两环境最后记录镜像尚未包含。P6/PR91人工PASS是历史范围；真实Order/Material Source和生产路由未激活。
+- 本PR只提供source/evidence guard，不是新的浏览器像素、生产发布或人工验收。后续完整UI回归、安全候选与Source接线必须独立任务。
+- 最终工程/commit/远端PR结果记录于任务证据和GitHub；不循环写入本文件自身SHA。遇NETWORK_DEGRADED遵循AGENTS/PR94工具，不无界重试。
 
-## 保留恢复点 — PR92 整合已合并 PR93（2026-10-12）
-
-最新main070d958008709d06636ba329a3bba0d14e4a023b，PR93已MERGED；D103四键、CCT字段投影/部分PATCH与Quote成本/销售价/历史/导出/日志保护保持。PR92原P6/精简详情/Control Tower用户人工验收已PASS，仍Draft。普通merge a252d82791d3b0cf2a216cc2939a64ec9caf50c7与负向审计5a603b60e09ab80547a69e63e3e85e180f0cc6c2已推送；本轮Source78/78、Material HTTP/安全19/19、客户端/SSR25/25、实际Chromium闭环7/7(115断言)/商业15/15、npm758/758、完整PG261/261、typecheck/lint/串行Server和双Authority构建/diff-check/清理PASS；源码a537e750912eb8c415ce9de5f7403bc120271738已正常push，最终文档checkpoint三方HEAD见PR及交付消息。executionOnly不读写CCT，Source capability/生产route默认未开放，不回退Browser。
-
-起始B local/origin/PR92 03b1078e99ff44ceb875dd0b01a1e22358f4dab6；Gate0/普通merge/负向测试/联合UI各checkpoint已正常push；交付前fetch main仍070d958，0 behind，PR92 mergeable=true且保持Draft。唯一继承dirty为Gate1文档30行，SHA2568B24F58EB42F2141778F1EBE69138C64449BE04F522757CBC50325FB5286E21E，严禁stage/覆盖。当前Gate/test/remote记录见[本轮接力](tasks/active/order-material-pr93-integration.md)。旧B/Main恢复点的日期/hash/测试/网络结论保留在[合并前快照](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)、[P6修复报告](tasks/active/order-material-p6-restoration.md)与[PR93安全报告](tasks/active/commercial-amount-read-security.md)，不改写历史。
-
-本轮不操作A、18443/18444、真实数据库/艾诺科/COS/凭据、migration或角色；团队范围/账号绑定/角色管理与生产激活仍待独立Gate。PR91真实部署证据如下保留，不是本轮部署。
-
-## Historical recovery — PR91 accepted and MERGED
-
-
-- Original worktree `D:/workspace/zhixu-quote-two-step`, branch `feat/quote-two-step-creation`; authorized deployment resumed clean local/remote/PR91 `676035bd1a0323e928383b340f1cbfec9e0572eb`, main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`. No merge or other worktree changes.
-- **PREVIEW UPDATE PASS / USER ACCEPTANCE PASS**. User explicitly confirmed human acceptance and authorized PR #91 GitHub merge on 2026-10-11; no FX-policy feature or environment update is covered by that acceptance. Only `zhixu-preview-d099-18444` / `quote_preview` updated; [entry](https://localhost:18444/quote-center). Actual HTTPS/labels/compiled identity: source **eb9530ac9a2e1b7f68299d97c4d424662a6622f7**, image **sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23**, immutable tag `zhixu-quote-two-step:eb9530ac9a2e-ux-20261010t141559z`, server/server/writable/session. Later documentation SHA is not image source.
-- User pause, zero pending uploads/creations/open writer transactions and quiet data window verified. New backup `pr91-second-2026-10-10T15-26-38-395Z`, manifest SHA **1842656af1c39cbbb3a0fb69aef5387f7f24512f41831641b50e9d6848d35620**; actual independent PG/object/config restore **FULL RESTORE PASS**, owned drill cleanup PASS. All0001–0011 current/exact; **no migration executed**. Only app/gateway and whitelisted build identity replaced; database/object services, volumes/network/TLS preserved, exact reviewed path aliases and full mount/bind hashes PASS.
-- Final preservation: **30 Quotes/30 Revisions/30 PVs,2 accounts,3 attachments/relations/objects,3 receipts,67 operation logs** unchanged; every business table hash and original object size/SHA match frozen backup. Normal single login/logout only added1 session/1 login-attempt record; role permissions unchanged. Global settings/schemes remain empty: no seed, Quote creation or settings save.
-- Actual new readonly Chromium PASS: five default-table pixel checks (including1536 CSS/DPR1.25),100px ×8 desktop/view combinations, drag neighbours unchanged, six detail/settings/modal/mobile sizes, protected256×192/4767-byte thumbnail for existing4032×3024/7770409-byte original, no page overflow/browser exceptions/business writes.29 protected screenshots remain local, not uploaded. [Current deployment evidence](tasks/active/quote-two-step-creation.md#second-acceptance-preview-deployment-pass-2026-10-10).
-- Prior source-bound engineering Chromium78/78/npm679/679 and other quality results remain in [engineering evidence](tasks/active/quote-two-step-creation.md#second-user-acceptance-revision-2026-10-10) / [40 synthetic screenshots](tasks/active/evidence/quote-pr91-second-acceptance/README.md); not rerun for deployment/docs. Earlier STOP/backup/network history retained in [archive](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md).
-- Current GitHub verification: PR #91 is MERGED into main fcf36e5eab6c78254f808c1cba38f3a63a66d4f8. Date-effective FX policy work remains separate and needs its own task authorization; PR #92 stays an independent Draft. 18444 runtime remains the verified immutable candidate; merging alone does not authorize another deployment. 18443/real business DB/COS/old environments/PR92 untouched. Raw backups/config/credentials/Preview captures stay outside Git.
+原PR91部署、PR92联合回归/继承dirty、PR94交付的日期/hash/结果/限制完整保留在[前序快照](tasks/completed/2026-10-12-release-baseline-predecessor-state.md)。不将其他worktree的历史dirty套用到本任务，不清理或stage它们。

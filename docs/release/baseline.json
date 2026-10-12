@@ -1,0 +1,560 @@
+{
+  "schemaVersion": 1,
+  "repository": "clearisok/zhixu-erp",
+  "baselineSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+  "verifiedAt": "2026-10-12T11:48:00+08:00",
+  "owner": "release integrator; UI owner supplies scoped approval evidence",
+  "evidence": [
+    {
+      "id": "decisions",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "quote-original",
+      "kind": "document",
+      "path": "docs/tasks/assets/quote-original-convergence/README.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "quote-list-acceptance",
+      "kind": "document",
+      "path": "docs/tasks/active/d099-list-acceptance.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "quote-pr91",
+      "kind": "document",
+      "path": "docs/tasks/active/quote-two-step-creation.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "quote-pr91-images",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/quote-pr91-second-acceptance/README.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "order-p6",
+      "kind": "document",
+      "path": "docs/tasks/active/order-material-p6-restoration.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "order-integration",
+      "kind": "document",
+      "path": "docs/tasks/active/order-material-pr93-integration.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "order-images",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/order-material-pr93-integration/README.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "security-pr93",
+      "kind": "document",
+      "path": "docs/tasks/active/commercial-amount-read-security.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "trial-update",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-09-windows-quote-trial-ui-update.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "delivery-plan",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-09-order-c43-delivery-plan.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "fresh-start",
+      "kind": "document",
+      "path": "docs/features/FRESH_START_FOUNDATION.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "responsive-tests",
+      "kind": "document",
+      "path": "tests/responsive-mobile-batch1.test.mjs",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "intake",
+      "kind": "document",
+      "path": "docs/features/QUOTE_INTAKE.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "production",
+      "kind": "document",
+      "path": "docs/features/PRODUCTION_SCHEDULING.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "closing",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+    },
+    {
+      "id": "pr64-list",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/quote-original-convergence/reference/one-row-list-1280x800.png",
+      "sha256": "479145c8b66da4f8429e20d56a9157aabb8231c7de0c3760419b1440cf215ccb",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "7658663038b1da504c95086711f627b6dce5c7a0"
+    },
+    {
+      "id": "quote-list-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/quote-pr91-second-acceptance/list-default-1280.png",
+      "sha256": "616d266a0205a4d3243cd5c3ed6eca316e387bd9073b38547bbb534c31272bc5",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7"
+    },
+    {
+      "id": "quote-detail-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/quote-pr91-second-acceptance/detail-1280.png",
+      "sha256": "59ab86eb0f56aae16453d129a6559d191f51a63083df3137ec74adfdb65abd7e",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7"
+    },
+    {
+      "id": "quote-settings-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/quote-pr91-second-acceptance/settings-1536.png",
+      "sha256": "3ee5d619f24391914ef592eaaf335419720b21cf3803598e4477604b7b31d3f8",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7"
+    },
+    {
+      "id": "quote-pv-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/quote-pr91-second-acceptance/pricing-390.png",
+      "sha256": "d93b009abd669e0f95a2c337ca82f270807c632588ae6fa6656acc1a65db3d40",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7"
+    },
+    {
+      "id": "order-list-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-material-pr93-integration/list-1440.png",
+      "sha256": "746934657fa2f2bf0ea4abba5252ae07c4f546cd104f9ee2eb474dcfee4508e3",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "a537e750912eb8c415ce9de5f7403bc120271738"
+    },
+    {
+      "id": "order-list-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-material-pr93-integration/list-390.png",
+      "sha256": "69d07b29a8e48d81330f70ff2df77a8c91368b847b569d070f0dcd01bbb54e10",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "a537e750912eb8c415ce9de5f7403bc120271738"
+    },
+    {
+      "id": "order-detail-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-material-pr93-integration/order-1440.png",
+      "sha256": "45b4b4fe18bb80477da13938fb27b453d243de00e546b41d612c77c841eebcf8",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "a537e750912eb8c415ce9de5f7403bc120271738"
+    },
+    {
+      "id": "order-detail-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-material-pr93-integration/order-390.png",
+      "sha256": "0d28d9f9c2b931d120018cfe82d24bc580158fa7f05ce5ecc5f6bad2f7114f98",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "a537e750912eb8c415ce9de5f7403bc120271738"
+    },
+    {
+      "id": "material-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-material-pr93-integration/material-1440.png",
+      "sha256": "bd96bc59fdde7d570529997cd545b9793c7fdd293c5502457a897e56c917a8af",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "a537e750912eb8c415ce9de5f7403bc120271738"
+    },
+    {
+      "id": "material-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-material-pr93-integration/material-390.png",
+      "sha256": "a3d170eb0b2a10289d2d8f41fd55545be7c532875f4dc6b2cdff9513473e1f9f",
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "renderedSourceSha": "a537e750912eb8c415ce9de5f7403bc120271738"
+    }
+  ],
+  "pages": [
+    {
+      "id": "quote-list",
+      "route": "/quote-center",
+      "routeFile": "app/quote-center/page.tsx",
+      "components": [
+        "features/quote-center/components/production-quote-pages.tsx",
+        "components/foundation/data-table.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "D-099 PR64 information architecture plus approved PR89 widths/thumbnails and D-102 PR91 auto-fill; preserve personal preferences.",
+      "evidence": [
+        "decisions",
+        "quote-original",
+        "quote-list-acceptance",
+        "quote-pr91",
+        "pr64-list",
+        "quote-list-1280"
+      ]
+    },
+    {
+      "id": "quote-new",
+      "route": "/quote-center/new",
+      "routeFile": "app/quote-center/new/page.tsx",
+      "components": [
+        "features/quote-center/components/production-quote-pages.tsx",
+        "features/quote-center/components/quote-editor.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "D-102 click creates and retains one numbered draft; supersedes old two-step cancellation. No complete standalone screenshot baseline claimed.",
+      "evidence": [
+        "decisions",
+        "quote-pr91"
+      ]
+    },
+    {
+      "id": "quote-detail",
+      "route": "/quote-center/detail",
+      "routeFile": "app/quote-center/detail/page.tsx",
+      "components": [
+        "features/quote-center/components/quote-editor.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "Original Editor plus PR91 compact sections/PV cards; PR93 grants are security constraints, not new layout approval.",
+      "evidence": [
+        "decisions",
+        "quote-pr91",
+        "security-pr93",
+        "quote-detail-1280",
+        "quote-pv-390"
+      ]
+    },
+    {
+      "id": "quote-settings",
+      "route": "/system-settings/quote-settings",
+      "routeFile": "app/system-settings/quote-settings/page.tsx",
+      "components": [
+        "features/quote-center/components/global-quote-settings-page.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "D-102 preset management first, creation defaults second; explicit IDs, no hidden system fees.",
+      "evidence": [
+        "decisions",
+        "quote-pr91",
+        "quote-settings-1536"
+      ]
+    },
+    {
+      "id": "order-list",
+      "route": "/order-center",
+      "routeFile": "app/order-center/page.tsx",
+      "components": [
+        "features/order-center/components/server-order-center-page.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "P6 human acceptance with later synthetic integration evidence; production route remains closed.",
+      "evidence": [
+        "order-p6",
+        "order-integration",
+        "order-images",
+        "order-list-1440",
+        "order-list-390"
+      ]
+    },
+    {
+      "id": "order-detail",
+      "route": "/order-center/server-detail?id=UUID",
+      "routeFile": "app/order-center/server-detail/page.tsx",
+      "components": [
+        "features/order-center/components/server-sales-order-detail-page.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated.",
+      "evidence": [
+        "order-integration",
+        "order-images",
+        "order-detail-1440",
+        "order-detail-390"
+      ]
+    },
+    {
+      "id": "material",
+      "route": "/order-center/style-progress/detail?orderId=UUID",
+      "routeFile": "app/order-center/style-progress/detail/page.tsx",
+      "components": [
+        "features/style-progress/components/style-progress-server-page.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source.",
+      "evidence": [
+        "order-integration",
+        "order-images",
+        "material-1440",
+        "material-390"
+      ]
+    },
+    {
+      "id": "login",
+      "route": "/quote-center (unauthenticated)",
+      "routeFile": "app/layout.tsx",
+      "components": [
+        "features/quote-center/components/quote-server-boundary.tsx",
+        "features/server-auth/components/server-login-card.tsx"
+      ],
+      "acceptance": "implementation-only",
+      "acceptanceScope": "Existing shared login components and trusted session; independent brand/animation visual approval not found.",
+      "evidence": [
+        "fresh-start",
+        "decisions"
+      ]
+    },
+    {
+      "id": "navigation",
+      "route": "/ (shared shell)",
+      "routeFile": "app/layout.tsx",
+      "components": [
+        "components/foundation/app-shell.tsx",
+        "components/foundation/responsive.ts"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "Original shell plus D-097 authority/D-098 Quote-first; order harness is not production navigation approval.",
+      "evidence": [
+        "decisions",
+        "quote-original",
+        "order-images",
+        "responsive-tests"
+      ]
+    }
+  ],
+  "css": {
+    "production": {
+      "entry": "app/layout.tsx",
+      "styles": [
+        "app/globals.css",
+        "app/quote-center/quote-center.css",
+        "app/order-center/order-center.css",
+        "app/production-scheduling/production-scheduling.css",
+        "app/closing-center/closing-center.css",
+        "app/ainuoke-sync/ainuoke-sync.css",
+        "app/order-center/style-progress/style-progress.css",
+        "app/foundation.css"
+      ]
+    },
+    "previews": [
+      {
+        "entry": "features/ainuoke-material-progress/integration-preview/main.tsx",
+        "styles": [
+          "app/globals.css",
+          "app/quote-center/quote-center.css",
+          "app/order-center/order-center.css",
+          "app/order-center/style-progress/style-progress.css",
+          "app/foundation.css",
+          "features/ainuoke-material-progress/integration-preview/preview.css"
+        ],
+        "scope": "Reviewed subset in production shared order; synthetic notice CSS follows Foundation. Does not replace real RootLayout/browser acceptance."
+      }
+    ]
+  },
+  "responsive": {
+    "observedBreakpoints": [
+      600,
+      1100,
+      1440
+    ],
+    "decisionReconciliation": "pending-no-behavior-change",
+    "scope": "Current behavior: <600 mobile regardless of pointer; touch/no-hover 600..1099 tablet, otherwise compact; 1100..1439 primary; >=1440 wide. D-023 text reconciliation pending.",
+    "evidence": [
+      "responsive-tests",
+      "decisions"
+    ]
+  },
+  "serverRoutes": [
+    "/",
+    "/quote-center",
+    "/quote-center/new",
+    "/quote-center/detail",
+    "/basic-settings/brands",
+    "/basic-settings/customer-salespeople",
+    "/basic-settings/fabrics",
+    "/basic-settings/trims",
+    "/system-settings/quote-settings",
+    "/system-settings/operation-logs"
+  ],
+  "capabilities": [
+    {
+      "id": "quote",
+      "implemented": "yes",
+      "merged": true,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "accepted-historical",
+      "sourceActivation": "active-historical",
+      "environments": {
+        "trial18443": "deployed-historical",
+        "preview18444": "deployed-historical"
+      },
+      "scope": "Core Server Quote at different versions; D-102 only on PR91 Preview. PostgreSQL persistence does not mean Ainuoke activation.",
+      "evidence": [
+        "quote-pr91",
+        "trial-update"
+      ]
+    },
+    {
+      "id": "commercial-security",
+      "implemented": "yes",
+      "merged": true,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "partial",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D-103 sale/labor/cost projections merged PR93; human feedback is scoped; neither recorded runtime contains the fix.",
+      "evidence": [
+        "security-pr93",
+        "decisions"
+      ]
+    },
+    {
+      "id": "order",
+      "implemented": "partial",
+      "merged": true,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "accepted-historical",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-open",
+        "preview18444": "not-open"
+      },
+      "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+      "evidence": [
+        "order-integration",
+        "decisions"
+      ]
+    },
+    {
+      "id": "material",
+      "implemented": "partial",
+      "merged": true,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "accepted-historical",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-open",
+        "preview18444": "not-open"
+      },
+      "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+      "evidence": [
+        "order-integration",
+        "order-images"
+      ]
+    },
+    {
+      "id": "delivery-plan",
+      "implemented": "partial",
+      "merged": true,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-open",
+        "preview18444": "not-open"
+      },
+      "scope": "0009 domain/API exists; schema is not production plan UI or Source activation.",
+      "evidence": [
+        "delivery-plan"
+      ]
+    },
+    {
+      "id": "intake",
+      "implemented": "no",
+      "merged": false,
+      "isolatedTest": "not-run",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-open",
+        "preview18444": "not-open"
+      },
+      "scope": "Approved contract only; mobile collection/conversion not implemented; contract PR merge is not feature implementation.",
+      "evidence": [
+        "intake",
+        "decisions"
+      ]
+    },
+    {
+      "id": "production",
+      "implemented": "partial",
+      "merged": true,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "unknown",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-open",
+        "preview18444": "not-open"
+      },
+      "scope": "Browser scheduling only; no fresh Server multi-user execution.",
+      "evidence": [
+        "production"
+      ]
+    },
+    {
+      "id": "closing",
+      "implemented": "partial",
+      "merged": true,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "unknown",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-open",
+        "preview18444": "not-open"
+      },
+      "scope": "Browser snapshot domain only; no Server financial authority; currency/wording drift requires separate review.",
+      "evidence": [
+        "closing"
+      ]
+    }
+  ],
+  "runtimeSnapshots": [
+    {
+      "id": "trial18443",
+      "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+      "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+      "observedAt": "2026-10-12T11:31:00+08:00",
+      "reverifiedByThisTask": false,
+      "observationScope": "Prior read-only audit metadata corroborated by 2026-10-09 deployment record; no runtime/DB access in this implementation task.",
+      "evidence": [
+        "trial-update"
+      ]
+    },
+    {
+      "id": "preview18444",
+      "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+      "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+      "observedAt": "2026-10-12T11:31:00+08:00",
+      "reverifiedByThisTask": false,
+      "observationScope": "Prior audit metadata and PR91 deployment record; 2026-10-11 human PASS scoped to PR91; no new deployment/DB/role claim.",
+      "evidence": [
+        "quote-pr91"
+      ]
+    }
+  ],
+  "limitations": [
+    "No new pixel/browser acceptance.",
+    "No live environment, ledger, business rows, accounts, Source or deployment checked by this task.",
+    "A manifest/CI green result cannot itself approve a UI change or deployment."
+  ]
+}

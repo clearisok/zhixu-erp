@@ -44,6 +44,10 @@
 
 ## 验证与交付
 
+- PR 交付前运行 `npm run check:release-baseline -- --base-sha <本次核实的main完整SHA>` 与 `npm run test:release-baseline`。清单/当前状态使用同一基线，历史部署与截图保留各自日期/source SHA。
+- UI 文件变化须按 `docs/features/RELEASE_BASELINE_GUARD.md` 提交本PR的精确路径影响记录；V2/V3先有明确用户批准。不得自动更新截图哈希消除失败；检查通过不代表人工认可或部署授权。
+- 基线/权限/来源/运行环境事实发生变化时，由一个整合者对齐共享状态摘要；旧日期/hash/结果/限制归档保留。完整浏览器像素/数据库/发布验收不能由此最小源码门禁替代。
+
 根据改动范围执行最小充分检查。涉及 TypeScript/React 的通常检查为：
 
 ```powershell
