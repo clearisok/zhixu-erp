@@ -31,15 +31,15 @@ test("First team production-built UI uses trusted session, existing layout and s
   await command("Emulation.setDeviceMetricsOverride",{width:1280,height:900,deviceScaleFactor:1,mobile:false});
   const evalJs=async expression=>{const r=await command("Runtime.evaluate",{expression,awaitPromise:true,returnByValue:true});assert.equal(r.exceptionDetails,undefined,JSON.stringify(r.exceptionDetails));return r.result.value;};
   await command("Page.addScriptToEvaluateOnNewDocument",{source:"window.teamWrites=0;const original=fetch;window.fetch=(...a)=>{if(String(a[0]).includes('/team-access')&&a[1]?.method==='POST')teamWrites++;return original(...a)};"});
-  const body=()=>evalJs("document.body.innerText");
+  const body=()=>evalJs("document.body?.innerText??''");
   const has=async value=>{try{await until(async()=>(await body()).includes(value),value);}catch(error){throw Error(error.message+"; "+await body());}};
   const navigate=async path=>{const epoch=Date.now()+Math.random();await evalJs("window.navigationEpoch="+epoch);await command("Page.navigate",{url:x.base+path});await until(()=>evalJs("window.navigationEpoch!=="+epoch+" && document.readyState==='complete'"),"navigation");};
   const input=(selector,value)=>evalJs("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");if(!n)throw Error('missing input');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,"+JSON.stringify(value)+");n.dispatchEvent(new Event('input',{bubbles:true}));})()");
   const select=(selector,value)=>evalJs("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");if(!n)throw Error('missing select');n.value="+JSON.stringify(value)+";n.dispatchEvent(new Event('change',{bubbles:true}));})()");
-  const click=label=>evalJs("(()=>{const n=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+ "+JSON.stringify(label)+");n.click()})()");
+  const click=label=>evalJs("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+ "+JSON.stringify(label)+");n.click()})()");
   const shot=async name=>{if(process.env.TEAM_ACCESS_EVIDENCE!=="1")return;const dir=resolve("docs/tasks/active/evidence/ningbo-first-team-access");await mkdir(dir,{recursive:true});const r=await command("Page.captureScreenshot",{format:"png",captureBeyondViewport:false});await writeFile(join(dir,name+".png"),Buffer.from(r.data,"base64"));};
-  await navigate("/basic-settings/user-permissions");await has("登录织序 Server");
-  await input("input[name=username]","synthetic.ui.root");await input("input[name=password]",password);await click("登录 Server");await has("新建账号");
+  await navigate("/basic-settings/user-permissions");await has("欢迎回来");
+  await input("input[name=username]","synthetic.ui.root");await input("input[name=password]",password);await click("登录织序");await has("新建账号");
   await t.test("existing layout, loaded CSS and no browser authority/write on mount",async()=>{
    assert.equal(await evalJs("teamWrites"),0);
    assert.ok(await evalJs("document.querySelector('.qc-permission-layout')!==null"));
@@ -78,8 +78,8 @@ test("First team production-built UI uses trusted session, existing layout and s
   await t.test("each non-admin session is denied the management page and cannot recover Browser permissions",async()=>{
    for(let i=1;i<5;i++){
     await evalJs("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
-    await navigate("/basic-settings/user-permissions");await has("登录织序 Server");
-    await input("input[name=username]","synthetic.ui."+i);await input("input[name=password]",password);await click("登录 Server");
+    await navigate("/basic-settings/user-permissions");await has("欢迎回来");
+    await input("input[name=username]","synthetic.ui."+i);await input("input[name=password]",password);await click("登录织序");
     await has("暂无权限");
     assert.equal((await body()).includes("新建账号"),false);
    }
