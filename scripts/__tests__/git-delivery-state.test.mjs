@@ -4,7 +4,7 @@ import { deliveryState } from '../git-delivery-state.mjs';
 const targetSha='a'.repeat(40), remoteSha='b'.repeat(40);
 const base={phase:'push',exitCode:1,targetSha,clean:true,baselineExists:true};
 test('network failure permits independent local engineering, never retry or fake success',()=>{
-  assert.deepEqual(deliveryState({...base,stderr:'Connection reset token=PRIVATE cookie=PRIVATE'}),{state:'LOCAL_ENGINEERING_REMOTE_PENDING',continueLocal:true,retry:false});
+  assert.deepEqual(deliveryState({...base,stderr:'Connection reset token=PRIVATE cookie=PRIVATE'}),{state:'LOCAL_PASS_REMOTE_UNVERIFIED',continueLocal:true,retry:false});
   assert.ok(!JSON.stringify(deliveryState({...base,stderr:'Connection reset password=PRIVATE'})).includes('PRIVATE'));
 });
 test('response lost but exact remote SHA verified means delivered, no duplicate push',()=>{
@@ -19,7 +19,24 @@ test('missing baseline blocks fetch recovery and unknown dirty blocks all contin
   assert.equal(deliveryState({...base,stderr:'Connection reset',clean:false}).state,'STOP_UNKNOWN_WORKTREE');
 });
 test('zero exit without remote proof remains verification pending; malformed evidence/other errors stop',()=>{
-  assert.equal(deliveryState({...base,exitCode:0}).state,'AWAIT_REMOTE_VERIFICATION');
+  assert.equal(deliveryState({...base,exitCode:0}).state,'LOCAL_PASS_REMOTE_UNVERIFIED');
   assert.equal(deliveryState({...base,remoteSha:'short'}).state,'STOP_INVALID_EVIDENCE');
   assert.equal(deliveryState({...base,stderr:'unknown error'}).continueLocal,false);
+});
+test('Schannel, close_notify and TLS EOF are uncertain transport; verified old remote is not delivered',()=>{
+  for (const stderr of ['schannel: failed to receive handshake','missing close_notify','TLS unexpected EOF']) {
+    assert.equal(deliveryState({...base,stderr}).state,'LOCAL_PASS_REMOTE_UNVERIFIED');
+    assert.equal(deliveryState({...base,stderr,remoteSha,remoteVerified:true}).state,'LOCAL_PASS_REMOTE_NOT_DELIVERED');
+    assert.equal(deliveryState({...base,stderr,remoteSha:targetSha,remoteVerified:true}).state,'DELIVERED_VERIFIED');
+  }
+});
+test('known inherited dirty requires exact approved SHA256, mismatch remains STOP',()=>{
+  const fingerprint='c'.repeat(64);
+  assert.equal(deliveryState({...base,exitCode:0,clean:false,dirtyFingerprint:fingerprint,expectedDirtyFingerprint:fingerprint,remoteSha:targetSha}).state,'DELIVERED_VERIFIED');
+  assert.equal(deliveryState({...base,clean:false,dirtyFingerprint:fingerprint,expectedDirtyFingerprint:'d'.repeat(64)}).state,'STOP_UNKNOWN_WORKTREE');
+  assert.equal(deliveryState({...base,remoteRelation:'diverged',stderr:'TLS EOF'}).state,'STOP_AUTH_OR_DIVERGENCE');
+});
+test('certificate trust/expiry and unsupported TLS config are STOP, not transient transport recovery',()=>{
+  for(const stderr of ['SSL certificate problem: unable to get local issuer certificate','schannel SEC_E_UNTRUSTED_ROOT','SEC_E_CERT_EXPIRED','unsupported SSL backend'])
+    assert.equal(deliveryState({...base,stderr}).state,'STOP_TLS_IDENTITY_OR_CONFIGURATION');
 });

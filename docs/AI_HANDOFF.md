@@ -1,5 +1,9 @@
 # AI handoff
 
+## 当前 — Git delivery resilience（2026-10-12）
+
+独立分支 `chore/git-delivery-resilience`，clean A 基线 bfa987c，从实际已 fetch/核实 main70ff95e 新建。只改开发交付工具/测试/流程，未操作 ERP/其他工作树/任何运行环境。已实现进程级脱敏诊断、默认Dry Run的单次安全push与独立GitHub API精确SHA核验；未知dirty/认证/分歧/证书身份错误STOP，已知dirty须完整SHA256保护。最终定向25/25（无skip）、lint零警告/语法/diff-check及实际PowerShell诊断PASS；三种只读HTTPS对照均成功，历史TLS根因仍unresolved，普通用户PowerShell对照待执行。完整事实/工具用法见[任务证据](tasks/active/git-delivery-resilience.md)。后续完成统一NETWORK_DEGRADED规则与最终检查/唯一PR；下方既有工程证据保持。
+
 ## 当前 — PR92 整合已合并 PR93（2026-10-12）
 
 最新main070d958008709d06636ba329a3bba0d14e4a023b，PR93已MERGED；D103四键、CCT字段投影/部分PATCH与Quote成本/销售价/历史/导出/日志保护保持。PR92原P6/精简详情/Control Tower用户人工验收已PASS，仍Draft。普通merge a252d82791d3b0cf2a216cc2939a64ec9caf50c7与负向审计5a603b60e09ab80547a69e63e3e85e180f0cc6c2已推送；本轮Source78/78、Material HTTP/安全19/19、客户端/SSR25/25、实际Chromium闭环7/7(115断言)/商业15/15、npm758/758、完整PG261/261、typecheck/lint/串行Server和双Authority构建/diff-check/清理PASS；源码a537e750912eb8c415ce9de5f7403bc120271738已正常push，最终文档checkpoint三方HEAD见PR及交付消息。executionOnly不读写CCT，Source capability/生产route默认未开放，不回退Browser。
