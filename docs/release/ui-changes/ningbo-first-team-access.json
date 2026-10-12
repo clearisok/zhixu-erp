@@ -1,0 +1,25 @@
+{
+  "baselineSha": "01694d723cd7b65fcc20e3e79941fef0d57439fc",
+  "level": "V2",
+  "visibleDifference": "Existing user-permissions MasterDetail/CSS retained; Server account create/reset forms and role/status API actions replace Browser controls. No Quote/Order redesign.",
+  "paths": [
+    "app/basic-settings/user-permissions/page.tsx",
+    "features/permissions/components/user-permission-page.tsx",
+    "features/permissions/components/server-user-permission-page.tsx",
+    "features/permissions/server/team-access-client.ts",
+    "features/quote-center/authority/quote-authority.ts",
+    "features/operation-logs/model/operation-log.ts"
+  ],
+  "pages": [
+    "navigation",
+    "quote-settings"
+  ],
+  "evidence": [
+    "docs/tasks/active/ningbo-first-team-access.md",
+    "server/integration/team-access-ui.integration.test.mjs"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/ningbo-first-team-access.md"
+  }
+}

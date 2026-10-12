@@ -1,5 +1,13 @@
 # 权限系统
 
+## 首批团队 Server 账号管理（D-104，2026-10-12）
+
+可信session的GET/POST /api/v1/team-access与既有用户权限页现已实现；下方旧章节“尚未实施”只描述当时工程状态，由本节更新。精确角色、API并发/秘密保护及合成验收见[任务证据](../tasks/active/ningbo-first-team-access.md)。
+六预设：系统管理员全部现有权限；管理者/财务金额只读及导出审计；报价经理报价/主资料写入；物控基础只读无织序金额；生产基础只读+工价查看。所有角色预授已授权Ainuoke来源读取；**Source及Order/Material生产路由仍未激活**，普通经理无sync/import/排产/关账写入。
+管理接口有可信权限重检、CSRF、CAS、自锁/最后管理员保护、会话撤销和无秘密审计；预设仅显式管理写入安装，已有权限漂移拒绝覆盖。持久化复用既有表，无SQL/migration，不修改真实角色。
+Server UI保留MasterDetail/Modal/CSS，仅接建号/预设/停用/重置；默认Browser保持原实现，无Browser回退。密码仅在弹窗内存，未知写结果不自动重试。预设可取并集，组合可展示，UI选择一个预设替换全部角色；不开放逐key修改。
+首次管理员仍由既有受控bootstrap建立，本任务只在临时合成DB调用。未部署、未人工验收。
+
 ## Server 商业金额（D-103，2026-10-11）
 
 用户最终确认并实施：详情/卡片“测算销售单价”、摘要/构成“成衣销售价格/最终报价”均须可信 Session 的 commercial.sale.view；cost.view 单独只授内部成本。仅 sale.view 不授内部成本；列表 garmentPrice 保留 cost.view + sale.view。无权不向子组件/隐藏 DOM 传实际展示金额，显示“无权查看”。保留授权成本输入和公式，不声称阻止用户自行推算。此前待确认口径已由本次决定收口，历史证据不删除。加工报价旧 confirmation.save 仍为完整快照（含 quotedGarmentPrice），要求两套商业 view+edit；linked CCT PATCH 的工价单字段修改只需对应工价权限，实际 HTTP 已验证。见[定向验收](../tasks/active/commercial-amount-read-security.md)。

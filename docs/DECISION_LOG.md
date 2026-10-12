@@ -18,6 +18,16 @@
 
 ## Active
 
+### D-104 宁波首批六角色与可信账号管理
+
+- 日期：2026-10-12；状态：Active。来源：用户批准“先用合成账号完成六角色测试…保持现有UI…不修改真实账号、数据库或部署…不自动合并”。真实账号以后用户自行创建。
+- 六角色：系统管理员、管理者、报价经理、物控经理、生产经理、财务经理。登录团队可见已授权采集的艾诺科订单/物料/来源采购价；织序金额沿用D-103独立保护。首轮来源使用用户本人账号，覆盖全部合同是用户陈述，未实测；不保存真实凭据。
+- 接受建议后的矩阵：管理者/财务只读金额+导出审计；报价经理报价/金额/主资料；物控无织序金额；生产只有工价查看，不授成本/售价。精确keys见server/auth/team-roles.ts。未接Source/Order/Production/Closing不因权限键存在而上线。
+- 复用session/RBAC/表/审计/密码基础；设置页/API只允许可信授权管理。缺失预设由显式写入安装，已有差异fail closed，不自动提权旧账号。CAS、自锁/最后管理员保护、修改撤销会话，无匿名注册或硬删除。
+- UI只做授权功能接线，保留MasterDetail/Modal/CSS/断点；Server allowlist只加user-permissions设置页，不开订单/物料/排产/关账生产路由。D-099/102/P6保持。
+- D-103“角色管理尚未实施”的工程状态由本条更新，金额规则不废止。无新migration或真实账号/DB/部署。合成测试不等于人工验收。
+- 证据：server/auth/team-access*.ts、team-roles.ts、features/permissions/server/、server/integration/team-access*；[任务与复审](tasks/active/ningbo-first-team-access.md)。
+
 ### D-103 Server 商业金额的独立查看与修改授权
 
 - 日期：2026-10-11；状态：Active；来源：用户 PR93 Gate2 正式批准。细化 D-084/D-087 的共享当前商业条款权限，不改变其唯一事实、精确金额、历史或币种所有权。

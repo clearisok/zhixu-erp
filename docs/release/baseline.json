@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
-  "verifiedAt": "2026-10-12T11:48:00+08:00",
+  "baselineSha": "01694d723cd7b65fcc20e3e79941fef0d57439fc",
+  "verifiedAt": "2026-10-12T06:27:21.108Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -407,7 +407,8 @@
     "/basic-settings/fabrics",
     "/basic-settings/trims",
     "/system-settings/quote-settings",
-    "/system-settings/operation-logs"
+    "/system-settings/operation-logs",
+    "/basic-settings/user-permissions"
   ],
   "capabilities": [
     {

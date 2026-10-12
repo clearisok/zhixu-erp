@@ -1,31 +1,13 @@
 # 当前状态
 
-> 核实日期：2026-10-12。任务起点 / GitHub main：`4adbc30845f99368caa77d3431cc67a6440ac623`（PR94合并点）。这是有时间戳的状态快照；下一任务仍须实时核对main、PR与运行身份。
+核实日期：2026-10-12；GitHub main/任务基线：01694d723cd7b65fcc20e3e79941fef0d57439fc（PR95已合并）。GitHub是实时事实源，此文为快照。旧日期/hash/结果完整见[前序快照](tasks/completed/2026-10-12-first-team-predecessor-state.md)。
 
-## 已合并工程与验收范围
+- 已合并PR91–95。PR95基线门禁及八类误通过反例已入main；PR91/P6人工PASS仍限历史候选，不代表全部最新功能获验收。
+- 当前feat/ningbo-first-team-access：六角色预设、可信session账号API、现有设置页接线与合成测试。无SQL/migration/真实账号变更。[证据](tasks/active/ningbo-first-team-access.md)、[权限](features/PERMISSIONS.md)、D-104。
+- 首批团队已确定；Ainuoke已授权来源全可见，织序金额分角色。权限不代表Source激活；宁波Source未接，Order/Material/Production/Closing生产路由继续关闭。
+- 宁波：用户确认Ubuntu旧系统、外网域名staging.weaveops.top；本任务未SSH或操作真实DB/部署。未来管理员与真实账号私密配置。
+- 18443最后仓内历史：878de323d618b25fca1f51ccf3f024e932641742 / sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4（2026-10-09）；18444：eb9530ac9a2e1b7f68299d97c4d424662a6622f7 / sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23（2026-10-10）。未重新观察。用户取消两环境数据迁移必要，不代表已删除，不决定宁波旧数据可删除。
+- 下一步：本PR门禁/复审，然后宁波候选只读预检、独立账本与回退；随后Linux受控来源接线。不得Preview与旧业务共库。完整视觉回归、真实Source/team scope、类型切换/Intake、正式转单、DeliveryPlan UI、生产/关账Server仍有缺口，不全作为Quote-first前置。
+- 实现、合并、隔离测试、部署、人工验收、Source分别见[能力清单](release/baseline.json)。未自动合并/部署，CI不替代人工验收。
 
-- PR91、PR92、PR93、PR94均已MERGED；PR88为closed未merge。原“PR92 Draft”是历史状态，见[完整归档](tasks/completed/2026-10-12-release-baseline-predecessor-state.md)。
-- PR91：D-102普通电脑直接保留草稿、制作方案→默认值、原版列表铺满与偏好保持；2026-10-11人工PASS只覆盖该候选范围。
-- PR92：订单P6/精简详情/只读Control Tower有用户PASS及后续联合工程回归；**真实Source、可信账号/团队scope、生产路由未激活**。executionOnly不访问CCT，不回退Browser。
-- PR93：D-103 sale/labor四键与成本/测算销售价/历史/导出/日志保护在main；不能据此声称运行环境已修复。
-- PR94：单次Git交付、精确SHA核验和NETWORK_DEGRADED规则已合并；不改变ERP功能或运行环境。
-- [基线/能力清单](release/baseline.json)分别记录实现、合并、隔离测试、两环境部署、人工验收和来源激活；[检查说明](features/RELEASE_BASELINE_GUARD.md)。
-
-## 运行环境（沿用历史证据，本任务未访问）
-
-| 环境 | 最后记录source / image | 范围 |
-| --- | --- | --- |
-| 18443 | 878de323d618b25fca1f51ccf3f024e932641742 / sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4 | 较早Quote试用；[2026-10-09更新证据](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md) |
-| 18444 | eb9530ac9a2e1b7f68299d97c4d424662a6622f7 / sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23 | PR91已验收候选；[部署/恢复历史](tasks/active/quote-two-step-creation.md#second-acceptance-preview-deployment-pass-2026-10-10) |
-
-可随仓恢复的环境日期采用上述2026-10-09/10部署记录；前轮本地审计不用于抬高仓内证据时间。本工程任务未重新核验runtime/ledger/账号/对象，不将旧计数称为当前值。两环境独立DB/对象与旧环境继续保留；合并不等于部署。两个记录镜像不含PR92/93。
-
-## 当前任务与验证
-
-PR95 `chore/release-baseline-guard`提供清单与隔离PR检查；合并前审查发现的五项缺口已按v2补强：TS/资源输入、CSS AST、Git blob冻结证据、分维度状态证明、非空状态文档。八个误通过场景已成为回归测试；本轮结果和复审见[任务证据](tasks/active/release-baseline-guard.md)。不改页面、权限业务规则、路由白名单、SQL或部署；不沿用旧测试数量冒充新PASS。
-
-## 风险与下一步
-
-先完成最小门禁，再独立建设真实构建的像素/几何回归和安全候选/兼容回退演练。D-023文字与600/1100/1440实际断点关系待收口，保持当前行为。Order/Material真实来源及团队scope、DeliveryPlan UI、Intake、已有报价类型切换、正式转单、生产/关账Server化仍有缺口，不增加D-098 Quote-first首版前置。关账币种汇总/文字冲突、双环境Cookie/TLS及正式账本归属保留为后续独立核查，不能在本任务顺便修复。
-
-D-096历史导入NOT REQUIRED、D-097无Browser回退、D-099原版加后续批准变更、D-102/103保持。历史测试/部署/人工证据见归档和对应task；默认Browser与所有业务数据不变。
+更新时机：main/PR/权限/来源/运行或验收变化；新任务先实时核对。
