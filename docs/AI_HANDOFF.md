@@ -5,5 +5,5 @@
 
 保持UI/SQL/默认路由开关；不修改真实账号、数据库，不部署宁波/18443/18444，不自动合并新PR。私密配置待安全通道核实后才由用户在Linux本地输入，不发聊天。任务与下一步见tasks/active/ainuoke-live-readiness.md；工程证据见同目录evidence/ainuoke-live-readiness/engineering.md。
 
-当前为工程checkpoint；最终manifest须绑定已提交的新证据，保留main全部历史IDs及冻结字节，D108以新版本supersede旧决策证据。LOCAL ENGINEERING与REMOTE DELIVERY分开记录，最终GitHub SHA/CI以唯一PR为准。
+工程checkpoint 19c07d5298017d6e1d0a0001349eed0cec00842e 已推送并核实远端精确SHA。manifest已绑定新证据，保留main全部历史IDs及冻结字节，D108以新版本supersede旧决策证据。本机root810/810、基线71/71、实际main守卫PASS（0 UI改动），其他验证见engineering.md/final-gate.md。LOCAL ENGINEERING通过；最终GitHub SHA/CI以唯一PR为准，Linux限定分支必须由Ubuntu CI实际补验。
 更新时机：checkpoint、验证、PR/main、验收与环境变化。历史任务不覆盖。

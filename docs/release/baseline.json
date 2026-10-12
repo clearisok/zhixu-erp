@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "3456fe5fc6e213c2e896e4e6a509e28751f1798c",
-  "verifiedAt": "2026-10-12T12:08:19.652953+00:00",
+  "baselineSha": "21fbe3b1a7a5968253f923bc904ea067315f00cd",
+  "verifiedAt": "2026-10-12T15:21:45.635869+00:00",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -469,6 +469,29 @@
       "renderedSourceSha": "f430123cb0dc201350b9558de41edd85afe3f9b4",
       "approvalEvidence": "unified-demo-engineering",
       "changeReason": "Additional synthetic integration capture after approved PR101 login was merged into PR100; existing P6 layout retained, not a new human business acceptance."
+    },
+    {
+      "id": "decisions-live-readiness",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "19c07d5298017d6e1d0a0001349eed0cec00842e",
+      "sha256": "c1f477c60827ad700d31c4bcde405de29b08173462afce2d17d6852b926cf1a3",
+      "supersedes": "decisions-combined-local-demo",
+      "changeReason": "Record explicit PR100 merge, scoped synthetic-demo acceptance and D108 database-free read-only source preparation; no real activation."
+    },
+    {
+      "id": "ainuoke-readiness-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-readiness/engineering.md",
+      "recordedAtSha": "19c07d5298017d6e1d0a0001349eed0cec00842e",
+      "sha256": "e27c1c4b477faf29c79a347c8b7af032c494329172524e37354980201afcfe16"
+    },
+    {
+      "id": "ainuoke-readiness-transport",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-readiness/transport-observation.json",
+      "recordedAtSha": "19c07d5298017d6e1d0a0001349eed0cec00842e",
+      "sha256": "d3a4b04d6b1932358ff6b934395f1b07b24ee62f87b1f14f57bce482ed8510ac"
     }
   ],
   "pages": [
@@ -546,7 +569,7 @@
         "features/order-center/components/server-order-center-page.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "P6 human acceptance with later synthetic integration evidence; production route remains closed.",
+      "acceptanceScope": "P6 human acceptance with later synthetic integration evidence; production route remains closed. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
       "evidence": [
         "order-p6",
         "order-integration",
@@ -555,7 +578,8 @@
         "order-list-390",
         "ainuoke-continuous-engineering",
         "ainuoke-continuous-computed-styles",
-        "unified-demo-engineering"
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering"
       ]
     },
     {
@@ -566,7 +590,7 @@
         "features/order-center/components/server-sales-order-detail-page.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated.",
+      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -574,7 +598,8 @@
         "order-detail-390",
         "ainuoke-continuous-engineering",
         "ainuoke-continuous-computed-styles",
-        "unified-demo-engineering"
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering"
       ]
     },
     {
@@ -585,7 +610,7 @@
         "features/style-progress/components/style-progress-server-page.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source.",
+      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -593,7 +618,8 @@
         "material-390",
         "ainuoke-continuous-engineering",
         "ainuoke-continuous-computed-styles",
-        "unified-demo-engineering"
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering"
       ]
     },
     {
@@ -607,7 +633,7 @@
         "app/login/login.css"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "User accepted PR101 login visuals on 2026-10-12; does not claim combined order/material or real-account business acceptance.",
+      "acceptanceScope": "User accepted PR101 login visuals on 2026-10-12; does not claim combined order/material or real-account business acceptance. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
       "evidence": [
         "animated-login-engineering",
         "decisions-animated-login",
@@ -617,7 +643,8 @@
         "animated-login-390",
         "animated-login-320",
         "decisions-combined-local-demo",
-        "unified-demo-engineering"
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering"
       ]
     },
     {
@@ -629,7 +656,7 @@
         "components/foundation/responsive.ts"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Original shell plus D-097 authority/D-098 Quote-first; order harness is not production navigation approval.",
+      "acceptanceScope": "Original shell plus D-097 authority/D-098 Quote-first; order harness is not production navigation approval. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
       "evidence": [
         "decisions",
         "quote-original",
@@ -637,7 +664,8 @@
         "responsive-tests",
         "ainuoke-continuous-engineering",
         "ainuoke-continuous-computed-styles",
-        "unified-demo-engineering"
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering"
       ]
     },
     {
@@ -1630,19 +1658,20 @@
     {
       "id": "ainuoke-continuous-material-display",
       "implemented": "yes",
-      "merged": false,
+      "merged": true,
       "isolatedTest": "passed-historical",
-      "humanAcceptance": "not-run",
+      "humanAcceptance": "partial",
       "sourceActivation": "not-connected",
       "environments": {
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+      "scope": "PR100 merged at 21fbe3b1a7a5968253f923bc904ea067315f00cd. User accepted unified local synthetic demo; real source coverage, business amounts and continuous operation not accepted. Defaults remain disabled; new-contract binding and main/color incremental refresh remain absent.",
       "evidence": [
         "ainuoke-continuous-engineering",
         "decisions-combined-local-demo",
-        "unified-demo-engineering"
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1655,13 +1684,13 @@
           "sourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5"
         },
         "merged": {
-          "value": false,
+          "value": true,
           "assessedAt": "2026-10-12",
-          "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+          "sourceSha": "21fbe3b1a7a5968253f923bc904ea067315f00cd",
+          "scope": "Explicit user-authorized PR100 merge verified at 2026-10-12T14:57:34Z; no deployment.",
           "evidence": [
-            "ainuoke-continuous-engineering"
-          ],
-          "sourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5"
+            "ainuoke-readiness-engineering"
+          ]
         },
         "isolatedTest": {
           "value": "passed-historical",
@@ -1673,13 +1702,13 @@
           "scope": "Combined real-browser synthetic login/order/material/quote navigation 9/9, standalone login 10/10, six-role management 5/5; not real Source or business acceptance."
         },
         "humanAcceptance": {
-          "value": "not-run",
+          "value": "partial",
           "assessedAt": "2026-10-12",
-          "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+          "sourceSha": "f430123cb0dc201350b9558de41edd85afe3f9b4",
+          "scope": "User accepted unified local synthetic login/order/material experience on 2026-10-12; no real source, full-contract or business acceptance.",
           "evidence": [
-            "ainuoke-continuous-engineering"
-          ],
-          "sourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5"
+            "ainuoke-readiness-engineering"
+          ]
         },
         "sourceActivation": {
           "value": "not-connected",
@@ -1796,6 +1825,93 @@
             "animated-login-engineering"
           ],
           "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-live-readiness",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Database-free operator config check and bounded login/three-first-page probe. Synthetic tests only; real HTTPS/protected final hop unverified; no raw output, real credential read, DB writes, activation or deployment.",
+      "evidence": [
+        "ainuoke-readiness-engineering",
+        "ainuoke-readiness-transport",
+        "decisions-live-readiness"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-12",
+          "sourceSha": "19c07d5298017d6e1d0a0001349eed0cec00842e",
+          "scope": "Database-free operator config check and bounded login/three-first-page probe. Synthetic tests only; real HTTPS/protected final hop unverified; no raw output, real credential read, DB writes, activation or deployment.",
+          "evidence": [
+            "ainuoke-readiness-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-12",
+          "sourceSha": "19c07d5298017d6e1d0a0001349eed0cec00842e",
+          "scope": "Database-free operator config check and bounded login/three-first-page probe. Synthetic tests only; real HTTPS/protected final hop unverified; no raw output, real credential read, DB writes, activation or deployment.",
+          "evidence": [
+            "ainuoke-readiness-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "sourceSha": "19c07d5298017d6e1d0a0001349eed0cec00842e",
+          "scope": "Database-free operator config check and bounded login/three-first-page probe. Synthetic tests only; real HTTPS/protected final hop unverified; no raw output, real credential read, DB writes, activation or deployment.",
+          "evidence": [
+            "ainuoke-readiness-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-12",
+          "sourceSha": "19c07d5298017d6e1d0a0001349eed0cec00842e",
+          "scope": "Database-free operator config check and bounded login/three-first-page probe. Synthetic tests only; real HTTPS/protected final hop unverified; no raw output, real credential read, DB writes, activation or deployment.",
+          "evidence": [
+            "ainuoke-readiness-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-12",
+          "sourceSha": "19c07d5298017d6e1d0a0001349eed0cec00842e",
+          "scope": "Database-free operator config check and bounded login/three-first-page probe. Synthetic tests only; real HTTPS/protected final hop unverified; no raw output, real credential read, DB writes, activation or deployment.",
+          "evidence": [
+            "ainuoke-readiness-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Readiness tool not deployed. Runtime IDs and image SHAs remain historical observations, not rechecked by this task.",
+          "evidence": [
+            "ainuoke-readiness-engineering"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Readiness tool not deployed. Runtime IDs and image SHAs remain historical observations, not rechecked by this task.",
+          "evidence": [
+            "ainuoke-readiness-engineering"
+          ],
           "runtimeId": "preview18444",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
         }
