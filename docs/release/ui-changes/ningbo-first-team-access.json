@@ -11,8 +11,8 @@
     "features/operation-logs/model/operation-log.ts"
   ],
   "pages": [
-    "navigation",
-    "quote-settings"
+    "user-permissions",
+    "navigation"
   ],
   "evidence": [
     "docs/tasks/active/ningbo-first-team-access.md",

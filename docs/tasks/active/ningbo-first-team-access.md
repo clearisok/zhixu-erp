@@ -57,3 +57,13 @@ npm test首轮因新增设置allowlist尚未同步清单，正确阻断ROUTE_CAP
 AI建议下一PR：宁波候选只读预检与独立发布/回退方案；其后Linux受控Ainuoke采集和团队只读Source接线。待确认真实名单/启用日不阻塞合成测试。旧数据和环境不得共库或擅自清理。
 
 更新时机：main/PR head、矩阵、UI范围、测试、Source/环境/人工验收变化。GitHub Issue #96登记需求，实际代码与测试优先。
+
+## 最终本地工程与交付记录
+
+代码checkpoint：72b025343c2e0d5f13f0652c04e37b5c5051a20e；typecheck/server:build/lint及默认Browser/显式Server build PASS；npm test 807/807 PASS；客户端/六角色API/既有Session与金额保护31/31 PASS；Chromium5/5 PASS（重复通过）。发布清单绑定新冻结证据，check:release-baseline PASS，10页面/9能力/6项UI文件。
+
+[合并前本地复审](ningbo-first-team-access-review.md)：未发现P0/P1代码阻断，但不能在未送达/未跑CI时建议立即合并。main当前未强制required checks，建议另行配置。截图源码等同checkpoint，构建标签仍为提交前main；不是部署证据。
+
+REMOTE DELIVERY：安全交付在checkpoint返回LOCAL_PASS_REMOTE_UNVERIFIED，pushes=0、NETWORK_DEGRADED；独立GitHub ref核查404。未创建PR，未运行远端CI。按既有网络协议不盲目重试；最终本地commit收口后由用户普通PowerShell执行一条恢复命令，核对exact SHA才创建唯一PR并检查CI。LOCAL ENGINEERING继续且真实环境完全未操作。
+
+独立命令 npm run test:release-baseline：69/69 PASS（与807项中的对应测试重叠，不累加计数）。测试临时PostgreSQL容器清理完成；数据库目录、部署工作流和现有CSS无diff。
