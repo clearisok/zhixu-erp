@@ -18,6 +18,13 @@
 
 ## Active
 
+### D-108 真实来源接入先做无数据库只读探测
+- 日期：2026-10-12；状态：Active。用户接受统一本机合成演示并明确授权合并 PR100、开始真实艾诺科接入；PR100 于 2026-10-12T14:57:34Z 合并为 `21fbe3b1a7a5968253f923bc904ea067315f00cd`。这不是实际来源、真实账号或上线验收。
+- 用户确认仍用原公网 HTTP 地址，其他通道待查；不推断这是放宽 D105 传输规则的授权。现有禁止真实账号/数据库修改、部署及自动合并新 PR 继续有效。
+- 工程决定：新增独立 `source:ainuoke:readiness`，先校验私密文件/账号目标，再显式一次登录及固定三报表首页读取；不接业务 DB，不绑定、不持续采集、不激活 Source。零 Discovery 时不声称颜色/物料已核实，不输出原始行或凭据。
+- 来源安全传输沿用 D105：HTTPS 或已独立证明端到端保护的字面量 loopback；SSH 到宁波后再访问公网 HTTP 不构成保护。未知通道时继续合成工程，真实凭据探测保持未执行。
+- 证据：`server/ainuoke-source/readiness.ts`、固定 Python `probe`、`server/integration/ainuoke-readiness*.test.ts`、[真实接入任务](tasks/active/ainuoke-live-readiness.md)。D106 首绑/调度边界及 D107 登录设计保持。
+
 ### D-107 正式 /login 与范围限定的动画登录页
 - 日期：2026-10-12；状态：Active；用户决定。
 - 用户原话：“要有正式的一个页面，然后正确的路由杠 log in 使用 animatd - login……我希望我的登录页有趣一点。”
@@ -25,7 +32,7 @@
 - 用户随后指定 katavii/animated-login（https://github.com/katavii/animated-login；参考 SHA 62f0b80c7694c3dfe07b39c7a85bdd832ff4bb15）；对齐蓝色分栏和四角色互动，以原生 CSS/React 独立实现。2026-10-12 用户随后确认“登录页可以”，批准 PR101 合并；此项只验收登录视觉，不等于订单/物料或真实上线验收。
 - 保留 Browser/legacy 与 local-single-user authority，不替换后端、不扩张生产业务路由；凭据仍只经现有 API。
 - 代码证据：app/login/page.tsx、app/login/login.css、features/server-auth/components/animated-login-page.tsx、login-route.ts、features/quote-center/components/quote-server-boundary.tsx；回归 server/integration/animated-login-ui.integration.test.mjs。
-- PR101 已合并至 3456fe5fc6e213c2e896e4e6a509e28751f1798c；用户授权将 PR100 整合至同一本机合成演示，保留 D-106。PR100 仍未获合并授权，无真实账号/数据库/部署操作。
+- PR101 已合并至 3456fe5fc6e213c2e896e4e6a509e28751f1798c；用户授权将 PR100 整合至同一本机合成演示，保留 D-106。当时 PR100 未获合并授权；后续明确验收/合并由 D108 记录，无真实账号/数据库/部署操作。
 
 ### D-106 首次订单绑定、持续采集与原P6页面接线
 - 日期：2026-10-12；状态：Active。用户明确要求“合并 PR #99，然后从最新 main 建独立 worktree，继续做首次订单绑定、持续调度和现有页面接线。保持现有 UI，先用合成数据测试，完成后提交 PR 并复审。暂不修改真实账号、数据库或部署，不自动合并新的 PR”。

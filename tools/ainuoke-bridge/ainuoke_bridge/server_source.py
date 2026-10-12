@@ -64,10 +64,10 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
-    if "mode" in data and data["mode"] != "bindings":
+    if "mode" in data and data["mode"] not in ("bindings", "probe"):
         raise ValueError("invalid_mode")
     contracts = data["contracts"]
-    if data.get("mode") == "bindings":
+    if data.get("mode") in ("bindings", "probe"):
         if contracts != []:
             raise ValueError("binding_discovery_scope_required")
         return data
@@ -79,8 +79,10 @@ def validate_input(data):
 
 def collect(data, client=None):
     data = validate_input(data)
-    client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=1)
+    client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=0 if data.get("mode") == "probe" else 1)
     session = client.login(data["username"], data["password"])
+    if data.get("mode") == "probe":
+        return probe_first_pages(client, session)
     renewals = 0
     total_rows = 0
     total_bytes = 0
@@ -139,6 +141,39 @@ def collect(data, client=None):
             materials[key] = pages("material_purchase_statistics", {"insideOrderNo": lookup[key]})
     after = pages("order_discovery", {})
     return {"schemaVersion": "ainuoke-server-source.v1", "discoveryBefore": before, "discoveryAfter": after, "materials": materials}
+
+
+def probe_first_pages(client, session):
+    """One login and at most three fixed first-page reads; no raw values escape.
+
+    This checks connection/report readability only. It is deliberately not a
+    complete discovery, business validation, binding or source activation.
+    """
+    reports = []
+
+    def first(key, query):
+        definition = REPORT_CATALOG[key]
+        page = client.read_report(definition, jwt_token=session.jwt_token, page=1, page_size=50, query_context=query)
+        if (type(page.total) is not int or page.total < 0 or page.page_index != 1
+                or page.page_size != 50 or len(page.rows) != min(50, page.total)):
+            raise UpstreamSchemaError("incomplete_probe_page")
+        reports.append({"reportId": int(definition.report_id), "status": "readable",
+                        "returnedRows": len(page.rows), "totalRows": page.total,
+                        "complete": page.total == len(page.rows)})
+        return page.rows
+
+    rows = first("order_discovery", {})
+    if rows:
+        contract, inside = rows[0].get("BillNo"), rows[0].get("InsideOrderNo")
+        if not isinstance(contract, str) or not contract.strip() or not isinstance(inside, str) or not inside.strip():
+            raise UpstreamSchemaError("invalid_probe_identity")
+        first("garment_color_size_details", {"salesContractNo": contract.strip()})
+        first("material_purchase_statistics", {"insideOrderNo": inside.strip()})
+    else:
+        reports.extend({"reportId": report_id, "status": "not-probed", "returnedRows": None,
+                        "totalRows": None, "complete": False} for report_id in (6087105, 6087050))
+    return {"schemaVersion": "ainuoke-connection-probe.v1", "authenticated": True,
+            "scope": "first-visible-contract-first-pages-only", "reports": reports}
 
 def main():
     # Error output is a closed vocabulary; never reflect exception, URL, response or credentials.

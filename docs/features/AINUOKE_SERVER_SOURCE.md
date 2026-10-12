@@ -1,5 +1,5 @@
 # 艾诺科 Server Source：首次订单绑定与持续物料展示
-核实日期：2026-10-12；main 基线：3456fe5fc6e213c2e896e4e6a509e28751f1798c（PR101已合并）。
+核实日期：2026-10-12；main 基线：21fbe3b1a7a5968253f923bc904ea067315f00cd（PR100、PR101已合并）。
 GitHub/代码为实时事实源；本文件随来源契约、权限、命令、构建、调度、真实激活及验收变化更新。PR99阶段证据保留在原任务/冻结证据，本轮见[任务](../tasks/active/ainuoke-continuous-material-display.md)。
 
 ## 用户决定
@@ -75,4 +75,10 @@ npm run demo:ainuoke-continuous
 
 回退：暂停采集、关闭orderRead/reader，保留绑定和来源历史；不可删除ledger/订单/快照来回退。候选镜像须验证兼容既有0012；DB恢复只到另一个明确授权目标。首绑回滚只针对未提交事务，不提供已提交订单的自动删除命令。
 
-2026-10-12统一本机演示：PR100已整合获用户视觉确认的PR101正式/login；报价/订单/物料共用一个临时Origin/session/PG，原布局保持。组合验收与范围见[统一演示](../tasks/active/unified-local-demo.md)。PR100仍未合并，真实来源/账号/数据库/部署未操作。
+2026-10-12统一本机演示：PR100已整合获用户视觉确认的PR101正式/login；报价/订单/物料共用一个临时Origin/session/PG，原布局保持。用户已接受本机合成体验，并另行授权合并PR100；main为上述SHA。历史组合证据见[统一演示](../tasks/active/unified-local-demo.md)，最新验收/合并范围见[真实接入](../tasks/active/ainuoke-live-readiness.md)。真实来源/账号/数据库/部署未操作。
+
+## D108：无数据库的来源准备检查
+
+新增 `npm run source:ainuoke:readiness -- --check --config=<私密Linux文件>`，不读取DB、不访问来源；给出来源指纹，不承诺凭据或通道有效。`--probe --expected-source=<该指纹>` 只做一次登录、三份固定报表的首页，每页50行，90秒总限，不翻页/重试/重登。空Discovery时后二报表明确not-probed；输出固定ID/数量/范围，不含任何合同明细或秘密。loopback还要求独立核实通道后显式 `--verified-tunnel`；该参数自身不能证明隧道安全。
+
+探测不校验织序操作人RBAC，输出not-checked；不证明全合同覆盖/字段语义，不启动原scheduler或绑定writer。后续写入仍走原CLI的DB/权限/目标守卫。用户确认公网HTTP仍在用，无凭据HTTP可达、同端口TLS握手失败；暂无可验证加密后段，所以真实probe尚未执行。详细私密配置/分步Gate及测试证据见[真实接入任务](../tasks/active/ainuoke-live-readiness.md)。
