@@ -44,9 +44,24 @@ export function isUiPath(file) {
   // Conservative review inputs, including helpers extracted from TSX. Domain-only
   // changes can declare V0; a filename extension must not silently exempt a layout.
   const testOnly = /(^|\/)(__tests__|__fixtures__)\//.test(file) || /\.(test|spec|d)\.[cm]?[jt]sx?$/.test(file);
-  return !testOnly && /\.(?:[cm]?[jt]sx?|css|scss|sass|less|svg|png|jpe?g|webp|woff2?|json)$/.test(file) && /^(app|components|features)\//.test(file)
+  return !testOnly && /\.(?:[cm]?[jt]sx?|html?|mdx|css|scss|sass|less|svg|png|jpe?g|gif|avif|webp|woff2?|json)$/.test(file) && /^(app|components|features)\//.test(file)
     || /^public\//.test(file)
     || /^(vite|next|postcss|tailwind)\.config\.[cm]?[jt]s$/.test(file);
+}
+
+function serverRouteLiterals(source) {
+  const parsed = ts.createSourceFile('quote-authority.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  if (parsed.parseDiagnostics.length) return null;
+  const declarations = parsed.statements.filter(node => ts.isFunctionDeclaration(node) && node.name?.text === 'isServerQuoteRoute');
+  if (declarations.length !== 1) return null;
+  const body = declarations[0].body;
+  if (!body || body.statements.length !== 1 || !ts.isReturnStatement(body.statements[0])) return null;
+  const call = body.statements[0].expression;
+  if (!call || !ts.isCallExpression(call) || call.arguments.length !== 1 || !ts.isIdentifier(call.arguments[0])
+    || call.arguments[0].text !== 'path' || !ts.isPropertyAccessExpression(call.expression)
+    || call.expression.name.text !== 'includes' || !ts.isArrayLiteralExpression(call.expression.expression)) return null;
+  const elements = call.expression.expression.elements;
+  return elements.every(ts.isStringLiteral) ? elements.map(node => node.text) : null;
 }
 
 /** Read-only source/evidence contract. This is not a browser pixel or deployment test. */
@@ -162,9 +177,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   refs(responsive?.evidence, 'responsive');
 
   const routeSource = checkPath('features/quote-center/authority/quote-authority.ts')?.toString('utf8');
-  const routeMatch = routeSource?.match(/function isServerQuoteRoute\(path: string\): boolean\s*\{\s*return (\[[^;]+\])\.includes\(path\);\s*\}/);
-  let actualRoutes;
-  try { actualRoutes = routeMatch && JSON.parse(routeMatch[1]); } catch { /* Fail closed below. */ }
+  const actualRoutes = routeSource ? serverRouteLiterals(routeSource) : null;
   if (!actualRoutes || !same(actualRoutes, manifest.serverRoutes)) fail('ROUTE_CAPABILITY_DRIFT', 'Reconcile actual Server allowlist; this check never activates a route.');
 
   const capabilities = new Map();

@@ -125,3 +125,26 @@ review conclusion are recorded in PR95's current description/GitHub checks and t
 delivery report. The original b5411b6 CI run is historical, not repair validation.
 No independent human design/Source/runtime approval, required-check configuration
 or full pixel regression is claimed; these remain explicit boundaries.
+
+### Post-commit local re-review and delivery boundary
+
+- First repair checkpoint: `b111d8cd5dcaac93652656076ec050744c449083`, clean.
+  Both explicit-base and default-HEAD checks passed after this commit.
+- Post-commit re-review found two adjacent coverage gaps: preview HTML inputs and
+  commented old allowlist functions. Both are now guarded, with dedicated negative
+  tests; no HTML page or actual authority/route source changed.
+- Latest final root test: **807/807 PASS**, 0 skipped; this includes the complete
+  **69 guard/responsive cases** (49 + 20, 27 additions over initial PR95). Earlier
+  standalone 67/67 and 68/68 runs above remain stage-specific evidence.
+- Final explicit-base CLI, targeted lint and evidence/scope checks: PASS. The
+  screenshot/capability/runtime identities and empty application diff remain as
+  recorded above. No further local blocker found in the five repaired areas.
+- The delivery tool's b111d8c preflight returned `LOCAL_PASS_REMOTE_UNVERIFIED`,
+  `NETWORK_DEGRADED`, pushes=0. One independent GitHub read still showed PR95 head
+  `b5411b68618e663d97ca50ac5bb9f49bc688193e`, open/unmerged. No repeated automatic
+  push, no authentication/configuration change, no claimed repair CI PASS.
+- Per AGENTS, the final local checkpoint can continue safely. Its exact SHA and
+  one tool-generated ordinary-PowerShell recovery command belong to the delivery
+  report. Remote repair CI and final merge recommendation remain pending until
+  exact-head delivery and that commit's checks are verified. Never reuse the old
+  b5411b6 CI result for this repair.

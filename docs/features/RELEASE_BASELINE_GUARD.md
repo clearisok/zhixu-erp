@@ -51,9 +51,10 @@ that base; it never stages or rewrites them. Missing objects stop the gate.
   `responsive-mobile-batch1.test.mjs` executes pointer/width behavior. D-023's
   older wording remains an explicit reconciliation issue; do not change breakpoints
   as an incidental documentation fix.
-- Server allowlist must match the snapshot. A mismatch demands review; editing the
+- The actual Server allowlist function is also parsed from AST; a commented old
+  function cannot impersonate the live array. It must match the snapshot. A mismatch demands review; editing the
   manifest is never permission to activate a route or source.
-- App/components/features JS/TS (including helper TS), CSS/preprocessors, local
+- App/components/features JS/TS (including helper TS), HTML/MDX, CSS/preprocessors, local
   visual assets/JSON, public assets and Vite/Next/PostCSS/Tailwind config changes
   require a changed, path-specific impact record. This conservative rule prevents
   moving layout code from TSX to a helper to evade review. Tests/fixtures/type

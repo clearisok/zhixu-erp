@@ -131,6 +131,13 @@ test('allowlist change is detected without opening or requesting a production ro
   has(f.check(), 'ROUTE_CAPABILITY_DRIFT');
 });
 
+test('a commented old route function cannot hide a changed live allowlist', t => {
+  const f = fixture(t);
+  f.edit('features/quote-center/authority/quote-authority.ts', source =>
+    `/*\n${source}\n*/\n${source.replace('return ["/",', 'return ["/order-center", "/",')}`);
+  has(f.check(), 'ROUTE_CAPABILITY_DRIFT');
+});
+
 test('snapshot documents must refer to the same full reviewed baseline', t => {
   const f = fixture(t); f.edit('docs/CURRENT_STATE.md', source => source.replaceAll(original.baselineSha, 'old-baseline'));
   has(f.check(), 'STATE_BASELINE_DRIFT');
@@ -186,7 +193,8 @@ test('R95-1: layout helper TS column-width changes require an impact record', t 
 });
 
 for (const file of ['components/foundation/sidebar-preference.ts', 'features/quote-center/model/quote-list-column-definitions.ts',
-  'features/new-layout/helper.ts', 'features/new-layout/helper.js', 'public/favicon.svg', 'vite.config.ts']) {
+  'features/new-layout/helper.ts', 'features/new-layout/helper.js', 'public/favicon.svg', 'vite.config.ts',
+  'features/ainuoke-material-progress/integration-preview/index.html']) {
   test(`UI inputs fail closed across helper extraction, assets and build config: ${file}`, t => {
     has(fixture(t).check({ changedPaths: [file] }), 'UI_CHANGE_UNDECLARED');
   });
