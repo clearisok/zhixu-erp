@@ -17,7 +17,7 @@ export function useOrderMaterial(id: string) {
     const read=async()=>{
       if(pending||controller.signal.aborted)return;
       clearTimeout(timer);pending=true;
-      try{const model=await readOrderMaterial(id,controller.signal);if(!controller.signal.aborted)setState({id,model,error:null,loading:false});}
+      try{const model=await readOrderMaterial(id,controller.signal);if(!controller.signal.aborted)setState({id:scope,model,error:null,loading:false});}
       catch{if(!controller.signal.aborted)setState({id:scope,model:null,error:'正式物料来源未接通或不可读取；不会回退 Browser。',loading:false});}
       finally{pending=false;if(!controller.signal.aborted)timer=setTimeout(()=>{if(document.visibilityState==='visible')void read();else timer=setTimeout(onVisible,MATERIAL_REFRESH_MS);},MATERIAL_REFRESH_MS);}
     };
