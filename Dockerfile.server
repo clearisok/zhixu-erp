@@ -11,6 +11,7 @@ ARG ZHIXU_BUILD_TIME
 ARG NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY=browser
 ARG NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE=writable
 ARG NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY=browser
+ARG NEXT_PUBLIC_ZHIXU_ORDER_READ=disabled
 ARG ZHIXU_IDENTITY_MODE=session
 RUN case "$NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY" in browser|frozen|server) ;; *) echo 'invalid_master_settings_authority_build_input' >&2; exit 1 ;; esac
 RUN case "$ZHIXU_IDENTITY_MODE" in session|local-single-user) ;; *) echo 'invalid_identity_mode_build_input' >&2; exit 1 ;; esac
@@ -23,6 +24,7 @@ ENV ZHIXU_BUILD_ENV=production \
     NEXT_PUBLIC_ZHIXU_IDENTITY_MODE=${ZHIXU_IDENTITY_MODE} \
     NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE=${NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE} \
     NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY=${NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY} \
+    NEXT_PUBLIC_ZHIXU_ORDER_READ=${NEXT_PUBLIC_ZHIXU_ORDER_READ} \
     ZHIXU_IDENTITY_MODE=${ZHIXU_IDENTITY_MODE}
 RUN npm run build && npm run server:build && node scripts/build-q3-import-runners.mjs
 
@@ -34,6 +36,7 @@ ARG ZHIXU_BUILD_TIME
 ARG NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY=browser
 ARG NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE=writable
 ARG NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY=browser
+ARG NEXT_PUBLIC_ZHIXU_ORDER_READ=disabled
 ARG ZHIXU_IDENTITY_MODE=session
 ENV NODE_ENV=production \
     ZHIXU_BUILD_ENV=production \
@@ -43,6 +46,7 @@ ENV NODE_ENV=production \
     NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY=${NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY} \
     NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE=${NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE} \
     NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY=${NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY} \
+    NEXT_PUBLIC_ZHIXU_ORDER_READ=${NEXT_PUBLIC_ZHIXU_ORDER_READ} \
     ZHIXU_IDENTITY_MODE=${ZHIXU_IDENTITY_MODE}
 LABEL io.zhixu.build-id=${ZHIXU_BUILD_ID} \
       io.zhixu.quote-authority=${NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY} \
@@ -53,11 +57,14 @@ LABEL io.zhixu.build-id=${ZHIXU_BUILD_ID} \
       org.opencontainers.image.created=${ZHIXU_BUILD_TIME}
 
 WORKDIR /app
+# Fixed-catalog worker, invoked only by the explicit operator CLI.
+RUN apk add --no-cache python3
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --ignore-scripts --no-audit --no-fund
 COPY --from=builder /build/dist/client ./dist/client/
 COPY --from=builder /build/dist/server ./dist/server/
 COPY database/migrations ./database/migrations/
+COPY tools/ainuoke-bridge/ainuoke_bridge ./tools/ainuoke-bridge/ainuoke_bridge/
 COPY templates/quote-export-template-v1.xlsx ./templates/quote-export-template-v1.xlsx
 
 EXPOSE 3000

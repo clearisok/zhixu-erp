@@ -1,3 +1,4 @@
+import { parseOrderRead } from "./features/order-center/server/read-capability";
 import { execFileSync } from "node:child_process";
 import vinext from "vinext";
 import { defineConfig, type Plugin } from "vite";
@@ -20,6 +21,7 @@ type ZhixuBuildInfo = {
   identityMode: "session" | "local-single-user";
   quoteWriterMode: "writable" | "frozen";
   quoteAuthority: "browser" | "server";
+  orderRead: "disabled" | "snapshot";
 };
 
 function buildMasterSettingsAuthority(): ZhixuBuildInfo["masterSettingsAuthority"] {
@@ -71,6 +73,8 @@ function createBuildInfo(command: "build" | "serve"): ZhixuBuildInfo {
   const generated = shanghaiTimestamp(new Date());
   const quoteAuthority = parseQuoteAuthority(process.env.NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY);
   validateQuoteAuthority(quoteAuthority, buildMasterSettingsAuthority(), parseQuoteWriterMode(process.env.NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE));
+  const orderRead=parseOrderRead(process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ);
+  if(orderRead==="snapshot"&&(quoteAuthority!=="server"||buildIdentityMode()!=="session"))throw new Error("invalid_order_read_build");
   const requestedEnvironment = process.env.ZHIXU_BUILD_ENV;
   return {
     environment: requestedEnvironment === "development" || requestedEnvironment === "production"
@@ -83,6 +87,7 @@ function createBuildInfo(command: "build" | "serve"): ZhixuBuildInfo {
     identityMode: buildIdentityMode(),
     quoteWriterMode: parseQuoteWriterMode(process.env.NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE),
     quoteAuthority,
+    orderRead,
   };
 }
 

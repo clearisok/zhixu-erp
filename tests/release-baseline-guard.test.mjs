@@ -10,7 +10,7 @@ import { validateBaseline, manifestPath, cssImports, isUiPath, readEvidenceBlob 
 
 const repository = fileURLToPath(new URL('../', import.meta.url));
 const original = JSON.parse(readFileSync(path.join(repository, manifestPath), 'utf8'));
-const commits = new Set([original.baselineSha, ...original.evidence.flatMap(item => [item.recordedAtSha, item.renderedSourceSha]), ...original.runtimeSnapshots.map(item => item.sourceSha)].filter(Boolean));
+const commits = new Set([original.baselineSha, ...original.evidence.flatMap(item => [item.recordedAtSha, item.renderedSourceSha]), ...original.runtimeSnapshots.map(item => item.sourceSha), ...original.capabilities.flatMap(item => Object.values(item.statusEvidence).map(claim => claim.sourceSha))].filter(Boolean));
 const frozenBlobs = new Map(original.evidence.map(item => [`${item.recordedAtSha}:${item.path}`, readEvidenceBlob(repository, item.recordedAtSha, item.path)]));
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 
@@ -82,8 +82,19 @@ test('wrong PR base and missing local commit object are distinct blocking failur
   has(f.check({ hasCommit: () => false }), 'SOURCE_SHA');
 });
 
+test('missing status-only commit remains a blocking failure', t => {
+  const f = fixture(t); f.manifest.capabilities[0].statusEvidence.implemented.sourceSha = 'f'.repeat(40);
+  assert.ok(f.check().some(error => error.code === 'SOURCE_SHA' && error.detail === f.manifest.capabilities[0].id + ':implemented'));
+});
+
 test('short SHA is not accepted as a baseline identity', t => {
   const f = fixture(t); f.manifest.baselineSha = original.baselineSha.slice(0, 7);
+  has(f.check(), 'SOURCE_SHA');
+});
+
+test('a status-only historical SHA remains independently required after advancing main', t => {
+  const f = fixture(t);
+  f.manifest.capabilities[0].statusEvidence.implemented.sourceSha = 'f'.repeat(40);
   has(f.check(), 'SOURCE_SHA');
 });
 

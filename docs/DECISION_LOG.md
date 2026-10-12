@@ -18,6 +18,45 @@
 
 ## Active
 
+### D-108 真实来源接入先做无数据库只读探测
+- 日期：2026-10-12；状态：Active。用户接受统一本机合成演示并明确授权合并 PR100、开始真实艾诺科接入；PR100 于 2026-10-12T14:57:34Z 合并为 `21fbe3b1a7a5968253f923bc904ea067315f00cd`。这不是实际来源、真实账号或上线验收。
+- 用户确认仍用原公网 HTTP 地址，其他通道待查；不推断这是放宽 D105 传输规则的授权。现有禁止真实账号/数据库修改、部署及自动合并新 PR 继续有效。
+- 工程决定：新增独立 `source:ainuoke:readiness`，先校验私密文件/账号目标，再显式一次登录及固定三报表首页读取；不接业务 DB，不绑定、不持续采集、不激活 Source。零 Discovery 时不声称颜色/物料已核实，不输出原始行或凭据。
+- 来源安全传输沿用 D105：HTTPS 或已独立证明端到端保护的字面量 loopback；SSH 到宁波后再访问公网 HTTP 不构成保护。未知通道时继续合成工程，真实凭据探测保持未执行。
+- 证据：`server/ainuoke-source/readiness.ts`、固定 Python `probe`、`server/integration/ainuoke-readiness*.test.ts`、[真实接入任务](tasks/active/ainuoke-live-readiness.md)。D106 首绑/调度边界及 D107 登录设计保持。
+
+### D-107 正式 /login 与范围限定的动画登录页
+- 日期：2026-10-12；状态：Active；用户决定。
+- 用户原话：“要有正式的一个页面，然后正确的路由杠 log in 使用 animatd - login……我希望我的登录页有趣一点。”
+- 授权仅覆盖正式登录入口：独立 /login、现有可信 session、安全回到原页面、动画/响应式/可访问性。其余页面继续 D-099/D-102/P6；没有全站重设计、真实账号/数据库/部署授权。
+- 用户随后指定 katavii/animated-login（https://github.com/katavii/animated-login；参考 SHA 62f0b80c7694c3dfe07b39c7a85bdd832ff4bb15）；对齐蓝色分栏和四角色互动，以原生 CSS/React 独立实现。2026-10-12 用户随后确认“登录页可以”，批准 PR101 合并；此项只验收登录视觉，不等于订单/物料或真实上线验收。
+- 保留 Browser/legacy 与 local-single-user authority，不替换后端、不扩张生产业务路由；凭据仍只经现有 API。
+- 代码证据：app/login/page.tsx、app/login/login.css、features/server-auth/components/animated-login-page.tsx、login-route.ts、features/quote-center/components/quote-server-boundary.tsx；回归 server/integration/animated-login-ui.integration.test.mjs。
+- PR101 已合并至 3456fe5fc6e213c2e896e4e6a509e28751f1798c；用户授权将 PR100 整合至同一本机合成演示，保留 D-106。当时 PR100 未获合并授权；后续明确验收/合并由 D108 记录，无真实账号/数据库/部署操作。
+
+### D-106 首次订单绑定、持续采集与原P6页面接线
+- 日期：2026-10-12；状态：Active。用户明确要求“合并 PR #99，然后从最新 main 建独立 worktree，继续做首次订单绑定、持续调度和现有页面接线。保持现有 UI，先用合成数据测试，完成后提交 PR 并复审。暂不修改真实账号、数据库或部署，不自动合并新的 PR”。
+- 本条接续D105首次绑定/调度开发Gate；D105宁波持续展示后上线、D104来源全团队可见、D103织序金额权限不变。首绑复用现有订单/Source Link/6087105，不引入库存账本。
+- 受控首次空订单账本绑定：fresh完整Discovery+颜色→预览→目标/previewHash明确确认→fresh核对→整批事务/权限/审计。相同首绑凭证才能幂等重试；旧账本、部分集合、换账号不自动接管。来源缺颜色不等于订单不存在。
+- scheduler显式启动，只更新已绑定订单的物料来源快照；错误凭据/授权撤销停止，网络错误有界退避。首绑后新增合同、现有主镜像/颜色刷新仍需后续独立范围，不能冒称自动全生命周期。
+- UI接线只复用P6列表/执行详情/物料Control Tower，默认disabled候选开关，保留CSS/列宽/布局/断点；既有入口可用性随能力改变，未支持页面disabled。用户授权功能接线，不授权重新设计。
+- 默认API启动不采集；无真实凭据/迁移/账号/部署/人工验收。本机临时合成演示不属于真实上线。
+- 证据：server/ainuoke-source/binding.ts、scheduler.ts、cli.ts；server/integration/ainuoke-continuous*、ainuoke-binding*、order-read-capability.test.ts；[功能](features/AINUOKE_SERVER_SOURCE.md)、[任务](tasks/active/ainuoke-continuous-material-display.md)。
+
+
+### D-105 宁波上线以前持续展示艾诺科订单物料来源
+
+- 2026-10-12后续工程范围由D106接续：首次绑定/调度/页面接线开发已获授权；下方“无scheduler”等为PR99阶段实现记录，真实激活仍未授权。
+
+- 日期：2026-10-12；状态：Active。用户明确批准 feat/ainuoke-server-source、独立worktree、合成测试/PR/复审；禁止真实账号/DB/部署/自动合并。
+- 发布决定：报价当前暂时OK；宁波Ubuntu在艾诺科采购、入库、物料出运和出库持续按订单展示后再上线。暂不做独立库存台账；不将生产/关账全部Server化追加为首版前置。
+- 仅更新D-098的宁波发布时序，以及D-096“不自动同步艾诺科补数据”的未来开发范围：允许受控Server来源采集与只读展示开发。旧账本不导入、数据不删除、独立DB/volume、明确运维授权仍有效。本阶段不自动创建或修改正式订单；首次绑定与调度留待独立Gate。
+- 来源沿用D-073唯一算法与固定catalog，不调用D-074 Browser commitImport，不覆盖手工Effective/ExpectedArrival。独立来源快照不是另一套业务库存账本。首次上线六角色同见已授权Source与采购价，D-103织序金额规则不变。
+- 凭据仅未来Linux私密普通文件/执行用户权限，不进聊天/Git/业务DB；原Windows Credential Manager不变。只允许HTTPS或已验证安全通道loopback，不放宽旧公网HTTP。首轮本人账号“全部合同”的用户陈述须真实核实。
+- 实现：server/ainuoke-source、0012来源三表、固定Python worker、既有Material DTO；默认disabled、原子发布、过期/失败关闭。无scheduler、无生产路由开放；候选合成PASS不等于真实Source/持续运行/人工验收或部署。
+- UI保持D-099/102/P6。本轮上线参数（建议5分钟/30分钟/24小时）为AI建议，待真实速率与业务验收确认，非用户已确认承诺。
+- 证据：[功能](features/AINUOKE_SERVER_SOURCE.md)、[任务与复审](tasks/active/ainuoke-server-source.md)、server/integration/ainuoke-server-source*。
+
 ### D-104 宁波首批六角色与可信账号管理
 
 - 日期：2026-10-12；状态：Active。来源：用户批准“先用合成账号完成六角色测试…保持现有UI…不修改真实账号、数据库或部署…不自动合并”。真实账号以后用户自行创建。
@@ -83,6 +122,8 @@
 
 ### D-098 优先形成可使用的报价试用版，由实际使用反馈驱动后续范围
 
+- 2026-10-12范围更新：宁波上线时序由D-105接续，须先持续展示艾诺科物料来源；其余范围控制/验收分维度原则保留。
+
 - 日期：2026-10-09；状态：Active。用户明确要求按可使用版本组织工作，尽早实际完成报价，不无限追加功能。
 - 首轮范围使用已合并的基础资料、新报价/成本、Revision/PV、Estimate、确认、附件、客户 Excel/ZIP、内部汇总和只读日志。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理、缩略图暂缓，不自动成为首次试用前置。
 - 工程验证、候选构建/隔离部署、真实部署、人工业务验收分开记录；人工未执行就是 NOT RUN。用户反馈证明必要的范围再单独实施。
@@ -100,6 +141,8 @@
 - 证据：`quote-authority.ts`、`production-quote-pages.tsx`、`quote-server-boundary.tsx`、`quote-editor-persistence.ts`、`server/quotes/list-summary.ts` 与 disposable actual Chromium `quote-server-ui.integration.test.mjs`。
 
 ### D-096 新系统全部业务数据从空开始，旧环境保留
+
+- 2026-10-12范围更新：D-105允许受控Server来源读取开发；仅替代下文“不自动同步艾诺科补数据”的未来开发限制，不授权真实同步/建单/删除/部署，其余空账本与保护边界不变。
 
 - 日期：2026-10-08；状态：Active，用户明确确认：“新系统所有业务数据，包括基础资料和订单，都从空开始。”
 - 新系统不导入旧品牌、客户业务员、面辅料、制造预设、业务设置、Quote/Revision/PriceVersion、订单、排单、关账、款式进度、附件关系、Browser OperationLog 或旧业务账号，不自动同步艾诺科来补数据。保留功能、模型、算法与 API/UI，不重写 ERP。

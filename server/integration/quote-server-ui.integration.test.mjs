@@ -160,11 +160,11 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const epoch = `navigation-${Date.now()}-${Math.random()}`;
       await evaluate(`window.qaNavigationEpoch=${JSON.stringify(epoch)}`);
       await command("Page.navigate", { url: origin + path }, sessionId);
-      await until(async () => await evaluate(`window.qaNavigationEpoch!==${JSON.stringify(epoch)} && location.pathname===${JSON.stringify(path.split("?")[0])} && document.readyState==='complete'`), path);
+      await until(async () => await evaluate(`window.qaNavigationEpoch!==${JSON.stringify(epoch)} && (location.pathname===${JSON.stringify(path.split("?")[0])} || (location.pathname==='/login' && new URLSearchParams(location.search).get('returnTo')===${JSON.stringify(path)})) && document.readyState==='complete'`), path);
     };
     const input = async (selector, value) => evaluate(`(()=>{const node=document.querySelector(${JSON.stringify(selector)});if(!node)throw new Error('input missing');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));node.dispatchEvent(new Event('change',{bubbles:true}));})()`);
     const labelInput = async (label, value) => evaluate(`(()=>{const root=[...document.querySelectorAll('[role="dialog"]')].filter(n=>n.getClientRects().length).at(-1)||document;const node=[...root.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent?.startsWith(${JSON.stringify(label)}))?.querySelector('input,textarea');if(!node)throw new Error('label input missing: '+${JSON.stringify(label)});Object.getOwnPropertyDescriptor(node.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));})()`);
-    const click = async (label) => evaluate(`(()=>{const node=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()===${JSON.stringify(label)}&&!n.disabled&&n.getClientRects().length);if(!node)throw new Error('button missing: '+${JSON.stringify(label)});node.click();})()`);
+    const click = async (label) => evaluate(`(()=>{const node=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')===${JSON.stringify(label)} || n.textContent.trim()===${JSON.stringify(label)})&&!n.disabled&&n.getClientRects().length);if(!node)throw new Error('button missing: '+${JSON.stringify(label)});node.click();})()`);
     const selectType = async (type) => evaluate(`(() => { const select=[...document.querySelectorAll('label.qc-form-item')].find(n=>n.getClientRects().length && n.querySelector('span')?.textContent?.startsWith('报价类型'))?.querySelector('select');if(!select)throw new Error('Formal new Quote type selector missing');select.value=${JSON.stringify(type)};select.dispatchEvent(new Event('change',{bubbles:true})); })()`);
     const prepareCreation = async (type = "distribution") => {
       if(referenceDirectory){await hasText("报价类型");await selectType(type);return;}
@@ -186,16 +186,16 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
 
     const loginAs = async (name) => {
       await evaluate("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
-      await navigate("/quote-center"); await hasText("登录织序 Server");
+      await navigate("/quote-center"); await hasText("忘记密码？请联系系统管理员");
       await input("input[name=username]", `synthetic-ui-${name.toLowerCase()}`);
       await input("input[name=password]", "disposable-ui-password");
-      await click("登录 Server"); await hasText("本页 25");
+      await click("登录织序"); await hasText("本页 25");
       const trustedPermissions = await evaluate("fetch('/api/v1/auth/permissions').then(r=>r.json()).then(b=>b.permissions)");
       assert.ok(trustedPermissions.includes("quote.view"), `Synthetic ${name} must have trusted quote.view: ${JSON.stringify(trustedPermissions)}`);
     };
     if (process.env.ZHIXU_PR91_SECOND_ACCEPTANCE === '1') {
-      await navigate('/quote-center'); await hasText('登录织序 Server');
-      await input('input[name=username]','synthetic-ui-admin'); await input('input[name=password]','disposable-ui-password'); await click('登录 Server'); await hasText('暂无 Server 报价');
+      await navigate('/quote-center'); await hasText('忘记密码？请联系系统管理员');
+      await input('input[name=username]','synthetic-ui-admin'); await input('input[name=password]','disposable-ui-password'); await click('登录织序'); await hasText('暂无 Server 报价');
       await evaluate(`(async()=>{for(let i=0;i<26;i++){const r=await fetch('/api/v1/quotes',{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:'{}'});if(!r.ok)throw Error('Synthetic fixture failed')}})()`);
       await runSecondAcceptance({ t, pool, requests, navigate, hasText, labelInput, click, action, evaluate, command, sessionId, sleep, until, isolated, loginAs });
       return;
@@ -232,10 +232,10 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     if (process.env.ZHIXU_UI_VISUAL_STAGE) {
       const folder = resolve(process.env.ZHIXU_UI_VISUAL_OUTPUT);
       await mkdir(folder, { recursive: true });
-      await navigate("/quote-center"); await hasText("登录织序 Server");
+      await navigate("/quote-center"); await hasText("忘记密码？请联系系统管理员");
       await input("input[name=username]", "synthetic-ui-admin");
       await input("input[name=password]", "disposable-ui-password");
-      await click("登录 Server"); await hasText("暂无 Server 报价");
+      await click("登录织序"); await hasText("暂无 Server 报价");
       const captures = [];
       const capture = async (state, width, height) => {
         await command("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false }, sessionId);
@@ -294,7 +294,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await evaluate("[...document.querySelectorAll('.qc-revision-pill')].find(n=>n.querySelector('.qc-revision-label')?.textContent==='V1').click()");await click('查看');await hasText('历史只读');
       for(const [w,h] of viewports)await capture('historical-readonly',w,h);
       await evaluate("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
-      await navigate('/quote-center');await hasText('登录织序 Server');await input('input[name=username]','synthetic-ui-viewer');await input('input[name=password]','disposable-ui-password');await click('登录 Server');await hasText('本页 25');
+      await navigate('/quote-center');await hasText('忘记密码？请联系系统管理员');await input('input[name=username]','synthetic-ui-viewer');await input('input[name=password]','disposable-ui-password');await click('登录织序');await hasText('本页 25');
       await navigate('/quote-center/detail?id=synthetic-visual-history');await hasText('Server 报价 · v1');await hasText('SYNTHETIC-HISTORY-STYLE');
       assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent==='保存草稿'&&!n.disabled)"),false);
       for(const [w,h] of viewports)await capture('viewer-detail',w,h);
@@ -336,7 +336,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       return;
     }
     await t.test("production shell/new view stays within desktop viewport without creating business rows", async () => {
-      await navigate('/quote-center');await hasText('登录织序 Server');
+      await navigate('/quote-center');await hasText('忘记密码？请联系系统管理员');
       for(const [width,height] of [[1920,1080],[1440,900],[1280,800],[900,800]]) {
         await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false},sessionId);
         assert.equal(await evaluate('document.documentElement.scrollWidth'),width);
@@ -347,10 +347,10 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
 
     await t.test("401/common identity, empty formal list/new/master pages; old Browser sentinel untouched", async () => {
       assert.equal((await fetch(`${origin}/api/v1/quotes`)).status, 401);
-      await navigate("/quote-center"); await hasText("登录织序 Server");
+      await navigate("/quote-center"); await hasText("忘记密码？请联系系统管理员");
       await input("input[name=username]", "synthetic-ui-admin");
       await input("input[name=password]", "disposable-ui-password");
-      await click("登录 Server"); await hasText("暂无 Server 报价"); await isolated();
+      await click("登录织序"); await hasText("暂无 Server 报价"); await isolated();
       await navigate("/quote-center/new"); await hasText("新建报价"); await isolated();
       await navigate("/basic-settings/brands"); await hasText("品牌"); await sleep(500); await isolated();
       assert.equal(await quoteCount(), 0); assert.equal(await masterCount(), 0);

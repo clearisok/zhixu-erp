@@ -74,18 +74,22 @@ test("Two-step creation: real trusted API, durable receipts and populated 0009 u
     assert.deepEqual((await verifyMigrationsCurrent(pool, throughTen)).pending, []);
     assert.equal((await createTrustedQuoteService(pool).getById(old.quote.id))?.version, 1);
   });
+  const throughEleven = await mkdtemp(join(tmpdir(), "zhixu-through-eleven-"));
+  t.after(() => rm(throughEleven, {recursive:true,force:true}));
+  for (const name of (await readdir(resolve("database/migrations"))).filter(name => /^00(?:0[1-9]|1[01])_/u.test(name))) await copyFile(resolve("database/migrations",name),join(throughEleven,name));
   await t.test("0011 upgrades nonempty 0001–0010 without changing business data or historical checksums", async () => {
     await pool.query("INSERT INTO quote_global_settings(singleton_id,default_labor_currency,default_labor_description) VALUES(1,'CNY','Synthetic old description')");
     const before = await snapshot();
-    assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, ["0011_quote_creation_defaults.sql"]);
+    assert.deepEqual((await runMigrations(pool, throughEleven)).applied, ["0011_quote_creation_defaults.sql"]);
     const after=await snapshot() as Record<string,Array<{row:Record<string,unknown>}>>;
     assert.equal(after.quote_global_settings[0].row.default_quote_type,null);
     assert.equal(after.quote_global_settings[0].row.default_manufacturing_country,null);
     delete after.quote_global_settings[0].row.default_quote_type;delete after.quote_global_settings[0].row.default_manufacturing_country;
     assert.deepEqual(after, before);
-    assert.deepEqual((await verifyMigrationsCurrent(pool, resolve("database/migrations"))).pending, []);
+    assert.deepEqual((await verifyMigrationsCurrent(pool, throughEleven)).pending, []);
     for (const name of await readdir(throughTen)) assert.deepEqual(await readFile(join(throughTen,name)),await readFile(resolve("database/migrations",name)));
   });
+  await runMigrations(pool, resolve("database/migrations"));
   await new Promise<void>(done => server.listen(0, "127.0.0.1", done));
   const address = server.address(); assert.ok(address && typeof address === "object" && ![3000, 3001, 3002, 18443, 18444].includes(address.port));
   const origin = `http://127.0.0.1:${address.port}`; origins.push(origin);

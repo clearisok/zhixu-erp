@@ -1,0 +1,15 @@
+{
+  "baselineSha": "5215ef75510e4b55ef69b1ae1508816b80fda110",
+  "level": "V0",
+  "paths": [
+    "features/operation-logs/model/operation-log.ts"
+  ],
+  "pages": [
+    "material",
+    "navigation"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/tasks/active/ainuoke-server-source.md"
+  ]
+}

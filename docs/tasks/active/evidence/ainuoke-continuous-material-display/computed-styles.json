@@ -1,0 +1,33 @@
+{
+  "build": {
+    "environment": "production",
+    "buildId": "20261012-181323",
+    "gitCommit": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
+    "buildTime": "2026-10-12T18:13:23+08:00",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "metrics": [
+    {
+      "width": 1440,
+      "columns": 3,
+      "overflow": false,
+      "technicalOpen": false
+    },
+    {
+      "width": 1280,
+      "columns": 3,
+      "overflow": false,
+      "technicalOpen": false
+    },
+    {
+      "width": 390,
+      "columns": 1,
+      "overflow": false,
+      "technicalOpen": false
+    }
+  ]
+}

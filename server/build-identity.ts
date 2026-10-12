@@ -1,3 +1,4 @@
+import { parseOrderRead } from "../features/order-center/server/read-capability.js";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { parseQuoteAuthority, validateQuoteAuthority } from "../features/quote-center/authority/quote-authority.js";
@@ -9,6 +10,7 @@ export type RuntimeBuildIdentity = {
   masterSettingsAuthority: "browser" | "frozen" | "server";
   identityMode: "session" | "local-single-user";
   quoteWriterMode: "writable" | "frozen";
+  orderRead?: "disabled" | "snapshot";
   quoteAuthority?: "browser" | "server";
 };
 
@@ -24,6 +26,9 @@ export async function assertRuntimeBuildIdentity(
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("compiled_build_identity_invalid");
   const info = value as Record<string, unknown>;
   if (info.quoteAuthority !== undefined && info.quoteAuthority !== "browser" && info.quoteAuthority !== "server") throw new Error("compiled_build_identity_invalid");
+  const compiledOrderRead=parseOrderRead(info.orderRead as string|undefined);
+  if(compiledOrderRead!==parseOrderRead(environment.NEXT_PUBLIC_ZHIXU_ORDER_READ))throw new Error("runtime_compiled_order_read_mismatch");
+  if(compiledOrderRead==="snapshot"&&(info.quoteAuthority!=="server"||info.identityMode!=="session"||environment.ZHIXU_AINUOKE_SOURCE_READ!=="snapshot"))throw new Error("order_read_source_required");
   const compiledQuoteAuthority = parseQuoteAuthority(info.quoteAuthority as string | undefined);
   validateQuoteAuthority(compiledQuoteAuthority, String(info.masterSettingsAuthority), String(info.quoteWriterMode));
   if (parseQuoteAuthority(environment.NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY) !== compiledQuoteAuthority) throw new Error("runtime_compiled_build_identity_mismatch");

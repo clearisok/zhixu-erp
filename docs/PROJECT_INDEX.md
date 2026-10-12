@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 核实日期2026-10-12；main 5215ef75510e4b55ef69b1ae1508816b80fda110（PR97已合并）。当前：[宁波只读预检](tasks/completed/2026-10-12-ningbo-readonly-preflight.md)与[上线方案](ops/ningbo-rollout-plan.md)；状态见[CURRENT_STATE](CURRENT_STATE.md)，前序完整快照见[归档](tasks/completed/2026-10-12-ningbo-preflight-predecessor-state.md)。GitHub是实时事实源；随main/权限/Source/环境或验收变化更新。
+> 核实2026-10-12；main 9ebdf3b46b471e227e86a86c36f705e7ac6e6908（PR100/101/102 已合并）。当前任务：[真实来源只读准备](tasks/active/ainuoke-live-readiness.md)，合成体验已获用户接受，真实来源未激活。GitHub 是实时事实源；随 main/来源/环境/验收变化更新。
 
 > [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
 
@@ -12,7 +12,7 @@
 
 - 根路径 ERP：报价、订单、排单、用户和审计功能，使用 PostgreSQL 持久化，并由数据库函数提供 API。
 - Quote Center 路径：默认 Browser mock 持久化；显式 Server 模式的正式报价/资料 UI 使用可信 Node `/api/v1` 与 PostgreSQL，已有报价工作流/附件/导出/日志。旧实际运行态与最新工程能力分开记录，与 legacy `/api/quotes` 隔离。
-- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单或自动同步。报价之外模块不因试用候选而自动 production-ready。
+- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单；D-105/106允许受控来源与显式首次绑定开发，不自动追加合同或真实激活。报价之外模块不因试用候选而自动 production-ready。
 
 两条路径都是真实现，但边界和成熟度不同。开始任务前必须先确认目标模块。
 
@@ -63,6 +63,14 @@
 | `outputs/` | 可复验的导出验收文件，不是业务数据源 |
 
 仓库当前没有独立的 `backend/`、`frontend/` 目录，也没有 Alembic；正式 Node backend 位于 `server/`，PostgreSQL migration 位于 `database/migrations/`。
+
+## 当前宁波方案
+
+[宁波上线方案](ops/ningbo-rollout-plan.md)已按D105重排；[原现场快照](tasks/completed/2026-10-12-ningbo-readonly-preflight.md)仍只证明其原观察时刻。PR98修订不部署、不重查真实DB。
+
+## 当前来源任务
+
+[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受；D108新增无DB连接探测。默认disabled，真实安全通道/Scope/持续运行/部署仍待Gate。
 
 ## 模块导航
 
