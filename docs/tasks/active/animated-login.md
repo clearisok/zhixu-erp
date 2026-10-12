@@ -14,3 +14,8 @@ PR100 基础同为 db30，后续合并须保留双方功能和状态文档；不
 
 ## G2 已确认结果
 生产源0095b0e8448dfd336cf479ad82927b3f11fd9cae，截图已更新为用户指定参考版；双authority构建/112会话/10登录UI/5六角色UI PASS。完整Quote在main与候选都69/78，8子场景相同失败，详见冻结 engineering.md 与 quote-regression-comparison.json。不改报价业务；修正测试导航等待和默认截图输出，历史截图恢复原样。最终基线/CI待交付Gate。
+
+## G3 门禁与合并前复审
+冻结证据commit be8df7677802eecfd2ab5b8d1940060100139e65；页面渲染源仍0095b0e8448dfd336cf479ad82927b3f11fd9cae，后续仅测试/文档/manifest。最终root809/809、来源/截图/能力阻断门禁PASS；最终types/lint与112会话、10登录UI、5六角色UI PASS。双authority构建及serverbuild PASS。未将8项现存Quote失败改写为通过。
+复审结论：本PR范围无新增鉴权、外站跳转、权限放宽或业务布局阻断；建议在当前SHA CI通过及用户视觉验收后合并。若先合并PR100，应显式解决boundary/共享文档/manifest冲突并重新跑组合回归；不自动合并。main上的共享条款/受限导出失败另立修复，Ubuntu上线Gate不能据本PR宣称通过。
+PR及精确交付SHA、当前CI以GitHub分支唯一PR正文与checks为准；文件不预先宣称远端成功。工作树仅本任务增量，不包含历史截图重写、真实账号/DB或环境操作。
