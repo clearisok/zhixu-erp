@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 核实2026-10-12；main 3456fe5fc6e213c2e896e4e6a509e28751f1798c（PR101 已合并）。当前任务：[统一本机演示](tasks/active/unified-local-demo.md)，PR100 保持开放。GitHub 是实时事实源；随 main/来源/环境/验收变化更新。
+> 核实2026-10-12；main 21fbe3b1a7a5968253f923bc904ea067315f00cd（PR100/101 已合并）。当前任务：[真实来源只读准备](tasks/active/ainuoke-live-readiness.md)，合成体验已获用户接受，真实来源未激活。GitHub 是实时事实源；随 main/来源/环境/验收变化更新。
 
 > [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
 
@@ -66,7 +66,7 @@
 
 ## 当前来源任务
 
-[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已实现待本PR交付；默认disabled，真实Scope/持续运行/部署仍待Gate。
+[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受；D108新增无DB连接探测。默认disabled，真实安全通道/Scope/持续运行/部署仍待Gate。
 
 ## 模块导航
 

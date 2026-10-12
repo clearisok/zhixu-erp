@@ -61,7 +61,9 @@
     "test:ainuoke-continuous-ui": "tsx --test server/integration/ainuoke-continuous-ui.integration.test.mjs",
     "demo:ainuoke-continuous": "tsx scripts/demo-ainuoke-continuous.ts",
     "test:animated-login-ui": "tsx --test --test-concurrency=1 server/integration/animated-login-ui.integration.test.mjs",
-    "demo:login": "tsx scripts/demo-login.ts"
+    "demo:login": "tsx scripts/demo-login.ts",
+    "source:ainuoke:readiness": "tsx server/ainuoke-source/readiness.ts",
+    "test:ainuoke-readiness": "tsx --test --test-concurrency=1 server/integration/ainuoke-readiness.test.ts server/integration/ainuoke-readiness.integration.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

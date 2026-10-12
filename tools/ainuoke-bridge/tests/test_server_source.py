@@ -40,6 +40,48 @@ class FakeClient:
 
 
 class ServerSourceTests(TestCase):
+    def test_probe_reads_only_three_first_pages_without_raw_values(self):
+        client = FakeClient()
+        result = collect({**CONFIG, "mode": "probe", "contracts": []}, client)
+        self.assertEqual(client.logins, 1)
+        self.assertEqual(client.calls, [(6086103, 1, {}), (6087105, 1, {"salesContractNo": "CONTRACT-1"}), (6087050, 1, {"insideOrderNo": "INSIDE-1"})])
+        self.assertEqual([r["complete"] for r in result["reports"]], [True, False, False])
+        for value in ("CONTRACT-1", "INSIDE-1", "synthetic-token", "never-reflect-secret"):
+            self.assertNotIn(value, json.dumps(result))
+
+    def test_probe_empty_discovery_leaves_downstream_unverified(self):
+        client = FakeClient()
+        with patch.object(client, "read_report", return_value=ReportPage([], 0, 1, 50)) as read:
+            result = collect({**CONFIG, "mode": "probe", "contracts": []}, client)
+        self.assertEqual(read.call_count, 1)
+        self.assertEqual([r["status"] for r in result["reports"]], ["readable", "not-probed", "not-probed"])
+
+    def test_probe_never_renews_expired_session(self):
+        client = FakeClient(expired=1)
+        with self.assertRaises(AuthExpiredError):
+            collect({**CONFIG, "mode": "probe", "contracts": []}, client)
+        self.assertEqual(client.logins, 1)
+        self.assertEqual(len(client.calls), 1)
+
+    def test_probe_rejects_partial_pages_and_missing_first_identity(self):
+        with self.assertRaises(UpstreamSchemaError):
+            collect({**CONFIG, "mode": "probe", "contracts": []}, FakeClient(partial=True))
+        for rows, total, index, size in [([{}], 1, 1, 50), ([], -1, 1, 50), ([], True, 1, 50), ([], 0, 2, 50), ([], 0, 1, 49)]:
+            with self.subTest(rows=rows, total=total, index=index, size=size):
+                with patch.object(FakeClient, "read_report", return_value=ReportPage(rows, total, index, size)):
+                    with self.assertRaises(UpstreamSchemaError):
+                        collect({**CONFIG, "mode": "probe", "contracts": []}, FakeClient())
+
+    def test_probe_refuses_supplied_contracts_and_public_plaintext(self):
+        for change in ({"contracts": ["CONTRACT-1"]}, {"baseUrl": "http://example.invalid"}):
+            with self.assertRaises(ValueError):
+                validate_input({**CONFIG, "mode": "probe", "contracts": [], **change})
+
+    def test_probe_production_client_disables_network_retries(self):
+        with patch("ainuoke_bridge.server_source.AinuokeClient", return_value=FakeClient()) as client:
+            collect({**CONFIG, "mode": "probe", "contracts": []})
+        self.assertEqual(client.call_args.kwargs["network_retries"], 0)
+
     def test_binding_mode_reads_all_discovery_contracts_with_formal_color_query(self):
         client = FakeClient()
         data = collect({**CONFIG, "mode": "bindings", "contracts": []}, client)

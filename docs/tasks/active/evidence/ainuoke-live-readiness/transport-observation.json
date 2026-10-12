@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "ainuoke-transport-observation.v1",
+  "verifiedDate": "2026-10-12",
+  "timezone": "Asia/Shanghai",
+  "mainSha": "21fbe3b1a7a5968253f923bc904ea067315f00cd",
+  "sourceOrigin": "http://61.164.81.194:9043",
+  "userConfirmation": "Existing HTTP origin remains current; other channels to investigate",
+  "http": { "method": "HEAD", "path": "/kaijin/login.html", "status": 200, "observedAt": "2026-10-12T14:59:48Z", "credentialsSent": false },
+  "httpsSameHostPort": { "result": "handshake-failed", "curlExit": 35, "platformError": "SEC_E_INVALID_TOKEN", "certificateVerificationDisabled": false, "credentialsSent": false },
+  "ningbo": { "sshAlias": "weaveops", "tcp9043": "reachable", "route": "LAN gateway toward public upstream", "endToEndProtection": "unverified", "remoteChanges": false },
+  "login": "not-attempted",
+  "reports": "not-read",
+  "businessDatabase": "not-accessed",
+  "sourceActivation": "not-connected",
+  "limitations": ["Does not rule out HTTPS on another origin", "SSH to Ningbo does not protect a subsequent public HTTP hop", "No raw headers, credentials or traces stored"],
+  "updateWhen": "New transport evidence must use a new dated observation; preserve this historical result"
+}
