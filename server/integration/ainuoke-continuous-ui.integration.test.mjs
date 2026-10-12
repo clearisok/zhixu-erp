@@ -37,7 +37,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    assert.equal(await evaluate("getComputedStyle(document.querySelector('.zx-login')).display"),"grid");await screenshot("login-combined");
    await input("input[name=username]",x.users[0]);await input("input[name=password]",x.password);await click("登录织序");
    await has("物料采购汇总");assert.equal(await evaluate("location.pathname+location.search+location.hash"),target);
-   await click("报价中心");await has("QT-SYNTHETIC-DEMO");
+   await click("报价中心");await has("SYNTHETIC-TEE-001");await has("合成演示T恤");
    assert.equal(await evaluate("location.pathname"),"/quote-center");
    await click("订单中心");await has("SC-SYNTHETIC-001");
    const material="/order-center/style-progress/detail?orderId="+x.orderId;

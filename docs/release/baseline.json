@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "3456fe5fc6e213c2e896e4e6a509e28751f1798c",
-  "verifiedAt": "2026-10-12T10:17:37.481Z",
+  "verifiedAt": "2026-10-12T12:10:00Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -426,6 +426,15 @@
       "renderedSourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
       "changeReason": "Additional synthetic engineering capture of existing P6 layout, CSS and functional wiring; does not supersede approved historical visuals or assert user acceptance.",
       "approvalEvidence": "ainuoke-continuous-engineering"
+    },
+    {
+      "id": "decisions-combined-local-demo",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "f430123cb0dc201350b9558de41edd85afe3f9b4",
+      "sha256": "28bf65aabe699d8246b3b94ef7a7d5ba16e867edb09a2c356e7c8615ed85c5e9",
+      "supersedes": "decisions-animated-login",
+      "changeReason": "Preserve D106 and D107 together; record user login visual acceptance and authorized PR101 merge, without merging PR100 or authorizing deployment."
     }
   ],
   "pages": [
@@ -560,8 +569,8 @@
         "features/quote-center/components/quote-server-boundary.tsx",
         "app/login/login.css"
       ],
-      "acceptance": "implementation-only",
-      "acceptanceScope": "User authorized a katavii-inspired standalone animated login. Five viewport sizes and actual session flow verified with synthetic accounts; finished visual design still awaits user acceptance.",
+      "acceptance": "approved-history",
+      "acceptanceScope": "User accepted PR101 login visuals on 2026-10-12; does not claim combined order/material or real-account business acceptance.",
       "evidence": [
         "animated-login-engineering",
         "decisions-animated-login",
@@ -569,7 +578,8 @@
         "animated-login-1024",
         "animated-login-768",
         "animated-login-390",
-        "animated-login-320"
+        "animated-login-320",
+        "decisions-combined-local-demo"
       ]
     },
     {
@@ -1592,7 +1602,7 @@
       "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
       "evidence": [
         "ainuoke-continuous-engineering",
-        "decisions-animated-login"
+        "decisions-combined-local-demo"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1667,17 +1677,18 @@
     {
       "id": "animated-login",
       "implemented": "yes",
-      "merged": false,
+      "merged": true,
       "isolatedTest": "passed-historical",
-      "humanAcceptance": "not-run",
+      "humanAcceptance": "partial",
       "sourceActivation": "not-applicable",
       "environments": {
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Standalone formal Server /login using existing trusted session; safe return links, four-character animation and accessible responsive forms. No business route, real-account, database or deployment change; human visual acceptance pending.",
+      "scope": "Standalone animated login merged as PR101 at 3456fe5fc6e213c2e896e4e6a509e28751f1798c; user accepted login visuals only. Real account and business acceptance/deployment are separate.",
       "evidence": [
-        "animated-login-engineering"
+        "animated-login-engineering",
+        "decisions-combined-local-demo"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1690,13 +1701,13 @@
           "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae"
         },
         "merged": {
-          "value": false,
+          "value": true,
           "assessedAt": "2026-10-12",
-          "scope": "Standalone formal Server /login using existing trusted session; safe return links, four-character animation and accessible responsive forms. No business route, real-account, database or deployment change; human visual acceptance pending.",
+          "scope": "Standalone animated login merged as PR101 at 3456fe5fc6e213c2e896e4e6a509e28751f1798c; user accepted login visuals only. Real account and business acceptance/deployment are separate.",
           "evidence": [
-            "animated-login-engineering"
+            "decisions-combined-local-demo"
           ],
-          "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae"
+          "sourceSha": "3456fe5fc6e213c2e896e4e6a509e28751f1798c"
         },
         "isolatedTest": {
           "value": "passed-historical",
@@ -1708,13 +1719,13 @@
           "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae"
         },
         "humanAcceptance": {
-          "value": "not-run",
+          "value": "partial",
           "assessedAt": "2026-10-12",
-          "scope": "Standalone formal Server /login using existing trusted session; safe return links, four-character animation and accessible responsive forms. No business route, real-account, database or deployment change; human visual acceptance pending.",
+          "scope": "Standalone animated login merged as PR101 at 3456fe5fc6e213c2e896e4e6a509e28751f1798c; user accepted login visuals only. Real account and business acceptance/deployment are separate.",
           "evidence": [
-            "animated-login-engineering"
+            "decisions-combined-local-demo"
           ],
-          "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae"
+          "sourceSha": "3456fe5fc6e213c2e896e4e6a509e28751f1798c"
         },
         "sourceActivation": {
           "value": "not-applicable",

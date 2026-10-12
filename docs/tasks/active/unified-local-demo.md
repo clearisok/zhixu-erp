@@ -16,7 +16,7 @@
 脚本始终自建唯一 loopback/tmpfs PostgreSQL，不读取真实 DATABASE_URL；附件仅临时内存。两小时到期或Ctrl+C关闭自己的API/临时数据库。不同启动间不保留演示内容，不影响Browser原有数据或真实环境。
 
 ## 检查与结论
-组合回归执行中：完整表单登录/深链/报价导航/订单/物料/退出/换角色；P6响应式/六角色/自动刷新/失败及陈旧恢复；独立登录回归和发布基线。完成后补结果，不把历史结果算作本轮通过。
+组合UI9/9、登录UI10/10、六角色UI5/5、会话112/112、root810/810、发布基线71/71与实际main校验通过；类型/lint/server及候选build通过。continuous在Windows29通过/1Linux限定跳过，当前Linux CI单独核实。完整结果及复审见[冻结证据](evidence/unified-local-demo/engineering.md)。
 旧证据保持不可变；截图仅生成到ignored outputs/unified-local-demo，后续按新路径冻结需要保存的证据。
 
 ## 仍未确认/未实施

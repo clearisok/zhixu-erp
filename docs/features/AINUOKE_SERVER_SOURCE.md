@@ -1,5 +1,5 @@
 # 艾诺科 Server Source：首次订单绑定与持续物料展示
-核实日期：2026-10-12；main 基线：db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e（PR99已合并）。
+核实日期：2026-10-12；main 基线：3456fe5fc6e213c2e896e4e6a509e28751f1798c（PR101已合并）。
 GitHub/代码为实时事实源；本文件随来源契约、权限、命令、构建、调度、真实激活及验收变化更新。PR99阶段证据保留在原任务/冻结证据，本轮见[任务](../tasks/active/ainuoke-continuous-material-display.md)。
 
 ## 用户决定
@@ -74,3 +74,5 @@ npm run demo:ainuoke-continuous
 - 最后用户在原UI完成人工业务验收，再单独授权真实初始化/部署。生产/关账Server及独立库存台账不追加为本轮前置。
 
 回退：暂停采集、关闭orderRead/reader，保留绑定和来源历史；不可删除ledger/订单/快照来回退。候选镜像须验证兼容既有0012；DB恢复只到另一个明确授权目标。首绑回滚只针对未提交事务，不提供已提交订单的自动删除命令。
+
+2026-10-12统一本机演示：PR100已整合获用户视觉确认的PR101正式/login；报价/订单/物料共用一个临时Origin/session/PG，原布局保持。组合验收与范围见[统一演示](../tasks/active/unified-local-demo.md)。PR100仍未合并，真实来源/账号/数据库/部署未操作。
