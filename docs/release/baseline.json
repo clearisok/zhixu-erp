@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "21fbe3b1a7a5968253f923bc904ea067315f00cd",
-  "verifiedAt": "2026-10-12T15:21:45.635869+00:00",
+  "baselineSha": "9ebdf3b46b471e227e86a86c36f705e7ac6e6908",
+  "verifiedAt": "2026-10-12T15:51:46.477123+00:00",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -492,6 +492,20 @@
       "path": "docs/tasks/active/evidence/ainuoke-live-readiness/transport-observation.json",
       "recordedAtSha": "19c07d5298017d6e1d0a0001349eed0cec00842e",
       "sha256": "d3a4b04d6b1932358ff6b934395f1b07b24ee62f87b1f14f57bce482ed8510ac"
+    },
+    {
+      "id": "team-access-merged-pr97",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-12-ningbo-readonly-preflight.md",
+      "recordedAtSha": "033a8a055ad6970912d29bcf06ef092c9890522d",
+      "sha256": "10ef93328fe317639b651f52ead00ae18560c28eaf82c8e7735cc25cbbb1b21f"
+    },
+    {
+      "id": "ningbo-readonly-observation-20261012",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ningbo-readonly-preflight/observations.json",
+      "recordedAtSha": "033a8a055ad6970912d29bcf06ef092c9890522d",
+      "sha256": "dc615cf95be58658f0318758603ed84bdb6769fcdd07df024300545ddc9f7de1"
     }
   ],
   "pages": [

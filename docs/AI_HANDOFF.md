@@ -1,9 +1,6 @@
 # AI handoff
-核实2026-10-12；main 21fbe3b1a7a5968253f923bc904ea067315f00cd，PR100已按用户明确授权于2026-10-12T14:57:34Z合并。用户接受本机合成体验，不等于真实来源/上线验收。
-
-当前 feat/ainuoke-live-readiness 独立worktree，起始HEAD=上述main、baseline clean。本轮新增无DB只读readiness CLI、固定三首页Python probe、合成回归/CI及来源接入步骤；真实HTTP可达但HTTPS/可信后段待核实。不要使用旧Windows凭据或把SSH到宁波后的公网HTTP称作安全通道。
-
-保持UI/SQL/默认路由开关；不修改真实账号、数据库，不部署宁波/18443/18444，不自动合并新PR。私密配置待安全通道核实后才由用户在Linux本地输入，不发聊天。任务与下一步见tasks/active/ainuoke-live-readiness.md；工程证据见同目录evidence/ainuoke-live-readiness/engineering.md。
-
-工程checkpoint 19c07d5298017d6e1d0a0001349eed0cec00842e 已推送并核实远端精确SHA。manifest已绑定新证据，保留main全部历史IDs及冻结字节，D108以新版本supersede旧决策证据。本机root810/810、基线71/71、实际main守卫PASS（0 UI改动），其他验证见engineering.md/final-gate.md。LOCAL ENGINEERING通过；最终GitHub SHA/CI以唯一PR为准，Linux限定分支必须由Ubuntu CI实际补验。
-更新时机：checkpoint、验证、PR/main、验收与环境变化。历史任务不覆盖。
+核实2026-10-12；main 9ebdf3b46b471e227e86a86c36f705e7ac6e6908，PR102已合并，Source/team-access/baseline三CI成功。
+当前PR98 chore/ningbo-readonly-preflight，起始HEAD f1f67f722d40f19fe10c8cbfc04e358a2b8340a8、clean；按用户授权merge最新main，显式解决4个共享文档冲突，不reset/rebase。保留main全部冻结证据及PR98两项原观察记录；归档相对链接修复，上线计划按D105把真实四流持续展示置于宁波上线以前，最新ledger为0012。
+用户本轮明确长期接受现有艾诺科HTTP风险，接入支持另在独立worktree开发；本PR只同步计划，不改采集器或放宽当前运行参数。真实登录/账号/DB/部署仍未执行。
+本轮用户授权修复PR98后CI通过即可合并，不需要再次问。旧CI不替代当前合入后的CI；检查基线与归档链接后提交、核实精确SHA、更新唯一PR98、等三CI成功再合并。新HTTP代码PR不因本条自动获合并授权。
+详细范围/前后证据见tasks/completed/2026-10-12-pr98-reconciliation.md；随checkpoint/main/CI变化更新，历史现场快照保留。

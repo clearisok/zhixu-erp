@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 核实2026-10-12；main 21fbe3b1a7a5968253f923bc904ea067315f00cd（PR100/101 已合并）。当前任务：[真实来源只读准备](tasks/active/ainuoke-live-readiness.md)，合成体验已获用户接受，真实来源未激活。GitHub 是实时事实源；随 main/来源/环境/验收变化更新。
+> 核实2026-10-12；main 9ebdf3b46b471e227e86a86c36f705e7ac6e6908（PR100/101/102 已合并）。当前任务：[真实来源只读准备](tasks/active/ainuoke-live-readiness.md)，合成体验已获用户接受，真实来源未激活。GitHub 是实时事实源；随 main/来源/环境/验收变化更新。
 
 > [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
 
@@ -63,6 +63,10 @@
 | `outputs/` | 可复验的导出验收文件，不是业务数据源 |
 
 仓库当前没有独立的 `backend/`、`frontend/` 目录，也没有 Alembic；正式 Node backend 位于 `server/`，PostgreSQL migration 位于 `database/migrations/`。
+
+## 当前宁波方案
+
+[宁波上线方案](ops/ningbo-rollout-plan.md)已按D105重排；[原现场快照](tasks/completed/2026-10-12-ningbo-readonly-preflight.md)仍只证明其原观察时刻。PR98修订不部署、不重查真实DB。
 
 ## 当前来源任务
 
