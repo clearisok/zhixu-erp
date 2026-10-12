@@ -64,3 +64,10 @@ G1候选Docker构建及network=none CLI/Python包装检查PASS，非最终发布
 - 结论：未发现本阶段合并阻断项，**建议合并默认关闭的Server Source基础能力**；不表示真实来源/持续运行/Ubuntu上线或新UI人工验收通过。此次结论文档更新不改变代码；其后精确head CI仍以PR实时记录为准。
 - 未执行合并、真实凭据配置、真实账号/DB操作、18443/18444或宁波部署；本地工作树提交后clean。
 - 下一步仍为首次正式订单绑定、连续调度/健康状态、已有P6页面多轮/六角色验收，再做私密来源连通与独立Ubuntu候选发布Gate。凭据暂不需要用户提供。
+
+## 最终CI补充：历史Excel夹具边界修复
+
+e850c0b3563a5ef1450fb5244198801b2bdece41只有状态文档变化，但[第二轮team-access](https://github.com/clearisok/zhixu-erp/actions/runs/38227810650)暴露旧style-progress测试的间歇ZIP错误；该head的来源/基线检查仍SUCCESS。没有把失败写成PASS或仅反复重跑。
+
+根因：两处合成workbook helper把Node Buffer的底层.buffer全部传入解析器，丢失byteOffset/byteLength。新增回归强制前17/后47字节非工作簿内容；旧实现稳定得到7549≠7485失败，按有效view切片后通过。修复仅tests/style-progress.test.mjs和tests/style-progress-material-control-v2.test.mjs，生产parser/UI/业务规则不变。
+本地相关32/32、全仓808/808、限定ESLint PASS；无其他同形writeBuffer().buffer用法。此后须以PR最新head三项CI成功恢复最终合并建议；最终精确SHA/check链接记录在PR正文，避免把旧6395 CI当作新head通过。

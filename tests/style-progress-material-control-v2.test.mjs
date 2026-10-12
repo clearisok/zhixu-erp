@@ -106,7 +106,8 @@ async function parserWorkbook(headers) {
     : parserValues[header] ?? null);
   assert.equal(purchaseQuantityIndexes.length, 2);
   sheet.addRow(values);
-  return (await workbook.xlsx.writeBuffer()).buffer;
+  const bytes = await workbook.xlsx.writeBuffer();
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
 }
 
 test("Parser 通过语义表头同时兼容旧布局与新增对应成衣颜色列", async () => {
