@@ -35,6 +35,7 @@ test("Actual Quote/Order Chromium isolates commercial fields across grants, revo
   saleNoCost:[...common,"commercial.sale.view","commercial.sale.edit"],
   laborNoCost:[...common,"commercial.labor.view","commercial.labor.edit"],
   both:[...common,"quote.cost.view","commercial.sale.view","commercial.sale.edit","commercial.labor.view","commercial.labor.edit"],
+  race:[...common,"commercial.sale.view","commercial.sale.edit","commercial.labor.view","commercial.labor.edit"],
  };
  for(const [name,keys] of Object.entries(roles))await x.user("browser-"+name.toLowerCase(),keys);
  const temp=await mkdtemp(join(tmpdir(),"zhixu-commercial-browser-"));
@@ -57,6 +58,18 @@ test("Actual Quote/Order Chromium isolates commercial fields across grants, revo
    window.safeResponses=[];window.safeWrites=[];window.uiErrors=[];window.addEventListener('error',e=>uiErrors.push(e.message));window.addEventListener('unhandledrejection',e=>uiErrors.push(String(e.reason)));
    const original=fetch;window.fetch=async(...a)=>{if(a[1]?.method==='PATCH')safeWrites.push({url:String(a[0]),body:JSON.parse(a[1].body)});const r=await original(...a);if(r.headers.get('content-type')?.includes('json')&&String(a[0]).includes('/api/'))safeResponses.push({url:String(a[0]),body:await r.clone().text()});return r};
   `});
+  // Capture a real authorized HTTP response, then release it only after a later trusted scope settles.
+  // This delays delivery, not Server authorization or the response payload.
+  await command("Page.addScriptToEvaluateOnNewDocument", { source: `
+   window.delayedCct=[];window.holdNextCct=0;window.releasedCct=0;
+   const inheritedFetch=window.fetch;window.fetch=async(...a)=>{
+    const hold=window.holdNextCct>0&&String(a[0]).includes("/api/v1/sales-orders/")&&String(a[0]).endsWith("/confirmed-commercial-terms")&&(!a[1]?.method||a[1].method==="GET");
+    if(hold)window.holdNextCct--;
+    const response=await inheritedFetch(...a);
+    if(hold){await new Promise(resume=>window.delayedCct.push({resume}));window.releasedCct++;}
+    return response;
+   };
+  ` });
   const text=()=>evalJs("document.body.innerText");
   const has=async label=>{try{await until(async()=>(await text()).includes(label),label);}catch(error){throw Error(error.message+"; synthetic page: "+await text());}};
   const navigate=async path=>{const epoch=Date.now()+Math.random();await evalJs("window.navigationEpoch="+epoch);await command("Page.navigate",{url:(path.startsWith("/order")?orderBrowser.url:x.base)+path});await until(()=>evalJs("window.navigationEpoch!=="+epoch+" && document.readyState==='complete'"),"navigation");};
@@ -72,7 +85,7 @@ test("Actual Quote/Order Chromium isolates commercial fields across grants, revo
     assert.equal(await evalJs("/¥795009\\.4(?!\\d)/u.test(document.body.outerHTML)"),false,"selling price must not be stored in hidden DOM attributes");
    }
   };
-  const screenshots=resolve("outputs/commercial-security");
+  const screenshots=resolve("docs/tasks/active/evidence/order-material-pr93-integration/commercial");
   await mkdir(screenshots,{recursive:true});
   const shot=async name=>{const r=await command("Page.captureScreenshot",{format:"png",captureBeyondViewport:false});await writeFile(join(screenshots,name+".png"),Buffer.from(r.data,"base64"));};
   for(const [name,sale,labor,cost] of [["viewer",false,false,false],["cost",false,false,true],["sale",true,false,true],["labor",false,true,true],["both",true,true,true],["saleNoCost",true,false,false],["laborNoCost",false,true,false]]){
@@ -96,7 +109,7 @@ test("Actual Quote/Order Chromium isolates commercial fields across grants, revo
     const labels=await text();assert.equal(labels.includes("12345"),sale);assert.equal(labels.includes("67890"),labor);
     if(!sale||!labor)await has("无权查看");
     if(sale||labor){
-     await click("编辑确认商业条款");await has("编辑确认商业条款");const disabled=await evalJs("[...document.querySelectorAll('[role=dialog] input')].map(n=>n.disabled)");assert.equal(disabled[0],!sale);assert.equal(disabled[1],!labor);
+     await click("编辑确认商业条款");await has("编辑确认商业条款");const disabled=await evalJs("[...document.querySelectorAll('[role=dialog] input')].map(n=>n.disabled)");assert.equal(disabled.length,Number(sale)+Number(labor),"unauthorized Order fields must not mount");assert.ok(disabled.every(value=>value===false));
      await click("保存");await until(()=>evalJs("[...document.querySelectorAll('[role=dialog]')].every(n=>!n.getClientRects().length)"),"Order save closed");
      const write=await evalJs("safeWrites.at(-1).body");assert.equal(Object.hasOwn(write,"customerConfirmedPrice"),sale);assert.equal(Object.hasOwn(write,"confirmedLaborPrice"),labor);assert.equal(Object.hasOwn(write,"laborCurrency"),labor);
      await checkLeaks(sale,labor,cost);
@@ -105,6 +118,37 @@ test("Actual Quote/Order Chromium isolates commercial fields across grants, revo
     await shot(name+"-order");assert.equal(await evalJs("document.documentElement.scrollWidth>innerWidth+1"),false);
    });
   }
+  await t.test("deterministic delayed response after revoke and A-B-A cannot restore stale CCT or drafts", async () => {
+   const b=await createSalesOrder(x.pool,{creationSource:"manual"});
+   const bt=(await x.pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,customer_confirmed_price,confirmed_labor_price,labor_currency) VALUES ('sales_order',22334,33445,'CNY') RETURNING id")).rows[0];
+   await x.pool.query("INSERT INTO confirmed_commercial_terms_sales_orders(sales_order_id,confirmed_commercial_terms_id) VALUES ($1,$2)",[b.id,bt.id]);
+   await login("race");await navigate("/order-center/server-detail?id="+orderId);await has("12345");
+   await click("编辑确认商业条款");assert.equal(await evalJs("document.querySelector('[role=dialog] input').value"),"12345");
+   await evalJs("holdNextCct=1;__commercialRegression.refresh()");
+   await until(()=>evalJs("delayedCct.length===1"),"first authorized CCT held");
+   await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='browser-race' AND permission_key LIKE 'commercial.%'");
+   await evalJs("safeResponses=[];__commercialRegression.refresh()");await has("无权查看");
+   await evalJs("delayedCct[0].resume()");await until(()=>evalJs("releasedCct===1"),"revoked stale response delivered");
+   await evalJs("new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)))");
+   await checkLeaks(false,false,false);
+   assert.equal(await evalJs("document.querySelectorAll('[role=dialog] input').length"),0,"revocation clears old draft/editor");
+   for(const key of ["commercial.sale.view","commercial.sale.edit","commercial.labor.view","commercial.labor.edit"])
+    await x.pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES ('browser-race',$1)",[key]);
+   await evalJs("safeResponses=[];__commercialRegression.refresh()");await has("12345");
+   await evalJs("holdNextCct=1;__commercialRegression.refresh()");await until(()=>evalJs("delayedCct.length===2"),"old A response held");
+   await evalJs(`history.pushState(null,'','/order-center/server-detail?id=${b.id}');dispatchEvent(new PopStateEvent('popstate'))`);
+   await has("22334");assert.equal((await text()).includes("12345"),false);
+   await evalJs(`holdNextCct=1;history.pushState(null,'','/order-center/server-detail?id=${orderId}');dispatchEvent(new PopStateEvent('popstate'))`);
+   await until(()=>evalJs("delayedCct.length===3"),"new A response held");
+   assert.equal((await text()).includes("22334"),false,"B values clear while returning to A");
+   await evalJs("delayedCct[1].resume()");await until(()=>evalJs("releasedCct===2"),"old A delivered before current A");
+   await evalJs("new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)))");
+   assert.equal((await text()).includes("12345"),false,"old A must not satisfy current A generation");
+   assert.ok((await text()).includes("读取 PostgreSQL 正式订单详情"));
+   await evalJs("delayedCct[2].resume()");await has("12345");
+   assert.equal((await text()).includes("22334"),false);assert.equal(await evalJs("document.querySelectorAll('[role=dialog] input').length"),0);
+   await checkLeaks(true,true,false);
+  });
   await t.test("same browser account switch and refresh cannot retain full-reader amounts",async()=>{
    await login("both");await navigate("/order-center/server-detail?id="+orderId);await has("12345");
    await click("退出登录");await has("登录织序 Server");assert.equal((await text()).includes("12345"),false);

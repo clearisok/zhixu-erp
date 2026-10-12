@@ -1,14 +1,15 @@
 # AI handoff
 
-## 当前 — PR93 独立商业金额权限（2026-10-11）
+## 当前 — PR92 整合已合并 PR93（2026-10-12）
 
-分支 fix/commercial-amount-read-security；本轮 clean local/origin/PR93 基线5185d776e54bdd3b328d1611d8283f00e16fcd92，实现checkpoint84f8a38。用户最终决定已补入D-103：测算销售价/最终报价必须sale.view，cost.view单独只看内部成本，列表garmentPrice仍需两者。六处展示及estimateDifference汇总/派生日志已保护。本轮实际PG/HTTP261/261、auth/frontend90/90、npm680/680、最终Chromium14/14、额外SSR/列表/HTTP18/18及typecheck/lint/Server和两种frontend构建/diff-check PASS。最终默认browser/browser/writable/session；不是不可变候选或真实部署。无新增安全阻塞、布局/公式/历史/SQL改动，PR93保持Draft等待最终审查，不自动ready/merge。
+最新main070d958008709d06636ba329a3bba0d14e4a023b，PR93已MERGED；D103四键、CCT字段投影/部分PATCH与Quote成本/销售价/历史/导出/日志保护保持。PR92原P6/精简详情/Control Tower用户人工验收已PASS，仍Draft。普通merge a252d82791d3b0cf2a216cc2939a64ec9caf50c7与负向审计5a603b60e09ab80547a69e63e3e85e180f0cc6c2已推送；本轮Source78/78、Material HTTP/安全19/19、客户端/SSR25/25、实际Chromium闭环7/7(115断言)/商业15/15、npm758/758、完整PG261/261、typecheck/lint/串行Server和双Authority构建/diff-check/清理PASS；源码a537e750912eb8c415ce9de5f7403bc120271738已正常push，最终文档checkpoint三方HEAD见PR及交付消息。executionOnly不读写CCT，Source capability/生产route默认未开放，不回退Browser。
 
-字段投影/部分PATCH、隐藏历史保护/安全保存、导出/日志/客户端隔离保持。linked CCT工价单字段PATCH通过；加工旧完整confirmation.save仍要求两套商业授权，不擅改完整确认语义。Server管理员目录升级幂等授予；其他角色不默认授予。Server角色管理UI/API仍未实现。无schema/migration/真实数据变更。PR92 head03b1078仅5文件交集；后续保留executionOnly/P6/物料/UUID，同时接金额投影/部分PATCH，人工逐hunk整合并补两模式回归，本轮没有合入B代码。
+起始B local/origin/PR92 03b1078e99ff44ceb875dd0b01a1e22358f4dab6；Gate0/普通merge/负向测试/联合UI各checkpoint已正常push；交付前fetch main仍070d958，0 behind，PR92 mergeable=true且保持Draft。唯一继承dirty为Gate1文档30行，SHA2568B24F58EB42F2141778F1EBE69138C64449BE04F522757CBC50325FB5286E21E，严禁stage/覆盖。当前Gate/test/remote记录见[本轮接力](tasks/active/order-material-pr93-integration.md)。旧B/Main恢复点的日期/hash/测试/网络结论保留在[合并前快照](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)、[P6修复报告](tasks/active/order-material-p6-restoration.md)与[PR93安全报告](tasks/active/commercial-amount-read-security.md)，不改写历史。
 
-本轮84f8a38199b7962a0adce29a83b792318a623337实现push遇Schannel missing-close-notify；一次只读GitHub branch ref核实仍5185d776e54bdd3b328d1611d8283f00e16fcd92。LOCAL ENGINEERING PASS，REMOTE DELIVERY尚待最终文档checkpoint正常push及exact核实；不得把本地新测试/代码冒称已送达。旧97a3f21/720de05网络历史保留在[安全报告](tasks/active/commercial-amount-read-security.md)。18443/18444/真实DB/COS不操作，不合并。
+本轮不操作A、18443/18444、真实数据库/艾诺科/COS/凭据、migration或角色；团队范围/账号绑定/角色管理与生产激活仍待独立Gate。PR91真实部署证据如下保留，不是本轮部署。
 
-## Historical recovery — PR #91 accepted and now MERGED (2026-10-11)
+## Historical recovery — PR91 accepted and MERGED
+
 
 - Original worktree `D:/workspace/zhixu-quote-two-step`, branch `feat/quote-two-step-creation`; authorized deployment resumed clean local/remote/PR91 `676035bd1a0323e928383b340f1cbfec9e0572eb`, main `84c8c5b520dbcb956ae27a24103e6607a1c227c3`. No merge or other worktree changes.
 - **PREVIEW UPDATE PASS / USER ACCEPTANCE PASS**. User explicitly confirmed human acceptance and authorized PR #91 GitHub merge on 2026-10-11; no FX-policy feature or environment update is covered by that acceptance. Only `zhixu-preview-d099-18444` / `quote_preview` updated; [entry](https://localhost:18444/quote-center). Actual HTTPS/labels/compiled identity: source **eb9530ac9a2e1b7f68299d97c4d424662a6622f7**, image **sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23**, immutable tag `zhixu-quote-two-step:eb9530ac9a2e-ux-20261010t141559z`, server/server/writable/session. Later documentation SHA is not image source.

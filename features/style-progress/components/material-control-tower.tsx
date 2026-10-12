@@ -1,5 +1,6 @@
 "use client";
 
+import { MaterialReadCard, MaterialReadTable } from './material-read-display';
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertBanner, Button, Card, Drawer, Modal, PageHeader, StatusTag } from "@/components/foundation";
@@ -92,9 +93,7 @@ function FactorySupplyDrawer({ open, onClose, projection }: { open: boolean; onC
   </Drawer>;
 }
 
-function SimpleTable({ headers, rows }: { headers: string[]; rows: Array<Array<string | number | null>> }) {
-  return <div className="sp-v4-inner-scroll"><table className="sp-v4-detail-table"><thead><tr>{headers.map((header) => <th key={header}>{header}</th>)}</tr></thead><tbody>{rows.length ? rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, index) => <td key={`${rowIndex}-${index}`}>{cell === null || cell === "" ? "—" : cell}</td>)}</tr>) : <tr><td colSpan={headers.length}>暂无记录</td></tr>}</tbody></table></div>;
-}
+const SimpleTable = MaterialReadTable;
 
 function MaterialTab({ item }: { item: CanonicalMaterialProgressProjection }) {
   const suppliers = [...new Set(item.demands.flatMap((row) => row.purchaseEvents.map((event) => event.supplier)).filter(Boolean))];
@@ -200,10 +199,10 @@ function DemandRows({ item }: { item: CanonicalMaterialProgressProjection }) {
 }
 
 function MaterialCard({ item, expanded, onToggle, onPlan, onDetail }: { item: CanonicalMaterialProgressProjection; expanded: boolean; onToggle: () => void; onPlan: () => void; onDetail: () => void }) {
-  return <Card className="sp-v4-material-card" data-canonical-material-key={item.canonicalMaterialKey}>
+  return <MaterialReadCard materialKey={item.canonicalMaterialKey}>
     <div className="sp-v4-material-head"><button type="button" className="sp-v4-material-identity" aria-expanded={expanded} onClick={onToggle}><span aria-hidden>{expanded ? "▾" : "▸"}</span><div><strong>{item.materialName}</strong><small>{sourceCodeLabel(item)} · {item.demands.length} 个颜色 / 明细</small></div></button><StatusTag tone={materialTone(item)}>{readinessLabel[item.readinessStatus]}</StatusTag><div className="sp-v4-material-totals"><span>需求 <b>{quantity(item.requiredQuantity)}</b></span><span>采购 <b>{quantity(item.purchasedQuantity)}</b></span><span>入库 <b>{quantity(item.inboundQuantity)}</b></span></div><div className="sp-v4-material-risk"><strong>{shortage(item)}</strong>{item.consistencyIssues.length > 0 && <small>{item.consistencyIssues.length} 项数据不一致</small>}</div><div className="sp-v4-card-actions"><Button variant="secondary" size="compact" permission="style_progress.edit" onClick={onPlan}>分批到料</Button><Button variant="text" size="compact" onClick={onDetail}>详情</Button></div></div>
     {expanded && <div className="sp-v4-material-body"><div className="sp-v4-plan-summary"><span>预计到料 <strong>{item.batchSummary.expectedArrival ?? "未安排"}</strong></span><span>推荐出运 <strong>{item.batchSummary.recommendedTransport ?? "—"}</strong></span><span>预计到厂 <strong>{item.batchSummary.expectedFactoryArrival ?? "—"}</strong></span><span>距上线 <strong>{item.batchSummary.daysToProduction ?? "—"}</strong></span></div><DemandRows item={item} /></div>}
-  </Card>;
+  </MaterialReadCard>;
 }
 
 export function MaterialControlTower({ projection, data, settings, onReload, onToast }: Props) {

@@ -461,3 +461,22 @@
   .oc-color-adjustments { grid-template-columns: 1fr; }
   .oc-color-change-history li { align-items: flex-start; flex-direction: column; }
 }
+
+/* Formal detail display only: retain facts behind a native collapsed disclosure. */
+.oc-server-technical-details > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 18px; color: #35584b; cursor: pointer; font-size: 12px; font-weight: 650; }
+.oc-server-technical-details > summary > span::after { content: " ▸"; }
+.oc-server-technical-details[open] > summary > span::after { content: " ▾"; }
+.oc-server-technical-details > summary > span { color: #77847f; font-size: 10px; font-weight: 400; }
+.oc-server-technical-details[open] > summary { border-bottom: 1px solid #e1e8e4; }
+.oc-server-technical-details .qc-detail-row dd { overflow-wrap: anywhere; }
+.oc-server-technical-details .oc-server-source-bar { margin: 0 18px 16px; }
+.oc-server-color-note { margin: 10px 18px 0; color: #77847f; font-size: 11px; }
+
+/* Bind existing named header areas so Foundation mobile placement cannot overlap them. */
+.oc-server-detail-page .qc-page-header[data-variant="list"] > .qc-page-back { grid-area: back; }
+.oc-server-detail-page .qc-page-header[data-variant="list"] > .qc-page-identity { grid-area: identity; }
+.oc-server-detail-page .qc-page-header[data-variant="list"] > .qc-page-actions { grid-area: actions; }
+.oc-server-detail-colors .oc-server-color-table table { min-width: 0; table-layout: fixed; }
+.oc-server-detail-material-summary > p { margin: 12px 18px; color: #6b7973; font-size: 11px; }
+.oc-server-detail-material-summary .sp-server-summary { padding: 0 18px 8px; }
+.oc-server-detail-material-summary > button { margin: 0 5px 8px; }

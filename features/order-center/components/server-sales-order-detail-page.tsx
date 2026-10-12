@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { OrderMaterialSummary } from '@/features/ainuoke-material-progress/order-material-summary';
 import { useSearchParams } from "next/navigation";
 import {
   AlertBanner,
@@ -77,7 +78,7 @@ function ServerDetailFrame({
   children: React.ReactNode;
 }) {
   return (
-    <AppShell title="正式订单详情">
+    <AppShell title="正式订单详情" identityMode="server">
       <PageContainer className="oc-order-center-page oc-server-detail-page">
         <OrderCenterNavigation />
         <PageHeader
@@ -95,7 +96,7 @@ function ServerDetailFrame({
   );
 }
 
-export function ServerSalesOrderDetailPage() {
+export function ServerSalesOrderDetailPage({ executionOnly = false }: { executionOnly?: boolean } = {}) {
   const searchParams = useSearchParams();
   const salesOrderId = searchParams.get("id")?.normalize("NFKC").trim() ?? "";
   const serverSession = useServerSession();
@@ -111,7 +112,9 @@ export function ServerSalesOrderDetailPage() {
   const [termsDraft, setTermsDraft] = useState({ customerPrice: "", laborPrice: "", laborCurrency: "" as "" | ConfirmedLaborCurrency });
   const [termsMutationError, setTermsMutationError] = useState<string | null>(null);
   const [termsSaving, setTermsSaving] = useState(false);
-  const loadEpoch=useRef(0);
+  const loadEpoch = useRef(0);
+  const [loadedScope, setLoadedScope] = useState("");
+  const scopeKey = `${salesOrderId}/${serverSession.user?.id ?? ""}/${serverSession.permissions.join("|")}/${executionOnly}`;
   const canEditSale=serverSession.hasPermission("commercial.sale.view")&&serverSession.hasPermission("commercial.sale.edit");
   const canEditLabor=serverSession.hasPermission("commercial.labor.view")&&serverSession.hasPermission("commercial.labor.edit");
 
@@ -121,6 +124,7 @@ export function ServerSalesOrderDetailPage() {
     if (!salesOrderId) {
       setDetail(null);
       setNotFound(true);
+      setLoadedScope(scopeKey);
       setLoading(false);
       return;
     }
@@ -129,6 +133,8 @@ export function ServerSalesOrderDetailPage() {
     setTerms(null);
     setTermsOpen(false);
     setTermsDraft({customerPrice:"",laborPrice:"",laborCurrency:""});
+    setTermsSaving(false);
+    setTermsMutationError(null);
     setNotFound(false);
     setPermissionDenied(false);
     setSessionExpired(false);
@@ -136,7 +142,7 @@ export function ServerSalesOrderDetailPage() {
     try {
       const [nextDetail, nextTerms] = await Promise.all([
         loadServerOrderCenterDetail(serverSalesOrderReadRepository, salesOrderId),
-        confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId),
+        executionOnly ? Promise.resolve(null) : confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId),
       ]);
       if(epoch!==loadEpoch.current)return;
       setDetail(nextDetail);
@@ -154,16 +160,17 @@ export function ServerSalesOrderDetailPage() {
         setError(unavailableMessage(nextError));
       }
     } finally {
-      if(epoch===loadEpoch.current)setLoading(false);
+      if (epoch === loadEpoch.current) { setLoadedScope(scopeKey); setLoading(false); }
     }
-  }, [salesOrderId, serverSession]);
+  }, [salesOrderId, serverSession, executionOnly, scopeKey]);
 
   useEffect(() => {
     const epochRef = loadEpoch;
+    let active = true;
     if (serverSession.status === "authenticated" && serverSession.hasPermission("order.view")) {
-      void Promise.resolve().then(loadDetail);
+      void Promise.resolve().then(() => { if (active) void loadDetail(); });
     }
-    return ()=>{epochRef.current++;};
+    return () => { active = false; epochRef.current++; };
   }, [loadDetail, serverSession]);
 
   const logout = async () => {
@@ -179,6 +186,7 @@ export function ServerSalesOrderDetailPage() {
   };
 
   const openTermsEditor = () => {
+    if (executionOnly || loadedScope !== scopeKey || !serverSession.hasPermission("order.edit") || !(canEditSale || canEditLabor)) return;
     setTermsDraft({
       customerPrice: serverSession.hasPermission("commercial.sale.view") ? terms?.current?.customerConfirmedPrice ?? "" : "",
       laborPrice: serverSession.hasPermission("commercial.labor.view") ? terms?.current?.confirmedLaborPrice ?? "" : "",
@@ -189,6 +197,8 @@ export function ServerSalesOrderDetailPage() {
   };
 
   const saveTerms = async () => {
+    if (executionOnly || loadedScope !== scopeKey || !serverSession.hasPermission("order.edit") || !(canEditSale || canEditLabor)) return;
+    const epoch = loadEpoch.current;
     const linkedLaborCurrency = terms?.linkage === "linked" ? terms.current?.laborCurrency ?? null : null;
     if (canEditLabor && termsDraft.laborPrice && terms?.linkage === "linked" && !linkedLaborCurrency) {
       setTermsMutationError("关联 Quote 尚未建立工价币种；请先从对应 PriceVersion 确认，订单端不会猜测币种。");
@@ -206,9 +216,11 @@ export function ServerSalesOrderDetailPage() {
         ...(canEditSale?{customerConfirmedPrice: termsDraft.customerPrice || null}:{}),
         ...(canEditLabor?{confirmedLaborPrice: termsDraft.laborPrice || null,laborCurrency: terms?.linkage === "linked" ? linkedLaborCurrency : termsDraft.laborCurrency || null}:{}),
       });
+      if (epoch !== loadEpoch.current) return;
       setTerms(next);
       setTermsOpen(false);
     } catch (nextError) {
+      if (epoch !== loadEpoch.current) return;
       if (nextError instanceof ConfirmedCommercialTermsServerError && nextError.status === 401) {
         serverSession.invalidate();
         setTermsOpen(false);
@@ -216,10 +228,13 @@ export function ServerSalesOrderDetailPage() {
       }
       if (nextError instanceof ConfirmedCommercialTermsServerError && nextError.status === 409) {
         try {
-          setTerms(await confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId));
+          const current = await confirmedCommercialTermsServerClient.getBySalesOrder(salesOrderId);
+          if (epoch !== loadEpoch.current) return;
+          setTerms(current);
         } catch {
           // Keep the explicit conflict as the primary safe error.
         }
+        if (epoch !== loadEpoch.current) return;
         setTermsMutationError(nextError.code === "linked_labor_currency_not_established"
           ? "关联 Quote 尚未建立工价币种；请先从对应 PriceVersion 确认，订单端未写入任何条款。"
           : nextError.code === "linked_labor_currency_order_conflict"
@@ -231,7 +246,7 @@ export function ServerSalesOrderDetailPage() {
         ? "当前 Server 账号没有 order.edit 权限。"
         : "确认商业条款保存失败；未写入 Browser 本地订单。");
     } finally {
-      setTermsSaving(false);
+      if (epoch === loadEpoch.current) setTermsSaving(false);
     }
   };
 
@@ -275,13 +290,11 @@ export function ServerSalesOrderDetailPage() {
     );
   }
 
+  if (loadedScope !== scopeKey) return <ServerDetailFrame detail={null}><LoadingState label="读取 PostgreSQL 正式订单详情" /></ServerDetailFrame>;
+
   return (
     <ServerDetailFrame detail={detail}>
-      <div className="oc-server-source-bar">
-        <span><i aria-hidden="true" />数据源：PostgreSQL</span>
-        <small>Server identity：{trustedIdentity}</small>
-        <Button variant="text" onClick={() => void logout()}>退出登录</Button>
-      </div>
+
       {sessionActionError && <ErrorState description={sessionActionError} />}
       {loading ? (
         <LoadingState label="读取 PostgreSQL 正式订单详情" />
@@ -291,61 +304,26 @@ export function ServerSalesOrderDetailPage() {
         <ErrorState title="订单服务暂时不可用" description={error} onRetry={() => void loadDetail()} />
       ) : detail ? (
         <div className="oc-server-detail-content">
-          <Card className="oc-server-detail-section oc-server-detail-zhixu">
-            <header>
-              <div><small>ZHIXU FACTS</small><h2>织序订单事实</h2></div>
-              <span>Server-owned · 只读</span>
-            </header>
-            <DescriptionList columns={3} items={[
-              { key: "orderNo", label: "正式订单号", value: detail.orderNo, secondary: `UUID ${detail.id}` },
-              { key: "version", label: "数据版本", value: `v${detail.version}` },
-              { key: "lifecycle", label: "织序生命周期", value: lifecycleLabels[detail.lifecycleState], secondary: detail.lifecycleState },
-              { key: "creationSource", label: "创建来源", value: creationSourceLabels[detail.creationSource], secondary: detail.creationSource },
-              { key: "createdAt", label: "创建时间", value: detail.createdAt },
-              { key: "updatedAt", label: "更新时间", value: detail.updatedAt },
-            ]} />
-          </Card>
-
-          <Card className="oc-server-detail-section oc-server-detail-source">
-            <header>
-              <div><small>AINUOKE SOURCE FACTS</small><h2>艾诺科来源事实</h2></div>
-              <span>来源权威 · 不可编辑</span>
-            </header>
-            <DescriptionList columns={3} items={[
-              { key: "billNo", label: "BillNo", value: detail.billNo },
-              { key: "insideOrderNo", label: "工厂单号 / InsideOrderNo", value: detail.insideOrderNo, secondary: "可变来源属性，不是稳定订单身份" },
+          <Card className="oc-server-detail-section oc-server-detail-zhixu oc-server-detail-overview">
+            <header><div><h2>订单概况</h2></div><span>来源权威 · 不可编辑</span></header>
+            <DescriptionList columns={3} compact items={[
               { key: "styleNo", label: "款号", value: detail.styleNo },
-              { key: "company", label: "公司", value: detail.companyName },
+              { key: "orderNo", label: "正式订单号", value: detail.orderNo },
+              { key: "billNo", label: "BillNo", value: detail.billNo },
               { key: "customer", label: "客户", value: detail.customerName },
               { key: "brand", label: "品牌", value: detail.brandName },
               { key: "quantity", label: "订单数量（来源只读）", value: detail.quantity?.toLocaleString("zh-CN") },
-              { key: "contractDate", label: "合同日期", value: detail.contractDate },
-              { key: "contractDelivery", label: "工艺单交期（来源）", value: detail.contractDeliveryDate },
+              { key: "contractDelivery", label: "合同交期（来源）", value: detail.contractDeliveryDate },
+              { key: "lifecycle", label: "订单状态", value: lifecycleLabels[detail.lifecycleState] },
               { key: "sourceLifecycle", label: "艾诺科状态", value: detail.sourceLifecycleStatus },
-              { key: "colorCount", label: "有效颜色数", value: detail.colorCount.toLocaleString("zh-CN") },
             ]} />
           </Card>
-
-          <Card className="oc-server-detail-section oc-server-detail-commercial-terms">
-            <header>
-              <div><small>SERVER CURRENT TERMS</small><h2>确认商业条款</h2></div>
-              <span>PostgreSQL · v{terms?.current?.version ?? 0}</span>
-            </header>
-            <DescriptionList columns={3} items={[
-              { key: "customerConfirmedPrice", label: "客户确认价格", value: !serverSession.hasPermission("commercial.sale.view") || terms?.current?.saleVisibility === "restricted" ? "无权查看" : commercialAmount(terms?.current?.customerConfirmedPrice ?? null, "CNY") },
-              { key: "confirmedLaborPrice", label: "确认工价", value: !serverSession.hasPermission("commercial.labor.view") || terms?.current?.laborVisibility === "restricted" ? "无权查看" : commercialAmount(terms?.current?.confirmedLaborPrice ?? null, terms?.current?.laborCurrency ?? "币种未指定") },
-              { key: "termsLinkage", label: "共享范围", value: terms?.linkage === "linked" ? "精确 Quote provenance 共享" : "仅当前 SalesOrder", secondary: terms?.linkage === "linked" ? `${terms.associatedSalesOrderIds.length} 张正式订单共享` : "未伪造 Quote 关联" },
-            ]} />
-            {serverSession.hasPermission("order.edit") && (canEditSale || canEditLabor)
-              ? <Button variant="secondary" onClick={openTermsEditor}>编辑确认商业条款</Button>
-              : <small>当前账号仅有 order.view；确认商业条款只读。</small>}
-          </Card>
-
           <Card className="oc-server-detail-section oc-server-detail-colors">
             <header>
-              <div><small>COLOR SOURCE SLICE</small><h2>颜色明细</h2></div>
+              <div><h2>颜色明细</h2></div>
               <span>{detail.colors.length} 个颜色 · 来源只读</span>
             </header>
+            <p className="oc-server-color-note">分码数据尚未接线；不依据颜色数量推算尺码。</p>
             {detail.colors.length === 0 ? (
               <EmptyState compact title="当前订单主档有效；颜色明细暂无有效数据。" description="颜色 enrichment 为空不影响 SalesOrder master 有效性。" />
             ) : (
@@ -362,7 +340,46 @@ export function ServerSalesOrderDetailPage() {
               </div>
             )}
           </Card>
-          <Modal
+
+          <OrderMaterialSummary key={scopeKey} salesOrderId={detail.id} />
+          <Card className="oc-server-detail-section">
+            <details className="oc-server-technical-details">
+              <summary>来源与技术详情 <span>只读</span></summary>
+              <DescriptionList columns={3} compact items={[
+                { key: "uuid", label: "UUID", value: detail.id },
+                { key: "version", label: "数据版本", value: `v${detail.version}` },
+                { key: "creationSource", label: "创建来源", value: creationSourceLabels[detail.creationSource], secondary: detail.creationSource },
+                { key: "lifecycleCode", label: "生命周期原值", value: detail.lifecycleState },
+                { key: "insideOrderNo", label: "工厂单号 / InsideOrderNo", value: detail.insideOrderNo, secondary: "可变来源属性，不是稳定订单身份" },
+                { key: "company", label: "公司", value: detail.companyName },
+                { key: "contractDate", label: "合同日期", value: detail.contractDate },
+                { key: "colorCount", label: "有效颜色数", value: detail.colorCount.toLocaleString("zh-CN") },
+                { key: "createdAt", label: "创建时间", value: detail.createdAt },
+                { key: "updatedAt", label: "更新时间", value: detail.updatedAt },
+              ]} />
+              <div className="oc-server-source-bar">
+                <span><i aria-hidden="true" />数据源：PostgreSQL</span>
+                <small>Server identity：{trustedIdentity}</small>
+                <Button variant="text" onClick={() => void logout()}>退出登录</Button>
+              </div>
+            </details>
+          </Card>
+          {!executionOnly && <Card className="oc-server-detail-section oc-server-detail-commercial-terms">
+            <header>
+              <div><small>SERVER CURRENT TERMS</small><h2>确认商业条款</h2></div>
+              <span>PostgreSQL · v{terms?.current?.version ?? 0}</span>
+            </header>
+            <DescriptionList columns={3} items={[
+              { key: "customerConfirmedPrice", label: "客户确认价格", value: !serverSession.hasPermission("commercial.sale.view") || terms?.current?.saleVisibility === "restricted" ? "无权查看" : commercialAmount(terms?.current?.customerConfirmedPrice ?? null, "CNY") },
+              { key: "confirmedLaborPrice", label: "确认工价", value: !serverSession.hasPermission("commercial.labor.view") || terms?.current?.laborVisibility === "restricted" ? "无权查看" : commercialAmount(terms?.current?.confirmedLaborPrice ?? null, terms?.current?.laborCurrency ?? "币种未指定") },
+              { key: "termsLinkage", label: "共享范围", value: terms?.linkage === "linked" ? "精确 Quote provenance 共享" : "仅当前 SalesOrder", secondary: terms?.linkage === "linked" ? `${terms.associatedSalesOrderIds.length} 张正式订单共享` : "未伪造 Quote 关联" },
+            ]} />
+            {serverSession.hasPermission("order.edit") && (canEditSale || canEditLabor)
+              ? <Button variant="secondary" onClick={openTermsEditor}>编辑确认商业条款</Button>
+              : <small>当前账号仅有 order.view；确认商业条款只读。</small>}
+          </Card>}
+
+          {!executionOnly && <Modal
             open={termsOpen}
             title="编辑确认商业条款"
             description={terms?.linkage === "linked" ? "仅修改 Server current 确认金额；工价币种由精确关联的 Quote PriceVersion 确定且订单端只读。" : "仅修改当前 SalesOrder-owned 商业条款；不会修改订单来源事实。"}
@@ -371,14 +388,14 @@ export function ServerSalesOrderDetailPage() {
             footer={<><Button variant="secondary" onClick={() => setTermsOpen(false)}>取消</Button><Button type="submit" disabled={termsSaving}>{termsSaving ? "保存中" : "保存"}</Button></>}
           >
             <div className="qc-modal-form">
-              <FormItem label="客户确认价格（CNY / 件）"><input className="qc-control" inputMode="decimal" disabled={!canEditSale} value={termsDraft.customerPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, customerPrice: event.target.value }); }} placeholder="未确认" /></FormItem>
-              <FormItem label="确认工价"><input className="qc-control" inputMode="decimal" disabled={!canEditLabor} value={termsDraft.laborPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, laborPrice: event.target.value }); }} placeholder="未确认" /></FormItem>
-              {terms?.linkage === "linked"
+              {canEditSale && <FormItem label="客户确认价格（CNY / 件）"><input className="qc-control" inputMode="decimal" disabled={!canEditSale} value={termsDraft.customerPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, customerPrice: event.target.value }); }} placeholder="未确认" /></FormItem>}
+              {canEditLabor && <FormItem label="确认工价"><input className="qc-control" inputMode="decimal" disabled={!canEditLabor} value={termsDraft.laborPrice} onChange={(event) => { if (/^\d*(?:\.\d*)?$/u.test(event.target.value)) setTermsDraft({ ...termsDraft, laborPrice: event.target.value }); }} placeholder="未确认" /></FormItem>}
+              {canEditLabor && (terms?.linkage === "linked"
                 ? <FormItem label="工价币种（Quote PriceVersion，只读）"><div className="qc-create-readonly"><strong>{terms.current?.laborCurrency ?? "尚未建立"}</strong><small>{terms.current?.laborCurrency ? "订单端保存时必须保持该币种。" : "请先从关联 Quote 建立；订单端不会猜测 CNY/USD。"}</small></div></FormItem>
-                : <FormItem label="工价币种"><select className="qc-control" disabled={!canEditLabor} value={termsDraft.laborCurrency} onChange={(event) => setTermsDraft({ ...termsDraft, laborCurrency: event.target.value as "" | ConfirmedLaborCurrency })}><option value="">请选择</option><option value="CNY">CNY</option><option value="USD">USD</option></select></FormItem>}
+                : <FormItem label="工价币种"><select className="qc-control" disabled={!canEditLabor} value={termsDraft.laborCurrency} onChange={(event) => setTermsDraft({ ...termsDraft, laborCurrency: event.target.value as "" | ConfirmedLaborCurrency })}><option value="">请选择</option><option value="CNY">CNY</option><option value="USD">USD</option></select></FormItem>)}
               {termsMutationError && <p className="qc-form-alert">{termsMutationError}</p>}
             </div>
-          </Modal>
+          </Modal>}
         </div>
       ) : (
         <EmptyState title="未读取到正式订单详情" />

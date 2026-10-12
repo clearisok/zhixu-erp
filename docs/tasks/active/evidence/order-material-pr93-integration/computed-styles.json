@@ -1,0 +1,246 @@
+[
+  {
+    "page": {
+      "display": "grid",
+      "direction": "row",
+      "width": 1237,
+      "height": 932
+    },
+    "width": 1440,
+    "foundationLoaded": true,
+    "toolbar": {
+      "display": "flex",
+      "direction": "row",
+      "width": 1173.65625,
+      "height": 65
+    },
+    "records": {
+      "display": "none",
+      "direction": "row",
+      "width": 0,
+      "height": 0
+    },
+    "table": {
+      "display": "block",
+      "direction": "row",
+      "width": 1171.65625,
+      "height": 178
+    },
+    "card": {
+      "display": "block",
+      "direction": "row",
+      "width": 1173.65625,
+      "height": 237
+    },
+    "tableCount": 1,
+    "controls": [
+      {
+        "label": "搜索正式订单",
+        "x": 257.75,
+        "y": 339.359375
+      },
+      {
+        "label": "查询",
+        "x": 792.875,
+        "y": 339.359375
+      },
+      {
+        "label": "全部生命周期草稿已确认执行中已完成已取消",
+        "x": 852.875,
+        "y": 339.359375
+      },
+      {
+        "label": "全部来源艾诺科报价翻单手工",
+        "x": 982.875,
+        "y": 339.359375
+      },
+      {
+        "label": "正式订单号更新时间合同交期BillNo",
+        "x": 1102.875,
+        "y": 339.359375
+      },
+      {
+        "label": "升序降序",
+        "x": 1222.875,
+        "y": 339.359375
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "page": "detail",
+    "width": 1440,
+    "display": "grid",
+    "columns": 3,
+    "headerOverlap": false,
+    "colorOverflow": false,
+    "technicalOpen": false,
+    "technicalHeight": 200,
+    "technicalVisible": false,
+    "hasSizeNotice": true,
+    "overflow": false
+  },
+  {
+    "page": "material",
+    "width": 1440,
+    "headerOverlap": false,
+    "inputRatio": 0.8601725377426312,
+    "pageDisplay": "grid"
+  },
+  {
+    "page": {
+      "display": "grid",
+      "direction": "row",
+      "width": 1077,
+      "height": 932
+    },
+    "width": 1280,
+    "foundationLoaded": true,
+    "toolbar": {
+      "display": "flex",
+      "direction": "row",
+      "width": 1020.6875,
+      "height": 65
+    },
+    "records": {
+      "display": "none",
+      "direction": "row",
+      "width": 0,
+      "height": 0
+    },
+    "table": {
+      "display": "block",
+      "direction": "row",
+      "width": 1018.6875,
+      "height": 178
+    },
+    "card": {
+      "display": "block",
+      "direction": "row",
+      "width": 1020.6875,
+      "height": 237
+    },
+    "tableCount": 1,
+    "controls": [
+      {
+        "label": "搜索正式订单",
+        "x": 254.234375,
+        "y": 339.359375
+      },
+      {
+        "label": "查询",
+        "x": 636.390625,
+        "y": 339.359375
+      },
+      {
+        "label": "全部生命周期草稿已确认执行中已完成已取消",
+        "x": 696.390625,
+        "y": 339.359375
+      },
+      {
+        "label": "全部来源艾诺科报价翻单手工",
+        "x": 826.390625,
+        "y": 339.359375
+      },
+      {
+        "label": "正式订单号更新时间合同交期BillNo",
+        "x": 946.390625,
+        "y": 339.359375
+      },
+      {
+        "label": "升序降序",
+        "x": 1066.390625,
+        "y": 339.359375
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "page": "detail",
+    "width": 1280,
+    "display": "grid",
+    "columns": 3,
+    "headerOverlap": false,
+    "colorOverflow": false,
+    "technicalOpen": false,
+    "technicalHeight": 200,
+    "technicalVisible": false,
+    "hasSizeNotice": true,
+    "overflow": false
+  },
+  {
+    "page": "material",
+    "width": 1280,
+    "headerOverlap": false,
+    "inputRatio": 0.8392168268936379,
+    "pageDisplay": "grid"
+  },
+  {
+    "page": {
+      "display": "grid",
+      "direction": "row",
+      "width": 390,
+      "height": 944
+    },
+    "width": 390,
+    "foundationLoaded": true,
+    "toolbar": {
+      "display": "flex",
+      "direction": "row",
+      "width": 366,
+      "height": 62
+    },
+    "records": {
+      "display": "grid",
+      "direction": "row",
+      "width": 364,
+      "height": 391
+    },
+    "table": {
+      "display": "none",
+      "direction": "row",
+      "width": 0,
+      "height": 0
+    },
+    "card": {
+      "display": "block",
+      "direction": "row",
+      "width": 366,
+      "height": 456
+    },
+    "tableCount": 1,
+    "controls": [
+      {
+        "label": "搜索正式订单",
+        "x": 48.078125,
+        "y": 320.3125
+      },
+      {
+        "label": "筛选",
+        "x": 325,
+        "y": 320.3125
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "page": "detail",
+    "width": 390,
+    "display": "grid",
+    "columns": 1,
+    "headerOverlap": false,
+    "colorOverflow": false,
+    "technicalOpen": false,
+    "technicalHeight": 433,
+    "technicalVisible": false,
+    "hasSizeNotice": true,
+    "overflow": false
+  },
+  {
+    "page": "material",
+    "width": 390,
+    "headerOverlap": false,
+    "inputRatio": 0.9508196721311475,
+    "pageDisplay": "grid"
+  }
+]

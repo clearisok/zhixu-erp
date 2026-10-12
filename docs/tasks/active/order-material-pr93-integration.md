@@ -1,0 +1,65 @@
+# PR92 整合 PR93 — 2026-10-12
+
+## Gate0 baseline
+
+用户授权只在 D:/workspace/zhixu-order-material-b / feat/ainuoke-order-material-progress 整合最新main，原PR92保持Draft，不新建PR、不部署、不合并PR92。原订单P6/精简详情/只读Control Tower用户人工验收已PASS；本轮为工程回归，不冒称重新人工批准。
+
+正常fetch实际成功：origin/main **070d958008709d06636ba329a3bba0d14e4a023b**；PR93 MERGED，head bfa987ceaa586d97e85d9323d0e47dd4651f0140，merge070d958。B local/origin/PR92起始HEAD均 **03b1078e99ff44ceb875dd0b01a1e22358f4dab6**，relative main21 ahead/12 behind，共同祖先fcf36e5eab6c78254f808c1cba38f3a63a66d4f8，无分歧。GitHub PR92 OPEN/Draft，存在待解决冲突。
+
+唯一继承dirty：docs/tasks/active/order-material-read-gate1.md，30行追加；实际SHA256 **8B24F58EB42F2141778F1EBE69138C64449BE04F522757CBC50325FB5286E21E** 与用户基线一致。main未改该文件，因此普通merge无需stash/restore；严禁stage该文件，所有阶段后核对原hash及diff保持。其他工作树只通过git worktree list核对归属，不进入或修改A/其他checkout。
+
+审查现有B执行只读链路与main正式D103：commercial.sale.view/edit、commercial.labor.view/edit已经Active；Quote成本、测算销售价、历史/导出/日志的分离投影和CCT部分PATCH保留。五个共享文件须做语义核对：AI_HANDOFF、CURRENT_STATE、server/app.ts、CCT集成测试、server-sales-order-detail-page.tsx。旧物料安全审计不能继续正向断言泄露；早期commercial-read-policy须查清引用，不能再充当独立运行时授权。
+
+本轮无真实数据库/艾诺科/COS/18443/18444、migration、账号凭据或生产route激活。正常merge、不reset/clean/rebase/force/整文件ours-theirs。当前工程Gate尚未执行，旧测试数量不是本轮结果。
+## Gate1 — main 语义合并
+
+正常 merge --no-ff origin/main；真实冲突仅 AI_HANDOFF、CURRENT_STATE、server-sales-order-detail-page。两份文档逐段协调，双方历史恢复信息原文归档至 completed/2026-10-12-pr92-pr93-pre-integration-handoff.md；保留 PR84/PR91 部署证据、D103 Active 及原 P6 人工验收事实。PROJECT_INDEX 自动合并的 PR93 Draft 状态已改为已合并。
+
+五文件审查：server/app.ts 保留可选 Material GET 的 session/order.view/style_progress.read/可信订单范围/固定 Source，以及 CCT commercial-terms-read.v1 投影与部分 PATCH；CCT 集成测试保留共享当前值、精确 provenance、null/0、币种、CAS/事务审计规则。订单详情保留 B 紧凑布局、颜色、物料摘要、技术折叠及 UUID 返回；采用 main ClientDto/四键和部分 PATCH。执行模式不发 CCT GET/PATCH、不挂载金额卡片/编辑器；非执行模式不挂载无权字段输入。统一单一请求 epoch，订单/用户/权限/模式 scope 变化先隐藏旧状态并清空草稿，忽略过期成功/失败及 PATCH/409 reload；物料摘要按同一 scope 重新挂载。
+
+本轮实际检查：typecheck PASS；订单详情定向 ESLint PASS；CCT Client + CCT/商业权限/linked terms/物料 HTTP **52/52 PASS**（随机 disposable PostgreSQL，真实 session，合成数据）；diff-check PASS。完整 PostgreSQL、浏览器及全量质量检查仍待执行。继承 dirty SHA256 保持 8B24F58EB42F2141778F1EBE69138C64449BE04F522757CBC50325FB5286E21E，未 stage。
+## Gate2 — 负向安全审计及历史 helper
+
+Gate1 普通 merge checkpoint **a252d82791d3b0cf2a216cc2939a64ec9caf50c7** 已正常推送。旧 order-material-security-audit 的泄露正向断言已全部替换为真实 HTTP 负向测试，复用 PR93 disposable fixture。匿名401，viewer/cost/sale/labor/full五种授权，Order/Quote同一CCT字段 envelope、敏感值缺失、no-store、只读不能PATCH、现有session撤权后无缓存值、默认Material503均验证；普通viewer未补商业授权。
+
+rg证明早期 commercial-read-policy 仅有测试引用。它已移到 __tests__/historical-commercial-read-policy.ts，明确 deprecated/历史测试专用；原root测试仅验证历史边界，不充当生产授权。运行时唯一CCT权限投影保持 server/confirmed-commercial-terms/read-projection.ts；Material DTO不接商业字段。
+
+本轮实际：Source/Gate1/Gate1.5/物料纯投影/历史helper **78/78 PASS**（5000需求投影+搜索485.3ms）；Material HTTP+新负向审计 **19/19 PASS**；改动文件定向ESLint PASS。来源日期异步推进、unknown/zero、厂供、BillNo/Inside漂移、缺页/身份冲突、跨订单隔离、价格/事件去重均保持。尚未完成全量和浏览器Gate。继承dirty原hash未改变。
+## Gate3/4 — 联合实际 Chromium 与 P6 视觉
+
+Gate2 checkpoint **5a603b60e09ab80547a69e63e3e85e180f0cc6c2** 正常推送。复用原组件，隔离导航驱动增加真实 document 完成等待；商业夹具桥只调用真实 session.refresh，不注入身份/权限。Order无权输入断言从disabled加强为不挂载；Quote已有安全否定断言全部保留。新增确定性测试先收到真实授权CCT响应并阻止其交付，再撤权/刷新或A→B→A，最后按控制顺序释放旧/当前响应，证明旧值/草稿不能复活；第二订单仅在随机测试数据库合成。
+
+实际合成 Chromium：P6/物料闭环 **7/7，115断言 PASS**；商业安全 **15/15 PASS**。首轮驱动失败未计PASS：注入字符串语法和跨页面等待问题修复后全套重跑。1440/1280单桌面表格、flex/row/65px、records:none；390原移动records:grid/表格隐藏；详情3/1列、默认技术折叠、颜色完整、物料局部横滚/采购价格/精确UUID返回、无CCT请求/Browser业务存储写入均通过。已查看本轮桌面详情/物料、移动详情/采购价格截图，原绿色侧栏/暖灰/白色容器保留；原P6截图与当前像素SHA对照见新证据，原图未覆盖。[证据索引](evidence/order-material-pr93-integration/README.md)。原用户人工验收已PASS，本轮是工程回归。
+
+构建已实际串行：server:build PASS → 显式Server quote/master-settings/session/writable前端build PASS（42路由）。默认Browser构建及全量质量Gate待后续运行。Docker/私有profile/API/Vite清理成功，不操作真实环境。继承dirty哈希保持原值。
+## Gate5/6 — 完整工程验证与交付恢复点
+
+已验证源码 checkpoint **a537e750912eb8c415ce9de5f7403bc120271738** 已正常push，local/origin/GitHub PR92三方一致，GitHub OPEN/Draft/mergeable=true。交付前再次fetch成功：main仍 **070d958008709d06636ba329a3bba0d14e4a023b**，B25 ahead/0 behind。普通merge **a252d82791d3b0cf2a216cc2939a64ec9caf50c7** 的双parent为5925a4db8e77690c3308766d57e5039d59c99bde及070d958；无未解决冲突。最终文档checkpoint的完整HEAD及最终三方exact验证记录在PR92说明与最终交付消息，不将commit自己的hash写入其内容。
+
+| 本轮实际执行 | 结果 |
+| --- | --- |
+| Source/Gate1/Gate1.5/物料/历史辅助 | 78/78 PASS；5000需求485.3ms |
+| CCT Client+正式CCT/商业权限/linked/Material HTTP首轮 | 52/52 PASS |
+| Material HTTP + 改后的真实负向审计 | 19/19 PASS |
+| CCT/Quote纯投影、客户端、SSR/列表 | 25/25 PASS |
+| 实际物料闭环 Chromium1440/1280/390 | 7/7 PASS，115断言 |
+| 实际Quote/Order商业Chromium | 15/15 PASS，确定性撤权/延迟A→B→A |
+| typecheck / lint | PASS / PASS，0 lint warning |
+| npm test | **758/758 PASS**，0 skipped |
+| npm run test:postgres完整常规入口 | **261/261 PASS**，0 skipped，201859.7ms |
+| npm run server:build | PASS |
+| 显式Server Authority frontend build | PASS，quote/server、master-settings/server、session/writable，42路由 |
+| 默认Browser frontend build | PASS，移除进程级覆盖后build-info实际browser/browser/session/writable，42路由 |
+| git diff --check / 隔离清理 | PASS；private Chromium/profile/API/Vite和disposable PG/MinIO由夹具清理；最终docker只读查询无zhixu-pg-it容器 |
+
+不是沿用历史同名/同数量结果；每行均是本轮实际运行。test:postgres保留main PR93所有PG/HTTP安全入口，包括四键、商业读取面、成本、关联CCT、内部汇总、客户导出/确认/批量导出；依赖前端构建的商业Chromium和不属于PG入口的客户端/SSR单元测试已另跑。B物料HTTP/Chromium亦单独执行。构建串行，无产物竞争；原large-chunk提示不影响成功。未运行且不授权：真实Source/个人账号/生产数据/真实migration或部署验收。
+
+P6本轮12张对照中11张常规截图字节/SHA256完全一致；展开技术详情只因临时UUID/时间差异而变化，已实际查看桌面订单/物料与移动订单/价格，布局未偏离原基准。原用户人工UI验收PASS保持，不制造新人工验收结论。
+
+最新PR91/PR92 changed-files交集仅 **docs/AI_HANDOFF.md、docs/CURRENT_STATE.md、docs/PROJECT_INDEX.md、server/app.ts**；前三为本轮已授权必要接力，app差异只有可选可信Material读接口，main商业裁剪完整保留。CCT集成测试最终相对main零差异；database/migrations、features/quote-center、server/quotes、features/permissions、features/server-auth无B新增差异。#91已合并，不进入A工作树；另一个新远端FX分支只在正常fetch中发现，未操作。
+
+唯一remaining dirty仍为 **docs/tasks/active/order-material-read-gate1.md** 继承30行，SHA256 **8B24F58EB42F2141778F1EBE69138C64449BE04F522757CBC50325FB5286E21E**，全程未改/stage/stash/restore/清理。临时原始测试日志仅在gitignored .tmp-pr92-integration中，不提交；新截图均为合成数据。
+
+**MAIN MERGE PASS / CONFLICT RESOLUTION PASS / CCT-QUOTE SECURITY REGRESSION PASS / MATERIAL SOURCE SYNTHETIC PASS / P6 UI REGRESSION PASS / POSTGRES FULL PASS。** 已可靠推送的阶段见上方；最终docs checkpoint正常push后在PR/最终消息核验REMOTE DELIVERY。PR92继续Draft，不Ready/Merge/部署。
+
+剩余边界：真实受控账号和固定Source reader未接线，团队可见范围/个人账号绑定/角色管理/运行环境及生产路由激活需要独立审查；默认Material capability关闭，普通正式Order list/detail的公司范围不能据合成resolver宣称生产完成。D103已知泄露路径回归通过不等于真实角色已更新或整个生产系统已部署。报价/翻单业务来源补录与双向稳定关联、分码及财务/利润继续独立设计，不阻塞本切片。没有工程阻碍；建议保留Draft等待授权集成审查，未来Activation Gate先审核账号、scope、采集适配及失败证据，再另行审批真实部署。本轮到此停止。

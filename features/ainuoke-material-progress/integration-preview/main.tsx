@@ -1,0 +1,15 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { ServerSessionProvider } from '@/features/server-auth';
+import { TrustedPermissionProvider } from '@/features/permissions/components/permission-provider';
+import { ServerOrderCenterPage } from '@/features/order-center/components/server-order-center-page';
+import { ServerSalesOrderDetailPage } from '@/features/order-center/components/server-sales-order-detail-page';
+import { ServerStyleProgressDetailPage } from '@/features/style-progress/components/style-progress-server-page';
+import '@/app/globals.css';
+import '@/app/quote-center/quote-center.css';
+import '@/app/order-center/order-center.css';
+import '@/app/order-center/style-progress/style-progress.css';
+import '@/app/foundation.css';
+import './preview.css';
+const page=location.pathname.includes('/style-progress/detail')?<ServerStyleProgressDetailPage/>:location.pathname.includes('/server-detail')?<ServerSalesOrderDetailPage executionOnly/>:<ServerOrderCenterPage/>;
+createRoot(document.getElementById('root')!).render(<ServerSessionProvider><TrustedPermissionProvider><div title="隔离验收；未连接真实艾诺科，生产路由未开放" className="order-integration-synthetic-notice">合成测试数据</div>{page}</TrustedPermissionProvider></ServerSessionProvider>);
