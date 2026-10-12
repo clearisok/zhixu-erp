@@ -14,7 +14,8 @@
     "vite.config.ts"
   ],
   "pages": [
-    "order",
+    "order-list",
+    "order-detail",
     "material",
     "navigation"
   ],

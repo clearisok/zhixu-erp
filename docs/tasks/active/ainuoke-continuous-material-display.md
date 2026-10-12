@@ -29,3 +29,6 @@ PR99 head 213fb2524bb5f8a2806fea0427a0d3a865612360，source/team-access/baseline
 显式snapshot候选仅三条已存在只读页面，默认disabled；原P6/CSS/断点保持，旧入口禁用且Server缺UUID不落入Browser。每30秒及focus读取，用户/权限/订单scope变更清除旧响应。
 新回归28 PASS+Linux1待CI；P6实际build/private Chromium 8/8（1440/1280/390、六角色、自动下一代、失败/过期/恢复、Browser无写）。新增CLI已实际经Python固定catalog，本机Windows不宣称Linux private-file命令通过。
 复审修正：只有绑定审计receipt+相同reviewHash/集合允许重试；事务内重查freshness、5秒锁等待。首次截图发现11月1日显示10月31日，修复SQL DATE字符串读回，Shanghai/UTC/LA列表/详情/颜色测试均通过。原DB日期未修改。后续最终截图将从提交后的代码重建，不使用带未提交修改的临时图作为精确SHA证据。
+
+## G3 最终合成证据
+渲染代码e4d9737a048474d15d2f25d9e84dae327ac103c5；完整证据与9张截图见[evidence](evidence/ainuoke-continuous-material-display/engineering.md)。最终浏览器8/8、新增29PASS+Linux1待CI、原来源20PASS+Linux1待CI、PG261/261、Python54/54。G2误用scope导致loading已修复并重跑；CDP跨导航空DOM等待已修正。Docker runtime仍下载中；门禁与CI待独立核实。PR98当前CONFLICTING/DIRTY（2026-10-12），未经授权不合并。
