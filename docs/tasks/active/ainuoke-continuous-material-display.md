@@ -39,3 +39,9 @@ PR99 head 213fb2524bb5f8a2806fea0427a0d3a865612360，source/team-access/baseline
 2026-10-12：typecheck、lint、Server/default Browser/explicit snapshot build通过；npm test 809/809、test:release-baseline 70/70、真实base check:release-baseline PASS（10pages/11capabilities/9UI files）。PG261/261、Python54/54、continuous29PASS+Linux1待CI、来源20PASS+Linux1待CI、bootstrap18/18、Quote persistence13/13、最终P6浏览器8/8。旧静态路由断言同步为isEnabledServerRoute，默认关闭和三页范围另有可执行回归。
 最终代码diff复审：无新增migration/数据库文件或CSS变化；事务域逻辑复用、首次绑定/Source不同动作、身份scope/撤权/异常边界、exact UI批准范围、冻结证据SHA、运行/构建开关已核实；暂无未修复P0/P1。只有已绑定订单四流持续刷新，非全部合同生命周期增量。当前结论：待Linux精确head CI通过后可建议合并工程代码，不可据此部署/真实绑定。Docker完整镜像仍受apk下载等待影响，尚未声称通过。
 本机合成演示脚本已运行（临时端口/六个demo.*账号、合成密码；两小时自动结束），未使用真实SOURCE/DATABASE_URL；旧18443/18444/宁波未修改。GitHub CI及最终head另行核实。
+
+## G5 GitHub交付与合并前复审
+PR [#100](https://github.com/clearisok/zhixu-erp/pull/100)，业务代码/测试/门禁收口head e495173bffab010103110f738bb0d991ed2b5d57；远端精确SHA已核实。2026-10-12T10:28:01Z三项CI完成SUCCESS：[Source](https://github.com/clearisok/zhixu-erp/actions/runs/38236211116)、[六角色](https://github.com/clearisok/zhixu-erp/actions/runs/38236211172)、[基线](https://github.com/clearisok/zhixu-erp/actions/runs/38236211170)。Linux Source21/21、continuous30/30（含私密0600文件check/preview/bind/retry/schedule/SIGTERM）、P6 UI8/8、Python54/54，均无跳过。
+复审结论：无未修复P0/P1，建议合并本轮工程能力；不据此批准真实绑定或部署。尚待真实安全通道/私密凭据、范围/速率、持续运行、用户验收，以及新增合同/主镜像增量设计。无UI重设计、真实数据库/账号/宁波/18443/18444变更，新PR没有自动合并。
+Docker补充：builder编译成功，runtime依赖安装超过15分钟仍未完成，已核对本任务docker build进程身份并仅停止该构建；未修改代理/TLS/宿主服务，无完整镜像PASS或部署声明。原因只确认依赖安装缓慢，网络根因未查明；完整候选镜像验证保留为上线Gate。冻结engineering.md是G3时点，本文记录其后结果，不覆写冻结历史。
+此后文档收口提交仍须其精确head三项CI通过，最终状态以PR为准。
