@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 核实日期2026-10-12；main 01694d723cd7b65fcc20e3e79941fef0d57439fc（PR91–95已合并）。当前任务：[宁波首批团队接入](tasks/active/ningbo-first-team-access.md)，状态见[CURRENT_STATE](CURRENT_STATE.md)，历史见[前序快照](tasks/completed/2026-10-12-first-team-predecessor-state.md)。GitHub是实时事实源；随main/权限/Source/环境或验收变化更新。
+> 核实日期2026-10-12；main 5215ef75510e4b55ef69b1ae1508816b80fda110（PR97已合并）。当前：[宁波只读预检](tasks/completed/2026-10-12-ningbo-readonly-preflight.md)与[上线方案](ops/ningbo-rollout-plan.md)；状态见[CURRENT_STATE](CURRENT_STATE.md)，前序完整快照见[归档](tasks/completed/2026-10-12-ningbo-preflight-predecessor-state.md)。GitHub是实时事实源；随main/权限/Source/环境或验收变化更新。
 
 > [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
 

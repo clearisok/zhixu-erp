@@ -1,8 +1,9 @@
 # AI handoff
 
-当前任务feat/ningbo-first-team-access（2026-10-12），main基线01694d723cd7b65fcc20e3e79941fef0d57439fc；独立worktree ningbo-first-team-access/zhixu-ainuoke-api，起始clean。
-用户授权合成六角色、保持现有UI、测试/PR/复审；禁止真实账号/DB/宁波及18443/18444部署、自动merge。
-实现及结果见[任务证据](tasks/active/ningbo-first-team-access.md)、[权限](features/PERMISSIONS.md)、D-104；Source和Order生产入口仍未激活。
-当前接力：代码72b025343c2e0d5f13f0652c04e37b5c5051a20e，807+31+5本地测试与69基线专项PASS。2026-10-12用户要求自行推进交付后，只读默认HTTPS/HTTP1.1/OpenSSL三对照及本机gh均PASS，无配置改变；主Codex自有PowerShell单次推送206768e107bcd6402983f74adc9f002a5fbd757a，DELIVERED_VERIFIED、pushes=1、exact SHA一致。网络根因未定，不宣称永久修复。此后仅更新交付文档；创建唯一PR、核查最终head的两项CI，结论以PR实时状态为准，不自动合并。
-用户负责未来真实账号和首轮Ainuoke凭据；密码不在聊天/仓库交付，当前只用合成临时数据库。
-旧状态日期/hash/结果/限制见[前序快照](tasks/completed/2026-10-12-first-team-predecessor-state.md)。更新于checkpoint、main/PR/测试/阻塞变化，不循环写自身SHA。
+当前任务chore/ningbo-readonly-preflight（2026-10-12）；main基线5215ef75510e4b55ef69b1ae1508816b80fda110；独立worktree ningbo-readonly-preflight/zhixu-ainuoke-api，起始clean。
+用户明确授权合并PR97及宁波只读预检/上线方案；禁止修改真实账号、DB或部署。PR97已合并；新文档PR不自动合并。
+当前恢复点：[预检报告](tasks/completed/2026-10-12-ningbo-readonly-preflight.md)、[上线方案](ops/ningbo-rollout-plan.md)、[脱敏证据](tasks/active/evidence/ningbo-readonly-preflight/observations.json)。
+宁波两个旧运行版本/独立DB均健康；Server无账号且缺0008–0011；公网403/502、origin未知，真实发布NO-GO。没有执行startup/migrate/bootstrap或其他写入；旧备份成功不等于恢复验证。
+下一工程PR建议chore/ningbo-release-candidate，只做独立候选配置和合成演练；先核查Cloudflare入口，随后另行授权真实初始化/账号/部署。现有UI、金额权限和Quote-first路由边界保持，密码不上聊天/仓库。
+本阶段工程为文档与能力快照更新：先冻结现场/合并证据commit，再绑定清单与运行门禁；LOCAL ENGINEERING与REMOTE DELIVERY分别记录，最终远端head/CI以GitHub为准。
+旧恢复点完整保留在[归档](tasks/completed/2026-10-12-ningbo-preflight-predecessor-state.md)。真实姓名列表由管理员后续自行建立；不再重复请求已经确定的角色或业务边界。

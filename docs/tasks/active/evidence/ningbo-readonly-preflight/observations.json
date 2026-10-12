@@ -1,0 +1,431 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-12T07:33:45Z",
+  "observationEndedAt": "2026-10-12T07:43:23.346959+00:00",
+  "repository": "clearisok/zhixu-erp",
+  "mainSha": "5215ef75510e4b55ef69b1ae1508816b80fda110",
+  "scope": {
+    "mode": "read-only",
+    "realAccountChanges": false,
+    "databaseWrites": false,
+    "deployment": false,
+    "secretsIncluded": false,
+    "businessRowsIncluded": false
+  },
+  "merge": {
+    "pr": 97,
+    "head": "95eca129a666fd9ea22f27052340ba5f42730e30",
+    "base": "01694d723cd7b65fcc20e3e79941fef0d57439fc",
+    "mergeSha": "5215ef75510e4b55ef69b1ae1508816b80fda110",
+    "merged": true,
+    "checks": [
+      "release-baseline:success",
+      "team-access:success"
+    ],
+    "workflowRuns": [
+      38215740005,
+      38215740124
+    ]
+  },
+  "runtime": {
+    "kind": "ningbo-readonly-inventory-v1",
+    "os_release": {
+      "NAME": "Ubuntu",
+      "VERSION_ID": "26.04",
+      "VERSION": "26.04.1 LTS (Resolute Raccoon)"
+    },
+    "containers": [
+      {
+        "name": "zhixu-staging-server-1",
+        "image": "zhixu-server:staging-7cd43b614280",
+        "imageId": "sha256:b8559139d6ac7ae464c6970a0e93a1773f73d3cfd6526b1b98443337702f6578",
+        "created": "2026-09-29T04:09:40.6317554Z",
+        "started": "2026-09-29T04:09:41.546113324Z",
+        "status": "running",
+        "health": "healthy",
+        "user": "",
+        "restart": "unless-stopped",
+        "readonlyRootfs": false,
+        "privileged": false,
+        "ports": {
+          "3000/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "3002"
+            }
+          ]
+        },
+        "networks": [
+          "zhixu-staging_backend",
+          "zhixu-staging_edge"
+        ],
+        "mounts": [],
+        "labels": {
+          "com.docker.compose.project": "zhixu-staging",
+          "com.docker.compose.project.config_files": "/opt/zhixu/staging/compose.yml",
+          "com.docker.compose.project.environment_file": "/etc/zhixu/staging/staging.env",
+          "com.docker.compose.project.working_dir": "/opt/zhixu/staging",
+          "com.docker.compose.service": "server",
+          "io.zhixu.build-id": "staging-7cd43b614280",
+          "org.opencontainers.image.revision": "7cd43b6142800bb61827410395c4a2d7a9856bc5"
+        },
+        "safeEnvironment": {
+          "ZHIXU_SERVER_PORT": "3000",
+          "ZHIXU_SERVER_HOST": "0.0.0.0",
+          "NODE_ENV": "production",
+          "DB_HOST": "database",
+          "DB_PORT": "5432",
+          "ZHIXU_ALLOWED_ORIGINS": "https://staging.weaveops.top",
+          "DB_NAME": "zhixu_staging",
+          "DB_USER": "zhixu_staging",
+          "ZHIXU_COOKIE_SECURE": "true",
+          "ZHIXU_BUILD_ID": "staging-7cd43b614280",
+          "ZHIXU_GIT_COMMIT": "7cd43b6142800bb61827410395c4a2d7a9856bc5",
+          "ZHIXU_BUILD_TIME": "2026-09-29T01:30:07Z"
+        },
+        "secretConfigurationPresence": {
+          "DB_PASSWORD": true
+        }
+      },
+      {
+        "name": "zhixu-staging-database-1",
+        "image": "postgres:16-alpine",
+        "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+        "created": "2026-09-28T15:10:02.081141531Z",
+        "started": "2026-09-28T15:10:02.128155905Z",
+        "status": "running",
+        "health": "healthy",
+        "user": "",
+        "restart": "unless-stopped",
+        "readonlyRootfs": false,
+        "privileged": false,
+        "ports": {
+          "5432/tcp": null
+        },
+        "networks": [
+          "zhixu-staging_backend"
+        ],
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "zhixu-staging_postgres_data",
+            "Source": "/var/lib/docker/volumes/zhixu-staging_postgres_data/_data",
+            "Destination": "/var/lib/postgresql/data",
+            "RW": true
+          }
+        ],
+        "labels": {
+          "com.docker.compose.project": "zhixu-staging",
+          "com.docker.compose.project.config_files": "/opt/zhixu/staging/compose.yml",
+          "com.docker.compose.project.environment_file": "/etc/zhixu/staging/staging.env",
+          "com.docker.compose.project.working_dir": "/opt/zhixu/staging",
+          "com.docker.compose.service": "database"
+        },
+        "safeEnvironment": {},
+        "secretConfigurationPresence": {
+          "POSTGRES_PASSWORD": true
+        }
+      },
+      {
+        "name": "zhixu-factory-system",
+        "image": "zhixu-factory-system:local",
+        "imageId": "sha256:582b584cb623531d5e9da565c9c0f8f950cec1166b561512d732667340e08f44",
+        "created": "2026-09-28T08:27:28.74851778Z",
+        "started": "2026-09-28T14:57:11.477483361Z",
+        "status": "running",
+        "health": "healthy",
+        "user": "",
+        "restart": "unless-stopped",
+        "readonlyRootfs": false,
+        "privileged": false,
+        "ports": {
+          "3000/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "3000"
+            }
+          ],
+          "5432/tcp": null
+        },
+        "networks": [
+          "zhixu-prod_default"
+        ],
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "27d1a4b6035f46dbd08fe55e8fb3e62c3110f038d7d747c2ca975e84b07b99e3",
+            "Source": "/var/lib/docker/volumes/27d1a4b6035f46dbd08fe55e8fb3e62c3110f038d7d747c2ca975e84b07b99e3/_data",
+            "Destination": "/var/lib/postgresql/data",
+            "RW": true
+          }
+        ],
+        "labels": {
+          "com.docker.compose.project": "zhixu-prod",
+          "com.docker.compose.project.config_files": "/home/jackson/actions-runner/_work/zhixu-erp/zhixu-erp/docker-compose.yml",
+          "com.docker.compose.project.environment_file": "/etc/zhixu/production.env",
+          "com.docker.compose.project.working_dir": "/home/jackson/actions-runner/_work/zhixu-erp/zhixu-erp",
+          "com.docker.compose.service": "zhixu",
+          "io.zhixu.build-id": "36397379461-1",
+          "org.opencontainers.image.revision": "f0c252b52b6a626037e8ba70cf51d0e976e45447"
+        },
+        "safeEnvironment": {
+          "DB_HOST": "database",
+          "DB_PORT": "5432",
+          "DB_NAME": "zhixu",
+          "DB_USER": "zhixu",
+          "ZHIXU_BUILD_ID": "36397379461-1",
+          "ZHIXU_GIT_COMMIT": "f0c252b52b6a626037e8ba70cf51d0e976e45447",
+          "ZHIXU_BUILD_TIME": "2026-09-28T08:27:08Z"
+        },
+        "secretConfigurationPresence": {
+          "DB_PASSWORD": true,
+          "ZHIXU_ADMIN_PASSWORD": true
+        }
+      },
+      {
+        "name": "zhixu-database",
+        "image": "postgres:16-alpine",
+        "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+        "created": "2026-09-28T08:27:08.565672351Z",
+        "started": "2026-09-28T14:57:11.478739382Z",
+        "status": "running",
+        "health": "healthy",
+        "user": "",
+        "restart": "unless-stopped",
+        "readonlyRootfs": false,
+        "privileged": false,
+        "ports": {
+          "5432/tcp": null
+        },
+        "networks": [
+          "zhixu-prod_default"
+        ],
+        "mounts": [
+          {
+            "Type": "volume",
+            "Name": "zhixu-prod_zhixu_data",
+            "Source": "/var/lib/docker/volumes/zhixu-prod_zhixu_data/_data",
+            "Destination": "/var/lib/postgresql/data",
+            "RW": true
+          }
+        ],
+        "labels": {
+          "com.docker.compose.project": "zhixu-prod",
+          "com.docker.compose.project.config_files": "/home/jackson/actions-runner/_work/zhixu-erp/zhixu-erp/docker-compose.yml",
+          "com.docker.compose.project.environment_file": "/etc/zhixu/production.env",
+          "com.docker.compose.project.working_dir": "/home/jackson/actions-runner/_work/zhixu-erp/zhixu-erp",
+          "com.docker.compose.service": "database"
+        },
+        "safeEnvironment": {},
+        "secretConfigurationPresence": {
+          "POSTGRES_PASSWORD": true
+        }
+      }
+    ],
+    "local_http": [
+      {
+        "port": 3000,
+        "path": "/build-info.json",
+        "status": 200,
+        "body": {
+          "environment": "production",
+          "buildId": "36397379461-1",
+          "gitCommit": "f0c252b52b6a626037e8ba70cf51d0e976e45447",
+          "buildTime": "2026-09-28T08:27:08Z"
+        }
+      },
+      {
+        "port": 3000,
+        "path": "/api/health",
+        "status": 200,
+        "body": {
+          "ok": true,
+          "database": "ready"
+        }
+      },
+      {
+        "port": 3002,
+        "path": "/build-info.json",
+        "status": 200,
+        "body": {
+          "environment": "production",
+          "buildId": "staging-7cd43b614280",
+          "gitCommit": "7cd43b6142800bb61827410395c4a2d7a9856bc5",
+          "buildTime": "2026-09-29T01:30:07Z"
+        }
+      },
+      {
+        "port": 3002,
+        "path": "/api/v1/health",
+        "status": 200,
+        "body": {
+          "status": "ok",
+          "database": "ready"
+        }
+      },
+      {
+        "port": 3002,
+        "path": "/api/v1/auth/me",
+        "status": 401
+      }
+    ],
+    "sudoNonInteractive": false,
+    "candidate_paths": {
+      "/etc/nginx": false,
+      "/etc/caddy": false,
+      "/etc/cloudflared": true,
+      "/etc/zhixu": true,
+      "/opt/zhixu": true,
+      "/srv/zhixu": false,
+      "/home/jackson/actions-runner": true
+    }
+  },
+  "databases": {
+    "observedAt": "2026-10-12T07:41:01.771316+00:00",
+    "transactionReadOnly": true,
+    "statementTimeoutMs": 5000,
+    "results": [
+      {
+        "container": "zhixu-staging-database-1",
+        "code": 0,
+        "aggregate": {
+          "app_users": 0,
+          "app_roles": 0,
+          "app_permissions": 54,
+          "sales_orders": 0,
+          "quote_center_quotes": 0,
+          "migrations": [
+            {
+              "version": 1,
+              "filename": "0001_trusted_auth_rbac_operation_logs.sql",
+              "checksum": "aea31d96683f310af072cc4b244f4aa16582e93f2a80cc41754c2b390665f851"
+            },
+            {
+              "version": 2,
+              "filename": "0002_sales_order_foundation.sql",
+              "checksum": "280f8004298bae12a445afae38814dce110b881541edbdadc18953dd1fed686b"
+            },
+            {
+              "version": 3,
+              "filename": "0003_sales_order_number_sequence.sql",
+              "checksum": "27416e1997532725961f2d32306ac81218c6906f1e4b20e42f3183cded47741e"
+            },
+            {
+              "version": 4,
+              "filename": "0004_confirmed_commercial_terms.sql",
+              "checksum": "77f79978b8c9370c4c3cfce789088897457f1711599a82a599fa25cac234bf2e"
+            },
+            {
+              "version": 5,
+              "filename": "0005_quote_foundation.sql",
+              "checksum": "b722dda0f36c755d2043dfd37072c812d2a594fcfa8ca4c15fd4d8f1b1731365"
+            },
+            {
+              "version": 6,
+              "filename": "0006_quote_number_sequence.sql",
+              "checksum": "aef5d2b048228a166964cfc5f7488d9b18f38bd03862e11d6d06018457030d88"
+            },
+            {
+              "version": 7,
+              "filename": "0007_quote_master_settings.sql",
+              "checksum": "df6afbe81fbfb11686bc6d4830fa40c171a7a7660038b4345bcbae5885718a0d"
+            }
+          ]
+        }
+      },
+      {
+        "container": "zhixu-database",
+        "code": 0,
+        "aggregate": {
+          "app_users": 1,
+          "quotes": 0,
+          "orders": 0,
+          "schedules": 0
+        }
+      }
+    ],
+    "existingMigrationChecksumsMatchMain": true,
+    "currentMainLatestMigration": 11,
+    "migrationsNotAppliedToStaging": [
+      8,
+      9,
+      10,
+      11
+    ]
+  },
+  "ingress": {
+    "observedAt": "2026-10-12T07:39:13Z",
+    "cloudflared": "active/running",
+    "mode": "token-file",
+    "tokenFilePermissions": "0600",
+    "tokenRead": false,
+    "localIngressFileFound": false,
+    "publicHostname": "staging.weaveops.top",
+    "originMapping": "UNVERIFIED",
+    "ningboHttpsStatus": 403,
+    "ningboDirectHttpsStatus": 403,
+    "windowsHttpsStatus": 502,
+    "localhostStagingHealth": 200,
+    "localhostStagingAnonymousAuthMe": 401,
+    "tlsVerificationDisabled": false,
+    "rootCause": "UNRESOLVED"
+  },
+  "backup": {
+    "lastServiceStart": "2026-10-11T19:15:04Z",
+    "result": "success",
+    "exit": 0,
+    "checksInExistingScript": [
+      "pg_dump",
+      "pg_restore --list",
+      "SHA256"
+    ],
+    "files": {
+      "observedAt": "2026-10-12T07:43:23.346959+00:00",
+      "path": "/data/backups/zhixu-staging",
+      "fileCount": 49,
+      "latest": [
+        {
+          "name": "zhixu_staging_20261011T191504Z.dump.meta.txt",
+          "bytes": 297,
+          "mode": "-rw-------",
+          "modified": "2026-10-11T19:15:05.493415+00:00"
+        },
+        {
+          "name": "zhixu_staging_20261011T191504Z.dump.sha256",
+          "bytes": 130,
+          "mode": "-rw-------",
+          "modified": "2026-10-11T19:15:04.752380+00:00"
+        },
+        {
+          "name": "zhixu_staging_20261011T191504Z.dump",
+          "bytes": 102960,
+          "mode": "-rw-------",
+          "modified": "2026-10-11T19:15:04.379363+00:00"
+        },
+        {
+          "name": ".backup.lock",
+          "bytes": 0,
+          "mode": "-rw-------",
+          "modified": "2026-10-11T19:15:04.225356+00:00"
+        },
+        {
+          "name": "zhixu_staging_20261010T191504Z.dump.meta.txt",
+          "bytes": 297,
+          "mode": "-rw-------",
+          "modified": "2026-10-10T19:15:05.606237+00:00"
+        }
+      ]
+    },
+    "contentsRead": false,
+    "independentRestoreThisTask": "NOT_RUN",
+    "offHostCopy": "UNVERIFIED",
+    "newCandidateBackup": "NOT_CONFIGURED"
+  },
+  "limits": [
+    "Only aggregate counts for named business tables; not proof that every table or external object is empty.",
+    "Existing runtime config environment keys and mounts inspected; old frontend authority not confirmed.",
+    "No latest app startup, migrations, credential setup, COS write probe or deployment executed.",
+    "Historical 18443/18444 not re-observed.",
+    "No verified Cloudflare origin mapping, external login or human business acceptance."
+  ]
+}
