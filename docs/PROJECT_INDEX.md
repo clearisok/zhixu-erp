@@ -1,8 +1,8 @@
 # 项目知识索引
 
-> 核实日期2026-10-12；main起点 `4adbc30845f99368caa77d3431cc67a6440ac623`。PR91/92/93/94均已合并；运行环境、人工验收和Source激活分别见[当前状态](CURRENT_STATE.md)与[机器可读清单](release/baseline.json)，不能从merge推断部署。原PR92 Draft等滚动状态完整保存在[前序快照](tasks/completed/2026-10-12-release-baseline-predecessor-state.md)。
+> 核实日期2026-10-12；main 01694d723cd7b65fcc20e3e79941fef0d57439fc（PR91–95已合并）。当前任务：[宁波首批团队接入](tasks/active/ningbo-first-team-access.md)，状态见[CURRENT_STATE](CURRENT_STATE.md)，历史见[前序快照](tasks/completed/2026-10-12-first-team-predecessor-state.md)。GitHub是实时事实源；随main/权限/Source/环境或验收变化更新。
 
-> 当前开发任务：[Release baseline guard v2](features/RELEASE_BASELINE_GUARD.md) / [实施证据与PR95复审](tasks/active/release-baseline-guard.md)。v2补强UI输入、CSS AST、冻结Git证据及状态转换约束；只验证源码/历史证据契约，不代替真实UI/DB/发布验收。Git交付继续使用[PR94协议](tasks/active/git-delivery-resilience.md)。
+> [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
 
 ## 系统简介
 
@@ -42,7 +42,7 @@
 | `features/closing-center/` | 月度关账、归属快照、产值投影、锁账生命周期与关账搜索 |
 | `features/basic-settings/` | 品牌、客户业务员、面料库、辅料库及默认资料逻辑 |
 | `features/operations-settings/` | 生产组、外发厂、生产地点/日历、供应枢纽/路线/运输方式及关账设置基础设施 |
-| `features/permissions/` | Quote Center 前端 User / Role / Permission、mock repository、权限上下文和用户权限页面 |
+| `features/permissions/` | User / Role / Permission、默认Browser mock与显式Server session账号管理，复用用户权限页面 |
 | `features/operation-logs/` | 统一追加式 OperationLog、差异生成、localStorage repository、报价时间线和系统全局查询页 |
 | `server/` | Node/TypeScript API runtime、PostgreSQL pool/migration、可信 Auth/RBAC、server OperationLog，以及 PostgreSQL SalesOrder repository/transactional service/read API 与集成测试 |
 | `features/global-search/` | ERP Command Palette、SearchProvider 注册表、Quote/Order 搜索和最近访问 |

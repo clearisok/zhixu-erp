@@ -9,6 +9,9 @@ import type {
 } from "../../quote-center/model/quote-view-model";
 
 export type OperationLogAction =
+  | "创建账号"
+  | "修改账号"
+  | "重置密码"
   | "创建报价"
   | "保存报价"
   | "删除报价"

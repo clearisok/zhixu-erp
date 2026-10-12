@@ -39,6 +39,7 @@ import { routeQuoteMasters } from "./quote-masters/routes.js";
 import { routeQuoteAttachments } from "./attachments/routes.js";
 import type { AttachmentStorage } from "./attachments/storage.js";
 import { serveStatic } from "./static-files.js";
+import { routeTeamAccess } from "./auth/team-access-routes.js";
 
 export type ServerLogger = {
   error(event: Record<string, unknown>): void;
@@ -321,6 +322,7 @@ async function route(
   }
 
   if (await routeQuoteMasters(request, response, dependencies, correlationId)) return;
+  if (await routeTeamAccess(request, response, dependencies)) return;
   const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
   if ((request.method === "GET" && (path === "/api/v1/quotes/creation-options" || creationReceipt))
     || (request.method === "POST" && ["/api/v1/quotes/creation-preview", "/api/v1/quotes/creation-workflows", "/api/v1/quotes/creation-defaults"].includes(path))) {

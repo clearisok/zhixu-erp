@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
-  "verifiedAt": "2026-10-12T11:48:00+08:00",
+  "baselineSha": "01694d723cd7b65fcc20e3e79941fef0d57439fc",
+  "verifiedAt": "2026-10-12T06:27:21.108Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -204,6 +204,22 @@
       "sha256": "a3d170eb0b2a10289d2d8f41fd55545be7c532875f4dc6b2cdff9513473e1f9f",
       "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
       "renderedSourceSha": "a537e750912eb8c415ce9de5f7403bc120271738"
+    },
+    {
+      "id": "decisions-team-access",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e",
+      "sha256": "a34f7951ae64ca5a05e257e013e961bf963d1e9b111d2a86cdd9bc21b4f3bbf0",
+      "supersedes": "decisions",
+      "changeReason": "User-approved D-104 six-role and authenticated account management; prior decisions retained."
+    },
+    {
+      "id": "team-access-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ningbo-first-team-access/engineering.md",
+      "recordedAtSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e",
+      "sha256": "c37725999a0db6d2366bb8781e8f515852c1509892da1a39c47f4537a64a7354"
     }
   ],
   "pages": [
@@ -353,6 +369,21 @@
         "order-images",
         "responsive-tests"
       ]
+    },
+    {
+      "id": "user-permissions",
+      "route": "/basic-settings/user-permissions",
+      "routeFile": "app/basic-settings/user-permissions/page.tsx",
+      "components": [
+        "features/permissions/components/user-permission-page.tsx",
+        "features/permissions/components/server-user-permission-page.tsx"
+      ],
+      "acceptance": "implementation-only",
+      "acceptanceScope": "User-authorized account functionality on existing MasterDetail/Modal. Synthetic UI PASS; no new human visual acceptance.",
+      "evidence": [
+        "team-access-engineering",
+        "decisions-team-access"
+      ]
     }
   ],
   "css": {
@@ -407,7 +438,8 @@
     "/basic-settings/fabrics",
     "/basic-settings/trims",
     "/system-settings/quote-settings",
-    "/system-settings/operation-logs"
+    "/system-settings/operation-logs",
+    "/basic-settings/user-permissions"
   ],
   "capabilities": [
     {
@@ -1144,6 +1176,91 @@
           ],
           "runtimeId": "preview18444",
           "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "first-team-access",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Six role presets and session-only account management. No real accounts, source activation or Ningbo/18443/18444 deployment.",
+      "evidence": [
+        "team-access-engineering"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-12",
+          "scope": "Six role presets and session-only account management. No real accounts, source activation or Ningbo/18443/18444 deployment.",
+          "evidence": [
+            "team-access-engineering"
+          ],
+          "sourceSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e"
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-12",
+          "scope": "Six role presets and session-only account management. No real accounts, source activation or Ningbo/18443/18444 deployment.",
+          "evidence": [
+            "team-access-engineering"
+          ],
+          "sourceSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Six role presets and session-only account management. No real accounts, source activation or Ningbo/18443/18444 deployment.",
+          "evidence": [
+            "team-access-engineering"
+          ],
+          "sourceSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e"
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-12",
+          "scope": "Six role presets and session-only account management. No real accounts, source activation or Ningbo/18443/18444 deployment.",
+          "evidence": [
+            "team-access-engineering"
+          ],
+          "sourceSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e"
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-12",
+          "scope": "Six role presets and session-only account management. No real accounts, source activation or Ningbo/18443/18444 deployment.",
+          "evidence": [
+            "team-access-engineering"
+          ],
+          "sourceSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e"
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "scope": "This new feature is not deployed; runtime identity is only the unchanged historical observation.",
+          "evidence": [
+            "team-access-engineering"
+          ],
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "scope": "This new feature is not deployed; runtime identity is only the unchanged historical observation.",
+          "evidence": [
+            "team-access-engineering"
+          ],
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "runtimeId": "preview18444",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
         }
       }

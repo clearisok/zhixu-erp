@@ -52,7 +52,9 @@
     "benchmark:style-progress": "tsx scripts/benchmark-style-progress.tsx",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "test:team-access": "tsx --test --test-concurrency=1 features/permissions/server/__tests__/team-access-client.test.ts server/integration/team-access.integration.test.ts",
+    "test:team-access-ui": "tsx --test --test-concurrency=1 server/integration/team-access-ui.integration.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",
