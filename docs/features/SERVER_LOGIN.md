@@ -3,7 +3,7 @@
 核实日期：2026-10-12；main 基线：db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e。代码在 feat/animated-login；是否合并/部署以 GitHub 和环境证据为准。关联 D-107。
 
 ## 用户决定与视觉范围
-用户要求正式 /login 路由、有趣的 animated login，替代正式 Server 业务页面内部登录框。本次只批准登录入口的视觉变更；报价、订单、物料、设置和导航继续原布局。尚无本次成品人工验收。用户指定 https://github.com/katavii/animated-login，已核对参考 master 62f0b80c7694c3dfe07b39c7a85bdd832ff4bb15。按其蓝色分栏、四角色、跟随/眨眼/密码反应重新实现原生 CSS/React 版本；无外部图片、字体或动画依赖。参考树未含许可证文件且 API license=null，不引入原源码或 GSAP/Ant Design；此处记录参考来源，不声明原项目许可。
+用户要求正式 /login 路由、有趣的 animated login，替代正式 Server 业务页面内部登录框。本次只批准登录入口的视觉变更；报价、订单、物料、设置和导航继续原布局。2026-10-12 用户确认“登录页可以”；该验收仅限登录视觉。用户指定 https://github.com/katavii/animated-login，已核对参考 master 62f0b80c7694c3dfe07b39c7a85bdd832ff4bb15。按其蓝色分栏、四角色、跟随/眨眼/密码反应重新实现原生 CSS/React 版本；无外部图片、字体或动画依赖。参考树未含许可证文件且 API license=null，不引入原源码或 GSAP/Ant Design；此处记录参考来源，不声明原项目许可。
 
 ## 当前实现
 - app/login/page.tsx 独立全屏页面，复用 ServerSessionProvider、现有 /api/v1/auth/login、me、permissions、logout 与 HttpOnly 会话。
@@ -17,7 +17,7 @@
 
 ## 边界
 没有修改后端密码策略、账号、数据库 schema、权限目录或生产路由 allowlist；不修改宁波或 18443/18444。历史 Browser legacy /api/login、被封闭的 shadow/writer 工作区兼容登录卡仍保留；不能将这些入口视为正式 Server /login。
-PR100（ba6ec973c4e7c5d884505990cb1db2e1d5861de7）仍独立开放，首次绑定/调度/订单物料路由能力不在本分支；两项合并时保留其 isEnabledServerRoute 判定与本次 LoginRedirect，重跑组合测试。不自动合并任何 PR。
+PR101 已合并到 main 3456fe5fc6e213c2e896e4e6a509e28751f1798c。PR100 仍开放，在其独立工作树整合本页与原 P6 订单物料；保留 isEnabledServerRoute 与 LoginRedirect，组合结果见统一本机演示任务。不自动合并 PR100。
 
 ## 验证与人工验收
 测试入口：test:server-auth-frontend、test:animated-login-ui、test:team-access-ui、test:quote-server-ui；类型/lint/root/build 与 release baseline 同时检查。

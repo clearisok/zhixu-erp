@@ -5,8 +5,8 @@ import { ServerStyleProgressDetailPage } from '@/features/style-progress/compone
 import { quoteAuthority } from '@/features/quote-center/authority/quote-authority';
 export default function Page() {
   const params=useSearchParams();
-  if(params.has('orderId')) {
-    // Server Quote global route gate still blocks this route until separately approved.
+  if(quoteAuthority()==='server'||params.has('orderId')) {
+    // Explicit build capability and trusted session gate own Server entry; no Browser fallback.
     if(quoteAuthority()!=='server') return <p>正式物料页面尚未开放；不会读取 Browser 订单。</p>;
     return <ServerStyleProgressDetailPage/>;
   }

@@ -1,3 +1,5 @@
+> 2026-10-12 D106工程更新：显式snapshot候选可接通既有P6三页，默认关闭；只读执行详情不开放CCT编辑，不表示真实cutover。当前边界见[Server Source](AINUOKE_SERVER_SOURCE.md)；下方历史证据原样保留。
+
 # SalesOrder Browser Cutover Readiness
 
 ## C4.3 Server engineering update — 2026-10-09

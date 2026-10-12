@@ -6,7 +6,7 @@ import { useServerSession } from "@/features/server-auth";
 import { LoginRedirect } from "../../server-auth/components/login-redirect";
 import { PermissionAuthorityProvider } from "@/features/permissions";
 import { PermissionProvider, TrustedPermissionProvider } from "../../permissions/components/permission-provider";
-import { isServerQuoteRoute, quoteAuthority } from "../authority/quote-authority";
+import { isEnabledServerRoute, quoteAuthority } from "../authority/quote-authority";
 import { browserIdentityMode } from "../../server-auth/identity-mode";
 
 function SessionLogout() {
@@ -27,7 +27,7 @@ export function QuoteServerBoundary({ children }: { children: ReactNode }) {
   if (path === "/login") return children;
   if (quoteAuthority() !== "server") return <PermissionProvider>{children}</PermissionProvider>;
   return <TrustedPermissionProvider><PermissionAuthorityProvider can={session.hasPermission}>
-    {!isServerQuoteRoute(path) ? <AppShell title="此模块尚未接通 Server"><PageContainer><ErrorState title="当前新系统只启用报价与必要基础设置" description="此路由不会加载旧 Browser 业务数据。" /></PageContainer></AppShell>
+    {!isEnabledServerRoute(path) ? <AppShell title="此模块尚未接通 Server"><PageContainer><ErrorState title="此模块未在当前候选中启用" description="此路由不会加载旧 Browser 业务数据。" /></PageContainer></AppShell>
       : session.status === "checking" ? <LoadingState label="恢复 Server 身份" />
       : session.status === "error" ? <ErrorState title="Server 身份不可用" description={session.error} onRetry={() => void session.refresh()} />
       : session.status === "anonymous" ? <LoginRedirect />

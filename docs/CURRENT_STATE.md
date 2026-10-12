@@ -1,14 +1,11 @@
 # 当前状态
+核实2026-10-12；GitHub main：3456fe5fc6e213c2e896e4e6a509e28751f1798c（PR101 已合并）。GitHub 是实时事实源；随 main/PR/测试/验收/环境变化更新。
 
-核实日期：2026-10-12；GitHub main / 当前任务基线：db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e（PR99 已合并）。GitHub 是实时事实源，此文为快照；前序记录保留在 tasks/active/ainuoke-server-source.md 与既有 completed 归档。
+- 用户确认“登录页可以”，PR101 已按授权合并；只确认登录视觉，未扩大为全业务人工验收。
+- PR100 在原独立工作树整合最新 main，保留原 P6 订单/物料与正式 /login，默认 Server orderRead/Source 仍关闭；当前做同一本机合成演示，不合并 PR100。
+- 一套临时 loopback PostgreSQL、六个 demo.* 合成角色、一套 session；每60秒合成快照，页面30秒读取。真实账号、数据库、宁波与18443/18444不变。
+- 当前组合测试结果见[统一演示](tasks/active/unified-local-demo.md)。本轮组合UI9、登录UI10、六角色UI5、会话112、root810、基线71与实际main校验全通过；continuous本机29通过/1Linux限定跳过，当前CI单独核实。
+- D105保持：真实四流持续按订单展示后才上线宁波。安全通道/私密凭据/首次真实绑定/连续运行/完整镜像/备份恢复/人工验收仍待授权Gate。新增合同和主信息/颜色增量未实现。
+- Quote扩展UI在旧main与PR101均69/78、8个相同失败+父测试失败，原因未解决；这是历史对照，不声明全项目全绿。PR98仍需对齐D105后再考虑。
 
-- PR97 六角色可信账号管理、PR99 默认关闭的 Server Source 基础能力已合并。真实来源未激活，无本次真实账号、数据库或部署操作。
-- PR100 / feat/ainuoke-continuous-material-display 已提交、仍未合并：首次绑定、持续调度、既有页面接线的合成验证见该 PR。本分支来自 main，不把 PR100 能力写成已在当前代码中实现。
-- 当前 feat/animated-login：用户要求正式 /login 和有趣动画，仅登录 UI 有范围内改版授权。复用可信会话，安全返回原页、错误/网络重试、密码显隐、响应式与减少动态效果；详见 [功能](features/SERVER_LOGIN.md)、[交付](tasks/active/animated-login.md)、D-107。成品人工验收待完成。
-- 扩展 Quote Chromium 回归：最新main与候选均69 PASS /9 FAIL（8子场景+父测试），共享条款确认和无估算权限导出场景需独立定位；此次登录未增加失败，不将全项目写成PASS。证据见 tasks/active/evidence/animated-login/quote-regression-comparison.json。
-- Ubuntu 上线条件仍是“艾诺科数据持续展示后再上线”（D-105）。独立库存台账、生产和关账不是这次前置。真实凭据、连续采集观察、备份恢复、候选组合验证与人工验收仍在发布 Gate。
-- 其余 UI 保持 D-099/D-102/P6；生产业务 allowlist 不因新增公开 /login 扩大。历史 runtime 仅保留当时镜像/SHA，不冒充本轮环境核查。
-- 宁波与18443/18444未操作；PR98 旧预检/方案需对齐 D-105 后重新审查，不能原样合并。PR100 与登录 PR 合并时须保留双方路由/状态/证据，重跑集成测试。
-- 实现、合并、测试、部署、人工验收、来源激活见 [能力快照](release/baseline.json)。无自动合并、部署或共享数据库授权。
-
-更新时机：main/PR/登录/权限/来源/环境与验收改变。
+详细功能：[来源](features/AINUOKE_SERVER_SOURCE.md)、[登录](features/SERVER_LOGIN.md)、D106/D107；历史冻结证据不覆盖。

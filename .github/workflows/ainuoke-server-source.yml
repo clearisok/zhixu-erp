@@ -28,7 +28,18 @@ jobs:
         run: |
           npm run server:build
           npm run test:ainuoke-server-source
+          npm run test:ainuoke-continuous
           npx --no-install tsx --test server/integration/fresh-start.integration.test.ts
+      - name: Explicit source candidate build
+        env:
+          NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY: server
+          NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY: server
+          NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE: writable
+          NEXT_PUBLIC_ZHIXU_IDENTITY_MODE: session
+          NEXT_PUBLIC_ZHIXU_ORDER_READ: snapshot
+        run: npm run build
+      - name: Existing P6 pages, six roles and persisted refresh in private Chromium
+        run: npm run test:ainuoke-continuous-ui
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge
         env:

@@ -82,6 +82,11 @@ test('wrong PR base and missing local commit object are distinct blocking failur
   has(f.check({ hasCommit: () => false }), 'SOURCE_SHA');
 });
 
+test('missing status-only commit remains a blocking failure', t => {
+  const f = fixture(t); f.manifest.capabilities[0].statusEvidence.implemented.sourceSha = 'f'.repeat(40);
+  assert.ok(f.check().some(error => error.code === 'SOURCE_SHA' && error.detail === f.manifest.capabilities[0].id + ':implemented'));
+});
+
 test('short SHA is not accepted as a baseline identity', t => {
   const f = fixture(t); f.manifest.baselineSha = original.baselineSha.slice(0, 7);
   has(f.check(), 'SOURCE_SHA');

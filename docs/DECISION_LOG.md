@@ -22,13 +22,24 @@
 - 日期：2026-10-12；状态：Active；用户决定。
 - 用户原话：“要有正式的一个页面，然后正确的路由杠 log in 使用 animatd - login……我希望我的登录页有趣一点。”
 - 授权仅覆盖正式登录入口：独立 /login、现有可信 session、安全回到原页面、动画/响应式/可访问性。其余页面继续 D-099/D-102/P6；没有全站重设计、真实账号/数据库/部署授权。
-- 用户随后指定 katavii/animated-login（https://github.com/katavii/animated-login；参考 SHA 62f0b80c7694c3dfe07b39c7a85bdd832ff4bb15）；对齐蓝色分栏和四角色互动，以原生 CSS/React 独立实现。用户尚未验收成品，不能把改版授权写成视觉验收 PASS。
+- 用户随后指定 katavii/animated-login（https://github.com/katavii/animated-login；参考 SHA 62f0b80c7694c3dfe07b39c7a85bdd832ff4bb15）；对齐蓝色分栏和四角色互动，以原生 CSS/React 独立实现。2026-10-12 用户随后确认“登录页可以”，批准 PR101 合并；此项只验收登录视觉，不等于订单/物料或真实上线验收。
 - 保留 Browser/legacy 与 local-single-user authority，不替换后端、不扩张生产业务路由；凭据仍只经现有 API。
 - 代码证据：app/login/page.tsx、app/login/login.css、features/server-auth/components/animated-login-page.tsx、login-route.ts、features/quote-center/components/quote-server-boundary.tsx；回归 server/integration/animated-login-ui.integration.test.mjs。
-- D-106 已由独立 PR100 使用，本分支不复制其未合并决策；整合时保留两者。主基线 db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e。
+- PR101 已合并至 3456fe5fc6e213c2e896e4e6a509e28751f1798c；用户授权将 PR100 整合至同一本机合成演示，保留 D-106。PR100 仍未获合并授权，无真实账号/数据库/部署操作。
+
+### D-106 首次订单绑定、持续采集与原P6页面接线
+- 日期：2026-10-12；状态：Active。用户明确要求“合并 PR #99，然后从最新 main 建独立 worktree，继续做首次订单绑定、持续调度和现有页面接线。保持现有 UI，先用合成数据测试，完成后提交 PR 并复审。暂不修改真实账号、数据库或部署，不自动合并新的 PR”。
+- 本条接续D105首次绑定/调度开发Gate；D105宁波持续展示后上线、D104来源全团队可见、D103织序金额权限不变。首绑复用现有订单/Source Link/6087105，不引入库存账本。
+- 受控首次空订单账本绑定：fresh完整Discovery+颜色→预览→目标/previewHash明确确认→fresh核对→整批事务/权限/审计。相同首绑凭证才能幂等重试；旧账本、部分集合、换账号不自动接管。来源缺颜色不等于订单不存在。
+- scheduler显式启动，只更新已绑定订单的物料来源快照；错误凭据/授权撤销停止，网络错误有界退避。首绑后新增合同、现有主镜像/颜色刷新仍需后续独立范围，不能冒称自动全生命周期。
+- UI接线只复用P6列表/执行详情/物料Control Tower，默认disabled候选开关，保留CSS/列宽/布局/断点；既有入口可用性随能力改变，未支持页面disabled。用户授权功能接线，不授权重新设计。
+- 默认API启动不采集；无真实凭据/迁移/账号/部署/人工验收。本机临时合成演示不属于真实上线。
+- 证据：server/ainuoke-source/binding.ts、scheduler.ts、cli.ts；server/integration/ainuoke-continuous*、ainuoke-binding*、order-read-capability.test.ts；[功能](features/AINUOKE_SERVER_SOURCE.md)、[任务](tasks/active/ainuoke-continuous-material-display.md)。
 
 
 ### D-105 宁波上线以前持续展示艾诺科订单物料来源
+
+- 2026-10-12后续工程范围由D106接续：首次绑定/调度/页面接线开发已获授权；下方“无scheduler”等为PR99阶段实现记录，真实激活仍未授权。
 
 - 日期：2026-10-12；状态：Active。用户明确批准 feat/ainuoke-server-source、独立worktree、合成测试/PR/复审；禁止真实账号/DB/部署/自动合并。
 - 发布决定：报价当前暂时OK；宁波Ubuntu在艾诺科采购、入库、物料出运和出库持续按订单展示后再上线。暂不做独立库存台账；不将生产/关账全部Server化追加为首版前置。

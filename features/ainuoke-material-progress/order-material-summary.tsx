@@ -1,18 +1,31 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { useServerSession } from '@/features/server-auth';
 import { Card } from '@/components/foundation/card';
 import { readOrderMaterial } from './http-client';
 import { orderMaterialNavigation } from './order-navigation';
 import type { OrderMaterialReadModel } from './read-service';
 export const materialStateLabels = {not_purchased:'未采购',purchasing:'采购中',pending_inbound:'已采购待入库',ready:'已齐套'} as const;
+export const MATERIAL_REFRESH_MS=30000;
 export function useOrderMaterial(id: string) {
-  const [state,setState]=useState<{id:string;model:OrderMaterialReadModel|null;error:string|null;loading:boolean}>({id,model:null,error:null,loading:true});
+  const session=useServerSession();
+  const scope=id+"/"+(session.user?.id??"")+"/"+session.status+"/"+session.permissions.join("|");
+  const [state,setState]=useState<{id:string;model:OrderMaterialReadModel|null;error:string|null;loading:boolean}>({id:scope,model:null,error:null,loading:true});
   const [refresh,setRefresh]=useState(0);
-  useEffect(()=>{const controller=new AbortController();
-    void readOrderMaterial(id,controller.signal).then(model=>{if(!controller.signal.aborted)setState({id,model,error:null,loading:false});},()=>{if(!controller.signal.aborted)setState({id,model:null,error:'正式物料来源未接通或不可读取；不会回退 Browser。',loading:false});});
-    return()=>controller.abort();
-  },[id,refresh]);
-  return {model:state.id===id?state.model:null,error:state.id===id?state.error:null,loading:state.id!==id||state.loading,reload:()=>{setState({id,model:null,error:null,loading:true});setRefresh(n=>n+1);}};
+  useEffect(()=>{
+    const controller=new AbortController();let timer:ReturnType<typeof setTimeout>|undefined;let pending=false;
+    const read=async()=>{
+      if(pending||controller.signal.aborted)return;
+      clearTimeout(timer);pending=true;
+      try{const model=await readOrderMaterial(id,controller.signal);if(!controller.signal.aborted)setState({id:scope,model,error:null,loading:false});}
+      catch{if(!controller.signal.aborted)setState({id:scope,model:null,error:'正式物料来源未接通或不可读取；不会回退 Browser。',loading:false});}
+      finally{pending=false;if(!controller.signal.aborted)timer=setTimeout(()=>{if(document.visibilityState==='visible')void read();else timer=setTimeout(onVisible,MATERIAL_REFRESH_MS);},MATERIAL_REFRESH_MS);}
+    };
+    const onVisible=()=>{if(document.visibilityState==='visible')void read();};
+    void read();document.addEventListener('visibilitychange',onVisible);window.addEventListener('focus',onVisible);
+    return()=>{controller.abort();clearTimeout(timer);document.removeEventListener('visibilitychange',onVisible);window.removeEventListener('focus',onVisible);};
+  },[id,scope,refresh]);
+  return {model:state.id===scope?state.model:null,error:state.id===scope?state.error:null,loading:state.id!==scope||state.loading,reload:()=>{setState({id:scope,model:null,error:null,loading:true});setRefresh(n=>n+1);}};
 }
 export function OrderMaterialSummary({salesOrderId}:{salesOrderId:string}) {
   const state=useOrderMaterial(salesOrderId); const route=orderMaterialNavigation(salesOrderId);const view=state.model?.progress;

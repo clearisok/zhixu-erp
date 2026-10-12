@@ -1,11 +1,8 @@
 # AI handoff
-核实2026-10-12；main基线 db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e（PR99 merged）。
-任务 feat/animated-login，独立worktree初始clean。用户指定 katavii/animated-login，限定/login改版；无真实账号/DB/环境操作或自动合并。
-生产源0095b0e8448dfd336cf479ad82927b3f11fd9cae；报价测试重定向适配e0c5e4d900c991220a6e168a04bffdca0648c0ea。功能见features/SERVER_LOGIN.md/D-107；冻结证据见tasks/active/evidence/animated-login/engineering.md。
-双authority构建、112会话、10登录UI、5六角色UI、typecheck/lint/serverbuild PASS。扩展Quote main/候选均69/78（8相同失败+父测试），不能冒称全项目PASS；不擅自改报价业务。历史截图被测试写入的增量已恢复，默认输出迁至ignored outputs。
-证据commit be8df7677802eecfd2ab5b8d1940060100139e65；manifest与main对齐，root809/809及阻断门禁PASS。下一步：唯一PR当前SHA CI及视觉验收；用户视觉验收仍待完成。PR100仍open，未纳入本分支；未来整合保留isEnabledServerRoute与LoginRedirect，D-106/D-107各自保留。
-LOCAL ENGINEERING已独立验证上述范围；REMOTE DELIVERY及当前CI以分支唯一PR正文/checks为准，未在此预先宣称成功。起始fetch网络重置但API核实完整main对象，不冒称远端提交已送达。
-本机合成演示 npm run demo:login：只监听127.0.0.1，两小时自动清理；不是宁波或18443/18444部署。
-更新时机：checkpoint/门禁/CI/main/PR/验收或环境改变。
+核实2026-10-12；main 3456fe5fc6e213c2e896e4e6a509e28751f1798c；PR101 已于2026-10-12T11:56:09Z合并，用户确认登录视觉。
+当前继续 feat/ainuoke-continuous-material-display / PR100，起始HEAD ba6ec973c4e7c5d884505990cb1db2e1d5861de7，工作树clean。已fetch并合入main，保留isEnabledServerRoute、LoginRedirect和SessionLogout；生产源f430123cb0dc201350b9558de41edd85afe3f9b4；组合UI9/9、登录10/10、六角色5/5、会话112/112、root810/810与基线71/71均通过。
+任务：同一本机登录/报价/订单/物料演示；不合并PR100，不部署，不操作真实账号或数据库。demo.*只在独立临时PostgreSQL，脚本忽略真实DATABASE_URL。
+本机统一演示已启动并打开，入口/login，原订单/物料布局不变。冻结证据见tasks/active/evidence/unified-local-demo/engineering.md。冻结证据commit e20674171090217cc86cc79a87284f6e1181081f；manifest保留main旧证据并新增组合证据。LOCAL ENGINEERING通过；REMOTE DELIVERY/当前CI以PR100最终精确head为准。仅更新既有PR100，不自动合并。
+历史证据与剩余限制见tasks/active/unified-local-demo.md和CURRENT_STATE；不要覆盖旧冻结截图。更新时机：checkpoint、验证、PR/main、验收与环境变化。
 
-合并前复审：本PR范围无新增阻断，用户视觉验收和精确SHA CI为合并条件；现存Quote失败及PR100组合测试仍需单独处理。
+CI修正：de3532远端已精确送达，baseline/team-access通过，Source的新增组合导航断言遇到瞬间CDP上下文销毁。已仅修正测试有界重试并本地9/9重跑；当前精确head CI以PR100为准。产品构建仍f430123，演示无需重启。

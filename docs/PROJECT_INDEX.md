@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 核实日期2026-10-12；main db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e（PR99已合并）。当前任务：[正式动画登录](features/SERVER_LOGIN.md)、[交付证据](tasks/active/animated-login.md)。PR100仍独立开放；GitHub是实时事实源，随main/来源/环境/验收变化更新。
+> 核实2026-10-12；main 3456fe5fc6e213c2e896e4e6a509e28751f1798c（PR101 已合并）。当前任务：[统一本机演示](tasks/active/unified-local-demo.md)，PR100 保持开放。GitHub 是实时事实源；随 main/来源/环境/验收变化更新。
 
 > [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
 
@@ -12,7 +12,7 @@
 
 - 根路径 ERP：报价、订单、排单、用户和审计功能，使用 PostgreSQL 持久化，并由数据库函数提供 API。
 - Quote Center 路径：默认 Browser mock 持久化；显式 Server 模式的正式报价/资料 UI 使用可信 Node `/api/v1` 与 PostgreSQL，已有报价工作流/附件/导出/日志。旧实际运行态与最新工程能力分开记录，与 legacy `/api/quotes` 隔离。
-- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单；D-105允许受控来源读取开发，不自动建单或真实激活。报价之外模块不因试用候选而自动 production-ready。
+- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单；D-105/106允许受控来源与显式首次绑定开发，不自动追加合同或真实激活。报价之外模块不因试用候选而自动 production-ready。
 
 两条路径都是真实现，但边界和成熟度不同。开始任务前必须先确认目标模块。
 
@@ -66,7 +66,7 @@
 
 ## 当前来源任务
 
-[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；首次绑定、调度、真实Scope、页面生产接线待后续Gate。
+[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已实现待本PR交付；默认disabled，真实Scope/持续运行/部署仍待Gate。
 
 ## 模块导航
 

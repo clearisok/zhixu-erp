@@ -40,6 +40,19 @@ class FakeClient:
 
 
 class ServerSourceTests(TestCase):
+    def test_binding_mode_reads_all_discovery_contracts_with_formal_color_query(self):
+        client = FakeClient()
+        data = collect({**CONFIG, "mode": "bindings", "contracts": []}, client)
+        self.assertEqual(data["schemaVersion"], "ainuoke-order-binding.v1")
+        self.assertEqual([c[0] for c in client.calls], [6086103, 6087105, 6087105, 6086103])
+        self.assertEqual(client.calls[1][2], {"salesContractNo": "CONTRACT-1"})
+        self.assertEqual(set(data["colors"]), {"CONTRACT-1"})
+
+    def test_binding_mode_rejects_caller_scope_or_unknown_mode(self):
+        for change in ({"mode": "bindings"}, {"mode": "inventory", "contracts": []}):
+            with self.assertRaises(ValueError):
+                validate_input({**CONFIG, **change})
+
     def test_only_fixed_reports_complete_pagination(self):
         client = FakeClient()
         data = collect(CONFIG, client)
