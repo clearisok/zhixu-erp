@@ -1,35 +1,31 @@
 # 当前状态
 
-> 2026-10-12 / A：独立 Git 交付治理分支 `chore/git-delivery-resilience` 已实施安全单次push/独立精确SHA核验、PowerShell脱敏对照及统一NETWORK_DEGRADED规则。定向25/25、lint/语法/解析/diff-check PASS；工具checkpoint ffc7b142cdfd521c1e46123d55dd00ec6b71609c 已正常推送并由GitHub API核实。历史TLS根因仍unresolved，普通用户PowerShell对照待执行；不是ERP/部署变更。[工具与证据](tasks/active/git-delivery-resilience.md)。最终流程文档交付以同分支PR及最终SHA为准。
+> 核实日期：2026-10-12。任务起点 / GitHub main：`4adbc30845f99368caa77d3431cc67a6440ac623`（PR94合并点）。这是有时间戳的状态快照；下一任务仍须实时核对main、PR与运行身份。
 
-> 2026-10-12 / B：main070d958及已合并PR93/D103已普通merge入PR92，冲突逐hunk解决。原P6/精简订单/只读Control Tower用户人工验收PASS保持；本轮工程回归Source78/78、Material HTTP/负向安全19/19、客户端/SSR25/25、实际Chromium物料7/7(115断言)/商业15/15、npm758/758、完整PG261/261、typecheck/lint/串行Server及双Authority构建/diff-check/清理均PASS。合并a252d82791d3b0cf2a216cc2939a64ec9caf50c7，已验证源码a537e750912eb8c415ce9de5f7403bc120271738正常push；PR92无合并冲突、继续Draft。executionOnly不读写CCT；真实Source/可信账号/团队scope/生产route未激活、不回退Browser。继承Gate1文档30行/hash保持未提交；A/真实环境/数据/migration/真实角色配置未操作。[完整交付与限制](tasks/active/order-material-pr93-integration.md) / [本轮截图](tasks/active/evidence/order-material-pr93-integration/README.md) / [历史快照](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)。
+## 已合并工程与验收范围
 
+- PR91、PR92、PR93、PR94均已MERGED；PR88为closed未merge。原“PR92 Draft”是历史状态，见[完整归档](tasks/completed/2026-10-12-release-baseline-predecessor-state.md)。
+- PR91：D-102普通电脑直接保留草稿、制作方案→默认值、原版列表铺满与偏好保持；2026-10-11人工PASS只覆盖该候选范围。
+- PR92：订单P6/精简详情/只读Control Tower有用户PASS及后续联合工程回归；**真实Source、可信账号/团队scope、生产路由未激活**。executionOnly不访问CCT，不回退Browser。
+- PR93：D-103 sale/labor四键与成本/测算销售价/历史/导出/日志保护在main；不能据此声称运行环境已修复。
+- PR94：单次Git交付、精确SHA核验和NETWORK_DEGRADED规则已合并；不改变ERP功能或运行环境。
+- [基线/能力清单](release/baseline.json)分别记录实现、合并、隔离测试、两环境部署、人工验收和来源激活；[检查说明](features/RELEASE_BASELINE_GUARD.md)。
 
-> 2026-10-10：PR #91 / D-102 第二轮反馈新版已按用户授权更新隔离18444，**PREVIEW UPDATE PASS / USER ACCEPTANCE PASS（2026-10-11 用户明确批准合并 PR #91）**。实际源码eb9530a/image1707a8e54159；18443、真实业务库/COS和订单工作树未动。
+## 运行环境（沿用历史证据，本任务未访问）
 
-## 当前工程
+| 环境 | 最后记录source / image | 范围 |
+| --- | --- | --- |
+| 18443 | 878de323d618b25fca1f51ccf3f024e932641742 / sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4 | 较早Quote试用；[2026-10-09更新证据](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md) |
+| 18444 | eb9530ac9a2e1b7f68299d97c4d424662a6622f7 / sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23 | PR91已验收候选；[部署/恢复历史](tasks/active/quote-two-step-creation.md#second-acceptance-preview-deployment-pass-2026-10-10) |
 
-- 同一可信 receipt/Quote writer/编号/事务/审计；双击防重，挂载/刷新不创建，未知结果只核对原 token。空草稿保留；类型只读，generic PUT不能绕过专用类型切换保护。
-- 设置页只保留制作方案管理→新建默认值，复用原ManufacturingPreset及0011；同国多个工厂按明确ID选择，卡片同步默认国家，未选择不伪造参数。通用汇率仍在第一部分；默认变化不回写旧PV。停用/修改默认方案国家时明确清除当前默认组合。
-- Server删除全局补充项UI，并停止未来新报价静默继承旧系统费用/工序说明；旧DTO精确金额/DB字段/历史保留，品牌/业务员及单据级能力、Browser旧行为不变。详情两块冗余区移除，保存状态保留在原头部；基础资料失败局部重试，不回退Browser。PV制作方案用横向卡片，保留权限/历史/CAS。
-- 首次/主动恢复默认的Server列表铺满实际容器；旧个人v1像素不覆盖，手动拖宽后全部列保持像素，100px及正式缩略图保留。窄屏内部滚动，不改Foundation其他表格。
-- 已有列表100px/偏好/正式缩略图、编辑、Revision/PV、Estimate、确认、附件、Excel/ZIP/内部汇总/日志保留。Intake、完整已有报价类型切换、Excel列筛选、整单复制/删除、Revision删除及转订单不在本轮。
-- 本轮不新增或修改migration，复用已发布0011；新候选的0001–0011原始checksum兼容验证、非空disposable仅0011升级/重跑/旧数据保持PASS。正常启动verify-only。订单PR92文件交集为零，未操作其工作树。
+可随仓恢复的环境日期采用上述2026-10-09/10部署记录；前轮本地审计不用于抬高仓内证据时间。本工程任务未重新核验runtime/ledger/账号/对象，不将旧计数称为当前值。两环境独立DB/对象与旧环境继续保留；合并不等于部署。两个记录镜像不含PR92/93。
 
-## 验证与交付
+## 当前任务与验证
 
-源码eb9530a工程阶段实际完整Chromium78/78、列表/图片专项27/27、创建29/29、资料14/14、Revision/PV10/10、Estimate8/8、附件/资料迁移11/11、auth/frontend86/86、SSR9/9、npm679/679；typecheck/lint/Server及两种前端PASS，默认build-info browser/browser/writable/session。部署收口未重复上述工程测试/构建。40张合成截图见[工程索引](tasks/active/evidence/quote-pr91-second-acceptance/README.md)；本次另行实际执行备份/完整隔离恢复、运行身份/对象SHA和全新只读Chromium，结果PASS，见[部署证据](tasks/active/quote-two-step-creation.md#second-acceptance-preview-deployment-pass-2026-10-10)。
+PR95 `chore/release-baseline-guard`提供清单与隔离PR检查；合并前审查发现的五项缺口已按v2补强：TS/资源输入、CSS AST、Git blob冻结证据、分维度状态证明、非空状态文档。八个误通过场景已成为回归测试；本轮结果和复审见[任务证据](tasks/active/release-baseline-guard.md)。不改页面、权限业务规则、路由白名单、SQL或部署；不沿用旧测试数量冒充新PASS。
 
-原分支 `feat/quote-two-step-creation`；工程从f2d7886继续，本次授权部署从local/remote/PR91 676035b / clean继续，main84c8c5b。工程checkpoint eb9530ac9a2e1b7f68299d97c4d424662a6622f7；与订单PR92文件交集为零，未访问其工作树。此前网络故障/STOP/部署证据保留，不改写成当前工程结果。
+## 风险与下一步
 
-Linux候选 `zhixu-quote-two-step:eb9530ac9a2e-ux-20261010t141559z` / image1707a8e54159 **已部署18444**，HTTPS/编译/labels一致，server/server/writable/session。最终文档SHA不冒充镜像源码；[构建时完整身份](tasks/active/evidence/quote-pr91-second-acceptance/candidate.json)中的NOT DEPLOYED为当时历史状态。
+先完成最小门禁，再独立建设真实构建的像素/几何回归和安全候选/兼容回退演练。D-023文字与600/1100/1440实际断点关系待收口，保持当前行为。Order/Material真实来源及团队scope、DeliveryPlan UI、Intake、已有报价类型切换、正式转单、生产/关账Server化仍有缺口，不增加D-098 Quote-first首版前置。关账币种汇总/文字冲突、双环境Cookie/TLS及正式账本归属保留为后续独立核查，不能在本任务顺便修复。
 
-## 环境与下一步
-
-**18444当前运行eb9530a/1707a8e54159，0001–0011 current；本次未执行迁移。** 新备份 `pr91-second-2026-10-10T15-26-38-395Z`及完整隔离PG/对象/配置恢复PASS。暂停前无上传/创建/写事务，最终30报价/30Revision/PV、2账号、3附件/对象、3回执/67日志及所有业务表哈希保持；database/对象容器、卷/网络/TLS不变，仅app/gateway及白名单构建身份更新。历史28条备份仍保留但不充当本次恢复依据。
-
-用户可继续使用[18444](https://localhost:18444/quote-center)；2026-10-11 用户已正式确认 PR #91 人工验收通过并授权合并。新隔离profile实测默认列表铺满、100px×8组合、拖宽不挤邻列、六种桌面/移动布局、详情去冗余和方案卡片PASS；既有手机大图原件7770409字节，列表实际下载256×192/4767字节缩略数据。现库0制作方案/0全局设置，诚实空态而非自动Seed。未创建报价或保存设置；单次正常登录/注销仅新增1 session/1登录记录。此前部署/STOP证据保留；汇率日期政策、影响预览与批量更新属于后续独立任务，PR #91 的验收与合并不代表该功能已实现。此次授权不涉及新的数据库/环境更新。
-
-[历史部署接力](tasks/completed/2026-10-10-pr91-two-step-handoff-history.md)和[旧项目证据](tasks/completed/2026-10-10-pre-two-step-state-history.md)保留，旧“取消零创建”不再是当前普通电脑规则；工程PASS不是人工PASS。
-
-D-096历史导入NOT REQUIRED；D-097无Browser业务回退、D-098 Quote-first、D-099原版视觉与Server能力底线、D-101剩余业务目标保持。默认Browser不变；新Server能力与真实部署分别记录。
+D-096历史导入NOT REQUIRED、D-097无Browser回退、D-099原版加后续批准变更、D-102/103保持。历史测试/部署/人工证据见归档和对应task；默认Browser与所有业务数据不变。

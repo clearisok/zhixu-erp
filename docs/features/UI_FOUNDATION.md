@@ -1,5 +1,7 @@
 # UI Foundation
 
+> 2026-10-12事实校正：页面批准范围、真实CSS入口和最小检查见[Release baseline guard](RELEASE_BASELINE_GUARD.md)与[清单](../release/baseline.json)。当前responsive.ts/tests实际为600/1100/1440，<600不按pointer区分；下文D-023/768描述与此存在历史冲突，待明确supersession，不授权按旧文字回退代码。AppShell已包含可信Server身份和order-center路由分支；Fresh Server仍由Quote-first边界限制生产可见模块。下文mock/根ERP的Known gaps须按历史Browser范围阅读。本次仅校正事实指引，不重设计UI或修改Active决定。
+
 ## Purpose
 
 UI Foundation 为 Quote Center 和基础设置提供统一的 ERP 页面、表单、Modal、选择器、宽表和反馈行为，避免 feature 各自重复实现交互规则。
