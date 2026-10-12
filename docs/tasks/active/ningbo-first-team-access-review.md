@@ -5,7 +5,7 @@
 
 ## 结论
 
-本地范围内未发现P0/P1阻断问题，可交付PR等待CI。**目前不建议执行合并**：Git交付预检NETWORK_DEGRADED、pushes=0，GitHub ref只读核验404，PR和对应head的CI尚未完成。精确head送达、PR两项CI通过且用户确认功能范围后，可建议合并工程代码；部署与人工业务验收仍另行授权。
+本地范围内未发现P0/P1阻断问题，可交付PR等待CI。**目前不建议执行合并**：历史预检曾NETWORK_DEGRADED、pushes=0；2026-10-12经只读对照后，主Codex自有PowerShell单次推送206768e107bcd6402983f74adc9f002a5fbd757a已获exact SHA核验。PR对应最终head的CI仍需完成，实时结论见GitHub PR。精确head送达、PR两项CI通过且用户确认功能范围后，可建议合并工程代码；部署与人工业务验收仍另行授权。
 
 ## 核查证据
 
@@ -27,7 +27,7 @@
 - 客户端+六角色API+既有Session/商业授权/成本安全：31/31 PASS。
 - production Server/session Chromium：5/5 PASS，重复运行通过；默认Browser构建及显式Server构建PASS，保留已有bundle大小提示。
 - check:release-baseline --base-sha完整main：PASS，10 pages、9 capabilities、6 changed UI files。test:release-baseline独立命令结果在任务最终记录。
-- CI：未运行，不能用本地PASS代替。
+- CI：本快照写入时待运行；PR实时最终head状态为准，不能用本地PASS代替。
 
 ## 非阻断限制 / 后续
 

@@ -67,3 +67,9 @@ AI建议下一PR：宁波候选只读预检与独立发布/回退方案；其后
 REMOTE DELIVERY：安全交付在checkpoint返回LOCAL_PASS_REMOTE_UNVERIFIED，pushes=0、NETWORK_DEGRADED；独立GitHub ref核查404。未创建PR，未运行远端CI。按既有网络协议不盲目重试；最终本地commit收口后由用户普通PowerShell执行一条恢复命令，核对exact SHA才创建唯一PR并检查CI。LOCAL ENGINEERING继续且真实环境完全未操作。
 
 独立命令 npm run test:release-baseline：69/69 PASS（与807项中的对应测试重叠，不累加计数）。测试临时PostgreSQL容器清理完成；数据库目录、部署工作流和现有CSS无diff。
+
+## 远端交付恢复（2026-10-12，取代上方待交付状态）
+
+用户普通PowerShell回执仍为NETWORK_DEGRADED、pushes=0。用户要求由Codex自行推进后，先执行既有只读诊断：默认HTTPS、HTTP/1.1、OpenSSL+HTTP/1.1均读得main 01694d723cd7b65fcc20e3e79941fef0d57439fc，本机gh也PASS；未改TLS/代理/认证配置。随后主Codex通过自己的PowerShell调用同一受控交付脚本，单次push成功（5135ms），GitHub API独立确认206768e107bcd6402983f74adc9f002a5fbd757a：DELIVERED_VERIFIED、pushes=1、EXACT_HEAD_VERIFIED。不是用户再手动执行，不以此次成功推断永久恢复。
+
+源码和测试结果不变；本段及接力/复审状态为文档更新。唯一PR和最终head CI继续在GitHub核实，实时PR结果优先于此快照。没有合并、部署、真实账号或DB操作。
