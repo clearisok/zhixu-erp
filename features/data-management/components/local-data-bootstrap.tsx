@@ -7,7 +7,8 @@ import { quoteAuthority } from "../../quote-center/authority/quote-authority";
 
 export function shouldInitializeBrowserLocalData(pathname: string): boolean {
   if (quoteAuthority() === "server") return false;
-  return pathname !== "/order-center"
+  return pathname !== "/login"
+    && pathname !== "/order-center"
     && pathname !== "/order-center/server-preview"
     && pathname !== "/order-center/server-detail"
     && pathname !== "/quote-center/server-preview"
