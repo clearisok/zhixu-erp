@@ -32,3 +32,10 @@ PR99 head 213fb2524bb5f8a2806fea0427a0d3a865612360，source/team-access/baseline
 
 ## G3 最终合成证据
 渲染代码e4d9737a048474d15d2f25d9e84dae327ac103c5；完整证据与9张截图见[evidence](evidence/ainuoke-continuous-material-display/engineering.md)。最终浏览器8/8、新增29PASS+Linux1待CI、原来源20PASS+Linux1待CI、PG261/261、Python54/54。G2误用scope导致loading已修复并重跑；CDP跨导航空DOM等待已修正。Docker runtime仍下载中；门禁与CI待独立核实。PR98当前CONFLICTING/DIRTY（2026-10-12），未经授权不合并。
+
+收口发现既有门禁测试fixture只登记baseline/evidence/runtime SHA，main向前后漏掉仅能力状态引用的旧PR97合并SHA；真实check已PASS但fixture正例误失败。补齐fixture的statusEvidence来源集合并增加不存在状态SHA的拒绝回归，未放宽真实guard。
+
+## G4 本地最终门禁与复审
+2026-10-12：typecheck、lint、Server/default Browser/explicit snapshot build通过；npm test 809/809、test:release-baseline 70/70、真实base check:release-baseline PASS（10pages/11capabilities/9UI files）。PG261/261、Python54/54、continuous29PASS+Linux1待CI、来源20PASS+Linux1待CI、bootstrap18/18、Quote persistence13/13、最终P6浏览器8/8。旧静态路由断言同步为isEnabledServerRoute，默认关闭和三页范围另有可执行回归。
+最终代码diff复审：无新增migration/数据库文件或CSS变化；事务域逻辑复用、首次绑定/Source不同动作、身份scope/撤权/异常边界、exact UI批准范围、冻结证据SHA、运行/构建开关已核实；暂无未修复P0/P1。只有已绑定订单四流持续刷新，非全部合同生命周期增量。当前结论：待Linux精确head CI通过后可建议合并工程代码，不可据此部署/真实绑定。Docker完整镜像仍受apk下载等待影响，尚未声称通过。
+本机合成演示脚本已运行（临时端口/六个demo.*账号、合成密码；两小时自动结束），未使用真实SOURCE/DATABASE_URL；旧18443/18444/宁波未修改。GitHub CI及最终head另行核实。

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createSyntheticQuoteFixture } from "../../../../server/integration/quote-fixture";
-import { parseQuoteAuthority, validateQuoteAuthority, isEnabledServerRoute as isServerQuoteRoute } from "../../authority/quote-authority";
+import { parseQuoteAuthority, validateQuoteAuthority, isEnabledServerRoute } from "../../authority/quote-authority";
 import { createQuoteEditorPersistence } from "../quote-editor-persistence";
 import type { QuoteServerEditorAdapter } from "../quote-server-editor-adapter";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
@@ -42,8 +42,8 @@ test("explicit Quote authority defaults Browser, rejects illegal combinations, i
   assert.throws(() => validateQuoteAuthority("server", "browser", "writable"));
   assert.throws(() => validateQuoteAuthority("server", "server", "frozen"));
   validateQuoteAuthority("server", "server", "writable");
-  for (const path of ["/quote-center", "/quote-center/new", "/quote-center/detail", "/basic-settings/brands"]) assert.ok(isServerQuoteRoute(path));
-  for (const path of ["/order-center", "/closing-center", "/production-scheduling", "/system-settings/data-management"]) assert.equal(isServerQuoteRoute(path), false);
+  for (const path of ["/quote-center", "/quote-center/new", "/quote-center/detail", "/basic-settings/brands"]) assert.ok(isEnabledServerRoute(path));
+  for (const path of ["/order-center", "/closing-center", "/production-scheduling", "/system-settings/data-management"]) assert.equal(isEnabledServerRoute(path), false);
 });
 
 test("per-editor version advances after confirmed saves; concurrent writes rejected without Browser fallback", async () => {

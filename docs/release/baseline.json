@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "5215ef75510e4b55ef69b1ae1508816b80fda110",
-  "verifiedAt": "2026-10-12T08:57:05.946Z",
+  "baselineSha": "db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e",
+  "verifiedAt": "2026-10-12T10:17:37.481Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -236,6 +236,119 @@
       "path": "docs/tasks/active/evidence/ainuoke-server-source/engineering.md",
       "recordedAtSha": "fa84da0148de131edd8e7c65ae5e605f050f98b0",
       "sha256": "f0e019fad8024897daf19d66fa9e93fcac4ab8999d81c3220b3530e96b559351"
+    },
+    {
+      "id": "decisions-ainuoke-continuous",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "753c85eed076f03b2f7dc3200a71689ec3dc7aa71d43f150459841619be64d56",
+      "supersedes": "decisions-ainuoke-source",
+      "changeReason": "D106 user-authorized first binding, explicit scheduling and existing P6 wiring; D105 rollout gate retained."
+    },
+    {
+      "id": "ainuoke-continuous-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/engineering.md",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "84c6fd5a73e020635621b7408a25969cf6bc6434a32e4d344d28a637abe4ebc5"
+    },
+    {
+      "id": "ainuoke-continuous-computed-styles",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/computed-styles.json",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "1afef4ccff7f0cedeb380e5ef01e2520ff6b8eb79e8a936632c2a1db17915044"
+    },
+    {
+      "id": "continuous-list-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/list-1440.png",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "0bf7ef9fd5bcbdf7a32de06776ccc242ccc243cf907a18dc82beaa74acebcd2b",
+      "renderedSourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
+      "changeReason": "Additional synthetic engineering capture of existing P6 layout, CSS and functional wiring; does not supersede approved historical visuals or assert user acceptance.",
+      "approvalEvidence": "ainuoke-continuous-engineering"
+    },
+    {
+      "id": "continuous-list-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/list-1280.png",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "a1a2f1f2a43ae898087bd4a4336eed13b174824803a34b9eabe0c67cf40852ae",
+      "renderedSourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
+      "changeReason": "Additional synthetic engineering capture of existing P6 layout, CSS and functional wiring; does not supersede approved historical visuals or assert user acceptance.",
+      "approvalEvidence": "ainuoke-continuous-engineering"
+    },
+    {
+      "id": "continuous-list-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/list-390.png",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "6ebfc46bb55c021a8a66ad0c04f45f7670aff226ce107a8351f99399b70058f1",
+      "renderedSourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
+      "changeReason": "Additional synthetic engineering capture of existing P6 layout, CSS and functional wiring; does not supersede approved historical visuals or assert user acceptance.",
+      "approvalEvidence": "ainuoke-continuous-engineering"
+    },
+    {
+      "id": "continuous-order-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/order-1440.png",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "167f1c826e16eab9bce50d05a9335d9360d5cce6190d62d8510c04c570963aa6",
+      "renderedSourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
+      "changeReason": "Additional synthetic engineering capture of existing P6 layout, CSS and functional wiring; does not supersede approved historical visuals or assert user acceptance.",
+      "approvalEvidence": "ainuoke-continuous-engineering"
+    },
+    {
+      "id": "continuous-order-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/order-1280.png",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "14b4a9099fb6d35854c764b7302406609c977dbd121d7da1e3b000a4d22de2fd",
+      "renderedSourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
+      "changeReason": "Additional synthetic engineering capture of existing P6 layout, CSS and functional wiring; does not supersede approved historical visuals or assert user acceptance.",
+      "approvalEvidence": "ainuoke-continuous-engineering"
+    },
+    {
+      "id": "continuous-order-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/order-390.png",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "cbf2041371353ad6a7ede8879beabb985e271a8d726ec83ff60c8f72a1a32c39",
+      "renderedSourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
+      "changeReason": "Additional synthetic engineering capture of existing P6 layout, CSS and functional wiring; does not supersede approved historical visuals or assert user acceptance.",
+      "approvalEvidence": "ainuoke-continuous-engineering"
+    },
+    {
+      "id": "continuous-material-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/material-1440.png",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "61e5756c310b525034440e4a6d5a22832f5f5f72ad1a974637ef47d24c192116",
+      "renderedSourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
+      "changeReason": "Additional synthetic engineering capture of existing P6 layout, CSS and functional wiring; does not supersede approved historical visuals or assert user acceptance.",
+      "approvalEvidence": "ainuoke-continuous-engineering"
+    },
+    {
+      "id": "continuous-material-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/material-1280.png",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "4e246e8e296ead9c95dad9817565b54eb6d3960cefbbc78fcaa0c629ff7d2a1f",
+      "renderedSourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
+      "changeReason": "Additional synthetic engineering capture of existing P6 layout, CSS and functional wiring; does not supersede approved historical visuals or assert user acceptance.",
+      "approvalEvidence": "ainuoke-continuous-engineering"
+    },
+    {
+      "id": "continuous-material-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/ainuoke-continuous-material-display/material-390.png",
+      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
+      "sha256": "48d2c8d72c39c2a88d569cf0d61f1b64f59fb4d9d0aeaed531fb4c3b419f686c",
+      "renderedSourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5",
+      "changeReason": "Additional synthetic engineering capture of existing P6 layout, CSS and functional wiring; does not supersede approved historical visuals or assert user acceptance.",
+      "approvalEvidence": "ainuoke-continuous-engineering"
     }
   ],
   "pages": [
@@ -319,7 +432,9 @@
         "order-integration",
         "order-images",
         "order-list-1440",
-        "order-list-390"
+        "order-list-390",
+        "ainuoke-continuous-engineering",
+        "ainuoke-continuous-computed-styles"
       ]
     },
     {
@@ -335,7 +450,9 @@
         "order-integration",
         "order-images",
         "order-detail-1440",
-        "order-detail-390"
+        "order-detail-390",
+        "ainuoke-continuous-engineering",
+        "ainuoke-continuous-computed-styles"
       ]
     },
     {
@@ -351,7 +468,9 @@
         "order-integration",
         "order-images",
         "material-1440",
-        "material-390"
+        "material-390",
+        "ainuoke-continuous-engineering",
+        "ainuoke-continuous-computed-styles"
       ]
     },
     {
@@ -383,7 +502,9 @@
         "decisions",
         "quote-original",
         "order-images",
-        "responsive-tests"
+        "responsive-tests",
+        "ainuoke-continuous-engineering",
+        "ainuoke-continuous-computed-styles"
       ]
     },
     {
@@ -455,7 +576,10 @@
     "/basic-settings/trims",
     "/system-settings/quote-settings",
     "/system-settings/operation-logs",
-    "/basic-settings/user-permissions"
+    "/basic-settings/user-permissions",
+    "/order-center",
+    "/order-center/server-detail",
+    "/order-center/style-progress/detail"
   ],
   "capabilities": [
     {
@@ -661,16 +785,17 @@
         "trial18443": "not-open",
         "preview18444": "not-open"
       },
-      "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+      "scope": "Historical merged P6 engineering/human acceptance only. PR99 Source foundation merged; this unmerged explicit snapshot wiring is tracked separately as ainuoke-continuous-material-display. Real Source and deployed routes remain inactive.",
       "evidence": [
         "order-integration",
-        "decisions"
+        "decisions",
+        "ainuoke-continuous-engineering"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "partial",
           "assessedAt": "2026-10-12",
-          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "scope": "Historical assessment at 4adbc30845f99368caa77d3431cc67a6440ac623: Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
           "evidence": [
             "order-integration",
             "decisions"
@@ -680,7 +805,7 @@
         "merged": {
           "value": true,
           "assessedAt": "2026-10-12",
-          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "scope": "Historical assessment at 4adbc30845f99368caa77d3431cc67a6440ac623: Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
           "evidence": [
             "order-integration",
             "decisions"
@@ -690,7 +815,7 @@
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-12",
-          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "scope": "Historical assessment at 4adbc30845f99368caa77d3431cc67a6440ac623: Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
           "evidence": [
             "order-integration",
             "decisions"
@@ -700,7 +825,7 @@
         "humanAcceptance": {
           "value": "accepted-historical",
           "assessedAt": "2026-10-12",
-          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "scope": "Historical assessment at 4adbc30845f99368caa77d3431cc67a6440ac623: Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
           "evidence": [
             "order-integration",
             "decisions"
@@ -710,7 +835,7 @@
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-12",
-          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "scope": "Historical assessment at 4adbc30845f99368caa77d3431cc67a6440ac623: Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
           "evidence": [
             "order-integration",
             "decisions"
@@ -720,7 +845,7 @@
         "trial18443": {
           "value": "not-open",
           "assessedAt": "2026-10-12",
-          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "scope": "Historical assessment at 878de323d618b25fca1f51ccf3f024e932641742: Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
           "evidence": [
             "order-integration",
             "decisions",
@@ -733,7 +858,7 @@
         "preview18444": {
           "value": "not-open",
           "assessedAt": "2026-10-12",
-          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "scope": "Historical assessment at eb9530ac9a2e1b7f68299d97c4d424662a6622f7: Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
           "evidence": [
             "order-integration",
             "decisions",
@@ -756,16 +881,17 @@
         "trial18443": "not-open",
         "preview18444": "not-open"
       },
-      "scope": "Existing merged UUID material DTO/UI has historical synthetic acceptance; new unmerged explicit snapshot runtime is tracked separately in ainuoke-server-source. Production routes remain closed and real source is not connected.",
+      "scope": "Historical merged P6 engineering/human acceptance only. PR99 Source foundation merged; this unmerged explicit snapshot wiring is tracked separately as ainuoke-continuous-material-display. Real Source and deployed routes remain inactive.",
       "evidence": [
         "order-integration",
-        "order-images"
+        "order-images",
+        "ainuoke-continuous-engineering"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "partial",
           "assessedAt": "2026-10-12",
-          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "scope": "Historical assessment at 4adbc30845f99368caa77d3431cc67a6440ac623: Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
           "evidence": [
             "order-integration",
             "order-images"
@@ -775,7 +901,7 @@
         "merged": {
           "value": true,
           "assessedAt": "2026-10-12",
-          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "scope": "Historical assessment at 4adbc30845f99368caa77d3431cc67a6440ac623: Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
           "evidence": [
             "order-integration",
             "order-images"
@@ -785,7 +911,7 @@
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-12",
-          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "scope": "Historical assessment at 4adbc30845f99368caa77d3431cc67a6440ac623: Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
           "evidence": [
             "order-integration",
             "order-images"
@@ -795,7 +921,7 @@
         "humanAcceptance": {
           "value": "accepted-historical",
           "assessedAt": "2026-10-12",
-          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "scope": "Historical assessment at 4adbc30845f99368caa77d3431cc67a6440ac623: Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
           "evidence": [
             "order-integration",
             "order-images"
@@ -805,7 +931,7 @@
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-12",
-          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "scope": "Historical assessment at 4adbc30845f99368caa77d3431cc67a6440ac623: Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
           "evidence": [
             "order-integration",
             "order-images"
@@ -815,7 +941,7 @@
         "trial18443": {
           "value": "not-open",
           "assessedAt": "2026-10-12",
-          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "scope": "Historical assessment at 878de323d618b25fca1f51ccf3f024e932641742: Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
           "evidence": [
             "order-integration",
             "order-images",
@@ -828,7 +954,7 @@
         "preview18444": {
           "value": "not-open",
           "assessedAt": "2026-10-12",
-          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "scope": "Historical assessment at eb9530ac9a2e1b7f68299d97c4d424662a6622f7: Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
           "evidence": [
             "order-integration",
             "order-images",
@@ -1285,7 +1411,7 @@
     {
       "id": "ainuoke-server-source",
       "implemented": "yes",
-      "merged": false,
+      "merged": true,
       "isolatedTest": "passed-historical",
       "humanAcceptance": "not-run",
       "sourceActivation": "not-connected",
@@ -1293,33 +1419,34 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+      "scope": "PR99 default-disabled persisted Source foundation is merged at db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e. First binding/scheduling/P6 wiring are tracked separately as ainuoke-continuous-material-display; real source and deployments remain inactive.",
       "evidence": [
-        "ainuoke-source-engineering"
+        "ainuoke-source-engineering",
+        "ainuoke-continuous-engineering"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-12",
-          "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+          "scope": "Historical PR99 foundation assessment: Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
           "evidence": [
             "ainuoke-source-engineering"
           ],
           "sourceSha": "fa84da0148de131edd8e7c65ae5e605f050f98b0"
         },
         "merged": {
-          "value": false,
+          "value": true,
           "assessedAt": "2026-10-12",
-          "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+          "scope": "User-authorized PR99 merge verified at 2026-10-12T09:27:54Z; not a deployment or activation.",
           "evidence": [
-            "ainuoke-source-engineering"
+            "ainuoke-continuous-engineering"
           ],
-          "sourceSha": "fa84da0148de131edd8e7c65ae5e605f050f98b0"
+          "sourceSha": "db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e"
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-12",
-          "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+          "scope": "Historical PR99 foundation assessment: Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
           "evidence": [
             "ainuoke-source-engineering"
           ],
@@ -1328,7 +1455,7 @@
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-12",
-          "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+          "scope": "Historical PR99 foundation assessment: Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
           "evidence": [
             "ainuoke-source-engineering"
           ],
@@ -1337,7 +1464,7 @@
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-12",
-          "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+          "scope": "Historical PR99 foundation assessment: Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
           "evidence": [
             "ainuoke-source-engineering"
           ],
@@ -1346,7 +1473,7 @@
         "trial18443": {
           "value": "not-deployed",
           "assessedAt": "2026-10-12",
-          "scope": "Source capability not deployed; runtime identities remain unchanged historical observations.",
+          "scope": "Historical PR99 foundation assessment: Source capability not deployed; runtime identities remain unchanged historical observations.",
           "evidence": [
             "ainuoke-source-engineering"
           ],
@@ -1357,9 +1484,95 @@
         "preview18444": {
           "value": "not-deployed",
           "assessedAt": "2026-10-12",
-          "scope": "Source capability not deployed; runtime identities remain unchanged historical observations.",
+          "scope": "Historical PR99 foundation assessment: Source capability not deployed; runtime identities remain unchanged historical observations.",
           "evidence": [
             "ainuoke-source-engineering"
+          ],
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-continuous-material-display",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+      "evidence": [
+        "ainuoke-continuous-engineering",
+        "decisions-ainuoke-continuous"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-12",
+          "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+          "evidence": [
+            "ainuoke-continuous-engineering"
+          ],
+          "sourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5"
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-12",
+          "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+          "evidence": [
+            "ainuoke-continuous-engineering"
+          ],
+          "sourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+          "evidence": [
+            "ainuoke-continuous-engineering"
+          ],
+          "sourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5"
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-12",
+          "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+          "evidence": [
+            "ainuoke-continuous-engineering"
+          ],
+          "sourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5"
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-12",
+          "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+          "evidence": [
+            "ainuoke-continuous-engineering"
+          ],
+          "sourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5"
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+          "evidence": [
+            "ainuoke-continuous-engineering"
+          ],
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+          "evidence": [
+            "ainuoke-continuous-engineering"
           ],
           "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
           "runtimeId": "preview18444",
@@ -1393,8 +1606,10 @@
     }
   ],
   "limitations": [
-    "No new pixel/browser acceptance.",
-    "No live environment, ledger, business rows, accounts, Source or deployment checked by this task.",
-    "A manifest/CI green result cannot itself approve a UI change or deployment."
+    "New synthetic browser engineering at 1440/1280/390 passed; no new user acceptance or golden pixel baseline replacement.",
+    "No live environment, ledger, business rows, accounts, Source or deployment changed or reverified by this task.",
+    "Static Server allowlist is only the capability ceiling; orderRead defaults disabled and explicit snapshot runtime must match the compiled build and source reader.",
+    "New contracts and existing main/color source mirrors do not automatically refresh. Historical snapshots accumulate without retention automation.",
+    "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment."
   ]
 }

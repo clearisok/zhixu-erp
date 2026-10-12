@@ -15,7 +15,7 @@ test("Server entry isolates Browser bootstrap, permissions, preferences and unsu
   const boundary = source("features/quote-center/components/quote-server-boundary.tsx");
   assert.match(boundary, /return <PermissionProvider>\{children\}/u);
   assert.match(boundary, /<TrustedPermissionProvider>/u);
-  assert.match(boundary, /!isServerQuoteRoute\(path\)/u);
+  assert.match(boundary, /!isEnabledServerRoute\(path\)/u);
   const shell = source("components/foundation/app-shell.tsx");
   assert.match(shell, /if \(freshServer\) return;/u);
   assert.match(shell, /!freshServer\) saveSidebarPreference/u);
