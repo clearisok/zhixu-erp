@@ -3,15 +3,15 @@
 核实日期：2026-10-12；main 基线：db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e。代码在 feat/animated-login；是否合并/部署以 GitHub 和环境证据为准。关联 D-107。
 
 ## 用户决定与视觉范围
-用户要求正式 /login 路由、有趣的 animated login，替代正式 Server 业务页面内部登录框。本次只批准登录入口的视觉变更；报价、订单、物料、设置和导航继续原布局。尚无本次成品人工验收。未提供具体第三方组件链接，采用原创 CSS 小角色，无外部图片/字体/动画依赖。
+用户要求正式 /login 路由、有趣的 animated login，替代正式 Server 业务页面内部登录框。本次只批准登录入口的视觉变更；报价、订单、物料、设置和导航继续原布局。尚无本次成品人工验收。用户指定 https://github.com/katavii/animated-login，已核对参考 master 62f0b80c7694c3dfe07b39c7a85bdd832ff4bb15。按其蓝色分栏、四角色、跟随/眨眼/密码反应重新实现原生 CSS/React 版本；无外部图片、字体或动画依赖。参考树未含许可证文件且 API license=null，不引入原源码或 GSAP/Ant Design；此处记录参考来源，不声明原项目许可。
 
 ## 当前实现
 - app/login/page.tsx 独立全屏页面，复用 ServerSessionProvider、现有 /api/v1/auth/login、me、permissions、logout 与 HttpOnly 会话。
 - 正式 Server 支持的业务路由匿名访问时，QuoteServerBoundary 跳到 /login?returnTo=...；成功后 replace 回安全站内路径，保留查询和 hash；已登录访问 /login 自动返回工作台。
 - safeLoginReturnTo 拒绝外站、协议相对路径、反斜线、控制字符、编码绕过、登录循环、API/静态文件目标和过长地址。它不授予业务权限；业务 allowlist 与 API RBAC 仍独立执行。
 - 页面包含用户名/密码、显隐、提交等待、防重复提交、错误聚焦、网络恢复重试；不持久化密码，不提供假的注册、OAuth 或找回密码功能。忘记密码联系管理员。
-- 密码输入时小角色闭眼；鼠标移动只改变 CSS 变量。prefers-reduced-motion 关闭动画/跟随。键盘、触屏无需动画即可使用。
-- CSS 全限定 zx-login，按 1440/1024/768/390/320 宽度验证。760px 以下单列，其他业务断点不变。生产构建真实加载路由 CSS。
+- 四角色随鼠标移动、眨眼，用户名聚焦时互动，密码输入时闭眼，显示密码时转身且紫色角色偶尔偷瞄；这些是装饰动画，不读取或传出密码内容。鼠标移动只改变 CSS 变量。prefers-reduced-motion 关闭动画/跟随。键盘、触屏无需动画即可使用。
+- CSS 全限定 zx-login，按 1440/1024/768/390/320 宽度验证。1024px 及以下按参考隐藏角色面板并单列显示，其他业务断点不变。生产构建真实加载路由 CSS。
 - /login 不执行 Browser Seed，隐藏该页版本角标但保留 build-info.json 和控制台版本证据。Browser/local-single-user 模式显示入口说明，不伪装成正式 Server 登录。
 - 退出失败保留可信会话并提示重试；成功退出后转 /login。
 

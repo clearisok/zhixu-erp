@@ -2,7 +2,7 @@
 
 2026-10-12，独立 worktree animated-login/zhixu-ainuoke-api，起点 main db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e，工作树 clean。起始 fetch connection reset；GitHub API 已核实同一完整 main SHA，本地对象可验证，未假称 fetch 刷新成功。原工作树及 PR100 未改动。
 
-用户授权：新增正式 /login，有趣的 animated login。沿用任务约束：无真实账号/数据库/环境操作，不自动合并。本次没有收到指定第三方 animated-login 的链接，按原创动画实现。
+用户授权：新增正式 /login，有趣的 animated login。沿用任务约束：无真实账号/数据库/环境操作，不自动合并。用户随后明确指定 https://github.com/katavii/animated-login，已核对完整参考 SHA 62f0b80c7694c3dfe07b39c7a85bdd832ff4bb15；G1b 按其蓝色分栏和四角色互动对齐。
 
 ## G1 工程
 正式页面、安全回跳、密码交互、失败提示、回环合成演示脚本、真实浏览器测试与 CI。首次 root 808/808、会话前端112/112、初版UI9/9、typecheck/lint PASS。最终追加退出失败与恢复失败覆盖后，完整结果写入独立冻结工程证据，不沿用旧截图为最终证据。

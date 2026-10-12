@@ -22,7 +22,7 @@
 - 日期：2026-10-12；状态：Active；用户决定。
 - 用户原话：“要有正式的一个页面，然后正确的路由杠 log in 使用 animatd - login……我希望我的登录页有趣一点。”
 - 授权仅覆盖正式登录入口：独立 /login、现有可信 session、安全回到原页面、动画/响应式/可访问性。其余页面继续 D-099/D-102/P6；没有全站重设计、真实账号/数据库/部署授权。
-- 未提供指定组件链接，实施原创 CSS 小角色；用户尚未验收成品，不能把改版授权写成视觉验收 PASS。
+- 用户随后指定 katavii/animated-login（https://github.com/katavii/animated-login；参考 SHA 62f0b80c7694c3dfe07b39c7a85bdd832ff4bb15）；对齐蓝色分栏和四角色互动，以原生 CSS/React 独立实现。用户尚未验收成品，不能把改版授权写成视觉验收 PASS。
 - 保留 Browser/legacy 与 local-single-user authority，不替换后端、不扩张生产业务路由；凭据仍只经现有 API。
 - 代码证据：app/login/page.tsx、app/login/login.css、features/server-auth/components/animated-login-page.tsx、login-route.ts、features/quote-center/components/quote-server-boundary.tsx；回归 server/integration/animated-login-ui.integration.test.mjs。
 - D-106 已由独立 PR100 使用，本分支不复制其未合并决策；整合时保留两者。主基线 db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e。

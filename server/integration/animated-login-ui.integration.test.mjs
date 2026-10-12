@@ -52,7 +52,7 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
     await wait(750);
     assert.equal(await evalJs("document.documentElement.scrollWidth>innerWidth+1"),false);
     assert.equal(await evalJs("getComputedStyle(document.querySelector('.zx-login')).display"),"grid");
-    assert.equal(await evalJs("getComputedStyle(document.querySelector('.zx-login-submit')).backgroundColor"),"rgb(35, 79, 63)");
+    assert.equal(await evalJs("getComputedStyle(document.querySelector('.zx-login-submit')).backgroundColor"),"rgb(37, 69, 173)");
     assert.ok(await evalJs("[...document.querySelectorAll('.zx-login-form input,.zx-login-form button')].every(n=>n.getBoundingClientRect().height>=44)"));
     await shot("login-"+width);
    }

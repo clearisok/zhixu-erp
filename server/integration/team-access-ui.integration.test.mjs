@@ -38,7 +38,7 @@ test("First team production-built UI uses trusted session, existing layout and s
   const select=(selector,value)=>evalJs("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");if(!n)throw Error('missing select');n.value="+JSON.stringify(value)+";n.dispatchEvent(new Event('change',{bubbles:true}));})()");
   const click=label=>evalJs("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+ "+JSON.stringify(label)+");n.click()})()");
   const shot=async name=>{if(process.env.TEAM_ACCESS_EVIDENCE!=="1")return;const dir=resolve("docs/tasks/active/evidence/ningbo-first-team-access");await mkdir(dir,{recursive:true});const r=await command("Page.captureScreenshot",{format:"png",captureBeyondViewport:false});await writeFile(join(dir,name+".png"),Buffer.from(r.data,"base64"));};
-  await navigate("/basic-settings/user-permissions");await has("欢迎回来");
+  await navigate("/basic-settings/user-permissions");await has("忘记密码？请联系系统管理员");
   await input("input[name=username]","synthetic.ui.root");await input("input[name=password]",password);await click("登录织序");await has("新建账号");
   await t.test("existing layout, loaded CSS and no browser authority/write on mount",async()=>{
    assert.equal(await evalJs("teamWrites"),0);
@@ -78,7 +78,7 @@ test("First team production-built UI uses trusted session, existing layout and s
   await t.test("each non-admin session is denied the management page and cannot recover Browser permissions",async()=>{
    for(let i=1;i<5;i++){
     await evalJs("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
-    await navigate("/basic-settings/user-permissions");await has("欢迎回来");
+    await navigate("/basic-settings/user-permissions");await has("忘记密码？请联系系统管理员");
     await input("input[name=username]","synthetic.ui."+i);await input("input[name=password]",password);await click("登录织序");
     await has("暂无权限");
     assert.equal((await body()).includes("新建账号"),false);
