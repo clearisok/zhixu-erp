@@ -1,4 +1,4 @@
-import type { Pool } from "pg";
+import type { Pool, PoolClient } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
 import { appendOperationLog } from "../operation-logs/repository.js";
 import {
@@ -35,6 +35,19 @@ export async function createAinuokeSalesOrder(
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    const result = await createAinuokeSalesOrderInTransaction(client, actor, input);
+    await client.query("COMMIT");
+    return result;
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => undefined);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/** Caller owns transaction and trusted authorization; shared domain creation path. */
+export async function createAinuokeSalesOrderInTransaction(client: PoolClient, actor: TrustedIdentity, input: CreateAinuokeSalesOrderInput): Promise<CreateAinuokeSalesOrderResult> {
     const normalizedSourceId = input.source.sourceId.normalize("NFKC").trim();
     if (!normalizedSourceId) throw new Error("sourceId is required");
     const sourceLockKey = `${AINUOKE_SOURCE_SYSTEM}:${AINUOKE_CONTRACT_ENTITY_TYPE}:${normalizedSourceId}`;
@@ -49,7 +62,6 @@ export async function createAinuokeSalesOrder(
     if (existing) {
       const detail = await getSalesOrderById(client, existing.id);
       if (!detail) throw new Error("Existing SalesOrder source binding has no aggregate");
-      await client.query("COMMIT");
       return { created: false, salesOrder: detail };
     }
 
@@ -97,12 +109,5 @@ export async function createAinuokeSalesOrder(
 
     const detail = await getSalesOrderById(client, salesOrder.id);
     if (!detail) throw new Error("Created SalesOrder could not be read inside its transaction");
-    await client.query("COMMIT");
     return { created: true, salesOrder: detail };
-  } catch (error) {
-    await client.query("ROLLBACK").catch(() => undefined);
-    throw error;
-  } finally {
-    client.release();
-  }
 }

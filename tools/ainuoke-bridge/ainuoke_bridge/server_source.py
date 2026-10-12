@@ -54,7 +54,7 @@ class ProtectedTransport:
         return result
 
 def validate_input(data):
-    if not isinstance(data, dict) or set(data) != {"baseUrl", "username", "password", "contracts"}:
+    if not isinstance(data, dict) or set(data) not in ({"baseUrl", "username", "password", "contracts"}, {"baseUrl", "username", "password", "contracts", "mode"}):
         raise ValueError("invalid_collector_input")
     url = urlsplit(data["baseUrl"])
     if url.username or url.password or url.query or url.fragment or url.path not in ("", "/"):
@@ -64,7 +64,13 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
+    if "mode" in data and data["mode"] != "bindings":
+        raise ValueError("invalid_mode")
     contracts = data["contracts"]
+    if data.get("mode") == "bindings":
+        if contracts != []:
+            raise ValueError("binding_discovery_scope_required")
+        return data
     if not isinstance(contracts, list) or not 1 <= len(contracts) <= 1000 or any(not isinstance(x, str) or not identity(x) or len(x) > 80 for x in contracts):
         raise ValueError("invalid_contract_scope")
     if len(set(map(identity, contracts))) != len(contracts):
@@ -120,6 +126,12 @@ def collect(data, client=None):
             if not key or key in lookup or not isinstance(inside, str) or not inside.strip():
                 raise UpstreamSchemaError("invalid_discovery_identity")
             lookup[key] = inside.strip()
+    if len(lookup) > 1000:
+        raise UpstreamSchemaError("source_limit")
+    if data.get("mode") == "bindings":
+        colors = {key: pages("garment_color_size_details", {"salesContractNo": key}) for key in lookup}
+        after = pages("order_discovery", {})
+        return {"schemaVersion": "ainuoke-order-binding.v1", "discoveryBefore": before, "discoveryAfter": after, "colors": colors}
     materials = {}
     for contract in data["contracts"]:
         key = identity(contract)

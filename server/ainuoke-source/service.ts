@@ -1,3 +1,4 @@
+import { HttpError } from "../http/errors.js";
 import { randomUUID } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
@@ -110,7 +111,7 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
         // A failed attempt never changes the accepted pointer. Suppress old facts as current.
         if (registered)
             await client.query("UPDATE ainuoke_source_profiles SET last_error_code=$2,last_attempt_at=now() WHERE source_key=$1", [options.sourceKey, error instanceof SourceError ? error.code : "source_capture_failed"]).catch(() => undefined);
-        throw error instanceof SourceError ? error : new SourceError("source_capture_failed");
+        throw error instanceof SourceError ? error : new SourceError(error instanceof HttpError && error.status === 403 ? "forbidden" : "source_capture_failed");
     }
     finally {
         if (locked)

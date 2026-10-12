@@ -22,7 +22,7 @@ export type SourceBundle = {
     discoveryAfter: AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>[];
     materials: Record<string, AinuokeReportSnapshot[]>;
 };
-function inspect(value: unknown, depth = 0): void {
+export function inspect(value: unknown, depth = 0): void {
     if (depth > 12)
         throw new SourceError("source_invalid");
     if (typeof value === "number" && !Number.isFinite(value))
@@ -38,7 +38,7 @@ function inspect(value: unknown, depth = 0): void {
             inspect(item, depth + 1);
         }
 }
-function pagesValid(pages: Array<Pick<AinuokeReportSnapshot, "fetchedAt" | "pageSize" | "page" | "total">>, now: number, maxAgeMs: number) {
+export function pagesValid(pages: Array<Pick<AinuokeReportSnapshot, "fetchedAt" | "pageSize" | "page" | "total">>, now: number, maxAgeMs: number) {
     if (!Array.isArray(pages) || !pages.length || pages.length > 200)
         throw new SourceError("source_invalid");
     for (const page of pages) {

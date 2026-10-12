@@ -61,6 +61,7 @@ export const accountFingerprint = (config: CollectorConfig) => hash({ origin: co
 export function collectWithPython(config: CollectorConfig, contracts: string[], options: {
     python?: string;
     timeoutMs?: number;
+    mode?: "bindings";
 } = {}): Promise<unknown> {
     return new Promise((resolveResult, reject) => {
         const child = spawn(options.python ?? (process.platform === "win32" ? "python" : "python3"), ["-m", "ainuoke_bridge.server_source"], {
@@ -96,6 +97,6 @@ export function collectWithPython(config: CollectorConfig, contracts: string[], 
                 fail("source_invalid");
             }
         });
-        child.stdin.end(JSON.stringify({ baseUrl: config.baseUrl, username: config.username, password: config.password, contracts }));
+        child.stdin.end(JSON.stringify({ baseUrl: config.baseUrl, username: config.username, password: config.password, contracts, ...(options.mode ? {mode: options.mode} : {}) }));
     });
 }
