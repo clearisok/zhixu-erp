@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 核实日期2026-10-12；main db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e（PR99已合并）。当前任务：[艾诺科Server Source](tasks/active/ainuoke-continuous-material-display.md)，状态见[CURRENT_STATE](CURRENT_STATE.md)。GitHub是实时事实源；随main/来源/环境/验收变化更新。
+> 核实2026-10-12；main 3456fe5fc6e213c2e896e4e6a509e28751f1798c（PR101 已合并）。当前任务：[统一本机演示](tasks/active/unified-local-demo.md)，PR100 保持开放。GitHub 是实时事实源；随 main/来源/环境/验收变化更新。
 
 > [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
 

@@ -1,5 +1,5 @@
 {
-  "baselineSha": "db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e",
+  "baselineSha": "3456fe5fc6e213c2e896e4e6a509e28751f1798c",
   "level": "V2",
   "visibleDifference": "User-authorized wiring of the existing P6 Order entry and three read-only pages in an explicit snapshot candidate; unsupported existing navigation is disabled and material reads refresh. No CSS/layout/columns/breakpoint redesign. Defaults remain disabled.",
   "paths": [

@@ -14,6 +14,10 @@ import { bindOrders,previewBindings } from "../ainuoke-source/binding.js";
 import { captureSource } from "../ainuoke-source/service.js";
 import { createPersistedMaterialPorts } from "../ainuoke-source/reader.js";
 import { bindingBundle,freshMaterialBundle } from "./ainuoke-binding-fixture.js";
+import { createQuoteDraft } from "../../features/quote-center/model/quote-view-model.js";
+import { quoteSnapshotFromBrowser } from "../quotes/model.js";
+import { createQuoteService } from "../quotes/service.js";
+import { MemoryAttachmentStorage } from "../attachments/storage.js";
 /** Always generates its own loopback tmpfs PostgreSQL; never reads DATABASE_URL or source credentials. */
 export async function startContinuousFixture(staticDirectory:string) {
  const db=await startDisposablePostgres();const pool=new pg.Pool({connectionString:await db.createDatabase("continuous_demo")});
@@ -28,6 +32,12 @@ export async function startContinuousFixture(staticDirectory:string) {
   const source={sourceKey:"synthetic-demo",accountFingerprint:"a".repeat(64)};
   const b=bindingBundle();const p=await previewBindings(b);
   const bound=await bindOrders(pool,actor,{...source,expectedPreview:p.reviewHash,collect:async()=>b});
+  const quote=createQuoteDraft("synthetic-unified-demo","QT-SYNTHETIC-DEMO","2026-10-12");
+  quote.revisions[0].baseInfo.quoteStyleNo="SYNTHETIC-TEE-001";
+  quote.revisions[0].baseInfo.styleName="合成演示T恤";
+  quote.revisions[0].baseInfo.note="仅本机合成演示；制作方案未配置时保留待完善，不猜测真实参数。";
+  quote.revisions[0].priceVersions[0].quantity=100;
+  await createQuoteService(pool).createAggregate(quoteSnapshotFromBrowser(quote));
   let generation=0;let mode:"ready"|"failed"|"stale"="ready";
   const capture=async()=>{
    const result=await captureSource(pool,actor,{...source,maxAgeMs:600000,collect:async()=>{
@@ -42,7 +52,7 @@ export async function startContinuousFixture(staticDirectory:string) {
   let materialReads=0;
   const ports=createPersistedMaterialPorts(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000},()=>Date.now()+(mode==="stale"?1800001:0));
   server.on("request",(req,res)=>{if(req.url?.includes("/material-progress"))materialReads++;app(req,res);});
-  const app=createApp({pool,staticDirectory,allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:ports});
+  const app=createApp({pool,staticDirectory,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:ports});
   await new Promise<void>(done=>server.listen(0,"127.0.0.1",done));
   const address=server.address();if(!address||typeof address!=="object")throw Error("loopback fixture failed");
   const base="http://127.0.0.1:"+address.port;origins.push(base);

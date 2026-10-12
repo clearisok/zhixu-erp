@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e",
+  "baselineSha": "3456fe5fc6e213c2e896e4e6a509e28751f1798c",
   "verifiedAt": "2026-10-12T10:17:37.481Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
@@ -238,13 +238,90 @@
       "sha256": "f0e019fad8024897daf19d66fa9e93fcac4ab8999d81c3220b3530e96b559351"
     },
     {
-      "id": "decisions-ainuoke-continuous",
+      "id": "decisions-animated-login",
       "kind": "document",
       "path": "docs/DECISION_LOG.md",
-      "recordedAtSha": "5287ab6ba20da031d846dd452b6d6d203b5589fd",
-      "sha256": "753c85eed076f03b2f7dc3200a71689ec3dc7aa71d43f150459841619be64d56",
+      "recordedAtSha": "be8df7677802eecfd2ab5b8d1940060100139e65",
+      "sha256": "94bd67e81144ca8de479eab2bf1fa48ac26d3db05aa3d196453b2820af9c1742",
       "supersedes": "decisions-ainuoke-source",
-      "changeReason": "D106 user-authorized first binding, explicit scheduling and existing P6 wiring; D105 rollout gate retained."
+      "changeReason": "User explicitly requests standalone /login and selects katavii animated-login; D-107 is limited to login, no change to business UI approval."
+    },
+    {
+      "id": "animated-login-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/animated-login/engineering.md",
+      "recordedAtSha": "be8df7677802eecfd2ab5b8d1940060100139e65",
+      "sha256": "19e61b81528e16fbd2b3f539813a76c02491f5c2ddaef28220fe1534e1797486"
+    },
+    {
+      "id": "animated-login-1024",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/animated-login/login-1024.png",
+      "recordedAtSha": "be8df7677802eecfd2ab5b8d1940060100139e65",
+      "sha256": "3ac12733c5a22386b3ce95792117d5e15d58da71a3410dd5eb0d62b66fb793fb",
+      "renderedSourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae",
+      "approvalEvidence": "animated-login-engineering",
+      "changeReason": "User explicitly approved login-only redesign and supplied katavii/animated-login; this is synthetic engineering evidence, not completed human visual acceptance."
+    },
+    {
+      "id": "animated-login-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/animated-login/login-1440.png",
+      "recordedAtSha": "be8df7677802eecfd2ab5b8d1940060100139e65",
+      "sha256": "9377b3f520f04d6b160f7dd2604c2a207ac8f32e5d543f22c400a09f7f340f8c",
+      "renderedSourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae",
+      "approvalEvidence": "animated-login-engineering",
+      "changeReason": "User explicitly approved login-only redesign and supplied katavii/animated-login; this is synthetic engineering evidence, not completed human visual acceptance."
+    },
+    {
+      "id": "animated-login-320",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/animated-login/login-320.png",
+      "recordedAtSha": "be8df7677802eecfd2ab5b8d1940060100139e65",
+      "sha256": "24812c81df29c3cda3c1fa628fff0eab5d6c409bb35f9d281d0d43ea8f02a009",
+      "renderedSourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae",
+      "approvalEvidence": "animated-login-engineering",
+      "changeReason": "User explicitly approved login-only redesign and supplied katavii/animated-login; this is synthetic engineering evidence, not completed human visual acceptance."
+    },
+    {
+      "id": "animated-login-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/animated-login/login-390.png",
+      "recordedAtSha": "be8df7677802eecfd2ab5b8d1940060100139e65",
+      "sha256": "e56e0e1bd4908468364afab0ce055ba4c04aa97bf6ce4860a5505fb733317951",
+      "renderedSourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae",
+      "approvalEvidence": "animated-login-engineering",
+      "changeReason": "User explicitly approved login-only redesign and supplied katavii/animated-login; this is synthetic engineering evidence, not completed human visual acceptance."
+    },
+    {
+      "id": "animated-login-768",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/animated-login/login-768.png",
+      "recordedAtSha": "be8df7677802eecfd2ab5b8d1940060100139e65",
+      "sha256": "b1ba8d4b43b924fcaf198688584573660279a84ec6056a9888ebf9601c3b1cf0",
+      "renderedSourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae",
+      "approvalEvidence": "animated-login-engineering",
+      "changeReason": "User explicitly approved login-only redesign and supplied katavii/animated-login; this is synthetic engineering evidence, not completed human visual acceptance."
+    },
+    {
+      "id": "animated-login-error",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/animated-login/login-error.png",
+      "recordedAtSha": "be8df7677802eecfd2ab5b8d1940060100139e65",
+      "sha256": "efdf971c943de1b64e40e769276e45d84cff36545dba1da39434070468ad9f61",
+      "renderedSourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae",
+      "approvalEvidence": "animated-login-engineering",
+      "changeReason": "User explicitly approved login-only redesign and supplied katavii/animated-login; this is synthetic engineering evidence, not completed human visual acceptance."
+    },
+    {
+      "id": "animated-login-password",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/animated-login/login-password.png",
+      "recordedAtSha": "be8df7677802eecfd2ab5b8d1940060100139e65",
+      "sha256": "d26d504b7505392a4b960ba386b6453b84370a152c8eb4189699c499849ba327",
+      "renderedSourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae",
+      "approvalEvidence": "animated-login-engineering",
+      "changeReason": "User explicitly approved login-only redesign and supplied katavii/animated-login; this is synthetic engineering evidence, not completed human visual acceptance."
     },
     {
       "id": "ainuoke-continuous-engineering",
@@ -475,17 +552,24 @@
     },
     {
       "id": "login",
-      "route": "/quote-center (unauthenticated)",
-      "routeFile": "app/layout.tsx",
+      "route": "/login",
+      "routeFile": "app/login/page.tsx",
       "components": [
+        "features/server-auth/components/animated-login-page.tsx",
+        "features/server-auth/components/login-redirect.tsx",
         "features/quote-center/components/quote-server-boundary.tsx",
-        "features/server-auth/components/server-login-card.tsx"
+        "app/login/login.css"
       ],
       "acceptance": "implementation-only",
-      "acceptanceScope": "Existing shared login components and trusted session; independent brand/animation visual approval not found.",
+      "acceptanceScope": "User authorized a katavii-inspired standalone animated login. Five viewport sizes and actual session flow verified with synthetic accounts; finished visual design still awaits user acceptance.",
       "evidence": [
-        "fresh-start",
-        "decisions"
+        "animated-login-engineering",
+        "decisions-animated-login",
+        "animated-login-1440",
+        "animated-login-1024",
+        "animated-login-768",
+        "animated-login-390",
+        "animated-login-320"
       ]
     },
     {
@@ -1508,7 +1592,7 @@
       "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
       "evidence": [
         "ainuoke-continuous-engineering",
-        "decisions-ainuoke-continuous"
+        "decisions-animated-login"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1579,6 +1663,91 @@
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
         }
       }
+    },
+    {
+      "id": "animated-login",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Standalone formal Server /login using existing trusted session; safe return links, four-character animation and accessible responsive forms. No business route, real-account, database or deployment change; human visual acceptance pending.",
+      "evidence": [
+        "animated-login-engineering"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-12",
+          "scope": "Standalone formal Server /login using existing trusted session; safe return links, four-character animation and accessible responsive forms. No business route, real-account, database or deployment change; human visual acceptance pending.",
+          "evidence": [
+            "animated-login-engineering"
+          ],
+          "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae"
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-12",
+          "scope": "Standalone formal Server /login using existing trusted session; safe return links, four-character animation and accessible responsive forms. No business route, real-account, database or deployment change; human visual acceptance pending.",
+          "evidence": [
+            "animated-login-engineering"
+          ],
+          "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Standalone formal Server /login using existing trusted session; safe return links, four-character animation and accessible responsive forms. No business route, real-account, database or deployment change; human visual acceptance pending.",
+          "evidence": [
+            "animated-login-engineering"
+          ],
+          "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae"
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-12",
+          "scope": "Standalone formal Server /login using existing trusted session; safe return links, four-character animation and accessible responsive forms. No business route, real-account, database or deployment change; human visual acceptance pending.",
+          "evidence": [
+            "animated-login-engineering"
+          ],
+          "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae"
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-12",
+          "scope": "Standalone formal Server /login using existing trusted session; safe return links, four-character animation and accessible responsive forms. No business route, real-account, database or deployment change; human visual acceptance pending.",
+          "evidence": [
+            "animated-login-engineering"
+          ],
+          "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae"
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "scope": "Login change not deployed; source/image are unchanged historical observations, not reverified by this task.",
+          "evidence": [
+            "animated-login-engineering"
+          ],
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "scope": "Login change not deployed; source/image are unchanged historical observations, not reverified by this task.",
+          "evidence": [
+            "animated-login-engineering"
+          ],
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
     }
   ],
   "runtimeSnapshots": [
@@ -1610,6 +1779,9 @@
     "No live environment, ledger, business rows, accounts, Source or deployment changed or reverified by this task.",
     "Static Server allowlist is only the capability ceiling; orderRead defaults disabled and explicit snapshot runtime must match the compiled build and source reader.",
     "New contracts and existing main/color source mirrors do not automatically refresh. Historical snapshots accumulate without retention automation.",
-    "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment."
+    "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment.",
+    "No new pixel/browser acceptance.",
+    "No live environment, ledger, business rows, accounts, Source or deployment checked by this task.",
+    "A manifest/CI green result cannot itself approve a UI change or deployment."
   ]
 }

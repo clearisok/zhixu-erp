@@ -8,6 +8,6 @@ const fixture=await startContinuousFixture(resolve("dist/client"));
 const stop=new AbortController();const cancel=()=>stop.abort();
 process.once("SIGINT",cancel);process.once("SIGTERM",cancel);
 const expiry=setTimeout(cancel,2*60*60*1000);
-console.log(JSON.stringify({result:"SYNTHETIC_LOCAL_DEMO",url:fixture.base+"/order-center",users:fixture.users,password:fixture.password,container:fixture.containerName,source:"generated; no real Ainuoke connection",expiresAfterMinutes:120}));
+console.log(JSON.stringify({result:"SYNTHETIC_LOCAL_DEMO",url:fixture.base+"/login?returnTo=%2Forder-center",orders:fixture.base+"/order-center",quotes:fixture.base+"/quote-center",users:fixture.users,password:fixture.password,container:fixture.containerName,source:"generated; no real Ainuoke connection",expiresAfterMinutes:120}));
 try{await runSchedule({signal:stop.signal,policy:schedulePolicy(60000,240000),capture:fixture.capture,emit:e=>console.log(JSON.stringify({synthetic:true,...e}))});}
 finally{clearTimeout(expiry);await fixture.close();}

@@ -1,0 +1,38 @@
+{
+  "base-quote": {
+    "sourceSha": "db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e",
+    "testSourceSha": "db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e",
+    "tests": 78,
+    "pass": 69,
+    "fail": 9,
+    "failingScenarios": [
+      "actual linked processing: trusted confirmer, first/update, multiple Order read/write and independent versions",
+      "actual linked distribution: trusted confirmer, first/update, multiple Order read/write and independent versions",
+      "actual linked PV fast switch rejects late lookup and does not mix confirmation targets",
+      "actual linked saved currency drift requires human review, no conversion or historical snapshot overwrite",
+      "actual linked customer XLSX and audit show shared current without replacing system cost",
+      "actual linked 409: saved-first, retained inputs/target, explicit read never resubmits",
+      "actual linked network: saved-first, retained inputs/target, explicit read never resubmits",
+      "actual trusted export without estimate.view omits active/history leakage probes"
+    ],
+    "cleanupPassed": true
+  },
+  "quote-final": {
+    "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae",
+    "testSourceSha": "e0c5e4d900c991220a6e168a04bffdca0648c0ea",
+    "tests": 78,
+    "pass": 69,
+    "fail": 9,
+    "failingScenarios": [
+      "actual linked processing: trusted confirmer, first/update, multiple Order read/write and independent versions",
+      "actual linked distribution: trusted confirmer, first/update, multiple Order read/write and independent versions",
+      "actual linked PV fast switch rejects late lookup and does not mix confirmation targets",
+      "actual linked saved currency drift requires human review, no conversion or historical snapshot overwrite",
+      "actual linked customer XLSX and audit show shared current without replacing system cost",
+      "actual linked 409: saved-first, retained inputs/target, explicit read never resubmits",
+      "actual linked network: saved-first, retained inputs/target, explicit read never resubmits",
+      "actual trusted export without estimate.view omits active/history leakage probes"
+    ],
+    "cleanupPassed": true
+  }
+}

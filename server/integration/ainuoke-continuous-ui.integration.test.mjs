@@ -24,9 +24,32 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
   const navigate=async path=>{const marker=Date.now()+Math.random();await evaluate("window.navEpoch="+marker);await command("Page.navigate",{url:x.base+path});await until(()=>evaluate("window.navEpoch!=="+marker+"&&document.readyState==='complete'"),"navigation");};
   const has=async text=>{try{await until(()=>evaluate("Boolean(document.body?.innerText.includes("+JSON.stringify(text)+"))"),text);}catch(error){throw Error(error.message+"; "+await evaluate("document.body?.innerText??'navigation in progress'"));}};
   const login=async username=>{const cookie=await x.login(username);const split=cookie.indexOf("=");await command("Network.setCookie",{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:"127.0.0.1",path:"/",httpOnly:true});};
-  const screenshot=async name=>{if(process.env.AINUOKE_UI_EVIDENCE!=="1")return;const dir=resolve("docs/tasks/active/evidence/ainuoke-continuous-material-display");await mkdir(dir,{recursive:true});const shot=await command("Page.captureScreenshot",{format:"png"});await writeFile(join(dir,name+".png"),Buffer.from(shot.data,"base64"));};
+  const screenshot=async name=>{if(process.env.AINUOKE_UI_EVIDENCE!=="1")return;const dir=resolve("outputs/unified-local-demo");await mkdir(dir,{recursive:true});const shot=await command("Page.captureScreenshot",{format:"png"});await writeFile(join(dir,name+".png"),Buffer.from(shot.data,"base64"));};
   await command("Page.addScriptToEvaluateOnNewDocument",{source:"window.businessWrites=[];const original=fetch;window.fetch=(...a)=>{if(a[1]?.method&&!['GET','HEAD'].includes(a[1].method)&&!String(a[0]).includes('/auth/'))businessWrites.push(String(a[0]));return original(...a)};"});
-  await navigate("/order-center");await has("登录织序 Server");
+  const input=(selector,value)=>evaluate("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,"+JSON.stringify(value)+");n.dispatchEvent(new Event('input',{bubbles:true}));})()");
+  const click=label=>evaluate("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+"+JSON.stringify(label)+");n.click();})()");
+  await command("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  await t.test("animated login, order deep-link, quote navigation and logout share one trusted session",async()=>{
+   const target="/order-center/server-detail?id="+x.orderId+"#resume";
+   await navigate(target);await has("忘记密码？请联系系统管理员");
+   assert.equal(await evaluate("location.pathname"),"/login");
+   assert.equal(await evaluate("new URLSearchParams(location.search).get('returnTo')"),target);
+   assert.equal(await evaluate("getComputedStyle(document.querySelector('.zx-login')).display"),"grid");await screenshot("login-combined");
+   await input("input[name=username]",x.users[0]);await input("input[name=password]",x.password);await click("登录织序");
+   await has("物料采购汇总");assert.equal(await evaluate("location.pathname+location.search+location.hash"),target);
+   await click("报价中心");await has("QT-SYNTHETIC-DEMO");
+   assert.equal(await evaluate("location.pathname"),"/quote-center");
+   await click("订单中心");await has("SC-SYNTHETIC-001");
+   const material="/order-center/style-progress/detail?orderId="+x.orderId;
+   await navigate(material);await has("合成棉布");
+   await click("退出 Server");await has("忘记密码？请联系系统管理员");
+   assert.equal(await evaluate("new URLSearchParams(location.search).get('returnTo')"),material);
+   assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);
+   assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"),401);
+   await input("input[name=username]",x.users[3]);await input("input[name=password]",x.password);await click("登录织序");await has("合成棉布");
+   assert.equal(await evaluate("location.pathname+location.search"),material);
+   assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
+  });
   await login(x.users[0]);
   for(const width of [1440,1280,390])await t.test("existing layout and real CSS at "+width,async()=>{
    await command("Emulation.setDeviceMetricsOverride",{width,height:1000,deviceScaleFactor:1,mobile:width===390});
@@ -63,7 +86,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
-  if(process.env.AINUOKE_UI_EVIDENCE==="1")await writeFile(resolve("docs/tasks/active/evidence/ainuoke-continuous-material-display/computed-styles.json"),JSON.stringify({build:info,metrics},null,2)+"\n");
+  if(process.env.AINUOKE_UI_EVIDENCE==="1")await writeFile(resolve("outputs/unified-local-demo/computed-styles.json"),JSON.stringify({build:info,metrics},null,2)+"\n");
  }finally{
   ws?.close();if(browser&&browser.exitCode===null){browser.kill();await wait(500);}
   await x.close();const distance=relative(resolve(tmpdir()),resolve(temp));assert.ok(distance&&!distance.startsWith("..")&&!isAbsolute(distance)&&temp.includes("zhixu-continuous-ui-"));await rm(temp,{recursive:true,force:true});

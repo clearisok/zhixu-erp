@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { buildInfo } from "../../features/runtime/build-info";
 
 export function BuildInfoIndicator() {
+  const path = usePathname();
   useEffect(() => {
     console.info([
       "织序ERP",
@@ -14,6 +16,7 @@ export function BuildInfoIndicator() {
     ].join("\n"));
   }, []);
 
+  if (path === "/login") return null;
   const environmentLabel = buildInfo.environment === "development" ? "DEV" : "PROD";
   return <output
     className="zhixu-build-indicator"

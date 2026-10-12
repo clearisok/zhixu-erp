@@ -92,6 +92,12 @@ test('short SHA is not accepted as a baseline identity', t => {
   has(f.check(), 'SOURCE_SHA');
 });
 
+test('a status-only historical SHA remains independently required after advancing main', t => {
+  const f = fixture(t);
+  f.manifest.capabilities[0].statusEvidence.implemented.sourceSha = 'f'.repeat(40);
+  has(f.check(), 'SOURCE_SHA');
+});
+
 test('missing screenshot blocks; existing filename alone is not evidence', t => {
   const f = fixture(t); f.manifest.evidence.find(item => item.kind === 'screenshot').path = 'docs/missing.png';
   has(f.check(), 'EVIDENCE_PATH');

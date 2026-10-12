@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-107 正式 /login 与范围限定的动画登录页
+- 日期：2026-10-12；状态：Active；用户决定。
+- 用户原话：“要有正式的一个页面，然后正确的路由杠 log in 使用 animatd - login……我希望我的登录页有趣一点。”
+- 授权仅覆盖正式登录入口：独立 /login、现有可信 session、安全回到原页面、动画/响应式/可访问性。其余页面继续 D-099/D-102/P6；没有全站重设计、真实账号/数据库/部署授权。
+- 用户随后指定 katavii/animated-login（https://github.com/katavii/animated-login；参考 SHA 62f0b80c7694c3dfe07b39c7a85bdd832ff4bb15）；对齐蓝色分栏和四角色互动，以原生 CSS/React 独立实现。2026-10-12 用户随后确认“登录页可以”，批准 PR101 合并；此项只验收登录视觉，不等于订单/物料或真实上线验收。
+- 保留 Browser/legacy 与 local-single-user authority，不替换后端、不扩张生产业务路由；凭据仍只经现有 API。
+- 代码证据：app/login/page.tsx、app/login/login.css、features/server-auth/components/animated-login-page.tsx、login-route.ts、features/quote-center/components/quote-server-boundary.tsx；回归 server/integration/animated-login-ui.integration.test.mjs。
+- PR101 已合并至 3456fe5fc6e213c2e896e4e6a509e28751f1798c；用户授权将 PR100 整合至同一本机合成演示，保留 D-106。PR100 仍未获合并授权，无真实账号/数据库/部署操作。
+
 ### D-106 首次订单绑定、持续采集与原P6页面接线
 - 日期：2026-10-12；状态：Active。用户明确要求“合并 PR #99，然后从最新 main 建独立 worktree，继续做首次订单绑定、持续调度和现有页面接线。保持现有 UI，先用合成数据测试，完成后提交 PR 并复审。暂不修改真实账号、数据库或部署，不自动合并新的 PR”。
 - 本条接续D105首次绑定/调度开发Gate；D105宁波持续展示后上线、D104来源全团队可见、D103织序金额权限不变。首绑复用现有订单/Source Link/6087105，不引入库存账本。

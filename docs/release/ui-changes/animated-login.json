@@ -1,0 +1,27 @@
+{
+  "baselineSha": "db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e",
+  "level": "V2",
+  "paths": [
+    "app/login/login.css",
+    "app/login/page.tsx",
+    "components/foundation/build-info-indicator.tsx",
+    "features/data-management/components/local-data-bootstrap.tsx",
+    "features/quote-center/components/quote-server-boundary.tsx",
+    "features/server-auth/components/animated-login-page.tsx",
+    "features/server-auth/components/login-redirect.tsx",
+    "features/server-auth/login-route.ts"
+  ],
+  "pages": [
+    "login",
+    "navigation"
+  ],
+  "visibleDifference": "User requested standalone /login based on katavii/animated-login: blue split panel and four interactive characters; all normal Server login flows use /login. Existing business layout unchanged; logout failure gains a message.",
+  "evidence": [
+    "docs/features/SERVER_LOGIN.md",
+    "docs/tasks/active/evidence/animated-login/engineering.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/evidence/animated-login/engineering.md"
+  }
+}
