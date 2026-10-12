@@ -18,11 +18,11 @@
 | 18443 | 878de323d618b25fca1f51ccf3f024e932641742 / sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4 | 较早Quote试用；[2026-10-09更新证据](tasks/completed/2026-10-09-windows-quote-trial-ui-update.md) |
 | 18444 | eb9530ac9a2e1b7f68299d97c4d424662a6622f7 / sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23 | PR91已验收候选；[部署/恢复历史](tasks/active/quote-two-step-creation.md#second-acceptance-preview-deployment-pass-2026-10-10) |
 
-前轮2026-10-12审计只读元数据与上述版本吻合；本工程任务未重新核验runtime/ledger/账号/对象，不将旧计数称为当前值。两环境独立DB/对象与旧环境继续保留；合并不等于部署。两个记录镜像不含PR92/93。
+可随仓恢复的环境日期采用上述2026-10-09/10部署记录；前轮本地审计不用于抬高仓内证据时间。本工程任务未重新核验runtime/ledger/账号/对象，不将旧计数称为当前值。两环境独立DB/对象与旧环境继续保留；合并不等于部署。两个记录镜像不含PR92/93。
 
 ## 当前任务与验证
 
-`chore/release-baseline-guard`仅实现清单、来源/样式/证据/状态阻断检查和隔离PR检查；不改页面、权限业务规则、路由白名单、SQL或部署。工程与远端交付的实际结果见[任务证据](tasks/active/release-baseline-guard.md)，不沿用历史测试数量冒充本轮PASS。
+PR95 `chore/release-baseline-guard`提供清单与隔离PR检查；合并前审查发现的五项缺口已按v2补强：TS/资源输入、CSS AST、Git blob冻结证据、分维度状态证明、非空状态文档。八个误通过场景已成为回归测试；本轮结果和复审见[任务证据](tasks/active/release-baseline-guard.md)。不改页面、权限业务规则、路由白名单、SQL或部署；不沿用旧测试数量冒充新PASS。
 
 ## 风险与下一步
 

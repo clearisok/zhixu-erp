@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
   "verifiedAt": "2026-10-12T11:48:00+08:00",
@@ -9,97 +9,113 @@
       "id": "decisions",
       "kind": "document",
       "path": "docs/DECISION_LOG.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "ad6e15e87cc3ca92cb3530e9d6f3b0f4d3fc0252df358a3f4e547fabe54ee233"
     },
     {
       "id": "quote-original",
       "kind": "document",
       "path": "docs/tasks/assets/quote-original-convergence/README.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "6f0d66101b82d9c71425e59bd56a2cb81ed4c005708d75d5c0cbeab294d45539"
     },
     {
       "id": "quote-list-acceptance",
       "kind": "document",
       "path": "docs/tasks/active/d099-list-acceptance.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "43dfc5783b91a187b345024bf285783f0219c407d93b4cb6a10137db07974b2b"
     },
     {
       "id": "quote-pr91",
       "kind": "document",
       "path": "docs/tasks/active/quote-two-step-creation.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "e422842fa1d09556e5b2e97d2452fc8a861bf78d4807ea03dc2993b0df64927a"
     },
     {
       "id": "quote-pr91-images",
       "kind": "document",
       "path": "docs/tasks/active/evidence/quote-pr91-second-acceptance/README.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "85f23105618ba64d4cf385573c1931d79d302505edb27fabe23ab2c201fc55bd"
     },
     {
       "id": "order-p6",
       "kind": "document",
       "path": "docs/tasks/active/order-material-p6-restoration.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "9809cf1da231c5bbb8ea991290e713d420df948cb5f9bb33882d5a60f715c64c"
     },
     {
       "id": "order-integration",
       "kind": "document",
       "path": "docs/tasks/active/order-material-pr93-integration.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "3687fb41fc847ab24ad36888dbcfed9d6bf208b9c4f0087296dcddd52b13ae2c"
     },
     {
       "id": "order-images",
       "kind": "document",
       "path": "docs/tasks/active/evidence/order-material-pr93-integration/README.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "fa46f0638a002654125798ed8df25dd18e79a000b4b15b02705dc4d9d93a75fc"
     },
     {
       "id": "security-pr93",
       "kind": "document",
       "path": "docs/tasks/active/commercial-amount-read-security.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "f2390d5ab0b1e216b8381193342ded2bea70a6d58eb3ab8cbbe491698ebf9330"
     },
     {
       "id": "trial-update",
       "kind": "document",
       "path": "docs/tasks/completed/2026-10-09-windows-quote-trial-ui-update.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "ab1ce374fa24e657652c4ea6af5078b1ef0605922005fdc9f6157360f929f43c"
     },
     {
       "id": "delivery-plan",
       "kind": "document",
       "path": "docs/tasks/completed/2026-10-09-order-c43-delivery-plan.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "36e0126af6b8afee50b7dfb087edb323f4bd7f298b29870807d54c1d20a5ce29"
     },
     {
       "id": "fresh-start",
       "kind": "document",
       "path": "docs/features/FRESH_START_FOUNDATION.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "b27c048e2daa8eac73412bd0a3f852ef6254ed13e4aeb0635927fcf762001616"
     },
     {
       "id": "responsive-tests",
       "kind": "document",
       "path": "tests/responsive-mobile-batch1.test.mjs",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "6e75cc5c4796992953ccda431d28cbbc97bcaeb433634a6b28d49dc6470fc629"
     },
     {
       "id": "intake",
       "kind": "document",
       "path": "docs/features/QUOTE_INTAKE.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "47ce9e16d590460f3a3d2df27de0028d31a34a44851f66cc22481ec4d619246e"
     },
     {
       "id": "production",
       "kind": "document",
       "path": "docs/features/PRODUCTION_SCHEDULING.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "66ea800da43f5fc131b28229faf2bbcee1dd00efe6092cc0b7ec9d618ad7dae9"
     },
     {
       "id": "closing",
       "kind": "document",
       "path": "docs/features/CLOSING_CENTER.md",
-      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      "recordedAtSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "sha256": "345d0d4b8f56e07ad8e6aeac4442e5f19d079358122985cbe2b366db7bee461a"
     },
     {
       "id": "pr64-list",
@@ -409,7 +425,87 @@
       "evidence": [
         "quote-pr91",
         "trial-update"
-      ]
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-12",
+          "scope": "Core Server Quote at different versions; D-102 only on PR91 Preview. PostgreSQL persistence does not mean Ainuoke activation.",
+          "evidence": [
+            "quote-pr91",
+            "trial-update"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "merged": {
+          "value": true,
+          "assessedAt": "2026-10-12",
+          "scope": "Core Server Quote at different versions; D-102 only on PR91 Preview. PostgreSQL persistence does not mean Ainuoke activation.",
+          "evidence": [
+            "quote-pr91",
+            "trial-update"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Core Server Quote at different versions; D-102 only on PR91 Preview. PostgreSQL persistence does not mean Ainuoke activation.",
+          "evidence": [
+            "quote-pr91",
+            "trial-update"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "humanAcceptance": {
+          "value": "accepted-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Core Server Quote at different versions; D-102 only on PR91 Preview. PostgreSQL persistence does not mean Ainuoke activation.",
+          "evidence": [
+            "quote-pr91",
+            "trial-update"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "sourceActivation": {
+          "value": "active-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Core Server Quote at different versions; D-102 only on PR91 Preview. PostgreSQL persistence does not mean Ainuoke activation.",
+          "evidence": [
+            "quote-pr91",
+            "trial-update"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623",
+          "runtimeIds": [
+            "trial18443",
+            "preview18444"
+          ]
+        },
+        "trial18443": {
+          "value": "deployed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Core Server Quote at different versions; D-102 only on PR91 Preview. PostgreSQL persistence does not mean Ainuoke activation.",
+          "evidence": [
+            "quote-pr91",
+            "trial-update"
+          ],
+          "runtimeId": "trial18443",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "deployed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Core Server Quote at different versions; D-102 only on PR91 Preview. PostgreSQL persistence does not mean Ainuoke activation.",
+          "evidence": [
+            "quote-pr91",
+            "trial-update"
+          ],
+          "runtimeId": "preview18444",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
     },
     {
       "id": "commercial-security",
@@ -426,7 +522,85 @@
       "evidence": [
         "security-pr93",
         "decisions"
-      ]
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-12",
+          "scope": "D-103 sale/labor/cost projections merged PR93; human feedback is scoped; neither recorded runtime contains the fix.",
+          "evidence": [
+            "security-pr93",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "merged": {
+          "value": true,
+          "assessedAt": "2026-10-12",
+          "scope": "D-103 sale/labor/cost projections merged PR93; human feedback is scoped; neither recorded runtime contains the fix.",
+          "evidence": [
+            "security-pr93",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "D-103 sale/labor/cost projections merged PR93; human feedback is scoped; neither recorded runtime contains the fix.",
+          "evidence": [
+            "security-pr93",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "humanAcceptance": {
+          "value": "partial",
+          "assessedAt": "2026-10-12",
+          "scope": "D-103 sale/labor/cost projections merged PR93; human feedback is scoped; neither recorded runtime contains the fix.",
+          "evidence": [
+            "security-pr93",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-12",
+          "scope": "D-103 sale/labor/cost projections merged PR93; human feedback is scoped; neither recorded runtime contains the fix.",
+          "evidence": [
+            "security-pr93",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "scope": "D-103 sale/labor/cost projections merged PR93; human feedback is scoped; neither recorded runtime contains the fix.",
+          "evidence": [
+            "security-pr93",
+            "decisions",
+            "trial-update"
+          ],
+          "runtimeId": "trial18443",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "scope": "D-103 sale/labor/cost projections merged PR93; human feedback is scoped; neither recorded runtime contains the fix.",
+          "evidence": [
+            "security-pr93",
+            "decisions",
+            "quote-pr91"
+          ],
+          "runtimeId": "preview18444",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
     },
     {
       "id": "order",
@@ -443,7 +617,85 @@
       "evidence": [
         "order-integration",
         "decisions"
-      ]
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "partial",
+          "assessedAt": "2026-10-12",
+          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "evidence": [
+            "order-integration",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "merged": {
+          "value": true,
+          "assessedAt": "2026-10-12",
+          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "evidence": [
+            "order-integration",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "evidence": [
+            "order-integration",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "humanAcceptance": {
+          "value": "accepted-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "evidence": [
+            "order-integration",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-12",
+          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "evidence": [
+            "order-integration",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "trial18443": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "evidence": [
+            "order-integration",
+            "decisions",
+            "trial-update"
+          ],
+          "runtimeId": "trial18443",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "Server list/detail and immutable identity exist; fresh runtime route, credible team scope and Source remain disconnected.",
+          "evidence": [
+            "order-integration",
+            "decisions",
+            "quote-pr91"
+          ],
+          "runtimeId": "preview18444",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
     },
     {
       "id": "material",
@@ -460,7 +712,85 @@
       "evidence": [
         "order-integration",
         "order-images"
-      ]
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "partial",
+          "assessedAt": "2026-10-12",
+          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "evidence": [
+            "order-integration",
+            "order-images"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "merged": {
+          "value": true,
+          "assessedAt": "2026-10-12",
+          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "evidence": [
+            "order-integration",
+            "order-images"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "evidence": [
+            "order-integration",
+            "order-images"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "humanAcceptance": {
+          "value": "accepted-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "evidence": [
+            "order-integration",
+            "order-images"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-12",
+          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "evidence": [
+            "order-integration",
+            "order-images"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "trial18443": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "evidence": [
+            "order-integration",
+            "order-images",
+            "trial-update"
+          ],
+          "runtimeId": "trial18443",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+          "evidence": [
+            "order-integration",
+            "order-images",
+            "quote-pr91"
+          ],
+          "runtimeId": "preview18444",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
     },
     {
       "id": "delivery-plan",
@@ -476,7 +806,78 @@
       "scope": "0009 domain/API exists; schema is not production plan UI or Source activation.",
       "evidence": [
         "delivery-plan"
-      ]
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "partial",
+          "assessedAt": "2026-10-12",
+          "scope": "0009 domain/API exists; schema is not production plan UI or Source activation.",
+          "evidence": [
+            "delivery-plan"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "merged": {
+          "value": true,
+          "assessedAt": "2026-10-12",
+          "scope": "0009 domain/API exists; schema is not production plan UI or Source activation.",
+          "evidence": [
+            "delivery-plan"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "0009 domain/API exists; schema is not production plan UI or Source activation.",
+          "evidence": [
+            "delivery-plan"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-12",
+          "scope": "0009 domain/API exists; schema is not production plan UI or Source activation.",
+          "evidence": [
+            "delivery-plan"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-12",
+          "scope": "0009 domain/API exists; schema is not production plan UI or Source activation.",
+          "evidence": [
+            "delivery-plan"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "trial18443": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "0009 domain/API exists; schema is not production plan UI or Source activation.",
+          "evidence": [
+            "delivery-plan",
+            "trial-update"
+          ],
+          "runtimeId": "trial18443",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "0009 domain/API exists; schema is not production plan UI or Source activation.",
+          "evidence": [
+            "delivery-plan",
+            "quote-pr91"
+          ],
+          "runtimeId": "preview18444",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
     },
     {
       "id": "intake",
@@ -493,7 +894,85 @@
       "evidence": [
         "intake",
         "decisions"
-      ]
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "no",
+          "assessedAt": "2026-10-12",
+          "scope": "Approved contract only; mobile collection/conversion not implemented; contract PR merge is not feature implementation.",
+          "evidence": [
+            "intake",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-12",
+          "scope": "Approved contract only; mobile collection/conversion not implemented; contract PR merge is not feature implementation.",
+          "evidence": [
+            "intake",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "isolatedTest": {
+          "value": "not-run",
+          "assessedAt": "2026-10-12",
+          "scope": "Approved contract only; mobile collection/conversion not implemented; contract PR merge is not feature implementation.",
+          "evidence": [
+            "intake",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-12",
+          "scope": "Approved contract only; mobile collection/conversion not implemented; contract PR merge is not feature implementation.",
+          "evidence": [
+            "intake",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-12",
+          "scope": "Approved contract only; mobile collection/conversion not implemented; contract PR merge is not feature implementation.",
+          "evidence": [
+            "intake",
+            "decisions"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "trial18443": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "Approved contract only; mobile collection/conversion not implemented; contract PR merge is not feature implementation.",
+          "evidence": [
+            "intake",
+            "decisions",
+            "trial-update"
+          ],
+          "runtimeId": "trial18443",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "Approved contract only; mobile collection/conversion not implemented; contract PR merge is not feature implementation.",
+          "evidence": [
+            "intake",
+            "decisions",
+            "quote-pr91"
+          ],
+          "runtimeId": "preview18444",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
     },
     {
       "id": "production",
@@ -509,7 +988,78 @@
       "scope": "Browser scheduling only; no fresh Server multi-user execution.",
       "evidence": [
         "production"
-      ]
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "partial",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser scheduling only; no fresh Server multi-user execution.",
+          "evidence": [
+            "production"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "merged": {
+          "value": true,
+          "assessedAt": "2026-10-12",
+          "scope": "Browser scheduling only; no fresh Server multi-user execution.",
+          "evidence": [
+            "production"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser scheduling only; no fresh Server multi-user execution.",
+          "evidence": [
+            "production"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "humanAcceptance": {
+          "value": "unknown",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser scheduling only; no fresh Server multi-user execution.",
+          "evidence": [
+            "production"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser scheduling only; no fresh Server multi-user execution.",
+          "evidence": [
+            "production"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "trial18443": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser scheduling only; no fresh Server multi-user execution.",
+          "evidence": [
+            "production",
+            "trial-update"
+          ],
+          "runtimeId": "trial18443",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser scheduling only; no fresh Server multi-user execution.",
+          "evidence": [
+            "production",
+            "quote-pr91"
+          ],
+          "runtimeId": "preview18444",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
     },
     {
       "id": "closing",
@@ -525,7 +1075,78 @@
       "scope": "Browser snapshot domain only; no Server financial authority; currency/wording drift requires separate review.",
       "evidence": [
         "closing"
-      ]
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "partial",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser snapshot domain only; no Server financial authority; currency/wording drift requires separate review.",
+          "evidence": [
+            "closing"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "merged": {
+          "value": true,
+          "assessedAt": "2026-10-12",
+          "scope": "Browser snapshot domain only; no Server financial authority; currency/wording drift requires separate review.",
+          "evidence": [
+            "closing"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser snapshot domain only; no Server financial authority; currency/wording drift requires separate review.",
+          "evidence": [
+            "closing"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "humanAcceptance": {
+          "value": "unknown",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser snapshot domain only; no Server financial authority; currency/wording drift requires separate review.",
+          "evidence": [
+            "closing"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser snapshot domain only; no Server financial authority; currency/wording drift requires separate review.",
+          "evidence": [
+            "closing"
+          ],
+          "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+        },
+        "trial18443": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser snapshot domain only; no Server financial authority; currency/wording drift requires separate review.",
+          "evidence": [
+            "closing",
+            "trial-update"
+          ],
+          "runtimeId": "trial18443",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-open",
+          "assessedAt": "2026-10-12",
+          "scope": "Browser snapshot domain only; no Server financial authority; currency/wording drift requires separate review.",
+          "evidence": [
+            "closing",
+            "quote-pr91"
+          ],
+          "runtimeId": "preview18444",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
     }
   ],
   "runtimeSnapshots": [
@@ -533,9 +1154,9 @@
       "id": "trial18443",
       "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
       "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
-      "observedAt": "2026-10-12T11:31:00+08:00",
+      "observedAt": "2026-10-09",
       "reverifiedByThisTask": false,
-      "observationScope": "Prior read-only audit metadata corroborated by 2026-10-09 deployment record; no runtime/DB access in this implementation task.",
+      "observationScope": "Date of the committed deployment record; no live runtime, DB, account or Source verification in PR95. The prior local audit is not used to advance this portable evidence date.",
       "evidence": [
         "trial-update"
       ]
@@ -544,9 +1165,9 @@
       "id": "preview18444",
       "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
       "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
-      "observedAt": "2026-10-12T11:31:00+08:00",
+      "observedAt": "2026-10-10",
       "reverifiedByThisTask": false,
-      "observationScope": "Prior audit metadata and PR91 deployment record; 2026-10-11 human PASS scoped to PR91; no new deployment/DB/role claim.",
+      "observationScope": "Date of the committed deployment record; no live runtime, DB, account or Source verification in PR95. The prior local audit is not used to advance this portable evidence date.",
       "evidence": [
         "quote-pr91"
       ]

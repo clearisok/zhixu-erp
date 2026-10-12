@@ -7,14 +7,17 @@ separates engineering, merge, deployment, human acceptance and source activation
 It does not approve designs, run deployments, query databases or open routes.
 GitHub/code/approved decisions remain the facts; the manifest is a dated snapshot.
 
-Run from the repository root (Node 24, Git; npm dependencies for the responsive test):
+Run from the repository root (Node 24, Git; locked npm dependencies including the
+existing TypeScript parser are required):
 
 ```powershell
 npm run check:release-baseline -- --base-sha <verified-full-main-sha>
 npm run test:release-baseline
 ```
 
-The optional CLI base defaults to the manifest anchor for local inspection.
+Without a CLI base, local inspection compares working changes with HEAD and loads
+HEAD's manifest as history. It does not claim to review the whole PR. This remains
+usable after squash merges and deletion of the first PR's branch.
 PR CI always passes the actual PR base SHA; a stale snapshot fails. This is not
 a network lookup: verify/fetch main independently before updating the snapshot.
 The guard checks committed, staged, unstaged and untracked UI paths relative to
@@ -29,10 +32,17 @@ that base; it never stages or rewrites them. Missing objects stop the gate.
 - SHA must be full, available locally and match the supplied PR base. Current
   state/index/handoff must use the same anchor. Historical evidence records keep
   their own recorded-at SHA and rendered-source SHA; these are different facts.
-- Evidence paths must exist inside the checkout. Missing/modified PNG bytes,
-  unknown evidence IDs, incomplete status dimensions or unsupported status labels
-  fail. A planned feature cannot claim an isolated implementation PASS.
-- RootLayout CSS imports match the recorded order. The Material harness has an
+- Schema v2 binds every document/PNG to `recordedAtSha:path` and SHA256. Documents
+  normalize CRLF to LF only; PNGs compare exact bytes. A commit existing without
+  that blob is insufficient. Historical IDs cannot be deleted or rewritten.
+  The prior manifest is loaded from the actual PR base, never from a caller-owned
+  working file. For this first PR only, when its base has no manifest, the reviewed
+  ancestor `b5411b68618e663d97ca50ac5bb9f49bc688193e` is the bootstrap anchor.
+  v1 may gain verified document hashes; it may not silently change old evidence.
+- Empty/whitespace current-state/index/handoff files fail, as do missing anchors.
+- RootLayout CSS imports are parsed as real top-level side-effect TypeScript AST declarations
+  and match the recorded order. Comments, templates and type-only imports cannot
+  impersonate loaded CSS. Syntax errors fail closed. The Material harness has an
   explicitly documented subset; its shared CSS order must match production,
   globals comes first and Foundation last among shared styles. The synthetic
   notice stylesheet is the recorded local exception. Removing Foundation from
@@ -43,12 +53,42 @@ that base; it never stages or rewrites them. Missing objects stop the gate.
   as an incidental documentation fix.
 - Server allowlist must match the snapshot. A mismatch demands review; editing the
   manifest is never permission to activate a route or source.
-- Changes to app/components/features TSX/CSS or the responsive helper require a
-  changed, path-specific UI impact record. Tooling/docs-only changes need none.
+- App/components/features JS/TS (including helper TS), CSS/preprocessors, local
+  visual assets/JSON, public assets and Vite/Next/PostCSS/Tailwind config changes
+  require a changed, path-specific impact record. This conservative rule prevents
+  moving layout code from TSX to a helper to evade review. Tests/fixtures/type
+  declarations are excluded; production code must not hide in those locations.
+  Domain-only inputs use an explicit V0 record with supporting scope evidence;
+  they are not declared visually equivalent merely because their extension is TS.
+  Tooling/docs-only changes need no invented UI approval.
 
 The negative suite deliberately removes Foundation, changes CSS order, alters
 SHA/PNG/evidence/status, simulates a stale document/allowlist, and omits UI impact
 or approval records. It uses owned temporary copies and synthetic data only.
+The `R95-1` through `R95-8` cases reproduce every pre-merge false PASS, including
+matching false claim labels, historical-file absence and simultaneous PNG/hash
+replacement. Positive tests cover legitimate new evidence and document revisions.
+
+## Frozen evidence and forward updates
+
+Existing evidence IDs keep kind/path/recordedAtSha/renderedSourceSha/hash and
+revision metadata. The current file must match its frozen blob. To revise a
+document, retain the old record and add a new ID with a new committed version,
+the same path, `supersedes: <old-id>` and a nonempty `changeReason`. Only the latest
+document version must match the working file; earlier blobs stay readable in Git.
+Do not remove the old ID or reuse it for a different assertion.
+
+PNG history remains at its old path with exact bytes. A new screenshot uses a
+new ID/path and a nonempty `changeReason` plus `approvalEvidence` pointing to a
+frozen document record of the explicit user approval. A replacement may identify
+the previous screenshot via `supersedes`; it cannot overwrite that file. An
+approval reference is reviewable evidence, not machine proof of user identity.
+
+Evidence must be committed before its full source SHA can be referenced. For new
+proofs, create a local checkpoint of a new dated evidence file first, then bind
+the manifest and run the final gate; do not invent a future self-referential SHA.
+For an active-document revision, complete its evidence checkpoint and binding
+before calling the final gate PASS. Normal repository delivery rules still apply.
 
 ## UI impact and approval
 
@@ -85,7 +125,7 @@ referenced decision and confirm scope/version before merge. A PR can modify its
 own guard/manifest/approval text, so CI alone cannot enforce independent approval.
 V2/V3 need concrete wireframe/comparison approval before implementation; a green
 check cannot retroactively approve a redesign. No automatic baseline updater is
-provided. A baseline hash change needs independent evidence review.
+provided. New evidence versions need independent evidence review.
 
 ## Historical acceptance map and missing coverage
 
@@ -109,11 +149,28 @@ humanAcceptance, sourceActivation, scope and evidence. Contract approval is not
 feature implementation; schema availability is not production UI activation.
 Current snapshots distinguish PR91 runtime from PR92/93 code in main.
 
+`statusEvidence` has seven typed dimensions: implemented, merged, isolatedTest,
+humanAcceptance, sourceActivation, trial18443 and preview18444. Each claim repeats
+the exact status value, identifies frozen document evidence, assessedAt, scope and
+sourceSha. Environment claims bind the exact runtime ID/source/image; active
+Source claims identify deployed environments. `assessedAt` is a snapshot review
+date, not a fabricated test/deployment/acceptance date.
+
+Unimplemented capabilities cannot claim merged implementation, test PASS, partial
+or complete human implementation acceptance, deployment or active Source. Contract
+approval remains separate. Any status change relative to the Git-loaded prior
+manifest needs a new document ID with genuinely new frozen bytes; relabelling or
+recommitting the same document does not count. Runtime source/image changes also
+need new evidence. Reviewers still inspect whether that evidence actually proves
+the claim; this tool does not infer business truth from prose or query live systems.
+
 The runtime entries are historical observations; this guard task did not access
 18443/18444 or business DBs. A later authorized release must add its own dated
-release evidence and revise this v1 historical-only contract explicitly; do not
+release evidence and revise this historical-only contract explicitly; do not
 flip a boolean and claim that this script inspected the runtime. Source SHA,
 image digest, ledger, trusted roles and human use are separate validations.
+Portable snapshot dates use the committed 2026-10-09/10 deployment records. The
+previous local audit's later time is not represented as new in-repo runtime proof.
 
 ## Maintenance and integration
 

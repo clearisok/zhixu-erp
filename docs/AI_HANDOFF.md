@@ -7,6 +7,7 @@
 - [清单](release/baseline.json) / [检查与更新契约](features/RELEASE_BASELINE_GUARD.md) / [本任务结果与网络证据](tasks/active/release-baseline-guard.md)。
 - PR91/92/93/94已MERGED，旧PR92 Draft描述已归档；D103已入main，但两环境最后记录镜像尚未包含。P6/PR91人工PASS是历史范围；真实Order/Material Source和生产路由未激活。
 - 本PR只提供source/evidence guard，不是新的浏览器像素、生产发布或人工验收。后续完整UI回归、安全候选与Source接线必须独立任务。
+- PR95复审修复从clean `b5411b68618e663d97ca50ac5bb9f49bc688193e`继续，main仍为上述4adbc。v2修复五项缺口并纳入R95-1…8反例；状态事实和PNG不重写。测试/复审/交付状态见任务证据，不能把首轮CI绿灯视为修复后CI结果。
 - 最终工程/commit/远端PR结果记录于任务证据和GitHub；不循环写入本文件自身SHA。遇NETWORK_DEGRADED遵循AGENTS/PR94工具，不无界重试。
 
 原PR91部署、PR92联合回归/继承dirty、PR94交付的日期/hash/结果/限制完整保留在[前序快照](tasks/completed/2026-10-12-release-baseline-predecessor-state.md)。不将其他worktree的历史dirty套用到本任务，不清理或stage它们。

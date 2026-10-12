@@ -2,7 +2,7 @@
 
 > 核实日期2026-10-12；main起点 `4adbc30845f99368caa77d3431cc67a6440ac623`。PR91/92/93/94均已合并；运行环境、人工验收和Source激活分别见[当前状态](CURRENT_STATE.md)与[机器可读清单](release/baseline.json)，不能从merge推断部署。原PR92 Draft等滚动状态完整保存在[前序快照](tasks/completed/2026-10-12-release-baseline-predecessor-state.md)。
 
-> 当前开发任务：[Release baseline guard](features/RELEASE_BASELINE_GUARD.md) / [实施证据](tasks/active/release-baseline-guard.md)。此门禁只验证源码/历史证据契约，不代替真实UI/DB/发布验收。Git交付继续使用[PR94协议](tasks/active/git-delivery-resilience.md)。
+> 当前开发任务：[Release baseline guard v2](features/RELEASE_BASELINE_GUARD.md) / [实施证据与PR95复审](tasks/active/release-baseline-guard.md)。v2补强UI输入、CSS AST、冻结Git证据及状态转换约束；只验证源码/历史证据契约，不代替真实UI/DB/发布验收。Git交付继续使用[PR94协议](tasks/active/git-delivery-resilience.md)。
 
 ## 系统简介
 

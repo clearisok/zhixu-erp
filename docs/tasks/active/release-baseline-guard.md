@@ -54,3 +54,74 @@ repository settings were not changed. The workflow is not full browser visual CI
 
 Final exact-commit/remote/PR evidence belongs to the delivery result; no self-SHA
 documentation loop. The old audit worktree and its ignored documents remain intact.
+
+## PR95 pre-merge repair — 2026-10-12
+
+- User authorized fixing all five review findings in the existing PR, all eight
+  false-PASS regressions, local/CI checks, evidence/docs and a new pre-merge review.
+  No UI redesign, production routes, DB, 18443/18444 or automatic merge.
+- Repair baseline: same branch/worktree, clean HEAD
+  `b5411b68618e663d97ca50ac5bb9f49bc688193e`; GitHub PR95 head matched, base/main
+  remained `4adbc30845f99368caa77d3431cc67a6440ac623`. The original implementation
+  and its first CI PASS did not prove the omitted adversarial cases.
+- F1: JS/TS helpers, styles, assets and UI build inputs require explicit impact
+  review; pure domain changes can declare V0 with evidence. No app helper changed.
+- F2: CSS uses actual TypeScript AST imports, excluding block comments, template
+  examples and type-only imports. Both production and preview are covered.
+- F3: v2 verifies all 27 frozen Git blobs/hashes, retains immutable IDs and old
+  PNG bytes, and allows explicit forward document revisions. The real PR-base
+  manifest is the comparison source; first-PR bootstrap pins reviewed b5411b6.
+- F4: 56 scoped status claims bind dimension/value/document/source/environment;
+  contradictions, status changes with old/relabelled bytes, and runtime identity
+  changes without new proof fail. These typed claims preserve the eight existing
+  capability statuses; they do not create deployment or Source evidence.
+- F5: all three current documents reject empty, whitespace-only or absent anchors.
+- Portable runtime dates now use committed deployment evidence (2026-10-09/10),
+  not a later local audit timestamp. Existing source/image identities are unchanged.
+- `R95-1`…`R95-8` reproduce the eight original false PASS cases. Additional tests
+  cover both CSS entries, all three documents, helper/asset/config paths, history
+  deletion, missing blob, renamed old proof, valid forward revisions and genuine
+  new proof. Temporary fixtures contain synthetic changes only.
+
+### Repair validation
+
+- Dedicated guard/responsive suite: **67/67 PASS**, 0 skipped (47 guard + 20
+  responsive; 25 new tests). Final root `npm test`: **805/805 PASS**, 0 skipped,
+  including all 67 after the final local-default/history portability adjustment.
+- Explicit actual-main CLI and default local/HEAD CLI: PASS, 9 pages / 8
+  capabilities / 0 changed UI inputs. PR CI continues to use its actual base SHA;
+  default local inspection does not claim to review a whole PR.
+- Targeted ESLint max-warnings 0, Node syntax, git diff-check: PASS.
+- Six changed Markdown sources: 19 relative links resolve, balanced code fences.
+- All 11 PNG identities/hashes, eight capability status values/scopes and two
+  runtime source/image identities are unchanged from reviewed b5411b6. All 27
+  frozen evidence blobs resolve; no screenshot regeneration or hash rewrite.
+- App/components/features/server/database/ops/public diff remains empty.
+  TS/frontend/server build, PG and Chromium NOT RUN: no application/schema change.
+
+| Review finding | Executable regression | Required blocking result |
+| --- | --- | --- |
+| F1 helper TS | R95-1 | UI_CHANGE_UNDECLARED |
+| F2 commented CSS | R95-2, production + preview | CSS_ENTRY_ORDER |
+| F3 replaced document | R95-3 | EVIDENCE_WORKTREE_DRIFT |
+| F3 wrong historical SHA | R95-4 | EVIDENCE_BLOB / EVIDENCE_HISTORY_CHANGED |
+| F3 PNG + hash rewrite | R95-5 | EVIDENCE_BLOB_HASH / EVIDENCE_HISTORY_CHANGED |
+| F4 unimplemented but active | R95-6 | CAPABILITY_OVERCLAIM |
+| F4 Order status promotion | R95-7 | STATUS_TRANSITION_EVIDENCE |
+| F5 empty state documents | R95-8, all three files | STATE_BASELINE_DRIFT |
+
+### Pre-merge review handoff
+
+Local re-review confirms the original eight cases now fail for their specific
+reason, with unchanged/current and legitimate-forward-update positive controls
+passing. Source-input coverage, AST semantics, frozen Git identity, old-evidence
+reuse, status/environment binding and empty-document handling were inspected.
+Default local inspection and unit fixtures do not require the first PR commit
+after a future squash merge; only this initial PR's explicit old base uses that
+reviewed ancestor as its bootstrap.
+
+Commit/remote exact SHA, the repair commit's CI run and the **post-commit** final
+review conclusion are recorded in PR95's current description/GitHub checks and the
+delivery report. The original b5411b6 CI run is historical, not repair validation.
+No independent human design/Source/runtime approval, required-check configuration
+or full pixel regression is claimed; these remain explicit boundaries.
