@@ -2,3 +2,5 @@
 # Do not change line endings of already published 0001-0009.
 database/migrations/0010_quote_creation_receipts.sql text eol=lf
 database/migrations/0011_quote_creation_defaults.sql text eol=lf
+
+database/migrations/0012_ainuoke_server_source.sql text eol=lf

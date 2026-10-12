@@ -1,3 +1,4 @@
+import { createPersistedMaterialPorts, sourceReadConfig } from "./ainuoke-source/reader.js";
 import { createServer } from "node:http";
 import { createApp } from "./app.js";
 import { S3AttachmentStorage } from "./attachments/s3-storage.js";
@@ -21,6 +22,7 @@ catch (error) {
   process.exit(1); // before S3 construction, pool, permissions/bootstrap and listen
 }
 const attachmentStorage = config.attachmentStorage.kind === "s3" ? new S3AttachmentStorage(config.attachmentStorage) : undefined;
+const materialSourceConfig = sourceReadConfig(process.env, config.identityMode);
 const pool = createDatabasePool({
   connectionString: config.databaseUrl,
   max: config.databasePoolMax,
@@ -61,6 +63,7 @@ try {
         staticDirectory: config.staticDirectory,
         identityAuthority,
         attachmentStorage,
+        orderMaterialRead: materialSourceConfig ? createPersistedMaterialPorts(pool, materialSourceConfig) : undefined,
       }));
       await new Promise<void>((resolve, reject) => {
         const onError = (error: Error) => reject(error);

@@ -53,11 +53,14 @@ LABEL io.zhixu.build-id=${ZHIXU_BUILD_ID} \
       org.opencontainers.image.created=${ZHIXU_BUILD_TIME}
 
 WORKDIR /app
+# Fixed-catalog worker, invoked only by the explicit operator CLI.
+RUN apk add --no-cache python3
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --ignore-scripts --no-audit --no-fund
 COPY --from=builder /build/dist/client ./dist/client/
 COPY --from=builder /build/dist/server ./dist/server/
 COPY database/migrations ./database/migrations/
+COPY tools/ainuoke-bridge/ainuoke_bridge ./tools/ainuoke-bridge/ainuoke_bridge/
 COPY templates/quote-export-template-v1.xlsx ./templates/quote-export-template-v1.xlsx
 
 EXPOSE 3000
