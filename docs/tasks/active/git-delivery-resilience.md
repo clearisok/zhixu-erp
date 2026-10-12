@@ -105,3 +105,20 @@ the final delivery below; not inferred from successful read-only diagnostics.
 No business data, other worktree, global credentials/TLS/proxy, migration,
 18443/18444, Docker or COS operated. No automatic merge. Main task history and
 old TLS evidence retained, not rewritten as current network failure.
+
+## Gate3/4 delivery
+
+- Tool checkpoint `ffc7b142cdfd521c1e46123d55dd00ec6b71609c`: actual PowerShell
+  `-Execute`, normal push once (6202ms), independent GitHub API exact SHA,
+  DELIVERED_VERIFIED / networkMode NORMAL / no repeated push.
+- AGENTS now requires important local checkpoints, NETWORK_DEGRADED stops
+  subsequent same-channel pushes, independent local work can continue. Remote
+  dependent steps wait; never forge original commit delivery with file APIs.
+  This is workflow policy only, not BUSINESS_RULES/DECISION_LOG.
+- Final documentation commit/remote SHA/unique PR recorded in GitHub and final
+  report; no self-SHA documentation commit loop. Final code unchanged after
+  complete25/25 run; final documentation does not reuse ERP test counts.
+- Main path: guarded normal HTTPS single push + independent API verification.
+  Backup path: same guarded tool once in ordinary Windows PowerShell. No global
+  backend switch, credential change or SSH conversion. Root cause **UNRESOLVED**;
+  observed successful push/read is evidence of this attempt, not a permanent fix.

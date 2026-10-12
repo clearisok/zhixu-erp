@@ -1,5 +1,7 @@
 # 当前状态
 
+> 2026-10-12 / A：独立 Git 交付治理分支 `chore/git-delivery-resilience` 已实施安全单次push/独立精确SHA核验、PowerShell脱敏对照及统一NETWORK_DEGRADED规则。定向25/25、lint/语法/解析/diff-check PASS；工具checkpoint ffc7b142cdfd521c1e46123d55dd00ec6b71609c 已正常推送并由GitHub API核实。历史TLS根因仍unresolved，普通用户PowerShell对照待执行；不是ERP/部署变更。[工具与证据](tasks/active/git-delivery-resilience.md)。最终流程文档交付以同分支PR及最终SHA为准。
+
 > 2026-10-12 / B：main070d958及已合并PR93/D103已普通merge入PR92，冲突逐hunk解决。原P6/精简订单/只读Control Tower用户人工验收PASS保持；本轮工程回归Source78/78、Material HTTP/负向安全19/19、客户端/SSR25/25、实际Chromium物料7/7(115断言)/商业15/15、npm758/758、完整PG261/261、typecheck/lint/串行Server及双Authority构建/diff-check/清理均PASS。合并a252d82791d3b0cf2a216cc2939a64ec9caf50c7，已验证源码a537e750912eb8c415ce9de5f7403bc120271738正常push；PR92无合并冲突、继续Draft。executionOnly不读写CCT；真实Source/可信账号/团队scope/生产route未激活、不回退Browser。继承Gate1文档30行/hash保持未提交；A/真实环境/数据/migration/真实角色配置未操作。[完整交付与限制](tasks/active/order-material-pr93-integration.md) / [本轮截图](tasks/active/evidence/order-material-pr93-integration/README.md) / [历史快照](tasks/completed/2026-10-12-pr92-pr93-pre-integration-handoff.md)。
 
 
