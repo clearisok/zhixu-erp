@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "01694d723cd7b65fcc20e3e79941fef0d57439fc",
-  "verifiedAt": "2026-10-12T06:27:21.108Z",
+  "baselineSha": "5215ef75510e4b55ef69b1ae1508816b80fda110",
+  "verifiedAt": "2026-10-12T08:57:05.946Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -220,6 +220,22 @@
       "path": "docs/tasks/active/evidence/ningbo-first-team-access/engineering.md",
       "recordedAtSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e",
       "sha256": "c37725999a0db6d2366bb8781e8f515852c1509892da1a39c47f4537a64a7354"
+    },
+    {
+      "id": "decisions-ainuoke-source",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "fa84da0148de131edd8e7c65ae5e605f050f98b0",
+      "sha256": "532fe44f9fcd7d4df2f0728fc3bb651e81dda3ccaedd2a64cea95fb5cc0efb43",
+      "supersedes": "decisions-team-access",
+      "changeReason": "User-approved D-105 source development scope and Ningbo continuous-display release gate; preserve D-096/D-098 history."
+    },
+    {
+      "id": "ainuoke-source-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-server-source/engineering.md",
+      "recordedAtSha": "fa84da0148de131edd8e7c65ae5e605f050f98b0",
+      "sha256": "f0e019fad8024897daf19d66fa9e93fcac4ab8999d81c3220b3530e96b559351"
     }
   ],
   "pages": [
@@ -740,7 +756,7 @@
         "trial18443": "not-open",
         "preview18444": "not-open"
       },
-      "scope": "Synthetic UUID loop passed; runtime index does not install orderMaterialRead; no real source activation.",
+      "scope": "Existing merged UUID material DTO/UI has historical synthetic acceptance; new unmerged explicit snapshot runtime is tracked separately in ainuoke-server-source. Production routes remain closed and real source is not connected.",
       "evidence": [
         "order-integration",
         "order-images"
@@ -1183,7 +1199,7 @@
     {
       "id": "first-team-access",
       "implemented": "yes",
-      "merged": false,
+      "merged": true,
       "isolatedTest": "passed-historical",
       "humanAcceptance": "not-run",
       "sourceActivation": "not-applicable",
@@ -1193,7 +1209,8 @@
       },
       "scope": "Six role presets and session-only account management. No real accounts, source activation or Ningbo/18443/18444 deployment.",
       "evidence": [
-        "team-access-engineering"
+        "team-access-engineering",
+        "ainuoke-source-engineering"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1206,13 +1223,13 @@
           "sourceSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e"
         },
         "merged": {
-          "value": false,
+          "value": true,
           "assessedAt": "2026-10-12",
-          "scope": "Six role presets and session-only account management. No real accounts, source activation or Ningbo/18443/18444 deployment.",
+          "scope": "PR97 merged 2026-10-12T07:32:50Z; no deployment or real-account/source activation follows from merge.",
           "evidence": [
-            "team-access-engineering"
+            "ainuoke-source-engineering"
           ],
-          "sourceSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e"
+          "sourceSha": "5215ef75510e4b55ef69b1ae1508816b80fda110"
         },
         "isolatedTest": {
           "value": "passed-historical",
@@ -1258,6 +1275,91 @@
           "scope": "This new feature is not deployed; runtime identity is only the unchanged historical observation.",
           "evidence": [
             "team-access-engineering"
+          ],
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-server-source",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+      "evidence": [
+        "ainuoke-source-engineering"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-12",
+          "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+          "evidence": [
+            "ainuoke-source-engineering"
+          ],
+          "sourceSha": "fa84da0148de131edd8e7c65ae5e605f050f98b0"
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-12",
+          "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+          "evidence": [
+            "ainuoke-source-engineering"
+          ],
+          "sourceSha": "fa84da0148de131edd8e7c65ae5e605f050f98b0"
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-12",
+          "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+          "evidence": [
+            "ainuoke-source-engineering"
+          ],
+          "sourceSha": "fa84da0148de131edd8e7c65ae5e605f050f98b0"
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-12",
+          "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+          "evidence": [
+            "ainuoke-source-engineering"
+          ],
+          "sourceSha": "fa84da0148de131edd8e7c65ae5e605f050f98b0"
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-12",
+          "scope": "Guarded persisted Source snapshots for existing bound orders, fixed-catalog operator CLI and default-disabled material reader. No scheduler, first-order bootstrap, production route activation, real credentials or deployment.",
+          "evidence": [
+            "ainuoke-source-engineering"
+          ],
+          "sourceSha": "fa84da0148de131edd8e7c65ae5e605f050f98b0"
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "scope": "Source capability not deployed; runtime identities remain unchanged historical observations.",
+          "evidence": [
+            "ainuoke-source-engineering"
+          ],
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-12",
+          "scope": "Source capability not deployed; runtime identities remain unchanged historical observations.",
+          "evidence": [
+            "ainuoke-source-engineering"
           ],
           "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
           "runtimeId": "preview18444",

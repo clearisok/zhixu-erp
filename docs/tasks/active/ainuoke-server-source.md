@@ -41,3 +41,12 @@ G1 checkpoint：458c8f3b9b1bbb026644070bb47cc5cc290d5ed7，来源基础与20项�
 建议下个PR feat/ainuoke-continuous-material-display：先受控建立全量可见合同的正式订单绑定，再定时采集/状态可观测，复用P6页面做六角色与多轮变化验收。按独立可验证Gate推进，最后才请求真实来源私密配置及真实环境操作授权。
 
 当前交付与最终测试/CI结论在最后更新；不自动merge。回退与明确未验证项见功能文档。
+
+## G2 本地最终验收（2026-10-12）
+
+代码/冻结证据 checkpoint fa84da0148de131edd8e7c65ae5e605f050f98b0。全仓npm test 807/807、PostgreSQL261/261、FreshStart7/7、Python52/52、typecheck/server:build/lint/默认Browserbuild PASS；来源专项20 PASS、Linux CLI1项在Windows明确SKIP。
+基线check对5215ef75510e4b55ef69b1ae1508816b80fda110 PASS（10页、10能力、1个V0联合类型路径），旧截图/SQL/部署事实未覆盖。root源码回归已包含69项基线/响应式专项；独立 test:release-baseline 69/69 PASS。
+G1候选Docker构建及network=none CLI/Python包装检查PASS，非最终发布镜像。Linux私密文件/完整CLI由Ubuntu CI完成；CI前不宣称最终合并就绪。
+当前复审未发现阻止提交PR的代码缺陷；最终合并建议须附精确PR head与CI结论。本任务未启动真实采集或部署。
+
+网络诊断：普通pwsh内默认、HTTP/1.1、进程级OpenSSL三对照均未通过，configurationChanged=false、pushSubmitted=false；gh API可读main，不能据此宣称Git传输恢复或推送成功。将用安全交付工具做一次最终交付判定，不盲推或更改认证。
