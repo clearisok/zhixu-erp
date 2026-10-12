@@ -77,9 +77,10 @@ def collect(data, client=None):
     session = client.login(data["username"], data["password"])
     renewals = 0
     total_rows = 0
+    total_bytes = 0
 
     def pages(key, query):
-        nonlocal session, renewals, total_rows
+        nonlocal session, renewals, total_rows, total_bytes
         result = []
         expected = None
         for index in range(1, 201):
@@ -101,7 +102,11 @@ def collect(data, client=None):
             total_rows += len(page.rows)
             if total_rows > 100000:
                 raise UpstreamSchemaError("source_limit")
-            result.append(build_report_snapshot(report_key=key, rows=page.rows, page=index, page_size=50, total=expected, query_context=query).to_dict())
+            snapshot = build_report_snapshot(report_key=key, rows=page.rows, page=index, page_size=50, total=expected, query_context=query).to_dict()
+            total_bytes += len(json.dumps(snapshot, ensure_ascii=False, allow_nan=False).encode("utf-8"))
+            if total_bytes > MAX_BYTES:
+                raise UpstreamSchemaError("source_limit")
+            result.append(snapshot)
             if index * 50 >= expected:
                 return result
         raise UpstreamSchemaError("page_limit")

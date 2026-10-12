@@ -1,13 +1,13 @@
 # 当前状态
 
-核实日期：2026-10-12；GitHub main/任务基线：01694d723cd7b65fcc20e3e79941fef0d57439fc（PR95已合并）。GitHub是实时事实源，此文为快照。旧日期/hash/结果完整见[前序快照](tasks/completed/2026-10-12-first-team-predecessor-state.md)。
+核实日期：2026-10-12；GitHub main / 任务基线：5215ef75510e4b55ef69b1ae1508816b80fda110（PR97已合并）。GitHub是实时事实源，此文为快照；旧状态见[前序归档](tasks/completed/2026-10-12-ainuoke-source-predecessor-state.md)。
 
-- 已合并PR91–95。PR95基线门禁及八类误通过反例已入main；PR91/P6人工PASS仍限历史候选，不代表全部最新功能获验收。
-- 当前feat/ningbo-first-team-access：六角色预设、可信session账号API、现有设置页接线与合成测试。无SQL/migration/真实账号变更。[证据](tasks/active/ningbo-first-team-access.md)、[权限](features/PERMISSIONS.md)、D-104。
-- 首批团队已确定；Ainuoke已授权来源全可见，织序金额分角色。权限不代表Source激活；宁波Source未接，Order/Material/Production/Closing生产路由继续关闭。
-- 宁波：用户确认Ubuntu旧系统、外网域名staging.weaveops.top；本任务未SSH或操作真实DB/部署。未来管理员与真实账号私密配置。
-- 18443最后仓内历史：878de323d618b25fca1f51ccf3f024e932641742 / sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4（2026-10-09）；18444：eb9530ac9a2e1b7f68299d97c4d424662a6622f7 / sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23（2026-10-10）。未重新观察。用户取消两环境数据迁移必要，不代表已删除，不决定宁波旧数据可删除。
-- 下一步：本PR门禁/复审，然后宁波候选只读预检、独立账本与回退；随后Linux受控来源接线。不得Preview与旧业务共库。完整视觉回归、真实Source/team scope、类型切换/Intake、正式转单、DeliveryPlan UI、生产/关账Server仍有缺口，不全作为Quote-first前置。
-- 实现、合并、隔离测试、部署、人工验收、Source分别见[能力清单](release/baseline.json)。未自动合并/部署，CI不替代人工验收。
+- 六角色可信账号管理已随PR97合并；未创建真实账号，未因此部署或激活Source。首轮来源全团队可见采购价，织序售价/工价/内部成本继续独立权限。
+- 当前 feat/ainuoke-server-source：按已绑定正式订单保存完整Discovery/Material快照，读取采购/入库/出运/出库；默认关闭、固定catalog、原子发布、权限/版本复核、陈旧/失败关闭。新增0012只在合成disposable DB测试。见[功能](features/AINUOKE_SERVER_SOURCE.md)、[任务](tasks/active/ainuoke-server-source.md)、D-105。
+- 用户更新上线条件：**艾诺科数据持续展示后再上线宁波Ubuntu**。报价暂时OK；不做独立库存台账，不把生产/关账扩成首版前置。仍未实现定时持续运行、首次正式订单绑定、生产Order/Material页面激活；本PR不代表上线条件已满足。
+- UI维持D-099及D-102/P6。无页面/样式/截图改变，生产路由allowlist不变。真实Source未连接，本次无新的人工UI或业务验收。
+- 宁波与18443/18444均未操作。宁波只读预检在独立PR98，未当作本分支已合并事实；旧环境镜像和日期保留在能力清单的历史记录，不伪称本次重新观察。
+- 下一步：本PR门禁/CI/复审；受控首次订单绑定 + 连续采集/告警 + 既有UI多轮验收；最后独立数据库、网络/凭据、备份恢复与候选发布Gate。凭据只在未来真实激活前私下配置，现在不需要发送。
+- 实现、合并、隔离测试、环境部署、人工验收和Source激活分开见[能力快照](release/baseline.json)。不自动合并，不共享Preview与业务DB，不执行真实迁移/部署。
 
-更新时机：main/PR/权限/来源/运行或验收变化；新任务先实时核对。
+更新时机：main/PR/权限/Source/环境/测试与验收变化。

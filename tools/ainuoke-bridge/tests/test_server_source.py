@@ -109,6 +109,11 @@ class ServerSourceTests(TestCase):
                 with self.assertRaises(UpstreamSchemaError):
                     ProtectedTransport().request(url=CONFIG["baseUrl"], method="POST", body={}, headers={}, timeout=2)
 
+    def test_aggregate_size_is_bounded_before_final_serialization(self):
+        with patch("ainuoke_bridge.server_source.MAX_BYTES", 100):
+            with self.assertRaises(UpstreamSchemaError):
+                collect(CONFIG, FakeClient())
+
     def test_invalid_worker_output_is_closed_error_without_credentials(self):
         result = subprocess.run([sys.executable, "-m", "ainuoke_bridge.server_source"], input=json.dumps({**CONFIG, "baseUrl": "http://example.invalid"}).encode(), capture_output=True, timeout=10)
         self.assertEqual(result.returncode, 1)

@@ -28,6 +28,7 @@ jobs:
         run: |
           npm run server:build
           npm run test:ainuoke-server-source
+          npx --no-install tsx --test server/integration/fresh-start.integration.test.ts
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge
         env:

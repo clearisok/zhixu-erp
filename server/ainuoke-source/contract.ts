@@ -52,7 +52,7 @@ export async function validateBundle(input: unknown, targets: VisibleMaterialOrd
     try {
         if (!Number.isFinite(now) || !Number.isSafeInteger(maxAgeMs) || maxAgeMs < 1)
             throw new SourceError("invalid_source_policy");
-        if (!input || typeof input !== "object" || JSON.stringify(input).length > 32 * 1024 * 1024)
+        if (!input || typeof input !== "object" || Buffer.byteLength(JSON.stringify(input), "utf8") > 32 * 1024 * 1024)
             throw new SourceError("source_invalid");
         inspect(input);
         const bundle = structuredClone(input) as SourceBundle;

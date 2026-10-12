@@ -1,5 +1,7 @@
 # 艾诺科个人账号与只读 Direct API
 
+2026-10-12：下文为历史Windows个人Bridge契约。新增Linux首批共享Source快照能力见[AINUOKE_SERVER_SOURCE](AINUOKE_SERVER_SOURCE.md)与D-105；不替换Windows凭据存储，不把Browser mock当作可信身份。新Source默认关闭，未真实激活。
+
 ## Purpose
 
 为本地 Windows 原型建立 `Zhixu User → 0..1 Personal Ainuoke Account` 与只读 Direct API Source Adapter。每个织序测试用户使用自己的艾诺科账号，保留艾诺科本人的权限与待办身份；不使用公司共享账号或管理员高权限账号。

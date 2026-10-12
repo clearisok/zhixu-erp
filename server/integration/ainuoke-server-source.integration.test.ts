@@ -1,9 +1,11 @@
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { resolve, join } from "node:path";
-import { mkdtemp, readdir, copyFile, rm } from "node:fs/promises";
+import { mkdtemp, readdir, copyFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import pg from "pg";
 import { startDisposablePostgres } from "./postgres-container.js";
@@ -23,7 +25,8 @@ import { validateBundle } from "../ainuoke-source/contract.js";
 test("server source: isolated PostgreSQL, real session HTTP and Python fixed-catalog transport", { timeout: 180000 }, async (t) => {
     const db = await startDisposablePostgres();
     assert.match(db.containerName, /^zhixu-pg-it-[a-f0-9]{12}$/);
-    const pool = new pg.Pool({ connectionString: await db.createDatabase("ainuoke_source") });
+    const databaseUrl=await db.createDatabase("ainuoke_source");
+    const pool = new pg.Pool({ connectionString: databaseUrl });
     const server = createServer();
     const upstream = createServer();
     let clock = Date.parse(syntheticFetchedAt);
@@ -216,7 +219,7 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
             assert.deepEqual((await pool.query("SELECT count(*)::int AS n FROM ainuoke_source_runs")).rows, counts);
             await capture();
         });
-        await t.test("actual Python subprocess reads only fixed login/discovery/material endpoints on synthetic loopback", async () => {
+        await t.test("actual Python subprocess reads only fixed login/discovery/material endpoints on synthetic loopback", async subtest => {
             const fixture = bundle();
             let loginCount = 0;
             const reports: number[] = [];
@@ -248,6 +251,26 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
             assert.deepEqual(reports, [6086103, 6087050, 6086103]);
             assert.ok(!JSON.stringify(result).includes("synthetic-private-password"));
             assert.ok(!JSON.stringify(result).includes("synthetic-upstream-token"));
+            await subtest.test("Linux CLI check is read-only; wrong target fails; explicit source writes only snapshots", {skip:process.platform==="win32"}, async()=>{
+                const dir=await mkdtemp(join(tmpdir(),"zhixu-source-cli-"));
+                const path=join(dir,"private.json");
+                const config={sourceKey:"cli-team",baseUrl:"http://127.0.0.1:"+addr.port,username:"synthetic-cli",password:"synthetic-private-password",operatorUsername:"synthetic.admin"};
+                try {
+                    await writeFile(path,JSON.stringify(config),{mode:0o600});
+                    const run=(args:string[])=>promisify(execFile)(process.execPath,["--import","tsx","server/ainuoke-source/cli.ts",...args],{env:{...process.env,NODE_ENV:"test",DATABASE_URL:databaseUrl,ZHIXU_IDENTITY_MODE:"session",ZHIXU_ATTACHMENT_BACKEND:"disabled"},timeout:30000});
+                    const prior=loginCount;
+                    const checked=JSON.parse((await run(["--check","--config="+path])).stdout);
+                    assert.equal(checked.result,"CHECKED_NO_SOURCE_READ");
+                    assert.equal(loginCount,prior);
+                    assert.equal((await pool.query("SELECT count(*)::int AS n FROM ainuoke_source_profiles WHERE source_key='cli-team'")).rows[0].n,0);
+                    await assert.rejects(run(["--execute=cli-team","--expected-target="+"0".repeat(64),"--config="+path]),/source_target_mismatch/);
+                    assert.equal(loginCount,prior);
+                    const captured=JSON.parse((await run(["--execute=cli-team","--expected-target="+checked.targetFingerprint,"--config="+path])).stdout);
+                    assert.equal(captured.result,"SOURCE_CAPTURED");assert.equal(captured.orders,1);
+                    assert.equal(loginCount,prior+1);
+                } finally {await rm(dir,{recursive:true,force:true});}
+            });
+
         });
     }
     finally {

@@ -1,8 +1,9 @@
 # AI handoff
 
-当前任务 feat/ainuoke-server-source（2026-10-12），核实 main 5215ef75510e4b55ef69b1ae1508816b80fda110，独立 worktree ainuoke-server-source/zhixu-ainuoke-api，起始 clean。
-用户授权：按正式订单展示采购/入库/出运/出库；保持现有 UI；合成测试、PR、复审。禁止真实账号/数据库/部署/自动合并。Ubuntu 上线条件为艾诺科数据持续展示后再上线。
-G1：默认关闭的服务端来源快照、Linux 私密配置 CLI、固定报表 Python 采集器、既有物料 DTO 接线；0012 仅 disposable PG 验证，无真实 migration。来源专项 20/20、Python 51/51、typecheck、server:build PASS；其余门禁/CI/文档/复审待完成。
-LOCAL ENGINEERING 有本地 checkpoint；起始 fetch connection reset，GitHub API 独立核实 main 与本地对象一致。REMOTE DELIVERY 未交付，不声称已创建 PR。
-待完成：容器/CLI/Linux 测试、全仓门禁、D-105 与能力冻结证据。未提供 scheduler、首次订单绑定、生产页面激活；未请求或读取真实凭据。旧状态见 tasks/completed/2026-10-12-ainuoke-source-predecessor-state.md。
-更新时机：main/代码/checkpoint/测试/PR/阻塞改变。
+当前任务 feat/ainuoke-server-source，核实日期2026-10-12，main基线5215ef75510e4b55ef69b1ae1508816b80fda110；独立worktree起始clean。
+用户授权保持UI、按订单展示采购/入库/出运/出库、合成测试/PR/复审；禁止真实账号/DB/部署/自动merge。Ubuntu须待艾诺科持续展示后上线（D-105）。
+实现、边界、未来私密凭据条件见[功能](features/AINUOKE_SERVER_SOURCE.md)、[任务](tasks/active/ainuoke-server-source.md)、[冻结工程证据](tasks/active/evidence/ainuoke-server-source/engineering.md)。
+G1代码458c8f3b9b1bbb026644070bb47cc5cc290d5ed7；G2补齐Linux CLI、聚合限制、历史迁移断言。来源20 PASS+1 Windows SKIP、Python52、PG261、FreshStart7、typecheck/serverbuild/lint/Browserbuild及G1镜像包装PASS。root测试/基线待冻结绑定后重跑，Linux CI必须过再给最终合并意见。
+LOCAL ENGINEERING本地checkpoint；REMOTE DELIVERY待最终精确SHA交付。起始fetch失败，gh API独立确认main与本地对象一致；无共享配置修改。
+未激活Source，无scheduler/首次正式订单绑定/生产路由开放；不要把PR完成写成Ubuntu上线就绪。下一步全门禁、PR/CI及复审。旧状态见tasks/completed/2026-10-12-ainuoke-source-predecessor-state.md。
+更新时机：checkpoint/main/测试/PR/风险变化。
