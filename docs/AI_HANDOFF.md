@@ -10,3 +10,5 @@ LOCAL ENGINEERING进行中；REMOTE DELIVERY pending。起始fetch网络重置�
 更新时机：checkpoint/测试/main/PR/视觉验收或环境事实改变。
 
 G1=5b55488cefdc47255302f6e043e5c65b18ba2878；G1b 对齐指定参考，保持安全流程。新截图必须在G1b完整SHA构建后重新生成。
+
+G1b=0095b0e8448dfd336cf479ad82927b3f11fd9cae；双authority构建、登录UI10、六角色UI5 PASS。Quote旧测试导航helper假定不重定向，正在对齐新正式/login入口；生产功能不因此修改。

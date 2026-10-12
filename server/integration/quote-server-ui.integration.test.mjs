@@ -160,19 +160,19 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const epoch = `navigation-${Date.now()}-${Math.random()}`;
       await evaluate(`window.qaNavigationEpoch=${JSON.stringify(epoch)}`);
       await command("Page.navigate", { url: origin + path }, sessionId);
-      await until(async () => await evaluate(`window.qaNavigationEpoch!==${JSON.stringify(epoch)} && location.pathname===${JSON.stringify(path.split("?")[0])} && document.readyState==='complete'`), path);
+      await until(async () => await evaluate(`window.qaNavigationEpoch!==${JSON.stringify(epoch)} && (location.pathname===${JSON.stringify(path.split("?")[0])} || (location.pathname==='/login' && new URLSearchParams(location.search).get('returnTo')===${JSON.stringify(path)})) && document.readyState==='complete'`), path);
     };
     const input = async (selector, value) => evaluate(`(()=>{const node=document.querySelector(${JSON.stringify(selector)});if(!node)throw new Error('input missing');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));node.dispatchEvent(new Event('change',{bubbles:true}));})()`);
     const labelInput = async (label, value) => evaluate(`(()=>{const root=[...document.querySelectorAll('[role="dialog"]')].filter(n=>n.getClientRects().length).at(-1)||document;const node=[...root.querySelectorAll('label.qc-form-item')].find(n=>n.querySelector('span')?.textContent?.startsWith(${JSON.stringify(label)}))?.querySelector('input,textarea');if(!node)throw new Error('label input missing: '+${JSON.stringify(label)});Object.getOwnPropertyDescriptor(node.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(node,${JSON.stringify(value)});node.dispatchEvent(new Event('input',{bubbles:true}));})()`);
-    const click = async (label) => evaluate(`(()=>{const node=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())===${JSON.stringify(label)}&&!n.disabled&&n.getClientRects().length);if(!node)throw new Error('button missing: '+${JSON.stringify(label)});node.click();})()`);
+    const click = async (label) => evaluate(`(()=>{const node=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')===${JSON.stringify(label)} || n.textContent.trim()===${JSON.stringify(label)})&&!n.disabled&&n.getClientRects().length);if(!node)throw new Error('button missing: '+${JSON.stringify(label)});node.click();})()`);
     const selectType = async (type) => evaluate(`(() => { const select=[...document.querySelectorAll('label.qc-form-item')].find(n=>n.getClientRects().length && n.querySelector('span')?.textContent?.startsWith('报价类型'))?.querySelector('select');if(!select)throw new Error('Formal new Quote type selector missing');select.value=${JSON.stringify(type)};select.dispatchEvent(new Event('change',{bubbles:true})); })()`);
     const prepareCreation = async (type = "distribution") => {
       if(referenceDirectory){await hasText("报价类型");await selectType(type);return;}
       await evaluate(`(async()=>{const value=(await fetch('/api/v1/quote-settings').then(r=>r.json())).settings;const body={expectedVersion:value?.version??0,defaultQuoteType:${JSON.stringify(type)},defaultManufacturingCountry:null,defaultManufacturingPresetId:null,defaultUsdCnyRate:value?.defaultUsdCnyRate??null,defaultMarkupRate:value?.defaultMarkupRate??null,defaultLaborCurrency:value?.defaultLaborCurrency??'CNY',defaultLaborDescription:value?.defaultLaborDescription??'',defaultOtherCost:value?.defaultOtherCost??null};const r=await fetch('/api/v1/quote-settings',{method:'PATCH',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(body)});if(!r.ok)throw Error('Synthetic default configuration failed');})()`);
-      await until(()=>evaluate("[...document.querySelectorAll('button')].some(n=>(n.getAttribute('aria-label')??n.textContent.trim())==='＋ 新建报价'&&!n.disabled)"),'hydrated creation command');
+      await until(()=>evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='＋ 新建报价'&&!n.disabled)"),'hydrated creation command');
     };
     const action = async (label) => {
-      if (!await evaluate(`[...document.querySelectorAll('button')].some(n=>(n.getAttribute('aria-label')??n.textContent.trim())===${JSON.stringify(label)} && n.getClientRects().length)`)) {
+      if (!await evaluate(`[...document.querySelectorAll('button')].some(n=>n.textContent.trim()===${JSON.stringify(label)} && n.getClientRects().length)`)) {
         await evaluate("[...document.querySelectorAll('button')].find(n=>n.getAttribute('aria-label')==='更多报价操作').click()");
       }
       await click(label);
@@ -363,7 +363,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     await t.test("explicit create only once, real QuoteEditor edit/save/refresh/list, null and zero preserved", async () => {
       await navigate("/quote-center/new"); await hasText("新建报价");
       await prepareCreation("distribution");
-      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==='＋ 新建报价');b.click();b.click();})()");
+      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='＋ 新建报价');b.click();b.click();})()");
       await until(async () => await evaluate("location.pathname==='/quote-center/detail'"), "created detail route");
       await hasText("Server 报价 · v1");
       await hasText("经销报价");
@@ -505,7 +505,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await navigate("/quote-center/new"); await hasText("新建报价");
       assert.equal(await quoteCount(), countBefore, "Opening new never creates a Quote");
       await prepareCreation("processing");
-      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==='＋ 新建报价');b.click();b.click();})()");
+      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='＋ 新建报价');b.click();b.click();})()");
       await until(async () => await evaluate("location.pathname==='/quote-center/detail'"), "processing detail");
       await hasText("加工报价"); await hasText("Server 报价 · v1");
       const processingId = await evaluate("new URLSearchParams(location.search).get('id')");
@@ -546,7 +546,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
         if (failure === "conflict") await hasText("409");
         assert.equal(await evaluate("location.pathname"), "/quote-center/new");
         assert.ok(await evaluate("new URLSearchParams(location.search).get('creationRequestId')"));
-        assert.ok(await evaluate("![...document.querySelectorAll('button')].some(n=>(n.getAttribute('aria-label')??n.textContent.trim())==='＋ 新建报价')"));
+        assert.ok(await evaluate("![...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='＋ 新建报价')"));
         await sleep(200);
         assert.equal(requests.slice(requestStart).filter(r=>r.method==='POST' && r.path==='/api/v1/quotes/creation-defaults').length, 1);
         assert.equal(requests.slice(requestStart).filter(r=>r.method==='POST' && r.path==='/api/v1/quotes').length, 0);
@@ -583,7 +583,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await navigate(`/quote-center/detail?id=${workflowId}`); await hasText(`Server 报价 · v${original.version}`);
       await action("创建价格版本"); await hasText("价格版本名称");
       await labelInput("价格版本名称", "Synthetic parallel"); await labelInput("数量", "2"); await labelInput("说明", "Independent scenario");
-      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==='确认创建');b.click();b.click();})()"); await until(async()=> (await read()).version===original.version+1,"PV create");
+      await evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='确认创建');b.click();b.click();})()"); await until(async()=> (await read()).version===original.version+1,"PV create");
       const copied = await read(); const pv = copied.quote.revisions[0].priceVersions[1];
       assert.equal(pv.quantity,"2"); assert.equal(copied.quote.revisions[0].priceVersions[0].quantity,"1");
       assert.notEqual(pv.id,original.quote.revisions[0].priceVersions[0].id); assert.equal(pv.confirmation,null);
@@ -678,7 +678,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
         } else {
           await hasText("Server 保存未完成"); await hasText("请显式重新读取并核对");
           if (failure === 409) await hasText("409");
-          assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>(n.getAttribute('aria-label')??n.textContent.trim())==='重试')"),true,"Explicit reconcile entry");
+          assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='重试')"),true,"Explicit reconcile entry");
           assert.equal(await evaluate("document.querySelector('#quote-section-fabrics input[aria-label$=\"-单价\"]').value"),"33","Applied draft survives failed save");
           await hasText("有未保存修改");
           await sleep(300);
@@ -758,7 +758,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       await input('#quote-section-fabrics input[aria-label$="-单价"]',"33");
       await click("查看报价历史");await click("生成估算成本");await click("确认生成");
       await hasText("价格版本同步");
-      assert.equal(await evaluate("(()=>{const b=[...document.querySelectorAll('.qc-price-sync-modal button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==='仅保存当前版本');const r=b.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===b;})()"),true,"Sync choice is not hidden by generation overlay");
+      assert.equal(await evaluate("(()=>{const b=[...document.querySelectorAll('.qc-price-sync-modal button')].find(n=>n.textContent.trim()==='仅保存当前版本');const r=b.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===b;})()"),true,"Sync choice is not hidden by generation overlay");
       assert.deepEqual(await read(),before,"No implicit save/generation before sync decision");
       await click("仅保存当前版本");await until(async()=> (await read()).version===before.version+1,"explicit sync save before Estimate");
       const saved=await read();assert.equal(saved.quote.activeEstimateCost,null);assert.deepEqual(saved.quote.revisions[0].priceVersions.map(p=>p.fabrics[0].unitPrice),["33","99"]);
