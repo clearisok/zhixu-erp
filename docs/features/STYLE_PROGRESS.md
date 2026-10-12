@@ -1,5 +1,7 @@
 # 款式进度、面辅料跟进与逐物料物流
 
+2026-10-12：新增[Server Source](AINUOKE_SERVER_SOURCE.md)持久快照可显式接入原物料DTO，保留本文件全部业务算法和P6 UI。默认关闭、生产路由未开；历史“runtime未安装来源”的描述仅代表当时版本，不代表本分支工程能力。真实来源与持续运行未验收。
+
 ## PR93 联合回归 — 2026-10-12
 
 本轮保留已认可Control Tower结构和唯一Material算法，既有Source Adapter/Normalize/Dedup/Validate/厂供规则未改。1440/1280/390真实隔离Chromium执行订单→物料→原UUID返回、采购来源价格局部滚动、搜索/刷新/账号切换、无Browser业务存储写入及无CCT/Quote请求。已知商业读取漏洞由main PR93修复，早期商业投影准备helper仅放在__tests__历史辅助中，不成为物料运行时授权。默认Source capability和生产路由依旧关闭；真实账号/团队范围/运行环境需要独立Activation Gate。[联合证据](../tasks/active/evidence/order-material-pr93-integration/README.md)。

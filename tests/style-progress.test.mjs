@@ -14,10 +14,11 @@ import { emptyStyleProgressData, migrateStyleProgressDataV2 } from "../features/
 const headers = ["款号", "类型", "公司抬头", "销售合同号", "客户品牌", "业务员", "跟单人", "工厂款号", "成衣颜色", "成衣数量", "客户名称", "销售交期", "面辅料编码", "面辅料名称", "申购实际名称", "单耗", "损耗", "总耗", "门幅", "克重", "颜色", "规格成分", "提供方式", "需求数量", "样衣用量", "未采购数量", "采购数量", "采购单号", "采购日期", "供应商", "采购抬头", "采购交期", "币种", "采购人", "采购面辅料名称", "开票名称", "实际名称", "采购规格", "采购颜色", "采购数量", "采购样衣用量", "采购价格", "采购金额", "额外费用", "最大入库数", "入库单号", "入库日期", "入库数", "多余仓", "出运单号", "出运日期", "运输方式", "出运数量", "出库数量", "出库单号", "出库日期"];
 const base = () => ["D1", "面料", "宁波", "PI-1", "B", "业务", "跟单", "FD1", "红色", 100, "客户", new Date("2026-10-01"), "MAT-1", "主身布", "", .5, 5, .525, "150", "200", "红色", "棉", "厂供", 50, 1, 0, 50, "", null, "", "", null, "", "", "", "", "", "", "", null, null, null, null, null, null, "", null, null, null, "", null, "", null, null, ""];
 
-async function workbookBuffer(rows, columnHeaders = headers) {
+async function workbookBuffer(rows, columnHeaders = headers, wrapBytes = bytes => bytes) {
   const workbook = new ExcelJS.Workbook(); const sheet = workbook.addWorksheet("面辅料申购统计"); sheet.getCell("A1").value = "面辅料申购统计"; sheet.getRow(3).values = columnHeaders;
   for (const row of rows) sheet.addRow(row);
-  return (await workbook.xlsx.writeBuffer()).buffer;
+  const bytes = wrapBytes(await workbook.xlsx.writeBuffer());
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
 }
 
 test("真实展开形态按需求与事件分别去重，提供方式=厂供不再伪造实际用量", async () => {
@@ -206,4 +207,19 @@ test("旧版 Restore 同时恢复 Raw、Demand、Events、Expected Arrival、人
   assert.equal(restoredStyleProgress.demands[0].expectedDateSource, "manual"); assert.equal(restoredStyleProgress.demands[0].expectedMaterialReadyDate, "2026-09-13");
   assert.equal(restoredStyleProgress.expectedArrivalBatches[0].id, "arrival-1");
   assert.deepEqual([restoredStyleProgress.purchaseEvents.length, restoredStyleProgress.inboundEvents.length, restoredStyleProgress.shipmentEvents.length, restoredStyleProgress.outboundEvents.length], [1, 1, 1, 1]);
+});
+
+test("Excel 合成夹具只交付 Buffer view 的有效字节，不带底层内存前后缀", async () => {
+  let expectedLength = 0;
+  const buffer = await workbookBuffer([base()], headers, bytes => {
+    expectedLength = bytes.byteLength;
+    const backing = Buffer.alloc(bytes.byteLength + 64, 0xa5);
+    Buffer.from(bytes).copy(backing, 17);
+    return backing.subarray(17, 17 + bytes.byteLength);
+  });
+  assert.equal(buffer.byteLength, expectedLength);
+  assert.deepEqual([...new Uint8Array(buffer).slice(0, 4)], [0x50, 0x4b, 0x03, 0x04]);
+  const preview = await parseMaterialFollowUpWorkbook({buffer, fileName:"offset-fixture.xlsx", actorName:"合成测试"});
+  assert.equal(preview.demands.length, 1);
+  assert.equal(preview.demands[0].salesContractNo, "PI-1");
 });

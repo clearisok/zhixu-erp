@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 核实日期2026-10-12；main 01694d723cd7b65fcc20e3e79941fef0d57439fc（PR91–95已合并）。当前任务：[宁波首批团队接入](tasks/active/ningbo-first-team-access.md)，状态见[CURRENT_STATE](CURRENT_STATE.md)，历史见[前序快照](tasks/completed/2026-10-12-first-team-predecessor-state.md)。GitHub是实时事实源；随main/权限/Source/环境或验收变化更新。
+> 核实日期2026-10-12；main 5215ef75510e4b55ef69b1ae1508816b80fda110（PR97已合并）。当前任务：[艾诺科Server Source](tasks/active/ainuoke-server-source.md)，状态见[CURRENT_STATE](CURRENT_STATE.md)。GitHub是实时事实源；随main/来源/环境/验收变化更新。
 
 > [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
 
@@ -12,7 +12,7 @@
 
 - 根路径 ERP：报价、订单、排单、用户和审计功能，使用 PostgreSQL 持久化，并由数据库函数提供 API。
 - Quote Center 路径：默认 Browser mock 持久化；显式 Server 模式的正式报价/资料 UI 使用可信 Node `/api/v1` 与 PostgreSQL，已有报价工作流/附件/导出/日志。旧实际运行态与最新工程能力分开记录，与 legacy `/api/quotes` 隔离。
-- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单或自动同步。报价之外模块不因试用候选而自动 production-ready。
+- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单；D-105允许受控来源读取开发，不自动建单或真实激活。报价之外模块不因试用候选而自动 production-ready。
 
 两条路径都是真实现，但边界和成熟度不同。开始任务前必须先确认目标模块。
 
@@ -63,6 +63,10 @@
 | `outputs/` | 可复验的导出验收文件，不是业务数据源 |
 
 仓库当前没有独立的 `backend/`、`frontend/` 目录，也没有 Alembic；正式 Node backend 位于 `server/`，PostgreSQL migration 位于 `database/migrations/`。
+
+## 当前来源任务
+
+[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；首次绑定、调度、真实Scope、页面生产接线待后续Gate。
 
 ## 模块导航
 

@@ -54,7 +54,9 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "test:team-access": "tsx --test --test-concurrency=1 features/permissions/server/__tests__/team-access-client.test.ts server/integration/team-access.integration.test.ts",
-    "test:team-access-ui": "tsx --test --test-concurrency=1 server/integration/team-access-ui.integration.test.mjs"
+    "test:team-access-ui": "tsx --test --test-concurrency=1 server/integration/team-access-ui.integration.test.mjs",
+    "source:ainuoke": "tsx server/ainuoke-source/cli.ts",
+    "test:ainuoke-server-source": "tsx --test --test-concurrency=1 server/integration/ainuoke-server-source.test.ts server/integration/ainuoke-server-source.integration.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

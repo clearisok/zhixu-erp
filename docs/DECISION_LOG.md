@@ -18,6 +18,17 @@
 
 ## Active
 
+### D-105 宁波上线以前持续展示艾诺科订单物料来源
+
+- 日期：2026-10-12；状态：Active。用户明确批准 feat/ainuoke-server-source、独立worktree、合成测试/PR/复审；禁止真实账号/DB/部署/自动合并。
+- 发布决定：报价当前暂时OK；宁波Ubuntu在艾诺科采购、入库、物料出运和出库持续按订单展示后再上线。暂不做独立库存台账；不将生产/关账全部Server化追加为首版前置。
+- 仅更新D-098的宁波发布时序，以及D-096“不自动同步艾诺科补数据”的未来开发范围：允许受控Server来源采集与只读展示开发。旧账本不导入、数据不删除、独立DB/volume、明确运维授权仍有效。本阶段不自动创建或修改正式订单；首次绑定与调度留待独立Gate。
+- 来源沿用D-073唯一算法与固定catalog，不调用D-074 Browser commitImport，不覆盖手工Effective/ExpectedArrival。独立来源快照不是另一套业务库存账本。首次上线六角色同见已授权Source与采购价，D-103织序金额规则不变。
+- 凭据仅未来Linux私密普通文件/执行用户权限，不进聊天/Git/业务DB；原Windows Credential Manager不变。只允许HTTPS或已验证安全通道loopback，不放宽旧公网HTTP。首轮本人账号“全部合同”的用户陈述须真实核实。
+- 实现：server/ainuoke-source、0012来源三表、固定Python worker、既有Material DTO；默认disabled、原子发布、过期/失败关闭。无scheduler、无生产路由开放；候选合成PASS不等于真实Source/持续运行/人工验收或部署。
+- UI保持D-099/102/P6。本轮上线参数（建议5分钟/30分钟/24小时）为AI建议，待真实速率与业务验收确认，非用户已确认承诺。
+- 证据：[功能](features/AINUOKE_SERVER_SOURCE.md)、[任务与复审](tasks/active/ainuoke-server-source.md)、server/integration/ainuoke-server-source*。
+
 ### D-104 宁波首批六角色与可信账号管理
 
 - 日期：2026-10-12；状态：Active。来源：用户批准“先用合成账号完成六角色测试…保持现有UI…不修改真实账号、数据库或部署…不自动合并”。真实账号以后用户自行创建。
@@ -83,6 +94,8 @@
 
 ### D-098 优先形成可使用的报价试用版，由实际使用反馈驱动后续范围
 
+- 2026-10-12范围更新：宁波上线时序由D-105接续，须先持续展示艾诺科物料来源；其余范围控制/验收分维度原则保留。
+
 - 日期：2026-10-09；状态：Active。用户明确要求按可使用版本组织工作，尽早实际完成报价，不无限追加功能。
 - 首轮范围使用已合并的基础资料、新报价/成本、Revision/PV、Estimate、确认、附件、客户 Excel/ZIP、内部汇总和只读日志。整单复制/删除、Revision 删除、转订单、完整 Order/Scheduling/Closing、高级模板管理、缩略图暂缓，不自动成为首次试用前置。
 - 工程验证、候选构建/隔离部署、真实部署、人工业务验收分开记录；人工未执行就是 NOT RUN。用户反馈证明必要的范围再单独实施。
@@ -100,6 +113,8 @@
 - 证据：`quote-authority.ts`、`production-quote-pages.tsx`、`quote-server-boundary.tsx`、`quote-editor-persistence.ts`、`server/quotes/list-summary.ts` 与 disposable actual Chromium `quote-server-ui.integration.test.mjs`。
 
 ### D-096 新系统全部业务数据从空开始，旧环境保留
+
+- 2026-10-12范围更新：D-105允许受控Server来源读取开发；仅替代下文“不自动同步艾诺科补数据”的未来开发限制，不授权真实同步/建单/删除/部署，其余空账本与保护边界不变。
 
 - 日期：2026-10-08；状态：Active，用户明确确认：“新系统所有业务数据，包括基础资料和订单，都从空开始。”
 - 新系统不导入旧品牌、客户业务员、面辅料、制造预设、业务设置、Quote/Revision/PriceVersion、订单、排单、关账、款式进度、附件关系、Browser OperationLog 或旧业务账号，不自动同步艾诺科来补数据。保留功能、模型、算法与 API/UI，不重写 ERP。

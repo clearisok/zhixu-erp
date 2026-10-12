@@ -1,0 +1,73 @@
+# Ainuoke Server Source 交付与复审
+
+核实日期：2026-10-12；main 5215ef75510e4b55ef69b1ae1508816b80fda110。
+Branch feat/ainuoke-server-source，独立 worktree ainuoke-server-source/zhixu-ainuoke-api；起始 clean。GitHub是实时事实源。更新时机：checkpoint、测试、PR/CI、范围或阻塞变化。
+
+## 用户授权
+
+按订单展示采购、入库、出运和出库；不做独立库存台账；保持 UI，合成测试后提交 PR 并复审。艾诺科数据持续展示后再上线 Ubuntu。未授权真实账号、数据库、部署或自动合并。凭据未来由用户私密配置。
+
+## 工程与事实恢复
+
+起始 fetch main 遇 connection reset。gh API 独立核实 main 为5215ef7…；本地 origin/main 与 commit 对象一致，因此从该精确对象创建任务 worktree，未退用旧分支、reset 或覆盖历史。
+2026-10-12 gh API 核实 PR97 merged=true、merge_commit_sha=5215ef75510e4b55ef69b1ae1508816b80fda110、merged_at=2026-10-12T07:32:50Z；六角色能力已合并。其人工业务验收/真实部署/Source 状态不随 merge 升级。
+PR98 为另一个宁波只读预检文档 PR；本分支不以它为代码基线，不擅合并。其 Quote-first 上线时序由本轮用户新条件更新。
+
+G1 checkpoint：458c8f3b9b1bbb026644070bb47cc5cc290d5ed7，来源基础与20项来源专项、51项Python测试通过。后续增补Linux CLI端到端及聚合大小保护，最终结果见冻结工程证据。
+
+## 实现与边界
+
+[完整功能和启用契约](../../features/AINUOKE_SERVER_SOURCE.md)。本阶段持久化受控来源快照并复用既有物料只读DTO；不创建/更改SalesOrder、Quote、库存台账，不修改布局/样式、截图、Browser数据或生产路由白名单。
+0012仅在随机命名、tmpfs、loopback的disposable PostgreSQL16执行。迁移前后的合成账号与密码hash逐项相等；日志不含来源凭据或织序金额。
+现有 material 算法、6086103/6087050 catalog、可信权限与审计均复用；新采集器没有HTTP监听或可自选报表接口。
+
+## 复审重点与已修正事项
+
+- 部署包装漏Python：候选Dockerfile加入Python3与既有固定catalog worker；默认入口不采集。
+- 持久来源完整性：Material与Discovery分别校验hash，篡改返回503。
+- 失败原子性：注入审计失败验证run/snapshot/current pointer全回滚；来源失败隐藏旧事实。
+- 身份边界：采集前后重新核对active用户/实际权限/订单version与绑定；账号fingerprint不允许无声切换。
+- 网络与凭据：Linux私有普通文件、无symlink、大小/UTF-8限制；stdin传secret；固定HTTPS或受保护loopback；拒绝重定向和环境代理；stdout/stderr闭集错误。
+- 资源边界：逐页与聚合大小、页数、订单数、行数、超时均有限，超限不发布部分数据。
+- Windows合成测试不能冒充Linux私有文件/CLI验收；Linux专项由GitHub CI执行，最终结论必须待它通过。
+
+## 状态区分
+
+实现：本分支代码；合并：本PR未合并；合成验收：见本次测试；实际部署：无；人工业务验收：未运行；真实Source：未激活。
+持续同步、首次正式订单绑定、页面生产接线和Ubuntu候选仍待后续Gate；本PR不得被当成已满足Ubuntu上线条件。
+
+## 下一步
+
+建议下个PR feat/ainuoke-continuous-material-display：先受控建立全量可见合同的正式订单绑定，再定时采集/状态可观测，复用P6页面做六角色与多轮变化验收。按独立可验证Gate推进，最后才请求真实来源私密配置及真实环境操作授权。
+
+当前交付与最终测试/CI结论在最后更新；不自动merge。回退与明确未验证项见功能文档。
+
+## G2 本地最终验收（2026-10-12）
+
+代码/冻结证据 checkpoint fa84da0148de131edd8e7c65ae5e605f050f98b0。全仓npm test 807/807、PostgreSQL261/261、FreshStart7/7、Python52/52、typecheck/server:build/lint/默认Browserbuild PASS；来源专项20 PASS、Linux CLI1项在Windows明确SKIP。
+基线check对5215ef75510e4b55ef69b1ae1508816b80fda110 PASS（10页、10能力、1个V0联合类型路径），旧截图/SQL/部署事实未覆盖。root源码回归已包含69项基线/响应式专项；独立 test:release-baseline 69/69 PASS。
+G1候选Docker构建及network=none CLI/Python包装检查PASS，非最终发布镜像。Linux私密文件/完整CLI由Ubuntu CI完成；CI前不宣称最终合并就绪。
+当前复审未发现阻止提交PR的代码缺陷；最终合并建议须附精确PR head与CI结论。本任务未启动真实采集或部署。
+
+网络诊断：普通pwsh内默认、HTTP/1.1、进程级OpenSSL三对照均未通过，configurationChanged=false、pushSubmitted=false；gh API可读main，不能据此宣称Git传输恢复或推送成功。将用安全交付工具做一次最终交付判定，不盲推或更改认证。
+
+## PR99 合并前复审结论（2026-10-12）
+
+- PR：https://github.com/clearisok/zhixu-erp/pull/99，OPEN，未合并。
+- 受审代码head：6395aa9ec261364fb220467404fff8bfac2e4630；base：5215ef75510e4b55ef69b1ae1508816b80fda110。
+- 安全交付：DELIVERED_VERIFIED、pushes=1、retry=false、远端完整SHA相同。此前诊断超时仍属历史事实，不能据单次成功宣称网络永久恢复。
+- 该head GitHub三项CI全部SUCCESS，mergeStateStatus=CLEAN：
+  - [Ainuoke server source](https://github.com/clearisok/zhixu-erp/actions/runs/38227323442)：来源21/21、Linux CLI实际执行（SKIP0）、FreshStart7/7、Python52/52。
+  - [First team access](https://github.com/clearisok/zhixu-erp/actions/runs/38227323219)：类型/编译/lint/全仓测试、角色/可信session/商业金额边界、Browser与Server构建、既有UI合成Chromium。
+  - [Release baseline](https://github.com/clearisok/zhixu-erp/actions/runs/38227323241)：69专项与精确main基线/冻结证据门禁。
+- 复审覆盖：main差异、固定采集范围、凭据输入/传输/日志、完整分页/两次Discovery、账号fingerprint、事务/幂等/并发、live RBAC、订单CAS、持久hash、默认关闭与生产路由、0012向前迁移、历史断言、UI V0、文档证据。
+- 结论：未发现本阶段合并阻断项，**建议合并默认关闭的Server Source基础能力**；不表示真实来源/持续运行/Ubuntu上线或新UI人工验收通过。此次结论文档更新不改变代码；其后精确head CI仍以PR实时记录为准。
+- 未执行合并、真实凭据配置、真实账号/DB操作、18443/18444或宁波部署；本地工作树提交后clean。
+- 下一步仍为首次正式订单绑定、连续调度/健康状态、已有P6页面多轮/六角色验收，再做私密来源连通与独立Ubuntu候选发布Gate。凭据暂不需要用户提供。
+
+## 最终CI补充：历史Excel夹具边界修复
+
+e850c0b3563a5ef1450fb5244198801b2bdece41只有状态文档变化，但[第二轮team-access](https://github.com/clearisok/zhixu-erp/actions/runs/38227810650)暴露旧style-progress测试的间歇ZIP错误；该head的来源/基线检查仍SUCCESS。没有把失败写成PASS或仅反复重跑。
+
+根因：两处合成workbook helper把Node Buffer的底层.buffer全部传入解析器，丢失byteOffset/byteLength。新增回归强制前17/后47字节非工作簿内容；旧实现稳定得到7549≠7485失败，按有效view切片后通过。修复仅tests/style-progress.test.mjs和tests/style-progress-material-control-v2.test.mjs，生产parser/UI/业务规则不变。
+本地相关32/32、全仓808/808、限定ESLint PASS；无其他同形writeBuffer().buffer用法。此后须以PR最新head三项CI成功恢复最终合并建议；最终精确SHA/check链接记录在PR正文，避免把旧6395 CI当作新head通过。
