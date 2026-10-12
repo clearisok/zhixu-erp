@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "01694d723cd7b65fcc20e3e79941fef0d57439fc",
-  "verifiedAt": "2026-10-12T06:27:21.108Z",
+  "baselineSha": "5215ef75510e4b55ef69b1ae1508816b80fda110",
+  "verifiedAt": "2026-10-12T07:49:27.446Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -220,6 +220,20 @@
       "path": "docs/tasks/active/evidence/ningbo-first-team-access/engineering.md",
       "recordedAtSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e",
       "sha256": "c37725999a0db6d2366bb8781e8f515852c1509892da1a39c47f4537a64a7354"
+    },
+    {
+      "id": "team-access-merged-pr97",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-12-ningbo-readonly-preflight.md",
+      "recordedAtSha": "033a8a055ad6970912d29bcf06ef092c9890522d",
+      "sha256": "10ef93328fe317639b651f52ead00ae18560c28eaf82c8e7735cc25cbbb1b21f"
+    },
+    {
+      "id": "ningbo-readonly-observation-20261012",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ningbo-readonly-preflight/observations.json",
+      "recordedAtSha": "033a8a055ad6970912d29bcf06ef092c9890522d",
+      "sha256": "dc615cf95be58658f0318758603ed84bdb6769fcdd07df024300545ddc9f7de1"
     }
   ],
   "pages": [
@@ -1183,7 +1197,7 @@
     {
       "id": "first-team-access",
       "implemented": "yes",
-      "merged": false,
+      "merged": true,
       "isolatedTest": "passed-historical",
       "humanAcceptance": "not-run",
       "sourceActivation": "not-applicable",
@@ -1193,7 +1207,8 @@
       },
       "scope": "Six role presets and session-only account management. No real accounts, source activation or Ningbo/18443/18444 deployment.",
       "evidence": [
-        "team-access-engineering"
+        "team-access-engineering",
+        "team-access-merged-pr97"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1206,13 +1221,13 @@
           "sourceSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e"
         },
         "merged": {
-          "value": false,
+          "value": true,
           "assessedAt": "2026-10-12",
-          "scope": "Six role presets and session-only account management. No real accounts, source activation or Ningbo/18443/18444 deployment.",
+          "scope": "PR97 merged by explicit user authorization; merge commit verified via GitHub and fetched Git object. No real accounts, deployment, human acceptance or source activation.",
           "evidence": [
-            "team-access-engineering"
+            "team-access-merged-pr97"
           ],
-          "sourceSha": "72b025343c2e0d5f13f0652c04e37b5c5051a20e"
+          "sourceSha": "5215ef75510e4b55ef69b1ae1508816b80fda110"
         },
         "isolatedTest": {
           "value": "passed-historical",
