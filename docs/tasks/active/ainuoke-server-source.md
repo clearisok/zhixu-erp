@@ -50,3 +50,17 @@ G1候选Docker构建及network=none CLI/Python包装检查PASS，非最终发布
 当前复审未发现阻止提交PR的代码缺陷；最终合并建议须附精确PR head与CI结论。本任务未启动真实采集或部署。
 
 网络诊断：普通pwsh内默认、HTTP/1.1、进程级OpenSSL三对照均未通过，configurationChanged=false、pushSubmitted=false；gh API可读main，不能据此宣称Git传输恢复或推送成功。将用安全交付工具做一次最终交付判定，不盲推或更改认证。
+
+## PR99 合并前复审结论（2026-10-12）
+
+- PR：https://github.com/clearisok/zhixu-erp/pull/99，OPEN，未合并。
+- 受审代码head：6395aa9ec261364fb220467404fff8bfac2e4630；base：5215ef75510e4b55ef69b1ae1508816b80fda110。
+- 安全交付：DELIVERED_VERIFIED、pushes=1、retry=false、远端完整SHA相同。此前诊断超时仍属历史事实，不能据单次成功宣称网络永久恢复。
+- 该head GitHub三项CI全部SUCCESS，mergeStateStatus=CLEAN：
+  - [Ainuoke server source](https://github.com/clearisok/zhixu-erp/actions/runs/38227323442)：来源21/21、Linux CLI实际执行（SKIP0）、FreshStart7/7、Python52/52。
+  - [First team access](https://github.com/clearisok/zhixu-erp/actions/runs/38227323219)：类型/编译/lint/全仓测试、角色/可信session/商业金额边界、Browser与Server构建、既有UI合成Chromium。
+  - [Release baseline](https://github.com/clearisok/zhixu-erp/actions/runs/38227323241)：69专项与精确main基线/冻结证据门禁。
+- 复审覆盖：main差异、固定采集范围、凭据输入/传输/日志、完整分页/两次Discovery、账号fingerprint、事务/幂等/并发、live RBAC、订单CAS、持久hash、默认关闭与生产路由、0012向前迁移、历史断言、UI V0、文档证据。
+- 结论：未发现本阶段合并阻断项，**建议合并默认关闭的Server Source基础能力**；不表示真实来源/持续运行/Ubuntu上线或新UI人工验收通过。此次结论文档更新不改变代码；其后精确head CI仍以PR实时记录为准。
+- 未执行合并、真实凭据配置、真实账号/DB操作、18443/18444或宁波部署；本地工作树提交后clean。
+- 下一步仍为首次正式订单绑定、连续调度/健康状态、已有P6页面多轮/六角色验收，再做私密来源连通与独立Ubuntu候选发布Gate。凭据暂不需要用户提供。
