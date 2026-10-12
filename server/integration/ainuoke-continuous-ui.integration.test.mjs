@@ -7,7 +7,19 @@ import { tmpdir } from "node:os";
 import { join,resolve,relative,isAbsolute } from "node:path";
 import { startContinuousFixture } from "./ainuoke-continuous-fixture.ts";
 const wait=ms=>new Promise(done=>setTimeout(done,ms));
-async function until(read,label,timeout=20000){const end=Date.now()+timeout;while(Date.now()<end){if(await read())return;await wait(100);}throw Error(label+" timed out");}
+async function until(read,label,timeout=20000){
+ const end=Date.now()+timeout;
+ while(Date.now()<end){
+  try{if(await read())return;}
+  catch(error){
+   // A real page navigation invalidates the old CDP execution context. Retry
+   // only that transient transport error; assertions and app errors still fail.
+   if(!/Inspected target navigated or closed|Execution context was destroyed|Cannot find context with specified id/.test(String(error)))throw error;
+  }
+  await wait(100);
+ }
+ throw Error(label+" timed out");
+}
 test("built existing P6 pages use bound orders and persisted four-stream sources", {timeout:180000},async t=>{
  const info=JSON.parse(readFileSync("dist/client/build-info.json","utf8"));assert.equal(info.orderRead,"snapshot");assert.equal(info.quoteAuthority,"server");
  const x=await startContinuousFixture(resolve("dist/client"));const temp=await mkdtemp(join(tmpdir(),"zhixu-continuous-ui-"));const metrics=[];let browser,ws,session,id=0;const pending=new Map(),errors=[];
