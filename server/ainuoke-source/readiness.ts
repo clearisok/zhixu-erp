@@ -1,5 +1,5 @@
 import { pathToFileURL } from "node:url";
-import { accountFingerprint, collectWithPython, parseCollectorConfig, readPrivateCollectorConfig, type CollectorConfig } from "./collector.js";
+import { APPROVED_HTTP_POLICY, accountFingerprint, collectWithPython, parseCollectorConfig, readPrivateCollectorConfig, type CollectorConfig } from "./collector.js";
 import { hash, SourceError } from "./contract.js";
 
 const reportIds = [6086103, 6087105, 6087050];
@@ -44,20 +44,21 @@ export function parseReadinessArguments(args: string[]) {
 }
 
 export function readinessFingerprint(config: CollectorConfig) {
-  return hash({ sourceKey: config.sourceKey, account: accountFingerprint(config), operatorUsername: config.operatorUsername });
+  return hash({ sourceKey: config.sourceKey, account: accountFingerprint(config), operatorUsername: config.operatorUsername,
+    ...(config.transportPolicy ? { transportPolicy: config.transportPolicy } : {}) });
 }
 
 export async function probeSource(config: CollectorConfig, expectedSource: string, verifiedTunnel: boolean) {
   config = parseCollectorConfig(config);
   if (expectedSource !== readinessFingerprint(config)) throw new SourceError("source_target_mismatch");
-  if (new URL(config.baseUrl).protocol === "http:" && !verifiedTunnel) throw new SourceError("verified_tunnel_required");
+  if (new URL(config.baseUrl).protocol === "http:" && config.transportPolicy !== APPROVED_HTTP_POLICY && !verifiedTunnel) throw new SourceError("verified_tunnel_required");
   return validateProbeSummary(await collectWithPython(config, [], { mode: "probe", timeoutMs: 90000 }));
 }
 
 /** Operator-only read path. No server config, DATABASE_URL, DB pool, migration or writer. */
 export async function main(args = process.argv.slice(2)) {
   if (!args.length || args.length === 1 && args[0] === "--help") {
-    process.stdout.write("No database or deployment. --check --config=<absolute private Linux file>\nExplicit read-only login/report probe: --probe --config=<file> --expected-source=<check fingerprint>\nLiteral loopback HTTP additionally requires --verified-tunnel after end-to-end protection is independently verified. Never tunnel from a VPS to a public HTTP upstream and call it protected.\nOnly first pages for one visible contract are inspected; no rows, credentials or identifiers are printed.\n");
+    process.stdout.write("No database or deployment. --check --config=<absolute private Linux file>\nExplicit read-only login/report probe: --probe --config=<file> --expected-source=<check fingerprint>\nD109 permits only the approved Ainuoke HTTP origin with transportPolicy=user-approved-http-d109 in the private file; it remains plaintext.\nLiteral loopback HTTP requires --verified-tunnel after end-to-end protection is independently verified. Never call a public HTTP final hop protected.\nOnly first pages for one visible contract are inspected; no rows, credentials or identifiers are printed.\n");
     return;
   }
   const options = parseReadinessArguments(args);
@@ -65,12 +66,13 @@ export async function main(args = process.argv.slice(2)) {
   const sourceFingerprint = readinessFingerprint(config);
   if (options.action === "check") {
     process.stdout.write(JSON.stringify({ result: "CHECKED_NO_SOURCE_READ_NO_DATABASE", sourceFingerprint,
-      transport: new URL(config.baseUrl).protocol === "https:" ? "https-required" : "loopback-proof-required",
+      transport: config.transportPolicy === APPROVED_HTTP_POLICY ? "user-approved-plaintext-http" : new URL(config.baseUrl).protocol === "https:" ? "https-required" : "loopback-proof-required",
       operatorAuthorization: "not-checked" }) + "\n");
     return;
   }
   const summary = await probeSource(config, options.expectedSource!, options.verifiedTunnel);
   process.stdout.write(JSON.stringify({ result: "READ_ONLY_CONNECTION_PROBED", sourceFingerprint,
+    transport: config.transportPolicy === APPROVED_HTTP_POLICY ? "user-approved-plaintext-http" : "protected-transport",
     sourceActivation: "not-activated", businessValidation: "not-performed", operatorAuthorization: "not-checked", ...summary }) + "\n");
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

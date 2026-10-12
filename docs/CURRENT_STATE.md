@@ -1,12 +1,12 @@
 # 当前状态
-核实2026-10-12；GitHub main：9ebdf3b46b471e227e86a86c36f705e7ac6e6908（PR100/101/102 已合并）。GitHub 是实时事实源；随 main/PR/测试/验收/环境变化更新。
+核实2026-10-13；GitHub main：6395db45bebe572c736cf4137a373e0f816be6c0（PR98、100–102已合并）。GitHub 是实时事实源；随 main/PR/测试/验收/环境变化更新。
 
-- 用户接受同一本机合成登录/报价导航/订单/物料体验，并单独授权合并PR100；真实来源覆盖/金额/持续运行/上线未人工验收。历史工程证据保留于[统一演示](tasks/active/unified-local-demo.md)。
-- PR102无DB只读连接检查已合并，三项CI成功。当前修复PR98的文档冲突、过时上线顺序和归档链接，保留原现场快照；见[修订记录](tasks/completed/2026-10-12-pr98-reconciliation.md)。
-- 用户确认原公网HTTP仍在用。无凭据HTTP200，同端口HTTPS握手失败；宁波到HTTP端口可达但最后一段保护未证明。用户本轮已明确长期接受该艾诺科HTTP风险；对应显式接入支持在独立分支开发，尚未真实登录，不读取真实密码。
-- 现有P6/UI、默认orderRead/Source disabled、SQL与生产路由不变。没有修改真实账号/数据库或部署宁波、18443、18444；新PR不自动合并。
-- D105保持：真实四流持续按订单展示后才上线宁波。完整合同范围/字段/单位、私密凭据、首次真实绑定、连续运行、完整镜像、备份恢复及人工验收仍待Gate。新增合同自动建单及主信息/颜色增量未实现。
-- 本轮类型/lint/server与完整build、root810、基线71、实际main守卫均PASS；Python60、来源20/1skip、continuous29/1skip、新探测8/1skip。Windows不执行Linux私密文件分支，该分支由Ubuntu CI实际验证，不将skip记为pass。最终CI以PR精确head为准。
-- 历史Quote扩展UI在旧main与PR101均69/78、8个相同失败+父测试失败，未解决；不声明全项目全绿。宁波方案已对齐D105，历史预检的时间/版本不改写为本轮观察。
+- PR98冲突、旧Quote-first上线顺序和归档链接已修复，远端head99ff696的source/team-access/baseline三CI成功，2026-10-12T16:08:41Z按授权合并。原宁波现场观察保持旧日期/版本。[修订记录](tasks/completed/2026-10-12-pr98-reconciliation.md) / [当前上线方案](ops/ningbo-rollout-plan.md)。
+- D109：用户永久接受原艾诺科HTTP风险。当前独立分支feat/ainuoke-approved-http实现精确origin+policy支持及本机私密终端探测，不设置到期续批；本HTTP增量尚未合并。[任务与证据](tasks/active/ainuoke-approved-http.md)。
+- 真实只读连接已获用户执行回传：认证成功；6086103首页50/总数558，首个可见合同6087105为5/5、6087050为0/0。只证明首页可读；未核对完整合同范围、真实四流字段/单位，未激活Source/绑定/调度/页面真实数据，不把首合同0行推广到全体。
+- 原P6/UI、默认orderRead/Source disabled、SQL与生产路由不变。没有修改真实账号/数据库或部署宁波、18443、18444；新HTTP PR不自动合并。用户已接受的是本机合成体验，真实业务验收待完成。
+- 本轮类型/lint/server与完整build、root810/810、基线71/71通过；Python64、来源20/1skip、continuous29/1skip、readiness9/1skip。Windows的Linux权限分支skip不计pass，Ubuntu CI尚待远端交付验证。最终基线守卫在冻结新证据后执行，不提前标PASS。
+- D105保持：真实四流持续按订单展示后才上线宁波。下一步先只读核对完整范围及有四流的代表订单，再提出具体首绑/持续采集计划。新增合同自动建单、主信息/颜色增量、完整分码UI未实现；备份恢复、宁波候选及人工验收仍待独立Gate。
+- 历史Quote扩展UI在旧main与PR101均69/78、8个相同失败+父测试失败，未解决；不声明全项目全绿。旧冻结截图与部署证据保持。
 
-功能：[来源](features/AINUOKE_SERVER_SOURCE.md)、[登录](features/SERVER_LOGIN.md)，决策D105–108。旧冻结证据与部署观察日期保持。
+功能：[来源](features/AINUOKE_SERVER_SOURCE.md)、[登录](features/SERVER_LOGIN.md)；决策D105–109。PR98未送达的174a7e5状态文档语义由本分支接续，原本地commit保留；不冒称它已随PR98合并。
