@@ -59,7 +59,11 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
   });
   await t.test("keyboard, password visibility, privacy reaction and reduced motion",async()=>{
    await command("Emulation.setDeviceMetricsOverride",{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+   assert.equal(await evalJs("document.querySelectorAll('.zx-login-friend').length"),4);
+   await command("Input.dispatchMouseEvent",{type:"mouseMoved",x:1300,y:200});
+   await until(()=>evalJs("parseFloat(document.querySelector('.zx-login').style.getPropertyValue('--look-x'))>0"),"eyes follow pointer");
    await evalJs("document.querySelector('input[name=username]').focus()");
+   assert.equal(await evalJs("document.querySelector('.zx-login').dataset.typing"),"true");
    await command("Input.dispatchKeyEvent",{type:"keyDown",key:"Tab",code:"Tab",windowsVirtualKeyCode:9});
    await command("Input.dispatchKeyEvent",{type:"keyUp",key:"Tab",code:"Tab",windowsVirtualKeyCode:9});
    assert.equal(await evalJs("document.activeElement.name"),"password");
@@ -67,9 +71,11 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
    await input("input[name=password]","Synthetic-Wrong-Password");
    await click("显示密码");assert.equal(await evalJs("document.querySelector('input[name=password]').type"),"text");
    assert.equal(await evalJs("document.querySelector('.zx-login').dataset.privacy"),"true");
+   assert.equal(await evalJs("getComputedStyle(document.querySelector('.zx-login-friend-tall .zx-login-eye')).animationName"),"zx-login-peek");
    await click("隐藏密码");
    await command("Emulation.setEmulatedMedia",{features:[{name:"prefers-reduced-motion",value:"reduce"}]});
    assert.equal(await evalJs("getComputedStyle(document.querySelector('.zx-login-friend')).animationName"),"none");
+   assert.equal(await evalJs("getComputedStyle(document.querySelector('.zx-login-eye')).animationName"),"none");
    await shot("login-password");
    await command("Emulation.setEmulatedMedia",{features:[]});
   });

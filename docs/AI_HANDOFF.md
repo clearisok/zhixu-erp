@@ -1,14 +1,9 @@
 # AI handoff
-
-核实2026-10-12；main基线 db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e（PR99已合并）。
-任务 feat/animated-login，独立worktree初始clean。用户授权独立正式/login、有趣动画；业务UI不改，无真实账号/DB/环境操作，不自动合并。
-功能/约束见 features/SERVER_LOGIN.md、D-107、tasks/active/animated-login.md。
-G1代码：正式登录页+安全回跳，既有session/RBAC，按用户指定 katavii/animated-login 重新实现蓝色分栏四角色（参考62f0b80），密码闭眼、显隐、错误、响应式、reduced-motion，CI增加真实Chromium验证。
-初步root808、会话112、UI9 PASS；最终新增失败场景与重新构建截图待G2核实，不冒称最终CI通过。
-PR100仍open，代码不在本分支；不要误覆盖其 isEnabledServerRoute 或 D-106。D-107为登录，避免决策ID冲突。
-LOCAL ENGINEERING进行中；REMOTE DELIVERY pending。起始fetch网络重置，但GitHub API核实完整main对象，允许本地推进。每个Gate独立commit，网络状态不等于部署授权。
-更新时机：checkpoint/测试/main/PR/视觉验收或环境事实改变。
-
-G1=5b55488cefdc47255302f6e043e5c65b18ba2878；G1b 对齐指定参考，保持安全流程。新截图必须在G1b完整SHA构建后重新生成。
-
-G1b=0095b0e8448dfd336cf479ad82927b3f11fd9cae；双authority构建、登录UI10、六角色UI5 PASS。Quote旧测试导航helper假定不重定向，正在对齐新正式/login入口；生产功能不因此修改。
+核实2026-10-12；main基线 db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e（PR99 merged）。
+任务 feat/animated-login，独立worktree初始clean。用户指定 katavii/animated-login，限定/login改版；无真实账号/DB/环境操作或自动合并。
+生产源0095b0e8448dfd336cf479ad82927b3f11fd9cae；报价测试重定向适配e0c5e4d900c991220a6e168a04bffdca0648c0ea。功能见features/SERVER_LOGIN.md/D-107；冻结证据见tasks/active/evidence/animated-login/engineering.md。
+双authority构建、112会话、10登录UI、5六角色UI、typecheck/lint/serverbuild PASS。扩展Quote main/候选均69/78（8相同失败+父测试），不能冒称全项目PASS；不擅自改报价业务。历史截图被测试写入的增量已恢复，默认输出迁至ignored outputs。
+下一步：冻结证据commit后更新manifest/门禁/root、远端交付和唯一PR及CI/复审；用户视觉验收仍待完成。PR100仍open，未纳入本分支；未来整合保留isEnabledServerRoute与LoginRedirect，D-106/D-107各自保留。
+LOCAL ENGINEERING已独立验证上述范围；REMOTE DELIVERY pending。起始fetch网络重置但API核实完整main对象，不冒称远端提交已送达。
+本机合成演示 npm run demo:login：只监听127.0.0.1，两小时自动清理；不是宁波或18443/18444部署。
+更新时机：checkpoint/门禁/CI/main/PR/验收或环境改变。
