@@ -142,8 +142,8 @@ const READ_MODEL_SELECT = `
          sl.sales_contract_no,
          sl.inside_order_no,
          mirror.lifecycle_status_raw,
-         mirror.contract_date,
-         mirror.contract_delivery_date,
+         to_char(mirror.contract_date, 'YYYY-MM-DD') AS contract_date,
+         to_char(mirror.contract_delivery_date, 'YYYY-MM-DD') AS contract_delivery_date,
          mirror.style_no,
          mirror.company_name_snapshot,
          mirror.customer_name_snapshot,
@@ -427,7 +427,7 @@ export async function getSalesOrderById(client: Queryable, id: string): Promise<
     quantity: string;
     delivery_date: string | Date | null;
   }>(
-    `SELECT source_line_identity, color_name, quantity, delivery_date
+    `SELECT source_line_identity, color_name, quantity, to_char(delivery_date, 'YYYY-MM-DD') AS delivery_date
      FROM ainuoke_sales_order_color_mirrors
      WHERE sales_order_id = $1::uuid
      ORDER BY color_name ASC, source_line_identity ASC`,

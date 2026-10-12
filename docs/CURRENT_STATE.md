@@ -1,13 +1,13 @@
 # 当前状态
+核实日期：2026-10-12；GitHub main / 本任务基线：db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e（PR99已合并）。GitHub是实时事实源；旧状态见[前序归档](tasks/completed/2026-10-12-continuous-source-predecessor-state.md)。
 
-核实日期：2026-10-12；GitHub main / 任务基线：5215ef75510e4b55ef69b1ae1508816b80fda110（PR97已合并）。GitHub是实时事实源，此文为快照；旧状态见[前序归档](tasks/completed/2026-10-12-ainuoke-source-predecessor-state.md)。
+- PR97六角色与PR99默认关闭Server Source已合并；真实账号、Source、部署和人工业务验收仍未完成。
+- 当前feat/ainuoke-continuous-material-display：首次订单绑定、显式串行调度、原P6三页接线已实现，默认disabled；见[功能](features/AINUOKE_SERVER_SOURCE.md)、[任务](tasks/active/ainuoke-continuous-material-display.md)、D106。合成验收不等于真实上线。
+- 复用UUID/编号/6087105/物料算法，首绑预览双确认、整批事务与审计。调度只刷新已绑定订单四流；新增合同及既有主镜像/颜色增量刷新尚未实现，不自动接管旧账本。
+- 原P6布局/CSS保持；snapshot候选只接通订单列表、执行详情、逐订单物料；未支持入口disabled，Server缺UUID不回退Browser。30秒读取按用户/权限隔离，失败或陈旧不显示旧判定。
+- 新发现并修复DATE读回偏移，DB日期未改；Shanghai/UTC/Los_Angeles回归已补。当前合成工程、最终精确head CI及复审分开记录。
+- D105宁波上线条件保持：真实艾诺科四流持续按单展示后再上线。安全通道、范围/速率、私密凭据、连续运行、独立账本/存储、外网入口、备份恢复、人工验收仍待独立Gate；现在不用提供密码。
+- PR98现场证据仍有价值，旧Quote-first时序/schema摘要过时；建议对齐main/D105后再合并，本轮未合并98。宁波/18443/18444未修改，旧环境观察日期不前移。
+- 新PR只提交和复审，不自动合并。分维度见[能力快照](release/baseline.json)。临时本机演示只含合成数据，不属于真实部署。
 
-- 六角色可信账号管理已随PR97合并；未创建真实账号，未因此部署或激活Source。首轮来源全团队可见采购价，织序售价/工价/内部成本继续独立权限。
-- 当前 [PR99](https://github.com/clearisok/zhixu-erp/pull/99) / feat/ainuoke-server-source（未合并；默认关闭的基础能力已实现，最终head CI及复审结论见PR正文）：按已绑定正式订单保存完整Discovery/Material快照，读取采购/入库/出运/出库；默认关闭、固定catalog、原子发布、权限/版本复核、陈旧/失败关闭。新增0012只在合成disposable DB测试。见[功能](features/AINUOKE_SERVER_SOURCE.md)、[任务](tasks/active/ainuoke-server-source.md)、D-105。
-- 用户更新上线条件：**艾诺科数据持续展示后再上线宁波Ubuntu**。报价暂时OK；不做独立库存台账，不把生产/关账扩成首版前置。仍未实现定时持续运行、首次正式订单绑定、生产Order/Material页面激活；本PR不代表上线条件已满足。
-- UI维持D-099及D-102/P6。无页面/样式/截图改变，生产路由allowlist不变。真实Source未连接，本次无新的人工UI或业务验收。
-- 宁波与18443/18444均未操作。宁波只读预检在独立PR98，未当作本分支已合并事实；旧环境镜像和日期保留在能力清单的历史记录，不伪称本次重新观察。
-- 下一步：本PR门禁/CI/复审；受控首次订单绑定 + 连续采集/告警 + 既有UI多轮验收；最后独立数据库、网络/凭据、备份恢复与候选发布Gate。凭据只在未来真实激活前私下配置，现在不需要发送。
-- 实现、合并、隔离测试、环境部署、人工验收和Source激活分开见[能力快照](release/baseline.json)。不自动合并，不共享Preview与业务DB，不执行真实迁移/部署。
-
-更新时机：main/PR/权限/Source/环境/测试与验收变化。
+更新时机：main、PR、来源、权限、环境、测试和验收变化。

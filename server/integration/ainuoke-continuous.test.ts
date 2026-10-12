@@ -32,6 +32,7 @@ test("preview rejects unknown quantity, invalid date, partial colors, wrong scop
   "foreign query":b=>{Object.values(b.colors)[0][0].queryContext.salesContractNo="FOREIGN";},
   "future":b=>{b.discoveryBefore[0].fetchedAt=new Date(Date.now()+100000).toISOString();},
   "stale":b=>{b.discoveryBefore[0].fetchedAt="2000-01-01T00:00:00Z";},
+  "raw quantity changed with unchanged row identity":b=>{b.discoveryAfter[0].rows[0].values.Num=200;},
   "changed discovery":b=>{b.discoveryAfter[0].rows[0].values.Status="变更";},
   "secret field":b=>{b.discoveryBefore[0].rows[0].values.password="not-real";},
  };

@@ -1,7 +1,8 @@
 # AI handoff
 核实日期2026-10-12；main基线db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e（PR99已按用户指令合并）。
-任务feat/ainuoke-continuous-material-display，独立worktree起始clean。首次绑定/调度后端G1本地合成23、来源20（Linux1待CI）、旧bootstrap18、Python54、typecheck/serverbuild通过。
-本阶段仅提交后端及其测试；页面接线增量属于同任务G2，尚在working tree，不能称最终完成。完整范围/基线/PR98复审见[tasks/active/ainuoke-continuous-material-display.md](tasks/active/ainuoke-continuous-material-display.md)。
-用户禁止真实账号/DB/部署；保持UI，不自动合并新PR。Ubuntu仍须待真实艾诺科持续展示与独立上线Gate；现在不需要真实凭据。
-旧恢复点保存在main db30c10:docs/AI_HANDOFF.md及上一个来源任务。LOCAL ENGINEERING与REMOTE DELIVERY分开核对；下一步页面多轮真实组件测试、基线证据、PR和复审。
+任务feat/ainuoke-continuous-material-display，独立worktree起始clean；G1后端checkpoint59a8472490f71d86f714569a5c75463c6c27af1e已推送并核实精确远端。现有dirty均为本任务G2，无继承dirty。
+首次空账本绑定/幂等凭证、调度、默认关闭P6接线见[功能](features/AINUOKE_SERVER_SOURCE.md)、[任务](tasks/active/ainuoke-continuous-material-display.md)。日期偏移修复有跨时区测试。
+当前本地新回归28 PASS+Linux1待CI、原来源20 PASS+Linux1待CI、Python54、旧bootstrap18、P6浏览器8通过。最终门禁/源码回归待冻结证据后重跑；早期root门禁失败为manifest/shared state尚未收口，不当作通过。
+禁止真实账号/DB/凭据/部署，新PR不自动合并。PR98仅审查、需对齐D105。下一步最终代码checkpoint→重建截图/门禁→唯一PR/精确head CI→复审与临时合成演示。
+旧恢复点见[前序归档](tasks/completed/2026-10-12-continuous-source-predecessor-state.md)。LOCAL ENGINEERING与REMOTE DELIVERY分别核实。
 更新时机：checkpoint/main/PR/测试/来源或环境改变。

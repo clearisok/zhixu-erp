@@ -8,7 +8,7 @@ export function bindingBundle(now=Date.now(),count=1):BindingBundle {
   for(const row of discovery[0].rows) {
     const bill=String(row.values.BillNo);
     colors[bill]=[{schemaVersion:"ainuoke-direct-read.v2",reportId:"6087105",fetchedAt:stamp,page:1,pageSize:50,total:1,queryContext:{salesContractNo:bill},snapshotHash:"synthetic-color",
-      rows:[{sourceRowIdentity:"synthetic-color-"+bill,values:{BillNo:bill,insideorderno:row.values.InsideOrderNo,GoodsNo:syntheticOrder.styleNo,CnColor:"蓝色",SizeNum:100,SizeRule:"M,L",Size1:40,Size2:60}}]}];
+      rows:[{sourceRowIdentity:"synthetic-color-"+bill,values:{BillNo:bill,insideorderno:row.values.InsideOrderNo,GoodsNo:syntheticOrder.styleNo,CnColor:"蓝色",DeliveryDate:"2026-11-01",SizeNum:100,SizeRule:"M,L",Size1:40,Size2:60}}]}];
   }
   return {schemaVersion:"ainuoke-order-binding.v1",discoveryBefore:discovery,discoveryAfter:structuredClone(discovery),colors};
 }

@@ -18,7 +18,19 @@
 
 ## Active
 
+### D-106 首次订单绑定、持续采集与原P6页面接线
+- 日期：2026-10-12；状态：Active。用户明确要求“合并 PR #99，然后从最新 main 建独立 worktree，继续做首次订单绑定、持续调度和现有页面接线。保持现有 UI，先用合成数据测试，完成后提交 PR 并复审。暂不修改真实账号、数据库或部署，不自动合并新的 PR”。
+- 本条接续D105首次绑定/调度开发Gate；D105宁波持续展示后上线、D104来源全团队可见、D103织序金额权限不变。首绑复用现有订单/Source Link/6087105，不引入库存账本。
+- 受控首次空订单账本绑定：fresh完整Discovery+颜色→预览→目标/previewHash明确确认→fresh核对→整批事务/权限/审计。相同首绑凭证才能幂等重试；旧账本、部分集合、换账号不自动接管。来源缺颜色不等于订单不存在。
+- scheduler显式启动，只更新已绑定订单的物料来源快照；错误凭据/授权撤销停止，网络错误有界退避。首绑后新增合同、现有主镜像/颜色刷新仍需后续独立范围，不能冒称自动全生命周期。
+- UI接线只复用P6列表/执行详情/物料Control Tower，默认disabled候选开关，保留CSS/列宽/布局/断点；既有入口可用性随能力改变，未支持页面disabled。用户授权功能接线，不授权重新设计。
+- 默认API启动不采集；无真实凭据/迁移/账号/部署/人工验收。本机临时合成演示不属于真实上线。
+- 证据：server/ainuoke-source/binding.ts、scheduler.ts、cli.ts；server/integration/ainuoke-continuous*、ainuoke-binding*、order-read-capability.test.ts；[功能](features/AINUOKE_SERVER_SOURCE.md)、[任务](tasks/active/ainuoke-continuous-material-display.md)。
+
+
 ### D-105 宁波上线以前持续展示艾诺科订单物料来源
+
+- 2026-10-12后续工程范围由D106接续：首次绑定/调度/页面接线开发已获授权；下方“无scheduler”等为PR99阶段实现记录，真实激活仍未授权。
 
 - 日期：2026-10-12；状态：Active。用户明确批准 feat/ainuoke-server-source、独立worktree、合成测试/PR/复审；禁止真实账号/DB/部署/自动合并。
 - 发布决定：报价当前暂时OK；宁波Ubuntu在艾诺科采购、入库、物料出运和出库持续按订单展示后再上线。暂不做独立库存台账；不将生产/关账全部Server化追加为首版前置。

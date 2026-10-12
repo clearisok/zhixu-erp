@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createSyntheticQuoteFixture } from "../../../../server/integration/quote-fixture";
-import { parseQuoteAuthority, validateQuoteAuthority, isServerQuoteRoute } from "../../authority/quote-authority";
+import { parseQuoteAuthority, validateQuoteAuthority, isEnabledServerRoute as isServerQuoteRoute } from "../../authority/quote-authority";
 import { createQuoteEditorPersistence } from "../quote-editor-persistence";
 import type { QuoteServerEditorAdapter } from "../quote-server-editor-adapter";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";

@@ -134,7 +134,7 @@ Quote list is PR64 information architecture plus approved PR89 widths/thumbnails
 and PR91 defaults/layout. New/Detail/Settings follow D-102, not the superseded
 two-step cancellation contract. Order/Material use P6 and the subsequent PR92
 synthetic integration evidence. Login has implementation evidence only; do not
-invent a separate brand/animation approval. Navigation stays Quote-first.
+invent a separate brand/animation approval. Navigation defaults to Quote-first; D-106 explicitly permits the existing Order entry only in a snapshot candidate. serverRoutes records the static capability ceiling; isEnabledServerRoute additionally enforces the default-disabled order flag, tested with the compiled/runtime identity checks and production-built Chromium tests. No guard permission to deploy is implied.
 
 Preserve 1920/1536(DPR1.25)/1440/1280/900 fine and 390 touch coverage, long text,
 personal column preferences, loading/empty/403/409/offline/permission states.

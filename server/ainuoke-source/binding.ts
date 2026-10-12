@@ -7,8 +7,8 @@ import { adaptAinuokeOrderDiscoverySnapshots } from "../../features/ainuoke-api/
 import { adaptAinuokeGarmentColorSizeSnapshots, normalizeAinuokeSalesContractNo } from "../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js";
 import { buildFinalSalesOrderBootstrapPreview } from "../../features/ainuoke-sync/service/sales-order-final-bootstrap-preview.js";
 import type { AinuokeOrderDiscoveryQuery, AinuokeSalesContractQuery, AinuokeReportSnapshot } from "../../features/ainuoke-api/model/ainuoke-api.js";
-import { SourceError, hash, sourceKeyValid, inspect, pagesValid } from "./contract.js";
-import { sourceActor } from "./service.js";
+import { SourceError, hash, sourceKeyValid, inspect, pagesValid, discoveryContentHash } from "./contract.js";
+import { boundOrders, sourceActor } from "./service.js";
 
 export type BindingBundle = {
   schemaVersion: "ainuoke-order-binding.v1";
@@ -28,7 +28,7 @@ export async function previewBindings(input: unknown, now = Date.now(), maxAgeMs
     pagesValid(b.discoveryBefore, now, maxAgeMs); pagesValid(b.discoveryAfter, now, maxAgeMs);
     const before = await adaptAinuokeOrderDiscoverySnapshots(b.discoveryBefore);
     const after = await adaptAinuokeOrderDiscoverySnapshots(b.discoveryAfter);
-    if (before.snapshotHash !== after.snapshotHash) throw new SourceError("discovery_changed");
+    if (before.snapshotHash !== after.snapshotHash || discoveryContentHash(b.discoveryBefore) !== discoveryContentHash(b.discoveryAfter)) throw new SourceError("discovery_changed");
     if (!before.rows.length || before.rows.length > 1000) throw new SourceError("binding_scope_limit");
     const contracts = before.rows.map(r => normalizeAinuokeSalesContractNo(r.salesContractNo));
     if (new Set(contracts).size !== contracts.length || Object.keys(b.colors).length !== contracts.length
@@ -63,15 +63,19 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
 }) {
   if (!sourceKeyValid(options.sourceKey) || !/^[a-f0-9]{64}$/u.test(options.accountFingerprint) || !/^[a-f0-9]{64}$/u.test(options.expectedPreview)) throw new SourceError("binding_confirmation_required");
   const actor = await sourceActor(pool, identity, true); requirePermission(actor.permissions, "ainuoke.bind");
-  const {preview, reviewHash} = await previewBindings(await options.collect(), (options.now ?? Date.now)());
+  const data=await options.collect();
+  const {preview, reviewHash} = await previewBindings(data, (options.now ?? Date.now)());
   if (reviewHash !== options.expectedPreview) throw new SourceError("binding_preview_changed");
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    await client.query("SET LOCAL lock_timeout = '5s'");
+    await client.query("SET LOCAL statement_timeout = '30s'");
     // Serializes all binding commands; same source lock also excludes snapshot capture.
     await client.query("SELECT pg_advisory_xact_lock(hashtextextended('ainuoke-first-binding',0))");
     const lock = await client.query("SELECT pg_try_advisory_xact_lock(hashtextextended($1,0)) AS locked", ["ainuoke-source:" + options.sourceKey]);
     if (!lock.rows[0].locked) throw new SourceError("source_capture_busy");
+    await previewBindings(data, (options.now ?? Date.now)());
     const currentActor = await sourceActor(client, identity, true); requirePermission(currentActor.permissions, "ainuoke.bind");
     const profiles = (await client.query("SELECT source_key,account_fingerprint,enabled FROM ainuoke_source_profiles FOR UPDATE")).rows;
     if (profiles.some(p => p.source_key !== options.sourceKey || p.account_fingerprint !== options.accountFingerprint || !p.enabled)) throw new SourceError("source_account_mismatch");
@@ -79,6 +83,11 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
     const candidates = preview.candidates;
     // Empty first binding, or exact re-run only. Never silently attach a new source to old orders.
     if (existing.length && (existing.length !== candidates.length || existing.some(row => !candidates.some(c => c.source.sourceId === row.external_id && normalizeAinuokeSalesContractNo(c.source.salesContractNo) === normalizeAinuokeSalesContractNo(row.sales_contract_no))))) throw new SourceError("binding_requires_empty_or_exact_scope");
+    if(existing.length){
+      const receipt=(await client.query("SELECT metadata FROM operation_logs WHERE entity_type='AinuokeSourceBinding' AND entity_id=$1 ORDER BY id DESC LIMIT 1",[options.sourceKey])).rows[0];
+      const bound=await boundOrders(client,true);
+      if(!profiles.length || receipt?.metadata?.reviewHash!==reviewHash || bound.length!==existing.length || existing.some(row=>!bound.some(order=>order.id===row.id&&normalizeAinuokeSalesContractNo(order.salesContractNo)===normalizeAinuokeSalesContractNo(row.sales_contract_no))))throw new SourceError("binding_not_exact_retry");
+    }
     const ids: string[] = []; let created = 0;
     for (const candidate of candidates) {
       const result = await createAinuokeSalesOrderInTransaction(client, currentActor, candidate);

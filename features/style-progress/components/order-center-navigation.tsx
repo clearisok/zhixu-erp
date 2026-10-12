@@ -1,4 +1,5 @@
 "use client";
+import { quoteAuthority, isEnabledServerRoute } from "@/features/quote-center/authority/quote-authority";
 
 import { usePathname, useRouter } from "next/navigation";
 
@@ -10,5 +11,5 @@ const items = [
 
 export function OrderCenterNavigation() {
   const pathname = usePathname(); const router = useRouter();
-  return <nav className="sp-order-nav" aria-label="订单中心功能导航">{items.map((item) => <button key={item.href} type="button" className={item.matches(pathname) ? "active" : ""} aria-current={item.matches(pathname) ? "page" : undefined} onClick={() => router.push(item.href)}>{item.label}</button>)}</nav>;
+  return <nav className="sp-order-nav" aria-label="订单中心功能导航">{items.map((item) => <button key={item.href} type="button" disabled={quoteAuthority()==="server"&&!isEnabledServerRoute(item.href)} title={quoteAuthority()==="server"&&!isEnabledServerRoute(item.href)?"此功能尚未接通":undefined} className={item.matches(pathname) ? "active" : ""} aria-current={item.matches(pathname) ? "page" : undefined} onClick={() => router.push(item.href)}>{item.label}</button>)}</nav>;
 }

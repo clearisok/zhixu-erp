@@ -1,0 +1,29 @@
+{
+  "baselineSha": "db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e",
+  "level": "V2",
+  "visibleDifference": "User-authorized wiring of the existing P6 Order entry and three read-only pages in an explicit snapshot candidate; unsupported existing navigation is disabled and material reads refresh. No CSS/layout/columns/breakpoint redesign. Defaults remain disabled.",
+  "paths": [
+    "app/order-center/style-progress/detail/page.tsx",
+    "components/foundation/app-shell.tsx",
+    "features/ainuoke-material-progress/order-material-summary.tsx",
+    "features/quote-center/authority/quote-authority.ts",
+    "features/quote-center/components/quote-server-boundary.tsx",
+    "features/style-progress/components/order-center-navigation.tsx",
+    "features/order-center/server/read-capability.ts",
+    "features/operation-logs/model/operation-log.ts",
+    "vite.config.ts"
+  ],
+  "pages": [
+    "order",
+    "material",
+    "navigation"
+  ],
+  "evidence": [
+    "docs/tasks/active/ainuoke-continuous-material-display.md",
+    "server/integration/ainuoke-continuous-ui.integration.test.mjs"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/ainuoke-continuous-material-display.md"
+  }
+}

@@ -16,6 +16,9 @@ function canonical(value: unknown): string {
         return "{" + Object.entries(value).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([k, v]) => JSON.stringify(k) + ":" + canonical(v)).join(",") + "}";
     return JSON.stringify(value);
 }
+export function discoveryContentHash(pages: AinuokeReportSnapshot[]): string {
+    return hash(pages.flatMap(p=>p.rows).map(r=>({identity:r.sourceRowIdentity,values:r.values})).sort((a,b)=>a.identity.localeCompare(b.identity)));
+}
 export type SourceBundle = {
     schemaVersion: "ainuoke-server-source.v1";
     discoveryBefore: AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>[];
@@ -63,7 +66,7 @@ export async function validateBundle(input: unknown, targets: VisibleMaterialOrd
         pagesValid(bundle.discoveryAfter, now, maxAgeMs);
         const before = await adaptAinuokeOrderDiscoverySnapshots(bundle.discoveryBefore);
         const after = await adaptAinuokeOrderDiscoverySnapshots(bundle.discoveryAfter);
-        if (before.snapshotHash !== after.snapshotHash)
+        if (before.snapshotHash !== after.snapshotHash || discoveryContentHash(bundle.discoveryBefore) !== discoveryContentHash(bundle.discoveryAfter))
             throw new SourceError("discovery_changed");
         const targetContracts = new Set(targets.map(o => normalizeAinuokeSalesContractNo(o.salesContractNo)));
         if (targetContracts.size !== targets.length || targetContracts.has("") || Object.keys(bundle.materials).some(k => !targetContracts.has(k)))
