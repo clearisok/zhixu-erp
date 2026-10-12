@@ -79,20 +79,20 @@ npm run build
    - `fix/<task-slug>`
    - `chore/<task-slug>`
 3. 不得因为当前分支或工作树与预期不同而 reset / clean；先分析差异。
-4. 每完成一个可以独立验证的 Gate：
+4. 每完成一个重要、可以独立验证的 Gate：
    - 更新必要的测试；
    - 更新 `docs/AI_HANDOFF.md`；
    - 创建 checkpoint commit；
-   - 自动 push 当前任务分支到 `origin`。
-5. 多 Gate / 长时间任务不得把全部进度只留在未提交 working tree 中。正常推送阶段 checkpoint；纯网络失败时至少有可靠本地 commit 与短接力，独立记录 LOCAL ENGINEERING / REMOTE DELIVERY，不冒称 GitHub 已送达。
+   - 网络通道正常时安全 push 当前任务分支一次，并核实精确远端 HEAD；NETWORK_DEGRADED 时只保存本地 checkpoint，不在后续 Gate 重复撞同一通道。
+5. 多 Gate / 长时间任务不得把全部进度只留在未提交 working tree 中。每个重要 Gate 必须有可靠本地 commit 与短接力；独立记录 LOCAL ENGINEERING / REMOTE DELIVERY，不冒称 GitHub 已送达。已知继承 dirty 仅在内容/完整哈希已核实并保护时可继续；不能将其纳入本阶段提交，未知 dirty 仍 STOP。
 6. 最终 Gate PASS 后：
    - 更新 CURRENT_STATE；
    - 更新相关 feature docs；
    - 更新必要的 DECISION_LOG；
    - 更新 AI_HANDOFF；
    - 完成最终 commit；
-   - 自动 push；
-   - 创建或更新 Pull Request 到 `main`。
+   - 正常通道安全 push 一次；NETWORK_DEGRADED 则提供一次性人工交付命令；
+   - 精确远端代码已核实后才创建或更新 Pull Request 到 `main`。未交付的新代码不得写成 REMOTE DELIVERY PASS。
 7. 不自动 merge `main`。
 8. 不 push：
    - secrets
@@ -113,9 +113,10 @@ npm run build
 ### GitHub 网络故障恢复（2026-10-09 用户授权，立即适用）
 
 1. 正常每个可靠 checkpoint push 一次，最终核对远端 SHA 并创建/更新唯一 PR。纯网络错误不无限重试、不在每个小步骤再次撞远端。
-2. Connection reset / connect / TLS timeout 等纯网络失败：保存本地 commit 与接力；允许同一已验证基线的独立本地阶段继续，分开记录 LOCAL ENGINEERING 与 REMOTE DELIVERY。**不因此授权真实部署或数据库操作。**
+2. Connection reset / connect / TLS timeout / Schannel transport EOF / missing close_notify 等不确定传输失败：本轮进入 **NETWORK_DEGRADED**，保存本地 commit 与接力，不在后续 Gate 反复 push 同一失败通道；即使精确远端核实已送达，也不据此宣称通道长期恢复。允许同一已验证基线、不依赖远端的安全本地阶段继续。工程通过与远端交付分别报告；真正依赖远端的 PR/合并/部署动作等待交付核实。**不因此授权真实部署或数据库操作。**
 3. 结果不确定时允许一次只读核实；远端为 exact full target SHA 时确认已送达，不盲推；不能核实时记 REMOTE PENDING，不假报成功。PR 创建 EOF/timeout 先查 head 已有 PR，不换标题重复创建。
 4. 起始 fetch 失败仅在用户/可信来源核对的完整 baseline commit 在本地、对象/工作树可验证时继续，注明本次未刷新远端；缺对象仍 BLOCKED，不能退用旧分支猜基线。
-5. authentication/permission denied、rejected/non-fast-forward、分歧、冲突、未知 dirty 停止相关执行并保护现场。不 force/reset/clean/自动 rebase，不关闭证书验证。
+5. authentication/permission denied、rejected/non-fast-forward、分歧、冲突、证书信任/身份异常、未知 dirty 停止相关执行并保护现场。不 force/reset/clean/自动 rebase，不关闭证书验证。不因网络故障覆盖业务工作树，不使用 GitHub 文件 API 伪造原始 commit 的交付。
 6. 不输出 token/Authorization/Cookie/代理密码/credential helper 内容，不读取 gh auth token / git credential fill，不上传 raw trace；网络原因区分 confirmed/suspected/unresolved。共享 common-dir/全局代理/SSH/TLS 配置不得擅改；仅有界进程级对照，持久修改需证据与另行确认。
-7. 最终待人工恢复只给一组命令：git push -u origin <branch>；git rev-parse HEAD；git rev-parse origin/<branch>；git status --short。明确最后确认远端/本地 checkpoint 与 dirty。故障分类测试：scripts/__tests__/git-delivery-state.test.mjs。
+7. 首选 `scripts/git-delivery.ps1`：指定 Worktree、任务 Branch、ExpectedHead 完整SHA；默认Dry Run，实际推送须显式 `-Execute`。校验仓库/分支/dirty/远端祖先关系，远端已精确相同不重推；正常push至多一次，无论退出码如何都独立核实远端。DELIVERED_VERIFIED才是送达；LOCAL_PASS_REMOTE_UNVERIFIED不是工程失败或交付PASS。正常PowerShell备用路径运行工具给出的**一条**安全恢复命令，不要求用户拼装多条Git命令。不自动执行恢复命令或更换认证方式。脱敏对照用 `scripts/git-delivery-diagnose.ps1`，只读且不push。工具要求PowerShell7.2+/Node22.13+/Git，gh提供独立API核验；缺运行时STOP，不擅自安装或更改共享环境。
+8. 本协议适用于所有Codex执行者（默认一个主Codex，可选分工），不得各自发明恢复方式。工具使用/限制及历史诊断见 `docs/tasks/active/git-delivery-resilience.md`；分类及临时Git/裸仓库回归见 `scripts/__tests__/git-delivery-state.test.mjs` 和 `scripts/__tests__/git-delivery.test.mjs`。普通用户PowerShell对照未完成时，执行环境差异与根因仍明确标为未验证。
