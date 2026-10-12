@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "9ebdf3b46b471e227e86a86c36f705e7ac6e6908",
-  "verifiedAt": "2026-10-12T15:51:46.477123+00:00",
+  "baselineSha": "6395db45bebe572c736cf4137a373e0f816be6c0",
+  "verifiedAt": "2026-10-12T16:19:44.7471174+00:00",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -506,6 +506,36 @@
       "path": "docs/tasks/active/evidence/ningbo-readonly-preflight/observations.json",
       "recordedAtSha": "033a8a055ad6970912d29bcf06ef092c9890522d",
       "sha256": "dc615cf95be58658f0318758603ed84bdb6769fcdd07df024300545ddc9f7de1"
+    },
+    {
+      "id": "ningbo-pr98-reconciliation",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-12-pr98-reconciliation.md",
+      "recordedAtSha": "99ff6967ace46480c045dc99e7e06c7bc6fed77b",
+      "sha256": "d60e80238695d82df81914e3a405ca58643f94de04056943a6b7a69ccb33d87b"
+    },
+    {
+      "id": "decisions-approved-http",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "a2585202c2a65c843f84f3fde05ff41f09dd388d",
+      "sha256": "e8705126e68cd5ebb73f8ff26ba35a888feb03a250aa057541ad7618ab06e690",
+      "supersedes": "decisions-live-readiness",
+      "changeReason": "D109 permanently accepts the confirmed Ainuoke HTTP source; preserves database, deployment, UI and business boundaries."
+    },
+    {
+      "id": "ainuoke-approved-http-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-approved-http/engineering.md",
+      "recordedAtSha": "a2585202c2a65c843f84f3fde05ff41f09dd388d",
+      "sha256": "f96aa2303868e94cdb54c1f484a31aacace915ad4a6edd8aea095184cb3af5e3"
+    },
+    {
+      "id": "ainuoke-approved-http-user-probe",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-approved-http/user-probe.json",
+      "recordedAtSha": "a2585202c2a65c843f84f3fde05ff41f09dd388d",
+      "sha256": "929bc24958d342283d033a5f1e9babec134b1bdf9b0ad4c880e0f9bf134abd90"
     }
   ],
   "pages": [
@@ -1847,7 +1877,7 @@
     {
       "id": "ainuoke-live-readiness",
       "implemented": "yes",
-      "merged": false,
+      "merged": true,
       "isolatedTest": "passed-historical",
       "humanAcceptance": "not-run",
       "sourceActivation": "not-connected",
@@ -1859,7 +1889,8 @@
       "evidence": [
         "ainuoke-readiness-engineering",
         "ainuoke-readiness-transport",
-        "decisions-live-readiness"
+        "decisions-live-readiness",
+        "ningbo-pr98-reconciliation"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1872,13 +1903,13 @@
           ]
         },
         "merged": {
-          "value": false,
+          "value": true,
           "assessedAt": "2026-10-12",
-          "sourceSha": "19c07d5298017d6e1d0a0001349eed0cec00842e",
-          "scope": "Database-free operator config check and bounded login/three-first-page probe. Synthetic tests only; real HTTPS/protected final hop unverified; no raw output, real credential read, DB writes, activation or deployment.",
+          "sourceSha": "9ebdf3b46b471e227e86a86c36f705e7ac6e6908",
           "evidence": [
-            "ainuoke-readiness-engineering"
-          ]
+            "ningbo-pr98-reconciliation"
+          ],
+          "scope": "PR102 explicitly authorized merge at 2026-10-12T15:37:42Z. No real source activation, database writes or deployment."
         },
         "isolatedTest": {
           "value": "passed-historical",
@@ -1925,6 +1956,103 @@
           "scope": "Readiness tool not deployed. Runtime IDs and image SHAs remain historical observations, not rechecked by this task.",
           "evidence": [
             "ainuoke-readiness-engineering"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-approved-http",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D109 exact-origin HTTP policy and private terminal first-page probe. User-returned real login success and 50/558 discovery, first-contract color 5 and material 0; no full coverage, persistent Source activation, DB writes or deployment.",
+      "evidence": [
+        "ainuoke-approved-http-engineering",
+        "ainuoke-approved-http-user-probe",
+        "decisions-approved-http"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "a2585202c2a65c843f84f3fde05ff41f09dd388d",
+          "scope": "D109 exact-origin HTTP policy and private terminal first-page probe. User-returned real login success and 50/558 discovery, first-contract color 5 and material 0; no full coverage, persistent Source activation, DB writes or deployment.",
+          "evidence": [
+            "ainuoke-approved-http-engineering",
+            "ainuoke-approved-http-user-probe",
+            "decisions-approved-http"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-13",
+          "sourceSha": "a2585202c2a65c843f84f3fde05ff41f09dd388d",
+          "scope": "D109 exact-origin HTTP policy and private terminal first-page probe. User-returned real login success and 50/558 discovery, first-contract color 5 and material 0; no full coverage, persistent Source activation, DB writes or deployment.",
+          "evidence": [
+            "ainuoke-approved-http-engineering",
+            "ainuoke-approved-http-user-probe",
+            "decisions-approved-http"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "a2585202c2a65c843f84f3fde05ff41f09dd388d",
+          "scope": "D109 exact-origin HTTP policy and private terminal first-page probe. User-returned real login success and 50/558 discovery, first-contract color 5 and material 0; no full coverage, persistent Source activation, DB writes or deployment.",
+          "evidence": [
+            "ainuoke-approved-http-engineering",
+            "ainuoke-approved-http-user-probe",
+            "decisions-approved-http"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "a2585202c2a65c843f84f3fde05ff41f09dd388d",
+          "scope": "D109 exact-origin HTTP policy and private terminal first-page probe. User-returned real login success and 50/558 discovery, first-contract color 5 and material 0; no full coverage, persistent Source activation, DB writes or deployment.",
+          "evidence": [
+            "ainuoke-approved-http-engineering",
+            "ainuoke-approved-http-user-probe",
+            "decisions-approved-http"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "a2585202c2a65c843f84f3fde05ff41f09dd388d",
+          "scope": "D109 exact-origin HTTP policy and private terminal first-page probe. User-returned real login success and 50/558 discovery, first-contract color 5 and material 0; no full coverage, persistent Source activation, DB writes or deployment.",
+          "evidence": [
+            "ainuoke-approved-http-engineering",
+            "ainuoke-approved-http-user-probe",
+            "decisions-approved-http"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "HTTP capability not deployed. Runtime identity is a historical observation, not rechecked this turn.",
+          "evidence": [
+            "ainuoke-approved-http-engineering"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "HTTP capability not deployed. Runtime identity is a historical observation, not rechecked this turn.",
+          "evidence": [
+            "ainuoke-approved-http-engineering"
           ],
           "runtimeId": "preview18444",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"

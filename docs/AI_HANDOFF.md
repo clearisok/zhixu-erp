@@ -9,3 +9,4 @@ PR98主要修复99ff696已合并；后续174a7e5c27b2b5f5ee18227c6625c0746d9fe82
 
 保持现有UI、生产路由默认关闭；不修改真实账号/DB、不部署。下一步真实全范围与四流代表单只读核对；首绑/持续写入须具体执行授权。用户HTTP风险接受不重复询问，密码不进入聊天/GitHub。
 更新时机：checkpoint、验证、PR/main、探测与真实验收变化；历史证据不覆盖。
+工程checkpoint a2585202c2a65c843f84f3fde05ff41f09dd388d；已冻结D109/工程/用户回执并接续174状态增量。最新main守卫PASS：10页面/14能力/0 UI；LOCAL ENGINEERING PASS，最终远端与CI以精确PR head核验，详见evidence/ainuoke-approved-http/final-gate.md。
