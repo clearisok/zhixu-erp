@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "3456fe5fc6e213c2e896e4e6a509e28751f1798c",
-  "verifiedAt": "2026-10-12T12:10:00Z",
+  "verifiedAt": "2026-10-12T12:08:19.652953+00:00",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -435,6 +435,40 @@
       "sha256": "28bf65aabe699d8246b3b94ef7a7d5ba16e867edb09a2c356e7c8615ed85c5e9",
       "supersedes": "decisions-animated-login",
       "changeReason": "Preserve D106 and D107 together; record user login visual acceptance and authorized PR101 merge, without merging PR100 or authorizing deployment."
+    },
+    {
+      "id": "unified-demo-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/unified-local-demo/engineering.md",
+      "recordedAtSha": "e20674171090217cc86cc79a87284f6e1181081f",
+      "sha256": "a899f451a07038df96d156c294d33724e88cb3f85fb41f3dd008525ba9c0ab91"
+    },
+    {
+      "id": "unified-demo-styles",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/unified-local-demo/computed-styles.json",
+      "recordedAtSha": "e20674171090217cc86cc79a87284f6e1181081f",
+      "sha256": "b813b7b6c03361622324aa46255aeb3463922efe69cf441a386c1a07c1812c51"
+    },
+    {
+      "id": "unified-demo-order",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/unified-local-demo/order-1440.png",
+      "recordedAtSha": "e20674171090217cc86cc79a87284f6e1181081f",
+      "sha256": "b2619813499206a9717a51c82f424116b9745c34fc37cb26bf3454c12d6f20a4",
+      "renderedSourceSha": "f430123cb0dc201350b9558de41edd85afe3f9b4",
+      "approvalEvidence": "unified-demo-engineering",
+      "changeReason": "Additional synthetic integration capture after approved PR101 login was merged into PR100; existing P6 layout retained, not a new human business acceptance."
+    },
+    {
+      "id": "unified-demo-material",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/unified-local-demo/material-1440.png",
+      "recordedAtSha": "e20674171090217cc86cc79a87284f6e1181081f",
+      "sha256": "1f8251e431a1b6b4fd2914fdafca07a2a014286567db172d07d8f5eba050e173",
+      "renderedSourceSha": "f430123cb0dc201350b9558de41edd85afe3f9b4",
+      "approvalEvidence": "unified-demo-engineering",
+      "changeReason": "Additional synthetic integration capture after approved PR101 login was merged into PR100; existing P6 layout retained, not a new human business acceptance."
     }
   ],
   "pages": [
@@ -520,7 +554,8 @@
         "order-list-1440",
         "order-list-390",
         "ainuoke-continuous-engineering",
-        "ainuoke-continuous-computed-styles"
+        "ainuoke-continuous-computed-styles",
+        "unified-demo-engineering"
       ]
     },
     {
@@ -538,7 +573,8 @@
         "order-detail-1440",
         "order-detail-390",
         "ainuoke-continuous-engineering",
-        "ainuoke-continuous-computed-styles"
+        "ainuoke-continuous-computed-styles",
+        "unified-demo-engineering"
       ]
     },
     {
@@ -556,7 +592,8 @@
         "material-1440",
         "material-390",
         "ainuoke-continuous-engineering",
-        "ainuoke-continuous-computed-styles"
+        "ainuoke-continuous-computed-styles",
+        "unified-demo-engineering"
       ]
     },
     {
@@ -579,7 +616,8 @@
         "animated-login-768",
         "animated-login-390",
         "animated-login-320",
-        "decisions-combined-local-demo"
+        "decisions-combined-local-demo",
+        "unified-demo-engineering"
       ]
     },
     {
@@ -598,7 +636,8 @@
         "order-images",
         "responsive-tests",
         "ainuoke-continuous-engineering",
-        "ainuoke-continuous-computed-styles"
+        "ainuoke-continuous-computed-styles",
+        "unified-demo-engineering"
       ]
     },
     {
@@ -1602,7 +1641,8 @@
       "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
       "evidence": [
         "ainuoke-continuous-engineering",
-        "decisions-combined-local-demo"
+        "decisions-combined-local-demo",
+        "unified-demo-engineering"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1626,11 +1666,11 @@
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-12",
-          "scope": "Explicit first empty-ledger binding or exact audited retry; serialized recurring four-stream capture for bound orders; original P6 list/detail/material pages in explicit snapshot candidate only, defaults disabled. New contracts and main/color incremental refresh not implemented. No real source, manual acceptance or deployment.",
+          "sourceSha": "f430123cb0dc201350b9558de41edd85afe3f9b4",
           "evidence": [
-            "ainuoke-continuous-engineering"
+            "unified-demo-engineering"
           ],
-          "sourceSha": "e4d9737a048474d15d2f25d9e84dae327ac103c5"
+          "scope": "Combined real-browser synthetic login/order/material/quote navigation 9/9, standalone login 10/10, six-role management 5/5; not real Source or business acceptance."
         },
         "humanAcceptance": {
           "value": "not-run",
@@ -1688,7 +1728,8 @@
       "scope": "Standalone animated login merged as PR101 at 3456fe5fc6e213c2e896e4e6a509e28751f1798c; user accepted login visuals only. Real account and business acceptance/deployment are separate.",
       "evidence": [
         "animated-login-engineering",
-        "decisions-combined-local-demo"
+        "decisions-combined-local-demo",
+        "unified-demo-engineering"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1712,11 +1753,11 @@
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-12",
-          "scope": "Standalone formal Server /login using existing trusted session; safe return links, four-character animation and accessible responsive forms. No business route, real-account, database or deployment change; human visual acceptance pending.",
+          "sourceSha": "f430123cb0dc201350b9558de41edd85afe3f9b4",
           "evidence": [
-            "animated-login-engineering"
+            "unified-demo-engineering"
           ],
-          "sourceSha": "0095b0e8448dfd336cf479ad82927b3f11fd9cae"
+          "scope": "Combined real-browser synthetic login/order/material/quote navigation 9/9, standalone login 10/10, six-role management 5/5; not real Source or business acceptance."
         },
         "humanAcceptance": {
           "value": "partial",
@@ -1786,13 +1827,10 @@
     }
   ],
   "limitations": [
-    "New synthetic browser engineering at 1440/1280/390 passed; no new user acceptance or golden pixel baseline replacement.",
+    "Combined synthetic UI and original P6 responsive checks passed. User accepted PR101 login visuals only; order/material and real-account business acceptance remain pending.",
     "No live environment, ledger, business rows, accounts, Source or deployment changed or reverified by this task.",
     "Static Server allowlist is only the capability ceiling; orderRead defaults disabled and explicit snapshot runtime must match the compiled build and source reader.",
     "New contracts and existing main/color source mirrors do not automatically refresh. Historical snapshots accumulate without retention automation.",
-    "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment.",
-    "No new pixel/browser acceptance.",
-    "No live environment, ledger, business rows, accounts, Source or deployment checked by this task.",
-    "A manifest/CI green result cannot itself approve a UI change or deployment."
+    "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment."
   ]
 }
