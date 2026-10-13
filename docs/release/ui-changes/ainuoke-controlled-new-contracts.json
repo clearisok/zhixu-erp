@@ -1,0 +1,15 @@
+{
+  "baselineSha": "957fe1a6eedfd6a92020ef2cf82d710a4162cda0",
+  "level": "V0",
+  "paths": [
+    "features/ainuoke-sync/service/sales-order-final-bootstrap-preview.ts",
+    "features/operation-logs/model/operation-log.ts"
+  ],
+  "pages": ["order-detail"],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/tasks/active/ainuoke-controlled-new-contracts.md",
+    "server/integration/ainuoke-additions.test.ts",
+    "server/integration/ainuoke-additions.integration.test.ts"
+  ]
+}

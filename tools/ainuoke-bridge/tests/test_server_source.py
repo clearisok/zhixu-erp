@@ -43,6 +43,31 @@ class FakeClient:
 
 
 class ServerSourceTests(TestCase):
+    def test_controlled_addition_modes_only_read_selected_new_color_details(self):
+        class AdditionClient(FakeClient):
+            def read_report(self, definition, *, jwt_token, page, page_size, query_context):
+                report = int(definition.report_id)
+                self.calls.append((report, page, query_context))
+                if report == 6086103:
+                    return ReportPage([{"id": "1", "BillNo": "CONTRACT-1", "InsideOrderNo": "INSIDE-1"},
+                                       {"id": "2", "BillNo": "CONTRACT-2", "InsideOrderNo": "INSIDE-2"}], 2, page, page_size)
+                return ReportPage([], 0, page, page_size)
+        discovered = AdditionClient()
+        result = collect({**CONFIG, "mode": "discovery", "contracts": []}, discovered)
+        self.assertEqual(result["schemaVersion"], "ainuoke-order-addition-discovery.v1")
+        self.assertEqual([call[0] for call in discovered.calls], [6086103, 6086103])
+        selected = AdditionClient()
+        result = collect({**CONFIG, "mode": "additions", "contracts": ["CONTRACT-2"]}, selected)
+        self.assertEqual(result["schemaVersion"], "ainuoke-order-addition.v1")
+        self.assertEqual(set(result["colors"]), {"CONTRACT-2"})
+        self.assertEqual(selected.calls, [(6086103, 1, {}), (6087105, 1, {"salesContractNo": "CONTRACT-2"}), (6086103, 1, {})])
+        self.assertNotIn(CONFIG["password"], json.dumps(result))
+        with self.assertRaises(UpstreamSchemaError):
+            collect({**CONFIG, "mode": "additions", "contracts": ["MISSING"]}, AdditionClient())
+        for contracts in ([], ["CONTRACT-1", " contract-1 "], [f"CONTRACT-{i}" for i in range(26)]):
+            with self.assertRaises(ValueError):
+                validate_input({**CONFIG, "mode": "additions", "contracts": contracts})
+
     def test_targeted_scope_uses_one_discovery_and_only_selected_fixed_material_report(self):
         scope = {**CONFIG, "contracts": [], "mode": "targeted", "targetSalesContractNo": "CONTRACT-1",
                  "targetPurchaseOrderNo": "PO-SYNTHETIC", "expectedQuantities": [11, 22, 3],

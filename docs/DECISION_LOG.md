@@ -20,9 +20,9 @@
 
 ### D-112 首轮上线前受控接纳新增艾诺科合同
 - 日期：2026-10-13；状态：Active。用户决定首轮上线前支持受控新增合同。
-- 已实现边界：现有调度只刷新已绑定订单四流，不自动建单或更新主信息/颜色。
-- 待实现：完整 Discovery 后可审查 preview、显式确认、稳定身份与幂等绑定；来源缺失或权限变化不硬删；具体设计与负向测试由独立 PR 承担。
-- 此决定不授权真实 DB 写入、来源持续激活或部署。[证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。
+- main 既有边界：调度只刷新已绑定订单四流，不自动建单或更新主信息/颜色。独立 `feat/ainuoke-controlled-contract-intake` 工程实现完整 Discovery 差异、显式选择 1–25 合同、只读预览、来源重取、事务内幂等接纳与可信审计；未合并/未激活时不得称 main 已支持。
+- 来源缺失、身份漂移或权限变化阻止接纳，绝不硬删旧订单；既有订单主信息/颜色自动刷新仍是后续独立范围。代码/负向测试与执行边界见 [D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)。
+- 此决定不授权真实 DB 写入、来源持续激活或部署。[原决定证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。
 
 ### D-111 6087050 QtyUnit 只读逐需求单位映射
 - 日期：2026-10-13；状态：Active。用户转述 IT 确认 `QtyUnit` 是每条物料需求的计量单位，同时约束 `TotalNum`、`cgnum` 以及该需求下入库、物料出运、出库数量；用户在艾诺科界面人工核对了目标三行编码。此确认是用户提供的业务证据，不冒称 IT 原始书面回执或全量合同抽样。

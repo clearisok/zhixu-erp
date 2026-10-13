@@ -15,7 +15,7 @@ import { runMigrations } from "../db/migration-runner.js";
 import { synchronizePermissionCatalog } from "../auth/permissions.js";
 import { bootstrapAdmin } from "../auth/bootstrap.js";
 test("fixed Python binding worker and Linux operator CLI are executable end to end", {timeout:120000},async t=>{
- const b=bindingBundle();const material=freshMaterialBundle();const reports:number[]=[];let logins=0;
+ const b=bindingBundle();const expanded=bindingBundle(Date.now(),2);const material=freshMaterialBundle();const reports:number[]=[];let logins=0;let additionVisible=false;
  const upstream=createServer(async(req,res)=>{
   res.setHeader("Content-Type","application/json");
   const path=new URL(req.url!,"http://127.0.0.1").pathname;
@@ -24,7 +24,9 @@ test("fixed Python binding worker and Linux operator CLI are executable end to e
   const chunks=[];for await(const chunk of req)chunks.push(chunk);
   const request=JSON.parse(Buffer.concat(chunks).toString());reports.push(request.reportId);
   assert.ok([6086103,6087105,6087050].includes(request.reportId));
-  const page=request.reportId===6086103?b.discoveryBefore[0]:request.reportId===6087105?Object.values(b.colors)[0][0]:Object.values(material.materials)[0][0];
+  const page=request.reportId===6086103?(additionVisible?expanded:b).discoveryBefore[0]
+    :request.reportId===6087105?Object.values(additionVisible?expanded.colors:b.colors)[additionVisible?1:0][0]
+    :Object.values(material.materials)[0][0];
   res.end(JSON.stringify({reObj:{isOk:true},dataCount:page.rows.length,pageIndex:0,pageSize:0,dataList:JSON.stringify({rows:page.rows.map(r=>r.values)})}));
  });
  await new Promise<void>(done=>upstream.listen(0,"127.0.0.1",done));const address=upstream.address();assert.ok(address&&typeof address==="object");
@@ -57,6 +59,18 @@ test("fixed Python binding worker and Linux operator CLI are executable end to e
     assert.equal(code,0,error);assert.equal(output.includes(cfg.password),false);assert.ok(output.includes('"state":"captured"'));
     assert.equal((await pool.query("SELECT count(*)::int n FROM ainuoke_source_runs")).rows[0].n,1);
     assert.equal((await pool.query("SELECT count(*)::int n FROM sales_orders")).rows[0].n,1);
+    additionVisible=true;
+    const selected=String(expanded.discoveryBefore[0].rows[1].values.BillNo);
+    const discovered=await run(["--discover-add=first-team",target,config]);
+    assert.equal(discovered.result,"ADDITIONS_DISCOVERED_NO_WRITES");
+    assert.deepEqual(discovered.additions.map((item:{salesContractNo:string})=>item.salesContractNo),[selected]);
+    const preview=await run(["--preview-add=first-team","--contracts="+selected,target,config]);
+    assert.equal(preview.result,"ADDITIONS_PREVIEW_NO_WRITES");
+    assert.equal((await pool.query("SELECT count(*)::int n FROM sales_orders")).rows[0].n,1);
+    const add=["--add=first-team","--contracts="+selected,target,"--expected-preview="+preview.reviewHash,config];
+    assert.equal((await run(add)).created,1);
+    assert.equal((await run(add)).replayed,true);
+    assert.equal((await pool.query("SELECT count(*)::int n FROM sales_orders")).rows[0].n,2);
    }finally{await pool.end();await db.stop();await rm(dir,{recursive:true,force:true});}
   });
  }finally{await new Promise<void>(done=>upstream.close(()=>done()));}

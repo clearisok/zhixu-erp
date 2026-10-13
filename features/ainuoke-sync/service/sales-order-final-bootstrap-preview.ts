@@ -277,6 +277,31 @@ function canonicalPreviewPayload(preview: Omit<FinalSalesOrderBootstrapPreview, 
   };
 }
 
+/** Reuse the formal contract/color mapper for an explicitly selected addition set. */
+export async function mapSelectedFinalSalesOrderCandidates(input: {
+  discovery: AinuokeOrderDiscoverySnapshot;
+  discoveryRawSnapshots: ReadonlyArray<AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>>;
+  details: ReadonlyArray<FinalSalesOrderBootstrapDetail>;
+  selectedBillNos: readonly string[];
+}): Promise<FinalSalesOrderBootstrapCandidate[]> {
+  const selected = input.selectedBillNos.map(normalizeAinuokeSalesContractNo).sort();
+  assertUniqueNonEmpty(selected, "Selected BillNo");
+  if (!selected.length || selected.length > 25) throw new Error("Selected addition scope invalid");
+  const detailKeys = input.details.map(detail => normalizeAinuokeSalesContractNo(detail.salesContractNo)).sort();
+  assertUniqueNonEmpty(detailKeys, "Selected 6087105 detail BillNo");
+  if (JSON.stringify(detailKeys) !== JSON.stringify(selected)) throw new Error("Selected color detail scope mismatch");
+  const discoveryRows = new Map(input.discovery.rows.map(row => [normalizeAinuokeSalesContractNo(row.salesContractNo), row]));
+  const details = new Map(input.details.map(detail => [normalizeAinuokeSalesContractNo(detail.salesContractNo), detail]));
+  const raw = rawDiscoveryIndex(input.discoveryRawSnapshots);
+  return Promise.all(selected.map((billNo, index) => {
+    const row = discoveryRows.get(billNo);
+    const source = row && raw.get(row.sourceId);
+    const detail = details.get(billNo);
+    if (!row || !source || !detail?.source || detail.error) throw new Error("Selected source evidence missing");
+    return mapCandidate(index + 1, row, source, detail.source);
+  }));
+}
+
 export async function buildFinalSalesOrderBootstrapPreview(input: {
   discoveryBefore: AinuokeOrderDiscoverySnapshot;
   discoveryAfter: AinuokeOrderDiscoverySnapshot;

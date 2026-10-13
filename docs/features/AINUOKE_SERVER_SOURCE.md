@@ -1,4 +1,6 @@
 # 艾诺科 Server Source：首次订单绑定与持续物料展示
+2026-10-13 / D-112 工程分支 `feat/ainuoke-controlled-contract-intake`：基于 main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 增加受控新合同发现、显式最多 25 个 BillNo 预览与确认、事务内正式订单创建/审计、同一审查凭据精确重试。复用现有正式 mapper、绑定与来源模型；不自动接纳、不中断/改写既有订单，不刷新旧主信息或颜色；当前未合并、未真实执行、未部署。[工程与执行边界](../tasks/active/ainuoke-controlled-new-contracts.md)。下文旧 PR 状态按历史时点阅读。
+
 2026-10-13 / D-111：固定 6087050 的 QtyUnit 在只读物料 Projection 按需求展示一致来源单位；旧快照缺单位仍未知，冲突停止该需求汇总。不改正式计算、数据库、Source 调度或部署。[单位证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。
 
 D-112：用户要求首轮上线前受控接纳新增艾诺科合同。现有调度只刷新已绑定订单；新增合同 Discovery、预览、确认、幂等绑定和主信息/颜色策略须另行实现验收。#104/#105 已合并至 main 6abc4bebc59954b98a6e3f79f038f9574588390d，#106 未合并；无真实 Source 激活或部署。[合并记录](../tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md)。
