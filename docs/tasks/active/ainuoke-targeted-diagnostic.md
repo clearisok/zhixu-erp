@@ -25,6 +25,8 @@
 操作人首次在普通 PowerShell 启动时，旧包装脚本在 Set-Acl 处因缺少 SeSecurityPrivilege 停止，发生在账号输入和 Python 上游读取之前。现已改成只读检查预受限的 NTFS ACL；权限不满足时闭锁，不要求提权。单位候选扫描排除单价、金额、成本、币种和汇率字段，合成高价格值负向测试通过。修正工程head cef2e5653524bb65a80b8f9787e0ab937390d88b 的 Source CI 全成功。
 
 2026-10-13 用户在普通 PowerShell 私下输入凭据后，真实定向读取成功；助手核对受限本机报告和三行对照表。技术上三行118/356/6各找到来源名称、编码、颜色、规格、采购单号、日期和数量；截图未直接显示编码，仍需人工核对；356由两来源行归并为同一采购事件。三行API单位候选为空，截图“个”尚未形成正式来源映射；人工业务确认仍为0/3。三个样本仅能分类少量来源行观察，不能外推到62合同。完整脱敏结论见[真实证据](evidence/ainuoke-targeted-diagnostic/real-results.md)；私有逐行身份不提交。PR104仍开放，新PR105保持草稿且不自动合并。
+2026-10-13 后续本机报告已看到目标采购四来源行的 QtyUnit 原始候选值均为“个”，三需求/采购事件身份与旧报告一致；报告生成时仍为三合同范围，未误称目标单独读取。候选字段只证明返回结构，不证明它对 TotalNum、cgnum 和四流数量的业务语义；正式映射依赖 IT/用户确认。见[脱敏后续证据](evidence/ainuoke-targeted-diagnostic/qtyunit-followup-2026-10-13.md)。当前仍不修改单位、数量、齐套公式、UI 或数据库。
+
 ## 证据与更新时机
 
 代码：`tools/ainuoke-bridge/ainuoke_bridge/server_source.py`、`server/ainuoke-source/targeted-diagnostic.ts`、`scripts/ainuoke-targeted-diagnostic.ps1`。测试：`tools/ainuoke-bridge/tests/test_server_source.py`、`server/integration/ainuoke-targeted-diagnostic.test.ts`。旧只读统计：[真实结果](evidence/ainuoke-readonly-validation/real-validation-results.md)。真实命令、三行人工核对、PR #104 状态、CI 与 main SHA 改变时更新本任务和 CURRENT_STATE；保留旧证据原时点。
