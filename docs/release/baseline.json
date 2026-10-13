@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "8b3f3d811d05182ea1a7f3214eae9d530056fa04",
-  "verifiedAt": "2026-10-13T00:17:44.073849+00:00",
+  "baselineSha": "d8b01171841dbca622dd320808371334a5d87676",
+  "verifiedAt": "2026-10-13T04:10:54Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -566,6 +566,22 @@
       "path": "docs/tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md",
       "recordedAtSha": "460a993d333af1612174effc17b14e1b2f49a3cb",
       "sha256": "caaad26da4ab74ca7b549e25c879f75600359b823d3f77f7edbaf196da82942f"
+    },
+    {
+      "id": "decisions-qtyunit-20261013",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "03d731916c4a41c930f1e3001f3efcadabde9730",
+      "sha256": "1ef7788d40e3e3b3908543e5b20f49ce76e72e8799c7bc7cd8dea3359e9074d2",
+      "supersedes": "decisions-readonly-validation",
+      "changeReason": "D111 records the user-relayed IT QtyUnit semantics and verified bounded source sample; source activation and deployment remain pending."
+    },
+    {
+      "id": "ainuoke-qtyunit-confirmed-20261013",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md",
+      "recordedAtSha": "03d731916c4a41c930f1e3001f3efcadabde9730",
+      "sha256": "cff36cf077c7419854ef7df2f4e7a4e3c1570b2a58f2ccdcaeabf9949472064c"
     }
   ],
   "pages": [

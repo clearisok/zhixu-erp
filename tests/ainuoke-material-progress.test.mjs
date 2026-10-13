@@ -5,6 +5,7 @@ import { performance } from 'node:perf_hooks';
 import { projectMaterialProgress, filterProgressRows } from '../features/ainuoke-material-progress/projection.ts';
 import { createSyntheticMaterialSource, syntheticOrder } from '../features/ainuoke-material-progress/synthetic-source.ts';
 import { deriveMaterialStatuses } from '../features/style-progress/service/style-progress-service.ts';
+import { buildAinuokeMaterialApiPreview } from '../features/style-progress/service/ainuoke-material-api-preview.ts';
 
 const complete = () => createSyntheticMaterialSource();
 const byCode = (view, code) => view.rows.find(row => row.demand.materialCode === `SYNTHETIC-MAT-${code}`);
@@ -101,6 +102,8 @@ test('verified source unit is per demand and does not change actual purchase or 
   const ready=pages[0].rows.find(row=>row.values.GoodsNo==='SYNTHETIC-MAT-ready');
   ready.values.Num=1.5;
   const view=project(pages);const row=byCode(view,'ready');
+  const sourceDemand=buildAinuokeMaterialApiPreview({snapshots:pages}).pipeline.demands.find(item=>item.materialCode==='SYNTHETIC-MAT-ready');
+  assert.equal(sourceDemand.plannedConsumption,1.5);
   assert.equal(row.unit,'个');assert.equal(row.unitStatus,'known');
   assert.equal(row.demand.requiredQuantity,100);assert.equal(row.purchased,100);
   assert.equal(row.inbound,100);assert.equal(row.status,'ready');
@@ -137,6 +140,16 @@ test('duplicate source rows and duplicate purchase events retain one purchase qu
   const view=project(complete());const partial=view.rows.find(row=>row.purchased===40);
   assert.equal(partial.unit,'个');assert.equal(partial.unitStatus,'known');
   assert.equal(partial.purchases.length,2);assert.equal(view.duplicateSourceRows,1);assert.equal(view.duplicateEvents,1);
+});
+test('two synthetic 356 source rows merge into one purchase event without double counting', () => {
+  const pages=complete();const source=pages[0].rows.find(row=>row.values.GoodsNo==='SYNTHETIC-MAT-ready');
+  source.values.TotalNum=356;source.values.cgnum=356;source.values.rknum=0;source.values.rkdh=null;
+  const joined=structuredClone(source);joined.sourceRowIdentity='6087050:sha256:synthetic-356-second-source';
+  pages[0].rows.push(joined);pages[0].total++;
+  const row=byCode(project(pages),'ready');
+  assert.equal(row.unit,'个');assert.equal(row.purchased,356);
+  assert.equal(row.purchases.length,1);assert.equal(row.purchases[0].quantity,356);
+  assert.equal(row.status,'pending_inbound');
 });
 test('a changed source unit changes source identity but preserves demand and event identities', () => {
   const before=project(complete());const pages=complete();
