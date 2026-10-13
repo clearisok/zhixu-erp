@@ -5,14 +5,14 @@ export function localDockerEndpoint(endpoint,env={}) {
 }
 export function assertOwnedResource(resource,manifest,kind){
  const labels=resource.Config?.Labels??resource.Labels; if(labels?.['io.zhixu.isolated.owner']!==manifest.owner||labels?.['io.zhixu.isolated.source']!==manifest.sourceSha)throw Error('isolated_resource_owner_mismatch');
- if(kind==='network'&&(resource.Internal!==true||resource.Id!==manifest.networkId))throw Error('isolated_network_identity_mismatch');
+ if(kind==='network'&&(resource.Name===manifest.project+'-web'?(resource.Internal!==false||resource.Id!==manifest.webNetworkId):(resource.Name!==manifest.project+'-net'||resource.Internal!==true||resource.Id!==manifest.networkId)))throw Error('isolated_network_identity_mismatch');
  if(kind==='volume'&&resource.Name!==manifest.project+'-data')throw Error('isolated_volume_identity_mismatch');
  if(kind==='container'){
   if(resource.HostConfig?.Privileged||resource.HostConfig?.NetworkMode==='host'||resource.HostConfig?.AutoRemove)throw Error('isolated_container_policy_mismatch');
   if(JSON.stringify(resource.Config?.Cmd)!==JSON.stringify(resource.Name==='/' +manifest.project+'-app'?['node','dist/server/server/isolated-demo/entry.js']:['postgres']))throw Error('isolated_entry_command_mismatch');
   const env=Object.fromEntries((resource.Config?.Env??[]).map(v=>[v.slice(0,v.indexOf('=')),v.slice(v.indexOf('=')+1)]));
   if(Object.keys(env).some(k=>/^(DATABASE_URL|DB_|AINUOKE_)/.test(k)))throw Error('isolated_inherited_configuration');
-  const networks=Object.keys(resource.NetworkSettings?.Networks??{});if(networks.length!==1||networks[0]!==manifest.project+'-net')throw Error('isolated_network_mismatch');
+  const networks=Object.keys(resource.NetworkSettings?.Networks??{});const expectedNetworks=resource.Name==='/' +manifest.project+'-app'&&manifest.webNetworkId?[manifest.project+'-net',manifest.project+'-web']:[manifest.project+'-net'];if(JSON.stringify(networks.sort())!==JSON.stringify(expectedNetworks.sort()))throw Error('isolated_network_mismatch');
   if(resource.Name==='/' +manifest.project+'-app'){
    if(resource.Mounts?.length!==1||env.NODE_ENV!=='test'||env.ZHIXU_AINUOKE_SOURCE_READ!=='snapshot'||env.ZHIXU_GIT_COMMIT!==manifest.sourceSha||env.ZHIXU_BUILD_ID!==manifest.buildId||env.NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY!=='server'||env.NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY!=='server'||env.ZHIXU_IDENTITY_MODE!=='session'||env.NEXT_PUBLIC_ZHIXU_ORDER_READ!=='snapshot')throw Error('isolated_app_configuration_mismatch');
    if(resource.Id!==manifest.appId||resource.Image!==manifest.imageId)throw Error('isolated_image_mismatch');
