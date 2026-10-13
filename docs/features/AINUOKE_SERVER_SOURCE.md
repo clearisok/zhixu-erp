@@ -1,5 +1,5 @@
 # 艾诺科 Server Source：首次订单绑定与持续物料展示
-核实日期：2026-10-13；main 基线：6395db45bebe572c736cf4137a373e0f816be6c0（PR98、100–102已合并；本轮HTTP扩展尚未合并）。
+核实日期：2026-10-13；main 基线：8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103 HTTP扩展已合并；D110全合同只读audit在独立分支实施）。
 GitHub/代码为实时事实源；本文件随来源契约、权限、命令、构建、调度、真实激活及验收变化更新。PR99阶段证据保留在原任务/冻结证据，本轮见[任务](../tasks/active/ainuoke-continuous-material-display.md)。
 
 ## 用户决定
@@ -94,3 +94,9 @@ pwsh -NoProfile -File (Join-Path $env:USERPROFILE '.codex\worktrees\ainuoke-appr
 该工作树路径为本机本任务入口；其他检出位置运行其scripts/ainuoke-readonly-probe.ps1。仅真实终端输入，非交互/回显降级拒绝；复用固定probe并限制90秒，无DB、无账号变更。
 
 2026-10-13用户回传：认证成功、6086103=50/558（不完整），首合同6087105=5/5、6087050=0/0。不把首合同0行推广至所有合同，不把首次连接证明写成持续Source激活。脱敏回执、工程测试、下一步见[本轮任务](../tasks/active/ainuoke-approved-http.md)。
+
+## D110：全合同与四流代表合同只读核对
+
+PR103已按用户授权合并；新增独立`scripts/ainuoke-readonly-audit.ps1`私密终端命令，原首页probe不变。两遍完整6086103核对分页/唯一sourceId/BillNo/前后内容，当前账号可见全集不等于全公司权限证明。按合同号排序均匀选最多80合同，完整6087050后由原`projectMaterialProgress`生成四流、厂供排除/去重/未知量状态，每类寻找3个有正数量/日期/单号的不同合同。
+
+900秒来源读取、2000报告请求、每报告200页/50行、100000行/32MiB；Node离线分析另限90秒。只有允许字段的代表单号/日期/数量与问题合同写本机ignored私有JSON，不保存原始来源或密码；stdout为脱敏回执及本机路径。`unit`尚未映射/核实，不跨物料加总。样例存在不等于业务人工验收/全合同物料覆盖/持续激活。测试、真实回执与限制见[只读核对任务](../tasks/active/ainuoke-readonly-validation.md)。本功能不读取业务DB、绑定、调度或部署。

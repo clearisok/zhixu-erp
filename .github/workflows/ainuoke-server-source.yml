@@ -30,6 +30,7 @@ jobs:
           npm run test:ainuoke-server-source
           npm run test:ainuoke-continuous
           npm run test:ainuoke-readiness
+          npm run test:ainuoke-readonly-audit
           npx --no-install tsx --test server/integration/fresh-start.integration.test.ts
       - name: Explicit source candidate build
         env:

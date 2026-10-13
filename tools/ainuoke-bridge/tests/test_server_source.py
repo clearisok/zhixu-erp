@@ -43,6 +43,36 @@ class FakeClient:
 
 
 class ServerSourceTests(TestCase):
+    def test_readonly_audit_reads_complete_discovery_and_spread_samples_only(self):
+        class AuditClient(FakeClient):
+            def read_report(self, definition, *, jwt_token, page, page_size, query_context):
+                self.calls.append((int(definition.report_id), page, query_context))
+                if int(definition.report_id) == 6086103:
+                    rows = [{"BillNo": f"SC-{i:04d}", "InsideOrderNo": f"IN-{i:04d}"} for i in range(558)]
+                    return ReportPage(rows[(page-1)*50:page*50], 558, page, page_size)
+                return ReportPage([], 0, page, page_size)
+        client = AuditClient()
+        with patch("time.sleep"):
+            result = collect({**CONFIG, "contracts": [], "mode": "audit"}, client)
+        self.assertEqual(client.logins, 1)
+        self.assertEqual(result["schemaVersion"], "ainuoke-readonly-audit.v1")
+        self.assertEqual(len(result["discoveryBefore"]), 12)
+        self.assertEqual(len(result["discoveryAfter"]), 12)
+        self.assertEqual(len(result["materials"]), 80)
+        self.assertIn("SC-0000", result["materials"])
+        self.assertIn("SC-0557", result["materials"])
+        self.assertEqual(result["reportRequests"], 104)
+        self.assertTrue(all(c[0] in (6086103, 6087050) for c in client.calls))
+        self.assertNotIn(CONFIG["password"], json.dumps(result))
+
+    def test_readonly_audit_is_private_explicit_mode_without_custom_scope(self):
+        with patch("sys.stdin.isatty", return_value=True), patch("builtins.input", return_value="private"), patch("getpass.getpass", return_value="hidden"):
+            self.assertEqual(read_input(["--interactive-readonly-audit"])["mode"], "audit")
+        with self.assertRaises(ValueError):
+            validate_input({**CONFIG, "mode": "audit"})
+        with patch("time.sleep"), self.assertRaises(UpstreamSchemaError):
+            collect({**CONFIG, "contracts": [], "mode": "audit"}, FakeClient(partial=True))
+
     def test_d109_is_exact_origin_and_explicit_policy_for_all_fixed_modes(self):
         approved = {**CONFIG, "baseUrl": APPROVED_HTTP_ORIGIN, "transportPolicy": APPROVED_HTTP_POLICY}
         for mode in (None, "bindings", "probe"):
