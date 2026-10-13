@@ -1,6 +1,7 @@
 # AI handoff
 
-2026-10-13 / #105 当前接力：用户授权 #104 合并，main 为 09f4447ab43e87798e1a5647f5ed02346ceef7ef；#105 已 retarget main，正在既有 ainuoke-f2507037-diagnostics 工作树合并新 main、更新 release baseline、重跑精确 base 门禁及 CI，#106 继续堆叠且不自动合并。用户决定首次上线前受控接纳新合同，当前工程未实现。宁波仅做只读预检，旧 staging 仍非隔离新候选。详见[本轮冻结证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。下方为旧时点接力。
+2026-10-13 / 最新接力：获用户授权的 PR #105 已合并，GitHub main 6abc4bebc59954b98a6e3f79f038f9574588390d。#106 仍为未获合并授权的 QtyUnit Draft；既有 7bf3 工作树已合入新 main 并更新发布基线及 UI 变更记录。以精确 main base 的阻断检查、71 项发布基线回归、5 项定向诊断及 typecheck 均 PASS；此前同一业务代码的 817 项测试、lint 和 build 通过。当前还需推送本地新 head、把 PR #106 base 改为 main，并检查该 head 的自动 CI；不得把旧堆叠 base 的手动 CI 当最终结果。D-112 受控新增合同尚未实现，真实 Source/宁波部署未激活。[本轮证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md)。下文为历史接力。
+
 
 核实：2026-10-13；GitHub main 8b3f3d811d05182ea1a7f3214eae9d530056fa04。此工作树在 feat/ainuoke-targeted-diagnostics，草稿 PR #105 以开放 PR #104 head b43b78bee72a496219bd4872245ad28109f421c4 为 base。开始前重新核对 PR/head、git status 和当前代码；不要把聊天记录当事实源。
 

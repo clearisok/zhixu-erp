@@ -195,7 +195,7 @@ test('unknown quantities and explicit zeros remain distinct in summary/detail', 
   assert.equal(view.rows.find(row => row.demand.materialCode.endsWith('unknown')).purchased, null);
   assert.equal(view.rows.find(row => row.demand.materialCode.endsWith('zero')).status, 'ready');
   assert.equal(view.summary.trim.unknown, 1);
-  assert.ok(view.rows.every(row => row.unit === null));
+  assert.ok(view.rows.every(row => row.unit === '个' && row.unitStatus === 'known'));
 });
 
 test('dedup and color/spec child variants reuse the existing pipeline without factory demands in metrics', () => {

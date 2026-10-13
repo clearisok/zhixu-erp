@@ -1,6 +1,6 @@
 # 宁波首批团队上线方案
 
-2026-10-13 / 更新：用户决定上线前支持受控接纳新增合同，故原“只刷新已绑定订单”的缺口进入首次上线前范围；目前尚未实现。#104 已合并至 main 09f4447ab43e87798e1a5647f5ed02346ceef7ef，#105/#106 仍 Draft。宁波旧 staging/production 与公网健康响应只读复核见[新预检](../tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)；不把旧容器当隔离新候选。
+2026-10-13 / 更新：用户决定上线前支持受控接纳新增合同，该能力仍未实现。#104/#105 已合并至 main 6abc4bebc59954b98a6e3f79f038f9574588390d，#106 是未合并的单位映射 Draft；宁波旧 staging/production 与公网健康响应只读复核见[预检](../tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)，PR105 合并证据见[本次记录](../tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md)。旧容器不等于隔离新候选，未部署。
 
 核实2026-10-13；工程main：`8b3f3d811d05182ea1a7f3214eae9d530056fa04`（PR98、103亦已合并，PR104未合并）。本文件区分用户决定、工程事实、AI建议和待执行Gate，不是部署授权。随main、来源策略、候选、现场版本、验收变化更新。
 

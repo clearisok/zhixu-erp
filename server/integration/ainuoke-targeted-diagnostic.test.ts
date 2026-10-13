@@ -18,7 +18,7 @@ function synthetic() {
     values: { ...structuredClone(template.values), id: `TARGET-${index}`, GoodsNo: `MAT-${index}`,
       CnName: `合成物料${index}`, cgdh: "PO-TARGET-SYNTHETIC", cgrq: "2026-10-13",
       cgnum: amount, rknum: null, rkdh: null, CYNum: -1, cydh: "SHIP-SYNTHETIC",
-      OutStoreNum: amount, ckdh: null, UnitName: index === 1 ? "个" : null,
+      OutStoreNum: amount, ckdh: null, QtyUnit: index === 1 ? "个" : null,
       UnitPrice: 9876.54,
       customerConfirmedPrice: "protected-commercial-sentinel" } }));
   materials[0].rows = rows;
@@ -38,14 +38,14 @@ test("three quantity slots retain material identity and unverified unit candidat
   assert.ok(result.privateReport.slots.every(slot => slot.status === "pending_human_identity_confirmation"));
   const target = result.privateReport.orders[0];
   assert.equal(target.targetPurchaseRows.length, 3);
-  assert.equal(target.targetPurchaseRows[1].unitCandidates[0].field, "UnitName");
+  assert.equal(target.targetPurchaseRows[1].unitCandidates[0].field, "QtyUnit");
   assert.equal(target.targetPurchaseRows[1].unitCandidates[0].status, "unverified_candidate");
   assert.ok(target.targetPurchaseRows.every(row => row.unitCandidates.every(candidate => candidate.field !== "UnitPrice")));
   assert.ok(target.targetPurchaseRows.every(row => row.sourceRowIdentity && row.normalizedEvents.length === 1));
   assert.equal(target.streamReasons.inbounds.unknownDemandItems, 3);
   assert.equal(target.streamReasons.shipments.sourceRowsByObservation.source_quantity_negative, 3);
   assert.equal(target.streamReasons.outbounds.sourceRowsByObservation.positive_quantity_without_document, 3);
-  for (const value of ["PO-TARGET-SYNTHETIC", "MAT-0", "protected-commercial-sentinel", "UnitName", "个"])
+  for (const value of ["PO-TARGET-SYNTHETIC", "MAT-0", "protected-commercial-sentinel", "QtyUnit", "个"])
     assert.ok(!JSON.stringify(result.summary).includes(value));
   assert.ok(!JSON.stringify(result.privateReport).includes("protected-commercial-sentinel"));
   assert.ok(!JSON.stringify(result.privateReport).includes("9876.54"));
@@ -70,11 +70,11 @@ test("blank, invalid, literal zero, dedup and conflicting unit candidates remain
   rows[1].values.rkdh = "IN-SYNTHETIC";
   rows[2].values.rknum = 0;
   rows[2].values.rkdh = null;
-  rows[2].values.UnitName = "米";
+  rows[2].values.QtyUnit = "米";
   const duplicate = structuredClone(rows[1]);
   duplicate.sourceRowIdentity = "6087050:sha256:separate-source-same-event";
   duplicate.values.id = "OTHER-UPSTREAM-ID";
-  duplicate.values.UnitName = "米";
+  duplicate.values.QtyUnit = "米";
   rows.push(duplicate);
   b.materials[b.targetSalesContractNo][0].total = rows.length;
   const result = await analyzeTargetedDiagnostic(b);

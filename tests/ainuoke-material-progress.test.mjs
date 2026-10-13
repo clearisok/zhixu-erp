@@ -5,6 +5,7 @@ import { performance } from 'node:perf_hooks';
 import { projectMaterialProgress, filterProgressRows } from '../features/ainuoke-material-progress/projection.ts';
 import { createSyntheticMaterialSource, syntheticOrder } from '../features/ainuoke-material-progress/synthetic-source.ts';
 import { deriveMaterialStatuses } from '../features/style-progress/service/style-progress-service.ts';
+import { buildAinuokeMaterialApiPreview } from '../features/style-progress/service/ainuoke-material-api-preview.ts';
 
 const complete = () => createSyntheticMaterialSource();
 const byCode = (view, code) => view.rows.find(row => row.demand.materialCode === `SYNTHETIC-MAT-${code}`);
@@ -95,6 +96,70 @@ test('invalid source timestamp is incomplete rather than a valid zero-source cla
 test('event dedup and child demands are deterministic across reordered source rows', () => {
   const pages=complete();const before=project(pages);pages[0].rows.reverse();const after=project(pages);
   assert.deepEqual(after.rows,before.rows);assert.deepEqual(after.groups,before.groups);
+});
+test('verified source unit is per demand and does not change actual purchase or theoretical usage', () => {
+  const pages=complete();
+  const ready=pages[0].rows.find(row=>row.values.GoodsNo==='SYNTHETIC-MAT-ready');
+  ready.values.Num=1.5;
+  const view=project(pages);const row=byCode(view,'ready');
+  const sourceDemand=buildAinuokeMaterialApiPreview({snapshots:pages}).pipeline.demands.find(item=>item.materialCode==='SYNTHETIC-MAT-ready');
+  assert.equal(sourceDemand.plannedConsumption,1.5);
+  assert.equal(row.unit,'个');assert.equal(row.unitStatus,'known');
+  assert.equal(row.demand.requiredQuantity,100);assert.equal(row.purchased,100);
+  assert.equal(row.inbound,100);assert.equal(row.status,'ready');
+  assert.equal(view.summary.quantitiesAggregatedAcrossDemands,false);
+});
+test('missing or malformed units remain unknown without inventing 个 or turning quantities into zero', () => {
+  for(const missing of [null,'',42]) {
+    const pages=complete();pages[0].rows.find(row=>row.values.GoodsNo==='SYNTHETIC-MAT-ready').values.QtyUnit=missing;
+    const row=byCode(project(pages),'ready');
+    assert.equal(row.unit,null);assert.equal(row.unitStatus,'missing');
+    assert.equal(row.purchased,100);assert.equal(row.inbound,100);
+    assert.match(row.issues.join(' '),/来源计量单位未知/);
+  }
+  const pages=complete();pages[0].rows.find(row=>row.sourceRowIdentity==='6087050:sha256:synthetic-partial-b').values.QtyUnit=null;
+  const row=project(pages).rows.find(item=>item.purchases.some(event=>event.purchaseOrderNo==='PO-SYNTHETIC-partial-b'));
+  assert.equal(row.unit,null);assert.equal(row.purchased,40);
+});
+test('different units in separate child demands stay separate without cross-unit group totals', () => {
+  const pages=complete();pages[0].rows.find(row=>row.values.GoodsNo==='SYNTHETIC-MAT-pending').values.QtyUnit='米';
+  const view=project(pages);const cotton=view.groups.find(group=>group.name==='合成棉布');
+  assert.deepEqual(new Set(cotton.rows.map(row=>row.unit)),new Set(['个','米']));
+  assert.equal(view.summary.quantitiesAggregatedAcrossDemands,false);
+  assert.equal(byCode(view,'pending').purchased,100);
+});
+test('conflicting units within one demand block aggregate, shortage and readiness', () => {
+  const pages=complete();pages[0].rows.find(row=>row.sourceRowIdentity==='6087050:sha256:synthetic-partial-b').values.QtyUnit='米';
+  const row=project(pages).rows.find(item=>item.purchases.some(event=>event.purchaseOrderNo==='PO-SYNTHETIC-partial-b'));
+  assert.equal(row.unit,null);assert.equal(row.unitStatus,'conflict');
+  assert.equal(row.purchased,null);assert.equal(row.inbound,null);assert.equal(row.shipped,null);assert.equal(row.outbound,null);
+  assert.equal(row.purchaseShortfall,null);assert.equal(row.pendingInbound,null);assert.equal(row.status,null);
+  assert.equal(row.purchases.length,2);assert.match(row.issues.join(' '),/计量单位冲突/);
+});
+test('duplicate source rows and duplicate purchase events retain one purchase quantity with one unit', () => {
+  const view=project(complete());const partial=view.rows.find(row=>row.purchased===40);
+  assert.equal(partial.unit,'个');assert.equal(partial.unitStatus,'known');
+  assert.equal(partial.purchases.length,2);assert.equal(view.duplicateSourceRows,1);assert.equal(view.duplicateEvents,1);
+});
+test('two synthetic 356 source rows merge into one purchase event without double counting', () => {
+  const pages=complete();const source=pages[0].rows.find(row=>row.values.GoodsNo==='SYNTHETIC-MAT-ready');
+  source.values.TotalNum=356;source.values.cgnum=356;source.values.rknum=0;source.values.rkdh=null;
+  const joined=structuredClone(source);joined.sourceRowIdentity='6087050:sha256:synthetic-356-second-source';
+  pages[0].rows.push(joined);pages[0].total++;
+  const row=byCode(project(pages),'ready');
+  assert.equal(row.unit,'个');assert.equal(row.purchased,356);
+  assert.equal(row.purchases.length,1);assert.equal(row.purchases[0].quantity,356);
+  assert.equal(row.status,'pending_inbound');
+});
+test('a changed source unit changes source identity but preserves demand and event identities', () => {
+  const before=project(complete());const pages=complete();
+  const row=pages[0].rows.find(item=>item.values.GoodsNo==='SYNTHETIC-MAT-ready');
+  row.sourceRowIdentity='6087050:sha256:synthetic-unit-changed';row.values.QtyUnit='米';
+  const after=project(pages);const old=byCode(before,'ready');const changed=byCode(after,'ready');
+  assert.equal(changed.unit,'米');assert.equal(changed.demand.id,old.demand.id);
+  assert.deepEqual(changed.purchases.map(event=>event.id),old.purchases.map(event=>event.id));
+  assert.deepEqual(changed.inbounds.map(event=>event.id),old.inbounds.map(event=>event.id));
+  assert.equal(changed.purchased,old.purchased);assert.equal(changed.status,old.status);
 });
 test('existing redacted fixture is supported with unknown fields retained as unknown', () => {
   const pages=JSON.parse(readFileSync(new URL('./fixtures/ainuoke-api-material-6087050.redacted.json',import.meta.url),'utf8'));

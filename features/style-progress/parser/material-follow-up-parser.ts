@@ -12,7 +12,8 @@ const FIELD_ALIASES: Record<Exclude<SemanticField, "purchaseQuantity">, string[]
   salesperson: ["业务员"], owner: ["跟单人", "负责人"], factoryStyleNo: ["工厂款号"], garmentColors: ["成衣颜色"], relatedGarmentColors: ["对应成衣颜色"], garmentQuantity: ["成衣数量", "订单数量"],
   customerName: ["客户名称"], contractDeliveryDate: ["销售交期", "合同交期"], materialCode: ["面辅料编码", "物料编码"], materialName: ["面辅料名称", "物料名称"], sourceActualName: ["申购实际名称"],
   plannedConsumption: ["单耗", "计划单耗"], lossRate: ["损耗", "损耗率"], totalConsumption: ["总耗"], width: ["门幅"], gsm: ["克重"], materialColor: ["颜色"], specification: ["规格成分", "申购规格"],
-  supplyMethod: ["提供方式", "供应方式"], requiredQuantity: ["需求数量"], sampleQuantity: ["样衣用量"], purchaseOrderNo: ["采购单号"], purchaseDate: ["采购日期"], supplier: ["供应商"], purchaseEntity: ["采购抬头", "采购主体"],
+  // Historical Excel has no independently verified equivalent of 6087050 QtyUnit.
+  supplyMethod: ["提供方式", "供应方式"], requiredQuantity: ["需求数量"], quantityUnit: [], sampleQuantity: ["样衣用量"], purchaseOrderNo: ["采购单号"], purchaseDate: ["采购日期"], supplier: ["供应商"], purchaseEntity: ["采购抬头", "采购主体"],
   sourceMaterialDueDate: ["采购交期", "来源交期"], currency: ["币种"], purchaser: ["采购人"], purchasedMaterialName: ["采购面辅料名称"], invoiceName: ["开票名称"], purchaseActualName: ["实际名称", "采购实际名称"],
   purchaseSpecification: ["采购规格"], purchaseColor: ["采购颜色"], purchaseSampleQuantity: ["采购样衣用量"], purchaseUnitPrice: ["采购价格", "采购单价"], purchaseAmount: ["采购金额"], purchaseExtraCost: ["额外费用"],
   inboundDocumentNo: ["入库单号"], inboundDate: ["入库日期"], inboundQuantity: ["入库数", "入库数量"], shipmentDocumentNo: ["出运单号"], shipmentDate: ["出运日期"], transportMode: ["运输方式"], shipmentQuantity: ["出运数量"],

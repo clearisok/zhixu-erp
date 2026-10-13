@@ -24,6 +24,13 @@
 - 待实现：完整 Discovery 后可审查 preview、显式确认、稳定身份与幂等绑定；来源缺失或权限变化不硬删；具体设计与负向测试由独立 PR 承担。
 - 此决定不授权真实 DB 写入、来源持续激活或部署。[证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。
 
+### D-111 6087050 QtyUnit 只读逐需求单位映射
+- 日期：2026-10-13；状态：Active。用户转述 IT 确认 `QtyUnit` 是每条物料需求的计量单位，同时约束 `TotalNum`、`cgnum` 以及该需求下入库、物料出运、出库数量；用户在艾诺科界面人工核对了目标三行编码。此确认是用户提供的业务证据，不冒称 IT 原始书面回执或全量合同抽样。
+- 已核实的私有 6087050 定向报告中，目标三需求四来源行的原始 QtyUnit 均为“个”，三组物料身份/数量与界面核对一致，356 的两来源行仍只是一笔采购事件。公开仅保留脱敏计数与报告 SHA，见[单位确认](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。
+- 工程选择：API Adapter 映射 `quantityUnit <- QtyUnit`，只读投影按 demand 检查所有来源行；一致非空才展示单位，空白保持未知，冲突停止该需求的投影数量汇总及状态判定并报告。不同 child Demand 不跨单位求和，不从规格推断，也不改变 `TotalNum`、`cgnum`、理论用量、事件去重或正式齐套公式。历史 Excel 单位列仍无可信映射。
+- 证据：`features/style-progress/source/ainuoke-material-api-adapter.ts`、`features/ainuoke-material-progress/projection.ts`、`tests/ainuoke-material-progress.test.mjs`。本 PR 仅工程候选，不等于合并、真实 Source 激活、正式持久化单位模型或宁波部署。
+
+
 ### D-110 全合同只读核对与四流代表合同验证
 - 日期：2026-10-13；状态：Active；用户明确授权合并PR103，并继续全合同只读核对及采购、入库、出运、出库的代表订单验证；保持UI，不修改真实账号/数据库，不部署，凭据私下输入。
 - PR103已在精确head `1de3078dfd0bcb540d87f792f0b43273f294a615` 三项CI成功后，于2026-10-13T00:02:33Z合并为 `8b3f3d811d05182ea1a7f3214eae9d530056fa04`。不把合并视为环境更新。

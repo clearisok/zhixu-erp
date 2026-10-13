@@ -4,7 +4,7 @@ export type MaterialSemanticField =
   | "styleNo" | "materialType" | "companyHeader" | "salesContractNo" | "brand" | "salesperson" | "owner" | "factoryStyleNo"
   | "garmentColors" | "relatedGarmentColors" | "garmentQuantity" | "customerName" | "contractDeliveryDate"
   | "materialCode" | "materialName" | "sourceActualName" | "plannedConsumption" | "lossRate" | "totalConsumption" | "width" | "gsm"
-  | "materialColor" | "specification" | "supplyMethod" | "requiredQuantity" | "sampleQuantity"
+  | "materialColor" | "specification" | "supplyMethod" | "requiredQuantity" | "quantityUnit" | "sampleQuantity"
   | "purchaseOrderNo" | "purchaseDate" | "supplier" | "purchaseEntity" | "sourceMaterialDueDate" | "currency" | "purchaser"
   | "purchasedMaterialName" | "invoiceName" | "purchaseActualName" | "purchaseSpecification" | "purchaseColor" | "purchaseQuantity"
   | "purchaseSampleQuantity" | "purchaseUnitPrice" | "purchaseAmount" | "purchaseExtraCost"

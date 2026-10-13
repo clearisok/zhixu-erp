@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "09f4447ab43e87798e1a5647f5ed02346ceef7ef",
-  "verifiedAt": "2026-10-13T04:58:40.094Z",
+  "baselineSha": "6abc4bebc59954b98a6e3f79f038f9574588390d",
+  "verifiedAt": "2026-10-13T05:40:43.641Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -568,6 +568,13 @@
       "sha256": "caaad26da4ab74ca7b549e25c879f75600359b823d3f77f7edbaf196da82942f"
     },
     {
+      "id": "ainuoke-qtyunit-confirmed-20261013",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md",
+      "recordedAtSha": "03d731916c4a41c930f1e3001f3efcadabde9730",
+      "sha256": "cff36cf077c7419854ef7df2f4e7a4e3c1570b2a58f2ccdcaeabf9949472064c"
+    },
+    {
       "id": "ainuoke-pr104-merge-reconcile",
       "kind": "document",
       "path": "docs/tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md",
@@ -582,6 +589,22 @@
       "sha256": "2c9c64c543496f909920b37006d1442eed3d781447c975fe7c4feb7cd6c861d8",
       "supersedes": "decisions-readonly-validation",
       "changeReason": "D-112 records user-approved controlled new-contract acceptance as a prelaunch requirement; prior D-110 read-only evidence remains historical."
+    },
+    {
+      "id": "decisions-qtyunit-controlled-contracts-20261013",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "4f8042036c800d56e8a6172b29adb291951705e6",
+      "sha256": "f4e3ca353e5c1c31d8a96410be82a4939dc500151f97cd850ad505623637d404",
+      "supersedes": "decisions-controlled-new-contracts",
+      "changeReason": "Merge of the PR105 and PR106 branches retains both Active D-111 QtyUnit and D-112 controlled new-contract requirements in one current decision log."
+    },
+    {
+      "id": "ainuoke-pr105-merge-reconcile",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md",
+      "recordedAtSha": "70525752b1c0eeffab168f9eb87f0ac914af1af2",
+      "sha256": "617e9c7bacbd6b9558ba3c13a5ef9991abc6f3e36c91bb08cfb498b724722a74"
     }
   ],
   "pages": [

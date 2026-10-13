@@ -1,5 +1,7 @@
 # 艾诺科个人账号与只读 Direct API
 
+2026-10-13 / 单位候选 PR：用户转述 IT 确认 6087050 `QtyUnit` 是逐需求单位，适用于 `TotalNum`、`cgnum`、入库、物料出运和出库；目标三需求四来源行返回一致的“个”，三行编码已由用户在上游界面确认。Adapter 将 `QtyUnit` 传给共用 Material pipeline，只有只读投影在每条需求所有来源行一致非空时显示；缺失未知，冲突暂停该需求投影汇总，不改变正式计算或持久化 schema。[脱敏核对](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。工程候选不等于真实激活/部署。
+
 2026-10-12：下文为历史Windows个人Bridge契约。新增Linux首批共享Source快照能力见[AINUOKE_SERVER_SOURCE](AINUOKE_SERVER_SOURCE.md)与D-105；不替换Windows凭据存储，不把Browser mock当作可信身份。新Source默认关闭，未真实激活。
 
 ## Purpose

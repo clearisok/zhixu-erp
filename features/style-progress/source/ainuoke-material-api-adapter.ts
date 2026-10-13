@@ -53,6 +53,7 @@ const FIELD_MAP: Readonly<Partial<Record<MaterialSemanticField, string>>> = {
   specification: "CnComposition",
   supplyMethod: "SupplyType",
   requiredQuantity: "TotalNum",
+  quantityUnit: "QtyUnit",
   sampleQuantity: "yyyl",
   purchaseOrderNo: "cgdh",
   purchaseDate: "cgrq",
