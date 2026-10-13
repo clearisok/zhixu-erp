@@ -1,10 +1,12 @@
 # 项目知识索引
 
-核实2026-10-13；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5` 已合并 #104/#105/#106/#107。工程含 QtyUnit 与受控新增合同；真实Source未激活、未部署、未完成全量持续人工验收。当前恢复入口：[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[本机真实演示准备](tasks/active/ainuoke-live-demo-readiness.md)、[当前状态](CURRENT_STATE.md)、Active D105–113。
+核实2026-10-14；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5` 已合并 #104/#105/#106/#107。工程含 QtyUnit 与受控新增合同；真实Source未激活、未部署、未完成全量持续人工验收。当前恢复入口：[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[本机真实演示准备](tasks/active/ainuoke-live-demo-readiness.md)、[当前状态](CURRENT_STATE.md)、Active D105–114。
 
 历史真实发现558可见合同、80物料抽样与62未知是原日期证据；三行单位/身份后续获用户确认，不代表全量数据完美。GitHub/代码是实时事实源，文档随main/来源/目标/验收变化更新。[旧状态原文](tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)保留旧日期/hash/结果/限制。[基线门禁](features/RELEASE_BASELINE_GUARD.md)及[交付协议](tasks/active/git-delivery-resilience.md)保持，不替代UI/DB/部署验收。
 
 全量预检已取得有效真实回执：当前账号可见558合同完整稳定，颜色552可用6无效、14,411需求单位12,655已知/1,750缺失/6冲突；约8分25秒，无DB/Source激活/部署。[完整脱敏证据](tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)。用户后续授权Codex自行执行同范围已授权只读脚本，凭据文件只由进程消费，不进模型上下文。原三次失败/修复保留其历史范围；24项/root817/基线71通过，[修复复审及交付限制](tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-final-local-review-2026-10-13.md)。
+本轮定向质量/双数量事实及新owned持久本机演示已完成，23fixture/Excel框架订单、17报价、六角色；生产路由保持关闭、真实Source未激活。完整[A–F交付报告](tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md)，与558真实预检分开阅读。
+
 ## 系统简介
 
 并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。

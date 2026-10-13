@@ -1,6 +1,10 @@
 # 艾诺科 Server Source：正式订单与持续物料展示
 
-核实2026-10-13；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`（#104–107已合并）。GitHub及目标代码为工程事实源；随来源契约、权限、命令、预算、合并、真实激活/部署或验收变化更新。旧日期/hash/结果与未合并状态原文见[归档](../tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)。
+核实2026-10-14；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`（#104–107已合并）。GitHub及目标代码为工程事实源；随来源契约、权限、命令、预算、合并、真实激活/部署或验收变化更新。旧日期/hash/结果与未合并状态原文见[归档](../tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)。
+
+## 当前隔离演示与质量治理（2026-10-14）
+
+全量558成功证据保留；仅补19合同47请求定向诊断。6无效颜色为局部补充问题、6单位冲突暂停对应需求汇总；不删除主订单或全局阻断。数量候选测算与实际cgnum分开，TotalNum/齐套/去重不变。新owned持久本机fixture应用已验证23订单/17报价/六角色与原P6，完整[报告](../tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md)。这不是558单raw重放、真实Source激活或宁波部署。
 
 ## 用户决定
 

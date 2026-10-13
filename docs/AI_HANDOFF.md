@@ -1,17 +1,15 @@
 # AI handoff
 
-核实2026-10-13；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`，开放PR为0。继续现有 `feat/ainuoke-live-demo-readiness`，入口HEAD `b1aaabd2f5083b54b804bcffc68d55d2a8dcb242`。先读AGENTS、PROJECT_INDEX、CURRENT_STATE和[任务](tasks/active/ainuoke-live-demo-readiness.md)。本次两项已知继承dirty单独收口，见[Gate0](tasks/active/evidence/ainuoke-live-demo-readiness/baseline-reconciliation-2026-10-13.md)，不重建工作树、不混入未知改动。
+核实2026-10-14；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。继续现有 `feat/ainuoke-live-demo-readiness`；不重建worktree/分支。先读AGENTS、PROJECT_INDEX、CURRENT_STATE、[完整A–F报告](tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md)、D114及实际代码。
 
-已核实成功全量私有报告ACL/hash `13dc7d3b5ed3afec38bd4d8ce74fe8cba97f3ea77db4ba655df5a03a0701ba4d`；558可见合同，552有效颜色/6无效，14,411需求。报告是派生事实而非完整raw bundle，不重复全量采集。[冻结统计](tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)。新任务要求异常原因分类、采购实际量/理论量分离及真实代码的持久隔离本机演示。Excel19Sheet已只读确认，不改原文件，模拟/真实核对的来源说明必须保留。
+Gate0继承dirty已独立收口e5a62a5。真实全量报告hash13dc7d...经ACL/hash核验，558是可见账号范围、派生报告而非raw重放。仅19合同47定向请求，6颜色/6单位原因及交叉统计已完成，原private数据留owner+SYSTEM/Git忽略。凭据只由受限进程消费，用户已授权Codex自行执行同范围只读，不再索要密码；不重复558全量。
 
-新授权允许在归属/身份阻断通过后创建全新的本机Docker project、DB、network、volume，使用合成或获准脱敏fixture。不得写现有业务库、改真实账号、激活真实Source/持续采集、部署宁波/18443/18444、自动合并。现有UI/正式数量含义/齐套/去重/单位换算保持。115.50理论与118采购是合法不同事实；不能假定TotalNum是理论或全局改成cgnum。Codex可自行调用既有受限CredentialFile只读包装器，密码不进上下文；不再要求用户重复输入。
+Gate2数量/门禁7ae0ea9与冻结29d730a：三个理论/采购样本分开，TotalNum/cgnum/齐套不改；原P6解释段落V1，不重设计。文档链当前HEAD归属和端点精确限制edd3058；旧证据/截图不覆盖。
 
-下步：核对已有私有报告是否有足够原始字段；仅补必要定向只读证据。实现受控持久演示启动器及负向测试，复用Server/Binding/Capture/Projection/P6，不冒称统计报告能重放558单。用户要求最多3项真正必要业务确认。NETWORK_DEGRADED保留；本地测试、远端SHA、PR/CI分别记录。更新时机：每个可靠Gate、授权/真实回执/交付变化。
+Gate3实际应用image源be1c52205bddf1dd0d7733362f4631175d10d9d2，host launcher修复1121fa6/c3f3bc6。网址http://127.0.0.1:62200/login；新owned zhixu-local-314c667377ec/-app/-pg/-net/-web/-data，DB demo_314c667377ec；manifest与截图只在outputs/isolated-private-a740f0bc-37f2-40cc-bd59-1241e825b91d。demo.admin等六角色，合成密码Synthetic-Demo-2026。真实账号/旧库/真实Source/部署没有改动。新marker ready绑定源码和workbook payload；不能换镜像/表格就猜测续用旧卷。
 
-Gate1诊断工程：11项Node/27项Python及typecheck通过；quality模式仅6颜色/18物料、25合同总上限、160请求/600秒/32MiB。真实定向结果尚待执行。[工程证据](tasks/active/evidence/ainuoke-live-demo-readiness/quality-diagnostic-engineering-2026-10-13.md)。
+Excel19Sheet只读；正式Server导入9品牌/18业务员/17面料/15辅料/5方案及17报价/22PV，132输入行1类别未映射，21面料单耗语义未确认。23订单=6标识fixture+17Excel框架；其余颜色/物料不补造；排单/资源/物流/真实用户Sheet暂缓，Server路由不开放。
 
-定向报告修复：sizeRuleTokens在诊断证据中明确命名sizeRuleLabels，不放宽secret检查；源raw先受保护保存，分析修复可离线重放。
+验证831源码/85基线/47Source定向/17owned/验收入口保护/10API浏览器；3轮snapshot、failure前代保留/current hidden、stale、32MiBoverflow、恢复、stop/start卷保留通过。仅offline fixture刷新，不能冒称真实持续或宁波ready。原真实preflight demoReady=false保持。
 
-Gate2：19合同定向真实核对已完成，47请求；详情仅本机保护报告。数量比较新增只读测算候选、不替换TotalNum或齐套。D114记录隔离演示授权。门禁新增线性文档版本链及祖先/锚点/唯一末端阻断；文档冻结绑定将在本checkpoint后独立提交，不能因暂时漂移放宽检查。
-
-Gate3隔离演示工程：源码身份先于Pool，数据库名称/用户/空库/ready marker阻断，容器/镜像/网络ID和完整挂载/入口/loopback检查；新独立持久卷，无自动删除。私有目录owner+SYSTEM ACL、Git忽略和非link检查先于secret/Excel副本；原Excel哈希和解析payload字节双绑定。合成案例明确区别确认数量与合成其余字段；Excel未映射颜色/物料保留空，生产排单等Sheet暂缓。首次运行/浏览器仍待验证。
+最后：清理仅本任务dirty并checkpoint；报告冻结后绑定manifest新证据及新增工程能力（merged=false、真实source未激活）；运行最终基线/类型/lint。一次安全交付前只读网络诊断三对照正常，但push可靠性未证明；独立核实exact远端/唯一PR/CI，不自动合并。交付结果另写收口避免循环claim，如网络失败保存可靠本地commit及一条工具恢复命令。更新时机：每个Gate、源码/目标/来源/验收/远端变化。
