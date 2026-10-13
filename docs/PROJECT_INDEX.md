@@ -3,6 +3,8 @@
 核实2026-10-13；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5` 已合并 #104/#105/#106/#107。工程含 QtyUnit 与受控新增合同；真实Source未激活、未部署、未完成全量持续人工验收。当前恢复入口：[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[本机真实演示准备](tasks/active/ainuoke-live-demo-readiness.md)、[当前状态](CURRENT_STATE.md)、Active D105–113。
 
 历史真实发现558可见合同、80物料抽样与62未知是原日期证据；三行单位/身份后续获用户确认，不代表全量数据完美。GitHub/代码是实时事实源，文档随main/来源/目标/验收变化更新。[旧状态原文](tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)保留旧日期/hash/结果/限制。[基线门禁](features/RELEASE_BASELINE_GUARD.md)及[交付协议](tasks/active/git-delivery-resilience.md)保持，不替代UI/DB/部署验收。
+
+全量预检初版后三次用户运行失败且没有报告；完整状态误拦截/包装错误遮蔽已修复，24项/root817/基线71通过。下一次用户私密终端显式使用既有CredentialFile免输入，助手不提取密码；未取得有效全量回执。[修复复审及交付限制](tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-final-local-review-2026-10-13.md)。
 ## 系统简介
 
 并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。

@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
-  "verifiedAt": "2026-10-13T08:19:44.014Z",
+  "verifiedAt": "2026-10-13T09:21:11.273Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -630,6 +630,13 @@
       "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/baseline-and-engineering.md",
       "recordedAtSha": "87b97d73f5dd77ea8e23543b2524fb22dc5836cb",
       "sha256": "f7ef857c3ada0302e300ed6ebf744b5eb9c1a73151a6dc0a24848cb44b799f9f"
+    },
+    {
+      "id": "ainuoke-live-preflight-wrapper-repair-20261013",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-repair-2026-10-13.md",
+      "recordedAtSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
+      "sha256": "b7e57f9dbdf415d3ebec433005f656418e70e543f1726784bebca14d8025a136"
     }
   ],
   "pages": [
@@ -2456,59 +2463,60 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Unmerged database-free complete visible colors/materials preflight and plan-only local demo target. Twenty synthetic tests and Windows ACL report checks passed. No real full read, DB, container launch, Source activation, human acceptance or deployment.",
+      "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
       "evidence": [
         "ainuoke-live-demo-baseline-engineering-20261013",
-        "decisions-live-demo-readiness-20261013"
+        "decisions-live-demo-readiness-20261013",
+        "ainuoke-live-preflight-wrapper-repair-20261013"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-13",
-          "sourceSha": "87b97d73f5dd77ea8e23543b2524fb22dc5836cb",
-          "scope": "Unmerged database-free complete visible colors/materials preflight and plan-only local demo target. Twenty synthetic tests and Windows ACL report checks passed. No real full read, DB, container launch, Source activation, human acceptance or deployment.",
+          "sourceSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
           "evidence": [
-            "ainuoke-live-demo-baseline-engineering-20261013",
+            "ainuoke-live-preflight-wrapper-repair-20261013",
             "decisions-live-demo-readiness-20261013"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-13",
-          "sourceSha": "87b97d73f5dd77ea8e23543b2524fb22dc5836cb",
-          "scope": "Unmerged database-free complete visible colors/materials preflight and plan-only local demo target. Twenty synthetic tests and Windows ACL report checks passed. No real full read, DB, container launch, Source activation, human acceptance or deployment.",
+          "sourceSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
           "evidence": [
-            "ainuoke-live-demo-baseline-engineering-20261013",
+            "ainuoke-live-preflight-wrapper-repair-20261013",
             "decisions-live-demo-readiness-20261013"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-13",
-          "sourceSha": "87b97d73f5dd77ea8e23543b2524fb22dc5836cb",
-          "scope": "Unmerged database-free complete visible colors/materials preflight and plan-only local demo target. Twenty synthetic tests and Windows ACL report checks passed. No real full read, DB, container launch, Source activation, human acceptance or deployment.",
+          "sourceSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
           "evidence": [
-            "ainuoke-live-demo-baseline-engineering-20261013",
+            "ainuoke-live-preflight-wrapper-repair-20261013",
             "decisions-live-demo-readiness-20261013"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-13",
-          "sourceSha": "87b97d73f5dd77ea8e23543b2524fb22dc5836cb",
-          "scope": "Unmerged database-free complete visible colors/materials preflight and plan-only local demo target. Twenty synthetic tests and Windows ACL report checks passed. No real full read, DB, container launch, Source activation, human acceptance or deployment.",
+          "sourceSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
           "evidence": [
-            "ainuoke-live-demo-baseline-engineering-20261013",
+            "ainuoke-live-preflight-wrapper-repair-20261013",
             "decisions-live-demo-readiness-20261013"
           ]
         },
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-13",
-          "sourceSha": "87b97d73f5dd77ea8e23543b2524fb22dc5836cb",
-          "scope": "Unmerged database-free complete visible colors/materials preflight and plan-only local demo target. Twenty synthetic tests and Windows ACL report checks passed. No real full read, DB, container launch, Source activation, human acceptance or deployment.",
+          "sourceSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
           "evidence": [
-            "ainuoke-live-demo-baseline-engineering-20261013",
+            "ainuoke-live-preflight-wrapper-repair-20261013",
             "decisions-live-demo-readiness-20261013"
           ]
         },
