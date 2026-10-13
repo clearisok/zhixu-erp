@@ -7,3 +7,5 @@
 新授权允许在归属/身份阻断通过后创建全新的本机Docker project、DB、network、volume，使用合成或获准脱敏fixture。不得写现有业务库、改真实账号、激活真实Source/持续采集、部署宁波/18443/18444、自动合并。现有UI/正式数量含义/齐套/去重/单位换算保持。115.50理论与118采购是合法不同事实；不能假定TotalNum是理论或全局改成cgnum。Codex可自行调用既有受限CredentialFile只读包装器，密码不进上下文；不再要求用户重复输入。
 
 下步：核对已有私有报告是否有足够原始字段；仅补必要定向只读证据。实现受控持久演示启动器及负向测试，复用Server/Binding/Capture/Projection/P6，不冒称统计报告能重放558单。用户要求最多3项真正必要业务确认。NETWORK_DEGRADED保留；本地测试、远端SHA、PR/CI分别记录。更新时机：每个可靠Gate、授权/真实回执/交付变化。
+
+Gate1诊断工程：11项Node/27项Python及typecheck通过；quality模式仅6颜色/18物料、25合同总上限、160请求/600秒/32MiB。真实定向结果尚待执行。[工程证据](tasks/active/evidence/ainuoke-live-demo-readiness/quality-diagnostic-engineering-2026-10-13.md)。
