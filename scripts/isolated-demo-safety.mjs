@@ -1,6 +1,6 @@
 export function localDockerEndpoint(endpoint,env={}) {
  if(env.DOCKER_HOST||env.DOCKER_CONTEXT)throw Error('ambient_docker_target_not_allowed');
- if(!/^npipe:\/\/\/\/.\/pipe\/dockerDesktopLinuxEngine$/.test(endpoint)&&endpoint!=='unix:///var/run/docker.sock')throw Error('remote_docker_target_not_allowed');return endpoint;
+ if(endpoint!=='npipe:////./pipe/dockerDesktopLinuxEngine'&&endpoint!=='unix:///var/run/docker.sock')throw Error('remote_docker_target_not_allowed');return endpoint;
 }
 export function assertOwnedResource(resource,manifest,kind){
  const labels=resource.Config?.Labels??resource.Labels; if(labels?.['io.zhixu.isolated.owner']!==manifest.owner||labels?.['io.zhixu.isolated.source']!==manifest.sourceSha)throw Error('isolated_resource_owner_mismatch');

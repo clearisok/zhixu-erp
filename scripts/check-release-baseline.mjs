@@ -66,7 +66,7 @@ function serverRouteLiterals(source) {
 
 /** Read-only source/evidence contract. This is not a browser pixel or deployment test. */
 export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths = [], hasCommit = () => false,
-  readBlob = () => null, isAncestor = () => false, previousManifest }) {
+  readBlob = () => null, isAncestor = () => false, checkedHead, previousManifest }) {
   const errors = [];
   const fail = (code, detail) => errors.push({ code, detail });
   const read = repositoryReader(root);
@@ -101,7 +101,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     if (item.kind !== 'document') continue;
     superseded.add(item.supersedes);
     if (!priorEvidence.has(item.id)) {
-      if (!isAncestor(manifest.baselineSha, item.recordedAtSha)
+      if (!isAncestor(manifest.baselineSha, item.recordedAtSha) || !isAncestor(item.recordedAtSha, checkedHead)
         || old && !priorEvidence.has(old.id) && !isAncestor(old.recordedAtSha, item.recordedAtSha)) fail('EVIDENCE_REVISION_ANCESTRY', item.id);
       const seen = new Set([item.id]); let parent = old; let anchored = false;
       while (parent) {
@@ -323,7 +323,7 @@ export function runCheck(root, expectedBaseSha) {
   const commitCache = new Map();
   const blobCache = new Map();
   const ancestryCache = new Map();
-  const errors = validateBaseline({ root, manifest, expectedBaseSha, changedPaths, previousManifest,
+  const errors = validateBaseline({ root, manifest, expectedBaseSha, changedPaths, previousManifest, checkedHead:git(root,['rev-parse','HEAD']),
     isAncestor: (ancestor, descendant) => {
       const key = `${ancestor}:${descendant}`;
       if (!ancestryCache.has(key)) {

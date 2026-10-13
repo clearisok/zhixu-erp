@@ -43,7 +43,7 @@ function fixture(t) {
   };
   const edit = (file, transform) => write(file, transform(readFileSync(path.join(root, file), 'utf8')));
   const check = (overrides = {}) => validateBaseline({ root, manifest, previousManifest, expectedBaseSha: original.baselineSha,
-    isAncestor: (a,b) => knownCommits.has(a) && knownCommits.has(b), hasCommit: value => knownCommits.has(value), readBlob: (sha, file) => blobs.get(`${sha}:${file}`) ?? null, ...overrides });
+    checkedHead:original.baselineSha, isAncestor: (a,b) => knownCommits.has(a) && knownCommits.has(b), hasCommit: value => knownCommits.has(value), readBlob: (sha, file) => blobs.get(`${sha}:${file}`) ?? null, ...overrides });
   return { root, manifest, write, edit, check, blobs, knownCommits, previousManifest };
 }
 const has = (errors, code) => assert.ok(errors.some(error => error.code === code), `Expected ${code}; got ${JSON.stringify(errors)}`);
@@ -367,3 +367,5 @@ for (const corruption of ['unrelated-sha','new-root','second-leaf','deleted-midd
  if(corruption==='self'){first.supersedes=first.id;has(f.check(),'EVIDENCE_REVISION');}
  if(corruption==='array-order'){f.manifest.evidence.reverse();assert.deepEqual(f.check(),[]);}
 });
+
+test('sibling branch sharing main cannot supply a new frozen revision',t=>{const f=fixture(t),old=f.manifest.evidence.find(e=>e.id==='quote-original');const added=newProof(f,{id:'sibling-revision',file:old.path,body:'# Other branch version\n'});added.supersedes=old.id;added.changeReason='Different branch';has(f.check({checkedHead:'e'.repeat(40),isAncestor:(a,b)=>a===original.baselineSha&&b===added.recordedAtSha}),'EVIDENCE_REVISION_ANCESTRY');});
