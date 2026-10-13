@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "8b3f3d811d05182ea1a7f3214eae9d530056fa04",
-  "verifiedAt": "2026-10-13T00:17:44.073849+00:00",
+  "baselineSha": "09f4447ab43e87798e1a5647f5ed02346ceef7ef",
+  "verifiedAt": "2026-10-13T04:58:40.094Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -566,6 +566,22 @@
       "path": "docs/tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md",
       "recordedAtSha": "460a993d333af1612174effc17b14e1b2f49a3cb",
       "sha256": "caaad26da4ab74ca7b549e25c879f75600359b823d3f77f7edbaf196da82942f"
+    },
+    {
+      "id": "ainuoke-pr104-merge-reconcile",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md",
+      "recordedAtSha": "25e01afbd7e6964995712277c65dead36f6030a9",
+      "sha256": "3849f2471d206d2542b8a96c138227185df50a8f36f2c882dbc15db21cda4f3f"
+    },
+    {
+      "id": "decisions-controlled-new-contracts",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "25e01afbd7e6964995712277c65dead36f6030a9",
+      "sha256": "2c9c64c543496f909920b37006d1442eed3d781447c975fe7c4feb7cd6c861d8",
+      "supersedes": "decisions-readonly-validation",
+      "changeReason": "D-112 records user-approved controlled new-contract acceptance as a prelaunch requirement; prior D-110 read-only evidence remains historical."
     }
   ],
   "pages": [
@@ -2091,7 +2107,7 @@
     {
       "id": "ainuoke-readonly-validation",
       "implemented": "yes",
-      "merged": false,
+      "merged": true,
       "isolatedTest": "passed-historical",
       "humanAcceptance": "not-run",
       "sourceActivation": "not-connected",
@@ -2099,12 +2115,13 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Database-free audit implemented in open PR104. User-executed real receipt and local private report agree: 558 current-account contracts complete and stable; 80 material samples, 1 empty/0 invalid, four streams have the same three representative contracts. 62 contracts have unknown quantities; units and per-material business semantics unverified. No persistent Source activation, human business acceptance, UI/DB mutation or deployment.",
+      "scope": "PR104 merged at 09f4447ab43e87798e1a5647f5ed02346ceef7ef after user approval and three successful CI checks. Its database-free audit found 558 current-account contracts and sampled 80 for four streams. The 62 unknown-quantity contracts remain unknown pending classification; unit semantics are addressed in separate unmerged PR106. No persistent Source activation, human business acceptance, real DB change or deployment.",
       "evidence": [
         "ainuoke-readonly-validation-engineering",
         "decisions-readonly-validation",
         "ainuoke-readonly-validation-real-receipt",
-        "ainuoke-readonly-validation-real-results"
+        "ainuoke-readonly-validation-real-results",
+        "ainuoke-pr104-merge-reconcile"
       ],
       "statusEvidence": {
         "implemented": {
@@ -2120,15 +2137,13 @@
           ]
         },
         "merged": {
-          "value": false,
+          "value": true,
           "assessedAt": "2026-10-13",
-          "sourceSha": "460a993d333af1612174effc17b14e1b2f49a3cb",
-          "scope": "PR104 remains open and unmerged after receipt inspection; merging PR103 did not merge this audit tool.",
+          "sourceSha": "09f4447ab43e87798e1a5647f5ed02346ceef7ef",
+          "scope": "User-authorized PR104 exact head b43b78bee72a496219bd4872245ad28109f421c4 merged as 09f4447ab43e87798e1a5647f5ed02346ceef7ef after three successful checks. Merge is a code state only, not Source activation or deployment.",
           "evidence": [
             "ainuoke-readonly-validation-engineering",
-            "decisions-readonly-validation",
-            "ainuoke-readonly-validation-real-receipt",
-            "ainuoke-readonly-validation-real-results"
+            "ainuoke-pr104-merge-reconcile"
           ]
         },
         "isolatedTest": {

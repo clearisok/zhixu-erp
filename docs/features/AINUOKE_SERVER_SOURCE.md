@@ -1,4 +1,7 @@
 # 艾诺科 Server Source：首次订单绑定与持续物料展示
+
+2026-10-13 / D-112 范围：用户要求首轮上线前受控接纳新增艾诺科合同。现有调度只刷新已绑定订单，新增合同的发现、预览、确认、幂等建单及颜色/主信息策略仍待独立实现和验收。此决定不授权真实写入或部署；#104 已合并、#105/#106 未合并。[只读预检和依赖](../tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。
+
 核实日期：2026-10-13；main 基线：8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103 HTTP扩展已合并；D110全合同只读audit在独立分支实施）。
 GitHub/代码为实时事实源；本文件随来源契约、权限、命令、构建、调度、真实激活及验收变化更新。PR99阶段证据保留在原任务/冻结证据，本轮见[任务](../tasks/active/ainuoke-continuous-material-display.md)。
 
@@ -102,3 +105,9 @@ PR103已按用户授权合并；新增独立`scripts/ainuoke-readonly-audit.ps1`
 900秒来源读取、2000报告请求、每报告200页/50行、100000行/32MiB；Node离线分析另限90秒。只有允许字段的代表单号/日期/数量与问题合同写本机ignored私有JSON，不保存原始来源或密码；stdout为脱敏回执及本机路径。`unit`尚未映射/核实，不跨物料加总。样例存在不等于业务人工验收/全合同物料覆盖/持续激活。测试、真实回执与限制见[只读核对任务](../tasks/active/ainuoke-readonly-validation.md)。本功能不读取业务DB、绑定、调度或部署。
 
 2026-10-13真实结果：558唯一可见合同/每遍12页，前后一致；80物料抽样1空0无效，125次报表请求。采购79合同、入库/出运/出库各75合同有正数量/日期/单号样例；四流均取同一组R01–R03。数量未知需求项184/250/341/258，涉及62不同合同，不能跨流水去重或加总为问题总数。当前报告缺物料身份/原始字段，无法判断未知根因或完成逐物料人工对照；下一步建议定向只读诊断。详见[真实证据](../tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md)。
+
+## 后续定向诊断（只读已执行，人工语义待确认）
+
+从 PR #104 head 派生的草稿 PR #105 提供固定 6086103 一次当前可见合同索引定位，以及最多三合同 6087050 完整分页的显式私密诊断。合成测试和用户普通终端真实读取均已完成；目标三行118/356/6找到对应来源物料/采购字段，356两来源行归并一事件。API单位候选为空，人工业务身份确认0/3，正式单位映射0/3。少量样本的空值/零值/重复观察不能推广至旧统计62合同；unknown仍保持未知。见[任务](../tasks/active/ainuoke-targeted-diagnostic.md)和[脱敏真实证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/real-results.md)。未激活 Source、读取业务DB、绑定、调度或部署。
+
+2026-10-13 后续受保护报告显示目标四条来源行的 QtyUnit 候选均为“个”，三物料身份/采购归并与旧报告相同；业务语义尚未由 IT/用户确认，正式 Adapter/Projection 单位仍未映射。[脱敏证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-followup-2026-10-13.md)。不得据此改变 TotalNum、cgnum 或齐套计算。

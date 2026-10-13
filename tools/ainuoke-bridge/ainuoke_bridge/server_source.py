@@ -57,7 +57,8 @@ class ProtectedTransport:
 
 def validate_input(data):
     required = {"baseUrl", "username", "password", "contracts"}
-    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy"}:
+    target_keys = {"targetSalesContractNo", "targetPurchaseOrderNo", "expectedQuantities", "additionalSalesContracts"}
+    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy"} | target_keys:
         raise ValueError("invalid_collector_input")
     url = urlsplit(data["baseUrl"])
     if url.username or url.password or url.query or url.fragment or url.path not in ("", "/"):
@@ -70,8 +71,26 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
-    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit"):
+    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted"):
         raise ValueError("invalid_mode")
+    if data.get("mode") == "targeted":
+        if not target_keys <= set(data) or data["contracts"] != []:
+            raise ValueError("invalid_target_scope")
+        sales = data["targetSalesContractNo"]
+        purchase = data["targetPurchaseOrderNo"]
+        additional = data["additionalSalesContracts"]
+        expected = data["expectedQuantities"]
+        if (not isinstance(sales, str) or not identity(sales) or len(sales) > 80
+                or not isinstance(purchase, str) or not identity(purchase) or len(purchase) > 80
+                or not isinstance(additional, list) or len(additional) > 2
+                or any(not isinstance(x, str) or not identity(x) or len(x) > 80 for x in additional)
+                or len({identity(x) for x in [sales, *additional]}) != 1 + len(additional)
+                or not isinstance(expected, list) or len(expected) != 3
+                or any(type(x) is not int or x <= 0 or x > 100000000 for x in expected)):
+            raise ValueError("invalid_target_scope")
+        return data
+    if set(data) & target_keys:
+        raise ValueError("invalid_target_scope")
     contracts = data["contracts"]
     if data.get("mode") in ("bindings", "probe", "audit"):
         if contracts != []:
@@ -85,7 +104,7 @@ def validate_input(data):
 
 def collect(data, client=None):
     data = validate_input(data)
-    client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=0 if data.get("mode") in ("probe", "audit") else 1)
+    client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=0 if data.get("mode") in ("probe", "audit", "targeted") else 1)
     session = client.login(data["username"], data["password"])
     if data.get("mode") == "probe":
         return probe_first_pages(client, session)
@@ -100,8 +119,8 @@ def collect(data, client=None):
         expected = None
         for index in range(1, 201):
             requests += 1
-            if data.get("mode") == "audit":
-                if requests > 2000:
+            if data.get("mode") in ("audit", "targeted"):
+                if requests > (80 if data.get("mode") == "targeted" else 2000):
                     raise UpstreamSchemaError("request_limit")
                 from time import sleep
                 sleep(0.1)
@@ -112,9 +131,9 @@ def collect(data, client=None):
                     raise
                 renewals += 1
                 session = client.login(data["username"], data["password"])
-                if data.get("mode") == "audit":
+                if data.get("mode") in ("audit", "targeted"):
                     requests += 1
-                    if requests > 2000:
+                    if requests > (80 if data.get("mode") == "targeted" else 2000):
                         raise UpstreamSchemaError("request_limit")
                 page = client.read_report(REPORT_CATALOG[key], jwt_token=session.jwt_token, page=index, page_size=50, query_context=query)
             if expected is None:
@@ -147,6 +166,16 @@ def collect(data, client=None):
             lookup[key] = inside.strip()
     if len(lookup) > 1000:
         raise UpstreamSchemaError("source_limit")
+    if data.get("mode") == "targeted":
+        selected = [identity(data["targetSalesContractNo"]), *map(identity, data["additionalSalesContracts"])]
+        if any(key not in lookup for key in selected):
+            raise UpstreamSchemaError("target_not_visible")
+        materials = {key: pages("material_purchase_statistics", {"insideOrderNo": lookup[key]}) for key in selected}
+        return {"schemaVersion": "ainuoke-targeted-diagnostic.v1", "discovery": before,
+                "materials": materials, "targetSalesContractNo": selected[0],
+                "targetPurchaseOrderNo": identity(data["targetPurchaseOrderNo"]),
+                "expectedQuantities": data["expectedQuantities"], "reportRequests": requests,
+                "authRenewals": renewals}
     if data.get("mode") == "audit":
         keys = sorted(lookup, key=lambda key: key.encode("utf-16-be"))
         count = min(80, len(keys))
@@ -203,19 +232,29 @@ def probe_first_pages(client, session):
             "scope": "first-visible-contract-first-pages-only", "reports": reports}
 
 def read_input(args):
-    if args in (["--interactive-approved-http"], ["--interactive-readonly-audit"]):
+    if args in (["--interactive-approved-http"], ["--interactive-readonly-audit"], ["--interactive-targeted-diagnostic"]):
         # Private local terminal only: no password argv/env/file or credential-store reuse.
         import getpass
         import warnings
         if not sys.stdin.isatty():
             raise ValueError("private_terminal_required")
+        scope = {}
+        if args == ["--interactive-targeted-diagnostic"]:
+            from pathlib import Path
+            root = Path(__file__).resolve().parents[3]
+            request = root / "outputs" / "ainuoke-targeted-request.json"
+            if request.is_symlink() or not request.is_file() or request.stat().st_size > 2048:
+                raise ValueError("invalid_private_request")
+            scope = json.loads(request.read_text(encoding="utf-8"))
+            if not isinstance(scope, dict) or set(scope) != {"targetSalesContractNo", "targetPurchaseOrderNo", "expectedQuantities", "additionalSalesContracts"}:
+                raise ValueError("invalid_private_request")
         username = input("Ainuoke username: ")
         with warnings.catch_warnings():
             warnings.simplefilter("error", getpass.GetPassWarning)
             password = getpass.getpass("Ainuoke password (hidden, not saved): ")
-        return {"baseUrl": APPROVED_HTTP_ORIGIN, "transportPolicy": APPROVED_HTTP_POLICY,
+        return {"baseUrl": APPROVED_HTTP_ORIGIN, "transportPolicy": APPROVED_HTTP_POLICY, **scope,
                 "username": username, "password": password, "contracts": [],
-                "mode": "audit" if args == ["--interactive-readonly-audit"] else "probe"}
+                "mode": "audit" if args == ["--interactive-readonly-audit"] else "targeted" if args == ["--interactive-targeted-diagnostic"] else "probe"}
     if args:
         raise ValueError("invalid_arguments")
     raw = sys.stdin.buffer.read(65537)
@@ -232,9 +271,10 @@ def main():
         if args:
             import subprocess
             audit = data["mode"] == "audit"
+            targeted = data["mode"] == "targeted"
             try:
                 child = subprocess.run([sys.executable, "-m", "ainuoke_bridge.server_source"],
-                                       input=json.dumps(data).encode("utf-8"), capture_output=True, timeout=900 if audit else 90)
+                                       input=json.dumps(data).encode("utf-8"), capture_output=True, timeout=900 if audit else 600 if targeted else 90)
             except subprocess.TimeoutExpired:
                 raise NetworkAinuokeError("source_timeout") from None
             result = json.loads(child.stdout)
@@ -242,19 +282,20 @@ def main():
                 error_class = {"invalid_credential": InvalidCredentialError, "auth_expired": AuthExpiredError,
                                "source_unavailable": NetworkAinuokeError}.get(result.get("error"), UpstreamSchemaError)
                 raise error_class("source_probe_failed")
-            if audit:
+            if audit or targeted:
                 # Existing TypeScript projection is the single business mapping authority.
                 # Only source snapshots, never credentials, enter this offline analyzer.
                 from pathlib import Path
                 root = Path(__file__).resolve().parents[3]
-                analysis = subprocess.run(["node", "--import", "tsx", "server/ainuoke-source/readonly-audit.ts", "--analyze-stdin"],
+                analyzer = "targeted-diagnostic.ts" if targeted else "readonly-audit.ts"
+                analysis = subprocess.run(["node", "--import", "tsx", "server/ainuoke-source/" + analyzer, "--analyze-stdin"],
                                           input=json.dumps(result).encode("utf-8"), capture_output=True, timeout=90, cwd=root)
                 if analysis.returncode != 0:
                     raise UpstreamSchemaError("audit_analysis_failed")
                 result = json.loads(analysis.stdout)
         else:
             result = collect(data)
-        if args and data["mode"] != "audit":
+        if args and data["mode"] == "probe":
             result = {"result": "READ_ONLY_CONNECTION_PROBED", "transport": "user-approved-plaintext-http",
                       "sourceActivation": "not-activated", "businessValidation": "not-performed",
                       "operatorAuthorization": "not-checked", **result}
