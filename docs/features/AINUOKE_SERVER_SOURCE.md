@@ -41,7 +41,9 @@ npm run source:ainuoke -- --schedule=<key> --expected-target=<fingerprint> --con
 
 [本轮准备](../tasks/active/ainuoke-live-demo-readiness.md)增加`live-preflight.ts`，复用完整binding collector和material collector，分别使用生产600秒/100000行/32MiB及10分钟freshness；完整读取颜色与物料，不重复80抽样。两阶段完整Discovery及跨阶段raw content必须一致，不截断、不缩小首次绑定范围。缺颜色继续按enrichment报告，缺单位/未知数量/冲突继续如实呈现。
 
-输出脱敏耗时/返回页数/行数/字节/单位及未知需求项；真实报告只入owner-only且Git忽略的本机目录。返回页数不是实际HTTP尝试计数。私密PowerShell默认隐藏输入，或用户显式指定受限CredentialFile免输入；Codex不读取密码文件。此预检不接DB、不授权业务操作人、不绑定、不激活Source、不声明demoReady。纯`demo-plan.ts`只输出隔离资源计划，不能代替未来启动器的实际阻断检查。用户三次尝试失败且报告为空，未取得有效全量回执；完整报告operatorAuthorization状态误拦截及错误分类已修复，新增实际Windows文件凭据启动回归，见[修复证据](../tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-repair-2026-10-13.md)。
+输出脱敏耗时/返回页数/行数/字节/单位及未知需求项；真实报告只入owner-only且Git忽略的本机目录。返回页数不是实际HTTP尝试计数。私密PowerShell默认隐藏输入，或指定受限CredentialFile免输入；用户后续已授权Codex调用同范围只读脚本，凭据只由进程读取，不进入模型上下文。此预检不接DB、不授权业务操作人、不绑定、不激活Source、不声明demoReady。纯`demo-plan.ts`只输出隔离资源计划，不能代替未来启动器的实际阻断检查。原三次失败及operatorAuthorization状态误拦截/错误分类修复保留在[修复证据](../tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-repair-2026-10-13.md)。
+
+2026-10-13工具HEAD `4b4a09eac5ada875a452a743715f65e3e69719a1`的全量真实只读预检成功：558当前账号可见合同，颜色552可用/6无效；14,411需求单位12,655已知/1,750缺失/6冲突。全部物料阶段414,954ms、25,397,547序列化字节，在现有预算内；不等于持续运行保证。采购/入库/出运/出库未知需求分别1,756/2,400/3,099/2,507，unknown不改零。受保护报告hash已核对，[完整统计和限制](../tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)。
 
 ## 页面与发布开关
 
@@ -53,7 +55,7 @@ npm run source:ainuoke -- --schedule=<key> --expected-target=<fingerprint> --con
 
 - 历史真实login/三首页可读，558可见合同两遍一致、80物料抽样四流有代表；62合同未知未完整归因。目标三需求/四来源行QtyUnit及身份人工确认，不能升级为全量质量或全公司权限证明。[只读结果](../tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md)、[单位确认](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。
 - 合成`test:ainuoke-continuous` /Source/六角色P6响应式/刷新故障恢复及LinuxCLI已验证；#107精确head三CI成功。现有`demo:ainuoke-continuous`两小时清理tmpfs合成账本，只用于一次性测试，不用于保留真实演示验收数据。
-- 真实Source尚未激活；完整颜色/物料耗时和容量待本轮用户预检。最大1000订单、每报表200页/50行、每worker100000行/32MiB/600秒。超过需另设计代际发布/限速，不提高限制或抽样假PASS。
+- 真实Source尚未激活；完整颜色/物料单次耗时和容量已由预检核实，真实持久化/连续刷新仍待测量。最大1000订单、每报表200页/50行、每worker100000行/32MiB/600秒。超过需另设计代际发布/限速，不提高限制或抽样假PASS。scheduler先完成capture再等间隔，默认300秒不是每5分钟保证发布；页面轮询不是来源刷新。
 - 上游没有跨报告事务快照；Discovery一致不证明所有物料同一时刻。历史snapshot无自动清理，持续运行前测算磁盘增长；没有systemd/restart/外部告警或凭据轮换服务。
 - 旧订单主信息/颜色自动刷新、完整分码UI仍未接；生产/关账Server/库存台账不追加为首轮前置。
 - AI建议：新隔离本机账本明确授权后，完整首绑/首次持久化/2–3次刷新及3–5代表订单对照即可首轮真实演示；24小时/故障重启/受控新增/六角色与备份恢复用于宁波晋升Gate。真实账号和数据库执行须分开授权。

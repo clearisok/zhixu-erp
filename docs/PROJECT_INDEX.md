@@ -4,7 +4,7 @@
 
 历史真实发现558可见合同、80物料抽样与62未知是原日期证据；三行单位/身份后续获用户确认，不代表全量数据完美。GitHub/代码是实时事实源，文档随main/来源/目标/验收变化更新。[旧状态原文](tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)保留旧日期/hash/结果/限制。[基线门禁](features/RELEASE_BASELINE_GUARD.md)及[交付协议](tasks/active/git-delivery-resilience.md)保持，不替代UI/DB/部署验收。
 
-全量预检初版后三次用户运行失败且没有报告；完整状态误拦截/包装错误遮蔽已修复，24项/root817/基线71通过。下一次用户私密终端显式使用既有CredentialFile免输入，助手不提取密码；未取得有效全量回执。[修复复审及交付限制](tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-final-local-review-2026-10-13.md)。
+全量预检已取得有效真实回执：当前账号可见558合同完整稳定，颜色552可用6无效、14,411需求单位12,655已知/1,750缺失/6冲突；约8分25秒，无DB/Source激活/部署。[完整脱敏证据](tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)。用户后续授权Codex自行执行同范围已授权只读脚本，凭据文件只由进程消费，不进模型上下文。原三次失败/修复保留其历史范围；24项/root817/基线71通过，[修复复审及交付限制](tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-final-local-review-2026-10-13.md)。
 ## 系统简介
 
 并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。

@@ -7,7 +7,7 @@ GitHub 是实时工程事实源；文档是阶段性快照。旧状态原文见[
 
 ## 用户决定与本轮范围
 
-用户授权合并 #107，并在后续“继续”中接续本机真实演示准备。仍保持现有 UI，不修改真实账号或织序业务数据库，不部署宁波/18443/18444，不自动合并本轮 PR。真实上游读取由用户在私密终端显式执行；Codex 不读取账号密码文件，只核对脱敏回执及受保护的本机报告。
+用户授权合并 #107，并在后续“继续”中接续本机真实演示准备。仍保持现有 UI，不修改真实账号或织序业务数据库，不部署宁波/18443/18444，不自动合并本轮 PR。首次真实预检由用户在私密终端显式执行；2026-10-13后续用户已要求Codex自行执行同范围已授权只读脚本。凭据文件仅由短命进程消费，不直接读取到模型上下文，只核对脱敏回执及受保护的本机报告。
 永久 HTTP 例外仅沿用 D109 已批准的原地址；不扩大目的地。Excel 模板由用户填写，本轮不覆盖、不导入。
 
 ## 已确认事实
@@ -22,8 +22,8 @@ GitHub 是实时工程事实源；文档是阶段性快照。旧状态原文见[
 1. G0：恢复 main、PR、工作树；归档旧状态，不把旧“未合并”继续写成当前。
 2. G1：无数据库的全量预检。第一 worker 完整 6086103 → 所有可见 BillNo 的 6087105 → 6086103；第二 worker 完整 6086103 → 相同全集经当前 InsideOrderNo 查询 6087050 → 6086103。不按 Status 排除、不抽样。每 worker 使用生产现有 600 秒、100000 行、32MiB、每报告 200 页/50 行及 10 分钟 freshness；不扩大预算掩盖失败。输出每阶段耗时、返回页/行/序列化字节；返回页不是 HTTP 尝试次数，重试次数未插桩。
 3. G2：合成负向验证完整范围/分页/身份/来源变化/时效/预算/秘密字段/单位未知与冲突，以及 Windows NTFS ACL、ignored 文件和只输出计划的目标限制。
-4. G3：typecheck、lint、root/server build、源码门禁、Source 回归与精确 PR CI；提交本轮唯一 PR，复审，不自动合并。
-5. G4：用户私密运行全量预检；未实际运行前明确“未验证”。失败保留脱敏阶段收据，不缩小范围或改 unknown 为零。来源跨阶段变化须重查或设计容量分批方案，不能冒称 ready。
+4. G3：typecheck、lint、root/server build、源码门禁、Source 回归与精确 PR CI；本机检查已完成，远端交付仍待恢复后提交本轮唯一 PR、复审，不自动合并。
+5. G4：全量真实只读预检已由用户私密运行并成功；[有效回执与限制](evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)。失败历史保留，不缩小范围或改 unknown 为零。来源跨阶段变化须重查或设计容量分批方案，不能冒称 ready。
 
 ## 私密终端命令与数据保护
 
@@ -34,7 +34,7 @@ pwsh -NoProfile -File C:/Users/Administrator/.codex/worktrees/ainuoke-live-demo-
 ```
 
 私下输入用户名及隐藏密码。两个独立 worker 最多约 20 分钟，验证/包装有额外短时开销，期间可能无输出。最后只回传脱敏 JSON，不发密码、完整终端记录或私有明细。
-也支持用户自己显式加 `-CredentialFile D:/workspace/ainuoke-key.txt`；文件必须是当前用户拥有的普通文件，只有当前用户/SYSTEM 可读，无链接。格式为两行“账号：…”和“密码：…”。脚本不修改该文件权限、不保存密码、不把内容交给 Codex；宽权限或空密码拒绝。建议使用默认隐藏输入，避免为了运行工具扩大文件权限。
+也支持显式加 `-CredentialFile D:/workspace/ainuoke-key.txt`；文件必须是当前用户拥有的普通文件，只有当前用户/SYSTEM 可读，无链接。格式为两行“账号：…”和“密码：…”。脚本不修改该文件权限、不保存密码、不把内容交给模型；宽权限或空密码拒绝。后续必要的同范围只读调用由Codex执行已授权脚本，使用既有文件，不要求用户重复输入，也不扩大文件权限。
 
 每次新建空 `outputs/ainuoke-live-private-<UUID>/`，用 DACL 限制当前用户与 SYSTEM，并在 Node 进程和写文件前再次检查；拒绝 symlink/junction、非 ignored 路径、宽权限。不调用需 SeSecurityPrivilege 的 SACL 修改。用户名/密码只经匿名 stdin，argv/env/报告/日志不含凭据。报告仅包含后续样本核对需要的订单/需求/事件事实与单位，不保存报价金额、供应商或完整原始 payload；仍属于本机私有业务资料。
 
@@ -58,7 +58,7 @@ pwsh -NoProfile -File C:/Users/Administrator/.codex/worktrees/ainuoke-live-demo-
 
 ## 当前待验证
 
-真实全量颜色/物料读取耗时和容量、未知数量总体原因、全量单位完整性；新隔离目标的实际资源归属与镜像；真实首绑/持续采集与人工验收。本轮工程通过也不改变这些状态。用户后来回传三次失败运行；没有有效全量回执，不能将它们记为读取成功，也不能推断上游零请求。
+真实首绑/持续采集、持久化容量及人工验收；6个无效颜色/6个冲突单位和未知数量的最小定向原因；新隔离目标的实际资源归属与镜像。此前三次失败保留为原阶段结果，不能推断上游零请求。后续有效完整回执已证明单次全量范围/读取耗时/容量和单位统计，不能据此升级为已激活或部署。
 
 ## 本机收口
 
@@ -80,4 +80,10 @@ pwsh -NoProfile -File C:/Users/Administrator/.codex/worktrees/ainuoke-live-demo-
 
 文件格式/空值仍由脚本验证，错误不会回显秘密。全量数据完整性、Source激活与演示就绪仍未证明；[修复证据](evidence/ainuoke-live-demo-readiness/operator-wrapper-repair-2026-10-13.md)按新checkpoint冻结。此前“本机复审无阻断发现”仅是其日期/范围内记录，本次真实执行揭示的完整报告组合缺陷已明确纠正；旧证据不覆盖。
 
-修复checkpoint `c1392ea4dd140a811ef74b0f17dadea5183b6c5c`已冻结/绑定新证据。最终修复后24/24、root817/817、基线71/71及类型/增量lint/Server build、PowerShell解析、源码门禁通过；[本阶段最终复审](evidence/ainuoke-live-demo-readiness/operator-wrapper-final-local-review-2026-10-13.md)。真实预检仍等待有效回执，GitHub交付仍待恢复核实。
+修复checkpoint `c1392ea4dd140a811ef74b0f17dadea5183b6c5c`已冻结/绑定新证据。最终修复后24/24、root817/817、基线71/71及类型/增量lint/Server build、PowerShell解析、源码门禁通过；[本阶段最终复审](evidence/ainuoke-live-demo-readiness/operator-wrapper-final-local-review-2026-10-13.md)。工具最终提交 `4b4a09eac5ada875a452a743715f65e3e69719a1`已取得有效完整回执，GitHub交付仍待恢复核实。
+
+## 全量真实预检通过后的恢复点（2026-10-13）
+
+本阶段起始HEAD `4b4a09eac5ada875a452a743715f65e3e69719a1`，同分支/工作树、tracked/untracked干净。用户回传成功后，仅核对既有本机报告和脱敏统计，不再次采集、不修改代码/数据库/UI/真实账号或环境。558当前可见合同完整稳定，552颜色可用/6无效；14,411需求中12,655单位已知、1,750缺失、6冲突。物料阶段约6分55秒/24.2MiB，仍在600秒/32MiB预算内。
+
+新增[真实结果证据](evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)前向冻结，保留初版和修复的历史限制。用户已调整必要只读调用的执行方式，Codex可调用既有私密CredentialFile脚本，不提取密码到模型。单位缺失不等于数量未知，调度先capture后延时，实际持久化和连续刷新尚未核实。下一Gate是具体隔离目标计划和执行授权；本次不创建或启动账本，不绑定、不激活Source。
