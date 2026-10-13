@@ -1,6 +1,6 @@
 # 当前状态
 
-2026-10-13 / main 09f4447ab43e87798e1a5647f5ed02346ceef7ef（#104 已获授权合并）；#105 本地 head 6844952d08cd3cf899c250e92b37808c30ba6ab4 已完成基线与定向回归，但网络故障使远端交付待核实；#106 是 #105 上的单位映射 Draft，本工作树正在重对齐。D-111 三需求四来源行 QtyUnit=个的私有只读样本与用户编码/IT 语义确认支持只读映射；正式计算、旧快照与 Source 激活不变。D-112 用户决定上线前支持受控接纳新增合同，当前未实现，列为首次上线 Gate。宁波旧 prod/staging 健康与上游 HTTP 无凭据可达仅为只读预检；没有隔离新候选、真实采集运行或部署。[状态证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md) [单位证据](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。下文旧 SHA/PR 状态仅作历史快照。
+2026-10-13 / main 09f4447ab43e87798e1a5647f5ed02346ceef7ef（#104 已获授权合并）；#105 本地 head 6844952d08cd3cf899c250e92b37808c30ba6ab4 已完成基线与定向回归，但网络故障使远端交付待核实；#106 是 #105 上的单位映射 Draft，已在本机重对齐，精确门禁、71 项基线回归、61 项物料回归、817 项全套测试、类型检查、lint 和 build 均通过，最终远端 CI 待新 head 送达后复核。D-111 三需求四来源行 QtyUnit=个的私有只读样本与用户编码/IT 语义确认支持只读映射；正式计算、旧快照与 Source 激活不变。D-112 用户决定上线前支持受控接纳新增合同，当前未实现，列为首次上线 Gate。宁波旧 prod/staging 健康与上游 HTTP 无凭据可达仅为只读预检；没有隔离新候选、真实采集运行或部署。[状态证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md) [单位证据](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。下文旧 SHA/PR 状态仅作历史快照。
 
 核实2026-10-13；GitHub main：8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103已按用户授权合并）。GitHub是实时事实源；随main/PR/测试/探测/验收/环境变化更新。
 

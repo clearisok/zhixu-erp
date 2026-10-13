@@ -589,6 +589,15 @@
       "sha256": "2c9c64c543496f909920b37006d1442eed3d781447c975fe7c4feb7cd6c861d8",
       "supersedes": "decisions-readonly-validation",
       "changeReason": "D-112 records user-approved controlled new-contract acceptance as a prelaunch requirement; prior D-110 read-only evidence remains historical."
+    },
+    {
+      "id": "decisions-qtyunit-controlled-contracts-20261013",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "4f8042036c800d56e8a6172b29adb291951705e6",
+      "sha256": "f4e3ca353e5c1c31d8a96410be82a4939dc500151f97cd850ad505623637d404",
+      "supersedes": "decisions-controlled-new-contracts",
+      "changeReason": "Merge of the PR105 and PR106 branches retains both Active D-111 QtyUnit and D-112 controlled new-contract requirements in one current decision log."
     }
   ],
   "pages": [
