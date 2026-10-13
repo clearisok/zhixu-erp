@@ -1,4 +1,6 @@
 # 宁波首批团队上线方案
+2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 已合并 #106；D-112 受控新增合同仅在独立工程分支实施，尚未合并或用于真实业务。首轮上线条件仍是艾诺科四流持续展示、受控新增业务验收、隔离候选/备份回退与单独部署授权。此文件下文旧 SHA/PR 状态保留为历史观察。
+
 
 2026-10-13 / 更新：用户决定上线前支持受控接纳新增合同，该能力仍未实现。#104/#105 已合并至 main 6abc4bebc59954b98a6e3f79f038f9574588390d，#106 是未合并的单位映射 Draft；宁波旧 staging/production 与公网健康响应只读复核见[预检](../tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)，PR105 合并证据见[本次记录](../tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md)。旧容器不等于隔离新候选，未部署。
 

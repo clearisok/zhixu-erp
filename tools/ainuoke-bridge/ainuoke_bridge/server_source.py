@@ -71,7 +71,7 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
-    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted"):
+    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions"):
         raise ValueError("invalid_mode")
     if data.get("mode") == "targeted":
         if not target_keys <= set(data) or data["contracts"] != []:
@@ -92,7 +92,7 @@ def validate_input(data):
     if set(data) & target_keys:
         raise ValueError("invalid_target_scope")
     contracts = data["contracts"]
-    if data.get("mode") in ("bindings", "probe", "audit"):
+    if data.get("mode") in ("bindings", "probe", "audit", "discovery"):
         if contracts != []:
             raise ValueError("binding_discovery_scope_required")
         return data
@@ -100,6 +100,8 @@ def validate_input(data):
         raise ValueError("invalid_contract_scope")
     if len(set(map(identity, contracts))) != len(contracts):
         raise ValueError("duplicate_contract_scope")
+    if data.get("mode") == "additions" and len(contracts) > 25:
+        raise ValueError("addition_scope_limit")
     return data
 
 def collect(data, client=None):
@@ -190,6 +192,17 @@ def collect(data, client=None):
         colors = {key: pages("garment_color_size_details", {"salesContractNo": key}) for key in lookup}
         after = pages("order_discovery", {})
         return {"schemaVersion": "ainuoke-order-binding.v1", "discoveryBefore": before, "discoveryAfter": after, "colors": colors}
+    if data.get("mode") == "discovery":
+        after = pages("order_discovery", {})
+        return {"schemaVersion": "ainuoke-order-addition-discovery.v1", "discoveryBefore": before, "discoveryAfter": after}
+    if data.get("mode") == "additions":
+        selected = [identity(contract) for contract in data["contracts"]]
+        if any(key not in lookup for key in selected):
+            raise UpstreamSchemaError("target_not_visible")
+        colors = {key: pages("garment_color_size_details", {"salesContractNo": key}) for key in selected}
+        after = pages("order_discovery", {})
+        return {"schemaVersion": "ainuoke-order-addition.v1", "discoveryBefore": before,
+                "discoveryAfter": after, "colors": colors}
     materials = {}
     for contract in data["contracts"]:
         key = identity(contract)

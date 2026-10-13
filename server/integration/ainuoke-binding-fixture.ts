@@ -1,4 +1,5 @@
 import type { BindingBundle } from "../ainuoke-source/binding.js";
+import type { AdditionBundle, AdditionDiscoveryBundle } from "../ainuoke-source/additions.js";
 import { bundle, syntheticOrder } from "./ainuoke-source-fixture.js";
 export function bindingBundle(now=Date.now(),count=1):BindingBundle {
   const b=bundle();const stamp=new Date(now).toISOString();
@@ -16,4 +17,19 @@ export function freshMaterialBundle(now=Date.now()) {
  const b=bundle();const stamp=new Date(now).toISOString();
  for(const p of [...b.discoveryBefore,...b.discoveryAfter,...Object.values(b.materials).flat()])p.fetchedAt=stamp;
  return b;
+}
+export function additionBundle(now=Date.now(), count=2, selected=[1]):AdditionBundle {
+  const source=bindingBundle(now,count);
+  const colors: AdditionBundle['colors']={};
+  for(const index of selected){
+    const bill=String(source.discoveryBefore[0].rows[index].values.BillNo);
+    colors[bill]=source.colors[bill];
+  }
+  return {schemaVersion:'ainuoke-order-addition.v1',discoveryBefore:source.discoveryBefore,
+    discoveryAfter:source.discoveryAfter,colors};
+}
+export function additionDiscoveryBundle(now=Date.now(),count=2):AdditionDiscoveryBundle {
+  const source=bindingBundle(now,count);
+  return {schemaVersion:'ainuoke-order-addition-discovery.v1',discoveryBefore:source.discoveryBefore,
+    discoveryAfter:source.discoveryAfter};
 }
