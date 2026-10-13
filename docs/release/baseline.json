@@ -637,6 +637,13 @@
       "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-repair-2026-10-13.md",
       "recordedAtSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
       "sha256": "b7e57f9dbdf415d3ebec433005f656418e70e543f1726784bebca14d8025a136"
+    },
+    {
+      "id": "ainuoke-real-full-preflight-20261013",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md",
+      "recordedAtSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+      "sha256": "e0bbcf179842058a6dd8afe275b557ce235ea4c6f9b796ddd121d02d35bc061a"
     }
   ],
   "pages": [
@@ -2463,61 +2470,67 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
+      "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
       "evidence": [
         "ainuoke-live-demo-baseline-engineering-20261013",
         "decisions-live-demo-readiness-20261013",
-        "ainuoke-live-preflight-wrapper-repair-20261013"
+        "ainuoke-live-preflight-wrapper-repair-20261013",
+        "ainuoke-real-full-preflight-20261013"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-13",
-          "sourceSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
-          "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
+          "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
           "evidence": [
             "ainuoke-live-preflight-wrapper-repair-20261013",
-            "decisions-live-demo-readiness-20261013"
+            "decisions-live-demo-readiness-20261013",
+            "ainuoke-real-full-preflight-20261013"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-13",
-          "sourceSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
-          "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
+          "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
           "evidence": [
             "ainuoke-live-preflight-wrapper-repair-20261013",
-            "decisions-live-demo-readiness-20261013"
+            "decisions-live-demo-readiness-20261013",
+            "ainuoke-real-full-preflight-20261013"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-13",
-          "sourceSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
-          "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
+          "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
           "evidence": [
             "ainuoke-live-preflight-wrapper-repair-20261013",
-            "decisions-live-demo-readiness-20261013"
+            "decisions-live-demo-readiness-20261013",
+            "ainuoke-real-full-preflight-20261013"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-13",
-          "sourceSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
-          "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
+          "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
           "evidence": [
             "ainuoke-live-preflight-wrapper-repair-20261013",
-            "decisions-live-demo-readiness-20261013"
+            "decisions-live-demo-readiness-20261013",
+            "ainuoke-real-full-preflight-20261013"
           ]
         },
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-13",
-          "sourceSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
-          "scope": "Unmerged source-only full preflight and plan-only isolated target; complete-report status rejection and opaque wrapper failures repaired. Twenty-four synthetic tests include production-shaped success/failure report persistence and actual Windows CredentialFile-to-Node invocation. Three user live attempts failed without reports; real full collection remains unverified. No DB, Source activation, human acceptance or deployment.",
+          "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
           "evidence": [
             "ainuoke-live-preflight-wrapper-repair-20261013",
-            "decisions-live-demo-readiness-20261013"
+            "decisions-live-demo-readiness-20261013",
+            "ainuoke-real-full-preflight-20261013"
           ]
         },
         "trial18443": {

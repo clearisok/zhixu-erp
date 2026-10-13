@@ -60,7 +60,7 @@ pwsh -NoProfile -File C:/Users/Administrator/.codex/worktrees/ainuoke-live-demo-
 
 真实首绑/持续采集、持久化容量及人工验收；6个无效颜色/6个冲突单位和未知数量的最小定向原因；新隔离目标的实际资源归属与镜像。此前三次失败保留为原阶段结果，不能推断上游零请求。后续有效完整回执已证明单次全量范围/读取耗时/容量和单位统计，不能据此升级为已激活或部署。
 
-## 本机收口
+## 初版本机收口（真实预检前的历史记录）
 
 最终22项新回归、root817/817、发布基线71/71、Python69/69、Source20PASS/1skip及continuous43PASS/1skip通过；typecheck/lint/Server及默认UI build通过。无UI变化。独立本机复审未发现阻断代码问题，精确PR CI仍是合并前条件；[详细结果与交付限制](evidence/ainuoke-live-demo-readiness/final-local-review.md)。真实预检未执行。
 

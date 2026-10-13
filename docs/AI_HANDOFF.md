@@ -1,9 +1,9 @@
 # AI handoff
 
-核实2026-10-13；最新 main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`（用户授权合并PR107已完成）。本工作树 `ainuoke-live-demo-readiness` / `feat/ainuoke-live-demo-readiness` 起点同完整SHA、tracked/untracked干净。先读AGENTS、PROJECT_INDEX、CURRENT_STATE及[本轮任务](tasks/active/ainuoke-live-demo-readiness.md)，再核实实际GitHub/HEAD/diff。旧恢复记录完整[归档](tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)，不再把旧“#104/105/106/107未合并”当当前事实。
+核实2026-10-13；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`，开放PR为0。继续现有 `feat/ainuoke-live-demo-readiness`，入口HEAD `b1aaabd2f5083b54b804bcffc68d55d2a8dcb242`。先读AGENTS、PROJECT_INDEX、CURRENT_STATE和[任务](tasks/active/ainuoke-live-demo-readiness.md)。本次两项已知继承dirty单独收口，见[Gate0](tasks/active/evidence/ainuoke-live-demo-readiness/baseline-reconciliation-2026-10-13.md)，不重建工作树、不混入未知改动。
 
-本轮只做无DB全量预检、受保护ignored报告和plan-only目标。三次原失败及修复checkpoint `c1392ea4dd140a811ef74b0f17dadea5183b6c5c`保留历史；修复后24/24、root817/817、基线71/71、类型/增量lint/Server build及源码门禁通过，[复审](tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-final-local-review-2026-10-13.md)。用户已在工具HEAD `4b4a09eac5ada875a452a743715f65e3e69719a1`运行成功，558合同全量/稳定、颜色552可用6无效、14,411需求单位12,655已知1,750缺失6冲突；耗时8分25秒、物料24.2MiB/6分55秒。受保护私有报告ACL/hash已核对，[脱敏证据](tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)。不能重复全量采集或将成功升级为首绑/调度/人工验收。GitHub交付NETWORK_DEGRADED、分支未送达/无PR，不重建/重复PR/撞远端；精确SHA/CI待恢复。
+已核实成功全量私有报告ACL/hash `13dc7d3b5ed3afec38bd4d8ce74fe8cba97f3ea77db4ba655df5a03a0701ba4d`；558可见合同，552有效颜色/6无效，14,411需求。报告是派生事实而非完整raw bundle，不重复全量采集。[冻结统计](tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)。新任务要求异常原因分类、采购实际量/理论量分离及真实代码的持久隔离本机演示。Excel19Sheet已只读确认，不改原文件，模拟/真实核对的来源说明必须保留。
 
-执行方式已由用户后续调整：Codex可自行调用同范围已授权只读脚本与既有本机CredentialFile，密码只在短命进程内，不读取到模型/日志；此前用户私密终端执行是原阶段边界。尚无新隔离目标执行授权，先准备实际镜像/端口/资源归属与可审查计划。不能借本次只读权限连接真实业务DB、首绑或激活持续写入。全量数据缺口待最小定向证据分类，单位缺失不等于数量未知；capture完成后再等待间隔，真实频率尚未测量。
+新授权允许在归属/身份阻断通过后创建全新的本机Docker project、DB、network、volume，使用合成或获准脱敏fixture。不得写现有业务库、改真实账号、激活真实Source/持续采集、部署宁波/18443/18444、自动合并。现有UI/正式数量含义/齐套/去重/单位换算保持。115.50理论与118采购是合法不同事实；不能假定TotalNum是理论或全局改成cgnum。Codex可自行调用既有受限CredentialFile只读包装器，密码不进上下文；不再要求用户重复输入。
 
-约束：原UI/正式数量/去重/单位公式/SQL/default flags不改；真实账号/业务数据库/宁波/18443/18444不操作；本PR不自动合并。用户正在填写Excel，不覆盖、不导入。持续来源尚未激活，不能把代码/合成测试/只读预检升级为真实展示或人工验收。后续新隔离目标执行需要具体可审查的计划与授权。网络失败按AGENTS，LOCAL ENGINEERING/REMOTE DELIVERY分别记录；不换认证、不force/reset/clean。更新时机：可靠Gate、交付、真实回执或授权变化。
+下步：核对已有私有报告是否有足够原始字段；仅补必要定向只读证据。实现受控持久演示启动器及负向测试，复用Server/Binding/Capture/Projection/P6，不冒称统计报告能重放558单。用户要求最多3项真正必要业务确认。NETWORK_DEGRADED保留；本地测试、远端SHA、PR/CI分别记录。更新时机：每个可靠Gate、授权/真实回执/交付变化。
