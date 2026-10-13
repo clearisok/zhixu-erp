@@ -1,5 +1,8 @@
 # 艾诺科 Server Source：首次订单绑定与持续物料展示
-2026-10-13 / D-111 工程候选：读取固定 6087050 新字段 `QtyUnit` 并在只读物料 Projection 按需求展示一致的来源单位；不修改 Source 采集配置、订单绑定、调度、数据库 schema、生产路由或部署。旧已存快照缺字段时单位仍未知；需在经授权的未来采集后才可能显示新字段。详见[脱敏单位证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。
+2026-10-13 / D-111：固定 6087050 的 QtyUnit 在只读物料 Projection 按需求展示一致来源单位；旧快照缺单位仍未知，冲突停止该需求汇总。不改正式计算、数据库、Source 调度或部署。[单位证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。
+
+D-112：用户要求首轮上线前受控接纳新增艾诺科合同。现有调度只刷新已绑定订单；新增合同 Discovery、预览、确认、幂等绑定和主信息/颜色策略须另行实现验收。#104 已合并，#105/#106 未合并；宁波旧环境只读预检见[合并记录](../tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。
+
 核实日期：2026-10-13；main 基线：8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103 HTTP扩展已合并；D110全合同只读audit在独立分支实施）。
 GitHub/代码为实时事实源；本文件随来源契约、权限、命令、构建、调度、真实激活及验收变化更新。PR99阶段证据保留在原任务/冻结证据，本轮见[任务](../tasks/active/ainuoke-continuous-material-display.md)。
 

@@ -1,10 +1,7 @@
 # 当前状态
 
-本单位映射 PR 的审查 base：`d8b01171841dbca622dd320808371334a5d87676`（PR #105 head）；当前 main SHA 另见下方。
+2026-10-13 / main 09f4447ab43e87798e1a5647f5ed02346ceef7ef（#104 已获授权合并）；#105 本地 head 6844952d08cd3cf899c250e92b37808c30ba6ab4 已完成基线与定向回归，但网络故障使远端交付待核实；#106 是 #105 上的单位映射 Draft，本工作树正在重对齐。D-111 三需求四来源行 QtyUnit=个的私有只读样本与用户编码/IT 语义确认支持只读映射；正式计算、旧快照与 Source 激活不变。D-112 用户决定上线前支持受控接纳新增合同，当前未实现，列为首次上线 Gate。宁波旧 prod/staging 健康与上游 HTTP 无凭据可达仅为只读预检；没有隔离新候选、真实采集运行或部署。[状态证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md) [单位证据](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。下文旧 SHA/PR 状态仅作历史快照。
 
-本机验证：定向 Adapter/Projection/正式只读门禁测试已通过；`npm run typecheck`、`npm run lint`、`npm run build`、`npm test` 817/817、`npm run test:release-baseline` 71/71、以实际堆叠 base 执行的 `check:release-baseline` 均 PASS。隔离合成 Chromium 物料页 9/9、34 断言通过。最终 PR/CI 状态另以 GitHub 核验，工程通过不代表真实 Source 激活或部署。
-
-> 2026-10-13 / 单位映射分支 `feat/ainuoke-qty-unit`：GitHub main `8b3f3d811d05182ea1a7f3214eae9d530056fa04`；PR #104 OPEN、PR #105 Draft OPEN 且相互依赖。本机受保护一合同报告已证实 6087050 目标四来源行 `QtyUnit=个`，三组编码由用户上游界面确认，IT 语义由用户转述确认；356 仍是一笔采购事件。D-111 工程候选只将可信单位显示在现有只读页面；缺失未知、同需求冲突暂停该项数量汇总/状态，不改正式计算或存储。真实 Source 激活、全量单位完整度、宁波部署与人工上线验收仍未发生。[脱敏证据](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。下方是旧阶段快照，以当前代码/PR/运行环境复核为准。
 核实2026-10-13；GitHub main：8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103已按用户授权合并）。GitHub是实时事实源；随main/PR/测试/探测/验收/环境变化更新。
 
 - D109原艾诺科HTTP长期接受及私密首页probe已合并；PR103精确head1de3078三项CI成功，无行级审查问题。此前source的Chrome启动超时、同提交重跑通过记录保留。
