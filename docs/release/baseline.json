@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "6395db45bebe572c736cf4137a373e0f816be6c0",
-  "verifiedAt": "2026-10-12T16:19:44.7471174+00:00",
+  "baselineSha": "8b3f3d811d05182ea1a7f3214eae9d530056fa04",
+  "verifiedAt": "2026-10-13T00:17:44.073849+00:00",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -536,6 +536,22 @@
       "path": "docs/tasks/active/evidence/ainuoke-approved-http/user-probe.json",
       "recordedAtSha": "a2585202c2a65c843f84f3fde05ff41f09dd388d",
       "sha256": "929bc24958d342283d033a5f1e9babec134b1bdf9b0ad4c880e0f9bf134abd90"
+    },
+    {
+      "id": "decisions-readonly-validation",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
+      "sha256": "073d2f40161d0befef798ca34c2b94ad5de687ec53a9dc46feed48d9b573dcac",
+      "supersedes": "decisions-approved-http",
+      "changeReason": "D110 authorizes PR103 merge and broader database-free all-visible-contract discovery plus representative material reads; D109 permanent HTTP decision and UI/write/deploy boundaries remain."
+    },
+    {
+      "id": "ainuoke-readonly-validation-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-readonly-validation/engineering.md",
+      "recordedAtSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
+      "sha256": "99489f8cbf5a94af080048cd4a855f7ddee574938711d7e7d158466b893615be"
     }
   ],
   "pages": [
@@ -1965,7 +1981,7 @@
     {
       "id": "ainuoke-approved-http",
       "implemented": "yes",
-      "merged": false,
+      "merged": true,
       "isolatedTest": "passed-historical",
       "humanAcceptance": "not-run",
       "sourceActivation": "not-connected",
@@ -1973,11 +1989,12 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "D109 exact-origin HTTP policy and private terminal first-page probe. User-returned real login success and 50/558 discovery, first-contract color 5 and material 0; no full coverage, persistent Source activation, DB writes or deployment.",
+      "scope": "PR103 HTTP policy/private probe merged at 8b3f3d811d05182ea1a7f3214eae9d530056fa04. Previous user-returned first-page login evidence remains limited; no persistent Source activation or deployment.",
       "evidence": [
         "ainuoke-approved-http-engineering",
         "ainuoke-approved-http-user-probe",
-        "decisions-approved-http"
+        "decisions-approved-http",
+        "ainuoke-readonly-validation-engineering"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1992,14 +2009,12 @@
           ]
         },
         "merged": {
-          "value": false,
+          "value": true,
           "assessedAt": "2026-10-13",
-          "sourceSha": "a2585202c2a65c843f84f3fde05ff41f09dd388d",
-          "scope": "D109 exact-origin HTTP policy and private terminal first-page probe. User-returned real login success and 50/558 discovery, first-contract color 5 and material 0; no full coverage, persistent Source activation, DB writes or deployment.",
+          "sourceSha": "8b3f3d811d05182ea1a7f3214eae9d530056fa04",
+          "scope": "User explicitly authorized PR103; exact head 1de3078 and all three CI checks verified before merge at 2026-10-13T00:02:33Z.",
           "evidence": [
-            "ainuoke-approved-http-engineering",
-            "ainuoke-approved-http-user-probe",
-            "decisions-approved-http"
+            "ainuoke-readonly-validation-engineering"
           ]
         },
         "isolatedTest": {
@@ -2053,6 +2068,97 @@
           "scope": "HTTP capability not deployed. Runtime identity is a historical observation, not rechecked this turn.",
           "evidence": [
             "ainuoke-approved-http-engineering"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-readonly-validation",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+      "evidence": [
+        "ainuoke-readonly-validation-engineering",
+        "decisions-readonly-validation"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
+          "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+          "evidence": [
+            "ainuoke-readonly-validation-engineering",
+            "decisions-readonly-validation"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-13",
+          "sourceSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
+          "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+          "evidence": [
+            "ainuoke-readonly-validation-engineering",
+            "decisions-readonly-validation"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
+          "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+          "evidence": [
+            "ainuoke-readonly-validation-engineering",
+            "decisions-readonly-validation"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
+          "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+          "evidence": [
+            "ainuoke-readonly-validation-engineering",
+            "decisions-readonly-validation"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
+          "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+          "evidence": [
+            "ainuoke-readonly-validation-engineering",
+            "decisions-readonly-validation"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Read-only audit not deployed. Existing runtime image identities are historical and were not re-observed.",
+          "evidence": [
+            "ainuoke-readonly-validation-engineering"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Read-only audit not deployed. Existing runtime image identities are historical and were not re-observed.",
+          "evidence": [
+            "ainuoke-readonly-validation-engineering"
           ],
           "runtimeId": "preview18444",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"

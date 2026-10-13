@@ -7,3 +7,4 @@
 
 D109同地址HTTP风险不重复确认；D110只读扩大范围不授权绑定/持续写入/真实账号或DB变更/部署。保持UI和生产路由。后续checkpoint、manifest证据绑定、精确远端PR及CI分别记录；新PR不自动合并。详见tasks/active/ainuoke-readonly-validation.md。
 更新时机：本机验证、真实回执、checkpoint、PR/main、人工验收与环境变化。
+工程checkpoint 43363d1842dd0818c48cd3e0d5e052e0c5cf8054；D110/工程证据已冻结，新main门禁PASS（10页面/15能力/0 UI）。LOCAL ENGINEERING PASS；真实扩大核对仍待回执，远端/CI见最终精确PR。
