@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
-  "verifiedAt": "2026-10-13T09:21:11.273Z",
+  "verifiedAt": "2026-10-13T16:27:47Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -660,6 +660,13 @@
       "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/quality-and-quantity-gate-2026-10-13.md",
       "recordedAtSha": "7ae0ea9b1b0584c7b03a6fe9cbb91c0ac155b51b",
       "sha256": "941c54c0c235b17e0d446a82c412a5b63a2d4ae8d7541283f0393654b3d75af8"
+    },
+    {
+      "id": "ainuoke-isolated-demo-final-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md",
+      "recordedAtSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+      "sha256": "07c71ed4947a9011f0bd13ccd54b119978e81d988aecba3f86de10ec24979922"
     }
   ],
   "pages": [
@@ -2569,6 +2576,285 @@
           "evidence": [
             "ainuoke-live-demo-baseline-engineering-20261013",
             "decisions-live-demo-readiness-20261013"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-source-quality-diagnostic",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+      "evidence": [
+        "ainuoke-isolated-demo-final-20261014",
+        "decisions-quality-isolated-demo-20261013"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-quantity-comparison",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+      "evidence": [
+        "ainuoke-isolated-demo-final-20261014",
+        "decisions-quality-isolated-demo-20261013"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "isolated-offline-fixture-demo",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+      "evidence": [
+        "ainuoke-isolated-demo-final-20261014",
+        "decisions-quality-isolated-demo-20261013"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
           ],
           "runtimeId": "preview18444",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
