@@ -644,6 +644,22 @@
       "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md",
       "recordedAtSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
       "sha256": "e0bbcf179842058a6dd8afe275b557ce235ea4c6f9b796ddd121d02d35bc061a"
+    },
+    {
+      "id": "decisions-quality-isolated-demo-20261013",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "7ae0ea9b1b0584c7b03a6fe9cbb91c0ac155b51b",
+      "sha256": "536f7882b4169b7e96ba557a925faf6f2f91b94b60ce22aeaa62478141868021",
+      "supersedes": "decisions-live-demo-readiness-20261013",
+      "changeReason": "D114 records confirmed separate quantity facts and new isolated fixture authorization; preserves D113 history."
+    },
+    {
+      "id": "source-quality-quantity-20261013",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/quality-and-quantity-gate-2026-10-13.md",
+      "recordedAtSha": "7ae0ea9b1b0584c7b03a6fe9cbb91c0ac155b51b",
+      "sha256": "941c54c0c235b17e0d446a82c412a5b63a2d4ae8d7541283f0393654b3d75af8"
     }
   ],
   "pages": [
