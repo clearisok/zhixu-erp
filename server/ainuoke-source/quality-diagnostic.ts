@@ -89,7 +89,13 @@ export async function analyzeQuality(input: unknown, request: QualityRequest, no
       sourceRows:pipeline?.rawRows.filter(raw=>raw.normalizedDemandId===r.demand.id).map(raw=>({sourceRowIdentity:raw.trace.sourceKind==="api"?raw.trace.sourceRowIdentity:null,
         QtyUnit:raw.values.quantityUnit, normalizedIdentity:raw.normalizedDemandId, values:raw.values})), quantitiesBlocked:r.purchased===null&&r.inbound===null&&r.shipped===null&&r.outbound===null})) ?? [];
     const observations=Object.fromEntries(streams.map(([quantity,document])=>[quantity,Object.fromEntries([...new Set(pipeline?.rawRows.map(r=>classifyQuantity(r.values[quantity],r.values[document])) ?? [])].map(code=>[code,pipeline!.rawRows.filter(r=>classifyQuantity(r.values[quantity],r.values[document])===code).length]))]));
-    privateOrders.push({label:target.label,reason:target.reason,requested:target,current,insideIdentityChanged:identity(target.insideOrderNo)!==identity(discovered.insideOrderNo),color,colorParserError,
+    // Tokens here are size labels, never credentials. Use an explicit evidence
+    // name rather than weakening the shared secret-key inspector.
+    const colorRowEvidence = (row: NonNullable<typeof color>["rows"][number]) => {
+      const {sizeRuleTokens, ...facts} = row; return {...facts, sizeRuleLabels:sizeRuleTokens};
+    };
+    const colorEvidence = color ? {...color, rows:color.rows.map(colorRowEvidence), usableRows:color.usableRows.map(colorRowEvidence)} : null;
+    privateOrders.push({label:target.label,reason:target.reason,requested:target,current,insideIdentityChanged:identity(target.insideOrderNo)!==identity(discovered.insideOrderNo),color:colorEvidence,colorParserError,
       colorRawPages:colorPages ?? null,materialRawPages:materialPages ?? null,material,conflictDemands,observations});
   }
   const summary={schemaVersion:"ainuoke-quality-diagnostic.v1",result:"READ_ONLY_QUALITY_DIAGNOSTIC_RECORDED",databaseAccess:"none",sourceActivation:"not-activated",preflightSha256:request.preflightSha256,
@@ -124,8 +130,12 @@ export async function main(args=process.argv.slice(2)) {
     if(execFileSync("git",["status","--porcelain","--untracked-files=normal"],{encoding:"utf8",windowsHide:true}).trim())throw new SourceError("quality_clean_worktree_required");
     const parts:Buffer[]=[];let bytes=0;for await(const part of process.stdin){bytes+=part.length;if(bytes>16384)throw new SourceError("invalid_collector_configuration");parts.push(Buffer.from(part));}
     const config=parseCollectorConfig(JSON.parse(new TextDecoder("utf8",{fatal:true}).decode(Buffer.concat(parts))));
-    const raw=await collectQuality(config,request),report=await analyzeQuality(raw,request);
-    const receipt=writePrivateReport(output,{...report.privateReport,toolingCommit});process.stdout.write(JSON.stringify({...report.summary,toolingCommit,...receipt})+"\n");
+    const raw=await collectQuality(config,request);
+    // Persist the bounded source once, before derived analysis, so a report-only
+    // repair can be replayed offline instead of repeating live collection.
+    const rawReceipt=writePrivateReport(output,{schemaVersion:"ainuoke-quality-raw-evidence.v1",preflightSha256:request.preflightSha256,toolingCommit,rawBundle:raw});
+    const report=await analyzeQuality(raw,request);
+    const receipt=writePrivateReport(output,{...report.privateReport,toolingCommit});process.stdout.write(JSON.stringify({...report.summary,toolingCommit,rawEvidence:rawReceipt,...receipt})+"\n");
   } catch(error) {
     const code=error instanceof SourceError?error.code:"quality_invalid_or_unavailable";
     process.stdout.write(JSON.stringify({schemaVersion:"ainuoke-quality-diagnostic.v1",result:"FAIL",code,databaseAccess:"none",sourceActivation:"not-activated"})+"\n");process.exitCode=1;

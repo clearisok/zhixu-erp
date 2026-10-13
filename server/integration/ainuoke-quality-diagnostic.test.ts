@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { classifyQuantity,purchaseUnitCrossStats,validateQualityRequest,analyzeQuality,type QualityRequest } from "../ainuoke-source/quality-diagnostic.js";
+import { inspect } from "../ainuoke-source/contract.js";
 import { bindingBundle,freshMaterialBundle } from "./ainuoke-binding-fixture.js";
 const stamp=Date.now();
 function fixture(){
@@ -26,6 +27,7 @@ test("bounded scope rejects duplicate, foreign, extra fields and more than six c
 test("analysis reuses actual color and material adapters and public receipt omits identities",async()=>{
  const {request,bundle}=fixture();const result=await analyzeQuality(bundle,request,stamp);
  assert.equal(result.summary.contracts,1);assert.equal(result.summary.databaseAccess,"none");
+ inspect(result.privateReport); assert.ok(!JSON.stringify(result.privateReport).includes("sizeRuleTokens"));
  const text=JSON.stringify(result.summary);for(const value of [request.targets[0].salesContractNo,"SYNTHETIC-IN-OLD","protected-commercial-sentinel"])assert.ok(!text.includes(value));
  assert.ok(result.privateReport.orders[0].materialRawPages?.length);assert.equal(result.privateReport.orders[0].insideIdentityChanged,false);
 });
