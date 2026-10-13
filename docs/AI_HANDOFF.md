@@ -13,3 +13,5 @@ Gate1诊断工程：11项Node/27项Python及typecheck通过；quality模式仅6�
 定向报告修复：sizeRuleTokens在诊断证据中明确命名sizeRuleLabels，不放宽secret检查；源raw先受保护保存，分析修复可离线重放。
 
 Gate2：19合同定向真实核对已完成，47请求；详情仅本机保护报告。数量比较新增只读测算候选、不替换TotalNum或齐套。D114记录隔离演示授权。门禁新增线性文档版本链及祖先/锚点/唯一末端阻断；文档冻结绑定将在本checkpoint后独立提交，不能因暂时漂移放宽检查。
+
+Gate3隔离演示工程：源码身份先于Pool，数据库名称/用户/空库/ready marker阻断，容器/镜像/网络ID和完整挂载/入口/loopback检查；新独立持久卷，无自动删除。私有目录owner+SYSTEM ACL、Git忽略和非link检查先于secret/Excel副本；原Excel哈希和解析payload字节双绑定。合成案例明确区别确认数量与合成其余字段；Excel未映射颜色/物料保留空，生产排单等Sheet暂缓。首次运行/浏览器仍待验证。
