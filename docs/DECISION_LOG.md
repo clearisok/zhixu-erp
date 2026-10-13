@@ -18,9 +18,16 @@
 
 ## Active
 
+### D-113 本机真实演示先完整无数据库预检
+- 日期：2026-10-13；状态：Active。用户授权合并#107，随后“继续”接续本机真实Source演示准备；原UI/真实账号/织序业务DB/部署/新PR不自动合并边界保持。此项不授权初始化任何真实或演示数据库。
+- AI工程选择：复用既有bindings及material collector、正式Bootstrap Preview和Material Projection，完整读取当前账号全部可见合同的颜色及四流；两个worker各沿用600秒/100000行/32MiB与10分钟freshness，不按状态排除或抽样、不中途缩小首绑范围。前后及跨阶段Discovery事实不一致、超预算、漏页/合同失败关闭；缺颜色按enrichment保留，未知数量/单位不填零或“个”。
+- 真实读取由用户在私密终端执行；凭据经匿名stdin，不进入Codex上下文、argv/env/DB/Git/报告。可由用户自己选择严格权限的本机两行凭据文件，助手不提取密码；宽权限拒绝，不修改原文件。Windows报告使用当前用户/SYSTEM DACL及ignored目录，Linux保护沿用owner-only；不需SeSecurityPrivilege/SACL修改。
+- 完整只读收据只证明读取/映射技术范围，不授权操作人或激活Source，不声明演示就绪。新本机目标检查仅生成plan，不创建容器/DB；实际镜像/端口/资源归属需执行前核实并另行取得具体目标授权。后续停止保留数据，不将合成脚本两小时自动删除用于真实验收。
+- 推荐首轮演示在明确授权的独立本机账本完整首绑/持久快照与2–3次刷新、3–5代表订单核对之后；24小时/故障重启/备份/六角色与受控新增作为宁波晋升前AI建议，不要求填完全部Excel或实现生产/关账。代码/测试/限制见[本轮任务](tasks/active/ainuoke-live-demo-readiness.md)、`server/ainuoke-source/live-preflight.ts`/`demo-plan.ts`、`scripts/ainuoke-live-preflight.ps1`。
+
 ### D-112 首轮上线前受控接纳新增艾诺科合同
 - 日期：2026-10-13；状态：Active。用户决定首轮上线前支持受控新增合同。
-- main 既有边界：调度只刷新已绑定订单四流，不自动建单或更新主信息/颜色。独立 `feat/ainuoke-controlled-contract-intake` 工程实现完整 Discovery 差异、显式选择 1–25 合同、只读预览、来源重取、事务内幂等接纳与可信审计；未合并/未激活时不得称 main 已支持。
+- main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5` 已按用户授权合并PR107（head `31b5f28862d032fc954b3f831888005f14060a1c` 三项CI成功）。调度只刷新已绑定四流，不自动建单或更新主信息/颜色；已合并工程提供完整Discovery差异、显式选择1–25合同、只读预览、来源重取、事务内幂等接纳与可信审计。精确重试核对已存镜像；来源/接纳互斥与权限重验。尚未真实激活或部署。
 - 来源缺失、身份漂移或权限变化阻止接纳，绝不硬删旧订单；既有订单主信息/颜色自动刷新仍是后续独立范围。代码/负向测试与执行边界见 [D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)。
 - 此决定不授权真实 DB 写入、来源持续激活或部署。[原决定证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。
 
@@ -28,7 +35,7 @@
 - 日期：2026-10-13；状态：Active。用户转述 IT 确认 `QtyUnit` 是每条物料需求的计量单位，同时约束 `TotalNum`、`cgnum` 以及该需求下入库、物料出运、出库数量；用户在艾诺科界面人工核对了目标三行编码。此确认是用户提供的业务证据，不冒称 IT 原始书面回执或全量合同抽样。
 - 已核实的私有 6087050 定向报告中，目标三需求四来源行的原始 QtyUnit 均为“个”，三组物料身份/数量与界面核对一致，356 的两来源行仍只是一笔采购事件。公开仅保留脱敏计数与报告 SHA，见[单位确认](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。
 - 工程选择：API Adapter 映射 `quantityUnit <- QtyUnit`，只读投影按 demand 检查所有来源行；一致非空才展示单位，空白保持未知，冲突停止该需求的投影数量汇总及状态判定并报告。不同 child Demand 不跨单位求和，不从规格推断，也不改变 `TotalNum`、`cgnum`、理论用量、事件去重或正式齐套公式。历史 Excel 单位列仍无可信映射。
-- 证据：`features/style-progress/source/ainuoke-material-api-adapter.ts`、`features/ainuoke-material-progress/projection.ts`、`tests/ainuoke-material-progress.test.mjs`。本 PR 仅工程候选，不等于合并、真实 Source 激活、正式持久化单位模型或宁波部署。
+- 证据：`features/style-progress/source/ainuoke-material-api-adapter.ts`、`features/ainuoke-material-progress/projection.ts`、`tests/ainuoke-material-progress.test.mjs`。PR106已按用户授权合并为main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0`；不等于真实Source激活、正式持久化单位模型或宁波部署。
 
 
 ### D-110 全合同只读核对与四流代表合同验证

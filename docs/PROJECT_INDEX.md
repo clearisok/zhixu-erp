@@ -1,12 +1,8 @@
 # 项目知识索引
 
-2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 已合并 PR #104/#105/#106。D-112 受控新增合同在独立 `feat/ainuoke-controlled-contract-intake` 工程分支实施，仍未合并、未真实执行；恢复入口为[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)及 Active 决策。下文旧 SHA/PR 状态仅按历史时点阅读。
+核实2026-10-13；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5` 已合并 #104/#105/#106/#107。工程含 QtyUnit 与受控新增合同；真实Source未激活、未部署、未完成全量持续人工验收。当前恢复入口：[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[本机真实演示准备](tasks/active/ainuoke-live-demo-readiness.md)、[当前状态](CURRENT_STATE.md)、Active D105–113。
 
-
-> 核实2026-10-13；main 8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103已合并）。当前PR104：[全合同只读核对](tasks/active/ainuoke-readonly-validation.md)；[真实结果](tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md)：558可见合同完整稳定、80物料抽样四流有代表；62合同数量存在未知，单位未核实。D109永久HTTP接受保持；持续Source未激活、人工业务验收未完成。GitHub是实时事实源；随main/来源/环境/验收变化更新。
-
-> [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。[少量订单定向诊断](tasks/active/ainuoke-targeted-diagnostic.md)是依赖 PR104 的草稿 PR105：合成与用户私密定向只读运行已完成，[脱敏真实证据](tasks/active/evidence/ainuoke-targeted-diagnostic/real-results.md)显示三行技术对照找到；[QtyUnit 后续复核](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-followup-2026-10-13.md)已见目标行候选“个”，人工身份/单位语义仍待确认。
-
+历史真实发现558可见合同、80物料抽样与62未知是原日期证据；三行单位/身份后续获用户确认，不代表全量数据完美。GitHub/代码是实时事实源，文档随main/来源/目标/验收变化更新。[旧状态原文](tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)保留旧日期/hash/结果/限制。[基线门禁](features/RELEASE_BASELINE_GUARD.md)及[交付协议](tasks/active/git-delivery-resilience.md)保持，不替代UI/DB/部署验收。
 ## 系统简介
 
 并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。
@@ -15,7 +11,7 @@
 
 - 根路径 ERP：报价、订单、排单、用户和审计功能，使用 PostgreSQL 持久化，并由数据库函数提供 API。
 - Quote Center 路径：默认 Browser mock 持久化；显式 Server 模式的正式报价/资料 UI 使用可信 Node `/api/v1` 与 PostgreSQL，已有报价工作流/附件/导出/日志。旧实际运行态与最新工程能力分开记录，与 legacy `/api/quotes` 隔离。
-- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单；D-105/106允许受控来源与显式首次绑定开发，不自动追加合同或真实激活。报价之外模块不因试用候选而自动 production-ready。
+- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单；D105/106允许受控来源与显式首次绑定；D112受控新增已在#107合并，但不自动接纳或真实激活。报价之外模块不因试用候选而自动 production-ready。
 
 两条路径都是真实现，但边界和成熟度不同。开始任务前必须先确认目标模块。
 
@@ -73,7 +69,7 @@
 
 ## 当前来源任务
 
-[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受。D109已批准HTTP且认证成功；D110有真实完整可见合同发现及80物料抽样。数量/单位/逐物料业务核对、全量颜色/规模、持续运行/部署仍待Gate。
+[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受。D109已批准HTTP且认证成功；D110有真实完整可见合同发现及80物料抽样。目标三行单位/身份获人工确认、QtyUnit工程已合并；全量颜色/物料规模、数量未知原因及持续运行/部署仍待Gate。
 
 ## 模块导航
 

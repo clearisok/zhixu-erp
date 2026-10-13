@@ -1,15 +1,7 @@
 # AI handoff
 
-2026-10-13 / 最新接力：用户授权合并 PR #106，GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0`。独立工作树 `ainuoke-controlled-new-contracts`、分支 `feat/ainuoke-controlled-contract-intake` 从该精确提交开始，D-112 工程与本机验证已完成：root 817/817、发布基线 71/71、Python 25/25、持续来源 43 PASS / 1 Windows 跳过、typecheck/lint/Server/UI build 通过。精确重试现校验已存 Contract/Color Mirror，避免只凭审计收据误通过。只添加显式新合同，旧订单主信息/颜色不自动刷新；真实来源、业务 DB、宁波/18443/18444 均未操作。交付与合并前复审须以该分支唯一 PR 的精确远端 SHA 和 CI 结果核实，尤其 Linux CLI 全流程；本任务不自动合并。[任务](tasks/active/ainuoke-controlled-new-contracts.md)。下文为历史接力。
+核实2026-10-13；最新 main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`（用户授权合并PR107已完成）。本工作树 `ainuoke-live-demo-readiness` / `feat/ainuoke-live-demo-readiness` 起点同完整SHA、tracked/untracked干净。先读AGENTS、PROJECT_INDEX、CURRENT_STATE及[本轮任务](tasks/active/ainuoke-live-demo-readiness.md)，再核实实际GitHub/HEAD/diff。旧恢复记录完整[归档](tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)，不再把旧“#104/105/106/107未合并”当当前事实。
 
+本轮只做无DB全量来源预检、私密终端stdin与受保护ignored报告、只输出计划的隔离目标和合成测试。20项定向回归、typecheck已先通过；尚需完整检查、提交checkpoint后前向冻结D113证据、唯一PR与精确CI/复审。真实全量读取、首绑/调度写入、候选创建/启动均未执行；不能读取 `D:/workspace/ainuoke-key.txt` 到Codex上下文。用户在私密终端显式运行工具，助手只核对脱敏JSON/受限私有业务报告。
 
-核实：2026-10-13；GitHub main 8b3f3d811d05182ea1a7f3214eae9d530056fa04。此工作树在 feat/ainuoke-targeted-diagnostics，草稿 PR #105 以开放 PR #104 head b43b78bee72a496219bd4872245ad28109f421c4 为 base。开始前重新核对 PR/head、git status 和当前代码；不要把聊天记录当事实源。
-
-本轮范围只有定向只读诊断：一遍 6086103 精确销售合同号查当前 InsideOrderNo，最多三个指定合同完整 6087050。用户在普通 PowerShell 隐藏输入凭据，2026-10-13 回传成功。助手核对本机受限、Git 忽略的报告和仅三行的截图对照表；公开脱敏结果见 [真实证据](tasks/active/evidence/ainuoke-targeted-diagnostic/real-results.md)，执行边界见 [任务](tasks/active/ainuoke-targeted-diagnostic.md)。不要提交 outputs/ 的合同号、来源身份、物料或凭据。
-
-目标三行 118/356/6 均找到对应名称、颜色、规格、采购单号、日期；356 两来源行归并同一采购事件，不能相加为 712。物料编码仅在私有 API 报告，截图未显示，仍待上游界面核对。三行无可信 API 单位，截图“个”不自动成为正式映射；人工业务确认 0/3，正式单位映射 0/3。62 合同未知数量的总体根因仍未知，投影保持 unknown/null。
-
-后续受保护报告出现QtyUnit候选：目标采购四来源行均为“个”，原三物料身份/数量与归并事件不变，四来源行身份因新字段改变。该报告mtime 2026-10-13T03:24:45.2988793Z，来源语义仍未确认；不能据字段名改正式映射。公开脱敏证据见 [QtyUnit 复核](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-followup-2026-10-13.md)。本机后续私有请求已缩至目标单，若无证据缺口无需再要求用户重复读取。
-首次普通终端运行在 Set-Acl 因缺 SeSecurityPrivilege 而于登录前失败；修复为只读检查受限 ACL 后真实重试成功。工程修复 head cef2e5653524bb65a80b8f9787e0ab937390d88b 已精确推送，手动 Source CI run 38339696861 全成功。此次真实证据文档提交后仍需按最终 head 复核 CI。PR #104/#105 不自动合并；未改正式计算、UI、真实账号/数据库、Source 激活或部署。
-
-下一步：完成本次脱敏证据提交与最终 CI/PR #105 复审；用户在本机三行表核对物料编码/规格，确认界面“个”的业务含义。若 6087050 没有可信单位字段，另找受授权只读字段来源；只在字段身份与业务语义确认后另开最小映射 PR 和负向测试。真实绑定、持续采集、全量颜色/规模与宁波上线各需独立 Gate。
+约束：原UI/正式数量/去重/单位公式/SQL/default flags不改；真实账号/业务数据库/宁波/18443/18444不操作；本PR不自动合并。用户正在填写Excel，不覆盖、不导入。持续来源尚未激活，不能把代码/合成测试/只读预检升级为真实展示或人工验收。后续新隔离目标执行需要具体可审查的计划与授权。网络失败按AGENTS，LOCAL ENGINEERING/REMOTE DELIVERY分别记录；不换认证、不force/reset/clean。更新时机：可靠Gate、交付、真实回执或授权变化。
