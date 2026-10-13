@@ -29,6 +29,8 @@ source-records-found仅表示固定来源记录及既有解析器能构成代表
 
 ## 当前恢复点
 
-8项新增Node回归和66项Python测试通过，typecheck/server:build/lint通过。真实只读命令已提供给用户，凭据由用户私下输入；本文件尚不声称全量真实结果。后续脱敏回执与工程门禁将存入evidence/ainuoke-readonly-validation，私有报告留本机。
+工程head5d77355568913f96d91c2ff37541b1ee6a9c3adf的PR104三CI成功；8审计/66Python/root810/基线71及类型/lint/server/build通过，Ubuntu补验Linux分支。历史[工程Gate](evidence/ainuoke-readonly-validation/final-gate.md)保留其回执未到达时点，不用新结果改写历史。
 
-下一步：收到回执后读取本机允许字段报告，逐项解释完整合同范围、四流代表样例与缺口；如果存在错配/分页/单位或数量问题，先报告和修复只读验证，不跳过守卫执行绑定。真实空账本首绑、持续采集写入和宁波上线均待具体执行授权。回退本轮只读命令即可，无真实数据库或环境回退动作。
+用户已私下输入凭据完成真实运行，助手核对本机文件：[脱敏回执](evidence/ainuoke-readonly-validation/real-readonly-receipt.json)、[完整结论及边界](evidence/ainuoke-readonly-validation/real-validation-results.md)。558可见合同完整且前后一致；80物料抽样1空0无效，四流79/75/75/75有合格样例，代表均为R01–R03。62合同有数量未知；四流未知需求项184/250/341/258，不能推为上游错误或按零处理。unit及逐物料语义未核实，不声明全部558合同物料、全量颜色或业务人工验收通过。
+
+下一步建议`feat/ainuoke-source-diagnostics`：少量代表/问题合同补物料身份、数量未知原因与单位候选的只读证据，合成验证后再私密读取并与上游对照。不重复从连接检查起步，不凭此修改计算或绑定。真实空账本首绑、持续采集写入和宁波上线均待具体执行授权。回退本轮只读命令即可，无真实数据库或环境回退动作。PR104更新后复审，不自动合并。

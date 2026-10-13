@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "ainuoke-readonly-validation.v1",
+  "result": "READ_ONLY_AUDIT_RECORDED",
+  "transport": "user-approved-plaintext-http",
+  "sourceActivation": "not-activated",
+  "databaseAccess": "none",
+  "operatorAuthorization": "not-checked",
+  "humanBusinessAcceptance": "not-performed",
+  "discovery": {
+    "visibilityScope": "current_account_visible",
+    "total": 558,
+    "uniqueContracts": 558,
+    "pageCount": 12,
+    "complete": true,
+    "beforeAfterStable": true,
+    "contentHash": "46cd20725d0098795f3f1cb1dfe23024321c5c536d24e571cc5fbe39b93eb27c"
+  },
+  "materials": {
+    "strategy": "sorted-contract-even-spread-v1",
+    "sampledContracts": 80,
+    "allContractsSampled": false,
+    "emptyContracts": 1,
+    "invalidContracts": 0,
+    "requestedRepresentativeContractsPerStream": 3,
+    "quantitiesAggregatedAcrossMaterials": false,
+    "unitSemantics": "not-mapped-not-verified",
+    "reportRequests": 125,
+    "streams": {
+      "purchases": {
+        "observedContracts": 79,
+        "representatives": [
+          "R01",
+          "R02",
+          "R03"
+        ],
+        "missingRepresentatives": 0,
+        "unknownQuantityItems": 184
+      },
+      "inbounds": {
+        "observedContracts": 75,
+        "representatives": [
+          "R01",
+          "R02",
+          "R03"
+        ],
+        "missingRepresentatives": 0,
+        "unknownQuantityItems": 250
+      },
+      "shipments": {
+        "observedContracts": 75,
+        "representatives": [
+          "R01",
+          "R02",
+          "R03"
+        ],
+        "missingRepresentatives": 0,
+        "unknownQuantityItems": 341
+      },
+      "outbounds": {
+        "observedContracts": 75,
+        "representatives": [
+          "R01",
+          "R02",
+          "R03"
+        ],
+        "missingRepresentatives": 0,
+        "unknownQuantityItems": 258
+      }
+    }
+  },
+  "assessment": "representative-source-records-found"
+}
