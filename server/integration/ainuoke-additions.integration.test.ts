@@ -9,8 +9,9 @@ import { bootstrapAdmin } from '../auth/bootstrap.js';
 import { loadExistingBootstrapActor } from '../sales-orders/bootstrap-runner.js';
 import { bindOrders, previewBindings } from '../ainuoke-source/binding.js';
 import { addOrders, discoverAdditions, previewAdditions, readBoundIdentities, requireAdditionProfile } from '../ainuoke-source/additions.js';
-import { additionBundle, additionDiscoveryBundle, bindingBundle } from './ainuoke-binding-fixture.js';
+import { additionBundle, additionDiscoveryBundle, bindingBundle, freshMaterialBundle } from './ainuoke-binding-fixture.js';
 import { syntheticOrder } from './ainuoke-source-fixture.js';
+import { captureSource } from '../ainuoke-source/service.js';
 
 test('controlled new-contract intake uses the existing order model and one atomic, audited confirmation', {timeout:120000}, async t => {
   const db=await startDisposablePostgres();
@@ -59,6 +60,32 @@ test('controlled new-contract intake uses the existing order model and one atomi
       await pool.query('DROP TRIGGER addition_audit_guard ON operation_logs; DROP FUNCTION reject_addition_audit()');
     });
 
+    await t.test('a concurrent capture excludes intake without creating an order',async()=>{
+      const lock=await pool.connect();
+      try {
+        await lock.query('SELECT pg_advisory_lock(hashtextextended($1,0))',['ainuoke-source:'+options.sourceKey]);
+        const preview=await previewAdditions(additionBundle(),selected,await readBoundIdentities(pool));
+        await assert.rejects(addOrders(pool,actor,{...options,selected,expectedPreview:preview.reviewHash,
+          collect:async()=>additionBundle()}),/source_capture_busy/);
+        assert.equal(await count('sales_orders'),1);
+      } finally {
+        await lock.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-source:'+options.sourceKey]);
+        lock.release();
+      }
+    });
+
+    await t.test('operator revoked during source collection is checked again before writing',async()=>{
+      const preview=await previewAdditions(additionBundle(),selected,await readBoundIdentities(pool));
+      try {
+        await assert.rejects(addOrders(pool,actor,{...options,selected,expectedPreview:preview.reviewHash,
+          collect:async()=>{
+            await pool.query('UPDATE app_users SET active=false WHERE id=$1',[actor.internalUserId]);
+            return additionBundle();
+          }}),/source_actor_unavailable/);
+        assert.equal(await count('sales_orders'),1);
+      } finally {await pool.query('UPDATE app_users SET active=true WHERE id=$1',[actor.internalUserId]);}
+    });
+
     const source=additionBundle();
     const preview=await previewAdditions(source,selected,await readBoundIdentities(pool));
     const inserted=await addOrders(pool,actor,{...options,selected,expectedPreview:preview.reviewHash,collect:async()=>source});
@@ -84,6 +111,28 @@ test('controlled new-contract intake uses the existing order model and one atomi
       missing.discoveryAfter=structuredClone(missing.discoveryBefore);
       await assert.rejects(previewAdditions(missing,[syntheticOrder.salesContractNo+'-2'],await readBoundIdentities(pool)),/source_visibility_changed/);
       assert.equal(await count('sales_orders'),2);
+    });
+    await t.test('the next explicit capture persists material snapshots for both the old and new order',async()=>{
+      const material=freshMaterialBundle();
+      material.discoveryBefore=structuredClone(source.discoveryBefore);
+      material.discoveryAfter=structuredClone(source.discoveryAfter);
+      const pages=structuredClone(Object.values(material.materials)[0]);
+      for(const page of pages) {
+        page.queryContext={insideOrderNo:'SYNTHETIC-IN-OLD1'};
+        for(const row of page.rows) {
+          row.sourceRowIdentity+='-new-contract';
+          row.values.ExpContractNo=selected[0];row.values.insideorderno='SYNTHETIC-IN-OLD1';
+        }
+      }
+      material.materials[selected[0]]=pages;
+      const result=await captureSource(pool,actor,{...options,maxAgeMs:600000,collect:async contracts=>{
+        assert.deepEqual([...contracts].sort(),[syntheticOrder.salesContractNo,...selected].sort());
+        return material;
+      }});
+      assert.equal(result.orders,2);
+      const snapshots=(await pool.query('SELECT sales_order_id::text,sales_contract_no FROM ainuoke_material_source_snapshots WHERE run_id=$1',[result.runId])).rows;
+      assert.equal(snapshots.length,2);
+      assert.ok(snapshots.some(row=>row.sales_order_id===inserted.orderIds[0]&&row.sales_contract_no===selected[0]));
     });
     await t.test('a changed stored mirror cannot masquerade as an exact replay',async()=>{
       await pool.query('UPDATE ainuoke_sales_order_contract_mirrors SET quantity=999 WHERE sales_order_id=$1',[inserted.orderIds[0]]);

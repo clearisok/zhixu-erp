@@ -31,4 +31,6 @@ npm run source:ainuoke -- --add=<source-key> --contracts=<same-BillNos> --expect
 
 代码入口：`server/ainuoke-source/additions.ts`、`cli.ts`、`collector.ts`、`tools/ainuoke-bridge/ainuoke_bridge/server_source.py`；正式 mapper 复用 `sales-order-final-bootstrap-preview.ts`。合成测试覆盖只读发现/预览、选中颜色范围、数量与日期拒绝、身份漂移、来源变化、同批原子回滚、权限与账号边界、审计及精确重试。对应 `server/integration/ainuoke-additions*.test.ts` 和 Python `test_server_source.py`。
 
-本机验证：root 测试 817/817、发布基线 71/71、Python 固定来源测试 25/25、D-112 定向合成 PostgreSQL 测试 11/11，完整持续来源套件 40 PASS / 1 跳过（Linux-only CLI 子项在 Windows 跳过，须以 CI Linux 结果为准）；typecheck、lint、Server/UI build 和精确 main 基线守卫通过。此工程 PASS 不等于已在真实数据库运行，也不证明持续来源、字段业务验收、性能容量或宁波发布。后续 Gate：用户批准的隔离目标、私密凭据与源端/DB 预检；实际新增样本业务核对；连续四流与新增订单的持久快照验证；六角色人工验收、备份/回退及发布授权。远端交付与 Linux 验证结果以本分支唯一 PR 的最新精确 head CI 为准；每次实现、来源语义、执行边界或真实 Gate 结果变化时更新本文。
+合并前复审补充三项临时 PostgreSQL 验证：采集持锁时新增接纳拒绝并无新订单；操作人在来源读取期间失效时事务内复核拒绝；接纳后下一次显式采集对旧/新两订单都保存持久物料快照。这些均为合成数据和一次性数据库。
+
+本机验证：root 测试 817/817、发布基线 71/71、Python 固定来源测试 25/25、D-112 定向合成 PostgreSQL 测试 14/14，完整持续来源套件 43 PASS / 1 跳过（Linux-only CLI 子项在 Windows 跳过，须以 CI Linux 结果为准）；typecheck、lint、Server/UI build 和精确 main 基线守卫通过。此工程 PASS 不等于已在真实数据库运行，也不证明持续来源、字段业务验收、性能容量或宁波发布。后续 Gate：用户批准的隔离目标、私密凭据与源端/DB 预检；实际新增样本业务核对；连续四流与新增订单的持久快照验证；六角色人工验收、备份/回退及发布授权。远端交付与 Linux 验证结果以本分支唯一 PR 的最新精确 head CI 为准；每次实现、来源语义、执行边界或真实 Gate 结果变化时更新本文。
