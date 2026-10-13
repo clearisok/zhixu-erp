@@ -33,4 +33,6 @@ npm run source:ainuoke -- --add=<source-key> --contracts=<same-BillNos> --expect
 
 合并前复审补充三项临时 PostgreSQL 验证：采集持锁时新增接纳拒绝并无新订单；操作人在来源读取期间失效时事务内复核拒绝；接纳后下一次显式采集对旧/新两订单都保存持久物料快照。这些均为合成数据和一次性数据库。
 
+PR #107 提交 `bf40383ade8ce8a0161f6bdaaef72f8883d52084` 的 Source CI 持续来源 44/44（含 Linux CLI）、现有 P6 页面和 Python 全套通过，发布基线通过。First team access 两次在 Chromium 启动、页面断言开始前超时；该测试此前忽略浏览器 stderr，无法区分启动失败与慢启动。补上退出/启动错误及限定 4 KiB 的空白临时 profile 启动诊断，只把启动预算从 15s 放宽至 45s，页面/业务断言仍为 15s。该修复的最终远端重验必须通过，才能建议合并；不据前两项成功跳过失败 Gate。
+
 本机验证：root 测试 817/817、发布基线 71/71、Python 固定来源测试 25/25、D-112 定向合成 PostgreSQL 测试 14/14，完整持续来源套件 43 PASS / 1 跳过（Linux-only CLI 子项在 Windows 跳过，须以 CI Linux 结果为准）；typecheck、lint、Server/UI build 和精确 main 基线守卫通过。此工程 PASS 不等于已在真实数据库运行，也不证明持续来源、字段业务验收、性能容量或宁波发布。后续 Gate：用户批准的隔离目标、私密凭据与源端/DB 预检；实际新增样本业务核对；连续四流与新增订单的持久快照验证；六角色人工验收、备份/回退及发布授权。远端交付与 Linux 验证结果以本分支唯一 PR 的最新精确 head CI 为准；每次实现、来源语义、执行边界或真实 Gate 结果变化时更新本文。

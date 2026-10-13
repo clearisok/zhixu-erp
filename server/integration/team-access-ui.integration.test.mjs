@@ -9,7 +9,7 @@ import { startCommercialSecurityFixture } from "./commercial-security-fixture.ts
 import { bootstrapAdmin } from "../auth/bootstrap.ts";
 import { TEAM_ROLES } from "../auth/team-roles.ts";
 const wait=ms=>new Promise(done=>setTimeout(done,ms));
-async function until(read,label){for(let i=0;i<150;i++){if(await read())return;await wait(100);}throw Error(label+" timed out");}
+async function until(read,label,attempts=150){for(let i=0;i<attempts;i++){if(await read())return;await wait(100);}throw Error(label+" timed out");}
 test("First team production-built UI uses trusted session, existing layout and server writes",{timeout:180000},async t=>{
  const build=JSON.parse(readFileSync("dist/client/build-info.json","utf8"));
  assert.equal(build.quoteAuthority,"server");assert.equal(build.identityMode,"session");
@@ -19,8 +19,19 @@ test("First team production-built UI uses trusted session, existing layout and s
  const temp=await mkdtemp(join(tmpdir(),"zhixu-team-ui-"));let browser,ws,session,id=0;const pending=new Map(),errors=[];
  try{
   const profile=join(temp,"profile");
-  browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:"ignore",windowsHide:true});
-  await until(()=>existsSync(join(profile,"DevToolsActivePort")),"Chromium");
+  let launchError;let diagnostics="";
+  browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:["ignore","ignore","pipe"],windowsHide:true});
+  browser.on("error",error=>{launchError=error;});
+  browser.stderr.on("data",chunk=>{diagnostics=(diagnostics+String(chunk)).slice(-4096);});
+  try {
+    // Only browser readiness gets a longer budget; page/business assertions keep 15s.
+    // This fresh temporary profile has no credentials or business data at startup.
+    await until(()=>{
+      if(launchError)throw Error("Chromium spawn failed: "+launchError.message);
+      if(browser.exitCode!==null||browser.signalCode!==null)throw Error("Chromium exited before readiness: "+(browser.exitCode??browser.signalCode));
+      return existsSync(join(profile,"DevToolsActivePort"));
+    },"Chromium startup",450);
+  } catch(error) {throw Error(error.message+"; startup diagnostics: "+diagnostics);}
   const [port,path]=readFileSync(join(profile,"DevToolsActivePort"),"utf8").trim().split(/\r?\n/);
   ws=new WebSocket("ws://127.0.0.1:"+port+path);await new Promise((done,reject)=>{ws.addEventListener("open",done,{once:true});ws.addEventListener("error",reject,{once:true});});
   const command=(method,params={},sid=session)=>new Promise((done,reject)=>{pending.set(++id,{done,reject});ws.send(JSON.stringify({id,method,params,sessionId:sid}));});
