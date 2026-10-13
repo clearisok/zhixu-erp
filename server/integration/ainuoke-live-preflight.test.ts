@@ -53,6 +53,7 @@ test("full read uses all lifecycle contracts, real binding mapper and same four-
   assert.ok(!JSON.stringify(result.privateReport).includes("protected-commercial-sentinel"));
   assert.equal(result.summary.stages[0].metrics?.httpAttempts, "not-instrumented");
   assert.equal(result.summary.stages[0].metrics?.returnedReportPages, 5);
+  assert.ok(result.summary.materials.duplicateSourceRows > 0); assert.ok(result.summary.materials.duplicateEvents > 0);
 });
 
 test("missing/invalid colors remain enrichment gaps, never exclude main orders or invent colors", async () => {
@@ -69,6 +70,7 @@ test("partial scopes, foreign identity, incomplete pages and cross-stage changes
     "missing material contract": b => { delete b.materials.materials[Object.keys(b.materials.materials)[0]]; },
     "foreign material": b => { Object.values(b.materials.materials)[0][0].rows[0].values.ExpContractNo = "FOREIGN"; },
     "partial material pages": b => { Object.values(b.materials.materials)[0][0].total++; },
+    "changed production page budget": b => { Object.values(b.materials.materials)[0][0].pageSize = 200; },
     "partial color pages": b => { Object.values(b.bindings.colors)[0][0].total++; },
     "source disappears": b => { const key = Object.keys(b.materials.materials)[0]; delete b.materials.materials[key]; for (const p of [...b.materials.discoveryBefore, ...b.materials.discoveryAfter]) { p.rows.shift(); p.total--; } },
     "same BillNo changed source identity": b => { for (const p of [...b.materials.discoveryBefore, ...b.materials.discoveryAfter]) p.rows[0].values.id = "changed-id"; },
@@ -117,6 +119,17 @@ test("collector failure vocabulary does not echo upstream errors, credentials or
     assert.ok(!JSON.stringify(result.summary).includes("secret-private")); assert.ok(!JSON.stringify(result.summary).includes("private-contract-error"));
   }
   await assert.rejects(runFullPreflight({ ...config, baseUrl: "http://127.0.0.1:1", transportPolicy: undefined }));
+});
+
+test("repeated purchase source rows stay one 356 procurement event in the private projection", async () => {
+  const b = fullBundles(1), page = Object.values(b.materials.materials)[0][0];
+  const row = page.rows.find(r => r.values.GoodsNo === "SYNTHETIC-MAT-ready")!;
+  Object.assign(row.values, { TotalNum: 356, cgnum: 356, rknum: 0, rkdh: null });
+  page.rows.push({ ...structuredClone(row), sourceRowIdentity: "6087050:sha256:synthetic-356-second-source" }); page.total++;
+  const result = await run(b); assert.equal(result.summary.collectionValidation, "complete");
+  assert.ok("orders" in result.privateReport);
+  const demand = result.privateReport.orders[0].demands.find(d => d.materialCode === "SYNTHETIC-MAT-ready")!;
+  assert.equal(demand.unit, "个"); assert.equal(demand.purchases.length, 1); assert.equal(demand.purchases[0].quantity, 356);
 });
 
 test("preflight CLI requires explicit source-only action and has no database/scheduler/credential argument", () => {

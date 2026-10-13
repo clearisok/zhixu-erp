@@ -10,7 +10,7 @@ import { discoveryContentHash, inspect, SourceError, validateBundle, type Source
 import { readinessFingerprint } from "./readiness.js";
 import { projectMaterialProgress } from "../../features/ainuoke-material-progress/projection.js";
 
-export const PREFLIGHT_LIMITS = { workerTimeoutMs: 600000, sourceMaxAgeMs: 600000, maxContracts: 1000,
+export const PREFLIGHT_LIMITS = { workerTimeoutMs: 600000, sourceMaxAgeMs: 600000, maxContracts: 1000, pageSize: 50,
   maxPagesPerReport: 200, maxRowsPerWorker: 100000, maxBytesPerWorker: 32 * 1024 * 1024 } as const;
 type Collect = (config: CollectorConfig, contracts: string[], options: { mode?: "bindings"; timeoutMs: number }) => Promise<unknown>;
 const streams = ["purchases", "inbounds", "shipments", "outbounds"] as const;
@@ -24,6 +24,7 @@ const errorCode = (error: unknown) => error instanceof SourceError && safeErrors
 function metrics(bundle: BindingBundle | SourceBundle) {
   const detail = "colors" in bundle ? bundle.colors : bundle.materials;
   const pages = [...bundle.discoveryBefore, ...bundle.discoveryAfter, ...Object.values(detail).flat()];
+  if (pages.some(page => page.pageSize !== PREFLIGHT_LIMITS.pageSize)) throw new SourceError("source_limit");
   const rowCount = pages.reduce((sum, page) => sum + page.rows.length, 0);
   const serializedBytes = Buffer.byteLength(JSON.stringify(bundle), "utf8");
   if (rowCount > PREFLIGHT_LIMITS.maxRowsPerWorker || serializedBytes > PREFLIGHT_LIMITS.maxBytesPerWorker)
@@ -98,6 +99,7 @@ export async function runFullPreflight(input: CollectorConfig, options: {
     stageResults.push({ stage, status: "validated", elapsedMs: materialElapsed, completedAt: new Date(now()).toISOString(), metrics: materialMetrics });
     const summary = { ...base, result: "READ_ONLY_FULL_PREFLIGHT_RECORDED", collectionValidation: "complete",
       completedAt: new Date(now()).toISOString(), stages: stageResults,
+      freshnessScope: "validated-at-each-stage-end-refetch-required-before-binding", consistencyScope: "discovery-only-not-cross-report-transaction",
       discovery: { contracts: targets.length, complete: true, stableAcrossStages: true, contentHash: discoveryContentHash(bindingBundle.discoveryAfter) },
       bindingPreview: { reviewHash: binding.reviewHash, colors: binding.preview.coverage, parity: binding.preview.colorQuantityParity },
       materials: { contracts: orders.length, allVisibleContracts: true, emptyContracts: orders.filter(o => !o.sourceRows).length,
@@ -185,7 +187,7 @@ export async function main(args = process.argv.slice(2)) {
   if (!/^[a-f0-9]{40}$/u.test(toolingCommit) || dirty) throw new SourceError("preflight_committed_clean_worktree_required");
   let length = 0; const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) { length += chunk.length; if (length > 16384) throw new SourceError("invalid_collector_configuration"); chunks.push(Buffer.from(chunk)); }
-  const config = parseCollectorConfig(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+  const config = parseCollectorConfig(JSON.parse(new TextDecoder("utf8", { fatal: true }).decode(Buffer.concat(chunks))));
   const report = await runFullPreflight(config);
   const privateReceipt = writePrivateReport(privateOutput, { ...report.privateReport, toolingCommit });
   process.stdout.write(JSON.stringify({ ...report.summary, toolingCommit, ...privateReceipt }) + "\n");

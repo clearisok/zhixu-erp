@@ -59,3 +59,7 @@ pwsh -NoProfile -File C:/Users/Administrator/.codex/worktrees/ainuoke-live-demo-
 ## 当前待验证
 
 真实全量颜色/物料读取耗时和容量、未知数量总体原因、全量单位完整性；新隔离目标的实际资源归属与镜像；真实首绑/持续采集与人工验收。本轮工程通过也不改变这些状态。
+
+## 本机收口
+
+最终22项新回归、root817/817、发布基线71/71、Python69/69、Source20PASS/1skip及continuous43PASS/1skip通过；typecheck/lint/Server及默认UI build通过。无UI变化。独立本机复审未发现阻断代码问题，精确PR CI仍是合并前条件；[详细结果与交付限制](evidence/ainuoke-live-demo-readiness/final-local-review.md)。真实预检未执行。
