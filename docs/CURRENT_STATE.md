@@ -1,12 +1,13 @@
 # 当前状态
-核实2026-10-13；GitHub main：6395db45bebe572c736cf4137a373e0f816be6c0（PR98、100–102已合并）。GitHub 是实时事实源；随 main/PR/测试/验收/环境变化更新。
+核实2026-10-13；GitHub main：8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103已按用户授权合并）。GitHub是实时事实源；随main/PR/测试/探测/验收/环境变化更新。
 
-- PR98冲突、旧Quote-first上线顺序和归档链接已修复，远端head99ff696的source/team-access/baseline三CI成功，2026-10-12T16:08:41Z按授权合并。原宁波现场观察保持旧日期/版本。[修订记录](tasks/completed/2026-10-12-pr98-reconciliation.md) / [当前上线方案](ops/ningbo-rollout-plan.md)。
-- D109：用户永久接受原艾诺科HTTP风险。当前独立分支feat/ainuoke-approved-http实现精确origin+policy支持及本机私密终端探测，不设置到期续批；本HTTP增量尚未合并。[任务与证据](tasks/active/ainuoke-approved-http.md)。
-- 真实只读连接已获用户执行回传：认证成功；6086103首页50/总数558，首个可见合同6087105为5/5、6087050为0/0。只证明首页可读；未核对完整合同范围、真实四流字段/单位，未激活Source/绑定/调度/页面真实数据，不把首合同0行推广到全体。
-- 原P6/UI、默认orderRead/Source disabled、SQL与生产路由不变。没有修改真实账号/数据库或部署宁波、18443、18444；新HTTP PR不自动合并。用户已接受的是本机合成体验，真实业务验收待完成。
-- 本轮类型/lint/server与完整build、root810/810、基线71/71通过；Python64、来源20/1skip、continuous29/1skip、readiness9/1skip。Windows的Linux权限分支skip不计pass，Ubuntu CI尚待远端交付验证。最新main基线守卫PASS：10页面、14能力、0 UI变化；见本轮final-gate证据。
-- D105保持：真实四流持续按订单展示后才上线宁波。下一步先只读核对完整范围及有四流的代表订单，再提出具体首绑/持续采集计划。新增合同自动建单、主信息/颜色增量、完整分码UI未实现；备份恢复、宁波候选及人工验收仍待独立Gate。
-- 历史Quote扩展UI在旧main与PR101均69/78、8个相同失败+父测试失败，未解决；不声明全项目全绿。旧冻结截图与部署证据保持。
+- D109原艾诺科HTTP长期接受及私密首页probe已合并；PR103精确head1de3078三项CI成功，无行级审查问题。此前source的Chrome启动超时、同提交重跑通过记录保留。
+- D110当前分支feat/ainuoke-readonly-validation，PR104开放未合并；只读工具、测试及证据。[任务](tasks/active/ainuoke-readonly-validation.md)。
+- 用户真实执行回执已与本机私有文件核对：558个可见合同两遍完整且一致；抽查80合同完整物料分页，1空/0无效；采购79、其余三流各75个合同有合格样例，四流共享R01–R03三个代表合同。[真实结果](tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md)。不是558合同物料全量或全公司权限证明。
+- 62合同有数量未知；四流未知需求项184/250/341/258，不能相加为独立问题数。单位未映射；当前私有报告缺物料维度/原始字段，尚不能判断根因或完成逐物料业务验收。既有unknown保护保持，不填零、不跨物料加总。全量6087105颜色仍未核对。
+- 现有UI、SQL、Source/orderRead默认开关与生产路由不变。未修改真实账号/业务DB，不部署宁波/18443/18444，未绑定或启动持续写入，新PR不自动合并。
+- 工程head5d77355568913f96d91c2ff37541b1ee6a9c3adf：审计8/8、Python66/66、root810/810、类型/lint/server/build、本机基线71/71及守卫PASS；来源20/1skip、continuous29/1skip、readiness9/1skip。该head三CI成功，Ubuntu已补Linux分支；本次仅补真实证据/状态，最终CI以PR104精确head为准。
+- D105持续展示后才上线宁波。下一PR建议只读数量/单位/逐物料诊断，随后真实规模/颜色核对与独立目标首绑方案；具体写入授权、持续运行及人工验收仍待。新增合同自动建单、主信息/颜色增量及完整分码UI未实现。宁波隔离、备份恢复、候选和上线授权仍独立Gate。
+- 历史Quote扩展UI的8项失败及父测试失败未处理，不声明全项目全绿。旧冻结截图、现场观察与历史提交保留。
 
-功能：[来源](features/AINUOKE_SERVER_SOURCE.md)、[登录](features/SERVER_LOGIN.md)；决策D105–109。PR98未送达的174a7e5状态文档语义由本分支接续，原本地commit保留；不冒称它已随PR98合并。
+功能：[来源](features/AINUOKE_SERVER_SOURCE.md)；决策D105–110；[宁波方案](ops/ningbo-rollout-plan.md)。

@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 核实2026-10-13；main 6395db45bebe572c736cf4137a373e0f816be6c0（PR98、100–102已合并）。当前任务：[已批准HTTP接入](tasks/active/ainuoke-approved-http.md)，D109长期接受原来源HTTP风险；用户回传真实登录/三报表首页可读，完整范围和持续Source仍未验收/激活。GitHub 是实时事实源；随 main/来源/环境/验收变化更新。
+> 核实2026-10-13；main 8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103已合并）。当前PR104：[全合同只读核对](tasks/active/ainuoke-readonly-validation.md)；[真实结果](tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md)：558可见合同完整稳定、80物料抽样四流有代表；62合同数量存在未知，单位未核实。D109永久HTTP接受保持；持续Source未激活、人工业务验收未完成。GitHub是实时事实源；随main/来源/环境/验收变化更新。
 
 > [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
 
@@ -70,7 +70,7 @@
 
 ## 当前来源任务
 
-[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受；D108新增无DB连接探测。默认disabled，真实安全通道/Scope/持续运行/部署仍待Gate。
+[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受。D109已批准HTTP且认证成功；D110有真实完整可见合同发现及80物料抽样。数量/单位/逐物料业务核对、全量颜色/规模、持续运行/部署仍待Gate。
 
 ## 模块导航
 

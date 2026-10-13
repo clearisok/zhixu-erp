@@ -1,12 +1,14 @@
 # AI handoff
-核实2026-10-13；main 6395db45bebe572c736cf4137a373e0f816be6c0，PR98已按用户授权合并，精确head99ff696三CI成功。PR102此前已合并至9ebdf3b46b471e227e86a86c36f705e7ac6e6908。
+核实2026-10-13；main 8b3f3d811d05182ea1a7f3214eae9d530056fa04。PR103已于2026-10-13T00:02:33Z合并；head1de3078的三CI成功，原source启动失败与同提交重跑记录保留。
 
-当前feat/ainuoke-approved-http独立worktree，起始9ebdf3b、clean，后快进至上述PR98合并main。D109永久接受原HTTP来源风险，Node/Python精确origin+policy；隐藏输入只读probe不落盘、不读旧Windows凭据。用户已回传认证及三报表首页成功，原JSON见tasks/active/evidence/ainuoke-approved-http/user-probe.json；不证明全量或持续激活。
+当前独立worktree/branch feat/ainuoke-readonly-validation，起始即上述main、clean。fetch reset后从GitHub只读API取公开签名载荷，精确SHA重建缺失merge对象，tree/双亲已存在并核实；未改远端/ref/旧分支，不退用旧基线。新工具完整Discovery两遍+最多80均匀合同6087050；复用真实物料投影，输出脱敏统计及本机ignored私有代表单报告。凭据不保存，未读真实业务DB。
 
-PR98主要修复99ff696已合并；后续174a7e5c27b2b5f5ee18227c6625c0746d9fe82a因交付工具预检网络降级、pushes=0未送达，原本地提交保留。其PR102能力merged状态及冻结修订证据在本HTTP分支接续，不能丢失或冒称174已远端合并。
+工程head5d77355568913f96d91c2ff37541b1ee6a9c3adf已送达PR104，三CI成功；本机8审计/66Python、类型/lint/server/build/root810、基线71及实际main守卫通过。Ubuntu已补Linux分支；新证据提交后的CI另查精确head。
 
-合成工程结果见tasks/active/evidence/ainuoke-approved-http/engineering.md。先checkpoint，再绑定DECISION_LOG新版本及本轮证据，执行最新main门禁，交付唯一HTTP PR并复审，不自动合并。Git传输本轮曾NETWORK_DEGRADED；只读API/最近fetch成功不证明push长期恢复，独立记录本地与远端。
+真实回执已收到并读取本机私有报告：558唯一合同/12页两遍一致；80抽样1空0无效，四流79/75/75/75有样例，共同代表R01–R03。62合同有未知项，各流184/250/341/258；单位未映射，报告缺物料维度/原始字段，不能推定空值原因或完成业务验收。新增脱敏real-readonly-receipt.json及real-validation-results.md；真实合同/单据和派生核对表仅outputs ignored，不提交。
 
-保持现有UI、生产路由默认关闭；不修改真实账号/DB、不部署。下一步真实全范围与四流代表单只读核对；首绑/持续写入须具体执行授权。用户HTTP风险接受不重复询问，密码不进入聊天/GitHub。
-更新时机：checkpoint、验证、PR/main、探测与真实验收变化；历史证据不覆盖。
-工程checkpoint a2585202c2a65c843f84f3fde05ff41f09dd388d；已冻结D109/工程/用户回执并接续174状态增量。最新main守卫PASS：10页面/14能力/0 UI；LOCAL ENGINEERING PASS，最终远端与CI以精确PR head核验，详见evidence/ainuoke-approved-http/final-gate.md。
+D109同地址HTTP风险不重复确认；D110不授权绑定/持续写入/真实账号或DB变更/部署。保持UI和生产路由。下一PR建议定向只读诊断数量/单位/逐物料对应，不重跑已经完成的连接发现；颜色全集、真实规模/持续刷新、人工验收及新目标授权仍待。新PR不自动合并。详见tasks/active/ainuoke-readonly-validation.md。
+更新时机：本机验证、真实回执、checkpoint、PR/main、人工验收与环境变化。
+原工程checkpoint43363d1842dd0818c48cd3e0d5e052e0c5cf8054、冻结文档及历史final-gate保留原时点。真实证据checkpoint460a993d333af1612174effc17b14e1b2f49a3cb已绑定manifest；本阶段8/8审计、71/71基线及实际main守卫PASS（0 UI）。真实读取只证明结构/范围/代表样例，不把Source激活状态改为active。[本阶段复审](tasks/active/evidence/ainuoke-readonly-validation/receipt-review-gate.md)。PR104更新，不创建重复PR；最终远端精确head/CI在PR核对。
+
+REMOTE DELIVERY PENDING：git-delivery预检NETWORK_DEGRADED/pushes=0。按用户直接执行授权，API确认远端5d77355568913f96d91c2ff37541b1ee6a9c3adf是本地祖先后，仅一次限45秒普通push，退出128、未超时；独立API确认远端仍5d77355。该普通push具体错误类别未保留，不能断言认证/代理根因；无强推/认证切换/全局配置改动。本轮不再重推。已检验的本地交付head41d3154d3b6ae853c97d10004dc920e03296218b，随后仅追加本网络接力；恢复命令须使用最终HEAD。新提交CI未启动，PR正文更新稿在ignored outputs/audit-pr-body.md，尚未发布；收到精确远端SHA后更新该正文的最终head，更新原PR104并核查新CI，不合并。

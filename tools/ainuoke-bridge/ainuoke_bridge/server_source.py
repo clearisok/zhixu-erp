@@ -70,10 +70,10 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
-    if "mode" in data and data["mode"] not in ("bindings", "probe"):
+    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit"):
         raise ValueError("invalid_mode")
     contracts = data["contracts"]
-    if data.get("mode") in ("bindings", "probe"):
+    if data.get("mode") in ("bindings", "probe", "audit"):
         if contracts != []:
             raise ValueError("binding_discovery_scope_required")
         return data
@@ -85,19 +85,26 @@ def validate_input(data):
 
 def collect(data, client=None):
     data = validate_input(data)
-    client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=0 if data.get("mode") == "probe" else 1)
+    client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=0 if data.get("mode") in ("probe", "audit") else 1)
     session = client.login(data["username"], data["password"])
     if data.get("mode") == "probe":
         return probe_first_pages(client, session)
     renewals = 0
     total_rows = 0
     total_bytes = 0
+    requests = 0
 
     def pages(key, query):
-        nonlocal session, renewals, total_rows, total_bytes
+        nonlocal session, renewals, total_rows, total_bytes, requests
         result = []
         expected = None
         for index in range(1, 201):
+            requests += 1
+            if data.get("mode") == "audit":
+                if requests > 2000:
+                    raise UpstreamSchemaError("request_limit")
+                from time import sleep
+                sleep(0.1)
             try:
                 page = client.read_report(REPORT_CATALOG[key], jwt_token=session.jwt_token, page=index, page_size=50, query_context=query)
             except AuthExpiredError:
@@ -105,6 +112,10 @@ def collect(data, client=None):
                     raise
                 renewals += 1
                 session = client.login(data["username"], data["password"])
+                if data.get("mode") == "audit":
+                    requests += 1
+                    if requests > 2000:
+                        raise UpstreamSchemaError("request_limit")
                 page = client.read_report(REPORT_CATALOG[key], jwt_token=session.jwt_token, page=index, page_size=50, query_context=query)
             if expected is None:
                 expected = page.total
@@ -136,6 +147,16 @@ def collect(data, client=None):
             lookup[key] = inside.strip()
     if len(lookup) > 1000:
         raise UpstreamSchemaError("source_limit")
+    if data.get("mode") == "audit":
+        keys = sorted(lookup, key=lambda key: key.encode("utf-16-be"))
+        count = min(80, len(keys))
+        selected = keys if count < 2 else [keys[i * (len(keys) - 1) // (count - 1)] for i in range(count)]
+        materials = {key: pages("material_purchase_statistics", {"insideOrderNo": lookup[key]}) for key in selected}
+        after = pages("order_discovery", {})
+        return {"schemaVersion": "ainuoke-readonly-audit.v1", "discoveryBefore": before,
+                "discoveryAfter": after, "materials": materials,
+                "selection": {"strategy": "sorted-contract-even-spread-v1", "maximumContracts": 80},
+                "reportRequests": requests}
     if data.get("mode") == "bindings":
         colors = {key: pages("garment_color_size_details", {"salesContractNo": key}) for key in lookup}
         after = pages("order_discovery", {})
@@ -182,7 +203,7 @@ def probe_first_pages(client, session):
             "scope": "first-visible-contract-first-pages-only", "reports": reports}
 
 def read_input(args):
-    if args == ["--interactive-approved-http"]:
+    if args in (["--interactive-approved-http"], ["--interactive-readonly-audit"]):
         # Private local terminal only: no password argv/env/file or credential-store reuse.
         import getpass
         import warnings
@@ -193,7 +214,8 @@ def read_input(args):
             warnings.simplefilter("error", getpass.GetPassWarning)
             password = getpass.getpass("Ainuoke password (hidden, not saved): ")
         return {"baseUrl": APPROVED_HTTP_ORIGIN, "transportPolicy": APPROVED_HTTP_POLICY,
-                "username": username, "password": password, "contracts": [], "mode": "probe"}
+                "username": username, "password": password, "contracts": [],
+                "mode": "audit" if args == ["--interactive-readonly-audit"] else "probe"}
     if args:
         raise ValueError("invalid_arguments")
     raw = sys.stdin.buffer.read(65537)
@@ -209,9 +231,10 @@ def main():
         data = read_input(args)
         if args:
             import subprocess
+            audit = data["mode"] == "audit"
             try:
                 child = subprocess.run([sys.executable, "-m", "ainuoke_bridge.server_source"],
-                                       input=json.dumps(data).encode("utf-8"), capture_output=True, timeout=90)
+                                       input=json.dumps(data).encode("utf-8"), capture_output=True, timeout=900 if audit else 90)
             except subprocess.TimeoutExpired:
                 raise NetworkAinuokeError("source_timeout") from None
             result = json.loads(child.stdout)
@@ -219,9 +242,19 @@ def main():
                 error_class = {"invalid_credential": InvalidCredentialError, "auth_expired": AuthExpiredError,
                                "source_unavailable": NetworkAinuokeError}.get(result.get("error"), UpstreamSchemaError)
                 raise error_class("source_probe_failed")
+            if audit:
+                # Existing TypeScript projection is the single business mapping authority.
+                # Only source snapshots, never credentials, enter this offline analyzer.
+                from pathlib import Path
+                root = Path(__file__).resolve().parents[3]
+                analysis = subprocess.run(["node", "--import", "tsx", "server/ainuoke-source/readonly-audit.ts", "--analyze-stdin"],
+                                          input=json.dumps(result).encode("utf-8"), capture_output=True, timeout=90, cwd=root)
+                if analysis.returncode != 0:
+                    raise UpstreamSchemaError("audit_analysis_failed")
+                result = json.loads(analysis.stdout)
         else:
             result = collect(data)
-        if args:
+        if args and data["mode"] != "audit":
             result = {"result": "READ_ONLY_CONNECTION_PROBED", "transport": "user-approved-plaintext-http",
                       "sourceActivation": "not-activated", "businessValidation": "not-performed",
                       "operatorAuthorization": "not-checked", **result}
