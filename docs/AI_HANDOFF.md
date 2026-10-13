@@ -11,3 +11,5 @@
 Gate1诊断工程：11项Node/27项Python及typecheck通过；quality模式仅6颜色/18物料、25合同总上限、160请求/600秒/32MiB。真实定向结果尚待执行。[工程证据](tasks/active/evidence/ainuoke-live-demo-readiness/quality-diagnostic-engineering-2026-10-13.md)。
 
 定向报告修复：sizeRuleTokens在诊断证据中明确命名sizeRuleLabels，不放宽secret检查；源raw先受保护保存，分析修复可离线重放。
+
+Gate2：19合同定向真实核对已完成，47请求；详情仅本机保护报告。数量比较新增只读测算候选、不替换TotalNum或齐套。D114记录隔离演示授权。门禁新增线性文档版本链及祖先/锚点/唯一末端阻断；文档冻结绑定将在本checkpoint后独立提交，不能因暂时漂移放宽检查。

@@ -66,7 +66,7 @@ function serverRouteLiterals(source) {
 
 /** Read-only source/evidence contract. This is not a browser pixel or deployment test. */
 export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths = [], hasCommit = () => false,
-  readBlob = () => null, previousManifest }) {
+  readBlob = () => null, isAncestor = () => false, previousManifest }) {
   const errors = [];
   const fail = (code, detail) => errors.push({ code, detail });
   const read = repositoryReader(root);
@@ -88,14 +88,35 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   const priorEvidence = new Map((previousManifest?.evidence ?? []).map(item => [item.id, item]));
   if (!previousManifest || ![1, 2].includes(previousManifest.schemaVersion)) fail('HISTORY_REQUIRED', 'A Git-loaded prior manifest is required.');
   const superseded = new Set();
+  const candidates = new Map();
   for (const item of manifest.evidence ?? []) {
+    if (!nonempty(item.id) || candidates.has(item.id)) fail('EVIDENCE_ID', String(item.id));
+    candidates.set(item.id, item);
+  }
+  for (const item of candidates.values()) {
     if (!item.supersedes) continue;
-    if (priorEvidence.has(item.id)) { if (item.kind === 'document') superseded.add(item.supersedes); continue; }
-    const old = priorEvidence.get(item.supersedes);
+    const old = item.kind === 'document' ? candidates.get(item.supersedes) : priorEvidence.get(item.supersedes);
     if (!old || old.kind !== item.kind || (item.kind === 'document' ? old.path !== item.path || old.recordedAtSha === item.recordedAtSha : old.path === item.path)
-      || !nonempty(item.changeReason)
-      || superseded.has(item.supersedes)) fail('EVIDENCE_REVISION', String(item.id));
-    if (item.kind === 'document') superseded.add(item.supersedes);
+      || !nonempty(item.changeReason) || item.kind === 'document' && superseded.has(item.supersedes)) fail('EVIDENCE_REVISION', String(item.id));
+    if (item.kind !== 'document') continue;
+    superseded.add(item.supersedes);
+    if (!priorEvidence.has(item.id)) {
+      if (!isAncestor(manifest.baselineSha, item.recordedAtSha)
+        || old && !priorEvidence.has(old.id) && !isAncestor(old.recordedAtSha, item.recordedAtSha)) fail('EVIDENCE_REVISION_ANCESTRY', item.id);
+      const seen = new Set([item.id]); let parent = old; let anchored = false;
+      while (parent) {
+        if (seen.has(parent.id)) { fail('EVIDENCE_REVISION', item.id); break; }
+        seen.add(parent.id);
+        if (priorEvidence.has(parent.id)) { anchored = true; break; }
+        parent = parent.supersedes ? candidates.get(parent.supersedes) : undefined;
+      }
+      if (!anchored) fail('EVIDENCE_REVISION_ANCHOR', item.id);
+    }
+  }
+  const leaves = new Map();
+  for (const item of candidates.values()) if (item.kind === 'document' && !superseded.has(item.id)) {
+    if (leaves.has(item.path)) fail('EVIDENCE_REVISION_LEAF', item.path);
+    leaves.set(item.path, item.id);
   }
   for (const item of manifest.evidence ?? []) {
     if (!nonempty(item.id) || evidence.has(item.id)) fail('EVIDENCE_ID', String(item.id));
@@ -301,7 +322,16 @@ export function runCheck(root, expectedBaseSha) {
   ].filter(Boolean))];
   const commitCache = new Map();
   const blobCache = new Map();
+  const ancestryCache = new Map();
   const errors = validateBaseline({ root, manifest, expectedBaseSha, changedPaths, previousManifest,
+    isAncestor: (ancestor, descendant) => {
+      const key = `${ancestor}:${descendant}`;
+      if (!ancestryCache.has(key)) {
+        try { git(root, ['merge-base', '--is-ancestor', ancestor, descendant]); ancestryCache.set(key, true); }
+        catch { ancestryCache.set(key, false); }
+      }
+      return ancestryCache.get(key);
+    },
     readBlob: (sha, file) => {
       const key = `${sha}:${file}`;
       if (!blobCache.has(key)) blobCache.set(key, readEvidenceBlob(root, sha, file));

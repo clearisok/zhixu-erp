@@ -18,6 +18,14 @@
 
 ## Active
 
+### D-114 采购双数量事实与持久隔离本机演示
+- 日期：2026-10-13；状态：Active。接续用户本轮任务书。采购合同实际执行数量与理论用量是两个不同业务事实；差异不是自动冲突、错误、超采或浪费。没有完整采购目标契约前，不全局替换TotalNum/requiredQuantity，也不改正式齐套与去重公式。
+- 已确认三个用户样本的理论与实际采购均正确，356两来源行仍归并一事件。最小定向原始验证证明这些样本的 `Num*(1+Lost/100)*StyleNum` 对应用户确认理论；此样本不授权把全量TotalNum都叫理论，或把全量Num字段语义声明已人工确认。新增只读来源测算明确unverified/observation-only，缺失、不一致或单位不可信时不作跨口径差值。业务主数量和四流独立保留。
+- 用户已授权Codex自行用本机受限CredentialFile执行必要的固定报表只读诊断，凭据仅由短命进程消费，不进模型/argv/env/报告/Git。成功全量证据不重复读取。原始问题字段与真实标识只入受保护ignored私有明细；公开仅匿名结论。
+- 用户本轮授权：先验证实际本机daemon、资源不存在、归属、镜像/源码与数据库身份，再新建独立Docker project/DB/network/持久volume，使用合成或明确获准脱敏fixture运行真实Server/P6。停止保留卷，不使用两小时自动删除。未授权任何现有业务库/真实账号变更、真实Source激活/持续采集、宁波/18443/18444部署或自动合并。
+- D113的原无DB预检阶段及历史执行边界保留；本条仅更新后续有限诊断与新隔离fixture演示授权。真实持续展示、人工业务验收与宁波晋升仍单独记录。证据见[质量与数量Gate](tasks/active/evidence/ainuoke-live-demo-readiness/quality-and-quantity-gate-2026-10-13.md)。
+
+
 ### D-113 本机真实演示先完整无数据库预检
 - 日期：2026-10-13；状态：Active。用户授权合并#107，随后“继续”接续本机真实Source演示准备；原UI/真实账号/织序业务DB/部署/新PR不自动合并边界保持。此项不授权初始化任何真实或演示数据库。
 - AI工程选择：复用既有bindings及material collector、正式Bootstrap Preview和Material Projection，完整读取当前账号全部可见合同的颜色及四流；两个worker各沿用600秒/100000行/32MiB与10分钟freshness，不按状态排除或抽样、不中途缩小首绑范围。前后及跨阶段Discovery事实不一致、超预算、漏页/合同失败关闭；缺颜色按enrichment保留，未知数量/单位不填零或“个”。
