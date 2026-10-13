@@ -1,6 +1,8 @@
 # AI handoff
 2026-10-13新阶段：独立worktree `ainuoke-f2507037-diagnostics`，分支`feat/ainuoke-targeted-diagnostics`从PR104 head `b43b78bee72a496219bd4872245ad28109f421c4` clean建立。目标仅小范围只读诊断；一遍6086103定位当前InsideOrderNo，最多三个指定合同完整6087050。真实三行和另外两个问题合同的范围只在ignored `outputs/ainuoke-targeted-request.json`；用户截图三行核对表在ignored `outputs/ainuoke-targeted-review.md`。公开代码/测试/文档无真实合同号。合成测试已通过，真实命令尚未执行；unknown、单位与正式计算不变，不得宣称业务验收。任务见[tasks/active/ainuoke-targeted-diagnostic.md](tasks/active/ainuoke-targeted-diagnostic.md)。PR104仍是依赖，不能先把本分支当作main能力。
 
+分支初始head `691852b2a7c1e3e016797ff17177aab5b60eff96` 用户已推送并由 GitHub API 精确核实；草稿PR105以PR104为base，旧head手动Source CI成功。用户第一次运行真实脚本在Set-Acl处因普通终端无SeSecurityPrivilege停止，尚未提示密码或读取上游。随后的修正只读验证预受限ACL，并排除候选单位匹配到价格字段；本地合成测试通过，须新提交/推送和最终head CI后再请用户重试。无真实DB、部署或合并。
+
 核实2026-10-13；main 8b3f3d811d05182ea1a7f3214eae9d530056fa04。PR103已于2026-10-13T00:02:33Z合并；head1de3078的三CI成功，原source启动失败与同提交重跑记录保留。
 
 当前独立worktree/branch feat/ainuoke-readonly-validation，起始即上述main、clean。fetch reset后从GitHub只读API取公开签名载荷，精确SHA重建缺失merge对象，tree/双亲已存在并核实；未改远端/ref/旧分支，不退用旧基线。新工具完整Discovery两遍+最多80均匀合同6087050；复用真实物料投影，输出脱敏统计及本机ignored私有代表单报告。凭据不保存，未读真实业务DB。

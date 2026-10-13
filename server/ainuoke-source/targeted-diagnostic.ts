@@ -38,7 +38,9 @@ const quantity = (value: unknown): { kind: "blank" | "invalid" | "negative" | "z
   return { kind: parsed === 0 ? "zero" : "positive", value: parsed };
 };
 const unitCandidates = (fields: Record<string, unknown>) => Object.entries(fields)
-  .filter(([field, value]) => /(?:unit|单位|^dw$)/iu.test(field) && value !== null && text(value))
+  .filter(([field, value]) => /(?:unit|单位|^dw$)/iu.test(field)
+    && !/(?:price|amount|cost|rate|currency|单价|金额|价格|币种|汇率)/iu.test(field)
+    && value !== null && text(value))
   .map(([field, value]) => ({ field, value: text(value), status: "unverified_candidate" as const }));
 const identityFields = (raw: MaterialNormalizedSourceRow) => ({
   materialName: text(raw.values.materialName), materialCode: text(raw.values.materialCode),

@@ -3,7 +3,7 @@
 
 - D109原艾诺科HTTP长期接受及私密首页probe已合并；PR103精确head1de3078三项CI成功，无行级审查问题。此前source的Chrome启动超时、同提交重跑通过记录保留。
 - D110当前分支feat/ainuoke-readonly-validation，PR104开放未合并；只读工具、测试及证据。[任务](tasks/active/ainuoke-readonly-validation.md)。
-- 基于PR104精确head的独立`feat/ainuoke-targeted-diagnostics`已准备少量合同的只读字段诊断及合成测试；一遍当前可见Discovery只用于可信InsideOrderNo定位，最多三个合同读取6087050，不重做80合同验收。[诊断任务](tasks/active/ainuoke-targeted-diagnostic.md)。用户尚未执行本轮真实命令；三行来源身份/单位仍待人工核对。
+- 基于PR104精确head的独立`feat/ainuoke-targeted-diagnostics`已有草稿PR105，准备少量合同的只读字段诊断及合成测试；一遍当前可见Discovery只用于可信InsideOrderNo定位，最多三个合同读取6087050，不重做80合同验收。[诊断任务](tasks/active/ainuoke-targeted-diagnostic.md)。普通终端首次启动在ACL权限处停止，未读取上游；修正待最终head CI和用户重试，三行来源身份/单位仍待人工核对。
 - 用户真实执行回执已与本机私有文件核对：558个可见合同两遍完整且一致；抽查80合同完整物料分页，1空/0无效；采购79、其余三流各75个合同有合格样例，四流共享R01–R03三个代表合同。[真实结果](tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md)。不是558合同物料全量或全公司权限证明。
 - 62合同有数量未知；四流未知需求项184/250/341/258，不能相加为独立问题数。单位未映射；当前私有报告缺物料维度/原始字段，尚不能判断根因或完成逐物料业务验收。既有unknown保护保持，不填零、不跨物料加总。全量6087105颜色仍未核对。
 - 新诊断仅对指定三行及最多两个旧问题合同给出来源行级观察、归并事件和单位候选；即使真实运行，也不能直接推断62合同总体根因。任何单位映射/正式计算修改待来源字段与界面业务含义确认后另行PR。

@@ -22,6 +22,8 @@
 
 本地合成工程 Gate：定向测试 5/5、Python Bridge 全套 68/68、原只读审计 8/8、Source 集成 20通过/1平台跳过、根级 810/810、基线回归 71/71；TypeScript 类型、lint、server build、静态前端 build 通过。`check:release-baseline` 对实际 main SHA PASS 且 UI 变更数 0。这些都是本地工程验证，不是新PR CI、真实来源逐行核对或人工验收。
 
+操作人首次在普通 PowerShell 启动时，旧包装脚本在 `Set-Acl` 处因缺少 `SeSecurityPrivilege` 停止，发生在账号输入和Python上游读取之前。已把包装脚本改为只读核对预先受限的 NTFS ACL；权限不满足时闭锁，绝不要求用户提权。单位候选扫描也显式排除单价、金额、成本、币种和汇率字段，并以合成高价格值验证私有报告不含该值。修正后的真实命令仍待操作人执行；前一次 CI 仅对应修正前提交，须以最终精确 head 重跑。
+
 ## 证据与更新时机
 
 代码：`tools/ainuoke-bridge/ainuoke_bridge/server_source.py`、`server/ainuoke-source/targeted-diagnostic.ts`、`scripts/ainuoke-targeted-diagnostic.ps1`。测试：`tools/ainuoke-bridge/tests/test_server_source.py`、`server/integration/ainuoke-targeted-diagnostic.test.ts`。旧只读统计：[真实结果](evidence/ainuoke-readonly-validation/real-validation-results.md)。真实命令、三行人工核对、PR #104 状态、CI 与 main SHA 改变时更新本任务和 CURRENT_STATE；保留旧证据原时点。

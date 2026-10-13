@@ -19,6 +19,7 @@ function synthetic() {
       CnName: `合成物料${index}`, cgdh: "PO-TARGET-SYNTHETIC", cgrq: "2026-10-13",
       cgnum: amount, rknum: null, rkdh: null, CYNum: -1, cydh: "SHIP-SYNTHETIC",
       OutStoreNum: amount, ckdh: null, UnitName: index === 1 ? "个" : null,
+      UnitPrice: 9876.54,
       customerConfirmedPrice: "protected-commercial-sentinel" } }));
   materials[0].rows = rows;
   materials[0].total = rows.length;
@@ -39,6 +40,7 @@ test("three quantity slots retain material identity and unverified unit candidat
   assert.equal(target.targetPurchaseRows.length, 3);
   assert.equal(target.targetPurchaseRows[1].unitCandidates[0].field, "UnitName");
   assert.equal(target.targetPurchaseRows[1].unitCandidates[0].status, "unverified_candidate");
+  assert.ok(target.targetPurchaseRows.every(row => row.unitCandidates.every(candidate => candidate.field !== "UnitPrice")));
   assert.ok(target.targetPurchaseRows.every(row => row.sourceRowIdentity && row.normalizedEvents.length === 1));
   assert.equal(target.streamReasons.inbounds.unknownDemandItems, 3);
   assert.equal(target.streamReasons.shipments.sourceRowsByObservation.source_quantity_negative, 3);
@@ -46,6 +48,7 @@ test("three quantity slots retain material identity and unverified unit candidat
   for (const value of ["PO-TARGET-SYNTHETIC", "MAT-0", "protected-commercial-sentinel", "UnitName", "个"])
     assert.ok(!JSON.stringify(result.summary).includes(value));
   assert.ok(!JSON.stringify(result.privateReport).includes("protected-commercial-sentinel"));
+  assert.ok(!JSON.stringify(result.privateReport).includes("9876.54"));
 });
 
 test("quantity equality never proves three material lines; unknown stays unknown", async () => {
