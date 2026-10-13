@@ -1,6 +1,6 @@
 # AI handoff
 
-2026-10-13 / 最新接力：main 09f4447ab43e87798e1a5647f5ed02346ceef7ef 已合并 #104；#105 本地对齐 main，head 6844952d08cd3cf899c250e92b37808c30ba6ab4，精确基线门禁、71 项回归、5 项定向测试与类型检查通过，但 GitHub 推送连接重置且只读远端核实失败，REMOTE PENDING。#106 是依赖 #105 的 Draft，已在既有工作树纳入其本地提交；精确堆叠门禁、71 项基线回归、61 项物料回归、5 项定向诊断、817 项全套测试、类型检查、lint 和 build 均 PASS。最终新 head 的远端 CI 未运行/核实，#105/#106 均未获合并授权。D-111 的 QtyUnit 候选仅只读显示，D-112 要求首次上线前受控接纳新合同，目前尚未实现。宁波仅做只读预检，没有真实 Source 激活、数据库写入或部署。见[合并与预检证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)及[单位证据](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。下文是历史接力。
+2026-10-13 / 最新接力：用户已授权并合并 PR #105，GitHub main 6abc4bebc59954b98a6e3f79f038f9574588390d；#106 在既有 7bf3 工作树合并新 main，准备以此精确 base 更新发布基线、重跑门禁与 CI，仍为 Draft 且不得自动合并。PR #105 合并前精确 head 6844952d08cd3cf899c250e92b37808c30ba6ab4 的三项 CI 全绿；团队权限登录页测试首跑有导航时序波动，failed-job rerun 通过。D-111 QtyUnit 仍仅只读展示，D-112 受控新增合同仍未实现；真实 Source/宁波部署未激活。见[本次合并证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md)。下文为历史接力。
 
 
 核实：2026-10-13；GitHub main 8b3f3d811d05182ea1a7f3214eae9d530056fa04。此工作树在 feat/ainuoke-targeted-diagnostics，草稿 PR #105 以开放 PR #104 head b43b78bee72a496219bd4872245ad28109f421c4 为 base。开始前重新核对 PR/head、git status 和当前代码；不要把聊天记录当事实源。
