@@ -1,4 +1,7 @@
 # 当前状态
+
+2026-10-13 / #104 合并后的恢复点：main 09f4447ab43e87798e1a5647f5ed02346ceef7ef；#105 已改以 main 为 base，仍为 Draft；#106 仍为依赖 #105 的 Draft。用户授权的 #104 已以精确 head 合并，未授权 #105/#106 自动合并或部署。宁波只读预检确认旧 prod/staging 容器健康与艾诺科原 HTTP 地址可达，但无独立新候选、无真实 Source 激活。用户决定上线前支持受控接纳新增合同，现有调度尚不支持；见[合并与预检证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。下面旧段落是历史快照。
+
 核实2026-10-13；GitHub main：8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103已按用户授权合并）。GitHub是实时事实源；随main/PR/测试/探测/验收/环境变化更新。
 
 - D109原艾诺科HTTP长期接受及私密首页probe已合并；PR103精确head1de3078三项CI成功，无行级审查问题。此前source的Chrome启动超时、同提交重跑通过记录保留。

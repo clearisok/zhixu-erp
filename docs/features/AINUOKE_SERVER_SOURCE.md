@@ -1,4 +1,7 @@
 # 艾诺科 Server Source：首次订单绑定与持续物料展示
+
+2026-10-13 / D-112 范围：用户要求首轮上线前受控接纳新增艾诺科合同。现有调度只刷新已绑定订单，新增合同的发现、预览、确认、幂等建单及颜色/主信息策略仍待独立实现和验收。此决定不授权真实写入或部署；#104 已合并、#105/#106 未合并。[只读预检和依赖](../tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。
+
 核实日期：2026-10-13；main 基线：8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103 HTTP扩展已合并；D110全合同只读audit在独立分支实施）。
 GitHub/代码为实时事实源；本文件随来源契约、权限、命令、构建、调度、真实激活及验收变化更新。PR99阶段证据保留在原任务/冻结证据，本轮见[任务](../tasks/active/ainuoke-continuous-material-display.md)。
 

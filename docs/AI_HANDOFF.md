@@ -1,5 +1,7 @@
 # AI handoff
 
+2026-10-13 / #105 当前接力：用户授权 #104 合并，main 为 09f4447ab43e87798e1a5647f5ed02346ceef7ef；#105 已 retarget main，正在既有 ainuoke-f2507037-diagnostics 工作树合并新 main、更新 release baseline、重跑精确 base 门禁及 CI，#106 继续堆叠且不自动合并。用户决定首次上线前受控接纳新合同，当前工程未实现。宁波仅做只读预检，旧 staging 仍非隔离新候选。详见[本轮冻结证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。下方为旧时点接力。
+
 核实：2026-10-13；GitHub main 8b3f3d811d05182ea1a7f3214eae9d530056fa04。此工作树在 feat/ainuoke-targeted-diagnostics，草稿 PR #105 以开放 PR #104 head b43b78bee72a496219bd4872245ad28109f421c4 为 base。开始前重新核对 PR/head、git status 和当前代码；不要把聊天记录当事实源。
 
 本轮范围只有定向只读诊断：一遍 6086103 精确销售合同号查当前 InsideOrderNo，最多三个指定合同完整 6087050。用户在普通 PowerShell 隐藏输入凭据，2026-10-13 回传成功。助手核对本机受限、Git 忽略的报告和仅三行的截图对照表；公开脱敏结果见 [真实证据](tasks/active/evidence/ainuoke-targeted-diagnostic/real-results.md)，执行边界见 [任务](tasks/active/ainuoke-targeted-diagnostic.md)。不要提交 outputs/ 的合同号、来源身份、物料或凭据。
