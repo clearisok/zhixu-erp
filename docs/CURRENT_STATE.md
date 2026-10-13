@@ -1,6 +1,6 @@
 # 当前状态
 
-2026-10-13 / main 6abc4bebc59954b98a6e3f79f038f9574588390d 已含获授权的 PR #105；#106 仍是 QtyUnit Draft，正在原工作树对齐新 main，发布基线与新 base CI 待复核。PR #105 精确 head 6844952d08cd3cf899c250e92b37808c30ba6ab4 的三项 CI 通过，其中团队权限登录页导航测试首次波动、同 head 重跑通过。D-111 三需求四来源行 QtyUnit=个的私有样本及用户/IT 语义确认支持只读映射；旧快照、正式计算和真实 Source 均不变。D-112 要求上线前受控接纳新增合同，当前未实现。宁波只有旧 prod/staging 的只读健康与上游 HTTP 可达证据，没有隔离新候选、真实采集或部署。[合并证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md)。下文旧 SHA/PR 状态仅作历史快照。
+2026-10-13 / main 6abc4bebc59954b98a6e3f79f038f9574588390d 已合并 PR #104/#105；#106 QtyUnit Draft 本地对齐新 main，精确基线门禁、71 项基线回归、5 项定向诊断、typecheck PASS；同一业务代码此前 817 项测试、lint 和 build 通过。远端尚待接收最新 head、改 base 为 main 并重跑 CI；#106 不自动合并。D-111 只读逐需求单位映射保留 unknown/冲突阻断，正式计算与旧快照不变；D-112 上线前受控接纳新增合同尚未实现。宁波仍只有旧环境只读预检，没有隔离候选、真实持续 Source、业务验收或部署。[合并证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md)。下文旧 SHA/PR 状态仅作历史快照。
 
 核实2026-10-13；GitHub main：8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103已按用户授权合并）。GitHub是实时事实源；随main/PR/测试/探测/验收/环境变化更新。
 

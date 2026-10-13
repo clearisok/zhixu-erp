@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "6844952d08cd3cf899c250e92b37808c30ba6ab4",
-  "verifiedAt": "2026-10-13T05:04:58.867Z",
+  "baselineSha": "6abc4bebc59954b98a6e3f79f038f9574588390d",
+  "verifiedAt": "2026-10-13T05:40:43.641Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -598,6 +598,13 @@
       "sha256": "f4e3ca353e5c1c31d8a96410be82a4939dc500151f97cd850ad505623637d404",
       "supersedes": "decisions-controlled-new-contracts",
       "changeReason": "Merge of the PR105 and PR106 branches retains both Active D-111 QtyUnit and D-112 controlled new-contract requirements in one current decision log."
+    },
+    {
+      "id": "ainuoke-pr105-merge-reconcile",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md",
+      "recordedAtSha": "70525752b1c0eeffab168f9eb87f0ac914af1af2",
+      "sha256": "617e9c7bacbd6b9558ba3c13a5ef9991abc6f3e36c91bb08cfb498b724722a74"
     }
   ],
   "pages": [
