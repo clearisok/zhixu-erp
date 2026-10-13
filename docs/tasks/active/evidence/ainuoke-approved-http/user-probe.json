@@ -1,0 +1,41 @@
+{
+  "evidenceType": "user-executed-redacted-console-receipt",
+  "receivedDate": "2026-10-13",
+  "timezone": "Asia/Shanghai",
+  "baselineMainSha": "6395db45bebe572c736cf4137a373e0f816be6c0",
+  "independentlyRerunByAssistant": false,
+  "scope": "Private interactive local probe only; no source activation or business database access. Receipt omits username and all credentials.",
+  "receipt": {
+    "result": "READ_ONLY_CONNECTION_PROBED",
+    "transport": "user-approved-plaintext-http",
+    "sourceActivation": "not-activated",
+    "businessValidation": "not-performed",
+    "operatorAuthorization": "not-checked",
+    "schemaVersion": "ainuoke-connection-probe.v1",
+    "authenticated": true,
+    "scope": "first-visible-contract-first-pages-only",
+    "reports": [
+      {
+        "reportId": 6086103,
+        "status": "readable",
+        "returnedRows": 50,
+        "totalRows": 558,
+        "complete": false
+      },
+      {
+        "reportId": 6087105,
+        "status": "readable",
+        "returnedRows": 5,
+        "totalRows": 5,
+        "complete": true
+      },
+      {
+        "reportId": 6087050,
+        "status": "readable",
+        "returnedRows": 0,
+        "totalRows": 0,
+        "complete": true
+      }
+    ]
+  }
+}

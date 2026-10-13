@@ -5,9 +5,12 @@ from unittest.mock import patch
 import json
 import subprocess
 import sys
+import io
+import getpass
+import warnings
 
 from ainuoke_bridge.ainuoke_client import AinuokeLoginSession, ReportPage, AuthExpiredError, UpstreamSchemaError
-from ainuoke_bridge.server_source import collect, validate_input, ProtectedTransport
+from ainuoke_bridge.server_source import collect, validate_input, ProtectedTransport, read_input, main as worker_main, APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY
 
 
 CONFIG = {"baseUrl": "https://example.invalid", "username": "synthetic", "password": "never-reflect-secret", "contracts": ["CONTRACT-1"]}
@@ -40,6 +43,59 @@ class FakeClient:
 
 
 class ServerSourceTests(TestCase):
+    def test_d109_is_exact_origin_and_explicit_policy_for_all_fixed_modes(self):
+        approved = {**CONFIG, "baseUrl": APPROVED_HTTP_ORIGIN, "transportPolicy": APPROVED_HTTP_POLICY}
+        for mode in (None, "bindings", "probe"):
+            data = approved if mode is None else {**approved, "contracts": [], "mode": mode}
+            client = FakeClient()
+            collect(data, client)
+            self.assertEqual(client.logins, 1)
+            self.assertTrue(all(c[0] in (6086103, 6087105, 6087050) for c in client.calls))
+        for change in ({"transportPolicy": None}, {"transportPolicy": "allow-http"}, {"baseUrl": "http://example.invalid"},
+                       {"baseUrl": APPROVED_HTTP_ORIGIN + "/kaijin"}, {"baseUrl": APPROVED_HTTP_ORIGIN + "?x=1"},
+                       {"baseUrl": "http://61.164.81.194:9044"}, {"baseUrl": "https://61.164.81.194:9043"},
+                       {"baseUrl": "http://127.0.0.1:9043"}, {"baseUrl": "http://u:p@61.164.81.194:9043"}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                validate_input({**approved, **change})
+        with self.assertRaises(ValueError):
+            validate_input({**CONFIG, "baseUrl": APPROVED_HTTP_ORIGIN})
+
+    def test_interactive_input_is_probe_only_and_refuses_echo_fallback(self):
+        with patch("sys.stdin.isatty", return_value=True), patch("builtins.input", return_value="private-user"), patch("getpass.getpass", return_value="private-password"):
+            data = read_input(["--interactive-approved-http"])
+        self.assertEqual(data, {"baseUrl": APPROVED_HTTP_ORIGIN, "transportPolicy": APPROVED_HTTP_POLICY,
+                               "username": "private-user", "password": "private-password", "mode": "probe", "contracts": []})
+        with patch("sys.stdin.isatty", return_value=False), self.assertRaises(ValueError):
+            read_input(["--interactive-approved-http"])
+        def unsafe_prompt(*args):
+            warnings.warn("unsafe echo", getpass.GetPassWarning)
+        with patch("sys.stdin.isatty", return_value=True), patch("builtins.input", return_value="private-user"), patch("getpass.getpass", side_effect=unsafe_prompt), self.assertRaises(getpass.GetPassWarning):
+            read_input(["--interactive-approved-http"])
+
+    def test_interactive_worker_uses_private_stdin_bounded_child_and_closed_errors(self):
+        data = {**CONFIG, "mode": "probe", "contracts": [], "baseUrl": APPROVED_HTTP_ORIGIN, "transportPolicy": APPROVED_HTTP_POLICY}
+        faults = [subprocess.CompletedProcess([], 1, b'{"error":"invalid_credential"}', b"SECRET-STDERR"),
+                  subprocess.TimeoutExpired(["python"], 90, output=b"SECRET-TIMEOUT")]
+        for fault in faults:
+            output = io.StringIO()
+            with patch("sys.argv", ["worker", "--interactive-approved-http"]), patch("ainuoke_bridge.server_source.read_input", return_value=data), patch("sys.stdout", output), patch("subprocess.run") as run:
+                if isinstance(fault, Exception): run.side_effect = fault
+                else: run.return_value = fault
+                self.assertEqual(worker_main(), 1)
+                self.assertNotIn(CONFIG["password"], str(run.call_args.args))
+                self.assertEqual(run.call_args.kwargs["timeout"], 90)
+                self.assertEqual(json.loads(run.call_args.kwargs["input"]), data)
+                self.assertNotIn("SECRET", output.getvalue())
+                self.assertNotIn(CONFIG["password"], output.getvalue())
+                self.assertIn(json.loads(output.getvalue())["error"], ("invalid_credential", "source_unavailable"))
+
+    def test_real_interactive_entry_rejects_nonterminal_without_network(self):
+        for args in (["--interactive-approved-http"], ["--password=never-reflect-secret"]):
+            result = subprocess.run([sys.executable, "-m", "ainuoke_bridge.server_source", *args], input=b"", capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 1)
+            self.assertEqual(json.loads(result.stdout), {"error": "source_invalid"})
+            self.assertNotIn(b"never-reflect-secret", result.stdout + result.stderr)
+
     def test_probe_reads_only_three_first_pages_without_raw_values(self):
         client = FakeClient()
         result = collect({**CONFIG, "mode": "probe", "contracts": []}, client)

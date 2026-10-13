@@ -1,5 +1,5 @@
 # 艾诺科 Server Source：首次订单绑定与持续物料展示
-核实日期：2026-10-12；main 基线：21fbe3b1a7a5968253f923bc904ea067315f00cd（PR100、PR101已合并）。
+核实日期：2026-10-13；main 基线：6395db45bebe572c736cf4137a373e0f816be6c0（PR98、100–102已合并；本轮HTTP扩展尚未合并）。
 GitHub/代码为实时事实源；本文件随来源契约、权限、命令、构建、调度、真实激活及验收变化更新。PR99阶段证据保留在原任务/冻结证据，本轮见[任务](../tasks/active/ainuoke-continuous-material-display.md)。
 
 ## 用户决定
@@ -20,11 +20,11 @@ D104：六角色同见已授权来源及采购价，织序售价/确认工价/�
 10. 本轮修复发现的DATE偏移：订单/颜色日期在SQL读取时保持YYYY-MM-DD，避免东八区被toISOString减一天。没有改任何数据库日期。
 
 ## 凭据与命令
-仅Linux操作端读取仓库外的普通文件，当前执行用户拥有、0600/0400；拒绝symlink、宽权限、非法UTF8/未知字段。Windows原Bridge Credential Manager不变。
-固定字段：sourceKey、baseUrl、username、password、operatorUsername。操作人必须是已有active织序用户，具备ainuoke.view/order.view/style_progress.read/ainuoke.sync/style_progress.import；首绑额外ainuoke.bind。不自动授予权限或创建真实账号。
+Linux操作端读取仓库外的普通文件，当前执行用户拥有、0600/0400；拒绝symlink、宽权限、非法UTF8/未知字段。D109另有本机不落盘的私密终端首页探测，Windows原Bridge Credential Manager不变。
+必填字段：sourceKey、baseUrl、username、password、operatorUsername；已批准HTTP额外指定transportPolicy=user-approved-http-d109。实际绑定/采集操作人必须是已有active织序用户，具备ainuoke.view/order.view/style_progress.read/ainuoke.sync/style_progress.import；首绑额外ainuoke.bind。不自动授予权限或创建真实账号。
 
-只允许HTTPS origin或已核实安全通道的字面量loopback HTTP；不允许远端明文HTTP、重定向、ambient proxy，不关闭TLS。已知旧艾诺科端点为HTTP，安全后段仍待证明。凭据经匿名stdin交给短命Python worker，不进入argv/env/DB/日志；上游登录协议含query参数，安全代理仍须禁止记录敏感query。
-现在无需提供真实密码。未来私下配置时才需要安全endpoint、用户本人来源账号、织序操作人、目标指纹；密码不发聊天/GitHub。
+HTTPS origin、已核实安全通道的字面量loopback HTTP继续支持；D109长期允许原地址http://61.164.81.194:9043与显式policy的组合。其他公网HTTP拒绝；禁止重定向、ambient proxy，不关闭TLS。该例外仍是明文，不称为安全隧道。凭据经匿名stdin交给短命Python worker，不进入argv/env/DB/日志；上游登录协议含query参数，未来代理不得记录敏感query。
+密码只在用户本机私下输入或未来受控Linux私密配置，不发聊天/GitHub。同一HTTP风险不再重复确认；未来绑定/持续写入/部署仍需具体执行授权。
 
 以下仅是已实现命令说明，不是本轮真实执行授权：
 ~~~text
@@ -64,13 +64,13 @@ npm run demo:ainuoke-continuous
 截图为新路径的新工程证据；不是用户人工PASS。旧P6截图不覆盖。
 
 ## 上线仍需的Gate及已知限制
-- 真实安全通道、账号授权、当前完整合同覆盖、字段/单位及速率验明后，才可提出具体首绑计划供执行授权。缺/异常颜色必须如实呈现；目前颜色汇总可见，完整分码UI仍未接线。
+- 已批准HTTP的只读认证/首页报表已获用户执行回传；当前完整合同覆盖、字段/单位及速率验明后，才可提出具体首绑计划供执行授权。缺/异常颜色必须如实呈现；目前颜色汇总可见，完整分码UI仍未接线。
 - **只持续刷新已绑定订单的四流。** 首绑后新增合同不会自动建单，已存在订单主信息/颜色不会自动改写。后续需独立增量绑定/来源镜像刷新设计与冲突/消失策略；真实验收不能把本轮当作全合同自动生命周期完成。
 - 最大1000订单、每报表200页/50行、整次100000行及32MiB、worker600秒。真实采集超过边界要设计按范围代际发布/限速，不截断假成功。没有真实规模性能承诺。
 - Snapshot保留历史，无自动清理；哈希防误改，不是抗DB管理员的签名账本。上游没有跨报告事务快照，前后Discovery一致不证明物料完全同时。
 - 调度输出机器可读captured/retrying/stopped供未来运维监控；尚未安装systemd/容器restart、外部告警接收或凭据轮换服务。终止窗口应允许当前采集600秒+发布完成，不能配置几秒强杀后谎称优雅退出。
 - 连续24小时、多次新增/变动四流、断网/重启恢复、至少各3张真实单核对为AI建议验收，未实际完成。未来需验证新增合同处理范围，不能把合成轮询当作24小时真实运行。
-- 宁波独立DB/卷/对象归属、完整ledger、备份恢复、外网域名/Origin/TLS、候选镜像SHA与回退仍独立Gate。PR98旧Quote-first方案需按D105更新后再合并。
+- 宁波独立DB/卷/对象归属、完整ledger、备份恢复、外网域名/Origin/TLS、候选镜像SHA与回退仍独立Gate。PR98已修复并合并，当前[上线方案](../ops/ningbo-rollout-plan.md)按D105执行。
 - 最后用户在原UI完成人工业务验收，再单独授权真实初始化/部署。生产/关账Server及独立库存台账不追加为本轮前置。
 
 回退：暂停采集、关闭orderRead/reader，保留绑定和来源历史；不可删除ledger/订单/快照来回退。候选镜像须验证兼容既有0012；DB恢复只到另一个明确授权目标。首绑回滚只针对未提交事务，不提供已提交订单的自动删除命令。
@@ -81,4 +81,16 @@ npm run demo:ainuoke-continuous
 
 新增 `npm run source:ainuoke:readiness -- --check --config=<私密Linux文件>`，不读取DB、不访问来源；给出来源指纹，不承诺凭据或通道有效。`--probe --expected-source=<该指纹>` 只做一次登录、三份固定报表的首页，每页50行，90秒总限，不翻页/重试/重登。空Discovery时后二报表明确not-probed；输出固定ID/数量/范围，不含任何合同明细或秘密。loopback还要求独立核实通道后显式 `--verified-tunnel`；该参数自身不能证明隧道安全。
 
-探测不校验织序操作人RBAC，输出not-checked；不证明全合同覆盖/字段语义，不启动原scheduler或绑定writer。后续写入仍走原CLI的DB/权限/目标守卫。用户确认公网HTTP仍在用，无凭据HTTP可达、同端口TLS握手失败；暂无可验证加密后段，所以真实probe尚未执行。详细私密配置/分步Gate及测试证据见[真实接入任务](../tasks/active/ainuoke-live-readiness.md)。
+探测不校验织序操作人RBAC，输出not-checked；不证明全合同覆盖/字段语义，不启动原scheduler或绑定writer。后续写入仍走原CLI的DB/权限/目标守卫。D108原传输观察及步骤保留于[历史接入任务](../tasks/active/ainuoke-live-readiness.md)，该HTTP限制由D109更新。
+
+## D109：已批准HTTP与本机私密探测
+
+用户永久接受原HTTP来源风险，Node配置和Python worker均要求原origin及policy，不需到期续批。Linux readiness指纹包含policy；既有HTTPS/loopback指纹不变。配置兼容现有首次绑定/采集CLI，但没有因此执行任何DB命令。
+
+Windows普通PowerShell私下运行（用户名可输入中文，密码隐藏且不保存）：
+~~~powershell
+pwsh -NoProfile -File (Join-Path $env:USERPROFILE '.codex\worktrees\ainuoke-approved-http\zhixu-ainuoke-api\scripts\ainuoke-readonly-probe.ps1')
+~~~
+该工作树路径为本机本任务入口；其他检出位置运行其scripts/ainuoke-readonly-probe.ps1。仅真实终端输入，非交互/回显降级拒绝；复用固定probe并限制90秒，无DB、无账号变更。
+
+2026-10-13用户回传：认证成功、6086103=50/558（不完整），首合同6087105=5/5、6087050=0/0。不把首合同0行推广至所有合同，不把首次连接证明写成持续Source激活。脱敏回执、工程测试、下一步见[本轮任务](../tasks/active/ainuoke-approved-http.md)。

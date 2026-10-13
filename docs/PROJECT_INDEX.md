@@ -1,6 +1,6 @@
 # 项目知识索引
 
-> 核实2026-10-12；main 9ebdf3b46b471e227e86a86c36f705e7ac6e6908（PR100/101/102 已合并）。当前任务：[真实来源只读准备](tasks/active/ainuoke-live-readiness.md)，合成体验已获用户接受，真实来源未激活。GitHub 是实时事实源；随 main/来源/环境/验收变化更新。
+> 核实2026-10-13；main 6395db45bebe572c736cf4137a373e0f816be6c0（PR98、100–102已合并）。当前任务：[已批准HTTP接入](tasks/active/ainuoke-approved-http.md)，D109长期接受原来源HTTP风险；用户回传真实登录/三报表首页可读，完整范围和持续Source仍未验收/激活。GitHub 是实时事实源；随 main/来源/环境/验收变化更新。
 
 > [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
 

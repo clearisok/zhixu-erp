@@ -13,6 +13,8 @@ from .ainuoke_client import AinuokeClient, AuthExpiredError, InvalidCredentialEr
 from .contracts import REPORT_CATALOG, build_report_snapshot
 
 MAX_BYTES = 32 * 1024 * 1024
+APPROVED_HTTP_ORIGIN = "http://61.164.81.194:9043"
+APPROVED_HTTP_POLICY = "user-approved-http-d109"
 
 def identity(value):
     return "".join(unicodedata.normalize("NFKC", str(value or "")).strip().upper().split())
@@ -54,12 +56,16 @@ class ProtectedTransport:
         return result
 
 def validate_input(data):
-    if not isinstance(data, dict) or set(data) not in ({"baseUrl", "username", "password", "contracts"}, {"baseUrl", "username", "password", "contracts", "mode"}):
+    required = {"baseUrl", "username", "password", "contracts"}
+    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy"}:
         raise ValueError("invalid_collector_input")
     url = urlsplit(data["baseUrl"])
     if url.username or url.password or url.query or url.fragment or url.path not in ("", "/"):
         raise ValueError("invalid_source_origin")
-    if not url.hostname or not (url.scheme == "https" or url.scheme == "http" and url.hostname in ("127.0.0.1", "::1")):
+    approved_http = data.get("transportPolicy") == APPROVED_HTTP_POLICY and data["baseUrl"] in (APPROVED_HTTP_ORIGIN, APPROVED_HTTP_ORIGIN + "/")
+    if "transportPolicy" in data and not approved_http:
+        raise ValueError("http_approval_target_mismatch")
+    if not url.hostname or not (url.scheme == "https" or url.scheme == "http" and url.hostname in ("127.0.0.1", "::1") or approved_http):
         raise ValueError("protected_source_transport_required")
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
@@ -175,13 +181,50 @@ def probe_first_pages(client, session):
     return {"schemaVersion": "ainuoke-connection-probe.v1", "authenticated": True,
             "scope": "first-visible-contract-first-pages-only", "reports": reports}
 
+def read_input(args):
+    if args == ["--interactive-approved-http"]:
+        # Private local terminal only: no password argv/env/file or credential-store reuse.
+        import getpass
+        import warnings
+        if not sys.stdin.isatty():
+            raise ValueError("private_terminal_required")
+        username = input("Ainuoke username: ")
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", getpass.GetPassWarning)
+            password = getpass.getpass("Ainuoke password (hidden, not saved): ")
+        return {"baseUrl": APPROVED_HTTP_ORIGIN, "transportPolicy": APPROVED_HTTP_POLICY,
+                "username": username, "password": password, "contracts": [], "mode": "probe"}
+    if args:
+        raise ValueError("invalid_arguments")
+    raw = sys.stdin.buffer.read(65537)
+    if len(raw) > 65536:
+        raise ValueError("input_limit")
+    return json.loads(raw)
+
+
 def main():
     # Error output is a closed vocabulary; never reflect exception, URL, response or credentials.
     try:
-        raw = sys.stdin.buffer.read(65537)
-        if len(raw) > 65536:
-            raise ValueError("input_limit")
-        result = collect(json.loads(raw))
+        args = sys.argv[1:]
+        data = read_input(args)
+        if args:
+            import subprocess
+            try:
+                child = subprocess.run([sys.executable, "-m", "ainuoke_bridge.server_source"],
+                                       input=json.dumps(data).encode("utf-8"), capture_output=True, timeout=90)
+            except subprocess.TimeoutExpired:
+                raise NetworkAinuokeError("source_timeout") from None
+            result = json.loads(child.stdout)
+            if child.returncode != 0:
+                error_class = {"invalid_credential": InvalidCredentialError, "auth_expired": AuthExpiredError,
+                               "source_unavailable": NetworkAinuokeError}.get(result.get("error"), UpstreamSchemaError)
+                raise error_class("source_probe_failed")
+        else:
+            result = collect(data)
+        if args:
+            result = {"result": "READ_ONLY_CONNECTION_PROBED", "transport": "user-approved-plaintext-http",
+                      "sourceActivation": "not-activated", "businessValidation": "not-performed",
+                      "operatorAuthorization": "not-checked", **result}
         output = json.dumps(result, ensure_ascii=False, allow_nan=False).encode("utf-8")
         if len(output) > MAX_BYTES:
             raise ValueError("output_limit")
@@ -195,7 +238,7 @@ def main():
     except NetworkAinuokeError:
         sys.stdout.write('{"error":"source_unavailable"}')
         return 1
-    except Exception:
+    except (Exception, KeyboardInterrupt):
         sys.stdout.write('{"error":"source_invalid"}')
         return 1
     return 0

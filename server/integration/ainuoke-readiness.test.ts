@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { parseReadinessArguments, probeSource, readinessFingerprint, validateProbeSummary } from "../ainuoke-source/readiness.js";
+import { APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY, parseCollectorConfig } from "../ainuoke-source/collector.js";
 
 const config = { sourceKey: "synthetic", baseUrl: "https://example.invalid", username: "synthetic", password: "Synthetic-Only", operatorUsername: "operator" };
 const summary = () => ({ schemaVersion: "ainuoke-connection-probe.v1", authenticated: true, scope: "first-visible-contract-first-pages-only",
@@ -48,4 +49,17 @@ test("public HTTP, mismatched identity and unverified loopback are rejected befo
   await assert.rejects(probeSource(config, "a".repeat(64), false), /source_target_mismatch/);
   const loopback = { ...config, baseUrl: "http://127.0.0.1:1" };
   await assert.rejects(probeSource(loopback, readinessFingerprint(loopback), false), /verified_tunnel_required/);
+});
+
+test("D109 permanent approval admits only the exact source and explicit policy", async () => {
+  const approved = { ...config, baseUrl: APPROVED_HTTP_ORIGIN, transportPolicy: APPROVED_HTTP_POLICY } as const;
+  assert.deepEqual(parseCollectorConfig(approved), approved);
+  assert.equal(parseCollectorConfig({ ...approved, baseUrl: APPROVED_HTTP_ORIGIN + "/" }).baseUrl, APPROVED_HTTP_ORIGIN);
+  assert.throws(() => parseCollectorConfig({ ...config, baseUrl: APPROVED_HTTP_ORIGIN }), /protected_source_transport_required/);
+  for (const baseUrl of ["http://example.invalid", "http://61.164.81.194:9044", "http://61.164.81.194:9043.evil.invalid", APPROVED_HTTP_ORIGIN + "/kaijin", APPROVED_HTTP_ORIGIN + "?x=1", "https://61.164.81.194:9043", "http://127.0.0.1:9043", "http://u:p@61.164.81.194:9043"])
+    assert.throws(() => parseCollectorConfig({ ...approved, baseUrl }));
+  for (const policy of ["true", "allow-http", "user-approved-http-d108", true, null])
+    assert.throws(() => parseCollectorConfig({ ...approved, transportPolicy: policy }));
+  assert.notEqual(readinessFingerprint(approved), readinessFingerprint({ ...config, baseUrl: APPROVED_HTTP_ORIGIN }));
+  await assert.rejects(probeSource(approved, "0".repeat(64), false), /source_target_mismatch/);
 });
