@@ -1,5 +1,7 @@
 # AI handoff
 
+当前恢复点（2026-10-13）：复用工作树 `7bf3/zhixu-ainuoke-api`，分支 `feat/ainuoke-qty-unit` 基于 PR #105 head `d8b01171841dbca622dd320808371334a5d87676`；GitHub main `8b3f3d811d05182ea1a7f3214eae9d530056fa04`。PR #104 OPEN，PR #105 Draft OPEN，新的单位映射 PR 应以 #105 为 base 且不得自动合并。用户在私密终端再次只读读取目标合同，受保护报告 SHA256 `08370e965531ab55d7edb2ee30a4d9addfb3c76747de0f0681584acd2bc2c744`，三需求四来源行 QtyUnit=个；用户确认三行编码和 IT 单位语义。私有身份/单号不提交。当前候选只修改 Adapter 语义字段与只读投影/标签；缺失 unknown、冲突停汇总，正式计算和存储不变。下一步完成测试、门禁、CI、推送、唯一 PR 与复审；若网络失败保存本地 checkpoint，不冒充远端交付。[脱敏证据](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。下方为 PR #105 前一时点恢复记录，不代表当前确认状态。
+
 核实：2026-10-13；GitHub main 8b3f3d811d05182ea1a7f3214eae9d530056fa04。此工作树在 feat/ainuoke-targeted-diagnostics，草稿 PR #105 以开放 PR #104 head b43b78bee72a496219bd4872245ad28109f421c4 为 base。开始前重新核对 PR/head、git status 和当前代码；不要把聊天记录当事实源。
 
 本轮范围只有定向只读诊断：一遍 6086103 精确销售合同号查当前 InsideOrderNo，最多三个指定合同完整 6087050。用户在普通 PowerShell 隐藏输入凭据，2026-10-13 回传成功。助手核对本机受限、Git 忽略的报告和仅三行的截图对照表；公开脱敏结果见 [真实证据](tasks/active/evidence/ainuoke-targeted-diagnostic/real-results.md)，执行边界见 [任务](tasks/active/ainuoke-targeted-diagnostic.md)。不要提交 outputs/ 的合同号、来源身份、物料或凭据。

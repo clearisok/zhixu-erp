@@ -17,7 +17,7 @@ export type ReadPurchase = {
 };
 export type ReadMovement = Pick<MaterialInboundEvent, 'id' | 'documentNo' | 'eventDate' | 'quantity'>;
 export type ProgressRow = {
-  demand: ReadDemand; canonicalKey: string; unit: null;
+  demand: ReadDemand; canonicalKey: string; unit: string | null; unitStatus: 'known' | 'missing' | 'conflict';
   purchases: ReadPurchase[]; inbounds: ReadMovement[];
   shipments: Array<ReadMovement & { transportMode: string }>; outbounds: ReadMovement[];
   purchased: number | null; purchaseShortfall: number | null; purchaseExcess: number | null;
@@ -45,6 +45,11 @@ export type MaterialProgressView = {
 const knownQuantity = (value: unknown) => (typeof value === 'number' || typeof value === 'string' && value.trim() !== '')
   && Number.isFinite(Number(typeof value === 'string' ? value.replaceAll(',', '') : value))
   && Number(typeof value === 'string' ? value.replaceAll(',', '') : value) >= 0;
+const sourceUnit = (value: unknown): string | null => {
+  if (typeof value !== 'string') return null;
+  const unit = value.normalize('NFKC').trim();
+  return unit && unit.length <= 16 && !/[\x00-\x1f\x7f]/.test(unit) ? unit : null;
+};
 function byDemand<T extends { materialDemandId: string }>(events: T[]) {
   const index = new Map<string, T[]>();
   for (const event of events) { const items = index.get(event.materialDemandId) ?? []; items.push(event); index.set(event.materialDemandId, items); }
@@ -124,19 +129,24 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
       const shipments = shipmentIndex.get(demand.id) ?? [];
       const outbounds = outboundIndex.get(demand.id) ?? [];
       const sourceRows = rawIndex.get(demand.id) ?? [];
+      const units = sourceRows.map(raw => sourceUnit(raw.values.quantityUnit));
+      const unitConflict = new Set(units.filter((unit): unit is string => unit !== null)).size > 1;
+      const unit = !unitConflict && units.length > 0 && units.every(value => value !== null) ? units[0] : null;
       const evidenceKnown = (quantityField: 'purchaseQuantity' | 'inboundQuantity' | 'shipmentQuantity' | 'outboundQuantity',
         documentField: 'purchaseOrderNo' | 'inboundDocumentNo' | 'shipmentDocumentNo' | 'outboundDocumentNo') => sourceRows.length > 0 && sourceRows.every(raw => {
         const quantity = raw.values[quantityField];
         return knownQuantity(quantity) && (Number(typeof quantity === 'string' ? quantity.replaceAll(',', '') : quantity) === 0 || Boolean(String(raw.values[documentField] ?? '').trim()));
       });
-      const purchased = evidenceKnown('purchaseQuantity', 'purchaseOrderNo') ? purchases.reduce((total, event) => total + event.quantity, 0) : null;
-      const inbound = evidenceKnown('inboundQuantity', 'inboundDocumentNo') ? inbounds.reduce((total, event) => total + event.quantity, 0) : null;
-      const shipped = evidenceKnown('shipmentQuantity', 'shipmentDocumentNo') ? shipments.reduce((total, event) => total + event.quantity, 0) : null;
-      const outbound = evidenceKnown('outboundQuantity', 'outboundDocumentNo') ? outbounds.reduce((total, event) => total + event.quantity, 0) : null;
+      const purchased = !unitConflict && evidenceKnown('purchaseQuantity', 'purchaseOrderNo') ? purchases.reduce((total, event) => total + event.quantity, 0) : null;
+      const inbound = !unitConflict && evidenceKnown('inboundQuantity', 'inboundDocumentNo') ? inbounds.reduce((total, event) => total + event.quantity, 0) : null;
+      const shipped = !unitConflict && evidenceKnown('shipmentQuantity', 'shipmentDocumentNo') ? shipments.reduce((total, event) => total + event.quantity, 0) : null;
+      const outbound = !unitConflict && evidenceKnown('outboundQuantity', 'outboundDocumentNo') ? outbounds.reduce((total, event) => total + event.quantity, 0) : null;
       if ([purchased, inbound, shipped, outbound].some(value => value !== null && !Number.isFinite(value))) throw new Error('source_quantity');
-      const issues = [...(purchased === null ? ['采购来源数量缺失或无效，不能按零采购判定'] : []),
-        ...(inbound === null ? ['入库来源数量缺失或无效，不能判定齐套'] : []),
-        ...(shipped === null ? ['物料出运来源数量未知'] : []), ...(outbound === null ? ['物料出库来源数量未知'] : [])];
+      const issues = [...(unitConflict ? ['同一物料需求的来源计量单位冲突，数量汇总与状态判定已暂停'] : []),
+        ...(!unitConflict && unit === null ? ['来源计量单位未知，数量仅按原始数值逐项展示'] : []),
+        ...(purchased === null && !unitConflict ? ['采购来源数量缺失或无效，不能按零采购判定'] : []),
+        ...(inbound === null && !unitConflict ? ['入库来源数量缺失或无效，不能判定齐套'] : []),
+        ...(shipped === null && !unitConflict ? ['物料出运来源数量未知'] : []), ...(outbound === null && !unitConflict ? ['物料出库来源数量未知'] : [])];
       const pricingKnown = (references: string[] | undefined, field: 'purchaseUnitPrice' | 'purchaseAmount') => Boolean(references?.length)
         && references!.every(reference => {
           const value = rawSourceIndex.get(reference)?.values[field];
@@ -144,7 +154,8 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
             && Number.isFinite(Number(typeof value === 'string' ? value.replaceAll(',', '') : value));
         });
       const identity = resolveCanonicalMaterialIdentity({ ...demand, salesContractNo: target }, purchases);
-      const row: ProgressRow = { demand: readDemand(demand, target), canonicalKey: identity.key, unit: null,
+      const row: ProgressRow = { demand: readDemand(demand, target), canonicalKey: identity.key, unit,
+        unitStatus: unitConflict ? 'conflict' : unit === null ? 'missing' : 'known',
         purchases: purchases.map(event => ({ id: event.id, purchaseOrderNo: event.purchaseOrderNo,
           purchaseDate: event.purchaseDate, supplier: event.supplier, quantity: event.quantity,
           color: event.color, specification: event.specification,

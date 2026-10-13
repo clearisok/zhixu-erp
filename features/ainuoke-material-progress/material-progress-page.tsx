@@ -6,7 +6,7 @@ import { createSyntheticMaterialSource, syntheticOrder, type DemoScenario } from
 import './material-progress.css';
 
 const labels: Record<MaterialReadinessStatus, string> = { not_purchased: '未采购', purchasing: '采购中', pending_inbound: '待入库', ready: '已齐套' };
-const quantity = (value: number | null) => value === null ? '未知' : value.toLocaleString('zh-CN', { maximumSignificantDigits: 15 });
+const quantity = (value: number | null, unit: string | null) => value === null ? '未知' : `${value.toLocaleString('zh-CN', { maximumSignificantDigits: 15 })}${unit ? ` ${unit}` : ''}`;
 const PAGE_SIZE = 30;
 function MaterialRow({ row }: { row: ProgressRow }) {
   const [expanded, setExpanded] = useState(false);
@@ -14,19 +14,19 @@ function MaterialRow({ row }: { row: ProgressRow }) {
     <header className="amp-row-head"><div><strong>{row.demand.materialColor || '颜色未提供'}</strong><span>{row.demand.specification || '规格未提供'}</span><small>{row.demand.materialCode}</small></div>
       <span className={`amp-status amp-status-${row.status ?? 'unknown'}`}>{row.status ? labels[row.status] : '来源不完整'}</span></header>
     <dl className="amp-metrics">
-      <div><dt>需求数量</dt><dd>{quantity(row.demand.requiredQuantity)}</dd></div>
-      <div><dt>采购数量</dt><dd>{quantity(row.purchased)}</dd></div>
-      <div><dt>采购不足量</dt><dd>{quantity(row.purchaseShortfall)}</dd></div>
-      <div><dt>入库数量</dt><dd>{quantity(row.inbound)}</dd></div>
-      <div><dt>待入库（已采购）</dt><dd>{quantity(row.pendingInbound)}</dd></div>
+      <div><dt>需求数量</dt><dd>{quantity(row.unitStatus === 'conflict' ? null : row.demand.requiredQuantity, row.unit)}</dd></div>
+      <div><dt>采购数量</dt><dd>{quantity(row.purchased, row.unit)}</dd></div>
+      <div><dt>采购不足量</dt><dd>{quantity(row.purchaseShortfall, row.unit)}</dd></div>
+      <div><dt>入库数量</dt><dd>{quantity(row.inbound, row.unit)}</dd></div>
+      <div><dt>待入库（已采购）</dt><dd>{quantity(row.pendingInbound, row.unit)}</dd></div>
     </dl>
     {row.issues.length > 0 && <p className="amp-row-warning">{row.issues.join('；')}</p>}
     <details onToggle={event => setExpanded(event.currentTarget.open)}><summary>采购与入库明细 <span>{row.purchases.length} 个采购事件 · {row.inbounds.length} 个入库事件</span></summary>
       {expanded && <div className="amp-events"><section><h4>采购事件</h4>{row.purchases.map(event => <div className="amp-event" key={event.id}>
-        <strong>{event.purchaseOrderNo}</strong><span>采购日期 {event.purchaseDate ?? '未提供'}</span><span>供应商 {event.supplier || '未提供'}</span><span>数量 {quantity(event.quantity)}</span>
+        <strong>{event.purchaseOrderNo}</strong><span>采购日期 {event.purchaseDate ?? '未提供'}</span><span>供应商 {event.supplier || '未提供'}</span><span>数量 {row.unitStatus === 'conflict' ? '待核对' : quantity(event.quantity, row.unit)}</span>
         <small>颜色 {event.color || '未提供'} · 规格 {event.specification || '未提供'}</small></div>)}
         {!row.purchases.length && <p>{row.purchased === null ? '采购来源未知，不能确认无采购。' : '无采购事件；本合成 Source 明确采购数量为零。'}</p>}</section>
-        <section><h4>入库事件</h4>{row.inbounds.map(event => <div className="amp-event" key={event.id}><strong>{event.documentNo}</strong><span>入库日期 {event.eventDate ?? '未提供'}</span><span>数量 {quantity(event.quantity)}</span></div>)}
+        <section><h4>入库事件</h4>{row.inbounds.map(event => <div className="amp-event" key={event.id}><strong>{event.documentNo}</strong><span>入库日期 {event.eventDate ?? '未提供'}</span><span>数量 {row.unitStatus === 'conflict' ? '待核对' : quantity(event.quantity, row.unit)}</span></div>)}
         {!row.inbounds.length && <p>{row.inbound === null ? '入库来源未知。' : '无入库事件；本合成 Source 明确入库数量为零。'}</p>}</section></div>}
     </details>
   </article>;
@@ -51,7 +51,7 @@ export function MaterialProgressPage() {
     <header className="amp-heading"><div><p className="amp-eyebrow">织序 · 独立只读预览</p><h1>订单物料采购进度</h1><p>逐颜色、逐规格查看需求、采购和入库事实</p></div><span className="amp-demo-tag">合成测试数据 · 非实时同步</span></header>
     <section className="amp-context" aria-label="订单来源"><div><small>销售合同号 / BillNo</small><strong>{syntheticOrder.salesContractNo}</strong></div>
       <div><small>款号</small><strong>{syntheticOrder.styleNo}</strong></div><div><small>来源更新时间（合成快照）</small><strong>{view.fetchedAt ?? '未获取'}</strong></div></section>
-    <section className="amp-notice"><strong>只读演示，未连接正式艾诺科账号或 PostgreSQL 物料库</strong><p>6087050 数量单位尚未核实；只展示逐需求来源口径，不跨颜色、规格或单位汇总数量。厂供保留来源追溯，排除采购与齐套指标。</p></section>
+    <section className="amp-notice"><strong>只读演示，未连接正式艾诺科账号或 PostgreSQL 物料库</strong><p>已核实的 6087050 来源单位按需求逐项展示；缺失或冲突仍保持未知，不跨颜色、规格或单位汇总数量。厂供保留来源追溯，排除采购与齐套指标。</p></section>
     <div className={`amp-source amp-source-${view.sourceStatus}`} role="status"><strong>{view.sourceStatus === 'ready' ? '来源检查' : view.sourceStatus === 'not_fetched' ? '数据未获取' : view.sourceStatus === 'identity_mismatch' ? '身份不匹配' : '数据不完整'}</strong><span>{view.message}</span></div>
     {view.insideOrderDrift && <p className="amp-drift">InsideOrderNo 漂移：Source 查询 {view.queryInsideOrderNo} → 当前 {syntheticOrder.insideOrderNo}。合同号一致，关联保持；查询号不作为订单身份。</p>}
     <section className="amp-toolbar" aria-label="演示与筛选"><label>演示场景<select aria-label="演示场景" value={scenario} onChange={event => { const next = event.target.value as DemoScenario; setScenario(next); setSource(createSyntheticMaterialSource(next)); resetFilters(); }}>

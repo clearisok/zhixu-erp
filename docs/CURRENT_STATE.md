@@ -1,4 +1,6 @@
 # 当前状态
+
+> 2026-10-13 / 单位映射分支 `feat/ainuoke-qty-unit`：GitHub main `8b3f3d811d05182ea1a7f3214eae9d530056fa04`；PR #104 OPEN、PR #105 Draft OPEN 且相互依赖。本机受保护一合同报告已证实 6087050 目标四来源行 `QtyUnit=个`，三组编码由用户上游界面确认，IT 语义由用户转述确认；356 仍是一笔采购事件。D-111 工程候选只将可信单位显示在现有只读页面；缺失未知、同需求冲突暂停该项数量汇总/状态，不改正式计算或存储。真实 Source 激活、全量单位完整度、宁波部署与人工上线验收仍未发生。[脱敏证据](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。下方是旧阶段快照，以当前代码/PR/运行环境复核为准。
 核实2026-10-13；GitHub main：8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103已按用户授权合并）。GitHub是实时事实源；随main/PR/测试/探测/验收/环境变化更新。
 
 - D109原艾诺科HTTP长期接受及私密首页probe已合并；PR103精确head1de3078三项CI成功，无行级审查问题。此前source的Chrome启动超时、同提交重跑通过记录保留。

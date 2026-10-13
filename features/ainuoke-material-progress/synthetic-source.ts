@@ -10,7 +10,7 @@ function materialRow(id: string, type: '面料' | '辅料', name: string, color:
   return { sourceRowIdentity: `6087050:sha256:synthetic-${id}`, values: {
     id: `SYNTHETIC-${id}`, ExpContractNo: syntheticOrder.salesContractNo, insideorderno: 'SYNTHETIC-IN-OLD', styleno: syntheticOrder.styleNo,
     lx: type, GoodsNo: `SYNTHETIC-MAT-${id}`, CnName: name, CnColor: color, CnComposition: specification, SupplyType: '自购',
-    StyleColor: color, StyleNum: 100, TotalNum: required, cgnum: purchased, rknum: inbound,
+    StyleColor: color, StyleNum: 100, TotalNum: required, QtyUnit: '个', cgnum: purchased, rknum: inbound,
     cgdh: purchased && purchased > 0 ? `PO-SYNTHETIC-${id}` : null, cgrq: '2026-10-01', SupplierName: '合成供应商 · 演示专用',
     cgcnname: name, actualname: name, cgcncolor: color, cgCnComposition: specification,
     rkdh: inbound && inbound > 0 ? `IN-SYNTHETIC-${id}` : null, rkrq: '2026-10-08', ...extra,

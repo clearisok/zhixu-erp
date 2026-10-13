@@ -37,6 +37,7 @@ test("6087050 薄适配器映射真实字段并保留非 Excel API Source Trace"
   });
   for (const forbidden of ["fileName", "fileHash", "sheetName", "sourceRow"]) assert.equal(Object.hasOwn(fabric.trace, forbidden), false);
   assert.equal(AINUOKE_6087050_FIELD_MAP.actualConsumption, undefined);
+  assert.equal(AINUOKE_6087050_FIELD_MAP.quantityUnit, 'QtyUnit');
   assert.equal(AINUOKE_6087050_FIELD_MAP.sourceActualName, undefined);
 });
 
