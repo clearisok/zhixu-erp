@@ -41,7 +41,7 @@ npm run source:ainuoke -- --schedule=<key> --expected-target=<fingerprint> --con
 
 [本轮准备](../tasks/active/ainuoke-live-demo-readiness.md)增加`live-preflight.ts`，复用完整binding collector和material collector，分别使用生产600秒/100000行/32MiB及10分钟freshness；完整读取颜色与物料，不重复80抽样。两阶段完整Discovery及跨阶段raw content必须一致，不截断、不缩小首次绑定范围。缺颜色继续按enrichment报告，缺单位/未知数量/冲突继续如实呈现。
 
-输出脱敏耗时/返回页数/行数/字节/单位及未知需求项；真实报告只入owner-only且Git忽略的本机目录。返回页数不是实际HTTP尝试计数。私密PowerShell默认隐藏输入，或用户自己选择受限凭据文件；Codex不读取密码文件。此预检不接DB、不授权业务操作人、不绑定、不激活Source、不声明demoReady。纯`demo-plan.ts`只输出隔离资源计划，不能代替未来启动器的实际阻断检查。本轮真实全量运行尚未执行。
+输出脱敏耗时/返回页数/行数/字节/单位及未知需求项；真实报告只入owner-only且Git忽略的本机目录。返回页数不是实际HTTP尝试计数。私密PowerShell默认隐藏输入，或用户显式指定受限CredentialFile免输入；Codex不读取密码文件。此预检不接DB、不授权业务操作人、不绑定、不激活Source、不声明demoReady。纯`demo-plan.ts`只输出隔离资源计划，不能代替未来启动器的实际阻断检查。用户三次尝试失败且报告为空，未取得有效全量回执；完整报告operatorAuthorization状态误拦截及错误分类已修复，新增实际Windows文件凭据启动回归，见[修复证据](../tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-repair-2026-10-13.md)。
 
 ## 页面与发布开关
 

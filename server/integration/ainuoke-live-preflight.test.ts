@@ -2,8 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { resolve, join, dirname } from "node:path";
+import { tmpdir } from "node:os";
+import { pathToFileURL } from "node:url";
 import { bindingBundle, freshMaterialBundle } from "./ainuoke-binding-fixture.js";
 import { runFullPreflight, PREFLIGHT_LIMITS, parsePreflightArguments, assertPrivateOutput, writePrivateReport } from "../ainuoke-source/live-preflight.js";
 import { localDemoPlan, parseDemoPlanArguments } from "../ainuoke-source/demo-plan.js";
@@ -144,7 +146,7 @@ test("preflight CLI requires explicit source-only action and has no database/sch
   assert.equal(help.status, 0); assert.match(help.stdout, /no database/);
 });
 
-test("private report rejects outside/linked/broad targets before data, and owner-only ignored target writes", () => {
+test("complete and incomplete production reports persist in private targets without allowing credential fields", async () => {
   const output = resolve("outputs"); mkdirSync(output, { recursive: true });
   const directory = mkdtempSync(join(output, "live-preflight-synthetic-"));
   try {
@@ -156,6 +158,19 @@ test("private report rejects outside/linked/broad targets before data, and owner
     const receipt = writePrivateReport(directory, { synthetic: true, privateFact: "synthetic-only" });
     assert.equal(JSON.parse(readFileSync(receipt.privateReportPath, "utf8")).privateFact, "synthetic-only");
     assert.equal(receipt.privateReportSha256, createHash("sha256").update(readFileSync(receipt.privateReportPath)).digest("hex"));
+    const complete = await run(), incomplete = await runFullPreflight(config, { collect: async () => { throw new SourceError("source_timeout"); } });
+    for (const result of [complete, incomplete]) {
+      const productionReceipt = writePrivateReport(directory, result.privateReport);
+      const persisted = JSON.parse(readFileSync(productionReceipt.privateReportPath, "utf8"));
+      assert.deepEqual(persisted, result.privateReport);
+      assert.equal(persisted.operatorAuthorization, "not-checked");
+      assert.equal(persisted.databaseAccess, "none");
+      assert.equal(productionReceipt.privateReportSha256, createHash("sha256").update(readFileSync(productionReceipt.privateReportPath)).digest("hex"));
+    }
+    for (const change of [{ operatorAuthorization: "Bearer synthetic-secret" }, { databaseAccess: "active" },
+      { schemaVersion: "foreign" }, { sourceActivation: "activated" }, { facts: { operatorAuthorization: "not-checked" } },
+      { authorization: "synthetic-secret" }, { password: "synthetic-secret" }, { facts: { token: "synthetic-secret" } }])
+      assert.throws(() => writePrivateReport(directory, { ...complete.privateReport, ...change }), /source_secret_field/);
     assert.throws(() => writePrivateReport(directory, { password: "synthetic-forbidden" }), /source_secret_field/);
     assert.throws(() => assertPrivateOutput(output)); assert.throws(() => assertPrivateOutput(resolve("docs")));
     const linked = join(directory, "linked"); symlinkSync(directory, linked, process.platform === "win32" ? "junction" : "dir");
@@ -167,6 +182,61 @@ test("private report rejects outside/linked/broad targets before data, and owner
     // Sole synthetic directory owned by this test, always inside outputs; no business report directory is enumerated.
     assert.ok(directory.startsWith(output + (process.platform === "win32" ? "\\" : "/")));
     if (existsSync(directory)) rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("actual CLI failures have a closed stage and code instead of an unusable worker error", () => {
+  const failed = spawnSync(process.execPath, ["--import", "tsx", "server/ainuoke-source/live-preflight.ts", "--password=synthetic-secret"],
+    { env: { ...process.env, DATABASE_URL: "postgresql://never-connect.invalid:1/real-business" }, encoding: "utf8", timeout: 15000 });
+  assert.equal(failed.status, 1);
+  const receipt = JSON.parse(failed.stdout);
+  assert.equal(receipt.schemaVersion, "ainuoke-live-preflight.v1");
+  assert.equal(receipt.code, "preflight_explicit_action_required"); assert.equal(receipt.stage, "arguments");
+  assert.equal(receipt.databaseAccess, "none"); assert.equal(receipt.sourceActivation, "not-activated");
+  assert.ok(!failed.stdout.includes("synthetic-secret"));
+});
+
+test("Windows private credential-file wrapper starts the actual Node CLI and preserves a safe failure receipt", { skip: process.platform !== "win32" }, () => {
+  // An owned miniature Git repository permits a committed/clean wrapper test
+  // while the implementation worktree is dirty. No production test bypass or
+  // live network is used: the synthetic blank password fails before collection.
+  const root = mkdtempSync(join(resolve(tmpdir()), "zhixu-preflight-wrapper-synthetic-"));
+  try {
+    const scriptDirectory = join(root, "scripts"), entryDirectory = join(root, "server/ainuoke-source");
+    mkdirSync(scriptDirectory); mkdirSync(entryDirectory, { recursive: true });
+    copyFileSync(resolve("scripts/ainuoke-live-preflight.ps1"), join(scriptDirectory, "ainuoke-live-preflight.ps1"));
+    writeFileSync(join(entryDirectory, "live-preflight.ts"), "import {main} from " + JSON.stringify(pathToFileURL(resolve("server/ainuoke-source/live-preflight.ts")).href) + "; await main();\n");
+    writeFileSync(join(root, "package.json"), '{"type":"module"}\n');
+    writeFileSync(join(root, ".gitignore"), "/outputs/\n/node_modules/\n");
+    symlinkSync(resolve("node_modules"), join(root, "node_modules"), "junction");
+    execFileSync("git", ["init", "--quiet", root], { stdio: "ignore" });
+    execFileSync("git", ["-C", root, "add", ".gitignore", "package.json", "scripts", "server"], { stdio: "ignore" });
+    execFileSync("git", ["-C", root, "-c", "user.name=Synthetic Test", "-c", "user.email=synthetic@example.invalid", "-c", "commit.gpgsign=false", "commit", "--quiet", "-m", "synthetic wrapper baseline"], { stdio: "ignore" });
+    const output = join(root, "outputs"); mkdirSync(output);
+    const key = join(output, "synthetic-credential.txt");
+    writeFileSync(key, "账号：合成测试\n密码： \n", "utf8");
+    const sid = execFileSync("pwsh", ["-NoProfile", "-Command", "[Security.Principal.WindowsIdentity]::GetCurrent().User.Value"], { encoding: "utf8" }).trim();
+    execFileSync("icacls", [key, "/inheritance:r", "/grant:r", "*" + sid + ":F", "*S-1-5-18:F"], { stdio: "ignore" });
+    const result = spawnSync("pwsh", ["-NoProfile", "-NonInteractive", "-File", join(scriptDirectory, "ainuoke-live-preflight.ps1"), "-CredentialFile", key],
+      { cwd: tmpdir(), env: { ...process.env, DATABASE_URL: "postgresql://never-connect.invalid:1/real-business" }, encoding: "utf8", timeout: 60000 });
+    assert.equal(result.status, 1);
+    const receipt = JSON.parse(result.stdout);
+    assert.equal(receipt.schemaVersion, "ainuoke-live-preflight.v1");
+    assert.equal(receipt.stage, "configuration"); assert.equal(receipt.code, "invalid_collector_configuration");
+    assert.equal(receipt.databaseAccess, "none"); assert.equal(receipt.sourceActivation, "not-activated");
+    assert.ok(!result.stdout.includes("合成测试")); assert.ok(!result.stdout.includes("Ainuoke username"));
+    // Wide credential permissions fail in the wrapper before launching Node.
+    execFileSync("icacls", [key, "/grant", "*S-1-1-0:R"], { stdio: "ignore" });
+    const rejected = spawnSync("pwsh", ["-NoProfile", "-NonInteractive", "-File", join(scriptDirectory, "ainuoke-live-preflight.ps1"), "-CredentialFile", key],
+      { cwd: tmpdir(), encoding: "utf8", timeout: 15000 });
+    assert.equal(rejected.status, 1);
+    const rejection = JSON.parse(rejected.stdout);
+    assert.equal(rejection.stage, "credential_file_validation"); assert.equal(rejection.code, "private_credential_input_invalid");
+  } finally {
+    // Check the exact test-owned target before recursive cleanup. Junctions are
+    // removed as links; no existing worktree or private business report is used.
+    assert.equal(dirname(root), resolve(tmpdir())); assert.match(root, /zhixu-preflight-wrapper-synthetic-[^\\/]+$/u);
+    rmSync(root, { recursive: true, force: true });
   }
 });
 

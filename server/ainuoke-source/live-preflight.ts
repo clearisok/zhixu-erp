@@ -156,7 +156,15 @@ export function assertPrivateOutput(path: string, root = process.cwd()) {
 }
 
 export function writePrivateReport(directory: string, report: unknown) {
-  inspect(report);
+  // This fixed lifecycle status is metadata, not an Authorization credential.
+  // Keep the shared source inspector strict, including for nested fields and all
+  // other values of this key; only this source-only envelope may carry it.
+  if (report && typeof report === "object" && !Array.isArray(report) && Object.hasOwn(report, "operatorAuthorization")) {
+    const { operatorAuthorization, ...facts } = report as Record<string, unknown>;
+    if (operatorAuthorization !== "not-checked" || facts.schemaVersion !== "ainuoke-live-preflight.v1"
+      || facts.databaseAccess !== "none" || facts.sourceActivation !== "not-activated") throw new SourceError("source_secret_field");
+    inspect(facts);
+  } else inspect(report);
   assertPrivateOutput(directory);
   const path = join(directory, "ainuoke-live-preflight-private-" + randomUUID() + ".json");
   let fd: number | undefined;
@@ -180,18 +188,30 @@ export async function main(args = process.argv.slice(2)) {
   if (args.length === 1 && args[0] === "--help") {
     process.stdout.write("Operator-only full source read; no database, binding, scheduler or deployment. Use the private PowerShell wrapper.\n"); return;
   }
-  const { privateOutput } = parsePreflightArguments(args);
-  assertPrivateOutput(privateOutput);
-  const toolingCommit = execFileSync("git", ["rev-parse", "--verify", "HEAD"], { encoding: "utf8", windowsHide: true }).trim();
-  const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=normal"], { encoding: "utf8", windowsHide: true }).trim();
-  if (!/^[a-f0-9]{40}$/u.test(toolingCommit) || dirty) throw new SourceError("preflight_committed_clean_worktree_required");
-  let length = 0; const chunks: Buffer[] = [];
-  for await (const chunk of process.stdin) { length += chunk.length; if (length > 16384) throw new SourceError("invalid_collector_configuration"); chunks.push(Buffer.from(chunk)); }
-  const config = parseCollectorConfig(JSON.parse(new TextDecoder("utf8", { fatal: true }).decode(Buffer.concat(chunks))));
-  const report = await runFullPreflight(config);
-  const privateReceipt = writePrivateReport(privateOutput, { ...report.privateReport, toolingCommit });
-  process.stdout.write(JSON.stringify({ ...report.summary, toolingCommit, ...privateReceipt }) + "\n");
-  if (report.summary.collectionValidation !== "complete") process.exitCode = 1;
+  let stage = "arguments";
+  try {
+    const { privateOutput } = parsePreflightArguments(args);
+    stage = "private_output_validation"; assertPrivateOutput(privateOutput);
+    stage = "worktree_validation";
+    const toolingCommit = execFileSync("git", ["rev-parse", "--verify", "HEAD"], { encoding: "utf8", windowsHide: true }).trim();
+    const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=normal"], { encoding: "utf8", windowsHide: true }).trim();
+    if (!/^[a-f0-9]{40}$/u.test(toolingCommit) || dirty) throw new SourceError("preflight_committed_clean_worktree_required");
+    stage = "configuration";
+    let length = 0; const chunks: Buffer[] = [];
+    for await (const chunk of process.stdin) { length += chunk.length; if (length > 16384) throw new SourceError("invalid_collector_configuration"); chunks.push(Buffer.from(chunk)); }
+    const config = parseCollectorConfig(JSON.parse(new TextDecoder("utf8", { fatal: true }).decode(Buffer.concat(chunks))));
+    stage = "collection"; const report = await runFullPreflight(config);
+    stage = "report_write";
+    const privateReceipt = writePrivateReport(privateOutput, { ...report.privateReport, toolingCommit });
+    process.stdout.write(JSON.stringify({ ...report.summary, toolingCommit, ...privateReceipt }) + "\n");
+    if (report.summary.collectionValidation !== "complete") process.exitCode = 1;
+  } catch (error) {
+    const allowed = new Set(["preflight_explicit_action_required", "preflight_private_output_required", "preflight_committed_clean_worktree_required",
+      "invalid_collector_configuration", "invalid_source_origin", "http_approval_target_mismatch", "protected_source_transport_required", "source_secret_field"]);
+    const code = error instanceof SourceError && allowed.has(error.code) ? error.code : "preflight_invalid_or_unavailable";
+    process.stdout.write(JSON.stringify({ schemaVersion: "ainuoke-live-preflight.v1", result: "FAIL", stage, code,
+      databaseAccess: "none", sourceActivation: "not-activated" }) + "\n"); process.exitCode = 1;
+  }
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
-  main().catch(() => { process.stdout.write('{"result":"FAIL","code":"preflight_invalid_or_unavailable","databaseAccess":"none","sourceActivation":"not-activated"}\n'); process.exitCode = 1; });
+  void main();

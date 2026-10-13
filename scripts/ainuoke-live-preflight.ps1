@@ -8,6 +8,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $failureCode = 'private_preflight_unavailable'
+$failureStage = 'runtime_validation'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 function Assert-PrivateAcl([string]$Path, [bool]$Directory, [bool]$RequireWrite) {
     $item = Get-Item -LiteralPath $Path -Force
@@ -38,10 +39,12 @@ try {
     # Every execution starts from committed, clean code; generated outputs are Git ignored.
     $dirty = & git -C $repositoryRoot status --porcelain --untracked-files=normal
     if ($LASTEXITCODE -ne 0 -or $dirty) { throw 'committed_clean_worktree_required' }
-    $version = & node --version
+    $nodeExecutable = (Get-Command node.exe -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
+    $version = & $nodeExecutable --version
     $runtimeMatch = [regex]::Match($version, '^v([0-9]+\.[0-9]+\.[0-9]+)$')
     if ($LASTEXITCODE -ne 0 -or -not $runtimeMatch.Success -or [version]$runtimeMatch.Groups[1].Value -lt [version]'22.13.0') { throw 'node_runtime_required' }
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot 'node_modules/tsx') -PathType Container)) { throw 'locked_dependencies_required' }
+    $failureStage = 'private_directory_setup'
     $outputParent = Join-Path $repositoryRoot 'outputs'
     if (-not (Test-Path -LiteralPath $outputParent)) { [IO.Directory]::CreateDirectory($outputParent) | Out-Null }
     if ((Get-Item -LiteralPath $outputParent).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'private_path_invalid' }
@@ -53,6 +56,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'private_acl_setup_failed' }
     Assert-PrivateAcl $directory $true $true
     $failureCode = 'private_credential_input_invalid'
+    $failureStage = if ($CredentialFile) { 'credential_file_validation' } else { 'private_terminal_input' }
     if ($CredentialFile) {
         # User explicitly chooses this private terminal path. Contents never enter Codex/tool output.
         $resolvedFile = (Resolve-Path -LiteralPath $CredentialFile).Path
@@ -73,8 +77,9 @@ try {
     $configuration = @{ sourceKey = 'ningbo-first-team'; baseUrl = 'http://61.164.81.194:9043';
         transportPolicy = 'user-approved-http-d109'; username = $username; password = $password;
         operatorUsername = 'readonly-preflight-not-authorized-for-db' } | ConvertTo-Json -Compress
-    $failureCode = 'readonly_worker_unavailable'
-    $start = [Diagnostics.ProcessStartInfo]::new('node')
+    $failureCode = 'readonly_worker_start_failed'
+    $failureStage = 'worker_start'
+    $start = [Diagnostics.ProcessStartInfo]::new($nodeExecutable)
     $start.WorkingDirectory = $repositoryRoot
     $start.UseShellExecute = $false; $start.CreateNoWindow = $true
     $start.RedirectStandardInput = $true; $start.RedirectStandardOutput = $true; $start.RedirectStandardError = $true
@@ -85,9 +90,14 @@ try {
     }
     $process = [Diagnostics.Process]::Start($start)
     $stdout = $process.StandardOutput.ReadToEndAsync(); $stderr = $process.StandardError.ReadToEndAsync()
+    $failureStage = 'worker_stdin'
     $process.StandardInput.Write($configuration); $process.StandardInput.Close()
     $configuration = $null; $password = $null; $securePassword = $null
+    $failureCode = 'readonly_worker_timeout'
+    $failureStage = 'worker_wait'
     if (-not $process.WaitForExit(1290000)) { $process.Kill($true); throw 'readonly_worker_timeout' }
+    $failureCode = 'readonly_worker_receipt_invalid'
+    $failureStage = 'worker_receipt_validation'
     $receipt = $stdout.GetAwaiter().GetResult() | ConvertFrom-Json
     # Only the Node allowlisted receipt is forwarded; stderr/exception/credential contents are never reflected.
     if ($receipt.schemaVersion -ne 'ainuoke-live-preflight.v1' -or $receipt.databaseAccess -ne 'none' -or $receipt.sourceActivation -ne 'not-activated') { throw 'readonly_receipt_invalid' }
@@ -95,7 +105,7 @@ try {
     exit $process.ExitCode
 } catch {
     if ($ValidateOnly) { exit 1 }
-    @{ result = 'FAIL'; code = $failureCode; databaseAccess = 'none'; sourceActivation = 'not-activated' } | ConvertTo-Json -Compress
+    @{ schemaVersion = 'ainuoke-live-preflight.v1'; result = 'FAIL'; code = $failureCode; stage = $failureStage; databaseAccess = 'none'; sourceActivation = 'not-activated' } | ConvertTo-Json -Compress
     exit 1
 } finally {
     $configuration = $null; $password = $null; $securePassword = $null; $raw = $null

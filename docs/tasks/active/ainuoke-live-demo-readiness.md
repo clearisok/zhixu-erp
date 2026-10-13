@@ -58,8 +58,24 @@ pwsh -NoProfile -File C:/Users/Administrator/.codex/worktrees/ainuoke-live-demo-
 
 ## 当前待验证
 
-真实全量颜色/物料读取耗时和容量、未知数量总体原因、全量单位完整性；新隔离目标的实际资源归属与镜像；真实首绑/持续采集与人工验收。本轮工程通过也不改变这些状态。
+真实全量颜色/物料读取耗时和容量、未知数量总体原因、全量单位完整性；新隔离目标的实际资源归属与镜像；真实首绑/持续采集与人工验收。本轮工程通过也不改变这些状态。用户后来回传三次失败运行；没有有效全量回执，不能将它们记为读取成功，也不能推断上游零请求。
 
 ## 本机收口
 
 最终22项新回归、root817/817、发布基线71/71、Python69/69、Source20PASS/1skip及continuous43PASS/1skip通过；typecheck/lint/Server及默认UI build通过。无UI变化。独立本机复审未发现阻断代码问题，精确PR CI仍是合并前条件；[详细结果与交付限制](evidence/ainuoke-live-demo-readiness/final-local-review.md)。真实预检未执行。
+
+## 用户失败回执后的修复（2026-10-13）
+
+恢复基线：同一分支/工作树，HEAD `8d37ed06f80b0596736b1e5b8af712ee700d987d`，tracked/untracked干净；不重建工作树或另开重复PR。用户回传三次`FAIL/readonly_worker_unavailable`，本机三个对应报告目录为空。
+
+确认的工程缺陷：原`writePrivateReport`对完整报告使用通用秘密字段检查，固定状态`operatorAuthorization=not-checked`被当作Authorization凭据拒绝；外层又将缺schemaVersion的Node失败回执遮蔽为worker不可用。合成完整状态报告复现`source_secret_field`。不推断三次实际来源读取到了哪一阶段；没有可复用的业务报告。
+
+修复保持通用来源检查严格，只允许source-only v1报告顶层固定`not-checked`生命周期状态；其他值、错误scope、嵌套Authorization、password/token仍拒绝。CLI/PowerShell输出封闭的stage/code，异常消息与stderr不输出。真实的成功和失败报告形状均加入落盘回归；新24项定向测试通过，包括真实PowerShell→Node凭据文件启动及宽权限拒绝。首版小型合成Git仓库缺少ESM元数据而失败，补齐与本仓库一致的type=module后通过，未放宽正式校验。
+
+用户此前指定`D:/workspace/ainuoke-key.txt`；本次仅检查元数据/ACL，并将该文件DACL收紧为原所有者/SYSTEM，未读取密码。用户在私密终端单独执行以下命令，文件内容只在短命进程内读取，不再提示账号密码：
+
+```powershell
+pwsh -NoProfile -File C:/Users/Administrator/.codex/worktrees/ainuoke-live-demo-readiness/zhixu-ainuoke-api/scripts/ainuoke-live-preflight.ps1 -CredentialFile D:/workspace/ainuoke-key.txt
+```
+
+文件格式/空值仍由脚本验证，错误不会回显秘密。全量数据完整性、Source激活与演示就绪仍未证明；[修复证据](evidence/ainuoke-live-demo-readiness/operator-wrapper-repair-2026-10-13.md)按新checkpoint冻结。此前“本机复审无阻断发现”仅是其日期/范围内记录，本次真实执行揭示的完整报告组合缺陷已明确纠正；旧证据不覆盖。
