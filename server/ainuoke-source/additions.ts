@@ -172,6 +172,36 @@ export async function previewAdditions(input: unknown, selected: readonly string
       colorDetailStatus: candidate.colorDetailStatus, colorLines: candidate.colors.length}))};
 }
 
+async function assertStoredAdditionMatches(client: PoolClient, candidates: Awaited<ReturnType<typeof mapSelectedFinalSalesOrderCandidates>>,
+  bound: BoundIdentity[]) {
+  for (const candidate of candidates) {
+    const identity = bound.find(item => item.sourceId === candidate.source.sourceId
+      && item.salesContractNo === normalized(candidate.source.salesContractNo));
+    if (!identity) throw new SourceError('addition_not_exact_retry');
+    const mirror = (await client.query(`SELECT source_id,source_row_identity,sales_contract_no,inside_order_no,
+      lifecycle_status_raw,contract_date::text,contract_delivery_date::text,style_no,company_name_snapshot,
+      customer_name_snapshot,brand_name_snapshot,quantity::text,source_hash,
+      source_metadata #>> '{colorDetail,status}' AS color_status
+      FROM ainuoke_sales_order_contract_mirrors WHERE sales_order_id=$1 FOR SHARE`,[identity.id])).rows[0];
+    const source = candidate.source;
+    if (!mirror || mirror.source_id !== source.sourceId || mirror.source_row_identity !== source.sourceRowIdentity
+      || normalized(mirror.sales_contract_no) !== normalized(source.salesContractNo)
+      || mirror.inside_order_no !== source.insideOrderNo || mirror.lifecycle_status_raw !== source.lifecycleStatusRaw
+      || mirror.contract_date !== source.contractDate || mirror.contract_delivery_date !== source.contractDeliveryDate
+      || mirror.style_no !== source.styleNo || mirror.company_name_snapshot !== source.companyNameSnapshot
+      || mirror.customer_name_snapshot !== source.customerNameSnapshot || mirror.brand_name_snapshot !== source.brandNameSnapshot
+      || Number(mirror.quantity) !== source.quantity || mirror.source_hash !== source.sourceHash
+      || mirror.color_status !== candidate.colorDetailStatus) throw new SourceError('addition_not_exact_retry');
+    const colors = (await client.query(`SELECT source_line_identity,color_name,quantity::text,delivery_date::text,source_hash
+      FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id=$1 ORDER BY source_line_identity FOR SHARE`,[identity.id])).rows;
+    const expected = [...candidate.colors].sort((a,b)=>a.sourceLineIdentity.localeCompare(b.sourceLineIdentity));
+    if (colors.length !== expected.length || colors.some((row,index) => row.source_line_identity !== expected[index].sourceLineIdentity
+      || row.color_name !== expected[index].colorName || Number(row.quantity) !== expected[index].quantity
+      || row.delivery_date !== expected[index].deliveryDate || row.source_hash !== expected[index].sourceHash))
+      throw new SourceError('addition_not_exact_retry');
+  }
+}
+
 export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'internalUserId'|'userId'>, options: {
   sourceKey: string; accountFingerprint: string; selected: string[]; expectedPreview: string;
   collect: () => Promise<unknown>; now?: () => number;
@@ -202,6 +232,7 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
       const receipt = (await client.query(`SELECT 1 FROM operation_logs WHERE entity_type='AinuokeSourceAddition'
         AND entity_id=$1 AND metadata->>'reviewHash'=$2 LIMIT 1`,[options.sourceKey,current.reviewHash])).rows[0];
       if (!receipt) throw new SourceError('addition_not_exact_retry');
+      await assertStoredAdditionMatches(client,current.candidates,currentBound);
       await client.query('COMMIT');
       return {created: 0, replayed: true, orderIds: current.candidates.map(c => currentBound.find(b =>
         b.sourceId === c.source.sourceId && b.salesContractNo === normalized(c.source.salesContractNo))!.id), reviewHash: current.reviewHash};

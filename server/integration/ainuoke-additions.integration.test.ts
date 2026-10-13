@@ -85,5 +85,11 @@ test('controlled new-contract intake uses the existing order model and one atomi
       await assert.rejects(previewAdditions(missing,[syntheticOrder.salesContractNo+'-2'],await readBoundIdentities(pool)),/source_visibility_changed/);
       assert.equal(await count('sales_orders'),2);
     });
+    await t.test('a changed stored mirror cannot masquerade as an exact replay',async()=>{
+      await pool.query('UPDATE ainuoke_sales_order_contract_mirrors SET quantity=999 WHERE sales_order_id=$1',[inserted.orderIds[0]]);
+      await assert.rejects(addOrders(pool,actor,{...options,selected,expectedPreview:preview.reviewHash,
+        collect:async()=>additionBundle()}),/addition_not_exact_retry/);
+      assert.equal(await count('sales_orders'),2);
+    });
   } finally {await pool.end();await db.stop();}
 });

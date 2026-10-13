@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "6abc4bebc59954b98a6e3f79f038f9574588390d",
-  "verifiedAt": "2026-10-13T05:40:43.641Z",
+  "baselineSha": "957fe1a6eedfd6a92020ef2cf82d710a4162cda0",
+  "verifiedAt": "2026-10-13T06:36:32.000Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -598,6 +598,15 @@
       "sha256": "f4e3ca353e5c1c31d8a96410be82a4939dc500151f97cd850ad505623637d404",
       "supersedes": "decisions-controlled-new-contracts",
       "changeReason": "Merge of the PR105 and PR106 branches retains both Active D-111 QtyUnit and D-112 controlled new-contract requirements in one current decision log."
+    },
+    {
+      "id": "decisions-controlled-intake-engineering-20261013",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5ae050f1e86c476efe4628a1b38298553f12a50f",
+      "sha256": "3b480dc4cfa4ce9bd4437f817036b91c095d027589baa0d7a29f9932dcd9be83",
+      "supersedes": "decisions-qtyunit-controlled-contracts-20261013",
+      "changeReason": "D-112 now records the independent controlled-intake engineering branch, its guarded scope and the still-unimplemented real activation boundary."
     },
     {
       "id": "ainuoke-pr105-merge-reconcile",
