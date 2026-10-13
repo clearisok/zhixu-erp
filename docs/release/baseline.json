@@ -552,6 +552,20 @@
       "path": "docs/tasks/active/evidence/ainuoke-readonly-validation/engineering.md",
       "recordedAtSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
       "sha256": "99489f8cbf5a94af080048cd4a855f7ddee574938711d7e7d158466b893615be"
+    },
+    {
+      "id": "ainuoke-readonly-validation-real-receipt",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-readonly-validation/real-readonly-receipt.json",
+      "recordedAtSha": "460a993d333af1612174effc17b14e1b2f49a3cb",
+      "sha256": "d0ba6469a157121b73356c7aa4060e971c090f5d278b4e4ecee4c92bd2e3a1b3"
+    },
+    {
+      "id": "ainuoke-readonly-validation-real-results",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md",
+      "recordedAtSha": "460a993d333af1612174effc17b14e1b2f49a3cb",
+      "sha256": "caaad26da4ab74ca7b549e25c879f75600359b823d3f77f7edbaf196da82942f"
     }
   ],
   "pages": [
@@ -2085,60 +2099,72 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+      "scope": "Database-free audit implemented in open PR104. User-executed real receipt and local private report agree: 558 current-account contracts complete and stable; 80 material samples, 1 empty/0 invalid, four streams have the same three representative contracts. 62 contracts have unknown quantities; units and per-material business semantics unverified. No persistent Source activation, human business acceptance, UI/DB mutation or deployment.",
       "evidence": [
         "ainuoke-readonly-validation-engineering",
-        "decisions-readonly-validation"
+        "decisions-readonly-validation",
+        "ainuoke-readonly-validation-real-receipt",
+        "ainuoke-readonly-validation-real-results"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-13",
           "sourceSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
-          "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+          "scope": "Full visible Discovery twice, at most 80 complete material samples, original page projection and redacted/private outputs. Implementation unchanged by the real-receipt documentation phase.",
           "evidence": [
             "ainuoke-readonly-validation-engineering",
-            "decisions-readonly-validation"
+            "decisions-readonly-validation",
+            "ainuoke-readonly-validation-real-receipt",
+            "ainuoke-readonly-validation-real-results"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-13",
-          "sourceSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
-          "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+          "sourceSha": "460a993d333af1612174effc17b14e1b2f49a3cb",
+          "scope": "PR104 remains open and unmerged after receipt inspection; merging PR103 did not merge this audit tool.",
           "evidence": [
             "ainuoke-readonly-validation-engineering",
-            "decisions-readonly-validation"
+            "decisions-readonly-validation",
+            "ainuoke-readonly-validation-real-receipt",
+            "ainuoke-readonly-validation-real-results"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-13",
           "sourceSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
-          "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+          "scope": "Historical synthetic audit and shared-source engineering tests remain valid; receiving real data is not a new production or business test pass.",
           "evidence": [
             "ainuoke-readonly-validation-engineering",
-            "decisions-readonly-validation"
+            "decisions-readonly-validation",
+            "ainuoke-readonly-validation-real-receipt",
+            "ainuoke-readonly-validation-real-results"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-13",
-          "sourceSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
-          "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+          "sourceSha": "460a993d333af1612174effc17b14e1b2f49a3cb",
+          "scope": "Real representative records parsed, but units, unknown quantity causes, per-material identity and business semantics have not received human acceptance.",
           "evidence": [
             "ainuoke-readonly-validation-engineering",
-            "decisions-readonly-validation"
+            "decisions-readonly-validation",
+            "ainuoke-readonly-validation-real-receipt",
+            "ainuoke-readonly-validation-real-results"
           ]
         },
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-13",
-          "sourceSha": "43363d1842dd0818c48cd3e0d5e052e0c5cf8054",
-          "scope": "Explicit database-free audit: full current-account Discovery twice, at most 80 evenly spread complete material report samples, existing projection finds up to three representative contracts per stream. Synthetic engineering passed; expanded real audit receipt pending. No business acceptance, activation, UI/DB mutation or deployment.",
+          "sourceSha": "460a993d333af1612174effc17b14e1b2f49a3cb",
+          "scope": "Authenticated ad-hoc read succeeded and 558 visible contracts were discovered. not-connected denotes the still-inactive persistent runtime Source; no DB access, binding, scheduler or deployment occurred.",
           "evidence": [
             "ainuoke-readonly-validation-engineering",
-            "decisions-readonly-validation"
+            "decisions-readonly-validation",
+            "ainuoke-readonly-validation-real-receipt",
+            "ainuoke-readonly-validation-real-results"
           ]
         },
         "trial18443": {

@@ -9,4 +9,4 @@
 
 D109同地址HTTP风险不重复确认；D110不授权绑定/持续写入/真实账号或DB变更/部署。保持UI和生产路由。下一PR建议定向只读诊断数量/单位/逐物料对应，不重跑已经完成的连接发现；颜色全集、真实规模/持续刷新、人工验收及新目标授权仍待。新PR不自动合并。详见tasks/active/ainuoke-readonly-validation.md。
 更新时机：本机验证、真实回执、checkpoint、PR/main、人工验收与环境变化。
-原工程checkpoint43363d1842dd0818c48cd3e0d5e052e0c5cf8054、冻结文档及历史final-gate保留原时点。真实读取只证明结构/范围/代表样例，不把Source激活状态改为active。新证据先commit再绑定manifest；PR104更新，不创建重复PR。
+原工程checkpoint43363d1842dd0818c48cd3e0d5e052e0c5cf8054、冻结文档及历史final-gate保留原时点。真实证据checkpoint460a993d333af1612174effc17b14e1b2f49a3cb已绑定manifest；本阶段8/8审计、71/71基线及实际main守卫PASS（0 UI）。真实读取只证明结构/范围/代表样例，不把Source激活状态改为active。[本阶段复审](tasks/active/evidence/ainuoke-readonly-validation/receipt-review-gate.md)。PR104更新，不创建重复PR；最终远端精确head/CI在PR核对。
