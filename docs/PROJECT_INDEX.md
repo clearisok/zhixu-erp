@@ -2,7 +2,7 @@
 
 > 核实2026-10-13；main 8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103已合并）。当前PR104：[全合同只读核对](tasks/active/ainuoke-readonly-validation.md)；[真实结果](tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md)：558可见合同完整稳定、80物料抽样四流有代表；62合同数量存在未知，单位未核实。D109永久HTTP接受保持；持续Source未激活、人工业务验收未完成。GitHub是实时事实源；随main/来源/环境/验收变化更新。
 
-> [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。
+> [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。[少量订单定向诊断](tasks/active/ainuoke-targeted-diagnostic.md)是 PR104 后续工程分支，只有合成验证，真实逐行未执行。
 
 ## 系统简介
 

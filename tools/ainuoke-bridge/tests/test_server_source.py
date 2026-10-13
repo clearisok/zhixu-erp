@@ -43,6 +43,36 @@ class FakeClient:
 
 
 class ServerSourceTests(TestCase):
+    def test_targeted_scope_uses_one_discovery_and_only_selected_fixed_material_report(self):
+        scope = {**CONFIG, "contracts": [], "mode": "targeted", "targetSalesContractNo": "CONTRACT-1",
+                 "targetPurchaseOrderNo": "PO-SYNTHETIC", "expectedQuantities": [11, 22, 3],
+                 "additionalSalesContracts": []}
+        client = FakeClient()
+        with patch("time.sleep"):
+            result = collect(scope, client)
+        self.assertEqual(result["schemaVersion"], "ainuoke-targeted-diagnostic.v1")
+        self.assertEqual(result["reportRequests"], 3)
+        self.assertEqual(client.calls, [(6086103, 1, {}), (6087050, 1, {"insideOrderNo": "INSIDE-1"}),
+                                        (6087050, 2, {"insideOrderNo": "INSIDE-1"})])
+        self.assertNotIn(CONFIG["password"], json.dumps(result))
+        renewed = FakeClient(expired=1)
+        with patch("time.sleep"):
+            after_renewal = collect(scope, renewed)
+        self.assertEqual(after_renewal["authRenewals"], 1)
+        self.assertEqual(after_renewal["reportRequests"], 4)
+
+    def test_targeted_scope_rejects_missing_contract_and_unbounded_or_ambiguous_request(self):
+        scope = {**CONFIG, "contracts": [], "mode": "targeted", "targetSalesContractNo": "CONTRACT-1",
+                 "targetPurchaseOrderNo": "PO-SYNTHETIC", "expectedQuantities": [11, 22, 3],
+                 "additionalSalesContracts": []}
+        for change in ({"targetSalesContractNo": "MISSING"}, {"additionalSalesContracts": ["CONTRACT-1"]},
+                       {"additionalSalesContracts": ["A", "B", "C"]}, {"expectedQuantities": [11, 0, 3]},
+                       {"expectedQuantities": [11, 22, True]}, {"contracts": ["CONTRACT-1"]}):
+            with self.subTest(change=change), self.assertRaises((ValueError, UpstreamSchemaError)):
+                collect({**scope, **change}, FakeClient())
+        with self.assertRaises(ValueError):
+            validate_input({**CONFIG, "targetPurchaseOrderNo": "PO-SYNTHETIC"})
+
     def test_readonly_audit_reads_complete_discovery_and_spread_samples_only(self):
         class AuditClient(FakeClient):
             def read_report(self, definition, *, jwt_token, page, page_size, query_context):
@@ -120,7 +150,7 @@ class ServerSourceTests(TestCase):
                 self.assertIn(json.loads(output.getvalue())["error"], ("invalid_credential", "source_unavailable"))
 
     def test_real_interactive_entry_rejects_nonterminal_without_network(self):
-        for args in (["--interactive-approved-http"], ["--password=never-reflect-secret"]):
+        for args in (["--interactive-approved-http"], ["--interactive-targeted-diagnostic"], ["--password=never-reflect-secret"]):
             result = subprocess.run([sys.executable, "-m", "ainuoke_bridge.server_source", *args], input=b"", capture_output=True, timeout=10)
             self.assertEqual(result.returncode, 1)
             self.assertEqual(json.loads(result.stdout), {"error": "source_invalid"})
