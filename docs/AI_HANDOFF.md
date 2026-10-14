@@ -16,3 +16,8 @@ NETWORK_DEGRADED保持，本轮不自动执行恢复命令。用户询问删除�
 
 
 HTTP阶段：批次GET/POST、consume与preview/confirm/cancel已接可信session、mutation boundary、no-store和严格参数；候选每次扫描20条、过滤来源失效，用nextOffset/hasMore续页。processing消费证据校验后允许身份认领，不造艾诺科关联。加工27/27、身份15/15、Server构建/定向lint PASS；身份首次14/15仅0016清单缺失，精确补齐后通过。CCT/PG/Quote API迁移清单也已更新但全回归未跑。下一步订单读取加工快照、客户端及两页面入口、UI影响记录/浏览器；取消双日志仍待收敛。没有推送/PR/真实写入。
+
+
+2026-10-14读取投影checkpoint：正式订单repository从可信已消费加工批次读取客户、业务款号、数量、下单/交期，支持搜索和交期排序；合同号/InsideOrderNo仍null，没有来源颜色即空数组。Foundation来源读取保持独立SQL，不依赖0016。此处沿用既有API日期字段承载业务日期，UI必须按businessType显示“下单日期/交期”，不能将加工称为艾诺科合同。UI两入口及认领按钮仍待。
+
+加工28/28、身份15/15、Server构建和定向lint通过。Source首次5通过/1失败，原因是旧迁移数量断言12；换成明确版本[1..12,14,15,16]后20通过/1个Linux-only跳过，无失败。不能把Windows跳过称Linux已验收。取消日志收敛为一次业务审计并保留原因，有精确数量测试。未远端交付、未部署、未真实写入。

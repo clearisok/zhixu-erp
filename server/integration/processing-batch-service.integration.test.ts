@@ -1,3 +1,4 @@
+import {getSalesOrderById,listSalesOrders} from '../sales-orders/repository.js';
 import {mutateOrderIdentity,readOrderIdentity} from '../sales-orders/identity-service.js';
 import {createServer} from 'node:http';
 import {createApp} from '../app.js';
@@ -44,6 +45,7 @@ test('processing service atomic synthetic lifecycle',{timeout:180000},async t=>{
  });
  await t.test('cancelled item fails but another confirmed batch succeeds',async()=>{
   const a=await confirmed(),b=await confirmed();await cancelProcessingBatch(pool,actor,a.batchId,{requestId:randomUUID(),expectedVersion:a.version,reason:'Synthetic cancellation'});
+  const logs=(await pool.query("SELECT metadata FROM operation_logs WHERE entity_id=$1 AND action='取消加工批次'",[a.batchId])).rows;assert.equal(logs.length,1);assert.equal(logs[0].metadata.reason,'Synthetic cancellation');
   const result=await consumeProcessingBatches(pool,actor,{requestId:randomUUID(),items:[{batchId:a.batchId,expectedVersion:a.version},{batchId:b.batchId,expectedVersion:b.version}]});assert.equal(result.results[0].status,'failed');assert.equal(result.results[1].status,'created');
  });
  await t.test('failed late audit rolls back SO, profile, commercial version and consumption',async()=>{
@@ -90,6 +92,13 @@ test('processing service atomic synthetic lifecycle',{timeout:180000},async t=>{
   const id=row.salesOrderId,initial=await readOrderIdentity(pool,id);assert.equal(initial.ownerId,null);assert.equal(initial.businessType,'processing');
   const claimed=await mutateOrderIdentity(pool,actor,id,{action:'claim',expectedVersion:initial.version});assert.equal(claimed.ownerId,actor.userId);assert.equal(claimed.businessType,'processing');
   assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_source_links WHERE sales_order_id=$1',[id])).rows[0].n,0);
+ });
+ await t.test('processing read projection uses consumed batch facts and no fake source contract',async()=>{
+  const command={...draft(),businessStyleNo:'PROCESSING-READ-UNIQUE',customerName:'Synthetic processing customer',quantity:'27.5',deliveryDate:'2026-12-01'};
+  const b=await createProcessingBatch(pool,actor,command),preview=await previewProcessingBatch(pool,actor,b.batchId),ready=await confirmProcessingBatch(pool,actor,b.batchId,{requestId:randomUUID(),expectedVersion:b.version,sourceFingerprint:preview.candidate.fingerprint});
+  const result=await consume(b.batchId,ready.version!),row=result.results[0];assert.ok('salesOrderId' in row&&row.salesOrderId);
+  const detail=await getSalesOrderById(pool,row.salesOrderId);assert.ok(detail);assert.equal(detail.businessType,'processing');assert.equal(detail.styleNo,command.businessStyleNo);assert.equal(detail.customerName,command.customerName);assert.equal(detail.quantity,27.5);assert.equal(detail.contractDeliveryDate,'2026-12-01');assert.equal(detail.salesContractNo,null);assert.equal(detail.insideOrderNo,null);assert.deepEqual(detail.colors,[]);
+  const list=await listSalesOrders(pool,{limit:20,offset:0,search:command.businessStyleNo});assert.equal(list.total,1);assert.equal(list.items[0].id,row.salesOrderId);
  });
  await t.test('fresh database revocation cannot be bypassed through replay',async()=>{
   const b=await confirmed(),requestId=randomUUID();await consume(b.batchId,b.version!,actor,requestId);await pool.query("DELETE FROM app_role_permissions WHERE role_id='batch-test' AND permission_key='order.processing.consume'");assert.equal((await consume(b.batchId,b.version!,actor,requestId)).results[0].status,'failed');

@@ -141,6 +141,9 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
   };
 }
 
+const PROCESSING_READ_JOINS = `LEFT JOIN processing_order_batch_consumptions processing_consumption ON processing_consumption.sales_order_id=so.id
+ LEFT JOIN processing_order_batches processing_batch ON processing_batch.id=processing_consumption.batch_id AND processing_batch.state='consumed'
+ AND so.creation_source='quote' AND so.source_quote_id=processing_batch.quote_id AND so.source_revision_id=processing_batch.revision_id AND so.source_price_version_id=processing_batch.price_version_id`;
 function readModelSelect(includeIdentity: boolean): string { return `
   SELECT so.*,
          ${includeIdentity ? 'COALESCE(profile.business_type,' : ''}CASE WHEN so.creation_source='ainuoke' AND mirror.source_id=sl.external_id AND mirror.sales_contract_no=sl.sales_contract_no THEN 'ainuoke_contract' ELSE 'unclassified' END${includeIdentity ? ')' : ''} AS business_type,
@@ -148,13 +151,13 @@ function readModelSelect(includeIdentity: boolean): string { return `
          sl.sales_contract_no,
          sl.inside_order_no,
          mirror.lifecycle_status_raw,
-         to_char(mirror.contract_date, 'YYYY-MM-DD') AS contract_date,
-         to_char(mirror.contract_delivery_date, 'YYYY-MM-DD') AS contract_delivery_date,
-         mirror.style_no,
+         to_char(${includeIdentity ? 'COALESCE(processing_batch.order_date,mirror.contract_date)' : 'mirror.contract_date'}, 'YYYY-MM-DD') AS contract_date,
+         to_char(${includeIdentity ? 'COALESCE(processing_batch.delivery_date,mirror.contract_delivery_date)' : 'mirror.contract_delivery_date'}, 'YYYY-MM-DD') AS contract_delivery_date,
+         ${includeIdentity ? 'COALESCE(processing_batch.business_style_no,mirror.style_no)' : 'mirror.style_no'} AS style_no,
          mirror.company_name_snapshot,
-         mirror.customer_name_snapshot,
+         ${includeIdentity ? 'COALESCE(processing_batch.customer_name,mirror.customer_name_snapshot)' : 'mirror.customer_name_snapshot'} AS customer_name_snapshot,
          mirror.brand_name_snapshot,
-         mirror.quantity,
+         ${includeIdentity ? 'COALESCE(processing_batch.quantity,mirror.quantity)' : 'mirror.quantity'} AS quantity,
          (
            SELECT count(*)::int
            FROM ainuoke_sales_order_color_mirrors color_mirror
@@ -167,6 +170,7 @@ function readModelSelect(includeIdentity: boolean): string { return `
    AND sl.source_entity_type = 'sales_contract'
   LEFT JOIN ainuoke_sales_order_contract_mirrors mirror
     ON mirror.sales_order_id = so.id
+  ${includeIdentity ? PROCESSING_READ_JOINS : ''}
   ${includeIdentity ? 'LEFT JOIN sales_order_identity_profiles profile ON profile.sales_order_id=so.id LEFT JOIN app_users owner_user ON owner_user.id=profile.owner_id' : ''}`;
 }
 const READ_MODEL_SELECT = readModelSelect(true);
@@ -385,7 +389,7 @@ export async function listSalesOrders(
     const search = addValue(`%${options.search}%`);
     where.push(`concat_ws(' ', so.order_no, sl.sales_contract_no, sl.inside_order_no,
       mirror.style_no, mirror.company_name_snapshot, mirror.customer_name_snapshot,
-      mirror.brand_name_snapshot) ILIKE ${search}`);
+      mirror.brand_name_snapshot, processing_batch.customer_name, processing_batch.business_style_no, processing_batch.customer_reference) ILIKE ${search}`);
   }
   if (options.lifecycleState) where.push(`so.lifecycle_state = ${addValue(options.lifecycleState)}`);
   if (options.creationSource) where.push(`so.creation_source = ${addValue(options.creationSource)}`);
@@ -399,13 +403,14 @@ export async function listSalesOrders(
       AND sl.source_entity_type = 'sales_contract'
      LEFT JOIN ainuoke_sales_order_contract_mirrors mirror
        ON mirror.sales_order_id = so.id
+     ${PROCESSING_READ_JOINS}
      ${whereSql}`,
     values,
   );
   const sortColumns = {
     orderNo: "so.order_no",
     updatedAt: "so.updated_at",
-    contractDeliveryDate: "mirror.contract_delivery_date",
+    contractDeliveryDate: "COALESCE(processing_batch.delivery_date,mirror.contract_delivery_date)",
     salesContractNo: "sl.sales_contract_no",
   } as const;
   const sortColumn = sortColumns[options.sortBy ?? "orderNo"];

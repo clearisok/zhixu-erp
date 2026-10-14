@@ -37,10 +37,10 @@ async function replay(c:PoolClient,a:TrustedIdentity,requestId:string,operation:
  if(old&&old.payload_hash!==payloadHash)fail(409,'processing_request_payload_conflict');
  return old?.result as Receipt|undefined;
 }
-async function record(c:PoolClient,a:TrustedIdentity,requestId:string,operation:Operation,item:string,payloadHash:string,result:Receipt){
+async function record(c:PoolClient,a:TrustedIdentity,requestId:string,operation:Operation,item:string,payloadHash:string,result:Receipt,reason?:string){
  await c.query('INSERT INTO processing_order_batch_requests(actor_id,request_id,operation,item_key,payload_hash,batch_id,result) VALUES($1,$2,$3,$4,$5,$6,$7::jsonb)',[a.internalUserId,requestId,operation,item,payloadHash,result.batchId,JSON.stringify(result)]);
  const actions={create:'登记加工批次',confirm:'确认加工批次',cancel:'取消加工批次',consume:'创建加工订单'} as const;
- await appendOperationLog(c,a,{module:'订单中心',action:actions[operation],entityType:'ProcessingOrderBatch',entityId:result.batchId,afterData:{values:result},metadata:{requestId,operation}});
+ await appendOperationLog(c,a,{module:'订单中心',action:actions[operation],entityType:'ProcessingOrderBatch',entityId:result.batchId,afterData:{values:result},metadata:{requestId,operation,...(reason?{reason}:{})}});
  return result;
 }
 export async function createProcessingBatch(pool:Pool,actor:TrustedIdentity,raw:unknown){
@@ -84,8 +84,7 @@ export async function cancelProcessingBatch(pool:Pool,actor:TrustedIdentity,id:s
   const b=await readBatch(c,item);if(!['draft','confirmed'].includes(b.state))fail(409,'processing_batch_terminal');
   if(b.version!==command.expectedVersion)fail(409,'processing_batch_version_conflict');
   await c.query("UPDATE processing_order_batches SET state='cancelled',version=version+1 WHERE id=$1",[item]);
-  await appendOperationLog(c,a,{module:'订单中心',action:'取消加工批次',entityType:'ProcessingOrderBatch',entityId:item,metadata:{reason:command.reason}});
-  return record(c,a,command.requestId,'cancel',item,payloadHash,{batchId:item,version:b.version+1,status:'cancelled'});
+  return record(c,a,command.requestId,'cancel',item,payloadHash,{batchId:item,version:b.version+1,status:'cancelled'},command.reason);
  });
 }
 async function consumeOne(pool:Pool,actor:TrustedIdentity,requestId:string,item:{batchId:string;expectedVersion:number}){
