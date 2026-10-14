@@ -172,7 +172,7 @@ export async function previewAdditions(input: unknown, selected: readonly string
       colorDetailStatus: candidate.colorDetailStatus, colorLines: candidate.colors.length}))};
 }
 
-async function assertStoredAdditionMatches(client: PoolClient, candidates: Awaited<ReturnType<typeof mapSelectedFinalSalesOrderCandidates>>,
+export async function assertStoredAdditionMatches(client: PoolClient, candidates: Awaited<ReturnType<typeof mapSelectedFinalSalesOrderCandidates>>,
   bound: BoundIdentity[]) {
   for (const candidate of candidates) {
     const identity = bound.find(item => item.sourceId === candidate.source.sourceId

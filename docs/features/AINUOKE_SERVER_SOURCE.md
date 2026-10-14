@@ -118,3 +118,16 @@ PR103已按用户授权合并；新增独立`scripts/ainuoke-readonly-audit.ps1`
 2026-10-14: [异常原因与隔离演示接入路径](../tasks/active/source-anomaly-followup-2026-10-14.md)新增只读行级证据分析；不改变单位、正式齐套或真实首绑授权。
 
 2026-10-14 / D-118：新增默认不配置的可信需求级人工确认只读端口，单位补充与原值分开、工厂责任只影响国贸跟进；身份/单位/采购范围改变失效，两次采购不去重、单位等价不证明生产可用性。未真实装载、绑定或激活。[工程与下一隔离演示Gate](../tasks/active/material-confirmations-2026-10-14.md)。
+
+
+## D119：显式小范围首次绑定（本机候选）
+
+使用既有Linux私密config和可信operator，在已核实的空隔离账本上执行：
+
+```text
+npm run source:ainuoke -- --check --config=<private-file>
+npm run source:ainuoke -- --preview-bind-selected=<source-key> --contracts=<BillNo,...> --expected-target=<check-fingerprint> --config=<private-file>
+npm run source:ainuoke -- --bind-selected=<source-key> --contracts=<same-BillNo,...> --expected-target=<check-fingerprint> --expected-preview=<review-hash> --config=<private-file>
+```
+
+预览只读、写入独立确认；完整Discovery与所选颜色来自既有固定worker，最多25单。原全量bind仍要求全量颜色。所选首绑hash不与新增合同/全量预览互通。重试逐字段核对已存镜像，不能借重试新增订单或修复被改动的账本。execute只刷新已绑定物料；schedule不随绑定自动运行。真实执行尚未授权/运行。[本轮证据、目标与回退](../tasks/active/ainuoke-selected-first-binding-2026-10-14.md)。

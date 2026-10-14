@@ -11,4 +11,7 @@
 
 [上一恢复点完整历史](tasks/completed/2026-10-14-before-order-alerts.md)。更新时机：规则、main/PR、测试、真实探测、绑定/激活或人工验收变化。
 
-[受控补充事实与下一隔离演示Gate](tasks/active/material-confirmations-2026-10-14.md)：小范围首次绑定仍需工程化，不能用新增合同流程绕过首绑。
+[受控补充事实与下一隔离演示Gate](tasks/active/material-confirmations-2026-10-14.md)：已由D119补充显式小范围首次绑定候选，复用原事务/完整Discovery；真实写入仍待目标授权。
+
+
+2026-10-14本轮：D119选集首绑代码及合成持久化双轮刷新已通过；额外阻断已存镜像篡改后假精确重试。依据旧私有证据选择4单，拟独立loopback62310；未创建真实目标/未首绑/未激活。具体范围与回退见[小范围绑定](tasks/active/ainuoke-selected-first-binding-2026-10-14.md)。

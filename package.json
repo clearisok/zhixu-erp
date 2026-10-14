@@ -57,7 +57,7 @@
     "test:team-access-ui": "tsx --test --test-concurrency=1 server/integration/team-access-ui.integration.test.mjs",
     "source:ainuoke": "tsx server/ainuoke-source/cli.ts",
     "test:ainuoke-server-source": "tsx --test --test-concurrency=1 server/integration/ainuoke-server-source.test.ts server/integration/ainuoke-server-source.integration.test.ts",
-    "test:ainuoke-continuous": "tsx --test --test-concurrency=1 server/integration/ainuoke-continuous.test.ts server/integration/ainuoke-binding.integration.test.ts server/integration/ainuoke-binding-cli.integration.test.ts server/integration/ainuoke-additions.test.ts server/integration/ainuoke-additions.integration.test.ts server/integration/order-read-capability.test.ts server/integration/order-alerts.integration.test.ts server/integration/material-confirmations.integration.test.ts",
+    "test:ainuoke-continuous": "tsx --test --test-concurrency=1 server/integration/ainuoke-continuous.test.ts server/integration/ainuoke-selected-binding.test.ts server/integration/ainuoke-selected-binding.integration.test.ts server/integration/ainuoke-binding.integration.test.ts server/integration/ainuoke-binding-cli.integration.test.ts server/integration/ainuoke-additions.test.ts server/integration/ainuoke-additions.integration.test.ts server/integration/order-read-capability.test.ts server/integration/order-alerts.integration.test.ts server/integration/material-confirmations.integration.test.ts",
     "test:ainuoke-continuous-ui": "tsx --test server/integration/ainuoke-continuous-ui.integration.test.mjs",
     "demo:ainuoke-continuous": "tsx scripts/demo-ainuoke-continuous.ts",
     "test:animated-login-ui": "tsx --test --test-concurrency=1 server/integration/animated-login-ui.integration.test.mjs",

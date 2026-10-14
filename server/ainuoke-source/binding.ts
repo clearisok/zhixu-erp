@@ -9,6 +9,7 @@ import { buildFinalSalesOrderBootstrapPreview } from "../../features/ainuoke-syn
 import type { AinuokeOrderDiscoveryQuery, AinuokeSalesContractQuery, AinuokeReportSnapshot } from "../../features/ainuoke-api/model/ainuoke-api.js";
 import { SourceError, hash, sourceKeyValid, inspect, pagesValid, discoveryContentHash } from "./contract.js";
 import { boundOrders, sourceActor } from "./service.js";
+import { previewAdditions, selectContracts, assertStoredAdditionMatches } from "./additions.js";
 
 export type BindingBundle = {
   schemaVersion: "ainuoke-order-binding.v1";
@@ -58,13 +59,31 @@ export async function previewBindings(input: unknown, now = Date.now(), maxAgeMs
     return {preview, reviewHash};
   } catch (error) { throw error instanceof SourceError ? error : new SourceError("binding_invalid"); }
 }
+/** Explicit small first binding: full discovery, selected color details, separate review domain. */
+function validatedSelection(selected: readonly string[]): string[] {
+  if (!Array.isArray(selected) || selected.some(value => typeof value !== "string" || value.includes(",")))
+    throw new SourceError("binding_selection_invalid");
+  return selectContracts(selected.join(","));
+}
+export async function previewSelectedBindings(input: unknown, selected: readonly string[], now = Date.now(), maxAgeMs = 600000) {
+  const selection = validatedSelection(selected);
+  const result = await previewAdditions(input, selection, [], now, maxAgeMs);
+  return {preview: {candidates: result.candidates}, visibleContracts: result.visibleContracts,
+    selectedContracts: selection, colorCoverage: result.colorCoverage,
+    reviewHash: hash({kind: "selected-first-binding.v1", selection, candidateReview: result.reviewHash})};
+}
 export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"internalUserId"|"userId">, options: {
-  sourceKey: string; accountFingerprint: string; expectedPreview: string; collect: () => Promise<unknown>; now?: () => number;
+  sourceKey: string; accountFingerprint: string; expectedPreview: string; collect: () => Promise<unknown>; now?: () => number; selected?: readonly string[];
 }) {
   if (!sourceKeyValid(options.sourceKey) || !/^[a-f0-9]{64}$/u.test(options.accountFingerprint) || !/^[a-f0-9]{64}$/u.test(options.expectedPreview)) throw new SourceError("binding_confirmation_required");
+  // Copy selection before any await; the caller cannot widen it while collecting.
+  const selected = options.selected === undefined ? undefined : validatedSelection(options.selected);
+  const review = (data: unknown) => selected === undefined
+    ? previewBindings(data, (options.now ?? Date.now)())
+    : previewSelectedBindings(data, selected, (options.now ?? Date.now)());
   const actor = await sourceActor(pool, identity, true); requirePermission(actor.permissions, "ainuoke.bind");
   const data=await options.collect();
-  const {preview, reviewHash} = await previewBindings(data, (options.now ?? Date.now)());
+  const {preview, reviewHash} = await review(data);
   if (reviewHash !== options.expectedPreview) throw new SourceError("binding_preview_changed");
   const client = await pool.connect();
   try {
@@ -75,7 +94,7 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
     await client.query("SELECT pg_advisory_xact_lock(hashtextextended('ainuoke-first-binding',0))");
     const lock = await client.query("SELECT pg_try_advisory_xact_lock(hashtextextended($1,0)) AS locked", ["ainuoke-source:" + options.sourceKey]);
     if (!lock.rows[0].locked) throw new SourceError("source_capture_busy");
-    await previewBindings(data, (options.now ?? Date.now)());
+    if ((await review(data)).reviewHash !== reviewHash) throw new SourceError("binding_preview_changed");
     const currentActor = await sourceActor(client, identity, true); requirePermission(currentActor.permissions, "ainuoke.bind");
     const profiles = (await client.query("SELECT source_key,account_fingerprint,enabled FROM ainuoke_source_profiles FOR UPDATE")).rows;
     if (profiles.some(p => p.source_key !== options.sourceKey || p.account_fingerprint !== options.accountFingerprint || !p.enabled)) throw new SourceError("source_account_mismatch");
@@ -87,6 +106,9 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
       const receipt=(await client.query("SELECT metadata FROM operation_logs WHERE entity_type='AinuokeSourceBinding' AND entity_id=$1 ORDER BY id DESC LIMIT 1",[options.sourceKey])).rows[0];
       const bound=await boundOrders(client,true);
       if(!profiles.length || receipt?.metadata?.reviewHash!==reviewHash || bound.length!==existing.length || existing.some(row=>!bound.some(order=>order.id===row.id&&normalizeAinuokeSalesContractNo(order.salesContractNo)===normalizeAinuokeSalesContractNo(row.sales_contract_no))))throw new SourceError("binding_not_exact_retry");
+      // The audit hash alone does not prove that persisted mirrors are still intact.
+      await assertStoredAdditionMatches(client, candidates, existing.map(row => ({id: row.id,
+        sourceId: row.external_id, salesContractNo: normalizeAinuokeSalesContractNo(row.sales_contract_no)})));
     }
     const ids: string[] = []; let created = 0;
     for (const candidate of candidates) {
@@ -94,7 +116,7 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
       ids.push(result.salesOrder.id); if (result.created) created++;
     }
     await client.query("INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2) ON CONFLICT DO NOTHING", [options.sourceKey,options.accountFingerprint]);
-    if (created) await appendOperationLog(client,currentActor,{module:"艾诺科同步",action:"首次绑定艾诺科订单",entityType:"AinuokeSourceBinding",entityId:options.sourceKey,metadata:{sourceKey:options.sourceKey,reviewHash,orderCount:created,scope:"current_account_visible"}});
+    if (created) await appendOperationLog(client,currentActor,{module:"艾诺科同步",action:"首次绑定艾诺科订单",entityType:"AinuokeSourceBinding",entityId:options.sourceKey,metadata:{sourceKey:options.sourceKey,reviewHash,orderCount:created,scope:selected === undefined ? "current_account_visible" : "explicit_selected_first_binding",...(selected === undefined ? {} : {selectedContracts: preview.candidates.map(c => c.source.salesContractNo)})}});
     await client.query("COMMIT");
     return {created,replayed:created===0,orderIds:ids,reviewHash};
   } catch(error) {

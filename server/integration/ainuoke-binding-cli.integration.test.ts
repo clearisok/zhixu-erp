@@ -8,7 +8,7 @@ import { join,resolve } from "node:path";
 import { tmpdir } from "node:os";
 import pg from "pg";
 import { collectWithPython } from "../ainuoke-source/collector.js";
-import { previewBindings } from "../ainuoke-source/binding.js";
+import { previewBindings, previewSelectedBindings } from "../ainuoke-source/binding.js";
 import { bindingBundle,freshMaterialBundle } from "./ainuoke-binding-fixture.js";
 import { startDisposablePostgres } from "./postgres-container.js";
 import { runMigrations } from "../db/migration-runner.js";
@@ -35,6 +35,15 @@ test("fixed Python binding worker and Linux operator CLI are executable end to e
   const result=await collectWithPython(cfg,[],{mode:"bindings",timeoutMs:20000});const preview=await previewBindings(result);
   assert.equal(preview.preview.candidates.length,1);assert.deepEqual(reports,[6086103,6087105,6086103]);
   assert.ok(!JSON.stringify(result).includes(cfg.password));
+  await t.test("fixed worker selected-first preview retains full discovery and fetches one selected color",async()=>{
+   additionVisible=true;reports.length=0;
+   const selected=[String(expanded.discoveryBefore[0].rows[1].values.BillNo)];
+   const result=await collectWithPython(cfg,selected,{mode:"additions",timeoutMs:20000});
+   const p=await previewSelectedBindings(result,selected);
+   assert.equal(p.visibleContracts,2);assert.equal(p.preview.candidates.length,1);
+   assert.equal(p.preview.candidates[0].source.sourceId,"synthetic-2");
+   assert.deepEqual(reports,[6086103,6087105,6086103]);additionVisible=false;
+  });
   await t.test("Linux check/preview/bind/retry/schedule/signal with private file and empty disposable DB",{skip:process.platform==="win32"},async()=>{
    const db=await startDisposablePostgres();const databaseUrl=await db.createDatabase("binding_cli");const pool=new pg.Pool({connectionString:databaseUrl});
    const dir=await mkdtemp(join(tmpdir(),"zhixu-binding-cli-"));const path=join(dir,"source.json");

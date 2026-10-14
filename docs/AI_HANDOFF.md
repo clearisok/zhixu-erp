@@ -1,15 +1,11 @@
 # 当前接力
 
-2026-10-14；main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5；分支feat/ainuoke-anomaly-evidence，保留现有工作树。当前D-117按用户新决定把具名全空数量颜色在织序记0并保留来源null/待确认，明确取代D-116旧null投影条款；物料unknown规则不改。新增Server订单异常标签，范围与用户图批准见[工程报告](tasks/active/order-list-alerts-2026-10-14.md)。
+2026-10-14；main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5已本轮只读GitHub核实；PR108仍OPEN/head8b89de59dd405395da1dde4b6dde5f125141deb9。沿用feat/ainuoke-anomaly-evidence，Phase baseline755a787b756b8f2d379909feaa3b85e2997caeba clean。
 
-代码checkpoint9c95db5；root829/829、Adapter23、持续45pass/1平台skip、PG14、隔离Chromium9与双构建通过。六份私有旧报告离线重放全部usable；截图outputs/order-alerts-2026-10-14，已目视1440/390。证据冻结及基线门禁已通过，基线回归73/73（新增同PR冻结修订链正负向测试）；typecheck/lint再次通过。修订链仍要求不可变基线锚点、完整Git blob及无分叉/循环，未放宽UI审批或部署证据。不要把这些结果说成真实Source已连接/部署或用户已验收UI。
+D119小范围首次绑定已实施：完整Discovery+所选颜色、显式选集/目标/预览hash、复用事务/权限/首绑空库规则；新增重试镜像完整性检查。测试接入test:ainuoke-continuous。初轮完整持续回归68pass/1Windows skip、后续待定颜色定向17pass，typecheck/server build/lint通过；最终门禁进行中。详见[小范围绑定报告](tasks/active/ainuoke-selected-first-binding-2026-10-14.md)。
 
-剩余：受控单位补充/责任确认、退库净量、取消状态、网络交付和新隔离真实目标。真实写入/绑定/调度/部署必须另行授权。报价分支a0e60e4不动。用户执行两份交付仍pushes0；不重复失败通道或旧ExpectedHead命令，不创建重复PR。
+4单拟选集、真实单号和既有报告只保留本机受保护目录，未读取凭据或重新采集。真实目标、首次写入/两轮execute需用户具体确认；没有创建新真实DB、Source首绑/调度、部署或合并。拟独立loopback62310；目标尚未创建、无实际指纹。不能用PR108会自动seed模拟订单的fixture入口给真实Source首绑。正式默认Server确认端口仍未配置；新隔离应用需匹配D118来源指纹和证据后注入。
 
-[历史接力和全部旧hash](tasks/completed/2026-10-14-before-order-alerts.md)；[异常业务核对](tasks/active/source-anomaly-followup-2026-10-14.md)。具体单据/编码与确认仅保存在旧PR108工作树受保护Git忽略目录，不能复制进Git。不得使用凭据或全量读取刷新旧证据以代替目标授权。
+网络继承NETWORK_DEGRADED，不反复push；本轮GitHub只读成功不证明push恢复。新PR/远端CI尚无。保护报价分支a0e60e4和原7bf3工作树；不变更23单模拟环境、宁波或18443/18444。
 
-2026-10-14下一阶段：用户批准右上角身份区退出登录，范围见tasks/active/server-user-menu-2026-10-14.md；验证进行中，真实Source状态未改变。
-
-707dcd8右上角退出菜单：typecheck/lint/build、隔离Chromium9/9通过，截图outputs/user-menu-2026-10-14。D-118补充事实候选：8组纯回归及一次性PG通过，7项真实历史需求离线确认应用；默认未注入真实确认。下一小范围首次绑定需复用selected mapper，现有全量首绑不能截断Discovery。详见material-confirmations任务。最终项目/基线检查进行中。
-
-最终验证：root839、baseline73、持续46pass/1平台skip、Chromium9、最终纯物料/确认/读取63及账号指纹PG1通过。见tasks/active/material-confirmations-verification-2026-10-14.md。UI截图最终候选b542e8d在outputs/confirmed-facts-2026-10-14，旧707dcd8截图保留。真实首绑仍未授权/执行；下一工程为限定合同首绑，不重跑全量历史预检。
+[上一完整接力](tasks/completed/2026-10-14-before-selected-binding.md)保留旧hash/检查/限制。最终提交和检查结果在本阶段收口更新。
