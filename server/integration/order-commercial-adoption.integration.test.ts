@@ -1,3 +1,5 @@
+import {createServer} from 'node:http';
+import {createApp} from '../app.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {resolve} from 'node:path';
@@ -25,7 +27,7 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
  t.after(async()=>{await pool.end();await db.stop();});await runMigrations(pool,resolve('database/migrations'));await synchronizePermissionCatalog(pool);
  await pool.query("INSERT INTO app_roles(id,name) VALUES('adoption-test','Synthetic')");
  await pool.query("INSERT INTO app_role_permissions SELECT 'adoption-test',key FROM app_permissions");
- const u=(await pool.query("INSERT INTO app_users(username,password_hash,display_name,role) VALUES('adopter','unused','Synthetic','viewer') RETURNING id::text,public_id::text")).rows[0];
+ const u=(await pool.query("INSERT INTO app_users(username,password_hash,display_name,role) VALUES('adopter',crypt('synthetic',gen_salt('bf',4)),'Synthetic','viewer') RETURNING id::text,public_id::text")).rows[0];
  await pool.query("INSERT INTO app_user_roles VALUES($1,'adoption-test')",[u.id]);
  const actor:TrustedIdentity={internalUserId:u.id,userId:u.public_id,username:'adopter',userName:'Synthetic',permissions:['order.view','ainuoke.sync']};
  const q=createSyntheticQuoteFixture('commercial-adoption-synthetic','distribution');
@@ -77,6 +79,34 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
  await t.test('audit field projection also hides free-form monetary reason',async()=>{
   const log:ServerOperationLog={id:'1',operationId:'1',operationSequence:0,actorUserId:actor.userId,actorName:'test',module:'订单中心',action:'采用订单商业版本',entityType:'OrderCommercialVersion',entityId:'1',quoteId:q.id,context:{},beforeData:null,afterData:{values:{customerConfirmedPrice:'140',confirmedLaborPrice:'12'}},changes:[],metadata:{reason:'sale 140 labor 12'},createdAt:'2026-10-14T00:00:00Z'};
   const restricted=projectOperationLogResponse({...actor,permissions:['order.view']},log);assert.deepEqual(restricted.afterData?.values,{});assert.equal(restricted.metadata.reason,undefined);assert.equal(log.metadata.reason,'sale 140 labor 12');
+ });
+ await t.test('HTTP session, mutation boundary and monetary projection',async()=>{
+  const origin='http://commercial-test.invalid';const server=createServer(createApp({pool,allowedOrigins:[origin],security:{secureCookies:false,sessionTtlSeconds:3600}}));
+  await new Promise<void>(done=>server.listen(0,'127.0.0.1',done));const address=server.address();assert.ok(address&&typeof address==='object');const base='http://127.0.0.1:'+address.port;
+  try{
+   const headers={Origin:origin,'Content-Type':'application/json','X-Zhixu-Request':'1'};
+   const login=await fetch(base+'/api/v1/auth/login',{method:'POST',headers,body:JSON.stringify({username:'adopter',password:'synthetic'})});assert.equal(login.status,200);const cookie=login.headers.get('set-cookie')!.split(';')[0];
+   const id=await order(),path='/api/v1/sales-orders/'+id+'/commercial-versions';
+   const req=(url:string,method='GET',body?:object,extra:Record<string,string>={})=>fetch(base+url,{method,headers:{...headers,Cookie:cookie,...extra},...(body?{body:JSON.stringify(body)}:{})});
+   assert.equal((await fetch(base+path)).status,401);
+   assert.equal((await req(path+'?salePrice=999')).status,400);
+   assert.equal((await req(path+'/preview','POST',source,{Origin:'http://evil.invalid'})).status,403);
+   assert.equal((await req(path+'/preview','POST',{...source,salePrice:'999'})).status,400);
+   const preview=await req(path+'/preview','POST',source);assert.equal(preview.status,200);const data=await preview.json();assert.equal(data.candidate.sale.value.price,'140');assert.equal(data.candidate.salePrice,undefined);
+   const cmd={...source,requestId:randomUUID(),expectedVersion:0,sourceFingerprint:data.candidate.fingerprint,reason:'adopt 140'};
+   const adopted=await req(path,'POST',cmd);assert.equal(adopted.status,200);assert.equal((await adopted.json()).adopted.sale.value.price,'140');
+   assert.equal((await req(path,'POST',cmd)).status,200);
+   const legacy='/api/v1/sales-orders/'+id+'/confirmed-commercial-terms';
+   const legacyRead=await req(legacy);assert.equal(legacyRead.status,200);const legacyBody=await legacyRead.json();assert.equal(legacyBody.confirmedCommercialTerms.scope,'sales_order');assert.equal(legacyBody.confirmedCommercialTerms.current.sale.value.price,'140');
+   const oldWrite=await req(legacy,'PATCH',{expectedVersion:1,customerConfirmedPrice:'999'});assert.equal(oldWrite.status,409);assert.equal((await oldWrite.json()).error.code,'order_commercial_adoption_required');
+   const pending=await order();const pendingRead=await req('/api/v1/sales-orders/'+pending+'/confirmed-commercial-terms');assert.equal((await pendingRead.json()).confirmedCommercialTerms.current,null);
+
+   await pool.query("DELETE FROM app_role_permissions WHERE role_id='adoption-test' AND permission_key IN ('commercial.sale.view','commercial.labor.view')");
+   try{
+    const restricted=await req(path);assert.equal(restricted.status,200);assert.equal(restricted.headers.get('cache-control'),'no-store');const body=await restricted.json();assert.equal(body.current.sale.visibility,'restricted');assert.equal(body.current.labor.visibility,'restricted');assert.equal(body.current.reason,undefined);assert.equal(body.current.salePrice,undefined);assert.equal(body.current.laborPrice,undefined);
+    assert.equal((await req(path+'/preview','POST',source)).status,403);assert.equal((await req(path,'POST',cmd)).status,403);
+   }finally{await pool.query("INSERT INTO app_role_permissions VALUES('adoption-test','commercial.sale.view'),('adoption-test','commercial.labor.view')");}
+  }finally{await new Promise<void>((done,reject)=>server.close(e=>e?reject(e):done()));}
  });
  await t.test('removing quote source cannot destroy adopted snapshots',async()=>{
   for(const table of ['quote_center_fabric_lines','quote_center_trim_lines','quote_center_other_cost_lines'])await pool.query(`DELETE FROM ${table} WHERE snapshot_id IN (SELECT id FROM quote_center_cost_snapshots WHERE quote_id=$1 AND price_version_id=$2)`,[q.id,pv.id]);

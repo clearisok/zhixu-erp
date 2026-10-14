@@ -10,7 +10,7 @@ GET /api/v1/order-claimants：仅order.transfer可读公共ID/名称，目标须
 
 POST /api/v1/order-preparations：精确字段requestId/referenceOrderId/quantity/deliveryDate/specificationChanges；actor/request幂等、payload冲突拒绝。GET要求referenceOrderId，可offset分页每页20；仅order.preparation.create可读。准备记录append-only，不创建SO、不分配SO号、不产生执行任务。页面不确定保存保留请求ID和原payload重试。报价版本候选/商业采用随Gate2，不冒称本Gate已建立关联。
 
-现有列表原来源列补充待认领；详情复用Foundation新增认领/转交/血统/准备入口。身份不改变订单生命周期。新内部排产执行Gate尚不存在于Server，不能宣称已实现完整排产限制。CCT仍为旧共享语义，Gate2前不得宣称金额隔离。
+现有列表原来源列补充待认领；详情复用Foundation新增认领/转交/血统/准备入口。身份不改变订单生命周期。新内部排产执行Gate尚不存在于Server，不能宣称已实现完整排产限制。本分支Gate2新增订单商业版本API：旧订单CCT读取只适配已采用快照、旧写入拒绝；报价侧CCT仍为确认来源。采用UI及完整回归待完成，不得宣称Gate2发布完成。
 
 验证：15项领域/HTTP/升级/约束测试；原六角色+跟单经理22项；首次绑定/受控新增19项；Chromium5项合成交互通过（最终样式重验通过）。此前UI测试失败为异步等待条件不正确，已按保存完成/弹窗出现等待；升级断言由版本号改为runner实际文件名返回。所有DB来自测试工具随机tmpfs容器，无真实Source/凭据使用。
 

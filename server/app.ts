@@ -1,3 +1,6 @@
+import {readOrderCommercialState,previewOrderCommercial,adoptOrderCommercial} from './sales-orders/commercial-version-service.js';
+import {parseCommercialProvenance} from './sales-orders/commercial-source.js';
+import {projectOrderCommercialState,projectOrderCommercialVersion,projectCommercialCandidate} from './sales-orders/commercial-projection.js';
 import { readOrderIdentity, mutateOrderIdentity, createOrderPreparation, listOrderPreparations, listClaimants } from "./sales-orders/identity-service.js";
 import { createOrderMaterialReader, type MaterialReadPorts } from '../features/ainuoke-material-progress/read-service.js';
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
@@ -570,6 +573,32 @@ async function route(
       });
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
+
+  const commercialMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/commercial-versions(?:\/(preview))?$/.exec(path);
+  if (commercialMatch) {
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401,"authentication_required","Authentication is required");
+    requirePermission(identity.permissions,"order.view");
+    if (new URL(request.url??"/","http://localhost").searchParams.size) throw new HttpError(400,"invalid_commercial_query","Query selectors are not accepted");
+    const id=requiredPathIdentity(commercialMatch[1],"salesOrderId");
+    response.setHeader("Cache-Control","no-store");
+    if(request.method==="GET"&&!commercialMatch[2]){
+      sendJson(response,200,projectOrderCommercialState(identity,await readOrderCommercialState(dependencies.pool,id)));return;
+    }
+    if(request.method!=="POST")throw new HttpError(405,"method_not_allowed","Method not allowed");
+    if(dependencies.identityAuthority.mode!=="session")throw new HttpError(403,"trusted_session_required","A trusted session is required");
+    assertMutationBoundary(request,dependencies.allowedOrigins);
+    requirePermission(identity.permissions,"order.commercial.adopt");
+    const body=await readJsonBody(request,8192);
+    if(commercialMatch[2]){
+      const preview=await previewOrderCommercial(dependencies.pool,identity,id,parseCommercialProvenance(body));
+      sendJson(response,200,{current:projectOrderCommercialState(identity,preview.current),candidate:projectCommercialCandidate(identity,preview.candidate)});
+    }else{
+      const result=await adoptOrderCommercial(dependencies.pool,identity,id,body);
+      sendJson(response,200,{adopted:projectOrderCommercialVersion(identity,result.adopted),replayed:result.replayed});
+    }
     return;
   }
 

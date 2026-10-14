@@ -15,9 +15,14 @@ function amount(value:unknown):string{
  if(typeof value!=='string'||value.length>2000||!/^\d+(?:\.\d+)?$/u.test(value))invalid('commercial_confirmation_required');
  return canonicalDecimal(value);
 }
+export function parseCommercialProvenance(raw:Record<string,unknown>):QuoteProvenance {
+ const keys=['quoteId','revisionId','priceVersionId'];
+ if(Object.keys(raw).length!==3||keys.some(key=>typeof raw[key]!=='string'||!(raw[key] as string).trim()||(raw[key] as string).length>256))throw new HttpError(400,'invalid_quote_provenance','Invalid quote identity');
+ return {quoteId:raw.quoteId as string,revisionId:raw.revisionId as string,priceVersionId:raw.priceVersionId as string};
+}
 /** Caller owns a transaction and authorization. Terms lock then Quote row, matching existing writers. */
 export async function readCommercialCandidate(client:PoolClient,provenance:QuoteProvenance):Promise<CommercialCandidate>{
- for(const value of Object.values(provenance))if(typeof value!=='string'||!value.trim()||value.length>256)throw new HttpError(400,'invalid_quote_provenance','Invalid quote identity');
+ provenance=parseCommercialProvenance(provenance);
  await lockQuoteTermsContext(client,provenance);
  const locked=await client.query('SELECT version FROM quote_center_quotes WHERE id=$1 FOR SHARE',[provenance.quoteId]);
  if(!locked.rowCount)invalid('quote_not_found');

@@ -22,3 +22,14 @@
 验证：`npx tsx --test --test-concurrency=1 server/integration/order-commercial-source.integration.test.ts server/integration/order-commercial-adoption.integration.test.ts` 17/17 PASS（随机tmpfs PG）；server:build、typecheck、8个增量TS文件eslint PASS。早期测试夹具因订单版本增量约束和报价外键失败，已依实际schema修正，未放松约束。来源删除场景明确只删除隔离样本的精确PriceVersion及依赖明细，验证采用快照独立保留。
 
 新覆盖：相同请求并发、不同请求CAS、同报价两订单价格独立、单单改价、预览后来源变化、权限撤销含重试、未认领/已完成阻断、审计失败回滚、审计自由文本金额脱敏、来源版本失效。已有G1测试仍需下一轮完整回归；HTTP、UI、旧CCT兼容切换、历史预览与最终门禁待完成。没有远端送达、CI或真实升级的结论。
+
+
+## HTTP 与旧订单入口切换 checkpoint（2026-10-14）
+
+基于 `0961fcdf39ea1a498c08bc9f18ae831a6086e352` 增加 GET /sales-orders/:id/commercial-versions、POST同路径采用、POST /preview。明确字段白名单；当前值、预览、采用回执均走金额权限投影；无权限不输出原始金额、指纹或自由文本原因。preview仅接收精确Quote/Revision/PriceVersion。POST要求可信session及mutation boundary，领域再次读取实时权限。
+
+旧订单confirmed-commercial-terms GET仅适配独立订单采用快照，未采用为null；旧PATCH与内部导出更新命令统一409 order_commercial_adoption_required。报价端确认尚保持原路径。原共享读取改名readLegacyOrderCommercialEvidence，仅为后续历史预览内部取证，不作订单现价。
+
+验证：18/18商业候选/采用/HTTP隔离测试、15/15身份及0014/0015升级测试；server:build、typecheck、增量eslint通过。升级明确不填充商业版本、不改变原订单或角色权限。已有旧CCT集成测试尚未按新规则调整，完整回归未完成，不可发布。
+
+下一步：报价侧关联查询须识别新采用关系，检查已有CCT与PV confirmation的写入权威一致性，避免有CCT时更新PV却读到旧CCT；开发采用界面/候选选择、历史预览；修订旧共享语义测试并保留报价确认权限/CAS回归。不要以当前定向测试代替最终门禁。

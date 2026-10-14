@@ -1,3 +1,4 @@
+import {readOrderCommercialState} from '../sales-orders/commercial-version-service.js';
 import type { Pool, PoolClient } from "pg";
 import type {
   ConfirmedCommercialTermsDto,
@@ -134,7 +135,8 @@ function assertOrderPreservesLinkedLaborCurrency(
   }
 }
 
-async function readOrderWithClient(
+/** Historical evidence only. Never use as the live order price or expose without field projection. */
+export async function readLegacyOrderCommercialEvidence(
   client: Pool | PoolClient,
   salesOrderId: string,
 ): Promise<ConfirmedCommercialTermsDto> {
@@ -156,7 +158,8 @@ export async function readConfirmedCommercialTermsBySalesOrder(
   pool: Pool,
   salesOrderId: string,
 ): Promise<ConfirmedCommercialTermsDto> {
-  return readOrderWithClient(pool, salesOrderId);
+  const state=await readOrderCommercialState(pool,salesOrderId),c=state.current;
+  return {linkage:c?'linked':'unlinked',scope:c?'sales_order':null,quoteProvenance:c?{quoteId:c.quoteId,revisionId:c.revisionId,priceVersionId:c.priceVersionId}:null,associatedSalesOrderIds:[salesOrderId],current:c?{id:c.id,customerConfirmedPrice:c.salePrice,customerConfirmedPriceCurrency:'CNY',confirmedLaborPrice:c.laborPrice,laborCurrency:c.laborCurrency,version:c.version,createdAt:c.adoptedAt,updatedAt:c.adoptedAt}:null};
 }
 
 export async function readConfirmedCommercialTermsByQuote(
@@ -323,7 +326,9 @@ export async function updateConfirmedCommercialTermsBySalesOrder(
   salesOrderId: string,
   values: UpdateConfirmedCommercialTermsInput,
 ): Promise<ConfirmedCommercialTermsDto> {
-  return mutate(pool, actor, { salesOrderId, values, surface: "order" });
+  // Keep the exported compatibility command fail-closed for internal callers too.
+  void pool;void actor;void salesOrderId;void values;
+  throw new HttpError(409,"order_commercial_adoption_required","Order prices must be adopted as an independent commercial version");
 }
 
 export async function updateConfirmedCommercialTermsByQuote(
