@@ -11,3 +11,5 @@ Gate2 已完成两个本地工程阶段：基础 checkpoint `552e9b2de3f2809a168
 仅随机tmpfs数据库，禁止真实账号/DB/部署/Source扩大。node_modules junction指向共享既有依赖，不删除目标。Gate1完整证据 tasks/active/evidence/order-identity/gate1-results.md。网络仍NETWORK_DEGRADED，仅本地checkpoint，不反复推送。
 
 报价侧衔接已完成本地checkpoint：商业使用查询包含采用历史，legacy关联只写原创建关系；已存在CCT时禁止PV confirmation并行写，现存无SO CCT仍可报价维护；首次仅改一项金额保留PV另一项确认。19项商业/HTTP测试、类型/后端构建/增量lint通过。下一步采用UI、历史预览、旧CCT测试更新及完整门禁。Gate1仍待交付回执。
+
+采用界面已接入（独立checkpoint，尚未浏览器验收）：server-order-commercial-card.tsx、详情替换旧编辑卡片；真实Server报价搜索分页/修订方案选择/差异预览/明确采用；不确定提交保留原请求重试。6项客户端测试及类型/lint/Server构建通过，最后executionOnly显示调整后需重建。下一步优先合成浏览器测试、历史预览及旧CCT回归，不能直接PR交付。UI精确路径记录在Gate2任务文档，正式门禁清单待整合。

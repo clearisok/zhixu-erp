@@ -97,8 +97,16 @@ test("commercial terms client preserves safe conflict status and code", async ()
 });
 
 test("incomplete linkage response is unknown, never inferred unlinked or a snapshot fallback", async () => {
-  for (const malformed of [{ ...dto, linkage: undefined }, { ...dto, linkage: "unlinked" }, { ...dto, associatedSalesOrderIds: [] }]) {
+  for (const malformed of [{ ...dto, linkage: undefined }, { ...dto, linkage: "unlinked" }, { ...dto, associatedSalesOrderIds: [], current: null }]) {
     const client = createConfirmedCommercialTermsServerClient({ fetchImpl: (async () => new Response(JSON.stringify({ confirmedCommercialTerms: malformed }))) as typeof fetch });
     await assert.rejects(client.getByQuote("quote-1", "revision-1", "price-1"), { code: "confirmed_commercial_terms_provenance_mismatch" });
   }
+});
+
+
+test("existing Quote CCT remains authoritative without active order associations",async()=>{
+ const client=createConfirmedCommercialTermsServerClient({fetchImpl:(async()=>new Response(JSON.stringify({confirmedCommercialTerms:{...dto,associatedSalesOrderIds:[]}}))) as typeof fetch});
+ assert.equal((await client.getByQuote('quote-1','revision-1','price-1')).current?.customerConfirmedPrice,'12.30');
+ const invalid=createConfirmedCommercialTermsServerClient({fetchImpl:(async()=>new Response(JSON.stringify({confirmedCommercialTerms:{...dto,associatedSalesOrderIds:[],current:null}}))) as typeof fetch});
+ await assert.rejects(invalid.getByQuote('quote-1','revision-1','price-1'),{code:'confirmed_commercial_terms_provenance_mismatch'});
 });

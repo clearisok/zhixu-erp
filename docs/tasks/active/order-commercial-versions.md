@@ -44,3 +44,12 @@
 19项合成/HTTP回归PASS，新增采用关系识别、首次仅改售价保留工价、无关联SO但有CCT时旧PV写入阻断及CCT可编辑。类型检查、server:build及增量eslint通过。初次测试夹具缺少报价款号/款名及复制报价后的估算来源身份不匹配，已按真实校验补齐/移除独立夹具估算，未放松生产验证。
 
 下一步采用界面与历史预览、旧CCT测试语义更新和完整回归。当前仅本地工程checkpoint，未远端交付、未部署、未真实写入。
+
+
+## 采用界面 checkpoint（2026-10-14）
+
+基于 `1037ef1068da0ee7d4df5c4989e4122df121915e`。订单详情复用Foundation商业卡片，移除旧共享条款编辑模态，接入独立商业读取/预览/采用。报价搜索和20项分页、Revision/PriceVersion明确选择、前后售价/工价差异、采用原因及确认。未知历史保持待核实；完成/取消订单不显示采用按钮；请求不确定时保留actor/request原命令重试。金额展示遵循服务端字段投影。普通Server详情与来源执行详情均可查看商业依据，权限仍由服务端检查。
+
+顺带修复客户端协议：已有精确CCT但关联SO列表为空仍是可信报价确认来源；无CCT且无关联仍不能冒称linked。6项客户端回归通过，类型、增量eslint和显式Server构建通过。最终去掉executionOnly对商业卡片的隐藏后尚需再次构建与浏览器验证；没有人工视觉验收结论。
+
+本阶段UI影响精确路径：features/order-center/components/server-sales-order-detail-page.tsx、features/order-center/components/server-order-commercial-card.tsx、features/confirmed-commercial-terms/client.ts。批准依据为用户已批准计划Gate2显式采用及差异确认；保持其余页面布局。最终发布前还需把这些路径与先前权限模型影响合并入本PR正式release-baseline UI记录，并完成桌面/窄屏与七角色验收。
