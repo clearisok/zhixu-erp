@@ -53,6 +53,18 @@ test('processing service atomic synthetic lifecycle',{timeout:180000},async t=>{
   const sameQty=await createProcessingBatch(pool,actor,{...base,requestId:randomUUID(),customerReference:''});
   const samePreview=await previewProcessingBatch(pool,actor,sameQty.batchId);assert.equal(samePreview.similar.items.length,1);assert.equal(samePreview.similar.items[0].sameReference,false);assert.equal(samePreview.similar.items[0].sameQuoteQuantity,true);
  });
+ await t.test('display labels use exact provenance and never expose quote cost metadata',async()=>{
+  const b=await createProcessingBatch(pool,actor,draft()),p=await previewProcessingBatch(pool,actor,b.batchId);
+  assert.deepEqual(p.labels,{quoteCode:q.quoteCode,revisionLabel:r.revisionLabel,priceVersionName:pv.name});
+  const list=await listProcessingBatches(pool,actor,parseProcessingBatchQuery(new URLSearchParams({search:b.batchId,includeProcessed:'true'})));
+  assert.deepEqual(list.items[0].labels,p.labels);assert.deepEqual(Object.keys(p.labels).sort(),['priceVersionName','quoteCode','revisionLabel']);
+  const original=(await pool.query('SELECT metadata FROM quote_center_price_versions WHERE quote_id=$1 AND revision_id=$2 AND id=$3',[q.id,r.revisionId,pv.id])).rows[0].metadata;
+  try{
+   await pool.query("UPDATE quote_center_price_versions SET metadata=metadata-'name' WHERE quote_id=$1 AND revision_id=$2 AND id=$3",[q.id,r.revisionId,pv.id]);
+   const history=await listProcessingBatches(pool,actor,parseProcessingBatchQuery(new URLSearchParams({search:b.batchId,includeProcessed:'true'})));
+   assert.equal(history.items[0].labels.priceVersionName,null);assert.equal(history.items[0].batch.priceVersionId,pv.id);
+  }finally{await pool.query('UPDATE quote_center_price_versions SET metadata=$4 WHERE quote_id=$1 AND revision_id=$2 AND id=$3',[q.id,r.revisionId,pv.id,original]);}
+ });
  await t.test('two users racing consumption produce one SO and one immutable zero labor snapshot',async()=>{
   const b=await confirmed(),before=await count();const results=await Promise.all([consume(b.batchId,b.version!,actor),consume(b.batchId,b.version!,other)]);
   assert.equal(await count(),before+1);const ids=results.map(x=>('salesOrderId' in x.results[0])?x.results[0].salesOrderId:null);assert.ok(ids[0]);assert.equal(ids[0],ids[1]);
@@ -117,6 +129,22 @@ test('processing service atomic synthetic lifecycle',{timeout:180000},async t=>{
   const result=await consume(b.batchId,ready.version!),row=result.results[0];assert.ok('salesOrderId' in row&&row.salesOrderId);
   const detail=await getSalesOrderById(pool,row.salesOrderId);assert.ok(detail);assert.equal(detail.businessType,'processing');assert.equal(detail.styleNo,command.businessStyleNo);assert.equal(detail.customerName,command.customerName);assert.equal(detail.quantity,27.5);assert.equal(detail.contractDeliveryDate,'2026-12-01');assert.equal(detail.salesContractNo,null);assert.equal(detail.insideOrderNo,null);assert.deepEqual(detail.colors,[]);
   const list=await listSalesOrders(pool,{limit:20,offset:0,search:command.businessStyleNo});assert.equal(list.total,1);assert.equal(list.items[0].id,row.salesOrderId);
+ });
+ await t.test('deleted source, missing confirmed labor and missing currency cannot consume or create orphan orders',async()=>{
+  const b=await confirmed(),before=await count();
+  const root=(await pool.query('SELECT metadata FROM quote_center_quotes WHERE id=$1',[q.id])).rows[0].metadata;
+  const snapshot=(await pool.query('SELECT id,pricing_metadata,confirmed_labor_price::text FROM quote_center_cost_snapshots WHERE quote_id=$1 AND revision_id=$2 AND price_version_id=$3',[q.id,r.revisionId,pv.id])).rows[0];
+  const cases=[
+   {code:'quote_not_available',change:()=>pool.query("UPDATE quote_center_quotes SET metadata=jsonb_set(metadata,'{deletedAt}',to_jsonb('2026-10-14T00:00:00Z'::text)) WHERE id=$1",[q.id])},
+   {code:'commercial_confirmation_required',change:()=>pool.query('UPDATE quote_center_cost_snapshots SET confirmed_labor_price=NULL WHERE id=$1',[snapshot.id])},
+   {code:'commercial_currency_required',change:()=>pool.query("UPDATE quote_center_cost_snapshots SET pricing_metadata=pricing_metadata-'laborCurrency' WHERE id=$1",[snapshot.id])},
+  ];
+  for(const scenario of cases){
+   try{await scenario.change();const result=await consume(b.batchId,b.version!);assert.equal(result.results[0].status,'failed');assert.equal((result.results[0] as {code:string}).code,scenario.code);assert.equal(await count(),before);}
+   finally{await pool.query('UPDATE quote_center_quotes SET metadata=$2 WHERE id=$1',[q.id,root]);await pool.query('UPDATE quote_center_cost_snapshots SET pricing_metadata=$2,confirmed_labor_price=$3 WHERE id=$1',[snapshot.id,snapshot.pricing_metadata,snapshot.confirmed_labor_price]);}
+  }
+  assert.equal((await pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions WHERE batch_id=$1',[b.batchId])).rows[0].n,0);
+  assert.equal((await consume(b.batchId,b.version!)).results[0].status,'created');
  });
  await t.test('fresh database revocation cannot be bypassed through replay',async()=>{
   const b=await confirmed(),requestId=randomUUID();await consume(b.batchId,b.version!,actor,requestId);await pool.query("DELETE FROM app_role_permissions WHERE role_id='batch-test' AND permission_key='order.processing.consume'");assert.equal((await consume(b.batchId,b.version!,actor,requestId)).results[0].status,'failed');

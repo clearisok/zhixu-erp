@@ -53,7 +53,7 @@ test("processing batches built UI uses real sessions and isolated synthetic data
   await login('demo.admin');await navigate('/quote-center');await has('推送加工订单');
   await t.test('quote entry registers and confirms exact processing version without allocating SO',async()=>{
    await click('推送加工订单');await click('登记新的加工下单 / 再次下单');await has(q.quoteCode);await select(0,q.id);await has(revision.revisionLabel);await select(1,revision.revisionId);await has(pv.name);await select(2,pv.id);
-   await input('客户','合成加工客户');await input('业务款号','SYN-PROCESS-UI');await input('本次下单数量','30');await input('下单日期','2026-10-14');await click('登记批次（尚不创建 SO）');await has('已登记，请预览并确认下单');await click('预览下单与工价');await has('12.34 CNY / 件');await screenshot('processing-preview-desktop');await click('确认本次下单');await has('下单已确认');
+   await input('客户','合成加工客户');await input('业务款号','SYN-PROCESS-UI');await input('本次下单数量','30');await input('下单日期','2026-10-14');await click('登记批次（尚不创建 SO）');await has('已登记，请预览并确认下单');await click('预览下单与工价');await has('12.34 CNY / 件');await has('报价 '+q.quoteCode+' · '+revision.revisionLabel+' · '+pv.name);await has('查看精确版本标识');await screenshot('processing-preview-desktop');await click('确认本次下单');await has('下单已确认');
    assert.equal((await x.pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions')).rows[0].n,0);await click('关闭');
   });
   let orderId;
