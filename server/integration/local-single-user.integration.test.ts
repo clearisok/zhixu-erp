@@ -49,7 +49,7 @@ test("local identity uses one technical FK actor without login and keeps busines
   const permissions = await fetch(`${baseUrl}/api/v1/auth/permissions`);
   assert.equal(permissions.status, 200);
   assert.deepEqual((await permissions.json()).permissions, [...PERMISSION_KEYS]);
-  assert.equal(PERMISSION_KEYS.length, 63);
+  assert.equal(PERMISSION_KEYS.length, 65);
 
   for (const path of [
     "/api/v1/quote-masters/brands", "/api/v1/quote-masters/customer-salespeople",

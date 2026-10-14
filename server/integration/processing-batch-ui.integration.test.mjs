@@ -62,6 +62,15 @@ test("processing batches built UI uses real sessions and isolated synthetic data
    const rows=(await x.pool.query('SELECT sales_order_id::text id FROM processing_order_batch_consumptions')).rows;assert.equal(rows.length,1);orderId=rows[0].id;
    await navigate('/order-center/server-detail?id='+orderId);await has('合成加工客户');await has('艾诺科物料流水不适用');await click('认领订单');await has('维护首单 / 翻单血统');
   });
+  await t.test('lost success response retains original request and retry does not create a second SO',async()=>{
+   await navigate('/order-center');
+   const source={quoteId:q.id,revisionId:revision.revisionId,priceVersionId:pv.id};
+   await evaluate(`(async()=>{const post=async(path,body)=>{const r=await fetch('/api/v1/processing-order-batches'+path,{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(body)});if(!r.ok)throw Error('synthetic setup failed');return r.json();};const b=await post('',{...${JSON.stringify(source)},requestId:crypto.randomUUID(),customerName:'合成重试客户',businessStyleNo:'SYN-RETRY-UI',quantity:'12',orderDate:'2026-10-14',deliveryDate:null,customerReference:'',deliveryRequirements:'',referenceOrderId:null});const p=await post('/'+b.batchId+'/preview',{});await post('/'+b.batchId+'/confirm',{requestId:crypto.randomUUID(),expectedVersion:b.version,sourceFingerprint:p.candidate.fingerprint});})()`);
+   await click('导入加工订单');await has('SYN-RETRY-UI');await evaluate("document.querySelector('input[aria-label=\"选择批次 SYN-RETRY-UI\"]').click()");
+   await evaluate("(()=>{const actual=window.fetch;window.fetch=async(...args)=>{const r=await actual(...args);if(String(args[0]).endsWith('/processing-order-batches/consume')){window.fetch=actual;throw new TypeError('synthetic lost response');}return r;};})()");
+   await click('确认导入所选 1 项');await has('服务响应尚未确认');assert.equal((await x.pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions')).rows[0].n,2);
+   await click('重试原请求');await has('已创建正式订单');assert.equal((await x.pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions')).rows[0].n,2);await click('关闭');
+  });
   await t.test('mobile history shows original SO while unauthorized role has no entrypoint',async()=>{
    await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await navigate('/order-center');await click('导入加工订单');await until(()=>evaluate("Boolean([...document.querySelectorAll('[role=dialog] label')].find(n=>n.textContent.includes('包含已处理'))?.querySelector('input:not(:disabled)'))"),"history toggle enabled");await evaluate("[...document.querySelectorAll('[role=dialog] label')].find(n=>n.textContent.includes('包含已处理')).querySelector('input').click()");await has('查看已有订单');await screenshot('processing-history-mobile');assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+1'),true);
    await login('demo.material');await navigate('/order-center');await has('订单中心');assert.equal(await evaluate("document.body.innerText.includes('导入加工订单')"),false);

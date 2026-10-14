@@ -19,6 +19,26 @@ test("first team: seven synthetic session accounts and guarded administration in
     return {...r,cookie:r.response.headers.get("set-cookie")?.split(";")[0]};
   };
   const root=(await signIn("synthetic.root")).cookie!;
+  // Legacy shared quote CCT is not an adopted order price. Establish an explicit
+  // synthetic immutable adoption before testing the seven-role field projection.
+  const unadopted=await x.request(x.orderPath,root);
+  assert.equal(unadopted.response.status,200,unadopted.text);
+  assert.equal(unadopted.body.confirmedCommercialTerms.current,null);
+  await x.pool.query(`WITH adopted AS (
+    INSERT INTO sales_order_commercial_versions
+      (sales_order_id,version,actor_id,request_id,payload_hash,quote_id,revision_id,price_version_id,
+       source_quote_version,source_kind,source_cct_id,source_cct_version,source_confirmed_at,
+       source_fingerprint,quote_type,confirmed_sale_price,confirmed_labor_price,labor_currency,reason)
+    SELECT link.sales_order_id,1,u.id,gen_random_uuid(),repeat('a',64),c.quote_id,c.revision_id,c.price_version_id,
+      1,'cct',c.id,c.version,now(),repeat('b',64),'distribution',c.customer_confirmed_price,
+      c.confirmed_labor_price,c.labor_currency,'Synthetic role projection fixture'
+    FROM confirmed_commercial_terms_sales_orders link
+    JOIN confirmed_commercial_terms c ON c.id=link.confirmed_commercial_terms_id
+    JOIN app_users u ON u.username='synthetic.root'
+    RETURNING id,sales_order_id,version
+  ) INSERT INTO sales_order_commercial_heads(sales_order_id,current_version_id,version)
+    SELECT sales_order_id,id,version FROM adopted`);
+
   const command=(body:unknown,cookie=root)=>x.request("/api/v1/team-access",cookie,body,"POST");
   const directory=async()=>{const r=await x.request("/api/v1/team-access",root);assert.equal(r.response.status,200,r.text);return r.body;};
   const accounts=new Map<string,{cookie:string;user:TeamUser;request:Extract<TeamCommand,{action:"create"}>}>();
@@ -50,7 +70,8 @@ test("first team: seven synthetic session accounts and guarded administration in
     assert.equal(terms.text.includes("67890"),role.permissions.includes("commercial.labor.view"));
     if(!admin){
       const attempt=await x.request(x.orderPath,logged.cookie,{expectedVersion:terms.body.version??1,customerConfirmedPrice:"90000"},"PATCH");
-      assert.equal(attempt.response.status,403,attempt.text);
+      assert.equal(attempt.response.status,role.permissions.includes("order.edit")?409:403,attempt.text);
+      if(role.permissions.includes("order.edit"))assert.equal(attempt.body.error.code,"order_commercial_adoption_required");
     }
     const createQuote=await x.request("/api/v1/quotes",logged.cookie,{},"POST");
     assert.equal(createQuote.response.status,admin||role.id==="role-team-quote-manager"?201:403,createQuote.text);

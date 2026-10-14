@@ -183,7 +183,7 @@ export function ServerOrderCenterPage() {
       render: (item) => (
         <div className="oc-primary-cell">
           <strong>{item.orderNo}</strong>
-          <small>{item.billNo ?? "未绑定 BillNo"}</small>
+          <small>{item.businessType==='processing'?'加工订单 · 无销售合同':item.billNo??'未绑定 BillNo'}</small>
         </div>
       ),
     },
@@ -213,7 +213,7 @@ export function ServerOrderCenterPage() {
     },
     {
       key: "quantity",
-      header: "合同数量",
+      header: "订单数量",
       width: 96,
       align: "right",
       responsivePriority: "primary",
@@ -233,13 +233,13 @@ export function ServerOrderCenterPage() {
           <StatusTag tone={lifecycleTone(item.lifecycleState)}>
             {lifecycleLabels[item.lifecycleState]}
           </StatusTag>
-          <small>艾诺科：{item.sourceLifecycleStatus || "未记录"}</small>
+          <small>{item.businessType==='processing'?'加工下单批次':`艾诺科：${item.sourceLifecycleStatus||'未记录'}`}</small>
         </div>
       ),
     },
     {
       key: "delivery",
-      header: "合同交期 / 颜色",
+      header: "交期 / 颜色",
       width: 142,
       responsivePriority: "primary",
       render: (item) => (
@@ -254,7 +254,7 @@ export function ServerOrderCenterPage() {
       header: "创建来源",
       width: 104,
       responsivePriority: "secondary",
-      render: (item) => <><span>{creationSourceLabels[item.creationSource]}</span><small>{item.businessType==='ainuoke_contract'?(item.ownerName??'待认领'):item.businessType==='processing'?'加工类':'历史类型待核实'}</small></>,
+      render: (item) => <><span>{creationSourceLabels[item.creationSource]}</span><small>{item.businessType==='ainuoke_contract'?(item.ownerName??'待认领'):item.businessType==='processing'?(item.ownerName??'加工类 · 待认领'):'历史类型待核实'}</small></>,
     },
     {
       key: "action",
@@ -281,7 +281,7 @@ export function ServerOrderCenterPage() {
   const renderRecord = (item: OrderCenterServerListViewModel) => (
     <div className="oc-order-record oc-server-order-record">
       <header>
-        <div><strong>{item.styleNo || "未记录款号"}</strong><small>{item.factoryStyleNo ?? "未记录工厂款号"}</small></div>
+        <div><strong>{item.styleNo || "未记录款号"}</strong><small>{item.businessType==='processing'?'加工业务款号':item.factoryStyleNo??'未记录工厂款号'}</small></div>
         <span>只读查看 <b>›</b></span>
       </header>
       <div className="oc-order-record-identity">
@@ -289,13 +289,13 @@ export function ServerOrderCenterPage() {
         <span><small>BillNo</small><strong>{item.billNo ?? "—"}</strong></span>
       </div>
       <div className="oc-order-record-facts">
-        <span><small>合同数量</small><strong>{item.initialQuantity?.toLocaleString("zh-CN") ?? "—"}</strong></span>
-        <span><small>合同交期</small><strong>{item.contractDeliveryDate ?? "—"}</strong></span>
+        <span><small>订单数量</small><strong>{item.initialQuantity?.toLocaleString("zh-CN") ?? "—"}</strong></span>
+        <span><small>交期</small><strong>{item.contractDeliveryDate ?? "—"}</strong></span>
         <span><small>颜色数</small><strong>{item.colorCount}</strong></span>
       </div>
       <div className="oc-server-record-status">
         <StatusTag tone={lifecycleTone(item.lifecycleState)}>{lifecycleLabels[item.lifecycleState]}</StatusTag>
-        <small>艾诺科来源状态：{item.sourceLifecycleStatus || "未记录"}</small>
+        <small>{item.businessType==='processing'?'艾诺科来源：不适用':`艾诺科来源状态：${item.sourceLifecycleStatus||'未记录'}`}</small>
       </div>
     </div>
   );

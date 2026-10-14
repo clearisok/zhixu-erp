@@ -70,3 +70,8 @@ actor/request/operation/item键与载荷hash处理重试；每批独立事务。
 2026-10-14首次合成浏览器闭环：显式Server/session/orderRead=snapshot构建PASS，processing-batch-ui.integration.test.mjs最终4/4 PASS（3子场景+父）。报价UI选择精确Revision/PV、输入客户/数量、登记并确认，DB证实未消费；订单中心导入后唯一SO，详情真实投影并认领；390px包含已处理可查原SO、无横向溢出，物控无入口。1440/390截图outputs/processing-ui已目视，未上传真实业务内容。原失败为自动化在加载期间点击disabled按钮/选项，修正等待可操作状态后通过；未改产品为测试绕过。
 
 构建source commit5cfafacc7caf207e2f95a8c41992a8410cd9e5db。UI影响记录page ID原order-center不在manifest，已改为实际order-list；没有改历史截图或哈希。剩余：加工列表部分合同/艾诺科文案、友好报价版本标识、异常请求重试/批量负向浏览器补充、全PG/源码/基线/权限数目/CI及PR收口。Gate3仍非完整交付。网络规则与真实授权未变。
+
+
+2026-10-14 Gate3兼容回归推进（基点ced418f99fa52eef25ebf8b86aa683b10689efd1）：加工订单列表改用订单数量/交期，processing行明确无销售合同且艾诺科不适用。浏览器补充真实提交成功后模拟丢失响应，原请求重试仍只有原SO，5/5 PASS。七角色测试旧夹具只有共享CCT，故旧金额可见性断言失败；现先断言未采用current=null，再在一次性库显式建立独立采用版本，保留售价/工价逐角色断言和旧写入口拒绝测试，22/22 PASS。local-single-user权限总数从63改为65，对应两项新加工权限，3/3 PASS。
+
+源码全回归首次823/824，唯一旧文案断言修复后完整824/824 PASS；全PG首次259/260，唯一权限数目断言修复后完整复跑261/261 PASS（失败父场景恢复后新增执行一个子场景）。基线回归78/78 PASS；typecheck、Server构建、定向lint及工作树基线PASS（11 UI路径，17既有能力项；不表示G3能力已冻结交付）。现有Source CI增加加工服务与浏览器测试，但远端尚未执行。新增模块文档PROCESSING_ORDER_BATCHES.md，并归档旧CURRENT_STATE原文；真实环境未触碰，网络协议未改变。
