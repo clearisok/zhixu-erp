@@ -284,3 +284,64 @@ test("6087105 candidate source has no 6086997/6087050 or business-write dependen
   ].join("\n");
   assert.doesNotMatch(source, /6086997|6087050|orderRepository|styleProgressRepository|commitImport|INSERT INTO|UPDATE sales_orders|DELETE FROM/i);
 });
+
+const adaptBlankCase = async (overrides = {}, onlyBlank = false, duplicate = false, collision = false) => {
+  const snapshot = clone(fixtures.D1935);
+  const blank = clone(snapshot.rows[0]);
+  blank.sourceRowIdentity = "6087105:sha256:synthetic-empty-placeholder";
+  Object.assign(blank.values, { CnColor: " ", SizeNum: null });
+  for (let slot = 1; slot <= 26; slot++) blank.values[`Size${slot}`] = null;
+  Object.assign(blank.values, overrides);
+  snapshot.rows = onlyBlank ? [blank] : [...snapshot.rows, blank];
+  if (duplicate) snapshot.rows.push(clone(blank));
+  if (collision) blank.sourceRowIdentity = snapshot.rows[0].sourceRowIdentity;
+  snapshot.total = snapshot.rows.length;
+  const before = clone(snapshot);
+  const source = await adaptAinuokeGarmentColorSizeSnapshots({ snapshots: [snapshot], requestedSalesContractNo: "PI2607-235", discoveryInsideOrderNo: "D1935", expectedStyleNo: "D1935" });
+  assert.deepEqual(snapshot, before, "original source evidence must not be mutated");
+  return source;
+};
+test("approved all-blank placeholder is retained in evidence but excluded from order colors", async () => {
+  const source = await adaptBlankCase();
+  assert.equal(source.colorDetailStatus, "usable");
+  assert.equal(source.exactRows, 6); assert.equal(source.upstreamRows, 6);
+  assert.equal(source.containsFalsePositiveRows, 0); assert.equal(source.rows.length, 6);
+  assert.equal(source.usableRows.length, 5);
+  assert.deepEqual(source.excludedPlaceholderSourceRowIdentities, ["6087105:sha256:synthetic-empty-placeholder"]);
+  assert.equal(source.issues.filter(issue => issue.code === "EMPTY_PLACEHOLDER_EXCLUDED").length, 1);
+  assert.equal(source.rows.find(row => !row.colorName).quantity, null);
+});
+test("named blank-quantity colors are retained as unknown and still block complete binding", async () => {
+  const source = await adaptBlankCase({ CnColor: "Synthetic named color" });
+  assert.equal(source.colorDetailStatus, "invalid");
+  assert.deepEqual(source.excludedPlaceholderSourceRowIdentities, []);
+  assert.equal(source.rows.find(row => row.colorName === "Synthetic named color").quantity, null);
+  assert.ok(source.issues.some(issue => issue.code === "INVALID_SIZE_NUM"));
+});
+test("zero, negative, invalid or any populated size cannot be discarded as an empty placeholder", async () => {
+  for (const overrides of [{SizeNum:0},{SizeNum:-1},{SizeNum:'bad'},{Size1:0},{Size26:2},{Size27:1},{SizeNum:[]},{CnColor:[]}]) {
+    const source = await adaptBlankCase(overrides);
+    assert.equal(source.colorDetailStatus, "invalid", JSON.stringify(overrides));
+    assert.deepEqual(source.excludedPlaceholderSourceRowIdentities, []);
+  }
+});
+test("only placeholders is missing enrichment, never an empty usable order-color proof", async () => {
+  const source = await adaptBlankCase({}, true);
+  assert.equal(source.colorDetailStatus, "missing");
+  assert.equal(source.rows.length, 1); assert.equal(source.usableRows.length, 0);
+});
+test("changing a placeholder to a named row changes review evidence and cannot reuse usable status", async () => {
+  const empty = await adaptBlankCase(), named = await adaptBlankCase({CnColor:'new color'});
+  assert.notEqual(empty.sourceHash, named.sourceHash);
+  assert.equal(empty.colorDetailStatus, 'usable'); assert.equal(named.colorDetailStatus, 'invalid');
+});
+
+test("identical empty placeholders do not invalidate real colors, but identity collision with a real color does", async () => {
+  const duplicates = await adaptBlankCase({}, false, true);
+  assert.equal(duplicates.colorDetailStatus, 'usable');
+  assert.equal(duplicates.rows.length, 7); assert.equal(duplicates.usableRows.length, 5);
+  assert.equal(duplicates.excludedPlaceholderSourceRowIdentities.length, 2);
+  const collision = await adaptBlankCase({}, false, false, true);
+  assert.equal(collision.colorDetailStatus, 'invalid');
+  assert.ok(collision.issues.some(issue => issue.code === 'DUPLICATE_SOURCE_IDENTITY'));
+});

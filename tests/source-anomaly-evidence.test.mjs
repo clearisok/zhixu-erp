@@ -36,6 +36,7 @@ test('empty color candidates, explicit size zero and positive missing-color fact
     {sourceRowIdentity:'b',values:{CnColor:''}}, {sourceRowIdentity:'c',values:{CnColor:'',Size1:0}},
     {sourceRowIdentity:'d',values:{CnColor:'',SizeNum:3,Size1:3}}]}]};
   const rows=analyzeSourceOrder(input).colors;
-  assert.deepEqual(rows.map(r=>r.classification),['named-empty-color-unverified','blank-placeholder-candidate-unverified','missing-color-identity','missing-color-identity']);
+  assert.deepEqual(rows.map(r=>r.classification),['named-empty-color-retained','approved-empty-placeholder','missing-color-identity','missing-color-identity']);
   assert.ok(rows.every(r=>r.mayDiscard===false));
+  assert.deepEqual(rows.map(r=>r.excludeFromColorProjection),[false,true,false,false]);
 });

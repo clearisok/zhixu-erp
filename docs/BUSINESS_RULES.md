@@ -366,3 +366,9 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 - “距上线”是 `plannedProductionStartDate - expectedArrivalAtHubDate` 的自然日差，只作直观信息；运输缓冲是 `latestRequiredArrivalDate - expectedFactoryArrivalDate` 的正式风险事实。`bufferDays > 7` 为绿色，`0..7` 为黄色，`< 0` 为红色并显示晚到天数；两者不得混用。
 - Expected Arrival Batch 的创建、日期修改、增删、Allocation 调整与恢复 Source 必须写唯一追加式 OperationLog；ImportBatch / Raw Snapshot 只作技术 Trace。
 - 生产排单的物料状态直接消费 Style Progress Projection，不再维护第二套手工物料日期；UI 对生产执行承诺统一使用“拟定交期”。
+
+
+## 来源异常处置补充（2026-10-14，D-116）
+- 两次真实采购各自有效及已付款，即使数量相同，也保留不同采购事件；理论用量与实际采购独立，重复采购不增加理论需求。不推断第一批采购可以用于生产。
+- 有名称的颜色行保留，数量空白保持未知；仅颜色名、总数量及所有尺码数量均空的占位行从颜色业务投影排除，原始来源证据仍保留。显式0、负数或非法值不能按空白排除。
+- 单位冲突只有在单位语义/换算得到可靠确认后才能处理；不自动建立“只/个”别名。真实写入/激活仍需目标明确的独立授权。

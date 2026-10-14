@@ -1,3 +1,4 @@
+import { isAinuokeBlankColorPlaceholder } from '../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts';
 import { isDeepStrictEqual } from 'node:util';
 
 const text = value => String(value ?? '').normalize('NFKC').trim();
@@ -48,10 +49,10 @@ export function analyzeSourceOrder(order) {
       const emptyQuantityAndSizes = blank(v.SizeNum) && sizes.every(([, value]) => blank(value));
       return { sourceRowIdentity, color: v.CnColor ?? null, quantity: v.SizeNum ?? null,
         populatedSizes: Object.fromEntries(sizes.filter(([, value]) => !blank(value))),
-        classification: emptyQuantityAndSizes ? text(v.CnColor) ? 'named-empty-color-unverified' : 'blank-placeholder-candidate-unverified'
+        classification: emptyQuantityAndSizes ? text(v.CnColor) ? 'named-empty-color-retained' : isAinuokeBlankColorPlaceholder(v) ? 'approved-empty-placeholder' : 'missing-color-identity'
           : !text(v.CnColor) ? 'missing-color-identity' : 'populated-color',
-        // Candidate means evidence for human review, not permission to discard a row.
-        mayDiscard: false };
+        // Raw evidence is never deleted; only the approved empty placeholder is excluded from projection.
+        mayDiscard: false, excludeFromColorProjection: isAinuokeBlankColorPlaceholder(v) };
     }),
     quantities: materialRows.flatMap(({ sourceRowIdentity, values: v }) => streams.map(([stream, quantity, document]) => ({
       sourceRowIdentity, stream, materialCode: v.GoodsNo ?? null, materialName: v.CnName ?? null,

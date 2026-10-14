@@ -1,3 +1,5 @@
+2026-10-14 / D-116 后续：用户确认两笔重复采购均真实有效；只排除颜色及所有数量均空的占位，具名未知保留。既有六合同离线重放3份恢复usable、3份共9条具名未知仍invalid；未知不填0，单位别名未确认。见[治理更新](tasks/active/source-anomaly-followup-2026-10-14.md)。本阶段起点7b02cbd clean，main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5未刷新。两分支用户交付均pushes=0，REMOTE PENDING；只推进本地工程，真实Source未激活。
+
 2026-10-14 / GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`：PR108 head `8b89de59dd405395da1dde4b6dde5f125141deb9` 开放未合并。本轮独立分支只读追查单位/颜色/负数量/空物料；具体原因与真实演示阻塞见 [异常治理](tasks/active/source-anomaly-followup-2026-10-14.md)。旧摘要均为历史时点，真实 Source 未激活。
 
 # 当前状态
