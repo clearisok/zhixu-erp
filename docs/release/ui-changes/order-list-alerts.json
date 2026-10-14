@@ -1,0 +1,27 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "app/order-center/order-center.css",
+    "features/ainuoke-material-progress/read-service.ts",
+    "features/ainuoke-sync/service/sales-order-final-bootstrap-preview.ts",
+    "features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/components/order-alert-tags.tsx",
+    "features/order-center/server/sales-order-server-model.ts",
+    "features/order-center/server/order-alerts.ts"
+  ],
+  "pages": [
+    "order-center",
+    "order-detail"
+  ],
+  "visibleDifference": "User-approved additive exception column and responsive record chips: quantity zero, missing/conflicting material unit and unavailable/stale source. Existing table, navigation and other columns remain. Named pending colors project zero with raw null evidence.",
+  "evidence": [
+    "docs/tasks/active/order-list-alerts-2026-10-14.md",
+    "server/integration/order-alerts.integration.test.ts"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-list-alerts-2026-10-14.md"
+  }
+}

@@ -311,12 +311,13 @@ test("approved all-blank placeholder is retained in evidence but excluded from o
   assert.equal(source.issues.filter(issue => issue.code === "EMPTY_PLACEHOLDER_EXCLUDED").length, 1);
   assert.equal(source.rows.find(row => !row.colorName).quantity, null);
 });
-test("named blank-quantity colors are retained as unknown and still block complete binding", async () => {
+test("user-approved named blank quantity becomes zero with original null and pending evidence", async () => {
   const source = await adaptBlankCase({ CnColor: "Synthetic named color" });
-  assert.equal(source.colorDetailStatus, "invalid");
+  assert.equal(source.colorDetailStatus, "usable");
   assert.deepEqual(source.excludedPlaceholderSourceRowIdentities, []);
-  assert.equal(source.rows.find(row => row.colorName === "Synthetic named color").quantity, null);
-  assert.ok(source.issues.some(issue => issue.code === "INVALID_SIZE_NUM"));
+  const row=source.rows.find(row => row.colorName === "Synthetic named color");
+  assert.equal(row.quantity,0); assert.equal(row.sourceQuantity,null); assert.equal(row.quantityPendingConfirmation,true);
+  assert.ok(source.issues.some(issue => issue.code === "PENDING_COLOR_QUANTITY_ZERO"));
 });
 test("zero, negative, invalid or any populated size cannot be discarded as an empty placeholder", async () => {
   for (const overrides of [{SizeNum:0},{SizeNum:-1},{SizeNum:'bad'},{Size1:0},{Size26:2},{Size27:1},{SizeNum:[]},{CnColor:[]}]) {
@@ -330,10 +331,11 @@ test("only placeholders is missing enrichment, never an empty usable order-color
   assert.equal(source.colorDetailStatus, "missing");
   assert.equal(source.rows.length, 1); assert.equal(source.usableRows.length, 0);
 });
-test("changing a placeholder to a named row changes review evidence and cannot reuse usable status", async () => {
+test("changing a placeholder to a named row changes review evidence and cannot reuse review evidence", async () => {
   const empty = await adaptBlankCase(), named = await adaptBlankCase({CnColor:'new color'});
   assert.notEqual(empty.sourceHash, named.sourceHash);
-  assert.equal(empty.colorDetailStatus, 'usable'); assert.equal(named.colorDetailStatus, 'invalid');
+  assert.equal(empty.colorDetailStatus, 'usable'); assert.equal(named.colorDetailStatus, 'usable');
+  assert.equal(named.usableRows.length,empty.usableRows.length+1);
 });
 
 test("identical empty placeholders do not invalidate real colors, but identity collision with a real color does", async () => {
@@ -344,4 +346,15 @@ test("identical empty placeholders do not invalidate real colors, but identity c
   const collision = await adaptBlankCase({}, false, false, true);
   assert.equal(collision.colorDetailStatus, 'invalid');
   assert.ok(collision.issues.some(issue => issue.code === 'DUPLICATE_SOURCE_IDENTITY'));
+});
+
+test("named blank total with populated or invalid size facts is not converted to zero",async()=>{
+  for(const values of [{Size1:3},{Size26:-1},{SizeNum:'bad'},{Size1:0},{SizeNum:-1}]){
+    const source=await adaptBlankCase({CnColor:'named',...values});
+    assert.equal(source.colorDetailStatus,'invalid');
+    assert.equal(source.rows.find(row=>row.colorName==='named').quantityPendingConfirmation,false);
+  }
+  const pending=await adaptBlankCase({CnColor:'named'}), zero=await adaptBlankCase({CnColor:'named',SizeNum:0});
+  assert.notEqual(pending.sourceHash,zero.sourceHash);
+  assert.equal(zero.rows.find(row=>row.colorName==='named').quantityPendingConfirmation,false);
 });

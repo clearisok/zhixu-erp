@@ -19,7 +19,7 @@ import { quoteSnapshotFromBrowser } from "../quotes/model.js";
 import { createQuoteService } from "../quotes/service.js";
 import { MemoryAttachmentStorage } from "../attachments/storage.js";
 /** Always generates its own loopback tmpfs PostgreSQL; never reads DATABASE_URL or source credentials. */
-export async function startContinuousFixture(staticDirectory:string) {
+export async function startContinuousFixture(staticDirectory:string, options: {orderAlerts?:boolean} = {}) {
  const db=await startDisposablePostgres();const pool=new pg.Pool({connectionString:await db.createDatabase("continuous_demo")});
  const server=createServer();const origins:string[]=[];const errors:unknown[]=[];
  const close=async()=>{if(server.listening)await new Promise<void>(done=>server.close(()=>done()));await pool.end();await db.stop();};
@@ -30,7 +30,9 @@ export async function startContinuousFixture(staticDirectory:string) {
   const actor=await loadExistingBootstrapActor(pool,users[0]);
   for(let i=1;i<TEAM_ROLES.length;i++)await executeTeamCommand(pool,actor,{action:"create",requestId:randomUUID(),account:users[i],name:"合成演示"+TEAM_ROLES[i].name,password,roleIds:[TEAM_ROLES[i].id]});
   const source={sourceKey:"synthetic-demo",accountFingerprint:"a".repeat(64)};
-  const b=bindingBundle();const p=await previewBindings(b);
+  const b=bindingBundle();
+  if(options.orderAlerts){const page=Object.values(b.colors)[0][0];const pending=structuredClone(page.rows[0]);pending.sourceRowIdentity='synthetic-pending-color';pending.values.CnColor='合成待定颜色';pending.values.SizeNum=null;pending.values.Size1=null;pending.values.Size2=null;page.rows.push(pending);page.total++;}
+  const p=await previewBindings(b);
   const bound=await bindOrders(pool,actor,{...source,expectedPreview:p.reviewHash,collect:async()=>b});
   const quote=createQuoteDraft("synthetic-unified-demo","QT-SYNTHETIC-DEMO","2026-10-12");
   quote.revisions[0].baseInfo.quoteStyleNo="SYNTHETIC-TEE-001";
@@ -43,6 +45,7 @@ export async function startContinuousFixture(staticDirectory:string) {
    const result=await captureSource(pool,actor,{...source,maxAgeMs:600000,collect:async()=>{
     if(mode==="failed")throw Error("synthetic failure");
     const b=freshMaterialBundle();for(const pages of Object.values(b.materials))for(const p of pages)for(const row of p.rows) {
+     if(options.orderAlerts && row.values.GoodsNo==='SYNTHETIC-MAT-ready')row.values.QtyUnit=null;
      if(row.values.cgdh)row.values.cgdh=String(row.values.cgdh)+"-G"+generation;
     }
     generation++;return b;

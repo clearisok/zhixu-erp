@@ -18,6 +18,8 @@ export type OrderMaterialReadModel = {
 export type MaterialReadResult = { status: 200; body: OrderMaterialReadModel }
   | { status: 400 | 401 | 403 | 404 | 503; error: { code: string; message: string } };
 export type MaterialReadPorts = {
+  /** Optional request-local batch snapshot; preserves the same trust/freshness checks. */
+  prepareBatch?: (identity: TrustedIdentity, salesOrderIds: string[]) => Promise<MaterialReadPorts>;
   /** Future Server adapter must enforce authorized team/order visibility before returning a scope.
    * This is an injected read capability, not a Repository or a client-provided trust flag.
    */

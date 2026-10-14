@@ -480,3 +480,10 @@
 .oc-server-detail-material-summary > p { margin: 12px 18px; color: #6b7973; font-size: 11px; }
 .oc-server-detail-material-summary .sp-server-summary { padding: 0 18px 8px; }
 .oc-server-detail-material-summary > button { margin: 0 5px 8px; }
+
+/* User-approved order exception chips; existing table and responsive records remain. */
+.oc-order-alert-tags { display: flex; flex-wrap: wrap; gap: 4px; align-items: flex-start; }
+.oc-order-alert-chip { display: inline-flex; padding: 2px 7px; border: 1px solid #9333ea; border-radius: 4px; color: #7e22ce; background: #faf5ff; font-size: 12px; line-height: 1.5; white-space: nowrap; }
+.oc-order-alert-chip[data-code="color_quantity_zero"] { border-color: #db2777; color: #be185d; background: #fdf2f8; }
+.oc-order-alert-chip[data-code="material_source_stale"], .oc-order-alert-chip[data-code="material_source_unavailable"] { border-color: #b45309; color: #92400e; background: #fffbeb; }
+.oc-order-alert-empty { color: var(--qc-text-secondary, #6b7280); }

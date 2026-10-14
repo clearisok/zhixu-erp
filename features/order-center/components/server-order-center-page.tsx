@@ -1,5 +1,6 @@
 "use client";
 
+import { OrderAlertTags } from "./order-alert-tags";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -255,6 +256,7 @@ export function ServerOrderCenterPage() {
       responsivePriority: "secondary",
       render: (item) => creationSourceLabels[item.creationSource],
     },
+    { key: "alerts", header: "异常", width: 158, responsivePriority: "primary", render: (item) => <OrderAlertTags alerts={item.alerts} /> },
     {
       key: "action",
       header: "操作",
@@ -292,6 +294,7 @@ export function ServerOrderCenterPage() {
         <span><small>合同交期</small><strong>{item.contractDeliveryDate ?? "—"}</strong></span>
         <span><small>颜色数</small><strong>{item.colorCount}</strong></span>
       </div>
+      <OrderAlertTags alerts={item.alerts} />
       <div className="oc-server-record-status">
         <StatusTag tone={lifecycleTone(item.lifecycleState)}>{lifecycleLabels[item.lifecycleState]}</StatusTag>
         <small>艾诺科来源状态：{item.sourceLifecycleStatus || "未记录"}</small>

@@ -16,6 +16,7 @@ export type AinuokeSizeMatrixStatus =
   | "ZERO_QUANTITY_WITH_SIZE";
 
 export type AinuokeGarmentColorSizeIssueCode =
+  | "PENDING_COLOR_QUANTITY_ZERO"
   | "EMPTY_PLACEHOLDER_EXCLUDED"
   | "BLANK_COLOR"
   | "INVALID_SIZE_NUM"
@@ -38,6 +39,8 @@ export type AinuokeGarmentColorSizeRow = {
   sourceRowIdentity: string;
   sourceId: string | null;
   excludedAsEmptyPlaceholder?: boolean;
+  quantityPendingConfirmation?: boolean;
+  sourceQuantity?: number | null;
   salesContractNo: string;
   styleNo: string;
   insideOrderNo: string;
@@ -225,9 +228,12 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
     const colorName = normalizeText(row.values.CnColor);
     const sizeNum = optionalNonNegativeNumber(row.values.SizeNum);
     const placeholder = isAinuokeBlankColorPlaceholder(row.values);
+    const pendingQuantity = Boolean(colorName) && isAinuokeBlankColorPlaceholder({ ...row.values, CnColor: null });
+    const quantity = pendingQuantity ? 0 : sizeNum.value;
+    if (pendingQuantity) issues.push({ code: "PENDING_COLOR_QUANTITY_ZERO", sourceRowIdentity: sourceRowIdentity || null, message: "具名颜色数量待定，按用户规则在织序记0；来源空值保留" });
     if (placeholder) issues.push({ code: "EMPTY_PLACEHOLDER_EXCLUDED", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 颜色、数量及全部尺码数量均空；保留来源证据，仅排除订单颜色投影" });
     if (!placeholder && !colorName) issues.push({ code: "BLANK_COLOR", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 CnColor 为空" });
-    if (!placeholder && (!sizeNum.present || !sizeNum.valid)) issues.push({ code: "INVALID_SIZE_NUM", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 SizeNum 无效" });
+    if (!placeholder && !pendingQuantity && (!sizeNum.present || !sizeNum.valid)) issues.push({ code: "INVALID_SIZE_NUM", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 SizeNum 无效" });
     if (expectedStyleNo && normalizeIdentity(styleNo) !== expectedStyleNo) issues.push({ code: "GOODS_NO_MISMATCH", sourceRowIdentity: sourceRowIdentity || null, message: `6087105 GoodsNo ${styleNo || "(空)"} 与 ${input.expectedStyleNo} 不一致` });
     return {
       sourceRowIdentity,
@@ -239,9 +245,11 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
       insideOrderNoDrift,
       customerOrderNo: normalizeText(row.values.CustomerOrderNo) || null,
       colorName,
-      quantity: sizeNum.value,
+      quantity,
+      sourceQuantity: sizeNum.value,
+      quantityPendingConfirmation: pendingQuantity,
       deliveryDate: optionalDate(row.values.DeliveryDate),
-      ...mapSizeFacts(row, sizeNum.value),
+      ...mapSizeFacts(row, quantity),
     };
   });
 
@@ -272,6 +280,7 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
     customerOrderNo: normalizeIdentity(row.customerOrderNo),
     colorName: normalizeIdentity(row.colorName),
     quantity: row.quantity,
+    ...(row.quantityPendingConfirmation ? { quantityPendingConfirmation: true, sourceQuantity: null } : {}),
     deliveryDate: row.deliveryDate,
     sizeRuleTokens: row.sizeRuleTokens,
     sizeAllocations: row.sizeAllocations,

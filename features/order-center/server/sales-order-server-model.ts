@@ -1,3 +1,4 @@
+import type { OrderAlert } from "./order-alerts";
 export type ServerSalesOrderCreationSource = "quote" | "reorder" | "manual" | "ainuoke";
 export type ServerSalesOrderLifecycleState = "draft" | "confirmed" | "active" | "completed" | "cancelled";
 
@@ -16,6 +17,7 @@ export type ServerSalesOrderReadDto = {
   brandName: string;
   quantity: number | null;
   colorCount: number;
+  alerts?: OrderAlert[];
   contractDate: string | null;
   contractDeliveryDate: string | null;
   createdAt: string;
@@ -67,6 +69,7 @@ export type OrderCenterServerListViewModel = {
   contractDate: string | null;
   contractDeliveryDate: string | null;
   colorCount: number;
+  alerts?: OrderAlert[];
   createdAt: string;
   updatedAt: string;
 };
@@ -98,6 +101,7 @@ export function adaptServerSalesOrderListItem(dto: ServerSalesOrderReadDto): Ord
     contractDate: dto.contractDate,
     contractDeliveryDate: dto.contractDeliveryDate,
     colorCount: dto.colorCount,
+    alerts: dto.alerts ?? [],
     createdAt: dto.createdAt,
     updatedAt: dto.updatedAt,
   };
@@ -121,6 +125,7 @@ export function adaptServerSalesOrderDetail(dto: ServerSalesOrderDetailDto): Ord
     contractDate: dto.contractDate,
     contractDeliveryDate: dto.contractDeliveryDate,
     colorCount: dto.colorCount,
+    alerts: dto.alerts ?? [],
     createdAt: dto.createdAt,
     updatedAt: dto.updatedAt,
     colors: dto.colors,

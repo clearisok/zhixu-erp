@@ -42,7 +42,31 @@ export function createPersistedMaterialPorts(pool: Pool, config: SourceReadConfi
             return null;
         return order;
     };
-    return { resolveVisibleOrder, loadSource: async (order, identity) => {
+    const prepareBatch: NonNullable<MaterialReadPorts["prepareBatch"]> = async (identity, ids) => {
+        if (ids.length > 200) throw new SourceError("source_order_limit");
+        await sourceActor(pool, identity, false);
+        const wanted = new Set(ids);
+        const orders = new Map((await boundOrders(pool)).filter(order => wanted.has(order.id)).map(order => [order.id, order]));
+        const header = (await pool.query<Pick<Stored, "discovery" | "discovery_hash" | "last_error_code"> & {run_id: string}>(`SELECT r.id::text AS run_id,r.discovery,r.discovery_hash,p.last_error_code
+          FROM ainuoke_source_profiles p JOIN ainuoke_source_runs r ON r.id=p.latest_run_id AND r.source_key=p.source_key
+          WHERE p.source_key=$1 AND p.enabled=true`, [config.sourceKey])).rows[0];
+        if (header && hash(header.discovery) !== header.discovery_hash) throw new SourceError("source_snapshot_changed");
+        const records = header ? (await pool.query<Pick<Stored,"snapshots"|"sales_contract_no"|"content_hash"> & {sales_order_id: string}>(`SELECT sales_order_id::text,sales_contract_no,snapshots,content_hash FROM ainuoke_material_source_snapshots WHERE run_id=$1::uuid AND sales_order_id=ANY($2::uuid[])`, [header.run_id, ids])).rows : [];
+        const indexed = new Map(records.map(record => [record.sales_order_id, record]));
+        const verifyIdentity = (other: Parameters<MaterialReadPorts["resolveVisibleOrder"]>[0]) => {
+            if (other.userId !== identity.userId || other.internalUserId !== identity.internalUserId) throw new SourceError("source_actor_unavailable");
+        };
+        const resolveBatch: MaterialReadPorts["resolveVisibleOrder"] = async (other, id) => { verifyIdentity(other); return orders.get(id) ?? null; };
+        return { resolveVisibleOrder: resolveBatch, loadSource: async (order, other) => {
+            verifyIdentity(other); const record = indexed.get(order.id);
+            if (!header || !record || record.sales_contract_no !== order.salesContractNo) return null;
+            if (header.last_error_code) return {salesOrderId: order.id,salesContractNo:record.sales_contract_no,provenance:"server_snapshot",snapshots:[],issue:"source_failed"};
+            if (hash(record.snapshots) !== record.content_hash) throw new SourceError("source_snapshot_changed");
+            return createMaterialSourceLoader({resolveVisibleOrder:resolveBatch,provenance:"server_snapshot",maxAgeMs:config.maxAgeMs,now,
+                readDiscovery:async()=>header.discovery,readMaterial:async()=>record.snapshots})(order, other);
+        }};
+    };
+    return { prepareBatch, resolveVisibleOrder, loadSource: async (order, identity) => {
             await sourceActor(pool, identity, false);
             const record = await stored(order.id);
             if (!record || record.sales_contract_no !== order.salesContractNo)

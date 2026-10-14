@@ -1,3 +1,4 @@
+import { attachOrderAlerts } from "./sales-orders/order-alerts.js";
 import { createOrderMaterialReader, type MaterialReadPorts } from '../features/ainuoke-material-progress/read-service.js';
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
 import type { Pool } from "pg";
@@ -359,7 +360,7 @@ async function route(
     const query = salesOrderListQuery(request.url);
     const result = await listSalesOrders(dependencies.pool, query);
     sendJson(response, 200, {
-      salesOrders: result.items,
+      salesOrders: await attachOrderAlerts(result.items, identity, dependencies.orderMaterialRead),
       page: {
         limit: query.limit,
         offset: query.offset,
