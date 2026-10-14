@@ -1,5 +1,6 @@
 "use client";
 
+import {NormalizationReviewDialog} from "./normalization-review-dialog";
 import {NormalizationCaseDialog} from "./normalization-case-dialog";
 import {ProcessingBatchDialog} from "./processing-batch-dialog";
 import { useCallback, useEffect, useState, useRef } from "react";
@@ -356,6 +357,7 @@ export function ServerOrderCenterPage() {
     <OrderCenterFrame count={loadedScope===scopeKey?`${page.total} 条${query.includeHistorical?'（含历史记录）':''}`:"—"}>
       <ProcessingBatchDialog key={serverSession.user.id} mode="import" />
       <NormalizationCaseDialog key={"normalization-"+serverSession.user.id} />
+      <NormalizationReviewDialog key={"normalization-review-"+serverSession.user.id} />
       <div className="oc-server-source-bar">
         <span><i aria-hidden="true" />数据源：PostgreSQL</span>
         <small>Server identity：{trustedIdentity}</small>

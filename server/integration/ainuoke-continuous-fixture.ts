@@ -20,7 +20,8 @@ import { quoteSnapshotFromBrowser } from "../quotes/model.js";
 import { createQuoteService } from "../quotes/service.js";
 import { MemoryAttachmentStorage } from "../attachments/storage.js";
 /** Always generates its own loopback tmpfs PostgreSQL; never reads DATABASE_URL or source credentials. */
-export async function startContinuousFixture(staticDirectory:string) {
+import type { NormalizationExecutionOptions } from '../sales-orders/normalization-execution-service.js';
+export async function startContinuousFixture(staticDirectory:string,normalizationExecution?:NormalizationExecutionOptions) {
  const db=await startDisposablePostgres();const pool=new pg.Pool({connectionString:await db.createDatabase("continuous_demo")});
  const server=createServer();const origins:string[]=[];const errors:unknown[]=[];
  const close=async()=>{if(server.listening)await new Promise<void>(done=>server.close(()=>done()));await pool.end();await db.stop();};
@@ -53,7 +54,7 @@ export async function startContinuousFixture(staticDirectory:string) {
   let materialReads=0;
   const ports=createPersistedMaterialPorts(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000},()=>Date.now()+(mode==="stale"?1800001:0));
   server.on("request",(req,res)=>{if(req.url?.includes("/material-progress"))materialReads++;app(req,res);});
-  const app=createApp({pool,staticDirectory,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:ports,orderMaterialHistory:createPersistedMaterialHistoryReader(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000})});
+  const app=createApp({pool,staticDirectory,normalizationExecution,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:ports,orderMaterialHistory:createPersistedMaterialHistoryReader(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000})});
   await new Promise<void>(done=>server.listen(0,"127.0.0.1",done));
   const address=server.address();if(!address||typeof address!=="object")throw Error("loopback fixture failed");
   const base="http://127.0.0.1:"+address.port;origins.push(base);
