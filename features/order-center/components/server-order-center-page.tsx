@@ -1,5 +1,6 @@
 "use client";
 
+import {ProcessingBatchDialog} from "./processing-batch-dialog";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -341,6 +342,7 @@ export function ServerOrderCenterPage() {
 
   return (
     <OrderCenterFrame count={`${page.total} 条`}>
+      <ProcessingBatchDialog key={serverSession.user.id} mode="import" />
       <div className="oc-server-source-bar">
         <span><i aria-hidden="true" />数据源：PostgreSQL</span>
         <small>Server identity：{trustedIdentity}</small>

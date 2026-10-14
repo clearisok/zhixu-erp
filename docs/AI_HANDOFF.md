@@ -21,3 +21,8 @@ HTTP阶段：批次GET/POST、consume与preview/confirm/cancel已接可信sessio
 2026-10-14读取投影checkpoint：正式订单repository从可信已消费加工批次读取客户、业务款号、数量、下单/交期，支持搜索和交期排序；合同号/InsideOrderNo仍null，没有来源颜色即空数组。Foundation来源读取保持独立SQL，不依赖0016。此处沿用既有API日期字段承载业务日期，UI必须按businessType显示“下单日期/交期”，不能将加工称为艾诺科合同。UI两入口及认领按钮仍待。
 
 加工28/28、身份15/15、Server构建和定向lint通过。Source首次5通过/1失败，原因是旧迁移数量断言12；换成明确版本[1..12,14,15,16]后20通过/1个Linux-only跳过，无失败。不能把Windows跳过称Linux已验收。取消日志收敛为一次业务审计并保留原因，有精确数量测试。未远端交付、未部署、未真实写入。
+
+
+2026-10-14双入口UI初步接线：ProcessingBatchDialog复用Foundation Modal/FormItem/Button；Server订单列表导入、Server报价列表推送共用组件。报价入口可搜索加工报价、选精确修订/PV并登记新的客户下单（含再次下单），再预览工价并确认、选择最多25批消费。默认隐藏已处理，可查询已有SO；两个入口跳转正式server-detail。网络未知结果保留原body/request重试，未确认时锁表单/关闭，4xx清除pending。取消/推送结果有逐项反馈。加工身份按钮开放至可信processing类型，详情日期使用加工文案、物料Source显示不适用。Browser Quote未改。
+
+类型检查与定向lint PASS。首次类型检查total可空问题已修；链接按实际server-detail路由修正。尚未浏览器构建/像素或用户验收，不能称双入口交付完成。精确路径影响已登记release/ui-changes/processing-order-batches.json，最终基线门禁待跑（page ID需按manifest核实）。后续须补UI合成流程/手机号宽度、候选分页/选中跨页、失联重试、少量表单提示与缺权限检查；加工列表部分旧合同文案尚待对齐。全Gate3仍未PR/远端CI。

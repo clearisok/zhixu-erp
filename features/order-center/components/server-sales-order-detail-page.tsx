@@ -221,9 +221,9 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
               { key: "customer", label: "客户", value: detail.customerName },
               { key: "brand", label: "品牌", value: detail.brandName },
               { key: "quantity", label: "订单数量（来源只读）", value: detail.quantity?.toLocaleString("zh-CN") },
-              { key: "contractDelivery", label: "合同交期（来源）", value: detail.contractDeliveryDate },
+              { key: "contractDelivery", label: detail.businessType==='processing'?"加工交期":"合同交期（来源）", value: detail.contractDeliveryDate },
               { key: "lifecycle", label: "订单状态", value: lifecycleLabels[detail.lifecycleState] },
-              { key: "sourceLifecycle", label: "艾诺科状态", value: detail.sourceLifecycleStatus },
+              { key: "sourceLifecycle", label: "艾诺科状态", value: detail.businessType==='processing'?"不适用":detail.sourceLifecycleStatus },
             ]} />
           </Card>
           <Card className="oc-server-detail-section oc-server-detail-colors">
@@ -249,7 +249,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
             )}
           </Card>
 
-          <OrderMaterialSummary key={scopeKey} salesOrderId={detail.id} />
+          {detail.businessType==='processing'?<Card className="oc-server-detail-section"><p style={{padding:18}}>加工订单不关联艾诺科销售合同，艾诺科物料流水不适用。</p></Card>:<OrderMaterialSummary key={scopeKey} salesOrderId={detail.id} />}
           <Card className="oc-server-detail-section">
             <details className="oc-server-technical-details">
               <summary>来源与技术详情 <span>只读</span></summary>
@@ -260,7 +260,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
                 { key: "lifecycleCode", label: "生命周期原值", value: detail.lifecycleState },
                 { key: "insideOrderNo", label: "工厂单号 / InsideOrderNo", value: detail.insideOrderNo, secondary: "可变来源属性，不是稳定订单身份" },
                 { key: "company", label: "公司", value: detail.companyName },
-                { key: "contractDate", label: "合同日期", value: detail.contractDate },
+                { key: "contractDate", label: detail.businessType==='processing'?"下单日期":"合同日期", value: detail.contractDate },
                 { key: "colorCount", label: "有效颜色数", value: detail.colorCount.toLocaleString("zh-CN") },
                 { key: "createdAt", label: "创建时间", value: detail.createdAt },
                 { key: "updatedAt", label: "更新时间", value: detail.updatedAt },

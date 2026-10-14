@@ -1,4 +1,5 @@
 "use client";
+import {ProcessingBatchDialog} from "@/features/order-center/components/processing-batch-dialog";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppShell, Button, Card, DataTable, ErrorState, FloatingMenu, FormItem, LoadingState, PageContainer, PageHeader, Toolbar, type DataColumn } from "@/components/foundation";
@@ -129,6 +130,7 @@ function ServerList() {
         <Button disabled={batchBusy} variant="text" onClick={() => persistPreferences({ ...preferences, presentation: preferences.presentation === "original" ? "fields" : "original" })}>{preferences.presentation === "original" ? "独立字段视图" : "原版组合视图"}</Button>
       </FloatingMenu>}
       primaryAction={<DirectQuoteCreateButton />} />
+    <ProcessingBatchDialog key={session.user?.id} mode="push" />
     <Toolbar className="qc-quote-toolbar" search={<label className="qc-search-field"><span aria-hidden="true">⌕</span><input aria-label="搜索报价" placeholder="全库搜索编号、款号、款名、品牌、业务员" value={query.search} onChange={(event) => setQuery({ ...query, search: event.target.value, offset: 0 })} /></label>}
       resultSummary={page ? `显示 ${page.count} / ${page.total} 条` : ""} mobileFilterTitle="报价筛选"
       moreFilters={<><FormItem label="报价类型"><select className="qc-control" value={query.type} onChange={(event) => setQuery({ ...query, type: event.target.value, offset: 0 })}><option value="">全部类型</option><option value="distribution">经销</option><option value="processing">加工</option></select></FormItem><FormItem label="报价状态"><select className="qc-control" value={query.status} onChange={(event) => setQuery({ ...query, status: event.target.value, offset: 0 })}><option value="">全部状态</option><option value="draft">草稿</option><option value="quoting">报价中</option><option value="partially_confirmed">部分确认</option><option value="confirmed">已确认</option></select></FormItem></>} />

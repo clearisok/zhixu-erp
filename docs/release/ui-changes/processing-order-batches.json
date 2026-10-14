@@ -1,0 +1,28 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "features/order-center/components/processing-batch-dialog.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/components/server-order-identity-card.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/quote-center/components/production-quote-pages.tsx",
+    "features/permissions/model/permissions.ts",
+    "features/operation-logs/model/operation-log.ts"
+  ],
+  "pages": [
+    "order-center",
+    "order-detail",
+    "quote-list",
+    "user-permissions"
+  ],
+  "visibleDifference": "已批准Gate3：订单中心导入及Server报价中心推送共用加工批次Modal，登记精确报价版本与下单资料、预览确认工价、多选消费、重复结果与已有SO。加工身份支持认领，详情说明艾诺科流水不适用。复用Foundation，不重设计其他页面。",
+  "evidence": [
+    "docs/tasks/active/order-identity-program.md",
+    "docs/tasks/active/processing-order-batches.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-identity-program.md"
+  }
+}
