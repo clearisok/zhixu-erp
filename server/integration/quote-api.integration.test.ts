@@ -109,7 +109,7 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
     "0007_quote_master_settings.sql",
     "0008_quote_attachments.sql",
     "0009_sales_order_delivery_plans.sql",
-    "0010_quote_creation_receipts.sql", "0011_quote_creation_defaults.sql", "0012_ainuoke_server_source.sql", "0014_order_identity.sql", "0015_order_commercial_versions.sql", "0016_processing_order_batches.sql", "0017_order_normalization_cases.sql", "0018_order_effective_attribution.sql",
+    "0010_quote_creation_receipts.sql", "0011_quote_creation_defaults.sql", "0012_ainuoke_server_source.sql", "0014_order_identity.sql", "0015_order_commercial_versions.sql", "0016_processing_order_batches.sql", "0017_order_normalization_cases.sql", "0018_order_effective_attribution.sql", "0019_order_normalization_reviews.sql",
   ]);
   await synchronizePermissionCatalog(pool);
   const denied = await seedUser(pool, "denied", []);

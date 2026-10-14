@@ -1,3 +1,4 @@
+import {lockEffectiveAttribution} from './effective-attribution.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { HttpError } from '../http/errors.js';
@@ -18,6 +19,7 @@ async function transaction<T>(pool:Pool,actor:TrustedIdentity,requestId:string,r
   try{
    await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ');
    await client.query("SET LOCAL lock_timeout='5s'");await client.query("SET LOCAL statement_timeout='10s'");
+   await lockEffectiveAttribution(client);
    const current=await requireNormalizationAdmin(client,actor,true);
    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[`normalization-request:${current.internalUserId}:${requestId}`]);
    const result=await run(client,current);await client.query('COMMIT');return result;

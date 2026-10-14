@@ -74,3 +74,24 @@ normalization-full-evidence按固定已声明Server引用逐行读取全部行�
 9项定向通过：第121行内容变更（计数/前100ID不变）能让完整hash改变而旧preview hash不变；unknown FK、预算超限、未知vs明确空、单边执行根保护、财务独立复核要求、源lease变化/缺scope/重复/过期拒绝、目标identity不可改删、case版本变化拒绝及严格命令字段。无缓存类型通过；checkpoint097db045前的定向lint结果为1项prefer-const失败，但接力曾提前写成PASS，此错误不作为验收证据。随后将只初始化一次的raw改const，保留原提交并以前向校验结果纠正。下一阶段审批、有限目标/方案许可及事务执行/纠正；执行默认关闭，不用这个hash替代授权。上一消费者接力保留于completed。
 
 2026-10-15 前向校验纠正：const修复后定向lint及完整证据9/9均以明确exit0通过；097db045的提前lint声明不计入通过证据。
+
+
+## 2026-10-15 独立复核与受控执行服务阶段
+
+阶段起点bea371eb64dce104bf6f75018d968676dcb37af8，工作树干净。修改仅本分支未发布0019、Server服务/API、引用锁、相关测试及文档；没有UI、已发布SQL或真实数据修改。
+
+新增attribution-preview/reviews/execute和原请求回执接口。全部归一HTTP接口必须session，local-single-user即使有真实管理员锚点/完整许可也拒绝。默认server/index不传执行许可或外部Adapter，没有环境变量开关；默认执行503 normalization_execution_disabled。真实arm、目标、备份和覆盖核实须另行明确授权，本轮没有提供可自动启用的生产配置。
+
+生产/财务复核使用fresh DB受信预设角色及order.view，不能从legacy role标签或缓存权限推导。复核与完整case/version/目标/方案/evidence hash绑定；immutable review按sequence保留。单边执行须保留该SO；双边执行仍必须明确方案、独立生产复核，不移动/合计；有财务冻结或completed状态另需财务复核。执行者不能代签，生产/财务不能同一账号双签。复核绑定当前用户/岗位/查看grant版本指纹，撤销后重新授权不会复活旧签名，须新复核。窗口期版本是PG tuple revision，只作短期审批失效检测，不宣称它是长期业务版本。
+
+执行只接受Server私有配置中的单一case、目标fingerprint、proposal/evidence、recovery plan及备份/恢复演练hash引用和最多1小时有效期。备份/恢复hash是待独立核实的操作证据引用，服务不伪造验证，也不实际执行备份/恢复；合成测试只有明确标记的模拟许可。外部冻结lease在DB归属锁之前取得，保持至COMMIT；相关Case/准备/加工写入参与共享归属锁。完整现有引用行FOR SHARE防止计数不变的并发内容修改；新归属仅ledger/members/heads，不写原SO、CCT、计划或外部流水。
+
+事务末端再验证冻结来源；audit失败整批回滚。原actor/request/payload只返回原change及成员，不能因换请求键重复归一；未知COMMIT结果可用只读回执核实再精确重试。纠正必须新完整组/新证据/新审批/新许可；归一后新增流水使旧纠正hash失效，旧映射和原业务引用保留。不是无限撤销按钮。
+
+当前验证：完整证据+执行29/29；Case/执行session联合34/34；归属消费者30/30；Source20PASS/1Windows CLI skip；加工35/35；身份15/15（含0014–0019非破坏升级）；完整PG/API261/261；类型、全lint、Server编译及基线78/78通过。根源码824/824已取得明确exit0。没有新的UI或浏览器像素验收、真实外部Adapter、真实目标授权或远端CI。整个G4尚未收口。
+
+失败保留：最初服务SQL字符串引号、两个未登记审计entityType的编译失败，改用现有OrderNormalizationCase并在metadata区分review/change。首轮26项24PASS/2FAIL（一个revoked role期待错误码及fixture）：权限先被order.view拒绝仍阻断；随后改为明确审批权限变化409，并增加授权版本/撤销再授负向保护，29项通过。旧Case HTTP默认execute期待404变为明确默认503，首轮35/37通过，更新闭合状态断言后session联合34项通过。升级fixture遗漏0019文件名导致身份14/15，补实际清单后15通过。没有为了通过测试减少权限或证据检查。
+
+剩余工程：原历史Source快照入口、普通历史状态/案件历史选单、生产财务复核界面与默认禁用执行状态、完整Gate4能力证据及PR复审。真实Source/生产/财务Adapter须依具体环境、原身份映射、冻结/全覆盖与独立恢复证据核验，不能把历史导出或Server空表当冻结源。还需整个已批准计划审查准备记录采纳关联、旧类型执行hold与报价规格修订确认重置是否完整，不按局部已通过内容缩小Goal。G5页面/排序/num_dyc/6086941仍待独立交付。
+
+受控执行操作边界与真实案件具体清单见[专用执行规格](order-normalization-controlled-execution.md)。SQL层别名写保护、全面运行态关闭策略与旧二进制/真实恢复验收不由当前服务测试代替，后续必须补齐。

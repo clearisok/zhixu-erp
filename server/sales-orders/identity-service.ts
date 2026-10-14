@@ -86,7 +86,7 @@ export async function mutateOrderIdentity(pool:Pool, actor:TrustedIdentity,id:st
 }
 export async function createOrderPreparation(pool:Pool,actor:TrustedIdentity,raw:Record<string,unknown>){
  const command=parsePreparation(raw);const hash=createHash('sha256').update(JSON.stringify([command.referenceOrderId,command.quantity,command.deliveryDate,command.specificationChanges])).digest('hex');const client=await pool.connect();
- try{await client.query('BEGIN');const current=await requireOrderCommandActor(client,actor,'order.preparation.create');
+ try{await client.query('BEGIN');await client.query("SET LOCAL lock_timeout='5s'");await lockEffectiveAttribution(client);const current=await requireOrderCommandActor(client,actor,'order.preparation.create');
  await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[`order-preparation:${current.internalUserId}:${command.requestId.toLowerCase()}`]);
  const existing=(await client.query('SELECT id::text,payload_hash FROM sales_order_preparations WHERE actor_id=$1 AND request_id=$2',[current.internalUserId,command.requestId])).rows[0];
  if(existing){if(existing.payload_hash!==hash)fail(409,'preparation_retry_mismatch');await client.query('COMMIT');return {id:existing.id,replayed:true};}

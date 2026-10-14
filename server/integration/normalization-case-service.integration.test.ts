@@ -121,7 +121,7 @@ test('normalization case service transactional synthetic lifecycle',{timeout:180
    assert.equal((await req(path+'/'+result.caseId+'/events','POST',{...note,requestId:randomUUID(),eventType:'executed',expectedVersion:2})).status,400);
    assert.equal((await req(path+'/'+result.caseId+'/events')).status,405);
    assert.equal((await req(path+'/'+result.caseId,'DELETE')).status,405);
-   assert.equal((await req(path+'/'+result.caseId+'/execute','POST',{})).status,404);
+   const closed=await req(path+'/'+result.caseId+'/execute','POST',{});assert.equal(closed.status,503);assert.equal((await closed.json()).error.code,'normalization_execution_disabled');
    assert.equal((await req(path,'POST',{...draft,reason:'x'.repeat(9000)})).status,413);
    await pool.query('UPDATE app_users SET active=false WHERE id=$1',[actor.internalUserId]);assert.equal((await req(path)).status,401);await pool.query('UPDATE app_users SET active=true WHERE id=$1',[actor.internalUserId]);
   }finally{await new Promise<void>((done,reject)=>server.close(error=>error?reject(error):done()));}

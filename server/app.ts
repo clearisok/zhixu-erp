@@ -1,3 +1,4 @@
+import {previewAttributionExecution,recordAttributionReview,executeAttributionChange,readAttributionExecutionReceipt,readAttributionReviewSummary,type NormalizationExecutionOptions} from './sales-orders/normalization-execution-service.js';
 import { openNormalizationCase, appendNormalizationCaseEvent, readNormalizationCase, listNormalizationCases, parseNormalizationCaseQuery } from "./sales-orders/normalization-case-service.js";
 import { previewOrderNormalization } from "./sales-orders/normalization-preview.js";
 import {createProcessingBatch,previewProcessingBatch,confirmProcessingBatch,cancelProcessingBatch,consumeProcessingBatches,listProcessingBatches,parseProcessingBatchQuery} from './sales-orders/processing-batch-service.js';
@@ -62,8 +63,9 @@ export type AppDependencies = {
   identityAuthority?: IdentityAuthority;
   attachmentStorage?: AttachmentStorage;
   orderMaterialRead?: MaterialReadPorts;
+  normalizationExecution?: NormalizationExecutionOptions;
 };
-type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead">;
+type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "normalizationExecution">;
 
 const defaultLogger: ServerLogger = {
   error(event) {
@@ -585,8 +587,37 @@ async function route(
     return;
   }
 
+  const attributionMatch=/^\/api\/v1\/order-normalization-cases\/([0-9a-f-]+)\/(attribution-preview|reviews|execute)$/iu.exec(path);
+  if(attributionMatch){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    const query=new URL(request.url??'/','http://local').searchParams;
+    if(attributionMatch[2]==='reviews'&&request.method==='GET'){
+      if(query.size!==2||!query.has('evidenceHash')||!query.has('proposalHash')||[...query.keys()].some(key=>query.getAll(key).length!==1||!['evidenceHash','proposalHash'].includes(key)))throw new HttpError(400,'invalid_attribution_query','Invalid review query');
+      sendJson(response,200,await readAttributionReviewSummary(dependencies.pool,identity,attributionMatch[1],query.get('evidenceHash')!,query.get('proposalHash')!));return;
+    }
+    if(request.method!=='POST')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    assertMutationBoundary(request,dependencies.allowedOrigins);if(query.size)throw new HttpError(400,'invalid_attribution_query','Query selectors not allowed');
+    const body=await readJsonBody(request,65536);const options=dependencies.normalizationExecution??{};
+    if(attributionMatch[2]==='attribution-preview'){
+      if(Object.keys(body).length!==1||!Object.hasOwn(body,'proposal'))throw new HttpError(400,'invalid_attribution_command','Only proposal accepted');
+      sendJson(response,200,await previewAttributionExecution(dependencies.pool,identity,attributionMatch[1],body.proposal,options));
+    }else if(attributionMatch[2]==='reviews')sendJson(response,200,await recordAttributionReview(dependencies.pool,identity,attributionMatch[1],body,options));
+    else sendJson(response,200,await executeAttributionChange(dependencies.pool,identity,attributionMatch[1],body,options));
+    return;
+  }
+  const attributionReceipt=/^\/api\/v1\/order-attribution-receipts\/([0-9a-f-]+)$/iu.exec(path);
+  if(attributionReceipt){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_attribution_query','Query selectors not allowed');
+    sendJson(response,200,await readAttributionExecutionReceipt(dependencies.pool,identity,attributionReceipt[1]));return;
+  }
   const normalizationCaseMatch=/^\/api\/v1\/order-normalization-cases(?:\/([0-9a-f-]+)(?:\/(events))?)?$/iu.exec(path);
   if(normalizationCaseMatch){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
     response.setHeader('Cache-Control','no-store');
     const identity=await dependencies.identityAuthority.resolve(request);
     if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
@@ -604,6 +635,7 @@ async function route(
   }
 
   if(path==='/api/v1/order-normalization-preview'){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
     response.setHeader('Cache-Control','no-store');
     const identity=await dependencies.identityAuthority.resolve(request);
     if(!identity)throw new HttpError(401,'authentication_required','Authentication required');

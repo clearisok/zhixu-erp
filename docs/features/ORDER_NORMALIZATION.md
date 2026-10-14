@@ -1,6 +1,6 @@
 # 历史重复订单复核与归一
 
-核实日期2026-10-14；最近核实main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本地feat/order-normalization-preview依赖未合并G1–G3，当前实现案件/预览阶段；有效归属执行和纠正待独立交付。GitHub是实时事实源，本文随schema/API/验收/发布变化更新。
+核实日期2026-10-15；最近核实main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本地feat/order-effective-attribution依赖未合并G1–G3/案件预览；当前已实现Server完整有界证据、独立复核及默认关闭的执行/纠正服务。历史Source/UI及真实覆盖/授权仍未完成。GitHub是实时事实源，本文随schema/API/验收/发布变化更新。
 
 ## 已批准规则
 
@@ -39,3 +39,12 @@ reviewHash覆盖返回的有限订单/合同事实及引用计数/ID，明确has
 普通Server列表默认有效SO，includeHistorical=true可读全部原身份；原详情不自动跳转，新attribution/sourceOwnerOrderId明确区分。可信合同事实可投影到复核后有效根，原创建历史与Source link不改，原商业采用/交付计划不搬移或相加。当前认领、血统、商业采用、交付计划和生命周期新写在同一共享归属锁下保护；历史别名409。旧成功商业请求可返回原历史回执，不追加金额。来源owner更新保留历史别名旧计划，当前根比较可信来源事实与自身计划。
 
 归属30项、联合来源/消费者/交付37项、全PG261及依赖回归通过；具体候选时点/失败和限制见有效归属任务。只有内部合成fixture能创建归属映射，公共执行/审批/完整引用仍未实现。历史Source查询与案件选单/历史UI下一阶段；本能力不能当完整归一上线。
+
+
+## 受控执行服务的当前本地边界（2026-10-15）
+
+0019新增目标identity、immutable proof/review及审批授权指纹。有限旧preview与完整execution evidence区分；后者按全部有界已声明引用行及持lease的可信Adapter指纹计算，未知引用/外部覆盖/超限阻断。未自动覆盖任意JSON或所有外部数据。原有限preview hash不能执行。
+
+新接口POST /cases/:id/attribution-preview、POST/GET /cases/:id/reviews、POST /cases/:id/execute及GET /order-attribution-receipts/:requestId，cases实际前缀/api/v1/order-normalization-cases，receipt实际路径为/api/v1/order-attribution-receipts/:requestId。所有归一HTTP路由session-only，默认启动没有permit/真实Adapter；请求体不能注入enabled/verified/backup/actor/permissions。
+
+仅私有配置的单case/目标/方案/证据/恢复引用/时限许可可执行；配置引用不等于已经验证真实备份。独立生产/财务角色复核及撤销再授失效，管理员执行不代签；原身份/流水不移动或合计。原请求回执、完整组纠正、变更后重审和事务审计回滚已合成验证。29执行、34Case/session、30消费者、261PG等结果详见任务。真实归一未发生，外部Adapter仍default unavailable，历史Source与复核/历史UI待交付，不能宣称整个G4完成。

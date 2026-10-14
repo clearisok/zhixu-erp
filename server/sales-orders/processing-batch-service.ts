@@ -1,3 +1,4 @@
+import {lockEffectiveAttribution} from './effective-attribution.js';
 import {createHash,randomUUID} from 'node:crypto';
 import type {Pool,PoolClient} from 'pg';
 import type {TrustedIdentity} from '../auth/session.js';
@@ -25,6 +26,7 @@ async function readBatch(c:PoolClient,id:string){
 async function transaction<T>(pool:Pool,actor:TrustedIdentity,operation:Operation|'read',run:(c:PoolClient,a:TrustedIdentity)=>Promise<T>):Promise<T>{
  const c=await pool.connect();try{
   await c.query('BEGIN');await c.query("SET LOCAL lock_timeout='5s'");
+  await lockEffectiveAttribution(c);
   const a=await requireOrderCommandActor(c,actor,operation==='read'?'order.view':operation==='consume'?'order.processing.consume':'order.processing.batch.manage');
   if(operation==='read'&&!a.permissions.includes('order.processing.consume')&&!a.permissions.includes('order.processing.batch.manage'))fail(403,'permission_denied');
   requirePermission(a.permissions,'quote.view');requirePermission(a.permissions,'commercial.labor.view');

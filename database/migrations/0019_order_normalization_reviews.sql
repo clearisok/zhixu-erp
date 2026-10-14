@@ -24,6 +24,7 @@ CREATE TABLE sales_order_normalization_reviews (
  actor_id BIGINT NOT NULL REFERENCES app_users(id) ON DELETE RESTRICT,
  request_id UUID NOT NULL,
  payload_hash TEXT NOT NULL CHECK(payload_hash ~ '^[0-9a-f]{64}$'),
+ authorization_fingerprint TEXT NOT NULL CHECK(authorization_fingerprint ~ '^[0-9a-f]{64}$'),
  review_type TEXT NOT NULL CHECK(review_type IN ('production','finance')),
  decision TEXT NOT NULL CHECK(decision IN ('approve','reject')),
  reason TEXT NOT NULL CHECK(length(btrim(reason)) BETWEEN 1 AND 2000),
