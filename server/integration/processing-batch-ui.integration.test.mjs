@@ -107,8 +107,19 @@ test("processing batches built UI uses real sessions and isolated synthetic data
    assert.notEqual(created.sales_order_id,orderId);assert.equal(created.lineage,'reorder');assert.equal(created.reference_order_id,orderId);assert.equal(created.confirmed_labor_price,'12.34');
    assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_source_links WHERE sales_order_id=$1',[created.sales_order_id])).rows[0].n,0);await click('关闭');
   });
+  const selectBatch=async style=>{const selector='input[aria-label="选择批次 '+style+'"]';await until(()=>evaluate(`Boolean(document.querySelector(${JSON.stringify(selector)})?.matches(':not(:disabled)'))`),'batch checkbox ready');await evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);};
+  await t.test('selection survives batch pagination and consumes only selected batches',async()=>{
+   await navigate('/order-center');const ids=[];for(let i=0;i<21;i++)ids.push(await setupBatch('SYN-CROSSPAGE-'+String(i).padStart(2,'0')));
+   await click('导入加工订单');await input('搜索批次','SYN-CROSSPAGE-');await click('搜索批次');await has('SYN-CROSSPAGE-20');
+   await selectBatch('SYN-CROSSPAGE-20');await click('下一页批次');await has('SYN-CROSSPAGE-00');
+   await selectBatch('SYN-CROSSPAGE-00');await has('确认导入所选 2 项');await click('上一页批次');await has('SYN-CROSSPAGE-20');
+   assert.equal(await evaluate("document.querySelector('input[aria-label=\"选择批次 SYN-CROSSPAGE-20\"]').checked"),true);
+   await click('确认导入所选 2 项');await has('已创建正式订单');
+   const rows=(await x.pool.query('SELECT batch_id::text FROM processing_order_batch_consumptions WHERE batch_id=ANY($1::uuid[])',[ids])).rows;
+   assert.deepEqual(rows.map(x=>x.batch_id).sort(),[ids[0],ids[20]].sort());await click('关闭');
+  });
   await t.test('mobile history shows original SO while unauthorized role has no entrypoint',async()=>{
-   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await navigate('/order-center');await click('导入加工订单');await until(()=>evaluate("Boolean([...document.querySelectorAll('[role=dialog] label')].find(n=>n.textContent.includes('包含已处理'))?.querySelector('input:not(:disabled)'))"),"history toggle enabled");await evaluate("[...document.querySelectorAll('[role=dialog] label')].find(n=>n.textContent.includes('包含已处理')).querySelector('input').click()");await has('查看已有订单');await screenshot('processing-history-mobile');assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+1'),true);
+   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await navigate('/order-center');await click('导入加工订单');await input('搜索批次','SYN-PROCESS-UI');await click('搜索批次');await until(()=>evaluate("Boolean([...document.querySelectorAll('[role=dialog] label')].find(n=>n.textContent.includes('包含已处理'))?.querySelector('input:not(:disabled)'))"),"history toggle enabled");await evaluate("[...document.querySelectorAll('[role=dialog] label')].find(n=>n.textContent.includes('包含已处理')).querySelector('input').click()");await has('查看已有订单');await screenshot('processing-history-mobile');assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+1'),true);
    await login('demo.material');await navigate('/order-center');await has('订单中心');assert.equal(await evaluate("document.body.innerText.includes('导入加工订单')"),false);
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);

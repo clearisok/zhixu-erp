@@ -146,6 +146,37 @@ test('processing service atomic synthetic lifecycle',{timeout:180000},async t=>{
   assert.equal((await pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions WHERE batch_id=$1',[b.batchId])).rows[0].n,0);
   assert.equal((await consume(b.batchId,b.version!)).results[0].status,'created');
  });
+ await t.test('manage and consume are separate grants; base grants and revocation apply to retries',async()=>{
+  const restricted=async(name:string,grant:string)=>{const a=await user(name);await pool.query('DELETE FROM app_user_roles WHERE user_id=$1',[a.internalUserId]);await pool.query('INSERT INTO app_roles(id,name) VALUES($1,$1)',[name]);await pool.query('INSERT INTO app_user_roles VALUES($1,$2)',[a.internalUserId,name]);for(const key of ['order.view','quote.view','commercial.labor.view',grant])await pool.query('INSERT INTO app_role_permissions VALUES($1,$2)',[name,key]);return a;};
+  const manager=await restricted('batch-manage-only','order.processing.batch.manage'),consumer=await restricted('batch-consume-only','order.processing.consume');
+  const b=await createProcessingBatch(pool,manager,draft()),p=await previewProcessingBatch(pool,consumer,b.batchId);
+  const confirmation={requestId:randomUUID(),expectedVersion:1,sourceFingerprint:p.candidate.fingerprint};
+  const forbidden=(e:unknown)=>e instanceof Error&&'status' in e&&e.status===403;
+  await assert.rejects(()=>createProcessingBatch(pool,consumer,draft()),forbidden);
+  await assert.rejects(()=>confirmProcessingBatch(pool,consumer,b.batchId,confirmation),forbidden);
+  await assert.rejects(()=>cancelProcessingBatch(pool,consumer,b.batchId,{requestId:randomUUID(),expectedVersion:1,reason:'Not permitted'}),forbidden);
+  const ready=await confirmProcessingBatch(pool,manager,b.batchId,confirmation),before=await count();
+  assert.equal((await consume(b.batchId,ready.version!,manager)).results[0].status,'failed');assert.equal(await count(),before);
+  const requestId=randomUUID(),result=await consume(b.batchId,ready.version!,consumer,requestId);assert.equal(result.results[0].status,'created');
+  for(const key of ['order.view','quote.view','commercial.labor.view','order.processing.consume']){
+   await pool.query('DELETE FROM app_role_permissions WHERE role_id=$1 AND permission_key=$2',['batch-consume-only',key]);
+   try{await assert.rejects(()=>listProcessingBatches(pool,consumer,parseProcessingBatchQuery(new URLSearchParams())),forbidden);assert.equal((await consume(b.batchId,ready.version!,consumer,requestId)).results[0].status,'failed');assert.equal(await count(),before+1);}
+   finally{await pool.query('INSERT INTO app_role_permissions VALUES($1,$2)',['batch-consume-only',key]);}
+  }
+  assert.deepEqual(await consume(b.batchId,ready.version!,consumer,requestId),result);
+ });
+ await t.test('filtered empty page keeps continuation and history pages do not repeat batches',async()=>{
+  const batches:Array<{batchId:string;version:number}>=[];
+  for(let i=0;i<21;i++){const b=await createProcessingBatch(pool,actor,{...draft(),customerName:'PAGINATION-ONLY',businessStyleNo:'PAGE-'+i});const p=await previewProcessingBatch(pool,actor,b.batchId);const ready=await confirmProcessingBatch(pool,actor,b.batchId,{requestId:randomUUID(),expectedVersion:1,sourceFingerprint:p.candidate.fingerprint});batches.push({batchId:b.batchId,version:ready.version!});}
+  await pool.query('UPDATE quote_center_quotes SET version=version+1 WHERE id=$1',[q.id]);
+  const oldest=batches[0],p=await previewProcessingBatch(pool,actor,oldest.batchId);await confirmProcessingBatch(pool,actor,oldest.batchId,{requestId:randomUUID(),expectedVersion:oldest.version,sourceFingerprint:p.candidate.fingerprint});
+  const query=(offset:number,includeProcessed=false)=>parseProcessingBatchQuery(new URLSearchParams({search:'PAGINATION-ONLY',offset:String(offset),includeProcessed:String(includeProcessed)}));
+  const first=await listProcessingBatches(pool,actor,query(0));assert.equal(first.items.length,0);assert.equal(first.hasMore,true);assert.equal(first.nextOffset,20);
+  const next=await listProcessingBatches(pool,actor,query(first.nextOffset));assert.deepEqual(next.items.map(x=>x.batch.id),[oldest.batchId]);assert.equal(next.hasMore,false);
+  const h1=await listProcessingBatches(pool,actor,query(0,true)),h2=await listProcessingBatches(pool,actor,query(h1.nextOffset,true));
+  assert.equal(h1.items.length,20);assert.equal(h2.items.length,1);assert.equal(new Set([...h1.items,...h2.items].map(x=>x.batch.id)).size,21);
+  assert.equal(h1.items.every(x=>!x.eligible&&x.unavailableReason==='processing_source_changed'),true);
+ });
  await t.test('fresh database revocation cannot be bypassed through replay',async()=>{
   const b=await confirmed(),requestId=randomUUID();await consume(b.batchId,b.version!,actor,requestId);await pool.query("DELETE FROM app_role_permissions WHERE role_id='batch-test' AND permission_key='order.processing.consume'");assert.equal((await consume(b.batchId,b.version!,actor,requestId)).results[0].status,'failed');
  });
