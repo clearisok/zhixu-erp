@@ -86,7 +86,7 @@ test("normalization case built UI preserves order data with real synthetic sessi
   });
   await t.test('mobile history remains readable and non-admin role has no case entry',async()=>{
    await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await navigate('/order-center');await click('重复订单复核');await click('案件历史');await input('搜索案件订单号',secondNo);await click('搜索案件');
-   const pair=(await x.pool.query('SELECT a.order_no AS a,b.order_no AS b FROM sales_order_normalization_cases c JOIN sales_orders a ON a.id=c.first_order_id JOIN sales_orders b ON b.id=c.second_order_id WHERE c.id=$1',[caseId])).rows[0];await click('查看案件 '+pair.a+' / '+pair.b);await has('合成重新核对');await screenshot('case-history-mobile');
+   const pair=(await x.pool.query('SELECT a.order_no AS a,b.order_no AS b FROM sales_order_normalization_cases c JOIN sales_orders a ON a.id=c.first_order_id JOIN sales_orders b ON b.id=c.second_order_id WHERE c.id=$1',[caseId])).rows[0];await click('查看案件 '+pair.a+' / '+pair.b);await has('合成重新核对');await screenshot('case-history-mobile');await evaluate("document.querySelector('[role=dialog] article > details > summary').click()");await has('来源合同：SC-SYNTHETIC-001');await evaluate("[...document.querySelectorAll('[role=dialog] p')].find(n=>n.textContent.startsWith('来源合同：')).closest('section').scrollIntoView({block:'start'})");await screenshot('case-evidence-mobile');
    assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+1'),true);await click('关闭');
    await login('demo.material');await navigate('/order-center');await has('订单中心');assert.equal(await evaluate("document.body.innerText.includes('重复订单复核')"),false);
   });
