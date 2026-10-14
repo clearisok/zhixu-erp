@@ -17,6 +17,7 @@ import type { QuoteRevision } from "../../features/quote-center/model/quote-view
 import { appendOperationLog } from "../operation-logs/repository.js";
 import {
   associateSalesOrders,
+  findCreationOrderIdsByQuoteProvenance,
   composeTermsDto,
   createTerms,
   findSalesOrderCommercialTarget,
@@ -169,10 +170,10 @@ export async function readConfirmedCommercialTermsByQuote(
   const partial = await pool.query("SELECT 1 FROM sales_orders WHERE source_quote_id=$1 AND (source_revision_id IS NULL OR source_price_version_id IS NULL) LIMIT 1", [provenance.quoteId]);
   if (partial.rowCount) throw new HttpError(409, "incomplete_quote_provenance", "Quote linkage cannot be proved exactly");
   const salesOrderIds = await findSalesOrderIdsByQuoteProvenance(pool, provenance);
-  if (salesOrderIds.length === 0) {
+  const terms = await findTermsByQuoteProvenance(pool, provenance);
+  if (salesOrderIds.length === 0 && !terms) {
     return composeTermsDto({ linkage: "unlinked", scope: null, provenance, salesOrderIds: [], terms: null });
   }
-  const terms = await findTermsByQuoteProvenance(pool, provenance);
   return composeTermsDto({ linkage: "linked", scope: terms?.ownership_scope ?? "quote", provenance, salesOrderIds, terms });
 }
 
@@ -232,10 +233,10 @@ async function mutate(
       scope = "quote";
       await lockQuoteTermsContext(client, provenance);
       salesOrderIds = await findSalesOrderIdsByQuoteProvenance(client, provenance);
-      if (salesOrderIds.length === 0) {
+      current = await findTermsByQuoteProvenance(client, provenance);
+      if (salesOrderIds.length === 0 && !current) {
         throw new HttpError(409, "quote_commercial_terms_not_linked", "Quote PriceVersion is not linked to a formal SalesOrder");
       }
-      current = await findTermsByQuoteProvenance(client, provenance);
     } else {
       throw new Error("ConfirmedCommercialTerms mutation target is required");
     }
@@ -265,6 +266,12 @@ async function mutate(
       const pv = revision.priceVersions.find(p => p.id === provenance!.priceVersionId);
       if (!pv) throw new HttpError(404, "quote_price_version_not_found", "PriceVersion does not belong to Revision");
       const currency = pv.pricingParameters.laborCurrency;
+      // The first CCT write must preserve the other already confirmed PV field.
+      if(!current&&pv.confirmation){
+        if(!saleSubmitted)values.customerConfirmedPrice=pv.confirmation.confirmedGarmentPrice;
+        if(!Object.hasOwn(input.values,'confirmedLaborPrice'))values.confirmedLaborPrice=pv.confirmation.confirmedLaborPrice;
+        if(!Object.hasOwn(input.values,'laborCurrency')&&values.confirmedLaborPrice!==null)values.laborCurrency=currency;
+      }
       if (laborSubmitted && !Object.hasOwn(input.values,"laborCurrency") && !current) values.laborCurrency = currency;
       if (laborSubmitted && (!isConfirmedLaborCurrency(currency) || values.laborCurrency !== currency))
         throw new HttpError(409, "saved_quote_labor_currency_conflict", "Compare saved PV currency with shared current; no automatic conversion");
@@ -308,7 +315,8 @@ async function mutate(
     if (!after) {
       throw new HttpError(409, "confirmed_commercial_terms_version_conflict", "ConfirmedCommercialTerms version is stale");
     }
-    await associateSalesOrders(client, after.id, salesOrderIds);
+    // Legacy association is creation-only and immutable. New adoption history lives in its own table.
+    await associateSalesOrders(client, after.id, provenance?await findCreationOrderIdsByQuoteProvenance(client,provenance):salesOrderIds);
     await appendTermsLog(client, actor, { before: current, after, provenance, salesOrderIds, surface: input.surface });
     await client.query("COMMIT");
     return { ...composeTermsDto({ linkage: provenance ? "linked" : "unlinked", scope, provenance, salesOrderIds, terms: after }), ...(verifiedQuoteVersion ? { verifiedQuoteVersion } : {}) };

@@ -1,3 +1,6 @@
+import {createTrustedQuoteService} from '../quotes/service.js';
+import {readConfirmedCommercialTermsByQuote,updateConfirmedCommercialTermsByQuote} from '../confirmed-commercial-terms/service.js';
+import {permissionsForUser} from '../auth/permissions.js';
 import {createServer} from 'node:http';
 import {createApp} from '../app.js';
 import assert from 'node:assert/strict';
@@ -33,6 +36,8 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
  const q=createSyntheticQuoteFixture('commercial-adoption-synthetic','distribution');
  for(const r of q.revisions){r.imageAttachmentIds=[];r.fileAttachmentIds=[];r.styleImageAttachmentId=null;}
  const revision=q.revisions.find(r=>r.revisionId===q.defaultRevisionId)!,pv=revision.priceVersions[0];
+ revision.baseInfo.quoteStyleNo='SYNTHETIC';revision.baseInfo.styleName='Synthetic';
+ pv.quantity=100;pv.trims.forEach(line=>line.usage=0);
  pv.pricingParameters.laborCurrency='CNY';pv.confirmation={quotedGarmentPrice:999,quotedLaborPrice:999,confirmedGarmentPrice:120,confirmedLaborPrice:10,note:'synthetic',confirmedAt:'2026-10-14T00:00:00Z'};
  await createQuoteRepository(pool).create(quoteSnapshotFromBrowser(q));const source={quoteId:q.id,revisionId:revision.revisionId,priceVersionId:pv.id};
  let sequence=0;const order=async(claim=true)=>{
@@ -48,11 +53,25 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
  });
  await t.test('two orders share a quote without sharing adopted prices',async()=>{
   await adoptOrderCommercial(pool,actor,b,await command(b));
-  await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,quote_id,revision_id,price_version_id,customer_confirmed_price,confirmed_labor_price,labor_currency) VALUES('quote',$1,$2,$3,130,12,'CNY')",[q.id,revision.revisionId,pv.id]);
+  const lookup=await readConfirmedCommercialTermsByQuote(pool,source);assert.equal(lookup.linkage,'linked');assert.deepEqual([...lookup.associatedSalesOrderIds].sort(),[a,b].sort());
+  const quoteActor={...actor,permissions:await permissionsForUser(pool,actor.internalUserId)};
+  const changed=await updateConfirmedCommercialTermsByQuote(pool,quoteActor,source,{expectedVersion:0,expectedQuoteVersion:1,customerConfirmedPrice:'130'});
+  assert.equal(changed.current?.confirmedLaborPrice,'10');
+  assert.equal((await pool.query('SELECT count(*)::int n FROM confirmed_commercial_terms_sales_orders')).rows[0].n,0);
   assert.equal((await readOrderCommercialState(pool,a)).current?.salePrice,'120');assert.equal((await readOrderCommercialState(pool,b)).current?.salePrice,'120');
   assert.equal((await adoptOrderCommercial(pool,actor,a,original)).adopted.salePrice,'120');
   await adoptOrderCommercial(pool,actor,a,await command(a));assert.equal((await readOrderCommercialState(pool,a)).current?.salePrice,'130');assert.equal((await readOrderCommercialState(pool,b)).current?.salePrice,'120');
   assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_commercial_versions WHERE sales_order_id=$1',[a])).rows[0].n,2);
+ });
+ await t.test('adoption and existing CCT both prevent divergent PV confirmation writes',async()=>{
+  const fullActor={...actor,permissions:await permissionsForUser(pool,actor.internalUserId)};
+  const workflow={action:'confirmation.save' as const,expectedVersion:1,revisionId:source.revisionId,priceVersionId:source.priceVersionId,confirmedLaborPrice:'99',confirmedGarmentPrice:'999',note:'must reject'};
+  await assert.rejects(()=>createTrustedQuoteService(pool).confirmationWorkflow(fullActor,q.id,workflow),code('quote_confirmation_linked_read_only'));
+  const orphan=structuredClone(q);orphan.id='synthetic-cct-no-order';orphan.quoteCode='QT-SYNTHETIC-CCT-NO-ORDER';orphan.activeEstimateCost=null;orphan.estimateCostHistory=[];await createQuoteRepository(pool).create(quoteSnapshotFromBrowser(orphan));
+  const p={...source,quoteId:orphan.id};await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,quote_id,revision_id,price_version_id,customer_confirmed_price,confirmed_labor_price,labor_currency) VALUES('quote',$1,$2,$3,150,15,'CNY')",[p.quoteId,p.revisionId,p.priceVersionId]);
+  const lookup=await readConfirmedCommercialTermsByQuote(pool,p);assert.equal(lookup.linkage,'linked');assert.deepEqual(lookup.associatedSalesOrderIds,[]);assert.equal(lookup.current?.customerConfirmedPrice,'150');
+  await assert.rejects(()=>createTrustedQuoteService(pool).confirmationWorkflow(fullActor,orphan.id,workflow),code('quote_confirmation_linked_read_only'));
+  const changed=await updateConfirmedCommercialTermsByQuote(pool,fullActor,p,{expectedVersion:1,expectedQuoteVersion:1,customerConfirmedPrice:'151'});assert.equal(changed.current?.customerConfirmedPrice,'151');assert.equal(changed.current?.confirmedLaborPrice,'15');
  });
  await t.test('different requests race with expected-version compare-and-swap',async()=>{
   const c=await order(),cmd=await command(c);const results=await Promise.allSettled([adoptOrderCommercial(pool,actor,c,cmd),adoptOrderCommercial(pool,actor,c,{...cmd,requestId:randomUUID()})]);

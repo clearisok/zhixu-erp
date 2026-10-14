@@ -88,7 +88,7 @@ export async function findSalesOrderCommercialTarget(
   }
 }
 
-export async function findSalesOrderIdsByQuoteProvenance(
+export async function findCreationOrderIdsByQuoteProvenance(
   client: Queryable,
   provenance: QuoteProvenance,
 ): Promise<string[]> {
@@ -99,6 +99,13 @@ export async function findSalesOrderIdsByQuoteProvenance(
     [provenance.quoteId, provenance.revisionId, provenance.priceVersionId],
   );
   return result.rows.map((row) => row.id);
+}
+
+/** Commercial usage is separate from immutable creation provenance. Historical adoptions keep the quote confirmation authority stable. */
+export async function findSalesOrderIdsByQuoteProvenance(client:Queryable,provenance:QuoteProvenance):Promise<string[]>{
+ const rows=await client.query<{id:string}>(`SELECT id::text FROM sales_orders WHERE source_quote_id=$1 AND source_revision_id=$2 AND source_price_version_id=$3
+ UNION SELECT sales_order_id::text FROM sales_order_commercial_versions WHERE quote_id=$1 AND revision_id=$2 AND price_version_id=$3 ORDER BY 1`,[provenance.quoteId,provenance.revisionId,provenance.priceVersionId]);
+ return rows.rows.map(row=>row.id);
 }
 
 export async function findTermsByQuoteProvenance(
