@@ -21,3 +21,8 @@
 ## 剩余
 
 独立生产/财务复核、默认关闭执行的可见原因及完整Gate4收口仍待；准备采纳、待分类执行hold、规格修订清确认/G5继续。真实Adapter、案例许可、备份/恢复、DB/Source/宁波/18443/18444没有授权扩大或操作。远端交付继续依原网络协议和一次恢复授权，不冒称当前main已有新能力。
+
+
+## 最终精确工程收口
+
+源码c20904d9df1062ff195da45f3811f881b7d16cc0的完整类型/lint、client6、源码824、静态build和historybrowser9明确exit0。精确buildId order-source-history-20261015-c20904d9及1440/390五截图逐张检查；冻结报告/新PNG checkpointaf9d142de39ad0f68898df7079c646390d80e260。前向新增能力/approval scope/PNG记录，无旧ID/hash覆盖，最终源码门禁PASS（main64、10页、22能力、16UI路径）、基线78/78。最终GitHub API main64/开放仅108再次核实；没有新PR/CI/merge/deploy。整个G4及Goal仍未完成。

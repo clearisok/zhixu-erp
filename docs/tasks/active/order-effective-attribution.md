@@ -161,3 +161,10 @@ Source runs/material snapshots不可UPDATE/DELETE。新run必须含order_scope_h
 
 
 源码/冻结报告checkpoint6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e后，前向D127证据及独立第21项限定能力绑定；精确main64源码门禁PASS（10pages/21caps/13继承UI paths）、基线78/78明确exit0。没有覆盖旧决策/截图/hash，也没有新UI或人验。下一阶段从本阶段收口的clean HEAD记录新baseline，继续历史UI。
+
+
+## 2026-10-15 原身份与历史Source UI阶段收口
+
+从2f134319/clean继续，9具体UI路径按批准D121在既有Foundation内接线；current/history列表、历史单原身份/商业读取和关闭新认领/采用、明确root导航、原SO/run历史物料Modal及案件历史选单完成。源码c20904d9df1062ff195da45f3811f881b7d16cc0精确构建/browser9、client6、类型lint/源码824通过；五新图1440/390实际查看，冻结于af9d142de39ad0f68898df7079c646390d80e260。候选既有身份5/商业4/案件5回归通过，未重跑/冒称真实PG验收；后端261保持前阶段时点。
+
+前向22项能力/新的批准范围与截图记录后门禁PASS/基线78，旧截图hash不变。最终GitHub只读main64及开放仅108核实，没有新交付/合并部署。独立复核UI/默认关闭执行提示、全G4/计划查漏/G5继续。完整失败/安全边界见order-source-history-ui任务，当前恢复点见AI_HANDOFF。

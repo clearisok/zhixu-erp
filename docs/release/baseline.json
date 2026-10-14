@@ -719,6 +719,70 @@
       "path": "docs/tasks/active/evidence/order-source-history/gate4-source-history-results.md",
       "recordedAtSha": "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
       "sha256": "0853a095077c21e61a75e7ce0f778a88ea8d418ee45d2b10606915f3c29e2d21"
+    },
+    {
+      "id": "order-history-ui-approved-scope",
+      "kind": "document",
+      "path": "docs/tasks/active/order-identity-program.md",
+      "recordedAtSha": "c20904d9df1062ff195da45f3811f881b7d16cc0",
+      "sha256": "49af241a78329926b9f8b2e5a7bacb7dad712cabcd9dd97847853785fa8e1cfb"
+    },
+    {
+      "id": "order-source-history-ui-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/order-source-history-ui/gate4-history-ui-results.md",
+      "recordedAtSha": "af9d142de39ad0f68898df7079c646390d80e260",
+      "sha256": "c76c834d0d5599fd73c33cc76b36dcff9d01e7a0a19d1d2cea9a1545721a22a1"
+    },
+    {
+      "id": "history-ui-history-list-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-source-history-ui/screenshots-c20904d9/history-list-desktop.png",
+      "recordedAtSha": "af9d142de39ad0f68898df7079c646390d80e260",
+      "renderedSourceSha": "c20904d9df1062ff195da45f3811f881b7d16cc0",
+      "sha256": "3a571a575e73bfab90d80102f86e7fb607cc3550fae023270ea26bbe940f1972",
+      "changeReason": "New synthetic D121 history UI engineering evidence on existing Foundation; no replacement of historical pixels and no new human acceptance claim.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "history-ui-original-detail-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-source-history-ui/screenshots-c20904d9/original-detail-desktop.png",
+      "recordedAtSha": "af9d142de39ad0f68898df7079c646390d80e260",
+      "renderedSourceSha": "c20904d9df1062ff195da45f3811f881b7d16cc0",
+      "sha256": "88b9825427cb2e9ec72fdaea8b584548b68264276ccd05eda6abb65ffffd377e",
+      "changeReason": "New synthetic D121 history UI engineering evidence on existing Foundation; no replacement of historical pixels and no new human acceptance claim.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "history-ui-original-detail-mobile",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-source-history-ui/screenshots-c20904d9/original-detail-mobile.png",
+      "recordedAtSha": "af9d142de39ad0f68898df7079c646390d80e260",
+      "renderedSourceSha": "c20904d9df1062ff195da45f3811f881b7d16cc0",
+      "sha256": "5134a82cc08913599216f2a29f9470be3ee065a1ccb34133fb349f24a823e3ff",
+      "changeReason": "New synthetic D121 history UI engineering evidence on existing Foundation; no replacement of historical pixels and no new human acceptance claim.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "history-ui-original-source-history-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-source-history-ui/screenshots-c20904d9/original-source-history-desktop.png",
+      "recordedAtSha": "af9d142de39ad0f68898df7079c646390d80e260",
+      "renderedSourceSha": "c20904d9df1062ff195da45f3811f881b7d16cc0",
+      "sha256": "191905c4a63045dae35280d2ccbf08cb18e3f1e43482698bf76ed2b94f4e0cc2",
+      "changeReason": "New synthetic D121 history UI engineering evidence on existing Foundation; no replacement of historical pixels and no new human acceptance claim.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "history-ui-original-source-history-mobile",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-source-history-ui/screenshots-c20904d9/original-source-history-mobile.png",
+      "recordedAtSha": "af9d142de39ad0f68898df7079c646390d80e260",
+      "renderedSourceSha": "c20904d9df1062ff195da45f3811f881b7d16cc0",
+      "sha256": "2dfc72d6ba3bfff03fc2bf6f6673bdd3651cbcf0f053ea29b54ce7510c30f138",
+      "changeReason": "New synthetic D121 history UI engineering evidence on existing Foundation; no replacement of historical pixels and no new human acceptance claim.",
+      "approvalEvidence": "order-history-ui-approved-scope"
     }
   ],
   "pages": [
@@ -796,7 +860,7 @@
         "features/order-center/components/server-order-center-page.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "P6 human acceptance with later synthetic integration evidence; production route remains closed. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
+      "acceptanceScope": "P6 human acceptance with later synthetic integration evidence; production route remains closed. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment.",
       "evidence": [
         "order-p6",
         "order-integration",
@@ -806,7 +870,8 @@
         "ainuoke-continuous-engineering",
         "ainuoke-continuous-computed-styles",
         "unified-demo-engineering",
-        "ainuoke-readiness-engineering"
+        "ainuoke-readiness-engineering",
+        "order-source-history-ui-engineering"
       ]
     },
     {
@@ -817,7 +882,7 @@
         "features/order-center/components/server-sales-order-detail-page.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
+      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -826,7 +891,8 @@
         "ainuoke-continuous-engineering",
         "ainuoke-continuous-computed-styles",
         "unified-demo-engineering",
-        "ainuoke-readiness-engineering"
+        "ainuoke-readiness-engineering",
+        "order-source-history-ui-engineering"
       ]
     },
     {
@@ -2855,6 +2921,92 @@
           "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
           "evidence": [
             "order-source-history-engineering"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-original-history-ui",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Local existing Server list/detail/Modal connects effective versus original history, exact material capture navigation and historical mutation holds. Synthetic UI only; no execution/reviewer UI, real source, deployment or human acceptance.",
+      "evidence": [
+        "order-source-history-ui-engineering",
+        "order-history-ui-approved-scope"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "af9d142de39ad0f68898df7079c646390d80e260",
+          "scope": "Local existing Server list/detail/Modal connects effective versus original history, exact material capture navigation and historical mutation holds. Synthetic UI only; no execution/reviewer UI, real source, deployment or human acceptance.",
+          "evidence": [
+            "order-source-history-ui-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "af9d142de39ad0f68898df7079c646390d80e260",
+          "scope": "Local existing Server list/detail/Modal connects effective versus original history, exact material capture navigation and historical mutation holds. Synthetic UI only; no execution/reviewer UI, real source, deployment or human acceptance.",
+          "evidence": [
+            "order-source-history-ui-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "af9d142de39ad0f68898df7079c646390d80e260",
+          "scope": "Local existing Server list/detail/Modal connects effective versus original history, exact material capture navigation and historical mutation holds. Synthetic UI only; no execution/reviewer UI, real source, deployment or human acceptance.",
+          "evidence": [
+            "order-source-history-ui-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "af9d142de39ad0f68898df7079c646390d80e260",
+          "scope": "Local existing Server list/detail/Modal connects effective versus original history, exact material capture navigation and historical mutation holds. Synthetic UI only; no execution/reviewer UI, real source, deployment or human acceptance.",
+          "evidence": [
+            "order-source-history-ui-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "af9d142de39ad0f68898df7079c646390d80e260",
+          "scope": "Local existing Server list/detail/Modal connects effective versus original history, exact material capture navigation and historical mutation holds. Synthetic UI only; no execution/reviewer UI, real source, deployment or human acceptance.",
+          "evidence": [
+            "order-source-history-ui-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "order-source-history-ui-engineering"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "order-source-history-ui-engineering"
           ]
         }
       }
