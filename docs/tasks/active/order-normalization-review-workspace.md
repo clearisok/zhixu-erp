@@ -17,3 +17,6 @@
 本阶段代码/evidence独立checkpoint后前向绑定D128/限定能力，重跑精确基线与78回归。浏览器工作区仍待下一阶段，保持原Foundation和批准的D121范围，不把后台API当浏览器或人工验收。真实Adapter/案件permit/恢复验收与真实归一仍缺具体授权。
 
 更新时机：API/权限/指纹/schema/Gate/main/实际部署或授权变化。GitHub是实时事实源，本任务为阶段快照。
+
+
+源码/冻结报告checkpoint `a7c4879e6f418d761e8f7989f71083a1194dd9b5`；D128与第23项后台限定能力以前向记录绑定，实际门禁PASS：10页/23项能力/16项累计UI路径，基线78/78，日志outputs/gate4-review-workspace-baseline*.log。此结果不代替待实施的岗位UI、真实许可或远端交付。

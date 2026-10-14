@@ -783,6 +783,22 @@
       "sha256": "2dfc72d6ba3bfff03fc2bf6f6673bdd3651cbcf0f053ea29b54ce7510c30f138",
       "changeReason": "New synthetic D121 history UI engineering evidence on existing Foundation; no replacement of historical pixels and no new human acceptance claim.",
       "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "decisions-normalization-review-workspace-g4",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
+      "sha256": "9e484103f22a8f0b8fd5a6a7e6c857263705cc71a49e1460c6f90a7c496968a0",
+      "supersedes": "decisions-order-source-history-g4",
+      "changeReason": "D128 adds immutable review proposal publication, fresh reviewer workspace and scoped lineage fingerprints; preserve all earlier decision blobs, screenshots and limits."
+    },
+    {
+      "id": "normalization-review-workspace-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/normalization-review-workspace/gate4-workspace-results.md",
+      "recordedAtSha": "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
+      "sha256": "6df625d484e25fb224e45cf192889b3039996959bf50956062c8c2e653ba268f"
     }
   ],
   "pages": [
@@ -3007,6 +3023,92 @@
           "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
           "evidence": [
             "order-source-history-ui-engineering"
+          ]
+        }
+      }
+    },
+    {
+      "id": "normalization-review-workspace-backend",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Local Server immutable proposal publication, reviewer access/inbox/current status/history and scoped lineage evidence. Synthetic backend only; no browser review UI, real adapters/permit activation, normalization, deployment or human acceptance.",
+      "evidence": [
+        "normalization-review-workspace-engineering",
+        "decisions-normalization-review-workspace-g4"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
+          "scope": "Local Server immutable proposal publication, reviewer access/inbox/current status/history and scoped lineage evidence. Synthetic backend only; no browser review UI, real adapters/permit activation, normalization, deployment or human acceptance.",
+          "evidence": [
+            "normalization-review-workspace-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
+          "scope": "Local Server immutable proposal publication, reviewer access/inbox/current status/history and scoped lineage evidence. Synthetic backend only; no browser review UI, real adapters/permit activation, normalization, deployment or human acceptance.",
+          "evidence": [
+            "normalization-review-workspace-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
+          "scope": "Local Server immutable proposal publication, reviewer access/inbox/current status/history and scoped lineage evidence. Synthetic backend only; no browser review UI, real adapters/permit activation, normalization, deployment or human acceptance.",
+          "evidence": [
+            "normalization-review-workspace-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
+          "scope": "Local Server immutable proposal publication, reviewer access/inbox/current status/history and scoped lineage evidence. Synthetic backend only; no browser review UI, real adapters/permit activation, normalization, deployment or human acceptance.",
+          "evidence": [
+            "normalization-review-workspace-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
+          "scope": "Local Server immutable proposal publication, reviewer access/inbox/current status/history and scoped lineage evidence. Synthetic backend only; no browser review UI, real adapters/permit activation, normalization, deployment or human acceptance.",
+          "evidence": [
+            "normalization-review-workspace-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "normalization-review-workspace-engineering"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "normalization-review-workspace-engineering"
           ]
         }
       }
