@@ -103,6 +103,22 @@ test('order identity isolated domain', {timeout:180000},async t=>{
   assert.equal((await readOrderIdentity(pool,a)).version,4);
   await pool.query('DROP TRIGGER reject_identity_audit ON operation_logs');
  });
+ await t.test('concurrent opposing lineage changes cannot create a cycle',async()=>{
+  const c=await create(),d=await create();for(const id of [c,d])await mutateOrderIdentity(pool,actor,id,{action:'claim',expectedVersion:0});
+  const result=await Promise.allSettled([[c,d],[d,c]].map(([id,ref])=>mutateOrderIdentity(pool,actor,id,{action:'lineage',expectedVersion:2,lineage:'reorder',referenceOrderId:ref,specificationChanges:''})));
+  assert.equal(result.filter(r=>r.status==='fulfilled').length,1);assert.equal(result.filter(r=>r.status==='rejected').length,1);
+ });
+ await t.test('unclassified legacy orders, inactive targets and non-owner edits are rejected',async()=>{
+  const legacy=await createSalesOrder(pool,{creationSource:'manual'});
+  await assert.rejects(()=>mutateOrderIdentity(pool,actor,legacy.id,{action:'claim',expectedVersion:0}),(e:unknown)=>(e as {code:string}).code==='trusted_contract_required');
+  await pool.query('UPDATE app_users SET active=false WHERE id=$1',[users[1].internalUserId]);
+  await assert.rejects(()=>mutateOrderIdentity(pool,actor,a,{action:'transfer',expectedVersion:4,ownerId:users[1].userId,reason:'test'}),(e:unknown)=>(e as {code:string}).code==='claim_target_unavailable');
+  await pool.query('UPDATE app_users SET active=true WHERE id=$1',[users[1].internalUserId]);
+  await pool.query("DELETE FROM app_role_permissions WHERE role_id='identity-test' AND permission_key='order.transfer'");
+  await assert.rejects(()=>mutateOrderIdentity(pool,users[1],a,{action:'lineage',expectedVersion:4,lineage:'first',referenceOrderId:null,specificationChanges:''}),(e:unknown)=>(e as {code:string}).code==='order_owner_required');
+  await pool.query("INSERT INTO app_role_permissions VALUES('identity-test','order.transfer')");
+  assert.equal((await readOrderIdentity(pool,a)).version,4);
+ });
  await t.test('database protects identity and preparation history from replacement',async()=>{
   await assert.rejects(()=>pool.query("UPDATE sales_order_identity_profiles SET business_type='processing',version=version+1 WHERE sales_order_id=$1",[a]));
   await assert.rejects(()=>pool.query('DELETE FROM sales_order_identity_profiles WHERE sales_order_id=$1',[a]));

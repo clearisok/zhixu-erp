@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "957fe1a6eedfd6a92020ef2cf82d710a4162cda0",
-  "verifiedAt": "2026-10-13T06:36:32.000Z",
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "verifiedAt": "2026-10-14T10:34:20.430Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -614,6 +614,15 @@
       "path": "docs/tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md",
       "recordedAtSha": "70525752b1c0eeffab168f9eb87f0ac914af1af2",
       "sha256": "617e9c7bacbd6b9558ba3c13a5ef9991abc6f3e36c91bb08cfb498b724722a74"
+    },
+    {
+      "id": "decisions-order-identity-g1",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "2aa3944a23beb82a2bf3fbf8ef8564292382af8f",
+      "sha256": "e68495c08877e7867b26ebf2d8e3a9463eeab46383c7294e5d9b0b24028db1eb",
+      "supersedes": "decisions-controlled-intake-engineering-20261013",
+      "changeReason": "D121 user-approved dual order identity and staged independent commercial versions; retain original evidence and current implementation limits."
     }
   ],
   "pages": [

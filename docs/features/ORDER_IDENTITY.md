@@ -12,8 +12,10 @@ POST /api/v1/order-preparations：精确字段requestId/referenceOrderId/quantit
 
 现有列表原来源列补充待认领；详情复用Foundation新增认领/转交/血统/准备入口。身份不改变订单生命周期。新内部排产执行Gate尚不存在于Server，不能宣称已实现完整排产限制。CCT仍为旧共享语义，Gate2前不得宣称金额隔离。
 
-验证：13项领域/HTTP/升级/约束测试；原六角色+跟单经理22项；首次绑定/受控新增19项；Chromium5项合成交互通过（最终样式后重验）。此前UI测试失败为异步等待条件不正确，已按保存完成/弹窗出现等待；升级断言由版本号改为runner实际文件名返回。所有DB来自测试工具随机tmpfs容器，无真实Source/凭据使用。
+验证：15项领域/HTTP/升级/约束测试；原六角色+跟单经理22项；首次绑定/受控新增19项；Chromium5项合成交互通过（最终样式重验通过）。此前UI测试失败为异步等待条件不正确，已按保存完成/弹窗出现等待；升级断言由版本号改为runner实际文件名返回。所有DB来自测试工具随机tmpfs容器，无真实Source/凭据使用。
 
 新增脚本test:order-identity、test:order-identity-ui接入既有Source CI。运行时schema验证仍阻止未迁移数据库启动；迁移后旧镜像回退未获兼容承诺。历史商业冻结/归一另行Gate且真实执行另行授权。
 
 更新时机：规则、API/schema、测试结果或发布状态变化时；GitHub精确commit/PR证据与本地工程分开记录。
+
+完整结果与限制见[Gate1证据](../tasks/active/evidence/order-identity/gate1-results.md)。

@@ -1,9 +1,9 @@
 # 当前接力
 
-2026-10-14 / 核实main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/order-identity-and-contract-claim；G0已冻结，G1工程收口中。保留旧工作树；0013旧转单迁移不交付，当前0014仅隔离验证。
+2026-10-14核实main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。feat/order-identity-and-contract-claim完成Gate1本地验收，Goal仍在执行，远端待交付。G0 c3d70a5，基础caab27e，工作流2aa3944。最终提交由git log恢复。
 
-已实现：身份侧表、认领/转交/血统CAS、准备POST及分页读回、不建SO；列表待认领、详情操作；合同号/来源ID冲突拒绝；跟单经理独立权限。见features/ORDER_IDENTITY.md。13项领域/HTTP/升级、22项七角色、19项来源绑定/新增、5项浏览器通过；UI间距微调后仍须重验。类型、Server/UI构建已过；全lint结果待收取。
+证据：tasks/active/evidence/order-identity/gate1-results.md；features/ORDER_IDENTITY.md；批准规则tasks/active/order-identity-program.md。15项领域HTTP升级、22项七角色、19项来源、5项Chromium、817项root、71项baseline和type/lint/build PASS。G1源码测试已加入Source CI，远端CI未跑。
 
-剩余：最终基线冻结DECISION证据、npm全测试/发布门禁、最终浏览器截图检查、代码自审和精确交付。G2商业独立版本尚未实现；G3加工批次、G4归一、G5页面/来源未开展。准备报价版本引用随G2，当前只保存原单/量/交期/变化。
+下一步：核实最终commit精确源码门禁并完成唯一PR交付；继承NETWORK_DEGRADED，不在后续Gate重撞同失败Git通道。Gate2商业独立版本可在已核实本地G1父提交上开展，明确stack依赖，不伪称main。G3/G4/G5依次见计划。准备记录当前不带Quote候选；G2接入精确商业版本。旧共享CCT仍待替换。
 
-本轮未推送/无PR，网络继承NETWORK_DEGRADED，后续Gate不重撞同失败通道；远端交付须单独核实。禁止真实迁移、部署、改账号或续期调度。node_modules是相同lockfile依赖junction，不删除目标或安装。历史摘要已归档tasks/completed/2026-10-14-pre-order-identity-*。
+所有旧worktree保护；0013旧通用转单未发布且不照旧规则发布；0014仅在一次性PG验证。禁止真实数据库/账号/部署/调度续期。node_modules为相同lockfile junction，勿删除目标或安装依赖。历史摘要在tasks/completed/2026-10-14-pre-order-identity-*。
