@@ -1,3 +1,4 @@
+import {createProcessingBatch,previewProcessingBatch,confirmProcessingBatch,cancelProcessingBatch,consumeProcessingBatches,listProcessingBatches,parseProcessingBatchQuery} from './sales-orders/processing-batch-service.js';
 import {previewLegacyCommercialCutover} from './sales-orders/commercial-legacy-preview.js';
 import {readOrderCommercialState,previewOrderCommercial,adoptOrderCommercial} from './sales-orders/commercial-version-service.js';
 import {parseCommercialProvenance} from './sales-orders/commercial-source.js';
@@ -574,6 +575,29 @@ async function route(
       });
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
+
+  const processingMatch=/^\/api\/v1\/processing-order-batches(?:\/(consume|[0-9a-f-]+)(?:\/(preview|confirm|cancel))?)?$/iu.exec(path);
+  if(processingMatch){
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');
+    response.setHeader('Cache-Control','no-store');
+    const query=new URL(request.url??'/','http://localhost').searchParams;
+    if(request.method==='GET'&&!processingMatch[1]){sendJson(response,200,await listProcessingBatches(dependencies.pool,identity,parseProcessingBatchQuery(query)));return;}
+    if(query.size)throw new HttpError(400,'invalid_processing_query','Query selectors not accepted');
+    if(request.method!=='POST')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    assertMutationBoundary(request,dependencies.allowedOrigins);
+    const body=await readJsonBody(request,16384);
+    if(!processingMatch[1])sendJson(response,200,await createProcessingBatch(dependencies.pool,identity,body));
+    else if(processingMatch[1]==='consume'&&!processingMatch[2])sendJson(response,200,await consumeProcessingBatches(dependencies.pool,identity,body));
+    else if(processingMatch[2]==='preview'){
+      if(Object.keys(body).length)throw new HttpError(400,'invalid_processing_preview','Preview does not accept overrides');
+      sendJson(response,200,await previewProcessingBatch(dependencies.pool,identity,processingMatch[1]));
+    }else if(processingMatch[2]==='confirm')sendJson(response,200,await confirmProcessingBatch(dependencies.pool,identity,processingMatch[1],body));
+    else if(processingMatch[2]==='cancel')sendJson(response,200,await cancelProcessingBatch(dependencies.pool,identity,processingMatch[1],body));
+    else throw new HttpError(405,'method_not_allowed','Method not allowed');
     return;
   }
 

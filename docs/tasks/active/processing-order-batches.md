@@ -47,3 +47,11 @@ actor/request/operation/item键与载荷hash处理重试；每批独立事务。
 真实测试：加工领域/SQL/服务24/24 PASS（随机tmpfsPG）；Gate2商业29/29 PASS；Server构建与定向lint PASS。两个用户竞争同批次只一SO；同报价两批得到两单；取消项失败不阻止另一项；故意使最后审计失败，订单/身份/价格/消费全部回滚，重试成功；撤权后旧请求也拒绝。未知内部错误返回逐项processing_item_failed，不泄漏数据库错误，允许其他项继续。未经真实用户验收。
 
 后续仍需候选分页查询、HTTP安全/响应投影、可信加工认领和订单列表投影、双入口UI、负向矩阵补齐及最终全门禁。permission目录变化和0016预期须同步现有全回归；尚无PR或远端CI。取消当前有原因审计和回执审计两条，后续应收敛单一业务日志同时保留原因。
+
+## HTTP、候选与加工认领checkpoint（2026-10-14）
+
+新增 `/api/v1/processing-order-batches` GET/POST、`/consume` POST、`/:id/preview|confirm|cancel` POST。只接受可信session，写操作校验mutation boundary、限定body、拒绝查询注入，响应no-store。GET支持search、quoteId、offset、includeProcessed；默认只返回来源再次核验通过的confirmed批次。分页每次扫描最多20条，返回nextOffset/hasMore，因候选失效过滤可能不足20条甚至空页；前端应按hasMore继续，不以items为空推断结束。包含已处理可查看草稿、取消及原SO，但不返回成本。
+
+预览/列表允许具有batch.manage或consume任一权限者，且仍需订单/报价/确认工价查看。预览不接受客户端价格或数量覆盖。消费与登记入口仍共用既有事务服务。可信加工消费记录与SO创建报价身份一致时允许认领/转交/血统维护；不生成艾诺科来源，不允许仅设置processing标签的伪记录绕过。
+
+测试加工27/27（含HTTP真实session、跨站拒绝、注入、查询、处理结果与撤权），身份15/15 PASS。身份升级首次14/15，唯一失败为迁移清单缺0016；补精确清单后15/15，历史身份/权限保护断言未删。另同步CCT/Postgres/Quote API迁移期望，完整套件待最终执行。Server构建/定向lint PASS。加工正式订单显示投影、双入口UI及最终门禁仍未完成。

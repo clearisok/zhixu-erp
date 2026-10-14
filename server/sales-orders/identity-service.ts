@@ -20,7 +20,15 @@ async function contract(client:Queryable,id:string,lock=false){
  const order=(await client.query(`SELECT id::text,creation_source,lifecycle_state FROM sales_orders WHERE id=$1::uuid ${lock?'FOR UPDATE':''}`,[id])).rows[0];
  if(!order)fail(404,'sales_order_not_found');
  const source=(await client.query(`SELECT m.source_id FROM ainuoke_sales_order_contract_mirrors m JOIN sales_order_source_links l ON l.sales_order_id=m.sales_order_id AND l.external_id=m.source_id AND l.sales_contract_no=m.sales_contract_no WHERE m.sales_order_id=$1::uuid AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract'`,[id])).rows;
- if(order.creation_source!=='ainuoke'||source.length!==1)fail(409,'trusted_contract_required');return order;
+ if(order.creation_source==='ainuoke'&&source.length===1)return {...order,businessType:'ainuoke_contract'};
+ if(order.creation_source==='quote'){
+  const profile=(await client.query("SELECT business_type FROM sales_order_identity_profiles WHERE sales_order_id=$1",[id])).rows[0];
+  if(profile?.business_type==='processing'){
+   const trusted=(await client.query(`SELECT b.id FROM processing_order_batch_consumptions c JOIN processing_order_batches b ON b.id=c.batch_id JOIN sales_orders o ON o.id=c.sales_order_id WHERE o.id=$1 AND b.state='consumed' AND o.source_quote_id=b.quote_id AND o.source_revision_id=b.revision_id AND o.source_price_version_id=b.price_version_id`,[id])).rowCount;
+   if(trusted===1)return {...order,businessType:'processing'};
+  }
+ }
+ fail(409,'trusted_contract_required');
 }
 export async function readOrderIdentity(client:Queryable,id:string){
  if(!identityUuid.test(id))fail(400,'invalid_order_id');
@@ -37,7 +45,7 @@ export async function mutateOrderIdentity(pool:Pool, actor:TrustedIdentity,id:st
   const current=await requireOrderCommandActor(client,actor,command.action==='claim'?'order.claim':command.action==='transfer'?'order.transfer':'order.lineage.edit');
   // Global lineage lock also serializes claim/transfer, giving one lock order and preventing concurrent cycles.
   await client.query("SELECT pg_advisory_xact_lock(hashtextextended('order-identity-lineage',0))");
-  await contract(client,id,true);const before=await readOrderIdentity(client,id);
+  const eligible=await contract(client,id,true);const before=await readOrderIdentity(client,id);
   if(before.version!==command.expectedVersion)fail(409,'order_identity_version_conflict');
   if(command.action==='claim'&&before.ownerId!==null)fail(409,'order_already_claimed');
   if(command.action==='lineage'&&before.ownerId!==current.userId&&!current.permissions.includes('order.transfer'))fail(403,'order_owner_required');
@@ -55,7 +63,7 @@ export async function mutateOrderIdentity(pool:Pool, actor:TrustedIdentity,id:st
    const cycle=await client.query(`WITH RECURSIVE ancestors(id) AS (SELECT $1::uuid UNION SELECT p.reference_order_id FROM sales_order_identity_profiles p JOIN ancestors a ON p.sales_order_id=a.id WHERE p.reference_order_id IS NOT NULL) SELECT id FROM ancestors WHERE id=$2::uuid`,[command.referenceOrderId,id]);
    if(cycle.rowCount)fail(409,'lineage_cycle');
   }
-  await client.query("INSERT INTO sales_order_identity_profiles(sales_order_id,business_type) VALUES($1,'ainuoke_contract') ON CONFLICT DO NOTHING",[id]);
+  await client.query("INSERT INTO sales_order_identity_profiles(sales_order_id,business_type) VALUES($1,$2) ON CONFLICT DO NOTHING",[id,eligible.businessType]);
   // First insertion is version 1. Existing mutations always increment; first change goes to 2 atomically.
   if(command.action==='claim'||command.action==='transfer')await client.query('UPDATE sales_order_identity_profiles SET owner_id=$2,version=version+1 WHERE sales_order_id=$1',[id,command.action==='claim'?current.internalUserId:ownerInternal]);
   else await client.query('UPDATE sales_order_identity_profiles SET lineage=$2,reference_order_id=$3,specification_changes=$4,version=version+1 WHERE sales_order_id=$1',[id,command.lineage,command.referenceOrderId,command.specificationChanges]);

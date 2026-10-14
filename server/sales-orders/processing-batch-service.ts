@@ -22,10 +22,11 @@ async function readBatch(c:PoolClient,id:string){
  const row=(await c.query<Batch>(selectBatch+' WHERE id=$1 FOR UPDATE',[id])).rows[0];
  if(!row)fail(404,'processing_batch_not_found');return row;
 }
-async function transaction<T>(pool:Pool,actor:TrustedIdentity,operation:Operation,run:(c:PoolClient,a:TrustedIdentity)=>Promise<T>):Promise<T>{
+async function transaction<T>(pool:Pool,actor:TrustedIdentity,operation:Operation|'read',run:(c:PoolClient,a:TrustedIdentity)=>Promise<T>):Promise<T>{
  const c=await pool.connect();try{
   await c.query('BEGIN');await c.query("SET LOCAL lock_timeout='5s'");
-  const a=await requireOrderCommandActor(c,actor,operation==='consume'?'order.processing.consume':'order.processing.batch.manage');
+  const a=await requireOrderCommandActor(c,actor,operation==='read'?'order.view':operation==='consume'?'order.processing.consume':'order.processing.batch.manage');
+  if(operation==='read'&&!a.permissions.includes('order.processing.consume')&&!a.permissions.includes('order.processing.batch.manage'))fail(403,'permission_denied');
   requirePermission(a.permissions,'quote.view');requirePermission(a.permissions,'commercial.labor.view');
   const result=await run(c,a);await c.query('COMMIT');return result;
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
@@ -55,7 +56,7 @@ export async function createProcessingBatch(pool:Pool,actor:TrustedIdentity,raw:
  });
 }
 export async function previewProcessingBatch(pool:Pool,actor:TrustedIdentity,id:string){
- return transaction(pool,actor,'confirm',async(c)=>{
+ return transaction(pool,actor,'read',async(c)=>{
   const b=await readBatch(c,id);if(!['draft','confirmed'].includes(b.state))fail(409,'processing_batch_terminal');
   const candidate=await readCommercialCandidate(c,{quoteId:b.quoteId,revisionId:b.revisionId,priceVersionId:b.priceVersionId});
   if(candidate.quoteType!=='processing')fail(409,'processing_quote_required');
@@ -115,4 +116,35 @@ export async function consumeProcessingBatches(pool:Pool,actor:TrustedIdentity,r
   catch(e){results.push({batchId:item.batchId,status:'failed',code:e instanceof HttpError?e.code:'processing_item_failed'});}
  }
  return {results};
+}
+
+export type ProcessingBatchQuery={offset:number;search:string;quoteId:string;includeProcessed:boolean};
+export function parseProcessingBatchQuery(query:URLSearchParams):ProcessingBatchQuery{
+ const allowed=['offset','search','quoteId','includeProcessed'];
+ if([...query.keys()].some(k=>!allowed.includes(k)||query.getAll(k).length!==1))fail(400,'invalid_processing_query');
+ const offset=query.get('offset')??'0',search=query.get('search')??'',quoteId=query.get('quoteId')??'',include=query.get('includeProcessed')??'false';
+ if(!/^\d+$/u.test(offset)||Number(offset)>100000||search.length>256||quoteId.length>256||!['true','false'].includes(include))fail(400,'invalid_processing_query');
+ return {offset:Number(offset),search,quoteId,includeProcessed:include==='true'};
+}
+export async function listProcessingBatches(pool:Pool,actor:TrustedIdentity,query:ProcessingBatchQuery){
+ return transaction(pool,actor,'read',async(c)=>{
+  const rows=(await c.query<Batch>(selectBatch+` WHERE ($1 OR state='confirmed') AND ($2='' OR quote_id=$2) AND ($3='' OR concat_ws(' ',customer_name,business_style_no,customer_reference,id::text) ILIKE $4) ORDER BY created_at DESC,id DESC LIMIT 21 OFFSET $5`,[query.includeProcessed,query.quoteId,query.search,'%'+query.search.replace(/[\\%_]/gu,'\\$&')+'%',query.offset])).rows;
+  const items:Array<{batch:Batch;eligible:boolean;unavailableReason:string|null;salesOrderId:string|null;orderNo:string|null}>=[];
+  for(const b of rows.slice(0,20)){
+   const existing=(await c.query('SELECT o.id::text,o.order_no FROM processing_order_batch_consumptions p JOIN sales_orders o ON o.id=p.sales_order_id WHERE p.batch_id=$1',[b.id])).rows[0];
+   let eligible=false,unavailableReason:string|null=b.state;
+   if(b.state==='confirmed'){
+    await c.query('SAVEPOINT candidate');
+    try{
+     const candidate=await readCommercialCandidate(c,{quoteId:b.quoteId,revisionId:b.revisionId,priceVersionId:b.priceVersionId});
+     const confirmation=(await c.query('SELECT source_fingerprint,draft_hash FROM processing_order_batch_confirmations WHERE id=$1 AND batch_id=$2',[b.confirmationId,b.id])).rows[0];
+     eligible=candidate.quoteType==='processing'&&candidate.fingerprint===confirmation?.source_fingerprint&&processingDraftHash(b)===confirmation?.draft_hash;
+     unavailableReason=eligible?null:'processing_source_changed';
+    }catch(e){await c.query('ROLLBACK TO SAVEPOINT candidate');if(!(e instanceof HttpError))throw e;unavailableReason=e.code;}
+    await c.query('RELEASE SAVEPOINT candidate');
+   }
+   if(query.includeProcessed||eligible)items.push({batch:b,eligible,unavailableReason,salesOrderId:existing?.id??null,orderNo:existing?.order_no??null});
+  }
+  return {items,hasMore:rows.length>20,nextOffset:query.offset+Math.min(20,rows.length),offset:query.offset};
+ });
 }
