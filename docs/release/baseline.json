@@ -678,6 +678,15 @@
       "path": "docs/tasks/active/evidence/order-normalization/gate4-preview-results.md",
       "recordedAtSha": "f36307cf39b5581ab1ad3536c5829448deee1988",
       "sha256": "c59ddd4830c5f981c9794e6ccc4dbfc605364df5a6d88ebbb14c6a07d44bb033"
+    },
+    {
+      "id": "decisions-order-attribution-g4",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "8606cb7ba0bfbb832d16ebb50ba62a2989b028eb",
+      "sha256": "5020ebecce68e239b1f8fafbfee614da5ac3104303af27a25aab8cfc7cc460cc",
+      "supersedes": "decisions-order-normalization-g4",
+      "changeReason": "D125 records approved effective attribution, controlled execution and ordinary SQL write protection; preserve the prior D124 decision blob and every existing acceptance scope."
     }
   ],
   "pages": [
