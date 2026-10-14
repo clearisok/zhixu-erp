@@ -662,6 +662,13 @@
       "path": "docs/tasks/active/server-user-menu-2026-10-14.md",
       "recordedAtSha": "b542e8d6137874b56cfaf4204720ddf15fe6281a",
       "sha256": "aef86a4f7995d691eeb70d6063773bb77800f08ab3fd0bc7f4ef37b698ff9b9f"
+    },
+    {
+      "id": "material-confirmations-final-verification-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/material-confirmations-verification-2026-10-14.md",
+      "recordedAtSha": "06859a4f557b24161150fb1c05ec341f3a01a8b8",
+      "sha256": "53fef26ecd2d30a137412f7c0bc15b4313fc0d2a8f9852e9a792434609c315be"
     }
   ],
   "pages": [
