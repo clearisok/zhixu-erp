@@ -19,3 +19,5 @@ Gate2 已完成两个本地工程阶段：基础 checkpoint `552e9b2de3f2809a168
 七角色与部分旧CCT回归已对齐：order-commercial-roles 8、linked-commercial-terms 9、commercial-terms-security 20 PASS；类型/lint通过。保留原锁等待/回滚/权限测试，只将旧Order共享语义替换成Quote合法确认和Order显式采用边界。confirmed-commercial-terms主集成（约480行）及其他商业读取/UI测试还没更新，下一轮继续。npm test整体日志 outputs/gate2-project-tests.log。
 
 本阶段npm test完整源码回归817/817 PASS（初次815/817，两条废止共享UI静态断言已更新；14项相关源码测试独立通过）。这不包含尚待修订的PG商业主套件；日志outputs/gate2-project-tests.log。
+
+商业主回归收口：confirmed-commercial-terms / commercial-read-surfaces / commercial-amount-exposure-audit 共19项一次性PG/API测试PASS；保留精度、权限、导出、审计回滚、来源/历史不变断言，合法报价确认改用Quote接口，旧Order接口只返回采用快照或拒绝写入。typecheck和三文件lint通过。完整test:postgres正在运行，结果尚未判定；日志outputs/gate2-postgres-tests.log。无真实数据库、账号或部署操作。

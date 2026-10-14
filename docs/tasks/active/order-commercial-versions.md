@@ -73,3 +73,5 @@ linked-commercial-terms 9项PASS：保留精确零/高精度、独立Quote/CCT C
 commercial-terms-security 20项PASS：16种字段权限组合、单字段null/零、隐藏字段保留、CAS、审计失败回滚转由合法Quote确认入口测试；保留旧订单读空与写入阻断作为独立负向场景。类型检查、增量eslint通过。仍需confirmed-commercial-terms主集成、其他旧商业读取/浏览器测试修订及完整发布门禁；不以这37项代表全套通过。
 
 本阶段npm test完整源码回归817/817 PASS（初次815/817，两条废止共享UI静态断言已更新；14项相关源码测试独立通过）。这不包含尚待修订的PG商业主套件；日志outputs/gate2-project-tests.log。
+
+商业主回归收口：confirmed-commercial-terms / commercial-read-surfaces / commercial-amount-exposure-audit 共19项一次性PG/API测试PASS；保留精度、权限、导出、审计回滚、来源/历史不变断言，合法报价确认改用Quote接口，旧Order接口只返回采用快照或拒绝写入。typecheck和三文件lint通过。完整test:postgres正在运行，结果尚未判定；日志outputs/gate2-postgres-tests.log。无真实数据库、账号或部署操作。

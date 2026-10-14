@@ -5,10 +5,10 @@ import { createQuoteRepository } from "../quotes/repository.js";
 import { appendOperationLog } from "../operation-logs/repository.js";
 
 test("HTTP commercial grants protect historical aggregate, save, list, export and logs",async t=>{
- const x=await startCommercialSecurityFixture();t.after(x.close);
+ const x=await startCommercialSecurityFixture(undefined,q=>{for(const r of q.revisions){r.baseInfo.quoteStyleNo="SYNTHETIC";r.baseInfo.styleName="Synthetic";for(const pv of r.priceVersions){pv.quantity=100;pv.trims.forEach(line=>line.usage=0);pv.pricingParameters.laborCurrency="USD";}}});t.after(x.close);
  const base=["quote.view","quote.edit","quote.cost.view","estimate.view","quote.export","audit_log.view","order.view","order.edit"] as const;
  const restricted=await x.user("cost-only-surfaces",[...base]);
- const sale=await x.user("sale-only-surfaces",[...base,"commercial.sale.view","commercial.sale.edit"]);
+ const sale=await x.user("sale-only-surfaces",[...base,"quote.confirm","commercial.sale.view","commercial.sale.edit"]);
  const labor=await x.user("labor-only-surfaces",[...base,"commercial.labor.view"]);
  const repo=createQuoteRepository(x.pool);
  await t.test("history fields are independently absent, cost and Estimate remain readable",async()=>{
@@ -60,7 +60,7 @@ test("HTTP commercial grants protect historical aggregate, save, list, export an
  await t.test("CCT audit persists full facts but HTTP strips hidden amounts",async()=>{
   const actor=(await x.pool.query("SELECT id::text,public_id,username,display_name FROM app_users WHERE username='sale-only-surfaces'")).rows[0];
   await appendOperationLog(x.pool,{internalUserId:actor.id,userId:actor.public_id,username:actor.username,userName:actor.display_name,permissions:[]},{module:"报价中心",action:"保存报价",entityType:"Quote",entityId:x.record.quote.id,quoteId:x.record.quote.id,metadata:{nested:{garmentSellingPrice:"314159.26",garmentPrice:"271828.18",finalQuote:"161803.39"}},changes:[{field:"priceVersion.garmentSellingPrice",beforeValue:"314159.26",afterValue:"161803.39"}]});
-  assert.equal((await x.request(x.orderPath,sale,{expectedVersion:1,customerConfirmedPrice:"23456"},"PATCH")).response.status,200);
+  assert.equal((await x.request(x.quoteTermsPath,sale,{expectedQuoteVersion:(await repo.getById(x.record.quote.id))!.version,expectedVersion:1,customerConfirmedPrice:"23456"},"PATCH")).response.status,200);
   const result=await x.request("/api/v1/operation-logs",restricted);assert.equal(result.response.status,200,result.text);
   assert.equal(/12345|23456|67890|314159\.26|271828\.18|161803\.39/.test(result.text),false);
   const withSale=await x.request("/api/v1/operation-logs",sale);assert.equal(withSale.text.includes("23456"),true);assert.equal(withSale.text.includes("67890"),false);
@@ -71,7 +71,7 @@ test("HTTP commercial grants protect historical aggregate, save, list, export an
   const read=await x.request(x.orderPath,sale);
   assert.equal(read.response.status,200);assert.equal(read.text.includes("23456"),false);assert.equal(read.response.headers.get("cache-control"),"no-store");
   const before=(await x.pool.query("SELECT * FROM confirmed_commercial_terms")).rows;
-  const write=await x.request(x.orderPath,sale,{expectedVersion:2,customerConfirmedPrice:null},"PATCH");
+  const write=await x.request(x.quoteTermsPath,sale,{expectedQuoteVersion:(await repo.getById(x.record.quote.id))!.version,expectedVersion:2,customerConfirmedPrice:null},"PATCH");
   assert.equal(write.response.status,403);assert.deepEqual((await x.pool.query("SELECT * FROM confirmed_commercial_terms")).rows,before);
  });
 });

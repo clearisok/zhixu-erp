@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { startCommercialSecurityFixture } from "./commercial-security-fixture.js";
 
-test("Actual session HTTP: Quote cost and both shared CCT routes deny amount disclosure",async t=> {
+test("Actual session HTTP: Quote cost and order/quote commercial routes deny amount disclosure",async t=> {
  const x=await startCommercialSecurityFixture(); t.after(x.close);
  const cookie=await x.user("commercial-viewer",["quote.view","order.view"]);
  await t.test("quote.view without quote.cost.view cannot read aggregate internal cost",async()=> {
@@ -10,7 +10,7 @@ test("Actual session HTTP: Quote cost and both shared CCT routes deny amount dis
  });
  await t.test("order.view cannot read shared sale/labor amounts",async()=> {
   const result=await x.request(x.orderPath,cookie); assert.equal(result.response.status,200);
-  assert.deepEqual(result.body.confirmedCommercialTerms.current.sale,{visibility:"restricted"}); assert.deepEqual(result.body.confirmedCommercialTerms.current.labor,{visibility:"restricted"});
+  assert.equal(result.body.confirmedCommercialTerms.current,null,"order without adoption never falls back to shared quote amounts");
   assert.equal(/12345|67890/.test(result.text),false);
  });
  await t.test("quote.view cannot read linked shared sale/labor amounts",async()=> {
