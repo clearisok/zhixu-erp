@@ -1,4 +1,5 @@
 "use client";
+import { ServerOrderIdentityCard } from "./server-order-identity-card";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { OrderMaterialSummary } from '@/features/ainuoke-material-progress/order-material-summary';
@@ -304,6 +305,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
         <ErrorState title="订单服务暂时不可用" description={error} onRetry={() => void loadDetail()} />
       ) : detail ? (
         <div className="oc-server-detail-content">
+          <ServerOrderIdentityCard key={scopeKey} orderId={salesOrderId} />
           <Card className="oc-server-detail-section oc-server-detail-zhixu oc-server-detail-overview">
             <header><div><h2>订单概况</h2></div><span>来源权威 · 不可编辑</span></header>
             <DescriptionList columns={3} compact items={[

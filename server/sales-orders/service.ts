@@ -1,3 +1,4 @@
+import { HttpError } from "../http/errors.js";
 import type { Pool, PoolClient } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
 import { appendOperationLog } from "../operation-logs/repository.js";
@@ -62,6 +63,9 @@ export async function createAinuokeSalesOrderInTransaction(client: PoolClient, a
     if (existing) {
       const detail = await getSalesOrderById(client, existing.id);
       if (!detail) throw new Error("Existing SalesOrder source binding has no aggregate");
+      if ((detail.salesContractNo ?? '').normalize('NFKC').trim().toUpperCase() !== input.source.salesContractNo.normalize('NFKC').trim().toUpperCase()) {
+        throw new HttpError(409, 'source_contract_identity_conflict', 'Existing source identity belongs to another sales contract');
+      }
       return { created: false, salesOrder: detail };
     }
 

@@ -1,3 +1,4 @@
+import { readOrderIdentity, mutateOrderIdentity, createOrderPreparation } from "./sales-orders/identity-service.js";
 import { createOrderMaterialReader, type MaterialReadPorts } from '../features/ainuoke-material-progress/read-service.js';
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
 import type { Pool } from "pg";
@@ -569,6 +570,24 @@ async function route(
       });
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
+
+  const identityMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/identity$/.exec(path);
+  if (identityMatch || path === "/api/v1/order-preparations") {
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    requirePermission(identity.permissions, "order.view");
+    if (new URL(request.url ?? "/", "http://localhost").search) throw new HttpError(400, "invalid_identity_query", "Query selectors are not accepted");
+    response.setHeader("Cache-Control", "no-store");
+    if (identityMatch && request.method === "GET") sendJson(response, 200, {identity: await readOrderIdentity(dependencies.pool, identityMatch[1])});
+    else if ((identityMatch && request.method === "PATCH") || (!identityMatch && request.method === "POST")) {
+      if (dependencies.identityAuthority.mode !== "session") throw new HttpError(403, "trusted_session_required", "A trusted session is required");
+      assertMutationBoundary(request, dependencies.allowedOrigins);
+      const body = await readJsonBody(request, 8192);
+      const result = identityMatch ? await mutateOrderIdentity(dependencies.pool, identity, identityMatch[1], body) : await createOrderPreparation(dependencies.pool, identity, body);
+      sendJson(response, 200, result);
+    } else throw new HttpError(405, "method_not_allowed", "Method not allowed");
     return;
   }
 
