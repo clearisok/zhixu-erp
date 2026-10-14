@@ -177,6 +177,35 @@ test('processing service atomic synthetic lifecycle',{timeout:180000},async t=>{
   assert.equal(h1.items.length,20);assert.equal(h2.items.length,1);assert.equal(new Set([...h1.items,...h2.items].map(x=>x.batch.id)).size,21);
   assert.equal(h1.items.every(x=>!x.eligible&&x.unavailableReason==='processing_source_changed'),true);
  });
+ await t.test('quote type or exact price-version removal blocks unconsumed batches but preserves existing SO',async()=>{
+  const repository=createQuoteRepository(pool);
+  for(const scenario of ['type','removed-version'] as const){
+   const b=await confirmed(),done=await confirmed();const consumed=await consume(done.batchId,done.version!);const before=await count();
+   const original=await repository.getById(q.id);assert.ok(original);const changed=structuredClone(original.quote),revision=changed.revisions.find(x=>x.revisionId===r.revisionId)!;
+   if(scenario==='type'){revision.baseInfo.quoteType='distribution';revision.priceVersions.find(x=>x.id===pv.id)!.confirmation!.confirmedGarmentPrice='1';}
+   else revision.priceVersions=revision.priceVersions.filter(x=>x.id!==pv.id);
+   try{
+    await repository.save(changed,original.version);
+    const result=await consume(b.batchId,b.version!);assert.equal(result.results[0].status,'failed');assert.equal((result.results[0] as {code:string}).code,scenario==='type'?'processing_quote_required':'quote_price_version_not_found');assert.equal(await count(),before);
+    const existing=await consume(done.batchId,done.version!);assert.equal(existing.results[0].status,'existing');assert.equal((existing.results[0] as {salesOrderId:string}).salesOrderId,(consumed.results[0] as {salesOrderId:string}).salesOrderId);
+    assert.equal((await listProcessingBatches(pool,actor,parseProcessingBatchQuery(new URLSearchParams({search:b.batchId})))).items.length,0);
+   }finally{const current=await repository.getById(q.id);assert.ok(current);await repository.save(original.quote,current.version);}
+   const preview=await previewProcessingBatch(pool,actor,b.batchId),ready=await confirmProcessingBatch(pool,actor,b.batchId,{requestId:randomUUID(),expectedVersion:b.version,sourceFingerprint:preview.candidate.fingerprint});assert.equal((await consume(b.batchId,ready.version!)).results[0].status,'created');
+  }
+ });
+ await t.test('cancel versus consume has one terminal winner and never leaves an orphan SO',async()=>{
+  for(let i=0;i<4;i++){
+   const b=await confirmed(),before=await count();
+   const cancel=()=>cancelProcessingBatch(pool,actor,b.batchId,{requestId:randomUUID(),expectedVersion:b.version,reason:'Synthetic concurrent cancellation'});
+   const create=()=>consume(b.batchId,b.version!,other);
+   await Promise.allSettled(i%2?[create(),cancel()]:[cancel(),create()]);
+   const state=(await pool.query('SELECT state FROM processing_order_batches WHERE id=$1',[b.batchId])).rows[0].state;
+   const rows=(await pool.query('SELECT sales_order_id,commercial_version_id FROM processing_order_batch_consumptions WHERE batch_id=$1',[b.batchId])).rows;
+   assert.ok(['cancelled','consumed'].includes(state));assert.equal(rows.length,state==='consumed'?1:0);assert.equal(await count(),before+rows.length);
+   if(rows.length){assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_commercial_versions WHERE id=$1 AND sales_order_id=$2',[rows[0].commercial_version_id,rows[0].sales_order_id])).rows[0].n,1);await assert.rejects(()=>cancel());}
+   else assert.equal((await create()).results[0].status,'failed');
+  }
+ });
  await t.test('fresh database revocation cannot be bypassed through replay',async()=>{
   const b=await confirmed(),requestId=randomUUID();await consume(b.batchId,b.version!,actor,requestId);await pool.query("DELETE FROM app_role_permissions WHERE role_id='batch-test' AND permission_key='order.processing.consume'");assert.equal((await consume(b.batchId,b.version!,actor,requestId)).results[0].status,'failed');
  });
