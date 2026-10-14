@@ -4,7 +4,7 @@ import { requirePermission } from '../auth/permissions.js';
 import { HttpError } from '../http/errors.js';
 import { appendOperationLog } from '../operation-logs/repository.js';
 import type { CreateAinuokeSalesOrderInput } from './service.js';
-import { createOrUpdateSourceLink, getSalesOrderById, replaceCurrentAinuokeColorSlice, upsertCurrentAinuokeContractMirror } from './repository.js';
+import { createOrUpdateSourceLink, getFoundationSalesOrderById, replaceCurrentAinuokeColorSlice, upsertCurrentAinuokeContractMirror } from './repository.js';
 import { readDeliveryPlanSet } from './delivery-plan-repository.js';
 import { validDeliveryDate } from './delivery-plan-model.js';
 
@@ -43,13 +43,13 @@ export async function refreshAinuokeSalesOrderSource(
     await client.query('SELECT sales_order_id FROM sales_order_delivery_plan_sets WHERE sales_order_id=$1::uuid FOR UPDATE', [salesOrderId]);
     const beforePlans = await readDeliveryPlanSet(client, salesOrderId);
     if (beforePlans.version !== input.expectedPlanVersion) throw new HttpError(409, 'delivery_plan_version_conflict', 'DeliveryPlan collection version is stale');
-    const before = await getSalesOrderById(client, salesOrderId);
+    const before = await getFoundationSalesOrderById(client, salesOrderId);
     await createOrUpdateSourceLink(client, { salesOrderId, sourceSystem: 'ainuoke', sourceEntityType: 'sales_contract',
       externalId: mirror.source_id, salesContractNo: mirror.sales_contract_no, insideOrderNo: input.source.insideOrderNo });
     await upsertCurrentAinuokeContractMirror(client, salesOrderId, input.source);
     await replaceCurrentAinuokeColorSlice(client, salesOrderId, input.colors);
     const afterPlans = await readDeliveryPlanSet(client, salesOrderId);
-    const after = await getSalesOrderById(client, salesOrderId);
+    const after = await getFoundationSalesOrderById(client, salesOrderId);
     await appendOperationLog(client, actor, {
       module: '艾诺科同步', action: '艾诺科同步订单', entityType: 'SalesOrder', entityId: salesOrderId,
       beforeData: { orderId: salesOrderId, values: { sourceDeliveryDate: beforePlans.sourceDeliveryDate,

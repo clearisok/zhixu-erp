@@ -12,7 +12,7 @@ import {
 import {
   createOrUpdateSourceLink,
   createSalesOrder,
-  getSalesOrderById,
+  getFoundationSalesOrderById,
   getSalesOrderBySourceIdentity,
   replaceCurrentAinuokeColorSlice,
   upsertCurrentAinuokeContractMirror,
@@ -61,7 +61,7 @@ export async function createAinuokeSalesOrderInTransaction(client: PoolClient, a
       normalizedSourceId,
     );
     if (existing) {
-      const detail = await getSalesOrderById(client, existing.id);
+      const detail = await getFoundationSalesOrderById(client, existing.id);
       if (!detail) throw new Error("Existing SalesOrder source binding has no aggregate");
       if ((detail.salesContractNo ?? '').normalize('NFKC').trim().toUpperCase() !== input.source.salesContractNo.normalize('NFKC').trim().toUpperCase()) {
         throw new HttpError(409, 'source_contract_identity_conflict', 'Existing source identity belongs to another sales contract');
@@ -116,7 +116,7 @@ export async function createAinuokeSalesOrderInTransaction(client: PoolClient, a
       },
     });
 
-    const detail = await getSalesOrderById(client, salesOrder.id);
+    const detail = await getFoundationSalesOrderById(client, salesOrder.id);
     if (!detail) throw new Error("Created SalesOrder could not be read inside its transaction");
     return { created: true, salesOrder: detail };
 }

@@ -141,10 +141,10 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
   };
 }
 
-const READ_MODEL_SELECT = `
+function readModelSelect(includeIdentity: boolean): string { return `
   SELECT so.*,
-         COALESCE(profile.business_type,CASE WHEN so.creation_source='ainuoke' AND mirror.source_id=sl.external_id AND mirror.sales_contract_no=sl.sales_contract_no THEN 'ainuoke_contract' ELSE 'unclassified' END) AS business_type,
-         owner_user.display_name AS owner_name,
+         ${includeIdentity ? 'COALESCE(profile.business_type,' : ''}CASE WHEN so.creation_source='ainuoke' AND mirror.source_id=sl.external_id AND mirror.sales_contract_no=sl.sales_contract_no THEN 'ainuoke_contract' ELSE 'unclassified' END${includeIdentity ? ')' : ''} AS business_type,
+         ${includeIdentity ? 'owner_user.display_name' : 'NULL::text'} AS owner_name,
          sl.sales_contract_no,
          sl.inside_order_no,
          mirror.lifecycle_status_raw,
@@ -167,8 +167,10 @@ const READ_MODEL_SELECT = `
    AND sl.source_entity_type = 'sales_contract'
   LEFT JOIN ainuoke_sales_order_contract_mirrors mirror
     ON mirror.sales_order_id = so.id
-  LEFT JOIN sales_order_identity_profiles profile ON profile.sales_order_id=so.id
-  LEFT JOIN app_users owner_user ON owner_user.id=profile.owner_id`;
+  ${includeIdentity ? 'LEFT JOIN sales_order_identity_profiles profile ON profile.sales_order_id=so.id LEFT JOIN app_users owner_user ON owner_user.id=profile.owner_id' : ''}`;
+}
+const READ_MODEL_SELECT = readModelSelect(true);
+const FOUNDATION_READ_MODEL_SELECT = readModelSelect(false);
 
 export async function createSalesOrder(
   client: Queryable,
@@ -260,7 +262,7 @@ export async function getSalesOrderBySourceIdentity(
   externalId: string,
 ): Promise<SalesOrderReadModel | null> {
   const result = await client.query<ReadModelRow>(
-    `${READ_MODEL_SELECT}
+    `${FOUNDATION_READ_MODEL_SELECT}
      WHERE EXISTS (
        SELECT 1 FROM sales_order_source_links lookup
        WHERE lookup.sales_order_id = so.id
@@ -420,10 +422,17 @@ export async function listSalesOrders(
   return { items: result.rows.map(mapReadModel), total: totalResult.rows[0].total };
 }
 
-export async function getSalesOrderById(client: Queryable, id: string): Promise<SalesOrderDetailReadModel | null> {
+export function getSalesOrderById(client: Queryable, id: string): Promise<SalesOrderDetailReadModel | null> {
+  return readSalesOrderDetail(client,id,READ_MODEL_SELECT);
+}
+/** Source creation/replay only; supports the frozen foundation runner without claiming identity permissions. */
+export function getFoundationSalesOrderById(client: Queryable,id:string):Promise<SalesOrderDetailReadModel|null>{
+  return readSalesOrderDetail(client,id,FOUNDATION_READ_MODEL_SELECT);
+}
+async function readSalesOrderDetail(client:Queryable,id:string,select:string):Promise<SalesOrderDetailReadModel|null>{
   let result: QueryResult<ReadModelRow>;
   try {
-    result = await client.query<ReadModelRow>(`${READ_MODEL_SELECT} WHERE so.id = $1::uuid`, [id]);
+    result = await client.query<ReadModelRow>(`${select} WHERE so.id = $1::uuid`, [id]);
   } catch (error) {
     if ((error as { code?: string }).code === "22P02") return null;
     throw error;

@@ -77,3 +77,6 @@ commercial-terms-security 20项PASS：16种字段权限组合、单字段null/�
 商业主回归收口：confirmed-commercial-terms / commercial-read-surfaces / commercial-amount-exposure-audit 共19项一次性PG/API测试PASS；保留精度、权限、导出、审计回滚、来源/历史不变断言，合法报价确认改用Quote接口，旧Order接口只返回采用快照或拒绝写入。typecheck和三文件lint通过。完整test:postgres正在运行，结果尚未判定；日志outputs/gate2-postgres-tests.log。无真实数据库、账号或部署操作。
 
 已修复软删除报价仍可成为新采用候选的缺口（quote_not_available），既有快照不受影响；新增负向测试。test:order-commercial 29/29、typecheck、两文件lint PASS。完整PG回归仍运行，已发现冻结0001-4工具的读取模型与0014关联不兼容、DeliveryPlan等旧断言，需逐项处理，不能宣布全套PASS。
+
+兼容回归阶段：完整test:postgres初轮236/248，通过数量包含父测试，12失败已逐项定位。修复来源创建/刷新对0014认领表的读取耦合，抽出foundation只读投影，正式列表/详情仍使用完整认领投影；冻结0001-4首绑工具不扩大迁移范围。交付计划历史数据测试改为显式合成legacy种子，不复活已禁止的Order改价命令；迁移清单及权限数更新。定向兼容集初轮55/57（剩余旧schema刷新），修复后DeliveryPlan17/17、OrderIdentity15/15通过，类型/lint/Server构建通过。全PG第二轮正在运行，日志outputs/gate2-postgres-tests-rerun.log，尚不能宣布PASS。
+重要：此来源读取耦合来自Gate1；Gate1独立合并前必须同步修复及重跑精确门禁。其待交付SHA仍保持不动，不能将此前局部通过当作最终合并批准。没有真实数据库/账号/部署操作。

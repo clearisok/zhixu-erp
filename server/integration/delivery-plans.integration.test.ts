@@ -9,7 +9,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createApp } from '../app.js';
 import { discoverMigrations, runMigrations, verifyMigrationsCurrent } from '../db/migration-runner.js';
-import { updateConfirmedCommercialTermsBySalesOrder } from '../confirmed-commercial-terms/service.js';
 import { HttpError } from '../http/errors.js';
 import { startDisposablePostgres } from './postgres-container.js';
 import { synchronizePermissionCatalog } from '../auth/permissions.js';
@@ -154,7 +153,7 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
     const input = fixture();
     input.colors = [{ sourceLineIdentity: 'old-red', colorName: 'red', quantity: 100, deliveryDate: '2026-11-01', sourceHash: 'old-red-hash' }];
     const order=await create(input);const badActor={...actor,internalUserId:'999999999'};
-    await updateConfirmedCommercialTermsBySalesOrder(pool, actor, order.id, { expectedVersion: 0, customerConfirmedPrice: '1.000000000000000001', confirmedLaborPrice: '0', laborCurrency: 'CNY' });
+    await seedHistoricalTerms(pool,order.id,'1.000000000000000001');
     const before = await businessSnapshot(pool, true);
     const auditForeignKeyFailure = (error: unknown) => (error as { code: string }).code === '23503';
     await assert.rejects(()=>updateDeliveryPlans(pool,badActor,order.id,{expectedVersion:1,upserts:[{id:null,deliveryDate:'2026-12-01',quantity:'100'}],voidIds:[]}), auditForeignKeyFailure);
@@ -194,7 +193,7 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
       const legacyActor={...actor,internalUserId:u.id,userId:u.public_id};const input=fixture();
       input.colors = [{ sourceLineIdentity: 'upgrade-red', colorName: 'red', quantity: 40, deliveryDate: '2026-11-01', sourceHash: 'upgrade-red-hash' }, { sourceLineIdentity: 'upgrade-blue', colorName: 'blue', quantity: 60, deliveryDate: '2026-11-01', sourceHash: 'upgrade-blue-hash' }];
       const id=(await createAinuokeSalesOrder(old,legacyActor,input)).salesOrder.id;
-      await updateConfirmedCommercialTermsBySalesOrder(old, legacyActor, id, { expectedVersion: 0, customerConfirmedPrice: '9.000000000000000001', confirmedLaborPrice: '0', laborCurrency: 'CNY' });
+      await seedHistoricalTerms(old,id,'9.000000000000000001');
       const before = await businessSnapshot(old, false);
       const ledger = (await old.query('SELECT * FROM schema_migrations ORDER BY version')).rows;
       assert.equal(ledger.length, 8);
@@ -313,4 +312,10 @@ async function waitForBlockedTransaction(pool: pg.Pool, applicationName: string)
     await new Promise(resolve => setTimeout(resolve, 20));
   }
   throw new Error('Second writer did not reach the controlled database lock');
+}
+
+/** Synthetic pre-existing legacy evidence, never a runtime Order price writer. */
+async function seedHistoricalTerms(pool:pg.Pool,orderId:string,price:string){
+ const row=(await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,customer_confirmed_price,confirmed_labor_price,labor_currency) VALUES('sales_order',$1,0,'CNY') RETURNING id",[price])).rows[0];
+ await pool.query('INSERT INTO confirmed_commercial_terms_sales_orders(sales_order_id,confirmed_commercial_terms_id) VALUES($1,$2)',[orderId,row.id]);
 }
