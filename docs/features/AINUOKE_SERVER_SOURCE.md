@@ -116,4 +116,3 @@ PR103已按用户授权合并；新增独立`scripts/ainuoke-readonly-audit.ps1`
 2026-10-13 后续受保护报告显示目标四条来源行的 QtyUnit 候选均为“个”，三物料身份/采购归并与旧报告相同；业务语义尚未由 IT/用户确认，正式 Adapter/Projection 单位仍未映射。[脱敏证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-followup-2026-10-13.md)。不得据此改变 TotalNum、cgnum 或齐套计算。
 
 2026-10-14: [异常原因与隔离演示接入路径](../tasks/active/source-anomaly-followup-2026-10-14.md)新增只读行级证据分析；不改变单位、正式齐套或真实首绑授权。
-

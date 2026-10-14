@@ -127,4 +127,3 @@
 - `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
-
