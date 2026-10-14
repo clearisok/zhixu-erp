@@ -1,9 +1,11 @@
-# 当前接力：岗位UI精确证据收口通过，继续全G4复审与计划查漏
+# 当前接力：准备采用后台通过，继续证据绑定与现有UI
 
-2026-10-15；feat/order-effective-attribution，起点fe7f21d037a11bf880db5131df09e1692845c566/clean。GitHub API main064e3afaf7d08b3cb62907d4402f97d9c292f1e5不变，开放仅108；无push/新PR/合并部署，NETWORK_DEGRADED协议未删，G1 def98f恢复一次例外待回复。
+2026-10-15；feat/order-effective-attribution，起点3708d57c367b69e999da3de31dc544016a9c49f8/clean。GitHub API main064e3afaf7d08b3cb62907d4402f97d9c292f1e5不变，开放仅108；无push/新PR/合并/部署。NETWORK_DEGRADED规则未删，G1 def98f恢复一次例外待回复，不能代替批准。
 
-复用现有Foundation/订单中心，新增normalization-proposal-panel/review-dialog/evidence-summary与typed review-client，原caseDialog嵌入完整组方案，独立review入口fresh岗位cap。不自动选root；unknown禁止approve；签名历史keyset与金额说明投影；旧响应/权限变化清空，读取关闭Abort，未知写结果保留原请求防重。执行按钮未开放，真实Adapter/permit没有加载或配置。无新SQL/真实账号/DB/艾诺科读取。
+0023+preparation-source/adoption及新API，旧prepare五字段hash兼容，精确Quote意向不要求客户已确认、不读取价格。合同后owner/admin显式采用只补血统/current准备引用；CAS/actor-request/全局防环/原子审计/SQL alias+pause/fence。历史手工血统清current引用但receipt留存，不全球Quote/准备去重，不改变SO/数量/价格/Source/流水。新引用完整hash，旧proof不改或重签。另红测实际发现无consumed批次的processing标签仍通过commercial preview，identity读已与列表对齐为可信批次/来源三ID，未知不回填。
 
-client4/4、根824/824、完整type/lint及静态Server候选build通过；浏览器首轮9/9，扩展11项5PASS/6FAIL因截图/summary早于异步详情，未关窗cascade；精确等待+fixture finally恢复后11/11，包括七角色、历史23条分页、1920/1536 DPR1.25/1440/1280/900/390、权限/证据/未知/丢失响应/取消。详见active/order-normalization-review-ui.md。源码checkpoint e6bbf9869621ceb9708d2c723b1eb81773950773之后，精确buildId order-normalization-review-20261015-e6bbf986及client4/新browser11/旧UI14/完整类型与lint通过；六新PNG逐张检查，冻结报告d681c1ed754da0c247ae3ad7a3f420b58847af46。前向第24项能力与新PNG绑定后门禁PASS（10页/20项累计UI路径）、基线78/78。恢复入口active/evidence/normalization-review-ui/gate4-review-ui-results.md；原报告/PNG不覆写。
+新22/22，完整PG261/261、归属45/45、相关64/64、根824/824、旧认领/加工UI14/14、无缓存完整type/完整lint/Server compile与静态候选build通过。G4review21/execution30是本阶段较早候选结果，非最终身份修复后的重复全套，边界须如实。新增CI把G4保护/history/review/新模块接到Hosted Source，contents:read，无secret/deploy；只配置验证，非远端CI PASS。
 
-父后台a7c4879e、fe7门禁23cap/78保留；旧源码/PNG/hash不改。原G1/G2/G3及所有G4工作树保留。全G4与准备采纳/待分类hold/Quote清确认查漏/G5仍要继续，整个Goal未完成。旧接力见completed/2026-10-15-pre-review-ui-ai-handoff.md。
+新测试首轮语法await错误；21项18PASS/3FAIL含parent，空referenceOrderId误通过已修，数量115.50按原dscale保留；typed投影修正。追加identity红测22项20PASS/2FAIL含parent，Missing expected rejection，修后22全通过。新迁移清单固定期望漏0023导致G1/归属/PG失败，补精确文件与NULL无回填断言后最终15/45/261通过，不降低旧事实检查。
+
+下一步source/evidence checkpoint、D129前向决策/限定后台能力绑定、基线78；原D128/e6图像24cap全部保留。然后现有Foundation准备选择/Quote意向/采用UI，原准备Modal未知保存仍可关窗重开丢原request，必须一并补；新API不是完整前端交付。复杂模块features/ORDER_PREPARATION_ADOPTION.md，active/order-preparation-adoption.md。全G4复审/远端交付/G5与整个Goal仍未完成，真实Source/DB/账户/窗口/部署未授权扩大。旧接力completed/2026-10-15-pre-preparation-adoption-ai-handoff.md。

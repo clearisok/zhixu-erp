@@ -24,6 +24,8 @@ export const NORMALIZATION_REFERENCES = [
  ['sales_order_identity_profiles','sales_order_id','sales_order_id'],
  ['sales_order_identity_profiles','reference_order_id','sales_order_id'],
  ['sales_order_preparations','reference_order_id','id'],
+ ['sales_order_preparation_adoptions','sales_order_id','id'],
+ ['sales_order_preparation_adoptions','reference_order_id','id'],
  ['sales_order_commercial_versions','sales_order_id','id'],
  ['sales_order_commercial_heads','sales_order_id','sales_order_id'],
  ['processing_order_batches','reference_order_id','id'],

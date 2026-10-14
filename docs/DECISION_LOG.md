@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-129 翻单准备关联与合同后采用、可信加工身份读取
+
+- 日期2026-10-15；Active，落实D121已批准的准备、血统与商业独立规则；目前后端候选，未真实激活。
+- 0023前向新增拟报价精确上下文、不可变采用receipt和profile当前准备引用；没有SO创建、数量/交期、Source或价格写入，没有旧准备/类型回填。未确认Quote可作意向，后续金额必须独立显式采用。手工血统修订清当前准备指向，旧采用历史不删。
+- 工程选择：准备是参考意向、不是客户下单批次。不同可信合同SO可显式参考同一准备/Quote，不做全局去重；同SO当前重复采用及请求重试有独立处理，仍保持一可信合同一有效SO。
+- owner/CAS/fresh角色/血统锁、防环与原子审计复用；新引用进入归一逐行hash及普通SQLfence/alias/pause保护。旧proof不自动改hash或重签。当前报价上下文失效只显示提示，不静默覆盖实际价格。
+- 实际红测发现processing标签无合法消费也能通过商业preview，identity facade现与列表同用可信consumed批次/精确来源语义；历史未证实类型保持unclassified且原字段/价格保留。不是把DeliveryPlan冒称生产模块或自动历史修复。
+- Source CI补上有效归属/受控执行/暂停/历史来源/复核及准备采用测试；权限contents:read、Hosted合成测试、无部署/凭据入口不变。具体代码server/sales-orders/preparation-adoption.ts、preparation-source.ts、identity-service.ts与0023；回归order-preparation-adoption.integration.test.ts。UI与远端交付另行收口。
+
 ### D-128 Gate4 发布复核方案、当前权限与相关血统指纹
 
 - 日期2026-10-15；Active，落实D121已批准独立复核/历史保护，不改变正式创建路径、数量、货币或实际操作授权。

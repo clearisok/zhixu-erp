@@ -19,3 +19,6 @@ POST /api/v1/order-preparations：精确字段requestId/referenceOrderId/quantit
 更新时机：规则、API/schema、测试结果或发布状态变化时；GitHub精确commit/PR证据与本地工程分开记录。
 
 完整结果与限制见[Gate1证据](../tasks/active/evidence/order-identity/gate1-results.md)。
+
+
+2026-10-15后续后台：合同后采用准备/拟报价上下文已按D129/0023补齐，原创建历史/数量/价格/流水不改，手工血统编辑清当前准备引用并保留receipt。identity processing类型现在与列表一样核验合法批次消费及来源三ID，无证实标签为unclassified，不自动分类或回填。新API/权限/迁移/验收与UI剩余见[准备采用](ORDER_PREPARATION_ADOPTION.md)。上述G1阶段边界/日期证据不当作当前完整分支状态。

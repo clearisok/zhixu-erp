@@ -41,11 +41,11 @@ test('SQL fences preserve historical facts and reject unaware writers on synthet
  const legacyRun=await run(null),otherLegacy=await run(null);await snapshot(legacyRun,a,null);
  await pool.query("UPDATE ainuoke_source_profiles SET latest_run_id=$1 WHERE source_key='sql-guard'",[legacyRun]);
  const historyTables=['sales_orders','sales_order_source_links','sales_order_delivery_plan_sets','sales_order_delivery_plans','sales_order_identity_profiles','sales_order_commercial_versions','sales_order_commercial_heads','confirmed_commercial_terms_sales_orders','ainuoke_source_runs','ainuoke_material_source_snapshots'];
- const historical=async()=>Promise.all(historyTables.map(async table=>(await pool.query("SELECT (to_jsonb(x)-ARRAY['order_scope','source_link_id','captured_order_version']) AS row FROM "+table+' x ORDER BY to_jsonb(x)::text')).rows));
+ const historical=async()=>Promise.all(historyTables.map(async table=>(await pool.query("SELECT (to_jsonb(x)-ARRAY['order_scope','source_link_id','captured_order_version','preparation_id']) AS row FROM "+table+' x ORDER BY to_jsonb(x)::text')).rows));
  const before=await historical();
  await t.test('forward upgrade preserves all existing rows including nullable old Source history',async()=>{
-  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0020_order_attribution_write_guards.sql','0021_order_command_control.sql','0022_source_history_context.sql']);
-  assert.deepEqual(await historical(),before);assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
+  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0020_order_attribution_write_guards.sql','0021_order_command_control.sql','0022_source_history_context.sql','0023_order_preparation_adoption.sql']);
+  assert.deepEqual(await historical(),before);assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_identity_profiles WHERE preparation_id IS NOT NULL')).rows[0].n,0);assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
  });
  const makeCase=async(ids:string[])=>{const pair=[...ids].sort();const existing=(await pool.query('SELECT id FROM sales_order_normalization_cases WHERE first_order_id=$1 AND second_order_id=$2',pair)).rows[0];if(existing)return existing.id as string;
   const id=(await pool.query('INSERT INTO sales_order_normalization_cases(first_order_id,second_order_id,created_by,request_id,payload_hash) VALUES($1,$2,$3,$4,$5) RETURNING id',[...pair,actor,randomUUID(),'b'.repeat(64)])).rows[0].id;

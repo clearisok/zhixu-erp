@@ -30,3 +30,10 @@ Server SO, commercial adoption and attribution commands, with immutable transiti
 history. Ordinary-DML guards hold a shared control-row lock through COMMIT; a pause
 waits for in-flight commands. No HTTP mutator or real activation is authorized.
 Existing reads, preparations and bound Source refresh remain separate capabilities.
+
+`0023_order_preparation_adoption.sql` adds immutable proposed Quote identities and
+preparation adoption receipts plus an optional current preparation reference.
+It does not create/backfill orders, profiles, quantities, prices or accounts.
+Ordinary insert/reference fences, effective-owner and pause gates integrate with
+normalization; old proof hashes are not rewritten. Synthetic PG validation only;
+real activation and old binary compatibility remain separately gated.

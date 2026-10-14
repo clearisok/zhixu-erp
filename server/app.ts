@@ -1,3 +1,4 @@
+import {adoptOrderPreparation,listPreparationCandidates,readPreparationAdoptions,readPreparationAdoptionReceipt,parsePreparationCandidateQuery} from './sales-orders/preparation-adoption.js';
 import {readNormalizationReviewCapabilities,listNormalizationReviewInbox,parseReviewInboxQuery,readNormalizationProposalContext,readPublishedNormalizationProposal,listNormalizationReviewHistory,parseReviewHistoryQuery} from './sales-orders/normalization-review-workspace.js';
 import {parseMaterialHistoryQuery,type MaterialHistoryReader} from './ainuoke-source/history.js';
 import {parseOrderCommandMode,assertOrderCommandsAvailable,readOrderCommandState,orderCommandControlError,type OrderCommandMode} from './sales-orders/command-control.js';
@@ -747,6 +748,24 @@ async function route(
       sendJson(response,200,{adopted:projectOrderCommercialVersion(identity,result.adopted),replayed:result.replayed});
     }
     return;
+  }
+
+  const preparationMatch=/^\/api\/v1\/sales-orders\/([^/]+)\/(preparation-candidates|preparation-adoptions)$/.exec(path);
+  const preparationReceipt=/^\/api\/v1\/order-preparation-adoption-receipts\/([^/]+)$/.exec(path);
+  if(preparationMatch||preparationReceipt){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'preparation_requires_session_authority','Trusted session authority required');
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    const params=new URL(request.url??'/','http://local').searchParams;response.setHeader('Cache-Control','no-store');
+    if(preparationReceipt){if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');if(params.size)throw new HttpError(400,'invalid_preparation_adoption_query','No selectors accepted');sendJson(response,200,await readPreparationAdoptionReceipt(dependencies.pool,identity,preparationReceipt[1]));}
+    else if(preparationMatch![2]==='preparation-candidates'){if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');sendJson(response,200,await listPreparationCandidates(dependencies.pool,identity,preparationMatch![1],parsePreparationCandidateQuery(params)));}
+    else if(request.method==='GET'){
+      if([...params.keys()].some(k=>k!=='offset'||params.getAll(k).length!==1)||!/^\d{1,6}$/.test(params.get('offset')??'0'))throw new HttpError(400,'invalid_preparation_adoption_query','Invalid history query');
+      sendJson(response,200,await readPreparationAdoptions(dependencies.pool,identity,preparationMatch![1],Number(params.get('offset')??0)));
+    }else if(request.method==='POST'){
+      if(params.size)throw new HttpError(400,'invalid_preparation_adoption_query','No selectors accepted');assertMutationBoundary(request,dependencies.allowedOrigins);
+      await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);
+      sendJson(response,200,await adoptOrderPreparation(dependencies.pool,identity,preparationMatch![1],await readJsonBody(request,8192)));
+    }else throw new HttpError(405,'method_not_allowed','Method not allowed');return;
   }
 
   const identityMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/identity$/.exec(path);
