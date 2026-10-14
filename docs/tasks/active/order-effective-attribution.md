@@ -142,3 +142,19 @@ Source runs/material snapshots不可UPDATE/DELETE。新run必须含order_scope_h
 工程checkpoint24a983418f346c2651e34385ddf7a948af01e012保留。冻结18项控制/回退与分维度限制，新独立order-command-control能力只描述本地暂停而非整个Gate4。D126决策以前向supersedes链绑定，旧ID/hash/截图/状态均保留；最终门禁另行核实。
 
 前向D126/第20项限定能力绑定后源码门禁PASS，基线回归78/78明确exit0。2026-10-15只读git-delivery-diagnose：default/http1.1/openssl_http1.1读取均exit0，main64一致；configurationChanged=false、pushSubmitted=false。原网络根因仍未查明，读取成功不是push可靠性证明。Gate1分支/HEAD def98f275c2ef61712008891ab1c60d308981bb7、clean及main祖先再次核实；已向用户请求一次恢复交付例外，未得到答复前不执行恢复push。后续本地阶段可独立继续。
+
+
+## 2026-10-15 历史Source上下文与原目标只读阶段
+
+起点b497578752472decffba0b44f6404b4f5cf41f6a，工作树干净；所有当前增量为本阶段所有。继续原分支，不重建/重置/删除历史工作树。GitHub只读API再次核实main64不变、开放仅108。普通沙箱请求被网络访问权限拒绝，经授权只读通道核实成功；这不是push通道恢复证明，恢复push仍等待此前一次例外授权。
+
+0022、新capture scope/link/order version、当前reader校验和独立history API已实现。新run记录完整目标，旧NULL不回填；相同旧payload升级后发布一次可信context再重放。原source binding/mirror的DELETE/身份改写保护补齐。历史read按原捕获目标，当前归属仅导航；数量/事件保留，不合计旧单或声称当年/当前齐套。
+
+17项定向、45项归属、15身份、20Source+1skip、43持续+1skip已明确通过。无缓存类型/定向lint、根824/824、完整lint及Server编译通过；完整PG最终结果另在冻结证据收口。数据库均为一次性合成PG，未读取任何真实凭据或艾诺科、未真实账号/DB/来源配置/部署。
+
+失败实录：首轮历史16项13PASS/3FAIL因合成采购单价只改未采购首行，与实际DTO事件不符；修正所有来源行并增加旧payload升级验证后17/17。首轮归属45项43PASS/2FAIL把新增NULL列误判成改旧数据，改为逐项比较原有事实并在历史专用测试显式核对NULL后通过；随后比较SQL的TS引号错误导致30PASS/1文件解析失败，修正引号后45/45。没有放宽Source/单位/身份/权限保护。
+
+历史浏览器入口、历史状态/案件选单、生产财务复核/默认关闭执行及完整G4仍待独立阶段；全计划准备采纳/类型hold/规格修订与G5不被缩小或声称完成。
+
+
+最终完整PG261/261明确exit0。为证明不返回raw私密内容，合成来源行加入unmappedPrivateAnnotation哨兵后重跑历史17/17，未读取真实数据。基线先因D127当前决策blob漂移阻断；源码/冻结证据checkpoint后前向绑定并重跑，不篡改旧证据或图片。

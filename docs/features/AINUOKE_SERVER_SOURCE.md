@@ -122,3 +122,8 @@ PR103已按用户授权合并；新增独立`scripts/ainuoke-readonly-audit.ps1`
 
 
 2026-10-15 后续消费者已补Source接纳/重试：可信原sourceOwner校验与有效SO返回分开，不能用当前根ID替代不可变绑定校验。首次绑定只接受原scope+回执完全相同，以及已有明确归属组内的额外成员；无关SO仍阻断。受控新增与capture使用相同归属锁次序，5秒等待上限；旧owner来源镜像观察保留，历史别名交付计划不再追随来源日期。联合37项及持续43+skip1已合成验证；没有真实接纳或调度扩大。
+
+
+### 2026-10-15 历史来源查询的后续本地事实
+
+0022及独立material-history只读API记录新采集scope/link/order version，并按原捕获SO保存/查询历史；当前root不会吸收或合计旧SO快照。旧NULL保持未知，采集时Discovery决定历史款号/InsideOrderNo。历史数据不作当前或当年齐套判断，权限/fixed profile/哈希/分页/字节校验保持；当前reader也校验新上下文。绑定/mirror已知合同身份不可DELETE/改写，非身份观察和颜色切片仍可刷新。没有真实迁移、来源读取、绑定、激活或部署；浏览器历史UI及整个G4待后续。详细API/限制/证据见[历史来源模块](ORDER_SOURCE_HISTORY.md)。

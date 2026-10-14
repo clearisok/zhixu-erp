@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-127 Gate4 历史来源原身份与采集上下文
+
+- 日期2026-10-15；Active；落实D121已批准的原身份、来源绑定及历史流水保护，不改变单位/数量/创建路径或真实操作授权。
+- 历史material快照按原sales_order_id/run_id查询，不自动改向当前root或相加；提供当前归属仅供导航。历史投影保留数量/事件，但不作当年或当前齐套判断。
+- 未发布0022为新采集保存完整scope/source_link/order version；旧NULL上下文保持未知、不用当前事实回填。已知来源合同绑定/镜像身份不可删除重写，当前非身份观察仍可更新。
+- Server session/fresh权限、固定profile及readonly事务、字节/分页/hash/epoch/合同身份校验；默认未接通关闭，不网络取数/接触凭据或CCT，不扩大真实Source范围。
+- 代码证据0022、server/ainuoke-source/history.ts及service/reader/app/index；17项定向/45项归属合成回归。[模块边界](features/ORDER_SOURCE_HISTORY.md)。浏览器历史UI/整个G4及真实验收仍待，不能把本阶段当作完成归一上线。
+
+
 ### D-126 Gate4 新命令暂停与兼容回退
 
 - 日期2026-10-15；Active，落实D121已批准回退边界，不扩大真实写入授权。

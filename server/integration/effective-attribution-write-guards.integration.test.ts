@@ -7,6 +7,8 @@ import {resolve,join,relative,isAbsolute} from 'node:path';
 import pg from 'pg';
 import type {PoolClient} from 'pg';
 import {startDisposablePostgres} from './postgres-container.js';
+import {supportsMaterialCaptureContext,boundOrders} from '../ainuoke-source/service.js';
+import {hash} from '../ainuoke-source/contract.js';
 import {runMigrations} from '../db/migration-runner.js';
 import {createSalesOrder} from '../sales-orders/repository.js';
 import {writeAttributionHeadInTransaction,resolveEffectiveOrder} from '../sales-orders/effective-attribution.js';
@@ -34,15 +36,15 @@ test('SQL fences preserve historical facts and reject unaware writers on synthet
  const terms=(await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope) VALUES('sales_order') RETURNING id")).rows[0].id;
  await pool.query('INSERT INTO confirmed_commercial_terms_sales_orders(sales_order_id,confirmed_commercial_terms_id) VALUES($1,$2)',[a,terms]);
  await pool.query("INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES('sql-guard',$1)",['a'.repeat(64)]);
- const run=async(scope:string|null)=>{const id=randomUUID();await pool.query("INSERT INTO ainuoke_source_runs(id,source_key,actor_user_id,captured_at,discovery,discovery_hash,content_hash,order_scope_hash) VALUES($1,'sql-guard',$2,now(),'[]',$3,$3,$4)",[id,actor,'a'.repeat(64),scope]);return id;};
- const snapshot=(runId:string,orderId:string,epoch:string|null,contract='SYN-GUARD')=>pool.query("INSERT INTO ainuoke_material_source_snapshots(run_id,sales_order_id,sales_contract_no,snapshots,content_hash,attribution_change_id) VALUES($1,$2,$3,'[]',$4,$5)",[runId,orderId,contract,'a'.repeat(64),epoch]);
+ const run=async(scope:string|null)=>{const id=randomUUID(),context=await supportsMaterialCaptureContext(pool),targets=context?await boundOrders(pool):null;await pool.query(`INSERT INTO ainuoke_source_runs(id,source_key,actor_user_id,captured_at,discovery,discovery_hash,content_hash,order_scope_hash${context?',order_scope':''}) VALUES($1,'sql-guard',$2,now(),'[]',$3,$3,$4${context?',$5::jsonb':''})`,[id,actor,'a'.repeat(64),scope===null?null:targets?hash(targets):scope,...(context?[JSON.stringify(targets)]:[])]);return id;};
+ const snapshot=async(runId:string,orderId:string,epoch:string|null,contract='SYN-GUARD')=>{const context=await supportsMaterialCaptureContext(pool),link=context?(await pool.query('SELECT id::text FROM sales_order_source_links WHERE sales_contract_no=$1',[contract])).rows[0]?.id:null,version=context?(await pool.query('SELECT version FROM sales_orders WHERE id=$1',[orderId])).rows[0]?.version:null;return pool.query(`INSERT INTO ainuoke_material_source_snapshots(run_id,sales_order_id,sales_contract_no,snapshots,content_hash,attribution_change_id${context?',source_link_id,captured_order_version':''}) VALUES($1,$2,$3,'[]',$4,$5${context?',$6,$7':''})`,[runId,orderId,contract,'a'.repeat(64),epoch,...(context?[link??null,version??null]:[])]);};
  const legacyRun=await run(null),otherLegacy=await run(null);await snapshot(legacyRun,a,null);
  await pool.query("UPDATE ainuoke_source_profiles SET latest_run_id=$1 WHERE source_key='sql-guard'",[legacyRun]);
  const historyTables=['sales_orders','sales_order_source_links','sales_order_delivery_plan_sets','sales_order_delivery_plans','sales_order_identity_profiles','sales_order_commercial_versions','sales_order_commercial_heads','confirmed_commercial_terms_sales_orders','ainuoke_source_runs','ainuoke_material_source_snapshots'];
- const historical=async()=>Promise.all(historyTables.map(async table=>(await pool.query('SELECT to_jsonb(x) AS row FROM '+table+' x ORDER BY to_jsonb(x)::text')).rows));
+ const historical=async()=>Promise.all(historyTables.map(async table=>(await pool.query("SELECT (to_jsonb(x)-ARRAY['order_scope','source_link_id','captured_order_version']) AS row FROM "+table+' x ORDER BY to_jsonb(x)::text')).rows));
  const before=await historical();
  await t.test('forward upgrade preserves all existing rows including nullable old Source history',async()=>{
-  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0020_order_attribution_write_guards.sql','0021_order_command_control.sql']);
+  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0020_order_attribution_write_guards.sql','0021_order_command_control.sql','0022_source_history_context.sql']);
   assert.deepEqual(await historical(),before);assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
  });
  const makeCase=async(ids:string[])=>{const pair=[...ids].sort();const existing=(await pool.query('SELECT id FROM sales_order_normalization_cases WHERE first_order_id=$1 AND second_order_id=$2',pair)).rows[0];if(existing)return existing.id as string;

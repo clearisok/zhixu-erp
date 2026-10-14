@@ -1,3 +1,4 @@
+import {parseMaterialHistoryQuery,type MaterialHistoryReader} from './ainuoke-source/history.js';
 import {parseOrderCommandMode,assertOrderCommandsAvailable,readOrderCommandState,orderCommandControlError,type OrderCommandMode} from './sales-orders/command-control.js';
 import {previewAttributionExecution,recordAttributionReview,executeAttributionChange,readAttributionExecutionReceipt,readAttributionReviewSummary,type NormalizationExecutionOptions} from './sales-orders/normalization-execution-service.js';
 import { openNormalizationCase, appendNormalizationCaseEvent, readNormalizationCase, listNormalizationCases, parseNormalizationCaseQuery } from "./sales-orders/normalization-case-service.js";
@@ -64,10 +65,11 @@ export type AppDependencies = {
   identityAuthority?: IdentityAuthority;
   attachmentStorage?: AttachmentStorage;
   orderMaterialRead?: MaterialReadPorts;
+  orderMaterialHistory?: MaterialHistoryReader;
   normalizationExecution?: NormalizationExecutionOptions;
   orderCommandMode?: OrderCommandMode;
 };
-type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "normalizationExecution">;
+type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "normalizationExecution">;
 
 const defaultLogger: ServerLogger = {
   error(event) {
@@ -413,6 +415,18 @@ async function route(
       });
       sendJson(response, 201, { quote });
     } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
+
+  const materialHistoryMatch=/^\/api\/v1\/sales-orders\/([^/]+)\/material-history(?:\/([^/]+))?$/.exec(path);
+  if(materialHistoryMatch){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'material_history_requires_session','Trusted session authority required');
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    if(!dependencies.orderMaterialHistory)throw new HttpError(503,'material_history_not_connected','Historical material reader is not connected');
+    const query=new URL(request.url??'/','http://local').searchParams;response.setHeader('Cache-Control','no-store');
+    if(materialHistoryMatch[2]){if(query.size)throw new HttpError(400,'invalid_material_history_query','Query selectors not accepted');sendJson(response,200,await dependencies.orderMaterialHistory.read(identity,materialHistoryMatch[1],materialHistoryMatch[2]));}
+    else sendJson(response,200,await dependencies.orderMaterialHistory.list(identity,materialHistoryMatch[1],parseMaterialHistoryQuery(query)));
     return;
   }
 

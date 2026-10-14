@@ -1,3 +1,4 @@
+import {createPersistedMaterialHistoryReader} from './ainuoke-source/history.js';
 import { createPersistedMaterialPorts, sourceReadConfig } from "./ainuoke-source/reader.js";
 import { createServer } from "node:http";
 import { createApp } from "./app.js";
@@ -65,6 +66,7 @@ try {
         orderCommandMode: config.orderCommandMode,
         attachmentStorage,
         orderMaterialRead: materialSourceConfig ? createPersistedMaterialPorts(pool, materialSourceConfig) : undefined,
+        orderMaterialHistory: materialSourceConfig ? createPersistedMaterialHistoryReader(pool, materialSourceConfig) : undefined,
       }));
       await new Promise<void>((resolve, reject) => {
         const onError = (error: Error) => reject(error);

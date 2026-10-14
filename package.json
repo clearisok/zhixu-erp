@@ -76,7 +76,8 @@
     "test:order-normalization-ui": "tsx --test server/integration/normalization-case-ui.integration.test.mjs",
     "test:order-normalization": "tsx --test --test-concurrency=1 server/sales-orders/normalization-assessment.test.ts server/integration/normalization-preview.integration.test.ts server/integration/normalization-case-schema.integration.test.ts server/integration/normalization-case-service.integration.test.ts",
     "test:processing-batches-ui": "tsx --test server/integration/processing-batch-ui.integration.test.mjs",
-    "test:order-command-control": "tsx --test --test-concurrency=1 server/integration/order-command-control.test.ts server/integration/order-command-control.integration.test.ts server/integration/order-command-rollback.integration.test.ts"
+    "test:order-command-control": "tsx --test --test-concurrency=1 server/integration/order-command-control.test.ts server/integration/order-command-control.integration.test.ts server/integration/order-command-rollback.integration.test.ts",
+    "test:material-history": "tsx --test --test-concurrency=1 server/integration/material-history.integration.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",
