@@ -133,3 +133,5 @@ npm run source:ainuoke -- --bind-selected=<source-key> --contracts=<same-BillNo,
 预览只读、写入独立确认；完整Discovery与所选颜色来自既有固定worker，最多25单。原全量bind仍要求全量颜色。所选首绑hash不与新增合同/全量预览互通。重试逐字段核对已存镜像，不能借重试新增订单或修复被改动的账本。execute只刷新已绑定物料；schedule不随绑定自动运行。真实执行尚未授权/运行。[本轮证据、目标与回退](../tasks/active/ainuoke-selected-first-binding-2026-10-14.md)。
 
 2026-10-14用户明确批准后，四单已在全新本机隔离目标首绑并执行2轮真实采集；现有页面读取真实快照，长期scheduler未开，原环境未变。工程/运行/人工验收分别记录，详见[实机证据](../tasks/active/ainuoke-isolated-live-results-2026-10-14.md)。
+
+2026-10-14用户授权既有隔离四单10分钟/2小时的有限刷新；独立window入口最多12次、固定结束时间、失败停止，不更改正式默认scheduler。运行状态见[窗口证据](../tasks/active/ainuoke-bounded-window-2026-10-14.md)。
