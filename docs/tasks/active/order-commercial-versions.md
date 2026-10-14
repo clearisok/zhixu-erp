@@ -82,3 +82,5 @@ commercial-terms-security 20项PASS：16种字段权限组合、单字段null/�
 重要：此来源读取耦合来自Gate1；Gate1独立合并前必须同步修复及重跑精确门禁。其待交付SHA仍保持不动，不能将此前局部通过当作最终合并批准。没有真实数据库/账号/部署操作。
 
 全PG第二轮已完成：261/261 PASS，耗时200717ms；初轮失败修复后子测试恢复执行，故总项增加。日志outputs/gate2-postgres-tests-rerun.log；基线回归71/71 PASS。不含真实环境验证或远端CI。新增独立商业feature、D-122和精确UI影响记录，历史接力及CURRENT_STATE先归档再更新。
+
+最终Server候选重新构建PASS，采用界面Chromium4/4 PASS；Source CI追加两项G2命令，尚无远端CI结果。Gate1独立补修def98f275c2ef61712008891ab1c60d308981bb7已提交；G2精确门禁仍待冻结决策证据依赖整合，不覆盖旧D121证据。

@@ -9,3 +9,6 @@
 下一步收精确基线、最终构建/浏览器及复审，更新冻结能力证据。Gate1来源兼容缺陷也需补回独立分支；其待交付SHA不要未经核对就改，原局部门禁不代表当前建议合并。G3加工批次还没开始，不能以Gate2代替总目标完成。
 
 NETWORK_DEGRADED；Gate1普通PowerShell交付回执尚未返回，不重复推送。G2无PR/CI/远端精确送达结论。node_modules为既有共享依赖junction，不删除目标。测试只用随机tmpfs合成容器。
+
+2026-10-14后续：Gate1旧交付回执pushes=0，已完成兼容补修独立commit def98f275c2ef61712008891ab1c60d308981bb7，工作树clean；G1仍待精确新HEAD门禁/交付。G2最新Server构建与浏览器4/4PASS，CI配置加入test:order-commercial和test:order-commercial-ui，远端未运行。
+精确G2门禁现在仅EVIDENCE_WORKTREE_DRIFT decisions-order-identity-g1：D122追加后需前向冻结证据并按依赖基线整合，不准覆盖旧证据。整体替换DECISION_LOG为旧blob曾被自动审批拒绝（可能丢失后续记录）；该操作未执行，D122保持。当前可安全继续冻结证据/复审，禁止用回退历史方式消除门禁。G1补修尚未合入本分支，但代码修复已在1a78c47，后续整合须保护双方文档和测试增量。
