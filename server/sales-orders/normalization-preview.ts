@@ -52,14 +52,16 @@ export async function collectNormalizationEvidenceInTransaction(client:PoolClien
     const rows=(await client.query(`SELECT ${key}::text AS id,count(*) OVER()::text AS total FROM ${table} WHERE ${column}=$1 ORDER BY ${key} LIMIT 100`,[id])).rows as {id:string;total:string}[];
     inventory.push({relation:table,column,count:rows[0]?.total??'0',sampleIds:rows.map(row=>row.id),truncated:BigInt(rows[0]?.total??'0')>BigInt(100)});
    }
+   const contractFacts=(await client.query('SELECT source_id,source_row_identity,sales_contract_no,inside_order_no,style_no,customer_name_snapshot,brand_name_snapshot,quantity::text,contract_delivery_date::text,lifecycle_status_raw,source_hash,fetched_at FROM ainuoke_sales_order_contract_mirrors WHERE sales_order_id=$1',[id])).rows[0]??null;
+   const sourceIdentities=(await client.query('SELECT id::text,source_system,source_entity_type,external_id,sales_contract_no,inside_order_no FROM sales_order_source_links WHERE sales_order_id=$1 ORDER BY id LIMIT 100',[id])).rows;
    const trusted=(await client.query(`SELECT 1 FROM sales_order_source_links l JOIN ainuoke_sales_order_contract_mirrors m ON m.sales_order_id=l.sales_order_id AND m.source_id=l.external_id AND m.sales_contract_no=l.sales_contract_no WHERE l.sales_order_id=$1 AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract'`,[id])).rowCount===1;
    const batch=(await client.query('SELECT batch_id::text FROM processing_order_batch_consumptions WHERE sales_order_id=$1',[id])).rows[0];
    const count=(relation:string)=>{const n=Number(inventory.find(row=>row.relation===relation)?.count??0);if(!Number.isSafeInteger(n)) throw new Error('Reference count exceeds safe range');return n;};
    const evidence:NormalizationOrderEvidence={id:order.id,trustedContract:order.creation_source==='ainuoke'&&trusted,processingBatchId:batch?.batch_id??null,lifecycle:order.lifecycle_state,sourceSnapshots:count('ainuoke_material_source_snapshots'),deliveryPlans:count('sales_order_delivery_plans'),commercialVersions:count('sales_order_commercial_versions'),execution:{coverage:'unavailable',count:null},financialLocks:{coverage:'unavailable',count:null},unknownReferences};
-   orders.push({order,inventory,evidence});
+   orders.push({order,contractFacts,sourceIdentities,inventory,evidence});
   }
   const assessment=assessNormalizationPair(orders[0].evidence,orders[1].evidence);
-  const content={schemaVersion:'order-normalization-preview.v1',orders,unknownReferences,assessment,coverage:'server-declared-references-only',externalExecutionCoverage:'not-verified',hashScope:'identity-counts-first-100-reference-ids-not-execution-token'};
+  const content={schemaVersion:'order-normalization-preview.v2',orders,unknownReferences,assessment,coverage:'server-declared-references-only',externalExecutionCoverage:'not-verified',hashScope:'order-contract-facts-counts-first-100-reference-ids-not-execution-token'};
   const reviewHash=createHash('sha256').update(JSON.stringify(content)).digest('hex');
   return {...content,capturedAt,reviewHash};
 }

@@ -67,6 +67,15 @@ test('normalization preview reads only synthetic disposable database', {timeout:
    await pool.query("INSERT INTO app_user_roles(user_id,role_id) VALUES($1,'role-server-admin')",[user.id]);
   } finally {await new Promise<void>((done,reject)=>server.close(error=>error?reject(error):done()));}
  });
+ await t.test('contract comparison preserves exact source facts and omits raw metadata or commercial amounts',async()=>{
+  const contract=await createSalesOrder(pool,{creationSource:'ainuoke'});
+  await pool.query("INSERT INTO sales_order_source_links(sales_order_id,source_system,source_entity_type,external_id,sales_contract_no,inside_order_no) VALUES($1,'ainuoke','sales_contract','synthetic-source-id','SYN-CONTRACT-01','SYN-FACTORY-01')",[contract.id]);
+  await pool.query(`INSERT INTO ainuoke_sales_order_contract_mirrors(sales_order_id,source_id,source_row_identity,sales_contract_no,inside_order_no,style_no,customer_name_snapshot,quantity,source_hash,fetched_at,source_metadata) VALUES($1,'synthetic-source-id','synthetic-source-row','SYN-CONTRACT-01','SYN-FACTORY-01','SYN-BUSINESS-01','Synthetic Customer',10.25,'synthetic-hash',now(),$2)`,[contract.id,JSON.stringify({protectedInternalPrice:'do-not-expose-synthetic-value'})]);
+  const preview=await previewOrderNormalization(pool,actor,[contract.id,b.id]);
+  assert.equal(preview.orders[0].contractFacts.sales_contract_no,'SYN-CONTRACT-01');assert.equal(preview.orders[0].contractFacts.style_no,'SYN-BUSINESS-01');assert.equal(preview.orders[0].contractFacts.inside_order_no,'SYN-FACTORY-01');assert.equal(preview.orders[0].contractFacts.quantity,'10.25');assert.equal(preview.orders[0].evidence.trustedContract,true);
+  assert.equal(JSON.stringify(preview).includes('do-not-expose-synthetic-value'),false);
+  const previous=preview.reviewHash;await pool.query("UPDATE ainuoke_sales_order_contract_mirrors SET style_no='SYN-BUSINESS-02' WHERE sales_order_id=$1",[contract.id]);assert.notEqual((await previewOrderNormalization(pool,actor,[contract.id,b.id])).reviewHash,previous);
+ });
  await t.test('fresh permission revocation overrides actor grants',async()=>{
   await pool.query("DELETE FROM app_role_permissions WHERE role_id='role-server-admin' AND permission_key='order.view'");
   await assert.rejects(()=>previewOrderNormalization(pool,actor,[a.id,b.id]));

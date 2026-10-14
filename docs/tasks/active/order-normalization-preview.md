@@ -81,3 +81,5 @@ POST /api/v1/order-normalization-preview 仅接受 {orderIds:[uuid,uuid]}，不�
 发布门禁首次FAIL：D124前向新增后当前DECISION_LOG与decisions-processing-g3旧冻结文本不同，命中EVIDENCE_WORKTREE_DRIFT；完整源码及基线测试中的相同漂移断言失败，不是业务测试故障。新增decisions-order-normalization-g4指向4bcd1bad的Git blob并supersedes旧ID，未覆盖任何旧hash/文档/截图。继续复验。
 
 失败复验补充：完整PG首次238/243通过、5失败计数（包含父fixture），均为精确迁移列表缺0017。更新CCT/Quote/PG/身份四处显式列表后，相关完整子测试50/50通过，未改业务断言或发布SQL。前向决策证据修复后，完整源码824/824、基线78/78通过。完整PG及最终UI并发冲突负向场景继续复验；UI当前源码保留normalization_concurrency_conflict下未知原请求，避免误发新记录。
+
+可用性复审补充：预览v2加入已持久化合同号/业务款号/工厂款号/客户/数量/交期/来源状态及来源ID/hash/读取时间，不含source_metadata、原始报文或商业价格。摘要覆盖这些新增合同事实，仍不是执行token；旧v1案件缺新字段时继续展示原引用证据，不填造新事实。新增合成回归证明合同身份精确、原始metadata不泄露、仅业务款号变化也改变摘要；定向37/37通过。最终完整PG261/261已通过（合同事实补充前；新只读字段另有37定向），源码824/基线78及全lint/类型/Server构建已通过。补充后的精确UI构建与浏览器继续收口。

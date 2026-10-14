@@ -18,12 +18,12 @@ POST /api/v1/order-normalization-preview只读有限引用，POST/GET /api/v1/or
 
 ## 证据范围与限制
 
-RR事务中枚举已知Server外键及固定表引用，返回准确计数和每类前100稳定ID、truncated。Server的Source快照、交付计划和商业版本不证明生产执行。直接FK catalog不覆盖间接关系、JSON、Browser或其他环境；新增未知FK保守显示未归类。生产/财务覆盖目前unavailable/null，预览assessment为coverage_incomplete。
+RR事务中枚举已知Server外键及固定表引用，返回准确计数和每类前100稳定ID、truncated，并独立保存有限的来源合同身份与基本业务事实；不读取原始metadata或商业金额。预览v2兼容展示历史v1记录，新字段缺失时不补造。Server的Source快照、交付计划和商业版本不证明生产执行。直接FK catalog不覆盖间接关系、JSON、Browser或其他环境；新增未知FK保守显示未归类。生产/财务覆盖目前unavailable/null，预览assessment为coverage_incomplete。
 
-reviewHash覆盖返回的有限身份/计数/ID，明确hashScope，不涵盖全部行内容和截断尾部，也不是执行令牌。案件快照是当时的观察；后续变动通过新事件记录，不改旧快照。未来执行必须有完整引用/版本指纹、有效归属所有消费者的统一解析、生产/财务审批及备份/纠正方案。
+reviewHash覆盖返回的有限订单/合同事实及引用计数/ID，明确hashScope，不涵盖全部行内容和截断尾部，也不是执行令牌。案件快照是当时的观察；后续变动通过新事件记录，不改旧快照。未来执行必须有完整引用/版本指纹、有效归属所有消费者的统一解析、生产/财务审批及备份/纠正方案。
 
 ## 验收与下一步
 
-定向服务/schema/HTTP/纯评估36/36、浏览器5/5、类型/定向lint/显式构建通过，本机1440/390截图查看。完整源码/PG/发布检查及精确证据冻结待本Gate收口。远端交付、合并、部署、真实迁移、人工验收均未完成。具体失败与修复时点见docs/tasks/active/order-normalization-preview.md。
+合同事实补充后定向服务/schema/HTTP/纯评估37/37通过。此前最终源码824、全PG261、基线78、浏览器5、完整lint/类型/构建通过；新事实对照的精确浏览器及发布冻结正在收口，本机1440/390截图查看。远端交付、合并、部署、真实迁移、人工验收均未完成。具体失败与修复时点见docs/tasks/active/order-normalization-preview.md。
 
 下一工程阶段：有效归属与恢复执行独立分支；不能把本预览能力当作已经解决历史重复订单。真实执行前按案件给出所有SO/引用/限制/备份及纠正方法，仍须用户具体授权。

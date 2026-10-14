@@ -61,7 +61,7 @@ test("normalization case built UI preserves order data with real synthetic sessi
   let caseId;
   await t.test('administrator saves evidence, appends reason, withdraws and reopens without changing SOs',async()=>{
    const before=(await x.pool.query('SELECT row_to_json(o) AS row FROM sales_orders o ORDER BY id')).rows;
-   await click('重复订单复核');await choosePair(firstNo,secondNo);await input('开案原因','合成重复订单核对','textarea');await click('保存复核案件');await has('案件记录已保存');
+   await click('重复订单复核');await choosePair(firstNo,secondNo);await has('来源合同：SC-SYNTHETIC-001');await has('业务款号：STYLE-SYNTHETIC-01');await has('工厂款号：SYNTHETIC-IN-OLD');await screenshot('case-preview-desktop');await input('开案原因','合成重复订单核对','textarea');await click('保存复核案件');await has('案件记录已保存');
    caseId=(await x.pool.query('SELECT id::text FROM sales_order_normalization_cases')).rows[0].id;
    await input('复核说明','合成生产引用待补','textarea');await click('保存案件记录');await has('合成生产引用待补');
    await select('处理动作','withdrawn');await input('复核说明','合成撤回原因','textarea');await click('保存案件记录');await has('案件记录 · 已撤回');
