@@ -35,10 +35,10 @@ test('full normalization evidence fingerprints every declared row and frozen sou
  await pool.query("INSERT INTO sales_order_normalization_case_events(case_id,version,actor_id,request_id,payload_hash,event_type,reason,evidence) VALUES($1,1,$2,$3,$4,'opened','synthetic full evidence','{}')",[caseId,actor.internalUserId,randomUUID(),'b'.repeat(64)]);
  const proposal=parseAttributionProposal({changeType:'normalize',caseVersion:1,assignments:pair.map(id=>({originalOrderId:id,effectiveOrderId:a})),reason:'Synthetic',recoveryPlanHash:'a'.repeat(64)});
  const before=(await pool.query('SELECT row_to_json(o) AS row FROM sales_orders o ORDER BY id')).rows;
- let target='';let raw:FrozenBusinessInventory;
+ let target='';
  const read=async(external:CoverageSnapshot,limits?:{maxRows:number;maxBytes:number})=>{const client=await pool.connect();try{await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const result=await collectFullNormalizationEvidence(client,caseId,proposal,external,limits);await client.query('COMMIT');return result;}catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}};
  const client=await pool.connect();try{target=await normalizationTargetFingerprint(client);}finally{client.release();}
- raw={schemaVersion:'order-business-inventory.v1',targetFingerprint:target,memberOrderIds:pair,sourceKey:'synthetic-frozen-ledger',leaseId:'synthetic-lease',expiresAt:new Date(Date.now()+600000).toISOString(),orders:pair.map(id=>({id,execution:[],financial:[]}))};
+ const raw:FrozenBusinessInventory={schemaVersion:'order-business-inventory.v1',targetFingerprint:target,memberOrderIds:pair,sourceKey:'synthetic-frozen-ledger',leaseId:'synthetic-lease',expiresAt:new Date(Date.now()+600000).toISOString(),orders:pair.map(id=>({id,execution:[],financial:[]}))};
  const frozen=()=>validateFrozenBusinessInventory(raw,pair,target);
  await t.test('missing external coverage remains unavailable; server zero cannot authorize execution',async()=>{
   const result=await read({coverage:'unavailable',reason:'not-connected'});assert.ok(result.blockers.includes('production_finance_coverage_unavailable'));assert.equal(result.executionAuthorized,false);
