@@ -623,6 +623,22 @@
       "sha256": "2a5bb9842993c79e836e252182b3a5efdce43e5b6b67b215bd16936b4f4dc360",
       "supersedes": "decisions-controlled-intake-engineering-20261013",
       "changeReason": "User confirms both paid purchases, scoped 1:1 count units and exclusion only of fully blank color placeholders; raw evidence and named unknown colors remain. No global unit alias or real activation."
+    },
+    {
+      "id": "decisions-order-alerts-20261014",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "7b835cf9ab8686e695bb52ec984e13758c7b9257",
+      "sha256": "274352f24b8aa57fc35eb9ed461e17d3feb87bc98f27a1cf1ac46bf759a58710",
+      "supersedes": "decisions-source-anomaly-rules-20261014",
+      "changeReason": "D117 records explicit user approval to project pending named colors as zero with raw-null provenance and additive order exception chips; D116 historical source protection remains."
+    },
+    {
+      "id": "order-alerts-approved-engineering-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/order-list-alerts-2026-10-14.md",
+      "recordedAtSha": "7b835cf9ab8686e695bb52ec984e13758c7b9257",
+      "sha256": "5c51486968c1468e9e9a9fe62c44ec4e0104a4fd00fb8ae1d73d237b99b7875f"
     }
   ],
   "pages": [

@@ -330,3 +330,29 @@ test('runtime identity and capability deployment proofs must agree and need fres
   for (const cap of f.manifest.capabilities) cap.statusEvidence.trial18443.imageId = runtime.imageId;
   has(f.check(), 'RUNTIME_TRANSITION_EVIDENCE');
 });
+
+function addCheckpointRevision(f, parent, id, sha) {
+  const body=Buffer.from(`Synthetic checkpoint ${id}\n`);
+  const item={...parent,id,recordedAtSha:sha,sha256:hash(body),supersedes:parent.id,changeReason:'Explicit same-PR checkpoint revision'};
+  f.manifest.evidence.push(item);f.knownCommits.add(sha);f.blobs.set(`${sha}:${item.path}`,body);f.write(item.path,body);
+  return item;
+}
+test('same-PR document checkpoint chain keeps every frozen blob and anchors to the real base',t=>{
+  const f=fixture(t),old=[...f.manifest.evidence].reverse().find(item=>item.kind==='document');
+  const first=addCheckpointRevision(f,old,'checkpoint-one','d'.repeat(40));
+  addCheckpointRevision(f,first,'checkpoint-two','e'.repeat(40));
+  assert.deepEqual(f.check(),[]);
+  f.blobs.delete(`${first.recordedAtSha}:${first.path}`);
+  has(f.check(),'EVIDENCE_BLOB');
+});
+test('same-PR revision cycles, unanchored chains and forks cannot bypass frozen evidence',t=>{
+  for(const mode of ['cycle','unanchored','fork']){
+    const f=fixture(t),old=[...f.manifest.evidence].reverse().find(item=>item.kind==='document');
+    const first=addCheckpointRevision(f,old,'checkpoint-one','d'.repeat(40));
+    const second=addCheckpointRevision(f,first,'checkpoint-two','e'.repeat(40));
+    if(mode==='cycle')first.supersedes=second.id;
+    if(mode==='unanchored')delete first.supersedes;
+    if(mode==='fork')second.supersedes=old.id;
+    has(f.check(),'EVIDENCE_REVISION');
+  }
+});

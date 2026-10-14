@@ -87,12 +87,26 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   const historicalHashes = new Map();
   const priorEvidence = new Map((previousManifest?.evidence ?? []).map(item => [item.id, item]));
   if (!previousManifest || ![1, 2].includes(previousManifest.schemaVersion)) fail('HISTORY_REQUIRED', 'A Git-loaded prior manifest is required.');
+  const proposedEvidence = new Map((manifest.evidence ?? []).map(item => [item.id, item]));
+  // Multiple checkpoint revisions in one PR must still terminate at an immutable base record.
+  const anchoredRevision = item => {
+    const visited = new Set([item.id]);
+    let parent = item.supersedes;
+    while (!priorEvidence.has(parent)) {
+      if (!parent || visited.has(parent)) return false;
+      visited.add(parent);
+      const previous = proposedEvidence.get(parent);
+      if (!previous || previous.kind !== item.kind || previous.path !== item.path) return false;
+      parent = previous.supersedes;
+    }
+    return true;
+  };
   const superseded = new Set();
   for (const item of manifest.evidence ?? []) {
     if (!item.supersedes) continue;
     if (priorEvidence.has(item.id)) { if (item.kind === 'document') superseded.add(item.supersedes); continue; }
-    const old = priorEvidence.get(item.supersedes);
-    if (!old || old.kind !== item.kind || (item.kind === 'document' ? old.path !== item.path || old.recordedAtSha === item.recordedAtSha : old.path === item.path)
+    const old = priorEvidence.get(item.supersedes) ?? proposedEvidence.get(item.supersedes);
+    if (!old || !anchoredRevision(item) || old.kind !== item.kind || (item.kind === 'document' ? old.path !== item.path || old.recordedAtSha === item.recordedAtSha : old.path === item.path)
       || !nonempty(item.changeReason)
       || superseded.has(item.supersedes)) fail('EVIDENCE_REVISION', String(item.id));
     if (item.kind === 'document') superseded.add(item.supersedes);

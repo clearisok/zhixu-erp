@@ -10,7 +10,7 @@ test("order alerts use persisted pending-zero colors and trusted fresh material 
   const read=async()=>{const r=await fetch(x.base+'/api/v1/sales-orders',{headers:{cookie}});assert.equal(r.status,200);assert.match(r.headers.get('cache-control')||'',/no-store/);return await r.json();};
   let queries=0;
   const originalQuery=x.pool.query;
-  x.pool.query=function(...args: unknown[]){queries++;return Reflect.apply(originalQuery,this,args);} as typeof x.pool.query;
+  x.pool.query=function(this: typeof x.pool, ...args: unknown[]){queries++;return Reflect.apply(originalQuery,this,args);} as typeof x.pool.query;
   const data=await read(),item=data.salesOrders[0];
   x.pool.query=originalQuery;
   assert.ok(queries<20,`bounded batch query count: ${queries}`);

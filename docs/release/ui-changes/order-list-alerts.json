@@ -12,7 +12,7 @@
     "features/order-center/server/order-alerts.ts"
   ],
   "pages": [
-    "order-center",
+    "order-list",
     "order-detail"
   ],
   "visibleDifference": "User-approved additive exception column and responsive record chips: quantity zero, missing/conflicting material unit and unavailable/stale source. Existing table, navigation and other columns remain. Named pending colors project zero with raw null evidence.",

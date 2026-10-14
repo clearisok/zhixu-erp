@@ -188,3 +188,6 @@ previous local audit's later time is not represented as new in-repo runtime proo
   separately enabled, the integrator must enforce the gate before requesting merge.
 - Rollback is a normal revert of this tooling/docs PR; it changes no schema, UI,
   runtime config, browser namespace or business data. No automatic merge.
+
+
+2026-10-14：同一PR可前向保留多代文档checkpoint；每代仍验证精确Git blob/hash，新修订链必须终止于真实base清单记录。循环、无base锚点、分叉覆盖及缺少任一中间blob均阻断，不可通过链条跳过历史证据。详见same-PR checkpoint负向回归。
