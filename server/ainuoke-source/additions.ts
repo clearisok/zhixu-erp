@@ -181,7 +181,7 @@ export async function assertStoredAdditionMatches(client: PoolClient, candidates
     const mirror = (await client.query(`SELECT source_id,source_row_identity,sales_contract_no,inside_order_no,
       lifecycle_status_raw,contract_date::text,contract_delivery_date::text,style_no,company_name_snapshot,
       customer_name_snapshot,brand_name_snapshot,quantity::text,source_hash,
-      source_metadata #>> '{colorDetail,status}' AS color_status
+      source_metadata #>> '{colorDetail,status}' AS color_status,source_metadata->'colorDetail' AS color_detail
       FROM ainuoke_sales_order_contract_mirrors WHERE sales_order_id=$1 FOR SHARE`,[identity.id])).rows[0];
     const source = candidate.source;
     if (!mirror || mirror.source_id !== source.sourceId || mirror.source_row_identity !== source.sourceRowIdentity
@@ -191,13 +191,15 @@ export async function assertStoredAdditionMatches(client: PoolClient, candidates
       || mirror.style_no !== source.styleNo || mirror.company_name_snapshot !== source.companyNameSnapshot
       || mirror.customer_name_snapshot !== source.customerNameSnapshot || mirror.brand_name_snapshot !== source.brandNameSnapshot
       || Number(mirror.quantity) !== source.quantity || mirror.source_hash !== source.sourceHash
-      || mirror.color_status !== candidate.colorDetailStatus) throw new SourceError('addition_not_exact_retry');
-    const colors = (await client.query(`SELECT source_line_identity,color_name,quantity::text,delivery_date::text,source_hash
+      || mirror.color_status !== candidate.colorDetailStatus
+      || hash(mirror.color_detail) !== hash(source.sourceMetadata?.colorDetail)) throw new SourceError('addition_not_exact_retry');
+    const colors = (await client.query(`SELECT source_line_identity,color_name,quantity::text,delivery_date::text,source_hash,source_metadata
       FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id=$1 ORDER BY source_line_identity FOR SHARE`,[identity.id])).rows;
     const expected = [...candidate.colors].sort((a,b)=>a.sourceLineIdentity.localeCompare(b.sourceLineIdentity));
     if (colors.length !== expected.length || colors.some((row,index) => row.source_line_identity !== expected[index].sourceLineIdentity
       || row.color_name !== expected[index].colorName || Number(row.quantity) !== expected[index].quantity
-      || row.delivery_date !== expected[index].deliveryDate || row.source_hash !== expected[index].sourceHash))
+      || row.delivery_date !== expected[index].deliveryDate || row.source_hash !== expected[index].sourceHash
+      || hash(row.source_metadata) !== hash(expected[index].sourceMetadata ?? {})))
       throw new SourceError('addition_not_exact_retry');
   }
 }

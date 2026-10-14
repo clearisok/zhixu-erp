@@ -70,7 +70,10 @@ export async function previewSelectedBindings(input: unknown, selected: readonly
   const result = await previewAdditions(input, selection, [], now, maxAgeMs);
   return {preview: {candidates: result.candidates}, visibleContracts: result.visibleContracts,
     selectedContracts: selection, colorCoverage: result.colorCoverage,
-    reviewHash: hash({kind: "selected-first-binding.v1", selection, candidateReview: result.reviewHash})};
+    reviewHash: hash({kind: "selected-first-binding.v1", selection, reviewed: result.candidates.map(candidate => ({
+      ...candidate, source: {...candidate.source, fetchedAt: undefined,
+        sourceMetadata: {...candidate.source.sourceMetadata, snapshotHash: undefined}},
+    }))})};
 }
 export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"internalUserId"|"userId">, options: {
   sourceKey: string; accountFingerprint: string; expectedPreview: string; collect: () => Promise<unknown>; now?: () => number; selected?: readonly string[];

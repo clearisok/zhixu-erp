@@ -39,6 +39,11 @@ test("selected first binding is atomic, exact on replay and refreshes only bound
    await pool.query("UPDATE ainuoke_sales_order_color_mirrors SET quantity=99");
    await assert.rejects(bindOrders(pool,actor,opts),/addition_not_exact_retry/);
    await pool.query("UPDATE ainuoke_sales_order_color_mirrors SET quantity=100");
+   const metadata=(await pool.query("SELECT source_metadata FROM ainuoke_sales_order_color_mirrors")).rows[0].source_metadata;
+   await pool.query("UPDATE ainuoke_sales_order_color_mirrors SET source_metadata=jsonb_set(source_metadata,'{quantityPendingConfirmation}','true')");
+   await assert.rejects(bindOrders(pool,actor,opts),/addition_not_exact_retry/);
+   await pool.query("UPDATE ainuoke_sales_order_color_mirrors SET source_metadata=$1::jsonb",[JSON.stringify(metadata)]);
+
   });
   await t.test("selection widening, wrong account, stale input and revoked operator cannot write",async()=>{
    const wider=additionBundle(Date.now(),3,[0,1]);const keys=Object.keys(wider.colors);const review=await previewSelectedBindings(wider,keys);

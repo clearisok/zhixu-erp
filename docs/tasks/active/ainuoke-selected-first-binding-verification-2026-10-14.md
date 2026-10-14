@@ -1,0 +1,13 @@
+# 小范围首次绑定最终核验
+
+日期2026-10-14；GitHub main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5，PR108 head8b89de59dd405395da1dde4b6dde5f125141deb9仍OPEN/MERGEABLE，均本轮只读API核实。工程checkpoint1aab7987a0553d87dd87f9ad4ae6eb43e864ecb8，后续复审补强完整颜色元数据；分支feat/ainuoke-anomaly-evidence。此前755a787起点clean，本阶段只stage自身修改。
+
+已执行：root839/839；baseline73/73；最终持续Source70项中69PASS、1Windows跳过Linux私密CLI端到端；选集定向17项包含待定颜色0/raw null；Python loopback worker实际执行。类型、lint、Server构建、显式Server/session/snapshot UI构建通过。最终补强后再次执行持续70项、typecheck/server:build/lint；无需重复未改UI的像素验收，本轮无UI增量。旧阶段9项Chromium是旧阶段证据，未冒称本轮真实页面验收。
+
+复审发现并修复：原首绑精确重试仅以审计hash/绑定数量为依据，已存颜色数量或待确认metadata变化时可能误判成功。现在复用并加强现有镜像核对函数，比较主信息、颜色源hash、逐行数量和完整颜色语义metadata。选集预览hash冻结映射事实及metadata，忽略fetchedAt与无关完整Discovery快照hash，不把读取时间当业务变化。保留完整Discovery前后一致性、独立选集hash域、权限事务内重查；后续受控新增也经过相同镜像语义比较。负向测试已证明颜色值及quantityPendingConfirmation篡改均拒绝，原始Snapshot不改。
+
+旧真实私有报告用于选择四单而非回放写入；计划文件SHA256 47522709303a25643220c2407ae8d5437cf6724fdb62e0b91726686771c9db30，ACL验证工具通过，目录Git忽略。Docker endpoint只读确认本机Desktop Linux；拟project不存在、62310未监听，不等于资源已创建。实际DB指纹/镜像ID/绑定UUID/run ID尚无。没有新凭据读取、真实HTTP读取、真实数据库写入、绑定/调度/部署/合并。
+
+授权前剩余边界：四单具体范围与独立本机新账本需用户确认。授权后的执行阶段须建立空隔离目标、打包对应候选、复核所有权/空账本/目标指纹、新鲜所选四单预览与受控D118确认注入，再首绑和两次execute；仅已绑定物料刷新，不启无限scheduler。不执行PR108的模拟数据自动seed入口。详见[具体计划](ainuoke-selected-first-binding-2026-10-14.md)。
+
+远端交付：继承NETWORK_DEGRADED，本轮未push、未建新PR、未跑GitHub CI。最终本地commit和基线check另见交付回执；不能声称远端通过。更新时机：授权、代码、验证结果、目标/选集、PR或真实证据变化。

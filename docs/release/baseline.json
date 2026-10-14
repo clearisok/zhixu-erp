@@ -669,6 +669,22 @@
       "path": "docs/tasks/active/material-confirmations-verification-2026-10-14.md",
       "recordedAtSha": "06859a4f557b24161150fb1c05ec341f3a01a8b8",
       "sha256": "53fef26ecd2d30a137412f7c0bc15b4313fc0d2a8f9852e9a792434609c315be"
+    },
+    {
+      "id": "decisions-selected-first-binding-20261014",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "1aab7987a0553d87dd87f9ad4ae6eb43e864ecb8",
+      "sha256": "619a3b4ff46de28dd7904d35b5f11fbad77066acd830ecd8366e3462aab7796b",
+      "supersedes": "decisions-material-confirmations-20261014",
+      "changeReason": "D119 explicitly selected first binding with full discovery and separate real-write approval; no deployment or automatic activation."
+    },
+    {
+      "id": "selected-first-binding-engineering-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/ainuoke-selected-first-binding-2026-10-14.md",
+      "recordedAtSha": "1aab7987a0553d87dd87f9ad4ae6eb43e864ecb8",
+      "sha256": "163941d6123818c66fe96bdc102cc51c7f89b48face214749fb321a5dfb1b51d"
     }
   ],
   "pages": [
