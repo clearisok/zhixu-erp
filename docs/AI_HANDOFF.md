@@ -1,13 +1,11 @@
 # 当前接力
 
-2026-10-14；main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5已本轮只读GitHub核实；PR108仍OPEN/head8b89de59dd405395da1dde4b6dde5f125141deb9。沿用feat/ainuoke-anomaly-evidence，Phase baseline755a787b756b8f2d379909feaa3b85e2997caeba clean。
+2026-10-14；feat/ainuoke-anomaly-evidence；main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本轮起点c78aa6b clean，运行代码b95dbb3e2fd16137ade810b20781a9cdbc742be1。用户已确认4单/新账本/loopback62310/两轮刷新，已真实执行，不要误报未授权或再问同一范围。
 
-D119小范围首次绑定已实施：完整Discovery+所选颜色、显式选集/目标/预览hash、复用事务/权限/首绑空库规则；新增重试镜像完整性检查。测试接入test:ainuoke-continuous。最终持续69pass/1Windows skip、选集定向17pass、root839、baseline73、typecheck/server build/lint和显式Server UI构建通过。复审另补全颜色metadata保护；无本轮UI改动。详见[小范围绑定报告](tasks/active/ainuoke-selected-first-binding-2026-10-14.md)。
+**运行中**：zhixu-live-demo-20261014-r1-app/-pg，独立volume同前缀-data；URL http://127.0.0.1:62310/login?returnTo=%2Forder-center。4正式订单、2source runs、最新4物料快照，147需求/161来源行。2项D118确认按新证据匹配加载。没有scheduler；第三轮被guard拒绝，30分钟过期诚实提示。新刷新须明确授权轮次/频率。六演示角色/8浏览器场景/3负向守卫通过。
 
-4单拟选集、真实单号和既有报告只保留本机受保护目录，未读取凭据或重新采集。真实目标、首次写入/两轮execute需用户具体确认；没有创建新真实DB、Source首绑/调度、部署或合并。拟独立loopback62310；目标尚未创建、无实际指纹。不能用PR108会自动seed模拟订单的fixture入口给真实Source首绑。正式默认Server确认端口仍未配置；新隔离应用需匹配D118来源指纹和证据后注入。
+私有目录由outputs/active-live-private-path.txt定位；manifest/entry/operator、preview/bind/capture/inspect、confirmations、verification、截图、登录说明均在该受保护Git忽略目录。勿输出源密码或把真实单据入Git。用户原凭据文件由私有operator进程读取后stdin传入，未给模型看密码。实机[完整脱敏证据](tasks/active/ainuoke-isolated-live-results-2026-10-14.md)。保护其它容器/工作树/真实环境。
 
-网络继承NETWORK_DEGRADED，不反复push；本轮GitHub只读成功不证明push恢复。新PR/远端CI尚无。保护报价分支a0e60e4和原7bf3工作树；不变更23单模拟环境、宁波或18443/18444。
+注意理论115.50是历史人工事实；当前和10月13日定向原包TotalNum均116，采购118。未证明报表取整/上游变化，未覆盖接口原值；后续找IT核实口径。退库/取消未处理。新目标没有导入旧23单模拟账本或用户Excel；报价转订单独立分支a0e60e4不变。
 
-[上一完整接力](tasks/completed/2026-10-14-before-selected-binding.md)保留旧hash/检查/限制。[最终核验](tasks/active/ainuoke-selected-first-binding-verification-2026-10-14.md)记录测试、私有计划hash与未执行边界；代码checkpoint1aab7987a0553d87dd87f9ad4ae6eb43e864ecb8，后续metadata补强独立本地提交。
-
-2026-10-14用户已明确确认四单新隔离账本/62310/两轮真实刷新。执行入口与边界见tasks/active/ainuoke-isolated-live-execution-2026-10-14.md。不要再重复询问同一授权；长期scheduler仍未授权。当前为启动前工程阶段。
+REMOTE DELIVERY仍NETWORK_DEGRADED/未核实，无新PR/新CI、不merge；只读GitHub成功不是push恢复。当前运行image绑定明确本地SHA而非已合并main。最终源码门禁/证据冻结收口完成后保留此区别。[上期接力](tasks/completed/2026-10-14-before-live-results-handoff.md)。

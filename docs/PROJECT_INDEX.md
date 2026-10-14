@@ -1,3 +1,5 @@
+2026-10-14 / 本机四单真实隔离演示已执行首绑与两轮刷新，未开长期调度；[真实运行证据](tasks/active/ainuoke-isolated-live-results-2026-10-14.md)。以下旧状态按历史时点阅读。
+
 2026-10-14 / main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5：右上角退出与D-118受控单位/采购责任只读候选完成，真实Source未激活。[最终验证](tasks/active/material-confirmations-verification-2026-10-14.md)、[下一隔离演示Gate](tasks/active/material-confirmations-2026-10-14.md)。
 
 2026-10-14 / main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5：D-117订单异常列和待定颜色记0为当前独立工程候选，见[工程报告](tasks/active/order-list-alerts-2026-10-14.md)与CURRENT_STATE；下文旧摘要按历史时点阅读。
