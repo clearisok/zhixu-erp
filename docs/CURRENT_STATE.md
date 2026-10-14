@@ -6,6 +6,6 @@
 
 本阶段0022新采集记录scope/source link/order version；旧NULL不回填。历史API按原捕获SO/run readonly查询，不自动改向root/合计；历史投影不作当前或当年齐套判定。已知来源绑定/镜像合同身份不可删改，当前非身份观察/颜色切片保留。没有真实migration或Source操作。[模块](features/ORDER_SOURCE_HISTORY.md)/[冻结证据](tasks/active/evidence/order-source-history/gate4-source-history-results.md)。
 
-当前明确PASS：历史17、归属45、身份15、来源20+skip1/持续43+skip1、PG/API261、根824、类型/完整lint/Server build。基线首次因决策文件新D127被EVIDENCE_WORKTREE_DRIFT阻断；将前向绑定新证据后重跑，不能假称本阶段门禁通过。旧截图和验收hash保留，尚无本阶段浏览器验收。
+当前明确PASS：历史17、归属45、身份15、来源20+skip1/持续43+skip1、PG/API261、根824、类型/完整lint/Server build。基线首次因新D127被EVIDENCE_WORKTREE_DRIFT阻断；在源码6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e提交后，前向绑定新证据/限定第21项能力，最终源码门禁PASS、基线78/78明确exit0。旧截图和验收hash保留，尚无本阶段浏览器验收。
 
 下一步历史来源/历史列表和案件选单界面、独立生产财务复核/默认关闭执行、完整G4收口；查漏准备采纳/待分类执行hold/Quote修订清确认，再独立G5页面/排序/num_dyc/6086941。未自动合并部署，真实账号/DB/来源范围/窗口及宁波/18443/18444无变化。前一完整状态归档[阶段快照](tasks/completed/2026-10-15-pre-source-history-current-state.md)。

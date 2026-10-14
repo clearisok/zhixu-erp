@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
-  "verifiedAt": "2026-10-14T10:34:20.430Z",
+  "verifiedAt": "2026-10-15",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -703,6 +703,22 @@
       "path": "docs/tasks/active/evidence/order-command-control/gate4-command-control-results.md",
       "recordedAtSha": "24a983418f346c2651e34385ddf7a948af01e012",
       "sha256": "76a96d7741c82ea3043837e90998ac470ca35706b7e58bd31481ba6b63057d7f"
+    },
+    {
+      "id": "decisions-order-source-history-g4",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
+      "sha256": "2d66cf4ed66735dfa8c333fa8fbf3def4583681bdbb497587d643cce75ee2312",
+      "supersedes": "decisions-order-command-control-g4",
+      "changeReason": "D127 adds original-target historical Source context and read safety; preserve every prior decision blob, screenshot and scope restriction."
+    },
+    {
+      "id": "order-source-history-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/order-source-history/gate4-source-history-results.md",
+      "recordedAtSha": "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
+      "sha256": "0853a095077c21e61a75e7ce0f778a88ea8d418ee45d2b10606915f3c29e2d21"
     }
   ],
   "pages": [
@@ -2753,6 +2769,92 @@
           "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
           "evidence": [
             "order-command-control-engineering"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-material-source-history",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Local Server original-target historical material Source list/read with capture scope/link/version and immutable known source identities. Captured quantities/events only; no current or past readiness certification, browser UI, real activation, deployment or human acceptance.",
+      "evidence": [
+        "order-source-history-engineering",
+        "decisions-order-source-history-g4"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
+          "scope": "Local Server original-target historical material Source list/read with capture scope/link/version and immutable known source identities. Captured quantities/events only; no current or past readiness certification, browser UI, real activation, deployment or human acceptance.",
+          "evidence": [
+            "order-source-history-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
+          "scope": "Local Server original-target historical material Source list/read with capture scope/link/version and immutable known source identities. Captured quantities/events only; no current or past readiness certification, browser UI, real activation, deployment or human acceptance.",
+          "evidence": [
+            "order-source-history-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
+          "scope": "Local Server original-target historical material Source list/read with capture scope/link/version and immutable known source identities. Captured quantities/events only; no current or past readiness certification, browser UI, real activation, deployment or human acceptance.",
+          "evidence": [
+            "order-source-history-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
+          "scope": "Local Server original-target historical material Source list/read with capture scope/link/version and immutable known source identities. Captured quantities/events only; no current or past readiness certification, browser UI, real activation, deployment or human acceptance.",
+          "evidence": [
+            "order-source-history-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
+          "scope": "Local Server original-target historical material Source list/read with capture scope/link/version and immutable known source identities. Captured quantities/events only; no current or past readiness certification, browser UI, real activation, deployment or human acceptance.",
+          "evidence": [
+            "order-source-history-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "order-source-history-engineering"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "order-source-history-engineering"
           ]
         }
       }

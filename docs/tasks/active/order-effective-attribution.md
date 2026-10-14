@@ -158,3 +158,6 @@ Source runs/material snapshots不可UPDATE/DELETE。新run必须含order_scope_h
 
 
 最终完整PG261/261明确exit0。为证明不返回raw私密内容，合成来源行加入unmappedPrivateAnnotation哨兵后重跑历史17/17，未读取真实数据。基线先因D127当前决策blob漂移阻断；源码/冻结证据checkpoint后前向绑定并重跑，不篡改旧证据或图片。
+
+
+源码/冻结报告checkpoint6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e后，前向D127证据及独立第21项限定能力绑定；精确main64源码门禁PASS（10pages/21caps/13继承UI paths）、基线78/78明确exit0。没有覆盖旧决策/截图/hash，也没有新UI或人验。下一阶段从本阶段收口的clean HEAD记录新baseline，继续历史UI。
