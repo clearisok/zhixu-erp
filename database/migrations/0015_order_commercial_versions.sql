@@ -21,7 +21,7 @@ CREATE TABLE sales_order_commercial_versions (
  labor_currency TEXT NOT NULL CHECK(labor_currency IN ('CNY','USD')),
  reason TEXT NOT NULL CHECK(length(btrim(reason))>0 AND length(reason)<=2000),
  adopted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
- CHECK((source_kind='cct' AND source_cct_id IS NOT NULL AND source_cct_version>0) OR (source_kind='quote_confirmation' AND source_cct_id IS NULL AND source_cct_version IS NULL)),
+ CHECK((source_kind='cct' AND source_cct_id IS NOT NULL AND source_cct_version IS NOT NULL AND source_cct_version>0) OR (source_kind='quote_confirmation' AND source_cct_id IS NULL AND source_cct_version IS NULL)),
  CHECK((quote_type='distribution' AND confirmed_sale_price IS NOT NULL) OR (quote_type='processing' AND confirmed_sale_price IS NULL)),
  CHECK(confirmed_sale_price IS NULL OR (confirmed_sale_price>=0 AND confirmed_sale_price::text NOT IN ('NaN','Infinity','-Infinity'))),
  CHECK(confirmed_labor_price>=0 AND confirmed_labor_price::text NOT IN ('NaN','Infinity','-Infinity')),
