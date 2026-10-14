@@ -799,6 +799,73 @@
       "path": "docs/tasks/active/evidence/normalization-review-workspace/gate4-workspace-results.md",
       "recordedAtSha": "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
       "sha256": "6df625d484e25fb224e45cf192889b3039996959bf50956062c8c2e653ba268f"
+    },
+    {
+      "id": "normalization-review-ui-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/normalization-review-ui/gate4-review-ui-results.md",
+      "recordedAtSha": "d681c1ed754da0c247ae3ad7a3f420b58847af46",
+      "sha256": "38c59b27914460e6a817a5f41358ab12a13a3c2bf795a4745926b673f0913d9b"
+    },
+    {
+      "id": "normalization-review-ui-admin-execution-closed-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/normalization-review-ui/screenshots-e6bbf986/admin-execution-closed-desktop.png",
+      "recordedAtSha": "d681c1ed754da0c247ae3ad7a3f420b58847af46",
+      "renderedSourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+      "sha256": "e2beda9c3620657fc0cd503e176c48c4e0f12c35f1af5f24c1659c7dcebc2146",
+      "changeReason": "New D121 independent reviewer UI synthetic engineering evidence on existing Foundation; preserve all older pixels and human acceptance state.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "normalization-review-ui-production-review-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/normalization-review-ui/screenshots-e6bbf986/production-review-desktop.png",
+      "recordedAtSha": "d681c1ed754da0c247ae3ad7a3f420b58847af46",
+      "renderedSourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+      "sha256": "a3db795d4e92b9e5e0050b0e9cd3d978c73c1294d12c930db82fe416984ecca6",
+      "changeReason": "New D121 independent reviewer UI synthetic engineering evidence on existing Foundation; preserve all older pixels and human acceptance state.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "normalization-review-ui-proposal-preview-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/normalization-review-ui/screenshots-e6bbf986/proposal-preview-desktop.png",
+      "recordedAtSha": "d681c1ed754da0c247ae3ad7a3f420b58847af46",
+      "renderedSourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+      "sha256": "70cee9a7dc9cbe3bbc4c74ca208ca12388c14efc0a9eb5cf51779bbac8cfc3ee",
+      "changeReason": "New D121 independent reviewer UI synthetic engineering evidence on existing Foundation; preserve all older pixels and human acceptance state.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "normalization-review-ui-review-detail-mobile",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/normalization-review-ui/screenshots-e6bbf986/review-detail-mobile.png",
+      "recordedAtSha": "d681c1ed754da0c247ae3ad7a3f420b58847af46",
+      "renderedSourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+      "sha256": "0d5b44a6663df55410c93c83e5b2772a95cebbfdd7714e0b99c923256759649a",
+      "changeReason": "New D121 independent reviewer UI synthetic engineering evidence on existing Foundation; preserve all older pixels and human acceptance state.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "normalization-review-ui-review-execution-mobile",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/normalization-review-ui/screenshots-e6bbf986/review-execution-mobile.png",
+      "recordedAtSha": "d681c1ed754da0c247ae3ad7a3f420b58847af46",
+      "renderedSourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+      "sha256": "0bc1d4c98dca1061a5664bf0d368ccfb7da7b7ef73a6f0ca00cf1d4f3f029ff5",
+      "changeReason": "New D121 independent reviewer UI synthetic engineering evidence on existing Foundation; preserve all older pixels and human acceptance state.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "normalization-review-ui-unknown-coverage-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/normalization-review-ui/screenshots-e6bbf986/unknown-coverage-desktop.png",
+      "recordedAtSha": "d681c1ed754da0c247ae3ad7a3f420b58847af46",
+      "renderedSourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+      "sha256": "44f47ad9a46fd0f473b88d8dcbe1845cb9c49b12ee880c8a39772c36571c7e1e",
+      "changeReason": "New D121 independent reviewer UI synthetic engineering evidence on existing Foundation; preserve all older pixels and human acceptance state.",
+      "approvalEvidence": "order-history-ui-approved-scope"
     }
   ],
   "pages": [
@@ -3109,6 +3176,98 @@
           "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
           "evidence": [
             "normalization-review-workspace-engineering"
+          ]
+        }
+      }
+    },
+    {
+      "id": "normalization-independent-review-ui",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Local existing Foundation/Server order-center proposal publication and fresh independent production/finance review UI, original evidence/history and visible execution blockers. Synthetic sessions and disposable PG only; no execute UI, real adapter/permit/source activation, deployment or human acceptance.",
+      "evidence": [
+        "normalization-review-ui-engineering",
+        "normalization-review-ui-admin-execution-closed-desktop",
+        "normalization-review-ui-production-review-desktop",
+        "normalization-review-ui-proposal-preview-desktop",
+        "normalization-review-ui-review-detail-mobile",
+        "normalization-review-ui-review-execution-mobile",
+        "normalization-review-ui-unknown-coverage-desktop",
+        "order-history-ui-approved-scope"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+          "scope": "Local existing Foundation/Server order-center proposal publication and fresh independent production/finance review UI, original evidence/history and visible execution blockers. Synthetic sessions and disposable PG only; no execute UI, real adapter/permit/source activation, deployment or human acceptance.",
+          "evidence": [
+            "normalization-review-ui-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+          "scope": "Local existing Foundation/Server order-center proposal publication and fresh independent production/finance review UI, original evidence/history and visible execution blockers. Synthetic sessions and disposable PG only; no execute UI, real adapter/permit/source activation, deployment or human acceptance.",
+          "evidence": [
+            "normalization-review-ui-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+          "scope": "Local existing Foundation/Server order-center proposal publication and fresh independent production/finance review UI, original evidence/history and visible execution blockers. Synthetic sessions and disposable PG only; no execute UI, real adapter/permit/source activation, deployment or human acceptance.",
+          "evidence": [
+            "normalization-review-ui-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+          "scope": "Local existing Foundation/Server order-center proposal publication and fresh independent production/finance review UI, original evidence/history and visible execution blockers. Synthetic sessions and disposable PG only; no execute UI, real adapter/permit/source activation, deployment or human acceptance.",
+          "evidence": [
+            "normalization-review-ui-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+          "scope": "Local existing Foundation/Server order-center proposal publication and fresh independent production/finance review UI, original evidence/history and visible execution blockers. Synthetic sessions and disposable PG only; no execute UI, real adapter/permit/source activation, deployment or human acceptance.",
+          "evidence": [
+            "normalization-review-ui-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "normalization-review-ui-engineering"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "normalization-review-ui-engineering"
           ]
         }
       }
