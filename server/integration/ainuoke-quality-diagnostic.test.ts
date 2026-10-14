@@ -46,3 +46,32 @@ test("partial/foreign pages, request scope changes and discovery drift fail clos
   else await assert.rejects(analyzeQuality(bundle,request,stamp));
  });
 });
+
+// No live source reads in these lineage regressions.
+import {createHash} from "node:crypto";
+import {verifyQualityPreflight,collectVerifiedQuality} from "../ainuoke-source/quality-diagnostic.js";
+import {readinessFingerprint} from "../ainuoke-source/readiness.js";
+const config={sourceKey:"synthetic",baseUrl:"https://synthetic.invalid",username:"synthetic",password:"synthetic",operatorUsername:"synthetic"};
+function lineage(){const {request}=fixture();const t=request.targets[0];const report={schemaVersion:"ainuoke-live-preflight.v1",result:"READ_ONLY_FULL_PREFLIGHT_RECORDED",collectionValidation:"complete",sourceFingerprint:readinessFingerprint(config),databaseAccess:"none",sourceActivation:"not-activated",visibilityScope:"current_account_visible",stages:[{stage:"bindings",status:"validated"},{stage:"materials",status:"validated"}],discovery:{complete:true,stableAcrossStages:true,contracts:1},materials:{allVisibleContracts:true,contracts:1},orders:[{label:t.label,salesContractNo:t.salesContractNo,insideOrderNo:t.insideOrderNo}]};return {request,report};}
+const encode=(report:unknown,request:QualityRequest)=>{const bytes=Buffer.from(JSON.stringify(report));request.preflightSha256=createHash("sha256").update(bytes).digest("hex");return bytes;};
+test("actual preflight bytes and historical identity are verified before collector",async()=>{const {request,report}=lineage();const bytes=encode(report,request);let calls=0;await collectVerifiedQuality(config,request,bytes,async()=>{calls++;return {}});assert.equal(calls,1);assert.equal(verifyQualityPreflight(bytes,request,report.sourceFingerprint).preflightLineageVerified,true);});
+test("forged hash, wrong run/account, incomplete and foreign identities never collect",async t=>{
+ for(const name of ["fake-hash","modified-bytes","failed","partial","wrong-account","missing-orders","count","duplicate","label","contract","inside","stage","malformed"])await t.test(name,async()=>{
+  const {request,report}=lineage();let bytes=encode(report,request);
+  if(name==="failed")report.result="READ_ONLY_FULL_PREFLIGHT_INCOMPLETE";
+  if(name==="partial")report.materials.allVisibleContracts=false;
+  if(name==="wrong-account")report.sourceFingerprint="f".repeat(64);
+  if(name==="missing-orders")report.orders=[];
+  if(name==="count")report.discovery.contracts=2;
+  if(name==="duplicate"){report.orders.push({...report.orders[0]});report.discovery.contracts=2;report.materials.contracts=2;}
+  if(name==="label")request.targets[0].label="R9999";
+  if(name==="contract")request.targets[0].salesContractNo="FOREIGN";
+  if(name==="inside")request.targets[0].insideOrderNo="FOREIGN";
+  if(name==="stage")report.stages[1].status="failed";
+  bytes=encode(report,request);
+  if(name==="fake-hash")request.preflightSha256="a".repeat(64);
+  if(name==="modified-bytes")bytes=Buffer.concat([bytes,Buffer.from(" ")]);
+  if(name==="malformed"){bytes=Buffer.from("{");request.preflightSha256=createHash("sha256").update(bytes).digest("hex");}
+  let calls=0;await assert.rejects(collectVerifiedQuality(config,request,bytes,async()=>{calls++;return {}}));assert.equal(calls,0);
+ });
+});

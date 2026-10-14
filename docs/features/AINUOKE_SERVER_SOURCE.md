@@ -64,3 +64,5 @@ npm run source:ainuoke -- --schedule=<key> --expected-target=<fingerprint> --con
 - 旧订单主信息/颜色自动刷新、完整分码UI仍未接；生产/关账Server/库存台账不追加为首轮前置。
 - AI建议：新隔离本机账本明确授权后，完整首绑/首次持久化/2–3次刷新及3–5代表订单对照即可首轮真实演示；24小时/故障重启/受控新增/六角色与备份恢复用于宁波晋升Gate。真实账号和数据库执行须分开授权。
 - 回退只停止采集/关闭reader/orderRead并保留绑定与来源历史；不删ledger/订单/快照，不自动down migration。恢复只能到独立明确授权目标。[宁波方案](../ops/ningbo-rollout-plan.md)。
+
+2026-10-14 PR108诊断入口必须提供`-PreflightFile`，真实核验原文件与请求身份后才允许收集。原报告不因历史hash有效而变为新鲜；不重复全量读取。[修复证据](../tasks/active/quality-preflight-lineage-fix-2026-10-14.md)。

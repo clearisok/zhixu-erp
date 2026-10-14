@@ -1,6 +1,8 @@
 /** Bounded read-only evidence analysis. No Pool, scheduler, migrations or business writes. */
 import { spawn, execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, lstatSync, openSync, closeSync, fstatSync, constants } from "node:fs";
+import { createHash } from "node:crypto";
+import { readinessFingerprint } from "./readiness.js";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { adaptAinuokeOrderDiscoverySnapshots } from "../../features/ainuoke-api/source/ainuoke-order-discovery-adapter.js";
@@ -33,6 +35,42 @@ export function validateQualityRequest(value: unknown): QualityRequest {
   if (new Set(r.targets.map(t=>identity(t.salesContractNo))).size !== r.targets.length || new Set(r.targets.map(t=>t.label)).size !== r.targets.length
     || r.targets.filter(t=>t.colors).length > 6 || r.targets.filter(t=>t.materials).length > 18) throw new SourceError("quality_scope_invalid");
   return r;
+}
+type PreflightEvidence = {schemaVersion:string;result:string;collectionValidation:string;sourceFingerprint:string;
+ databaseAccess:string;sourceActivation:string;visibilityScope:string;stages:Array<{stage:string;status:string}>;
+ discovery:{complete:boolean;stableAcrossStages:boolean;contracts:number};materials:{allVisibleContracts:boolean;contracts:number};
+ orders:Array<{label:string;salesContractNo:string;insideOrderNo:string}>};
+/** Hash the actual protected bytes, then validate successful coverage and exact historical identities. */
+export function verifyQualityPreflight(bytes:Buffer,request:QualityRequest,sourceFingerprint:string) {
+ validateQualityRequest(request);
+ if(bytes.length>64*1024*1024||createHash("sha256").update(bytes).digest("hex")!==request.preflightSha256)throw new SourceError("quality_preflight_hash_mismatch");
+ let p:PreflightEvidence;try{p=JSON.parse(new TextDecoder("utf8",{fatal:true}).decode(bytes));}catch{throw new SourceError("quality_preflight_invalid");}
+ if(!p||p.schemaVersion!=="ainuoke-live-preflight.v1"||p.result!=="READ_ONLY_FULL_PREFLIGHT_RECORDED"||p.collectionValidation!=="complete"
+  ||p.databaseAccess!=="none"||p.sourceActivation!=="not-activated"||p.visibilityScope!=="current_account_visible"
+  ||p.sourceFingerprint!==sourceFingerprint||p.discovery?.complete!==true||p.discovery.stableAcrossStages!==true||!Number.isSafeInteger(p.discovery.contracts)||p.discovery.contracts<1
+  ||p.materials?.allVisibleContracts!==true||p.materials.contracts!==p.discovery.contracts||!Array.isArray(p.orders)||p.orders.length!==p.discovery.contracts
+  ||!Array.isArray(p.stages)||p.stages.length!==2||p.stages[0]?.stage!=="bindings"||p.stages[1]?.stage!=="materials"||p.stages.some(s=>s.status!=="validated"))throw new SourceError("quality_preflight_invalid");
+ const labels=new Set<string>(),contracts=new Set<string>();
+ for(const o of p.orders){
+  if(!o||!/^R[0-9]{4}$/.test(o.label)||typeof o.salesContractNo!=="string"||!identity(o.salesContractNo)||typeof o.insideOrderNo!=="string"||!identity(o.insideOrderNo)||labels.has(o.label)||contracts.has(identity(o.salesContractNo)))throw new SourceError("quality_preflight_invalid");
+  labels.add(o.label);contracts.add(identity(o.salesContractNo));
+ }
+ for(const t of request.targets){const o=p.orders.find(o=>o.label===t.label);
+  if(!o||identity(o.salesContractNo)!==identity(t.salesContractNo)||identity(o.insideOrderNo)!==identity(t.insideOrderNo))throw new SourceError("quality_preflight_scope_mismatch");
+ }
+ return {preflightSha256:request.preflightSha256,preflightLineageVerified:true as const};
+}
+function readProtectedPreflight(path:string) {
+ assertPrivateOutput(dirname(path));
+ const stat=lstatSync(path);if(!stat.isFile()||stat.isSymbolicLink()||stat.size>64*1024*1024)throw new SourceError("quality_preflight_invalid");
+ if(process.platform==="win32")execFileSync("pwsh",["-NoProfile","-NonInteractive","-File","scripts/ainuoke-live-preflight.ps1","-ValidateOnly","-PrivateDirectory",dirname(path),"-PrivateFile",path],{stdio:"ignore",windowsHide:true,timeout:15000});
+ else if((stat.mode&0o077)!==0||stat.uid!==process.getuid?.())throw new SourceError("quality_preflight_invalid");
+ const fd=openSync(path,constants.O_RDONLY|constants.O_NOFOLLOW);
+ try{const current=fstatSync(fd);if(!current.isFile()||current.dev!==stat.dev||current.ino!==stat.ino||current.size>64*1024*1024)throw new SourceError("quality_preflight_invalid");return readFileSync(fd);}finally{closeSync(fd);}
+}
+export async function collectVerifiedQuality(config:CollectorConfig,request:QualityRequest,bytes:Buffer,collect=collectQuality){
+ verifyQualityPreflight(bytes,request,readinessFingerprint(config));
+ return collect(config,request);
 }
 export function classifyQuantity(value: unknown, document: unknown) {
   if (value === null || value === undefined || typeof value === "string" && !value.trim())
@@ -119,23 +157,25 @@ function collectQuality(config: CollectorConfig, request: QualityRequest):Promis
 }
 export async function main(args=process.argv.slice(2)) {
   try {
-    if(args.length!==4 || !args.includes("--run-read-only") || !args.includes("--stdin-config")) throw new SourceError("quality_explicit_action_required");
+    if(args.length!==5 || !args.includes("--run-read-only") || !args.includes("--stdin-config")) throw new SourceError("quality_explicit_action_required");
     const output=args.find(a=>a.startsWith("--private-output="))?.slice(17), path=args.find(a=>a.startsWith("--private-request="))?.slice(18);
-    if(!output||!path)throw new SourceError("quality_explicit_action_required");
+    const preflightPath=args.find(a=>a.startsWith("--private-preflight="))?.slice("--private-preflight=".length);
+    if(!output||!path||!preflightPath)throw new SourceError("quality_explicit_action_required");
     assertPrivateOutput(output);assertPrivateOutput(dirname(path));
     execFileSync("pwsh",["-NoProfile","-NonInteractive","-File","scripts/ainuoke-live-preflight.ps1","-ValidateOnly","-PrivateDirectory",dirname(path),"-PrivateFile",path],{stdio:"ignore",windowsHide:true});
     const requestBytes=readFileSync(path);if(requestBytes.length>16384)throw new SourceError("quality_scope_invalid");
     const request=validateQualityRequest(JSON.parse(new TextDecoder("utf8",{fatal:true}).decode(requestBytes)));
+    const preflightBytes=readProtectedPreflight(preflightPath);
     const toolingCommit=execFileSync("git",["rev-parse","HEAD"],{encoding:"utf8",windowsHide:true}).trim();
     if(execFileSync("git",["status","--porcelain","--untracked-files=normal"],{encoding:"utf8",windowsHide:true}).trim())throw new SourceError("quality_clean_worktree_required");
     const parts:Buffer[]=[];let bytes=0;for await(const part of process.stdin){bytes+=part.length;if(bytes>16384)throw new SourceError("invalid_collector_configuration");parts.push(Buffer.from(part));}
     const config=parseCollectorConfig(JSON.parse(new TextDecoder("utf8",{fatal:true}).decode(Buffer.concat(parts))));
-    const raw=await collectQuality(config,request);
+    const raw=await collectVerifiedQuality(config,request,preflightBytes);
     // Persist the bounded source once, before derived analysis, so a report-only
     // repair can be replayed offline instead of repeating live collection.
-    const rawReceipt=writePrivateReport(output,{schemaVersion:"ainuoke-quality-raw-evidence.v1",preflightSha256:request.preflightSha256,toolingCommit,rawBundle:raw});
+    const rawReceipt=writePrivateReport(output,{schemaVersion:"ainuoke-quality-raw-evidence.v1",preflightSha256:request.preflightSha256,preflightLineageVerified:true,toolingCommit,rawBundle:raw});
     const report=await analyzeQuality(raw,request);
-    const receipt=writePrivateReport(output,{...report.privateReport,toolingCommit});process.stdout.write(JSON.stringify({...report.summary,toolingCommit,rawEvidence:rawReceipt,...receipt})+"\n");
+    const receipt=writePrivateReport(output,{...report.privateReport,preflightLineageVerified:true,toolingCommit});process.stdout.write(JSON.stringify({...report.summary,preflightLineageVerified:true,toolingCommit,rawEvidence:rawReceipt,...receipt})+"\n");
   } catch(error) {
     const code=error instanceof SourceError?error.code:"quality_invalid_or_unavailable";
     process.stdout.write(JSON.stringify({schemaVersion:"ainuoke-quality-diagnostic.v1",result:"FAIL",code,databaseAccess:"none",sourceActivation:"not-activated"})+"\n");process.exitCode=1;

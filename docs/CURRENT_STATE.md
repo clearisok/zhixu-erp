@@ -1,3 +1,5 @@
+2026-10-14 / PR108复审修复：实际原报告哈希、完整覆盖、来源指纹及逐合同身份核验已实施，定向26项/类型/Server构建通过；[证据](tasks/active/quality-preflight-lineage-fix-2026-10-14.md)。最终CI待新head送达，不沿用旧head全绿。
+
 # 当前状态
 
 核实2026-10-14；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`（#104–107已合并，最终只读核实相同）。GitHub/实际代码是实时工程事实，本文件随main、来源、运行目标、交付和验收改变而更新。旧状态/日期/hash/限制保留[归档](tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)。

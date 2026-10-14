@@ -1,3 +1,5 @@
+2026-10-14 / PR108复审修复：实际原报告哈希、完整覆盖、来源指纹及逐合同身份核验已实施，定向26项/类型/Server构建通过；[证据](tasks/active/quality-preflight-lineage-fix-2026-10-14.md)。最终CI待新head送达，不沿用旧head全绿。
+
 # AI handoff
 
 核实2026-10-14；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。继续现有 `feat/ainuoke-live-demo-readiness`；不重建worktree/分支。先读AGENTS、PROJECT_INDEX、CURRENT_STATE、[完整A–F报告](tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md)、D114及实际代码。

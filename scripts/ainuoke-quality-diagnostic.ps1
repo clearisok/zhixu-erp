@@ -3,6 +3,7 @@
 param(
     [string]$CredentialFile,
     [string]$RequestFile,
+    [string]$PreflightFile,
     [switch]$ValidateOnly,
     [string]$PrivateDirectory,
     [string]$PrivateFile
@@ -36,8 +37,9 @@ try {
         if ($PrivateFile) { Assert-PrivateAcl $PrivateFile $false $true }
         exit 0
     }
-    if ($PrivateDirectory -or $PrivateFile -or -not $RequestFile) { throw 'operator_arguments_invalid' }
+    if ($PrivateDirectory -or $PrivateFile -or -not $RequestFile -or -not $PreflightFile) { throw 'operator_arguments_invalid' }
     Assert-PrivateAcl $RequestFile $false $false
+    Assert-PrivateAcl $PreflightFile $false $false
     # Every execution starts from committed, clean code; generated outputs are Git ignored.
     $dirty = & git -C $repositoryRoot status --porcelain --untracked-files=normal
     if ($LASTEXITCODE -ne 0 -or $dirty) { throw 'committed_clean_worktree_required' }
@@ -87,7 +89,7 @@ try {
     $start.RedirectStandardInput = $true; $start.RedirectStandardOutput = $true; $start.RedirectStandardError = $true
     $start.StandardInputEncoding = [Text.UTF8Encoding]::new($false)
     $start.StandardOutputEncoding = [Text.UTF8Encoding]::new($false)
-    foreach ($argument in @('--import','tsx','server/ainuoke-source/quality-diagnostic.ts','--run-read-only','--stdin-config',('--private-output=' + $directory),('--private-request=' + $RequestFile))) {
+    foreach ($argument in @('--import','tsx','server/ainuoke-source/quality-diagnostic.ts','--run-read-only','--stdin-config',('--private-output=' + $directory),('--private-request=' + $RequestFile),('--private-preflight=' + $PreflightFile))) {
         $start.ArgumentList.Add($argument)
     }
     $process = [Diagnostics.Process]::Start($start)
