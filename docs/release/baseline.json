@@ -623,6 +623,13 @@
       "sha256": "e68495c08877e7867b26ebf2d8e3a9463eeab46383c7294e5d9b0b24028db1eb",
       "supersedes": "decisions-controlled-intake-engineering-20261013",
       "changeReason": "D121 user-approved dual order identity and staged independent commercial versions; retain original evidence and current implementation limits."
+    },
+    {
+      "id": "order-identity-g1-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/order-identity/gate1-results.md",
+      "recordedAtSha": "f4f8d715065d202bb816bd79a6595e10b71374d6",
+      "sha256": "dfa3ec44867ee8b94ad20307bd5563e802689faabcb9d2446079d57d3276e3ba"
     }
   ],
   "pages": [
@@ -2241,6 +2248,92 @@
           "scope": "Read-only audit not deployed. Existing runtime image identities are historical and were not re-observed.",
           "evidence": [
             "ainuoke-readonly-validation-engineering"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "order-identity-contract-claim",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Gate1 contract identity, claim, lineage and non-SO preparation only; Gate2 commercial snapshots and processing intake are not implemented.",
+      "evidence": [
+        "order-identity-g1-engineering",
+        "decisions-order-identity-g1"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "f4f8d715065d202bb816bd79a6595e10b71374d6",
+          "scope": "Gate1 contract identity, claim, lineage and non-SO preparation only; Gate2 commercial snapshots and processing intake are not implemented. Local engineering passed; no remote delivery, deployment or human acceptance.",
+          "evidence": [
+            "order-identity-g1-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-14",
+          "sourceSha": "f4f8d715065d202bb816bd79a6595e10b71374d6",
+          "scope": "Gate1 contract identity, claim, lineage and non-SO preparation only; Gate2 commercial snapshots and processing intake are not implemented. Local engineering passed; no remote delivery, deployment or human acceptance.",
+          "evidence": [
+            "order-identity-g1-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "f4f8d715065d202bb816bd79a6595e10b71374d6",
+          "scope": "Gate1 contract identity, claim, lineage and non-SO preparation only; Gate2 commercial snapshots and processing intake are not implemented. Local engineering passed; no remote delivery, deployment or human acceptance.",
+          "evidence": [
+            "order-identity-g1-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "f4f8d715065d202bb816bd79a6595e10b71374d6",
+          "scope": "Gate1 contract identity, claim, lineage and non-SO preparation only; Gate2 commercial snapshots and processing intake are not implemented. Local engineering passed; no remote delivery, deployment or human acceptance.",
+          "evidence": [
+            "order-identity-g1-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "f4f8d715065d202bb816bd79a6595e10b71374d6",
+          "scope": "Gate1 contract identity, claim, lineage and non-SO preparation only; Gate2 commercial snapshots and processing intake are not implemented. Local engineering passed; no remote delivery, deployment or human acceptance.",
+          "evidence": [
+            "order-identity-g1-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "This capability is not deployed; runtime identity is historical and was not re-observed.",
+          "evidence": [
+            "order-identity-g1-engineering"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "This capability is not deployed; runtime identity is historical and was not re-observed.",
+          "evidence": [
+            "order-identity-g1-engineering"
           ],
           "runtimeId": "preview18444",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
