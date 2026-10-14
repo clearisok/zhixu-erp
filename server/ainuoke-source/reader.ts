@@ -1,3 +1,4 @@
+import type { MaterialConfirmation } from '../../features/ainuoke-material-progress/confirmed-facts.js';
 import type { Pool } from "pg";
 import type { MaterialReadPorts } from "../../features/ainuoke-material-progress/read-service.js";
 import { createMaterialSourceLoader } from "../../features/ainuoke-material-progress/source-adapter.js";
@@ -19,9 +20,15 @@ export function sourceReadConfig(values: Readonly<Record<string, string | undefi
     return { sourceKey, maxAgeMs };
 }
 /** No network or secret access on GET. Same approved team, exact persisted order binding. */
-export function createPersistedMaterialPorts(pool: Pool, config: SourceReadConfig, now: () => number = Date.now): MaterialReadPorts {
+export function createPersistedMaterialPorts(pool: Pool, config: SourceReadConfig, now: () => number = Date.now, confirmations?: { sourceKey: string; byOrder: ReadonlyMap<string, readonly MaterialConfirmation[]> }): MaterialReadPorts {
     if (!sourceKeyValid(config.sourceKey) || !Number.isSafeInteger(config.maxAgeMs) || config.maxAgeMs < 1000)
         throw new SourceError("invalid_source_read_configuration");
+    if (confirmations && confirmations.sourceKey !== config.sourceKey) throw new SourceError('confirmation_source_mismatch');
+    // Freeze operator input at construction; no browser payload, environment default or DB write.
+    const privateFacts = new Map([...(confirmations?.byOrder ?? [])].map(([id, facts]) => [id, structuredClone(facts)]));
+    const loadConfirmations: NonNullable<MaterialReadPorts['loadConfirmations']> = async (order, identity) => {
+        await sourceActor(pool, identity, false); return privateFacts.get(order.id) ?? [];
+    };
     type Stored = {
         discovery: AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>[];
         snapshots: AinuokeReportSnapshot[];
@@ -57,7 +64,7 @@ export function createPersistedMaterialPorts(pool: Pool, config: SourceReadConfi
             if (other.userId !== identity.userId || other.internalUserId !== identity.internalUserId) throw new SourceError("source_actor_unavailable");
         };
         const resolveBatch: MaterialReadPorts["resolveVisibleOrder"] = async (other, id) => { verifyIdentity(other); return orders.get(id) ?? null; };
-        return { resolveVisibleOrder: resolveBatch, loadSource: async (order, other) => {
+        return { resolveVisibleOrder: resolveBatch, loadConfirmations: async (order, other) => { verifyIdentity(other); return privateFacts.get(order.id) ?? []; }, loadSource: async (order, other) => {
             verifyIdentity(other); const record = indexed.get(order.id);
             if (!header || !record || record.sales_contract_no !== order.salesContractNo) return null;
             if (header.last_error_code) return {salesOrderId: order.id,salesContractNo:record.sales_contract_no,provenance:"server_snapshot",snapshots:[],issue:"source_failed"};
@@ -66,7 +73,7 @@ export function createPersistedMaterialPorts(pool: Pool, config: SourceReadConfi
                 readDiscovery:async()=>header.discovery,readMaterial:async()=>record.snapshots})(order, other);
         }};
     };
-    return { prepareBatch, resolveVisibleOrder, loadSource: async (order, identity) => {
+    return { prepareBatch, resolveVisibleOrder, loadConfirmations, loadSource: async (order, identity) => {
             await sourceActor(pool, identity, false);
             const record = await stored(order.id);
             if (!record || record.sales_contract_no !== order.salesContractNo)

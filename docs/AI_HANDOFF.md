@@ -9,3 +9,5 @@
 [历史接力和全部旧hash](tasks/completed/2026-10-14-before-order-alerts.md)；[异常业务核对](tasks/active/source-anomaly-followup-2026-10-14.md)。具体单据/编码与确认仅保存在旧PR108工作树受保护Git忽略目录，不能复制进Git。不得使用凭据或全量读取刷新旧证据以代替目标授权。
 
 2026-10-14下一阶段：用户批准右上角身份区退出登录，范围见tasks/active/server-user-menu-2026-10-14.md；验证进行中，真实Source状态未改变。
+
+707dcd8右上角退出菜单：typecheck/lint/build、隔离Chromium9/9通过，截图outputs/user-menu-2026-10-14。D-118补充事实候选：8组纯回归及一次性PG通过，7项真实历史需求离线确认应用；默认未注入真实确认。下一小范围首次绑定需复用selected mapper，现有全量首绑不能截断Discovery。详见material-confirmations任务。最终项目/基线检查进行中。

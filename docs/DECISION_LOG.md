@@ -18,6 +18,12 @@
 
 ## Active
 
+### D-118 需求级人工单位与采购责任确认
+- 日期：2026-10-14；状态：Active；依据用户对限定单位/两次采购/工厂自购的明确回执及继续推进要求。
+- 复用原始6087050 Adapter/Pipeline，人工事实与来源原值分开。确认须匹配合同、需求及来源单位/身份/采购范围，记录确认人/时间/引用；来源变化失配不应用。缺单位不默认个；只支持经确认的1:1语义，不增加换算公式。
+- 两笔采购事件保持独立，理论数量不加倍；该批单位等价不证明尺寸错误首批可用于生产，齐套仍待可用性确认。工厂自购需求/来源自购原值/流水保留，只从国贸跟进范围排除，不虚构到料或采购0。
+- 当前是只读候选和默认关闭的可信注入端口，无真实确认持久化或激活，无HTTP确认写接口。代码features/ainuoke-material-progress/confirmed-facts.ts、projection.ts、server/ainuoke-source/reader.ts；证据见[tasks/active/material-confirmations-2026-10-14.md](tasks/active/material-confirmations-2026-10-14.md)。
+
 ### D-117 待定颜色记0与订单异常列
 - 日期：2026-10-14；状态：Active；用户明确要求颜色数量未定时设置0，订单列表新增异常小框“数量0”“单位为空”等，并提供示意图。[批准与工程范围](tasks/active/order-list-alerts-2026-10-14.md)。
 - 替代D-116中“具名空数量在织序保持null”的条款：仅当具名颜色SizeNum和所有SizeN均空，织序投影/新首绑颜色量为0；原始Snapshot及sourceQuantity:null保留，quantityPendingConfirmation:true记录暂定语义。不把负数、非法值或已有分码的空总数变0；无名全空仍排除，物料未知数量规则不变。

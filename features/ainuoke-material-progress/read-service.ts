@@ -1,3 +1,4 @@
+import type { MaterialConfirmation } from './confirmed-facts.ts';
 import type { MaterialSourceIssue } from './source-adapter.ts';
 import type { TrustedIdentity } from '../../server/auth/session.ts';
 import type { SalesOrderReadModel } from '../../server/sales-orders/model.ts';
@@ -25,6 +26,8 @@ export type MaterialReadPorts = {
    */
   resolveVisibleOrder: (identity: TrustedIdentity, salesOrderId: string) => Promise<VisibleMaterialOrder | null>;
   /** Absent by default. Gate 1.5 supplies an isolated injected adapter; no Bridge/DB wiring. */
+  /** Trusted operator-reviewed injection only; never taken from the HTTP request. */
+  loadConfirmations?: (order: VisibleMaterialOrder, identity: TrustedIdentity) => Promise<readonly MaterialConfirmation[]>;
   loadSource?: (order: VisibleMaterialOrder, identity: TrustedIdentity) => Promise<BoundMaterialSource | null>;
 };
 const failure = (status: 400 | 401 | 403 | 404 | 503, code: string, message: string): MaterialReadResult => ({ status, error: { code, message } });
@@ -71,7 +74,7 @@ export function createOrderMaterialReader(ports: MaterialReadPorts) {
           message: ({ source_failed: '物料来源读取失败；未使用缓存或 Browser 数据。', source_missing: '当前来源缺少合同关联或物料 Snapshot。',
             stale: '来源已超出可信读取时效；暂停物料状态判定。', incomplete: '来源分页或字段不完整；暂停物料状态判定。',
             identity_mismatch: '来源查询身份不一致；未关联物料。' } as const)[source.issue] }
-          : projectMaterialProgress(progressOrder, source.snapshots) } };
+          : projectMaterialProgress(progressOrder, source.snapshots, await ports.loadConfirmations?.(order, identity) ?? []) } };
     } catch {
       return failure(503, 'material_source_unavailable', '正式物料来源暂不可用；不会读取 Browser 本地数据。');
     }
