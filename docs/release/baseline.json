@@ -671,6 +671,13 @@
       "sha256": "439ff40c3e90334e3fcd8027348940234812e6035b489b899116c60d0d186f6e",
       "supersedes": "decisions-processing-g3",
       "changeReason": "D124 adds the approved historical order review case boundary, preserving every prior decision and frozen evidence blob."
+    },
+    {
+      "id": "order-normalization-preview-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/order-normalization/gate4-preview-results.md",
+      "recordedAtSha": "f36307cf39b5581ab1ad3536c5829448deee1988",
+      "sha256": "c59ddd4830c5f981c9794e6ccc4dbfc605364df5a6d88ebbb14c6a07d44bb033"
     }
   ],
   "pages": [
@@ -2547,6 +2554,92 @@
           "scope": "Capability not deployed; historical runtime identity retained, not re-observed.",
           "evidence": [
             "processing-g3-engineering"
+          ],
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444"
+        }
+      }
+    },
+    {
+      "id": "order-normalization-case-review",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Gate4 local administrator case review and finite-reference preview only; effective attribution/execution/correction, external production/closing coverage, real activation and deployment are not delivered.",
+      "evidence": [
+        "order-normalization-preview-engineering",
+        "decisions-order-normalization-g4"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "f36307cf39b5581ab1ad3536c5829448deee1988",
+          "scope": "Gate4 local administrator case review and finite-reference preview only; effective attribution/execution/correction, external production/closing coverage, real activation and deployment are not delivered. Remote delivery/CI and human acceptance remain pending.",
+          "evidence": [
+            "order-normalization-preview-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-14",
+          "sourceSha": "f36307cf39b5581ab1ad3536c5829448deee1988",
+          "scope": "Gate4 local administrator case review and finite-reference preview only; effective attribution/execution/correction, external production/closing coverage, real activation and deployment are not delivered. Remote delivery/CI and human acceptance remain pending.",
+          "evidence": [
+            "order-normalization-preview-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "f36307cf39b5581ab1ad3536c5829448deee1988",
+          "scope": "Gate4 local administrator case review and finite-reference preview only; effective attribution/execution/correction, external production/closing coverage, real activation and deployment are not delivered. Remote delivery/CI and human acceptance remain pending.",
+          "evidence": [
+            "order-normalization-preview-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "f36307cf39b5581ab1ad3536c5829448deee1988",
+          "scope": "Gate4 local administrator case review and finite-reference preview only; effective attribution/execution/correction, external production/closing coverage, real activation and deployment are not delivered. Remote delivery/CI and human acceptance remain pending.",
+          "evidence": [
+            "order-normalization-preview-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "f36307cf39b5581ab1ad3536c5829448deee1988",
+          "scope": "Gate4 local administrator case review and finite-reference preview only; effective attribution/execution/correction, external production/closing coverage, real activation and deployment are not delivered. Remote delivery/CI and human acceptance remain pending.",
+          "evidence": [
+            "order-normalization-preview-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Not deployed by this task; historical runtime identity retained without re-observation.",
+          "evidence": [
+            "order-normalization-preview-engineering"
+          ],
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Not deployed by this task; historical runtime identity retained without re-observation.",
+          "evidence": [
+            "order-normalization-preview-engineering"
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"
