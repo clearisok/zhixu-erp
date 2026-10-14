@@ -7,7 +7,7 @@ import { requireOrderCommandActor } from './identity-service.js';
 import { identityUuid } from './identity-model.js';
 import { assessNormalizationPair, type NormalizationOrderEvidence } from './normalization-assessment.js';
 // Fixed identifiers only. Never interpolate caller-controlled table/column names.
-const references = [
+export const NORMALIZATION_REFERENCES = [
  ['sales_orders','source_order_id','id'],
  ['sales_order_attribution_members','sales_order_id','change_id'],
  ['sales_order_attribution_members','effective_order_id','change_id'],
@@ -29,6 +29,7 @@ const references = [
  ['processing_order_batches','reference_order_id','id'],
  ['processing_order_batch_consumptions','sales_order_id','batch_id'],
 ] as const;
+const references=NORMALIZATION_REFERENCES;
 export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');
 }

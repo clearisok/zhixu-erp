@@ -61,3 +61,14 @@ reader在RR只读事务一起读取fresh授权、目标归属和已接受快照�
 剩余：默认关闭的公共归一执行、完整引用/版本指纹、生产/财务覆盖及审批、冻结/新流水后的纠正预览、原历史Source快照只读入口、管理员案件选单历史scope及有效历史状态UI。当前案件选单仍用默认列表，公开归一尚未实现，真实数据没有归属变化；后续须明确接includeHistorical并独立UI影响记录。加工消费当前返回原批次SO，执行服务须禁止把独立加工批次身份当合同重复合并。完整G4未完成，本分支不建议真实归一/合并使用。
 
 上一Source阶段接力和状态分别归档source-attribution-handoff/state；不更新旧冻结能力证据或宣称已部署。REMOTE PENDING，网络规则保持，不自动push恢复、合并或部署。
+
+
+## 2026-10-15 完整证据基础阶段
+
+起点4d59604c17b19b7eaf5d251ef567bc8d0cd5172c，dirty为空。分配未发布0019 target/proof/review append-only schema，无真实迁移。target随机ID、数据库名/OID及服务器端点形成目标指纹；proof绑定case/version、目标、归属方案和完整证据。review预留独立生产/财务决定与递增sequence，不改0017案件历史。当前尚无执行/复核API。
+
+normalization-full-evidence按固定已声明Server引用逐行读取全部行内容、关联旧CCT事实与已声明order审计引用，计算完整hash；不再只取前100ID。100000行/32MiB预算超限直接拒绝，未知FK仍阻断。没有自动发现未声明JSON/外部账本的能力，hashScope如实限定。有效完整组、可信合同、独立加工批次、执行SO优先、有效血统环、取消根及case版本均进入阻断。外部生产/财务必须由可信Server Adapter持冻结读取lease覆盖回调直到COMMIT；HTTP命令不接收verified/count/raw evidence。默认Adapter unavailable，Server无行不变成外部零。
+
+生产/财务事实只返回数量与完整hash，不公开内部商业金额或raw payload；可信冻结来源完整scope、记录唯一性、期限、目标及前后复核均校验。历史导出但仍有活跃writer不能实现此冻结契约。尚未连接真实生产/关账Adapter，真实归一仍不允许；本地只有合成冻结来源。
+
+9项定向通过：第121行内容变更（计数/前100ID不变）能让完整hash改变而旧preview hash不变；unknown FK、预算超限、未知vs明确空、单边执行根保护、财务独立复核要求、源lease变化/缺scope/重复/过期拒绝、目标identity不可改删、case版本变化拒绝及严格命令字段。无缓存类型/定向lint通过。下一阶段审批、有限目标/方案许可及事务执行/纠正；执行默认关闭，不用这个hash替代授权。上一消费者接力保留于completed。
