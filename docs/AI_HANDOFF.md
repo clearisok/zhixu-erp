@@ -11,3 +11,5 @@
 2026-10-14下一阶段：用户批准右上角身份区退出登录，范围见tasks/active/server-user-menu-2026-10-14.md；验证进行中，真实Source状态未改变。
 
 707dcd8右上角退出菜单：typecheck/lint/build、隔离Chromium9/9通过，截图outputs/user-menu-2026-10-14。D-118补充事实候选：8组纯回归及一次性PG通过，7项真实历史需求离线确认应用；默认未注入真实确认。下一小范围首次绑定需复用selected mapper，现有全量首绑不能截断Discovery。详见material-confirmations任务。最终项目/基线检查进行中。
+
+最终验证：root839、baseline73、持续46pass/1平台skip、Chromium9、最终纯物料/确认/读取63及账号指纹PG1通过。见tasks/active/material-confirmations-verification-2026-10-14.md。UI截图最终候选b542e8d在outputs/confirmed-facts-2026-10-14，旧707dcd8截图保留。真实首绑仍未授权/执行；下一工程为限定合同首绑，不重跑全量历史预检。

@@ -36,7 +36,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
   const navigate=async path=>{const marker=Date.now()+Math.random();await evaluate("window.navEpoch="+marker);await command("Page.navigate",{url:x.base+path});await until(()=>evaluate("window.navEpoch!=="+marker+"&&document.readyState==='complete'"),"navigation");};
   const has=async text=>{try{await until(()=>evaluate("Boolean(document.body?.innerText.includes("+JSON.stringify(text)+"))"),text);}catch(error){throw Error(error.message+"; "+await evaluate("document.body?.innerText??'navigation in progress'"));}};
   const login=async username=>{const cookie=await x.login(username);const split=cookie.indexOf("=");await command("Network.setCookie",{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:"127.0.0.1",path:"/",httpOnly:true});};
-  const screenshot=async name=>{if(process.env.AINUOKE_UI_EVIDENCE!=="1")return;const dir=resolve("outputs/user-menu-2026-10-14");await mkdir(dir,{recursive:true});const shot=await command("Page.captureScreenshot",{format:"png"});await writeFile(join(dir,name+".png"),Buffer.from(shot.data,"base64"));};
+  const screenshot=async name=>{if(process.env.AINUOKE_UI_EVIDENCE!=="1")return;const dir=resolve("outputs/confirmed-facts-2026-10-14");await mkdir(dir,{recursive:true});const shot=await command("Page.captureScreenshot",{format:"png"});await writeFile(join(dir,name+".png"),Buffer.from(shot.data,"base64"));};
   await command("Page.addScriptToEvaluateOnNewDocument",{source:"window.businessWrites=[];const original=fetch;window.fetch=(...a)=>{if(a[1]?.method&&!['GET','HEAD'].includes(a[1].method)&&!String(a[0]).includes('/auth/'))businessWrites.push(String(a[0]));return original(...a)};"});
   const input=(selector,value)=>evaluate("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,"+JSON.stringify(value)+");n.dispatchEvent(new Event('input',{bubbles:true}));})()");
   const click=label=>evaluate("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+"+JSON.stringify(label)+");n.click();})()");
@@ -55,10 +55,10 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    const material="/order-center/style-progress/detail?orderId="+x.orderId;
    await navigate(material);await has("合成棉布");
    await click("用户菜单");
-   await evaluate("window.logoutOriginalFetch=window.fetch;window.fetch=(...a)=>String(a[0]).includes('/auth/logout')?Promise.resolve(new Response(JSON.stringify({error:{code:'synthetic_unavailable',message:'synthetic'}}),{status:503,headers:{'Content-Type':'application/json'}})):window.logoutOriginalFetch(...a)");
+   await command("Network.setBlockedURLs",{urls:["*/api/v1/auth/logout*"]});
    await click("退出登录");await has("退出未完成，请检查网络后重试。");
    assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"),200);
-   await evaluate("window.fetch=window.logoutOriginalFetch");
+   await command("Network.setBlockedURLs",{urls:[]});
    await click("退出登录");await has("忘记密码？请联系系统管理员");
    assert.equal(await evaluate("new URLSearchParams(location.search).get('returnTo')"),material);
    assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);
@@ -117,7 +117,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
-  if(process.env.AINUOKE_UI_EVIDENCE==="1")await writeFile(resolve("outputs/user-menu-2026-10-14/computed-styles.json"),JSON.stringify({build:info,metrics},null,2)+"\n");
+  if(process.env.AINUOKE_UI_EVIDENCE==="1")await writeFile(resolve("outputs/confirmed-facts-2026-10-14/computed-styles.json"),JSON.stringify({build:info,metrics},null,2)+"\n");
  }finally{
   ws?.close();if(browser&&browser.exitCode===null){browser.kill();await wait(500);}
   await x.close();const distance=relative(resolve(tmpdir()),resolve(temp));assert.ok(distance&&!distance.startsWith("..")&&!isAbsolute(distance)&&temp.includes("zhixu-continuous-ui-"));await rm(temp,{recursive:true,force:true});

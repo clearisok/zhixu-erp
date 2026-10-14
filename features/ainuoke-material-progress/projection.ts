@@ -185,6 +185,9 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
     view.duplicateEvents = preview.pipeline.stats.duplicateEventRows;
     view.sourceStatus = 'ready'; view.summary = summarize(view);
     view.message = view.rows.some(row => row.status === null) ? '完整分页已读取；部分数量来源不完整，这些物料暂停状态判定。' : '完整 Source 已校验；抓取时间不等于实时状态。';
+    const currentDemands = new Set(preview.pipeline.demands.map(demand => demand.id));
+    const unmatched = confirmations.filter(item => item.salesContractNo === target && !currentDemands.has(item.demandId)).length;
+    if (unmatched) view.message += ` 有${unmatched}条人工确认未匹配当前需求，未应用，请重新核对。`;
     return view;
   } catch {
     // Never reflect Source/parser exception text: it may contain protected fields or raw values.

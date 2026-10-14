@@ -48,7 +48,7 @@ test('wrong contract, wrong demand, stale evidence, conflicting receipts and mis
 });
 test('source unit, supplier method, material specification and new purchase identity invalidate prior confirmation',()=>{
  for(const values of [{QtyUnit:'米'},{SupplyType:'其他'},{CnComposition:'changed-spec'},{cgdh:'PO-NEW'}]){
-  const p=pages();source(p).values.QtyUnit=null;const f=receipt(p);Object.assign(source(p).values,values);const r=row(project(p,[f]));assert.notEqual(r.unitOrigin,'confirmed');assert.notEqual(r.confirmationStatus,'applied');
+  const p=pages();source(p).values.QtyUnit=null;const f=receipt(p);Object.assign(source(p).values,values);const view=project(p,[f]),r=row(view);assert.notEqual(r.unitOrigin,'confirmed');assert.notEqual(r.confirmationStatus,'applied');if(values.CnComposition)assert.match(view.message,/人工确认未匹配/);
  }
 });
 test('duplicate joined rows and new movement do not remove a reviewed unit or duplicate its purchase event',()=>{

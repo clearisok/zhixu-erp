@@ -20,14 +20,18 @@ export function sourceReadConfig(values: Readonly<Record<string, string | undefi
     return { sourceKey, maxAgeMs };
 }
 /** No network or secret access on GET. Same approved team, exact persisted order binding. */
-export function createPersistedMaterialPorts(pool: Pool, config: SourceReadConfig, now: () => number = Date.now, confirmations?: { sourceKey: string; byOrder: ReadonlyMap<string, readonly MaterialConfirmation[]> }): MaterialReadPorts {
+export function createPersistedMaterialPorts(pool: Pool, config: SourceReadConfig, now: () => number = Date.now, confirmations?: { sourceKey: string; accountFingerprint: string; byOrder: ReadonlyMap<string, readonly MaterialConfirmation[]> }): MaterialReadPorts {
     if (!sourceKeyValid(config.sourceKey) || !Number.isSafeInteger(config.maxAgeMs) || config.maxAgeMs < 1000)
         throw new SourceError("invalid_source_read_configuration");
-    if (confirmations && confirmations.sourceKey !== config.sourceKey) throw new SourceError('confirmation_source_mismatch');
+    if (confirmations && (confirmations.sourceKey !== config.sourceKey || !/^[a-f0-9]{64}$/u.test(confirmations.accountFingerprint))) throw new SourceError('confirmation_source_mismatch');
     // Freeze operator input at construction; no browser payload, environment default or DB write.
     const privateFacts = new Map([...(confirmations?.byOrder ?? [])].map(([id, facts]) => [id, structuredClone(facts)]));
     const loadConfirmations: NonNullable<MaterialReadPorts['loadConfirmations']> = async (order, identity) => {
-        await sourceActor(pool, identity, false); return privateFacts.get(order.id) ?? [];
+        await sourceActor(pool, identity, false);
+        if (!confirmations) return [];
+        const profile = (await pool.query<{account_fingerprint:string}>('SELECT account_fingerprint FROM ainuoke_source_profiles WHERE source_key=$1 AND enabled=true',[config.sourceKey])).rows[0];
+        if (profile?.account_fingerprint !== confirmations.accountFingerprint) throw new SourceError('confirmation_source_mismatch');
+        return privateFacts.get(order.id) ?? [];
     };
     type Stored = {
         discovery: AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>[];
@@ -54,7 +58,7 @@ export function createPersistedMaterialPorts(pool: Pool, config: SourceReadConfi
         await sourceActor(pool, identity, false);
         const wanted = new Set(ids);
         const orders = new Map((await boundOrders(pool)).filter(order => wanted.has(order.id)).map(order => [order.id, order]));
-        const header = (await pool.query<Pick<Stored, "discovery" | "discovery_hash" | "last_error_code"> & {run_id: string}>(`SELECT r.id::text AS run_id,r.discovery,r.discovery_hash,p.last_error_code
+        const header = (await pool.query<Pick<Stored, "discovery" | "discovery_hash" | "last_error_code"> & {run_id: string; account_fingerprint:string}>(`SELECT r.id::text AS run_id,p.account_fingerprint,r.discovery,r.discovery_hash,p.last_error_code
           FROM ainuoke_source_profiles p JOIN ainuoke_source_runs r ON r.id=p.latest_run_id AND r.source_key=p.source_key
           WHERE p.source_key=$1 AND p.enabled=true`, [config.sourceKey])).rows[0];
         if (header && hash(header.discovery) !== header.discovery_hash) throw new SourceError("source_snapshot_changed");
@@ -64,7 +68,7 @@ export function createPersistedMaterialPorts(pool: Pool, config: SourceReadConfi
             if (other.userId !== identity.userId || other.internalUserId !== identity.internalUserId) throw new SourceError("source_actor_unavailable");
         };
         const resolveBatch: MaterialReadPorts["resolveVisibleOrder"] = async (other, id) => { verifyIdentity(other); return orders.get(id) ?? null; };
-        return { resolveVisibleOrder: resolveBatch, loadConfirmations: async (order, other) => { verifyIdentity(other); return privateFacts.get(order.id) ?? []; }, loadSource: async (order, other) => {
+        return { resolveVisibleOrder: resolveBatch, loadConfirmations: async (order, other) => { verifyIdentity(other); if (confirmations && header?.account_fingerprint !== confirmations.accountFingerprint) throw new SourceError('confirmation_source_mismatch'); return privateFacts.get(order.id) ?? []; }, loadSource: async (order, other) => {
             verifyIdentity(other); const record = indexed.get(order.id);
             if (!header || !record || record.sales_contract_no !== order.salesContractNo) return null;
             if (header.last_error_code) return {salesOrderId: order.id,salesContractNo:record.sales_contract_no,provenance:"server_snapshot",snapshots:[],issue:"source_failed"};

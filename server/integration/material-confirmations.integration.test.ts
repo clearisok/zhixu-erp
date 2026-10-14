@@ -18,8 +18,10 @@ test('explicit reviewed confirmations use persisted identity, survive batch read
   const receipt:MaterialConfirmation={id:'synthetic-unit-confirmation',salesContractNo:demand.salesContractNo,demandId:demand.id,
    evidenceKey:materialConfirmationEvidence(demand,pipeline.rawRows.filter(r=>r.normalizedDemandId===demand.id)),
    confirmedBy:'synthetic-human',confirmedAt:'2026-10-14T00:00:00Z',evidenceReference:'synthetic-private-receipt',unit:{value:'个',acceptedSourceUnits:[null],ratio:1}};
-  const review={sourceKey:'synthetic-demo',byOrder:new Map([[x.orderId,[receipt]]])};
+  const review={sourceKey:'synthetic-demo',accountFingerprint:'a'.repeat(64),byOrder:new Map([[x.orderId,[receipt]]])};
   assert.throws(()=>createPersistedMaterialPorts(x.pool,{sourceKey:'wrong-source',maxAgeMs:1800000},Date.now,review),/confirmation_source_mismatch/);
+  const wrongAccount=createPersistedMaterialPorts(x.pool,{sourceKey:'synthetic-demo',maxAgeMs:1800000},Date.now,{...review,accountFingerprint:'b'.repeat(64)});
+  for(const ports of [wrongAccount,await wrongAccount.prepareBatch!(actor,[x.orderId])])assert.equal((await createOrderMaterialReader(ports)(actor,{salesOrderId:x.orderId})).status,503);
   const ports=createPersistedMaterialPorts(x.pool,{sourceKey:'synthetic-demo',maxAgeMs:1800000},Date.now,review);
   receipt.unit!.value='changed-after-construction';
   for(const p of [ports,await ports.prepareBatch!(actor,[x.orderId])]){

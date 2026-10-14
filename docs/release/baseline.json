@@ -639,6 +639,29 @@
       "path": "docs/tasks/active/order-list-alerts-2026-10-14.md",
       "recordedAtSha": "7b835cf9ab8686e695bb52ec984e13758c7b9257",
       "sha256": "5c51486968c1468e9e9a9fe62c44ec4e0104a4fd00fb8ae1d73d237b99b7875f"
+    },
+    {
+      "id": "decisions-material-confirmations-20261014",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "b542e8d6137874b56cfaf4204720ddf15fe6281a",
+      "sha256": "63896a2cbfea397bc59a5e830f27b15b854ec5dd41c64139d7fb6c17e0bfbfcf",
+      "supersedes": "decisions-order-alerts-20261014",
+      "changeReason": "D-118 scoped human unit and factory procurement facts; no source activation"
+    },
+    {
+      "id": "material-confirmations-engineering-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/material-confirmations-2026-10-14.md",
+      "recordedAtSha": "b542e8d6137874b56cfaf4204720ddf15fe6281a",
+      "sha256": "ad02327a5093545e7cbd4685c590036fd3ee4e7ea92e86396198bd736a27e55a"
+    },
+    {
+      "id": "server-user-menu-approved-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/server-user-menu-2026-10-14.md",
+      "recordedAtSha": "b542e8d6137874b56cfaf4204720ddf15fe6281a",
+      "sha256": "aef86a4f7995d691eeb70d6063773bb77800f08ab3fd0bc7f4ef37b698ff9b9f"
     }
   ],
   "pages": [
