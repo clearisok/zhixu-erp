@@ -130,7 +130,7 @@ test("Quote confirmation and legacy evidence remain distinct from adopted Order 
     "0010_quote_creation_receipts.sql",
     "0011_quote_creation_defaults.sql", "0012_ainuoke_server_source.sql",
     "0014_order_identity.sql",
-    "0015_order_commercial_versions.sql", "0016_processing_order_batches.sql", "0017_order_normalization_cases.sql", "0018_order_effective_attribution.sql", "0019_order_normalization_reviews.sql",
+    "0015_order_commercial_versions.sql", "0016_processing_order_batches.sql", "0017_order_normalization_cases.sql", "0018_order_effective_attribution.sql", "0019_order_normalization_reviews.sql", "0020_order_attribution_write_guards.sql",
   ]);
   const rerun = await runMigrations(pool, resolve("database/migrations"));
   assert.deepEqual(rerun.applied, []);

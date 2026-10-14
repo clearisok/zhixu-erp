@@ -1,11 +1,11 @@
 # 当前状态
 
-核实日期2026-10-15；最近核实main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`，本轮未刷新GitHub。当前本地分支feat/order-effective-attribution；案件预览最终本地afb71f921b5645ed83f03d46a784d1e30f8325f2保留；NETWORK_DEGRADED规则保持，所有本地工程与远端/合并/部署分开。
+核实日期2026-10-15；GitHub API最新main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`，开放PR仅#108、head f5bbb1e4d3d6c52c80b03947a6926380afafc8c0。当前本地feat/order-effective-attribution，阶段起点59499461。只读API可用不等于Git传输恢复；NETWORK_DEGRADED规则保持，工程/远端/合并/部署分开。
 
-G1 def98f275c2ef61712008891ab1c60d308981bb7、G2 2c6c2315d4b295dba2c6f73f651255f775790b99、G3 39c9f7b607eabed5d72845d3a30b7fc766a6ee9d的本地提交和工作树保留，尚未精确远端交付。合同身份/认领、独立采用商业版本、加工批次双入口均有本地合成验收，详见对应阶段冻结证据；不冒称main能力。
+G1 def98f275c2ef61712008891ab1c60d308981bb7、G2 2c6c2315d4b295dba2c6f73f651255f775790b99、G3 39c9f7b607eabed5d72845d3a30b7fc766a6ee9d提交/工作树保留，未精确远端交付。合同身份认领、独立采用商业版本、加工批次双入口已有本地合成验收，不冒称main能力。G4案件预览afb71f921b5645ed83f03d46a784d1e30f8325f2及冻结证据保留；有限preview不是执行令牌，Server无行不证明外部无执行/冻结。
 
-G4已实现有限引用只读预览、0017不可变案件历史，以及管理员开案/追加记录/撤回/重新打开/查询API。服务端RR快照、fresh授权、canonical pair唯一、请求幂等、版本CAS及审计原子回滚已合成验证。合同事实v2补充后定向37/37、类型/修改路径lint及候选e07c33c7构建/浏览器5/5通过；源码824/全PG261/基线78及全lint/Server编译在此前766c68eb候选通过，后续只读新事实另经定向/浏览器验证。案件/预览阶段工程通过，f36307cf冻结证据和第19项能力已登记；最终源码门禁及能力后的基线78项通过。生产/关账的Browser及外部覆盖仍unknown，不能以Server无行判断无流水；preview hash不是执行令牌。[Gate4事实与下一步](tasks/active/order-normalization-preview.md)。
+G4本地0018有效归属/纠正、Source scope与epoch、统一消费者、0019完整有界证据/独立复核/默认关闭执行服务已验证。当前新增0020普通SQL防绕过、write epoch阻断RR旧身份、Source run/snapshot不可改删、新发布精确root/可信合同/generation，以及后补来源的合同唯一和加工独立性保护。原UUID、创建历史、来源绑定、商业价、计划和流水均未搬移或合计；历史参考仍允许。所有迁移仅一次性合成PG，无真实迁移。
 
-G4有效归属基础已在独立分支实现0018账本/逐SO映射/当前视图、原历史保留及纠正拆组约束；一次性PG10项、类型/定向lint通过。Source目标和归属epoch、完整范围重放及同generation读取已本地19项合成验证，类型/lint及normalization37项通过；旧prefix12兼容、部分schema拒绝。订单有效/历史API、来源接纳查重、认领/血统/商业采用/交付计划/生命周期的新写保护已接线；归属30、联合37、全PG261及依赖回归通过，原身份/绑定/计划/价格未搬移。0019完整有界证据、独立复核、单目标/案例许可及默认关闭的执行/纠正API已合成29项/全PG261等验证，session-only及撤权再授失效。真实外部Adapter、实际备份/许可仍未提供，历史Source及历史/复核UI未完成；G5页面/排序/num_dyc/6086941待独立交付。没有真实账号、真实DB、Source范围/调度、宁波或18443/18444变更；不自动合并、部署或执行归一。下一步补历史Source/UI并按完整批准计划查漏，再收口Gate4及G5；远端PR/CI仍待安全交付。
+当前归属45/45（含新增SQL15）、执行29/29、Source20PASS/1skip、身份15/15、加工35/35、源码824/824、基线78/78、类型/lint/Server编译通过；最终完整PG/API261/261明确exit0。失败/修复及完整时点见[阶段任务](tasks/active/order-effective-attribution.md)。当前真实外部Adapter、备份恢复及具体许可均未提供；执行默认关闭。历史Source/复核UI、运行态关闭新命令及旧二进制回退验收仍待；不承诺整个G4完成。
 
-G3状态原文完整保留于[阶段快照](tasks/completed/2026-10-14-gate3-final-current-state.md)，其旧日期、hash、测试和限制不删除。
+下一步收口上述G4缺口，查漏准备记录采纳、待分类执行hold、Quote修订确认清空，再独立交付G5页面/排序/num_dyc/6086941。没有真实账号/DB、Source范围/调度、宁波或18443/18444变更；不自动合并部署。上一完整状态保留于[阶段快照](tasks/completed/2026-10-15-pre-sql-guard-current-state.md)。

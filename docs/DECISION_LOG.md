@@ -18,13 +18,21 @@
 
 ## Active
 
+### D-125 Gate4 有效归属与普通SQL写入保护
+
+- 日期2026-10-15；Active，落实已批准D-121归一/历史保护计划，不扩大真实操作授权。
+- 0018保留原UUID/绑定/流水，0019完整有界证据及独立复核，默认执行关闭；0020在已声明Server表增加普通DML防绕过。来源事实仍写不可变原owner，当前快照按有效根和精确generation发布；不搬移或加总旧计划/价格/流水。
+- 新订单商业/执行不能写历史别名；参考记录可以保留历史身份。加工批次身份不能与合同归一，后补可信绑定也必须维护合同唯一。过期RR快照用事务write epoch阻断，数据库约束不能证明所有旧镜像功能兼容。
+- Source证据不可改删，旧null scope/epoch历史保留，新发布不冒称旧快照当前。运行态关闭策略、历史Source/UI、真实外部覆盖、恢复演练及具体授权仍待；整个Gate4不提前标完成。
+- 代码/测试：0018–0020、effective-attribution.ts、normalization-execution-service.ts、effective-attribution-write-guards.integration.test.ts；[当前阶段](tasks/active/order-effective-attribution.md)。只在独立工作树/一次性合成PG验收，未PR交付、合并、部署或真实迁移。
+
 ### D-124 Gate4 历史订单复核案件与覆盖证据
 
 - 日期2026-10-14；Active，落实D121批准计划的预览/案件阶段，不扩大真实操作授权。
 - 来源观察、交付计划和商业版本不等于生产执行；无法覆盖Browser/外部生产或财务时维持unknown，禁止以Server无行推导“无流水”。有限引用摘要不是归一执行令牌。
 - 规范化SO对唯一案件、不可改写事件、fresh受信管理员权限、请求幂等/CAS和事务审计；撤回/重开保留历史，不改订单有效归属、创建身份或执行记录。
 - 复用现有订单中心Foundation管理员弹窗；保存结果不确定保留原请求，证据变化要求重新预览。不新增生产route或实际归一按钮。
-- 证据：0017_order_normalization_cases.sql、normalization-preview.ts、normalization-case-service.ts、normalization-case-dialog.tsx及[模块边界](features/ORDER_NORMALIZATION.md)。36定向/5浏览器为本地合成验证；完整Gate/远端/人工验收另行记录。有效归属执行/纠正仍未实现，不承诺整个Gate4完成。
+- 证据：0017_order_normalization_cases.sql、normalization-preview.ts、normalization-case-service.ts、normalization-case-dialog.tsx及[模块边界](features/ORDER_NORMALIZATION.md)。36定向/5浏览器为本地合成验证；完整Gate/远端/人工验收另行记录。此条证据为预览交付时点；后续有效归属/受控执行进展见D-125，不承诺整个Gate4完成。
 
 
 ### D-123 Gate3 加工下单批次与双入口共用消费

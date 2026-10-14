@@ -48,3 +48,10 @@ reviewHash覆盖返回的有限订单/合同事实及引用计数/ID，明确has
 新接口POST /cases/:id/attribution-preview、POST/GET /cases/:id/reviews、POST /cases/:id/execute及GET /order-attribution-receipts/:requestId，cases实际前缀/api/v1/order-normalization-cases，receipt实际路径为/api/v1/order-attribution-receipts/:requestId。所有归一HTTP路由session-only，默认启动没有permit/真实Adapter；请求体不能注入enabled/verified/backup/actor/permissions。
 
 仅私有配置的单case/目标/方案/证据/恢复引用/时限许可可执行；配置引用不等于已经验证真实备份。独立生产/财务角色复核及撤销再授失效，管理员执行不代签；原身份/流水不移动或合计。原请求回执、完整组纠正、变更后重审和事务审计回滚已合成验证。29执行、34Case/session、30消费者、261PG等结果详见任务。真实归一未发生，外部Adapter仍default unavailable，历史Source与复核/历史UI待交付，不能宣称整个G4完成。
+
+
+## SQL防绕过的当前边界（2026-10-15）
+
+0020仅前向新增普通DML保护，未真实应用。历史重复SO不能接收新的生命周期、计划、认领/血统、商业采用、加工消费或新Source绑定写入；所有原身份/历史引用保留，参考准备记录仍合法。Source原owner观察继续更新，但原别名计划不变。Source run/snapshot不可改删，新快照要求有效根/可信合同/精确epoch，过期run不可重新发布为当前。
+
+归属write epoch避免等待锁后的RR旧快照绕过；后补绑定/镜像也校验合同唯一和加工独立性。具体已声明表及SQL负向场景见迁移与effective-attribution-write-guards.integration.test.ts。该保护不宣称任意外部写入、禁用触发器或所有旧二进制兼容；运行态关闭策略和真实回退仍待。15项新增/45项联合本地合成验证，不等于main、部署或人工验收。

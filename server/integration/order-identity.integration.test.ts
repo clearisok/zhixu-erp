@@ -133,7 +133,7 @@ test('order identity isolated domain', {timeout:180000},async t=>{
  });
 });
 
-test('0014–0019 isolated upgrade preserves legacy identity, permissions and schema history',{timeout:180000},async t=>{
+test('0014–0020 isolated upgrade preserves legacy identity, permissions and schema history',{timeout:180000},async t=>{
  const db=await startDisposablePostgres();const pool=new pg.Pool({connectionString:await db.createDatabase('identity_upgrade')});const temp=await mkdtemp(join(tmpdir(),'zhixu-identity-upgrade-'));
  t.after(async()=>{await pool.end();await db.stop();const distance=relative(resolve(tmpdir()),resolve(temp));assert.ok(distance&&!distance.startsWith('..')&&!isAbsolute(distance));await rm(temp,{recursive:true,force:true});});
  for(const m of await discoverMigrations(resolve('database/migrations')))if(Number(m.version)<14)await writeFile(join(temp,m.filename),m.sql);
@@ -141,7 +141,7 @@ test('0014–0019 isolated upgrade preserves legacy identity, permissions and sc
  const legacy=await createSalesOrder(pool,{creationSource:'manual'});
  const before=(await pool.query('SELECT row_to_json(o) doc FROM sales_orders o ORDER BY id')).rows;
  const grants=(await pool.query('SELECT row_to_json(r) doc FROM app_role_permissions r ORDER BY role_id,permission_key')).rows;
- assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0014_order_identity.sql','0015_order_commercial_versions.sql','0016_processing_order_batches.sql','0017_order_normalization_cases.sql','0018_order_effective_attribution.sql','0019_order_normalization_reviews.sql']);
+ assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0014_order_identity.sql','0015_order_commercial_versions.sql','0016_processing_order_batches.sql','0017_order_normalization_cases.sql','0018_order_effective_attribution.sql','0019_order_normalization_reviews.sql','0020_order_attribution_write_guards.sql']);
  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
  assert.deepEqual((await pool.query('SELECT row_to_json(o) doc FROM sales_orders o ORDER BY id')).rows,before);
  assert.deepEqual((await pool.query('SELECT row_to_json(r) doc FROM app_role_permissions r ORDER BY role_id,permission_key')).rows,grants);

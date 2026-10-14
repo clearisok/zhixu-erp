@@ -95,3 +95,24 @@ normalization-full-evidence按固定已声明Server引用逐行读取全部行�
 剩余工程：原历史Source快照入口、普通历史状态/案件历史选单、生产财务复核界面与默认禁用执行状态、完整Gate4能力证据及PR复审。真实Source/生产/财务Adapter须依具体环境、原身份映射、冻结/全覆盖与独立恢复证据核验，不能把历史导出或Server空表当冻结源。还需整个已批准计划审查准备记录采纳关联、旧类型执行hold与报价规格修订确认重置是否完整，不按局部已通过内容缩小Goal。G5页面/排序/num_dyc/6086941仍待独立交付。
 
 受控执行操作边界与真实案件具体清单见[专用执行规格](order-normalization-controlled-execution.md)。SQL层别名写保护、全面运行态关闭策略与旧二进制/真实恢复验收不由当前服务测试代替，后续必须补齐。
+
+
+## 2026-10-15 SQL防绕过阶段
+
+起点59499461a8d83a4233fd715386f718c07d2fb6eb，工作树干净；继续原feat/order-effective-attribution，不重建或丢弃任何分支。GitHub API在本阶段只读核实main仍为064e3afaf7d08b3cb62907d4402f97d9c292f1e5；开放PR只有108，head f5bbb1e4d3d6c52c80b03947a6926380afafc8c0。只读API成功不等于Git传输恢复，NETWORK_DEGRADED规则不删除、不自动执行恢复push。
+
+新增未发布0020_order_attribution_write_guards.sql。普通DML直接写SO生命周期、交付计划集合/明细、认领血统侧表、商业采用版本/头、旧CCT关联、加工批次消费或新来源绑定时，必须是当前有效SO。更新同时检查旧/新owner，不能通过改归属搬历史行。现有不可变约束继续保留。参考准备记录仍可引用历史SO，不把参考关系当新执行。Source原owner的镜像/颜色观察继续允许，不让旧别名计划跟着刷新。
+
+共享归属锁之外新增单行write epoch，归属heads变化在同事务内推进。普通写入锁住该行；READ COMMITTED在等待后检查当前归属，过期REPEATABLE READ在epoch行更新后40001退出，不能只读旧view放行。当前API已有锁序保护；旧代码直接DML可能产生锁冲突或死锁，由PG回滚，不能因此承诺旧镜像功能兼容。保护范围是已声明Server表的普通DML，不是对数据库owner禁用触发器、DDL、任意外部写入的安全隔离。
+
+Source runs/material snapshots不可UPDATE/DELETE。新run必须含order_scope_hash，新snapshot必须当前root、精确attribution epoch及可信合同；旧null历史不回填。latest指针改变时拒绝旧无scope或过期generation，原指针不变的错误/注册元数据无需发布锁。原指针已过期时由读取层继续返回identity_mismatch，不自动假称当前。
+
+后补来源绑定/镜像也在commit校验有效合同唯一及加工单独立性，避免只在归属heads修改时验证而漏掉第二入口。加工身份侧表或消费记录不能进入共享归一组，也不能通过后补来源变成合同单。所有检查在新源码/一次性PG验证，没有真实迁移、归一、Source发布、账号或部署。
+
+合成回归新增15项（含父测试），覆盖原始行逐项保留、旧null证据、SQL各入口、Source内容不可变、错误/缺省epoch、错误合同、过期最新指针、并发等待、RR过期、后补第二合同、加工身份独立及历史参考。旧Source损坏回归改为两层验证：普通SQL篡改拒绝，driver返回字节被合成破坏仍独立哈希失败；没有关掉数据库保护来伪造验收。
+
+已核实结果：归属45/45，执行29/29，Source20PASS/1Windows Linux CLI skip，身份15/15，加工35/35，根源码824/824，基线78/78；类型、完整lint、Server编译通过。最终完整PG/API261/261已取得明确exit0（最终SQL版本）；完整结果日志位于Git忽略outputs/gate4-sql-guard-*-final.log。
+
+本阶段失败记录保留：首次联合43项41PASS/2FAIL，注册profile的BEFORE INSERT触发器过早等待归属锁，收窄为实际非null latest指针发布后43项通过。增加后补绑定样本时15项13PASS/2FAIL，样本先被既有DeliveryPlan集合主键拦截；改用无集合根验证预期身份约束后45项通过。首次完整PG中缺失owner被误报23514而旧回归期待23503，已将不存在订单单独归为外键23503并加入负向断言，最终回归重跑。未降低任何归属/权限保护。
+
+下一步仍包括运行态关闭新创建/采用命令、回退兼容验收、历史Source只读/历史选单/独立复核界面及完整Gate4收口；准备记录采纳、待分类执行hold和Quote修订确认重置仍需对照批准计划查漏。G5不被删除或提前宣称完成。真实Adapter、具体案件授权、备份恢复与真实数据库仍未提供/未操作。

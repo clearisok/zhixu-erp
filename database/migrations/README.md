@@ -16,3 +16,11 @@ Do not edit an applied migration. Add a new forward-fix migration instead.
 Normal Node startup is verify-only and fails closed on pending migrations. Every real-target activation requires a separately authorized `npm run db:migrate`; existence of a migration file or merged implementation never authorizes activation.
 
 `0009_sales_order_delivery_plans.sql` adds independent collection CAS/irreversible ownership and stable rows/void history, with no backfill. New Ainuoke creation derives a default only with a source date; subsequent date/null recovery preserves its ID only while untouched. Source quantity never reallocates plans. Existing mirrors lacking collection evidence remain uninitialized. This migration was exercised only on disposable PostgreSQL; real activation is not authorized.
+
+
+`0020_order_attribution_write_guards.sql` adds ordinary-DML effective-owner fences,
+immutable Source run/snapshot evidence, exact current snapshot publication, and
+post-binding contract/processing identity validation. A transactional epoch row
+also rejects a stale REPEATABLE READ writer after attribution changes. Historical
+null scope/generation rows are preserved without backfill. This has only synthetic
+disposable-PG validation, not real-target activation or old-binary compatibility.
