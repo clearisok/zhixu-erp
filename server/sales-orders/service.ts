@@ -69,6 +69,11 @@ export async function createAinuokeSalesOrderInTransaction(client: PoolClient, a
       return { created: false, salesOrder: detail };
     }
 
+    const contractNo=input.source.salesContractNo.normalize('NFKC').trim().toUpperCase();
+    if(!contractNo) throw new HttpError(400,'sales_contract_required','A sales contract is required');
+    await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))",['ainuoke:sales-contract-number:'+contractNo]);
+    const conflictingContract=await client.query("SELECT sales_order_id FROM sales_order_source_links WHERE source_system='ainuoke' AND source_entity_type='sales_contract' AND upper(btrim(sales_contract_no))=$1",[contractNo]);
+    if(conflictingContract.rowCount) throw new HttpError(409,'source_contract_identity_conflict','Contract is already bound to a different source identity');
     const salesOrder = await createSalesOrder(client, {
       creationSource: "ainuoke",
       lifecycleState: "draft",

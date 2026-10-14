@@ -28,6 +28,7 @@ jobs:
         run: |
           npm run server:build
           npm run test:ainuoke-server-source
+          npm run test:order-identity
           npm run test:ainuoke-continuous
           npm run test:ainuoke-readiness
           npm run test:ainuoke-readonly-audit
@@ -42,7 +43,9 @@ jobs:
           NEXT_PUBLIC_ZHIXU_ORDER_READ: snapshot
         run: npm run build
       - name: Existing P6 pages, six roles and persisted refresh in private Chromium
-        run: npm run test:ainuoke-continuous-ui
+        run: |
+          npm run test:ainuoke-continuous-ui
+          npm run test:order-identity-ui
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge
         env:

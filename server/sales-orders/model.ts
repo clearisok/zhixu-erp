@@ -66,6 +66,8 @@ export type SalesOrderReadModel = {
   salesContractNo: string | null;
   insideOrderNo: string | null;
   sourceLifecycleStatus: string;
+  businessType?: "ainuoke_contract"|"processing"|"unclassified";
+  ownerName?:string|null;
   styleNo: string;
   companyName: string;
   customerName: string;

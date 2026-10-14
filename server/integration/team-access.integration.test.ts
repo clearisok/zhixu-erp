@@ -10,7 +10,7 @@ import { createApp } from "../app.js";
 import type { TrustedIdentity } from "../auth/session.js";
 import type { TeamUser, TeamCommand } from "../../features/permissions/server/team-access-client.js";
 
-test("first team: six synthetic session accounts and guarded administration in disposable PostgreSQL", async t => {
+test("first team: seven synthetic session accounts and guarded administration in disposable PostgreSQL", async t => {
   const x=await startCommercialSecurityFixture();t.after(x.close);
   const initialPassword="Synthetic-Team-Only-2026";
   await bootstrapAdmin(x.pool,{username:"synthetic.root",displayName:"合成根管理员",password:initialPassword});

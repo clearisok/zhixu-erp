@@ -1,15 +1,9 @@
 # 当前接力
 
-2026-10-14：用户批准订单身份修订计划，Goal已启动。独立feat/order-identity-and-contract-claim基于精确main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，初始clean。当前Gate0规则冻结；Gate1工程未完成。
+2026-10-14 / 核实main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/order-identity-and-contract-claim；G0已冻结，G1工程收口中。保留旧工作树；0013旧转单迁移不交付，当前0014仅隔离验证。
 
-执行基线见[订单身份计划](tasks/active/order-identity-program.md)。保留其他工作树及提交；旧报价转单不按旧规则发布；新迁移编号避开其0013。后续G2价格独立/G3加工双入口/G4历史归一/G5页面与来源依赖明确，不因规则已批准而冒称实现。
+已实现：身份侧表、认领/转交/血统CAS、准备POST及分页读回、不建SO；列表待认领、详情操作；合同号/来源ID冲突拒绝；跟单经理独立权限。见features/ORDER_IDENTITY.md。13项领域/HTTP/升级、22项七角色、19项来源绑定/新增、5项浏览器通过；UI间距微调后仍须重验。类型、Server/UI构建已过；全lint结果待收取。
 
-仅一次性隔离数据库/合成账号验证，不操作真实数据、不自动merge/deploy。历史接力保留于tasks/completed/2026-10-14-pre-order-identity-handoff.md。
+剩余：最终基线冻结DECISION证据、npm全测试/发布门禁、最终浏览器截图检查、代码自审和精确交付。G2商业独立版本尚未实现；G3加工批次、G4归一、G5页面/来源未开展。准备报价版本引用随G2，当前只保存原单/量/交期/变化。
 
-## Gate1 中间工程 checkpoint（未完成交付）
-
-新增0014_order_identity.sql（不回填旧订单/账号），身份/准备命令解析与事务服务、可信session API、跟单角色定义、详情认领/血统卡片。来源create重试增加合同身份冲突校验。新迁移仅已在随机tmpfs一次性PG运行。9项领域回归、server:build、typecheck、增量lint PASS。
-
-仍须：HTTP安全回归、认领/转交/准备UI完整性（转交与准备目前仅领域/API）、准备记录读回与候选报价引用、列表待认领/业务类型；真实浏览器验证；migration升级保留/DB约束负向测试；全项目和团队角色回归；源码基线影响记录及决策冻结。当前服务首次认领version从虚拟0到2，前端只用返回版本，不猜递增。商业版本/G2未实施，不能宣称CCT隔离已完成。
-
-node_modules为指向既有治理工作树相同package-lock的junction；不要删除目标或在共享依赖中安装/改包。工作树无真实业务原始文件。网络继承NETWORK_DEGRADED，尚未执行新分支push/PR，不在各小Gate重复推送。当前main仍064e3af。
+本轮未推送/无PR，网络继承NETWORK_DEGRADED，后续Gate不重撞同失败通道；远端交付须单独核实。禁止真实迁移、部署、改账号或续期调度。node_modules是相同lockfile依赖junction，不删除目标或安装。历史摘要已归档tasks/completed/2026-10-14-pre-order-identity-*。

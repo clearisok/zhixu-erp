@@ -253,7 +253,7 @@ export function ServerOrderCenterPage() {
       header: "创建来源",
       width: 104,
       responsivePriority: "secondary",
-      render: (item) => creationSourceLabels[item.creationSource],
+      render: (item) => <><span>{creationSourceLabels[item.creationSource]}</span><small>{item.businessType==='ainuoke_contract'?(item.ownerName??'待认领'):item.businessType==='processing'?'加工类':'历史类型待核实'}</small></>,
     },
     {
       key: "action",

@@ -76,3 +76,13 @@ export async function createOrderPreparation(pool:Pool,actor:TrustedIdentity,raw
  await client.query('COMMIT');return{id:row.id,replayed:false};
  }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
 }
+
+export async function listOrderPreparations(client:Queryable, referenceOrderId:string, offset:number){
+ if(!identityUuid.test(referenceOrderId)||!Number.isSafeInteger(offset)||offset<0||offset>100000)fail(400,'invalid_preparation_query');
+ const rows=(await client.query(`SELECT p.id::text,p.reference_order_id::text AS "referenceOrderId",p.quantity::text,p.delivery_date::text AS "deliveryDate",p.specification_changes AS "specificationChanges",p.created_at AS "createdAt",u.display_name AS "createdBy" FROM sales_order_preparations p JOIN app_users u ON u.id=p.actor_id WHERE p.reference_order_id=$1 ORDER BY p.created_at DESC,p.id DESC LIMIT 21 OFFSET $2`,[referenceOrderId,offset])).rows;
+ return {items:rows.slice(0,20),hasMore:rows.length>20,offset};
+}
+export async function listClaimants(client:Queryable){
+ const rows=(await client.query(`SELECT u.public_id::text AS id,u.display_name AS name FROM app_users u WHERE u.active AND NOT EXISTS(SELECT needed FROM unnest(ARRAY['order.view','order.claim']) needed WHERE NOT EXISTS(SELECT 1 FROM app_user_roles ur JOIN app_role_permissions rp ON rp.role_id=ur.role_id WHERE ur.user_id=u.id AND rp.permission_key=needed)) ORDER BY u.display_name,u.public_id`)).rows;
+ return {users:rows};
+}

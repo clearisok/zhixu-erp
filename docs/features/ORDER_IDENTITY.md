@@ -1,17 +1,19 @@
-# 订单身份与业务血统（Gate1开发中）
+# 订单身份与业务血统（Gate1候选）
 
-2026-10-14 / main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。用户批准规则见../tasks/active/order-identity-program.md；本文仅描述当前增量，不表示部署。
+2026-10-14 / main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。D-121规则已批准，工程候选未部署。完整规则见[订单身份计划](../tasks/active/order-identity-program.md)。
 
-## 事实及边界
+0014新增sales_order_identity_profiles、sales_order_preparations，不回填旧订单或授权真实账号。可信合同类型由不可变creation_source和精确来源link/mirror证明，历史无法确认记录unclassified。加工类型为Gate3预留，未开放创建。原SO及交付计划保持。
 
-合同接纳继续复用server/sales-orders/service.ts，创建来源不改。0014新增侧表sales_order_identity_profiles与sales_order_preparations，既有SO无回填；只读通过精确来源link/mirror证明合同类型，否则unclassified。processing保留类型，G3未开放创建。
-GET /api/v1/sales-orders/:uuid/identity返回业务类型、owner公共ID、血统和独立version。PATCH只接受claim/transfer/lineage各自精确字段；可信session、Origin与请求头、order.view和独立权限。事务重查账号/权限、CAS和审计；全局血统锁防并发环；原SO、镜像、交付计划及CCT不修改。
-POST /api/v1/order-preparations使用actor/request UUID幂等，payload不同拒绝；保存正数量、可空交期、原订单及规格变化说明，不分配SO。准备UI/报价引用待完成，不冒称完整业务流程。
+GET/PATCH /api/v1/sales-orders/:uuid/identity：读取、认领、管理员转交（原因必填）、首单/翻单血统CAS。合同唯一约束保留；相同来源ID合同号变化、相同合同号来源ID变化均显式冲突。并发认领、事务审计失败、权限即时撤回、全局血统锁和循环检测有合成验证。首次profile从虚拟0经插入1到修改2，调用方只用返回version。
 
-## 验证
+GET /api/v1/order-claimants：仅order.transfer可读公共ID/名称，目标须active且有order.view/order.claim。实际转交再次事务内复查。普通跟单无管理员转交权限。
 
-9项合成隔离PG回归验证并发认领、类型读取不回填、血统环、事务审计失败回滚、即时撤权和准备不建SO；类型/Server编译/增量lint通过。HTTP/浏览器/完整基线仍待收口。
+POST /api/v1/order-preparations：精确字段requestId/referenceOrderId/quantity/deliveryDate/specificationChanges；actor/request幂等、payload冲突拒绝。GET要求referenceOrderId，可offset分页每页20；仅order.preparation.create可读。准备记录append-only，不创建SO、不分配SO号、不产生执行任务。页面不确定保存保留请求ID和原payload重试。报价版本候选/商业采用随Gate2，不冒称本Gate已建立关联。
 
-## 发布
+现有列表原来源列补充待认领；详情复用Foundation新增认领/转交/血统/准备入口。身份不改变订单生命周期。新内部排产执行Gate尚不存在于Server，不能宣称已实现完整排产限制。CCT仍为旧共享语义，Gate2前不得宣称金额隔离。
 
-新schema只在一次性PG验证，不升级真实数据库。身份/角色定义变更不等于真实授权。应用/schema兼容、历史类型、完整Gate1验收和精确PR CI通过前不能发布。后续变化时更新本文件及AI_HANDOFF，保留原证据。
+验证：13项领域/HTTP/升级/约束测试；原六角色+跟单经理22项；首次绑定/受控新增19项；Chromium5项合成交互通过（最终样式后重验）。此前UI测试失败为异步等待条件不正确，已按保存完成/弹窗出现等待；升级断言由版本号改为runner实际文件名返回。所有DB来自测试工具随机tmpfs容器，无真实Source/凭据使用。
+
+新增脚本test:order-identity、test:order-identity-ui接入既有Source CI。运行时schema验证仍阻止未迁移数据库启动；迁移后旧镜像回退未获兼容承诺。历史商业冻结/归一另行Gate且真实执行另行授权。
+
+更新时机：规则、API/schema、测试结果或发布状态变化时；GitHub精确commit/PR证据与本地工程分开记录。

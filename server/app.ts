@@ -1,4 +1,4 @@
-import { readOrderIdentity, mutateOrderIdentity, createOrderPreparation } from "./sales-orders/identity-service.js";
+import { readOrderIdentity, mutateOrderIdentity, createOrderPreparation, listOrderPreparations, listClaimants } from "./sales-orders/identity-service.js";
 import { createOrderMaterialReader, type MaterialReadPorts } from '../features/ainuoke-material-progress/read-service.js';
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
 import type { Pool } from "pg";
@@ -574,11 +574,23 @@ async function route(
   }
 
   const identityMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/identity$/.exec(path);
-  if (identityMatch || path === "/api/v1/order-preparations") {
+  if (identityMatch || path === "/api/v1/order-preparations" || path === "/api/v1/order-claimants") {
     const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     requirePermission(identity.permissions, "order.view");
-    if (new URL(request.url ?? "/", "http://localhost").search) throw new HttpError(400, "invalid_identity_query", "Query selectors are not accepted");
+    const identityQuery = new URL(request.url ?? "/", "http://localhost").searchParams;
+    if (path === "/api/v1/order-preparations" && request.method === "GET") {
+      requirePermission(identity.permissions, "order.preparation.create");
+      if ([...identityQuery.keys()].some(key => !["referenceOrderId", "offset"].includes(key)) || [...new Set(identityQuery.keys())].some(key=>identityQuery.getAll(key).length!==1) || !/^\d+$/u.test(identityQuery.get("offset")??"0")) throw new HttpError(400,"invalid_preparation_query","Invalid query");
+      response.setHeader("Cache-Control", "no-store");
+      sendJson(response,200,await listOrderPreparations(dependencies.pool,identityQuery.get("referenceOrderId")??"",Number(identityQuery.get("offset")??0)));return;
+    }
+    if (identityQuery.size) throw new HttpError(400, "invalid_identity_query", "Query selectors are not accepted");
+    if (path === "/api/v1/order-claimants") {
+      requirePermission(identity.permissions,"order.transfer");
+      if(request.method!=="GET") throw new HttpError(405,"method_not_allowed","Method not allowed");
+      response.setHeader("Cache-Control","no-store");sendJson(response,200,await listClaimants(dependencies.pool));return;
+    }
     response.setHeader("Cache-Control", "no-store");
     if (identityMatch && request.method === "GET") sendJson(response, 200, {identity: await readOrderIdentity(dependencies.pool, identityMatch[1])});
     else if ((identityMatch && request.method === "PATCH") || (!identityMatch && request.method === "POST")) {

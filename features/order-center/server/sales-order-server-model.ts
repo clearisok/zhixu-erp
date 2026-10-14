@@ -10,6 +10,8 @@ export type ServerSalesOrderReadDto = {
   salesContractNo: string | null;
   insideOrderNo: string | null;
   sourceLifecycleStatus: string;
+  businessType?: "ainuoke_contract"|"processing"|"unclassified";
+  ownerName?:string|null;
   styleNo: string;
   companyName: string;
   customerName: string;
@@ -64,6 +66,8 @@ export type OrderCenterServerListViewModel = {
   brandName: string;
   initialQuantity: number | null;
   sourceLifecycleStatus: string;
+  businessType?: "ainuoke_contract"|"processing"|"unclassified";
+  ownerName?:string|null;
   contractDate: string | null;
   contractDeliveryDate: string | null;
   colorCount: number;
@@ -95,6 +99,7 @@ export function adaptServerSalesOrderListItem(dto: ServerSalesOrderReadDto): Ord
     brandName: dto.brandName,
     initialQuantity: dto.quantity,
     sourceLifecycleStatus: dto.sourceLifecycleStatus,
+    ...(dto.businessType ? {businessType:dto.businessType,ownerName:dto.ownerName??null} : {}),
     contractDate: dto.contractDate,
     contractDeliveryDate: dto.contractDeliveryDate,
     colorCount: dto.colorCount,
@@ -118,6 +123,7 @@ export function adaptServerSalesOrderDetail(dto: ServerSalesOrderDetailDto): Ord
     brandName: dto.brandName,
     quantity: dto.quantity,
     sourceLifecycleStatus: dto.sourceLifecycleStatus,
+    ...(dto.businessType ? {businessType:dto.businessType,ownerName:dto.ownerName??null} : {}),
     contractDate: dto.contractDate,
     contractDeliveryDate: dto.contractDeliveryDate,
     colorCount: dto.colorCount,

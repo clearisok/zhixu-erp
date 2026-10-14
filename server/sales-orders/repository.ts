@@ -39,6 +39,8 @@ type SourceLinkRow = {
 };
 
 type ReadModelRow = SalesOrderRow & {
+  business_type: "ainuoke_contract"|"processing"|"unclassified";
+  owner_name:string|null;
   sales_contract_no: string | null;
   inside_order_no: string | null;
   lifecycle_status_raw: string | null;
@@ -124,6 +126,8 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
     salesContractNo: row.sales_contract_no,
     insideOrderNo: row.inside_order_no,
     sourceLifecycleStatus: row.lifecycle_status_raw ?? "",
+    businessType:row.business_type,
+    ownerName:row.owner_name,
     styleNo: row.style_no ?? "",
     companyName: row.company_name_snapshot ?? "",
     customerName: row.customer_name_snapshot ?? "",
@@ -139,6 +143,8 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
 
 const READ_MODEL_SELECT = `
   SELECT so.*,
+         COALESCE(profile.business_type,CASE WHEN so.creation_source='ainuoke' AND mirror.source_id=sl.external_id AND mirror.sales_contract_no=sl.sales_contract_no THEN 'ainuoke_contract' ELSE 'unclassified' END) AS business_type,
+         owner_user.display_name AS owner_name,
          sl.sales_contract_no,
          sl.inside_order_no,
          mirror.lifecycle_status_raw,
@@ -160,7 +166,9 @@ const READ_MODEL_SELECT = `
    AND sl.source_system = 'ainuoke'
    AND sl.source_entity_type = 'sales_contract'
   LEFT JOIN ainuoke_sales_order_contract_mirrors mirror
-    ON mirror.sales_order_id = so.id`;
+    ON mirror.sales_order_id = so.id
+  LEFT JOIN sales_order_identity_profiles profile ON profile.sales_order_id=so.id
+  LEFT JOIN app_users owner_user ON owner_user.id=profile.owner_id`;
 
 export async function createSalesOrder(
   client: Queryable,

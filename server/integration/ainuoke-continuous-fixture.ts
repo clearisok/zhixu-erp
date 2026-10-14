@@ -25,7 +25,7 @@ export async function startContinuousFixture(staticDirectory:string) {
  const close=async()=>{if(server.listening)await new Promise<void>(done=>server.close(()=>done()));await pool.end();await db.stop();};
  try{
   await runMigrations(pool,resolve("database/migrations"));await synchronizePermissionCatalog(pool);
-  const password="Synthetic-Demo-2026";const users=["demo.admin","demo.manager","demo.quote","demo.material","demo.production","demo.finance"];
+  const password="Synthetic-Demo-2026";const users=["demo.admin","demo.manager","demo.quote","demo.material","demo.production","demo.finance","demo.merchandising"];
   await bootstrapAdmin(pool,{username:users[0],displayName:"合成演示管理员",password});
   const actor=await loadExistingBootstrapActor(pool,users[0]);
   for(let i=1;i<TEAM_ROLES.length;i++)await executeTeamCommand(pool,actor,{action:"create",requestId:randomUUID(),account:users[i],name:"合成演示"+TEAM_ROLES[i].name,password,roleIds:[TEAM_ROLES[i].id]});
