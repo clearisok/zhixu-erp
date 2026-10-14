@@ -41,3 +41,9 @@ reviewHash仅覆盖身份、计数及前100引用ID等返回信息，明确hashS
 一次性合成PG 7项通过：legacy管理员伪授权、空引用仍未知、无业务写入、稳定摘要、新未知FK、来源订单引用变化、非法/缺失订单、fresh撤权。此前纯评估8项保留。未读取真实数据库、未迁移真实schema；HTTP/浏览器/完整Gate4仍待后续。
 
 最终复验：合成PG与纯评估合计15/15通过，定向ESLint通过，tsc --noEmit --incremental false通过。首次严格类型发现inventory隐式any及ES目标不支持BigInt字面量，已显式声明类型并使用BigInt(100)，复验通过。
+
+## 只读HTTP入口 checkpoint
+
+POST /api/v1/order-normalization-preview 仅接受 {orderIds:[uuid,uuid]}，不接受execute、覆盖声明、query selectors或其他字段。要求可信session、既有Origin/X-Zhixu-Request保护、2KiB请求上限，返回no-store。服务端再次核查受信管理员和order.view，客户端不能声明证据完整或执行归一。没有mutation endpoint或真实归一操作。
+
+合成PG/HTTP8项通过；新增HTTP场景验证未登录401、非法参数400、跨站403、不支持方法405、过大413及管理员撤权403。首次登录403来自测试客户端漏带既有X-Zhixu-Request头，修复测试后通过，未降低保护。定向lint通过。新增 npm run test:order-normalization 运行本Gate评估及PG/HTTP测试；完整发布检查、CI及UI案件预览尚待收口。

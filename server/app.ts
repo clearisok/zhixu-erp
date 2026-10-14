@@ -1,3 +1,4 @@
+import { previewOrderNormalization } from "./sales-orders/normalization-preview.js";
 import {createProcessingBatch,previewProcessingBatch,confirmProcessingBatch,cancelProcessingBatch,consumeProcessingBatches,listProcessingBatches,parseProcessingBatchQuery} from './sales-orders/processing-batch-service.js';
 import {previewLegacyCommercialCutover} from './sales-orders/commercial-legacy-preview.js';
 import {readOrderCommercialState,previewOrderCommercial,adoptOrderCommercial} from './sales-orders/commercial-version-service.js';
@@ -576,6 +577,19 @@ async function route(
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
     return;
+  }
+
+  if(path==='/api/v1/order-normalization-preview'){
+    response.setHeader('Cache-Control','no-store');
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');
+    if(request.method!=='POST')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    assertMutationBoundary(request,dependencies.allowedOrigins);
+    if(new URL(request.url??'/','http://localhost').searchParams.size)throw new HttpError(400,'invalid_normalization_query','Query selectors not accepted');
+    const body=await readJsonBody(request,2048);
+    if(Object.keys(body).length!==1 || !Array.isArray(body.orderIds) || body.orderIds.some(id=>typeof id!=='string'))throw new HttpError(400,'invalid_normalization_pair','Only orderIds accepted');
+    sendJson(response,200,await previewOrderNormalization(dependencies.pool,identity,body.orderIds));return;
   }
 
   const processingMatch=/^\/api\/v1\/processing-order-batches(?:\/(consume|[0-9a-f-]+)(?:\/(preview|confirm|cancel))?)?$/iu.exec(path);
