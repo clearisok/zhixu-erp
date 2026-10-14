@@ -13,6 +13,7 @@ CREATE TABLE sales_order_commercial_versions (
  source_kind TEXT NOT NULL CHECK(source_kind IN ('quote_confirmation','cct')),
  source_cct_id UUID,
  source_cct_version INTEGER,
+ source_confirmed_at TIMESTAMPTZ NOT NULL,
  source_fingerprint TEXT NOT NULL CHECK(length(source_fingerprint)=64),
  quote_type TEXT NOT NULL CHECK(quote_type IN ('distribution','processing')),
  confirmed_sale_price NUMERIC,

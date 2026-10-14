@@ -8,7 +8,7 @@ import { appendOperationLog } from '../operation-logs/repository.js';
 import { identityUuid, parseIdentityCommand, parsePreparation } from './identity-model.js';
 function fail(status:number,code:string):never{throw new HttpError(status,code,code);}
 type Queryable=Pick<Pool|PoolClient,'query'>;
-async function trusted(client:PoolClient, actor:TrustedIdentity, permission:PermissionKey){
+export async function requireOrderCommandActor(client:PoolClient, actor:TrustedIdentity, permission:PermissionKey){
  const user=(await client.query('SELECT active,public_id::text FROM app_users WHERE id=$1 FOR SHARE',[actor.internalUserId])).rows[0];
  if(!user?.active||user.public_id!==actor.userId)fail(401,'authentication_required');
  await client.query('SELECT ur.user_id FROM app_user_roles ur JOIN app_role_permissions rp ON rp.role_id=ur.role_id WHERE ur.user_id=$1 FOR SHARE OF ur,rp',[actor.internalUserId]);
@@ -34,7 +34,7 @@ export async function mutateOrderIdentity(pool:Pool, actor:TrustedIdentity,id:st
  const command=parseIdentityCommand(raw);const client=await pool.connect();
  try{
   await client.query('BEGIN');await client.query("SET LOCAL lock_timeout='5s'");
-  const current=await trusted(client,actor,command.action==='claim'?'order.claim':command.action==='transfer'?'order.transfer':'order.lineage.edit');
+  const current=await requireOrderCommandActor(client,actor,command.action==='claim'?'order.claim':command.action==='transfer'?'order.transfer':'order.lineage.edit');
   // Global lineage lock also serializes claim/transfer, giving one lock order and preventing concurrent cycles.
   await client.query("SELECT pg_advisory_xact_lock(hashtextextended('order-identity-lineage',0))");
   await contract(client,id,true);const before=await readOrderIdentity(client,id);
@@ -66,7 +66,7 @@ export async function mutateOrderIdentity(pool:Pool, actor:TrustedIdentity,id:st
 }
 export async function createOrderPreparation(pool:Pool,actor:TrustedIdentity,raw:Record<string,unknown>){
  const command=parsePreparation(raw);const hash=createHash('sha256').update(JSON.stringify([command.referenceOrderId,command.quantity,command.deliveryDate,command.specificationChanges])).digest('hex');const client=await pool.connect();
- try{await client.query('BEGIN');const current=await trusted(client,actor,'order.preparation.create');
+ try{await client.query('BEGIN');const current=await requireOrderCommandActor(client,actor,'order.preparation.create');
  await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[`order-preparation:${current.internalUserId}:${command.requestId.toLowerCase()}`]);
  const existing=(await client.query('SELECT id::text,payload_hash FROM sales_order_preparations WHERE actor_id=$1 AND request_id=$2',[current.internalUserId,command.requestId])).rows[0];
  if(existing){if(existing.payload_hash!==hash)fail(409,'preparation_retry_mismatch');await client.query('COMMIT');return {id:existing.id,replayed:true};}

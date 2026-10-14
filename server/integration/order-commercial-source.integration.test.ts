@@ -43,7 +43,7 @@ test('commercial candidate and immutable schema use only disposable synthetic da
  await t.test('adopted schema cannot overwrite, delete or point another order to its version',async()=>{
   const user=(await pool.query("INSERT INTO app_users(username,password_hash,display_name,role) VALUES('commercial-fixture','unused','Synthetic','viewer') RETURNING id")).rows[0];
   const order=await createSalesOrder(pool,{creationSource:'manual'}),other=await createSalesOrder(pool,{creationSource:'manual'});const id=randomUUID();
-  const insert=`INSERT INTO sales_order_commercial_versions(id,sales_order_id,version,actor_id,request_id,payload_hash,quote_id,revision_id,price_version_id,source_quote_version,source_kind,source_fingerprint,quote_type,confirmed_sale_price,confirmed_labor_price,labor_currency,reason) VALUES($1,$2,1,$3,$4,$5,'quote','revision','pv',1,'quote_confirmation',$5,'distribution',120,10,'CNY','synthetic')`;
+  const insert=`INSERT INTO sales_order_commercial_versions(id,sales_order_id,version,actor_id,request_id,payload_hash,quote_id,revision_id,price_version_id,source_quote_version,source_kind,source_confirmed_at,source_fingerprint,quote_type,confirmed_sale_price,confirmed_labor_price,labor_currency,reason) VALUES($1,$2,1,$3,$4,$5,'quote','revision','pv',1,'quote_confirmation','2026-10-14T00:00:00Z',$5,'distribution',120,10,'CNY','synthetic')`;
   await pool.query(insert,[id,order.id,user.id,randomUUID(),'a'.repeat(64)]);
   await pool.query('INSERT INTO sales_order_commercial_heads VALUES($1,$2,1)',[order.id,id]);
   await assert.rejects(()=>pool.query('UPDATE sales_order_commercial_versions SET confirmed_sale_price=999 WHERE id=$1',[id]));

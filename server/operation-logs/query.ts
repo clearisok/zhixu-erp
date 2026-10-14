@@ -88,6 +88,7 @@ export function projectOperationLogResponse(actor: TrustedIdentity, log: ServerO
  const restricted = new Set<string>();
  if (!actor.permissions.includes("commercial.sale.view")) for (const key of saleKeys) restricted.add(key);
  if (!actor.permissions.includes("commercial.labor.view")) for (const key of laborKeys) restricted.add(key);
+ if (restricted.size && log.entityType === "OrderCommercialVersion") restricted.add("reason");
  if (restricted.size) {
   projected = omitFields(projected, restricted) as ServerOperationLog;
   projected.changes = projected.changes.filter(change => !change.field.split(/[.\[\]]/).some(key => restricted.has(key)));
