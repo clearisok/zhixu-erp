@@ -54,7 +54,12 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    await click("订单中心");await has("SC-SYNTHETIC-001");
    const material="/order-center/style-progress/detail?orderId="+x.orderId;
    await navigate(material);await has("合成棉布");
-   await click("用户菜单");await click("退出登录");await has("忘记密码？请联系系统管理员");
+   await click("用户菜单");
+   await evaluate("window.logoutOriginalFetch=window.fetch;window.fetch=(...a)=>String(a[0]).includes('/auth/logout')?Promise.resolve(new Response(JSON.stringify({error:{code:'synthetic_unavailable',message:'synthetic'}}),{status:503,headers:{'Content-Type':'application/json'}})):window.logoutOriginalFetch(...a)");
+   await click("退出登录");await has("退出未完成，请检查网络后重试。");
+   assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"),200);
+   await evaluate("window.fetch=window.logoutOriginalFetch");
+   await click("退出登录");await has("忘记密码？请联系系统管理员");
    assert.equal(await evaluate("new URLSearchParams(location.search).get('returnTo')"),material);
    assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);
    assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"),401);

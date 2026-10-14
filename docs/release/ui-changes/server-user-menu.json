@@ -11,7 +11,7 @@
   ],
   "pages": [
     "order-list",
-    "order-detail"
+    "order-detail", "navigation", "quote-list", "quote-detail", "material"
   ],
   "visibleDifference": "User-approved top-right identity disclosure for logout; remove bottom-left floating and duplicate order logout actions. Hover, keyboard and touch supported; no other layout redesign.",
   "evidence": [
