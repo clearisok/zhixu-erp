@@ -82,3 +82,7 @@ BEGIN
 END; $$;
 CREATE CONSTRAINT TRIGGER attribution_change_complete AFTER INSERT ON sales_order_attribution_changes DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION validate_order_attribution_change();
 CREATE CONSTRAINT TRIGGER attribution_heads_complete AFTER INSERT OR UPDATE ON sales_order_attribution_heads DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION validate_order_attribution_change();
+
+-- Nullable historical metadata only: never infer or backfill a prior attribution.
+ALTER TABLE ainuoke_source_runs ADD COLUMN order_scope_hash TEXT CHECK(order_scope_hash IS NULL OR order_scope_hash ~ '^[0-9a-f]{64}$');
+ALTER TABLE ainuoke_material_source_snapshots ADD COLUMN attribution_change_id UUID REFERENCES sales_order_attribution_changes(id) ON DELETE RESTRICT;

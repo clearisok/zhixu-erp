@@ -1,9 +1,9 @@
-import type { Pool } from "pg";
+import type { Pool, PoolClient } from "pg";
 import type { MaterialReadPorts } from "../../features/ainuoke-material-progress/read-service.js";
 import { createMaterialSourceLoader } from "../../features/ainuoke-material-progress/source-adapter.js";
 import type { AinuokeOrderDiscoveryQuery, AinuokeReportSnapshot } from "../../features/ainuoke-api/model/ainuoke-api.js";
 import { hash, SourceError, sourceKeyValid } from "./contract.js";
-import { sourceActor, boundOrders } from "./service.js";
+import { sourceActor, boundOrders, supportsSourceAttribution } from "./service.js";
 export type SourceReadConfig = {
     sourceKey: string;
     maxAgeMs: number;
@@ -30,30 +30,39 @@ export function createPersistedMaterialPorts(pool: Pool, config: SourceReadConfi
         discovery_hash: string;
         last_error_code: string | null;
     };
-    const stored = async (id: string): Promise<Stored | undefined> => (await pool.query<Stored>(`SELECT r.discovery,r.discovery_hash,s.snapshots,s.sales_contract_no,s.content_hash,p.last_error_code
-     FROM ainuoke_source_profiles p JOIN ainuoke_source_runs r ON r.id=p.latest_run_id AND r.source_key=p.source_key
-     JOIN ainuoke_material_source_snapshots s ON s.run_id=r.id
-     WHERE p.source_key=$1 AND p.enabled=true AND s.sales_order_id=$2::uuid`, [config.sourceKey, id])).rows[0];
-    const resolveVisibleOrder: MaterialReadPorts["resolveVisibleOrder"] = async (identity, id) => {
-        await sourceActor(pool, identity, false);
-        const order = (await boundOrders(pool)).find(row => row.id === id);
-        const snapshot = order && await stored(id);
-        if (!order || !snapshot || snapshot.sales_contract_no !== order.salesContractNo)
-            return null;
-        return order;
+    const generation=async(identity:Parameters<MaterialReadPorts['resolveVisibleOrder']>[0],id:string)=>{
+        const client=await pool.connect();
+        try{
+            await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+            const actor=await sourceActor(client,identity,false,false);
+            const order=(await boundOrders(client)).find(row=>row.id===id);
+            const attributed=await supportsSourceAttribution(client);
+            const record=order?(await stored(client,id,attributed)):undefined;
+            await client.query('COMMIT');return {actor,order,record};
+        }catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
     };
-    return { resolveVisibleOrder, loadSource: async (order, identity) => {
-            await sourceActor(pool, identity, false);
-            const record = await stored(order.id);
-            if (!record || record.sales_contract_no !== order.salesContractNo)
-                return null;
-            if (record.last_error_code)
-                return { salesOrderId: order.id, salesContractNo: record.sales_contract_no, provenance: "server_snapshot", snapshots: [], issue: "source_failed" };
-            if (hash(record.snapshots) !== record.content_hash || hash(record.discovery) !== record.discovery_hash)
-                throw new SourceError("source_snapshot_changed");
-            // Capture one database generation for both provider calls; no cross-request mutable cache.
-            return createMaterialSourceLoader({ resolveVisibleOrder, provenance: "server_snapshot", maxAgeMs: config.maxAgeMs, now,
-                readDiscovery: async () => structuredClone(record.discovery),
-                readMaterial: async () => structuredClone(record.snapshots) })(order, identity);
-        } };
+    const stored = async (client:PoolClient,id:string,attributed:boolean): Promise<(Stored & {attribution_change_id:string|null})|undefined> => (await client.query<Stored & {attribution_change_id:string|null}>(`SELECT r.discovery,r.discovery_hash,s.snapshots,s.sales_contract_no,s.content_hash,p.last_error_code,
+      ${attributed?'s.attribution_change_id::text':'NULL::text'} AS attribution_change_id
+      FROM ainuoke_source_profiles p JOIN ainuoke_source_runs r ON r.id=p.latest_run_id AND r.source_key=p.source_key
+      JOIN ainuoke_material_source_snapshots s ON s.run_id=r.id
+      WHERE p.source_key=$1 AND p.enabled=true AND s.sales_order_id=$2::uuid`,[config.sourceKey,id])).rows[0];
+    const resolveVisibleOrder: MaterialReadPorts['resolveVisibleOrder']=async(identity,id)=>{
+        const {order,record}=await generation(identity,id);
+        if(!order)return null;
+        if(!record)return order.attributionChangeId?order:null;
+        return record.sales_contract_no===order.salesContractNo?order:null;
+    };
+    return {resolveVisibleOrder,loadSource:async(candidate,identity)=>{
+        const {actor,order,record}=await generation(identity,candidate.id);
+        if(!order||order.version!==candidate.version||order.salesContractNo!==candidate.salesContractNo)return null;
+        if(!record||record.sales_contract_no!==order.salesContractNo)return null;
+        if(record.attribution_change_id!==order.attributionChangeId)
+            return {salesOrderId:order.id,salesContractNo:record.sales_contract_no,provenance:'server_snapshot',snapshots:[],issue:'identity_mismatch'};
+        if(record.last_error_code)
+            return {salesOrderId:order.id,salesContractNo:record.sales_contract_no,provenance:'server_snapshot',snapshots:[],issue:'source_failed'};
+        if(hash(record.snapshots)!==record.content_hash||hash(record.discovery)!==record.discovery_hash)throw new SourceError('source_snapshot_changed');
+        // Identity and snapshot generation were read together. No HTTP access or mutable cross-request cache.
+        return createMaterialSourceLoader({resolveVisibleOrder:async(current,id)=>current.userId===actor.userId&&id===order.id?order:null,provenance:'server_snapshot',maxAgeMs:config.maxAgeMs,now,
+            readDiscovery:async()=>structuredClone(record.discovery),readMaterial:async()=>structuredClone(record.snapshots)})(candidate,actor);
+    }};
 }

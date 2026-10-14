@@ -114,3 +114,8 @@ PR103已按用户授权合并；新增独立`scripts/ainuoke-readonly-audit.ps1`
 从 PR #104 head 派生的草稿 PR #105 提供固定 6086103 一次当前可见合同索引定位，以及最多三合同 6087050 完整分页的显式私密诊断。合成测试和用户普通终端真实读取均已完成；目标三行118/356/6找到对应来源物料/采购字段，356两来源行归并一事件。API单位候选为空，人工业务身份确认0/3，正式单位映射0/3。少量样本的空值/零值/重复观察不能推广至旧统计62合同；unknown仍保持未知。见[任务](../tasks/active/ainuoke-targeted-diagnostic.md)和[脱敏真实证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/real-results.md)。未激活 Source、读取业务DB、绑定、调度或部署。
 
 2026-10-13 后续受保护报告显示目标四条来源行的 QtyUnit 候选均为“个”，三物料身份/采购归并与旧报告相同；业务语义尚未由 IT/用户确认，正式 Adapter/Projection 单位仍未映射。[脱敏证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-followup-2026-10-13.md)。不得据此改变 TotalNum、cgnum 或齐套计算。
+
+
+### 本地Gate4有效归属适配（2026-10-15，未远端交付）
+
+0018候选schema和service/reader已接有效归属。原合同Source链接及原快照保留；新采集按当前有效SO保存，并绑定归属change及完整目标范围hash。内容相同不再足以重放；采集期间归属变化阻断整个发布。读取只接受当前归属generation，未发布的新目标显示未连接，旧epoch显示身份不匹配。共享归属锁在Source profile行锁前取得，避免与归一事务锁序相反。冻结prefix12无新侧表仍可工作，部分schema失败关闭。本地合成19项/已有来源与持续回归范围见order-effective-attribution任务；没有实际归一、Source真实范围或调度授权扩大。

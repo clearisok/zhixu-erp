@@ -28,3 +28,15 @@ sales_order_effective_identities视图统一读取元身份；无归属记录返
 6. 全质量/基线/能力冻结/独立PR收口。当前父预览分支和本分支均REMOTE PENDING，不推送恢复命令、不自动合并部署。
 
 目前消费者尚未接线、执行/审批/完整引用未实现，因此不建议把基础分支合并或用于真实归一。更新时机：规则、schema编号、消费者、证据、验收或main状态变化。
+
+## 2026-10-15 Source消费者阶段（独立本地checkpoint）
+
+阶段起点674429d9180c60f150ebfcc6a020f9de3654ab34；继承dirty为空。本阶段只改Source/内部归属helper/未发布0018/相关测试清单/package与文档，不修改真实数据或公共归一命令。
+
+boundOrders以原不可变合同链接定位来源身份、以有效归属视图定位当前目标SO，保留sourceOwnerOrderId与attributionChangeId。目标是已消费加工批次或两个来源绑定落同一目标时拒绝，禁止伪加工合同或来源合并。captureSource在事务内先取共享归属锁、再授权/Source profile及订单锁；外部采集前后目标发生变化则拒绝发布。0018新增可空order_scope_hash和snapshot attribution_change_id，只记录新采集，不回填旧快照。重放须内容及完整目标范围hash同时相同；没有物料行的缺合同结果也参与范围校验。
+
+reader在RR只读事务一起读取fresh授权、目标归属和已接受快照。原历史别名不再作为当前来源入口；新有效SO尚未发布显示not_connected。归属epoch不同的旧快照显示identity_mismatch，不沿用旧目标数据。固定来源Adapter使用同一数据库generation，无网络/跨请求缓存。schema完全不存在时支持冻结prefix12工具，部分schema则503/来源错误，不能静默回退。
+
+验证：归属基础+Source19/19（含schema10及Source9）；Source原20PASS/1Windows CLI skip、continuous43PASS/1Windows CLI skip在锁序修复前通过，锁序修复后19项包含exclusive/shared+profile NOWAIT对照；最终无缓存全类型、修改路径lint和normalization37/37通过。Source测试新增空结果范围/采集中变化/同目标新epoch/换目标/保留SO全行与旧链接/部分schema拒绝/冻结prefix12兼容。首次检查进程结果在压缩后丢失，未冒称成功，重新运行类型/lint/37项取得明确结果。本阶段不是完整Gate4、远端CI或合并验收。
+
+下一阶段：repository列表/详情的有效与历史模式、创建查重返回有效SO、新交付计划/商业采用/生命周期写保护；审批与完整引用执行仍未实现。未发布0018继续允许本分支前向完善，已发布0017及之前SQL不修改。完整基础状态见[旧接力](../completed/2026-10-14-effective-attribution-foundation-handoff.md)和[旧状态](../completed/2026-10-14-effective-attribution-foundation-state.md)。

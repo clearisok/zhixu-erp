@@ -34,7 +34,7 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
         const oldDir = await mkdtemp(join(tmpdir(), "zhixu-migrations-11-"));
         try {
             for (const file of await readdir("database/migrations"))
-                if (file.endsWith(".sql") && !file.startsWith("0012"))
+                if (file.endsWith(".sql") && Number(file.slice(0,4))<=11)
                     await copyFile(join("database/migrations", file), join(oldDir, file));
             await runMigrations(pool, oldDir);
         }
@@ -48,7 +48,7 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
         await runMigrations(pool, resolve("database/migrations"));
         await runMigrations(pool, resolve("database/migrations"));
         assert.deepEqual((await pool.query("SELECT public_id::text,password_hash FROM app_users")).rows, before);
-        assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version), [1,2,3,4,5,6,7,8,9,10,11,12,14,15,16]);
+        assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version), [1,2,3,4,5,6,7,8,9,10,11,12,14,15,16,17,18]);
         const order = (await createAinuokeSalesOrder(pool, actor, { source: { sourceId: "synthetic-1", sourceRowIdentity: "synthetic-order", salesContractNo: syntheticOrder.salesContractNo, insideOrderNo: syntheticOrder.insideOrderNo, lifecycleStatusRaw: "生效", contractDate: "2026-10-01", contractDeliveryDate: "2026-11-01", styleNo: syntheticOrder.styleNo, companyNameSnapshot: "合成公司", customerNameSnapshot: "合成客户", brandNameSnapshot: "合成品牌", quantity: 100, sourceHash: "synthetic-order-hash", fetchedAt: syntheticFetchedAt }, colors: [] })).salesOrder;
         for (const [i, role] of TEAM_ROLES.entries())
             await executeTeamCommand(pool, actor, { action: "create", requestId: randomUUID(), account: "synthetic.team." + i, name: "合成-" + role.name, password: "synthetic-secret-only", roleIds: [role.id] });

@@ -35,3 +35,12 @@ export async function writeAttributionHeadInTransaction(client:PoolClient,change
   if(updated.rowCount!==1)throw new HttpError(409,'attribution_version_conflict','Attribution version conflict');
  }
 }
+
+/** Frozen foundation tools may run before attribution schema. Partial schema is not a fallback. */
+export async function supportsEffectiveAttribution(client:Queryable):Promise<boolean>{
+ const row=(await client.query<{heads:string|null;members:string|null;changes:string|null;identities:string|null}>("SELECT to_regclass('sales_order_attribution_heads')::text AS heads,to_regclass('sales_order_attribution_members')::text AS members,to_regclass('sales_order_attribution_changes')::text AS changes,to_regclass('sales_order_effective_identities')::text AS identities")).rows[0];
+ const present=Object.values(row).filter(Boolean).length;
+ if(present===0)return false;
+ if(present!==4)throw new HttpError(503,'attribution_schema_incomplete','Attribution schema incomplete');
+ return true;
+}

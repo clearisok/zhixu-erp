@@ -27,3 +27,8 @@ reviewHash覆盖返回的有限订单/合同事实及引用计数/ID，明确has
 合同事实补充后定向服务/schema/HTTP/纯评估37/37通过。此前最终源码824、全PG261、基线78、浏览器5、完整lint/类型/构建通过；新事实对照的e07c33c7精确构建/浏览器5项通过，本机1440/390截图查看。最终证据见[冻结结果](../tasks/active/evidence/order-normalization/gate4-preview-results.md)，案件/预览阶段工程通过，整个Gate4执行/纠正未完成。远端交付、合并、部署、真实迁移、人工验收均未完成。具体失败与修复时点见docs/tasks/active/order-normalization-preview.md。
 
 下一工程阶段：有效归属与恢复执行独立分支；不能把本预览能力当作已经解决历史重复订单。真实执行前按案件给出所有SO/引用/限制/备份及纠正方法，仍须用户具体授权。
+
+
+## 有效归属后续阶段的本地事实（2026-10-15）
+
+独立feat/order-effective-attribution从预览afb71f92继续；0018基础账本/完整组约束与Source目标/generation适配已有本地合成验证，尚无公共执行、审批或完整引用授权能力。当前普通订单列表、详情及其他新业务写入仍待接线，不能宣称全系统已统一归属。原案件/预览验收hash保持不变，阶段记录见[有效归属任务](../tasks/active/order-effective-attribution.md)。

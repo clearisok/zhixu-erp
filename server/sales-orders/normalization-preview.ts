@@ -9,6 +9,9 @@ import { assessNormalizationPair, type NormalizationOrderEvidence } from './norm
 // Fixed identifiers only. Never interpolate caller-controlled table/column names.
 const references = [
  ['sales_orders','source_order_id','id'],
+ ['sales_order_attribution_members','sales_order_id','change_id'],
+ ['sales_order_attribution_members','effective_order_id','change_id'],
+ ['sales_order_attribution_heads','sales_order_id','sales_order_id'],
  ['sales_order_normalization_cases','first_order_id','id'],
  ['sales_order_normalization_cases','second_order_id','id'],
  ['sales_order_source_links','sales_order_id','id'],
