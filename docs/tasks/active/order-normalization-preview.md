@@ -29,3 +29,15 @@
 更新时机：采集范围、引用schema、权限、案件执行、main或工程验收变化时。所有真实案件执行必须另行给出目标、引用、备份、限制及纠正方案并取得授权。
 
 类型验证补充：首次 npm run typecheck 仅因新工作树 tsconfig.tsbuildinfo 写入权限EPERM失败；随后 tsc --noEmit --incremental false 完整类型检查退出0。未修改共享目录权限或依赖。核心checkpoint dd4c327f97ddb98880b813348081cf30564b86f1。
+
+## 只读采集器 checkpoint
+
+normalization-preview.ts 使用 REPEATABLE READ READ ONLY 事务，固定表/列查询；每类引用返回准确count、最多100个稳定ID及truncated标记，不返回商业金额或真实原始快照。catalog检查直接指向sales_orders的外键，新未知关系保守报告，即使尚无行也不假定安全。该catalog不是全系统间接/JSON/Browser引用穷举。
+
+权限从当前数据库核查active用户、public ID、受信role-server-admin成员关系及order.view；不使用legacy role字符串或客户端缓存权限。尚未接HTTP，调用方必须提供既有可信session身份。
+
+reviewHash仅覆盖身份、计数及前100引用ID等返回信息，明确hashScope；不证明被截断引用或行内容未变，绝不是执行预览令牌。正式执行阶段需完整引用/版本指纹、并发复核及独立批准，不能复用本摘要直接执行。
+
+一次性合成PG 7项通过：legacy管理员伪授权、空引用仍未知、无业务写入、稳定摘要、新未知FK、来源订单引用变化、非法/缺失订单、fresh撤权。此前纯评估8项保留。未读取真实数据库、未迁移真实schema；HTTP/浏览器/完整Gate4仍待后续。
+
+最终复验：合成PG与纯评估合计15/15通过，定向ESLint通过，tsc --noEmit --incremental false通过。首次严格类型发现inventory隐式any及ES目标不支持BigInt字面量，已显式声明类型并使用BigInt(100)，复验通过。

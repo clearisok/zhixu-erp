@@ -5,3 +5,5 @@
 已核对Server引用与Browser生产/关账边界，新增内部纯评估核心及8项回归通过，定向lint通过。未开放HTTP/执行命令，未连接真实DB或Source。下一步实现事务一致只读引用采集、权限/API及合成PG验证，之后案件与独立执行工程；不能把本阶段当Gate4完成。
 
 详见[Gate4任务](tasks/active/order-normalization-preview.md)。Gate3最终接力完整保留于[归档](tasks/completed/2026-10-14-gate3-final-handoff.md)。NETWORK_DEGRADED规则未修改，不重复push、不自动执行恢复命令。没有真实账号/DB/部署/调度范围变化；不自动合并。
+
+后续checkpoint：只读采集器已实现，固定引用查询、repeatable-read只读事务、受信管理员与fresh order.view；一次性PG7项通过。reviewHash仅为有限引用摘要，不是执行token。HTTP接线与完整引用/案件执行仍未完成。
