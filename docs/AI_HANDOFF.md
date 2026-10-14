@@ -13,3 +13,5 @@ Gate2 已完成两个本地工程阶段：基础 checkpoint `552e9b2de3f2809a168
 报价侧衔接已完成本地checkpoint：商业使用查询包含采用历史，legacy关联只写原创建关系；已存在CCT时禁止PV confirmation并行写，现存无SO CCT仍可报价维护；首次仅改一项金额保留PV另一项确认。19项商业/HTTP测试、类型/后端构建/增量lint通过。下一步采用UI、历史预览、旧CCT测试更新及完整门禁。Gate1仍待交付回执。
 
 采用界面已接入（独立checkpoint，尚未浏览器验收）：server-order-commercial-card.tsx、详情替换旧编辑卡片；真实Server报价搜索分页/修订方案选择/差异预览/明确采用；不确定提交保留原请求重试。6项客户端测试及类型/lint/Server构建通过，最后executionOnly显示调整后需重建。下一步优先合成浏览器测试、历史预览及旧CCT回归，不能直接PR交付。UI精确路径记录在Gate2任务文档，正式门禁清单待整合。
+
+浏览器/历史预览阶段已验证：4项Chromium+合成PG采用流程（桌面/390px截图已目视检查）、20项商业领域/HTTP（含明确范围只读cutover-preview）通过。新增脚本test:order-commercial、test:order-commercial-ui。下一步必须处理旧共享CCT测试与新规则冲突、七角色回归、完整测试及release-baseline/UI影响清单；不要误称Gate2已交付。当前所有测试容器/浏览器已退出，截图在ignored outputs/order-commercial-ui。历史预览仅在合成库调用。

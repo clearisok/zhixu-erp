@@ -147,7 +147,7 @@ export async function readLegacyOrderCommercialEvidence(
     throw new HttpError(409, "incomplete_quote_provenance", "SalesOrder Quote provenance is incomplete");
   }
   if (target.provenance) {
-    const salesOrderIds = await findSalesOrderIdsByQuoteProvenance(client, target.provenance);
+    const salesOrderIds = await findCreationOrderIdsByQuoteProvenance(client, target.provenance);
     const terms = await findTermsByQuoteProvenance(client, target.provenance);
     return composeTermsDto({ linkage: "linked", scope: terms?.ownership_scope ?? "quote", provenance: target.provenance, salesOrderIds, terms });
   }

@@ -67,7 +67,9 @@
     "test:ainuoke-readonly-audit": "tsx --test server/integration/ainuoke-readonly-audit.test.ts",
     "test:ainuoke-targeted-diagnostic": "tsx --test server/integration/ainuoke-targeted-diagnostic.test.ts",
     "test:order-identity": "tsx --test --test-concurrency=1 server/integration/order-identity.integration.test.ts",
-    "test:order-identity-ui": "tsx --test server/integration/order-identity-ui.integration.test.mjs"
+    "test:order-identity-ui": "tsx --test server/integration/order-identity-ui.integration.test.mjs",
+    "test:order-commercial": "tsx --test --test-concurrency=1 server/integration/order-commercial-source.integration.test.ts server/integration/order-commercial-adoption.integration.test.ts",
+    "test:order-commercial-ui": "tsx --test server/integration/order-commercial-ui.integration.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

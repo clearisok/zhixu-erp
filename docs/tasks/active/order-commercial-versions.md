@@ -53,3 +53,12 @@
 顺带修复客户端协议：已有精确CCT但关联SO列表为空仍是可信报价确认来源；无CCT且无关联仍不能冒称linked。6项客户端回归通过，类型、增量eslint和显式Server构建通过。最终去掉executionOnly对商业卡片的隐藏后尚需再次构建与浏览器验证；没有人工视觉验收结论。
 
 本阶段UI影响精确路径：features/order-center/components/server-sales-order-detail-page.tsx、features/order-center/components/server-order-commercial-card.tsx、features/confirmed-commercial-terms/client.ts。批准依据为用户已批准计划Gate2显式采用及差异确认；保持其余页面布局。最终发布前还需把这些路径与先前权限模型影响合并入本PR正式release-baseline UI记录，并完成桌面/窄屏与七角色验收。
+
+
+## 浏览器与历史预览 checkpoint（2026-10-14）
+
+基于 `21a4be0653557254a8f0834c4319957821d97976` 重新构建Server候选，4项真实Chromium+可信session+一次性PG测试通过：跟单经理认领后精确选版、预览前无写入、采用一次、刷新保留、报价改价不覆盖订单、390px无横向溢出及物控无金额/无采用入口。检查1440/390截图（outputs/order-commercial-ui，仅合成、Git忽略）；人工业务验收仍未进行。
+
+新增POST /api/v1/order-commercial-cutover-preview，仅精确salesOrderIds数组1–100个不重复UUID；可信session/mutation boundary、order.view+audit_log.view+售价/工价查看权限，领域再次读取当前授权。单个REPEATABLE READ READ ONLY事务输出观察时间、当前可证旧CCT、已采用版本及逐单缺口。originalOrderPrice固定not-proven，databaseWrites固定none；无真实扫描、无回填/自动采用。Legacy创建关系只读使用原创建查询，不把后补采用冒作历史创建。
+
+20项领域/HTTP回归通过（含只读预览逐单缺失、重复/空范围拒绝、撤销审计权限、订单/采用/audit行数不变）；server:build、增量eslint通过。新增test:order-commercial和test:order-commercial-ui脚本。仍需旧CCT回归改造、七角色完整商业测试、发布基线与最终复审；Gate2不可标记交付完成。

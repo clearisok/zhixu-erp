@@ -1,3 +1,4 @@
+import {previewLegacyCommercialCutover} from './sales-orders/commercial-legacy-preview.js';
 import {readOrderCommercialState,previewOrderCommercial,adoptOrderCommercial} from './sales-orders/commercial-version-service.js';
 import {parseCommercialProvenance} from './sales-orders/commercial-source.js';
 import {projectOrderCommercialState,projectOrderCommercialVersion,projectCommercialCandidate} from './sales-orders/commercial-projection.js';
@@ -574,6 +575,17 @@ async function route(
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
     return;
+  }
+
+  if(path==="/api/v1/order-commercial-cutover-preview"){
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,"authentication_required","Authentication required");
+    if(request.method!=="POST")throw new HttpError(405,"method_not_allowed","Method not allowed");
+    if(dependencies.identityAuthority.mode!=="session")throw new HttpError(403,"trusted_session_required","Trusted session required");
+    assertMutationBoundary(request,dependencies.allowedOrigins);
+    if(new URL(request.url??"/","http://localhost").searchParams.size)throw new HttpError(400,"invalid_legacy_preview_scope","Query selectors not accepted");
+    response.setHeader("Cache-Control","no-store");
+    sendJson(response,200,await previewLegacyCommercialCutover(dependencies.pool,identity,await readJsonBody(request,8192)));return;
   }
 
   const commercialMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/commercial-versions(?:\/(preview))?$/.exec(path);

@@ -1,3 +1,5 @@
+import {previewLegacyCommercialCutover} from '../sales-orders/commercial-legacy-preview.js';
+import {createSalesOrder} from '../sales-orders/repository.js';
 import {createTrustedQuoteService} from '../quotes/service.js';
 import {readConfirmedCommercialTermsByQuote,updateConfirmedCommercialTermsByQuote} from '../confirmed-commercial-terms/service.js';
 import {permissionsForUser} from '../auth/permissions.js';
@@ -108,6 +110,8 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
    const id=await order(),path='/api/v1/sales-orders/'+id+'/commercial-versions';
    const req=(url:string,method='GET',body?:object,extra:Record<string,string>={})=>fetch(base+url,{method,headers:{...headers,Cookie:cookie,...extra},...(body?{body:JSON.stringify(body)}:{})});
    assert.equal((await fetch(base+path)).status,401);
+   const cutover=await req('/api/v1/order-commercial-cutover-preview','POST',{salesOrderIds:[id]});assert.equal(cutover.status,200);assert.equal(cutover.headers.get('cache-control'),'no-store');assert.equal((await cutover.json()).databaseWrites,'none');
+
    assert.equal((await req(path+'?salePrice=999')).status,400);
    assert.equal((await req(path+'/preview','POST',source,{Origin:'http://evil.invalid'})).status,403);
    assert.equal((await req(path+'/preview','POST',{...source,salePrice:'999'})).status,400);
@@ -126,6 +130,17 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
     assert.equal((await req(path+'/preview','POST',source)).status,403);assert.equal((await req(path,'POST',cmd)).status,403);
    }finally{await pool.query("INSERT INTO app_role_permissions VALUES('adoption-test','commercial.sale.view'),('adoption-test','commercial.labor.view')");}
   }finally{await new Promise<void>((done,reject)=>server.close(e=>e?reject(e):done()));}
+ });
+ await t.test('bounded legacy cutover preview never adopts or calls current value original price',async()=>{
+  const legacy=await createSalesOrder(pool,{creationSource:'quote',sourceQuoteId:q.id,sourceRevisionId:source.revisionId,sourcePriceVersionId:source.priceVersionId});
+  const before=(await pool.query('SELECT (SELECT count(*) FROM sales_orders) orders,(SELECT count(*) FROM sales_order_commercial_versions) versions,(SELECT count(*) FROM operation_logs) logs')).rows[0];
+  const report=await previewLegacyCommercialCutover(pool,actor,{salesOrderIds:[legacy.id,a,randomUUID()]});
+  assert.equal(report.databaseWrites,'none');assert.equal(report.originalOrderPrice,'not-proven');assert.ok(Number.isFinite(Date.parse(report.observedAt)));assert.equal(report.items[0].legacy?.current?.sale.visibility,'allowed');assert.equal(report.items[0].adopted?.current,null);assert.equal(report.items[1].adopted?.current?.version,2);assert.equal(report.items[2].code,'sales_order_not_found');
+  assert.deepEqual((await pool.query('SELECT (SELECT count(*) FROM sales_orders) orders,(SELECT count(*) FROM sales_order_commercial_versions) versions,(SELECT count(*) FROM operation_logs) logs')).rows[0],before);
+  await assert.rejects(()=>previewLegacyCommercialCutover(pool,actor,{salesOrderIds:[a,a]}),code('duplicate_preview_order'));
+  await assert.rejects(()=>previewLegacyCommercialCutover(pool,actor,{salesOrderIds:[],all:true}),code('invalid_legacy_preview_scope'));
+  await pool.query("DELETE FROM app_role_permissions WHERE role_id='adoption-test' AND permission_key='audit_log.view'");
+  try{await assert.rejects(()=>previewLegacyCommercialCutover(pool,actor,{salesOrderIds:[a]}));}finally{await pool.query("INSERT INTO app_role_permissions VALUES('adoption-test','audit_log.view')");}
  });
  await t.test('removing quote source cannot destroy adopted snapshots',async()=>{
   for(const table of ['quote_center_fabric_lines','quote_center_trim_lines','quote_center_other_cost_lines'])await pool.query(`DELETE FROM ${table} WHERE snapshot_id IN (SELECT id FROM quote_center_cost_snapshots WHERE quote_id=$1 AND price_version_id=$2)`,[q.id,pv.id]);
