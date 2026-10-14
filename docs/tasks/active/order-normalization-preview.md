@@ -55,3 +55,15 @@ POST /api/v1/order-normalization-preview 仅接受 {orderIds:[uuid,uuid]}，不�
 固定引用清单新增案件的两端SO引用。实际执行仍须完整引用核验和单独授权；案件快照由后续服务端采集，不接受客户端声称执行/关账覆盖完整。
 
 仅一次性合成PG升级验证，归一测试合计22/22通过，含schema6项、预览/HTTP8项、纯评估8项；定向lint检查随阶段运行。未执行真实迁移/账号变更；全项目PG和发布基线将在独立Gate收口时运行。下一步案件创建/追加/查询服务及事务审计、请求幂等和并发回归。
+
+## 案件服务与事务审计 checkpoint（2026-10-14）
+
+服务端已实现openNormalizationCase、appendNormalizationCaseEvent、readNormalizationCase和listNormalizationCases。POST /api/v1/order-normalization-cases开案，POST /:id/events追加复核/撤回/重开，GET列表及/:id查询，history每页20。查询参数严格限定、拒绝重复key和伪执行字段。POST仅可信session、既有Origin/请求头保护及8KiB边界。
+
+开案必须提交已看过的有限引用摘要hash；服务端重采集并比较，差异409。案件存在时返回明确409，查询历史案件后继续复核，不重复开案。相同actor/request及相同payload重试返回原case/event/version；不同payload409。规范化pair唯一，两操作人开同pair最多一案。追加使用expectedVersion，withdrawn只能reopened，所有变更保留旧事件。客户端不能提交evidence或effectiveOrderId。
+
+案件、首条/追加事件及OperationLog同事务提交；审计失败整体回滚。RR事务保证证据快照一致，局部锁保护授权和案件；40001/23505仅限最多三次事务重试，最终并发冲突409，不无限等待。重复成功请求仍重新核查active管理员与order.view，不因receipt绕过撤权。没有归一执行、订单重定向、Source重绑、数量迁移或财务改价。
+
+实际验证：test:order-normalization合计36/36通过，包括案件服务14项、schema6项、预览/HTTP8项、纯评估8项；完整类型检查和定向lint通过。首次测试文件异步回调语法错误已修复，未发生DB业务执行。36是含顶层fixture在内的Node测试计数；不等同36个独立业务场景。UI/全源码/全PG/发布门禁/远端CI尚未本阶段验收。
+
+下一步复用Foundation实现管理员案件对照/记录界面及合成浏览器验收，随后收口Gate4预览PR；有效归属执行和纠正能力按原批准计划独立交付，不能因预览工程通过扩大真实操作权限。

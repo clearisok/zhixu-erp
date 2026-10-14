@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
-import type { Pool } from 'pg';
+import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { permissionsForUser, requirePermission } from '../auth/permissions.js';
 import { HttpError } from '../http/errors.js';
+import { requireOrderCommandActor } from './identity-service.js';
 import { identityUuid } from './identity-model.js';
 import { assessNormalizationPair, type NormalizationOrderEvidence } from './normalization-assessment.js';
 // Fixed identifiers only. Never interpolate caller-controlled table/column names.
@@ -25,16 +26,20 @@ const references = [
  ['processing_order_batches','reference_order_id','id'],
  ['processing_order_batch_consumptions','sales_order_id','batch_id'],
 ] as const;
-export async function previewOrderNormalization(pool: Pool, actor: TrustedIdentity, ids: readonly string[]) {
+export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');
- const client=await pool.connect();
- try {
-  await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
-  await client.query("SET LOCAL statement_timeout='10s'");
-  const user=(await client.query(`SELECT u.public_id::text,u.active,EXISTS(SELECT 1 FROM app_user_roles r WHERE r.user_id=u.id AND r.role_id='role-server-admin') AS administrator FROM app_users u WHERE u.id=$1`,[actor.internalUserId])).rows[0];
-  if(!user?.active || user.public_id!==actor.userId) throw new HttpError(401,'authentication_required','Authentication required');
-  if(!user.administrator) throw new HttpError(403,'normalization_admin_required','Administrator required');
-  requirePermission(await permissionsForUser(client,actor.internalUserId),'order.view');
+}
+export async function requireNormalizationAdmin(client:PoolClient,actor:TrustedIdentity,lock=false) {
+ const current=lock?await requireOrderCommandActor(client,actor,'order.view'):actor;
+ const user=(await client.query(`SELECT u.public_id::text,u.active,EXISTS(SELECT 1 FROM app_user_roles r WHERE r.user_id=u.id AND r.role_id='role-server-admin') AS administrator FROM app_users u WHERE u.id=$1`,[actor.internalUserId])).rows[0];
+ if(!user?.active || user.public_id!==actor.userId) throw new HttpError(401,'authentication_required','Authentication required');
+ if(!user.administrator) throw new HttpError(403,'normalization_admin_required','Administrator required');
+ const permissions=lock?current.permissions:await permissionsForUser(client,actor.internalUserId);
+ requirePermission(permissions,'order.view');return {...current,permissions};
+}
+/** Caller owns the transaction and trusted authorization. No caller-supplied evidence. */
+export async function collectNormalizationEvidenceInTransaction(client:PoolClient,ids:readonly string[]) {
+ validateNormalizationPair(ids);
   const capturedAt=(await client.query('SELECT transaction_timestamp()::text AS captured_at')).rows[0].captured_at as string;
   const foreignKeys=(await client.query(`SELECT n.nspname AS schema,c.relname AS relation,a.attname AS column FROM pg_constraint f JOIN pg_class c ON c.oid=f.conrelid JOIN pg_namespace n ON n.oid=c.relnamespace CROSS JOIN LATERAL unnest(f.conkey) k(attnum) JOIN pg_attribute a ON a.attrelid=c.oid AND a.attnum=k.attnum WHERE f.contype='f' AND f.confrelid='sales_orders'::regclass ORDER BY 1,2,3`)).rows as {schema:string;relation:string;column:string}[];
   const unknownReferences=foreignKeys.filter(f=>f.schema!=='public'||!references.some(([table,column])=>table===f.relation&&column===f.column)).map(f=>`${f.schema}.${f.relation}.${f.column}`);
@@ -56,6 +61,15 @@ export async function previewOrderNormalization(pool: Pool, actor: TrustedIdenti
   const assessment=assessNormalizationPair(orders[0].evidence,orders[1].evidence);
   const content={schemaVersion:'order-normalization-preview.v1',orders,unknownReferences,assessment,coverage:'server-declared-references-only',externalExecutionCoverage:'not-verified',hashScope:'identity-counts-first-100-reference-ids-not-execution-token'};
   const reviewHash=createHash('sha256').update(JSON.stringify(content)).digest('hex');
-  await client.query('COMMIT');return {...content,capturedAt,reviewHash};
+  return {...content,capturedAt,reviewHash};
+}
+export async function previewOrderNormalization(pool: Pool, actor: TrustedIdentity, ids: readonly string[]) {
+ validateNormalizationPair(ids);const client=await pool.connect();
+ try {
+  await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+  await client.query("SET LOCAL statement_timeout='10s'");
+  await requireNormalizationAdmin(client,actor);
+  const result=await collectNormalizationEvidenceInTransaction(client,ids);
+  await client.query('COMMIT');return result;
  } catch(error) {await client.query('ROLLBACK');throw error;} finally {client.release();}
 }

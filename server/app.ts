@@ -1,3 +1,4 @@
+import { openNormalizationCase, appendNormalizationCaseEvent, readNormalizationCase, listNormalizationCases, parseNormalizationCaseQuery } from "./sales-orders/normalization-case-service.js";
 import { previewOrderNormalization } from "./sales-orders/normalization-preview.js";
 import {createProcessingBatch,previewProcessingBatch,confirmProcessingBatch,cancelProcessingBatch,consumeProcessingBatches,listProcessingBatches,parseProcessingBatchQuery} from './sales-orders/processing-batch-service.js';
 import {previewLegacyCommercialCutover} from './sales-orders/commercial-legacy-preview.js';
@@ -577,6 +578,24 @@ async function route(
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
     return;
+  }
+
+  const normalizationCaseMatch=/^\/api\/v1\/order-normalization-cases(?:\/([0-9a-f-]+)(?:\/(events))?)?$/iu.exec(path);
+  if(normalizationCaseMatch){
+    response.setHeader('Cache-Control','no-store');
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');
+    const query=new URL(request.url??'/','http://localhost').searchParams;
+    if(request.method==='GET'&&!normalizationCaseMatch[2]){
+      const options=parseNormalizationCaseQuery(query,Boolean(normalizationCaseMatch[1]));
+      sendJson(response,200,normalizationCaseMatch[1]?await readNormalizationCase(dependencies.pool,identity,normalizationCaseMatch[1],options.offset):await listNormalizationCases(dependencies.pool,identity,options));return;
+    }
+    if(request.method!=='POST'||(normalizationCaseMatch[1]&&!normalizationCaseMatch[2]))throw new HttpError(405,'method_not_allowed','Method not allowed');
+    assertMutationBoundary(request,dependencies.allowedOrigins);
+    if(query.size)throw new HttpError(400,'invalid_case_query','Query selectors not accepted');
+    const body=await readJsonBody(request,8192);
+    sendJson(response,200,normalizationCaseMatch[1]?await appendNormalizationCaseEvent(dependencies.pool,identity,normalizationCaseMatch[1],body):await openNormalizationCase(dependencies.pool,identity,body));return;
   }
 
   if(path==='/api/v1/order-normalization-preview'){
