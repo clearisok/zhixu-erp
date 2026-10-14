@@ -19,7 +19,7 @@ import {
   PageHeader,
   StatusTag,
 } from "@/components/foundation";
-import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
+import { ServerLoginCard, useServerSession } from "@/features/server-auth";
 import {
   ConfirmedCommercialTermsServerError,
   confirmedCommercialTermsServerClient,
@@ -106,7 +106,6 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sessionActionError, setSessionActionError] = useState<string | null>(null);
   const [terms, setTerms] = useState<ConfirmedCommercialTermsDto | null>(null);
   const [termsOpen, setTermsOpen] = useState(false);
   const [termsDraft, setTermsDraft] = useState({ customerPrice: "", laborPrice: "", laborCurrency: "" as "" | ConfirmedLaborCurrency });
@@ -173,17 +172,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
     return () => { active = false; epochRef.current++; };
   }, [loadDetail, serverSession]);
 
-  const logout = async () => {
-    setSessionActionError(null);
-    try {
-      await serverSession.logout();
-      loadEpoch.current++;
-      setDetail(null);
-      setTerms(null);setTermsOpen(false);setTermsDraft({customerPrice:"",laborPrice:"",laborCurrency:""});
-    } catch {
-      setSessionActionError("无法退出 Server 会话，请稍后重试。");
-    }
-  };
+
 
   const openTermsEditor = () => {
     if (executionOnly || loadedScope !== scopeKey || !serverSession.hasPermission("order.edit") || !(canEditSale || canEditLabor)) return;
@@ -280,11 +269,9 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
         <AlertBanner
           tone="warning"
           title="当前 Server 账号没有订单查看权限"
-          actions={<ServerLogoutAction variant="secondary" onLogout={() => void logout()} />}
         >
           已登录为 {trustedIdentity}；读取详情需要 order.view 权限。
         </AlertBanner>
-        {sessionActionError && <ErrorState description={sessionActionError} />}
         <ErrorState permission title="Server 权限不足（403）" description="请联系管理员分配 order.view 权限。" />
       </ServerDetailFrame>
     );
@@ -295,7 +282,6 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   return (
     <ServerDetailFrame detail={detail}>
 
-      {sessionActionError && <ErrorState description={sessionActionError} />}
       {loading ? (
         <LoadingState label="读取 PostgreSQL 正式订单详情" />
       ) : notFound ? (
@@ -360,7 +346,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
               <div className="oc-server-source-bar">
                 <span><i aria-hidden="true" />数据源：PostgreSQL</span>
                 <small>Server identity：{trustedIdentity}</small>
-                <Button variant="text" onClick={() => void logout()}>退出登录</Button>
+                
               </div>
             </details>
           </Card>

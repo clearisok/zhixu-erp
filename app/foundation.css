@@ -293,8 +293,6 @@
 .qc-business-table:is([data-layout="readable"],[data-layout="fixed"]) .qc-data-table td { font-size: 13px; font-variant-numeric: tabular-nums; }
 .qc-business-table:is([data-layout="readable"],[data-layout="fixed"]) .qc-server-style-cell { white-space: normal; overflow-wrap: anywhere; }
 .qc-business-table:is([data-layout="readable"],[data-layout="fixed"]) .is-sticky-right { background: #fff; box-shadow: -1px 0 var(--qc-line); }
-.qc-server-session-actions.qc-server-session-floating { position: fixed; z-index: 40; left: 12px; bottom: 88px; }
-.qc-server-session-floating .qc-button { width: 64px; min-height: 40px; padding: 6px; color: #e5f2eb; background: #254e40; white-space: normal; }
 .qc-server-new .qc-server-create-panel { width: min(100%, 520px); padding: 24px; display: grid; gap: 16px; }
 .qc-server-create-panel p { margin: 0; color: var(--qc-muted); }
 .qc-server-create-actions { display: flex; gap: 10px; }
@@ -337,3 +335,14 @@
   .qc-server-quote-detail .qc-other-compact-grid :is(.is-name, .is-specification) { grid-column: span 6; }
   .qc-server-quote-detail .qc-other-compact-grid :is(.is-usage, .is-unit, .is-loss, .is-price) { grid-column: span 3; }
 }
+
+/* Approved top-right session action; no sidebar/floating logout. */
+.qc-user-menu { position: relative; }
+.qc-user-menu > button { cursor: pointer; text-align: left; font: inherit; }
+.qc-user-menu > button:focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; }
+.qc-user-popover { position: absolute; right: 0; top: 100%; z-index: 60; min-width: 148px; padding-top: 6px; }
+.qc-user-popover-inner { padding: 6px; border: 1px solid #c8ddd4; border-radius: 10px; background: #fff; box-shadow: 0 6px 24px #183c2520; }
+.qc-user-popover button { display: block; width: 100%; min-height: 40px; border: 0; border-radius: 6px; background: transparent; color: var(--forest); cursor: pointer; text-align: left; padding: 8px 12px; }
+.qc-user-popover button:hover, .qc-user-popover button:focus-visible { background: #edf5f1; }
+.qc-user-popover button:disabled { opacity: .6; cursor: wait; }
+.qc-user-popover [role="alert"] { display: block; max-width: 220px; padding: 6px; color: #a32345; font-size: 12px; }

@@ -7,3 +7,5 @@
 剩余：受控单位补充/责任确认、退库净量、取消状态、网络交付和新隔离真实目标。真实写入/绑定/调度/部署必须另行授权。报价分支a0e60e4不动。用户执行两份交付仍pushes0；不重复失败通道或旧ExpectedHead命令，不创建重复PR。
 
 [历史接力和全部旧hash](tasks/completed/2026-10-14-before-order-alerts.md)；[异常业务核对](tasks/active/source-anomaly-followup-2026-10-14.md)。具体单据/编码与确认仅保存在旧PR108工作树受保护Git忽略目录，不能复制进Git。不得使用凭据或全量读取刷新旧证据以代替目标授权。
+
+2026-10-14下一阶段：用户批准右上角身份区退出登录，范围见tasks/active/server-user-menu-2026-10-14.md；验证进行中，真实Source状态未改变。
