@@ -141,7 +141,7 @@ test('0014–0016 isolated upgrade preserves legacy identity, permissions and sc
  const legacy=await createSalesOrder(pool,{creationSource:'manual'});
  const before=(await pool.query('SELECT row_to_json(o) doc FROM sales_orders o ORDER BY id')).rows;
  const grants=(await pool.query('SELECT row_to_json(r) doc FROM app_role_permissions r ORDER BY role_id,permission_key')).rows;
- assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0014_order_identity.sql','0015_order_commercial_versions.sql','0016_processing_order_batches.sql']);
+ assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0014_order_identity.sql','0015_order_commercial_versions.sql','0016_processing_order_batches.sql','0017_order_normalization_cases.sql']);
  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
  assert.deepEqual((await pool.query('SELECT row_to_json(o) doc FROM sales_orders o ORDER BY id')).rows,before);
  assert.deepEqual((await pool.query('SELECT row_to_json(r) doc FROM app_role_permissions r ORDER BY role_id,permission_key')).rows,grants);

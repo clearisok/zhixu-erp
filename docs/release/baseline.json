@@ -662,6 +662,15 @@
       "sha256": "5a92b2443db6bd36252b409af30a1e958d1ee79032d7b92c837c355d7c516206",
       "supersedes": "decisions-order-commercial-g2",
       "changeReason": "D123 records approved processing batch identity and shared dual-entry consumption; preserve earlier decisions in the forward evidence chain."
+    },
+    {
+      "id": "decisions-order-normalization-g4",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "4bcd1bad06ac99610058a396bf9b93de88e606b1",
+      "sha256": "439ff40c3e90334e3fcd8027348940234812e6035b489b899116c60d0d186f6e",
+      "supersedes": "decisions-processing-g3",
+      "changeReason": "D124 adds the approved historical order review case boundary, preserving every prior decision and frozen evidence blob."
     }
   ],
   "pages": [

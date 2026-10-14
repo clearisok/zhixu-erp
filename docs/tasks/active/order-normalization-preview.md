@@ -77,3 +77,7 @@ POST /api/v1/order-normalization-preview 仅接受 {orderIds:[uuid,uuid]}，不�
 当前合成浏览器5/5通过（4业务子场景+1fixture）：原SO不变、开案/复核/撤回/重开、成功响应丢失重试单一事件、证据变化拒绝并重新预览、390px历史及非管理员隐藏。首次2子场景通过/2失败与后续3/1失败均记录：自动化未等tab渲染并把fieldset禁用误当button自身disabled，修复等待/:disabled选择器后通过，产品未放宽保护。
 
 显式Server构建通过；1440px与390px本机截图已查看，无横向溢出。截图位于Git忽略outputs/normalization-ui，不替换已批准历史截图哈希，不代表人工业务验收。此次构建来自760cb02c父提交+已保护的本阶段UI差异；最终发布证据须重新绑定已提交源码。CI已接测试脚本，但远端未交付，未执行GitHub CI。
+
+发布门禁首次FAIL：D124前向新增后当前DECISION_LOG与decisions-processing-g3旧冻结文本不同，命中EVIDENCE_WORKTREE_DRIFT；完整源码及基线测试中的相同漂移断言失败，不是业务测试故障。新增decisions-order-normalization-g4指向4bcd1bad的Git blob并supersedes旧ID，未覆盖任何旧hash/文档/截图。继续复验。
+
+失败复验补充：完整PG首次238/243通过、5失败计数（包含父fixture），均为精确迁移列表缺0017。更新CCT/Quote/PG/身份四处显式列表后，相关完整子测试50/50通过，未改业务断言或发布SQL。前向决策证据修复后，完整源码824/824、基线78/78通过。完整PG及最终UI并发冲突负向场景继续复验；UI当前源码保留normalization_concurrency_conflict下未知原请求，避免误发新记录。

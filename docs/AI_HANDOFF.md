@@ -9,3 +9,5 @@
 旧完整接力保留于[服务前接力](tasks/completed/2026-10-14-gate4-pre-service-handoff.md)；G3原接力及全部分支未破坏。CURRENT_STATE描述本地阶段，不代表远端送达、人工验收或部署。
 
 案件UI已接现有订单中心管理员Modal；浏览器5/5及1440/390截图已查看；新增test:order-normalization-ui并接CI，但未远端运行。UI变更范围记录order-normalization-cases.json。下一步完整门禁/源码/PG及精确构建收口预览阶段；归属执行仍未交付。
+
+最终复审补修：D124已通过新decisions-order-normalization-g4@4bcd1bad前向冻结，旧证据不改。显式迁移清单补0017，50项相关PG/身份复验通过；源码824/基线78通过。UI未知原请求遇临时409并发冲突继续保留；新负向浏览器和全PG待最终复验，勿提前宣称最终Gate完成。

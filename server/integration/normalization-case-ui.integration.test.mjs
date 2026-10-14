@@ -72,9 +72,9 @@ test("normalization case built UI preserves order data with real synthetic sessi
   });
   await t.test('lost successful opening response retains original request and retry makes one case',async()=>{
    const third=await createSalesOrder(x.pool,{creationSource:'manual'});await click('重复订单复核');await choosePair(firstNo,third.orderNo);await input('开案原因','合成丢失响应','textarea');
-   await evaluate("window.dropCaseResponse=true;window.caseFetch=fetch;window.fetch=async(...a)=>{const r=await caseFetch(...a);if(dropCaseResponse&&String(a[0])==='/api/v1/order-normalization-cases'&&a[1]?.method==='POST'){dropCaseResponse=false;throw Error('synthetic lost response');}return r;};");
+   await evaluate("window.dropCaseResponse=true;window.caseRetryConflict=true;window.caseFetch=fetch;window.fetch=async(...a)=>{const r=await caseFetch(...a);if(dropCaseResponse&&String(a[0])==='/api/v1/order-normalization-cases'&&a[1]?.method==='POST'){dropCaseResponse=false;throw Error('synthetic lost response');}if(caseRetryConflict&&String(a[0])==='/api/v1/order-normalization-cases'&&a[1]?.method==='POST'){caseRetryConflict=false;return new Response(JSON.stringify({error:{code:'normalization_concurrency_conflict'}}),{status:409,headers:{'Content-Type':'application/json'}});}return r;};");
    await click('保存复核案件');await has('重试原保存请求');assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] textarea')].every(n=>n.matches(':disabled'))"),true);
-   await click('重试原保存请求');await has('案件记录已保存');
+   await click('重试原保存请求');await has('其他操作仍在处理');await has('重试原保存请求');await click('重试原保存请求');await has('案件记录已保存');
    const row=(await x.pool.query('SELECT c.id::text,count(e.id)::int n FROM sales_order_normalization_cases c JOIN sales_order_normalization_case_events e ON e.case_id=c.id WHERE c.first_order_id=LEAST($1::uuid,$2::uuid) AND c.second_order_id=GREATEST($1::uuid,$2::uuid) GROUP BY c.id',[originalOrder,third.id])).rows[0];assert.equal(row.n,1);
    await evaluate('window.fetch=caseFetch');await click('关闭');
   });
