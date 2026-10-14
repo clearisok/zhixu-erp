@@ -16,3 +16,5 @@ NETWORK_DEGRADED；Gate1普通PowerShell交付回执尚未返回，不重复推�
 证据链收口：保留D122，新增decisions-order-commercial-g2冻结证据，门禁支持有真实PR基线锚点的连续前向修订，6类反向场景+正例通过；基线回归78/78、精确main工作树门禁PASS。新Gate2工程证据tasks/active/evidence/order-commercial/gate2-results.md先提交后绑定。CI增加全PG回归。不得据此称远端CI或全部Goal完成。
 
 本地依赖整合：Gate1补修def98f275c2ef61712008891ab1c60d308981bb7已并入当前分支历史（仅本地，不是PR合并）。其独立254/255全PG及后续12+7重跑等原始限制完整保留于tasks/active/evidence/order-identity/gate1-compatibility-followup.md。冲突保留G2的0015及第63项权限预期，业务修复两边一致。
+
+复审完成记录：tasks/active/evidence/order-commercial/gate2-premerge-review.md，对照G1 def98f2与G2 f1c68a3；未见新增P0/P1，远端/CI仍待。当前G1依赖已本地整合，旧“待合入”描述按前述阶段日期阅读。下一步G3加工批次可基于已核实本地G2推进，必须新独立分支及明确未合并依赖，不扩大真实授权。
