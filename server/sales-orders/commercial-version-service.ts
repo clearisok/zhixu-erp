@@ -1,3 +1,4 @@
+import {orderCommandControlError} from './command-control.js';
 import {lockEffectiveAttribution,requireEffectiveOrderForWrite} from './effective-attribution.js';
 import {createHash} from 'node:crypto';
 import type {Pool,PoolClient} from 'pg';
@@ -46,7 +47,7 @@ async function editableOrder(client:PoolClient,actor:TrustedIdentity,orderId:str
  if(identity.ownerId!==actor.userId&&!actor.permissions.includes('order.transfer'))fail(403,'order_owner_required');
 }
 export async function previewOrderCommercial(pool:Pool,actor:TrustedIdentity,orderId:string,source:QuoteProvenance){
- const client=await pool.connect();try{await client.query('BEGIN');await client.query("SET LOCAL lock_timeout='5s'");await lockEffectiveAttribution(client);const currentActor=await authorized(client,actor);const candidate=await readCommercialCandidate(client,source);await editableOrder(client,currentActor,orderId,candidate);const current=await readOrderCommercialState(client,orderId);await client.query('ROLLBACK');return {current,candidate};}catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
+ const client=await pool.connect();try{await client.query('BEGIN');await client.query("SET LOCAL lock_timeout='5s'");await lockEffectiveAttribution(client);const currentActor=await authorized(client,actor);const candidate=await readCommercialCandidate(client,source);await editableOrder(client,currentActor,orderId,candidate);const current=await readOrderCommercialState(client,orderId);await client.query('ROLLBACK');return {current,candidate};}catch(e){await client.query('ROLLBACK');throw orderCommandControlError(e);}finally{client.release();}
 }
 export async function adoptOrderCommercial(pool:Pool,actor:TrustedIdentity,orderId:string,raw:Record<string,unknown>){
  const command=parseAdoptCommercial(raw);if(!identityUuid.test(orderId))fail(400,'invalid_order_id');
@@ -64,7 +65,7 @@ export async function adoptOrderCommercial(pool:Pool,actor:TrustedIdentity,order
   const after=await readOrderCommercialState(client,orderId);
   await appendOperationLog(client,currentActor,{module:'订单中心',action:'采用订单商业版本',entityType:'OrderCommercialVersion',entityId:row.id,quoteId:candidate.quoteId,beforeData:before.current?{values:{customerConfirmedPrice:before.current.salePrice,confirmedLaborPrice:before.current.laborPrice,laborCurrency:before.current.laborCurrency,version:before.version}}:null,afterData:{values:{salesOrderId:orderId,customerConfirmedPrice:candidate.salePrice,confirmedLaborPrice:candidate.laborPrice,laborCurrency:candidate.laborCurrency,version:after.version}},metadata:{reason:command.reason,sourceKind:candidate.sourceKind}});
   await client.query('COMMIT');return{adopted:after.current!,replayed:false};
- }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
+ }catch(e){await client.query('ROLLBACK');throw orderCommandControlError(e);}finally{client.release();}
 }
 
 /** Internal transaction primitive. Caller must authorize and lock the business command. */

@@ -55,3 +55,6 @@ reviewHash覆盖返回的有限订单/合同事实及引用计数/ID，明确has
 0020仅前向新增普通DML保护，未真实应用。历史重复SO不能接收新的生命周期、计划、认领/血统、商业采用、加工消费或新Source绑定写入；所有原身份/历史引用保留，参考准备记录仍合法。Source原owner观察继续更新，但原别名计划不变。Source run/snapshot不可改删，新快照要求有效根/可信合同/精确epoch，过期run不可重新发布为当前。
 
 归属write epoch避免等待锁后的RR旧快照绕过；后补绑定/镜像也校验合同唯一和加工独立性。具体已声明表及SQL负向场景见迁移与effective-attribution-write-guards.integration.test.ts。该保护不宣称任意外部写入、禁用触发器或所有旧二进制兼容；运行态关闭策略和真实回退仍待。15项新增/45项联合本地合成验证，不等于main、部署或人工验收。
+
+
+2026-10-15后续：新命令暂停/具体兼容回退本地落实0021及Server policy，实证与限制见[ORDER_COMMAND_CONTROL](ORDER_COMMAND_CONTROL.md)。默认无真实归一许可保持，历史Source/复核UI仍待；不视为整个G4交付或真实恢复通过。

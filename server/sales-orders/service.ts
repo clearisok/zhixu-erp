@@ -1,3 +1,4 @@
+import {orderCommandControlError} from './command-control.js';
 import {lockEffectiveAttribution} from './effective-attribution.js';
 import { HttpError } from "../http/errors.js";
 import type { Pool, PoolClient } from "pg";
@@ -42,7 +43,7 @@ export async function createAinuokeSalesOrder(
     return result;
   } catch (error) {
     await client.query("ROLLBACK").catch(() => undefined);
-    throw error;
+    throw orderCommandControlError(error);
   } finally {
     client.release();
   }

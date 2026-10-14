@@ -1,3 +1,4 @@
+import {orderCommandControlError} from './command-control.js';
 import type {Pool,PoolClient} from 'pg';
 import type {TrustedIdentity} from '../auth/session.js';
 import {HttpError} from '../http/errors.js';
@@ -35,7 +36,7 @@ async function scope<T>(pool:Pool,actor:TrustedIdentity,caseId:string,proposal:A
    if(!(await client.query('SELECT id FROM sales_order_normalization_cases WHERE id=$1',[caseId])).rowCount)fail(404,'normalization_case_not_found');
    const result=await run(client,external,target);await revalidate();await client.query('COMMIT');return result;
   });
- }catch(error){await client.query('ROLLBACK').catch(()=>undefined);if(['40001','55P03','40P01'].includes((error as {code?:string}).code??''))fail(409,'normalization_concurrency_conflict');throw error;}
+ }catch(error){await client.query('ROLLBACK').catch(()=>undefined);if(['40001','55P03','40P01'].includes((error as {code?:string}).code??''))fail(409,'normalization_concurrency_conflict');throw orderCommandControlError(error);}
  finally{client.release();}
 }
 

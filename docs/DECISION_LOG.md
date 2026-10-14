@@ -18,12 +18,20 @@
 
 ## Active
 
+### D-126 Gate4 新命令暂停与兼容回退
+
+- 日期2026-10-15；Active，落实D121已批准回退边界，不扩大真实写入授权。
+- 0021单行DB控制及不可变模式历史，暂停新SO、价格采用/当前头、归一/纠正和旧订单CCT写入。模式变化CAS/原因/数据库actor，持行锁排空已有事务；不移动任何业务历史。
+- 当前进程enabled/frozen配置只能收紧，HTTP不提供控制写入。readonly/准备及既有来源刷新仍可用；首次绑定/新增需要新SO时被DB统一阻断。不是全库只读，Browser/legacy及外部writer不由它假称覆盖。
+- 原main Server实际编译/启动校验拒绝新schema，不能直接回退旧镜像；支持使用已验证兼容的新schema候选关闭新命令，真实暂停/重开/切流/恢复仍须具体授权。没有实际改环境变量、账户、DB或部署。
+- 代码：0021_order_command_control.sql、command-control.ts、server config/index/app；18项控制/原Server演练及[模块边界](features/ORDER_COMMAND_CONTROL.md)。旧Docker/Browser及真实恢复不冒称通过，历史Source/UI与整个G4仍待。
+
 ### D-125 Gate4 有效归属与普通SQL写入保护
 
 - 日期2026-10-15；Active，落实已批准D-121归一/历史保护计划，不扩大真实操作授权。
 - 0018保留原UUID/绑定/流水，0019完整有界证据及独立复核，默认执行关闭；0020在已声明Server表增加普通DML防绕过。来源事实仍写不可变原owner，当前快照按有效根和精确generation发布；不搬移或加总旧计划/价格/流水。
 - 新订单商业/执行不能写历史别名；参考记录可以保留历史身份。加工批次身份不能与合同归一，后补可信绑定也必须维护合同唯一。过期RR快照用事务write epoch阻断，数据库约束不能证明所有旧镜像功能兼容。
-- Source证据不可改删，旧null scope/epoch历史保留，新发布不冒称旧快照当前。运行态关闭策略、历史Source/UI、真实外部覆盖、恢复演练及具体授权仍待；整个Gate4不提前标完成。
+- Source证据不可改删，旧null scope/epoch历史保留，新发布不冒称旧快照当前。此条记录时点运行态关闭策略仍待，后续本地实现见D126；历史Source/UI、真实外部覆盖、恢复演练及具体授权仍待，整个Gate4不提前标完成。
 - 代码/测试：0018–0020、effective-attribution.ts、normalization-execution-service.ts、effective-attribution-write-guards.integration.test.ts；[当前阶段](tasks/active/order-effective-attribution.md)。只在独立工作树/一次性合成PG验收，未PR交付、合并、部署或真实迁移。
 
 ### D-124 Gate4 历史订单复核案件与覆盖证据

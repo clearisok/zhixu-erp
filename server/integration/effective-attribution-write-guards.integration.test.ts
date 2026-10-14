@@ -42,7 +42,7 @@ test('SQL fences preserve historical facts and reject unaware writers on synthet
  const historical=async()=>Promise.all(historyTables.map(async table=>(await pool.query('SELECT to_jsonb(x) AS row FROM '+table+' x ORDER BY to_jsonb(x)::text')).rows));
  const before=await historical();
  await t.test('forward upgrade preserves all existing rows including nullable old Source history',async()=>{
-  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0020_order_attribution_write_guards.sql']);
+  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0020_order_attribution_write_guards.sql','0021_order_command_control.sql']);
   assert.deepEqual(await historical(),before);assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
  });
  const makeCase=async(ids:string[])=>{const pair=[...ids].sort();const existing=(await pool.query('SELECT id FROM sales_order_normalization_cases WHERE first_order_id=$1 AND second_order_id=$2',pair)).rows[0];if(existing)return existing.id as string;

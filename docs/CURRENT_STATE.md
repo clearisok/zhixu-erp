@@ -1,11 +1,11 @@
 # 当前状态
 
-核实日期2026-10-15；GitHub API最新main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`，开放PR仅#108、head f5bbb1e4d3d6c52c80b03947a6926380afafc8c0。当前本地feat/order-effective-attribution，阶段起点59499461。只读API可用不等于Git传输恢复；NETWORK_DEGRADED规则保持，工程/远端/合并/部署分开。
+核实2026-10-15；GitHub API main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`不变，最近开放PR仅108。当前feat/order-effective-attribution；阶段起点6f181d3b，NETWORK_DEGRADED规则保持。当前代码是本地工程，未精确远端交付/合并/部署。
 
-G1 def98f275c2ef61712008891ab1c60d308981bb7、G2 2c6c2315d4b295dba2c6f73f651255f775790b99、G3 39c9f7b607eabed5d72845d3a30b7fc766a6ee9d提交/工作树保留，未精确远端交付。合同身份认领、独立采用商业版本、加工批次双入口已有本地合成验收，不冒称main能力。G4案件预览afb71f921b5645ed83f03d46a784d1e30f8325f2及冻结证据保留；有限preview不是执行令牌，Server无行不证明外部无执行/冻结。
+G1 def98f275c2ef61712008891ab1c60d308981bb7、G2 2c6c2315d4b295dba2c6f73f651255f775790b99、G3 39c9f7b607eabed5d72845d3a30b7fc766a6ee9d及G4预览afb71f921b5645ed83f03d46a784d1e30f8325f2保留，合同认领、独立商业采用、加工批次双入口/案件已本地合成验证，不冒称main能力。旧冻结证据/截图/hash不覆盖。
 
-G4本地0018有效归属/纠正、Source scope与epoch、统一消费者、0019完整有界证据/独立复核/默认关闭执行服务已验证。当前新增0020普通SQL防绕过、write epoch阻断RR旧身份、Source run/snapshot不可改删、新发布精确root/可信合同/generation，以及后补来源的合同唯一和加工独立性保护。原UUID、创建历史、来源绑定、商业价、计划和流水均未搬移或合计；历史参考仍允许。所有迁移仅一次性合成PG，无真实迁移。
+G4已接0018有效归属/纠正、Source scope/epoch及消费者，0019完整有界证据/独立复核/默认关闭执行，0020普通SQL防绕过。当前0021增加版本化DB暂停、不可伪造模式历史及Server process收紧；新SO/价格采用/归一/旧订单CCT暂停，readonly/准备/既有来源刷新保留。不是全库冻结；真实控制更新亦需独立授权。原身份/来源绑定/价格/计划/流水未搬移或合计。迁移只在一次性合成PG应用。
 
-当前归属45/45（含新增SQL15）、执行29/29、Source20PASS/1skip、身份15/15、加工35/35、源码824/824、基线78/78、类型/lint/Server编译通过；最终完整PG/API261/261明确exit0。失败/修复及完整时点见[阶段任务](tasks/active/order-effective-attribution.md)。当前真实外部Adapter、备份恢复及具体许可均未提供；执行默认关闭。历史Source/复核UI、运行态关闭新命令及旧二进制回退验收仍待；不承诺整个G4完成。
+暂停/实际原main Server回退18、执行30、归属45、加工35、Source接纳43PASS/1skip、PG/API261、源码824、基线78及类型/lint/Server编译通过。原main实际编译/启动校验拒绝新schema、没有listen/bootstrap且逐表不变；兼容前向bundle暂停查询通过。旧Docker/Browser、真实备份恢复/外部Adapter及具体许可仍未验证/提供；归一默认关闭。[本地控制证据](tasks/active/evidence/order-command-control/gate4-command-control-results.md)。
 
-下一步收口上述G4缺口，查漏准备记录采纳、待分类执行hold、Quote修订确认清空，再独立交付G5页面/排序/num_dyc/6086941。没有真实账号/DB、Source范围/调度、宁波或18443/18444变更；不自动合并部署。上一完整状态保留于[阶段快照](tasks/completed/2026-10-15-pre-sql-guard-current-state.md)。
+下一步历史Source/历史选单和独立复核界面、完整G4收口；查漏准备采纳、待分类执行hold与Quote修订清确认，独立交付G5页面/排序/num_dyc/6086941。不自动合并部署，无真实账号/DB/Source范围或调度/宁波/18443/18444变化。前一状态完整保留于[阶段快照](tasks/completed/2026-10-15-pre-command-control-current-state.md)。

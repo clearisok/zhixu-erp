@@ -61,6 +61,12 @@ test('normalization execution and correction are authorized, atomic and historic
   await assert.rejects(()=>executeAttributionChange(pool,admin,c.caseId,{...p.command,permit:p.permit},{coverage,permit:p.permit}),code('invalid_attribution_command'));
   await assert.rejects(()=>executeAttributionChange(pool,admin,c.caseId,p.command,{permit:p.permit}),code('normalization_full_evidence_changed'));assert.equal(await changes(c.caseId),0);
  });
+ await t.test('operator command pause blocks a fully permitted normalization and rolls back all proof writes',async()=>{
+  const c=await pair();const p=await prepare(c);const before=await original(c.ids);
+  await pool.query("UPDATE sales_order_command_control SET mode='frozen',reason='Synthetic permitted normalization paused',version=version+1 WHERE singleton");
+  try{await assert.rejects(()=>executeAttributionChange(pool,admin,c.caseId,p.command,{coverage,permit:p.permit}),code('order_commands_frozen'));assert.equal(await changes(c.caseId),0);assert.deepEqual(await original(c.ids),before);assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_normalization_proofs WHERE case_id=$1',[c.caseId])).rows[0].n,0);}
+  finally{await pool.query("UPDATE sales_order_command_control SET mode='enabled',reason='Synthetic normalization resumed after verification',version=version+1 WHERE singleton");}
+ });
  await t.test('legacy admin label/cached grants cannot execute; exact target, proposal, evidence and time are mandatory',async()=>{
   const c=await pair();const p=await prepare(c);
   await assert.rejects(()=>executeAttributionChange(pool,{...viewer,permissions:admin.permissions},c.caseId,p.command,{coverage,permit:p.permit}));

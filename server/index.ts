@@ -62,6 +62,7 @@ try {
         },
         staticDirectory: config.staticDirectory,
         identityAuthority,
+        orderCommandMode: config.orderCommandMode,
         attachmentStorage,
         orderMaterialRead: materialSourceConfig ? createPersistedMaterialPorts(pool, materialSourceConfig) : undefined,
       }));
@@ -74,6 +75,7 @@ try {
             event: "server_listening",
             environment: config.environment,
             identityMode: config.identityMode,
+            orderCommandMode: config.orderCommandMode,
             host: config.host,
             port: config.port,
           })}\n`);

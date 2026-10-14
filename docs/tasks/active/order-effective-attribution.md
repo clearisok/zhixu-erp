@@ -121,3 +121,20 @@ Source runs/material snapshots不可UPDATE/DELETE。新run必须含order_scope_h
 本阶段工程checkpoint8606cb7ba0bfbb832d16ebb50ba62a2989b028eb后，首次精确源码门禁FAIL EVIDENCE_WORKTREE_DRIFT decisions-order-normalization-g4：新增D125改变了决策文件，需要提交后的前向文档证据。按RELEASE_BASELINE_GUARD保留旧ID/blob/hash，新增decisions-order-attribution-g4指向8606cb7b的完整决策版本及supersedes链，不改任何截图、旧验收hash或能力状态。修复后重新验证源码门禁与基线回归。
 
 前向文档绑定后源码门禁明确PASS，基线回归78/78明确exit0；未改旧能力状态、截图或权限范围。工程源码checkpoint8606cb7ba0bfbb832d16ebb50ba62a2989b028eb，证据绑定独立收口。整个G4和远端交付仍未完成。
+
+
+## 2026-10-15 新命令暂停与兼容回退阶段
+
+起点6f181d3bc5af0271c1a0949b2be0ef3a1713bbd6，原分支工作树干净。当前GitHub API核实main仍064e3afaf7d08b3cb62907d4402f97d9c292f1e5；未push/新PR、merge或部署，NETWORK_DEGRADED规则不删。
+
+分配未发布0021，全局DB控制行/不可变模式事件，普通新SO/商业版本与头/归属ledger与头/旧订单CCT写触发器持FOR SHARE至COMMIT，暂停等待已开始事务。严格模式/version/reason，事件由真实控制UPDATE生成，不接收伪造actor；审计失败连mode/version一起回滚。没有HTTP控制mutator或可自动执行真实暂停的脚本。
+
+当前Server进程ZHIXU_ORDER_COMMAND_MODE可更严格，不能重开DB冻结。高级新命令HTTP预检+SQL事务兜底，明确503；旧精确内部回执及readonly GET保留。Source首次绑定/新增需建SO时原子拒绝，已有Source刷新/原绑定retry保留；加工意向继续准备，消费被暂停时无孤立SO。原权限、单号、价格、未知数量、汇率、UI和真实环境没有变化。
+
+实际从精确main导出临时源码并编译/运行原Server migration verifier/index，拒绝不认识的0014之后schema、退出1，逐表数据/账号/权限不变，未listen/bootstrap。没有新建Git worktree或移动旧分支。当前兼容前向bundle readonly verify与frozen查询通过，未重建原Docker镜像或认证旧Browser/legacy。历史Git SQL LF与Windows CRLF独立处理，避免把换行checksum假称schema不兼容。具体控制范围、限制及未来真实操作清单见ORDER_COMMAND_CONTROL.md。
+
+初次暂停13项10PASS/3FAIL（decimal 120实际是string，候选ID实际在batch.id，含父测试），类型检测也拦截staleActor多余属性/failed union与NODE_ENV widening。按现有DTO修正fixture后13项通过；增加旧Server、Quote CCT及不可伪造/审计回滚后18/18。子进程环境第二次widening失败加显式ProcessEnv类型后最终完整类型通过。没有降低接口或DB保护。
+
+当前18暂停/回退、30执行、45归属、35加工、43Source接纳+skip1、261完整PG/API、完整类型/lint及Server编译均已明确exit0。最终源码824/824及基线78/78已明确exit0。所有测试是一次性合成PG或受控临时目录，无真实source读取、账号/业务DB更新或部署。
+
+剩余为历史Source查询/历史选单与独立复核界面，完整Gate4收口及全计划查漏/G5。真实目标暂停、恢复enabled、备份恢复、归一执行及流量切换仍需独立具体授权；该实现不扩大既有来源范围/窗口，不让报价先于合同创建合同类SO。

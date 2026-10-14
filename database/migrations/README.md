@@ -24,3 +24,9 @@ post-binding contract/processing identity validation. A transactional epoch row
 also rejects a stale REPEATABLE READ writer after attribution changes. Historical
 null scope/generation rows are preserved without backfill. This has only synthetic
 disposable-PG validation, not real-target activation or old-binary compatibility.
+
+`0021_order_command_control.sql` adds an operator-owned, versioned pause for new
+Server SO, commercial adoption and attribution commands, with immutable transition
+history. Ordinary-DML guards hold a shared control-row lock through COMMIT; a pause
+waits for in-flight commands. No HTTP mutator or real activation is authorized.
+Existing reads, preparations and bound Source refresh remain separate capabilities.

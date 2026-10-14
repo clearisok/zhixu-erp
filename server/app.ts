@@ -1,3 +1,4 @@
+import {parseOrderCommandMode,assertOrderCommandsAvailable,readOrderCommandState,orderCommandControlError,type OrderCommandMode} from './sales-orders/command-control.js';
 import {previewAttributionExecution,recordAttributionReview,executeAttributionChange,readAttributionExecutionReceipt,readAttributionReviewSummary,type NormalizationExecutionOptions} from './sales-orders/normalization-execution-service.js';
 import { openNormalizationCase, appendNormalizationCaseEvent, readNormalizationCase, listNormalizationCases, parseNormalizationCaseQuery } from "./sales-orders/normalization-case-service.js";
 import { previewOrderNormalization } from "./sales-orders/normalization-preview.js";
@@ -64,6 +65,7 @@ export type AppDependencies = {
   attachmentStorage?: AttachmentStorage;
   orderMaterialRead?: MaterialReadPorts;
   normalizationExecution?: NormalizationExecutionOptions;
+  orderCommandMode?: OrderCommandMode;
 };
 type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "normalizationExecution">;
 
@@ -587,6 +589,13 @@ async function route(
     return;
   }
 
+  if(path==='/api/v1/order-command-state'){
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_command_state_query','Query selectors not accepted');
+    response.setHeader('Cache-Control','no-store');sendJson(response,200,await readOrderCommandState(dependencies.pool,identity,dependencies.orderCommandMode));return;
+  }
+
   const attributionMatch=/^\/api\/v1\/order-normalization-cases\/([0-9a-f-]+)\/(attribution-preview|reviews|execute)$/iu.exec(path);
   if(attributionMatch){
     if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
@@ -604,7 +613,7 @@ async function route(
       if(Object.keys(body).length!==1||!Object.hasOwn(body,'proposal'))throw new HttpError(400,'invalid_attribution_command','Only proposal accepted');
       sendJson(response,200,await previewAttributionExecution(dependencies.pool,identity,attributionMatch[1],body.proposal,options));
     }else if(attributionMatch[2]==='reviews')sendJson(response,200,await recordAttributionReview(dependencies.pool,identity,attributionMatch[1],body,options));
-    else sendJson(response,200,await executeAttributionChange(dependencies.pool,identity,attributionMatch[1],body,options));
+    else {await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);sendJson(response,200,await executeAttributionChange(dependencies.pool,identity,attributionMatch[1],body,options));}
     return;
   }
   const attributionReceipt=/^\/api\/v1\/order-attribution-receipts\/([0-9a-f-]+)$/iu.exec(path);
@@ -661,7 +670,7 @@ async function route(
     assertMutationBoundary(request,dependencies.allowedOrigins);
     const body=await readJsonBody(request,16384);
     if(!processingMatch[1])sendJson(response,200,await createProcessingBatch(dependencies.pool,identity,body));
-    else if(processingMatch[1]==='consume'&&!processingMatch[2])sendJson(response,200,await consumeProcessingBatches(dependencies.pool,identity,body));
+    else if(processingMatch[1]==='consume'&&!processingMatch[2]){requirePermission(identity.permissions,'order.processing.consume');await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);sendJson(response,200,await consumeProcessingBatches(dependencies.pool,identity,body));}
     else if(processingMatch[2]==='preview'){
       if(Object.keys(body).length)throw new HttpError(400,'invalid_processing_preview','Preview does not accept overrides');
       sendJson(response,200,await previewProcessingBatch(dependencies.pool,identity,processingMatch[1]));
@@ -702,6 +711,7 @@ async function route(
       const preview=await previewOrderCommercial(dependencies.pool,identity,id,parseCommercialProvenance(body));
       sendJson(response,200,{current:projectOrderCommercialState(identity,preview.current),candidate:projectCommercialCandidate(identity,preview.candidate)});
     }else{
+      await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);
       const result=await adoptOrderCommercial(dependencies.pool,identity,id,body);
       sendJson(response,200,{adopted:projectOrderCommercialVersion(identity,result.adopted),replayed:result.replayed});
     }
@@ -764,11 +774,13 @@ export function createApp(dependencies: AppDependencies): RequestListener {
     security: dependencies.security ?? { secureCookies: false, sessionTtlSeconds: 43_200 },
     staticDirectory: dependencies.staticDirectory ?? "",
     identityAuthority: dependencies.identityAuthority ?? createIdentityAuthority(dependencies.pool, "session"),
+    orderCommandMode: parseOrderCommandMode(dependencies.orderCommandMode),
   };
   return (request, response) => {
     const correlationId = requestId();
     response.setHeader("X-Request-Id", correlationId);
-    void route(request, response, resolved, correlationId).catch((error: unknown) => {
+    void route(request, response, resolved, correlationId).catch((failure: unknown) => {
+      const error=orderCommandControlError(failure);
       if (error instanceof HttpError) {
         sendError(response, error.status, error.code, error.message, correlationId);
         return;

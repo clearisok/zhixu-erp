@@ -1,3 +1,4 @@
+import {orderCommandControlError} from '../sales-orders/command-control.js';
 import {lockEffectiveAttribution,resolveEffectiveOrder,supportsEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
@@ -251,6 +252,7 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
     return {created: ids.length, replayed: false, orderIds: ids, reviewHash: current.reviewHash};
   } catch(error) {
     await client.query('ROLLBACK').catch(()=>undefined);
-    throw error instanceof SourceError ? error : new SourceError('addition_failed');
+    const control=orderCommandControlError(error) as {code?:string};
+    throw error instanceof SourceError ? error : new SourceError(['order_commands_frozen','order_command_control_unavailable'].includes(control?.code??'')?control.code!:'addition_failed');
   } finally { client.release(); }
 }

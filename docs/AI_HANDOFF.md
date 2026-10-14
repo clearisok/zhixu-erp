@@ -1,9 +1,9 @@
-# 当前接力：SQL防绕过通过，运行态回退及历史Source/UI待
+# 当前接力：新命令暂停/原Server回退已演练，转历史Source/UI
 
-2026-10-15；feat/order-effective-attribution，阶段起点59499461a8d83a4233fd715386f718c07d2fb6eb，dirty起点为空。GitHub API本阶段只读核实main064e3afaf7d08b3cb62907d4402f97d9c292f1e5、开放PR仅108 head f5bbb1e4d3d6c52c80b03947a6926380afafc8c0。Git传输仍按NETWORK_DEGRADED；没有自动恢复push/PR/合并/部署。
+2026-10-15；feat/order-effective-attribution，阶段起点6f181d3bc5af0271c1a0949b2be0ef3a1713bbd6，dirty起点为空。GitHub API核实main064e3afaf7d08b3cb62907d4402f97d9c292f1e5不变。NETWORK_DEGRADED协议不删除/不自动恢复push，未新PR/合并/部署。
 
-新增未发布0020：普通SQL有效owner保护、write epoch拒绝RR旧快照、Source证据不可改删/精确scope与generation发布、后补绑定合同唯一、加工身份独立。原UUID/来源owner/价格/计划/流水保留；Source原owner观察允许，历史准备引用允许。不能宣称所有外部写入或旧二进制兼容。0019服务仍默认无permit/真实Adapter，session-only；没有真实操作。
+0018–0020有效归属/完整证据/默认关闭执行/SQL防绕过保留；0021新增普通DML的版本化DB暂停/不可伪造模式历史，Server process只能收紧，GET状态fresh授权。暂停新SO/价格采用/归一/旧Order CCT，readonly/意向及既有来源刷新继续；不是全库冻结，真实控制更新仍须独立授权。原main Server实际构建/启动检查拒绝新schema且逐表无改；兼容前向bundle暂停查询通过，旧Docker/Browser和真实恢复没有认证。
 
-本阶段归属45/45（含新增SQL15），执行29/29，Source20PASS/1Windows CLI skip，身份15/15，加工35/35，根源码824/824，基线78/78；类型/lint/Server编译通过。最终完整PG/API261/261明确exit0。源码checkpoint8606cb7ba0bfbb832d16ebb50ba62a2989b028eb；D125前向证据绑定后精确基线门禁PASS、基线78/78通过，旧blob/hash不覆盖。原接力/当前状态保留于completed/2026-10-15-pre-sql-guard-*，失败与修复见[任务](tasks/active/order-effective-attribution.md)。
+暂停与实际回退18、执行30、归属45、加工35、Source接纳43PASS/1Windows skip、完整PG/API261、源码824、基线78均通过；最终无缓存类型/完整lint/Server编译通过。冻结证据见tasks/active/evidence/order-command-control/gate4-command-control-results.md，D126决策和前向绑定待阶段收口。失败与修复见order-effective-attribution任务；旧接力/状态保留于completed/2026-10-15-pre-command-control-*。
 
-下一步运行态关闭新创建/采用命令与实际回退兼容测试，再补历史Source、历史状态/案件历史选单、独立生产财务复核界面和完整Gate4收口；准备记录采纳、待分类执行hold与Quote修订确认重置按批准计划查漏，G5仍保留。当前不改真实账号、业务DB、Source范围/调度、宁波及18443/18444。真实Adapter、精确案件、备份恢复及实际执行须独立证据与具体授权。
+下一步历史Source查询、历史状态/案件历史选单、生产财务复核/默认禁用执行界面及完整G4收口；准备记录采纳、待分类执行hold和Quote修订清确认查漏，随后独立G5。没有真实账号、业务DB、来源范围/调度、宁波/18443/18444变化。默认无真实Adapter/归一permit，整个Goal仍未完成。

@@ -1,3 +1,4 @@
+import {orderCommandControlError} from './command-control.js';
 import {lockEffectiveAttribution} from './effective-attribution.js';
 import {createHash,randomUUID} from 'node:crypto';
 import type {Pool,PoolClient} from 'pg';
@@ -31,7 +32,7 @@ async function transaction<T>(pool:Pool,actor:TrustedIdentity,operation:Operatio
   if(operation==='read'&&!a.permissions.includes('order.processing.consume')&&!a.permissions.includes('order.processing.batch.manage'))fail(403,'permission_denied');
   requirePermission(a.permissions,'quote.view');requirePermission(a.permissions,'commercial.labor.view');
   const result=await run(c,a);await c.query('COMMIT');return result;
- }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
+ }catch(e){await c.query('ROLLBACK');throw orderCommandControlError(e);}finally{c.release();}
 }
 async function replay(c:PoolClient,a:TrustedIdentity,requestId:string,operation:Operation,item:string,payloadHash:string){
  await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[`processing-request:${a.internalUserId}:${requestId}:${operation}:${item}`]);

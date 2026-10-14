@@ -1,3 +1,4 @@
+import {orderCommandControlError} from '../sales-orders/command-control.js';
 import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import type { Pool } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
@@ -109,6 +110,7 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
     return {created,replayed:created===0,orderIds:ids,reviewHash};
   } catch(error) {
     await client.query("ROLLBACK").catch(()=>undefined);
-    throw error instanceof SourceError ? error : new SourceError("binding_failed");
+    const control=orderCommandControlError(error) as {code?:string};
+    throw error instanceof SourceError ? error : new SourceError(['order_commands_frozen','order_command_control_unavailable'].includes(control?.code??'')?control.code!:'binding_failed');
   } finally { client.release(); }
 }
