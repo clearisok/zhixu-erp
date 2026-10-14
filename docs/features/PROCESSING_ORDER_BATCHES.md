@@ -22,6 +22,6 @@ API：GET/POST /api/v1/processing-order-batches；POST /consume；POST /:id/prev
 
 服务/HTTP/SQL合成测试、浏览器测试、源码门禁的逐次结果见阶段任务，不把分阶段通过冒充最终全Gate通过。实际代码：server/sales-orders/processing-batch-{model,service}.ts、database/migrations/0016_processing_order_batches.sql、features/order-center/components/processing-batch-dialog.tsx及server/integration/processing-batch*。
 
-尚待收口：相似下单提醒（相同PO不得硬阻断）、友好报价版本标识、批量失败项重试体验、取消操作界面、最终权限/来源负向矩阵、精确提交门禁和复审。当前不能宣称Gate3完整交付或用户验收。G4历史归一和G5来源/页面任务独立，不因本模块实施获得真实数据执行授权。
+相似下单提示已按同客户+同PO或同报价数量实现，只提醒不阻止。未消费批次可填写原因后取消；部分成功可仅重试失败项，成功结果保留。合成服务29/29与浏览器7/7通过。尚待收口：友好报价版本标识、最终权限/来源负向矩阵、精确提交门禁和复审。当前不能宣称Gate3完整交付或用户验收。G4历史归一和G5来源/页面任务独立，不因本模块实施获得真实数据执行授权。
 
 所有数据库检查只在随机一次性合成库执行。无真实账号、业务数据库、Source调度、宁波或18443/18444变更；无自动合并、部署。本文件在schema、API、权限、UI、验收或交付状态变化时同步更新，GitHub为实时工程事实源。

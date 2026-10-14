@@ -55,12 +55,28 @@ export async function createProcessingBatch(pool:Pool,actor:TrustedIdentity,raw:
   return record(c,a,command.requestId,'create','',payloadHash,{batchId:row.id,version:1,status:'draft'});
  });
 }
+// Advisory only: a repeated PO or quote/quantity is not a unique customer order.
+// Return bounded, non-price evidence; never turn this heuristic into identity.
+async function similarProcessingBatches(c:PoolClient,b:Batch){
+ const rows=(await c.query<{batchId:string;businessStyleNo:string;quantity:string;orderDate:string;state:string;salesOrderId:string|null;orderNo:string|null;sameReference:boolean;sameQuoteQuantity:boolean}>(`
+  SELECT p.id::text AS "batchId",p.business_style_no AS "businessStyleNo",p.quantity::text,
+   p.order_date::text AS "orderDate",p.state,s.sales_order_id::text AS "salesOrderId",o.order_no AS "orderNo",
+   ($3<>'' AND lower(btrim(p.customer_reference))=lower(btrim($3))) AS "sameReference",
+   (p.quote_id=$4 AND p.quantity=$5::numeric) AS "sameQuoteQuantity"
+  FROM processing_order_batches p
+  LEFT JOIN processing_order_batch_consumptions s ON s.batch_id=p.id
+  LEFT JOIN sales_orders o ON o.id=s.sales_order_id
+  WHERE p.id<>$1 AND p.state<>'cancelled' AND lower(btrim(p.customer_name))=lower(btrim($2))
+   AND (($3<>'' AND lower(btrim(p.customer_reference))=lower(btrim($3))) OR (p.quote_id=$4 AND p.quantity=$5::numeric))
+  ORDER BY p.created_at DESC,p.id DESC LIMIT 21`,[b.id,b.customerName,b.customerReference,b.quoteId,b.quantity])).rows;
+ return {items:rows.slice(0,20),hasMore:rows.length>20};
+}
 export async function previewProcessingBatch(pool:Pool,actor:TrustedIdentity,id:string){
  return transaction(pool,actor,'read',async(c)=>{
   const b=await readBatch(c,id);if(!['draft','confirmed'].includes(b.state))fail(409,'processing_batch_terminal');
   const candidate=await readCommercialCandidate(c,{quoteId:b.quoteId,revisionId:b.revisionId,priceVersionId:b.priceVersionId});
   if(candidate.quoteType!=='processing')fail(409,'processing_quote_required');
-  return {batch:b,candidate};
+  return {batch:b,candidate,similar:await similarProcessingBatches(c,b)};
  });
 }
 export async function confirmProcessingBatch(pool:Pool,actor:TrustedIdentity,id:string,raw:unknown){
@@ -128,7 +144,7 @@ export function parseProcessingBatchQuery(query:URLSearchParams):ProcessingBatch
 export async function listProcessingBatches(pool:Pool,actor:TrustedIdentity,query:ProcessingBatchQuery){
  return transaction(pool,actor,'read',async(c)=>{
   const rows=(await c.query<Batch>(selectBatch+` WHERE ($1 OR state='confirmed') AND ($2='' OR quote_id=$2) AND ($3='' OR concat_ws(' ',customer_name,business_style_no,customer_reference,id::text) ILIKE $4) ORDER BY created_at DESC,id DESC LIMIT 21 OFFSET $5`,[query.includeProcessed,query.quoteId,query.search,'%'+query.search.replace(/[\\%_]/gu,'\\$&')+'%',query.offset])).rows;
-  const items:Array<{batch:Batch;eligible:boolean;unavailableReason:string|null;salesOrderId:string|null;orderNo:string|null}>=[];
+  const items:Array<{batch:Batch;eligible:boolean;unavailableReason:string|null;salesOrderId:string|null;orderNo:string|null;similar:Awaited<ReturnType<typeof similarProcessingBatches>>}>=[];
   for(const b of rows.slice(0,20)){
    const existing=(await c.query('SELECT o.id::text,o.order_no FROM processing_order_batch_consumptions p JOIN sales_orders o ON o.id=p.sales_order_id WHERE p.batch_id=$1',[b.id])).rows[0];
    let eligible=false,unavailableReason:string|null=b.state;
@@ -142,7 +158,7 @@ export async function listProcessingBatches(pool:Pool,actor:TrustedIdentity,quer
     }catch(e){await c.query('ROLLBACK TO SAVEPOINT candidate');if(!(e instanceof HttpError))throw e;unavailableReason=e.code;}
     await c.query('RELEASE SAVEPOINT candidate');
    }
-   if(query.includeProcessed||eligible)items.push({batch:b,eligible,unavailableReason,salesOrderId:existing?.id??null,orderNo:existing?.order_no??null});
+   if(query.includeProcessed||eligible)items.push({batch:b,eligible,unavailableReason,salesOrderId:existing?.id??null,orderNo:existing?.order_no??null,similar:await similarProcessingBatches(c,b)});
   }
   return {items,hasMore:rows.length>20,nextOffset:query.offset+Math.min(20,rows.length),offset:query.offset};
  });

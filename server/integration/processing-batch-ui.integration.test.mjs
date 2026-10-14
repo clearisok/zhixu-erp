@@ -71,6 +71,29 @@ test("processing batches built UI uses real sessions and isolated synthetic data
    await click('确认导入所选 1 项');await has('服务响应尚未确认');assert.equal((await x.pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions')).rows[0].n,2);
    await click('重试原请求');await has('已创建正式订单');assert.equal((await x.pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions')).rows[0].n,2);await click('关闭');
   });
+  const setupBatch=async(style,confirm=true)=>evaluate(`(async()=>{const post=async(path,body)=>{const r=await fetch('/api/v1/processing-order-batches'+path,{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(body)});if(!r.ok)throw Error('synthetic setup failed');return r.json();};const b=await post('',{quoteId:${JSON.stringify(q.id)},revisionId:${JSON.stringify(revision.revisionId)},priceVersionId:${JSON.stringify(pv.id)},requestId:crypto.randomUUID(),customerName:'合成防重客户',businessStyleNo:${JSON.stringify(style)},quantity:'23',orderDate:'2026-10-14',deliveryDate:null,customerReference:'SYN-SAME-PO',deliveryRequirements:'',referenceOrderId:null});if(${confirm}){const p=await post('/'+b.batchId+'/preview',{});await post('/'+b.batchId+'/confirm',{requestId:crypto.randomUUID(),expectedVersion:b.version,sourceFingerprint:p.candidate.fingerprint});}return b.batchId;})()`);
+  await t.test('cancel requires a reason, preserves history and cannot allocate an SO',async()=>{
+   await navigate('/order-center');const id=await setupBatch('SYN-CANCEL-UI');await click('导入加工订单');await has('SYN-CANCEL-UI');await click('取消批次 SYN-CANCEL-UI');await has('取消未生成订单的批次');
+   assert.equal(await evaluate("[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='确认取消批次').disabled"),true);
+   await input('取消原因','合成误登记，保留原记录');await click('确认取消批次');await has('批次已取消');
+   assert.equal((await x.pool.query('SELECT state FROM processing_order_batches WHERE id=$1',[id])).rows[0].state,'cancelled');assert.equal((await x.pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions WHERE batch_id=$1',[id])).rows[0].n,0);await click('关闭');
+  });
+  await t.test('similar orders stay selectable and partial retry submits only the failed batch',async()=>{
+   await navigate('/order-center');const good=await setupBatch('SYN-PARTIAL-GOOD'),bad=await setupBatch('SYN-PARTIAL-FAIL');
+   await click('导入加工订单');await has('SYN-PARTIAL-FAIL');await has('个相似下单');
+   for(const style of ['SYN-PARTIAL-GOOD','SYN-PARTIAL-FAIL'])await evaluate(`document.querySelector('input[aria-label="选择批次 ${style}"]').click()`);
+   assert.match(bad,/^[0-9a-f-]{36}$/);
+   await x.pool.query(`CREATE FUNCTION synthetic_partial_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='创建加工订单' AND NEW.entity_id='${bad}' THEN RAISE EXCEPTION 'synthetic partial failure'; END IF; RETURN NEW; END; $$`);
+   await x.pool.query('CREATE TRIGGER synthetic_partial_failure BEFORE INSERT ON operation_logs FOR EACH ROW EXECUTE FUNCTION synthetic_partial_failure()');
+   try{await click('确认导入所选 2 项');await has('仅重试失败项');await has('已创建正式订单');}finally{await x.pool.query('DROP TRIGGER synthetic_partial_failure ON operation_logs');}
+   assert.equal((await x.pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions WHERE batch_id=$1',[good])).rows[0].n,1);
+   assert.equal((await x.pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions WHERE batch_id=$1',[bad])).rows[0].n,0);
+   await evaluate("(()=>{const actual=window.fetch;window.retryBodies=[];window.fetch=(...args)=>{if(String(args[0]).endsWith('/processing-order-batches/consume'))window.retryBodies.push(JSON.parse(args[1].body));return actual(...args);};})()");
+   await click('仅重试失败项');await until(()=>evaluate("!document.body.innerText.includes('仅重试失败项')"),'failed item retried');
+   assert.deepEqual(await evaluate('window.retryBodies.map(x=>x.items.map(i=>i.batchId))'),[[bad]]);
+   assert.equal((await x.pool.query('SELECT count(*)::int n FROM processing_order_batch_consumptions WHERE batch_id=ANY($1::uuid[])',[[good,bad]])).rows[0].n,2);
+   await screenshot('processing-partial-retry-desktop');await click('关闭');
+  });
   await t.test('mobile history shows original SO while unauthorized role has no entrypoint',async()=>{
    await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await navigate('/order-center');await click('导入加工订单');await until(()=>evaluate("Boolean([...document.querySelectorAll('[role=dialog] label')].find(n=>n.textContent.includes('包含已处理'))?.querySelector('input:not(:disabled)'))"),"history toggle enabled");await evaluate("[...document.querySelectorAll('[role=dialog] label')].find(n=>n.textContent.includes('包含已处理')).querySelector('input').click()");await has('查看已有订单');await screenshot('processing-history-mobile');assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+1'),true);
    await login('demo.material');await navigate('/order-center');await has('订单中心');assert.equal(await evaluate("document.body.innerText.includes('导入加工订单')"),false);

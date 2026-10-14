@@ -35,6 +35,24 @@ test('processing service atomic synthetic lifecycle',{timeout:180000},async t=>{
   const command=draft(),a=await createProcessingBatch(pool,actor,command),b=await createProcessingBatch(pool,actor,command);assert.deepEqual(a,b);assert.equal(await count(),0);
   await assert.rejects(()=>createProcessingBatch(pool,actor,{...command,quantity:'20'}));assert.notEqual((await createProcessingBatch(pool,actor,draft())).batchId,a.batchId);
  });
+ await t.test('similarity is advisory, excludes cancelled/self/unrelated customers and preserves real repeat orders',async()=>{
+  const base={...draft(),customerName:'Similarity-only customer',customerReference:'SAME-PO',quantity:'21'};
+  const a=await createProcessingBatch(pool,actor,base);
+  const b=await createProcessingBatch(pool,actor,{...base,requestId:randomUUID(),quantity:'22'});
+  const unrelated=await createProcessingBatch(pool,actor,{...base,requestId:randomUUID(),customerName:'Different customer'});
+  const cancelled=await createProcessingBatch(pool,actor,{...base,requestId:randomUUID()});
+  await cancelProcessingBatch(pool,actor,cancelled.batchId,{requestId:randomUUID(),expectedVersion:1,reason:'Synthetic duplicate intent'});
+  const p=await previewProcessingBatch(pool,actor,a.batchId);
+  assert.deepEqual(p.similar.items.map(x=>x.batchId),[b.batchId]);assert.equal(p.similar.items[0].sameReference,true);assert.equal(p.similar.items[0].sameQuoteQuantity,false);
+  assert.equal(p.similar.items.some(x=>[a.batchId,unrelated.batchId,cancelled.batchId].includes(x.batchId)),false);
+  const ready=await confirmProcessingBatch(pool,actor,a.batchId,{requestId:randomUUID(),expectedVersion:1,sourceFingerprint:p.candidate.fingerprint});
+  const first=await consume(a.batchId,ready.version!);assert.equal(first.results[0].status,'created');
+  const secondPreview=await previewProcessingBatch(pool,actor,b.batchId);assert.ok(secondPreview.similar.items[0].salesOrderId);
+  const secondReady=await confirmProcessingBatch(pool,actor,b.batchId,{requestId:randomUUID(),expectedVersion:1,sourceFingerprint:secondPreview.candidate.fingerprint});
+  assert.equal((await consume(b.batchId,secondReady.version!)).results[0].status,'created');
+  const sameQty=await createProcessingBatch(pool,actor,{...base,requestId:randomUUID(),customerReference:''});
+  const samePreview=await previewProcessingBatch(pool,actor,sameQty.batchId);assert.equal(samePreview.similar.items.length,1);assert.equal(samePreview.similar.items[0].sameReference,false);assert.equal(samePreview.similar.items[0].sameQuoteQuantity,true);
+ });
  await t.test('two users racing consumption produce one SO and one immutable zero labor snapshot',async()=>{
   const b=await confirmed(),before=await count();const results=await Promise.all([consume(b.batchId,b.version!,actor),consume(b.batchId,b.version!,other)]);
   assert.equal(await count(),before+1);const ids=results.map(x=>('salesOrderId' in x.results[0])?x.results[0].salesOrderId:null);assert.ok(ids[0]);assert.equal(ids[0],ids[1]);

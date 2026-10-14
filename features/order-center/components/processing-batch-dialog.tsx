@@ -8,26 +8,35 @@ type Page=Awaited<ReturnType<typeof listProcessingBatches>>;
 type Preview=Awaited<ReturnType<typeof previewProcessingBatch>>;
 type Revision={revisionId:string;revisionLabel:string;baseInfo:{quoteType:string};priceVersions:{id:string;name:string}[]};
 type Result={batchId:string;status:string;salesOrderId?:string;orderNo?:string;code?:string};
-type Pending={path:string;body:object;kind:'create'|'confirm'|'consume'};
+type Pending={path:string;body:object;kind:'create'|'confirm'|'consume'|'cancel'};
 class ApiError extends Error{constructor(readonly status:number,readonly code:string){super(code);}}
 async function api<T>(path:string,body?:object):Promise<T>{
  const response=await fetch('/api/v1/processing-order-batches'+path,{method:body?'POST':'GET',credentials:'include',cache:'no-store',...(body?{headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(body)}:{})});
  const data=await response.json();if(!response.ok)throw new ApiError(response.status,data.error?.code??'request_failed');return data;
+}
+function SimilarBatchNotice({similar}:{similar:Preview['similar']}){
+ if(!similar.items.length)return null;
+ return <details><summary>发现 {similar.items.length}{similar.hasMore?'＋':''} 个相似下单，请核对是否为客户再次下单</summary><p>相同客户下，PO相同或报价与数量相同仅作提醒，不阻止真实再次下单。</p><ul>{similar.items.map(item=><li key={item.batchId}>{item.businessStyleNo} · {item.quantity} 件 · {item.orderDate} · {item.sameReference?'相同PO':'相同报价与数量'} {item.salesOrderId?<a href={'/order-center/server-detail?id='+encodeURIComponent(item.salesOrderId)}>查看已有订单 {item.orderNo}</a>:<span>未生成订单 · 批次 {item.batchId}</span>}</li>)}</ul>{similar.hasMore&&<p>这里只显示最近20项，请按客户或PO搜索更多记录。</p>}</details>;
 }
 export function ProcessingBatchDialog({mode}:{mode:'import'|'push'}){
  const session=useServerSession();
  const [open,setOpen]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[search,setSearch]=useState(''),[history,setHistory]=useState(false),[page,setPage]=useState<Page|null>(null),[selected,setSelected]=useState<Record<string,number>>({}),[preview,setPreview]=useState<Preview|null>(null),[results,setResults]=useState<Result[]>([]);
  const [creating,setCreating]=useState(false),[quoteSearch,setQuoteSearch]=useState(''),[quotes,setQuotes]=useState<QuoteServerListItem[]>([]),[revisions,setRevisions]=useState<Revision[]>([]),[quoteOffset,setQuoteOffset]=useState(0),[moreQuotes,setMoreQuotes]=useState(false);
  const [draft,setDraft]=useState({quoteId:'',revisionId:'',priceVersionId:'',customerName:'',businessStyleNo:'',quantity:'',orderDate:new Date().toLocaleDateString('en-CA'),deliveryDate:'',customerReference:'',deliveryRequirements:'',referenceOrderId:''});
- const [pending,setPending]=useState<Pending|null>(null),lock=useRef(false);
+ const [pending,setPending]=useState<Pending|null>(null),[failedRetry,setFailedRetry]=useState<Pending|null>(null),[cancelling,setCancelling]=useState<Page['items'][number]['batch']|null>(null),[cancelReason,setCancelReason]=useState(''),lock=useRef(false);
  const canManage=session.hasPermission('order.processing.batch.manage'),canConsume=session.hasPermission('order.processing.consume');
  const allowed=(canManage||canConsume)&&session.hasPermission('order.view')&&session.hasPermission('quote.view')&&session.hasPermission('commercial.labor.view');
  async function action(run:()=>Promise<void>){if(lock.current)return;lock.current=true;setBusy(true);setError('');try{await run();}catch(e){if(e instanceof ApiError&&e.status===401)session.invalidate();setError(e instanceof ApiError?`操作未完成：${e.code}`:'服务响应尚未确认，请重试原请求。');}finally{lock.current=false;setBusy(false);}}
  async function load(offset=0,include=history){const query=new URLSearchParams({search,offset:String(offset),includeProcessed:String(include)});setPage(await api<Page>('?'+query));}
  async function mutate(command:Pending){setPending(command);let value:Result|{results:Result[]};try{value=await api(command.path,command.body);}catch(e){if(e instanceof ApiError&&e.status<500)setPending(null);throw e;}
   setPending(null);setPreview(null);setSelected({});
-  if(command.kind==='consume'){setResults((value as {results:Result[]}).results);}
-  else{setResults([value as Result]);setHistory(true);setCreating(false);}
+  if(command.kind==='consume'){
+   const received=(value as {results:Result[]}).results,body=command.body as {requestId:string;items:{batchId:string;expectedVersion:number}[]};
+   const failed=new Set(received.filter(r=>r.status==='failed').map(r=>r.batchId));
+   setFailedRetry(failed.size?{...command,body:{...body,items:body.items.filter(item=>failed.has(item.batchId))}}:null);
+   setResults(previous=>[...previous.filter(old=>!received.some(r=>r.batchId===old.batchId)),...received]);
+  }
+  else{setResults([value as Result]);setFailedRetry(null);setHistory(true);setCreating(false);setCancelling(null);setCancelReason('');}
   await load(0,command.kind==='consume'?history:true);
  }
  async function searchQuotes(offset:number){const value=await quoteServerClient.list({limit:20,offset,search:quoteSearch,type:'processing'});setQuotes(value.quotes);setQuoteOffset(offset);setMoreQuotes(value.page.total===undefined?value.quotes.length===20:offset+value.quotes.length<value.page.total);}
@@ -53,12 +62,15 @@ export function ProcessingBatchDialog({mode}:{mode:'import'|'push'}){
  {page?.items.map(item=><div key={item.batch.id} style={{borderBottom:'1px solid var(--qc-border, #dde5e1)',padding:'12px 0'}}>
  <label><input type="checkbox" aria-label={`选择批次 ${item.batch.businessStyleNo}`} disabled={busy||!!pending||!canConsume||!item.eligible||(!selected[item.batch.id]&&Object.keys(selected).length>=25)} checked={Object.hasOwn(selected,item.batch.id)} onChange={e=>setSelected(current=>{const next={...current};if(e.target.checked)next[item.batch.id]=item.batch.version;else delete next[item.batch.id];return next;})}/><strong>{item.batch.businessStyleNo}</strong> · {item.batch.customerName} · {item.batch.quantity} 件</label>
  <p>{item.batch.customerReference||'未填客户参考号'} · {item.batch.orderDate} · {item.batch.deliveryDate||'交期待定'} · {item.batch.state==='consumed'?'已生成订单':item.batch.state==='draft'?'待下单确认':item.batch.state==='cancelled'?'已取消':item.eligible?'待导入':`需重新核对：${item.unavailableReason}`}</p>
- <small>{item.batch.quoteId} / {item.batch.revisionId} / {item.batch.priceVersionId}</small>
+ <small>{item.batch.quoteId} / {item.batch.revisionId} / {item.batch.priceVersionId}</small><SimilarBatchNotice similar={item.similar}/>
  {item.salesOrderId?<p><a href={'/order-center/server-detail?id='+encodeURIComponent(item.salesOrderId)}>查看已有订单 {item.orderNo}</a></p>:['draft','confirmed'].includes(item.batch.state)&&<Button variant="text" disabled={busy||!!pending} onClick={()=>void action(async()=>setPreview(await api<Preview>('/'+item.batch.id+'/preview',{})))}>预览下单与工价</Button>}
+ {canManage&&['draft','confirmed'].includes(item.batch.state)&&<Button variant="text" disabled={busy||!!pending} onClick={()=>{setCancelling(item.batch);setCancelReason('');}}>取消批次 {item.batch.businessStyleNo}</Button>}
  </div>)}
+ {cancelling&&<section aria-label="取消加工批次"><h3>取消未生成订单的批次</h3><p>{cancelling.customerName} · {cancelling.businessStyleNo} · {cancelling.quantity} 件。取消后保留记录，不能再导入。已经生成的正式订单不受此操作处理。</p><FormItem label="取消原因"><input className="qc-control" value={cancelReason} disabled={busy||!!pending} onChange={e=>setCancelReason(e.target.value)} maxLength={2000}/></FormItem><Button variant="secondary" disabled={busy||!!pending} onClick={()=>setCancelling(null)}>保留批次</Button><Button disabled={busy||!!pending||!cancelReason.trim()} onClick={()=>void action(()=>mutate({path:'/'+cancelling.id+'/cancel',kind:'cancel',body:{requestId:crypto.randomUUID(),expectedVersion:cancelling.version,reason:cancelReason}}))}>确认取消批次</Button></section>}
  {page&&!page.items.length&&<p>本页没有可用批次。{page.hasMore?'可继续下一页。':'可包含已处理批次查看记录。'}</p>}
  <div><Button variant="text" disabled={busy||!!pending||!page||page.offset===0} onClick={()=>void action(()=>load(Math.max(0,(page?.offset??0)-20)))}>上一页批次</Button><Button variant="text" disabled={busy||!!pending||!page?.hasMore} onClick={()=>void action(()=>load(page!.nextOffset))}>下一页批次</Button></div>
- {preview&&<section><h3>下单确认预览</h3><p>{preview.batch.customerName} · {preview.batch.businessStyleNo} · {preview.batch.quantity} 件</p><p>确认工价：{preview.candidate.laborPrice} {preview.candidate.laborCurrency} / 件；交期：{preview.batch.deliveryDate||'待定'}</p><p>报价版本：{preview.candidate.revisionId} / {preview.candidate.priceVersionId}。确认后仍需导入或推送，才生成正式订单。</p>{canManage&&<Button disabled={busy||!!pending} onClick={()=>void action(()=>mutate({path:'/'+preview.batch.id+'/confirm',kind:'confirm',body:{requestId:crypto.randomUUID(),expectedVersion:preview.batch.version,sourceFingerprint:preview.candidate.fingerprint}}))}>确认本次下单</Button>}</section>}
- {results.length>0&&<section aria-label="加工订单处理结果"><h3>处理结果</h3>{results.map(r=><p key={r.batchId}>{r.status==='failed'?`未完成：${r.code}`:r.status==='created'?'已创建正式订单':r.status==='existing'?'已处理，返回原订单':r.status==='draft'?'已登记，请预览并确认下单':'下单已确认'} {r.orderNo}{r.salesOrderId&&<a href={'/order-center/server-detail?id='+encodeURIComponent(r.salesOrderId)}>查看订单</a>}</p>)}</section>}
+ {preview&&<section><h3>下单确认预览</h3><SimilarBatchNotice similar={preview.similar}/><p>{preview.batch.customerName} · {preview.batch.businessStyleNo} · {preview.batch.quantity} 件</p><p>确认工价：{preview.candidate.laborPrice} {preview.candidate.laborCurrency} / 件；交期：{preview.batch.deliveryDate||'待定'}</p><p>报价版本：{preview.candidate.revisionId} / {preview.candidate.priceVersionId}。确认后仍需导入或推送，才生成正式订单。</p>{canManage&&<Button disabled={busy||!!pending} onClick={()=>void action(()=>mutate({path:'/'+preview.batch.id+'/confirm',kind:'confirm',body:{requestId:crypto.randomUUID(),expectedVersion:preview.batch.version,sourceFingerprint:preview.candidate.fingerprint}}))}>确认本次下单</Button>}</section>}
+ {failedRetry&&<div><p>成功项已保留，只重试未完成项。若报价或批次版本已变化，请重新预览确认后选择批次。</p><Button disabled={busy||!!pending} onClick={()=>void action(()=>mutate(failedRetry))}>仅重试失败项</Button></div>}
+ {results.length>0&&<section aria-label="加工订单处理结果"><h3>处理结果</h3>{results.map(r=><p key={r.batchId}>{r.status==='failed'?`未完成：${r.code}`:r.status==='created'?'已创建正式订单':r.status==='existing'?'已处理，返回原订单':r.status==='draft'?'已登记，请预览并确认下单':r.status==='cancelled'?'批次已取消':'下单已确认'} {r.orderNo}{r.salesOrderId&&<a href={'/order-center/server-detail?id='+encodeURIComponent(r.salesOrderId)}>查看订单</a>}</p>)}</section>}
  </div></Modal></>;
 }
