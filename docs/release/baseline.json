@@ -646,6 +646,22 @@
       "path": "docs/tasks/active/evidence/order-commercial/gate2-results.md",
       "recordedAtSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
       "sha256": "b861454fa99ed44557de33b323024798b134688f87ecfdad3c73fcbcd0a3bb94"
+    },
+    {
+      "id": "processing-g3-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/processing-batches/gate3-results.md",
+      "recordedAtSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
+      "sha256": "3d4e20e39a0700bc8eb184569582263134f0ad3b324b7605ff3fcdce37585ded"
+    },
+    {
+      "id": "decisions-processing-g3",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
+      "sha256": "5a92b2443db6bd36252b409af30a1e958d1ee79032d7b92c837c355d7c516206",
+      "supersedes": "decisions-order-commercial-g2",
+      "changeReason": "D123 records approved processing batch identity and shared dual-entry consumption; preserve earlier decisions in the forward evidence chain."
     }
   ],
   "pages": [
@@ -2436,6 +2452,92 @@
           "scope": "Capability not deployed; historical runtime identity retained, not re-observed.",
           "evidence": [
             "order-commercial-g2-engineering"
+          ],
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444"
+        }
+      }
+    },
+    {
+      "id": "processing-order-batches",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment.",
+      "evidence": [
+        "processing-g3-engineering",
+        "decisions-processing-g3"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
+          "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment. Remote delivery/CI and human acceptance remain pending.",
+          "evidence": [
+            "processing-g3-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-14",
+          "sourceSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
+          "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment. Remote delivery/CI and human acceptance remain pending.",
+          "evidence": [
+            "processing-g3-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
+          "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment. Remote delivery/CI and human acceptance remain pending.",
+          "evidence": [
+            "processing-g3-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
+          "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment. Remote delivery/CI and human acceptance remain pending.",
+          "evidence": [
+            "processing-g3-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
+          "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment. Remote delivery/CI and human acceptance remain pending.",
+          "evidence": [
+            "processing-g3-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Capability not deployed; historical runtime identity retained, not re-observed.",
+          "evidence": [
+            "processing-g3-engineering"
+          ],
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Capability not deployed; historical runtime identity retained, not re-observed.",
+          "evidence": [
+            "processing-g3-engineering"
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"
