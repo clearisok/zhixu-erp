@@ -47,3 +47,11 @@ reviewHash仅覆盖身份、计数及前100引用ID等返回信息，明确hashS
 POST /api/v1/order-normalization-preview 仅接受 {orderIds:[uuid,uuid]}，不接受execute、覆盖声明、query selectors或其他字段。要求可信session、既有Origin/X-Zhixu-Request保护、2KiB请求上限，返回no-store。服务端再次核查受信管理员和order.view，客户端不能声明证据完整或执行归一。没有mutation endpoint或真实归一操作。
 
 合成PG/HTTP8项通过；新增HTTP场景验证未登录401、非法参数400、跨站403、不支持方法405、过大413及管理员撤权403。首次登录403来自测试客户端漏带既有X-Zhixu-Request头，修复测试后通过，未降低保护。定向lint通过。新增 npm run test:order-normalization 运行本Gate评估及PG/HTTP测试；完整发布检查、CI及UI案件预览尚待收口。
+
+## 案件schema checkpoint
+
+0017_order_normalization_cases.sql新增案件与append-only事件，未修改既有迁移。规范化UUID对唯一，同一对订单共用案件；原SO外键RESTRICT。事件版本由案件行锁串行验证，opened/review_note/withdrawn/reopened保留完整顺序，撤回不是删除，也不代表订单取消。禁止executed/merged状态，当前schema完全不改变有效订单归属。事件actor/request唯一为后续幂等服务预留；仅schema不声明已实现命令幂等、审计事务或UI。
+
+固定引用清单新增案件的两端SO引用。实际执行仍须完整引用核验和单独授权；案件快照由后续服务端采集，不接受客户端声称执行/关账覆盖完整。
+
+仅一次性合成PG升级验证，归一测试合计22/22通过，含schema6项、预览/HTTP8项、纯评估8项；定向lint检查随阶段运行。未执行真实迁移/账号变更；全项目PG和发布基线将在独立Gate收口时运行。下一步案件创建/追加/查询服务及事务审计、请求幂等和并发回归。
