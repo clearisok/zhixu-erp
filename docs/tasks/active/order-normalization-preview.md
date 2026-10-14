@@ -67,3 +67,13 @@ POST /api/v1/order-normalization-preview 仅接受 {orderIds:[uuid,uuid]}，不�
 实际验证：test:order-normalization合计36/36通过，包括案件服务14项、schema6项、预览/HTTP8项、纯评估8项；完整类型检查和定向lint通过。首次测试文件异步回调语法错误已修复，未发生DB业务执行。36是含顶层fixture在内的Node测试计数；不等同36个独立业务场景。UI/全源码/全PG/发布门禁/远端CI尚未本阶段验收。
 
 下一步复用Foundation实现管理员案件对照/记录界面及合成浏览器验收，随后收口Gate4预览PR；有效归属执行和纠正能力按原批准计划独立交付，不能因预览工程通过扩大真实操作权限。
+
+## 管理员案件界面与浏览器 checkpoint
+
+既有Server订单中心增加“重复订单复核”，复用Foundation Modal；入口提示使用order.view/user_permissions.manage，实际API仍以受信role-server-admin和fresh order.view为准。搜索/分页选择两单，可查看引用计数/有限ID、带原因开案、记录/撤回/重开及历史。普通物控角色无入口。没有新route或归一执行按钮；unknown生产/财务覆盖明确说明，不把引用快照当执行事实。
+
+保存结果不确定时保留原path/payload/requestId，锁定编辑和关闭，允许原请求重试；确定4xx释放，证据变化则清除旧预览提示重读。修改引用后旧摘要开案409，无部分案件。页面只使用Server API，没有Browser业务存储或fallback变更。
+
+当前合成浏览器5/5通过（4业务子场景+1fixture）：原SO不变、开案/复核/撤回/重开、成功响应丢失重试单一事件、证据变化拒绝并重新预览、390px历史及非管理员隐藏。首次2子场景通过/2失败与后续3/1失败均记录：自动化未等tab渲染并把fieldset禁用误当button自身disabled，修复等待/:disabled选择器后通过，产品未放宽保护。
+
+显式Server构建通过；1440px与390px本机截图已查看，无横向溢出。截图位于Git忽略outputs/normalization-ui，不替换已批准历史截图哈希，不代表人工业务验收。此次构建来自760cb02c父提交+已保护的本阶段UI差异；最终发布证据须重新绑定已提交源码。CI已接测试脚本，但远端未交付，未执行GitHub CI。

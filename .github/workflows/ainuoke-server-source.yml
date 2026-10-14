@@ -31,6 +31,7 @@ jobs:
           npm run test:order-identity
           npm run test:order-commercial
           npm run test:processing-batches
+          npm run test:order-normalization
           npm run test:postgres
           npm run test:ainuoke-continuous
           npm run test:ainuoke-readiness
@@ -51,6 +52,7 @@ jobs:
           npm run test:order-identity-ui
           npm run test:order-commercial-ui
           npm run test:processing-batches-ui
+          npm run test:order-normalization-ui
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge
         env:

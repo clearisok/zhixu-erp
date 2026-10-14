@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-124 Gate4 历史订单复核案件与覆盖证据
+
+- 日期2026-10-14；Active，落实D121批准计划的预览/案件阶段，不扩大真实操作授权。
+- 来源观察、交付计划和商业版本不等于生产执行；无法覆盖Browser/外部生产或财务时维持unknown，禁止以Server无行推导“无流水”。有限引用摘要不是归一执行令牌。
+- 规范化SO对唯一案件、不可改写事件、fresh受信管理员权限、请求幂等/CAS和事务审计；撤回/重开保留历史，不改订单有效归属、创建身份或执行记录。
+- 复用现有订单中心Foundation管理员弹窗；保存结果不确定保留原请求，证据变化要求重新预览。不新增生产route或实际归一按钮。
+- 证据：0017_order_normalization_cases.sql、normalization-preview.ts、normalization-case-service.ts、normalization-case-dialog.tsx及[模块边界](features/ORDER_NORMALIZATION.md)。36定向/5浏览器为本地合成验证；完整Gate/远端/人工验收另行记录。有效归属执行/纠正仍未实现，不承诺整个Gate4完成。
+
+
 ### D-123 Gate3 加工下单批次与双入口共用消费
 
 - 日期2026-10-14；Active，落实已批准D-121，不扩大真实写入授权。

@@ -1,0 +1,29 @@
+# 历史重复订单复核与归一
+
+核实日期2026-10-14；最近核实main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本地feat/order-normalization-preview依赖未合并G1–G3，当前实现案件/预览阶段；有效归属执行和纠正待独立交付。GitHub是实时事实源，本文随schema/API/验收/发布变化更新。
+
+## 已批准规则
+
+订单归一优先保护有真实执行流水的SO；两边有执行或冻结关账须独立核对。原UUID、订单号、创建来源、来源绑定和每项原流水保留。不能自动搬移/相加生产、采购、出运或关账。具体真实案件执行须另行授权；计划批准不扩大真实数据库或部署权限。规则D121，完整范围见订单身份实施计划。
+
+## 当前实现
+
+0017新增一对规范化SO的唯一案件及append-only事件。opened、review_note、withdrawn、reopened记录原因、服务端快照、actor/request、version。不能编辑/删除历史；withdrawn只允许explicit reopen，不取消订单。schema没有有效SO字段或executed状态。
+
+POST /api/v1/order-normalization-preview只读有限引用，POST/GET /api/v1/order-normalization-cases开案/查询，GET /:id历史及POST /:id/events追加记录。所有接口可信session；实际DB授权为active受信系统管理员+order.view；写入持有授权锁，重试仍核查fresh grants。查询参数、命令字段和体积严格限制，无客户端evidence、effectiveOrderId或execute标记。
+
+开案重采集并比对已看过摘要；变化409。actor/request/payload幂等；同pair只有一案；独立expectedVersion保护追加。案件/事件/审计同事务，失败全部回滚；最多三次局部DB并发重试，最终409。订单、Source及生产流水不在这些命令的写集。
+
+现有订单中心管理员入口复用Foundation。可搜索分页选两单、查看有限引用、记录理由及历史。未知保存保留原请求，确定失败才释放。普通角色隐藏入口，API权限不依赖隐藏。
+
+## 证据范围与限制
+
+RR事务中枚举已知Server外键及固定表引用，返回准确计数和每类前100稳定ID、truncated。Server的Source快照、交付计划和商业版本不证明生产执行。直接FK catalog不覆盖间接关系、JSON、Browser或其他环境；新增未知FK保守显示未归类。生产/财务覆盖目前unavailable/null，预览assessment为coverage_incomplete。
+
+reviewHash覆盖返回的有限身份/计数/ID，明确hashScope，不涵盖全部行内容和截断尾部，也不是执行令牌。案件快照是当时的观察；后续变动通过新事件记录，不改旧快照。未来执行必须有完整引用/版本指纹、有效归属所有消费者的统一解析、生产/财务审批及备份/纠正方案。
+
+## 验收与下一步
+
+定向服务/schema/HTTP/纯评估36/36、浏览器5/5、类型/定向lint/显式构建通过，本机1440/390截图查看。完整源码/PG/发布检查及精确证据冻结待本Gate收口。远端交付、合并、部署、真实迁移、人工验收均未完成。具体失败与修复时点见docs/tasks/active/order-normalization-preview.md。
+
+下一工程阶段：有效归属与恢复执行独立分支；不能把本预览能力当作已经解决历史重复订单。真实执行前按案件给出所有SO/引用/限制/备份及纠正方法，仍须用户具体授权。
