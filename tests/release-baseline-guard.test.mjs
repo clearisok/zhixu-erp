@@ -43,7 +43,7 @@ function fixture(t) {
   };
   const edit = (file, transform) => write(file, transform(readFileSync(path.join(root, file), 'utf8')));
   const check = (overrides = {}) => validateBaseline({ root, manifest, previousManifest, expectedBaseSha: original.baselineSha,
-    hasCommit: value => knownCommits.has(value), readBlob: (sha, file) => blobs.get(`${sha}:${file}`) ?? null, ...overrides });
+    checkedHead:original.baselineSha, isAncestor: (a,b) => knownCommits.has(a) && knownCommits.has(b), hasCommit: value => knownCommits.has(value), readBlob: (sha, file) => blobs.get(`${sha}:${file}`) ?? null, ...overrides });
   return { root, manifest, write, edit, check, blobs, knownCommits, previousManifest };
 }
 const has = (errors, code) => assert.ok(errors.some(error => error.code === code), `Expected ${code}; got ${JSON.stringify(errors)}`);
@@ -356,3 +356,41 @@ test('same-PR revision cycles, unanchored chains and forks cannot bypass frozen 
     has(f.check(),'EVIDENCE_REVISION');
   }
 });
+
+test('successive document revisions in one PR preserve a linear frozen chain', t => {
+  const f=fixture(t),old=f.manifest.evidence.find(e=>e.id==='quote-original');
+  const first=newProof(f,{id:'chain-one',file:old.path,body:'# First forward version\n'});
+  first.supersedes=old.id;first.changeReason='First change';
+  const bytes=Buffer.from('# Second forward version\n'),sha='d'.repeat(40);
+  f.knownCommits.add(sha);f.blobs.set(`${sha}:${old.path}`,bytes);f.write(old.path,bytes);
+  f.manifest.evidence.push({id:'chain-two',kind:'document',path:old.path,recordedAtSha:sha,sha256:hash(bytes),supersedes:first.id,changeReason:'Second change'});
+  assert.deepEqual(f.check(),[]);assert.deepEqual(f.check({previousManifest:structuredClone(f.manifest)}),[]);
+  first.sha256='0'.repeat(64);has(f.check(),'EVIDENCE_BLOB_HASH');
+});
+for(const corruption of ['cycle','orphan','fork','same-commit','wrong-path','wrong-kind'])test(`forward document chain rejects ${corruption}`,t=>{
+  const f=fixture(t),old=f.manifest.evidence.find(e=>e.id==='quote-original');
+  const first=newProof(f,{id:'chain-one',file:old.path,body:'# First forward version\n'});first.supersedes=old.id;first.changeReason='First change';
+  const bytes=Buffer.from('# Second forward version\n'),sha='d'.repeat(40);
+  f.knownCommits.add(sha);f.blobs.set(`${sha}:${old.path}`,bytes);f.write(old.path,bytes);
+  const second={id:'chain-two',kind:'document',path:old.path,recordedAtSha:sha,sha256:hash(bytes),supersedes:first.id,changeReason:'Second change'};f.manifest.evidence.push(second);
+  if(corruption==='cycle')first.supersedes=second.id;
+  if(corruption==='orphan')second.supersedes='missing-parent';
+  if(corruption==='fork')second.supersedes=old.id;
+  if(corruption==='same-commit')second.recordedAtSha=first.recordedAtSha;
+  if(corruption==='wrong-path')second.path='docs/other.md';
+  if(corruption==='wrong-kind')second.kind='screenshot';
+  has(f.check(),'EVIDENCE_REVISION');
+});
+
+for (const corruption of ['unrelated-sha','new-root','second-leaf','deleted-middle','self','array-order']) test(`document revision chain handles ${corruption}`, t => {
+ const f=fixture(t),old=f.manifest.evidence.find(e=>e.id==='quote-original');
+ const first=newProof(f,{id:'chain-one',file:old.path,body:'# First forward version\n'});first.supersedes=old.id;first.changeReason='First change';
+ if(corruption==='unrelated-sha')has(f.check({isAncestor:()=>false}),'EVIDENCE_REVISION_ANCESTRY');
+ if(corruption==='new-root'){first.supersedes='new-root';const root={...first,id:'new-root'};delete root.supersedes;f.manifest.evidence.push(root);has(f.check(),'EVIDENCE_REVISION_ANCHOR');}
+ if(corruption==='second-leaf'){f.manifest.evidence.push({...first,id:'second-leaf',supersedes:undefined});has(f.check(),'EVIDENCE_REVISION_LEAF');}
+ if(corruption==='deleted-middle'){first.supersedes='deleted-middle';has(f.check(),'EVIDENCE_REVISION');}
+ if(corruption==='self'){first.supersedes=first.id;has(f.check(),'EVIDENCE_REVISION');}
+ if(corruption==='array-order'){f.manifest.evidence.reverse();assert.deepEqual(f.check(),[]);}
+});
+
+test('sibling branch sharing main cannot supply a new frozen revision',t=>{const f=fixture(t),old=f.manifest.evidence.find(e=>e.id==='quote-original');const added=newProof(f,{id:'sibling-revision',file:old.path,body:'# Other branch version\n'});added.supersedes=old.id;added.changeReason='Different branch';has(f.check({checkedHead:'e'.repeat(40),isAncestor:(a,b)=>a===original.baselineSha&&b===added.recordedAtSha}),'EVIDENCE_REVISION_ANCESTRY');});

@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
-  "verifiedAt": "2026-10-13T06:36:32.000Z",
+  "verifiedAt": "2026-10-14T05:27:00Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -616,22 +616,57 @@
       "sha256": "617e9c7bacbd6b9558ba3c13a5ef9991abc6f3e36c91bb08cfb498b724722a74"
     },
     {
-      "id": "decisions-source-anomaly-rules-20261014",
+      "id": "decisions-live-demo-readiness-20261013",
       "kind": "document",
       "path": "docs/DECISION_LOG.md",
-      "recordedAtSha": "4318356fab57fd9e5666d4773b6eff211019e4d5",
-      "sha256": "2a5bb9842993c79e836e252182b3a5efdce43e5b6b67b215bd16936b4f4dc360",
+      "recordedAtSha": "87b97d73f5dd77ea8e23543b2524fb22dc5836cb",
+      "sha256": "52271a5c78645aefddc7ba7faa1eaf1f57b7c809e5b3a5db23f81fd387d383e9",
       "supersedes": "decisions-controlled-intake-engineering-20261013",
-      "changeReason": "User confirms both paid purchases, scoped 1:1 count units and exclusion only of fully blank color placeholders; raw evidence and named unknown colors remain. No global unit alias or real activation."
+      "changeReason": "Record D113 source-only full preflight and align merged D111/D112 without changing business or deployment authorization."
     },
     {
-      "id": "decisions-order-alerts-20261014",
+      "id": "ainuoke-live-demo-baseline-engineering-20261013",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/baseline-and-engineering.md",
+      "recordedAtSha": "87b97d73f5dd77ea8e23543b2524fb22dc5836cb",
+      "sha256": "f7ef857c3ada0302e300ed6ebf744b5eb9c1a73151a6dc0a24848cb44b799f9f"
+    },
+    {
+      "id": "ainuoke-live-preflight-wrapper-repair-20261013",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-repair-2026-10-13.md",
+      "recordedAtSha": "c1392ea4dd140a811ef74b0f17dadea5183b6c5c",
+      "sha256": "b7e57f9dbdf415d3ebec433005f656418e70e543f1726784bebca14d8025a136"
+    },
+    {
+      "id": "ainuoke-real-full-preflight-20261013",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md",
+      "recordedAtSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+      "sha256": "e0bbcf179842058a6dd8afe275b557ce235ea4c6f9b796ddd121d02d35bc061a"
+    },
+    {
+      "id": "decisions-quality-isolated-demo-20261013",
       "kind": "document",
       "path": "docs/DECISION_LOG.md",
-      "recordedAtSha": "7b835cf9ab8686e695bb52ec984e13758c7b9257",
-      "sha256": "274352f24b8aa57fc35eb9ed461e17d3feb87bc98f27a1cf1ac46bf759a58710",
-      "supersedes": "decisions-source-anomaly-rules-20261014",
-      "changeReason": "D117 records explicit user approval to project pending named colors as zero with raw-null provenance and additive order exception chips; D116 historical source protection remains."
+      "recordedAtSha": "7ae0ea9b1b0584c7b03a6fe9cbb91c0ac155b51b",
+      "sha256": "536f7882b4169b7e96ba557a925faf6f2f91b94b60ce22aeaa62478141868021",
+      "supersedes": "decisions-live-demo-readiness-20261013",
+      "changeReason": "D114 records confirmed separate quantity facts and new isolated fixture authorization; preserves D113 history."
+    },
+    {
+      "id": "source-quality-quantity-20261013",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/quality-and-quantity-gate-2026-10-13.md",
+      "recordedAtSha": "7ae0ea9b1b0584c7b03a6fe9cbb91c0ac155b51b",
+      "sha256": "941c54c0c235b17e0d446a82c412a5b63a2d4ae8d7541283f0393654b3d75af8"
+    },
+    {
+      "id": "ainuoke-isolated-demo-final-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md",
+      "recordedAtSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+      "sha256": "07c71ed4947a9011f0bd13ccd54b119978e81d988aecba3f86de10ec24979922"
     },
     {
       "id": "order-alerts-approved-engineering-20261014",
@@ -639,15 +674,6 @@
       "path": "docs/tasks/active/order-list-alerts-2026-10-14.md",
       "recordedAtSha": "7b835cf9ab8686e695bb52ec984e13758c7b9257",
       "sha256": "5c51486968c1468e9e9a9fe62c44ec4e0104a4fd00fb8ae1d73d237b99b7875f"
-    },
-    {
-      "id": "decisions-material-confirmations-20261014",
-      "kind": "document",
-      "path": "docs/DECISION_LOG.md",
-      "recordedAtSha": "b542e8d6137874b56cfaf4204720ddf15fe6281a",
-      "sha256": "63896a2cbfea397bc59a5e830f27b15b854ec5dd41c64139d7fb6c17e0bfbfcf",
-      "supersedes": "decisions-order-alerts-20261014",
-      "changeReason": "D-118 scoped human unit and factory procurement facts; no source activation"
     },
     {
       "id": "material-confirmations-engineering-20261014",
@@ -669,15 +695,6 @@
       "path": "docs/tasks/active/material-confirmations-verification-2026-10-14.md",
       "recordedAtSha": "06859a4f557b24161150fb1c05ec341f3a01a8b8",
       "sha256": "53fef26ecd2d30a137412f7c0bc15b4313fc0d2a8f9852e9a792434609c315be"
-    },
-    {
-      "id": "decisions-selected-first-binding-20261014",
-      "kind": "document",
-      "path": "docs/DECISION_LOG.md",
-      "recordedAtSha": "1aab7987a0553d87dd87f9ad4ae6eb43e864ecb8",
-      "sha256": "619a3b4ff46de28dd7904d35b5f11fbad77066acd830ecd8366e3462aab7796b",
-      "supersedes": "decisions-material-confirmations-20261014",
-      "changeReason": "D119 explicitly selected first binding with full discovery and separate real-write approval; no deployment or automatic activation."
     },
     {
       "id": "selected-first-binding-engineering-20261014",
@@ -1153,11 +1170,12 @@
         "trial18443": "not-open",
         "preview18444": "not-open"
       },
-      "scope": "Historical merged P6 engineering/human acceptance only. PR99 Source foundation merged; this unmerged explicit snapshot wiring is tracked separately as ainuoke-continuous-material-display. Real Source and deployed routes remain inactive.",
+      "scope": "P6 and explicit snapshot wiring merged through PR100; controlled new contracts PR107 at 064e3afaf7d08b3cb62907d4402f97d9c292f1e5. Existing UI and identity retained. Real persistent Source, deployed routes and old master/color auto-refresh remain inactive.",
       "evidence": [
         "order-integration",
         "decisions",
-        "ainuoke-continuous-engineering"
+        "ainuoke-continuous-engineering",
+        "ainuoke-live-demo-baseline-engineering-20261013"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1249,11 +1267,12 @@
         "trial18443": "not-open",
         "preview18444": "not-open"
       },
-      "scope": "Historical merged P6 engineering/human acceptance only. PR99 Source foundation merged; this unmerged explicit snapshot wiring is tracked separately as ainuoke-continuous-material-display. Real Source and deployed routes remain inactive.",
+      "scope": "P6 read projection and PR100 persisted snapshot wiring are merged; per-demand QtyUnit PR106 is merged, explicit new-order intake PR107 is merged. Real persistent Source and deployed routes remain inactive; unknown quantities and units are not guessed.",
       "evidence": [
         "order-integration",
         "order-images",
-        "ainuoke-continuous-engineering"
+        "ainuoke-continuous-engineering",
+        "ainuoke-live-demo-baseline-engineering-20261013"
       ],
       "statusEvidence": {
         "implemented": {
@@ -1873,12 +1892,13 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "PR100 merged at 21fbe3b1a7a5968253f923bc904ea067315f00cd. User accepted unified local synthetic demo; real source coverage, business amounts and continuous operation not accepted. Defaults remain disabled; new-contract binding and main/color incremental refresh remain absent.",
+      "scope": "PR100 merged; user accepted unified synthetic demo only. PR106 units and PR107 explicit controlled new contracts are now merged at 064e3afaf7d08b3cb62907d4402f97d9c292f1e5. Old main/color incremental refresh remains absent. Defaults disabled; no real continuous activation/deployment or business acceptance.",
       "evidence": [
         "ainuoke-continuous-engineering",
         "decisions-combined-local-demo",
         "unified-demo-engineering",
-        "ainuoke-readiness-engineering"
+        "ainuoke-readiness-engineering",
+        "ainuoke-live-demo-baseline-engineering-20261013"
       ],
       "statusEvidence": {
         "implemented": {
@@ -2048,12 +2068,13 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Database-free operator config check and bounded login/three-first-page probe. Synthetic tests only; real HTTPS/protected final hop unverified; no raw output, real credential read, DB writes, activation or deployment.",
+      "scope": "PR102 database-free config check and three-first-page probe is merged; original HTTP exception separately merged PR103. Ad-hoc real authentication is recorded separately, never persistent Source activation. This historical readiness scope remains first-page only; full capacity preflight is a separate unmerged capability.",
       "evidence": [
         "ainuoke-readiness-engineering",
         "ainuoke-readiness-transport",
         "decisions-live-readiness",
-        "ningbo-pr98-reconciliation"
+        "ningbo-pr98-reconciliation",
+        "ainuoke-live-demo-baseline-engineering-20261013"
       ],
       "statusEvidence": {
         "implemented": {
@@ -2232,13 +2253,14 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "PR104 merged at 09f4447ab43e87798e1a5647f5ed02346ceef7ef after user approval and three successful CI checks. Its database-free audit found 558 current-account contracts and sampled 80 for four streams. The 62 unknown-quantity contracts remain unknown pending classification; unit semantics are addressed in separate unmerged PR106. No persistent Source activation, human business acceptance, real DB change or deployment.",
+      "scope": "PR104 audit merged: historical 558 current-account contracts and 80 material samples. 62 unknown-quantity contracts remain pending classification. PR106 unit engineering and PR107 controlled intake are now merged; targeted unit/identity human confirmation does not accept full audit data. No persistent activation or deployment.",
       "evidence": [
         "ainuoke-readonly-validation-engineering",
         "decisions-readonly-validation",
         "ainuoke-readonly-validation-real-receipt",
         "ainuoke-readonly-validation-real-results",
-        "ainuoke-pr104-merge-reconcile"
+        "ainuoke-pr104-merge-reconcile",
+        "ainuoke-live-demo-baseline-engineering-20261013"
       ],
       "statusEvidence": {
         "implemented": {
@@ -2317,6 +2339,571 @@
           "scope": "Read-only audit not deployed. Existing runtime image identities are historical and were not re-observed.",
           "evidence": [
             "ainuoke-readonly-validation-engineering"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-qty-unit",
+      "implemented": "yes",
+      "merged": true,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "partial",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "PR106 merged per-demand QtyUnit projection. User attested only the three target identities/shared unit semantics. Missing/conflict units stay unknown; no full data acceptance, DB model, persistent source activation or deployment.",
+      "evidence": [
+        "ainuoke-live-demo-baseline-engineering-20261013",
+        "decisions-live-demo-readiness-20261013"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "957fe1a6eedfd6a92020ef2cf82d710a4162cda0",
+          "scope": "PR106 merged per-demand QtyUnit projection. User attested only the three target identities/shared unit semantics. Missing/conflict units stay unknown; no full data acceptance, DB model, persistent source activation or deployment.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ]
+        },
+        "merged": {
+          "value": true,
+          "assessedAt": "2026-10-13",
+          "sourceSha": "957fe1a6eedfd6a92020ef2cf82d710a4162cda0",
+          "scope": "PR106 merged per-demand QtyUnit projection. User attested only the three target identities/shared unit semantics. Missing/conflict units stay unknown; no full data acceptance, DB model, persistent source activation or deployment.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "957fe1a6eedfd6a92020ef2cf82d710a4162cda0",
+          "scope": "PR106 merged per-demand QtyUnit projection. User attested only the three target identities/shared unit semantics. Missing/conflict units stay unknown; no full data acceptance, DB model, persistent source activation or deployment.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "partial",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "957fe1a6eedfd6a92020ef2cf82d710a4162cda0",
+          "scope": "PR106 merged per-demand QtyUnit projection. User attested only the three target identities/shared unit semantics. Missing/conflict units stay unknown; no full data acceptance, DB model, persistent source activation or deployment.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "957fe1a6eedfd6a92020ef2cf82d710a4162cda0",
+          "scope": "PR106 merged per-demand QtyUnit projection. User attested only the three target identities/shared unit semantics. Missing/conflict units stay unknown; no full data acceptance, DB model, persistent source activation or deployment.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Not deployed; runtime identities remain their old dated observations and were not re-observed by this task.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Not deployed; runtime identities remain their old dated observations and were not re-observed by this task.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-controlled-contract-intake",
+      "implemented": "yes",
+      "merged": true,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "PR107 merged selected 1-25 new contract preview/fresh-confirmation/transaction/audit/exact retry. Source44/44 synthetic Linux CLI/PG validation; no automatic intake or old master/color refresh, real source activation/human business acceptance/deployment.",
+      "evidence": [
+        "ainuoke-live-demo-baseline-engineering-20261013",
+        "decisions-live-demo-readiness-20261013"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+          "scope": "PR107 merged selected 1-25 new contract preview/fresh-confirmation/transaction/audit/exact retry. Source44/44 synthetic Linux CLI/PG validation; no automatic intake or old master/color refresh, real source activation/human business acceptance/deployment.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ]
+        },
+        "merged": {
+          "value": true,
+          "assessedAt": "2026-10-13",
+          "sourceSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+          "scope": "PR107 merged selected 1-25 new contract preview/fresh-confirmation/transaction/audit/exact retry. Source44/44 synthetic Linux CLI/PG validation; no automatic intake or old master/color refresh, real source activation/human business acceptance/deployment.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+          "scope": "PR107 merged selected 1-25 new contract preview/fresh-confirmation/transaction/audit/exact retry. Source44/44 synthetic Linux CLI/PG validation; no automatic intake or old master/color refresh, real source activation/human business acceptance/deployment.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+          "scope": "PR107 merged selected 1-25 new contract preview/fresh-confirmation/transaction/audit/exact retry. Source44/44 synthetic Linux CLI/PG validation; no automatic intake or old master/color refresh, real source activation/human business acceptance/deployment.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+          "scope": "PR107 merged selected 1-25 new contract preview/fresh-confirmation/transaction/audit/exact retry. Source44/44 synthetic Linux CLI/PG validation; no automatic intake or old master/color refresh, real source activation/human business acceptance/deployment.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Not deployed; runtime identities remain their old dated observations and were not re-observed by this task.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Not deployed; runtime identities remain their old dated observations and were not re-observed by this task.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-live-demo-preflight",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
+      "evidence": [
+        "ainuoke-live-demo-baseline-engineering-20261013",
+        "decisions-live-demo-readiness-20261013",
+        "ainuoke-live-preflight-wrapper-repair-20261013",
+        "ainuoke-real-full-preflight-20261013"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
+          "evidence": [
+            "ainuoke-live-preflight-wrapper-repair-20261013",
+            "decisions-live-demo-readiness-20261013",
+            "ainuoke-real-full-preflight-20261013"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-13",
+          "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
+          "evidence": [
+            "ainuoke-live-preflight-wrapper-repair-20261013",
+            "decisions-live-demo-readiness-20261013",
+            "ainuoke-real-full-preflight-20261013"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
+          "evidence": [
+            "ainuoke-live-preflight-wrapper-repair-20261013",
+            "decisions-live-demo-readiness-20261013",
+            "ainuoke-real-full-preflight-20261013"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
+          "evidence": [
+            "ainuoke-live-preflight-wrapper-repair-20261013",
+            "decisions-live-demo-readiness-20261013",
+            "ainuoke-real-full-preflight-20261013"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+          "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
+          "evidence": [
+            "ainuoke-live-preflight-wrapper-repair-20261013",
+            "decisions-live-demo-readiness-20261013",
+            "ainuoke-real-full-preflight-20261013"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Not deployed; runtime identities remain their old dated observations and were not re-observed by this task.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-13",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Not deployed; runtime identities remain their old dated observations and were not re-observed by this task.",
+          "evidence": [
+            "ainuoke-live-demo-baseline-engineering-20261013",
+            "decisions-live-demo-readiness-20261013"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-source-quality-diagnostic",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+      "evidence": [
+        "ainuoke-isolated-demo-final-20261014",
+        "decisions-quality-isolated-demo-20261013"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "ainuoke-quantity-comparison",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+      "evidence": [
+        "ainuoke-isolated-demo-final-20261014",
+        "decisions-quality-isolated-demo-20261013"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ],
+          "runtimeId": "preview18444",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "isolated-offline-fixture-demo",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+      "evidence": [
+        "ainuoke-isolated-demo-final-20261014",
+        "decisions-quality-isolated-demo-20261013"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+          "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
+          ],
+          "runtimeId": "trial18443",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "This new capability was not deployed to this existing environment. Its old dated runtime observation is retained without claiming a fresh runtime check.",
+          "evidence": [
+            "ainuoke-isolated-demo-final-20261014",
+            "decisions-quality-isolated-demo-20261013"
           ],
           "runtimeId": "preview18444",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"

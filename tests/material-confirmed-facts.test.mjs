@@ -24,11 +24,12 @@ test('missing unit stays raw null; exact confirmation supplies display unit with
  assert.deepEqual(p,original);assert.equal(row(project(p)).unit,null);
 });
 test('two paid purchases remain distinct after scoped 1:1 unit confirmation; no inference of production usability',()=>{
- const p=pages(),a=source(p);a.values.QtyUnit='只';
+ const p=pages(),a=source(p);a.values.QtyUnit='只';a.values.Num=0.1;a.values.Lost=5;a.values.StyleNum=1100;
  const b=structuredClone(a);b.sourceRowIdentity='6087050:sha256:synthetic-confirmed-repurchase';b.values.QtyUnit='个';b.values.cgdh='PO-SYNTHETIC-SECOND';b.values.rkdh='IN-SYNTHETIC-SECOND';p[0].rows.push(b);p[0].total++;
  const f=receipt(p,'ready',{unit:{value:'个',acceptedSourceUnits:['只','个'],ratio:1}}),r=row(project(p,[f]));
  assert.equal(r.purchases.length,2);assert.equal(r.purchased,200);assert.equal(r.demand.requiredQuantity,100);assert.equal(r.unitStatus,'known');assert.equal(r.status,null);
  assert.deepEqual(new Set(r.sourceUnits),new Set(['只','个']));assert.equal(row(project(p)).unitStatus,'conflict');
+ assert.equal(r.quantityComparison.theoreticalUsageCandidate,115.5);assert.equal(r.quantityComparison.actualPurchase,200);assert.equal(r.quantityComparison.interpretation,'observation-only');assert.equal(row(project(p)).quantityComparison.theoreticalUsageCandidate,null);
 });
 test('unconfirmed blank units never default to pieces and unknown quantities never become zero',()=>{
  const p=pages();source(p,'unknown').values.QtyUnit=null;const f=receipt(p,'unknown');const r=row(project(p,[f]),'unknown');

@@ -18,6 +18,10 @@
 
 ## Active
 
+### D-120 隔离四单两小时有界采集
+- 日期：2026-10-14；状态：Active。用户明确授权现有隔离四单每10分钟一次、2小时后停止。固定四单、原独立目标，最多12次，无自动续期/扩单/新增绑定；失败停止，保留数据。此授权不涉及宁波/18443/18444、正式账号、main合并或部署。
+- D119首绑/原两轮历史记录保留，新窗口单独绑定目标/时间/操作工具身份；到期停止采集，应用仍可访问，快照正常过期。证据[scripts/isolated-source-window.mjs](../scripts/isolated-source-window.mjs)、[窗口结果](tasks/active/ainuoke-bounded-window-2026-10-14.md)。
+
 ### D-119 显式小范围首次绑定
 - 日期：2026-10-14；状态：Active；用户要求继续实施小范围首绑，真实写入/激活前具体范围确认。
 - 完整当前账号可见Discovery保留，只抓显式1–25个合同的颜色；复用既有selected mapper及首绑事务，独立hash域绑定所选范围，空账本/精确重试不变。不得截断Discovery、借受控新增绕过首绑或扩大重试范围。
@@ -41,10 +45,24 @@
 - 用户规则：有颜色名称的行必须保留，即使数量为空；颜色和数量均空的占位行可从实际订单颜色中排除。实现保守检查 CnColor、SizeNum 及所有 SizeN 均为空（非零、非非法值），仅排除投影，保留全部原始行/数量/身份和排除原因。纯空占位重复身份不再错误阻断；有真实颜色的身份冲突仍阻断。
 - 历史条款（具名空数量保持null）已由D-117用户新决定替代；本条重复采购、原始来源保护、单位范围与纯空占位规则仍Active。旧时点的阻塞和验证事实保留在Git证据中。
 - 代码及负向验证：6087105 Adapter、`tests/ainuoke-garment-color-size-source.test.mjs`、`tests/ainuoke-material-progress.test.mjs`、`server/integration/ainuoke-continuous.test.ts`。不授权真实数据写入、Source首绑/持续激活、UI改版或部署。
+### D-114 采购双数量事实与持久隔离本机演示
+- 日期：2026-10-13；状态：Active。接续用户本轮任务书。采购合同实际执行数量与理论用量是两个不同业务事实；差异不是自动冲突、错误、超采或浪费。没有完整采购目标契约前，不全局替换TotalNum/requiredQuantity，也不改正式齐套与去重公式。
+- 已确认三个用户样本的理论与实际采购均正确，356两来源行仍归并一事件。最小定向原始验证证明这些样本的 `Num*(1+Lost/100)*StyleNum` 对应用户确认理论；此样本不授权把全量TotalNum都叫理论，或把全量Num字段语义声明已人工确认。新增只读来源测算明确unverified/observation-only，缺失、不一致或单位不可信时不作跨口径差值。业务主数量和四流独立保留。
+- 用户已授权Codex自行用本机受限CredentialFile执行必要的固定报表只读诊断，凭据仅由短命进程消费，不进模型/argv/env/报告/Git。成功全量证据不重复读取。原始问题字段与真实标识只入受保护ignored私有明细；公开仅匿名结论。
+- 用户本轮授权：先验证实际本机daemon、资源不存在、归属、镜像/源码与数据库身份，再新建独立Docker project/DB/network/持久volume，使用合成或明确获准脱敏fixture运行真实Server/P6。停止保留卷，不使用两小时自动删除。未授权任何现有业务库/真实账号变更、真实Source激活/持续采集、宁波/18443/18444部署或自动合并。
+- D113的原无DB预检阶段及历史执行边界保留；本条仅更新后续有限诊断与新隔离fixture演示授权。真实持续展示、人工业务验收与宁波晋升仍单独记录。证据见[质量与数量Gate](tasks/active/evidence/ainuoke-live-demo-readiness/quality-and-quantity-gate-2026-10-13.md)。
+
+
+### D-113 本机真实演示先完整无数据库预检
+- 日期：2026-10-13；状态：Active。用户授权合并#107，随后“继续”接续本机真实Source演示准备；原UI/真实账号/织序业务DB/部署/新PR不自动合并边界保持。此项不授权初始化任何真实或演示数据库。
+- AI工程选择：复用既有bindings及material collector、正式Bootstrap Preview和Material Projection，完整读取当前账号全部可见合同的颜色及四流；两个worker各沿用600秒/100000行/32MiB与10分钟freshness，不按状态排除或抽样、不中途缩小首绑范围。前后及跨阶段Discovery事实不一致、超预算、漏页/合同失败关闭；缺颜色按enrichment保留，未知数量/单位不填零或“个”。
+- 真实读取由用户在私密终端执行；凭据经匿名stdin，不进入Codex上下文、argv/env/DB/Git/报告。可由用户自己选择严格权限的本机两行凭据文件，助手不提取密码；宽权限拒绝，不修改原文件。Windows报告使用当前用户/SYSTEM DACL及ignored目录，Linux保护沿用owner-only；不需SeSecurityPrivilege/SACL修改。
+- 完整只读收据只证明读取/映射技术范围，不授权操作人或激活Source，不声明演示就绪。新本机目标检查仅生成plan，不创建容器/DB；实际镜像/端口/资源归属需执行前核实并另行取得具体目标授权。后续停止保留数据，不将合成脚本两小时自动删除用于真实验收。
+- 推荐首轮演示在明确授权的独立本机账本完整首绑/持久快照与2–3次刷新、3–5代表订单核对之后；24小时/故障重启/备份/六角色与受控新增作为宁波晋升前AI建议，不要求填完全部Excel或实现生产/关账。代码/测试/限制见[本轮任务](tasks/active/ainuoke-live-demo-readiness.md)、`server/ainuoke-source/live-preflight.ts`/`demo-plan.ts`、`scripts/ainuoke-live-preflight.ps1`。
 
 ### D-112 首轮上线前受控接纳新增艾诺科合同
 - 日期：2026-10-13；状态：Active。用户决定首轮上线前支持受控新增合同。
-- main 既有边界：调度只刷新已绑定订单四流，不自动建单或更新主信息/颜色。独立 `feat/ainuoke-controlled-contract-intake` 工程实现完整 Discovery 差异、显式选择 1–25 合同、只读预览、来源重取、事务内幂等接纳与可信审计；未合并/未激活时不得称 main 已支持。
+- main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5` 已按用户授权合并PR107（head `31b5f28862d032fc954b3f831888005f14060a1c` 三项CI成功）。调度只刷新已绑定四流，不自动建单或更新主信息/颜色；已合并工程提供完整Discovery差异、显式选择1–25合同、只读预览、来源重取、事务内幂等接纳与可信审计。精确重试核对已存镜像；来源/接纳互斥与权限重验。尚未真实激活或部署。
 - 来源缺失、身份漂移或权限变化阻止接纳，绝不硬删旧订单；既有订单主信息/颜色自动刷新仍是后续独立范围。代码/负向测试与执行边界见 [D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)。
 - 此决定不授权真实 DB 写入、来源持续激活或部署。[原决定证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。
 
@@ -52,7 +70,7 @@
 - 日期：2026-10-13；状态：Active。用户转述 IT 确认 `QtyUnit` 是每条物料需求的计量单位，同时约束 `TotalNum`、`cgnum` 以及该需求下入库、物料出运、出库数量；用户在艾诺科界面人工核对了目标三行编码。此确认是用户提供的业务证据，不冒称 IT 原始书面回执或全量合同抽样。
 - 已核实的私有 6087050 定向报告中，目标三需求四来源行的原始 QtyUnit 均为“个”，三组物料身份/数量与界面核对一致，356 的两来源行仍只是一笔采购事件。公开仅保留脱敏计数与报告 SHA，见[单位确认](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。
 - 工程选择：API Adapter 映射 `quantityUnit <- QtyUnit`，只读投影按 demand 检查所有来源行；一致非空才展示单位，空白保持未知，冲突停止该需求的投影数量汇总及状态判定并报告。不同 child Demand 不跨单位求和，不从规格推断，也不改变 `TotalNum`、`cgnum`、理论用量、事件去重或正式齐套公式。历史 Excel 单位列仍无可信映射。
-- 证据：`features/style-progress/source/ainuoke-material-api-adapter.ts`、`features/ainuoke-material-progress/projection.ts`、`tests/ainuoke-material-progress.test.mjs`。本 PR 仅工程候选，不等于合并、真实 Source 激活、正式持久化单位模型或宁波部署。
+- 证据：`features/style-progress/source/ainuoke-material-api-adapter.ts`、`features/ainuoke-material-progress/projection.ts`、`tests/ainuoke-material-progress.test.mjs`。PR106已按用户授权合并为main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0`；不等于真实Source激活、正式持久化单位模型或宁波部署。
 
 
 ### D-110 全合同只读核对与四流代表合同验证

@@ -1,4 +1,5 @@
 import { normalizeSourceUnit, resolveMaterialConfirmation, type MaterialConfirmation } from './confirmed-facts.ts';
+import { compareMaterialQuantityFacts, type QuantityComparison } from "./quantity-facts.ts";
 import type { AinuokeReportSnapshot } from '../ainuoke-api/model/ainuoke-api.ts';
 import { normalizeAinuokeInsideOrderNo, normalizeAinuokeSalesContractNo } from '../ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts';
 import { isFactorySupplied, resolveCanonicalMaterialIdentity, type MaterialDemand, type MaterialInboundEvent, type MaterialReadinessStatus } from '../style-progress/model/style-progress.ts';
@@ -25,7 +26,7 @@ export type ProgressRow = {
   shipments: Array<ReadMovement & { transportMode: string }>; outbounds: ReadMovement[];
   purchased: number | null; purchaseShortfall: number | null; purchaseExcess: number | null;
   inbound: number | null; pendingInbound: number | null; shipped: number | null; outbound: number | null;
-  status: MaterialReadinessStatus | null; issues: string[];
+  status: MaterialReadinessStatus | null; issues: string[]; quantityComparison?: QuantityComparison;
 };
 export type MaterialItemCounts = {
   groups: number; demands: number; unknown: number;
@@ -174,7 +175,8 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
         purchaseShortfall: purchased === null ? null : Math.max(0, demand.requiredQuantity - purchased),
         purchaseExcess: purchased === null ? null : Math.max(0, purchased - demand.requiredQuantity),
         pendingInbound: purchased === null || inbound === null ? null : Math.max(0, purchased - inbound),
-        status: confirmation.factory || rawUnitConflict || purchased === null || inbound === null ? null : deriveMaterialStatuses(demand.requiredQuantity, purchased, inbound, 0, 0).readinessStatus, issues };
+        status: confirmation.factory || rawUnitConflict || purchased === null || inbound === null ? null : deriveMaterialStatuses(demand.requiredQuantity, purchased, inbound, 0, 0).readinessStatus, issues,
+        quantityComparison: compareMaterialQuantityFacts(sourceRows.map(raw=>raw.values), purchased, unitConflict ? 'conflict' : unit===null ? 'missing' : 'known') };
       view.rows.push(row);
       let group = groups.get(identity.key);
       if (!group) { group = { key: identity.key, name: demand.materialName, type: demand.materialType, rows: [] }; groups.set(identity.key, group); }

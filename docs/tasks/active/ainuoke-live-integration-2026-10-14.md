@@ -1,0 +1,9 @@
+# 真实演示分支与PR108整合
+
+2026-10-14；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。起点98ec868，PR108修复f5bbb1e4d3d6c52c80b03947a6926380afafc8c0。整合发生在feat/ainuoke-anomaly-evidence，不合并main、不更换运行镜像。两分支原提交全部保留。
+
+冲突处理：Projection同时保留采购测算说明和需求级人工确认；原单位冲突/厂供仍阻断正式齐套判定，采购两次均有效不去重；新解释不改变TotalNum/cgnum。保留D113/114和D116–119全部业务规则，后续明确授权覆盖历史执行限制而非改写旧证据。发布守卫保留PR108更严格的祖先/线性链/唯一末端规则并兼容原负向错误码，合并两组负向回归，不以放宽门禁消除冲突。
+
+两未合并分支的DECISION_LOG冻结证据分别从同一main分叉，不能伪造线性祖先。治理分支原manifest原字节归档至docs/tasks/completed/2026-10-14-governance-branch-baseline.json，保留每个旧ID/hash/recordedAtSha；当前manifest延续PR108链，再冻结整合后的统一DECISION_LOG。其他互不冲突证据全部并入；原截图/hash不改，Git保留每个原blob。旧分支文档链不是当前单一发布链，也不把祖先关系虚构成已验证。
+
+尚待整合类型、构建、source/确认/单位/选集、root、发布基线验证；本轮已启动真实四单有限窗口使用原b95dbb3镜像与b0882fe操作工具，运行与新整合代码分开记录。网络仍降级，最终PR/CI须精确送达后核实。
