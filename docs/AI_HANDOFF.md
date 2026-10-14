@@ -12,3 +12,5 @@ NETWORK_DEGRADED；Gate1普通PowerShell交付回执尚未返回，不重复推�
 
 2026-10-14后续：Gate1旧交付回执pushes=0，已完成兼容补修独立commit def98f275c2ef61712008891ab1c60d308981bb7，工作树clean；G1仍待精确新HEAD门禁/交付。G2最新Server构建与浏览器4/4PASS，CI配置加入test:order-commercial和test:order-commercial-ui，远端未运行。
 精确G2门禁现在仅EVIDENCE_WORKTREE_DRIFT decisions-order-identity-g1：D122追加后需前向冻结证据并按依赖基线整合，不准覆盖旧证据。整体替换DECISION_LOG为旧blob曾被自动审批拒绝（可能丢失后续记录）；该操作未执行，D122保持。当前可安全继续冻结证据/复审，禁止用回退历史方式消除门禁。G1补修尚未合入本分支，但代码修复已在1a78c47，后续整合须保护双方文档和测试增量。
+
+证据链收口：保留D122，新增decisions-order-commercial-g2冻结证据，门禁支持有真实PR基线锚点的连续前向修订，6类反向场景+正例通过；基线回归78/78、精确main工作树门禁PASS。新Gate2工程证据tasks/active/evidence/order-commercial/gate2-results.md先提交后绑定。CI增加全PG回归。不得据此称远端CI或全部Goal完成。

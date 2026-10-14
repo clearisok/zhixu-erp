@@ -330,3 +330,27 @@ test('runtime identity and capability deployment proofs must agree and need fres
   for (const cap of f.manifest.capabilities) cap.statusEvidence.trial18443.imageId = runtime.imageId;
   has(f.check(), 'RUNTIME_TRANSITION_EVIDENCE');
 });
+
+function stackedRevision(f) {
+  const old=f.manifest.evidence.find(e=>e.id==='quote-original');
+  const first=newProof(f,{id:'stack-first',file:old.path,body:'# First forward revision\n'});
+  first.supersedes=old.id;first.changeReason='First reviewed stage';
+  const second={...first,id:'stack-second',recordedAtSha:'d'.repeat(40),supersedes:first.id,changeReason:'Second reviewed stage'};
+  const bytes=Buffer.from('# Second forward revision\n');second.sha256=hash(bytes);
+  f.knownCommits.add(second.recordedAtSha);f.blobs.set(`${second.recordedAtSha}:${second.path}`,bytes);f.write(second.path,bytes);f.manifest.evidence.push(second);
+  return {old,first,second};
+}
+test('stacked evidence revisions preserve every intermediate frozen blob and base anchor',t=>{
+ const f=fixture(t);stackedRevision(f);assert.deepEqual(f.check(),[]);
+ assert.deepEqual(f.check({previousManifest:structuredClone(f.manifest)}),[]);
+});
+for(const mode of ['dangling','cycle','fork','path-drift','blob-tamper','unanchored'])test(`stacked evidence rejects ${mode}`,t=>{
+ const f=fixture(t),{old,first,second}=stackedRevision(f);
+ if(mode==='dangling')second.supersedes='missing-proof';
+ if(mode==='cycle')first.supersedes=second.id;
+ if(mode==='fork')second.supersedes=old.id;
+ if(mode==='path-drift')second.path='docs/wrong-proof.md';
+ if(mode==='blob-tamper')f.blobs.set(`${first.recordedAtSha}:${first.path}`,Buffer.from('tampered'));
+ if(mode==='unanchored'){delete first.supersedes;delete first.changeReason;}
+ has(f.check(),mode==='blob-tamper'?'EVIDENCE_BLOB_HASH':'EVIDENCE_REVISION');
+});

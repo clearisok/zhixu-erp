@@ -30,6 +30,7 @@ jobs:
           npm run test:ainuoke-server-source
           npm run test:order-identity
           npm run test:order-commercial
+          npm run test:postgres
           npm run test:ainuoke-continuous
           npm run test:ainuoke-readiness
           npm run test:ainuoke-readonly-audit

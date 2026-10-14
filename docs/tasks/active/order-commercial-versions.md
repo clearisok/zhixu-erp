@@ -84,3 +84,5 @@ commercial-terms-security 20项PASS：16种字段权限组合、单字段null/�
 全PG第二轮已完成：261/261 PASS，耗时200717ms；初轮失败修复后子测试恢复执行，故总项增加。日志outputs/gate2-postgres-tests-rerun.log；基线回归71/71 PASS。不含真实环境验证或远端CI。新增独立商业feature、D-122和精确UI影响记录，历史接力及CURRENT_STATE先归档再更新。
 
 最终Server候选重新构建PASS，采用界面Chromium4/4 PASS；Source CI追加两项G2命令，尚无远端CI结果。Gate1独立补修def98f275c2ef61712008891ab1c60d308981bb7已提交；G2精确门禁仍待冻结决策证据依赖整合，不覆盖旧D121证据。
+
+证据链收口：保留D122，新增decisions-order-commercial-g2冻结证据，门禁支持有真实PR基线锚点的连续前向修订，6类反向场景+正例通过；基线回归78/78、精确main工作树门禁PASS。新Gate2工程证据tasks/active/evidence/order-commercial/gate2-results.md先提交后绑定。CI增加全PG回归。不得据此称远端CI或全部Goal完成。

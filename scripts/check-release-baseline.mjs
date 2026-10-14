@@ -88,13 +88,28 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   const priorEvidence = new Map((previousManifest?.evidence ?? []).map(item => [item.id, item]));
   if (!previousManifest || ![1, 2].includes(previousManifest.schemaVersion)) fail('HISTORY_REQUIRED', 'A Git-loaded prior manifest is required.');
   const superseded = new Set();
+  const revisions = new Map((manifest.evidence ?? []).map(item => [item.id, item]));
+  const successor = new Map();
   for (const item of manifest.evidence ?? []) {
     if (!item.supersedes) continue;
-    if (priorEvidence.has(item.id)) { if (item.kind === 'document') superseded.add(item.supersedes); continue; }
-    const old = priorEvidence.get(item.supersedes);
+    const old = revisions.get(item.supersedes);
     if (!old || old.kind !== item.kind || (item.kind === 'document' ? old.path !== item.path || old.recordedAtSha === item.recordedAtSha : old.path === item.path)
-      || !nonempty(item.changeReason)
-      || superseded.has(item.supersedes)) fail('EVIDENCE_REVISION', String(item.id));
+      || !nonempty(item.changeReason) || successor.has(item.supersedes)) {
+      fail('EVIDENCE_REVISION', String(item.id)); continue;
+    }
+    successor.set(item.supersedes, item.id);
+    // A stacked revision must trace back to evidence frozen in the actual PR base.
+    // No synthetic root, dangling link, fork or cycle may hide worktree drift.
+    let cursor = item;
+    const visited = new Set();
+    let anchored = false;
+    while (cursor) {
+      if (visited.has(cursor.id)) break;
+      visited.add(cursor.id);
+      if (priorEvidence.has(cursor.id)) { anchored = true; break; }
+      cursor = cursor.supersedes ? revisions.get(cursor.supersedes) : null;
+    }
+    if (!anchored) { fail('EVIDENCE_REVISION', String(item.id)); continue; }
     if (item.kind === 'document') superseded.add(item.supersedes);
   }
   for (const item of manifest.evidence ?? []) {

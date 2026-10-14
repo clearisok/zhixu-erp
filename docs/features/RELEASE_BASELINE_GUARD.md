@@ -78,6 +78,11 @@ document, retain the old record and add a new ID with a new committed version,
 the same path, `supersedes: <old-id>` and a nonempty `changeReason`. Only the latest
 document version must match the working file; earlier blobs stay readable in Git.
 Do not remove the old ID or reuse it for a different assertion.
+Multiple committed revisions in one stacked branch may form a forward chain.
+Every chain must reach an ID in the actual PR-base manifest; intermediate Git
+blobs remain hash-checked. Missing links, cycles, forks, same-commit document
+revisions and path/kind changes fail closed. This does not authorize overwriting
+any original evidence or advance deployment/acceptance status.
 
 PNG history remains at its old path with exact bytes. A new screenshot uses a
 new ID/path and a nonempty `changeReason` plus `approvalEvidence` pointing to a

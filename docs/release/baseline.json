@@ -630,6 +630,15 @@
       "path": "docs/tasks/active/evidence/order-identity/gate1-results.md",
       "recordedAtSha": "f4f8d715065d202bb816bd79a6595e10b71374d6",
       "sha256": "dfa3ec44867ee8b94ad20307bd5563e802689faabcb9d2446079d57d3276e3ba"
+    },
+    {
+      "id": "decisions-order-commercial-g2",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "e8abbd66a41266dcea032683ca8a484660dcebf8",
+      "sha256": "21329b5efbc491ce20c7706d327c3021323d64e7188bb3591b1d61f6816aff50",
+      "supersedes": "decisions-order-identity-g1",
+      "changeReason": "D122 implements approved independent order commercial versions; preserve both Gate1 and main decision evidence in the forward chain."
     }
   ],
   "pages": [
