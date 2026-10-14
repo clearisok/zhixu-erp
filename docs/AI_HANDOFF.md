@@ -1,11 +1,9 @@
-# 当前接力：Gate4案件/预览阶段冻结交付
+# 当前接力：有效归属基础与下一步消费者接线
 
-2026-10-14，feat/order-normalization-preview。最近核实main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，本轮未刷新GitHub；父39c9f7b607eabed5d72845d3a30b7fc766a6ee9d包括未合并G1/G2/G3。所有旧工作树保留。
+2026-10-14；feat/order-effective-attribution，父afb71f921b5645ed83f03d46a784d1e30f8325f2（案件预览最终本地PASS，未远端送达）。最近核实main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，本轮未刷新；原工作树均保留。
 
-案件服务/schema/HTTP及Foundation管理员对照已完成，预览v2保存基本合同身份与有限引用，unknown覆盖不转0；不含raw metadata或商业价格。请求幂等、pair唯一/CAS、审计原子、临时并发冲突原请求保留及撤回/重开历史已验证。候选e07c33c7精确构建/浏览器5项、定向37项通过；766c68eb源码824/全PG261/基线78、完整lint/类型/编译通过，后续只读合同事实新增已定向验证。
+0018未发布归属账本/members/heads及统一视图，原身份/流水不改。纠正可拆组；禁止链/环/旧组遗漏/多可信合同合一。内部解析/共享锁写前保护及显式CAS primitive；一次性PG10/10、无缓存类型及定向lint通过。首次upsert误走INSERT检查已修为明确INSERT/UPDATE，不弱化约束。
 
-[冻结工程结果](tasks/active/evidence/order-normalization/gate4-preview-results.md)、[复审](tasks/active/evidence/order-normalization/gate4-preview-premerge-review.md)、[阶段任务](tasks/active/order-normalization-preview.md)。f36307cf冻结工程结果，第19项案件复核能力已登记；工作树源码门禁PASS，能力后的基线78/78通过。最终提交后核对精确HEAD；然后按独立工程推进有效归属/执行/纠正。Source代码在e07c33c7，最终HEAD通过git rev-parse核实。
+恢复[有效归属任务](tasks/active/order-effective-attribution.md)和effective-attribution.ts。消费者/Source尚未接线、审批/完整引用和公共执行入口未实现。下一步完整强证据及默认关闭执行命令、统一读写/Source归属版本与重放保护，再完整Gate验收；不能把基础10项当全系统保护或合并PASS。
 
-NETWORK_DEGRADED/原规则未改，不自动恢复push或合并。REMOTE PENDING无PR/CI/部署/真实账号/数据库变更，未扩大Source调度或宁波/18443/18444。整个Gate4仍待有效归属执行/统一解析/纠正独立工程；G5待交付。真实归一必须具体案件另行授权，预览hash不可用作执行token。
-
-所有旧接力保留于[冻结前归档](tasks/completed/2026-10-14-gate4-pre-freeze-handoff.md)。
+NETWORK_DEGRADED规则不改，REMOTE PENDING，不自动恢复push/合并/部署。没有真实账号、数据库、Source范围/调度或宁波/18443/18444修改；真实归一需具体案件另行授权。G5仍待交付。旧完整接力见[预览最终接力](tasks/completed/2026-10-14-gate4-preview-final-handoff.md)。
