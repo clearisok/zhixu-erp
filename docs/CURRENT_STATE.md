@@ -1,3 +1,5 @@
+2026-10-14 / GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`：PR108 head `8b89de59dd405395da1dde4b6dde5f125141deb9` 开放未合并。本轮独立分支只读追查单位/颜色/负数量/空物料；具体原因与真实演示阻塞见 [异常治理](tasks/active/source-anomaly-followup-2026-10-14.md)。旧摘要均为历史时点，真实 Source 未激活。
+
 # 当前状态
 
 2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0`：PR #106 QtyUnit 已按用户授权合并，三项精确 head CI 成功；真实 Source 仍未激活。D-112 在独立 `feat/ainuoke-controlled-contract-intake` 工程分支实现完整 Discovery 差异、显式选择新合同、只读预览、重取确认、同事务创建/审计与精确重试；此分支尚未合并，未操作真实账号、DB 或宁波环境。本机已通过 817 项 root 测试、71 项发布基线回归、Python 25 项、合成 PostgreSQL 定向验证、typecheck、lint、Server/UI build，最终 PR CI 待远端运行。[工程边界与测试](tasks/active/ainuoke-controlled-new-contracts.md)。宁波上线仍缺真实持续四流、受控新增合同业务验收、隔离候选/备份回退与人工批准。下文旧 SHA、PR 状态与样本数字仅作历史快照。
@@ -17,3 +19,4 @@
 - 历史Quote扩展UI的8项失败及父测试失败未处理，不声明全项目全绿。旧冻结截图、现场观察与历史提交保留。
 
 功能：[来源](features/AINUOKE_SERVER_SOURCE.md)；决策D105–110；[宁波方案](ops/ningbo-rollout-plan.md)。
+

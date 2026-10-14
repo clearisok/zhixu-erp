@@ -1,3 +1,5 @@
+2026-10-14 / GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`：PR108 head `8b89de59dd405395da1dde4b6dde5f125141deb9` 开放未合并。本轮独立分支只读追查单位/颜色/负数量/空物料；具体原因与真实演示阻塞见 [异常治理](tasks/active/source-anomaly-followup-2026-10-14.md)。旧摘要均为历史时点，真实 Source 未激活。
+
 # 项目知识索引
 
 2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 已合并 PR #104/#105/#106。D-112 受控新增合同在独立 `feat/ainuoke-controlled-contract-intake` 工程分支实施，仍未合并、未真实执行；恢复入口为[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)及 Active 决策。下文旧 SHA/PR 状态仅按历史时点阅读。
@@ -125,3 +127,4 @@
 - `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
+

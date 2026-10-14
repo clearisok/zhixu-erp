@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "957fe1a6eedfd6a92020ef2cf82d710a4162cda0",
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
   "verifiedAt": "2026-10-13T06:36:32.000Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
@@ -2271,3 +2271,4 @@
     "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment."
   ]
 }
+

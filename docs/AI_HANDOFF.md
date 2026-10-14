@@ -1,3 +1,5 @@
+2026-10-14 / GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`：PR108 head `8b89de59dd405395da1dde4b6dde5f125141deb9` 开放未合并。本轮独立分支只读追查单位/颜色/负数量/空物料；具体原因与真实演示阻塞见 [异常治理](tasks/active/source-anomaly-followup-2026-10-14.md)。旧摘要均为历史时点，真实 Source 未激活。
+
 # AI handoff
 
 2026-10-13 / 最新接力：用户授权合并 PR #106，GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0`。独立工作树 `ainuoke-controlled-new-contracts`、分支 `feat/ainuoke-controlled-contract-intake` 从该精确提交开始，D-112 工程与本机验证已完成：root 817/817、发布基线 71/71、Python 25/25、持续来源 43 PASS / 1 Windows 跳过、typecheck/lint/Server/UI build 通过。精确重试现校验已存 Contract/Color Mirror，避免只凭审计收据误通过。只添加显式新合同，旧订单主信息/颜色不自动刷新；真实来源、业务 DB、宁波/18443/18444 均未操作。交付与合并前复审须以该分支唯一 PR 的精确远端 SHA 和 CI 结果核实，尤其 Linux CLI 全流程；本任务不自动合并。[任务](tasks/active/ainuoke-controlled-new-contracts.md)。下文为历史接力。
@@ -13,3 +15,4 @@
 首次普通终端运行在 Set-Acl 因缺 SeSecurityPrivilege 而于登录前失败；修复为只读检查受限 ACL 后真实重试成功。工程修复 head cef2e5653524bb65a80b8f9787e0ab937390d88b 已精确推送，手动 Source CI run 38339696861 全成功。此次真实证据文档提交后仍需按最终 head 复核 CI。PR #104/#105 不自动合并；未改正式计算、UI、真实账号/数据库、Source 激活或部署。
 
 下一步：完成本次脱敏证据提交与最终 CI/PR #105 复审；用户在本机三行表核对物料编码/规格，确认界面“个”的业务含义。若 6087050 没有可信单位字段，另找受授权只读字段来源；只在字段身份与业务语义确认后另开最小映射 PR 和负向测试。真实绑定、持续采集、全量颜色/规模与宁波上线各需独立 Gate。
+

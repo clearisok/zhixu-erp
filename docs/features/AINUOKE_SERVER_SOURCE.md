@@ -114,3 +114,6 @@ PR103已按用户授权合并；新增独立`scripts/ainuoke-readonly-audit.ps1`
 从 PR #104 head 派生的草稿 PR #105 提供固定 6086103 一次当前可见合同索引定位，以及最多三合同 6087050 完整分页的显式私密诊断。合成测试和用户普通终端真实读取均已完成；目标三行118/356/6找到对应来源物料/采购字段，356两来源行归并一事件。API单位候选为空，人工业务身份确认0/3，正式单位映射0/3。少量样本的空值/零值/重复观察不能推广至旧统计62合同；unknown仍保持未知。见[任务](../tasks/active/ainuoke-targeted-diagnostic.md)和[脱敏真实证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/real-results.md)。未激活 Source、读取业务DB、绑定、调度或部署。
 
 2026-10-13 后续受保护报告显示目标四条来源行的 QtyUnit 候选均为“个”，三物料身份/采购归并与旧报告相同；业务语义尚未由 IT/用户确认，正式 Adapter/Projection 单位仍未映射。[脱敏证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-followup-2026-10-13.md)。不得据此改变 TotalNum、cgnum 或齐套计算。
+
+2026-10-14: [异常原因与隔离演示接入路径](../tasks/active/source-anomaly-followup-2026-10-14.md)新增只读行级证据分析；不改变单位、正式齐套或真实首绑授权。
+
