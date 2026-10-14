@@ -866,6 +866,22 @@
       "sha256": "44f47ad9a46fd0f473b88d8dcbe1845cb9c49b12ee880c8a39772c36571c7e1e",
       "changeReason": "New D121 independent reviewer UI synthetic engineering evidence on existing Foundation; preserve all older pixels and human acceptance state.",
       "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "decisions-preparation-adoption",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
+      "sha256": "1d82eafd3b3bad0fcb8df4e53d5644da2691f8c583f187b251e8c882061631aa",
+      "supersedes": "decisions-normalization-review-workspace-g4",
+      "changeReason": "D129 adds exact preparation intent and contract-after-admission lineage adoption, trustworthy processing identity reads and explicit CI coverage; preserve all prior decisions and runtime limits."
+    },
+    {
+      "id": "preparation-adoption-backend-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/order-preparation-adoption/backend-results.md",
+      "recordedAtSha": "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
+      "sha256": "e562bc6c33242f1f413d0fd4adfac99be0bb78a960d763c1fe3ae0ed0c212710"
     }
   ],
   "pages": [
@@ -3268,6 +3284,92 @@
           "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
           "evidence": [
             "normalization-review-ui-engineering"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-preparation-adoption-backend",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Local exact proposed Quote intent, owner/CAS/immutable contract preparation adoption receipts and current lineage reference, trustworthy consumed-batch identity reads, and CI test configuration. Synthetic backend/old UI regression only; new preparation UI, real migration, source activation, deployment and human acceptance not claimed.",
+      "evidence": [
+        "preparation-adoption-backend-engineering",
+        "decisions-preparation-adoption"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
+          "scope": "Local exact proposed Quote intent, owner/CAS/immutable contract preparation adoption receipts and current lineage reference, trustworthy consumed-batch identity reads, and CI test configuration. Synthetic backend/old UI regression only; new preparation UI, real migration, source activation, deployment and human acceptance not claimed.",
+          "evidence": [
+            "preparation-adoption-backend-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
+          "scope": "Local exact proposed Quote intent, owner/CAS/immutable contract preparation adoption receipts and current lineage reference, trustworthy consumed-batch identity reads, and CI test configuration. Synthetic backend/old UI regression only; new preparation UI, real migration, source activation, deployment and human acceptance not claimed.",
+          "evidence": [
+            "preparation-adoption-backend-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
+          "scope": "Local exact proposed Quote intent, owner/CAS/immutable contract preparation adoption receipts and current lineage reference, trustworthy consumed-batch identity reads, and CI test configuration. Synthetic backend/old UI regression only; new preparation UI, real migration, source activation, deployment and human acceptance not claimed.",
+          "evidence": [
+            "preparation-adoption-backend-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
+          "scope": "Local exact proposed Quote intent, owner/CAS/immutable contract preparation adoption receipts and current lineage reference, trustworthy consumed-batch identity reads, and CI test configuration. Synthetic backend/old UI regression only; new preparation UI, real migration, source activation, deployment and human acceptance not claimed.",
+          "evidence": [
+            "preparation-adoption-backend-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
+          "scope": "Local exact proposed Quote intent, owner/CAS/immutable contract preparation adoption receipts and current lineage reference, trustworthy consumed-batch identity reads, and CI test configuration. Synthetic backend/old UI regression only; new preparation UI, real migration, source activation, deployment and human acceptance not claimed.",
+          "evidence": [
+            "preparation-adoption-backend-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "preparation-adoption-backend-engineering"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "preparation-adoption-backend-engineering"
           ]
         }
       }

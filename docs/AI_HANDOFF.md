@@ -1,4 +1,4 @@
-# 当前接力：准备采用后台通过，继续证据绑定与现有UI
+# 当前接力：准备采用后台与25项基线通过，继续现有UI
 
 2026-10-15；feat/order-effective-attribution，起点3708d57c367b69e999da3de31dc544016a9c49f8/clean。GitHub API main064e3afaf7d08b3cb62907d4402f97d9c292f1e5不变，开放仅108；无push/新PR/合并/部署。NETWORK_DEGRADED规则未删，G1 def98f恢复一次例外待回复，不能代替批准。
 
@@ -8,4 +8,4 @@
 
 新测试首轮语法await错误；21项18PASS/3FAIL含parent，空referenceOrderId误通过已修，数量115.50按原dscale保留；typed投影修正。追加identity红测22项20PASS/2FAIL含parent，Missing expected rejection，修后22全通过。新迁移清单固定期望漏0023导致G1/归属/PG失败，补精确文件与NULL无回填断言后最终15/45/261通过，不降低旧事实检查。
 
-下一步source/evidence checkpoint、D129前向决策/限定后台能力绑定、基线78；原D128/e6图像24cap全部保留。然后现有Foundation准备选择/Quote意向/采用UI，原准备Modal未知保存仍可关窗重开丢原request，必须一并补；新API不是完整前端交付。复杂模块features/ORDER_PREPARATION_ADOPTION.md，active/order-preparation-adoption.md。全G4复审/远端交付/G5与整个Goal仍未完成，真实Source/DB/账户/窗口/部署未授权扩大。旧接力completed/2026-10-15-pre-preparation-adoption-ai-handoff.md。
+源码/冻结证据checkpoint ff89f884a245ba69b7d3bdc520782ecc6ed74be8；D129前向决策/限定第25项后台能力后门禁PASS（10页/20项累计UI路径），基线78/78明确exit0。下一步现有UI接线；原D128/e6图像24cap全部保留。然后现有Foundation准备选择/Quote意向/采用UI，原准备Modal未知保存仍可关窗重开丢原request，必须一并补；新API不是完整前端交付。复杂模块features/ORDER_PREPARATION_ADOPTION.md，active/order-preparation-adoption.md。全G4复审/远端交付/G5与整个Goal仍未完成，真实Source/DB/账户/窗口/部署未授权扩大。旧接力completed/2026-10-15-pre-preparation-adoption-ai-handoff.md。
