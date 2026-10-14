@@ -685,6 +685,13 @@
       "path": "docs/tasks/active/ainuoke-selected-first-binding-2026-10-14.md",
       "recordedAtSha": "1aab7987a0553d87dd87f9ad4ae6eb43e864ecb8",
       "sha256": "163941d6123818c66fe96bdc102cc51c7f89b48face214749fb321a5dfb1b51d"
+    },
+    {
+      "id": "selected-first-binding-final-verification-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/ainuoke-selected-first-binding-verification-2026-10-14.md",
+      "recordedAtSha": "bb1a1712012184dc45660af62a366b40a65d0845",
+      "sha256": "bacc0cf5c7ffa95a961aa692d1b6e94bfd5d14f91820b95b4769ed5b18e4b03e"
     }
   ],
   "pages": [
