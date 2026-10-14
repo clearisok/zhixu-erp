@@ -9,3 +9,5 @@ Gate2已实现append-only订单商业版本、明确预览/采用、Quote/CCT确
 G3加工批次、G4历史归一和G5页面/新来源仍未实施。不自动推进真实迁移、账号、Source激活或宁波/18443/18444部署；不自动合并。没有本分支PR/CI送达结论。
 
 下一步：完成全PG复验与精确UI/能力证据、Gate2最终复审；修复Gate1交付基线，再核实唯一PR。详见[商业版本](features/ORDER_COMMERCIAL_VERSIONS.md)、[阶段证据](tasks/active/order-commercial-versions.md)。[此前状态](tasks/completed/2026-10-14-pre-commercial-current-state.md)保留原始记录。
+
+本地依赖整合：Gate1补修def98f275c2ef61712008891ab1c60d308981bb7已并入当前分支历史（仅本地，不是PR合并）。其独立254/255全PG及后续12+7重跑等原始限制完整保留于tasks/active/evidence/order-identity/gate1-compatibility-followup.md。冲突保留G2的0015及第63项权限预期，业务修复两边一致。
