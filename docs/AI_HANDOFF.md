@@ -7,3 +7,6 @@
 17历史、45归属、15身份、20Source+skip1、43持续+skip1、261完整PG/API、824源码及类型/完整lint/Server编译明确exit0。一次基线回归因新D127导致当前DECISION_LOG旧证据漂移，源码/新冻结报告checkpoint6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e后已前向绑定supersedes和限定第21项能力，最终精确源码门禁PASS/基线78项exit0；旧hash/截图/证据不能覆盖。报告路径tasks/active/evidence/order-source-history/gate4-source-history-results.md。失败过程保留于有效归属active任务。
 
 下一步历史Source UI/历史订单提示与案件历史选单、独立生产财务复核/默认关闭执行及完整G4。准备记录采纳/待分类执行hold/规格修订清确认与G5仍待；无真实Adapter/归一permit，无真实凭据、Source读取、账号/DB写或部署。旧接力完整归档completed/2026-10-15-pre-source-history-ai-handoff.md。
+
+
+后续历史UI阶段从2f134319/clean继续，9UI路径同一批准范围，复用原列表/卡片/Modal，案件选择含原历史身份；已通过client6/历史browser9/身份5/商业4/案件5/根824。无SQL改动，全PG是上阶段261。源码checkpoint后重建精确bundle/重录新截图、类型lint及最终基线收口；不要把初步dirty构建截图绑定成clean SHA。任务order-source-history-ui.md/精确路径影响记录已写，任何新report/hash需前向冻结，不覆旧证据。

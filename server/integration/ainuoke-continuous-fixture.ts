@@ -12,6 +12,7 @@ import { TEAM_ROLES } from "../auth/team-roles.js";
 import { createApp } from "../app.js";
 import { bindOrders,previewBindings } from "../ainuoke-source/binding.js";
 import { captureSource } from "../ainuoke-source/service.js";
+import { createPersistedMaterialHistoryReader } from "../ainuoke-source/history.js";
 import { createPersistedMaterialPorts } from "../ainuoke-source/reader.js";
 import { bindingBundle,freshMaterialBundle } from "./ainuoke-binding-fixture.js";
 import { createQuoteDraft } from "../../features/quote-center/model/quote-view-model.js";
@@ -52,7 +53,7 @@ export async function startContinuousFixture(staticDirectory:string) {
   let materialReads=0;
   const ports=createPersistedMaterialPorts(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000},()=>Date.now()+(mode==="stale"?1800001:0));
   server.on("request",(req,res)=>{if(req.url?.includes("/material-progress"))materialReads++;app(req,res);});
-  const app=createApp({pool,staticDirectory,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:ports});
+  const app=createApp({pool,staticDirectory,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:ports,orderMaterialHistory:createPersistedMaterialHistoryReader(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000})});
   await new Promise<void>(done=>server.listen(0,"127.0.0.1",done));
   const address=server.address();if(!address||typeof address!=="object")throw Error("loopback fixture failed");
   const base="http://127.0.0.1:"+address.port;origins.push(base);

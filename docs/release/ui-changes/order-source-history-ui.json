@@ -1,0 +1,29 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "features/order-center/components/normalization-case-dialog.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/components/server-order-commercial-card.tsx",
+    "features/order-center/components/server-order-identity-card.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/order-center/server/sales-order-server-model.ts",
+    "features/order-center/server/server-order-center-query.ts",
+    "features/order-center/components/material-history-dialog.tsx",
+    "features/order-center/server/material-history-client.ts"
+  ],
+  "pages": [
+    "order-list",
+    "order-detail"
+  ],
+  "visibleDifference": "按已批准D121原身份/历史归一范围，既有筛选增加有效/含历史，原单号/手机卡提示历史重复，原详情明确链接有效SO并关闭历史单新认领/价格采用；Foundation卡片/Modal查询原捕获SO/run历史来源数量与事件，案件选单保留历史SO。保留现有表格、主题、主导航/其他页面和生产路由。截图为工程证据，未获新人工视觉验收。",
+  "evidence": [
+    "docs/tasks/active/order-identity-program.md",
+    "docs/tasks/active/order-source-history-ui.md",
+    "docs/features/ORDER_SOURCE_HISTORY.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-identity-program.md"
+  }
+}

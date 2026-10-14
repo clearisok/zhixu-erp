@@ -2,7 +2,7 @@
 
 import {NormalizationCaseDialog} from "./normalization-case-dialog";
 import {ProcessingBatchDialog} from "./processing-batch-dialog";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertBanner,
@@ -110,6 +110,9 @@ export function ServerOrderCenterPage() {
   const [listError, setListError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [sessionActionError, setSessionActionError] = useState<string | null>(null);
+  const loadEpoch = useRef(0);
+  const [loadedScope,setLoadedScope] = useState('');
+  const scopeKey=JSON.stringify([query,serverSession.user?.id,serverSession.permissions]);
   const handleReadFailure = useCallback((error: unknown): "session" | "read" => {
     if (error instanceof SalesOrderServerReadError && error.status === 401) {
       setItems([]);
@@ -128,27 +131,33 @@ export function ServerOrderCenterPage() {
 
   const loadList = useCallback(async () => {
     if (serverSession.status !== "authenticated" || !serverSession.hasPermission("order.view")) return;
+    const epoch=++loadEpoch.current;
     setLoading(true);
+    setItems([]);
     setListError(null);
     setPermissionDenied(false);
     try {
       const result = await loadServerOrderCenterPage(serverSalesOrderReadRepository, query);
+      if(epoch!==loadEpoch.current)return;
       setItems(result.items);
       setPage(result.page);
     } catch (error) {
+      if(epoch!==loadEpoch.current)return;
       if (handleReadFailure(error) === "read") {
         setItems([]);
         setPage(emptyPage);
         setListError(readError(error));
       }
     } finally {
-      setLoading(false);
+      if(epoch===loadEpoch.current){setLoadedScope(scopeKey);setLoading(false);}
     }
-  }, [handleReadFailure, query, serverSession]);
+  }, [handleReadFailure, query, serverSession,scopeKey]);
 
   useEffect(() => {
     if (serverSession.status === "authenticated" && serverSession.hasPermission("order.view")) {
-      void Promise.resolve().then(loadList);
+      let active=true;const epochRef=loadEpoch;
+      void Promise.resolve().then(()=>{if(active)void loadList();});
+      return()=>{active=false;epochRef.current++;};
     }
   }, [loadList, serverSession]);
 
@@ -160,6 +169,7 @@ export function ServerOrderCenterPage() {
     setSessionActionError(null);
     try {
       await serverSession.logout();
+      loadEpoch.current++;
       setItems([]);
       setPage(emptyPage);
     } catch {
@@ -183,7 +193,7 @@ export function ServerOrderCenterPage() {
       responsivePriority: "primary",
       render: (item) => (
         <div className="oc-primary-cell">
-          <strong>{item.orderNo}</strong>
+          <strong>{item.orderNo}</strong>{item.attribution?.historicalDuplicate&&<StatusTag tone="warning">历史重复</StatusTag>}
           <small>{item.businessType==='processing'?'加工订单 · 无销售合同':item.billNo??'未绑定 BillNo'}</small>
         </div>
       ),
@@ -296,6 +306,7 @@ export function ServerOrderCenterPage() {
       </div>
       <div className="oc-server-record-status">
         <StatusTag tone={lifecycleTone(item.lifecycleState)}>{lifecycleLabels[item.lifecycleState]}</StatusTag>
+        {item.attribution?.historicalDuplicate&&<StatusTag tone="warning">历史重复</StatusTag>}
         <small>{item.businessType==='processing'?'艾诺科来源：不适用':`艾诺科来源状态：${item.sourceLifecycleStatus||'未记录'}`}</small>
       </div>
     </div>
@@ -342,7 +353,7 @@ export function ServerOrderCenterPage() {
   }
 
   return (
-    <OrderCenterFrame count={`${page.total} 条`}>
+    <OrderCenterFrame count={loadedScope===scopeKey?`${page.total} 条${query.includeHistorical?'（含历史记录）':''}`:"—"}>
       <ProcessingBatchDialog key={serverSession.user.id} mode="import" />
       <NormalizationCaseDialog key={"normalization-"+serverSession.user.id} />
       <div className="oc-server-source-bar">
@@ -363,6 +374,11 @@ export function ServerOrderCenterPage() {
           filters={<Button type="submit" variant="secondary">查询</Button>}
           moreFilters={(
             <>
+              <FormItem label="订单范围">
+                <select className="qc-control" value={query.includeHistorical?'history':'current'} onChange={event=>updateQuery('includeHistorical',event.target.value==='history')}>
+                  <option value="current">有效订单</option><option value="history">包含历史订单</option>
+                </select>
+              </FormItem>
               <FormItem label="生命周期">
                 <select className="qc-control" value={query.lifecycleState} onChange={(event) => updateQuery("lifecycleState", event.target.value as ServerSalesOrderLifecycleState | "")}>
                   <option value="">全部生命周期</option>
@@ -397,10 +413,10 @@ export function ServerOrderCenterPage() {
       </form>
       <Card className="oc-list-card oc-order-table oc-server-order-table">
         <DataTable
-          rows={items}
+          rows={loadedScope===scopeKey?items:[]}
           columns={columns}
           rowKey={(item) => item.id}
-          loading={loading}
+          loading={loading||loadedScope!==scopeKey}
           loadingLabel="读取 PostgreSQL 正式订单"
           error={listError}
           onRetry={() => void loadList()}

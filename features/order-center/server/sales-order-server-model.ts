@@ -1,8 +1,12 @@
+export type ServerOrderAttribution = {originalOrderId:string;effectiveOrderId:string;attributionChangeId:string|null;attributionVersion:number;historicalDuplicate:boolean};
+
 export type ServerSalesOrderCreationSource = "quote" | "reorder" | "manual" | "ainuoke";
 export type ServerSalesOrderLifecycleState = "draft" | "confirmed" | "active" | "completed" | "cancelled";
 
 export type ServerSalesOrderReadDto = {
   id: string;
+  attribution?: ServerOrderAttribution;
+  sourceOwnerOrderId?: string;
   version: number;
   orderNo: string;
   creationSource: ServerSalesOrderCreationSource;
@@ -36,6 +40,7 @@ export type ServerSalesOrderDetailDto = ServerSalesOrderReadDto & {
 };
 
 export type ServerSalesOrderListQuery = {
+  includeHistorical?: boolean;
   limit?: number;
   offset?: number;
   search?: string;
@@ -54,6 +59,8 @@ export type ServerSalesOrderPage = {
 
 export type OrderCenterServerListViewModel = {
   id: string;
+  attribution?: ServerOrderAttribution;
+  sourceOwnerOrderId?: string;
   version: number;
   orderNo: string;
   creationSource: ServerSalesOrderCreationSource;
@@ -87,6 +94,8 @@ export type OrderCenterServerDetailViewModel = Omit<
 export function adaptServerSalesOrderListItem(dto: ServerSalesOrderReadDto): OrderCenterServerListViewModel {
   return {
     id: dto.id,
+    ...(dto.attribution ? {attribution:dto.attribution} : {}),
+    ...(dto.sourceOwnerOrderId ? {sourceOwnerOrderId:dto.sourceOwnerOrderId} : {}),
     version: dto.version,
     orderNo: dto.orderNo,
     creationSource: dto.creationSource,
@@ -111,6 +120,8 @@ export function adaptServerSalesOrderListItem(dto: ServerSalesOrderReadDto): Ord
 export function adaptServerSalesOrderDetail(dto: ServerSalesOrderDetailDto): OrderCenterServerDetailViewModel {
   return {
     id: dto.id,
+    ...(dto.attribution ? {attribution:dto.attribution} : {}),
+    ...(dto.sourceOwnerOrderId ? {sourceOwnerOrderId:dto.sourceOwnerOrderId} : {}),
     version: dto.version,
     orderNo: dto.orderNo,
     creationSource: dto.creationSource,

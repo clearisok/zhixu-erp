@@ -28,3 +28,8 @@ order-material-history.v1声明usage=historical_only、currentStatusApplicable=f
 ## 验收证据
 
 17项历史定向与45项有效归属回归已通过，覆盖旧NULL证据、新scope、原目标、不搬移合计、纠正拆组、来源变化、身份不可删改、cursor串单、损坏/future/partial schema、权限与session/default disconnected及逐表readonly。类型、定向lint通过；本阶段完整结果冻结到docs/tasks/active/evidence/order-source-history/gate4-source-history-results.md，正式收口以前以其实际结果为准，不引用历史测试冒称本次通过。
+
+
+## 2026-10-15 后续历史浏览器工程阶段
+
+默认有效/显式含历史列表、原单号历史重复标记/有效单导航、原商业/身份只读以及原SO历史Source Modal已本地接线，复用原Foundation。案件选单显式保留历史原SO。客户端精确身份/historical DTO保护，旧列表响应按scope隔离，关闭Modal取消读取；加工无艾诺科不提示待关联。client6/初步浏览器9与既有身份/商业/案件UI回归通过；精确源码/截图/最终门禁另行收口，非人工验收/部署。前文Server阶段冻结证据保持，当前任务见order-source-history-ui.md。
