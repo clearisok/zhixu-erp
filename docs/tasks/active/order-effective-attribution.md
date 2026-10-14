@@ -40,3 +40,24 @@ reader在RR只读事务一起读取fresh授权、目标归属和已接受快照�
 验证：归属基础+Source19/19（含schema10及Source9）；Source原20PASS/1Windows CLI skip、continuous43PASS/1Windows CLI skip在锁序修复前通过，锁序修复后19项包含exclusive/shared+profile NOWAIT对照；最终无缓存全类型、修改路径lint和normalization37/37通过。Source测试新增空结果范围/采集中变化/同目标新epoch/换目标/保留SO全行与旧链接/部分schema拒绝/冻结prefix12兼容。首次检查进程结果在压缩后丢失，未冒称成功，重新运行类型/lint/37项取得明确结果。本阶段不是完整Gate4、远端CI或合并验收。
 
 下一阶段：repository列表/详情的有效与历史模式、创建查重返回有效SO、新交付计划/商业采用/生命周期写保护；审批与完整引用执行仍未实现。未发布0018继续允许本分支前向完善，已发布0017及之前SQL不修改。完整基础状态见[旧接力](../completed/2026-10-14-effective-attribution-foundation-handoff.md)和[旧状态](../completed/2026-10-14-effective-attribution-foundation-state.md)。
+
+
+## 2026-10-15 订单读取与新写入消费者阶段
+
+阶段起点ef9cae60c073dc5992a22099f16a588e5c792978，工作树干净。仅本分支Server/未发布0018/合成测试/package及文档；没有修改UI、已发布SQL、真实账号或数据。
+
+普通列表默认只返回有效根；includeHistorical=true显示原SO及attribution身份（原UUID、有效UUID、change、version、是否历史重复）。列表count/items使用同一RR只读快照；详情一条SQL读取合同/颜色。有效根通过可信原Source owner投影当前合同事实，Source owner和创建历史分别返回；历史详情不重定向UUID、不继承有效根的计划或价格。当前type通过可信合同/加工消费判定；纠正拆组后旧认领profile仍保留，但不能凭它冒称旧根仍有可信合同。
+
+合同号/来源身份查重返回有效SO，不修改原链接。首次绑定精确重试允许明确归一组的无链接成员存在，仍要求原全部来源scope、profile和reviewHash回执完全匹配；无关/未复核SO继续拒绝。受控新增用不可变sourceOwner校验，并把精确重试结果解析为有效SO。既有Source owner更新是来源观察，不能把它当新执行：0018前向替换follow函数，历史别名原交付计划不再跟随源日期改变；没有复制或汇总原计划。
+
+认领/血统、新价格采用和交付计划先持共享归属事务锁，再fresh DB授权及行锁；历史重复单409。已成功价格采用的原请求重试仅返回原不可变历史回执，不创建新版本。生命周期内部命令同样锁下检查有效身份。报价/CCT仍仅候选，不向有效根搬旧价；有效根要独立明确采用。新血统检查有效引用，引用本组历史别名也不能形成自己翻自己。完整归一执行/审批仍未开放。
+
+来源capture/binding/additions的归属锁等待统一5秒上限；Source/profile/原SO锁次序一致。单条Source observation primitive传Pool时自行事务，传事务client时保留调用方所有权。冻结prefix12和DeliveryPlan prefix9仍无归属侧表依赖，部分归属schema继续失败关闭。
+
+验收：归属30/30；来源/消费者/交付计划联合37/37；商业29/29；加工批次35/35；持续Source43PASS/1Windows Linux CLI skip；身份15项；源码824/824、基线78/78；全PG/API261/261（修复后重跑）；无缓存全类型、全lint、server:build通过。最后仅来源锁等待配置变化另有最终30项及43+skip1来源验证，全PG的SQL/消费者逻辑未再改变。本阶段没有新的浏览器像素/UI改动验收，也不是整个G4完成或远端CI证明。
+
+失败及处理：第一次日志目录缺失导致测试未启动，创建ignored outputs后重跑；两次错误命令build:server不存在，改用仓库server:build。首轮全PG253PASS/8FAIL（七交付子场景+fixture）源于旧合成fixture只有缓存权限、没有对应DB grants，及伪actor不再能用作末端审计失败；补齐合成角色grant并改为有效授权后注入末端审计fault，未弱化fresh权限，37项定向及完整261项重跑通过。首次新增归一后binding重试测试发现all-SO=source-scope旧假设，定向6PASS/3FAIL（两子场景+fixture，其中第二因前一失败未保存run）；修复为原scope+明确归一组验证后通过。保留本机ignored日志，不将日志/合成DB当真实工程证据。
+
+剩余：默认关闭的公共归一执行、完整引用/版本指纹、生产/财务覆盖及审批、冻结/新流水后的纠正预览、原历史Source快照只读入口、管理员案件选单历史scope及有效历史状态UI。当前案件选单仍用默认列表，公开归一尚未实现，真实数据没有归属变化；后续须明确接includeHistorical并独立UI影响记录。加工消费当前返回原批次SO，执行服务须禁止把独立加工批次身份当合同重复合并。完整G4未完成，本分支不建议真实归一/合并使用。
+
+上一Source阶段接力和状态分别归档source-attribution-handoff/state；不更新旧冻结能力证据或宣称已部署。REMOTE PENDING，网络规则保持，不自动push恢复、合并或部署。

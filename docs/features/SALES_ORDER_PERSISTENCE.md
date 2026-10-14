@@ -1,3 +1,5 @@
+> 2026-10-15 本地Gate4消费者增量，未合并/部署：有效与历史读取、当前来源owner投影和新写归属保护见[ORDER_NORMALIZATION](ORDER_NORMALIZATION.md)及[任务](../tasks/active/order-effective-attribution.md)。原UUID/创建历史/绑定/各单价格和计划不变；公共归一执行仍未实现。下面历史bootstrap日期/环境能力仅按当时证据阅读。
+
 <!-- Current bounded first-binding path; historical bootstrap evidence below is preserved. -->
 > 2026-10-12（main db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e）：D106首次空订单账本绑定复用本域transaction helper，由server/ainuoke-source/binding.ts进行fresh Preview/目标/hash/权限/整批审计保护；旧bootstrap冻结guard不变。新增合同与主镜像持续刷新不在本轮。来源DATE在SQL转为日历字符串，修复时区偏移；未改schema或真实日期。详见[Server Source](AINUOKE_SERVER_SOURCE.md)。
 

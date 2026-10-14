@@ -1,3 +1,4 @@
+import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import type { Pool } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
 import { requirePermission } from "../auth/permissions.js";
@@ -70,6 +71,7 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
   try {
     await client.query("BEGIN");
     await client.query("SET LOCAL lock_timeout = '5s'");
+    const attributed=await lockEffectiveAttribution(client);
     await client.query("SET LOCAL statement_timeout = '30s'");
     // Serializes all binding commands; same source lock also excludes snapshot capture.
     await client.query("SELECT pg_advisory_xact_lock(hashtextextended('ainuoke-first-binding',0))");
@@ -79,14 +81,22 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
     const currentActor = await sourceActor(client, identity, true); requirePermission(currentActor.permissions, "ainuoke.bind");
     const profiles = (await client.query("SELECT source_key,account_fingerprint,enabled FROM ainuoke_source_profiles FOR UPDATE")).rows;
     if (profiles.some(p => p.source_key !== options.sourceKey || p.account_fingerprint !== options.accountFingerprint || !p.enabled)) throw new SourceError("source_account_mismatch");
-    const existing = (await client.query("SELECT o.id::text,l.external_id,l.sales_contract_no FROM sales_orders o LEFT JOIN sales_order_source_links l ON l.sales_order_id=o.id AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract' FOR SHARE OF o")).rows;
+    const allExisting = (await client.query(`SELECT o.id::text,l.external_id,l.sales_contract_no,
+      ${attributed?'mapping.effective_order_id::text':'o.id::text'} AS effective_order_id,
+      ${attributed?'mapping.attribution_change_id::text':'NULL::text'} AS attribution_change_id
+      FROM sales_orders o ${attributed?'JOIN sales_order_effective_identities mapping ON mapping.original_order_id=o.id':''}
+      LEFT JOIN sales_order_source_links l ON l.sales_order_id=o.id AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract' FOR SHARE OF o`)).rows;
+    const existing=allExisting.filter(row=>row.external_id!==null);
+    // Exact retry may include reviewed duplicate members of an already-bound group.
+    // Unrelated or unreviewed old orders still cannot enter first-binding scope.
+    if(allExisting.some(row=>row.external_id===null&&(!row.attribution_change_id||!existing.some(owner=>owner.effective_order_id===row.effective_order_id))))throw new SourceError('binding_requires_empty_or_exact_scope');
     const candidates = preview.candidates;
     // Empty first binding, or exact re-run only. Never silently attach a new source to old orders.
     if (existing.length && (existing.length !== candidates.length || existing.some(row => !candidates.some(c => c.source.sourceId === row.external_id && normalizeAinuokeSalesContractNo(c.source.salesContractNo) === normalizeAinuokeSalesContractNo(row.sales_contract_no))))) throw new SourceError("binding_requires_empty_or_exact_scope");
     if(existing.length){
       const receipt=(await client.query("SELECT metadata FROM operation_logs WHERE entity_type='AinuokeSourceBinding' AND entity_id=$1 ORDER BY id DESC LIMIT 1",[options.sourceKey])).rows[0];
       const bound=await boundOrders(client,true);
-      if(!profiles.length || receipt?.metadata?.reviewHash!==reviewHash || bound.length!==existing.length || existing.some(row=>!bound.some(order=>order.id===row.id&&normalizeAinuokeSalesContractNo(order.salesContractNo)===normalizeAinuokeSalesContractNo(row.sales_contract_no))))throw new SourceError("binding_not_exact_retry");
+      if(!profiles.length || receipt?.metadata?.reviewHash!==reviewHash || bound.length!==existing.length || existing.some(row=>!bound.some(order=>order.sourceOwnerOrderId===row.id&&normalizeAinuokeSalesContractNo(order.salesContractNo)===normalizeAinuokeSalesContractNo(row.sales_contract_no))))throw new SourceError("binding_not_exact_retry");
     }
     const ids: string[] = []; let created = 0;
     for (const candidate of candidates) {

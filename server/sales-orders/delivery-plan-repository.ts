@@ -1,8 +1,11 @@
+import {supportsEffectiveAttribution} from './effective-attribution.js';
+import {effectiveOrderJoins,sourceOwnerSql} from './effective-order-sql.js';
 import type { Queryable } from './repository.js';
 import type { DeliveryPlanSetDto } from './delivery-plan-model.js';
 import { HttpError } from '../http/errors.js';
 
 export async function readDeliveryPlanSet(client: Queryable, salesOrderId: string): Promise<DeliveryPlanSetDto> {
+  const attributed=await supportsEffectiveAttribution(client);
   // One statement snapshot prevents mixed source/plan versions during refresh.
   const result = await client.query<{
     ownership: DeliveryPlanSetDto['ownership'] | null; version: number | null;
@@ -14,8 +17,8 @@ export async function readDeliveryPlanSet(client: Queryable, salesOrderId: strin
       COALESCE(p.plans, '[]'::jsonb) AS plans, COALESCE(p.dates, ARRAY[]::text[]) AS plan_dates,
       CASE WHEN m.quantity IS NULL THEN 'no_source_quantity' WHEN COALESCE(p.active_count, 0) = 0 THEN 'unplanned'
         WHEN p.total < m.quantity THEN 'short' WHEN p.total > m.quantity THEN 'excess' ELSE 'matched' END AS quantity_status
-    FROM sales_orders so LEFT JOIN sales_order_delivery_plan_sets ds ON ds.sales_order_id = so.id
-    LEFT JOIN ainuoke_sales_order_contract_mirrors m ON m.sales_order_id = so.id
+    FROM sales_orders so ${effectiveOrderJoins(attributed)} LEFT JOIN sales_order_delivery_plan_sets ds ON ds.sales_order_id = so.id
+    LEFT JOIN ainuoke_sales_order_contract_mirrors m ON m.sales_order_id = ${sourceOwnerSql(attributed)}
     LEFT JOIN LATERAL (
       SELECT jsonb_agg(jsonb_build_object('id', id, 'deliveryDate', to_char(delivery_date, 'YYYY-MM-DD'),
           'quantity', quantity::text, 'isDerivedDefault', is_derived_default, 'voidedAt', voided_at)

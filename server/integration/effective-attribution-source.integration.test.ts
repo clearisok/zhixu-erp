@@ -1,3 +1,4 @@
+import {readBoundIdentities} from '../ainuoke-source/additions.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {randomUUID} from 'node:crypto';
@@ -59,6 +60,8 @@ test('Source target attribution and snapshot generations stay consistent on synt
   const change=await map(primary);const targets=await boundOrders(pool);assert.equal(targets[0].id,primary);assert.equal(targets[0].sourceOwnerOrderId,original);assert.equal(targets[0].attributionChangeId,change);
   assert.equal((await read(actor,{salesOrderId:original})).status,404);
   const unconnected=await read(actor,{salesOrderId:primary});assert.equal(unconnected.status,200);if(unconnected.status===200)assert.equal(unconnected.body.provenance,'not_connected');
+  const retry=await bindOrders(pool,actor,{sourceKey:'attr-test',accountFingerprint:'a'.repeat(64),expectedPreview:preview.reviewHash,collect:async()=>input});assert.equal(retry.replayed,true);assert.deepEqual(retry.orderIds,[primary]);
+  assert.equal((await readBoundIdentities(pool))[0].id,original); // Discovery identity stays on immutable source owner.
   const next=await capture();otherRootRun=next.runId;assert.equal(next.replayed,false);assert.notEqual(next.runId,sameRootRun);
   assert.equal((await pool.query('SELECT sales_order_id::text FROM ainuoke_material_source_snapshots WHERE run_id=$1',[next.runId])).rows[0].sales_order_id,primary);
   assert.equal((await pool.query('SELECT sales_order_id::text FROM ainuoke_material_source_snapshots WHERE run_id=$1',[firstRun])).rows[0].sales_order_id,original);

@@ -1,7 +1,7 @@
-# 当前接力：Source归属适配已验证，继续订单消费者
+# 当前接力：有效归属消费者已验证，执行授权仍待工程
 
-2026-10-15；feat/order-effective-attribution，阶段起点674429d9180c60f150ebfcc6a020f9de3654ab34，父案件预览afb71f921b5645ed83f03d46a784d1e30f8325f2保留。最近核实main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，本轮未刷新；NETWORK_DEGRADED不改。
+2026-10-15；feat/order-effective-attribution。Source阶段ef9cae60c073dc5992a22099f16a588e5c792978保留，本阶段起点干净。最近核实main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，本轮未刷新，NETWORK_DEGRADED不改。
 
-未发布0018账本及Source新generation已接线；不可变原SO、合同链接、旧快照均保持。归属目标/epoch变化不能重放旧快照，采集前后变化拒绝；事务共享归属锁先于profile行锁。reader RR同一generation且fresh授权；prefix12完全旧schema兼容，部分schema失败关闭。合成19/19、类型/lint/normalization37项通过；原Source20+skip1及continuous43+skip1通过时点与限制见[任务](tasks/active/order-effective-attribution.md)。旧接力/状态已按日期归档。
+Source新generation与订单有效/历史读已接线；原SO、绑定、旧计划和价格全部保留。身份/商业采用/交付计划/生命周期的新写检查有效身份；来源身份查重/接纳重试返回当前有效SO，原sourceOwner验证独立。来源观察不继续改别名旧计划；5秒归属锁等待及一致锁序。30归属、37联合、29商业、35加工、43来源+skip1、261全PG、824源码、78基线通过；类型/lint/Server编译及结果时点见[任务](tasks/active/order-effective-attribution.md)。历史Source阶段接力/状态已归档。
 
-下一步repository有效列表/原历史详情、Source接纳查重、交付计划/商业采用/生命周期新写保护，然后完整引用/审批与默认关闭的执行命令。当前这些消费者及公共归一未完成，不是Gate4完成/合并PASS。没有真实账号、业务DB、Source范围/调度或部署变化；真实案件需具体范围另行授权。G5仍待独立阶段。远端仍PENDING，不自动恢复push、合并或部署。
+下一阶段完整引用/版本证据、生产/财务覆盖与审批、默认关闭的公共执行和纠正命令；不能以有限预览hash/客户端verified字段执行。补原历史Source入口、案件选单includeHistorical、历史状态UI及其独立影响记录，明确禁止独立加工批次当合同重复合并。当前整个Gate4未完成，无真实归一/数据/Source范围/调度/部署变化；真实案件另行具体授权。G5仍待独立交付，REMOTE PENDING，不自动恢复push、合并或部署。

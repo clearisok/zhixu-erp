@@ -1,3 +1,4 @@
+import {lockEffectiveAttribution} from './effective-attribution.js';
 import { HttpError } from "../http/errors.js";
 import type { Pool, PoolClient } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
@@ -49,6 +50,7 @@ export async function createAinuokeSalesOrder(
 
 /** Caller owns transaction and trusted authorization; shared domain creation path. */
 export async function createAinuokeSalesOrderInTransaction(client: PoolClient, actor: TrustedIdentity, input: CreateAinuokeSalesOrderInput): Promise<CreateAinuokeSalesOrderResult> {
+    await lockEffectiveAttribution(client);
     const normalizedSourceId = input.source.sourceId.normalize("NFKC").trim();
     if (!normalizedSourceId) throw new Error("sourceId is required");
     const sourceLockKey = `${AINUOKE_SOURCE_SYSTEM}:${AINUOKE_CONTRACT_ENTITY_TYPE}:${normalizedSourceId}`;

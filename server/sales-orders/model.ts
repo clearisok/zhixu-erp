@@ -58,6 +58,8 @@ export type AinuokeColorMirrorInput = {
 };
 
 export type SalesOrderReadModel = {
+  attribution?: import("./effective-attribution.js").EffectiveOrderIdentity;
+  sourceOwnerOrderId?: string;
   id: string;
   version: number;
   orderNo: string;

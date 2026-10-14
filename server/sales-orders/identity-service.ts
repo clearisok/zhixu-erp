@@ -1,3 +1,5 @@
+import {lockEffectiveAttribution,requireEffectiveOrderForWrite,supportsEffectiveAttribution} from './effective-attribution.js';
+import {effectiveOrderJoins,sourceOwnerSql} from './effective-order-sql.js';
 import { createHash } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
@@ -19,8 +21,10 @@ async function contract(client:Queryable,id:string,lock=false){
  if(!identityUuid.test(id))fail(400,'invalid_order_id');
  const order=(await client.query(`SELECT id::text,creation_source,lifecycle_state FROM sales_orders WHERE id=$1::uuid ${lock?'FOR UPDATE':''}`,[id])).rows[0];
  if(!order)fail(404,'sales_order_not_found');
- const source=(await client.query(`SELECT m.source_id FROM ainuoke_sales_order_contract_mirrors m JOIN sales_order_source_links l ON l.sales_order_id=m.sales_order_id AND l.external_id=m.source_id AND l.sales_contract_no=m.sales_contract_no WHERE m.sales_order_id=$1::uuid AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract'`,[id])).rows;
- if(order.creation_source==='ainuoke'&&source.length===1)return {...order,businessType:'ainuoke_contract'};
+ const attributed=await supportsEffectiveAttribution(client);
+ const source=(await client.query(`SELECT m.source_id FROM sales_orders so ${effectiveOrderJoins(attributed)} JOIN ainuoke_sales_order_contract_mirrors m ON m.sales_order_id=${sourceOwnerSql(attributed)} JOIN sales_order_source_links l ON l.sales_order_id=m.sales_order_id AND l.external_id=m.source_id AND l.sales_contract_no=m.sales_contract_no WHERE so.id=$1::uuid AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract'`,[id])).rows;
+ const effective=attributed?(await client.query('SELECT attribution_change_id FROM sales_order_effective_identities WHERE original_order_id=$1 AND effective_order_id=$1',[id])).rows[0]:null;
+ if((order.creation_source==='ainuoke'||effective?.attribution_change_id)&&source.length===1)return {...order,businessType:'ainuoke_contract'};
  if(order.creation_source==='quote'){
   const profile=(await client.query("SELECT business_type FROM sales_order_identity_profiles WHERE sales_order_id=$1",[id])).rows[0];
   if(profile?.business_type==='processing'){
@@ -32,19 +36,26 @@ async function contract(client:Queryable,id:string,lock=false){
 }
 export async function readOrderIdentity(client:Queryable,id:string){
  if(!identityUuid.test(id))fail(400,'invalid_order_id');
- const row=(await client.query(`SELECT o.id::text,o.creation_source,p.business_type,p.version,p.lineage,p.reference_order_id::text,p.specification_changes,u.public_id::text AS owner_id,u.display_name AS owner_name,
- EXISTS(SELECT 1 FROM ainuoke_sales_order_contract_mirrors m JOIN sales_order_source_links l ON l.sales_order_id=m.sales_order_id AND l.external_id=m.source_id AND l.sales_contract_no=m.sales_contract_no WHERE m.sales_order_id=o.id AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract') AS trusted_contract
- FROM sales_orders o LEFT JOIN sales_order_identity_profiles p ON p.sales_order_id=o.id LEFT JOIN app_users u ON u.id=p.owner_id WHERE o.id=$1::uuid`,[id])).rows[0];
+ const attributed=await supportsEffectiveAttribution(client);
+ const row=(await client.query(`SELECT so.id::text,so.creation_source,p.business_type,p.version,p.lineage,p.reference_order_id::text,p.specification_changes,u.public_id::text AS owner_id,u.display_name AS owner_name,
+ ${attributed?'attribution.effective_order_id::text':'so.id::text'} AS effective_order_id,
+ ${attributed?'attribution.attribution_change_id::text':'NULL::text'} AS attribution_change_id,
+ EXISTS(SELECT 1 FROM ainuoke_sales_order_contract_mirrors m JOIN sales_order_source_links l ON l.sales_order_id=m.sales_order_id AND l.external_id=m.source_id AND l.sales_contract_no=m.sales_contract_no WHERE m.sales_order_id=${sourceOwnerSql(attributed)} AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract') AS trusted_contract
+ FROM sales_orders so ${effectiveOrderJoins(attributed)} LEFT JOIN sales_order_identity_profiles p ON p.sales_order_id=so.id LEFT JOIN app_users u ON u.id=p.owner_id WHERE so.id=$1::uuid`,[id])).rows[0];
  if(!row)fail(404,'sales_order_not_found');
- return {salesOrderId:row.id,businessType:row.business_type??(row.creation_source==='ainuoke'&&row.trusted_contract?'ainuoke_contract':'unclassified'),version:row.version??0,ownerId:row.owner_id??null,ownerName:row.owner_name??null,lineage:row.lineage??'pending',referenceOrderId:row.reference_order_id??null,specificationChanges:row.specification_changes??''};
+ const contractType=row.trusted_contract&&(row.creation_source==='ainuoke'||row.attribution_change_id&&row.effective_order_id===row.id);
+ const businessType=row.business_type==='processing'?'processing':contractType?'ainuoke_contract':'unclassified';
+ return {salesOrderId:row.id,businessType,version:row.version??0,ownerId:row.owner_id??null,ownerName:row.owner_name??null,lineage:row.lineage??'pending',referenceOrderId:row.reference_order_id??null,specificationChanges:row.specification_changes??''};
 }
 export async function mutateOrderIdentity(pool:Pool, actor:TrustedIdentity,id:string,raw:Record<string,unknown>){
  const command=parseIdentityCommand(raw);const client=await pool.connect();
  try{
   await client.query('BEGIN');await client.query("SET LOCAL lock_timeout='5s'");
+  await lockEffectiveAttribution(client);
   const current=await requireOrderCommandActor(client,actor,command.action==='claim'?'order.claim':command.action==='transfer'?'order.transfer':'order.lineage.edit');
   // Global lineage lock also serializes claim/transfer, giving one lock order and preventing concurrent cycles.
   await client.query("SELECT pg_advisory_xact_lock(hashtextextended('order-identity-lineage',0))");
+  await requireEffectiveOrderForWrite(client,id);
   const eligible=await contract(client,id,true);const before=await readOrderIdentity(client,id);
   if(before.version!==command.expectedVersion)fail(409,'order_identity_version_conflict');
   if(command.action==='claim'&&before.ownerId!==null)fail(409,'order_already_claimed');
@@ -60,7 +71,8 @@ export async function mutateOrderIdentity(pool:Pool, actor:TrustedIdentity,id:st
   if(command.action==='lineage'&&command.referenceOrderId){
    if(command.referenceOrderId===id)fail(409,'lineage_cycle');
    if(!(await client.query('SELECT id FROM sales_orders WHERE id=$1::uuid',[command.referenceOrderId])).rowCount)fail(404,'reference_order_not_found');
-   const cycle=await client.query(`WITH RECURSIVE ancestors(id) AS (SELECT $1::uuid UNION SELECT p.reference_order_id FROM sales_order_identity_profiles p JOIN ancestors a ON p.sales_order_id=a.id WHERE p.reference_order_id IS NOT NULL) SELECT id FROM ancestors WHERE id=$2::uuid`,[command.referenceOrderId,id]);
+   const attributed=await supportsEffectiveAttribution(client);
+   const cycle=await client.query(`WITH RECURSIVE ancestors(id) AS (SELECT ${attributed?'effective_order_id FROM sales_order_effective_identities WHERE original_order_id=$1::uuid':'$1::uuid'} UNION SELECT ${attributed?'next.effective_order_id':'p.reference_order_id'} FROM sales_order_identity_profiles p JOIN ancestors a ON p.sales_order_id=a.id ${attributed?'JOIN sales_order_effective_identities next ON next.original_order_id=p.reference_order_id':''} WHERE p.reference_order_id IS NOT NULL) SELECT id FROM ancestors WHERE id=$2::uuid`,[command.referenceOrderId,id]);
    if(cycle.rowCount)fail(409,'lineage_cycle');
   }
   await client.query("INSERT INTO sales_order_identity_profiles(sales_order_id,business_type) VALUES($1,$2) ON CONFLICT DO NOTHING",[id,eligible.businessType]);

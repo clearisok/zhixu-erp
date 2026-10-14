@@ -80,6 +80,7 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
         const validated = await validateBundle(data, targets, now(), options.maxAgeMs);
         await client.query("BEGIN");
         transaction = true;
+        await client.query("SET LOCAL lock_timeout = '5s'");
         const attributionSupported=await supportsSourceAttribution(client);
         if(attributionSupported)await client.query("SELECT pg_advisory_xact_lock_shared(hashtextextended('order-effective-attribution',0))");
         const actor = await sourceActor(client, identity, true);

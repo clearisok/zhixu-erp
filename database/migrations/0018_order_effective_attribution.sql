@@ -86,3 +86,33 @@ CREATE CONSTRAINT TRIGGER attribution_heads_complete AFTER INSERT OR UPDATE ON s
 -- Nullable historical metadata only: never infer or backfill a prior attribution.
 ALTER TABLE ainuoke_source_runs ADD COLUMN order_scope_hash TEXT CHECK(order_scope_hash IS NULL OR order_scope_hash ~ '^[0-9a-f]{64}$');
 ALTER TABLE ainuoke_material_source_snapshots ADD COLUMN attribution_change_id UUID REFERENCES sales_order_attribution_changes(id) ON DELETE RESTRICT;
+
+-- Forward replacement only: never copy/merge historical plans into a new root.
+CREATE OR REPLACE FUNCTION follow_ainuoke_delivery_source() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE current_ownership TEXT;
+BEGIN
+  -- Source observations stay on their immutable owner. Do not rewrite old alias plans.
+  IF EXISTS(SELECT 1 FROM sales_order_effective_identities WHERE original_order_id=NEW.sales_order_id AND effective_order_id<>original_order_id) THEN RETURN NEW; END IF;
+  IF TG_OP = 'INSERT' THEN
+    INSERT INTO sales_order_delivery_plan_sets(sales_order_id, ownership)
+      VALUES (NEW.sales_order_id, 'source_derived');
+    IF NEW.contract_delivery_date IS NOT NULL THEN
+      INSERT INTO sales_order_delivery_plans(sales_order_id, is_derived_default, delivery_date, quantity)
+        VALUES (NEW.sales_order_id, true, NEW.contract_delivery_date, NEW.quantity);
+    END IF;
+  ELSIF NEW.contract_delivery_date IS DISTINCT FROM OLD.contract_delivery_date
+     OR NEW.quantity IS DISTINCT FROM OLD.quantity THEN
+    SELECT ownership INTO current_ownership FROM sales_order_delivery_plan_sets
+      WHERE sales_order_id = NEW.sales_order_id FOR UPDATE;
+    IF FOUND THEN
+      IF current_ownership = 'source_derived' THEN
+        UPDATE sales_order_delivery_plans SET delivery_date = NEW.contract_delivery_date
+          WHERE sales_order_id = NEW.sales_order_id AND is_derived_default
+            AND delivery_date IS DISTINCT FROM NEW.contract_delivery_date;
+      END IF;
+      UPDATE sales_order_delivery_plan_sets SET version = version + 1 WHERE sales_order_id = NEW.sales_order_id;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;

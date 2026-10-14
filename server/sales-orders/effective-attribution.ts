@@ -12,8 +12,8 @@ export async function resolveEffectiveOrder(client:Queryable,id:string):Promise<
 }
 /** Caller must own a BEGIN transaction and authorization; holds lock until COMMIT. */
 export async function requireEffectiveOrderForWrite(client:PoolClient,id:string){
- await client.query("SELECT pg_advisory_xact_lock_shared(hashtextextended('order-effective-attribution',0))");
- const identity=await resolveEffectiveOrder(client,id);
+ const supported=await lockEffectiveAttribution(client);
+ const identity=supported?await resolveEffectiveOrder(client,id):await originalIdentity(client,id);
  if(identity.historicalDuplicate)throw new HttpError(409,'historical_duplicate_order_read_only','Historical duplicate order cannot receive new execution');
  return identity;
 }
@@ -43,4 +43,17 @@ export async function supportsEffectiveAttribution(client:Queryable):Promise<boo
  if(present===0)return false;
  if(present!==4)throw new HttpError(503,'attribution_schema_incomplete','Attribution schema incomplete');
  return true;
+}
+
+/** Acquire before actor/profile/order row locks; partial schema always fails closed. */
+export async function lockEffectiveAttribution(client:PoolClient):Promise<boolean>{
+ const supported=await supportsEffectiveAttribution(client);
+ if(supported)await client.query("SELECT pg_advisory_xact_lock_shared(hashtextextended('order-effective-attribution',0))");
+ return supported;
+}
+async function originalIdentity(client:Queryable,id:string):Promise<EffectiveOrderIdentity>{
+ if(!identityUuid.test(id))throw new HttpError(400,'invalid_order_id','Invalid order ID');
+ const row=(await client.query<{id:string}>('SELECT id::text FROM sales_orders WHERE id=$1',[id])).rows[0];
+ if(!row)throw new HttpError(404,'sales_order_not_found','Sales order not found');
+ return {originalOrderId:row.id,effectiveOrderId:row.id,attributionChangeId:null,attributionVersion:0,historicalDuplicate:false};
 }

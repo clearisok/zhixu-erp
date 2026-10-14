@@ -144,6 +144,10 @@ function integerQuery(value: string | null, fallback: number, label: string, min
 
 function salesOrderListQuery(requestUrl: string | undefined) {
   const params = new URL(requestUrl ?? "/", "http://localhost").searchParams;
+  const allowed=new Set(['limit','offset','search','lifecycleState','creationSource','sortBy','sortDirection','includeHistorical']);
+  if([...params.keys()].some(key=>!allowed.has(key)||params.getAll(key).length!==1))throw new HttpError(400,'invalid_sales_order_list_query','Unsupported or repeated list field');
+  const historical=params.get('includeHistorical');
+  if(historical!==null&&!['true','false'].includes(historical))throw new HttpError(400,'invalid_sales_order_list_query','includeHistorical must be true or false');
   const limit = integerQuery(params.get("limit"), SALES_ORDER_LIST_DEFAULT_LIMIT, "limit", 1);
   if (limit > SALES_ORDER_LIST_MAX_LIMIT) {
     throw new HttpError(400, "invalid_sales_order_list_query", `limit cannot exceed ${SALES_ORDER_LIST_MAX_LIMIT}`);
@@ -171,6 +175,7 @@ function salesOrderListQuery(requestUrl: string | undefined) {
     limit,
     offset,
     search,
+    includeHistorical:historical==='true',
     lifecycleState: lifecycleState as SalesOrderLifecycleState | undefined,
     creationSource: creationSource as SalesOrderCreationSource | undefined,
     sortBy: sortBy as "orderNo" | "updatedAt" | "contractDeliveryDate" | "salesContractNo",

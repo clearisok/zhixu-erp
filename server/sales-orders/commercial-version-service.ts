@@ -1,3 +1,4 @@
+import {lockEffectiveAttribution,requireEffectiveOrderForWrite} from './effective-attribution.js';
 import {createHash} from 'node:crypto';
 import type {Pool,PoolClient} from 'pg';
 import type {TrustedIdentity} from '../auth/session.js';
@@ -35,6 +36,7 @@ async function authorized(client:PoolClient,actor:TrustedIdentity){
 }
 async function editableOrder(client:PoolClient,actor:TrustedIdentity,orderId:string,candidate:CommercialCandidate){
  if(!identityUuid.test(orderId))fail(400,'invalid_order_id');
+ await requireEffectiveOrderForWrite(client,orderId);
  const row=(await client.query('SELECT lifecycle_state FROM sales_orders WHERE id=$1 FOR UPDATE',[orderId])).rows[0];if(!row)fail(404,'sales_order_not_found');
  if(['completed','cancelled'].includes(row.lifecycle_state))fail(409,'order_commercial_frozen');
  const identity=await readOrderIdentity(client,orderId);
@@ -44,13 +46,13 @@ async function editableOrder(client:PoolClient,actor:TrustedIdentity,orderId:str
  if(identity.ownerId!==actor.userId&&!actor.permissions.includes('order.transfer'))fail(403,'order_owner_required');
 }
 export async function previewOrderCommercial(pool:Pool,actor:TrustedIdentity,orderId:string,source:QuoteProvenance){
- const client=await pool.connect();try{await client.query('BEGIN');await client.query("SET LOCAL lock_timeout='5s'");const currentActor=await authorized(client,actor);const candidate=await readCommercialCandidate(client,source);await editableOrder(client,currentActor,orderId,candidate);const current=await readOrderCommercialState(client,orderId);await client.query('ROLLBACK');return {current,candidate};}catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
+ const client=await pool.connect();try{await client.query('BEGIN');await client.query("SET LOCAL lock_timeout='5s'");await lockEffectiveAttribution(client);const currentActor=await authorized(client,actor);const candidate=await readCommercialCandidate(client,source);await editableOrder(client,currentActor,orderId,candidate);const current=await readOrderCommercialState(client,orderId);await client.query('ROLLBACK');return {current,candidate};}catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
 }
 export async function adoptOrderCommercial(pool:Pool,actor:TrustedIdentity,orderId:string,raw:Record<string,unknown>){
  const command=parseAdoptCommercial(raw);if(!identityUuid.test(orderId))fail(400,'invalid_order_id');
  const payloadHash=createHash('sha256').update(JSON.stringify([orderId.toLowerCase(),command.quoteId,command.revisionId,command.priceVersionId,command.expectedVersion,command.sourceFingerprint,command.reason])).digest('hex');
  const client=await pool.connect();try{
-  await client.query('BEGIN');await client.query("SET LOCAL lock_timeout='5s'");const currentActor=await authorized(client,actor);
+  await client.query('BEGIN');await client.query("SET LOCAL lock_timeout='5s'");await lockEffectiveAttribution(client);const currentActor=await authorized(client,actor);
   await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['order-commercial-request:'+actor.internalUserId+':'+command.requestId.toLowerCase()]);
   const prior=(await client.query('SELECT id::text,payload_hash,sales_order_id::text FROM sales_order_commercial_versions WHERE actor_id=$1 AND request_id=$2',[actor.internalUserId,command.requestId])).rows[0];
   if(prior){if(prior.payload_hash!==payloadHash||prior.sales_order_id!==orderId.toLowerCase())fail(409,'commercial_adoption_retry_mismatch');const adopted=(await client.query<OrderCommercialVersion>(selectVersion+' WHERE id=$1',[prior.id])).rows[0];await client.query('COMMIT');return{adopted,replayed:true};}

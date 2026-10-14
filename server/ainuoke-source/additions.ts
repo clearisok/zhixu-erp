@@ -1,3 +1,4 @@
+import {lockEffectiveAttribution,resolveEffectiveOrder,supportsEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { requirePermission } from '../auth/permissions.js';
@@ -52,7 +53,7 @@ export async function readBoundIdentities(client: Pool | PoolClient, lock = fals
       throw new SourceError('addition_bound_identity_invalid');
     keys.add(key); ids.add(row.source_id);
   }
-  if (visible.length !== rows.length || rows.some(row => !visible.some(order => order.id === row.id)))
+  if (visible.length !== rows.length || rows.some(row => !visible.some(order => order.sourceOwnerOrderId === row.id)))
     throw new SourceError('addition_bound_identity_invalid');
   return rows.map(row => ({id: row.id, sourceId: row.source_id, salesContractNo: normalized(row.sales_contract_no)}));
 }
@@ -218,6 +219,7 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
   try {
     await client.query('BEGIN');
     await client.query("SET LOCAL lock_timeout = '5s'");
+    await lockEffectiveAttribution(client);
     await client.query("SET LOCAL statement_timeout = '30s'");
     await client.query("SELECT pg_advisory_xact_lock(hashtextextended('ainuoke-first-binding',0))");
     const lock = await client.query('SELECT pg_try_advisory_xact_lock(hashtextextended($1,0)) AS locked', ['ainuoke-source:' + options.sourceKey]);
@@ -234,8 +236,7 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
       if (!receipt) throw new SourceError('addition_not_exact_retry');
       await assertStoredAdditionMatches(client,current.candidates,currentBound);
       await client.query('COMMIT');
-      return {created: 0, replayed: true, orderIds: current.candidates.map(c => currentBound.find(b =>
-        b.sourceId === c.source.sourceId && b.salesContractNo === normalized(c.source.salesContractNo))!.id), reviewHash: current.reviewHash};
+      return {created: 0, replayed: true, orderIds: await Promise.all(current.candidates.map(async c => {const original=currentBound.find(b => b.sourceId===c.source.sourceId&&b.salesContractNo===normalized(c.source.salesContractNo))!.id;return await supportsEffectiveAttribution(client)?(await resolveEffectiveOrder(client,original)).effectiveOrderId:original;})), reviewHash: current.reviewHash};
     }
     const ids: string[] = [];
     for (const candidate of current.candidates) {
