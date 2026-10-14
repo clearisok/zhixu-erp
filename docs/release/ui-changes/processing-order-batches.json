@@ -16,7 +16,7 @@
     "quote-list",
     "user-permissions"
   ],
-  "visibleDifference": "已批准Gate3：订单中心导入及Server报价中心推送共用加工批次Modal，登记精确报价版本与下单资料、预览确认工价、多选消费、重复结果与已有SO；友好报价编号/修订名/方案名及可展开精确身份；相似下单只提醒、带原因取消未消费批次、部分成功后仅重试失败项。加工身份支持认领，详情说明艾诺科流水不适用。复用Foundation，不重设计其他页面。",
+  "visibleDifference": "已批准Gate3：订单中心导入及Server报价中心推送共用加工批次Modal，登记精确报价版本与下单资料、预览确认工价、多选消费、重复结果与已有SO；友好报价编号/修订名/方案名及可展开精确身份；翻单参考订单搜索分页选择；相似下单只提醒、带原因取消未消费批次、部分成功后仅重试失败项。加工身份支持认领，详情说明艾诺科流水不适用。复用Foundation，不重设计其他页面。",
   "evidence": [
     "docs/tasks/active/order-identity-program.md",
     "docs/tasks/active/processing-order-batches.md"

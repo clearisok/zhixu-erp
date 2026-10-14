@@ -3,7 +3,10 @@ import {useRef,useState} from 'react';
 import {Button,FormItem,Modal} from '@/components/foundation';
 import {useServerSession} from '@/features/server-auth';
 import {quoteServerClient,type QuoteServerListItem} from '@/features/quote-center/server/quote-server-client';
+import {createSalesOrderServerClient,SalesOrderServerReadError} from '../server/sales-order-server-client';
+import type {ServerSalesOrderReadDto,ServerSalesOrderPage} from '../server/sales-order-server-model';
 import type {listProcessingBatches,previewProcessingBatch} from '../../../server/sales-orders/processing-batch-service';
+const orderClient=createSalesOrderServerClient();
 type Page=Awaited<ReturnType<typeof listProcessingBatches>>;
 type Preview=Awaited<ReturnType<typeof previewProcessingBatch>>;
 type Revision={revisionId:string;revisionLabel:string;baseInfo:{quoteType:string};priceVersions:{id:string;name:string}[]};
@@ -25,11 +28,12 @@ export function ProcessingBatchDialog({mode}:{mode:'import'|'push'}){
  const session=useServerSession();
  const [open,setOpen]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[search,setSearch]=useState(''),[history,setHistory]=useState(false),[page,setPage]=useState<Page|null>(null),[selected,setSelected]=useState<Record<string,number>>({}),[preview,setPreview]=useState<Preview|null>(null),[results,setResults]=useState<Result[]>([]);
  const [creating,setCreating]=useState(false),[quoteSearch,setQuoteSearch]=useState(''),[quotes,setQuotes]=useState<QuoteServerListItem[]>([]),[revisions,setRevisions]=useState<Revision[]>([]),[quoteOffset,setQuoteOffset]=useState(0),[moreQuotes,setMoreQuotes]=useState(false);
+ const [referenceSearch,setReferenceSearch]=useState(''),[referenceOptions,setReferenceOptions]=useState<ServerSalesOrderReadDto[]>([]),[referencePage,setReferencePage]=useState<ServerSalesOrderPage|null>(null),[referenceSelection,setReferenceSelection]=useState<ServerSalesOrderReadDto|null>(null);
  const [draft,setDraft]=useState({quoteId:'',revisionId:'',priceVersionId:'',customerName:'',businessStyleNo:'',quantity:'',orderDate:new Date().toLocaleDateString('en-CA'),deliveryDate:'',customerReference:'',deliveryRequirements:'',referenceOrderId:''});
  const [pending,setPending]=useState<Pending|null>(null),[failedRetry,setFailedRetry]=useState<Pending|null>(null),[cancelling,setCancelling]=useState<Page['items'][number]['batch']|null>(null),[cancelReason,setCancelReason]=useState(''),lock=useRef(false);
  const canManage=session.hasPermission('order.processing.batch.manage'),canConsume=session.hasPermission('order.processing.consume');
  const allowed=(canManage||canConsume)&&session.hasPermission('order.view')&&session.hasPermission('quote.view')&&session.hasPermission('commercial.labor.view');
- async function action(run:()=>Promise<void>){if(lock.current)return;lock.current=true;setBusy(true);setError('');try{await run();}catch(e){if(e instanceof ApiError&&e.status===401)session.invalidate();setError(e instanceof ApiError?`操作未完成：${e.code}`:'服务响应尚未确认，请重试原请求。');}finally{lock.current=false;setBusy(false);}}
+ async function action(run:()=>Promise<void>){if(lock.current)return;lock.current=true;setBusy(true);setError('');try{await run();}catch(e){if((e instanceof ApiError||e instanceof SalesOrderServerReadError)&&e.status===401)session.invalidate();setError(e instanceof SalesOrderServerReadError?'参考订单查询失败，请重新搜索。':e instanceof ApiError?`操作未完成：${e.code}`:'服务响应尚未确认，请重试原请求。');}finally{lock.current=false;setBusy(false);}}
  async function load(offset=0,include=history){const query=new URLSearchParams({search,offset:String(offset),includeProcessed:String(include)});setPage(await api<Page>('?'+query));}
  async function mutate(command:Pending){setPending(command);let value:Result|{results:Result[]};try{value=await api(command.path,command.body);}catch(e){if(e instanceof ApiError&&e.status<500)setPending(null);throw e;}
   setPending(null);setPreview(null);setSelected({});
@@ -44,6 +48,7 @@ export function ProcessingBatchDialog({mode}:{mode:'import'|'push'}){
  }
  async function searchQuotes(offset:number){const value=await quoteServerClient.list({limit:20,offset,search:quoteSearch,type:'processing'});setQuotes(value.quotes);setQuoteOffset(offset);setMoreQuotes(value.page.total===undefined?value.quotes.length===20:offset+value.quotes.length<value.page.total);}
  async function chooseQuote(id:string){setDraft({...draft,quoteId:id,revisionId:'',priceVersionId:''});setRevisions([]);if(id){const q=await quoteServerClient.getById(id);setRevisions(q.quote.revisions.filter(r=>r.baseInfo.quoteType==='processing'));}}
+ async function searchReferenceOrders(offset=0){const result=await orderClient.list({search:referenceSearch,offset,limit:20,sortBy:'orderNo',sortDirection:'desc'});setReferenceOptions(result.salesOrders);setReferencePage(result.page);}
  const set=(key:keyof typeof draft,value:string)=>setDraft({...draft,[key]:value});
  if(!allowed)return null;
  return <><Button variant="secondary" onClick={()=>{setOpen(true);void action(()=>load());}}>{mode==='import'?'导入加工订单':'推送加工订单'}</Button>
@@ -59,7 +64,11 @@ export function ProcessingBatchDialog({mode}:{mode:'import'|'push'}){
  <Button variant="text" disabled={quoteOffset===0} onClick={()=>void action(()=>searchQuotes(Math.max(0,quoteOffset-20)))}>上一页报价</Button><Button variant="text" disabled={!moreQuotes} onClick={()=>void action(()=>searchQuotes(quoteOffset+20))}>下一页报价</Button>
  <FormItem label="报价修订"><select className="qc-control" value={draft.revisionId} onChange={e=>setDraft({...draft,revisionId:e.target.value,priceVersionId:''})}><option value="">请选择</option>{revisions.map(r=><option key={r.revisionId} value={r.revisionId}>{r.revisionLabel}</option>)}</select></FormItem>
  <FormItem label="价格方案"><select className="qc-control" value={draft.priceVersionId} onChange={e=>set('priceVersionId',e.target.value)}><option value="">请选择</option>{revisions.find(r=>r.revisionId===draft.revisionId)?.priceVersions.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></FormItem>
- {([['customerName','客户'],['businessStyleNo','业务款号'],['quantity','本次下单数量'],['orderDate','下单日期'],['deliveryDate','交期（可空）'],['customerReference','PO / 客户参考号'],['referenceOrderId','翻单参考 SO UUID（可空）'],['deliveryRequirements','交付要求']] as const).map(([key,label])=><FormItem key={key} label={label}><input className="qc-control" type={key==='orderDate'||key==='deliveryDate'?'date':'text'} value={draft[key]} onChange={e=>set(key,e.target.value)}/></FormItem>)}
+ {([['customerName','客户'],['businessStyleNo','业务款号'],['quantity','本次下单数量'],['orderDate','下单日期'],['deliveryDate','交期（可空）'],['customerReference','PO / 客户参考号'],['deliveryRequirements','交付要求']] as const).map(([key,label])=><FormItem key={key} label={label}><input className="qc-control" type={key==='orderDate'||key==='deliveryDate'?'date':'text'} value={draft[key]} onChange={e=>set(key,e.target.value)}/></FormItem>)}
+ <FormItem label="搜索参考订单"><input className="qc-control" value={referenceSearch} onChange={e=>setReferenceSearch(e.target.value)} placeholder="正式订单号、业务款号、工厂款号或合同号"/><Button variant="secondary" onClick={()=>void action(()=>searchReferenceOrders())}>搜索参考订单</Button></FormItem>
+ <FormItem label="翻单参考订单（可不选）"><select className="qc-control" value={draft.referenceOrderId} onChange={e=>{const id=e.target.value;set('referenceOrderId',id);setReferenceSelection(referenceOptions.find(o=>o.id===id)??null);}}><option value="">不关联原订单，血统待确认</option>{referenceSelection&&!referenceOptions.some(o=>o.id===referenceSelection.id)&&<option value={referenceSelection.id}>{referenceSelection.orderNo} · {referenceSelection.styleNo} · {referenceSelection.customerName}</option>}{referenceOptions.map(o=><option key={o.id} value={o.id}>{o.orderNo} · {o.styleNo||o.insideOrderNo||'款号待补'} · {o.customerName||'客户待补'}</option>)}</select></FormItem>
+ {referenceSelection&&<p>已选原订单：{referenceSelection.orderNo} · {referenceSelection.styleNo}。仅保留翻单血统，不复制采购、排单或价格；本次商业依据仍采用上方所选报价版本。</p>}
+ {referencePage&&<div><small>共 {referencePage.total} 张参考订单</small><Button variant="text" disabled={referencePage.offset===0} onClick={()=>void action(()=>searchReferenceOrders(Math.max(0,referencePage.offset-20)))}>上一页参考订单</Button><Button variant="text" disabled={!referencePage.hasMore} onClick={()=>void action(()=>searchReferenceOrders(referencePage.offset+20))}>下一页参考订单</Button></div>}
  <Button disabled={!draft.priceVersionId||!draft.customerName.trim()||!draft.businessStyleNo.trim()||!draft.quantity} onClick={()=>void action(()=>mutate({path:'',kind:'create',body:{...draft,requestId:crypto.randomUUID(),deliveryDate:draft.deliveryDate||null,referenceOrderId:draft.referenceOrderId||null}}))}>登记批次（尚不创建 SO）</Button>
  </fieldset>}
  {page?.items.map(item=><div key={item.batch.id} style={{borderBottom:'1px solid var(--qc-border, #dde5e1)',padding:'12px 0'}}>
