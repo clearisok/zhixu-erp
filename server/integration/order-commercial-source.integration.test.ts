@@ -40,6 +40,11 @@ test('commercial candidate and immutable schema use only disposable synthetic da
   await assert.rejects(()=>read({...a,priceVersionId:'not-owned'}));
   await pool.query("UPDATE confirmed_commercial_terms SET customer_confirmed_price=120,labor_currency='USD',version=version+1 WHERE quote_id=$1",[a.quoteId]);await assert.rejects(()=>read(a),(e:unknown)=>(e as {code:string}).code==='commercial_source_currency_conflict');
  });
+ await t.test('soft-deleted quote cannot supply a new commercial candidate',async()=>{
+  const p=await seed();
+  await pool.query("UPDATE quote_center_quotes SET metadata=jsonb_set(metadata,'{deletedAt}',to_jsonb('2026-10-14T00:00:00Z'::text)),version=version+1 WHERE id=$1",[p.quoteId]);
+  await assert.rejects(()=>read(p),(e:unknown)=>(e as {code:string}).code==='quote_not_available');
+ });
  await t.test('adopted schema cannot overwrite, delete or point another order to its version',async()=>{
   const user=(await pool.query("INSERT INTO app_users(username,password_hash,display_name,role) VALUES('commercial-fixture','unused','Synthetic','viewer') RETURNING id")).rows[0];
   const order=await createSalesOrder(pool,{creationSource:'manual'}),other=await createSalesOrder(pool,{creationSource:'manual'});const id=randomUUID();

@@ -28,6 +28,7 @@ export async function readCommercialCandidate(client:PoolClient,provenance:Quote
  if(!locked.rowCount)invalid('quote_not_found');
  const record=await readQuoteAggregateInTransaction(client,provenance.quoteId);
  if(!record)invalid('quote_not_found');
+ if(record.quote.deletedAt)invalid('quote_not_available');
  const revision=record.quote.revisions.find(r=>r.revisionId===provenance.revisionId);
  if(!revision)invalid('quote_revision_not_found');
  const pv=revision.priceVersions.find(p=>p.id===provenance.priceVersionId);

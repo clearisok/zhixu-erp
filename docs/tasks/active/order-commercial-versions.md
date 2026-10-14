@@ -75,3 +75,5 @@ commercial-terms-security 20项PASS：16种字段权限组合、单字段null/�
 本阶段npm test完整源码回归817/817 PASS（初次815/817，两条废止共享UI静态断言已更新；14项相关源码测试独立通过）。这不包含尚待修订的PG商业主套件；日志outputs/gate2-project-tests.log。
 
 商业主回归收口：confirmed-commercial-terms / commercial-read-surfaces / commercial-amount-exposure-audit 共19项一次性PG/API测试PASS；保留精度、权限、导出、审计回滚、来源/历史不变断言，合法报价确认改用Quote接口，旧Order接口只返回采用快照或拒绝写入。typecheck和三文件lint通过。完整test:postgres正在运行，结果尚未判定；日志outputs/gate2-postgres-tests.log。无真实数据库、账号或部署操作。
+
+已修复软删除报价仍可成为新采用候选的缺口（quote_not_available），既有快照不受影响；新增负向测试。test:order-commercial 29/29、typecheck、两文件lint PASS。完整PG回归仍运行，已发现冻结0001-4工具的读取模型与0014关联不兼容、DeliveryPlan等旧断言，需逐项处理，不能宣布全套PASS。
