@@ -614,6 +614,15 @@
       "path": "docs/tasks/active/evidence/ainuoke-targeted-diagnostic/pr105-merge-reconcile-2026-10-13.md",
       "recordedAtSha": "70525752b1c0eeffab168f9eb87f0ac914af1af2",
       "sha256": "617e9c7bacbd6b9558ba3c13a5ef9991abc6f3e36c91bb08cfb498b724722a74"
+    },
+    {
+      "id": "decisions-source-anomaly-rules-20261014",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "4318356fab57fd9e5666d4773b6eff211019e4d5",
+      "sha256": "2a5bb9842993c79e836e252182b3a5efdce43e5b6b67b215bd16936b4f4dc360",
+      "supersedes": "decisions-controlled-intake-engineering-20261013",
+      "changeReason": "User confirms both paid purchases, scoped 1:1 count units and exclusion only of fully blank color placeholders; raw evidence and named unknown colors remain. No global unit alias or real activation."
     }
   ],
   "pages": [
