@@ -138,3 +138,7 @@ Source runs/material snapshots不可UPDATE/DELETE。新run必须含order_scope_h
 当前18暂停/回退、30执行、45归属、35加工、43Source接纳+skip1、261完整PG/API、完整类型/lint及Server编译均已明确exit0。最终源码824/824及基线78/78已明确exit0。所有测试是一次性合成PG或受控临时目录，无真实source读取、账号/业务DB更新或部署。
 
 剩余为历史Source查询/历史选单与独立复核界面，完整Gate4收口及全计划查漏/G5。真实目标暂停、恢复enabled、备份恢复、归一执行及流量切换仍需独立具体授权；该实现不扩大既有来源范围/窗口，不让报价先于合同创建合同类SO。
+
+工程checkpoint24a983418f346c2651e34385ddf7a948af01e012保留。冻结18项控制/回退与分维度限制，新独立order-command-control能力只描述本地暂停而非整个Gate4。D126决策以前向supersedes链绑定，旧ID/hash/截图/状态均保留；最终门禁另行核实。
+
+前向D126/第20项限定能力绑定后源码门禁PASS，基线回归78/78明确exit0。2026-10-15只读git-delivery-diagnose：default/http1.1/openssl_http1.1读取均exit0，main64一致；configurationChanged=false、pushSubmitted=false。原网络根因仍未查明，读取成功不是push可靠性证明。Gate1分支/HEAD def98f275c2ef61712008891ab1c60d308981bb7、clean及main祖先再次核实；已向用户请求一次恢复交付例外，未得到答复前不执行恢复push。后续本地阶段可独立继续。

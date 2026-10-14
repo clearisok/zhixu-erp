@@ -1,6 +1,6 @@
 # 当前状态
 
-核实2026-10-15；GitHub API main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`不变，最近开放PR仅108。当前feat/order-effective-attribution；阶段起点6f181d3b，NETWORK_DEGRADED规则保持。当前代码是本地工程，未精确远端交付/合并/部署。
+核实2026-10-15；GitHub API main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`不变，最近开放PR仅108。当前feat/order-effective-attribution；阶段起点6f181d3b，此前NETWORK_DEGRADED恢复限制保持；当前只读Git诊断三通道成功，没有push可靠性证明，Gate1一次恢复授权待回复。当前代码是本地工程，未精确远端交付/合并/部署。
 
 G1 def98f275c2ef61712008891ab1c60d308981bb7、G2 2c6c2315d4b295dba2c6f73f651255f775790b99、G3 39c9f7b607eabed5d72845d3a30b7fc766a6ee9d及G4预览afb71f921b5645ed83f03d46a784d1e30f8325f2保留，合同认领、独立商业采用、加工批次双入口/案件已本地合成验证，不冒称main能力。旧冻结证据/截图/hash不覆盖。
 

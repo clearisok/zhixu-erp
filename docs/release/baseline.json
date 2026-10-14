@@ -687,6 +687,22 @@
       "sha256": "5020ebecce68e239b1f8fafbfee614da5ac3104303af27a25aab8cfc7cc460cc",
       "supersedes": "decisions-order-normalization-g4",
       "changeReason": "D125 records approved effective attribution, controlled execution and ordinary SQL write protection; preserve the prior D124 decision blob and every existing acceptance scope."
+    },
+    {
+      "id": "decisions-order-command-control-g4",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "24a983418f346c2651e34385ddf7a948af01e012",
+      "supersedes": "decisions-order-attribution-g4",
+      "changeReason": "D126 implements the approved new-command pause and compatible rollback boundary; preserve all previous decision blobs and limits.",
+      "sha256": "8cfdf0a7c93d7efaf57baa5573413ebcfb191e8e8e09656bfb4ae550ae72931b"
+    },
+    {
+      "id": "order-command-control-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/order-command-control/gate4-command-control-results.md",
+      "recordedAtSha": "24a983418f346c2651e34385ddf7a948af01e012",
+      "sha256": "76a96d7741c82ea3043837e90998ac470ca35706b7e58bd31481ba6b63057d7f"
     }
   ],
   "pages": [
@@ -2652,6 +2668,92 @@
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"
+        }
+      }
+    },
+    {
+      "id": "order-command-control",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Local Server process/SQL pause for new SO, order commercial adoption and attribution, with immutable control history and exact old-main Server startup/compatible frozen-read rehearsal. No real target activation, old Docker/Browser certification, external writer coverage, deployment or human acceptance.",
+      "evidence": [
+        "order-command-control-engineering",
+        "decisions-order-command-control-g4"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "24a983418f346c2651e34385ddf7a948af01e012",
+          "scope": "Local Server process/SQL pause for new SO, order commercial adoption and attribution, with immutable control history and exact old-main Server startup/compatible frozen-read rehearsal. No real target activation, old Docker/Browser certification, external writer coverage, deployment or human acceptance.",
+          "evidence": [
+            "order-command-control-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "24a983418f346c2651e34385ddf7a948af01e012",
+          "scope": "Local Server process/SQL pause for new SO, order commercial adoption and attribution, with immutable control history and exact old-main Server startup/compatible frozen-read rehearsal. No real target activation, old Docker/Browser certification, external writer coverage, deployment or human acceptance.",
+          "evidence": [
+            "order-command-control-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "24a983418f346c2651e34385ddf7a948af01e012",
+          "scope": "Local Server process/SQL pause for new SO, order commercial adoption and attribution, with immutable control history and exact old-main Server startup/compatible frozen-read rehearsal. No real target activation, old Docker/Browser certification, external writer coverage, deployment or human acceptance.",
+          "evidence": [
+            "order-command-control-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "24a983418f346c2651e34385ddf7a948af01e012",
+          "scope": "Local Server process/SQL pause for new SO, order commercial adoption and attribution, with immutable control history and exact old-main Server startup/compatible frozen-read rehearsal. No real target activation, old Docker/Browser certification, external writer coverage, deployment or human acceptance.",
+          "evidence": [
+            "order-command-control-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "24a983418f346c2651e34385ddf7a948af01e012",
+          "scope": "Local Server process/SQL pause for new SO, order commercial adoption and attribution, with immutable control history and exact old-main Server startup/compatible frozen-read rehearsal. No real target activation, old Docker/Browser certification, external writer coverage, deployment or human acceptance.",
+          "evidence": [
+            "order-command-control-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "order-command-control-engineering"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "order-command-control-engineering"
+          ]
         }
       }
     }
