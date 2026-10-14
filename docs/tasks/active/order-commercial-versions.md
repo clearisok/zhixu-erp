@@ -80,3 +80,5 @@ commercial-terms-security 20项PASS：16种字段权限组合、单字段null/�
 
 兼容回归阶段：完整test:postgres初轮236/248，通过数量包含父测试，12失败已逐项定位。修复来源创建/刷新对0014认领表的读取耦合，抽出foundation只读投影，正式列表/详情仍使用完整认领投影；冻结0001-4首绑工具不扩大迁移范围。交付计划历史数据测试改为显式合成legacy种子，不复活已禁止的Order改价命令；迁移清单及权限数更新。定向兼容集初轮55/57（剩余旧schema刷新），修复后DeliveryPlan17/17、OrderIdentity15/15通过，类型/lint/Server构建通过。全PG第二轮正在运行，日志outputs/gate2-postgres-tests-rerun.log，尚不能宣布PASS。
 重要：此来源读取耦合来自Gate1；Gate1独立合并前必须同步修复及重跑精确门禁。其待交付SHA仍保持不动，不能将此前局部通过当作最终合并批准。没有真实数据库/账号/部署操作。
+
+全PG第二轮已完成：261/261 PASS，耗时200717ms；初轮失败修复后子测试恢复执行，故总项增加。日志outputs/gate2-postgres-tests-rerun.log；基线回归71/71 PASS。不含真实环境验证或远端CI。新增独立商业feature、D-122和精确UI影响记录，历史接力及CURRENT_STATE先归档再更新。

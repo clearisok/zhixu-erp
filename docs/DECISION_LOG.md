@@ -18,6 +18,16 @@
 
 ## Active
 
+### D-122 Gate2 独立订单商业版本与基础来源读取边界
+
+- 日期2026-10-14；Active，落实用户批准D-121 Gate2，不扩大真实写入授权。
+- 报价CCT是确认来源；订单当前价仅来自明确采用的不可变版本。旧Order CCT写接口拒绝，未采用不回退共享价；D-084/D-087共享当前价在订单读取部分由本项替代，报价确认与权限保护保留。
+- 采用精确Quote/Revision/PriceVersion及来源版本指纹，记录来源确认时间与采用时间。每单CAS、请求幂等、金额权限与审计原子提交；修改报价或另一订单不覆盖已采用值。
+- 用户批准计划中的差异预览/显式采用界面，复用Foundation；路径范围见release/ui-changes/order-commercial-versions.json。合成浏览器通过不等于人工验收。
+- 基础来源创建/刷新不依赖认领侧表，冻结旧工具不暗中扩大迁移；正式列表/详情继续展示认领。此修复必须回到Gate1独立交付基线。
+- 证据：0015_order_commercial_versions.sql、server/sales-orders/commercial-version-service.ts、commercial-source.ts、commercial-legacy-preview.ts、server-order-commercial-card.tsx。当前仅本地工程，最终发布门禁/全回归仍以CURRENT_STATE记录为准。
+- 真正Server关账及历史归一另行Gate，不宣称已有完整冻结接线；真实历史价格回填另行批准。
+
 ### D-121 订单创建身份与商业依据分离（已批准，分Gate实施）
 
 - 日期：2026-10-14；状态：Active（规则已批准，不等于全部功能交付）。
