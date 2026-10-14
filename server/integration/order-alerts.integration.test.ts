@@ -8,9 +8,19 @@ test("order alerts use persisted pending-zero colors and trusted fresh material 
   const unauth=await fetch(x.base+'/api/v1/sales-orders');assert.equal(unauth.status,401);
   const cookie=await x.login(x.users[0]);
   const read=async()=>{const r=await fetch(x.base+'/api/v1/sales-orders',{headers:{cookie}});assert.equal(r.status,200);assert.match(r.headers.get('cache-control')||'',/no-store/);return await r.json();};
+  let queries=0;
+  const originalQuery=x.pool.query;
+  x.pool.query=function(...args: unknown[]){queries++;return Reflect.apply(originalQuery,this,args);} as typeof x.pool.query;
   const data=await read(),item=data.salesOrders[0];
+  x.pool.query=originalQuery;
+  assert.ok(queries<20,`bounded batch query count: ${queries}`);
   assert.equal(item.colorCount,2);
   assert.deepEqual(item.alerts,[{code:'color_quantity_zero',count:1,pendingCount:1},{code:'material_unit_missing',count:1}]);
+  for(const username of x.users.slice(1)){
+   const roleCookie=await x.login(username);
+   const r=await fetch(x.base+'/api/v1/sales-orders',{headers:{cookie:roleCookie}});
+   assert.equal(r.status,200);assert.deepEqual((await r.json()).salesOrders[0].alerts,item.alerts);
+  }
   assert.doesNotMatch(JSON.stringify(data),/purchaseUnitPrice|sourcePricing|QtyUnit|SupplierName/);
   const color=(await x.pool.query("SELECT quantity,source_metadata FROM ainuoke_sales_order_color_mirrors WHERE source_line_identity='synthetic-pending-color'")).rows[0];
   assert.equal(Number(color.quantity),0);assert.equal(color.source_metadata.sourceQuantity,null);assert.equal(color.source_metadata.quantityPendingConfirmation,true);

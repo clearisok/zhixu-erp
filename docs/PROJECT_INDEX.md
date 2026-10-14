@@ -1,3 +1,5 @@
+2026-10-14 / main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5：D-117订单异常列和待定颜色记0为当前独立工程候选，见[工程报告](tasks/active/order-list-alerts-2026-10-14.md)与CURRENT_STATE；下文旧摘要按历史时点阅读。
+
 2026-10-14 / GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`：PR108 head `8b89de59dd405395da1dde4b6dde5f125141deb9` 开放未合并。本轮独立分支只读追查单位/颜色/负数量/空物料；具体原因与真实演示阻塞见 [异常治理](tasks/active/source-anomaly-followup-2026-10-14.md)。旧摘要均为历史时点，真实 Source 未激活。
 
 # 项目知识索引
