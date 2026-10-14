@@ -62,3 +62,14 @@
 新增POST /api/v1/order-commercial-cutover-preview，仅精确salesOrderIds数组1–100个不重复UUID；可信session/mutation boundary、order.view+audit_log.view+售价/工价查看权限，领域再次读取当前授权。单个REPEATABLE READ READ ONLY事务输出观察时间、当前可证旧CCT、已采用版本及逐单缺口。originalOrderPrice固定not-proven，databaseWrites固定none；无真实扫描、无回填/自动采用。Legacy创建关系只读使用原创建查询，不把后补采用冒作历史创建。
 
 20项领域/HTTP回归通过（含只读预览逐单缺失、重复/空范围拒绝、撤销审计权限、订单/采用/audit行数不变）；server:build、增量eslint通过。新增test:order-commercial和test:order-commercial-ui脚本。仍需旧CCT回归改造、七角色完整商业测试、发布基线与最终复审；Gate2不可标记交付完成。
+
+
+## 七角色与旧确认回归修订（2026-10-14）
+
+基于 `2dfc34dd26b72bb9a5bb1634c3b0119854097188`。7角色可信会话矩阵8项PASS：admin/merchandising可采用；manager/quote/finance只读金额；material无金额；production只有工价；历史预览仅具备audit及两金额读取权限角色可用。所有角色旧订单PATCH均不能改价。合成角色测试加入test:order-commercial。
+
+linked-commercial-terms 9项PASS：保留精确零/高精度、独立Quote/CCT CAS、真实锁等待交错、Quote改版/删PV与确认并发、导出混合来源阻断、审计及association失败回滚。仅替换被D121废止的旧订单共享读取/直接写入断言，断言未采用订单为空及旧写入409且不取得数据库连接。
+
+commercial-terms-security 20项PASS：16种字段权限组合、单字段null/零、隐藏字段保留、CAS、审计失败回滚转由合法Quote确认入口测试；保留旧订单读空与写入阻断作为独立负向场景。类型检查、增量eslint通过。仍需confirmed-commercial-terms主集成、其他旧商业读取/浏览器测试修订及完整发布门禁；不以这37项代表全套通过。
+
+本阶段npm test完整源码回归817/817 PASS（初次815/817，两条废止共享UI静态断言已更新；14项相关源码测试独立通过）。这不包含尚待修订的PG商业主套件；日志outputs/gate2-project-tests.log。

@@ -15,3 +15,7 @@ Gate2 已完成两个本地工程阶段：基础 checkpoint `552e9b2de3f2809a168
 采用界面已接入（独立checkpoint，尚未浏览器验收）：server-order-commercial-card.tsx、详情替换旧编辑卡片；真实Server报价搜索分页/修订方案选择/差异预览/明确采用；不确定提交保留原请求重试。6项客户端测试及类型/lint/Server构建通过，最后executionOnly显示调整后需重建。下一步优先合成浏览器测试、历史预览及旧CCT回归，不能直接PR交付。UI精确路径记录在Gate2任务文档，正式门禁清单待整合。
 
 浏览器/历史预览阶段已验证：4项Chromium+合成PG采用流程（桌面/390px截图已目视检查）、20项商业领域/HTTP（含明确范围只读cutover-preview）通过。新增脚本test:order-commercial、test:order-commercial-ui。下一步必须处理旧共享CCT测试与新规则冲突、七角色回归、完整测试及release-baseline/UI影响清单；不要误称Gate2已交付。当前所有测试容器/浏览器已退出，截图在ignored outputs/order-commercial-ui。历史预览仅在合成库调用。
+
+七角色与部分旧CCT回归已对齐：order-commercial-roles 8、linked-commercial-terms 9、commercial-terms-security 20 PASS；类型/lint通过。保留原锁等待/回滚/权限测试，只将旧Order共享语义替换成Quote合法确认和Order显式采用边界。confirmed-commercial-terms主集成（约480行）及其他商业读取/UI测试还没更新，下一轮继续。npm test整体日志 outputs/gate2-project-tests.log。
+
+本阶段npm test完整源码回归817/817 PASS（初次815/817，两条废止共享UI静态断言已更新；14项相关源码测试独立通过）。这不包含尚待修订的PG商业主套件；日志outputs/gate2-project-tests.log。

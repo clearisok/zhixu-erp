@@ -111,7 +111,7 @@ test("color detail displays only source color and quantity and accepts an empty 
   assert.match(modelSource, /deliveryDate:\s*string \| null/u);
 });
 
-test("C4.2 exposes only Server current terms while the remaining blocked Browser fields stay absent", () => {
+test("formal detail exposes independent Server adoption while blocked Browser fields stay absent", () => {
   for (const blocked of [
     "customerPoNo",
     "customerId",
@@ -132,11 +132,8 @@ test("C4.2 exposes only Server current terms while the remaining blocked Browser
     "customerRequirement",
     "processDescription",
   ]) assert.doesNotMatch(detailSource, new RegExp(blocked, "iu"));
-  assert.match(detailSource, /SERVER CURRENT TERMS/u);
-  assert.match(detailSource, /terms\?\.current\?\.customerConfirmedPrice/u);
-  assert.match(detailSource, /terms\?\.current\?\.confirmedLaborPrice/u);
-  assert.match(detailSource, /serverSession\.hasPermission\("order\.edit"\)/u);
-  assert.match(detailSource, /confirmedCommercialTermsServerClient\.updateBySalesOrder/u);
+  assert.match(detailSource, /ServerOrderCommercialCard/u);
+  assert.doesNotMatch(detailSource, /confirmedCommercialTermsServerClient\.updateBySalesOrder/u);
   assert.doesNotMatch(detailSource, /orderRepository|OrderPriceVersion|salePrice|processingUnitPrice/u);
   assert.doesNotMatch(detailSource, /\.(?:saveAll|deleteSalesOrder|removeSalesOrder|updateSalesOrder|createSalesOrder|cancelSalesOrder)\s*\(/u);
   assert.doesNotMatch(detailSource, /<Button[^>]*>\s*(?:删除|取消订单|创建订单|编辑订单|保存订单)\s*<\/Button>/u);

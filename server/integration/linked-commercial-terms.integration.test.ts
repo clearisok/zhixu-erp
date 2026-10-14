@@ -16,7 +16,7 @@ import { createSalesOrder } from "../sales-orders/repository.js";
 import { startDisposablePostgres } from "./postgres-container.js";
 import { createSyntheticQuoteFixture } from "./quote-fixture.js";
 
-test("Linked terms: saved-source authority, independent CAS, shared Order surface and controlled lock interleavings", { timeout: 240_000 }, async t => {
+test("Linked terms: saved-source authority, independent CAS, independent Order adoption boundary and controlled lock interleavings", { timeout: 240_000 }, async t => {
   const postgres = await startDisposablePostgres();
   const pool = new pg.Pool({ connectionString: await postgres.createDatabase("linked_terms") });
   t.after(async () => { await pool.end(); await postgres.stop(); });
@@ -78,7 +78,7 @@ test("Linked terms: saved-source authority, independent CAS, shared Order surfac
     return { controlled, ready, release: () => { clearTimeout(cleanupTimer); release(); } };
   };
 
-  await t.test("both quote types/currencies, exact zero/precision, multi-order API readback, no-op and unchanged aggregates", async () => {
+  await t.test("quote confirmation precision, no-op and unchanged aggregates; orders require explicit adoption", async () => {
     for (const type of ["processing", "distribution"] as const) for (const currency of ["CNY", "USD"] as const) {
       const x = await seed(`linked-${type}-${currency}`, type, currency);
       active = confirmer;
@@ -88,11 +88,12 @@ test("Linked terms: saved-source authority, independent CAS, shared Order surfac
       active = orderEditor;
       for (const order of x.orders) {
         const read = await call(`/api/v1/sales-orders/${order.id}/confirmed-commercial-terms`);
-        assert.deepEqual(read.body.confirmedCommercialTerms.current, first.body.confirmedCommercialTerms.current);
+        assert.equal(read.body.confirmedCommercialTerms.current, null);
       }
       const updated = await call(`/api/v1/sales-orders/${x.orders[0].id}/confirmed-commercial-terms`, { ...x.values, expectedQuoteVersion: undefined, expectedVersion: 1, confirmedLaborPrice: "1.000000000000000001" });
-      assert.equal(updated.status, 200); active = confirmer;
-      assert.deepEqual((await call(x.path)).body.confirmedCommercialTerms.current, updated.body.confirmedCommercialTerms.current);
+      assert.equal(updated.status, 409); assert.equal(updated.body.error.code,"order_commercial_adoption_required"); active = confirmer;
+      assert.deepEqual((await call(x.path)).body.confirmedCommercialTerms.current, first.body.confirmedCommercialTerms.current);
+      assert.equal((await call(x.path, {...x.values,expectedVersion:1,confirmedLaborPrice:"1.000000000000000001"})).status,200);
       assert.equal((await call(x.path, { ...x.values, expectedVersion: 2, confirmedLaborPrice: "1.000000000000000001" })).status, 200);
       assert.equal((await logs(x.record.quote.id)).length, 2);
       assert.deepEqual(await repo.getById(x.record.quote.id), x.record);
@@ -116,7 +117,7 @@ test("Linked terms: saved-source authority, independent CAS, shared Order surfac
     assert.equal((await call(x.path, x.values)).status, 409);
     assert.equal((await logs(x.record.quote.id)).length, 0); assert.deepEqual(await repo.getById(x.record.quote.id), x.record);
   });
-  await t.test("first current concurrent Quote/Order updates serialize with one winner and one trusted audit", async () => {
+  await t.test("concurrent Quote confirmations serialize; old Order updates reject before taking a connection", async () => {
     const x = await seed("linked-winner"), h = hold();
     const first = updateConfirmedCommercialTermsByQuote(h.controlled, confirmer, x.provenance, x.values);
     await h.ready;
@@ -129,10 +130,8 @@ test("Linked terms: saved-source authority, independent CAS, shared Order surfac
     const h2 = hold();
     const quoteUpdate = updateConfirmedCommercialTermsByQuote(h2.controlled, confirmer, x.provenance, { ...x.values, expectedVersion: 1, confirmedLaborPrice: "3" });
     await h2.ready;
-    const orderClient = await pool.connect(), orderPid = (await orderClient.query("SELECT pg_backend_pid() AS pid")).rows[0].pid;
-    const orderWrite = updateConfirmedCommercialTermsBySalesOrder({ connect: async () => orderClient } as unknown as pg.Pool, orderEditor, x.orders[0].id, { expectedVersion: 1, confirmedLaborPrice: "4", customerConfirmedPrice: "0", laborCurrency: "CNY" });
-    const orderRejected = assert.rejects(orderWrite, (e: unknown) => (e as { status: number }).status === 409);
-    await blocked(orderPid); h2.release(); await quoteUpdate; await orderRejected;
+    await assert.rejects(()=>updateConfirmedCommercialTermsBySalesOrder({connect:async()=>{throw Error("old order writer must not connect");}} as unknown as pg.Pool,orderEditor,x.orders[0].id,{expectedVersion:1,confirmedLaborPrice:"4",customerConfirmedPrice:"0",laborCurrency:"CNY"}),(e:unknown)=>(e as {code:string}).code==="order_commercial_adoption_required");
+    h2.release(); await quoteUpdate;
     assert.equal((await logs(x.record.quote.id)).length, 2);
   });
   await t.test("locked saved PV remains valid until commit; concurrent currency edit waits then stale Quote version rejects", async () => {
@@ -147,7 +146,7 @@ test("Linked terms: saved-source authority, independent CAS, shared Order surfac
     await assert.rejects(() => updateConfirmedCommercialTermsByQuote(pool, confirmer, x.provenance, { ...x.values, expectedQuoteVersion: 2, expectedVersion: 1 }), (e: unknown) => (e as { code: string }).code === "saved_quote_labor_currency_conflict");
     assert.equal((await logs(x.record.quote.id)).length, 1);
   });
-  await t.test("new Revision and PV deletion cannot cross locked confirmation; Order current remains editable after default changes", async () => {
+  await t.test("new Revision and PV deletion cannot cross locked confirmation; unadopted Order stays empty", async () => {
     for (const action of ["revision.create", "price.delete"] as const) {
       const x = await seed(`linked-lock-${action}`), h = hold();
       const confirmation = updateConfirmedCommercialTermsByQuote(h.controlled, confirmer, x.provenance, x.values); await h.ready;
@@ -159,7 +158,8 @@ test("Linked terms: saved-source authority, independent CAS, shared Order surfac
       while (!(await pool.query("SELECT 1 FROM pg_stat_activity WHERE wait_event_type='Lock' AND query LIKE 'SELECT version FROM quote_center_quotes%' ")).rowCount) { assert.ok(Date.now() < deadline); await new Promise<void>(done => setTimeout(done, 10)); }
       h.release(); await confirmation; await mutation;
       const current = await readConfirmedCommercialTermsBySalesOrder(pool, x.orders[0].id);
-      assert.equal((await updateConfirmedCommercialTermsBySalesOrder(pool, orderEditor, x.orders[1].id, { expectedVersion: current.current!.version, confirmedLaborPrice: "7", customerConfirmedPrice: "0", laborCurrency: "CNY" })).current?.confirmedLaborPrice, "7");
+      assert.equal(current.current,null);
+      await assert.rejects(()=>updateConfirmedCommercialTermsBySalesOrder(pool,orderEditor,x.orders[1].id,{expectedVersion:0,confirmedLaborPrice:"7",customerConfirmedPrice:"0",laborCurrency:"CNY"}),(e:unknown)=>(e as {code:string}).code==="order_commercial_adoption_required");
     }
   });
   await t.test("audit failure rolls back first current and all associations; linked snapshot and generic PUT cannot become a second writer", async () => {

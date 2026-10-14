@@ -68,19 +68,16 @@ test("unlinked Quote keeps the legacy confirmation path while historical revisio
   assert.deepEqual(newCurrent.priceVersions[0].otherCosts, historicalBefore.priceVersions[0].otherCosts);
 });
 
-test("formal Order Detail reads and edits only Server ConfirmedCommercialTerms", () => {
-  assert.match(orderDetail, /SERVER CURRENT TERMS/u);
-  assert.match(orderDetail, /客户确认价格/u);
-  assert.match(orderDetail, /确认工价/u);
-  assert.match(orderDetail, /serverSession\.hasPermission\("order\.edit"\)/u);
-  assert.match(orderDetail, /value === null \? "未确认"/u);
-  assert.match(orderDetail, /updateBySalesOrder/u);
-  assert.match(orderDetail, /terms\?\.linkage === "linked"/u);
-  assert.match(orderDetail, /工价币种（Quote PriceVersion，只读）/u);
-  assert.match(orderDetail, /订单端不会猜测 CNY\/USD/u);
-  assert.match(orderDetail, /terms\?\.linkage !== "linked"/u);
-  assert.doesNotMatch(orderDetail, /orderRepository|OrderPriceVersion|salePrice|processingUnitPrice/u);
-  assert.doesNotMatch(orderDetail, /DeliveryPlan/u);
+test("formal Order Detail uses explicit Server commercial adoption instead of direct price editing", async () => {
+  const card=await readFile("features/order-center/components/server-order-commercial-card.tsx","utf8");
+  assert.match(orderDetail,/ServerOrderCommercialCard/u);
+  assert.doesNotMatch(orderDetail,/updateBySalesOrder|编辑确认商业条款/u);
+  assert.match(card,/order\.commercial\.adopt/u);
+  assert.match(card,/预览采用差异/u);assert.match(card,/确认采用/u);
+  assert.match(card,/expectedVersion:preview\.current\.version/u);
+  assert.match(card,/sourceFingerprint:preview\.candidate\.fingerprint/u);
+  assert.match(card,/pending\?\?/u);
+  assert.doesNotMatch(card,/localStorage|mockQuoteRepository|orderRepository/u);
 });
 
 test("processing linked confirmation requires labor only", () => {
