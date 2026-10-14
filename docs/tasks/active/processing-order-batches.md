@@ -65,3 +65,8 @@ actor/request/operation/item键与载荷hash处理重试；每批独立事务。
 2026-10-14双入口UI初步接线：ProcessingBatchDialog复用Foundation Modal/FormItem/Button；Server订单列表导入、Server报价列表推送共用组件。报价入口可搜索加工报价、选精确修订/PV并登记新的客户下单（含再次下单），再预览工价并确认、选择最多25批消费。默认隐藏已处理，可查询已有SO；两个入口跳转正式server-detail。网络未知结果保留原body/request重试，未确认时锁表单/关闭，4xx清除pending。取消/推送结果有逐项反馈。加工身份按钮开放至可信processing类型，详情日期使用加工文案、物料Source显示不适用。Browser Quote未改。
 
 类型检查与定向lint PASS。首次类型检查total可空问题已修；链接按实际server-detail路由修正。尚未浏览器构建/像素或用户验收，不能称双入口交付完成。精确路径影响已登记release/ui-changes/processing-order-batches.json，最终基线门禁待跑（page ID需按manifest核实）。后续须补UI合成流程/手机号宽度、候选分页/选中跨页、失联重试、少量表单提示与缺权限检查；加工列表部分旧合同文案尚待对齐。全Gate3仍未PR/远端CI。
+
+
+2026-10-14首次合成浏览器闭环：显式Server/session/orderRead=snapshot构建PASS，processing-batch-ui.integration.test.mjs最终4/4 PASS（3子场景+父）。报价UI选择精确Revision/PV、输入客户/数量、登记并确认，DB证实未消费；订单中心导入后唯一SO，详情真实投影并认领；390px包含已处理可查原SO、无横向溢出，物控无入口。1440/390截图outputs/processing-ui已目视，未上传真实业务内容。原失败为自动化在加载期间点击disabled按钮/选项，修正等待可操作状态后通过；未改产品为测试绕过。
+
+构建source commit5cfafacc7caf207e2f95a8c41992a8410cd9e5db。UI影响记录page ID原order-center不在manifest，已改为实际order-list；没有改历史截图或哈希。剩余：加工列表部分合同/艾诺科文案、友好报价版本标识、异常请求重试/批量负向浏览器补充、全PG/源码/基线/权限数目/CI及PR收口。Gate3仍非完整交付。网络规则与真实授权未变。

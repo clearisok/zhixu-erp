@@ -11,7 +11,7 @@
     "features/operation-logs/model/operation-log.ts"
   ],
   "pages": [
-    "order-center",
+    "order-list",
     "order-detail",
     "quote-list",
     "user-permissions"
