@@ -716,6 +716,43 @@
       "path": "docs/tasks/active/ainuoke-isolated-live-results-2026-10-14.md",
       "recordedAtSha": "e613ae883ea5d9aef06dcc0c3c894818671ea2d7",
       "sha256": "43497c9e4a07bbf256161066cae7b4a33d12fed8cea37b026bce65031ac34cb7"
+    },
+    {
+      "id": "decisions-live-integration-20261014",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "00f4baf43f5d284afbb08b7e6b0a9a3321cac862",
+      "sha256": "8246d649e350d49d6e77f5cbc42be33198571a2a6e46c907de4007c1ec3a6b35",
+      "supersedes": "decisions-quality-isolated-demo-20261013",
+      "changeReason": "Explicit merge reconciliation retains both sibling histories and their approved business rules; no fabricated linear ancestry."
+    },
+    {
+      "id": "governance-sibling-baseline-archive-20261014",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-14-governance-branch-baseline.json",
+      "recordedAtSha": "00f4baf43f5d284afbb08b7e6b0a9a3321cac862",
+      "sha256": "c5f89d885d02f39d6506e95ea1bac506d9618dc2b0088a192b1481dcea0f5a46"
+    },
+    {
+      "id": "live-branch-integration-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/ainuoke-live-integration-2026-10-14.md",
+      "recordedAtSha": "00f4baf43f5d284afbb08b7e6b0a9a3321cac862",
+      "sha256": "0a01d43b0111b8a51162caabe1d3884d1bbfb27b9b01587bf6809d0cec186057"
+    },
+    {
+      "id": "bounded-source-window-start-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/ainuoke-bounded-window-2026-10-14.md",
+      "recordedAtSha": "00f4baf43f5d284afbb08b7e6b0a9a3321cac862",
+      "sha256": "f7929ef221565c27bc72765a8804875a2b0c2a738c91a461c259855fabe83929"
+    },
+    {
+      "id": "quality-preflight-lineage-fix-20261014",
+      "kind": "document",
+      "path": "docs/tasks/active/quality-preflight-lineage-fix-2026-10-14.md",
+      "recordedAtSha": "00f4baf43f5d284afbb08b7e6b0a9a3321cac862",
+      "sha256": "11185409b19db0c31e88321a62980dcf9f8463388c9e3f11b0399132aec6c52c"
     }
   ],
   "pages": [
