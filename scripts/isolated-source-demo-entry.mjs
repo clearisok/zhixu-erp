@@ -1,5 +1,5 @@
 // Explicit local isolated execution only. Mounted read-only; never a production startup entry.
-import {readFileSync,existsSync} from 'node:fs';
+import {readFileSync,existsSync,openSync,closeSync} from 'node:fs';
 import {createHash,randomUUID} from 'node:crypto';
 import {createServer} from 'node:http';
 import pg from '/app/node_modules/pg/lib/index.js';
@@ -22,7 +22,7 @@ const emit=value=>process.stdout.write(JSON.stringify(value)+'\n');
 const fail=code=>{throw Error(code);};
 let pool;
 async function main(){
- const action=process.argv[2];if(!['initialize','check','preview','bind','capture','inspect','serve'].includes(action))fail('explicit_isolated_action_required');
+ const action=process.argv[2];if(!['capture-window','initialize','check','preview','bind','capture','inspect','serve'].includes(action))fail('explicit_isolated_action_required');
  const m=JSON.parse(readFileSync('/isolated/manifest.json','utf8'));
  if(m.schemaVersion!=='isolated-source-demo.v1'||!/^zhixu-live-demo-[a-z0-9-]{6,40}$/.test(m.project)||!/^zhixu_live_demo_[a-z0-9_]{6,40}$/.test(m.database)||m.user!==m.database||!/^live-demo-[a-z0-9-]{6,40}$/.test(m.sourceKey)||!Number.isInteger(m.port)||m.port<62000||m.port>62999||!Array.isArray(m.selected)||m.selected.length!==4||new Set(m.selected).size!==4||m.selected.some(s=>typeof s!=='string'||!s||s.length>80)||!/^[a-f0-9]{64}$/.test(m.owner)||!/^[a-f0-9]{40}$/.test(m.sourceSha)||typeof m.databasePassword!=='string'||m.databasePassword.length<32||typeof m.demoPassword!=='string'||m.demoPassword.length<16||m.authorizedCaptureCycles!==2||m.authorization!=='user-confirmed-four-orders-two-captures'||process.env.NODE_ENV!=='test'||process.env.DATABASE_URL||process.env.DB_HOST)fail('isolated_manifest_invalid');
  const scriptHash=createHash('sha256').update(readFileSync('/isolated/entry.mjs')).digest('hex');if(scriptHash!==m.entrySha256)fail('isolated_entry_changed');
@@ -91,9 +91,22 @@ async function main(){
    const r=await bindOrders(pool,actor,{sourceKey:m.sourceKey,accountFingerprint:accountFingerprint(cfg),selected:m.selected,expectedPreview:input.expectedPreview,collect});emit({result:'SELECTED_ORDERS_BOUND',...r});
   }else{
    const latestRuns=Number((await lock.query('SELECT count(*)::int n FROM ainuoke_source_runs')).rows[0].n);
-   if(latestRuns>=m.authorizedCaptureCycles)fail('authorized_capture_limit_reached');
+   let windowAuth;
+   if(action==='capture-window'){
+    windowAuth=JSON.parse(readFileSync('/isolated/schedule-authorization.json','utf8'));
+    const a=windowAuth,slot=input.slot,now=Date.now();
+    if(a.schemaVersion!=='isolated-source-window.v1'||a.authorization!=='user-approved-four-orders-10m-2h'||a.targetFingerprint!==targetFingerprint||a.owner!==m.owner||a.sourceSha!==m.sourceSha||JSON.stringify(a.selected)!==JSON.stringify(m.selected)||a.intervalMs!==600000||a.maxAttempts!==12||!Number.isSafeInteger(a.startedAt)||a.endsAt-a.startedAt!==7200000||now<a.startedAt||now>=a.endsAt-5000||! /^[a-f0-9]{32}$/.test(a.id)||!Number.isInteger(slot)||slot<0||slot>=12||Math.floor((now-a.startedAt)/600000)!==slot)fail('window_authorization_invalid');
+    setTimeout(()=>{emit({result:'FAIL',code:'window_expired'});process.exit(1);},a.endsAt-Date.now()).unref();
+    closeSync(openSync('/tmp/zhixu-window-'+a.id+'-'+slot,'wx'));
+   }else if(latestRuns>=m.authorizedCaptureCycles)fail('authorized_capture_limit_reached');
    if(orders.length!==m.selected.length||orders.some(o=>!m.selected.includes(o.sales_contract_no)))fail('isolated_bound_scope_mismatch');
-   const r=await captureSource(pool,actor,{sourceKey:m.sourceKey,accountFingerprint:accountFingerprint(cfg),maxAgeMs:600000,collect:contracts=>collectWithPython(cfg,contracts)});emit({result:'SOURCE_CAPTURED',...r});
+   const r=await captureSource(pool,actor,{sourceKey:m.sourceKey,accountFingerprint:accountFingerprint(cfg),maxAgeMs:600000,collect:async contracts=>{
+    if(JSON.stringify([...contracts].sort())!==JSON.stringify([...m.selected].sort()))fail('isolated_bound_scope_mismatch');
+    const timeoutMs=windowAuth?Math.min(590000,windowAuth.endsAt-Date.now()-5000):600000;
+    if(timeoutMs<1)fail('window_expired');
+    const data=await collectWithPython(cfg,contracts,{timeoutMs});
+    if(windowAuth&&Date.now()>=windowAuth.endsAt-5000)fail('window_expired');return data;
+   }});emit({result:'SOURCE_CAPTURED',...r});
   }
  }finally{await lock.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['isolated-operation:'+m.owner]).catch(()=>{});lock.release();}
 }

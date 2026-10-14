@@ -1,3 +1,5 @@
+2026-10-14新授权：现有四单每10分钟、2小时、最多12次。有界工具及合成验证完成；实际起止/结果见[窗口证据](tasks/active/ainuoke-bounded-window-2026-10-14.md)。不得续期或扩单。
+
 # 当前接力
 
 2026-10-14；feat/ainuoke-anomaly-evidence；main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本轮起点c78aa6b clean，运行代码b95dbb3e2fd16137ade810b20781a9cdbc742be1。用户已确认4单/新账本/loopback62310/两轮刷新，已真实执行，不要误报未授权或再问同一范围。
