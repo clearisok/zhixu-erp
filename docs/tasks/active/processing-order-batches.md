@@ -37,3 +37,13 @@
 随机tmpfs PostgreSQL迁移及6个子场景（含父测试共7）PASS，加上命令模型9项，test:processing-batches共16/16 PASS；Server构建及定向lint PASS。测试覆盖多批合法、禁止跳过draft、确认归属、取消终态、并发绑定、SO唯一及商业版本归属、历史不可改。测试预建合成SO用于约束验证，不能代表服务事务已无孤立SO；下一阶段必须测试消费服务失败完整回滚。没有执行真实迁移。
 
 权限/服务/候选/双入口/事务内商业采用与审计尚未实现。新0016改变迁移清单预期，后续全PG回归需更新相关测试，当前不宣称全项目通过。迁移仅本地开发阶段，未交付或运行真实环境。
+
+## 事务服务checkpoint（2026-10-14）
+
+processing-batch-service.ts新增登记、预览、确认、取消与逐批消费服务。fresh DB权限：order.view、quote.view、commercial.labor.view，加独立order.processing.batch.manage或order.processing.consume。权限目录新增能力，不改真实角色或账号；报价经理不因原有报价权限自动获得推送授权。
+
+actor/request/operation/item键与载荷hash处理重试；每批独立事务。消费重取精确报价确认和批次指纹，版本变化要求重新确认。已消费批次直接返回原SO，不依赖报价还存在。创建SO、processing身份、Gate2不可变商业版本及head、消费记录、审计与回执原子提交。Gate2抽取内部appendCommercialVersion事务原语，权限仍在调用服务校验。初始SO待认领，不将报价操作人自动设为跟单负责人。
+
+真实测试：加工领域/SQL/服务24/24 PASS（随机tmpfsPG）；Gate2商业29/29 PASS；Server构建与定向lint PASS。两个用户竞争同批次只一SO；同报价两批得到两单；取消项失败不阻止另一项；故意使最后审计失败，订单/身份/价格/消费全部回滚，重试成功；撤权后旧请求也拒绝。未知内部错误返回逐项processing_item_failed，不泄漏数据库错误，允许其他项继续。未经真实用户验收。
+
+后续仍需候选分页查询、HTTP安全/响应投影、可信加工认领和订单列表投影、双入口UI、负向矩阵补齐及最终全门禁。permission目录变化和0016预期须同步现有全回归；尚无PR或远端CI。取消当前有原因审计和回执审计两条，后续应收敛单一业务日志同时保留原因。

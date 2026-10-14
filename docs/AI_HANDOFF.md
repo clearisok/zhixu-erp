@@ -10,3 +10,6 @@ NETWORK_DEGRADED保持，本轮不自动执行恢复命令。用户询问删除�
 
 
 后续checkpoint：0016_processing_order_batches.sql已实现四表及状态/身份/不可变/唯一消费约束，随机tmpfsPG 7/7通过；消费指纹要求与确认一致。命令模型9项，test:processing-batches共16/16、Server构建和定向lint PASS。服务尚未实现，当前并发测试仅证明绑定约束，下一步建SO+商业采用+消费须同一事务。勿把预建合成SO测试当无孤立订单的服务验收。全PG迁移清单预期待同步；未推送、无PR，网络规则保持。
+
+
+事务阶段完成：processing-batch-service提供登记/预览/确认/取消/逐批消费；fresh DB独立权限、每批事务、重试回执、重取报价指纹、SO+商业版本+消费+审计原子提交。复用Gate2抽取的appendCommercialVersion。加工24/24、Gate2商业29/29、Server构建/定向lint PASS。下一步候选/HTTP、processing可信认领及订单投影、两个UI入口。注意取消有两条日志待收敛、迁移/权限数量全回归待同步、UI影响声明待补；不要称Gate3或全Goal完成。真实数据/账号/部署均未碰。
