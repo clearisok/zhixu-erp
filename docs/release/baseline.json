@@ -639,6 +639,13 @@
       "sha256": "21329b5efbc491ce20c7706d327c3021323d64e7188bb3591b1d61f6816aff50",
       "supersedes": "decisions-order-identity-g1",
       "changeReason": "D122 implements approved independent order commercial versions; preserve both Gate1 and main decision evidence in the forward chain."
+    },
+    {
+      "id": "order-commercial-g2-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/order-commercial/gate2-results.md",
+      "recordedAtSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
+      "sha256": "b861454fa99ed44557de33b323024798b134688f87ecfdad3c73fcbcd0a3bb94"
     }
   ],
   "pages": [
@@ -2346,6 +2353,92 @@
           ],
           "runtimeId": "preview18444",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "order-commercial-versions",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment.",
+      "evidence": [
+        "order-commercial-g2-engineering",
+        "decisions-order-commercial-g2"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
+          "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment. Local evidence only; remote CI and user acceptance not performed.",
+          "evidence": [
+            "order-commercial-g2-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
+          "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment. Local evidence only; remote CI and user acceptance not performed.",
+          "evidence": [
+            "order-commercial-g2-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
+          "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment. Local evidence only; remote CI and user acceptance not performed.",
+          "evidence": [
+            "order-commercial-g2-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
+          "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment. Local evidence only; remote CI and user acceptance not performed.",
+          "evidence": [
+            "order-commercial-g2-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
+          "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment. Local evidence only; remote CI and user acceptance not performed.",
+          "evidence": [
+            "order-commercial-g2-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Capability not deployed; historical runtime identity retained, not re-observed.",
+          "evidence": [
+            "order-commercial-g2-engineering"
+          ],
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-14",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Capability not deployed; historical runtime identity retained, not re-observed.",
+          "evidence": [
+            "order-commercial-g2-engineering"
+          ],
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444"
         }
       }
     }
