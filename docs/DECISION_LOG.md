@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-128 Gate4 发布复核方案、当前权限与相关血统指纹
+
+- 日期2026-10-15；Active，落实D121已批准独立复核/历史保护，不改变正式创建路径、数量、货币或实际操作授权。
+- 复用0019不可变proof，管理员内容键幂等发布并事务审计；可信生产/财务岗位读取待办、精确方案/当前签名状态及历史分页。默认未配置真实Adapter/permit，发布和状态查询不授权执行。
+- 全库身份/血统hash会错误使无关新SO触发全员重签，改为拟root可达引用链、缺失叶边及相关身份epoch；相关变化/循环与所有目标完整引用/外部冻结数据仍守卫。原hash/proof不改，新指纹须新复核。
+- Fresh role/order.view/授权tuple保护；财务复核说明沿用金额字段权限，作者身份不绕过撤权。NaN不能绕过冻结来源或一小时许可。旧成功发布可回历史receipt，失效状态独立校验。
+- 代码normalization-review-access/workspace、execution-service/full-evidence/coverage及app；21合成工作区、30执行/45归属及[模块边界](features/ORDER_NORMALIZATION_REVIEW.md)。UI还未接线，未远端交付/真实迁移/归一/部署。
+
+
 ### D-127 Gate4 历史来源原身份与采集上下文
 
 - 日期2026-10-15；Active；落实D121已批准的原身份、来源绑定及历史流水保护，不改变单位/数量/创建路径或真实操作授权。

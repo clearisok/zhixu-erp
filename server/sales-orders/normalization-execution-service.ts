@@ -1,27 +1,18 @@
+import {readNormalizationReviewAccess,requireNormalizationReviewer as reviewActor} from './normalization-review-access.js';
 import {orderCommandControlError} from './command-control.js';
 import type {Pool,PoolClient} from 'pg';
 import type {TrustedIdentity} from '../auth/session.js';
 import {HttpError} from '../http/errors.js';
 import {appendOperationLog} from '../operation-logs/repository.js';
-import {requireOrderCommandActor} from './identity-service.js';
 import {requireNormalizationAdmin} from './normalization-preview.js';
 import {lockEffectiveAttribution,writeAttributionHeadInTransaction} from './effective-attribution.js';
 import {collectFullNormalizationEvidence,normalizationTargetFingerprint,type FullNormalizationEvidence} from './normalization-full-evidence.js';
-import {normalizationHash,uuid,digest,evidenceHashPattern,parseAttributionProposal,parseAttributionReview,parseAttributionExecute,type AttributionProposal} from './normalization-execution-model.js';
+import {normalizationHash,uuid,digest,exactKeys,evidenceHashPattern,parseAttributionProposal,parseAttributionReview,parseAttributionExecute,type AttributionProposal} from './normalization-execution-model.js';
 import {unavailableNormalizationCoverage,type NormalizationCoverageProvider,type CoverageSnapshot} from './normalization-coverage.js';
 export type NormalizationExecutionPermit={caseId:string;targetFingerprint:string;proposalHash:string;evidenceHash:string;backupSha256:string;restoreRehearsalSha256:string;recoveryPlanHash:string;expiresAt:string};
 export type NormalizationExecutionOptions={coverage?:NormalizationCoverageProvider;permit?:NormalizationExecutionPermit;now?:()=>number};
 function fail(status:number,code:string):never{throw new HttpError(status,code,code);}
-const reviewRole={production:'role-team-production-manager',finance:'role-team-finance-manager'} as const;
-async function reviewActor(client:PoolClient,actor:TrustedIdentity,type:'production'|'finance'){
- const current=await requireOrderCommandActor(client,actor,'order.view');
- const binding=(await client.query('SELECT user_id::text,role_id,xmin::text AS revision FROM app_user_roles WHERE user_id=$1 AND role_id=$2 FOR SHARE',[current.internalUserId,reviewRole[type]])).rows[0];
- if(!binding)fail(403,'normalization_review_role_required');
- const user=(await client.query('SELECT public_id::text,active,xmin::text AS revision FROM app_users WHERE id=$1',[current.internalUserId])).rows[0];
- const grants=(await client.query("SELECT ur.role_id,ur.xmin::text AS binding_revision,rp.xmin::text AS grant_revision FROM app_user_roles ur JOIN app_role_permissions rp ON rp.role_id=ur.role_id WHERE ur.user_id=$1 AND rp.permission_key='order.view' ORDER BY ur.role_id",[current.internalUserId])).rows;
- return {...current,authorizationFingerprint:normalizationHash({user,binding,grants})};
-}
-async function scope<T>(pool:Pool,actor:TrustedIdentity,caseId:string,proposal:AttributionProposal,options:NormalizationExecutionOptions,mode:'preview'|'review'|'execute',run:(client:PoolClient,external:CoverageSnapshot,target:string)=>Promise<T>,reviewType?:'production'|'finance'){
+async function scope<T>(pool:Pool,actor:TrustedIdentity,caseId:string,proposal:AttributionProposal,options:NormalizationExecutionOptions,mode:'preview'|'review'|'execute'|'publish',run:(client:PoolClient,external:CoverageSnapshot,target:string)=>Promise<T>,reviewType?:'production'|'finance'){
  const client=await pool.connect();
  try{
   // External lease precedes the DB attribution gate. Joint source writers must use this order too.
@@ -31,7 +22,7 @@ async function scope<T>(pool:Pool,actor:TrustedIdentity,caseId:string,proposal:A
    await client.query(mode==='preview'?'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY':'BEGIN');
    await client.query("SET LOCAL lock_timeout='5s'");await client.query("SET LOCAL statement_timeout='15s'");
    if(mode==='execute')await client.query("SELECT pg_advisory_xact_lock(hashtextextended('order-effective-attribution',0))");else await lockEffectiveAttribution(client);
-   if(mode==='execute')await requireNormalizationAdmin(client,actor,true);else if(mode==='review'){if(!reviewType)fail(503,'normalization_review_type_required');await reviewActor(client,actor,reviewType);}else await requireOrderCommandActorRead(client,actor);
+   if(mode==='execute'||mode==='publish')await requireNormalizationAdmin(client,actor,true);else if(mode==='review'){if(!reviewType)fail(503,'normalization_review_type_required');await reviewActor(client,actor,reviewType);}else await requireOrderCommandActorRead(client,actor);
    if(await normalizationTargetFingerprint(client)!==target)fail(409,'normalization_execution_scope_mismatch');
    if(!(await client.query('SELECT id FROM sales_order_normalization_cases WHERE id=$1',[caseId])).rowCount)fail(404,'normalization_case_not_found');
    const result=await run(client,external,target);await revalidate();await client.query('COMMIT');return result;
@@ -50,6 +41,24 @@ async function ensureProof(client:PoolClient,caseId:string,proposal:AttributionP
 export async function previewAttributionExecution(pool:Pool,actor:TrustedIdentity,id:string,rawProposal:unknown,options:NormalizationExecutionOptions={}){
  id=uuid(id);const proposal=parseAttributionProposal(rawProposal);
  return scope(pool,actor,id,proposal,options,'preview',async(client,external)=>collectFullNormalizationEvidence(client,id,proposal,external));
+}
+/** Publishing an exact immutable proof is not approval or execution. Content-key idempotency protects lost responses. */
+export async function publishAttributionProposal(pool:Pool,actor:TrustedIdentity,id:string,raw:unknown,options:NormalizationExecutionOptions={}){
+ id=uuid(id);const body=exactKeys(raw,['proposal','expectedEvidenceHash']);const proposal=parseAttributionProposal(body.proposal),expected=digest(body.expectedEvidenceHash);
+ return scope(pool,actor,id,proposal,options,'publish',async(client,external,target)=>{
+  const current=await requireNormalizationAdmin(client,actor,true);
+  await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[`normalization-publish:${id}:${normalizationHash(proposal)}:${expected}`]);
+  await lockedCase(client,id);
+  const previous=(await client.query('SELECT id::text FROM sales_order_normalization_proofs WHERE case_id=$1 AND case_version=$2 AND target_fingerprint=$3 AND evidence_hash=$4 AND proposal_hash=$5',[id,proposal.caseVersion,target,expected,normalizationHash(proposal)])).rows[0];
+  // An acknowledged old publication remains a historical receipt, even if
+  // newer source facts now require a new proposal. It is never re-approved here.
+  if(previous)return {proofId:previous.id,caseId:id,replayed:true};
+  const evidence=await collectFullNormalizationEvidence(client,id,proposal,external,undefined,true);
+  if(evidence.evidenceHash!==expected)fail(409,'normalization_full_evidence_changed');
+  const proofId=await ensureProof(client,id,proposal,evidence);
+  await appendOperationLog(client,current,{module:'订单中心',action:'维护订单身份',entityType:'OrderNormalizationCase',entityId:id,metadata:{operation:'publish_review_proposal',proofId,evidenceHash:evidence.evidenceHash,proposalHash:evidence.proposalHash,executionAuthorized:false}});
+  return {proofId,caseId:id,replayed:false};
+ });
 }
 export async function recordAttributionReview(pool:Pool,actor:TrustedIdentity,id:string,raw:unknown,options:NormalizationExecutionOptions={}){
  id=uuid(id);const command=parseAttributionReview(raw);const payloadHash=normalizationHash({caseId:id,...command});
@@ -89,7 +98,7 @@ export async function executeAttributionChange(pool:Pool,actor:TrustedIdentity,i
   const current=await requireNormalizationAdmin(client,actor,true);
   const permit=permitBinding(options.permit,id,command.proposal,command.expectedEvidenceHash,target);
   const prior=await previousChange(client,current,command.requestId,payloadHash);if(prior)return prior;
-  const now=(options.now??Date.now)();if(!Number.isFinite(Date.parse(permit.expiresAt))||Date.parse(permit.expiresAt)<=now||Date.parse(permit.expiresAt)>now+3600000)fail(409,'normalization_execution_permit_expired');
+  const now=(options.now??Date.now)();if(!Number.isFinite(now))fail(503,'normalization_clock_unavailable');if(!Number.isFinite(Date.parse(permit.expiresAt))||Date.parse(permit.expiresAt)<=now||Date.parse(permit.expiresAt)>now+3600000)fail(409,'normalization_execution_permit_expired');
   await lockedCase(client,id);
   const evidence=await collectFullNormalizationEvidence(client,id,command.proposal,external,undefined,true);complete(evidence,command.expectedEvidenceHash);
   const proofId=await ensureProof(client,id,command.proposal,evidence);
@@ -115,9 +124,4 @@ export async function readAttributionExecutionReceipt(pool:Pool,actor:TrustedIde
 export async function readAttributionReviewSummary(pool:Pool,actor:TrustedIdentity,id:string,evidenceHash:string,proposalHash:string){
  id=uuid(id);evidenceHash=digest(evidenceHash);proposalHash=digest(proposalHash);const client=await pool.connect();try{await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');await requireOrderCommandActorRead(client,actor);const proof=(await client.query('SELECT id::text,case_version,evidence_summary FROM sales_order_normalization_proofs WHERE case_id=$1 AND evidence_hash=$2 AND proposal_hash=$3 ORDER BY created_at DESC LIMIT 1',[id,evidenceHash,proposalHash])).rows[0];const reviews=proof?(await client.query('SELECT review_type,decision,created_at,sequence FROM sales_order_normalization_reviews WHERE proof_id=$1 ORDER BY sequence DESC LIMIT 101',[proof.id])).rows:[];await client.query('COMMIT');return {proofId:proof?.id??null,caseVersion:proof?.case_version??null,requiredReviews:proof?.evidence_summary.requiredReviews??[],evidence:proof?.evidence_summary??null,reviews:reviews.slice(0,100),hasMore:reviews.length>100};}catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
 }
-async function requireOrderCommandActorRead(client:PoolClient,actor:TrustedIdentity){
- // Read-only authorization cannot use the locking mutation helper.
- const current=(await client.query('SELECT active,public_id::text FROM app_users WHERE id=$1',[actor.internalUserId])).rows[0];if(!current?.active||current.public_id!==actor.userId)fail(401,'authentication_required');
- const roles=(await client.query("SELECT role_id FROM app_user_roles WHERE user_id=$1 AND role_id=ANY($2::text[])",[actor.internalUserId,['role-server-admin',...Object.values(reviewRole)]])).rows;if(!roles.length)fail(403,'normalization_review_role_required');
- const grants=(await client.query("SELECT 1 FROM app_user_roles ur JOIN app_role_permissions rp ON rp.role_id=ur.role_id WHERE ur.user_id=$1 AND rp.permission_key='order.view' LIMIT 1",[actor.internalUserId])).rowCount;if(!grants)fail(403,'permission_denied');
-}
+async function requireOrderCommandActorRead(client:PoolClient,actor:TrustedIdentity){await readNormalizationReviewAccess(client,actor,true);}

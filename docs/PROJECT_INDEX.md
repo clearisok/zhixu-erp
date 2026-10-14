@@ -77,6 +77,8 @@
 
 [Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受。D109已批准HTTP且认证成功；D110有真实完整可见合同发现及80物料抽样。数量/单位/逐物料业务核对、全量颜色/规模、持续运行/部署仍待Gate。
 
+[独立复核后台工作区](features/ORDER_NORMALIZATION_REVIEW.md)已本地完成，岗位UI与默认执行关闭原因接线继续；不表示真实归一获授权。
+
 Gate4本地有效归属/消费者、受控执行及SQL防绕过恢复入口：[有效归属任务](tasks/active/order-effective-attribution.md)与[执行边界](tasks/active/order-normalization-controlled-execution.md)；[新命令暂停与回退](features/ORDER_COMMAND_CONTROL.md)已本地演练；[历史Source只读查询](features/ORDER_SOURCE_HISTORY.md)已本地实现；[历史UI原身份接线](tasks/active/order-source-history-ui.md)已本地验收；独立复核/完整G4、真实覆盖/授权及远端交付仍待。
 
 Gate4本地只读归一/案件恢复入口：[归一模块](features/ORDER_NORMALIZATION.md)及[Gate4任务](tasks/active/order-normalization-preview.md)。归一执行及真实操作尚未授权。

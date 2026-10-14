@@ -79,7 +79,8 @@
     "test:order-command-control": "tsx --test --test-concurrency=1 server/integration/order-command-control.test.ts server/integration/order-command-control.integration.test.ts server/integration/order-command-rollback.integration.test.ts",
     "test:material-history": "tsx --test --test-concurrency=1 server/integration/material-history.integration.test.ts",
     "test:material-history-client": "tsx --test features/order-center/server/__tests__/material-history-client.test.ts",
-    "test:material-history-ui": "tsx --test server/integration/material-history-ui.integration.test.mjs"
+    "test:material-history-ui": "tsx --test server/integration/material-history-ui.integration.test.mjs",
+    "test:normalization-review-workspace": "tsx --test --test-concurrency=1 server/integration/normalization-review-workspace.integration.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

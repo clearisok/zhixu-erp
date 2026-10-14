@@ -43,10 +43,26 @@ export async function collectFullNormalizationEvidence(client:PoolClient,caseId:
  const batches=(await client.query('SELECT sales_order_id::text,batch_id::text FROM processing_order_batch_consumptions WHERE sales_order_id=ANY($1::uuid[]) ORDER BY sales_order_id',[memberIds])).rows;
  // Current lineage is recomputed after the proposed effective mapping. No alias may become its own ancestor.
  const lineage=(await client.query('SELECT profile.sales_order_id::text,profile.reference_order_id::text,profile.version FROM sales_order_identity_profiles profile WHERE profile.reference_order_id IS NOT NULL ORDER BY profile.sales_order_id LIMIT 100001')).rows as {sales_order_id:string;reference_order_id:string;version:number}[];
- const currentIdentities=(await client.query('SELECT original_order_id::text,effective_order_id::text FROM sales_order_effective_identities ORDER BY original_order_id LIMIT 100001')).rows as {original_order_id:string;effective_order_id:string}[];
+ const currentIdentities=(await client.query('SELECT original_order_id::text,effective_order_id::text,attribution_change_id::text,attribution_version FROM sales_order_effective_identities ORDER BY original_order_id LIMIT 100001')).rows as {original_order_id:string;effective_order_id:string;attribution_change_id:string|null;attribution_version:number}[];
  if(lineage.length>100000||currentIdentities.length>100000)fail('normalization_full_inventory_limit');
  const effective=new Map(currentIdentities.map(row=>[row.original_order_id,row.effective_order_id]));for(const row of proposal.assignments)effective.set(row.originalOrderId,row.effectiveOrderId);
  const edges=new Map(lineage.filter(row=>effective.get(row.sales_order_id)===row.sales_order_id).map(row=>[row.sales_order_id,effective.get(row.reference_order_id)??row.reference_order_id]));
+ // Only paths reachable from proposed effective roots can acquire a lineage cycle.
+ // Unrelated SO creation must not invalidate every outstanding review. A missing
+ // profile is still a dependency, so later adding a relevant leaf edge changes it.
+ const identityById=new Map(currentIdentities.map(row=>[row.original_order_id,row]));
+ const profileById=new Map(lineage.map(row=>[row.sales_order_id,row]));
+ const dependencies=new Map<string,unknown>();
+ for(const root of new Set(proposal.assignments.map(row=>row.effectiveOrderId))){
+  const visited=new Set<string>();let id:string|undefined=root;
+  while(id&&!visited.has(id)){
+   visited.add(id);const profile=effective.get(id)===id?profileById.get(id):undefined;
+   const reference=profile?.reference_order_id??null;
+   dependencies.set(id,{orderId:id,identity:identityById.get(id)??null,lineage:profile??null,referenceIdentity:reference?identityById.get(reference)??null:null,proposedReferenceOrderId:reference?effective.get(reference)??reference:null});
+   id=edges.get(id);
+  }
+ }
+ const lineageHash=normalizationHash({scope:'proposed-root-reference-chains-v1',dependencies:[...dependencies].sort(([a],[b])=>a.localeCompare(b)).map(([,row])=>row)});
  const blockers:string[]=[];
  for(const root of new Set(proposal.assignments.map(row=>row.effectiveOrderId))){const visited=new Set<string>();let id:string|undefined=root;while(id&&edges.has(id)){if(visited.has(id)){blockers.push('lineage_cycle_after_attribution');break;}visited.add(id);id=edges.get(id);}}
  if(unknownReferences.length)blockers.push('unclassified_references');
@@ -60,7 +76,7 @@ export async function collectFullNormalizationEvidence(client:PoolClient,caseId:
  const requiredReviews:('production'|'finance')[]=[];
  if(executed.length)requiredReviews.push('production');
  if(orders.some(row=>row.lifecycle_state==='completed')||external.coverage==='frozen_adapter_inventory'&&external.orders.some(row=>row.financialCount>0))requiredReviews.push('finance');
- const content={schemaVersion:'order-normalization-full-evidence.v1',caseId,caseVersion:currentCase.version,targetFingerprint,proposalHash:normalizationHash(proposal),memberIds,orders,currentGroups:groups,contracts,batches,references,unknownReferences,external,requiredReviews,blockers:[...new Set(blockers)],lineageHash:normalizationHash({lineage,currentIdentities}),hashScope:'all-bounded-declared-server-reference-rows-and-locked-adapter-inventory'};
+ const content={schemaVersion:'order-normalization-full-evidence.v1',caseId,caseVersion:currentCase.version,targetFingerprint,proposalHash:normalizationHash(proposal),memberIds,orders,currentGroups:groups,contracts,batches,references,unknownReferences,external,requiredReviews,blockers:[...new Set(blockers)],lineageHash,hashScope:'all-bounded-declared-server-reference-rows-and-locked-adapter-inventory'};
  return {...content,evidenceHash:normalizationHash(content),metrics:{rows:rowCount,bytes},executionAuthorized:false as const};
 }
 export type FullNormalizationEvidence=Awaited<ReturnType<typeof collectFullNormalizationEvidence>>;

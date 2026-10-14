@@ -63,3 +63,8 @@ reviewHash覆盖返回的有限订单/合同事实及引用计数/ID，明确has
 ### 2026-10-15 历史来源查询的后续本地事实
 
 0022及独立material-history只读API记录新采集scope/link/order version，并按原捕获SO保存/查询历史；当前root不会吸收或合计旧SO快照。旧NULL保持未知，采集时Discovery决定历史款号/InsideOrderNo。历史数据不作当前或当年齐套判断，权限/fixed profile/哈希/分页/字节校验保持；当前reader也校验新上下文。绑定/mirror已知合同身份不可DELETE/改写，非身份观察和颜色切片仍可刷新。没有真实迁移、来源读取、绑定、激活或部署；浏览器历史UI及整个G4待后续。详细API/限制/证据见[历史来源模块](ORDER_SOURCE_HISTORY.md)。
+
+
+### 2026-10-15 独立复核工作区的后续本地事实
+
+管理员发布精确不可变方案、岗位cap/inbox/context/当前签名及历史分页API已补，复用0019，不新增schema。相关血统链指纹消除无关新SO导致重签，相关引用/身份变化仍阻断；旧proof保留并须新证据重新采用。时钟/财务说明权限及历史发布回执保护已通过21定向回归；没有实际Source、数据库或环境写入。UI仍待接线，详见[独立复核模块](ORDER_NORMALIZATION_REVIEW.md)。

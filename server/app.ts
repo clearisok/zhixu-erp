@@ -1,6 +1,7 @@
+import {readNormalizationReviewCapabilities,listNormalizationReviewInbox,parseReviewInboxQuery,readNormalizationProposalContext,readPublishedNormalizationProposal,listNormalizationReviewHistory,parseReviewHistoryQuery} from './sales-orders/normalization-review-workspace.js';
 import {parseMaterialHistoryQuery,type MaterialHistoryReader} from './ainuoke-source/history.js';
 import {parseOrderCommandMode,assertOrderCommandsAvailable,readOrderCommandState,orderCommandControlError,type OrderCommandMode} from './sales-orders/command-control.js';
-import {previewAttributionExecution,recordAttributionReview,executeAttributionChange,readAttributionExecutionReceipt,readAttributionReviewSummary,type NormalizationExecutionOptions} from './sales-orders/normalization-execution-service.js';
+import {previewAttributionExecution,publishAttributionProposal,recordAttributionReview,executeAttributionChange,readAttributionExecutionReceipt,readAttributionReviewSummary,type NormalizationExecutionOptions} from './sales-orders/normalization-execution-service.js';
 import { openNormalizationCase, appendNormalizationCaseEvent, readNormalizationCase, listNormalizationCases, parseNormalizationCaseQuery } from "./sales-orders/normalization-case-service.js";
 import { previewOrderNormalization } from "./sales-orders/normalization-preview.js";
 import {createProcessingBatch,previewProcessingBatch,confirmProcessingBatch,cancelProcessingBatch,consumeProcessingBatches,listProcessingBatches,parseProcessingBatchQuery} from './sales-orders/processing-batch-service.js';
@@ -610,7 +611,22 @@ async function route(
     response.setHeader('Cache-Control','no-store');sendJson(response,200,await readOrderCommandState(dependencies.pool,identity,dependencies.orderCommandMode));return;
   }
 
-  const attributionMatch=/^\/api\/v1\/order-normalization-cases\/([0-9a-f-]+)\/(attribution-preview|reviews|execute)$/iu.exec(path);
+  const reviewWorkspace=/^\/api\/v1\/order-normalization-workspace\/(access|proposals)(?:\/([0-9a-f-]+)(?:\/(reviews))?)?$/iu.exec(path);
+  const proposalContext=/^\/api\/v1\/order-normalization-cases\/([0-9a-f-]+)\/proposal-context$/iu.exec(path);
+  if(reviewWorkspace||proposalContext){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    response.setHeader('Cache-Control','no-store');const query=new URL(request.url??'/','http://local').searchParams;
+    if(proposalContext){if(query.size)throw new HttpError(400,'invalid_attribution_query','Query selectors not accepted');sendJson(response,200,await readNormalizationProposalContext(dependencies.pool,identity,proposalContext[1]));}
+    else if(reviewWorkspace![1]==='access'){if(query.size||reviewWorkspace![2])throw new HttpError(400,'invalid_attribution_query','Query selectors not accepted');sendJson(response,200,await readNormalizationReviewCapabilities(dependencies.pool,identity));}
+    else if(reviewWorkspace![3])sendJson(response,200,await listNormalizationReviewHistory(dependencies.pool,identity,reviewWorkspace![2],parseReviewHistoryQuery(query)));
+    else if(reviewWorkspace![2]){if(query.size)throw new HttpError(400,'invalid_attribution_query','Query selectors not accepted');sendJson(response,200,await readPublishedNormalizationProposal(dependencies.pool,identity,reviewWorkspace![2],dependencies.normalizationExecution??{},dependencies.orderCommandMode));}
+    else sendJson(response,200,await listNormalizationReviewInbox(dependencies.pool,identity,parseReviewInboxQuery(query)));
+    return;
+  }
+
+  const attributionMatch=/^\/api\/v1\/order-normalization-cases\/([0-9a-f-]+)\/(attribution-preview|review-proposals|reviews|execute)$/iu.exec(path);
   if(attributionMatch){
     if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
     const identity=await dependencies.identityAuthority.resolve(request);
@@ -626,7 +642,8 @@ async function route(
     if(attributionMatch[2]==='attribution-preview'){
       if(Object.keys(body).length!==1||!Object.hasOwn(body,'proposal'))throw new HttpError(400,'invalid_attribution_command','Only proposal accepted');
       sendJson(response,200,await previewAttributionExecution(dependencies.pool,identity,attributionMatch[1],body.proposal,options));
-    }else if(attributionMatch[2]==='reviews')sendJson(response,200,await recordAttributionReview(dependencies.pool,identity,attributionMatch[1],body,options));
+    }else if(attributionMatch[2]==='review-proposals')sendJson(response,200,await publishAttributionProposal(dependencies.pool,identity,attributionMatch[1],body,options));
+    else if(attributionMatch[2]==='reviews')sendJson(response,200,await recordAttributionReview(dependencies.pool,identity,attributionMatch[1],body,options));
     else {await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);sendJson(response,200,await executeAttributionChange(dependencies.pool,identity,attributionMatch[1],body,options));}
     return;
   }
