@@ -1,9 +1,7 @@
-# 当前接力
+# Gate2当前接力
 
-2026-10-14核实main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。feat/order-identity-and-contract-claim完成Gate1本地验收，Goal仍在执行，远端待交付。G0 c3d70a5，基础caab27e，工作流2aa3944。最终提交由git log恢复。
+2026-10-14；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。分支feat/order-commercial-versions父提交Gate1 b5c7eb89dc25c397ebf342baa0607705abc80c89，初始clean。Gate1独立工作树已完整收口，用户普通PowerShell交付回执待返回；不要改其head或重复建PR。
 
-证据：tasks/active/evidence/order-identity/gate1-results.md；features/ORDER_IDENTITY.md；批准规则tasks/active/order-identity-program.md。15项领域HTTP升级、22项七角色、19项来源、5项Chromium、817项root、71项baseline和type/lint/build PASS。G1源码测试已加入Source CI，远端CI未跑。
+当前Gate2仅schema/实施基线开发中，未验证，见tasks/active/order-commercial-versions.md。发现报价无SO时确认写PV、有SO时写CCT，候选必须区分并锁精确来源版本。订单读取最终不得回退共享current；旧订单CCT PATCH需收紧。0015新增版本/head不回填真实价格，尚未执行。
 
-下一步：核实最终commit精确源码门禁并完成唯一PR交付；继承NETWORK_DEGRADED，不在后续Gate重撞同失败Git通道。Gate2商业独立版本可在已核实本地G1父提交上开展，明确stack依赖，不伪称main。G3/G4/G5依次见计划。准备记录当前不带Quote候选；G2接入精确商业版本。旧共享CCT仍待替换。
-
-所有旧worktree保护；0013旧通用转单未发布且不照旧规则发布；0014仅在一次性PG验证。禁止真实数据库/账号/部署/调度续期。node_modules为相同lockfile junction，勿删除目标或安装依赖。历史摘要在tasks/completed/2026-10-14-pre-order-identity-*。
+继续：候选/采用事务、独立读模型与权限、旧路由切换、历史只读切换预览、负向合成/HTTP/浏览器/回归。CCT/加工/归一/页面后续仍依计划。全部禁止真实账号/DB/部署/Source扩大；依赖node_modules junction同Gate1，不删除共享目标。完整Gate1证据在tasks/active/evidence/order-identity/gate1-results.md。

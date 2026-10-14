@@ -1,0 +1,13 @@
+# Gate2 订单商业版本实施基线
+
+2026-10-14；最新核实main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；本分支feat/order-commercial-versions从已验证Gate1 b5c7eb89dc25c397ebf342baa0607705abc80c89建立，初始clean。依赖未合并，不能称main已包含Gate1。
+
+实查：CCT按Quote provenance共享current；订单readOrderWithClient直接读shared row；Quote无关联SO时确认值保存在PV confirmation，已有SO时确认命令转走CCT。因此候选必须明确区分来源为CCT版本还是未关联报价的精确Quote/PV确认快照，不能要求先造SO才能确认价格。
+
+技术选择：新增append-only订单商业版本及独立head；采用命令锁定报价上下文、精确报价版本与CCT版本，再锁订单、CAS和审计。快照只含实际确认金额/币种和身份元数据，不拷贝成本。未确认与零区分，processing不要求成衣价。新报价变更不反向更新版本。
+
+读入口最终全部切到订单快照；未采用时显示待采用/历史待核实，不动态回退shared current。旧order CCT PATCH必须拒绝并提示新采用入口。报价端确认能力保留，订单不能代写报价确认。
+
+历史切换仅只读预览：当前可证实值标注采样时间，不能冒称初始价。旧执行/冻结引用不搬迁；completed订单不得通过采用改价。真正的Server关账未实现，不伪造其完整集成。历史归一仍Gate4，真实迁移/采用另行授权。
+
+本Gate开发中，任何schema/API仅隔离合成验证；不真实部署或启动source。每个可靠checkpoint记录，未通过全部门禁不送达最终PR。
