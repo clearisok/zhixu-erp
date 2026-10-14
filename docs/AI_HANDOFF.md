@@ -9,3 +9,5 @@
 注意理论115.50是历史人工事实；当前和10月13日定向原包TotalNum均116，采购118。未证明报表取整/上游变化，未覆盖接口原值；后续找IT核实口径。退库/取消未处理。新目标没有导入旧23单模拟账本或用户Excel；报价转订单独立分支a0e60e4不变。
 
 REMOTE DELIVERY仍NETWORK_DEGRADED/未核实，无新PR/新CI、不merge；只读GitHub成功不是push恢复。当前运行image绑定明确本地SHA而非已合并main。最终源码门禁/证据冻结收口完成后保留此区别。[上期接力](tasks/completed/2026-10-14-before-live-results-handoff.md)。
+
+基线v2的runtimeSnapshots字段只容许历史观察（reverifiedByThisTask必须false），本轮实际核验不冒填false、不放宽guard；新运行结果以独立冻结evidence文档保存，旧18443/18444历史条目保持。

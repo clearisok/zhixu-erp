@@ -2346,17 +2346,6 @@
       "evidence": [
         "quote-pr91"
       ]
-    },
-    {
-      "id": "isolated62310live20261014",
-      "sourceSha": "b95dbb3e2fd16137ade810b20781a9cdbc742be1",
-      "imageId": "sha256:57087ab323136e4ee74fa631675fca488d1817df157bb07b12b49757201b2f8b",
-      "observedAt": "2026-10-14",
-      "reverifiedByThisTask": true,
-      "observationScope": "User-authorized new local isolated ledger only: four real source orders, two persisted collection runs, six synthetic team roles. No continuous scheduler, no Ningbo/18443/18444 changes, no user business acceptance or GitHub merge claim.",
-      "evidence": [
-        "isolated-four-order-live-results-20261014"
-      ]
     }
   ],
   "limitations": [
