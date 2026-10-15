@@ -94,7 +94,8 @@ export function projectPaymentRequestObservations(input: unknown, confirmations:
       sourceUnits: { purchase: sourceFields.QtyUnit, customs: sourceFields.bgQtyUnit },
       quantityMeanings: { Num: "source_purchase_quantity", OutStoreNum: "application_allocated_material_shipment",
         bgNum: "source_customs_quantity", kpNum: "source_invoiced_quantity" } as const,
-      currency: { state: "unknown", reason: "not_verified" } as Resolution,
+      purchaseContractCurrency: { state: "unknown", reason: "not_verified" } as Resolution,
+      amountCurrencies: Object.fromEntries(amountFields.map(field => [field, { state: "unknown", reason: "not_verified" } as Resolution])) as Record<typeof amountFields[number], Resolution>,
       allocatedShipmentUnit: { state: "unknown", reason: "not_verified" } as Resolution,
       bankPaymentStatus: "not_inferred" as const,
     };
@@ -127,10 +128,14 @@ export function projectPaymentRequestObservations(input: unknown, confirmations:
   }
   for (const row of rows) {
     const facts = verified.get(row.observationId) ?? [];
-    row.currency = resolution(facts.filter(item => item.currency !== undefined).map(item => ({
+    row.purchaseContractCurrency = resolution(facts.filter(item => item.currency !== undefined).map(item => ({
       value: item.currency === "RMB" || item.currency === "人民币" ? "CNY" : item.currency!,
       evidence: item.evidenceSha256,
     })));
+    // D136 confirms these three amount qualifiers only. Customs, invoice,
+    // advance and receipt amounts must not inherit a row-wide currency.
+    for (const field of ["cgGoodsAmount", "PayAmount", "GoodsAmount"] as const)
+      row.amountCurrencies[field] = row.purchaseContractCurrency;
     const unitFacts = facts.filter(item => item.allocatedShipmentUnit !== undefined).map(item => ({
       value: item.allocatedShipmentUnit!, evidence: item.evidenceSha256,
     }));

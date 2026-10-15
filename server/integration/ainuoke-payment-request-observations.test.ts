@@ -60,24 +60,24 @@ test("duplicate ids and repeated rows remain separate observations, never double
 test("currency and allocated shipment unit require exact row evidence, no default or contract-wide spreading", () => {
   const row = page().rows[0], input = page([row, row]);
   const result = project(input, [confirmation(input)]);
-  assert.deepEqual(result.rows[0].currency, { state: "known", value: "CNY", evidenceSha256: [sha("synthetic-human-confirmation")] });
+  assert.deepEqual(result.rows[0].purchaseContractCurrency, { state: "known", value: "CNY", evidenceSha256: [sha("synthetic-human-confirmation")] });
   assert.equal(result.rows[0].allocatedShipmentUnit.state, "known");
-  assert.equal(result.rows[1].currency.state, "unknown");
+  assert.equal(result.rows[1].purchaseContractCurrency.state, "unknown");
   assert.equal(result.rows[1].allocatedShipmentUnit.state, "unknown");
   assert.equal(result.rows[0].sourceUnits.purchase.state, "known");
 });
 test("RMB and Chinese RMB label normalize to CNY without any currency conversion", () => {
   for (const currency of ["RMB", "人民币", "CNY"]) {
     const result = project(page(), [{ ...confirmation(), currency }]);
-    assert.equal(result.rows[0].currency.state, "known");
-    if (result.rows[0].currency.state === "known") assert.equal(result.rows[0].currency.value, "CNY");
+    assert.equal(result.rows[0].purchaseContractCurrency.state, "known");
+    if (result.rows[0].purchaseContractCurrency.state === "known") assert.equal(result.rows[0].purchaseContractCurrency.value, "CNY");
     assert.deepEqual(result.rows[0].quantities.Num, { state: "known", raw: "10" });
   }
 });
 test("conflicting unit or currency evidence blocks a resolved qualifier without changing source amounts", () => {
   const proof = confirmation();
   const result = project(page(), [proof, { ...proof, currency: "USD", allocatedShipmentUnit: "米", evidenceSha256: sha("second-proof") }]);
-  assert.equal(result.rows[0].currency.state, "conflict");
+  assert.equal(result.rows[0].purchaseContractCurrency.state, "conflict");
   assert.equal(result.rows[0].allocatedShipmentUnit.state, "conflict");
   assert.deepEqual(result.rows[0].quantities.OutStoreNum, { state: "known", raw: "12" });
   const sourceConflict = project(page(), [{ ...proof, allocatedShipmentUnit: "米" }]);
@@ -137,6 +137,15 @@ test("actual Python to Node offline boundary preserves exact UTF8 numeric text i
     assert.deepEqual(row.amounts.tzamount, { state: "known", raw: "-1.00" });
     assert.deepEqual(row.sourceFields.CnName, { state: "known", raw: "合成物料" });
     assert.equal(result.sourceActivation, "not_activated");
-    assert.equal(result.rows[0].currency.state, "unknown");
+    assert.equal(result.rows[0].purchaseContractCurrency.state, "unknown");
   }
+});
+
+test("purchase currency qualifies only the three confirmed application amount fields", () => {
+  const row = project(page(), [confirmation()]).rows[0];
+  assert.equal(Object.hasOwn(row, "currency"), false);
+  for (const field of ["cgGoodsAmount", "PayAmount", "GoodsAmount"] as const)
+    assert.equal(row.amountCurrencies[field].state, "known");
+  for (const field of ["BGAmount", "kpamount", "kpprice", "YFAmount", "gnsk", "gwsk", "AdditionalPrice", "tzamount", "Price"] as const)
+    assert.equal(row.amountCurrencies[field].state, "unknown");
 });

@@ -8,7 +8,7 @@ main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。6086941首页实读100/17675、49
 
 没有正式财务Source/快照/API/UI接线。仍需固定合同过滤/完整分页、稳定明细键和采购币种来源；缺预付款/审批/实付证据保持未知，不认定银行已付。6086941与6087050同名字段分开，不新增汇率、单位换算或齐套改动。
 
-12观察Node、47诊断Node、96Python及类型/Server编译/源码lint通过，最终基线另收口。B2@68ac、独立Quote小修d9bf保留；新代码未远端/部署。真实次数用完，四单窗口12/12已结束；不改真实账号/DB/绑定/激活/宁波18443/18444，不自动合并。最新AGENTS恢复规则适用。
+13观察Node、47诊断Node、96Python及类型/Server编译/源码lint通过，最终基线另收口。B2@68ac、独立Quote小修d9bf保留；新代码未远端/部署。真实次数用完，四单窗口12/12已结束；不改真实账号/DB/绑定/激活/宁波18443/18444，不自动合并。最新AGENTS恢复规则适用。
 
 [确认前摘要](../tasks/completed/2026-10-15-before-payment-row-context.md)保留原文与hash；随来源/代码/授权/验收变化更新，GitHub为实时工程事实源。
 
@@ -112,3 +112,5 @@ npm run source:ainuoke -- --bind-selected=<source-key> --contracts=<same-BillNo,
 
 2026-10-14用户授权既有隔离四单10分钟/2小时的有限刷新；独立window入口最多12次、固定结束时间、失败停止，不更改正式默认scheduler。运行状态见[窗口证据](../tasks/active/ainuoke-bounded-window-2026-10-14.md)。
 2026-10-14 PR108诊断入口必须提供`-PreflightFile`，真实核验原文件与请求身份后才允许收集。原报告不因历史hash有效而变为新鲜；不重复全量读取。[修复证据](../tasks/active/quality-preflight-lineage-fix-2026-10-14.md)。
+
+金额币种边界复核：仅cgGoodsAmount/PayAmount/GoodsAmount采用本轮确认的采购合同币种，其余金额币种保持unknown；不提供通用行currency。详见../tasks/active/evidence/ainuoke-payment-request-probe/observations-amount-currency-2026-10-15.md。

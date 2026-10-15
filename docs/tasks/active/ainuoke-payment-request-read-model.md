@@ -25,7 +25,7 @@
 
 ## 当前验收与剩余Gate
 
-12项Node（含真实Python→Node离线进程、对象/JSON字符串dataList及大数/Unicode）、96项Python（原87＋新增9）、47项诊断回归已通过；类型/Server编译及定向lint通过。最终代码/文档hash及发布门禁另行冻结，不预填通过。
+13项Node（含真实Python→Node离线进程、对象/JSON字符串dataList及大数/Unicode）、96项Python（原87＋新增9）、47项诊断回归已通过；类型/Server编译及定向lint通过。最终代码/文档hash及发布门禁另行冻结，不预填通过。
 
 后续正式接线仍需要：
 1. IT确认稳定明细键的跨页/跨时间/作废修正语义；本页100个id唯一不够。现在不生成会计分录身份。
@@ -34,3 +34,5 @@
 4. 后续持久快照、当前有效SO解析、fresh权限投影和侧栏独立交付。未完整时不以首页或空白制造“无对账记录/已付款”。
 
 所有真实读取次数已用完；本Phase只离线复用既有报告，无新HTTP、账号/业务DB/绑定/激活/部署，四单窗口不重启，不自动合并。Git NETWORK_DEGRADED，遵守AGENTS不自动恢复规则，PR/Hosted CI尚无本Phase结果。
+
+金额币种边界复核：仅cgGoodsAmount/PayAmount/GoodsAmount采用本轮确认的采购合同币种，其余金额币种保持unknown；不提供通用行currency。详见本Phaseobservations-amount-currency-2026-10-15冻结证据。
