@@ -1,0 +1,18 @@
+{
+  "mode": "existing-protected-evidence-offline-only",
+  "sourceSha256": "22e8af8692b07aedb9fe0690beb10883714d94531c09f08b979ac86c384c6cd9",
+  "contracts": 13,
+  "discoveryMatched": 13,
+  "emptyContracts": 4,
+  "readyContracts": 13,
+  "sourceRows": 386,
+  "rowsWithField": 117,
+  "inboundEvents": 366,
+  "extraStatuses": {
+    "missing": 249,
+    "known": 117
+  },
+  "databaseAccess": "none",
+  "newUpstreamRequests": 0,
+  "sourceActivation": "unchanged"
+}

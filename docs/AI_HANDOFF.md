@@ -1,7 +1,9 @@
-# 接力：Gate5独立多余仓只读映射
+# 接力：独立多余仓映射完成本地验收，继续B2
 
-2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。沿用原工作树，B1在af9b7462b739fff45c84702883cd799b0e6871cd干净收口；另起feat/ainuoke-excess-warehouse，不重复工作树/PR。用户确认31条之外另有1条，单位条；D133和scope记录已更新，真实标识不入Git。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。原物理工作树沿用；G5整合/页头分支feat/material-progress-integration@af9b7462b739fff45c84702883cd799b0e6871cd已clean收口，本字段独立feat/ainuoke-excess-warehouse，产品049a87ba、UI脚本b8a8c0a9。D133已前向冻结，旧决策/图/hash/私有报告不改。
 
-Projection+独立helper按入库sourceReferences读取num_dyc，DTO独立字段，缺/非法/冲突/混合缺失/单位不明均有状态，不累加、不改rknum、TotalNum、cgnum或正式齐套。初轮13项新负向/数量保护与旧回归共68PASS；另补大小写/别名冒用，最终新增14/14PASS、类型/lint PASS；旧包13合同与Discovery一致、4空、386行、366入库事件，117known/249missing仅历史离线事实，269是原行缺键数，不能混淆。最初离线工具对4空合同无法从首行推身份而拒绝，改用同一可信Discovery核对目标，未放宽产品校验。后续浏览器与最终根/基线/证据待收口。
+用户确认31条之外另有1条，同单位条。Projection按入库sourceReferences取一致num_dyc，独立DTO和现有入库列；unknown/0/非法/冲突/部分缺失/单位/旧DTO保护，正式rknum/TotalNum/cgnum/齐套与ID不变。新增15、根891、独立基线94、实际Chromium5均PASS；持续70PASS/1Linux skip；类型/lint/Server编译与精确049a87ba构建PASS。历史旧包13合同、4空、386行，117已知多余仓/269缺键源行，366事件117known/249missing，零新HTTP/凭据/业务DB。具体用户单号不入Git。结果与失败修复见num-dyc-mapping-results-2026-10-15.md。
 
-B1既有21UI PASS，随后加工批次9/9UI PASS。G1–G4 PR109–112各3CI全绿未合并；G5/本字段没有远端交付，NETWORK_DEGRADED不自动恢复或push。此前完整PhaseA及B1历史证据保留；待字段完成后回原G5分支继续B2排序/团队设置/事件侧栏，6086941独立来源。无新HTTP/凭据/真实DB/ACL/部署、宁波18443/18444或既有窗口操作。Goal未完成。
+先提交本批新证据/PNG，然后绑定manifest新能力与证据做最终源码门禁，不覆盖旧图或把AI QA写成人工验收。保持分支栈：G1–G4 PR109–112已送达各3CI绿但均未合并；G5整合af9尚未远端；本字段PR应以G5分支为base，B2另从本字段最后clean checkpoint建依赖分支，不能先把本字段合回base导致独立PR空掉。不重建工作树、不重复PR。待字段收口继续团队辅料关键词设置、面料展示排序、颜色规格展开/事件Drawer；6086941独立接入。
+
+NETWORK_DEGRADED沿用，未自动恢复或push。Hosted CI未运行，无新PR交付结论。统一合并授权仍待实际人类答复；不自动合并/部署、改真实账号/DB、宁波18443/18444、ACL/凭据、既有演示镜像或恢复到期窗口。Goal继续。
