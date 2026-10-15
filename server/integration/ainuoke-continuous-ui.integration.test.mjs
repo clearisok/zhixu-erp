@@ -80,7 +80,8 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
     assert.equal(await evaluate("document.querySelectorAll('.ops-topbar-back').length"),1);
     assert.equal(await evaluate("document.querySelectorAll('.qc-page-back').length"),0);
     assert.ok(await evaluate("document.querySelector('.ops-topbar-back').getBoundingClientRect().width<=32"));
-    assert.ok(await evaluate("Math.abs(document.querySelector('h1').getBoundingClientRect().left-document.querySelector('.oc-server-detail-overview').getBoundingClientRect().left)<=2"));
+    const aligned=await evaluate("({title:document.querySelector('h1').getBoundingClientRect().left,card:document.querySelector('.oc-server-detail-overview').getBoundingClientRect().left,columns:getComputedStyle(document.querySelector('.qc-page-header')).gridTemplateColumns})");
+    assert.ok(Math.abs(aligned.title-aligned.card)<=2,JSON.stringify({width,...aligned}));
     assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);
     if(width===1440||width===390)await screenshot('order-header-'+width);
     await navigate('/order-center/style-progress/detail?orderId='+x.orderId);await has('合成棉布');
