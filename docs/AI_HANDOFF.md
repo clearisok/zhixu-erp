@@ -15,3 +15,5 @@ UI影响精确10路径见release/ui-changes/order-preparation-adoption-ui.json�
 Source CI查漏：PR109初始Source失败为迁移写死12/旧样本误带未来迁移，G1修复中。本分支从98d2修精确0011旧库与0023最终ledger，独立Source21总数20PASS/1Linux条件SKIP（Windows），Python固定loopback实跑；[详情](tasks/active/source-ci-migration-coverage.md)。不以PG/源码门禁代替此套件或LinuxCI，原冻结UI证据不改。
 
 fresh-start同类旧清单已补：明确当前22个迁移版本、四项技术单例与业务表0，技术行重复启动不变，7/7及完整类型通过；从7c01e049/clean仅测试文档增量，不修改SQL/模式/业务数据。PR109最终修复a40cb7de382146748e18f7e8b8ea3acd9108c96a已由Codex工具精确送达，最终CI进行中；本后续分支未交付，不宣称永久网络恢复。
+
+2026-10-15七角色测试恢复：从482f0118及唯一已知dirty继续，测试blob f8b7cea063d1ed01e5ffe54bb3e94cabc31cc83d与G1已提交1fcc440完全相同，本分支5/5通过（精确七角色、逐账号绑定、全部非管理员拒绝及移动端管理），不改产品权限/SQL/UI。此前收口启动被自动审批服务连接错误挡住，未执行；本次仍走同一审批检查。PR109的1fcc恢复交付选择待用户，不自动推送/合并/部署。合成哈希碰撞新发现保存在原7bf3工作树被Git忽略的outputs/2026-10-15-g5-readonly-discoveries.md，尚未修复，不能冒称真实数据已受影响。
