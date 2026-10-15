@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-15当前核实基线 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。G1 PR109@1fcc440、G2 Draft PR110@3deffc4三CI成功但未合并；G3 Draft PR111@f4a1b99b精确送达、CI进行中；G4原工作树整合后验证，真实执行/部署仍关闭。优先恢复[订单身份实施计划](tasks/active/order-identity-program.md)、[身份模块](features/ORDER_IDENTITY.md)、[订单商业版本](features/ORDER_COMMERCIAL_VERSIONS.md)和[当前状态](CURRENT_STATE.md)。下方历史开头保留其记录时点，不代表当前PR/部署状态。
+2026-10-15当前核实基线 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。G1 PR109@1fcc440、G2 Draft PR110@3deffc4三CI成功但未合并；G3 Draft PR111@f4a1b99b精确送达且三CI成功；G4原工作树整合后验证，真实执行/部署仍关闭。优先恢复[订单身份实施计划](tasks/active/order-identity-program.md)、[身份模块](features/ORDER_IDENTITY.md)、[订单商业版本](features/ORDER_COMMERCIAL_VERSIONS.md)和[当前状态](CURRENT_STATE.md)。下方历史开头保留其记录时点，不代表当前PR/部署状态。
 
 2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 已合并 PR #104/#105/#106。D-112 受控新增合同在独立 `feat/ainuoke-controlled-contract-intake` 工程分支实施，仍未合并、未真实执行；恢复入口为[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)及 Active 决策。下文旧 SHA/PR 状态仅按历史时点阅读。
 
