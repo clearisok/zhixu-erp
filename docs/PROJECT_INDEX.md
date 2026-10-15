@@ -1,3 +1,5 @@
+2026-10-15 / D135独立6086941固定首页诊断仅本地合成通过，无真实采集/DB/激活/部署；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。[诊断范围与结果](tasks/active/ainuoke-payment-request-probe.md)及CURRENT_STATE为当前恢复入口。B2@68ac保持clean，Git交付仍待核实。
+
 2026-10-15 / 当前G5 B2本地25UI、898root、261PG、56设置/历史升级及94基线已验，团队辅料排序/颜色规格展开/事件侧栏完成，未远端/部署；main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。[最终B2证据](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)及CURRENT_STATE为恢复入口。下方旧快照按原日期阅读。
 
 2026-10-14 / 本机四单真实隔离演示已执行首绑与两轮刷新，未开长期调度；[真实运行证据](tasks/active/ainuoke-isolated-live-results-2026-10-14.md)。以下旧状态按历史时点阅读。

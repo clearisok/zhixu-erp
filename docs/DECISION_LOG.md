@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-135 货款申请明细先独立有界只读核验
+
+- 日期2026-10-15；Active，落实已批准D121 Gate5的6086941接入方向。本阶段只交付合成工程，不扩大真实Source范围，不代表获得新报表真实读取授权。
+- 复用现有AinuokeClient登录和报表契约，固定6086941第1页100行；不注册进Bridge/持续Source catalog，不发现合同、不翻页、不重试、不连接织序数据库。单响应4MiB、子进程120秒，禁止代理与重定向。
+- 用户提供的49业务字段与id、vDom_PayRegister、样本公式均为候选。原始响应UTF8数值文本保留；Num/OutStoreNum/bgNum/kpNum、Price/kpprice、cgGoodsAmount/GoodsAmount、BGAmount/kpamount各自独立。未知、零、负值和重复行原样保留，不默认币种、不把申请付款认定银行实付。
+- 凭据仅由显式-ReadFirstPage的私密终端进程消费；raw仅保存在新建、Git忽略、owner/SYSTEM ACL保护报告。公共回执只给静态字段覆盖/计数/日期/hash，秘密字段和密码/token回显拒绝；字段存在不表示映射正确。
+- 代码8655a052f22458506094fa0941ba7344fbff9bff：server/ainuoke-source/payment-request-probe.ts、Python同名模块与私密PowerShell包装器；37项Node、83项Python及24项既有预检为合成验证。真实读取先批准固定范围，字段/单位/币种/身份核实后才做正式映射与UI接线。详见tasks/active/ainuoke-payment-request-probe.md。
+
+
 ### D-134 团队物料展示排序与来源事件侧栏
 
 - 日期2026-10-15；Active，落实已批准D121 Gate5，不改变正式数量、齐套、商业权限或真实Source范围。

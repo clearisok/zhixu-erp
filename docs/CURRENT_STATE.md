@@ -1,12 +1,12 @@
 # 当前状态
 
-核实2026-10-15；GitHub实时main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本文为知识快照，随源码/PR/测试/来源/授权变化更新。
+核实2026-10-15；GitHub API最新main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本文是阶段快照，随main/PR/源码、授权和验收更新。
 
-- 开放PR搜索仍有108–112；此前109@1fcc440、Draft110@3deffc4、111@f4a1b99、112@036fe521精确送达、各3CI成功，未合并。本轮没有合并授权实际答复，不执行。
-- 原工作树继续feat/material-sort-and-event-drawer；保留G1–G4、Source21da/108及G5 A/B1。A request-local RR快照/有效归属/人工确认及顶部退出保护本地通过；B1小返回箭头、业务/工厂款号及去重复布局已六宽度验证，未部署/人工像素验收。[A/B1原证据](tasks/active/evidence/material-source-integration/header-browser-verification-2026-10-15.md)。
-- G5 B2本地完成：团队辅料关键词设置、面料数值显示排序、颜色规格展开及事件侧栏；新0024仅一次性库演练，管理员/物控写、七角色读，CAS/actor幂等/审计。root898、PG261、设置与历史升级56、基线94、Source70PASS/1Linux skip、最终UI25通过；类型/lint/Server与默认Browser构建通过。最终渲染b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993、脚本967deb5247823f223cd811aeb14361cab65b8fe0；后续仅元数据冻结。[完整验收/复审](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。
-- 独立num_dyc分支aab97cb8本地15/root891/基线94/UI5已验，B2侧栏复用并再验。旧受保护raw中117/386行有值，用户确认31条之外另1条同单位；缺/冲突保持未知，不加进rknum/正式齐套。[原最小映射](tasks/active/evidence/material-source-integration/num-dyc-mapping-results-2026-10-15.md)。
-- 本轮授权恢复G5 af9b746与num_dyc aab97cb8仍预检失败，actual pushes0；未创建新PR/Hosted CI。只读main可查不代表Git恢复；停止重复通道，无全局TLS/代理/认证改变。当前B2也仅本地，不自动恢复、合并或部署。
-- 既有真实四单/10分钟/2小时窗口12/12成功且截止；本轮未新采集/凭据/真实DB或现有演示镜像变更。6086941尚未接通，侧栏明确待接入；报价保存后退出失败重试边界独立小修复待做。真实账号、宁波18443/18444和生产/关账路由保持原边界；Goal未完成。
+- G1 PR109、G2 Draft110、G3 Draft111、G4 Draft112此前精确交付且各3CI通过，未自动合并；PR108独立Source工具继续保留。不能把本地累计分支当main能力或部署状态。
+- G5 B2已本地完成页头、团队辅料排序、面料显示排序、颜色规格展开及事件侧栏；root898/PG261/基线94/UI25等证据见[冻结报告](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。另一工作树order-effective-attribution保持feat/material-sort-and-event-drawer@68ac1fc9f839ebfc894d39377dac221e7f65566b/clean。G5 af9b746、num_dyc aab97cb8原分支/提交保留，未远端。
+- 用户普通PowerShell最新交付仍pushes0/NETWORK_DEGRADED；一次API确认B2远端分支不存在。工具before阶段只用Git ls-remote，GitHub API只做push后核对，故本次未进入push；Git传输根因仍未查明。无重复push/恢复、认证或全局TLS/代理变化；AGENTS原规则保留。不再要求重复同一失败命令。
+- 独立6086941诊断feat/ainuoke-payment-request-probe已本地实现，源码8655a052f22458506094fa0941ba7344fbff9bff，从68ac依赖累计；复用旧erp-followup-governance工作树，原21da670及私有报告保留。固定首页100行、无Discovery/翻页/DB/激活，原始数值文本与字段分离；37新Node/PowerShell、83Python、24旧预检、898root、类型/Server/默认Browser build通过。继承outputs私有生成物导致普通lint失败，排除这些Git ignored生成物的全源码lint零警告通过，原文件未改。[工程复审与限制](tasks/active/evidence/ainuoke-payment-request-probe/engineering-results-2026-10-15.md)；精确发布门禁收口见AI_HANDOFF。未送达/无新PR/Hosted CI。
+- 6086941真实首页仍需固定范围授权，单位/币种/来源行身份/公式未核实，尚未接对账UI；不认定银行实付。num_dyc沿已确认31条之外另1条同单位的独立来源事实，不加进rknum/齐套。
+- 既有四单/10分钟/2小时窗口已12/12成功并到期，未重启；本阶段未新读真实来源/凭据，未改真实账号/业务DB/现有演示镜像或宁波18443/18444。生产/关账路由保持关闭，Goal未完成；下一安全本地工作为Quote保存成功后退出失败的重试边界修复。
 
-旧状态原文见[tasks/completed归档](tasks/completed/2026-10-15-before-material-display-current-state.md)。旧工作树、Browser长期数据、所有身份/流水/价格及旧PNG/hash均保留。
+[B2原状态归档](tasks/completed/2026-10-15-before-payment-probe-current-state.md)保留历史日期、hash、结果和限制；原工作树/Browser长期数据/身份流水/价格及所有冻结截图均保留。
