@@ -7,3 +7,5 @@ D134与新批准范围需要在此源码checkpoint后前向冻结manifest；旧D
 用户授权的G5 af9b746与num_dyc aab97cb8恢复尝试仍预检失败，pushes0，远端branch/PR未出现；进程OpenSSL只读成功不代表恢复。已停止，不再撞同通道。G1 PR109@1fcc440、Draft110@3deffc4、111@f4a1b99、112@036fe521均此前CI3成功未合并，合并授权仍待回复。旧Source21da/108包含在累计分支，未来PR目标main且声明依赖，不建议直接累计合并。
 
 禁止真实账号/业务DB、部署、宁波18443/18444、新Source读取/激活或延长既有四单窗口。既有窗口12/12已截止。Goal继续，下一步精确构建和真实隔离Chromium，失败查原因不放宽断言。
+
+首轮B2隔离UI在fixture Source完整性校验被拒绝：新增合成行漏了既有6087050:sha256身份前缀，尚未进入页面；仅修正测试样本，不放宽守卫。最小发布门禁另发现新设置page id未登记，新增implementation-only页面和精确impact引用。失败回执保留，下一轮继续实际验收。

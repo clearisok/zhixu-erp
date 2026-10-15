@@ -1462,6 +1462,20 @@
         "team-access-engineering",
         "decisions-team-access"
       ]
+    },
+    {
+      "id": "material-progress-settings",
+      "route": "/system-settings/progress-settings",
+      "routeFile": "app/system-settings/progress-settings/page.tsx",
+      "components": [
+        "features/style-progress/components/material-progress-settings-page.tsx"
+      ],
+      "acceptance": "implementation-only",
+      "acceptanceScope": "D121/D134 approved functionality, synthetic engineering candidate only; no human pixel acceptance, deployment or default route activation.",
+      "evidence": [
+        "material-display-approved-scope",
+        "decisions-material-display-settings-events"
+      ]
     }
   ],
   "css": {

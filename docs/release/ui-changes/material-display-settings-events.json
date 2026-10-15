@@ -18,7 +18,7 @@
   ],
   "pages": [
     "material",
-    "settings",
+    "material-progress-settings",
     "navigation"
   ],
   "visibleDifference": "Approved display-only fabric/trim ordering, team keyword settings, color/spec expansion, event drawer and gated settings entry; no theme redesign or formal quantity/permission expansion.",

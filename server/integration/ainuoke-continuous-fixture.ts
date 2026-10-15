@@ -51,7 +51,7 @@ export async function startContinuousFixture(staticDirectory:string,options: Nor
     if(options.materialDisplay)for(const pages of Object.values(b.materials)){
      const page=pages[0],template=page.rows[0];
      const examples=[['fabric-high','面料','合成排序面料大','米',800,'合成规格A'],['fabric-low','面料','合成排序面料小','千克',10,'合成规格B'],['thread','辅料','合成缝纫线','个',20,'合成规格C'],['button','辅料','合成纽扣','个',20,'合成规格D'],['thread-variant','辅料','合成缝纫线','条',2,'合成规格E']] as const;
-     for(const [key,type,name,unit,number,specification] of examples){const row=structuredClone(template);row.sourceRowIdentity='synthetic-display-'+key;Object.assign(row.values,{id:'SYNTHETIC-DISPLAY-'+key,GoodsNo:'SYNTHETIC-DISPLAY-'+key,lx:type,CnName:name,cgcnname:name,actualname:name,CnComposition:specification,cgCnComposition:specification,QtyUnit:unit,TotalNum:number,cgnum:number,rknum:number,cgdh:'PO-DISPLAY-'+key,rkdh:'IN-DISPLAY-'+key,cydh:'SHIP-DISPLAY-'+key,ckdh:'OUT-DISPLAY-'+key,CYNum:number,OutStoreNum:number});page.rows.push(row);}
+     for(const [key,type,name,unit,number,specification] of examples){const row=structuredClone(template);row.sourceRowIdentity='6087050:sha256:synthetic-display-'+key;Object.assign(row.values,{id:'SYNTHETIC-DISPLAY-'+key,GoodsNo:'SYNTHETIC-DISPLAY-'+key,lx:type,CnName:name,cgcnname:name,actualname:name,CnComposition:specification,cgCnComposition:specification,QtyUnit:unit,TotalNum:number,cgnum:number,rknum:number,cgdh:'PO-DISPLAY-'+key,rkdh:'IN-DISPLAY-'+key,cydh:'SHIP-DISPLAY-'+key,ckdh:'OUT-DISPLAY-'+key,CYNum:number,OutStoreNum:number});page.rows.push(row);}
      page.total=page.rows.length;
     }
     for(const pages of Object.values(b.materials))for(const p of pages)for(const row of p.rows) {

@@ -27,7 +27,8 @@ test('built source UI shows traced excess warehouse independently in a disposabl
   const cookie=await x.login('demo.material'),split=cookie.indexOf('=');await command('Network.setCookie',{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:'127.0.0.1',path:'/',httpOnly:true});
   await command('Page.navigate',{url:x.base+'/order-center/style-progress/detail?orderId='+x.orderId});
   await until(()=>evaluate("Boolean(document.body?.innerText.includes('合成拉链'))"),'source material');
-  await evaluate("[...document.querySelectorAll('button')].find(n=>n.getAttribute('aria-label')==='查看 合成拉链 事件').click();document.querySelectorAll('.sp-material-event-tabs [role=tab]')[1].click()");
+  await evaluate("[...document.querySelectorAll('button')].find(n=>n.getAttribute('aria-label')==='查看 合成拉链 事件').click()");
+  await until(()=>evaluate("Boolean(document.querySelector('.sp-material-events'))"),'drawer ready');await evaluate("document.querySelectorAll('.sp-material-event-tabs [role=tab]')[1].click()");
   const cells=()=>evaluate("(()=>{const table=[...document.querySelectorAll('.sp-material-events table')].find(n=>[...n.querySelectorAll('th')].some(h=>h.textContent==='多余仓'));return table?[...table.querySelectorAll('tbody tr:first-child td')].map(n=>n.textContent):[];})()");
   // Manual refresh remounts the Source card; reopen the current drawer generation.
   const expectExtra=(value,label)=>until(async()=>{await evaluate("(()=>{if(!document.querySelector('.sp-material-events')){const button=[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成拉链 事件');if(button)button.click();}const tab=document.querySelectorAll('.sp-material-event-tabs [role=tab]')[1];if(tab&&tab.getAttribute('aria-selected')!=='true')tab.click();})()");return (await cells())[3]===value;},label);
