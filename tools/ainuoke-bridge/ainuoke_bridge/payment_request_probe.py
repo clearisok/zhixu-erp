@@ -45,7 +45,17 @@ class BoundedPaymentTransport:
         self.http_attempts = 0
         self.report_requests = 0
         self.last_report_text = None
+        self.last_report_request_number = 0
         self.phase = "not-started"
+
+    MAX_HTTP_ATTEMPTS = 2
+    MAX_REPORT_REQUESTS = 1
+
+    def report_body_allowed(self, body):
+        return body == build_report_request(DEFINITION, page=1, page_size=PAGE_SIZE, query_context={})
+
+    def response_byte_limit(self, is_report):
+        return MAX_RESPONSE_BYTES
 
     def request(self, *, url, method, body, headers, timeout):
         login_url = urljoin(APPROVED_HTTP_ORIGIN + "/", AinuokeClient.LOGIN_PATH.lstrip("/"))
@@ -53,10 +63,13 @@ class BoundedPaymentTransport:
         is_report = method == "POST" and url == report_url
         if not (method == "GET" and url == login_url or is_report):
             raise UpstreamSchemaError("payment_probe_endpoint_refused")
-        if is_report and body != build_report_request(DEFINITION, page=1, page_size=PAGE_SIZE, query_context={}):
+        if is_report and not self.report_body_allowed(body):
             raise UpstreamSchemaError("payment_probe_scope_refused")
-        if self.http_attempts >= 2 or is_report and self.report_requests >= 1:
+        if self.http_attempts >= self.MAX_HTTP_ATTEMPTS or is_report and self.report_requests >= self.MAX_REPORT_REQUESTS:
             raise UpstreamSchemaError("payment_probe_request_limit")
+        response_limit = self.response_byte_limit(is_report)
+        if response_limit < 1:
+            raise UpstreamSchemaError("payment_probe_response_limit")
         self.phase = "report" if is_report else "login"
         self.http_attempts += 1
         self.report_requests += int(is_report)
@@ -68,7 +81,7 @@ class BoundedPaymentTransport:
             headers = {**headers, "Content-Type": "application/json;charset=utf-8"}
         try:
             with build_opener(NoRedirect(), ProxyHandler({})).open(Request(url, data=data, method=method, headers=headers), timeout=min(timeout, 15)) as response:
-                raw = response.read(MAX_RESPONSE_BYTES + 1)
+                raw = response.read(response_limit + 1)
         except HTTPError as error:
             error.close()
             if error.code in (401, 403):
@@ -78,7 +91,7 @@ class BoundedPaymentTransport:
             raise NetworkAinuokeError("upstream_http_error") from None
         except (URLError, TimeoutError, OSError):
             raise NetworkAinuokeError("network_unavailable") from None
-        if len(raw) > MAX_RESPONSE_BYTES:
+        if len(raw) > response_limit:
             raise UpstreamSchemaError("payment_probe_response_limit")
         try:
             text = raw.decode("utf-8")
@@ -89,6 +102,7 @@ class BoundedPaymentTransport:
             raise UpstreamSchemaError("payment_probe_invalid_json")
         if is_report:
             self.last_report_text = text
+            self.last_report_request_number = self.report_requests
         return result
 
 

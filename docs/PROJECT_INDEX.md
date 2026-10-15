@@ -1,11 +1,11 @@
 # 项目知识索引
 
-核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub为实时事实源；随代码/PR/授权/来源/验收更新。
+核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub为实时事实源；随代码/PR/来源/授权/验收更新。
 
-- 当前恢复：[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[批准计划](tasks/active/order-identity-program.md)；身份PR109–112与独立108未合并。
-- G5 B2排序/设置/侧栏及num_dyc：68ac原提交保留，[冻结结果](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。Quote独立小修d9bf保留13浏览器/112前端/94基线证据，不混入财务分支。
-- 6086941：[首次成功100/17675](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)、[49字段](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-schema-2026-10-15.json)、[两行确认](tasks/active/evidence/ainuoke-payment-request-probe/row-context-confirmation-2026-10-15.md)、[只读观察模型](tasks/active/ainuoke-payment-request-read-model.md)、[Source模块](features/AINUOKE_SERVER_SOURCE.md)。不是完整合同对账或Source/UI激活。
-- [确认前摘要原文](tasks/completed/2026-10-15-before-payment-row-context.md)保留原日期/hash/结果/限制；读取次数用完、四单窗口12/12结束，不新增DB/绑定/部署，不自动合并，Git恢复遵守AGENTS。
+- 当前：[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[批准计划](tasks/active/order-identity-program.md)；PR109→110→111→112与108独立，尚未合并。
+- G5排序/侧栏/num_dyc：B2@68ac，[冻结证据](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。Quote小修d9bf和read-model父分支fbb6002f保留，不混入本Phase。
+- 6086941：[真实首页](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)、[两行确认](tasks/active/evidence/ainuoke-payment-request-probe/row-context-confirmation-2026-10-15.md)、[观察模型](tasks/active/ainuoke-payment-request-read-model.md)、[两合同有界分页工具](tasks/active/ainuoke-payment-contract-probe.md)、[Source模块](features/AINUOKE_SERVER_SOURCE.md)。新模式仅合成/离线验证，尚未真实查询/激活或接侧栏。
+- [上一摘要归档](tasks/completed/2026-10-15-before-payment-contract-probe.md)保留原日期/hash/结果/限制。真实请求次数用完、四单窗口结束，不自动合并部署，Git恢复遵守AGENTS。
 
 ## 系统简介
 

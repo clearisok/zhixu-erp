@@ -1,19 +1,17 @@
-# 当前恢复点：6086941逐行确认和离线观察模型
+# 当前恢复点：两合同完整分页工具，仅完成合成验证
 
-2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/ainuoke-payment-request-read-model从原诊断33ccad55454568acbba9909109d23cf20bd7139b/clean开始，沿erp-followup-governance工作树。B2@68ac、诊断33cc、Quote小修d9bf及原refs/私有报告保留，不新建工作树/重复PR。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。feat/ainuoke-payment-contract-probe从父read-model@fbb6002f6b8fc0257bca72c3bd4e4ae07488f0a7/clean继续，仍在erp-followup-governance树，不新建树/重复PR。父ref、B2@68ac、Quote@d9bf及全部原报告保留。
 
-D136已记录最新用户确认：两个精确样本OutStoreNum是本次申请物料出运分配、单位个，采购CNY且申请金额沿对应采购合同币种。其他98行不能默认CNY。原私有报告d500982d3b6ba1b2cf408db4e626e4097d93c3570852398e3b911be98cbb80ae不变。
+D137是工程范围，不是新增读取许可。新ReadContracts互斥于原ReadFirstPage：只从私有人工确认样本文件的精确SHA选S1/S2，账号指纹一致才登录，固定6086941/ExpContractNo/is候选，2合同×最多2页×2遍、100行/页。最多9HTTP/8report、4MiB/响应、16MiB累计报表（限下一次read）、180秒；父终端195秒，无重试/Discovery/catalog/数据库/激活。
 
-Python纯离线extractor和Node纯Projection保留精确数值文本、missing/null/blank/0/负值、各数量金额；id未核实为稳定分录，不去重或求和。人工确认绑定来源指纹/时刻/raw hash/页/行/完整行hash/采购合同；变化或矛盾不沿用。没有API、DB、Source catalog注册或UI解锁；确认只由可信集成层提供，不接受客户端自报。
+Python与Node均检查合同归属、每页数量/total/顺序、两遍一致与三个单据身份见证；重复行保留，重复整页拒绝。数值文本精确、无合计或银行付款推断。安全可解析失败页可私有隔离（即使API错误缺rows/metadata）；凭据反射/非法JSON/超限原文不可保留。非零退出不能伪装成功。Windows native路径解决ADMINI~1与Administrator的同一路径误判，原首页47回归保持。
 
-100行离线通过，0HTTP/0DB。原受保护目录中的新私有确认SHA212481539bf342aef5899658199bf20d95e76331a3c3d32983a1a0e768c60e02，当前逐金额观察SHA0393cce74403f943f291a46f8beae6f6862a57d5d15edb418d25ac2c815beee1；旧观察SHA db33b5a9fa782cbd6117e6d2b706632fa7a76f5aa7479286bb386b5298bc6518保留。公开仅别名/统计/hash，不把真实单号/品名/数量金额入Git。
+79 Node/114 Python、typecheck/Server build/源码lint通过；本Phase最终root/94/精确守卫和manifest绑定收口见git log/任务。Code/私有报告/远端/产品验收分别记录。
 
-最终源码ba3e058307c7e500ac86efc54121e17290291249；绑定提交afd0f9bef4494afa1661a3d738c0d597513152e4/clean的898/898项目、94/94基线、精确main守卫PASS；13观察Node/47诊断Node/96Python、类型/Server编译/源码lint通过。随后只更新摘要，最终完整HEAD看git log，交付前核对clean/精确门禁。
+新工具只离线加载过原确认文件：outputs/ainuoke-payment-private-096db071-c9a1-4649-8713-11f98f839f14/ainuoke-payment-request-private-ccf808d7-d2dd-4fe8-9dfa-b6ca3ea834d3.json，SHA212481539bf342aef5899658199bf20d95e76331a3c3d32983a1a0e768c60e02；selectionHash66d318aee2d8377bada020461c6ef97918972c7aca0e29a88483a7b74ac253c0。未读凭据、0HTTP/0DB。原报告d500...及观察0393...完整保留；别cat原文或把合同号/品名/逐行数值入Git。
 
-下一工程：固定合同过滤/完整分页、当前来源身份/采购币种→整代持久快照/当前有效SO/fresh权限→原事件侧栏。跨时间稳定键/作废修正单独守卫未来增量/去重/财务计算，不要求全表逐条人工验收。首页不是某单完整对账；申请字段不等于银行已付，不新增付款公式。
+所有原真实授权次数用完。本轮没有执行ReadContracts；下一次需要用户明确批准两份既有样本合同一次运行的固定范围。成功也不是全表/正式UI或Source激活。D136币种只限三个已确认金额，其他未知不默认CNY/0；理论和实际采购不相等仍合法。
 
-所有真实读取次数用完；最新回答只确认含义，不扩大读取/写入范围。不要再请求6086941/Discovery/材料、读取凭据、重启四单窗口、改真实DB/账号、部署或自动合并。新真实验证先备好固定范围再确认。
+Git仍NETWORK_DEGRADED，重新提供的AGENTS恢复规则适用，不自动重试/换认证/文件API伪造提交。当前父branch保留但工作树已推进，交付只能用最新当前branch/完整HEAD，旧Worktree/Branch不匹配命令会被安全拒绝。无新PR/Hosted CI，不自动合并。主线109–112和108保持独立。
 
-Git NETWORK_DEGRADED，最新AGENTS恢复规则适用，不自动恢复/换认证。main未变；PR109精确1fcc三项CI成功/可合并，110–112及108独立，未获新合并授权。新branch未远端、无新PR/Hosted CI；恢复命令必须用最终完整SHA，只给一条。
-
-金额币种边界复核：仅cgGoodsAmount/PayAmount/GoodsAmount采用本轮确认的采购合同币种，其余金额币种保持unknown；不提供通用行currency。详见本Phaseobservations-amount-currency-2026-10-15冻结证据。
+不重复Discovery、不开数据库/真实账号/Source首绑或持续激活，不重启四单窗口，不触碰宁波18443/18444。下一工程在真实固定查询核验后做完整快照/有效SO/fresh权限/原侧栏，身份主线不等待财务后续。

@@ -1,18 +1,15 @@
 # 当前状态
 
-核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub为实时工程事实源；随代码、PR、授权、来源或验收变化更新。
+核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub是实时工程事实源；源码、PR、来源、授权或验收变化时更新。
 
-- 订单身份PR109及依赖Draft110/111/112均未合并，#108独立；刚核实#109精确1fcc440f三项CI成功、可合并，未获本轮合并授权。
-- G5排序/团队设置、页头、明细展开、事件侧栏与独立num_dyc保持B2@68ac1fc9/clean；原提交、私有证据、已结束的四单窗口12/12保留，不重启或改现有演示。
-- 6086941实读仍为ead8e371的首页100/17675行、2HTTP/1报表、49列。D136已记录两个精确样本的本次出运分配口径、单位个和CNY；申请金额沿对应采购合同币种。其他行未因此获得单位/币种确认。
-- feat/ainuoke-payment-request-read-model沿现有工作树从33ccad55/clean起；原诊断分支保留。离线提取及只读观察保留精确文本、重复/未知/负值、逐行证据；不合计或推断稳定财务分录/银行实付。
-- 已有100行离线验证通过：仅2行有确认CNY/出运单位，另外98行币种未知。0HTTP/0DB/未激活，原报告未改，新确认/观察文件ACL保护且Git忽略。[工程任务](tasks/active/ainuoke-payment-request-read-model.md)、[用户确认](tasks/active/evidence/ainuoke-payment-request-probe/row-context-confirmation-2026-10-15.md)。
-- 13观察Node、47诊断Node、96Python、898项目、94基线，以及类型/Server编译/源码lint通过；最终测试与精确main守卫在afd0f9be/clean通过（11页/37能力/53继承UI路径）。只有后续摘要变化，不冒称Hosted CI/产品人工验收。
-- 正式对账未接入：先核实合同精确过滤/完整分页、当前来源身份与采购币种，做完整快照/有效SO/fresh权限和原侧栏；跨时间分录键单独限制后续增量/去重/计算。缺预付款未知，首页不是某单完整账本。
-- 独立Quote退出修复fix/quote-logout-save-retry@d9bf53b47f2f587d6c0db4954b0b8a55fe431638保持干净；13浏览器/112前端/94基线及质量通过，不混入财务分支。
-- Git仍NETWORK_DEGRADED，此前实际pushes0，本轮未重复恢复；新代码未远端/无新PR或Hosted CI。用户重新提供的AGENTS恢复规则适用，不伪造原commit交付。
-- 所有真实读取次数已用完；无新凭据读取、真实账号/业务DB/绑定/激活/部署，不触碰宁波18443/18444，不自动合并。
+- 开放PR108–112仍独立，订单身份主线109→110→111→112未合并；没有新的合并授权。G5 B2@68ac、Quote退出修复d9bf及所有旧refs/私有证据保留。
+- 6086941已有100/17675真实首页和D136两个样本确认；采购/本次出运分配/报关/开票及金额独立。原read-model@fbb6002f保留，13观察、47首页、96Python、898/94在各冻结SHA通过。
+- 当前feat/ainuoke-payment-contract-probe从fbb6002f/clean沿同一Source工作树继续。新显式两合同模式固定6086941、2页/合同、100行/页、完整两遍，最多8report/9HTTP、4MiB/响应、16MiB累计报表、180秒。原首页模式仍仅2HTTP/1report。
+- 混单、空而未验证、分页不全/重复、缺正向见证、来源变化或超限失败；安全失败页私有隔离，不能冒称正式Projection。Windows短/长路径用native物理路径保护；不支持精确JSON源文本的运行时在发凭据给worker前失败。
+- 79相关Node（47首页＋13观察＋19本阶段）、114 Python、类型/Server编译/源码lint通过；本阶段898/94及精确main守卫在前向冻结后收口。[任务/范围](tasks/active/ainuoke-payment-contract-probe.md)。
+- 原私有确认文件已离线核实2目标/S1,S2与selectionHash，0HTTP/0DB。新ReadContracts尚未真实执行；ExpContractNo/is仅查询候选，没有声称过滤/完整合同来源已实证。
+- 正式对账持久快照/API/原侧栏尚未接通；下一步先取得一次精确两合同真实核验授权。跨时间分录去重/汇总、银行实付另设边界；不要求用户逐条验收全表。
+- Git NETWORK_DEGRADED，未自动恢复/重复推送；本Phase无远端核实/PR/Hosted CI。旧父分支原提交保留，当前工作树交付须用本阶段branch/最终HEAD，不能执行不匹配旧命令。
+- 所有先前真实读取次数已用完，未读凭据或新增上游请求；四单窗口12/12结束，不重启。不改真实账号/业务DB/首绑/激活/宁波18443/18444，不自动合并部署。
 
-[确认前摘要原文](tasks/completed/2026-10-15-before-payment-row-context.md)保留日期/hash/结果/限制；旧工程验收仍以各自冻结SHA为准。Goal未完成。
-
-金额币种边界复核：仅cgGoodsAmount/PayAmount/GoodsAmount采用本轮确认的采购合同币种，其余金额币种保持unknown；不提供通用行currency。详见本Phaseobservations-amount-currency-2026-10-15冻结证据。
+[上一恢复点原文](tasks/completed/2026-10-15-before-payment-contract-probe.md)保留日期/hash/结果/限制。Goal未完成；工程通过不等于产品人工验收或Source激活。

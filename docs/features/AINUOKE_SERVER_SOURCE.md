@@ -2,15 +2,15 @@
 
 ## 当前恢复摘要（2026-10-15）
 
-main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。6086941首页实读100/17675、49列及原始hash已核实；[首次成功报告](../tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)保留当时事实。[后续用户确认D136](../tasks/active/evidence/ainuoke-payment-request-probe/row-context-confirmation-2026-10-15.md)：OutStoreNum为本次申请关联的实际物料出运分配数量；两个样本单位个/CNY，申请金额沿对应采购合同币种，不推广全表。
+main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。6086941首页100/17675与49字段、D136两行含义/个/CNY确认及精确只读观察模型已本地完成，原报告/数值/未知值/重复行不改。金额币种只限定cgGoodsAmount/PayAmount/GoodsAmount，不扩张到报关/开票/预付或收款。
 
-[离线观察模型](../tasks/active/ainuoke-payment-request-read-model.md)保留精确decimal文本、缺键/null/blank/0/负值和独立数量/金额；来源id未证实稳定，不去重或求和；确认限定精确来源捕获及行，变化后重验。已有100行离线0HTTP/0DB通过，2行确认CNY/出运单位，其他98行币种未知。
+[两合同分页工具](../tasks/active/ainuoke-payment-contract-probe.md)为D137合成工程：已有私有S1/S2精确hash及账号指纹；固定6086941/ExpContractNo/is查询候选，每合同≤2页×100行、完整两遍；最多8报表/9HTTP、4MiB/响应、16MiB累计报表、180秒。原首页动作仍2HTTP/1report；没有注册catalog/采集调度/HTTP业务API/DB或UI接线。
 
-没有正式财务Source/快照/API/UI接线。仍需固定合同过滤/完整分页、稳定明细键和采购币种来源；缺预付款/审批/实付证据保持未知，不认定银行已付。6086941与6087050同名字段分开，不新增汇率、单位换算或齐套改动。
+79相关Node/114Python与类型/Server编译/源码lint通过；新模型最终root/94/精确main门禁另收口。私有样本只离线加载，0HTTP/0DB，尚未真实执行新模式，不能宣称查询过滤或完整合同数据已核实。新真实范围须单独明确批准；先前所有读取次数已用完。
 
-13观察Node、47诊断Node、96Python、898项目/94基线及类型/Server编译/源码lint通过；afd0f9be/clean的精确main守卫PASS。B2@68ac、独立Quote小修d9bf保留；新代码未远端/部署。真实次数用完，四单窗口12/12已结束；不改真实账号/DB/绑定/激活/宁波18443/18444，不自动合并。最新AGENTS恢复规则适用。
+B2@68ac、read-model@fbb6002f和Quote@d9bf等原成果保留；Git未交付的新代码不声明PR/Hosted CI/部署通过。无真实账号/DB/绑定/激活/宁波18443/18444操作，四单窗口12/12结束不重启，不自动合并。
 
-[确认前摘要](../tasks/completed/2026-10-15-before-payment-row-context.md)保留原文与hash；随来源/代码/授权/验收变化更新，GitHub为实时工程事实源。
+[上一摘要原文](../tasks/completed/2026-10-15-before-payment-contract-probe.md)保留日期/hash/结果/限制。GitHub为实时工程事实源；来源/代码/授权/PR/验收变化时更新当前摘要。
 
 核实2026-10-14；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`（#104–107已合并）。GitHub及目标代码为工程事实源；随来源契约、权限、命令、预算、合并、真实激活/部署或验收变化更新。旧日期/hash/结果与未合并状态原文见[归档](../tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)。
 
