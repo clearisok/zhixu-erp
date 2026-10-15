@@ -1,13 +1,13 @@
-# 当前状态
+# 当前状态：Gate5联合候选本地验收完成，未交付或部署
 
-核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub为实时工程事实源，本文件随代码、PR、授权与验收变化更新。
+核实2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。沿同一feat/material-sort-and-event-drawer，从68ac1fc9f839ebfc894d39377dac221e7f65566b/clean先快进已验Quote d9bf53b47f2f587d6c0db4954b0b8a55fe431638，再合入最新G4 4c59d974edd29cc82798884e70ff7586319f95ac（含G1–G3修复）。所有原refs/提交保留，无新树/重复PR，不合main。
 
-- 当前fix/quote-logout-save-retry从B2 68ac1fc9f839ebfc894d39377dac221e7f65566b建立；产品修复65566527b15c1ffd78715389d7c34db0e867b300，原报价转单分支a0e60e4完整保留。
-- 两个缺陷已复现并修复：保存ACK后退出失败仅重试退出；保存未确认时不允许丢弃离开。继续编辑产生新dirty仍需保存，沿用现有UI、成本与持久化边界。[冻结验收](tasks/active/evidence/quote-logout-save-retry-2026-10-15.md)。
-- 13/13真实浏览器＋一次性PG、112/112前端认证/持久化、类型/构建/lint和0912b753精确main门禁通过。没有新截图/人工像素验收；新文档checkpoint的基线回归/门禁另记，不冒称全部重跑。
-- G1 PR109、G2–G4 Draft110/111/112及独立Source PR108开放，先前精确提交各三CI成功，均未合并。G5 B2排序/设置/侧栏、num_dyc已本地验收但未送达；本小修需在其依赖后交付，不跳过累计依赖直接合并。
-- 另一财务分支已在ead8e371/clean读取6086941首页100/17675行、确认49列；该代码和实读文件不在本分支。真实所有次数已用完，不额外读取或激活，下一正式对账接线仍待字段关联/币种核验。
-- Git仍NETWORK_DEGRADED、实际pushes0，无新PR/Hosted CI。用户最新重新提供AGENTS，恢复规则适用，不自动执行恢复命令/换认证；没有共享配置变化。
-- 四单窗口12/12结束，不重启。未改真实账号、业务DB、现有演示镜像、宁波18443/18444，不自动合并/部署，生产/关账路由不扩张。
+G5既有小返回箭头、业务/工厂款号、去重复导航/说明、面料显示排序、团队辅料关键词设置、颜色规格展开、事件侧栏和num_dyc保持。管理员/物控写设置，七角色读；来源数量/单位/事件身份不改。多余仓单列，不加进rknum或齐套；对账仍待接入，不造金额或银行实付结论。
 
-[前一共享摘要与Quote说明原文](tasks/completed/2026-10-15-before-quote-logout-feature-alignment.md)保留原日期/hash/结果/限制。Goal继续，最新工作恢复见AI_HANDOFF。
+已验Quote退出重试修复现在纳入同一候选：保存已ACK且clean后只重试退出，新修改需再保存，未知保存仍保留；不再仅停留独立分支。D130更强准备outbox/回执/刷新保护保留，并带入其新增丢回执回归。没有改SQL、物料公式或生产/关账路由。
+
+冲突仅三份共享摘要，三条原文完整[归档](tasks/completed/2026-10-15-gate5-before-verified-dependency-integration.md)，业务代码无冲突。既有冻结截图/hash与工程结果仍按原源码阅读，本轮实际通过：设置/客户端17/17；页头/退出/来源13、num_dyc5、身份6及物料展示9共33项浏览器覆盖（按下述两次构建分层）；typecheck、Server编译、Server/session/snapshot及默认Browser两authority构建、全源码lint（排除继承outputs私有生成物）、root898/898、基线94/94及精确main守卫PASS（11页/35能力/53继承UI路径）。
+
+G1–G4新本地heads分别7ef6e665/e3cebb48/4da3590b/4c59d974，仍待新远端/CI；旧PR绿灯不替代新提交。G5原交付失败NETWORK_DEGRADED，不自动恢复推送/创建PR或合并；新候选仍需精确远端和Hosted CI。
+
+Source48b63101/clean和其交付命令保持。6086941固定首页与两精确样本单位/币种证据已存在，新两合同完整分页查询仍待范围授权，不重复全量或用字段名认定映射。原四单2小时窗口12/12已结束，不重启；本轮不读凭据/报表、不操作真实账号/业务DB、Source首绑/激活/宁波18443/18444或现有真实演示镜像。

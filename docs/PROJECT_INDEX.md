@@ -1,11 +1,28 @@
+2026-10-15 / 当前G5联合候选纳入已验Quote修复与最新G1–G4；17设置/客户端、33浏览器覆盖、898项目/94基线、两authority构建及精确门禁已本地通过，仍未送达新远端或部署。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；恢复CURRENT_STATE及[本轮证据](tasks/active/evidence/material-source-integration/gate5-verified-dependencies-2026-10-15.md)。下方旧快照按原时点阅读。
+
+2026-10-14 / 本机四单真实隔离演示已执行首绑与两轮刷新，未开长期调度；[真实运行证据](tasks/active/ainuoke-isolated-live-results-2026-10-14.md)。以下旧状态按历史时点阅读。
+
+2026-10-14 / main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5：右上角退出与D-118受控单位/采购责任只读候选完成，真实Source未激活。[最终验证](tasks/active/material-confirmations-verification-2026-10-14.md)、[下一隔离演示Gate](tasks/active/material-confirmations-2026-10-14.md)。
+
+2026-10-14 / main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5：D-117订单异常列和待定颜色记0为当前独立工程候选，见[工程报告](tasks/active/order-list-alerts-2026-10-14.md)与CURRENT_STATE；下文旧摘要按历史时点阅读。
+
+2026-10-14 / GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`：PR108 head `8b89de59dd405395da1dde4b6dde5f125141deb9` 开放未合并。本轮独立分支只读追查单位/颜色/负数量/空物料；具体原因与真实演示阻塞见 [异常治理](tasks/active/source-anomaly-followup-2026-10-14.md)。旧摘要均为历史时点，真实 Source 未激活。
+
 # 项目知识索引
 
-核实2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub为实时工程事实源，本文件随代码/PR/授权/验收变化更新。
+2026-10-15当前联合候选：B2纳入已验Quote d9bf与最新G4 4c59（含G1–G3），原截图/源码范围保留，新远端/CI仍待。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先恢复[当前状态](CURRENT_STATE.md)和[联合验收](tasks/active/evidence/material-source-integration/gate5-verified-dependencies-2026-10-15.md)；下方“退出修复待做”等属于原时点，现已纳入候选。
 
-- 当前[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[Quote模块](features/QUOTE_CENTER.md)。独立退出小修：[范围与验收](tasks/active/quote-logout-save-retry.md)、[冻结证据](tasks/active/evidence/quote-logout-save-retry-2026-10-15.md)。
-- G1 PR109、G2–G4 Draft110/111/112和Source PR108开放未合并；本地G5/B2/num_dyc及本小修未远端/部署，依赖不可跳过。真实四单窗口12/12结束。
-- 6086941固定首页首次成功在另一feat/ainuoke-payment-request-probe分支：100/17675行、49列；不把私密诊断当正式对账接通。本分支不含其新代码/报告。
-- [先前索引/状态/接力/Quote说明原文](tasks/completed/2026-10-15-before-quote-logout-feature-alignment.md)保留全部历史日期/hash/结果/限制。不得删除长期Browser数据或改真实账号/数据库，不自动合并部署。
+2026-10-15当前核实基线 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。G1 PR109@1fcc440、G2 Draft PR110@3deffc4三CI成功但未合并；G3 Draft PR111@f4a1b99b精确送达且三CI成功；G4 Draft PR112@036fe521三CI成功、未合并。G5整合与B1页头本地验收，独立num_dyc只读映射已本地通过新增15/root891/基线94/UI5，未远端或部署；[字段结果](tasks/active/evidence/material-source-integration/num-dyc-mapping-results-2026-10-15.md)。真实执行/部署仍关闭。优先恢复[订单身份实施计划](tasks/active/order-identity-program.md)、[身份模块](features/ORDER_IDENTITY.md)、[订单商业版本](features/ORDER_COMMERCIAL_VERSIONS.md)和[当前状态](CURRENT_STATE.md)。下方历史开头保留其记录时点，不代表当前PR/部署状态。
+
+2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 已合并 PR #104/#105/#106。D-112 受控新增合同在独立 `feat/ainuoke-controlled-contract-intake` 工程分支实施，仍未合并、未真实执行；恢复入口为[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)及 Active 决策。下文旧 SHA/PR 状态仅按历史时点阅读。
+
+历史来源分支2026-10-14记录（非当前运行/PR结论）：
+核实2026-10-14；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5` 已合并 #104/#105/#106/#107。工程含 QtyUnit 与受控新增合同；真实Source未激活、未部署、未完成全量持续人工验收。当前恢复入口：[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[本机真实演示准备](tasks/active/ainuoke-live-demo-readiness.md)、[当前状态](CURRENT_STATE.md)、Active D105–114。
+
+历史真实发现558可见合同、80物料抽样与62未知是原日期证据；三行单位/身份后续获用户确认，不代表全量数据完美。GitHub/代码是实时事实源，文档随main/来源/目标/验收变化更新。[旧状态原文](tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)保留旧日期/hash/结果/限制。[基线门禁](features/RELEASE_BASELINE_GUARD.md)及[交付协议](tasks/active/git-delivery-resilience.md)保持，不替代UI/DB/部署验收。
+
+全量预检已取得有效真实回执：当前账号可见558合同完整稳定，颜色552可用6无效、14,411需求单位12,655已知/1,750缺失/6冲突；约8分25秒，无DB/Source激活/部署。[完整脱敏证据](tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)。用户后续授权Codex自行执行同范围已授权只读脚本，凭据文件只由进程消费，不进模型上下文。原三次失败/修复保留其历史范围；24项/root817/基线71通过，[修复复审及交付限制](tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-final-local-review-2026-10-13.md)。
+本轮定向质量/双数量事实及新owned持久本机演示已完成，23fixture/Excel框架订单、17报价、六角色；生产路由保持关闭、真实Source未激活。完整[A–F交付报告](tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md)，与558真实预检分开阅读。
 
 ## 系统简介
 
@@ -135,5 +152,3 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 - `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
-
-2026-10-15 独立小修入口：[Quote保存/退出重试](tasks/active/quote-logout-save-retry.md)与[冻结证据](tasks/active/evidence/quote-logout-save-retry-2026-10-15.md)；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。依赖B2，不改变创建、CCT或UI布局。

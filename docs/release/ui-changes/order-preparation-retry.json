@@ -1,0 +1,15 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V1",
+  "paths": [
+    "features/order-center/components/server-order-preparation-card.tsx"
+  ],
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "继承G1原请求重试修复意图；Gate4保留既有D130更强会话outbox、刷新恢复、回执及离开保护，未修改产品组件或重新设计UI。新增回归适配现有控件，防止依赖合并降级。",
+  "evidence": [
+    "docs/tasks/active/evidence/order-identity/pr109-preparation-retry-2026-10-15.md",
+    "docs/tasks/active/evidence/order-normalization/gate4-g3-preparation-retry-2026-10-15.md"
+  ]
+}
