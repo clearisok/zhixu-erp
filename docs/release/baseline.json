@@ -1066,6 +1066,29 @@
       "path": "docs/tasks/active/quality-preflight-lineage-fix-2026-10-14.md",
       "recordedAtSha": "00f4baf43f5d284afbb08b7e6b0a9a3321cac862",
       "sha256": "11185409b19db0c31e88321a62980dcf9f8463388c9e3f11b0399132aec6c52c"
+    },
+    {
+      "id": "decisions-source-order-integration",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "f810f073ce3303217484325d7acd934142db5aa8",
+      "sha256": "17435086954e5defe3f40a41e11c08717df0f40df0f48916b4877151e6bfe9a7",
+      "supersedes": "decisions-material-identity-guard",
+      "changeReason": "Preserve D113–120 and D121–131 in real merge; D132 documents request-local source identity and protected logout without fabricating a sibling ancestry chain."
+    },
+    {
+      "id": "source-order-integration-phase-a",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/phase-a-results.md",
+      "recordedAtSha": "f810f073ce3303217484325d7acd934142db5aa8",
+      "sha256": "8e04bb8b4f30a0ae3574db0f3cd8a51e3db0b8eeede0506872b2dc6c93cb2682"
+    },
+    {
+      "id": "source-21da-manifest-archive",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-15-source-21da-baseline.json",
+      "recordedAtSha": "f810f073ce3303217484325d7acd934142db5aa8",
+      "sha256": "dc5cd6bddc20103a06fc347f57afdd9dbd44c4e02cc0ad96c9a458f3665d3c52"
     }
   ],
   "pages": [
@@ -1140,7 +1163,8 @@
       "route": "/order-center",
       "routeFile": "app/order-center/page.tsx",
       "components": [
-        "features/order-center/components/server-order-center-page.tsx"
+        "features/order-center/components/server-order-center-page.tsx",
+        "features/order-center/components/order-alert-tags.tsx"
       ],
       "acceptance": "approved-history",
       "acceptanceScope": "P6 human acceptance with later synthetic integration evidence; production route remains closed. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment.",
@@ -1154,7 +1178,8 @@
         "ainuoke-continuous-computed-styles",
         "unified-demo-engineering",
         "ainuoke-readiness-engineering",
-        "order-source-history-ui-engineering"
+        "order-source-history-ui-engineering",
+        "order-alerts-approved-engineering-20261014"
       ]
     },
     {
@@ -1229,7 +1254,8 @@
       "routeFile": "app/layout.tsx",
       "components": [
         "components/foundation/app-shell.tsx",
-        "components/foundation/responsive.ts"
+        "components/foundation/responsive.ts",
+        "components/foundation/server-user-menu.tsx"
       ],
       "acceptance": "approved-history",
       "acceptanceScope": "Original shell plus D-097 authority/D-098 Quote-first; order harness is not production navigation approval. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
@@ -1241,7 +1267,8 @@
         "ainuoke-continuous-engineering",
         "ainuoke-continuous-computed-styles",
         "unified-demo-engineering",
-        "ainuoke-readiness-engineering"
+        "ainuoke-readiness-engineering",
+        "server-user-menu-approved-20261014"
       ]
     },
     {
