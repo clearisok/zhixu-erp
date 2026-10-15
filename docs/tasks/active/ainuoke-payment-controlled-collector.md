@@ -17,3 +17,5 @@
 额外处理提交回执丢失：测试实际COMMIT成功后抛连接错误，结果必须UNVERIFIED、含candidateSnapshotId/expectedGeneration，confirmed published=0但unresolved=1，下一项不执行；数据库实际有一份快照。不能把这个0解释为无写入。后续用原GET独立比对候选ID/代际，无法确认则保留现场，不重采或盲推。
 
 默认Browser构建已通过；本轮首次构建发生在已知Phase dirty树，build metadata短a94只代表基线，不拿作精确提交构建证明。完整root/94基线在D141尚未前向绑定时正确报EVIDENCE_WORKTREE_DRIFT；将通过新ID/新blob前向绑定，再运行最终检查，绝不改旧截图或旧证据hash消除失败。
+
+源码checkpoint039e9f5d477c629a3e0134f1db21922aa59300c8/clean，22/172相关及类型/Server编译/完整lint通过。随后以该完整SHA显式构建默认Browser，build20261016-001315、quote/master browser/orderRead disabled，通过。原root891/898、基线88/94为旧决策叶节点漂移，原失败日志保持；冻结controlled-collection-engineering-2026-10-16报告后追加新证据链和能力，再跑最终检查。没有真实运行或Git恢复授权扩大。
