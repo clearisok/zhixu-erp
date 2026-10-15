@@ -114,7 +114,9 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     const old = revisions.get(item.supersedes);
     if (!old || old.kind !== item.kind || (item.kind === 'document' ? old.path !== item.path || old.recordedAtSha === item.recordedAtSha : old.path === item.path)
       || !nonempty(item.changeReason) || successor.has(item.supersedes)) {
-      fail('EVIDENCE_REVISION', String(item.id)); continue;
+      fail('EVIDENCE_REVISION', String(item.id));
+      if (item.kind === 'document' && !priorEvidence.has(item.id) && !anchoredRevision(item)) fail('EVIDENCE_REVISION_ANCHOR', item.id);
+      continue;
     }
     successor.set(item.supersedes, item.id);
     // A stacked revision must trace back to evidence frozen in the actual PR base.

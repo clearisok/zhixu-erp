@@ -1,8 +1,21 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import ts from "typescript";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+function modalForOpen(source, variable) {
+  const file=ts.createSourceFile('editor.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX),matches=[];
+  const visit=node=>{
+    if(ts.isJsxElement(node)&&node.openingElement.tagName.getText(file)==='Modal'){
+      const open=node.openingElement.attributes.properties.find(p=>ts.isJsxAttribute(p)&&p.name.getText(file)==='open');
+      const expression=open?.initializer&&ts.isJsxExpression(open.initializer)?open.initializer.expression:null;
+      if(expression&&ts.isCallExpression(expression)&&expression.expression.getText(file)==='Boolean'&&expression.arguments.length===1&&expression.arguments[0].getText(file)===variable)matches.push(node.getText(file));
+    }
+    ts.forEachChild(node,visit);
+  };
+  visit(file);assert.equal(file.parseDiagnostics.length,0);assert.equal(matches.length,1,'exactly one target Modal');return matches[0];
+}
 
 test("报价中心三个静态路由均存在并共享独立样式", async () => {
   const [list, detail, create, layout] = await Promise.all([
@@ -39,7 +52,8 @@ test("价格版本操作在顶部统一使用创建文案，弹窗只编辑名�
   assert.match(editor, /价格版本名称/);
   assert.match(editor, /数量/);
   assert.match(editor, /说明/);
-  const versionModal = editor.slice(editor.indexOf('<Modal open={Boolean(versionModal)}'), editor.indexOf('<Modal open={Boolean(pendingNavigation)}'));
+  const versionModal = modalForOpen(editor, 'versionModal');
+  for(const label of ['价格版本名称','数量','说明'])assert.ok(versionModal.includes(`label="${label}"`));
   assert.doesNotMatch(versionModal, /销售单价/);
 });
 
