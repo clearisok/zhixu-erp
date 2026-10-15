@@ -1609,6 +1609,22 @@
       "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
       "changeReason": "New synthetic contract-observation drawer engineering screenshots; preserve original P6/B2 images. This is not new human pixel acceptance or real source activation.",
       "approvalEvidence": "payment-read-panel-approved-scope"
+    },
+    {
+      "id": "decisions-payment-controlled-collection",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "039e9f5d477c629a3e0134f1db21922aa59300c8",
+      "supersedes": "decisions-payment-read-panel",
+      "changeReason": "D141 adds a bounded internal one-shot financial collection coordinator; preserve prior UI, storage and business decisions without new real-source authorization.",
+      "sha256": "0dc879b4264ae06fb18ee5aac7e16b23afad3d2dd11df467b1c2b68d4afc55bc"
+    },
+    {
+      "id": "payment-controlled-collection-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/controlled-collection-engineering-2026-10-16.md",
+      "recordedAtSha": "499edf5423790392704b35305beb35d13f89790b",
+      "sha256": "acf6e57e1243ffbb9a49111a36c34ff372bc0024ae64e39c2f0fdc41680441f1"
     }
   ],
   "pages": [
@@ -5719,6 +5735,99 @@
             "payment-read-panel-engineering",
             "payment-read-panel-approved-scope",
             "payment-read-panel-ui-receipt"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ainuoke-payment-controlled-collection",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Internal one-shot coordinator reuses the fixed two-contract worker and checked raw pages, exact DB/operator/account/SO/contract/version plan, all-before-first-publication validation, fresh scope recheck and per-SO immutable CAS transactions. New 22 synthetic tests and all 172 related tests passed, including actual committed data with lost COMMIT acknowledgement reported UNVERIFIED; no automatic retry. Exact clean default Browser build is 039e9f5d477c629a3e0134f1db21922aa59300c8/build20261016-001315. No HTTP/CLI/scheduler activation, real queries or target/data/account writes, new UI/migration, sums, bank-payment inference, merge or deployment. Full root/baseline and guard follow forward evidence binding.",
+      "evidence": [
+        "decisions-payment-controlled-collection",
+        "payment-controlled-collection-engineering"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "499edf5423790392704b35305beb35d13f89790b",
+          "scope": "Internal one-shot coordinator reuses the fixed two-contract worker and checked raw pages, exact DB/operator/account/SO/contract/version plan, all-before-first-publication validation, fresh scope recheck and per-SO immutable CAS transactions. New 22 synthetic tests and all 172 related tests passed, including actual committed data with lost COMMIT acknowledgement reported UNVERIFIED; no automatic retry. Exact clean default Browser build is 039e9f5d477c629a3e0134f1db21922aa59300c8/build20261016-001315. No HTTP/CLI/scheduler activation, real queries or target/data/account writes, new UI/migration, sums, bank-payment inference, merge or deployment. Full root/baseline and guard follow forward evidence binding.",
+          "evidence": [
+            "decisions-payment-controlled-collection",
+            "payment-controlled-collection-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-16",
+          "sourceSha": "499edf5423790392704b35305beb35d13f89790b",
+          "scope": "Internal one-shot coordinator reuses the fixed two-contract worker and checked raw pages, exact DB/operator/account/SO/contract/version plan, all-before-first-publication validation, fresh scope recheck and per-SO immutable CAS transactions. New 22 synthetic tests and all 172 related tests passed, including actual committed data with lost COMMIT acknowledgement reported UNVERIFIED; no automatic retry. Exact clean default Browser build is 039e9f5d477c629a3e0134f1db21922aa59300c8/build20261016-001315. No HTTP/CLI/scheduler activation, real queries or target/data/account writes, new UI/migration, sums, bank-payment inference, merge or deployment. Full root/baseline and guard follow forward evidence binding.",
+          "evidence": [
+            "decisions-payment-controlled-collection",
+            "payment-controlled-collection-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "499edf5423790392704b35305beb35d13f89790b",
+          "scope": "Internal one-shot coordinator reuses the fixed two-contract worker and checked raw pages, exact DB/operator/account/SO/contract/version plan, all-before-first-publication validation, fresh scope recheck and per-SO immutable CAS transactions. New 22 synthetic tests and all 172 related tests passed, including actual committed data with lost COMMIT acknowledgement reported UNVERIFIED; no automatic retry. Exact clean default Browser build is 039e9f5d477c629a3e0134f1db21922aa59300c8/build20261016-001315. No HTTP/CLI/scheduler activation, real queries or target/data/account writes, new UI/migration, sums, bank-payment inference, merge or deployment. Full root/baseline and guard follow forward evidence binding.",
+          "evidence": [
+            "decisions-payment-controlled-collection",
+            "payment-controlled-collection-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "499edf5423790392704b35305beb35d13f89790b",
+          "scope": "Internal one-shot coordinator reuses the fixed two-contract worker and checked raw pages, exact DB/operator/account/SO/contract/version plan, all-before-first-publication validation, fresh scope recheck and per-SO immutable CAS transactions. New 22 synthetic tests and all 172 related tests passed, including actual committed data with lost COMMIT acknowledgement reported UNVERIFIED; no automatic retry. Exact clean default Browser build is 039e9f5d477c629a3e0134f1db21922aa59300c8/build20261016-001315. No HTTP/CLI/scheduler activation, real queries or target/data/account writes, new UI/migration, sums, bank-payment inference, merge or deployment. Full root/baseline and guard follow forward evidence binding.",
+          "evidence": [
+            "decisions-payment-controlled-collection",
+            "payment-controlled-collection-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "499edf5423790392704b35305beb35d13f89790b",
+          "scope": "Internal one-shot coordinator reuses the fixed two-contract worker and checked raw pages, exact DB/operator/account/SO/contract/version plan, all-before-first-publication validation, fresh scope recheck and per-SO immutable CAS transactions. New 22 synthetic tests and all 172 related tests passed, including actual committed data with lost COMMIT acknowledgement reported UNVERIFIED; no automatic retry. Exact clean default Browser build is 039e9f5d477c629a3e0134f1db21922aa59300c8/build20261016-001315. No HTTP/CLI/scheduler activation, real queries or target/data/account writes, new UI/migration, sums, bank-payment inference, merge or deployment. Full root/baseline and guard follow forward evidence binding.",
+          "evidence": [
+            "decisions-payment-controlled-collection",
+            "payment-controlled-collection-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime change; original source/image IDs are historical and not re-observed.",
+          "evidence": [
+            "decisions-payment-controlled-collection",
+            "payment-controlled-collection-engineering"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime change; original source/image IDs are historical and not re-observed.",
+          "evidence": [
+            "decisions-payment-controlled-collection",
+            "payment-controlled-collection-engineering"
           ]
         }
       }
