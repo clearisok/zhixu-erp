@@ -1,5 +1,7 @@
 # 当前状态
 
+2026-10-15最新：本轮2/2固定首页授权已用完；第四次186249/clean仍为通用证据失败，0业务报告，未追加请求。离线已确证Python GBK→Node UTF8中文传输缺陷并修复IPC封套，47Node/87Python/类型/lint通过，原始Unicode与hash保真；真实兼容性未验证，须新次数授权。前一精确186249阶段94基线及main门禁PASS。以本段和AI_HANDOFF为最新，以下阶段快照保留其原时点。
+
 核实2026-10-15；GitHub API最新main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本文是阶段快照，随main/PR/源码、授权和验收更新。
 
 最新增量：第三次固定首页尝试537d671/clean返回payment_probe_invalid_evidence，0报告；新两次授权已用1、剩余1。跨语言分页/total兼容、精确错误及安全rejected私有留存已补齐，45Node/87Python/类型/Server编译/定向lint通过；正式映射仍未验证。Git诊断已定位TCP连接失败而非凭据/TLS。独立Quote退出保护两问题已实测重现并修复，13项真实浏览器回归通过。下列原阶段记录按历史时点保留，以本增量及AI_HANDOFF为当前恢复点。

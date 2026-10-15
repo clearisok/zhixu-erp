@@ -218,7 +218,9 @@ def main():
         if len(raw) > 16384:
             raise ValueError("invalid_payment_probe_input")
         result = probe(json.loads(raw.decode("utf-8")), transport)
-        print(json.dumps(result, ensure_ascii=False, allow_nan=False, separators=(",", ":")))
+        # ASCII JSON is stable even when Windows pipes default to GBK. Decoding
+        # restores the exact Unicode raw response; its original UTF-8 hash is unchanged.
+        print(json.dumps(result, ensure_ascii=True, allow_nan=False, separators=(",", ":")))
     except Exception as error:
         print(json.dumps(safe_failure(error, transport)))
         return 1

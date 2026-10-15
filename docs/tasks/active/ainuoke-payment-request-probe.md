@@ -47,3 +47,13 @@ Git交付观察：用户普通PowerShell最新回执仍pushes0；独立API确认
 失败证据新增受保护保留通道：仅对固定worker包、4MiB以内、原文hash一致、JSON可解析、深层秘密检查通过的响应保存“rejected”私有诊断报告；不产生来源投影，不宣称映射通过。敏感、hash错误、超限、伪造包和解析不明响应不保留。回执仅静态原因、2HTTP/1report及受保护文件路径/hash；PowerShell独立复查路径、ACL和文件hash。原文仍不入Git。
 
 45项Node/实际私密包装器（含rejected报告写入与ACL全链路）和87项Python通过；typecheck、Server build、定向eslint零警告通过。实际Python合成返回→Node验证覆盖数字串和dataList.total，完全无真实HTTP。无UI/SQL/正式Adapter、数量金额语义或数据库改动。自动审批曾拒绝整文件恢复以防丢失未提交内容；已先保存当前副本并核对diff，仅修复本轮拼接错误，未覆盖他人改动。源码与冻结附录SHA由后续精确工程证据记录。
+
+## 第四次真实尝试与Windows进程编码边界（2026-10-15）
+
+同一“最多两次”授权的第二次在186249f73aa64c9a7970f65b8919af2c9dfeedde/clean执行，约5.58秒仍返回FAIL/payment_probe_invalid_evidence/collection；无worker计数、无业务行回执。本次授权2/2已消耗，已停止真实读取。不能据通用错误码伪造当前报表条数/真实字段映射或单位/金额结论。
+
+本机无网络诊断确认Python管道stdout/stdin编码gbk、preferredEncoding cp936、utf8Mode0。新增真正含未转义中文的假报表，运行实际Python CLI，在强制GBK管道下旧实现被Node UTF8严格解码拒绝（ERR_ENCODING_INVALID_ENCODED_DATA），离线可复现。较早合成响应的中文仅位于已ASCII转义的dataList，未覆盖这一链路。此为已证实的本机工程缺陷，符合最近两次错误发生阶段；因失败原文未保存，不冒称已逐字还原两次真实响应。
+
+最小修复仅将跨进程JSON封套编码改为ASCII转义，Node解码后恢复原始Unicode报表文本，原UTF8原文hash不变；不修改HTTP响应、源字段、原始数值文本或金额计算。另区分worker_encoding与worker_json_invalid静态码，不把传输解码错误混作业务证据错误。
+
+修复后47/47 Node（含实际CLI/GBK中文、私有包装器/ACL/拒绝证据、异常UTF8）、87/87 Python、typecheck、定向lint通过；前一精确源码186249的94/94基线回归与精确main门禁通过。后续最新精确门禁与冻结报告记录实际SHA，不重复宣称真实核验已通过。后续任何真实首页读取需新增明确次数授权；Codex自行执行既有私密工具，不要求用户传密码或重复复制命令。

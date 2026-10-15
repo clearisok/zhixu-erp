@@ -148,7 +148,7 @@ test("private writer uses separate prefix, immutable files and existing ACL chec
 });
 
 test("actual Python process pipe has fixed arguments, bounded output, timeout and sanitized failure", async t => {
-  for (const mode of ["valid", "timeout", "oversize", "invalid-json", "failure"] as const) await t.test(mode, async () => {
+  for (const mode of ["valid", "timeout", "oversize", "invalid-json", "invalid-utf8", "failure"] as const) await t.test(mode, async () => {
     let killed = false, requestedArgs: readonly string[] = [], stdinText = "";
     const child = new EventEmitter() as EventEmitter & { stdout: PassThrough; stderr: PassThrough; stdin: PassThrough; kill: () => boolean };
     child.stdout = new PassThrough(); child.stderr = new PassThrough(); child.stdin = new PassThrough();
@@ -159,6 +159,7 @@ test("actual Python process pipe has fixed arguments, bounded output, timeout an
       setImmediate(() => {
         if (mode === "timeout") return;
         if (mode === "oversize") child.stdout.write(Buffer.alloc(PAYMENT_LIMITS.workerBytes + 1));
+        else if (mode === "invalid-utf8") child.stdout.write(Buffer.from([0xff, 0xfe]));
         else child.stdout.write(mode === "valid" ? JSON.stringify(seal(sample())) : mode === "failure" ? config.password : "invalid");
         child.emit("close", mode === "failure" ? 1 : 0);
       });
@@ -166,7 +167,9 @@ test("actual Python process pipe has fixed arguments, bounded output, timeout an
     }) as unknown as typeof spawn;
     const promise = collectPaymentPage(config, { spawnWorker: start, timeoutMs: 50 });
     if (mode === "valid") assert.deepEqual(await promise, seal(sample()));
-    else await assert.rejects(promise, error => error instanceof Error && !error.message.includes(config.password));
+    else await assert.rejects(promise, error => error instanceof Error && !error.message.includes(config.password)
+      && (mode !== "invalid-utf8" || error.message === "payment_probe_worker_encoding")
+      && (mode !== "invalid-json" || error.message === "payment_probe_worker_json_invalid"));
     assert.deepEqual(requestedArgs, ["-m", "ainuoke_bridge.payment_request_probe", "--stdin-request"]);
     assert.equal(JSON.parse(stdinText).action, "read-first-page-only");
     assert.ok(!requestedArgs.join(" ").includes(config.password));
@@ -336,4 +339,29 @@ test("actual Python success feeds Node numeric-string and omitted-count forms wi
     assert.equal(result.summary.reportedTotal,17247);assert.equal(result.summary.httpAttempts,2);
     assert.equal(result.privateReport.rawReportResponse,input.rawReportResponse);
   }
+});
+
+test("actual CLI emits a UTF-8-decodable evidence envelope under Windows GBK without changing raw Chinese report", () => {
+  const script=[
+    "import sys","sys.path.insert(0,'tests')",
+    "from test_payment_request_probe import FakeTransport,response",
+    "from ainuoke_bridge import payment_request_probe as module",
+    "import json",
+    "payload=response();payload['dataList']=json.dumps({'rows':[{'id':7,'QtyUnit':chr(20010)}]},ensure_ascii=False)",
+    "payload['reportObj']['cellList'][0]['title']=chr(21333)+chr(20301)",
+    "module.BoundedPaymentTransport=lambda:FakeTransport(payload)",
+    "sys.argv=['probe','--stdin-request']","raise SystemExit(module.main())",
+  ].join("\n");
+  const child=spawnSync("python",["-c",script],{
+    cwd:resolve("tools/ainuoke-bridge"),timeout:10000,
+    env:{...process.env,PYTHONIOENCODING:"gbk"},
+    input:JSON.stringify({baseUrl:config.baseUrl,transportPolicy:config.transportPolicy,username:config.username,password:config.password,action:"read-first-page-only"}),
+  });
+  assert.equal(child.status,0);
+  const result=JSON.parse(new TextDecoder("utf8",{fatal:true}).decode(child.stdout));
+  const validated=validatePaymentEvidence(result,config,Date.now());
+  assert.equal(validated.summary.candidateFieldCoverage.QtyUnit.nonblank,1);
+  assert.equal(JSON.parse(JSON.parse(validated.privateReport.rawReportResponse).dataList).rows[0].QtyUnit,"个");
+  assert.equal(validated.privateReport.rawReportResponse,result.rawReportResponse);
+  assert.equal(createHash("sha256").update(result.rawReportResponse,"utf8").digest("hex"),result.rawResponseSha256);
 });

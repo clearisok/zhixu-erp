@@ -88,10 +88,13 @@ export async function collectPaymentPage(config: CollectorConfig, options: { pyt
         catch { fail("payment_probe_failed"); }
         return;
       }
+      let output: string;
+      try { output = new TextDecoder("utf8", { fatal: true }).decode(Buffer.concat(chunks)); }
+      catch { fail("payment_probe_worker_encoding"); return; }
       try {
-        const result: unknown = JSON.parse(new TextDecoder("utf8", { fatal: true }).decode(Buffer.concat(chunks)));
+        const result: unknown = JSON.parse(output);
         settled = true; clearTimeout(timer); accept(result);
-      } catch { fail("payment_probe_invalid_evidence"); }
+      } catch { fail("payment_probe_worker_json_invalid"); }
     });
     child.stdin.end(JSON.stringify({ baseUrl: config.baseUrl, username: config.username, password: config.password, transportPolicy: config.transportPolicy, action: "read-first-page-only" }));
   });
@@ -235,7 +238,7 @@ export async function main(args = process.argv.slice(2)) {
   } catch (error) {
     const allowed = new Set(["payment_probe_explicit_action_required", "preflight_private_output_required", "payment_probe_clean_commit_required",
       "invalid_collector_configuration", "payment_probe_scope_refused", "payment_probe_timeout", "payment_probe_limit", "payment_probe_worker_unavailable",
-      "payment_probe_invalid_evidence", "payment_probe_report_mismatch", "source_secret_field","payment_probe_report_metadata_invalid_json","payment_probe_report_metadata_shape","payment_probe_column_metadata_invalid_json","payment_probe_column_metadata_shape"]);
+      "payment_probe_invalid_evidence", "payment_probe_worker_encoding", "payment_probe_worker_json_invalid", "payment_probe_report_mismatch", "source_secret_field","payment_probe_report_metadata_invalid_json","payment_probe_report_metadata_shape","payment_probe_column_metadata_invalid_json","payment_probe_column_metadata_shape"]);
     for (const code of PAYMENT_EVIDENCE_FAILURE_CODES) allowed.add(code);
     const code = error instanceof PaymentWorkerError || error instanceof SourceError && allowed.has(error.code) ? error.code : "payment_probe_failed";
     if (error instanceof PaymentEvidenceError) stage = "evidence_validation";
