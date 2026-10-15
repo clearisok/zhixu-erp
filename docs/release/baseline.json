@@ -1238,6 +1238,22 @@
       "path": "docs/tasks/active/evidence/material-source-integration/num-dyc-pr-delivery-2026-10-15.md",
       "recordedAtSha": "ba20f16f59014712f4b90a98fc1af26e440d4c99",
       "sha256": "27a985cdb6206e3f72c27f2b75a91a2352250e16a877386e0a6d3174f95a6516"
+    },
+    {
+      "id": "decisions-material-display-settings-events",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "799c490159df2b3c26a223539cd5f7e76c2bb605",
+      "sha256": "5f23e4c7eb9f16ae7f457d667d11216d4d562cd31ee4eec8d5c778b94da6fb81",
+      "supersedes": "decisions-excess-warehouse",
+      "changeReason": "D134 implements the approved team display ordering and event drawer while preserving D133 quantities and all source/order history."
+    },
+    {
+      "id": "material-display-approved-scope",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/material-display-approved-scope-2026-10-15.md",
+      "recordedAtSha": "799c490159df2b3c26a223539cd5f7e76c2bb605",
+      "sha256": "d0c4ed01963ff17ff258235b9497d58af14f296aad2d6806149831252ca3ac52"
     }
   ],
   "pages": [
@@ -1504,7 +1520,8 @@
     "/basic-settings/user-permissions",
     "/order-center",
     "/order-center/server-detail",
-    "/order-center/style-progress/detail"
+    "/order-center/style-progress/detail",
+    "/system-settings/progress-settings"
   ],
   "capabilities": [
     {
