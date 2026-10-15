@@ -1,9 +1,11 @@
-# 当前接力：G1三CI通过，共用物料身份保护收口
+# 当前接力：Gate4最终依赖整合，保护全部历史边界
 
-2026-10-15；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；本分支feat/order-effective-attribution，阶段起点b8473b6c39ba371059beab3979eb304c68faf0e1。起点只有同阶段已知红测，无未知dirty。G1已精确1fcc440送达、PR109三CI成功且说明更新，未合并；不要再推同一head。当前G2/G3/G4工程未送达，不沿用旧摘要“开放仅108”。
+2026-10-15；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；feat/order-effective-attribution起点5540c1daf4c3cf8eb80c4337ca226ffdb5875fa4/clean，merge --no-ff --no-commit G3最终f4a1b99b，共同祖先39c9f7b6。G1 PR109、G2 Draft PR110均精确head三CI绿；G3精确送达；创建前API查询曾失败且未创建，独立REST核实[]后首次创建成功，唯一Draft PR111已attach，精确head与三CI启动核实。不重复push或创建。
 
-同批短哈希碰撞修复已应用：完整结构化规范身份比较，保留旧ID/重复行/理论和实际采购语义。原12红测3PASS/9FAIL，最终16/16；根840/840、类型（incremental false）、Server编译与全lint通过。无真实数据或账号访问；原六项真实单位冲突不能归因于合成碰撞。报告tasks/active/material-identity-collision-guard.md、D131及精确V0记录已补。源码checkpoint8d393605dfc9ccc7e63abbdec0048a92072b8d5a；显式Server构建PASS，build-info指向8d393605/buildId20261015-100354。D131及工程报告已按Git blob前向冻结，实际main守卫PASS（10页/26能力/28累计UI路径）、基线78/78。下一步仅收口元数据commit及最终精确门禁；旧D130及PNG/hash不改。
+四项冲突：AI_HANDOFF/CURRENT_STATE双方完整归档；详情两个区块保留G4历史重复/有效归属、historical/onGuardChange与材料历史入口、加工不适用及全部独立key；fresh-start四块保留G4精确0017–0023/four technical singleton/epoch/control原字节断言。G3不能覆盖更后续安全保护。Source ledger23未变，团队新增Quote金额与管理员旧写价拒绝，商业UI采用唯一按钮等待，身份UI加单份断言。
 
-随后G2现有工作树order-commercial-versions，head2c6c2315d4b295dba2c6f73f651255f775790b99/clean，共同祖先def98f275。需显式合入G1 b4973670/a40cb7de/1fcc440三笔修复，保护0015、商业版本/权限和双方证据，不自动rebase/reset/clean。重新跑升级/fresh-start/七角色与商业回归、门禁后交付唯一PR；后续G3/G4按依赖继续。
+下一步类型/Server、source/fresh/team/加工/身份、归属/执行/控制/历史/准备关键回归；root/lint、main守卫78、精确候选UI与最终本地checkpoint，再独立交付和唯一依赖PR。旧PG261和早期各组不是此次重跑。原冻结D130/PNG与D131材料保护证据完全保留；不要用覆盖旧hash消失败。
 
-先前准备UI与归一完整恢复点、失败原因和冻结证据见[归档](tasks/completed/2026-10-15-pre-material-identity-ai-handoff.md)。G5排序/事件/num_dyc/6086941仍独立待实施。跨批Browser/hash兼容另行评估，不改长期Browser数据。无真实DB/Source/部署/自动合并授权扩大，整个Goal未完成。
+新材料guard：8d393605实现、5540c1d冻结，16/840/78与build通过；短哈希碰撞仅证明合成误归并风险，不证明真实影响，跨批Browser/artifact hash仍另评。旧私有全量报告没有raw num_dyc，不能用白名单缺字段推断上游缺字段；无凭据读取、ACL更改或真实网络采集。
+
+G5页面/排序/事件/num_dyc/6086941待，Goal未完成。默认真实归一无adapter/permit而关闭，禁止真实DB/账号/Source范围窗口/部署/自动合并扩大；保留全部旧worktree，不rebase/reset/clean。

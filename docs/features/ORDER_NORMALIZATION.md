@@ -1,5 +1,19 @@
 # 历史重复订单复核与归一
 
+核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；本地feat/order-effective-attribution，依赖未合并G1–G3。GitHub是实时事实源，本文为阶段快照。随API/schema/权限/测试、main/PR或授权变化更新。
+
+## 当前行为与安全边界
+
+当前工程候选已包含案件/有限预览、有效归属账本和所有当前Server消费者、完整有界证据与独立复核、默认关闭的执行/纠正服务、SQL普通写入fence及命令暂停。列表可显式含历史，原身份/创建来源/绑定/流水保留，不自动搬移、相加或删除。准备引用已纳入完整证据，相关变化需重新取证/签名。
+
+案件、独立复核和历史提示已在既有Foundation页面接线。有限preview hash不是执行令牌；未知外部覆盖、未知引用或超限均不能当0或完整。真实运行没有默认Adapter/私有permit加载，页面不开放执行；合成领域执行不代表历史问题已在真实数据中修复。需单独目标、完整组/引用、生产/财务独立核对、备份恢复及具体用户授权。
+
+本轮依赖整合相对5540c1d无产品/SQL差异，关键团队/完整证据/执行/准备组合71/71及类型通过；旧45归属、261PG、各组UI分别保留其原源码/范围。最终远端验收另记CURRENT_STATE。代码：server/sales-orders/normalization-*、effective-attribution-*、database/migrations/0017–0023；[归属任务](../tasks/active/order-effective-attribution.md)、[复核模块](ORDER_NORMALIZATION_REVIEW.md)、[历史来源](ORDER_SOURCE_HISTORY.md)、[命令暂停](ORDER_COMMAND_CONTROL.md)。
+
+## 历次工程阶段记录
+
+以下保留各阶段的日期、SHA、结果与限制；其中“待实现/下一步”只描述当时，不能覆盖顶部当前状态。原完整版本亦保留于[归档](../tasks/completed/2026-10-15-order-normalization-pre-final-overview.md)。
+
 核实日期2026-10-15；最近核实main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本地feat/order-effective-attribution依赖未合并G1–G3/案件预览；当前已实现Server完整有界证据、独立复核及默认关闭的执行/纠正服务。历史Source/UI及真实覆盖/授权仍未完成。GitHub是实时事实源，本文随schema/API/验收/发布变化更新。
 
 ## 已批准规则

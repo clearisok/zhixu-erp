@@ -1,5 +1,19 @@
 # 订单归一独立复核工作区
 
+核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；本地feat/order-effective-attribution，依赖未合并G1–G3。GitHub是实时事实源，本文为阶段快照。随API/schema/权限/测试、main/PR或授权变化更新。
+
+## 当前行为与安全边界
+
+管理员完整组预览/发布、生产与财务岗位工作区、独立签名/撤销/历史分页及现有页面接线均已本地完成。发布不是批准；旧approve不是当前可执行许可。请求每次核对fresh真实role绑定和权限，签名绑定精确case/version、方案、完整证据和授权tuple，撤权再授不复活旧签名；生产/财务不能由同一人或执行者代签。
+
+未知覆盖、证据变化、过期许可、暂停等原因继续在界面显示，真实执行默认缺Adapter/permit而关闭；未新增执行按钮、真实角色授权或部署。财务自由说明按现有金额/成本权限投影，不因复核身份扩权。未知响应保留原请求，不自动产生新proof/签名。
+
+原21工作区/30执行/45归属及岗位UI11、客户端4的冻结证据仍按其日期/源码阅读；本轮整合71关键测试与类型通过，不冒称所有旧组本次重跑。代码normalization-review-workspace/service与现有Server案件UI；[UI任务及精确证据](../tasks/active/order-normalization-review-ui.md)。
+
+## 历次工程阶段记录
+
+以下保留各阶段的日期、SHA、结果与限制；其中“待实现/下一步”只描述当时，不能覆盖顶部当前状态。原完整版本亦保留于[归档](../tasks/completed/2026-10-15-order-normalization-review-pre-final-overview.md)。
+
 核实2026-10-15；GitHub API main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；本地feat/order-effective-attribution，起点9ca0c021546526cef0a21d1b29a06e5e47ed59c3/clean。未远端交付/合并/部署。落实用户D121归一/独立复核计划；GitHub为实时工程事实源，本文随API/权限/指纹/验收变化更新。
 
 ## 当前职责

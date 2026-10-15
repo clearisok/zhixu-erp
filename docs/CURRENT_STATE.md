@@ -1,11 +1,13 @@
 # 当前状态
 
-核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。GitHub为实时事实源；共享状态按下列阶段及SHA阅读。
+核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。当前feat/order-effective-attribution，从5540c1daf4c3cf8eb80c4337ca226ffdb5875fa4/clean本地整合G3 f4a1b99b8a4a85cce6ec3b8d77c80df994114db3，保留全部历史/准备/碰撞保护，不是合并main。
 
-- G1已精确交付[PR109](https://github.com/clearisok/zhixu-erp/pull/109) head `1fcc440f00eeab962eb766161eab96ed5f67c6b4`，source/team-access/baseline三项最终CI成功，GitHub可合并，复审建议作为Gate1合并；未合并或部署。最后修复为精确迁移升级、独立组件key及七角色页面测试覆盖。完整新商业流程仍须G2。
-- G2 `2c6c2315`、G3 `39c9f7b6`及G4各工作树/提交保留，本地工程不等于远端送达。G2尚缺G1最后三笔兼容/测试修复；下一步显式整合、重验后独立PR，不自动合并。
-- 当前 `feat/order-effective-attribution` 从 `b8473b6c` 继续；准备UI源码b63d6424/证据f96ce65c、26能力/旧27路径及全部旧截图/hash保留。此前23后台、10客户端、10新浏览器、原UI27及完整PG261等均属各自冻结阶段，不冒称本次重跑。[准备模块](features/ORDER_PREPARATION_ADOPTION.md)。
-- 新发现并修复同批Normalizer短哈希碰撞误归并；保留全部旧ID、356去重和理论/采购双数量语义。16定向、根840、完整类型/Server编译/lint通过；新V0记录覆盖解析器精确路径，实际main源码基线PASS（10页/26能力/28累计UI路径）、基线78/78及显式Server构建通过（源码8d393605，buildId 20261015-100354）。[证据](tasks/active/material-identity-collision-guard.md)。不证明真实数据受影响；跨批/Artifact hash使用点仍需独立评估。
-- G5现有页面调整/排序/事件入口、num_dyc与6086941固定只读来源仍待，身份主线不被其阻塞。真实字段需要独立验证，未将候选或样本公式当业务事实。
+G1 PR109@1fcc440、G2 Draft PR110@3deffc4三项最终CI均SUCCESS，未合并部署。G3 f4a1b99b已安全工具一次推送精确验证；创建前查询曾失败、未执行创建；随后一次REST核实无重复后成功建立/attach唯一Draft PR111，精确head/三CI已启动，尚无最终结果。不重复推送。
 
-无真实账号/业务DB/凭据/Source/调度窗口、宁波或18443/18444操作；未自动合并或部署。自动审批曾连接失败，保护原现场；本次同一审批恢复后仅执行获准的本地修复与合成验证，不视为永久网络恢复。整个Goal尚未完成。上一状态[归档](tasks/completed/2026-10-15-pre-material-identity-current-state.md)。随main/PR、测试、来源或授权变化更新。
+G4现有历史案件/有效归属/写fence/完整证据、独立review与执行许可、暂停及纠正保护保留，默认真实执行关闭；0017–0023未实际升级真实库。准备UI b63d6424/证据f96ce65c、26能力/旧截图及其hash保留。物料短哈希保护8d393605/5540c1d已有16定向、根840、基线78及构建；不能推定真实六项单位冲突由碰撞导致。
+
+本轮四项冲突逐条处理：两份摘要双方原文归档；详情保留历史重复提示、禁写及准备未知请求导航保护、历史物料入口、加工不适用与独立key；fresh-start保留精确1–12/14–23和四项技术单例，不能降为G3的0016或删除epoch/control断言。没有SQL/权限/真实写入变化。下一步相关安全回归、类型/lint、候选浏览器、main门禁与独立交付。
+
+G5页面/排序/事件、num_dyc、6086941继续保留。已只读检查原受保护私有全量报告：其20MB内容是白名单需求/四流事实，未保存原始num_dyc；不能证明上游字段不存在。未读取凭据、更改ACL或重新采集。后续需有界原字段核验，不重复全量验收。
+
+所有工作树、原身份/流水、Browser长期数据与旧冻结证据保留；不执行真实归一、账号/业务DB/Source/调度窗口、宁波或18443/18444部署，不自动合并。GitHub为实时源；随依赖/main、验证、来源或授权变化更新。双方摘要归档completed/2026-10-15-gate4-before-processing-final-*与gate3-before-attribution-final-*。

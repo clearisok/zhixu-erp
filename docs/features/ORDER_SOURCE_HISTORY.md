@@ -1,5 +1,19 @@
 # 订单历史艾诺科物料来源
 
+核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；本地feat/order-effective-attribution，依赖未合并G1–G3。GitHub是实时事实源，本文为阶段快照。随API/schema/权限/测试、main/PR或授权变化更新。
+
+## 当前行为与安全边界
+
+0022原捕获上下文、固定profile/session权限、历史列表与精确原SO/run投影，以及既有Foundation历史入口均已本地实现。列表默认有效订单，显式可含历史；详情保留原SO并导航有效SO，原历史Source不自动改向、不与同组其他SO合计。
+
+历史DTO声明historical_only/currentStatusApplicable=false，齐套状态保持null；旧NULL上下文不补造。源scope/link/orderVersion/epoch、完整分页、内容hash、字节预算及采集时InsideOrderNo均验证，损坏或不完整失败关闭。加工订单不提示需要艾诺科。当前来源仍独立受freshness/归属保护，历史查询不成为绕过通道。
+
+本地历史Server17/归属45、客户端6及浏览器9等冻结证据保留原SHA与范围，原图/hash不覆写；本轮依赖合入没有改变这些产品代码。没有真实Source读取、首绑、调度扩大或迁移；真实旧库/环境操作另需具体授权。代码server/ainuoke-source/history.ts及features/order-center的MaterialHistoryDialog；[历史UI任务](../tasks/active/order-source-history-ui.md)。
+
+## 历次工程阶段记录
+
+以下保留各阶段的日期、SHA、结果与限制；其中“待实现/下一步”只描述当时，不能覆盖顶部当前状态。原完整版本亦保留于[归档](../tasks/completed/2026-10-15-order-source-history-pre-final-overview.md)。
+
 核实日期2026-10-15；GitHub API main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。本地feat/order-effective-attribution，阶段起点b497578752472decffba0b44f6404b4f5cf41f6a；未远端交付/合并/部署。GitHub是实时工程事实源，本文随schema、API、来源归属或验收变化更新。依据用户批准的D121历史保护，不新增真实数据操作授权。
 
 ## 职责与身份
