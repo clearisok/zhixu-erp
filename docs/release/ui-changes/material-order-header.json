@@ -1,0 +1,23 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/style-progress/components/style-progress-server-page.tsx",
+    "features/style-progress/components/material-control-tower-read-only.tsx",
+    "app/order-center/style-progress/style-progress.css"
+  ],
+  "pages": [
+    "order-detail",
+    "material"
+  ],
+  "visibleDifference": "Approved topbar small back arrows, contract factory-style title, business-style overview without repeated SO/BillNo, and removal of duplicate material navigation/contract/long status paragraph. Keep compact exception and freshness status; no other redesign.",
+  "evidence": [
+    "docs/tasks/active/material-progress-integration.md",
+    "docs/tasks/active/evidence/material-source-integration/approved-page-scope.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/evidence/material-source-integration/approved-page-scope.md"
+  }
+}

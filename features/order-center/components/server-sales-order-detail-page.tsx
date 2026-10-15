@@ -14,7 +14,6 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
-  PageBackButton,
   PageContainer,
   PageHeader,
   StatusTag,
@@ -72,16 +71,15 @@ function ServerDetailFrame({
   onRequestLogout?: () => Promise<void>;
 }) {
   return (
-    <AppShell title="正式订单详情" identityMode="server" onRequestNavigation={onRequestNavigation} onRequestLogout={onRequestLogout}>
+    <AppShell title="正式订单详情" backTarget={{href:"/order-center",label:"返回订单列表"}} identityMode="server" onRequestNavigation={onRequestNavigation} onRequestLogout={onRequestLogout}>
       <PageContainer className="oc-order-center-page oc-server-detail-page">
         <OrderCenterNavigation onRequestNavigation={onRequestNavigation} />
         <PageHeader
           eyebrow="READ ONLY · POSTGRESQL"
-          title={detail?.styleNo || "正式订单详情"}
+          title={!detail ? "正式订单详情" : detail.businessType==='ainuoke_contract' ? detail.insideOrderNo || "工厂款号待获取" : detail.styleNo || "正式订单详情"}
           description={detail
-            ? <><strong>{detail.orderNo}</strong><span> · BillNo {detail.billNo ?? "—"}</span></>
+            ? <><strong>{detail.orderNo}</strong><span>{detail.businessType==='processing'?" · 加工订单":` · BillNo ${detail.billNo ?? "—"}`}</span></>
             : "从 PostgreSQL 读取权威订单与艾诺科来源事实。"}
-          back={<PageBackButton fallbackHref="/order-center" label="返回订单列表" onRequestNavigation={onRequestNavigation} />}
           status={detail ? <StatusTag tone={lifecycleTone(detail.lifecycleState)}>{lifecycleLabels[detail.lifecycleState]}</StatusTag> : undefined}
         />
         {children}
@@ -220,12 +218,10 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
           <Card className="oc-server-detail-section oc-server-detail-zhixu oc-server-detail-overview">
             <header><div><h2>订单概况</h2></div><span>来源权威 · 不可编辑</span></header>
             <DescriptionList columns={3} compact items={[
-              { key: "styleNo", label: "款号", value: detail.styleNo },
-              { key: "orderNo", label: "正式订单号", value: detail.orderNo },
-              { key: "billNo", label: "BillNo", value: detail.billNo },
+              { key: "styleNo", label: "业务款号", value: detail.styleNo },
               { key: "customer", label: "客户", value: detail.customerName },
               { key: "brand", label: "品牌", value: detail.brandName },
-              { key: "quantity", label: "订单数量（来源只读）", value: detail.quantity?.toLocaleString("zh-CN") },
+              { key: "quantity", label: detail.businessType==='processing'?"加工数量（下单批次）":"订单数量（来源只读）", value: detail.quantity?.toLocaleString("zh-CN") },
               { key: "contractDelivery", label: detail.businessType==='processing'?"加工交期":"合同交期（来源）", value: detail.contractDeliveryDate },
               { key: "lifecycle", label: "订单状态", value: lifecycleLabels[detail.lifecycleState] },
               { key: "sourceLifecycle", label: "艾诺科状态", value: detail.businessType==='processing'?"不适用":detail.sourceLifecycleStatus },
@@ -264,7 +260,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
                 { key: "version", label: "数据版本", value: `v${detail.version}` },
                 { key: "creationSource", label: "创建来源", value: creationSourceLabels[detail.creationSource], secondary: detail.creationSource },
                 { key: "lifecycleCode", label: "生命周期原值", value: detail.lifecycleState },
-                { key: "insideOrderNo", label: "工厂单号 / InsideOrderNo", value: detail.insideOrderNo, secondary: "可变来源属性，不是稳定订单身份" },
+                { key: "insideOrderNo", label: "工厂款号 / InsideOrderNo", value: detail.insideOrderNo, secondary: "可变来源属性，不是稳定订单身份" },
                 { key: "company", label: "公司", value: detail.companyName },
                 { key: "contractDate", label: detail.businessType==='processing'?"下单日期":"合同日期", value: detail.contractDate },
                 { key: "colorCount", label: "有效颜色数", value: detail.colorCount.toLocaleString("zh-CN") },

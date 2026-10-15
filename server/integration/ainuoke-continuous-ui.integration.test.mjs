@@ -36,7 +36,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
   const navigate=async path=>{const marker=Date.now()+Math.random();await evaluate("window.navEpoch="+marker);await command("Page.navigate",{url:x.base+path});await until(()=>evaluate("window.navEpoch!=="+marker+"&&document.readyState==='complete'"),"navigation");};
   const has=async text=>{try{await until(()=>evaluate("Boolean(document.body?.innerText.includes("+JSON.stringify(text)+"))"),text);}catch(error){throw Error(error.message+"; "+await evaluate("document.body?.innerText??'navigation in progress'"));}};
   const login=async username=>{const cookie=await x.login(username);const split=cookie.indexOf("=");await command("Network.setCookie",{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:"127.0.0.1",path:"/",httpOnly:true});};
-  const screenshot=async name=>{if(process.env.AINUOKE_UI_EVIDENCE!=="1")return;const dir=resolve("outputs/confirmed-facts-2026-10-14");await mkdir(dir,{recursive:true});const shot=await command("Page.captureScreenshot",{format:"png"});await writeFile(join(dir,name+".png"),Buffer.from(shot.data,"base64"));};
+  const screenshot=async name=>{if(process.env.AINUOKE_UI_EVIDENCE!=="1"&&process.env.MATERIAL_HEADER_UI_EVIDENCE!=="1")return;const dir=process.env.MATERIAL_HEADER_UI_EVIDENCE==="1"?resolve("outputs/material-header-ui",info.gitCommit+"-"+info.buildId):resolve("outputs/confirmed-facts-2026-10-14");await mkdir(dir,{recursive:true});const shot=await command("Page.captureScreenshot",{format:"png"});await writeFile(join(dir,name+".png"),Buffer.from(shot.data,"base64"));};
   await command("Page.addScriptToEvaluateOnNewDocument",{source:"window.businessWrites=[];const original=fetch;window.fetch=(...a)=>{if(a[1]?.method&&!['GET','HEAD'].includes(a[1].method)&&!String(a[0]).includes('/auth/'))businessWrites.push(String(a[0]));return original(...a)};"});
   const input=(selector,value)=>evaluate("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,"+JSON.stringify(value)+");n.dispatchEvent(new Event('input',{bubbles:true}));})()");
   const click=label=>evaluate("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+"+JSON.stringify(label)+");n.click();})()");
@@ -66,6 +66,36 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    await input("input[name=username]",x.users[3]);await input("input[name=password]",x.password);await click("登录织序");await has("合成棉布");
    assert.equal(await evaluate("location.pathname+location.search"),material);
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
+  });
+  await t.test("approved headers use factory style and compact guarded back arrows at six widths",async()=>{
+   await login(x.users[0]);
+   const detail=await evaluate("(async()=> (await (await fetch('/api/v1/sales-orders/"+x.orderId+"')).json()).salesOrder)()");
+   assert.ok(detail.insideOrderNo&&detail.styleNo&&detail.insideOrderNo!==detail.styleNo,'fixture must distinguish business and factory styles');
+   for(const [width,deviceScaleFactor] of [[1920,1],[1536,1.25],[1440,1],[1280,1],[900,1],[390,1]]){
+    await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor,mobile:width===390});
+    await navigate('/order-center/server-detail?id='+x.orderId);await has('业务款号');
+    assert.equal(await evaluate("document.querySelector('h1').textContent"),detail.insideOrderNo);
+    const overview=await evaluate("document.querySelector('.oc-server-detail-overview').innerText");
+    assert.ok(overview.includes(detail.styleNo));assert.doesNotMatch(overview,/正式订单号|BillNo/);
+    assert.equal(await evaluate("document.querySelectorAll('.ops-topbar-back').length"),1);
+    assert.equal(await evaluate("document.querySelectorAll('.qc-page-back').length"),0);
+    assert.ok(await evaluate("document.querySelector('.ops-topbar-back').getBoundingClientRect().width<=32"));
+    assert.ok(await evaluate("Math.abs(document.querySelector('h1').getBoundingClientRect().left-document.querySelector('.oc-server-detail-overview').getBoundingClientRect().left)<=2"));
+    assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);
+    if(width===1440||width===390)await screenshot('order-header-'+width);
+    await navigate('/order-center/style-progress/detail?orderId='+x.orderId);await has('合成棉布');
+    assert.equal(await evaluate("document.querySelector('h1').textContent"),detail.insideOrderNo);
+    assert.equal(await evaluate("document.querySelectorAll('[aria-label=\"订单中心功能导航\"]').length"),0);
+    assert.equal(await evaluate("document.querySelectorAll('.qc-page-back').length"),0);
+    assert.equal(await evaluate("document.body.innerText.includes('完整分页已读取')"),false);
+    assert.equal((await evaluate('document.body.innerText')).split(detail.salesContractNo).length-1,1,'contract appears once');
+    assert.ok(await evaluate("document.querySelector('.ops-topbar-back').getBoundingClientRect().width<=32"));
+    assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);
+    if(width===1440||width===390)await screenshot('material-header-'+width);
+    await click('返回订单详情');await has('业务款号');assert.equal(await evaluate('location.pathname'),'/order-center/server-detail');
+    await click('返回订单列表');await has('SC-SYNTHETIC-001');assert.equal(await evaluate('location.pathname'),'/order-center');
+   }
+   await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   });
   await t.test("top-right logout preserves dirty Server Quote until explicit discard, including logout failure",async()=>{
    await login(x.users[0]);await navigate('/quote-center/detail?id=synthetic-unified-demo');
@@ -114,7 +144,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    assert.deepEqual(await evaluate("window.businessWrites"),[]);
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
-  await t.test("all six trusted roles see four-stream procurement; no amount sentinel or Browser fallback",async()=>{
+  await t.test("all seven trusted roles see four-stream procurement; no amount sentinel or Browser fallback",async()=>{
    for(const user of x.users){await login(user);await navigate("/order-center/style-progress/detail?orderId="+x.orderId);await has("合成棉布");await evaluate("document.querySelector('.sp-v4-material-identity').click()");await has("12.75");assert.equal(await evaluate("document.body.innerText.includes('protected-commercial-sentinel')"),false);}
   });
   await t.test("automatic polling observes next persisted generation without navigation or reload",async()=>{

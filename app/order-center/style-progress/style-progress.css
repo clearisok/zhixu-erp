@@ -174,3 +174,8 @@
 @media (max-width: 600px) {
   .sp-server-material .sp-v4-filter { grid-template-columns: 1fr; }
 }
+
+/* Approved compact source status replaces the duplicate technical paragraph. */
+.sp-server-material .sp-v4-filter-meta { display: grid; gap: 4px; color: var(--muted); min-width: 0; }
+.sp-server-material .sp-v4-filter-meta small { font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.sp-server-material .sp-v4-filter > input { grid-column: auto; }
