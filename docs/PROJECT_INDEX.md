@@ -150,3 +150,5 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 - `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
+
+2026-10-15 独立小修入口：[Quote保存/退出重试](tasks/active/quote-logout-save-retry.md)与[冻结证据](tasks/active/evidence/quote-logout-save-retry-2026-10-15.md)；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。依赖B2，不改变创建、CCT或UI布局。

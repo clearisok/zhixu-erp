@@ -1,7 +1,11 @@
-# G5 B2 最终本地工程接力
+# 当前恢复点：报价退出保护独立小修已验收
 
-2026-10-15；main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5已由独立API再核实。同一order-effective-attribution工作树，feat/material-sort-and-event-drawer从num_dyc aab97cb8/clean继续。B2源码/0024/客户端/页面/Drawer/权限完成；root898/PG261/设置历史升级56/基线94/Source70PASS1Linux skip、类型/全lint/Server与两authority构建PASS。最终移动动作可见与焦点恢复UI25/25；渲染b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993 /build20261015-141116，测试脚本967deb5247823f223cd811aeb14361cab65b8fe0。7张新PNG独立路径经AI目视，人工认可not-run。报告material-display-results-2026-10-15.md不得覆盖，旧D133/所有截图/历史仍保留。报告/receipt/7图及第35项能力已在fccafaa1994087c086cc8b82b92e830aded8d94f逐维冻结；精确main守卫PASS（11pages/35capabilities/53UIpaths）。本文件为后续元数据收口，最终HEAD仍按Git读取，不必再全跑业务/SQL。
+2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前fix/quote-logout-save-retry，从B2 68ac1fc9f839ebfc894d39377dac221e7f65566b起；源码65566527b15c1ffd78715389d7c34db0e867b300。旧server-quote-to-order@a0e60e4e83cf67bfa22c36234c5dd9bf4495689d及其他工作树/私有报告保留。
 
-REMOTE仍PENDING：本轮获准恢复G5 af9b746和num_dyc aab97cb8均preflight失败pushes0，现有工具OpenSSL进程对照也不成功，停止不再撞通道。API读main可用不证明Git长期恢复；PR搜索仅108–112，新3分支没有PR/CI。后续PR目标main、Draft并披露108/109→112与G5 A/B1/num依赖，不能直接建议累计合并。当前没有合并授权实际答复。
+两个真实Chromium缺陷已重现并最小修复：ACK后logout失败的重试不再重复Quote PUT；未知保存不允许丢弃退出绕过核对；新dirty仍需保存。13/13浏览器+一次性PG，112/112认证/持久化，类型/构建/lint通过。655665精确main门禁PASS，V1说明/冻结证据见quote-logout-save-retry任务；无新截图、人工验收或UI重设计。构建tag68ac但源TSX含本次补丁，具体hash已记录。
 
-下一独立小修复：Quote保存成功后logout失败再点保存退出可能重复PUT，实际saveAndNavigate无clean guard，保持UI布局/原dirty/未知请求保护，需隔离负向测试再单独commit。之后6086941独立只读probe/身份核验，不重复558全量。真实HTTP新scope、写入/Source激活/窗口扩展/现有演示镜像切换和数据库/账号/部署均无新增授权；四单2小时窗口已截止12/12。Goal继续。
+另一既有erp-followup-governance树独立财务分支feat/ainuoke-payment-request-probe：源码362f81ba704ab792eff102cf121301deee4998f0，47/87合成回归、Windows GBK实际CLI修复通过；新两次真实授权已用完，未获得通过核验的业务报告，需要新次数授权才能继续读6086941。该财务分支不包含本小修，后续共享文档冲突须按分支事实归档解决，不能覆盖一方历史。
+
+本机Git已定位github.com:443 TCP失败，未到TLS/认证，无实际push/新PR/Hosted CI，不改共享配置。用户撤销旧AGENTS额外恢复规则（未删文件），原PR交付授权仍在；不让用户重复复制失败命令。需以B2为依赖交付唯一小修PR，不能绕过累计依赖直接合入main。
+
+真实四单窗口已12/12结束，不重启；不自动合并部署，不改真实账号、业务DB/演示镜像、宁波18443/18444。GitHub实时事实优先，本快照随源码/授权/交付/验收更新；Goal继续。
