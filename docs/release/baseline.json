@@ -1180,6 +1180,64 @@
       "path": "docs/tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md",
       "recordedAtSha": "0c002ce363444876594d94209c128d088969809f",
       "sha256": "ea4ac6214311b99a700763ed960e3a6757433b012b42560cfb72dc58e85a8556"
+    },
+    {
+      "id": "excess-warehouse-mapping-results",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/num-dyc-mapping-results-2026-10-15.md",
+      "recordedAtSha": "99b4f37750084f4edf50db129532576a204e0374",
+      "sha256": "cdc47d08e87b8cf3b6d84eba39f9a220a9d4bdf7eb504b47c0c882f1ad46fba5"
+    },
+    {
+      "id": "excess-warehouse-offline-statistics",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/num-dyc-offline-statistics-2026-10-15.json",
+      "recordedAtSha": "99b4f37750084f4edf50db129532576a204e0374",
+      "sha256": "66577a08457138c0497f762d45647bf4b61958fb99ba0d367d357c2e4ff12a40"
+    },
+    {
+      "id": "excess-warehouse-ui-receipt",
+      "kind": "document",
+      "path": "docs/tasks/assets/material-excess-warehouse-2026-10-15/receipt.json",
+      "recordedAtSha": "99b4f37750084f4edf50db129532576a204e0374",
+      "sha256": "b96ba67e4e9fade4a51de84d1b5893529c9ddfa6717a131fafeb8e59ea0f290e"
+    },
+    {
+      "id": "excess-warehouse-ui-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-excess-warehouse-2026-10-15/num-dyc-1440.png",
+      "recordedAtSha": "99b4f37750084f4edf50db129532576a204e0374",
+      "sha256": "46cfc245cf9e3df5fca94b091ccf4c9ce5d490ed8e60a9fe260b5931e8c6a458",
+      "renderedSourceSha": "049a87ba9aeef2e076ae8a7d69b753d18f4cd39b",
+      "changeReason": "New user-requested independent inbound excess-warehouse column, with synthetic desktop/mobile and refresh evidence; preserve all previous images and do not claim human pixel acceptance.",
+      "approvalEvidence": "excess-warehouse-confirmed-scope"
+    },
+    {
+      "id": "excess-warehouse-ui-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-excess-warehouse-2026-10-15/num-dyc-1280.png",
+      "recordedAtSha": "99b4f37750084f4edf50db129532576a204e0374",
+      "sha256": "ea9a9c579c1e4849d9427cffb0cbbb6e1189515bef640480ce8e8741b2a60317",
+      "renderedSourceSha": "049a87ba9aeef2e076ae8a7d69b753d18f4cd39b",
+      "changeReason": "New user-requested independent inbound excess-warehouse column, with synthetic desktop/mobile and refresh evidence; preserve all previous images and do not claim human pixel acceptance.",
+      "approvalEvidence": "excess-warehouse-confirmed-scope"
+    },
+    {
+      "id": "excess-warehouse-ui-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-excess-warehouse-2026-10-15/num-dyc-390.png",
+      "recordedAtSha": "99b4f37750084f4edf50db129532576a204e0374",
+      "sha256": "308e9783df1032af64e012670a42ebdabf9975c6a1a1ebe168e03dc730aaf204",
+      "renderedSourceSha": "049a87ba9aeef2e076ae8a7d69b753d18f4cd39b",
+      "changeReason": "New user-requested independent inbound excess-warehouse column, with synthetic desktop/mobile and refresh evidence; preserve all previous images and do not claim human pixel acceptance.",
+      "approvalEvidence": "excess-warehouse-confirmed-scope"
+    },
+    {
+      "id": "excess-warehouse-pr-delivery",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/num-dyc-pr-delivery-2026-10-15.md",
+      "recordedAtSha": "ba20f16f59014712f4b90a98fc1af26e440d4c99",
+      "sha256": "27a985cdb6206e3f72c27f2b75a91a2352250e16a877386e0a6d3174f95a6516"
     }
   ],
   "pages": [
@@ -1306,7 +1364,7 @@
         "features/style-progress/components/style-progress-server-page.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance.",
+      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D133 adds an explicitly requested independent excess-warehouse column, synthetic validation only; source semantics confirmation is not human pixel or full live-data acceptance.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -1319,7 +1377,11 @@
         "material-order-header-material-header-1440",
         "material-order-header-material-header-390",
         "material-order-page-approved-scope",
-        "material-order-header-ui-verification"
+        "material-order-header-ui-verification",
+        "excess-warehouse-mapping-results",
+        "excess-warehouse-ui-1440",
+        "excess-warehouse-ui-390",
+        "excess-warehouse-pr-delivery"
       ]
     },
     {
@@ -4377,6 +4439,115 @@
           "evidence": [
             "material-order-header-ui-verification",
             "material-order-page-approved-scope"
+          ]
+        }
+      }
+    },
+    {
+      "id": "material-excess-warehouse",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Readonly per-inbound num_dyc fact, with source-reference agreement, missing/conflicting units and older DTO safety; no change to rknum, formal readiness, business database, source capture, deployment or human acceptance.",
+      "evidence": [
+        "excess-warehouse-mapping-results",
+        "excess-warehouse-confirmed-scope",
+        "excess-warehouse-offline-statistics",
+        "excess-warehouse-pr-delivery"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "049a87ba9aeef2e076ae8a7d69b753d18f4cd39b",
+          "scope": "Readonly per-inbound num_dyc fact, with source-reference agreement, missing/conflicting units and older DTO safety; no change to rknum, formal readiness, business database, source capture, deployment or human acceptance.",
+          "evidence": [
+            "excess-warehouse-mapping-results",
+            "excess-warehouse-confirmed-scope",
+            "excess-warehouse-offline-statistics",
+            "excess-warehouse-pr-delivery"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "99b4f37750084f4edf50db129532576a204e0374",
+          "scope": "Readonly per-inbound num_dyc fact, with source-reference agreement, missing/conflicting units and older DTO safety; no change to rknum, formal readiness, business database, source capture, deployment or human acceptance.",
+          "evidence": [
+            "excess-warehouse-mapping-results",
+            "excess-warehouse-confirmed-scope",
+            "excess-warehouse-offline-statistics",
+            "excess-warehouse-pr-delivery"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b8a8c0a9f2598656925730a1812481f4084c08c9",
+          "scope": "Readonly per-inbound num_dyc fact, with source-reference agreement, missing/conflicting units and older DTO safety; no change to rknum, formal readiness, business database, source capture, deployment or human acceptance.",
+          "evidence": [
+            "excess-warehouse-mapping-results",
+            "excess-warehouse-confirmed-scope",
+            "excess-warehouse-offline-statistics",
+            "excess-warehouse-pr-delivery"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "99b4f37750084f4edf50db129532576a204e0374",
+          "scope": "Readonly per-inbound num_dyc fact, with source-reference agreement, missing/conflicting units and older DTO safety; no change to rknum, formal readiness, business database, source capture, deployment or human acceptance.",
+          "evidence": [
+            "excess-warehouse-mapping-results",
+            "excess-warehouse-confirmed-scope",
+            "excess-warehouse-offline-statistics",
+            "excess-warehouse-pr-delivery"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "99b4f37750084f4edf50db129532576a204e0374",
+          "scope": "Readonly per-inbound num_dyc fact, with source-reference agreement, missing/conflicting units and older DTO safety; no change to rknum, formal readiness, business database, source capture, deployment or human acceptance.",
+          "evidence": [
+            "excess-warehouse-mapping-results",
+            "excess-warehouse-confirmed-scope",
+            "excess-warehouse-offline-statistics",
+            "excess-warehouse-pr-delivery"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Not deployed by this task; the runtime identity remains the original dated observation, not a fresh environment read.",
+          "evidence": [
+            "excess-warehouse-mapping-results",
+            "excess-warehouse-confirmed-scope",
+            "excess-warehouse-offline-statistics",
+            "excess-warehouse-pr-delivery"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Not deployed by this task; the runtime identity remains the original dated observation, not a fresh environment read.",
+          "evidence": [
+            "excess-warehouse-mapping-results",
+            "excess-warehouse-confirmed-scope",
+            "excess-warehouse-offline-statistics",
+            "excess-warehouse-pr-delivery"
           ]
         }
       }
