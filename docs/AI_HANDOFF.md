@@ -1,9 +1,7 @@
-# 当前恢复点：Gate5联合候选
+# 当前恢复点：6086941完整合同快照纯校验
 
-2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。既有B2 feat/material-sort-and-event-drawer起点68ac1fc9/clean，ff-only纳入独立已验Quote d9bf53b4（原65566527产品修复/0912证据/d9bf摘要），再merge --no-ff --no-commit最新G4 4c59d974。共同G4祖先036fe521，全部原refs和父提交保留，不新树/重复PR、rebase/reset/clean或合main。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。原ainuoke-live-readiness@bae00845/clean、无活动匹配进程/运行容器源码挂载；保留原ref，复用树从G5联合c54a建立feat/ainuoke-payment-snapshot-foundation，merge既有Source48b63101。只三摘要冲突，双方全文已归档completed/2026-10-15-before-payment-snapshot-foundation.md。所有Source/G5原树和最新交付命令仍有效，不在其树上开发。
 
-仅三摘要冲突，B2/Quote/G4原文完整归档completed/2026-10-15-gate5-before-verified-dependency-integration.md；业务/SQL未冲突或修改。旧G5 A/B1、num_dyc、B2设置排序/事件页及D130更强准备保护保留；新丢回执负向按G4已有控件运行。退出保存修复从独立分支实际纳入，现在不应再写“待做”。对账侧栏仍待接入，不混入尚未经真实过滤核验的6086941采集。
+实际发现observations函数严格固定首页page1，不能给page2伪造page1上下文。先保持旧v1 API/额度，用独立v2逐页契约和纯快照builder验证两遍完整分页、账号/合同/三字段见证、计数/重复整页/来源变化/时效，复用金额/未知值投影。纯模型及合成104相关Node已通过（原79＋新25）；typecheck/Server build/增量lint和新CI脚本25项通过。先commit源码/冻结证据，再前向绑定DECISION及新纯模型能力，完整root/基线/精确门禁未跑不预标PASS。下一阶段才是DB存储/有效SO/fresh权限读API，最终仍须真实过滤核验，不能以纯模型证明接通。
 
-本轮实际通过：设置/客户端17/17；页头/退出/来源13、num_dyc5、身份6及物料展示9共33项浏览器覆盖（按下述两次构建分层）；typecheck、Server编译、Server/session/snapshot及默认Browser两authority构建、全源码lint（排除继承outputs私有生成物）、root898/898、基线94/94及精确main守卫PASS（11页/35能力/53继承UI路径）。详见evidence/material-source-integration/gate5-verified-dependencies-2026-10-15.md；PG261等旧组未本轮重跑。构建只在本机，不切换现有真实演示。原PNG、freeze ID/hash与各源SHA完整保留。
-
-Git NETWORK_DEGRADED，AGENTS不自动恢复/换认证/文件API伪造提交；未远端的新代码不宣称交付或合并。G1–G4新heads仍待原PR新CI，G5首次创建PR须精确送达后唯一Draft，披露全部未合并依赖。Source48b63101/clean及命令保持，不读凭据/真实报表。6086941两合同读取仍需新增明确许可；不重启旧窗口/Source、不操作真实账号/业务DB/归一/部署。
+不读凭据或真实报告；旧真实次数用完，当前Goal消息不授权新增。Git NETWORK_DEGRADED禁止自动恢复推送；Source48b63101和G5c54a保持原样。不开Source、不首绑/激活、不改账号/业务DB/归一/现有演示或部署。新代码远端未核实前不建重复PR或冒称送达。

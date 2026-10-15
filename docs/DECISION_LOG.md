@@ -18,6 +18,47 @@
 
 ## Active
 
+### D-138 6086941显式合同页与完整快照纯模型
+
+- 日期2026-10-15；Active，D121 Gate5的技术实施决定，不是新增业务规则、正式映射认可或真实操作授权。旧首页v1/page1与读取次数不扩大；新v2逐页模型复用原字段/精确小数/未知值逻辑，保留真实page和局部rowIndex。
+- 完整快照构造只接可信Bridge已校验的精确字符串页；显式账号/销售合同/三字段见证，最多200行/2页/两遍。缺页、混单、计数/顺序/两遍变化、重复整页和来源过期拒绝；重复业务行保留，不把id当跨时间事件主键。
+- 时效按最早页固定10分钟，不以较新尾页续期；只表示观察到的两遍一致，不是上游事务或授权边界。未来持久化/有效SO/来源profile/fresh权限和真实过滤核验均仍需独立Gate，当前无SQL、HTTP、Source接线或激活。
+- 不汇总Num/金额，不推币种/单位或银行实付，不把理论与实际采购差异当冲突。D136的精确旧观察证明不向新capture或其他金额字段传播。
+- 代码payment-request-observations.ts显式v1/v2与payment-request-snapshot.ts；104相关Node（原79＋新25）、typecheck/Server编译/增量lint合成通过。首轮回放样本先触发时间倒退，改为单页隔离重复capture断言；初始类型收窄错误已修，旧失败不覆盖。完整根/基线与精确门禁后续按日志收口。
+- 原Source48b63101、G5c54a和全部真实私有报告保持。所有真实读取次数用完，新许可尚未收到，未访问凭据/报表/业务DB或环境；快照纯模型不能宣称6086941已接通。
+
+
+
+### D-137 两合同完整分页只做有界技术核验
+
+- 日期2026-10-15；Active，落实D121 Gate5/D135–136，不扩大真实读取授权。新增ReadContracts显式动作，与原首页模式互斥；未注册Bridge/持续Source catalog，未接UI、正式快照或DB。
+- 两份已人工确认的私有样本按文件hash与来源账号指纹固定，ExpContractNo/is为待真实验证的查询候选；所有来源行精确合同归属、完整分页、正向样本和两遍内容必须一致。最多2合同×2页×2遍、100行/页、8报表/9HTTP；4MiB/响应、16MiB累计报表预算、180秒。空/混单/缺页/重复整页/变化/超限失败，不去重或补0。
+- 失败只保存安全、可解析且秘密筛查通过的私有原文；闭合代码/阶段/计数离开进程，拒绝证据不作为正式来源。Windows物理路径、ACL/hash/忽略目录和匿名stdin复用；原首页仍2HTTP/1report，不改数量、币种、CCT或正式齐套。
+- 79Node/114Python及类型/Server编译/lint为合成工程与原文件离线检查；没有新HTTP或凭据读取。全部真实次数已用完，下一次运行需给出具体固定范围并获得新明确授权，成功也不自动写业务DB/绑定/激活/部署。
+- 范围、私有选择hash、代码与后续Gate见tasks/active/ainuoke-payment-contract-probe.md及冻结contract-probe-engineering-2026-10-15证据。不是全表财务验收、跨时间分录去重或银行实付确认。
+
+
+
+
+### D-136 货款申请出运分配数量与逐行币种证据
+
+- 日期2026-10-15；Active，细化D121 Gate5/D135。用户核对两个受保护样本，确认6086941.OutStoreNum是本次申请关联的实际物料出运分配数量，两行以个计量；采购合同币种为人民币/CNY，申请采购金额、应付金额、本次申请金额沿对应采购合同币种。两行的单位/币种值不推广全表。
+- Num/OutStoreNum/bgNum/kpNum与所有金额各自保留；数量不同是合法业务事实。RMB/人民币只规范为CNY标签，不新增汇率换算；缺币种/预付款继续unknown，不默认0或已付。6087050同名字段仍独立命名空间。
+- 最小后续工程先做离线、精确decimal文本和逐行来源观察；来源id未证实前不生成稳定财务事件、不去重求和。人工确认绑定来源指纹、采集时刻、raw hash、页/行、完整行hash及采购合同，来源变化/冲突不自动沿用。该确认输入只属于可信集成层，不作为客户端权限声明。
+- D135的读取范围/次数及安全边界保持；尚未证明固定合同过滤/完整分页、全量币种/单位或跨时间明细身份，不能解除正式对账侧栏“待接入”。没有新真实读取/账号/DB/绑定/激活/部署授权。
+- 公开用户确认与原报告hash见tasks/active/evidence/ainuoke-payment-request-probe/row-context-confirmation-2026-10-15.md；真实行身份只在本机受保护报告。代码payment-request-observations.ts、Python同名模块及同名负向测试，工程范围见tasks/active/ainuoke-payment-request-read-model.md。
+
+
+
+### D-135 货款申请明细先独立有界只读核验
+
+- 日期2026-10-15；Active，落实已批准D121 Gate5的6086941接入方向。本阶段只交付合成工程，不扩大真实Source范围，不代表获得新报表真实读取授权。
+- 复用现有AinuokeClient登录和报表契约，固定6086941第1页100行；不注册进Bridge/持续Source catalog，不发现合同、不翻页、不重试、不连接织序数据库。单响应4MiB、子进程120秒，禁止代理与重定向。
+- 用户提供的49业务字段与id、vDom_PayRegister、样本公式均为候选。原始响应UTF8数值文本保留；Num/OutStoreNum/bgNum/kpNum、Price/kpprice、cgGoodsAmount/GoodsAmount、BGAmount/kpamount各自独立。未知、零、负值和重复行原样保留，不默认币种、不把申请付款认定银行实付。
+- 凭据仅由显式-ReadFirstPage的私密终端进程消费；raw仅保存在新建、Git忽略、owner/SYSTEM ACL保护报告。公共回执只给静态字段覆盖/计数/日期/hash，秘密字段和密码/token回显拒绝；字段存在不表示映射正确。
+- 代码8655a052f22458506094fa0941ba7344fbff9bff：server/ainuoke-source/payment-request-probe.ts、Python同名模块与私密PowerShell包装器；37项Node、83项Python及24项既有预检为合成验证。真实读取先批准固定范围，字段/单位/币种/身份核实后才做正式映射与UI接线。详见tasks/active/ainuoke-payment-request-probe.md。
+
+
 ### D-134 团队物料展示排序与来源事件侧栏
 
 - 日期2026-10-15；Active，落实已批准D121 Gate5，不改变正式数量、齐套、商业权限或真实Source范围。

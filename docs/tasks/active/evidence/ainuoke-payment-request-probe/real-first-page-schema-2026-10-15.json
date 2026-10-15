@@ -1,0 +1,525 @@
+{
+  "schemaVersion": "ainuoke-payment-first-page-public-evidence.v1",
+  "verifiedAt": "2026-10-15",
+  "toolingCommit": "ead8e3714372cdb364b2263a6fd0a9ad84bdc382",
+  "sourcePrivateReportSha256": "d500982d3b6ba1b2cf408db4e626e4097d93c3570852398e3b911be98cbb80ae",
+  "rawResponseSha256": "79da51645d2a3448cd55c689b9b3b39f37cf1ceac8a82dbe81855317bd36c8d7",
+  "capturedAt": "2026-10-15T09:52:49.548109+00:00",
+  "scope": "fixed-report-first-page-only",
+  "reportId": "6086941",
+  "page": 1,
+  "pageSize": 100,
+  "returnedRows": 100,
+  "reportedTotal": 17675,
+  "allVisibleRecordsRead": false,
+  "httpAttempts": 2,
+  "reportRequests": 1,
+  "discoveryRequests": 0,
+  "wirePagingTypes": {
+    "dataCount": "int",
+    "pageIndex": "int",
+    "pageSize": "int"
+  },
+  "metadata": {
+    "reportId": 6086941,
+    "dbTableId": 6083578,
+    "sourceName": "vDom_PayRegister",
+    "selectSqlTableReferences": [],
+    "columnMetadataJsonEncoded": true,
+    "fields": [
+      {
+        "label": "状态",
+        "fieldName": "Status",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "申请单号",
+        "fieldName": "BillNo",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "类型",
+        "fieldName": "lx",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "客户品牌",
+        "fieldName": "Brand",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "报关发票号",
+        "fieldName": "InvoiceNo",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "项号",
+        "fieldName": "itemno",
+        "fieldDataTypeId": 1
+      },
+      {
+        "label": "报关日期",
+        "fieldName": "InvoiceDate",
+        "fieldDataTypeId": 3
+      },
+      {
+        "label": "款号",
+        "fieldName": "StyleNo",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "工厂款号",
+        "fieldName": "InsideOrderNo",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "中文品名",
+        "fieldName": "CnName",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "门幅",
+        "fieldName": "MenFu",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "颜色",
+        "fieldName": "CnColor",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "克重",
+        "fieldName": "KeZhong",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "采购单价",
+        "fieldName": "Price",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "采购数量",
+        "fieldName": "Num",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "出运数量",
+        "fieldName": "OutStoreNum",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "采购单位",
+        "fieldName": "QtyUnit",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "采购金额",
+        "fieldName": "cgGoodsAmount",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "额外费用",
+        "fieldName": "AdditionalPrice",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "调整金额",
+        "fieldName": "tzamount",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "应付金额",
+        "fieldName": "PayAmount",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "预付款金额",
+        "fieldName": "YFAmount",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "本次付款金额",
+        "fieldName": "GoodsAmount",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "供应商",
+        "fieldName": "SupplierName",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "报关数量",
+        "fieldName": "bgNum",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "报关金额",
+        "fieldName": "BGAmount",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "报关单位",
+        "fieldName": "bgQtyUnit",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "报关品名",
+        "fieldName": "BGName",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "开票单价",
+        "fieldName": "kpprice",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "开票数量",
+        "fieldName": "kpNum",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "开票金额",
+        "fieldName": "kpamount",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "客户",
+        "fieldName": "CustomerName",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "理单",
+        "fieldName": "FSingleName",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "面料类型",
+        "fieldName": "CateGoryName",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "采购合同号",
+        "fieldName": "PurContractNo",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "装柜日期",
+        "fieldName": "CYDate",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "业务员",
+        "fieldName": "UserName",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "销售合同号",
+        "fieldName": "ExpContractNo",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "最终开票单位",
+        "fieldName": "kpsupplier",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "公司抬头",
+        "fieldName": "companyname",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "最早入库日期",
+        "fieldName": "zzrkrq",
+        "fieldDataTypeId": 3
+      },
+      {
+        "label": "国内收款",
+        "fieldName": "gnsk",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "国外收款",
+        "fieldName": "gwsk",
+        "fieldDataTypeId": 7
+      },
+      {
+        "label": "经理确认",
+        "fieldName": "jldate",
+        "fieldDataTypeId": 3
+      },
+      {
+        "label": "期望付款日期",
+        "fieldName": "PayDate",
+        "fieldDataTypeId": 3
+      },
+      {
+        "label": "发票票面日期",
+        "fieldName": "fppmrq",
+        "fieldDataTypeId": 3
+      },
+      {
+        "label": "财务确认",
+        "fieldName": "cwdate",
+        "fieldDataTypeId": 3
+      },
+      {
+        "label": "规格",
+        "fieldName": "CnComposition",
+        "fieldDataTypeId": 2
+      },
+      {
+        "label": "实际名称",
+        "fieldName": "actualname",
+        "fieldDataTypeId": 2
+      }
+    ]
+  },
+  "fieldCoverage": {
+    "AdditionalPrice": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "BGAmount": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "BGName": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "BillNo": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "Brand": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "CYDate": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "CateGoryName": {
+      "present": 100,
+      "nonblank": 1
+    },
+    "CnColor": {
+      "present": 100,
+      "nonblank": 28
+    },
+    "CnComposition": {
+      "present": 100,
+      "nonblank": 55
+    },
+    "CnName": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "CustomerName": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "ExpContractNo": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "FSingleName": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "GoodsAmount": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "InsideOrderNo": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "InvoiceDate": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "InvoiceNo": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "KeZhong": {
+      "present": 1,
+      "nonblank": 1
+    },
+    "MenFu": {
+      "present": 1,
+      "nonblank": 1
+    },
+    "Num": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "OutStoreNum": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "PayAmount": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "PayDate": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "Price": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "PurContractNo": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "QtyUnit": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "Status": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "StyleNo": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "SupplierName": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "UserName": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "YFAmount": {
+      "present": 0,
+      "nonblank": 0
+    },
+    "actualname": {
+      "present": 100,
+      "nonblank": 0
+    },
+    "bgNum": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "bgQtyUnit": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "cgGoodsAmount": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "companyname": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "cwdate": {
+      "present": 0,
+      "nonblank": 0
+    },
+    "fppmrq": {
+      "present": 0,
+      "nonblank": 0
+    },
+    "gnsk": {
+      "present": 0,
+      "nonblank": 0
+    },
+    "gwsk": {
+      "present": 0,
+      "nonblank": 0
+    },
+    "id": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "itemno": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "jldate": {
+      "present": 0,
+      "nonblank": 0
+    },
+    "kpNum": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "kpamount": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "kpprice": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "kpsupplier": {
+      "present": 12,
+      "nonblank": 0
+    },
+    "lx": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "tzamount": {
+      "present": 100,
+      "nonblank": 100
+    },
+    "zzrkrq": {
+      "present": 100,
+      "nonblank": 100
+    }
+  },
+  "ids": {
+    "uniqueInThisPage": 100,
+    "repeatedGroupsInThisPage": 0,
+    "crossReadStability": "not-verified"
+  },
+  "sourceUnits": {
+    "个": 99,
+    "米": 1
+  },
+  "procurementVsCustomsUnitDifferentRows": 0,
+  "purchaseVsShipmentQuantityDifferentRows": 58,
+  "sampleArithmeticOnly": {
+    "cgEqualsPriceTimesShipment": {
+      "evaluated": 100,
+      "exact": 71,
+      "withinOneCent": 100,
+      "differentByMoreThanOneCent": 0,
+      "unknown": 0
+    },
+    "payEqualsPurchasePlusChargesAndAdjustment": {
+      "evaluated": 100,
+      "exact": 100,
+      "withinOneCent": 100,
+      "differentByMoreThanOneCent": 0,
+      "unknown": 0
+    },
+    "payEqualsCurrentPlusPrepayment": {
+      "evaluated": 0,
+      "exact": 0,
+      "withinOneCent": 0,
+      "differentByMoreThanOneCent": 0,
+      "unknown": 100
+    },
+    "payEqualsInvoiceAmount": {
+      "evaluated": 100,
+      "exact": 100,
+      "withinOneCent": 100,
+      "differentByMoreThanOneCent": 0,
+      "unknown": 0
+    }
+  },
+  "businessMeaningVerified": false,
+  "sourceActivation": "not-activated",
+  "databaseAccess": "none",
+  "bankPaymentInferred": false,
+  "currencySemantics": "not-verified"
+}

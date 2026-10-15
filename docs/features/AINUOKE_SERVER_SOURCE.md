@@ -1,8 +1,18 @@
-2026-10-15 D133本地候选：6087050 num_dyc按既有入库事件原行追溯，作为独立多余仓数量展示，不加进rknum/齐套；缺失、冲突、非法或单位问题明确保持未知。无新SQL/真实采集/数据库操作，语义与批准范围见[num_dyc确认](../tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md)。
-
-2026-10-15 Gate5整合候选：D113–120历史能力与G1–G4身份/商业/有效归属共同保留。当前物料列表与单单读取共用请求级RR快照；人工确认不跨SO自动转移。旧四单窗口已完成12/12并按时停止，本轮未重开。此前段落中的未交付/运行中按原日期阅读；当前精确证据见CURRENT_STATE和material-progress-integration。
+2026-10-15当前内部快照模型（D138）：保持旧6086941首页v1限制；显式v2页保留真实page，完整两遍合同快照校验与时效已用合成数据实现。无新读取/SQL/HTTP/持久化/有效订单接线，真实查询仍未验证，不视作财务来源接通。恢复[快照底座任务](../tasks/active/ainuoke-payment-snapshot-foundation.md)，GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。下方原阶段按日期阅读。
 
 # 艾诺科 Server Source：正式订单与持续物料展示
+
+## 当前恢复摘要（2026-10-15）
+
+main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。6086941首页100/17675与49字段、D136两行含义/个/CNY确认及精确只读观察模型已本地完成，原报告/数值/未知值/重复行不改。金额币种只限定cgGoodsAmount/PayAmount/GoodsAmount，不扩张到报关/开票/预付或收款。
+
+[两合同分页工具](../tasks/active/ainuoke-payment-contract-probe.md)为D137合成工程：已有私有S1/S2精确hash及账号指纹；固定6086941/ExpContractNo/is查询候选，每合同≤2页×100行、完整两遍；最多8报表/9HTTP、4MiB/响应、16MiB累计报表、180秒。原首页动作仍2HTTP/1report；没有注册catalog/采集调度/HTTP业务API/DB或UI接线。
+
+79相关Node/114Python与类型/Server编译/源码lint通过；d669e2e1/clean的898/94与精确main门禁通过（38能力）。私有样本只离线加载，0HTTP/0DB，尚未真实执行新模式，不能宣称查询过滤或完整合同数据已核实。新真实范围须单独明确批准；先前所有读取次数已用完。
+
+B2@68ac、read-model@fbb6002f和Quote@d9bf等原成果保留；Git未交付的新代码不声明PR/Hosted CI/部署通过。无真实账号/DB/绑定/激活/宁波18443/18444操作，四单窗口12/12结束不重启，不自动合并。
+
+[上一摘要原文](../tasks/completed/2026-10-15-before-payment-contract-probe.md)保留日期/hash/结果/限制。GitHub为实时工程事实源；来源/代码/授权/PR/验收变化时更新当前摘要。
 
 核实2026-10-14；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`（#104–107已合并）。GitHub及目标代码为工程事实源；随来源契约、权限、命令、预算、合并、真实激活/部署或验收变化更新。旧日期/hash/结果与未合并状态原文见[归档](../tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)。
 
@@ -104,3 +114,5 @@ npm run source:ainuoke -- --bind-selected=<source-key> --contracts=<same-BillNo,
 
 2026-10-14用户授权既有隔离四单10分钟/2小时的有限刷新；独立window入口最多12次、固定结束时间、失败停止，不更改正式默认scheduler。运行状态见[窗口证据](../tasks/active/ainuoke-bounded-window-2026-10-14.md)。
 2026-10-14 PR108诊断入口必须提供`-PreflightFile`，真实核验原文件与请求身份后才允许收集。原报告不因历史hash有效而变为新鲜；不重复全量读取。[修复证据](../tasks/active/quality-preflight-lineage-fix-2026-10-14.md)。
+
+金额币种边界复核：仅cgGoodsAmount/PayAmount/GoodsAmount采用本轮确认的采购合同币种，其余金额币种保持unknown；不提供通用行currency。详见../tasks/active/evidence/ainuoke-payment-request-probe/observations-amount-currency-2026-10-15.md。

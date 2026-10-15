@@ -1339,6 +1339,124 @@
       "renderedSourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
       "changeReason": "New approved G5 B2 display ordering and event drawer evidence with synthetic data; preserve prior screenshots and do not claim human pixel acceptance.",
       "approvalEvidence": "material-display-approved-scope"
+    },
+    {
+      "id": "decisions-payment-request-probe",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "40ace98ce26599748faa65489c8d07b8c612a5a1",
+      "sha256": "a973458f9f6afc1d83576dd774766e7efbdd8de7b0da5e7d81c8d98941d50861",
+      "supersedes": "decisions-material-display-settings-events",
+      "changeReason": "D135 adds a separate bounded first-page diagnostic only; all existing source, payment and business rules retained."
+    },
+    {
+      "id": "payment-request-probe-results",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/engineering-results-2026-10-15.md",
+      "recordedAtSha": "40ace98ce26599748faa65489c8d07b8c612a5a1",
+      "sha256": "5c69ee7784ca188a8de9e5e5daecd1504e6c7fba2cabd720c850c47a843629cd"
+    },
+    {
+      "id": "payment-request-first-attempt-repair",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/first-attempt-failure-and-repair-2026-10-15.md",
+      "recordedAtSha": "736508304e9b6a68376e08530220aa3c9fd43200",
+      "sha256": "4ccad54f42a1cef2cac1df3876d6d63a929270208555ad8cd8bcbcbcb9172417"
+    },
+    {
+      "id": "payment-request-metadata-compatibility",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/second-attempt-metadata-2026-10-15.md",
+      "recordedAtSha": "e022e72ececb3120479f64a9c4e35cb86ab8057a",
+      "sha256": "a4b71476afaedfe5d67e105d0a2989828fb2ed373731bf0e58a620b928adf698"
+    },
+    {
+      "id": "payment-request-ipc-encoding",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/third-fourth-attempt-ipc-2026-10-15.md",
+      "recordedAtSha": "5a24f37909f7057cf323032ba1f632a700b38d52",
+      "sha256": "f399545c4284fdefe146aee09480183a6cbe34ed4f367ca90378a88728383751"
+    },
+    {
+      "id": "payment-request-first-page-real",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md",
+      "kind": "document",
+      "recordedAtSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+      "sha256": "8f30959626e9289815e60613fd2461e8e0aef4f8c75c5c41e96cb7e62cb0b41f"
+    },
+    {
+      "id": "payment-request-first-page-schema",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-schema-2026-10-15.json",
+      "kind": "document",
+      "recordedAtSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+      "sha256": "4246bb430b7baae9654300e9d5185cdec552e28fbef16e364889f12335237a1a"
+    },
+    {
+      "id": "decisions-payment-row-context",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "decisions-payment-request-probe",
+      "changeReason": "D136 records two explicitly verified allocation/unit/currency samples and scopes immutable offline observations; preserves D135 limits.",
+      "kind": "document",
+      "recordedAtSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+      "sha256": "751217b227e84213a9611df6723d009415a07312a5063f43d8c95343042b7c8b"
+    },
+    {
+      "id": "payment-row-context-confirmation",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/row-context-confirmation-2026-10-15.md",
+      "kind": "document",
+      "recordedAtSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+      "sha256": "3235e7c1db64c32a0af92c648331b390d97484b89c30f2c76a1150b765c1099b"
+    },
+    {
+      "id": "payment-observations-engineering",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/observations-engineering-2026-10-15.md",
+      "kind": "document",
+      "recordedAtSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+      "sha256": "236da597ea81152c9ebcdcf3da24d20345c491a974928a22484acc357087f96c"
+    },
+    {
+      "id": "payment-observations-offline",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/observations-offline-2026-10-15.json",
+      "kind": "document",
+      "recordedAtSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+      "sha256": "0fc65b3c5bec7fd32a308a39da11c570084026f818d85905926cb063c94e1871"
+    },
+    {
+      "id": "payment-observations-amount-currency",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/observations-amount-currency-2026-10-15.md",
+      "kind": "document",
+      "recordedAtSha": "ba3e058307c7e500ac86efc54121e17290291249",
+      "sha256": "8490ae0344f85f598786d1dcd67834ce5faae61833facef9f9ae4782bbd6c611"
+    },
+    {
+      "id": "payment-observations-amount-currency-offline",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/observations-amount-currency-2026-10-15.json",
+      "kind": "document",
+      "recordedAtSha": "ba3e058307c7e500ac86efc54121e17290291249",
+      "sha256": "49cca3e5c46122133e382c61f0da1fbd17400adb1e1aa2ab02d0ec9cb3282bcf"
+    },
+    {
+      "id": "decisions-payment-contract-probe",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "decisions-payment-row-context",
+      "changeReason": "D137 adds a separate explicitly scoped two-contract diagnostic; preserves original first-page action, source permissions and financial semantics.",
+      "kind": "document",
+      "recordedAtSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+      "sha256": "8eb0f2c0735910a3660a8a426099eae18615f199be9ee1e0017d95b2ca9dc0a7"
+    },
+    {
+      "id": "payment-contract-probe-engineering",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/contract-probe-engineering-2026-10-15.md",
+      "kind": "document",
+      "recordedAtSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+      "sha256": "279d289ce405cb90e140e048f2abf16388e68049312244f5054b77c87dc2f6bb"
+    },
+    {
+      "id": "payment-contract-selection-offline",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/contract-selection-offline-2026-10-15.json",
+      "kind": "document",
+      "recordedAtSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+      "sha256": "69176240e1c77f5cdd1830304ecf19121778b5cdca9c4b3e3bc36f63cd03fdf8"
     }
   ],
   "pages": [
@@ -4786,6 +4904,365 @@
           ]
         }
       }
+    },
+    {
+      "id": "ainuoke-payment-first-page-diagnostic",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
+      "evidence": [
+        "payment-request-probe-results",
+        "decisions-payment-request-probe",
+        "payment-request-first-attempt-repair",
+        "payment-request-metadata-compatibility",
+        "payment-request-ipc-encoding",
+        "payment-request-first-page-real",
+        "payment-request-first-page-schema"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "362f81ba704ab792eff102cf121301deee4998f0",
+          "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
+          "evidence": [
+            "payment-request-probe-results",
+            "decisions-payment-request-probe",
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+          "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
+          "evidence": [
+            "payment-request-probe-results",
+            "decisions-payment-request-probe",
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "362f81ba704ab792eff102cf121301deee4998f0",
+          "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
+          "evidence": [
+            "payment-request-probe-results",
+            "decisions-payment-request-probe",
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+          "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
+          "evidence": [
+            "payment-request-probe-results",
+            "decisions-payment-request-probe",
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+          "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
+          "evidence": [
+            "payment-request-probe-results",
+            "decisions-payment-request-probe",
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment by this diagnostic task; preserved runtime metadata is historical only.",
+          "evidence": [
+            "payment-request-probe-results",
+            "decisions-payment-request-probe",
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment by this diagnostic task; preserved runtime metadata is historical only.",
+          "evidence": [
+            "payment-request-probe-results",
+            "decisions-payment-request-probe",
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ainuoke-payment-read-only-observations",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
+      "evidence": [
+        "decisions-payment-row-context",
+        "payment-row-context-confirmation",
+        "payment-observations-engineering",
+        "payment-observations-offline",
+        "payment-observations-amount-currency",
+        "payment-observations-amount-currency-offline"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+          "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+          "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+          "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+          "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+          "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime changes by this offline model; runtime image/source metadata remains historical.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime changes by this offline model; runtime image/source metadata remains historical.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ainuoke-payment-two-contract-diagnostic",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+      "evidence": [
+        "decisions-payment-contract-probe",
+        "payment-contract-probe-engineering",
+        "payment-contract-selection-offline"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No runtime/deployment changes; preserved image/source anchors are historical.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No runtime/deployment changes; preserved image/source anchors are historical.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        }
+      }
     }
   ],
   "runtimeSnapshots": [
@@ -4814,7 +5291,7 @@
   ],
   "limitations": [
     "Combined synthetic UI and original P6 responsive checks passed. User accepted PR101 login visuals only; order/material and real-account business acceptance remain pending.",
-    "No live environment, ledger, business rows, accounts, Source or deployment changed or reverified by this task.",
+    "No target Zhixu runtime, ledger, accounts or deployment changed or reverified by this bounded payment diagnostic. The dated upstream first-page observation is not Source activation.",
     "Static Server allowlist is only the capability ceiling; orderRead defaults disabled and explicit snapshot runtime must match the compiled build and source reader.",
     "New contracts and existing main/color source mirrors do not automatically refresh. Historical snapshots accumulate without retention automation.",
     "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment."

@@ -10,6 +10,8 @@
 
 # 项目知识索引
 
+2026-10-15当前财务快照底座：联合c54a＋Source48b63101，复用旧树，完整合同模型实施中；旧首页v1仍限page1，不能当全量。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，先读CURRENT_STATE/AI_HANDOFF；新真实读取未授权，存储/API/侧栏未完成。
+
 2026-10-15当前联合候选：B2纳入已验Quote d9bf与最新G4 4c59（含G1–G3），原截图/源码范围保留，新远端/CI仍待。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先恢复[当前状态](CURRENT_STATE.md)和[联合验收](tasks/active/evidence/material-source-integration/gate5-verified-dependencies-2026-10-15.md)；下方“退出修复待做”等属于原时点，现已纳入候选。
 
 2026-10-15当前核实基线 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。G1 PR109@1fcc440、G2 Draft PR110@3deffc4三CI成功但未合并；G3 Draft PR111@f4a1b99b精确送达且三CI成功；G4 Draft PR112@036fe521三CI成功、未合并。G5整合与B1页头本地验收，独立num_dyc只读映射已本地通过新增15/root891/基线94/UI5，未远端或部署；[字段结果](tasks/active/evidence/material-source-integration/num-dyc-mapping-results-2026-10-15.md)。真实执行/部署仍关闭。优先恢复[订单身份实施计划](tasks/active/order-identity-program.md)、[身份模块](features/ORDER_IDENTITY.md)、[订单商业版本](features/ORDER_COMMERCIAL_VERSIONS.md)和[当前状态](CURRENT_STATE.md)。下方历史开头保留其记录时点，不代表当前PR/部署状态。
