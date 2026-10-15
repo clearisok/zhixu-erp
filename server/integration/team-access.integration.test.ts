@@ -45,13 +45,14 @@ test("first team: seven synthetic session accounts and guarded administration in
     const quote=await x.request(x.quotePath,logged.cookie);assert.equal(quote.response.status,200,quote.text);
     const hasCost=role.permissions.includes("quote.cost.view");
     if(!hasCost)assert.equal(quote.text.includes("98765"),false);
+    const quoteTerms=await x.request(x.quoteTermsPath,logged.cookie);assert.equal(quoteTerms.response.status,200,quoteTerms.text);
+    assert.equal(quoteTerms.text.includes("12345"),role.permissions.includes("commercial.sale.view"));
+    assert.equal(quoteTerms.text.includes("67890"),role.permissions.includes("commercial.labor.view"));
     const terms=await x.request(x.orderPath,logged.cookie);assert.equal(terms.response.status,200,terms.text);
-    assert.equal(terms.text.includes("12345"),role.permissions.includes("commercial.sale.view"));
-    assert.equal(terms.text.includes("67890"),role.permissions.includes("commercial.labor.view"));
-    if(!admin){
-      const attempt=await x.request(x.orderPath,logged.cookie,{expectedVersion:terms.body.version??1,customerConfirmedPrice:"90000"},"PATCH");
-      assert.equal(attempt.response.status,403,attempt.text);
-    }
+    assert.equal(terms.body.confirmedCommercialTerms.current,null,"unadopted order cannot inherit current quote amounts even for an administrator");
+    assert.equal(/12345|67890/.test(terms.text),false);
+    const attempt=await x.request(x.orderPath,logged.cookie,{expectedVersion:terms.body.version??1,customerConfirmedPrice:"90000"},"PATCH");
+    assert.equal(attempt.response.status,admin?409:403,attempt.text);
     const createQuote=await x.request("/api/v1/quotes",logged.cookie,{},"POST");
     assert.equal(createQuote.response.status,admin||role.id==="role-team-quote-manager"?201:403,createQuote.text);
   });
