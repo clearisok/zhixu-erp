@@ -10,3 +10,5 @@
 - G5仅本地，Dry Run预检失败pushes=0/NETWORK_DEGRADED，无远端/PR结论，不自动恢复或反复推送。无真实账号/业务DB/Source范围、宁波/18443/18444或部署操作。旧Browser长期数据、身份/价格/流水及图/hash保留；整个Goal未完成。
 
 随main/PR、测试、来源/环境或授权变化更新；旧恢复点见completed/2026-10-15-pre-gate5-current-state.md及Git历史。
+
+num_dyc新进展：既有受保护raw包（hash22e8af…）确实保留117/386行该字段，13合同通过当前Adapter/Pipeline离线追踪到117入库事件；无新HTTP/DB/凭据访问。269缺键保未知；原工具29e416、缺preflightLineageVerified，不当作新鲜采集。业务粒度/单位已用一张真实入库实例异步询问，等待实际回答再正式映射；公开证据见num-dyc-existing-evidence-2026-10-15.md，无真实标识入Git。

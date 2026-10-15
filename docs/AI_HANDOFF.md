@@ -13,3 +13,5 @@
 既有四单窗口12成功/固定4单/12独立run/截止停止仅既有私有日志只读验证，无新采集或DB。禁止真实账号/业务库、Source范围窗口、宁波/18443/18444/部署/自动合并，完整Goal继续。旧pre-Gate5接力在completed原文件和Git中。
 
 Phase A最终复验已收口：b2918fae上root876/876、baseline94/94、PG261/261、跨Gate81/81、持续70PASS/1Linux skip，类型/Server/lint全绿；显式构建完整b291SHA/buildId20261015-120039。当前B1仅前端/样式/文档/浏览器增量，起始b291clean，不能混入Phase A文档收口提交；选择性stage下列Phase A记录即可：CURRENT_STATE、AI_HANDOFF和phase-a-checker-followup。B1审批文档/路径记录和真实字段/六宽度验收已准备，测试待运行。
+
+num_dyc新进展：既有受保护raw包（hash22e8af…）确实保留117/386行该字段，13合同通过当前Adapter/Pipeline离线追踪到117入库事件；无新HTTP/DB/凭据访问。269缺键保未知；原工具29e416、缺preflightLineageVerified，不当作新鲜采集。业务粒度/单位已用一张真实入库实例异步询问，等待实际回答再正式映射；公开证据见num-dyc-existing-evidence-2026-10-15.md，无真实标识入Git。
