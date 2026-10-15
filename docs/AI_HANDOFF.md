@@ -1,17 +1,9 @@
-# 当前接力
+# 当前接力：PR109初始CI失败已定位，本地修复待精确交付
 
-2026-10-14核实main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。feat/order-identity-and-contract-claim完成Gate1本地验收，Goal仍在执行，远端待交付。G0 c3d70a5，基础caab27e，工作流2aa3944。最终提交由git log恢复。
+2026-10-15；feat/order-identity-and-contract-claim，修复起点def98f275c2ef61712008891ab1c60d308981bb7/clean；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。用户本轮恢复一次工具先push0/NETWORK_DEGRADED；其普通PowerShell备用DELIVERED_VERIFIED后API精确核实，唯一PR109已建/attach，无merge/deploy。
 
-证据：tasks/active/evidence/order-identity/gate1-results.md；features/ORDER_IDENTITY.md；批准规则tasks/active/order-identity-program.md。15项领域HTTP升级、22项七角色、19项来源、5项Chromium、817项root、71项baseline和type/lint/build PASS。G1源码测试已加入Source CI，远端CI未跑。
+初始Source run38659703949失败13!=12，source integration fixture只排0012误带后续0014。当前修复严格旧ledger1–11、最终1–12/14，保留账号public_id/password_hash和双runMigrations。后续分支浏览器实证同scope key会重复挂载，本G1仅identity/materials前缀独立，补单份DOM断言，不混入G2–G4。
 
-下一步：核实最终commit精确源码门禁并完成唯一PR交付；继承NETWORK_DEGRADED，不在后续Gate重撞同失败Git通道。Gate2商业独立版本可在已核实本地G1父提交上开展，明确stack依赖，不伪称main。G3/G4/G5依次见计划。准备记录当前不带Quote候选；G2接入精确商业版本。旧共享CCT仍待替换。
+原def98完整PG本轮261/261；修复Source21总20PASS/1Linux在WindowsSKIP，真实Pythonloopback通过；UI5/完整type/增量lint/显式Server build通过。初始baseline/team-access已绿，修复交付前门禁PASS、71/71基线通过。证据tasks/active/evidence/order-identity/pr109-ci-followup.md，旧证据不改。下一步commit修复、精确门禁、按实际网络一次安全交付并核新CI，不自动合并。
 
-所有旧worktree保护；0013旧通用转单未发布且不照旧规则发布；0014仅在一次性PG验证。禁止真实数据库/账号/部署/调度续期。node_modules为相同lockfile junction，勿删除目标或安装依赖。历史摘要在tasks/completed/2026-10-14-pre-order-identity-*。
-
-## Gate1补充兼容核验（2026-10-14）
-
-用户回传旧HEAD b5c7eb89dc25c397ebf342baa0607705abc80c89交付结果LOCAL_PASS_REMOTE_UNVERIFIED、pushes=0，不能称送达；不再要求重复推送该旧SHA。后续Gate2全量回归发现G1来源读取耦合认领表，现补回本分支：基础来源创建/刷新使用不依赖0014的foundation投影，正式列表/详情仍使用认领投影。不扩大冻结首绑工具的0001-4迁移范围。
-
-独立G1全PG254/255，唯一失败为CCT测试遗漏0014迁移名称，已补；对应CCT12项+静态UI7项重跑PASS。其余新增覆盖：身份15、首次绑定/受控新增19、基线回归71、精确main基线及类型/增量lintPASS。原G1共享CCT仍保持直到G2切换，未将G2提前混入。需要新checkpoint后再次精确基线确认；新HEAD才是待交付对象。
-
-已知范围：无真实DB/账号/部署；Git仍NETWORK_DEGRADED，独立PR/CI未核实。全量一次运行在最后迁移断言修订前254/255，不能把分组重跑冒称已重跑全套。
+所有旧worktree/后续分支/Browser持久数据保留。G1不替代G2商业隔离或G3加工批次；旧共享CCT明确仍在。不访问真实DB、账号、凭据、Source或部署。Git网络规则保持，不宣称永久恢复。上一接力completed/2026-10-15-pr109-pre-ci-fix-ai-handoff.md。
