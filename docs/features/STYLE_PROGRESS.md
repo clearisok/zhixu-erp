@@ -1,4 +1,8 @@
-2026-10-15 D134 B2本地工程：团队辅料关键词版本设置、面料显示排序和事件侧栏实施中；0024仅一次性库演练。style_progress.settings.edit仅管理员/物控preset，其他物料读角色共享只读。新页面受Server snapshot默认关闭约束；CAS、幂等/审计/撤权已隔离20项通过，页面最终验收待完成。正式数量、齐套、CCT与真实账号/数据不变。见[批准边界](../tasks/active/evidence/material-source-integration/material-display-approved-scope-2026-10-15.md)。
+## 2026-10-15 D134 当前工程候选
+
+团队进度设置GET/PUT /api/v1/material-progress-settings由session/RBAC控制；仅管理员/物控preset具style_progress.settings.edit，其他订单/物料读角色共享配置。0024空表、CAS、actor请求幂等、同事务审计，不用Browser存储或默认关键词，真实迁移未执行。配置不可读时显示提示并保留Projection辅料顺序；面料数值排名仅显示、不形成跨单位总量。关键词按第一个字面包含匹配，最多50项/40字符。
+
+既有Server页箭头控制颜色/规格表格，采购/入库/出运/出库在卡片右侧Drawer；未知与单位冲突不变0，理论与实际分别保留，多余仓沿D133。对账明确未接通。手机页头设置在刷新左边且均可见。新设置页只在显式Server snapshot能力下开放，旧Browser菜单及生产/关账路由不扩大。最终25浏览器/七角色/六宽度等见[完整证据](../tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)，新像素未人工验收、未部署。旧实现说明按历史时点阅读。
 
 2026-10-15 D133本地候选：6087050 num_dyc按既有入库事件原行追溯，作为独立多余仓数量展示，不加进rknum/齐套；缺失、冲突、非法或单位问题明确保持未知。无新SQL/真实采集/数据库操作，语义与批准范围见[num_dyc确认](../tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md)。
 

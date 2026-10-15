@@ -1,3 +1,5 @@
+2026-10-15 / 当前G5 B2本地25UI、898root、261PG、56设置/历史升级及94基线已验，团队辅料排序/颜色规格展开/事件侧栏完成，未远端/部署；main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。[最终B2证据](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)及CURRENT_STATE为恢复入口。下方旧快照按原日期阅读。
+
 2026-10-14 / 本机四单真实隔离演示已执行首绑与两轮刷新，未开长期调度；[真实运行证据](tasks/active/ainuoke-isolated-live-results-2026-10-14.md)。以下旧状态按历史时点阅读。
 
 2026-10-14 / main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5：右上角退出与D-118受控单位/采购责任只读候选完成，真实Source未激活。[最终验证](tasks/active/material-confirmations-verification-2026-10-14.md)、[下一隔离演示Gate](tasks/active/material-confirmations-2026-10-14.md)。

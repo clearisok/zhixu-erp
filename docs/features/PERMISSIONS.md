@@ -1,4 +1,4 @@
-2026-10-15 D134 B2本地工程：团队辅料关键词版本设置、面料显示排序和事件侧栏实施中；0024仅一次性库演练。style_progress.settings.edit仅管理员/物控preset，其他物料读角色共享只读。新页面受Server snapshot默认关闭约束；CAS、幂等/审计/撤权已隔离20项通过，页面最终验收待完成。正式数量、齐套、CCT与真实账号/数据不变。见[批准边界](../tasks/active/evidence/material-source-integration/material-display-approved-scope-2026-10-15.md)。
+2026-10-15 D134本地工程候选完成：0024团队进度设置、管理员/物控写及七角色共享读、CAS/actor幂等/审计，已合成PG和25项实际浏览器验证；未真实迁移或改账号。权限目录现66项，默认Server snapshot设置页关闭，生产/关账不扩大；[完整证据](../tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。
 
 # 权限系统
 

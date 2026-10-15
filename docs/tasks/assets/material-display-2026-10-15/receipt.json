@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "material-display-ui-evidence.v1",
+  "renderedSourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+  "buildId": "20261015-141116",
+  "synthetic": true,
+  "realDatabaseAccess": false,
+  "sourceActivation": "not-activated",
+  "metrics": [
+    {
+      "width": 1920,
+      "overflow": false,
+      "panelInside": true,
+      "inlineEvents": 0,
+      "backWidth": 30
+    },
+    {
+      "width": 1536,
+      "overflow": false,
+      "panelInside": true,
+      "inlineEvents": 0,
+      "backWidth": 30
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "panelInside": true,
+      "inlineEvents": 0,
+      "backWidth": 30
+    },
+    {
+      "width": 1280,
+      "overflow": false,
+      "panelInside": true,
+      "inlineEvents": 0,
+      "backWidth": 30
+    },
+    {
+      "width": 900,
+      "overflow": false,
+      "panelInside": true,
+      "inlineEvents": 0,
+      "backWidth": 30
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "panelInside": true,
+      "inlineEvents": 0,
+      "backWidth": 30
+    }
+  ]
+}

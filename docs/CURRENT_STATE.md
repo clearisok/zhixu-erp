@@ -1,13 +1,12 @@
 # 当前状态
 
-核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub为实时工程事实源，本文为快照。
+核实2026-10-15；GitHub实时main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本文为知识快照，随源码/PR/测试/来源/授权变化更新。
 
-- PR109@1fcc440、Draft110@3deffc4、Draft111@f4a1b99b、Draft112@036fe521均精确送达且各3CI成功，均未合并部署。109本轮独立API再核对开放状态；后续合并授权仍待实际答复，不执行。
-- 原order-effective-attribution工作树继续feat/material-progress-integration；f810f073合入旧Source21da670（含PR108），保留G1–G4、D113–120和全部旧历史。批量/单单RR快照、有效归属、私有确认、alerts及退出保护完成。Phase A最终root876/876、baseline94/94、PG261/261、跨Gate81/81、持续70PASS/1Linux skip；类型/Server/lint全绿。[完整修复回执](tasks/active/evidence/material-source-integration/phase-a-checker-followup.md)。
-- B1已批准的小箭头/业务与工厂款号/去重复导航和说明已实现。渲染源码d0e1ae2d、测试脚本17e8fb2b，21/21浏览器PASS，六宽度对齐/无溢出/唯一身份/返回路由及旧保护保持；四张新合成PNG经AI目视检查，未覆盖旧图，也不冒称用户像素认可。[页头验收](tasks/active/evidence/material-source-integration/header-browser-verification-2026-10-15.md)。
-- 下一步B2：团队辅料关键词设置、面料数值排序、颜色规格展开和事件侧栏；C分别处理num_dyc与6086941。正式TotalNum/cgnum/齐套不改，理论与采购事实分开，不按同名或数量关联财务。
-- num_dyc已在旧受保护真实raw包的117/386行找到，13合同通过当前Adapter/Pipeline追溯117入库事件，269缺键保未知。历史工具29e416无新lineage标记，不作为新鲜采集。用户已确认31条之外另有1条且同为条；独立feat/ainuoke-excess-warehouse本地最小投影与入库明细列完成，新增15、root891、基线94、UI5均PASS，持续Source70PASS/1Linux skip；旧DTO兼容、类型/lint/Server/UI构建通过，未远端交付或真实启用。[验收复审](tasks/active/evidence/material-source-integration/num-dyc-mapping-results-2026-10-15.md)。[脱敏证据](tasks/active/evidence/material-source-integration/num-dyc-existing-evidence-2026-10-15.md)。
-- 既有四单2小时窗口只读日志12/12成功、每次4单并按截止停止。本轮未新HTTP/业务DB/凭据/ACL操作，未切换现有真实演示镜像；[既有窗口回执](tasks/active/evidence/ainuoke-live-demo-readiness/window-completion-2026-10-15.md)。
-- G5仅本地，Dry Run失败pushes0/NETWORK_DEGRADED；无G5 PR，不自动恢复/反复push、合并、部署、改真实账号/业务库或宁波/18443/18444。旧工作树、Browser长期数据、身份/流水/价格和旧图/hash保留；整个Goal未完成。
+- 开放PR搜索仍有108–112；此前109@1fcc440、Draft110@3deffc4、111@f4a1b99、112@036fe521精确送达、各3CI成功，未合并。本轮没有合并授权实际答复，不执行。
+- 原工作树继续feat/material-sort-and-event-drawer；保留G1–G4、Source21da/108及G5 A/B1。A request-local RR快照/有效归属/人工确认及顶部退出保护本地通过；B1小返回箭头、业务/工厂款号及去重复布局已六宽度验证，未部署/人工像素验收。[A/B1原证据](tasks/active/evidence/material-source-integration/header-browser-verification-2026-10-15.md)。
+- G5 B2本地完成：团队辅料关键词设置、面料数值显示排序、颜色规格展开及事件侧栏；新0024仅一次性库演练，管理员/物控写、七角色读，CAS/actor幂等/审计。root898、PG261、设置与历史升级56、基线94、Source70PASS/1Linux skip、最终UI25通过；类型/lint/Server与默认Browser构建通过。最终渲染b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993、脚本967deb5247823f223cd811aeb14361cab65b8fe0；后续仅元数据冻结。[完整验收/复审](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。
+- 独立num_dyc分支aab97cb8本地15/root891/基线94/UI5已验，B2侧栏复用并再验。旧受保护raw中117/386行有值，用户确认31条之外另1条同单位；缺/冲突保持未知，不加进rknum/正式齐套。[原最小映射](tasks/active/evidence/material-source-integration/num-dyc-mapping-results-2026-10-15.md)。
+- 本轮授权恢复G5 af9b746与num_dyc aab97cb8仍预检失败，actual pushes0；未创建新PR/Hosted CI。只读main可查不代表Git恢复；停止重复通道，无全局TLS/代理/认证改变。当前B2也仅本地，不自动恢复、合并或部署。
+- 既有真实四单/10分钟/2小时窗口12/12成功且截止；本轮未新采集/凭据/真实DB或现有演示镜像变更。6086941尚未接通，侧栏明确待接入；报价保存后退出失败重试边界独立小修复待做。真实账号、宁波18443/18444和生产/关账路由保持原边界；Goal未完成。
 
-随main/PR、代码、测试、来源/授权或人工验收变化更新。旧恢复点在completed归档及Git历史。
+旧状态原文见[tasks/completed归档](tasks/completed/2026-10-15-before-material-display-current-state.md)。旧工作树、Browser长期数据、所有身份/流水/价格及旧PNG/hash均保留。
