@@ -7,3 +7,7 @@
 此前完整恢复说明仍在本文件上一commit；多余仓15/root891/基线94/UI5、持续70PASS1Linux skip与类型/lint/构建、真实旧包117字段证据均已冻结。Goal继续，当前无新的部署或数据库授权。
 
 获准恢复首轮G5与多余仓均pushes=0，独立GitHub API确认两branch不存在。只读diagnose默认Schannel失败、HTTP1.1超时，但进程OpenSSL+HTTP1.1在3236ms读到精确main64，配置未改。沿用当前明确授权完成尚未发生的actual push，每分支最多1次，通过现有工具仅进程限定连接参数；认证/证书验证不变，不自动合并部署。保存本WIP后切两分支，完成后回此分支。
+
+B2 backend实测更新：material-progress-settings与fresh-start在一次性PostgreSQL通过20/20，包含七角色读/两角色写、CAS并发、actor幂等/回放、撤权、审计回滚、0023→0024隔离升级，不操作真实账号/数据库。原未跟踪测试为本阶段自有新增，SHA256 3CB2992E7EF24ECFC8A59BD3D90573F1BA0CE551881831034EC7378417E2C60C。
+
+恢复交付最终结果：用户授权的G5/num_dyc安全恢复均未通过远端预检，actual pushes=0；进程OpenSSL+HTTP1.1能读main但现有工具仍无法核实目标，已停止，不视为网络恢复。两branch/PR仍未送达，不再次撞通道。继续B2本地页面/侧栏，不合并部署。
