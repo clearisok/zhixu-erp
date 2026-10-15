@@ -1,4 +1,5 @@
-import {adoptOrderPreparation,listPreparationCandidates,readPreparationAdoptions,readPreparationAdoptionReceipt,parsePreparationCandidateQuery} from './sales-orders/preparation-adoption.js';
+import {supportsPreparationAdoption} from './sales-orders/preparation-source.js';
+import {adoptOrderPreparation,listPreparationCandidates,readPreparationAdoptions,readPreparationAdoptionReceipt,parsePreparationCandidateQuery,readPreparationsByReference,readOrderPreparationCreationReceipt} from './sales-orders/preparation-adoption.js';
 import {readNormalizationReviewCapabilities,listNormalizationReviewInbox,parseReviewInboxQuery,readNormalizationProposalContext,readPublishedNormalizationProposal,listNormalizationReviewHistory,parseReviewHistoryQuery} from './sales-orders/normalization-review-workspace.js';
 import {parseMaterialHistoryQuery,type MaterialHistoryReader} from './ainuoke-source/history.js';
 import {parseOrderCommandMode,assertOrderCommandsAvailable,readOrderCommandState,orderCommandControlError,type OrderCommandMode} from './sales-orders/command-control.js';
@@ -750,6 +751,14 @@ async function route(
     return;
   }
 
+  const preparationCreationReceipt=/^\/api\/v1\/order-preparation-receipts\/([^/]+)$/.exec(path);
+  if(preparationCreationReceipt){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'preparation_requires_session_authority','Trusted session authority required');
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_preparation_query','No selectors accepted');
+    response.setHeader('Cache-Control','no-store');sendJson(response,200,await readOrderPreparationCreationReceipt(dependencies.pool,identity,preparationCreationReceipt[1]));return;
+  }
+
   const preparationMatch=/^\/api\/v1\/sales-orders\/([^/]+)\/(preparation-candidates|preparation-adoptions)$/.exec(path);
   const preparationReceipt=/^\/api\/v1\/order-preparation-adoption-receipts\/([^/]+)$/.exec(path);
   if(preparationMatch||preparationReceipt){
@@ -778,7 +787,9 @@ async function route(
       requirePermission(identity.permissions, "order.preparation.create");
       if ([...identityQuery.keys()].some(key => !["referenceOrderId", "offset"].includes(key)) || [...new Set(identityQuery.keys())].some(key=>identityQuery.getAll(key).length!==1) || !/^\d+$/u.test(identityQuery.get("offset")??"0")) throw new HttpError(400,"invalid_preparation_query","Invalid query");
       response.setHeader("Cache-Control", "no-store");
-      sendJson(response,200,await listOrderPreparations(dependencies.pool,identityQuery.get("referenceOrderId")??"",Number(identityQuery.get("offset")??0)));return;
+      const ref=identityQuery.get("referenceOrderId")??"",offset=Number(identityQuery.get("offset")??0);
+      const result=dependencies.identityAuthority.mode==='session'&&await supportsPreparationAdoption(dependencies.pool)?await readPreparationsByReference(dependencies.pool,identity,ref,offset):await listOrderPreparations(dependencies.pool,ref,offset);
+      sendJson(response,200,result);return;
     }
     if (identityQuery.size) throw new HttpError(400, "invalid_identity_query", "Query selectors are not accepted");
     if (path === "/api/v1/order-claimants") {

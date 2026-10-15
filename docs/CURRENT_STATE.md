@@ -1,11 +1,11 @@
 # 当前状态
 
-核实2026-10-15；GitHub API main064e3afaf7d08b3cb62907d4402f97d9c292f1e5不变，开放仅108@f5bbb1e4d3d6c52c80b03947a6926380afafc8c0。当前feat/order-effective-attribution，从3708d57c367b69e999da3de31dc544016a9c49f8/clean补准备采用后台。G1–G4仍本地工程，未精确远端交付/合并/部署；NETWORK_DEGRADED协议保留，G1一次恢复授权待回复。
+核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`不变，最近开放仅108@f5bbb1e4d3d6c52c80b03947a6926380afafc8c0。feat/order-effective-attribution从2e037dc3/clean补准备UI；各Gate仍本地工程，无新PR/合并/部署。
 
-原G1 def98f/G2 2c6c2315/G3 39c9f7b6及全部G4工作树/提交/冻结证据保留；岗位UI精确e6bbf986、报告d681c1ed和3708基线24能力/78已有独立证据，新阶段不覆盖旧图/hash。
+G1 def98f经用户本次恢复授权使用工具一次，NETWORK_DEGRADED、pushes=0；独立API404确认远端分支不存在，普通PowerShell备用交付待回传。未重复push、未改网络规则。G2 2c6c2315/G3 39c9f7b6与全部G4工作树/提交/冻结证据保留。
 
-实际查漏补0023：可选精确拟报价意向、合同SO认领后显式采用准备补血统、不可变receipt/原子审计/current准备引用；不创建SO、不改合同数量/价格/流水。新参考进入完整归一hash和SQL fence/alias/pause。历史processing标签无合法消费曾误通过商业preview，facade已修为可信批次+精确来源，不回填标签/价格。[模块](features/ORDER_PREPARATION_ADOPTION.md)/[任务](tasks/active/order-preparation-adoption.md)。Source CI已补此前漏接的G4与新模块测试，但远端CI尚未运行。
+准备链路已有后台0023、现有Foundation拟报价选择/原单列表/合同后采用/历史与原请求核对；不创建SO、不改合同数量/价格/流水。实测修复相邻详情同React key导致重复卡片/弹窗，增加单份断言。独立tab-scoped Server命令缓存不读写Browser账本/Seed/IndexedDB；刷新不自动POST，关闭整标签页限制明确。[模块](features/ORDER_PREPARATION_ADOPTION.md)/[页面任务](tasks/active/order-preparation-adoption-ui.md)/D130。
 
-22定向、完整PG261、归属45、相关64、根824、原认领/加工UI14及完整类型/lint/Server编译/候选静态build通过；G4工作区21/执行30在同阶段较早候选通过。所有DB一次性合成。源码/冻结证据checkpoint ff89f884a245ba69b7d3bdc520782ecc6ed74be8；D129前向绑定及第25项限定后台能力后门禁PASS（10页/20项累计UI路径）、基线78/78；新准备候选/拟报价/采用UI未接，不能称整个链路完成。
+本阶段23后台、10客户端、10新浏览器（完整6宽度含1536 DPR1.25、七角色、撤权、丢响应、CAS）、原UI27（认领5/加工9/商业4/历史9）、完整类型/lint/Server编译/候选build、根824通过。完整PG261/归属45是父阶段ff89证据，本阶段未冒称重跑全套。当前25能力为父冻结基线；本阶段精确源码/截图及前向能力记录正在收口，暂不声称最终门禁PASS。
 
-下一步接现有Foundation新准备流程（包括未知保存保留原请求）、完整G4/PR复审交付、独立G5。Quote新修订清确认已实装不重写；DeliveryPlan不冒称生产执行。无真实账号/DB/凭据/Source/窗口或宁波/18443/18444操作。整个Goal未完成。上一状态归档[快照](tasks/completed/2026-10-15-pre-preparation-adoption-current-state.md)。
+下一步冻结精确准备UI证据/门禁，完成G4/远端独立PR复审与后续G5。旧PR64/P6/历史PNG/hash不覆盖。Quote新修订清确认已有实现不重写；DeliveryPlan不冒称生产执行。未操作真实账号/业务DB/凭据/Source/窗口、宁波或18443/18444；整个Goal未完成。上一状态[归档](tasks/completed/2026-10-15-pre-preparation-ui-current-state.md)。

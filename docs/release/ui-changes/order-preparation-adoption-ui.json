@@ -1,0 +1,29 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "components/foundation/page-back-button.tsx",
+    "features/style-progress/components/order-center-navigation.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/order-center/components/server-order-identity-card.tsx",
+    "features/order-center/components/server-order-preparation-card.tsx",
+    "features/order-center/components/preparation-adoption-dialog.tsx",
+    "features/order-center/components/preparation-quote-picker.tsx",
+    "features/order-center/components/preparation-reference-summary.tsx",
+    "features/order-center/server/preparation-client.ts",
+    "features/order-center/server/preparation-outbox.ts"
+  ],
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "按已批准D121在既有Foundation准备弹窗中增加显式拟报价版本和合同认领后的准备选择/采用/历史核对，保护未知结果原请求及导航。保留主题、主导航、订单与价格职责，不重设计现有页面。修复相邻详情组件相同React key造成重复卡片/弹窗。",
+  "evidence": [
+    "docs/tasks/active/order-identity-program.md",
+    "docs/tasks/active/order-preparation-adoption-ui.md",
+    "docs/features/ORDER_PREPARATION_ADOPTION.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-identity-program.md"
+  }
+}

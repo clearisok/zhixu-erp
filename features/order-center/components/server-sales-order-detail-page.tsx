@@ -5,7 +5,7 @@ import { ServerOrderIdentityCard } from "./server-order-identity-card";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { OrderMaterialSummary } from '@/features/ainuoke-material-progress/order-material-summary';
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   AlertBanner,
   AppShell,
@@ -64,21 +64,23 @@ function unavailableMessage(error: unknown): string {
 function ServerDetailFrame({
   detail,
   children,
+  onRequestNavigation,
 }: {
   detail: OrderCenterServerDetailViewModel | null;
   children: React.ReactNode;
+  onRequestNavigation?: (target:string)=>void;
 }) {
   return (
-    <AppShell title="正式订单详情" identityMode="server">
+    <AppShell title="正式订单详情" identityMode="server" onRequestNavigation={onRequestNavigation}>
       <PageContainer className="oc-order-center-page oc-server-detail-page">
-        <OrderCenterNavigation />
+        <OrderCenterNavigation onRequestNavigation={onRequestNavigation} />
         <PageHeader
           eyebrow="READ ONLY · POSTGRESQL"
           title={detail?.styleNo || "正式订单详情"}
           description={detail
             ? <><strong>{detail.orderNo}</strong><span> · BillNo {detail.billNo ?? "—"}</span></>
             : "从 PostgreSQL 读取权威订单与艾诺科来源事实。"}
-          back={<PageBackButton fallbackHref="/order-center" label="返回订单列表" />}
+          back={<PageBackButton fallbackHref="/order-center" label="返回订单列表" onRequestNavigation={onRequestNavigation} />}
           status={detail ? <StatusTag tone={lifecycleTone(detail.lifecycleState)}>{lifecycleLabels[detail.lifecycleState]}</StatusTag> : undefined}
         />
         {children}
@@ -89,6 +91,11 @@ function ServerDetailFrame({
 
 export function ServerSalesOrderDetailPage({ executionOnly = false }: { executionOnly?: boolean } = {}) {
   const searchParams = useSearchParams();
+  const router=useRouter();
+  const [preparationGuard,setPreparationGuard]=useState(false),[navigationNotice,setNavigationNotice]=useState('');
+  const updatePreparationGuard=useCallback((blocked:boolean)=>{setPreparationGuard(blocked);if(!blocked)setNavigationNotice('');},[]);
+  const requestNavigation=useCallback((target:string)=>{if(preparationGuard){setNavigationNotice('还有未确认的准备请求，请先核对回执，或选择稍后核对以保留原请求。');return;}router.push(target);},[preparationGuard,router]);
+  useEffect(()=>{if(!preparationGuard)return;const protect=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',protect);return()=>window.removeEventListener('beforeunload',protect);},[preparationGuard]);
   const salesOrderId = searchParams.get("id")?.normalize("NFKC").trim() ?? "";
   const serverSession = useServerSession();
   const [detail, setDetail] = useState<OrderCenterServerDetailViewModel | null>(null);
@@ -159,12 +166,12 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   };
 
   if (serverSession.status === "checking") {
-    return <ServerDetailFrame detail={null}><LoadingState label="确认织序 Server 登录状态" /></ServerDetailFrame>;
+    return <ServerDetailFrame onRequestNavigation={requestNavigation} detail={null}><LoadingState label="确认织序 Server 登录状态" /></ServerDetailFrame>;
   }
 
   if (serverSession.status === "error") {
     return (
-      <ServerDetailFrame detail={null}>
+      <ServerDetailFrame onRequestNavigation={requestNavigation} detail={null}>
         <ErrorState title="订单服务暂时不可用" description={serverSession.error} onRetry={() => void serverSession.refresh()} />
       </ServerDetailFrame>
     );
@@ -172,7 +179,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
 
   if (serverSession.status === "anonymous") {
     return (
-      <ServerDetailFrame detail={null}>
+      <ServerDetailFrame onRequestNavigation={requestNavigation} detail={null}>
         <AlertBanner tone="info" title={sessionExpired ? "Server 会话已失效，请重新登录" : "登录后查看正式订单详情"}>
           详情使用可信 Server session；不会读取或回退到 Browser 本地订单。
         </AlertBanner>
@@ -184,7 +191,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   const trustedIdentity = `${serverSession.user.name}（${serverSession.user.username}）`;
   if (permissionDenied || !serverSession.hasPermission("order.view")) {
     return (
-      <ServerDetailFrame detail={null}>
+      <ServerDetailFrame onRequestNavigation={requestNavigation} detail={null}>
         <AlertBanner
           tone="warning"
           title="当前 Server 账号没有订单查看权限"
@@ -198,12 +205,13 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
     );
   }
 
-  if (loadedScope !== scopeKey) return <ServerDetailFrame detail={null}><LoadingState label="读取 PostgreSQL 正式订单详情" /></ServerDetailFrame>;
+  if (loadedScope !== scopeKey) return <ServerDetailFrame onRequestNavigation={requestNavigation} detail={null}><LoadingState label="读取 PostgreSQL 正式订单详情" /></ServerDetailFrame>;
 
   return (
-    <ServerDetailFrame detail={detail}>
+    <ServerDetailFrame onRequestNavigation={requestNavigation} detail={detail}>
 
       {sessionActionError && <ErrorState description={sessionActionError} />}
+      {navigationNotice&&<AlertBanner tone="warning" title={navigationNotice}/> }
       {loading ? (
         <LoadingState label="读取 PostgreSQL 正式订单详情" />
       ) : notFound ? (
@@ -213,7 +221,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
       ) : detail ? (
         <div className="oc-server-detail-content">
           {detail.attribution?.historicalDuplicate&&<AlertBanner tone="warning" title="历史重复订单 · 原身份与记录保留" actions={<a className="qc-button qc-button-secondary" href={`/order-center/server-detail?id=${encodeURIComponent(detail.attribution.effectiveOrderId)}`}>查看有效订单</a>}>此单不再接收新的执行、认领或价格采用。原合同、商业版本和历史流水保持。</AlertBanner>}
-          <ServerOrderIdentityCard key={scopeKey} orderId={salesOrderId} historical={detail.attribution?.historicalDuplicate} />
+          <ServerOrderIdentityCard key={'identity-'+scopeKey} orderId={salesOrderId} historical={detail.attribution?.historicalDuplicate} onGuardChange={updatePreparationGuard} />
           <Card className="oc-server-detail-section oc-server-detail-zhixu oc-server-detail-overview">
             <header><div><h2>订单概况</h2></div><span>来源权威 · 不可编辑</span></header>
             <DescriptionList columns={3} compact items={[
@@ -251,8 +259,8 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
             )}
           </Card>
 
-          {detail.businessType==='processing'?<Card className="oc-server-detail-section"><p style={{padding:18}}>加工订单不关联艾诺科销售合同，艾诺科物料流水不适用。</p></Card>:detail.attribution?.historicalDuplicate?<Card className="oc-server-detail-section"><p style={{padding:18}}>当前物料来源请在有效订单查看；原单快照保留在历史物料来源。</p></Card>:<OrderMaterialSummary key={scopeKey} salesOrderId={detail.id} />}
-          {detail.businessType!=='processing'&&<MaterialHistoryDialog key={scopeKey} orderId={detail.id}/>}
+          {detail.businessType==='processing'?<Card className="oc-server-detail-section"><p style={{padding:18}}>加工订单不关联艾诺科销售合同，艾诺科物料流水不适用。</p></Card>:detail.attribution?.historicalDuplicate?<Card className="oc-server-detail-section"><p style={{padding:18}}>当前物料来源请在有效订单查看；原单快照保留在历史物料来源。</p></Card>:<OrderMaterialSummary key={'materials-'+scopeKey} salesOrderId={detail.id} />}
+          {detail.businessType!=='processing'&&<MaterialHistoryDialog key={'material-history-'+scopeKey} orderId={detail.id}/>}
           <Card className="oc-server-detail-section">
             <details className="oc-server-technical-details">
               <summary>来源与技术详情 <span>只读</span></summary>
@@ -275,7 +283,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
               </div>
             </details>
           </Card>
-          <ServerOrderCommercialCard key={scopeKey} orderId={salesOrderId} historical={detail.attribution?.historicalDuplicate} frozen={["completed","cancelled"].includes(detail.lifecycleState)} />
+          <ServerOrderCommercialCard key={'commercial-'+scopeKey} orderId={salesOrderId} historical={detail.attribution?.historicalDuplicate} frozen={["completed","cancelled"].includes(detail.lifecycleState)} />
         </div>
       ) : (
         <EmptyState title="未读取到正式订单详情" />

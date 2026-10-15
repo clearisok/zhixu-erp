@@ -36,7 +36,8 @@ export async function requireVerifiedOrderBusiness(client:Queryable,id:string,lo
  }
  fail(409,'trusted_contract_required');
 }
-export async function readOrderIdentity(client:Queryable,id:string){
+export type OrderIdentity={salesOrderId:string;businessType:'ainuoke_contract'|'processing'|'unclassified';version:number;ownerId:string|null;ownerName:string|null;lineage:'pending'|'first'|'reorder';referenceOrderId:string|null;specificationChanges:string;preparationId:string|null};
+export async function readOrderIdentity(client:Queryable,id:string):Promise<OrderIdentity>{
  if(!identityUuid.test(id))fail(400,'invalid_order_id');
  const attributed=await supportsEffectiveAttribution(client);const prepared=await supportsPreparationAdoption(client);const processing=(await client.query("SELECT to_regclass('public.processing_order_batch_consumptions') IS NOT NULL AS ready")).rows[0]?.ready;
  const row=(await client.query(`SELECT ${prepared?'p.preparation_id::text':'NULL::text'} AS preparation_id,${processing?`EXISTS(SELECT 1 FROM processing_order_batch_consumptions c JOIN processing_order_batches b ON b.id=c.batch_id WHERE c.sales_order_id=so.id AND b.state='consumed' AND so.creation_source='quote' AND so.source_quote_id=b.quote_id AND so.source_revision_id=b.revision_id AND so.source_price_version_id=b.price_version_id)`:'false'} AS trusted_processing,so.id::text,so.creation_source,p.business_type,p.version,p.lineage,p.reference_order_id::text,p.specification_changes,u.public_id::text AS owner_id,u.display_name AS owner_name,

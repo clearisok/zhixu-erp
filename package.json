@@ -80,6 +80,8 @@
     "test:material-history": "tsx --test --test-concurrency=1 server/integration/material-history.integration.test.ts",
     "test:material-history-client": "tsx --test features/order-center/server/__tests__/material-history-client.test.ts",
     "test:material-history-ui": "tsx --test server/integration/material-history-ui.integration.test.mjs",
+    "test:order-preparation-ui": "tsx --test server/integration/order-preparation-ui.integration.test.mjs",
+    "test:order-preparation-client": "tsx --test features/order-center/server/__tests__/preparation-client.test.ts features/order-center/server/__tests__/preparation-outbox.test.ts",
     "test:order-preparation-adoption": "tsx --test --test-concurrency=1 server/integration/order-preparation-adoption.integration.test.ts",
     "test:normalization-review-client": "tsx --test features/order-center/server/__tests__/normalization-review-client.test.ts",
     "test:normalization-review-ui": "tsx --test server/integration/normalization-review-ui.integration.test.mjs",

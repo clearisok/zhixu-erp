@@ -1,11 +1,13 @@
-# 当前接力：准备采用后台与25项基线通过，继续现有UI
+# 当前接力：准备采用页面验收通过，待精确冻结收口
 
-2026-10-15；feat/order-effective-attribution，起点3708d57c367b69e999da3de31dc544016a9c49f8/clean。GitHub API main064e3afaf7d08b3cb62907d4402f97d9c292f1e5不变，开放仅108；无push/新PR/合并/部署。NETWORK_DEGRADED规则未删，G1 def98f恢复一次例外待回复，不能代替批准。
+2026-10-15；feat/order-effective-attribution起点2e037dc3afe4f654d47ba7362e4b2ff96129231c/clean。GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5不变，开放仅108。G1 def98f此次明确授权恢复一次，工具NETWORK_DEGRADED/pushes0，独立API404；备用命令已请求，仅该G1授权，其他Gate无自动恢复批准。
 
-0023+preparation-source/adoption及新API，旧prepare五字段hash兼容，精确Quote意向不要求客户已确认、不读取价格。合同后owner/admin显式采用只补血统/current准备引用；CAS/actor-request/全局防环/原子审计/SQL alias+pause/fence。历史手工血统清current引用但receipt留存，不全球Quote/准备去重，不改变SO/数量/价格/Source/流水。新引用完整hash，旧proof不改或重签。另红测实际发现无consumed批次的processing标签仍通过commercial preview，identity读已与列表对齐为可信批次/来源三ID，未知不回填。
+当前准备UI：preparation-client/outbox、QuotePicker/ReferenceSummary/AdoptionDialog、重接ServerOrderPreparationCard和详情导航保护；新增只读v2 reference页/本人创建receipt/受quote.view的名称搜索，未新增SQL。原准备数量/合同数量/实际价格独立。未知先保存完整原command于独立tab-scoped sessionStorage，刷新/返回仅恢复，明确核对或精确重试，不自动POST；损坏/未来缓存保留，Browserledger/Seed/IndexedDB不触碰，整标签页丢失限制已记DATA_LIFECYCLE。
 
-新22/22，完整PG261/261、归属45/45、相关64/64、根824/824、旧认领/加工UI14/14、无缓存完整type/完整lint/Server compile与静态候选build通过。G4review21/execution30是本阶段较早候选结果，非最终身份修复后的重复全套，边界须如实。新增CI把G4保护/history/review/新模块接到Hosted Source，contents:read，无secret/deploy；只配置验证，非远端CI PASS。
+本阶段新23后台、10客户端、10浏览器（七角色、6宽度/DPR、撤权、CAS、丢响应恢复、旧回执与current分离）、原UI27（5+9+4+9），完整类型/lint/Server编译/静态候选build、根824通过。29项Source CI脚本引用/YAML权限验证通过，仅配置不是远端CI。前阶段PG261/归属45/其它证据不冒称重新全跑。
 
-新测试首轮语法await错误；21项18PASS/3FAIL含parent，空referenceOrderId误通过已修，数量115.50按原dscale保留；typed投影修正。追加identity红测22项20PASS/2FAIL含parent，Missing expected rejection，修后22全通过。新迁移清单固定期望漏0023导致G1/归属/PG失败，补精确文件与NULL无回填断言后最终15/45/261通过，不降低旧事实检查。
+失败保留：新test重复变量target解析失败；修后9项全失败，DOM重复认领卡片/Modal，实际是详情相邻identity/material/history/commercial共用scopeKey，修语义前缀key后9通过，扩展10也通过。误用不存在test:processing-order-ui只脚本查找失败，正确test:processing-batches-ui9通过。未降低断言、改数量或移除保护。
 
-源码/冻结证据checkpoint ff89f884a245ba69b7d3bdc520782ecc6ed74be8；D129前向决策/限定第25项后台能力后门禁PASS（10页/20项累计UI路径），基线78/78明确exit0。下一步现有UI接线；原D128/e6图像24cap全部保留。然后现有Foundation准备选择/Quote意向/采用UI，原准备Modal未知保存仍可关窗重开丢原request，必须一并补；新API不是完整前端交付。复杂模块features/ORDER_PREPARATION_ADOPTION.md，active/order-preparation-adoption.md。全G4复审/远端交付/G5与整个Goal仍未完成，真实Source/DB/账户/窗口/部署未授权扩大。旧接力completed/2026-10-15-pre-preparation-adoption-ai-handoff.md。
+UI影响精确10路径见release/ui-changes/order-preparation-adoption-ui.json，D121批准范围、D130工程选择。下一步checkpoint此源码，按精确clean SHA重新build+10浏览器/4新PNG，冻结新报告再前向第26项能力和D130决策绑定，跑实际main门禁/78基线。此前25cap/ff89后台冻结文件及所有旧图/hash不能改。
+
+整个G4/Goal未完成，真实执行/部署默认关闭，无真实DB/账号/凭据/Source窗口操作；G5独立继续。保留所有worktree和本地commit，无force/reset/clean。上一接力completed/2026-10-15-pre-preparation-ui-ai-handoff.md。

@@ -4,6 +4,14 @@
 
 新系统使用独立 DB/volume/origin，从空业务数据开始；不读取旧备份执行导入，不自动同步艾诺科，不发现/接管已有 COS 对象。旧 Browser namespace/IndexedDB、旧库、备份及对象全部保留，无 clear/reset/换 key。本文后续历史导入资产分类与 Q5 freeze 是保留的历史兼容路径，不是当前上线前置条件；已发生 Q3 import 与验收不被否定。详见 `FRESH_START_FOUNDATION.md`。
 
+## Server 准备请求恢复（D-130，2026-10-15）
+
+正式Server准备流程新增独立临时sessionStorage key：`zhixu.server.order-preparation.pending.v1.<publicUserUUID>.<orderUUID>.<create|adopt>`。它只保存未核实命令（请求ID、原参考或准备ID、数量/日期/变化、可选精确报价三ID或采用CAS/原因），不保存账号密码、token、CCT或价格。与Browser业务账本、schema v13、IndexedDB、Seed及备份格式无读写/迁移关系；不是离线Server订单或Browser回退。
+
+先完整保存并读回原命令，再POST。刷新只恢复草稿并提示人工核对，不自动POST；原请求GET回执核实后仅删除自己的精确key，明确未提交的校验拒绝也只释放此请求。未知401/403/网络/服务失败、内容不匹配保留；损坏或未来schema原字节不改，禁止覆盖或自动清空。账号/订单/操作分别隔离，返回当前血统须另读服务端，旧回执不冒充当前状态。
+
+这是同一Origin、同一标签页内的恢复保护；手动清理站点、关闭标签页或浏览器设备丢失不在持久保障范围。共享浏览器用户可访问本机站点存储，不能将该缓存作为保密凭据仓库。若整标签页丢失，应先按原参考/准备及服务端记录核对，不能假设未提交而重建业务。缓存不可用时新命令不发送，不以仅内存草稿冒称可恢复。后续跨设备待办服务另立交付，不隐式扩大本阶段。
+
 ## Purpose
 
 保护 Quote Center 在浏览器中的长期验收数据，使页面刷新、HMR、DEV 重启、Production Build、Docker rebuild、Seed 变化和前端 schema 演进均不会自动清空或覆盖用户数据。

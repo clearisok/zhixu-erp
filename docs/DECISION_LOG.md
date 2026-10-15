@@ -18,6 +18,16 @@
 
 ## Active
 
+### D-130 翻单准备现有页面接线与未核实请求恢复
+
+- 日期2026-10-15；Active，落实已批准D121/D129，不改变合同唯一创建、加工批次或商业版本规则。
+- 既有Foundation准备弹窗可显式选择未确认经销Quote/Revision/PriceVersion；可信合同SO认领后由owner/admin选择准备补血统。准备需求和合同数量可不同，拟报价不采用CCT或金额。缺拟用依据、撤权不可见、来源删除/变更分别提示。
+- 未核实创建/采用先写入独立tab-scoped Server命令缓存；不读写Browser账本/Seed/IndexedDB。刷新仅恢复原请求，人工GET回执核对或精确重试，不自动POST、不换requestId覆盖；损坏/未来缓存保留。缓存边界与关闭标签页限制见DATA_LIFECYCLE，不把sessionStorage称长期业务存储。
+- 明确稍后核对可保留请求再离开，未知结果直接关窗阻断；成功回执不代表当前血统，重新读取当前状态。只释放精确本人请求，不全局清缓存。服务端依旧fresh权限、CAS、唯一receipt和原子审计，缓存不是身份授权。
+- 实际浏览器暴露多个相邻详情组件共用同key，状态变化时重复挂载卡片/弹窗；按语义前缀独立key修复，并断言始终一份认领卡片。不是布局改版。
+- 新只读v2准备页/本人创建回执/允许的报价名称投影与条件搜索；Source CI加入客户端和合成浏览器命令。工程结果独立冻结于阶段报告，不声明远端CI、人工验收或真实部署通过。
+- 代码：preparation-client/outbox、PreparationQuotePicker/AdoptionDialog、ServerOrderPreparationCard、preparation-adoption.ts和order-preparation-ui.integration.test.mjs。不新增SQL、不操作真实账号/DB/Source、宁波或18443/18444，不自动合并。
+
 ### D-129 翻单准备关联与合同后采用、可信加工身份读取
 
 - 日期2026-10-15；Active，落实D121已批准的准备、血统与商业独立规则；目前后端候选，未真实激活。

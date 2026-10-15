@@ -31,3 +31,7 @@
 后端ff89f884冻结证据：22定向回归（误通过红测先复现）、完整PG261、归属45、相关64、根824、原UI14、类型/lint/编译/构建与基线78通过，源码门禁25能力PASS。详见[后端结果](../tasks/active/evidence/order-preparation-adoption/backend-results.md)。现有认领/加工UI会回归，但新准备选择/拟报价保存/采用入口尚待下一阶段接现有Foundation；不能把后台API等同于完整用户流程。Source CI已加入此前缺少的G4保护与本模块测试，远端CI未运行。
 
 无真实账号、业务DB、Source/范围窗口、宁波或18443/18444操作。0023仅一次性PG演练，不承诺直接换旧镜像可回退；真实迁移/案件/部署仍需具体授权。整个Goal未完成。
+
+## 现有页面后续阶段（2026-10-15）
+
+本地从2e037dc3接入可选拟报价选择、原单准备v2页、可信合同认领后显式采用、当前关联/不可变历史和本人创建回执。缺拟报价与撤权受限分别显示；查询拟报价名称受quote.view保护。独立sessionStorage只保存未核实命令，原key/Browser数据不改，刷新不自动写入；具体边界见DATA_LIFECYCLE D130。候选及精确验收分开记录于[页面任务](../tasks/active/order-preparation-adoption-ui.md)，原ff89后台证据不修改。
