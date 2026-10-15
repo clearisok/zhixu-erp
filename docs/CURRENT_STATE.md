@@ -1,16 +1,14 @@
 # 当前状态
 
-2026-10-15最新：本轮2/2固定首页授权已用完；第四次186249/clean仍为通用证据失败，0业务报告，未追加请求。离线已确证Python GBK→Node UTF8中文传输缺陷并修复IPC封套，47Node/87Python/类型/lint通过，原始Unicode与hash保真；真实兼容性未验证，须新次数授权。前一精确186249阶段94基线及main门禁PASS。以本段和AI_HANDOFF为最新，以下阶段快照保留其原时点。
+核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub是实时工程事实源，本文件随源码、PR、授权、来源和验收变化更新。
 
-核实2026-10-15；GitHub API最新main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本文是阶段快照，随main/PR/源码、授权和验收更新。
+- 订单身份主线：开放PR109（G1）、Draft110（G2）、111（G3）、112（G4）；先前精确提交各三项CI成功，均未合并。PR108为独立Source工程。当前未获得新的合并授权。
+- G5页头、物料排序/团队设置、颜色规格展开、事件侧栏及独立num_dyc已本地验收，B2工作树保持68ac1fc9f839ebfc894d39377dac221e7f65566b/clean；原提交与私有证据保留。[B2冻结证据](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。
+- 6086941诊断在ead8e3714372cdb364b2263a6fd0a9ad84bdc382/clean首次成功：固定首页100/17675行，2HTTP/1报表、0Discovery；49列＋id、vDom_PayRegister/6083578及cellList字符串已核实。原文只在本机ACL保护/Git忽略报告；[脱敏实读证据](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)。
+- 本页58行采购/出运数量不同；预付款/确认日期等六字段未返回、币种未提供、id仅本页唯一。保持未知和独立事实，未接正式对账UI/Source，不认定银行付款。下一工程先明确稳定行身份、合同过滤/完整分页、币种与出运分摊来源，不重复全量发现。
+- 工具编码/元数据/分页及安全错误证据修复47Node/87Python、类型/Server构建/定向lint通过；ead8精确main守卫PASS。旧94基线及其他root/PG/UI测试保留各自冻结SHA，不冒称全部在当前文档head重跑。
+- 独立Quote退出小修分支fix/quote-logout-save-retry@0912b75321ed11796daaea0f7a7b5e6517d89260：ACK后仅重试退出、未知保存阻止丢弃绕过；13浏览器/112前端、类型/构建/lint及精确main守卫通过。原UI不变，未远端/部署。
+- Git交付仍NETWORK_DEGRADED、实际pushes0，无新PR/Hosted CI；新权限模式只做一次DryRun亦失败。用户最新重新提供AGENTS，恢复规则适用；不自动重复恢复或更换认证，不伪造原commit交付。
+- 6086941所有已授权次数已用完，未再读上游。真实四单/10分钟/2小时窗口12/12结束不重启；无真实账号/业务DB/现有镜像/宁波18443/18444变更，不自动合并或部署，生产/关账路由保持原边界。
 
-最新增量：第三次固定首页尝试537d671/clean返回payment_probe_invalid_evidence，0报告；新两次授权已用1、剩余1。跨语言分页/total兼容、精确错误及安全rejected私有留存已补齐，45Node/87Python/类型/Server编译/定向lint通过；正式映射仍未验证。Git诊断已定位TCP连接失败而非凭据/TLS。独立Quote退出保护两问题已实测重现并修复，13项真实浏览器回归通过。下列原阶段记录按历史时点保留，以本增量及AI_HANDOFF为当前恢复点。
-
-- G1 PR109、G2 Draft110、G3 Draft111、G4 Draft112此前精确交付且各3CI通过，未自动合并；PR108独立Source工具继续保留。不能把本地累计分支当main能力或部署状态。
-- G5 B2已本地完成页头、团队辅料排序、面料显示排序、颜色规格展开及事件侧栏；root898/PG261/基线94/UI25等证据见[冻结报告](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。另一工作树order-effective-attribution保持feat/material-sort-and-event-drawer@68ac1fc9f839ebfc894d39377dac221e7f65566b/clean。G5 af9b746、num_dyc aab97cb8原分支/提交保留，未远端。
-- 用户普通PowerShell最新交付仍pushes0/NETWORK_DEGRADED；一次API确认B2远端分支不存在。工具before阶段只用Git ls-remote，GitHub API只做push后核对，故本次未进入push；Git传输根因仍未查明。无重复push/恢复、认证或全局TLS/代理变化；用户已撤销旧AGENTS执行指令（文件未删除）；按原任务授权作有界正常交付，不再要求重复同一失败命令。
-- 独立6086941诊断feat/ainuoke-payment-request-probe已本地实现，原源码8655a052f22458506094fa0941ba7344fbff9bff、失败协议修复7c567b620df1e51c56461b1f6783e8e54c8afe4a、元数据表示修复894a4f55c1326563c91723125fff62f21ae6a974，从68ac依赖累计；复用旧erp-followup-governance工作树，原21da670及私有报告保留。固定首页100行、无Discovery/翻页/DB/激活，原始数值文本与字段分离；40新Node/PowerShell、87Python、24旧预检、898root、类型/Server/默认Browser build通过。继承outputs私有生成物导致普通lint失败，排除这些Git ignored生成物的全源码lint零警告通过，原文件未改。[工程复审与限制](tasks/active/evidence/ainuoke-payment-request-probe/engineering-results-2026-10-15.md)；精确发布门禁收口见AI_HANDOFF。未送达/无新PR/Hosted CI。两次单次授权均已执行；最新2HTTP/1report到达validation后因元数据结构失败，0个JSON报告，认证/基础分页已通过而业务映射未证实；[最新事实附录](tasks/active/evidence/ainuoke-payment-request-probe/second-attempt-metadata-2026-10-15.md)。
-- 6086941原两次单次授权已用完且未形成报告，重试仍需确认同一固定范围，单位/币种/来源行身份/公式未核实，尚未接对账UI；不认定银行实付。num_dyc沿已确认31条之外另1条同单位的独立来源事实，不加进rknum/齐套。
-- 既有四单/10分钟/2小时窗口已12/12成功并到期，未重启；除两次显式授权但失败的只读尝试外，未追加请求；凭据仅私密进程消费，未改真实账号/业务DB/现有演示镜像或宁波18443/18444。生产/关账路由保持关闭，Goal未完成；下一安全本地工作为Quote保存成功后退出失败的重试边界修复。
-
-[B2原状态归档](tasks/completed/2026-10-15-before-payment-probe-current-state.md)保留历史日期、hash、结果和限制；原工作树/Browser长期数据/身份流水/价格及所有冻结截图均保留。
+[前一状态/接力/索引及Source正文快照](tasks/completed/2026-10-15-before-payment-first-page-success.md)保留原日期、hash、结果和限制。Goal仍未完成，优先安全交付现有分支及后续独立来源工程。

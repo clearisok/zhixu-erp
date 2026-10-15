@@ -1,12 +1,12 @@
-2026-10-15 最新6086941：第二次单次授权已执行，认证和基础明细分页解析通过，2HTTP/1report在元数据校验失败；40Node/87Python的表示兼容修复只属本地工程，真实形态/业务映射仍待新授权核验。[最新附录](../tasks/active/evidence/ainuoke-payment-request-probe/second-attempt-metadata-2026-10-15.md)。下段是前一时点。
-
-2026-10-15 D135工程候选：独立6086941固定首页100行诊断已完成合成测试，未真实读取/映射/接UI/DB/持续Source。复用现有登录报表契约，原始数值文本保留在ACL保护报告，公开只给字段覆盖/计数/hash；不以Num汇总采购、不混同各类数量金额、不默认币种或银行已付。命令默认不联网，显式范围另行授权。[工程、测试与下一Gate](../tasks/active/ainuoke-payment-request-probe.md)。
-
-2026-10-15 D133本地候选：6087050 num_dyc按既有入库事件原行追溯，作为独立多余仓数量展示，不加进rknum/齐套；缺失、冲突、非法或单位问题明确保持未知。无新SQL/真实采集/数据库操作，语义与批准范围见[num_dyc确认](../tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md)。
-
-2026-10-15 Gate5整合候选：D113–120历史能力与G1–G4身份/商业/有效归属共同保留。当前物料列表与单单读取共用请求级RR快照；人工确认不跨SO自动转移。旧四单窗口已完成12/12并按时停止，本轮未重开。此前段落中的未交付/运行中按原日期阅读；当前精确证据见CURRENT_STATE和material-progress-integration。
-
 # 艾诺科 Server Source：正式订单与持续物料展示
+
+## 当前恢复摘要（2026-10-15）
+
+main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。6086941独立诊断已于ead8e371/clean首次成功读取首页100/17675行（2HTTP/1报表），确认vDom_PayRegister、dbTableId6083578及49列元数据；不是持续Source激活或对账UI接通。cellList为JSON字符串；Windows IPC封套ASCII转义后原Unicode/hash保真，47Node/87Python通过。[实读范围、字段与下一工程边界](../tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)。
+
+六字段本页缺键和币种未提供均保持未知；Num/OutStoreNum及各金额独立，不能把6086941“出运数量”与6087050同名出库字段共用映射。D135未变，正式映射前仍需核实稳定行身份、单位/币种和固定合同分页。所有真实读取次数已用完，无新DB/绑定/激活/部署，四单窗口已结束不重启。
+
+G5 B2、num_dyc及Quote退出小修为本地独立候选，精确状态见CURRENT_STATE。下文模块正文保留其标注时点；前缀旧状态完整收在[成功前快照](../tasks/completed/2026-10-15-before-payment-first-page-success.md)。GitHub为实时事实源，授权/来源/代码/运行或验收变化时更新。
 
 核实2026-10-14；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`（#104–107已合并）。GitHub及目标代码为工程事实源；随来源契约、权限、命令、预算、合并、真实激活/部署或验收变化更新。旧日期/hash/结果与未合并状态原文见[归档](../tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)。
 

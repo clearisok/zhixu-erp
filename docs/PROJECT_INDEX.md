@@ -1,30 +1,12 @@
-2026-10-15 / 6086941最新有界重试已通过认证/基础分页，2HTTP/1report在元数据校验阻断；表示兼容修复40Node/87Python通过，真实形态未留报告。恢复见CURRENT_STATE及[最新附录](tasks/active/evidence/ainuoke-payment-request-probe/second-attempt-metadata-2026-10-15.md)。下方旧段按原时点阅读。
-
-2026-10-15 / D135独立6086941固定首页诊断仅本地合成通过，无真实采集/DB/激活/部署；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。[诊断范围与结果](tasks/active/ainuoke-payment-request-probe.md)及CURRENT_STATE为当前恢复入口。B2@68ac保持clean，Git交付仍待核实。
-
-2026-10-15 / 当前G5 B2本地25UI、898root、261PG、56设置/历史升级及94基线已验，团队辅料排序/颜色规格展开/事件侧栏完成，未远端/部署；main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。[最终B2证据](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)及CURRENT_STATE为恢复入口。下方旧快照按原日期阅读。
-
-2026-10-14 / 本机四单真实隔离演示已执行首绑与两轮刷新，未开长期调度；[真实运行证据](tasks/active/ainuoke-isolated-live-results-2026-10-14.md)。以下旧状态按历史时点阅读。
-
-2026-10-14 / main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5：右上角退出与D-118受控单位/采购责任只读候选完成，真实Source未激活。[最终验证](tasks/active/material-confirmations-verification-2026-10-14.md)、[下一隔离演示Gate](tasks/active/material-confirmations-2026-10-14.md)。
-
-2026-10-14 / main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5：D-117订单异常列和待定颜色记0为当前独立工程候选，见[工程报告](tasks/active/order-list-alerts-2026-10-14.md)与CURRENT_STATE；下文旧摘要按历史时点阅读。
-
-2026-10-14 / GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`：PR108 head `8b89de59dd405395da1dde4b6dde5f125141deb9` 开放未合并。本轮独立分支只读追查单位/颜色/负数量/空物料；具体原因与真实演示阻塞见 [异常治理](tasks/active/source-anomaly-followup-2026-10-14.md)。旧摘要均为历史时点，真实 Source 未激活。
-
 # 项目知识索引
 
-2026-10-15当前核实基线 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。G1 PR109@1fcc440、G2 Draft PR110@3deffc4三CI成功但未合并；G3 Draft PR111@f4a1b99b精确送达且三CI成功；G4 Draft PR112@036fe521三CI成功、未合并。G5整合与B1页头本地验收，独立num_dyc只读映射已本地通过新增15/root891/基线94/UI5，未远端或部署；[字段结果](tasks/active/evidence/material-source-integration/num-dyc-mapping-results-2026-10-15.md)。真实执行/部署仍关闭。优先恢复[订单身份实施计划](tasks/active/order-identity-program.md)、[身份模块](features/ORDER_IDENTITY.md)、[订单商业版本](features/ORDER_COMMERCIAL_VERSIONS.md)和[当前状态](CURRENT_STATE.md)。下方历史开头保留其记录时点，不代表当前PR/部署状态。
+核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub为实时工程事实源，本文随源码/PR/授权/来源/验收变化更新。
 
-2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 已合并 PR #104/#105/#106。D-112 受控新增合同在独立 `feat/ainuoke-controlled-contract-intake` 工程分支实施，仍未合并、未真实执行；恢复入口为[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)及 Active 决策。下文旧 SHA/PR 状态仅按历史时点阅读。
-
-历史来源分支2026-10-14记录（非当前运行/PR结论）：
-核实2026-10-14；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5` 已合并 #104/#105/#106/#107。工程含 QtyUnit 与受控新增合同；真实Source未激活、未部署、未完成全量持续人工验收。当前恢复入口：[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[本机真实演示准备](tasks/active/ainuoke-live-demo-readiness.md)、[当前状态](CURRENT_STATE.md)、Active D105–114。
-
-历史真实发现558可见合同、80物料抽样与62未知是原日期证据；三行单位/身份后续获用户确认，不代表全量数据完美。GitHub/代码是实时事实源，文档随main/来源/目标/验收变化更新。[旧状态原文](tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)保留旧日期/hash/结果/限制。[基线门禁](features/RELEASE_BASELINE_GUARD.md)及[交付协议](tasks/active/git-delivery-resilience.md)保持，不替代UI/DB/部署验收。
-
-全量预检已取得有效真实回执：当前账号可见558合同完整稳定，颜色552可用6无效、14,411需求单位12,655已知/1,750缺失/6冲突；约8分25秒，无DB/Source激活/部署。[完整脱敏证据](tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)。用户后续授权Codex自行执行同范围已授权只读脚本，凭据文件只由进程消费，不进模型上下文。原三次失败/修复保留其历史范围；24项/root817/基线71通过，[修复复审及交付限制](tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-final-local-review-2026-10-13.md)。
-本轮定向质量/双数量事实及新owned持久本机演示已完成，23fixture/Excel框架订单、17报价、六角色；生产路由保持关闭、真实Source未激活。完整[A–F交付报告](tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md)，与558真实预检分开阅读。
+- 当前恢复：[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[已批准订单身份计划](tasks/active/order-identity-program.md)。G1 PR109及依赖G2–G4 PR110/111/112未合并；PR108独立保留。
+- G5排序/设置/侧栏与num_dyc本地完成：[B2冻结结果](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。B2保持68ac/clean，未远端/部署。
+- 6086941首次成功：[固定首页实读及边界](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)、[49列字段证据](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-schema-2026-10-15.json)、[Source模块](features/AINUOKE_SERVER_SOURCE.md)。100/17675行；不是正式映射、全表或激活。真实次数已用完。
+- Quote退出小修独立分支0912b753；工程证据在该分支docs/tasks/active/evidence/quote-logout-save-retry-2026-10-15.md，不混入本分支。
+- 旧索引/状态/接力/Source前缀原文见[归档](tasks/completed/2026-10-15-before-payment-first-page-success.md)。保留四单窗口12/12已结束、原截图/部署日期和全部数据边界；不自动合并部署。
 
 ## 系统简介
 

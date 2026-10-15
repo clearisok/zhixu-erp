@@ -57,3 +57,7 @@ Git交付观察：用户普通PowerShell最新回执仍pushes0；独立API确认
 最小修复仅将跨进程JSON封套编码改为ASCII转义，Node解码后恢复原始Unicode报表文本，原UTF8原文hash不变；不修改HTTP响应、源字段、原始数值文本或金额计算。另区分worker_encoding与worker_json_invalid静态码，不把传输解码错误混作业务证据错误。
 
 修复后47/47 Node（含实际CLI/GBK中文、私有包装器/ACL/拒绝证据、异常UTF8）、87/87 Python、typecheck、定向lint通过；前一精确源码186249的94/94基线回归与精确main门禁通过。后续最新精确门禁与冻结报告记录实际SHA，不重复宣称真实核验已通过。后续任何真实首页读取需新增明确次数授权；Codex自行执行既有私密工具，不要求用户传密码或重复复制命令。
+
+## 第五次单次授权：首次成功首页（2026-10-15）
+
+用户明确新增一次同范围授权，ead8e371/clean、约6.66秒成功100/17675行，2HTTP/1report；49业务列＋id、vDom_PayRegister/6083578、cellList字符串已实证。原文仅受保护本机报告，文件/原文hash与49字段、缺值及样本边界见[冻结实读结果](evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)。当前所有真实读取次数已用完，不再新增请求；不把首次成功升级为完整合同采集、正式映射/激活/UI或业务验收。该次恢复前所有失败记录保留，不重写历史。最新用户重新提供AGENTS规则，网络恢复协议重新适用；新权限模式只读DryRun仍NETWORK_DEGRADED/pushes0。仅文档/脱敏证据收口，无生产代码、真实DB或部署变化。
