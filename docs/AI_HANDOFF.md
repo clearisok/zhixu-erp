@@ -11,3 +11,4 @@ Gate4最终840root/78baseline/71关键PG/9变动浏览器、完整类型/lint/�
 窗口私有日志只读核实：2026-10-14 05:12:09.685Z–07:12:09.695Z，deadline07:12:09.685Z；12attempt/12SOURCE_CAPTURED、每次4单、12不同runID/replayed0、deadline停止；没有新采集或DB访问，公开脱敏window-completion-2026-10-15.md。原报告是白名单，无raw num_dyc；不能说上游没字段。后续可先复用已捕获原Source证据，若不够再做有界私密诊断，不读凭据或扩范围。
 
 剩余G5：顶部箭头/业务款号与工厂款号、去重复导航/说明、fabric数值排序/trim团队设置、详情展开与事件侧栏、num_dyc独立核实映射、6086941独立source/金额数量/身份权限。不要按100行公式或中文名称自动归并财务与物料；缺可信采购分录身份明确待核验。所有真实写入/激活/部署/账号/宁波/18443/18444均未扩大授权；Goal继续，旧恢复点completed/2026-10-15-pre-gate5-ai-handoff.md。
+Gate5起始checkpoint bff66bf63dfce16bd8f6cefa77cfe445d4074472工作树clean、精确main守卫PASS。正常安全工具仅Dry Run阶段网络预检失败，pushes=0/LOCAL_PASS_REMOTE_UNVERIFIED/NETWORK_DEGRADED；没有执行推送或恢复命令，不能称本Gate远端送达。无需用户立即手推这份准备文档，继续不依赖远端的同一已验证基线本地整合；后续Gate不重复撞同一通道，恢复按AGENTS。G1–G4已核实送达/全绿不被此后新故障推翻，也不宣称通道永久恢复。
