@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-15当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先CURRENT_STATE/AI_HANDOFF、[合同来源面板任务](tasks/active/ainuoke-payment-read-panel.md)与[货款申请模块](features/AINUOKE_PAYMENT_REQUESTS.md)。150相关Node/PG/API、新9/原9实际UI、两authority构建、root898/94基线及精确守卫通过（41能力）；真实过滤/采集/写入/激活均未完成。旧G1–G5/Quote/Source和存储证据保留，GitHub为实时事实源，随源码/授权/证据变化更新。
+2026-10-16当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先CURRENT_STATE/AI_HANDOFF、[受控采集任务](tasks/active/ainuoke-payment-controlled-collector.md)、[合同来源面板](tasks/active/ainuoke-payment-read-panel.md)与[货款申请模块](features/AINUOKE_PAYMENT_REQUESTS.md)。新内部一次性协调服务22/22、合计172/172通过；完整root/基线/新证据与精确守卫收口中。真实过滤、目标启用/写入、操作CLI/调度均未完成或未获授权。旧G1–G5/Quote/Source与各阶段原证据保留；GitHub为实时事实源，随源码/授权/证据变化更新。
 
 ## 系统简介
 

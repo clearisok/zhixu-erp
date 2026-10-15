@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-141 货款申请固定范围一次采集与逐SO发布
+
+- 日期2026-10-16；Active，D121 Gate5/D137–140的内部工程接线，不增加真实读取、目标启用、迁移或部署授权。既有两个已选合同worker、账号/三字段见证、每合同最多2页/两遍、8报表/9HTTP及180秒预算保持；不注册进HTTP、Source catalog、原物料scheduler或新账号入口。
+- 只读plan绑定实际数据库身份及连接目标、操作人、来源账号、精确SO/合同、目标版本、有效归属和发布代际。执行前必须精确匹配plan；hash不是人类授权。全部目标在唯一worker调用前prepare，所有原文/两遍/快照验证通过并再次检查全范围后才逐SO发布。旧采集不能冒充新范围，未知币种/单位/付款事实不继承旧样本确认。
+- 复用已有prepare/publish事务，不重建来源或计算。单SO内原子，两个SO间不承诺分布式原子；后项目标/权限变化返回部分成功、停止余项，保留已接受历史。发布连接异常无法证明回滚时返回UNVERIFIED及candidateSnapshotId/expectedGeneration，不假称零写入，不自动重试、重采或删除。
+- 回执不含原行、合同/采购号、账号凭据或金额。待核实项用现有DB-only GET的snapshotId/generation独立核对；当前为空、过期、目标关闭或版本已前移均不能据此断言从未提交，需要保留候选和范围计划等待获准检查。
+- 22新增合成/一次性PG测试通过，相关172/172回归、类型、Server编译、完整源码lint通过；实际Python进程仅使用FakeTransport无上游请求。包含真实COMMIT成功后故意丢回执、并发双采集、源中途失效、精确decimal/未知值与原client读取。最初新增提取器类型和测试unknown类型收窄失败已修，未降低断言；无额外真实读取。
+- 代码payment-request-collection.ts、contract-probe已校验页提取、对应新测试/Source CI。完整root/基线/默认构建/精确守卫后续记录在任务ainuoke-payment-controlled-collector.md；0025/UI/既有私有报告及原Source/G5树保持。操作CLI、目标启用及真实过滤仍待后续独立Gate，不因内部函数存在声称财务来源已激活。
+
 ### D-140 合同级货款申请来源面板与保守客户端时效
 
 - 日期2026-10-15；Active，D121/D134/D139的既有事件Drawer接线候选，不扩大真实财务来源或部署授权。只在原对账tab复用Foundation/表格，明确合同级、未逐行关联选中物料、申请金额非银行实付；无新导航或物料匹配推断。

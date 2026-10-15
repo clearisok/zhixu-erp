@@ -1,9 +1,9 @@
-# 当前状态：合同货款申请侧栏候选已本地验收，真实采集/启用待Gate
+# 当前状态：货款申请一次性受控采集接线本地验收中
 
-2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。feat/ainuoke-payment-snapshot-storage在b75bc7a9/clean同树继续本Phase，源码cefe951d、冻结证据994aa4bc、前向绑定9aa254c3；未重建worktree/PR。此前共享摘要归档completed/2026-10-15-before-payment-read-panel.md，Source48b/G5c54原树/ref/私有报告保持。
+核实2026-10-16；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。原worktree从clean的feat/ainuoke-payment-snapshot-storage@a94a7df97ff9b6312cdb9c7990e3e9b32a31c27b分出feat/ainuoke-payment-controlled-collector，原分支和Source48b/G5c54树/ref/私有报告保持；前摘要归档completed/2026-10-16-before-payment-controlled-collector.md。
 
-原对账tab复用Foundation/Drawer/表格展示合同级来源观察，明确未逐行关联选中物料/申请非银行实付；独立数量/金额、精确小数、unknown/0/负调整/重复行保留。wire v1与共享50字段顺序固定，有界同源GET、单调到期隐藏、失败/身份切换清旧金额，关闭取消；无Browser存储或上游调用。0025字节及业务/权限/齐套公式不改，财务目标默认关闭。
+D141内部plan固定实际DB及连接目标、操作人/来源账号、精确两个SO/合同、目标/归属/发布版本；先prepare，唯一固定worker，两单全部原文/快照验证后复核，再逐SO发布。范围hash不是人类授权。旧/混单/缺页、撤权、并发、部分成功均有明确结果；COMMIT回执丢失保留候选ID/代际为UNVERIFIED，不假称零写入，不自动重采/重试。复用D137–139，不增加HTTP/CLI/scheduler/目标启用，0025与UI不改。
 
-150/150相关Node/PG(API实回经client parse)、新财务UI9/原物料UI9、六宽度/七角色/展开金额/时钟偏差/到期/撤权/取消/截图、typecheck/Server串行编译/完整源码lint通过；root898/898、基线94/94及精确main守卫PASS（11页/41能力/56累计UI路径）。Source UI实际cefe951d/build20261015-231629；默认Browser构建9aa254c3/build20261015-234232通过，quote/master=browser、orderRead=disabled，当前dist最后为Browser；不是部署或用户像素验收。任务ainuoke-payment-read-panel.md与feature AINUOKE_PAYMENT_REQUESTS.md供恢复。
+新22/22、相关172/172、typecheck/Server编译和完整源码lint通过。默认Browser构建通过，但构建时为本Phase已知dirty树，metadata短SHA仅指基线，不能当成新提交的发布证明；收口后将绑定干净提交再构建。完整root/94基线与新证据绑定及精确main守卫仍在收口；旧41能力/页面侧栏证据按原SHA阅读，不冒充本阶段最终通过。
 
-下一步有界受控采集接线和真实过滤/分页核验；具体SO/合同、实际迁移/写入/激活仍需独立明确授权，不能凭Goal/complete/verification hash代替。所有原真实读取额度已用完，本Phase无真实上游/凭据/业务DB访问；未动账号、原演示、旧四单窗口、宁波18443/18444或部署。新代码未送达核实/无新PR或Hosted CI，NETWORK_DEGRADED不自动恢复推送/认证；不合并。GitHub是实时事实源，源码/证据/授权变化时更新。
+真实过滤/分页仍待获准技术核验；两合同可能尚无对应已绑定SO，不能从货款申请建单或猜映射。操作CLI/明确目标计划和实际迁移/写入/启用另有Gate。原所有真实读取次数用完，无凭据/上游/真实业务库访问，不动原演示/宁波18443/18444/旧四单窗口，不自动合并部署。Git NETWORK_DEGRADED，未执行恢复推送、未新建PR/Hosted CI；GitHub是实时事实源，源码/证据/授权变化时更新。

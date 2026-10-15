@@ -1,4 +1,4 @@
-2026-10-15当前工程（D140）：在D138模型/D139默认关闭的隔离存储API上接既有对账tab的合同级来源观察；150相关Node/PG与新9/原9实际UI验收通过，root898/94基线/两authority构建及精确守卫已通过（41能力）。未真实读取/启用/迁移，未按物料名称伪匹配，不表示正式财务接通。恢复[货款申请模块](AINUOKE_PAYMENT_REQUESTS.md)及[面板任务](../tasks/active/ainuoke-payment-read-panel.md)；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，源码/证据/授权变化时更新，下方原阶段按日期阅读。
+2026-10-16当前工程（D141）：内部一次性协调服务复用两个合同固定worker和D139快照事务，先精确plan/全部验证再逐SO发布；部分成功/COMMIT未知分别报告，不自动重采。新22/22、相关172/172、类型/Server编译/完整源码lint通过，完整root/新证据/精确守卫收口中。没有新增HTTP、CLI、调度或目标启用；真实过滤/范围授权仍待。UI/0025不改，D140原41能力/截图按其旧日期SHA阅读。恢复[受控采集任务](../tasks/active/ainuoke-payment-controlled-collector.md)与[货款申请模块](AINUOKE_PAYMENT_REQUESTS.md)；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，源码/证据/授权变化时更新。
 
 ## 6086941隔离存储与读取（D139，工程候选）
 

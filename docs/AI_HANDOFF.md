@@ -1,9 +1,9 @@
-# 当前恢复点：合同货款申请侧栏已验收，受控采集待接
+# 当前恢复点：内部受控采集器已合成验证，证据收口待完成
 
-2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。feat/ainuoke-payment-snapshot-storage延续b75bc7a9原树，源码cefe951d、冻结994aa4bc、绑定9aa254c3；未重建/重复PR，旧Source48b/G5c54树/ref/私有证据保持。旧摘要归档completed/2026-10-15-before-payment-read-panel.md。
+2026-10-16；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/ainuoke-payment-controlled-collector在原ainuoke-live-readiness树，从clean a94a7df97ff9b6312cdb9c7990e3e9b32a31c27b分支，未重建tree/PR；旧Source48b/G5c54原树和存储分支保持。原摘要归档completed/2026-10-16-before-payment-controlled-collector.md。
 
-现有对账tab只显示合同级来源观察，不冒充物料匹配或银行实付。model共用50字段、client严格wire v1/32MiB同源GET，server增加evaluatedAt/schemaVersion用于保守单调时效；0025字节不变。Panel复用Drawer/表格、10条分页/逐行字段、精确原值/unknown，切换/失败/到期清旧数据、关闭取消。150相关Node/PG/API、新9/原9实际Chromium、六宽度/七角色/展开精确金额/时钟偏差/到期/撤权/焦点及截图通过。类型、Server/Server UI串行构建、full lint、root898/94基线和精确main守卫PASS（11页/41能力/56累计UI路径）。首次build目录争用及测试计数tab定位失败均保留日志，未放宽产品或断言。
+payment-request-collection.ts复用固定两合同worker、严格原文提取及D139 prepare/publish，plan绑定DB/连接主机端口/操作人/账号/精确SO及代际。单次采集、两单先全部验证、全范围再检查后逐单事务；部分成功保留，未知提交UNVERIFIED带候选snapshotId/预期代际，不自动重采。新22/22和合计172/172相关测试通过，真实COMMIT后丢回执故障已模拟；实际Python仅FakeTransport。类型/Server编译/完整源码lint通过，UI/0025不改。
 
-Source UI图来自cefe951d/build20261015-231629；当前dist已最后构建为默认Browser@9aa254c3/build20261015-234232（订单来源关闭），下一次UI测试必须先显式Server snapshot构建，不能拿Browser产物运行Source UI验收。冻结D140/报告/PNG/receipt不覆盖；后续结果写任务ainuoke-payment-read-panel.md，新feature AINUOKE_PAYMENT_REQUESTS.md。
+下一步冻结报告/D141与能力证据前向绑定，再跑root/94基线、干净精确提交默认Browser构建及main守卫。当前default build20261016-000834是已知dirty树构建、短a94不是新提交证明；当前dist仍Browser，任何Source UI测试要先显式Server构建。原D140截图/receipt/冻结证据不覆盖。
 
-下一阶段受控采集器/真实过滤与目标计划；6086941无已证实的6087050需求ID，仍不按名称匹配物料。原真实读取额度耗尽，新查询/实际迁移/写入/首绑/启用需单独具体授权；无凭据/上游或真实DB访问，不触原演示/宁波18443/18444/旧窗口，不合并部署。NETWORK_DEGRADED禁止自动恢复；仅最终HEAD生成一次性交付命令，未送达前不建重复PR或称Hosted CI成功。
+Source原真实读取次数耗尽；新真实两合同核验尚无授权答复，不能执行。财务目标默认关闭，internal函数无HTTP/CLI/调度接线，真实目标/首绑/迁移/写入/激活需独立范围确认。旧四单已结束，不重启、不触账号/原演示/真实库/宁波18443/18444，不自动合并部署。NETWORK_DEGRADED不自动恢复；当前原存储分支安全命令需切回该分支才可使用，本阶段最终另写新命令，未送达前无PR/Hosted CI成功声明。

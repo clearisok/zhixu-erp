@@ -73,7 +73,8 @@ function assertSelection(selection: ContractSelection) {
   });
   if (targets[0] === targets[1]) fail("payment_contract_selection_invalid");
 }
-function configForSelection(input: unknown, selection: ContractSelection): CollectorConfig {
+/** Internal scope check, also used before an explicitly controlled collection. */
+export function configForSelection(input: unknown, selection: ContractSelection): CollectorConfig {
   assertSelection(selection);
   const config = parseCollectorConfig(input);
   if (config.baseUrl !== APPROVED_HTTP_ORIGIN || config.transportPolicy !== APPROVED_HTTP_POLICY
@@ -150,7 +151,8 @@ function safeEvidence(input: unknown, config: CollectorConfig, selection: Contra
     for (const part of [raw, data, meta]) {
       inspect(part); if (JSON.stringify(part).includes(config.password)) fail("source_secret_field");
     }
-    return { ...page, alias: page.alias, pass: page.pass, page: page.page, raw, data, meta };
+    return { ...page, alias: page.alias, pass: page.pass, page: page.page,
+      capturedAt: page.capturedAt, rawResponseSha256: page.rawResponseSha256, raw, data, meta };
   });
   if (totalBytes > CONTRACT_LIMITS.totalReportBytes) fail("payment_contract_response_limit");
   return { value, pages };
@@ -211,6 +213,27 @@ export function validateContractEvidence(input: unknown, configInput: unknown, s
       mappingVerified: false, bankPaymentStatus: "not-inferred" },
       privateReport: { ...privateBase, validationStatus: "accepted", contracts } };
   } catch (error) { return failure(error instanceof SourceError && safeCodes.has(error.code) ? error.code : "payment_contract_invalid_evidence"); }
+}
+/** Extract only after the existing raw-response, scope, count and two-pass checks.
+ * No caller-built rows or old private receipt are accepted as a new capture. */
+export function paymentContractSnapshotInputs(input: unknown, configInput: unknown, selection: ContractSelection, now = Date.now()) {
+  const config = configForSelection(configInput, selection);
+  const result = validateContractEvidence(input, config, selection, now);
+  if (result.privateReport.validationStatus !== "accepted")
+    fail("code" in result.summary ? result.summary.code : "payment_contract_invalid_evidence");
+  const { pages } = safeEvidence(input, config, selection, now);
+  return selection.targets.map(target => {
+    const pageInput = (pass: number) => pages.filter(page => page.alias === target.alias && page.pass === pass).map(page => ({
+      schemaVersion: "ainuoke-payment-observation-page.v2" as const, reportId: "6086941" as const,
+      sourceFingerprint: selection.sourceFingerprint, capturedAt: page.capturedAt as string,
+      page: page.page as number, pageSize: 100 as const,
+      reportedTotal: count(Object.hasOwn(page.raw, "dataCount") ? page.raw.dataCount : page.data.total),
+      rawResponseSha256: page.rawResponseSha256 as string, rows: page.data.rows as Array<Record<string, string | null>>,
+    }));
+    return { alias: target.alias,
+      scope: { sourceFingerprint: selection.sourceFingerprint, salesContractNo: target.salesContractNo, witness: structuredClone(target.witness) },
+      input: { schemaVersion: "ainuoke-payment-contract-snapshot-input.v1" as const, firstPass: pageInput(1), secondPass: pageInput(2) } };
+  });
 }
 export function contractProbeArguments(args: string[]) {
   const output = args.find(a => a.startsWith("--private-output="))?.slice(17);
