@@ -31,15 +31,15 @@ test('approved material ordering and event drawer run on the exact built Server 
   const countAudit=async()=> (await x.pool.query("SELECT count(*)::int n FROM operation_logs WHERE entity_type='MaterialProgressSettings'")).rows[0].n;
   const capture=async name=>{if(process.env.MATERIAL_DISPLAY_UI_EVIDENCE!=='1')return;const dir=resolve('outputs/material-display-ui',info.gitCommit+'-'+info.buildId);await mkdir(dir,{recursive:true});const image=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(dir,name+'.png'),Buffer.from(image.data,'base64'));};
   const openEvents=async name=>{await evaluate("(()=>{const button=[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==="+JSON.stringify('查看 '+name+' 事件')+");if(!button)throw Error('missing event button');button.click();})()");await until(()=>evaluate("Boolean(document.querySelector('.sp-material-events'))"),'event drawer');};
-  await login('demo.material');await navigate(materialPath);await has('合成排序面料大');
+  await login('demo.material');await navigate(materialPath);await has('合成排序面料大');const initialOrder=await names();
   await t.test('six widths preserve the approved header, detail expansion, drawer geometry and local table scrolling',async()=>{
    for(const width of [1920,1536,1440,1280,900,390]){
     await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:width===1536?1.25:1,mobile:width===390});
     assert.deepEqual((await names()).slice(0,3),['合成排序面料大','合成棉布','合成排序面料小']);
     assert.equal(await evaluate("document.querySelector('.sp-v4-material-identity').getAttribute('aria-expanded')"),'true');
-    await evaluate("document.querySelector('.sp-v4-material-identity').click()");assert.equal(await evaluate("Boolean(document.querySelector('.sp-v4-material-card .sp-material-variants'))"),false);
+    await evaluate("document.querySelector('.sp-v4-material-identity').click()");assert.equal(await evaluate("Boolean(document.querySelector('.sp-v4-material-card:first-child .sp-material-variants'))"),false);
     assert.equal(await evaluate("document.body.innerText.includes('12.75')"),false);await evaluate("document.querySelector('.sp-v4-material-identity').click()");
-    assert.equal(await evaluate("Boolean(document.querySelector('.sp-v4-material-card .sp-material-variants'))"),true);
+    assert.equal(await evaluate("Boolean(document.querySelector('.sp-v4-material-card:first-child .sp-material-variants'))"),true);
     await capture('materials-'+width);await openEvents('合成排序面料大');await has('12.75');
     const geometry=await evaluate("(()=>{const panel=document.querySelector('.sp-material-events').getBoundingClientRect();return {width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth+1,panelInside:panel.left>=-1&&panel.right<=innerWidth+1,inlineEvents:document.querySelectorAll('.sp-v4-material-card .sp-event-variant').length,backWidth:document.querySelector('.ops-topbar-back').getBoundingClientRect().width};})()");
     assert.equal(geometry.overflow,false);assert.equal(geometry.panelInside,true);assert.equal(geometry.inlineEvents,0);assert.ok(geometry.backWidth<=32);metrics.push(geometry);
@@ -85,7 +85,7 @@ test('approved material ordering and event drawer run on the exact built Server 
    await x.setMode('ready');await x.capture();await evaluate("window.dispatchEvent(new Event('focus'))");await has('合成拉链');assert.equal(await evaluate("Boolean(document.querySelector('.sp-material-events'))"),false);
   });
   await t.test('settings failure retains real source facts but discards cached sorting; no commercial endpoint or Browser data is used',async()=>{
-   await evaluate("window.settingsFailureFetch=window.fetch;window.fetch=(input,init)=>new URL(String(input),location.href).pathname==='/api/v1/material-progress-settings'?Promise.reject(Error('synthetic-settings-offline')):window.settingsFailureFetch(input,init);window.dispatchEvent(new Event('focus'));");await has('辅料排序设置暂不可用，保持来源顺序');assert.ok((await names()).indexOf('合成拉链')<(await names()).indexOf('合成缝纫线'));assert.ok((await names()).includes('合成棉布'));await evaluate("window.fetch=window.settingsFailureFetch;window.dispatchEvent(new Event('focus'));");
+   await evaluate("window.settingsFailureFetch=window.fetch;window.fetch=(input,init)=>new URL(String(input),location.href).pathname==='/api/v1/material-progress-settings'?Promise.reject(Error('synthetic-settings-offline')):window.settingsFailureFetch(input,init);window.dispatchEvent(new Event('focus'));");await has('辅料排序设置暂不可用，保持来源顺序');assert.deepEqual(await names(),initialOrder);assert.ok((await names()).includes('合成棉布'));await evaluate("window.fetch=window.settingsFailureFetch;window.dispatchEvent(new Event('focus'));");
    assert.deepEqual(await evaluate("window.apiRequests.filter(row=>(row.path.includes('confirmed-commercial-terms')||row.path.startsWith('/api/v1/quotes')))"),[]);assert.deepEqual(await evaluate("Object.keys(localStorage).filter(key=>key.startsWith('zhixu.erp.local.'))"),[]);
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
