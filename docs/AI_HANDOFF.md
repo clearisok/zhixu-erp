@@ -1,13 +1,17 @@
-# 当前恢复点：6086941首页成功，真实读取已停止
+# 当前恢复点：6086941逐行确认和离线观察模型
 
-2026-10-15，main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/ainuoke-payment-request-probe原HEAD ead8e3714372cdb364b2263a6fd0a9ad84bdc382/clean开始本次文档Phase；正式源码362f81ba704ab792eff102cf121301deee4998f0不变。B2@68ac、Quote小修@0912b753及原21da670/a0e60e4分支、全部私有报告保留；不新建worktree或重复PR。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/ainuoke-payment-request-read-model从原诊断33ccad55454568acbba9909109d23cf20bd7139b/clean开始，沿erp-followup-governance工作树。B2@68ac、诊断33cc、Quote小修d9bf及原refs/私有报告保留，不新建工作树/重复PR。
 
-用户新增一次固定首页授权已执行成功：2026-10-15T09:52:49.548109Z、2HTTP/1report、100/17675行；6086941、dbTableId6083578、vDom_PayRegister、49列元数据、cellList字符串已核实。私有报告位于outputs/ainuoke-payment-private-096db071-c9a1-4649-8713-11f98f839f14/ainuoke-payment-request-private-55cd6623-ec79-4ae9-8db3-b44c6aa09464.json，文件hash d500982d3b6ba1b2cf408db4e626e4097d93c3570852398e3b911be98cbb80ae，raw UTF8 hash79da51645d2a3448cd55c689b9b3b39f37cf1ceac8a82dbe81855317bd36c8d7。仅离线检查受保护文件，勿cat原文/凭据；公开[冻结结果](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)和同批schema JSON。
+D136已记录最新用户确认：两个精确样本OutStoreNum是本次申请物料出运分配、单位个，采购CNY且申请金额沿对应采购合同币种。其他98行不能默认CNY。原私有报告d500982d3b6ba1b2cf408db4e626e4097d93c3570852398e3b911be98cbb80ae不变。
 
-47Node/87Python、类型/Server build/lint及ead8精确main门禁已通过。诊断成功不等于正式Source/对账已接：本页YFAmount等六字段缺键、币种缺失、58行采购与出运数量不同、id仅本页唯一；OutStoreNum不可跨6086941/6087050等同。Decimal样本关系记录为观察，不成为全局公式。下一步只读模型需先解决稳定行身份、固定合同查询/完整分页、币种与出运分摊来源；不创建伪付款状态或把unknown补0。
+Python纯离线extractor和Node纯Projection保留精确数值文本、missing/null/blank/0/负值、各数量金额；id未核实为稳定分录，不去重或求和。人工确认绑定来源指纹/时刻/raw hash/页/行/完整行hash/采购合同；变化或矛盾不沿用。没有API、DB、Source catalog注册或UI解锁；确认只由可信集成层提供，不接受客户端自报。
 
-所有既有真实读取授权次数均已用完；不得再联网读取6086941/Discovery/材料，除非新的明确范围授权。四单窗口已结束12/12，不重启；无DB/绑定/激活/部署授权，不改真实账号或现有演示。原失败报告、日期和hash完整保留，新成功不改写旧事实。
+100行离线通过，0HTTP/0DB。原受保护目录中的新私有确认SHA212481539bf342aef5899658199bf20d95e76331a3c3d32983a1a0e768c60e02，观察SHA db33b5a9fa782cbd6117e6d2b706632fa7a76f5aa7479286bb386b5298bc6518。公开仅别名/统计/hash，不把真实单号/品名/数量金额入Git。
 
-GitHub main/开放108–112已重核，无自动合并。Git通道新权限模式DryRun仍NETWORK_DEGRADED/pushes0，无新PR/CI。用户最新重新提供AGENTS.md，网络恢复规则重新适用；别沿用旧“规则撤销”的当前结论，不自动恢复/换认证。普通PowerShell恢复如需要只给精确最终SHA的一条命令并解释规则来源；不伪造commit、不动共享配置。
+12观察Node/47诊断Node/96Python、类型/Server编译/全源码lint（排除继承outputs私有生成物）通过；本阶段root与94发布回归、manifest绑定在最终Phase收口。最终checkpoint看git log，交付前核对clean/main/精确门禁。
 
-Quote独立小修13浏览器/112前端与精确main门禁通过，保持其干净0912b753，不混入财务分支。当前文档Phase的最终checkpoint见git log；下一次交付前重核分支、dirty、main及精确门禁。历史状态已归档，CURRENT_STATE只保留当前一页。
+下一工程：固定合同过滤与完整分页、跨时间稳定明细键/作废修正、可信采购币种关联→持久快照/当前有效SO/fresh权限→原事件侧栏。首页不是某单完整对账；申请字段不等于银行已付，不新增付款公式。
+
+所有真实读取次数用完；最新回答只确认含义，不扩大读取/写入范围。不要再请求6086941/Discovery/材料、读取凭据、重启四单窗口、改真实DB/账号、部署或自动合并。新真实验证先备好固定范围再确认。
+
+Git NETWORK_DEGRADED，最新AGENTS恢复规则适用，不自动恢复/换认证。main未变；PR109精确1fcc三项CI成功/可合并，110–112及108独立，未获新合并授权。新branch未远端、无新PR/Hosted CI；恢复命令必须用最终完整SHA，只给一条。

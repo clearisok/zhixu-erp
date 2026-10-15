@@ -48,6 +48,7 @@ jobs:
           npm run test:ainuoke-targeted-diagnostic
           npm run test:ainuoke-live-preflight
           npm run test:ainuoke-payment-probe
+          npm run test:ainuoke-payment-observations
           npx --no-install tsx --test server/integration/fresh-start.integration.test.ts
       - name: Quality, quantity and owned fixture boundaries
         run: |

@@ -7,7 +7,8 @@ import { SourceError, inspect } from "./contract.js";
 import { assertPrivateOutput, writePrivateReport } from "./live-preflight.js";
 
 export const PAYMENT_LIMITS = Object.freeze({ reportId: "6086941", page: 1, pageSize: 100, responseBytes: 4 * 1024 * 1024, workerBytes: 16 * 1024 * 1024, timeoutMs: 120000 });
-export const CANDIDATE_FIELDS = Object.freeze(("Status BillNo lx Brand CustomerName UserName FSingleName ExpContractNo StyleNo InsideOrderNo SupplierName PurContractNo companyname CnName actualname CateGoryName CnComposition CnColor MenFu KeZhong QtyUnit Price Num OutStoreNum cgGoodsAmount AdditionalPrice tzamount PayAmount YFAmount GoodsAmount gnsk gwsk kpsupplier InvoiceNo itemno InvoiceDate bgNum BGAmount bgQtyUnit BGName kpprice kpNum kpamount CYDate zzrkrq jldate PayDate fppmrq cwdate id").split(" "));
+import { CANDIDATE_FIELDS } from "./payment-request-fields.js";
+export { CANDIDATE_FIELDS } from "./payment-request-fields.js";
 type ObjectValue = Record<string, unknown>;
 const object = (value: unknown): ObjectValue => {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new SourceError("payment_probe_invalid_evidence");

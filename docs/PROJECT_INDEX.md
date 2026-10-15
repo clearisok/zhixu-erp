@@ -1,12 +1,11 @@
 # 项目知识索引
 
-核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub为实时工程事实源，本文随源码/PR/授权/来源/验收变化更新。
+核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub为实时事实源；随代码/PR/授权/来源/验收更新。
 
-- 当前恢复：[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[已批准订单身份计划](tasks/active/order-identity-program.md)。G1 PR109及依赖G2–G4 PR110/111/112未合并；PR108独立保留。
-- G5排序/设置/侧栏与num_dyc本地完成：[B2冻结结果](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。B2保持68ac/clean，未远端/部署。
-- 6086941首次成功：[固定首页实读及边界](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)、[49列字段证据](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-schema-2026-10-15.json)、[Source模块](features/AINUOKE_SERVER_SOURCE.md)。100/17675行；不是正式映射、全表或激活。真实次数已用完。
-- Quote退出小修独立分支0912b753；工程证据在该分支docs/tasks/active/evidence/quote-logout-save-retry-2026-10-15.md，不混入本分支。
-- 旧索引/状态/接力/Source前缀原文见[归档](tasks/completed/2026-10-15-before-payment-first-page-success.md)。保留四单窗口12/12已结束、原截图/部署日期和全部数据边界；不自动合并部署。
+- 当前恢复：[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[批准计划](tasks/active/order-identity-program.md)；身份PR109–112与独立108未合并。
+- G5 B2排序/设置/侧栏及num_dyc：68ac原提交保留，[冻结结果](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。Quote独立小修d9bf保留13浏览器/112前端/94基线证据，不混入财务分支。
+- 6086941：[首次成功100/17675](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)、[49字段](tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-schema-2026-10-15.json)、[两行确认](tasks/active/evidence/ainuoke-payment-request-probe/row-context-confirmation-2026-10-15.md)、[只读观察模型](tasks/active/ainuoke-payment-request-read-model.md)、[Source模块](features/AINUOKE_SERVER_SOURCE.md)。不是完整合同对账或Source/UI激活。
+- [确认前摘要原文](tasks/completed/2026-10-15-before-payment-row-context.md)保留原日期/hash/结果/限制；读取次数用完、四单窗口12/12结束，不新增DB/绑定/部署，不自动合并，Git恢复遵守AGENTS。
 
 ## 系统简介
 

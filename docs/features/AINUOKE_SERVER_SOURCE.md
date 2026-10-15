@@ -2,11 +2,15 @@
 
 ## 当前恢复摘要（2026-10-15）
 
-main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。6086941独立诊断已于ead8e371/clean首次成功读取首页100/17675行（2HTTP/1报表），确认vDom_PayRegister、dbTableId6083578及49列元数据；不是持续Source激活或对账UI接通。cellList为JSON字符串；Windows IPC封套ASCII转义后原Unicode/hash保真，47Node/87Python通过。[实读范围、字段与下一工程边界](../tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)。
+main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。6086941首页实读100/17675、49列及原始hash已核实；[首次成功报告](../tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md)保留当时事实。[后续用户确认D136](../tasks/active/evidence/ainuoke-payment-request-probe/row-context-confirmation-2026-10-15.md)：OutStoreNum为本次申请关联的实际物料出运分配数量；两个样本单位个/CNY，申请金额沿对应采购合同币种，不推广全表。
 
-六字段本页缺键和币种未提供均保持未知；Num/OutStoreNum及各金额独立，不能把6086941“出运数量”与6087050同名出库字段共用映射。D135未变，正式映射前仍需核实稳定行身份、单位/币种和固定合同分页。所有真实读取次数已用完，无新DB/绑定/激活/部署，四单窗口已结束不重启。
+[离线观察模型](../tasks/active/ainuoke-payment-request-read-model.md)保留精确decimal文本、缺键/null/blank/0/负值和独立数量/金额；来源id未证实稳定，不去重或求和；确认限定精确来源捕获及行，变化后重验。已有100行离线0HTTP/0DB通过，2行确认CNY/出运单位，其他98行币种未知。
 
-G5 B2、num_dyc及Quote退出小修为本地独立候选，精确状态见CURRENT_STATE。下文模块正文保留其标注时点；前缀旧状态完整收在[成功前快照](../tasks/completed/2026-10-15-before-payment-first-page-success.md)。GitHub为实时事实源，授权/来源/代码/运行或验收变化时更新。
+没有正式财务Source/快照/API/UI接线。仍需固定合同过滤/完整分页、稳定明细键和采购币种来源；缺预付款/审批/实付证据保持未知，不认定银行已付。6086941与6087050同名字段分开，不新增汇率、单位换算或齐套改动。
+
+12观察Node、47诊断Node、96Python及类型/Server编译/源码lint通过，最终基线另收口。B2@68ac、独立Quote小修d9bf保留；新代码未远端/部署。真实次数用完，四单窗口12/12已结束；不改真实账号/DB/绑定/激活/宁波18443/18444，不自动合并。最新AGENTS恢复规则适用。
+
+[确认前摘要](../tasks/completed/2026-10-15-before-payment-row-context.md)保留原文与hash；随来源/代码/授权/验收变化更新，GitHub为实时工程事实源。
 
 核实2026-10-14；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`（#104–107已合并）。GitHub及目标代码为工程事实源；随来源契约、权限、命令、预算、合并、真实激活/部署或验收变化更新。旧日期/hash/结果与未合并状态原文见[归档](../tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)。
 
