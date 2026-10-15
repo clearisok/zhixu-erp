@@ -79,7 +79,7 @@ class PaymentProbeTests(TestCase):
             self.assertEqual((transport.http_attempts,transport.report_requests),(2,1))
     def test_worker_wrong_args_no_stdin(self):
         with patch.object(sys,"argv",["probe"]),patch.object(sys,"stdin",None),patch("sys.stdout",new_callable=io.StringIO) as out:
-            self.assertEqual(worker_main(),1); self.assertEqual(json.loads(out.getvalue()),{"error":"payment_probe_failed"})
+            self.assertEqual(worker_main(),1); self.assertEqual(json.loads(out.getvalue()),{"schemaVersion":"ainuoke-payment-page-failure.v1","code":"payment_probe_explicit_action_required","workerStage":"not-started","httpAttempts":0,"reportRequests":0})
     def test_transport_proxy_and_budgets(self):
         from ainuoke_bridge import payment_request_probe as module
         wire=Response(b'{"reObj":{"isOk":true}}')
@@ -107,4 +107,24 @@ class PaymentProbeTests(TestCase):
                 builder.return_value.open.side_effect=error
                 with self.assertRaises(expected) as raised: BoundedPaymentTransport().request(url=APPROVED_HTTP_ORIGIN+AinuokeClient.REPORT_PATH,method="POST",body=build_report_request(DEFINITION,page=1,page_size=100,query_context={}),headers={},timeout=15)
                 self.assertNotIn("private",str(raised.exception))
+
+    def test_safe_failure_codes_counters_and_no_exception_text(self):
+        from ainuoke_bridge.payment_request_probe import safe_failure
+        transport=FakeTransport(); transport.http_attempts=2; transport.report_requests=1; transport.phase="report"
+        for error,code in ((NetworkAinuokeError("private-business-text"),"network_unavailable"),
+                           (UpstreamSchemaError("payment_probe_secret_field"),"payment_probe_secret_field"),
+                           (RuntimeError({"private":"never-output"}),"payment_probe_failed")):
+            result=safe_failure(error,transport)
+            self.assertEqual(result["code"],code); self.assertEqual(result["workerStage"],"report")
+            self.assertEqual((result["httpAttempts"],result["reportRequests"]),(2,1))
+            self.assertNotIn("private",json.dumps(result))
+    def test_main_network_failure_reports_stage_without_retry_or_private_text(self):
+        from ainuoke_bridge import payment_request_probe as module
+        from types import SimpleNamespace
+        transport=FakeTransport(error=NetworkAinuokeError)
+        with patch.object(module,"BoundedPaymentTransport",return_value=transport),patch.object(sys,"argv",["probe","--stdin-request"]),patch.object(sys,"stdin",SimpleNamespace(buffer=io.BytesIO(json.dumps(CONFIG).encode()))),patch("sys.stdout",new_callable=io.StringIO) as out:
+            self.assertEqual(worker_main(),1); result=json.loads(out.getvalue())
+            self.assertEqual(result["code"],"network_unavailable"); self.assertEqual(result["workerStage"],"report")
+            self.assertEqual((result["httpAttempts"],result["reportRequests"]),(2,1)); self.assertNotIn("must-not-reflect",out.getvalue())
+
 if __name__=="__main__": main()

@@ -29,13 +29,34 @@ function approvedConfig(input: unknown) {
   if (config.baseUrl !== APPROVED_HTTP_ORIGIN || config.transportPolicy !== APPROVED_HTTP_POLICY) throw new SourceError("payment_probe_scope_refused");
   return config;
 }
+
+export const PAYMENT_WORKER_FAILURE_CODES = Object.freeze(["invalid_payment_probe_input","payment_probe_origin_not_approved","payment_probe_explicit_action_required","invalid_payment_probe_credentials","payment_probe_endpoint_refused","payment_probe_scope_refused","payment_probe_request_limit","payment_probe_response_limit","payment_probe_invalid_json","payment_probe_invalid_metadata","payment_probe_structure_limit","payment_probe_secret_field","payment_probe_secret_reflection","payment_probe_invalid_number","payment_probe_page_limit","payment_probe_raw_evidence_missing","payment_probe_report_mismatch","redirect_refused","auth_expired","invalid_credential","network_unavailable","upstream_http_error","upstream_schema_error","payment_probe_failed"]);
+class PaymentWorkerError extends SourceError {
+  constructor(readonly detail: { code: string; workerStage: string; httpAttempts: number; reportRequests: number }) { super(detail.code); }
+}
+function workerFailure(input: unknown) {
+  const value = object(input);
+  if (Object.keys(value).sort().join(",") !== "code,httpAttempts,reportRequests,schemaVersion,workerStage"
+    || value.schemaVersion !== "ainuoke-payment-page-failure.v1" || typeof value.code !== "string" || !PAYMENT_WORKER_FAILURE_CODES.includes(value.code)
+    || !["not-started", "login", "report", "validation"].includes(String(value.workerStage))
+    || !Number.isSafeInteger(value.httpAttempts) || (value.httpAttempts as number) < 0 || (value.httpAttempts as number) > 2
+    || !Number.isSafeInteger(value.reportRequests) || (value.reportRequests as number) < 0 || (value.reportRequests as number) > 1
+    || (value.reportRequests as number) > (value.httpAttempts as number)
+    || value.workerStage === "not-started" && value.httpAttempts !== 0
+    || value.workerStage === "login" && (value.httpAttempts !== 1 || value.reportRequests !== 0)
+    || value.workerStage === "validation" && (value.httpAttempts !== 2 || value.reportRequests !== 1))
+    throw new SourceError("payment_probe_failed");
+  return new PaymentWorkerError({ code: value.code, workerStage: value.workerStage as string,
+    httpAttempts: value.httpAttempts as number, reportRequests: value.reportRequests as number });
+}
+
 export async function collectPaymentPage(config: CollectorConfig, options: { pythonCommand?: string; timeoutMs?: number; spawnWorker?: typeof spawn } = {}): Promise<unknown> {
   config = approvedConfig(config);
   return new Promise((accept, reject) => {
     const child = (options.spawnWorker ?? spawn)(options.pythonCommand ?? "python", ["-m", "ainuoke_bridge.payment_request_probe", "--stdin-request"],
       { cwd: resolve("tools/ainuoke-bridge"), windowsHide: true, stdio: ["pipe", "pipe", "pipe"] });
     let settled = false, size = 0; const chunks: Buffer[] = [];
-    const fail = (code: string) => { if (settled) return; settled = true; clearTimeout(timer); child.kill(); reject(new SourceError(code)); };
+    const fail = (reason: string | SourceError) => { if (settled) return; settled = true; clearTimeout(timer); child.kill(); reject(typeof reason === "string" ? new SourceError(reason) : reason); };
     const timer = setTimeout(() => fail("payment_probe_timeout"), Math.min(options.timeoutMs ?? PAYMENT_LIMITS.timeoutMs, PAYMENT_LIMITS.timeoutMs));
     child.stdout.on("data", (chunk: Buffer) => { size += chunk.length; if (size > PAYMENT_LIMITS.workerBytes) fail("payment_probe_limit"); else chunks.push(chunk); });
     child.stderr.resume();
@@ -43,7 +64,11 @@ export async function collectPaymentPage(config: CollectorConfig, options: { pyt
     child.stdin.on("error", () => fail("payment_probe_worker_unavailable"));
     child.on("close", code => {
       if (settled) return;
-      if (code !== 0) { fail("payment_probe_failed"); return; }
+      if (code !== 0) {
+        try { fail(workerFailure(JSON.parse(new TextDecoder("utf8", { fatal: true }).decode(Buffer.concat(chunks))))); }
+        catch { fail("payment_probe_failed"); }
+        return;
+      }
       try {
         const result: unknown = JSON.parse(new TextDecoder("utf8", { fatal: true }).decode(Buffer.concat(chunks)));
         settled = true; clearTimeout(timer); accept(result);
@@ -128,8 +153,9 @@ export async function main(args = process.argv.slice(2)) {
     const allowed = new Set(["payment_probe_explicit_action_required", "preflight_private_output_required", "payment_probe_clean_commit_required",
       "invalid_collector_configuration", "payment_probe_scope_refused", "payment_probe_timeout", "payment_probe_limit", "payment_probe_worker_unavailable",
       "payment_probe_invalid_evidence", "payment_probe_report_mismatch", "source_secret_field"]);
-    const code = error instanceof SourceError && allowed.has(error.code) ? error.code : "payment_probe_failed";
-    process.stdout.write(JSON.stringify({ schemaVersion: "ainuoke-payment-request-probe.v1", result: "FAIL", code, stage, databaseAccess: "none", sourceActivation: "not-activated" }) + "\n"); process.exitCode = 1;
+    const code = error instanceof PaymentWorkerError || error instanceof SourceError && allowed.has(error.code) ? error.code : "payment_probe_failed";
+    const diagnostics = error instanceof PaymentWorkerError ? { workerStage: error.detail.workerStage, httpAttempts: error.detail.httpAttempts, reportRequests: error.detail.reportRequests } : {};
+    process.stdout.write(JSON.stringify({ schemaVersion: "ainuoke-payment-request-probe.v1", result: "FAIL", code, stage, ...diagnostics, databaseAccess: "none", sourceActivation: "not-activated" }) + "\n"); process.exitCode = 1;
   }
 }
 if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) void main();

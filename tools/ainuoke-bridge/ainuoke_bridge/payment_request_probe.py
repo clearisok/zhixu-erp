@@ -45,6 +45,7 @@ class BoundedPaymentTransport:
         self.http_attempts = 0
         self.report_requests = 0
         self.last_report_text = None
+        self.phase = "not-started"
 
     def request(self, *, url, method, body, headers, timeout):
         login_url = urljoin(APPROVED_HTTP_ORIGIN + "/", AinuokeClient.LOGIN_PATH.lstrip("/"))
@@ -56,6 +57,7 @@ class BoundedPaymentTransport:
             raise UpstreamSchemaError("payment_probe_scope_refused")
         if self.http_attempts >= 2 or is_report and self.report_requests >= 1:
             raise UpstreamSchemaError("payment_probe_request_limit")
+        self.phase = "report" if is_report else "login"
         self.http_attempts += 1
         self.report_requests += int(is_report)
         data = None
@@ -125,8 +127,11 @@ def probe(data, transport=None):
     data = validate_input(data)
     transport = transport or BoundedPaymentTransport()
     client = AinuokeClient(base_url=data["baseUrl"], transport=transport, network_retries=0, timeout_seconds=15)
+    transport.phase = "login"
     session = client.login(data["username"], data["password"])
+    transport.phase = "report"
     page = client.read_report(DEFINITION, jwt_token=session.jwt_token, page=1, page_size=PAGE_SIZE, query_context={})
+    transport.phase = "validation"
     if len(page.rows) > PAGE_SIZE or len(page.rows) > page.total:
         raise UpstreamSchemaError("payment_probe_page_limit")
     raw_text = transport.last_report_text
@@ -153,21 +158,40 @@ def probe(data, transport=None):
             "rawResponseSha256": sha256(raw_text.encode("utf-8")).hexdigest(), "rawReportResponse": raw_text}
 
 
+FAILURE_CODES = frozenset({
+    "invalid_payment_probe_input", "payment_probe_origin_not_approved", "payment_probe_explicit_action_required",
+    "invalid_payment_probe_credentials", "payment_probe_endpoint_refused", "payment_probe_scope_refused",
+    "payment_probe_request_limit", "payment_probe_response_limit", "payment_probe_invalid_json",
+    "payment_probe_invalid_metadata", "payment_probe_structure_limit", "payment_probe_secret_field",
+    "payment_probe_secret_reflection", "payment_probe_invalid_number", "payment_probe_page_limit",
+    "payment_probe_raw_evidence_missing", "payment_probe_report_mismatch", "redirect_refused",
+    "auth_expired", "invalid_credential", "network_unavailable", "upstream_http_error", "upstream_schema_error",
+})
+def safe_failure(error, transport):
+    # Exception text is never forwarded unless it is exactly a static code from this module.
+    candidate = error.args[0] if error.args else None
+    code = candidate if isinstance(candidate, str) and candidate in FAILURE_CODES else getattr(error, "code", "payment_probe_failed")
+    if not isinstance(code, str) or code not in FAILURE_CODES:
+        code = "payment_probe_failed"
+    phase = getattr(transport, "phase", "not-started")
+    if phase not in {"not-started", "login", "report", "validation"}:
+        phase = "not-started"
+    return {"schemaVersion": "ainuoke-payment-page-failure.v1", "code": code, "workerStage": phase,
+            "httpAttempts": transport.http_attempts, "reportRequests": transport.report_requests}
+
+
 def main():
+    transport = BoundedPaymentTransport()
     try:
         if sys.argv[1:] != ["--stdin-request"]:
             raise ValueError("payment_probe_explicit_action_required")
         raw = sys.stdin.buffer.read(16385)
         if len(raw) > 16384:
             raise ValueError("invalid_payment_probe_input")
-        result = probe(json.loads(raw.decode("utf-8")))
+        result = probe(json.loads(raw.decode("utf-8")), transport)
         print(json.dumps(result, ensure_ascii=False, allow_nan=False, separators=(",", ":")))
-    except (InvalidCredentialError, AuthExpiredError) as error:
-        print(json.dumps({"error": error.code}))
-        return 1
-    except Exception:
-        # No exception/upstream body/credential is reflected to stdout or stderr.
-        print(json.dumps({"error": "payment_probe_failed"}))
+    except Exception as error:
+        print(json.dumps(safe_failure(error, transport)))
         return 1
     return 0
 

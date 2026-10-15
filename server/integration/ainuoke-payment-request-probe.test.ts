@@ -196,10 +196,36 @@ test("actual Windows private wrapper consumes only synthetic protected file and 
     assert.equal(result.status, 1); assert.equal(JSON.parse(result.stdout).stage, "configuration");
     assert.equal(JSON.parse(result.stdout).code, "invalid_collector_configuration");
     assert.ok(!result.stdout.includes("合成")); assert.ok(!result.stdout.includes(key));
+    // Exercise only the wrapper's closed failure forwarding; this stub never imports a collector or makes HTTP calls.
+    const simulatedFailure = { schemaVersion: "ainuoke-payment-request-probe.v1", result: "FAIL", code: "network_unavailable",
+      stage: "collection", workerStage: "login", httpAttempts: 1, reportRequests: 0, databaseAccess: "none", sourceActivation: "not-activated", unsafeRaw: config.password };
+    writeFileSync(join(entry, "payment-request-probe.ts"), "process.stdout.write(" + JSON.stringify(JSON.stringify(simulatedFailure) + "\n") + "); process.exitCode=1;\n");
+    execFileSync("git", ["-C", root, "add", "server"], { stdio: "ignore" });
+    execFileSync("git", ["-C", root, "-c", "user.name=Synthetic", "-c", "user.email=synthetic@example.invalid", "-c", "commit.gpgsign=false", "commit", "--quiet", "-m", "synthetic failure protocol"], { stdio: "ignore" });
+    const diagnostic = run(); const details = JSON.parse(diagnostic.stdout);
+    assert.equal(diagnostic.status, 1); assert.equal(details.code, "network_unavailable");
+    assert.equal(details.workerStage, "login"); assert.equal(details.httpAttempts, 1); assert.equal(details.reportRequests, 0);
+    assert.ok(!diagnostic.stdout.includes(config.password)); assert.equal("unsafeRaw" in details, false);
     execFileSync("icacls", [key, "/grant", "*S-1-1-0:R"], { stdio: "ignore" });
     const rejected = run(); assert.equal(rejected.status, 1); assert.equal(JSON.parse(rejected.stdout).stage, "credential_file");
   } finally {
     assert.equal(dirname(root), resolve(tmpdir())); assert.match(root, /zhixu-payment-wrapper-synthetic-[^\\/]+$/u);
     rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("closed worker failures preserve useful categories and reject forged/private details", async () => {
+  const getError = async (value: unknown) => {
+    const child = new EventEmitter() as EventEmitter & { stdout: PassThrough; stderr: PassThrough; stdin: PassThrough; kill: () => boolean };
+    child.stdout = new PassThrough(); child.stderr = new PassThrough(); child.stdin = new PassThrough(); child.kill = () => true; child.stdin.resume();
+    const start = (() => { setImmediate(() => { child.stdout.write(JSON.stringify(value)); child.emit("close", 1); }); return child; }) as unknown as typeof spawn;
+    try { await collectPaymentPage(config, { spawnWorker: start, timeoutMs: 1000 }); assert.fail("must fail"); }
+    catch (error) { assert.ok(error instanceof Error); return error; }
+  };
+  const baseline = { schemaVersion: "ainuoke-payment-page-failure.v1", code: "network_unavailable", workerStage: "login", httpAttempts: 1, reportRequests: 0 };
+  const valid = await getError(baseline); assert.equal(valid.message, "network_unavailable");
+  for (const change of [{ code: config.password }, { httpAttempts: 3 }, { reportRequests: 2 }, { extra: config.password }, { workerStage: config.password }, { httpAttempts: 0 }]) {
+    const invalid = await getError({ ...baseline, ...change }); assert.equal(invalid.message, "payment_probe_failed");
+    assert.ok(!invalid.message.includes(config.password));
   }
 });

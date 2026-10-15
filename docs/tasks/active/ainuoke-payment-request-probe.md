@@ -25,3 +25,9 @@
 37项Node/实际PowerShell与子进程边界、83项Python、24项既有预检、898项root回归通过；类型、Server与默认Browser构建通过。普通lint发现继承outputs私有生成物16错误3警告，原文件保留；排除outputs的全源码lint零警告通过。CI已接入新Node回归及既有Python套件，Hosted CI未运行。精确源码、发布门禁与冻结证据在最终报告补充，不据本段宣称真实映射通过。
 
 Git交付观察：用户普通PowerShell最新回执仍pushes0；独立API确认B2分支不存在。deliver在push前只以Git ls-remote获取远端证据；GitHub API仅用于push后核验。这解释了本次停止阶段，Git传输失败根因仍未确认。AGENTS保持原样，不重复撞失败通道或伪造原commit交付。
+
+## 2026-10-15 首次真实尝试与错误回执修复
+
+用户明确授权仅一次固定首页核验后，Codex在fc314ce061075d9033cd07bde73fff36dd0fe5f2/clean自行执行私密包装器，使用既有凭据文件；无凭据内容进入工具输出或聊天。执行约5.55秒，返回FAIL / payment_probe_failed / collection / databaseAccess none / sourceActivation not-activated。本次只证明采集未完成；原回执未记录worker阶段及请求计数，不能判断登录成功、报表请求是否发出或失败原因。指定新目录核对JSON报告数量为0。没有自动重试、第二页、数据库、Source激活或部署。
+
+调查发现工程诊断盲区：Python将多数异常统一归类，Node对非零worker丢弃安全错误码，PowerShell进一步只保留通用失败。已补闭合的跨进程错误协议，明确configuration/login/report/validation阶段与0–2 HTTP/0–1报表应用层计数；未知异常/额外字段/秘密文本仍拒绝反射。38项Node/真实包装器、85项Python、类型/Server编译/定向lint通过；旧37/83验收保持原时点历史，不改写已冻结报告。本次未再发起真实网络读取；下一次重试因前次授权仅一次，需要重新确认同一固定范围。
