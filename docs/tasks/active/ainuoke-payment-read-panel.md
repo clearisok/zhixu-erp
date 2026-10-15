@@ -15,3 +15,11 @@
 150/150相关Node/PG/API、新财务UI9/9、原物料UI9/9、类型、Server及Server UI串行构建、完整源码lint通过。渲染源码cefe951d1de1a32763a1e7298e69b2560b1c282d/build20261015-231629；后续只测试/CI/文档，无产品源码变化。新六宽度/展开/过期截图与receipt按新路径冻结，原失败日志/截图不覆盖。完整root/基线/默认Browser构建及最终精确守卫仍待。原50字段顺序、0025字节、Source/G5原树和所有真实证据保持。
 
 已修初轮React纯度、共享编译目录争用及测试tab计数定位；Source CI补full SHA（默认vite短SHA按代码会被新增测试拒绝），未声称Hosted已运行。恢复本feature与冻结read-panel-engineering-2026-10-15、UI scope、receipt。没有真实财务采集或物料级匹配，没有新增真实操作许可。
+
+## 最终收口（2026-10-15）
+
+150/150相关Node/PG/API、9/9新财务及9/9原物料实际UI、typecheck/Server编译/完整源码lint通过。串行Server UI渲染源码cefe951d1de1a32763a1e7298e69b2560b1c282d/build20261015-231629；后续仅测试/CI/文档，无产品代码差异。冻结报告/D140/新9PNG/receipt在994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17，前向manifest绑定9aa254c30401eed67da125f980ccf9a4cd6940e2。root898/898、基线94/94、精确main守卫PASS（11页/41能力/56累计UI路径），日志outputs/payment-panel-{root,baseline,bound-guard}.log。
+
+默认Browser构建9aa254c3/build20261015-234232也通过（quote/master browser、session、orderRead disabled）；metadata存outputs/payment-panel-default-build-info.json。当前dist最后为Browser；下次Source UI验收须重新显式Server构建。新截图是合成工程证据/AI查看，不是新用户像素认可，未覆盖任何原证据。当前代码不能视作已真实激活。
+
+真实过滤/分页、受控采集器、具体目标SO及实际迁移/写入/启用仍待；无新读取许可，不自动执行真实命令。旧Source/G5树/ref及原私有数据保持；Native Git NETWORK_DEGRADED未恢复，无新远端送达/PR/Hosted CI，不合并部署。此阶段完成不等于整个Goal完成。
