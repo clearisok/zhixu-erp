@@ -1,9 +1,9 @@
-# 当前状态：财务合同完整快照校验底座纯模型本地验收完成，存储/API待续
+# 当前状态：财务合同快照隔离存储/只读接口已本地验收，真实接入待Gate
 
-2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。复用未发现命令行匹配该路径的活动进程、且无运行容器挂载该目录的ainuoke-live-readiness旧树，原bae00845分支保留，从联合候选c54a2234建立feat/ainuoke-payment-snapshot-foundation，合入既有Source48b63101。原Source树/分支/HEAD及安全交付命令保持，不新建worktree或重复PR。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。保留全部G1–G5与Quote/Source原提交，在现有ainuoke-live-readiness树从纯模型d09d5764新建feat/ainuoke-payment-snapshot-storage；原foundation分支保留，Source48b63101/G5c54a及原交付命令/私有报告不变。旧共享摘要归档completed/2026-10-15-before-payment-snapshot-storage.md。
 
-已验G1–G5/Quote、两合同诊断和首页观察模型均保留。发现现有观察模型硬限page1/100，不能将其重标为完整合同。本阶段先用显式新契约扩展纯逐页观察/完整两遍快照校验：真实page、精确合同/账号/见证、200上限、分页/重复整页/两遍变化/时效；旧首页接口和请求额度不扩大。原unknown/精确小数/金额币种证据边界、无事件去重/求和/银行实付推断保持。
+本阶段0025零回填、逐SO默认关闭目标、不可变原页/投影与单调CAS指针；prepare/publish固定并复核有效归属、采集前时间、目标版本与fresh DB权限，SQL保护和读取重建防损坏。只读GET仅SO UUID/session；七角色按既有艾诺科全可见读来源观察，不读CCT。过期隐藏明细，加工不适用，历史别名不重定向；新财务引用纳入归一证据但不当银行实付。未修改UI、物料/单位/齐套公式或已发布SQL。
 
-纯模型104相关Node、typecheck/Server build/增量lint及新CI脚本25项已实际通过；证据与第39项纯模型能力在52baddf3冻结后，完整root898/898、基线94/94、全源码lint及精确main守卫PASS（11页/39能力/53继承UI路径）。存储、有效订单/fresh权限API及对账侧栏接线是后续交付，不先声明已完成。没有新SQL或真实采集。新增读取仍需明确范围授权；所有原次数耗尽，不能把自动Goal继续当许可。
+新19/19定向、最终相关218通过/1项Windows下Linux CLI跳过、类型/Server编译/完整源码lint通过；root/94基线及最终精确main守卫待本阶段收口登记。源码/证据与D139见tasks/active/ainuoke-payment-snapshot-storage.md。新代码未交付、无新PR/Hosted CI；Git NETWORK_DEGRADED，不自动恢复推送或更换认证。
 
-共享摘要冲突双方全文归档completed/2026-10-15-before-payment-snapshot-foundation.md。旧Source私有证据、G5候选c54a与所有原工作树/ref保持；Git NETWORK_DEGRADED，不自动恢复推送或改认证。真实DB/账号、Source首绑/激活/窗口、归一、宁波18443/18444/现有演示和部署均不操作。GitHub是实时工程事实源，随源码/授权/证据变化更新。
+下一工程：只读client/既有对账侧栏和有界采集接线；真实过滤/分页核验、具体SO目标及迁移/写入/激活仍分别需要明确授权，不能以模型complete、启用开关或Goal继续替代。先前真实读取次数耗尽，本阶段0上游HTTP/0凭据访问；测试只用自动新建的一次性PG。宁波18443/18444、真实账号/业务DB、现有演示、旧四单窗口、Source首绑/激活及部署保持。GitHub是实时事实源，源码/证据/授权变化时更新。

@@ -1,5 +1,6 @@
 import {createPersistedMaterialHistoryReader} from './ainuoke-source/history.js';
 import { createPersistedMaterialPorts, sourceReadConfig } from "./ainuoke-source/reader.js";
+import { createPaymentSnapshotReader, paymentReadConfig } from './ainuoke-source/payment-request-store.js';
 import { createServer } from "node:http";
 import { createApp } from "./app.js";
 import { S3AttachmentStorage } from "./attachments/s3-storage.js";
@@ -24,6 +25,7 @@ catch (error) {
 }
 const attachmentStorage = config.attachmentStorage.kind === "s3" ? new S3AttachmentStorage(config.attachmentStorage) : undefined;
 const materialSourceConfig = sourceReadConfig(process.env, config.identityMode);
+const paymentSourceConfig = paymentReadConfig(process.env, config.identityMode);
 const pool = createDatabasePool({
   connectionString: config.databaseUrl,
   max: config.databasePoolMax,
@@ -66,6 +68,7 @@ try {
         orderCommandMode: config.orderCommandMode,
         attachmentStorage,
         orderMaterialRead: materialSourceConfig ? createPersistedMaterialPorts(pool, materialSourceConfig) : undefined,
+        orderPaymentRead: paymentSourceConfig ? createPaymentSnapshotReader(pool, paymentSourceConfig) : undefined,
         orderMaterialHistory: materialSourceConfig ? createPersistedMaterialHistoryReader(pool, materialSourceConfig) : undefined,
       }));
       await new Promise<void>((resolve, reject) => {

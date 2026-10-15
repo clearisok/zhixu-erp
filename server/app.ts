@@ -56,6 +56,7 @@ import type { AttachmentStorage } from "./attachments/storage.js";
 import { serveStatic } from "./static-files.js";
 import { routeMaterialProgressSettings } from "./material-progress-settings/routes.js";
 import { routeTeamAccess } from "./auth/team-access-routes.js";
+import type { PaymentSnapshotReader } from './ainuoke-source/payment-request-store.js';
 
 export type ServerLogger = {
   error(event: Record<string, unknown>): void;
@@ -71,10 +72,11 @@ export type AppDependencies = {
   attachmentStorage?: AttachmentStorage;
   orderMaterialRead?: MaterialReadPorts;
   orderMaterialHistory?: MaterialHistoryReader;
+  orderPaymentRead?: PaymentSnapshotReader;
   normalizationExecution?: NormalizationExecutionOptions;
   orderCommandMode?: OrderCommandMode;
 };
-type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "normalizationExecution">;
+type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">;
 
 const defaultLogger: ServerLogger = {
   error(event) {
@@ -433,6 +435,19 @@ async function route(
     const query=new URL(request.url??'/','http://local').searchParams;response.setHeader('Cache-Control','no-store');
     if(materialHistoryMatch[2]){if(query.size)throw new HttpError(400,'invalid_material_history_query','Query selectors not accepted');sendJson(response,200,await dependencies.orderMaterialHistory.read(identity,materialHistoryMatch[1],materialHistoryMatch[2]));}
     else sendJson(response,200,await dependencies.orderMaterialHistory.list(identity,materialHistoryMatch[1],parseMaterialHistoryQuery(query)));
+    return;
+  }
+
+  const paymentMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/payment-requests$/.exec(path);
+  if (paymentMatch) {
+    response.setHeader('Cache-Control', 'no-store');
+    if (dependencies.identityAuthority.mode !== 'session') throw new HttpError(503, 'payment_read_requires_session', '需要可信会话。');
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, 'authentication_required', '需要登录。');
+    if (request.method !== 'GET') throw new HttpError(405, 'method_not_allowed', '仅支持读取。');
+    if (new URL(request.url ?? '/', 'http://local').search) throw new HttpError(400, 'invalid_payment_source_request', '仅接受正式订单UUID。');
+    if (!dependencies.orderPaymentRead) throw new HttpError(503, 'payment_read_not_connected', '货款申请来源尚未接通。');
+    sendJson(response, 200, await dependencies.orderPaymentRead(identity, paymentMatch[1]));
     return;
   }
 

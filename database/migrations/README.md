@@ -1,5 +1,16 @@
 # PostgreSQL migrations
 
+0025 adds independent, per-SO opt-in payment-request observation targets,
+immutable snapshots and monotonic/CAS heads. It inserts no target, snapshot,
+account or grant. Existing material Source enablement does not enable financial
+data. Publication and DB-only reads recheck the trusted binding, effective
+attribution, target version/account and current DB permissions. No HTTP writer
+or target activation endpoint is provided. Observations are not actual bank
+payments; normalization inventories hash their original references without
+moving them. Startup stays verify-only. Real migration, targets, collection,
+publication and deployment require concrete authorization; see the
+[isolated storage task](../../docs/tasks/active/ainuoke-payment-snapshot-storage.md).
+
 Versioned, forward-only server migrations live here and use the filename form
 `NNNN_description.sql`. The Node migration runner records SHA-256 checksums in
 `schema_migrations`, serializes runners with a PostgreSQL advisory lock, and

@@ -21,6 +21,10 @@ export const NORMALIZATION_REFERENCES = [
  ['sales_order_delivery_plan_sets','sales_order_id','sales_order_id'],
  ['sales_order_delivery_plans','sales_order_id','id'],
  ['ainuoke_material_source_snapshots','sales_order_id','run_id'],
+ ['ainuoke_payment_source_targets','sales_order_id','source_key'],
+ ['ainuoke_payment_snapshots','sales_order_id','id'],
+ ['ainuoke_payment_snapshots','source_owner_order_id','id'],
+ ['ainuoke_payment_heads','sales_order_id','source_key'],
  ['sales_order_identity_profiles','sales_order_id','sales_order_id'],
  ['sales_order_identity_profiles','reference_order_id','sales_order_id'],
  ['sales_order_preparations','reference_order_id','id'],
@@ -32,6 +36,14 @@ export const NORMALIZATION_REFERENCES = [
  ['processing_order_batch_consumptions','sales_order_id','batch_id'],
 ] as const;
 const references=NORMALIZATION_REFERENCES;
+/** Optional only for an unupgraded rehearsal. A partial financial schema fails
+ * closed. Observations are reference evidence, never actual bank payments. */
+export async function normalizationReferences(client:PoolClient){
+ const present=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+  WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads')`)).rows[0].n;
+ if(present!==0&&present!==3)throw new HttpError(503,'payment_reference_schema_incomplete','Financial source reference schema is incomplete');
+ return present===3?references:references.filter(([table])=>!table.startsWith('ainuoke_payment_'));
+}
 export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');
 }
@@ -46,6 +58,7 @@ export async function requireNormalizationAdmin(client:PoolClient,actor:TrustedI
 /** Caller owns the transaction and trusted authorization. No caller-supplied evidence. */
 export async function collectNormalizationEvidenceInTransaction(client:PoolClient,ids:readonly string[]) {
  validateNormalizationPair(ids);
+  const availableReferences=await normalizationReferences(client);
   const capturedAt=(await client.query('SELECT transaction_timestamp()::text AS captured_at')).rows[0].captured_at as string;
   const foreignKeys=(await client.query(`SELECT n.nspname AS schema,c.relname AS relation,a.attname AS column FROM pg_constraint f JOIN pg_class c ON c.oid=f.conrelid JOIN pg_namespace n ON n.oid=c.relnamespace CROSS JOIN LATERAL unnest(f.conkey) k(attnum) JOIN pg_attribute a ON a.attrelid=c.oid AND a.attnum=k.attnum WHERE f.contype='f' AND f.confrelid='sales_orders'::regclass ORDER BY 1,2,3`)).rows as {schema:string;relation:string;column:string}[];
   const unknownReferences=foreignKeys.filter(f=>f.schema!=='public'||!references.some(([table,column])=>table===f.relation&&column===f.column)).map(f=>`${f.schema}.${f.relation}.${f.column}`);
@@ -54,7 +67,7 @@ export async function collectNormalizationEvidenceInTransaction(client:PoolClien
    const order=(await client.query(`SELECT id::text,order_no,creation_source,lifecycle_state,version,source_order_id::text,source_quote_id,source_revision_id,source_price_version_id FROM sales_orders WHERE id=$1`,[id])).rows[0];
    if(!order) throw new HttpError(404,'sales_order_not_found','Sales order not found');
    const inventory:{relation:string;column:string;count:string;sampleIds:string[];truncated:boolean}[]=[];
-   for(const [table,column,key] of references) {
+   for(const [table,column,key] of availableReferences) {
     const rows=(await client.query(`SELECT ${key}::text AS id,count(*) OVER()::text AS total FROM ${table} WHERE ${column}=$1 ORDER BY ${key} LIMIT 100`,[id])).rows as {id:string;total:string}[];
     inventory.push({relation:table,column,count:rows[0]?.total??'0',sampleIds:rows.map(row=>row.id),truncated:BigInt(rows[0]?.total??'0')>BigInt(100)});
    }

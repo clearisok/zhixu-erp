@@ -1,6 +1,6 @@
 import type {PoolClient} from 'pg';
 import {HttpError} from '../http/errors.js';
-import {NORMALIZATION_REFERENCES} from './normalization-preview.js';
+import {NORMALIZATION_REFERENCES,normalizationReferences} from './normalization-preview.js';
 import {normalizationHash,type AttributionProposal} from './normalization-execution-model.js';
 import type {CoverageSnapshot} from './normalization-coverage.js';
 export const FULL_INVENTORY_LIMITS={maxRows:100000,maxBytes:33554432};
@@ -36,7 +36,7 @@ export async function collectFullNormalizationEvidence(client:PoolClient,caseId:
   if(rowCount>limits.maxRows||bytes>limits.maxBytes)fail('normalization_full_inventory_limit');
   for(const orderId of memberIds){const content=rows.filter(row=>row.order_id===orderId).map(row=>row.payload).sort();references.push({relation,column,orderId,count:content.length,fingerprint:normalizationHash(content)});}
  };
- for(const [table,column] of NORMALIZATION_REFERENCES)await add(table,column,`SELECT ref.${column}::text AS order_id,to_jsonb(ref)::text AS payload FROM ${table} ref WHERE ref.${column}=ANY($1::uuid[]) ORDER BY payload LIMIT $2 ${freezeRows?'FOR SHARE OF ref':''}`);
+ for(const [table,column] of await normalizationReferences(client))await add(table,column,`SELECT ref.${column}::text AS order_id,to_jsonb(ref)::text AS payload FROM ${table} ref WHERE ref.${column}=ANY($1::uuid[]) ORDER BY payload LIMIT $2 ${freezeRows?'FOR SHARE OF ref':''}`);
  await add('sales_order_preparation_commercial_refs','reference_order',`SELECT p.reference_order_id::text AS order_id,to_jsonb(ref)::text AS payload FROM sales_order_preparation_commercial_refs ref JOIN sales_order_preparations p ON p.id=ref.preparation_id WHERE p.reference_order_id=ANY($1::uuid[]) ORDER BY payload LIMIT $2 ${freezeRows?'FOR SHARE OF ref,p':''}`);
  await add('sales_order_preparation_commercial_refs','adopted_order',`SELECT a.sales_order_id::text AS order_id,to_jsonb(ref)::text AS payload FROM sales_order_preparation_commercial_refs ref JOIN sales_order_preparation_adoptions a ON a.preparation_id=ref.preparation_id WHERE a.sales_order_id=ANY($1::uuid[]) ORDER BY payload LIMIT $2 ${freezeRows?'FOR SHARE OF ref,a':''}`);
  await add('confirmed_commercial_terms','linked_order',`SELECT link.sales_order_id::text AS order_id,to_jsonb(terms)::text AS payload FROM confirmed_commercial_terms_sales_orders link JOIN confirmed_commercial_terms terms ON terms.id=link.confirmed_commercial_terms_id WHERE link.sales_order_id=ANY($1::uuid[]) ORDER BY payload LIMIT $2 ${freezeRows?'FOR SHARE OF terms,link':''}`);
