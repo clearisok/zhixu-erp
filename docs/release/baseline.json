@@ -938,6 +938,22 @@
       "sha256": "011aaa9d24df42b71385e5f8c51b9aa3878db7d7dbedbcba88fc2af6b28de268",
       "changeReason": "New exact D121 preparation Foundation UI synthetic evidence; preserve all prior screenshots and human acceptance states.",
       "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "decisions-material-identity-guard",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "8d393605dfc9ccc7e63abbdec0048a92072b8d5a",
+      "sha256": "8df20f66311f4a55feba734537eef4a89a827539d130688a4f477a67d6007bec",
+      "supersedes": "decisions-preparation-ui",
+      "changeReason": "D131 adds full normalized tuple checks for short material identity hashes, preserving every prior ID, decision blob, unit rule and runtime limit."
+    },
+    {
+      "id": "material-identity-guard-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/material-identity-collision-guard.md",
+      "recordedAtSha": "8d393605dfc9ccc7e63abbdec0048a92072b8d5a",
+      "sha256": "06963432e283073357c5d55e120ab48d4553d969ad3390045bcd9c4498eae0dc"
     }
   ],
   "pages": [
