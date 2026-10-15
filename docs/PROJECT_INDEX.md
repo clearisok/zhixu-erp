@@ -1,5 +1,7 @@
 # 项目知识索引
 
+2026-10-15：PR109精确1fcc旧CI已三绿；复审修复未确认准备弹窗重开丢请求，新增修复尚待交付/CI。恢复[当前状态](CURRENT_STATE.md)与[修复证据](tasks/active/evidence/order-identity/pr109-preparation-retry-2026-10-15.md)；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，后续Source与G2–G5树均保留。
+
 2026-10-14当前核实基线 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先恢复[订单身份实施计划](tasks/active/order-identity-program.md)、[身份模块](features/ORDER_IDENTITY.md)和[当前状态](CURRENT_STATE.md)。下方历史开头保留其记录时点，不代表当前PR/部署状态。
 
 2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 已合并 PR #104/#105/#106。D-112 受控新增合同在独立 `feat/ainuoke-controlled-contract-intake` 工程分支实施，仍未合并、未真实执行；恢复入口为[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)及 Active 决策。下文旧 SHA/PR 状态仅按历史时点阅读。

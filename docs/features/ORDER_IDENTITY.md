@@ -8,7 +8,7 @@ GET/PATCH /api/v1/sales-orders/:uuid/identity：读取、认领、管理员转�
 
 GET /api/v1/order-claimants：仅order.transfer可读公共ID/名称，目标须active且有order.view/order.claim。实际转交再次事务内复查。普通跟单无管理员转交权限。
 
-POST /api/v1/order-preparations：精确字段requestId/referenceOrderId/quantity/deliveryDate/specificationChanges；actor/request幂等、payload冲突拒绝。GET要求referenceOrderId，可offset分页每页20；仅order.preparation.create可读。准备记录append-only，不创建SO、不分配SO号、不产生执行任务。页面不确定保存保留请求ID和原payload重试。报价版本候选/商业采用随Gate2，不冒称本Gate已建立关联。
+POST /api/v1/order-preparations：精确字段requestId/referenceOrderId/quantity/deliveryDate/specificationChanges；actor/request幂等、payload冲突拒绝。GET要求referenceOrderId，可offset分页每页20；仅order.preparation.create可读。准备记录append-only，不创建SO、不分配SO号、不产生执行任务。页面不确定保存保留请求ID和原payload重试；关闭后重新打开同一页面内的准备弹窗不能清空或换请求号，收到成功回执后才允许开始另一笔准备。此状态保存在已挂载组件内，不宣称支持整页刷新、离开页面或跨设备恢复。报价版本候选/商业采用随Gate2，不冒称本Gate已建立关联。
 
 现有列表原来源列补充待认领；详情复用Foundation新增认领/转交/血统/准备入口。身份不改变订单生命周期。新内部排产执行Gate尚不存在于Server，不能宣称已实现完整排产限制。CCT仍为旧共享语义，Gate2前不得宣称金额隔离。
 
@@ -19,3 +19,5 @@ POST /api/v1/order-preparations：精确字段requestId/referenceOrderId/quantit
 更新时机：规则、API/schema、测试结果或发布状态变化时；GitHub精确commit/PR证据与本地工程分开记录。
 
 完整结果与限制见[Gate1证据](../tasks/active/evidence/order-identity/gate1-results.md)。
+
+2026-10-15复审实际复现并修复未确认准备在弹窗重开时丢失请求号的问题；生产候选Chromium+一次性PostgreSQL验证服务端已提交而客户端回执丢失、关闭重开、原payload重试后仍只有一条准备，且SO数量不变。6/6浏览器测试通过，原证据不覆盖；见[修复证据](../tasks/active/evidence/order-identity/pr109-preparation-retry-2026-10-15.md)。新修复未远端送达时，不沿用1fcc440的三项绿色CI。

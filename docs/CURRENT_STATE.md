@@ -1,15 +1,15 @@
-# 当前状态：Gate1 PR109 CI修复待交付
+# 当前状态：PR109未确认准备重试修复，本地验收后待交付
 
-核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，分支feat/order-identity-and-contract-claim。def98f经用户备用交付和API精确核实，唯一[PR109](https://github.com/clearisok/zhixu-erp/pull/109)已创建并attach；无合并/部署。main尚未包含本Gate，后续G2–G4本地分支保留，不将其能力写成G1已完成。
+核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5已通过commit API重新核实。沿用feat/order-identity-and-contract-claim，起点1fcc440f00eeab962eb766161eab96ed5f67c6b4/clean。旧1fcc的Source、team-access、baseline三项CI均success，不冒称本次修复CI。
 
-合同SO唯一可信接纳、认领/转交/独立血统、合同前翻单准备不建SO、跟单角色定义已本地实现。保留身份、来源和执行历史，不回填未知类型，不修改真实账号。G1仍使用旧共享CCT，完整新流程上线前必须完成G2订单商业版本隔离及后续加工批次交付。
+独立复查发现并实际复现：准备已提交但回执丢失后，关闭重开弹窗会清空原请求并可能重复建立准备。现只在无未确认请求时开始新准备，未确认原payload/requestId保留到成功回执；未改变布局、身份、SO数量、来源或执行流水。范围仅同一挂载页面内的弹窗开合，不承诺整页刷新/跨设备恢复。
 
-PR109初始baseline/team-access CI通过，Source失败13!=12；已定位旧迁移数量断言及旧样本误带0014。当前修复为旧库精确1–11及本分支1–12/14，保留账号原值和迁移幂等断言；补相邻详情identity/materials独立key及单份卡片断言，保持现有布局。
+本轮生产候选Chromium+一次性PG 6/6（含先失败后通过的真实丢回执场景）、root817/817、typecheck、增量eslint及显式Server/session/snapshot构建通过；发布基线71/71及精确main守卫PASS（10页/16能力/7条继承UI路径）。日志和[证据](tasks/active/evidence/order-identity/pr109-preparation-retry-2026-10-15.md)独立保留，旧PNG及冻结证据未覆盖。
 
-原def98本次完整PG261/261；修复Source21总数20PASS/1Linux条件SKIP（Windows），实际Python固定loopback通过；修复UI5/5、完整类型、改动lint和显式Server构建通过。修复候选门禁PASS、基线71/71，新head/最终CI仍待核实，未冒称可合并。前轮领域15/七角色22/来源19/根817为各自历史证据，不冒称全部本轮重复执行。[修复证据](tasks/active/evidence/order-identity/pr109-ci-followup.md)。
+PR109不自动合并，修复应先交付并通过新head CI。Git仍NETWORK_DEGRADED，按AGENTS不自动恢复/重复推送；PR详情connector本轮失败，不重申当前mergeable状态。最终本地hash与dirty见git log/status。
 
-禁止真实DB/账号/Source范围与窗口、宁波/18443/18444操作，不自动合并部署。网络规则未删，用户备用某次送达不保证通道长期恢复。上一状态[归档](tasks/completed/2026-10-15-pr109-pre-ci-fix-current-state.md)。
+G1仍有旧共享CCT；G2–G4及G5本地分支保留，本次未自动修改其祖先或传播修复。后续整合需明确纳入本阶段提交再验收，不把G1当完整新流程上线。
 
-第二轮精确b497 Source CI已过读取/Linux/相关领域组，在fresh-start最后两项旧12断言失败；已改显式1–12/14、保留所有业务表0与技术白名单，fresh-start7及原P6浏览器9通过。详情tasks/active/evidence/order-identity/pr109-fresh-start-followup.md；不是整个CI已通过，新checkpoint交付后继续核。
+Source树feat/ainuoke-payment-contract-probe@48b63101675f7773b63c7d820d4c1d60088ed9b4/clean原样保留。两个财务样本的个/CNY及三类金额口径已记录；新增两合同真实核验尚无许可，未读凭据/报表。旧四单窗口已结束，不重启；没有真实数据库/账号、首绑、调度、宁波18443/18444或部署操作。
 
-第三轮a40 Source含Linux及baseline已绿；team页面旧teamWrites=6失败。已明确七角色ID和逐账号绑定、全部六个非管理员登录拒绝，再执行移动端reset/disable；同workflow构建后团队UI5、认证112、登录10均通过。详情tasks/active/evidence/order-identity/pr109-team-ui-followup.md，最终新head/CI待，不冒称全绿。
+旧状态及失败记录完整[归档](tasks/completed/2026-10-15-pr109-before-preparation-retry.md)。GitHub是实时工程事实源；源码、CI、来源授权、环境或人工验收变化时更新。
