@@ -1,4 +1,6 @@
-# 订单身份与业务血统（Gate1候选）
+# 订单身份与业务血统
+
+2026-10-15当前：本地Gate4继承G1–G3，另有D129/0023准备关联与D130会话级原请求恢复。准备创建可带精确拟用报价上下文，合同后采用只补血统/关联、不创建SO或自动采用价格；加工身份由真实批次消费证明。原请求按用户/订单隔离保存，支持刷新后恢复、单独查回执及稍后核对，页面离开保护仍在。真实业务库/部署未操作。下方G1段落是当时历史，不覆盖本段及[准备采用](ORDER_PREPARATION_ADOPTION.md)的当前边界。最新依赖合入及验收见[本轮证据](../tasks/active/evidence/order-normalization/gate4-g3-preparation-retry-2026-10-15.md)。
 
 2026-10-14 / main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。D-121规则已批准，工程候选未部署。完整规则见[订单身份计划](../tasks/active/order-identity-program.md)。
 

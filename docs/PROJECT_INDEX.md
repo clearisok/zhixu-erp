@@ -1,5 +1,7 @@
 # 项目知识索引
 
+2026-10-15：既有Gate4树纳入G3 4da3590b及G1/G2修复，保留D130更强准备outbox/回执/刷新恢复，旧CI不代替新整合。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，恢复[当前状态](CURRENT_STATE.md)及[本轮证据](tasks/active/evidence/order-normalization/gate4-g3-preparation-retry-2026-10-15.md)。
+
 2026-10-15当前核实基线 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。G1 PR109@1fcc440、G2 Draft PR110@3deffc4三CI成功但未合并；G3 Draft PR111@f4a1b99b精确送达且三CI成功；G4原工作树整合后验证，真实执行/部署仍关闭。优先恢复[订单身份实施计划](tasks/active/order-identity-program.md)、[身份模块](features/ORDER_IDENTITY.md)、[订单商业版本](features/ORDER_COMMERCIAL_VERSIONS.md)和[当前状态](CURRENT_STATE.md)。下方历史开头保留其记录时点，不代表当前PR/部署状态。
 
 2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 已合并 PR #104/#105/#106。D-112 受控新增合同在独立 `feat/ainuoke-controlled-contract-intake` 工程分支实施，仍未合并、未真实执行；恢复入口为[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)及 Active 决策。下文旧 SHA/PR 状态仅按历史时点阅读。
