@@ -141,12 +141,12 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),4);
    for(const label of ["采购","入库","物料出运","物料出库"])await has(label);
    assert.equal(await evaluate("document.documentElement.scrollWidth>innerWidth+1"),false);
-   await evaluate("document.querySelector('.sp-v4-material-identity').click()");await has("12.75");await screenshot("material-"+width);
+   await evaluate("[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成棉布 事件').click()");await has("12.75");await screenshot("material-"+width);
    assert.deepEqual(await evaluate("window.businessWrites"),[]);
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
   await t.test("all seven trusted roles see four-stream procurement; no amount sentinel or Browser fallback",async()=>{
-   for(const user of x.users){await login(user);await navigate("/order-center/style-progress/detail?orderId="+x.orderId);await has("合成棉布");await evaluate("document.querySelector('.sp-v4-material-identity').click()");await has("12.75");assert.equal(await evaluate("document.body.innerText.includes('protected-commercial-sentinel')"),false);}
+   for(const user of x.users){await login(user);await navigate("/order-center/style-progress/detail?orderId="+x.orderId);await has("合成棉布");await evaluate("[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成棉布 事件').click()");await has("12.75");assert.equal(await evaluate("document.body.innerText.includes('protected-commercial-sentinel')"),false);}
   });
   await t.test("automatic polling observes next persisted generation without navigation or reload",async()=>{
    const before=x.materialReads();await x.capture();await until(()=>evaluate("document.body.innerText.includes('PO-SYNTHETIC-partial-a-G1')"),"automatic next generation",40000);assert.ok(x.materialReads()>before);

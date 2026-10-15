@@ -23,6 +23,7 @@ const basicRoutes = [
 ];
 
 const systemRoutes = [
+  { label: "进度设置", href: "/system-settings/progress-settings" },
   { label: "报价设置", href: "/system-settings/quote-settings" },
   { label: "模板设置", href: "/basic-settings/templates" },
   { label: "用户权限", href: "/basic-settings/user-permissions" },
@@ -37,7 +38,7 @@ const serverBasicRoutes = [
   { label: "面料库", href: "/basic-settings/server/fabrics" },
   { label: "辅料库", href: "/basic-settings/server/trims" },
 ];
-const serverSystemRoutes = [{ label: "报价设置", href: "/system-settings/server/quote-settings" }];
+const serverSystemRoutes = [{ label: "报价设置", href: "/system-settings/server/quote-settings" }, { label: "进度设置", href: "/system-settings/progress-settings" }];
 
 export type AppShellBackTarget = {
   href: string;
@@ -53,7 +54,7 @@ export function AppShell({ title, children, onRequestNavigation, onRequestLogout
   const basicTriggerRef = useRef<HTMLButtonElement | null>(null);
   const systemTriggerRef = useRef<HTMLButtonElement | null>(null);
   const viewportMode = useResponsiveMode();
-  const serverSettingsMode = identityMode === "server" && (pathname.startsWith("/basic-settings/server/") || pathname === "/system-settings/server/quote-settings");
+  const serverSettingsMode = identityMode === "server" && (pathname.startsWith("/basic-settings/server/") || pathname === "/system-settings/server/quote-settings" || pathname === "/system-settings/progress-settings");
   const localSingleUser = browserIdentityMode() === "local-single-user";
   const visibleBasicRoutes = (serverSettingsMode ? serverBasicRoutes : basicRoutes).filter((route) => !freshServer || isEnabledServerRoute(route.href));
   const visibleSystemRoutes = (serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions"));

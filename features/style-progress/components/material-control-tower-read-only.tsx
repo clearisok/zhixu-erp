@@ -1,34 +1,40 @@
 "use client";
-import { useState } from 'react';
-import { Card } from '@/components/foundation/card';
-import { MaterialReadCard, MaterialReadTable } from './material-read-display';
-import { filterProgressRows, type MaterialProgressView } from '@/features/ainuoke-material-progress/projection';
-import type { ExcessWarehouseFact } from '@/features/ainuoke-material-progress/excess-warehouse';
-import { materialStateLabels } from '@/features/ainuoke-material-progress/order-material-summary';
-const quantity=(n:number|null,unit:string|null)=>n===null?'未知':`${n}${unit?` ${unit}`:''}`;
-function excessQuantity(fact:ExcessWarehouseFact|undefined) {
-  if(!fact)return '未知';
-  if(fact.status==='known')return quantity(fact.quantity,fact.unit);
-  if(fact.status==='unit_unknown')return quantity(fact.quantity,null)+'（单位未知）';
-  return ({missing:'未知',invalid:'来源无效',conflict:'数值冲突',incomplete:'来源不全',unit_conflict:'单位冲突'} as const)[fact.status];
-}
-function sourceNotice(view:MaterialProgressView) {
-  if(view.sourceStatus==='ready') {const unknown=view.rows.filter(row=>row.status===null).length;return [view.insideOrderDrift?'工厂款号有来源变化':'',unknown?`${unknown} 项物料待核对`:''].filter(Boolean).join(' · ') || '来源已更新';}
-  return ({not_fetched:'尚未获取来源',not_connected:'物料来源尚未接通',incomplete:'来源不完整，暂停判定',identity_mismatch:'来源身份待核对',source_failed:'物料来源读取失败',source_missing:'当前来源缺少合同物料',stale:'来源已超出可信读取时效'} as const)[view.sourceStatus];
-}
-/** Existing Control Tower display structure, Source-only DTO, no planner/import/Browser providers. */
-export function ReadOnlyMaterialControlTower({view}:{view:MaterialProgressView}) {
-  const [search,setSearch]=useState('');const [expanded,setExpanded]=useState<Set<string>>(new Set());
-  const visible=new Set(filterProgressRows(view,search,'all','all').map(row=>row.demand.id));
-  return <><Card className="sp-v4-filter"><input type="search" className="qc-control" aria-label="搜索物料" placeholder="搜索物料、颜色、规格、供应商、采购单号" value={search} onChange={e=>setSearch(e.target.value)}/><div className="sp-v4-filter-meta"><span>{view.rows.length} 个物料项 · 厂供排除 {view.factoryExcluded}</span><small role="status" title={view.fetchedAt ? `来源更新时间 ${view.fetchedAt}` : "尚无来源更新时间"}>{sourceNotice(view)}{view.fetchedAt&&Number.isFinite(Date.parse(view.fetchedAt))&&<time dateTime={view.fetchedAt}> · {new Date(view.fetchedAt).toLocaleString("zh-CN",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false})}</time>}</small></div></Card>
-    <section className="sp-v4-material-list" aria-label="采购跟进物料">{view.groups.filter(g=>g.rows.some(r=>visible.has(r.demand.id))).map(group=><MaterialReadCard key={group.key} materialKey={group.key}>
-      <div className="sp-v4-material-head"><button className="sp-v4-material-identity" aria-expanded={expanded.has(group.key)} onClick={()=>setExpanded(old=>{const next=new Set(old);if(next.has(group.key))next.delete(group.key);else next.add(group.key);return next;})}><span>{expanded.has(group.key)?'▾':'▸'}</span><div><strong>{group.name}</strong><small>{group.type==='fabric'?'面料':'辅料'} · {group.rows.length} 个颜色 / 明细</small></div></button><span>逐项数量，单位以各行来源为准</span></div>
-      <MaterialReadTable headers={['颜色 / 规格','需求','采购','采购不足','入库','待入库','物料出运','物料出库','状态']} rows={group.rows.filter(r=>visible.has(r.demand.id)).map(r=>[`${r.demand.materialColor} / ${r.demand.specification} · ${r.unitStatus==='known'?`${r.unit}${r.unitOrigin==='confirmed'?'（人工确认）':''}`:r.unitStatus==='conflict'?'单位冲突':'单位未知'}`,quantity(r.unitStatus==='conflict'?null:r.demand.requiredQuantity,r.unit),quantity(r.purchased,r.unit),quantity(r.purchaseShortfall,r.unit),quantity(r.inbound,r.unit),quantity(r.pendingInbound,r.unit),quantity(r.shipped,r.unit),quantity(r.outbound,r.unit),r.procurementResponsibility==='factory_confirmed'?'工厂采购 · 国贸无需催采':r.status===null?'来源未知':materialStateLabels[r.status]])}/>
-      {expanded.has(group.key)&&<div className="sp-v4-material-body">{group.rows.filter(r=>visible.has(r.demand.id)).map(row=><section key={row.demand.id}><h3>{row.demand.materialColor} · {row.demand.specification}</h3>
-        {row.quantityComparison&&<p>理论用量测算（待核实） {quantity(row.quantityComparison.theoreticalUsageCandidate,row.unit)} · 实际采购 {quantity(row.quantityComparison.actualPurchase,row.unit)} · 采购与测算差额 {row.quantityComparison.relativeDifference===null?'未知':`${row.quantityComparison.relativeDifference>0?'+':''}${quantity(row.quantityComparison.relativeDifference,row.unit)}`}。差异为观察值，不自动认定超采或冲突；测算依据为来源单耗、损耗率与成衣数量，尚未作为全量已确认口径或齐套依据。</p>}
-        <h4>采购事件</h4><MaterialReadTable headers={['采购单','日期','供应商','数量','来源单价','来源金额','币种']} rows={row.purchases.map(p=>[p.purchaseOrderNo,p.purchaseDate,p.supplier,row.unitStatus==='conflict'?'待核对':quantity(p.quantity,row.unit),p.sourcePricing.unitPrice===null?'未知':String(p.sourcePricing.unitPrice),p.sourcePricing.amount===null?'未知':String(p.sourcePricing.amount),p.sourcePricing.currency])}/>
-        <h4>入库事件</h4><MaterialReadTable headers={['单号','日期','数量','多余仓']} rows={row.inbounds.map(e=>[e.documentNo,e.eventDate,row.unitStatus==='conflict'?'待核对':quantity(e.quantity,row.unit),excessQuantity(e.excessWarehouse)])}/>
-        {([['物料出运',row.shipments],['物料出库',row.outbounds]] as const).map(([label,events])=><section key={label}><h4>{label}事件</h4><MaterialReadTable headers={['单号','日期','数量']} rows={events.map(e=>[e.documentNo,e.eventDate,row.unitStatus==='conflict'?'待核对':quantity(e.quantity,row.unit)])}/></section>)}
-        {row.issues.map(issue=><p key={issue}>{issue}</p>)}</section>)}</div>}
-    </MaterialReadCard>)}</section>{!view.rows.length&&<Card>暂无可判定物料；未连接或异常来源不能视为零采购。</Card>}</>;
+import {useEffect,useId,useRef,useState} from 'react';
+import {Card} from '@/components/foundation/card';
+import {Button} from '@/components/foundation/button';
+import {Drawer} from '@/components/foundation/drawer';
+import {MaterialReadCard,MaterialReadTable} from './material-read-display';
+import {filterProgressRows,type MaterialProgressView,type ProgressRow} from '@/features/ainuoke-material-progress/projection';
+import type {ExcessWarehouseFact} from '@/features/ainuoke-material-progress/excess-warehouse';
+import {materialStateLabels} from '@/features/ainuoke-material-progress/order-material-summary';
+import {orderMaterialGroups} from '../model/material-display-order';
+const quantity=(n:number|null,unit:string|null)=>n===null?'未知':String(n)+(unit?' '+unit:'');
+function excessQuantity(fact:ExcessWarehouseFact|undefined){if(!fact)return '未知';if(fact.status==='known')return quantity(fact.quantity,fact.unit);if(fact.status==='unit_unknown')return quantity(fact.quantity,null)+'（单位未知）';return ({missing:'未知',invalid:'来源无效',conflict:'数值冲突',incomplete:'来源不全',unit_conflict:'单位冲突'} as const)[fact.status];}
+function sourceNotice(view:MaterialProgressView){if(view.sourceStatus==='ready'){const unknown=view.rows.filter(row=>row.status===null).length;return [view.insideOrderDrift?'工厂款号有来源变化':'',unknown?unknown+' 项物料待核对':''].filter(Boolean).join(' · ')||'来源已更新';}return ({not_fetched:'尚未获取来源',not_connected:'物料来源尚未接通',incomplete:'来源不完整，暂停判定',identity_mismatch:'来源身份待核对',source_failed:'物料来源读取失败',source_missing:'当前来源缺少合同物料',stale:'来源已超出可信读取时效'} as const)[view.sourceStatus];}
+const tabs=[{key:'purchases',label:'采购'},{key:'inbounds',label:'入库'},{key:'shipments',label:'出运'},{key:'outbounds',label:'出库'},{key:'reconciliation',label:'对账'}] as const;
+type EventTab=typeof tabs[number]['key'];
+function EventRows({row,tab}:{row:ProgressRow;tab:EventTab}){const value=(n:number)=>row.unitStatus==='conflict'?'待核对':quantity(n,row.unit);return <section className="sp-event-variant" data-event-demand={row.demand.id}><h3>{row.demand.materialColor||'颜色未提供'} · {row.demand.specification||'规格未提供'}</h3><p className="sp-event-identity">物料编码 {row.demand.materialCode||'未提供'} · {row.unitStatus==='known'?'单位 '+row.unit:row.unitStatus==='conflict'?'单位冲突':'单位未知'}</p>
+ {tab==='purchases'&&<>{row.quantityComparison&&<p className="sp-event-comparison">理论用量测算（待核实） {quantity(row.quantityComparison.theoreticalUsageCandidate,row.unit)} · 实际采购 {quantity(row.quantityComparison.actualPurchase,row.unit)} · 采购与测算差额 {row.quantityComparison.relativeDifference===null?'未知':(row.quantityComparison.relativeDifference>0?'+':'')+quantity(row.quantityComparison.relativeDifference,row.unit)}。两者分别保留；差异不自动认定超采或冲突，也不改变齐套判定。</p>}<MaterialReadTable headers={['采购单','日期','供应商','数量','来源单价','来源金额','币种']} rows={row.purchases.map(event=>[event.purchaseOrderNo,event.purchaseDate,event.supplier,value(event.quantity),event.sourcePricing.unitPrice===null?'未知':String(event.sourcePricing.unitPrice),event.sourcePricing.amount===null?'未知':String(event.sourcePricing.amount),event.sourcePricing.currency])}/></>}
+ {tab==='inbounds'&&<><p className="sp-event-help">多余仓与入库数量分别展示，不并入齐套数量。</p><MaterialReadTable headers={['单号','日期','数量','多余仓']} rows={row.inbounds.map(event=>[event.documentNo,event.eventDate,value(event.quantity),excessQuantity(event.excessWarehouse)])}/></>}
+ {tab==='shipments'&&<MaterialReadTable headers={['单号','日期','数量','运输方式']} rows={row.shipments.map(event=>[event.documentNo,event.eventDate,value(event.quantity),event.transportMode])}/>}
+ {tab==='outbounds'&&<MaterialReadTable headers={['单号','日期','数量']} rows={row.outbounds.map(event=>[event.documentNo,event.eventDate,value(event.quantity)])}/>}
+ {row.issues.length>0&&<ul className="sp-event-issues">{row.issues.map(issue=><li key={issue}>{issue}</li>)}</ul>}
+ </section>;}
+/** Source-only display: no planner/import/Browser providers and no business totals. */
+export function ReadOnlyMaterialControlTower({view,trimPriorityKeywords=[],settingsNotice}:{view:MaterialProgressView;trimPriorityKeywords?:readonly string[];settingsNotice?:string}){
+ const [search,setSearch]=useState(''),[collapsed,setCollapsed]=useState<Set<string>>(new Set()),[activeKey,setActiveKey]=useState<string|null>(null),[tab,setTab]=useState<EventTab>('purchases');const id=useId(),tabList=useRef<HTMLDivElement>(null);
+ const activeGroup=view.groups.find(group=>group.key===activeKey);
+ useEffect(()=>{let current=true;if(activeKey&&!activeGroup)queueMicrotask(()=>{if(current)setActiveKey(null);});return()=>{current=false;};},[activeKey,activeGroup]);
+ const visible=new Set(filterProgressRows(view,search,'all','all').map(row=>row.demand.id));
+ const ordered=orderMaterialGroups(view.groups,trimPriorityKeywords);
+ const selectTab=(index:number)=>{const next=(index+tabs.length)%tabs.length;setTab(tabs[next].key);tabList.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();};
+ return <><Card className="sp-v4-filter"><input type="search" className="qc-control" aria-label="搜索物料" placeholder="搜索物料、颜色、规格、供应商、采购单号" value={search} onChange={event=>setSearch(event.target.value)}/><div className="sp-v4-filter-meta"><span>{view.rows.length} 个物料项 · 厂供排除 {view.factoryExcluded}</span><small role="status" title={view.fetchedAt?'来源更新时间 '+view.fetchedAt:'尚无来源更新时间'}>{sourceNotice(view)}{view.fetchedAt&&Number.isFinite(Date.parse(view.fetchedAt))&&<time dateTime={view.fetchedAt}> · {new Date(view.fetchedAt).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false})}</time>}</small>{settingsNotice&&<small role="status">{settingsNotice}</small>}</div></Card>
+ <section className="sp-v4-material-list" aria-label="采购跟进物料">{ordered.filter(group=>group.rows.some(row=>visible.has(row.demand.id))).map((group,index)=><MaterialReadCard key={group.key} materialKey={group.key}>
+  <div className="sp-v4-material-head"><button type="button" className="sp-v4-material-identity" aria-expanded={!collapsed.has(group.key)} aria-controls={id+'-variants-'+index} onClick={()=>setCollapsed(old=>{const next=new Set(old);if(next.has(group.key))next.delete(group.key);else next.add(group.key);return next;})}><span aria-hidden="true">{collapsed.has(group.key)?'▸':'▾'}</span><div><strong>{group.name}</strong><small>{group.type==='fabric'?'面料':'辅料'} · {group.rows.length} 个颜色 / 规格</small></div></button><div className="sp-material-card-actions"><span>单位以各行来源为准</span><Button variant="secondary" size="compact" aria-label={'查看 '+group.name+' 事件'} onClick={()=>{setTab('purchases');setActiveKey(group.key);}}>查看事件</Button></div></div>
+  {!collapsed.has(group.key)&&<div id={id+'-variants-'+index} className="sp-material-variants"><MaterialReadTable headers={['颜色 / 规格','需求','采购','采购不足','入库','待入库','物料出运','物料出库','状态']} rows={group.rows.filter(row=>visible.has(row.demand.id)).map(row=>[row.demand.materialColor+' / '+row.demand.specification+' · '+(row.unitStatus==='known'?row.unit+(row.unitOrigin==='confirmed'?'（人工确认）':''):row.unitStatus==='conflict'?'单位冲突':'单位未知'),quantity(row.unitStatus==='conflict'?null:row.demand.requiredQuantity,row.unit),quantity(row.purchased,row.unit),quantity(row.purchaseShortfall,row.unit),quantity(row.inbound,row.unit),quantity(row.pendingInbound,row.unit),quantity(row.shipped,row.unit),quantity(row.outbound,row.unit),row.procurementResponsibility==='factory_confirmed'?'工厂采购 · 国贸无需催采':row.status===null?'来源未知':materialStateLabels[row.status]])}/></div>}
+ </MaterialReadCard>)}</section>{view.rows.length>0&&!visible.size&&<Card>没有符合搜索条件的物料。</Card>}{!view.rows.length&&<Card>暂无可判定物料；未连接或异常来源不能视为零采购。</Card>}
+ <Drawer open={Boolean(activeGroup)} title={(activeGroup?.name??'物料')+' · 事件'} description={'合同 '+view.order.salesContractNo+' · 颜色与规格分别查看，不跨单位汇总'} className="sp-material-events" onClose={()=>setActiveKey(null)}>
+  <div ref={tabList} className="sp-material-event-tabs" role="tablist" aria-label="物料事件类型">{tabs.map((item,index)=><button key={item.key} type="button" role="tab" id={id+'-'+item.key} aria-controls={id+'-events'} aria-selected={tab===item.key} tabIndex={tab===item.key?0:-1} onClick={()=>setTab(item.key)} onKeyDown={event=>{if(['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){event.preventDefault();selectTab(event.key==='Home'?0:event.key==='End'?tabs.length-1:index+(event.key==='ArrowRight'?1:-1));}}}>{item.label}{activeGroup&&item.key!=='reconciliation'?' ('+activeGroup.rows.reduce((count,row)=>count+row[item.key as Exclude<EventTab,'reconciliation'>].length,0)+')':''}</button>)}</div>
+  <div role="tabpanel" tabIndex={0} id={id+'-events'} aria-labelledby={id+'-'+tab}>{tab==='reconciliation'?<p className="sp-reconciliation-pending" role="status">艾诺科货款申请明细尚未接通。暂不展示对账金额或认定实际付款。</p>:activeGroup?.rows.map(row=><EventRows key={row.demand.id} row={row} tab={tab}/>)}</div>
+ </Drawer></>;
 }

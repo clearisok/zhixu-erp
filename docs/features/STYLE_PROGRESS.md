@@ -1,3 +1,5 @@
+2026-10-15 D134 B2本地工程：团队辅料关键词版本设置、面料显示排序和事件侧栏实施中；0024仅一次性库演练。style_progress.settings.edit仅管理员/物控preset，其他物料读角色共享只读。新页面受Server snapshot默认关闭约束；CAS、幂等/审计/撤权已隔离20项通过，页面最终验收待完成。正式数量、齐套、CCT与真实账号/数据不变。见[批准边界](../tasks/active/evidence/material-source-integration/material-display-approved-scope-2026-10-15.md)。
+
 2026-10-15 D133本地候选：6087050 num_dyc按既有入库事件原行追溯，作为独立多余仓数量展示，不加进rknum/齐套；缺失、冲突、非法或单位问题明确保持未知。无新SQL/真实采集/数据库操作，语义与批准范围见[num_dyc确认](../tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md)。
 
 2026-10-15 Gate5 B1本地候选：物料详情返回移到AppShell顶部小箭头，标题取工厂款号；移除重复功能导航/合同段落/长技术说明，异常和更新时间在搜索卡片内简述。数量、单位、齐套、事件身份和权限不变；排序设置及事件侧栏为后续B2。未部署或人工验收。

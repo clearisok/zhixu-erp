@@ -8,5 +8,5 @@ export function orderReadEnabled():boolean {
   return parseOrderRead(typeof __ZHIXU_BUILD_INFO__!=="undefined"?__ZHIXU_BUILD_INFO__.orderRead:process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ)==="snapshot";
 }
 export function isOrderReadRoute(path:string):boolean {
-  return ["/order-center","/order-center/server-detail","/order-center/style-progress/detail"].includes(path);
+  return ["/order-center","/order-center/server-detail","/order-center/style-progress/detail", "/system-settings/progress-settings"].includes(path);
 }

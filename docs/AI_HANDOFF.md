@@ -1,13 +1,9 @@
-# B2本地模型检查点（未交付）
+# G5 B2 源码检查点（未最终验收/未交付）
 
-2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；同一原工作树，新分支feat/material-sort-and-event-drawer从多余仓aab97cb8fc5f85dba6c24ccb9cea1dd3f779f228/clean起。只新增展示排序模型、0024设置schema源码、尚未接线的Server服务/路由及合成单测；未运行SQL、未改角色目录或真实数据。模型7/7先行验收；已接入独立permission/OperationLog/API并frontend类型PASS；SQL/API尚未合成执行，整体B2未验收、不要推送本WIP。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；原order-effective-attribution工作树，feat/material-sort-and-event-drawer从多余仓aab97cb8/clean继续。模型7/7、设置API/隔离升级20/20、客户端/默认关闭路由6/6、类型/新源码lint已通过。源码含0024团队设置、actor幂等/CAS/审计、可信客户端/页面、辅料排序、颜色规格展开及事件Drawer；正式数量/去重/齐套/CCT不改。新六宽度七角色浏览器测试已编写，精确构建/执行、完整回归和基线冻结待完成，不推送本WIP。
 
-用户刚授权对G5整合af9b7462b739fff45c84702883cd799b0e6871cd和多余仓aab97cb8各一次安全恢复交付，核实精确远端后创建到main草稿PR/CI。保存本WIP后安全切换两分支，用原git-delivery工具各至多一次；任何不确定传输独立核查，失败不反复push。然后回本分支继续。原G1–G4不合并、旧数据/工作树/Browser/真实演示/宁波18443/18444不操作。
+D134与新批准范围需要在此源码checkpoint后前向冻结manifest；旧D133与所有PNG/证据保留。新UI路径已记录。不要改截图哈希消除错误。当前尚未完成G5，不认为人工视觉验收或真实使用通过。
 
-此前完整恢复说明仍在本文件上一commit；多余仓15/root891/基线94/UI5、持续70PASS1Linux skip与类型/lint/构建、真实旧包117字段证据均已冻结。Goal继续，当前无新的部署或数据库授权。
+用户授权的G5 af9b746与num_dyc aab97cb8恢复尝试仍预检失败，pushes0，远端branch/PR未出现；进程OpenSSL只读成功不代表恢复。已停止，不再撞同通道。G1 PR109@1fcc440、Draft110@3deffc4、111@f4a1b99、112@036fe521均此前CI3成功未合并，合并授权仍待回复。旧Source21da/108包含在累计分支，未来PR目标main且声明依赖，不建议直接累计合并。
 
-获准恢复首轮G5与多余仓均pushes=0，独立GitHub API确认两branch不存在。只读diagnose默认Schannel失败、HTTP1.1超时，但进程OpenSSL+HTTP1.1在3236ms读到精确main64，配置未改。沿用当前明确授权完成尚未发生的actual push，每分支最多1次，通过现有工具仅进程限定连接参数；认证/证书验证不变，不自动合并部署。保存本WIP后切两分支，完成后回此分支。
-
-B2 backend实测更新：material-progress-settings与fresh-start在一次性PostgreSQL通过20/20，包含七角色读/两角色写、CAS并发、actor幂等/回放、撤权、审计回滚、0023→0024隔离升级，不操作真实账号/数据库。原未跟踪测试为本阶段自有新增，SHA256 3CB2992E7EF24ECFC8A59BD3D90573F1BA0CE551881831034EC7378417E2C60C。
-
-恢复交付最终结果：用户授权的G5/num_dyc安全恢复均未通过远端预检，actual pushes=0；进程OpenSSL+HTTP1.1能读main但现有工具仍无法核实目标，已停止，不视为网络恢复。两branch/PR仍未送达，不再次撞通道。继续B2本地页面/侧栏，不合并部署。
+禁止真实账号/业务DB、部署、宁波18443/18444、新Source读取/激活或延长既有四单窗口。既有窗口12/12已截止。Goal继续，下一步精确构建和真实隔离Chromium，失败查原因不放宽断言。

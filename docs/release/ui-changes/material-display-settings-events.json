@@ -1,0 +1,33 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "app/order-center/style-progress/style-progress.css",
+    "app/system-settings/progress-settings/page.tsx",
+    "components/foundation/app-shell.tsx",
+    "features/operation-logs/model/operation-log.ts",
+    "features/order-center/server/read-capability.ts",
+    "features/permissions/model/permissions.ts",
+    "features/quote-center/authority/quote-authority.ts",
+    "features/style-progress/components/material-control-tower-read-only.tsx",
+    "features/style-progress/components/material-progress-settings-page.tsx",
+    "features/style-progress/components/style-progress-server-page.tsx",
+    "features/style-progress/model/material-display-order.ts",
+    "features/style-progress/server/material-progress-settings-client.ts",
+    "features/style-progress/server/use-material-progress-settings.ts"
+  ],
+  "pages": [
+    "material",
+    "settings",
+    "navigation"
+  ],
+  "visibleDifference": "Approved display-only fabric/trim ordering, team keyword settings, color/spec expansion, event drawer and gated settings entry; no theme redesign or formal quantity/permission expansion.",
+  "evidence": [
+    "docs/tasks/active/evidence/material-source-integration/material-display-approved-scope-2026-10-15.md",
+    "docs/tasks/active/material-progress-integration.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/evidence/material-source-integration/material-display-approved-scope-2026-10-15.md"
+  }
+}

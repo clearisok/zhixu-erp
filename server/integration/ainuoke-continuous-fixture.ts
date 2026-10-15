@@ -21,7 +21,7 @@ import { createQuoteService } from "../quotes/service.js";
 import { MemoryAttachmentStorage } from "../attachments/storage.js";
 /** Always generates its own loopback tmpfs PostgreSQL; never reads DATABASE_URL or source credentials. */
 import type { NormalizationExecutionOptions } from '../sales-orders/normalization-execution-service.js';
-export async function startContinuousFixture(staticDirectory:string,options: NormalizationExecutionOptions & {orderAlerts?:boolean;excessWarehouse?:boolean} = {}) {
+export async function startContinuousFixture(staticDirectory:string,options: NormalizationExecutionOptions & {orderAlerts?:boolean;excessWarehouse?:boolean;materialDisplay?:boolean} = {}) {
  const normalizationExecution:NormalizationExecutionOptions=options;
  const db=await startDisposablePostgres();const pool=new pg.Pool({connectionString:await db.createDatabase("continuous_demo")});
  const server=createServer();const origins:string[]=[];const errors:unknown[]=[];
@@ -47,7 +47,14 @@ export async function startContinuousFixture(staticDirectory:string,options: Nor
   const capture=async()=>{
    const result=await captureSource(pool,actor,{...source,maxAgeMs:600000,collect:async()=>{
     if(mode==="failed")throw Error("synthetic failure");
-    const b=freshMaterialBundle();for(const pages of Object.values(b.materials))for(const p of pages)for(const row of p.rows) {
+    const b=freshMaterialBundle();
+    if(options.materialDisplay)for(const pages of Object.values(b.materials)){
+     const page=pages[0],template=page.rows[0];
+     const examples=[['fabric-high','面料','合成排序面料大','米',800,'合成规格A'],['fabric-low','面料','合成排序面料小','千克',10,'合成规格B'],['thread','辅料','合成缝纫线','个',20,'合成规格C'],['button','辅料','合成纽扣','个',20,'合成规格D'],['thread-variant','辅料','合成缝纫线','条',2,'合成规格E']] as const;
+     for(const [key,type,name,unit,number,specification] of examples){const row=structuredClone(template);row.sourceRowIdentity='synthetic-display-'+key;Object.assign(row.values,{id:'SYNTHETIC-DISPLAY-'+key,GoodsNo:'SYNTHETIC-DISPLAY-'+key,lx:type,CnName:name,cgcnname:name,actualname:name,CnComposition:specification,cgCnComposition:specification,QtyUnit:unit,TotalNum:number,cgnum:number,rknum:number,cgdh:'PO-DISPLAY-'+key,rkdh:'IN-DISPLAY-'+key,cydh:'SHIP-DISPLAY-'+key,ckdh:'OUT-DISPLAY-'+key,CYNum:number,OutStoreNum:number});page.rows.push(row);}
+     page.total=page.rows.length;
+    }
+    for(const pages of Object.values(b.materials))for(const p of pages)for(const row of p.rows) {
      if(options.orderAlerts && row.values.GoodsNo==='SYNTHETIC-MAT-ready')row.values.QtyUnit=null;
      if(options.excessWarehouse && row.values.GoodsNo==='SYNTHETIC-MAT-ready') {
       Object.assign(row.values,{TotalNum:32,cgnum:32,rknum:31,QtyUnit:'条'});
