@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { projectMaterialProgress } from '../features/ainuoke-material-progress/projection.ts';
+import { readExcessWarehouse } from '../features/ainuoke-material-progress/excess-warehouse.ts';
 import { createSyntheticMaterialSource, syntheticOrder } from '../features/ainuoke-material-progress/synthetic-source.ts';
 
 function source(value, { unit = '条', omitted = false } = {}) {
@@ -145,4 +146,12 @@ test('separate demands retain their own units and extra values without a materia
 test('similar field names cannot impersonate the exact upstream num_dyc mapping', () => {
   const pages = source(null, { omitted: true }); Object.assign(pages[0].rows[0].values, { Num_dyc: 7, excessWarehouse: 8 });
   assert.equal(project(pages).inbounds[0].excessWarehouse.status, 'missing');
+});
+
+test('missing event provenance cannot be replaced by a value from any other source row', () => {
+  const raw = new Map([['unrelated', { rawFields: { num_dyc: 99 } }]]);
+  for (const refs of [undefined, [], ['missing'], ['unrelated', 'missing']]) {
+    const fact = readExcessWarehouse(refs, raw, '条', 'known');
+    assert.equal(fact.status, 'incomplete'); assert.equal(fact.quantity, null);
+  }
 });

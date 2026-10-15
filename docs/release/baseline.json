@@ -1164,6 +1164,22 @@
       "sha256": "dd5ee2398c7c1fc7ef619fa7dbf2fbc710effa0840aa6331ba4a8dd5fcefc202",
       "changeReason": "New D121-approved header scope and six-width synthetic evidence; preserve every old image and do not claim human pixel acceptance.",
       "approvalEvidence": "material-order-page-approved-scope"
+    },
+    {
+      "id": "decisions-excess-warehouse",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "0c002ce363444876594d94209c128d088969809f",
+      "sha256": "41fce0f49102c562e8cbb9eec33e6a094125d54e27f2834630dbb0da7401f051",
+      "supersedes": "decisions-source-order-integration",
+      "changeReason": "D133 records the user-confirmed independent excess warehouse quantity and preserves all earlier source/order decisions."
+    },
+    {
+      "id": "excess-warehouse-confirmed-scope",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md",
+      "recordedAtSha": "0c002ce363444876594d94209c128d088969809f",
+      "sha256": "ea4ac6214311b99a700763ed960e3a6757433b012b42560cfb72dc58e85a8556"
     }
   ],
   "pages": [

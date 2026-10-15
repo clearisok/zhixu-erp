@@ -6,7 +6,8 @@ import { filterProgressRows, type MaterialProgressView } from '@/features/ainuok
 import type { ExcessWarehouseFact } from '@/features/ainuoke-material-progress/excess-warehouse';
 import { materialStateLabels } from '@/features/ainuoke-material-progress/order-material-summary';
 const quantity=(n:number|null,unit:string|null)=>n===null?'未知':`${n}${unit?` ${unit}`:''}`;
-function excessQuantity(fact:ExcessWarehouseFact) {
+function excessQuantity(fact:ExcessWarehouseFact|undefined) {
+  if(!fact)return '未知';
   if(fact.status==='known')return quantity(fact.quantity,fact.unit);
   if(fact.status==='unit_unknown')return quantity(fact.quantity,null)+'（单位未知）';
   return ({missing:'未知',invalid:'来源无效',conflict:'数值冲突',incomplete:'来源不全',unit_conflict:'单位冲突'} as const)[fact.status];
