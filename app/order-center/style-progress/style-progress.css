@@ -179,3 +179,5 @@
 .sp-server-material .sp-v4-filter-meta { display: grid; gap: 4px; color: var(--muted); min-width: 0; }
 .sp-server-material .sp-v4-filter-meta small { font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
 .sp-server-material .sp-v4-filter > input { grid-column: auto; }
+
+.sp-server-material .qc-page-header .qc-page-identity p { display: block; }

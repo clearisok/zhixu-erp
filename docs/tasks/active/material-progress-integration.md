@@ -47,3 +47,5 @@ Phase A后续本地证据：PG26通过/1初轮旧测试失败/1 Linux skip已保
 从b2918fae/clean开始；按批准范围复用AppShell 30px箭头，订单/物料标题区分合同工厂款号与加工业务款号，概况移除重复SO/BillNo并使用业务款号，物料移除重复导航/合同段/长技术行。异常与更新时间只在原搜索卡中简述。批准证据approved-page-scope.md，精确路径material-order-header.json；不改业务数据、正式数量或路由。最终浏览器、截图与门禁待验，不冒称排序/事件侧栏或新来源已完成。
 
 B1首轮实际浏览器：19PASS/2计数FAIL（同一页头子测试及父测试），问题为旧Server详情CSS仍强制back/identity/actions三列，空back列使h1偏移。未放宽对齐断言，新增仅无back节点时的identity/actions两列修复，并在失败消息记录像素/列宽。首轮其余退出/Source/准备保护均通过，六宽度未完成不提前PASS。
+
+B1静态样式核对：旧移动规则隐藏所有页头description；概况移除重复SO/BillNo后会隐藏唯一身份。增加只针对Server订单/物料详情的覆盖，移动端保留唯一SO/BillNo/合同说明，其他报价/列表不变。待六宽度真实浏览器验证。

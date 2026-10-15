@@ -490,3 +490,6 @@
 
 /* Approved topbar back arrow leaves no empty legacy header column. */
 .oc-server-detail-page .qc-page-header[data-variant="list"]:not(:has(.qc-page-back)) { grid-template-areas: "identity actions"; grid-template-columns: minmax(0, 1fr) auto; }
+
+/* SO/BillNo now have one header location and must remain available on mobile. */
+.oc-server-detail-page .qc-page-header[data-variant="list"] .qc-page-identity p { display: flex; }
