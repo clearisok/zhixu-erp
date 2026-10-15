@@ -1,0 +1,16 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V0",
+  "paths": [
+    "features/style-progress/parser/material-normalization-pipeline.ts"
+  ],
+  "pages": [
+    "material",
+    "order-detail"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/tasks/active/material-identity-collision-guard.md",
+    "tests/material-identity-collision.test.mjs"
+  ]
+}

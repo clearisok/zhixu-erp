@@ -18,6 +18,12 @@
 
 ## Active
 
+### D-131 共用物料Normalizer以完整元组校验短哈希身份
+
+- 日期2026-10-15；Active，落实来源身份可信及不错误汇总要求，不改变已批准业务规则或ID。
+- 32位短哈希仅作索引，同批相同ID须有相同结构化规范身份元组；需求/四类事件/Raw任一碰撞阻断整个Preview。真实重复来源继续归并，356两来源一采购事件、115.50理论与118实际独立。静态错误不含业务字段。
+- Excel/API共用入口实施，Server只读继续复用既有incomplete清空保护；不重写历史ID、Browser namespace/schema、单位或正式计算。不将合成碰撞推定为真实异常根因；跨批与artifact hash仍另行评估。
+- 代码及验证：material-normalization-pipeline.ts、material-identity-collision.test.mjs，16项定向及根840通过；完整类型/Server编译/lint通过。未真实读写、部署或合并。完整边界与原红测证据见tasks/active/material-identity-collision-guard.md。
 ### D-130 翻单准备现有页面接线与未核实请求恢复
 
 - 日期2026-10-15；Active，落实已批准D121/D129，不改变合同唯一创建、加工批次或商业版本规则。

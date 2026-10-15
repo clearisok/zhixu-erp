@@ -141,3 +141,7 @@ Gate 4 alternate/isolated Browser Profile 的统一提交后 D1935 为 262 Sourc
 本次 Correction 使用最新 Excel 调用正式 Parser 与 v4 Canonical identity 完成只读审计，并在既有隔离 Browser Profile 复验 D1935 / PI2607-235；没有覆盖用户 Chrome 或 PROD Profile，原始 Excel 没有进入 Git。真实页面从旧 18 个 Canonical Material 收敛为 13 个（面料 3、辅料 10），厂供 5 条 / 3,809 需求量仍只在只读 Trace Drawer 中出现；罗马布的 5 条颜色/规格 Demand 及不同采购价完整保留，展开行与多事件 Drawer 的出运量均来自 ShipmentEvent。
 
 真实 D1935 的 1600/1280/1229/960/768/402 CSS viewport 均为 `document-level horizontal overflow = 0`，Supplier 搜索、Sticky Filter、条件式厂供入口、Batch Planner、多个 Event Tab 和 Console 均通过。该隔离 Browser Profile 没有 PI2607-235 对应织序订单，因此页面正确显示“销售合同尚未形成织序订单”，逐批物流显示“待排单后计算”；没有猜测订单、SupplyHub、ProductionSite 或 ScheduleAssignment。Gate 3 自动化与 Gate 4 QA Dataset 已验证有正式排单时的逐批 recommendation、缺 Hub 精确原因、最慢可行方式和 buffer 颜色，但不能把这些证据冒充为本次 D1935 有排单的真实 Profile 验收。
+
+## 同批身份碰撞保护（2026-10-15）
+
+共用Normalizer保留既有需求、四流和Raw ID；短哈希相同只作为候选索引，完整规范化身份元组不同时阻断整个Preview，抛出无业务值的material_identity_hash_collision。真正重复行仍保留归并和Trace；理论用量与采购实际数量独立。覆盖Excel/API/Server只读错误清空，16项合成回归及根840项通过；不修改UI、单位规则或历史存储。跨批Browser及sourceArtifactHash短哈希使用点不在本修复覆盖范围，不据此认定真实六项单位冲突的原因。详见[工程证据](../tasks/active/material-identity-collision-guard.md)。
