@@ -49,7 +49,7 @@ test('built source UI shows traced excess warehouse independently in a disposabl
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
   await t.test('an older v1 response without the new optional fact stays usable and unknown',async()=>{
-   await evaluate("window.previousFetch=window.fetch;window.fetch=async(...args)=>{const response=await window.previousFetch(...args);if(new URL(String(args[0]),location.href).pathname.endsWith('/material-progress')&&response.ok){const model=await response.json();for(const row of model.progress.rows)for(const event of row.inbounds)delete event.excessWarehouse;return new Response(JSON.stringify(model),{status:response.status,headers:{'Content-Type':'application/json'}});}return response;};");
+   await evaluate("window.previousFetch=window.fetch;window.fetch=async(...args)=>{const response=await window.previousFetch(...args);if(new URL(String(args[0]),location.href).pathname.endsWith('/material-progress')&&response.ok){const model=await response.json();for(const row of [...model.progress.rows,...model.progress.groups.flatMap(group=>group.rows)])for(const event of row.inbounds)delete event.excessWarehouse;return new Response(JSON.stringify(model),{status:response.status,headers:{'Content-Type':'application/json'}});}return response;};");
    try{await refresh();await expectExtra('未知','older DTO');assert.equal((await cells())[2],'31 条');}finally{await evaluate('window.fetch=window.previousFetch;delete window.previousFetch;');}
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
