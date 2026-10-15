@@ -57,7 +57,7 @@ export function AppShell({ title, children, onRequestNavigation, onRequestLogout
   const serverSettingsMode = identityMode === "server" && (pathname.startsWith("/basic-settings/server/") || pathname === "/system-settings/server/quote-settings" || pathname === "/system-settings/progress-settings");
   const localSingleUser = browserIdentityMode() === "local-single-user";
   const visibleBasicRoutes = (serverSettingsMode ? serverBasicRoutes : basicRoutes).filter((route) => !freshServer || isEnabledServerRoute(route.href));
-  const visibleSystemRoutes = (serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions"));
+  const visibleSystemRoutes = (serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (route.href !== "/system-settings/progress-settings" || freshServer && isEnabledServerRoute(route.href)) && (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions"));
   const basicActive = visibleBasicRoutes.some((route) => pathname === route.href);
   const systemActive = visibleSystemRoutes.some((route) => pathname === route.href);
   const personalActive = pathname.startsWith("/my-settings/");
