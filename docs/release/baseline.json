@@ -1362,6 +1362,13 @@
       "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/first-attempt-failure-and-repair-2026-10-15.md",
       "recordedAtSha": "736508304e9b6a68376e08530220aa3c9fd43200",
       "sha256": "4ccad54f42a1cef2cac1df3876d6d63a929270208555ad8cd8bcbcbcb9172417"
+    },
+    {
+      "id": "payment-request-metadata-compatibility",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/second-attempt-metadata-2026-10-15.md",
+      "recordedAtSha": "e022e72ececb3120479f64a9c4e35cb86ab8057a",
+      "sha256": "a4b71476afaedfe5d67e105d0a2989828fb2ed373731bf0e58a620b928adf698"
     }
   ],
   "pages": [
@@ -4825,62 +4832,68 @@
       "evidence": [
         "payment-request-probe-results",
         "decisions-payment-request-probe",
-        "payment-request-first-attempt-repair"
+        "payment-request-first-attempt-repair",
+        "payment-request-metadata-compatibility"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-15",
-          "sourceSha": "7c567b620df1e51c56461b1f6783e8e54c8afe4a",
+          "sourceSha": "894a4f55c1326563c91723125fff62f21ae6a974",
           "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
-            "payment-request-first-attempt-repair"
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-15",
-          "sourceSha": "736508304e9b6a68376e08530220aa3c9fd43200",
+          "sourceSha": "e022e72ececb3120479f64a9c4e35cb86ab8057a",
           "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
-            "payment-request-first-attempt-repair"
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-15",
-          "sourceSha": "7c567b620df1e51c56461b1f6783e8e54c8afe4a",
+          "sourceSha": "894a4f55c1326563c91723125fff62f21ae6a974",
           "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
-            "payment-request-first-attempt-repair"
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-15",
-          "sourceSha": "736508304e9b6a68376e08530220aa3c9fd43200",
+          "sourceSha": "e022e72ececb3120479f64a9c4e35cb86ab8057a",
           "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
-            "payment-request-first-attempt-repair"
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility"
           ]
         },
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-15",
-          "sourceSha": "736508304e9b6a68376e08530220aa3c9fd43200",
+          "sourceSha": "e022e72ececb3120479f64a9c4e35cb86ab8057a",
           "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
-            "payment-request-first-attempt-repair"
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility"
           ]
         },
         "trial18443": {
@@ -4893,7 +4906,8 @@
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
-            "payment-request-first-attempt-repair"
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility"
           ]
         },
         "preview18444": {
@@ -4906,7 +4920,8 @@
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
-            "payment-request-first-attempt-repair"
+            "payment-request-first-attempt-repair",
+            "payment-request-metadata-compatibility"
           ]
         }
       }
