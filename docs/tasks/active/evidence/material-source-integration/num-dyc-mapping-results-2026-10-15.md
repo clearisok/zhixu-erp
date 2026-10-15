@@ -25,6 +25,6 @@
 
 按源字段、事件身份、数量/单位、权限、旧接口、历史保护逐项复审，当前最小范围未发现阻断代码问题。最小生产增量仅excess-warehouse.ts、projection.ts和既有只读ControlTower列；其余为合成fixture/测试及证据。没有SQL、真实配置、账户、Source启动或部署改动。
 
-LOCAL ENGINEERING PASS；REMOTE DELIVERY PENDING。NETWORK_DEGRADED沿用此前G5失败状态，本阶段不自动恢复或push。GitHub查询未发现同head PR，不重复创建；应先送达G5依赖分支，再以其为stack base交付本最小PR，等依赖合入main后对齐精确main重跑门禁/CI，不能立即合并整个累计栈。Hosted CI尚未运行，不以本机测试冒充。无自动合并、真实激活、调度恢复、宁波/18443/18444或现有真实演示镜像切换。
+LOCAL ENGINEERING PASS；REMOTE DELIVERY PENDING。NETWORK_DEGRADED沿用此前G5失败状态，本阶段不自动恢复或push。GitHub查询未发现同head PR，不重复创建；按AGENTS统一创建到main的Draft PR，明确当前累计差异包含尚未合并依赖，本字段独立增量以af9b746为对照；只有依赖先进入main、重新对齐并重跑门禁/CI后，才能作为最小字段PR评审合并，不能直接合并整个累计栈。Hosted CI尚未运行，不以本机测试冒充。无自动合并、真实激活、调度恢复、宁波/18443/18444或现有真实演示镜像切换。
 
 待续：B2辅料团队排序设置与事件侧栏独立PR依赖本字段分支，避免反向把本PR吞入base；6086941另行独立来源核验，不按名称或同名字段自动关联物料。Goal未完成。更新时机：代码、main/PR、CI、字段语义、部署/来源或人工验收变化。
