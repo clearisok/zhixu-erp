@@ -1376,6 +1376,20 @@
       "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/third-fourth-attempt-ipc-2026-10-15.md",
       "recordedAtSha": "5a24f37909f7057cf323032ba1f632a700b38d52",
       "sha256": "f399545c4284fdefe146aee09480183a6cbe34ed4f367ca90378a88728383751"
+    },
+    {
+      "id": "payment-request-first-page-real",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-2026-10-15.md",
+      "kind": "document",
+      "recordedAtSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+      "sha256": "8f30959626e9289815e60613fd2461e8e0aef4f8c75c5c41e96cb7e62cb0b41f"
+    },
+    {
+      "id": "payment-request-first-page-schema",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/real-first-page-schema-2026-10-15.json",
+      "kind": "document",
+      "recordedAtSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+      "sha256": "4246bb430b7baae9654300e9d5185cdec552e28fbef16e364889f12335237a1a"
     }
   ],
   "pages": [
@@ -4835,78 +4849,90 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
+      "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
       "evidence": [
         "payment-request-probe-results",
         "decisions-payment-request-probe",
         "payment-request-first-attempt-repair",
         "payment-request-metadata-compatibility",
-        "payment-request-ipc-encoding"
+        "payment-request-ipc-encoding",
+        "payment-request-first-page-real",
+        "payment-request-first-page-schema"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-15",
           "sourceSha": "362f81ba704ab792eff102cf121301deee4998f0",
-          "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
+          "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
             "payment-request-metadata-compatibility",
-            "payment-request-ipc-encoding"
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-15",
-          "sourceSha": "5a24f37909f7057cf323032ba1f632a700b38d52",
-          "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
+          "sourceSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+          "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
             "payment-request-metadata-compatibility",
-            "payment-request-ipc-encoding"
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-15",
           "sourceSha": "362f81ba704ab792eff102cf121301deee4998f0",
-          "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
+          "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
             "payment-request-metadata-compatibility",
-            "payment-request-ipc-encoding"
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-15",
-          "sourceSha": "5a24f37909f7057cf323032ba1f632a700b38d52",
-          "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
+          "sourceSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+          "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
             "payment-request-metadata-compatibility",
-            "payment-request-ipc-encoding"
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
           ]
         },
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-15",
-          "sourceSha": "5a24f37909f7057cf323032ba1f632a700b38d52",
-          "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
+          "sourceSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+          "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
             "payment-request-metadata-compatibility",
-            "payment-request-ipc-encoding"
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
           ]
         },
         "trial18443": {
@@ -4921,7 +4947,9 @@
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
             "payment-request-metadata-compatibility",
-            "payment-request-ipc-encoding"
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
           ]
         },
         "preview18444": {
@@ -4936,7 +4964,9 @@
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
             "payment-request-metadata-compatibility",
-            "payment-request-ipc-encoding"
+            "payment-request-ipc-encoding",
+            "payment-request-first-page-real",
+            "payment-request-first-page-schema"
           ]
         }
       }
@@ -4968,7 +4998,7 @@
   ],
   "limitations": [
     "Combined synthetic UI and original P6 responsive checks passed. User accepted PR101 login visuals only; order/material and real-account business acceptance remain pending.",
-    "No live environment, ledger, business rows, accounts, Source or deployment changed or reverified by this task.",
+    "No target Zhixu runtime, ledger, accounts or deployment changed or reverified by this bounded payment diagnostic. The dated upstream first-page observation is not Source activation.",
     "Static Server allowlist is only the capability ceiling; orderRead defaults disabled and explicit snapshot runtime must match the compiled build and source reader.",
     "New contracts and existing main/color source mirrors do not automatically refresh. Historical snapshots accumulate without retention automation.",
     "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment."
