@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-16当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先CURRENT_STATE/AI_HANDOFF、[受控采集任务](tasks/active/ainuoke-payment-controlled-collector.md)、[合同来源面板](tasks/active/ainuoke-payment-read-panel.md)与[货款申请模块](features/AINUOKE_PAYMENT_REQUESTS.md)。新内部一次性协调服务22/22、合计172/172通过；完整root/基线/新证据与精确守卫收口中。真实过滤、目标启用/写入、操作CLI/调度均未完成或未获授权。旧G1–G5/Quote/Source与各阶段原证据保留；GitHub为实时事实源，随源码/授权/证据变化更新。
+2026-10-16当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先CURRENT_STATE/AI_HANDOFF、[受控采集任务](tasks/active/ainuoke-payment-controlled-collector.md)、[合同来源面板](tasks/active/ainuoke-payment-read-panel.md)与[货款申请模块](features/AINUOKE_PAYMENT_REQUESTS.md)。新内部一次性协调服务22/22、合计172/172、root898/898、基线94/94、精确main守卫（42能力）及干净默认Browser构建通过。真实过滤、目标启用/写入、操作CLI/调度均未完成或未获授权。旧G1–G5/Quote/Source与各阶段原证据保留；GitHub为实时事实源，随源码/授权/证据变化更新。
 
 ## 系统简介
 

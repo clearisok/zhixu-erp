@@ -24,7 +24,7 @@
 
 内部prepare固定可信Source链接、原owner/有效SO、账号、归属与目标版本、预期发布代际及采集前时间；publish复制固定输入后重新检查数据库权限和范围。同一已接受内容重试返回原发布，不同内容竞争只能一方通过；不向旧别名发布、搬动历史身份或引用。读取从原页重建并检验完整投影，不只信一个hash。
 
-GET /api/v1/sales-orders/:uuid/payment-requests仅Session/正式SO UUID；默认runtime不开启，独立ZHIXU_AINUOKE_PAYMENT_READ=snapshot还须已明确启用的精确DB目标。无HTTP写入/启用/读取凭据入口，不读CCT/报价内部成本，不调用上游、Browser或缓存回退。fresh DB权限沿order.view/ainuoke.view/style_progress.read；加工不适用、历史别名不重定向。真实过滤/分页、采集器和实际发布均仍有独立Gate。
+GET /api/v1/sales-orders/:uuid/payment-requests仅Session/正式SO UUID；默认runtime不开启，独立ZHIXU_AINUOKE_PAYMENT_READ=snapshot还须已明确启用的精确DB目标。无HTTP写入/启用/读取凭据入口，不读CCT/报价内部成本，不调用上游、Browser或缓存回退。fresh DB权限沿order.view/ainuoke.view/style_progress.read；加工不适用、历史别名不重定向。D141内部协调已合成验证；真实过滤/分页、操作CLI/调度、具体目标启用和实际发布均仍有独立Gate。
 
 显式wire v1包含观测时间、最早页到期和evaluatedAt。空状态不携带行；observed只是观测时点事实，不表示实时或银行付款。最早页十分钟失效后服务端隐藏明细。归一证据包含财务目标、原owner/当前SO引用快照和指针的全量hash，不把它们当生产执行/冻结账目，不省略外部覆盖或独立审批。
 
@@ -37,6 +37,8 @@ GET /api/v1/sales-orders/:uuid/payment-requests仅Session/正式SO UUID；默认
 只有打开该tab才读取DB；关闭/换tab取消，订单/身份/权限变化立即隔离旧响应；失败不保留旧金额。最早页剩余寿命根据服务端evaluatedAt和整段请求/解析延迟保守计算，使用浏览器单调时间；到期隐藏明细，恢复可见/焦点时清旧状态重新查DB，不触发上游采集。
 
 ## 验收与真实启用
+
+2026-10-16 D141协调阶段：源码039e9f5d、冻结499edf54、前向绑定9efd500f。22/22新增、172/172相关、root898/898、基线94/94、类型/Server编译/完整源码lint及精确main守卫PASS（11页/42能力/56累计UI路径）。干净完整源码039e9f5d477c629a3e0134f1db21922aa59300c8默认Browser/build20261016-001315通过，订单来源仍disabled。首次未绑定新决策的root891/898和基线88/94原日志保留；新叶节点/新blob解决漂移，旧证据hash不改。此Phase无UI变化或新真实读取；下段面板与截图按各自旧阶段阅读。
 
 恢复tasks/active/ainuoke-payment-read-panel.md。本阶段150项客户端/原探测与实际一次性PG/API回归通过，类型、Server/显式Server UI串行构建、完整源码lint通过；新财务UI9/原物料UI9项实际Chromium通过，六宽度/七角色、展开字段、过期/撤权/取消及精确数字已验。源码cefe951d、build20261015-231629；新截图及receipt另存，非像素人工验收。后续root898/898、发布基线94/94、默认Browser构建及精确main守卫已通过（11页/41能力/56累计UI路径）；当前dist最后是默认Browser（quote/master browser、orderRead disabled）。此前存储证据按c235ca6e/931492af/b75bc7a9原阶段阅读。
 

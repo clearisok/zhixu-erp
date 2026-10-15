@@ -1,9 +1,9 @@
-# 当前状态：货款申请一次性受控采集接线本地验收中
+# 当前状态：货款申请受控采集内部接线已本地验收，真实过滤与启用待授权
 
-核实2026-10-16；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。原worktree从clean的feat/ainuoke-payment-snapshot-storage@a94a7df97ff9b6312cdb9c7990e3e9b32a31c27b分出feat/ainuoke-payment-controlled-collector，原分支和Source48b/G5c54树/ref/私有报告保持；前摘要归档completed/2026-10-16-before-payment-controlled-collector.md。
+核实2026-10-16；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5再次connector确认。feat/ainuoke-payment-controlled-collector沿用原树，baseline为clean a94a7df97ff9b6312cdb9c7990e3e9b32a31c27b；源码039e9f5d、冻结报告499edf54、证据绑定9efd500f。原存储分支、Source48b/G5c54树/ref/私有报告完整保留且clean；前摘要见completed/2026-10-16-before-payment-controlled-collector.md。
 
-D141内部plan固定实际DB及连接目标、操作人/来源账号、精确两个SO/合同、目标/归属/发布版本；先prepare，唯一固定worker，两单全部原文/快照验证后复核，再逐SO发布。范围hash不是人类授权。旧/混单/缺页、撤权、并发、部分成功均有明确结果；COMMIT回执丢失保留候选ID/代际为UNVERIFIED，不假称零写入，不自动重采/重试。复用D137–139，不增加HTTP/CLI/scheduler/目标启用，0025与UI不改。
+D141内部一次采集：只读plan固定实际DB及连接目标、操作人/来源账号、精确两个SO/合同、目标/有效归属/发布版本；全部目标先prepare，唯一固定worker，两单原文与完整两遍快照均验证后复核全范围，再逐SO事务。hash不是人类授权。旧/混单/缺页、撤权、并发和部分成功正确阻断或报告；COMMIT回执丢失为UNVERIFIED并保留候选ID/代际，不假称零写入或自动重试。无新HTTP/操作CLI/scheduler/目标启用，UI/0025不改。
 
-新22/22、相关172/172、typecheck/Server编译和完整源码lint通过。默认Browser构建通过，但构建时为本Phase已知dirty树，metadata短SHA仅指基线，不能当成新提交的发布证明；收口后将绑定干净提交再构建。完整root/94基线与新证据绑定及精确main守卫仍在收口；旧41能力/页面侧栏证据按原SHA阅读，不冒充本阶段最终通过。
+新22/22、相关172/172、typecheck/Server编译/完整源码lint、root898/898、基线94/94和精确main守卫PASS（11页/42能力/56累计UI路径）。初轮旧决策叶节点未前向绑定导致root891/898、基线88/94，已通过新ID/blob线性绑定解决，原失败保留。干净完整源码039e9f5d477c629a3e0134f1db21922aa59300c8默认Browser构建build20261016-001315通过，quote/master browser、session、orderRead disabled；不是部署。D140原两组各9实际UI/截图仍属于其旧SHA，本Phase没有新像素验收。
 
-真实过滤/分页仍待获准技术核验；两合同可能尚无对应已绑定SO，不能从货款申请建单或猜映射。操作CLI/明确目标计划和实际迁移/写入/启用另有Gate。原所有真实读取次数用完，无凭据/上游/真实业务库访问，不动原演示/宁波18443/18444/旧四单窗口，不自动合并部署。Git NETWORK_DEGRADED，未执行恢复推送、未新建PR/Hosted CI；GitHub是实时事实源，源码/证据/授权变化时更新。
+真实过滤/分页尚待已选两合同的明确只读核验授权，所有原读取次数耗尽；目标SO是否已接纳仍须可信身份，不从财务数据建单。操作CLI、实际目标清单/迁移/写入/启用有独立Gate。无凭据/真实上游/真实业务库/账号/原演示/旧四单窗口/宁波18443/18444操作，不自动合并部署。GitHub只读确认新分支/PR均未找到；NETWORK_DEGRADED未恢复，未执行新推送/更换认证。GitHub是实时事实源，源码/授权/证据/真实验证变化时更新。

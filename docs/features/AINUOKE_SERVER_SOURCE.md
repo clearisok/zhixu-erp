@@ -1,8 +1,8 @@
-2026-10-16当前工程（D141）：内部一次性协调服务复用两个合同固定worker和D139快照事务，先精确plan/全部验证再逐SO发布；部分成功/COMMIT未知分别报告，不自动重采。新22/22、相关172/172、类型/Server编译/完整源码lint通过，完整root/新证据/精确守卫收口中。没有新增HTTP、CLI、调度或目标启用；真实过滤/范围授权仍待。UI/0025不改，D140原41能力/截图按其旧日期SHA阅读。恢复[受控采集任务](../tasks/active/ainuoke-payment-controlled-collector.md)与[货款申请模块](AINUOKE_PAYMENT_REQUESTS.md)；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，源码/证据/授权变化时更新。
+2026-10-16当前工程（D141）：内部一次性协调服务复用两个合同固定worker和D139快照事务，先精确plan/全部验证再逐SO发布；部分成功/COMMIT未知分别报告，不自动重采。新22/22、相关172/172、类型/Server编译/完整源码lint、root898/898、基线94/94、精确main守卫（42能力）及干净默认Browser构建通过。没有新增HTTP、CLI、调度或目标启用；真实过滤/范围授权仍待。UI/0025不改，D140原41能力/截图按其旧日期SHA阅读。恢复[受控采集任务](../tasks/active/ainuoke-payment-controlled-collector.md)与[货款申请模块](AINUOKE_PAYMENT_REQUESTS.md)；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，源码/证据/授权变化时更新。
 
 ## 6086941隔离存储与读取（D139，工程候选）
 
-`ainuoke_payment_source_targets`逐SO显式登记、默认disabled，要求对应既有Source profile账号与单独查询核验摘要；旧物料Source启用不会开放货款申请。不提供HTTP启用/写入/读取凭据的入口，当前采集器尚未接线。`ZHIXU_AINUOKE_PAYMENT_READ=snapshot`与session模式、合法既有Source key同时指定才组装读取器，缺省关闭；仍须数据库目标已获独立启用。
+`ainuoke_payment_source_targets`逐SO显式登记、默认disabled，要求对应既有Source profile账号与单独查询核验摘要；旧物料Source启用不会开放货款申请。不提供HTTP启用/写入/读取凭据的入口；D141仅补内部受控采集协调，实际操作CLI/调度未接。`ZHIXU_AINUOKE_PAYMENT_READ=snapshot`与session模式、合法既有Source key同时指定才组装读取器，缺省关闭；仍须数据库目标已获独立启用。
 
 服务端内部prepare固定合同、来源链接/原owner/有效SO、归属代际、目标版本、预期发布代际和采集前时间；publish重新查数据库权限和范围，采集在prepare之前、期间归属或启用版本改变、过期/缺页/混单/两遍变化均拒绝。精确重试返回原发布；不同内容并发只允许一个胜出；快照不可改删，指针不可跳代或回退观测时间。SQL和服务双重约束，读取还从原input重建并校验投影，不能用一个貌似正确的content_hash隐藏损坏数据。
 

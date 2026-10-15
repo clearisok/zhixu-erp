@@ -19,3 +19,11 @@
 默认Browser构建已通过；本轮首次构建发生在已知Phase dirty树，build metadata短a94只代表基线，不拿作精确提交构建证明。完整root/94基线在D141尚未前向绑定时正确报EVIDENCE_WORKTREE_DRIFT；将通过新ID/新blob前向绑定，再运行最终检查，绝不改旧截图或旧证据hash消除失败。
 
 源码checkpoint039e9f5d477c629a3e0134f1db21922aa59300c8/clean，22/172相关及类型/Server编译/完整lint通过。随后以该完整SHA显式构建默认Browser，build20261016-001315、quote/master browser/orderRead disabled，通过。原root891/898、基线88/94为旧决策叶节点漂移，原失败日志保持；冻结controlled-collection-engineering-2026-10-16报告后追加新证据链和能力，再跑最终检查。没有真实运行或Git恢复授权扩大。
+
+## 最终收口（2026-10-16）
+
+源码039e9f5d477c629a3e0134f1db21922aa59300c8、冻结报告499edf5423790392704b35305beb35d13f89790b、新证据/能力绑定9efd500f32f12d5f1a15df0d004a057ac6adb893。最终root898/898、基线94/94通过；精确main守卫PASS（11页/42能力/56累计UI路径），日志outputs/payment-collector-{root-final,baseline-final,bound-guard}.log。172相关、类型/编译/lint及干净默认Browser构建原结果保持。初次失败不覆盖，没有改测试或旧证据消除漂移。
+
+同轮GitHub只读再次确认main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，新分支与PR搜索均空；Native Git并未恢复，不以connector可读冒称交付。Source48b/G5c54原树clean且HEAD不变，原存储a94分支保留；三者均在当前祖先链。UI/0025无增量，所有原真实私有报告不改，0真实HTTP/真实业务库/凭据访问；未合并部署。
+
+最小下一步：获准固定两合同过滤/分页只读核验后使用现有工具，不重做558全量或扩大原额度。成功也不自动接纳/创建SO，后续实际目标须可信来源并另报具体DB、SO、版本、备份、次数/期限与停止方案。当前仅内部协调服务，不称操作CLI/持续调度已上线。提交回执未知时先用原GET核对候选snapshotId/代际，不能以空响应认定无写入或自动重采。
