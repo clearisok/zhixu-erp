@@ -1,0 +1,506 @@
+# Quote退出保护说明收口前的原文
+
+2026-10-15；来自0912b75321ed11796daaea0f7a7b5e6517d89260。保留所有日期、hash、结果和限制，不代表当前状态。
+
+---
+
+## docs/CURRENT_STATE.md
+
+Git blob SHA256 b702e202a7d35be7713171eac42e1fef11976792ff6061e827425e46a82ca560
+
+# 当前增量（2026-10-15）：报价退出小修
+
+main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；源码65566527b15c1ffd78715389d7c34db0e867b300，13浏览器/112前端、类型/构建/lint及精确main门禁通过。保存ACK后仅重试退出，未知保存不准丢弃离开；原UI不变。尚未远端交付、无新PR或Hosted CI，不合并部署。另一财务分支的编码修复与读取授权单独维护，以AI_HANDOFF为准。下文B2状态保留原时点。
+
+# 当前状态
+
+核实2026-10-15；GitHub实时main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本文为知识快照，随源码/PR/测试/来源/授权变化更新。
+
+- 开放PR搜索仍有108–112；此前109@1fcc440、Draft110@3deffc4、111@f4a1b99、112@036fe521精确送达、各3CI成功，未合并。本轮没有合并授权实际答复，不执行。
+- 原工作树继续feat/material-sort-and-event-drawer；保留G1–G4、Source21da/108及G5 A/B1。A request-local RR快照/有效归属/人工确认及顶部退出保护本地通过；B1小返回箭头、业务/工厂款号及去重复布局已六宽度验证，未部署/人工像素验收。[A/B1原证据](tasks/active/evidence/material-source-integration/header-browser-verification-2026-10-15.md)。
+- G5 B2本地完成：团队辅料关键词设置、面料数值显示排序、颜色规格展开及事件侧栏；新0024仅一次性库演练，管理员/物控写、七角色读，CAS/actor幂等/审计。root898、PG261、设置与历史升级56、基线94、Source70PASS/1Linux skip、最终UI25通过；类型/lint/Server与默认Browser构建通过。最终渲染b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993、脚本967deb5247823f223cd811aeb14361cab65b8fe0；后续仅元数据冻结。[完整验收/复审](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。
+- 独立num_dyc分支aab97cb8本地15/root891/基线94/UI5已验，B2侧栏复用并再验。旧受保护raw中117/386行有值，用户确认31条之外另1条同单位；缺/冲突保持未知，不加进rknum/正式齐套。[原最小映射](tasks/active/evidence/material-source-integration/num-dyc-mapping-results-2026-10-15.md)。
+- 本轮授权恢复G5 af9b746与num_dyc aab97cb8仍预检失败，actual pushes0；未创建新PR/Hosted CI。只读main可查不代表Git恢复；停止重复通道，无全局TLS/代理/认证改变。当前B2也仅本地，不自动恢复、合并或部署。
+- 既有真实四单/10分钟/2小时窗口12/12成功且截止；本轮未新采集/凭据/真实DB或现有演示镜像变更。6086941尚未接通，侧栏明确待接入；报价保存后退出失败重试边界独立小修复待做。真实账号、宁波18443/18444和生产/关账路由保持原边界；Goal未完成。
+
+旧状态原文见[tasks/completed归档](tasks/completed/2026-10-15-before-material-display-current-state.md)。旧工作树、Browser长期数据、所有身份/流水/价格及旧PNG/hash均保留。
+
+---
+
+## docs/AI_HANDOFF.md
+
+Git blob SHA256 66957b24cc3c82418e77b4225ebb39cfaea38ffd33da986c06d023b86a43c26e
+
+# 当前恢复点：报价退出保护独立小修已验收
+
+2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前fix/quote-logout-save-retry，从B2 68ac1fc9f839ebfc894d39377dac221e7f65566b起；源码65566527b15c1ffd78715389d7c34db0e867b300。旧server-quote-to-order@a0e60e4e83cf67bfa22c36234c5dd9bf4495689d及其他工作树/私有报告保留。
+
+两个真实Chromium缺陷已重现并最小修复：ACK后logout失败的重试不再重复Quote PUT；未知保存不允许丢弃退出绕过核对；新dirty仍需保存。13/13浏览器+一次性PG，112/112认证/持久化，类型/构建/lint通过。655665精确main门禁PASS，V1说明/冻结证据见quote-logout-save-retry任务；无新截图、人工验收或UI重设计。构建tag68ac但源TSX含本次补丁，具体hash已记录。
+
+另一既有erp-followup-governance树独立财务分支feat/ainuoke-payment-request-probe：源码362f81ba704ab792eff102cf121301deee4998f0，47/87合成回归、Windows GBK实际CLI修复通过；新两次真实授权已用完，未获得通过核验的业务报告，需要新次数授权才能继续读6086941。该财务分支不包含本小修，后续共享文档冲突须按分支事实归档解决，不能覆盖一方历史。
+
+本机Git已定位github.com:443 TCP失败，未到TLS/认证，无实际push/新PR/Hosted CI，不改共享配置。用户撤销旧AGENTS额外恢复规则（未删文件），原PR交付授权仍在；不让用户重复复制失败命令。需以B2为依赖交付唯一小修PR，不能绕过累计依赖直接合入main。
+
+真实四单窗口已12/12结束，不重启；不自动合并部署，不改真实账号、业务DB/演示镜像、宁波18443/18444。GitHub实时事实优先，本快照随源码/授权/交付/验收更新；Goal继续。
+
+---
+
+## docs/PROJECT_INDEX.md
+
+Git blob SHA256 98f24a44b497361b8b00bdd2c28114f0b9cec164e43a8346e647fea2729aff10
+
+2026-10-15 / 当前G5 B2本地25UI、898root、261PG、56设置/历史升级及94基线已验，团队辅料排序/颜色规格展开/事件侧栏完成，未远端/部署；main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。[最终B2证据](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)及CURRENT_STATE为恢复入口。下方旧快照按原日期阅读。
+
+2026-10-14 / 本机四单真实隔离演示已执行首绑与两轮刷新，未开长期调度；[真实运行证据](tasks/active/ainuoke-isolated-live-results-2026-10-14.md)。以下旧状态按历史时点阅读。
+
+2026-10-14 / main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5：右上角退出与D-118受控单位/采购责任只读候选完成，真实Source未激活。[最终验证](tasks/active/material-confirmations-verification-2026-10-14.md)、[下一隔离演示Gate](tasks/active/material-confirmations-2026-10-14.md)。
+
+2026-10-14 / main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5：D-117订单异常列和待定颜色记0为当前独立工程候选，见[工程报告](tasks/active/order-list-alerts-2026-10-14.md)与CURRENT_STATE；下文旧摘要按历史时点阅读。
+
+2026-10-14 / GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`：PR108 head `8b89de59dd405395da1dde4b6dde5f125141deb9` 开放未合并。本轮独立分支只读追查单位/颜色/负数量/空物料；具体原因与真实演示阻塞见 [异常治理](tasks/active/source-anomaly-followup-2026-10-14.md)。旧摘要均为历史时点，真实 Source 未激活。
+
+# 项目知识索引
+
+2026-10-15当前核实基线 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。G1 PR109@1fcc440、G2 Draft PR110@3deffc4三CI成功但未合并；G3 Draft PR111@f4a1b99b精确送达且三CI成功；G4 Draft PR112@036fe521三CI成功、未合并。G5整合与B1页头本地验收，独立num_dyc只读映射已本地通过新增15/root891/基线94/UI5，未远端或部署；[字段结果](tasks/active/evidence/material-source-integration/num-dyc-mapping-results-2026-10-15.md)。真实执行/部署仍关闭。优先恢复[订单身份实施计划](tasks/active/order-identity-program.md)、[身份模块](features/ORDER_IDENTITY.md)、[订单商业版本](features/ORDER_COMMERCIAL_VERSIONS.md)和[当前状态](CURRENT_STATE.md)。下方历史开头保留其记录时点，不代表当前PR/部署状态。
+
+2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 已合并 PR #104/#105/#106。D-112 受控新增合同在独立 `feat/ainuoke-controlled-contract-intake` 工程分支实施，仍未合并、未真实执行；恢复入口为[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)及 Active 决策。下文旧 SHA/PR 状态仅按历史时点阅读。
+
+历史来源分支2026-10-14记录（非当前运行/PR结论）：
+核实2026-10-14；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5` 已合并 #104/#105/#106/#107。工程含 QtyUnit 与受控新增合同；真实Source未激活、未部署、未完成全量持续人工验收。当前恢复入口：[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[本机真实演示准备](tasks/active/ainuoke-live-demo-readiness.md)、[当前状态](CURRENT_STATE.md)、Active D105–114。
+
+历史真实发现558可见合同、80物料抽样与62未知是原日期证据；三行单位/身份后续获用户确认，不代表全量数据完美。GitHub/代码是实时事实源，文档随main/来源/目标/验收变化更新。[旧状态原文](tasks/completed/2026-10-13-pre-live-demo-status-snapshot.md)保留旧日期/hash/结果/限制。[基线门禁](features/RELEASE_BASELINE_GUARD.md)及[交付协议](tasks/active/git-delivery-resilience.md)保持，不替代UI/DB/部署验收。
+
+全量预检已取得有效真实回执：当前账号可见558合同完整稳定，颜色552可用6无效、14,411需求单位12,655已知/1,750缺失/6冲突；约8分25秒，无DB/Source激活/部署。[完整脱敏证据](tasks/active/evidence/ainuoke-live-demo-readiness/real-full-preflight-2026-10-13.md)。用户后续授权Codex自行执行同范围已授权只读脚本，凭据文件只由进程消费，不进模型上下文。原三次失败/修复保留其历史范围；24项/root817/基线71通过，[修复复审及交付限制](tasks/active/evidence/ainuoke-live-demo-readiness/operator-wrapper-final-local-review-2026-10-13.md)。
+本轮定向质量/双数量事实及新owned持久本机演示已完成，23fixture/Excel框架订单、17报价、六角色；生产路由保持关闭、真实Source未激活。完整[A–F交付报告](tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md)，与558真实预检分开阅读。
+
+## 系统简介
+
+并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。
+
+织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
+
+- 根路径 ERP：报价、订单、排单、用户和审计功能，使用 PostgreSQL 持久化，并由数据库函数提供 API。
+- Quote Center 路径：默认 Browser mock 持久化；显式 Server 模式的正式报价/资料 UI 使用可信 Node `/api/v1` 与 PostgreSQL，已有报价工作流/附件/导出/日志。旧实际运行态与最新工程能力分开记录，与 legacy `/api/quotes` 隔离。
+- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单；D105/106允许受控来源与显式首次绑定；D112受控新增已在#107合并，但不自动接纳或真实激活。报价之外模块不因试用候选而自动 production-ready。
+
+两条路径都是真实现，但边界和成熟度不同。开始任务前必须先确认目标模块。
+
+## 上下文恢复顺序
+
+新的 Codex 会话或上下文压缩后，按顺序读取：
+
+1. 根目录 `AGENTS.md`
+2. 本文件
+3. `docs/AI_HANDOFF.md`（当前接力棒，不是长期业务事实源）
+4. `docs/CURRENT_STATE.md`
+5. 当前 `git status`、相关 diff
+6. `docs/BUSINESS_RULES.md`
+7. 任务对应的 `docs/features/*.md`
+8. `docs/DECISION_LOG.md` 中相关 Active 条目
+9. 实际代码、SQL、API 和测试
+
+## 目录结构
+
+| 路径 | 当前职责 |
+| --- | --- |
+| `app/` | Vinext/React 路由；根路径 ERP、Quote Center 和基础设置入口 |
+| `features/quote-center/` | Quote Center 领域模型、mock repository、计算、工作流、页面组件和测试 |
+| `features/order-center/` | 单款 SalesOrder 订单领域、v5→v6 LegacyOrderItem 迁移、Repository、服务、页面、附件引用和测试 |
+| `features/production-scheduling/` | 直接归属订单的排单、内部生产队列、完成数量、物料运输、订单预警与交期风险投影 |
+| `features/style-progress/` | Excel/API 共用的面辅料 Normalize / Dedup / Validate、ImportBatch / Raw Snapshot / 需求与事件、Source/Effective/Actual、齐套风险与逐物料物流投影 |
+| `features/closing-center/` | 月度关账、归属快照、产值投影、锁账生命周期与关账搜索 |
+| `features/basic-settings/` | 品牌、客户业务员、面料库、辅料库及默认资料逻辑 |
+| `features/operations-settings/` | 生产组、外发厂、生产地点/日历、供应枢纽/路线/运输方式及关账设置基础设施 |
+| `features/permissions/` | User / Role / Permission、默认Browser mock与显式Server session账号管理，复用用户权限页面 |
+| `features/operation-logs/` | 统一追加式 OperationLog、差异生成、localStorage repository、报价时间线和系统全局查询页 |
+| `server/` | Node/TypeScript API runtime、PostgreSQL pool/migration、可信 Auth/RBAC、server OperationLog，以及 PostgreSQL SalesOrder repository/transactional service/read API 与集成测试 |
+| `features/global-search/` | ERP Command Palette、SearchProvider 注册表、Quote/Order 搜索和最近访问 |
+| `features/data-management/` | 浏览器长期数据 schema、非破坏性迁移、测试隔离、备份恢复和危险重置 |
+| `features/ainuoke-api/` | Local Bridge 的浏览器客户端、个人账号设置、固定订单 Discovery 与 typed `empty/sales_contract/inside_order` 只读 Source DTO，包括正式 6087105 BillNo 成衣分色分码读取；不承载订单/物料 mutation |
+| `tools/ainuoke-bridge/` | loopback-only Python Bridge、Windows Credential Manager 接入、内存会话/token 与固定只读 Report Catalog |
+| `components/foundation/` | 共用页面、表单、Modal、选择器、表格、Toast 等 UI 基础组件 |
+| `components/` | 根路径 ERP 使用的通用图标和品牌组件 |
+| `database/` | Legacy PostgreSQL schema/`api_dispatch`/初始化管理员，以及独立 `migrations/` forward-only server migrations；`0002` 建立 SalesOrder foundation 四表，`0003` 建立正式 SalesOrder sequence/allocator |
+| `worker/` | Cloudflare/Vinext 静态应用与图片请求入口；不包含业务 API |
+| `db/`、`drizzle/` | 尚未承载业务数据的 D1/Drizzle scaffold |
+| 根目录 `*.ps1`、`*.sh` | 本地 Docker 构建、启动、备份、恢复和静态服务脚本 |
+| `tests/` | 根级源码契约/配置测试；业务模块测试也分布在 `features/**/__tests__` |
+| `docs/features/` | 复杂模块的当前行为与边界 |
+| `docs/tasks/` | active 保存当前正式任务规格，completed 保存已完成任务的追溯映射；不替代 CURRENT_STATE |
+| `artifacts/` | 验证截图等生成物，不是业务事实源 |
+| `templates/` | 正式业务文档模板；修改前必须核对对应 feature 文档与模板哈希 |
+| `outputs/` | 可复验的导出验收文件，不是业务数据源 |
+
+仓库当前没有独立的 `backend/`、`frontend/` 目录，也没有 Alembic；正式 Node backend 位于 `server/`，PostgreSQL migration 位于 `database/migrations/`。
+
+## 当前宁波方案
+
+[宁波上线方案](ops/ningbo-rollout-plan.md)已按D105重排；[原现场快照](tasks/completed/2026-10-12-ningbo-readonly-preflight.md)仍只证明其原观察时刻。PR98修订不部署、不重查真实DB。
+
+## 当前来源任务
+
+[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受。D109已批准HTTP且认证成功；D110有真实完整可见合同发现及80物料抽样。目标三行单位/身份获人工确认、QtyUnit工程已合并；全量颜色/物料规模、数量未知原因及持续运行/部署仍待Gate。
+
+[准备在合同后的采用](features/ORDER_PREPARATION_ADOPTION.md)已补后台与现有Foundation新入口，[页面阶段](tasks/active/order-preparation-adoption-ui.md)精确证据待收口；加工标签必须核实合法批次，不回填历史类型。
+
+[独立复核后台工作区](features/ORDER_NORMALIZATION_REVIEW.md)已本地完成，[岗位UI与默认执行关闭原因](tasks/active/order-normalization-review-ui.md)已精确合成验证/截图及24项门禁收口，完整G4/远端交付继续；不表示真实归一获授权。
+
+Gate4本地有效归属/消费者、受控执行及SQL防绕过恢复入口：[有效归属任务](tasks/active/order-effective-attribution.md)与[执行边界](tasks/active/order-normalization-controlled-execution.md)；[新命令暂停与回退](features/ORDER_COMMAND_CONTROL.md)已本地演练；[历史Source只读查询](features/ORDER_SOURCE_HISTORY.md)已本地实现；[历史UI原身份接线](tasks/active/order-source-history-ui.md)已本地验收；独立复核/完整G4、真实覆盖/授权及远端交付仍待。
+
+Gate4本地只读归一/案件恢复入口：[归一模块](features/ORDER_NORMALIZATION.md)及[Gate4任务](tasks/active/order-normalization-preview.md)。归一执行及真实操作尚未授权。
+
+Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCESSING_ORDER_BATCHES.md)。未合并/部署，剩余验收见对应阶段任务。
+
+## 模块导航
+
+| 要修改的模块 | 先读文档 | 主要代码/事实源 |
+| --- | --- | --- |
+| 根路径 ERP、登录、报价/订单/排单 | `features/LEGACY_ERP.md` | `app/page.tsx`、`database/001_schema.sql`、根目录 `docker-serve.sh` |
+| Quote Intake / 手机款式收集（计划，NOT IMPLEMENTED） | `features/QUOTE_INTAKE.md`、`tasks/active/quote-intake-v1-implementation-contract.md` | 计划独立 `server/quote-intakes/` / `features/quote-intake/`，现有 Quote writer 复用 |
+| Quote Center | `features/QUOTE_CENTER.md` | `app/quote-center/`、`features/quote-center/` |
+| Quote production、Server migration 与 progressive rollout | `features/QUOTE_PRODUCTION.md`、`features/QUOTE_CUTOVER_READINESS.md`、`features/QUOTE_MIGRATION_RUNBOOK.md`、`features/QUOTE_MASTER_SETTINGS_ACTIVATION.md`、`features/Q3B2I_CUTOVER_RUNBOOK.md`、`features/QUOTE_CENTER.md`、`features/DATA_LIFECYCLE.md`、`features/ATTACHMENTS.md`、`features/SERVER_PERSISTENCE.md`、`features/PERMISSIONS.md` | Route B、Server foundation、Q2B2C Quote aggregate cutover dependency map、Q5-A/B historical Quote preview/guarded operational boundary，以及 Q3B2I-C2 已完成的 master/settings Server authority；C0/C1 runbook 为历史执行证据，实现事实仍以 Quote/Server/master/attachment 代码和测试为准 |
+| 新订单中心、报价转订单、翻单、交期、订单价格历史与 PostgreSQL SalesOrder foundation/bootstrap/shadow read | `features/ORDER_CENTER.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`、`features/SALES_ORDER_BROWSER_CUTOVER.md`、`features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`、`features/SERVER_PERSISTENCE.md`、`features/OPERATIONS_FOUNDATION.md`、`features/DATA_LIFECYCLE.md` | Browser runtime：`app/order-center/`、`features/order-center/`；server foundation/read：`server/sales-orders/`、`features/order-center/server/`、`features/ainuoke-sync/service/sales-order-final-bootstrap-preview.ts`、`features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts`、`database/migrations/0002_sales_order_foundation.sql`、`0003_sales_order_number_sequence.sql` |
+| 生产队列、排单中心、物料运输、订单预警与交期风险 | `features/PRODUCTION_SCHEDULING.md`、`features/ORDER_CENTER.md`、`features/OPERATIONS_FOUNDATION.md`、`features/PERMISSIONS.md` | `app/production-scheduling/`、`features/production-scheduling/`、`tests/production-scheduling.test.mjs` |
+| 款式进度、面辅料跟进、逐物料物流与真实 Excel 导入 | `features/STYLE_PROGRESS.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/DATA_LIFECYCLE.md` | `app/order-center/style-progress/`、`features/style-progress/`、`tests/style-progress.test.mjs` |
+| 关账月份、关账归属、月度产值与锁账 | `features/CLOSING_CENTER.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/PERMISSIONS.md` | `app/closing-center/`、`features/closing-center/`、`tests/closing-center.test.mjs` |
+| Quote Center 附件 | `features/ATTACHMENTS.md`、`features/QUOTE_CENTER.md` | `quote-attachments.ts`、`attachment-panel.tsx`、附件 repository |
+| Quote Center Excel 导出 | `features/QUOTE_EXCEL_EXPORT.md`、`features/QUOTE_CENTER.md` | `features/quote-center/export/`、`quote-export-modal.tsx`、正式模板 |
+| 模板设置 | `features/TEMPLATE_SETTINGS.md`、`features/QUOTE_EXCEL_EXPORT.md` | `features/template-settings/`、`app/basic-settings/templates/`、`templates/` |
+| 报价批量导出 | `features/QUOTE_BATCH_EXPORT.md`、`features/QUOTE_CENTER.md` | `quote-list.tsx`、`batch-export-modal.tsx`、`quote-batch-exporter.ts` |
+| 估算成本 | `features/ESTIMATE_COST.md`、`features/QUOTE_CENTER.md`、`features/PERMISSIONS.md` | `model/estimate-cost.ts`、`estimate-cost-panel.tsx`、Revision 管理 Modal；显式 Server 命令 `server/quotes/estimate-workflows.ts`、service 与共用 Editor persistence；工程接线已验证，未真实部署 |
+| 品牌、客户业务员、面辅料库 | `features/BASIC_SETTINGS.md` | `app/basic-settings/`、`features/basic-settings/` |
+| 生产组、外发厂、生产地点/日历、物流路线、关账设置 | `features/OPERATIONS_FOUNDATION.md`、`features/PERMISSIONS.md`、`features/DATA_LIFECYCLE.md` | `features/operations-settings/`、对应基础/系统设置路由、`tests/operations-infrastructure.test.mjs` |
+| 用户、角色与权限 | `features/PERMISSIONS.md`、`features/UI_FOUNDATION.md` | `features/permissions/`、`components/foundation/button.tsx`、用户权限路由 |
+| 艾诺科个人账号、订单 Discovery、SalesContractNo 稳定关联、6087105 正式颜色/分码 Source 与只读 Direct API | `features/AINUOKE_API_SYNC.md`、`features/AINUOKE_ORDER_DISCOVERY.md`、`features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`、`features/PERMISSIONS.md`、`features/DATA_LIFECYCLE.md`、`features/OPERATION_LOGS.md` | `tools/ainuoke-bridge/`、`features/ainuoke-api/`、`features/ainuoke-sync/` 与 `features/style-progress/` |
+| Quote Center / 全局操作日志 | `features/OPERATION_LOGS.md`、`features/QUOTE_CENTER.md` | `features/operation-logs/`、`app/system-settings/operation-logs/`、`quote-editor.tsx`、日志测试 |
+| ERP 全局搜索 | `features/GLOBAL_SEARCH.md`、`features/PERMISSIONS.md` | `features/global-search/`、`components/foundation/app-shell.tsx`、`tests/global-search.test.mjs` |
+| 浏览器数据生命周期、迁移、备份恢复 | `features/DATA_LIFECYCLE.md` | `features/data-management/`、各 browser repository、`tests/data-lifecycle.test.mjs` |
+| 表单、Modal、选择器和 App Shell | `features/UI_FOUNDATION.md` | `components/foundation/`、`app/globals.css` |
+| 数据库/API | `features/LEGACY_ERP.md`、`SYSTEM_OVERVIEW.md` | `database/*.sql`、根目录 `docker-serve.sh` |
+| Node server、migration、可信认证/RBAC、server OperationLog、SalesOrder foundation/bootstrap preview | `features/SERVER_PERSISTENCE.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`、`features/PERMISSIONS.md`、`features/OPERATION_LOGS.md` | `server/`、`features/ainuoke-sync/service/sales-order-bootstrap-preview.ts`、`database/migrations/`、`Dockerfile.server` |
+| 本地 Docker/备份恢复 | `features/LEGACY_ERP.md`、README | `Dockerfile`、`docker-compose.yml`、根目录 `*.ps1`、`*.sh` |
+| 部署/静态构建 | `SYSTEM_OVERVIEW.md` | `next.config.ts`、`vite.config.ts`、`worker/`、`.openai/hosting.json` |
+| 业务规则 | `BUSINESS_RULES.md` + 对应 feature | 模型、validation、计算函数及测试 |
+| 发布基线/能力状态/最小阻断检查 | `features/RELEASE_BASELINE_GUARD.md` | `docs/release/baseline.json`、`scripts/check-release-baseline.mjs`、`tests/release-baseline-guard.test.mjs` |
+| 当前进度/风险 | `CURRENT_STATE.md` | 当前工作树和验证结果 |
+
+## 知识文件职责
+
+按事实类型核实：用户已批准规则表达业务意图；目标SHA的代码/SQL/实际测试证明实现；GitHub证明合并；运行镜像/发布记录证明部署；明确用户记录证明人工验收。CURRENT_STATE是有时间戳的摘要。代码与批准规则冲突必须显式报告，不凭旧状态或AI推测改规则。AI_HANDOFF只说明恢复点。
+
+- `SYSTEM_OVERVIEW.md`：架构、技术栈、运行路径、数据流。
+- `BUSINESS_RULES.md`：能够由代码、约束、测试或明确文档确认的规则。
+- `CURRENT_STATE.md`：当前完成度、正在进行的工作、缺口、验证状态和不可破坏项。
+- `DECISION_LOG.md`：重要决定及其 Active/Superseded/Deprecated 状态。
+- `features/*.md`：单个复杂模块的行为、模型、接口、前端和约束。
+
+## 历史资料
+
+- 2026-09-01 Full UI / Workflow Correction 的 Page 1–16 映射、Gate commits、响应式与截图索引见 `docs/tasks/completed/2026-09-01-full-ui-workflow-correction.md`。
+- `docs/ui-audit.md` 是 2026-08-17 时点的 UI 审计，其中“尚无 Foundation”等描述已经被当前代码取代。
+- `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
+
+历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
+
+2026-10-15 独立小修入口：[Quote保存/退出重试](tasks/active/quote-logout-save-retry.md)与[冻结证据](tasks/active/evidence/quote-logout-save-retry-2026-10-15.md)；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。依赖B2，不改变创建、CCT或UI布局。
+
+---
+
+## docs/features/QUOTE_CENTER.md
+
+Git blob SHA256 34eb39d106d416f45623bfcc5bfb3ebe6b31d42002e1848df979430747b6c0b7
+
+# Quote Center
+
+> 2026-10-11 D-103：确认销售价/工价由独立 commercial.sale/labor.view/edit 保护，成本权限不授予商业权限。CCT读为allowed/restricted、PATCH按实际字段授权并保留遗漏值；历史确认、列表/汇总、客户导出和日志同样受保护。受限普通保存恢复数据库CAS基线隐藏字段，不清空历史。详见[权限](PERMISSIONS.md)与[本轮实际HTTP证据](../tasks/active/commercial-amount-read-security.md)。正式Server角色管理UI/API尚未实现。
+
+## Quote内部成本读取修复（2026-10-11，独立安全工程）
+
+Server Quote响应先执行既有 quote.cost.view字段白名单：无权仍可查看基础资料/版本/数量，明确costVisibility restricted；完整成本行/参数/确认金额及Estimate不进入DTO，Estimate另需estimate.view。受限metadata-only保存恢复DB保护切片，旧历史/CAS/审计不变，禁止以缺失DTO清空；基础资料消费者不挂完整成本Editor/计算器。原有权Editor、物料采购来源共享金额与报价创建编号不变。两个CCT GET已接D-103独立投影，授权前的SECURITY PENDING是历史。用户最终决定已实施：详情/PV卡片/历史/确认弹窗/构成/sticky的测算销售价及最终报价须可信sale.view；列表garmentPrice仍须cost.view+sale.view。成本与原计算保持，不声称阻止授权输入自行推算；派生estimateDifference汇总在Server额外校验sale.view。本轮PG261/261、Chromium14/14见[安全报告](../tasks/active/commercial-amount-read-security.md)及[权限](PERMISSIONS.md)。未部署或修改真实角色。
+
+> 2026-10-11：用户已明确确认 PR #91 人工验收 PASS 并授权合并。18444 的第二轮部署验收与 2026-10-10 历史 PENDING 记录保留；本次只批准 GitHub 合并，不是新的 Preview/生产部署授权。按报价日期生效的汇率政策及受控批量更新尚未实施，属于后续独立功能。
+
+## 普通电脑立即创建（D-102，PR #91 验收修正）
+
+新交互使用 POST /api/v1/quotes/creation-defaults，仅接受 clientRequestId；可信 Server 读取设置、审核预设、持久 receipt、原编号/Writer/事务/审计，创建类型及初始 PV 一次完成。列表点击后直达现有详情；空草稿保留。/new 是显式按钮或只读 receipt 恢复页，挂载/刷新不写入。未知结果保留原 token、只核对、不自动 POST。
+
+全局设置新增可空 defaultQuoteType/defaultManufacturingCountry（0011），复用 defaultManufacturingPresetId；旧客户端省略新增字段不清空已配置值。未配置类型有经销技术回退来源标记，其余业务值不猜。新草稿复制有效匹配方案形成独立 PV 快照；第二轮用户明确取消未来 Server 自动套用系统工序/其他费用，旧字段与已保存费用/历史完整保留。品牌/业务员自身默认费用及单据级编辑不变。类型仅在既有头部展示，制作方案通过正式 PV 报价设置查看；generic PUT 类型变更拒绝，也不能追加不同于已保存当前类型的客户端 Revision 绕过保护（409 quote_type_workflow_required，草稿及已确认数据/审计保持）。完整已有类型切换未实施。
+
+第二轮设置 UI 为制作方案管理 → 新建报价默认值两区，默认及 PV 选择均使用明确 ID 的横向卡片（键盘/触摸），全局标准与当前 PV 快照分开；失败/409保留输入、权限不变。详情移除 Server 资料诊断大区及重复绿色信息条，保存状态留在已有头部；资料失败在基础信息局部显示并可显式重试，绝不回退 Browser。列表首次/显式恢复默认按容器分配真实像素宽度，个人 v1 偏好原样保留；第一次手动宽度调整固定全部列，邻列不受挤压，不改变 Foundation 默认布局或导出字段契约。100px、受保护缩略图、真实分页保留。[本轮证据](../tasks/active/quote-two-step-creation.md#second-user-acceptance-revision-2026-10-10)。上轮b7c2080/8538a923与0011的18444部署验收仍为历史有效证据；本轮无 Preview 更新授权，工程修正不代表部署或用户通过。[上轮部署验收](../tasks/active/quote-two-step-creation.md#remaining-read-only-deployment-acceptance-pass-2026-10-10)。
+
+## Historical — Desktop two-step Server creation（D-101，D-102替代普通电脑交互）
+
+普通新建与 Intake 转换使用同一两步创建流程：类型/国家/可用预设 → 参数确认/资料完善 → 可信原子创建。无预设允许待完善正式草稿；未完成、返回、取消不生成正式 Quote。制作预设新增配置独立页面，settings.global.edit 仍有效。旧 POST /api/v1/quotes {} 保持不变；新 UI 不通过 POST 后 PUT 拼接创建，不增加第二套 writer。
+
+加工突出工价/工序，默认隐藏已有面辅料编辑但保留全部事实及现有公式。确认前明确修改当前可写 Revision；任一 PV 或 exact linked current 已确认则新 Revision 切换，旧历史/共享 CCT/SalesOrder provenance 不变；generic PUT 须防绕过。经销恢复前明确确认，恢复原材料明细不自动应用预设。含材料成衣价不可冒称纯工价；客户 Excel 范围不变。
+
+普通电脑端正式 `/quote-center/new` 的显式Server分支已替代type-first POST{}后PUT：主动两步输入，参数预检，不消耗编号，最后一次creation-workflows事务创建完整初始类型/资料/PV快照，进入原详情。两阶段验证active同品牌业务员、可信预设国家/状态/版本；无预设允许未配置草稿，技术CNY不表示用户已确认币种。加工Server详情默认隐藏面辅料，可显式打开内部材料；不删除事实、不跳过原业务节点校验、不改公式，含材料成衣金额不冒称纯工价。普通Browser及隔离legacy server-new入口保持。
+
+新API/DTO/参数来源、幂等回执、字段权限、0010及本轮测试见 [实现证据](../tasks/active/quote-two-step-creation.md)。已有报价类型切换（包括确认前明确切换、确认后新Revision）、Intake/手机/转换仍 **NOT IMPLEMENTED**，上段是保留的业务目标，不是已开放按钮/API。领域见 [QUOTE_INTAKE](QUOTE_INTAKE.md)，原 [契约](../tasks/active/quote-intake-v1-implementation-contract.md)剩余方案继续保留。新UI未知结果只GET原token回执；URL保留凭据以便刷新后核对，不写Browser业务存储、不自动重POST。默认单Codex，独立Preview/人工验收及批准后合并。2026-10-10用户已单独授权18444新增0010及app/gateway更新，现已完成运行/数据只读验收，**PREVIEW UPDATE PASS / USER ACCEPTANCE PENDING**；这不授权18443或其他环境升级。
+
+
+## Historical — Original UI / Server convergence (2026-10-09 engineering evidence)
+
+Below describes the original PR #86 implementation, not today's creation chain. D-099 visual/security boundaries remain Active; ordinary Server new uses the D-102 immediate atomic draft command above. Prior two-step screenshots/counts and type-first POST/PUT are historical, not new deployment/acceptance claims.
+
+D-099: PR #64 `7658663038b1da504c95086711f627b6dce5c7a0` is the visual/information-architecture baseline; current Server is the data, security and business baseline. Server persistence is not permission to redesign the product. The [audit, capability/permission matrix and current test evidence](../tasks/active/quote-original-ui-convergence.md) and [synthetic screenshots](../tasks/assets/quote-original-convergence/README.md) record the engineering result, not human approval or deployment.
+
+- New users get nine data cells plus fixed action: style image/explicit empty state, style identity, brand/person, type/status, quantity, costs, selling/confirmation, revision/PV count, date. Fifteen independent formal BusinessColumn fields remain configurable and exportable. Each group renders only authorized, visible children; tooltips/mobile records follow the same rule. No guessed country or PV-name is added to the summary.
+- Existing v1 preferences without presentation metadata retain the independent field layout, visibility, order and widths. The key is unchanged; loading never rewrites it. Explicit group/field view switches and “恢复默认布局” are user actions. Export selection remains independent of visual grouping and temporary choices never overwrite list preferences.
+- Shared original PageHeader/More/search/filter/card language is restored, while bounded global search, real totals/paging, cross-page ZIP/internal summary and trusted permissions remain. Normal 1280 desktop grouped defaults fit; wider personal selections scroll inside the table with fixed right actions, never the whole document. True touch devices use authorized record cards, not a hidden table without actions.
+- New uses CREATE QUOTE and the shared base-information card. The necessary Server difference is a type-first preparation step: opening/canceling does not create; explicit creation retains POST{}, ID/version and processing PUT, then enters the complete shared Editor. The old Browser unsaved full draft is not recreated through mock persistence. Failure/unknown result retains ID and never repeats POST.
+- Editor runtime is unchanged by this convergence: PR83 compact costs, sticky summary, Portal, width floors and failure feedback are retained. Current/history, PV/Revision, Estimate, confirmation, attachments, saved-source exports, logs, CAS and precision remain covered by actual trusted Chromium regression. No new business actions are enabled.
+- Known visual differences: list country/PV-name metadata remains deferred; trusted identity replaces old local-user identity; type-first creation replaces Browser pre-create aggregate editing; safe totals/paging remain. Whole copy/delete, Revision delete and Order creation remain unsupported. Human review must include list/preferences, both new types, detail/costs, 900 fine-pointer and touch layouts. This engineering never inspected/updated the real trial runtime.
+
+### D-099 list acceptance follow-up (Codex A, engineering only)
+
+- 2026-10-10 style-identity width correction: “款号 / 款式名称” accepts integer80–720px in either presentation, default156px unchanged. Modal/display/drag/keyboard share `presentedMinWidth`; long title wraps, style number/name ellipsize inside the actual pixel width. Server width inputs retain invalid raw text, show a field error and block save/Enter instead of silently storing a clamped value. Old preference key/data remain untouched on load; Browser modal/business number controls and other DataTables are unchanged. [100px DOM/reload/relogin and validation evidence](../tasks/active/d099-list-acceptance.md#style-identity-100px-follow-up-2026-10-10).
+- 2026-10-10 alignment correction: Server quantity and grouped cost-summary headers/body lines are explicitly left-aligned at the same12px inset. Only those headers hide the decorative drag hint; whole-header reorder and resize remain. Independent money fields/other DataTables keep their numeric alignment; widths/preferences/calculation/API are unchanged. Actual Chromium computed-style/text-range assertions at1920/1440/1280/900 are in the existing focused harness; no Excel column-filter feature is included before PR89 human approval/merge.
+- Numeric settings in original view address actual presented groups; additive stable `groupWidths` does not overwrite independent `columnWidths`. Independent view retains per-field settings. Old v1 key/raw content is unchanged on load; visibility/order/width survive reload/relogin, explicit restore only. Units are px, floor56–180 by displayed content, max720; the modal shows each current group's minimum. Only authorized, visible children participate; export fields remain independent.
+- Server list now explicitly opts into `DataTable layout="fixed"`: summed exact pixel width rather than100% surplus distribution; table-local overflow and sticky action remain. Primary-desktop Browser CSS no longer forces Server widths to auto. Browser and other tables retain existing default layout.
+- Requested `styleImage` summary column exposes only a legal default-Revision image reference, or null. The protected scoped `/thumbnail` read now generates a real JPEG rendition in Server memory, using the existing session/quote.view/available relation boundary and verified original bytes. List receives at most256px/96KiB, not the original; EXIF orientation/contain aspect preserved. Visible-consumer deduplication, cancellation, URL revocation and no offscreen LRU remain; max3 reads,35s,25 bounded derivatives reserve at most2.34MiB encoded/1,638,400 pixels. Cancelled work retains reservations until settled. Common4032×3024 photos exceeding2MiB no longer hit the former original-download placeholder. Upload/detail originals, SHA, revisions/preferences remain unchanged. Extreme inputs safely fail; no Browser/IndexedDB/public COS fallback or stored derivative objects. [Current thumbnail contract and evidence](../tasks/active/d099-list-acceptance.md#protected-server-thumbnail-follow-up-2026-10-10); earlier P2 thresholds are historical.
+- Actual repair evidence: focused Chromium16/16, complete UI62/62, API31/31, auth/frontend71/71, presentation/SSR7/7, npm679/679 and builds/quality PASS. Four desktop widths measured selected column+40px/all others0px; synthetic image bytes/hash and unavailable/hidden/restricted handling pass. [Contract, commands, limitations and Codex D handoff](../tasks/active/d099-list-acceptance.md). Preview deployment is separate; **USER ACCEPTANCE PENDING**.
+
+## Historical PR83 usability work (2026-10-09; deployment status below is the original observation)
+
+- 当时正式 Server 列表合并搜索/筛选/批量/内部汇总/列设置；只有选择模式显示本页全选与跨页计数。当时默认 9 个独立字段已被上方 D-099 组合展示取代；已有账号偏好不清空，Browser 的恢复契约不变。
+- 此列表显式使用 `DataTable layout="readable"`：像素列宽下限、局部横向滚动、可读完整编号/两行款名/右对齐数值及 sticky 操作。其他表格默认 fit-first 未改变。
+- 新建类型选择采用小面板与创建/取消；打开不创建，POST `{}`、必要类型 PUT、ID 保留及不重复创建保护不变。
+- Server 详情正常说明收进资料/诊断入口；版本号保留，资料未配置引导可查看。真实写入失败、权限/精度、冻结、校验未隐藏。常用成本直接显示，空行密度收紧；1100–1439px 桌面复用现有展开式紧凑成本字段，避免右侧操作裁切，不折叠或改变计算。
+- AppShell 外退出控件不再产生额外纵向滚动。资料载入后绑定 workspace 的 sticky observer，展开侧栏与 sticky 左边界一致；锚点保留 sticky 空间，Portal、dirty guard、保存/CAS 仍沿用原实现。Server 转订单入口继续禁用。
+- 加工/经销在隔离正式 UI 创建、保存、刷新及列表筛选读回均通过；未复现“选择加工却保存为经销”。用户原截图是否同一次创建未证实，不归因为用户操作。
+- 真实试用环境未更新；已登录不等于完整人工业务卡 PASS。功能范围不增加，历史导入 NOT REQUIRED。
+
+## Current Server business list and internal summary (2026-10-09; engineering only)
+
+Explicit Server mode requests typed, selected business columns from a bounded page of saved default Revisions. Quantity sums all PVs (all null stays null); costs use the existing calculator/range, mixed CNY/USD labor remains qualified, final garment display uses the shared formatter. Missing style images remain a clear placeholder: no old URL or IndexedDB read. Quote aggregate status/filter is distinct from current customer confirmation, never rewritten by this read projection.
+
+Confirmation is checked per PV: exact linked uses CCT current/version, linked empty never falls back, proven unlinked uses its saved confirmation, incomplete provenance is unknown. JSON includes minimal per-PV source qualifiers; internal XLSX confirmation cells carry the same source in notes. No historical snapshot mutation or first-PV aggregate shortcut.
+
+Personal list columns/order/width use a new local UI-only key scoped by trusted session userId and re-filtered by current permissions, not `loadQuoteSettings`, legacy preferences or master defaults. This is not cross-device synchronization. The formal summary dialog uses current visible columns by default and keeps temporary export choices separate. It exports one row per Quote or PV; Estimate is opt-in and protected. Contracts and technical limits are in `QUOTE_BATCH_EXPORT.md`; field permissions are in `PERMISSIONS.md`.
+
+2026-10-09 overnight engineering: explicit Server mode supports trusted current
+unlinked PV confirmation, including zero, processing/distribution, saved-source
+values/time and same-transaction version/audit. Generic PUT preserves unchanged
+confirmations but cannot forge them. Linked shared current now uses saved-PV
+currency/eligibility with Quote CAS and independent terms CAS under transaction locks; no fallback or real activation.
+
+Also connected: saved current/explicit history customer XLSX (one/all PVs, built-in template), bounded cross-page customer ZIP with truthful partial/warning manifest, and read-only Quote/global Server logs with audit/Estimate permissions. These reuse the existing Editor/export core/log components; they do not enable internal summary, whole-Quote copy/delete, Revision deletion or Quote-to-Order. Counts/checkpoints and remote delivery status are centralized in AI_HANDOFF.
+
+## CURRENT — Fresh Start formal Server basic loop (D-097, 2026-10-08)
+
+正式 `/quote-center` / `new` / `detail` 通过显式 `NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY` 原地分流。默认 browser 保留原 mock/localStorage 行为；server 必须 masters=server、writer=writable，编译/运行身份一致。Server 分支复用 QuoteEditor 的基础信息、当前价格版本材料/工价/其他成本、报价设置、保存与附件 panel，而不是简化 workspace。
+
+页面实例 persistence 控制 expectedVersion/baseline 与 aggregate/附件排他锁；成功才推进版本，409 草稿保留、精度无法无损 round-trip 拒绝；Server list 最小 saved summary + 有界全库搜索/filter/真实 total，不读 Browser。Root trusted identity + 业务 bootstrap/unsupported-route 隔离，不添加 Browser logs；empty masters/defaults 明示未配置，Quick Create 走 Server。
+
+Server new 现使用本页顶部记载的两步原子创建；旧 POST{} 中性经销草稿API保持兼容，正式新UI不再以POST后PUT初始化加工类型。历史type-first阶段测试证据留在归档，不作为当前创建链。详情不新增任意类型修改入口，历史Revision、计算和权限规则不变。
+
+Server Revision / PriceVersion workflows 已接线：PV 以所选已保存方案复制并建立新 PV/成本行 ID，可编辑名称/数量/说明、删除非最后 PV、独立成本/设置与切换；Revision 从当前或明确所选历史快照创建新默认版本，沿用 Vn/分支命名和完整性验证，可信创建身份/时间，保留 scoped child IDs，清除新快照确认并冻结旧版本。历史只读/返回当前不写业务数据；附件关系由原 repository 事务继承，不复制 binary。
+
+Typed `POST /api/v1/quotes/:id/version-workflows` 的小命令严格 allowlist + expectedVersion；沿用动作权限与可信审计，拒绝跨 owner/历史修改/最后 PV 删除/stale 或伪造 actor/time/label。Server 仅复用纯克隆/命名/存在性规则，不将 Decimal string 转 number 或重算历史。页面共用 aggregate/附件/版本写锁；dirty 须保存或取消，关联成本差异走原明确同步选择后再继续。前一步保存成功/后续命令未确认分别呈现；冲突/网络未知不重复创建、不落 Browser。Portal 弹窗表单提交不再冒泡触发外层 aggregate save。
+
+PV 普通编辑与 Browser updateRevision 共用状态推导：有确认或原状态 confirmed/partially_confirmed 时按摘要更新，否则保留原 draft/quoting；新 Revision 创建仍进入 quoting。成本同步“同步并保存”/“仅保存当前版本”在 Server 模式统一处理失败：请求完成前不自动关闭弹窗，失败关闭 overlay 展示错误/显式核对，保留已应用范围与独立标记的 dirty 草稿、不继续后续版本命令、不自动重试；成功使用 Server 响应的版本/baseline 收口。同步规则与 persistence blocked 保护不变。
+
+Server Estimate 日常闭环已接正式版本管理/成本面板：从所选已保存 Revision/PV 主动生成、固定结构编辑保存、重新生成完整归档、历史搜索/只读查看/克隆恢复、stale/ignore。Quote 级当前估算在查看历史 Revision 时可按自身权限编辑；历史 Estimate 不可写，来源 PV 删除后仍可独立查看/恢复。Server 克隆不重算，不反写来源/确认/状态/default/附件。来源、编辑字段、精确 decimal-string/null/zero 与命令边界见 `ESTIMATE_COST.md`。
+
+Estimate 与 Quote/附件/版本共用 lock/version/baseline；估算-only 保存一个专用命令，混合草稿先保存 Quote 再保存 Estimate，前一步已提交、后一步未确认须分别显示。dirty 要求保存后继续或取消，成本同步选择完成后再主动继续；失败保留草稿/来源/历史选择、立即提供核对、blocked 不重试、不回退 Browser。
+
+Quote / Estimate 权限耦合已在本 PR 内修复，而非新增角色政策。`quote.view` 可读报价及已授权历史，不因他人生成 Estimate 而整体403。可信身份无 `estimate.view` 时，GET、创建、普通保存与 Revision/PV 响应集中投影为 `estimateVisibility: restricted`，完全省略 active/history 字段，不返回存在性、历史条数或汇总；有权限则保留完整 Estimate。Editor 使用独立视图类型保留“未授权返回”状态，不伪造成 null/[]，不加载估算面板/计算/缓存；成本入口显示无查看权限。
+
+普通 PUT 只提交 Quote 内容；Server 在 expectedVersion 校验后合并当前已保存 Estimate，仍对完整领域实体执行原 normalize/validate、细粒度权限、历史不可变与 repository CAS/事务检查。缺失字段不是清空命令；无 Estimate 读权限者注入任何 Estimate 字段（包括 null/[]）返回409 `estimate_command_required`。有读权限者的旧完整请求仅兼容原样切片，任何变化仍拒绝；Estimate 修改只走专用命令，需要 `quote.edit` + `estimate.view` + `estimate.edit`。读权限不授予写权限，默认角色/权限目录不变。
+
+整单复制/删除、Revision 删除、转订单仍未接线，Server 模式禁用；内部汇总现已接线。Browser 模式原功能保留。HISTORICAL 初始工程 checkpoint 的 actual Chromium30/30 包含 Estimate 与此前版本/成本同步/附件/下载字节SHA回归，suite 数字及验证来源统一见 `AI_HANDOFF.md`。本轮列表/汇总的新结果见 AI_HANDOFF，不沿用旧数字。不是真实部署或全报价 production-ready，默认 Browser/旧 runtime 不变，历史导入 NOT REQUIRED。详细矩阵见 `FRESH_START_FOUNDATION.md`；下方早期 Q2 描述为历史上下文或默认 Browser 分支。
+
+> 2026-10-05：`/quote-center` Quote aggregate 仍由 Browser mock Repository/localStorage 持有；Q3 master/default dependencies 在真实 3001 的 `masterSettingsAuthority=server` 下来自 PostgreSQL，Q3 编辑已重开。PR #64 Local Single-User UI 修复已部署：`/` 自动进入 `/quote-center`、统一侧栏恢复；用户真实浏览器确认原 Quote 数据保留。此收口没有迁移、重置、重新 seed 或改变 Quote storage namespace；Quote historical migration/Server ownership 另立 Gate。
+
+## Q2B2B isolated Server new Quote (not Browser cutover)
+
+- `/quote-center/server-new` uses `AppShell identityMode="server"`, trusted Server Session and scoped `quote.create`. It does not authorize through Browser PermissionProvider. The preview navigation entry is visible only with trusted `quote.create` and only navigates to the preparation page.
+- Opening the route performs zero POST and `LocalDataBootstrap` skips that exact path. Only the explicit “创建 Server 报价草稿” action calls `POST /api/v1/quotes` with `{}`; pending disables double submit. Success redirects to `/quote-center/server-edit?id=<Server UUID>`. 401 invalidates Server session, 403 is explicit, and an ambiguous network outcome disables repeat creation until the Server list is checked; there is no hidden retry or Browser fallback.
+- Browser cannot enter Quote ID, business number, date or suffix. The Server creates UUID identities, `QT-YYYY-MMDD-NNN` with Asia/Shanghai date, neutral draft fields and trusted `createdBy`. The page reads no `mockQuoteRepository`, Browser masters/settings, Browser OperationLog, IndexedDB attachments or OrderRepository.
+- This route does not create attachment metadata, ConfirmedCommercialTerms or SalesOrder data. Production `/quote-center`, `/quote-center/detail` and `/quote-center/new` remain Browser/local. Q3/Q4/Q5 and production single-login/writer cutover remain incomplete.
+
+## Q2B2A isolated Server writer (not Browser cutover)
+
+- `/quote-center/server-edit?id=<quoteId>` is a clearly labeled test workspace for an EXISTING Server Quote. It loads and saves only through a dedicated typed adapter over Q2A `GET`/`PUT`; it does not reuse the Browser `QuoteEditor` or its repository/audit/attachment/master/Order side effects.
+- The workspace uses trusted Server Session identity and a scoped Server permission authority. `quote.view` controls load, `quote.edit` controls aggregate save, and Server-side Q2A checks retain the finer cost/settings/workflow permissions. Browser test users and Browser PermissionProvider cannot grant Server edit.
+- Server decimal strings enter the Browser numeric model only after exact canonical round-trip proof. Unsafe precision fails the whole edit projection closed. Successful PUT adopts the returned aggregate/version; a stale `expectedVersion` leaves dirty state visible and offers only an explicitly confirmed reload, never auto-overwrite/retry.
+- Q2B2A edits a deliberately narrow existing default Revision surface. Attachments, Browser master resolution/quick create, delete, export, Quote-to-Order, new Quote, destructive advanced workflows and confirmation mutation are unavailable. Existing attachment references, historical snapshots and C4.2 current terms are preserved.
+- Dirty navigation and `beforeunload` remain guarded; save-and-leave performs Server PUT only. The exact route skips `LocalDataBootstrap`. Production `/quote-center`, `/quote-center/detail` and `/quote-center/new` remain Browser/local; Q2B2B adds only the isolated Server new workspace described above.
+
+## Q2B1 Server shadow read (not Browser cutover)
+
+- `/quote-center/server-preview` is an isolated PostgreSQL metadata list; `/quote-center/server-detail?id=<quoteId>` presents the full Server Quote aggregate read-only. They use only the Q2A typed `quoteServerRepository` and never fall back to `mockQuoteRepository`.
+- These routes use trusted Server Session + `quote.view` as their sole visible identity/authorization. Browser test-account switching, Browser settings/global-search controls and mock roles are hidden in Server shell mode; 401 invalidates the Server session and 403/404/network failures remain explicit.
+- The detail preserves decimal strings, null-versus-zero, stored confirmation/Estimate snapshots and historical Revision read-only state. It does not mount `QuoteEditor`, resolve attachment references through IndexedDB, recalculate snapshots, or expose create/save/delete controls.
+- `LocalDataBootstrap` skips those two exact routes. The production Browser routes below remain unchanged; Q2B1 is not writer cutover or global single-login production cutover. Q2B2A later adds only the isolated existing-Quote writer described above.
+
+## Q2A Server API foundation
+
+- Q2A adds typed Server list/detail/full-replacement-save contracts backed by the existing Q1 aggregate repository. Q2B2B replaces caller-supplied runtime aggregate creation with Server-owned `{}` → neutral draft creation while preserving Q1's internal exact aggregate path for future migration. The API preserves stable Quote/Revision/PriceVersion/cost/Estimate IDs, decimal strings, null versus zero, immutable history and optimistic aggregate version.
+- The same-origin `quote-server-client`/repository uses `credentials: include`, `cache: no-store`, mutation boundary headers；D-097 显式 Server 分支已复用它，默认 Browser 分支不调用它。
+- 当前旧部署与默认 browser 构建仍为 mock/localStorage；显式 server 构建正式 routes 走上述基本闭环。页面 load 不执行 Server create/migration；真实 cutover/完整 workflows 未发生。
+
+## C4.2 linked current confirmation boundary
+
+- Default Browser linkage still requires `NEXT_PUBLIC_ZHIXU_CONFIRMED_TERMS_QUOTE_LINKAGE=true`; explicit Quote authority=server resolves linkage independently of that legacy flag. Disabled Browser linkage retains local confirmation and must not maintain formal linked current. Merge activates neither runtime nor migration.
+- Once explicitly activated, the current default Quote Revision/PriceVersion resolves formal linkage through the trusted Server by exact `quoteId + revisionId + priceVersionId` only. No quote code/style/customer/brand/date/price or Browser SalesOrder ID inference is allowed. Anonymous session, Server unavailability and incomplete lookup are `unknown`, not inferred-unlinked, and cannot write local confirmation.
+- Explicit Quote Server mode always resolves exact trusted linkage: proven-unlinked uses its Server snapshot confirmation command; linked uses shared CCT with saved-source qualification and two versions. Default Browser remains local with linkage disabled; if enabled there, proven-unlinked remains local, but legacy linked mutation without a verifiable saved Server Quote is read-only. No fabricated source/weaker PATCH or linked `mockQuoteRepository.save` fallback.
+- Linked mutation pins Quote/Revision/PV, saved currency, terms expectedVersion (first 0) and positive expectedQuoteVersion. 409/network preserves input/target and blocks mutation; explicit read only shows evidence, never replaces input/CAS or resubmits. Dirty work first saves/cancels with original permissions/cost-sync/Estimate sequencing. Currency drift explicitly shows previous/shared and saved-PV currencies for human review, not conversion. Linked notes are not saved.
+- Active card/cockpit/reference distinguish shared current, unlinked snapshot, immutable history and unknown. Linked without current is unconfirmed; unknown never uses embedded confirmation as current. Processing requires labor, distribution requires both amounts. Terms-only changes leave aggregateStatus, Quote/Order versions, Estimate, calculations/confirmation snapshots and history unchanged; terms DTO is not QuoteRecord. Late/wrong-provenance lookup cannot replace another selected PV.
+- Historical Quote Revision/PriceVersion pages continue to display their embedded immutable confirmation snapshots. New revisions and copied PriceVersions are not assumed linked and do not inherit a Server relationship. Confirmation note and every other PriceVersion field remain local/snapshot semantics; fabric/trim costs, markup, exchange rate, manufacturing country and assumptions are not live-linked.
+- C4.2 contains no migration of real Browser confirmations and no real Browser write acceptance. Real PostgreSQL activation is separately gated.
+
+## Purpose
+
+Quote Center 是面向成衣报价工作的新版前端模块，提供完整报价快照、并列价格版本、细分成本、客户确认和报价列表管理。它目前与根路径 ERP 的旧报价模型隔离。
+
+## Current behavior
+
+- `/quote-center` 显示报价列表，支持搜索、筛选、个人可见列设置和临时批量导出选择模式。
+- `/quote-center/new` 在内存创建草稿；用户未保存直接离开时不产生记录。
+- 新建报价可在品牌/客户业务员搜索无匹配时就地创建主数据并立即选用；客户业务员只能在已选品牌下创建。快建主数据不会触发报价保存，默认资料自动应用与已有数据三向切换保护继续有效。
+- `/quote-center/detail?id=...` 编辑当前默认 Revision，查看历史 Revision。
+- 报价内可以创建/复制 PriceVersion、编辑面辅料/工价/其他费用、管理附件、客户确认、创建新 Revision、维护独立估算成本、删除和保存草稿。
+- 可以把当前或历史 Revision 导出为正式 Excel；一个 PriceVersion 对应一个 Sheet，当前编辑存在未保存修改时会明确选择导出已保存版本或保存并导出。
+- 报价明细业务 Card 的固定顺序为：面料成本、辅料成本、工价、其他费用、附件；附件始终是最后一个业务 Card，历史 Revision 同位置只读展示。
+- 当前默认 Revision 可编辑，历史 Revision 只读。
+- 页面有离开前 dirty guard；整页普通 Enter 不触发保存。
+- 顶部常驻操作顺序为：返回列表、报价版本、创建价格版本、客户确认、导出报价、保存草稿。操作记录和删除报价保留既有权限与行为，但位于“更多”次级入口；报价设置位于 Revision 区域而非顶部主操作组。
+- 面料成本、辅料成本、工价和成衣销售单价四项摘要已并入常规标题区，并在滚动后进入同一 Sticky Header；USD 工价显示原币金额与统一计算的 RMB 折合值，CNY 工价直接显示人民币金额，不再在基础信息后重复占用独立大卡片区。
+- 顶部操作区下方提供页内快速导航。滚动后报价摘要、操作按钮和快速导航由同一 sentinel/state 进入同一个 sticky container，不存在导航先吸顶的中间状态。
+- 当前默认 Revision 的可编辑能力由权限键控制；查看员仍可打开报价和导出，但基础信息、成本、附件与保存操作保持只读/disabled。
+- 报价详情提供只读“操作记录”时间线；日志在保存成功后由前后快照差异追加生成，详细边界见 `OPERATION_LOGS.md`。
+- 已保存报价可由 AppShell 全局搜索按报价号、款号、款式名称、品牌和客户业务员检索；结果只投影非成本信息，详细架构见 `GLOBAL_SEARCH.md`。
+- 列表普通搜索按空格 token 做 AND；`/字段 值` 结构化搜索也做 AND，并可与普通 token 组合。`/制作国家` 扫描全部 PriceVersion 快照。
+- 列表在 1229 CSS viewport 保持无 document-level 横向溢出，并直接显示款式缩略图；“更多”使用 Portal，不受表格或父容器裁切。
+- 其他费用进入顶部成本摘要；点击最终报价打开 Cost Breakdown Drawer，计算继续读取当前 PriceVersion 的正式 calculator 结果。
+- Attachment 区域获得焦点后可直接 Ctrl/Cmd+V 粘贴图片，不再要求先打开上传弹窗。
+- 品牌与客户业务员使用嵌套选择器；系统 fallback 必须显示实际继承值，不能只显示“回退品牌值”占位。
+
+当前“创建价格版本”以活动 PriceVersion 为来源复制成本数据，并为成本行生成新 ID；UI 使用“创建价格版本”文案。
+
+## Business rules
+
+- 面料 kg 与 meter 单耗在 `quote-calculations.ts` 的计算边界统一按第五位四舍五入为四位正式业务值；面料成本直接乘该四位值，UI 与 Excel 不维护另一套精度。
+
+- Revision 是完整报价快照；PriceVersion 是同一 Revision 中的并列价格口径。
+- `defaultRevisionId` 指向默认 Revision；`currentRevisionId` 仅兼容旧数据。
+- 新 Revision 深复制来源、清除客户确认、记录父版本/分支关系，并使历史版本只读。
+- 单个 PriceVersion 持有数量、成本和确认；总数量为各 PriceVersion 数量之和。
+- 最后一条 PriceVersion 不允许删除。
+- 新复制的 PriceVersion 及其成本行必须使用新 ID，确认信息清空。
+- 客户确认属于 PriceVersion，汇总状态为报价中、部分确认或已确认。
+- 空值不等于 0。未录入成本显示空态，只有明确输入 0 才显示零金额。
+- Quote Center 使用 `markupRate` 乘法加成，不使用根路径 ERP 的毛利率除法公式。
+- 面向用户的最终成衣销售单价保留一位小数并直接截断，不使用四舍五入；内部计算继续保留原始精度。
+- 制作预设应用到当前选中的 PriceVersion 快照，带出制作国家、加工币种、汇率、加成率和预设运费行；同一 Revision 的 PriceVersion 可使用不同预设，系统预设后续变化不回写已有快照。
+- 新 Quote 的系统默认制作预设只能是 active preset；inactive reference 按无默认处理。停用当前 default 会清空设置关系，重新启用不会自动恢复，但这些状态变化从不修改任何已保存的 PriceVersion 制作参数快照。
+- 报价详情的报价设置只选择当前 PriceVersion 制作预设并显示只读摘要；预设内容只在系统设置维护。
+- USD 工价人民币折合由 `convertedLaborRmb` 统一计算为 `原始 USD 工价 × 当前汇率 × 1.13`；`markupRate` 继续独立参与报价成本/售价加成，CNY 工价不走 USD 折算。
+- 详细公式见 `docs/BUSINESS_RULES.md` 和 `model/quote-calculations.ts`。
+
+## Data model
+
+权威前端模型在 `features/quote-center/model/quote-view-model.ts`：
+
+- `Quote`：稳定 ID、报价编码、删除预留、默认 Revision ID、聚合状态、Revision 数组、当前估算成本和估算历史。
+- `QuoteRevision`：身份/分支元数据、基础信息、PriceVersion 数组、图片/文件附件 ID、款式图 ID 和确认摘要。
+- `PriceVersion`：名称、数量、说明、独立 `pricingParameters` 制作预设快照、面料、辅料、工价、其他费用和客户确认。
+- `FabricCostLine` / `TrimCostLine` / `LaborCost` / `OtherCostLine`：报价当时使用的成本快照。
+- `PriceVersionConfirmation`：报价值和客户确认值的快照。
+
+`PriceVersion.pricingParameters` 同时保存制作预设引用 ID 与应用时的完整快照；正式计算、页面汇总、报价中心列表、客户确认报价值和 Excel 导出均只读取目标 PriceVersion，不实时读取系统预设。报价中心工价列按各 PriceVersion 原始币种分别格式化，混合币种不合并为错误统一区间。
+
+附件 metadata 与 Blob 使用独立 AttachmentRepository/IndexedDB，具体见 `features/ATTACHMENTS.md`。
+
+## API and persistence
+
+- Repository interface：`features/quote-center/repository/quote-repository.ts`。
+- 当前实现：`mock-quote-repository.ts`，以内存缓存 + 稳定 localStorage `zhixu.erp.local.quotes` 保存；旧 sessionStorage `zhixu.quote-center.slice-1.2` 只作为一次性兼容迁移来源。
+- 附件二进制：IndexedDB `zhixu-quote-attachments`，Quote repository 只保存 ID 引用。
+- 全局费用和列表偏好使用 `zhixu.erp.local.*` 稳定 localStorage envelope，定义在 `model/quote-settings.ts`。
+- Q1 已提供独立 `server/quotes/` 和 `0005_quote_foundation.sql`；Q2A 已在其上增加 trusted typed HTTP API、aggregate writer、optimistic conflict 与 atomic OperationLog，并只通过 disposable PostgreSQL 验证。Browser writer cutover 仍未执行。完整 schema/边界见 `QUOTE_PRODUCTION.md` 的 Q1/Q2A 节。
+- 不调用根路径 ERP 的旧 `/api/quotes`。
+- Repository delete interface 预留 `hard` / `soft` 模式；当前 mock UI 实际执行硬删除。
+- 操作日志使用独立 localStorage repository `zhixu.erp.local.operation-logs`，旧 key 只作为迁移来源，不改变 Quote repository 和 Revision 数据结构。
+
+## Frontend behavior
+
+主要入口：
+
+- `app/quote-center/page.tsx`
+- `app/quote-center/new/page.tsx`
+- `app/quote-center/detail/page.tsx`
+- `app/quote-center/server-preview/page.tsx`（Q2B1 Server-only shadow read）
+- `app/quote-center/server-detail/page.tsx`（Q2B1 Server-only aggregate detail）
+- `features/quote-center/components/quote-list.tsx`
+- `features/quote-center/components/quote-editor.tsx`
+- 权限接入：`features/permissions/` 与 Foundation `Button.permission`
+- 操作日志：`features/operation-logs/`；详细规则见 `OPERATION_LOGS.md`
+
+主要 UI 子模块：
+
+- 基础信息：`quote-base-info.tsx`
+- 面辅料宽表：`cost-table.tsx`
+- 价格版本：`price-version-selector.tsx`
+- 页内快速导航：`quote-quick-navigation.tsx`，由 `quote-editor.tsx` 组装可见项和 section anchor
+- Revision 管理：`revision-history.tsx`、`revision-manager-modal.tsx`
+- 报价/全局设置：`quote-pricing-settings.tsx`、`quote-settings-modals.tsx`
+- 制作国家预设：`global-quote-settings-page.tsx`、`quote-pricing-settings.tsx`、`model/quote-settings.ts`
+- 校验/汇总：`validation-summary.tsx`、`quote-metrics.tsx`
+- 附件：`attachment-panel.tsx`、`model/quote-attachments.ts` 和附件 repository
+- Excel 导出：`quote-export-modal.tsx`、`features/quote-center/export/`；详细规则见 `QUOTE_EXCEL_EXPORT.md`
+- 批量导出：`batch-export-modal.tsx`、`export/quote-batch-exporter.ts`；详细规则见 `QUOTE_BATCH_EXPORT.md`
+- 估算成本：`estimate-cost-panel.tsx`、`model/estimate-cost.ts`；详细规则见 `ESTIMATE_COST.md`
+
+面料/辅料从基础库选择时，只把当时数据复制到报价行；后续编辑报价不回写基础库。
+
+品牌或客户业务员快建后，Quote Editor 直接刷新内存主数据并选中新 ID，不依赖页面刷新。默认辅料进入报价时重新生成 row ID、用量保持 `null`；历史 Revision 和 Trim Library 均不被报价行后续编辑污染。
+
+响应式当前行为：
+
+- `>=1440px` 保持完整桌面侧栏和列表 Table；小于 1440px 的细指针/可 hover 桌面窗口使用 compact sidebar，即使 viewport 缩到 650px 也保留完整业务能力。报价列表仍保持 Table，成本区则按各自 Card 容器宽度选择 renderer。
+- 报价明细成本区以 Card 实际内容宽度选择 renderer：`>=1040px` 使用单行 Wide，低于该值使用 Compact/Narrow；同时 `700–1099px` viewport 保证半屏使用完整两行 Compact，不因 Sidebar/padding 误入单列。Wide 面料、辅料和其他费用使用固定表格布局与业务权重百分比，吃满 Card 且正常桌面不产生横向滚动；Compact 分组、ViewModel、回调、计算、row ID、dirty 和焦点规则不变。
+- 全部 Compact/Tablet 的普通操作 Header 和已验收 Sticky Header 均为四列等宽 Grid；只有 `>=1440px` Large Desktop 自然横排。响应式只改变尺寸和排列，Sticky sentinel/observer/出现时机不变。
+- Quote Detail 内容区不再显示“返回报价中心”；明确父目标由 AppShell 顶栏返回入口承载并继续经过 unsaved guard。操作记录和删除报价通过轻量单行“··· 更多”访问。
+- Quote Detail 顶部只有一条 Quote Cockpit Bar：Revision / PriceVersion / 制作国家 / 数量、面辅料、工价及人民币折合、其他费用、成衣销售价格、客户确认与差异、加成和报价设置在同一业务 strip 中表达；独立 `QuoteMetrics` 与黄色 Price Context Bar 不再并行重复最终售价。1229 CSS viewport 下无需页面或 Cockpit 横向滚动，窄宽度通过语义合并而非极小字体处理。
+- `768–1023px` 的触摸设备使用 Tablet；连接细指针并可 hover 时优先按 Compact Desktop 处理。
+- 只有 `<768px`、`pointer: coarse`、`hover: none` 的 True Mobile 把报价列表改为 Card List；报价详情是“查看全部 + 轻编辑”，基础信息、备注、工价、客户确认、附件继续复用桌面状态与保存流程。
+- Quote Center 的搜索、报价类型、报价状态在所有设备直接显示为同一行 `6fr / 2fr / 2fr`，不使用筛选按钮、Drawer 或 Bottom Sheet；结果数量轻量显示在列表上方右侧。
+- Mobile 详情隐藏 Sticky Header，款式图显示 contain 缩略图；Bottom Navigation 只允许 True Mobile 出现。
+- 手机面料/辅料为现有成本行的摘要投影，数值继续调用既有计算函数，不建立第二套数据或公式；结构增删留在桌面端。
+- Mobile PriceVersion 使用横向紧凑卡；保存和客户确认保留在顶部，返回由 AppShell Detail 导航承载，报价版本、创建价格版本、导出和删除进入“更多”。
+
+## Important constraints
+
+- 不得把 Library 或 Basic Settings 整体塞入 Revision。
+- 不得把 mock repository 描述为生产数据源。
+- 不得静默连接或适配旧 `/api/quotes`；后端迁移必须单独设计映射和数据迁移。
+- 不得将根 ERP 的 `margin` 公式用于 `markupRate`。
+- 不得重新引入输入一个字符丢焦点、Dropdown 被 overflow 裁剪或普通 Enter 保存整页等已解决问题。
+- 历史 Revision 的数据必须保持快照语义。
+- 旧 Revision 级制作参数只允许在 repository v2 → v3 迁移中读取并复制到各 PriceVersion；新保存数据不得继续依赖该层级。
+- 正式 Excel 导出必须使用仓库模板、现有计算口径和精确选中的 Revision 快照。
+
+## Tests
+
+相关测试分布在 `tests/quote-*.test.mjs`、`tests/quick-master-data.test.mjs`、`tests/fabric-calculations.test.mjs`、`tests/cost-table-ui-part2.test.mjs`、`tests/cost-responsive-batch1-2.test.mjs`、`tests/global-costs-v2.test.mjs` 和 `tests/quote-revision-management.test.mjs`。页内导航由 `tests/quote-quick-navigation.test.mjs` 覆盖，正式 Excel 导出由 `tests/quote-excel-export.test.mjs` 覆盖。
+
+测试包含大量源码契约检查；修改结构时也应做浏览器实际交互验证，不能仅依赖字符串断言。
+
+## Known gaps
+
+- Production Quote Center 尚未切到真实后端或多用户写入；legacy routes 仍只有 localStorage mock RBAC。Q2A Server API 与 Q2B1/Q2B2A isolated routes 已有 trusted Server enforcement，但不是 production cutover。
+- 已提供从明确 Quote Revision + PriceVersion 生成新订单中心 SalesOrder 的浏览器流程；尚无真实后端订单 API 或与根路径旧订单的数据整合。
+- 附件当前仅为单设备 IndexedDB 原型，没有真实上传 API、对象存储和跨设备共享。
+- 列表无分页/服务端筛选。
+- 当前测试账号可在 AppShell 切换，但不是已认证的真实会话；个人偏好尚未按该账号全面迁移。
+- 2026-09-01 Full UI / Workflow Correction 的 Quote 与 Foundation 修改已由 Gate A commit `367983925f8e9236a701a71781054f6baaf65e78` 独立固化。
+
+## 2026-09-04 Second Acceptance
+
+- 报价列表把旧 `style` 拆为稳定 `styleImage` 与 `styleIdentity`，旧偏好自动映射为两列；用户可分别调整顺序与宽度。
+- 最大字段场景使用业务组合列与 secondary line 展示报价编号、款式、品牌/业务员、类型/状态、数量、成本、成衣价/确认、报价历史/价格方案、日期和操作，Primary Desktop 不再强制隐藏用户选择的 revision 列。
+- “更多”保持单行紧凑按钮；详情 Sticky 在滚入成本区后继续显示款式身份、Revision、PriceVersion、制作国家、报价类型、数量、成衣价、工价、确认与 dirty/save 状态。
+- 2026-09-08 Correction 将两层价格摘要收敛为唯一 Quote Cockpit Bar；Sticky 继续共用原 sentinel/state，只保留滚动时的高价值上下文，不重新渲染第二套大型 Cockpit。

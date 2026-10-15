@@ -1,3 +1,7 @@
+## 2026-10-15 本地Server保存与退出保护修复
+
+产品源码65566527b15c1ffd78715389d7c34db0e867b300，fix/quote-logout-save-retry，尚未远端交付或部署。Quote保存已确认后logout失败，再次“保存并退出”仅重试退出；如用户继续编辑，新dirty仍必须保存。Server保存待核对或成本同步未决时，“放弃并退出/返回”不能绕过核对；沿用既有显式Server重读，不自动重试写入、保存Browser或改变金额/CCT。现有布局/DOM/CSS保持，V1影响记录及13浏览器/112前端证据见[独立任务](../tasks/active/quote-logout-save-retry.md)和[冻结结果](../tasks/active/evidence/quote-logout-save-retry-2026-10-15.md)。本段更新行为，不把既有构建/人工/部署状态提前。
+
 # Quote Center
 
 > 2026-10-11 D-103：确认销售价/工价由独立 commercial.sale/labor.view/edit 保护，成本权限不授予商业权限。CCT读为allowed/restricted、PATCH按实际字段授权并保留遗漏值；历史确认、列表/汇总、客户导出和日志同样受保护。受限普通保存恢复数据库CAS基线隐藏字段，不清空历史。详见[权限](PERMISSIONS.md)与[本轮实际HTTP证据](../tasks/active/commercial-amount-read-security.md)。正式Server角色管理UI/API尚未实现。
