@@ -1,3 +1,5 @@
+2026-10-15 D133本地候选：6087050 num_dyc按既有入库事件原行追溯，作为独立多余仓数量展示，不加进rknum/齐套；缺失、冲突、非法或单位问题明确保持未知。无新SQL/真实采集/数据库操作，语义与批准范围见[num_dyc确认](../tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md)。
+
 2026-10-15 Gate5整合候选：D113–120历史能力与G1–G4身份/商业/有效归属共同保留。当前物料列表与单单读取共用请求级RR快照；人工确认不跨SO自动转移。旧四单窗口已完成12/12并按时停止，本轮未重开。此前段落中的未交付/运行中按原日期阅读；当前精确证据见CURRENT_STATE和material-progress-integration。
 
 # 艾诺科 Server Source：正式订单与持续物料展示

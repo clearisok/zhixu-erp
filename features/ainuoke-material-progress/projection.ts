@@ -1,3 +1,4 @@
+import { readExcessWarehouse, type ExcessWarehouseFact } from './excess-warehouse.ts';
 import { normalizeSourceUnit, resolveMaterialConfirmation, type MaterialConfirmation } from './confirmed-facts.ts';
 import { compareMaterialQuantityFacts, type QuantityComparison } from "./quantity-facts.ts";
 import type { AinuokeReportSnapshot } from '../ainuoke-api/model/ainuoke-api.ts';
@@ -18,11 +19,12 @@ export type ReadPurchase = {
   sourcePricing: { ownership: 'ainuoke_source'; currency: string | null; unitPrice: number | null; amount: number | null };
 };
 export type ReadMovement = Pick<MaterialInboundEvent, 'id' | 'documentNo' | 'eventDate' | 'quantity'>;
+export type ReadInbound = ReadMovement & { excessWarehouse: ExcessWarehouseFact };
 export type ProgressRow = {
   demand: ReadDemand; canonicalKey: string; unit: string | null; unitStatus: 'known' | 'missing' | 'conflict';
   unitOrigin: 'source' | 'confirmed' | 'unknown'; sourceUnits: Array<string | null>;
   procurementResponsibility: 'guomao' | 'factory_confirmed'; confirmationStatus: 'none' | 'applied' | 'stale';
-  purchases: ReadPurchase[]; inbounds: ReadMovement[];
+  purchases: ReadPurchase[]; inbounds: ReadInbound[];
   shipments: Array<ReadMovement & { transportMode: string }>; outbounds: ReadMovement[];
   purchased: number | null; purchaseShortfall: number | null; purchaseExcess: number | null;
   inbound: number | null; pendingInbound: number | null; shipped: number | null; outbound: number | null;
@@ -170,7 +172,8 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
           sourcePricing: { ownership: 'ainuoke_source', currency: event.currency || null,
             unitPrice: pricingKnown(event.sourceReferences, 'purchaseUnitPrice') ? event.unitPrice : null,
             amount: pricingKnown(event.sourceReferences, 'purchaseAmount') ? event.amount : null } })),
-        inbounds: inbounds.map(readMovement), shipments: shipments.map(event => ({ ...readMovement(event), transportMode: event.transportModeSnapshot })),
+        inbounds: inbounds.map(event => ({ ...readMovement(event),
+          excessWarehouse: readExcessWarehouse(event.sourceReferences, rawSourceIndex, unit, unitConflict ? 'conflict' : unit === null ? 'missing' : 'known') })), shipments: shipments.map(event => ({ ...readMovement(event), transportMode: event.transportModeSnapshot })),
         outbounds: outbounds.map(readMovement), purchased, inbound, shipped, outbound,
         purchaseShortfall: purchased === null ? null : Math.max(0, demand.requiredQuantity - purchased),
         purchaseExcess: purchased === null ? null : Math.max(0, purchased - demand.requiredQuantity),

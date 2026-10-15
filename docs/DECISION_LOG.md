@@ -18,6 +18,14 @@
 
 ## Active
 
+### D-133 入库多余仓作为独立来源事实展示
+
+- 日期2026-10-15；Active。用户逐单核对确认rknum31条之外另有num_dyc1条，二者均为条；保留实际到货32的解释，不把该样本扩展为库存公式或正式齐套改动。
+- 既有6087050 Adapter保留原始字段；最小只读Projection仅按入库事件sourceReferences取一致num_dyc，重复行不求和，空值未知、非法/负数/冲突/部分缺失分别标识。单位沿用可信逐需求QtyUnit或已有精确人工确认，缺失不默认个、冲突不提供可汇总数值。
+- DTO将多余仓与rknum分开，includedInInbound=false；不改TotalNum/cgnum/rknum、事件身份、理论与采购事实、正式齐套和数据库。单据明细增加已批准列，后续侧栏复用；原历史报告和私有业务标识保护。
+- 用户确认、旧来源哈希与技术边界见tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md；代码excess-warehouse.ts、projection.ts及合成负向回归。工程/远端/真实激活/人工验收分别记录，不扩大任何操作授权。
+
+
 ### D-132 旧Source成果与订单身份/商业/历史归属受控整合
 
 - 日期2026-10-15；Active，实施已批准D-121 Gate5，不扩大真实来源、写入、窗口或部署授权。

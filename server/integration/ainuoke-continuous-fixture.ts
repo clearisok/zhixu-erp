@@ -21,7 +21,7 @@ import { createQuoteService } from "../quotes/service.js";
 import { MemoryAttachmentStorage } from "../attachments/storage.js";
 /** Always generates its own loopback tmpfs PostgreSQL; never reads DATABASE_URL or source credentials. */
 import type { NormalizationExecutionOptions } from '../sales-orders/normalization-execution-service.js';
-export async function startContinuousFixture(staticDirectory:string,options: NormalizationExecutionOptions & {orderAlerts?:boolean} = {}) {
+export async function startContinuousFixture(staticDirectory:string,options: NormalizationExecutionOptions & {orderAlerts?:boolean;excessWarehouse?:boolean} = {}) {
  const normalizationExecution:NormalizationExecutionOptions=options;
  const db=await startDisposablePostgres();const pool=new pg.Pool({connectionString:await db.createDatabase("continuous_demo")});
  const server=createServer();const origins:string[]=[];const errors:unknown[]=[];
@@ -49,6 +49,11 @@ export async function startContinuousFixture(staticDirectory:string,options: Nor
     if(mode==="failed")throw Error("synthetic failure");
     const b=freshMaterialBundle();for(const pages of Object.values(b.materials))for(const p of pages)for(const row of p.rows) {
      if(options.orderAlerts && row.values.GoodsNo==='SYNTHETIC-MAT-ready')row.values.QtyUnit=null;
+     if(options.excessWarehouse && row.values.GoodsNo==='SYNTHETIC-MAT-ready') {
+      Object.assign(row.values,{TotalNum:32,cgnum:32,rknum:31,QtyUnit:'条'});
+      if(generation===2)delete row.values.num_dyc;
+      else row.values.num_dyc=generation===0?1:generation===1?2:0;
+     }
      if(row.values.cgdh)row.values.cgdh=String(row.values.cgdh)+"-G"+generation;
     }
     generation++;return b;

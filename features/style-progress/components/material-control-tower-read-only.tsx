@@ -3,8 +3,14 @@ import { useState } from 'react';
 import { Card } from '@/components/foundation/card';
 import { MaterialReadCard, MaterialReadTable } from './material-read-display';
 import { filterProgressRows, type MaterialProgressView } from '@/features/ainuoke-material-progress/projection';
+import type { ExcessWarehouseFact } from '@/features/ainuoke-material-progress/excess-warehouse';
 import { materialStateLabels } from '@/features/ainuoke-material-progress/order-material-summary';
 const quantity=(n:number|null,unit:string|null)=>n===null?'未知':`${n}${unit?` ${unit}`:''}`;
+function excessQuantity(fact:ExcessWarehouseFact) {
+  if(fact.status==='known')return quantity(fact.quantity,fact.unit);
+  if(fact.status==='unit_unknown')return quantity(fact.quantity,null)+'（单位未知）';
+  return ({missing:'未知',invalid:'来源无效',conflict:'数值冲突',incomplete:'来源不全',unit_conflict:'单位冲突'} as const)[fact.status];
+}
 function sourceNotice(view:MaterialProgressView) {
   if(view.sourceStatus==='ready') {const unknown=view.rows.filter(row=>row.status===null).length;return [view.insideOrderDrift?'工厂款号有来源变化':'',unknown?`${unknown} 项物料待核对`:''].filter(Boolean).join(' · ') || '来源已更新';}
   return ({not_fetched:'尚未获取来源',not_connected:'物料来源尚未接通',incomplete:'来源不完整，暂停判定',identity_mismatch:'来源身份待核对',source_failed:'物料来源读取失败',source_missing:'当前来源缺少合同物料',stale:'来源已超出可信读取时效'} as const)[view.sourceStatus];
@@ -20,7 +26,8 @@ export function ReadOnlyMaterialControlTower({view}:{view:MaterialProgressView})
       {expanded.has(group.key)&&<div className="sp-v4-material-body">{group.rows.filter(r=>visible.has(r.demand.id)).map(row=><section key={row.demand.id}><h3>{row.demand.materialColor} · {row.demand.specification}</h3>
         {row.quantityComparison&&<p>理论用量测算（待核实） {quantity(row.quantityComparison.theoreticalUsageCandidate,row.unit)} · 实际采购 {quantity(row.quantityComparison.actualPurchase,row.unit)} · 采购与测算差额 {row.quantityComparison.relativeDifference===null?'未知':`${row.quantityComparison.relativeDifference>0?'+':''}${quantity(row.quantityComparison.relativeDifference,row.unit)}`}。差异为观察值，不自动认定超采或冲突；测算依据为来源单耗、损耗率与成衣数量，尚未作为全量已确认口径或齐套依据。</p>}
         <h4>采购事件</h4><MaterialReadTable headers={['采购单','日期','供应商','数量','来源单价','来源金额','币种']} rows={row.purchases.map(p=>[p.purchaseOrderNo,p.purchaseDate,p.supplier,row.unitStatus==='conflict'?'待核对':quantity(p.quantity,row.unit),p.sourcePricing.unitPrice===null?'未知':String(p.sourcePricing.unitPrice),p.sourcePricing.amount===null?'未知':String(p.sourcePricing.amount),p.sourcePricing.currency])}/>
-        {([['入库',row.inbounds],['物料出运',row.shipments],['物料出库',row.outbounds]] as const).map(([label,events])=><section key={label}><h4>{label}事件</h4><MaterialReadTable headers={['单号','日期','数量']} rows={events.map(e=>[e.documentNo,e.eventDate,row.unitStatus==='conflict'?'待核对':quantity(e.quantity,row.unit)])}/></section>)}
+        <h4>入库事件</h4><MaterialReadTable headers={['单号','日期','数量','多余仓']} rows={row.inbounds.map(e=>[e.documentNo,e.eventDate,row.unitStatus==='conflict'?'待核对':quantity(e.quantity,row.unit),excessQuantity(e.excessWarehouse)])}/>
+        {([['物料出运',row.shipments],['物料出库',row.outbounds]] as const).map(([label,events])=><section key={label}><h4>{label}事件</h4><MaterialReadTable headers={['单号','日期','数量']} rows={events.map(e=>[e.documentNo,e.eventDate,row.unitStatus==='conflict'?'待核对':quantity(e.quantity,row.unit)])}/></section>)}
         {row.issues.map(issue=><p key={issue}>{issue}</p>)}</section>)}</div>}
     </MaterialReadCard>)}</section>{!view.rows.length&&<Card>暂无可判定物料；未连接或异常来源不能视为零采购。</Card>}</>;
 }
