@@ -870,13 +870,27 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   };
 
   const saveAndNavigate = async () => {
+    // A confirmed save survives a failed logout. Retry only the departure until
+    // a later edit makes this draft dirty again.
+    if (serverMode && pendingLogout && !isDirty) {
+      if (serverBusy || serverError || priceSyncRequest || unsafeNumbers.size) return;
+      await finishDeparture();
+      return;
+    }
     try { await requestPersist("navigate"); } catch (error) {
       if (!serverMode) throw error;
       setServerError("Server 保存未确认，未保存草稿保留；请显式核对。未离开页面、未写 Browser。");
     }
   };
 
-  const discardAndNavigate = () => { if (!serverBusy) void finishDeparture(); };
+  const discardAndNavigate = () => {
+    if (serverBusy) return;
+    if (serverMode && (serverError || priceSyncRequest)) {
+      notify("请先核对当前保存结果，再退出或离开页面。");
+      return;
+    }
+    void finishDeparture();
+  };
 
   const deleteQuote = async () => {
     if (isNew) return;

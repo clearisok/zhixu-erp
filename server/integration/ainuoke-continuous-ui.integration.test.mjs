@@ -162,6 +162,57 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    for(const route of ["/order-center/new","/order-center/style-progress","/order-center/risks","/production-scheduling","/closing-center"]){await navigate(route);await has("此模块未在当前候选中启用");}
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
+  await t.test("saved Quote retries logout without another aggregate PUT, but later edits must save again",async()=>{
+   await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+   const version=async()=>Number((await x.pool.query("SELECT version FROM quote_center_quotes WHERE id=$1",['synthetic-unified-demo'])).rows[0].version);
+   const writes=()=>evaluate("window.businessWrites.filter(p=>p==='/api/v1/quotes/synthetic-unified-demo').length");
+   const editor=async()=>{await login(x.users[0]);await navigate('/quote-center/detail?id=synthetic-unified-demo');await until(()=>evaluate("!!document.querySelector('input[placeholder=\"请输入款式名称\"]')"),'loaded quote editor');};
+   const saveWithBlockedLogout=async()=>{
+    const failures=()=>evaluate("window.httpFailures.filter(f=>f.path==='/api/v1/auth/logout').length");
+    const before=await failures();await click('保存并退出');
+    await until(async()=>await failures()>before,'new logout failure completed');
+    await has('退出未完成，当前草稿保留');
+   };
+   try{
+    await editor();const before=await version();await evaluate("window.businessWrites=[]");
+    await input('input[placeholder="请输入款式名称"]','合成：已保存只重试退出');
+    await click('用户菜单');await click('退出登录');await has('保存并退出');
+    await command('Network.setBlockedURLs',{urls:['*/api/v1/auth/logout*']});await saveWithBlockedLogout();
+    assert.equal(await version(),before+1);assert.equal(await writes(),1);
+    await saveWithBlockedLogout();
+    assert.equal(await version(),before+1,'retrying logout must not create a second quote version');
+    assert.equal(await writes(),1,'retrying logout must not repeat Quote PUT');
+    await command('Network.setBlockedURLs',{urls:[]});await click('保存并退出');await has('忘记密码？请联系系统管理员');
+    assert.equal(await version(),before+1);
+    await editor();await evaluate("window.businessWrites=[]");const next=await version();
+    await input('input[placeholder="请输入款式名称"]','合成：第一份已保存修改');
+    await click('用户菜单');await click('退出登录');await command('Network.setBlockedURLs',{urls:['*/api/v1/auth/logout*']});await saveWithBlockedLogout();
+    assert.equal(await version(),next+1);await click('继续编辑');
+    await input('input[placeholder="请输入款式名称"]','合成：继续编辑后的第二份修改');
+    await click('用户菜单');await click('退出登录');await saveWithBlockedLogout();
+    assert.equal(await version(),next+2,'new dirty edits still require a new save');
+    assert.equal(await writes(),2);
+    await command('Network.setBlockedURLs',{urls:[]});await click('保存并退出');await has('忘记密码？请联系系统管理员');
+    assert.equal(await version(),next+2);
+   }finally{await command('Network.setBlockedURLs',{urls:[]});}
+  });
+  await t.test("an unconfirmed Quote save cannot be bypassed by retry-save or discard logout",async()=>{
+   await login(x.users[0]);await navigate('/quote-center/detail?id=synthetic-unified-demo');
+   await until(()=>evaluate("!!document.querySelector('input[placeholder=\"请输入款式名称\"]')"),'loaded quote before unknown save');
+   const before=Number((await x.pool.query("SELECT version FROM quote_center_quotes WHERE id=$1",['synthetic-unified-demo'])).rows[0].version);
+   await evaluate("window.businessWrites=[]");await input('input[placeholder="请输入款式名称"]','合成：保存结果尚待核对');
+   await click('用户菜单');await click('退出登录');await has('保存并退出');
+   try{
+    await command('Network.setBlockedURLs',{urls:['*/api/v1/quotes/synthetic-unified-demo*']});await click('保存并退出');await has('Server 保存未确认');
+    await click('保存并退出');await wait(200);
+    assert.equal(await evaluate("window.businessWrites.filter(p=>p==='/api/v1/quotes/synthetic-unified-demo').length"),1);
+    await click('放弃并退出');await wait(300);
+    assert.equal(await evaluate("location.pathname"),'/quote-center/detail','unknown save must remain available for explicit reconciliation');
+    assert.equal(Number((await x.pool.query("SELECT version FROM quote_center_quotes WHERE id=$1",['synthetic-unified-demo'])).rows[0].version),before);
+    assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"),200);
+    assert.equal(await evaluate("document.querySelector('input[placeholder=\"请输入款式名称\"]').value"),'合成：保存结果尚待核对');
+   }finally{await command('Network.setBlockedURLs',{urls:[]});}
+  });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
   if(process.env.AINUOKE_UI_EVIDENCE==="1")await writeFile(resolve("outputs/confirmed-facts-2026-10-14/computed-styles.json"),JSON.stringify({build:info,metrics},null,2)+"\n");
  }finally{
