@@ -1489,6 +1489,126 @@
       "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/storage-engineering-2026-10-15.md",
       "recordedAtSha": "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
       "sha256": "09760f6b11345df8bddf0fd50278cb2e6c1886f2870ab724cd27ce9e00b9e429"
+    },
+    {
+      "id": "decisions-payment-read-panel",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "7515ec656df6e01f732595c2bf08cc33153cf46ce498d58aa5f7b3ef601acd5f",
+      "supersedes": "decisions-payment-snapshot-storage",
+      "changeReason": "D140 wires strictly contract-scoped observations into the already approved event drawer, preserving disabled real activation and independent quantities/currencies."
+    },
+    {
+      "id": "payment-read-panel-approved-scope",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/read-panel-approved-scope-2026-10-15.md",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "7a1f91a3d7465d7590f5e577871381e33cea0861ed46fab7a0e6537d22255bb6"
+    },
+    {
+      "id": "payment-read-panel-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/read-panel-engineering-2026-10-15.md",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "3a3eba321e4f99cfed1f54a539ae0e45af2c12b2dcccf62518548666013befe3"
+    },
+    {
+      "id": "payment-read-panel-ui-receipt",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/read-panel-ui-receipt-2026-10-15.json",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "a38314b639905380c8731523f62823831d1ded67b2aa0b975277dad062a40687"
+    },
+    {
+      "id": "read-panel-payment-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/payment-read-panel-2026-10-15/payment-1920.png",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "2cf2d7c1827285f4ad6455f541339e2ce6737790ccb6bf415ead095826c482ec",
+      "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
+      "changeReason": "New synthetic contract-observation drawer engineering screenshots; preserve original P6/B2 images. This is not new human pixel acceptance or real source activation.",
+      "approvalEvidence": "payment-read-panel-approved-scope"
+    },
+    {
+      "id": "read-panel-payment-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/payment-read-panel-2026-10-15/payment-1536.png",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "038eb31fcd4fe0fdb22513d037f84e09a32528bf2cf0ae0fa0a879f824ca905c",
+      "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
+      "changeReason": "New synthetic contract-observation drawer engineering screenshots; preserve original P6/B2 images. This is not new human pixel acceptance or real source activation.",
+      "approvalEvidence": "payment-read-panel-approved-scope"
+    },
+    {
+      "id": "read-panel-payment-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/payment-read-panel-2026-10-15/payment-1440.png",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "f76418575179c47ea0658afef31853989591881d685eb35255fe7462fc70a28b",
+      "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
+      "changeReason": "New synthetic contract-observation drawer engineering screenshots; preserve original P6/B2 images. This is not new human pixel acceptance or real source activation.",
+      "approvalEvidence": "payment-read-panel-approved-scope"
+    },
+    {
+      "id": "read-panel-payment-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/payment-read-panel-2026-10-15/payment-1280.png",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "6baff17dd9fc28f4440b0ac3b44d7fdabc9eaae3e72bdcf2eb62e1ec0b94c681",
+      "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
+      "changeReason": "New synthetic contract-observation drawer engineering screenshots; preserve original P6/B2 images. This is not new human pixel acceptance or real source activation.",
+      "approvalEvidence": "payment-read-panel-approved-scope"
+    },
+    {
+      "id": "read-panel-payment-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/payment-read-panel-2026-10-15/payment-900.png",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "50b183d5559fb0fdaae50e59b46ea27a886a9c714a1411e6a12eb9a63e89f198",
+      "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
+      "changeReason": "New synthetic contract-observation drawer engineering screenshots; preserve original P6/B2 images. This is not new human pixel acceptance or real source activation.",
+      "approvalEvidence": "payment-read-panel-approved-scope"
+    },
+    {
+      "id": "read-panel-payment-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/payment-read-panel-2026-10-15/payment-390.png",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "3b0f5979b65d6e7eafc71508ca6044486a8b827e3525e409ef00fcfe6573b11f",
+      "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
+      "changeReason": "New synthetic contract-observation drawer engineering screenshots; preserve original P6/B2 images. This is not new human pixel acceptance or real source activation.",
+      "approvalEvidence": "payment-read-panel-approved-scope"
+    },
+    {
+      "id": "read-panel-payment-fields-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/payment-read-panel-2026-10-15/payment-fields-390.png",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "3fbe80ce9e33cff2dc3df71440d19b04b16e503c23e252405120bfc69bced63b",
+      "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
+      "changeReason": "New synthetic contract-observation drawer engineering screenshots; preserve original P6/B2 images. This is not new human pixel acceptance or real source activation.",
+      "approvalEvidence": "payment-read-panel-approved-scope"
+    },
+    {
+      "id": "read-panel-payment-fields-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/payment-read-panel-2026-10-15/payment-fields-1440.png",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "5d7cc9db7606d7db0cb0ee616381da39e428ad6b90f17b1e4d7e1ac87be04709",
+      "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
+      "changeReason": "New synthetic contract-observation drawer engineering screenshots; preserve original P6/B2 images. This is not new human pixel acceptance or real source activation.",
+      "approvalEvidence": "payment-read-panel-approved-scope"
+    },
+    {
+      "id": "read-panel-payment-expired-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/payment-read-panel-2026-10-15/payment-expired-1440.png",
+      "recordedAtSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "sha256": "c14ec77469cbd27df34f407851f7e3f49e98710e7869561b266e0d88b2418021",
+      "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
+      "changeReason": "New synthetic contract-observation drawer engineering screenshots; preserve original P6/B2 images. This is not new human pixel acceptance or real source activation.",
+      "approvalEvidence": "payment-read-panel-approved-scope"
     }
   ],
   "pages": [
@@ -1615,7 +1735,7 @@
         "features/style-progress/components/style-progress-server-page.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D133 adds an explicitly requested independent excess-warehouse column, synthetic validation only; source semantics confirmation is not human pixel or full live-data acceptance. D134 approved team sorting and event drawer have synthetic six-width engineering evidence only; no new human pixel acceptance or deployment.",
+      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D133 adds an explicitly requested independent excess-warehouse column, synthetic validation only; source semantics confirmation is not human pixel or full live-data acceptance. D134 approved team sorting and event drawer have synthetic six-width engineering evidence only; no new human pixel acceptance or deployment. D140 contract-observation panel has synthetic six-width/seven-role engineering evidence only; not material matching, bank-payment confirmation, new human pixel acceptance or live financial activation.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -1639,7 +1759,19 @@
         "material-display-materials-390",
         "material-display-events-1440",
         "material-display-events-390",
-        "material-display-inbound-extra-1440"
+        "material-display-inbound-extra-1440",
+        "payment-read-panel-approved-scope",
+        "payment-read-panel-engineering",
+        "payment-read-panel-ui-receipt",
+        "read-panel-payment-1920",
+        "read-panel-payment-1536",
+        "read-panel-payment-1440",
+        "read-panel-payment-1280",
+        "read-panel-payment-900",
+        "read-panel-payment-390",
+        "read-panel-payment-fields-390",
+        "read-panel-payment-fields-1440",
+        "read-panel-payment-expired-1440"
       ]
     },
     {
@@ -5478,6 +5610,115 @@
           "evidence": [
             "decisions-payment-snapshot-storage",
             "payment-contract-snapshot-storage-engineering"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ainuoke-payment-contract-read-panel",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Contract-scoped readonly observations in the approved reconciliation tab, shared static field catalogue and explicit wire v1, exact values/unknowns and no material matching or bank-payment inference. Bounded GET/no-store, conservative monotonic expiry, actor/order isolation, abort and permission failures. 150 related tests and 9 new plus 9 original Chromium tests passed. Product UI rendered cefe951d1de1a32763a1e7298e69b2560b1c282d build20261015-231629; only tests/CI/docs changed afterwards. No real report query, target activation, live data write, CCT access, sums, deployment or human pixel approval.",
+      "evidence": [
+        "decisions-payment-read-panel",
+        "payment-read-panel-engineering",
+        "payment-read-panel-approved-scope",
+        "payment-read-panel-ui-receipt"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+          "scope": "Contract-scoped readonly observations in the approved reconciliation tab, shared static field catalogue and explicit wire v1, exact values/unknowns and no material matching or bank-payment inference. Bounded GET/no-store, conservative monotonic expiry, actor/order isolation, abort and permission failures. 150 related tests and 9 new plus 9 original Chromium tests passed. Product UI rendered cefe951d1de1a32763a1e7298e69b2560b1c282d build20261015-231629; only tests/CI/docs changed afterwards. No real report query, target activation, live data write, CCT access, sums, deployment or human pixel approval.",
+          "evidence": [
+            "decisions-payment-read-panel",
+            "payment-read-panel-engineering",
+            "payment-read-panel-approved-scope",
+            "payment-read-panel-ui-receipt"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+          "scope": "Contract-scoped readonly observations in the approved reconciliation tab, shared static field catalogue and explicit wire v1, exact values/unknowns and no material matching or bank-payment inference. Bounded GET/no-store, conservative monotonic expiry, actor/order isolation, abort and permission failures. 150 related tests and 9 new plus 9 original Chromium tests passed. Product UI rendered cefe951d1de1a32763a1e7298e69b2560b1c282d build20261015-231629; only tests/CI/docs changed afterwards. No real report query, target activation, live data write, CCT access, sums, deployment or human pixel approval.",
+          "evidence": [
+            "decisions-payment-read-panel",
+            "payment-read-panel-engineering",
+            "payment-read-panel-approved-scope",
+            "payment-read-panel-ui-receipt"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+          "scope": "Contract-scoped readonly observations in the approved reconciliation tab, shared static field catalogue and explicit wire v1, exact values/unknowns and no material matching or bank-payment inference. Bounded GET/no-store, conservative monotonic expiry, actor/order isolation, abort and permission failures. 150 related tests and 9 new plus 9 original Chromium tests passed. Product UI rendered cefe951d1de1a32763a1e7298e69b2560b1c282d build20261015-231629; only tests/CI/docs changed afterwards. No real report query, target activation, live data write, CCT access, sums, deployment or human pixel approval.",
+          "evidence": [
+            "decisions-payment-read-panel",
+            "payment-read-panel-engineering",
+            "payment-read-panel-approved-scope",
+            "payment-read-panel-ui-receipt"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+          "scope": "Contract-scoped readonly observations in the approved reconciliation tab, shared static field catalogue and explicit wire v1, exact values/unknowns and no material matching or bank-payment inference. Bounded GET/no-store, conservative monotonic expiry, actor/order isolation, abort and permission failures. 150 related tests and 9 new plus 9 original Chromium tests passed. Product UI rendered cefe951d1de1a32763a1e7298e69b2560b1c282d build20261015-231629; only tests/CI/docs changed afterwards. No real report query, target activation, live data write, CCT access, sums, deployment or human pixel approval.",
+          "evidence": [
+            "decisions-payment-read-panel",
+            "payment-read-panel-engineering",
+            "payment-read-panel-approved-scope",
+            "payment-read-panel-ui-receipt"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+          "scope": "Contract-scoped readonly observations in the approved reconciliation tab, shared static field catalogue and explicit wire v1, exact values/unknowns and no material matching or bank-payment inference. Bounded GET/no-store, conservative monotonic expiry, actor/order isolation, abort and permission failures. 150 related tests and 9 new plus 9 original Chromium tests passed. Product UI rendered cefe951d1de1a32763a1e7298e69b2560b1c282d build20261015-231629; only tests/CI/docs changed afterwards. No real report query, target activation, live data write, CCT access, sums, deployment or human pixel approval.",
+          "evidence": [
+            "decisions-payment-read-panel",
+            "payment-read-panel-engineering",
+            "payment-read-panel-approved-scope",
+            "payment-read-panel-ui-receipt"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime change; prior source/image IDs remain historical and not re-observed.",
+          "evidence": [
+            "decisions-payment-read-panel",
+            "payment-read-panel-engineering",
+            "payment-read-panel-approved-scope",
+            "payment-read-panel-ui-receipt"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime change; prior source/image IDs remain historical and not re-observed.",
+          "evidence": [
+            "decisions-payment-read-panel",
+            "payment-read-panel-engineering",
+            "payment-read-panel-approved-scope",
+            "payment-read-panel-ui-receipt"
           ]
         }
       }
