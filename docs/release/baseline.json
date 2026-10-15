@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
-  "verifiedAt": "2026-10-15",
+  "verifiedAt": "2026-10-15T13:49:03.976Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -1457,6 +1457,22 @@
       "kind": "document",
       "recordedAtSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
       "sha256": "69176240e1c77f5cdd1830304ecf19121778b5cdca9c4b3e3bc36f63cd03fdf8"
+    },
+    {
+      "id": "decisions-payment-snapshot-model",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "075a174d900f17288ab4e73745470c98ae8119b4",
+      "sha256": "41213d1cf388026b355ae558a76c45eaf95c40eab9157b4fbcd8d467918c846f",
+      "supersedes": "decisions-payment-contract-probe",
+      "changeReason": "D138 introduces a separate pure complete-contract observation model, preserving original v1 and all real-operation limits."
+    },
+    {
+      "id": "payment-contract-snapshot-model-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/snapshot-model-engineering-2026-10-15.md",
+      "recordedAtSha": "075a174d900f17288ab4e73745470c98ae8119b4",
+      "sha256": "7e9a0f3d3497e078b344cac3948d4f69728b8cdd9a9a41135bb1275096c79e06"
     }
   ],
   "pages": [
@@ -5260,6 +5276,99 @@
             "decisions-payment-contract-probe",
             "payment-contract-probe-engineering",
             "payment-contract-selection-offline"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ainuoke-payment-contract-snapshot-model",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Pure internal two-pass contract snapshot validation only: real page identities, exact string observations, explicit source/contract/witness, <=200 rows, oldest-page freshness; no sums, event deduplication, default currency, HTTP, DB, SO binding, UI, live query verification, Source activation or deployment.",
+      "evidence": [
+        "decisions-payment-snapshot-model",
+        "payment-contract-snapshot-model-engineering"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "075a174d900f17288ab4e73745470c98ae8119b4",
+          "scope": "Pure internal two-pass contract snapshot validation only: real page identities, exact string observations, explicit source/contract/witness, <=200 rows, oldest-page freshness; no sums, event deduplication, default currency, HTTP, DB, SO binding, UI, live query verification, Source activation or deployment.",
+          "evidence": [
+            "decisions-payment-snapshot-model",
+            "payment-contract-snapshot-model-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "075a174d900f17288ab4e73745470c98ae8119b4",
+          "scope": "Pure internal two-pass contract snapshot validation only: real page identities, exact string observations, explicit source/contract/witness, <=200 rows, oldest-page freshness; no sums, event deduplication, default currency, HTTP, DB, SO binding, UI, live query verification, Source activation or deployment.",
+          "evidence": [
+            "decisions-payment-snapshot-model",
+            "payment-contract-snapshot-model-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "075a174d900f17288ab4e73745470c98ae8119b4",
+          "scope": "Pure internal two-pass contract snapshot validation only: real page identities, exact string observations, explicit source/contract/witness, <=200 rows, oldest-page freshness; no sums, event deduplication, default currency, HTTP, DB, SO binding, UI, live query verification, Source activation or deployment.",
+          "evidence": [
+            "decisions-payment-snapshot-model",
+            "payment-contract-snapshot-model-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "075a174d900f17288ab4e73745470c98ae8119b4",
+          "scope": "Pure internal two-pass contract snapshot validation only: real page identities, exact string observations, explicit source/contract/witness, <=200 rows, oldest-page freshness; no sums, event deduplication, default currency, HTTP, DB, SO binding, UI, live query verification, Source activation or deployment.",
+          "evidence": [
+            "decisions-payment-snapshot-model",
+            "payment-contract-snapshot-model-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "075a174d900f17288ab4e73745470c98ae8119b4",
+          "scope": "Pure internal two-pass contract snapshot validation only: real page identities, exact string observations, explicit source/contract/witness, <=200 rows, oldest-page freshness; no sums, event deduplication, default currency, HTTP, DB, SO binding, UI, live query verification, Source activation or deployment.",
+          "evidence": [
+            "decisions-payment-snapshot-model",
+            "payment-contract-snapshot-model-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime change by this pure model; source/image identity is historical and not re-observed.",
+          "evidence": [
+            "decisions-payment-snapshot-model",
+            "payment-contract-snapshot-model-engineering"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime change by this pure model; source/image identity is historical and not re-observed.",
+          "evidence": [
+            "decisions-payment-snapshot-model",
+            "payment-contract-snapshot-model-engineering"
           ]
         }
       }
