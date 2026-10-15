@@ -9,3 +9,5 @@
 所有旧worktree/后续分支/Browser持久数据保留。G1不替代G2商业隔离或G3加工批次；旧共享CCT明确仍在。不访问真实DB、账号、凭据、Source或部署。Git网络规则保持，不宣称永久恢复。上一接力completed/2026-10-15-pr109-pre-ci-fix-ai-handoff.md。
 
 第二轮精确b497 Source CI已过读取/Linux/相关领域组，在fresh-start最后两项旧12断言失败；已改显式1–12/14、保留所有业务表0与技术白名单，fresh-start7及原P6浏览器9通过。详情tasks/active/evidence/order-identity/pr109-fresh-start-followup.md；不是整个CI已通过，新checkpoint交付后继续核。
+
+第三轮a40 Source含Linux及baseline已绿；team页面旧teamWrites=6失败。已明确七角色ID和逐账号绑定、全部六个非管理员登录拒绝，再执行移动端reset/disable；同workflow构建后团队UI5、认证112、登录10均通过。详情tasks/active/evidence/order-identity/pr109-team-ui-followup.md，最终新head/CI待，不冒称全绿。

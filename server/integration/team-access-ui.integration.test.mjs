@@ -8,9 +8,11 @@ import { join, resolve, relative, isAbsolute } from "node:path";
 import { startCommercialSecurityFixture } from "./commercial-security-fixture.ts";
 import { bootstrapAdmin } from "../auth/bootstrap.ts";
 import { TEAM_ROLES } from "../auth/team-roles.ts";
+const expectedRoleIds=['role-server-admin','role-team-manager','role-team-quote-manager','role-team-material-manager','role-team-production-manager','role-team-finance-manager','role-team-merchandising-manager'];
 const wait=ms=>new Promise(done=>setTimeout(done,ms));
 async function until(read,label,attempts=150){for(let i=0;i<attempts;i++){if(await read())return;await wait(100);}throw Error(label+" timed out");}
 test("First team production-built UI uses trusted session, existing layout and server writes",{timeout:180000},async t=>{
+ assert.deepEqual(TEAM_ROLES.map(role=>role.id),expectedRoleIds);
  const build=JSON.parse(readFileSync("dist/client/build-info.json","utf8"));
  assert.equal(build.quoteAuthority,"server");assert.equal(build.identityMode,"session");
  const x=await startCommercialSecurityFixture(resolve("dist/client"));t.after(x.close);
@@ -58,7 +60,7 @@ test("First team production-built UI uses trusted session, existing layout and s
    assert.equal((await body()).includes("恢复默认权限"),false);assert.equal((await body()).includes("切换账号"),false);
    await shot("desktop-existing-layout");
   });
-  await t.test("create six synthetic roles through real forms; reload persists and secrets stay out of storage",async()=>{
+  await t.test("create the original six roles plus merchandising through real forms; reload persists and secrets stay out of storage",async()=>{
    for(const [i,role] of TEAM_ROLES.entries()){
     await click("新建账号");
     await input("[role=dialog] input:not([type=password])","合成UI"+role.name);
@@ -66,12 +68,27 @@ test("First team production-built UI uses trusted session, existing layout and s
     await select("[role=dialog] select",role.id);await input("[role=dialog] input[type=password]",password);
     await click("保存");await until(()=>evalJs("document.querySelector('[role=dialog]')===null"),"create completed");await has("合成UI"+role.name);
    }
-   assert.equal(await evalJs("teamWrites"),6);
+   assert.equal(await evalJs("teamWrites"),expectedRoleIds.length);
    await navigate("/basic-settings/user-permissions");await has("合成UI财务经理");
    assert.equal(await evalJs("JSON.stringify([localStorage,sessionStorage]).includes("+JSON.stringify(password)+")"),false);
    const storage=await evalJs("Object.keys(localStorage).filter(k=>/permission/i.test(k))");assert.deepEqual(storage,[]);
-   await shot("desktop-six-roles");
+   await has("合成UI跟单经理");
+   const assignments=(await x.pool.query("SELECT u.username,ur.role_id FROM app_users u JOIN app_user_roles ur ON ur.user_id=u.id WHERE u.username LIKE 'synthetic.ui.%' AND u.username<>'synthetic.ui.root' ORDER BY u.username")).rows;
+   assert.deepEqual(assignments,expectedRoleIds.map((role_id,i)=>({username:"synthetic.ui."+i,role_id})));
+   await shot("desktop-seven-roles");
   });
+  await t.test("each non-admin session is denied the management page and cannot recover Browser permissions",async()=>{
+   for(let i=1;i<expectedRoleIds.length;i++){
+    await evalJs("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
+    await navigate("/basic-settings/user-permissions");await has("忘记密码？请联系系统管理员");
+    await input("input[name=username]","synthetic.ui."+i);await input("input[name=password]",password);await click("登录织序");
+    await has("暂无权限");
+    assert.equal((await body()).includes("新建账号"),false);
+   }
+  });
+  await evalJs("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
+  await navigate("/basic-settings/user-permissions");await has("忘记密码？请联系系统管理员");
+  await input("input[name=username]","synthetic.ui.root");await input("input[name=password]",password);await click("登录织序");await has("新建账号");
   await t.test("mobile master/detail and account form preserve width; API-backed disable/reset",async()=>{
    await command("Emulation.setDeviceMetricsOverride",{width:390,height:844,deviceScaleFactor:1,mobile:true});
    await has("合成UI财务经理");
@@ -85,15 +102,6 @@ test("First team production-built UI uses trusted session, existing layout and s
    await until(()=>evalJs("document.querySelector('.qc-permission-detail select').disabled===false"),"role saved");
    await select(".qc-permission-detail label:nth-child(2) select","inactive");
    await until(async()=>(await x.pool.query("SELECT active FROM app_users WHERE username='synthetic.ui.5'")).rows[0].active===false,"disable");
-  });
-  await t.test("each non-admin session is denied the management page and cannot recover Browser permissions",async()=>{
-   for(let i=1;i<5;i++){
-    await evalJs("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
-    await navigate("/basic-settings/user-permissions");await has("忘记密码？请联系系统管理员");
-    await input("input[name=username]","synthetic.ui."+i);await input("input[name=password]",password);await click("登录织序");
-    await has("暂无权限");
-    assert.equal((await body()).includes("新建账号"),false);
-   }
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{

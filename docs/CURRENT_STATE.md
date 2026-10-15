@@ -11,3 +11,5 @@ PR109初始baseline/team-access CI通过，Source失败13!=12；已定位旧迁�
 禁止真实DB/账号/Source范围与窗口、宁波/18443/18444操作，不自动合并部署。网络规则未删，用户备用某次送达不保证通道长期恢复。上一状态[归档](tasks/completed/2026-10-15-pr109-pre-ci-fix-current-state.md)。
 
 第二轮精确b497 Source CI已过读取/Linux/相关领域组，在fresh-start最后两项旧12断言失败；已改显式1–12/14、保留所有业务表0与技术白名单，fresh-start7及原P6浏览器9通过。详情tasks/active/evidence/order-identity/pr109-fresh-start-followup.md；不是整个CI已通过，新checkpoint交付后继续核。
+
+第三轮a40 Source含Linux及baseline已绿；team页面旧teamWrites=6失败。已明确七角色ID和逐账号绑定、全部六个非管理员登录拒绝，再执行移动端reset/disable；同workflow构建后团队UI5、认证112、登录10均通过。详情tasks/active/evidence/order-identity/pr109-team-ui-followup.md，最终新head/CI待，不冒称全绿。
