@@ -1,11 +1,11 @@
-# 当前接力：Gate2整合最终G1依赖
+# 当前恢复点：Gate2前向整合G1未确认准备修复
 
-2026-10-15；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。当前feat/order-commercial-versions从2c6c2315d4b295dba2c6f73f651255f775790b99/clean，本地merge --no-ff --no-commit G1最终1fcc440；共同祖先def98f275。原G2商业逻辑及0015保留，不rebase/reset/clean；不是合并main或部署。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，feat/order-commercial-versions从3deffc478fec2df2909499e5b053330b94997611/clean，以本地merge --no-ff --no-commit纳入G1 7ef6e665886c937cb01cf82ed2700e33029746fe。共同祖先1fcc440，保留原提交，不rebase/reset/clean。仅AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX冲突，按已保存双方文本归档并对齐；没有SQL/业务代码冲突。
 
-G1 PR109精确1fcc440三项最终CI成功、说明已更新，未合并。合入b497/a40/1fcc修复：旧<=11样本、精确升级/fresh-start、identity/material独立key及七角色页面覆盖。两份共享摘要冲突，双方全文分别存completed/2026-10-15-gate1或gate2-before-final-dependency-*，不抹去历史限制。
+G2不可变价格和0015保持。G1回执丢失准备弹窗重开原请求保护、实际浏览器负向测试、V1记录随原提交纳入；不是只拷结果文字。后续各阶段树未自动吸收此变更。当前验收与checkpoint见新增evidence/order-commercial/gate2-g1-preparation-retry-2026-10-15.md。
 
-最终Source/fresh-start ledger必须1–12/14/15；最后0015_order_commercial_versions.sql，业务表仍0。G2原商业、权限、迁移、冻结证据不变；新G1报告原样保留其1–12/14范围，不把它冒称G2证据。
+PR110最新已核head3deffc/open/draft/main，三CI成功；不把旧CI写成新合入结果。独立源码复查未发现报价改价覆盖已采用快照、跨单换价或旧Order写接口绕过；候选指纹和fresh权限/金额投影仍在。完整Server关账未实现，冻结历史的全流程范围不能扩大。
 
-本地merge d358a3fdb55eac03da0ee6166a493c46a31e238a；初轮来源等90项82PASS/7FAIL/1Linux-SKIP，六角色旧共享金额断言及parent失败，改为Quote正向金额/未采用Order空/旧PATCH拒绝，团队+已采用矩阵26/26复验通过。完整类型/lint、根824、实际main守卫10页/17能力/9UI路径、基线78、显式Server构建PASS。身份浏览器5通过；商业初抢点失败，等待唯一可用按钮修复后4通过，候选buildId20261015-101223/source d358a3fd。最新结果gate2-final-dependency.md；旧完整PG261不是本次重跑。下一步最终commit、精确head守卫、安全交付、唯一依赖PR和CI，不重复创建或自动合并。网络规则不改，未知dirty STOP。
+本轮实际通过：商业/七角色29/29、订单身份Chromium6/6（含丢回执关闭重开）、商业Chromium4/4、typecheck、Server编译、显式Server/session/snapshot/writable构建、全源码lint（排除继承outputs私有生成物）、root824/824、基线78/78与精确main守卫（10页/17能力/9继承UI路径）。新测试构建使用旧head3deffc元数据加本Phase增量，源码内容hash另存证据，不伪称旧二进制。Source@48b63101/clean与其安全交付命令保持不变，不读凭据/上游，不重启旧窗口或触碰真实DB/部署。
 
-G3/G4/G5原工作树保留、整个Goal未完成；不操作真实账号/数据库/凭据/Source、宁波/18443/18444，不自动合并部署。
+Git NETWORK_DEGRADED，禁止自动恢复推送或换认证/文件API伪造提交；本地收口后提供当前准确HEAD命令，沿唯一PR110更新，不自动合并。旧双方状态完整归档completed/2026-10-15-gate2-before-g1-preparation-retry.md；原阶段证据保留。

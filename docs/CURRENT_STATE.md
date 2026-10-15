@@ -1,11 +1,13 @@
-# 当前状态
+# 当前状态：Gate2前向整合G1重试修复，本地验收完成，待交付
 
-核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。当前feat/order-commercial-versions，从2c6c2315d4b295dba2c6f73f651255f775790b99/clean整合G1最终1fcc440f00eeab962eb766161eab96ed5f67c6b4。本地依赖合入不等于合并main。
+核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。沿用feat/order-commercial-versions，从3deffc478fec2df2909499e5b053330b94997611/clean合入G1的7ef6e665886c937cb01cf82ed2700e33029746fe，无新工作树或重复PR，不改0015及商业计算。
 
-G1 [PR109](https://github.com/clearisok/zhixu-erp/pull/109)精确head已独立核实，source/team-access/baseline三CI成功、GitHub可合并，说明更新，未合并部署。修复包括严格旧ledger1–11、精确升级、新组件key与七角色完整UI测试。
+GitHub当前PR110是open/draft、以main为base、head3deffc，三项CI成功；这是旧head，不是本次合入结果。PR109的原1fcc同样三绿，新G1修复7ef仍待交付。本轮不自动合并或推送恢复。
 
-G2保留0015独立订单商业版本、精确Quote/CCT候选及显式采用、旧订单共享写价拒绝、字段权限、七角色和只读历史预览。原29商业、19旧商业/API、4浏览器、完整PG261及源码817/基线78为既有分阶段证据，不能写成本次重跑。现显式升级/fresh-start最终ledger1–12/14/15，旧库样本仍1–11；没有漏过0015、动态放松清单或修改SQL。
+G2已实现独立商业版本、精确Quote/CCT候选、显式采用、旧Order共享写价拒绝、权限投影及只读历史预览。独立源码复查确认候选与采用版本分离、同报价多订单隔离、CAS/幂等及审计回滚有对应集成覆盖；完整Server关账仍未实现，不冒称全流程冻结。
 
-本次冲突仅AI_HANDOFF/CURRENT_STATE，两方原文均归档保留；已核实来源/空系统/商业/身份回归；旧共享金额团队断言修订后26项通过。完整类型/lint、根824、基线78、实际main守卫、候选构建及商业4/身份5浏览器通过。具体初次失败及复验范围见[本轮证据](tasks/active/evidence/order-commercial/gate2-final-dependency.md)。远端精确送达/唯一PR及CI下一步核实，不冒称已完成。
+本次纳入的是已实际复现的准备回执丢失后弹窗重开换请求号修复，连同其负向浏览器回归及V1路径记录。冲突仅三份共享摘要，双方原文完整[归档](tasks/completed/2026-10-15-gate2-before-g1-preparation-retry.md)。代码、SQL及其他业务改动没有冲突。
 
-G3、G4及后续工作树和提交保留，按各自源码证据阅读，旧文档“未开始”不代表它们不存在。G5独立继续，不阻塞订单身份主线。无真实数据库/账号/Source操作、宁波或18443/18444部署，不自动合并。GitHub为实时工程事实源；随main、PR、测试及授权变化更新。
+本轮实际通过：商业/七角色29/29、订单身份Chromium6/6（含丢回执关闭重开）、商业Chromium4/4、typecheck、Server编译、显式Server/session/snapshot/writable构建、全源码lint（排除继承outputs私有生成物）、root824/824、基线78/78与精确main守卫（10页/17能力/9继承UI路径）。旧历史PG261并未本轮重跑。新精确HEAD送达与CI仍待，无远端交付PASS。
+
+G3/G4/G5、Source@48b63101和报价修复树全部保留，本次不自动传播至其他树。真实读取授权、账号/业务DB、Source首绑/调度、宁波18443/18444和部署均未操作，旧四单窗口不重启。Git NETWORK_DEGRADED，AGENTS不自动执行恢复命令仍适用。
