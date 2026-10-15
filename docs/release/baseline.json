@@ -1254,6 +1254,91 @@
       "path": "docs/tasks/active/evidence/material-source-integration/material-display-approved-scope-2026-10-15.md",
       "recordedAtSha": "799c490159df2b3c26a223539cd5f7e76c2bb605",
       "sha256": "d0c4ed01963ff17ff258235b9497d58af14f296aad2d6806149831252ca3ac52"
+    },
+    {
+      "id": "material-display-results",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md",
+      "recordedAtSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+      "sha256": "680eead1b64e5203ae552dcab9f607c2ef175d4aac385f3253c2b46a110ec6dc"
+    },
+    {
+      "id": "material-display-ui-receipt",
+      "kind": "document",
+      "path": "docs/tasks/assets/material-display-2026-10-15/receipt.json",
+      "recordedAtSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+      "sha256": "a2ebaa33412582c7dc6eabc0c9a0470daf5d967e04f7c57fec9ff4fdd2d5db2b",
+      "renderedSourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993"
+    },
+    {
+      "id": "material-display-materials-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-display-2026-10-15/materials-1440.png",
+      "recordedAtSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+      "sha256": "07342c0ae7ba0e3cd15b1d6de12ba3e820e40e25c89abf720a47f67f59ec745f",
+      "renderedSourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+      "changeReason": "New approved G5 B2 display ordering and event drawer evidence with synthetic data; preserve prior screenshots and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-display-approved-scope"
+    },
+    {
+      "id": "material-display-materials-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-display-2026-10-15/materials-390.png",
+      "recordedAtSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+      "sha256": "47f17728ce8b6daa91c4b6edffbb631cf46ccb60d14b66ee5d4e7c7eda882435",
+      "renderedSourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+      "changeReason": "New approved G5 B2 display ordering and event drawer evidence with synthetic data; preserve prior screenshots and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-display-approved-scope"
+    },
+    {
+      "id": "material-display-events-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-display-2026-10-15/events-1440.png",
+      "recordedAtSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+      "sha256": "85f134f07cbd91bdd88f3cc6fab0aa3bbce40dadb909f5cc052e8a17073c92e9",
+      "renderedSourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+      "changeReason": "New approved G5 B2 display ordering and event drawer evidence with synthetic data; preserve prior screenshots and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-display-approved-scope"
+    },
+    {
+      "id": "material-display-events-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-display-2026-10-15/events-390.png",
+      "recordedAtSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+      "sha256": "79e7bc3ac16324f8fc0a14894f503da3d8c2b3213d2db055ea6ec545b12e9f36",
+      "renderedSourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+      "changeReason": "New approved G5 B2 display ordering and event drawer evidence with synthetic data; preserve prior screenshots and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-display-approved-scope"
+    },
+    {
+      "id": "material-display-settings-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-display-2026-10-15/settings-1440.png",
+      "recordedAtSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+      "sha256": "6bb7eb3d3b7cfdd0928aa63ca6eacbd7fee1b36342d928c11b1cd2c289bf8f5a",
+      "renderedSourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+      "changeReason": "New approved G5 B2 display ordering and event drawer evidence with synthetic data; preserve prior screenshots and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-display-approved-scope"
+    },
+    {
+      "id": "material-display-settings-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-display-2026-10-15/settings-390.png",
+      "recordedAtSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+      "sha256": "cfd3f79b96dea6c33699351d8750c1f9dd7e527ca1fb48141fa072507e93b6f7",
+      "renderedSourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+      "changeReason": "New approved G5 B2 display ordering and event drawer evidence with synthetic data; preserve prior screenshots and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-display-approved-scope"
+    },
+    {
+      "id": "material-display-inbound-extra-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-display-2026-10-15/inbound-extra-1440.png",
+      "recordedAtSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+      "sha256": "7aacb9c094b5e7be04c0f277913b89ae4c41a654a9eb0e8832739a0908f37f1c",
+      "renderedSourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+      "changeReason": "New approved G5 B2 display ordering and event drawer evidence with synthetic data; preserve prior screenshots and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-display-approved-scope"
     }
   ],
   "pages": [
@@ -1380,7 +1465,7 @@
         "features/style-progress/components/style-progress-server-page.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D133 adds an explicitly requested independent excess-warehouse column, synthetic validation only; source semantics confirmation is not human pixel or full live-data acceptance.",
+      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D133 adds an explicitly requested independent excess-warehouse column, synthetic validation only; source semantics confirmation is not human pixel or full live-data acceptance. D134 approved team sorting and event drawer have synthetic six-width engineering evidence only; no new human pixel acceptance or deployment.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -1397,7 +1482,14 @@
         "excess-warehouse-mapping-results",
         "excess-warehouse-ui-1440",
         "excess-warehouse-ui-390",
-        "excess-warehouse-pr-delivery"
+        "excess-warehouse-pr-delivery",
+        "material-display-results",
+        "material-display-ui-receipt",
+        "material-display-materials-1440",
+        "material-display-materials-390",
+        "material-display-events-1440",
+        "material-display-events-390",
+        "material-display-inbound-extra-1440"
       ]
     },
     {
@@ -1474,7 +1566,10 @@
       "acceptanceScope": "D121/D134 approved functionality, synthetic engineering candidate only; no human pixel acceptance, deployment or default route activation.",
       "evidence": [
         "material-display-approved-scope",
-        "decisions-material-display-settings-events"
+        "decisions-material-display-settings-events",
+        "material-display-results",
+        "material-display-settings-1440",
+        "material-display-settings-390"
       ]
     }
   ],
@@ -4579,6 +4674,115 @@
             "excess-warehouse-confirmed-scope",
             "excess-warehouse-offline-statistics",
             "excess-warehouse-pr-delivery"
+          ]
+        }
+      }
+    },
+    {
+      "id": "material-display-team-settings",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Approved display-only fabric/trim ordering, shared team keyword settings with CAS/idempotency/audit, color/spec expansion and source event drawer; no formal quantity/readiness or commercial/source-activation change. Synthetic engineering acceptance only.",
+      "evidence": [
+        "material-display-results",
+        "material-display-approved-scope",
+        "material-display-ui-receipt",
+        "decisions-material-display-settings-events"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+          "scope": "Approved display-only fabric/trim ordering, shared team keyword settings with CAS/idempotency/audit, color/spec expansion and source event drawer; no formal quantity/readiness or commercial/source-activation change. Synthetic engineering acceptance only.",
+          "evidence": [
+            "material-display-results",
+            "material-display-approved-scope",
+            "material-display-ui-receipt",
+            "decisions-material-display-settings-events"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+          "scope": "Approved display-only fabric/trim ordering, shared team keyword settings with CAS/idempotency/audit, color/spec expansion and source event drawer; no formal quantity/readiness or commercial/source-activation change. Synthetic engineering acceptance only.",
+          "evidence": [
+            "material-display-results",
+            "material-display-approved-scope",
+            "material-display-ui-receipt",
+            "decisions-material-display-settings-events"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+          "scope": "Approved display-only fabric/trim ordering, shared team keyword settings with CAS/idempotency/audit, color/spec expansion and source event drawer; no formal quantity/readiness or commercial/source-activation change. Synthetic engineering acceptance only.",
+          "evidence": [
+            "material-display-results",
+            "material-display-approved-scope",
+            "material-display-ui-receipt",
+            "decisions-material-display-settings-events"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+          "scope": "Approved display-only fabric/trim ordering, shared team keyword settings with CAS/idempotency/audit, color/spec expansion and source event drawer; no formal quantity/readiness or commercial/source-activation change. Synthetic engineering acceptance only.",
+          "evidence": [
+            "material-display-results",
+            "material-display-approved-scope",
+            "material-display-ui-receipt",
+            "decisions-material-display-settings-events"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+          "scope": "Approved display-only fabric/trim ordering, shared team keyword settings with CAS/idempotency/audit, color/spec expansion and source event drawer; no formal quantity/readiness or commercial/source-activation change. Synthetic engineering acceptance only.",
+          "evidence": [
+            "material-display-results",
+            "material-display-approved-scope",
+            "material-display-ui-receipt",
+            "decisions-material-display-settings-events"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Not deployed by this task; runtime metadata identifies only the preserved historical observation.",
+          "evidence": [
+            "material-display-results",
+            "material-display-approved-scope",
+            "material-display-ui-receipt",
+            "decisions-material-display-settings-events"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Not deployed by this task; runtime metadata identifies only the preserved historical observation.",
+          "evidence": [
+            "material-display-results",
+            "material-display-approved-scope",
+            "material-display-ui-receipt",
+            "decisions-material-display-settings-events"
           ]
         }
       }
