@@ -1,7 +1,5 @@
-# G5 B2 最终本地工程接力
+# 6086941 独立诊断准备（未真实读取）
 
-2026-10-15；main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5已由独立API再核实。同一order-effective-attribution工作树，feat/material-sort-and-event-drawer从num_dyc aab97cb8/clean继续。B2源码/0024/客户端/页面/Drawer/权限完成；root898/PG261/设置历史升级56/基线94/Source70PASS1Linux skip、类型/全lint/Server与两authority构建PASS。最终移动动作可见与焦点恢复UI25/25；渲染b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993 /build20261015-141116，测试脚本967deb5247823f223cd811aeb14361cab65b8fe0。7张新PNG独立路径经AI目视，人工认可not-run。报告material-display-results-2026-10-15.md不得覆盖，旧D133/所有截图/历史仍保留。报告/receipt/7图及第35项能力已在fccafaa1994087c086cc8b82b92e830aded8d94f逐维冻结；精确main守卫PASS（11pages/35capabilities/53UIpaths）。本文件为后续元数据收口，最终HEAD仍按Git读取，不必再全跑业务/SQL。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；复用旧erp-followup-governance干净工作树，从68ac1fc9f839ebfc894d39377dac221e7f65566b建立feat/ainuoke-payment-request-probe；旧21da670分支/报告保留，未发现该工作树活动Node/Python进程。另一order-effective-attribution工作树B2保持68ac1fc9/clean等待人工交付，禁止切换/修改以免命令失效；远端一次只读仍无分支，未重复push。
 
-REMOTE仍PENDING：本轮获准恢复G5 af9b746和num_dyc aab97cb8均preflight失败pushes0，现有工具OpenSSL进程对照也不成功，停止不再撞通道。API读main可用不证明Git长期恢复；PR搜索仅108–112，新3分支没有PR/CI。后续PR目标main、Draft并披露108/109→112与G5 A/B1/num依赖，不能直接建议累计合并。当前没有合并授权实际答复。
-
-下一独立小修复：Quote保存成功后logout失败再点保存退出可能重复PUT，实际saveAndNavigate无clean guard，保持UI布局/原dirty/未知请求保护，需隔离负向测试再单独commit。之后6086941独立只读probe/身份核验，不重复558全量。真实HTTP新scope、写入/Source激活/窗口扩展/现有演示镜像切换和数据库/账号/部署均无新增授权；四单2小时窗口已截止12/12。Goal继续。
+本阶段实现固定6086941首页100行只读工具，不扩Bridge catalog或既有采集范围，不猜查询过滤/行ID/单位/币种/公式，不接DB/UI，不实际HTTP读取或接触真实凭据。按ainuoke-payment-request-probe.md做合成负向测试、只向前冻结证据、每重要Gate本地commit；网络degraded不再撞同通道。整个Goal继续，B2及其父分支交付等待用户，Quote退出保存重试另立小修复。
