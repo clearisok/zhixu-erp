@@ -6,7 +6,7 @@ main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。6086941首页100/17675与49字段
 
 [两合同分页工具](../tasks/active/ainuoke-payment-contract-probe.md)为D137合成工程：已有私有S1/S2精确hash及账号指纹；固定6086941/ExpContractNo/is查询候选，每合同≤2页×100行、完整两遍；最多8报表/9HTTP、4MiB/响应、16MiB累计报表、180秒。原首页动作仍2HTTP/1report；没有注册catalog/采集调度/HTTP业务API/DB或UI接线。
 
-79相关Node/114Python与类型/Server编译/源码lint通过；新模型最终root/94/精确main门禁另收口。私有样本只离线加载，0HTTP/0DB，尚未真实执行新模式，不能宣称查询过滤或完整合同数据已核实。新真实范围须单独明确批准；先前所有读取次数已用完。
+79相关Node/114Python与类型/Server编译/源码lint通过；d669e2e1/clean的898/94与精确main门禁通过（38能力）。私有样本只离线加载，0HTTP/0DB，尚未真实执行新模式，不能宣称查询过滤或完整合同数据已核实。新真实范围须单独明确批准；先前所有读取次数已用完。
 
 B2@68ac、read-model@fbb6002f和Quote@d9bf等原成果保留；Git未交付的新代码不声明PR/Hosted CI/部署通过。无真实账号/DB/绑定/激活/宁波18443/18444操作，四单窗口12/12结束不重启，不自动合并。
 
