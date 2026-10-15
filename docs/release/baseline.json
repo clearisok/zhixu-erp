@@ -1369,6 +1369,13 @@
       "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/second-attempt-metadata-2026-10-15.md",
       "recordedAtSha": "e022e72ececb3120479f64a9c4e35cb86ab8057a",
       "sha256": "a4b71476afaedfe5d67e105d0a2989828fb2ed373731bf0e58a620b928adf698"
+    },
+    {
+      "id": "payment-request-ipc-encoding",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/third-fourth-attempt-ipc-2026-10-15.md",
+      "recordedAtSha": "5a24f37909f7057cf323032ba1f632a700b38d52",
+      "sha256": "f399545c4284fdefe146aee09480183a6cbe34ed4f367ca90378a88728383751"
     }
   ],
   "pages": [
@@ -4828,72 +4835,78 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
+      "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
       "evidence": [
         "payment-request-probe-results",
         "decisions-payment-request-probe",
         "payment-request-first-attempt-repair",
-        "payment-request-metadata-compatibility"
+        "payment-request-metadata-compatibility",
+        "payment-request-ipc-encoding"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-15",
-          "sourceSha": "894a4f55c1326563c91723125fff62f21ae6a974",
-          "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
+          "sourceSha": "362f81ba704ab792eff102cf121301deee4998f0",
+          "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
-            "payment-request-metadata-compatibility"
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-15",
-          "sourceSha": "e022e72ececb3120479f64a9c4e35cb86ab8057a",
-          "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
+          "sourceSha": "5a24f37909f7057cf323032ba1f632a700b38d52",
+          "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
-            "payment-request-metadata-compatibility"
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-15",
-          "sourceSha": "894a4f55c1326563c91723125fff62f21ae6a974",
-          "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
+          "sourceSha": "362f81ba704ab792eff102cf121301deee4998f0",
+          "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
-            "payment-request-metadata-compatibility"
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-15",
-          "sourceSha": "e022e72ececb3120479f64a9c4e35cb86ab8057a",
-          "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
+          "sourceSha": "5a24f37909f7057cf323032ba1f632a700b38d52",
+          "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
-            "payment-request-metadata-compatibility"
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding"
           ]
         },
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-15",
-          "sourceSha": "e022e72ececb3120479f64a9c4e35cb86ab8057a",
-          "scope": "Fixed 6086941 first page (100 rows) operator-only private diagnostic, synthetic tests only; no formal mapping, DB, UI, source activation, financial formula or actual payment inference.",
+          "sourceSha": "5a24f37909f7057cf323032ba1f632a700b38d52",
+          "scope": "Fixed 6086941 page 1, 100 rows, private diagnostic only; Windows GBK IPC and bounded evidence validation tested synthetically. Authorized real attempts failed; no validated mapping, DB, UI, activation, financial formula or bank-payment inference.",
           "evidence": [
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
-            "payment-request-metadata-compatibility"
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding"
           ]
         },
         "trial18443": {
@@ -4907,7 +4920,8 @@
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
-            "payment-request-metadata-compatibility"
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding"
           ]
         },
         "preview18444": {
@@ -4921,7 +4935,8 @@
             "payment-request-probe-results",
             "decisions-payment-request-probe",
             "payment-request-first-attempt-repair",
-            "payment-request-metadata-compatibility"
+            "payment-request-metadata-compatibility",
+            "payment-request-ipc-encoding"
           ]
         }
       }

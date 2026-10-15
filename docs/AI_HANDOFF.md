@@ -11,3 +11,5 @@
 独立fix/quote-logout-save-retry在旧server-quote-to-order树65566527b15c1ffd78715389d7c34db0e867b300，原a0e60e4保留。两处保存/退出保护已复现并最小修复；13项真实浏览器/一次性PG、112前端认证/持久化、类型、构建、lint通过，精确main门禁PASS；无UI改版，待独立文档/远端收口。
 
 真实四单窗口已12/12结束，不重启；未改真实账号/业务DB/现有演示镜像/宁波18443/18444。GitHub实时事实优先，本文件随代码、授权、证据或远端状态更新；Goal继续。
+
+当前编码修复源码362f81ba704ab792eff102cf121301deee4998f0，冻结新附录[第三/四次与IPC证据](tasks/active/evidence/ainuoke-payment-request-probe/third-fourth-attempt-ipc-2026-10-15.md)记录于5a24f37909f7057cf323032ba1f632a700b38d52；最终精确main守卫待本manifest提交后执行。此前186249门禁结束时工作区已有本轮编码自有改动，checkedHead只代表Git HEAD，不冒称当时clean；最终clean门禁另留结果。
