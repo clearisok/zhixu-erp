@@ -27,3 +27,5 @@ POST /api/v1/order-commercial-cutover-preview限定1–100个不重复订单UUID
 0015仅隔离随机tmpfs演练；旧数据、权限、身份不自动回填。回退不能重新开放旧共享订单写价；关闭采用命令并保留版本优先。旧应用与迁移后库完整兼容性未获确认。Gate1来源基础读取与认领投影分离，不靠扩大旧工具迁移范围兼容。
 
 规则、权限、schema/API、测试、远端或部署状态变化时更新本文件及CURRENT_STATE。GitHub是实时事实源，文档为阶段快照。
+
+2026-10-15：既有Gate2树前向整合G1 7ef6e665准备重试修复，商业逻辑与0015未变；29商业/角色、6身份+4商业浏览器、824项目/78基线、类型/源码lint/构建及精确门禁通过。新head交付和CI仍待，不能沿用3deffc的三绿。见[本轮证据](../tasks/active/evidence/order-commercial/gate2-g1-preparation-retry-2026-10-15.md)。

@@ -1,0 +1,8 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V1",
+  "paths": ["features/order-center/components/server-order-preparation-card.tsx"],
+  "pages": ["order-detail"],
+  "visibleDifference": "恢复原定的不确定保存重试行为：关闭后重开保留请求号及禁改原内容；成功回执后才开始另一笔。布局、按钮文字与页面导航不变。",
+  "evidence": ["docs/tasks/active/evidence/order-identity/pr109-preparation-retry-2026-10-15.md"]
+}

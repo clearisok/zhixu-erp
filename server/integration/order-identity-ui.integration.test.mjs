@@ -58,6 +58,24 @@ test("order identity built UI uses real sessions with synthetic data", {timeout:
    assert.equal(await evaluate("[...document.querySelectorAll('h2')].filter(n=>n.textContent==='订单认领与血统').length"),1);
    assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_orders')).rows[0].n,count);
   });
+  await t.test('uncertain preparation survives closing and retries its original request',async()=>{
+   const before=(await x.pool.query('SELECT count(*)::int n FROM sales_order_preparations WHERE reference_order_id=$1',[x.orderId])).rows[0].n;
+   const orders=(await x.pool.query('SELECT count(*)::int n FROM sales_orders')).rows[0].n;
+   await evaluate("window.preparationRequests=[];window.preparationOriginalFetch=window.fetch;window.preparationDropResponse=true;window.fetch=async(...args)=>{const preparation=String(args[0])==='/api/v1/order-preparations'&&args[1]?.method==='POST';if(preparation)window.preparationRequests.push(JSON.parse(args[1].body));const response=await window.preparationOriginalFetch(...args);if(preparation&&response.ok&&window.preparationDropResponse){window.preparationDropResponse=false;throw new TypeError('synthetic response lost after commit');}return response;};");
+   try{
+    await click('以本单建立翻单准备');await input('[role=dialog] input[inputmode=decimal]','234');await input('[role=dialog] input[type=date]','2027-02-01');await click('保存准备');await has('保存结果尚未确认');
+    assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_preparations WHERE reference_order_id=$1',[x.orderId])).rows[0].n,before+1);
+    await click('关闭建立翻单准备');await until(()=>evaluate("!document.querySelector('[role=dialog]')"),'closed uncertain preparation');
+    await click('以本单建立翻单准备');
+    assert.equal(await evaluate("document.querySelector('[role=dialog] input[inputmode=decimal]').value"),'234');
+    assert.equal(await evaluate("document.querySelector('[role=dialog] input[type=date]').value"),'2027-02-01');
+    assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] input,[role=dialog] textarea')].every(n=>n.disabled)"),true);
+    await click('原请求重试');await until(()=>evaluate("!document.querySelector('[role=dialog]')"),'replayed preparation confirmed');await has('234 件');
+    const requests=await evaluate('window.preparationRequests');assert.equal(requests.length,2);assert.deepEqual(requests[1],requests[0]);
+    assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_preparations WHERE reference_order_id=$1',[x.orderId])).rows[0].n,before+1);
+    assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_orders')).rows[0].n,orders);
+   }finally{await evaluate('window.fetch=window.preparationOriginalFetch;');}
+  });
   await t.test('admin transfer uses eligible public identities and requires reason',async()=>{
    await login('demo.admin');await navigate('/order-center/server-detail?id='+x.orderId);await has('转交负责人');await click('转交负责人');await has('转交订单负责人');
    assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] select option')].some(n=>n.textContent.includes('物控经理'))"),false);
