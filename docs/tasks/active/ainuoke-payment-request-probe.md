@@ -31,3 +31,9 @@ Git交付观察：用户普通PowerShell最新回执仍pushes0；独立API确认
 用户明确授权仅一次固定首页核验后，Codex在fc314ce061075d9033cd07bde73fff36dd0fe5f2/clean自行执行私密包装器，使用既有凭据文件；无凭据内容进入工具输出或聊天。执行约5.55秒，返回FAIL / payment_probe_failed / collection / databaseAccess none / sourceActivation not-activated。本次只证明采集未完成；原回执未记录worker阶段及请求计数，不能判断登录成功、报表请求是否发出或失败原因。指定新目录核对JSON报告数量为0。没有自动重试、第二页、数据库、Source激活或部署。
 
 调查发现工程诊断盲区：Python将多数异常统一归类，Node对非零worker丢弃安全错误码，PowerShell进一步只保留通用失败。已补闭合的跨进程错误协议，明确configuration/login/report/validation阶段与0–2 HTTP/0–1报表应用层计数；未知异常/额外字段/秘密文本仍拒绝反射。38项Node/真实包装器、85项Python、类型/Server编译/定向lint通过；旧37/83验收保持原时点历史，不改写已冻结报告。本次未再发起真实网络读取；下一次重试因前次授权仅一次，需要重新确认同一固定范围。
+
+## 2026-10-15 获准一次重试：已到达真实报表，元数据校验阻断
+
+用户明确授权再重试一次后，Codex在244b3d07ab618497874780690682f38d04e80d34/clean自行执行，约6.23秒返回FAIL / payment_probe_invalid_metadata / collection，workerStage validation、httpAttempts 2、reportRequests 1，databaseAccess none、sourceActivation not-activated。依据可执行阶段顺序，登录及6086941基础明细分页解析已通过，卡在原始报表元数据校验；不能声称业务映射正确、当前总条数或完整行数。新目录JSON报告计数仍0。没有追加第三次真实请求，没有第二页/DB/绑定/激活/部署。
+
+代码调查确认诊断器不支持reportObj空白/JSON字符串或cellList空值/JSON字符串的若干表示，构成可复现的兼容缺口；本机未找到可用于还原此次元数据的结构化原始响应，故不冒称已证实真实采用哪一种表示。已做最小表示归一：只解一层合法JSON，空元数据明确缺失，raw UTF8文本原样保留；非对象report/非数组columns、非法JSON、错reportId、编码秘密仍拒绝，新增四个精确静态错误码。公共回执仅增加元数据编码标志，无业务值。40项Node/实际包装器、87项Python、类型、Server编译和定向lint通过；不改数量、金额、单位、正式Adapter、数据库或UI。真实兼容性仍需新授权的固定首页核验，原单次重试授权已用完。

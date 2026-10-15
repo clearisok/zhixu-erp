@@ -229,3 +229,24 @@ test("closed worker failures preserve useful categories and reject forged/privat
     assert.ok(!invalid.message.includes(config.password));
   }
 });
+
+test("optional/encoded report and column metadata are representation only, original raw remains authoritative", () => {
+  const cases: unknown[] = [null, "", "   ", { cellList: null }, { cellList: "" }, { cellList: " [] " },
+    { reportId: 6086941, cellList: JSON.stringify([{ fieldName: "QtyUnit" }]) },
+    JSON.stringify({ reportId: 6086941, cellList: JSON.stringify([{ fieldName: "QtyUnit" }]) })];
+  for (const value of cases) {
+    const evidence = changeRaw(sample(), raw => { raw.reportObj = value; });
+    const result = validatePaymentEvidence(evidence, config, now);
+    assert.equal(result.privateReport.rawReportResponse, evidence.rawReportResponse);
+    assert.equal(result.summary.mappingVerified, false);
+    assert.equal(result.summary.columnMetadataReturned, Boolean(value && (typeof value === "string" && value.trim() || typeof value === "object" && (value as Record<string, unknown>).cellList && String((value as Record<string, unknown>).cellList).trim())) );
+  }
+});
+test("malformed metadata stays blocked with precise codes, encoded identity and secrets cannot bypass", () => {
+  for (const [value, code] of [["invalid", "payment_probe_report_metadata_invalid_json"], [[], "payment_probe_report_metadata_shape"],
+    [{ cellList: "invalid" }, "payment_probe_column_metadata_invalid_json"], [{ cellList: {} }, "payment_probe_column_metadata_shape"]] as const) {
+    assert.throws(() => validatePaymentEvidence(changeRaw(sample(), raw => { raw.reportObj = value; }), config, now), new RegExp(code));
+  }
+  assert.throws(() => validatePaymentEvidence(changeRaw(sample(), raw => { raw.reportObj = JSON.stringify({ reportId:6087050, cellList:"[]" }); }), config, now), /report_mismatch/);
+  assert.throws(() => validatePaymentEvidence(changeRaw(sample(), raw => { raw.reportObj = { cellList: JSON.stringify([{ password:"must-not-pass" }]) }; }), config, now), /secret/);
+});

@@ -17,6 +17,25 @@ function decoded(value: unknown): ObjectValue {
   try { return object(typeof value === "string" ? JSON.parse(value) : value); }
   catch { throw new SourceError("payment_probe_invalid_evidence"); }
 }
+
+function reportMetadata(value: unknown): ObjectValue | null {
+  if (value == null || typeof value === "string" && !value.trim()) return null;
+  let parsed = value;
+  if (typeof parsed === "string") {
+    try { parsed = JSON.parse(parsed); } catch { throw new SourceError("payment_probe_report_metadata_invalid_json"); }
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new SourceError("payment_probe_report_metadata_shape");
+  const meta = { ...(parsed as ObjectValue) };
+  let columns = meta.cellList;
+  if (typeof columns === "string") {
+    if (!columns.trim()) columns = null;
+    else try { columns = JSON.parse(columns); } catch { throw new SourceError("payment_probe_column_metadata_invalid_json"); }
+  }
+  if (columns != null && !Array.isArray(columns)) throw new SourceError("payment_probe_column_metadata_shape");
+  if (Object.hasOwn(meta, "cellList")) meta.cellList = columns;
+  return meta;
+}
+
 function safeTree(value: unknown, secrets: string[], depth = 0): void {
   if (depth > 12) throw new SourceError("payment_probe_invalid_evidence");
   if (depth === 0) inspect(value);
@@ -30,7 +49,7 @@ function approvedConfig(input: unknown) {
   return config;
 }
 
-export const PAYMENT_WORKER_FAILURE_CODES = Object.freeze(["invalid_payment_probe_input","payment_probe_origin_not_approved","payment_probe_explicit_action_required","invalid_payment_probe_credentials","payment_probe_endpoint_refused","payment_probe_scope_refused","payment_probe_request_limit","payment_probe_response_limit","payment_probe_invalid_json","payment_probe_invalid_metadata","payment_probe_structure_limit","payment_probe_secret_field","payment_probe_secret_reflection","payment_probe_invalid_number","payment_probe_page_limit","payment_probe_raw_evidence_missing","payment_probe_report_mismatch","redirect_refused","auth_expired","invalid_credential","network_unavailable","upstream_http_error","upstream_schema_error","payment_probe_failed"]);
+export const PAYMENT_WORKER_FAILURE_CODES = Object.freeze(["invalid_payment_probe_input","payment_probe_origin_not_approved","payment_probe_explicit_action_required","invalid_payment_probe_credentials","payment_probe_endpoint_refused","payment_probe_scope_refused","payment_probe_request_limit","payment_probe_response_limit","payment_probe_invalid_json","payment_probe_invalid_metadata","payment_probe_structure_limit","payment_probe_secret_field","payment_probe_secret_reflection","payment_probe_invalid_number","payment_probe_page_limit","payment_probe_raw_evidence_missing","payment_probe_report_mismatch","redirect_refused","auth_expired","invalid_credential","network_unavailable","upstream_http_error","upstream_schema_error","payment_probe_failed","payment_probe_report_metadata_invalid_json","payment_probe_report_metadata_shape","payment_probe_column_metadata_invalid_json","payment_probe_column_metadata_shape"]);
 class PaymentWorkerError extends SourceError {
   constructor(readonly detail: { code: string; workerStage: string; httpAttempts: number; reportRequests: number }) { super(detail.code); }
 }
@@ -93,7 +112,7 @@ export function validatePaymentEvidence(input: unknown, config: CollectorConfig,
   if (!Number.isFinite(fetched) || fetched > now || now - fetched > PAYMENT_LIMITS.timeoutMs
     || evidence.rawResponseSha256 !== createHash("sha256").update(evidence.rawReportResponse).digest("hex"))
     throw new SourceError("payment_probe_invalid_evidence");
-  const raw = decoded(evidence.rawReportResponse), data = decoded(raw.dataList), meta = raw.reportObj == null ? null : decoded(raw.reportObj);
+  const raw = decoded(evidence.rawReportResponse), data = decoded(raw.dataList), meta = reportMetadata(raw.reportObj);
   for (const value of [raw, data, meta]) safeTree(value, [config.password]);
   if (object(raw.reObj).isOk !== true || !Array.isArray(data.rows) || data.rows.length !== evidence.returnedRows
     || raw.dataCount !== evidence.reportedTotal || data.rows.length > (evidence.reportedTotal as number)
@@ -101,12 +120,14 @@ export function validatePaymentEvidence(input: unknown, config: CollectorConfig,
     throw new SourceError("payment_probe_invalid_evidence");
   for (const container of [raw, meta]) if (container && Object.hasOwn(container, "reportId") && String(container.reportId) !== PAYMENT_LIMITS.reportId)
     throw new SourceError("payment_probe_report_mismatch");
-  if (meta && Object.hasOwn(meta, "cellList") && !Array.isArray(meta.cellList)) throw new SourceError("payment_probe_invalid_evidence");
   const rows = data.rows.map(object);
   const fieldCoverage = Object.fromEntries(CANDIDATE_FIELDS.map(field => [field, { present: rows.filter(row => Object.hasOwn(row, field)).length,
     nonblank: rows.filter(row => Object.hasOwn(row, field) && row[field] != null && (typeof row[field] !== "string" || (row[field] as string).trim() !== "")).length }]));
   const candidate = new Set<string>(CANDIDATE_FIELDS);
   const unknownFields = new Set(rows.flatMap(row => Object.keys(row).filter(key => !candidate.has(key))));
+  const originalMeta = typeof raw.reportObj === "string" && raw.reportObj.trim() ? decoded(raw.reportObj) : raw.reportObj;
+  const originalColumns = originalMeta && typeof originalMeta === "object" ? (originalMeta as ObjectValue).cellList : undefined;
+  const columnMetadataJsonEncoded = typeof originalColumns === "string" && Boolean(originalColumns.trim());
   const publicFacts = { schemaVersion: "ainuoke-payment-request-probe.v1", result: "READ_ONLY_FIRST_PAGE_RECORDED",
     transport: "user-approved-plaintext-http", sourceFingerprint: accountFingerprint(config), databaseAccess: "none", sourceActivation: "not-activated",
     humanBusinessAcceptance: "not-performed", scope: "fixed-report-first-page-only", reportId: PAYMENT_LIMITS.reportId, page: 1, pageSize: 100,
@@ -114,7 +135,10 @@ export function validatePaymentEvidence(input: unknown, config: CollectorConfig,
     allVisibleRecordsRead: (evidence.reportedTotal as number) <= 100 && rows.length === evidence.reportedTotal,
     discoveryRequests: 0, reportRequests: 1, httpAttempts: 2, fetchedAt: evidence.fetchedAt as string, rawResponseSha256: evidence.rawResponseSha256 as string,
     reportIdentityReturned: Boolean((meta && Object.hasOwn(meta, "reportId")) || Object.hasOwn(raw, "reportId")),
-    columnMetadataReturned: Boolean(meta && Array.isArray(meta.cellList)), candidateFieldCoverage: fieldCoverage, unrecognizedRowFieldCount: unknownFields.size,
+    columnMetadataReturned: Boolean(meta && Array.isArray(meta.cellList)),
+    reportMetadataJsonEncoded: typeof raw.reportObj === "string" && Boolean(raw.reportObj.trim()),
+    columnMetadataJsonEncoded,
+    candidateFieldCoverage: fieldCoverage, unrecognizedRowFieldCount: unknownFields.size,
     mappingVerified: false, unitSemantics: "not-verified", currencySemantics: "not-verified", formulaValidation: "not-performed", bankPaymentStatus: "not-inferred" };
   const privateReport = { schemaVersion: "ainuoke-payment-request-private.v1", sourceFingerprint: accountFingerprint(config), databaseAccess: "none", sourceActivation: "not-activated",
     reportId: PAYMENT_LIMITS.reportId, capturedAt: evidence.fetchedAt, page: 1, pageSize: 100, rawResponseSha256: evidence.rawResponseSha256,
@@ -152,7 +176,7 @@ export async function main(args = process.argv.slice(2)) {
   } catch (error) {
     const allowed = new Set(["payment_probe_explicit_action_required", "preflight_private_output_required", "payment_probe_clean_commit_required",
       "invalid_collector_configuration", "payment_probe_scope_refused", "payment_probe_timeout", "payment_probe_limit", "payment_probe_worker_unavailable",
-      "payment_probe_invalid_evidence", "payment_probe_report_mismatch", "source_secret_field"]);
+      "payment_probe_invalid_evidence", "payment_probe_report_mismatch", "source_secret_field","payment_probe_report_metadata_invalid_json","payment_probe_report_metadata_shape","payment_probe_column_metadata_invalid_json","payment_probe_column_metadata_shape"]);
     const code = error instanceof PaymentWorkerError || error instanceof SourceError && allowed.has(error.code) ? error.code : "payment_probe_failed";
     const diagnostics = error instanceof PaymentWorkerError ? { workerStage: error.detail.workerStage, httpAttempts: error.detail.httpAttempts, reportRequests: error.detail.reportRequests } : {};
     process.stdout.write(JSON.stringify({ schemaVersion: "ainuoke-payment-request-probe.v1", result: "FAIL", code, stage, ...diagnostics, databaseAccess: "none", sourceActivation: "not-activated" }) + "\n"); process.exitCode = 1;

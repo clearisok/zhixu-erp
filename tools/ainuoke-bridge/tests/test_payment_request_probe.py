@@ -127,4 +127,32 @@ class PaymentProbeTests(TestCase):
             self.assertEqual(result["code"],"network_unavailable"); self.assertEqual(result["workerStage"],"report")
             self.assertEqual((result["httpAttempts"],result["reportRequests"]),(2,1)); self.assertNotIn("must-not-reflect",out.getvalue())
 
+
+    def test_optional_and_json_encoded_metadata_keep_original_wire_text(self):
+        cases=[]
+        for value in (None,"", "   ", {"cellList": None}, {"cellList": ""}, {"cellList": " [] "},
+                      {"reportId":6086941,"cellList":json.dumps([{"fieldName":"QtyUnit"}])},
+                      json.dumps({"reportId":6086941,"cellList":json.dumps([{"fieldName":"QtyUnit"}])})):
+            item=response(); item["reportObj"]=value; cases.append(item)
+        for index,item in enumerate(cases):
+            with self.subTest(index=index):
+                transport=FakeTransport(item); result=probe(CONFIG,transport)
+                self.assertEqual(result["rawReportResponse"],json.dumps(item,ensure_ascii=False))
+                self.assertEqual((transport.http_attempts,transport.report_requests),(2,1))
+    def test_metadata_shape_errors_precise_but_identity_and_secret_rules_unchanged(self):
+        from ainuoke_bridge.payment_request_probe import safe_failure
+        cases=[("invalid", "payment_probe_report_metadata_invalid_json"),
+               ([], "payment_probe_report_metadata_shape"),
+               ({"cellList":"invalid"}, "payment_probe_column_metadata_invalid_json"),
+               ({"cellList":{}}, "payment_probe_column_metadata_shape")]
+        for value,code in cases:
+            with self.subTest(code=code):
+                item=response(); item["reportObj"]=value; transport=FakeTransport(item)
+                with self.assertRaises(UpstreamSchemaError) as raised: probe(CONFIG,transport)
+                self.assertEqual(safe_failure(raised.exception,transport)["code"],code)
+        for value in (json.dumps({"reportId":6087050,"cellList":"[]"}),
+                      {"cellList":json.dumps([{"password":"must-not-pass"}])}):
+            item=response();item["reportObj"]=value
+            with self.assertRaises(UpstreamSchemaError): probe(CONFIG,FakeTransport(item))
+
 if __name__=="__main__": main()

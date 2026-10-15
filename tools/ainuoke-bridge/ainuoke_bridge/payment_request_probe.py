@@ -105,6 +105,36 @@ def decoded_object(value, *, optional=False):
     return value
 
 
+
+def report_metadata(value):
+    # Optional metadata may be omitted/blank, or JSON-encoded by the report API.
+    # Normalize only its representation; retain the original response unchanged.
+    if value is None or isinstance(value, str) and not value.strip():
+        return None
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except (ValueError, RecursionError):
+            raise UpstreamSchemaError("payment_probe_report_metadata_invalid_json") from None
+    if not isinstance(value, Mapping):
+        raise UpstreamSchemaError("payment_probe_report_metadata_shape")
+    result = dict(value)
+    columns = result.get("cellList")
+    if isinstance(columns, str):
+        if not columns.strip():
+            columns = None
+        else:
+            try:
+                columns = json.loads(columns)
+            except (ValueError, RecursionError):
+                raise UpstreamSchemaError("payment_probe_column_metadata_invalid_json") from None
+    if columns is not None and not isinstance(columns, list):
+        raise UpstreamSchemaError("payment_probe_column_metadata_shape")
+    if "cellList" in result:
+        result["cellList"] = columns
+    return result
+
+
 def reject_reflected_secrets(value: Any, secrets, depth=0):
     if depth > 16:
         raise UpstreamSchemaError("payment_probe_structure_limit")
@@ -139,12 +169,10 @@ def probe(data, transport=None):
         raise UpstreamSchemaError("payment_probe_raw_evidence_missing")
     raw = decoded_object(raw_text)
     parsed_data = decoded_object(raw.get("dataList"))
-    report = decoded_object(raw.get("reportObj"), optional=True)
+    report = report_metadata(raw.get("reportObj"))
     for container in (raw, report):
         if container is not None and "reportId" in container and str(container["reportId"]) != REPORT_ID:
             raise UpstreamSchemaError("payment_probe_report_mismatch")
-    if report is not None and "cellList" in report and not isinstance(report["cellList"], list):
-        raise UpstreamSchemaError("payment_probe_invalid_metadata")
     secrets = (data["password"], session.jwt_token, session.session_id)
     # Check the decoded rows/metadata too: JSON strings must not hide forbidden fields.
     for value in (raw, parsed_data, report):
@@ -165,6 +193,7 @@ FAILURE_CODES = frozenset({
     "payment_probe_invalid_metadata", "payment_probe_structure_limit", "payment_probe_secret_field",
     "payment_probe_secret_reflection", "payment_probe_invalid_number", "payment_probe_page_limit",
     "payment_probe_raw_evidence_missing", "payment_probe_report_mismatch", "redirect_refused",
+    "payment_probe_report_metadata_invalid_json", "payment_probe_report_metadata_shape", "payment_probe_column_metadata_invalid_json", "payment_probe_column_metadata_shape",
     "auth_expired", "invalid_credential", "network_unavailable", "upstream_http_error", "upstream_schema_error",
 })
 def safe_failure(error, transport):
