@@ -1089,6 +1089,81 @@
       "path": "docs/tasks/completed/2026-10-15-source-21da-baseline.json",
       "recordedAtSha": "f810f073ce3303217484325d7acd934142db5aa8",
       "sha256": "dc5cd6bddc20103a06fc347f57afdd9dbd44c4e02cc0ad96c9a458f3665d3c52"
+    },
+    {
+      "id": "material-order-page-approved-scope",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/approved-page-scope.md",
+      "recordedAtSha": "27d61f5a0617d9cabf3e45e299ff13404f31fff0",
+      "sha256": "0358c04ec7b020a5d83fb3271feb6f0bd46d5cca927026197ad2edd4567c0398"
+    },
+    {
+      "id": "material-order-header-ui-verification",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/header-browser-verification-2026-10-15.md",
+      "recordedAtSha": "7949cdd0c708556f691b0629d6fcb15119782d70",
+      "sha256": "3b4b973af3bf1c16194e7aca10d2e26de3c34217a3759a6911870d5713317bca"
+    },
+    {
+      "id": "material-order-header-ui-receipt",
+      "kind": "document",
+      "path": "docs/tasks/assets/material-order-header-2026-10-15/receipt.json",
+      "recordedAtSha": "7949cdd0c708556f691b0629d6fcb15119782d70",
+      "sha256": "a5159c4d28bc728dfd4dbd47055ee15f4c5a78d045d0f822d240713b1db5c6d0"
+    },
+    {
+      "id": "num-dyc-historical-source-proof",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/num-dyc-existing-evidence-2026-10-15.md",
+      "recordedAtSha": "ce8b616e394c525a1886d5069fc85e375fa16022",
+      "sha256": "7ac25edf12de5977052ca90744badff4508efcd7033bfba0e2fd793cd149467a"
+    },
+    {
+      "id": "source-order-integration-checker-followup",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/material-source-integration/phase-a-checker-followup.md",
+      "recordedAtSha": "6ae1bc7b507df57a7b018c85358763a6e9b75693",
+      "sha256": "37064480941e5f1450057c83847e132c8e112e64a328dab2d1bfc2473d914516"
+    },
+    {
+      "id": "material-order-header-order-header-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-order-header-2026-10-15/order-header-1440.png",
+      "recordedAtSha": "7949cdd0c708556f691b0629d6fcb15119782d70",
+      "renderedSourceSha": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+      "sha256": "7085dd28fc87857d1a7e7b15bdf9bde1cd5fba5f02758fdd6593da93782d7a80",
+      "changeReason": "New D121-approved header scope and six-width synthetic evidence; preserve every old image and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-order-page-approved-scope"
+    },
+    {
+      "id": "material-order-header-material-header-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-order-header-2026-10-15/material-header-1440.png",
+      "recordedAtSha": "7949cdd0c708556f691b0629d6fcb15119782d70",
+      "renderedSourceSha": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+      "sha256": "b90e429b9f8b9d628e71dbc0c95ea395d81106f4dd47f0bdf8396d4ed02abeca",
+      "changeReason": "New D121-approved header scope and six-width synthetic evidence; preserve every old image and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-order-page-approved-scope"
+    },
+    {
+      "id": "material-order-header-order-header-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-order-header-2026-10-15/order-header-390.png",
+      "recordedAtSha": "7949cdd0c708556f691b0629d6fcb15119782d70",
+      "renderedSourceSha": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+      "sha256": "9bfbedaefdbdcefcf9c9c00d6708f599ecb050caa27cb013d872b1d37b8ecd67",
+      "changeReason": "New D121-approved header scope and six-width synthetic evidence; preserve every old image and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-order-page-approved-scope"
+    },
+    {
+      "id": "material-order-header-material-header-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/material-order-header-2026-10-15/material-header-390.png",
+      "recordedAtSha": "7949cdd0c708556f691b0629d6fcb15119782d70",
+      "renderedSourceSha": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+      "sha256": "dd5ee2398c7c1fc7ef619fa7dbf2fbc710effa0840aa6331ba4a8dd5fcefc202",
+      "changeReason": "New D121-approved header scope and six-width synthetic evidence; preserve every old image and do not claim human pixel acceptance.",
+      "approvalEvidence": "material-order-page-approved-scope"
     }
   ],
   "pages": [
@@ -1190,7 +1265,7 @@
         "features/order-center/components/server-sales-order-detail-page.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment.",
+      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -1200,7 +1275,11 @@
         "ainuoke-continuous-computed-styles",
         "unified-demo-engineering",
         "ainuoke-readiness-engineering",
-        "order-source-history-ui-engineering"
+        "order-source-history-ui-engineering",
+        "material-order-header-order-header-1440",
+        "material-order-header-order-header-390",
+        "material-order-page-approved-scope",
+        "material-order-header-ui-verification"
       ]
     },
     {
@@ -1211,7 +1290,7 @@
         "features/style-progress/components/style-progress-server-page.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
+      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -1220,7 +1299,11 @@
         "ainuoke-continuous-engineering",
         "ainuoke-continuous-computed-styles",
         "unified-demo-engineering",
-        "ainuoke-readiness-engineering"
+        "ainuoke-readiness-engineering",
+        "material-order-header-material-header-1440",
+        "material-order-header-material-header-390",
+        "material-order-page-approved-scope",
+        "material-order-header-ui-verification"
       ]
     },
     {
@@ -4186,6 +4269,99 @@
           ],
           "runtimeId": "preview18444",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23"
+        }
+      }
+    },
+    {
+      "id": "material-order-headers",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Approved header/back-arrow/business-style/factory-style corrections and compact source status; actual synthetic six-width and protected navigation validation, no human pixel acceptance, production deployment, source activation or quantity changes.",
+      "evidence": [
+        "material-order-header-ui-verification",
+        "material-order-page-approved-scope"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+          "scope": "Approved header/back-arrow/business-style/factory-style corrections and compact source status; actual synthetic six-width and protected navigation validation, no human pixel acceptance, production deployment, source activation or quantity changes.",
+          "evidence": [
+            "material-order-header-ui-verification",
+            "material-order-page-approved-scope"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "7949cdd0c708556f691b0629d6fcb15119782d70",
+          "scope": "Approved header/back-arrow/business-style/factory-style corrections and compact source status; actual synthetic six-width and protected navigation validation, no human pixel acceptance, production deployment, source activation or quantity changes.",
+          "evidence": [
+            "material-order-header-ui-verification",
+            "material-order-page-approved-scope"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "17e8fb2b92287337455439d598dc74c14b1b03a3",
+          "scope": "Approved header/back-arrow/business-style/factory-style corrections and compact source status; actual synthetic six-width and protected navigation validation, no human pixel acceptance, production deployment, source activation or quantity changes.",
+          "evidence": [
+            "material-order-header-ui-verification",
+            "material-order-page-approved-scope"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "7949cdd0c708556f691b0629d6fcb15119782d70",
+          "scope": "Approved header/back-arrow/business-style/factory-style corrections and compact source status; actual synthetic six-width and protected navigation validation, no human pixel acceptance, production deployment, source activation or quantity changes.",
+          "evidence": [
+            "material-order-header-ui-verification",
+            "material-order-page-approved-scope"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "7949cdd0c708556f691b0629d6fcb15119782d70",
+          "scope": "Approved header/back-arrow/business-style/factory-style corrections and compact source status; actual synthetic six-width and protected navigation validation, no human pixel acceptance, production deployment, source activation or quantity changes.",
+          "evidence": [
+            "material-order-header-ui-verification",
+            "material-order-page-approved-scope"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Not deployed by this task. Runtime identity is the retained dated observation, not a fresh environment check.",
+          "evidence": [
+            "material-order-header-ui-verification",
+            "material-order-page-approved-scope"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Not deployed by this task. Runtime identity is the retained dated observation, not a fresh environment check.",
+          "evidence": [
+            "material-order-header-ui-verification",
+            "material-order-page-approved-scope"
+          ]
         }
       }
     }
