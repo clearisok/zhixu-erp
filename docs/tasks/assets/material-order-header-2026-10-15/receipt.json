@@ -1,0 +1,38 @@
+{
+  "verifiedAt": "2026-10-15",
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "buildId": "20261015-121630",
+  "renderedSourceSha": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+  "testHarnessSha": "17e8fb2b92287337455439d598dc74c14b1b03a3",
+  "scope": "synthetic Chromium screenshots; approved scope, no human pixel acceptance or deployment",
+  "screenshots": [
+    {
+      "path": "docs/tasks/assets/material-order-header-2026-10-15/order-header-1440.png",
+      "sha256": "7085dd28fc87857d1a7e7b15bdf9bde1cd5fba5f02758fdd6593da93782d7a80",
+      "renderedSourceSha": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+      "capturedAt": "2026-10-15T04:29:32.985Z",
+      "synthetic": true
+    },
+    {
+      "path": "docs/tasks/assets/material-order-header-2026-10-15/material-header-1440.png",
+      "sha256": "b90e429b9f8b9d628e71dbc0c95ea395d81106f4dd47f0bdf8396d4ed02abeca",
+      "renderedSourceSha": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+      "capturedAt": "2026-10-15T04:29:33.312Z",
+      "synthetic": true
+    },
+    {
+      "path": "docs/tasks/assets/material-order-header-2026-10-15/order-header-390.png",
+      "sha256": "9bfbedaefdbdcefcf9c9c00d6708f599ecb050caa27cb013d872b1d37b8ecd67",
+      "renderedSourceSha": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+      "capturedAt": "2026-10-15T04:29:35.342Z",
+      "synthetic": true
+    },
+    {
+      "path": "docs/tasks/assets/material-order-header-2026-10-15/material-header-390.png",
+      "sha256": "dd5ee2398c7c1fc7ef619fa7dbf2fbc710effa0840aa6331ba4a8dd5fcefc202",
+      "renderedSourceSha": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+      "capturedAt": "2026-10-15T04:29:35.564Z",
+      "synthetic": true
+    }
+  ]
+}

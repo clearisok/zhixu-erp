@@ -1,17 +1,13 @@
-# 当前接力：Gate5 Phase A合并收口
+# 接力：Gate5 B1截图冻结，继续B2
 
-2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；原order-effective-attribution物理工作树，当前feat/material-progress-integration。起始4bdfa830/clean，本地合入21da670。旧工作树/分支/私有证据和node_modules junction目标保护，不重建、reset、clean或自动rebase。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。原order-effective-attribution物理工作树，分支feat/material-progress-integration，不新建或清理旧树。G1–G4 PR109/110/111/112已精确送达且各3CI成功，后3项Draft，均未合并；统一合并授权仍待人类答复。108独立开放，本分支通过真实merge包含其f5依赖及Source21da。不能重复建PR或默默合并。
 
-109@1fcc440、110@3deffc4、111@f4a1b99b、112@036fe521均远端精确且3CI成功，均未合并。后3项Draft依赖顺序109→110→111→112；合并授权待用户实际回复。108仍独立开放，不能重复建PR。G5网络Dry Run失败pushes0，NETWORK_DEGRADED；只保存本地checkpoint，不再自动恢复/推送，不要求用户为每个小步骤手推。
+Phase A f810f073/2e056e4/b2918fae/6ae1bc7：17冲突保留旧Source人工事实/提醒/退出/私密工具与新身份/商业版本/加工/归属/准备。单单和batch同RR generation，私有receipt不自动随SO归一转移。最终root876、baseline94、PG261、跨Gate81全PASS，持续70PASS/1Linux skip；类型/Server/lint全绿。初轮失败及检查器修复均在phase-a-checker-followup.md，不改旧冻结报告。
 
-17冲突已语义整合：G1–G4身份/CCT隔离/加工/准备/归属/历史与Source D113–120人工确认/提醒/顶部退出/只读工具均保留。reader单单及列表batch同RR代际/权限/context校验；人工receipt不自动迁SO。旧共享CCT和经销报价SO不恢复。D132和Source21da manifest归档已写；当前manifest仍需真实merge SHA的DECISION前向冻结，不能把分叉历史塞成并行active叶。
+B1代码27d61f5a→9b77b811→d0e1ae2d；测试00f60019→17e8fb2b，后续ce8b616e只文档。最终UI21/21PASS：六宽度/125%/工厂与业务款号/30px箭头/移重复/移动唯一身份，原退出/准备恢复与Source失效保护保持。渲染source d0e1ae2d67589654207db8fda011d5384eb5d8b2、buildId20261015-121630；脚本17e8fb2b92287337455439d598dc74c14b1b03a3。四PNG新路径assets/material-order-header-2026-10-15，AI目视已看，非用户验收。先提交本批截图/receipt/验收报告，再绑定manifest：approval文档源27d61f5a，PNG recordedAt用实际证据commit、renderedSource用d0e1ae2d，保留所有旧ID/PNG/hash。B1首次CSS空列及后续测试未等唯一列表主体的失败记录保留，未松断言。
 
-证据tasks/active/evidence/material-source-integration/phase-a-results.md：82单元、PG26初PASS/1旧不可变测试FAIL/1Linux skip，修正后2/2PASS；20实际Chrome包括Quote脏草稿退出失败和准备未知请求退出保护。类型/Server编译及dirty构建PASS；一个unused Button已移除。冻结前基线失败（DECISION drift/ANCHOR）保留，ANCHOR已修，必须freeze后重跑完整基线/root/来源门禁和精确构建，不冒称整个Gate5完成。
+B2尚待：Source-only MaterialControlTower箭头展开颜色规格、卡片右侧事件Drawer；面料按需求数值排序仅展示，辅料团队关键词设置（管理员+物控经理），刷新左侧入口→系统进度设置，不打开生产路由/不Browser回退。若需0024 schema先核对编号及现有SQL/LEGACY，只有一次性PG执行，不真实迁移。计划已批准，不重复问技术选型。
 
-下步完成本地merge commit、前向证据绑定/测试收口，然后Phase B批准的小箭头/业务与工厂款号/去重复导航/面料排序与团队辅料设置/事件侧栏；Phase C num_dyc真实返回粒度单位重复核验、6086941固定独立只读来源。sourceId6083694非reportID；财务缺可信物料分录键时保留订单级未关联记录，不按名称/数量猜；付款申请不是已银行付款，不扩FX。
+C新实证：旧质量raw hash22e8af8692b07aedb9fe0690beb10883714d94531c09f08b979ac86c384c6cd9，13合同386行，num_dyc117正值/269缺键，当前Adapter/Pipeline逐源行追到117入库事件，无冲突或未关联。原工具29e41663389d8290fbc865db240f63c816f9c321，无preflightLineageVerified，不倒签新鲜入口。原Adapter rawFields已保留字段，正式映射可只读Projection+sourceReferences核验，但先等用户对一张真实入库例的粒度/单位答复。具体标识仅在私有报告/本次用户问题中，不写Git。不能把缺键变0或按采购理论差推算。详见num-dyc-existing-evidence-2026-10-15.md。6086941仍独立来源待工程，保留四数量/金额差异、币种unknown、订单级未关联，不按姓名/数量归并物料或把申请当银行已付款。
 
-既有四单窗口12成功/固定4单/12独立run/截止停止仅既有私有日志只读验证，无新采集或DB。禁止真实账号/业务库、Source范围窗口、宁波/18443/18444/部署/自动合并，完整Goal继续。旧pre-Gate5接力在completed原文件和Git中。
-
-Phase A最终复验已收口：b2918fae上root876/876、baseline94/94、PG261/261、跨Gate81/81、持续70PASS/1Linux skip，类型/Server/lint全绿；显式构建完整b291SHA/buildId20261015-120039。当前B1仅前端/样式/文档/浏览器增量，起始b291clean，不能混入Phase A文档收口提交；选择性stage下列Phase A记录即可：CURRENT_STATE、AI_HANDOFF和phase-a-checker-followup。B1审批文档/路径记录和真实字段/六宽度验收已准备，测试待运行。
-
-num_dyc新进展：既有受保护raw包（hash22e8af…）确实保留117/386行该字段，13合同通过当前Adapter/Pipeline离线追踪到117入库事件；无新HTTP/DB/凭据访问。269缺键保未知；原工具29e416、缺preflightLineageVerified，不当作新鲜采集。业务粒度/单位已用一张真实入库实例异步询问，等待实际回答再正式映射；公开证据见num-dyc-existing-evidence-2026-10-15.md，无真实标识入Git。
+网络沿用G5 Dry Run失败：pushes0/NETWORK_DEGRADED。安全本地进展可继续，不自动恢复/重复push；G5无远端/PR结论。没有新真实HTTP/账号/业务DB/ACL/窗口、宁波/18443/18444、部署或现有真实演示镜像变更。四单旧窗口12成功且已到期停止。Goal继续。
