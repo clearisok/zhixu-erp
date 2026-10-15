@@ -1,4 +1,4 @@
-2026-10-15 后续真实尝试：用户一次固定6086941首页授权已执行，但采集失败且0个JSON报告，不等于已接通；闭合错误阶段/计数修复38Node/85Python本地通过，重试尚未授权。[失败事实与修复附录](../tasks/active/evidence/ainuoke-payment-request-probe/first-attempt-failure-and-repair-2026-10-15.md)。下段无真实读取是前一合成验收时点。
+2026-10-15 最新6086941：第二次单次授权已执行，认证和基础明细分页解析通过，2HTTP/1report在元数据校验失败；40Node/87Python的表示兼容修复只属本地工程，真实形态/业务映射仍待新授权核验。[最新附录](../tasks/active/evidence/ainuoke-payment-request-probe/second-attempt-metadata-2026-10-15.md)。下段是前一时点。
 
 2026-10-15 D135工程候选：独立6086941固定首页100行诊断已完成合成测试，未真实读取/映射/接UI/DB/持续Source。复用现有登录报表契约，原始数值文本保留在ACL保护报告，公开只给字段覆盖/计数/hash；不以Num汇总采购、不混同各类数量金额、不默认币种或银行已付。命令默认不联网，显式范围另行授权。[工程、测试与下一Gate](../tasks/active/ainuoke-payment-request-probe.md)。
 
