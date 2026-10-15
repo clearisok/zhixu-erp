@@ -7,3 +7,5 @@
 原def98完整PG本轮261/261；修复Source21总20PASS/1Linux在WindowsSKIP，真实Pythonloopback通过；UI5/完整type/增量lint/显式Server build通过。初始baseline/team-access已绿，修复交付前门禁PASS、71/71基线通过。证据tasks/active/evidence/order-identity/pr109-ci-followup.md，旧证据不改。下一步commit修复、精确门禁、按实际网络一次安全交付并核新CI，不自动合并。
 
 所有旧worktree/后续分支/Browser持久数据保留。G1不替代G2商业隔离或G3加工批次；旧共享CCT明确仍在。不访问真实DB、账号、凭据、Source或部署。Git网络规则保持，不宣称永久恢复。上一接力completed/2026-10-15-pr109-pre-ci-fix-ai-handoff.md。
+
+第二轮精确b497 Source CI已过读取/Linux/相关领域组，在fresh-start最后两项旧12断言失败；已改显式1–12/14、保留所有业务表0与技术白名单，fresh-start7及原P6浏览器9通过。详情tasks/active/evidence/order-identity/pr109-fresh-start-followup.md；不是整个CI已通过，新checkpoint交付后继续核。
