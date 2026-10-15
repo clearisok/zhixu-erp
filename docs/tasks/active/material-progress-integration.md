@@ -49,3 +49,5 @@ Phase A后续本地证据：PG26通过/1初轮旧测试失败/1 Linux skip已保
 B1首轮实际浏览器：19PASS/2计数FAIL（同一页头子测试及父测试），问题为旧Server详情CSS仍强制back/identity/actions三列，空back列使h1偏移。未放宽对齐断言，新增仅无back节点时的identity/actions两列修复，并在失败消息记录像素/列宽。首轮其余退出/Source/准备保护均通过，六宽度未完成不提前PASS。
 
 B1静态样式核对：旧移动规则隐藏所有页头description；概况移除重复SO/BillNo后会隐藏唯一身份。增加只针对Server订单/物料详情的覆盖，移动端保留唯一SO/BillNo/合同说明，其他报价/列表不变。待六宽度真实浏览器验证。
+
+B1第二轮：空列修复后六宽度标题/像素/唯一字段/无溢出等已运行，但最后返回列表测试用共享SC文本判断完成，读到React异步导航前的pathname而失败（19PASS/2计数FAIL）；改为先等待精确pathname再断言内容，不改产品导航或放宽验收。新构建d0e1ae2d/buildId20261015-121630截图保留，第三轮复验待完成。

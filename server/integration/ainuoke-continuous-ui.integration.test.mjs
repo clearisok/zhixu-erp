@@ -93,8 +93,8 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
     assert.ok(await evaluate("document.querySelector('.ops-topbar-back').getBoundingClientRect().width<=32"));
     assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);
     if(width===1440||width===390)await screenshot('material-header-'+width);
-    await click('返回订单详情');await has('业务款号');assert.equal(await evaluate('location.pathname'),'/order-center/server-detail');
-    await click('返回订单列表');await has('SC-SYNTHETIC-001');assert.equal(await evaluate('location.pathname'),'/order-center');
+    await click('返回订单详情');await until(()=>evaluate("location.pathname==='/order-center/server-detail'"),'back to order detail');await has('业务款号');assert.equal(await evaluate('location.pathname'),'/order-center/server-detail');
+    await click('返回订单列表');await until(()=>evaluate("location.pathname==='/order-center'"),'back to order list');await has('SC-SYNTHETIC-001');assert.equal(await evaluate('location.pathname'),'/order-center');
    }
    await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   });
