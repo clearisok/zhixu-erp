@@ -22,7 +22,7 @@ async function until(read,label,timeout=20000){
 }
 test("built existing P6 pages use bound orders and persisted four-stream sources", {timeout:180000},async t=>{
  const info=JSON.parse(readFileSync("dist/client/build-info.json","utf8"));assert.equal(info.orderRead,"snapshot");assert.equal(info.quoteAuthority,"server");
- const x=await startContinuousFixture(resolve("dist/client"));const temp=await mkdtemp(join(tmpdir(),"zhixu-continuous-ui-"));const metrics=[];let browser,ws,session,id=0;const pending=new Map(),errors=[];
+ const x=await startContinuousFixture(resolve("dist/client"),{orderAlerts:true});const temp=await mkdtemp(join(tmpdir(),"zhixu-continuous-ui-"));const metrics=[];let browser,ws,session,id=0;const pending=new Map(),errors=[];
  try{
   const profile=join(temp,"profile");
   browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:"ignore",windowsHide:true});
@@ -36,7 +36,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
   const navigate=async path=>{const marker=Date.now()+Math.random();await evaluate("window.navEpoch="+marker);await command("Page.navigate",{url:x.base+path});await until(()=>evaluate("window.navEpoch!=="+marker+"&&document.readyState==='complete'"),"navigation");};
   const has=async text=>{try{await until(()=>evaluate("Boolean(document.body?.innerText.includes("+JSON.stringify(text)+"))"),text);}catch(error){throw Error(error.message+"; "+await evaluate("document.body?.innerText??'navigation in progress'"));}};
   const login=async username=>{const cookie=await x.login(username);const split=cookie.indexOf("=");await command("Network.setCookie",{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:"127.0.0.1",path:"/",httpOnly:true});};
-  const screenshot=async name=>{if(process.env.AINUOKE_UI_EVIDENCE!=="1")return;const dir=resolve("outputs/unified-local-demo");await mkdir(dir,{recursive:true});const shot=await command("Page.captureScreenshot",{format:"png"});await writeFile(join(dir,name+".png"),Buffer.from(shot.data,"base64"));};
+  const screenshot=async name=>{if(process.env.AINUOKE_UI_EVIDENCE!=="1")return;const dir=resolve("outputs/confirmed-facts-2026-10-14");await mkdir(dir,{recursive:true});const shot=await command("Page.captureScreenshot",{format:"png"});await writeFile(join(dir,name+".png"),Buffer.from(shot.data,"base64"));};
   await command("Page.addScriptToEvaluateOnNewDocument",{source:"window.businessWrites=[];const original=fetch;window.fetch=(...a)=>{if(a[1]?.method&&!['GET','HEAD'].includes(a[1].method)&&!String(a[0]).includes('/auth/'))businessWrites.push(String(a[0]));return original(...a)};"});
   const input=(selector,value)=>evaluate("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,"+JSON.stringify(value)+");n.dispatchEvent(new Event('input',{bubbles:true}));})()");
   const click=label=>evaluate("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+"+JSON.stringify(label)+");n.click();})()");
@@ -54,7 +54,12 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    await click("订单中心");await has("SC-SYNTHETIC-001");
    const material="/order-center/style-progress/detail?orderId="+x.orderId;
    await navigate(material);await has("合成棉布");
-   await click("退出 Server");await has("忘记密码？请联系系统管理员");
+   await click("用户菜单");
+   await command("Network.setBlockedURLs",{urls:["*/api/v1/auth/logout*"]});
+   await click("退出登录");await has("退出未完成，请检查网络后重试。");
+   assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"),200);
+   await command("Network.setBlockedURLs",{urls:[]});
+   await click("退出登录");await has("忘记密码？请联系系统管理员");
    assert.equal(await evaluate("new URLSearchParams(location.search).get('returnTo')"),material);
    assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);
    assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"),401);
@@ -62,10 +67,39 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    assert.equal(await evaluate("location.pathname+location.search"),material);
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
+  await t.test("top-right logout preserves dirty Server Quote until explicit discard, including logout failure",async()=>{
+   await login(x.users[0]);await navigate('/quote-center/detail?id=synthetic-unified-demo');
+   await until(()=>evaluate("!!document.querySelector('input[placeholder=\"请输入款式名称\"]')"),'Server quote editor');
+   await input('input[placeholder="请输入款式名称"]','合成：尚未保存的退出保护');
+   await click('用户菜单');await click('退出登录');await has('有未保存的修改');
+   assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"),200);
+   await click('继续编辑');assert.equal(await evaluate("document.querySelector('input[placeholder=\"请输入款式名称\"]').value"),'合成：尚未保存的退出保护');
+   await click('用户菜单');await click('退出登录');await has('放弃并退出');
+   await command('Network.setBlockedURLs',{urls:['*/api/v1/auth/logout*']});await click('放弃并退出');await has('退出未完成，当前草稿保留');
+   assert.equal(await evaluate("document.querySelector('input[placeholder=\"请输入款式名称\"]').value"),'合成：尚未保存的退出保护');
+   assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"),200);
+   await command('Network.setBlockedURLs',{urls:[]});await click('放弃并退出');await has('忘记密码？请联系系统管理员');
+   await login(x.users[0]);await navigate('/quote-center/detail?id=synthetic-unified-demo');
+   await until(()=>evaluate("document.querySelector('input[placeholder=\"请输入款式名称\"]')?.value==='合成演示T恤'"),'persisted quote unchanged');
+  });
   await login(x.users[0]);
   for(const width of [1440,1280,390])await t.test("existing layout and real CSS at "+width,async()=>{
    await command("Emulation.setDeviceMetricsOverride",{width,height:1000,deviceScaleFactor:1,mobile:width===390});
    await navigate("/order-center");await has("SC-SYNTHETIC-001");
+   await has("数量0");await has("单位为空");
+   assert.equal(await evaluate("document.querySelectorAll('.qc-server-session-floating').length"),0);
+   assert.equal(await evaluate("document.querySelectorAll('.qc-user-popover').length"),0);
+   if(width===390){await click("用户菜单");}else{
+    const position=await evaluate("(()=>{const r=document.querySelector('.qc-user-menu').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()");
+    await command("Input.dispatchMouseEvent",{type:"mouseMoved",...position});
+   }
+   await has("退出登录");assert.equal(await evaluate("document.querySelector('.qc-user-menu button').getAttribute('aria-expanded')"),"true");
+   assert.equal(await evaluate("document.documentElement.scrollWidth>innerWidth+1"),false);await screenshot("user-menu-"+width);
+   await evaluate("document.querySelector('.qc-user-menu button').focus()");
+   await command("Input.dispatchKeyEvent",{type:"keyDown",key:"Escape",code:"Escape",windowsVirtualKeyCode:27});
+   await until(()=>evaluate("!document.querySelector('.qc-user-popover')"),"Escape closes user menu");
+
+   assert.equal(await evaluate("document.querySelectorAll('.oc-order-alert-chip').length>=2"),true);
    assert.equal(await evaluate("getComputedStyle(document.querySelector('.qc-toolbar')).display"),"flex");
    assert.equal(await evaluate("getComputedStyle(document.querySelector('.qc-page-container')).display"),"grid");
    assert.equal(await evaluate("document.documentElement.scrollWidth>innerWidth+1"),false);await screenshot("list-"+width);
@@ -98,7 +132,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
-  if(process.env.AINUOKE_UI_EVIDENCE==="1")await writeFile(resolve("outputs/unified-local-demo/computed-styles.json"),JSON.stringify({build:info,metrics},null,2)+"\n");
+  if(process.env.AINUOKE_UI_EVIDENCE==="1")await writeFile(resolve("outputs/confirmed-facts-2026-10-14/computed-styles.json"),JSON.stringify({build:info,metrics},null,2)+"\n");
  }finally{
   ws?.close();if(browser&&browser.exitCode===null){browser.kill();await wait(500);}
   await x.close();const distance=relative(resolve(tmpdir()),resolve(temp));assert.ok(distance&&!distance.startsWith("..")&&!isAbsolute(distance)&&temp.includes("zhixu-continuous-ui-"));await rm(temp,{recursive:true,force:true});

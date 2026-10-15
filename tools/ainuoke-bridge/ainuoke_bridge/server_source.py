@@ -58,7 +58,7 @@ class ProtectedTransport:
 def validate_input(data):
     required = {"baseUrl", "username", "password", "contracts"}
     target_keys = {"targetSalesContractNo", "targetPurchaseOrderNo", "expectedQuantities", "additionalSalesContracts"}
-    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy"} | target_keys:
+    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy", "qualityTargets"} | target_keys:
         raise ValueError("invalid_collector_input")
     url = urlsplit(data["baseUrl"])
     if url.username or url.password or url.query or url.fragment or url.path not in ("", "/"):
@@ -71,8 +71,24 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
-    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions"):
+    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality"):
         raise ValueError("invalid_mode")
+    if data.get("mode") == "quality":
+        targets = data.get("qualityTargets")
+        if set(data) & target_keys or data["contracts"] != [] or not isinstance(targets, list) or not 1 <= len(targets) <= 25:
+            raise ValueError("invalid_quality_scope")
+        for target in targets:
+            if (not isinstance(target, dict) or set(target) != {"salesContractNo", "colors", "materials"}
+                    or not isinstance(target["salesContractNo"], str) or not identity(target["salesContractNo"])
+                    or len(target["salesContractNo"]) > 80 or type(target["colors"]) is not bool
+                    or type(target["materials"]) is not bool or not (target["colors"] or target["materials"])):
+                raise ValueError("invalid_quality_scope")
+        if (len({identity(t["salesContractNo"]) for t in targets}) != len(targets)
+                or sum(t["colors"] for t in targets) > 6 or sum(t["materials"] for t in targets) > 18):
+            raise ValueError("invalid_quality_scope")
+        return data
+    if "qualityTargets" in data:
+        raise ValueError("invalid_quality_scope")
     if data.get("mode") == "targeted":
         if not target_keys <= set(data) or data["contracts"] != []:
             raise ValueError("invalid_target_scope")
@@ -106,7 +122,7 @@ def validate_input(data):
 
 def collect(data, client=None):
     data = validate_input(data)
-    client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=0 if data.get("mode") in ("probe", "audit", "targeted") else 1)
+    client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=0 if data.get("mode") in ("probe", "audit", "targeted", "quality") else 1)
     session = client.login(data["username"], data["password"])
     if data.get("mode") == "probe":
         return probe_first_pages(client, session)
@@ -121,8 +137,8 @@ def collect(data, client=None):
         expected = None
         for index in range(1, 201):
             requests += 1
-            if data.get("mode") in ("audit", "targeted"):
-                if requests > (80 if data.get("mode") == "targeted" else 2000):
+            if data.get("mode") in ("audit", "targeted", "quality"):
+                if requests > (80 if data.get("mode") == "targeted" else 160 if data.get("mode") == "quality" else 2000):
                     raise UpstreamSchemaError("request_limit")
                 from time import sleep
                 sleep(0.1)
@@ -133,9 +149,9 @@ def collect(data, client=None):
                     raise
                 renewals += 1
                 session = client.login(data["username"], data["password"])
-                if data.get("mode") in ("audit", "targeted"):
+                if data.get("mode") in ("audit", "targeted", "quality"):
                     requests += 1
-                    if requests > (80 if data.get("mode") == "targeted" else 2000):
+                    if requests > (80 if data.get("mode") == "targeted" else 160 if data.get("mode") == "quality" else 2000):
                         raise UpstreamSchemaError("request_limit")
                 page = client.read_report(REPORT_CATALOG[key], jwt_token=session.jwt_token, page=index, page_size=50, query_context=query)
             if expected is None:
@@ -178,6 +194,16 @@ def collect(data, client=None):
                 "targetPurchaseOrderNo": identity(data["targetPurchaseOrderNo"]),
                 "expectedQuantities": data["expectedQuantities"], "reportRequests": requests,
                 "authRenewals": renewals}
+    if data.get("mode") == "quality":
+        selected = {identity(t["salesContractNo"]): t for t in data["qualityTargets"]}
+        if any(key not in lookup for key in selected):
+            raise UpstreamSchemaError("target_not_visible")
+        colors = {key: pages("garment_color_size_details", {"salesContractNo": key}) for key, t in selected.items() if t["colors"]}
+        materials = {key: pages("material_purchase_statistics", {"insideOrderNo": lookup[key]}) for key, t in selected.items() if t["materials"]}
+        after = pages("order_discovery", {})
+        return {"schemaVersion": "ainuoke-quality-diagnostic.v1", "discoveryBefore": before,
+                "discoveryAfter": after, "colors": colors, "materials": materials,
+                "reportRequests": requests, "authRenewals": renewals}
     if data.get("mode") == "audit":
         keys = sorted(lookup, key=lambda key: key.encode("utf-16-be"))
         count = min(80, len(keys))

@@ -1,0 +1,24 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "app/foundation.css",
+    "components/foundation/app-shell.tsx",
+    "components/foundation/server-user-menu.tsx",
+    "features/quote-center/components/quote-server-boundary.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx"
+  ],
+  "pages": [
+    "order-list",
+    "order-detail", "navigation", "quote-list", "quote-detail", "material"
+  ],
+  "visibleDifference": "User-approved top-right identity disclosure for logout; remove bottom-left floating and duplicate order logout actions. Hover, keyboard and touch supported; no other layout redesign.",
+  "evidence": [
+    "docs/tasks/active/server-user-menu-2026-10-14.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/server-user-menu-2026-10-14.md"
+  }
+}

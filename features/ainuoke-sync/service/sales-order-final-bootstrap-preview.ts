@@ -156,6 +156,8 @@ function sanitizedColorReconciliation(source: AinuokeGarmentColorSizeSource) {
       sizeAllocations: row.sizeAllocations,
       sizeMatrixStatus: row.sizeMatrixStatus,
       sizeQuantityTotal: row.sizeQuantityTotal,
+      quantityPendingConfirmation: row.quantityPendingConfirmation === true,
+      sourceQuantity: row.quantityPendingConfirmation ? null : row.quantity,
     })),
   };
 }
@@ -171,6 +173,7 @@ async function mapColors(source: AinuokeGarmentColorSizeSource): Promise<Ainuoke
       styleNo: normalizeIdentity(row.styleNo),
       colorName: normalizeIdentity(row.colorName),
       quantity: row.quantity,
+      ...(row.quantityPendingConfirmation ? { quantityPendingConfirmation: true, sourceQuantity: null } : {}),
       deliveryDate: row.deliveryDate,
       sizeRuleTokens: row.sizeRuleTokens,
       sizeAllocations: row.sizeAllocations,
@@ -182,6 +185,8 @@ async function mapColors(source: AinuokeGarmentColorSizeSource): Promise<Ainuoke
       deliveryDate: row.deliveryDate,
       sourceHash,
       sourceMetadata: {
+        quantityPendingConfirmation: row.quantityPendingConfirmation === true,
+        sourceQuantity: row.quantityPendingConfirmation ? null : row.quantity,
         reportId: source.reportId,
         salesContractNo: source.requestedSalesContractNo,
         insideOrderNoDrift: row.insideOrderNoDrift,

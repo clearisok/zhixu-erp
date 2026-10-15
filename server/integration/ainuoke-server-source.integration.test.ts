@@ -208,7 +208,7 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
                         return new Proxy(client, { get(current, member) {
                             if (member === 'query') return async (...args: unknown[]) => {
                                 const result = await (current.query as (...values: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>)(...args);
-                                if (typeof args[0] === 'string' && args[0].includes('SELECT r.discovery,r.discovery_hash')) {
+                                if (result.rows.some(row => Object.hasOwn(row, column))) {
                                     return { ...result, rows: result.rows.map(row => ({ ...row, [column]: [] })) };
                                 }
                                 return result;

@@ -18,6 +18,15 @@
 
 ## Active
 
+### D-132 旧Source成果与订单身份/商业/历史归属受控整合
+
+- 日期2026-10-15；Active，实施已批准D-121 Gate5，不扩大真实来源、写入、窗口或部署授权。
+- 合并保留D113–120与D121–131：单位人工确认仍私有且限定源/账号/具体SO/完整证据，不因有效归属自动迁移确认；数量0颜色保留来源null及待确认语义，物料unknown不变0。
+- 列表/详情物料读取按请求在同一只读RR事务捕获权限、有效归属、来源run及快照上下文；批量不跨run、不回退历史epoch。新请求重验数据库权限。合同业务类型决定是否读取来源，不能用原始创建入口漏掉已归一有效合同；历史别名不展示当前物料提醒。
+- 顶部退出沿用用户批准菜单，额外复用报价未保存弹窗与准备未确认请求保护。退出失败保留内存草稿/会话，不静默丢弃。旧共享Order CCT写价和经销报价直接SO不恢复。
+- 两支发布证据保留：当前G1–G4线性链保持；Source21da完整manifest归档，非决策冻结工程报告以原日期/hash加入清单；DECISION统一以后续前向版本记录，不将两条决策历史伪造成线性祖先或覆盖旧PNG。守卫同时保留完整链、唯一叶、Git祖先与全部负向用例。
+- 代码：server/ainuoke-source/reader.ts、read-service.ts、order-alerts.ts、AppShell/QuoteEditor及相关回归；本地工程与最终精确提交验收分开，范围见tasks/active/material-progress-integration.md。没有真实采集/迁移/部署/合并。
+
 ### D-131 共用物料Normalizer以完整元组校验短哈希身份
 
 - 日期2026-10-15；Active，落实来源身份可信及不错误汇总要求，不改变已批准业务规则或ID。
@@ -116,10 +125,51 @@
 - 代码证据：0014_order_identity.sql、server/sales-orders/identity-service.ts、server/app.ts、server-order-identity-card.tsx。13项领域/HTTP回归及七角色权限验证是当前工程证据；浏览器5项/隔离升级已验证，最终门禁待收口。
 - 完整规则、后续G2–G5及安全边界：[订单身份计划](tasks/active/order-identity-program.md)。旧工作树/旧决策证据保留，真实历史分类及归一另行批准。
 
+### D-120 隔离四单两小时有界采集
+- 日期：2026-10-14；状态：Active。用户明确授权现有隔离四单每10分钟一次、2小时后停止。固定四单、原独立目标，最多12次，无自动续期/扩单/新增绑定；失败停止，保留数据。此授权不涉及宁波/18443/18444、正式账号、main合并或部署。
+- D119首绑/原两轮历史记录保留，新窗口单独绑定目标/时间/操作工具身份；到期停止采集，应用仍可访问，快照正常过期。证据[scripts/isolated-source-window.mjs](../scripts/isolated-source-window.mjs)、[窗口结果](tasks/active/ainuoke-bounded-window-2026-10-14.md)。
+
+### D-119 显式小范围首次绑定
+- 日期：2026-10-14；状态：Active；用户要求继续实施小范围首绑，真实写入/激活前具体范围确认。
+- 完整当前账号可见Discovery保留，只抓显式1–25个合同的颜色；复用既有selected mapper及首绑事务，独立hash域绑定所选范围，空账本/精确重试不变。不得截断Discovery、借受控新增绕过首绑或扩大重试范围。
+- 不自动启动scheduler；首次写入与两轮真实刷新仍需隔离目标授权。代码server/ainuoke-source/binding.ts、cli.ts；[工程证据和待授权清单](tasks/active/ainuoke-selected-first-binding-2026-10-14.md)。
+
+### D-118 需求级人工单位与采购责任确认
+- 日期：2026-10-14；状态：Active；依据用户对限定单位/两次采购/工厂自购的明确回执及继续推进要求。
+- 复用原始6087050 Adapter/Pipeline，人工事实与来源原值分开。确认须匹配合同、需求及来源单位/身份/采购范围，记录确认人/时间/引用；来源变化失配不应用。缺单位不默认个；只支持经确认的1:1语义，不增加换算公式。
+- 两笔采购事件保持独立，理论数量不加倍；该批单位等价不证明尺寸错误首批可用于生产，齐套仍待可用性确认。工厂自购需求/来源自购原值/流水保留，只从国贸跟进范围排除，不虚构到料或采购0。
+- 当前是只读候选和默认关闭的可信注入端口，无真实确认持久化或激活，无HTTP确认写接口。代码features/ainuoke-material-progress/confirmed-facts.ts、projection.ts、server/ainuoke-source/reader.ts；证据见[tasks/active/material-confirmations-2026-10-14.md](tasks/active/material-confirmations-2026-10-14.md)。
+
+### D-117 待定颜色记0与订单异常列
+- 日期：2026-10-14；状态：Active；用户明确要求颜色数量未定时设置0，订单列表新增异常小框“数量0”“单位为空”等，并提供示意图。[批准与工程范围](tasks/active/order-list-alerts-2026-10-14.md)。
+- 替代D-116中“具名空数量在织序保持null”的条款：仅当具名颜色SizeNum和所有SizeN均空，织序投影/新首绑颜色量为0；原始Snapshot及sourceQuantity:null保留，quantityPendingConfirmation:true记录暂定语义。不把负数、非法值或已有分码的空总数变0；无名全空仍排除，物料未知数量规则不变。
+- 异常列为明确批准的局部UI新增，不改其他列/导航/布局策略。标签可扩展，但只能展示已有可信判定；当前数量0/单位为空/单位冲突/来源过期/来源未就绪。不把失效来源显示为无异常，不泄露物料详情或商业金额。
+- 不授权真实数据库写入/回填、Source首绑或持续激活、部署或合并。工程证据为纯Adapter、一次性数据库/HTTP、隔离Chromium和旧私有报告离线重放；旧订单颜色不会被调度自动改写。
+
+### D-116 重复有效采购与空颜色占位规则
+- 日期：2026-10-14；状态：Active；用户明确确认。曾因客户首次提供的标签尺寸不正确再次采购，两笔采购均有效且均已付款；不能把不同采购单仅因物料/数量相同而去重、作废或抵销。真实单号只在本机受保护核对清单保留。
+- 用户随后确认这批标签中“只/个”严格1:1；此结论仅适用于私有核对清单限定的物料与批次，不是全物料别名。正式受控映射尚未接入，现有逐需求冲突保护保持，下一候选须同时保留原始单位、原始事件及确认范围。不得据已付款推断首批物料仍适合生产，不把理论用量加倍。
+- 用户规则：有颜色名称的行必须保留，即使数量为空；颜色和数量均空的占位行可从实际订单颜色中排除。实现保守检查 CnColor、SizeNum 及所有 SizeN 均为空（非零、非非法值），仅排除投影，保留全部原始行/数量/身份和排除原因。纯空占位重复身份不再错误阻断；有真实颜色的身份冲突仍阻断。
+- 历史条款（具名空数量保持null）已由D-117用户新决定替代；本条重复采购、原始来源保护、单位范围与纯空占位规则仍Active。旧时点的阻塞和验证事实保留在Git证据中。
+- 代码及负向验证：6087105 Adapter、`tests/ainuoke-garment-color-size-source.test.mjs`、`tests/ainuoke-material-progress.test.mjs`、`server/integration/ainuoke-continuous.test.ts`。不授权真实数据写入、Source首绑/持续激活、UI改版或部署。
+### D-114 采购双数量事实与持久隔离本机演示
+- 日期：2026-10-13；状态：Active。接续用户本轮任务书。采购合同实际执行数量与理论用量是两个不同业务事实；差异不是自动冲突、错误、超采或浪费。没有完整采购目标契约前，不全局替换TotalNum/requiredQuantity，也不改正式齐套与去重公式。
+- 已确认三个用户样本的理论与实际采购均正确，356两来源行仍归并一事件。最小定向原始验证证明这些样本的 `Num*(1+Lost/100)*StyleNum` 对应用户确认理论；此样本不授权把全量TotalNum都叫理论，或把全量Num字段语义声明已人工确认。新增只读来源测算明确unverified/observation-only，缺失、不一致或单位不可信时不作跨口径差值。业务主数量和四流独立保留。
+- 用户已授权Codex自行用本机受限CredentialFile执行必要的固定报表只读诊断，凭据仅由短命进程消费，不进模型/argv/env/报告/Git。成功全量证据不重复读取。原始问题字段与真实标识只入受保护ignored私有明细；公开仅匿名结论。
+- 用户本轮授权：先验证实际本机daemon、资源不存在、归属、镜像/源码与数据库身份，再新建独立Docker project/DB/network/持久volume，使用合成或明确获准脱敏fixture运行真实Server/P6。停止保留卷，不使用两小时自动删除。未授权任何现有业务库/真实账号变更、真实Source激活/持续采集、宁波/18443/18444部署或自动合并。
+- D113的原无DB预检阶段及历史执行边界保留；本条仅更新后续有限诊断与新隔离fixture演示授权。真实持续展示、人工业务验收与宁波晋升仍单独记录。证据见[质量与数量Gate](tasks/active/evidence/ainuoke-live-demo-readiness/quality-and-quantity-gate-2026-10-13.md)。
+
+
+### D-113 本机真实演示先完整无数据库预检
+- 日期：2026-10-13；状态：Active。用户授权合并#107，随后“继续”接续本机真实Source演示准备；原UI/真实账号/织序业务DB/部署/新PR不自动合并边界保持。此项不授权初始化任何真实或演示数据库。
+- AI工程选择：复用既有bindings及material collector、正式Bootstrap Preview和Material Projection，完整读取当前账号全部可见合同的颜色及四流；两个worker各沿用600秒/100000行/32MiB与10分钟freshness，不按状态排除或抽样、不中途缩小首绑范围。前后及跨阶段Discovery事实不一致、超预算、漏页/合同失败关闭；缺颜色按enrichment保留，未知数量/单位不填零或“个”。
+- 真实读取由用户在私密终端执行；凭据经匿名stdin，不进入Codex上下文、argv/env/DB/Git/报告。可由用户自己选择严格权限的本机两行凭据文件，助手不提取密码；宽权限拒绝，不修改原文件。Windows报告使用当前用户/SYSTEM DACL及ignored目录，Linux保护沿用owner-only；不需SeSecurityPrivilege/SACL修改。
+- 完整只读收据只证明读取/映射技术范围，不授权操作人或激活Source，不声明演示就绪。新本机目标检查仅生成plan，不创建容器/DB；实际镜像/端口/资源归属需执行前核实并另行取得具体目标授权。后续停止保留数据，不将合成脚本两小时自动删除用于真实验收。
+- 推荐首轮演示在明确授权的独立本机账本完整首绑/持久快照与2–3次刷新、3–5代表订单核对之后；24小时/故障重启/备份/六角色与受控新增作为宁波晋升前AI建议，不要求填完全部Excel或实现生产/关账。代码/测试/限制见[本轮任务](tasks/active/ainuoke-live-demo-readiness.md)、`server/ainuoke-source/live-preflight.ts`/`demo-plan.ts`、`scripts/ainuoke-live-preflight.ps1`。
 
 ### D-112 首轮上线前受控接纳新增艾诺科合同
 - 日期：2026-10-13；状态：Active。用户决定首轮上线前支持受控新增合同。
-- main 既有边界：调度只刷新已绑定订单四流，不自动建单或更新主信息/颜色。独立 `feat/ainuoke-controlled-contract-intake` 工程实现完整 Discovery 差异、显式选择 1–25 合同、只读预览、来源重取、事务内幂等接纳与可信审计；未合并/未激活时不得称 main 已支持。
+- main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5` 已按用户授权合并PR107（head `31b5f28862d032fc954b3f831888005f14060a1c` 三项CI成功）。调度只刷新已绑定四流，不自动建单或更新主信息/颜色；已合并工程提供完整Discovery差异、显式选择1–25合同、只读预览、来源重取、事务内幂等接纳与可信审计。精确重试核对已存镜像；来源/接纳互斥与权限重验。尚未真实激活或部署。
 - 来源缺失、身份漂移或权限变化阻止接纳，绝不硬删旧订单；既有订单主信息/颜色自动刷新仍是后续独立范围。代码/负向测试与执行边界见 [D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)。
 - 此决定不授权真实 DB 写入、来源持续激活或部署。[原决定证据](tasks/active/evidence/ainuoke-targeted-diagnostic/pr104-merge-reconcile-2026-10-13.md)。
 
@@ -127,7 +177,7 @@
 - 日期：2026-10-13；状态：Active。用户转述 IT 确认 `QtyUnit` 是每条物料需求的计量单位，同时约束 `TotalNum`、`cgnum` 以及该需求下入库、物料出运、出库数量；用户在艾诺科界面人工核对了目标三行编码。此确认是用户提供的业务证据，不冒称 IT 原始书面回执或全量合同抽样。
 - 已核实的私有 6087050 定向报告中，目标三需求四来源行的原始 QtyUnit 均为“个”，三组物料身份/数量与界面核对一致，356 的两来源行仍只是一笔采购事件。公开仅保留脱敏计数与报告 SHA，见[单位确认](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。
 - 工程选择：API Adapter 映射 `quantityUnit <- QtyUnit`，只读投影按 demand 检查所有来源行；一致非空才展示单位，空白保持未知，冲突停止该需求的投影数量汇总及状态判定并报告。不同 child Demand 不跨单位求和，不从规格推断，也不改变 `TotalNum`、`cgnum`、理论用量、事件去重或正式齐套公式。历史 Excel 单位列仍无可信映射。
-- 证据：`features/style-progress/source/ainuoke-material-api-adapter.ts`、`features/ainuoke-material-progress/projection.ts`、`tests/ainuoke-material-progress.test.mjs`。本 PR 仅工程候选，不等于合并、真实 Source 激活、正式持久化单位模型或宁波部署。
+- 证据：`features/style-progress/source/ainuoke-material-api-adapter.ts`、`features/ainuoke-material-progress/projection.ts`、`tests/ainuoke-material-progress.test.mjs`。PR106已按用户授权合并为main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0`；不等于真实Source激活、正式持久化单位模型或宁波部署。
 
 
 ### D-110 全合同只读核对与四流代表合同验证

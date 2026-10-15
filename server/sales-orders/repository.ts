@@ -59,6 +59,8 @@ type ReadModelRow = SalesOrderRow & {
   brand_name_snapshot: string | null;
   quantity: string | null;
   color_count: string | number;
+  zero_color_count: number;
+  pending_color_count: number;
 };
 
 export type SalesOrderListOptions = {
@@ -144,6 +146,7 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
     brandName: row.brand_name_snapshot ?? "",
     quantity: row.quantity === null ? null : Number(row.quantity),
     colorCount: Number(row.color_count),
+    alerts: Number(row.zero_color_count) > 0 ? [{ code: "color_quantity_zero", count: Number(row.zero_color_count), pendingCount: Number(row.pending_color_count) }] : [],
     contractDate: isoDate(row.contract_date),
     contractDeliveryDate: isoDate(row.contract_delivery_date),
     createdAt: row.created_at.toISOString(),
@@ -178,7 +181,9 @@ function readModelSelect(includeIdentity:boolean,attributed:boolean,colors=false
  ${includeIdentity?'COALESCE(processing_batch.business_style_no,mirror.style_no)':'mirror.style_no'} AS style_no,
  mirror.company_name_snapshot,${includeIdentity?'COALESCE(processing_batch.customer_name,mirror.customer_name_snapshot)':'mirror.customer_name_snapshot'} AS customer_name_snapshot,
  mirror.brand_name_snapshot,${includeIdentity?'COALESCE(processing_batch.quantity,mirror.quantity)':'mirror.quantity'} AS quantity,
- (SELECT count(*)::int FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner}) AS color_count
+ (SELECT count(*)::int FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner}) AS color_count,
+ (SELECT count(*)::int FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner} AND c.quantity=0) AS zero_color_count,
+ (SELECT count(*)::int FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner} AND c.quantity=0 AND c.source_metadata->>'quantityPendingConfirmation'='true') AS pending_color_count
  ${colors?`,COALESCE((SELECT jsonb_agg(jsonb_build_object('sourceLineIdentity',c.source_line_identity,'colorName',c.color_name,'quantity',c.quantity,'deliveryDate',to_char(c.delivery_date,'YYYY-MM-DD')) ORDER BY c.color_name,c.source_line_identity) FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner}),'[]'::jsonb) AS colors`:''}
  ${readModelFrom(includeIdentity,attributed)}`;
 }

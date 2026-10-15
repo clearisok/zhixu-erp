@@ -1,0 +1,23 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V1",
+  "paths": [
+    "features/ainuoke-material-progress/confirmed-facts.ts",
+    "features/ainuoke-material-progress/projection.ts",
+    "features/ainuoke-material-progress/read-service.ts",
+    "features/style-progress/components/material-control-tower-read-only.tsx"
+  ],
+  "pages": [
+    "order-list",
+    "order-detail",
+    "material"
+  ],
+  "visibleDifference": "Existing display fields clarify human-confirmed units and factory procurement responsibility; no table or layout redesign. Default confirmed facts remain absent.",
+  "evidence": [
+    "docs/tasks/active/material-confirmations-2026-10-14.md"
+  ],
+  "approval": {
+    "status": "not-required",
+    "reference": "docs/tasks/active/material-confirmations-2026-10-14.md"
+  }
+}

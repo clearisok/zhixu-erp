@@ -4,6 +4,7 @@ import {NormalizationReviewDialog} from "./normalization-review-dialog";
 import {NormalizationCaseDialog} from "./normalization-case-dialog";
 import {ProcessingBatchDialog} from "./processing-batch-dialog";
 import { useCallback, useEffect, useState, useRef } from "react";
+import { OrderAlertTags } from "./order-alert-tags";
 import { useRouter } from "next/navigation";
 import {
   AlertBanner,
@@ -22,7 +23,7 @@ import {
   Toolbar,
   type DataColumn,
 } from "@/components/foundation";
-import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
+import { ServerLoginCard, useServerSession } from "@/features/server-auth";
 import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import { SalesOrderServerReadError } from "../server/sales-order-server-client";
 import {
@@ -110,7 +111,6 @@ export function ServerOrderCenterPage() {
   const [loading, setLoading] = useState(true);
   const [listError, setListError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
-  const [sessionActionError, setSessionActionError] = useState<string | null>(null);
   const loadEpoch = useRef(0);
   const [loadedScope,setLoadedScope] = useState('');
   const scopeKey=JSON.stringify([query,serverSession.user?.id,serverSession.permissions]);
@@ -166,17 +166,7 @@ export function ServerOrderCenterPage() {
     router.push(`/order-center/server-detail?id=${encodeURIComponent(item.id)}`);
   };
 
-  const logout = async () => {
-    setSessionActionError(null);
-    try {
-      await serverSession.logout();
-      loadEpoch.current++;
-      setItems([]);
-      setPage(emptyPage);
-    } catch {
-      setSessionActionError("无法退出 Server 会话，请稍后重试。");
-    }
-  };
+
 
   const updateQuery = <Key extends keyof ServerOrderCenterQueryState,>(
     key: Key,
@@ -268,6 +258,7 @@ export function ServerOrderCenterPage() {
       responsivePriority: "secondary",
       render: (item) => <><span>{creationSourceLabels[item.creationSource]}</span><small>{item.businessType==='ainuoke_contract'?(item.ownerName??'待认领'):item.businessType==='processing'?(item.ownerName??'加工类 · 待认领'):'历史类型待核实'}</small></>,
     },
+    { key: "alerts", header: "异常", width: 158, responsivePriority: "primary", render: (item) => <OrderAlertTags alerts={item.alerts} /> },
     {
       key: "action",
       header: "操作",
@@ -305,6 +296,7 @@ export function ServerOrderCenterPage() {
         <span><small>交期</small><strong>{item.contractDeliveryDate ?? "—"}</strong></span>
         <span><small>颜色数</small><strong>{item.colorCount}</strong></span>
       </div>
+      <OrderAlertTags alerts={item.alerts} />
       <div className="oc-server-record-status">
         <StatusTag tone={lifecycleTone(item.lifecycleState)}>{lifecycleLabels[item.lifecycleState]}</StatusTag>
         {item.attribution?.historicalDuplicate&&<StatusTag tone="warning">历史重复</StatusTag>}
@@ -343,11 +335,9 @@ export function ServerOrderCenterPage() {
         <AlertBanner
           tone="warning"
           title="当前 Server 账号没有订单查看权限"
-          actions={<ServerLogoutAction variant="secondary" onLogout={() => void logout()} />}
         >
           已登录为 {trustedIdentity}；需要 order.view 权限。
         </AlertBanner>
-        {sessionActionError && <ErrorState description={sessionActionError} />}
         <ErrorState permission title="Server 权限不足（403）" description="请联系管理员分配 order.view 权限。" />
       </OrderCenterFrame>
     );
@@ -361,9 +351,8 @@ export function ServerOrderCenterPage() {
       <div className="oc-server-source-bar">
         <span><i aria-hidden="true" />数据源：PostgreSQL</span>
         <small>Server identity：{trustedIdentity}</small>
-        <Button variant="text" onClick={() => void logout()}>退出登录</Button>
+
       </div>
-      {sessionActionError && <ErrorState description={sessionActionError} />}
       <form
         onSubmit={(event) => {
           event.preventDefault();

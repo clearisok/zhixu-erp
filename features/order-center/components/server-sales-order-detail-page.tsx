@@ -9,7 +9,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   AlertBanner,
   AppShell,
-  Button,
   Card,
   DescriptionList,
   EmptyState,
@@ -20,7 +19,7 @@ import {
   PageHeader,
   StatusTag,
 } from "@/components/foundation";
-import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
+import { ServerLoginCard, useServerSession } from "@/features/server-auth";
 import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import { SalesOrderServerReadError } from "../server/sales-order-server-client";
 import { loadServerOrderCenterDetail } from "../server/server-order-center-query";
@@ -65,13 +64,15 @@ function ServerDetailFrame({
   detail,
   children,
   onRequestNavigation,
+  onRequestLogout,
 }: {
   detail: OrderCenterServerDetailViewModel | null;
   children: React.ReactNode;
   onRequestNavigation?: (target:string)=>void;
+  onRequestLogout?: () => Promise<void>;
 }) {
   return (
-    <AppShell title="正式订单详情" identityMode="server" onRequestNavigation={onRequestNavigation}>
+    <AppShell title="正式订单详情" identityMode="server" onRequestNavigation={onRequestNavigation} onRequestLogout={onRequestLogout}>
       <PageContainer className="oc-order-center-page oc-server-detail-page">
         <OrderCenterNavigation onRequestNavigation={onRequestNavigation} />
         <PageHeader
@@ -98,13 +99,19 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   useEffect(()=>{if(!preparationGuard)return;const protect=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',protect);return()=>window.removeEventListener('beforeunload',protect);},[preparationGuard]);
   const salesOrderId = searchParams.get("id")?.normalize("NFKC").trim() ?? "";
   const serverSession = useServerSession();
+  const requestLogout = async () => {
+    if (preparationGuard) {
+      setNavigationNotice('还有未确认的准备请求，请先核对回执，或选择稍后核对以保留原请求，再退出登录。');
+      return;
+    }
+    await serverSession.logout();
+  };
   const [detail, setDetail] = useState<OrderCenterServerDetailViewModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sessionActionError, setSessionActionError] = useState<string | null>(null);
   const loadEpoch = useRef(0);
   const [loadedScope, setLoadedScope] = useState("");
   const scopeKey = `${salesOrderId}/${serverSession.user?.id ?? ""}/${serverSession.permissions.join("|")}/${executionOnly}`;
@@ -154,24 +161,15 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
     return () => { active = false; epochRef.current++; };
   }, [loadDetail, serverSession]);
 
-  const logout = async () => {
-    setSessionActionError(null);
-    try {
-      await serverSession.logout();
-      loadEpoch.current++;
-      setDetail(null);
-    } catch {
-      setSessionActionError("无法退出 Server 会话，请稍后重试。");
-    }
-  };
+
 
   if (serverSession.status === "checking") {
-    return <ServerDetailFrame onRequestNavigation={requestNavigation} detail={null}><LoadingState label="确认织序 Server 登录状态" /></ServerDetailFrame>;
+    return <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={null}><LoadingState label="确认织序 Server 登录状态" /></ServerDetailFrame>;
   }
 
   if (serverSession.status === "error") {
     return (
-      <ServerDetailFrame onRequestNavigation={requestNavigation} detail={null}>
+      <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={null}>
         <ErrorState title="订单服务暂时不可用" description={serverSession.error} onRetry={() => void serverSession.refresh()} />
       </ServerDetailFrame>
     );
@@ -179,7 +177,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
 
   if (serverSession.status === "anonymous") {
     return (
-      <ServerDetailFrame onRequestNavigation={requestNavigation} detail={null}>
+      <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={null}>
         <AlertBanner tone="info" title={sessionExpired ? "Server 会话已失效，请重新登录" : "登录后查看正式订单详情"}>
           详情使用可信 Server session；不会读取或回退到 Browser 本地订单。
         </AlertBanner>
@@ -191,26 +189,23 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   const trustedIdentity = `${serverSession.user.name}（${serverSession.user.username}）`;
   if (permissionDenied || !serverSession.hasPermission("order.view")) {
     return (
-      <ServerDetailFrame onRequestNavigation={requestNavigation} detail={null}>
+      <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={null}>
         <AlertBanner
           tone="warning"
           title="当前 Server 账号没有订单查看权限"
-          actions={<ServerLogoutAction variant="secondary" onLogout={() => void logout()} />}
         >
           已登录为 {trustedIdentity}；读取详情需要 order.view 权限。
         </AlertBanner>
-        {sessionActionError && <ErrorState description={sessionActionError} />}
         <ErrorState permission title="Server 权限不足（403）" description="请联系管理员分配 order.view 权限。" />
       </ServerDetailFrame>
     );
   }
 
-  if (loadedScope !== scopeKey) return <ServerDetailFrame onRequestNavigation={requestNavigation} detail={null}><LoadingState label="读取 PostgreSQL 正式订单详情" /></ServerDetailFrame>;
+  if (loadedScope !== scopeKey) return <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={null}><LoadingState label="读取 PostgreSQL 正式订单详情" /></ServerDetailFrame>;
 
   return (
-    <ServerDetailFrame onRequestNavigation={requestNavigation} detail={detail}>
+    <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={detail}>
 
-      {sessionActionError && <ErrorState description={sessionActionError} />}
       {navigationNotice&&<AlertBanner tone="warning" title={navigationNotice}/> }
       {loading ? (
         <LoadingState label="读取 PostgreSQL 正式订单详情" />
@@ -279,7 +274,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
               <div className="oc-server-source-bar">
                 <span><i aria-hidden="true" />数据源：PostgreSQL</span>
                 <small>Server identity：{trustedIdentity}</small>
-                <Button variant="text" onClick={() => void logout()}>退出登录</Button>
+
               </div>
             </details>
           </Card>

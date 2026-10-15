@@ -1,3 +1,4 @@
+import type { OrderAlert } from "../../features/order-center/server/order-alerts.js";
 export const AINUOKE_SOURCE_SYSTEM = "ainuoke";
 export const AINUOKE_CONTRACT_ENTITY_TYPE = "sales_contract";
 
@@ -76,6 +77,7 @@ export type SalesOrderReadModel = {
   brandName: string;
   quantity: number | null;
   colorCount: number;
+  alerts?: OrderAlert[];
   contractDate: string | null;
   contractDeliveryDate: string | null;
   createdAt: string;

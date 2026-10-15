@@ -1,12 +1,12 @@
 # 当前状态
 
-核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`，GitHub为实时工程事实源。PR109@1fcc440、Draft PR110@3deffc4、Draft PR111@f4a1b99b、Draft PR112@036fe521各三项CI最终均SUCCESS，均未合并或部署。后面三项依赖前序；已向用户统一询问是否授权逐项对齐新main重验后合并，未收到授权前不执行。
+核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。GitHub是实时工程事实源，文档为阶段快照。
 
-现有工作树新分支feat/material-progress-integration从036fe521/clean开始Gate5，不重建/清理旧树。G4默认真实归一执行仍关闭，历史/准备/fence/商业独立版本/全部冻结证据保留；本轮840根、78基线、71关键PG及9浏览器等以G4报告/PR112 CI为准，不冒称Gate5新测试。
+- PR109@1fcc440、Draft110@3deffc4、Draft111@f4a1b99b、Draft112@036fe521精确送达且各3CI成功；均未合并/部署。109本轮独立API再次确认head与开放状态。后续合并授权问题仍未获实际答复，不执行。原G4验证见gate4-final-dependency.md。
+- 在既有order-effective-attribution工作树继续feat/material-progress-integration，不重建/清理旧树。从4bdfa830/clean合入原Source21da670（含PR108依赖），保留G1–G4及D113–120。17冲突已解决；RR批量/单单读取与有效归属代际、私有确认、订单alerts和退出草稿/未知准备保护已整合。[Phase A证据](tasks/active/evidence/material-source-integration/phase-a-results.md)。
+- 本轮82领域单元PASS，PG初26PASS/1旧测试FAIL/1Linux skip，修正后2定向PASS；20实际浏览器PASS，类型/Server/显式构建通过。冻结前发布基线漂移不算PASS，精确merge提交/最终基线及完整源码lint继续收口；不把旧测试或dirty构建冒充当前精确验收。
+- 下一步完成Phase B已批准页面/排序/侧栏，Phase C分别核验num_dyc与6086941。保留TotalNum/cgnum及正式齐套，理论115.50与采购118分开；未知不变0/个，不按名称/数量关联财务分录。[任务范围](tasks/active/material-progress-integration.md)。
+- 既有四单2小时窗口只读日志确认12/12成功、每次4单且按截止停止；本轮无新HTTP/数据库/凭据/ACL操作。白名单旧报告未留num_dyc原字段，不能认定上游缺字段。[脱敏回执](tasks/active/evidence/ainuoke-live-demo-readiness/window-completion-2026-10-15.md)。
+- G5仅本地，Dry Run预检失败pushes=0/NETWORK_DEGRADED，无远端/PR结论，不自动恢复或反复推送。无真实账号/业务DB/Source范围、宁波/18443/18444或部署操作。旧Browser长期数据、身份/价格/流水及图/hash保留；整个Goal未完成。
 
-下一步先复用原Source整合21da670（原树clean）：人工单位/工厂责任、数量0/单位空提醒、顶部退出、PR108依赖与真实隔离演示工具；不带回废止的经销报价直接SO或旧共享订单价格。然后完成已批准小箭头/字段/排序/事件侧栏及两个新来源核验。[任务](tasks/active/material-progress-integration.md)。
-
-既有四单两小时窗口只读确认12次成功、每次4单、12独立run且按截止停止；本轮没有新HTTP/数据库/凭据/ACL操作。[脱敏回执](tasks/active/evidence/ainuoke-live-demo-readiness/window-completion-2026-10-15.md)。旧报告白名单未保留num_dyc原字段，不能据此判断上游缺字段。6086941仍需独立固定来源与身份/币种核实，不据样本公式、同名或数量匹配冒称映射已证实。
-
-无新真实账号/业务DB/Source范围窗口、宁波或18443/18444操作；不自动合并部署，整个Goal未完成。旧工作树、Browser长期数据、原身份/流水/价格及旧图/hash保留。随main/PR、测试、来源/环境或授权变化更新；此前状态见completed/2026-10-15-pre-gate5-current-state.md。
-Gate5仅准备文档checkpoint已本地提交；安全工具Dry Run网络预检失败（pushes=0/NETWORK_DEGRADED），无本分支远端/PR结论。守卫已PASS，可继续安全本地阶段，不自动恢复或反复推送；不要求用户为这一步重复执行命令。
+随main/PR、测试、来源/环境或授权变化更新；旧恢复点见completed/2026-10-15-pre-gate5-current-state.md及Git历史。

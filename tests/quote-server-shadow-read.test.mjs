@@ -62,7 +62,7 @@ test("trusted Server session and quote.view gate list and detail states", () => 
 test("Server shell hides Browser identity and permission-backed legacy controls", () => {
   assert.match(appShell, /identityMode\?: "browser" \| "server"/u);
   assert.match(appShell, /serverSession\.user\?\.name/u);
-  assert.match(appShell, /serverIdentityMode \|\| localSingleUser \? <div className="qc-server-identity"/u);
+  assert.match(appShell, /serverIdentityMode \|\| localSingleUser \? <ServerUserMenu/u);
   assert.match(appShell, /!serverIdentityMode && <GlobalSearchPalette/u);
   assert.match(appShell, /const showSettingsNavigation = freshServer \|\| localSingleUser \|\| !serverIdentityMode \|\| serverSettingsMode/u);
   assert.match(appShell, /showSettingsNavigation && <><section><strong>基础设置/u);

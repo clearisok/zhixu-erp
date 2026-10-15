@@ -1,0 +1,30 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "components/foundation/app-shell.tsx",
+    "features/quote-center/components/quote-editor.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/server/sales-order-server-model.ts",
+    "features/ainuoke-material-progress/read-service.ts"
+  ],
+  "pages": [
+    "navigation",
+    "quote-detail",
+    "quote-new",
+    "order-list",
+    "order-detail",
+    "material"
+  ],
+  "visibleDifference": "Preserve approved top-right logout, order alert chips and existing order identity/commercial UI. Reuse existing unsaved Quote modal for logout and preserve unresolved preparation command guard; no other redesign.",
+  "evidence": [
+    "docs/tasks/active/material-progress-integration.md",
+    "server/integration/ainuoke-continuous-ui.integration.test.mjs",
+    "server/integration/order-preparation-ui.integration.test.mjs"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/material-progress-integration.md"
+  }
+}

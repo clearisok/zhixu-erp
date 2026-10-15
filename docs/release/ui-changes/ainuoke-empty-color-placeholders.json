@@ -1,0 +1,16 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V1",
+  "paths": [
+    "features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts"
+  ],
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "Restore user-approved source-color semantics: exclude only fully blank placeholders from order projection; retain named unknown colors and all original evidence. No component/layout/style/navigation or production-route changes.",
+  "evidence": [
+    "docs/tasks/active/source-anomaly-followup-2026-10-14.md",
+    "tests/ainuoke-garment-color-size-source.test.mjs",
+    "server/integration/ainuoke-continuous.test.ts"
+  ]
+}

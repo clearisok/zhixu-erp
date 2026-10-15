@@ -1,5 +1,7 @@
 # 款式进度、面辅料跟进与逐物料物流
 
+2026-10-14 / D114：新增逐需求只读数量测算候选 `Num*(1+Lost/100)*StyleNum`，标签待核实，与实际采购及差额分开。三个确认样本算术匹配不是全量字段语义确认；缺/冲突单位、空/非法/负输入或跨来源不一致保持未知。候选不驱动齐套/超采/冲突，TotalNum/cgnum与各流事件不改。原P6只在原展开区域增加解释段落，1440/1280/390实际fixture UI通过。[证据](../tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md)。
+
 2026-10-13 / D-111 工程候选：6087050 `QtyUnit` 经目标三需求只读原始值与用户转述 IT 语义确认，映射为逐需求来源单位。只读投影对所有来源行做一致性判断；空/无效显示未知，冲突时该需求采购、入库、出运、出库汇总与齐套状态为未知，逐事件原始事实仍保留但界面数量提示待核对。不同 child Demand 不跨单位累计。既有 `TotalNum`、`cgnum`、理论用量、去重 ID、正式齐套计算与 IndexedDB schema 不变；历史 Excel 未映射单位。[证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。
 
 2026-10-12：新增[Server Source](AINUOKE_SERVER_SOURCE.md)持久快照可显式接入原物料DTO，保留本文件全部业务算法和P6 UI。默认关闭、生产路由未开；历史“runtime未安装来源”的描述仅代表当时版本，不代表本分支工程能力。真实来源与持续运行未验收。

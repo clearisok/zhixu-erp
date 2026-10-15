@@ -192,3 +192,20 @@ test('preview module contains no storage/Bridge/client/writer wiring or cross-un
     assert.doesNotMatch(source,/localStorage|indexedDB|commitAinuokeMaterialApiPreview\(|commitImport\(|fetch\(|ainuoke-api-client/);
   }
 });
+
+test('two paid repeat purchases with equal quantities remain distinct events; unit aliases are not guessed', () => {
+  const pages=complete(); const first=pages[0].rows.find(row=>row.values.GoodsNo==='SYNTHETIC-MAT-ready');
+  first.values.cgnum=100; first.values.QtyUnit='只';
+  const second=structuredClone(first);
+  second.sourceRowIdentity='6087050:sha256:synthetic-repurchase';
+  Object.assign(second.values,{cgdh:'PO-SYNTHETIC-repurchase',QtyUnit:'个',rkdh:'IN-SYNTHETIC-repurchase',cydh:'SHIP-SYNTHETIC-repurchase',ckdh:'OUT-SYNTHETIC-repurchase'});
+  pages[0].rows.push(second); pages[0].total++;
+  const conflict=byCode(project(pages),'ready');
+  assert.equal(conflict.purchases.length,2);
+  assert.deepEqual(conflict.purchases.map(event=>event.quantity),[100,100]);
+  assert.equal(conflict.unitStatus,'conflict'); assert.equal(conflict.purchased,null);
+  second.values.QtyUnit='只';
+  const sameUnit=byCode(project(pages),'ready');
+  assert.equal(sameUnit.purchases.length,2); assert.equal(sameUnit.purchased,200);
+  assert.equal(sameUnit.demand.requiredQuantity,100);
+});

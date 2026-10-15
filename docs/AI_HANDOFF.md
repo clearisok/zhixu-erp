@@ -1,14 +1,13 @@
-# 当前接力：G1–G4均已送达且CI全绿，进入Gate5
+# 当前接力：Gate5 Phase A合并收口
 
-2026-10-15；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；在原order-effective-attribution工作树新建feat/material-progress-integration，从036fe521ba16a7b5193d1c68cc1f6cc76626709a/clean开始，无重建/丢失旧分支。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；原order-effective-attribution物理工作树，当前feat/material-progress-integration。起始4bdfa830/clean，本地合入21da670。旧工作树/分支/私有证据和node_modules junction目标保护，不重建、reset、clean或自动rebase。
 
-PR109 head1fcc440f00eeab962eb766161eab96ed5f67c6b4、110 head3deffc478fec2df2909499e5b053330b94997611、111 headf4a1b99b8a4a85cce6ec3b8d77c80df994114db3、112 head036fe521ba16a7b5193d1c68cc1f6cc76626709a均精确交付，各3CI SUCCESS，已attach并更新复审说明；110/111/112保持Draft。全部未合并部署。统一合并授权问题已异步提出；未获实际用户答复不能合并。CI不代表部署或人工业务验收。
+109@1fcc440、110@3deffc4、111@f4a1b99b、112@036fe521均远端精确且3CI成功，均未合并。后3项Draft依赖顺序109→110→111→112；合并授权待用户实际回复。108仍独立开放，不能重复建PR。G5网络Dry Run失败pushes0，NETWORK_DEGRADED；只保存本地checkpoint，不再自动恢复/推送，不要求用户为每个小步骤手推。
 
-Gate4最终840root/78baseline/71关键PG/9变动浏览器、完整类型/lint/显式build及远端全套通过；细节gate4-final-dependency.md。默认无真实Adapter/permit，真实归一关闭。G5范围及下一步见material-progress-integration.md；不应重新实现原成果。
+17冲突已语义整合：G1–G4身份/CCT隔离/加工/准备/归属/历史与Source D113–120人工确认/提醒/顶部退出/只读工具均保留。reader单单及列表batch同RR代际/权限/context校验；人工receipt不自动迁SO。旧共享CCT和经销报价SO不恢复。D132和Source21da manifest归档已写；当前manifest仍需真实merge SHA的DECISION前向冻结，不能把分叉历史塞成并行active叶。
 
-下步先只读审查并合入erp-followup-governance/feat/ainuoke-anomaly-evidence原head21da670b619f9ad745b4818ffc0a4eb50b9a501e/clean（含PR108 f5依赖）。保护当前G1–G4、D131碰撞保护与全部旧证据/manifest分叉历史；不能整体复制旧app/repository/CCT或旧manifest，不能带回a0e60e4报价直接SO。旧Source成果含MaterialConfirmation完整证据JSON、quantity-facts观察、颜色0/列表alerts、ServerUserMenu、隔离/窗口工具。新顶部退出整合时注意未知准备/报价未保存guard不被绕过。
+证据tasks/active/evidence/material-source-integration/phase-a-results.md：82单元、PG26初PASS/1旧不可变测试FAIL/1Linux skip，修正后2/2PASS；20实际Chrome包括Quote脏草稿退出失败和准备未知请求退出保护。类型/Server编译及dirty构建PASS；一个unused Button已移除。冻结前基线失败（DECISION drift/ANCHOR）保留，ANCHOR已修，必须freeze后重跑完整基线/root/来源门禁和精确构建，不冒称整个Gate5完成。
 
-窗口私有日志只读核实：2026-10-14 05:12:09.685Z–07:12:09.695Z，deadline07:12:09.685Z；12attempt/12SOURCE_CAPTURED、每次4单、12不同runID/replayed0、deadline停止；没有新采集或DB访问，公开脱敏window-completion-2026-10-15.md。原报告是白名单，无raw num_dyc；不能说上游没字段。后续可先复用已捕获原Source证据，若不够再做有界私密诊断，不读凭据或扩范围。
+下步完成本地merge commit、前向证据绑定/测试收口，然后Phase B批准的小箭头/业务与工厂款号/去重复导航/面料排序与团队辅料设置/事件侧栏；Phase C num_dyc真实返回粒度单位重复核验、6086941固定独立只读来源。sourceId6083694非reportID；财务缺可信物料分录键时保留订单级未关联记录，不按名称/数量猜；付款申请不是已银行付款，不扩FX。
 
-剩余G5：顶部箭头/业务款号与工厂款号、去重复导航/说明、fabric数值排序/trim团队设置、详情展开与事件侧栏、num_dyc独立核实映射、6086941独立source/金额数量/身份权限。不要按100行公式或中文名称自动归并财务与物料；缺可信采购分录身份明确待核验。所有真实写入/激活/部署/账号/宁波/18443/18444均未扩大授权；Goal继续，旧恢复点completed/2026-10-15-pre-gate5-ai-handoff.md。
-Gate5起始checkpoint bff66bf63dfce16bd8f6cefa77cfe445d4074472工作树clean、精确main守卫PASS。正常安全工具仅Dry Run阶段网络预检失败，pushes=0/LOCAL_PASS_REMOTE_UNVERIFIED/NETWORK_DEGRADED；没有执行推送或恢复命令，不能称本Gate远端送达。无需用户立即手推这份准备文档，继续不依赖远端的同一已验证基线本地整合；后续Gate不重复撞同一通道，恢复按AGENTS。G1–G4已核实送达/全绿不被此后新故障推翻，也不宣称通道永久恢复。
+既有四单窗口12成功/固定4单/12独立run/截止停止仅既有私有日志只读验证，无新采集或DB。禁止真实账号/业务库、Source范围窗口、宁波/18443/18444/部署/自动合并，完整Goal继续。旧pre-Gate5接力在completed原文件和Git中。

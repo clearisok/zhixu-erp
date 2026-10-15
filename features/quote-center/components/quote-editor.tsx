@@ -183,6 +183,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   const [isDirty, setIsDirty] = useState(false);
   const [createAttempted, setCreateAttempted] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [pendingLogout, setPendingLogout] = useState(false);
   const [masterData, setMasterData] = useState<BasicSettingsState>(serverMode ? {systemDefaults:{usdCnyRate:null,markupRate:null,laborCurrency:"CNY",defaultOtherCost:null},brands:[],customerSalespeople:[],fabricLibrary:[],trimLibrary:[],brandAliases:[],purchasedTrimCostRules:[]} : defaultBasicSettings);
   const [serverSupplierOptions, setServerSupplierOptions] = useState<string[]>([]);
   const [masterSettings, setMasterSettings] = useState<GlobalQuoteSettings | null>(null);
@@ -441,6 +442,27 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     return () => observer.disconnect();
   }, [masterStatus, isNew]);
 
+  const finishDeparture = async () => {
+    if (pendingLogout) {
+      try {
+        await serverSession.logout();
+        setIsDirty(false);
+        setPendingLogout(false);
+        setPendingNavigation(null);
+      } catch { notify('退出未完成，当前草稿保留；请重试或继续编辑。'); }
+      return;
+    }
+    const target = pendingNavigation;
+    setIsDirty(false);
+    setPendingNavigation(null);
+    if (target) router.push(target);
+  };
+  const cancelDeparture = () => { if (!serverBusy) { setPendingNavigation(null); setPendingLogout(false); } };
+  const requestLogout = async () => {
+    if (serverBusy || serverError || priceSyncRequest) { notify('请先完成当前报价保存或核对，再退出登录。'); return; }
+    if (isDirty) { setPendingNavigation(null); setPendingLogout(true); return; }
+    await serverSession.logout();
+  };
   const requestNavigation = (target: string) => {
     const intent = createNavigationIntent(isDirty, target);
     if (intent.pendingTarget) setPendingNavigation(intent.pendingTarget);
@@ -731,9 +753,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
 
   const finishPersistIntent = async (intent: PersistIntent, targetQuote: Quote) => {
     if (intent === "navigate") {
-      const target = pendingNavigation;
-      setPendingNavigation(null);
-      if (target) router.push(target);
+      await finishDeparture();
       return;
     }
     if (intent === "export") {
@@ -856,12 +876,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     }
   };
 
-  const discardAndNavigate = () => {
-    const target = pendingNavigation;
-    setIsDirty(false);
-    setPendingNavigation(null);
-    if (target) router.push(target);
-  };
+  const discardAndNavigate = () => { if (!serverBusy) void finishDeparture(); };
 
   const deleteQuote = async () => {
     if (isNew) return;
@@ -1156,7 +1171,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   if (!serverMode && masterStatus === "error") return <AppShell title="基础资料不可用"><PageContainer><ErrorState title="基础资料读取失败" description={masterError} /></PageContainer></AppShell>;
   if (masterStatus === "loading") return <AppShell title="载入基础资料"><PageContainer><LoadingState label="读取报价基础资料" /></PageContainer></AppShell>;
 
-  if (isNew) return <AppShell title="新建报价" backTarget={{ href: "/quote-center", label: "返回报价中心" }} onRequestNavigation={requestNavigation}><PageContainer className="qc-create-page qc-quote-create-page">
+  if (isNew) return <AppShell title="新建报价" backTarget={{ href: "/quote-center", label: "返回报价中心" }} onRequestNavigation={requestNavigation} onRequestLogout={requestLogout}><PageContainer className="qc-create-page qc-quote-create-page">
     {quoteFrozen && <div role="status" className="qc-form-alert">报价迁移冻结 · 只读。现有报价与附件可查看、下载和导出。</div>}
     {q3AuthorityNotice}
     <FormShell className="qc-create-form" submitOnEnter={false} onSubmit={save}>
@@ -1193,7 +1208,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     <QuickMasterDataCreate request={quickMasterRequest} state={masterData} authority={q3Authority} canMaster={canQ3} persistMaster={persistMaster} onStateChange={setMasterData} onClose={() => setQuickMasterRequest(null)} onBrandCreated={(brand, nextState) => { setMasterData(nextState); requestBrandChange(brand.id, { label: brand.name }, nextState); }} onSalespersonCreated={(salesperson, nextState) => { setMasterData(nextState); requestSalespersonChange(salesperson.id, { label: salesperson.name }, nextState); }} notify={notify} />
     {masterSwitchModal}
     {(!serverMode || masterStatus === "ready") && <QuotePricingSettings open={pricingOpen} priceVersion={activeVersion} settings={masterSettings ?? undefined} readOnly={!can("quote.settings.edit")} onPriceVersionChange={(priceVersion) => { defaultsStateRef.current.rateTouched = true; defaultsStateRef.current.rateAuto = false; updateActiveVersion(() => priceVersion); }} onClose={() => setPricingOpen(false)} />}
-    <Modal open={Boolean(pendingNavigation)} title="新建报价有未保存修改" description="离开后当前内存草稿将被丢弃，不会创建报价记录。" onClose={() => setPendingNavigation(null)} onSubmit={saveAndNavigate} footer={<><Button variant="danger" onClick={discardAndNavigate}>放弃并返回</Button><Button variant="secondary" onClick={() => setPendingNavigation(null)}>继续编辑</Button><Button type="submit">创建并返回</Button></>}><p className="qc-unsaved-message">只有成功创建后才会写入 Quote Repository。</p></Modal>
+    <Modal open={Boolean(pendingNavigation) || pendingLogout} title="新建报价有未保存修改" description="离开后当前内存草稿将被丢弃，不会创建报价记录。" onClose={cancelDeparture} onSubmit={saveAndNavigate} footer={<><Button variant="danger" disabled={serverBusy} onClick={discardAndNavigate}>{pendingLogout ? "放弃并退出" : "放弃并返回"}</Button><Button variant="secondary" disabled={serverBusy} onClick={cancelDeparture}>继续编辑</Button><Button type="submit" disabled={serverBusy}>{pendingLogout ? "创建并退出" : "创建并返回"}</Button></>}><p className="qc-unsaved-message">只有成功创建后才会写入 Quote Repository。</p></Modal>
     <Toast message={toast} />
   </PageContainer></AppShell>;
 
@@ -1252,7 +1267,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     <QuoteActionBar {...quoteActionBarProps} keepPrimaryVisible={serverMode} onModeChange={setHeaderActionMode} />
   </div>;
 
-  return <PermissionAuthorityProvider can={can}><NumberPrecisionContext.Provider value={serverMode ? precision : null}><AppShell title={isNew ? "新建报价" : "款式报价明细"} backTarget={{ href: "/quote-center", label: "返回报价中心" }} onRequestNavigation={requestNavigation}><PageContainer className={serverMode ? "qc-server-quote-detail" : undefined}>
+  return <PermissionAuthorityProvider can={can}><NumberPrecisionContext.Provider value={serverMode ? precision : null}><AppShell title={isNew ? "新建报价" : "款式报价明细"} backTarget={{ href: "/quote-center", label: "返回报价中心" }} onRequestNavigation={requestNavigation} onRequestLogout={requestLogout}><PageContainer className={serverMode ? "qc-server-quote-detail" : undefined}>
     {quoteFrozen && <div role="status" className="qc-form-alert">报价迁移冻结 · 只读。现有报价与附件可查看、下载和导出。</div>}
     {(!serverMode || q3Authority === "frozen") && q3AuthorityNotice}
     {unsafeNumbers.size > 0 && <ErrorState title="数值无法安全精确读写，保存已阻止" description="请修正输入；系统不会舍入后保存。" />}
@@ -1296,7 +1311,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     <Modal open={Boolean(priceVersionDeleteTargetId)} title="删除价格版本？" description="删除后，此价格版本将从当前报价中移除；mock 阶段允许删除，但操作不可撤销。" onClose={() => setPriceVersionDeleteTargetId(null)} onSubmit={confirmDeletePriceVersion} footer={<><Button variant="secondary" onClick={() => setPriceVersionDeleteTargetId(null)}>取消</Button><Button type="submit" variant="danger">确认删除</Button></>}>
       <div className="qc-delete-price-version-message"><p>确认删除“{revision.priceVersions.find((version) => version.id === priceVersionDeleteTargetId)?.name ?? "当前价格版本"}”吗？</p>{revision.priceVersions.find((version) => version.id === priceVersionDeleteTargetId)?.confirmation && <strong>该价格版本已有客户确认信息，请确认是否删除。</strong>}</div>
     </Modal>
-    <Modal open={Boolean(pendingNavigation)} title="有未保存的修改" description="当前报价还有尚未保存的修改。离开后这些修改将丢失。" onClose={() => setPendingNavigation(null)} onSubmit={saveAndNavigate} footer={<><Button variant="danger" onClick={discardAndNavigate}>放弃修改</Button><Button variant="secondary" onClick={() => setPendingNavigation(null)}>继续编辑</Button><Button type="submit">保存并返回</Button></>}><p className="qc-unsaved-message">你可以保存当前报价后返回，也可以放弃本次修改。</p></Modal>
+    <Modal open={Boolean(pendingNavigation) || pendingLogout} title="有未保存的修改" description="当前报价还有尚未保存的修改。离开后这些修改将丢失。" onClose={cancelDeparture} onSubmit={saveAndNavigate} footer={<><Button variant="danger" disabled={serverBusy} onClick={discardAndNavigate}>{pendingLogout ? "放弃并退出" : "放弃修改"}</Button><Button variant="secondary" disabled={serverBusy} onClick={cancelDeparture}>继续编辑</Button><Button type="submit" disabled={serverBusy}>{pendingLogout ? "保存并退出" : "保存并返回"}</Button></>}><p className="qc-unsaved-message">你可以保存当前报价后返回，也可以放弃本次修改。</p></Modal>
     <Modal open={deleteOpen} title="删除报价" description="删除后这张报价将从当前 mock repository 中移除。" onClose={() => setDeleteOpen(false)} onSubmit={deleteQuote} footer={<><Button variant="secondary" onClick={() => setDeleteOpen(false)}>取消</Button><Button type="submit" variant="danger">确认删除</Button></>}><p className="qc-unsaved-message">确定删除“{pageTitle}”吗？此操作需要再次确认。</p></Modal>
     {masterSwitchModal}
     <Modal open={confirmationOpen} title={`客户确认 · ${confirmationTarget?.label ?? activePriceDisplayName}`} description={confirmationTarget?.linked ? "当前数值写入 PostgreSQL 共享商业条款；不会改写 Quote 历史快照。" : `确认结果归属于报价版本 ${revision.revisionLabel} + 当前价格版本，不会覆盖系统测算值。`} onClose={() => { if (!serverBusy) setConfirmationOpen(false); }} onSubmit={saveConfirmation} footer={<><Button variant="secondary" disabled={serverBusy} onClick={() => setConfirmationOpen(false)}>取消</Button><Button type="submit" disabled={serverMode && (serverBusy || Boolean(serverError))}>保存确认</Button></>}>
