@@ -15,3 +15,11 @@ Phase baseline：复用现有ainuoke-live-readiness树，开始时feat/ainuoke-p
 新19项PG/真实session/七角色通过；最终13文件219项中218通过、1项原Linux CLI在Windows跳过，实际Python loopback通过。追加同一SO归属代际变化/重新采集/历史别名SQL负向断言后，新19项复验通过，运行代码未变；类型、Server编译与完整源码lint通过。初轮upsert代际问题和迁移runner文件名断言已修，原失败日志保留。归一清单补全部新财务引用，原外部覆盖/独立审批与历史证据不放宽。完整root/基线和精确守卫后续在此登记；不覆盖已冻结报告。
 
 读取是已观测时点，不宣称实时或最后一次尝试成功；后续受控采集器还需接失败状态、真实过滤、范围授权和原页转换。新财务观察不是银行实付或织序价格。没有HTTP写入/启用端点，不以verification hash替代人类许可。
+
+## 最终收口（2026-10-15）
+
+源码c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f；D139/报告冻结后前向绑定931492af609c9db2eb694de971dbad27c6398253。最终root898/898、发布基线94/94、精确main门禁PASS：11页面/40分维度能力/53继承UI路径，本Phase没有UI改动。日志payment-storage-{root,baseline,bound-guard}.log；类型/Server编译/完整源码lint与最终定向日志同目录，原113+1跳过与最终218+1跳过按各自范围保留。全局测试不是新UI/生产像素/实际财务人工验收。
+
+后续接线发现：当前6086941候选字段只有申请行id/合同/名称/规格等，不能把其id或名称直接当6087050需求身份。现在API只按可信SO/合同读观察，无物料ID筛选或伪关联。下一工程先保留合同级来源语义/精确值和未知值；物料级关联需可核对的采购明细/需求标识，不为填满对账页虚构匹配。
+
+旧Source48b63101与G5c54a工作树均再次核实clean且HEAD不变；foundation原ref仍d09d5764。新代码没有送达核实/新PR/Hosted CI，无真实上游访问或部署；NETWORK_DEGRADED不自动恢复。当前合成可用不意味着完整Gate5或Goal已完成。
