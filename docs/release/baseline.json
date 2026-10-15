@@ -1390,6 +1390,36 @@
       "kind": "document",
       "recordedAtSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
       "sha256": "4246bb430b7baae9654300e9d5185cdec552e28fbef16e364889f12335237a1a"
+    },
+    {
+      "id": "decisions-payment-row-context",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "decisions-payment-request-probe",
+      "changeReason": "D136 records two explicitly verified allocation/unit/currency samples and scopes immutable offline observations; preserves D135 limits.",
+      "kind": "document",
+      "recordedAtSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+      "sha256": "751217b227e84213a9611df6723d009415a07312a5063f43d8c95343042b7c8b"
+    },
+    {
+      "id": "payment-row-context-confirmation",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/row-context-confirmation-2026-10-15.md",
+      "kind": "document",
+      "recordedAtSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+      "sha256": "3235e7c1db64c32a0af92c648331b390d97484b89c30f2c76a1150b765c1099b"
+    },
+    {
+      "id": "payment-observations-engineering",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/observations-engineering-2026-10-15.md",
+      "kind": "document",
+      "recordedAtSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+      "sha256": "236da597ea81152c9ebcdcf3da24d20345c491a974928a22484acc357087f96c"
+    },
+    {
+      "id": "payment-observations-offline",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/observations-offline-2026-10-15.json",
+      "kind": "document",
+      "recordedAtSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+      "sha256": "0fc65b3c5bec7fd32a308a39da11c570084026f818d85905926cb063c94e1871"
     }
   ],
   "pages": [
@@ -4967,6 +4997,115 @@
             "payment-request-ipc-encoding",
             "payment-request-first-page-real",
             "payment-request-first-page-schema"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ainuoke-payment-read-only-observations",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+      "evidence": [
+        "decisions-payment-row-context",
+        "payment-row-context-confirmation",
+        "payment-observations-engineering",
+        "payment-observations-offline"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+          "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+          "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+          "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+          "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
+          "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime changes by this offline model; runtime image/source metadata remains historical.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime changes by this offline model; runtime image/source metadata remains historical.",
+          "evidence": [
+            "decisions-payment-row-context",
+            "payment-row-context-confirmation",
+            "payment-observations-engineering",
+            "payment-observations-offline"
           ]
         }
       }
