@@ -40,7 +40,7 @@ export async function saveMaterialProgressSettings(pool:Pool,identity:TrustedIde
   const changed=!before.configured||JSON.stringify(before.trimPriorityKeywords)!==JSON.stringify(command.trimPriorityKeywords);
   if(changed){
    await client.query('INSERT INTO material_progress_settings(scope,version,trim_priority_keywords,updated_by) VALUES($1,$2,$3::jsonb,$4) ON CONFLICT(scope) DO UPDATE SET version=EXCLUDED.version,trim_priority_keywords=EXCLUDED.trim_priority_keywords,updated_by=EXCLUDED.updated_by,updated_at=now()',['team',before.version+1,JSON.stringify(command.trimPriorityKeywords),actor.internalUserId]);
-   await appendOperationLog(client,actor,{module:'系统设置',action:'修改进度设置',entityType:'MaterialProgressSettings',entityId:'team',beforeData:{values:{辅料优先级:before.trimPriorityKeywords}},afterData:{values:{辅料优先级:command.trimPriorityKeywords}}});
+   await appendOperationLog(client,actor,{module:'系统设置',action:'修改进度设置',entityType:'MaterialProgressSettings',entityId:'team',beforeData:{values:{辅料优先级:JSON.stringify(before.trimPriorityKeywords)}},afterData:{values:{辅料优先级:JSON.stringify(command.trimPriorityKeywords)}}});
   }
   const settings=await state(client,actor),result={settings,appliedVersion:settings.version,changed};
   await client.query('INSERT INTO material_progress_setting_commands(actor_id,request_id,payload_hash,result) VALUES($1,$2,$3,$4::jsonb)',[actor.internalUserId,command.requestId,hash,JSON.stringify(result)]);

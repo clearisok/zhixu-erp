@@ -20,7 +20,7 @@ test("Fresh start: schema, technical-only bootstrap and Server-only empty paths"
   const postgres = await startDisposablePostgres();
   const pool = new pg.Pool({ connectionString: await postgres.createDatabase("fresh_start") });
   const migrations = resolve("database/migrations");
-  const expectedVersions=[1,2,3,4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23];
+  const expectedVersions=[1,2,3,4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24];
   const technicalCounts={sales_order_normalization_target:1,sales_order_attribution_write_epoch:1,sales_order_command_control:1,sales_order_command_control_events:1};
   const technicalSnapshot=async()=>{const rows:Record<string,unknown>={};for(const table of Object.keys(technicalCounts))rows[table]=(await pool.query(`SELECT to_jsonb(t) AS row FROM ${table} t ORDER BY to_jsonb(t)::text`)).rows;return rows;};
   let originalTechnical:Record<string,unknown>={};
@@ -54,9 +54,9 @@ test("Fresh start: schema, technical-only bootstrap and Server-only empty paths"
     const applied = await runMigrations(pool, migrations);
     assert.deepEqual(applied.applied.map(file=>Number(file.slice(0,4))),expectedVersions);
     assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version),expectedVersions);
-    assert.equal(applied.applied.at(-1), "0023_order_preparation_adoption.sql");
+    assert.equal(applied.applied.at(-1), "0024_material_progress_settings.sql");
     const actual = await counts();
-    const initial={schema_migrations:expectedVersions.length,...technicalCounts};
+    const initial={schema_migrations:expectedVersions.length,app_permissions:1,...technicalCounts};
     for (const [table, n] of Object.entries(actual)) assert.equal(n,initial[table as keyof typeof initial]??0,table);
     originalTechnical=await technicalSnapshot();
     assert.deepEqual((await pool.query('SELECT version::int FROM sales_order_attribution_write_epoch')).rows,[{version:0}]);
