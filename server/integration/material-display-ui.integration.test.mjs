@@ -36,6 +36,7 @@ test('approved material ordering and event drawer run on the exact built Server 
    for(const width of [1920,1536,1440,1280,900,390]){
     await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:width===1536?1.25:1,mobile:width===390});
     assert.deepEqual((await names()).slice(0,3),['合成排序面料大','合成棉布','合成排序面料小']);
+    assert.equal(await evaluate("(()=>{const buttons=[...document.querySelectorAll('.qc-page-actions button')],settings=buttons.find(node=>node.textContent==='辅料排列设置').getBoundingClientRect(),refresh=buttons.find(node=>node.textContent==='刷新来源').getBoundingClientRect();return settings.width>0&&settings.height>=32&&refresh.width>0&&settings.right<=refresh.left+1;})()"),true,'both approved actions stay visible in order at '+width);
     assert.equal(await evaluate("document.querySelector('.sp-v4-material-identity').getAttribute('aria-expanded')"),'true');
     await evaluate("document.querySelector('.sp-v4-material-identity').click()");assert.equal(await evaluate("Boolean(document.querySelector('.sp-v4-material-card:first-child .sp-material-variants'))"),false);
     assert.equal(await evaluate("document.body.innerText.includes('12.75')"),false);await evaluate("document.querySelector('.sp-v4-material-identity').click()");

@@ -216,3 +216,10 @@
  .sp-keyword-list li { grid-template-columns: 24px minmax(0,1fr); }
  .sp-keyword-list li > div { grid-column: 2; display: flex; flex-wrap: wrap; }
 }
+
+@media(max-width:600px) {
+ /* Keep both explicitly approved Source actions available on touch widths. */
+ .sp-server-material .qc-page-header:not(:has(.qc-page-back)) { grid-template-columns: minmax(0,1fr); }
+ .sp-server-material .qc-page-header > .qc-page-actions { grid-column: 1 / -1; justify-content: flex-start; }
+ .sp-server-material .qc-page-actions > .qc-button { display: inline-flex; }
+}
