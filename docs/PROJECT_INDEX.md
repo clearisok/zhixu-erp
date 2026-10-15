@@ -1,3 +1,5 @@
+2026-10-15 / 6086941一次授权首页尝试collection失败、0个JSON报告；安全失败协议已本地修复38Node/85Python，重试需再次确认固定范围。恢复见CURRENT_STATE与[事实附录](tasks/active/evidence/ainuoke-payment-request-probe/first-attempt-failure-and-repair-2026-10-15.md)。下方是前一工程快照。
+
 2026-10-15 / D135独立6086941固定首页诊断仅本地合成通过，无真实采集/DB/激活/部署；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。[诊断范围与结果](tasks/active/ainuoke-payment-request-probe.md)及CURRENT_STATE为当前恢复入口。B2@68ac保持clean，Git交付仍待核实。
 
 2026-10-15 / 当前G5 B2本地25UI、898root、261PG、56设置/历史升级及94基线已验，团队辅料排序/颜色规格展开/事件侧栏完成，未远端/部署；main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。[最终B2证据](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)及CURRENT_STATE为恢复入口。下方旧快照按原日期阅读。

@@ -1,7 +1,9 @@
-# 当前恢复点：固定首页首次尝试失败，错误协议已修复
+# 当前恢复点：6086941 首次真实失败，修复后等待一次重试授权
 
-2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；feat/ainuoke-payment-request-probe原本地验收headfc314ce061075d9033cd07bde73fff36dd0fe5f2，B2另一树68ac1fc9仍clean。用户授权一次真实6086941首页后已自行执行；FAIL payment_probe_failed/collection，约5.55秒、0个报告文件，旧回执没有worker阶段/请求计数。不能声称登录成功或取得报表，不自动重试。用户真实凭据只由私密进程消费，未读取其内容。
+2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。feat/ainuoke-payment-request-probe修复源码7c567b620df1e51c56461b1f6783e8e54c8afe4a；附录736508304e9b6a68376e08530220aa3c9fd43200，原验收8655/40ace/fc314历史保留。B2另一树68ac1fc9/clean不动。
 
-本次本地补闭合错误协议（Python→Node→PowerShell），提供静态代码、workerStage与0–2 HTTP/0–1 report计数，不转发异常/业务文本或额外字段。38Node/实际包装器、85Python、Server编译/typecheck/定向lint通过；旧898root/24旧预检/94门禁回归及Browser构建属于前一无产品变化的验收范围。准备冻结新附录、更新能力证据并执行最终基线门禁，重要checkpoint保留。无第二次真实HTTP/DB/绑定/激活/部署。
+用户只授权的一次真实6086941首页已由Codex自行执行，约5.55秒后FAIL/payment_probe_failed/collection，0个JSON报告。旧错误回执未保留worker阶段与计数，不能判断认证成功或具体失败原因，不猜、不自动重试。凭据仅私密进程消费、模型没有读取其内容。新报表尚未接通，单位/币种/业务身份/公式/银行实付未核实。报告见tasks/active/evidence/ainuoke-payment-request-probe/first-attempt-failure-and-repair-2026-10-15.md。
 
-后续：此前授权只有一次，如需真实重试先确认固定首页范围，再私密进程自行执行；不让用户复制命令或发密码。Git仍degraded，用户68ac回执pushes0，API已核实分支不存在，不重复恢复/改认证/删规则。现有PR108–112/原工作树、旧报告/截图/hash与已结束四单窗口保留，不自动合并、部署或改宁波/18443/18444。
+已补Python→Node→PowerShell闭合安全失败协议：静态错误码、workerStage、0–2 HTTP/0–1 report计数，未知/业务/秘密文本或伪造键不转发。38Node/真实包装器、85Python、Server build/typecheck/定向lint通过。原898root/24旧预检/94门禁和Browser build按原证据保留；本次仅失败诊断路径与文档。更新能力证据后重跑最终精确基线与94回归，最终结果应以本地outputs/payment-repair-final-baseline.log和payment-repair-baseline-regressions.tap为准。
+
+下一次读取需要单独确认重试一次同一固定首页；获准后直接由私密进程执行既有脚本，不向用户索要密码或复制命令，不读取第二页/DB/绑定/激活/部署。Git仍degraded，用户68ac回执pushes0且API确认分支不存在，不重复push/恢复、改认证/全局TLS/代理/删规则。无新PR/Hosted CI，不自动合并，不动真实账号、现有四单已结束窗口/镜像/宁波18443/18444；Goal继续。Quote保存成功后退出失败重试小修复仍独立待做。
