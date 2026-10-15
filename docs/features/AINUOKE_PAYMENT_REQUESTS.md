@@ -30,6 +30,6 @@ GET /api/v1/sales-orders/:uuid/payment-requests仅Session/正式SO UUID；默认
 
 ## 验收与真实启用
 
-恢复tasks/active/ainuoke-payment-read-panel.md。本阶段150项客户端/原探测与实际一次性PG/API回归通过，类型与增量lint通过；浏览器、截图、完整root/基线和最终精确门禁尚待，不能提前宣称完成。此前存储证据按c235ca6e/931492af/b75bc7a9原阶段阅读。
+恢复tasks/active/ainuoke-payment-read-panel.md。本阶段150项客户端/原探测与实际一次性PG/API回归通过，类型、Server/显式Server UI串行构建、完整源码lint通过；新财务UI9/原物料UI9项实际Chromium通过，六宽度/七角色、展开字段、过期/撤权/取消及精确数字已验。源码cefe951d、build20261015-231629；新截图及receipt另存，非像素人工验收。完整root/基线、默认Browser构建和最终精确门禁待后续收口。此前存储证据按c235ca6e/931492af/b75bc7a9原阶段阅读。
 
 真实读取额度已用完，当前无新增真实查询许可；不得凭本地代码、wire complete、目标verification hash或自动Goal继续推定授权。需要单独核实真实过滤/分页、具体SO/合同清单、备份与迁移/写入/激活范围。UI功能范围已批准不等于新像素人工验收；不操作宁波18443/18444、真实账号/业务DB或现有演示，不自动合并部署。

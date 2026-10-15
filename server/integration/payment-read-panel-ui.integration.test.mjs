@@ -13,7 +13,7 @@ test('contract payment observations use the existing drawer without false materi
   const x=await startContinuousFixture(resolve('dist/client'),{materialDisplay:true,excessWarehouse:true,paymentRequests:true});
   const temp=await mkdtemp(join(tmpdir(),'zhixu-payment-panel-ui-'));let browser,ws,session,id=0;
   const pending=new Map(),errors=[],metrics=[];
-  const evidence=process.env.PAYMENT_PANEL_UI_EVIDENCE==='1'?resolve('outputs/payment-panel-ui',info.gitCommit+'-'+info.buildId):null;
+  const evidence=process.env.PAYMENT_PANEL_UI_EVIDENCE==='1'?resolve('outputs/payment-panel-ui',info.gitCommit+'-'+info.buildId+(process.env.PAYMENT_PANEL_UI_RUN?'-'+process.env.PAYMENT_PANEL_UI_RUN:'')):null;
   try{
     const profile=join(temp,'profile');browser=spawn(process.env.CHROME_PATH??(process.platform==='win32'?'C:/Program Files/Google/Chrome/Application/chrome.exe':'google-chrome'),
       ['--headless=new','--no-first-run','--no-default-browser-check','--remote-debugging-address=127.0.0.1','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:'ignore',windowsHide:true});
@@ -25,7 +25,7 @@ test('contract payment observations use the existing drawer without false materi
     await command('Page.enable');await command('Runtime.enable');await command('Network.enable');
     await command('Page.addScriptToEvaluateOnNewDocument',{source:"window.paymentApiRequests=[];const original=window.fetch;window.fetch=(input,init)=>{const p=new URL(String(input),location.href).pathname;if(p.startsWith('/api/'))window.paymentApiRequests.push({path:p,method:init?.method??'GET'});return original(input,init);};"});
     const evaluate=async expression=>{const result=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});assert.equal(result.exceptionDetails,undefined,JSON.stringify(result.exceptionDetails));return result.result.value;};
-    const click=async text=>{assert.equal(await evaluate("(()=>{const b=[...document.querySelectorAll('.sp-material-events button')].find(x=>x.textContent.trim()==="+JSON.stringify(text)+");if(!b||b.disabled)return false;b.click();return true;})()"),true,'click '+text);};
+    const click=async text=>{assert.equal(await evaluate("(()=>{const label="+JSON.stringify(text)+";const b=[...document.querySelectorAll('.sp-material-events button')].find(x=>x.textContent.trim()===label||(x.getAttribute('role')==='tab'&&x.textContent.trim().startsWith(label+' (')));if(!b||b.disabled)return false;b.click();return true;})()"),true,'click '+text);};
     const has=text=>until(()=>evaluate("Boolean(document.querySelector('.sp-payment-requests')?.textContent.includes("+JSON.stringify(text)+"))"),text);
     const login=async user=>{const cookie=await x.login(user),split=cookie.indexOf('=');await command('Network.setCookie',{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:'127.0.0.1',path:'/',httpOnly:true});};
     const route='/order-center/style-progress/detail?orderId='+x.orderId;
@@ -51,7 +51,13 @@ test('contract payment observations use the existing drawer without false materi
         const m=await evaluate("(()=>{const d=document.querySelector('.sp-material-events').getBoundingClientRect(),root=document.documentElement,t=document.querySelector('.sp-payment-requests .sp-v4-inner-scroll');return {viewport:innerWidth,globalOverflow:root.scrollWidth>innerWidth+1,drawer:{left:d.left,right:d.right,width:d.width},localScroll:t.scrollWidth>t.clientWidth,notice:document.querySelector('.sp-event-comparison').textContent};})()");
         assert.equal(m.globalOverflow,false);assert.ok(m.drawer.left>=-1&&m.drawer.right<=m.viewport+1);assert.ok(m.notice.includes('尚未逐行关联当前物料'));
         assert.equal(m.localScroll,true);if(width===390)assert.ok(Math.abs(m.drawer.width-390)<2);
-        metrics.push({width,...m});await screenshot('payment-'+width);await close();
+        metrics.push({width,...m});await screenshot('payment-'+width);
+        if(width===390){
+          await evaluate("document.querySelector('.sp-payment-requests details').open=true");
+          const expanded=await evaluate("(()=>{const d=document.querySelector('.sp-payment-requests details');const cell=[...d.querySelectorAll('td')].find(n=>n.textContent.includes('9007199254740993.12345678901234567890'));if(!cell)throw Error('missing exact price');cell.scrollIntoView({block:'center'});return {open:d.open,visible:cell.checkVisibility(),overflow:document.documentElement.scrollWidth>innerWidth+1};})()");
+          assert.deepEqual(expanded,{open:true,visible:true,overflow:false});await screenshot('payment-fields-390');
+        }
+        await close();
       }
     });
     await t.test('pagination preserves every observation and decimal text without requesting or summing more data',async()=>{
@@ -60,15 +66,18 @@ test('contract payment observations use the existing drawer without false materi
       assert.equal(await evaluate("document.querySelectorAll('.sp-payment-requests > .sp-v4-inner-scroll tbody tr').length"),7);
       await evaluate("document.querySelector('.sp-payment-requests details').open=true");
       await has('9007199254740993.12345678901234567890');await has('-80.00');await has('0（单位待核）');await has('来源第 2 页第 21 条');
+      assert.equal(await evaluate("(()=>{const d=document.querySelector('.sp-payment-requests details');const cell=[...d.querySelectorAll('td')].find(n=>n.textContent.includes('9007199254740993.12345678901234567890'));cell.scrollIntoView({block:'center'});return d.open&&cell.checkVisibility();})()"),true);
       assert.equal(await evaluate("document.querySelector('.sp-payment-requests').textContent.includes('CNY')"),false);
       assert.equal(x.payments.reads(),before);await screenshot('payment-fields-1440');await close();
     });
     await t.test('an open tab hides expired records without issuing another upstream or DB request',async()=>{
       const expiry=(await x.pool.query('SELECT s.payload->>\'expiresAt\' AS expiry FROM ainuoke_payment_heads h JOIN ainuoke_payment_snapshots s ON s.id=h.snapshot_id')).rows[0].expiry;
-      x.payments.setOffset(Date.parse(expiry)-Date.now()-3000);await openPayments();const before=x.payments.reads();
-      await has('货款申请来源已过期');assert.equal(await evaluate("document.querySelector('.sp-payment-requests table')===null"),true);
-      assert.equal(await evaluate("document.querySelector('.sp-payment-requests').textContent.includes("+JSON.stringify(money)+")"),false);assert.equal(x.payments.reads(),before);
-      await screenshot('payment-expired-1440');await close();x.payments.setOffset(0);
+      x.payments.setOffset(Date.parse(expiry)-Date.now()-3000);await evaluate('window.paymentOriginalDateNow=Date.now;Date.now=()=>0');
+      try{await openPayments();const before=x.payments.reads();
+        await has('货款申请来源已过期');assert.equal(await evaluate("document.querySelector('.sp-payment-requests table')===null"),true);
+        assert.equal(await evaluate("document.querySelector('.sp-payment-requests').textContent.includes("+JSON.stringify(money)+")"),false);assert.equal(x.payments.reads(),before);
+        await screenshot('payment-expired-1440');await close();
+      }finally{await evaluate('Date.now=window.paymentOriginalDateNow');x.payments.setOffset(0);}
     });
     await t.test('disabled/changed targets clear old amounts and require a new accepted snapshot',async()=>{
       await openPayments();await x.payments.setEnabled(false);await click('刷新记录');await has('货款申请明细尚未接通');

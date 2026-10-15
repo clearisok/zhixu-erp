@@ -65,6 +65,7 @@ jobs:
           NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE: writable
           NEXT_PUBLIC_ZHIXU_IDENTITY_MODE: session
           NEXT_PUBLIC_ZHIXU_ORDER_READ: snapshot
+          ZHIXU_GIT_COMMIT: ${{ github.sha }}
         run: npm run build
       - name: Existing P6 pages, six roles and persisted refresh in private Chromium
         run: |

@@ -1,4 +1,4 @@
-2026-10-15当前工程（D139）：D138纯模型上增加0025隔离持久化、逐SO默认关闭的财务目标、CAS发布与可信Session只读API。已用合成PG验证，不代表真实查询/首绑/采集/财务映射接通；原首页v1与所有真实读取额度不变。恢复[存储与接口任务](../tasks/active/ainuoke-payment-snapshot-storage.md)；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，源码/证据/授权变化时更新，下方原阶段按日期阅读。
+2026-10-15当前工程（D140）：在D138模型/D139默认关闭的隔离存储API上接既有对账tab的合同级来源观察；150相关Node/PG与新9/原9实际UI验收通过，完整root/基线待本阶段收口。未真实读取/启用/迁移，未按物料名称伪匹配，不表示正式财务接通。恢复[货款申请模块](AINUOKE_PAYMENT_REQUESTS.md)及[面板任务](../tasks/active/ainuoke-payment-read-panel.md)；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，源码/证据/授权变化时更新，下方原阶段按日期阅读。
 
 ## 6086941隔离存储与读取（D139，工程候选）
 

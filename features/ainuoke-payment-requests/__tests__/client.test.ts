@@ -9,11 +9,11 @@ import { PAYMENT_SOURCE_FIELDS } from '../model';
 const id='5aaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',contract='SYN-PANEL-CONTRACT';
 const sha=(input:unknown)=>createHash('sha256').update(JSON.stringify(input)).digest('hex');
 const captured=Date.parse('2026-10-15T00:00:00.000Z');
-function fixture(total=127){
+function fixture(total=127,duplicate=false){
   const page=(pass:number,n:number)=>({schemaVersion:'ainuoke-payment-observation-page.v2',reportId:'6086941',sourceFingerprint:'a'.repeat(64),capturedAt:new Date(captured+pass*1000+n).toISOString(),
     page:n,pageSize:100,reportedTotal:total,rawResponseSha256:sha([pass,n]),rows:Array.from({length:Math.min(100,total-(n-1)*100)},(_,i)=>({
-      id:'SYN-ROW-'+((n-1)*100+i),BillNo:'SYN-APP',ExpContractNo:contract,PurContractNo:'SYN-PUR',CnName:'合成物料',Num:'115.50',OutStoreNum:'118',
-      Price:'9007199254740993.12345678901234567890',QtyUnit:i===1?null:'个',tzamount:'-80.00',kpNum:'0'}))});
+      id:'SYN-ROW-'+(duplicate?0:(n-1)*100+i),BillNo:'SYN-APP',ExpContractNo:contract,PurContractNo:'SYN-PUR',CnName:'合成物料',Num:'115.50',OutStoreNum:'118',
+      Price:'9007199254740993.12345678901234567890',QtyUnit:!duplicate&&i===1?null:'个',tzamount:'-80.00',kpNum:'0'}))});
   const snapshot=buildPaymentContractSnapshot({schemaVersion:'ainuoke-payment-contract-snapshot-input.v1',firstPass:Array.from({length:Math.ceil(total/100)},(_,i)=>page(1,i+1)),secondPass:Array.from({length:Math.ceil(total/100)},(_,i)=>page(2,i+1))},
     {sourceFingerprint:'a'.repeat(64),salesContractNo:contract,witness:{id:'SYN-ROW-0',BillNo:'SYN-APP',PurContractNo:'SYN-PUR'}},captured+5000);
   return {schemaVersion:'order-payment-requests.v1',salesOrderId:id,sourceReportId:'6086941',sourceStatus:'observed',snapshotId:snapshot.snapshotId,generation:1,
@@ -35,6 +35,8 @@ test('contract reader preserves exact source numbers, missing/zero/unit facts an
   assert.deepEqual(data.rows[0].amounts.Price,{state:'known',raw:'9007199254740993.12345678901234567890'});
   assert.equal(data.rows[0].amounts.YFAmount.state,'unknown');assert.equal(data.rows[1].sourceUnits.purchase.state,'unknown');
   assert.equal(data.rows[0].amountCurrencies.Price.state,'unknown');assert.equal(data.rows[0].allocatedShipmentUnit.state,'unknown');
+  const duplicate=parsePaymentView(fixture(2,true),id,contract);assert.equal(duplicate.rows.length,2);
+  if(duplicate.sourceStatus==='observed'){assert.deepEqual(duplicate.rows[0].sourceFields,duplicate.rows[1].sourceFields);assert.notEqual(duplicate.rows[0].observationId,duplicate.rows[1].observationId);}
 });
 test('malformed authority, scope, completeness, numbers and tracing fail closed',async t=>{
   for(const kind of ['schema','order','contract','count','pages','duplicate','unit','decimal','quantity','paid','mapping','CCT','row-id','scope','trace','time','ttl','meaning','amount-qualifier'] as const)await t.test(kind,()=>{

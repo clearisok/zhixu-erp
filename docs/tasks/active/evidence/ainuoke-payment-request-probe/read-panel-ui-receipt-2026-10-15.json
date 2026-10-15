@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "payment-read-panel-ui.v1",
+  "renderedSourceSha": "cefe951d1de1a32763a1e7298e69b2560b1c282d",
+  "buildId": "20261015-231629",
+  "synthetic": true,
+  "realDatabaseAccess": false,
+  "sourceActivation": "not-activated",
+  "metrics": [
+    {
+      "width": 1920,
+      "viewport": 1920,
+      "globalOverflow": false,
+      "drawer": {
+        "left": 880,
+        "right": 1920,
+        "width": 1040
+      },
+      "localScroll": true,
+      "notice": "以下记录属于合同 SC-SYNTHETIC-001，尚未逐行关联当前物料。分批记录可能重复采购数量，不合计采购总量；申请金额不代表银行实付。"
+    },
+    {
+      "width": 1536,
+      "viewport": 1536,
+      "globalOverflow": false,
+      "drawer": {
+        "left": 496,
+        "right": 1536,
+        "width": 1040
+      },
+      "localScroll": true,
+      "notice": "以下记录属于合同 SC-SYNTHETIC-001，尚未逐行关联当前物料。分批记录可能重复采购数量，不合计采购总量；申请金额不代表银行实付。"
+    },
+    {
+      "width": 1440,
+      "viewport": 1440,
+      "globalOverflow": false,
+      "drawer": {
+        "left": 400,
+        "right": 1440,
+        "width": 1040
+      },
+      "localScroll": true,
+      "notice": "以下记录属于合同 SC-SYNTHETIC-001，尚未逐行关联当前物料。分批记录可能重复采购数量，不合计采购总量；申请金额不代表银行实付。"
+    },
+    {
+      "width": 1280,
+      "viewport": 1280,
+      "globalOverflow": false,
+      "drawer": {
+        "left": 240,
+        "right": 1280,
+        "width": 1040
+      },
+      "localScroll": true,
+      "notice": "以下记录属于合同 SC-SYNTHETIC-001，尚未逐行关联当前物料。分批记录可能重复采购数量，不合计采购总量；申请金额不代表银行实付。"
+    },
+    {
+      "width": 900,
+      "viewport": 900,
+      "globalOverflow": false,
+      "drawer": {
+        "left": 72,
+        "right": 900,
+        "width": 828
+      },
+      "localScroll": true,
+      "notice": "以下记录属于合同 SC-SYNTHETIC-001，尚未逐行关联当前物料。分批记录可能重复采购数量，不合计采购总量；申请金额不代表银行实付。"
+    },
+    {
+      "width": 390,
+      "viewport": 390,
+      "globalOverflow": false,
+      "drawer": {
+        "left": 0,
+        "right": 390,
+        "width": 390
+      },
+      "localScroll": true,
+      "notice": "以下记录属于合同 SC-SYNTHETIC-001，尚未逐行关联当前物料。分批记录可能重复采购数量，不合计采购总量；申请金额不代表银行实付。"
+    }
+  ]
+}
