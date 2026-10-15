@@ -11,3 +11,5 @@
 下步完成本地merge commit、前向证据绑定/测试收口，然后Phase B批准的小箭头/业务与工厂款号/去重复导航/面料排序与团队辅料设置/事件侧栏；Phase C num_dyc真实返回粒度单位重复核验、6086941固定独立只读来源。sourceId6083694非reportID；财务缺可信物料分录键时保留订单级未关联记录，不按名称/数量猜；付款申请不是已银行付款，不扩FX。
 
 既有四单窗口12成功/固定4单/12独立run/截止停止仅既有私有日志只读验证，无新采集或DB。禁止真实账号/业务库、Source范围窗口、宁波/18443/18444/部署/自动合并，完整Goal继续。旧pre-Gate5接力在completed原文件和Git中。
+
+Phase A最终复验已收口：b2918fae上root876/876、baseline94/94、PG261/261、跨Gate81/81、持续70PASS/1Linux skip，类型/Server/lint全绿；显式构建完整b291SHA/buildId20261015-120039。当前B1仅前端/样式/文档/浏览器增量，起始b291clean，不能混入Phase A文档收口提交；选择性stage下列Phase A记录即可：CURRENT_STATE、AI_HANDOFF和phase-a-checker-followup。B1审批文档/路径记录和真实字段/六宽度验收已准备，测试待运行。

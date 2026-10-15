@@ -8,3 +8,7 @@
 2. 新增证据根同时触发同commit非法替代和未锚定。守卫在前一个条件提前continue，仍以EVIDENCE_REVISION阻断，但漏报EVIDENCE_REVISION_ANCHOR。现提前拒绝分支同样分类未锚定文档；所有失败仍阻断，不改变合法链规则。
 
 定向复验：报价8/8、新根1/1PASS。最终root、完整94基线及精确门禁在后续重新执行，不将定向9项冒称全部验收。无产品UI改版、真实数据、部署或远端操作。
+
+## 完整复验（b2918fae）
+
+修复后root876/876、独立baseline94/94通过；完整类型、Server编译及源码lint 0错误0警告；显式Server构建source b2918faeeb7a97df6ece4176d7c3275f27b51728 / buildId20261015-120039通过。Source持续70PASS/1Linux skip、完整PG261/261、身份/商业/加工/归属专项81/81通过；20浏览器仍按原4bdfa830+Phase A工作树构建范围记录，未冒称在最终提交重跑。产品组件在f810f073与b2918fae之间无变化。G5 Phase A本地完成，远端仍PENDING；B1页面另阶段，不据此宣布整个Gate5完成。
