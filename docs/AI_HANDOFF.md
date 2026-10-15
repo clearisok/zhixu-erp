@@ -11,3 +11,5 @@
 UI影响精确10路径见release/ui-changes/order-preparation-adoption-ui.json，D121批准范围、D130工程选择。源码checkpoint b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280，clean后精确buildId order-preparation-ui-20261015-b63d6424与10浏览器通过，4PNG逐张检查；报告/图像checkpoint f96ce65c7aee6e9e7bfc390b2bb4d2d13ab3d042。第26项能力/D130已前向绑定，实际main门禁PASS（10页/26能力/27项累计UI路径）和78/78基线通过；证据绑定首次误取工作树CRLF字节导致2文档hash失败，已仅改两个新记录为已冻结Git blob hash，旧记录/PNG不改。下一步独立commit及后续任务。此前25cap/ff89后台冻结文件及所有旧图/hash不能改。
 
 整个G4/Goal未完成，真实执行/部署默认关闭，无真实DB/账号/凭据/Source窗口操作；G5独立继续。保留所有worktree和本地commit，无force/reset/clean。上一接力completed/2026-10-15-pre-preparation-ui-ai-handoff.md。
+
+Source CI查漏：PR109初始Source失败为迁移写死12/旧样本误带未来迁移，G1修复中。本分支从98d2修精确0011旧库与0023最终ledger，独立Source21总数20PASS/1Linux条件SKIP（Windows），Python固定loopback实跑；[详情](tasks/active/source-ci-migration-coverage.md)。不以PG/源码门禁代替此套件或LinuxCI，原冻结UI证据不改。
