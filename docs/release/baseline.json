@@ -1434,6 +1434,29 @@
       "kind": "document",
       "recordedAtSha": "ba3e058307c7e500ac86efc54121e17290291249",
       "sha256": "49cca3e5c46122133e382c61f0da1fbd17400adb1e1aa2ab02d0ec9cb3282bcf"
+    },
+    {
+      "id": "decisions-payment-contract-probe",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "decisions-payment-row-context",
+      "changeReason": "D137 adds a separate explicitly scoped two-contract diagnostic; preserves original first-page action, source permissions and financial semantics.",
+      "kind": "document",
+      "recordedAtSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+      "sha256": "8eb0f2c0735910a3660a8a426099eae18615f199be9ee1e0017d95b2ca9dc0a7"
+    },
+    {
+      "id": "payment-contract-probe-engineering",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/contract-probe-engineering-2026-10-15.md",
+      "kind": "document",
+      "recordedAtSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+      "sha256": "279d289ce405cb90e140e048f2abf16388e68049312244f5054b77c87dc2f6bb"
+    },
+    {
+      "id": "payment-contract-selection-offline",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/contract-selection-offline-2026-10-15.json",
+      "kind": "document",
+      "recordedAtSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+      "sha256": "69176240e1c77f5cdd1830304ecf19121778b5cdca9c4b3e3bc36f63cd03fdf8"
     }
   ],
   "pages": [
@@ -5136,6 +5159,107 @@
             "payment-observations-offline",
             "payment-observations-amount-currency",
             "payment-observations-amount-currency-offline"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ainuoke-payment-two-contract-diagnostic",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+      "evidence": [
+        "decisions-payment-contract-probe",
+        "payment-contract-probe-engineering",
+        "payment-contract-selection-offline"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
+          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No runtime/deployment changes; preserved image/source anchors are historical.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No runtime/deployment changes; preserved image/source anchors are historical.",
+          "evidence": [
+            "decisions-payment-contract-probe",
+            "payment-contract-probe-engineering",
+            "payment-contract-selection-offline"
           ]
         }
       }
