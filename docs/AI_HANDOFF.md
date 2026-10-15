@@ -15,3 +15,5 @@ B2第二轮UI6PASS/3FAIL（含父测试）：真实七角色、保存丢响应�
 B2第三轮UI9/9通过，新增保存后六宽度设置页与Escape焦点恢复验收。独立读代码发现新Server设置项会出现在旧Browser系统菜单，现限定仅fresh Server+显式snapshot，避免给Browser无效入口，需新精确构建重验。完整PG首轮236PASS/6FAIL，原因均为预期迁移列表未含0024、权限65应为66；只前向维护明确列表/总数，原断言保留。
 
 最终C705构建25项UI/898root/261PG/56设置与历史升级/94基线/Source70PASS1Linux skip、全lint/类型/Server及两Authority构建均通过。AI目视发现390px共用Foundation隐藏首个action，辅料设置入口不可见；新增仅物料页移动端覆盖与按钮可见/左右顺序断言，需新精确构建/UI/门禁。业务代码未改，不无谓重跑SQL；旧通过证据保留其C705范围。
+
+B0手机动作修复后旧页面/多余仓16项通过，B2焦点断言在Foundation约定的requestAnimationFrame恢复前抢读导致23PASS/2FAIL（含父）。实际代码明确在下一帧restoreFocus；改为最多1秒等待精确原按钮，不修改Foundation或降低焦点目标。下一轮截图写独立run后缀，保留首次回执/图片，产品仍精确B0源码。

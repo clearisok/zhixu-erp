@@ -8,7 +8,7 @@ import {join,resolve,relative,isAbsolute} from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {startContinuousFixture} from './ainuoke-continuous-fixture.ts';
 const delay=ms=>new Promise(done=>setTimeout(done,ms));
-async function until(read,label){const end=Date.now()+20000;while(Date.now()<end){try{if(await read())return;}catch(error){if(!/Execution context was destroyed|Cannot find context|Inspected target navigated/.test(String(error)))throw error;}await delay(100);}throw Error(label+' timed out');}
+async function until(read,label,timeout=20000){const end=Date.now()+timeout;while(Date.now()<end){try{if(await read())return;}catch(error){if(!/Execution context was destroyed|Cannot find context|Inspected target navigated/.test(String(error)))throw error;}await delay(100);}throw Error(label+' timed out');}
 test('approved material ordering and event drawer run on the exact built Server UI',{timeout:240000},async t=>{
  const info=JSON.parse(readFileSync('dist/client/build-info.json','utf8'));assert.equal(info.quoteAuthority,'server');assert.equal(info.orderRead,'snapshot');assert.match(info.gitCommit,/^[a-f0-9]{40}$/);
  const x=await startContinuousFixture(resolve('dist/client'),{excessWarehouse:true,materialDisplay:true});const temp=await mkdtemp(join(tmpdir(),'zhixu-material-display-ui-'));let browser,ws,session,id=0;const pending=new Map(),errors=[],metrics=[];
@@ -29,7 +29,7 @@ test('approved material ordering and event drawer run on the exact built Server 
   const keywords=()=>evaluate("[...document.querySelectorAll('.sp-keyword-list strong')].map(node=>node.textContent)");
   const version=async()=> (await x.pool.query("SELECT version FROM material_progress_settings WHERE scope='team'")).rows[0]?.version??0;
   const countAudit=async()=> (await x.pool.query("SELECT count(*)::int n FROM operation_logs WHERE entity_type='MaterialProgressSettings'")).rows[0].n;
-  const capture=async name=>{if(process.env.MATERIAL_DISPLAY_UI_EVIDENCE!=='1')return;const dir=resolve('outputs/material-display-ui',info.gitCommit+'-'+info.buildId);await mkdir(dir,{recursive:true});const image=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(dir,name+'.png'),Buffer.from(image.data,'base64'));};
+  const capture=async name=>{if(process.env.MATERIAL_DISPLAY_UI_EVIDENCE!=='1')return;const dir=resolve('outputs/material-display-ui',info.gitCommit+'-'+info.buildId+(process.env.MATERIAL_DISPLAY_UI_RUN?'-'+process.env.MATERIAL_DISPLAY_UI_RUN:''));await mkdir(dir,{recursive:true});const image=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(dir,name+'.png'),Buffer.from(image.data,'base64'));};
   const openEvents=async name=>{await evaluate("(()=>{const button=[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==="+JSON.stringify('查看 '+name+' 事件')+");if(!button)throw Error('missing event button');button.focus();button.click();})()");await until(()=>evaluate("Boolean(document.querySelector('.sp-material-events'))"),'event drawer');};
   await login('demo.material');await navigate(materialPath);await has('合成排序面料大');const initialOrder=await names();
   await t.test('six widths preserve the approved header, detail expansion, drawer geometry and local table scrolling',async()=>{
@@ -46,7 +46,7 @@ test('approved material ordering and event drawer run on the exact built Server 
     assert.equal(geometry.overflow,false);assert.equal(geometry.panelInside,true);assert.equal(geometry.inlineEvents,0);assert.ok(geometry.backWidth<=32);metrics.push(geometry);
     await evaluate("(()=>{const box=document.querySelector('.sp-material-events .sp-v4-inner-scroll');box.scrollLeft=box.scrollWidth-box.clientWidth;})()");
     if(width===390){assert.equal(await evaluate("(()=>{const box=document.querySelector('.sp-material-events .sp-v4-inner-scroll').getBoundingClientRect(),cell=document.querySelector('.sp-material-events tbody tr').children[5].getBoundingClientRect();return cell.left>=box.left-1&&cell.right<=box.right+1;})()"),true);}
-    await capture('events-'+width);await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await until(()=>evaluate("!document.querySelector('.sp-material-events')"),'drawer Escape');assert.equal(await evaluate("document.activeElement.getAttribute('aria-label')"),'查看 合成排序面料大 事件');
+    await capture('events-'+width);await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await until(()=>evaluate("!document.querySelector('.sp-material-events')"),'drawer Escape');await until(()=>evaluate("document.activeElement.getAttribute('aria-label')==='查看 合成排序面料大 事件'"),'drawer focus restored at '+width,1000);
    }
   });
   await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
@@ -90,6 +90,6 @@ test('approved material ordering and event drawer run on the exact built Server 
    assert.deepEqual(await evaluate("window.apiRequests.filter(row=>(row.path.includes('confirmed-commercial-terms')||row.path.startsWith('/api/v1/quotes')))"),[]);assert.deepEqual(await evaluate("Object.keys(localStorage).filter(key=>key.startsWith('zhixu.erp.local.'))"),[]);
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
-  if(process.env.MATERIAL_DISPLAY_UI_EVIDENCE==='1'){const dir=resolve('outputs/material-display-ui',info.gitCommit+'-'+info.buildId);await writeFile(join(dir,'receipt.json'),JSON.stringify({schemaVersion:'material-display-ui-evidence.v1',renderedSourceSha:info.gitCommit,buildId:info.buildId,synthetic:true,realDatabaseAccess:false,sourceActivation:'not-activated',metrics},null,2)+'\n');}
+  if(process.env.MATERIAL_DISPLAY_UI_EVIDENCE==='1'){const dir=resolve('outputs/material-display-ui',info.gitCommit+'-'+info.buildId+(process.env.MATERIAL_DISPLAY_UI_RUN?'-'+process.env.MATERIAL_DISPLAY_UI_RUN:''));await writeFile(join(dir,'receipt.json'),JSON.stringify({schemaVersion:'material-display-ui-evidence.v1',renderedSourceSha:info.gitCommit,buildId:info.buildId,synthetic:true,realDatabaseAccess:false,sourceActivation:'not-activated',metrics},null,2)+'\n');}
  }finally{if(ws)ws.close();if(browser)browser.kill();await x.close();const owned=relative(resolve(tmpdir()),resolve(temp));if(!owned||owned.startsWith('..')||isAbsolute(owned)||!owned.startsWith('zhixu-material-display-ui-'))throw Error('unsafe temporary browser cleanup');await rm(temp,{recursive:true,force:true,maxRetries:10,retryDelay:100});}
 });
