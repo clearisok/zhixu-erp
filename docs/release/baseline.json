@@ -1420,6 +1420,20 @@
       "kind": "document",
       "recordedAtSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
       "sha256": "0fc65b3c5bec7fd32a308a39da11c570084026f818d85905926cb063c94e1871"
+    },
+    {
+      "id": "payment-observations-amount-currency",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/observations-amount-currency-2026-10-15.md",
+      "kind": "document",
+      "recordedAtSha": "ba3e058307c7e500ac86efc54121e17290291249",
+      "sha256": "8490ae0344f85f598786d1dcd67834ce5faae61833facef9f9ae4782bbd6c611"
+    },
+    {
+      "id": "payment-observations-amount-currency-offline",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/observations-amount-currency-2026-10-15.json",
+      "kind": "document",
+      "recordedAtSha": "ba3e058307c7e500ac86efc54121e17290291249",
+      "sha256": "49cca3e5c46122133e382c61f0da1fbd17400adb1e1aa2ab02d0ec9cb3282bcf"
     }
   ],
   "pages": [
@@ -5012,72 +5026,84 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+      "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
       "evidence": [
         "decisions-payment-row-context",
         "payment-row-context-confirmation",
         "payment-observations-engineering",
-        "payment-observations-offline"
+        "payment-observations-offline",
+        "payment-observations-amount-currency",
+        "payment-observations-amount-currency-offline"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-15",
-          "sourceSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
-          "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+          "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+          "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
           "evidence": [
             "decisions-payment-row-context",
             "payment-row-context-confirmation",
             "payment-observations-engineering",
-            "payment-observations-offline"
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-15",
-          "sourceSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
-          "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+          "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+          "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
           "evidence": [
             "decisions-payment-row-context",
             "payment-row-context-confirmation",
             "payment-observations-engineering",
-            "payment-observations-offline"
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-15",
-          "sourceSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
-          "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+          "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+          "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
           "evidence": [
             "decisions-payment-row-context",
             "payment-row-context-confirmation",
             "payment-observations-engineering",
-            "payment-observations-offline"
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-15",
-          "sourceSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
-          "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+          "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+          "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
           "evidence": [
             "decisions-payment-row-context",
             "payment-row-context-confirmation",
             "payment-observations-engineering",
-            "payment-observations-offline"
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
           ]
         },
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-15",
-          "sourceSha": "8ace8a520fb70f8aeee40a24fe6a874e5e7e7d9e",
-          "scope": "Pure offline 6086941 first-page observations with exact decimal text, no deduplication or totals. Two exact rows have human-confirmed CNY/allocation unit; 98 remain currency-unknown. No contract-complete collection, stable financial event, API, database, Source activation, product acceptance or deployment.",
+          "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+          "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
           "evidence": [
             "decisions-payment-row-context",
             "payment-row-context-confirmation",
             "payment-observations-engineering",
-            "payment-observations-offline"
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
           ]
         },
         "trial18443": {
@@ -5091,7 +5117,9 @@
             "decisions-payment-row-context",
             "payment-row-context-confirmation",
             "payment-observations-engineering",
-            "payment-observations-offline"
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
           ]
         },
         "preview18444": {
@@ -5105,7 +5133,9 @@
             "decisions-payment-row-context",
             "payment-row-context-confirmation",
             "payment-observations-engineering",
-            "payment-observations-offline"
+            "payment-observations-offline",
+            "payment-observations-amount-currency",
+            "payment-observations-amount-currency-offline"
           ]
         }
       }
