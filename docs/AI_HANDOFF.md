@@ -1,5 +1,7 @@
-# 6086941 独立诊断准备（未真实读取）
+# 当前接力：6086941 独立诊断工具收口
 
-2026-10-15；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；复用旧erp-followup-governance干净工作树，从68ac1fc9f839ebfc894d39377dac221e7f65566b建立feat/ainuoke-payment-request-probe；旧21da670分支/报告保留，未发现该工作树活动Node/Python进程。另一order-effective-attribution工作树B2保持68ac1fc9/clean等待人工交付，禁止切换/修改以免命令失效；远端一次只读仍无分支，未重复push。
+2026-10-15；GitHub API再次核实main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/ainuoke-payment-request-probe复用erp-followup-governance工作树，由已验68ac1fc9f839ebfc894d39377dac221e7f65566b起；原21da670分支及私有报告完整保留。另一order-effective-attribution工作树B2仍68ac1fc9/clean，不切换或修改。
 
-本阶段实现固定6086941首页100行只读工具，不扩Bridge catalog或既有采集范围，不猜查询过滤/行ID/单位/币种/公式，不接DB/UI，不实际HTTP读取或接触真实凭据。按ainuoke-payment-request-probe.md做合成负向测试、只向前冻结证据、每重要Gate本地commit；网络degraded不再撞同通道。整个Goal继续，B2及其父分支交付等待用户，Quote退出保存重试另立小修复。
+固定6086941首页100行诊断已实现，37项Node/PowerShell子进程/ACL合成、83项Python、24项旧预检、root898通过，Server编译/默认Browser构建/类型通过。普通lint因继承outputs中私有历史TS生成物报16错误3警告；不修改这些文件，排除outputs后的全源码lint零警告通过。无新真实HTTP/凭据读取/数据库/Source激活/镜像/部署。后续补精确门禁与冻结证据，结果记录在ainuoke-payment-request-probe.md；财务映射、币种、实际付款均未验证。
+
+用户普通PowerShell对68ac交付回执再次pushes0/NETWORK_DEGRADED。一次独立API核对该分支不存在；代码确认deliver先调用Git ls-remote，API只在推送后使用，故卡在远端前置读而非推送。网络根因仍未查明，不把该控制流解释成永久网络修复；不再要求用户重复同命令、不自动恢复、改认证或删AGENTS规则。PR/CI仍等待真实Git对象送达。正式新报表读取需先给出固定首页范围取得明确授权；Quote保存成功但退出失败重试仍另立小修复。

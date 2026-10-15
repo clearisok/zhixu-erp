@@ -1,6 +1,6 @@
 # 6086941 面辅料货款申请明细：有界只读诊断
 
-核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；复用erp-followup-governance旧Source工作树，新分支feat/ainuoke-payment-request-probe从已验收68ac1fc9f839ebfc894d39377dac221e7f65566b/clean起。原feat/ainuoke-anomaly-evidence@21da670b619f9ad745b4818ffc0a4eb50b9a501e及全部私有报告保留；另一工作树B2等待用户执行精确交付命令，不修改其分支/HEAD/dirty。没有新建worktree或重复PR。
+核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；复用erp-followup-governance旧Source工作树，新分支feat/ainuoke-payment-request-probe从已验收68ac1fc9f839ebfc894d39377dac221e7f65566b/clean起。原feat/ainuoke-anomaly-evidence@21da670b619f9ad745b4818ffc0a4eb50b9a501e及全部私有报告保留；另一工作树B2等待网络交付核实，不修改其分支/HEAD/dirty。没有新建worktree或重复PR。
 
 用户已批准D121 Gate5独立接入6086941方向；当前仅工程与合成验证，真实新报表读取须取得明确范围授权，不因HTTP长期风险接受而自动扩大Source范围。
 
@@ -19,3 +19,9 @@
 合成测试覆盖固定请求范围、分页/身份/元数据不一致、超时/超限、未知与零原值、重复行/重复id保留、金额字段独立、秘密回显拒绝、原始数值文本保真、公共回执不泄露。真实运行前需用户授权此单报表首页范围；报告读取后再核验来源字段、单位/币种、行身份及与合同/采购/出运关系，提出最小正式接线。没有真实读取或财务DB写入授权，不自动合并部署。
 
 更新时机：实际源码/测试、main/PR、读取授权或真实证据变化。GitHub是实时工程事实源，本文件是阶段快照。
+
+## 已完成的合成工程（本地，未远端）
+
+37项Node/实际PowerShell与子进程边界、83项Python、24项既有预检、898项root回归通过；类型、Server与默认Browser构建通过。普通lint发现继承outputs私有生成物16错误3警告，原文件保留；排除outputs的全源码lint零警告通过。CI已接入新Node回归及既有Python套件，Hosted CI未运行。精确源码、发布门禁与冻结证据在最终报告补充，不据本段宣称真实映射通过。
+
+Git交付观察：用户普通PowerShell最新回执仍pushes0；独立API确认B2分支不存在。deliver在push前只以Git ls-remote获取远端证据；GitHub API仅用于push后核验。这解释了本次停止阶段，Git传输失败根因仍未确认。AGENTS保持原样，不重复撞失败通道或伪造原commit交付。

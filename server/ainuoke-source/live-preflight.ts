@@ -155,7 +155,8 @@ export function assertPrivateOutput(path: string, root = process.cwd()) {
   }
 }
 
-export function writePrivateReport(directory: string, report: unknown) {
+export function writePrivateReport(directory: string, report: unknown, kind: "full-preflight" | "payment-request" = "full-preflight") {
+  if (!["full-preflight", "payment-request"].includes(kind)) throw new SourceError("preflight_private_output_required");
   // This fixed lifecycle status is metadata, not an Authorization credential.
   // Keep the shared source inspector strict, including for nested fields and all
   // other values of this key; only this source-only envelope may carry it.
@@ -166,7 +167,8 @@ export function writePrivateReport(directory: string, report: unknown) {
     inspect(facts);
   } else inspect(report);
   assertPrivateOutput(directory);
-  const path = join(directory, "ainuoke-live-preflight-private-" + randomUUID() + ".json");
+  const prefix = kind === "payment-request" ? "ainuoke-payment-request-private-" : "ainuoke-live-preflight-private-";
+  const path = join(directory, prefix + randomUUID() + ".json");
   let fd: number | undefined;
   try {
     fd = openSync(path, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);

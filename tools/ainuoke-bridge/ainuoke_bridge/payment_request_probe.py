@@ -1,0 +1,176 @@
+"""Operator-only 6086941 first-page evidence. No catalog registration or domain writes."""
+from __future__ import annotations
+
+import json
+import math
+import sys
+from datetime import datetime, timezone
+from hashlib import sha256
+from typing import Any, Mapping, cast
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode, urljoin
+from urllib.request import ProxyHandler, Request, build_opener
+
+from .ainuoke_client import AinuokeClient, AuthExpiredError, InvalidCredentialError, NetworkAinuokeError, UpstreamSchemaError
+from .contracts import ReportDefinition, ReportKey, build_report_request
+from .security import contains_secret_field
+from .server_source import APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY, NoRedirect
+
+SCHEMA = "ainuoke-payment-page-evidence.v1"
+REPORT_ID = "6086941"
+PAGE_SIZE = 100
+MAX_RESPONSE_BYTES = 4 * 1024 * 1024
+# Deliberately absent from REPORT_CATALOG: neither Bridge nor continuous Source may read it.
+DEFINITION = ReportDefinition(key=cast(ReportKey, "payment_request_first_page"), report_id=REPORT_ID,
+                              label="面辅料货款申请明细（首页诊断）", future_consumer="private diagnostic only", query_kind="empty")
+
+
+def validate_input(data):
+    if not isinstance(data, dict) or set(data) != {"baseUrl", "username", "password", "transportPolicy", "action"}:
+        raise ValueError("invalid_payment_probe_input")
+    if data["baseUrl"] != APPROVED_HTTP_ORIGIN or data["transportPolicy"] != APPROVED_HTTP_POLICY:
+        raise ValueError("payment_probe_origin_not_approved")
+    if data["action"] != "read-first-page-only":
+        raise ValueError("payment_probe_explicit_action_required")
+    for key in ("username", "password"):
+        value = data[key]
+        if not isinstance(value, str) or not value.strip() or len(value) > 1024 or any(ord(c) < 32 or ord(c) == 127 for c in value):
+            raise ValueError("invalid_payment_probe_credentials")
+    return data
+
+
+class BoundedPaymentTransport:
+    """Same proven endpoint/login contract; fixed scope, no proxy/redirect/retry, bounded bytes."""
+    def __init__(self):
+        self.http_attempts = 0
+        self.report_requests = 0
+        self.last_report_text = None
+
+    def request(self, *, url, method, body, headers, timeout):
+        login_url = urljoin(APPROVED_HTTP_ORIGIN + "/", AinuokeClient.LOGIN_PATH.lstrip("/"))
+        report_url = urljoin(APPROVED_HTTP_ORIGIN + "/", AinuokeClient.REPORT_PATH.lstrip("/"))
+        is_report = method == "POST" and url == report_url
+        if not (method == "GET" and url == login_url or is_report):
+            raise UpstreamSchemaError("payment_probe_endpoint_refused")
+        if is_report and body != build_report_request(DEFINITION, page=1, page_size=PAGE_SIZE, query_context={}):
+            raise UpstreamSchemaError("payment_probe_scope_refused")
+        if self.http_attempts >= 2 or is_report and self.report_requests >= 1:
+            raise UpstreamSchemaError("payment_probe_request_limit")
+        self.http_attempts += 1
+        self.report_requests += int(is_report)
+        data = None
+        if method == "GET":
+            url += "?" + urlencode(body)
+        else:
+            data = json.dumps(body, ensure_ascii=False).encode("utf-8")
+            headers = {**headers, "Content-Type": "application/json;charset=utf-8"}
+        try:
+            with build_opener(NoRedirect(), ProxyHandler({})).open(Request(url, data=data, method=method, headers=headers), timeout=min(timeout, 15)) as response:
+                raw = response.read(MAX_RESPONSE_BYTES + 1)
+        except HTTPError as error:
+            error.close()
+            if error.code in (401, 403):
+                raise AuthExpiredError("auth_expired") from None
+            if 300 <= error.code < 400:
+                raise UpstreamSchemaError("redirect_refused") from None
+            raise NetworkAinuokeError("upstream_http_error") from None
+        except (URLError, TimeoutError, OSError):
+            raise NetworkAinuokeError("network_unavailable") from None
+        if len(raw) > MAX_RESPONSE_BYTES:
+            raise UpstreamSchemaError("payment_probe_response_limit")
+        try:
+            text = raw.decode("utf-8")
+            result = json.loads(text)
+        except (ValueError, UnicodeDecodeError):
+            raise UpstreamSchemaError("payment_probe_invalid_json") from None
+        if not isinstance(result, Mapping):
+            raise UpstreamSchemaError("payment_probe_invalid_json")
+        if is_report:
+            self.last_report_text = text
+        return result
+
+
+def decoded_object(value, *, optional=False):
+    if value is None and optional:
+        return None
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except (ValueError, RecursionError):
+            raise UpstreamSchemaError("payment_probe_invalid_metadata") from None
+    if not isinstance(value, Mapping):
+        raise UpstreamSchemaError("payment_probe_invalid_metadata")
+    return value
+
+
+def reject_reflected_secrets(value: Any, secrets, depth=0):
+    if depth > 16:
+        raise UpstreamSchemaError("payment_probe_structure_limit")
+    if isinstance(value, Mapping):
+        if contains_secret_field(value):
+            raise UpstreamSchemaError("payment_probe_secret_field")
+        for child in value.values():
+            reject_reflected_secrets(child, secrets, depth + 1)
+    elif isinstance(value, list):
+        for child in value:
+            reject_reflected_secrets(child, secrets, depth + 1)
+    elif isinstance(value, str):
+        if any(secret and secret in value for secret in secrets):
+            raise UpstreamSchemaError("payment_probe_secret_reflection")
+    elif isinstance(value, float) and not math.isfinite(value):
+        raise UpstreamSchemaError("payment_probe_invalid_number")
+
+
+def probe(data, transport=None):
+    data = validate_input(data)
+    transport = transport or BoundedPaymentTransport()
+    client = AinuokeClient(base_url=data["baseUrl"], transport=transport, network_retries=0, timeout_seconds=15)
+    session = client.login(data["username"], data["password"])
+    page = client.read_report(DEFINITION, jwt_token=session.jwt_token, page=1, page_size=PAGE_SIZE, query_context={})
+    if len(page.rows) > PAGE_SIZE or len(page.rows) > page.total:
+        raise UpstreamSchemaError("payment_probe_page_limit")
+    raw_text = transport.last_report_text
+    if not isinstance(raw_text, str) or len(raw_text.encode("utf-8")) > MAX_RESPONSE_BYTES:
+        raise UpstreamSchemaError("payment_probe_raw_evidence_missing")
+    raw = decoded_object(raw_text)
+    parsed_data = decoded_object(raw.get("dataList"))
+    report = decoded_object(raw.get("reportObj"), optional=True)
+    for container in (raw, report):
+        if container is not None and "reportId" in container and str(container["reportId"]) != REPORT_ID:
+            raise UpstreamSchemaError("payment_probe_report_mismatch")
+    if report is not None and "cellList" in report and not isinstance(report["cellList"], list):
+        raise UpstreamSchemaError("payment_probe_invalid_metadata")
+    secrets = (data["password"], session.jwt_token, session.session_id)
+    # Check the decoded rows/metadata too: JSON strings must not hide forbidden fields.
+    for value in (raw, parsed_data, report):
+        if value is not None:
+            reject_reflected_secrets(value, secrets)
+    if transport.http_attempts != 2 or transport.report_requests != 1:
+        raise UpstreamSchemaError("payment_probe_request_limit")
+    return {"schemaVersion": SCHEMA, "reportId": REPORT_ID, "page": 1, "pageSize": PAGE_SIZE,
+            "reportedTotal": page.total, "returnedRows": len(page.rows),
+            "fetchedAt": datetime.now(timezone.utc).isoformat(), "httpAttempts": 2, "reportRequests": 1,
+            "rawResponseSha256": sha256(raw_text.encode("utf-8")).hexdigest(), "rawReportResponse": raw_text}
+
+
+def main():
+    try:
+        if sys.argv[1:] != ["--stdin-request"]:
+            raise ValueError("payment_probe_explicit_action_required")
+        raw = sys.stdin.buffer.read(16385)
+        if len(raw) > 16384:
+            raise ValueError("invalid_payment_probe_input")
+        result = probe(json.loads(raw.decode("utf-8")))
+        print(json.dumps(result, ensure_ascii=False, allow_nan=False, separators=(",", ":")))
+    except (InvalidCredentialError, AuthExpiredError) as error:
+        print(json.dumps({"error": error.code}))
+        return 1
+    except Exception:
+        # No exception/upstream body/credential is reflected to stdout or stderr.
+        print(json.dumps({"error": "payment_probe_failed"}))
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,3 +1,5 @@
+2026-10-15 D135工程候选：独立6086941固定首页100行诊断已完成合成测试，未真实读取/映射/接UI/DB/持续Source。复用现有登录报表契约，原始数值文本保留在ACL保护报告，公开只给字段覆盖/计数/hash；不以Num汇总采购、不混同各类数量金额、不默认币种或银行已付。命令默认不联网，显式范围另行授权。[工程、测试与下一Gate](../tasks/active/ainuoke-payment-request-probe.md)。
+
 2026-10-15 D133本地候选：6087050 num_dyc按既有入库事件原行追溯，作为独立多余仓数量展示，不加进rknum/齐套；缺失、冲突、非法或单位问题明确保持未知。无新SQL/真实采集/数据库操作，语义与批准范围见[num_dyc确认](../tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md)。
 
 2026-10-15 Gate5整合候选：D113–120历史能力与G1–G4身份/商业/有效归属共同保留。当前物料列表与单单读取共用请求级RR快照；人工确认不跨SO自动转移。旧四单窗口已完成12/12并按时停止，本轮未重开。此前段落中的未交付/运行中按原日期阅读；当前精确证据见CURRENT_STATE和material-progress-integration。
