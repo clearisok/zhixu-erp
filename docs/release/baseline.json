@@ -1473,6 +1473,22 @@
       "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/snapshot-model-engineering-2026-10-15.md",
       "recordedAtSha": "075a174d900f17288ab4e73745470c98ae8119b4",
       "sha256": "7e9a0f3d3497e078b344cac3948d4f69728b8cdd9a9a41135bb1275096c79e06"
+    },
+    {
+      "id": "decisions-payment-snapshot-storage",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
+      "sha256": "fd3dda5c8a6d7090563b0881db707814b4837af331855de4a59ddcae9193a9a9",
+      "supersedes": "decisions-payment-snapshot-model",
+      "changeReason": "D139 adds opt-in per-order immutable payment observations and session read API; no live acquisition/activation or business writes."
+    },
+    {
+      "id": "payment-contract-snapshot-storage-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/storage-engineering-2026-10-15.md",
+      "recordedAtSha": "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
+      "sha256": "09760f6b11345df8bddf0fd50278cb2e6c1886f2870ab724cd27ce9e00b9e429"
     }
   ],
   "pages": [
@@ -5369,6 +5385,99 @@
           "evidence": [
             "decisions-payment-snapshot-model",
             "payment-contract-snapshot-model-engineering"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ainuoke-payment-contract-snapshot-storage-api",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Internal checked-page immutable payment snapshot publication and session DB-only read API, per-SO opt-in disabled by default, CAS/replay, effective-source ownership/fresh DB grants, oldest-page expiry and normalization reference inventories. New 19 synthetic PG/session cases passed; final related 218 passed and one Windows-inapplicable Linux CLI skipped. No live report query, collector wiring, actual migration/data/target activation, bank-payment facts, CCT reads, sums, UI acceptance or deployment.",
+      "evidence": [
+        "decisions-payment-snapshot-storage",
+        "payment-contract-snapshot-storage-engineering"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
+          "scope": "Internal checked-page immutable payment snapshot publication and session DB-only read API, per-SO opt-in disabled by default, CAS/replay, effective-source ownership/fresh DB grants, oldest-page expiry and normalization reference inventories. New 19 synthetic PG/session cases passed; final related 218 passed and one Windows-inapplicable Linux CLI skipped. No live report query, collector wiring, actual migration/data/target activation, bank-payment facts, CCT reads, sums, UI acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-snapshot-storage",
+            "payment-contract-snapshot-storage-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
+          "scope": "Internal checked-page immutable payment snapshot publication and session DB-only read API, per-SO opt-in disabled by default, CAS/replay, effective-source ownership/fresh DB grants, oldest-page expiry and normalization reference inventories. New 19 synthetic PG/session cases passed; final related 218 passed and one Windows-inapplicable Linux CLI skipped. No live report query, collector wiring, actual migration/data/target activation, bank-payment facts, CCT reads, sums, UI acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-snapshot-storage",
+            "payment-contract-snapshot-storage-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
+          "scope": "Internal checked-page immutable payment snapshot publication and session DB-only read API, per-SO opt-in disabled by default, CAS/replay, effective-source ownership/fresh DB grants, oldest-page expiry and normalization reference inventories. New 19 synthetic PG/session cases passed; final related 218 passed and one Windows-inapplicable Linux CLI skipped. No live report query, collector wiring, actual migration/data/target activation, bank-payment facts, CCT reads, sums, UI acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-snapshot-storage",
+            "payment-contract-snapshot-storage-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
+          "scope": "Internal checked-page immutable payment snapshot publication and session DB-only read API, per-SO opt-in disabled by default, CAS/replay, effective-source ownership/fresh DB grants, oldest-page expiry and normalization reference inventories. New 19 synthetic PG/session cases passed; final related 218 passed and one Windows-inapplicable Linux CLI skipped. No live report query, collector wiring, actual migration/data/target activation, bank-payment facts, CCT reads, sums, UI acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-snapshot-storage",
+            "payment-contract-snapshot-storage-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
+          "scope": "Internal checked-page immutable payment snapshot publication and session DB-only read API, per-SO opt-in disabled by default, CAS/replay, effective-source ownership/fresh DB grants, oldest-page expiry and normalization reference inventories. New 19 synthetic PG/session cases passed; final related 218 passed and one Windows-inapplicable Linux CLI skipped. No live report query, collector wiring, actual migration/data/target activation, bank-payment facts, CCT reads, sums, UI acceptance or deployment.",
+          "evidence": [
+            "decisions-payment-snapshot-storage",
+            "payment-contract-snapshot-storage-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime change. Prior runtime source/image identities remain historical and were not re-observed.",
+          "evidence": [
+            "decisions-payment-snapshot-storage",
+            "payment-contract-snapshot-storage-engineering"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime change. Prior runtime source/image identities remain historical and were not re-observed.",
+          "evidence": [
+            "decisions-payment-snapshot-storage",
+            "payment-contract-snapshot-storage-engineering"
           ]
         }
       }
