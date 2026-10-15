@@ -13,3 +13,8 @@ G1 PR109精确head已独立验证，source38664129942/team38664129923/baseline38
 下一步：本地merge checkpoint、最新类型/lint/根回归、实际main门禁及78基线、显式Server候选和商业4/身份5浏览器；新证据补充后唯一依赖PR和精确CI。历史完整PG261及旧截图不冒称本轮重跑；不覆写旧冻结文件/hash，不操作真实库/账号/Source、宁波或18443/18444，不自动合并或部署。
 
 更新时机：依赖head、main、实际测试/PR及发布授权变化。代码与测试：team-access.integration.test.ts、ainuoke-server-source.integration.test.ts、fresh-start.integration.test.ts、server-sales-order-detail-page.tsx；旧证据见gate2-results.md与gate2-premerge-review.md。
+## 本阶段最终本地结果
+
+本地merge checkpoint d358a3fdb55eac03da0ee6166a493c46a31e238a。完整类型/全lint、根824/824、实际main守卫（10页/17能力/9UI路径）、基线78/78、显式Server/session/snapshot build均PASS；buildId20261015-101223、gitCommit d358a3fd。身份浏览器5/5通过。商业浏览器初次在认领数据未加载时抢点按钮失败（组合6项5PASS/1FAIL），改为等待唯一可见可用认领按钮并断言单份身份卡，商业4/4重验通过；不改变产品UI，也不以加sleep或跳过断言掩盖。旧冻结截图/hash未改，未打开截图写入开关。
+
+G1依赖与G2共享CCT废止测试均已收口；远端送达/唯一PR/Hosted CI仍需精确最终head核对。不自动合并或部署，G3/G4等后续工作树及本地物料身份保护5540c1d独立保留。
