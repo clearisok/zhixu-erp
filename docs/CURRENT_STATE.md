@@ -2,6 +2,8 @@
 
 核实2026-10-15；GitHub API最新main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本文是阶段快照，随main/PR/源码、授权和验收更新。
 
+最新增量：第三次固定首页尝试537d671/clean返回payment_probe_invalid_evidence，0报告；新两次授权已用1、剩余1。跨语言分页/total兼容、精确错误及安全rejected私有留存已补齐，45Node/87Python/类型/Server编译/定向lint通过；正式映射仍未验证。Git诊断已定位TCP连接失败而非凭据/TLS。独立Quote退出保护两问题已实测重现并修复，13项真实浏览器回归通过。下列原阶段记录按历史时点保留，以本增量及AI_HANDOFF为当前恢复点。
+
 - G1 PR109、G2 Draft110、G3 Draft111、G4 Draft112此前精确交付且各3CI通过，未自动合并；PR108独立Source工具继续保留。不能把本地累计分支当main能力或部署状态。
 - G5 B2已本地完成页头、团队辅料排序、面料显示排序、颜色规格展开及事件侧栏；root898/PG261/基线94/UI25等证据见[冻结报告](tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)。另一工作树order-effective-attribution保持feat/material-sort-and-event-drawer@68ac1fc9f839ebfc894d39377dac221e7f65566b/clean。G5 af9b746、num_dyc aab97cb8原分支/提交保留，未远端。
 - 用户普通PowerShell最新交付仍pushes0/NETWORK_DEGRADED；一次API确认B2远端分支不存在。工具before阶段只用Git ls-remote，GitHub API只做push后核对，故本次未进入push；Git传输根因仍未查明。无重复push/恢复、认证或全局TLS/代理变化；用户已撤销旧AGENTS执行指令（文件未删除）；按原任务授权作有界正常交付，不再要求重复同一失败命令。

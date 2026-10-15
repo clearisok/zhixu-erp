@@ -86,14 +86,26 @@ try {
         $receipt | ConvertTo-Json -Depth 8 -Compress
     } else {
         # Only a closed code/stage allowlist can leave a failed worker.
-        $safeCodes = @('payment_probe_report_metadata_invalid_json','payment_probe_report_metadata_shape','payment_probe_column_metadata_invalid_json','payment_probe_column_metadata_shape','invalid_payment_probe_input','payment_probe_origin_not_approved','payment_probe_explicit_action_required','invalid_payment_probe_credentials','payment_probe_endpoint_refused','payment_probe_scope_refused','payment_probe_request_limit','payment_probe_response_limit','payment_probe_invalid_json','payment_probe_invalid_metadata','payment_probe_structure_limit','payment_probe_secret_field','payment_probe_secret_reflection','payment_probe_invalid_number','payment_probe_page_limit','payment_probe_raw_evidence_missing','payment_probe_report_mismatch','redirect_refused','auth_expired','invalid_credential','network_unavailable','upstream_http_error','upstream_schema_error','payment_probe_failed',
+        $safeCodes = @('payment_probe_invalid_envelope','payment_probe_invalid_timestamp','payment_probe_stale_evidence','payment_probe_hash_mismatch','payment_probe_response_shape','payment_probe_rows_shape','payment_probe_row_count_mismatch','payment_probe_count_invalid','payment_probe_total_mismatch','payment_probe_pagination_mismatch','payment_probe_report_metadata_invalid_json','payment_probe_report_metadata_shape','payment_probe_column_metadata_invalid_json','payment_probe_column_metadata_shape','invalid_payment_probe_input','payment_probe_origin_not_approved','payment_probe_explicit_action_required','invalid_payment_probe_credentials','payment_probe_endpoint_refused','payment_probe_scope_refused','payment_probe_request_limit','payment_probe_response_limit','payment_probe_invalid_json','payment_probe_invalid_metadata','payment_probe_structure_limit','payment_probe_secret_field','payment_probe_secret_reflection','payment_probe_invalid_number','payment_probe_page_limit','payment_probe_raw_evidence_missing','payment_probe_report_mismatch','redirect_refused','auth_expired','invalid_credential','network_unavailable','upstream_http_error','upstream_schema_error','payment_probe_failed',
             'payment_probe_explicit_action_required','preflight_private_output_required','payment_probe_clean_commit_required','invalid_collector_configuration','payment_probe_scope_refused','payment_probe_timeout','payment_probe_limit','payment_probe_worker_unavailable','payment_probe_invalid_evidence','payment_probe_report_mismatch','source_secret_field','payment_probe_failed')
-        $safeStages = @('arguments','private_output','worktree','configuration','collection','report_write')
+        $safeStages = @('arguments','private_output','worktree','configuration','collection','evidence_validation','report_write')
         if ($receipt.result -eq 'FAIL' -and $receipt.code -in $safeCodes -and $receipt.stage -in $safeStages) {
             $failureCode = $receipt.code; $stage = $receipt.stage
             if ($receipt.workerStage -in @('not-started','login','report','validation') -and $receipt.httpAttempts -ge 0 -and $receipt.httpAttempts -le 2 -and $receipt.reportRequests -ge 0 -and $receipt.reportRequests -le 1) {
                 $workerDetails = @{workerStage=$receipt.workerStage; httpAttempts=$receipt.httpAttempts; reportRequests=$receipt.reportRequests}
             }
+        }
+        if ($receipt.evidenceRetained -eq $true -and $receipt.result -eq 'FAIL' -and $receipt.code -in $safeCodes -and $receipt.stage -in $safeStages) {
+            $reportPath = [IO.Path]::GetFullPath([string]$receipt.privateReportPath)
+            if ([IO.Path]::GetDirectoryName($reportPath) -ne [IO.Path]::GetFullPath($directory) -or
+                [IO.Path]::GetFileName($reportPath) -notmatch '^ainuoke-payment-request-private-[0-9a-f-]{36}\.json$' -or
+                [string]$receipt.privateReportSha256 -notmatch '^[0-9a-f]{64}$') { throw 'rejected_evidence_receipt_invalid' }
+            & pwsh -NoProfile -NonInteractive -File (Join-Path $PSScriptRoot 'ainuoke-live-preflight.ps1') -ValidateOnly -PrivateDirectory $directory -PrivateFile $reportPath 1>$null 2>$null
+            if ($LASTEXITCODE -ne 0) { throw 'rejected_evidence_acl_invalid' }
+            if ((Get-FileHash -LiteralPath $reportPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne [string]$receipt.privateReportSha256) { throw 'rejected_evidence_hash_invalid' }
+            $workerDetails['evidenceRetained']=$true
+            $workerDetails['privateReportPath']=$reportPath
+            $workerDetails['privateReportSha256']=[string]$receipt.privateReportSha256
         }
         throw 'payment_worker_failed'
     }

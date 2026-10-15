@@ -8,7 +8,7 @@ import { pathToFileURL } from "node:url";
 import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
 import { resolve, join, dirname } from "node:path";
-import { CANDIDATE_FIELDS, PAYMENT_LIMITS, validatePaymentEvidence, parsePaymentArguments, runPaymentProbe, collectPaymentPage } from "../ainuoke-source/payment-request-probe.js";
+import { CANDIDATE_FIELDS, PAYMENT_LIMITS, validatePaymentEvidence, parsePaymentArguments, runPaymentProbe, collectPaymentPage, rejectedPaymentEvidence } from "../ainuoke-source/payment-request-probe.js";
 import { writePrivateReport } from "../ainuoke-source/live-preflight.js";
 import { APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY } from "../ainuoke-source/collector.js";
 const config = { sourceKey: "payment-probe-test", baseUrl: APPROVED_HTTP_ORIGIN, transportPolicy: APPROVED_HTTP_POLICY,
@@ -206,6 +206,21 @@ test("actual Windows private wrapper consumes only synthetic protected file and 
     assert.equal(diagnostic.status, 1); assert.equal(details.code, "network_unavailable");
     assert.equal(details.workerStage, "login"); assert.equal(details.httpAttempts, 1); assert.equal(details.reportRequests, 0);
     assert.ok(!diagnostic.stdout.includes(config.password)); assert.equal("unsafeRaw" in details, false);
+    // A rejected response is private evidence, not accepted data. Exercise the
+    // complete wrapper/writer/ACL receipt path without making any HTTP request.
+    const retainedStub = "import {writePrivateReport} from " + JSON.stringify(pathToFileURL(resolve("server/ainuoke-source/live-preflight.ts")).href)
+      + "; for await(const _chunk of process.stdin){}; const directory=process.argv.find(a=>a.startsWith('--private-output=')).slice('--private-output='.length);"
+      + "const receipt=writePrivateReport(directory,{schemaVersion:'synthetic-rejected.v1',validationStatus:'rejected',rawReportResponse:'SYNTHETIC-PRIVATE-RAW'},'payment-request');"
+      + "process.stdout.write(JSON.stringify({schemaVersion:'ainuoke-payment-request-probe.v1',result:'FAIL',code:'payment_probe_pagination_mismatch',stage:'evidence_validation',workerStage:'validation',httpAttempts:2,reportRequests:1,evidenceRetained:true,...receipt,databaseAccess:'none',sourceActivation:'not-activated'})+'\\n');process.exitCode=1;";
+    writeFileSync(join(entry,"payment-request-probe.ts"),retainedStub);
+    execFileSync("git",["-C",root,"add","server"],{stdio:"ignore"});
+    execFileSync("git",["-C",root,"-c","user.name=Synthetic","-c","user.email=synthetic@example.invalid","-c","commit.gpgsign=false","commit","--quiet","-m","synthetic rejected receipt"],{stdio:"ignore"});
+    const rejection=run(), retainedReceipt=JSON.parse(rejection.stdout);
+    assert.equal(rejection.status,1);assert.equal(retainedReceipt.code,"payment_probe_pagination_mismatch");
+    assert.equal(retainedReceipt.evidenceRetained,true);assert.equal(retainedReceipt.httpAttempts,2);
+    assert.equal(retainedReceipt.privateReportSha256,createHash("sha256").update(readFileSync(retainedReceipt.privateReportPath)).digest("hex"));
+    assert.equal(JSON.parse(readFileSync(retainedReceipt.privateReportPath,"utf8")).validationStatus,"rejected");
+    assert.ok(!rejection.stdout.includes("SYNTHETIC-PRIVATE-RAW"));
     execFileSync("icacls", [key, "/grant", "*S-1-1-0:R"], { stdio: "ignore" });
     const rejected = run(); assert.equal(rejected.status, 1); assert.equal(JSON.parse(rejected.stdout).stage, "credential_file");
   } finally {
@@ -249,4 +264,76 @@ test("malformed metadata stays blocked with precise codes, encoded identity and 
   }
   assert.throws(() => validatePaymentEvidence(changeRaw(sample(), raw => { raw.reportObj = JSON.stringify({ reportId:6087050, cellList:"[]" }); }), config, now), /report_mismatch/);
   assert.throws(() => validatePaymentEvidence(changeRaw(sample(), raw => { raw.reportObj = { cellList: JSON.stringify([{ password:"must-not-pass" }]) }; }), config, now), /secret/);
+});
+
+test("paging integers match Python without coercing unknown or invalid values", () => {
+  for (const [count, page, size] of [["17247","0","0"],[" 0017247 ","1","100"],[17247,1,100]]) {
+    const e=changeRaw(sample(),raw=>{raw.dataCount=count;raw.pageIndex=page;raw.pageSize=size;});
+    const result=validatePaymentEvidence(e,config,now);
+    assert.equal(result.summary.reportedTotal,17247);assert.equal(result.privateReport.rawReportResponse,e.rawReportResponse);
+  }
+  const fallback=changeRaw(sample(),raw=>{delete raw.dataCount;raw.dataList=JSON.stringify({rows:[{id:7}],total:"17247"});});
+  assert.equal(validatePaymentEvidence(fallback,config,now).summary.reportedTotal,17247);
+  for (const field of ["dataCount","pageIndex","pageSize"]) for (const invalid of [null,true,""," ","-1","1.5","1e2",{},9007199254740992])
+    assert.throws(()=>validatePaymentEvidence(changeRaw(sample(),raw=>{raw[field]=invalid;}),config,now),/count_invalid/);
+  for (const field of ["pageIndex","pageSize"])
+    assert.throws(()=>validatePaymentEvidence(changeRaw(sample(),raw=>{delete raw[field];}),config,now),/count_invalid/);
+  assert.throws(()=>validatePaymentEvidence(changeRaw(sample(),raw=>{raw.pageIndex="2";}),config,now),/pagination_mismatch/);
+});
+test("validation failures identify their exact closed boundary", () => {
+  const cases: Array<[string,(e:ReturnType<typeof sample>)=>void]>=[
+    ["invalid_envelope",e=>{e.returnedRows=101;}],["invalid_timestamp",e=>{e.fetchedAt="invalid";}],
+    ["stale_evidence",e=>{e.fetchedAt=new Date(now+1000).toISOString();}],
+    ["hash_mismatch",e=>{e.rawResponseSha256="0".repeat(64);}],
+    ["response_shape",e=>{changeRaw(e,raw=>{raw.reObj={isOk:false};});}],
+    ["rows_shape",e=>{changeRaw(e,raw=>{raw.dataList=JSON.stringify({rows:[null]});});}],
+    ["row_count_mismatch",e=>{e.returnedRows=2;}],
+    ["total_mismatch",e=>{changeRaw(e,raw=>{raw.dataCount=17248;});}],
+    ["pagination_mismatch",e=>{changeRaw(e,raw=>{raw.pageSize=50;});}],
+  ];
+  for(const [code,change] of cases){const e=seal(sample());change(e);assert.throws(()=>validatePaymentEvidence(e,config,now),new RegExp("payment_probe_"+code));}
+});
+test("rejected evidence is private and cannot claim mapping or reflect business values", async () => {
+  let retained: ReturnType<typeof rejectedPaymentEvidence> | undefined;
+  const evidence=changeRaw(sample(),raw=>{raw.pageIndex=2;});
+  await assert.rejects(runPaymentProbe(config,{collect:async()=>evidence,now:()=>now,retainRejected:report=>{
+    retained=report;return{privateReportPath:resolve("outputs/synthetic-rejected.json"),privateReportSha256:"a".repeat(64)};
+  }}),error=>{
+    assert.ok(error instanceof Error);assert.equal(error.message,"payment_probe_pagination_mismatch");
+    for(const value of [config.username,config.password,"SYNTHETIC-PRIVATE-DOC","SYNTHETIC-PRIVATE-MATERIAL"])
+      assert.ok(!JSON.stringify(error).includes(value));
+    return true;
+  });
+  assert.ok(retained);assert.equal(retained.validationStatus,"rejected");assert.equal(retained.mappingVerified,false);
+  assert.equal(retained.rawReportResponse,evidence.rawReportResponse);assert.equal(retained.databaseAccess,"none");
+});
+test("unsafe, oversized, hash-changed and forged worker responses cannot be retained", async () => {
+  const cases=[
+    changeRaw(sample(),raw=>{raw.dataList=JSON.stringify({rows:[{token:"forbidden"}]});}),
+    changeRaw(sample(),raw=>{raw.dataList=JSON.stringify({rows:[{id:config.password}]});}),
+    {...seal(sample()),rawResponseSha256:"0".repeat(64)},
+    {...seal(sample()),rawReportResponse:"x".repeat(PAYMENT_LIMITS.responseBytes+1)},
+    {...seal(sample()),reportId:"6087050"},
+  ];
+  for(const evidence of cases){
+    let retained=false;await assert.rejects(runPaymentProbe(config,{collect:async()=>evidence,now:()=>now,retainRejected:()=>{
+      retained=true;throw Error("must not be called");
+    }}));assert.equal(retained,false);
+  }
+});
+test("actual Python success feeds Node numeric-string and omitted-count forms without network", () => {
+  const script=[
+    "import json,sys","sys.path.insert(0,'tests')","from test_payment_request_probe import CONFIG,FakeTransport,response",
+    "from ainuoke_bridge.payment_request_probe import probe","mode=sys.argv[1]","payload=response()",
+    "payload['pageIndex']='0';payload['pageSize']='100'","if mode=='fallback':",
+    "    del payload['dataCount'];payload['dataList']=json.dumps({'rows':[{'id':7}],'total':'17247'})",
+    "else: payload['dataCount']='17247'","print(json.dumps(probe(CONFIG,FakeTransport(payload))))",
+  ].join("\n");
+  for(const mode of ["normal","fallback"]){
+    const child=spawnSync("python",["-c",script,mode],{cwd:resolve("tools/ainuoke-bridge"),encoding:"utf8",timeout:10000});
+    assert.equal(child.status,0);
+    const input=JSON.parse(child.stdout);const result=validatePaymentEvidence(input,config,Date.now());
+    assert.equal(result.summary.reportedTotal,17247);assert.equal(result.summary.httpAttempts,2);
+    assert.equal(result.privateReport.rawReportResponse,input.rawReportResponse);
+  }
 });

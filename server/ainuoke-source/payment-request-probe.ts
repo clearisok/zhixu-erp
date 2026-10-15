@@ -96,8 +96,23 @@ export async function collectPaymentPage(config: CollectorConfig, options: { pyt
     child.stdin.end(JSON.stringify({ baseUrl: config.baseUrl, username: config.username, password: config.password, transportPolicy: config.transportPolicy, action: "read-first-page-only" }));
   });
 }
-export function validatePaymentEvidence(input: unknown, config: CollectorConfig, now = Date.now()) {
-  config = approvedConfig(config);
+export const PAYMENT_EVIDENCE_FAILURE_CODES = Object.freeze([
+  "payment_probe_invalid_envelope", "payment_probe_invalid_timestamp", "payment_probe_stale_evidence",
+  "payment_probe_hash_mismatch", "payment_probe_response_shape", "payment_probe_rows_shape",
+  "payment_probe_row_count_mismatch", "payment_probe_count_invalid", "payment_probe_total_mismatch",
+  "payment_probe_pagination_mismatch", "payment_probe_report_mismatch",
+]);
+type PrivateReceipt = { privateReportPath: string; privateReportSha256: string };
+class PaymentEvidenceError extends SourceError {
+  constructor(code: string, readonly receipt: PrivateReceipt) { super(code); }
+}
+function nonnegativeInteger(value: unknown): number {
+  const parsed = typeof value === "string" && /^[0-9]+$/u.test(value.trim()) ? Number(value.trim()) : value;
+  if (typeof parsed !== "number" || !Number.isSafeInteger(parsed) || parsed < 0)
+    throw new SourceError("payment_probe_count_invalid");
+  return parsed;
+}
+function paymentEnvelope(input: unknown) {
   const evidence = object(input);
   const keys = "fetchedAt,httpAttempts,page,pageSize,rawReportResponse,rawResponseSha256,reportId,reportRequests,reportedTotal,returnedRows,schemaVersion";
   if (Object.keys(evidence).sort().join(",") !== keys || evidence.schemaVersion !== "ainuoke-payment-page-evidence.v1"
@@ -106,18 +121,51 @@ export function validatePaymentEvidence(input: unknown, config: CollectorConfig,
     || Buffer.byteLength(evidence.rawReportResponse, "utf8") > PAYMENT_LIMITS.responseBytes
     || !Number.isSafeInteger(evidence.reportedTotal) || (evidence.reportedTotal as number) < 0
     || !Number.isSafeInteger(evidence.returnedRows) || (evidence.returnedRows as number) < 0 || (evidence.returnedRows as number) > 100)
-    throw new SourceError("payment_probe_invalid_evidence");
-  if (typeof evidence.fetchedAt !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|\+00:00)$/u.test(evidence.fetchedAt)) throw new SourceError("payment_probe_invalid_evidence");
-  const fetched = Date.parse(evidence.fetchedAt);
-  if (!Number.isFinite(fetched) || fetched > now || now - fetched > PAYMENT_LIMITS.timeoutMs
-    || evidence.rawResponseSha256 !== createHash("sha256").update(evidence.rawReportResponse).digest("hex"))
-    throw new SourceError("payment_probe_invalid_evidence");
-  const raw = decoded(evidence.rawReportResponse), data = decoded(raw.dataList), meta = reportMetadata(raw.reportObj);
+    throw new SourceError("payment_probe_invalid_envelope");
+  if (evidence.rawResponseSha256 !== createHash("sha256").update(evidence.rawReportResponse).digest("hex"))
+    throw new SourceError("payment_probe_hash_mismatch");
+  return evidence as ObjectValue & { rawReportResponse: string };
+}
+function privateSafeEvidence(input: unknown, config: CollectorConfig) {
+  const evidence = paymentEnvelope(input);
+  let raw: ObjectValue, data: ObjectValue;
+  try { raw = decoded(evidence.rawReportResponse); data = decoded(raw.dataList); }
+  catch { throw new SourceError("payment_probe_response_shape"); }
+  const meta = reportMetadata(raw.reportObj);
   for (const value of [raw, data, meta]) safeTree(value, [config.password]);
-  if (object(raw.reObj).isOk !== true || !Array.isArray(data.rows) || data.rows.length !== evidence.returnedRows
-    || raw.dataCount !== evidence.reportedTotal || data.rows.length > (evidence.reportedTotal as number)
-    || ![undefined, 0, 1].includes(raw.pageIndex as number | undefined) || ![undefined, 0, 100].includes(raw.pageSize as number | undefined))
-    throw new SourceError("payment_probe_invalid_evidence");
+  return { evidence, raw, data, meta };
+}
+export function rejectedPaymentEvidence(input: unknown, config: CollectorConfig, code: string) {
+  config = approvedConfig(config);
+  if (!PAYMENT_EVIDENCE_FAILURE_CODES.includes(code)) throw new SourceError("payment_probe_invalid_evidence");
+  // Retain only a hash-consistent, bounded, secret-screened worker response.
+  // This is rejected diagnostic evidence, never an accepted projection or mapping.
+  const { evidence } = privateSafeEvidence(input, config);
+  return { schemaVersion: "ainuoke-payment-request-rejected-private.v1", validationStatus: "rejected",
+    failureCode: code, sourceFingerprint: accountFingerprint(config), databaseAccess: "none",
+    sourceActivation: "not-activated", mappingVerified: false, reportId: PAYMENT_LIMITS.reportId,
+    requestedPage: 1, requestedPageSize: 100, httpAttempts: 2, reportRequests: 1,
+    rawResponseSha256: evidence.rawResponseSha256, rawReportResponse: evidence.rawReportResponse,
+    workerFetchedAt: typeof evidence.fetchedAt === "string" ? evidence.fetchedAt : null,
+    rawNumericTextIsAuthoritative: true };
+}
+export function validatePaymentEvidence(input: unknown, config: CollectorConfig, now = Date.now()) {
+  config = approvedConfig(config);
+  const { evidence, raw, data, meta } = privateSafeEvidence(input, config);
+  if (typeof evidence.fetchedAt !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|\+00:00)$/u.test(evidence.fetchedAt))
+    throw new SourceError("payment_probe_invalid_timestamp");
+  const fetched = Date.parse(evidence.fetchedAt);
+  if (!Number.isFinite(fetched)) throw new SourceError("payment_probe_invalid_timestamp");
+  if (fetched > now || now - fetched > PAYMENT_LIMITS.timeoutMs) throw new SourceError("payment_probe_stale_evidence");
+  if (!raw.reObj || typeof raw.reObj !== "object" || Array.isArray(raw.reObj) || (raw.reObj as ObjectValue).isOk !== true)
+    throw new SourceError("payment_probe_response_shape");
+  if (!Array.isArray(data.rows) || data.rows.some(row => !row || typeof row !== "object" || Array.isArray(row)))
+    throw new SourceError("payment_probe_rows_shape");
+  if (data.rows.length !== evidence.returnedRows) throw new SourceError("payment_probe_row_count_mismatch");
+  const total = nonnegativeInteger(Object.hasOwn(raw, "dataCount") ? raw.dataCount : data.total);
+  if (total !== evidence.reportedTotal || data.rows.length > total) throw new SourceError("payment_probe_total_mismatch");
+  const page = nonnegativeInteger(raw.pageIndex), pageSize = nonnegativeInteger(raw.pageSize);
+  if (![0, 1].includes(page) || ![0, 100].includes(pageSize)) throw new SourceError("payment_probe_pagination_mismatch");
   for (const container of [raw, meta]) if (container && Object.hasOwn(container, "reportId") && String(container.reportId) !== PAYMENT_LIMITS.reportId)
     throw new SourceError("payment_probe_report_mismatch");
   const rows = data.rows.map(object);
@@ -146,9 +194,20 @@ export function validatePaymentEvidence(input: unknown, config: CollectorConfig,
     meaningVerification: "not-performed", rawNumericTextIsAuthoritative: true };
   return { summary: publicFacts, privateReport };
 }
-export async function runPaymentProbe(input: unknown, dependencies: { collect?: typeof collectPaymentPage; now?: () => number } = {}) {
-  const config = approvedConfig(input);
-  return validatePaymentEvidence(await (dependencies.collect ?? collectPaymentPage)(config), config, (dependencies.now ?? Date.now)());
+export async function runPaymentProbe(input: unknown, dependencies: {
+  collect?: typeof collectPaymentPage; now?: () => number;
+  retainRejected?: (report: ReturnType<typeof rejectedPaymentEvidence>) => PrivateReceipt;
+} = {}) {
+  const config = approvedConfig(input), evidence = await (dependencies.collect ?? collectPaymentPage)(config);
+  try { return validatePaymentEvidence(evidence, config, (dependencies.now ?? Date.now)()); }
+  catch (error) {
+    if (dependencies.retainRejected && error instanceof SourceError && PAYMENT_EVIDENCE_FAILURE_CODES.includes(error.code)) {
+      let report: ReturnType<typeof rejectedPaymentEvidence> | undefined;
+      try { report = rejectedPaymentEvidence(evidence, config, error.code); } catch { /* Unsafe or unparseable evidence is never retained. */ }
+      if (report) throw new PaymentEvidenceError(error.code, dependencies.retainRejected(report));
+    }
+    throw error;
+  }
 }
 export function parsePaymentArguments(args: string[]) {
   const output = args.find(arg => arg.startsWith("--private-output="))?.slice("--private-output=".length);
@@ -170,15 +229,18 @@ export async function main(args = process.argv.slice(2)) {
     stage = "configuration"; let length = 0; const chunks: Buffer[] = [];
     for await (const chunk of process.stdin) { length += chunk.length; if (length > 16384) throw new SourceError("invalid_collector_configuration"); chunks.push(Buffer.from(chunk)); }
     const config = parseCollectorConfig(JSON.parse(new TextDecoder("utf8", { fatal: true }).decode(Buffer.concat(chunks))));
-    stage = "collection"; const result = await runPaymentProbe(config);
+    stage = "collection"; const result = await runPaymentProbe(config, { retainRejected: report => writePrivateReport(privateOutput, { ...report, toolingCommit }, "payment-request") });
     stage = "report_write"; const receipt = writePrivateReport(privateOutput, { ...result.privateReport, toolingCommit }, "payment-request");
     process.stdout.write(JSON.stringify({ ...result.summary, toolingCommit, ...receipt }) + "\n");
   } catch (error) {
     const allowed = new Set(["payment_probe_explicit_action_required", "preflight_private_output_required", "payment_probe_clean_commit_required",
       "invalid_collector_configuration", "payment_probe_scope_refused", "payment_probe_timeout", "payment_probe_limit", "payment_probe_worker_unavailable",
       "payment_probe_invalid_evidence", "payment_probe_report_mismatch", "source_secret_field","payment_probe_report_metadata_invalid_json","payment_probe_report_metadata_shape","payment_probe_column_metadata_invalid_json","payment_probe_column_metadata_shape"]);
+    for (const code of PAYMENT_EVIDENCE_FAILURE_CODES) allowed.add(code);
     const code = error instanceof PaymentWorkerError || error instanceof SourceError && allowed.has(error.code) ? error.code : "payment_probe_failed";
-    const diagnostics = error instanceof PaymentWorkerError ? { workerStage: error.detail.workerStage, httpAttempts: error.detail.httpAttempts, reportRequests: error.detail.reportRequests } : {};
+    if (error instanceof PaymentEvidenceError) stage = "evidence_validation";
+    const diagnostics = error instanceof PaymentWorkerError ? { workerStage: error.detail.workerStage, httpAttempts: error.detail.httpAttempts, reportRequests: error.detail.reportRequests } : error instanceof PaymentEvidenceError
+      ? { workerStage: "validation", httpAttempts: 2, reportRequests: 1, evidenceRetained: true, ...error.receipt } : {};
     process.stdout.write(JSON.stringify({ schemaVersion: "ainuoke-payment-request-probe.v1", result: "FAIL", code, stage, ...diagnostics, databaseAccess: "none", sourceActivation: "not-activated" }) + "\n"); process.exitCode = 1;
   }
 }

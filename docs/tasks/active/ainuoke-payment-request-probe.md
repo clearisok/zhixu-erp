@@ -37,3 +37,13 @@ Git交付观察：用户普通PowerShell最新回执仍pushes0；独立API确认
 用户明确授权再重试一次后，Codex在244b3d07ab618497874780690682f38d04e80d34/clean自行执行，约6.23秒返回FAIL / payment_probe_invalid_metadata / collection，workerStage validation、httpAttempts 2、reportRequests 1，databaseAccess none、sourceActivation not-activated。依据可执行阶段顺序，登录及6086941基础明细分页解析已通过，卡在原始报表元数据校验；不能声称业务映射正确、当前总条数或完整行数。新目录JSON报告计数仍0。没有追加第三次真实请求，没有第二页/DB/绑定/激活/部署。
 
 代码调查确认诊断器不支持reportObj空白/JSON字符串或cellList空值/JSON字符串的若干表示，构成可复现的兼容缺口；本机未找到可用于还原此次元数据的结构化原始响应，故不冒称已证实真实采用哪一种表示。已做最小表示归一：只解一层合法JSON，空元数据明确缺失，raw UTF8文本原样保留；非对象report/非数组columns、非法JSON、错reportId、编码秘密仍拒绝，新增四个精确静态错误码。公共回执仅增加元数据编码标志，无业务值。40项Node/实际包装器、87项Python、类型、Server编译和定向lint通过；不改数量、金额、单位、正式Adapter、数据库或UI。真实兼容性仍需新授权的固定首页核验，原单次重试授权已用完。
+
+## 2026-10-15 第三次真实尝试与跨语言校验修复
+
+用户新授权最多两次同一固定首页技术核验，首次在537d6711cc3b50c8b680012946055fb2676558e8/clean执行，约6.75秒返回FAIL/payment_probe_invalid_evidence/collection，未返回worker计数或原始响应；本机新目录ainuoke-payment-private-17bc6cd8-b99b-4939-874d-c9e79ebb1f30内JSON文件为0。不能据此确认具体数据形态或业务映射。新授权已使用1次，剩余1次，仅可在本地修复和测试后执行相同首页；无循环或第二页。
+
+发现可复现的工程缺口：Python已接受十进制文本分页整数和缺dataCount时dataList.total的来源协议，Node却用原始值严格比较并允许分页字段缺失，二者不一致。现统一只接受非负安全整数或去空白后的ASCII数字串；不接受空、null、布尔、负数、小数串、指数串、超安全范围；分页必须返回合法值，0仍只代表已知请求分页哨兵。明确分开包结构、时间、hash、响应、行数、总量、分页等静态错误码，不把文本数量改零。
+
+失败证据新增受保护保留通道：仅对固定worker包、4MiB以内、原文hash一致、JSON可解析、深层秘密检查通过的响应保存“rejected”私有诊断报告；不产生来源投影，不宣称映射通过。敏感、hash错误、超限、伪造包和解析不明响应不保留。回执仅静态原因、2HTTP/1report及受保护文件路径/hash；PowerShell独立复查路径、ACL和文件hash。原文仍不入Git。
+
+45项Node/实际私密包装器（含rejected报告写入与ACL全链路）和87项Python通过；typecheck、Server build、定向eslint零警告通过。实际Python合成返回→Node验证覆盖数字串和dataList.total，完全无真实HTTP。无UI/SQL/正式Adapter、数量金额语义或数据库改动。自动审批曾拒绝整文件恢复以防丢失未提交内容；已先保存当前副本并核对diff，仅修复本轮拼接错误，未覆盖他人改动。源码与冻结附录SHA由后续精确工程证据记录。
