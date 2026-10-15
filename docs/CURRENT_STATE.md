@@ -11,3 +11,5 @@ G1 def98f首次自行恢复工具pushes=0，用户普通PowerShell备用随后DE
 下一步冻结精确准备UI证据/门禁，完成G4/远端独立PR复审与后续G5。旧PR64/P6/历史PNG/hash不覆盖。Quote新修订清确认已有实现不重写；DeliveryPlan不冒称生产执行。未操作真实账号/业务DB/凭据/Source/窗口、宁波或18443/18444；整个Goal未完成。上一状态[归档](tasks/completed/2026-10-15-pre-preparation-ui-current-state.md)。
 
 Source CI查漏：PR109初始Source失败为迁移写死12/旧样本误带未来迁移，G1修复中。本分支从98d2修精确0011旧库与0023最终ledger，独立Source21总数20PASS/1Linux条件SKIP（Windows），Python固定loopback实跑；[详情](tasks/active/source-ci-migration-coverage.md)。不以PG/源码门禁代替此套件或LinuxCI，原冻结UI证据不改。
+
+fresh-start同类旧清单已补：明确当前22个迁移版本、四项技术单例与业务表0，技术行重复启动不变，7/7及完整类型通过；从7c01e049/clean仅测试文档增量，不修改SQL/模式/业务数据。PR109最终修复a40cb7de382146748e18f7e8b8ea3acd9108c96a已由Codex工具精确送达，最终CI进行中；本后续分支未交付，不宣称永久网络恢复。
