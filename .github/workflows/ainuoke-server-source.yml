@@ -52,6 +52,7 @@ jobs:
           npm run test:ainuoke-payment-contracts
           npm run test:ainuoke-payment-snapshots
           npm run test:ainuoke-payment-store
+          npm run test:ainuoke-payment-client
           npx --no-install tsx --test server/integration/fresh-start.integration.test.ts
       - name: Quality, quantity and owned fixture boundaries
         run: |
@@ -75,6 +76,8 @@ jobs:
           npm run test:material-history-ui
           npm run test:normalization-review-ui
           npm run test:order-preparation-ui
+          npx --no-install tsx --test server/integration/material-display-ui.integration.test.mjs
+          npm run test:ainuoke-payment-panel-ui
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge
         env:

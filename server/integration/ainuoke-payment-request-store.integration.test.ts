@@ -19,6 +19,7 @@ import { writeAttributionHeadInTransaction } from '../sales-orders/effective-att
 import { collectNormalizationEvidenceInTransaction,normalizationReferences } from '../sales-orders/normalization-preview.js';
 import { collectFullNormalizationEvidence } from '../sales-orders/normalization-full-evidence.js';
 import { parseAttributionProposal } from '../sales-orders/normalization-execution-model.js';
+import { parsePaymentView } from '../../features/ainuoke-payment-requests/client';
 import { createApp } from '../app.js';
 import { hash } from '../ainuoke-source/contract.js';
 import { createPaymentSnapshotReader, paymentReadConfig, preparePaymentPublication, publishPaymentSnapshot, type PaymentPublicationContext } from '../ainuoke-source/payment-request-store.js';
@@ -135,6 +136,7 @@ test('payment snapshots: disposable PG upgrade, immutable publication and real s
     for(let i=0;i<TEAM_ROLES.length;i++){
       const response=await read(i);assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');
       const body=await response.json();assert.equal(body.rows.length,127);assert.equal(body.sourceStatus,'observed');assert.equal(body.bankPaymentStatus,'not_inferred');
+      assert.equal(parsePaymentView(body,orderId,context.salesContractNo).sourceStatus,'observed');
       assert.equal(body.rows[100].trace.page,2);assert.equal(body.rows[100].trace.rowIndex,0);
       assert.equal(body.rows[0].amounts.Price.raw,'9007199254740993.000000000001');assert.equal(body.rows[0].quantities.Num.raw,'6300');
       assert.equal(body.rows[0].quantities.OutStoreNum.raw,'6302');assert.equal(body.rows[0].amounts.tzamount.raw,'-80.00');

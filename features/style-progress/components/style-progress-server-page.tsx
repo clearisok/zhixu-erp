@@ -10,7 +10,7 @@ function MaterialBody({id}:{id:string}) {
   const state=useOrderMaterial(id),settings=useMaterialProgressSettings(),session=useServerSession(),router=useRouter();
   return <div data-server-sales-order-id={id}><PageHeader eyebrow="SERVER · READ ONLY" title={state.model ? state.model.progress.order.insideOrderNo || '工厂款号待获取' : '款式物料跟进'} description={`合同 ${state.model?.progress.order.salesContractNo??'—'} · 来源只读`} actions={<>{session.hasPermission('style_progress.settings.edit')&&<button className="qc-button qc-button-secondary" onClick={()=>router.push('/system-settings/progress-settings?orderId='+id)}>辅料排列设置</button>}<button className="qc-button qc-button-secondary" onClick={()=>{state.reload();settings.reload();}}>刷新来源</button></>}/>
     {state.model?.provenance==='synthetic'&&<AlertBanner tone="warning" title="合成隔离验收数据">不是实时艾诺科同步记录。</AlertBanner>}
-    {state.loading?<p>读取可信物料来源…</p>:state.error?<p role="alert">{state.error}</p>:state.model&&<ReadOnlyMaterialControlTower view={state.model.progress} trimPriorityKeywords={settings.settings?.trimPriorityKeywords??[]} settingsNotice={settings.error?"辅料排序设置暂不可用，保持来源顺序":undefined}/>}</div>;
+    {state.loading?<p>读取可信物料来源…</p>:state.error?<p role="alert">{state.error}</p>:state.model&&<ReadOnlyMaterialControlTower view={state.model.progress} paymentScope={{salesOrderId:state.model.salesOrderId,identityKey:(session.user?.id??'')+'/'+session.status+'/'+session.permissions.join('|')}} trimPriorityKeywords={settings.settings?.trimPriorityKeywords??[]} settingsNotice={settings.error?"辅料排序设置暂不可用，保持来源顺序":undefined}/>}</div>;
 }
 export function ServerStyleProgressDetailPage() {
   const params=useSearchParams();const route=orderMaterialNavigation(params.get('orderId'));const session=useServerSession();

@@ -93,7 +93,9 @@
     "test:ainuoke-payment-observations": "tsx --test server/integration/ainuoke-payment-request-observations.test.ts",
     "test:ainuoke-payment-contracts": "tsx --test --test-concurrency=1 server/integration/ainuoke-payment-request-contract-probe.test.ts",
     "test:ainuoke-payment-snapshots": "tsx --test server/integration/ainuoke-payment-request-snapshot.test.ts",
-    "test:ainuoke-payment-store": "tsx --test --test-concurrency=1 server/integration/ainuoke-payment-request-store.integration.test.ts"
+    "test:ainuoke-payment-store": "tsx --test --test-concurrency=1 server/integration/ainuoke-payment-request-store.integration.test.ts",
+    "test:ainuoke-payment-client": "tsx --test features/ainuoke-payment-requests/__tests__/client.test.ts",
+    "test:ainuoke-payment-panel-ui": "tsx --test server/integration/payment-read-panel-ui.integration.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

@@ -8,6 +8,7 @@ import {filterProgressRows,type MaterialProgressView,type ProgressRow} from '@/f
 import type {ExcessWarehouseFact} from '@/features/ainuoke-material-progress/excess-warehouse';
 import {materialStateLabels} from '@/features/ainuoke-material-progress/order-material-summary';
 import {orderMaterialGroups} from '../model/material-display-order';
+import {PaymentRequestsReadPanel} from './payment-requests-read-panel';
 const quantity=(n:number|null,unit:string|null)=>n===null?'未知':String(n)+(unit?' '+unit:'');
 function excessQuantity(fact:ExcessWarehouseFact|undefined){if(!fact)return '未知';if(fact.status==='known')return quantity(fact.quantity,fact.unit);if(fact.status==='unit_unknown')return quantity(fact.quantity,null)+'（单位未知）';return ({missing:'未知',invalid:'来源无效',conflict:'数值冲突',incomplete:'来源不全',unit_conflict:'单位冲突'} as const)[fact.status];}
 function sourceNotice(view:MaterialProgressView){if(view.sourceStatus==='ready'){const unknown=view.rows.filter(row=>row.status===null).length;return [view.insideOrderDrift?'工厂款号有来源变化':'',unknown?unknown+' 项物料待核对':''].filter(Boolean).join(' · ')||'来源已更新';}return ({not_fetched:'尚未获取来源',not_connected:'物料来源尚未接通',incomplete:'来源不完整，暂停判定',identity_mismatch:'来源身份待核对',source_failed:'物料来源读取失败',source_missing:'当前来源缺少合同物料',stale:'来源已超出可信读取时效'} as const)[view.sourceStatus];}
@@ -21,7 +22,7 @@ function EventRows({row,tab}:{row:ProgressRow;tab:EventTab}){const value=(n:numb
  {row.issues.length>0&&<ul className="sp-event-issues">{row.issues.map(issue=><li key={issue}>{issue}</li>)}</ul>}
  </section>;}
 /** Source-only display: no planner/import/Browser providers and no business totals. */
-export function ReadOnlyMaterialControlTower({view,trimPriorityKeywords=[],settingsNotice}:{view:MaterialProgressView;trimPriorityKeywords?:readonly string[];settingsNotice?:string}){
+export function ReadOnlyMaterialControlTower({view,trimPriorityKeywords=[],settingsNotice,paymentScope}:{view:MaterialProgressView;trimPriorityKeywords?:readonly string[];settingsNotice?:string;paymentScope?:{salesOrderId:string;identityKey:string}}){
  const [search,setSearch]=useState(''),[collapsed,setCollapsed]=useState<Set<string>>(new Set()),[activeKey,setActiveKey]=useState<string|null>(null),[tab,setTab]=useState<EventTab>('purchases');const id=useId(),tabList=useRef<HTMLDivElement>(null);
  const activeGroup=view.groups.find(group=>group.key===activeKey);
  useEffect(()=>{let current=true;if(activeKey&&!activeGroup)queueMicrotask(()=>{if(current)setActiveKey(null);});return()=>{current=false;};},[activeKey,activeGroup]);
@@ -35,6 +36,6 @@ export function ReadOnlyMaterialControlTower({view,trimPriorityKeywords=[],setti
  </MaterialReadCard>)}</section>{view.rows.length>0&&!visible.size&&<Card>没有符合搜索条件的物料。</Card>}{!view.rows.length&&<Card>暂无可判定物料；未连接或异常来源不能视为零采购。</Card>}
  <Drawer open={Boolean(activeGroup)} title={(activeGroup?.name??'物料')+' · 事件'} description={'合同 '+view.order.salesContractNo+' · 颜色与规格分别查看，不跨单位汇总'} className="sp-material-events" onClose={()=>setActiveKey(null)}>
   <div ref={tabList} className="sp-material-event-tabs" role="tablist" aria-label="物料事件类型">{tabs.map((item,index)=><button key={item.key} type="button" role="tab" id={id+'-'+item.key} aria-controls={id+'-events'} aria-selected={tab===item.key} tabIndex={tab===item.key?0:-1} onClick={()=>setTab(item.key)} onKeyDown={event=>{if(['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){event.preventDefault();selectTab(event.key==='Home'?0:event.key==='End'?tabs.length-1:index+(event.key==='ArrowRight'?1:-1));}}}>{item.label}{activeGroup&&item.key!=='reconciliation'?' ('+activeGroup.rows.reduce((count,row)=>count+row[item.key as Exclude<EventTab,'reconciliation'>].length,0)+')':''}</button>)}</div>
-  <div role="tabpanel" tabIndex={0} id={id+'-events'} aria-labelledby={id+'-'+tab}>{tab==='reconciliation'?<p className="sp-reconciliation-pending" role="status">艾诺科货款申请明细尚未接通。暂不展示对账金额或认定实际付款。</p>:activeGroup?.rows.map(row=><EventRows key={row.demand.id} row={row} tab={tab}/>)}</div>
+  <div role="tabpanel" tabIndex={0} id={id+'-events'} aria-labelledby={id+'-'+tab}>{tab==='reconciliation'?(paymentScope&&activeGroup?<PaymentRequestsReadPanel key={paymentScope.salesOrderId+'/'+paymentScope.identityKey} salesOrderId={paymentScope.salesOrderId} salesContractNo={view.order.salesContractNo} identityKey={paymentScope.identityKey}/>:<p className="sp-reconciliation-pending" role="status">艾诺科货款申请明细尚未接通。暂不展示对账金额或认定实际付款。</p>):activeGroup?.rows.map(row=><EventRows key={row.demand.id} row={row} tab={tab}/>)}</div>
  </Drawer></>;
 }

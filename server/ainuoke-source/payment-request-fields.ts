@@ -1,2 +1,3 @@
-// Static 6086941 field names, shared by diagnostics and the offline observation model.
-export const CANDIDATE_FIELDS = Object.freeze(("Status BillNo lx Brand CustomerName UserName FSingleName ExpContractNo StyleNo InsideOrderNo SupplierName PurContractNo companyname CnName actualname CateGoryName CnComposition CnColor MenFu KeZhong QtyUnit Price Num OutStoreNum cgGoodsAmount AdditionalPrice tzamount PayAmount YFAmount GoodsAmount gnsk gwsk kpsupplier InvoiceNo itemno InvoiceDate bgNum BGAmount bgQtyUnit BGName kpprice kpNum kpamount CYDate zzrkrq jldate PayDate fppmrq cwdate id").split(" "));
+import { PAYMENT_SOURCE_FIELDS } from '../../features/ainuoke-payment-requests/model.js';
+// Preserve the existing static catalogue and its order. This is not approval.
+export const CANDIDATE_FIELDS: readonly string[] = PAYMENT_SOURCE_FIELDS;

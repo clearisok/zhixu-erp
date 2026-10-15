@@ -19,9 +19,11 @@ import { createQuoteDraft } from "../../features/quote-center/model/quote-view-m
 import { quoteSnapshotFromBrowser } from "../quotes/model.js";
 import { createQuoteService } from "../quotes/service.js";
 import { MemoryAttachmentStorage } from "../attachments/storage.js";
+import { createPaymentSnapshotReader, preparePaymentPublication, publishPaymentSnapshot } from '../ainuoke-source/payment-request-store.js';
+import { hash } from '../ainuoke-source/contract.js';
 /** Always generates its own loopback tmpfs PostgreSQL; never reads DATABASE_URL or source credentials. */
 import type { NormalizationExecutionOptions } from '../sales-orders/normalization-execution-service.js';
-export async function startContinuousFixture(staticDirectory:string,options: NormalizationExecutionOptions & {orderAlerts?:boolean;excessWarehouse?:boolean;materialDisplay?:boolean} = {}) {
+export async function startContinuousFixture(staticDirectory:string,options: NormalizationExecutionOptions & {orderAlerts?:boolean;excessWarehouse?:boolean;materialDisplay?:boolean;paymentRequests?:boolean} = {}) {
  const normalizationExecution:NormalizationExecutionOptions=options;
  const db=await startDisposablePostgres();const pool=new pg.Pool({connectionString:await db.createDatabase("continuous_demo")});
  const server=createServer();const origins:string[]=[];const errors:unknown[]=[];
@@ -67,14 +69,35 @@ export async function startContinuousFixture(staticDirectory:string,options: Nor
    }});return result;
   };
   await capture();
+  let paymentOffset=0,paymentDelay=0,paymentReads=0;
+  const readPayments=createPaymentSnapshotReader(pool,{sourceKey:source.sourceKey},()=>Date.now()+paymentOffset);
+  const publishPayments=async()=>{
+    const orderId=bound.orderIds[0],context=await preparePaymentPublication(pool,actor,source.sourceKey,orderId,Date.now()-5000);
+    const total=127,page=(pass:number,n:number)=>({schemaVersion:'ainuoke-payment-observation-page.v2',reportId:'6086941',sourceFingerprint:source.accountFingerprint,
+      capturedAt:new Date(context.preparedAt+pass*1000+n).toISOString(),page:n,pageSize:100,reportedTotal:total,rawResponseSha256:hash([pass,n,context.preparedAt]),
+      rows:Array.from({length:Math.min(100,total-(n-1)*100)},(_,i)=>({id:'SYN-PAY-'+((n-1)*100+i),BillNo:'SYN-PAY-APP',Status:'草拟',ExpContractNo:context.salesContractNo,PurContractNo:'SYN-PAY-PUR',
+        CnName:'合成合同来源标签<&>',CnColor:'合成颜色',CnComposition:'合成规格',QtyUnit:i===1?null:'个',Num:'115.50',OutStoreNum:'118',Price:'9007199254740993.12345678901234567890',
+        cgGoodsAmount:'87654321.1234567890123456',PayAmount:'87654321.1234567890123456',GoodsAmount:'87654321.1234567890123456',tzamount:'-80.00',kpNum:'0',YFAmount:null}))});
+    const input={schemaVersion:'ainuoke-payment-contract-snapshot-input.v1',firstPass:[page(1,1),page(1,2)],secondPass:[page(2,1),page(2,2)]};
+    return publishPaymentSnapshot(pool,actor,context,input,{sourceFingerprint:source.accountFingerprint,salesContractNo:context.salesContractNo,
+      witness:{id:'SYN-PAY-0',BillNo:'SYN-PAY-APP',PurContractNo:'SYN-PAY-PUR'}},Date.now());
+  };
+  if(options.paymentRequests){
+    await pool.query('INSERT INTO ainuoke_payment_source_targets(source_key,sales_order_id,account_fingerprint,enabled,verification_sha256) VALUES($1,$2,$3,true,$4)',
+      [source.sourceKey,bound.orderIds[0],source.accountFingerprint,hash('synthetic-financial-query-proof')]);
+    await publishPayments();
+  }
   let materialReads=0;
   const ports=createPersistedMaterialPorts(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000},()=>Date.now()+(mode==="stale"?1800001:0));
   server.on("request",(req,res)=>{if(req.url?.includes("/material-progress"))materialReads++;app(req,res);});
-  const app=createApp({pool,staticDirectory,normalizationExecution,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:ports,orderMaterialHistory:createPersistedMaterialHistoryReader(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000})});
+  const app=createApp({pool,staticDirectory,normalizationExecution,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:ports,orderMaterialHistory:createPersistedMaterialHistoryReader(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000}),
+    ...(options.paymentRequests?{orderPaymentRead:async(identity:Parameters<typeof readPayments>[0],id:string)=>{paymentReads++;const result=await readPayments(identity,id);if(paymentDelay)await new Promise(done=>setTimeout(done,paymentDelay));return result;}}:{})});
   await new Promise<void>(done=>server.listen(0,"127.0.0.1",done));
   const address=server.address();if(!address||typeof address!=="object")throw Error("loopback fixture failed");
   const base="http://127.0.0.1:"+address.port;origins.push(base);
   return{pool,base,orderId:bound.orderIds[0],users,password,errors,capture,generation:()=>generation,materialReads:()=>materialReads,
+    payments:{reads:()=>paymentReads,publish:publishPayments,setOffset:(value:number)=>{paymentOffset=value;},setDelay:(value:number)=>{paymentDelay=value;},
+      setEnabled:async(enabled:boolean)=>{await pool.query('UPDATE ainuoke_payment_source_targets SET enabled=$2,version=version+1 WHERE source_key=$1',[source.sourceKey,enabled]);}},
     setMode:(value:typeof mode)=>{mode=value;},containerName:db.containerName,
     login:async(username:string)=>{
      const response=await fetch(base+"/api/v1/auth/login",{method:"POST",headers:{"Content-Type":"application/json",Origin:base,"X-Zhixu-Request":"1"},body:JSON.stringify({username,password})});

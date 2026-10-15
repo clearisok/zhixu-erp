@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-15当前main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。先读CURRENT_STATE/AI_HANDOFF和[财务隔离存储任务](tasks/active/ainuoke-payment-snapshot-storage.md)：新19项、最终相关218通过/1项跳过，root898/94基线/精确守卫通过，存储/只读API合成可用，真实采集/激活与侧栏未完成；此前纯模型/G1–G5均保留。GitHub为实时工程事实源，源码/授权/证据变化时更新。旧开头快照与全部日期/SHA/限制归档[此阶段前共享摘要](tasks/completed/2026-10-15-before-payment-snapshot-storage.md)，不据旧摘要判断当前PR或部署。
+2026-10-15当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先CURRENT_STATE/AI_HANDOFF、[合同来源面板任务](tasks/active/ainuoke-payment-read-panel.md)与[货款申请模块](features/AINUOKE_PAYMENT_REQUESTS.md)。150相关Node/PG/API及类型/lint通过，实际浏览器与最终门禁待续；真实过滤/采集/写入/激活均未完成。旧G1–G5/Quote/Source和存储证据保留，GitHub为实时事实源，随源码/授权/证据变化更新。
 
 ## 系统简介
 

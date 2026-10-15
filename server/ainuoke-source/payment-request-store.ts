@@ -145,7 +145,7 @@ export function createPaymentSnapshotReader(pool: Pool, config: { sourceKey: str
         LEFT JOIN sales_order_identity_profiles i ON i.sales_order_id=o.id WHERE o.id=$1::uuid`, [salesOrderId])).rows[0];
       if (!row || row.effective_order_id !== salesOrderId) error(404, 'payment_order_not_available');
       const empty = (sourceStatus: 'not_applicable' | 'not_connected' | 'not_captured' | 'identity_changed' | 'stale') => ({
-        salesOrderId, sourceReportId: '6086941' as const, sourceStatus, rows: [], bankPaymentStatus: 'not_inferred' as const,
+        schemaVersion: 'order-payment-requests.v1' as const, salesOrderId, sourceReportId: '6086941' as const, sourceStatus, rows: [], bankPaymentStatus: 'not_inferred' as const,
       });
       if (row.processing) return empty('not_applicable');
       const order = (await boundOrders(client)).find(candidate => candidate.id === salesOrderId);
@@ -160,11 +160,12 @@ export function createPaymentSnapshotReader(pool: Pool, config: { sourceKey: str
         // Rebuild with the original observation time, then evaluate current age.
         // JSONB property ordering must never substitute for content verification.
         const rebuilt = verifyStored(current, context);
-        if (!paymentSnapshotFreshness(rebuilt, { sourceFingerprint: context.sourceFingerprint, salesContractNo: context.salesContractNo }, now()).readable)
+        const evaluatedAt = now();
+        if (!paymentSnapshotFreshness(rebuilt, { sourceFingerprint: context.sourceFingerprint, salesContractNo: context.salesContractNo }, evaluatedAt).readable)
           return empty('stale');
-        return { salesOrderId, sourceReportId: '6086941' as const, sourceStatus: 'observed' as const,
+        return { schemaVersion: 'order-payment-requests.v1' as const, salesOrderId, sourceReportId: '6086941' as const, sourceStatus: 'observed' as const,
           snapshotId: rebuilt.snapshotId, generation: current.generation, observedFrom: rebuilt.observedFrom,
-          observedThrough: rebuilt.observedThrough, expiresAt: rebuilt.expiresAt, completeness: rebuilt.completeness,
+          observedThrough: rebuilt.observedThrough, evaluatedAt: new Date(evaluatedAt).toISOString(), expiresAt: rebuilt.expiresAt, completeness: rebuilt.completeness,
           rows: rebuilt.rows, aggregation: rebuilt.aggregation, bankPaymentStatus: rebuilt.bankPaymentStatus,
           mappingVerified: rebuilt.mappingVerified, consistency: 'as_of_observed_time_not_live' as const };
       } catch { return error(503, 'payment_snapshot_integrity_failed'); }

@@ -1,0 +1,16 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "app/order-center/style-progress/style-progress.css",
+    "features/ainuoke-payment-requests/model.ts",
+    "features/ainuoke-payment-requests/client.ts",
+    "features/style-progress/components/payment-requests-read-panel.tsx",
+    "features/style-progress/components/material-control-tower-read-only.tsx",
+    "features/style-progress/components/style-progress-server-page.tsx"
+  ],
+  "pages": ["material"],
+  "visibleDifference": "Reuse the approved reconciliation tab/Drawer and read tables for explicitly contract-scoped Source observations, exact values/unknown units and currencies, local pagination and expiry hiding. Default unconnected text, main layout and original material events remain; no formal material matching or bank-payment conclusion.",
+  "evidence": ["docs/tasks/active/evidence/ainuoke-payment-request-probe/read-panel-approved-scope-2026-10-15.md", "docs/tasks/active/ainuoke-payment-read-panel.md"],
+  "approval": {"status":"user-approved","reference":"docs/tasks/active/evidence/ainuoke-payment-request-probe/read-panel-approved-scope-2026-10-15.md"}
+}

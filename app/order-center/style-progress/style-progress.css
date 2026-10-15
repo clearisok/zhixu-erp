@@ -195,6 +195,9 @@
 .sp-event-comparison { background: #f4f8f5; border-radius: 8px; padding: 12px; color: #52645b; font-size: 12px; line-height: 1.7; }
 .sp-event-issues { color: #876028; font-size: 12px; padding-left: 18px; }
 .sp-reconciliation-pending { padding: 20px; background: #f4f8f5; border-radius: 8px; line-height: 1.7; }
+.sp-payment-requests { min-width: 0; }
+.sp-payment-requests > p, .sp-payment-requests summary { overflow-wrap: anywhere; }
+.sp-payment-requests summary { cursor: pointer; padding: 10px 0; color: #243e34; }
 .sp-progress-settings .qc-page-header { grid-template-columns: minmax(0,1fr) auto; }
 .sp-progress-settings .sp-trim-settings { padding: 24px; max-width: 900px; }
 .sp-settings-tab { margin-bottom: 24px; }
