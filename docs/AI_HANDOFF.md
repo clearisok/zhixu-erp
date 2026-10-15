@@ -1,13 +1,13 @@
-# 当前接力：Gate4最终依赖整合，保护全部历史边界
+# 当前接力：G1–G4均已送达且CI全绿，进入Gate5
 
-2026-10-15；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；feat/order-effective-attribution起点5540c1daf4c3cf8eb80c4337ca226ffdb5875fa4/clean，merge --no-ff --no-commit G3最终f4a1b99b，共同祖先39c9f7b6。G1 PR109、G2 Draft PR110均精确head三CI绿；G3精确送达；创建前API查询曾失败且未创建，独立REST核实[]后首次创建成功，唯一Draft PR111已attach，精确f4a1b99b三CI最终全绿。不重复push或创建。
+2026-10-15；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；在原order-effective-attribution工作树新建feat/material-progress-integration，从036fe521ba16a7b5193d1c68cc1f6cc76626709a/clean开始，无重建/丢失旧分支。
 
-四项冲突：AI_HANDOFF/CURRENT_STATE双方完整归档；详情两个区块保留G4历史重复/有效归属、historical/onGuardChange与材料历史入口、加工不适用及全部独立key；fresh-start四块保留G4精确0017–0023/four technical singleton/epoch/control原字节断言。G3不能覆盖更后续安全保护。Source ledger23未变，团队新增Quote金额与管理员旧写价拒绝，商业UI采用唯一按钮等待，身份UI加单份断言。
+PR109 head1fcc440f00eeab962eb766161eab96ed5f67c6b4、110 head3deffc478fec2df2909499e5b053330b94997611、111 headf4a1b99b8a4a85cce6ec3b8d77c80df994114db3、112 head036fe521ba16a7b5193d1c68cc1f6cc76626709a均精确交付，各3CI SUCCESS，已attach并更新复审说明；110/111/112保持Draft。全部未合并部署。统一合并授权问题已异步提出；未获实际用户答复不能合并。CI不代表部署或人工业务验收。
 
-本轮类型/关键PG71、root840、完整lint、main守卫10页/26能力/28路径、78基线、精确候选buildId20261015-105049/source5d4e2c59及商业4/身份5浏览器9通过。最终结果gate4-final-dependency.md；旧PG261和其他早期各组不是此次重跑。下一步最终head/安全交付/唯一Draft依赖PR及CI。原冻结D130/PNG与D131材料保护证据完全保留；不要用覆盖旧hash消失败。
+Gate4最终840root/78baseline/71关键PG/9变动浏览器、完整类型/lint/显式build及远端全套通过；细节gate4-final-dependency.md。默认无真实Adapter/permit，真实归一关闭。G5范围及下一步见material-progress-integration.md；不应重新实现原成果。
 
-新材料guard：8d393605实现、5540c1d冻结，16/840/78与build通过；短哈希碰撞仅证明合成误归并风险，不证明真实影响，跨批Browser/artifact hash仍另评。旧私有全量报告没有raw num_dyc，不能用白名单缺字段推断上游缺字段；无凭据读取、ACL更改或真实网络采集。
+下步先只读审查并合入erp-followup-governance/feat/ainuoke-anomaly-evidence原head21da670b619f9ad745b4818ffc0a4eb50b9a501e/clean（含PR108 f5依赖）。保护当前G1–G4、D131碰撞保护与全部旧证据/manifest分叉历史；不能整体复制旧app/repository/CCT或旧manifest，不能带回a0e60e4报价直接SO。旧Source成果含MaterialConfirmation完整证据JSON、quantity-facts观察、颜色0/列表alerts、ServerUserMenu、隔离/窗口工具。新顶部退出整合时注意未知准备/报价未保存guard不被绕过。
 
-G5页面/排序/事件/num_dyc/6086941待，Goal未完成。默认真实归一无adapter/permit而关闭，禁止真实DB/账号/Source范围窗口/部署/自动合并扩大；保留全部旧worktree，不rebase/reset/clean。
+窗口私有日志只读核实：2026-10-14 05:12:09.685Z–07:12:09.695Z，deadline07:12:09.685Z；12attempt/12SOURCE_CAPTURED、每次4单、12不同runID/replayed0、deadline停止；没有新采集或DB访问，公开脱敏window-completion-2026-10-15.md。原报告是白名单，无raw num_dyc；不能说上游没字段。后续可先复用已捕获原Source证据，若不够再做有界私密诊断，不读凭据或扩范围。
 
-旧Source成果已核实：erp-followup-governance原branch feat/ainuoke-anomaly-evidence/head21da670/clean，人工确认、工厂责任、颜色0/单位空提醒、顶部退出及PR108依赖、真实隔离演示工具均在，未远端形成PR。G5应复用整合，不重复开发或带回废止a0e60e4报价直接SO。原2小时窗口只能只读核实，不能恢复采集或扩范围。
+剩余G5：顶部箭头/业务款号与工厂款号、去重复导航/说明、fabric数值排序/trim团队设置、详情展开与事件侧栏、num_dyc独立核实映射、6086941独立source/金额数量/身份权限。不要按100行公式或中文名称自动归并财务与物料；缺可信采购分录身份明确待核验。所有真实写入/激活/部署/账号/宁波/18443/18444均未扩大授权；Goal继续，旧恢复点completed/2026-10-15-pre-gate5-ai-handoff.md。

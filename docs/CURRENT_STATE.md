@@ -1,13 +1,11 @@
 # 当前状态
 
-核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。当前feat/order-effective-attribution，从5540c1daf4c3cf8eb80c4337ca226ffdb5875fa4/clean本地整合G3 f4a1b99b8a4a85cce6ec3b8d77c80df994114db3，保留全部历史/准备/碰撞保护，不是合并main。
+核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`，GitHub为实时工程事实源。PR109@1fcc440、Draft PR110@3deffc4、Draft PR111@f4a1b99b、Draft PR112@036fe521各三项CI最终均SUCCESS，均未合并或部署。后面三项依赖前序；已向用户统一询问是否授权逐项对齐新main重验后合并，未收到授权前不执行。
 
-G1 PR109@1fcc440、G2 Draft PR110@3deffc4三项最终CI均SUCCESS，未合并部署。G3 f4a1b99b已安全工具一次推送精确验证；创建前查询曾失败、未执行创建；随后一次REST核实无重复后成功建立/attach唯一Draft PR111，精确f4a1b99b三项最终CI均SUCCESS。不重复推送。
+现有工作树新分支feat/material-progress-integration从036fe521/clean开始Gate5，不重建/清理旧树。G4默认真实归一执行仍关闭，历史/准备/fence/商业独立版本/全部冻结证据保留；本轮840根、78基线、71关键PG及9浏览器等以G4报告/PR112 CI为准，不冒称Gate5新测试。
 
-G4现有历史案件/有效归属/写fence/完整证据、独立review与执行许可、暂停及纠正保护保留，默认真实执行关闭；0017–0023未实际升级真实库。准备UI b63d6424/证据f96ce65c、26能力/旧截图及其hash保留。物料短哈希保护8d393605/5540c1d已有16定向、根840、基线78及构建；不能推定真实六项单位冲突由碰撞导致。
+下一步先复用原Source整合21da670（原树clean）：人工单位/工厂责任、数量0/单位空提醒、顶部退出、PR108依赖与真实隔离演示工具；不带回废止的经销报价直接SO或旧共享订单价格。然后完成已批准小箭头/字段/排序/事件侧栏及两个新来源核验。[任务](tasks/active/material-progress-integration.md)。
 
-本轮四项冲突逐条处理：两份摘要双方原文归档；详情保留历史重复提示、禁写及准备未知请求导航保护、历史物料入口、加工不适用与独立key；fresh-start保留精确1–12/14–23和四项技术单例，不能降为G3的0016或删除epoch/control断言。没有SQL/权限/真实写入变化。本轮类型/关键PG71、根840、完整lint、基线78、实际main守卫及候选构建/浏览器9均通过；下一步最终head、独立Draft依赖PR及CI。[详情](tasks/active/gate4-final-dependency.md)。
+既有四单两小时窗口只读确认12次成功、每次4单、12独立run且按截止停止；本轮没有新HTTP/数据库/凭据/ACL操作。[脱敏回执](tasks/active/evidence/ainuoke-live-demo-readiness/window-completion-2026-10-15.md)。旧报告白名单未保留num_dyc原字段，不能据此判断上游缺字段。6086941仍需独立固定来源与身份/币种核实，不据样本公式、同名或数量匹配冒称映射已证实。
 
-G5页面/排序/事件、num_dyc、6086941继续保留；旧Source整合21da670原工作树/成果保护并作为后续复用依赖，不恢复废止的报价直接建SO方案。已只读检查原受保护私有全量报告：其20MB内容是白名单需求/四流事实，未保存原始num_dyc；不能证明上游字段不存在。未读取凭据、更改ACL或重新采集。后续需有界原字段核验，不重复全量验收。
-
-所有工作树、原身份/流水、Browser长期数据与旧冻结证据保留；不执行真实归一、账号/业务DB/Source/调度窗口、宁波或18443/18444部署，不自动合并。GitHub为实时源；随依赖/main、验证、来源或授权变化更新。双方摘要归档completed/2026-10-15-gate4-before-processing-final-*与gate3-before-attribution-final-*。
+无新真实账号/业务DB/Source范围窗口、宁波或18443/18444操作；不自动合并部署，整个Goal未完成。旧工作树、Browser长期数据、原身份/流水/价格及旧图/hash保留。随main/PR、测试、来源/环境或授权变化更新；此前状态见completed/2026-10-15-pre-gate5-current-state.md。
