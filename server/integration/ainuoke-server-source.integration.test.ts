@@ -34,9 +34,10 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
         const oldDir = await mkdtemp(join(tmpdir(), "zhixu-migrations-11-"));
         try {
             for (const file of await readdir("database/migrations"))
-                if (file.endsWith(".sql") && !file.startsWith("0012"))
+                if (file.endsWith(".sql") && Number(file.slice(0,4))<=11)
                     await copyFile(join("database/migrations", file), join(oldDir, file));
             await runMigrations(pool, oldDir);
+            assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version),[1,2,3,4,5,6,7,8,9,10,11]);
         }
         finally {
             await rm(oldDir, { recursive: true, force: true });

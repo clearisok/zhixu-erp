@@ -65,14 +65,15 @@ test("first team: seven synthetic session accounts and guarded administration in
     const quote=await x.request(x.quotePath,logged.cookie);assert.equal(quote.response.status,200,quote.text);
     const hasCost=role.permissions.includes("quote.cost.view");
     if(!hasCost)assert.equal(quote.text.includes("98765"),false);
+    const quoteTerms=await x.request(x.quoteTermsPath,logged.cookie);assert.equal(quoteTerms.response.status,200,quoteTerms.text);
+    assert.equal(quoteTerms.text.includes("12345"),role.permissions.includes("commercial.sale.view"));
+    assert.equal(quoteTerms.text.includes("67890"),role.permissions.includes("commercial.labor.view"));
     const terms=await x.request(x.orderPath,logged.cookie);assert.equal(terms.response.status,200,terms.text);
     assert.equal(terms.text.includes("12345"),role.permissions.includes("commercial.sale.view"));
     assert.equal(terms.text.includes("67890"),role.permissions.includes("commercial.labor.view"));
-    if(!admin){
-      const attempt=await x.request(x.orderPath,logged.cookie,{expectedVersion:terms.body.version??1,customerConfirmedPrice:"90000"},"PATCH");
-      assert.equal(attempt.response.status,role.permissions.includes("order.edit")?409:403,attempt.text);
-      if(role.permissions.includes("order.edit"))assert.equal(attempt.body.error.code,"order_commercial_adoption_required");
-    }
+    const attempt=await x.request(x.orderPath,logged.cookie,{expectedVersion:terms.body.version??1,customerConfirmedPrice:"90000"},"PATCH");
+    assert.equal(attempt.response.status,role.permissions.includes("order.edit")?409:403,attempt.text);
+    if(role.permissions.includes("order.edit"))assert.equal(attempt.body.error.code,"order_commercial_adoption_required");
     const createQuote=await x.request("/api/v1/quotes",logged.cookie,{},"POST");
     assert.equal(createQuote.response.status,admin||role.id==="role-team-quote-manager"?201:403,createQuote.text);
   });

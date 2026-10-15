@@ -211,7 +211,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
         <ErrorState title="订单服务暂时不可用" description={error} onRetry={() => void loadDetail()} />
       ) : detail ? (
         <div className="oc-server-detail-content">
-          <ServerOrderIdentityCard key={scopeKey} orderId={salesOrderId} />
+          <ServerOrderIdentityCard key={'identity-'+scopeKey} orderId={salesOrderId} />
           <Card className="oc-server-detail-section oc-server-detail-zhixu oc-server-detail-overview">
             <header><div><h2>订单概况</h2></div><span>来源权威 · 不可编辑</span></header>
             <DescriptionList columns={3} compact items={[
@@ -249,7 +249,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
             )}
           </Card>
 
-          {detail.businessType==='processing'?<Card className="oc-server-detail-section"><p style={{padding:18}}>加工订单不关联艾诺科销售合同，艾诺科物料流水不适用。</p></Card>:<OrderMaterialSummary key={scopeKey} salesOrderId={detail.id} />}
+          {detail.businessType==='processing'?<Card className="oc-server-detail-section"><p style={{padding:18}}>加工订单不关联艾诺科销售合同，艾诺科物料流水不适用。</p></Card>:<OrderMaterialSummary key={'materials-'+scopeKey} salesOrderId={detail.id} />}
           <Card className="oc-server-detail-section">
             <details className="oc-server-technical-details">
               <summary>来源与技术详情 <span>只读</span></summary>

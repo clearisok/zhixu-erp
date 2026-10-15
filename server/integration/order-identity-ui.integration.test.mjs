@@ -55,6 +55,7 @@ test("order identity built UI uses real sessions with synthetic data", {timeout:
    const count=(await x.pool.query('SELECT count(*)::int n FROM sales_orders')).rows[0].n;
    await click('以本单建立翻单准备');await input('[role=dialog] input[inputmode=decimal]','123');await input('[role=dialog] input[type=date]','2027-01-01');await click('保存准备');await has('123 件');
    await navigate('/order-center/server-detail?id='+x.orderId);await has('123 件');
+   assert.equal(await evaluate("[...document.querySelectorAll('h2')].filter(n=>n.textContent==='订单认领与血统').length"),1);
    assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_orders')).rows[0].n,count);
   });
   await t.test('admin transfer uses eligible public identities and requires reason',async()=>{
@@ -65,7 +66,7 @@ test("order identity built UI uses real sessions with synthetic data", {timeout:
    assert.deepEqual((await x.pool.query('SELECT row_to_json(o) doc FROM sales_orders o WHERE id=$1',[x.orderId])).rows[0],original);
   });
   await t.test('desktop and narrow view retain visible identity controls',async()=>{
-   for(const width of [1440,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await wait(250);await has('订单认领与血统');await screenshot('identity-'+width);}
+   for(const width of [1440,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await wait(250);await has('订单认领与血统');assert.equal(await evaluate("[...document.querySelectorAll('h2')].filter(n=>n.textContent==='订单认领与血统').length"),1);await screenshot('identity-'+width);}
    await login('demo.material');await navigate('/order-center/server-detail?id='+x.orderId);await has('订单认领与血统');
    for(const label of ['转交负责人','认领订单','维护首单 / 翻单血统','以本单建立翻单准备'])assert.equal(await evaluate('document.body.innerText.includes('+JSON.stringify(label)+')'),false);
   });

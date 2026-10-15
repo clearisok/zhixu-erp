@@ -50,7 +50,7 @@ test("commercial adoption built UI uses real sessions and isolated synthetic dat
   await createQuoteRepository(x.pool).create(quoteSnapshotFromBrowser(q));
   const select=(index,value)=>evaluate("(()=>{const n=document.querySelectorAll('[role=dialog] select')["+index+"];n.value="+JSON.stringify(value)+";n.dispatchEvent(new Event('change',{bubbles:true}));})()");
   const textarea=value=>evaluate("(()=>{const n=document.querySelector('[role=dialog] textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(n,"+JSON.stringify(value)+");n.dispatchEvent(new Event('input',{bubbles:true}));})()");
-  await login('demo.merchandising');await navigate('/order-center/server-detail?id='+x.orderId);await has('订单商业依据');await click('认领订单');await has('维护首单 / 翻单血统');
+  await login('demo.merchandising');await navigate('/order-center/server-detail?id='+x.orderId);await has('订单商业依据');await until(()=>evaluate("[...document.querySelectorAll('button')].filter(n=>n.textContent.trim()==='认领订单'&&!n.disabled&&n.getClientRects().length).length===1"),'single ready claim control');assert.equal(await evaluate("[...document.querySelectorAll('h2')].filter(n=>n.textContent==='订单认领与血统').length"),1);await click('认领订单');await has('维护首单 / 翻单血统');
   await t.test('merchandising selects exact revision and explicitly adopts previewed values',async()=>{
    await click('选择并采用报价版本');await has(q.quoteCode);await select(0,q.id);await has(revision.revisionLabel);await select(1,revision.revisionId);await has(pv.name);await select(2,pv.id);await click('预览采用差异');await has('123.45 CNY / 件');await has('12.34 CNY / 件');
    assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_commercial_versions')).rows[0].n,0);
