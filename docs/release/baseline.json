@@ -882,6 +882,62 @@
       "path": "docs/tasks/active/evidence/order-preparation-adoption/backend-results.md",
       "recordedAtSha": "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
       "sha256": "e562bc6c33242f1f413d0fd4adfac99be0bb78a960d763c1fe3ae0ed0c212710"
+    },
+    {
+      "id": "decisions-preparation-ui",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+      "sha256": "1bd8d7c6a24fea429a0a5d07517638df76d45ae2871f21141d7463df31133d7a",
+      "supersedes": "decisions-preparation-adoption",
+      "changeReason": "D130 implements approved D121 preparation UI and bounded unresolved Server-command recovery without changing business identity, quantities, prices or real-operation authority."
+    },
+    {
+      "id": "preparation-adoption-ui-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/order-preparation-adoption-ui/ui-results.md",
+      "recordedAtSha": "f96ce65c7aee6e9e7bfc390b2bb4d2d13ab3d042",
+      "sha256": "bed13cad11a1fdac5b3356a97bce1da76607f2ae4b666cac3794c9192f73967b"
+    },
+    {
+      "id": "preparation-ui-prepare-explicit-quote-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-preparation-adoption-ui/screenshots-b63d6424/prepare-explicit-quote-desktop.png",
+      "recordedAtSha": "f96ce65c7aee6e9e7bfc390b2bb4d2d13ab3d042",
+      "renderedSourceSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+      "sha256": "75d572b3e00edec100f1fa35736596b0dc1d0a9d2674d207e4e012198d161cfc",
+      "changeReason": "New exact D121 preparation Foundation UI synthetic evidence; preserve all prior screenshots and human acceptance states.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "preparation-ui-adopt-preview-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-preparation-adoption-ui/screenshots-b63d6424/adopt-preview-desktop.png",
+      "recordedAtSha": "f96ce65c7aee6e9e7bfc390b2bb4d2d13ab3d042",
+      "renderedSourceSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+      "sha256": "82a9682d291481de5bd80ab5d37d121a690092fa9569b72913490e566d392538",
+      "changeReason": "New exact D121 preparation Foundation UI synthetic evidence; preserve all prior screenshots and human acceptance states.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "preparation-ui-adopted-preparation-mobile",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-preparation-adoption-ui/screenshots-b63d6424/adopted-preparation-mobile.png",
+      "recordedAtSha": "f96ce65c7aee6e9e7bfc390b2bb4d2d13ab3d042",
+      "renderedSourceSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+      "sha256": "9987af1eaa77c68fbb889d223e753344d752b9973d62891805f0f77080cf7418",
+      "changeReason": "New exact D121 preparation Foundation UI synthetic evidence; preserve all prior screenshots and human acceptance states.",
+      "approvalEvidence": "order-history-ui-approved-scope"
+    },
+    {
+      "id": "preparation-ui-adopt-candidates-mobile",
+      "kind": "screenshot",
+      "path": "docs/tasks/active/evidence/order-preparation-adoption-ui/screenshots-b63d6424/adopt-candidates-mobile.png",
+      "recordedAtSha": "f96ce65c7aee6e9e7bfc390b2bb4d2d13ab3d042",
+      "renderedSourceSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+      "sha256": "011aaa9d24df42b71385e5f8c51b9aa3878db7d7dbedbcba88fc2af6b28de268",
+      "changeReason": "New exact D121 preparation Foundation UI synthetic evidence; preserve all prior screenshots and human acceptance states.",
+      "approvalEvidence": "order-history-ui-approved-scope"
     }
   ],
   "pages": [
@@ -3370,6 +3426,93 @@
           "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
           "evidence": [
             "preparation-adoption-backend-engineering"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-preparation-adoption-ui",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Local existing-Foundation explicit proposed Quote preparation and post-claim contract adoption, private receipts and tab-scoped unresolved command recovery. Synthetic seven-role/responsive/unchanged-order facts only; no remote delivery, human acceptance, real source activation, migration or deployment.",
+      "evidence": [
+        "preparation-adoption-ui-engineering",
+        "decisions-preparation-ui",
+        "order-history-ui-approved-scope"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+          "scope": "Local existing-Foundation explicit proposed Quote preparation and post-claim contract adoption, private receipts and tab-scoped unresolved command recovery. Synthetic seven-role/responsive/unchanged-order facts only; no remote delivery, human acceptance, real source activation, migration or deployment.",
+          "evidence": [
+            "preparation-adoption-ui-engineering"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+          "scope": "Local existing-Foundation explicit proposed Quote preparation and post-claim contract adoption, private receipts and tab-scoped unresolved command recovery. Synthetic seven-role/responsive/unchanged-order facts only; no remote delivery, human acceptance, real source activation, migration or deployment.",
+          "evidence": [
+            "preparation-adoption-ui-engineering"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+          "scope": "Local existing-Foundation explicit proposed Quote preparation and post-claim contract adoption, private receipts and tab-scoped unresolved command recovery. Synthetic seven-role/responsive/unchanged-order facts only; no remote delivery, human acceptance, real source activation, migration or deployment.",
+          "evidence": [
+            "preparation-adoption-ui-engineering"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+          "scope": "Local existing-Foundation explicit proposed Quote preparation and post-claim contract adoption, private receipts and tab-scoped unresolved command recovery. Synthetic seven-role/responsive/unchanged-order facts only; no remote delivery, human acceptance, real source activation, migration or deployment.",
+          "evidence": [
+            "preparation-adoption-ui-engineering"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+          "scope": "Local existing-Foundation explicit proposed Quote preparation and post-claim contract adoption, private receipts and tab-scoped unresolved command recovery. Synthetic seven-role/responsive/unchanged-order facts only; no remote delivery, human acceptance, real source activation, migration or deployment.",
+          "evidence": [
+            "preparation-adoption-ui-engineering"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "preparation-adoption-ui-engineering"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-15",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime re-observation by this phase; prior immutable environment identity retained.",
+          "evidence": [
+            "preparation-adoption-ui-engineering"
           ]
         }
       }

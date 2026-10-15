@@ -19,3 +19,7 @@ v2准备读取以新projection展示可读名称、精确原身份和来源状�
 23后台定向、10客户端、完整类型/lint/Server编译/静态build、根824通过；扩展新浏览器10/10及原认领5、加工9、商业4、历史9均通过。YAML和29个CI脚本引用验证通过，权限contents:read保持。误用不存在processing-order-ui脚本只报告查找失败，正确processing-batches-ui9重跑通过。精确源码checkpoint、冻结截图及最终门禁仍在收口；不能将候选称最终PASS。远端CI未运行，准备UI未交付/合并/部署。
 
 G1经用户新授权2026-10-15执行一次git-delivery恢复，返回NETWORK_DEGRADED/pushes=0；独立API404确认分支不存在。一次普通PowerShell备用交付待回传；没有重复push。该事实不代表G4分支已获恢复或真实部署授权。G4完整复审、后续G5仍待，整个Goal未完成。
+
+精确源码b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280，clean后buildId order-preparation-ui-20261015-b63d6424与10浏览器exit0；4图逐张检查，冻结报告/PNG f96ce65c7aee6e9e7bfc390b2bb4d2d13ab3d042，见[evidence](evidence/order-preparation-adoption-ui/ui-results.md)。第26项能力前向绑定，门禁待实际运行。G1另已精确送达并创建PR109，CI进行中，不代表本G4分支交付。
+
+实际门禁PASS：10页/26能力/27项累计UI路径，基线78/78。第一次两个新文档记录误用工作树换行字节而EVIDENCE_BLOB_HASH失败，按已冻结Git blob字节修正仅新记录后PASS；旧证据及截图hash未修改。该本地门禁不代替PR109或本G4远端CI。
