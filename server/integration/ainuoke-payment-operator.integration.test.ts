@@ -272,7 +272,7 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
         'ainuoke_payment_snapshots','ainuoke_payment_heads','operation_logs'];
       const inventory=async()=>{const entries=[];for(const table of tables)entries.push([table,(await old.query(`SELECT to_jsonb(t) row FROM ${table} t ORDER BY to_jsonb(t)::text`)).rows]);return hash(entries);};
       const before=await inventory(),upgraded=await runMigrations(old,resolve('database/migrations'));
-      assert.deepEqual(upgraded.applied,['0026_ainuoke_payment_operator_commands.sql']);assert.equal(await inventory(),before);
+      assert.deepEqual(upgraded.applied,['0026_ainuoke_payment_operator_commands.sql','0027_order_business_source_snapshots.sql']);assert.equal(await inventory(),before);
       assert.equal((await old.query('SELECT count(*)::int n FROM ainuoke_payment_operator_commands')).rows[0].n,0);
       assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,[]);
       await assert.rejects(()=>inspectMigrationStatus(old,directory),/Applied migration 26 .* is missing from the migration directory/u);

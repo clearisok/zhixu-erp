@@ -101,7 +101,7 @@ test('normalization case service transactional synthetic lifecycle',{timeout:180
   assert.equal((await listNormalizationCases(pool,actor,{offset:0,search:source,includeWithdrawn:false})).items.length,0);
   assert.equal((await listNormalizationCases(pool,actor,{offset:0,search:source,includeWithdrawn:true})).items[0].id,receipt.caseId);
  });
- await t.test('case HTTP requires session, strict commands and query; rejects execution and arbitrary evidence',async()=>{
+ await t.test('retired case HTTP preserves history reads and rejects every public write',async()=>{
   const origin='http://case-http.invalid',server=createServer(createApp({pool,allowedOrigins:[origin],security:{secureCookies:false,sessionTtlSeconds:3600}}));
   await new Promise<void>(done=>server.listen(0,'127.0.0.1',done));const address=server.address();assert.ok(address&&typeof address==='object');const base='http://127.0.0.1:'+address.port,path='/api/v1/order-normalization-cases';
   const headers={Origin:origin,'Content-Type':'application/json','X-Zhixu-Request':'1'};
@@ -109,20 +109,20 @@ test('normalization case service transactional synthetic lifecycle',{timeout:180
    assert.equal((await fetch(base+path)).status,401);
    const login=await fetch(base+'/api/v1/auth/login',{method:'POST',headers,body:JSON.stringify({username:actor.username,password:'synthetic'})});assert.equal(login.status,200);const Cookie=login.headers.get('set-cookie')!.split(';')[0];
    const req=(url:string,method='GET',body?:object,extra:Record<string,string>={})=>fetch(base+url,{method,headers:{...headers,Cookie,...extra},...(body?{body:JSON.stringify(body)}:{})});
-   const draft=await open(await pair());const created=await req(path,'POST',draft);assert.equal(created.status,200);const result=await created.json();
+   const draft=await open(await pair());const result=await openNormalizationCase(pool,actor,draft);const before=await readNormalizationCase(pool,actor,result.caseId);const created=await req(path,'POST',draft);assert.equal(created.status,410);assert.equal((await created.json()).error.code,'order_workflow_retired');
    const detail=await req(path+'/'+result.caseId);assert.equal(detail.status,200);assert.equal(detail.headers.get('cache-control'),'no-store');
    assert.equal((await detail.json()).executionAuthorized,false);
    for(const query of ['execute=true','offset=-1','offset=1&offset=2','includeWithdrawn=1','search=x&search=y'])assert.equal((await req(path+'?'+query)).status,400);
    assert.equal((await req(path+'/'+result.caseId+'?search=forged')).status,400);
-   assert.equal((await req(path,'POST',{...draft,evidence:{execution:{coverage:'verified',count:0}}})).status,400);
+   assert.equal((await req(path,'POST',{...draft,evidence:{execution:{coverage:'verified',count:0}}})).status,410);
    assert.equal((await req(path,'POST',draft,{Origin:'http://evil.invalid'})).status,403);
    const note={requestId:randomUUID(),expectedVersion:1,eventType:'review_note',reason:'HTTP note'};
-   const written=await req(path+'/'+result.caseId+'/events','POST',note);assert.equal(written.status,200);assert.equal((await written.json()).version,2);
-   assert.equal((await req(path+'/'+result.caseId+'/events','POST',{...note,requestId:randomUUID(),eventType:'executed',expectedVersion:2})).status,400);
+   const written=await req(path+'/'+result.caseId+'/events','POST',note);assert.equal(written.status,410);
+   assert.equal((await req(path+'/'+result.caseId+'/events','POST',{...note,requestId:randomUUID(),eventType:'executed',expectedVersion:2})).status,410);
    assert.equal((await req(path+'/'+result.caseId+'/events')).status,405);
-   assert.equal((await req(path+'/'+result.caseId,'DELETE')).status,405);
-   const closed=await req(path+'/'+result.caseId+'/execute','POST',{});assert.equal(closed.status,503);assert.equal((await closed.json()).error.code,'normalization_execution_disabled');
-   assert.equal((await req(path,'POST',{...draft,reason:'x'.repeat(9000)})).status,413);
+   assert.equal((await req(path+'/'+result.caseId,'DELETE')).status,410);
+   const closed=await req(path+'/'+result.caseId+'/execute','POST',{});assert.equal(closed.status,410);assert.equal((await closed.json()).error.code,'order_workflow_retired');
+   assert.equal((await req(path,'POST',{...draft,reason:'x'.repeat(9000)})).status,410);assert.deepEqual(await readNormalizationCase(pool,actor,result.caseId),before);
    await pool.query('UPDATE app_users SET active=false WHERE id=$1',[actor.internalUserId]);assert.equal((await req(path)).status,401);await pool.query('UPDATE app_users SET active=true WHERE id=$1',[actor.internalUserId]);
   }finally{await new Promise<void>((done,reject)=>server.close(error=>error?reject(error):done()));}
  });

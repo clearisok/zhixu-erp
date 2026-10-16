@@ -1,3 +1,5 @@
+2026-10-17 当前规则以 [订单业务来源](ORDER_BUSINESS_SOURCE.md) / D-144 为准：取消负责人、认领、合同前准备及公开归一操作；旧记录保留。合同后维护来自报价或来自翻单，加工独立入口保持。以下旧日期内容为历史实现与证据。
+
 # 加工下单批次（Gate3）
 
 核实日期：2026-10-14。最近核实main：064e3afaf7d08b3cb62907d4402f97d9c292f1e5；本地分支feat/processing-order-batches继承未合并Gate1/2，未刷新远端、不代表main已有本能力。实现基点ced418f99fa52eef25ebf8b86aa683b10689efd1，后续检查记录见[阶段任务](../tasks/active/processing-order-batches.md)。

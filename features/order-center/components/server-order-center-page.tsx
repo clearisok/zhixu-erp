@@ -1,7 +1,5 @@
 "use client";
 
-import {NormalizationReviewDialog} from "./normalization-review-dialog";
-import {NormalizationCaseDialog} from "./normalization-case-dialog";
 import {ProcessingBatchDialog} from "./processing-batch-dialog";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { OrderAlertTags } from "./order-alert-tags";
@@ -81,9 +79,11 @@ function lifecycleTone(
 function OrderCenterFrame({
   count,
   children,
+  actions,
 }: {
   count: string;
   children: React.ReactNode;
+  actions?: React.ReactNode;
 }) {
   return (
     <AppShell title="订单中心" identityMode="server">
@@ -94,6 +94,7 @@ function OrderCenterFrame({
           title="订单中心"
           count={count}
           description="正式订单基础视图；数据源：PostgreSQL。"
+          actions={actions}
         />
         {children}
       </PageContainer>
@@ -253,10 +254,10 @@ export function ServerOrderCenterPage() {
     },
     {
       key: "source",
-      header: "创建来源",
+      header: "业务来源",
       width: 104,
       responsivePriority: "secondary",
-      render: (item) => <><span>{creationSourceLabels[item.creationSource]}</span><small>{item.businessType==='ainuoke_contract'?(item.ownerName??'待认领'):item.businessType==='processing'?(item.ownerName??'加工类 · 待认领'):'历史类型待核实'}</small></>,
+      render: (item) => <><span>{item.businessSource==='quote'?'来自报价':item.businessSource==='reorder'?'来自翻单':'待维护'}</span><small>{item.businessType==='ainuoke_contract'?'合同类':item.businessType==='processing'?'加工类':'历史类型待核实'}</small></>,
     },
     { key: "alerts", header: "异常", width: 158, responsivePriority: "primary", render: (item) => <OrderAlertTags alerts={item.alerts} /> },
     {
@@ -344,10 +345,7 @@ export function ServerOrderCenterPage() {
   }
 
   return (
-    <OrderCenterFrame count={loadedScope===scopeKey?`${page.total} 条${query.includeHistorical?'（含历史记录）':''}`:"—"}>
-      <ProcessingBatchDialog key={serverSession.user.id} mode="import" />
-      <NormalizationCaseDialog key={"normalization-"+serverSession.user.id} />
-      <NormalizationReviewDialog key={"normalization-review-"+serverSession.user.id} />
+    <OrderCenterFrame count={loadedScope===scopeKey?`${page.total} 条${query.includeHistorical?'（含历史记录）':''}`:"—"} actions={<ProcessingBatchDialog key={serverSession.user.id} mode="import" />}>
       <div className="oc-server-source-bar">
         <span><i aria-hidden="true" />数据源：PostgreSQL</span>
         <small>Server identity：{trustedIdentity}</small>

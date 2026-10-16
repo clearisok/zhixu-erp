@@ -1,0 +1,30 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "app/order-center/order-center.css",
+    "features/order-center/components/order-business-source-button.tsx",
+    "features/order-center/components/processing-batch-dialog.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/order-center/server/sales-order-server-model.ts",
+    "features/quote-center/components/production-quote-pages.tsx",
+    "features/permissions/model/permissions.ts",
+    "features/operation-logs/model/operation-log.ts"
+  ],
+  "pages": [
+    "order-list",
+    "order-detail",
+    "quote-list",
+    "user-permissions"
+  ],
+  "visibleDifference": "取消认领/负责人/准备大卡片与归一入口；顶部维护来源侧栏分报价/翻单并展示确认条件；业务来源列和紧凑加工按钮。其余页面保持。",
+  "evidence": [
+    "docs/tasks/active/order-business-source-approved-scope-2026-10-17.md",
+    "docs/features/ORDER_BUSINESS_SOURCE.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-business-source-approved-scope-2026-10-17.md"
+  }
+}

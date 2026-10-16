@@ -1,3 +1,5 @@
+2026-10-17 当前规则以 [订单业务来源](ORDER_BUSINESS_SOURCE.md) / D-144 为准：取消负责人、认领、合同前准备及公开归一操作；旧记录保留。合同后维护来自报价或来自翻单，加工独立入口保持。以下旧日期内容为历史实现与证据。
+
 # 订单商业版本（Gate2）
 
 核实日期2026-10-14；main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5。本分支本地实现，未合并/部署/人工验收。批准规则见D-121和order-identity-program，阶段测试事实见../tasks/active/order-commercial-versions.md。

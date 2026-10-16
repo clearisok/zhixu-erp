@@ -51,7 +51,7 @@ export function ProcessingBatchDialog({mode}:{mode:'import'|'push'}){
  async function searchReferenceOrders(offset=0){const result=await orderClient.list({search:referenceSearch,offset,limit:20,sortBy:'orderNo',sortDirection:'desc'});setReferenceOptions(result.salesOrders);setReferencePage(result.page);}
  const set=(key:keyof typeof draft,value:string)=>setDraft({...draft,[key]:value});
  if(!allowed)return null;
- return <><Button variant="secondary" onClick={()=>{setOpen(true);void action(()=>load());}}>{mode==='import'?'导入加工订单':'推送加工订单'}</Button>
+ return <><Button variant="secondary" size="compact" onClick={()=>{setOpen(true);void action(()=>load());}}>{mode==='import'?'导入加工订单':'推送加工订单'}</Button>
  <Modal open={open} title={mode==='import'?'导入加工订单':'推送加工订单'} description="一次客户下单对应一个批次。同一报价可以用于不同下单；已处理批次会返回原正式订单。" onClose={()=>{if(!busy&&!pending)setOpen(false);}} footer={<><Button variant="secondary" disabled={busy||!!pending} onClick={()=>setOpen(false)}>关闭</Button>{pending?<Button disabled={busy} onClick={()=>void action(()=>mutate(pending))}>重试原请求</Button>:<Button disabled={busy||!canConsume||!Object.keys(selected).length} onClick={()=>void action(()=>mutate({path:'/consume',kind:'consume',body:{requestId:crypto.randomUUID(),items:Object.entries(selected).map(([batchId,expectedVersion])=>({batchId,expectedVersion}))}}))}>确认{mode==='import'?'导入':'推送'}所选 {Object.keys(selected).length} 项</Button>}</>}>
  <div className="qc-modal-form">
  {error&&<p role="alert">{error}</p>}{pending&&<p role="status">正在核验上次提交结果。请重试原请求，不要重复登记下单。</p>}

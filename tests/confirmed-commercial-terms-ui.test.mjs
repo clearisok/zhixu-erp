@@ -69,14 +69,14 @@ test("unlinked Quote keeps the legacy confirmation path while historical revisio
 });
 
 test("formal Order Detail uses explicit Server commercial adoption instead of direct price editing", async () => {
-  const card=await readFile("features/order-center/components/server-order-commercial-card.tsx","utf8");
-  assert.match(orderDetail,/ServerOrderCommercialCard/u);
+  const card=await readFile("features/order-center/components/order-business-source-button.tsx","utf8");
+  assert.match(orderDetail,/OrderBusinessSourceButton/u);
   assert.doesNotMatch(orderDetail,/updateBySalesOrder|编辑确认商业条款/u);
   assert.match(card,/order\.commercial\.adopt/u);
-  assert.match(card,/预览采用差异/u);assert.match(card,/确认采用/u);
-  assert.match(card,/expectedVersion:preview\.current\.version/u);
-  assert.match(card,/sourceFingerprint:preview\.candidate\.fingerprint/u);
-  assert.match(card,/pending\?\?/u);
+  assert.match(card,/预览来源与价格/u);assert.match(card,/确认维护来源/u);
+  assert.match(card,/expectedVersion:preview\.current\.commercial\.version/u);
+  assert.match(card,/fingerprint:preview\.fingerprint/u);
+  assert.match(card,/save\(pending\)/u);
   assert.doesNotMatch(card,/localStorage|mockQuoteRepository|orderRepository/u);
 });
 

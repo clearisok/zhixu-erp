@@ -493,3 +493,10 @@
 
 /* SO/BillNo now have one header location and must remain available on mobile. */
 .oc-server-detail-page .qc-page-header[data-variant="list"] .qc-page-identity p { display: flex; }
+.oc-business-source-drawer { width: min(680px, 100vw); }
+.oc-business-source-form { display: grid; gap: 16px; border: 0; margin: 20px 0 0; padding: 0; min-width: 0; }
+.oc-business-source-form p { margin: 0; color: var(--qc-text-muted, #697a73); line-height: 1.6; }
+.oc-business-source-form > button { justify-self: start; }
+.oc-business-source-search { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.oc-business-source-search input { min-width: 0; flex: 1; }
+.oc-business-source-search button { flex: 0 0 auto; }

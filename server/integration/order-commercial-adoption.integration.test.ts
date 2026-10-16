@@ -107,17 +107,17 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
   try{
    const headers={Origin:origin,'Content-Type':'application/json','X-Zhixu-Request':'1'};
    const login=await fetch(base+'/api/v1/auth/login',{method:'POST',headers,body:JSON.stringify({username:'adopter',password:'synthetic'})});assert.equal(login.status,200);const cookie=login.headers.get('set-cookie')!.split(';')[0];
-   const id=await order(),path='/api/v1/sales-orders/'+id+'/commercial-versions';
+   const id=await order(),path='/api/v1/sales-orders/'+id+'/business-source';
    const req=(url:string,method='GET',body?:object,extra:Record<string,string>={})=>fetch(base+url,{method,headers:{...headers,Cookie:cookie,...extra},...(body?{body:JSON.stringify(body)}:{})});
    assert.equal((await fetch(base+path)).status,401);
    const cutover=await req('/api/v1/order-commercial-cutover-preview','POST',{salesOrderIds:[id]});assert.equal(cutover.status,200);assert.equal(cutover.headers.get('cache-control'),'no-store');assert.equal((await cutover.json()).databaseWrites,'none');
 
    assert.equal((await req(path+'?salePrice=999')).status,400);
-   assert.equal((await req(path+'/preview','POST',source,{Origin:'http://evil.invalid'})).status,403);
-   assert.equal((await req(path+'/preview','POST',{...source,salePrice:'999'})).status,400);
-   const preview=await req(path+'/preview','POST',source);assert.equal(preview.status,200);const data=await preview.json();assert.equal(data.candidate.sale.value.price,'140');assert.equal(data.candidate.salePrice,undefined);
-   const cmd={...source,requestId:randomUUID(),expectedVersion:0,sourceFingerprint:data.candidate.fingerprint,reason:'adopt 140'};
-   const adopted=await req(path,'POST',cmd);assert.equal(adopted.status,200);assert.equal((await adopted.json()).adopted.sale.value.price,'140');
+   assert.equal((await req(path+'/preview','POST',{kind:'quote',...source},{Origin:'http://evil.invalid'})).status,403);
+   assert.equal((await req(path+'/preview','POST',{kind:'quote',...source,salePrice:'999'})).status,400);
+   const preview=await req(path+'/preview','POST',{kind:'quote',...source});assert.equal(preview.status,200);const data=await preview.json();assert.equal(data.candidate.sale.value.price,'140');assert.equal(data.candidate.salePrice,undefined);
+   const cmd={selection:{kind:'quote',...source},requestId:randomUUID(),expectedVersion:0,fingerprint:data.fingerprint,reason:'adopt 140'};
+   const adopted=await req(path,'POST',cmd);assert.equal(adopted.status,200);assert.ok((await adopted.json()).commercialVersionId);
    assert.equal((await req(path,'POST',cmd)).status,200);
    const legacy='/api/v1/sales-orders/'+id+'/confirmed-commercial-terms';
    const legacyRead=await req(legacy);assert.equal(legacyRead.status,200);const legacyBody=await legacyRead.json();assert.equal(legacyBody.confirmedCommercialTerms.scope,'sales_order');assert.equal(legacyBody.confirmedCommercialTerms.current.sale.value.price,'140');
@@ -126,8 +126,8 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
 
    await pool.query("DELETE FROM app_role_permissions WHERE role_id='adoption-test' AND permission_key IN ('commercial.sale.view','commercial.labor.view')");
    try{
-    const restricted=await req(path);assert.equal(restricted.status,200);assert.equal(restricted.headers.get('cache-control'),'no-store');const body=await restricted.json();assert.equal(body.current.sale.visibility,'restricted');assert.equal(body.current.labor.visibility,'restricted');assert.equal(body.current.reason,undefined);assert.equal(body.current.salePrice,undefined);assert.equal(body.current.laborPrice,undefined);
-    assert.equal((await req(path+'/preview','POST',source)).status,403);assert.equal((await req(path,'POST',cmd)).status,403);
+    const restricted=await req(path);assert.equal(restricted.status,200);assert.equal(restricted.headers.get('cache-control'),'no-store');const body=await restricted.json();assert.equal(body.commercial.current.sale.visibility,'restricted');assert.equal(body.commercial.current.labor.visibility,'restricted');assert.equal(body.commercial.current.reason,undefined);assert.equal(body.commercial.current.salePrice,undefined);assert.equal(body.commercial.current.laborPrice,undefined);
+    assert.equal((await req(path+'/preview','POST',{kind:'quote',...source})).status,403);assert.equal((await req(path,'POST',cmd)).status,403);
    }finally{await pool.query("INSERT INTO app_role_permissions VALUES('adoption-test','commercial.sale.view'),('adoption-test','commercial.labor.view')");}
   }finally{await new Promise<void>((done,reject)=>server.close(e=>e?reject(e):done()));}
  });

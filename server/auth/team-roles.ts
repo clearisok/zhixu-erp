@@ -9,7 +9,7 @@ export const TEAM_ROLES = [
   { id: "role-team-material-manager", name: "物控经理", description: "订单、物料与来源采购只读；维护团队辅料排列", permissions: [...shared, "style_progress.settings.edit"] },
   { id: "role-team-production-manager", name: "生产经理", description: "订单、物料与确认工价只读；排产写入另行开放", permissions: [...shared, "commercial.labor.view"] },
   { id: "role-team-finance-manager", name: "财务经理", description: "业务与金额只读、导出；关账写入另行开放", permissions: [...shared, ...moneyRead, "quote.export", "audit_log.view"] },
-  { id: "role-team-merchandising-manager", name: "跟单经理", description: "订单认领、血统、翻单准备及订单商业版本采用；不修改报价确认金额", permissions: [...shared, "order.claim", "order.lineage.edit", "order.preparation.create", "order.commercial.adopt", "commercial.sale.view", "commercial.labor.view"] },
+  { id: "role-team-merchandising-manager", name: "跟单经理", description: "维护订单业务来源及采用确认条件；不修改报价确认金额", permissions: [...shared, "order.claim", "order.lineage.edit", "order.preparation.create", "order.commercial.adopt", "commercial.sale.view", "commercial.labor.view"] },
 ] satisfies { id: string; name: string; description: string; permissions: PermissionKey[] }[];
 
 export const TEAM_ROLE_IDS = TEAM_ROLES.map(role => role.id);

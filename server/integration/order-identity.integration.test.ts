@@ -56,19 +56,19 @@ test('order identity isolated domain', {timeout:180000},async t=>{
    assert.equal((await req(path+'?actor=spoof')).status,400);
    assert.equal((await req(path,'PATCH',{action:'claim',expectedVersion:0},{Origin:'http://evil.invalid'})).status,403);
    assert.equal((await req(path,'PATCH',{action:'claim',expectedVersion:0},{'X-Zhixu-Request':'0'})).status,403);
-   assert.equal((await req(path,'PATCH',{action:'claim',expectedVersion:0,creationSource:'ainuoke'})).status,400);
-   assert.equal((await req(path,'PATCH',{action:'claim',expectedVersion:0})).status,200);
-   assert.equal((await req(path,'PATCH',{action:'claim',expectedVersion:0})).status,409);
+   assert.equal((await req(path,'PATCH',{action:'claim',expectedVersion:0,creationSource:'ainuoke'})).status,410);
+   assert.equal((await req(path,'PATCH',{action:'claim',expectedVersion:0})).status,410);
+   assert.equal((await req(path,'PATCH',{action:'claim',expectedVersion:0})).status,410);
    assert.equal((await req('/api/v1/sales-orders','POST',{creationSource:'quote'})).status,404);
    assert.equal((await req('/api/v1/quotes/fake/sales-orders','POST',{creationSource:'ainuoke'})).status,404);
    assert.equal((await req('/api/v1/order-preparations?referenceOrderId='+id+'&offset=NaN')).status,400);
    assert.equal((await req('/api/v1/order-preparations?referenceOrderId='+id+'&offset=0&offset=20')).status,400);
-   assert.equal((await req('/api/v1/order-claimants')).status,200);
+   assert.equal((await req('/api/v1/order-claimants')).status,410);
    const preparation={requestId:randomUUID(),referenceOrderId:id,quantity:'42',deliveryDate:null,specificationChanges:'synthetic'};
-   assert.equal((await req('/api/v1/order-preparations','POST',preparation)).status,200);
-   const list=await req('/api/v1/order-preparations?referenceOrderId='+id);assert.equal(list.headers.get('cache-control'),'no-store');assert.equal((await list.json()).items[0].quantity,'42');
+   assert.equal((await req('/api/v1/order-preparations','POST',preparation)).status,410);
+   const list=await req('/api/v1/order-preparations?referenceOrderId='+id);assert.equal(list.headers.get('cache-control'),'no-store');assert.deepEqual((await list.json()).items,[]);
    await pool.query("DELETE FROM app_role_permissions WHERE role_id='identity-test' AND permission_key='order.transfer'");
-   assert.equal((await req('/api/v1/order-claimants')).status,403);
+   assert.equal((await req('/api/v1/order-claimants')).status,410);
    await pool.query("INSERT INTO app_role_permissions VALUES('identity-test','order.transfer')");
   }finally{await new Promise<void>((done,reject)=>server.close(e=>e?reject(e):done()));}
  });

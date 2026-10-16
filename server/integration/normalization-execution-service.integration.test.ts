@@ -177,9 +177,9 @@ test('normalization execution and correction are authorized, atomic and historic
   const c=await pair();const p=await prepare(c);const origin='http://synthetic-noauth.invalid';
   const server=createServer(createApp({pool,allowedOrigins:[origin],identityAuthority:{mode:'local-single-user',resolve:async()=>admin,verify:async()=>undefined},normalizationExecution:{coverage,permit:p.permit}}));
   await new Promise<void>(done=>server.listen(0,'127.0.0.1',done));const address=server.address();assert.ok(address&&typeof address==='object');
-  try{const response=await fetch('http://127.0.0.1:'+address.port+'/api/v1/order-normalization-cases/'+c.caseId+'/execute',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(p.command)});assert.equal(response.status,503);assert.equal((await response.json()).error.code,'normalization_requires_session_authority');assert.equal(await changes(c.caseId),0);}finally{await new Promise<void>((done,reject)=>server.close(error=>error?reject(error):done()));}
+  try{const response=await fetch('http://127.0.0.1:'+address.port+'/api/v1/order-normalization-cases/'+c.caseId+'/execute',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(p.command)});assert.equal(response.status,410);assert.equal((await response.json()).error.code,'order_workflow_retired');assert.equal(await changes(c.caseId),0);}finally{await new Promise<void>((done,reject)=>server.close(error=>error?reject(error):done()));}
  });
- await t.test('HTTP boundaries default disabled, role-specific review and private receipt protect against bypass',async()=>{
+ await t.test('retired HTTP execution cannot be enabled by permits; historical private receipts remain protected',async()=>{
   const c=await pair('quote');const p=await prepare(c);const origin='http://synthetic-normalization.invalid';
   const start=async(enabled:boolean)=>{const server=createServer(createApp({pool,allowedOrigins:[origin],security:{secureCookies:false,sessionTtlSeconds:3600},normalizationExecution:enabled?{coverage,permit:p.permit}:{coverage}}));await new Promise<void>(done=>server.listen(0,'127.0.0.1',done));const address=server.address();assert.ok(address&&typeof address==='object');return {server,base:'http://127.0.0.1:'+address.port};};
   const app=await start(true),disabled=await start(false);
@@ -191,10 +191,10 @@ test('normalization execution and correction are authorized, atomic and historic
    assert.equal((await request(app.base,'/execute',adminCookie,p.command,{Origin:'http://evil.invalid'})).status,403);
    assert.equal((await request(app.base,'/execute',adminCookie,p.command,{'X-Zhixu-Request':'0'})).status,403);
    assert.equal((await request(app.base,'/execute',viewerCookie,p.command)).status,403);
-   assert.equal((await request(disabled.base,'/execute',adminCookie,p.command)).status,503);
-   assert.equal((await request(app.base,'/execute',adminCookie,{...p.command,verified:true})).status,400);
-   const raw={...p.command,reviewType:'production',decision:'approve',reason:'Synthetic HTTP review'};assert.equal((await request(app.base,'/reviews',adminCookie,raw)).status,403);assert.equal((await request(app.base,'/reviews',prodCookie,raw)).status,200);
-   const response=await request(app.base,'/execute',adminCookie,p.command);assert.equal(response.status,200);const receipt=(await response.json()).changeId;
+   assert.equal((await request(disabled.base,'/execute',adminCookie,p.command)).status,410);
+   assert.equal((await request(app.base,'/execute',adminCookie,{...p.command,verified:true})).status,410);
+   const raw={...p.command,reviewType:'production',decision:'approve',reason:'Synthetic HTTP review'};assert.equal((await request(app.base,'/reviews',adminCookie,raw)).status,410);assert.equal((await request(app.base,'/reviews',prodCookie,raw)).status,410);
+   const response=await request(app.base,'/execute',adminCookie,p.command);assert.equal(response.status,410);assert.equal(await changes(c.caseId),0);await approve(c,p,'production');const receipt=(await executeAttributionChange(pool,admin,c.caseId,p.command,{coverage,permit:p.permit})).changeId;
    const observed=await fetch(app.base+'/api/v1/order-attribution-receipts/'+p.command.requestId,{headers:{Cookie:adminCookie}});assert.equal(observed.status,200);assert.equal((await observed.json()).changeId,receipt);
    assert.equal((await fetch(app.base+'/api/v1/order-attribution-receipts/'+p.command.requestId,{headers:{Cookie:prodCookie}})).status,403);
   }finally{for(const server of [app.server,disabled.server])await new Promise<void>((done,reject)=>server.close(error=>error?reject(error):done()));}

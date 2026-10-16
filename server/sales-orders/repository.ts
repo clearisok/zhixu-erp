@@ -48,6 +48,7 @@ type ReadModelRow = SalesOrderRow & {
   colors: SalesOrderDetailReadModel["colors"];
   business_type: "ainuoke_contract"|"processing"|"unclassified";
   owner_name:string|null;
+  business_source: "quote"|"reorder"|null;
   sales_contract_no: string | null;
   inside_order_no: string | null;
   lifecycle_status_raw: string | null;
@@ -139,7 +140,7 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
     insideOrderNo: row.inside_order_no,
     sourceLifecycleStatus: row.lifecycle_status_raw ?? "",
     businessType:row.business_type,
-    ownerName:row.owner_name,
+    businessSource:row.business_source??null,
     styleNo: row.style_no ?? "",
     companyName: row.company_name_snapshot ?? "",
     customerName: row.customer_name_snapshot ?? "",
@@ -165,13 +166,14 @@ function readModelFrom(includeIdentity:boolean,attributed:boolean):string {
  ${includeIdentity?PROCESSING_READ_JOINS:''}
  ${includeIdentity?'LEFT JOIN sales_order_identity_profiles profile ON profile.sales_order_id=so.id LEFT JOIN app_users owner_user ON owner_user.id=profile.owner_id':''}`;
 }
-function readModelSelect(includeIdentity:boolean,attributed:boolean,colors=false):string {
+function readModelSelect(includeIdentity:boolean,attributed:boolean,colors=false,businessSource=false):string {
  const trusted="mirror.source_id=sl.external_id AND mirror.sales_contract_no=sl.sales_contract_no";
  const contract=`CASE WHEN (${trusted}) AND (so.creation_source='ainuoke'${attributed?" OR (attribution.attribution_change_id IS NOT NULL AND attribution.effective_order_id=so.id)":''}) THEN 'ainuoke_contract' ELSE 'unclassified' END`;
  const businessType=includeIdentity?`CASE WHEN profile.business_type='processing' AND processing_batch.id IS NOT NULL THEN 'processing' WHEN (${contract})='ainuoke_contract' THEN 'ainuoke_contract' ELSE 'unclassified' END`:contract;
  const owner=sourceOwnerSql(attributed);
  return `SELECT so.*,${businessType} AS business_type,
- ${includeIdentity?'owner_user.display_name':'NULL::text'} AS owner_name,
+ NULL::text AS owner_name,
+ ${businessSource?"(SELECT s.kind FROM sales_order_commercial_heads h JOIN sales_order_business_source_snapshots s ON s.commercial_version_id=h.current_version_id WHERE h.sales_order_id=so.id)":'NULL::text'} AS business_source,
  ${attributed?'attribution.effective_order_id':'so.id'}::text AS effective_order_id,
  ${attributed?'attribution.attribution_change_id::text':'NULL::text'} AS attribution_change_id,
  ${attributed?'attribution.attribution_version':'0'} AS attribution_version,${owner}::text AS source_owner_order_id,
@@ -320,7 +322,7 @@ export async function getSalesOrderBySalesContractNo(
 ): Promise<SalesOrderReadModel | null> {
   const attributed=await supportsEffectiveAttribution(client);
   const result = await client.query<ReadModelRow>(
-    `${readModelSelect(true,attributed)}
+    `${readModelSelect(true,attributed,false,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)}
      WHERE sl.source_system = 'ainuoke'
        AND sl.source_entity_type = 'sales_contract'
        AND upper(btrim(sl.sales_contract_no)) = $1 ${attributed?'AND attribution.effective_order_id=so.id':''}`,
@@ -455,7 +457,7 @@ export async function listSalesOrders(
   const limit = addValue(options.limit);
   const offset = addValue(options.offset);
   const result = await client.query<ReadModelRow>(
-    `${readModelSelect(true,attributed)}
+    `${readModelSelect(true,attributed,false,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)}
      ${whereSql}
      ORDER BY ${sortColumn} ${sortDirection} NULLS LAST, so.order_no ASC, so.id ASC
      LIMIT ${limit} OFFSET ${offset}`,
@@ -475,7 +477,7 @@ export function getFoundationSalesOrderById(client: Queryable,id:string):Promise
 async function readSalesOrderDetail(client:Queryable,id:string,includeIdentity:boolean):Promise<SalesOrderDetailReadModel|null>{
   const attributed=await supportsEffectiveAttribution(client);
   try {
-    const result=await client.query<ReadModelRow>(`${readModelSelect(includeIdentity,attributed,true)} WHERE so.id=$1::uuid`,[id]);
+    const result=await client.query<ReadModelRow>(`${readModelSelect(includeIdentity,attributed,true,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)} WHERE so.id=$1::uuid`,[id]);
     const row=result.rows[0];return row?{...mapReadModel(row),colors:row.colors}:null;
   }catch(error){if((error as {code?:string}).code==='22P02')return null;throw error;}
 }

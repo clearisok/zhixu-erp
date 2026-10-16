@@ -1,3 +1,5 @@
+2026-10-17 当前规则以 [订单业务来源](ORDER_BUSINESS_SOURCE.md) / D-144 为准：取消负责人、认领、合同前准备及公开归一操作；旧记录保留。合同后维护来自报价或来自翻单，加工独立入口保持。以下旧日期内容为历史实现与证据。
+
 # 历史重复订单复核与归一
 
 核实2026-10-15；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；本地feat/order-effective-attribution，依赖未合并G1–G3。GitHub是实时事实源，本文为阶段快照。随API/schema/权限/测试、main/PR或授权变化更新。

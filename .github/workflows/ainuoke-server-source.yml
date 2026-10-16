@@ -31,6 +31,7 @@ jobs:
           npm run test:ainuoke-server-source
           npm run test:order-identity
           npm run test:order-commercial
+          npm run test:order-business-source
           npm run test:processing-batches
           npm run test:order-normalization
           npm run test:order-effective-attribution
@@ -75,13 +76,9 @@ jobs:
       - name: Existing P6 pages, six roles and persisted refresh in private Chromium
         run: |
           npm run test:ainuoke-continuous-ui
-          npm run test:order-identity-ui
-          npm run test:order-commercial-ui
           npm run test:processing-batches-ui
-          npm run test:order-normalization-ui
+          npm run test:order-business-source-ui
           npm run test:material-history-ui
-          npm run test:normalization-review-ui
-          npm run test:order-preparation-ui
           npx --no-install tsx --test server/integration/material-display-ui.integration.test.mjs
           npm run test:ainuoke-payment-panel-ui
       - name: Python fixed catalog and transport boundaries

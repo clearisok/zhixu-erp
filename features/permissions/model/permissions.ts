@@ -128,7 +128,7 @@ export const PERMISSION_DEFINITIONS: PermissionDefinition[] = [
   define("order.cancel", "订单", "取消订单", "执行订单部分或全部取消"),
   define("order.claim", "订单", "认领合同订单", "认领合同订单；不授权真实来源接纳或商业金额修改"),
   define("order.transfer", "订单", "转交订单负责人", "转交订单负责人；不授权真实来源接纳或商业金额修改"),
-  define("order.lineage.edit", "订单", "维护订单血统", "维护订单血统；不授权真实来源接纳或商业金额修改"),
+  define("order.lineage.edit", "订单", "维护订单业务来源", "选择来自报价或来自翻单；采用确认价格仍需独立权限"),
   define("order.processing.batch.manage", "订单", "管理加工下单批次", "登记、确认及取消未消费的加工下单批次"),
   define("order.processing.consume", "订单", "创建加工正式订单", "从已确认加工批次导入或推送正式订单"),
   define("order.commercial.adopt", "订单", "采用订单商业版本", "显式采用已确认报价价格；不授权修改报价确认金额或测算成本"),

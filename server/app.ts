@@ -1,4 +1,5 @@
 import {supportsPreparationAdoption} from './sales-orders/preparation-source.js';
+import {readOrderBusinessSource,previewOrderBusinessSource,adoptOrderBusinessSource} from './sales-orders/business-source-service.js';
 import {adoptOrderPreparation,listPreparationCandidates,readPreparationAdoptions,readPreparationAdoptionReceipt,parsePreparationCandidateQuery,readPreparationsByReference,readOrderPreparationCreationReceipt} from './sales-orders/preparation-adoption.js';
 import {readNormalizationReviewCapabilities,listNormalizationReviewInbox,parseReviewInboxQuery,readNormalizationProposalContext,readPublishedNormalizationProposal,listNormalizationReviewHistory,parseReviewHistoryQuery} from './sales-orders/normalization-review-workspace.js';
 import {parseMaterialHistoryQuery,type MaterialHistoryReader} from './ainuoke-source/history.js';
@@ -621,6 +622,40 @@ async function route(
       });
       sendJson(response, 200, { quote });
     } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
+
+  // Retired user workflows remain readable for history; callers cannot revive them
+  // through an old page or direct HTTP request. No stored history is deleted.
+  const retiredOrderWrite=!['GET','HEAD','OPTIONS'].includes(request.method??'')&&(
+    /^\/api\/v1\/sales-orders\/[^/]+\/(identity|preparation-adoptions)$/.test(path)
+    ||path==='/api/v1/order-preparations'
+    ||/^\/api\/v1\/order-normalization-cases(?:\/.*)?$/.test(path)
+    ||/^\/api\/v1\/order-normalization-workspace(?:\/.*)?$/.test(path)
+    ||/^\/api\/v1\/sales-orders\/[^/]+\/commercial-versions(?:\/preview)?$/.test(path));
+  if(retiredOrderWrite||path==='/api/v1/order-claimants'){
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    requirePermission(identity.permissions,'order.view');
+    if(retiredOrderWrite)assertMutationBoundary(request,dependencies.allowedOrigins);
+    throw new HttpError(410,'order_workflow_retired','Use order business source maintenance; ownership, preparations and normalization operations are retired');
+  }
+  const businessSourceMatch=/^\/api\/v1\/sales-orders\/([^/]+)\/business-source(?:\/(preview))?$/.exec(path);
+  if(businessSourceMatch){
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    requirePermission(identity.permissions,'order.view');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');
+    if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_business_source_query','No query selectors');
+    response.setHeader('Cache-Control','no-store');
+    const id=requiredPathIdentity(businessSourceMatch[1],'salesOrderId');
+    if(request.method==='GET'&&!businessSourceMatch[2])sendJson(response,200,await readOrderBusinessSource(dependencies.pool,identity,id));
+    else if(request.method==='POST'){
+      assertMutationBoundary(request,dependencies.allowedOrigins);
+      const body=await readJsonBody(request,8192);
+      if(businessSourceMatch[2])sendJson(response,200,await previewOrderBusinessSource(dependencies.pool,identity,id,body));
+      else {await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);sendJson(response,200,await adoptOrderBusinessSource(dependencies.pool,identity,id,body));}
+    }else throw new HttpError(405,'method_not_allowed','Method not allowed');
     return;
   }
 

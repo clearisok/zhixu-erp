@@ -132,7 +132,7 @@ test("formal detail exposes independent Server adoption while blocked Browser fi
     "customerRequirement",
     "processDescription",
   ]) assert.doesNotMatch(detailSource, new RegExp(blocked, "iu"));
-  assert.match(detailSource, /ServerOrderCommercialCard/u);
+  assert.match(detailSource, /OrderBusinessSourceButton/u);
   assert.doesNotMatch(detailSource, /confirmedCommercialTermsServerClient\.updateBySalesOrder/u);
   assert.doesNotMatch(detailSource, /orderRepository|OrderPriceVersion|salePrice|processingUnitPrice/u);
   assert.doesNotMatch(detailSource, /\.(?:saveAll|deleteSalesOrder|removeSalesOrder|updateSalesOrder|createSalesOrder|cancelSalesOrder)\s*\(/u);

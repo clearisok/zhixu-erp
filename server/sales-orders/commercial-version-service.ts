@@ -1,4 +1,5 @@
 import {orderCommandControlError} from './command-control.js';
+import {appendBusinessSourceSnapshot,quoteProductSnapshot,type BusinessSourceSnapshot} from './product-snapshot.js';
 import {lockEffectiveAttribution,requireEffectiveOrderForWrite} from './effective-attribution.js';
 import {createHash} from 'node:crypto';
 import type {Pool,PoolClient} from 'pg';
@@ -69,9 +70,14 @@ export async function adoptOrderCommercial(pool:Pool,actor:TrustedIdentity,order
 }
 
 /** Internal transaction primitive. Caller must authorize and lock the business command. */
-export async function appendCommercialVersion(client:PoolClient,input:{orderId:string;version:number;actorId:string;requestId:string;payloadHash:string;candidate:CommercialCandidate;reason:string}):Promise<{id:string}>{
+export async function appendCommercialVersion(client:PoolClient,input:{orderId:string;version:number;actorId:string;requestId:string;payloadHash:string;candidate:CommercialCandidate;reason:string;businessSource?:BusinessSourceSnapshot}):Promise<{id:string}>{
  const {orderId,version,actorId,requestId,payloadHash,candidate,reason}=input;
   const row=(await client.query(`INSERT INTO sales_order_commercial_versions(sales_order_id,version,actor_id,request_id,payload_hash,quote_id,revision_id,price_version_id,source_quote_version,source_kind,source_cct_id,source_cct_version,source_confirmed_at,source_fingerprint,quote_type,confirmed_sale_price,confirmed_labor_price,labor_currency,reason) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19) RETURNING id::text`,[orderId,version,actorId,requestId,payloadHash,candidate.quoteId,candidate.revisionId,candidate.priceVersionId,candidate.quoteVersion,candidate.sourceKind,candidate.sourceCctId,candidate.sourceCctVersion,candidate.sourceConfirmedAt,candidate.fingerprint,candidate.quoteType,candidate.salePrice,candidate.laborPrice,candidate.laborCurrency,reason])).rows[0];
   await client.query('INSERT INTO sales_order_commercial_heads(sales_order_id,current_version_id,version) VALUES($1,$2,$3) ON CONFLICT(sales_order_id) DO UPDATE SET current_version_id=EXCLUDED.current_version_id,version=EXCLUDED.version',[orderId,row.id,version]);
+  // Historical migration rehearsals may intentionally predate 0027. Current servers
+  // verify the complete migration set before listening; no historical backfill.
+  if((await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL AS ready")).rows[0].ready){
+   await appendBusinessSourceSnapshot(client,orderId,row.id,input.businessSource??await quoteProductSnapshot(client,candidate));
+  }
  return row;
 }

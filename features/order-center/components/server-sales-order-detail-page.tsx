@@ -1,7 +1,6 @@
 "use client";
 import { MaterialHistoryDialog } from "./material-history-dialog";
-import { ServerOrderCommercialCard } from "./server-order-commercial-card";
-import { ServerOrderIdentityCard } from "./server-order-identity-card";
+import { OrderBusinessSourceButton } from "./order-business-source-button";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { OrderMaterialSummary } from '@/features/ainuoke-material-progress/order-material-summary';
@@ -64,11 +63,13 @@ function ServerDetailFrame({
   children,
   onRequestNavigation,
   onRequestLogout,
+  sourceAction,
 }: {
   detail: OrderCenterServerDetailViewModel | null;
   children: React.ReactNode;
   onRequestNavigation?: (target:string)=>void;
   onRequestLogout?: () => Promise<void>;
+  sourceAction?: React.ReactNode;
 }) {
   return (
     <AppShell title="正式订单详情" backTarget={{href:"/order-center",label:"返回订单列表"}} identityMode="server" onRequestNavigation={onRequestNavigation} onRequestLogout={onRequestLogout}>
@@ -81,6 +82,7 @@ function ServerDetailFrame({
             ? <><strong>{detail.orderNo}</strong><span>{detail.businessType==='processing'?" · 加工订单":` · BillNo ${detail.billNo ?? "—"}`}</span></>
             : "从 PostgreSQL 读取权威订单与艾诺科来源事实。"}
           status={detail ? <StatusTag tone={lifecycleTone(detail.lifecycleState)}>{lifecycleLabels[detail.lifecycleState]}</StatusTag> : undefined}
+          actions={sourceAction}
         />
         {children}
       </PageContainer>
@@ -93,13 +95,13 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   const router=useRouter();
   const [preparationGuard,setPreparationGuard]=useState(false),[navigationNotice,setNavigationNotice]=useState('');
   const updatePreparationGuard=useCallback((blocked:boolean)=>{setPreparationGuard(blocked);if(!blocked)setNavigationNotice('');},[]);
-  const requestNavigation=useCallback((target:string)=>{if(preparationGuard){setNavigationNotice('还有未确认的准备请求，请先核对回执，或选择稍后核对以保留原请求。');return;}router.push(target);},[preparationGuard,router]);
+  const requestNavigation=useCallback((target:string)=>{if(preparationGuard){setNavigationNotice('来源维护尚未完成，请先保存或关闭维护来源。');return;}router.push(target);},[preparationGuard,router]);
   useEffect(()=>{if(!preparationGuard)return;const protect=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',protect);return()=>window.removeEventListener('beforeunload',protect);},[preparationGuard]);
   const salesOrderId = searchParams.get("id")?.normalize("NFKC").trim() ?? "";
   const serverSession = useServerSession();
   const requestLogout = async () => {
     if (preparationGuard) {
-      setNavigationNotice('还有未确认的准备请求，请先核对回执，或选择稍后核对以保留原请求，再退出登录。');
+      setNavigationNotice('来源维护尚未完成，请先保存或关闭维护来源，再退出登录。');
       return;
     }
     await serverSession.logout();
@@ -202,7 +204,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   if (loadedScope !== scopeKey) return <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={null}><LoadingState label="读取 PostgreSQL 正式订单详情" /></ServerDetailFrame>;
 
   return (
-    <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={detail}>
+    <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={detail} sourceAction={detail?<OrderBusinessSourceButton key={'source-'+scopeKey} orderId={salesOrderId} businessType={detail.businessType} readOnly={Boolean(detail.attribution?.historicalDuplicate)||['completed','cancelled'].includes(detail.lifecycleState)} onGuardChange={updatePreparationGuard}/>:undefined}>
 
       {navigationNotice&&<AlertBanner tone="warning" title={navigationNotice}/> }
       {loading ? (
@@ -214,7 +216,6 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
       ) : detail ? (
         <div className="oc-server-detail-content">
           {detail.attribution?.historicalDuplicate&&<AlertBanner tone="warning" title="历史重复订单 · 原身份与记录保留" actions={<a className="qc-button qc-button-secondary" href={`/order-center/server-detail?id=${encodeURIComponent(detail.attribution.effectiveOrderId)}`}>查看有效订单</a>}>此单不再接收新的执行、认领或价格采用。原合同、商业版本和历史流水保持。</AlertBanner>}
-          <ServerOrderIdentityCard key={'identity-'+scopeKey} orderId={salesOrderId} historical={detail.attribution?.historicalDuplicate} onGuardChange={updatePreparationGuard} />
           <Card className="oc-server-detail-section oc-server-detail-zhixu oc-server-detail-overview">
             <header><div><h2>订单概况</h2></div><span>来源权威 · 不可编辑</span></header>
             <DescriptionList columns={3} compact items={[
@@ -274,7 +275,6 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
               </div>
             </details>
           </Card>
-          <ServerOrderCommercialCard key={'commercial-'+scopeKey} orderId={salesOrderId} historical={detail.attribution?.historicalDuplicate} frozen={["completed","cancelled"].includes(detail.lifecycleState)} />
         </div>
       ) : (
         <EmptyState title="未读取到正式订单详情" />

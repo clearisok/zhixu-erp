@@ -104,10 +104,10 @@ test('operator pause drains new commands without destroying synthetic orders or 
    assert.equal((await call('/api/v1/order-command-state?mode=enabled')).status,400);
    const state=await call('/api/v1/order-command-state');assert.equal(state.status,200);assert.equal((await state.json()).mode,'frozen');assert.equal(state.headers.get('cache-control'),'no-store');
    for(const path of ['/api/v1/sales-orders','/api/v1/sales-orders/'+order,'/api/v1/sales-orders/'+order+'/commercial-versions'])assert.equal((await call(path)).status,200);
-   assert.equal((await call('/api/v1/sales-orders/'+order+'/commercial-versions/preview','POST',provenance)).status,200);
-   for(const [path,body] of [['/api/v1/sales-orders/'+order+'/commercial-versions',{...adoption,requestId:randomUUID(),expectedVersion:1}],['/api/v1/processing-order-batches/consume',{requestId:randomUUID(),items:[{batchId:randomUUID(),expectedVersion:1}]}],['/api/v1/order-normalization-cases/'+caseId+'/execute',{}]] as const){const result=await call(path,'POST',body);assert.equal(result.status,503);assert.equal((await result.json()).error.code,'order_commands_frozen');}
+   assert.equal((await call('/api/v1/sales-orders/'+order+'/business-source/preview','POST',{kind:'quote',...provenance})).status,200);
+   for(const [path,body] of [['/api/v1/sales-orders/'+order+'/business-source',{selection:{kind:'quote',...provenance}}],['/api/v1/processing-order-batches/consume',{requestId:randomUUID(),items:[{batchId:randomUUID(),expectedVersion:1}]}]] as const){const result=await call(path,'POST',body);assert.equal(result.status,503);assert.equal((await result.json()).error.code,'order_commands_frozen');}
    await pause('enabled','Synthetic operator reopens after verification');assert.equal((await readOrderCommandState(pool,actor,'frozen')).mode,'frozen');
-   const result=await call('/api/v1/sales-orders/'+order+'/commercial-versions','POST',{...adoption,requestId:randomUUID(),expectedVersion:1});assert.equal(result.status,503);assert.equal((await result.json()).error.code,'order_commands_frozen');
+   const result=await call('/api/v1/sales-orders/'+order+'/business-source','POST',{...adoption,requestId:randomUUID(),expectedVersion:1});assert.equal(result.status,503);assert.equal((await result.json()).error.code,'order_commands_frozen');
   }finally{server.closeAllConnections();await new Promise<void>(done=>server.close(()=>done()));}
  });
  await t.test('a pause waits for a specific in-flight transaction then prevents new writers',async()=>{

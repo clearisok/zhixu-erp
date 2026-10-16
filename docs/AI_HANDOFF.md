@@ -1,13 +1,9 @@
-# 当前恢复点：两合同隔离演示执行已完成
+# 恢复点：订单业务来源候选收口
 
-核实2026-10-16；main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。同一ainuoke-live-readiness树、feat/ainuoke-selected-source-once，开始时clean/HEAD `0dfd51e798768530d1e6134e6019f57b39645197`、唯一依赖草稿PR116；不重建工作树、不重复PR、不自动合并。原接力逐字归档 [执行前 AI_HANDOFF](tasks/completed/2026-10-16-before-selected-demo-execution-ai_handoff.md)。先读CURRENT_STATE、[执行报告](tasks/completed/2026-10-16-selected-demo-execution.md)、[冻结证据](tasks/completed/evidence/2026-10-16-selected-demo-execution.json)，不要沿用旧“0真实操作/尚未授权”结论。
+2026-10-17 / main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。实际树ainuoke-live-readiness/zhixu-ainuoke-api，分支feat/order-business-source，从clean ac620305af04cf8f8d8ad5ec5f254a68a6ccdd04开始，当前修改均为本阶段。旧接力逐字保留[此处](tasks/completed/2026-10-17-before-business-source-handoff.md)。先读CURRENT_STATE、ORDER_BUSINESS_SOURCE与D144。
 
-用户已具体批准全新两合同空库演示及一次额外首绑补读。业务源码71b291762467c1efd19873438fef2abfd2954d23，镜像8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc，build selected-source-20261016-71b29176；不是main构建。新实例zhixu-selected-demo-20261016-r2的2 SO、7合成账号、2物料快照、2财务快照已落地。7角色API读回、订单/颜色/事件/财务DOM及过期后物料历史通过；当前时效仍10分钟。真实业务内容/凭据不得进入Git。
+新业务规则已明确批准，无负责人/认领/转交/准备；合同先有艾诺科，加工保留独立入口。business-source采用不可变产品条件+商业版本，旧公开写API410，历史内部服务和数据保护测试保留。不要重新启用旧五套UI入口，也不要删除旧记录。当前107+83后端/兼容、6新UI通过；加工UI旧断言已修待重跑。根测试的10失败仅DECISION_LOG冻结证据待checkpoint前向绑定，勿更新旧hash。
 
-本机私有操作目录为outputs/isolated-private-3a6aefbe-bcf9-4bbe-92a7-d3bd226a7cfe（protected、Gitignored）。先读其r2-sealed-resources.json、app-manifest.json、snapshot-statistics.json和既有receipt；不要直接运行run-r2的source/initialize/prepare或finance操作。操作PG旧ID已由封口替换，当前PG无host端口，原62317不可再用；同一新volume完整保留。app仅127.0.0.1:62316，只读、无来源凭据/worker/scheduler，2026-10-16T10:08:03.203Z到期自动停止，不自动续。当前时间或服务状态变化须只读重核，文档不是持续监控。
+下一步checkpoint后绑定docs/release/baseline.json中decisions-selected-source-once的继任证据，运行完整root/基线/typecheck/lint/构建及新页面/加工页面。新隔离可编辑副本尚未创建；必须新volume/network/db与新合成资料，原两合同只读PG仅可dump读，不写。私有目录outputs/isolated-private-3a6aefbe-bcf9-4bbe-92a7-d3bd226a7cfe含凭据和业务原文，不打印manifest全文，不运行旧采集工具，不再读取Ainuoke。原62316不续期/不修改，拟新62326体验环境无调度、手动启停。新规则工程和演示分别记录。
 
-原bindings回执unresolved、计数未知；补读bindings-recovery-1、materials、payments均completed，额度全用完。不重读、不换request ID、不扩合同、不续四单窗口。原报告包装深度缺陷经合成红/绿验证后用合法原envelope解决；本机网络/迁移换行问题只改新实例只读挂载，无SQL/迁移台账/共享网络修改。只读API/离线副本可继续核对；离线HTML未在应用内浏览器渲染（file协议被拦截），不可用绕过方式预览。
-
-运行演示不等于业务人工验收。财务12/9行在过期前已展示；ERP财务历史读取尚缺，离线阅读副本含本次来源事实且明确历史非实时。建议下一独立PR解决财务历史阅读；不抬高当前Source maxAge，不把旧快照当当前库存/银行实付。S2仍9项来源单位为空，四流未知量和财务单位/币种不作全局补值。未动真实账号/现有业务库/宁波/18443/18444，旧四单容器保持停止。
-
-本Phase只新增脱敏执行文档，生产代码、UI、SQL未改。最终新文档commit/远端/CI必须分别核实；原0df三CI绿的证据不能冒称新提交已绿。GitHub是实时事实源，更新时保留本文件及原证据历史。
+远端新分支尚未交付；PR116原依赖保留，不重复创建。精确提交核实后创建唯一新草稿PR，不合并部署。网络按AGENTS有界协议。最终报告branch/fullSHA/PR/tests/remaining dirty，并在聊天给简单使用方法，不新建教学页面。
