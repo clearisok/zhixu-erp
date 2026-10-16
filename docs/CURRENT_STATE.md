@@ -1,11 +1,13 @@
-# 当前状态：Git 交付已恢复，PR113 为依赖草稿，首轮 CI 遗漏修复中
+# 当前状态：PR113三CI通过，财务两合同只读核验完成
 
-核实2026-10-16；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5再次connector确认。feat/ainuoke-payment-controlled-collector沿用原树；恢复Phase baseline为clean4622d6d300f73171aa5f9ab35f25f0b680d03515。官方服务地址的进程内选择已使原工具一次push并独立核实完整SHA，唯一草稿[PR113](https://github.com/clearisok/zhixu-erp/pull/113)已创建；默认地址路径不称长期恢复，未改系统DNS/全局Git/TLS/认证。原存储分支、Source48b/G5c54树/ref/私有报告保留；旧摘要完整归档于completed/2026-10-16-before-network-recovery.md。
+核实2026-10-16；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5再次connector确认。本证据Phase baseline为原树clean feat/ainuoke-payment-controlled-collector@f9f22f0d4dfe4b43630f0136459166a75ce0d3e3；不建新树/重复PR/改生产代码。唯一草稿[PR113](https://github.com/clearisok/zhixu-erp/pull/113)保留累计依赖，旧状态原文见completed/2026-10-16-before-two-contract-evidence.md。
 
-首轮4622d6d CI：baseline PASS，Source因旧升级预期缺0024/0025失败，Team因登录测试仍寻找旧退出按钮失败。只修复测试/CI/文档：共用显式审定迁移清单、补物料设置回归、按已批准用户菜单退出。实际升级109/109、完整PG261/261、类型/定向lint及基线94/94通过；新登录浏览器与新head CI待核实。详见tasks/active/github-network-recovery-2026-10-16.md；本分支有累计G1–G5/Source/存储/面板依赖，不建议直接合并。
+f9f22f0d精确送达并三CI成功：Source运行38835710265、Team38835710232、baseline38835710239，COMMENT复审已完成。首次4622的升级/退出测试失败保留；修复只有测试/CI/文档。该Phase本机升级109、完整PG261、登录浏览器10、基线94、类型/lint/Server编译、完整SHA Server构建和main守卫通过；root898等原协调阶段结果仍按旧冻结SHA阅读，不称本次全部重跑。
 
-D141内部一次采集：只读plan固定实际DB及连接目标、操作人/来源账号、精确两个SO/合同、目标/有效归属/发布版本；全部目标先prepare，唯一固定worker，两单原文与完整两遍快照均验证后复核全范围，再逐SO事务。hash不是人类授权。旧/混单/缺页、撤权、并发和部分成功正确阻断或报告；COMMIT回执丢失为UNVERIFIED并保留候选ID/代际，不假称零写入或自动重试。无新HTTP/操作CLI/scheduler/目标启用，UI/0025不改。
+新真实证据：用户批准的一次固定两合同6086941核验已由原Source48b工具执行，S1/S2为12/9行，完整两遍一致、合同身份和正向见证通过；实际1次登录+4次报表，私有原文受保护且Git忽略。两个原确认见证的完整行hash未变，但不自动迁移确认到新capture或其他19行。只证明指定合同过滤及观察完整性，mappingVerified仍false、银行实付不推定、无DB/激活。详见tasks/active/evidence/ainuoke-payment-request-probe/real-two-contracts-2026-10-16.md；本次一次许可已用完，不自动重读。
 
-新22/22、相关172/172、typecheck/Server编译/完整源码lint、root898/898、基线94/94和精确main守卫PASS（11页/42能力/56累计UI路径）。初轮旧决策叶节点未前向绑定导致root891/898、基线88/94，已通过新ID/blob线性绑定解决，原失败保留。干净完整源码039e9f5d477c629a3e0134f1db21922aa59300c8默认Browser构建build20261016-001315通过，quote/master browser、session、orderRead disabled；不是部署。D140原两组各9实际UI/截图仍属于其旧SHA，本Phase没有新像素验收。
+D141内部协调与D139快照/API、D140原侧栏读取均为合成工程：plan绑定实际DB/连接目标、操作人/账号、精确SO/合同、归属/目标版本和发布代际；hash不是授权。两单全部验证后逐SO事务，部分成功及COMMIT未知明确区分。没有操作CLI/持续scheduler/目标启用，本Phase不改UI、SQL或正式计算，不冒称真实演示已接通。
 
-真实过滤/分页尚待已选两合同的明确只读核验授权，所有原读取次数耗尽；目标SO是否已接纳仍须可信身份，不从财务数据建单。操作CLI、实际目标清单/迁移/写入/启用有独立Gate。无凭据/真实上游/真实业务库/账号/原演示/旧四单窗口/宁波18443/18444操作，不自动合并部署。GitHub是实时事实源，源码/授权/证据/真实验证变化时更新；PR状态以精确提交检查为准，不能拿首轮旧CI认证后续修复。
+#1097ef/#110e3ce/#1114da/#1124c59均精确送达、三CI绿并完成COMMENT复审，仍未合并；G5在原页面树独立交付收口。建议先依赖顺序合入/对齐，不能直接合PR113累计524文件。Git采用新核实官方地址的进程内路线恢复读写，未改系统DNS、共享Git/代理/TLS或认证，不称默认链路永久恢复。
+
+下一步是操作入口及具体隔离SO/合同目标计划；真实目标、迁移、发布写入和启用必须另报范围并取得授权。真实账号/业务数据库、旧四单窗口、现有演示/宁波18443/18444和部署未操作，不自动合并。GitHub是实时工程事实源，源码/证据/授权/CI/环境或人工验收变化时更新，Goal尚未全部完成。

@@ -1,5 +1,7 @@
 # 项目知识索引
 
+2026-10-16新增：[两合同真实只读证据](tasks/active/evidence/ainuoke-payment-request-probe/real-two-contracts-2026-10-16.md)，用户一次固定许可已用完，12/9行、两遍一致、5HTTP/4report，指定合同过滤/完整性通过；无DB/激活，整体映射与银行实付未确认。PR113精确f9三CI通过，当前只前向补充新证据；#109–112最新精确head各三CI绿，G5独立页面交付收口中。先读[当前状态](CURRENT_STATE.md)/[接力](AI_HANDOFF.md)，下段保留前阶段日期/hash与待验证状态，不作为新结论。
+
 2026-10-16当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先CURRENT_STATE/AI_HANDOFF、[网络恢复及PR113首轮CI修复](tasks/active/github-network-recovery-2026-10-16.md)、[受控采集任务](tasks/active/ainuoke-payment-controlled-collector.md)与[货款申请模块](features/AINUOKE_PAYMENT_REQUESTS.md)。原4622d6d已精确送达唯一草稿PR113；本Phase只修测试/CI/文档，升级109/109、完整PG261/261及基线94/94通过，浏览器和新head Hosted CI另核实。原协调服务22/172、root898和42能力构建证据保留，不称本轮全部重跑。真实过滤、目标启用/写入、操作CLI/调度均未完成或未获授权。GitHub为实时事实源，随源码/授权/证据变化更新。
 
 ## 系统简介

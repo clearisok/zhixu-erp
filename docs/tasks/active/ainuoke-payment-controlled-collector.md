@@ -1,5 +1,7 @@
 # 货款申请受控采集与发布接线
 
+2026-10-16前向更新：原f9f22f0d已精确交付唯一草稿PR113且三CI绿并COMMENT复审；#109–112也已各精确交付、三CI绿，均未合并。本Phase从clean f9继续，只补脱敏证据与共享状态，不改生产代码/SQL。用户最新一次固定两合同只读许可已执行通过：S1/S2=12/9行、两遍一致、1登录+4报表，真实过滤/观察完整性见[冻结报告](evidence/ainuoke-payment-request-probe/real-two-contracts-2026-10-16.md)。许可已用完，不重读；整体字段/币种/银行实付不因此确认，真实DB目标/迁移/写入/启用仍独立待授权。下文保留各旧阶段源码/测试/网络/待核验事实，按原时点阅读，当前结论以本段和CURRENT_STATE为准。
+
 核实2026-10-16；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。Phase baseline：原worktree由干净的feat/ainuoke-payment-snapshot-storage@a94a7df97ff9b6312cdb9c7990e3e9b32a31c27b分出feat/ainuoke-payment-controlled-collector；原分支/ref保留，不重建worktree或PR。GitHub是实时事实源；源码、范围、权限、真实证据和验收变化时更新。
 
 本阶段落实D121 Gate5，复用D137两合同固定worker、D138完整快照与D139 prepare/publish，不扩大报表、合同数量、分页、读取次数或真实授权。先实现内部一次性协调服务与可检查的只读范围计划；无新HTTP写入口、目标启用、CLI调度或账号/迁移命令。

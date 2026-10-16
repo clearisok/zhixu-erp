@@ -1,15 +1,15 @@
-# 当前恢复点：PR113 已交付，首轮 CI 测试遗漏已本地修复，待新精确提交验证
+# 当前恢复点：两合同真实过滤已核实，PR113补充脱敏证据
 
-核实2026-10-16；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/ainuoke-payment-controlled-collector在原ainuoke-live-readiness树；本恢复Phase clean baseline4622d6d300f73171aa5f9ab35f25f0b680d03515。原源码039e9f5d、报告499edf54、manifest9efd500f及其他树/ref/私有证据保持，旧接力完整存于completed/2026-10-16-before-network-recovery.md。
+核实2026-10-16；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/ainuoke-payment-controlled-collector在原ainuoke-live-readiness树；本证据Phase clean baselinef9f22f0d4dfe4b43630f0136459166a75ce0d3e3。原Source48b/G5树、其他refs/原源码/冻结报告/截图和私有文件保留；旧接力原文存于completed/2026-10-16-before-two-contract-evidence.md，不覆盖历史结果。
 
-原工具一次push成功，独立API确认远端4622d6d；唯一草稿[PR113](https://github.com/clearisok/zhixu-erp/pull/113)已附加。默认github.com地址TCP/TLS成功但HTTP无响应，官方/meta另一个服务地址经证书/Git读取验证后仅对本次进程使用curloptResolve；未改系统DNS/全局Git/代理/TLS/认证。不要把默认链路称永久恢复或长期固定报告IP。复用方法/证据见tasks/active/github-network-recovery-2026-10-16.md，继续交付已获用户授权。
+唯一草稿[PR113](https://github.com/clearisok/zhixu-erp/pull/113)远端f9精确核实、三CI成功并已COMMENT复审；Source38835710265、Team38835710232、baseline38835710239。G1–G4最新7ef/e3ce/4da/4c59也均精确交付、三CI绿，未合并。G5在原页面树收口，不用PR113累计代码替代其独立交付。恢复仍由原安全工具最多一次push，每次新核实官方/meta及Git读取；仅进程内curloptResolve，不改共享配置/认证，不称默认链路永久恢复。
 
-首轮CI baseline绿，Source因旧迁移断言缺0024/25、Team因旧退出按钮选择器红。只改测试/CI/文档：显式审定当前迁移清单供10项相关测试复用，仍严格比对顺序/数据/权限/幂等；Source补物料设置测试；登录按现有用户菜单退出。升级109、完整PG261、类型/定向lint、基线94通过；新登录浏览器、最终head guard/送达及Hosted CI待实际结果。新提交必须查精确head，不以首轮旧状态代替；累计依赖草稿不建议直接合并。
+用户最新一次固定两合同只读许可已消费：原Source48b树执行ReadContracts，报告6086941、完整两遍、S1/S2=12/9行、4报表+1登录，返回READ_ONLY_CONTRACT_PROBE_RECORDED。混单/分页/两遍hash/正向见证均通过；两个原确认见证的完整行hash未变。工具私密消费D:/workspace/ainuoke-key.txt，Codex未读取凭据内容；原文受保护且Git忽略，脱敏证据见tasks/active/evidence/ainuoke-payment-request-probe/real-two-contracts-2026-10-16.md。不得再次运行：一次许可已用完，实际少于上限不产生第二次授权。
 
-D141内部plan→单次固定两合同worker→严格原文提取/两遍快照→全范围再核查→旧逐SO事务已验收。scope绑定DB连接目标/实际身份/操作人/账号/精确SO和代际，hash不是授权。部分成功与未知提交分开；UNVERIFIED含候选ID/代际，不能重采或将confirmed published=0理解为零写入。无新HTTP/CLI/调度/启用；UI/0025不改。恢复task ainuoke-payment-controlled-collector.md及feature AINUOKE_PAYMENT_REQUESTS.md。
+D141内部plan→固定两合同worker→严格原页/两遍快照→全范围复核→逐SO事务仅合成验收。hash不是授权；COMMIT未知保留candidateSnapshotId/代际，不盲重试。真实读取通过不产生DB目标、Source启用或发布权限；目标SO仍须可信合同已接纳，不能由财务行建单。没有操作CLI/持续调度/目标启用，mappingVerified仍false，银行实付不推定。
 
-22新增/172相关、类型/Server编译/完整lint、root898/898、基线94/94和main守卫PASS（11页/42能力/56累计UI路径）。首次未绑定D141的root891/898、基线88/94原失败保留；只追加新决策叶节点/冻结报告，旧hash/截图不覆盖。原干净完整039e9f5d/build20261016-001315为默认Browser（quote/master browser、session、orderRead disabled）；本轮UI重验须显式Server构建，当前dist以实际build-info为准。D140旧UI截图/receipt按其实际cefe源码阅读，无新人工像素验收。
+f9修复Phase本机升级109、完整PG261、登录浏览器10、基线94、类型/lint/Server编译、完整SHA Server构建及main守卫通过；原22/172/root898和D140两组各9浏览器仍各按其冻结SHA阅读。新Phase只补文档/新冻结证据/分维度能力范围，旧blob、PNG、receipt不改，最终运行精确main门禁与基线后更新同一PR113，不创建重复PR或拿旧CI认证新head。
 
-按当前HEAD继续安全交付并更新唯一PR113；每次先核实官方地址与Git读取，再在进程内限定路线运行原工具。远端精确相同不重推，失败仍保存现场而不循环撞同一通道。网络修复授权不扩大真实读取或写入范围。当前dist的模式需核对build-info后再跑对应UI，禁止把默认Browser构建当Server验收。
+下一步安全工程是操作入口与隔离目标范围方案，不重做558全量、不迁移原确认到新capture、不计算跨行汇总或银行付款。实际DB、SO/合同、迁移/写入/启用及持续读取均需新具体许可；旧四单窗口不重启，不触真实账号/业务库、现有演示/宁波18443/18444，不合并或部署。
 
-所有原真实6086941读取次数已耗尽，新两合同核验尚无授权答复。下一步先获固定只读范围许可，用已有私有选择/凭据进程核验，不重复全量发现；成功不授权SO首绑、目标/实际迁移/写入/激活。操作CLI/目标方案可独立推进，但不运行真实命令。旧四单窗口不重启，不触真实账号/库、原演示/宁波18443/18444，不合并部署。整个Goal尚未完成。
+GitHub是实时事实源；来源、代码、基线、授权、CI、PR或人工验收变化时更新。整个Goal尚未完成；工程候选、送达、CI、人工产品验收、真实持续激活和部署必须分别报告。
