@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { resolve } from 'node:path';
+import { resolve, dirname, basename, join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { execFileSync, spawnSync } from 'node:child_process';
 import pg from 'pg';
 import { startDisposablePostgres } from './postgres-container.js';
-import { runMigrations } from '../db/migration-runner.js';
+import { runMigrations, inspectMigrationStatus } from '../db/migration-runner.js';
 import { synchronizePermissionCatalog } from '../auth/permissions.js';
 import { bootstrapAdmin } from '../auth/bootstrap.js';
 import { loadExistingBootstrapActor } from '../sales-orders/bootstrap-runner.js';
@@ -14,9 +16,14 @@ import { validateContractEvidence } from '../ainuoke-source/payment-request-cont
 import { verifyPaymentTargetEvidence } from '../ainuoke-source/payment-target-verification.js';
 import { planPaymentTargets, applyPaymentTargets } from '../ainuoke-source/payment-targets.js';
 import { planPaymentOperatorCollection, collectPaymentOnce } from '../ainuoke-source/payment-operator-collection.js';
+import { planPaymentCollection, collectAndPublishPaymentContracts } from '../ainuoke-source/payment-request-collection.js';
 import { readPaymentOperatorCommand } from '../ainuoke-source/payment-operator-command-store.js';
 import { createPaymentSnapshotReader } from '../ainuoke-source/payment-request-store.js';
 import { collectionConfig, collectionSelection, collectionEvidence } from './payment-collection-fixture.js';
+import { paymentOperatorArguments, runPaymentOperator } from '../ainuoke-source/payment-operator-cli.js';
+import { paymentPrivateFixture } from './payment-operator-private-fixture.js';
+import { readFileSync, mkdtempSync, copyFileSync, rmSync } from 'node:fs';
+import { CURRENT_MIGRATION_FILES } from './current-migration-ledger-fixture.js';
 
 const matches = (code:string) => (e:unknown) => (e as {code?:string}).code === code;
 test('payment operator: owned PG, target lifecycle and durable one-shot commands', {timeout:180000}, async t => {
@@ -42,7 +49,7 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
     const request={config:{...collectionConfig},selection,targets};
     const evidence=collectionEvidence(selection,clock-60000,12);
     const raw={...validateContractEvidence(evidence,request.config,selection,clock).privateReport,toolingCommit:'a'.repeat(40)};
-    return {request,proof:verifyPaymentTargetEvidence(raw,hash(raw),request,clock)};
+    return {request,proof:verifyPaymentTargetEvidence(raw,hash(raw),request,clock),report:raw};
   }
   async function enable(p:Awaited<ReturnType<typeof pair>>){
     const plan=await planPaymentTargets(pool,actor,p.request,'enable',p.proof,permit(),clock);
@@ -78,6 +85,8 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
     const replay=await applyPaymentTargets(pool,actor,p.request,'enable',p.proof,permitOf(plan),clock+120000);
     assert.equal(replay.replayed,true);assert.deepEqual(replay.result,result.result);
     await assert.rejects(()=>applyPaymentTargets(pool,actor,p.request,'enable',p.proof,{...permitOf(plan),scopeHash:'0'.repeat(64)},clock),matches('payment_operator_request_conflict'));
+    const changed={...p.request,targets:p.request.targets.map((row,i)=>({...row,salesOrderId:i?row.salesOrderId:randomUUID()}))};
+    await assert.rejects(()=>applyPaymentTargets(pool,actor,changed,'enable',p.proof,permitOf(plan),clock),matches('payment_operator_request_conflict'));
   });
   await t.test('missing proof, untrusted proof, wrong binding/account/operator and expired permit block before writes',async()=>{
     const p=await pair(),before=await counts();
@@ -132,6 +141,8 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
     const first=await running;assert.equal(first.result?.published,2);
     const replay=await collectPaymentOnce(pool,actor,p.request,permitOf(plan),{now,collect:async()=>{assert.fail('no retry');}});
     assert.equal(replay.replayed,true);assert.deepEqual(replay.result,first.result);assert.equal(calls,1);
+    const changed={...p.request,targets:p.request.targets.map((row,i)=>({...row,salesOrderId:i?row.salesOrderId:randomUUID()}))};
+    await assert.rejects(()=>collectPaymentOnce(pool,actor,changed,permitOf(plan),{now,collect}),matches('payment_operator_request_conflict'));
     for(const secret of [collectionConfig.password,collectionConfig.username,'SYN-SC','9007199254740993'])assert.equal(JSON.stringify(first).includes(secret),false);
   });
   await t.test('claim COMMIT acknowledgement loss makes zero upstream calls; readback shows started, never retry lease',async()=>{
@@ -166,5 +177,105 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
     await assert.rejects(()=>pool.query('DELETE FROM ainuoke_payment_operator_commands WHERE actor_id=$1 AND request_id=$2',[actor.internalUserId,plan.requestId]));
     await assert.rejects(()=>pool.query(`INSERT INTO ainuoke_payment_operator_commands(actor_id,request_id,source_key,kind,scope_hash,payload_hash,state,result,completed_at)
       VALUES($1,$2,$3,'collect',$4,$4,'completed','{}',now())`,[actor.internalUserId,randomUUID(),collectionConfig.sourceKey,hash('synthetic')]));
+  });
+  await t.test('audit failure rolls back both targets and the command receipt',async()=>{
+    const p=await pair(),plan=await planPaymentTargets(pool,actor,p.request,'enable',p.proof,permit(),clock),before=await counts();
+    await pool.query(`CREATE FUNCTION synthetic_operator_audit_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN
+      IF NEW.entity_type='AinuokePaymentTarget' THEN RAISE EXCEPTION 'synthetic audit unavailable'; END IF; RETURN NEW; END; $$`);
+    await pool.query('CREATE TRIGGER synthetic_operator_audit_failure BEFORE INSERT ON operation_logs FOR EACH ROW EXECUTE FUNCTION synthetic_operator_audit_failure()');
+    try{await assert.rejects(()=>applyPaymentTargets(pool,actor,p.request,'enable',p.proof,permitOf(plan),clock));assert.deepEqual(await counts(),before);}
+    finally{await pool.query('DROP TRIGGER synthetic_operator_audit_failure ON operation_logs');await pool.query('DROP FUNCTION synthetic_operator_audit_failure()');}
+  });
+  await t.test('wrong or stale operator plan never consumes a command or invokes a worker',async()=>{
+    const p=await pair();await enable(p);const plan=await planPaymentOperatorCollection(pool,actor,p.request,permit(),now),before=await counts();
+    let calls=0;const never=async()=>{calls++;assert.fail('no source read');};
+    await assert.rejects(()=>collectPaymentOnce(pool,actor,p.request,{...permitOf(plan),scopeHash:'0'.repeat(64)},{now,collect:never}),matches('payment_operator_scope_changed'));
+    await pool.query('UPDATE ainuoke_payment_source_targets SET version=version+1 WHERE sales_order_id=$1',[p.request.targets[0].salesOrderId]);
+    await assert.rejects(()=>collectPaymentOnce(pool,actor,p.request,permitOf(plan),{now,collect:never}),matches('payment_operator_scope_changed'));
+    assert.equal(calls,0);assert.deepEqual(await counts(),before);
+  });
+  await t.test('private operator entry plans, enables, collects once, then reads or replays with no secret file',async()=>{
+    const p=await pair(),files=paymentPrivateFixture();try{
+      const proof=files.write('synthetic-proof.json',JSON.stringify(p.report));
+      const {password:_discarded,operatorUsername,...source}=collectionConfig;void _discarded;
+      const job=files.write('synthetic-job.json',JSON.stringify({schemaVersion:'ainuoke-payment-operator-job.v1',databaseUrl:pool.options.connectionString,
+        operatorUsername,source,selection:p.request.selection,targets:p.request.targets,verification:proof}));
+      const key=files.write('synthetic-key.txt','账号：'+collectionConfig.username+'\n密码：'+collectionConfig.password+'\n');
+      const base=['--job='+job.path,'--expected-job='+job.sha256,'--private-output='+files.directory];
+      const args=(action:string,id:string,expiresAt?:string,scopeHash?:string)=>paymentOperatorArguments([action,...base,'--request-id='+id,
+        ...(expiresAt?['--expires-at='+expiresAt]:[]),...(scopeHash?['--scope-hash='+scopeHash,'--execute=I_CONFIRM_EXACT_SCOPE']:[]),
+        ...(action.startsWith('--collect-once')?['--credential-file='+key.path]:[])]);
+      const token=permit();
+      const targetPlan=await runPaymentOperator(args('--plan-targets=enable',token.requestId,token.expiresAt),'a'.repeat(40),{now});
+      assert.equal(targetPlan.result,'READ_ONLY_PLAN_RECORDED');assert.ok('scopeHash'in targetPlan);
+      if(!('scopeHash'in targetPlan)||typeof targetPlan.scopeHash!=='string')assert.fail('expected scope');
+      const enabled=await runPaymentOperator(args('--apply-targets=enable',token.requestId,token.expiresAt,targetPlan.scopeHash),'a'.repeat(40),{now});
+      assert.ok('changedTargets'in enabled);assert.equal(enabled.changedTargets,2);
+      const captureToken=permit(),capturePlan=await runPaymentOperator(args('--plan-collection=6086941',captureToken.requestId,captureToken.expiresAt),'a'.repeat(40),{now});
+      if(!('scopeHash'in capturePlan)||typeof capturePlan.scopeHash!=='string')assert.fail('expected collection scope');
+      let calls=0;
+      const captured=await runPaymentOperator(args('--collect-once=6086941',captureToken.requestId,captureToken.expiresAt,capturePlan.scopeHash),'a'.repeat(40),
+        {now,collect:async(c,s)=>{calls++;return collect(c,s);}});
+      assert.ok('published'in captured);assert.equal(captured.published,2);assert.equal(calls,1);
+      const readback=await runPaymentOperator(args('--receipt=6086941',captureToken.requestId),'a'.repeat(40),{now});
+      assert.equal(readback.receiptState,'completed');assert.ok('privateReportPath'in readback);
+      const text=readFileSync(readback.privateReportPath!,'utf8');assert.match(text,/PAYMENT_COLLECTION_PUBLISHED/u);
+      for(const value of [collectionConfig.password,collectionConfig.username,pool.options.connectionString!]){
+        assert.ok(!text.includes(value));assert.ok(!JSON.stringify([targetPlan,enabled,capturePlan,captured,readback]).includes(value));}
+      const replayArgs=args('--collect-once=6086941',captureToken.requestId,captureToken.expiresAt,capturePlan.scopeHash);
+      replayArgs.values.set('credential-file',key.path+'.not-present');
+      const replay=await runPaymentOperator(replayArgs,'a'.repeat(40),{now,collect:async()=>{assert.fail('no second read');}});
+      assert.ok('replayed'in replay);assert.equal(replay.replayed,true);assert.equal(calls,1);
+      const receiptArgs=['--receipt=6086941',...base,'--request-id='+captureToken.requestId];
+      const dirty=execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8',windowsHide:true}).trim();
+      const child=spawnSync(process.execPath,['--import','tsx','server/ainuoke-source/payment-operator-cli.ts',...receiptArgs],
+        {encoding:'utf8',windowsHide:true,timeout:30000,maxBuffer:65536});
+      const output=JSON.parse(child.stdout);
+      if(dirty){assert.equal(child.status,1);assert.equal(output.code,'payment_operator_committed_clean_worktree_required');}
+      else{assert.equal(child.status,0,child.stderr);assert.equal(output.receiptState,'completed');assert.equal(output.operationResult,'PAYMENT_COLLECTION_PUBLISHED');}
+      t.diagnostic('Actual source executable: '+(dirty?'dirty checkout correctly refused':'clean checkout durable readback passed'));
+      assert.ok(!child.stdout.includes(collectionConfig.password));assert.ok(!child.stderr.includes(pool.options.connectionString!));
+    }finally{files.close();}
+  });
+  await t.test('missing migrations stop the entry without applying SQL or creating an operator account',async()=>{
+    const blankUrl=await db.createDatabase('operator_blank'),blank=new pg.Pool({connectionString:blankUrl,max:1}),files=paymentPrivateFixture();
+    try{
+      const selection=collectionSelection('BLANK'),{password:_discarded,operatorUsername,...source}=collectionConfig;void _discarded;
+      const job=files.write('blank-job.json',JSON.stringify({schemaVersion:'ainuoke-payment-operator-job.v1',databaseUrl:blankUrl,
+        operatorUsername,source,selection,targets:selection.targets.map(row=>({alias:row.alias,salesOrderId:randomUUID()})),verification:null}));
+      const token=permit(),args=paymentOperatorArguments(['--receipt=6086941','--job='+job.path,'--expected-job='+job.sha256,
+        '--private-output='+files.directory,'--request-id='+token.requestId]);
+      await assert.rejects(()=>runPaymentOperator(args,'a'.repeat(40),{now}),matches('pending_migrations'));
+      assert.equal((await blank.query("SELECT count(*)::int n FROM information_schema.tables WHERE table_schema='public'")).rows[0].n,0);
+    }finally{await blank.end();files.close();}
+  });
+  await t.test('nonempty 0025 upgrades add only empty command storage; old-schema rollback is explicitly rejected',async()=>{
+    const directory=mkdtempSync(join(tmpdir(),'zhixu-payment-operator-upgrade-'));
+    const old=new pg.Pool({connectionString:await db.createDatabase('operator_upgrade'),max:2});
+    try{
+      for(const file of CURRENT_MIGRATION_FILES.filter(name=>Number(name.slice(0,4))<=25))copyFileSync(resolve('database/migrations',file),join(directory,file));
+      await runMigrations(old,directory);await synchronizePermissionCatalog(old);
+      await bootstrapAdmin(old,{username:collectionConfig.operatorUsername,displayName:'合成升级管理员',password:'Synthetic-Upgrade-2026'});
+      const user=await loadExistingBootstrapActor(old,collectionConfig.operatorUsername),selection=collectionSelection('UPGRADE'),targets=[];
+      await old.query('INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2)',[collectionConfig.sourceKey,selection.sourceFingerprint]);
+      for(const row of selection.targets){
+        const id=(await createAinuokeSalesOrder(old,user,{source:{sourceId:row.salesContractNo,sourceRowIdentity:row.salesContractNo,
+          salesContractNo:row.salesContractNo,insideOrderNo:'SYN-UPGRADE',lifecycleStatusRaw:'生效',contractDate:'2026-10-01',contractDeliveryDate:'2026-11-01',
+          styleNo:'SYN-STYLE',companyNameSnapshot:'合成公司',customerNameSnapshot:'合成客户',brandNameSnapshot:'合成品牌',quantity:100,
+          sourceHash:hash(row),fetchedAt:new Date(clock).toISOString()},colors:[]})).salesOrder.id;
+        await old.query(`INSERT INTO ainuoke_payment_source_targets(source_key,sales_order_id,account_fingerprint,enabled,verification_sha256)
+          VALUES($1,$2,$3,true,$4)`,[collectionConfig.sourceKey,id,selection.sourceFingerprint,hash(row)]);targets.push({alias:row.alias,salesOrderId:id});
+      }
+      const request={config:{...collectionConfig},selection,targets},plan=await planPaymentCollection(old,user,request,now);
+      assert.equal((await collectAndPublishPaymentContracts(old,user,request,plan.scopeHash,{now,collect})).published,2);
+      const tables=['app_users','sales_orders','ainuoke_sales_order_contract_mirrors','ainuoke_source_profiles','ainuoke_payment_source_targets',
+        'ainuoke_payment_snapshots','ainuoke_payment_heads','operation_logs'];
+      const inventory=async()=>{const entries=[];for(const table of tables)entries.push([table,(await old.query(`SELECT to_jsonb(t) row FROM ${table} t ORDER BY to_jsonb(t)::text`)).rows]);return hash(entries);};
+      const before=await inventory(),upgraded=await runMigrations(old,resolve('database/migrations'));
+      assert.deepEqual(upgraded.applied,['0026_ainuoke_payment_operator_commands.sql']);assert.equal(await inventory(),before);
+      assert.equal((await old.query('SELECT count(*)::int n FROM ainuoke_payment_operator_commands')).rows[0].n,0);
+      assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,[]);
+      await assert.rejects(()=>inspectMigrationStatus(old,directory),/Applied migration 26 .* is missing from the migration directory/u);
+    }finally{await old.end();assert.equal(dirname(directory),resolve(tmpdir()));assert.match(basename(directory),/^zhixu-payment-operator-upgrade-/u);rmSync(directory,{recursive:true,force:true});}
   });
 });

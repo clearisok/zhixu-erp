@@ -11,7 +11,7 @@
 ## 实现阶段
 
 1. 核心：目标只读计划、显式两目标原子启停、持久命令回执和单次采集协调。0026只新增技术表；无自动回填/启用。
-2. 私密操作入口：明确action/job/hash/request/deadline；计划、启停、单次采集、只读回执分开，不提供迁移/bootstrap/scheduler或HTTP写入口。待工程实现/验收。
+2. 私密操作入口已实现：明确action/job/hash/request/deadline；计划、启停、单次采集、只读回执分开，不提供迁移/bootstrap/scheduler或HTTP写入口。完整21项合成/一次性PG通过。
 3. 完整隔离回归、前向冻结证据/能力清单/精确发布守卫，安全交付唯一依赖草稿PR、CI和复审；未完成不称已送达/已启用。
 
 ## 核心约束
@@ -32,3 +32,36 @@
 ## 下一次真实操作前
 
 必须先提交具体隔离DB目标/备份与迁移清单、两个SO/合同、操作人、启停计划、一次采集预算/停止条件及只读回执核对方式，用户明确确认后才执行。当前不能复用已用完的两合同读取许可，不能续旧四单窗口；宁波/18443/18444、真实账号和业务库保持未操作。
+
+
+## 操作入口与私有配置
+
+`npm run source:ainuoke:payment-operator -- --help`说明参数；入口限定当前干净且已提交的源码checkout，使用tsx，不把旧dist副本当成当前源码。生产HTTP及原scheduler未注册此入口。所有动作必须显式指定action、私有job绝对路径/完整文件SHA256、受保护的Git忽略输出目录和request UUID。计划/写入另给UTC到期时间；写入还须精确scopeHash和`--execute=I_CONFIRM_EXACT_SCOPE`。这些字段是防错条件，不是人类授权。
+
+| 动作 | 上游/数据库行为 |
+|---|---|
+| `--plan-targets=enable` | 重建历史过滤报告，只读DB，输出两个精确SO/合同及当前版本的私有预览 |
+| `--plan-targets=disable` | 不读取过滤报告或凭据，只读DB；profile关闭和历史绑定不阻止停用 |
+| `--apply-targets=enable/disable` | 两目标、审计、技术终态回执同事务；不读艾诺科、不发布快照 |
+| `--plan-collection=6086941` | 要求精确目标已启用，生成只读采集计划，不读凭据/上游 |
+| `--collect-once=6086941` | 先核范围，再由私密进程读取本机文件，提交started后复查范围并最多调用worker一次 |
+| `--receipt=6086941` | 只读本操作人的历史技术回执，不读凭据、上游或重新激活目标 |
+
+私有job严格schema为`ainuoke-payment-operator-job.v1`，字段仅`databaseUrl`、`operatorUsername`、`source`、`selection`、`targets`、`verification`。source只包含sourceKey/baseUrl/username/transportPolicy，不能放password；selection复用D137精确两合同/见证模型，targets为S1/S2两个不同SO UUID。verification是受保护报告的path/sha256或null，只有enable需要读取并重建；现有其他工作树的旧报告应先非破坏地复制到本操作树新建受保护目录，保持原SHA，不覆盖原件。
+
+job及过滤原文须在受保护/Git忽略的outputs子目录；DB连接字符串不输出到终端/报告。凭据单独用`--credential-file`本机绝对路径，支持严格UTF8两行“账号：…”/“密码：…”，用户身份须与job一致。不修改现有文件ACL，不记录密码或密码hash。Windows仅允许本人/SYSTEM读取、拒绝reparse；POSIX要求本UID/0600。读取前后核验文件描述符、路径、大小、mtime及硬链接数，job/报告再核完整SHA，非法UTF8、超限或宽权限拒绝。
+
+预览和详细结果仅写新私有报告；终端返回封闭状态、request ID、scopeHash、计数和报告路径/hash，不含SO/合同、来源行、账号或金额。技术终态不表示Source当前仍启用/数据仍新鲜。真实命令需事先明确目标和读写额度；已用完的读取许可不能由新request ID绕过。主入口对不确定/部分成功返回非零状态，不能把进程退出0当成人工业务验收。
+
+## 回退与异常处理
+
+- 不存在持续任务，不新增自动重试；停止调用命令即停止新增采集。若需要隔离正在执行的读取结果，可按明确目标先预览/停用两财务目标，原物料Source不随之关闭；已发生HTTP不会因此被抹去，正在运行的worker仍受180秒预算。
+- 新目标版本阻断旧快照继续展示；历史snapshots、heads、审计、命令回执保留。对started/COMMIT不确定先用同一request ID只读查回执；not_found不能证明从未执行。不得删回执、自动回收、用新ID盲重采。
+- 部分发布保留首单；先核原candidateSnapshotId/generation与技术回执，不重建或搬移既有事实。
+- 0026仅加技术表，但旧checkout的严格migration检查可能拒绝未知版本，不能承诺直接切旧镜像。回退应保留兼容0026的代码/历史并关闭新的操作调用，实际版本兼容和真实迁移另行演练/授权。
+- 技术回执不决定SO归属，不承载生产/付款执行流水；实际targets/snapshots/heads继续进入既有归一全量证据，归属变化会让后续coordinator检查失败，不绕过G4审查。
+
+
+2026-10-16第二阶段：21/21新增模型/文件/真实一次性PG验证通过（outputs/payment-operator-upgrade-final-20261016.log）；112/112原财务回归、261/261完整PostgreSQL通过。非空0025升级仅新增空技术回执表，旧订单/Source/目标/快照/指针/日志全量hash不变，重复迁移不重跑；只含0025文件的旧版本明确拒绝新ledger。主入口实际子进程在dirty checkout正确拒绝；clean checkout成功回执读取留待提交后验证。完整源码lint/类型/Server编译通过。
+
+初次新增“缺迁移”用例的合成合同含小写后缀，先被既有大写合同格式校验阻断；修为合法合成身份后真实到达pending_migrations，验证公共schema仍0表。原错误日志保留。请求回执payload还绑定实际selection/targets/operator和验证文件hash；保持旧scopeHash却改SO也必须冲突，密码不纳入payload以便零凭据回执读取。完整root/94基线/构建/远端CI尚未在本阶段宣称通过。

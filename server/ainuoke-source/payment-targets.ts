@@ -79,7 +79,9 @@ export async function planPaymentTargets(pool:Pool,caller:Identity,input:Payment
 export async function applyPaymentTargets(pool:Pool,caller:Identity,input:PaymentCollectionRequest,action:Action,proof:PaymentTargetVerification|null,
  permitInput:PaymentOperatorPermit,now=Date.now()){
  const request=parsePaymentCollectionRequest(input),permit=parsePaymentOperatorPermit(permitInput);
- const command={sourceKey:request.config.sourceKey,kind:action,permit,payloadHash:paymentOperatorPayloadHash(action,permit.scopeHash,permit.expiresAt)};
+ const command={sourceKey:request.config.sourceKey,kind:action,permit,payloadHash:paymentOperatorPayloadHash(action,permit.scopeHash,permit.expiresAt,
+  {sourceKey:request.config.sourceKey,operatorUsername:request.config.operatorUsername,selection:request.selection,targets:request.targets,
+   verificationSha256:action==='enable'?proof?.proofSha256:null})};
  const client=await pool.connect();let committing=false;
  try{
   await client.query('BEGIN');await client.query("SET LOCAL lock_timeout='5s'");

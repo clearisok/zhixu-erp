@@ -84,6 +84,6 @@ export async function readPaymentOperatorCommand(pool:Pool,caller:Identity,sourc
  }catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
 }
 
-export function paymentOperatorPayloadHash(kind:PaymentOperatorKind,scopeHash:string,expiresAt:string){
- return hash({schemaVersion:'ainuoke-payment-operator-command.v1',kind,scopeHash,expiresAt});
+export function paymentOperatorPayloadHash(kind:PaymentOperatorKind,scopeHash:string,expiresAt:string,requestScope:unknown){
+ return hash({schemaVersion:'ainuoke-payment-operator-command.v1',kind,scopeHash,expiresAt,requestScope});
 }

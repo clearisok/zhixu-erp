@@ -56,6 +56,7 @@ jobs:
           npm run test:ainuoke-payment-store
           npm run test:ainuoke-payment-client
           npm run test:ainuoke-payment-collection
+          npm run test:ainuoke-payment-operator
           npx --no-install tsx --test server/integration/fresh-start.integration.test.ts
       - name: Quality, quantity and owned fixture boundaries
         run: |

@@ -35,5 +35,5 @@ test('target verification rebuilds complete historical evidence instead of trust
     const altered=structuredClone(report) as Record<string,unknown>; change(altered);
     assert.throws(()=>verifyPaymentTargetEvidence(altered,hash(altered),request,now));
   }
-  assert.throws(()=>verifyPaymentTargetEvidence(report,hash(report),{...request,selection:collectionSelection('other')},now));
+  assert.throws(()=>verifyPaymentTargetEvidence(report,hash(report),{...request,selection:collectionSelection('OTHER')},now));
 });

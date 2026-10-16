@@ -48,7 +48,9 @@ export async function collectPaymentOnce(pool: Pool, caller: Identity, input: Pa
   const request = parsePaymentCollectionRequest(input), permit = parsePaymentOperatorPermit(permitInput);
   const identity = { internalUserId: caller.internalUserId, userId: caller.userId }, now = options.now ?? Date.now;
   const command: PaymentOperatorCommand = { sourceKey: request.config.sourceKey, kind: 'collect', permit,
-    payloadHash: paymentOperatorPayloadHash('collect', permit.scopeHash, permit.expiresAt) };
+    payloadHash: paymentOperatorPayloadHash('collect', permit.scopeHash, permit.expiresAt, {
+      sourceKey: request.config.sourceKey, operatorUsername: request.config.operatorUsername, selection: request.selection, targets: request.targets,
+    }) };
   const existing = await readPaymentOperatorCommand(pool, identity, request.config.sourceKey, permit.requestId);
   if (existing) return existingReceipt(existing, command);
   const plan = await planPaymentOperatorCollection(pool, identity, request, { requestId: permit.requestId, expiresAt: permit.expiresAt }, now);
