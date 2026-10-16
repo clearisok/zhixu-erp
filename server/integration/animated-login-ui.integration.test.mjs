@@ -134,9 +134,12 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{
-  ws?.close();if(browser&&browser.exitCode===null){browser.kill();await wait(500);}
+  ws?.close();if(browser&&browser.exitCode===null&&browser.signalCode===null){
+   const closed=new Promise(done=>browser.once("close",done));browser.kill();
+   await Promise.race([closed,wait(3000)]);
+  }
   const distance=relative(resolve(tmpdir()),resolve(temp));
   assert.ok(distance&&!distance.startsWith("..")&&!isAbsolute(distance)&&temp.includes("zhixu-login-ui-"));
-  await rm(temp,{recursive:true,force:true});
+  await rm(temp,{recursive:true,force:true,maxRetries:10,retryDelay:200});
  }
 });

@@ -23,6 +23,8 @@ G1–G4原始最新提交7ef6e665/e3cebb48/4da3590b/4c59d974均保留为祖先�
 
 本Phase已实际通过：升级/设置94项、完整PostgreSQL261项、发布基线94项、TypeScript类型、全发布源码lint及main精确守卫（11页/35能力/53继承UI路径）。日志为本机忽略的outputs/gate5-delivery-upgrade-regression-20261016.log、gate5-delivery-postgres-20261016.log、gate5-delivery-baseline-20261016.log、gate5-delivery-type-20261016.log、gate5-delivery-lint-20261016.log和gate5-delivery-guard-20261016.log。原c54工程的17设置/客户端、33浏览器、root898与两authority构建仍只证明其原时点；本Phase最终完整SHA构建、登录/物料浏览器和Hosted CI须继续独立核实，不预填通过。
 
+第一候选b9a1251059931a748d7830b7b8f4f23c97dbf6f5的Server编译和完整SHA UI构建build20261016-102701通过。浏览器18/19：登录全部9项子断言及物料全部8项子断言通过，但登录父用例在Windows临时profile的Cookies文件删除时EBUSY失败；原失败日志保留。收尾修复只等待该测试拥有的Chromium子进程close（上限3秒），并为已验证属于临时根目录且有专用前缀的目录执行有界删除重试；不杀用户浏览器、不减业务断言、不改页面。新候选仍须实际重验，不能将18/19称PASS。
+
 ## 决定、建议与待确认
 
 用户批准D121/D133/D134页面与业务规则，并批准持续分Gate工程交付；本轮沿用这些决定。AI技术建议是先按#109→#110→#111→#112收口，再对齐页面PR和#113，避免直接合并累计大分支。新像素人工验收及具体Source/写入/启用许可仍分别待确认。2026-10-16用户另行批准的一次财务两合同只读核验已在独立Source工作树通过：12/9行、两遍一致、1次登录加4次报表；这不使本分支获得0025、财务面板或持续采集能力，来源字段映射仍未整体验收。
