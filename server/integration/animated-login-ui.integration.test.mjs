@@ -117,9 +117,9 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
    assert.equal(await evalJs("location.pathname"),"/quote-center");
   });
   await t.test("logout and reload return to formal login; unsupported modules stay closed",async()=>{
-   await evalJs("window.logoutFail=true");await click("退出 Server");await has("退出未完成");
+   await evalJs("window.logoutFail=true");await click("用户菜单");await has("退出登录");await click("退出登录");await has("退出未完成");
    assert.equal(await evalJs("location.pathname"),"/quote-center");
-   await evalJs("window.logoutFail=false");await click("退出 Server");await ready();assert.equal(await evalJs("location.pathname"),"/login");
+   await evalJs("window.logoutFail=false");await click("退出登录");await ready();assert.equal(await evalJs("location.pathname"),"/login");
    await navigate("/login");await ready();
    await navigate("/production-scheduling");await has("尚未接通");
    assert.equal(await evalJs("document.querySelector('.zx-login-form')!==null"),false);

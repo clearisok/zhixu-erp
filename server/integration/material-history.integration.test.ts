@@ -1,3 +1,4 @@
+import {migrationFilesAfter} from './current-migration-ledger-fixture.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -42,7 +43,7 @@ test('historical material Source remains distinct from current identity and read
  const legacy=(await capture()).runId;
  const rawLegacy=(await pool.query('SELECT r.discovery,r.content_hash,r.discovery_hash,s.snapshots,s.content_hash AS material_hash FROM ainuoke_source_runs r JOIN ainuoke_material_source_snapshots s ON s.run_id=r.id WHERE r.id=$1',[legacy])).rows;
  await t.test('forward context upgrade does not invent link/version/scope for prior evidence',async()=>{
-  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0022_source_history_context.sql','0023_order_preparation_adoption.sql','0024_material_progress_settings.sql']);
+  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,migrationFilesAfter(21));
   assert.deepEqual((await pool.query('SELECT r.discovery,r.content_hash,r.discovery_hash,s.snapshots,s.content_hash AS material_hash FROM ainuoke_source_runs r JOIN ainuoke_material_source_snapshots s ON s.run_id=r.id WHERE r.id=$1',[legacy])).rows,rawLegacy);
   assert.deepEqual((await pool.query('SELECT r.order_scope,s.source_link_id,s.captured_order_version FROM ainuoke_source_runs r JOIN ainuoke_material_source_snapshots s ON s.run_id=r.id WHERE r.id=$1',[legacy])).rows[0],{order_scope:null,source_link_id:null,captured_order_version:null});
  });

@@ -1,3 +1,5 @@
+2026-10-16 / main064e3afaf7d08b3cb62907d4402f97d9c292f1e5：沿原Gate5树收口独立交付CI，只改测试/CI/文档，到0024，不混入PR113财务快照。恢复CURRENT_STATE/AI_HANDOFF及[独立交付任务](tasks/active/gate5-independent-delivery-2026-10-16.md)。旧证据/状态按原时点保留，实时PR/CI以精确head核实。
+
 2026-10-15 / 当前G5联合候选纳入已验Quote修复与最新G1–G4；17设置/客户端、33浏览器覆盖、898项目/94基线、两authority构建及精确门禁已本地通过，仍未送达新远端或部署。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；恢复CURRENT_STATE及[本轮证据](tasks/active/evidence/material-source-integration/gate5-verified-dependencies-2026-10-15.md)。下方旧快照按原时点阅读。
 
 2026-10-14 / 本机四单真实隔离演示已执行首绑与两轮刷新，未开长期调度；[真实运行证据](tasks/active/ainuoke-isolated-live-results-2026-10-14.md)。以下旧状态按历史时点阅读。

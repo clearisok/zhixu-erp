@@ -1,3 +1,4 @@
+import {migrationFilesAfter} from './current-migration-ledger-fixture.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {randomUUID} from 'node:crypto';
@@ -96,7 +97,7 @@ test('0024 upgrades only the explicitly approved permission and leaves business/
   await pool.query("DELETE FROM app_role_permissions WHERE permission_key='style_progress.settings.edit'; DELETE FROM app_permissions WHERE key='style_progress.settings.edit'");
   const actor=await loadExistingBootstrapActor(pool,'synthetic-upgrade-admin');const usersBefore=(await pool.query('SELECT id,public_id,username,display_name,role,active FROM app_users ORDER BY id')).rows;const membershipBefore=(await pool.query('SELECT * FROM app_user_roles ORDER BY user_id,role_id')).rows;
   await assert.rejects(readMaterialProgressSettings(pool,actor),(error:unknown)=>(error as {code:string}).code==='material_progress_settings_unavailable');
-  const result=await runMigrations(pool,resolve('database/migrations'));assert.deepEqual(result.applied,['0024_material_progress_settings.sql']);
+  const result=await runMigrations(pool,resolve('database/migrations'));assert.deepEqual(result.applied,migrationFilesAfter(23));
   assert.deepEqual((await pool.query("SELECT role_id FROM app_role_permissions WHERE permission_key='style_progress.settings.edit' ORDER BY role_id")).rows.map(row=>row.role_id),['role-server-admin','role-team-material-manager']);
   assert.deepEqual((await pool.query('SELECT id,public_id,username,display_name,role,active FROM app_users ORDER BY id')).rows,usersBefore);assert.deepEqual((await pool.query('SELECT * FROM app_user_roles ORDER BY user_id,role_id')).rows,membershipBefore);
   assert.equal((await pool.query('SELECT count(*)::int n FROM material_progress_settings')).rows[0].n,0);assert.equal((await pool.query('SELECT count(*)::int n FROM sales_orders')).rows[0].n,0);

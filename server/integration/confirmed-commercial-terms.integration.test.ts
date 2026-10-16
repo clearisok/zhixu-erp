@@ -1,3 +1,4 @@
+import { CURRENT_MIGRATION_FILES } from "./current-migration-ledger-fixture.js";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
@@ -117,21 +118,7 @@ test("Quote confirmation and legacy evidence remain distinct from adopted Order 
   });
 
   const firstMigration = await runMigrations(pool, resolve("database/migrations"));
-  assert.deepEqual(firstMigration.applied, [
-    "0001_trusted_auth_rbac_operation_logs.sql",
-    "0002_sales_order_foundation.sql",
-    "0003_sales_order_number_sequence.sql",
-    "0004_confirmed_commercial_terms.sql",
-    "0005_quote_foundation.sql",
-    "0006_quote_number_sequence.sql",
-    "0007_quote_master_settings.sql",
-    "0008_quote_attachments.sql",
-    "0009_sales_order_delivery_plans.sql",
-    "0010_quote_creation_receipts.sql",
-    "0011_quote_creation_defaults.sql", "0012_ainuoke_server_source.sql",
-    "0014_order_identity.sql",
-    "0015_order_commercial_versions.sql", "0016_processing_order_batches.sql", "0017_order_normalization_cases.sql", "0018_order_effective_attribution.sql", "0019_order_normalization_reviews.sql", "0020_order_attribution_write_guards.sql", "0021_order_command_control.sql", "0022_source_history_context.sql", "0023_order_preparation_adoption.sql", "0024_material_progress_settings.sql",
-  ]);
+  assert.deepEqual(firstMigration.applied, CURRENT_MIGRATION_FILES);
   const rerun = await runMigrations(pool, resolve("database/migrations"));
   assert.deepEqual(rerun.applied, []);
   assert.ok(rerun.skipped.includes("0004_confirmed_commercial_terms.sql"));

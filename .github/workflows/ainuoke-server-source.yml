@@ -36,6 +36,7 @@ jobs:
           npm run test:order-normalization-execution
           npm run test:order-command-control
           npm run test:material-history
+          npx --no-install tsx --test --test-concurrency=1 features/style-progress/server/__tests__/material-progress-settings-client.test.ts server/integration/material-progress-settings.integration.test.ts
           npm run test:material-history-client
           npm run test:normalization-review-workspace
           npm run test:normalization-review-client
@@ -59,6 +60,7 @@ jobs:
           NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE: writable
           NEXT_PUBLIC_ZHIXU_IDENTITY_MODE: session
           NEXT_PUBLIC_ZHIXU_ORDER_READ: snapshot
+          ZHIXU_GIT_COMMIT: ${{ github.sha }}
         run: npm run build
       - name: Existing P6 pages, six roles and persisted refresh in private Chromium
         run: |
@@ -70,6 +72,7 @@ jobs:
           npm run test:material-history-ui
           npm run test:normalization-review-ui
           npm run test:order-preparation-ui
+          npx --no-install tsx --test server/integration/material-display-ui.integration.test.mjs
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge
         env:
