@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {mkdtempSync,writeFileSync,unlinkSync,rmdirSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {resolve,join,delimiter} from 'node:path';
 import {collectSelectedSourceOnce,validateSelectedSourceOnce,SELECTED_SOURCE_LIMITS,type SelectedSourceMetrics} from '../ainuoke-source/selected-source-once.js';
 import type {AdditionBundle} from '../ainuoke-source/additions.js';
 import {selectedConfig,selectedContracts,selectedWorkerFixture} from './selected-source-fixture.js';
@@ -23,6 +26,24 @@ test('actual failed worker stdout retains accurate counters without a partial bu
   const input=selectedWorkerFixture('selected-bindings',"if report == 6087105: raise __import__('ainuoke_bridge.ainuoke_client', fromlist=['AuthExpiredError']).AuthExpiredError('private')");
   const result=await validateSelectedSourceOnce(input,selectedConfig,request);
   assert.deepEqual(result,{result:'failed',code:'auth_expired',metrics:{logins:1,reportRequests:2,httpAttempts:3,networkRetries:0,authRenewals:0}});
+});
+
+test('real parent subprocess accepts validated success and closed nonzero failure without retry',async()=>{
+  const directory=mkdtempSync(join(tmpdir(),'zhixu-selected-source-test-'));
+  const site=join(directory,'sitecustomize.py'),previous=process.env.PYTHONPATH;
+  const fixturePath=resolve('tools/ainuoke-bridge/tests').replaceAll('\\','/');
+  try {
+    process.env.PYTHONPATH=[directory,resolve('tools/ainuoke-bridge'),...(previous?[previous]:[])].join(delimiter);
+    for(const fail of [false,true]) {
+      writeFileSync(site,`import sys\nsys.path.insert(0, ${JSON.stringify(fixturePath)})\nfrom selected_source_fixture import FakeSelectedTransport\nimport ainuoke_bridge.selected_source_once as module\nfrom ainuoke_bridge.ainuoke_client import AuthExpiredError\ndef change(report, page, payload):\n    if ${fail?'True':'False'} and report == 6087105: raise AuthExpiredError('synthetic')\nmodule.ProtectedTransport = lambda *args: FakeSelectedTransport(change)\n`,{mode:0o600});
+      const result=await collectSelectedSourceOnce(selectedConfig,request,{timeoutMs:10000});
+      assert.equal(result.result,fail?'failed':'complete');
+      assert.equal(result.metrics.httpAttempts,fail?3:5);
+    }
+  } finally {
+    if(previous===undefined)delete process.env.PYTHONPATH;else process.env.PYTHONPATH=previous;
+    unlinkSync(site);rmdirSync(directory);
+  }
 });
 
 test('wrong account, selection, mode, budget and secret reflections cannot reuse a result',async()=>{

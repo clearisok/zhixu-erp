@@ -7,7 +7,7 @@ import json
 import unicodedata
 from hashlib import sha256
 from time import monotonic
-from .ainuoke_client import AinuokeClient, AuthExpiredError, InvalidCredentialError, NetworkAinuokeError
+from .ainuoke_client import AinuokeClient, AuthExpiredError, InvalidCredentialError, NetworkAinuokeError, UpstreamSchemaError
 from .server_source import ProtectedTransport, collect, validate_input, identity, MAX_BYTES
 
 MODES = ("selected-bindings", "selected-materials")
@@ -135,6 +135,8 @@ def collect_selected(data, transport=None, clock=monotonic):
     except (Exception, KeyboardInterrupt) as error:
         code = error.code if isinstance(error, Refused) else "invalid_credential" if isinstance(error, InvalidCredentialError) \
             else "auth_expired" if isinstance(error, AuthExpiredError) else "source_unavailable" if isinstance(error, NetworkAinuokeError) \
+            else "selected_source_response_limit" if isinstance(error, UpstreamSchemaError) and str(error) == "response_limit" \
+            else "selected_source_endpoint_refused" if isinstance(error, UpstreamSchemaError) and str(error) == "redirect_refused" \
             else "selected_source_invalid"
         return {**common, "result": "failed", "code": code if code in FAILURE_CODES else "selected_source_invalid",
                 "metrics": budget.metrics(), "bundle": None}

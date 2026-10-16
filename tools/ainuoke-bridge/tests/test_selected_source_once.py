@@ -4,7 +4,7 @@ from unittest import TestCase
 from unittest.mock import patch
 from ainuoke_bridge.selected_source_once import collect_selected, BudgetClient, BudgetTransport, Refused, LIMITS
 from ainuoke_bridge.server_source import validate_input, ProtectedTransport, APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY
-from ainuoke_bridge.ainuoke_client import NetworkAinuokeError, AuthExpiredError, AinuokeClient
+from ainuoke_bridge.ainuoke_client import NetworkAinuokeError, AuthExpiredError, UpstreamSchemaError, AinuokeClient
 from ainuoke_bridge.contracts import REPORT_CATALOG, build_report_request
 from selected_source_fixture import FakeSelectedTransport, mutate_rows
 
@@ -78,6 +78,18 @@ class SelectedSourceOnceTests(TestCase):
         result = collect_selected(CONFIG, FakeSelectedTransport(bad))
         self.assertEqual(result["code"], "invalid_credential")
         self.assertEqual(result["metrics"]["reportRequests"], 0)
+
+    def test_protected_transport_limits_keep_safe_diagnostic_categories(self):
+        for raw, code in (("response_limit", "selected_source_response_limit"),
+                          ("redirect_refused", "selected_source_endpoint_refused"),
+                          (CONFIG["password"], "selected_source_invalid")):
+            def change(report, page, payload):
+                raise UpstreamSchemaError(raw)
+            transport = FakeSelectedTransport(change)
+            result = collect_selected(CONFIG, transport)
+            self.assertEqual(result["code"], code)
+            self.assertEqual(len(transport.calls), 1)
+            self.assertNotIn(CONFIG["password"], json.dumps(result))
 
     def test_full_detail_paging_is_counted_and_limit_stops_after_first_response(self):
         result = collect_selected({**CONFIG, "mode": "selected-materials"}, FakeSelectedTransport(detail_total=51))
