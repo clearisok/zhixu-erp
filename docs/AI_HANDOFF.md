@@ -4,6 +4,6 @@
 
 新业务规则已明确批准，无负责人/认领/转交/准备；合同先有艾诺科，加工保留独立入口。business-source采用不可变产品条件+商业版本，旧公开写API410，历史内部服务和数据保护测试保留。不要重新启用旧五套UI入口，也不要删除旧记录。当前107+83后端/兼容、6新UI通过；加工UI9/9、根898/898、基线94/94及main源码门禁均通过。冻结证据已前向绑定b3d71565，旧hash未改。
 
-下一步checkpoint后绑定docs/release/baseline.json中decisions-selected-source-once的继任证据，运行完整root/基线/typecheck/lint/构建及新页面/加工页面。新隔离可编辑副本尚未创建；必须新volume/network/db与新合成资料，原两合同只读PG仅可dump读，不写。私有目录outputs/isolated-private-3a6aefbe-bcf9-4bbe-92a7-d3bd226a7cfe含凭据和业务原文，不打印manifest全文，不运行旧采集工具，不再读取Ainuoke。原62316不续期/不修改，拟新62326体验环境无调度、手动启停。新规则工程和演示分别记录。
+源码333d7cb2854bc761c28b46e66b8dfc525cb16f90已打包并启动新62326隔离可编辑副本；私有目录outputs/isolated-private-93d2596e-d315-4da5-90ae-2038476f6be8含clone-manifest/凭据/备份/启停脚本和回执，禁止打印manifest全文。原62316目录outputs/isolated-private-3a6aefbe-bcf9-4bbe-92a7-d3bd226a7cfe不写/不续期；原五表指纹保持。新5SO/4报价/2未消费加工批次，手动stop/start保留数据，无调度/新艾诺科采集。见[体验与验证证据](tasks/completed/2026-10-17-business-source-isolated-experience.md)。内置浏览器未保存预览的原生confirm导致自动控制超时，未替用户提交两待维护单；独立UI覆盖保存和重试。
 
-远端新分支尚未交付；PR116原依赖保留，不重复创建。精确提交核实后创建唯一新草稿PR，不合并部署。网络按AGENTS有界协议。最终报告branch/fullSHA/PR/tests/remaining dirty，并在聊天给简单使用方法，不新建教学页面。
+唯一草稿PR117，333d7cb独立API exact核实。交付工具曾返回STOP_AUTH_OR_DIVERGENCE但同时返回精确remoteSha，不据分类假报失败或盲推；独立事实为已送达。首轮baseline/team-access通过；Source旧material-history两断言过时，已替换为入口退役/只读新侧栏，9/9通过。物料UI10/财务UI9/Python131追加通过，lint0error/1既有私有warning。下一步checkpoint新体验证据并前向绑定baseline，再精确门禁/一次交付/最终CI；产品镜像仍333d7cb（后续仅测试文档）。PR116依赖保留，不重复PR，不合并部署。最终报告branch/fullSHA/PR/tests/remaining dirty，在聊天给简单使用方法，不建教学页。
