@@ -1,3 +1,4 @@
+import {waitForChromiumEndpoint} from './chromium-endpoint.mjs';
 import {randomUUID} from 'node:crypto';
 import {loadExistingBootstrapActor} from '../sales-orders/bootstrap-runner.ts';
 import {previewOrderNormalization} from '../sales-orders/normalization-preview.ts';
@@ -8,7 +9,7 @@ import {createSalesOrder} from '../sales-orders/repository.ts';
 import assert from "node:assert/strict";
 import test from "node:test";
 import { spawn } from "node:child_process";
-import { existsSync,readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { mkdtemp,rm,mkdir,writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join,resolve,relative,isAbsolute } from "node:path";
@@ -36,8 +37,7 @@ test("normalization review workspace built UI uses independent synthetic roles a
  try{
   const profile=join(temp,"profile");
   browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:"ignore",windowsHide:true});
-  await until(()=>existsSync(join(profile,"DevToolsActivePort")),"Chromium");
-  const [port,path]=readFileSync(join(profile,"DevToolsActivePort"),"utf8").trim().split(/\r?\n/);ws=new WebSocket("ws://127.0.0.1:"+port+path);await new Promise((done,reject)=>{ws.addEventListener("open",done,{once:true});ws.addEventListener("error",reject,{once:true});});
+  const [port,path]=await waitForChromiumEndpoint(profile,{timeoutMs:20000});ws=new WebSocket("ws://127.0.0.1:"+port+path);await new Promise((done,reject)=>{ws.addEventListener("open",done,{once:true});ws.addEventListener("error",reject,{once:true});});
   const command=(method,params={},sid=session)=>new Promise((done,reject)=>{pending.set(++id,{done,reject});ws.send(JSON.stringify({id,method,params,sessionId:sid}));});
   ws.addEventListener("message",({data})=>{const r=JSON.parse(String(data)),p=pending.get(r.id);if(p){pending.delete(r.id);if(r.error)p.reject(Error(JSON.stringify(r.error)));else p.done(r.result);}if(r.method==="Runtime.exceptionThrown")errors.push(r.params.exceptionDetails.text);});
   const target=await command("Target.createTarget",{url:"about:blank"},undefined);session=(await command("Target.attachToTarget",{targetId:target.targetId,flatten:true},undefined)).sessionId;
