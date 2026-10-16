@@ -1,11 +1,11 @@
-# 当前恢复点：D142财务来源操作入口
+# 当前恢复点：D143 两合同固定预算采集
 
-2026-10-16；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。原树ainuoke-live-readiness，新任务分支feat/ainuoke-payment-operator；clean parent=PR113@3896d66837a25875cf9c364126cfd6c804250b80，原ref保留。前接力保留tasks/completed/2026-10-16-payment-before-operator-ai_handoff.md。不要重复建树/PR、合并或部署。
+2026-10-16；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。原ainuoke-live-readiness工作树、feat/ainuoke-selected-source-once；clean parent PR115@db4236cf63839e4f384ad042e1ac21ad42fd01f1，原ref保留，不新建树/重复PR/合并/部署。基线receipt在outputs/selected-source-once-baseline-20261016.json。前接力逐字归档tasks/completed/2026-10-16-payment-operator-delivered-ai_handoff.md。
 
-阶段1核心已完成13项合成/自建一次性PG验证及类型/Server编译/定向lint：0026技术回执、精确两目标启停/计划、historical proof重建、durable claim先提交再调用原D141协调器；started/terminal重放不触上游，commit不确定先只读核回执，启停版本不复活旧金额。初次范围hash错误来自扩展运算符带入scopeHash自引用，已显式选requestId/expiresAt修复，失败日志保留；不降低断言。
+先读tasks/active/ainuoke-selected-source-once.md、D143、AINUOKE_SERVER_SOURCE。新Python预算包住原collector/SDK而不是重写mapper；Node严格结果验证再用previewSelectedBindings/validateBundle。内部函数没有DB写入或新HTTP/CLI/scheduler。每次两合同、1登录80报表81HTTP180秒、0重试/续期；每页50/每报表20页1000行/全4000行，4MiB响应32MiB输出。颜色contains结果逐行精确BillNo，材料逐行ExpContractNo。
 
-第二阶段显式CLI/私有文件保护、完整21项已通过，原财务112和PG261通过；新增非空0025→0026保留原事实及旧schema拒绝回退测试。源码6658f0c1干净实际入口21项及默认Browser构建build20261016-122100通过，新增operator-engineering-2026-10-16.md冻结；前向证据/manifest已绑定D142新叶/新blob，root898/94基线/精确main守卫通过（11页/43能力/56累计UI路径）。继续最终commit后守卫、一次安全交付，核精确远端/唯一依赖草稿PR/三CI及COMMENT复审。当前只有已知本Phase增量，无继承dirty。0012/0025历史SQL和生产UI不改。模型仅新增日志枚举，V0路径记录单列。
+新增11项Node/实际Python stdout/一次性PG和15项Python通过，全Python129通过；类型/定向lint通过。合成并发首绑仅两SO，既有四流持久化读回；理论115.50与采购118保持独立，空单位/未知量不补0。原失败日志保留，真实0读取。继续完整Source/continuous回归、root/94基线/类型lint构建、提交源码/冻结前向证据、精确main守卫，再按已证官方IP进程级Git路线安全一次push、核精确head/唯一依赖草稿/三CI及COMMENT复审。
 
-真实两合同读取许可已消费（12/9行、两遍一致、5HTTP/4report），旧私有证据只读复用；不读取凭据或上游。真实DB/迁移/目标启用/发布及新读取必须先给具体范围另获许可。旧四单窗口不续期，不触真实账号/业务库/现有演示/宁波18443/18444。Goal仍在进行。
+PR115远端db4236cf三CI已全部SUCCESS：baseline116813381526、team116813381195、source116813380536；复审5543197142，仍草稿/未合并。原0026证据不改。D143修改决策文件后须新证据叶supersede decisions-payment-operator、绑定新Git blob；旧ID/报告/PNG/hash不可覆盖。当前dirty全为本Phase已知增量，没有继承dirty。
 
-PR115@1de已精确送达/附加，首轮Source38850983248因旧Source当前ledger数字expected止于25而红；baseline绿。只改该集成断言复用显式CURRENT_MIGRATION_FILES，历史起点不动。Source本机20通过/1既有Windows跳过、fresh-start7通过、定向lint/类型通过；生产源码仍6658，旧冻结证据不改。提交本test/docs增量、精确守卫后一次更新原PR115并核最终三CI，不重复创建。
+旧真实财务两合同一次许可已用完，禁止新增读取/凭据文件/真实DB/首绑/激活。旧四单窗口不续，旧演示两个容器已停止且保留volume，未重启。下一步先提交精确隔离资源/SO/合同/预算/期限/备份回退方案，明确授权后才真实操作；宁波18443/18444不触。Goal仍在进行，完成前须按D121 Gate0–5审计未交付/未授权项，不能因当前CI绿标全部完成。

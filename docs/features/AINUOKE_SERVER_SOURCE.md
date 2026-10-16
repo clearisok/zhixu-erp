@@ -1,3 +1,5 @@
+2026-10-16 D143新增内部两合同一次采集预算：selected-bindings/selected-materials复用原可信Discovery与映射；1登录80报表81HTTP180秒、0网络重试/认证续期，逐行合同身份/完整分页/时效重新校验。11项Node/实际Python/一次性PG及全Python129通过；没有新CLI/HTTP/scheduler或真实写入授权。详情见[活动任务](../tasks/active/ainuoke-selected-source-once.md)。PR115精确db4236cf三CI全绿/复审、仍草稿未合并。旧真实两合同许可已用完，不重复采集。
+
 2026-10-16新增真实证据：用户另批的一次固定两合同6086941核验已通过，S1/S2=12/9行、完整两遍一致、实际1登录+4报表，指定合同过滤及观察完整性已实证。只读工具48b、受保护报告与边界见[新冻结报告](../tasks/active/evidence/ainuoke-payment-request-probe/real-two-contracts-2026-10-16.md)；旧首页/人工确认不覆盖，整体映射仍未验收、无银行实付推断、无DB/Source启用。本次许可已用完，不重读或扩大。PR113f9三CI通过；新证据前向绑定后核实最新提交，不自动合并部署。
 
 2026-10-16 D141工程阶段原记录：内部一次性协调服务复用两个合同固定worker和D139快照事务，先精确plan/全部验证再逐SO发布；部分成功/COMMIT未知分别报告，不自动重采。新22/22、相关172/172、类型/Server编译/完整源码lint、root898/898、基线94/94、精确main守卫（42能力）及干净默认Browser构建通过。当时没有新增HTTP、CLI、调度或目标启用；真实过滤/范围授权尚待。UI/0025不改，D140原41能力/截图按其旧日期SHA阅读。恢复[受控采集任务](../tasks/active/ainuoke-payment-controlled-collector.md)与[货款申请模块](AINUOKE_PAYMENT_REQUESTS.md)；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，源码/证据/授权变化时更新。下文各旧阶段结果按原时点阅读，新的真实过滤结论仅以上述新增报告为准。

@@ -25,6 +25,11 @@ class NoRedirect(HTTPRedirectHandler):
 
 class ProtectedTransport:
     """No redirects (including credential-bearing login GET); no ambient proxy."""
+    def __init__(self, max_response_bytes=None):
+        max_response_bytes = MAX_BYTES if max_response_bytes is None else max_response_bytes
+        if type(max_response_bytes) is not int or not 1 <= max_response_bytes <= MAX_BYTES:
+            raise ValueError("invalid_response_limit")
+        self.max_response_bytes = max_response_bytes
     def request(self, *, url, method, body, headers, timeout):
         from urllib.parse import urlencode
         data = None
@@ -35,7 +40,7 @@ class ProtectedTransport:
             headers = {**headers, "Content-Type": "application/json;charset=utf-8"}
         try:
             with build_opener(NoRedirect(), ProxyHandler({})).open(Request(url, data=data, method=method, headers=headers), timeout=timeout) as response:
-                raw = response.read(MAX_BYTES + 1)
+                raw = response.read(self.max_response_bytes + 1)
         except HTTPError as error:
             error.close()
             if error.code in (401, 403):
@@ -45,7 +50,7 @@ class ProtectedTransport:
             raise NetworkAinuokeError("upstream_http_error") from None
         except (URLError, TimeoutError, OSError):
             raise NetworkAinuokeError("network_unavailable") from None
-        if len(raw) > MAX_BYTES:
+        if len(raw) > self.max_response_bytes:
             raise UpstreamSchemaError("response_limit")
         try:
             result = json.loads(raw)
@@ -71,8 +76,17 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
-    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality"):
+    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality", "selected-bindings", "selected-materials"):
         raise ValueError("invalid_mode")
+    if data.get("mode") in ("selected-bindings", "selected-materials"):
+        import re
+        if set(data) - (required | {"mode", "transportPolicy"}) or not isinstance(data["contracts"], list) or len(data["contracts"]) != 2:
+            raise ValueError("invalid_selected_scope")
+        if any(not isinstance(c, str) or not re.fullmatch(r"[A-Z0-9][A-Z0-9/._-]{0,79}", c) for c in data["contracts"]) or len(set(data["contracts"])) != 2:
+            raise ValueError("invalid_selected_scope")
+        if url.scheme == "http" and not approved_http:
+            raise ValueError("protected_source_transport_required")
+        return data
     if data.get("mode") == "quality":
         targets = data.get("qualityTargets")
         if set(data) & target_keys or data["contracts"] != [] or not isinstance(targets, list) or not 1 <= len(targets) <= 25:
@@ -122,6 +136,11 @@ def validate_input(data):
 
 def collect(data, client=None):
     data = validate_input(data)
+    if data.get("mode") in ("selected-bindings", "selected-materials"):
+        if client is not None:
+            raise ValueError("selected_transport_owned_by_budget")
+        from .selected_source_once import collect_selected
+        return collect_selected(data)
     client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=0 if data.get("mode") in ("probe", "audit", "targeted", "quality") else 1)
     session = client.login(data["username"], data["password"])
     if data.get("mode") == "probe":
@@ -342,6 +361,8 @@ def main():
         if len(output) > MAX_BYTES:
             raise ValueError("output_limit")
         sys.stdout.buffer.write(output)
+        if not args and data.get("mode") in ("selected-bindings", "selected-materials") and result.get("result") != "complete":
+            return 1
     except InvalidCredentialError:
         sys.stdout.write('{"error":"invalid_credential"}')
         return 1
