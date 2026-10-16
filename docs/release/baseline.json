@@ -1625,6 +1625,13 @@
       "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/controlled-collection-engineering-2026-10-16.md",
       "recordedAtSha": "499edf5423790392704b35305beb35d13f89790b",
       "sha256": "acf6e57e1243ffbb9a49111a36c34ff372bc0024ae64e39c2f0fdc41680441f1"
+    },
+    {
+      "id": "payment-two-contract-real-read-20261016",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/real-two-contracts-2026-10-16.md",
+      "recordedAtSha": "ebe1b6504b012594a0ce02a2488fcf471f383cb0",
+      "sha256": "445a38f79395c7b7347382ade8af2aa17f391afd722435765dc9efb9e960ab68"
     }
   ],
   "pages": [
@@ -5354,66 +5361,72 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+      "scope": "Operator-only 6086941 diagnostic: one explicitly authorized real run at source 48b63101675f7773b63c7d820d4c1d60088ed9b4 completed two selected positive contracts, 12/9 rows, one page each per pass, two matching passes, 4 report/5 HTTP attempts. Exact filtering and observed completeness verified only for these contracts. Real >100-row second page and other contracts remain unverified; mappingVerified=false. No ERP DB, activation, bank-payment inference, API/UI enablement, product acceptance or deployment. No additional read permission remains.",
       "evidence": [
         "decisions-payment-contract-probe",
         "payment-contract-probe-engineering",
-        "payment-contract-selection-offline"
+        "payment-contract-selection-offline",
+        "payment-two-contract-real-read-20261016"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
-          "assessedAt": "2026-10-15",
-          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
-          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "48b63101675f7773b63c7d820d4c1d60088ed9b4",
+          "scope": "Operator-only 6086941 diagnostic: one explicitly authorized real run at source 48b63101675f7773b63c7d820d4c1d60088ed9b4 completed two selected positive contracts, 12/9 rows, one page each per pass, two matching passes, 4 report/5 HTTP attempts. Exact filtering and observed completeness verified only for these contracts. Real >100-row second page and other contracts remain unverified; mappingVerified=false. No ERP DB, activation, bank-payment inference, API/UI enablement, product acceptance or deployment. No additional read permission remains.",
           "evidence": [
             "decisions-payment-contract-probe",
             "payment-contract-probe-engineering",
-            "payment-contract-selection-offline"
+            "payment-contract-selection-offline",
+            "payment-two-contract-real-read-20261016"
           ]
         },
         "merged": {
           "value": false,
-          "assessedAt": "2026-10-15",
-          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
-          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "48b63101675f7773b63c7d820d4c1d60088ed9b4",
+          "scope": "Operator-only 6086941 diagnostic: one explicitly authorized real run at source 48b63101675f7773b63c7d820d4c1d60088ed9b4 completed two selected positive contracts, 12/9 rows, one page each per pass, two matching passes, 4 report/5 HTTP attempts. Exact filtering and observed completeness verified only for these contracts. Real >100-row second page and other contracts remain unverified; mappingVerified=false. No ERP DB, activation, bank-payment inference, API/UI enablement, product acceptance or deployment. No additional read permission remains.",
           "evidence": [
             "decisions-payment-contract-probe",
             "payment-contract-probe-engineering",
-            "payment-contract-selection-offline"
+            "payment-contract-selection-offline",
+            "payment-two-contract-real-read-20261016"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
-          "assessedAt": "2026-10-15",
-          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
-          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "48b63101675f7773b63c7d820d4c1d60088ed9b4",
+          "scope": "Operator-only 6086941 diagnostic: one explicitly authorized real run at source 48b63101675f7773b63c7d820d4c1d60088ed9b4 completed two selected positive contracts, 12/9 rows, one page each per pass, two matching passes, 4 report/5 HTTP attempts. Exact filtering and observed completeness verified only for these contracts. Real >100-row second page and other contracts remain unverified; mappingVerified=false. No ERP DB, activation, bank-payment inference, API/UI enablement, product acceptance or deployment. No additional read permission remains.",
           "evidence": [
             "decisions-payment-contract-probe",
             "payment-contract-probe-engineering",
-            "payment-contract-selection-offline"
+            "payment-contract-selection-offline",
+            "payment-two-contract-real-read-20261016"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
-          "assessedAt": "2026-10-15",
-          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
-          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "48b63101675f7773b63c7d820d4c1d60088ed9b4",
+          "scope": "Operator-only 6086941 diagnostic: one explicitly authorized real run at source 48b63101675f7773b63c7d820d4c1d60088ed9b4 completed two selected positive contracts, 12/9 rows, one page each per pass, two matching passes, 4 report/5 HTTP attempts. Exact filtering and observed completeness verified only for these contracts. Real >100-row second page and other contracts remain unverified; mappingVerified=false. No ERP DB, activation, bank-payment inference, API/UI enablement, product acceptance or deployment. No additional read permission remains.",
           "evidence": [
             "decisions-payment-contract-probe",
             "payment-contract-probe-engineering",
-            "payment-contract-selection-offline"
+            "payment-contract-selection-offline",
+            "payment-two-contract-real-read-20261016"
           ]
         },
         "sourceActivation": {
           "value": "not-connected",
-          "assessedAt": "2026-10-15",
-          "sourceSha": "c8b92dce08b4f0c91f47544cc02ddd359cd4ec60",
-          "scope": "Separate operator-only 6086941 two-contract diagnostic, <=2 pages each, two complete passes, <=8 report/9 HTTP attempts. Synthetic/Windows-private-entry validation and offline selected-sample loading only. Candidate exact filter unverified upstream; no real run, DB, Source activation, API, UI, bank-payment inference, product acceptance or deployment. Original first-page mode remains 2 HTTP/1 report.",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "48b63101675f7773b63c7d820d4c1d60088ed9b4",
+          "scope": "Operator-only 6086941 diagnostic: one explicitly authorized real run at source 48b63101675f7773b63c7d820d4c1d60088ed9b4 completed two selected positive contracts, 12/9 rows, one page each per pass, two matching passes, 4 report/5 HTTP attempts. Exact filtering and observed completeness verified only for these contracts. Real >100-row second page and other contracts remain unverified; mappingVerified=false. No ERP DB, activation, bank-payment inference, API/UI enablement, product acceptance or deployment. No additional read permission remains.",
           "evidence": [
             "decisions-payment-contract-probe",
             "payment-contract-probe-engineering",
-            "payment-contract-selection-offline"
+            "payment-contract-selection-offline",
+            "payment-two-contract-real-read-20261016"
           ]
         },
         "trial18443": {
