@@ -1687,6 +1687,13 @@
       "path": "docs/tasks/active/order-business-source-approved-scope-2026-10-17.md",
       "recordedAtSha": "b3d71565696576192b94b3a75b25a91f6e682e65",
       "sha256": "4cd4a44759e58f781133c5d1e55ff844eabaa1e06c415ed4469a6f2ee51fa60a"
+    },
+    {
+      "id": "business-source-isolated-experience",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-17-business-source-isolated-experience.md",
+      "recordedAtSha": "d32ea96cf955e704fce204f9f042824ef1414411",
+      "sha256": "be4176b8751fffeb64732b6eacd24cf7ad6671c9846f3f436b3b665685f54c29"
     }
   ],
   "pages": [
@@ -6090,6 +6097,107 @@
             "decisions-selected-source-once",
             "selected-source-once-engineering",
             "selected-source-once-secret-guard"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-business-source-maintenance",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+      "evidence": [
+        "decisions-business-source",
+        "business-source-approved-scope",
+        "business-source-isolated-experience"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "333d7cb2854bc761c28b46e66b8dfc525cb16f90",
+          "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+          "evidence": [
+            "decisions-business-source",
+            "business-source-approved-scope",
+            "business-source-isolated-experience"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-17",
+          "sourceSha": "333d7cb2854bc761c28b46e66b8dfc525cb16f90",
+          "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+          "evidence": [
+            "decisions-business-source",
+            "business-source-approved-scope",
+            "business-source-isolated-experience"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "333d7cb2854bc761c28b46e66b8dfc525cb16f90",
+          "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+          "evidence": [
+            "decisions-business-source",
+            "business-source-approved-scope",
+            "business-source-isolated-experience"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "333d7cb2854bc761c28b46e66b8dfc525cb16f90",
+          "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+          "evidence": [
+            "decisions-business-source",
+            "business-source-approved-scope",
+            "business-source-isolated-experience"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "333d7cb2854bc761c28b46e66b8dfc525cb16f90",
+          "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+          "evidence": [
+            "decisions-business-source",
+            "business-source-approved-scope",
+            "business-source-isolated-experience"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or re-observation of this environment. Only the separately authorized local clone was created.",
+          "evidence": [
+            "decisions-business-source",
+            "business-source-approved-scope",
+            "business-source-isolated-experience"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or re-observation of this environment. Only the separately authorized local clone was created.",
+          "evidence": [
+            "decisions-business-source",
+            "business-source-approved-scope",
+            "business-source-isolated-experience"
           ]
         }
       }
