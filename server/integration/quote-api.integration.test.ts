@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { CURRENT_MIGRATION_FILES } from "./current-migration-ledger-fixture.js";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
 import test from "node:test";
@@ -99,18 +100,7 @@ test("Q2B2B Quote trusted API uses disposable PostgreSQL", { timeout: 180_000 },
   t.after(async () => { await api.close(); await pool.end(); await postgres.stop(); });
 
   const migration = await runMigrations(pool, resolve("database/migrations"));
-  assert.deepEqual(migration.applied, [
-    "0001_trusted_auth_rbac_operation_logs.sql",
-    "0002_sales_order_foundation.sql",
-    "0003_sales_order_number_sequence.sql",
-    "0004_confirmed_commercial_terms.sql",
-    "0005_quote_foundation.sql",
-    "0006_quote_number_sequence.sql",
-    "0007_quote_master_settings.sql",
-    "0008_quote_attachments.sql",
-    "0009_sales_order_delivery_plans.sql",
-    "0010_quote_creation_receipts.sql", "0011_quote_creation_defaults.sql", "0012_ainuoke_server_source.sql", "0014_order_identity.sql", "0015_order_commercial_versions.sql", "0016_processing_order_batches.sql", "0017_order_normalization_cases.sql", "0018_order_effective_attribution.sql", "0019_order_normalization_reviews.sql", "0020_order_attribution_write_guards.sql", "0021_order_command_control.sql", "0022_source_history_context.sql", "0023_order_preparation_adoption.sql", "0024_material_progress_settings.sql",
-  ]);
+  assert.deepEqual(migration.applied, CURRENT_MIGRATION_FILES);
   await synchronizePermissionCatalog(pool);
   const denied = await seedUser(pool, "denied", []);
   const viewer = await seedUser(pool, "viewer", ["quote.view"]);

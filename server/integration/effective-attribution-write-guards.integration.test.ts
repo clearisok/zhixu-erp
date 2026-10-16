@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {migrationFilesAfter} from './current-migration-ledger-fixture.js';
 import test from 'node:test';
 import {randomUUID} from 'node:crypto';
 import {mkdtemp,readdir,copyFile,rm} from 'node:fs/promises';
@@ -44,7 +45,7 @@ test('SQL fences preserve historical facts and reject unaware writers on synthet
  const historical=async()=>Promise.all(historyTables.map(async table=>(await pool.query("SELECT (to_jsonb(x)-ARRAY['order_scope','source_link_id','captured_order_version','preparation_id']) AS row FROM "+table+' x ORDER BY to_jsonb(x)::text')).rows));
  const before=await historical();
  await t.test('forward upgrade preserves all existing rows including nullable old Source history',async()=>{
-  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0020_order_attribution_write_guards.sql','0021_order_command_control.sql','0022_source_history_context.sql','0023_order_preparation_adoption.sql','0024_material_progress_settings.sql','0025_ainuoke_payment_snapshots.sql']);
+  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,migrationFilesAfter(19));
   assert.deepEqual(await historical(),before);assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_identity_profiles WHERE preparation_id IS NOT NULL')).rows[0].n,0);assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
  });
  const makeCase=async(ids:string[])=>{const pair=[...ids].sort();const existing=(await pool.query('SELECT id FROM sales_order_normalization_cases WHERE first_order_id=$1 AND second_order_id=$2',pair)).rows[0];if(existing)return existing.id as string;

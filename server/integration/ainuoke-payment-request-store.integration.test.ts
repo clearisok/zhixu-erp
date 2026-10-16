@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {migrationFilesAfter} from './current-migration-ledger-fixture.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
@@ -81,7 +82,7 @@ test('payment snapshots: disposable PG upgrade, immutable publication and real s
     (SELECT jsonb_agg(to_jsonb(u) ORDER BY id) FROM app_users u) AS users,
     (SELECT jsonb_agg(to_jsonb(l) ORDER BY id) FROM sales_order_source_links l) AS links`)).rows;
   await t.test('nonempty 0024 upgrade is additive, idempotent and creates no target or snapshot', async()=>{
-    assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0025_ainuoke_payment_snapshots.sql']);
+    assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,migrationFilesAfter(24));
     assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
     assert.deepEqual((await pool.query(`SELECT (SELECT jsonb_agg(to_jsonb(o) ORDER BY id) FROM sales_orders o) AS orders,
       (SELECT jsonb_agg(to_jsonb(u) ORDER BY id) FROM app_users u) AS users,
