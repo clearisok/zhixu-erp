@@ -67,3 +67,5 @@ job及过滤原文须在受保护/Git忽略的outputs子目录；DB连接字符�
 初次新增“缺迁移”用例的合成合同含小写后缀，先被既有大写合同格式校验阻断；修为合法合成身份后真实到达pending_migrations，验证公共schema仍0表。原错误日志保留。请求回执payload还绑定实际selection/targets/operator和验证文件hash；保持旧scopeHash却改SO也必须冲突，密码不纳入payload以便零凭据回执读取。完整root/94基线/构建/远端CI尚未在本阶段宣称通过。
 
 完整源码6658f0c1d221f581adcc94582bb6538e7654b3c1干净树21/21再验通过，实际源码子进程查询durable receipt成功（不是仅测试注入入口）；默认Browser构建build20261016-122100通过，orderRead仍disabled。冻结operator-engineering-2026-10-16.md后按新ID/新blob绑定，不修改旧证据。
+
+最终本地验收：root898/898、发布基线94/94、精确main064守卫PASS（11页/43能力/56累计UI路径）；新D142决策与工程报告已前向绑定，旧证据/PNG/hash不变。最终commit后再核守卫与精确远端/唯一草稿PR/Hosted CI；这里不提前声明REMOTE PASS。无新真实读取或真实DB/账号/启用/部署。
