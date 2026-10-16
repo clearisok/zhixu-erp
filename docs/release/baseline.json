@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
-  "verifiedAt": "2026-10-16T04:23:44.836Z",
+  "verifiedAt": "2026-10-16T06:30:27.995Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -1648,6 +1648,29 @@
       "path": "docs/tasks/active/evidence/ainuoke-payment-request-probe/operator-engineering-2026-10-16.md",
       "recordedAtSha": "b5413f96765fb374409ccd39fee9559a1b17830d",
       "sha256": "c21aec50cd8b28f9c8296a85336bbc6edbf0e28d0f1a8fe0614807501fe61d9e"
+    },
+    {
+      "id": "decisions-selected-source-once",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "8d6725b23123f08fb85c1c888b33792366df122c",
+      "supersedes": "decisions-payment-operator",
+      "changeReason": "D143 wraps the existing two-contract Source collector in an explicit one-login/no-retry budget; no new real-source or database authorization.",
+      "sha256": "bdafbbef7a7537c3756f71962762f2534475f224433ff9a12e0a3d8237e5e0e8"
+    },
+    {
+      "id": "selected-source-once-engineering",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-selected-source/engineering-2026-10-16.md",
+      "recordedAtSha": "d1704789d74f0f7cfe8a918514d21dafdda1d751",
+      "sha256": "5670587a49206a2b303e78823ca13f7e5cb5d176981a026805be3cd277c314c3"
+    },
+    {
+      "id": "selected-source-once-secret-guard",
+      "kind": "document",
+      "path": "docs/tasks/active/evidence/ainuoke-selected-source/secret-guard-review-2026-10-16.md",
+      "recordedAtSha": "4fd14730239c7223c2cc4859b464a099b13520c4",
+      "sha256": "35689b31e25c958c5810a6ff28563a9be52133817169d4b708acc3bc5815e7a6"
     }
   ],
   "pages": [
@@ -5950,6 +5973,107 @@
           "evidence": [
             "decisions-payment-operator",
             "payment-operator-engineering"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ainuoke-selected-source-once",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Internal strict two-contract binding/color or material collection reuses the existing SDK, fixed catalog, trusted Discovery, formal selected-binding mapper and Material Pipeline. One login, at most80reports/81HTTP/180s, zero network retry/auth renewal, exact per-row contract guards, complete paging/count/age/source-fingerprint validation, no partial failure bundle. 13 Node/actual-parent-Python/owned-PG tests and full131 Python passed; continuous70passed/1existing Windows skip. Source71b291762467c1efd19873438fef2abfd2954d23 clean Server/session/snapshot image sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc built and inspected in a read-only network-none container. No new HTTP/CLI/scheduler/DB writer/UI, no real source read, bind, activation, business DB/account change, merge or deployment. Full release/root/Hosted checks follow frozen evidence; proposed real demo still requires specific authorization. Post-review fix rejects escaped secret values and field names as decoded data; original red tests and frozen earlier images retained. Root898/baseline94/current-main guard passed locally; exact final-head Hosted CI remains independent.",
+      "evidence": [
+        "decisions-selected-source-once",
+        "selected-source-once-engineering",
+        "selected-source-once-secret-guard"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "4fd14730239c7223c2cc4859b464a099b13520c4",
+          "scope": "Internal strict two-contract binding/color or material collection reuses the existing SDK, fixed catalog, trusted Discovery, formal selected-binding mapper and Material Pipeline. One login, at most80reports/81HTTP/180s, zero network retry/auth renewal, exact per-row contract guards, complete paging/count/age/source-fingerprint validation, no partial failure bundle. 13 Node/actual-parent-Python/owned-PG tests and full131 Python passed; continuous70passed/1existing Windows skip. Source71b291762467c1efd19873438fef2abfd2954d23 clean Server/session/snapshot image sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc built and inspected in a read-only network-none container. No new HTTP/CLI/scheduler/DB writer/UI, no real source read, bind, activation, business DB/account change, merge or deployment. Full release/root/Hosted checks follow frozen evidence; proposed real demo still requires specific authorization. Post-review fix rejects escaped secret values and field names as decoded data; original red tests and frozen earlier images retained. Root898/baseline94/current-main guard passed locally; exact final-head Hosted CI remains independent.",
+          "evidence": [
+            "decisions-selected-source-once",
+            "selected-source-once-engineering",
+            "selected-source-once-secret-guard"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-16",
+          "sourceSha": "4fd14730239c7223c2cc4859b464a099b13520c4",
+          "scope": "Internal strict two-contract binding/color or material collection reuses the existing SDK, fixed catalog, trusted Discovery, formal selected-binding mapper and Material Pipeline. One login, at most80reports/81HTTP/180s, zero network retry/auth renewal, exact per-row contract guards, complete paging/count/age/source-fingerprint validation, no partial failure bundle. 13 Node/actual-parent-Python/owned-PG tests and full131 Python passed; continuous70passed/1existing Windows skip. Source71b291762467c1efd19873438fef2abfd2954d23 clean Server/session/snapshot image sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc built and inspected in a read-only network-none container. No new HTTP/CLI/scheduler/DB writer/UI, no real source read, bind, activation, business DB/account change, merge or deployment. Full release/root/Hosted checks follow frozen evidence; proposed real demo still requires specific authorization. Post-review fix rejects escaped secret values and field names as decoded data; original red tests and frozen earlier images retained. Root898/baseline94/current-main guard passed locally; exact final-head Hosted CI remains independent.",
+          "evidence": [
+            "decisions-selected-source-once",
+            "selected-source-once-engineering",
+            "selected-source-once-secret-guard"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "4fd14730239c7223c2cc4859b464a099b13520c4",
+          "scope": "Internal strict two-contract binding/color or material collection reuses the existing SDK, fixed catalog, trusted Discovery, formal selected-binding mapper and Material Pipeline. One login, at most80reports/81HTTP/180s, zero network retry/auth renewal, exact per-row contract guards, complete paging/count/age/source-fingerprint validation, no partial failure bundle. 13 Node/actual-parent-Python/owned-PG tests and full131 Python passed; continuous70passed/1existing Windows skip. Source71b291762467c1efd19873438fef2abfd2954d23 clean Server/session/snapshot image sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc built and inspected in a read-only network-none container. No new HTTP/CLI/scheduler/DB writer/UI, no real source read, bind, activation, business DB/account change, merge or deployment. Full release/root/Hosted checks follow frozen evidence; proposed real demo still requires specific authorization. Post-review fix rejects escaped secret values and field names as decoded data; original red tests and frozen earlier images retained. Root898/baseline94/current-main guard passed locally; exact final-head Hosted CI remains independent.",
+          "evidence": [
+            "decisions-selected-source-once",
+            "selected-source-once-engineering",
+            "selected-source-once-secret-guard"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "4fd14730239c7223c2cc4859b464a099b13520c4",
+          "scope": "Internal strict two-contract binding/color or material collection reuses the existing SDK, fixed catalog, trusted Discovery, formal selected-binding mapper and Material Pipeline. One login, at most80reports/81HTTP/180s, zero network retry/auth renewal, exact per-row contract guards, complete paging/count/age/source-fingerprint validation, no partial failure bundle. 13 Node/actual-parent-Python/owned-PG tests and full131 Python passed; continuous70passed/1existing Windows skip. Source71b291762467c1efd19873438fef2abfd2954d23 clean Server/session/snapshot image sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc built and inspected in a read-only network-none container. No new HTTP/CLI/scheduler/DB writer/UI, no real source read, bind, activation, business DB/account change, merge or deployment. Full release/root/Hosted checks follow frozen evidence; proposed real demo still requires specific authorization. Post-review fix rejects escaped secret values and field names as decoded data; original red tests and frozen earlier images retained. Root898/baseline94/current-main guard passed locally; exact final-head Hosted CI remains independent.",
+          "evidence": [
+            "decisions-selected-source-once",
+            "selected-source-once-engineering",
+            "selected-source-once-secret-guard"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "4fd14730239c7223c2cc4859b464a099b13520c4",
+          "scope": "Internal strict two-contract binding/color or material collection reuses the existing SDK, fixed catalog, trusted Discovery, formal selected-binding mapper and Material Pipeline. One login, at most80reports/81HTTP/180s, zero network retry/auth renewal, exact per-row contract guards, complete paging/count/age/source-fingerprint validation, no partial failure bundle. 13 Node/actual-parent-Python/owned-PG tests and full131 Python passed; continuous70passed/1existing Windows skip. Source71b291762467c1efd19873438fef2abfd2954d23 clean Server/session/snapshot image sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc built and inspected in a read-only network-none container. No new HTTP/CLI/scheduler/DB writer/UI, no real source read, bind, activation, business DB/account change, merge or deployment. Full release/root/Hosted checks follow frozen evidence; proposed real demo still requires specific authorization. Post-review fix rejects escaped secret values and field names as decoded data; original red tests and frozen earlier images retained. Root898/baseline94/current-main guard passed locally; exact final-head Hosted CI remains independent.",
+          "evidence": [
+            "decisions-selected-source-once",
+            "selected-source-once-engineering",
+            "selected-source-once-secret-guard"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No deployment or runtime re-observation; original source/image evidence remains historical.",
+          "evidence": [
+            "decisions-selected-source-once",
+            "selected-source-once-engineering",
+            "selected-source-once-secret-guard"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-16",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No deployment or runtime re-observation; original source/image evidence remains historical.",
+          "evidence": [
+            "decisions-selected-source-once",
+            "selected-source-once-engineering",
+            "selected-source-once-secret-guard"
           ]
         }
       }

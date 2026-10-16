@@ -1,19 +1,11 @@
-# 当前恢复点：D143 两合同固定预算采集
+# 当前恢复点：D143最终交付
 
-2026-10-16；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。原ainuoke-live-readiness工作树、feat/ainuoke-selected-source-once；clean parent PR115@db4236cf63839e4f384ad042e1ac21ad42fd01f1，原ref保留，不新建树/重复PR/合并/部署。基线receipt在outputs/selected-source-once-baseline-20261016.json。前接力逐字归档tasks/completed/2026-10-16-payment-operator-delivered-ai_handoff.md。
+2026-10-16；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。原ainuoke-live-readiness树，feat/ainuoke-selected-source-once，父PR115@db4236cf63839e4f384ad042e1ac21ad42fd01f1/clean。旧ref/树不改；前接力逐字归档completed/2026-10-16-selected-source-before-final-ai_handoff.md。
 
-先读tasks/active/ainuoke-selected-source-once.md、D143、AINUOKE_SERVER_SOURCE。新Python预算包住原collector/SDK而不是重写mapper；Node严格结果验证再用previewSelectedBindings/validateBundle。内部函数没有DB写入或新HTTP/CLI/scheduler。每次两合同、1登录80报表81HTTP180秒、0重试/续期；每页50/每报表20页1000行/全4000行，4MiB响应32MiB输出。颜色contains结果逐行精确BillNo，材料逐行ExpContractNo。
+最终业务源码71b291762467c1efd19873438fef2abfd2954d23，冻结补充4fd14730239c7223c2cc4859b464a099b13520c4。先读ainuoke-selected-source-once任务、D143及最新secret-guard-review证据；8d只保留历史。新模块复用原Source，2合同/1登录80report81HTTP180秒/0重试续期，逐行合同、完整分页/账号/时效再校验，无新CLI/HTTP/调度/DB writer。
 
-新增11项Node/实际Python stdout/一次性PG和15项Python通过，全Python129通过；类型/定向lint通过。合成并发首绑仅两SO，既有四流持久化读回；理论115.50与采购118保持独立，空单位/未知量不补0。原失败日志保留，真实0读取。继续完整Source/continuous回归、root/94基线/类型lint构建、提交源码/冻结前向证据、精确main守卫，再按已证官方IP进程级Git路线安全一次push、核精确head/唯一依赖草稿/三CI及COMMENT复审。
+已执行：13新增Node/实际父子Python/一次性PG，Python131，continuous70PASS/1既有Win SKIP，Source20PASS/1既有Win SKIP；root898/94基线、类型/lint/编译与精确main44能力守卫通过。秘密值转义漏检先双红测后修复，旧失败日志/冻结证据/PNG/hash均保留。新71b Server/session/snapshot镜像8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc仅构建并无网络read-only检查过metadata/实际Python保护，未启动app/DB。
 
-PR115远端db4236cf三CI已全部SUCCESS：baseline116813381526、team116813381195、source116813380536；复审5543197142，仍草稿/未合并。原0026证据不改。D143修改决策文件后须新证据叶supersede decisions-payment-operator、绑定新Git blob；旧ID/报告/PNG/hash不可覆盖。当前dirty全为本Phase已知增量，没有继承dirty。
+当前Phase只余最终manifest/共享摘要/文档提交、精确守卫/基线重验、一次安全交付、唯一依赖草稿PR、三CI和COMMENT复审。source Git checkpoints e369/8d精确已送达，未新建PR。用outputs/selected-source-delivery-20261016.mjs，既有git-delivery脚本，官方IP进程级路线，非全局网络更改。核当前main/remote，遇不确定只读核实，不重复建PR。
 
-旧真实财务两合同一次许可已用完，禁止新增读取/凭据文件/真实DB/首绑/激活。旧四单窗口不续，旧演示两个容器已停止且保留volume，未重启。下一步先提交精确隔离资源/SO/合同/预算/期限/备份回退方案，明确授权后才真实操作；宁波18443/18444不触。Goal仍在进行，完成前须按D121 Gate0–5审计未交付/未授权项，不能因当前CI绿标全部完成。
-
-2026-10-16第二个源码checkpoint：新增真实父进程调用测试，验证collectWithPython接受成功与非零封闭失败，计数不丢失且不重新采集。新增安全响应超限/重定向分类，不反射原错误。Node/实际Python/一次性PG12/12，Python全130/130（本阶段16新增）通过；continuous70PASS/1既有Windows条件SKIP，类型/Server编译/完整lint通过。完整root在新决策证据尚未绑定时提前启动，实际结束因EVIDENCE_WORKTREE_DRIFT decisions-payment-operator失败，不能记PASS；没有进程被停止，原日志保留，绑定后完整重跑。原源码e369已安全一次push并独立API核实送达，无新PR/真实操作。e369隔离构建镜像已成功，仅构建未运行；后续诊断分类源码另有checkpoint，不将该镜像冒称最终源码。
-
-前述root实际888PASS/10FAIL/0SKIP，十项均因新增D143后决策叶尚未前向绑定，不是产品领域失败；保留日志，不能冒称通过。第二源码类型检查另发现工具自建Docker archive位于outputs，被TypeScript全路径glob当作第二套源码，产生归档worker/D1类型错误；未改应用tsconfig或放松检查，将此唯一自建归档非破坏移至已核绝对TEMP目标，重跑类型通过。原上下文及日志均保留，下一构建直接使用TEMP。
-
-2026-10-16复审追加：旧序列化字符串查找会漏掉含引号/反斜杠的秘密值，Node/Python两个合成红测均实际复现。改为有界遍历解码后的值和字段名，密码/token/session不经序列化后再比对；13 Node/实际父子进程/一次性PG、全Python131、类型/定向lint通过。当前root898/898及基线94/94已完成，前向D143叶/44能力守卫通过；这些测试使用本Phase已知增量，随后新的源码/镜像及前向冻结补充报告另记。8d镜像只保留历史，不用于新真实操作。真实请求/凭据读取仍0。
-
-2026-10-16最终源码71b291762467c1efd19873438fef2abfd2954d23及新镜像sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc构建/只读元数据与实际Python保护检查通过；转义秘密值红测→绿测13/131证据见新secret-guard-review-2026-10-16.md。原8d冻结证据和镜像保留，真实候选改用71b。root898/基线94、Source20PASS/1既有Win跳过、continuous70PASS/1既有Win跳过均有原日志。再次只读确认main064，新分支暂无PR，最终精确远端/CI另核。没有新真实读取或操作。
+D121全计划逐项证据/远端head复核见order-program-delivery-audit-2026-10-16.md；109–115精确head三CI均绿/未合并。下一真实演示范围见ainuoke-selected-demo-execution-proposal.md及受保护proposal-v2；0新真实读取/凭据/DB/首绑/启用/部署。旧两合同6086941一次许可已用完、旧四单窗口不续、旧容器/volume不启动/迁移，宁波18443/18444不触。真实行动仍须具体范围独立确认；工程Goal完成前必须核最终CI和逐项交付，不能以局部绿灯标整个业务已上线。

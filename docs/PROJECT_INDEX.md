@@ -1,4 +1,4 @@
-2026-10-16当前恢复优先：[两合同固定预算采集](tasks/active/ainuoke-selected-source-once.md)，同一树从精确PR115@db4236cf继续。PR115三CI全绿且COMMENT复审，仍未合并；D143合成11/Python129通过，完整验收/新远端另核。0新增真实读取，旧许可已用完。先读CURRENT_STATE/AI_HANDOFF；下文旧日期/SHA保留。
+2026-10-16当前恢复优先：[两合同固定预算采集](tasks/active/ainuoke-selected-source-once.md)，同一树从精确PR115@db4236cf继续。PR115三CI全绿且COMMENT复审，仍未合并；D143合成13/Python131、root898/基线94及71b候选通过，精确新远端CI另核。0新增真实读取，旧许可已用完。先读CURRENT_STATE/AI_HANDOFF；下文旧日期/SHA保留。
 
 # 项目知识索引
 
