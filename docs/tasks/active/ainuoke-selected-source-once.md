@@ -48,3 +48,15 @@ Node返回的complete表示本次bundle经现有映射/完整性/稳定性/时�
 2026-10-16复审追加：旧序列化字符串查找会漏掉含引号/反斜杠的秘密值，Node/Python两个合成红测均实际复现。改为有界遍历解码后的值和字段名，密码/token/session不经序列化后再比对；13 Node/实际父子进程/一次性PG、全Python131、类型/定向lint通过。当前root898/898及基线94/94已完成，前向D143叶/44能力守卫通过；这些测试使用本Phase已知增量，随后新的源码/镜像及前向冻结补充报告另记。8d镜像只保留历史，不用于新真实操作。真实请求/凭据读取仍0。
 
 2026-10-16最终源码71b291762467c1efd19873438fef2abfd2954d23及新镜像sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc构建/只读元数据与实际Python保护检查通过；转义秘密值红测→绿测13/131证据见新secret-guard-review-2026-10-16.md。原8d冻结证据和镜像保留，真实候选改用71b。root898/基线94、Source20PASS/1既有Win跳过、continuous70PASS/1既有Win跳过均有原日志。再次只读确认main064，新分支暂无PR，最终精确远端/CI另核。没有新真实读取或操作。
+
+## PR116 Hosted CI 焦点竞态复审（2026-10-16）
+
+Phase baseline为干净2bcf23cab7cf02a697408a10aed5141d3eb677b9；唯一草稿[PR116](https://github.com/clearisok/zhixu-erp/pull/116)已独立核实该精确远端。原一次push回执为STOP_AUTH_OR_DIVERGENCE，但随后的独立API和PR head均为精确目标；原矛盾回执保留，未盲目重推，不能据此认定认证错误根因或网络长期恢复。
+
+2bc的baseline116850115881、team-access116850115905通过；source116850116143在material-display-ui第一个键盘事件断言失败：activeElement的aria-selected为null，而非true。此前编译、数据库、固定采集、候选构建以及前八个页面集合均通过；Python后续步骤被跳过，不能称该次Source全绿。
+
+根因已用本机合成延迟回归复现：Foundation按requestAnimationFrame设置侧栏初始焦点，原测试仅等DOM存在便聚焦事件tab，稍后的初始化将焦点移到关闭按钮。新增150ms延迟初始化场景，原helper实际同样null!==true失败；只把测试openEvents改为有界等待关闭按钮取得初始焦点，再继续键盘操作。保留原选中tab、入库31条/多余仓1条、刷新、失败清空、七角色和六宽度断言，不改生产UI/overlay/业务代码，不以sleep或重跑原CI消除失败。
+
+实际构建为2bc生产源码的Server/session/snapshot，buildId为20261016-150153；新物料浏览器集合10/10和定向lint通过，红/绿日志分别selected-source-ci-focus-{red,green}-20261016.log保留。完整root898/898与基线94/94已再次通过，精确main守卫11页/44能力/56累计UI路径通过；日志selected-source-ci-focus-{root,baseline,guard}-20261016.log。新提交Hosted CI须再次核实，旧红结果不改写。该修复与冻结71b业务源码一致，未新增真实读取、凭据消费、数据库业务写入、Source启用或部署。
+
+本Phase另做一次只读网络对照：官方地址/默认TLS/HTTP1.1/Git v0，main064与远端2bc精确双ref读取及receive-pack dry-run均exit0，0实际push、0认证或共享配置修改。它说明本次协商成功，不能追认上一份缺少原始stderr的STOP分类根因，也不保证永久恢复；原停止回执不改写。

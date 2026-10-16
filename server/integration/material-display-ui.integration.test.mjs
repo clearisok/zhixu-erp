@@ -31,7 +31,7 @@ test('approved material ordering and event drawer run on the exact built Server 
   const version=async()=> (await x.pool.query("SELECT version FROM material_progress_settings WHERE scope='team'")).rows[0]?.version??0;
   const countAudit=async()=> (await x.pool.query("SELECT count(*)::int n FROM operation_logs WHERE entity_type='MaterialProgressSettings'")).rows[0].n;
   const capture=async name=>{if(process.env.MATERIAL_DISPLAY_UI_EVIDENCE!=='1')return;const dir=resolve('outputs/material-display-ui',info.gitCommit+'-'+info.buildId+(process.env.MATERIAL_DISPLAY_UI_RUN?'-'+process.env.MATERIAL_DISPLAY_UI_RUN:''));await mkdir(dir,{recursive:true});const image=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(dir,name+'.png'),Buffer.from(image.data,'base64'));};
-  const openEvents=async name=>{await evaluate("(()=>{const button=[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==="+JSON.stringify('查看 '+name+' 事件')+");if(!button)throw Error('missing event button');button.focus();button.click();})()");await until(()=>evaluate("Boolean(document.querySelector('.sp-material-events'))"),'event drawer');};
+  const openEvents=async name=>{await evaluate("(()=>{const button=[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==="+JSON.stringify('查看 '+name+' 事件')+");if(!button)throw Error('missing event button');button.focus();button.click();})()");await until(()=>evaluate("Boolean(document.querySelector('.sp-material-events'))"),'event drawer');await until(()=>evaluate("document.querySelector('.sp-material-events > header > button')===document.activeElement"),'event drawer initial focus',3000);};
   await login('demo.material');await navigate(materialPath);await has('合成排序面料大');const initialOrder=await names();
   await t.test('six widths preserve the approved header, detail expansion, drawer geometry and local table scrolling',async()=>{
    for(const width of [1920,1536,1440,1280,900,390]){
@@ -77,7 +77,27 @@ test('approved material ordering and event drawer run on the exact built Server 
    await setInput('#trim-priority-keyword','拉链');await click('添加');await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='role-team-material-manager' AND permission_key='style_progress.settings.edit'");
    try{await click('保存排列');await has('当前账号没有修改辅料排序的权限');await until(()=>evaluate("!document.querySelector('#trim-priority-keyword')"),'revoked editor');assert.deepEqual(await keywords(),['纽扣','线','拉链']);assert.equal(await version(),3);}finally{await x.pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('role-team-material-manager','style_progress.settings.edit')");}
   });
-  await t.test('events keep original identity, duplicates, units and the separate extra warehouse fact; drawer uses refreshed facts',async()=>{
+   await t.test('keyboard interaction waits for delayed initial drawer focus rather than racing the overlay lifecycle',async()=>{
+    await navigate(materialPath);await has('合成拉链');
+    await evaluate("window.initialDrawerFrameRan=false;window.originalDrawerFrame=window.requestAnimationFrame;window.requestAnimationFrame=callback=>window.originalDrawerFrame(timestamp=>setTimeout(()=>{callback(timestamp);window.initialDrawerFrameRan=true;},150));");
+    try{
+     await openEvents('合成拉链');
+     await evaluate("document.querySelector('.sp-material-event-tabs [role=tab]').focus()");
+     await command('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+     await command('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+     await until(()=>evaluate('window.initialDrawerFrameRan'),'delayed initial drawer focus');
+     assert.equal(await evaluate("document.activeElement.getAttribute('aria-selected')"),'true');
+     assert.equal(await evaluate("document.activeElement.textContent.startsWith('入库')"),true);
+     await has('多余仓');
+    }finally{
+     await evaluate('window.requestAnimationFrame=window.originalDrawerFrame');
+     await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+     await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+     await until(()=>evaluate("!document.querySelector('.sp-material-events')"),'delayed drawer closed');
+     await until(()=>evaluate("document.activeElement.getAttribute('aria-label')==='查看 合成拉链 事件'"),'delayed drawer focus restored');
+    }
+   });
+   await t.test('events keep original identity, duplicates, units and the separate extra warehouse fact; drawer uses refreshed facts',async()=>{
    await navigate(materialPath);await has('合成拉链');await openEvents('合成拉链');await evaluate("document.querySelector('.sp-material-event-tabs [role=tab]').focus()");await command('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});await has('多余仓');assert.equal(await evaluate("document.activeElement.getAttribute('aria-selected')"),'true');const cells=()=>evaluate("[...document.querySelectorAll('.sp-material-events tbody tr:first-child td')].map(node=>node.textContent)");assert.equal((await cells())[2],'31 条');assert.equal((await cells())[3],'1 条');
    await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Home',code:'Home',windowsVirtualKeyCode:36});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Home',code:'Home',windowsVirtualKeyCode:36});
    await evaluate("document.querySelectorAll('.sp-material-event-tabs [role=tab]')[2].click()");await has('运输方式');assert.equal(await evaluate("document.querySelector('.sp-material-events [role=tabpanel] th:last-child').textContent"),'运输方式');
