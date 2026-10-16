@@ -9,6 +9,7 @@ import { mkdtemp, readdir, copyFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import pg from "pg";
 import { startDisposablePostgres } from "./postgres-container.js";
+import { CURRENT_MIGRATION_FILES } from "./current-migration-ledger-fixture.js";
 import { runMigrations } from "../db/migration-runner.js";
 import { synchronizePermissionCatalog } from "../auth/permissions.js";
 import { bootstrapAdmin } from "../auth/bootstrap.js";
@@ -50,7 +51,7 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
         await runMigrations(pool, resolve("database/migrations"));
         await runMigrations(pool, resolve("database/migrations"));
         assert.deepEqual((await pool.query("SELECT public_id::text,password_hash FROM app_users")).rows, before);
-        assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version), [1,2,3,4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25]);
+        assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version), CURRENT_MIGRATION_FILES.map(file=>Number(file.slice(0,4))));
         const order = (await createAinuokeSalesOrder(pool, actor, { source: { sourceId: "synthetic-1", sourceRowIdentity: "synthetic-order", salesContractNo: syntheticOrder.salesContractNo, insideOrderNo: syntheticOrder.insideOrderNo, lifecycleStatusRaw: "生效", contractDate: "2026-10-01", contractDeliveryDate: "2026-11-01", styleNo: syntheticOrder.styleNo, companyNameSnapshot: "合成公司", customerNameSnapshot: "合成客户", brandNameSnapshot: "合成品牌", quantity: 100, sourceHash: "synthetic-order-hash", fetchedAt: syntheticFetchedAt }, colors: [] })).salesOrder;
         for (const [i, role] of TEAM_ROLES.entries())
             await executeTeamCommand(pool, actor, { action: "create", requestId: randomUUID(), account: "synthetic.team." + i, name: "合成-" + role.name, password: "synthetic-secret-only", roleIds: [role.id] });

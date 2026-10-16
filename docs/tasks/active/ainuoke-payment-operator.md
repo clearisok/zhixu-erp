@@ -69,3 +69,12 @@ job及过滤原文须在受保护/Git忽略的outputs子目录；DB连接字符�
 完整源码6658f0c1d221f581adcc94582bb6538e7654b3c1干净树21/21再验通过，实际源码子进程查询durable receipt成功（不是仅测试注入入口）；默认Browser构建build20261016-122100通过，orderRead仍disabled。冻结operator-engineering-2026-10-16.md后按新ID/新blob绑定，不修改旧证据。
 
 最终本地验收：root898/898、发布基线94/94、精确main064守卫PASS（11页/43能力/56累计UI路径）；新D142决策与工程报告已前向绑定，旧证据/PNG/hash不变。最终commit后再核守卫与精确远端/唯一草稿PR/Hosted CI；这里不提前声明REMOTE PASS。无新真实读取或真实DB/账号/启用/部署。
+
+
+## PR115 首轮Hosted CI遗漏修复
+
+精确1de59363d4c61959714b6e7e59d69250416f40b4已一次push/独立API核实，创建唯一草稿PR115；到main累计548文件，当前增量相对PR113父3896为28文件，不能据绿灯直接合累计依赖。原Source运行38850983248/job116811905622失败，baseline已绿，原失败保留：[实际日志](https://github.com/clearisok/zhixu-erp/actions/runs/38850983248/job/116811905622)。
+
+原因是server/integration/ainuoke-server-source.integration.test.ts仍将当前ledger数字写死至25，未使用显式维护的CURRENT_MIGRATION_FILES；0026实际已执行，旧expected遗漏。仅该断言改为从独立人工维护的完整文件清单取版本号，不从实际runner/目录推导expected，不减少断言。老1–11历史升级起点和其他固定旧schema测试保留。同类搜索未发现另一处以25为终点的当前ledger数字断言。
+
+本机Source回归20 PASS/1既有Windows平台SKIP（Linux CLI子场景仅在Linux实际执行），fresh-start 7/7，定向lint和类型检查通过。原核心21、财务112、PG261、root898/基线94及6658默认构建是本任务已执行证据，此test/docs修复未改生产文件或这些冻结blob；最终head守卫和三Hosted CI仍须重新核实，不以首轮baseline绿替代。
