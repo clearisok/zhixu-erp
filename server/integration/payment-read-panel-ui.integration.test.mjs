@@ -89,6 +89,8 @@ test('contract payment observations use the existing drawer without false materi
       await openPayments();x.payments.setDelay(650);await click('刷新记录');await click('采购');await pause(800);
       assert.equal(await evaluate("document.querySelector('.sp-payment-requests')===null"),true);
       x.payments.setDelay(0);await click('对账');await has('127 条合同来源明细');await close();
+      // The shared overlay restores focus in requestAnimationFrame after unmount.
+      await until(()=>evaluate("Boolean(document.activeElement?.getAttribute('aria-label')?.startsWith('查看 '))"),'drawer trigger focus restored',3000);
       assert.equal(await evaluate("document.activeElement?.getAttribute('aria-label')?.startsWith('查看 ')") ,true);
     });
     await t.test('seven synthetic roles see only contract Source records; no Quote/CCT or Browser fallback requests',async()=>{
