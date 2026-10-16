@@ -45,7 +45,7 @@ export async function normalizationReferences(client:PoolClient){
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads')`)).rows[0].n;
  if(present!==0&&present!==3)throw new HttpError(503,'payment_reference_schema_incomplete','Financial source reference schema is incomplete');
  const sourceReady=(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready;
- return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')); 
+ return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots'));
 }
 export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');

@@ -1671,6 +1671,22 @@
       "path": "docs/tasks/active/evidence/ainuoke-selected-source/secret-guard-review-2026-10-16.md",
       "recordedAtSha": "4fd14730239c7223c2cc4859b464a099b13520c4",
       "sha256": "35689b31e25c958c5810a6ff28563a9be52133817169d4b708acc3bc5815e7a6"
+    },
+    {
+      "id": "decisions-business-source",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "b3d71565696576192b94b3a75b25a91f6e682e65",
+      "sha256": "32e38d7080d94e16b41905d089a9738aebf5fb5e8dd888556bbba7c816e7cccb",
+      "supersedes": "decisions-selected-source-once",
+      "changeReason": "User D144 removes ownership/preparation and replaces source maintenance while preserving processing entrypoints."
+    },
+    {
+      "id": "business-source-approved-scope",
+      "kind": "document",
+      "path": "docs/tasks/active/order-business-source-approved-scope-2026-10-17.md",
+      "recordedAtSha": "b3d71565696576192b94b3a75b25a91f6e682e65",
+      "sha256": "4cd4a44759e58f781133c5d1e55ff844eabaa1e06c415ed4469a6f2ee51fa60a"
     }
   ],
   "pages": [
