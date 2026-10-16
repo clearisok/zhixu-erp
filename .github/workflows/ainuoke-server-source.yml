@@ -26,6 +26,7 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Compiled server and migration/session source tests
         run: |
+          node --test server/integration/chromium-endpoint.test.mjs
           npm run server:build
           npm run test:ainuoke-server-source
           npm run test:order-identity

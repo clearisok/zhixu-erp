@@ -1,7 +1,8 @@
+import {readChromiumEndpoint} from './chromium-endpoint.mjs';
 import assert from "node:assert/strict";
 import test from "node:test";
 import { spawn } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { mkdtemp, rm, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve, relative, isAbsolute } from "node:path";
@@ -21,7 +22,7 @@ test("First team production-built UI uses trusted session, existing layout and s
  const temp=await mkdtemp(join(tmpdir(),"zhixu-team-ui-"));let browser,ws,session,id=0;const pending=new Map(),errors=[];
  try{
   const profile=join(temp,"profile");
-  let launchError;let diagnostics="";
+  let launchError,chromiumEndpoint;let diagnostics="";
   browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:["ignore","ignore","pipe"],windowsHide:true});
   browser.on("error",error=>{launchError=error;});
   browser.stderr.on("data",chunk=>{diagnostics=(diagnostics+String(chunk)).slice(-4096);});
@@ -31,10 +32,10 @@ test("First team production-built UI uses trusted session, existing layout and s
     await until(()=>{
       if(launchError)throw Error("Chromium spawn failed: "+launchError.message);
       if(browser.exitCode!==null||browser.signalCode!==null)throw Error("Chromium exited before readiness: "+(browser.exitCode??browser.signalCode));
-      return existsSync(join(profile,"DevToolsActivePort"));
+      return Boolean(chromiumEndpoint=readChromiumEndpoint(profile));
     },"Chromium startup",450);
   } catch(error) {throw Error(error.message+"; startup diagnostics: "+diagnostics);}
-  const [port,path]=readFileSync(join(profile,"DevToolsActivePort"),"utf8").trim().split(/\r?\n/);
+  const [port,path]=chromiumEndpoint;
   ws=new WebSocket("ws://127.0.0.1:"+port+path);await new Promise((done,reject)=>{ws.addEventListener("open",done,{once:true});ws.addEventListener("error",reject,{once:true});});
   const command=(method,params={},sid=session)=>new Promise((done,reject)=>{pending.set(++id,{done,reject});ws.send(JSON.stringify({id,method,params,sessionId:sid}));});
   ws.addEventListener("message",({data})=>{const r=JSON.parse(String(data)),p=pending.get(r.id);if(p){pending.delete(r.id);if(r.error)p.reject(Error(JSON.stringify(r.error)));else p.done(r.result);}if(r.method==="Runtime.exceptionThrown")errors.push(r.params.exceptionDetails.text);});
