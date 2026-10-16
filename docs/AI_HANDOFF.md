@@ -4,7 +4,7 @@
 
 复用PR113已证实的CI修复思路，但严格保留本分支到0024的23文件清单，不混入0025或财务生产代码。显式current-migration-ledger-fixture供9处当前/升级测试严格比对，保留数据/权限/幂等断言；登录旧按钮改为已有用户菜单。Source CI补设置客户端/后端、既有物料9项浏览器及github.sha元数据。测试构建影响见release/ci-build-impact/gate5-exact-source.md；原PNG/receipt/hash不改。
 
-本轮升级/设置94、完整PG261、基线94、类型/源码lint及main守卫已通过，日志见任务文档；继续做完整SHA Server构建、登录/物料浏览器、最终main守卫、一次安全推送及唯一草稿PR。不重复造原业务feature；原c54测试证据仍按其原时点，不冒称本Phase全部重跑。生产/SQL/公式/来源事件身份无变化，D130/Quote退出重试不降级。
+本轮升级/设置94、完整PG261、类型/源码lint通过。初次18/19仅Windows临时profile收尾EBUSY；源码d0146e4beac4b647b171f01cd92d2913f227295c修复后，完整SHA Server构建build20261016-103022、登录/物料19/19、重跑基线94与main守卫全部通过。后续只补结果文档；继续核最终完整HEAD守卫、一次安全推送、唯一草稿PR及Hosted CI。原c54测试证据仍按原时点阅读；不改生产/SQL/公式/来源事件身份，D130/Quote退出重试不降级。
 
 #1097ef/#110e3ce/#1114da/#1124c59都已精确送达、各自三CI绿并完成COMMENT复审，未合并。#113f9f22f0d三CI绿且保持草稿，财务存储/面板/协调器独立在其后。当前页面分支尚无对应PR，已按head查无重复；只在远端SHA精确核实后创建唯一Draft，披露未合main依赖。
 

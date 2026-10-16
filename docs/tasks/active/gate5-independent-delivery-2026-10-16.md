@@ -25,6 +25,8 @@ G1–G4原始最新提交7ef6e665/e3cebb48/4da3590b/4c59d974均保留为祖先�
 
 第一候选b9a1251059931a748d7830b7b8f4f23c97dbf6f5的Server编译和完整SHA UI构建build20261016-102701通过。浏览器18/19：登录全部9项子断言及物料全部8项子断言通过，但登录父用例在Windows临时profile的Cookies文件删除时EBUSY失败；原失败日志保留。收尾修复只等待该测试拥有的Chromium子进程close（上限3秒），并为已验证属于临时根目录且有专用前缀的目录执行有界删除重试；不杀用户浏览器、不减业务断言、不改页面。新候选仍须实际重验，不能将18/19称PASS。
 
+修复源码d0146e4beac4b647b171f01cd92d2913f227295c/clean的完整SHA Server UI构建build20261016-103022、登录/物料19/19、cleanup定向lint、重新执行基线94/94及精确main守卫全部通过。构建为quote/master server、session、writable、orderRead snapshot，仅隔离fixture使用。日志outputs/gate5-delivery-repaired-{ui-build,browser,baseline,guard}-20261016.log与gate5-delivery-cleanup-lint-20261016.log；没有更新冻结PNG/receipt或宣称新人工像素验收。其后的提交仅登记这些结果，实际送达head/Hosted CI以唯一草稿PR核实，不拿旧CI代替。
+
 ## 决定、建议与待确认
 
 用户批准D121/D133/D134页面与业务规则，并批准持续分Gate工程交付；本轮沿用这些决定。AI技术建议是先按#109→#110→#111→#112收口，再对齐页面PR和#113，避免直接合并累计大分支。新像素人工验收及具体Source/写入/启用许可仍分别待确认。2026-10-16用户另行批准的一次财务两合同只读核验已在独立Source工作树通过：12/9行、两遍一致、1次登录加4次报表；这不使本分支获得0025、财务面板或持续采集能力，来源字段映射仍未整体验收。
