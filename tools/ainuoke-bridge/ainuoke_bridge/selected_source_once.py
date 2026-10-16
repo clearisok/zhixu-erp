@@ -24,6 +24,20 @@ def fingerprint(data):
     return sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf8")).hexdigest()
 
 
+def reject_secret_values(value, secrets, depth=0):
+    if depth > 12:
+        raise Refused("selected_source_invalid")
+    if isinstance(value, str) and any(secret in value for secret in secrets):
+        raise Refused("selected_source_secret_reflection")
+    if isinstance(value, dict):
+        for key, child in value.items():
+            reject_secret_values(key, secrets, depth+1)
+            reject_secret_values(child, secrets, depth+1)
+    elif isinstance(value, list):
+        for child in value:
+            reject_secret_values(child, secrets, depth+1)
+
+
 class Refused(Exception):
     def __init__(self, code):
         self.code = code
@@ -125,9 +139,7 @@ def collect_selected(data, transport=None, clock=monotonic):
         else:
             engine.pop("mode")
         bundle = collect(engine, client)
-        encoded = json.dumps(bundle, ensure_ascii=False, allow_nan=False)
-        if any(secret in encoded for secret in client.secrets):
-            raise Refused("selected_source_secret_reflection")
+        reject_secret_values(bundle, client.secrets)
         if sum(len(p["rows"]) for p in [*bundle["discoveryBefore"], *bundle["discoveryAfter"],
               *(p for pages in bundle.get("colors", bundle.get("materials", {})).values() for p in pages)]) > LIMITS["sourceRows"]:
             raise Refused("selected_source_row_limit")

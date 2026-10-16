@@ -132,6 +132,16 @@ class SelectedSourceOnceTests(TestCase):
             self.assertEqual(result["code"], "selected_source_secret_reflection")
             self.assertNotIn(secret, json.dumps(result))
 
+    def test_escaped_secret_values_are_rejected_before_serialization(self):
+        config = {**CONFIG, "password": 'Synthetic-"quote\\slash-secret'}
+        def reflected(report, page, payload):
+            if report == 6087105:
+                mutate_rows(payload, lambda rows: rows[0].update({"CnColor": config["password"]}))
+        result = collect_selected(config, FakeSelectedTransport(reflected))
+        self.assertEqual(result["result"], "failed")
+        self.assertEqual(result["code"], "selected_source_secret_reflection")
+        self.assertIsNone(result["bundle"])
+
     def test_budget_rejects_endpoint_query_page_and_81st_report_before_wire(self):
         transport = FakeSelectedTransport()
         budget = BudgetTransport(CONFIG["baseUrl"], transport, lambda: 0)

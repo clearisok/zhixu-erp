@@ -54,6 +54,12 @@ test('wrong account, selection, mode, budget and secret reflections cannot reuse
   await assert.rejects(validateSelectedSourceOnce(original,{...selectedConfig,username:'other'},request));
 });
 
+test('escaped secret values are rejected as decoded data rather than serialized substrings',async()=>{
+  const password='Synthetic-"quote\\slash-secret',config={...selectedConfig,password},input=envelope();
+  input.bundle.colors[selectedContracts[0]][0].rows[0].values.CnColor=password;
+  await assert.rejects(validateSelectedSourceOnce(input,config,request),{name:'SourceError'});
+});
+
 test('forged counts, retry flags and complete metrics cannot underreport collected pages',async()=>{
   const original=envelope();
   for(const delta of [{reportRequests:3,httpAttempts:4},{authRenewals:1},{networkRetries:1},{logins:2,httpAttempts:6},

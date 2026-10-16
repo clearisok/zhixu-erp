@@ -13,3 +13,5 @@ PR115远端db4236cf三CI已全部SUCCESS：baseline116813381526、team1168133811
 2026-10-16第二个源码checkpoint：新增真实父进程调用测试，验证collectWithPython接受成功与非零封闭失败，计数不丢失且不重新采集。新增安全响应超限/重定向分类，不反射原错误。Node/实际Python/一次性PG12/12，Python全130/130（本阶段16新增）通过；continuous70PASS/1既有Windows条件SKIP，类型/Server编译/完整lint通过。完整root在新决策证据尚未绑定时提前启动，实际结束因EVIDENCE_WORKTREE_DRIFT decisions-payment-operator失败，不能记PASS；没有进程被停止，原日志保留，绑定后完整重跑。原源码e369已安全一次push并独立API核实送达，无新PR/真实操作。e369隔离构建镜像已成功，仅构建未运行；后续诊断分类源码另有checkpoint，不将该镜像冒称最终源码。
 
 前述root实际888PASS/10FAIL/0SKIP，十项均因新增D143后决策叶尚未前向绑定，不是产品领域失败；保留日志，不能冒称通过。第二源码类型检查另发现工具自建Docker archive位于outputs，被TypeScript全路径glob当作第二套源码，产生归档worker/D1类型错误；未改应用tsconfig或放松检查，将此唯一自建归档非破坏移至已核绝对TEMP目标，重跑类型通过。原上下文及日志均保留，下一构建直接使用TEMP。
+
+2026-10-16复审追加：旧序列化字符串查找会漏掉含引号/反斜杠的秘密值，Node/Python两个合成红测均实际复现。改为有界遍历解码后的值和字段名，密码/token/session不经序列化后再比对；13 Node/实际父子进程/一次性PG、全Python131、类型/定向lint通过。当前root898/898及基线94/94已完成，前向D143叶/44能力守卫通过；这些测试使用本Phase已知增量，随后新的源码/镜像及前向冻结补充报告另记。8d镜像只保留历史，不用于新真实操作。真实请求/凭据读取仍0。

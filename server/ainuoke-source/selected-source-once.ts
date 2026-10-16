@@ -21,6 +21,14 @@ function object(input:unknown):Record<string,unknown> {
   if(!input || typeof input!=='object' || Array.isArray(input))throw new SourceError('selected_source_invalid');
   return input as Record<string,unknown>;
 }
+function rejectSecretValue(value:unknown,secret:string,depth=0):void {
+  if(depth>12)throw new SourceError('selected_source_invalid');
+  if(typeof value==='string'&&value.includes(secret))throw new SourceError('source_secret_field');
+  if(Array.isArray(value))for(const item of value)rejectSecretValue(item,secret,depth+1);
+  else if(value&&typeof value==='object')for(const [key,item] of Object.entries(value)){
+    rejectSecretValue(key,secret,depth+1);rejectSecretValue(item,secret,depth+1);
+  }
+}
 function scope(config:CollectorConfig,request:SelectedSourceRequest) {
   const checked=parseCollectorConfig(config),r=object(request);
   if(!['selected-bindings','selected-materials'].includes(String(r.mode))
@@ -42,9 +50,10 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
   const checked=scope(config,request);
   try {
     const serialized=JSON.stringify(input);
-    if(!serialized||Buffer.byteLength(serialized)>SELECTED_SOURCE_LIMITS.workerBytes||serialized.includes(checked.config.password))
+    if(!serialized||Buffer.byteLength(serialized)>SELECTED_SOURCE_LIMITS.workerBytes)
       throw new SourceError('selected_source_invalid');
     inspect(input);
+    rejectSecretValue(input,checked.config.password);
     const value=object(structuredClone(input));
     if(keys(value)!=='bundle,code,databaseAccess,limits,metrics,mode,result,schemaVersion,selectedContracts,sourceActivation,sourceFingerprint'
       ||value.schemaVersion!=='ainuoke-selected-source-once.v1'||value.mode!==checked.request.mode
