@@ -1,4 +1,4 @@
-2026-10-16当前恢复优先：[两合同固定预算采集](tasks/active/ainuoke-selected-source-once.md)，同一树从精确PR115@db4236cf继续。PR115三CI全绿且COMMENT复审，仍未合并；D143合成13/Python131、root898/基线94及71b候选通过，精确新远端CI另核。0新增真实读取，旧许可已用完。先读CURRENT_STATE/AI_HANDOFF；下文旧日期/SHA保留。
+2026-10-16最新恢复优先：[两合同真实隔离执行](tasks/completed/2026-10-16-selected-demo-execution.md)与[新冻结证据](tasks/completed/evidence/2026-10-16-selected-demo-execution.json)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，PR116@0df仍依赖草稿未合并。用户新授权后，新本机空库2 SO/7合成账号/2物料及2财务快照已落地；无持续调度/真实业务库或账号/宁波18443/18444。app18:08到期、当前来源仍10分钟，物料历史可读，财务历史ERP入口尚缺；私有离线副本不代表当前状态。先读CURRENT_STATE/AI_HANDOFF；以下旧工程“0操作/未授权”保留原日期与SHA，不代表执行后状态。
 
 # 项目知识索引
 

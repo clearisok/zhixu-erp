@@ -1,4 +1,6 @@
-# 下一次两合同隔离演示：待授权执行范围
+# 两合同隔离演示：原执行提案
+
+2026-10-16前向更新：用户已明确确认本提案，并在首轮报告保存失败后另批一次同范围订单/颜色补读。新空库执行已完成，见[执行报告](../completed/2026-10-16-selected-demo-execution.md)与[冻结证据](../completed/evidence/2026-10-16-selected-demo-execution.json)。下文PROPOSED_NOT_AUTHORIZED/未创建/未执行是原提案形成时的历史状态，保留原范围、日期、SHA和限制，不代表当前状态，也不授权重跑/续期。
 
 核实2026-10-16；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。状态PROPOSED_NOT_AUTHORIZED；本文件不启动资源、不构成人类授权。GitHub为实时事实源；实际源码、镜像、资源或许可变化时更新。
 

@@ -1,3 +1,5 @@
+2026-10-16执行后更新：用户另批新两合同隔离空库方案及一次首绑补读，已通过原D143/D142落地2 SO、2物料/2财务快照，7合成角色读回39项物料与21行申请。仅新本机只读演示、无调度，原10分钟时效不变；物料历史过期后可读，财务历史ERP入口仍缺。见[执行报告](../tasks/completed/2026-10-16-selected-demo-execution.md)及[冻结证据](../tasks/completed/evidence/2026-10-16-selected-demo-execution.json)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5、PR116草稿未合并；不是生产/全量Source激活。下文旧日期/SHA与“未授权/0操作”保留历史含义。
+
 2026-10-16 D143新增内部两合同一次采集预算：selected-bindings/selected-materials复用原可信Discovery与映射；1登录80报表81HTTP180秒、0网络重试/认证续期，逐行合同身份/完整分页/时效重新校验。13项Node/实际Python/一次性PG及全Python131通过，转义秘密值保护经双红测复现后修复，最终源码71b；root898/基线94通过；没有新CLI/HTTP/scheduler或真实写入授权。详情见[活动任务](../tasks/active/ainuoke-selected-source-once.md)。PR115精确db4236cf三CI全绿/复审、仍草稿未合并。旧真实两合同许可已用完，不重复采集。
 
 2026-10-16新增真实证据：用户另批的一次固定两合同6086941核验已通过，S1/S2=12/9行、完整两遍一致、实际1登录+4报表，指定合同过滤及观察完整性已实证。只读工具48b、受保护报告与边界见[新冻结报告](../tasks/active/evidence/ainuoke-payment-request-probe/real-two-contracts-2026-10-16.md)；旧首页/人工确认不覆盖，整体映射仍未验收、无银行实付推断、无DB/Source启用。本次许可已用完，不重读或扩大。PR113f9三CI通过；新证据前向绑定后核实最新提交，不自动合并部署。
