@@ -65,3 +65,5 @@ job及过滤原文须在受保护/Git忽略的outputs子目录；DB连接字符�
 2026-10-16第二阶段：21/21新增模型/文件/真实一次性PG验证通过（outputs/payment-operator-upgrade-final-20261016.log）；112/112原财务回归、261/261完整PostgreSQL通过。非空0025升级仅新增空技术回执表，旧订单/Source/目标/快照/指针/日志全量hash不变，重复迁移不重跑；只含0025文件的旧版本明确拒绝新ledger。主入口实际子进程在dirty checkout正确拒绝；clean checkout成功回执读取留待提交后验证。完整源码lint/类型/Server编译通过。
 
 初次新增“缺迁移”用例的合成合同含小写后缀，先被既有大写合同格式校验阻断；修为合法合成身份后真实到达pending_migrations，验证公共schema仍0表。原错误日志保留。请求回执payload还绑定实际selection/targets/operator和验证文件hash；保持旧scopeHash却改SO也必须冲突，密码不纳入payload以便零凭据回执读取。完整root/94基线/构建/远端CI尚未在本阶段宣称通过。
+
+完整源码6658f0c1d221f581adcc94582bb6538e7654b3c1干净树21/21再验通过，实际源码子进程查询durable receipt成功（不是仅测试注入入口）；默认Browser构建build20261016-122100通过，orderRead仍disabled。冻结operator-engineering-2026-10-16.md后按新ID/新blob绑定，不修改旧证据。
