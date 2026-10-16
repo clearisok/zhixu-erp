@@ -6,7 +6,7 @@
 
 让同一个新本机实例展示已核验S1/S2的真实订单、颜色、采购、入库、物料出运、出库及合同级货款申请。S1/S2的真实合同号仅在本机受保护、Git忽略的proposal.json；公开文件不写原始业务号、物料名、单据、金额或密码。
 
-候选源码8d6725b23123f08fb85c1c888b33792366df122c；镜像sha256:88ddc8a4aa5a847dd02cc58ab808c4b80f78a81f28a557b2e615b3a55e2f3958；build selected-source-20261016-8d6725b2。实际无网络read-only镜像检查确认Server报价/资料、session及snapshot订单模式与Git/build一致，包含新预算worker/Node模块。构建不是部署或实际接通。
+候选源码71b291762467c1efd19873438fef2abfd2954d23；镜像sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc；build selected-source-20261016-71b29176。实际无网络read-only镜像检查确认Server报价/资料、session及snapshot订单模式与Git/build一致，包含新预算worker/Node模块。构建不是部署或实际接通。
 
 ## 具体新资源（未创建）
 
@@ -51,3 +51,5 @@
 - 财务按合同展示，不能暗示已与选中物料逐行匹配、已银行支付或全表公式成立；织序CCT/内部成本权限保持。
 - 任一范围/权限/完整性/时效/来源变化失败停止余项；已成功SO/快照/审计保留，不自动删除/重建。停用目标推进版本，旧快照不能复活；旧确认回执不是当前状态。
 - 所有新DB/Source启用/真实读取/写入/启动均须本提案具体范围的独立确认。本阶段仅生成提案与镜像，没有执行以上步骤。无需发送密码，也无需由用户重复复制多条命令。
+
+实际启动时读来源开关只限新实例：ZHIXU_AINUOKE_SOURCE_READ=snapshot、ZHIXU_AINUOKE_SOURCE_KEY=selected-demo-20261016-r2、ZHIXU_AINUOKE_SOURCE_MAX_AGE_MS=600000；财务只读另设ZHIXU_AINUOKE_PAYMENT_READ=snapshot，并仍要求两个精确目标已显式启用。schema/身份/session/构建/来源不符直接停止，不以网页可打开证明来源已连通；旧实例配置不改。
