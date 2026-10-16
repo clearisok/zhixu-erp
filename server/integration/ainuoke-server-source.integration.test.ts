@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import test from "node:test";
 import assert from "node:assert/strict";
+import { CURRENT_MIGRATION_FILES, migrationFilesAfter } from "./current-migration-ledger-fixture.js";
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { resolve, join } from "node:path";
@@ -47,10 +48,10 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
         await bootstrapAdmin(pool, { username: "synthetic.admin", displayName: "合成管理员", password: "synthetic-secret-only" });
         const actor = await loadExistingBootstrapActor(pool, "synthetic.admin");
         const before = (await pool.query("SELECT public_id::text,password_hash FROM app_users")).rows;
-        await runMigrations(pool, resolve("database/migrations"));
-        await runMigrations(pool, resolve("database/migrations"));
+        assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, migrationFilesAfter(11));
+        assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, []);
         assert.deepEqual((await pool.query("SELECT public_id::text,password_hash FROM app_users")).rows, before);
-        assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version), [1,2,3,4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23]);
+        assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version), CURRENT_MIGRATION_FILES.map(file=>Number(file.slice(0,4))));
         const order = (await createAinuokeSalesOrder(pool, actor, { source: { sourceId: "synthetic-1", sourceRowIdentity: "synthetic-order", salesContractNo: syntheticOrder.salesContractNo, insideOrderNo: syntheticOrder.insideOrderNo, lifecycleStatusRaw: "生效", contractDate: "2026-10-01", contractDeliveryDate: "2026-11-01", styleNo: syntheticOrder.styleNo, companyNameSnapshot: "合成公司", customerNameSnapshot: "合成客户", brandNameSnapshot: "合成品牌", quantity: 100, sourceHash: "synthetic-order-hash", fetchedAt: syntheticFetchedAt }, colors: [] })).salesOrder;
         for (const [i, role] of TEAM_ROLES.entries())
             await executeTeamCommand(pool, actor, { action: "create", requestId: randomUUID(), account: "synthetic.team." + i, name: "合成-" + role.name, password: "synthetic-secret-only", roleIds: [role.id] });

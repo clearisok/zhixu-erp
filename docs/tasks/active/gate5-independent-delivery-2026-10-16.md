@@ -27,6 +27,10 @@ G1–G4原始最新提交7ef6e665/e3cebb48/4da3590b/4c59d974均保留为祖先�
 
 修复源码d0146e4beac4b647b171f01cd92d2913f227295c/clean的完整SHA Server UI构建build20261016-103022、登录/物料19/19、cleanup定向lint、重新执行基线94/94及精确main守卫全部通过。构建为quote/master server、session、writable、orderRead snapshot，仅隔离fixture使用。日志outputs/gate5-delivery-repaired-{ui-build,browser,baseline,guard}-20261016.log与gate5-delivery-cleanup-lint-20261016.log；没有更新冻结PNG/receipt或宣称新人工像素验收。其后的提交仅登记这些结果，实际送达head/Hosted CI以唯一草稿PR核实，不拿旧CI代替。
 
+最终文档1d81825b7a8e930cf1dad043898a53d8aeebf2d1已由原安全工具一次push精确核实，创建并附加唯一草稿PR114。首轮baseline通过；Source运行38841519976在另一旧`ainuoke-server-source.integration.test.ts`全库账本断言失败，预期停于0023、实际含0024。这一处不在先前94升级/261 PostgreSQL集合中，不能据那些通过称Source全套已验。扫描所有schema_migrations/迁移applied断言后，仅将此当前库断言接入同一显式审定清单；原1–11历史起点不变，并新增升级精确后缀/二次空迁移断言。没有改SQL、生产migrator、Source业务代码或减少原身份/账号/四流/权限/CLI断言；新精确head仍须重新Source CI验证。
+
+该修复本机Source集合20通过/1项Linux-only CLI在Windows跳过，无失败；Server编译与定向lint通过（outputs/gate5-source-ledger-{repair,compile,lint}-20261016.log）。Linux CLI必须以新head Hosted CI实跑为准，不把跳过称PASS；此前19浏览器与94基线仍按d014源码阅读，旧首轮CI失败保留。
+
 ## 决定、建议与待确认
 
 用户批准D121/D133/D134页面与业务规则，并批准持续分Gate工程交付；本轮沿用这些决定。AI技术建议是先按#109→#110→#111→#112收口，再对齐页面PR和#113，避免直接合并累计大分支。新像素人工验收及具体Source/写入/启用许可仍分别待确认。2026-10-16用户另行批准的一次财务两合同只读核验已在独立Source工作树通过：12/9行、两遍一致、1次登录加4次报表；这不使本分支获得0025、财务面板或持续采集能力，来源字段映射仍未整体验收。
