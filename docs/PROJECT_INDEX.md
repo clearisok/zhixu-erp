@@ -1,5 +1,7 @@
 # 项目知识索引
 
+2026-10-16当前阶段：同一工作树新增[财务操作入口](tasks/active/ainuoke-payment-operator.md)，依赖已交付PR113@3896；核心13项合成/一次性PG通过，CLI/完整验收待收口。当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，真实两合同一次读取已用完，无真实迁移/启用/写入。优先CURRENT_STATE/AI_HANDOFF；下文旧阶段按原日期/SHA阅读。
+
 2026-10-16当前恢复优先读CURRENT_STATE/AI_HANDOFF与[浏览器验收修复](tasks/active/browser-validation-readiness-2026-10-16.md)：6就绪回归、G5四浏览器35/35、财务两浏览器20/20；生产UI不变，最终head三CI另核实。PR113/114为依赖草稿，真实两合同一次许可已用完，无DB/激活。下文各旧阶段结果按其日期/SHA阅读。
 
 2026-10-16新增：[两合同真实只读证据](tasks/active/evidence/ainuoke-payment-request-probe/real-two-contracts-2026-10-16.md)，用户一次固定许可已用完，12/9行、两遍一致、5HTTP/4report，指定合同过滤/完整性通过；无DB/激活，整体映射与银行实付未确认。PR113精确f9三CI通过，当前只前向补充新证据；#109–112最新精确head各三CI绿，G5独立页面交付收口中。先读[当前状态](CURRENT_STATE.md)/[接力](AI_HANDOFF.md)，下段保留前阶段日期/hash与待验证状态，不作为新结论。

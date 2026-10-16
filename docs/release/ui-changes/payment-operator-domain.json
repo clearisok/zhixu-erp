@@ -1,0 +1,9 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V0",
+  "paths": ["features/operation-logs/model/operation-log.ts"],
+  "pages": ["material"],
+  "visibleDifference": "none",
+  "evidence": ["docs/tasks/active/ainuoke-payment-operator.md"],
+  "reason": "Domain-only action/entity type additions for explicit payment target audit; no renderer, labels, layout, routes or interactions change. Existing approved material UI is preserved."
+}

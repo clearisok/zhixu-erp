@@ -1,4 +1,4 @@
-import type { Pool } from 'pg';
+import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { UUID_PATTERN } from '../sales-orders/delivery-plan-model.js';
 import { hash, SourceError } from './contract.js';
@@ -16,7 +16,7 @@ type Plan = Awaited<ReturnType<typeof prepare>>;
 const fail = (code: string): never => { throw new SourceError(code); };
 const sha = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value);
 
-function requestOf(input: PaymentCollectionRequest): PaymentCollectionRequest {
+export function parsePaymentCollectionRequest(input: PaymentCollectionRequest): PaymentCollectionRequest {
   const value = structuredClone(input);
   if (!value || Object.keys(value).sort().join(',') !== 'config,selection,targets') fail('payment_collection_invalid_request');
   value.config = configForSelection(value.config, value.selection);
@@ -34,8 +34,8 @@ function fixedContext(context: PaymentPublicationContext) {
   if (!Number.isFinite(preparedAt) || preparedAt < 0) fail('payment_capture_clock_invalid');
   return fixed;
 }
-async function databaseScope(pool: Pool) {
-  const database = (await pool.query(`SELECT current_database() AS database,current_user AS db_user,
+export async function paymentDatabaseFingerprint(pool: Pool, connection: Pool|PoolClient = pool) {
+  const database = (await connection.query(`SELECT current_database() AS database,current_user AS db_user,
     inet_server_addr()::text AS address,inet_server_port() AS port`)).rows[0];
   let connectionHost = pool.options.host ?? null, connectionPort: string | number | null = pool.options.port ?? null;
   if (pool.options.connectionString) {
@@ -54,7 +54,7 @@ async function prepare(pool: Pool, identity: Identity, request: PaymentCollectio
       || context.salesContractNo !== request.selection.targets[index].salesContractNo) fail('payment_collection_binding_mismatch');
     contexts.push(context);
   }
-  const databaseFingerprint = await databaseScope(pool);
+  const databaseFingerprint = await paymentDatabaseFingerprint(pool);
   const scopeHash = hash({ schemaVersion: 'ainuoke-payment-collection-scope.v1', reportId: '6086941',
     databaseFingerprint, actor: identity, operatorUsername: request.config.operatorUsername,
     selection: request.selection, targets: request.targets, contexts: contexts.map(fixedContext), limits: CONTRACT_LIMITS });
@@ -64,7 +64,7 @@ async function prepare(pool: Pool, identity: Identity, request: PaymentCollectio
 /** Internal, DB-read-only range preview. Neither this hash nor enabled targets
  * replace human authorization. No account, schema, target or source is changed. */
 export async function planPaymentCollection(pool: Pool, caller: Identity, input: PaymentCollectionRequest, now: () => number = Date.now) {
-  const identity = { internalUserId: caller.internalUserId, userId: caller.userId }, request = requestOf(input);
+  const identity = { internalUserId: caller.internalUserId, userId: caller.userId }, request = parsePaymentCollectionRequest(input);
   const plan = await prepare(pool, identity, request, now);
   return { schemaVersion: 'ainuoke-payment-collection-plan.v1' as const, scopeHash: plan.scopeHash,
     databaseFingerprint: plan.databaseFingerprint, sourceKey: request.config.sourceKey,
@@ -112,7 +112,7 @@ export async function collectAndPublishPaymentContracts(pool: Pool, caller: Iden
   expectedScopeHash: string, options: { now?: () => number;
     collect?: (config: CollectorConfig, selection: ContractSelection) => Promise<unknown> } = {}) {
   if (!sha(expectedScopeHash)) fail('payment_collection_explicit_scope_required');
-  const request = requestOf(input), identity = { internalUserId: caller.internalUserId, userId: caller.userId };
+  const request = parsePaymentCollectionRequest(input), identity = { internalUserId: caller.internalUserId, userId: caller.userId };
   const now = options.now ?? Date.now, plan = await prepare(pool, identity, request, now);
   if (plan.scopeHash !== expectedScopeHash) fail('payment_collection_scope_mismatch');
   const notAttempted = () => request.targets.map(target => ({ alias: target.alias, status: 'not_attempted' as const }));
