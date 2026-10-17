@@ -11,3 +11,5 @@
 起点 branch `feat/order-commercial-versions` / HEAD `e3cebb48622e39cf2d31ca82bce4a3f971c973ee`，工作树干净。已有CCT（包括空值）决定权威；否则读取保存的PV确认。订单使用关系不决定确认金额。列表/汇总、客户导出和商业采用复用解析器；详情CCT查询在无CCT时明确返回PV确认通道，允许已有SO继续修改报价确认，但不会更新SO快照。
 
 本阶段不修改既有迁移或UI布局，不新增真实执行。验证与交付SHA在完成后追加，后续Phase通过前向整合继承本提交。
+
+Phase1验证：42项确认来源/确认命令/汇总/真实XLSX构建解析/关联并发回归通过；另6项原CCT集成通过。类型、完整源码lint、Server编译、默认前端构建及root824/824通过。源码checkpoint 0c971f74201fea0d84ea3c1a145aae10dae2e5cd，精确main门禁PASS（10页/17能力）；前向绑定新D145证据后重跑基线，最终结果另记。没有真实业务操作。

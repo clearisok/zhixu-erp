@@ -646,6 +646,15 @@
       "path": "docs/tasks/active/evidence/order-commercial/gate2-results.md",
       "recordedAtSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
       "sha256": "b861454fa99ed44557de33b323024798b134688f87ecfdad3c73fcbcd0a3bb94"
+    },
+    {
+      "id": "decisions-price-coordination-phase1-20261017",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "0c971f74201fea0d84ea3c1a145aae10dae2e5cd",
+      "sha256": "d3056a968ba318d9183439fcc4ad91a82448be5622e3f4c79778922ac1a6a012",
+      "supersedes": "decisions-order-commercial-g2",
+      "changeReason": "用户批准D145价格协同；Phase1统一确认权威，后续功能仍待实施"
     }
   ],
   "pages": [
