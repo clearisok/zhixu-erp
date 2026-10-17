@@ -1728,6 +1728,15 @@
       "sha256": "dc414fa230ddb8b77839092f79bcebb3c75c02e41aebf5acf1e97d6229d6e886",
       "supersedes": "decisions-price-coordination-color-20261017",
       "changeReason": "用户批准D145，追加统一订单议价、原请求恢复与报价上下文改配证据，保留历史blob"
+    },
+    {
+      "id": "decisions-price-processing-20261017",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c0137597330edd27ddac0fc9fb79f560c26e3628",
+      "sha256": "8d360d7a9f3c314ac8d9f2dedb07f832c28cafd334d27888aa83866eb523a628",
+      "supersedes": "decisions-order-sale-20261017",
+      "changeReason": "D145批准的加工纯工价与同步推送实现前向记录，保留原决策和证据"
     }
   ],
   "pages": [
