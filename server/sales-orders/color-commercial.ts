@@ -12,7 +12,7 @@ import {orderCommandControlError} from './command-control.js';
 import {identityUuid} from './identity-model.js';
 
 type Queryable=Pick<Pool|PoolClient,'query'>;
-export const pricingFail=(status:number,code:string):never=>{throw new HttpError(status,code,code);};
+export function pricingFail(status:number,code:string):never{throw new HttpError(status,code,code);}
 const colorKey=(v:string)=>v.normalize('NFC').trim().replace(/\s+/gu,' ').toLowerCase();
 function stableColorId(orderId:string,key:string){const s=createHash('sha256').update(orderId.toLowerCase()+'\0'+key).digest('hex');return `${s.slice(0,8)}-${s.slice(8,12)}-5${s.slice(13,16)}-a${s.slice(17,20)}-${s.slice(20,32)}`;}
 export async function readPricingColors(c:Queryable,orderId:string){
@@ -48,7 +48,7 @@ export async function pricingTarget(c:PoolClient,id:string){
 }
 export async function pricingActor(c:PoolClient,actor:TrustedIdentity,permission:'order.commercial.adopt'|'quote.order_price.adjust'){
  const a=await requireOrderCommandActor(c,actor,permission);requirePermission(a.permissions,'quote.view');
- if(permission==='order.commercial.adopt'){requirePermission(a.permissions,'commercial.labor.view');requirePermission(a.permissions,'order.lineage.edit');}
+ if(permission==='order.commercial.adopt')requirePermission(a.permissions,'commercial.labor.view');
  requirePermission(a.permissions,'commercial.sale.view');if(permission==='quote.order_price.adjust')requirePermission(a.permissions,'commercial.sale.edit');return a;
 }
 type Selection={kind:'quote';quoteId:string;revisionId:string;priceVersionId?:string;assignments?:{colorId:string;priceVersionId:string}[]};
@@ -72,24 +72,28 @@ async function selectedLines(c:PoolClient,id:string,selection:Selection){
  }
  return assignments.map(({color,priceVersionId}):CommercialLine=>{const v=candidates.get(priceVersionId!)!;return {colorId:color?.id??null,colorName:color?.colorName??null,quantity:color?.quantity??null,priceVersionId:priceVersionId!,priceVersionName:String(v.product.priceVersion.name??''),source:v.source,product:v.product,productHash:v.hash,baseSalePrice:v.source.salePrice,salePrice:v.source.salePrice,laborPrice:v.source.laborPrice,laborCurrency:v.source.laborCurrency};});
 }
-export async function previewColorSource(pool:Pool,actor:TrustedIdentity,id:string,raw:Record<string,unknown>){
+export async function previewColorSource(pool:Pool,actor:TrustedIdentity,id:string,raw:Record<string,unknown>,quoteContextId?:string){
  const selection=parseColorSelection(raw),c=await pool.connect();try{await c.query('BEGIN');await lockEffectiveAttribution(c);const a=await pricingActor(c,actor,'order.commercial.adopt');const business=await pricingTarget(c,id);
- const head=(await c.query('SELECT version,current_version_id::text FROM sales_order_commercial_heads WHERE sales_order_id=$1',[id])).rows[0];if(head)pricingFail(409,'source_change_requires_quote_center');
+ const head=(await c.query('SELECT h.version,h.current_version_id::text,v.quote_id FROM sales_order_commercial_heads h JOIN sales_order_commercial_versions v ON v.id=h.current_version_id WHERE h.sales_order_id=$1',[id])).rows[0];
+ if(quoteContextId){requirePermission(a.permissions,'quote.order_price.adjust');requirePermission(a.permissions,'commercial.sale.edit');if(head?.quote_id!==quoteContextId)pricingFail(409,'quote_order_context_changed');}else if(head)pricingFail(409,'source_change_requires_quote_center');
  const lines=await selectedLines(c,id,selection);if((business.businessType==='processing')!==(lines[0].source.quoteType==='processing'))pricingFail(409,'order_quote_business_type_conflict');
- const fingerprint=productHash({selection,lines});await c.query('ROLLBACK');return {version:0,selection,fingerprint,pricingMode:pricingMode(lines),lines:projectPricingLines(a,lines),quoteCode:lines[0].product.quoteCode,revisionLabel:String(lines[0].product.revision.revisionLabel??'')};
+ const fingerprint=productHash({selection,lines});await c.query('ROLLBACK');return {version:Number(head?.version??0),selection,fingerprint,pricingMode:pricingMode(lines),lines:projectPricingLines(a,lines),quoteCode:lines[0].product.quoteCode,revisionLabel:String(lines[0].product.revision.revisionLabel??'')};
  }catch(e){await c.query('ROLLBACK');throw orderCommandControlError(e);}finally{c.release();}
 }
-export async function adoptColorSource(pool:Pool,actor:TrustedIdentity,id:string,raw:Record<string,unknown>){
- const keys=['selection','requestId','expectedVersion','fingerprint','reason'];if(Object.keys(raw).sort().join(',')!==keys.sort().join(',')||!raw.selection||typeof raw.selection!=='object'||Array.isArray(raw.selection)||!identityUuid.test(String(raw.requestId))||raw.expectedVersion!==0||typeof raw.fingerprint!=='string'||!/^([a-f0-9]{64})$/u.test(raw.fingerprint)||typeof raw.reason!=='string'||!raw.reason.trim()||raw.reason.length>2000)pricingFail(400,'invalid_business_source_command');
- const selection=parseColorSelection(raw.selection as Record<string,unknown>),hash=productHash({orderId:id,raw}),c=await pool.connect();try{
+export async function adoptColorSource(pool:Pool,actor:TrustedIdentity,id:string,raw:Record<string,unknown>,quoteContextId?:string){
+ const keys=['selection','requestId','expectedVersion','fingerprint','reason'];if(Object.keys(raw).sort().join(',')!==keys.sort().join(',')||!raw.selection||typeof raw.selection!=='object'||Array.isArray(raw.selection)||!identityUuid.test(String(raw.requestId))||!Number.isSafeInteger(raw.expectedVersion)||Number(raw.expectedVersion)<0||(!quoteContextId&&raw.expectedVersion!==0)||typeof raw.fingerprint!=='string'||!/^([a-f0-9]{64})$/u.test(raw.fingerprint)||typeof raw.reason!=='string'||!raw.reason.trim()||raw.reason.length>2000)pricingFail(400,'invalid_business_source_command');
+ const selection=parseColorSelection(raw.selection as Record<string,unknown>),hash=productHash({orderId:id,raw,...(quoteContextId?{quoteContextId}:{})}),c=await pool.connect();try{
   await c.query('BEGIN');await lockEffectiveAttribution(c);const a=await pricingActor(c,actor,'order.commercial.adopt');
+  if(quoteContextId){requirePermission(a.permissions,'quote.order_price.adjust');requirePermission(a.permissions,'commercial.sale.edit');}
   await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['order-commercial-request:'+a.internalUserId+':'+raw.requestId]);
   const old=(await c.query('SELECT id::text,payload_hash FROM sales_order_commercial_versions WHERE actor_id=$1 AND request_id=$2',[a.internalUserId,raw.requestId])).rows[0];if(old){if(old.payload_hash!==hash)pricingFail(409,'business_source_retry_mismatch');await c.query('COMMIT');return {commercialVersionId:old.id,replayed:true};}
-  const business=await pricingTarget(c,id);if((await c.query('SELECT 1 FROM sales_order_commercial_heads WHERE sales_order_id=$1',[id])).rowCount)pricingFail(409,'source_change_requires_quote_center');
+  const business=await pricingTarget(c,id),head=(await c.query('SELECT h.version,h.current_version_id::text,v.quote_id FROM sales_order_commercial_heads h JOIN sales_order_commercial_versions v ON v.id=h.current_version_id WHERE h.sales_order_id=$1',[id])).rows[0];
+  if(quoteContextId){requirePermission(a.permissions,'quote.order_price.adjust');requirePermission(a.permissions,'commercial.sale.edit');if(head?.quote_id!==quoteContextId)pricingFail(409,'quote_order_context_changed');}else if(head)pricingFail(409,'source_change_requires_quote_center');
+  if(Number(head?.version??0)!==raw.expectedVersion)pricingFail(409,'order_commercial_version_conflict');
   const lines=await selectedLines(c,id,selection);if(productHash({selection,lines})!==raw.fingerprint)pricingFail(409,'business_source_changed');if((business.businessType==='processing')!==(lines[0].source.quoteType==='processing'))pricingFail(409,'order_quote_business_type_conflict');
   for(const color of await readPricingColors(c,id))await c.query('INSERT INTO sales_order_color_identities(id,sales_order_id,business_key,color_name) VALUES($1,$2,$3,$4) ON CONFLICT(sales_order_id,business_key) DO NOTHING',[color.id,id,color.businessKey,color.colorName]);
-  const next=await appendLineCommercialVersion(c,{orderId:id,version:1,previousVersionId:null,actorId:a.internalUserId,requestId:String(raw.requestId),payloadHash:hash,reason:String(raw.reason),lines,changeKind:'source_adoption'});
-  await appendOperationLog(c,a,{module:'订单中心',action:'维护订单业务来源',entityType:'OrderCommercialVersion',entityId:next.id,quoteId:selection.quoteId,afterData:{values:{salesOrderId:id,version:1}},metadata:{businessSource:'quote',colorCount:lines.length}});await c.query('COMMIT');return {commercialVersionId:next.id,replayed:false};
+  const version=Number(raw.expectedVersion)+1,next=await appendLineCommercialVersion(c,{orderId:id,version,previousVersionId:head?.current_version_id??null,actorId:a.internalUserId,requestId:String(raw.requestId),payloadHash:hash,reason:String(raw.reason),lines,changeKind:quoteContextId?'source_replacement':'source_adoption'});
+  await appendOperationLog(c,a,{module:quoteContextId?'报价中心':'订单中心',action:'维护订单业务来源',entityType:'OrderCommercialVersion',entityId:next.id,quoteId:selection.quoteId,afterData:{values:{salesOrderId:id,version}},metadata:{businessSource:'quote',colorCount:lines.length}});await c.query('COMMIT');return {commercialVersionId:next.id,replayed:false};
  }catch(e){await c.query('ROLLBACK');throw orderCommandControlError(e);}finally{c.release();}
 }
 

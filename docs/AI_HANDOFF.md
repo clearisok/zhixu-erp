@@ -1,7 +1,7 @@
-# 恢复点：价格协同 Phase2
+# 恢复点：价格协同 Phase3
 
-main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。feat/order-business-source / clean起点dc03670256b05dd24e0a9c817d1e138f353b1f1f，前向整合Phase1 c658ea62；仅共享文档冲突，手动协调，未清理任何工作树。G2证据分支的兄弟清单不替代本树既有前向链；原证据仍在原提交可读，本树D145后续追加新证据。
+基线 main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前 feat/quote-order-sale-adjustments 从 Phase2 4013e3ec3abaf34551fe82e5dcedbac343279546 干净起点继续；本阶段dirty均本任务增量，未覆盖其他树。Phase1本地e70deac；Phase2本地4013e3ec。
 
-用户批准报价唯一来源、报价中心指定订单议价及颜色价格；加工批次保留。下一步新增0028，不改0015/0016/0027；完成来源分步Modal与只读价格。原认领/准备/归一公开写保持退役，旧翻单读取保留但不新建。使用原合成测试/一次性PG，不读私密文件或旧演示库，不合并部署。完整批准计划见tasks/active/quote-order-price-coordination-2026-10-17.md。
+统一报价中心议价服务、0029追加操作回执、单笔/批量UI、三处只读历史及报价上下文改配已实现。12项定向与4项实际Chromium通过，类型/Server编译/相关lint/显式Server构建通过。之后独立checkpoint/冻结证据，再创建加工与选择交互分支。不得把尚未完成检查写PASS。
 
-Phase2：0028/稳定颜色/逐色商业版本、报价唯一来源与1280pxModal已实现。9项新后端、14项旧商业、19项加工服务、6项实际Chromium通过；类型/Server编译/相关lint/显式Server构建通过。下一步checkpoint并绑定D145/批准范围，完成root/基线；之后独立分支推进议价。Git交付Phase1一次尝试为NETWORK_DEGRADED、远端仍旧head，禁止后续Gate反复推送；本地工作可继续，最终统一给交付命令。
+首次Git交付NETWORK_DEGRADED且远端仍旧SHA，本地可继续，后续Gate不重复推送。最终具体命令待所有本地阶段收口；不得冒称PR110/117更新已送达。仅一次性合成PG/浏览器，无真实源读取、DB/账号、62316/62326更新、部署或合并。

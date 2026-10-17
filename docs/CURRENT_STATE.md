@@ -1,4 +1,4 @@
-# 当前状态：报价与订单价格协同 Phase2
+# 当前状态：报价与订单价格协同 Phase3
 
 2026-10-17 / main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。feat/order-business-source从clean dc03670256b05dd24e0a9c817d1e138f353b1f1f前向整合Phase1 c658ea62，保留原提交。共享摘要/规则/证据清单冲突由整合者协调，源码无冲突；两边原摘要分别保留completed/2026-10-17-price-coordination-before-g2.md及2026-10-17-before-price-coordination-g117.md。
 
@@ -7,3 +7,5 @@ Phase1已统一CCT存在优先/否则保存PV确认；42相关、6原CCT、root8
 旧来源/演示成果保持历史事实，62316/62326、真实账号/业务库及来源预算不变。本阶段只合成/一次性库，无新采集、不合并部署。价格与产品历史保持，现有迁移不改。
 
 Phase2本地：9项颜色/来源、14项商业和19项加工、6项实际Chromium通过；类型/Server编译/相关lint/显式Server构建通过。已保留原价格历史，订单中心重选已被拒绝。发布基线/完整root继续收口。Phase1交付一次推送传输失败，独立API确认仍旧head；当前远端未更新，不反复推送。
+
+Phase3本地：统一订单议价/0029回执及报价上下文改配完成，12定向+4 Chromium通过；报价/CCT/工价不变，订单中心只读。当前feat/quote-order-sale-adjustments。加工纯工价与同步推送尚待下一阶段。完整证据见tasks/active/quote-order-price-coordination-2026-10-17.md。

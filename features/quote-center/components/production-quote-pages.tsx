@@ -1,4 +1,5 @@
 "use client";
+import {QuoteOrderPricingDialog} from "./quote-order-pricing";
 import {ProcessingBatchDialog} from "@/features/order-center/components/processing-batch-dialog";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -36,6 +37,7 @@ function ServerList() {
   const columnSignature = visibleBusinessColumns.join(",");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [priceDialog,setPriceDialog]=useState<"adjust"|"history"|null>(null);
   const [summaryError, setSummaryError] = useState("");
   const persistPreferences = (next: ServerListPreferences) => {
     try { setStoredPreferences(saveServerListPreferences(window.localStorage, next, session.permissions)); }
@@ -126,6 +128,8 @@ function ServerList() {
       secondaryActions={<FloatingMenu className="qc-list-more-actions" menuClassName="qc-list-more-menu" label="更多报价操作">
         <Button disabled={batchBusy || (!selectionMode && (!session.hasPermission("quote.export") || !session.hasPermission("quote.cost.view")))} variant="text" onClick={() => { setSelectionMode(!selectionMode); setSelected({}); setBatchMessage(""); }}>{selectionMode ? "退出选择" : "批量客户报价"}</Button>
         <Button disabled={batchBusy} variant="text" onClick={() => setSettingsOpen(true)}>列表页面设置</Button>
+        <Button variant="text" onClick={()=>setPriceDialog("adjust")}>批量调整订单成交价</Button>
+        <Button variant="text" onClick={()=>setPriceDialog("history")}>订单调价历史</Button>
         <Button disabled={batchBusy || !session.hasPermission("quote.export")} variant="text" onClick={() => { if (!selectionMode) { setSelectionMode(true); setBatchMessage("请选择报价后打开内部汇总（支持跨页，最多25张）。"); } else if (Object.keys(selected).length) { setSummaryError(""); setSummaryOpen(true); } }}>{selectionMode ? "打开内部汇总" : "内部报价汇总"}</Button>
         <Button disabled={batchBusy} variant="text" onClick={() => persistPreferences({ ...preferences, presentation: preferences.presentation === "original" ? "fields" : "original" })}>{preferences.presentation === "original" ? "独立字段视图" : "原版组合视图"}</Button>
       </FloatingMenu>}
@@ -135,6 +139,7 @@ function ServerList() {
       moreFilters={<><FormItem label="报价类型"><select className="qc-control" value={query.type} onChange={(event) => setQuery({ ...query, type: event.target.value, offset: 0 })}><option value="">全部类型</option><option value="distribution">经销</option><option value="processing">加工</option></select></FormItem><FormItem label="报价状态"><select className="qc-control" value={query.status} onChange={(event) => setQuery({ ...query, status: event.target.value, offset: 0 })}><option value="">全部状态</option><option value="draft">草稿</option><option value="quoting">报价中</option><option value="partially_confirmed">部分确认</option><option value="confirmed">已确认</option></select></FormItem></>} />
     {selectionMode && <div className="qc-batch-selection-toolbar qc-server-selection-context"><Button disabled={batchBusy||loading} onClick={()=>choose(rows,true)}>本页全选</Button><Button disabled={batchBusy||!Object.keys(selected).length||!session.hasPermission("quote.export")||!session.hasPermission("quote.cost.view")} onClick={()=>void exportBatch()}>生成客户报价 ZIP</Button><span>已选 {Object.keys(selected).length} / 25 · 支持跨页</span></div>}{batchMessage&&<p role="status">{batchMessage}</p>}
 
+    <QuoteOrderPricingDialog key={session.user?.id+JSON.stringify(session.permissions)+priceDialog} open={priceDialog!==null} historyOnly={priceDialog==="history"} onClose={()=>setPriceDialog(null)}/>
     <ListFieldSettingsModal open={settingsOpen} settings={preferences} tablePreference={{...listTablePreference(preferences),columnWidths:modalWidths(preferences)}} defaultVisibleColumns={defaults.visibleColumns} defaultColumnWidths={modalWidths(defaults)} defaultColumnOrder={defaults.columnOrder}
       getWidthOptions={(draft, order, restored) => {
         const current = { ...(restored ? normalizeServerListPreferences(userId, session.permissions) : draft), visibleColumns: draft.visibleColumns, presentation: restored ? "original" as const : draft.presentation, columnOrder: order as BusinessColumn[] };

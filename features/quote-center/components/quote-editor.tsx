@@ -1,4 +1,5 @@
 "use client";
+import {QuoteOrderPriceEntry} from "./quote-order-pricing";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NumberPrecisionContext } from "@/components/foundation/nullable-number-input";
@@ -1278,6 +1279,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     primaryAction: quoteFrozen ? undefined : primaryAction, quickNavigationItems };
 
   const headerActions = <div className="qc-quote-header-controls">
+    {serverMode&&!isNew&&<QuoteOrderPriceEntry key={quote.id+serverSession.user?.id} quoteId={quote.id} disabled={serverBusy||isDirty}/>}
     <QuoteActionBar {...quoteActionBarProps} keepPrimaryVisible={serverMode} onModeChange={setHeaderActionMode} />
   </div>;
 

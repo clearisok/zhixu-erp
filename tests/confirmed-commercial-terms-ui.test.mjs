@@ -74,7 +74,7 @@ test("formal Order Detail uses explicit Server commercial adoption instead of di
   assert.doesNotMatch(orderDetail,/updateBySalesOrder|编辑确认商业条款/u);
   assert.match(card,/order\.commercial\.adopt/u);
   assert.match(card,/预览来源与价格/u);assert.match(card,/确认维护来源/u);
-  assert.match(card,/expectedVersion:0/u);
+  assert.match(card,/expectedVersion:preview\.version/u);
   assert.match(card,/fingerprint:preview\.fingerprint/u);
   assert.match(card,/save\(e,pending\)/u);
   assert.doesNotMatch(card,/localStorage|mockQuoteRepository|orderRepository/u);

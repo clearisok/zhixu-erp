@@ -96,7 +96,9 @@
     "test:ainuoke-payment-operator": "tsx --test --test-concurrency=1 server/integration/ainuoke-payment-operator.test.ts server/integration/ainuoke-payment-operator-cli.test.ts server/integration/ainuoke-payment-operator.integration.test.ts",
     "test:ainuoke-selected-source-once": "tsx --test --test-concurrency=1 server/integration/ainuoke-selected-source-once.test.ts server/integration/ainuoke-selected-source-once.integration.test.ts",
     "test:order-business-source": "tsx --test --test-concurrency=1 server/integration/order-business-source.integration.test.ts",
-    "test:order-business-source-ui": "tsx --test server/integration/order-business-source-ui.integration.test.mjs"
+    "test:order-business-source-ui": "tsx --test server/integration/order-business-source-ui.integration.test.mjs",
+    "test:order-sale-adjustments": "tsx --test --test-concurrency=1 server/integration/order-sale-adjustment.integration.test.ts",
+    "test:order-sale-adjustments-ui": "tsx --test server/integration/order-sale-adjustment-ui.integration.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",
