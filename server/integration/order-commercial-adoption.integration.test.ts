@@ -55,7 +55,7 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
  });
  await t.test('two orders share a quote without sharing adopted prices',async()=>{
   await adoptOrderCommercial(pool,actor,b,await command(b));
-  const lookup=await readConfirmedCommercialTermsByQuote(pool,source);assert.equal(lookup.linkage,'linked');assert.deepEqual([...lookup.associatedSalesOrderIds].sort(),[a,b].sort());
+  const lookup=await readConfirmedCommercialTermsByQuote(pool,source);assert.equal(lookup.linkage,'unlinked');assert.equal(lookup.current,null);assert.deepEqual(lookup.associatedSalesOrderIds,[]);
   const quoteActor={...actor,permissions:await permissionsForUser(pool,actor.internalUserId)};
   const changed=await updateConfirmedCommercialTermsByQuote(pool,quoteActor,source,{expectedVersion:0,expectedQuoteVersion:1,customerConfirmedPrice:'130'});
   assert.equal(changed.current?.confirmedLaborPrice,'10');

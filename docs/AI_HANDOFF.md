@@ -9,3 +9,5 @@ main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`；工作树order-commercial-vers
 下一步完成相关回归、lint/build/root/基线，checkpoint并前向绑定DECISION_LOG，精确门禁后通过原交付工具一次推送/核实，更新唯一PR110；随后与当前clean PR117合并时只协调摘要。价格操作从不回写报价确认或其他订单。
 
 Phase1源码0c971f74201fea0d84ea3c1a145aae10dae2e5cd已checkpoint；42项相关/6项原CCT、root824、typecheck/lint/Server编译/前端构建通过，D145已前向绑定，精确main门禁PASS。基线需在绑定后重新完成；第一次与绑定并行运行读到旧清单而报文档漂移，未降低检查。
+
+Phase1补充14项独立商业采用回归通过，修正无CCT时使用PV通道的旧测试断言；源码功能未变。基线78/78在c658绑定后通过。一次正常交付传输失败，远端仍e3cebb4，NETWORK_DEGRADED，不在后续重复推送。
