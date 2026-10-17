@@ -58,11 +58,12 @@ test("business source UI replaces ownership and uses exact confirmed conditions"
     await navigate('/order-center');await has('导入加工订单');
     for(const old of ['重复订单复核','归一岗位复核'])assert.equal(await evaluate('document.body.innerText.includes('+JSON.stringify(old)+')'),false);
   });
+  await t.test('bounded large source preview reaches domain validation without writing',async()=>{const cookie=await x.login('demo.admin'),response=await fetch(x.base+'/api/v1/sales-orders/'+second+'/business-source/preview',{method:'POST',headers:{Cookie:cookie,Origin:x.base,'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify({kind:'quote',quoteId:q.id,revisionId:rev.revisionId,assignments:Array.from({length:1000},()=>({colorId:crypto.randomUUID(),priceVersionId:pv.id}))})});assert.equal(response.status,409);assert.equal((await response.json()).error.code,'order_colors_changed');assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_commercial_versions WHERE sales_order_id=$1',[second])).rows[0].n,0);});
   const chooseQuote=async()=>{await click('维护来源');await has(q.quoteCode);await evaluate("(()=>{const row=[...document.querySelectorAll('[role=dialog] tbody tr')].find(n=>n.textContent.includes("+JSON.stringify(q.quoteCode)+"));row.querySelector('button').click();})()");await has('统一应用价格方案');await click('预览来源与价格');await has('120 CNY / 件');await reason('Synthetic confirmed quote source');};
   await login('demo.merchandising');await navigate('/order-center/server-detail?id='+x.orderId);await has('维护来源');
   await t.test('large centered quote-only wizard adopts confirmed color prices without ownership',async()=>{
     for(const old of ['订单认领与血统','认领订单','转交负责人','以本单建立翻单准备'])assert.equal(await evaluate('document.body.innerText.includes('+JSON.stringify(old)+')'),false);
-    await chooseQuote();assert.equal(await evaluate("document.querySelector('[role=dialog]').classList.contains('oc-source-modal')"),true);
+    await chooseQuote();assert.equal(await evaluate("document.querySelector('[role=dialog]').classList.contains('oc-source-modal')"),true);const widths=await evaluate("(()=>{const f=document.querySelector('[role=dialog] .oc-source-form');return {form:f.getBoundingClientRect().width,table:f.querySelector('.oc-source-table').getBoundingClientRect().width};})()");assert.ok(widths.table>=widths.form*0.9,JSON.stringify(widths));
     await click('确认维护来源');await has('报价来源和订单价格已保存');assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_identity_profiles WHERE owner_id IS NOT NULL')).rows[0].n,0);await click('关闭');await has('统一成交价');
   });
   await t.test('uncertain save retries the same command and never creates a second price version',async()=>{
