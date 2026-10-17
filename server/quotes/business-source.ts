@@ -26,9 +26,11 @@ const decimal = (value: string | null) => value === null ? null : canonicalDecim
 /** Exact provenance, same rules as the linked current reader. Fixed two queries, bounded roots. */
 export async function readCurrentBindings(client: PoolClient, roots: Root[], versions: Array<{ quote_id: string; revision_id: string; id: string }>) {
   const ids = roots.map(r => r.id);
+  const colorLines=(await client.query("SELECT to_regclass('sales_order_commercial_lines') IS NOT NULL AS ready")).rows[0].ready;
   const orders = (await client.query<{ id: string; source_quote_id: string; source_revision_id: string | null; source_price_version_id: string | null }>(
     `SELECT id::text,source_quote_id,source_revision_id,source_price_version_id FROM sales_orders WHERE source_quote_id=ANY($1::text[])
-     UNION SELECT sales_order_id::text,quote_id,revision_id,price_version_id FROM sales_order_commercial_versions WHERE quote_id=ANY($1::text[]) ORDER BY id`, [ids])).rows;
+     UNION SELECT sales_order_id::text,quote_id,revision_id,price_version_id FROM sales_order_commercial_versions WHERE quote_id=ANY($1::text[]) AND price_version_id IS NOT NULL
+     ${colorLines?"UNION SELECT v.sales_order_id::text,v.quote_id,v.revision_id,l.price_version_id FROM sales_order_commercial_versions v JOIN sales_order_commercial_lines l ON l.commercial_version_id=v.id WHERE v.quote_id=ANY($1::text[])":""} ORDER BY id`, [ids])).rows;
   const terms = (await client.query<{ id: string; quote_id: string; revision_id: string; price_version_id: string; version: number; labor: string | null; garment: string | null; currency: "CNY" | "USD" | null }>(
     `SELECT t.id::text,t.quote_id,t.revision_id,t.price_version_id,t.version,t.confirmed_labor_price::text AS labor,t.customer_confirmed_price::text AS garment,t.labor_currency AS currency
      FROM confirmed_commercial_terms t JOIN quote_center_quotes q ON q.id=t.quote_id AND q.default_revision_id=t.revision_id

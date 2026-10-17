@@ -9,3 +9,5 @@ Phase1已统一CCT存在优先/否则保存PV确认；42相关、6原CCT、root8
 Phase2本地：9项颜色/来源、14项商业和19项加工、6项实际Chromium通过；类型/Server编译/相关lint/显式Server构建通过。已保留原价格历史，订单中心重选已被拒绝。发布基线/完整root继续收口。Phase1交付一次推送传输失败，独立API确认仍旧head；当前远端未更新，不反复推送。
 
 Phase3本地：统一订单议价/0029回执及报价上下文改配完成，12定向+4 Chromium通过；报价/CCT/工价不变，订单中心只读。当前feat/quote-order-sale-adjustments。加工纯工价与同步推送尚待下一阶段。完整证据见tasks/active/quote-order-price-coordination-2026-10-17.md。
+
+2026-10-17 前向整合PR117回补13955e3e72796c66e1f383b321bcff30d3cb2589：逐色精确PV使用关系、0028 ledger与67权限目录断言；共享摘要冲突手动协调，源码无冲突，旧文档仍在原提交。

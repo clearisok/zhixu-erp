@@ -1,3 +1,5 @@
+import {readBusinessSources} from '../quotes/business-source.js';
+import {findSalesOrderIdsByQuoteProvenance} from '../confirmed-commercial-terms/repository.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {resolve} from 'node:path';
@@ -48,6 +50,7 @@ test('quote-only source, stable colors and immutable commercial lines',{timeout:
  await t.test('multiple color schemes preserve different prices without a fake first/average scalar',async()=>{
   const id=await order(['Red','Blue']),colors=await readPricingColors(pool,id);const s={kind:'quote',quoteId:q.id,revisionId:r.revisionId,assignments:colors.map((c,i)=>({colorId:c.id,priceVersionId:r.priceVersions[i].id}))};
   await adoptOrderBusinessSource(pool,actor,id,await command(id,s));const state=await readOrderCommercialState(pool,id);assert.equal(state.current?.salePrice,null);assert.deepEqual(state.current?.lines?.map(l=>l.salePrice),['120','130']);assert.equal((await readOrderBusinessSource(pool,actor,id)).commercial.current?.pricingMode,'by_color');
+  const c=await pool.connect();try{const loaded=await readBusinessSources(c,[{id:q.id,quoteCode:q.quoteCode,version:1,revisionId:r.revisionId,revisionLabel:r.revisionLabel,status:q.aggregateStatus,baseInfo:r.baseInfo}],['confirmedLabor','confirmedGarment']);assert.ok([...loaded.bindings.values()].every(b=>!b.partial));assert.ok(loaded.sources[0].versions.every(v=>v.confirmation?.linkage==='unlinked'));assert.ok((await findSalesOrderIdsByQuoteProvenance(c,{quoteId:q.id,revisionId:r.revisionId,priceVersionId:r.priceVersions[1].id})).includes(id));}finally{c.release();}
   await assert.rejects(()=>pool.query('UPDATE sales_order_commercial_lines SET actual_sale_price=1 WHERE commercial_version_id=$1',[state.current!.id]));
  });
  await t.test('source/version CAS, concurrent requests and audit rollback protect all lines',async()=>{
