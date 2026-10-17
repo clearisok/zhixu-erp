@@ -4,7 +4,7 @@
 
 本地D145功能已完成：报价唯一来源/稳定逐色商业版本、报价中心统一订单议价及只读历史、加工纯工价与同步推送、左侧跨页选择。原898项目/261PG/81专项/26浏览器、追加33领域和8加工浏览器及双构建/类型/full lint/94基线等准确源码见[完整工程证据](tasks/completed/2026-10-17-quote-order-price-coordination-engineering.md)及[最终复审](tasks/completed/2026-10-17-quote-price-final-review.md)。
 
-Hosted CI：#110 e70deacf 三项通过；#117/#118/#119 各baseline/team-access通过，source在旧七角色测试要求反复采用时失败。实际409符合新规则。仅测试修复f43bfdae（Source）、4d2bad59（议价）已本地各31项通过，当前前向整合到加工；验收改为新合同首次维护、已有条件409及权限/脱敏/零写入，生产接口/权限不放宽。新修复尚未远端交付，不能称CI全绿。详见[恢复交付与CI复审](tasks/active/price-coordination-delivery-ci-2026-10-17.md)。
+Hosted CI：#110 e70deacf 三项通过；#117/#118/#119 各baseline/team-access通过，source在旧七角色测试要求反复采用时失败。实际409符合新规则。仅测试修复f43bfdae（Source）、4d2bad59（议价）已本地各31项通过，加工整合亦31项通过，类型/目标lint/94项发布基线与精确main守卫通过；验收改为新合同首次维护、已有条件409及权限/脱敏/零写入，生产接口/权限不放宽。新修复尚未远端交付，不能称CI全绿。详见[恢复交付与CI复审](tasks/active/price-coordination-delivery-ci-2026-10-17.md)。
 
 Git正常推送三条各一次均出现HTTP子进程异常但原始SHA确已送达，全部只读复核，无重推；议价原始提交已存在GitHub，只创建分支引用一次。配置/认证/TLS均未改，原始错误完整原因仍未确认。原四分支恢复授权已按指定SHA收口，新CI修复交付需遵守新范围确认。
 

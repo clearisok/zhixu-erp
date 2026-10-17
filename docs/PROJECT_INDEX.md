@@ -1,3 +1,5 @@
+2026-10-17最新交付恢复：[D145交付与CI复审](tasks/active/price-coordination-delivery-ci-2026-10-17.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；四原始分支已核实，PR110三绿，117/118/119旧角色验收修复本地通过、尚待新范围交付；不把旧CI失败或本地通过冒称新Hosted CI完成。
+
 2026-10-17 D145最终本地工程恢复入口：[价格协同工程证据](tasks/completed/2026-10-17-quote-order-price-coordination-engineering.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，先读CURRENT_STATE/AI_HANDOFF；报价唯一来源、颜色商业版本、统一成衣议价及加工纯工价/同步推送已验收，远端交付/CI与人工接受另核实，勿恢复下文D144已退役交互。
 
 2026-10-17 D-145实施恢复优先：CURRENT_STATE/AI_HANDOFF、[商业版本与议价](features/ORDER_COMMERCIAL_VERSIONS.md)、[加工批次协同增量](features/PROCESSING_ORDER_BATCHES.md)、[本轮阶段记录](tasks/active/quote-order-price-coordination-progress-2026-10-17.md)。新来源只报价，无负责人；D144独立翻单/侧栏为被替代历史。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；不扩真实演示/来源/部署权限。
