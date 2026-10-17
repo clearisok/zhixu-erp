@@ -690,7 +690,7 @@ async function route(
     if(request.method==='GET'&&!businessSourceMatch[2])sendJson(response,200,await readOrderBusinessSource(dependencies.pool,identity,id));
     else if(request.method==='POST'){
       assertMutationBoundary(request,dependencies.allowedOrigins);
-      const body=await readJsonBody(request,8192);
+      const body=await readJsonBody(request,262144);
       if(businessSourceMatch[2])sendJson(response,200,await previewOrderBusinessSource(dependencies.pool,identity,id,body));
       else {await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);sendJson(response,200,await adoptOrderBusinessSource(dependencies.pool,identity,id,body));}
     }else throw new HttpError(405,'method_not_allowed','Method not allowed');
