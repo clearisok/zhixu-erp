@@ -96,7 +96,7 @@ test("Quote confirmation commands: trusted snapshots, independent Estimate permi
       assert.equal(confirmation.confirmedGarmentPrice, type === "processing" ? null : "0");
       assert.equal(confirmation.quotedLaborPrice, "12.5");
       const browserRevision = browser.revisions.find(r => r.revisionId === browser.defaultRevisionId)!;
-      assert.equal(confirmation.quotedGarmentPrice, canonicalDecimal(String(calculatePriceVersionMetrics(browserRevision.priceVersions[0]).garmentSellingPrice)));
+      assert.equal(confirmation.quotedGarmentPrice,type==='processing'?'0':canonicalDecimal(String(calculatePriceVersionMetrics(browserRevision.priceVersions[0]).garmentSellingPrice)));
       assert.equal(typeof confirmation.confirmedAt, "string");
       assert.ok(Number.isFinite(Date.parse(confirmation.confirmedAt!)));
       assert.notEqual(confirmation.confirmedAt, "2026-01-01T00:00:00Z");

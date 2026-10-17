@@ -25,6 +25,7 @@ export async function generateCustomerBatch(pool:Pool,storage:AttachmentStorage|
   // Bind each item once at the start; these independent reads are explicitly NOT
   // a global simultaneous multi-Quote snapshot. CAS is rechecked at generation.
   const jobs=await Promise.all(items.map(async(item,index)=>({item,index,record:await repository.getById(item.quoteId)})));
+  if(jobs.some(j=>j.record&&j.record.quote.revisions.find(r=>r.revisionId===j.record!.quote.defaultRevisionId)?.baseInfo.quoteType!=='processing'))requirePermission(actor.permissions,'commercial.sale.view');
   const zip=new JSZip(), names=new Set<string>();let size=0, success=0;
   const manifest:Array<{index:number;quoteId:string;sourceVersion:number;quoteCode?:string;quoteStyleNo?:string;styleName?:string;revisionId?:string;revisionLabel?:string;priceVersionIds?:string[];priceVersions?:Array<{id:string;name:string;manufacturingCountry:string|null}>;warnings?:string[];fileName?:string;sha256?:string;status:"success"|"failed";code?:string}>=[];
   for(const {item,index,record}of jobs){

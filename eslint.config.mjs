@@ -10,6 +10,8 @@ const eslintConfig = defineConfig([
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
+    // Generated and private runtime evidence is data, not repository source.
+    "outputs/**",
     "build/**",
     "next-env.d.ts",
   ]),
