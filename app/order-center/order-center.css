@@ -512,3 +512,6 @@
 .oc-source-table .qc-control {min-width:140px;}
 @media(max-width:599px){.qc-modal.oc-source-modal {width:calc(100vw - 16px);}}
 .oc-price-summary {display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;color:var(--qc-text,#27483d);}
+
+/* D145 dialogs contain sequential steps, not the legacy three-column source form. */
+.oc-source-modal .oc-source-form {grid-template-columns:minmax(0,1fr);width:100%;}

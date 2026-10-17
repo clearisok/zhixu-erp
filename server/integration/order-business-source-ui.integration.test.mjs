@@ -62,7 +62,7 @@ test("business source UI replaces ownership and uses exact confirmed conditions"
   await login('demo.merchandising');await navigate('/order-center/server-detail?id='+x.orderId);await has('维护来源');
   await t.test('large centered quote-only wizard adopts confirmed color prices without ownership',async()=>{
     for(const old of ['订单认领与血统','认领订单','转交负责人','以本单建立翻单准备'])assert.equal(await evaluate('document.body.innerText.includes('+JSON.stringify(old)+')'),false);
-    await chooseQuote();assert.equal(await evaluate("document.querySelector('[role=dialog]').classList.contains('oc-source-modal')"),true);
+    await chooseQuote();assert.equal(await evaluate("document.querySelector('[role=dialog]').classList.contains('oc-source-modal')"),true);const widths=await evaluate("(()=>{const f=document.querySelector('[role=dialog] .oc-source-form');return {form:f.getBoundingClientRect().width,table:f.querySelector('.oc-source-table').getBoundingClientRect().width};})()");assert.ok(widths.table>=widths.form*0.9,JSON.stringify(widths));
     await click('确认维护来源');await has('报价来源和订单价格已保存');assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_identity_profiles WHERE owner_id IS NOT NULL')).rows[0].n,0);await click('关闭');await has('统一成交价');
   });
   await t.test('uncertain save retries the same command and never creates a second price version',async()=>{

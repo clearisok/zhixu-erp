@@ -7,3 +7,5 @@ main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。feat/processing-quote-push-and-s
 首次交付NETWORK_DEGRADED，后续Gate不重复推送；具体恢复命令待全部收口。只合成DB/Chromium，未改已有演示、真实账号/库、未采集/合并/部署。
 
 依赖收口：G2 e70deacfe446088677aa3d96e998436b730cb7af、PR117 006e7b2394f56b564456629d5616780edc4193de、议价2eab56fcce478b3e313a28b8a9a8b3f636bcf5a3均已前向整合且保留原提交。共享摘要/商业说明按当前Phase4事实协调；ledger保留0028/29/30，旧迁移未改。#117 26+23定向、议价26+5浏览器独立通过；最终整合检查继续。
+
+像素复查修复：oc-source-modal内明确覆盖旧三列grid；来源/加工宽度回归需覆盖子表/段落，不再只测Modal边界。JSX属性顺序调整保留既有源码冻结契约，804非基线root已通过。
