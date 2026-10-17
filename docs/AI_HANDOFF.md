@@ -1,11 +1,11 @@
-# 恢复点：D145本地工程完成，远端恢复待授权
+# 恢复点：D145三PR的CI验收修复
 
-2026-10-17，main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/processing-quote-push-and-selection；最终业务源码bd709005c3799d3a87ae949d84a2db28655a96c4、最终夹具a90493473493d9f3262b7d8f108d8f13b7ed52e3，后续仅文档/冻结记录。无未知dirty。
+2026-10-17，main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前feat/processing-quote-push-and-selection从clean b1803280前向合入4d2bad59c761c2fe9f6118c25b04fc48e0464010；包含Source修复f43bfdae2d09b2450edf0c7f0cf7c599686f41a6，原业务源码不变。共享摘要冲突由整合者按当前交付事实协调，不回退代码。
 
-祖先均保留：#110 feat/order-commercial-versions e70deacfe446088677aa3d96e998436b730cb7af；#117 feat/order-business-source da46cdeb70e3785a760d6381c2e4974a57668a2a；议价feat/quote-order-sale-adjustments 02e1eca080d91bf878bee9deb3817067e60bf90f。最终新加工增量依赖议价，草稿到main前须列明累计依赖；#114最新远端增量未整合。
+四原始分支已精确远端核实，#110/#117更新，#118/#119新建并attach。#110三绿，另三PR各baseline/team-access通过，source均在旧七角色重复采用200断言失败；具体run与新测试规则见tasks/active/price-coordination-delivery-ci-2026-10-17.md。Source/G3新修复各31商业回归通过；下一步加工整合31、类型/lint、94基线与精确main守卫，再checkpoint新交付范围。
 
-验收完整：898项目再次通过（含94基线）；261PG/81专项保留准确原源码，最终追加33领域/API与8加工Chromium通过，原四套26浏览器记录保留；类型/full lint/Node/默认Browser+Server构建通过。精确main守卫PASS，11页/46能力/71UI路径。详情见tasks/completed/2026-10-17-quote-order-price-coordination-engineering.md与2026-10-17-quote-price-final-review.md；原证据不覆盖。
+用户上次只批准四个指定SHA、每分支最多一次。执行三次真实Git push，无重推；工具错误停止但GH/API和只读工具均验证目标，Source追踪仅输出脱敏退出码（Git push1/remote-https128）。议价02e1原提交已随整合上传，用现有GitHubAPI创建原始ref一次（未伪造commit）；全部引用核实。新修复尚未上传，不得自行超出原一次范围反复Git恢复。
 
-REMOTE PENDING：首次一次push NETWORK_DEGRADED且旧head；远端#110 e3cebb48/#117 dc036702，新议价/加工PR未创建。当前只读默认/HTTP1/OpenSSL对照均读main成功，配置未改、未push；这不证明推送可靠。AGENTS要求不自动执行恢复命令，最终具体现成交付包另取一次恢复指示；不得重复撞同一通道、换认证或假报新CI。获准后用统一工具逐分支核实精确SHA，再更新唯一#110/#117并创建2草稿PR、attach_artifact、检查新CI和复审。不自动合并。
+下一交付建议只上传修复整合分支一次，精确目标SHA验证后，将117/118安全快进到已上传原始修复提交（禁止force/重造commit），触发并检查新CI及复审。先完成本地验收，给用户具体新范围。PR都保持草稿，不合并/部署。
 
-无真实账号/业务库、已有62316/62326演示、Source读取/预算/激活/调度、宁波或18443/18444操作。Browser持久化namespace/DEV数据保持。无汇率扩展/完整Server关账。无业务代码待实施，剩余为远端交付/Hosted CI及之后另行授权的运行体验。
+无真实DB/账号/来源/调度或旧演示操作；原本地898/261/81/26＋33/8等证据在completed两份D145报告，本次只有测试和状态记录变化，不冒称全部业务重跑。
