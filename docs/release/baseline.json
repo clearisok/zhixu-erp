@@ -1719,6 +1719,15 @@
       "recordedAtSha": "5409307eaeb8f10d67ad87e831eff9c9b20ae886",
       "sha256": "87c183839ccc92366e9b89e8414fa2c7ab51cbf8bd9d95b77bf0d1bf0be6292c",
       "changeReason": "用户批准D145，前向记录报价唯一来源与逐色商业版本，不改旧快照"
+    },
+    {
+      "id": "decisions-order-sale-20261017",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "be187b9680b75db9a0dba3927fce63bb5b1879c9",
+      "sha256": "dc414fa230ddb8b77839092f79bcebb3c75c02e41aebf5acf1e97d6229d6e886",
+      "supersedes": "decisions-price-coordination-color-20261017",
+      "changeReason": "用户批准D145，追加统一订单议价、原请求恢复与报价上下文改配证据，保留历史blob"
     }
   ],
   "pages": [
