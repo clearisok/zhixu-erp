@@ -54,10 +54,11 @@ export type ConfirmedCommercialTermsClientDto = Omit<ConfirmedCommercialTermsDto
   laborVisibility:"allowed"|"restricted";
  }) | null;
 };
-export function commercialTermsSummary(dto:ConfirmedCommercialTermsClientDto|null):string {
+export function commercialTermsSummary(dto:ConfirmedCommercialTermsClientDto|null,laborOnly=false):string {
  const c=dto?.current;
  if (!c) return "尚无共享确认记录";
- return `工价 ${c.laborVisibility==="restricted"?"无权查看":`${c.confirmedLaborPrice??"未确认"} ${c.laborCurrency??"未设置"}`} · 成衣 ${c.saleVisibility==="restricted"?"无权查看":`${c.customerConfirmedPrice??"未确认"} CNY`}`;
+ const labor=`工价 ${c.laborVisibility==="restricted"?"无权查看":`${c.confirmedLaborPrice??"未确认"} ${c.laborCurrency??"未设置"}`}`;
+ return laborOnly?labor:`${labor} · 成衣 ${c.saleVisibility==="restricted"?"无权查看":`${c.customerConfirmedPrice??"未确认"} CNY`}`;
 }
 
 export function isQuoteTermsServerLinkageActivated(value: string | undefined): boolean {

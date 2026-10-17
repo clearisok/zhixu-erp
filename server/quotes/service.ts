@@ -209,11 +209,12 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
     async confirmationWorkflow(actor: TrustedIdentity, quoteId: string, command: QuoteConfirmationCommand, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.view");
       requirePermission(actor.permissions, "quote.confirm");
-      requireCommercialEdit(actor, "sale");
       requireCommercialEdit(actor, "labor");
       const before = await repository.getById(quoteId);
       if (!before) throw new HttpError(404, "quote_not_found", "Quote not found");
       if (before.version !== command.expectedVersion) throw new QuoteConflictError();
+      const revision = before.quote.revisions.find(item => item.revisionId === command.revisionId);
+      if (revision?.baseInfo.quoteType !== "processing") requireCommercialEdit(actor, "sale");
       const next = applyQuoteConfirmation(before.quote, command, now().toISOString());
       return projectQuoteResponse(actor, await repository.save(next, command.expectedVersion, async (client, mutation) => {
         const partial = await client.query("SELECT 1 FROM sales_orders WHERE source_quote_id=$1 AND (source_revision_id IS NULL OR source_price_version_id IS NULL) LIMIT 1", [quoteId]);

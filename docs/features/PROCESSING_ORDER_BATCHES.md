@@ -47,3 +47,5 @@ API：GET/POST /api/v1/processing-order-batches；POST /consume；POST /:id/prev
 加工读投影/客户XLSX/内部汇总仅工价；面辅料、成衣价、相关派生金额/Estimate/换汇展示隐藏。旧原始事实、历史Quote/Estimate和商业快照保留；通用保存从CAS基线恢复被省略的非工价字段，不能把空数组/省略字段当清空。加工确认不再要求隐藏材料填价，不重算或覆盖其历史成衣金额。既有加工SO不进入成衣议价，已采用来源由批次固定。
 
 API：POST /api/v1/processing-quote-push/preview，POST同根资源提交，GET /requests/:requestId查本人无金额回执。客户端不能提交币种、材料价或成衣成交价。实际SQL/API/浏览器结果见阶段实施记录；没有真实账号/数据库/来源操作或部署。
+
+最终复审：未建立CCT的加工报价确认也只要求工价查看/修改和quote.confirm；成衣非空输入仍拒绝，经销保留两项金额权限。加工共享条款摘要和新建页不显示成衣/成本加成字段。
