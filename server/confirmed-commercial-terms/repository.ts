@@ -103,8 +103,9 @@ export async function findCreationOrderIdsByQuoteProvenance(
 
 /** Commercial usage is separate from immutable creation provenance. Historical adoptions keep the quote confirmation authority stable. */
 export async function findSalesOrderIdsByQuoteProvenance(client:Queryable,provenance:QuoteProvenance):Promise<string[]>{
+ const colorLines=(await client.query("SELECT to_regclass('sales_order_commercial_lines') IS NOT NULL AS ready")).rows[0].ready;
  const rows=await client.query<{id:string}>(`SELECT id::text FROM sales_orders WHERE source_quote_id=$1 AND source_revision_id=$2 AND source_price_version_id=$3
- UNION SELECT sales_order_id::text FROM sales_order_commercial_versions WHERE quote_id=$1 AND revision_id=$2 AND price_version_id=$3 ORDER BY 1`,[provenance.quoteId,provenance.revisionId,provenance.priceVersionId]);
+ UNION SELECT sales_order_id::text FROM sales_order_commercial_versions WHERE quote_id=$1 AND revision_id=$2 AND price_version_id=$3 ${colorLines?"UNION SELECT v.sales_order_id::text FROM sales_order_commercial_versions v JOIN sales_order_commercial_lines l ON l.commercial_version_id=v.id WHERE v.quote_id=$1 AND v.revision_id=$2 AND l.price_version_id=$3":""} ORDER BY 1`,[provenance.quoteId,provenance.revisionId,provenance.priceVersionId]);
  return rows.rows.map(row=>row.id);
 }
 
