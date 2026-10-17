@@ -18,7 +18,7 @@ import { allocateQuoteCode } from "./numbering.js";
 import { applyQuoteVersionCommand, type QuoteVersionCommand } from "./version-workflows.js";
 import { applyEstimateCommand, type EstimateCommand } from "./estimate-workflows.js";
 import { applyQuoteConfirmation, type QuoteConfirmationCommand } from "./confirmation-workflows.js";
-import { findSalesOrderIdsByQuoteProvenance, findTermsByQuoteProvenance } from "../confirmed-commercial-terms/repository.js";
+import { findTermsByQuoteProvenance } from "../confirmed-commercial-terms/repository.js";
 import { aggregateStatusAfterRevisionEdit, summarizeRevisionConfirmations } from "../../features/quote-center/model/quote-workflows.js";
 import type { QuoteRevision } from "../../features/quote-center/model/quote-view-model.js";
 
@@ -216,10 +216,9 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
       if (before.version !== command.expectedVersion) throw new QuoteConflictError();
       const next = applyQuoteConfirmation(before.quote, command, now().toISOString());
       return projectQuoteResponse(actor, await repository.save(next, command.expectedVersion, async (client, mutation) => {
-        const linked = await findSalesOrderIdsByQuoteProvenance(client, { quoteId, revisionId: command.revisionId, priceVersionId: command.priceVersionId });
         const partial = await client.query("SELECT 1 FROM sales_orders WHERE source_quote_id=$1 AND (source_revision_id IS NULL OR source_price_version_id IS NULL) LIMIT 1", [quoteId]);
         const existingTerms=await findTermsByQuoteProvenance(client,{quoteId,revisionId:command.revisionId,priceVersionId:command.priceVersionId});
-        if (linked.length || partial.rowCount || existingTerms) throw new HttpError(409, "quote_confirmation_linked_read_only", "Linked current confirmation must use shared terms; this writer is unavailable");
+          if (partial.rowCount || existingTerms) throw new HttpError(409, "quote_confirmation_linked_read_only", "Existing CCT confirmation must use shared terms; this writer is unavailable");
         await audit(actor, { ...context, workflowAction: command.action, revisionId:command.revisionId,priceVersionId:command.priceVersionId })(client, mutation);
       }));
     },

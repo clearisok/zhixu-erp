@@ -167,6 +167,7 @@ test("Linked terms: saved-source authority, independent CAS, independent Order a
     await assert.rejects(() => updateConfirmedCommercialTermsByQuote(pool, { ...confirmer, internalUserId: "9223372036854775807" }, x.provenance, x.values));
     assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, x.orders[0].id)).current, null);
     assert.equal((await pool.query("SELECT 1 FROM confirmed_commercial_terms_sales_orders WHERE sales_order_id=$1", [x.orders[0].id])).rowCount, 0);
+    await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,quote_id,revision_id,price_version_id,labor_currency) VALUES('quote',$1,$2,$3,'CNY')",[x.provenance.quoteId,x.provenance.revisionId,x.provenance.priceVersionId]);
     await assert.rejects(() => createTrustedQuoteService(pool).confirmationWorkflow(confirmer, x.record.quote.id, { action: "confirmation.save", expectedVersion: 1, revisionId: x.provenance.revisionId, priceVersionId: x.provenance.priceVersionId, confirmedLaborPrice: "1", confirmedGarmentPrice: "2", note: "No second writer" }));
     assert.deepEqual(await repo.getById(x.record.quote.id), x.record); assert.equal((await logs(x.record.quote.id)).length, 0);
   });

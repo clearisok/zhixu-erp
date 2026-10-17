@@ -11,6 +11,9 @@ import {createSyntheticQuoteFixture} from './quote-fixture.js';
 import {readCommercialCandidate} from '../sales-orders/commercial-source.js';
 import {createSalesOrder} from '../sales-orders/repository.js';
 import type {QuoteProvenance} from '../confirmed-commercial-terms/repository.js';
+import {listQuoteSummaries} from '../quotes/list-summary.js';
+import {readConfirmedCommercialTermsByQuote} from '../confirmed-commercial-terms/service.js';
+import {PERMISSION_KEYS} from '../../features/permissions/model/permissions.js';
 
 test('commercial candidate and immutable schema use only disposable synthetic data',{timeout:180000},async t=>{
  const db=await startDisposablePostgres(),pool=new pg.Pool({connectionString:await db.createDatabase('commercial_source')});t.after(async()=>{await pool.end();await db.stop();});await runMigrations(pool,resolve('database/migrations'));
@@ -23,8 +26,16 @@ test('commercial candidate and immutable schema use only disposable synthetic da
  };
  const read=async(p:QuoteProvenance)=>{const c=await pool.connect();try{await c.query('BEGIN');const value=await readCommercialCandidate(c,p);await c.query('ROLLBACK');return value;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}};
  const a=await seed();
+ const actor={internalUserId:'1',userId:randomUUID(),username:'synthetic',userName:'Synthetic',permissions:[...PERMISSION_KEYS]};
+ const summary=async(p:QuoteProvenance)=>(await listQuoteSummaries(pool,{limit:100,offset:0,columns:['confirmedLabor','confirmedGarment']},actor)).quotes.find(q=>q.id===p.quoteId)!.business!;
  await t.test('unlinked confirmed quote needs no fabricated SO and zero remains valid',async()=>{
   const c=await read(a);assert.equal(c.salePrice,'0');assert.equal(c.laborPrice,'0');assert.equal(c.sourceKind,'quote_confirmation');assert.equal(c.sourceCctVersion,null);assert.equal((await pool.query('SELECT count(*)::int n FROM sales_orders')).rows[0].n,0);assert.equal(JSON.stringify(c).includes('999'),false);assert.equal(JSON.stringify(c).includes('fabrics'),false);
+ });
+ await t.test('an order association does not erase a saved confirmation; list, detail and adoption agree',async()=>{
+  await createSalesOrder(pool,{creationSource:'quote',sourceQuoteId:a.quoteId,sourceRevisionId:a.revisionId,sourcePriceVersionId:a.priceVersionId});
+  assert.equal((await summary(a)).confirmedGarment?.value,0);
+  assert.equal((await read(a)).salePrice,'0');
+  assert.equal((await readConfirmedCommercialTermsByQuote(pool,a)).linkage,'unlinked');
  });
  await t.test('processing sale is not applicable; unknown is not zero',async()=>{
   const p=await seed('processing');assert.equal((await read(p)).salePrice,null);
@@ -34,7 +45,17 @@ test('commercial candidate and immutable schema use only disposable synthetic da
  await t.test('CCT is an explicit different source and never falls back when incomplete',async()=>{
   await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,quote_id,revision_id,price_version_id,customer_confirmed_price,confirmed_labor_price,labor_currency) VALUES('quote',$1,$2,$3,120.125,10.5,'CNY')",[a.quoteId,a.revisionId,a.priceVersionId]);
   const c=await read(a);assert.equal(c.sourceKind,'cct');assert.equal(c.sourceCctVersion,1);assert.equal(c.salePrice,'120.125');assert.equal(c.laborPrice,'10.5');
+  assert.equal((await summary(a)).confirmedGarment?.value,120.125);
+  assert.equal((await readConfirmedCommercialTermsByQuote(pool,a)).current?.customerConfirmedPrice,'120.125');
   await pool.query('UPDATE confirmed_commercial_terms SET customer_confirmed_price=NULL,version=version+1 WHERE id=$1',[c.sourceCctId]);await assert.rejects(()=>read(a));
+  assert.equal((await summary(a)).confirmedGarment?.value,null);
+  assert.equal((await readConfirmedCommercialTermsByQuote(pool,a)).current?.customerConfirmedPrice,null);
+ });
+ await t.test('CCT is authoritative even without a creation-order association',async()=>{
+  const p=await seed();
+  await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,quote_id,revision_id,price_version_id,customer_confirmed_price,confirmed_labor_price,labor_currency) VALUES('quote',$1,$2,$3,135.55,12.25,'CNY')",[p.quoteId,p.revisionId,p.priceVersionId]);
+  assert.equal((await summary(p)).confirmedGarment?.value,135.55);
+  assert.equal((await read(p)).salePrice,'135.55');
  });
  await t.test('wrong provenance and source currency mismatch fail closed',async()=>{
   await assert.rejects(()=>read({...a,priceVersionId:'not-owned'}));

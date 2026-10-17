@@ -16,6 +16,7 @@ import { createAttachmentService } from "../attachments/service.js";
 import { appendOperationLog } from "../operation-logs/repository.js";
 import { HttpError } from "../http/errors.js";
 import { createQuoteRepository } from "./repository.js";
+import {resolveConfirmationSource} from '../confirmed-commercial-terms/confirmation-source.js';
 
 export type CustomerExportSelection = { expectedVersion: number; revisionId: string; priceVersionIds: string[] };
 export const CUSTOMER_EXPORT_MAX_BYTES = 20 * 1024 * 1024;
@@ -82,7 +83,7 @@ export function createCustomerExportService(pool: Pool, storage?: AttachmentStor
         if(partial.rowCount)throw new HttpError(409,"incomplete_quote_provenance","Current confirmation source cannot be resolved exactly");
         const provenance={quoteId,revisionId:source.revisionId,priceVersionId:pvId};
         const ids=await findSalesOrderIdsByQuoteProvenance(client,provenance);
-        const terms=ids.length?await findTermsByQuoteProvenance(client,provenance):null;
+        const terms=await findTermsByQuoteProvenance(client,provenance);
         return{ids,terms};
       };
       const bindings=new Map<string,Awaited<ReturnType<typeof readBinding>>>();
@@ -111,7 +112,12 @@ export function createCustomerExportService(pool: Pool, storage?: AttachmentStor
       const result=await buildQuoteExcel({template:Uint8Array.from(template).buffer,quote:{quoteCode:record.quote.quoteCode},revision,priceVersions:revision.priceVersions,styleImage,
         mapPriceVersion:(pv,rev)=>{
           const mapped=mapPriceVersionForExport(pv,rev),binding=bindings.get(pv.id);
-          if(binding?.ids.length&&source.baseInfo.quoteType==="distribution")mapped.summary.customerConfirmedPrice=binding.terms?.customer_confirmed_price===null||!binding.terms?null:browserNumberFromExactDecimal(binding.terms.customer_confirmed_price,"shared current customer price");
+          if(binding&&source.baseInfo.quoteType==="distribution"){
+            const t=binding.terms,confirmation=pv.confirmation;
+            const resolved=resolveConfirmationSource({terms:t?{id:t.id,version:t.version,labor:t.confirmed_labor_price,sale:t.customer_confirmed_price,currency:t.labor_currency,confirmedAt:t.updated_at.toISOString()}:null,
+              snapshot:confirmation?{labor:confirmation.confirmedLaborPrice===null?null:String(confirmation.confirmedLaborPrice),sale:confirmation.confirmedGarmentPrice===null?null:String(confirmation.confirmedGarmentPrice),currency:pv.pricingParameters.laborCurrency,confirmedAt:confirmation.confirmedAt}:null});
+            mapped.summary.customerConfirmedPrice=resolved.sale===null?null:browserNumberFromExactDecimal(resolved.sale,"resolved customer price");
+          }
           return mapped;
         }});
       const bytes=Buffer.from(result.buffer);

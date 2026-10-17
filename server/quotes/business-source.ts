@@ -6,6 +6,7 @@ import { readCostSnapshots } from "./repository.js";
 import { HttpError } from "../http/errors.js";
 import { requirePermission } from "../auth/permissions.js";
 import type { TrustedIdentity } from "../auth/session.js";
+import {resolveConfirmationSource} from '../confirmed-commercial-terms/confirmation-source.js';
 
 const confirmationColumns: BusinessColumn[] = ["confirmedLabor", "confirmedGarment", "confirmationStatus"];
 export function parseBusinessColumns(value: unknown): BusinessColumn[] {
@@ -26,7 +27,8 @@ const decimal = (value: string | null) => value === null ? null : canonicalDecim
 export async function readCurrentBindings(client: PoolClient, roots: Root[], versions: Array<{ quote_id: string; revision_id: string; id: string }>) {
   const ids = roots.map(r => r.id);
   const orders = (await client.query<{ id: string; source_quote_id: string; source_revision_id: string | null; source_price_version_id: string | null }>(
-    `SELECT id::text,source_quote_id,source_revision_id,source_price_version_id FROM sales_orders WHERE source_quote_id=ANY($1::text[]) ORDER BY id`, [ids])).rows;
+    `SELECT id::text,source_quote_id,source_revision_id,source_price_version_id FROM sales_orders WHERE source_quote_id=ANY($1::text[])
+     UNION SELECT sales_order_id::text,quote_id,revision_id,price_version_id FROM sales_order_commercial_versions WHERE quote_id=ANY($1::text[]) ORDER BY id`, [ids])).rows;
   const terms = (await client.query<{ id: string; quote_id: string; revision_id: string; price_version_id: string; version: number; labor: string | null; garment: string | null; currency: "CNY" | "USD" | null }>(
     `SELECT t.id::text,t.quote_id,t.revision_id,t.price_version_id,t.version,t.confirmed_labor_price::text AS labor,t.customer_confirmed_price::text AS garment,t.labor_currency AS currency
      FROM confirmed_commercial_terms t JOIN quote_center_quotes q ON q.id=t.quote_id AND q.default_revision_id=t.revision_id
@@ -34,7 +36,7 @@ export async function readCurrentBindings(client: PoolClient, roots: Root[], ver
   const result = new Map<string, CurrentBinding>();
   for (const v of versions) {
     const matches = orders.filter(o => o.source_quote_id === v.quote_id && o.source_revision_id === v.revision_id && o.source_price_version_id === v.id);
-    const term = matches.length ? terms.find(t => t.quote_id === v.quote_id && t.revision_id === v.revision_id && t.price_version_id === v.id) : undefined;
+    const term = terms.find(t => t.quote_id === v.quote_id && t.revision_id === v.revision_id && t.price_version_id === v.id);
     result.set(provenanceKey(v.quote_id, v.revision_id, v.id), { orderIds: matches.map(o => o.id), partial: orders.some(o => o.source_quote_id === v.quote_id && (o.source_revision_id === null || o.source_price_version_id === null)),
       terms: term ? { id: term.id, version: term.version, labor: decimal(term.labor), garment: decimal(term.garment), currency: term.currency } : null });
   }
@@ -64,11 +66,13 @@ export async function readBusinessSources(client: PoolClient, roots: Root[], col
       const binding = bindings.get(provenanceKey(v.quote_id, v.revision_id, v.id))!;
       const snap = confirmations.find(c => c.id === id);
       if (!snap) throw new HttpError(409, "quote_business_source_missing", "Selected pricing source is incomplete");
-      const linked = binding.orderIds.length > 0;
-      const labor = binding.partial ? null : linked ? binding.terms?.labor ?? null : snap.confirmation_metadata ? decimal(snap.labor) : null;
-      const garment = binding.partial ? null : linked ? binding.terms?.garment ?? null : snap.confirmation_metadata ? decimal(snap.garment) : null;
+      const resolved=resolveConfirmationSource({terms:binding.terms?{id:binding.terms.id,version:binding.terms.version,labor:binding.terms.labor,sale:binding.terms.garment,currency:binding.terms.currency,confirmedAt:''}:null,
+        snapshot:snap.confirmation_metadata?{labor:snap.labor,sale:snap.garment,currency:snap.currency,confirmedAt:''}:null});
+      const linked = resolved.source === 'cct';
+      const labor = binding.partial ? null : resolved.labor;
+      const garment = binding.partial ? null : resolved.sale;
       confirmation = { linkage: binding.partial ? "unknown" : linked ? "linked" : "unlinked", labor, garment,
-        currency: linked ? binding.terms?.currency ?? null : snap.currency,
+        currency: resolved.currency,
         confirmed: !binding.partial && isQuoteConfirmationComplete(root.baseInfo.quoteType, labor, garment), termsVersion: linked ? binding.terms?.version ?? null : null };
     }
     root.versions.push({ id: v.id, name: v.name, quantity: decimal(v.quantity), ...(costs.has(id) ? { cost: costs.get(id) } : {}), ...(confirmation ? { confirmation } : {}) });

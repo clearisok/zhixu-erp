@@ -1,0 +1,26 @@
+# 当前状态：订单业务来源简化候选
+
+核实2026-10-17；GitHub main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。旧阶段完整状态保留在[历史摘要](tasks/completed/2026-10-17-before-business-source-current-state.md)。当前同一工作树新分支feat/order-business-source，干净起点ac620305af04cf8f8d8ad5ec5f254a68a6ccdd04，继承PR116及未合并依赖；不等同main或生产交付。
+
+**用户批准的新规则。** 合同类必须先有可信艾诺科合同；加工类保持独立下单批次入口。取消订单负责人、认领、转交与合同前翻单准备。顶部“维护来源”选择来自报价或完全沿用原条件的翻单。归一/复核退出正常UI和公开写API，旧身份、记录、历史读取及保护不删除。见[D144与范围](tasks/active/order-business-source-approved-scope-2026-10-17.md)。
+
+**本地实现。** 新0027不可变产品快照与订单商业版本同事务；原订单引用和精确确认价格冻结，不随共享报价变化。无负责人前置，既有权限、CAS、幂等、暂停、历史冻结和合同/加工防重保留。列表展示业务来源，加工入口缩为标题操作；原大卡片移除。原API退役返回410。附件只冻结引用，不宣称二进制技术包完成。
+
+**验证。** 107项身份/商业/来源相关回归、83项额外加工/历史归一/财务兼容回归、6项新页面浏览器测试通过；typecheck、server build、显式Server前端构建通过。lint无错误，ignored私有历史脚本有1条原有warning。根898/898、基线94/94、加工页面9/9均通过；D144已通过新提交前向绑定冻结证据，精确main源码门禁通过。精确最终SHA的基线/CI另核实，不冒称通过。
+
+**运行与安全边界。** 用户批准的新隔离可编辑副本已在62326启动，源码333d7cb2854bc761c28b46e66b8dfc525cb16f90，5 SO（原2历史+3合成）、4报价、2待消费加工批次、7合成账号。原演示五表指纹保持；新库独立迁移0027，手动启停保留数据，无自启/持续采集。没有新增艾诺科读取、真实账号/业务数据库、宁波18443/18444或自动合并部署。物料历史可读，财务历史ERP入口仍缺，旧快照不冒称当前状态。详见[隔离体验证据](tasks/completed/2026-10-17-business-source-isolated-experience.md)。
+
+**远端。** 独立API确认333d7cb精确送达，唯一草稿PR117已创建；baseline/team-access通过，Source旧历史UI期待退役入口而失败。本地已修正为新入口缺席及历史只读保护断言，9/9通过；追加物料UI10/财务UI9/Python131通过。最终HEAD CI需独立核实，不称已全部通过。下一步：收口最终冻结证据、精确交付与CI，用户体验；不直接合并累计依赖。[功能说明](features/ORDER_BUSINESS_SOURCE.md)。
+
+
+--- AI_HANDOFF ---
+
+# 恢复点：订单业务来源候选收口
+
+2026-10-17 / main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。实际树ainuoke-live-readiness/zhixu-ainuoke-api，分支feat/order-business-source，从clean ac620305af04cf8f8d8ad5ec5f254a68a6ccdd04开始，当前修改均为本阶段。旧接力逐字保留[此处](tasks/completed/2026-10-17-before-business-source-handoff.md)。先读CURRENT_STATE、ORDER_BUSINESS_SOURCE与D144。
+
+新业务规则已明确批准，无负责人/认领/转交/准备；合同先有艾诺科，加工保留独立入口。business-source采用不可变产品条件+商业版本，旧公开写API410，历史内部服务和数据保护测试保留。不要重新启用旧五套UI入口，也不要删除旧记录。当前107+83后端/兼容、6新UI通过；加工UI9/9、根898/898、基线94/94及main源码门禁均通过。冻结证据已前向绑定b3d71565，旧hash未改。
+
+源码333d7cb2854bc761c28b46e66b8dfc525cb16f90已打包并启动新62326隔离可编辑副本；私有目录outputs/isolated-private-93d2596e-d315-4da5-90ae-2038476f6be8含clone-manifest/凭据/备份/启停脚本和回执，禁止打印manifest全文。原62316目录outputs/isolated-private-3a6aefbe-bcf9-4bbe-92a7-d3bd226a7cfe不写/不续期；原五表指纹保持。新5SO/4报价/2未消费加工批次，手动stop/start保留数据，无调度/新艾诺科采集。见[体验与验证证据](tasks/completed/2026-10-17-business-source-isolated-experience.md)。内置浏览器未保存预览的原生confirm导致自动控制超时，未替用户提交两待维护单；独立UI覆盖保存和重试。
+
+唯一草稿PR117，333d7cb独立API exact核实。交付工具曾返回STOP_AUTH_OR_DIVERGENCE但同时返回精确remoteSha，不据分类假报失败或盲推；独立事实为已送达。首轮baseline/team-access通过；Source旧material-history两断言过时，已替换为入口退役/只读新侧栏，9/9通过。物料UI10/财务UI9/Python131追加通过，lint0error/1既有私有warning。下一步checkpoint新体验证据并前向绑定baseline，再精确门禁/一次交付/最终CI；产品镜像仍333d7cb（后续仅测试文档）。PR116依赖保留，不重复PR，不合并部署。最终报告branch/fullSHA/PR/tests/remaining dirty，在聊天给简单使用方法，不建教学页。
