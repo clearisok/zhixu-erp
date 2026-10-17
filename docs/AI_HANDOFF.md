@@ -9,3 +9,4 @@ REMOTE PENDING：首次推送NETWORK_DEGRADED，远端#110 e3cebb48、#117 dc036
 本轮只一次性合成库/浏览器；无真实账号/DB、已有演示62316/62326、来源预算、调度、宁波或18443/18444操作。默认Browser存储namespace/DEV验收数据保持，无汇率或完整关账扩展。
 
 最终复审补丁：加工无CCT的报价确认接口/前端仅要求工价权限，成衣字段仍拒绝且历史隐藏值保留；CCT摘要、新建页及设置加工只显示工价。33项领域/API回归与7项加工浏览器权限回归通过；新增创建页面8项套件及最终稳定源码检查待跑。不纳入未提交的发布manifest。
+加工最终8项浏览器通过，覆盖正式Server默认加工创建入口（非旧Browser新建表单）、工价权限确认与设置；默认Browser构建及夹具lint通过。本轮只读Git诊断默认/HTTP1/OpenSSL对照均读取main成功，configurationChanged=false/pushSubmitted=false；不据此假报推送恢复。
