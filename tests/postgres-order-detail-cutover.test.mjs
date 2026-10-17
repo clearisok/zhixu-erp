@@ -101,13 +101,15 @@ test("detail uses exact Server source fields and presents source quantity as rea
   assert.doesNotMatch(detailSource, /factoryStyleNo|initialQuantity/u);
 });
 
-test("color detail displays only source color and quantity and accepts an empty slice", () => {
-  assert.match(detailSource, /color\.sourceLineIdentity/u);
-  assert.match(detailSource, /color\.colorName/u);
-  assert.match(detailSource, /color\.quantity/u);
+test("color detail preserves source identity and quantity while delegating read-only color prices", async () => {
+  const colorSource=await readFile("features/order-center/components/order-color-prices.tsx","utf8");
+  assert.match(detailSource, /OrderColorPrices/u);
+  assert.match(colorSource, /c\.sourceLineIdentity/u);
+  assert.match(colorSource, /c\.colorName/u);
+  assert.match(colorSource, /c\.quantity/u);
   assert.doesNotMatch(detailSource, /color\.deliveryDate/u);
-  assert.match(detailSource, /当前订单主档有效；颜色明细暂无有效数据。/u);
-  assert.match(detailSource, /颜色 enrichment 为空不影响 SalesOrder master 有效性/u);
+  assert.match(colorSource, /暂无颜色明细/u);
+  assert.match(colorSource, /统一成交价/u);
   assert.match(modelSource, /deliveryDate:\s*string \| null/u);
 });
 
