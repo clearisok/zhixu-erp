@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
-  "verifiedAt": "2026-10-16T06:30:27.995Z",
+  "verifiedAt": "2026-10-17",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -1737,6 +1737,20 @@
       "sha256": "8d360d7a9f3c314ac8d9f2dedb07f832c28cafd334d27888aa83866eb523a628",
       "supersedes": "decisions-order-sale-20261017",
       "changeReason": "D145批准的加工纯工价与同步推送实现前向记录，保留原决策和证据"
+    },
+    {
+      "id": "price-coordination-engineering-20261017",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-17-quote-order-price-coordination-engineering.md",
+      "recordedAtSha": "08bbd85293479e2c958bfbb0efe0f1574debff00",
+      "sha256": "f23b1b3330e911054b8a6fc90efc657aa28b2410e52762b2025382557c923c8d"
+    },
+    {
+      "id": "price-coordination-final-review-20261017",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-17-quote-price-final-review.md",
+      "recordedAtSha": "5bd47275599eb7f9039d38a853a6ce294635c1d9",
+      "sha256": "4c698ffbe7e0f1360f8d87db8f37c57c94c73344de2573ff204134900131bf93"
     }
   ],
   "pages": [
@@ -3513,75 +3527,91 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment.",
+      "scope": "D145 single confirmation authority and independent immutable uniform/color order commercial versions; quote-center single/batch sale negotiation only, shared CCT/labor/cost/product schemes unchanged. Synthetic verification only; no real upgrade, FX or complete Server closing.",
       "evidence": [
         "order-commercial-g2-engineering",
-        "decisions-order-commercial-g2"
+        "decisions-order-commercial-g2",
+        "price-coordination-engineering-20261017",
+        "price-coordination-final-review-20261017"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
-          "assessedAt": "2026-10-14",
-          "sourceSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
-          "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment. Local evidence only; remote CI and user acceptance not performed.",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 single confirmation authority and independent immutable uniform/color order commercial versions; quote-center single/batch sale negotiation only, shared CCT/labor/cost/product schemes unchanged. Synthetic verification only; no real upgrade, FX or complete Server closing. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
-            "order-commercial-g2-engineering"
+            "order-commercial-g2-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "merged": {
           "value": false,
-          "assessedAt": "2026-10-14",
-          "sourceSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
-          "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment. Local evidence only; remote CI and user acceptance not performed.",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 single confirmation authority and independent immutable uniform/color order commercial versions; quote-center single/batch sale negotiation only, shared CCT/labor/cost/product schemes unchanged. Synthetic verification only; no real upgrade, FX or complete Server closing. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
-            "order-commercial-g2-engineering"
+            "order-commercial-g2-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
-          "assessedAt": "2026-10-14",
-          "sourceSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
-          "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment. Local evidence only; remote CI and user acceptance not performed.",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 single confirmation authority and independent immutable uniform/color order commercial versions; quote-center single/batch sale negotiation only, shared CCT/labor/cost/product schemes unchanged. Synthetic verification only; no real upgrade, FX or complete Server closing. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
-            "order-commercial-g2-engineering"
+            "order-commercial-g2-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
-          "assessedAt": "2026-10-14",
-          "sourceSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
-          "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment. Local evidence only; remote CI and user acceptance not performed.",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 single confirmation authority and independent immutable uniform/color order commercial versions; quote-center single/batch sale negotiation only, shared CCT/labor/cost/product schemes unchanged. Synthetic verification only; no real upgrade, FX or complete Server closing. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
-            "order-commercial-g2-engineering"
+            "order-commercial-g2-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "sourceActivation": {
           "value": "not-applicable",
-          "assessedAt": "2026-10-14",
-          "sourceSha": "5c43f7d9709b2805f972da213ccfa8d938ac17c5",
-          "scope": "Gate2 independent adopted order prices, explicit preview/adoption, legacy read-only cutover preview and protected UI; no processing intake, production closing, real upgrade or deployment. Local evidence only; remote CI and user acceptance not performed.",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 single confirmation authority and independent immutable uniform/color order commercial versions; quote-center single/batch sale negotiation only, shared CCT/labor/cost/product schemes unchanged. Synthetic verification only; no real upgrade, FX or complete Server closing. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
-            "order-commercial-g2-engineering"
+            "order-commercial-g2-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "trial18443": {
           "value": "not-deployed",
-          "assessedAt": "2026-10-14",
+          "assessedAt": "2026-10-17",
           "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
-          "scope": "Capability not deployed; historical runtime identity retained, not re-observed.",
+          "scope": "D145 capability not deployed; historical runtime SHA/image retained without re-observation. Existing local demos unchanged.",
           "evidence": [
-            "order-commercial-g2-engineering"
+            "order-commercial-g2-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ],
           "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
           "runtimeId": "trial18443"
         },
         "preview18444": {
           "value": "not-deployed",
-          "assessedAt": "2026-10-14",
+          "assessedAt": "2026-10-17",
           "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
-          "scope": "Capability not deployed; historical runtime identity retained, not re-observed.",
+          "scope": "D145 capability not deployed; historical runtime SHA/image retained without re-observation. Existing local demos unchanged.",
           "evidence": [
-            "order-commercial-g2-engineering"
+            "order-commercial-g2-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"
@@ -3599,75 +3629,91 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment.",
+      "scope": "D145 labor-only processing projection/export, synchronized editable quote push and immutable 0016 batch identity, dual-entry deduplication, explicit repeat order, per-quote atomic partial batches and request recovery. No real account/data/source activation or deployment.",
       "evidence": [
         "processing-g3-engineering",
-        "decisions-processing-g3"
+        "decisions-processing-g3",
+        "price-coordination-engineering-20261017",
+        "price-coordination-final-review-20261017"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
-          "assessedAt": "2026-10-14",
-          "sourceSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
-          "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment. Remote delivery/CI and human acceptance remain pending.",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 labor-only processing projection/export, synchronized editable quote push and immutable 0016 batch identity, dual-entry deduplication, explicit repeat order, per-quote atomic partial batches and request recovery. No real account/data/source activation or deployment. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
-            "processing-g3-engineering"
+            "processing-g3-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "merged": {
           "value": false,
-          "assessedAt": "2026-10-14",
-          "sourceSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
-          "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment. Remote delivery/CI and human acceptance remain pending.",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 labor-only processing projection/export, synchronized editable quote push and immutable 0016 batch identity, dual-entry deduplication, explicit repeat order, per-quote atomic partial batches and request recovery. No real account/data/source activation or deployment. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
-            "processing-g3-engineering"
+            "processing-g3-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
-          "assessedAt": "2026-10-14",
-          "sourceSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
-          "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment. Remote delivery/CI and human acceptance remain pending.",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 labor-only processing projection/export, synchronized editable quote push and immutable 0016 batch identity, dual-entry deduplication, explicit repeat order, per-quote atomic partial batches and request recovery. No real account/data/source activation or deployment. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
-            "processing-g3-engineering"
+            "processing-g3-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
-          "assessedAt": "2026-10-14",
-          "sourceSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
-          "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment. Remote delivery/CI and human acceptance remain pending.",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 labor-only processing projection/export, synchronized editable quote push and immutable 0016 batch identity, dual-entry deduplication, explicit repeat order, per-quote atomic partial batches and request recovery. No real account/data/source activation or deployment. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
-            "processing-g3-engineering"
+            "processing-g3-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "sourceActivation": {
           "value": "not-applicable",
-          "assessedAt": "2026-10-14",
-          "sourceSha": "1e88901ce0d9e5351dd36ea96109d8c658368232",
-          "scope": "Gate3 local processing batches, separate manage/consume grants, dual-entry atomic SO creation and immutable commercial adoption; no real activation, historical normalization or deployment. Remote delivery/CI and human acceptance remain pending.",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 labor-only processing projection/export, synchronized editable quote push and immutable 0016 batch identity, dual-entry deduplication, explicit repeat order, per-quote atomic partial batches and request recovery. No real account/data/source activation or deployment. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
-            "processing-g3-engineering"
+            "processing-g3-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "trial18443": {
           "value": "not-deployed",
-          "assessedAt": "2026-10-14",
+          "assessedAt": "2026-10-17",
           "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
-          "scope": "Capability not deployed; historical runtime identity retained, not re-observed.",
+          "scope": "D145 capability not deployed; historical runtime SHA/image retained without re-observation. Existing local demos unchanged.",
           "evidence": [
-            "processing-g3-engineering"
+            "processing-g3-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ],
           "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
           "runtimeId": "trial18443"
         },
         "preview18444": {
           "value": "not-deployed",
-          "assessedAt": "2026-10-14",
+          "assessedAt": "2026-10-17",
           "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
-          "scope": "Capability not deployed; historical runtime identity retained, not re-observed.",
+          "scope": "D145 capability not deployed; historical runtime SHA/image retained without re-observation. Existing local demos unchanged.",
           "evidence": [
-            "processing-g3-engineering"
+            "processing-g3-engineering",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"
@@ -6155,66 +6201,78 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+      "scope": "D145 ownerless quote-only source after trusted Ainuoke contract, centered exact revision/color scheme matching and first confirmed adoption only in Order Center. Existing changes require Quote Center authority; stable colors preserve history. Historical reorder/normalization records retained, new write entrypoints retired.",
       "evidence": [
         "decisions-business-source",
         "business-source-approved-scope",
-        "business-source-isolated-experience"
+        "business-source-isolated-experience",
+        "price-coordination-engineering-20261017",
+        "price-coordination-final-review-20261017"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-17",
-          "sourceSha": "333d7cb2854bc761c28b46e66b8dfc525cb16f90",
-          "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 ownerless quote-only source after trusted Ainuoke contract, centered exact revision/color scheme matching and first confirmed adoption only in Order Center. Existing changes require Quote Center authority; stable colors preserve history. Historical reorder/normalization records retained, new write entrypoints retired. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
             "decisions-business-source",
             "business-source-approved-scope",
-            "business-source-isolated-experience"
+            "business-source-isolated-experience",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-17",
-          "sourceSha": "333d7cb2854bc761c28b46e66b8dfc525cb16f90",
-          "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 ownerless quote-only source after trusted Ainuoke contract, centered exact revision/color scheme matching and first confirmed adoption only in Order Center. Existing changes require Quote Center authority; stable colors preserve history. Historical reorder/normalization records retained, new write entrypoints retired. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
             "decisions-business-source",
             "business-source-approved-scope",
-            "business-source-isolated-experience"
+            "business-source-isolated-experience",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-17",
-          "sourceSha": "333d7cb2854bc761c28b46e66b8dfc525cb16f90",
-          "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 ownerless quote-only source after trusted Ainuoke contract, centered exact revision/color scheme matching and first confirmed adoption only in Order Center. Existing changes require Quote Center authority; stable colors preserve history. Historical reorder/normalization records retained, new write entrypoints retired. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
             "decisions-business-source",
             "business-source-approved-scope",
-            "business-source-isolated-experience"
+            "business-source-isolated-experience",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-17",
-          "sourceSha": "333d7cb2854bc761c28b46e66b8dfc525cb16f90",
-          "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 ownerless quote-only source after trusted Ainuoke contract, centered exact revision/color scheme matching and first confirmed adoption only in Order Center. Existing changes require Quote Center authority; stable colors preserve history. Historical reorder/normalization records retained, new write entrypoints retired. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
             "decisions-business-source",
             "business-source-approved-scope",
-            "business-source-isolated-experience"
+            "business-source-isolated-experience",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "sourceActivation": {
           "value": "not-applicable",
           "assessedAt": "2026-10-17",
-          "sourceSha": "333d7cb2854bc761c28b46e66b8dfc525cb16f90",
-          "scope": "D144 approved ownerless contract-after-source maintenance; processing retains independent batches. Immutable exact product/commercial snapshots, quote/reorder selection, strict permissions/CAS/idempotency, retired legacy public mutations. Synthetic regression and separate loopback editable clone verified; original five-table fingerprint unchanged. Demo image source333d7cb, no new Ainuoke calls or scheduler; historical snapshot freshness remains strict. Browser native confirm automation limited; no human business acceptance, merge, existing business DB/account change or production deployment.",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 ownerless quote-only source after trusted Ainuoke contract, centered exact revision/color scheme matching and first confirmed adoption only in Order Center. Existing changes require Quote Center authority; stable colors preserve history. Historical reorder/normalization records retained, new write entrypoints retired. New head remote delivery/CI and human acceptance remain pending.",
           "evidence": [
             "decisions-business-source",
             "business-source-approved-scope",
-            "business-source-isolated-experience"
+            "business-source-isolated-experience",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "trial18443": {
@@ -6223,11 +6281,13 @@
           "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
           "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
           "runtimeId": "trial18443",
-          "scope": "No deployment or re-observation of this environment. Only the separately authorized local clone was created.",
+          "scope": "D145 capability not deployed; historical runtime SHA/image retained without re-observation. Existing local demos unchanged.",
           "evidence": [
             "decisions-business-source",
             "business-source-approved-scope",
-            "business-source-isolated-experience"
+            "business-source-isolated-experience",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
         },
         "preview18444": {
@@ -6236,12 +6296,107 @@
           "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444",
-          "scope": "No deployment or re-observation of this environment. Only the separately authorized local clone was created.",
+          "scope": "D145 capability not deployed; historical runtime SHA/image retained without re-observation. Existing local demos unchanged.",
           "evidence": [
             "decisions-business-source",
             "business-source-approved-scope",
-            "business-source-isolated-experience"
+            "business-source-isolated-experience",
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
           ]
+        }
+      }
+    },
+    {
+      "id": "order-sale-adjustments",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D145 unified quote-center single and batch final garment sale negotiation, immutable per-order color versions, exact decimals, CAS/fresh field grants, partial receipts, original-request recovery and global/quote/order history. Order Center read-only; no CCT/labor/cost/PriceVersion/FX mutation.",
+      "evidence": [
+        "price-coordination-engineering-20261017",
+        "price-coordination-final-review-20261017"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 unified quote-center single and batch final garment sale negotiation, immutable per-order color versions, exact decimals, CAS/fresh field grants, partial receipts, original-request recovery and global/quote/order history. Order Center read-only; no CCT/labor/cost/PriceVersion/FX mutation. Local synthetic engineering only; no merge, human acceptance, real activation or deployment.",
+          "evidence": [
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 unified quote-center single and batch final garment sale negotiation, immutable per-order color versions, exact decimals, CAS/fresh field grants, partial receipts, original-request recovery and global/quote/order history. Order Center read-only; no CCT/labor/cost/PriceVersion/FX mutation. Local synthetic engineering only; no merge, human acceptance, real activation or deployment.",
+          "evidence": [
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 unified quote-center single and batch final garment sale negotiation, immutable per-order color versions, exact decimals, CAS/fresh field grants, partial receipts, original-request recovery and global/quote/order history. Order Center read-only; no CCT/labor/cost/PriceVersion/FX mutation. Local synthetic engineering only; no merge, human acceptance, real activation or deployment.",
+          "evidence": [
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 unified quote-center single and batch final garment sale negotiation, immutable per-order color versions, exact decimals, CAS/fresh field grants, partial receipts, original-request recovery and global/quote/order history. Order Center read-only; no CCT/labor/cost/PriceVersion/FX mutation. Local synthetic engineering only; no merge, human acceptance, real activation or deployment.",
+          "evidence": [
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+          "scope": "D145 unified quote-center single and batch final garment sale negotiation, immutable per-order color versions, exact decimals, CAS/fresh field grants, partial receipts, original-request recovery and global/quote/order history. Order Center read-only; no CCT/labor/cost/PriceVersion/FX mutation. Local synthetic engineering only; no merge, human acceptance, real activation or deployment.",
+          "evidence": [
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "New capability not deployed; historical runtime SHA/image retained without re-observation.",
+          "evidence": [
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
+          ],
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-17",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "New capability not deployed; historical runtime SHA/image retained without re-observation.",
+          "evidence": [
+            "price-coordination-engineering-20261017",
+            "price-coordination-final-review-20261017"
+          ],
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444"
         }
       }
     }
