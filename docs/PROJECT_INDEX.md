@@ -1,3 +1,5 @@
+2026-10-17 D145最终本地工程恢复入口：[价格协同工程证据](tasks/completed/2026-10-17-quote-order-price-coordination-engineering.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，先读CURRENT_STATE/AI_HANDOFF；报价唯一来源、颜色商业版本、统一成衣议价及加工纯工价/同步推送已验收，远端交付/CI与人工接受另核实，勿恢复下文D144已退役交互。
+
 2026-10-17 D-145实施恢复优先：CURRENT_STATE/AI_HANDOFF、[商业版本与议价](features/ORDER_COMMERCIAL_VERSIONS.md)、[加工批次协同增量](features/PROCESSING_ORDER_BATCHES.md)、[本轮阶段记录](tasks/active/quote-order-price-coordination-progress-2026-10-17.md)。新来源只报价，无负责人；D144独立翻单/侧栏为被替代历史。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；不扩真实演示/来源/部署权限。
 
 2026-10-17最新恢复优先：CURRENT_STATE/AI_HANDOFF与[订单业务来源](features/ORDER_BUSINESS_SOURCE.md)、D144。用户取消负责人/认领/合同前准备，合同类先可信接纳，加工批次独立；旧下文为各日期历史阶段，勿据此恢复退役UI。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，新候选未合并部署。

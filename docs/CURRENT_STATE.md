@@ -1,11 +1,11 @@
-# 当前状态：报价与订单价格协同
+# 当前状态：报价与订单价格协同已完成本地工程验收
 
-2026-10-17；main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。D145替代D144对应新来源/价格交互。批准原范围与不可变证据保留；[本轮阶段记录](tasks/active/quote-order-price-coordination-progress-2026-10-17.md)为恢复点。
+2026-10-17；GitHub main再次只读核实为 `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。D145为当前规则；[批准范围](tasks/active/quote-order-price-coordination-2026-10-17.md)与[最终工程证据](tasks/completed/2026-10-17-quote-order-price-coordination-engineering.md)分开保留。
 
-本地完成统一确认来源、报价唯一来源/稳定颜色、不可变逐色商业版本、报价中心单笔/批量成交价议价及三处只读历史。订单中心只读金额，不修改CCT/工价/原PriceVersion。加工同步推送、纯工价投影/保存保护/XLSX/汇总与左侧跨页选择已实现；新下单与已消费批次区分，再次下单须明确新批次。
+确认来源解析器统一CCT/保存PV口径；合同后通过1280px弹窗选择报价并匹配稳定颜色，形成不可变订单商业版本。已有条件的换价、单笔/批量议价均在报价中心，订单中心只读价格与历史。加工只显示工价，更多内同步报价后按独立批次推送；复选框固定最左、跨页选择和退出位置已验收。没有另建价格权威，也不修改报价CCT/工价/PriceVersion来实现成衣议价。
 
-当前feat/processing-quote-push-and-selection，81领域+14加工浏览器通过；Phase3 12定向/4浏览器/94基线通过。完整最终验收和分支回补继续收口，未宣称当前全部PASS。文档/源码分支依赖按阶段记录，不自动合并累计分支。
+本地检查：898项目、261完整Postgres、81专项领域、26实际Chromium通过；类型/完整lint/Node编译/Browser与Server构建通过。测试源码日期和限制见工程证据；94发布基线与精确main守卫在最终证据绑定后收口。历史部署/人工业务验收不能由这些工程结果代替。
 
-Git远端仍旧head：首次一次安全交付为NETWORK_DEGRADED，后续Gate只做本地checkpoint，不反复撞推送。#110/#117尚未更新，新PR尚未送达/创建。本地工程与远端交付分开。
+交付拆分：#110本地e70deac，#117本地da46cdeb，议价本地02e1eca0，整合分支feat/processing-quote-push-and-selection保留全部原提交。GitHub仍分别为e3cebb48/dc036702，新议价与加工PR尚未创建。首次推送传输失败后NETWORK_DEGRADED，未反复尝试；恢复交付需依仓库规则处理，不能冒称远端完成。累计依赖先审后合，不自动合并。
 
-没有真实迁移/采集/账号/业务库/持续调度或部署；既有62316/62326、宁波及18443/18444不变。原恢复点见completed/2026-10-17-before-price-coordination-g117.md等，旧日期/SHA/限制仍保留。
+无真实迁移、账号/业务库、来源采集/持续调度、部署或合并；62316/62326、宁波与18443/18444保持。Server完整关账未实现，已有冻结/完成/取消边界仍保护。新schema仅一次性合成库。旧状态/日期/SHA/限制保留在completed/2026-10-17-before-price-coordination-g117.md等与Git历史。
