@@ -15,7 +15,7 @@
     "quote-detail",
     "order-detail"
   ],
-  "visibleDifference": "用户批准D145：报价中心关联订单、单笔/批量售价议价、逐色预览、只读历史；已有来源更换只在报价中心。保留原报价方案/工价。",
+  "visibleDifference": "用户批准D145：报价中心关联订单、单笔/批量售价议价、逐色预览、只读历史；已有来源更换只在报价中心。保留原报价方案/工价。 受理前网络中断可重试同一内存原命令，明确受理前拒绝清理恢复标记。",
   "evidence": [
     "docs/tasks/active/quote-order-price-coordination-2026-10-17.md",
     "docs/features/ORDER_COMMERCIAL_VERSIONS.md"
