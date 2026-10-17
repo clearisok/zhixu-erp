@@ -171,7 +171,7 @@ export async function readConfirmedCommercialTermsByQuote(
   if (partial.rowCount) throw new HttpError(409, "incomplete_quote_provenance", "Quote linkage cannot be proved exactly");
   const salesOrderIds = await findSalesOrderIdsByQuoteProvenance(pool, provenance);
   const terms = await findTermsByQuoteProvenance(pool, provenance);
-  if (salesOrderIds.length === 0 && !terms) {
+  if (!terms) {
     return composeTermsDto({ linkage: "unlinked", scope: null, provenance, salesOrderIds: [], terms: null });
   }
   return composeTermsDto({ linkage: "linked", scope: terms?.ownership_scope ?? "quote", provenance, salesOrderIds, terms });

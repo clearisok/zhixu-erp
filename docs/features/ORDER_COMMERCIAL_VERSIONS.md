@@ -29,3 +29,7 @@ POST /api/v1/order-commercial-cutover-preview限定1–100个不重复订单UUID
 规则、权限、schema/API、测试、远端或部署状态变化时更新本文件及CURRENT_STATE。GitHub是实时事实源，文档为阶段快照。
 
 2026-10-15：既有Gate2树前向整合G1 7ef6e665准备重试修复，商业逻辑与0015未变；29商业/角色、6身份+4商业浏览器、824项目/78基线、类型/源码lint/构建及精确门禁通过。新head交付和CI仍待，不能沿用3deffc的三绿。见[本轮证据](../tasks/active/evidence/order-commercial/gate2-g1-preparation-retry-2026-10-15.md)。
+# 2026-10-17 D-145 前向修订
+
+确认来源解析器统一列表、汇总、客户导出及采用：CCT存在即权威，空值不回退；否则保存PV确认仍有效，不因SO关联而消失。现有SO可以继续修改报价确认，已采用订单快照保持；已有CCT仍拒绝PV确认第二写入。颜色商业版本和订单议价尚待后续阶段。批准与实际验收见../tasks/active/quote-order-price-coordination-2026-10-17.md。
+

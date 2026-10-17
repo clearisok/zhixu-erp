@@ -375,3 +375,7 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 - “距上线”是 `plannedProductionStartDate - expectedArrivalAtHubDate` 的自然日差，只作直观信息；运输缓冲是 `latestRequiredArrivalDate - expectedFactoryArrivalDate` 的正式风险事实。`bufferDays > 7` 为绿色，`0..7` 为黄色，`< 0` 为红色并显示晚到天数；两者不得混用。
 - Expected Arrival Batch 的创建、日期修改、增删、Allocation 调整与恢复 Source 必须写唯一追加式 OperationLog；ImportBatch / Raw Snapshot 只作技术 Trace。
 - 生产排单的物料状态直接消费 Style Progress Projection，不再维护第二套手工物料日期；UI 对生产执行承诺统一使用“拟定交期”。
+# 2026-10-17 报价与订单价格协同（D-145）
+
+用户批准分阶段实施：报价为唯一新业务来源，历史翻单保留；报价中心操作指定订单的成衣成交价，订单商业版本独立且不可变，不修改报价CCT或原价格方案。加工仅工价，合同/批次创建身份保持。当前Phase1已统一确认来源：已有CCT（含空值）优先，否则可信保存PV确认；订单关联不决定金额权威。后续颜色映射/议价/加工UI仍待实施，见tasks/active/quote-order-price-coordination-2026-10-17.md。
+

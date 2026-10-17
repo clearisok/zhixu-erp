@@ -4,6 +4,7 @@ import { HttpError } from '../http/errors.js';
 import { canonicalDecimal } from '../quotes/model.js';
 import { readQuoteAggregateInTransaction } from '../quotes/repository.js';
 import { findTermsByQuoteProvenance, lockQuoteTermsContext, type QuoteProvenance } from '../confirmed-commercial-terms/repository.js';
+import {resolveConfirmationSource} from '../confirmed-commercial-terms/confirmation-source.js';
 
 export type CommercialCandidate = QuoteProvenance & {
  quoteVersion:number;quoteType:'distribution'|'processing';sourceKind:'cct'|'quote_confirmation';
@@ -37,15 +38,17 @@ export async function readCommercialCandidate(client:PoolClient,provenance:Quote
  // A missing source value never falls back to the other source or to a calculated quote price.
  const confirmation=pv.confirmation;
  if(!terms&&!confirmation)invalid('commercial_confirmation_required');
- const laborPrice=amount(terms?terms.confirmed_labor_price:confirmation?.confirmedLaborPrice);
- const rawSale=terms?terms.customer_confirmed_price:confirmation?.confirmedGarmentPrice;
- const laborCurrency=terms?terms.labor_currency:pv.pricingParameters.laborCurrency;
+ const resolved=resolveConfirmationSource({terms:terms?{id:terms.id,version:terms.version,labor:terms.confirmed_labor_price,sale:terms.customer_confirmed_price,currency:terms.labor_currency,confirmedAt:terms.updated_at.toISOString()}:null,
+  snapshot:confirmation?{labor:confirmation.confirmedLaborPrice,sale:confirmation.confirmedGarmentPrice,currency:pv.pricingParameters.laborCurrency,confirmedAt:confirmation.confirmedAt}:null});
+ const laborPrice=amount(resolved.labor);
+ const rawSale=resolved.sale;
+ const laborCurrency=resolved.currency;
  if(laborCurrency!=='CNY'&&laborCurrency!=='USD')invalid('commercial_currency_required');
  if(laborCurrency!==pv.pricingParameters.laborCurrency)invalid('commercial_source_currency_conflict');
  const quoteType=revision.baseInfo.quoteType;
  if(quoteType!=='distribution'&&quoteType!=='processing')invalid('unsupported_quote_type');
  if(quoteType==='processing'&&rawSale!==null)invalid('processing_sale_price_not_applicable');
- const sourceConfirmedAt=terms?terms.updated_at.toISOString():confirmation!.confirmedAt;
+ const sourceConfirmedAt=resolved.confirmedAt;
  if(!sourceConfirmedAt||!Number.isFinite(Date.parse(sourceConfirmedAt)))invalid('commercial_confirmation_time_required');
  const values={...provenance,quoteVersion:record.version,quoteType,sourceKind:terms?'cct' as const:'quote_confirmation' as const,
  sourceCctId:terms?.id??null,sourceCctVersion:terms?.version??null,sourceConfirmedAt,

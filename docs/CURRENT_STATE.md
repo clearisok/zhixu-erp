@@ -1,13 +1,9 @@
-# 当前状态：Gate2前向整合G1重试修复，本地验收完成，待交付
+# 当前状态：报价与订单价格协同 Phase1
 
-核实2026-10-15；GitHub main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。沿用feat/order-commercial-versions，从3deffc478fec2df2909499e5b053330b94997611/clean合入G1的7ef6e665886c937cb01cf82ed2700e33029746fe，无新工作树或重复PR，不改0015及商业计算。
+2026-10-17核实main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。本阶段在既有feat/order-commercial-versions / PR110上，从干净e3cebb48622e39cf2d31ca82bce4a3f971c973ee开始；未修改其他工作树或真实演示实例。旧摘要/接力保留在tasks/completed/2026-10-17-price-coordination-before-g2.md。
 
-GitHub当前PR110是open/draft、以main为base、head3deffc，三项CI成功；这是旧head，不是本次合入结果。PR109的原1fcc同样三绿，新G1修复7ef仍待交付。本轮不自动合并或推送恢复。
+用户批准完整价格协同计划，D145记录新方向：只保留报价来源、订单独立成交价、报价中心单笔/批量议价、颜色方案和纯工价加工流程。本阶段只实现统一报价确认来源：CCT存在即优先，空值不回退；不存在时使用保存PV确认。列表/汇总、导出和商业采用同口径，已有SO不使报价确认失效，也不更新已采用订单价。
 
-G2已实现独立商业版本、精确Quote/CCT候选、显式采用、旧Order共享写价拒绝、权限投影及只读历史预览。独立源码复查确认候选与采用版本分离、同报价多订单隔离、CAS/幂等及审计回滚有对应集成覆盖；完整Server关账仍未实现，不冒称全流程冻结。
+新增来源回归通过，实际XLSX生成/解析及原有确认、汇总、导出、CCT并发/审计回滚回归正在收口。类型通过；完整项目、lint、构建及发布基线结果按阶段任务最终记录，不引用旧CI。颜色、议价及新加工UI尚未实现。
 
-本次纳入的是已实际复现的准备回执丢失后弹窗重开换请求号修复，连同其负向浏览器回归及V1路径记录。冲突仅三份共享摘要，双方原文完整[归档](tasks/completed/2026-10-15-gate2-before-g1-preparation-retry.md)。代码、SQL及其他业务改动没有冲突。
-
-本轮实际通过：商业/七角色29/29、订单身份Chromium6/6（含丢回执关闭重开）、商业Chromium4/4、typecheck、Server编译、显式Server/session/snapshot/writable构建、全源码lint（排除继承outputs私有生成物）、root824/824、基线78/78与精确main守卫（10页/17能力/9继承UI路径）。旧历史PG261并未本轮重跑。新精确HEAD送达与CI仍待，无远端交付PASS。
-
-G3/G4/G5、Source@48b63101和报价修复树全部保留，本次不自动传播至其他树。真实读取授权、账号/业务DB、Source首绑/调度、宁波18443/18444和部署均未操作，旧四单窗口不重启。Git NETWORK_DEGRADED，AGENTS不自动执行恢复命令仍适用。
+不执行真实迁移、来源读取、账号/业务库变更、合并或部署。0027/当前PR117继承关系保持，Phase1提交将前向整合，不能把本PR旧认领UI作为新流程部署。远端交付与精确CI另核实。
