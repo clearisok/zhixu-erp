@@ -1694,6 +1694,31 @@
       "path": "docs/tasks/completed/2026-10-17-business-source-isolated-experience.md",
       "recordedAtSha": "d32ea96cf955e704fce204f9f042824ef1414411",
       "sha256": "be4176b8751fffeb64732b6eacd24cf7ad6671c9846f3f436b3b665685f54c29"
+    },
+    {
+      "id": "decisions-price-coordination-color-20261017",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5409307eaeb8f10d67ad87e831eff9c9b20ae886",
+      "sha256": "6d8bd5cb02c44986b5cf2189716c5219e2ff6edd2e32c0306f540ddc2d4ae663",
+      "supersedes": "decisions-business-source",
+      "changeReason": "用户批准D145，前向记录报价唯一来源与逐色商业版本，不改旧快照"
+    },
+    {
+      "id": "order-business-source-color-20261017",
+      "kind": "document",
+      "path": "docs/features/ORDER_BUSINESS_SOURCE.md",
+      "recordedAtSha": "5409307eaeb8f10d67ad87e831eff9c9b20ae886",
+      "sha256": "a75c3a5d7e1b33091a00357257330457a75eb7a0bebaee701e0f76b9c50dbd01",
+      "changeReason": "用户批准D145，前向记录报价唯一来源与逐色商业版本，不改旧快照"
+    },
+    {
+      "id": "price-coordination-approved-20261017",
+      "kind": "document",
+      "path": "docs/tasks/active/quote-order-price-coordination-2026-10-17.md",
+      "recordedAtSha": "5409307eaeb8f10d67ad87e831eff9c9b20ae886",
+      "sha256": "87c183839ccc92366e9b89e8414fa2c7ab51cbf8bd9d95b77bf0d1bf0be6292c",
+      "changeReason": "用户批准D145，前向记录报价唯一来源与逐色商业版本，不改旧快照"
     }
   ],
   "pages": [
