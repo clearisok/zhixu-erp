@@ -43,7 +43,7 @@ test("business source UI replaces ownership and uses exact confirmed conditions"
   const login=async username=>{const cookie=await x.login(username);const split=cookie.indexOf("=");await command("Network.setCookie",{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:"127.0.0.1",path:"/",httpOnly:true});};
   const screenshot=async name=>{if(process.env.ORDER_BUSINESS_SOURCE_UI_EVIDENCE!=="1")return;const dir=resolve("outputs/order-business-source-ui");await mkdir(dir,{recursive:true});const shot=await command("Page.captureScreenshot",{format:"png"});await writeFile(join(dir,name+".png"),Buffer.from(shot.data,"base64"));};
   await command("Page.addScriptToEvaluateOnNewDocument",{source:"window.businessWrites=[];const original=fetch;window.fetch=(...a)=>{if(a[1]?.method&&!['GET','HEAD'].includes(a[1].method)&&!String(a[0]).includes('/auth/'))businessWrites.push(String(a[0]));return original(...a)};"});
-  const click=label=>evaluate("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+"+JSON.stringify(label)+");n.click();})()");
+  const click=async label=>{await until(()=>evaluate("[...document.querySelectorAll('button')].some(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length)"),'button '+label);return evaluate("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+"+JSON.stringify(label)+");n.click();})()");};
   await command("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
 
 
@@ -52,32 +52,32 @@ test("business source UI replaces ownership and uses exact confirmed conditions"
   await createQuoteRepository(x.pool).create(quoteSnapshotFromBrowser(q));
   const actor=await loadExistingBootstrapActor(x.pool,'demo.admin');
   const second=(await createAinuokeSalesOrder(x.pool,actor,{source:{sourceId:'SYN-SECOND',sourceRowIdentity:'SYN-SECOND-ROW',salesContractNo:'SYN-SECOND-CONTRACT',insideOrderNo:'SYN-SECOND-FACTORY',lifecycleStatusRaw:'生效',contractDate:'2026-10-01',contractDeliveryDate:'2026-12-01',styleNo:'SYNTHETIC-SECOND',companyNameSnapshot:'Synthetic',customerNameSnapshot:'Synthetic',brandNameSnapshot:'Synthetic',quantity:100,sourceHash:'synthetic',fetchedAt:'2026-10-17T00:00:00Z'},colors:[]})).salesOrder.id;
-  const select=(index,value)=>evaluate("(()=>{const n=document.querySelectorAll('[role=dialog] select')["+index+"];n.value="+JSON.stringify(value)+";n.dispatchEvent(new Event('change',{bubbles:true}));})()");
   const reason=value=>evaluate("(()=>{const n=document.querySelector('[role=dialog] textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(n,"+JSON.stringify(value)+");n.dispatchEvent(new Event('input',{bubbles:true}));})()");
   await login('demo.admin');
-  await t.test('header actions are compact; normalization entrypoints are gone',async()=>{
-   for(const [path,label] of [['/order-center','导入加工订单'],['/quote-center','推送加工订单']]){
-    await navigate(path);await has(label);const box=await evaluate("(()=>{const n=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==="+JSON.stringify(label)+");const r=n.getBoundingClientRect();return {width:r.width,height:r.height,header:!!n.closest('.qc-page-header')};})()");assert.ok(box.width<260&&box.height<60,JSON.stringify(box));assert.equal(box.header,true);
+  await t.test('compact order header keeps retired ownership and normalization actions absent',async()=>{
+    await navigate('/order-center');await has('导入加工订单');
     for(const old of ['重复订单复核','归一岗位复核'])assert.equal(await evaluate('document.body.innerText.includes('+JSON.stringify(old)+')'),false);
-   }
   });
+  const chooseQuote=async()=>{await click('维护来源');await has(q.quoteCode);await evaluate("(()=>{const row=[...document.querySelectorAll('[role=dialog] tbody tr')].find(n=>n.textContent.includes("+JSON.stringify(q.quoteCode)+"));row.querySelector('button').click();})()");await has('统一应用价格方案');await click('预览来源与价格');await has('120 CNY / 件');await reason('Synthetic confirmed quote source');};
   await login('demo.merchandising');await navigate('/order-center/server-detail?id='+x.orderId);await has('维护来源');
-  await t.test('source action replaces the large card and no owner is required',async()=>{
-   for(const old of ['订单认领与血统','认领订单','转交负责人','以本单建立翻单准备'])assert.equal(await evaluate('document.body.innerText.includes('+JSON.stringify(old)+')'),false);
-   await click('维护来源');await has('当前业务来源');await has('来自报价');await click('搜索');await has(q.quoteCode);await select(1,q.id);await until(()=>evaluate("document.querySelectorAll('[role=dialog] select')[2]?.options.length>1"),'revision choices');await select(2,rev.revisionId);await select(3,pv.id);await click('预览来源与价格');await has('120 CNY / 件');await reason('合成首单确认');await click('确认维护来源');await has('来源已保存');
-   assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_identity_profiles WHERE owner_id IS NOT NULL')).rows[0].n,0);await click('关闭');
+  await t.test('large centered quote-only wizard adopts confirmed color prices without ownership',async()=>{
+    for(const old of ['订单认领与血统','认领订单','转交负责人','以本单建立翻单准备'])assert.equal(await evaluate('document.body.innerText.includes('+JSON.stringify(old)+')'),false);
+    await chooseQuote();assert.equal(await evaluate("document.querySelector('[role=dialog]').classList.contains('oc-source-modal')"),true);
+    await click('确认维护来源');await has('报价来源和订单价格已保存');assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_identity_profiles WHERE owner_id IS NOT NULL')).rows[0].n,0);await click('关闭');await has('统一成交价');
   });
-  await t.test('reorder selects an existing SO and copies its confirmed conditions',async()=>{
-   await navigate('/order-center/server-detail?id='+second);await has('维护来源');await click('维护来源');await has('当前业务来源');await select(0,'reorder');await click('搜索');await until(()=>evaluate("document.querySelectorAll('[role=dialog] select')[1]?.options.length>1"),'original orders');await select(1,x.orderId);await evaluate("document.querySelector('[role=dialog] input[type=checkbox]').click()");await click('预览来源与价格');await has('120 CNY / 件');await reason('合成原条件翻单');
-   await evaluate("window.sourceRequests=[];window.sourceFetch=window.fetch;window.dropSourceResponse=true;window.fetch=async(...args)=>{const isSave=String(args[0]).endsWith('/business-source')&&args[1]?.method==='POST';if(isSave)sourceRequests.push(JSON.parse(args[1].body));const response=await sourceFetch(...args);if(isSave&&response.ok&&dropSourceResponse){dropSourceResponse=false;throw new TypeError('synthetic response lost');}return response;}");
-   await click('确认维护来源');await has('原请求重试');await until(()=>evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='原请求重试'&&!n.disabled)"),'retry ready after uncertain response');await click('原请求重试');await has('来源已保存');const requests=await evaluate('sourceRequests');assert.equal(requests.length,2);assert.deepEqual(requests[0],requests[1]);await evaluate('window.fetch=window.sourceFetch');
-   assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_business_source_snapshots WHERE sales_order_id=$1',[second])).rows[0].n,1);await click('关闭');
+  await t.test('uncertain save retries the same command and never creates a second price version',async()=>{
+    await navigate('/order-center/server-detail?id='+second);await has('维护来源');await chooseQuote();
+    await evaluate("window.sourceRequests=[];window.sourceFetch=window.fetch;window.dropSourceResponse=true;window.fetch=async(...args)=>{const save=String(args[0]).endsWith('/business-source')&&args[1]?.method==='POST';if(save)sourceRequests.push(JSON.parse(args[1].body));const response=await sourceFetch(...args);if(save&&response.ok&&dropSourceResponse){dropSourceResponse=false;throw new TypeError('synthetic response lost');}return response;}");
+    await click('确认维护来源');await has('原请求重试');await until(()=>evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='原请求重试'&&!n.disabled)"),'retry enabled');await click('原请求重试');await has('报价来源和订单价格已保存');const requests=await evaluate('sourceRequests');assert.equal(requests.length,2);assert.deepEqual(requests[0],requests[1]);await evaluate('window.fetch=window.sourceFetch');
+    assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_order_commercial_versions WHERE sales_order_id=$1',[second])).rows[0].n,1);await click('关闭');
   });
-  await t.test('saved business source is visible in the list',async()=>{await navigate('/order-center');await has('来自报价');await has('来自翻单');assert.equal(await evaluate("document.body.innerText.includes('待认领')"),false);});
-  await t.test('desktop and narrow drawers fit; restricted role sees no maintenance inputs or prices',async()=>{
-   await navigate('/order-center/server-detail?id='+second);await has('维护来源');await click('维护来源');await has('当前业务来源');
-   for(const width of [1440,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await wait(250);const rect=await evaluate("(()=>{const r=document.querySelector('[role=dialog]').getBoundingClientRect();return {left:r.left,right:r.right};})()");assert.ok(rect.left>=-1&&rect.right<=width+1,JSON.stringify(rect));await screenshot('source-'+width);}
-   await click('关闭');await login('demo.material');await navigate('/order-center/server-detail?id='+second);await has('维护来源');await click('维护来源');await has('当前账号仅允许查看');assert.equal(await evaluate("document.body.innerText.includes('120 CNY')"),false);assert.equal(await evaluate("document.querySelectorAll('[role=dialog] select').length"),0);
+  await t.test('existing price is read-only in order center and all new sources are quotes',async()=>{
+    await click('维护来源');await has('调整成交价或更换报价依据');assert.equal(await evaluate("document.querySelectorAll('[role=dialog] select').length"),0);await click('关闭');await navigate('/order-center');await has('来自报价');assert.equal(await evaluate("document.body.innerText.includes('待认领')"),false);
+  });
+  await t.test('modal fits desktop/mobile and restricted role receives no price input or amount',async()=>{
+    await navigate('/order-center/server-detail?id='+second);await has('维护来源');await click('维护来源');await has('采用报价');
+    for(const width of [1440,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await wait(250);const rect=await evaluate("(()=>{const r=document.querySelector('[role=dialog]').getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};})()");assert.ok(rect.left>=-1&&rect.right<=width+1&&rect.width<=1281,JSON.stringify(rect));await screenshot('source-v2-'+width);}
+    await click('关闭');await login('demo.material');await navigate('/order-center/server-detail?id='+second);await has('维护来源');await click('维护来源');await has('无权查看');assert.equal(await evaluate("document.body.innerText.includes('120 CNY')"),false);assert.equal(await evaluate("document.querySelectorAll('[role=dialog] select').length"),0);
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{

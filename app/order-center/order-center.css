@@ -500,3 +500,15 @@
 .oc-business-source-search { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .oc-business-source-search input { min-width: 0; flex: 1; }
 .oc-business-source-search button { flex: 0 0 auto; }
+
+/* Approved D145 quote source and order pricing workspace. */
+.qc-modal.oc-source-modal {width:min(1280px,calc(100vw - 40px));max-width:1280px;}
+.oc-source-form {border:0;padding:0;min-width:0;display:grid;gap:16px;}
+.oc-source-table {max-width:100%;overflow:auto;border:1px solid var(--qc-border,#dbe4df);border-radius:12px;}
+.oc-source-table table {border-collapse:collapse;min-width:740px;width:100%;font-size:14px;}
+.oc-source-table th,.oc-source-table td {padding:12px;text-align:left;border-bottom:1px solid var(--qc-border,#dbe4df);vertical-align:middle;}
+.oc-source-table th {background:var(--qc-bg-soft,#f4f7f5);white-space:nowrap;}
+.oc-source-table small {display:block;color:var(--qc-muted,#708078);}
+.oc-source-table .qc-control {min-width:140px;}
+@media(max-width:599px){.qc-modal.oc-source-modal {width:calc(100vw - 16px);}}
+.oc-price-summary {display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;color:var(--qc-text,#27483d);}

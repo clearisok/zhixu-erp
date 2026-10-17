@@ -1,4 +1,5 @@
 "use client";
+import {OrderColorPrices} from './order-color-prices';
 import { MaterialHistoryDialog } from "./material-history-dialog";
 import { OrderBusinessSourceButton } from "./order-business-source-button";
 
@@ -234,21 +235,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
               <span>{detail.colors.length} 个颜色 · 来源只读</span>
             </header>
             <p className="oc-server-color-note">分码数据尚未接线；不依据颜色数量推算尺码。</p>
-            {detail.colors.length === 0 ? (
-              <EmptyState compact title="当前订单主档有效；颜色明细暂无有效数据。" description="颜色 enrichment 为空不影响 SalesOrder master 有效性。" />
-            ) : (
-              <div className="oc-server-color-table" role="region" aria-label="正式订单颜色明细">
-                <table>
-                  <thead><tr><th>颜色</th><th>数量</th></tr></thead>
-                  <tbody>{detail.colors.map((color) => (
-                    <tr key={color.sourceLineIdentity}>
-                      <td>{color.colorName}</td>
-                      <td>{color.quantity.toLocaleString("zh-CN")}</td>
-                    </tr>
-                  ))}</tbody>
-                </table>
-              </div>
-            )}
+            <OrderColorPrices key={'color-'+scopeKey} orderId={detail.id} colors={detail.colors} processing={detail.businessType==='processing'} />
           </Card>
 
           {detail.businessType==='processing'?<Card className="oc-server-detail-section"><p style={{padding:18}}>加工订单不关联艾诺科销售合同，艾诺科物料流水不适用。</p></Card>:detail.attribution?.historicalDuplicate?<Card className="oc-server-detail-section"><p style={{padding:18}}>当前物料来源请在有效订单查看；原单快照保留在历史物料来源。</p></Card>:<OrderMaterialSummary key={'materials-'+scopeKey} salesOrderId={detail.id} />}

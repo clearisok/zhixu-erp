@@ -1,3 +1,4 @@
+import {listOrderSourceQuotes,readOrderSourceOptions} from './quotes/order-source-candidates.js';
 import {supportsPreparationAdoption} from './sales-orders/preparation-source.js';
 import {readOrderBusinessSource,previewOrderBusinessSource,adoptOrderBusinessSource} from './sales-orders/business-source-service.js';
 import {adoptOrderPreparation,listPreparationCandidates,readPreparationAdoptions,readPreparationAdoptionReceipt,parsePreparationCandidateQuery,readPreparationsByReference,readOrderPreparationCreationReceipt} from './sales-orders/preparation-adoption.js';
@@ -639,6 +640,13 @@ async function route(
     requirePermission(identity.permissions,'order.view');
     if(retiredOrderWrite)assertMutationBoundary(request,dependencies.allowedOrigins);
     throw new HttpError(410,'order_workflow_retired','Use order business source maintenance; ownership, preparations and normalization operations are retired');
+  }
+  const orderSourceOptions=/^\/api\/v1\/quotes\/([^/]+)\/order-source-options$/.exec(path);
+  if(path==='/api/v1/order-source-quotes'||orderSourceOptions){
+    const actor=await dependencies.identityAuthority.resolve(request);if(!actor)throw new HttpError(401,'authentication_required','Authentication required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    response.setHeader('Cache-Control','no-store');
+    sendJson(response,200,orderSourceOptions?await readOrderSourceOptions(dependencies.pool,actor,requiredPathIdentity(orderSourceOptions[1],'quoteId')):await listOrderSourceQuotes(dependencies.pool,actor,new URL(request.url??'/','http://local').searchParams));return;
   }
   const businessSourceMatch=/^\/api\/v1\/sales-orders\/([^/]+)\/business-source(?:\/(preview))?$/.exec(path);
   if(businessSourceMatch){

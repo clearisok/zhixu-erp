@@ -11,6 +11,7 @@ import {identityUuid} from './identity-model.js';
 import {readOrderIdentity,requireOrderCommandActor} from './identity-service.js';
 import {readCommercialCandidate,type CommercialCandidate} from './commercial-source.js';
 import type {QuoteProvenance} from '../confirmed-commercial-terms/repository.js';
+import {readCommercialLines,type CommercialLine} from './color-commercial.js';
 
 type Queryable=Pick<Pool|PoolClient,'query'>;
 function fail(status:number,code:string):never{throw new HttpError(status,code,code);}
@@ -22,13 +23,14 @@ export function parseAdoptCommercial(raw:Record<string,unknown>):AdoptCommercial
  if(typeof raw.requestId!=='string'||!identityUuid.test(raw.requestId)||!Number.isSafeInteger(raw.expectedVersion)||Number(raw.expectedVersion)<0||typeof raw.sourceFingerprint!=='string'||!/^([0-9a-f]{64})$/u.test(raw.sourceFingerprint)||typeof raw.reason!=='string'||!raw.reason.trim()||raw.reason.length>2000)fail(400,'invalid_commercial_adoption');
  return raw as AdoptCommercialCommand;
 }
-export type OrderCommercialVersion={id:string;salesOrderId:string;version:number;quoteId:string;revisionId:string;priceVersionId:string;quoteVersion:number;sourceKind:string;sourceCctId:string|null;sourceCctVersion:number|null;sourceConfirmedAt:string;salePrice:string|null;saleCurrency:'CNY';laborPrice:string;laborCurrency:'CNY'|'USD';adoptedAt:string;reason:string};
+export type OrderCommercialVersion={id:string;salesOrderId:string;version:number;quoteId:string;revisionId:string;priceVersionId:string;quoteVersion:number;sourceKind:string;sourceCctId:string|null;sourceCctVersion:number|null;sourceConfirmedAt:string;salePrice:string|null;saleCurrency:'CNY';laborPrice:string;laborCurrency:'CNY'|'USD';adoptedAt:string;reason:string;lines?:CommercialLine[]};
 const selectVersion=`SELECT id::text,sales_order_id::text AS "salesOrderId",version,quote_id AS "quoteId",revision_id AS "revisionId",price_version_id AS "priceVersionId",source_quote_version AS "quoteVersion",source_kind AS "sourceKind",source_cct_id::text AS "sourceCctId",source_cct_version AS "sourceCctVersion",source_confirmed_at::text AS "sourceConfirmedAt",confirmed_sale_price::text AS "salePrice",sale_currency AS "saleCurrency",confirmed_labor_price::text AS "laborPrice",labor_currency AS "laborCurrency",adopted_at::text AS "adoptedAt",reason FROM sales_order_commercial_versions`;
 export async function readOrderCommercialState(client:Queryable,orderId:string){
  if(!identityUuid.test(orderId))fail(400,'invalid_order_id');
  const exists=await client.query('SELECT id FROM sales_orders WHERE id=$1',[orderId]);if(!exists.rowCount)fail(404,'sales_order_not_found');
  const head=(await client.query('SELECT current_version_id::text,version FROM sales_order_commercial_heads WHERE sales_order_id=$1',[orderId])).rows[0];
  const current=head?(await client.query<OrderCommercialVersion>(selectVersion+' WHERE id=$1',[head.current_version_id])).rows[0]:null;
+ if(current?.sourceKind==='line_items')current.lines=await readCommercialLines(client,orderId,current.id);
  return {version:head?.version??0,current:current??null};
 }
 async function authorized(client:PoolClient,actor:TrustedIdentity){

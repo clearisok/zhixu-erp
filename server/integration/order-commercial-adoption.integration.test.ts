@@ -55,7 +55,7 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
  });
  await t.test('two orders share a quote without sharing adopted prices',async()=>{
   await adoptOrderCommercial(pool,actor,b,await command(b));
-  const lookup=await readConfirmedCommercialTermsByQuote(pool,source);assert.equal(lookup.linkage,'linked');assert.deepEqual([...lookup.associatedSalesOrderIds].sort(),[a,b].sort());
+  const lookup=await readConfirmedCommercialTermsByQuote(pool,source);assert.equal(lookup.linkage,'unlinked');assert.equal(lookup.current,null);assert.deepEqual(lookup.associatedSalesOrderIds,[]);
   const quoteActor={...actor,permissions:await permissionsForUser(pool,actor.internalUserId)};
   const changed=await updateConfirmedCommercialTermsByQuote(pool,quoteActor,source,{expectedVersion:0,expectedQuoteVersion:1,customerConfirmedPrice:'130'});
   assert.equal(changed.current?.confirmedLaborPrice,'10');
@@ -115,12 +115,12 @@ test('order commercial adoption isolated transactions',{timeout:180000},async t=
    assert.equal((await req(path+'?salePrice=999')).status,400);
    assert.equal((await req(path+'/preview','POST',{kind:'quote',...source},{Origin:'http://evil.invalid'})).status,403);
    assert.equal((await req(path+'/preview','POST',{kind:'quote',...source,salePrice:'999'})).status,400);
-   const preview=await req(path+'/preview','POST',{kind:'quote',...source});assert.equal(preview.status,200);const data=await preview.json();assert.equal(data.candidate.sale.value.price,'140');assert.equal(data.candidate.salePrice,undefined);
+   const preview=await req(path+'/preview','POST',{kind:'quote',...source});assert.equal(preview.status,200);const data=await preview.json();assert.equal(data.lines[0].sale.value.price,'140');assert.equal(data.lines[0].salePrice,undefined);
    const cmd={selection:{kind:'quote',...source},requestId:randomUUID(),expectedVersion:0,fingerprint:data.fingerprint,reason:'adopt 140'};
    const adopted=await req(path,'POST',cmd);assert.equal(adopted.status,200);assert.ok((await adopted.json()).commercialVersionId);
    assert.equal((await req(path,'POST',cmd)).status,200);
    const legacy='/api/v1/sales-orders/'+id+'/confirmed-commercial-terms';
-   const legacyRead=await req(legacy);assert.equal(legacyRead.status,200);const legacyBody=await legacyRead.json();assert.equal(legacyBody.confirmedCommercialTerms.scope,'sales_order');assert.equal(legacyBody.confirmedCommercialTerms.current.sale.value.price,'140');
+   const legacyRead=await req(legacy);assert.equal(legacyRead.status,409);assert.equal((await legacyRead.json()).error.code,'order_commercial_v2_required');
    const oldWrite=await req(legacy,'PATCH',{expectedVersion:1,customerConfirmedPrice:'999'});assert.equal(oldWrite.status,409);assert.equal((await oldWrite.json()).error.code,'order_commercial_adoption_required');
    const pending=await order();const pendingRead=await req('/api/v1/sales-orders/'+pending+'/confirmed-commercial-terms');assert.equal((await pendingRead.json()).confirmedCommercialTerms.current,null);
 

@@ -48,3 +48,5 @@ It does not create/backfill orders, profiles, quantities, prices or accounts.
 Ordinary insert/reference fences, effective-owner and pause gates integrate with
 normalization; old proof hashes are not rewritten. Synthetic PG validation only;
 real activation and old binary compatibility remain separately gated.
+
+0028_order_color_commercial_versions.sql：D145商业版本颜色明细扩展，保留0015/0016/0027；旧记录不回填。只在一次性合成数据库演练，真实迁移须另行授权。

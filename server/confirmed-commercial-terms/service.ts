@@ -160,6 +160,7 @@ export async function readConfirmedCommercialTermsBySalesOrder(
   salesOrderId: string,
 ): Promise<ConfirmedCommercialTermsDto> {
   const state=await readOrderCommercialState(pool,salesOrderId),c=state.current;
+  if(c?.sourceKind==='line_items')throw new HttpError(409,'order_commercial_v2_required','Use the order commercial version reader for color pricing');
   return {linkage:c?'linked':'unlinked',scope:c?'sales_order':null,quoteProvenance:c?{quoteId:c.quoteId,revisionId:c.revisionId,priceVersionId:c.priceVersionId}:null,associatedSalesOrderIds:[salesOrderId],current:c?{id:c.id,customerConfirmedPrice:c.salePrice,customerConfirmedPriceCurrency:'CNY',confirmedLaborPrice:c.laborPrice,laborCurrency:c.laborCurrency,version:c.version,createdAt:c.adoptedAt,updatedAt:c.adoptedAt}:null};
 }
 
