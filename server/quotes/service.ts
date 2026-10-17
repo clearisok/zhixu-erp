@@ -139,7 +139,7 @@ function auditSnapshot(record: QuoteRecord | null, context: QuoteMutationContext
       priceVersionCount: revision?.priceVersions.length ?? 0,
       estimateHistoryCount: record.quote.estimateCostHistory.length,
       ...(context.workflowAction === "confirmation.save" ? {confirmedLaborPrice:pv?.confirmation?.confirmedLaborPrice ?? null,
-        confirmedGarmentPrice:pv?.confirmation?.confirmedGarmentPrice ?? null, confirmationNote:pv?.confirmation?.note ?? null,
+        ...(revision?.baseInfo.quoteType==='processing'?{}:{confirmedGarmentPrice:pv?.confirmation?.confirmedGarmentPrice??null}), confirmationNote:pv?.confirmation?.note ?? null,
         confirmedAt:pv?.confirmation?.confirmedAt ?? null} : {}),
     },
   };
@@ -278,6 +278,7 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
       try {
         const restored = actor.permissions.includes("quote.cost.view") ? restoreRestrictedConfirmation(actor, content, before.quote) : restoreRestrictedQuoteCosts(content, before.quote);
         input = normalizeServerQuote({ ...restored, activeEstimateCost: before.quote.activeEstimateCost, estimateCostHistory: before.quote.estimateCostHistory } as ServerQuote);
+        restoreProcessingHiddenFacts(input,before.quote);
         validateQuote(input);
       } catch (error) {
         if (error instanceof QuoteInvariantError || error instanceof TypeError) throw new HttpError(400, "invalid_quote", "Quote aggregate is invalid");
@@ -305,4 +306,13 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
       return projectQuoteResponse(actor, await repository.save(input, expectedVersion, audit(actor, context)));
     },
   };
+}
+
+/** The processing editor never owns omitted materials/garment/FX facts. */
+function restoreProcessingHiddenFacts(input:ServerQuote,saved:ServerQuote){
+ for(const r of input.revisions)if(r.baseInfo.quoteType==='processing')for(const p of r.priceVersions){
+  const old=saved.revisions.find(v=>v.revisionId===r.revisionId)?.priceVersions.find(v=>v.id===p.id);if(!old)continue;
+  p.fabrics=structuredClone(old.fabrics);p.trims=structuredClone(old.trims);p.otherCosts=structuredClone(old.otherCosts);p.pricingParameters={...p.pricingParameters,usdCnyRate:old.pricingParameters.usdCnyRate,markupRate:old.pricingParameters.markupRate,freightAmount:old.pricingParameters.freightAmount,includeFreight:old.pricingParameters.includeFreight,freightName:old.pricingParameters.freightName};
+  if(p.confirmation&&old.confirmation){p.confirmation.quotedGarmentPrice=old.confirmation.quotedGarmentPrice;p.confirmation.confirmedGarmentPrice=old.confirmation.confirmedGarmentPrice;}
+ }
 }

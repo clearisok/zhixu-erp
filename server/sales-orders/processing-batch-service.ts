@@ -1,3 +1,4 @@
+import {lockQuoteTermsContext} from '../confirmed-commercial-terms/repository.js';
 import {orderCommandControlError} from './command-control.js';
 import {lockEffectiveAttribution} from './effective-attribution.js';
 import {createHash,randomUUID} from 'node:crypto';
@@ -21,8 +22,9 @@ type Batch=ProcessingBatchDraft & {id:string;state:string;version:number;confirm
 const selectBatch=`SELECT id::text,quote_id AS "quoteId",revision_id AS "revisionId",price_version_id AS "priceVersionId",customer_name AS "customerName",business_style_no AS "businessStyleNo",quantity::text,order_date::text AS "orderDate",delivery_date::text AS "deliveryDate",customer_reference AS "customerReference",delivery_requirements AS "deliveryRequirements",reference_order_id::text AS "referenceOrderId",state,version,current_confirmation_id::text AS "confirmationId" FROM processing_order_batches`;
 async function readBatch(c:PoolClient,id:string){
  if(!identityUuid.test(id))fail(400,'invalid_batch_id');
- const row=(await c.query<Batch>(selectBatch+' WHERE id=$1 FOR UPDATE',[id])).rows[0];
- if(!row)fail(404,'processing_batch_not_found');return row;
+ const source=(await c.query<Batch>(selectBatch+' WHERE id=$1',[id])).rows[0];if(!source)fail(404,'processing_batch_not_found');
+ await lockQuoteTermsContext(c,source);await c.query('SELECT id FROM quote_center_quotes WHERE id=$1 FOR SHARE',[source.quoteId]);
+ return (await c.query<Batch>(selectBatch+' WHERE id=$1 FOR UPDATE',[id])).rows[0];
 }
 async function transaction<T>(pool:Pool,actor:TrustedIdentity,operation:Operation|'read',run:(c:PoolClient,a:TrustedIdentity)=>Promise<T>):Promise<T>{
  const c=await pool.connect();try{
@@ -46,9 +48,10 @@ async function record(c:PoolClient,a:TrustedIdentity,requestId:string,operation:
  await appendOperationLog(c,a,{module:'订单中心',action:actions[operation],entityType:'ProcessingOrderBatch',entityId:result.batchId,afterData:{values:result},metadata:{requestId,operation,...(reason?{reason}:{})}});
  return result;
 }
-export async function createProcessingBatch(pool:Pool,actor:TrustedIdentity,raw:unknown){
+export async function createProcessingBatch(pool:Pool,actor:TrustedIdentity,raw:unknown){return transaction(pool,actor,'create',(c,a)=>createProcessingBatchInTransaction(c,a,raw));}
+export async function createProcessingBatchInTransaction(c:PoolClient,a:TrustedIdentity,raw:unknown){
  const command=parseProcessingBatchDraft(raw),payloadHash=processingDraftHash(command);
- return transaction(pool,actor,'create',async(c,a)=>{
+
   const old=await replay(c,a,command.requestId,'create','',payloadHash);if(old)return old;
   // A draft is not an order, but must still refer to an actual eligible processing quote.
   const source=await readCommercialCandidate(c,{quoteId:command.quoteId,revisionId:command.revisionId,priceVersionId:command.priceVersionId});
@@ -56,7 +59,6 @@ export async function createProcessingBatch(pool:Pool,actor:TrustedIdentity,raw:
   if(command.referenceOrderId&&!(await c.query('SELECT id FROM sales_orders WHERE id=$1',[command.referenceOrderId])).rowCount)fail(404,'reference_order_not_found');
   const row=(await c.query(`INSERT INTO processing_order_batches(created_by,quote_id,revision_id,price_version_id,customer_name,business_style_no,quantity,order_date,delivery_date,customer_reference,delivery_requirements,reference_order_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id::text`,[a.internalUserId,command.quoteId,command.revisionId,command.priceVersionId,command.customerName,command.businessStyleNo,command.quantity,command.orderDate,command.deliveryDate,command.customerReference,command.deliveryRequirements,command.referenceOrderId])).rows[0];
   return record(c,a,command.requestId,'create','',payloadHash,{batchId:row.id,version:1,status:'draft'});
- });
 }
 // Display labels are read independently of price adoption. Exact provenance IDs
 // remain authoritative even if a label changes or its source is unavailable.
@@ -93,9 +95,10 @@ export async function previewProcessingBatch(pool:Pool,actor:TrustedIdentity,id:
   return {batch:b,candidate,labels:await processingQuoteLabels(c,b),similar:await similarProcessingBatches(c,b)};
  });
 }
-export async function confirmProcessingBatch(pool:Pool,actor:TrustedIdentity,id:string,raw:unknown){
+export async function confirmProcessingBatch(pool:Pool,actor:TrustedIdentity,id:string,raw:unknown){return transaction(pool,actor,'confirm',(c,a)=>confirmProcessingBatchInTransaction(c,a,id,raw));}
+export async function confirmProcessingBatchInTransaction(c:PoolClient,a:TrustedIdentity,id:string,raw:unknown){
  const command=parseProcessingBatchConfirmation(raw),item=id.toLowerCase(),payloadHash=hash([item,command.expectedVersion,command.sourceFingerprint]);
- return transaction(pool,actor,'confirm',async(c,a)=>{
+
   const old=await replay(c,a,command.requestId,'confirm',item,payloadHash);if(old)return old;
   const b=await readBatch(c,item);if(!['draft','confirmed'].includes(b.state))fail(409,'processing_batch_terminal');
   if(b.version!==command.expectedVersion)fail(409,'processing_batch_version_conflict');
@@ -105,7 +108,6 @@ export async function confirmProcessingBatch(pool:Pool,actor:TrustedIdentity,id:
   const row=(await c.query('INSERT INTO processing_order_batch_confirmations(batch_id,batch_version,actor_id,source_fingerprint,draft_hash,source_snapshot) VALUES($1,$2,$3,$4,$5,$6::jsonb) RETURNING id',[item,b.version+1,a.internalUserId,source.fingerprint,processingDraftHash(b),JSON.stringify(source)])).rows[0];
   await c.query("UPDATE processing_order_batches SET state='confirmed',version=version+1,current_confirmation_id=$2 WHERE id=$1",[item,row.id]);
   return record(c,a,command.requestId,'confirm',item,payloadHash,{batchId:item,version:b.version+1,status:'confirmed'});
- });
 }
 export async function cancelProcessingBatch(pool:Pool,actor:TrustedIdentity,id:string,raw:unknown){
  const command=parseProcessingBatchCancellation(raw),item=id.toLowerCase(),payloadHash=hash([item,command.expectedVersion,command.reason]);
@@ -117,9 +119,9 @@ export async function cancelProcessingBatch(pool:Pool,actor:TrustedIdentity,id:s
   return record(c,a,command.requestId,'cancel',item,payloadHash,{batchId:item,version:b.version+1,status:'cancelled'},command.reason);
  });
 }
-async function consumeOne(pool:Pool,actor:TrustedIdentity,requestId:string,item:{batchId:string;expectedVersion:number}){
+async function consumeOne(pool:Pool,actor:TrustedIdentity,requestId:string,item:{batchId:string;expectedVersion:number}){return transaction(pool,actor,'consume',(c,a)=>consumeProcessingBatchInTransaction(c,a,requestId,item));}
+export async function consumeProcessingBatchInTransaction(c:PoolClient,a:TrustedIdentity,requestId:string,item:{batchId:string;expectedVersion:number}){
  const payloadHash=hash([item.batchId,item.expectedVersion]);
- return transaction(pool,actor,'consume',async(c,a)=>{
   const old=await replay(c,a,requestId,'consume',item.batchId,payloadHash);if(old)return old;
   const b=await readBatch(c,item.batchId);
   const existing=(await c.query('SELECT o.id::text,o.order_no FROM processing_order_batch_consumptions p JOIN sales_orders o ON o.id=p.sales_order_id WHERE p.batch_id=$1',[b.id])).rows[0];
@@ -135,7 +137,6 @@ async function consumeOne(pool:Pool,actor:TrustedIdentity,requestId:string,item:
   const commercial=await appendCommercialVersion(c,{orderId:order.id,version:1,actorId:a.internalUserId,requestId:randomUUID(),payloadHash,candidate,reason:'Confirmed processing batch '+b.id});
   await c.query('INSERT INTO processing_order_batch_consumptions(batch_id,sales_order_id,confirmation_id,commercial_version_id,actor_id) VALUES($1,$2,$3,$4,$5)',[b.id,order.id,b.confirmationId,commercial.id,a.internalUserId]);
   return record(c,a,requestId,'consume',b.id,payloadHash,{batchId:b.id,salesOrderId:order.id,orderNo:order.orderNo,status:'created'});
- });
 }
 export async function consumeProcessingBatches(pool:Pool,actor:TrustedIdentity,raw:unknown){
  const command=parseProcessingBatchConsumption(raw);

@@ -74,6 +74,10 @@ test("quote center negotiates selected orders and recovers original receipts", {
     await open();await click('调价历史');await has('Synthetic response-loss test');for(const width of [1440,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await wait(200);const r=await evaluate("(()=>{const r=document.querySelector('[role=dialog]').getBoundingClientRect();return {left:r.left,right:r.right};})()");assert.ok(r.left>=-1&&r.right<=width+1);await screenshot('sale-adjustment-'+width);}await click('关闭');
     await navigate('/order-center/server-detail?id='+second);await has('117 CNY');await has('订单调价历史');assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>/确认订单调价|批量调整/.test(n.textContent))"),false);
   });
+  await t.test('a transport failure before acceptance can retry the exact in-memory command',async()=>{
+    await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});await open();await evaluate("[...document.querySelectorAll('[role=dialog] tbody tr')].find(n=>n.textContent.includes('SO-00000002')).querySelector('input[type=checkbox]').click()");await input('[aria-label="调价规则数值"]','-1');await click('预览调整');await input('[role=dialog] textarea','Synthetic pre-acceptance transport failure');
+    await evaluate("window.originalPriceFetch=window.fetch;window.rejectBeforePrice=true;window.fetch=(...a)=>{if(String(a[0])==='/api/v1/order-price-adjustments'&&a[1]?.method==='POST'&&rejectBeforePrice){rejectBeforePrice=false;return Promise.reject(new TypeError('Synthetic failed before request'));}return originalPriceFetch(...a);}");await click('确认订单调价');await has('重试原提交');await click('核对原请求');await has('尚未找到原请求回执');await click('重试原提交');await has('已处理 1 张');assert.equal((await readOrderCommercialState(x.pool,second)).version,4);assert.equal((await readOrderCommercialState(x.pool,second)).current.salePrice,'116');await click('关闭');
+  });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{
   ws?.close();if(browser&&browser.exitCode===null){browser.kill();await wait(500);}

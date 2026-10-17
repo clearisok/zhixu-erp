@@ -148,3 +148,5 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 - localStorage 与两个 IndexedDB database 之间无法形成真正的跨存储原子事务；当前恢复以预校验、内存快照和失败回滚降低风险。
 - Browser Backup 无法备份个人 Ainuoke credential；Windows Credential Manager 与 Local Bridge 生命周期独立，迁移设备时必须由本人重新绑定。
 - 大量附件会使 JSON 备份体积较大；未来对象存储阶段应升级为流式归档格式。
+
+2026-10-17 D-145 Server会话恢复：新增sessionStorage zhixu.server.order-price.pending.v1.<public-user-id>仅请求UUID、zhixu.server.processing-push.pending.v1.<public-user-id>仅请求UUID/Quote IDs；不存金额/原因/令牌，不读写Browser业务namespace/IndexedDB或Seed。原载荷仅当前组件内存保存。只显式重试原命令/核对服务端回执；已确认完成或明确受理前拒绝时删除本组件恢复标记。不同用户不能复用标记，切换授权范围重新加载投影。没有服务端记录且原内存稿已丢失时保持核对状态，不冒称未执行或自动重新下单。

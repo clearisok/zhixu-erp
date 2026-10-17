@@ -1,3 +1,4 @@
+import {previewProcessingQuotePush,pushProcessingQuotes,readProcessingPushReceipt} from './sales-orders/processing-quote-push.js';
 import {previewColorSource,adoptColorSource} from './sales-orders/color-commercial.js';
 import {previewSaleAdjustment,commitSaleAdjustment,listQuoteOrderPrices,readSaleAdjustmentHistory,readSaleAdjustmentReceipt,resumeSaleAdjustment} from './sales-orders/sale-adjustment-service.js';
 import {listOrderSourceQuotes,readOrderSourceOptions} from './quotes/order-source-candidates.js';
@@ -781,6 +782,14 @@ async function route(
     sendJson(response,200,await previewOrderNormalization(dependencies.pool,identity,body.orderIds));return;
   }
 
+  const processingPush=/^\/api\/v1\/processing-quote-push(?:\/(preview|requests\/([0-9a-f-]+)))?$/iu.exec(path);
+  if(processingPush){
+    const actor=await dependencies.identityAuthority.resolve(request);if(!actor)throw new HttpError(401,'authentication_required','Authentication required');if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');response.setHeader('Cache-Control','no-store');
+    if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_processing_push_query','No query selectors');
+    if(request.method==='GET'&&processingPush[2])sendJson(response,200,await readProcessingPushReceipt(dependencies.pool,actor,processingPush[2]));
+    else if(request.method==='POST'&&!processingPush[2]){assertMutationBoundary(request,dependencies.allowedOrigins);const body=await readJsonBody(request,262144);if(processingPush[1]==='preview')sendJson(response,200,await previewProcessingQuotePush(dependencies.pool,actor,body));else{await assertOrderCommandsAvailable(dependencies.pool,actor,dependencies.orderCommandMode);sendJson(response,200,await pushProcessingQuotes(dependencies.pool,actor,body));}}
+    else throw new HttpError(405,'method_not_allowed','Method not allowed');return;
+  }
   const processingMatch=/^\/api\/v1\/processing-order-batches(?:\/(consume|[0-9a-f-]+)(?:\/(preview|confirm|cancel))?)?$/iu.exec(path);
   if(processingMatch){
     const identity=await dependencies.identityAuthority.resolve(request);

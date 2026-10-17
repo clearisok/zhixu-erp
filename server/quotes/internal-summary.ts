@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import type { Pool, PoolClient } from "pg";
 import { buildQuoteSummaryTable, type SummaryTable } from "../../features/quote-center/export/quote-summary-core.js";
-import { businessColumns, businessValues, calculatedColumns, columnPermissions, estimateColumns, type BusinessColumn, type BusinessSource, type BusinessValues, type CostSlice, type EstimateColumn } from "../../features/quote-center/model/quote-business-view.js";
+import { businessColumns, businessValues, processingHiddenColumns, calculatedColumns, columnPermissions, estimateColumns, type BusinessColumn, type BusinessSource, type BusinessValues, type CostSlice, type EstimateColumn } from "../../features/quote-center/model/quote-business-view.js";
 import { projectForBrowser, UnsafeServerQuoteDecimalError } from "../../features/quote-center/model/exact-decimal-view.js";
 import { nullablePriceVersionMetrics } from "../../features/quote-center/model/quote-presentation.js";
 import { estimateCostIsStale } from "../../features/quote-center/model/estimate-cost.js";
@@ -85,25 +85,29 @@ export function createInternalSummaryService(pool: Pool, build: typeof buildQuot
       if ([...loaded.bindings.values()].some(b => b.partial)) throw new HttpError(409, "incomplete_quote_provenance", "Selected current source cannot be resolved exactly");
       const count = selection.rowMode === "quote" ? loaded.sources.length : loaded.sources.reduce((n, s) => n + s.versions.length, 0);
       if (count > SUMMARY_MAX_ROWS) throw new HttpError(413, "internal_summary_row_limit", "Summary exceeds 500 rows; selection was not truncated");
-      estimates = await readEstimates(reader, loaded.sources, selection.estimateColumns);
+      estimates = await readEstimates(reader, loaded.sources.filter(s=>s.baseInfo.quoteType!=='processing'), selection.estimateColumns);
       await reader.query("COMMIT");
     } catch (error) {
       await reader.query("ROLLBACK");
       if (error instanceof UnsafeServerQuoteDecimalError) throw new HttpError(409, "unsafe_quote_business_decimal", "Selected business value cannot be represented safely");
       throw error;
     } finally { reader.release(); }
-    const headers = selection.columns.map(key => selection.rowMode === "price-version" && key === "quantity" ? "数量" : businessColumns.find(c => c.key === key)!.label);
+    const onlyProcessing=loaded.sources.every(s=>s.baseInfo.quoteType==='processing');
+    const columns=onlyProcessing?selection.columns.filter(k=>!processingHiddenColumns.includes(k)):selection.columns;
+    const selectedEstimates=onlyProcessing?[]:selection.estimateColumns;
+    const headers = columns.map(key => selection.rowMode === "price-version" && key === "quantity" ? "数量" : businessColumns.find(c => c.key === key)!.label);
     if (selection.rowMode === "price-version") headers.splice(1, 0, "价格版本");
-    headers.push(...selection.estimateColumns.map(k => estimateLabels[k]));
+    headers.push(...selectedEstimates.map(k => estimateLabels[k]));
     const rows: SummaryTable["rows"] = [];
     try {
       for (const source of loaded.sources) for (const pv of selection.rowMode === "quote" ? [undefined] : source.versions) {
-        const values = businessValues(source, selection.columns, pv);
-        const row = selection.columns.map(key => ({ ...values[key]!, ...(["confirmedLabor", "confirmedGarment", "confirmationStatus"].includes(key) ? {
+        const values = businessValues(source, columns, pv);
+        const row = columns.map(key => ({ ...values[key]!, ...(["confirmedLabor", "confirmedGarment", "confirmationStatus"].includes(key) ? {
           note: (pv ? [pv] : source.versions).map(v => `${v.name} / ${v.id}: ${v.confirmation?.linkage === "linked" ? `CCT current v${v.confirmation.termsVersion ?? "empty"}` : v.confirmation?.linkage === "unlinked" ? "saved PV confirmation snapshot" : "unknown provenance"}`).join("\n")
         } : {}) }));
         if (selection.rowMode === "price-version") row.splice(1, 0, { value: pv!.name, display: pv!.name });
-        for (const key of selection.estimateColumns) {
+        for (const key of selectedEstimates) {
+          if(source.baseInfo.quoteType==='processing'){row.push({value:null,display:'—'});continue;}
           const estimate = estimates.get(source.id)!;
           if (key !== "estimateDifference") { row.push(estimate[key]!); continue; }
           // When only difference was requested, readEstimates still calculates active total without exposing another column.

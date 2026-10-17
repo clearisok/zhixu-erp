@@ -20,7 +20,7 @@ export function parseCustomerBatch(body:Record<string,unknown>):BatchSelection{
   if(new Set(body.items.map(i=>i.quoteId)).size!==body.items.length)throw bad();return body.items;
 }
 export async function generateCustomerBatch(pool:Pool,storage:AttachmentStorage|undefined,actor:TrustedIdentity,items:BatchSelection){
-  for(const permission of ["quote.view","quote.export","quote.cost.view","commercial.sale.view","commercial.labor.view"] as const)requirePermission(actor.permissions,permission);
+  for(const permission of ["quote.view","quote.export","quote.cost.view","commercial.labor.view"] as const)requirePermission(actor.permissions,permission);
   const repository=createQuoteRepository(pool), exporter=createCustomerExportService(pool,storage);
   // Bind each item once at the start; these independent reads are explicitly NOT
   // a global simultaneous multi-Quote snapshot. CAS is rechecked at generation.

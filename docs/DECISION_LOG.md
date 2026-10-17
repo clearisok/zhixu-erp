@@ -22,7 +22,7 @@
 
 - 2026-10-17，Active，用户批准[完整实施范围](tasks/active/quote-order-price-coordination-2026-10-17.md)。新业务只保留报价来源；合同类可信合同与加工批次身份保持。后续来源弹窗/颜色映射/报价中心议价取代D144对应交互，历史不删除。
 - 报价确认权威由CCT是否存在决定：存在时空值也不回退；不存在时使用可证明的保存PV确认。SO使用关系不抹除确认事实。解析器供列表/汇总、导出和商业采用复用；详情无CCT时仍走PV确认命令，已有CCT拒绝第二写入源。
-- 订单价格仅来自独立不可变商业版本。用户批准的下一阶段在报价中心对指定订单追加成交价版本；不修改共享CCT、不新增PriceVersion、不换汇/重算成本，加工仅工价。Phase1确认解析器、Phase2稳定颜色/逐色商业版本及报价唯一来源、Phase3统一订单议价及只读历史已实现；新加工交互仍待后续阶段，不提前宣称可用。
+- 订单价格仅来自独立不可变商业版本。用户批准的下一阶段在报价中心对指定订单追加成交价版本；不修改共享CCT、不新增PriceVersion、不换汇/重算成本，加工仅工价。Phase1确认解析器、Phase2稳定颜色/逐色商业版本及报价唯一来源、Phase3统一订单议价及只读历史已实现；Phase4加工同步推送、纯工价投影/导出与左侧选择模式已实现；仅本地工程验收，未合并部署或人工业务接受。
 - 代码：server/confirmed-commercial-terms/confirmation-source.ts；server/quotes/business-source.ts、customer-export.ts、service.ts；commercial-source.ts。只用一次性合成库，无真实迁移、采集、合并或部署。
 
 

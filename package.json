@@ -98,7 +98,9 @@
     "test:order-business-source": "tsx --test --test-concurrency=1 server/integration/order-business-source.integration.test.ts",
     "test:order-business-source-ui": "tsx --test server/integration/order-business-source-ui.integration.test.mjs",
     "test:order-sale-adjustments": "tsx --test --test-concurrency=1 server/integration/order-sale-adjustment.integration.test.ts",
-    "test:order-sale-adjustments-ui": "tsx --test server/integration/order-sale-adjustment-ui.integration.test.mjs"
+    "test:order-sale-adjustments-ui": "tsx --test server/integration/order-sale-adjustment-ui.integration.test.mjs",
+    "test:processing-quote-push": "tsx --test --test-concurrency=1 server/integration/processing-quote-push.integration.test.ts",
+    "test:processing-quote-push-ui": "tsx --test server/integration/processing-quote-push-ui.integration.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

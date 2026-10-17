@@ -28,6 +28,9 @@ export const CURRENT_MIGRATION_FILES = Object.freeze([
   '0025_ainuoke_payment_snapshots.sql',
   '0026_ainuoke_payment_operator_commands.sql',
   '0027_order_business_source_snapshots.sql',
+  '0028_order_color_commercial_versions.sql',
+  '0029_order_sale_adjustment_operations.sql',
+  '0030_processing_quote_push_receipts.sql',
 ]);
 
 export const migrationFilesAfter = (version: number) =>

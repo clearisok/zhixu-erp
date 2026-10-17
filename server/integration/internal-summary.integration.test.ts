@@ -57,11 +57,12 @@ test("internal summary: synthetic saved sources, permissions, workbook and concu
   await t.test("Estimate is explicit, active only, deleted-PV source independent and difference uses raw price", async () => {
     const file = await service.generate(admin, { ...selection(), rowMode: "price-version", columns: ["quote"], estimateColumns: ["estimateTotal", "estimateRevision", "estimateDifference"] });
     const sheet = await load(file.bytes);
-    assert.equal(sheet.getCell("C2").value, 5); assert.equal(sheet.getCell("C3").value, 5);
-    assert.match(String(sheet.getCell("D2").value), /V1.*旧来源/u);
-    assert.equal(sheet.getCell("E2").value, -5); assert.equal(sheet.getCell("E3").value, 2 * 7.123456789 * 1.13 - 5);
+    assert.equal(sheet.getCell("C2").value, null); assert.equal(sheet.getCell("C3").value, null);
+    assert.equal(sheet.getCell("C4").value, 5); assert.equal(sheet.getCell("C5").value, 5);
+    assert.equal(sheet.getCell("D2").value,null);assert.match(String(sheet.getCell("D4").value), /V1.*旧来源/u);
+    assert.equal(sheet.getCell("E2").value, null);assert.equal(sheet.getCell("E3").value,null);assert.equal(sheet.getCell("E4").value, -5); assert.equal(sheet.getCell("E5").value, 2 * 7.123456789 * 1.13 - 5);
     const differenceOnly = await service.generate(admin, { ...selection(), columns: ["quote"], estimateColumns: ["estimateDifference"] });
-    assert.ok((await load(differenceOnly.bytes)).getCell("B2").value !== null);
+    assert.equal((await load(differenceOnly.bytes)).getCell("B2").value,null);assert.ok((await load(differenceOnly.bytes)).getCell("B3").value !== null);
     await pool.query("UPDATE quote_center_estimates SET is_active=false,position=1 WHERE quote_id=$1 AND is_active=true", [ids[1]]);
     const noActive = await service.generate(admin, { ...selection(), columns: ["quote"], estimateColumns: ["estimateTotal"] });
     assert.equal((await load(noActive.bytes)).getCell("B3").value, null, "History is not a substitute for active");
@@ -71,7 +72,9 @@ test("internal summary: synthetic saved sources, permissions, workbook and concu
     const ordinary = await service.generate(basic, { ...selection(), columns: ["quote", "quantity"] }); assert.equal(ordinary.rowCount, 2);
     await assert.rejects(service.generate(basic, selection()), { status: 403 });
     await assert.rejects(service.generate(basic, { ...selection(), columns: ["quote"], estimateColumns: ["estimateRevision"] }), { status: 403 });
-    await assert.rejects(service.generate(admin, { ...selection(), columns: ["quote"], estimateColumns: ["estimateTotal"] }), { status: 409 });
+    await assert.doesNotReject(service.generate(admin,{...selection(),columns:['quote'],estimateColumns:['estimateTotal']}));
+    await pool.query("UPDATE quote_center_estimates SET is_active=true WHERE quote_id=$1 AND id='estimate-active'",[ids[1]]);
+    await assert.rejects(service.generate(admin, { ...selection(), columns: ['quote'], estimateColumns: ['estimateTotal'] }), { status: 409 });
     assert.throws(() => parseInternalSummary({ ...selection(), actor: "evil" }), { status: 400 });
     assert.throws(() => parseInternalSummary({ ...selection(), columns: ["evil"] }), { status: 400 });
     assert.throws(() => parseInternalSummary({ ...selection(), items: [...selection().items, selection().items[0]] }), { status: 400 });

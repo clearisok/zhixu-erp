@@ -11,6 +11,7 @@ type QuoteCockpitProps = {
   differenceCount: number;
   historical?: boolean;
   canViewSale?: boolean;
+  processing?:boolean;
   settingsAction: ReactNode;
   onDifferenceClick?: () => void;
   onFinalQuoteClick?: () => void;
@@ -30,10 +31,12 @@ export function QuoteCockpit({
   differenceCount,
   historical = false,
   canViewSale = true,
+  processing=false,
   settingsAction,
   onDifferenceClick,
   onFinalQuoteClick,
 }: QuoteCockpitProps) {
+  if(processing)return <section className="qc-quote-cockpit" aria-label="加工报价工价摘要"><div className="qc-cockpit-context"><span>报价上下文</span><strong>{revisionLabel} · {priceVersionLabel}</strong><small>{productionLabel} · {version.quantity??'未填'} 件</small></div><div className="qc-cockpit-labor"><span>报价工价</span><strong>{version.labor.value===null?'未填写':version.labor.value.toFixed(2)} {version.pricingParameters.laborCurrency}/件</strong></div><div className="qc-cockpit-confirmation"><span>客户确认</span><strong>{confirmationLabel}</strong></div><div className="qc-cockpit-settings">{settingsAction}</div></section>;
   const items = createQuoteMetricsViewModel(version, canViewSale);
   const metric = (key: "fabric" | "trim" | "labor" | "other" | "garment") => items.find((item) => item.key === key)!;
   const fabric = metric("fabric");

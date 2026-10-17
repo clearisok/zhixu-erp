@@ -1,7 +1,7 @@
-# 恢复点：价格协同 Phase3
+# 恢复点：价格协同 Phase4
 
-基线 main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。当前 feat/quote-order-sale-adjustments 从 Phase2 4013e3ec3abaf34551fe82e5dcedbac343279546 干净起点继续；本阶段dirty均本任务增量，未覆盖其他树。Phase1本地e70deac；Phase2本地4013e3ec。
+main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5。feat/processing-quote-push-and-selection 从 clean 5b948be9978a2ce6577618dd2a36cb38d7d74342；本阶段所有dirty均本任务增量，未混入其他树。Phase1 B e70deac、Phase2 4013e3ec、Phase3 5b948be9；均LOCAL独立，尚未远端更新。
 
-统一报价中心议价服务、0029追加操作回执、单笔/批量UI、三处只读历史及报价上下文改配已实现。12项定向与4项实际Chromium通过，类型/Server编译/相关lint/显式Server构建通过。之后独立checkpoint/冻结证据，再创建加工与选择交互分支。不得把尚未完成检查写PASS。
+加工/选择实现完成，81领域+14加工Chromium通过；完整Postgres/最终检查正在运行。下一步checkpoint，前向回补#117逐色引用/0028ledger、议价分支0029ledger及受理前重试，然后整合。不要切分支时让未完成测试读取不同源码。完整记录见tasks/active/quote-order-price-coordination-progress-2026-10-17.md；原冻结批准范围和源文档保持原blob。
 
-首次Git交付NETWORK_DEGRADED且远端仍旧SHA，本地可继续，后续Gate不重复推送。最终具体命令待所有本地阶段收口；不得冒称PR110/117更新已送达。仅一次性合成PG/浏览器，无真实源读取、DB/账号、62316/62326更新、部署或合并。
+首次交付NETWORK_DEGRADED，后续Gate不重复推送；具体恢复命令待全部收口。只合成DB/Chromium，未改已有演示、真实账号/库、未采集/合并/部署。

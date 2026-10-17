@@ -1,3 +1,5 @@
+2026-10-17 D-145实施恢复优先：CURRENT_STATE/AI_HANDOFF、[商业版本与议价](features/ORDER_COMMERCIAL_VERSIONS.md)、[加工批次协同增量](features/PROCESSING_ORDER_BATCHES.md)、[本轮阶段记录](tasks/active/quote-order-price-coordination-progress-2026-10-17.md)。新来源只报价，无负责人；D144独立翻单/侧栏为被替代历史。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；不扩真实演示/来源/部署权限。
+
 2026-10-17最新恢复优先：CURRENT_STATE/AI_HANDOFF与[订单业务来源](features/ORDER_BUSINESS_SOURCE.md)、D144。用户取消负责人/认领/合同前准备，合同类先可信接纳，加工批次独立；旧下文为各日期历史阶段，勿据此恢复退役UI。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，新候选未合并部署。
 
 2026-10-16最新恢复优先：[两合同真实隔离执行](tasks/completed/2026-10-16-selected-demo-execution.md)与[新冻结证据](tasks/completed/evidence/2026-10-16-selected-demo-execution.json)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，PR116@0df仍依赖草稿未合并。用户新授权后，新本机空库2 SO/7合成账号/2物料及2财务快照已落地；无持续调度/真实业务库或账号/宁波18443/18444。app18:08到期、当前来源仍10分钟，物料历史可读，财务历史ERP入口尚缺；私有离线副本不代表当前状态。先读CURRENT_STATE/AI_HANDOFF；以下旧工程“0操作/未授权”保留原日期与SHA，不代表执行后状态。

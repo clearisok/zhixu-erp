@@ -47,7 +47,7 @@ export async function readCommercialCandidate(client:PoolClient,provenance:Quote
  if(laborCurrency!==pv.pricingParameters.laborCurrency)invalid('commercial_source_currency_conflict');
  const quoteType=revision.baseInfo.quoteType;
  if(quoteType!=='distribution'&&quoteType!=='processing')invalid('unsupported_quote_type');
- if(quoteType==='processing'&&rawSale!==null)invalid('processing_sale_price_not_applicable');
+
  const sourceConfirmedAt=resolved.confirmedAt;
  if(!sourceConfirmedAt||!Number.isFinite(Date.parse(sourceConfirmedAt)))invalid('commercial_confirmation_time_required');
  const values={...provenance,quoteVersion:record.version,quoteType,sourceKind:terms?'cct' as const:'quote_confirmation' as const,

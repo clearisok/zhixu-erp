@@ -11,6 +11,7 @@ export type BusinessCell = { value: string | number | null; display: string; num
 export type BusinessValues = Partial<Record<BusinessColumn | EstimateColumn, BusinessCell>>;
 export const businessColumns = quoteListColumnDefinitions.map(({ key, label }) => ({ key, label }));
 export const costColumns: BusinessColumn[] = ["fabricCost", "trimCost", "labor", "garmentPrice", "confirmedLabor", "confirmedGarment"];
+export const processingHiddenColumns: BusinessColumn[] = ['fabricCost','trimCost','garmentPrice','confirmedGarment'];
 export const calculatedColumns: BusinessColumn[] = ["fabricCost", "trimCost", "labor", "garmentPrice"];
 export const estimateColumns: EstimateColumn[] = ["estimateTotal", "estimateRevision", "estimateDifference"];
 export function columnPermissions(key: BusinessColumn | EstimateColumn): PermissionKey[] {
@@ -52,13 +53,16 @@ export function businessValues(source: BusinessSource, keys: BusinessColumn[], v
   const versions = version ? [version] : source.versions;
   const values: BusinessValues = {};
   const needMetrics = keys.some(k => calculatedColumns.includes(k));
+  const processing=source.baseInfo.quoteType==='processing';
   const costs = needMetrics ? versions.map(v => {
     if (!v.cost) throw new Error("Missing selected cost slice");
-    const cost = projectForBrowser(v.cost) as CostSlice;
-    return { cost, metrics: nullablePriceVersionMetrics(cost) };
+    const raw=v.cost as CostSlice;
+    const cost = projectForBrowser(processing?{labor:raw.labor,pricingParameters:{laborCurrency:raw.pricingParameters.laborCurrency}}:v.cost) as CostSlice;
+    return { cost, metrics: processing ? {fabricCost:null,trimCost:null,laborInput:cost.labor.value,garmentSellingPrice:null} : nullablePriceVersionMetrics(cost) };
   }) : [];
   for (const key of keys) {
     let output: BusinessCell;
+    if(processing && processingHiddenColumns.includes(key)){values[key]=cell(null);continue;}
     switch (key) {
       case "quote": output = cell(source.quoteCode); break;
       case "styleImage": output = cell(null); break; // No old URL/IndexedDB fallback.

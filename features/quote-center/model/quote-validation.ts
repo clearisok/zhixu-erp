@@ -39,16 +39,16 @@ function validateBaseInfo(revision: QuoteRevision): QuoteValidationIssue[] {
   return issues;
 }
 
-function validateVersion(version: PriceVersion): QuoteValidationIssue[] {
+function validateVersion(version: PriceVersion,laborOnly=false): QuoteValidationIssue[] {
   const issues: QuoteValidationIssue[] = [];
   const common = { priceVersionId: version.id };
   if (!version.name.trim()) issues.push({ ...common, code: "priceVersion.name.required", message: "价格版本名称不能为空", target: "price-versions" });
   if (version.quantity === null) issues.push({ ...common, code: "priceVersion.quantity.required", message: `${version.name || "未命名价格版本"}：请填写数量`, target: "price-versions" });
-  version.fabrics.forEach((line, index) => {
+  if(!laborOnly)version.fabrics.forEach((line, index) => {
     if (!line.name.trim()) issues.push({ ...common, code: `fabric.${line.id}.name.required`, message: `${version.name}：第 ${index + 1} 条面料缺少名称`, target: "fabric-costs" });
     if (line.unitPrice === null) issues.push({ ...common, code: `fabric.${line.id}.unitPrice.required`, message: `${version.name}：${line.name || `第 ${index + 1} 条面料`}缺少单价`, target: "fabric-costs" });
   });
-  version.trims.forEach((line, index) => {
+  if(!laborOnly)version.trims.forEach((line, index) => {
     if (!line.name.trim()) issues.push({ ...common, code: `trim.${line.id}.name.required`, message: `${version.name}：第 ${index + 1} 条辅料缺少名称`, target: "trim-costs" });
     if (line.usage === null) issues.push({ ...common, code: `trim.${line.id}.usage.required`, message: `${version.name}：${line.name || `第 ${index + 1} 条辅料`}缺少数量/用量`, target: "trim-costs" });
     if (line.unitPrice === null) issues.push({ ...common, code: `trim.${line.id}.unitPrice.required`, message: `${version.name}：${line.name || `第 ${index + 1} 条辅料`}缺少单价`, target: "trim-costs" });
@@ -60,7 +60,7 @@ function validateVersion(version: PriceVersion): QuoteValidationIssue[] {
 export function validateRevisionUpdate(revision: QuoteRevision): QuoteValidationResult {
   return result([
     ...validateBaseInfo(revision),
-    ...revision.priceVersions.flatMap(validateVersion),
+    ...revision.priceVersions.flatMap(v=>validateVersion(v,revision.baseInfo.quoteType==='processing')),
   ]);
 }
 
@@ -82,7 +82,7 @@ export function validateCustomerConfirmation(
 ): QuoteValidationResult {
   const issues = [
     ...validateBaseInfo(revision),
-    ...validateVersion(version),
+    ...validateVersion(version,revision.baseInfo.quoteType==='processing'),
   ];
   if (confirmation.labor === null) {
     issues.push({ code: "confirmation.labor.required", message: "请填写客户确认工价", target: "confirmation-fields", priceVersionId: version.id });

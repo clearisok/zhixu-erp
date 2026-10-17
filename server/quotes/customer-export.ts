@@ -69,12 +69,13 @@ export function createCustomerExportService(pool: Pool, storage?: AttachmentStor
   const repository = createQuoteRepository(pool);
   return {
     async generate(actor: TrustedIdentity, quoteId: string, selection: CustomerExportSelection) {
-      for(const permission of ["quote.view","quote.export","quote.cost.view","commercial.sale.view","commercial.labor.view"] as const)requirePermission(actor.permissions,permission);
+      for(const permission of ["quote.view","quote.export","quote.cost.view","commercial.labor.view"] as const)requirePermission(actor.permissions,permission);
       const record=await repository.getById(quoteId);
       if(!record)throw new HttpError(404,"quote_not_found","Quote not found");
       if(record.version!==selection.expectedVersion)throw new HttpError(409,"quote_version_conflict","Saved source changed");
       const source=record.quote.revisions.find(r=>r.revisionId===selection.revisionId);
       if(!source)throw new HttpError(404,"quote_revision_not_found","Selected Revision not found");
+      if(source.baseInfo.quoteType!=='processing')requirePermission(actor.permissions,'commercial.sale.view');
       if(source.readOnly)requirePermission(actor.permissions,"quote.revision.view");
       const selected=selection.priceVersionIds.map(id=>source.priceVersions.find(p=>p.id===id));
       if(selected.some(p=>!p))throw new HttpError(404,"quote_price_version_not_found","Selected PriceVersion not found");
@@ -91,7 +92,8 @@ export function createCustomerExportService(pool: Pool, storage?: AttachmentStor
       // Explicit customer-only root projection. Neither Estimate slice is ever
       // passed to the workbook builder, image loader or generation evidence.
       const revision=projectForBrowser({revisionId:source.revisionId,revisionLabel:source.revisionLabel,baseInfo:source.baseInfo,
-        priceVersions:selected,createdAt:source.createdAt}) as QuoteRevision;
+        priceVersions:source.baseInfo.quoteType==='processing'?selected.map(p=>({...p!,fabrics:[],trims:[],otherCosts:[],pricingParameters:{...p!.pricingParameters,usdCnyRate:null,markupRate:null,freightAmount:null},confirmation:p!.confirmation?{...p!.confirmation,quotedGarmentPrice:'0',confirmedGarmentPrice:null}:null})):selected,createdAt:source.createdAt}) as QuoteRevision;
+      if(source.baseInfo.quoteType==='processing')for(const pv of revision.priceVersions){const terms=bindings.get(pv.id)?.terms;const original=selected.find(p=>p!.id===pv.id)!.confirmation;const resolved=resolveConfirmationSource({terms:terms?{id:terms.id,version:terms.version,labor:terms.confirmed_labor_price,sale:null,currency:terms.labor_currency,confirmedAt:terms.updated_at.toISOString()}:null,snapshot:original?{labor:original.confirmedLaborPrice,sale:null,currency:pv.pricingParameters.laborCurrency,confirmedAt:original.confirmedAt}:null});pv.confirmation=resolved.labor===null?null:{quotedGarmentPrice:0,confirmedGarmentPrice:null,quotedLaborPrice:pv.labor.value??0,confirmedLaborPrice:browserNumberFromExactDecimal(resolved.labor,'confirmed labor'),note:'',confirmedAt:resolved.confirmedAt};}
       const warnings:string[]=[];let styleImage:QuoteExcelImage|null=null;
       if(source.styleImageAttachmentId){
         if(!source.imageAttachmentIds.includes(source.styleImageAttachmentId))throw new HttpError(409,"invalid_style_image_relation","Invalid style image relation");
