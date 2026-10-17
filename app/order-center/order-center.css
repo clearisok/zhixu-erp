@@ -515,3 +515,5 @@
 
 /* D145 dialogs contain sequential steps, not the legacy three-column source form. */
 .oc-source-modal .oc-source-form {grid-template-columns:minmax(0,1fr);width:100%;}
+
+.oc-source-modal > footer {flex-wrap:wrap;}
