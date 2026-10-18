@@ -2,6 +2,8 @@
 
 2026-10-18；main再次核实为064e3afaf7d08b3cb62907d4402f97d9c292f1e5。前向补充[首轮交付与CI修复](price-coordination-delivery-ci-2026-10-17.md)，不覆盖原日期、SHA、失败结果或冻结证据。
 
+当前结论：指定交付范围已经完成；后续引用分类和旧验收修复已本地完成，见文末收口。新本地代码尚未上送，Hosted source红灯保留。只有本地阶段通过，不代表合并、真实部署或人工接受。
+
 ## 本轮已授权交付
 
 按用户对指定SHA的新授权，仅对feat/processing-quote-push-and-selection真实push一次16614c8ef5893ffd11036b1202c655a4d647a809。工具再次报告STOP_AUTH_OR_DIVERGENCE同时返回精确远端SHA；独立GitHub ref API确认目标，未重复push。随后确认原始commit对象存在及祖先关系，通过既有Git refs API、force=false将117快进至f43bfdae2d09b2450edf0c7f0cf7c599686f41a6、118快进至4d2bad59c761c2fe9f6118c25b04fc48e0464010，分别独立核实；未重造commit或更换认证/TLS配置。117/118/119保持唯一草稿PR并已更新/attach。
@@ -41,3 +43,22 @@ Source后续独立补回：整合483e0c17扩大浏览器检查时，material-his
 此补回已在Source自身显式Server构建（业务源码e4c76fc7，build price-ci2-source-history-e4c76fc7）通过9项实际Chromium；无产品源码差异，新增测试本身lint及语法检查通过。日志outputs/price-coordination-ci2-source-history-{build,ui-fixed}.log。加工候选前向同步后再确认同一文件，旧失败日志不删除。
 Source最终测试修复92623fe652fa9c650bb185a2494907e5d63e03d1的精确守卫通过（11/45/58）。议价分支从clean c646e2d8前向合入，仅复审记录追加段冲突由整合者保留双方内容；相对c646e2d8生产目录零差异，不重跑无变化业务来虚增验收次数。
 议价最终补回e7c8bafdb732827bbcde340bf6f7a3ba3281e071的精确守卫通过（11/45/60）；加工从clean 483e0c17前向同步，仅复审追加段冲突保留双方，生产目录相对483e0c17零差异。剩余只对修正后的历史来源UI重新构建验证，然后收口当前状态与精确提交门禁。
+
+## 本地最终收口
+
+主要运行与测试源码483e0c17cecfd2a8f57fed125ee3660819a20896；历史Modal测试最后同步至426a24a30aacc189a78ec8dc80595e230b4ecb55，产品源码逐路径比较完全相同。最终文档checkpoint不再修改运行代码、测试、SQL或UI。Source最终候选92623fe652fa9c650bb185a2494907e5d63e03d1，议价最终候选e7c8bafdb732827bbcde340bf6f7a3ba3281e071，均保留已交付原始提交并通过各自精确main守卫。
+
+本次新增验证（不沿用旧报告充当本提交结果）：
+
+- source工作流全部后端测试范围由37条本地命令覆盖并通过；其中settings/fresh两文件合并一次调用，其余领域分别记录，含261/261完整PG。Windows已安装锁定依赖没有重复npm ci破坏共享node_modules，不冒称Ubuntu Hosted实际新结果。
+- 完整项目898/898、独立发布基线94/94、团队权限22/22、会话前端112/112；类型、full lint、Node编译、默认Browser和显式Server构建通过。131/131 Python使用已配置的bundled runtime与PYTHONDONTWRITEBYTECODE，只运行mock/本地测试。
+- 10套实际Chromium分套总84项通过：continuous13、processing batches8、processing push8、business source7、sale adjustments5、material history9、payment panel9、team access5、animated login10、material display10。初次整批历史UI失败保留；其他9套在483e0c17构建通过，历史UI先在Source自身e4c76fc7、后在最终加工426a24a3构建各9项通过，不重复累计场景，也不称初次整批全绿。
+- 最后显式Server build price-ci2-final-426a24a3，gitCommit为426a24a30aacc189a78ec8dc80595e230b4ecb55；snapshot订单、Server报价与可信session。未替换任何既有演示镜像或运行环境。文档归档原文与当前共享摘要分离，保留旧日期/hash/失败/限制。
+
+日志：outputs/price-coordination-ci2-workflow-domain-results.json（37条exitCode均0）；price-coordination-ci2-workflow-*、price-coordination-ci2-team-*、price-coordination-ci2-ui-results.json（初次失败保留）、price-coordination-ci2-source-history-ui-fixed.log、price-coordination-ci2-final-material-history-ui.log。最终源码守卫单独在price-coordination-ci2-final-checkpoint-guard.log核对最末完整HEAD；这些均本机忽略输出，不上传原始日志或任何真实业务数据。
+
+相对已发布16614，仅两个运行文件normalization-preview.ts/full-evidence.ts补安全证据，其余是测试/文档；app/components/features/database/scripts/.github/package/build配置零差异。已批准UI、0015/0016/0027/0028/0029/0030迁移、权限、CCT/工价/售价计算与报价价格方案不变。未知FK/外部覆盖不足/超限、暂停503、有价订单409、金额不外泄及历史身份/版本保护有正负向验证，没有恢复公开归一。
+
+远端再次只读核对：main仍064e3af；110/e70deacf三绿，117/f43bfdae、118/4d2bad59、119/16614各baseline/team-access绿、source失败。全部仍唯一草稿，无新PR/合并/部署。本轮指定一次实际上传已使用；新的整合最终SHA必须另列具体一次上传与force=false快进92623fe6/e7c8bafd范围，未获新答复不自动上送。原Current State及交接原文分别逐字归档到completed/2026-10-18-before-ci-compat-current-state.md、2026-10-18-before-ci-compat-handoff.md，未覆盖旧冻结证据。
+
+文档收口工作树守卫已通过：基线完整main、11页/46能力/71UI路径，checkedHead为426a24a3；最终文档commit之后另核实精确HEAD的守卫输出，不把此结果冒称浏览器、真实数据库或人工接受证明。
