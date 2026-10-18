@@ -43,6 +43,7 @@ test('operator pause drains new commands without destroying synthetic orders or 
  const preview=await previewOrderCommercial(pool,actor,order,provenance);
  const adoption={...provenance,requestId:randomUUID(),expectedVersion:0,sourceFingerprint:preview.candidate.fingerprint,reason:'Synthetic initial adopted terms'};
  const adopted=await adoptOrderCommercial(pool,actor,order,adoption);
+ const unpricedOrder=(await createAinuokeSalesOrder(pool,actor,{...input,source:{...input.source,sourceId:'synthetic-unpriced-pause-contract',sourceRowIdentity:'synthetic-unpriced-pause-row',salesContractNo:'SYN-UNPRICED-PAUSE'}})).salesOrder.id;
  const oldTerms=(await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,customer_confirmed_price) VALUES('sales_order',120) RETURNING id")).rows[0].id;
  await pool.query('INSERT INTO confirmed_commercial_terms_sales_orders(sales_order_id,confirmed_commercial_terms_id) VALUES($1,$2)',[order,oldTerms]);
  const caseOrder=(await createSalesOrder(pool,{creationSource:'manual'})).id;const pair=[order,caseOrder].sort();
@@ -77,7 +78,7 @@ test('operator pause drains new commands without destroying synthetic orders or 
  await t.test('existing contract and adoption receipts can be read without silently adopting or creating again',async()=>{
   assert.equal((await createAinuokeSalesOrder(pool,actor,input)).created,false);
   assert.equal((await adoptOrderCommercial(pool,actor,order,adoption)).replayed,true);
-  assert.equal((await listSalesOrders(pool,{limit:20,offset:0})).total,2);
+  assert.equal((await listSalesOrders(pool,{limit:20,offset:0})).total,3);
   assert.equal((await previewOrderCommercial(pool,actor,order,provenance)).candidate.salePrice,'120');
   assert.deepEqual(await business(),before);
  });
@@ -104,7 +105,12 @@ test('operator pause drains new commands without destroying synthetic orders or 
    assert.equal((await call('/api/v1/order-command-state?mode=enabled')).status,400);
    const state=await call('/api/v1/order-command-state');assert.equal(state.status,200);assert.equal((await state.json()).mode,'frozen');assert.equal(state.headers.get('cache-control'),'no-store');
    for(const path of ['/api/v1/sales-orders','/api/v1/sales-orders/'+order,'/api/v1/sales-orders/'+order+'/commercial-versions'])assert.equal((await call(path)).status,200);
-   assert.equal((await call('/api/v1/sales-orders/'+order+'/business-source/preview','POST',{kind:'quote',...provenance})).status,200);
+   const selection={kind:'quote',...provenance};
+   const existingPreview=await call('/api/v1/sales-orders/'+order+'/business-source/preview','POST',selection);assert.equal(existingPreview.status,409);assert.equal((await existingPreview.json()).error.code,'source_change_requires_quote_center');
+   const firstPreview=await call('/api/v1/sales-orders/'+unpricedOrder+'/business-source/preview','POST',selection);assert.equal(firstPreview.status,200);
+   const firstPreviewBody=await firstPreview.json();
+   const firstWrite=await call('/api/v1/sales-orders/'+unpricedOrder+'/business-source','POST',{selection,requestId:randomUUID(),expectedVersion:0,fingerprint:firstPreviewBody.fingerprint,reason:'Synthetic paused first adoption'});assert.equal(firstWrite.status,503);assert.equal((await firstWrite.json()).error.code,'order_commands_frozen');
+   assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_commercial_versions WHERE sales_order_id=$1',[unpricedOrder])).rows[0].n,0);
    for(const [path,body] of [['/api/v1/sales-orders/'+order+'/business-source',{selection:{kind:'quote',...provenance}}],['/api/v1/processing-order-batches/consume',{requestId:randomUUID(),items:[{batchId:randomUUID(),expectedVersion:1}]}]] as const){const result=await call(path,'POST',body);assert.equal(result.status,503);assert.equal((await result.json()).error.code,'order_commands_frozen');}
    await pause('enabled','Synthetic operator reopens after verification');assert.equal((await readOrderCommandState(pool,actor,'frozen')).mode,'frozen');
    const result=await call('/api/v1/sales-orders/'+order+'/business-source','POST',{...adoption,requestId:randomUUID(),expectedVersion:1});assert.equal(result.status,503);assert.equal((await result.json()).error.code,'order_commands_frozen');
