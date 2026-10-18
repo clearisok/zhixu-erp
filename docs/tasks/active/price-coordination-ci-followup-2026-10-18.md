@@ -31,3 +31,8 @@ Source完成为e4c76fc7af736bc26a3f99b2728659e3c9c58607，该精确提交源码�
 议价阶段八组207项通过（39预览/案件、32完整证据/执行、21岗位、45归属、18暂停、9来源、31商业、12议价）；追加完整证据文件11项验证FOR SHARE锁定新增引用及计划时生成相同指纹，单独记录不重复累计为新场景。类型、六个修改源码/测试目标lint及精确main工作树守卫通过（11页/45能力/60UI路径）。日志前缀outputs/price-coordination-ci2-negotiation-*。
 
 本轮三PR的baseline/team-access均已通过，source失败保留，不重跑旧SHA。#110 e70deacfe446088677aa3d96e998436b730cb7af三绿未变；新本地修复尚未交付。
+
+Source后续独立补回：整合483e0c17扩大浏览器检查时，material-history一处旧测试仍等待“当前订单仅允许查看来源”，实际D145 Modal正确显示“当前订单只读。”。从clean e4c76fc7返回Source分支，只更新测试文案/名称，并加强无input/select/textarea、无可用采用按钮的验证；原请求零写入及全历史表快照比较保留。产品文案、布局、权限与运行代码不改。加工整合其余九条UI命令通过；最终对修复文件在正确的整合候选上单独重跑。
+
+此补回已在Source自身显式Server构建（业务源码e4c76fc7，build price-ci2-source-history-e4c76fc7）通过9项实际Chromium；无产品源码差异，新增测试本身lint及语法检查通过。日志outputs/price-coordination-ci2-source-history-{build,ui-fixed}.log。加工候选前向同步后再确认同一文件，旧失败日志不删除。
+Source最终测试修复92623fe652fa9c650bb185a2494907e5d63e03d1的精确守卫通过（11/45/58）。议价分支从clean c646e2d8前向合入，仅复审记录追加段冲突由整合者保留双方内容；相对c646e2d8生产目录零差异，不重跑无变化业务来虚增验收次数。
