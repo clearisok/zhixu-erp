@@ -7,7 +7,7 @@ import pg from 'pg';
 import { startDisposablePostgres } from './postgres-container.js';
 import { runMigrations } from '../db/migration-runner.js';
 import { createSalesOrder } from '../sales-orders/repository.js';
-import { previewOrderNormalization } from '../sales-orders/normalization-preview.js';
+import { normalizationReferences, previewOrderNormalization } from '../sales-orders/normalization-preview.js';
 import type { TrustedIdentity } from '../auth/session.js';
 
 test('normalization preview reads only synthetic disposable database', {timeout:180000}, async t=>{
@@ -28,6 +28,17 @@ test('normalization preview reads only synthetic disposable database', {timeout:
   assert.deepEqual(result.unknownReferences,[]);assert.equal(result.orders[0].evidence.execution.count,null);
   assert.deepEqual((await pool.query('SELECT row_to_json(o) AS row FROM sales_orders o ORDER BY id')).rows,before);
   assert.equal(result.reviewHash,(await previewOrderNormalization(pool,actor,[a.id,b.id])).reviewHash);
+ });
+ await t.test('color reference schema is optional before upgrade, but a partial upgrade fails closed',async()=>{
+  const client=await pool.connect();
+  try{
+   await client.query('BEGIN');
+   await client.query('ALTER TABLE sales_order_commercial_lines RENAME TO synthetic_hidden_commercial_lines');
+   await assert.rejects(()=>normalizationReferences(client),(error:unknown)=>(error as {code:string}).code==='color_reference_schema_incomplete');
+   await client.query('ALTER TABLE sales_order_color_identities RENAME TO synthetic_hidden_color_identities');
+   const references=await normalizationReferences(client);
+   assert.equal(references.some(([table])=>table==='sales_order_color_identities'||table==='sales_order_commercial_lines'),false);
+  }finally{await client.query('ROLLBACK');client.release();}
  });
  await t.test('new unclassified FK is surfaced without pretending an empty table is safe',async()=>{
   await pool.query('CREATE TABLE synthetic_external_execution(id uuid PRIMARY KEY, owner uuid REFERENCES sales_orders(id))');

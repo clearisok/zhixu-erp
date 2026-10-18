@@ -32,6 +32,8 @@ export const NORMALIZATION_REFERENCES = [
  ['sales_order_preparation_adoptions','reference_order_id','id'],
  ['sales_order_commercial_versions','sales_order_id','id'],
  ['sales_order_commercial_heads','sales_order_id','sales_order_id'],
+ ['sales_order_color_identities','sales_order_id','id'],
+ ['sales_order_commercial_lines','sales_order_id','id'],
  ['sales_order_business_source_snapshots','sales_order_id','commercial_version_id'],
  ['sales_order_business_source_snapshots','reference_order_id','commercial_version_id'],
  ['processing_order_batches','reference_order_id','id'],
@@ -45,7 +47,11 @@ export async function normalizationReferences(client:PoolClient){
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads')`)).rows[0].n;
  if(present!==0&&present!==3)throw new HttpError(503,'payment_reference_schema_incomplete','Financial source reference schema is incomplete');
  const sourceReady=(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready;
- return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots'));
+ const colorTables=['sales_order_color_identities','sales_order_commercial_lines'];
+ const colorCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+  WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[colorTables])).rows[0].n;
+ if(colorCount!==0&&colorCount!==colorTables.length)throw new HttpError(503,'color_reference_schema_incomplete','Color commercial reference schema is incomplete');
+ return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(colorCount===colorTables.length||!colorTables.includes(table)));
 }
 export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');

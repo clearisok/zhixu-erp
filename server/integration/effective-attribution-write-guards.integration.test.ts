@@ -46,7 +46,9 @@ test('SQL fences preserve historical facts and reject unaware writers on synthet
  const before=await historical();
  await t.test('forward upgrade preserves all existing rows including nullable old Source history',async()=>{
   assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,migrationFilesAfter(19));
-  assert.deepEqual(await historical(),before);assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_identity_profiles WHERE preparation_id IS NOT NULL')).rows[0].n,0);assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
+  // 0028 adds explicit legacy defaults; every pre-existing field must remain exact.
+  const expected=before.map((rows,index)=>historyTables[index]==='sales_order_commercial_versions'?rows.map(({row})=>({row:{...row,pricing_scope:'legacy_uniform',change_kind:'source_adoption',previous_version_id:null}})):rows);
+  assert.deepEqual(await historical(),expected);assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_identity_profiles WHERE preparation_id IS NOT NULL')).rows[0].n,0);assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
  });
  const makeCase=async(ids:string[])=>{const pair=[...ids].sort();const existing=(await pool.query('SELECT id FROM sales_order_normalization_cases WHERE first_order_id=$1 AND second_order_id=$2',pair)).rows[0];if(existing)return existing.id as string;
   const id=(await pool.query('INSERT INTO sales_order_normalization_cases(first_order_id,second_order_id,created_by,request_id,payload_hash) VALUES($1,$2,$3,$4,$5) RETURNING id',[...pair,actor,randomUUID(),'b'.repeat(64)])).rows[0].id;

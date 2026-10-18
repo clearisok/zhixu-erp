@@ -14,6 +14,10 @@ import {collectFullNormalizationEvidence,normalizationTargetFingerprint} from '.
 import {collectNormalizationEvidenceInTransaction} from '../sales-orders/normalization-preview.js';
 import {createFrozenInventoryCoverageProvider,validateFrozenBusinessInventory,type CoverageSnapshot,type FrozenBusinessInventory} from '../sales-orders/normalization-coverage.js';
 import {parseAttributionProposal,parseAttributionExecute,parseAttributionReview} from '../sales-orders/normalization-execution-model.js';
+import {createSyntheticQuoteFixture} from './quote-fixture.js';
+import {createQuoteRepository} from '../quotes/repository.js';
+import {quoteSnapshotFromBrowser} from '../quotes/model.js';
+import {adoptColorSource,previewColorSource} from '../sales-orders/color-commercial.js';
 
 test('strict attribution commands cannot inject authorization or counts',()=>{
  const a=randomUUID(),b=randomUUID();const proposal={changeType:'normalize',caseVersion:1,assignments:[{originalOrderId:a,effectiveOrderId:a},{originalOrderId:b,effectiveOrderId:a}],reason:'Synthetic',recoveryPlanHash:'a'.repeat(64)};
@@ -48,6 +52,24 @@ test('full normalization evidence fingerprints every declared row and frozen sou
   const result=await read(frozen());assert.deepEqual(result.blockers,[]);assert.deepEqual(result.requiredReviews,[]);assert.equal(result.external.coverage,'frozen_adapter_inventory');assert.equal(result.executionAuthorized,false);
   assert.equal(JSON.stringify(result).includes('confirmed_sale_price'),false);assert.equal(result.hashScope,'all-bounded-declared-server-reference-rows-and-locked-adapter-inventory');
  });
+ await t.test('color identities and commercial lines are counted and fingerprinted without exposing prices',async()=>{
+  const quote=createSyntheticQuoteFixture('normalization-color-reference','distribution');
+  for(const revision of quote.revisions){revision.imageAttachmentIds=[];revision.fileAttachmentIds=[];revision.styleImageAttachmentId=null;}
+  const revision=quote.revisions.find(row=>row.revisionId===quote.defaultRevisionId)!,price=revision.priceVersions[0];
+  price.pricingParameters.laborCurrency='CNY';price.confirmation={quotedGarmentPrice:999,quotedLaborPrice:999,confirmedGarmentPrice:12345.67,confirmedLaborPrice:765.43,note:'Synthetic evidence',confirmedAt:'2026-10-18T00:00:00Z'};
+  await createQuoteRepository(pool).create(quoteSnapshotFromBrowser(quote));
+  await pool.query("INSERT INTO ainuoke_sales_order_color_mirrors(sales_order_id,source_line_identity,color_name,quantity,source_hash) VALUES($1,'synthetic-priced-color','Synthetic priced color',100,'synthetic-priced-color')",[a]);
+  const beforePrice=await read(frozen()),selection={kind:'quote',quoteId:quote.id,revisionId:revision.revisionId,priceVersionId:price.id};
+  const preview=await previewColorSource(pool,actor,a,selection);
+  await adoptColorSource(pool,actor,a,{selection,requestId:randomUUID(),expectedVersion:0,fingerprint:preview.fingerprint,reason:'Synthetic color evidence'});
+  const result=await read(frozen());
+  assert.deepEqual(result.unknownReferences,[]);assert.notEqual(result.evidenceHash,beforePrice.evidenceHash);
+  for(const relation of ['sales_order_color_identities','sales_order_commercial_lines']){
+   const previous=beforePrice.references.find(row=>row.relation===relation&&row.orderId===a),current=result.references.find(row=>row.relation===relation&&row.orderId===a);
+   assert.equal(previous?.count,0);assert.equal(current?.count,1);assert.notEqual(current?.fingerprint,previous?.fingerprint);
+  }
+  assert.equal(result.executionAuthorized,false);assert.equal(JSON.stringify(result).includes('12345.67'),false);assert.equal(JSON.stringify(result).includes('765.43'),false);
+ });
  await t.test('content change beyond first 100 stable IDs invalidates full fingerprint while old limited preview stays equal',async()=>{
   for(let i=0;i<125;i++)await pool.query('INSERT INTO ainuoke_sales_order_color_mirrors(sales_order_id,source_line_identity,color_name,quantity,source_hash) VALUES($1,$2,$2,1,$2)',[a,'synthetic-color-'+i]);
   const limited=async()=>{const c=await pool.connect();try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');return await collectNormalizationEvidenceInTransaction(c,pair);}finally{await c.query('ROLLBACK');c.release();}};
@@ -55,7 +77,7 @@ test('full normalization evidence fingerprints every declared row and frozen sou
   const last=(await pool.query('SELECT id FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id=$1 ORDER BY id OFFSET 120 LIMIT 1',[a])).rows[0].id;
   await pool.query('UPDATE ainuoke_sales_order_color_mirrors SET quantity=2 WHERE id=$1',[last]);
   assert.equal((await limited()).reviewHash,oldLimited.reviewHash);assert.notEqual((await read(frozen())).evidenceHash,oldFull.evidenceHash);
-  assert.equal(oldFull.references.find(row=>row.relation==='ainuoke_sales_order_color_mirrors'&&row.orderId===a)?.count,125);
+  assert.equal(oldFull.references.find(row=>row.relation==='ainuoke_sales_order_color_mirrors'&&row.orderId===a)?.count,126);
  });
  await t.test('unknown FK and inventory budgets fail closed without truncated passing evidence',async()=>{
   await pool.query('CREATE TABLE synthetic_full_unknown(id UUID PRIMARY KEY,sales_order_id UUID REFERENCES sales_orders(id))');
