@@ -35,3 +35,9 @@ Source完成为e4c76fc7af736bc26a3f99b2728659e3c9c58607，该精确提交源码�
 ## 加工整合阶段
 
 从clean feat/processing-quote-push-and-selection / 16614c8ef5893ffd11036b1202c655a4d647a809前向合入议价修复c646e2d8ce9a866b8ed12e26ececdc6cef465fa3；原始业务及本轮原交付提交均保留，仅AI_HANDOFF摘要冲突由整合者协调。先保存整合checkpoint，再按实际source工作流逐项本地验证后续命令，结果另记；没有将尚未运行的检查写成通过。
+
+Source后续独立补回：整合483e0c17扩大浏览器检查时，material-history一处旧测试仍等待“当前订单仅允许查看来源”，实际D145 Modal正确显示“当前订单只读。”。从clean e4c76fc7返回Source分支，只更新测试文案/名称，并加强无input/select/textarea、无可用采用按钮的验证；原请求零写入及全历史表快照比较保留。产品文案、布局、权限与运行代码不改。加工整合其余九条UI命令通过；最终对修复文件在正确的整合候选上单独重跑。
+
+此补回已在Source自身显式Server构建（业务源码e4c76fc7，build price-ci2-source-history-e4c76fc7）通过9项实际Chromium；无产品源码差异，新增测试本身lint及语法检查通过。日志outputs/price-coordination-ci2-source-history-{build,ui-fixed}.log。加工候选前向同步后再确认同一文件，旧失败日志不删除。
+Source最终测试修复92623fe652fa9c650bb185a2494907e5d63e03d1的精确守卫通过（11/45/58）。议价分支从clean c646e2d8前向合入，仅复审记录追加段冲突由整合者保留双方内容；相对c646e2d8生产目录零差异，不重跑无变化业务来虚增验收次数。
+议价最终补回e7c8bafdb732827bbcde340bf6f7a3ba3281e071的精确守卫通过（11/45/60）；加工从clean 483e0c17前向同步，仅复审追加段冲突保留双方，生产目录相对483e0c17零差异。剩余只对修正后的历史来源UI重新构建验证，然后收口当前状态与精确提交门禁。
