@@ -7,3 +7,5 @@
 59069原体验保留，已只读备份；候选版本使用新副本。详细范围、证据和后续见[任务](tasks/active/system-settings-administration-2026-10-19.md)。[旧摘要](tasks/completed/2026-10-19-system-settings-predecessor/CURRENT_STATE.md)保留原日期与结果。
 
 恢复：先核对git status，仅本任务增量。完成Phase1浏览器、发布基线和checkpoint，再继续Phase2，禁止重置59069。
+
+2026-10-19 CI复审：旧0022翻单准备验收改为直接建立历史合成身份，避免在旧schema调用新账号管理命令；金额验收改查精确叶值，不把UUID中的120当金额。两文件32项通过。业务代码未改。
