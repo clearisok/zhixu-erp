@@ -23,7 +23,7 @@ import { collectionConfig, collectionSelection, collectionEvidence } from './pay
 import { paymentOperatorArguments, runPaymentOperator } from '../ainuoke-source/payment-operator-cli.js';
 import { paymentPrivateFixture } from './payment-operator-private-fixture.js';
 import { readFileSync, mkdtempSync, copyFileSync, rmSync } from 'node:fs';
-import { CURRENT_MIGRATION_FILES } from './current-migration-ledger-fixture.js';
+import { CURRENT_MIGRATION_FILES, migrationFilesAfter } from './current-migration-ledger-fixture.js';
 
 const matches = (code:string) => (e:unknown) => (e as {code?:string}).code === code;
 test('payment operator: owned PG, target lifecycle and durable one-shot commands', {timeout:180000}, async t => {
@@ -272,7 +272,7 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
         'ainuoke_payment_snapshots','ainuoke_payment_heads','operation_logs'];
       const inventory=async()=>{const entries=[];for(const table of tables)entries.push([table,(await old.query(`SELECT to_jsonb(t) row FROM ${table} t ORDER BY to_jsonb(t)::text`)).rows]);return hash(entries);};
       const before=await inventory(),upgraded=await runMigrations(old,resolve('database/migrations'));
-      assert.deepEqual(upgraded.applied,['0026_ainuoke_payment_operator_commands.sql','0027_order_business_source_snapshots.sql','0028_order_color_commercial_versions.sql','0029_order_sale_adjustment_operations.sql','0030_processing_quote_push_receipts.sql']);assert.equal(await inventory(),before);
+      assert.deepEqual(upgraded.applied,migrationFilesAfter(25));assert.equal(await inventory(),before);
       assert.equal((await old.query('SELECT count(*)::int n FROM ainuoke_payment_operator_commands')).rows[0].n,0);
       assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,[]);
       await assert.rejects(()=>inspectMigrationStatus(old,directory),/Applied migration 26 .* is missing from the migration directory/u);
