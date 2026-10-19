@@ -1,3 +1,5 @@
+2026-10-19恢复优先：[最终兼容交付与复审](tasks/active/price-coordination-final-delivery-2026-10-19.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，指定1ab0一次上传及117/118安全快进已精确核实；119新三CI绿，117/118新source在旧升级清单断言失败，继续各分支修测试与尾部验证。不自动追加上传、合并或部署，先读CURRENT_STATE/AI_HANDOFF；下文保留各日期历史。
+
 2026-10-17最新交付恢复：[D145交付与CI复审](tasks/active/price-coordination-delivery-ci-2026-10-17.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；四原始分支已核实，PR110三绿，117/118/119旧角色验收修复本地通过、尚待新范围交付；不把旧CI失败或本地通过冒称新Hosted CI完成。
 
 2026-10-18恢复优先：先读CURRENT_STATE/AI_HANDOFF与[交付后的CI兼容复审](tasks/active/price-coordination-ci-followup-2026-10-18.md)。指定16614上传一次与117/118安全快进已核实；新引用兼容、旧升级/暂停/只读Modal验收已本地收口，远端新修复仍待独立范围交付。main仍064e3afaf7d08b3cb62907d4402f97d9c292f1e5；不恢复负责人、准备或公开归一，不扩大真实数据/演示/部署授权。

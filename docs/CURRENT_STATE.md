@@ -1,15 +1,13 @@
-# 当前状态：D145已交付，后续兼容修复本地完成待交付
+# 当前状态：D145精确交付完成，119三绿，上游测试仍需收口
 
-2026-10-18，GitHub main再次核实为064e3afaf7d08b3cb62907d4402f97d9c292f1e5，没有合并或部署。按用户最新指定范围，119仅真实push一次16614c8ef5893ffd11036b1202c655a4d647a809，独立确认后force=false快进117至f43bfdae2d09b2450edf0c7f0cf7c599686f41a6、118至4d2bad59c761c2fe9f6118c25b04fc48e0464010；均精确核实，唯一草稿PR保持并attach。
+2026-10-19；GitHub main独立核实仍为064e3afaf7d08b3cb62907d4402f97d9c292f1e5，未合并部署。本轮按用户指定范围仅真实push一次119/1ab0d8c0598a4cf270bf2618ece260bcbcbf20f5，独立精确证明后force=false快进117/92623fe652fa9c650bb185a2494907e5d63e03d1、118/e7c8bafdb732827bbcde340bf6f7a3ba3281e071。原始提交完整保留，三个唯一草稿PR已更新并attach。
 
-Hosted CI：110/e70deacfe446088677aa3d96e998436b730cb7af三项通过；117/118/119新head各baseline、team-access通过，source越过七角色后在新增引用清单遗漏处失败。旧失败run保留，不重跑旧SHA掩盖问题，不把本地修复称作远端全绿。
+新Hosted CI：119三项SUCCESS（source run39182538598完成后端、边界、Server构建、Chromium和Python）；117/118各baseline、team-access SUCCESS，source分别39182637068/39182641231 FAILURE。110/e70deacfe446088677aa3d96e998436b730cb7af三绿未变。失败是上游旧财务操作升级测试只预期0026/0027，遗漏各自已经实现的0028/0029；119清单已至0030故通过。不是业务数据错误，也不能拿整合分支全测冒称上游全测通过。
 
-本地后续已解决：颜色身份/商业明细与议价回执、未执行计划纳入旧安全证据；半套schema、未知FK、外部执行覆盖不足仍阻断，公开归一入口仍退役。另修正旧升级默认字段、暂停中重复采用及只读Modal测试假设；原字段逐值保留、无编辑控件/写请求、冻结与旧身份保护继续。不改SQL、权限、产品UI或价格计算。
+本轮两个运行文件安全证据修复已通过新Hosted前序检查；未改产品UI、SQL、权限、CCT/价格算法，未恢复负责人/准备/公开归一。下一步只修旧测试复用现有明确迁移清单，并分别验证上游及尚未跑到的尾部检查，再给精确新提交范围；本次一次上传已用完，不自动重推。
 
-Source候选92623fe652fa9c650bb185a2494907e5d63e03d1、议价候选e7c8bafdb732827bbcde340bf6f7a3ba3281e071均已提交并通过精确main守卫。加工分支feat/processing-quote-push-and-selection前向整合全部原提交；后端与主要验收源码483e0c17cecfd2a8f57fed125ee3660819a20896，最终只读Modal验收426a24a30aacc189a78ec8dc80595e230b4ecb55；两者产品代码完全相同，之后只文档收口，最末HEAD以Git核实。
+既有本地验收准确源码和范围保留：483e0c17主要运行、426a24a3历史Modal，至1ab0产品相同；37后端命令、898项目、261PG、94基线、131 Python及10套84项Chromium分套通过。新交付和复审详见[10月19日回执](tasks/active/price-coordination-final-delivery-2026-10-19.md)，旧证据日期、hash和失败均保留。
 
-本次本地通过：source工作流37条后端命令、898项目、261完整PG、94发布基线、类型/full lint/Node编译、默认Browser和显式Server构建、131 Python；10套实际Chromium共84项分套通过（历史UI失败修正后单独重跑，不称初次整批全绿）。旧D145工程证据仍保留原日期/源码/限制。完整范围与日志索引见[本轮复审](tasks/active/price-coordination-ci-followup-2026-10-18.md)。
+119包含108–113、115–118完整当前原始提交，114最新独立增量不在其中；全部未合并，不建议直接合并整条累计分支。本机chore/price-coordination-delivery-review-2026-10-19仅保存交付记录，不改已批准三个分支引用，也不自动第二次上传。
 
-交付工具仍会在精确目标已送达时返回STOP_AUTH_OR_DIVERGENCE，独立API证明本轮交付，未重复push、未换认证或TLS配置，长期传输根因未确认。最新一次上传许可已按指定16614用完；新修复须给出精确SHA及一次上传/安全快进范围再交付。当前LOCAL ENGINEERING PASS / 新修复REMOTE PENDING，不建议将累计分支直接合并。
-
-无真实账号/业务库、62316/62326、艾诺科新读取/绑定/激活/调度、宁波或18443/18444操作，无自动合并/部署、汇率扩展或完整Server关账。旧共享摘要原文与hash/日期/限制已[归档](tasks/completed/2026-10-18-before-ci-compat-current-state.md)，接力旧文亦保留。
+工具仍存在STOP回执与精确SHA矛盾：独立API及仅Dry Run证实已送达，未重复push、换认证或改共享Git/TLS配置，原传输根因未确认。无真实账号/业务库、旧演示62316/62326、艾诺科新读取/绑定/激活/调度、宁波或18443/18444操作；无自动合并、部署、汇率扩展或完整Server关账。前版共享摘要已逐字[归档](tasks/completed/2026-10-19-before-final-delivery-current-state.md)。
