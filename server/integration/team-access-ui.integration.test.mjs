@@ -8,6 +8,7 @@ import { tmpdir } from "node:os";
 import { join, resolve, relative, isAbsolute } from "node:path";
 import { startCommercialSecurityFixture } from "./commercial-security-fixture.ts";
 import { bootstrapAdmin } from "../auth/bootstrap.ts";
+import {appendOperationLog} from "../operation-logs/repository.ts";
 import { TEAM_ROLES } from "../auth/team-roles.ts";
 const expectedRoleIds=['role-server-admin','role-team-manager','role-team-quote-manager','role-team-material-manager','role-team-production-manager','role-team-finance-manager','role-team-merchandising-manager'];
 const wait=ms=>new Promise(done=>setTimeout(done,ms));
@@ -126,6 +127,39 @@ test("First team production-built UI uses trusted session, existing layout and s
    await has("合成UI财务经理");await click("管理 synthetic.ui.5");await click("确认恢复");
    await until(()=>evalJs("document.querySelector('[role=dialog]')===null"),"restore");
    await select("select[aria-label=筛选状态]","inactive");await has("待重置密码");
+  });
+
+  await t.test("business audit filters and cross-page operation drawer render safely on desktop and mobile",async()=>{
+   const row=(await x.pool.query("SELECT id::text,public_id::text FROM app_users WHERE username='synthetic.ui.root'")).rows[0];
+   const actor={internalUserId:row.id,userId:row.public_id,username:"synthetic.ui.root",userName:"合成历史管理员",permissions:[]};
+   for(let i=0;i<105;i++)await appendOperationLog(x.pool,actor,{operationId:"operation-ui-history",module:"权限管理",entityType:"User",entityId:"test-history-"+i,action:"修改账号",beforeData:{objectName:"Jackson",values:{name:"Jackson",status:"inactive"}},afterData:{objectName:"Jackson",values:{name:"Jackson",status:"active"}}});
+   await command("Emulation.setDeviceMetricsOverride",{width:1280,height:900,deviceScaleFactor:1,mobile:false});
+   await navigate("/system-settings/operation-logs");await has("查看团队操作与修改前后的记录");
+   await input("input[aria-label=日志关键词]","Jackson");await click("查询");await has("共 105 条");
+   assert.equal((await body()).includes("operation-ui-history"),false);await shot("audit-desktop");
+   await click("查看详情");await has("已读取 100 / 105");await has("修改前");await has("停用");await has("启用");
+   assert.equal(await evalJs("document.querySelector('details[open]')!==null"),false);
+   await click("读取其余记录");await has("已读取 105 / 105");await has("本次操作记录已完整读取");
+   assert.equal(await evalJs("[...document.querySelectorAll('.qc-drawer-body')].some(e=>e.scrollWidth>e.clientWidth+1)"),false);
+   await shot("audit-detail");await click("关闭操作详情");
+   await input("input[aria-label=日志关键词]","不存在的业务对象");await click("查询");await has("暂无匹配的操作记录");
+   await click("重置筛选");await has("查看详情");
+   await command("Emulation.setDeviceMetricsOverride",{width:390,height:844,deviceScaleFactor:1,mobile:true});
+   assert.equal(await evalJs("document.documentElement.scrollWidth>innerWidth+1"),false);await shot("audit-mobile");
+  });
+
+  await t.test("quote audit modal uses the same business record and linked detail",async()=>{
+   const row=(await x.pool.query("SELECT id::text,public_id::text FROM app_users WHERE username='synthetic.ui.root'")).rows[0];
+   const actor={internalUserId:row.id,userId:row.public_id,username:"synthetic.ui.root",userName:"合成报价管理员",permissions:[]};
+   const quoteId=x.record.quote.id;
+   await appendOperationLog(x.pool,actor,{operationId:"operation-quote-ui",module:"报价中心",entityType:"Quote",entityId:quoteId,quoteId,action:"修改报价",beforeData:{objectName:"合成报价日志",values:{name:"修改前"}},afterData:{objectName:"合成报价日志",values:{name:"修改后"}}});
+   await command("Emulation.setDeviceMetricsOverride",{width:1280,height:900,deviceScaleFactor:1,mobile:false});
+   await navigate("/quote-center/detail?id="+quoteId);
+   await until(()=>evalJs("Boolean(document.querySelector('.qc-quote-action-visible'))"),"quote actions loaded");
+   if(!await evalJs("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='操作记录'&&n.getClientRects().length)"))await click("更多报价操作");
+   await click("操作记录");await has("查看这份报价的操作与修改记录");await has("合成报价日志");
+   await click("查看详情");await has("操作详情");await has("修改前");await has("修改后");
+   await click("关闭操作详情");await click("关闭操作记录");
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{

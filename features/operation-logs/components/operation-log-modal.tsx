@@ -27,6 +27,6 @@ function BrowserOperationLogModal({ open, quoteId, onClose }: { open: boolean; q
   </Modal>;
 }
 export function OperationLogModal(props:{open:boolean;quoteId:string;onClose:()=>void;serverMode?:boolean}){
-  if(props.serverMode)return <Modal open={props.open} title="操作记录" description="精确 Quote ID 的可信 Server 事件" onClose={props.onClose} footer={<Button onClick={props.onClose}>关闭</Button>}>{props.open&&<ServerOperationLogViewer quoteId={props.quoteId} />}</Modal>;
+  if(props.serverMode)return <Modal open={props.open} title="操作记录" className="qc-operation-log-modal" description="查看这份报价的操作与修改记录。" onClose={props.onClose} footer={<Button onClick={props.onClose}>关闭</Button>}>{props.open&&<ServerOperationLogViewer quoteId={props.quoteId} />}</Modal>;
   return <BrowserOperationLogModal {...props} />;
 }

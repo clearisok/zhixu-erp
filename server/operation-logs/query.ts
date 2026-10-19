@@ -6,6 +6,9 @@ export type OperationLogQuery = {
   limit: number;
   offset: number;
   quoteId?: string;
+  q?: string;
+  actorId?: string;
+  operationId?: string;
   module?: string;
   action?: string;
   from?: string;
@@ -13,7 +16,7 @@ export type OperationLogQuery = {
 };
 
 const invalid = () => new HttpError(400, "invalid_operation_log_query", "Invalid operation log query");
-const fields = new Set(["limit", "offset", "quoteId", "module", "action", "from", "to"]);
+const fields = new Set(["limit", "offset", "quoteId", "module", "action", "from", "to", "q", "actorId", "operationId"]);
 
 function integer(value: string | null, fallback: number, minimum: number, maximum: number): number {
   if (value === null) return fallback;
@@ -43,12 +46,16 @@ export function parseOperationLogQuery(params: URLSearchParams): OperationLogQue
     limit: integer(params.get("limit"), 50, 1, 100),
     offset: integer(params.get("offset"), 0, 0, 1_000_000),
     quoteId: text(params.get("quoteId"), 256),
+    q: text(params.get("q"), 128),
+    actorId: text(params.get("actorId"), 36),
+    operationId: text(params.get("operationId"), 256),
     module: text(params.get("module"), 128),
     action: text(params.get("action"), 128),
     from: timestamp(params.get("from")),
     to: timestamp(params.get("to")),
   };
   if (query.from && query.to && Date.parse(query.from) > Date.parse(query.to)) throw invalid();
+  if (query.actorId && !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/iu.test(query.actorId)) throw invalid();
   return query;
 }
 

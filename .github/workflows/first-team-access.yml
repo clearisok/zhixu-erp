@@ -33,6 +33,7 @@ jobs:
       - name: Disposable PostgreSQL role, session and commercial boundaries
         run: |
           npm run test:team-access
+          npm run test:business-operation-logs
           npx --no-install tsx --test --test-concurrency=1 server/integration/browser-session-e2e.integration.test.ts server/integration/commercial-rbac.integration.test.ts server/integration/quote-cost-security.integration.test.ts
       - name: Default Browser build
         run: npm run build
