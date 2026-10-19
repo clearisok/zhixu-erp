@@ -60,7 +60,7 @@ test("processing batches built UI uses real sessions and isolated synthetic data
   await t.test('order entry consumes once and links the formal processing SO',async()=>{
    await navigate('/order-center');await click('导入加工订单');await has('SYN-PROCESS-UI');await evaluate("document.querySelector('input[aria-label=\"选择批次 SYN-PROCESS-UI\"]').click()");await click('确认导入所选 1 项');await has('已创建正式订单');
    const rows=(await x.pool.query('SELECT sales_order_id::text id FROM processing_order_batch_consumptions')).rows;assert.equal(rows.length,1);orderId=rows[0].id;
-   await navigate('/order-center/server-detail?id='+orderId);await has('合成加工客户');await has('艾诺科物料流水不适用');await click('维护来源');await has('当前业务来源');await has('来自报价');await has('12.34 CNY / 件');assert.equal(await evaluate("document.body.innerText.includes('认领订单')"),false);await click('关闭');
+   await navigate('/order-center/server-detail?id='+orderId);await has('合成加工客户');await has('艾诺科物料流水不适用');await click('维护来源');await has('采用报价');await has(q.quoteCode);await has('12.34 CNY / 件');assert.equal(await evaluate("document.querySelectorAll('[role=dialog] input, [role=dialog] select, [role=dialog] textarea').length"),0);assert.equal(await evaluate("document.body.innerText.includes('认领订单')"),false);await click('关闭');
   });
   await t.test('lost success response retains original request and retry does not create a second SO',async()=>{
    await navigate('/order-center');
