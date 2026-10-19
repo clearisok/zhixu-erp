@@ -26,13 +26,13 @@ export function parseRoleCommand(body:Record<string,unknown>):RoleCommand{
 export async function listManagedRoles(client:PoolClient):Promise<ManagedRole[]>{
  const result=await client.query<ManagedRole>(`SELECT r.id,r.name,r.description,r.version::text,
  ARRAY(SELECT permission_key FROM app_role_permissions WHERE role_id=r.id ORDER BY permission_key) AS permissions,
- (SELECT count(*)::int FROM app_user_roles ur WHERE ur.role_id=r.id) AS "userCount",
+ (SELECT count(*)::int FROM app_user_roles ur JOIN app_users u ON u.id=ur.user_id WHERE ur.role_id=r.id AND u.archived_at IS NULL) AS "userCount",
  (r.id='role-server-admin') AS protected FROM app_roles r WHERE r.archived_at IS NULL ORDER BY (r.id='role-server-admin') DESC,r.name`);
  return result.rows;
 }
 export async function readManagedRoles(pool:Pool,identity:TrustedIdentity,requestId?:string){
  if(requestId&&!uuid.test(requestId))bad();
- const c=await pool.connect();try{await c.query("BEGIN");await requireServerAdministrator(c,identity,false);const roles=await listManagedRoles(c);
+ const c=await pool.connect();try{await c.query("BEGIN");if(requestId)await c.query("SELECT pg_advisory_xact_lock(hashtext('zhixu-first-team-access'))");await requireServerAdministrator(c,identity,false);const roles=await listManagedRoles(c);
  const receipt=requestId?(await c.query("SELECT result FROM team_admin_receipts WHERE actor_id=$1 AND request_id=$2 AND command_kind LIKE 'role.%'",[identity.internalUserId,requestId])).rows[0]?.result??null:undefined;
  await c.query("COMMIT");return {roles,...(requestId?{receipt}:{})};}
  catch(e){await c.query("ROLLBACK");throw e;}finally{c.release();}
@@ -41,6 +41,8 @@ export async function executeRoleCommand(pool:Pool,identity:TrustedIdentity,inpu
  const command=parseRoleCommand(input as unknown as Record<string,unknown>),c=await pool.connect();
  try{
  await c.query("BEGIN");await c.query("SELECT pg_advisory_xact_lock(hashtext('zhixu-first-team-access'))");
+ const memberNames=command.action==="create"?[]:(await c.query<{username:string}>("SELECT u.username FROM app_users u JOIN app_user_roles ur ON ur.user_id=u.id WHERE ur.role_id=$1 ORDER BY u.username",[command.id])).rows.map(r=>r.username);
+ for(const name of [...new Set([identity.username,...memberNames])].sort())await c.query("SELECT pg_advisory_xact_lock(hashtext($1))",["login:"+name]);
  const actor=await requireServerAdministrator(c,identity,true),digest=createHash("sha256").update(JSON.stringify(command)).digest("hex");
  const receipt=(await c.query<{payload_hash:string;result:{role:ManagedRole|null}}>("SELECT payload_hash,result FROM team_admin_receipts WHERE actor_id=$1 AND request_id=$2",[actor.internalUserId,command.requestId])).rows[0];
  if(receipt){if(receipt.payload_hash!==digest)throw new HttpError(409,"role_request_conflict","请求内容已经改变，请重新读取");await c.query("COMMIT");return {...receipt.result,replayed:true};}
@@ -51,9 +53,7 @@ export async function executeRoleCommand(pool:Pool,identity:TrustedIdentity,inpu
   if(before.version!==command.expectedVersion)throw new HttpError(409,"role_version_conflict","角色已更新，请重新读取后修改");
  }
  const id=before?.id??"role-custom-"+randomUUID();
- // Serialize with login so no session can slip between grant changes and revocation.
- const members=(await c.query<{username:string}>("SELECT u.username FROM app_users u JOIN app_user_roles ur ON ur.user_id=u.id WHERE ur.role_id=$1 ORDER BY u.username",[id])).rows;
- for(const member of members)await c.query("SELECT pg_advisory_xact_lock(hashtext($1))",["login:"+member.username]);
+
  if(command.action==="archive"){
   if(before!.userCount)throw new HttpError(409,"role_in_use","仍有用户使用此角色，请先调整用户角色");
   await c.query("UPDATE app_roles SET archived_at=now(),version=version+1,updated_at=now() WHERE id=$1",[id]);

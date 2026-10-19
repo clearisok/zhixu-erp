@@ -51,19 +51,19 @@ test("First team production-built UI uses trusted session, existing layout and s
   const input=(selector,value)=>evalJs("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");if(!n)throw Error('missing input');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,"+JSON.stringify(value)+");n.dispatchEvent(new Event('input',{bubbles:true}));})()");
   const select=(selector,value)=>evalJs("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");if(!n)throw Error('missing select');n.value="+JSON.stringify(value)+";n.dispatchEvent(new Event('change',{bubbles:true}));})()");
   const click=label=>evalJs("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+ "+JSON.stringify(label)+");n.click()})()");
-  const shot=async name=>{if(process.env.TEAM_ACCESS_EVIDENCE!=="1")return;const dir=resolve("docs/tasks/active/evidence/ningbo-first-team-access");await mkdir(dir,{recursive:true});const r=await command("Page.captureScreenshot",{format:"png",captureBeyondViewport:false});await writeFile(join(dir,name+".png"),Buffer.from(r.data,"base64"));};
+  const shot=async name=>{if(process.env.TEAM_ACCESS_EVIDENCE!=="1")return;const dir=resolve(process.env.TEAM_ACCESS_EVIDENCE_DIR??"outputs/system-settings-browser");await mkdir(dir,{recursive:true});const r=await command("Page.captureScreenshot",{format:"png",captureBeyondViewport:false});await writeFile(join(dir,name+".png"),Buffer.from(r.data,"base64"));};
   await navigate("/basic-settings/user-permissions");await has("忘记密码？请联系系统管理员");
-  await input("input[name=username]","synthetic.ui.root");await input("input[name=password]",password);await click("登录织序");await has("新建账号");
+  await input("input[name=username]","synthetic.ui.root");await input("input[name=password]",password);await click("登录织序");await has("新建用户");
   await t.test("existing layout, loaded CSS and no browser authority/write on mount",async()=>{
    assert.equal(await evalJs("teamWrites"),0);
-   assert.ok(await evalJs("document.querySelector('.qc-permission-layout')!==null"));
+   assert.ok(await evalJs("document.querySelector('.qc-data-table')!==null"));
    assert.notEqual(await evalJs("getComputedStyle(document.querySelector('.qc-control')).borderRadius"),"0px");
    assert.equal((await body()).includes("恢复默认权限"),false);assert.equal((await body()).includes("切换账号"),false);
    await shot("desktop-existing-layout");
   });
   await t.test("create the original six roles plus merchandising through real forms; reload persists and secrets stay out of storage",async()=>{
    for(const [i,role] of TEAM_ROLES.entries()){
-    await click("新建账号");
+    await click("新建用户");
     await input("[role=dialog] input:not([type=password])","合成UI"+role.name);
     await input("[role=dialog] input[autocomplete=off]","synthetic.ui."+i);
     await select("[role=dialog] select",role.id);await input("[role=dialog] input[type=password]",password);
@@ -93,7 +93,7 @@ test("First team production-built UI uses trusted session, existing layout and s
    await navigate("/system-settings/progress-settings");await has("进度设置");
    assert.ok((await body()).includes("报价中心"));assert.ok((await body()).includes("订单中心"));
    await navigate("/system-settings/progress-settings");await has("进度设置");await click("系统设置");await has("角色权限");
-   await navigate("/basic-settings/user-permissions");await has("新建账号");
+   await navigate("/basic-settings/user-permissions");await has("新建用户");
   });
   await t.test("each non-admin session is denied the management page and cannot recover Browser permissions",async()=>{
    for(let i=1;i<expectedRoleIds.length;i++){
@@ -101,25 +101,31 @@ test("First team production-built UI uses trusted session, existing layout and s
     await navigate("/basic-settings/user-permissions");await has("忘记密码？请联系系统管理员");
     await input("input[name=username]","synthetic.ui."+i);await input("input[name=password]",password);await click("登录织序");
     await has("暂无权限");
-    assert.equal((await body()).includes("新建账号"),false);
+    assert.equal((await body()).includes("新建用户"),false);
    }
   });
   await evalJs("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
   await navigate("/basic-settings/user-permissions");await has("忘记密码？请联系系统管理员");
-  await input("input[name=username]","synthetic.ui.root");await input("input[name=password]",password);await click("登录织序");await has("新建账号");
+  await input("input[name=username]","synthetic.ui.root");await input("input[name=password]",password);await click("登录织序");await has("新建用户");
   await t.test("mobile master/detail and account form preserve width; API-backed disable/reset",async()=>{
    await command("Emulation.setDeviceMetricsOverride",{width:390,height:844,deviceScaleFactor:1,mobile:true});
    await has("合成UI财务经理");
    assert.equal(await evalJs("document.documentElement.scrollWidth>innerWidth+1"),false);await shot("mobile-list");
-   await evalJs("[...document.querySelectorAll('.qc-permission-user-records button')].find(n=>n.textContent.includes('合成UI财务经理')).click()");
-   await has("重置密码");await shot("mobile-detail");
-   await click("重置密码");await input("[role=dialog] input[type=password]","Synthetic-Reset-UI-2026");
+   await click("管理 synthetic.ui.5");await has("重置密码");await shot("mobile-detail");
+   await click("重置密码");await input("[role=dialog] input[type=password]","123456");
    assert.equal(await evalJs("document.documentElement.scrollWidth>innerWidth+1"),false);await shot("mobile-reset");
    await click("保存");await until(()=>evalJs("document.querySelector('[role=dialog]')===null"),"reset");
-   await select(".qc-permission-detail select:nth-of-type(1)","role-team-material-manager");await has("已保存");
-   await until(()=>evalJs("document.querySelector('.qc-permission-detail select').disabled===false"),"role saved");
-   await select(".qc-permission-detail label:nth-child(2) select","inactive");
+   await click("管理 synthetic.ui.5");await select("[role=dialog] select","role-team-material-manager");await click("保存");
+   await until(()=>evalJs("document.querySelector('[role=dialog]')===null"),"role saved");
+   await click("管理 synthetic.ui.5");await select("[role=dialog] select[aria-label=启用状态]","inactive");await click("保存");
    await until(async()=>(await x.pool.query("SELECT active FROM app_users WHERE username='synthetic.ui.5'")).rows[0].active===false,"disable");
+   await until(()=>evalJs("document.querySelector('[role=dialog]')===null"),"disabled");
+   await click("管理 synthetic.ui.5");await click("删除用户");await click("确认删除");
+   await until(()=>evalJs("document.querySelector('[role=dialog]')===null"),"archived");
+   await select("select[aria-label=筛选状态]","archived");
+   await has("合成UI财务经理");await click("管理 synthetic.ui.5");await click("确认恢复");
+   await until(()=>evalJs("document.querySelector('[role=dialog]')===null"),"restore");
+   await select("select[aria-label=筛选状态]","inactive");await has("待重置密码");
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{

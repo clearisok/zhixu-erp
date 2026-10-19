@@ -50,6 +50,7 @@ export function AppShell({ title, children, onRequestNavigation, onRequestLogout
   if (freshServer) identityMode = "server";
   const router = useRouter();
   const pathname = usePathname();
+  const serverSession = useServerSession();
   const navigateRequest = onRequestNavigation ?? ((target: string) => router.push(target));
   const basicTriggerRef = useRef<HTMLButtonElement | null>(null);
   const systemTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -61,12 +62,12 @@ export function AppShell({ title, children, onRequestNavigation, onRequestLogout
     {label:"进度设置",href:"/system-settings/progress-settings"},
     {label:"报价设置",href:"/system-settings/quote-settings"},
     {label:"角色权限",href:"/system-settings/roles"},
-    {label:"用户管理",href:"/basic-settings/user-permissions"},
+    {label:"用户管理",href:"/system-settings/users"},
     {label:"操作日志",href:"/system-settings/operation-logs"},
   ];
-  const visibleSystemRoutes = (freshServer ? formalSystemRoutes : serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (route.href !== "/system-settings/progress-settings" || freshServer && isEnabledServerRoute(route.href)) && (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions" && route.href !== "/system-settings/roles"));
+  const visibleSystemRoutes = (freshServer ? formalSystemRoutes : serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (route.href !== "/system-settings/progress-settings" || freshServer && isEnabledServerRoute(route.href)) && (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions" && route.href !== "/system-settings/roles" && route.href !== "/system-settings/users") && (!freshServer || !["/system-settings/roles","/system-settings/users"].includes(route.href) || serverSession.hasPermission("user_permissions.manage")));
   const basicActive = visibleBasicRoutes.some((route) => pathname === route.href);
-  const systemActive = visibleSystemRoutes.some((route) => pathname === route.href);
+  const systemActive = visibleSystemRoutes.some((route) => pathname === route.href) || freshServer && pathname === "/basic-settings/user-permissions";
   const personalActive = pathname.startsWith("/my-settings/");
   const [basicOpen, setBasicOpen] = useState(false);
   const [systemOpen, setSystemOpen] = useState(false);
@@ -74,7 +75,6 @@ export function AppShell({ title, children, onRequestNavigation, onRequestLogout
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [navigationOpen, setNavigationOpen] = useState(false);
   const { state: permissionState, currentUser, currentRole, can, setCurrentUser } = usePermissions();
-  const serverSession = useServerSession();
   const serverIdentityMode = identityMode === "server";
   const showSettingsNavigation = freshServer || localSingleUser || !serverIdentityMode || serverSettingsMode;
   const visibleUserName = localSingleUser ? "本地开发用户" : serverIdentityMode ? serverSession.user?.name ?? "Server 会话" : currentUser.name;

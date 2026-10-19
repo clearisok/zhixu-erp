@@ -7,3 +7,15 @@
 .qc-admin-password small { color:var(--muted); }
 .qc-admin-password [role=alert] { margin:0; color:#a33c31; }
 
+
+.qc-admin-filters {display:flex;flex-wrap:wrap;align-items:end;gap:12px;padding:16px;margin-bottom:20px;}
+.qc-admin-filters>.qc-search-field{flex:1;min-width:220px;}
+.qc-admin-filters>label:not(.qc-search-field),.qc-admin-form-field,.qc-admin-account-form label{display:grid;gap:8px;}
+.qc-admin-form-field{margin:16px 0;}
+.qc-admin-account-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.qc-admin-account-form small{color:var(--muted);font-size:12px;}
+.qc-admin-pagination{display:flex;justify-content:center;align-items:center;gap:16px;margin-top:20px;}
+.qc-user-status{border-radius:20px;padding:5px 10px;background:#eef4f1;white-space:normal;}
+.qc-user-status.inactive,.qc-user-status.archived{background:#f3eee8;color:#7b6651;}
+.qc-user-mobile{display:grid;gap:8px;padding:16px;}
+@media(max-width:600px){.qc-admin-account-form{grid-template-columns:1fr}.qc-admin-filters>*{width:100%}}

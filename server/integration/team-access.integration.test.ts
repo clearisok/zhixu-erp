@@ -97,7 +97,8 @@ test("first team: seven synthetic session accounts and guarded administration in
     const a=accounts.get("role-team-quote-manager")!;
     const body={action:"update",id:a.user.id,expectedVersion:a.user.version,name:a.user.name,status:"active",roleIds:["role-team-material-manager"]};
     const updated=await command(body);assert.equal(updated.response.status,200,updated.text);
-    assert.equal((await command(body)).response.status,409);
+    assert.equal((await command(body)).response.status,200); // Same legacy CAS request returns its receipt.
+    assert.equal((await command({...body,requestId:randomUUID()})).response.status,409);
     assert.equal((await x.request("/api/v1/auth/me",a.cookie)).response.status,401);
     const relog=await signIn(a.request.account);assert.equal(relog.response.status,200);
     assert.equal(relog.body.permissions.includes("quote.create"),false);

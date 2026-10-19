@@ -1,7 +1,7 @@
-# 当前状态：系统设置与角色权限 Phase1 本地开发
+# 当前状态：系统设置 Phase2 已完成本地验收
 
-2026-10-19；核实main 996dfedc12da3527343cd3ff2aa5eea35497e10e，分支feat/system-role-permissions，起始干净。主线已包含此前整合；PR120仍独立草稿，未纳入此分支。
+2026-10-19；main基线996dfedc12da3527343cd3ff2aa5eea35497e10e。Phase1 draft PR121已送达；初次team-access/baseline成功，Source旧schema兼容已在独立0e1f32ef修复，新CI待核。Phase2分支feat/user-management-lifecycle，继承Phase1，用户管理、单角色、归档恢复、登录时间及会话撤销完成。
 
-用户批准三阶段：导航/密码/角色；用户管理；业务操作日志。Phase1实现、28项账号/角色/客户端、17项权限/迁移、6项实际Chromium、94项基线、类型/Node编译/lint及默认Browser/Server构建通过。项目全量898项首次897通过，唯一旧导航断言已修正且5项定向复跑通过；新远端CI将复跑全量。精确基线通过，远端CI待核。不修改真实账号或业务数据、不自动合并、不部署。
+本地：898项目、94基线、33账号/角色/生命周期、20来源升级及生命周期（1既有Linux CLI跳过）、6实际Chromium通过；类型、Node编译、lint、Server构建和精确main门禁通过。完整结果见[任务](tasks/active/system-settings-administration-2026-10-19.md)。工程通过不等于远端CI或用户接受。
 
-59069原体验保留，已只读备份；候选版本使用新副本。详细范围、证据和后续见[任务](tasks/active/system-settings-administration-2026-10-19.md)。[旧摘要](tasks/completed/2026-10-19-system-settings-predecessor/CURRENT_STATE.md)保留原日期与结果。
+下一步独立交付Phase2并将Phase1修复精确快进，再完成Phase3业务日志。59069及Jackson/报价/设置保留，新体验只能来自受保护副本。PR120仍独立未合并；不部署、不改真实账号或业务库、不自动合并。

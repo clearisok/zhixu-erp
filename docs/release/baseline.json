@@ -2064,7 +2064,8 @@
     "/order-center/server-detail",
     "/order-center/style-progress/detail",
     "/system-settings/progress-settings",
-    "/system-settings/roles"
+    "/system-settings/roles",
+    "/system-settings/users"
   ],
   "capabilities": [
     {
