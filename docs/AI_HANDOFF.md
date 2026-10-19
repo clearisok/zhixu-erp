@@ -1,23 +1,9 @@
-# 恢复点：D145新引用兼容修复（Source阶段）
+# 恢复点：Source升级测试最小修复已验证，尾部验收待补
 
-2026-10-18后续：加工整合483e0c17的37条后端命令、898项目、261PG、94基线、类型/full lint、双构建、131 Python及多套Chromium已通过；完整UI检查只发现旧material-history测试仍等待D144侧栏提示。产品已按D145正确显示只读Modal，本次仅将测试等待改为当前文案，并加强无input/select/textarea、无采用按钮、无业务写请求及旧数据不变的断言。该修复从clean e4c76fc7独立前向保存，再同步下游；不改产品UI/行为，最终浏览器重跑另记。
+2026-10-19；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。Source从clean feat/order-business-source / 92623fe652fa9c650bb185a2494907e5d63e03d1开始，本阶段只改ainuoke-payment-operator.integration.test.ts的import和升级期望，复用已有明确migrationFilesAfter(25)，不从runner发现期望。编译、类型、目标lint与21项操作测试通过；本次测试处于dirty工作树，CLI实际子进程正确拒绝dirty，不冒称clean readback已验证。
 
-只读Modal验收已在Source自身显式Server构建e4c76fc7通过9项实际Chromium；测试lint/语法通过，业务源码不变。后续前向整合，不需要回退页面以迎合旧提示文案。
+指定本轮交付已完成：119/1ab0d8c0598a4cf270bf2618ece260bcbcbf20f5新三CI SUCCESS，117/92623fe6与118/e7c8bafd各baseline/team-access绿、source旧清单失败。用户一次上传已用完；新修复尚无新上传授权。交付回执在本机独立chore/price-coordination-delivery-review-2026-10-19 / 10e39c8600570b63d27974a236032574f5e4c970，不能混入Source业务代码。
 
-2026-10-18新观察：用户批准的16614c8ef5893ffd11036b1202c655a4d647a809已真实push一次并独立核实，117/118经force=false快进到f43bfdae/4d2bad59并各自核实。三个新source run均通过七角色后停在引用清单：0028颜色身份、0029议价回执未声明。当前在clean f43bfdae的Source分支补齐0028颜色/商业明细证据分类，未知FK、外部覆盖和退役入口保护保持。原授权上传次数已使用，不自行再推修复。新阶段见tasks/active/price-coordination-ci-followup-2026-10-18.md；下文保留旧日期事实。
+下一步在本阶段clean checkpoint后重新执行21项操作测试，验证实际CLI durable readback；然后分别补Source和G3未到达的selected-source/fresh/边界、正确Server构建及各自UI尾部，类型/基线/精确守卫收口后前向整合。细节见[tasks/active/payment-operator-upgrade-ledger-2026-10-19.md](tasks/active/payment-operator-upgrade-ledger-2026-10-19.md)。原AI_HANDOFF逐字保留在completed/2026-10-19-before-source-ledger-handoff.md。
 
-Source兼容修复七组193项通过（38/31/21/45/18/9/31）、类型/目标lint/精确main守卫通过；同时显式修正旧升级新增字段及暂停中重复采用两处验收假设，不修改业务/暂停策略。下一步只本地前向整合议价回执分类与加工，完成相同CI范围再提交具体交付SHA；远端仍是上段已核实目标及source红灯。
-
-## 原恢复点：PR117逐色确认关联修复
-
-main 064e3afaf7d08b3cb62907d4402f97d9c292f1e5，feat/order-business-source 从 clean 4013e3ec3abaf34551fe82e5dcedbac343279546 回补。新多方案header为空不代表不完整旧来源；商业使用精确从颜色明细读取PV，保持列表/确认权威。同步0028 migration ledger与67权限目录断言。无议价/加工UI混入本分支。
-
-本次类型与26项来源/Quote API/本机身份通过；精确main基线核验后checkpoint。原Phase2 9来源/14商业/19加工/6浏览器，完整记录保留，不称本轮全部重跑。下游议价与加工均本地独立分支，需前向整合此修复。NETWORK_DEGRADED不再推送，未改远端PR117或部署/任何真实数据。
-
-前向整合G2最终e70deacfe446088677aa3d96e998436b730cb7af，保留原提交；仅接力冲突已手动协调，CCT无关联采用回归同步。分支依赖可按PR110→117独立交付。
-
-像素复审修复：大Modal内覆盖旧三列grid，步骤表格使用完整内容宽度，窄屏操作可换行。新子表宽度与1000分配项有界预览回归；公共来源body上限262144与服务端1000项上限一致。没有混入议价/加工模块。
-
-本轮显式Server构建及7项来源Chromium通过（含1000项预览仅校验不写入、完整表格宽度）；源码类型/发布基线按本轮收口记录核实。
-
-2026-10-17 CI复审：原da46cdeb已精确送达PR117（source任务39012095681失败，baseline/team-access通过）。失败来自旧七角色验收仍要求重复采用；本次仅更新测试：有价订单重复命令409、合法新合同首次采用及各角色403/金额脱敏/旧CCT写保护均保留。31项商业回归已本地通过，无业务源码或权限放宽。四原始分支均远端精确核实，新草稿PR118/119已创建，亦在同一旧验收处失败。新修复尚未交付。
+不改产品UI/SQL/权限/商业算法，不恢复负责人/准备/公开归一；没有真实数据、账号、既有演示、Source新读取/绑定/激活、调度、宁波18443/18444、合并或部署。

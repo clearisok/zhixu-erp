@@ -1,3 +1,5 @@
+2026-10-19当前补充：指定119/1ab0、117/92623、118/e7c8已精确交付；119新三CI SUCCESS，117/118在财务操作升级旧断言遗漏0028/0029处失败。Source只改两个测试行复用明确迁移清单，编译/类型/lint/21项通过，仍待clean CLI及上游各自尾部验证和新范围交付。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，真实范围不变；下文保留10月18日结果，最新恢复见AI_HANDOFF和tasks/active/payment-operator-upgrade-ledger-2026-10-19.md。
+
 # 当前状态：报价与订单价格协同 Phase2
 
 2026-10-17 / main `064e3afaf7d08b3cb62907d4402f97d9c292f1e5`。feat/order-business-source从clean dc03670256b05dd24e0a9c817d1e138f353b1f1f前向整合Phase1 c658ea62，保留原提交。共享摘要/规则/证据清单冲突由整合者协调，源码无冲突；两边原摘要分别保留completed/2026-10-17-price-coordination-before-g2.md及2026-10-17-before-price-coordination-g117.md。
