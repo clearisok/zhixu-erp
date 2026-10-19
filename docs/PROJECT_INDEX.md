@@ -1,3 +1,5 @@
+2026-10-19当前恢复优先：[PR114 → PR119整合](tasks/active/pr114-119-integration-2026-10-19.md)、CURRENT_STATE与AI_HANDOFF。用户已批准工程整合及交付，未批准合并/关闭PR；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。下文旧状态按原日期/SHA保留。
+
 2026-10-19最新恢复：[最终交付回执](tasks/active/price-coordination-final-delivery-2026-10-19.md)的“测试兼容修复精确交付”与[独立分支验收](tasks/active/payment-operator-upgrade-ledger-2026-10-19.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；用户新授权的119/f004一次上传及117/1b08、118/d577安全快进均已独立精确核实，三个新提交九项CI全部SUCCESS，本轮增量复审无新阻塞。不重复上传，不自动合并部署；优先CURRENT_STATE/AI_HANDOFF，下文保留各阶段日期/SHA及旧结果。
 
 2026-10-19前轮恢复：[最终交付回执](tasks/active/price-coordination-final-delivery-2026-10-19.md)与[上游测试兼容修复](tasks/active/payment-operator-upgrade-ledger-2026-10-19.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，指定1ab0一次上传及117/118安全快进已精确核实；119新三CI绿，117/118旧source失败已在各自本地候选修复并分别完成尾部/浏览器验收，加工已前向整合且只两份测试/文档不同。此段为新范围交付前历史；当前结果以上方及CURRENT_STATE/AI_HANDOFF为准。

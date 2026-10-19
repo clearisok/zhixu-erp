@@ -40,7 +40,7 @@ jobs:
           npm run test:order-normalization-execution
           npm run test:order-command-control
           npm run test:material-history
-          npx --no-install tsx --test server/integration/material-progress-settings.integration.test.ts
+          npx --no-install tsx --test --test-concurrency=1 features/style-progress/server/__tests__/material-progress-settings-client.test.ts server/integration/material-progress-settings.integration.test.ts
           npm run test:material-history-client
           npm run test:normalization-review-workspace
           npm run test:normalization-review-client
