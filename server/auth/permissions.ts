@@ -58,7 +58,7 @@ export async function permissionsForUser(client: Pool | PoolClient, userId: stri
     `SELECT DISTINCT rp.permission_key
      FROM app_user_roles ur
      JOIN app_role_permissions rp ON rp.role_id = ur.role_id
-     JOIN app_roles r ON r.id=ur.role_id AND r.archived_at IS NULL
+     JOIN app_roles r ON r.id=ur.role_id AND (to_jsonb(r)->>'archived_at') IS NULL
      WHERE ur.user_id = $1::bigint
      ORDER BY rp.permission_key`,
     [userId],
