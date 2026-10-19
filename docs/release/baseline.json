@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
-  "verifiedAt": "2026-10-17",
+  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "verifiedAt": "2026-10-19",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -1751,6 +1751,24 @@
       "path": "docs/tasks/completed/2026-10-17-quote-price-final-review.md",
       "recordedAtSha": "5bd47275599eb7f9039d38a853a6ce294635c1d9",
       "sha256": "4c698ffbe7e0f1360f8d87db8f37c57c94c73344de2573ff204134900131bf93"
+    },
+    {
+      "id": "decisions-stabilization-20261019",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "61e35af757ed530cf062120e72455b82ae89924e",
+      "sha256": "c028ae9768c2f6eaad430553fe5d8e93598a086f00bf5c463807e0e3dd84d8e1",
+      "supersedes": "decisions-price-processing-20261017",
+      "changeReason": "2026-10-19 authorized audit remediation: reconcile superseded decisions and current source/price ownership; preserve original history and deployment boundaries."
+    },
+    {
+      "id": "source-stabilization-20261019",
+      "kind": "document",
+      "path": "docs/features/ORDER_BUSINESS_SOURCE.md",
+      "recordedAtSha": "61e35af757ed530cf062120e72455b82ae89924e",
+      "sha256": "acacb2b504f27d2fe4c1c3c0bd5921a71bad3619f1e01c8ce9695703ec4cb765",
+      "supersedes": "order-business-source-color-20261017",
+      "changeReason": "2026-10-19 authorized audit remediation: reconcile superseded decisions and current source/price ownership; preserve original history and deployment boundaries."
     }
   ],
   "pages": [
