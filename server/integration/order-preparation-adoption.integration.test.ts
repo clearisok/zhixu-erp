@@ -10,7 +10,7 @@ import {startDisposablePostgres} from './postgres-container.js';
 import {discoverMigrations,runMigrations} from '../db/migration-runner.js';
 import {bootstrapAdmin} from '../auth/bootstrap.js';
 import {synchronizePermissionCatalog} from '../auth/permissions.js';
-import {executeTeamCommand} from '../auth/team-access.js';
+import {TEAM_ROLES} from '../auth/team-roles.js';
 import {loadExistingBootstrapActor} from '../sales-orders/bootstrap-runner.js';
 import type {TrustedIdentity} from '../auth/session.js';
 import {createSalesOrder} from '../sales-orders/repository.js';
@@ -30,6 +30,19 @@ import {createProcessingBatch,previewProcessingBatch,confirmProcessingBatch,cons
 import {createApp} from '../app.js';
 import {createIdentityAuthority} from '../auth/identity-authority.js';
 import {migrationFilesAfter} from './current-migration-ledger-fixture.js';
+
+async function seedHistoricalUser(pool:pg.Pool,command:{account:string;name:string;password:string;roleIds:string[]}){
+ // This fixture deliberately starts at schema 0022. Seed its historical identity
+ // directly; current account commands require the current administration schema.
+ const id=(await pool.query("INSERT INTO app_users(username,display_name,password_hash,role) VALUES($1,$2,crypt($3,gen_salt('bf',4)),'viewer') RETURNING id",[command.account,command.name,command.password])).rows[0].id;
+ for(const roleId of command.roleIds){
+  const role=TEAM_ROLES.find(r=>r.id===roleId)!;
+  await pool.query("INSERT INTO app_roles(id,name,description) VALUES($1,$2,$3) ON CONFLICT(id) DO NOTHING",[role.id,role.name,role.description]);
+  for(const permission of role.permissions)await pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES($1,$2) ON CONFLICT DO NOTHING",[role.id,permission]);
+  await pool.query("INSERT INTO app_user_roles(user_id,role_id) VALUES($1,$2)",[id,role.id]);
+ }
+}
+
 const code=(expected:string)=>(e:unknown)=>(e as {code?:string}).code===expected;
 const delay=(ms:number)=>new Promise(done=>setTimeout(done,ms));
 test('preparation parser rejects forged source/target fields and unbounded queries',()=>{const base={requestId:randomUUID(),preparationId:randomUUID(),expectedVersion:1,reason:'synthetic'};for(const extra of [{actorId:'other'},{quantity:'0'},{lineage:'first'},{creationSource:'quote'}])assert.throws(()=>parsePreparationAdoption({...base,...extra}));for(const value of ['referenceOrderId=','offset=100001','offset=-1','actorId=other','search=a&search=b','search='+('a'.repeat(201))])assert.throws(()=>parsePreparationCandidateQuery(new URLSearchParams(value)));assert.throws(()=>parsePreparation({requestId:randomUUID(),referenceOrderId:randomUUID(),quantity:'1',deliveryDate:null,specificationChanges:'',proposedCommercialSource:{quoteId:'q',revisionId:'r',priceVersionId:'p',price:12}}));});
@@ -37,8 +50,8 @@ test('contract preparation intent and adoption preserve real identities using di
  const db=await startDisposablePostgres(),pool=new pg.Pool({connectionString:await db.createDatabase('preparation_adoption')});t.after(async()=>{await pool.end();await db.stop();});
  const temp=await mkdtemp(join(tmpdir(),'zhixu-preparation-prefix-'));try{for(const file of await discoverMigrations(resolve('database/migrations')))if(Number(file.version)<23)await copyFile(join(resolve('database/migrations'),file.filename),join(temp,file.filename));await runMigrations(pool,temp);}finally{const within=relative(resolve(tmpdir()),resolve(temp));assert.ok(within&&!within.startsWith('..')&&!isAbsolute(within)&&temp.includes('zhixu-preparation-prefix-'));await rm(temp,{recursive:true,force:true});}
  await synchronizePermissionCatalog(pool);await bootstrapAdmin(pool,{username:'prep.admin',displayName:'Synthetic admin',password:'Synthetic-Prep-2026'});const admin=await loadExistingBootstrapActor(pool,'prep.admin');
- const roles=['role-team-manager','role-team-quote-manager','role-team-material-manager','role-team-production-manager','role-team-finance-manager','role-team-merchandising-manager'];const users:TrustedIdentity[]=[];for(let i=0;i<roles.length;i++){const username='prep.role.'+i;await executeTeamCommand(pool,admin,{action:'create',requestId:randomUUID(),account:username,name:'Synthetic '+roles[i],password:'Synthetic-Prep-2026',roleIds:[roles[i]]});const row=(await pool.query('SELECT id::text,public_id::text FROM app_users WHERE username=$1',[username])).rows[0];users.push({internalUserId:row.id,userId:row.public_id,username,userName:username,permissions:[]});}const owner=users[5];
- await executeTeamCommand(pool,admin,{action:'create',requestId:randomUUID(),account:'prep.other',name:'Synthetic other claimant',password:'Synthetic-Prep-2026',roleIds:['role-team-merchandising-manager']});const other=await loadExistingBootstrapActor(pool,'prep.other');
+ const roles=['role-team-manager','role-team-quote-manager','role-team-material-manager','role-team-production-manager','role-team-finance-manager','role-team-merchandising-manager'];const users:TrustedIdentity[]=[];for(let i=0;i<roles.length;i++){const username='prep.role.'+i;await seedHistoricalUser(pool,{account:username,name:'Synthetic '+roles[i],password:'Synthetic-Prep-2026',roleIds:[roles[i]]});const row=(await pool.query('SELECT id::text,public_id::text FROM app_users WHERE username=$1',[username])).rows[0];users.push({internalUserId:row.id,userId:row.public_id,username,userName:username,permissions:[]});}const owner=users[5];
+ await seedHistoricalUser(pool,{account:'prep.other',name:'Synthetic other claimant',password:'Synthetic-Prep-2026',roleIds:['role-team-merchandising-manager']});const other=await loadExistingBootstrapActor(pool,'prep.other');
  let n=0;const contract=async()=>{const serial=++n;return (await createAinuokeSalesOrder(pool,admin,{source:{sourceId:'synthetic-prep-'+serial,sourceRowIdentity:'synthetic-row-'+serial,salesContractNo:'SYN-PREP-'+serial,insideOrderNo:'SYN-PREP-FACTORY-'+serial,lifecycleStatusRaw:'生效',contractDate:'2026-10-01',contractDeliveryDate:'2026-12-01',styleNo:'SYN-PREP',companyNameSnapshot:'Synthetic',customerNameSnapshot:'Synthetic',brandNameSnapshot:'Synthetic',quantity:100,sourceHash:'synthetic',fetchedAt:'2026-10-15T00:00:00Z'},colors:[]})).salesOrder.id;};
  const reference=await contract(),target=await contract();await mutateOrderIdentity(pool,owner,target,{action:'claim',expectedVersion:0});
  const oldCommand={requestId:randomUUID(),referenceOrderId:reference,quantity:'115.50',deliveryDate:'2026-11-01',specificationChanges:'Synthetic changed fabric'};const old=await createOrderPreparation(pool,owner,oldCommand),oldProfile=(await pool.query('SELECT row_to_json(p) row FROM sales_order_identity_profiles p WHERE sales_order_id=$1',[target])).rows[0].row,oldPrep=(await pool.query('SELECT row_to_json(p) row FROM sales_order_preparations p WHERE id=$1',[old.id])).rows[0].row;
