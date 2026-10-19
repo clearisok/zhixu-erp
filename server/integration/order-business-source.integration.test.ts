@@ -65,7 +65,7 @@ test('quote-only source, stable colors and immutable commercial lines',{timeout:
   const missing=await order(['Green']);await assert.rejects(()=>command(missing,{kind:'quote',quoteId:q.id,revisionId:r.revisionId,assignments:[]}),code('order_colors_changed'));
  });
  await t.test('amount field projection and completed orders fail closed',async()=>{
-  const restricted={...actor,permissions:actor.permissions.filter(p=>!p.startsWith('commercial.'))};const data=await readOrderBusinessSource(pool,restricted,a);assert.equal(data.commercial.current?.lines?.[0].sale.visibility,'restricted');assert.equal(JSON.stringify(data).includes('120'),false);
+  const restricted={...actor,permissions:actor.permissions.filter(p=>!p.startsWith('commercial.'))};const data=await readOrderBusinessSource(pool,restricted,a);assert.equal(data.commercial.current?.lines?.[0].sale.visibility,'restricted');const containsPrice=(v:unknown):boolean=>Array.isArray(v)?v.some(containsPrice):v&&typeof v==='object'?Object.values(v).some(containsPrice):v===120||v==='120';assert.equal(containsPrice(data),false);assert.equal(containsPrice({id:'00000000-0000-4000-8000-000000000120'}),false);assert.equal(containsPrice({sale:120}),true);
   const id=await order();await pool.query("UPDATE sales_orders SET lifecycle_state='completed',version=version+1 WHERE id=$1",[id]);await assert.rejects(()=>command(id),code('order_commercial_frozen'));
  });
  await t.test('source search splits whitespace into AND terms without granting costs',async()=>{
