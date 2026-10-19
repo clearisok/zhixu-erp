@@ -29,3 +29,7 @@ Source最终各套通过：continuous13、修正后processing-batches9、busines
 ## G3前向整合
 
 Source最终1b08ea9348ecf377c1b4e4cdea4ba5d574a2250a的精确守卫PASS（11/45/58）。G3从clean e7c8bafdb732827bbcde340bf6f7a3ba3281e071前向合入，只有共享摘要两文件冲突，整合者协调并逐字保留G3原文到completed/2026-10-19-before-negotiation-ledger-{handoff,current-state}.md。没有改G3业务代码或引入119加工后续能力，实际测试/构建结果在独立执行后补录。
+
+G3 checkpoint7669dd1465abb63a05b091486604fec3bb623bab已在clean状态通过操作21（实际CLI durable readback）、selected13、fresh7、数量/隔离33、拥有权/窗口21，五命令95项。该精确G3源码Server构建上七套Chromium均通过：continuous13、processing-batches9、business-source7、sale-adjustments5、material-history9、material-display10、payment-panel9，共62；没有使用Source或119构建冒充。Python131、94基线、类型/两测试lint/Node编译和checkpoint守卫（11/45/60）通过。产品路径相对已交付e7c8逐文件零差异。
+
+日志前缀outputs/price-coordination-delivery/negotiation-ledger-*，backend-results五条、ui-results七条exitCode全部0。最后文档checkpoint后另核实精确main守卫；新候选仍未上传，旧source失败不改称成功。

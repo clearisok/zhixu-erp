@@ -1,9 +1,9 @@
-# 恢复点：G3前向同步Source测试修复，独立验收待执行
+# 恢复点：Source与G3测试兼容通过，待加工整合
 
-2026-10-19；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。从clean feat/quote-order-sale-adjustments / e7c8bafdb732827bbcde340bf6f7a3ba3281e071前向合入Source最终1b08ea9348ecf377c1b4e4cdea4ba5d574a2250a；只两份测试与文档，产品与已交付e7c8完全相同。共享AI_HANDOFF/CURRENT_STATE冲突由整合者协调，两者原文逐字归档至completed/2026-10-19-before-negotiation-ledger-{handoff,current-state}.md，原提交保留，无源码冲突。
+2026-10-19；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。Source最终1b08ea9348ecf377c1b4e4cdea4ba5d574a2250a通过精确守卫；G3从clean已交付e7c8bafdb732827bbcde340bf6f7a3ba3281e071前向合入。只两份测试及文档，原始提交保留，产品与e7c8完全相同。
 
-Source已独立通过clean CLI21、后端尾部95（包含该21）、六套Chromium57、Python131、基线94、类型/lint/Node与Source构建；最末1b08精确main守卫PASS。Source初次旧Modal断言失败保留，不称首次整批全绿。
+G3业务源码checkpoint7669dd1465abb63a05b091486604fec3bb623bab：clean操作21（真实CLI durable readback）、后端尾部95（含21）、七套Chromium62、Python131、基线94、类型/目标lint/Node编译/独立Server构建及checkpoint守卫均通过。Source自身六套Chromium57与相同尾部/基线通过；Source曾发现旧加工Modal文案断言，修正后重跑，原失败保留。
 
-下一步在G3本checkpoint clean状态执行操作21、selected-source/fresh/边界尾部、独立Server构建及七套UI（含本分支议价5）、Python、类型/lint/基线/精确守卫。完成后前向合入119，保留119原加工推送测试入口及删除的旧交互，只同步清单与只读断言，避免整块覆写旧测试版本。
+下一步将G3最后文档checkpoint前向合入clean加工分支1ab0d8c0598a4cf270bf2618ece260bcbcbf20f5，保留119新加工推送/选择测试流程，只同步清单与来源只读断言；再合入本机交付回执文档分支10e39c8600570b63d27974a236032574f5e4c970，统一摘要。产品必须与已三CI绿119/1ab0逐路径相同；只对受影响测试及精确基线补验，不把旧绿色当新候选Hosted结果。
 
-远端指定117/92623、118/e7c8、119/1ab0已交付；119新三CI SUCCESS，117/118 source因旧清单仍红，其他CI绿。一次上传许可已用完，新提交未送达，不自动重推或合并部署。细节见tasks/active/payment-operator-upgrade-ledger-2026-10-19.md；没有真实数据/账号/既有演示/Source新范围/调度/宁波18443/18444操作。
+远端117/92623、118/e7c8、119/1ab0已精确交付；119新三绿，117/118 source旧清单仍红。指定一次119上传已用完，新提交无追加上传许可，不自动合并部署。完整来源、记录与日志见tasks/active/payment-operator-upgrade-ledger-2026-10-19.md；真实账号/业务库/既有演示/Source新范围/调度/宁波18443/18444均未操作。
