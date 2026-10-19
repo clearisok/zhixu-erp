@@ -4,6 +4,9 @@ import { AppShell, Button, ErrorState, LoadingState, Modal, PageContainer } from
 import { useServerSession } from "@/features/server-auth";
 import { ServerAuthError } from "@/features/server-auth/server-auth-client";
 import { createTeamAccessClient, type TeamCommand, type TeamDirectory, type TeamUser } from "../server/team-access-client";
+import {PasswordField} from "./password-field";
+import {passwordValidationMessage} from "../model/password-policy";
+import "../admin-settings.css";
 import { UserPermissionView } from "./user-permission-page";
 import type { PermissionState, Role, User } from "../model/permissions";
 
@@ -81,14 +84,14 @@ function SessionTeamPage() {
         reset:id=>{const user=directory.users.find(u=>u.id===id);if(user){setPassword("");setDialog({kind:"reset",user});}},
         update:(id,patch)=>{const user=directory.users.find(u=>u.id===id);if(user)void execute({action:"update",id,expectedVersion:user.version,name:user.name,status:patch.status??user.status,roleIds:patch.roleId?[patch.roleId]:user.roleIds});}}} />
     <Modal open={Boolean(dialog)} title={dialog?.kind==="create"?"新建账号":"重置密码"} description="仅更新所选账号；密码不显示在列表或日志中。" onClose={closeDialog}
-      footer={<><Button variant="secondary" disabled={busy} onClick={closeDialog}>取消</Button><Button disabled={busy||!password||(dialog?.kind==="create"&&(!account.trim()||!name.trim()))} onClick={()=>{if(dialog)void execute(dialog.kind==="create"?{action:"create",requestId:dialog.requestId,name,account,password,roleIds:[roleId]}:{action:"reset-password",id:dialog.user.id,expectedVersion:dialog.user.version,password});}}>{busy?"保存中…":"保存"}</Button></>}>
+      footer={<><Button variant="secondary" disabled={busy} onClick={closeDialog}>取消</Button><Button disabled={busy||Boolean(passwordValidationMessage(password))||(dialog?.kind==="create"&&(!account.trim()||!name.trim()))} onClick={()=>{if(dialog)void execute(dialog.kind==="create"?{action:"create",requestId:dialog.requestId,name,account,password,roleIds:[roleId]}:{action:"reset-password",id:dialog.user.id,expectedVersion:dialog.user.version,password});}}>{busy?"保存中…":"保存"}</Button></>}>
       {dialog?.kind==="create"&&<div className="qc-permission-account-fields">
         <label><span>姓名或代号</span><input className="qc-control" value={name} maxLength={80} disabled={busy} onChange={e=>setName(e.target.value)} /></label>
         <label><span>登录账号</span><input className="qc-control" value={account} maxLength={64} autoComplete="off" disabled={busy} onChange={e=>setAccount(e.target.value)} /></label>
         <label><span>角色</span><select className="qc-control" value={roleId} disabled={busy} onChange={e=>setRoleId(e.target.value)}>{roles.filter(r=>directory.assignableRoleIds.includes(r.id)).map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label>
       </div>}
       {dialog?.kind==="reset"&&<p>{dialog.user.name} · {dialog.user.account}；保存后该账号原有登录会话失效。</p>}
-      <label><span>新密码（至少12字符）</span><input className="qc-control" type="password" autoComplete="new-password" value={password} disabled={busy} onChange={e=>setPassword(e.target.value)} /></label>
+      <PasswordField value={password} onChange={setPassword} disabled={busy}/>
       {feedback&&<p role="status">{feedback}</p>}
     </Modal>
   </>;

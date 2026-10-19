@@ -9,6 +9,8 @@ import type {
 } from "../../quote-center/model/quote-view-model";
 
 export type OperationLogAction =
+  | "创建角色"
+  | "删除角色"
   | "修改进度设置"
   | "创建账号"
   | "修改账号"

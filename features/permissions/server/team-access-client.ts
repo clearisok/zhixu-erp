@@ -13,7 +13,8 @@ const messages: Record<string,string> = {
   team_role_drift: "已有角色权限与预设不同，需要先审查，未覆盖原授权。",
   team_self_lockout: "不能停用自己或修改自己的角色。",
   team_last_admin: "必须保留至少一个启用的系统管理员。",
-  invalid_team_command: "输入无效：账号3–64位字母/数字/点/下划线/连字符；密码至少12字符、不超过72字节。",
+  invalid_team_command: "请检查姓名、角色和账号格式：账号为3–64位字母、数字、点、下划线或连字符。",
+  invalid_password: "密码至少6个字符，最多72个UTF-8字节，不要求字符组合。",
 };
 export function createTeamAccessClient(fetchImpl: typeof fetch = fetch) {
   async function request(command?: TeamCommand) {

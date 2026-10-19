@@ -1,3 +1,5 @@
+当前主线核实：996dfedc12da3527343cd3ff2aa5eea35497e10e（2026-10-19）。系统管理任务见[批准范围](tasks/active/system-settings-administration-2026-10-19.md)。下方旧日期范围保留历史定位。
+
 2026-10-19当前恢复优先：[PR114 → PR119整合](tasks/active/pr114-119-integration-2026-10-19.md)、CURRENT_STATE与AI_HANDOFF。用户已批准工程整合及交付，未批准合并/关闭PR；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。下文旧状态按原日期/SHA保留。
 
 2026-10-19最新恢复：[最终交付回执](tasks/active/price-coordination-final-delivery-2026-10-19.md)的“测试兼容修复精确交付”与[独立分支验收](tasks/active/payment-operator-upgrade-ledger-2026-10-19.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；用户新授权的119/f004一次上传及117/1b08、118/d577安全快进均已独立精确核实，三个新提交九项CI全部SUCCESS，本轮增量复审无新阻塞。不重复上传，不自动合并部署；优先CURRENT_STATE/AI_HANDOFF，下文保留各阶段日期/SHA及旧结果。

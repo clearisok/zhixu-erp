@@ -5,6 +5,8 @@ import { appendOperationLog } from "../operation-logs/repository.js";
 import { permissionsForUser, requirePermission } from "./permissions.js";
 import type { TrustedIdentity } from "./session.js";
 import { TEAM_ROLES } from "./team-roles.js";
+import { passwordValidationMessage } from "../../features/permissions/model/password-policy.js";
+import { requireServerAdministrator } from "./admin-guard.js";
 
 type UserRow = { id: string; public_id: string; username: string; display_name: string; active: boolean; updated: string; role_ids: string[] };
 const columns = `u.id::text, u.public_id::text, u.username, u.display_name, u.active, u.updated_at::text AS updated,
@@ -19,11 +21,12 @@ function text(value: unknown, max: number): string {
   return value.trim();
 }
 function password(value: unknown): string {
-  if (typeof value !== "string" || value.length < 12 || Buffer.byteLength(value, "utf8") > 72 || value.includes("\0")) bad("密码至少12个字符且不超过72个UTF-8字节");
-  return value;
+  const error=passwordValidationMessage(value);
+  if (error) throw new HttpError(400, "invalid_password", error);
+  return value as string;
 }
 function roleIds(value: unknown): string[] {
-  if (!Array.isArray(value) || value.length < 1 || value.length > TEAM_ROLES.length || value.some(id => typeof id !== "string" || !TEAM_ROLES.some(role => role.id === id)) || new Set(value).size !== value.length) bad("请选择已批准的预设角色");
+  if (!Array.isArray(value) || value.length < 1 || value.length > 20 || value.some(id => typeof id !== "string" || id.length > 100 || !/^[a-zA-Z0-9_-]+$/u.test(id)) || new Set(value).size !== value.length) bad("请选择有效角色");
   return [...value].sort();
 }
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
@@ -54,6 +57,7 @@ async function currentActor(client: PoolClient, identity: TrustedIdentity, write
     "SELECT id::text, public_id::text, username, display_name FROM app_users WHERE id=$1::bigint AND public_id=$2::uuid AND active=true FOR SHARE",
     [identity.internalUserId, identity.userId]);
   if (result.rowCount !== 1) throw new HttpError(401, "authentication_required", "账号已停用");
+  await requireServerAdministrator(client, identity, write);
   const permissions = await permissionsForUser(client, identity.internalUserId);
   requirePermission(permissions, "user_permissions.view");
   if (write) requirePermission(permissions, "user_permissions.manage");
@@ -61,10 +65,13 @@ async function currentActor(client: PoolClient, identity: TrustedIdentity, write
 }
 
 // Only an explicit authenticated management command installs a missing preset.
-// Existing grants are compared and never silently overwritten by startup or GET.
+// Stored role grants are authoritative and never overwritten by startup or GET.
 async function ensureRoles(client: PoolClient, ids: string[]) {
   for (const id of ids) {
-    const preset = TEAM_ROLES.find(role => role.id === id)!;
+    const stored = (await client.query<{archived_at:string|null}>("SELECT archived_at FROM app_roles WHERE id=$1 FOR SHARE",[id])).rows[0];
+    if(stored){if(stored.archived_at)throw new HttpError(409,"role_not_found","角色已删除");continue;}
+    const preset = TEAM_ROLES.find(role => role.id === id);
+    if(!preset)throw new HttpError(400,"invalid_team_command","请选择有效角色");
     const added = await client.query("INSERT INTO app_roles(id,name,description) VALUES($1,$2,$3) ON CONFLICT DO NOTHING RETURNING id", [id, preset.name, preset.description]);
     if (added.rowCount) await client.query("INSERT INTO app_role_permissions(role_id,permission_key) SELECT $1,unnest($2::text[])", [id, preset.permissions]);
     const actual = (await client.query<{ permission_key: string }>("SELECT permission_key FROM app_role_permissions WHERE role_id=$1 ORDER BY permission_key", [id])).rows.map(row => row.permission_key);
@@ -83,9 +90,11 @@ export async function readTeamAccess(pool: Pool, identity: TrustedIdentity) {
     const users = (await client.query<UserRow>(`SELECT ${columns} FROM app_users u ORDER BY u.username LIMIT 1001`)).rows;
     if (users.length > 1000) throw new HttpError(409, "team_directory_limit", "账号超过首批管理范围");
     const roles = (await client.query<{ id: string; name: string; description: string; permissions: string[] }>(
-      "SELECT r.id,r.name,r.description,ARRAY(SELECT permission_key FROM app_role_permissions WHERE role_id=r.id ORDER BY permission_key) AS permissions FROM app_roles r ORDER BY r.id")).rows;
+      "SELECT r.id,r.name,r.description,ARRAY(SELECT permission_key FROM app_role_permissions WHERE role_id=r.id ORDER BY permission_key) AS permissions FROM app_roles r WHERE r.archived_at IS NULL ORDER BY r.id")).rows;
+    const archived=(await client.query<{id:string}>("SELECT id FROM app_roles WHERE archived_at IS NOT NULL")).rows.map(r=>r.id);
+    const available=[...roles,...TEAM_ROLES.filter(preset=>!roles.some(role=>role.id===preset.id)&&!archived.includes(preset.id))];
     await client.query("COMMIT");
-    return { users: users.map(userView), roles: [...roles, ...TEAM_ROLES.filter(preset => !roles.some(role => role.id === preset.id))], assignableRoleIds: TEAM_ROLES.map(role => role.id) };
+    return { users: users.map(userView), roles: available, assignableRoleIds: available.map(role=>role.id) };
   } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
 }
 export async function executeTeamCommand(pool: Pool, identity: TrustedIdentity, command: TeamCommand) {

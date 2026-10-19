@@ -1,9 +1,7 @@
-# 当前状态：PR114 已整合至 PR119，本地验收通过、远端待核
+# 当前状态：系统设置与角色权限 Phase1 本地开发
 
-2026-10-19；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。用户批准整合、交付、CI及复审，不合并或关闭PR。源码20061a50e15da8c233ffb790057b1ce6e898c3fd保留114原head4b7ac1e8和119原f004全部历史；12个开放PR的最新完整提交均已为祖先。
+2026-10-19；核实main 996dfedc12da3527343cd3ff2aa5eea35497e10e，分支feat/system-role-permissions，起始干净。主线已包含此前整合；PR120仍独立草稿，未纳入此分支。
 
-6处冲突保留D145、完整0030清单和历史数据保护，补Windows测试清理、Source升级精确幂等断言及排序客户端CI覆盖。生产代码/SQL/页面/价格权限与f004相同；本轮只两测试、一CI及文档。详细[整合记录](tasks/active/pr114-119-integration-2026-10-19.md)。
+用户批准三阶段：导航/密码/角色；用户管理；业务操作日志。Phase1实现和24项合成数据库/API检查、类型/Node编译/lint通过，浏览器/最终基线/远端CI待核。不修改真实账号或业务数据、不自动合并、不部署。
 
-本机52定向通过/1 Linux-only CLI在Windows跳过；898项目、94基线、类型/lint/Node、精确SHA Server构建、Windows登录/物料Chromium20项通过。最终文档提交守卫、远端精确SHA和新Hosted CI待核，旧九绿不作本次证据。旧摘要与114历史文档逐字保留；不修改冻结证据。
-
-PR119按完整范围更新为最终整合候选；其他PR暂不合并关闭。无真实账号/业务库、既有演示、艾诺科读取/绑定/激活/调度、宁波18443/18444或部署操作。不恢复认领、准备和公开归一，不扩汇率与完整Server关账。
+59069原体验保留，已只读备份；候选版本使用新副本。详细范围、证据和后续见[任务](tasks/active/system-settings-administration-2026-10-19.md)。[旧摘要](tasks/completed/2026-10-19-system-settings-predecessor/CURRENT_STATE.md)保留原日期与结果。

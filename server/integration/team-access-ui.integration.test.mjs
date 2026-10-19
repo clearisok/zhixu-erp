@@ -78,6 +78,23 @@ test("First team production-built UI uses trusted session, existing layout and s
    assert.deepEqual(assignments,expectedRoleIds.map((role_id,i)=>({username:"synthetic.ui."+i,role_id})));
    await shot("desktop-seven-roles");
   });
+
+  await t.test("managed roles use real forms and preserve the shared navigation",async()=>{
+   await navigate("/system-settings/roles");await has("角色列表");
+   await click("新建角色");
+   await input(".qc-permission-account-fields label:first-child input","合成组合角色");
+   await input(".qc-permission-account-fields label:nth-child(2) input","角色页面验收");
+   await evalJs("[...document.querySelectorAll('.qc-permission-groups label')].find(n=>n.innerText.includes('查看报价')).querySelector('input').click()");
+   await click("保存权限");await has("新增 1 项权限");await click("确认保存");await has("已保存");
+   await navigate("/system-settings/roles");await has("合成组合角色");
+   await evalJs("[...document.querySelectorAll('.qc-permission-user-records button')].find(n=>n.textContent.includes('合成组合角色')).click()");
+   await click("删除角色");await click("确认删除");await has("已保存");
+   assert.equal((await x.pool.query("SELECT archived_at IS NOT NULL AS archived FROM app_roles WHERE name='合成组合角色'")).rows[0].archived,true);
+   await navigate("/system-settings/progress-settings");await has("进度设置");
+   assert.ok((await body()).includes("报价中心"));assert.ok((await body()).includes("订单中心"));
+   await navigate("/system-settings/progress-settings");await has("进度设置");await click("系统设置");await has("角色权限");
+   await navigate("/basic-settings/user-permissions");await has("新建账号");
+  });
   await t.test("each non-admin session is denied the management page and cannot recover Browser permissions",async()=>{
    for(let i=1;i<expectedRoleIds.length;i++){
     await evalJs("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");

@@ -124,14 +124,14 @@ test("first team: seven synthetic session accounts and guarded administration in
     const secondary=accounts.get("role-server-admin")!;
     const off=await command({action:"update",id:secondary.user.id,expectedVersion:secondary.user.version,name:secondary.user.name,status:"inactive",roleIds:secondary.user.roleIds});
     assert.equal(off.response.status,200,off.text);
-    const last=await command(update,delegated);assert.equal(last.body.error.code,"team_last_admin",last.text);
+    const last=await command(update,delegated);assert.equal(last.body.error.code,"administrator_required",last.text);
   });
-  await t.test("preset drift is not overwritten; mutation rolls back",async()=>{
+  await t.test("managed preset grants remain authoritative when assigning users",async()=>{
     await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='role-team-material-manager' AND permission_key='order.view'");
     const base=accounts.get("role-team-material-manager")!.request;
     const r=await command({...base,requestId:randomUUID(),account:"synthetic.drift"});
-    assert.equal(r.body.error.code,"team_role_drift",r.text);
-    assert.equal((await x.pool.query("SELECT count(*)::int n FROM app_users WHERE username='synthetic.drift'")).rows[0].n,0);
+    assert.equal(r.response.status,200,r.text);
+    assert.equal((await signIn("synthetic.drift")).body.permissions.includes("order.view"),false);
   });
   await t.test("concurrent updates with the same version commit at most once",async()=>{
     const a=accounts.get("role-team-manager")!;

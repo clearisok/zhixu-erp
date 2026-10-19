@@ -54,10 +54,17 @@ export function AppShell({ title, children, onRequestNavigation, onRequestLogout
   const basicTriggerRef = useRef<HTMLButtonElement | null>(null);
   const systemTriggerRef = useRef<HTMLButtonElement | null>(null);
   const viewportMode = useResponsiveMode();
-  const serverSettingsMode = identityMode === "server" && (pathname.startsWith("/basic-settings/server/") || pathname === "/system-settings/server/quote-settings" || pathname === "/system-settings/progress-settings");
+  const serverSettingsMode = !freshServer && identityMode === "server" && (pathname.startsWith("/basic-settings/server/") || pathname === "/system-settings/server/quote-settings" || pathname === "/system-settings/progress-settings");
   const localSingleUser = browserIdentityMode() === "local-single-user";
   const visibleBasicRoutes = (serverSettingsMode ? serverBasicRoutes : basicRoutes).filter((route) => !freshServer || isEnabledServerRoute(route.href));
-  const visibleSystemRoutes = (serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (route.href !== "/system-settings/progress-settings" || freshServer && isEnabledServerRoute(route.href)) && (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions"));
+  const formalSystemRoutes = [
+    {label:"进度设置",href:"/system-settings/progress-settings"},
+    {label:"报价设置",href:"/system-settings/quote-settings"},
+    {label:"角色权限",href:"/system-settings/roles"},
+    {label:"用户管理",href:"/basic-settings/user-permissions"},
+    {label:"操作日志",href:"/system-settings/operation-logs"},
+  ];
+  const visibleSystemRoutes = (freshServer ? formalSystemRoutes : serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (route.href !== "/system-settings/progress-settings" || freshServer && isEnabledServerRoute(route.href)) && (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions"));
   const basicActive = visibleBasicRoutes.some((route) => pathname === route.href);
   const systemActive = visibleSystemRoutes.some((route) => pathname === route.href);
   const personalActive = pathname.startsWith("/my-settings/");

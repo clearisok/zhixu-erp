@@ -1,0 +1,9 @@
+.qc-admin-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; padding:20px; border-top:1px solid var(--line); }
+.qc-admin-password { display:grid; gap:8px; margin:20px 0; }
+.qc-admin-password label { display:grid; gap:8px; }
+.qc-admin-password-input { display:flex; gap:8px; }
+.qc-admin-password-input input { min-width:0; flex:1; }
+.qc-admin-password-input button { border:1px solid var(--line); border-radius:10px; padding:0 16px; background:white; color:var(--forest); cursor:pointer; }
+.qc-admin-password small { color:var(--muted); }
+.qc-admin-password [role=alert] { margin:0; color:#a33c31; }
+
