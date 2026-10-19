@@ -64,7 +64,7 @@ export function AppShell({ title, children, onRequestNavigation, onRequestLogout
     {label:"用户管理",href:"/basic-settings/user-permissions"},
     {label:"操作日志",href:"/system-settings/operation-logs"},
   ];
-  const visibleSystemRoutes = (freshServer ? formalSystemRoutes : serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (route.href !== "/system-settings/progress-settings" || freshServer && isEnabledServerRoute(route.href)) && (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions"));
+  const visibleSystemRoutes = (freshServer ? formalSystemRoutes : serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (route.href !== "/system-settings/progress-settings" || freshServer && isEnabledServerRoute(route.href)) && (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions" && route.href !== "/system-settings/roles"));
   const basicActive = visibleBasicRoutes.some((route) => pathname === route.href);
   const systemActive = visibleSystemRoutes.some((route) => pathname === route.href);
   const personalActive = pathname.startsWith("/my-settings/");
