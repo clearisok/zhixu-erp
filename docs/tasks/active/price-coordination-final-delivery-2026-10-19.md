@@ -55,3 +55,25 @@ app/components/features/database/scripts/.github/package及构建配置相对166
 这些新本地候选尚未上传，远端CI表不因此改绿；1ab0一次上传许可已用完。整合交付记录与新候选的最后文档checkpoint不修改产品、SQL、UI或既有演示，不自动进行第二次上传。最终候选完整SHA以Git及outputs/price-coordination-delivery/next-reviewed-test-fix-delivery-2026-10-19.json为准，待新范围答复后再交付。
 
 没有真实账号/业务库、旧演示62316/62326、艾诺科新读取/绑定/激活/调度、宁波或18443/18444操作；没有汇率扩展、Server完整关账、自动合并或部署。
+
+## 测试兼容修复精确交付
+
+2026-10-19用户新答复“授权这次测试兼容修复交付”，范围精确为119/f004c1eb1b03dac22ffbd402eb320d1a33d51a3d仅上传一次，证明送达后117/1b08ea9348ecf377c1b4e4cdea4ba5d574a2250a、118/d5773dd4abe50289efc4b527d481643e4b8a9c64以force=false快进，再查新CI/复审。此许可独立于已消费的1ab0，已实际执行完指定上传和引用更新；不授权追加上传、合并、部署或真实数据操作。
+
+开始于clean加工f004，main仍064e3afaf7d08b3cb62907d4402f97d9c292f1e5，远端旧119/1ab0、117/92623、118/e7c8与审批一致。已验证所有旧到新和下游包含上游祖先关系、两份测试白名单及f004精确守卫。一次Execute再次返回STOP_AUTH_OR_DIVERGENCE同时给出精确f004；随即暂停写入并独立GET ref和两个上游原始commit对象，全都精确匹配；只读Dry Run返回DELIVERED_VERIFIED、pushes=0。没有重复push，未改变共享认证、代理、TLS或远端配置，原始传输根因仍未确认。
+
+随后逐个即时GET核对117/92623、118/e7c8仍为预期值，Git refs API force=false各一次，再独立GET确认1b08和d577。三个PR保持原唯一草稿，正文更新，118增量审查基点改1b08、119改d577；均已attach。本机安全回执、原PR正文、新正文及逐分支产品零差异证明保存在outputs/price-coordination-delivery/test-ledger-*忽略路径，不含凭据、raw trace或真实业务行。
+
+| PR | 精确远端 SHA | 新 source run | 新 team-access run | 新 baseline run |
+| --- | --- | --- | --- | --- |
+| 117 | 1b08ea9348ecf377c1b4e4cdea4ba5d574a2250a | 39186966639 | 39186966564 | 39186966601 |
+| 118 | d5773dd4abe50289efc4b527d481643e4b8a9c64 | 39186970812 | 39186970772 | 39186970832 |
+| 119 | f004c1eb1b03dac22ffbd402eb320d1a33d51a3d | 39186885685 | 39186885385 | 39186885387 |
+
+01:50 UTC的阶段观察为三个baseline SUCCESS、source/team-access运行中。最终九个run全部completed/success，每个完整headSha逐一独立匹配；source的最终更新时间分别01:58:31、01:57:09、01:57:53 UTC。后端/升级、边界、Server构建、实际Chromium及Python步骤全部SUCCESS，不将之前119/1ab0或本地验收当新Hosted通过。旧失败run和所有原始提交保持。完整安全CI元数据保存于本机test-ledger-pr{117,118,119}-{source,team-access,baseline}-final-2026-10-19.json。
+
+本次复审逐分支确认：相对各自旧远端，仅ainuoke-payment-operator.integration.test.ts、processing-batch-ui.integration.test.mjs和文档变化。migrationFilesAfter只筛选人工明确的CURRENT_MIGRATION_FILES，不向生产runner发现期望；旧行哈希、命令表为空、迁移幂等及旧schema拒绝均仍严格检查。加工来源Modal从旧文案改实际采用报价，增加精确报价编号与无编辑控件检查，保留工价和无认领断言；加工整合保留其新推送/选择用例，未用上游整文件替代。没有产品/SQL/UI、CCT/工价/售价/权限或来源身份变化。
+
+本轮差异复审未发现新的阻塞缺陷。三个PR没有新增GitHub评论或外部评审；此处是本轮增量的工程复审，不能冒称人工业务接受或整个累计PR已获批准。已重新核对119包含108–113、115–118完整远端原始提交，114最新4b7ac1e8e8806bb62cbb24c292ad57bd99c43b00仍未包含；110/e70deacf原三CI也独立核实保持SUCCESS。三个PR正文已更新九项新结果，保持唯一草稿，不新增PR或提交Approve/合并。
+
+后续交付回执在本机独立chore/price-coordination-test-fix-delivery-2026-10-19收口，从clean f004起步；前版两摘要逐字及SHA256和Git blob验证后归档completed/2026-10-19-before-test-fix-delivery-{current-state,handoff}.md。本机文档阶段94项发布基线通过（194497ms，无跳过）及源码守卫PASS（11页/46能力/71UI路径），不重复无产品变化的其他业务验收充当新次数；最终文档commit后另核精确守卫。本机文档commit不自动上传，不把本机新HEAD冒称已交付f004。累计依赖、114独立边界和所有真实操作限制不变。
