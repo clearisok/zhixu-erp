@@ -1,0 +1,21 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "features/ainuoke-material-progress/excess-warehouse.ts",
+    "features/ainuoke-material-progress/projection.ts",
+    "features/style-progress/components/material-control-tower-read-only.tsx"
+  ],
+  "pages": [
+    "material"
+  ],
+  "visibleDifference": "Only add the explicitly requested excess-warehouse value to existing inbound-event details. Preserve source units, unknown/conflict states, all existing formal quantities and layout.",
+  "evidence": [
+    "docs/tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md",
+    "tests/ainuoke-excess-warehouse.test.mjs"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md"
+  }
+}

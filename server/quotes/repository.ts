@@ -202,6 +202,15 @@ export function createQuoteRepository(pool: Pool) {
       const quote = normalizeServerQuote(input); validateQuote(quote);
       if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1) throw new QuoteConflictError();
       return transaction(pool, false, async (client) => {
+        return saveQuoteAggregateInTransaction(client,quote,expectedVersion,afterWrite);
+      });
+    },
+  };
+}
+
+/** Internal composition: caller owns transaction, authorization and lock order. */
+export async function saveQuoteAggregateInTransaction(client:PoolClient,input:ServerQuote,expectedVersion:number,afterWrite?:QuoteMutationHook):Promise<QuoteRecord>{
+ const quote=normalizeServerQuote(input);validateQuote(quote);if(!Number.isSafeInteger(expectedVersion)||expectedVersion<1)throw new QuoteConflictError();
         const locked = await client.query("SELECT version FROM quote_center_quotes WHERE id=$1 FOR UPDATE", [quote.id]);
         if (locked.rows[0]?.version !== expectedVersion) throw new QuoteConflictError();
         const previous = await readQuoteAggregateInTransaction(client, quote.id);
@@ -213,7 +222,4 @@ export function createQuoteRepository(pool: Pool) {
         const result = { quote, version: expectedVersion + 1 };
         await afterWrite?.(client, { kind: "save", before: previous, after: result });
         return result;
-      });
-    },
-  };
 }

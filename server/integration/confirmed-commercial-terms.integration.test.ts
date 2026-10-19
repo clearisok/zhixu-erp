@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { CURRENT_MIGRATION_FILES } from "./current-migration-ledger-fixture.js";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
 import test from "node:test";
@@ -10,6 +11,7 @@ import type { TrustedIdentity } from "../auth/session.js";
 import {
   readConfirmedCommercialTermsByQuote,
   readConfirmedCommercialTermsBySalesOrder,
+  readLegacyOrderCommercialEvidence,
   updateConfirmedCommercialTermsByQuote,
   updateConfirmedCommercialTermsBySalesOrder,
 } from "../confirmed-commercial-terms/service.js";
@@ -106,7 +108,7 @@ async function apiRequest<T = Record<string, unknown>>(baseUrl: string, path: st
   return { response, payload: await response.json() as T };
 }
 
-test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current truth", async (t) => {
+test("Quote confirmation and legacy evidence remain distinct from adopted Order prices", async (t) => {
   const postgres = await startDisposablePostgres();
   const databaseUrl = await postgres.createDatabase("confirmed_commercial_terms");
   const pool = new Pool({ connectionString: databaseUrl });
@@ -116,19 +118,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
   });
 
   const firstMigration = await runMigrations(pool, resolve("database/migrations"));
-  assert.deepEqual(firstMigration.applied, [
-    "0001_trusted_auth_rbac_operation_logs.sql",
-    "0002_sales_order_foundation.sql",
-    "0003_sales_order_number_sequence.sql",
-    "0004_confirmed_commercial_terms.sql",
-    "0005_quote_foundation.sql",
-    "0006_quote_number_sequence.sql",
-    "0007_quote_master_settings.sql",
-    "0008_quote_attachments.sql",
-    "0009_sales_order_delivery_plans.sql",
-    "0010_quote_creation_receipts.sql",
-    "0011_quote_creation_defaults.sql", "0012_ainuoke_server_source.sql",
-  ]);
+  assert.deepEqual(firstMigration.applied, CURRENT_MIGRATION_FILES);
   const rerun = await runMigrations(pool, resolve("database/migrations"));
   assert.deepEqual(rerun.applied, []);
   assert.ok(rerun.skipped.includes("0004_confirmed_commercial_terms.sql"));
@@ -227,7 +217,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     [unlinkedOrder.id],
   );
 
-  await t.test("multiple SalesOrders with exact provenance share one context across both surfaces", async () => {
+  await t.test("exact legacy provenance preserves Quote evidence; new Order reads require adoption", async () => {
     const quoteUpdated = await updateConfirmedCommercialTermsByQuote(pool, editor.identity, provenance, {
       expectedQuoteVersion: 1,
       expectedVersion: 0,
@@ -238,8 +228,8 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     assert.equal(quoteUpdated.linkage, "linked");
     assert.equal(quoteUpdated.associatedSalesOrderIds.length, 2);
     assert.equal(quoteUpdated.current?.version, 1);
-    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, firstOrder.id)).current?.customerConfirmedPrice, "125.50");
-    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, secondOrder.id)).current?.id, quoteUpdated.current?.id);
+    assert.equal((await readLegacyOrderCommercialEvidence(pool, firstOrder.id)).current?.customerConfirmedPrice, "125.50");
+    assert.equal((await readLegacyOrderCommercialEvidence(pool, secondOrder.id)).current?.id, quoteUpdated.current?.id);
 
     await assert.rejects(
       () => updateConfirmedCommercialTermsBySalesOrder(pool, editor.identity, firstOrder.id, {
@@ -249,12 +239,13 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
         laborCurrency: "USD",
       }),
       (error: unknown) => (error as { status?: number; code?: string }).status === 409
-        && (error as { code?: string }).code === "linked_labor_currency_order_conflict",
+        && (error as { code?: string }).code === "order_commercial_adoption_required",
     );
-    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, firstOrder.id)).current?.laborCurrency, "CNY");
+    assert.equal((await readLegacyOrderCommercialEvidence(pool, firstOrder.id)).current?.laborCurrency, "CNY");
     assert.equal((await pool.query("SELECT count(*)::int AS count FROM operation_logs WHERE entity_type = 'ConfirmedCommercialTerms'")).rows[0].count, 1);
 
-    const orderUpdated = await updateConfirmedCommercialTermsBySalesOrder(pool, editor.identity, secondOrder.id, {
+    const orderUpdated = await updateConfirmedCommercialTermsByQuote(pool, editor.identity, provenance, {
+      expectedQuoteVersion: 1,
       expectedVersion: 1,
       customerConfirmedPrice: "126.00",
       confirmedLaborPrice: "9.00",
@@ -277,7 +268,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
       laborCurrency: "USD",
     });
     assert.equal(currencyUpdated.current?.version, 3);
-    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, firstOrder.id)).current?.laborCurrency, "USD");
+    assert.equal((await readLegacyOrderCommercialEvidence(pool, firstOrder.id)).current?.laborCurrency, "USD");
     await assert.rejects(
       () => updateConfirmedCommercialTermsBySalesOrder(pool, editor.identity, secondOrder.id, {
         expectedVersion: 3,
@@ -286,9 +277,9 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
         laborCurrency: "CNY",
       }),
       (error: unknown) => (error as { status?: number; code?: string }).status === 409
-        && (error as { code?: string }).code === "linked_labor_currency_order_conflict",
+        && (error as { code?: string }).code === "order_commercial_adoption_required",
     );
-    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, secondOrder.id)).current?.laborCurrency, "USD");
+    assert.equal((await readLegacyOrderCommercialEvidence(pool, secondOrder.id)).current?.laborCurrency, "USD");
     assert.equal((await pool.query("SELECT count(*)::int AS count FROM confirmed_commercial_terms")).rows[0].count, 1);
     assert.equal((await pool.query("SELECT count(*)::int AS count FROM confirmed_commercial_terms_sales_orders")).rows[0].count, 2);
     const logs = await pool.query<{ actor_public_id: string; changes: Array<{ field: string; beforeValue: string | number | null; afterValue: string | number | null }> }>(
@@ -327,7 +318,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
         laborCurrency: "CNY",
       }),
       (error: unknown) => (error as { status?: number; code?: string }).status === 409
-        && (error as { code?: string }).code === "linked_labor_currency_not_established",
+        && (error as { code?: string }).code === "order_commercial_adoption_required",
     );
     assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, currencyUnsetOrder.id)).current, null);
     assert.equal((await pool.query("SELECT count(*)::int AS count FROM operation_logs WHERE entity_type = 'ConfirmedCommercialTerms'")).rows[0].count, logsBefore);
@@ -340,49 +331,25 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
       laborCurrency: "USD",
     });
     assert.equal(establishedByQuote.current?.laborCurrency, "USD");
-    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, currencyUnsetOrder.id)).current?.laborCurrency, "USD");
+    assert.equal((await readLegacyOrderCommercialEvidence(pool, currencyUnsetOrder.id)).current?.laborCurrency, "USD");
   });
 
-  await t.test("null is distinct from zero and an unlinked order never gains Quote provenance", async () => {
-    const initial = await readConfirmedCommercialTermsBySalesOrder(pool, unlinkedOrder.id);
-    assert.equal(initial.current, null);
-    const zero = await updateConfirmedCommercialTermsBySalesOrder(pool, editor.identity, unlinkedOrder.id, {
-      expectedVersion: 0,
-      customerConfirmedPrice: "0",
-      confirmedLaborPrice: "0",
-      laborCurrency: "CNY",
-    });
-    assert.equal(zero.linkage, "unlinked");
-    assert.equal(zero.current?.customerConfirmedPrice, "0");
-    assert.equal(zero.current?.confirmedLaborPrice, "0");
-    const explicitUsd = await updateConfirmedCommercialTermsBySalesOrder(pool, editor.identity, unlinkedOrder.id, {
-      expectedVersion: 1,
-      customerConfirmedPrice: "0",
-      confirmedLaborPrice: "0",
-      laborCurrency: "USD",
-    });
-    assert.equal(explicitUsd.current?.laborCurrency, "USD");
-    const provenanceAfter = await pool.query("SELECT source_quote_id, source_revision_id, source_price_version_id FROM sales_orders WHERE id = $1", [unlinkedOrder.id]);
-    assert.deepEqual(provenanceAfter.rows[0], { source_quote_id: null, source_revision_id: null, source_price_version_id: null });
-    await assert.rejects(
-      () => pool.query("UPDATE confirmed_commercial_terms SET customer_confirmed_price = -1, version = version + 1 WHERE id = $1", [zero.current?.id]),
-      /check constraint/iu,
-    );
-    await assert.rejects(
-      () => pool.query("DELETE FROM confirmed_commercial_terms WHERE id = $1", [zero.current?.id]),
-      /cannot be deleted/iu,
-    );
+  await t.test("zero remains a Quote confirmation fact; unadopted order cannot invent price or provenance", async () => {
+    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool,unlinkedOrder.id)).current,null);
+    await assert.rejects(()=>updateConfirmedCommercialTermsBySalesOrder(pool,editor.identity,unlinkedOrder.id,{expectedVersion:0,customerConfirmedPrice:"0",confirmedLaborPrice:"0",laborCurrency:"CNY"}),(e:unknown)=>(e as {code:string}).code==="order_commercial_adoption_required");
+    const zero=await updateConfirmedCommercialTermsByQuote(pool,editor.identity,currencyUnsetProvenance,{expectedQuoteVersion:1,expectedVersion:1,confirmedLaborPrice:"0"});
+    assert.equal(zero.current?.confirmedLaborPrice,"0");assert.equal(zero.current?.customerConfirmedPrice,null);
+    const provenanceAfter=await pool.query("SELECT source_quote_id,source_revision_id,source_price_version_id FROM sales_orders WHERE id=$1",[unlinkedOrder.id]);
+    assert.deepEqual(provenanceAfter.rows[0],{source_quote_id:null,source_revision_id:null,source_price_version_id:null});
+    await assert.rejects(()=>pool.query("UPDATE confirmed_commercial_terms SET customer_confirmed_price=-1,version=version+1 WHERE id=$1",[zero.current?.id]),/check constraint/iu);
+    await assert.rejects(()=>pool.query("DELETE FROM confirmed_commercial_terms WHERE id=$1",[zero.current?.id]),/cannot be deleted/iu);
   });
-
-  await t.test("audit failure rolls back terms and association atomically", async () => {
-    const invalidActor: TrustedIdentity = { ...editor.identity, internalUserId: "9223372036854775807" };
-    await assert.rejects(() => updateConfirmedCommercialTermsBySalesOrder(pool, invalidActor, rollbackOrder.id, {
-      expectedVersion: 0,
-      customerConfirmedPrice: "10",
-      confirmedLaborPrice: "2",
-      laborCurrency: "CNY",
-    }));
-    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool, rollbackOrder.id)).current, null);
+  await t.test("audit failure rolls back Quote confirmation atomically",async()=>{
+    const before=await readConfirmedCommercialTermsByQuote(pool,provenance);
+    const invalidActor:TrustedIdentity={...editor.identity,internalUserId:"9223372036854775807"};
+    await assert.rejects(()=>updateConfirmedCommercialTermsByQuote(pool,invalidActor,provenance,{expectedQuoteVersion:2,expectedVersion:3,customerConfirmedPrice:"999"}));
+    assert.deepEqual(await readConfirmedCommercialTermsByQuote(pool,provenance),before);
+    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool,rollbackOrder.id)).current,null);
   });
 
   await t.test("API enforces trusted session, RBAC, exact linkage, mutation boundary and typed input", async () => {
@@ -396,7 +363,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
     assert.equal((await apiRequest(api.baseUrl, quotePath(provenance.quoteId, provenance.revisionId, provenance.priceVersionId))).response.status, 401);
     assert.equal((await apiRequest(api.baseUrl, termsPath(firstOrder.id), { cookie: deniedCookie })).response.status, 403);
     assert.equal((await apiRequest(api.baseUrl, quotePath(provenance.quoteId, provenance.revisionId, provenance.priceVersionId), { cookie: deniedCookie })).response.status, 403);
-    assert.equal((await apiRequest(api.baseUrl, termsPath("00000000-0000-0000-0000-000000000000"), { cookie: editorCookie })).response.status, 404);
+    assert.equal((await apiRequest(api.baseUrl, termsPath("11111111-1111-4111-8111-111111111111"), { cookie: editorCookie })).response.status, 404);
     assert.equal((await apiRequest(api.baseUrl, termsPath(firstOrder.id), { cookie: viewerCookie })).response.status, 200);
 
     const mutationBody = { expectedVersion: 3, customerConfirmedPrice: "127.000000000000000001", confirmedLaborPrice: "9.500000000000000001", laborCurrency: "USD" };
@@ -416,12 +383,13 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
       body: { ...mutationBody, laborCurrency: "CNY" },
     });
     assert.equal(currencyConflict.response.status, 409);
-    assert.equal(currencyConflict.payload.error.code, "linked_labor_currency_order_conflict");
+    assert.equal(currencyConflict.payload.error.code, "order_commercial_adoption_required");
 
-    const success = await apiRequest<{ confirmedCommercialTerms: { current: { version: number } } }>(api.baseUrl, termsPath(firstOrder.id), { cookie: editorCookie, method: "PATCH", origin: browserOrigin, trustedHeader: true, body: mutationBody });
+    const success = await apiRequest<{ confirmedCommercialTerms: { current: { version: number } } }>(api.baseUrl, quotePath(provenance.quoteId,provenance.revisionId,provenance.priceVersionId), { cookie: editorCookie, method: "PATCH", origin: browserOrigin, trustedHeader: true, body: {...mutationBody,expectedQuoteVersion:2} });
     assert.equal(success.response.status, 200);
     assert.equal(success.payload.confirmedCommercialTerms.current.version, 4);
-    const exactRoundTrip = await readConfirmedCommercialTermsBySalesOrder(pool, secondOrder.id);
+    assert.equal((await readConfirmedCommercialTermsBySalesOrder(pool,secondOrder.id)).current,null);
+    const exactRoundTrip = await readConfirmedCommercialTermsByQuote(pool, provenance);
     assert.equal(exactRoundTrip.current?.customerConfirmedPrice, "127.000000000000000001");
     assert.equal(exactRoundTrip.current?.confirmedLaborPrice, "9.500000000000000001");
     const trustedApiLog = await pool.query<{ actor_public_id: string; context: { mutationSurface: string; salesOrderIds: string[] } }>(
@@ -430,7 +398,7 @@ test("ConfirmedCommercialTerms uses disposable PostgreSQL and one shared current
        ORDER BY created_at DESC, id DESC LIMIT 1`,
     );
     assert.equal(trustedApiLog.rows[0].actor_public_id, editor.identity.userId);
-    assert.equal(trustedApiLog.rows[0].context.mutationSurface, "order");
+    assert.equal(trustedApiLog.rows[0].context.mutationSurface, "quote");
     assert.ok(trustedApiLog.rows[0].context.salesOrderIds.includes(firstOrder.id));
     assert.equal((await apiRequest(api.baseUrl, termsPath(firstOrder.id), { cookie: editorCookie, method: "PATCH", origin: browserOrigin, trustedHeader: true, body: mutationBody })).response.status, 409);
 

@@ -1,3 +1,4 @@
+import type { OrderAlert } from "../../features/order-center/server/order-alerts.js";
 export const AINUOKE_SOURCE_SYSTEM = "ainuoke";
 export const AINUOKE_CONTRACT_ENTITY_TYPE = "sales_contract";
 
@@ -58,6 +59,8 @@ export type AinuokeColorMirrorInput = {
 };
 
 export type SalesOrderReadModel = {
+  attribution?: import("./effective-attribution.js").EffectiveOrderIdentity;
+  sourceOwnerOrderId?: string;
   id: string;
   version: number;
   orderNo: string;
@@ -66,12 +69,16 @@ export type SalesOrderReadModel = {
   salesContractNo: string | null;
   insideOrderNo: string | null;
   sourceLifecycleStatus: string;
+  businessType?: "ainuoke_contract"|"processing"|"unclassified";
+  ownerName?:string|null;
+  businessSource?:"quote"|"reorder"|null;
   styleNo: string;
   companyName: string;
   customerName: string;
   brandName: string;
   quantity: number | null;
   colorCount: number;
+  alerts?: OrderAlert[];
   contractDate: string | null;
   contractDeliveryDate: string | null;
   createdAt: string;

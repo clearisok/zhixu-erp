@@ -1,0 +1,14 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V0",
+  "paths": [
+    "features/operation-logs/model/operation-log.ts"
+  ],
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/tasks/active/order-normalization-preview.md"
+  ]
+}

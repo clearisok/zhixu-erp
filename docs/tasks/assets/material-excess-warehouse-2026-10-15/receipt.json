@@ -1,0 +1,26 @@
+{
+  "verifiedAt": "2026-10-15",
+  "mainSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "renderedSourceSha": "049a87ba9aeef2e076ae8a7d69b753d18f4cd39b",
+  "testScriptSha": "b8a8c0a9f2598656925730a1812481f4084c08c9",
+  "buildId": "20261015-130555",
+  "data": "generated-synthetic-disposable-postgresql",
+  "visualQa": "AI-reviewed, not human acceptance",
+  "screenshots": [
+    {
+      "path": "docs/tasks/assets/material-excess-warehouse-2026-10-15/num-dyc-1440.png",
+      "sha256": "46cfc245cf9e3df5fca94b091ccf4c9ce5d490ed8e60a9fe260b5931e8c6a458",
+      "width": 1440
+    },
+    {
+      "path": "docs/tasks/assets/material-excess-warehouse-2026-10-15/num-dyc-1280.png",
+      "sha256": "ea9a9c579c1e4849d9427cffb0cbbb6e1189515bef640480ce8e8741b2a60317",
+      "width": 1280
+    },
+    {
+      "path": "docs/tasks/assets/material-excess-warehouse-2026-10-15/num-dyc-390.png",
+      "sha256": "308e9783df1032af64e012670a42ebdabf9975c6a1a1ebe168e03dc730aaf204",
+      "width": 390
+    }
+  ]
+}

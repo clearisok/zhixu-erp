@@ -101,17 +101,19 @@ test("detail uses exact Server source fields and presents source quantity as rea
   assert.doesNotMatch(detailSource, /factoryStyleNo|initialQuantity/u);
 });
 
-test("color detail displays only source color and quantity and accepts an empty slice", () => {
-  assert.match(detailSource, /color\.sourceLineIdentity/u);
-  assert.match(detailSource, /color\.colorName/u);
-  assert.match(detailSource, /color\.quantity/u);
+test("color detail preserves source identity and quantity while delegating read-only color prices", async () => {
+  const colorSource=await readFile("features/order-center/components/order-color-prices.tsx","utf8");
+  assert.match(detailSource, /OrderColorPrices/u);
+  assert.match(colorSource, /c\.sourceLineIdentity/u);
+  assert.match(colorSource, /c\.colorName/u);
+  assert.match(colorSource, /c\.quantity/u);
   assert.doesNotMatch(detailSource, /color\.deliveryDate/u);
-  assert.match(detailSource, /当前订单主档有效；颜色明细暂无有效数据。/u);
-  assert.match(detailSource, /颜色 enrichment 为空不影响 SalesOrder master 有效性/u);
+  assert.match(colorSource, /暂无颜色明细/u);
+  assert.match(colorSource, /统一成交价/u);
   assert.match(modelSource, /deliveryDate:\s*string \| null/u);
 });
 
-test("C4.2 exposes only Server current terms while the remaining blocked Browser fields stay absent", () => {
+test("formal detail exposes independent Server adoption while blocked Browser fields stay absent", () => {
   for (const blocked of [
     "customerPoNo",
     "customerId",
@@ -132,11 +134,8 @@ test("C4.2 exposes only Server current terms while the remaining blocked Browser
     "customerRequirement",
     "processDescription",
   ]) assert.doesNotMatch(detailSource, new RegExp(blocked, "iu"));
-  assert.match(detailSource, /SERVER CURRENT TERMS/u);
-  assert.match(detailSource, /terms\?\.current\?\.customerConfirmedPrice/u);
-  assert.match(detailSource, /terms\?\.current\?\.confirmedLaborPrice/u);
-  assert.match(detailSource, /serverSession\.hasPermission\("order\.edit"\)/u);
-  assert.match(detailSource, /confirmedCommercialTermsServerClient\.updateBySalesOrder/u);
+  assert.match(detailSource, /OrderBusinessSourceButton/u);
+  assert.doesNotMatch(detailSource, /confirmedCommercialTermsServerClient\.updateBySalesOrder/u);
   assert.doesNotMatch(detailSource, /orderRepository|OrderPriceVersion|salePrice|processingUnitPrice/u);
   assert.doesNotMatch(detailSource, /\.(?:saveAll|deleteSalesOrder|removeSalesOrder|updateSalesOrder|createSalesOrder|cancelSalesOrder)\s*\(/u);
   assert.doesNotMatch(detailSource, /<Button[^>]*>\s*(?:删除|取消订单|创建订单|编辑订单|保存订单)\s*<\/Button>/u);

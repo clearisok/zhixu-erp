@@ -1,0 +1,25 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "features/confirmed-commercial-terms/client.ts",
+    "features/operation-logs/model/operation-log.ts",
+    "features/order-center/components/server-order-commercial-card.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/permissions/model/permissions.ts"
+  ],
+  "pages": [
+    "order-detail",
+    "user-permissions"
+  ],
+  "visibleDifference": "订单商业卡片由共享金额编辑改为精确报价版本预览及显式采用，沿用Foundation；显示待采用、采用版本及权限限制。新增采用权限和审计语义，未重设计其他页面。",
+  "evidence": [
+    "docs/tasks/active/order-identity-program.md",
+    "docs/features/ORDER_COMMERCIAL_VERSIONS.md",
+    "docs/tasks/active/order-commercial-versions.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-identity-program.md"
+  }
+}

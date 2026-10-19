@@ -13,6 +13,7 @@ import { synchronizePermissionCatalog } from "../auth/permissions.js";
 import { runMigrations, verifyMigrationsCurrent } from "../db/migration-runner.js";
 import { initializeServer } from "../startup.js";
 import { startDisposablePostgres } from "./postgres-container.js";
+import { CURRENT_MIGRATION_FILES } from "./current-migration-ledger-fixture.js";
 
 // Generated credentials, random container/database, tmpfs PGDATA and ephemeral
 // loopback ports only. No process DB environment or production resources used.
@@ -20,6 +21,10 @@ test("Fresh start: schema, technical-only bootstrap and Server-only empty paths"
   const postgres = await startDisposablePostgres();
   const pool = new pg.Pool({ connectionString: await postgres.createDatabase("fresh_start") });
   const migrations = resolve("database/migrations");
+  const expectedVersions=CURRENT_MIGRATION_FILES.map(filename=>Number(filename.slice(0,4)));
+  const technicalCounts={sales_order_normalization_target:1,sales_order_attribution_write_epoch:1,sales_order_command_control:1,sales_order_command_control_events:1};
+  const technicalSnapshot=async()=>{const rows:Record<string,unknown>={};for(const table of Object.keys(technicalCounts))rows[table]=(await pool.query(`SELECT to_jsonb(t) AS row FROM ${table} t ORDER BY to_jsonb(t)::text`)).rows;return rows;};
+  let originalTechnical:Record<string,unknown>={};
   const origin = "http://fresh-start.invalid";
   const server = createServer(createApp({ pool, allowedOrigins: [origin], security: { secureCookies: false, sessionTtlSeconds: 3600 } }));
   t.after(async () => {
@@ -46,20 +51,25 @@ test("Fresh start: schema, technical-only bootstrap and Server-only empty paths"
     listen,
   });
 
-  await t.test("formal migrations 0001–0012 apply; no legacy or business seeds", async () => {
+  await t.test("formal migrations apply exact current ledger; only declared technical singletons and no business seeds", async () => {
     const applied = await runMigrations(pool, migrations);
-    assert.equal(applied.applied.length, 12);
-    assert.equal(applied.applied.at(-1), "0012_ainuoke_server_source.sql");
+    assert.deepEqual(applied.applied.map(file=>Number(file.slice(0,4))),expectedVersions);
+    assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version),expectedVersions);
+    assert.deepEqual(applied.applied, CURRENT_MIGRATION_FILES);
     const actual = await counts();
-    assert.equal(actual.schema_migrations, 12);
-    for (const [table, n] of Object.entries(actual)) if (table !== "schema_migrations") assert.equal(n, 0, table);
+    const initial={schema_migrations:expectedVersions.length,app_permissions:1,...technicalCounts};
+    for (const [table, n] of Object.entries(actual)) assert.equal(n,initial[table as keyof typeof initial]??0,table);
+    originalTechnical=await technicalSnapshot();
+    assert.deepEqual((await pool.query('SELECT version::int FROM sales_order_attribution_write_epoch')).rows,[{version:0}]);
+    assert.deepEqual((await pool.query('SELECT mode,version FROM sales_order_command_control')).rows,[{mode:'enabled',version:1}]);
+    assert.deepEqual((await pool.query('SELECT version,previous_mode,mode FROM sales_order_command_control_events')).rows,[{version:1,previous_mode:null,mode:'enabled'}]);
     for (const legacy of ["customers", "quotes", "orders", "schedules", "audit_logs"]) assert.equal(actual[legacy], undefined);
     assert.equal(await bootstrapAdmin(pool, { username: "not-created", displayName: "Not created" }), false);
   });
 
   await t.test("startup and repeated startup only produce the explicit technical whitelist", async () => {
     await initialize(() => new Promise<void>((done) => server.listen(0, "127.0.0.1", done)));
-    const whitelist = { schema_migrations: 12, app_permissions: PERMISSION_KEYS.length, app_roles: 1, app_users: 1, app_user_roles: 1, app_role_permissions: PERMISSION_KEYS.length };
+    const whitelist = { schema_migrations: expectedVersions.length, ...technicalCounts, app_permissions: PERMISSION_KEYS.length, app_roles: 1, app_users: 1, app_user_roles: 1, app_role_permissions: PERMISSION_KEYS.length };
     const first = await counts();
     for (const [table, n] of Object.entries(first)) assert.equal(n, whitelist[table as keyof typeof whitelist] ?? 0, table);
     await new Promise<void>((done, reject) => server.close((error) => error ? reject(error) : done()));
@@ -67,7 +77,8 @@ test("Fresh start: schema, technical-only bootstrap and Server-only empty paths"
     assert.deepEqual(await counts(), first);
     const rerun = await runMigrations(pool, migrations);
     assert.deepEqual(rerun.applied, []);
-    assert.equal(rerun.skipped.length, 12);
+    assert.deepEqual(rerun.skipped.map(file=>Number(file.slice(0,4))),expectedVersions);
+    assert.deepEqual(await technicalSnapshot(),originalTechnical);
     for (const sequence of ["sales_order_number_seq", "quote_center_quote_number_seq"]) {
       assert.deepEqual((await pool.query(`SELECT last_value::int,is_called FROM ${sequence}`)).rows[0], { last_value: 1, is_called: false });
     }

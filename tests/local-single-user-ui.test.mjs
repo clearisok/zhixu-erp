@@ -22,7 +22,9 @@ test("current local UI removes login and Browser test-user management surfaces",
   const userPage = await read("app/basic-settings/user-permissions/page.tsx");
   assert.match(loginCard, /browserIdentityMode\(\) === "local-single-user"/u);
   assert.match(logoutAction, /browserIdentityMode\(\) === "local-single-user"\) return null/u);
-  assert.match(shell, /serverIdentityMode \|\| localSingleUser \? <div className="qc-server-identity"/u);
+  assert.match(shell, /serverIdentityMode \|\| localSingleUser \? <ServerUserMenu/u);
+  assert.match(shell, /canLogout=\{!localSingleUser && serverSession.status === "authenticated"\}/u);
+  assert.match(await read("components/foundation/server-user-menu.tsx"), /if \(!canLogout\) return <div/u);
   assert.match(shell, /route.href !== "\/basic-settings\/user-permissions"/u);
   assert.match(permissions, /Browser user management is disabled in local single-user mode/u);
   assert.match(userPage, /当前开发阶段不提供账号或权限管理/u);
@@ -40,7 +42,7 @@ test("local root enters Quote Center before the legacy ERP login or bootstrap ru
 
 test("local Server production pages retain unified navigation and hide user management", async () => {
   const shell = await read("components/foundation/app-shell.tsx");
-  assert.match(shell, /const serverSettingsMode = identityMode === "server" && \(pathname\.startsWith\("\/basic-settings\/server\/"\) \|\| pathname === "\/system-settings\/server\/quote-settings"\)/u);
+  assert.match(shell, /const serverSettingsMode = identityMode === "server" && \(pathname\.startsWith\("\/basic-settings\/server\/"\) \|\| pathname === "\/system-settings\/server\/quote-settings" \|\| pathname === "\/system-settings\/progress-settings"\)/u);
   assert.match(shell, /const showSettingsNavigation = freshServer \|\| localSingleUser \|\| !serverIdentityMode \|\| serverSettingsMode/u);
   assert.equal((shell.match(/\{showSettingsNavigation &&/gu) ?? []).length, 3);
   for (const label of ["经营工作台", "报价中心", "基础设置", "订单中心", "生产排单", "关账中心", "系统设置"]) {
@@ -50,7 +52,7 @@ test("local Server production pages retain unified navigation and hide user mana
     assert.match(shell, new RegExp(`/basic-settings/${path}`, "u"));
   }
   assert.match(shell, /route\.href !== "\/basic-settings\/user-permissions"/u);
-  assert.match(shell, /serverIdentityMode \|\| localSingleUser \? <div className="qc-server-identity"/u);
+  assert.match(shell, /serverIdentityMode \|\| localSingleUser \? <ServerUserMenu/u);
 });
 
 test("formal Q3 pages stay on Server adapters while Quote aggregates stay in Browser storage", async () => {

@@ -1,3 +1,4 @@
+import {readOrderCommercialState} from '../sales-orders/commercial-version-service.js';
 import type { Pool, PoolClient } from "pg";
 import type {
   ConfirmedCommercialTermsDto,
@@ -16,6 +17,7 @@ import type { QuoteRevision } from "../../features/quote-center/model/quote-view
 import { appendOperationLog } from "../operation-logs/repository.js";
 import {
   associateSalesOrders,
+  findCreationOrderIdsByQuoteProvenance,
   composeTermsDto,
   createTerms,
   findSalesOrderCommercialTarget,
@@ -84,14 +86,16 @@ async function appendTermsLog(
     surface: ConfirmedCommercialTermsMutationSurface;
   },
 ): Promise<void> {
+  const processing=input.provenance&&(await client.query("SELECT metadata->'baseInfo'->>'quoteType' AS type FROM quote_center_revisions WHERE quote_id=$1 AND id=$2",[input.provenance.quoteId,input.provenance.revisionId])).rows[0]?.type==='processing';
+  const before=auditData(input.before,input.provenance),after=auditData(input.after,input.provenance);if(processing)for(const data of [before,after])if(data){delete data.values.customerConfirmedPrice;delete data.values.customerConfirmedPriceCurrency;}
   await appendOperationLog(client, actor, {
     module: input.surface === "quote" ? "报价中心" : "订单中心",
     action: input.before ? "修改确认商业条款" : "确认商业条款",
     entityType: "ConfirmedCommercialTerms",
     entityId: input.after.id,
     quoteId: input.provenance?.quoteId ?? null,
-    beforeData: auditData(input.before, input.provenance),
-    afterData: auditData(input.after, input.provenance),
+    beforeData: before,
+    afterData: after,
     context: {
       mutationSurface: input.surface,
       salesOrderIds: input.salesOrderIds,
@@ -134,7 +138,8 @@ function assertOrderPreservesLinkedLaborCurrency(
   }
 }
 
-async function readOrderWithClient(
+/** Historical evidence only. Never use as the live order price or expose without field projection. */
+export async function readLegacyOrderCommercialEvidence(
   client: Pool | PoolClient,
   salesOrderId: string,
 ): Promise<ConfirmedCommercialTermsDto> {
@@ -144,7 +149,7 @@ async function readOrderWithClient(
     throw new HttpError(409, "incomplete_quote_provenance", "SalesOrder Quote provenance is incomplete");
   }
   if (target.provenance) {
-    const salesOrderIds = await findSalesOrderIdsByQuoteProvenance(client, target.provenance);
+    const salesOrderIds = await findCreationOrderIdsByQuoteProvenance(client, target.provenance);
     const terms = await findTermsByQuoteProvenance(client, target.provenance);
     return composeTermsDto({ linkage: "linked", scope: terms?.ownership_scope ?? "quote", provenance: target.provenance, salesOrderIds, terms });
   }
@@ -156,7 +161,9 @@ export async function readConfirmedCommercialTermsBySalesOrder(
   pool: Pool,
   salesOrderId: string,
 ): Promise<ConfirmedCommercialTermsDto> {
-  return readOrderWithClient(pool, salesOrderId);
+  const state=await readOrderCommercialState(pool,salesOrderId),c=state.current;
+  if(c?.sourceKind==='line_items')throw new HttpError(409,'order_commercial_v2_required','Use the order commercial version reader for color pricing');
+  return {linkage:c?'linked':'unlinked',scope:c?'sales_order':null,quoteProvenance:c?{quoteId:c.quoteId,revisionId:c.revisionId,priceVersionId:c.priceVersionId}:null,associatedSalesOrderIds:[salesOrderId],current:c?{id:c.id,customerConfirmedPrice:c.salePrice,customerConfirmedPriceCurrency:'CNY',confirmedLaborPrice:c.laborPrice,laborCurrency:c.laborCurrency,version:c.version,createdAt:c.adoptedAt,updatedAt:c.adoptedAt}:null};
 }
 
 export async function readConfirmedCommercialTermsByQuote(
@@ -166,15 +173,17 @@ export async function readConfirmedCommercialTermsByQuote(
   const partial = await pool.query("SELECT 1 FROM sales_orders WHERE source_quote_id=$1 AND (source_revision_id IS NULL OR source_price_version_id IS NULL) LIMIT 1", [provenance.quoteId]);
   if (partial.rowCount) throw new HttpError(409, "incomplete_quote_provenance", "Quote linkage cannot be proved exactly");
   const salesOrderIds = await findSalesOrderIdsByQuoteProvenance(pool, provenance);
-  if (salesOrderIds.length === 0) {
+  const terms = await findTermsByQuoteProvenance(pool, provenance);
+  if (!terms) {
     return composeTermsDto({ linkage: "unlinked", scope: null, provenance, salesOrderIds: [], terms: null });
   }
-  const terms = await findTermsByQuoteProvenance(pool, provenance);
-  return composeTermsDto({ linkage: "linked", scope: terms?.ownership_scope ?? "quote", provenance, salesOrderIds, terms });
+  const dto=composeTermsDto({ linkage: 'linked', scope: terms?.ownership_scope ?? 'quote', provenance, salesOrderIds, terms });
+  const type=(await pool.query("SELECT metadata->'baseInfo'->>'quoteType' AS type FROM quote_center_revisions WHERE quote_id=$1 AND id=$2",[provenance.quoteId,provenance.revisionId])).rows[0]?.type;
+  if(type==='processing'&&dto.current)dto.current.customerConfirmedPrice=null;return dto;
 }
 
 async function mutate(
-  pool: Pool,
+  pool: Pool|null,
   actor: TrustedIdentity,
   input: {
     salesOrderId?: string;
@@ -182,8 +191,10 @@ async function mutate(
     values: UpdateConfirmedCommercialTermsInput & { expectedQuoteVersion?: number };
     surface: ConfirmedCommercialTermsMutationSurface;
   },
+  transactionClient?:PoolClient,
 ): Promise<ConfirmedCommercialTermsDto> {
-  const client = await pool.connect();
+  const client=transactionClient??await pool!.connect();
+  let processing=false;
   try {
     requirePermission(actor.permissions, input.surface === "quote" ? "quote.view" : "order.view");
     requirePermission(actor.permissions, input.surface === "quote" ? "quote.confirm" : "order.edit");
@@ -200,7 +211,7 @@ async function mutate(
       throw new HttpError(400, "invalid_confirmed_commercial_terms", "Invalid terms command; Quote surface requires expectedQuoteVersion");
     if (saleSubmitted) requireCommercialEdit(actor, "sale");
     if (laborSubmitted) requireCommercialEdit(actor, "labor");
-    await client.query("BEGIN");
+    if(!transactionClient)await client.query("BEGIN");
     let verifiedQuoteVersion: number | undefined;
     let provenance: QuoteProvenance | null = input.provenance ?? null;
     let salesOrderIds: string[];
@@ -229,10 +240,10 @@ async function mutate(
       scope = "quote";
       await lockQuoteTermsContext(client, provenance);
       salesOrderIds = await findSalesOrderIdsByQuoteProvenance(client, provenance);
-      if (salesOrderIds.length === 0) {
+      current = await findTermsByQuoteProvenance(client, provenance);
+      if (salesOrderIds.length === 0 && !current) {
         throw new HttpError(409, "quote_commercial_terms_not_linked", "Quote PriceVersion is not linked to a formal SalesOrder");
       }
-      current = await findTermsByQuoteProvenance(client, provenance);
     } else {
       throw new Error("ConfirmedCommercialTerms mutation target is required");
     }
@@ -259,9 +270,16 @@ async function mutate(
       const revision = record.quote.revisions.find(r => r.revisionId === provenance!.revisionId);
       if (!revision) throw new HttpError(404, "quote_revision_not_found", "Revision does not belong to Quote");
       if (!isWritableDefaultRevision(record.quote, revision.revisionId)) throw new HttpError(409, "quote_revision_read_only", "Quote surface requires current writable default Revision");
+      processing=revision.baseInfo.quoteType==='processing';
       const pv = revision.priceVersions.find(p => p.id === provenance!.priceVersionId);
       if (!pv) throw new HttpError(404, "quote_price_version_not_found", "PriceVersion does not belong to Revision");
       const currency = pv.pricingParameters.laborCurrency;
+      // The first CCT write must preserve the other already confirmed PV field.
+      if(!current&&pv.confirmation){
+        if(!saleSubmitted)values.customerConfirmedPrice=pv.confirmation.confirmedGarmentPrice;
+        if(!Object.hasOwn(input.values,'confirmedLaborPrice'))values.confirmedLaborPrice=pv.confirmation.confirmedLaborPrice;
+        if(!Object.hasOwn(input.values,'laborCurrency')&&values.confirmedLaborPrice!==null)values.laborCurrency=currency;
+      }
       if (laborSubmitted && !Object.hasOwn(input.values,"laborCurrency") && !current) values.laborCurrency = currency;
       if (laborSubmitted && (!isConfirmedLaborCurrency(currency) || values.laborCurrency !== currency))
         throw new HttpError(409, "saved_quote_labor_currency_conflict", "Compare saved PV currency with shared current; no automatic conversion");
@@ -273,7 +291,7 @@ async function mutate(
       const validation = validateCustomerConfirmation(view, view.priceVersions.find(p => p.id === pv.id)!, {
         labor: 0, garment: revision.baseInfo.quoteType === "processing" ? null : 0,
       });
-      if (!validation.valid || revision.baseInfo.quoteType === "processing" && values.customerConfirmedPrice !== null)
+      if (!validation.valid || revision.baseInfo.quoteType === "processing" && saleSubmitted && values.customerConfirmedPrice !== null)
         throw new HttpError(400, "quote_confirmation_incomplete", "Complete required saved Quote fields and confirmation amounts");
     }
     if (values.confirmedLaborPrice !== null && values.laborCurrency === null)
@@ -282,15 +300,15 @@ async function mutate(
       assertOrderPreservesLinkedLaborCurrency(current, values);
     }
     if (current && sameTerms(current, values)) {
-      await client.query("COMMIT");
-      return { ...composeTermsDto({ linkage: provenance ? "linked" : "unlinked", scope, provenance, salesOrderIds, terms: current }), ...(verifiedQuoteVersion ? { verifiedQuoteVersion } : {}) };
+      if(!transactionClient)await client.query("COMMIT");
+      return processingTermsDto({ ...composeTermsDto({ linkage: provenance ? "linked" : "unlinked", scope, provenance, salesOrderIds, terms: current }), ...(verifiedQuoteVersion ? { verifiedQuoteVersion } : {}) },processing);
     }
     if (!current
       && values.customerConfirmedPrice === null
       && values.confirmedLaborPrice === null
       && values.laborCurrency === null) {
-      await client.query("COMMIT");
-      return composeTermsDto({ linkage: provenance ? "linked" : "unlinked", scope, provenance, salesOrderIds, terms: null });
+      if(!transactionClient)await client.query("COMMIT");
+      return processingTermsDto(composeTermsDto({ linkage: provenance ? "linked" : "unlinked", scope, provenance, salesOrderIds, terms: null }),processing);
     }
 
     const after = current
@@ -305,15 +323,16 @@ async function mutate(
     if (!after) {
       throw new HttpError(409, "confirmed_commercial_terms_version_conflict", "ConfirmedCommercialTerms version is stale");
     }
-    await associateSalesOrders(client, after.id, salesOrderIds);
+    // Legacy association is creation-only and immutable. New adoption history lives in its own table.
+    await associateSalesOrders(client, after.id, provenance?await findCreationOrderIdsByQuoteProvenance(client,provenance):salesOrderIds);
     await appendTermsLog(client, actor, { before: current, after, provenance, salesOrderIds, surface: input.surface });
-    await client.query("COMMIT");
-    return { ...composeTermsDto({ linkage: provenance ? "linked" : "unlinked", scope, provenance, salesOrderIds, terms: after }), ...(verifiedQuoteVersion ? { verifiedQuoteVersion } : {}) };
+    if(!transactionClient)await client.query("COMMIT");
+    return processingTermsDto({ ...composeTermsDto({ linkage: provenance ? "linked" : "unlinked", scope, provenance, salesOrderIds, terms: after }), ...(verifiedQuoteVersion ? { verifiedQuoteVersion } : {}) },processing);
   } catch (error) {
-    await client.query("ROLLBACK").catch(() => undefined);
+    if(!transactionClient)await client.query("ROLLBACK").catch(() => undefined);
     throw error;
   } finally {
-    client.release();
+    if(!transactionClient)client.release();
   }
 }
 
@@ -323,7 +342,9 @@ export async function updateConfirmedCommercialTermsBySalesOrder(
   salesOrderId: string,
   values: UpdateConfirmedCommercialTermsInput,
 ): Promise<ConfirmedCommercialTermsDto> {
-  return mutate(pool, actor, { salesOrderId, values, surface: "order" });
+  // Keep the exported compatibility command fail-closed for internal callers too.
+  void pool;void actor;void salesOrderId;void values;
+  throw new HttpError(409,"order_commercial_adoption_required","Order prices must be adopted as an independent commercial version");
 }
 
 export async function updateConfirmedCommercialTermsByQuote(
@@ -338,3 +359,8 @@ export async function updateConfirmedCommercialTermsByQuote(
 export function isConfirmedLaborCurrency(value: unknown): value is ConfirmedLaborCurrency {
   return value === "CNY" || value === "USD";
 }
+
+/** Same quote confirmation authority; no additional labor-price store. */
+export async function updateQuoteTermsInTransaction(client:PoolClient,actor:TrustedIdentity,provenance:QuoteProvenance,values:UpdateQuoteConfirmedCommercialTermsInput){return mutate(null,actor,{surface:'quote',provenance,values},client);}
+
+function processingTermsDto<T extends ConfirmedCommercialTermsDto>(dto:T,processing:boolean):T{if(processing&&dto.current)dto.current.customerConfirmedPrice=null;return dto;}

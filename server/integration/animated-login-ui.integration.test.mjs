@@ -1,7 +1,8 @@
+import {waitForChromiumEndpoint} from './chromium-endpoint.mjs';
 import assert from "node:assert/strict";
 import test from "node:test";
 import { spawn } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { mkdtemp, rm, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve, relative, isAbsolute } from "node:path";
@@ -19,8 +20,7 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
  try{
   const profile=join(temp,"profile");
   browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:"ignore",windowsHide:true});
-  await until(()=>existsSync(join(profile,"DevToolsActivePort")),"Chromium");
-  const [port,path]=readFileSync(join(profile,"DevToolsActivePort"),"utf8").trim().split(/\r?\n/);
+  const [port,path]=await waitForChromiumEndpoint(profile,{timeoutMs:20000});
   ws=new WebSocket("ws://127.0.0.1:"+port+path);await new Promise((done,reject)=>{ws.addEventListener("open",done,{once:true});ws.addEventListener("error",reject,{once:true});});
   const command=(method,params={},sid=session)=>new Promise((done,reject)=>{pending.set(++id,{done,reject});ws.send(JSON.stringify({id,method,params,sessionId:sid}));});
   ws.addEventListener("message",({data})=>{const r=JSON.parse(String(data)),p=pending.get(r.id);if(p){pending.delete(r.id);if(r.error)p.reject(Error(JSON.stringify(r.error)));else p.done(r.result);}if(r.method==="Runtime.exceptionThrown")errors.push(r.params.exceptionDetails.text);});
@@ -117,9 +117,9 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
    assert.equal(await evalJs("location.pathname"),"/quote-center");
   });
   await t.test("logout and reload return to formal login; unsupported modules stay closed",async()=>{
-   await evalJs("window.logoutFail=true");await click("退出 Server");await has("退出未完成");
+   await evalJs("window.logoutFail=true");await click("用户菜单");await has("退出登录");await click("退出登录");await has("退出未完成");
    assert.equal(await evalJs("location.pathname"),"/quote-center");
-   await evalJs("window.logoutFail=false");await click("退出 Server");await ready();assert.equal(await evalJs("location.pathname"),"/login");
+   await evalJs("window.logoutFail=false");await click("退出登录");await ready();assert.equal(await evalJs("location.pathname"),"/login");
    await navigate("/login");await ready();
    await navigate("/production-scheduling");await has("尚未接通");
    assert.equal(await evalJs("document.querySelector('.zx-login-form')!==null"),false);
@@ -134,9 +134,12 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{
-  ws?.close();if(browser&&browser.exitCode===null){browser.kill();await wait(500);}
+  ws?.close();if(browser&&browser.exitCode===null&&browser.signalCode===null){
+   const closed=new Promise(done=>browser.once("close",done));browser.kill();
+   await Promise.race([closed,wait(3000)]);
+  }
   const distance=relative(resolve(tmpdir()),resolve(temp));
   assert.ok(distance&&!distance.startsWith("..")&&!isAbsolute(distance)&&temp.includes("zhixu-login-ui-"));
-  await rm(temp,{recursive:true,force:true});
+  await rm(temp,{recursive:true,force:true,maxRetries:10,retryDelay:200});
  }
 });

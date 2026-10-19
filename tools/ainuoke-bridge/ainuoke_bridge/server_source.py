@@ -25,6 +25,11 @@ class NoRedirect(HTTPRedirectHandler):
 
 class ProtectedTransport:
     """No redirects (including credential-bearing login GET); no ambient proxy."""
+    def __init__(self, max_response_bytes=None):
+        max_response_bytes = MAX_BYTES if max_response_bytes is None else max_response_bytes
+        if type(max_response_bytes) is not int or not 1 <= max_response_bytes <= MAX_BYTES:
+            raise ValueError("invalid_response_limit")
+        self.max_response_bytes = max_response_bytes
     def request(self, *, url, method, body, headers, timeout):
         from urllib.parse import urlencode
         data = None
@@ -35,7 +40,7 @@ class ProtectedTransport:
             headers = {**headers, "Content-Type": "application/json;charset=utf-8"}
         try:
             with build_opener(NoRedirect(), ProxyHandler({})).open(Request(url, data=data, method=method, headers=headers), timeout=timeout) as response:
-                raw = response.read(MAX_BYTES + 1)
+                raw = response.read(self.max_response_bytes + 1)
         except HTTPError as error:
             error.close()
             if error.code in (401, 403):
@@ -45,7 +50,7 @@ class ProtectedTransport:
             raise NetworkAinuokeError("upstream_http_error") from None
         except (URLError, TimeoutError, OSError):
             raise NetworkAinuokeError("network_unavailable") from None
-        if len(raw) > MAX_BYTES:
+        if len(raw) > self.max_response_bytes:
             raise UpstreamSchemaError("response_limit")
         try:
             result = json.loads(raw)
@@ -58,7 +63,7 @@ class ProtectedTransport:
 def validate_input(data):
     required = {"baseUrl", "username", "password", "contracts"}
     target_keys = {"targetSalesContractNo", "targetPurchaseOrderNo", "expectedQuantities", "additionalSalesContracts"}
-    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy"} | target_keys:
+    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy", "qualityTargets"} | target_keys:
         raise ValueError("invalid_collector_input")
     url = urlsplit(data["baseUrl"])
     if url.username or url.password or url.query or url.fragment or url.path not in ("", "/"):
@@ -71,8 +76,33 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
-    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions"):
+    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality", "selected-bindings", "selected-materials"):
         raise ValueError("invalid_mode")
+    if data.get("mode") in ("selected-bindings", "selected-materials"):
+        import re
+        if set(data) - (required | {"mode", "transportPolicy"}) or not isinstance(data["contracts"], list) or len(data["contracts"]) != 2:
+            raise ValueError("invalid_selected_scope")
+        if any(not isinstance(c, str) or not re.fullmatch(r"[A-Z0-9][A-Z0-9/._-]{0,79}", c) for c in data["contracts"]) or len(set(data["contracts"])) != 2:
+            raise ValueError("invalid_selected_scope")
+        if url.scheme == "http" and not approved_http:
+            raise ValueError("protected_source_transport_required")
+        return data
+    if data.get("mode") == "quality":
+        targets = data.get("qualityTargets")
+        if set(data) & target_keys or data["contracts"] != [] or not isinstance(targets, list) or not 1 <= len(targets) <= 25:
+            raise ValueError("invalid_quality_scope")
+        for target in targets:
+            if (not isinstance(target, dict) or set(target) != {"salesContractNo", "colors", "materials"}
+                    or not isinstance(target["salesContractNo"], str) or not identity(target["salesContractNo"])
+                    or len(target["salesContractNo"]) > 80 or type(target["colors"]) is not bool
+                    or type(target["materials"]) is not bool or not (target["colors"] or target["materials"])):
+                raise ValueError("invalid_quality_scope")
+        if (len({identity(t["salesContractNo"]) for t in targets}) != len(targets)
+                or sum(t["colors"] for t in targets) > 6 or sum(t["materials"] for t in targets) > 18):
+            raise ValueError("invalid_quality_scope")
+        return data
+    if "qualityTargets" in data:
+        raise ValueError("invalid_quality_scope")
     if data.get("mode") == "targeted":
         if not target_keys <= set(data) or data["contracts"] != []:
             raise ValueError("invalid_target_scope")
@@ -106,7 +136,12 @@ def validate_input(data):
 
 def collect(data, client=None):
     data = validate_input(data)
-    client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=0 if data.get("mode") in ("probe", "audit", "targeted") else 1)
+    if data.get("mode") in ("selected-bindings", "selected-materials"):
+        if client is not None:
+            raise ValueError("selected_transport_owned_by_budget")
+        from .selected_source_once import collect_selected
+        return collect_selected(data)
+    client = client or AinuokeClient(base_url=data["baseUrl"], transport=ProtectedTransport(), network_retries=0 if data.get("mode") in ("probe", "audit", "targeted", "quality") else 1)
     session = client.login(data["username"], data["password"])
     if data.get("mode") == "probe":
         return probe_first_pages(client, session)
@@ -121,8 +156,8 @@ def collect(data, client=None):
         expected = None
         for index in range(1, 201):
             requests += 1
-            if data.get("mode") in ("audit", "targeted"):
-                if requests > (80 if data.get("mode") == "targeted" else 2000):
+            if data.get("mode") in ("audit", "targeted", "quality"):
+                if requests > (80 if data.get("mode") == "targeted" else 160 if data.get("mode") == "quality" else 2000):
                     raise UpstreamSchemaError("request_limit")
                 from time import sleep
                 sleep(0.1)
@@ -133,9 +168,9 @@ def collect(data, client=None):
                     raise
                 renewals += 1
                 session = client.login(data["username"], data["password"])
-                if data.get("mode") in ("audit", "targeted"):
+                if data.get("mode") in ("audit", "targeted", "quality"):
                     requests += 1
-                    if requests > (80 if data.get("mode") == "targeted" else 2000):
+                    if requests > (80 if data.get("mode") == "targeted" else 160 if data.get("mode") == "quality" else 2000):
                         raise UpstreamSchemaError("request_limit")
                 page = client.read_report(REPORT_CATALOG[key], jwt_token=session.jwt_token, page=index, page_size=50, query_context=query)
             if expected is None:
@@ -178,6 +213,16 @@ def collect(data, client=None):
                 "targetPurchaseOrderNo": identity(data["targetPurchaseOrderNo"]),
                 "expectedQuantities": data["expectedQuantities"], "reportRequests": requests,
                 "authRenewals": renewals}
+    if data.get("mode") == "quality":
+        selected = {identity(t["salesContractNo"]): t for t in data["qualityTargets"]}
+        if any(key not in lookup for key in selected):
+            raise UpstreamSchemaError("target_not_visible")
+        colors = {key: pages("garment_color_size_details", {"salesContractNo": key}) for key, t in selected.items() if t["colors"]}
+        materials = {key: pages("material_purchase_statistics", {"insideOrderNo": lookup[key]}) for key, t in selected.items() if t["materials"]}
+        after = pages("order_discovery", {})
+        return {"schemaVersion": "ainuoke-quality-diagnostic.v1", "discoveryBefore": before,
+                "discoveryAfter": after, "colors": colors, "materials": materials,
+                "reportRequests": requests, "authRenewals": renewals}
     if data.get("mode") == "audit":
         keys = sorted(lookup, key=lambda key: key.encode("utf-16-be"))
         count = min(80, len(keys))
@@ -316,6 +361,8 @@ def main():
         if len(output) > MAX_BYTES:
             raise ValueError("output_limit")
         sys.stdout.buffer.write(output)
+        if not args and data.get("mode") in ("selected-bindings", "selected-materials") and result.get("result") != "complete":
+            return 1
     except InvalidCredentialError:
         sys.stdout.write('{"error":"invalid_credential"}')
         return 1

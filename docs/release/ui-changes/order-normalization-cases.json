@@ -1,0 +1,21 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "features/order-center/components/normalization-case-dialog.tsx",
+    "features/order-center/server/normalization-case-client.ts",
+    "features/order-center/components/server-order-center-page.tsx"
+  ],
+  "pages": [
+    "order-list"
+  ],
+  "visibleDifference": "已批准Gate4案件复核：既有Server订单中心管理员新增重复订单复核入口，复用Foundation Modal，搜索分页选择两单、有限引用对照、带原因开案/追加/撤回/重开及案件历史。没有归一执行按钮，不改变既有订单列表布局、款式/物料/报价页面或生产路由。",
+  "evidence": [
+    "docs/tasks/active/order-identity-program.md",
+    "docs/tasks/active/order-normalization-preview.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-identity-program.md"
+  }
+}

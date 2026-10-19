@@ -14,6 +14,7 @@ export type ServerOrderCenterSortBy = NonNullable<ServerSalesOrderListQuery["sor
 export type ServerOrderCenterSortDirection = NonNullable<ServerSalesOrderListQuery["sortDirection"]>;
 
 export type ServerOrderCenterQueryState = {
+  includeHistorical?: boolean;
   offset: number;
   search: string;
   lifecycleState: ServerSalesOrderLifecycleState | "";
@@ -39,6 +40,7 @@ export function toServerSalesOrderListQuery(
   state: ServerOrderCenterQueryState,
 ): ServerSalesOrderListQuery {
   return {
+    ...(state.includeHistorical ? {includeHistorical:true} : {}),
     limit: SERVER_ORDER_CENTER_PAGE_SIZE,
     offset: state.offset,
     search: state.search || undefined,

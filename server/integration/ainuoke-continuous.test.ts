@@ -58,3 +58,20 @@ test("CLI disallows implicit actions, duplicates, extra switches and binding wit
  assert.equal(parseSourceArguments(["--bind=first-team",target,cfg,"--expected-preview="+sha]).action,"bind");
  for(const args of [[],[cfg],[cfg,"--check","--execute=first-team"],[cfg,"--bind=first-team",target],[cfg,"--check","--check"],[cfg,"--check","--migrate"],[cfg,"--execute=first-team",target,"--interval-ms=1"]])assert.throws(()=>parseSourceArguments(args),SourceError);
 });
+
+
+test("binding preview excludes only approved empty placeholders and retains exclusion evidence", async()=>{
+ const b=bindingBundle();const page=Object.values(b.colors)[0][0];
+ const empty=structuredClone(page.rows[0]);empty.sourceRowIdentity="6087105:sha256:synthetic-empty";
+ empty.values.CnColor="";empty.values.SizeNum=null;
+ for(let slot=1;slot<=26;slot++)empty.values[`Size${slot}`]=null;
+ page.rows.push(empty,structuredClone(empty));page.total=page.rows.length;
+ const result=await previewBindings(b);
+ assert.equal(result.preview.candidates[0].colorDetailStatus,"usable");
+ assert.equal(result.preview.candidates[0].colors.length,1);
+ assert.match(JSON.stringify(result.preview.candidates[0]),/EMPTY_PLACEHOLDER_EXCLUDED/);
+ empty.values.CnColor="Synthetic named unknown";
+ const changed=await previewBindings(b);
+ assert.equal(changed.preview.candidates[0].colorDetailStatus,"invalid");
+ assert.notEqual(result.reviewHash,changed.reviewHash);
+});

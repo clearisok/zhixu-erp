@@ -66,7 +66,7 @@ function serverRouteLiterals(source) {
 
 /** Read-only source/evidence contract. This is not a browser pixel or deployment test. */
 export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths = [], hasCommit = () => false,
-  readBlob = () => null, previousManifest }) {
+  readBlob = () => null, isAncestor = () => false, checkedHead, previousManifest }) {
   const errors = [];
   const fail = (code, detail) => errors.push({ code, detail });
   const read = repositoryReader(root);
@@ -87,15 +87,63 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   const historicalHashes = new Map();
   const priorEvidence = new Map((previousManifest?.evidence ?? []).map(item => [item.id, item]));
   if (!previousManifest || ![1, 2].includes(previousManifest.schemaVersion)) fail('HISTORY_REQUIRED', 'A Git-loaded prior manifest is required.');
+  const proposedEvidence = new Map((manifest.evidence ?? []).map(item => [item.id, item]));
+  // Multiple checkpoint revisions in one PR must still terminate at an immutable base record.
+  const anchoredRevision = item => {
+    const visited = new Set([item.id]);
+    let parent = item.supersedes;
+    while (!priorEvidence.has(parent)) {
+      if (!parent || visited.has(parent)) return false;
+      visited.add(parent);
+      const previous = proposedEvidence.get(parent);
+      if (!previous || previous.kind !== item.kind || previous.path !== item.path) return false;
+      parent = previous.supersedes;
+    }
+    return true;
+  };
   const superseded = new Set();
+  const revisions = new Map((manifest.evidence ?? []).map(item => [item.id, item]));
+  const successor = new Map();
+  const candidates = new Map();
   for (const item of manifest.evidence ?? []) {
+    if (!nonempty(item.id) || candidates.has(item.id)) fail('EVIDENCE_ID', String(item.id));
+    candidates.set(item.id, item);
+  }
+  for (const item of candidates.values()) {
     if (!item.supersedes) continue;
-    if (priorEvidence.has(item.id)) { if (item.kind === 'document') superseded.add(item.supersedes); continue; }
-    const old = priorEvidence.get(item.supersedes);
+    const old = revisions.get(item.supersedes);
     if (!old || old.kind !== item.kind || (item.kind === 'document' ? old.path !== item.path || old.recordedAtSha === item.recordedAtSha : old.path === item.path)
-      || !nonempty(item.changeReason)
-      || superseded.has(item.supersedes)) fail('EVIDENCE_REVISION', String(item.id));
-    if (item.kind === 'document') superseded.add(item.supersedes);
+      || !nonempty(item.changeReason) || successor.has(item.supersedes)) {
+      fail('EVIDENCE_REVISION', String(item.id));
+      if (item.kind === 'document' && !priorEvidence.has(item.id) && !anchoredRevision(item)) fail('EVIDENCE_REVISION_ANCHOR', item.id);
+      continue;
+    }
+    successor.set(item.supersedes, item.id);
+    // A stacked revision must trace back to evidence frozen in the actual PR base.
+    // No synthetic root, dangling link, fork or cycle may hide worktree drift.
+    let cursor = item;
+    const visited = new Set();
+    let anchored = false;
+    while (cursor) {
+      if (visited.has(cursor.id)) break;
+      visited.add(cursor.id);
+      if (priorEvidence.has(cursor.id)) { anchored = true; break; }
+      cursor = cursor.supersedes ? revisions.get(cursor.supersedes) : null;
+    }
+    if (!anchored) { fail('EVIDENCE_REVISION', String(item.id)); if (item.kind === 'document') fail('EVIDENCE_REVISION_ANCHOR', item.id); continue; }
+    if (item.kind === 'document') {
+      if (!priorEvidence.has(item.id)) {
+        if (!isAncestor(manifest.baselineSha, item.recordedAtSha) || !isAncestor(item.recordedAtSha, checkedHead)
+          || !priorEvidence.has(old.id) && !isAncestor(old.recordedAtSha, item.recordedAtSha)) fail('EVIDENCE_REVISION_ANCESTRY', item.id);
+        if (!anchoredRevision(item)) { fail('EVIDENCE_REVISION_ANCHOR', item.id); fail('EVIDENCE_REVISION', item.id); }
+      }
+      superseded.add(item.supersedes);
+    }
+  }
+  const leaves = new Map();
+  for (const item of candidates.values()) if (item.kind === 'document' && !superseded.has(item.id)) {
+    if (leaves.has(item.path)) fail('EVIDENCE_REVISION_LEAF', item.path);
+    leaves.set(item.path, item.id);
   }
   for (const item of manifest.evidence ?? []) {
     if (!nonempty(item.id) || evidence.has(item.id)) fail('EVIDENCE_ID', String(item.id));
@@ -301,7 +349,16 @@ export function runCheck(root, expectedBaseSha) {
   ].filter(Boolean))];
   const commitCache = new Map();
   const blobCache = new Map();
-  const errors = validateBaseline({ root, manifest, expectedBaseSha, changedPaths, previousManifest,
+  const ancestryCache = new Map();
+  const errors = validateBaseline({ root, manifest, expectedBaseSha, changedPaths, previousManifest, checkedHead:git(root,['rev-parse','HEAD']),
+    isAncestor: (ancestor, descendant) => {
+      const key = `${ancestor}:${descendant}`;
+      if (!ancestryCache.has(key)) {
+        try { git(root, ['merge-base', '--is-ancestor', ancestor, descendant]); ancestryCache.set(key, true); }
+        catch { ancestryCache.set(key, false); }
+      }
+      return ancestryCache.get(key);
+    },
     readBlob: (sha, file) => {
       const key = `${sha}:${file}`;
       if (!blobCache.has(key)) blobCache.set(key, readEvidenceBlob(root, sha, file));

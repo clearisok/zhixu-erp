@@ -42,3 +42,5 @@ Per-item image/build warnings survive in `export-results.json`; the bounded resp
 ## Constraints
 
 列标题和字段值由 `quote-list-column-definitions.ts` 提供，页面与汇总导出不得维护两套含义不同的映射。
+
+2026-10-17 D-145：ZIP、内部汇总和加工推送共用显式选择模式，复选框固定左侧，跨页保持精确Quote及版本；“退出选择”紧邻生成/确认按钮右侧，不在更多里。加工推送移到更多。纯加工内部汇总移除材料/成衣及Estimate列，混合汇总的加工行对应值为空，不输出隐藏金额。列表个人偏好不保存辅助select/action列，原Browser存储不变。

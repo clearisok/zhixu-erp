@@ -36,6 +36,8 @@ export function costRestrictedQuote(quote:ServerQuote):CostRestrictedQuote {
  };
 }
 export function projectQuoteResponse(actor:TrustedIdentity,record:QuoteRecord):QuoteResponseRecord {
+ const processing=record.quote.revisions.find(r=>r.revisionId===record.quote.defaultRevisionId)?.baseInfo.quoteType==='processing';
+ record={...record,quote:processingLaborProjection(record.quote)};
  if(!actor.permissions.includes("quote.cost.view")) return{quote:costRestrictedQuote(record.quote),version:record.version,costVisibility:"restricted",estimateVisibility:"restricted"};
  const sale = actor.permissions.includes("commercial.sale.view"), labor = actor.permissions.includes("commercial.labor.view");
  if (!sale || !labor) {
@@ -49,11 +51,22 @@ export function projectQuoteResponse(actor:TrustedIdentity,record:QuoteRecord):Q
    if (!labor) delete confirmation.confirmedLaborPrice;
    return {...price,confirmation};
   })}))};
-  const estimateAllowed = actor.permissions.includes("estimate.view");
+  const estimateAllowed = actor.permissions.includes("estimate.view")&&!processing;
   if (estimateAllowed) {quote.activeEstimateCost=record.quote.activeEstimateCost;quote.estimateCostHistory=record.quote.estimateCostHistory;}
   return {quote,version:record.version,...(!estimateAllowed?{estimateVisibility:"restricted" as const}:{}),commercialVisibility:{sale:sale?"allowed":"restricted",labor:labor?"allowed":"restricted"}};
  }
- if(actor.permissions.includes("estimate.view"))return record;
+ if(actor.permissions.includes("estimate.view")&&!processing)return record;
  const quote:QuoteContent & Partial<Pick<ServerQuote,"activeEstimateCost"|"estimateCostHistory">>={...record.quote}; delete quote.activeEstimateCost;delete quote.estimateCostHistory;
  return{quote,version:record.version,estimateVisibility:"restricted"};
+}
+
+/** Read projection, never a database migration or a new pricing model. */
+export function processingLaborProjection(input:ServerQuote):ServerQuote{
+ const quote=structuredClone(input);
+ for(const r of quote.revisions)if(r.baseInfo.quoteType==='processing')for(const p of r.priceVersions){
+  p.fabrics=[];p.trims=[];p.otherCosts=[];p.pricingParameters={...p.pricingParameters,usdCnyRate:null,markupRate:null,freightAmount:null,includeFreight:false};
+  if(p.confirmation){const confirmation=p.confirmation as Partial<typeof p.confirmation>;delete confirmation.quotedGarmentPrice;delete confirmation.confirmedGarmentPrice;}
+ }
+ if(quote.revisions.find(r=>r.revisionId===quote.defaultRevisionId)?.baseInfo.quoteType==='processing'){delete (quote as Partial<ServerQuote>).activeEstimateCost;delete (quote as Partial<ServerQuote>).estimateCostHistory;}
+ return quote;
 }

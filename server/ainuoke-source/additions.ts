@@ -1,3 +1,5 @@
+import {orderCommandControlError} from '../sales-orders/command-control.js';
+import {lockEffectiveAttribution,resolveEffectiveOrder,supportsEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { requirePermission } from '../auth/permissions.js';
@@ -52,7 +54,7 @@ export async function readBoundIdentities(client: Pool | PoolClient, lock = fals
       throw new SourceError('addition_bound_identity_invalid');
     keys.add(key); ids.add(row.source_id);
   }
-  if (visible.length !== rows.length || rows.some(row => !visible.some(order => order.id === row.id)))
+  if (visible.length !== rows.length || rows.some(row => !visible.some(order => order.sourceOwnerOrderId === row.id)))
     throw new SourceError('addition_bound_identity_invalid');
   return rows.map(row => ({id: row.id, sourceId: row.source_id, salesContractNo: normalized(row.sales_contract_no)}));
 }
@@ -172,7 +174,7 @@ export async function previewAdditions(input: unknown, selected: readonly string
       colorDetailStatus: candidate.colorDetailStatus, colorLines: candidate.colors.length}))};
 }
 
-async function assertStoredAdditionMatches(client: PoolClient, candidates: Awaited<ReturnType<typeof mapSelectedFinalSalesOrderCandidates>>,
+export async function assertStoredAdditionMatches(client: PoolClient, candidates: Awaited<ReturnType<typeof mapSelectedFinalSalesOrderCandidates>>,
   bound: BoundIdentity[]) {
   for (const candidate of candidates) {
     const identity = bound.find(item => item.sourceId === candidate.source.sourceId
@@ -181,7 +183,7 @@ async function assertStoredAdditionMatches(client: PoolClient, candidates: Await
     const mirror = (await client.query(`SELECT source_id,source_row_identity,sales_contract_no,inside_order_no,
       lifecycle_status_raw,contract_date::text,contract_delivery_date::text,style_no,company_name_snapshot,
       customer_name_snapshot,brand_name_snapshot,quantity::text,source_hash,
-      source_metadata #>> '{colorDetail,status}' AS color_status
+      source_metadata #>> '{colorDetail,status}' AS color_status,source_metadata->'colorDetail' AS color_detail
       FROM ainuoke_sales_order_contract_mirrors WHERE sales_order_id=$1 FOR SHARE`,[identity.id])).rows[0];
     const source = candidate.source;
     if (!mirror || mirror.source_id !== source.sourceId || mirror.source_row_identity !== source.sourceRowIdentity
@@ -191,13 +193,15 @@ async function assertStoredAdditionMatches(client: PoolClient, candidates: Await
       || mirror.style_no !== source.styleNo || mirror.company_name_snapshot !== source.companyNameSnapshot
       || mirror.customer_name_snapshot !== source.customerNameSnapshot || mirror.brand_name_snapshot !== source.brandNameSnapshot
       || Number(mirror.quantity) !== source.quantity || mirror.source_hash !== source.sourceHash
-      || mirror.color_status !== candidate.colorDetailStatus) throw new SourceError('addition_not_exact_retry');
-    const colors = (await client.query(`SELECT source_line_identity,color_name,quantity::text,delivery_date::text,source_hash
+      || mirror.color_status !== candidate.colorDetailStatus
+      || hash(mirror.color_detail) !== hash(source.sourceMetadata?.colorDetail)) throw new SourceError('addition_not_exact_retry');
+    const colors = (await client.query(`SELECT source_line_identity,color_name,quantity::text,delivery_date::text,source_hash,source_metadata
       FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id=$1 ORDER BY source_line_identity FOR SHARE`,[identity.id])).rows;
     const expected = [...candidate.colors].sort((a,b)=>a.sourceLineIdentity.localeCompare(b.sourceLineIdentity));
     if (colors.length !== expected.length || colors.some((row,index) => row.source_line_identity !== expected[index].sourceLineIdentity
       || row.color_name !== expected[index].colorName || Number(row.quantity) !== expected[index].quantity
-      || row.delivery_date !== expected[index].deliveryDate || row.source_hash !== expected[index].sourceHash))
+      || row.delivery_date !== expected[index].deliveryDate || row.source_hash !== expected[index].sourceHash
+      || hash(row.source_metadata) !== hash(expected[index].sourceMetadata ?? {})))
       throw new SourceError('addition_not_exact_retry');
   }
 }
@@ -218,6 +222,7 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
   try {
     await client.query('BEGIN');
     await client.query("SET LOCAL lock_timeout = '5s'");
+    await lockEffectiveAttribution(client);
     await client.query("SET LOCAL statement_timeout = '30s'");
     await client.query("SELECT pg_advisory_xact_lock(hashtextextended('ainuoke-first-binding',0))");
     const lock = await client.query('SELECT pg_try_advisory_xact_lock(hashtextextended($1,0)) AS locked', ['ainuoke-source:' + options.sourceKey]);
@@ -234,8 +239,7 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
       if (!receipt) throw new SourceError('addition_not_exact_retry');
       await assertStoredAdditionMatches(client,current.candidates,currentBound);
       await client.query('COMMIT');
-      return {created: 0, replayed: true, orderIds: current.candidates.map(c => currentBound.find(b =>
-        b.sourceId === c.source.sourceId && b.salesContractNo === normalized(c.source.salesContractNo))!.id), reviewHash: current.reviewHash};
+      return {created: 0, replayed: true, orderIds: await Promise.all(current.candidates.map(async c => {const original=currentBound.find(b => b.sourceId===c.source.sourceId&&b.salesContractNo===normalized(c.source.salesContractNo))!.id;return await supportsEffectiveAttribution(client)?(await resolveEffectiveOrder(client,original)).effectiveOrderId:original;})), reviewHash: current.reviewHash};
     }
     const ids: string[] = [];
     for (const candidate of current.candidates) {
@@ -250,6 +254,7 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
     return {created: ids.length, replayed: false, orderIds: ids, reviewHash: current.reviewHash};
   } catch(error) {
     await client.query('ROLLBACK').catch(()=>undefined);
-    throw error instanceof SourceError ? error : new SourceError('addition_failed');
+    const control=orderCommandControlError(error) as {code?:string};
+    throw error instanceof SourceError ? error : new SourceError(['order_commands_frozen','order_command_control_unavailable'].includes(control?.code??'')?control.code!:'addition_failed');
   } finally { client.release(); }
 }

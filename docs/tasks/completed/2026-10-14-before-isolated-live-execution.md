@@ -1,0 +1,19 @@
+# 当前状态
+
+核实日期2026-10-14；main基线064e3afaf7d08b3cb62907d4402f97d9c292f1e5（本轮GitHub只读API再次核实一致，未fetch）。GitHub为实时工程源，以下为本机候选快照；PR108最近核实head8b89de59dd405395da1dde4b6dde5f125141deb9开放未合并，本轮只读API再次核实OPEN、MERGEABLE。
+
+- 当前feat/ainuoke-anomaly-evidence：D-116纯空颜色占位排除、D-117具名待定颜色记0且保留来源null/待确认、Server订单异常列已本地实现。旧六份异常报告离线重放6/6颜色usable，不代表实时全量验收或已绑定。
+- 新增异常列仅按可信数据展示数量0、单位为空/冲突、来源过期/未就绪；六角色/响应式/权限/失效来源检查通过。[工程报告](tasks/active/order-list-alerts-2026-10-14.md)。没有改现有业务环境或UI其他布局。
+- 用户确认重复采购均有效、限定标签只/个1:1，四项单位为个、两项上游缺单位不可补；一项工厂自购物料国贸不负责。问题采购单用户已删、负入库为退库、四份订单取消。原始数据保护与缺口见[治理报告](tasks/active/source-anomaly-followup-2026-10-14.md)。D-118受控单位/采购责任只读候选已实现，默认未配置；私有旧来源7项离线通过。退库/取消尚未落地，不伪称已激活运行态。
+- 独立feat/server-quote-to-order在a0e60e4e83cf67bfa22c36234c5dd9bf4495689d本地通过；本分支不合并其代码。二者远端交付仍未核实，新PR/远端CI未完成；NETWORK_DEGRADED不重复推送。
+- 真实Source未首绑/激活，无真实数据库写入、上游改动、宁波/18443/18444部署。现有23订单演示账本不能混入真实首绑；全新隔离目标和实际写入需明确授权。
+- 右上角退出菜单通过Chromium9项，1440/1280/390无溢出；新受控确认8组及一次性PG验证通过。最终root839、baseline73、持续46pass/1平台skip、Chromium9通过；后续账号指纹/失配加固另有PG1及纯读取63通过。GitHub合并、候选构建、真实部署及人工验收分开记录。
+
+[上一恢复点完整历史](tasks/completed/2026-10-14-before-order-alerts.md)。更新时机：规则、main/PR、测试、真实探测、绑定/激活或人工验收变化。
+
+[受控补充事实与下一隔离演示Gate](tasks/active/material-confirmations-2026-10-14.md)：已由D119补充显式小范围首次绑定候选，复用原事务/完整Discovery；真实写入仍待目标授权。
+
+
+2026-10-14本轮：D119选集首绑代码及合成持久化双轮刷新已通过；额外阻断已存镜像篡改后假精确重试。依据旧私有证据选择4单，拟独立loopback62310；未创建真实目标/未首绑/未激活。具体范围与回退见[小范围绑定](tasks/active/ainuoke-selected-first-binding-2026-10-14.md)。
+
+本轮收口：持续69pass/1Windows skip、root839、baseline73、类型/lint/Server与显式UI构建通过；[最终核验](tasks/active/ainuoke-selected-first-binding-verification-2026-10-14.md)。代码checkpoint1aab798与后续元数据加固，本机工程已通过，远端交付/CI未核实。

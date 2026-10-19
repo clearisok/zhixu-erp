@@ -311,6 +311,7 @@ function arrayBufferFrom(value: ExcelJS.Buffer): ArrayBuffer {
 }
 
 export async function buildQuoteExcel(input: QuoteExcelBuildInput): Promise<QuoteExcelBuildResult> {
+  if(input.revision.baseInfo.quoteType==='processing')return buildProcessingQuoteExcel(input);
   if (!input.priceVersions.length) throw new Error("当前报价版本没有可导出的价格版本");
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(input.template);
@@ -350,4 +351,10 @@ export async function buildQuoteExcel(input: QuoteExcelBuildInput): Promise<Quot
     warnings: [],
     diagnostics,
   };
+}
+
+async function buildProcessingQuoteExcel(input:QuoteExcelBuildInput):Promise<QuoteExcelBuildResult>{
+ if(!input.priceVersions.length)throw new Error('没有加工价格方案');const workbook=new ExcelJS.Workbook(),used=new Set<string>();const diagnostics:QuoteExcelBuildResult['diagnostics']={sheetNames:[],printAreas:[],rowCounts:[]};
+ for(const pv of input.priceVersions){const name=uniqueSheetName(pv.name,used),sheet=workbook.addWorksheet(name);sheet.columns=[{width:24},{width:36}];sheet.addRow(['加工报价',input.quote.quoteCode]);sheet.addRow(['款号',input.revision.baseInfo.quoteStyleNo]);sheet.addRow(['品牌',input.revision.baseInfo.brandName]);sheet.addRow(['价格方案',pv.name]);sheet.addRow(['数量',pv.quantity]);sheet.addRow(['报价工价',pv.labor.value]);sheet.addRow(['客户确认工价',pv.confirmation?.confirmedLaborPrice??null]);sheet.addRow(['币种',pv.pricingParameters.laborCurrency]);sheet.addRow(['成衣交期',input.revision.baseInfo.garmentLeadDate]);sheet.getCell('B6').numFmt='#,##0.00';sheet.getCell('B7').numFmt='#,##0.00';sheet.getRow(1).font={bold:true,size:16};sheet.pageSetup={paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:1,printArea:'A1:B9'};diagnostics.sheetNames.push(name);diagnostics.printAreas.push('A1:B9');diagnostics.rowCounts.push(9);}
+ return {buffer:arrayBufferFrom(await workbook.xlsx.writeBuffer()),fileName:quoteExportFileName(input.quote,input.revision,input.now),warnings:[],diagnostics};
 }

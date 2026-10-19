@@ -1,3 +1,23 @@
+import {previewProcessingQuotePush,pushProcessingQuotes,readProcessingPushReceipt} from './sales-orders/processing-quote-push.js';
+import {previewColorSource,adoptColorSource} from './sales-orders/color-commercial.js';
+import {previewSaleAdjustment,commitSaleAdjustment,listQuoteOrderPrices,readSaleAdjustmentHistory,readSaleAdjustmentReceipt,resumeSaleAdjustment} from './sales-orders/sale-adjustment-service.js';
+import {listOrderSourceQuotes,readOrderSourceOptions} from './quotes/order-source-candidates.js';
+import {supportsPreparationAdoption} from './sales-orders/preparation-source.js';
+import {readOrderBusinessSource,previewOrderBusinessSource,adoptOrderBusinessSource} from './sales-orders/business-source-service.js';
+import {adoptOrderPreparation,listPreparationCandidates,readPreparationAdoptions,readPreparationAdoptionReceipt,parsePreparationCandidateQuery,readPreparationsByReference,readOrderPreparationCreationReceipt} from './sales-orders/preparation-adoption.js';
+import {readNormalizationReviewCapabilities,listNormalizationReviewInbox,parseReviewInboxQuery,readNormalizationProposalContext,readPublishedNormalizationProposal,listNormalizationReviewHistory,parseReviewHistoryQuery} from './sales-orders/normalization-review-workspace.js';
+import {parseMaterialHistoryQuery,type MaterialHistoryReader} from './ainuoke-source/history.js';
+import {parseOrderCommandMode,assertOrderCommandsAvailable,readOrderCommandState,orderCommandControlError,type OrderCommandMode} from './sales-orders/command-control.js';
+import {previewAttributionExecution,publishAttributionProposal,recordAttributionReview,executeAttributionChange,readAttributionExecutionReceipt,readAttributionReviewSummary,type NormalizationExecutionOptions} from './sales-orders/normalization-execution-service.js';
+import { openNormalizationCase, appendNormalizationCaseEvent, readNormalizationCase, listNormalizationCases, parseNormalizationCaseQuery } from "./sales-orders/normalization-case-service.js";
+import { previewOrderNormalization } from "./sales-orders/normalization-preview.js";
+import {createProcessingBatch,previewProcessingBatch,confirmProcessingBatch,cancelProcessingBatch,consumeProcessingBatches,listProcessingBatches,parseProcessingBatchQuery} from './sales-orders/processing-batch-service.js';
+import {previewLegacyCommercialCutover} from './sales-orders/commercial-legacy-preview.js';
+import {readOrderCommercialState,previewOrderCommercial,adoptOrderCommercial} from './sales-orders/commercial-version-service.js';
+import {parseCommercialProvenance} from './sales-orders/commercial-source.js';
+import {projectOrderCommercialState,projectOrderCommercialVersion,projectCommercialCandidate} from './sales-orders/commercial-projection.js';
+import { readOrderIdentity, mutateOrderIdentity, createOrderPreparation, listOrderPreparations, listClaimants } from "./sales-orders/identity-service.js";
+import { attachOrderAlerts } from "./sales-orders/order-alerts.js";
 import { createOrderMaterialReader, type MaterialReadPorts } from '../features/ainuoke-material-progress/read-service.js';
 import type { IncomingMessage, RequestListener, ServerResponse } from "node:http";
 import type { Pool } from "pg";
@@ -39,7 +59,9 @@ import { routeQuoteMasters } from "./quote-masters/routes.js";
 import { routeQuoteAttachments } from "./attachments/routes.js";
 import type { AttachmentStorage } from "./attachments/storage.js";
 import { serveStatic } from "./static-files.js";
+import { routeMaterialProgressSettings } from "./material-progress-settings/routes.js";
 import { routeTeamAccess } from "./auth/team-access-routes.js";
+import type { PaymentSnapshotReader } from './ainuoke-source/payment-request-store.js';
 
 export type ServerLogger = {
   error(event: Record<string, unknown>): void;
@@ -54,8 +76,12 @@ export type AppDependencies = {
   identityAuthority?: IdentityAuthority;
   attachmentStorage?: AttachmentStorage;
   orderMaterialRead?: MaterialReadPorts;
+  orderMaterialHistory?: MaterialHistoryReader;
+  orderPaymentRead?: PaymentSnapshotReader;
+  normalizationExecution?: NormalizationExecutionOptions;
+  orderCommandMode?: OrderCommandMode;
 };
-type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead">;
+type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">;
 
 const defaultLogger: ServerLogger = {
   error(event) {
@@ -136,6 +162,10 @@ function integerQuery(value: string | null, fallback: number, label: string, min
 
 function salesOrderListQuery(requestUrl: string | undefined) {
   const params = new URL(requestUrl ?? "/", "http://localhost").searchParams;
+  const allowed=new Set(['limit','offset','search','lifecycleState','creationSource','sortBy','sortDirection','includeHistorical']);
+  if([...params.keys()].some(key=>!allowed.has(key)||params.getAll(key).length!==1))throw new HttpError(400,'invalid_sales_order_list_query','Unsupported or repeated list field');
+  const historical=params.get('includeHistorical');
+  if(historical!==null&&!['true','false'].includes(historical))throw new HttpError(400,'invalid_sales_order_list_query','includeHistorical must be true or false');
   const limit = integerQuery(params.get("limit"), SALES_ORDER_LIST_DEFAULT_LIMIT, "limit", 1);
   if (limit > SALES_ORDER_LIST_MAX_LIMIT) {
     throw new HttpError(400, "invalid_sales_order_list_query", `limit cannot exceed ${SALES_ORDER_LIST_MAX_LIMIT}`);
@@ -163,6 +193,7 @@ function salesOrderListQuery(requestUrl: string | undefined) {
     limit,
     offset,
     search,
+    includeHistorical:historical==='true',
     lifecycleState: lifecycleState as SalesOrderLifecycleState | undefined,
     creationSource: creationSource as SalesOrderCreationSource | undefined,
     sortBy: sortBy as "orderNo" | "updatedAt" | "contractDeliveryDate" | "salesContractNo",
@@ -323,6 +354,7 @@ async function route(
 
   if (await routeQuoteMasters(request, response, dependencies, correlationId)) return;
   if (await routeTeamAccess(request, response, dependencies)) return;
+  if (await routeMaterialProgressSettings(request, response, dependencies)) return;
   const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
   if ((request.method === "GET" && (path === "/api/v1/quotes/creation-options" || creationReceipt))
     || (request.method === "POST" && ["/api/v1/quotes/creation-preview", "/api/v1/quotes/creation-workflows", "/api/v1/quotes/creation-defaults"].includes(path))) {
@@ -359,7 +391,7 @@ async function route(
     const query = salesOrderListQuery(request.url);
     const result = await listSalesOrders(dependencies.pool, query);
     sendJson(response, 200, {
-      salesOrders: result.items,
+      salesOrders: await attachOrderAlerts(result.items, identity, dependencies.orderMaterialRead),
       page: {
         limit: query.limit,
         offset: query.offset,
@@ -396,6 +428,31 @@ async function route(
       });
       sendJson(response, 201, { quote });
     } catch (error) { asQuoteHttpError(error); }
+    return;
+  }
+
+  const materialHistoryMatch=/^\/api\/v1\/sales-orders\/([^/]+)\/material-history(?:\/([^/]+))?$/.exec(path);
+  if(materialHistoryMatch){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'material_history_requires_session','Trusted session authority required');
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    if(!dependencies.orderMaterialHistory)throw new HttpError(503,'material_history_not_connected','Historical material reader is not connected');
+    const query=new URL(request.url??'/','http://local').searchParams;response.setHeader('Cache-Control','no-store');
+    if(materialHistoryMatch[2]){if(query.size)throw new HttpError(400,'invalid_material_history_query','Query selectors not accepted');sendJson(response,200,await dependencies.orderMaterialHistory.read(identity,materialHistoryMatch[1],materialHistoryMatch[2]));}
+    else sendJson(response,200,await dependencies.orderMaterialHistory.list(identity,materialHistoryMatch[1],parseMaterialHistoryQuery(query)));
+    return;
+  }
+
+  const paymentMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/payment-requests$/.exec(path);
+  if (paymentMatch) {
+    response.setHeader('Cache-Control', 'no-store');
+    if (dependencies.identityAuthority.mode !== 'session') throw new HttpError(503, 'payment_read_requires_session', '需要可信会话。');
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, 'authentication_required', '需要登录。');
+    if (request.method !== 'GET') throw new HttpError(405, 'method_not_allowed', '仅支持读取。');
+    if (new URL(request.url ?? '/', 'http://local').search) throw new HttpError(400, 'invalid_payment_source_request', '仅接受正式订单UUID。');
+    if (!dependencies.orderPaymentRead) throw new HttpError(503, 'payment_read_not_connected', '货款申请来源尚未接通。');
+    sendJson(response, 200, await dependencies.orderPaymentRead(identity, paymentMatch[1]));
     return;
   }
 
@@ -572,6 +629,286 @@ async function route(
     return;
   }
 
+  // Retired user workflows remain readable for history; callers cannot revive them
+  // through an old page or direct HTTP request. No stored history is deleted.
+  const retiredOrderWrite=!['GET','HEAD','OPTIONS'].includes(request.method??'')&&(
+    /^\/api\/v1\/sales-orders\/[^/]+\/(identity|preparation-adoptions)$/.test(path)
+    ||path==='/api/v1/order-preparations'
+    ||/^\/api\/v1\/order-normalization-cases(?:\/.*)?$/.test(path)
+    ||/^\/api\/v1\/order-normalization-workspace(?:\/.*)?$/.test(path)
+    ||/^\/api\/v1\/sales-orders\/[^/]+\/commercial-versions(?:\/preview)?$/.test(path));
+  if(retiredOrderWrite||path==='/api/v1/order-claimants'){
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    requirePermission(identity.permissions,'order.view');
+    if(retiredOrderWrite)assertMutationBoundary(request,dependencies.allowedOrigins);
+    throw new HttpError(410,'order_workflow_retired','Use order business source maintenance; ownership, preparations and normalization operations are retired');
+  }
+  const quoteOrderSource=/^\/api\/v1\/quotes\/([^/]+)\/orders\/([^/]+)\/business-source(?:\/(preview))?$/.exec(path);
+  if(quoteOrderSource){
+    const actor=await dependencies.identityAuthority.resolve(request);if(!actor)throw new HttpError(401,'authentication_required','Authentication required');requirePermission(actor.permissions,'order.view');requirePermission(actor.permissions,'quote.view');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');response.setHeader('Cache-Control','no-store');if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_source_query','No query selectors');
+    const quoteId=requiredPathIdentity(quoteOrderSource[1],'quoteId'),orderId=requiredPathIdentity(quoteOrderSource[2],'salesOrderId');
+    if(request.method==='GET'&&!quoteOrderSource[3]){const linked=(await dependencies.pool.query('SELECT v.quote_id FROM sales_order_commercial_heads h JOIN sales_order_commercial_versions v ON v.id=h.current_version_id WHERE h.sales_order_id=$1',[orderId])).rows[0];if(linked?.quote_id!==quoteId)throw new HttpError(409,'quote_order_context_changed','Quote association changed');sendJson(response,200,await readOrderBusinessSource(dependencies.pool,actor,orderId));}
+    else if(request.method==='POST'){assertMutationBoundary(request,dependencies.allowedOrigins);const body=await readJsonBody(request,262144);if(quoteOrderSource[3])sendJson(response,200,await previewColorSource(dependencies.pool,actor,orderId,body,quoteId));else{await assertOrderCommandsAvailable(dependencies.pool,actor,dependencies.orderCommandMode);sendJson(response,200,await adoptColorSource(dependencies.pool,actor,orderId,body,quoteId));}}
+    else throw new HttpError(405,'method_not_allowed','Method not allowed');return;
+  }
+  const adjustmentReceipt=/^\/api\/v1\/order-price-adjustments\/requests\/([0-9a-f-]+)(?:\/(resume))?$/iu.exec(path);
+  if(adjustmentReceipt){
+    const actor=await dependencies.identityAuthority.resolve(request);if(!actor)throw new HttpError(401,'authentication_required','Authentication required');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');
+    if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_price_query','No query selectors');response.setHeader('Cache-Control','no-store');
+    if(request.method==='GET'&&!adjustmentReceipt[2])sendJson(response,200,await readSaleAdjustmentReceipt(dependencies.pool,actor,adjustmentReceipt[1]));
+    else if(request.method==='POST'&&adjustmentReceipt[2]){assertMutationBoundary(request,dependencies.allowedOrigins);const body=await readJsonBody(request,1024);if(Object.keys(body).length)throw new HttpError(400,'invalid_resume','No replacement payload');await assertOrderCommandsAvailable(dependencies.pool,actor,dependencies.orderCommandMode);sendJson(response,200,await resumeSaleAdjustment(dependencies.pool,actor,adjustmentReceipt[1]));}
+    else throw new HttpError(405,'method_not_allowed','Method not allowed');return;
+  }
+  if(path==='/api/v1/quote-order-prices'||path==='/api/v1/order-price-adjustments'||path==='/api/v1/order-price-adjustments/preview'){
+    const actor=await dependencies.identityAuthority.resolve(request);if(!actor)throw new HttpError(401,'authentication_required','Authentication required');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');
+    response.setHeader('Cache-Control','no-store');const params=new URL(request.url??'/','http://local').searchParams;
+    if(request.method==='GET'&&path!=='/api/v1/order-price-adjustments/preview')sendJson(response,200,path==='/api/v1/quote-order-prices'?await listQuoteOrderPrices(dependencies.pool,actor,params):await readSaleAdjustmentHistory(dependencies.pool,actor,params));
+    else if(request.method==='POST'&&path!=='/api/v1/quote-order-prices'){
+      if(params.size)throw new HttpError(400,'invalid_price_query','No query selectors');assertMutationBoundary(request,dependencies.allowedOrigins);const body=await readJsonBody(request,262144);
+      if(path.endsWith('/preview'))sendJson(response,200,await previewSaleAdjustment(dependencies.pool,actor,body));else{await assertOrderCommandsAvailable(dependencies.pool,actor,dependencies.orderCommandMode);sendJson(response,200,await commitSaleAdjustment(dependencies.pool,actor,body));}
+    }else throw new HttpError(405,'method_not_allowed','Method not allowed');return;
+  }
+  const orderSourceOptions=/^\/api\/v1\/quotes\/([^/]+)\/order-source-options$/.exec(path);
+  if(path==='/api/v1/order-source-quotes'||orderSourceOptions){
+    const actor=await dependencies.identityAuthority.resolve(request);if(!actor)throw new HttpError(401,'authentication_required','Authentication required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    response.setHeader('Cache-Control','no-store');
+    sendJson(response,200,orderSourceOptions?await readOrderSourceOptions(dependencies.pool,actor,requiredPathIdentity(orderSourceOptions[1],'quoteId')):await listOrderSourceQuotes(dependencies.pool,actor,new URL(request.url??'/','http://local').searchParams));return;
+  }
+  const businessSourceMatch=/^\/api\/v1\/sales-orders\/([^/]+)\/business-source(?:\/(preview))?$/.exec(path);
+  if(businessSourceMatch){
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    requirePermission(identity.permissions,'order.view');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');
+    if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_business_source_query','No query selectors');
+    response.setHeader('Cache-Control','no-store');
+    const id=requiredPathIdentity(businessSourceMatch[1],'salesOrderId');
+    if(request.method==='GET'&&!businessSourceMatch[2])sendJson(response,200,await readOrderBusinessSource(dependencies.pool,identity,id));
+    else if(request.method==='POST'){
+      assertMutationBoundary(request,dependencies.allowedOrigins);
+      const body=await readJsonBody(request,262144);
+      if(businessSourceMatch[2])sendJson(response,200,await previewOrderBusinessSource(dependencies.pool,identity,id,body));
+      else {await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);sendJson(response,200,await adoptOrderBusinessSource(dependencies.pool,identity,id,body));}
+    }else throw new HttpError(405,'method_not_allowed','Method not allowed');
+    return;
+  }
+
+  if(path==='/api/v1/order-command-state'){
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_command_state_query','Query selectors not accepted');
+    response.setHeader('Cache-Control','no-store');sendJson(response,200,await readOrderCommandState(dependencies.pool,identity,dependencies.orderCommandMode));return;
+  }
+
+  const reviewWorkspace=/^\/api\/v1\/order-normalization-workspace\/(access|proposals)(?:\/([0-9a-f-]+)(?:\/(reviews))?)?$/iu.exec(path);
+  const proposalContext=/^\/api\/v1\/order-normalization-cases\/([0-9a-f-]+)\/proposal-context$/iu.exec(path);
+  if(reviewWorkspace||proposalContext){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    response.setHeader('Cache-Control','no-store');const query=new URL(request.url??'/','http://local').searchParams;
+    if(proposalContext){if(query.size)throw new HttpError(400,'invalid_attribution_query','Query selectors not accepted');sendJson(response,200,await readNormalizationProposalContext(dependencies.pool,identity,proposalContext[1]));}
+    else if(reviewWorkspace![1]==='access'){if(query.size||reviewWorkspace![2])throw new HttpError(400,'invalid_attribution_query','Query selectors not accepted');sendJson(response,200,await readNormalizationReviewCapabilities(dependencies.pool,identity));}
+    else if(reviewWorkspace![3])sendJson(response,200,await listNormalizationReviewHistory(dependencies.pool,identity,reviewWorkspace![2],parseReviewHistoryQuery(query)));
+    else if(reviewWorkspace![2]){if(query.size)throw new HttpError(400,'invalid_attribution_query','Query selectors not accepted');sendJson(response,200,await readPublishedNormalizationProposal(dependencies.pool,identity,reviewWorkspace![2],dependencies.normalizationExecution??{},dependencies.orderCommandMode));}
+    else sendJson(response,200,await listNormalizationReviewInbox(dependencies.pool,identity,parseReviewInboxQuery(query)));
+    return;
+  }
+
+  const attributionMatch=/^\/api\/v1\/order-normalization-cases\/([0-9a-f-]+)\/(attribution-preview|review-proposals|reviews|execute)$/iu.exec(path);
+  if(attributionMatch){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    const query=new URL(request.url??'/','http://local').searchParams;
+    if(attributionMatch[2]==='reviews'&&request.method==='GET'){
+      if(query.size!==2||!query.has('evidenceHash')||!query.has('proposalHash')||[...query.keys()].some(key=>query.getAll(key).length!==1||!['evidenceHash','proposalHash'].includes(key)))throw new HttpError(400,'invalid_attribution_query','Invalid review query');
+      sendJson(response,200,await readAttributionReviewSummary(dependencies.pool,identity,attributionMatch[1],query.get('evidenceHash')!,query.get('proposalHash')!));return;
+    }
+    if(request.method!=='POST')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    assertMutationBoundary(request,dependencies.allowedOrigins);if(query.size)throw new HttpError(400,'invalid_attribution_query','Query selectors not allowed');
+    const body=await readJsonBody(request,65536);const options=dependencies.normalizationExecution??{};
+    if(attributionMatch[2]==='attribution-preview'){
+      if(Object.keys(body).length!==1||!Object.hasOwn(body,'proposal'))throw new HttpError(400,'invalid_attribution_command','Only proposal accepted');
+      sendJson(response,200,await previewAttributionExecution(dependencies.pool,identity,attributionMatch[1],body.proposal,options));
+    }else if(attributionMatch[2]==='review-proposals')sendJson(response,200,await publishAttributionProposal(dependencies.pool,identity,attributionMatch[1],body,options));
+    else if(attributionMatch[2]==='reviews')sendJson(response,200,await recordAttributionReview(dependencies.pool,identity,attributionMatch[1],body,options));
+    else {await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);sendJson(response,200,await executeAttributionChange(dependencies.pool,identity,attributionMatch[1],body,options));}
+    return;
+  }
+  const attributionReceipt=/^\/api\/v1\/order-attribution-receipts\/([0-9a-f-]+)$/iu.exec(path);
+  if(attributionReceipt){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_attribution_query','Query selectors not allowed');
+    sendJson(response,200,await readAttributionExecutionReceipt(dependencies.pool,identity,attributionReceipt[1]));return;
+  }
+  const normalizationCaseMatch=/^\/api\/v1\/order-normalization-cases(?:\/([0-9a-f-]+)(?:\/(events))?)?$/iu.exec(path);
+  if(normalizationCaseMatch){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
+    response.setHeader('Cache-Control','no-store');
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');
+    const query=new URL(request.url??'/','http://localhost').searchParams;
+    if(request.method==='GET'&&!normalizationCaseMatch[2]){
+      const options=parseNormalizationCaseQuery(query,Boolean(normalizationCaseMatch[1]));
+      sendJson(response,200,normalizationCaseMatch[1]?await readNormalizationCase(dependencies.pool,identity,normalizationCaseMatch[1],options.offset):await listNormalizationCases(dependencies.pool,identity,options));return;
+    }
+    if(request.method!=='POST'||(normalizationCaseMatch[1]&&!normalizationCaseMatch[2]))throw new HttpError(405,'method_not_allowed','Method not allowed');
+    assertMutationBoundary(request,dependencies.allowedOrigins);
+    if(query.size)throw new HttpError(400,'invalid_case_query','Query selectors not accepted');
+    const body=await readJsonBody(request,8192);
+    sendJson(response,200,normalizationCaseMatch[1]?await appendNormalizationCaseEvent(dependencies.pool,identity,normalizationCaseMatch[1],body):await openNormalizationCase(dependencies.pool,identity,body));return;
+  }
+
+  if(path==='/api/v1/order-normalization-preview'){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'normalization_requires_session_authority','Trusted session authority required');
+    response.setHeader('Cache-Control','no-store');
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');
+    if(request.method!=='POST')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    assertMutationBoundary(request,dependencies.allowedOrigins);
+    if(new URL(request.url??'/','http://localhost').searchParams.size)throw new HttpError(400,'invalid_normalization_query','Query selectors not accepted');
+    const body=await readJsonBody(request,2048);
+    if(Object.keys(body).length!==1 || !Array.isArray(body.orderIds) || body.orderIds.some(id=>typeof id!=='string'))throw new HttpError(400,'invalid_normalization_pair','Only orderIds accepted');
+    sendJson(response,200,await previewOrderNormalization(dependencies.pool,identity,body.orderIds));return;
+  }
+
+  const processingPush=/^\/api\/v1\/processing-quote-push(?:\/(preview|requests\/([0-9a-f-]+)))?$/iu.exec(path);
+  if(processingPush){
+    const actor=await dependencies.identityAuthority.resolve(request);if(!actor)throw new HttpError(401,'authentication_required','Authentication required');if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');response.setHeader('Cache-Control','no-store');
+    if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_processing_push_query','No query selectors');
+    if(request.method==='GET'&&processingPush[2])sendJson(response,200,await readProcessingPushReceipt(dependencies.pool,actor,processingPush[2]));
+    else if(request.method==='POST'&&!processingPush[2]){assertMutationBoundary(request,dependencies.allowedOrigins);const body=await readJsonBody(request,262144);if(processingPush[1]==='preview')sendJson(response,200,await previewProcessingQuotePush(dependencies.pool,actor,body));else{await assertOrderCommandsAvailable(dependencies.pool,actor,dependencies.orderCommandMode);sendJson(response,200,await pushProcessingQuotes(dependencies.pool,actor,body));}}
+    else throw new HttpError(405,'method_not_allowed','Method not allowed');return;
+  }
+  const processingMatch=/^\/api\/v1\/processing-order-batches(?:\/(consume|[0-9a-f-]+)(?:\/(preview|confirm|cancel))?)?$/iu.exec(path);
+  if(processingMatch){
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(403,'trusted_session_required','Trusted session required');
+    response.setHeader('Cache-Control','no-store');
+    const query=new URL(request.url??'/','http://localhost').searchParams;
+    if(request.method==='GET'&&!processingMatch[1]){sendJson(response,200,await listProcessingBatches(dependencies.pool,identity,parseProcessingBatchQuery(query)));return;}
+    if(query.size)throw new HttpError(400,'invalid_processing_query','Query selectors not accepted');
+    if(request.method!=='POST')throw new HttpError(405,'method_not_allowed','Method not allowed');
+    assertMutationBoundary(request,dependencies.allowedOrigins);
+    const body=await readJsonBody(request,16384);
+    if(!processingMatch[1])sendJson(response,200,await createProcessingBatch(dependencies.pool,identity,body));
+    else if(processingMatch[1]==='consume'&&!processingMatch[2]){requirePermission(identity.permissions,'order.processing.consume');await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);sendJson(response,200,await consumeProcessingBatches(dependencies.pool,identity,body));}
+    else if(processingMatch[2]==='preview'){
+      if(Object.keys(body).length)throw new HttpError(400,'invalid_processing_preview','Preview does not accept overrides');
+      sendJson(response,200,await previewProcessingBatch(dependencies.pool,identity,processingMatch[1]));
+    }else if(processingMatch[2]==='confirm')sendJson(response,200,await confirmProcessingBatch(dependencies.pool,identity,processingMatch[1],body));
+    else if(processingMatch[2]==='cancel')sendJson(response,200,await cancelProcessingBatch(dependencies.pool,identity,processingMatch[1],body));
+    else throw new HttpError(405,'method_not_allowed','Method not allowed');
+    return;
+  }
+
+  if(path==="/api/v1/order-commercial-cutover-preview"){
+    const identity=await dependencies.identityAuthority.resolve(request);
+    if(!identity)throw new HttpError(401,"authentication_required","Authentication required");
+    if(request.method!=="POST")throw new HttpError(405,"method_not_allowed","Method not allowed");
+    if(dependencies.identityAuthority.mode!=="session")throw new HttpError(403,"trusted_session_required","Trusted session required");
+    assertMutationBoundary(request,dependencies.allowedOrigins);
+    if(new URL(request.url??"/","http://localhost").searchParams.size)throw new HttpError(400,"invalid_legacy_preview_scope","Query selectors not accepted");
+    response.setHeader("Cache-Control","no-store");
+    sendJson(response,200,await previewLegacyCommercialCutover(dependencies.pool,identity,await readJsonBody(request,8192)));return;
+  }
+
+  const commercialMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/commercial-versions(?:\/(preview))?$/.exec(path);
+  if (commercialMatch) {
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401,"authentication_required","Authentication is required");
+    requirePermission(identity.permissions,"order.view");
+    if (new URL(request.url??"/","http://localhost").searchParams.size) throw new HttpError(400,"invalid_commercial_query","Query selectors are not accepted");
+    const id=requiredPathIdentity(commercialMatch[1],"salesOrderId");
+    response.setHeader("Cache-Control","no-store");
+    if(request.method==="GET"&&!commercialMatch[2]){
+      sendJson(response,200,projectOrderCommercialState(identity,await readOrderCommercialState(dependencies.pool,id)));return;
+    }
+    if(request.method!=="POST")throw new HttpError(405,"method_not_allowed","Method not allowed");
+    if(dependencies.identityAuthority.mode!=="session")throw new HttpError(403,"trusted_session_required","A trusted session is required");
+    assertMutationBoundary(request,dependencies.allowedOrigins);
+    requirePermission(identity.permissions,"order.commercial.adopt");
+    const body=await readJsonBody(request,8192);
+    if(commercialMatch[2]){
+      const preview=await previewOrderCommercial(dependencies.pool,identity,id,parseCommercialProvenance(body));
+      sendJson(response,200,{current:projectOrderCommercialState(identity,preview.current),candidate:projectCommercialCandidate(identity,preview.candidate)});
+    }else{
+      await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);
+      const result=await adoptOrderCommercial(dependencies.pool,identity,id,body);
+      sendJson(response,200,{adopted:projectOrderCommercialVersion(identity,result.adopted),replayed:result.replayed});
+    }
+    return;
+  }
+
+  const preparationCreationReceipt=/^\/api\/v1\/order-preparation-receipts\/([^/]+)$/.exec(path);
+  if(preparationCreationReceipt){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'preparation_requires_session_authority','Trusted session authority required');
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');if(new URL(request.url??'/','http://local').searchParams.size)throw new HttpError(400,'invalid_preparation_query','No selectors accepted');
+    response.setHeader('Cache-Control','no-store');sendJson(response,200,await readOrderPreparationCreationReceipt(dependencies.pool,identity,preparationCreationReceipt[1]));return;
+  }
+
+  const preparationMatch=/^\/api\/v1\/sales-orders\/([^/]+)\/(preparation-candidates|preparation-adoptions)$/.exec(path);
+  const preparationReceipt=/^\/api\/v1\/order-preparation-adoption-receipts\/([^/]+)$/.exec(path);
+  if(preparationMatch||preparationReceipt){
+    if(dependencies.identityAuthority.mode!=='session')throw new HttpError(503,'preparation_requires_session_authority','Trusted session authority required');
+    const identity=await dependencies.identityAuthority.resolve(request);if(!identity)throw new HttpError(401,'authentication_required','Authentication required');
+    const params=new URL(request.url??'/','http://local').searchParams;response.setHeader('Cache-Control','no-store');
+    if(preparationReceipt){if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');if(params.size)throw new HttpError(400,'invalid_preparation_adoption_query','No selectors accepted');sendJson(response,200,await readPreparationAdoptionReceipt(dependencies.pool,identity,preparationReceipt[1]));}
+    else if(preparationMatch![2]==='preparation-candidates'){if(request.method!=='GET')throw new HttpError(405,'method_not_allowed','Method not allowed');sendJson(response,200,await listPreparationCandidates(dependencies.pool,identity,preparationMatch![1],parsePreparationCandidateQuery(params)));}
+    else if(request.method==='GET'){
+      if([...params.keys()].some(k=>k!=='offset'||params.getAll(k).length!==1)||!/^\d{1,6}$/.test(params.get('offset')??'0'))throw new HttpError(400,'invalid_preparation_adoption_query','Invalid history query');
+      sendJson(response,200,await readPreparationAdoptions(dependencies.pool,identity,preparationMatch![1],Number(params.get('offset')??0)));
+    }else if(request.method==='POST'){
+      if(params.size)throw new HttpError(400,'invalid_preparation_adoption_query','No selectors accepted');assertMutationBoundary(request,dependencies.allowedOrigins);
+      await assertOrderCommandsAvailable(dependencies.pool,identity,dependencies.orderCommandMode);
+      sendJson(response,200,await adoptOrderPreparation(dependencies.pool,identity,preparationMatch![1],await readJsonBody(request,8192)));
+    }else throw new HttpError(405,'method_not_allowed','Method not allowed');return;
+  }
+
+  const identityMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/identity$/.exec(path);
+  if (identityMatch || path === "/api/v1/order-preparations" || path === "/api/v1/order-claimants") {
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    requirePermission(identity.permissions, "order.view");
+    const identityQuery = new URL(request.url ?? "/", "http://localhost").searchParams;
+    if (path === "/api/v1/order-preparations" && request.method === "GET") {
+      requirePermission(identity.permissions, "order.preparation.create");
+      if ([...identityQuery.keys()].some(key => !["referenceOrderId", "offset"].includes(key)) || [...new Set(identityQuery.keys())].some(key=>identityQuery.getAll(key).length!==1) || !/^\d+$/u.test(identityQuery.get("offset")??"0")) throw new HttpError(400,"invalid_preparation_query","Invalid query");
+      response.setHeader("Cache-Control", "no-store");
+      const ref=identityQuery.get("referenceOrderId")??"",offset=Number(identityQuery.get("offset")??0);
+      const result=dependencies.identityAuthority.mode==='session'&&await supportsPreparationAdoption(dependencies.pool)?await readPreparationsByReference(dependencies.pool,identity,ref,offset):await listOrderPreparations(dependencies.pool,ref,offset);
+      sendJson(response,200,result);return;
+    }
+    if (identityQuery.size) throw new HttpError(400, "invalid_identity_query", "Query selectors are not accepted");
+    if (path === "/api/v1/order-claimants") {
+      requirePermission(identity.permissions,"order.transfer");
+      if(request.method!=="GET") throw new HttpError(405,"method_not_allowed","Method not allowed");
+      response.setHeader("Cache-Control","no-store");sendJson(response,200,await listClaimants(dependencies.pool));return;
+    }
+    response.setHeader("Cache-Control", "no-store");
+    if (identityMatch && request.method === "GET") sendJson(response, 200, {identity: await readOrderIdentity(dependencies.pool, identityMatch[1])});
+    else if ((identityMatch && request.method === "PATCH") || (!identityMatch && request.method === "POST")) {
+      if (dependencies.identityAuthority.mode !== "session") throw new HttpError(403, "trusted_session_required", "A trusted session is required");
+      assertMutationBoundary(request, dependencies.allowedOrigins);
+      const body = await readJsonBody(request, 8192);
+      const result = identityMatch ? await mutateOrderIdentity(dependencies.pool, identity, identityMatch[1], body) : await createOrderPreparation(dependencies.pool, identity, body);
+      sendJson(response, 200, result);
+    } else throw new HttpError(405, "method_not_allowed", "Method not allowed");
+    return;
+  }
+
   const salesOrderMatch = /^\/api\/v1\/sales-orders\/([^/]+)$/.exec(path);
   if (request.method === "GET" && salesOrderMatch) {
     const identity = await dependencies.identityAuthority.resolve(request);
@@ -598,11 +935,13 @@ export function createApp(dependencies: AppDependencies): RequestListener {
     security: dependencies.security ?? { secureCookies: false, sessionTtlSeconds: 43_200 },
     staticDirectory: dependencies.staticDirectory ?? "",
     identityAuthority: dependencies.identityAuthority ?? createIdentityAuthority(dependencies.pool, "session"),
+    orderCommandMode: parseOrderCommandMode(dependencies.orderCommandMode),
   };
   return (request, response) => {
     const correlationId = requestId();
     response.setHeader("X-Request-Id", correlationId);
-    void route(request, response, resolved, correlationId).catch((error: unknown) => {
+    void route(request, response, resolved, correlationId).catch((failure: unknown) => {
+      const error=orderCommandControlError(failure);
       if (error instanceof HttpError) {
         sendError(response, error.status, error.code, error.message, correlationId);
         return;

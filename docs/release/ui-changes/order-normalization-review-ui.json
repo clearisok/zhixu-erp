@@ -1,0 +1,27 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "features/order-center/components/normalization-case-dialog.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/components/normalization-proposal-panel.tsx",
+    "features/order-center/components/normalization-review-dialog.tsx",
+    "features/order-center/components/normalization-evidence-summary.tsx",
+    "features/order-center/server/normalization-case-client.ts",
+    "features/order-center/server/normalization-review-client.ts"
+  ],
+  "pages": [
+    "order-list",
+    "order-detail"
+  ],
+  "visibleDifference": "落实D121已批准归一/独立生产财务复核范围，在现有订单中心与Foundation Modal增加完整组方案发布、岗位工作列表/签名/历史及执行关闭原因。保留原主题、DataTable、主导航和真实执行默认关闭，无生产路由开放。",
+  "evidence": [
+    "docs/tasks/active/order-identity-program.md",
+    "docs/tasks/active/order-normalization-review-ui.md",
+    "docs/features/ORDER_NORMALIZATION_REVIEW.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-identity-program.md"
+  }
+}

@@ -1,3 +1,4 @@
+import {waitForChromiumEndpoint} from './chromium-endpoint.mjs';
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { spawn } from "node:child_process";
@@ -77,9 +78,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     origins.push(origin);
     const profile = join(temp, "profile");
     browser = spawn(chrome, ["--headless=new", "--no-first-run", "--no-default-browser-check", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore", windowsHide: true });
-    const portFile = join(profile, "DevToolsActivePort");
-    await until(() => existsSync(portFile), "Chromium startup");
-    const [debugPort, debugPath] = readFileSync(portFile, "utf8").trim().split(/\r?\n/u);
+    const [debugPort,debugPath]=await waitForChromiumEndpoint(profile,{timeoutMs:20000});
     ws = new WebSocket(`ws://127.0.0.1:${debugPort}${debugPath}`);
     await new Promise((done, reject) => { ws.addEventListener("open", done, { once: true }); ws.addEventListener("error", reject, { once: true }); });
     let commandId = 0;

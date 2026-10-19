@@ -1,0 +1,218 @@
+{
+  "schemaVersion": "zhixu-selected-demo-execution.v1",
+  "verifiedAt": "2026-10-16T08:40:05.448Z",
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "toolingCommit": "0dfd51e798768530d1e6134e6019f57b39645197",
+  "sourceSha": "71b291762467c1efd19873438fef2abfd2954d23",
+  "imageId": "sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc",
+  "buildId": "selected-source-20261016-71b29176",
+  "scope": "new-local-isolated-two-contract-snapshot-demo",
+  "authorization": {
+    "initialExecution": "explicit-user-confirmation-2026-10-16",
+    "bindingRecovery": "explicit-user-one-additional-binding-read-2026-10-16",
+    "continuousSchedule": false
+  },
+  "instance": {
+    "name": "zhixu-selected-demo-20261016-r2",
+    "database": "zhixu_selected_demo_20261016_r2",
+    "appUrl": "http://127.0.0.1:62316",
+    "dbHostPorts": [],
+    "readOnlyApp": true,
+    "expiresAt": "2026-10-16T10:08:03.203Z",
+    "sourceMaxAgeMs": 600000,
+    "autoStop": "runtime-deadline-plus-request-deadline-and-no-container-restart",
+    "volumePreserved": true
+  },
+  "collection": {
+    "originalBindingAttempt": {
+      "state": "unresolved",
+      "persistedOrders": 0,
+      "transportMetrics": "unavailable-not-inferred",
+      "budgetConsumed": true,
+      "automaticRetry": false
+    },
+    "replacementBinding": {
+      "state": "completed",
+      "logins": 1,
+      "reportRequests": 26,
+      "httpAttempts": 27,
+      "networkRetries": 0,
+      "authRenewals": 0
+    },
+    "materials": {
+      "state": "completed",
+      "logins": 1,
+      "reportRequests": 26,
+      "httpAttempts": 27,
+      "networkRetries": 0,
+      "authRenewals": 0
+    },
+    "payments": {
+      "state": "completed",
+      "published": 2,
+      "unresolved": 0,
+      "rowCounts": [
+        12,
+        9
+      ],
+      "transportMetrics": "not-exposed-by-operator-terminal-receipt",
+      "budget": {
+        "logins": 1,
+        "reportRequests": 8,
+        "httpAttempts": 9,
+        "timeoutMs": 180000
+      },
+      "automaticRetry": false
+    }
+  },
+  "counts": {
+    "orders": 2,
+    "syntheticAccounts": 7,
+    "materialRuns": 1,
+    "materialSnapshots": 2,
+    "paymentTargets": 2,
+    "paymentSnapshots": 2,
+    "demandItems": 39,
+    "paymentRows": 21
+  },
+  "samples": [
+    {
+      "alias": "S1",
+      "demands": 9,
+      "events": {
+        "purchases": 9,
+        "inbounds": 12,
+        "shipments": 9,
+        "outbounds": 12
+      },
+      "units": {
+        "known": 9
+      },
+      "financeRows": 12,
+      "capturedAt": "2026-10-16T08:19:59.386719+00:00",
+      "financeObservedThrough": "2026-10-16T08:21:38.761Z"
+    },
+    {
+      "alias": "S2",
+      "demands": 30,
+      "events": {
+        "purchases": 21,
+        "inbounds": 28,
+        "shipments": 22,
+        "outbounds": 28
+      },
+      "units": {
+        "known": 21,
+        "missing": 9
+      },
+      "financeRows": 9,
+      "capturedAt": "2026-10-16T08:20:00.135220+00:00",
+      "financeObservedThrough": "2026-10-16T08:21:38.937Z"
+    }
+  ],
+  "roleReadbacks": [
+    {
+      "alias": "R1",
+      "proofSha256": "55281efd7c97d63bd6bb504642aaed6c803bda8df935fdab8eead59fc74ea354",
+      "readBackAt": "2026-10-16T08:26:26.207Z",
+      "orders": 2,
+      "demandItems": 39,
+      "paymentRows": 21
+    },
+    {
+      "alias": "R2",
+      "proofSha256": "cde2e2284faf4e997a4292402e4ab0e35702fb80288f9dc3827bbfe594e108ca",
+      "readBackAt": "2026-10-16T08:26:25.517Z",
+      "orders": 2,
+      "demandItems": 39,
+      "paymentRows": 21
+    },
+    {
+      "alias": "R3",
+      "proofSha256": "9d0086d1217197ec85a173c8175ec53886e594ca7faef63deee399dab8301778",
+      "readBackAt": "2026-10-16T08:26:24.839Z",
+      "orders": 2,
+      "demandItems": 39,
+      "paymentRows": 21
+    },
+    {
+      "alias": "R4",
+      "proofSha256": "119925742d87f3c3da85a3eb043629dbacd0dfbf90c9b8b0b597e0abdbfe74a9",
+      "readBackAt": "2026-10-16T08:26:27.626Z",
+      "orders": 2,
+      "demandItems": 39,
+      "paymentRows": 21
+    },
+    {
+      "alias": "R5",
+      "proofSha256": "6c67d2bc88f1ccb601378d0110afd6088f29f6a049b0bbf054d652fad91e01f8",
+      "readBackAt": "2026-10-16T08:26:26.936Z",
+      "orders": 2,
+      "demandItems": 39,
+      "paymentRows": 21
+    },
+    {
+      "alias": "R6",
+      "proofSha256": "487b6109c9806d2fc46e283498bded60150686307fa850d8433eaf855fc5f805",
+      "readBackAt": "2026-10-16T08:26:29.062Z",
+      "orders": 2,
+      "demandItems": 39,
+      "paymentRows": 21
+    },
+    {
+      "alias": "R7",
+      "proofSha256": "184b0a76ed8378468381ca8f8f8b10f605f281695d980d75912483b4b042e959",
+      "readBackAt": "2026-10-16T08:26:28.321Z",
+      "orders": 2,
+      "demandItems": 39,
+      "paymentRows": 21
+    }
+  ],
+  "browser": {
+    "loginAndOrderList": "verified",
+    "orderDetailsAndColor": "verified",
+    "fourStreamDrawer": "verified-before-expiry",
+    "paymentDrawer": "verified-before-expiry",
+    "historyMaterialDrawer": "verified-after-expiry",
+    "staleCurrentReader": "verified",
+    "historyScreenshotSha256": "c840cf8737cb28781e9d0489854c3ce9e4a74c76af01564568e3257a9181c668",
+    "offlineSnapshotHtmlSha256": "32b75d6e156b57d6b1719d0edf286a91b077288831baa20e520d22b337b34a90",
+    "offlineSnapshotVisualRender": "not-performed-file-protocol-blocked-by-in-app-browser",
+    "offlineSnapshotNetworkAccess": false
+  },
+  "safety": {
+    "realAccountsChanged": false,
+    "existingBusinessDatabasesChanged": false,
+    "oldFourOrderContainers": {
+      "app": "exited",
+      "pg": "exited"
+    },
+    "oldVolumesChanged": false,
+    "schedulerStarted": false,
+    "ningboChanged": false,
+    "environment18443Changed": false,
+    "environment18444Changed": false,
+    "mergePerformed": false,
+    "sourceCredentialsPrintedOrStored": false,
+    "migrationLedgerEdited": false
+  },
+  "runtimeRepairs": {
+    "dockerInventory": "fixed-before-source-read",
+    "operatorLoopback": "owned-dedicated-bridge-only-unpublished-after-operations",
+    "migrationBytes": "25-files-match-normalized-image-and-git-2-line-ending-differences-host-files-read-only-mounted",
+    "reportWrapper": "synthetic-depth-13-reproduced-validated-envelope-depth-8-saved-without-extra-wrapper"
+  },
+  "privateProofs": {
+    "databaseReadback": "fa8a4927504bf1a27f69fc520d051edde39f53edd739da3427b07a19ed2c389f",
+    "paymentCollection": "7247ef3df4b2ad2f5d35168880d57bcdca1c6bb605607b8f00126b4714233108"
+  },
+  "limits": [
+    "point-in-time-source-facts-not-real-time",
+    "no-human-business-acceptance-asserted",
+    "current-source-ten-minute-expiry-still-enforced",
+    "finance-historical-reader-not-yet-implemented-in-erp",
+    "offline-snapshot-is-private-reading-copy-not-current-status",
+    "source-financial-currency-and-units-not-generalized-from-two-samples"
+  ],
+  "updateWhen": "source/code/image/authorization/resources/timer/status-or-evidence-changes"
+}

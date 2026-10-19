@@ -1,0 +1,9 @@
+{
+ "baselineSha":"064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+ "level":"V2",
+ "paths":["features/permissions/model/permissions.ts","features/order-center/components/order-business-source-button.tsx","features/order-center/components/order-color-prices.tsx","features/order-center/components/server-sales-order-detail-page.tsx","app/order-center/order-center.css"],
+ "pages":["order-detail","user-permissions"],
+ "visibleDifference":"用户批准D145报价唯一来源、1280px分步弹窗、颜色方案和统一/逐色只读成交价；新议价权限目录，不修改其他页面。",
+ "evidence":["docs/tasks/active/quote-order-price-coordination-2026-10-17.md","docs/features/ORDER_BUSINESS_SOURCE.md"],
+ "approval":{"status":"user-approved","reference":"docs/tasks/active/quote-order-price-coordination-2026-10-17.md"}
+}

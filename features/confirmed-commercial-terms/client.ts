@@ -63,7 +63,7 @@ function verifiedQuoteResponse(dto: ConfirmedCommercialTermsDto, quoteId: string
   const provenance = dto.quoteProvenance;
   if (!provenance || provenance.quoteId !== quoteId || provenance.revisionId !== revisionId || provenance.priceVersionId !== priceVersionId
     || !["linked", "unlinked"].includes(dto.linkage) || !Array.isArray(dto.associatedSalesOrderIds)
-    || (dto.linkage === "linked" ? dto.scope !== "quote" || !dto.associatedSalesOrderIds.length : dto.scope !== null || dto.current !== null || dto.associatedSalesOrderIds.length !== 0)) {
+    || (dto.linkage === "linked" ? dto.scope !== "quote" || (!dto.associatedSalesOrderIds.length && !dto.current) : dto.scope !== null || dto.current !== null || dto.associatedSalesOrderIds.length !== 0)) {
     throw new ConfirmedCommercialTermsServerError(502, "confirmed_commercial_terms_provenance_mismatch", "共享条款响应来源不匹配；请显式核对");
   }
   return dto;

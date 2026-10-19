@@ -96,7 +96,7 @@ test("Quote confirmation commands: trusted snapshots, independent Estimate permi
       assert.equal(confirmation.confirmedGarmentPrice, type === "processing" ? null : "0");
       assert.equal(confirmation.quotedLaborPrice, "12.5");
       const browserRevision = browser.revisions.find(r => r.revisionId === browser.defaultRevisionId)!;
-      assert.equal(confirmation.quotedGarmentPrice, canonicalDecimal(String(calculatePriceVersionMetrics(browserRevision.priceVersions[0]).garmentSellingPrice)));
+      assert.equal(confirmation.quotedGarmentPrice,type==='processing'?'0':canonicalDecimal(String(calculatePriceVersionMetrics(browserRevision.priceVersions[0]).garmentSellingPrice)));
       assert.equal(typeof confirmation.confirmedAt, "string");
       assert.ok(Number.isFinite(Date.parse(confirmation.confirmedAt!)));
       assert.notEqual(confirmation.confirmedAt, "2026-01-01T00:00:00Z");
@@ -174,14 +174,18 @@ test("Quote confirmation commands: trusted snapshots, independent Estimate permi
     } finally { await pool.query("DROP TRIGGER synthetic_confirmation_audit_failure ON operation_logs; DROP FUNCTION synthetic_confirmation_audit_failure()"); }
   });
 
-  await t.test("exact linked current fails closed instead of maintaining second Quote current; no order creation", async () => {
+  await t.test("order usage retains PV confirmation authority until CCT exists; empty CCT blocks a second writer", async () => {
     active = admin;
     assert.equal((await pool.query("SELECT count(*)::int AS n FROM sales_orders")).rows[0].n, 0);
     const { record } = await seeded("confirmation-linked"), body = command(record);
     await pool.query("INSERT INTO sales_orders(creation_source,source_quote_id,source_revision_id,source_price_version_id) VALUES('quote',$1,$2,$3)", [record.quote.id, body.revisionId, body.priceVersionId]);
     const response = await request(record.quote.id, body);
-    assert.equal(response.status, 409); assert.equal(response.payload.error?.code, "quote_confirmation_linked_read_only");
-    assert.deepEqual(await read(record.quote.id), record); assert.equal(await logs(record.quote.id), 0);
+    assert.equal(response.status, 200);
+    const saved=await read(record.quote.id);
+    await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,quote_id,revision_id,price_version_id,labor_currency) VALUES('quote',$1,$2,$3,'CNY')",[record.quote.id,body.revisionId,body.priceVersionId]);
+    const blocked=await request(record.quote.id,{...body,expectedVersion:saved.version});
+    assert.equal(blocked.status,409);assert.equal(blocked.payload.error?.code,'quote_confirmation_linked_read_only');
+    assert.deepEqual(await read(record.quote.id), saved); assert.equal(await logs(record.quote.id), 1);
     assert.equal((await pool.query("SELECT count(*)::int AS n FROM sales_orders")).rows[0].n, 1);
     assert.equal((await pool.query("SELECT count(*)::int AS n FROM sales_order_source_links")).rows[0].n, 0);
     assert.equal((await pool.query("SELECT count(*)::int AS n FROM ainuoke_sales_order_contract_mirrors")).rows[0].n, 0);

@@ -9,7 +9,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createApp } from '../app.js';
 import { discoverMigrations, runMigrations, verifyMigrationsCurrent } from '../db/migration-runner.js';
-import { updateConfirmedCommercialTermsBySalesOrder } from '../confirmed-commercial-terms/service.js';
 import { HttpError } from '../http/errors.js';
 import { startDisposablePostgres } from './postgres-container.js';
 import { synchronizePermissionCatalog } from '../auth/permissions.js';
@@ -29,6 +28,9 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
   const user = (await pool.query<{id:string;public_id:string}>(`INSERT INTO app_users(username,password_hash,display_name,role)
     VALUES ('plan-test',crypt('synthetic-password',gen_salt('bf',4)),'Plan actor','admin') RETURNING id::text,public_id::text`)).rows[0];
   const actor: TrustedIdentity = { internalUserId:user.id, userId:user.public_id, username:'plan-test',userName:'Plan actor',permissions:['order.view','order.edit','ainuoke.sync','commercial.sale.view','commercial.sale.edit','commercial.labor.view','commercial.labor.edit'] };
+  await pool.query("INSERT INTO app_roles(id,name) VALUES('plan-domain-role','Synthetic domain grants')");
+  for(const permission of actor.permissions)await pool.query("INSERT INTO app_role_permissions VALUES('plan-domain-role',$1)",[permission]);
+  await pool.query("INSERT INTO app_user_roles VALUES($1,'plan-domain-role')",[actor.internalUserId]);
   let serial = 0;
   function fixture(date: string | null = '2026-11-01', quantity = 100): CreateAinuokeSalesOrderInput {
     const n = ++serial;
@@ -154,13 +156,18 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
     const input = fixture();
     input.colors = [{ sourceLineIdentity: 'old-red', colorName: 'red', quantity: 100, deliveryDate: '2026-11-01', sourceHash: 'old-red-hash' }];
     const order=await create(input);const badActor={...actor,internalUserId:'999999999'};
-    await updateConfirmedCommercialTermsBySalesOrder(pool, actor, order.id, { expectedVersion: 0, customerConfirmedPrice: '1.000000000000000001', confirmedLaborPrice: '0', laborCurrency: 'CNY' });
+    await seedHistoricalTerms(pool,order.id,'1.000000000000000001');
     const before = await businessSnapshot(pool, true);
     const auditForeignKeyFailure = (error: unknown) => (error as { code: string }).code === '23503';
-    await assert.rejects(()=>updateDeliveryPlans(pool,badActor,order.id,{expectedVersion:1,upserts:[{id:null,deliveryDate:'2026-12-01',quantity:'100'}],voidIds:[]}), auditForeignKeyFailure);
+    await assert.rejects(()=>updateDeliveryPlans(pool,badActor,order.id,{expectedVersion:1,upserts:[{id:null,deliveryDate:'2026-12-01',quantity:'100'}],voidIds:[]}),(error:unknown)=>(error as {code:string}).code==='authentication_required');
+    await pool.query("CREATE FUNCTION synthetic_plan_late_audit_fault() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.entity_type='SalesOrder' THEN RAISE EXCEPTION 'synthetic late audit fault' USING ERRCODE='23503'; END IF; RETURN NEW; END $$");
+    await pool.query('CREATE TRIGGER synthetic_plan_late_audit_fault BEFORE INSERT ON operation_logs FOR EACH ROW EXECUTE FUNCTION synthetic_plan_late_audit_fault()');
+    try{
+    await assert.rejects(()=>updateDeliveryPlans(pool,actor,order.id,{expectedVersion:1,upserts:[{id:null,deliveryDate:'2026-12-01',quantity:'100'}],voidIds:[]}), auditForeignKeyFailure);
     assert.deepEqual(await businessSnapshot(pool, true),before);
-    await assert.rejects(()=>refreshAinuokeSalesOrderSource(pool,badActor,order.id,{...order.input,source:{...order.input.source,insideOrderNo:'ROLLBACK-INSIDE',quantity:120,contractDeliveryDate:'2027-01-01',sourceHash:'rollback'},colors:[{sourceLineIdentity:'new-blue',colorName:'blue',quantity:120,deliveryDate:'2027-01-01',sourceHash:'new-blue-hash'}],expectedSourceHash:order.input.source.sourceHash,expectedPlanVersion:1}), auditForeignKeyFailure);
+    await assert.rejects(()=>refreshAinuokeSalesOrderSource(pool,actor,order.id,{...order.input,source:{...order.input.source,insideOrderNo:'ROLLBACK-INSIDE',quantity:120,contractDeliveryDate:'2027-01-01',sourceHash:'rollback'},colors:[{sourceLineIdentity:'new-blue',colorName:'blue',quantity:120,deliveryDate:'2027-01-01',sourceHash:'new-blue-hash'}],expectedSourceHash:order.input.source.sourceHash,expectedPlanVersion:1}), auditForeignKeyFailure);
     assert.deepEqual(await businessSnapshot(pool, true),before);
+    }finally{await pool.query('DROP TRIGGER synthetic_plan_late_audit_fault ON operation_logs');await pool.query('DROP FUNCTION synthetic_plan_late_audit_fault()');}
   });
   await t.test('source binding, fetchedAt and sync permission reject without any mutation', async () => {
     const order = await create();
@@ -191,10 +198,13 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
       for(const migration of (await discoverMigrations(resolve('database/migrations'))).filter(item => BigInt(item.version) <= BigInt(8))) await writeFile(join(directory,migration.filename),migration.sql);
       await runMigrations(old,directory);
       const u=(await old.query<{id:string;public_id:string}>("INSERT INTO app_users(username,password_hash,display_name,role) VALUES ('legacy-fixture','synthetic','Legacy','admin') RETURNING id::text,public_id::text")).rows[0];
+      await synchronizePermissionCatalog(old);await old.query("INSERT INTO app_roles(id,name) VALUES('legacy-plan-domain','Synthetic legacy grants')");
+      for(const permission of actor.permissions)await old.query("INSERT INTO app_role_permissions VALUES('legacy-plan-domain',$1)",[permission]);
+      await old.query("INSERT INTO app_user_roles VALUES($1,'legacy-plan-domain')",[u.id]);
       const legacyActor={...actor,internalUserId:u.id,userId:u.public_id};const input=fixture();
       input.colors = [{ sourceLineIdentity: 'upgrade-red', colorName: 'red', quantity: 40, deliveryDate: '2026-11-01', sourceHash: 'upgrade-red-hash' }, { sourceLineIdentity: 'upgrade-blue', colorName: 'blue', quantity: 60, deliveryDate: '2026-11-01', sourceHash: 'upgrade-blue-hash' }];
       const id=(await createAinuokeSalesOrder(old,legacyActor,input)).salesOrder.id;
-      await updateConfirmedCommercialTermsBySalesOrder(old, legacyActor, id, { expectedVersion: 0, customerConfirmedPrice: '9.000000000000000001', confirmedLaborPrice: '0', laborCurrency: 'CNY' });
+      await seedHistoricalTerms(old,id,'9.000000000000000001');
       const before = await businessSnapshot(old, false);
       const ledger = (await old.query('SELECT * FROM schema_migrations ORDER BY version')).rows;
       assert.equal(ledger.length, 8);
@@ -313,4 +323,10 @@ async function waitForBlockedTransaction(pool: pg.Pool, applicationName: string)
     await new Promise(resolve => setTimeout(resolve, 20));
   }
   throw new Error('Second writer did not reach the controlled database lock');
+}
+
+/** Synthetic pre-existing legacy evidence, never a runtime Order price writer. */
+async function seedHistoricalTerms(pool:pg.Pool,orderId:string,price:string){
+ const row=(await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,customer_confirmed_price,confirmed_labor_price,labor_currency) VALUES('sales_order',$1,0,'CNY') RETURNING id",[price])).rows[0];
+ await pool.query('INSERT INTO confirmed_commercial_terms_sales_orders(sales_order_id,confirmed_commercial_terms_id) VALUES($1,$2)',[orderId,row.id]);
 }

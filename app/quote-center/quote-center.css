@@ -1451,3 +1451,8 @@ textarea.qc-note-control { min-height: 72px; height: 72px; }
 .qc-global-settings-server .qc-default-summary { background:#f1f5ef; padding:10px 12px; border-radius:8px; margin:12px 0; }
 .qc-global-settings-server .qc-system-settings-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
 @media (max-width:600px) { .qc-global-settings-server .qc-system-default-grid, .qc-global-settings-server .qc-manufacturing-preset-grid { grid-template-columns:1fr; } .qc-scheme-selector > button { flex-basis:200px; } .qc-global-settings-server .qc-system-settings-section { padding:10px 0; } }
+
+/* D145 scoped processing push; shared control sizing is unchanged. */
+.qc-processing-push-quote{padding:12px 0;border-bottom:1px solid var(--qc-border);}
+.qc-processing-push-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+.qc-processing-push-quote .oc-source-table input.qc-control{min-width:96px;}

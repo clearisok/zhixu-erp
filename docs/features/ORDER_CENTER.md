@@ -1,3 +1,7 @@
+2026-10-15 Gate5 B1本地候选：正式详情返回复用顶部小箭头；合同标题展示可信工厂款号，概况业务款号取来源styleNo并移除重复SO/BillNo。加工标题用其业务款号，不虚构销售合同；原准备未知请求保护仍适用于顶部返回与退出。未部署或人工验收。
+
+2026-10-14 / D-117 Server列表新增用户批准的“异常”列，桌面/移动记录展示数量0、单位为空/冲突和来源时效提醒；不改Browser账本或生产路由。[范围与证据](../tasks/active/order-list-alerts-2026-10-14.md)。工程候选未合并/部署。
+
 # 新订单中心
 
 ## PR93 联合整合 — 2026-10-12 / PR92 Draft
@@ -119,3 +123,5 @@
 - 详情 Header 是订单身份的主要位置；Overview 只保留有效数量、合同交期、生产状态与下一步，客户/PO 不在 Summary 重复。
 - Business 区集中显示唯一权威事实。正式 Ainuoke-bound Order 的来源字段使用紧凑只读 Projection，不再用大型输入重复 Header。
 - “交期计划与数量历史”不再作为正式 Ainuoke 日常模块；`QuantityChange`、`DeliveryPlan`、migration、OperationLog 与 Backup/Restore Domain 均未删除。手工/Legacy 入口降为折叠的低频 Secondary Action。
+
+2026-10-14：用户批准退出统一收进AppShell右上角身份区域，悬停/聚焦/触屏打开；移除左下浮动和订单重复退出入口。复用可信logout，无布局重设计。P6只读物料行新增人工确认单位说明与工厂采购责任状态，表格结构不变；默认没有真实确认装载。见[菜单](../tasks/active/server-user-menu-2026-10-14.md)、[D-118](../tasks/active/material-confirmations-2026-10-14.md)。

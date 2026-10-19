@@ -1,0 +1,28 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "features/operation-logs/model/operation-log.ts",
+    "features/order-center/components/server-order-identity-card.tsx",
+    "features/order-center/components/server-order-preparation-card.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/server/sales-order-server-model.ts",
+    "features/permissions/model/permissions.ts"
+  ],
+  "pages": [
+    "order-list",
+    "order-detail",
+    "user-permissions"
+  ],
+  "visibleDifference": "订单详情增加认领/转交/血统和翻单准备操作；订单列表原来源列补充待认领提示，复用现有Foundation组件。权限与日志新增语义。 PR109复审补详情相邻组件独立key，避免重复挂载，不改变布局。",
+  "evidence": [
+    "docs/tasks/active/order-identity-program.md",
+    "docs/features/ORDER_IDENTITY.md",
+    "docs/tasks/active/evidence/order-identity/pr109-ci-followup.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-identity-program.md"
+  }
+}

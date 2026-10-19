@@ -1,11 +1,30 @@
+2026-10-19当前恢复优先：[PR114 → PR119整合](tasks/active/pr114-119-integration-2026-10-19.md)、CURRENT_STATE与AI_HANDOFF。用户已批准工程整合及交付，未批准合并/关闭PR；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。下文旧状态按原日期/SHA保留。
+
+2026-10-19最新恢复：[最终交付回执](tasks/active/price-coordination-final-delivery-2026-10-19.md)的“测试兼容修复精确交付”与[独立分支验收](tasks/active/payment-operator-upgrade-ledger-2026-10-19.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；用户新授权的119/f004一次上传及117/1b08、118/d577安全快进均已独立精确核实，三个新提交九项CI全部SUCCESS，本轮增量复审无新阻塞。不重复上传，不自动合并部署；优先CURRENT_STATE/AI_HANDOFF，下文保留各阶段日期/SHA及旧结果。
+
+2026-10-19前轮恢复：[最终交付回执](tasks/active/price-coordination-final-delivery-2026-10-19.md)与[上游测试兼容修复](tasks/active/payment-operator-upgrade-ledger-2026-10-19.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，指定1ab0一次上传及117/118安全快进已精确核实；119新三CI绿，117/118旧source失败已在各自本地候选修复并分别完成尾部/浏览器验收，加工已前向整合且只两份测试/文档不同。此段为新范围交付前历史；当前结果以上方及CURRENT_STATE/AI_HANDOFF为准。
+
+2026-10-17最新交付恢复：[D145交付与CI复审](tasks/active/price-coordination-delivery-ci-2026-10-17.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；四原始分支已核实，PR110三绿，117/118/119旧角色验收修复本地通过、尚待新范围交付；不把旧CI失败或本地通过冒称新Hosted CI完成。
+
+2026-10-18恢复优先：先读CURRENT_STATE/AI_HANDOFF与[交付后的CI兼容复审](tasks/active/price-coordination-ci-followup-2026-10-18.md)。指定16614上传一次与117/118安全快进已核实；新引用兼容、旧升级/暂停/只读Modal验收已本地收口，远端新修复仍待独立范围交付。main仍064e3afaf7d08b3cb62907d4402f97d9c292f1e5；不恢复负责人、准备或公开归一，不扩大真实数据/演示/部署授权。
+
+2026-10-17 D145最终本地工程恢复入口：[价格协同工程证据](tasks/completed/2026-10-17-quote-order-price-coordination-engineering.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，先读CURRENT_STATE/AI_HANDOFF；报价唯一来源、颜色商业版本、统一成衣议价及加工纯工价/同步推送已验收，远端交付/CI与人工接受另核实，勿恢复下文D144已退役交互。
+
+2026-10-17 D-145实施恢复优先：CURRENT_STATE/AI_HANDOFF、[商业版本与议价](features/ORDER_COMMERCIAL_VERSIONS.md)、[加工批次协同增量](features/PROCESSING_ORDER_BATCHES.md)、[本轮阶段记录](tasks/active/quote-order-price-coordination-progress-2026-10-17.md)。新来源只报价，无负责人；D144独立翻单/侧栏为被替代历史。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；不扩真实演示/来源/部署权限。
+
+2026-10-17最新恢复优先：CURRENT_STATE/AI_HANDOFF与[订单业务来源](features/ORDER_BUSINESS_SOURCE.md)、D144。用户取消负责人/认领/合同前准备，合同类先可信接纳，加工批次独立；旧下文为各日期历史阶段，勿据此恢复退役UI。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，新候选未合并部署。
+
+2026-10-16最新恢复优先：[两合同真实隔离执行](tasks/completed/2026-10-16-selected-demo-execution.md)与[新冻结证据](tasks/completed/evidence/2026-10-16-selected-demo-execution.json)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，PR116@0df仍依赖草稿未合并。用户新授权后，新本机空库2 SO/7合成账号/2物料及2财务快照已落地；无持续调度/真实业务库或账号/宁波18443/18444。app18:08到期、当前来源仍10分钟，物料历史可读，财务历史ERP入口尚缺；私有离线副本不代表当前状态。先读CURRENT_STATE/AI_HANDOFF；以下旧工程“0操作/未授权”保留原日期与SHA，不代表执行后状态。
+
 # 项目知识索引
 
-2026-10-13 / GitHub main `957fe1a6eedfd6a92020ef2cf82d710a4162cda0` 已合并 PR #104/#105/#106。D-112 受控新增合同在独立 `feat/ainuoke-controlled-contract-intake` 工程分支实施，仍未合并、未真实执行；恢复入口为[Server Source](features/AINUOKE_SERVER_SOURCE.md)、[D-112 工程任务](tasks/active/ainuoke-controlled-new-contracts.md)及 Active 决策。下文旧 SHA/PR 状态仅按历史时点阅读。
+2026-10-16当前阶段：同一工作树新增[财务操作入口](tasks/active/ainuoke-payment-operator.md)，依赖已交付PR113@3896；完整入口21项/原财务112/PG261通过，干净源码6658实际回执和默认Browser构建通过；root898/基线94/精确main守卫通过，独立草稿远端/CI待收口。当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，真实两合同一次读取已用完，无真实迁移/启用/写入。优先CURRENT_STATE/AI_HANDOFF；下文旧阶段按原日期/SHA阅读。
 
+2026-10-16当前恢复优先读CURRENT_STATE/AI_HANDOFF与[浏览器验收修复](tasks/active/browser-validation-readiness-2026-10-16.md)：6就绪回归、G5四浏览器35/35、财务两浏览器20/20；生产UI不变，最终head三CI另核实。PR113/114为依赖草稿，真实两合同一次许可已用完，无DB/激活。下文各旧阶段结果按其日期/SHA阅读。
 
-> 核实2026-10-13；main 8b3f3d811d05182ea1a7f3214eae9d530056fa04（PR103已合并）。当前PR104：[全合同只读核对](tasks/active/ainuoke-readonly-validation.md)；[真实结果](tasks/active/evidence/ainuoke-readonly-validation/real-validation-results.md)：558可见合同完整稳定、80物料抽样四流有代表；62合同数量存在未知，单位未核实。D109永久HTTP接受保持；持续Source未激活、人工业务验收未完成。GitHub是实时事实源；随main/来源/环境/验收变化更新。
+2026-10-16新增：[两合同真实只读证据](tasks/active/evidence/ainuoke-payment-request-probe/real-two-contracts-2026-10-16.md)，用户一次固定许可已用完，12/9行、两遍一致、5HTTP/4report，指定合同过滤/完整性通过；无DB/激活，整体映射与银行实付未确认。PR113精确f9三CI通过，当前只前向补充新证据；#109–112最新精确head各三CI绿，G5独立页面交付收口中。先读[当前状态](CURRENT_STATE.md)/[接力](AI_HANDOFF.md)，下段保留前阶段日期/hash与待验证状态，不作为新结论。
 
-> [基线门禁](features/RELEASE_BASELINE_GUARD.md)仍执行源码/冻结证据检查，不代替UI/DB/发布验收；[交付协议](tasks/active/git-delivery-resilience.md)保持。六角色管理基于可信session，未部署或激活Source。[少量订单定向诊断](tasks/active/ainuoke-targeted-diagnostic.md)是依赖 PR104 的草稿 PR105：合成与用户私密定向只读运行已完成，[脱敏真实证据](tasks/active/evidence/ainuoke-targeted-diagnostic/real-results.md)显示三行技术对照找到；[QtyUnit 后续复核](tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-followup-2026-10-13.md)已见目标行候选“个”，人工身份/单位语义仍待确认。
+2026-10-16当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先CURRENT_STATE/AI_HANDOFF、[网络恢复及PR113首轮CI修复](tasks/active/github-network-recovery-2026-10-16.md)、[受控采集任务](tasks/active/ainuoke-payment-controlled-collector.md)与[货款申请模块](features/AINUOKE_PAYMENT_REQUESTS.md)。原4622d6d已精确送达唯一草稿PR113；本Phase只修测试/CI/文档，升级109/109、完整PG261/261及基线94/94通过，浏览器和新head Hosted CI另核实。原协调服务22/172、root898和42能力构建证据保留，不称本轮全部重跑。真实过滤、目标启用/写入、操作CLI/调度均未完成或未获授权。GitHub为实时事实源，随源码/授权/证据变化更新。
 
 ## 系统简介
 
@@ -15,7 +34,7 @@
 
 - 根路径 ERP：报价、订单、排单、用户和审计功能，使用 PostgreSQL 持久化，并由数据库函数提供 API。
 - Quote Center 路径：默认 Browser mock 持久化；显式 Server 模式的正式报价/资料 UI 使用可信 Node `/api/v1` 与 PostgreSQL，已有报价工作流/附件/导出/日志。旧实际运行态与最新工程能力分开记录，与 legacy `/api/quotes` 隔离。
-- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单；D-105/106允许受控来源与显式首次绑定开发，不自动追加合同或真实激活。报价之外模块不因试用候选而自动 production-ready。
+- Server Persistence 路径：Node/TypeScript、forward-only PostgreSQL migration、可信 Auth/RBAC/OperationLog。旧环境的 511 单 bootstrap 与后续只读 Order 接线属于历史证据；新系统 D-096 从空开始，不导入旧订单；D105/106允许受控来源与显式首次绑定；D112受控新增已在#107合并，但不自动接纳或真实激活。报价之外模块不因试用候选而自动 production-ready。
 
 两条路径都是真实现，但边界和成熟度不同。开始任务前必须先确认目标模块。
 
@@ -73,7 +92,17 @@
 
 ## 当前来源任务
 
-[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受。D109已批准HTTP且认证成功；D110有真实完整可见合同发现及80物料抽样。数量/单位/逐物料业务核对、全量颜色/规模、持续运行/部署仍待Gate。
+[Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受。D109已批准HTTP且认证成功；D110有真实完整可见合同发现及80物料抽样。目标三行单位/身份获人工确认、QtyUnit工程已合并；全量颜色/物料规模、数量未知原因及持续运行/部署仍待Gate。
+
+[准备在合同后的采用](features/ORDER_PREPARATION_ADOPTION.md)已补后台与现有Foundation新入口，[页面阶段](tasks/active/order-preparation-adoption-ui.md)精确证据待收口；加工标签必须核实合法批次，不回填历史类型。
+
+[独立复核后台工作区](features/ORDER_NORMALIZATION_REVIEW.md)已本地完成，[岗位UI与默认执行关闭原因](tasks/active/order-normalization-review-ui.md)已精确合成验证/截图及24项门禁收口，完整G4/远端交付继续；不表示真实归一获授权。
+
+Gate4本地有效归属/消费者、受控执行及SQL防绕过恢复入口：[有效归属任务](tasks/active/order-effective-attribution.md)与[执行边界](tasks/active/order-normalization-controlled-execution.md)；[新命令暂停与回退](features/ORDER_COMMAND_CONTROL.md)已本地演练；[历史Source只读查询](features/ORDER_SOURCE_HISTORY.md)已本地实现；[历史UI原身份接线](tasks/active/order-source-history-ui.md)已本地验收；独立复核/完整G4、真实覆盖/授权及远端交付仍待。
+
+Gate4本地只读归一/案件恢复入口：[归一模块](features/ORDER_NORMALIZATION.md)及[Gate4任务](tasks/active/order-normalization-preview.md)。归一执行及真实操作尚未授权。
+
+Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCESSING_ORDER_BATCHES.md)。未合并/部署，剩余验收见对应阶段任务。
 
 ## 模块导航
 

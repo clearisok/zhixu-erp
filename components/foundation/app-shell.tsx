@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useResponsiveMode } from "./responsive";
 import { SidebarFloatingMenu } from "./sidebar-floating-menu";
 import { Drawer } from "./drawer";
+import { ServerUserMenu } from "./server-user-menu";
 import { usePermissions } from "@/features/permissions";
 import { GlobalSearchPalette } from "@/features/global-search";
 import { useServerSession } from "@/features/server-auth";
@@ -22,6 +23,7 @@ const basicRoutes = [
 ];
 
 const systemRoutes = [
+  { label: "进度设置", href: "/system-settings/progress-settings" },
   { label: "报价设置", href: "/system-settings/quote-settings" },
   { label: "模板设置", href: "/basic-settings/templates" },
   { label: "用户权限", href: "/basic-settings/user-permissions" },
@@ -36,14 +38,14 @@ const serverBasicRoutes = [
   { label: "面料库", href: "/basic-settings/server/fabrics" },
   { label: "辅料库", href: "/basic-settings/server/trims" },
 ];
-const serverSystemRoutes = [{ label: "报价设置", href: "/system-settings/server/quote-settings" }];
+const serverSystemRoutes = [{ label: "报价设置", href: "/system-settings/server/quote-settings" }, { label: "进度设置", href: "/system-settings/progress-settings" }];
 
 export type AppShellBackTarget = {
   href: string;
   label: string;
 };
 
-export function AppShell({ title, children, onRequestNavigation, backTarget, identityMode = "browser" }: { title: string; children: ReactNode; onRequestNavigation?: (target: string) => void; backTarget?: AppShellBackTarget; identityMode?: "browser" | "server" }) {
+export function AppShell({ title, children, onRequestNavigation, onRequestLogout, backTarget, identityMode = "browser" }: { title: string; children: ReactNode; onRequestNavigation?: (target: string) => void; onRequestLogout?: () => Promise<void>; backTarget?: AppShellBackTarget; identityMode?: "browser" | "server" }) {
   const freshServer = quoteAuthority() === "server";
   if (freshServer) identityMode = "server";
   const router = useRouter();
@@ -52,10 +54,10 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
   const basicTriggerRef = useRef<HTMLButtonElement | null>(null);
   const systemTriggerRef = useRef<HTMLButtonElement | null>(null);
   const viewportMode = useResponsiveMode();
-  const serverSettingsMode = identityMode === "server" && (pathname.startsWith("/basic-settings/server/") || pathname === "/system-settings/server/quote-settings");
+  const serverSettingsMode = identityMode === "server" && (pathname.startsWith("/basic-settings/server/") || pathname === "/system-settings/server/quote-settings" || pathname === "/system-settings/progress-settings");
   const localSingleUser = browserIdentityMode() === "local-single-user";
   const visibleBasicRoutes = (serverSettingsMode ? serverBasicRoutes : basicRoutes).filter((route) => !freshServer || isEnabledServerRoute(route.href));
-  const visibleSystemRoutes = (serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions"));
+  const visibleSystemRoutes = (serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (route.href !== "/system-settings/progress-settings" || freshServer && isEnabledServerRoute(route.href)) && (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions"));
   const basicActive = visibleBasicRoutes.some((route) => pathname === route.href);
   const systemActive = visibleSystemRoutes.some((route) => pathname === route.href);
   const personalActive = pathname.startsWith("/my-settings/");
@@ -167,7 +169,7 @@ export function AppShell({ title, children, onRequestNavigation, backTarget, ide
           {backTarget && <button type="button" className="ops-topbar-back" aria-label={backTarget.label} title={backTarget.label} onClick={() => navigateRequest(backTarget.href)}><span aria-hidden="true">‹</span></button>}
           <div className="ops-topbar-title"><small>织序 / 业务中心 / {personalActive ? "我的设置" : basicActive ? "基础设置" : systemActive ? "系统设置" : pathname.startsWith("/ainuoke-sync") || pathname.startsWith("/order-center") ? "订单中心" : pathname.startsWith("/closing-center") ? "关账中心" : pathname.startsWith("/production-scheduling") ? "生产排单" : "报价中心"}</small><strong>{title}</strong></div>
         </div>
-        <div className="topbar-actions">{serverIdentityMode || localSingleUser ? <div className="qc-server-identity" aria-label={localSingleUser ? "本地单用户模式" : "可信 Server 身份"}><span>{userInitial}</span><div><strong>{visibleUserName}</strong><small>{visibleUserDetail}</small></div></div> : <><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></>}</div>
+        <div className="topbar-actions">{serverIdentityMode || localSingleUser ? <ServerUserMenu name={visibleUserName} detail={visibleUserDetail} initial={userInitial} canLogout={!localSingleUser && serverSession.status === "authenticated"} onLogout={onRequestLogout ?? serverSession.logout} /> : <><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></>}</div>
       </header>
       {children}
     </section>

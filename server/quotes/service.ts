@@ -18,7 +18,7 @@ import { allocateQuoteCode } from "./numbering.js";
 import { applyQuoteVersionCommand, type QuoteVersionCommand } from "./version-workflows.js";
 import { applyEstimateCommand, type EstimateCommand } from "./estimate-workflows.js";
 import { applyQuoteConfirmation, type QuoteConfirmationCommand } from "./confirmation-workflows.js";
-import { findSalesOrderIdsByQuoteProvenance } from "../confirmed-commercial-terms/repository.js";
+import { findTermsByQuoteProvenance } from "../confirmed-commercial-terms/repository.js";
 import { aggregateStatusAfterRevisionEdit, summarizeRevisionConfirmations } from "../../features/quote-center/model/quote-workflows.js";
 import type { QuoteRevision } from "../../features/quote-center/model/quote-view-model.js";
 
@@ -139,7 +139,7 @@ function auditSnapshot(record: QuoteRecord | null, context: QuoteMutationContext
       priceVersionCount: revision?.priceVersions.length ?? 0,
       estimateHistoryCount: record.quote.estimateCostHistory.length,
       ...(context.workflowAction === "confirmation.save" ? {confirmedLaborPrice:pv?.confirmation?.confirmedLaborPrice ?? null,
-        confirmedGarmentPrice:pv?.confirmation?.confirmedGarmentPrice ?? null, confirmationNote:pv?.confirmation?.note ?? null,
+        ...(revision?.baseInfo.quoteType==='processing'?{}:{confirmedGarmentPrice:pv?.confirmation?.confirmedGarmentPrice??null}), confirmationNote:pv?.confirmation?.note ?? null,
         confirmedAt:pv?.confirmation?.confirmedAt ?? null} : {}),
     },
   };
@@ -209,16 +209,17 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
     async confirmationWorkflow(actor: TrustedIdentity, quoteId: string, command: QuoteConfirmationCommand, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.view");
       requirePermission(actor.permissions, "quote.confirm");
-      requireCommercialEdit(actor, "sale");
       requireCommercialEdit(actor, "labor");
       const before = await repository.getById(quoteId);
       if (!before) throw new HttpError(404, "quote_not_found", "Quote not found");
       if (before.version !== command.expectedVersion) throw new QuoteConflictError();
+      const revision = before.quote.revisions.find(item => item.revisionId === command.revisionId);
+      if (revision?.baseInfo.quoteType !== "processing") requireCommercialEdit(actor, "sale");
       const next = applyQuoteConfirmation(before.quote, command, now().toISOString());
       return projectQuoteResponse(actor, await repository.save(next, command.expectedVersion, async (client, mutation) => {
-        const linked = await findSalesOrderIdsByQuoteProvenance(client, { quoteId, revisionId: command.revisionId, priceVersionId: command.priceVersionId });
         const partial = await client.query("SELECT 1 FROM sales_orders WHERE source_quote_id=$1 AND (source_revision_id IS NULL OR source_price_version_id IS NULL) LIMIT 1", [quoteId]);
-        if (linked.length || partial.rowCount) throw new HttpError(409, "quote_confirmation_linked_read_only", "Linked current confirmation must use shared terms; this writer is unavailable");
+        const existingTerms=await findTermsByQuoteProvenance(client,{quoteId,revisionId:command.revisionId,priceVersionId:command.priceVersionId});
+          if (partial.rowCount || existingTerms) throw new HttpError(409, "quote_confirmation_linked_read_only", "Existing CCT confirmation must use shared terms; this writer is unavailable");
         await audit(actor, { ...context, workflowAction: command.action, revisionId:command.revisionId,priceVersionId:command.priceVersionId })(client, mutation);
       }));
     },
@@ -278,6 +279,7 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
       try {
         const restored = actor.permissions.includes("quote.cost.view") ? restoreRestrictedConfirmation(actor, content, before.quote) : restoreRestrictedQuoteCosts(content, before.quote);
         input = normalizeServerQuote({ ...restored, activeEstimateCost: before.quote.activeEstimateCost, estimateCostHistory: before.quote.estimateCostHistory } as ServerQuote);
+        restoreProcessingHiddenFacts(input,before.quote);
         validateQuote(input);
       } catch (error) {
         if (error instanceof QuoteInvariantError || error instanceof TypeError) throw new HttpError(400, "invalid_quote", "Quote aggregate is invalid");
@@ -305,4 +307,13 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
       return projectQuoteResponse(actor, await repository.save(input, expectedVersion, audit(actor, context)));
     },
   };
+}
+
+/** The processing editor never owns omitted materials/garment/FX facts. */
+function restoreProcessingHiddenFacts(input:ServerQuote,saved:ServerQuote){
+ for(const r of input.revisions)if(r.baseInfo.quoteType==='processing')for(const p of r.priceVersions){
+  const old=saved.revisions.find(v=>v.revisionId===r.revisionId)?.priceVersions.find(v=>v.id===p.id);if(!old)continue;
+  p.fabrics=structuredClone(old.fabrics);p.trims=structuredClone(old.trims);p.otherCosts=structuredClone(old.otherCosts);p.pricingParameters={...p.pricingParameters,usdCnyRate:old.pricingParameters.usdCnyRate,markupRate:old.pricingParameters.markupRate,freightAmount:old.pricingParameters.freightAmount,includeFreight:old.pricingParameters.includeFreight,freightName:old.pricingParameters.freightName};
+  if(p.confirmation&&old.confirmation){p.confirmation.quotedGarmentPrice=old.confirmation.quotedGarmentPrice;p.confirmation.confirmedGarmentPrice=old.confirmation.confirmedGarmentPrice;}
+ }
 }

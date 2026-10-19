@@ -1,3 +1,6 @@
+import { readExcessWarehouse, type ExcessWarehouseFact } from './excess-warehouse.ts';
+import { normalizeSourceUnit, resolveMaterialConfirmation, type MaterialConfirmation } from './confirmed-facts.ts';
+import { compareMaterialQuantityFacts, type QuantityComparison } from "./quantity-facts.ts";
 import type { AinuokeReportSnapshot } from '../ainuoke-api/model/ainuoke-api.ts';
 import { normalizeAinuokeInsideOrderNo, normalizeAinuokeSalesContractNo } from '../ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts';
 import { isFactorySupplied, resolveCanonicalMaterialIdentity, type MaterialDemand, type MaterialInboundEvent, type MaterialReadinessStatus } from '../style-progress/model/style-progress.ts';
@@ -16,13 +19,16 @@ export type ReadPurchase = {
   sourcePricing: { ownership: 'ainuoke_source'; currency: string | null; unitPrice: number | null; amount: number | null };
 };
 export type ReadMovement = Pick<MaterialInboundEvent, 'id' | 'documentNo' | 'eventDate' | 'quantity'>;
+export type ReadInbound = ReadMovement & { excessWarehouse: ExcessWarehouseFact };
 export type ProgressRow = {
   demand: ReadDemand; canonicalKey: string; unit: string | null; unitStatus: 'known' | 'missing' | 'conflict';
-  purchases: ReadPurchase[]; inbounds: ReadMovement[];
+  unitOrigin: 'source' | 'confirmed' | 'unknown'; sourceUnits: Array<string | null>;
+  procurementResponsibility: 'guomao' | 'factory_confirmed'; confirmationStatus: 'none' | 'applied' | 'stale';
+  purchases: ReadPurchase[]; inbounds: ReadInbound[];
   shipments: Array<ReadMovement & { transportMode: string }>; outbounds: ReadMovement[];
   purchased: number | null; purchaseShortfall: number | null; purchaseExcess: number | null;
   inbound: number | null; pendingInbound: number | null; shipped: number | null; outbound: number | null;
-  status: MaterialReadinessStatus | null; issues: string[];
+  status: MaterialReadinessStatus | null; issues: string[]; quantityComparison?: QuantityComparison;
 };
 export type MaterialItemCounts = {
   groups: number; demands: number; unknown: number;
@@ -45,11 +51,6 @@ export type MaterialProgressView = {
 const knownQuantity = (value: unknown) => (typeof value === 'number' || typeof value === 'string' && value.trim() !== '')
   && Number.isFinite(Number(typeof value === 'string' ? value.replaceAll(',', '') : value))
   && Number(typeof value === 'string' ? value.replaceAll(',', '') : value) >= 0;
-const sourceUnit = (value: unknown): string | null => {
-  if (typeof value !== 'string') return null;
-  const unit = value.normalize('NFKC').trim();
-  return unit && unit.length <= 16 && !/[\x00-\x1f\x7f]/.test(unit) ? unit : null;
-};
 function byDemand<T extends { materialDemandId: string }>(events: T[]) {
   const index = new Map<string, T[]>();
   for (const event of events) { const items = index.get(event.materialDemandId) ?? []; items.push(event); index.set(event.materialDemandId, items); }
@@ -60,8 +61,9 @@ const emptyCounts = (): MaterialItemCounts => ({ groups: 0, demands: 0, unknown:
 function summarize(view: Pick<MaterialProgressView, 'groups' | 'rows' | 'factoryExcluded'>): MaterialSummary {
   const summary: MaterialSummary = { basis: 'demand_items', quantitiesAggregatedAcrossDemands: false,
     fabric: emptyCounts(), trim: emptyCounts(), factoryExcluded: view.factoryExcluded };
-  for (const group of view.groups) summary[group.type].groups++;
+  for (const group of view.groups) if (group.rows.some(row => row.procurementResponsibility !== 'factory_confirmed')) summary[group.type].groups++;
   for (const row of view.rows) {
+    if (row.procurementResponsibility === 'factory_confirmed') continue;
     const counts = summary[row.demand.materialType]; counts.demands++;
     if (row.status === null) counts.unknown++; else counts.states[row.status]++;
   }
@@ -81,7 +83,7 @@ const readMovement = (event: MaterialInboundEvent): ReadMovement => ({ id: event
  * This function does not authenticate callers. Server use must enter through read-service.ts.
  * Procurement prices are shared execution facts; Quote costs/terms and raw payloads are never returned.
  */
-export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeReportSnapshot[] | null): MaterialProgressView {
+export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeReportSnapshot[] | null, confirmations: readonly MaterialConfirmation[] = []): MaterialProgressView {
   const safeOrder: PreviewOrder = { salesContractNo: normalizeAinuokeSalesContractNo(order.salesContractNo),
     styleNo: order.styleNo, insideOrderNo: order.insideOrderNo };
   const view: MaterialProgressView = { schemaVersion: 'order-material-read.v1', sourceStatus: 'not_fetched',
@@ -129,9 +131,11 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
       const shipments = shipmentIndex.get(demand.id) ?? [];
       const outbounds = outboundIndex.get(demand.id) ?? [];
       const sourceRows = rawIndex.get(demand.id) ?? [];
-      const units = sourceRows.map(raw => sourceUnit(raw.values.quantityUnit));
-      const unitConflict = new Set(units.filter((unit): unit is string => unit !== null)).size > 1;
-      const unit = !unitConflict && units.length > 0 && units.every(value => value !== null) ? units[0] : null;
+      const units = sourceRows.map(raw => normalizeSourceUnit(raw.values.quantityUnit));
+      const confirmation = resolveMaterialConfirmation(demand, sourceRows, confirmations);
+      const rawUnitConflict = new Set(units.filter((unit): unit is string => unit !== null)).size > 1;
+      const unitConflict = rawUnitConflict && confirmation.unit === null;
+      const unit = confirmation.unit ?? (!unitConflict && units.length > 0 && units.every(value => value !== null) ? units[0] : null);
       const evidenceKnown = (quantityField: 'purchaseQuantity' | 'inboundQuantity' | 'shipmentQuantity' | 'outboundQuantity',
         documentField: 'purchaseOrderNo' | 'inboundDocumentNo' | 'shipmentDocumentNo' | 'outboundDocumentNo') => sourceRows.length > 0 && sourceRows.every(raw => {
         const quantity = raw.values[quantityField];
@@ -142,7 +146,11 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
       const shipped = !unitConflict && evidenceKnown('shipmentQuantity', 'shipmentDocumentNo') ? shipments.reduce((total, event) => total + event.quantity, 0) : null;
       const outbound = !unitConflict && evidenceKnown('outboundQuantity', 'outboundDocumentNo') ? outbounds.reduce((total, event) => total + event.quantity, 0) : null;
       if ([purchased, inbound, shipped, outbound].some(value => value !== null && !Number.isFinite(value))) throw new Error('source_quantity');
-      const issues = [...(unitConflict ? ['同一物料需求的来源计量单位冲突，数量汇总与状态判定已暂停'] : []),
+      const issues = [...(confirmation.status === 'stale' ? ['人工确认与当前来源不一致，补充事实未应用，请重新核对'] : []),
+        ...(confirmation.unit ? [`单位由人工确认补充；原始来源单位：${[...new Set(units)].map(value => value ?? '空白').join(' / ')}，不代表接口已补齐`] : []),
+        ...(confirmation.unit && rawUnitConflict ? ['单位等价已确认，生产可用性尚未确认，暂停齐套判定'] : []),
+        ...(confirmation.factory ? ['工厂自行采购，国贸无需催采；保留需求与流水，不代表工厂已到料'] : []),
+        ...(unitConflict ? ['同一物料需求的来源计量单位冲突，数量汇总与状态判定已暂停'] : []),
         ...(!unitConflict && unit === null ? ['来源计量单位未知，数量仅按原始数值逐项展示'] : []),
         ...(purchased === null && !unitConflict ? ['采购来源数量缺失或无效，不能按零采购判定'] : []),
         ...(inbound === null && !unitConflict ? ['入库来源数量缺失或无效，不能判定齐套'] : []),
@@ -156,18 +164,22 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
       const identity = resolveCanonicalMaterialIdentity({ ...demand, salesContractNo: target }, purchases);
       const row: ProgressRow = { demand: readDemand(demand, target), canonicalKey: identity.key, unit,
         unitStatus: unitConflict ? 'conflict' : unit === null ? 'missing' : 'known',
+        unitOrigin: confirmation.unit ? 'confirmed' : unit ? 'source' : 'unknown', sourceUnits: [...new Set(units)],
+        procurementResponsibility: confirmation.factory ? 'factory_confirmed' : 'guomao', confirmationStatus: confirmation.status,
         purchases: purchases.map(event => ({ id: event.id, purchaseOrderNo: event.purchaseOrderNo,
           purchaseDate: event.purchaseDate, supplier: event.supplier, quantity: event.quantity,
           color: event.color, specification: event.specification,
           sourcePricing: { ownership: 'ainuoke_source', currency: event.currency || null,
             unitPrice: pricingKnown(event.sourceReferences, 'purchaseUnitPrice') ? event.unitPrice : null,
             amount: pricingKnown(event.sourceReferences, 'purchaseAmount') ? event.amount : null } })),
-        inbounds: inbounds.map(readMovement), shipments: shipments.map(event => ({ ...readMovement(event), transportMode: event.transportModeSnapshot })),
+        inbounds: inbounds.map(event => ({ ...readMovement(event),
+          excessWarehouse: readExcessWarehouse(event.sourceReferences, rawSourceIndex, unit, unitConflict ? 'conflict' : unit === null ? 'missing' : 'known') })), shipments: shipments.map(event => ({ ...readMovement(event), transportMode: event.transportModeSnapshot })),
         outbounds: outbounds.map(readMovement), purchased, inbound, shipped, outbound,
         purchaseShortfall: purchased === null ? null : Math.max(0, demand.requiredQuantity - purchased),
         purchaseExcess: purchased === null ? null : Math.max(0, purchased - demand.requiredQuantity),
         pendingInbound: purchased === null || inbound === null ? null : Math.max(0, purchased - inbound),
-        status: purchased === null || inbound === null ? null : deriveMaterialStatuses(demand.requiredQuantity, purchased, inbound, 0, 0).readinessStatus, issues };
+        status: confirmation.factory || rawUnitConflict || purchased === null || inbound === null ? null : deriveMaterialStatuses(demand.requiredQuantity, purchased, inbound, 0, 0).readinessStatus, issues,
+        quantityComparison: compareMaterialQuantityFacts(sourceRows.map(raw=>raw.values), purchased, unitConflict ? 'conflict' : unit===null ? 'missing' : 'known') };
       view.rows.push(row);
       let group = groups.get(identity.key);
       if (!group) { group = { key: identity.key, name: demand.materialName, type: demand.materialType, rows: [] }; groups.set(identity.key, group); }
@@ -178,6 +190,9 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
     view.duplicateEvents = preview.pipeline.stats.duplicateEventRows;
     view.sourceStatus = 'ready'; view.summary = summarize(view);
     view.message = view.rows.some(row => row.status === null) ? '完整分页已读取；部分数量来源不完整，这些物料暂停状态判定。' : '完整 Source 已校验；抓取时间不等于实时状态。';
+    const currentDemands = new Set(preview.pipeline.demands.map(demand => demand.id));
+    const unmatched = confirmations.filter(item => item.salesContractNo === target && !currentDemands.has(item.demandId)).length;
+    if (unmatched) view.message += ` 有${unmatched}条人工确认未匹配当前需求，未应用，请重新核对。`;
     return view;
   } catch {
     // Never reflect Source/parser exception text: it may contain protected fields or raw values.
@@ -191,7 +206,7 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
 export function filterProgressRows(view: MaterialProgressView, search: string, type: 'all' | 'fabric' | 'trim', status: 'all' | 'unknown' | MaterialReadinessStatus) {
   const needle = search.normalize('NFKC').trim().toLocaleLowerCase();
   return view.rows.filter(row => (type === 'all' || row.demand.materialType === type)
-    && (status === 'all' || (status === 'unknown' ? row.status === null : row.status === status))
+    && (status === 'all' || row.procurementResponsibility !== 'factory_confirmed' && (status === 'unknown' ? row.status === null : row.status === status))
     && (!needle || [row.demand.materialName, row.demand.materialCode, row.demand.materialColor, row.demand.specification,
       ...row.purchases.flatMap(event => [event.purchaseOrderNo, event.supplier])].join(' ').normalize('NFKC').toLocaleLowerCase().includes(needle)));
 }

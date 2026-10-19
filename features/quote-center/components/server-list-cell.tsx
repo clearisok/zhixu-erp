@@ -13,9 +13,12 @@ export function serverListHeader(fields: BusinessColumn[]) {
   if (fields.every(key => ["type", "status"].includes(key))) return "类型 / 状态";
   return labels(fields);
 }
-export function ServerListCell({ fields, row, imageLoader }: { fields: BusinessColumn[]; row: QuoteServerListItem; imageLoader?: ListImageLoader }) {
+export function ServerListCell({ fields:requestedFields, row, imageLoader }: { fields: BusinessColumn[]; row: QuoteServerListItem; imageLoader?: ListImageLoader }) {
+  const fields=row.summary?.quoteType==='processing'?requestedFields.filter(key=>!['fabricCost','trimCost','garmentPrice','confirmedGarment'].includes(key)):requestedFields;
+
   if (fields.length === 1 && fields[0] === "styleImage") return <ServerListThumbnail row={row} loader={imageLoader} />;
   if (fields.length === 1 && fields[0] === "styleIdentity") return <div className="qc-primary-cell"><strong title={row.summary?.quoteStyleNo}>{row.summary?.quoteStyleNo || "—"}</strong><small title={row.summary?.styleName}>{row.summary?.styleName || "未填写款式名称"}</small></div>;
+  if(!fields.length)return <span>不适用</span>;
   const sourceTitle = fields.includes("confirmationStatus") ? row.confirmationSources?.map(source => `${source.priceVersionId}: ${source.linkage}${source.termsVersion === null ? "" : ` / CCT v${source.termsVersion}`}`).join("；") : undefined;
   const prefix: Partial<Record<BusinessColumn, string>> = { fabricCost: "面 ", trimCost: "辅 ", labor: "工 " };
   if (fields.length > 1 && fields.every(key => key in prefix)) {

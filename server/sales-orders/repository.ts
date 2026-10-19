@@ -1,4 +1,6 @@
-import type { Pool, PoolClient, QueryResult } from "pg";
+import type { Pool, PoolClient } from "pg";
+import { supportsEffectiveAttribution, requireEffectiveOrderForWrite, lockEffectiveAttribution } from "./effective-attribution.js";
+import { effectiveOrderJoins, sourceOwnerSql } from "./effective-order-sql.js";
 import type {
   AinuokeColorMirrorInput,
   AinuokeContractMirrorInput,
@@ -39,6 +41,14 @@ type SourceLinkRow = {
 };
 
 type ReadModelRow = SalesOrderRow & {
+  effective_order_id: string;
+  attribution_change_id: string|null;
+  attribution_version: number;
+  source_owner_order_id: string;
+  colors: SalesOrderDetailReadModel["colors"];
+  business_type: "ainuoke_contract"|"processing"|"unclassified";
+  owner_name:string|null;
+  business_source: "quote"|"reorder"|null;
   sales_contract_no: string | null;
   inside_order_no: string | null;
   lifecycle_status_raw: string | null;
@@ -50,12 +60,15 @@ type ReadModelRow = SalesOrderRow & {
   brand_name_snapshot: string | null;
   quantity: string | null;
   color_count: string | number;
+  zero_color_count: number;
+  pending_color_count: number;
 };
 
 export type SalesOrderListOptions = {
   limit: number;
   offset: number;
   search?: string;
+  includeHistorical?: boolean;
   lifecycleState?: SalesOrderLifecycleState;
   creationSource?: SalesOrderCreationSource;
   sortBy?: "orderNo" | "updatedAt" | "contractDeliveryDate" | "salesContractNo";
@@ -118,18 +131,23 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
   return {
     id: row.id,
     version: row.version,
+    attribution: {originalOrderId:row.id,effectiveOrderId:row.effective_order_id,attributionChangeId:row.attribution_change_id,attributionVersion:row.attribution_version,historicalDuplicate:row.id!==row.effective_order_id},
+    sourceOwnerOrderId:row.source_owner_order_id,
     orderNo: row.order_no,
     creationSource: row.creation_source,
     lifecycleState: row.lifecycle_state,
     salesContractNo: row.sales_contract_no,
     insideOrderNo: row.inside_order_no,
     sourceLifecycleStatus: row.lifecycle_status_raw ?? "",
+    businessType:row.business_type,
+    businessSource:row.business_source??null,
     styleNo: row.style_no ?? "",
     companyName: row.company_name_snapshot ?? "",
     customerName: row.customer_name_snapshot ?? "",
     brandName: row.brand_name_snapshot ?? "",
     quantity: row.quantity === null ? null : Number(row.quantity),
     colorCount: Number(row.color_count),
+    alerts: Number(row.zero_color_count) > 0 ? [{ code: "color_quantity_zero", count: Number(row.zero_color_count), pendingCount: Number(row.pending_color_count) }] : [],
     contractDate: isoDate(row.contract_date),
     contractDeliveryDate: isoDate(row.contract_delivery_date),
     createdAt: row.created_at.toISOString(),
@@ -137,30 +155,49 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
   };
 }
 
-const READ_MODEL_SELECT = `
-  SELECT so.*,
-         sl.sales_contract_no,
-         sl.inside_order_no,
-         mirror.lifecycle_status_raw,
-         to_char(mirror.contract_date, 'YYYY-MM-DD') AS contract_date,
-         to_char(mirror.contract_delivery_date, 'YYYY-MM-DD') AS contract_delivery_date,
-         mirror.style_no,
-         mirror.company_name_snapshot,
-         mirror.customer_name_snapshot,
-         mirror.brand_name_snapshot,
-         mirror.quantity,
-         (
-           SELECT count(*)::int
-           FROM ainuoke_sales_order_color_mirrors color_mirror
-           WHERE color_mirror.sales_order_id = so.id
-         ) AS color_count
-  FROM sales_orders so
-  LEFT JOIN sales_order_source_links sl
-    ON sl.sales_order_id = so.id
-   AND sl.source_system = 'ainuoke'
-   AND sl.source_entity_type = 'sales_contract'
-  LEFT JOIN ainuoke_sales_order_contract_mirrors mirror
-    ON mirror.sales_order_id = so.id`;
+const PROCESSING_READ_JOINS = `LEFT JOIN processing_order_batch_consumptions processing_consumption ON processing_consumption.sales_order_id=so.id
+ LEFT JOIN processing_order_batches processing_batch ON processing_batch.id=processing_consumption.batch_id AND processing_batch.state='consumed'
+ AND so.creation_source='quote' AND so.source_quote_id=processing_batch.quote_id AND so.source_revision_id=processing_batch.revision_id AND so.source_price_version_id=processing_batch.price_version_id`;
+function readModelFrom(includeIdentity:boolean,attributed:boolean):string {
+ const owner=sourceOwnerSql(attributed);
+ return `FROM sales_orders so ${effectiveOrderJoins(attributed)}
+ LEFT JOIN sales_order_source_links sl ON sl.sales_order_id=${owner} AND sl.source_system='ainuoke' AND sl.source_entity_type='sales_contract'
+ LEFT JOIN ainuoke_sales_order_contract_mirrors mirror ON mirror.sales_order_id=${owner}
+ ${includeIdentity?PROCESSING_READ_JOINS:''}
+ ${includeIdentity?'LEFT JOIN sales_order_identity_profiles profile ON profile.sales_order_id=so.id LEFT JOIN app_users owner_user ON owner_user.id=profile.owner_id':''}`;
+}
+function readModelSelect(includeIdentity:boolean,attributed:boolean,colors=false,businessSource=false):string {
+ const trusted="mirror.source_id=sl.external_id AND mirror.sales_contract_no=sl.sales_contract_no";
+ const contract=`CASE WHEN (${trusted}) AND (so.creation_source='ainuoke'${attributed?" OR (attribution.attribution_change_id IS NOT NULL AND attribution.effective_order_id=so.id)":''}) THEN 'ainuoke_contract' ELSE 'unclassified' END`;
+ const businessType=includeIdentity?`CASE WHEN profile.business_type='processing' AND processing_batch.id IS NOT NULL THEN 'processing' WHEN (${contract})='ainuoke_contract' THEN 'ainuoke_contract' ELSE 'unclassified' END`:contract;
+ const owner=sourceOwnerSql(attributed);
+ return `SELECT so.*,${businessType} AS business_type,
+ NULL::text AS owner_name,
+ ${businessSource?"(SELECT s.kind FROM sales_order_commercial_heads h JOIN sales_order_business_source_snapshots s ON s.commercial_version_id=h.current_version_id WHERE h.sales_order_id=so.id)":'NULL::text'} AS business_source,
+ ${attributed?'attribution.effective_order_id':'so.id'}::text AS effective_order_id,
+ ${attributed?'attribution.attribution_change_id::text':'NULL::text'} AS attribution_change_id,
+ ${attributed?'attribution.attribution_version':'0'} AS attribution_version,${owner}::text AS source_owner_order_id,
+ sl.sales_contract_no,sl.inside_order_no,mirror.lifecycle_status_raw,
+ to_char(${includeIdentity?'COALESCE(processing_batch.order_date,mirror.contract_date)':'mirror.contract_date'},'YYYY-MM-DD') AS contract_date,
+ to_char(${includeIdentity?'COALESCE(processing_batch.delivery_date,mirror.contract_delivery_date)':'mirror.contract_delivery_date'},'YYYY-MM-DD') AS contract_delivery_date,
+ ${includeIdentity?'COALESCE(processing_batch.business_style_no,mirror.style_no)':'mirror.style_no'} AS style_no,
+ mirror.company_name_snapshot,${includeIdentity?'COALESCE(processing_batch.customer_name,mirror.customer_name_snapshot)':'mirror.customer_name_snapshot'} AS customer_name_snapshot,
+ mirror.brand_name_snapshot,${includeIdentity?'COALESCE(processing_batch.quantity,mirror.quantity)':'mirror.quantity'} AS quantity,
+ (SELECT count(*)::int FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner}) AS color_count,
+ (SELECT count(*)::int FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner} AND c.quantity=0) AS zero_color_count,
+ (SELECT count(*)::int FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner} AND c.quantity=0 AND c.source_metadata->>'quantityPendingConfirmation'='true') AS pending_color_count
+ ${colors?`,COALESCE((SELECT jsonb_agg(jsonb_build_object('sourceLineIdentity',c.source_line_identity,'colorName',c.color_name,'quantity',c.quantity,'deliveryDate',to_char(c.delivery_date,'YYYY-MM-DD')) ORDER BY c.color_name,c.source_line_identity) FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner}),'[]'::jsonb) AS colors`:''}
+ ${readModelFrom(includeIdentity,attributed)}`;
+}
+/** Pool reads use one RR snapshot for count, identities and details. Transaction callers retain ownership. */
+async function readSnapshot<T>(client:Queryable,read:(connection:Queryable)=>Promise<T>):Promise<T>{
+ if('connect' in client&&!('release' in client)){
+  const connection=await (client as Pool).connect();
+  try{await connection.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const result=await read(connection);await connection.query('COMMIT');return result;}
+  catch(error){await connection.query('ROLLBACK');throw error;}finally{connection.release();}
+ }
+ return read(client);
+}
 
 export async function createSalesOrder(
   client: Queryable,
@@ -192,17 +229,25 @@ export async function createSalesOrder(
 }
 
 export async function updateSalesOrderLifecycle(
-  client: Queryable,
+  client: Pool | PoolClient,
   input: { id: string; expectedVersion: number; lifecycleState: SalesOrderLifecycleState },
 ): Promise<SalesOrderRecord | null> {
-  const result = await client.query<SalesOrderRow>(
+  const connection='release' in client?client:await client.connect();
+  const ownsTransaction=!('release' in client);
+  try {
+    if(ownsTransaction)await connection.query('BEGIN');
+    await requireEffectiveOrderForWrite(connection,input.id);
+  const result = await connection.query<SalesOrderRow>(
     `UPDATE sales_orders
      SET lifecycle_state = $3, version = version + 1
      WHERE id = $1::uuid AND version = $2
      RETURNING *`,
     [input.id, input.expectedVersion, input.lifecycleState],
   );
-  return result.rows[0] ? mapSalesOrder(result.rows[0]) : null;
+    if(ownsTransaction)await connection.query("COMMIT");
+    return result.rows[0] ? mapSalesOrder(result.rows[0]) : null;
+  } catch(error){if(ownsTransaction)await connection.query('ROLLBACK');throw error;}
+  finally{if(ownsTransaction)connection.release();}
 }
 
 export async function getSalesOrderRecordById(client: Queryable, id: string): Promise<SalesOrderRecord | null> {
@@ -251,11 +296,13 @@ export async function getSalesOrderBySourceIdentity(
   sourceEntityType: string,
   externalId: string,
 ): Promise<SalesOrderReadModel | null> {
+  const attributed=await supportsEffectiveAttribution(client);
   const result = await client.query<ReadModelRow>(
-    `${READ_MODEL_SELECT}
+    `${readModelSelect(false,attributed)}
      WHERE EXISTS (
        SELECT 1 FROM sales_order_source_links lookup
-       WHERE lookup.sales_order_id = so.id
+       ${attributed?'JOIN sales_order_effective_identities lookup_mapping ON lookup_mapping.original_order_id=lookup.sales_order_id':''}
+       WHERE ${attributed?'lookup_mapping.effective_order_id':'lookup.sales_order_id'} = so.id
          AND lookup.source_system = $1
          AND lookup.source_entity_type = $2
          AND lookup.external_id = $3
@@ -273,11 +320,12 @@ export async function getSalesOrderBySalesContractNo(
   client: Queryable,
   salesContractNo: string,
 ): Promise<SalesOrderReadModel | null> {
+  const attributed=await supportsEffectiveAttribution(client);
   const result = await client.query<ReadModelRow>(
-    `${READ_MODEL_SELECT}
+    `${readModelSelect(true,attributed,false,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)}
      WHERE sl.source_system = 'ainuoke'
        AND sl.source_entity_type = 'sales_contract'
-       AND upper(btrim(sl.sales_contract_no)) = $1`,
+       AND upper(btrim(sl.sales_contract_no)) = $1 ${attributed?'AND attribution.effective_order_id=so.id':''}`,
     [requiredText(salesContractNo, "salesContractNo").toLocaleUpperCase("en-US")],
   );
   return result.rows[0] ? mapReadModel(result.rows[0]) : null;
@@ -288,6 +336,7 @@ export async function upsertCurrentAinuokeContractMirror(
   salesOrderId: string,
   input: AinuokeContractMirrorInput,
 ): Promise<void> {
+ return writeSourceObservation(client,async client=>{
   await client.query(
     `INSERT INTO ainuoke_sales_order_contract_mirrors(
        sales_order_id, source_id, source_row_identity, sales_contract_no, inside_order_no,
@@ -334,6 +383,7 @@ export async function upsertCurrentAinuokeContractMirror(
       JSON.stringify(input.sourceMetadata ?? {}),
     ],
   );
+ });
 }
 
 export async function replaceCurrentAinuokeColorSlice(
@@ -341,6 +391,7 @@ export async function replaceCurrentAinuokeColorSlice(
   salesOrderId: string,
   colors: readonly AinuokeColorMirrorInput[],
 ): Promise<void> {
+ return writeSourceObservation(client,async client=>{
   await client.query("DELETE FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id = $1::uuid", [salesOrderId]);
   for (const color of colors) {
     await client.query(
@@ -359,14 +410,25 @@ export async function replaceCurrentAinuokeColorSlice(
       ],
     );
   }
+ });
+}
+
+async function writeSourceObservation<T>(client:Queryable,write:(connection:Queryable)=>Promise<T>):Promise<T>{
+ const ownsTransaction='connect' in client&&!('release' in client);
+ const connection=ownsTransaction?await (client as Pool).connect():client as PoolClient;
+ try{if(ownsTransaction)await connection.query('BEGIN');await lockEffectiveAttribution(connection);const result=await write(connection);if(ownsTransaction)await connection.query('COMMIT');return result;}
+ catch(error){if(ownsTransaction)await connection.query('ROLLBACK');throw error;}
+ finally{if(ownsTransaction)(connection as PoolClient).release();}
 }
 
 export async function listSalesOrders(
   client: Queryable,
   options: SalesOrderListOptions = { limit: 100, offset: 0 },
 ): Promise<SalesOrderListResult> {
+ return readSnapshot(client,async client=>{
+  const attributed=await supportsEffectiveAttribution(client);
   const values: unknown[] = [];
-  const where: string[] = [];
+  const where: string[] = attributed&&!options.includeHistorical?["attribution.effective_order_id=so.id"]:[];
   const addValue = (value: unknown): string => {
     values.push(value);
     return `$${values.length}`;
@@ -375,27 +437,19 @@ export async function listSalesOrders(
     const search = addValue(`%${options.search}%`);
     where.push(`concat_ws(' ', so.order_no, sl.sales_contract_no, sl.inside_order_no,
       mirror.style_no, mirror.company_name_snapshot, mirror.customer_name_snapshot,
-      mirror.brand_name_snapshot) ILIKE ${search}`);
+      mirror.brand_name_snapshot, processing_batch.customer_name, processing_batch.business_style_no, processing_batch.customer_reference) ILIKE ${search}`);
   }
   if (options.lifecycleState) where.push(`so.lifecycle_state = ${addValue(options.lifecycleState)}`);
   if (options.creationSource) where.push(`so.creation_source = ${addValue(options.creationSource)}`);
   const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
   const totalResult = await client.query<{ total: number }>(
-    `SELECT count(*)::int AS total
-     FROM sales_orders so
-     LEFT JOIN sales_order_source_links sl
-       ON sl.sales_order_id = so.id
-      AND sl.source_system = 'ainuoke'
-      AND sl.source_entity_type = 'sales_contract'
-     LEFT JOIN ainuoke_sales_order_contract_mirrors mirror
-       ON mirror.sales_order_id = so.id
-     ${whereSql}`,
+    `SELECT count(*)::int AS total ${readModelFrom(true,attributed)} ${whereSql}`,
     values,
   );
   const sortColumns = {
     orderNo: "so.order_no",
     updatedAt: "so.updated_at",
-    contractDeliveryDate: "mirror.contract_delivery_date",
+    contractDeliveryDate: "COALESCE(processing_batch.delivery_date,mirror.contract_delivery_date)",
     salesContractNo: "sl.sales_contract_no",
   } as const;
   const sortColumn = sortColumns[options.sortBy ?? "orderNo"];
@@ -403,43 +457,27 @@ export async function listSalesOrders(
   const limit = addValue(options.limit);
   const offset = addValue(options.offset);
   const result = await client.query<ReadModelRow>(
-    `${READ_MODEL_SELECT}
+    `${readModelSelect(true,attributed,false,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)}
      ${whereSql}
      ORDER BY ${sortColumn} ${sortDirection} NULLS LAST, so.order_no ASC, so.id ASC
      LIMIT ${limit} OFFSET ${offset}`,
     values,
   );
   return { items: result.rows.map(mapReadModel), total: totalResult.rows[0].total };
+ });
 }
 
-export async function getSalesOrderById(client: Queryable, id: string): Promise<SalesOrderDetailReadModel | null> {
-  let result: QueryResult<ReadModelRow>;
+export function getSalesOrderById(client: Queryable, id: string): Promise<SalesOrderDetailReadModel | null> {
+  return readSnapshot(client,connection=>readSalesOrderDetail(connection,id,true));
+}
+/** Source creation/replay supports frozen foundation schemas without identity side tables. */
+export function getFoundationSalesOrderById(client: Queryable,id:string):Promise<SalesOrderDetailReadModel|null>{
+  return readSalesOrderDetail(client,id,false);
+}
+async function readSalesOrderDetail(client:Queryable,id:string,includeIdentity:boolean):Promise<SalesOrderDetailReadModel|null>{
+  const attributed=await supportsEffectiveAttribution(client);
   try {
-    result = await client.query<ReadModelRow>(`${READ_MODEL_SELECT} WHERE so.id = $1::uuid`, [id]);
-  } catch (error) {
-    if ((error as { code?: string }).code === "22P02") return null;
-    throw error;
-  }
-  if (!result.rows[0]) return null;
-  const colors = await client.query<{
-    source_line_identity: string;
-    color_name: string;
-    quantity: string;
-    delivery_date: string | Date | null;
-  }>(
-    `SELECT source_line_identity, color_name, quantity, to_char(delivery_date, 'YYYY-MM-DD') AS delivery_date
-     FROM ainuoke_sales_order_color_mirrors
-     WHERE sales_order_id = $1::uuid
-     ORDER BY color_name ASC, source_line_identity ASC`,
-    [id],
-  );
-  return {
-    ...mapReadModel(result.rows[0]),
-    colors: colors.rows.map((row) => ({
-      sourceLineIdentity: row.source_line_identity,
-      colorName: row.color_name,
-      quantity: Number(row.quantity),
-      deliveryDate: isoDate(row.delivery_date),
-    })),
-  };
+    const result=await client.query<ReadModelRow>(`${readModelSelect(includeIdentity,attributed,true,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)} WHERE so.id=$1::uuid`,[id]);
+    const row=result.rows[0];return row?{...mapReadModel(row),colors:row.colors}:null;
+  }catch(error){if((error as {code?:string}).code==='22P02')return null;throw error;}
 }

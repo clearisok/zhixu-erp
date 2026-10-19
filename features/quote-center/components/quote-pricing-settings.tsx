@@ -9,6 +9,7 @@ const amount = (value: number | null) => value === null ? "未设置" : `¥${val
 
 export function QuotePricingSettings({
   open,
+  laborOnly=false,
   priceVersion,
   readOnly = false,
   settings,
@@ -16,6 +17,7 @@ export function QuotePricingSettings({
   onClose,
 }: {
   open: boolean;
+  laborOnly?:boolean;
   priceVersion: PriceVersion;
   readOnly?: boolean;
   settings?: GlobalQuoteSettings;
@@ -41,9 +43,10 @@ export function QuotePricingSettings({
       <dl className="qc-pricing-preset-summary">
         <div><dt>制作国家</dt><dd>{pricing.manufacturingCountry || "未设置"}</dd></div>
         <div><dt>加工币种</dt><dd><span className="qc-pricing-summary-badge">{pricing.laborCurrency}</span></dd></div>
-        <div><dt>成本加成率</dt><dd>{pricing.markupRate === null ? "未设置" : `${pricing.markupRate}%`}</dd></div>
+        {!laborOnly&&<><div><dt>成本加成率</dt><dd>{pricing.markupRate === null ? "未设置" : `${pricing.markupRate}%`}</dd></div>
         <div><dt>运费规则</dt><dd>{freightRule}</dd></div>
         {pricing.laborCurrency === "USD" && <div><dt>USD/CNY 汇率</dt><dd>{pricing.usdCnyRate === null ? "未设置" : pricing.usdCnyRate.toFixed(2)}</dd></div>}
+      </>}
       </dl>
       {pricing.configuration?.status === "incomplete" && <p role="status">制作参数待完善。{pricing.configuration.sources.some(item => item.field === "laborCurrency" && item.source === "technical_default") && "当前 CNY 为技术默认，不代表用户已确认币种。"}</p>}
       <p className="qc-pricing-preset-note">制作方案标准仅可在“系统设置 → 报价设置 → 制作方案管理”中新增、编辑或停用；本页调整只影响当前可编辑价格版本。</p>

@@ -1,0 +1,9 @@
+"use client";
+import type {AttributionProposal,ProposalDetail} from '../server/normalization-review-client';
+import {normalizationReviewMessage,reviewTypeLabel} from '../server/normalization-review-client';
+export function NormalizationEvidenceSummary({evidence,proposal}:{evidence:ProposalDetail['evidence'];proposal:AttributionProposal}){
+ const name=(id:string)=>evidence.orders.find(o=>o.id===id)?.orderNo??id;
+ return <section style={{overflowWrap:'anywhere'}}><h4>完整组归属对照</h4><p>原身份、流水、商业版本分别保留；本方案不移动或合计任何业务流水。</p>{evidence.orders.map(o=><div key={o.id} style={{padding:'8px 0',borderBottom:'1px solid var(--qc-border)'}}><strong>{o.orderNo}</strong><p>当前有效订单：{name(evidence.currentGroups.find(g=>g.original_order_id===o.id)?.effective_order_id??o.id)} → 拟有效订单：{name(proposal.assignments.find(a=>a.originalOrderId===o.id)?.effectiveOrderId??o.id)}</p>{evidence.contracts.filter(c=>c.orderId===o.id).map(c=><p key={c.sourceId}>来源合同：{c.salesContractNo}</p>)}<details><summary>查看本单引用证据</summary>{evidence.references.filter(r=>r.orderId===o.id&&r.count>0).map(r=><div key={r.relation+':'+r.column}><small>{r.relation} · {r.column}：{r.count}条</small></div>)}</details></div>)}
+ <p role="status">{evidence.reviewRequirementsKnown?'生产与财务数据已纳入本次冻结核对。':'生产执行与财务冻结：尚未完整核验。所需复核岗位仍待确定，不能批准。'}</p>{evidence.externalOrders?.map(o=><p key={o.id}>{name(o.id)}：执行记录 {o.executionCount} 条，财务冻结记录 {o.financialCount} 条</p>)}{evidence.reviewRequirementsKnown&&<p>本方案要求：{evidence.requiredReviews.length?evidence.requiredReviews.map(t=>reviewTypeLabel[t]).join('、'):'当前已核验范围没有触发额外岗位复核要求'}</p>}
+ {evidence.blockers.map(code=><p key={code} role="status">{normalizationReviewMessage(code)}</p>)}{evidence.unknownReferences.length>0&&<p>未归类引用：{evidence.unknownReferences.join('、')}</p>}<small>本次指纹覆盖 {evidence.metrics.rows} 条声明引用；数量与单位不跨物料合计。</small></section>;
+}

@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import {ProcessingBatchDialog} from "./processing-batch-dialog";
+import { useCallback, useEffect, useState, useRef } from "react";
+import { OrderAlertTags } from "./order-alert-tags";
 import { useRouter } from "next/navigation";
 import {
   AlertBanner,
@@ -19,7 +21,7 @@ import {
   Toolbar,
   type DataColumn,
 } from "@/components/foundation";
-import { ServerLoginCard, ServerLogoutAction, useServerSession } from "@/features/server-auth";
+import { ServerLoginCard, useServerSession } from "@/features/server-auth";
 import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import { SalesOrderServerReadError } from "../server/sales-order-server-client";
 import {
@@ -77,9 +79,11 @@ function lifecycleTone(
 function OrderCenterFrame({
   count,
   children,
+  actions,
 }: {
   count: string;
   children: React.ReactNode;
+  actions?: React.ReactNode;
 }) {
   return (
     <AppShell title="订单中心" identityMode="server">
@@ -90,6 +94,7 @@ function OrderCenterFrame({
           title="订单中心"
           count={count}
           description="正式订单基础视图；数据源：PostgreSQL。"
+          actions={actions}
         />
         {children}
       </PageContainer>
@@ -107,7 +112,9 @@ export function ServerOrderCenterPage() {
   const [loading, setLoading] = useState(true);
   const [listError, setListError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
-  const [sessionActionError, setSessionActionError] = useState<string | null>(null);
+  const loadEpoch = useRef(0);
+  const [loadedScope,setLoadedScope] = useState('');
+  const scopeKey=JSON.stringify([query,serverSession.user?.id,serverSession.permissions]);
   const handleReadFailure = useCallback((error: unknown): "session" | "read" => {
     if (error instanceof SalesOrderServerReadError && error.status === 401) {
       setItems([]);
@@ -126,27 +133,33 @@ export function ServerOrderCenterPage() {
 
   const loadList = useCallback(async () => {
     if (serverSession.status !== "authenticated" || !serverSession.hasPermission("order.view")) return;
+    const epoch=++loadEpoch.current;
     setLoading(true);
+    setItems([]);
     setListError(null);
     setPermissionDenied(false);
     try {
       const result = await loadServerOrderCenterPage(serverSalesOrderReadRepository, query);
+      if(epoch!==loadEpoch.current)return;
       setItems(result.items);
       setPage(result.page);
     } catch (error) {
+      if(epoch!==loadEpoch.current)return;
       if (handleReadFailure(error) === "read") {
         setItems([]);
         setPage(emptyPage);
         setListError(readError(error));
       }
     } finally {
-      setLoading(false);
+      if(epoch===loadEpoch.current){setLoadedScope(scopeKey);setLoading(false);}
     }
-  }, [handleReadFailure, query, serverSession]);
+  }, [handleReadFailure, query, serverSession,scopeKey]);
 
   useEffect(() => {
     if (serverSession.status === "authenticated" && serverSession.hasPermission("order.view")) {
-      void Promise.resolve().then(loadList);
+      let active=true;const epochRef=loadEpoch;
+      void Promise.resolve().then(()=>{if(active)void loadList();});
+      return()=>{active=false;epochRef.current++;};
     }
   }, [loadList, serverSession]);
 
@@ -154,16 +167,7 @@ export function ServerOrderCenterPage() {
     router.push(`/order-center/server-detail?id=${encodeURIComponent(item.id)}`);
   };
 
-  const logout = async () => {
-    setSessionActionError(null);
-    try {
-      await serverSession.logout();
-      setItems([]);
-      setPage(emptyPage);
-    } catch {
-      setSessionActionError("无法退出 Server 会话，请稍后重试。");
-    }
-  };
+
 
   const updateQuery = <Key extends keyof ServerOrderCenterQueryState,>(
     key: Key,
@@ -181,8 +185,8 @@ export function ServerOrderCenterPage() {
       responsivePriority: "primary",
       render: (item) => (
         <div className="oc-primary-cell">
-          <strong>{item.orderNo}</strong>
-          <small>{item.billNo ?? "未绑定 BillNo"}</small>
+          <strong>{item.orderNo}</strong>{item.attribution?.historicalDuplicate&&<StatusTag tone="warning">历史重复</StatusTag>}
+          <small>{item.businessType==='processing'?'加工订单 · 无销售合同':item.billNo??'未绑定 BillNo'}</small>
         </div>
       ),
     },
@@ -212,7 +216,7 @@ export function ServerOrderCenterPage() {
     },
     {
       key: "quantity",
-      header: "合同数量",
+      header: "订单数量",
       width: 96,
       align: "right",
       responsivePriority: "primary",
@@ -232,13 +236,13 @@ export function ServerOrderCenterPage() {
           <StatusTag tone={lifecycleTone(item.lifecycleState)}>
             {lifecycleLabels[item.lifecycleState]}
           </StatusTag>
-          <small>艾诺科：{item.sourceLifecycleStatus || "未记录"}</small>
+          <small>{item.businessType==='processing'?'加工下单批次':`艾诺科：${item.sourceLifecycleStatus||'未记录'}`}</small>
         </div>
       ),
     },
     {
       key: "delivery",
-      header: "合同交期 / 颜色",
+      header: "交期 / 颜色",
       width: 142,
       responsivePriority: "primary",
       render: (item) => (
@@ -250,11 +254,12 @@ export function ServerOrderCenterPage() {
     },
     {
       key: "source",
-      header: "创建来源",
+      header: "业务来源",
       width: 104,
       responsivePriority: "secondary",
-      render: (item) => creationSourceLabels[item.creationSource],
+      render: (item) => <><span>{item.businessSource==='quote'?'来自报价':item.businessSource==='reorder'?'来自翻单':'待维护'}</span><small>{item.businessType==='ainuoke_contract'?'合同类':item.businessType==='processing'?'加工类':'历史类型待核实'}</small></>,
     },
+    { key: "alerts", header: "异常", width: 158, responsivePriority: "primary", render: (item) => <OrderAlertTags alerts={item.alerts} /> },
     {
       key: "action",
       header: "操作",
@@ -280,7 +285,7 @@ export function ServerOrderCenterPage() {
   const renderRecord = (item: OrderCenterServerListViewModel) => (
     <div className="oc-order-record oc-server-order-record">
       <header>
-        <div><strong>{item.styleNo || "未记录款号"}</strong><small>{item.factoryStyleNo ?? "未记录工厂款号"}</small></div>
+        <div><strong>{item.styleNo || "未记录款号"}</strong><small>{item.businessType==='processing'?'加工业务款号':item.factoryStyleNo??'未记录工厂款号'}</small></div>
         <span>只读查看 <b>›</b></span>
       </header>
       <div className="oc-order-record-identity">
@@ -288,13 +293,15 @@ export function ServerOrderCenterPage() {
         <span><small>BillNo</small><strong>{item.billNo ?? "—"}</strong></span>
       </div>
       <div className="oc-order-record-facts">
-        <span><small>合同数量</small><strong>{item.initialQuantity?.toLocaleString("zh-CN") ?? "—"}</strong></span>
-        <span><small>合同交期</small><strong>{item.contractDeliveryDate ?? "—"}</strong></span>
+        <span><small>订单数量</small><strong>{item.initialQuantity?.toLocaleString("zh-CN") ?? "—"}</strong></span>
+        <span><small>交期</small><strong>{item.contractDeliveryDate ?? "—"}</strong></span>
         <span><small>颜色数</small><strong>{item.colorCount}</strong></span>
       </div>
+      <OrderAlertTags alerts={item.alerts} />
       <div className="oc-server-record-status">
         <StatusTag tone={lifecycleTone(item.lifecycleState)}>{lifecycleLabels[item.lifecycleState]}</StatusTag>
-        <small>艾诺科来源状态：{item.sourceLifecycleStatus || "未记录"}</small>
+        {item.attribution?.historicalDuplicate&&<StatusTag tone="warning">历史重复</StatusTag>}
+        <small>{item.businessType==='processing'?'艾诺科来源：不适用':`艾诺科来源状态：${item.sourceLifecycleStatus||'未记录'}`}</small>
       </div>
     </div>
   );
@@ -329,24 +336,21 @@ export function ServerOrderCenterPage() {
         <AlertBanner
           tone="warning"
           title="当前 Server 账号没有订单查看权限"
-          actions={<ServerLogoutAction variant="secondary" onLogout={() => void logout()} />}
         >
           已登录为 {trustedIdentity}；需要 order.view 权限。
         </AlertBanner>
-        {sessionActionError && <ErrorState description={sessionActionError} />}
         <ErrorState permission title="Server 权限不足（403）" description="请联系管理员分配 order.view 权限。" />
       </OrderCenterFrame>
     );
   }
 
   return (
-    <OrderCenterFrame count={`${page.total} 条`}>
+    <OrderCenterFrame count={loadedScope===scopeKey?`${page.total} 条${query.includeHistorical?'（含历史记录）':''}`:"—"} actions={<ProcessingBatchDialog key={serverSession.user.id} mode="import" />}>
       <div className="oc-server-source-bar">
         <span><i aria-hidden="true" />数据源：PostgreSQL</span>
         <small>Server identity：{trustedIdentity}</small>
-        <Button variant="text" onClick={() => void logout()}>退出登录</Button>
+
       </div>
-      {sessionActionError && <ErrorState description={sessionActionError} />}
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -359,6 +363,11 @@ export function ServerOrderCenterPage() {
           filters={<Button type="submit" variant="secondary">查询</Button>}
           moreFilters={(
             <>
+              <FormItem label="订单范围">
+                <select className="qc-control" value={query.includeHistorical?'history':'current'} onChange={event=>updateQuery('includeHistorical',event.target.value==='history')}>
+                  <option value="current">有效订单</option><option value="history">包含历史订单</option>
+                </select>
+              </FormItem>
               <FormItem label="生命周期">
                 <select className="qc-control" value={query.lifecycleState} onChange={(event) => updateQuery("lifecycleState", event.target.value as ServerSalesOrderLifecycleState | "")}>
                   <option value="">全部生命周期</option>
@@ -393,10 +402,10 @@ export function ServerOrderCenterPage() {
       </form>
       <Card className="oc-list-card oc-order-table oc-server-order-table">
         <DataTable
-          rows={items}
+          rows={loadedScope===scopeKey?items:[]}
           columns={columns}
           rowKey={(item) => item.id}
-          loading={loading}
+          loading={loading||loadedScope!==scopeKey}
           loadingLabel="读取 PostgreSQL 正式订单"
           error={listError}
           onRetry={() => void loadList()}

@@ -1,8 +1,13 @@
+export type ServerOrderAttribution = {originalOrderId:string;effectiveOrderId:string;attributionChangeId:string|null;attributionVersion:number;historicalDuplicate:boolean};
+
+import type { OrderAlert } from "./order-alerts";
 export type ServerSalesOrderCreationSource = "quote" | "reorder" | "manual" | "ainuoke";
 export type ServerSalesOrderLifecycleState = "draft" | "confirmed" | "active" | "completed" | "cancelled";
 
 export type ServerSalesOrderReadDto = {
   id: string;
+  attribution?: ServerOrderAttribution;
+  sourceOwnerOrderId?: string;
   version: number;
   orderNo: string;
   creationSource: ServerSalesOrderCreationSource;
@@ -10,12 +15,16 @@ export type ServerSalesOrderReadDto = {
   salesContractNo: string | null;
   insideOrderNo: string | null;
   sourceLifecycleStatus: string;
+  businessType?: "ainuoke_contract"|"processing"|"unclassified";
+  ownerName?:string|null;
+  businessSource?:"quote"|"reorder"|null;
   styleNo: string;
   companyName: string;
   customerName: string;
   brandName: string;
   quantity: number | null;
   colorCount: number;
+  alerts?: OrderAlert[];
   contractDate: string | null;
   contractDeliveryDate: string | null;
   createdAt: string;
@@ -34,6 +43,7 @@ export type ServerSalesOrderDetailDto = ServerSalesOrderReadDto & {
 };
 
 export type ServerSalesOrderListQuery = {
+  includeHistorical?: boolean;
   limit?: number;
   offset?: number;
   search?: string;
@@ -52,6 +62,8 @@ export type ServerSalesOrderPage = {
 
 export type OrderCenterServerListViewModel = {
   id: string;
+  attribution?: ServerOrderAttribution;
+  sourceOwnerOrderId?: string;
   version: number;
   orderNo: string;
   creationSource: ServerSalesOrderCreationSource;
@@ -64,9 +76,13 @@ export type OrderCenterServerListViewModel = {
   brandName: string;
   initialQuantity: number | null;
   sourceLifecycleStatus: string;
+  businessType?: "ainuoke_contract"|"processing"|"unclassified";
+  ownerName?:string|null;
+  businessSource?:"quote"|"reorder"|null;
   contractDate: string | null;
   contractDeliveryDate: string | null;
   colorCount: number;
+  alerts?: OrderAlert[];
   createdAt: string;
   updatedAt: string;
 };
@@ -83,9 +99,12 @@ export type OrderCenterServerDetailViewModel = Omit<
 export function adaptServerSalesOrderListItem(dto: ServerSalesOrderReadDto): OrderCenterServerListViewModel {
   return {
     id: dto.id,
+    ...(dto.attribution ? {attribution:dto.attribution} : {}),
+    ...(dto.sourceOwnerOrderId ? {sourceOwnerOrderId:dto.sourceOwnerOrderId} : {}),
     version: dto.version,
     orderNo: dto.orderNo,
     creationSource: dto.creationSource,
+    businessSource:dto.businessSource??null,
     lifecycleState: dto.lifecycleState,
     billNo: dto.salesContractNo,
     factoryStyleNo: dto.insideOrderNo,
@@ -95,9 +114,11 @@ export function adaptServerSalesOrderListItem(dto: ServerSalesOrderReadDto): Ord
     brandName: dto.brandName,
     initialQuantity: dto.quantity,
     sourceLifecycleStatus: dto.sourceLifecycleStatus,
+    ...(dto.businessType ? {businessType:dto.businessType,ownerName:dto.ownerName??null} : {}),
     contractDate: dto.contractDate,
     contractDeliveryDate: dto.contractDeliveryDate,
     colorCount: dto.colorCount,
+    alerts: dto.alerts ?? [],
     createdAt: dto.createdAt,
     updatedAt: dto.updatedAt,
   };
@@ -106,9 +127,12 @@ export function adaptServerSalesOrderListItem(dto: ServerSalesOrderReadDto): Ord
 export function adaptServerSalesOrderDetail(dto: ServerSalesOrderDetailDto): OrderCenterServerDetailViewModel {
   return {
     id: dto.id,
+    ...(dto.attribution ? {attribution:dto.attribution} : {}),
+    ...(dto.sourceOwnerOrderId ? {sourceOwnerOrderId:dto.sourceOwnerOrderId} : {}),
     version: dto.version,
     orderNo: dto.orderNo,
     creationSource: dto.creationSource,
+    businessSource:dto.businessSource??null,
     lifecycleState: dto.lifecycleState,
     billNo: dto.salesContractNo,
     insideOrderNo: dto.insideOrderNo,
@@ -118,9 +142,11 @@ export function adaptServerSalesOrderDetail(dto: ServerSalesOrderDetailDto): Ord
     brandName: dto.brandName,
     quantity: dto.quantity,
     sourceLifecycleStatus: dto.sourceLifecycleStatus,
+    ...(dto.businessType ? {businessType:dto.businessType,ownerName:dto.ownerName??null} : {}),
     contractDate: dto.contractDate,
     contractDeliveryDate: dto.contractDeliveryDate,
     colorCount: dto.colorCount,
+    alerts: dto.alerts ?? [],
     createdAt: dto.createdAt,
     updatedAt: dto.updatedAt,
     colors: dto.colors,

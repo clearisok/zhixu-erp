@@ -1,0 +1,15 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V1",
+  "paths": [
+    "features/quote-center/components/quote-editor.tsx"
+  ],
+  "pages": [
+    "quote-new",
+    "quote-detail"
+  ],
+  "visibleDifference": "Restore existing save/departure protection: retry logout after an acknowledged save without another Quote PUT; keep an unconfirmed save available for explicit reconciliation. Existing layout, markup and styles retained; no new interaction model.",
+  "evidence": [
+    "docs/tasks/active/quote-logout-save-retry.md"
+  ]
+}

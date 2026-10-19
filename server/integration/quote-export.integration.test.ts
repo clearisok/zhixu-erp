@@ -162,8 +162,10 @@ test("Customer Quote export: disposable PostgreSQL, saved snapshots and trusted 
       assert.equal(response.status, 200);
       return (await workbook(new Uint8Array(await response.arrayBuffer()))).worksheets[0].getCell(confirmedCell.row, confirmedCell.column).value;
     };
-    assert.equal(await exportedPrice(current), null, "linked but unconfigured CCT must not fall back to saved PV confirmation 17");
-    await updateConfirmedCommercialTermsByQuote(pool, actor, provenance, { expectedQuoteVersion: 1, expectedVersion: 0, customerConfirmedPrice: "88.25", confirmedLaborPrice: "1", laborCurrency: "CNY" });
+    assert.equal(await exportedPrice(current), 17, "order association alone must not erase the saved PV confirmation");
+    await pool.query("INSERT INTO confirmed_commercial_terms(ownership_scope,quote_id,revision_id,price_version_id,labor_currency) VALUES('quote',$1,$2,$3,'CNY')",[provenance.quoteId,provenance.revisionId,provenance.priceVersionId]);
+    assert.equal(await exportedPrice(current),null,'an existing empty CCT must not fall back to PV confirmation');
+    await updateConfirmedCommercialTermsByQuote(pool, actor, provenance, { expectedQuoteVersion: 1, expectedVersion: 1, customerConfirmedPrice: "88.25", confirmedLaborPrice: "1", laborCurrency: "CNY" });
     assert.equal(await exportedPrice(current), 88.25);
     assert.equal(await exportedPrice(linked.record.quote.revisions[0]), 19);
     assert.deepEqual(await repo.getById(linked.record.quote.id), linked.record, "CCT and export must not rewrite current or historical Quote snapshots");

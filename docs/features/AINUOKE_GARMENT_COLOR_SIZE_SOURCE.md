@@ -1,5 +1,14 @@
 # Ainuoke 6087105 Garment Color / Size Source
 
+## 2026-10-14 后续用户修订（D-117，当前工程规则）
+具名且总量/所有尺码数量均空的颜色投影为0，保留sourceQuantity:null与quantityPendingConfirmation:true；对应PENDING_COLOR_QUANTITY_ZERO不阻断颜色可用。原始null与明确0在hash、metadata和订单提醒中可区分。负数/非法值/总量空但尺码已有值不转换。下文D-116“具名数量null”的旧规则由此替代；无名纯空占位规则保持。六份旧异常报告离线重放已全部usable，保留九条待定0颜色并排除六条纯空占位；不是实时采集或真实激活。
+
+## 2026-10-14 用户确认规则（D-116，工程候选）
+
+`CnColor`、`SizeNum`、所有 `SizeN` 均为真正空值才是可排除占位；0、非法值和具名颜色不排除。Adapter `rows`/`exactRows` 保留所有 exact 原始证据，`usableRows` 只排除批准的空占位，逐行 `excludedAsEmptyPlaceholder` 与 `EMPTY_PLACEHOLDER_EXCLUDED` 记录原因，来源 hash 包含排除身份。重复的纯空占位允许排除；与实际颜色共用身份仍阻断。仅有占位时为 missing，不冒称 usable。
+
+具名空数量仍保留 null 及 INVALID_SIZE_NUM，未迁移正式颜色模型、未放宽完整首绑。离线复用旧六份私有报告：三个合同各排除两条空占位后 usable，另外三个合同合计九条具名空数量仍 invalid。无需重跑558合同。此为本地工程重放结果，不代表 GitHub 合并、实时读取或真实激活。
+
 ## Current status
 
 - Phase: **Phase 2B2.3 final fresh Bootstrap Preview complete; 6087105 remains the Active source**.

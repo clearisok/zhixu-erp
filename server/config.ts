@@ -1,4 +1,5 @@
 import { resolve } from "node:path";
+import {parseOrderCommandMode,type OrderCommandMode} from "./sales-orders/command-control.js";
 import type { IdentityMode } from "./auth/identity-authority.js";
 import type { AttachmentStorageConfig } from "./attachments/storage-config.js";
 import { loadAttachmentStorageConfig } from "./attachments/storage-config-loader.js";
@@ -9,6 +10,7 @@ export type ServerEnvironment = "development" | "test" | "production";
 export type ServerConfig = {
   environment: ServerEnvironment;
   identityMode: IdentityMode;
+  orderCommandMode: OrderCommandMode;
   host: string;
   port: number;
   databaseUrl: string;
@@ -115,6 +117,7 @@ export function loadServerConfig(values: NodeJS.ProcessEnv = process.env): Serve
   return {
     environment,
     identityMode,
+    orderCommandMode: parseOrderCommandMode(values.ZHIXU_ORDER_COMMAND_MODE),
     host: values.ZHIXU_SERVER_HOST?.trim() || "127.0.0.1",
     port: parseInteger(values.ZHIXU_SERVER_PORT, 3100, "ZHIXU_SERVER_PORT"),
     databaseUrl: databaseUrlFromEnvironment(environment, values),

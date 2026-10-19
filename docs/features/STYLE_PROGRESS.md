@@ -1,4 +1,16 @@
+## 2026-10-15 D134 当前工程候选
+
+团队进度设置GET/PUT /api/v1/material-progress-settings由session/RBAC控制；仅管理员/物控preset具style_progress.settings.edit，其他订单/物料读角色共享配置。0024空表、CAS、actor请求幂等、同事务审计，不用Browser存储或默认关键词，真实迁移未执行。配置不可读时显示提示并保留Projection辅料顺序；面料数值排名仅显示、不形成跨单位总量。关键词按第一个字面包含匹配，最多50项/40字符。
+
+既有Server页箭头控制颜色/规格表格，采购/入库/出运/出库在卡片右侧Drawer；未知与单位冲突不变0，理论与实际分别保留，多余仓沿D133。对账明确未接通。手机页头设置在刷新左边且均可见。新设置页只在显式Server snapshot能力下开放，旧Browser菜单及生产/关账路由不扩大。最终25浏览器/七角色/六宽度等见[完整证据](../tasks/active/evidence/material-source-integration/material-display-results-2026-10-15.md)，新像素未人工验收、未部署。旧实现说明按历史时点阅读。
+
+2026-10-15 D133本地候选：6087050 num_dyc按既有入库事件原行追溯，作为独立多余仓数量展示，不加进rknum/齐套；缺失、冲突、非法或单位问题明确保持未知。无新SQL/真实采集/数据库操作，语义与批准范围见[num_dyc确认](../tasks/active/evidence/material-source-integration/num-dyc-confirmed-scope-2026-10-15.md)。
+
+2026-10-15 Gate5 B1本地候选：物料详情返回移到AppShell顶部小箭头，标题取工厂款号；移除重复功能导航/合同段落/长技术说明，异常和更新时间在搜索卡片内简述。数量、单位、齐套、事件身份和权限不变；排序设置及事件侧栏为后续B2。未部署或人工验收。
+
 # 款式进度、面辅料跟进与逐物料物流
+
+2026-10-14 / D114：新增逐需求只读数量测算候选 `Num*(1+Lost/100)*StyleNum`，标签待核实，与实际采购及差额分开。三个确认样本算术匹配不是全量字段语义确认；缺/冲突单位、空/非法/负输入或跨来源不一致保持未知。候选不驱动齐套/超采/冲突，TotalNum/cgnum与各流事件不改。原P6只在原展开区域增加解释段落，1440/1280/390实际fixture UI通过。[证据](../tasks/active/evidence/ainuoke-live-demo-readiness/isolated-demo-final-report-2026-10-14.md)。
 
 2026-10-13 / D-111 工程候选：6087050 `QtyUnit` 经目标三需求只读原始值与用户转述 IT 语义确认，映射为逐需求来源单位。只读投影对所有来源行做一致性判断；空/无效显示未知，冲突时该需求采购、入库、出运、出库汇总与齐套状态为未知，逐事件原始事实仍保留但界面数量提示待核对。不同 child Demand 不跨单位累计。既有 `TotalNum`、`cgnum`、理论用量、去重 ID、正式齐套计算与 IndexedDB schema 不变；历史 Excel 未映射单位。[证据](../tasks/active/evidence/ainuoke-targeted-diagnostic/qtyunit-confirmed-2026-10-13.md)。
 
@@ -141,3 +153,7 @@ Gate 4 alternate/isolated Browser Profile 的统一提交后 D1935 为 262 Sourc
 本次 Correction 使用最新 Excel 调用正式 Parser 与 v4 Canonical identity 完成只读审计，并在既有隔离 Browser Profile 复验 D1935 / PI2607-235；没有覆盖用户 Chrome 或 PROD Profile，原始 Excel 没有进入 Git。真实页面从旧 18 个 Canonical Material 收敛为 13 个（面料 3、辅料 10），厂供 5 条 / 3,809 需求量仍只在只读 Trace Drawer 中出现；罗马布的 5 条颜色/规格 Demand 及不同采购价完整保留，展开行与多事件 Drawer 的出运量均来自 ShipmentEvent。
 
 真实 D1935 的 1600/1280/1229/960/768/402 CSS viewport 均为 `document-level horizontal overflow = 0`，Supplier 搜索、Sticky Filter、条件式厂供入口、Batch Planner、多个 Event Tab 和 Console 均通过。该隔离 Browser Profile 没有 PI2607-235 对应织序订单，因此页面正确显示“销售合同尚未形成织序订单”，逐批物流显示“待排单后计算”；没有猜测订单、SupplyHub、ProductionSite 或 ScheduleAssignment。Gate 3 自动化与 Gate 4 QA Dataset 已验证有正式排单时的逐批 recommendation、缺 Hub 精确原因、最慢可行方式和 buffer 颜色，但不能把这些证据冒充为本次 D1935 有排单的真实 Profile 验收。
+
+## 同批身份碰撞保护（2026-10-15）
+
+共用Normalizer保留既有需求、四流和Raw ID；短哈希相同只作为候选索引，完整规范化身份元组不同时阻断整个Preview，抛出无业务值的material_identity_hash_collision。真正重复行仍保留归并和Trace；理论用量与采购实际数量独立。覆盖Excel/API/Server只读错误清空，16项合成回归及根840项通过；不修改UI、单位规则或历史存储。跨批Browser及sourceArtifactHash短哈希使用点不在本修复覆盖范围，不据此认定真实六项单位冲突的原因。详见[工程证据](../tasks/active/material-identity-collision-guard.md)。

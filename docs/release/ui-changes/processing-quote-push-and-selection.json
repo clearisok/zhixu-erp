@@ -1,0 +1,41 @@
+{
+  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
+  "level": "V2",
+  "paths": [
+    "app/quote-center/quote-center.css",
+    "features/operation-logs/model/operation-log.ts",
+    "features/order-center/components/order-business-source-button.tsx",
+    "features/order-center/components/order-color-prices.tsx",
+    "features/quote-center/components/price-version-selector.tsx",
+    "features/quote-center/components/production-quote-pages.tsx",
+    "features/quote-center/components/quote-editor.tsx",
+    "features/quote-center/components/quote-metrics.tsx",
+    "features/quote-center/components/quote-order-pricing.tsx",
+    "features/quote-center/components/quote-pricing-settings.tsx",
+    "features/quote-center/components/restricted-quote-content.tsx",
+    "features/quote-center/components/server-list-cell.tsx",
+    "features/quote-center/components/server-summary-modal.tsx",
+    "features/quote-center/export/quote-excel-core.ts",
+    "features/quote-center/model/quote-business-view.ts",
+    "features/quote-center/model/quote-validation.ts",
+    "features/quote-center/components/processing-quote-push.tsx",
+    "app/order-center/order-center.css",
+    "features/confirmed-commercial-terms/model.ts"
+  ],
+  "pages": [
+    "quote-list",
+    "quote-detail",
+    "order-detail",
+    "quote-new"
+  ],
+  "visibleDifference": "D145批准加工纯工价投影/导出，更多内加工推送、同步报价的第二步大弹窗，选择框固定左侧及退出位置；订单来源加工只读工价，原数据恢复保护。 大弹窗步骤和整张物料/价格表使用完整内容宽度，覆盖继承的旧三列样式。 加工报价确认只要求工价权限，共享条款摘要不显示成衣字段。 加工新建页及设置只显示工价口径，不显示成本加成。",
+  "evidence": [
+    "docs/tasks/active/quote-order-price-coordination-2026-10-17.md",
+    "docs/tasks/active/quote-order-price-coordination-progress-2026-10-17.md",
+    "docs/features/PROCESSING_ORDER_BATCHES.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/quote-order-price-coordination-2026-10-17.md"
+  }
+}

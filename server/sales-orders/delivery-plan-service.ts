@@ -1,3 +1,5 @@
+import {lockEffectiveAttribution,requireEffectiveOrderForWrite} from './effective-attribution.js';
+import {requireOrderCommandActor} from './identity-service.js';
 import type { Pool } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { requirePermission } from '../auth/permissions.js';
@@ -13,6 +15,10 @@ export async function updateDeliveryPlans(pool: Pool, actor: TrustedIdentity, sa
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    await client.query("SET LOCAL lock_timeout='5s'");
+    await lockEffectiveAttribution(client);
+    const currentActor=await requireOrderCommandActor(client,actor,'order.edit');
+    await requireEffectiveOrderForWrite(client,salesOrderId);
     // Source refresh takes the same root lock before mirror/collection locks.
     const order = await client.query('SELECT id FROM sales_orders WHERE id=$1::uuid FOR UPDATE', [salesOrderId]);
     if (!order.rowCount) throw new HttpError(404, 'sales_order_not_found', 'SalesOrder was not found');
@@ -40,7 +46,7 @@ export async function updateDeliveryPlans(pool: Pool, actor: TrustedIdentity, sa
       await client.query('UPDATE sales_order_delivery_plans SET voided_at=now() WHERE sales_order_id=$1::uuid AND id=$2::uuid', [salesOrderId, id]);
     }
     const after = await readDeliveryPlanSet(client, salesOrderId);
-    await appendOperationLog(client, actor, {
+    await appendOperationLog(client, currentActor, {
       module: '订单中心', action: '修改交期', entityType: 'SalesOrder', entityId: salesOrderId,
       beforeData: { orderId: salesOrderId, values: { ownership: before.ownership, version: before.version,
         plans: JSON.stringify(before.plans.filter(row => affectedIds.has(row.id))) } },

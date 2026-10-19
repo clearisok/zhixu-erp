@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "ainuoke-payment-contract-selection-public.v1",
+  "verifiedAt": "2026-10-15",
+  "result": "PRIVATE_SELECTION_VALIDATED_OFFLINE",
+  "selectedContracts": 2,
+  "aliases": [
+    "S1",
+    "S2"
+  ],
+  "samplesSha256": "212481539bf342aef5899658199bf20d95e76331a3c3d32983a1a0e768c60e02",
+  "selectionHash": "66d318aee2d8377bada020461c6ef97918972c7aca0e29a88483a7b74ac253c0",
+  "httpAttempts": 0,
+  "databaseAccess": "none",
+  "sourceActivation": "not-activated",
+  "queryValidation": "not-run",
+  "realReadAuthorization": "not-granted"
+}

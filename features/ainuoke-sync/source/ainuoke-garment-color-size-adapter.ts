@@ -16,6 +16,8 @@ export type AinuokeSizeMatrixStatus =
   | "ZERO_QUANTITY_WITH_SIZE";
 
 export type AinuokeGarmentColorSizeIssueCode =
+  | "PENDING_COLOR_QUANTITY_ZERO"
+  | "EMPTY_PLACEHOLDER_EXCLUDED"
   | "BLANK_COLOR"
   | "INVALID_SIZE_NUM"
   | "GOODS_NO_MISMATCH"
@@ -36,6 +38,9 @@ export type AinuokeSizeAllocation = {
 export type AinuokeGarmentColorSizeRow = {
   sourceRowIdentity: string;
   sourceId: string | null;
+  excludedAsEmptyPlaceholder?: boolean;
+  quantityPendingConfirmation?: boolean;
+  sourceQuantity?: number | null;
   salesContractNo: string;
   styleNo: string;
   insideOrderNo: string;
@@ -65,6 +70,8 @@ export type AinuokeGarmentColorSizeSource = {
   expectedStyleNo: string;
   upstreamRows: number;
   exactRows: number;
+  /** Original rows remain in rows; only business projection excludes these identities. */
+  excludedPlaceholderSourceRowIdentities?: string[];
   containsFalsePositiveRows: number;
   colorDetailStatus: AinuokeGarmentColorDetailStatus;
   rows: AinuokeGarmentColorSizeRow[];
@@ -87,6 +94,15 @@ export const normalizeAinuokeSalesContractNo = (value: unknown): string => norma
   .toLocaleUpperCase("en-US");
 
 const normalizeIdentity = (value: unknown): string => normalizeText(value).toLocaleUpperCase("en-US");
+
+/** User-approved empty placeholders only. Explicit zero/invalid values are not blank. */
+export function isAinuokeBlankColorPlaceholder(values: Record<string, unknown>): boolean {
+  const blank = (value: unknown) => value === null || value === undefined
+    || typeof value === "string" && value.normalize("NFKC").trim() === "";
+  return blank(values.CnColor) && blank(values.SizeNum)
+    && Array.from({ length: 26 }, (_, index) => values[`Size${index + 1}`]).every(blank)
+    && Object.entries(values).filter(([key]) => /^Size\d+$/u.test(key)).every(([, value]) => blank(value));
+}
 
 function optionalDate(value: unknown): string | null {
   const raw = normalizeText(value);
@@ -201,6 +217,8 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
     .flatMap((snapshot) => snapshot.rows);
   const exactSourceRows = sourceRows.filter((row) => normalizeAinuokeSalesContractNo(row.values.BillNo) === requestedSalesContractNo);
   const issues: AinuokeGarmentColorSizeIssue[] = [];
+  const excludedPlaceholderSourceRowIdentities = exactSourceRows.filter((row) => isAinuokeBlankColorPlaceholder(row.values))
+    .map((row) => normalizeText(row.sourceRowIdentity)).sort();
   const rows = exactSourceRows.map((row): AinuokeGarmentColorSizeRow => {
     const sourceRowIdentity = normalizeText(row.sourceRowIdentity);
     const salesContractNo = normalizeText(row.values.BillNo);
@@ -209,27 +227,37 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
     const insideOrderNoDrift = normalizeAinuokeInsideOrderNo(insideOrderNo) !== discoveryInsideOrderNo;
     const colorName = normalizeText(row.values.CnColor);
     const sizeNum = optionalNonNegativeNumber(row.values.SizeNum);
-    if (!colorName) issues.push({ code: "BLANK_COLOR", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 CnColor 为空" });
-    if (!sizeNum.present || !sizeNum.valid) issues.push({ code: "INVALID_SIZE_NUM", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 SizeNum 无效" });
+    const placeholder = isAinuokeBlankColorPlaceholder(row.values);
+    const pendingQuantity = Boolean(colorName) && isAinuokeBlankColorPlaceholder({ ...row.values, CnColor: null });
+    const quantity = pendingQuantity ? 0 : sizeNum.value;
+    if (pendingQuantity) issues.push({ code: "PENDING_COLOR_QUANTITY_ZERO", sourceRowIdentity: sourceRowIdentity || null, message: "具名颜色数量待定，按用户规则在织序记0；来源空值保留" });
+    if (placeholder) issues.push({ code: "EMPTY_PLACEHOLDER_EXCLUDED", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 颜色、数量及全部尺码数量均空；保留来源证据，仅排除订单颜色投影" });
+    if (!placeholder && !colorName) issues.push({ code: "BLANK_COLOR", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 CnColor 为空" });
+    if (!placeholder && !pendingQuantity && (!sizeNum.present || !sizeNum.valid)) issues.push({ code: "INVALID_SIZE_NUM", sourceRowIdentity: sourceRowIdentity || null, message: "6087105 SizeNum 无效" });
     if (expectedStyleNo && normalizeIdentity(styleNo) !== expectedStyleNo) issues.push({ code: "GOODS_NO_MISMATCH", sourceRowIdentity: sourceRowIdentity || null, message: `6087105 GoodsNo ${styleNo || "(空)"} 与 ${input.expectedStyleNo} 不一致` });
     return {
       sourceRowIdentity,
       sourceId: normalizeText(row.values.id) || null,
+      excludedAsEmptyPlaceholder: placeholder,
       salesContractNo,
       styleNo,
       insideOrderNo,
       insideOrderNoDrift,
       customerOrderNo: normalizeText(row.values.CustomerOrderNo) || null,
       colorName,
-      quantity: sizeNum.value,
+      quantity,
+      sourceQuantity: sizeNum.value,
+      quantityPendingConfirmation: pendingQuantity,
       deliveryDate: optionalDate(row.values.DeliveryDate),
-      ...mapSizeFacts(row, sizeNum.value),
+      ...mapSizeFacts(row, quantity),
     };
   });
 
   const identities = new Map<string, number>();
   for (const row of rows) identities.set(row.sourceRowIdentity, (identities.get(row.sourceRowIdentity) ?? 0) + 1);
   for (const [identity, count] of identities) if (!identity || count > 1) {
+    // Identical unused placeholders are not duplicate business colors; mixed/active identities still fail closed.
+    if (identity && rows.filter((row) => row.sourceRowIdentity === identity).every((row) => row.excludedAsEmptyPlaceholder)) continue;
     issues.push({ code: "DUPLICATE_SOURCE_IDENTITY", sourceRowIdentity: identity || null, message: `6087105 canonical source identity 出现 ${count} 次` });
   }
 
@@ -237,7 +265,8 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
     || normalizeIdentity(left.colorName).localeCompare(normalizeIdentity(right.colorName))
     || (left.deliveryDate ?? "").localeCompare(right.deliveryDate ?? ""));
   const invalidCodes = new Set<AinuokeGarmentColorSizeIssueCode>(["BLANK_COLOR", "INVALID_SIZE_NUM", "DUPLICATE_SOURCE_IDENTITY"]);
-  const colorDetailStatus: AinuokeGarmentColorDetailStatus = rows.length === 0
+  const projectedRows = rows.filter((row) => !row.excludedAsEmptyPlaceholder);
+  const colorDetailStatus: AinuokeGarmentColorDetailStatus = projectedRows.length === 0
     ? "missing"
     : issues.some((issue) => invalidCodes.has(issue.code))
       ? "invalid"
@@ -251,6 +280,7 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
     customerOrderNo: normalizeIdentity(row.customerOrderNo),
     colorName: normalizeIdentity(row.colorName),
     quantity: row.quantity,
+    ...(row.quantityPendingConfirmation ? { quantityPendingConfirmation: true, sourceQuantity: null } : {}),
     deliveryDate: row.deliveryDate,
     sizeRuleTokens: row.sizeRuleTokens,
     sizeAllocations: row.sizeAllocations,
@@ -265,12 +295,14 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
     expectedStyleNo,
     upstreamRows: sourceRows.length,
     exactRows: rows.length,
+    excludedPlaceholderSourceRowIdentities,
     containsFalsePositiveRows: sourceRows.length - rows.length,
     colorDetailStatus,
     rows,
-    usableRows: colorDetailStatus === "usable" ? rows : [],
+    usableRows: colorDetailStatus === "usable" ? projectedRows : [],
     issues: issues.sort((left, right) => left.code.localeCompare(right.code) || (left.sourceRowIdentity ?? "").localeCompare(right.sourceRowIdentity ?? "")),
     fetchedAt: input.snapshots.map((snapshot) => snapshot.fetchedAt).sort().at(-1)!,
-    sourceHash: await sha256Hex(JSON.stringify(hashPayload)),
+    sourceHash: await sha256Hex(JSON.stringify(excludedPlaceholderSourceRowIdentities.length
+      ? { rows: hashPayload, excludedPlaceholderSourceRowIdentities } : hashPayload)),
   };
 }

@@ -150,9 +150,9 @@ test("production columns contain only current PostgreSQL or lossless projection 
     "正式订单 / BillNo",
     "款号 / 工厂款号",
     "客户 / 品牌",
-    "合同数量",
+    "订单数量",
     "生命周期 / 来源状态",
-    "合同交期 / 颜色",
+    "交期 / 颜色",
     "创建来源",
     "操作",
   ]) assert.match(productionSource, new RegExp(label));

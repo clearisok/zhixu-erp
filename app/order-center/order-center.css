@@ -480,3 +480,39 @@
 .oc-server-detail-material-summary > p { margin: 12px 18px; color: #6b7973; font-size: 11px; }
 .oc-server-detail-material-summary .sp-server-summary { padding: 0 18px 8px; }
 .oc-server-detail-material-summary > button { margin: 0 5px 8px; }
+
+/* User-approved order exception chips; existing table and responsive records remain. */
+.oc-order-alert-tags { display: flex; flex-wrap: wrap; gap: 4px; align-items: flex-start; }
+.oc-order-alert-chip { display: inline-flex; padding: 2px 7px; border: 1px solid #9333ea; border-radius: 4px; color: #7e22ce; background: #faf5ff; font-size: 12px; line-height: 1.5; white-space: nowrap; }
+.oc-order-alert-chip[data-code="color_quantity_zero"] { border-color: #db2777; color: #be185d; background: #fdf2f8; }
+.oc-order-alert-chip[data-code="material_source_stale"], .oc-order-alert-chip[data-code="material_source_unavailable"] { border-color: #b45309; color: #92400e; background: #fffbeb; }
+.oc-order-alert-empty { color: var(--qc-text-secondary, #6b7280); }
+
+/* Approved topbar back arrow leaves no empty legacy header column. */
+.oc-server-detail-page .qc-page-header[data-variant="list"]:not(:has(.qc-page-back)) { grid-template-areas: "identity actions"; grid-template-columns: minmax(0, 1fr) auto; }
+
+/* SO/BillNo now have one header location and must remain available on mobile. */
+.oc-server-detail-page .qc-page-header[data-variant="list"] .qc-page-identity p { display: flex; }
+.oc-business-source-drawer { width: min(680px, 100vw); }
+.oc-business-source-form { display: grid; gap: 16px; border: 0; margin: 20px 0 0; padding: 0; min-width: 0; }
+.oc-business-source-form p { margin: 0; color: var(--qc-text-muted, #697a73); line-height: 1.6; }
+.oc-business-source-form > button { justify-self: start; }
+.oc-business-source-search { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.oc-business-source-search input { min-width: 0; flex: 1; }
+.oc-business-source-search button { flex: 0 0 auto; }
+
+/* Approved D145 quote source and order pricing workspace. */
+.qc-modal.oc-source-modal {width:min(1280px,calc(100vw - 40px));max-width:1280px;}
+.oc-source-form {border:0;padding:0;min-width:0;display:grid;gap:16px;}
+.oc-source-table {max-width:100%;overflow:auto;border:1px solid var(--qc-border,#dbe4df);border-radius:12px;}
+.oc-source-table table {border-collapse:collapse;min-width:740px;width:100%;font-size:14px;}
+.oc-source-table th,.oc-source-table td {padding:12px;text-align:left;border-bottom:1px solid var(--qc-border,#dbe4df);vertical-align:middle;}
+.oc-source-table th {background:var(--qc-bg-soft,#f4f7f5);white-space:nowrap;}
+.oc-source-table small {display:block;color:var(--qc-muted,#708078);}
+.oc-source-table .qc-control {min-width:140px;}
+@media(max-width:599px){.qc-modal.oc-source-modal {width:calc(100vw - 16px);}}
+.oc-price-summary {display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;color:var(--qc-text,#27483d);}
+
+/* D145 dialogs contain sequential steps, not the legacy three-column source form. */
+.oc-source-modal .oc-source-form {grid-template-columns:minmax(0,1fr);width:100%;}
+.oc-source-modal > footer {flex-wrap:wrap;}

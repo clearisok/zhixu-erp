@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { CURRENT_MIGRATION_FILES } from "./current-migration-ledger-fixture.js";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
@@ -225,19 +226,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
       const legacyQuoteSequenceBefore = (await pool.query("SELECT last_value::text,is_called FROM quote_number_seq")).rows[0];
       const directory = resolve("database/migrations");
       const first = await runMigrations(pool, directory);
-      assert.deepEqual(first.applied, [
-        "0001_trusted_auth_rbac_operation_logs.sql",
-        "0002_sales_order_foundation.sql",
-        "0003_sales_order_number_sequence.sql",
-        "0004_confirmed_commercial_terms.sql",
-        "0005_quote_foundation.sql",
-        "0006_quote_number_sequence.sql",
-        "0007_quote_master_settings.sql",
-        "0008_quote_attachments.sql",
-        "0009_sales_order_delivery_plans.sql",
-        "0010_quote_creation_receipts.sql",
-        "0011_quote_creation_defaults.sql", "0012_ainuoke_server_source.sql",
-      ]);
+      assert.deepEqual(first.applied, CURRENT_MIGRATION_FILES);
       const identity = await pool.query<{ public_id: string }>("SELECT public_id::text FROM app_users WHERE username = 'legacy-user'");
       assert.match(identity.rows[0].public_id, /^[0-9a-f-]{36}$/);
       const columns = await pool.query<{ column_name: string }>(
@@ -292,19 +281,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
     const pool = new Pool({ connectionString: databaseUrl });
     try {
       const migration = await runMigrations(pool, resolve("database/migrations"));
-      assert.deepEqual(migration.applied, [
-        "0001_trusted_auth_rbac_operation_logs.sql",
-        "0002_sales_order_foundation.sql",
-        "0003_sales_order_number_sequence.sql",
-        "0004_confirmed_commercial_terms.sql",
-        "0005_quote_foundation.sql",
-        "0006_quote_number_sequence.sql",
-        "0007_quote_master_settings.sql",
-        "0008_quote_attachments.sql",
-        "0009_sales_order_delivery_plans.sql",
-        "0010_quote_creation_receipts.sql",
-        "0011_quote_creation_defaults.sql", "0012_ainuoke_server_source.sql",
-      ]);
+      assert.deepEqual(migration.applied, CURRENT_MIGRATION_FILES);
       const tables = await pool.query<{ table_name: string }>(
         `SELECT table_name FROM information_schema.tables
          WHERE table_schema = 'public' AND table_name IN (

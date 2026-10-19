@@ -35,13 +35,13 @@ export function applyQuoteConfirmation(quote: ServerQuote, command: QuoteConfirm
   const version = view.priceVersions.find(p => p.id === pv.id)!;
   if (!validateCustomerConfirmation(view, version, { labor: 0, garment: command.confirmedGarmentPrice === null ? null : 0 }).valid)
     throw new HttpError(400, "quote_confirmation_incomplete", "Complete saved Quote fields and required confirmation amounts");
-  const metrics = calculatePriceVersionMetrics(version);
+  const metrics = revision.baseInfo.quoteType==='processing'?null:calculatePriceVersionMetrics(version);
   const next = structuredClone(quote);
   const target = next.revisions.find(r => r.revisionId === revision.revisionId)!;
   target.priceVersions.find(p => p.id === pv.id)!.confirmation = {
-    quotedGarmentPrice: canonicalDecimal(String(metrics.garmentSellingPrice)),
+    quotedGarmentPrice: revision.baseInfo.quoteType==='processing'?(pv.confirmation?.quotedGarmentPrice??'0'):canonicalDecimal(String(metrics!.garmentSellingPrice)),
     quotedLaborPrice: pv.labor.value!, confirmedLaborPrice: command.confirmedLaborPrice,
-    confirmedGarmentPrice: command.confirmedGarmentPrice, note: command.note, confirmedAt: now,
+    confirmedGarmentPrice: revision.baseInfo.quoteType==='processing'?(pv.confirmation?.confirmedGarmentPrice??null):command.confirmedGarmentPrice, note: command.note, confirmedAt: now,
   };
   target.confirmationSummary = summarizeRevisionConfirmations(target as unknown as QuoteRevision);
   next.aggregateStatus = confirmationAggregateStatus(target.confirmationSummary);

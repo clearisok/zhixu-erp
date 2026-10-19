@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import test from "node:test";
 import assert from "node:assert/strict";
+import { CURRENT_MIGRATION_FILES, migrationFilesAfter } from "./current-migration-ledger-fixture.js";
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { resolve, join } from "node:path";
@@ -19,6 +20,7 @@ import { TEAM_ROLES } from "../auth/team-roles.js";
 import { createApp } from "../app.js";
 import { captureSource } from "../ainuoke-source/service.js";
 import { createPersistedMaterialPorts } from "../ainuoke-source/reader.js";
+import { createOrderMaterialReader } from "../../features/ainuoke-material-progress/read-service.js";
 import { bundle, syntheticOrder, syntheticFetchedAt } from "./ainuoke-source-fixture.js";
 import { collectWithPython } from "../ainuoke-source/collector.js";
 import { validateBundle } from "../ainuoke-source/contract.js";
@@ -34,9 +36,10 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
         const oldDir = await mkdtemp(join(tmpdir(), "zhixu-migrations-11-"));
         try {
             for (const file of await readdir("database/migrations"))
-                if (file.endsWith(".sql") && !file.startsWith("0012"))
+                if (file.endsWith(".sql") && Number(file.slice(0,4))<=11)
                     await copyFile(join("database/migrations", file), join(oldDir, file));
             await runMigrations(pool, oldDir);
+            assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version),[1,2,3,4,5,6,7,8,9,10,11]);
         }
         finally {
             await rm(oldDir, { recursive: true, force: true });
@@ -45,10 +48,10 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
         await bootstrapAdmin(pool, { username: "synthetic.admin", displayName: "合成管理员", password: "synthetic-secret-only" });
         const actor = await loadExistingBootstrapActor(pool, "synthetic.admin");
         const before = (await pool.query("SELECT public_id::text,password_hash FROM app_users")).rows;
-        await runMigrations(pool, resolve("database/migrations"));
-        await runMigrations(pool, resolve("database/migrations"));
+        assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, migrationFilesAfter(11));
+        assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, []);
         assert.deepEqual((await pool.query("SELECT public_id::text,password_hash FROM app_users")).rows, before);
-        assert.equal((await pool.query("SELECT count(*)::int AS n FROM schema_migrations")).rows[0].n, 12);
+        assert.deepEqual((await pool.query("SELECT version::int AS version FROM schema_migrations ORDER BY version")).rows.map(row=>row.version), CURRENT_MIGRATION_FILES.map(file=>Number(file.slice(0,4))));
         const order = (await createAinuokeSalesOrder(pool, actor, { source: { sourceId: "synthetic-1", sourceRowIdentity: "synthetic-order", salesContractNo: syntheticOrder.salesContractNo, insideOrderNo: syntheticOrder.insideOrderNo, lifecycleStatusRaw: "生效", contractDate: "2026-10-01", contractDeliveryDate: "2026-11-01", styleNo: syntheticOrder.styleNo, companyNameSnapshot: "合成公司", customerNameSnapshot: "合成客户", brandNameSnapshot: "合成品牌", quantity: 100, sourceHash: "synthetic-order-hash", fetchedAt: syntheticFetchedAt }, colors: [] })).salesOrder;
         for (const [i, role] of TEAM_ROLES.entries())
             await executeTeamCommand(pool, actor, { action: "create", requestId: randomUUID(), account: "synthetic.team." + i, name: "合成-" + role.name, password: "synthetic-secret-only", roleIds: [role.id] });
@@ -191,14 +194,34 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
             assert.ok((await pool.query("SELECT count(*)::int AS n FROM ainuoke_source_runs")).rows[0].n > 1);
             await capture();
         });
-        await t.test("persisted material and discovery corruption independently fail closed", async () => {
+        await t.test("SQL evidence is immutable and independently corrupted read bytes still fail closed", async () => {
             const id = await latest();
             for (const [table, column] of [["ainuoke_material_source_snapshots", "snapshots"], ["ainuoke_source_runs", "discovery"]]) {
                 const key = table === "ainuoke_source_runs" ? "id" : "run_id";
                 const original = (await pool.query("SELECT " + column + " AS value FROM " + table + " WHERE " + key + "=$1", [id])).rows[0].value;
-                await pool.query("UPDATE " + table + " SET " + column + "='[]'::jsonb WHERE " + key + "=$1", [id]);
-                assert.equal((await read(cookies[0])).status, 503);
-                await pool.query("UPDATE " + table + " SET " + column + "=$2::jsonb WHERE " + key + "=$1", [id, JSON.stringify(original)]);
+                await assert.rejects(() => pool.query("UPDATE " + table + " SET " + column + "='[]'::jsonb WHERE " + key + "=$1", [id]), (error: unknown) => (error as { code?: string }).code === '23514');
+                assert.equal((await read(cookies[0])).status, 200);
+                // Corrupt only the returned driver bytes, without disabling SQL guards
+                // or mutating persisted evidence. The reader hash check is independent.
+                const damaged = new Proxy(pool, { get(target, property) {
+                    if (property === 'connect') return async () => {
+                        const client = await target.connect();
+                        return new Proxy(client, { get(current, member) {
+                            if (member === 'query') return async (...args: unknown[]) => {
+                                const result = await (current.query as (...values: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>)(...args);
+                                if (result.rows.some(row => Object.hasOwn(row, column))) {
+                                    return { ...result, rows: result.rows.map(row => ({ ...row, [column]: [] })) };
+                                }
+                                return result;
+                            };
+                            const value = Reflect.get(current, member); return typeof value === 'function' ? value.bind(current) : value;
+                        } });
+                    };
+                    const value = Reflect.get(target, property); return typeof value === 'function' ? value.bind(target) : value;
+                } });
+                const damagedRead = createOrderMaterialReader(createPersistedMaterialPorts(damaged, { sourceKey: 'first-team', maxAgeMs: 1000 }, () => clock));
+                assert.equal((await damagedRead(actor, { salesOrderId: order.id })).status, 503);
+                assert.deepEqual((await pool.query("SELECT " + column + " AS value FROM " + table + " WHERE " + key + "=$1", [id])).rows[0].value, original);
             }
         });
         await t.test("audit failure rolls back run, snapshots and pointer together", async () => {
