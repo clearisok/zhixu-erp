@@ -116,4 +116,13 @@ Only the integrator edits server/app.ts, server/index.ts, migrations, permission
 
 This phase changes documentation and release-baseline metadata only, no application/SQL/UI/accounts/databases/source queries. Prior CURRENT_STATE/AI_HANDOFF are preserved verbatim under docs/tasks/completed/2026-10-20-pre-convergence/.
 
-Initial checkpoint: baseline tests, exact-main guard, link/scope check, independent review, final commit and remote delivery pending. No application test/build rerun is claimed. Record actual outcomes before final handoff.
+Documentation checkpoint: `04f3af29022cdee5fe3f603a744112e462e497d9`. Manifest baseline is main `996dfedc12da3527343cd3ff2aa5eea35497e10e`; two forward document revisions preserve all 213 earlier evidence records. Page/capability/status metadata and screenshots are unchanged.
+
+Actual checks on 2026-10-20:
+
+- First guard and baseline test attempt failed with `EVIDENCE_WORKTREE_DRIFT: closing`: the changed closing feature document also required a forward evidence revision. This was a documentation-evidence omission, not an application test failure. The missing revision was appended without overwriting old evidence.
+- After that fix, `npm run test:release-baseline`: **94 passed, 0 failed/cancelled/skipped** (122881 ms). `npm run check:release-baseline -- --base-sha 996dfedc12da3527343cd3ff2aa5eea35497e10e`: **PASS**, 11 pages/46 capabilities, 0 changed UI files.
+- `git diff --check`, verbatim archive comparison, docs-only scope and 213-record immutability comparison passed. Independent read-only reviewer checked both evidence hashes against checkpoint Git blobs and found no blocker. Reviewer did not rerun tests.
+- No application/unit/API/SQL/browser/build/real-source run is claimed for this docs-only phase. No runtime, account or database was changed.
+
+Final commit is resolved from this branch's Git HEAD; remote delivery/Hosted CI are checked independently against that full SHA and reported in the delivery receipt/unique draft PR. Do not infer delivery or deployment from local checks. Next implementation phase prepares a fresh persistent empty target, leaving existing environments intact.

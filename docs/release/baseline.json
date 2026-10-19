@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "064e3afaf7d08b3cb62907d4402f97d9c292f1e5",
-  "verifiedAt": "2026-10-17",
+  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "verifiedAt": "2026-10-20",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -1751,6 +1751,24 @@
       "path": "docs/tasks/completed/2026-10-17-quote-price-final-review.md",
       "recordedAtSha": "5bd47275599eb7f9039d38a853a6ce294635c1d9",
       "sha256": "4c698ffbe7e0f1360f8d87db8f37c57c94c73344de2573ff204134900131bf93"
+    },
+    {
+      "id": "decisions-server-convergence-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "04f3af29022cdee5fe3f603a744112e462e497d9",
+      "sha256": "19d80a35bea637bebd140356491e40412d5fadad1449c2e927fa3d142a9f7578",
+      "supersedes": "decisions-price-processing-20261017",
+      "changeReason": "Record user-approved D-147: empty persistent Server target without historical migration, CNY garment sales output and USD labor, preserving prior decisions and runtime boundaries."
+    },
+    {
+      "id": "closing-server-target-20261020",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "04f3af29022cdee5fe3f603a744112e462e497d9",
+      "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
+      "supersedes": "closing",
+      "changeReason": "Distinguish approved D-147 future Server CNY sales and USD labor from existing Browser implementation; retain original closing evidence and capability status."
     }
   ],
   "pages": [
