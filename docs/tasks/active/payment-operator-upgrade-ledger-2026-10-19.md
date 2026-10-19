@@ -37,3 +37,15 @@ G3 checkpoint7669dd1465abb63a05b091486604fec3bb623bab已在clean状态通过操�
 ## 加工前向整合
 
 G3最终d5773dd4abe50289efc4b527d481643e4b8a9c64精确守卫PASS（11/45/60）。加工从clean已交付且新三CI绿1ab0d8c0598a4cf270bf2618ece260bcbcbf20f5前向合入，测试两文件冲突按119原文件保留新推送/选择/用例范围，仅应用清单helper与来源Modal只读断言；没有整块回退到Source旧入口，也未恢复119已经移除的参考批次交互。共享摘要原文逐字归档至completed/2026-10-19-before-processing-ledger-{handoff,current-state}.md，原始提交完整保留。随后整合本机交付文档回执，保存clean checkpoint后验证受影响测试，不自动重复上传。
+
+加工先保存030fdaba029ce08cddf1858e50d266a365ac9f31，再合入仅文档交付记录10e39c8600570b63d27974a236032574f5e4c970为clean checkpoint5a5228a8986bacdb5085b929c5dbac71dc02ac82。相对已三CI绿1ab0，运行/UI/SQL/依赖/工作流/脚本逐路径零变化，只有两份测试和文档不同。
+
+5a5228a8在clean状态通过操作21、实际CLI durable readback、加工批次实际Chromium8、类型/两个测试lint/MJS语法、94基线及checkpoint守卫（11/46/71）。Server UI候选的build-info精确为5a5228a8；最初并行前端/Node编译争用dist/server导致ENOTEMPTY，失败日志保留。核实输出目录为本工作树内普通目录后，按现有Dockerfile.server的build→server:build顺序重新成功构建并跑8项UI；没有手动删目录、改配置或操作既有演示。这是执行顺序修正，不是产品修复。
+
+新本地补充范围只覆盖改变的测试及各上游未到达尾部；未重复119已Hosted通过且产品完全相同的全部工作流，未将旧898/261/84或119原Hosted结果标成新候选全重跑。新候选Hosted仍待实际交付核实。精确最终文档checkpoint守卫另保存于outputs/price-coordination-delivery/processing-ledger-final-exact-guard-2026-10-19.log。
+
+## 最终状态与后续范围
+
+Source候选1b08ea9348ecf377c1b4e4cdea4ba5d574a2250a、G3候选d5773dd4abe50289efc4b527d481643e4b8a9c64均本地完成并通过精确守卫；加工已前向保留两者及原1ab0/10e39，最后仅文档收口，最终HEAD以Git与下一次交付manifest完整SHA为准。无继承dirty或未提交源码；没有第二次push、创建新PR、合并或部署。远端仍为117/92623、118/e7c8、119/1ab0，旧source红灯保留，不能称新测试修复已送达。
+
+下一次最小交付可仅上传一次加工最终提交，独立exact SHA和原commit存在后，再force=false快进117/118到上述候选；必须先取得这个新精确范围的答复，本轮指定1ab0一次许可已用完。既有唯一草稿不重复创建。110原三绿、119/1ab0新三绿不构成累计PR自动合并或真实部署授权；114最新独立增量继续不在本次整合中。

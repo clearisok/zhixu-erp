@@ -48,4 +48,10 @@ app/components/features/database/scripts/.github/package及构建配置相对166
 
 本机文档记录阶段独立94项发布基线通过、工作树源码守卫通过（11页/46能力/71UI路径）；最终记录commit的精确HEAD守卫另保存，不将仅文档检查冒称新的业务或部署验证。
 
+## 同日后续本地测试修复
+
+交付记录10e39c8600570b63d27974a236032574f5e4c970独立提交后，在Source和G3原分支分别完成旧升级清单与加工来源Modal断言兼容；完整过程、原失败及各分支结果见[测试清单修复](payment-operator-upgrade-ledger-2026-10-19.md)。Source最终1b08ea9348ecf377c1b4e4cdea4ba5d574a2250a通过后端尾部95/Chromium57/Python131/基线94等，G3最终d5773dd4abe50289efc4b527d481643e4b8a9c64在自己的构建通过尾部95/Chromium62/Python131/基线94等；两者精确守卫通过。加工前向合入后5a5228a8986bacdb5085b929c5dbac71dc02ac82仅两份测试和文档不同于已三CI绿1ab0，clean操作21/加工UI8/基线94及类型/lint/Node/顺序双构建通过。原始提交、原摘要和失败均保留。
+
+这些新本地候选尚未上传，远端CI表不因此改绿；1ab0一次上传许可已用完。整合交付记录与新候选的最后文档checkpoint不修改产品、SQL、UI或既有演示，不自动进行第二次上传。最终候选完整SHA以Git及outputs/price-coordination-delivery/next-reviewed-test-fix-delivery-2026-10-19.json为准，待新范围答复后再交付。
+
 没有真实账号/业务库、旧演示62316/62326、艾诺科新读取/绑定/激活/调度、宁波或18443/18444操作；没有汇率扩展、Server完整关账、自动合并或部署。
