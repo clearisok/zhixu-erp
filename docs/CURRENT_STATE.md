@@ -1,7 +1,7 @@
-# 当前状态：系统设置 Phase2 已完成本地验收
+# 当前状态：系统设置 Phase2 交付复核
 
-2026-10-19；main基线996dfedc12da3527343cd3ff2aa5eea35497e10e。Phase1 draft PR121已送达；初次team-access/baseline成功，Source旧schema兼容已在独立0e1f32ef修复，新CI待核。Phase2分支feat/user-management-lifecycle，继承Phase1，用户管理、单角色、归档恢复、登录时间及会话撤销完成。
+2026-10-19；main基线996dfedc12da3527343cd3ff2aa5eea35497e10e。PR121@4e075115三项CI通过；已授权恢复交付完成，PR122精确远端为e4c02f66，累计日志草稿PR123为0b30923c。两者team-access和baseline通过，Source同在0025升级的整行用户指纹断言失败；该断言未区分0032新增字段，业务实现及迁移未改动。
 
-本地：898项目、94基线、33账号/角色/生命周期、20来源升级及生命周期（1既有Linux CLI跳过）、6实际Chromium通过；类型、Node编译、lint、Server构建和精确main门禁通过。完整结果见[任务](tasks/active/system-settings-administration-2026-10-19.md)。工程通过不等于远端CI或用户接受。
+当前分支feat/user-management-lifecycle已局部修复上述测试：原字段逐表比较，新增归档/登录时间为空、恢复重置标记为false单独核验。本轮21项采集操作、53项来源/空库、21项隔离保护、131项Python、69项实际浏览器尾部回归通过；类型、lint、Node和Server UI构建通过。此前898项目、94基线、33账号/角色/生命周期、6实际Chromium等原阶段证据保留于[任务](tasks/active/system-settings-administration-2026-10-19.md)，不称本轮全部重跑。
 
-下一步独立交付Phase2并将Phase1修复精确快进，再完成Phase3业务日志。59069及Jackson/报价/设置保留，新体验只能来自受保护副本。PR120仍独立未合并；不部署、不改真实账号或业务库、不自动合并。
+下一步本地测试收口、前向整合日志分支，再按明确授权交付新提交。59069原环境、Jackson、报价及设置保留；新体验仅使用受保护副本。PR120仍独立；不自动合并、不部署、不改真实账号或业务库。
