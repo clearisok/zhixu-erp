@@ -1,9 +1,11 @@
-# 恢复点：PR114整合工程通过，准备交付唯一PR119
+# 恢复点：已批准 Server 收敛，从 Gate 0 开始
 
-2026-10-19；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。用户已授权整合修复、测试、交付、CI和PR说明；不merge/close、不部署、不改真实数据。分支feat/processing-quote-push-and-selection，clean源码merge20061a50e15da8c233ffb790057b1ce6e898c3fd包含12个开放PR精确head。最终文档commit以Git为准。
+2026-10-20；main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；分支 `codex/server-convergence-baseline`，工作树 `C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api`。初始无 dirty。此阶段仅文档和基线元数据，由主控整合者维护；独立审查者只读。
 
-52定向通过/1 Linux-only跳过；898项目、94基线、类型/lint/Node、完整SHA Server构建、WindowsChromium20全部通过。两测试+一CI之外仅文档，生产代码/SQL/页面/权限不变，复审无新增业务缺陷。记录与原始SHA/日志见[整合记录](tasks/active/pr114-119-integration-2026-10-19.md)。
+用户确认无历史业务数据迁移需求；准备新持久化空系统，旧库/账号/样本原地保护。D-147 记录新 Server 关账成衣产值 CNY、工价 USD；不得把它扩大为旧报价换币或自动汇率计算。3001 必须保留；50426 现为临时库/内存附件的候选，切换须另行明确。应用内持续 Goal 尚未创建。
 
-下一步：最终精确提交守卫，既有git-delivery工具一次Execute，独立核实远端SHA；更新唯一119标题/说明为完整整合范围、等待新CI并核head。若工具返回矛盾，先独立核实、不得盲推。保留全部PR草稿/开放状态及原历史；不使用此前已消费的指定SHA许可，本轮更新范围来自用户最新明确授权。
+当前 #120–#123 为未合并草稿，#121→#122→#123 有累计依赖；完整 SHA、前轮只读环境证据、阶段依赖和停止条件见[Gate 0](tasks/active/server-convergence-gate0-2026-10-20.md)。#119 已在 main，不再按旧接力重复交付或请求合并。D-146 位于未合并系统设置分支，后续整合必须与本次 D-147 一并保留。
 
-所有验证仅临时合成库/独立Chromium。无真实Source、业务库、账号、演示或部署操作。
+当前恢复步骤：完成文档 checkpoint；新增决策证据前向版本并将发布基线对齐本次 main；执行基线测试和精确 main 守卫；独立复审后最终 commit，再通过既有工具最多一次正常交付并核对完整远端 SHA。网络降级则保存本地，不自动执行恢复命令。工程和远端交付分别记录，未执行的新测试不写成通过。
+
+Gate 1 可按批准范围准备独立空环境及持久化验证；不搬迁历史业务数据，不覆盖旧 50426。既有环境、账号、真实来源读取、宁波/18443/18444、自动合并与退役均不在本阶段执行范围。旧接力已[逐字归档](tasks/completed/2026-10-20-pre-convergence/AI_HANDOFF.md)。
