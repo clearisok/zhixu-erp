@@ -249,7 +249,7 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
       assert.equal((await blank.query("SELECT count(*)::int n FROM information_schema.tables WHERE table_schema='public'")).rows[0].n,0);
     }finally{await blank.end();files.close();}
   });
-  await t.test('nonempty 0025 upgrades add only empty command storage; old-schema rollback is explicitly rejected',async()=>{
+  await t.test('nonempty 0025 upgrade preserves historical fields and adds empty command storage; old-schema rollback is rejected',async()=>{
     const directory=mkdtempSync(join(tmpdir(),'zhixu-payment-operator-upgrade-'));
     const old=new pg.Pool({connectionString:await db.createDatabase('operator_upgrade'),max:2});
     try{
@@ -270,9 +270,19 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
       assert.equal((await collectAndPublishPaymentContracts(old,user,request,plan.scopeHash,{now,collect})).published,2);
       const tables=['app_users','sales_orders','ainuoke_sales_order_contract_mirrors','ainuoke_source_profiles','ainuoke_payment_source_targets',
         'ainuoke_payment_snapshots','ainuoke_payment_heads','operation_logs'];
-      const inventory=async()=>{const entries=[];for(const table of tables)entries.push([table,(await old.query(`SELECT to_jsonb(t) row FROM ${table} t ORDER BY to_jsonb(t)::text`)).rows]);return hash(entries);};
+      const inventory=async()=>{
+        const entries:Record<string,unknown>={};
+        for(const table of tables){
+          // 0032 adds lifecycle metadata; compare every pre-existing field and check the new defaults separately.
+          const row=table==='app_users'?"to_jsonb(t)-'archived_at'-'last_login_at'-'password_reset_required'":'to_jsonb(t)';
+          entries[table]=(await old.query(`SELECT ${row} row FROM ${table} t ORDER BY (${row})::text`)).rows;
+        }
+        return entries;
+      };
       const before=await inventory(),upgraded=await runMigrations(old,resolve('database/migrations'));
-      assert.deepEqual(upgraded.applied,migrationFilesAfter(25));assert.equal(await inventory(),before);
+      assert.deepEqual(upgraded.applied,migrationFilesAfter(25));assert.deepEqual(await inventory(),before);
+      assert.deepEqual((await old.query('SELECT archived_at,last_login_at,password_reset_required FROM app_users')).rows,
+        [{archived_at:null,last_login_at:null,password_reset_required:false}]);
       assert.equal((await old.query('SELECT count(*)::int n FROM ainuoke_payment_operator_commands')).rows[0].n,0);
       assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,[]);
       await assert.rejects(()=>inspectMigrationStatus(old,directory),/Applied migration 26 .* is missing from the migration directory/u);
