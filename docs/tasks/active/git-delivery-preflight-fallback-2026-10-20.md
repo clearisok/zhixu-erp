@@ -62,3 +62,39 @@ navigation SHA. Each target gets at most one actual push, independent remote
 verification and the named acceptance CI; no repeated failed transport loop.
 Unique tool draft PR and any CI conclusions require exact delivered evidence.
 No merge, deployment, real database/account/source operation or old-asset deletion.
+
+## Exact delivery and CI follow-up
+
+e621ff20ccb5352feb15bab6955c95a42ebdcc59 was uploaded once and independently
+verified as exact through GitHub API; unique draft PR #127. Its Git preflight
+failed with exit128/3236ms, one matching-refs API read succeeded, then the normal
+Git push succeeded in7878ms. Receipt remained NETWORK_DEGRADED. Its baseline
+39374537705 and team39374537656 succeeded; source39374537699 failed at an
+existing test in order-business-source.integration.test.ts:68, not in the tool.
+
+That test searched the whole restricted JSON for digits120, also valid in quote
+IDs, random UUIDs, hashes and dates. The Hosted log did not retain the response,
+so its actual collision field is unknown. A disposable fixture quote ID ending
+in120 deterministically reproduced the old assertion failure (7pass/2fail,
+including the parent), without changing the production projection or grants.
+The replacement checks both summary and every color's exact restricted envelopes,
+absence of raw amounts/reason/snapshots, the allowed product summary, and the
+authorized reader's actual price120 as positive control. The completed-order
+freeze assertion is unchanged. The complete isolated source suite passed9/9
+(7608ms); typecheck, compiled Node server and targeted lint passed. Independent
+read-only review found no blocker. The 53/94 prior results bind unchanged tool
+and baseline test blobs; they were not unnecessarily rerun for this test-only fix.
+
+Navigation16f8d57d was not delivered on its first actual default push (TLS failure,
+remote still22b50178); one separately bounded, process-only exact-URL OpenSSL+
+HTTP/1.1/no-proxy/sslVerify=true recovery succeeded in2946ms and was independently
+verified. No persistent config changed. Its exact acceptance runs39374706787/source,
+39374709996/team and39374712862/baseline were submitted once; team/baseline passed,
+source was still running at this record. This is not a claim of permanent network
+repair. One normal push per invocation remains the bound; new recovery decisions
+under standing authorization require evidence, never an unchanged retry loop.
+
+The current CI compatibility checkpoint contains only that integration test and
+state/task documents. It does not alter any application, permissions, SQL, formulas,
+source scope, UI or deployment flow. Exact commit delivery and new CI remain to
+be verified separately before a final green claim.
