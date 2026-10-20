@@ -42,3 +42,13 @@ Gate 4A/4B 的上述完整提交已通过既有工具一次 push 并独立核实
 main再次API核实仍996。三份收口前摘要逐字归档 `completed/2026-10-20-gate5-inputs/pre-final-source54/`。下一步先提交这份新工程证据，再追加其精确Git blob绑定/分维度能力，保留所有旧证据/47能力/运行截图；最终exact-main守卫、独立复审、干净checkpoint和有界交付/三CI仍待，不冒称远端送达。
 
 冻结工程证据checkpoint `f5c1eae04dd6189fe2da05307a8b9dfcb73c3e30`；新文档证据4条以Git blob绑定（3条source54文档+1条f5工程证明，rendered54），226证据/48能力；旧222证据、47能力、PNG、运行快照逐项保持。最终源码守卫针对独立核实main996通过：11页面/48能力/41累计UI路径，checkedHead=f5、manifest为待提交前向增量。现LOCAL ENGINEERING PASS；最终独立复核/干净commit及远端交付/CI继续，不因本地PASS称main或部署完成。
+
+## First remote CI and reference-inventory repair
+
+Gate5 `c6ca37b2f4b2ea9dc7487647b925b0ffcef98768` 已既有工具一次push（pushes=1、NETWORK NORMAL）并独立API核实。Baseline[39402680845](https://github.com/clearisok/zhixu-erp/actions/runs/39402680845)、Team[39402675944](https://github.com/clearisok/zhixu-erp/actions/runs/39402675944)精确成功；Source[39402671214](https://github.com/clearisok/zhixu-erp/actions/runs/39402671214)在归一preview发现新0033 FK尚未纳入声明清单，实际36pass/3fail（含父）。不得称这轮三CI全绿或继续使用旧Source绿灯。
+
+补充 `quote_creation_order_contexts / sales_order_id / quote_id` 到固定清单及升级前可选过滤。新API回归确认实际创建后的引用计数、原ID、reviewHash、无SO/执行写入；新完整证据测试直接比较该表全字节摘要、总evidenceHash和冻结读取。原shared effective锁与执行exclusive锁保持，未知外键仍阻断，不新增归一写能力。实际本地26定向、40归一、45归属、33完整证据/执行回归通过；类型/Node/定向lint先通过，最后新完整测试的类型复核和最终feature证据绑定/守卫、精确交付/三CI待收口。UI/SQL迁移/报价writer未修改；原54构建/8+40+13浏览器和旧长套件失败边界保持，不冒称重跑。
+
+Gate6只读准备另存 `codex/server-production-resources` 的184b110e（3份c6摘要逐字归档+任务），无新应用代码；先在本Gate5分支完成此兼容修复，不把Gate6带入交付。
+
+引用修复应用checkpoint aaf12af31b5ba29a80fa98db9114a287f905c69a；纠正proof冻结07cd7ffb4f0885baaa2ee829f54006804336c11d。新26定向最后16506ms，40归一21926ms、45归属19404ms、33完整执行19086ms；最后类型/Node/四路径lint通过。UI/config blob严格等于54，不重写原构建/浏览器证据。显式 `npm run test:release-baseline` 再次116/116通过163393ms；228证据/48能力与exact-main guard通过，checkedHead07。原226证据/47旧能力、全部页和runtime逐项保持；第48新能力按纠正proof前向记录aaf后端来源，原54 UI证明保留。独立只读审查无阻断；最终commit/精确HEAD守卫、送达和三项新CI仍待，不称c6 Source成功。

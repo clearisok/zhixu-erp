@@ -1871,6 +1871,20 @@
       "recordedAtSha": "f5c1eae04dd6189fe2da05307a8b9dfcb73c3e30",
       "renderedSourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
       "sha256": "beb005932cc9b9bb95460a5ff9806b379239158ab7718f3362118ff0a4fa0f01"
+    },
+    {
+      "id": "normalization-creation-order-context-20261020",
+      "kind": "document",
+      "path": "docs/features/ORDER_NORMALIZATION.md",
+      "recordedAtSha": "aaf12af31b5ba29a80fa98db9114a287f905c69a",
+      "sha256": "f65685829a21c1d75fe145091684fa3e259a428e3dd610f7afeb80485a0bc8a1"
+    },
+    {
+      "id": "order-quote-context-reference-repair-20261020",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-20-order-quote-reference-ci-repair.md",
+      "recordedAtSha": "07cd7ffb4f0885baaa2ee829f54006804336c11d",
+      "sha256": "20d033c968361058900a374f0c172b7ed03a7d5938c4d7aee836e624a0047566"
     }
   ],
   "pages": [
@@ -6627,54 +6641,60 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
+      "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted. The CI correction declares immutable original-order creation references in the existing preview/full-byte inventory without classifying them as execution or reopening normalization writes.",
       "evidence": [
-        "order-quote-context-create-engineering-20261020"
+        "order-quote-context-create-engineering-20261020",
+        "order-quote-context-reference-repair-20261020"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-20",
-          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
-          "sourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted. The CI correction declares immutable original-order creation references in the existing preview/full-byte inventory without classifying them as execution or reopening normalization writes.",
+          "sourceSha": "aaf12af31b5ba29a80fa98db9114a287f905c69a",
           "evidence": [
-            "order-quote-context-create-engineering-20261020"
+            "order-quote-context-create-engineering-20261020",
+            "order-quote-context-reference-repair-20261020"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-20",
-          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
-          "sourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted. The CI correction declares immutable original-order creation references in the existing preview/full-byte inventory without classifying them as execution or reopening normalization writes.",
+          "sourceSha": "aaf12af31b5ba29a80fa98db9114a287f905c69a",
           "evidence": [
-            "order-quote-context-create-engineering-20261020"
+            "order-quote-context-create-engineering-20261020",
+            "order-quote-context-reference-repair-20261020"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-20",
-          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
-          "sourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted. The CI correction declares immutable original-order creation references in the existing preview/full-byte inventory without classifying them as execution or reopening normalization writes.",
+          "sourceSha": "aaf12af31b5ba29a80fa98db9114a287f905c69a",
           "evidence": [
-            "order-quote-context-create-engineering-20261020"
+            "order-quote-context-create-engineering-20261020",
+            "order-quote-context-reference-repair-20261020"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-20",
-          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
-          "sourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted. The CI correction declares immutable original-order creation references in the existing preview/full-byte inventory without classifying them as execution or reopening normalization writes.",
+          "sourceSha": "aaf12af31b5ba29a80fa98db9114a287f905c69a",
           "evidence": [
-            "order-quote-context-create-engineering-20261020"
+            "order-quote-context-create-engineering-20261020",
+            "order-quote-context-reference-repair-20261020"
           ]
         },
         "sourceActivation": {
           "value": "not-applicable",
           "assessedAt": "2026-10-20",
-          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
-          "sourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted. The CI correction declares immutable original-order creation references in the existing preview/full-byte inventory without classifying them as execution or reopening normalization writes.",
+          "sourceSha": "aaf12af31b5ba29a80fa98db9114a287f905c69a",
           "evidence": [
-            "order-quote-context-create-engineering-20261020"
+            "order-quote-context-create-engineering-20261020",
+            "order-quote-context-reference-repair-20261020"
           ]
         },
         "trial18443": {

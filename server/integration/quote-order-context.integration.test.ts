@@ -12,10 +12,13 @@ import { createSyntheticQuoteFixture } from "./quote-fixture.js";
 import { quoteSnapshotFromBrowser } from "../quotes/model.js";
 import { createProcessingBatch, previewProcessingBatch, confirmProcessingBatch, consumeProcessingBatches } from "../sales-orders/processing-batch-service.js";
 import { previewColorSource, adoptColorSource } from "../sales-orders/color-commercial.js";
+import { createSalesOrder } from "../sales-orders/repository.js";
+import { previewOrderNormalization } from "../sales-orders/normalization-preview.js";
 
 test("source-context Quote creation composes trusted defaults, immutable reference and existing receipt", { timeout: 180000 }, async t => {
   const x = await startContinuousFixture(resolve("dist/client")); t.after(x.close);
   const actor = await loadExistingBootstrapActor(x.pool, x.users[0]);
+  const otherOrder = await createSalesOrder(x.pool, { creationSource: "manual" });
   const cookie = await x.login(x.users[0]);
   const service = createQuoteCreationService(x.pool);
   const call = async (path: string, body?: unknown, auth = cookie, method = "POST") => {
@@ -46,11 +49,14 @@ test("source-context Quote creation composes trusted defaults, immutable referen
     assert.deepEqual(await unaffected(), before); assert.equal(await count(), n);
     assert.equal((await call("creation-order-context/" + randomUUID())).status, 404);
     assert.equal((await call("creation-order-context/NOT-AN-ORDER")).status, 400);
+    const preview = await previewOrderNormalization(x.pool, actor, [x.orderId, otherOrder.id]);
+    assert.deepEqual(preview.unknownReferences, []);
   });
   await t.test("contract type overrides incompatible default explicitly, while exact quantity, null date and source snapshot survive", async () => {
     await x.pool.query("INSERT INTO quote_global_settings(singleton_id,default_labor_currency,default_labor_description,default_quote_type) VALUES(1,'CNY','','processing') ON CONFLICT(singleton_id) DO UPDATE SET default_quote_type='processing',version=quote_global_settings.version+1");
     await x.pool.query("UPDATE ainuoke_sales_order_contract_mirrors SET quantity=9007199254740993.123456789,contract_delivery_date=NULL WHERE sales_order_id=$1", [x.orderId]);
     const read = await context(), before = await unaffected(), n = await count(), requestId = randomUUID();
+    const beforeReference = await previewOrderNormalization(x.pool, actor, [x.orderId, otherOrder.id]);
     const body = { clientRequestId: requestId, orderContext: selection(read) };
     createdRequestId = requestId;
     const [a, b] = await Promise.all([call("creation-defaults", body), call("creation-defaults", body)]);
@@ -69,7 +75,20 @@ test("source-context Quote creation composes trusted defaults, immutable referen
     assert.equal((await x.pool.query("SELECT count(*)::int n FROM operation_logs WHERE quote_id=$1 AND action='创建报价'", [createdId])).rows[0].n, 1);
     assert.equal((await call("creation-defaults", { clientRequestId: requestId })).body.error.code, "idempotency_payload_mismatch");
     assert.equal((await call("creation-defaults", { ...body, orderContext: { ...body.orderContext, salesOrderId: randomUUID() } })).body.error.code, "idempotency_payload_mismatch");
+    const afterReference = await previewOrderNormalization(x.pool, actor, [x.orderId, otherOrder.id]);
+    assert.notEqual(afterReference.reviewHash, beforeReference.reviewHash, "Reference changes the hash while source quantity/date remain the same");
     await x.pool.query("UPDATE ainuoke_sales_order_contract_mirrors SET quantity=100 WHERE sales_order_id=$1", [x.orderId]);
+  });
+  await t.test("immutable creation references remain original-order inventory, not production execution", async () => {
+    const before = await unaffected();
+    const preview = await previewOrderNormalization(x.pool, actor, [x.orderId, otherOrder.id]);
+    assert.deepEqual(preview.unknownReferences, []);
+    const order = preview.orders.find(row => row.order.id === x.orderId)!;
+    const reference = order.inventory.find(row => row.relation === "quote_creation_order_contexts")!;
+    assert.equal(reference.column, "sales_order_id"); assert.equal(reference.count, "1");
+    assert.deepEqual(reference.sampleIds, [createdId]);
+    assert.deepEqual(order.evidence.execution, { coverage: "unavailable", count: null });
+    assert.equal(preview.assessment.executionAuthorized, false); assert.deepEqual(await unaffected(), before);
   });
   await t.test("ordinary defaults keep their old behavior and do not create an origin row", async () => {
     const result = await call("creation-defaults", { clientRequestId: randomUUID() }); assert.equal(result.status, 201);
