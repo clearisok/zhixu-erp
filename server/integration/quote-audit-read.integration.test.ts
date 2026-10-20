@@ -180,9 +180,20 @@ test("Quote audit read: disposable exact filters, pagination and trusted Estimat
     assert.equal((await get(`action=${encodeURIComponent("生成估算成本")}`)).body.page.total, 0);
     active = full;
     const visible = await get(`quoteId=${encodeURIComponent(q1)}&limit=100`);
-    assert.equal(visible.body.page.total, 108);
-    assert.ok(JSON.stringify(visible.body).includes(probe));
-    assert.ok(JSON.stringify(visible.body).includes("estimateHistoryCount"));
+    assert.equal(visible.status, 200);
+    assert.deepEqual(visible.body.page, { limit: 100, offset: 0, count: 100, total: 108, hasMore: true });
+    const visibleTail = await get(`quoteId=${encodeURIComponent(q1)}&limit=100&offset=100`);
+    assert.equal(visibleTail.status, 200);
+    assert.deepEqual(visibleTail.body.page, { limit: 100, offset: 100, count: 8, total: 108, hasMore: false });
+    const visibleLogs = [...visible.body.logs, ...visibleTail.body.logs];
+    assert.equal(visibleLogs.length, 108);
+    assert.equal(new Set(visibleLogs.map(log => log.id)).size, 108);
+    // Seeded events share a transaction timestamp; random UUID tie ordering can
+    // place either positive control on page two. The negative control above
+    // already checks both restricted pages, so inspect the full allowed history.
+    const visibleJson = JSON.stringify(visibleLogs);
+    assert.ok(visibleJson.includes(probe));
+    assert.ok(visibleJson.includes("estimateHistoryCount"));
   });
 
   await t.test("reads do not append or alter roles; no client append/update/delete endpoint", async () => {

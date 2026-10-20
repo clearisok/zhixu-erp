@@ -207,3 +207,36 @@ resolved from the branch HEAD; it contains the unchanged application checkpoint,
 the tested wait correction and this documentation. No cumulative PR will be
 created; after dependencies merge and a fresh main-delta check passes, create
 only the unique incremental PR.
+
+## Remote verification and narrow CI compatibility follow-up
+
+Final local checkpoint `0123f421089fc1d15f054b7140263277778460d5` was uploaded
+once by git-delivery.ps1: DELIVERED_VERIFIED/pushes=1, then independent GitHub
+ref inspection returned the same full SHA. Worktree clean; main remained 996.
+No PR existed for the cumulative verification ref and none was created.
+Only three acceptance workflows were dispatched: source39369188594,
+team39369191735, baseline39369194657, all with exact 0123f421 head_sha.
+Baseline completed success. Team reached SQL/API after passing types/lint/root,
+then exposed a pre-existing pagination-positive-control assumption in
+quote-audit-read.integration.test.ts:185. At this checkpoint Source is still
+running, not claimed green. No deploy workflow was invoked.
+
+The audit fixture inserts 108 q1 events in one transaction. Default now() gives
+the same timestamp, so the production's correct UUID tie ordering can put the
+sole estimateHistoryCount row outside the first 100. The restricted actor already
+checks both pages and all negative assertions passed. The full actor's positive
+control now also reads both pages, asserts exact 100+8 pagination/108 unique IDs,
+then checks the probe and count field over the complete history. Production
+query, permissions, timestamp seeds and restricted assertions are unchanged.
+Independent read-only review verified this diagnosis in SQL/repository/test code.
+The first directed log suites passed 12/12; final strengthened page assertions,
+types/lint and exact commit guard are rechecked before one new bounded delivery.
+This is a test-only CI compatibility fix, not a changed audit/business policy.
+
+Final strengthened test and related business-log suite passed **12/12** (12178 ms),
+with zero failures/skips/cancellations; fresh typecheck and targeted eslint passed.
+Independent read-only diff review confirmed restricted assertions, production
+operation-log code and the 221-record manifest have no change. Do not repeat
+browser builds or old failing CI merely for this test-only patch. The new exact
+checkpoint still requires the three named CI; superseded non-deployment Source
+run may be cancelled after its replacement exists, with that result retained.
