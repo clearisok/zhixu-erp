@@ -1160,6 +1160,11 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
     await loginAs('admin');await ensureTwoFullPages();
     for(const type of ["processing","distribution"]) await check(t,`actual saved customer XLSX download ${type}: bytes/SHA/workbook and no Estimate`,async()=>{
       await loginAs("admin");const {id,read}=await prepareEstimateQuote(type);
+      if(type==="processing"){
+        const fixture=await read();fixture.quote.revisions[0].priceVersions[1].pricingParameters.laborCurrency="USD";
+        assert.equal(await evaluate(`fetch('/api/v1/quotes/${id}',{method:'PUT',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(${JSON.stringify({quote:fixture.quote,expectedVersion:fixture.version})})}).then(r=>r.status)`),200);
+        await navigate(`/quote-center/detail?id=${id}`);await hasText('Server 报价 · v');
+      }
       if(type==="distribution"){
         const fixture=await read(),pv=fixture.quote.revisions[0].priceVersions[1];pv.pricingParameters.laborCurrency="USD";pv.pricingParameters.usdCnyRate="6.75";pv.pricingParameters.markupRate="0.25";
         const original=pv.fabrics[0];pv.fabrics.push(...Array.from({length:6},(_,i)=>({...original,id:`dynamic-fabric-${i}`,lineGroupId:`dynamic-group-${i}`,name:`Synthetic dynamic fabric ${i}`,unitPrice:i===0?null:i===1?"0":"12.25"})));
@@ -1177,6 +1182,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
         assert.doesNotMatch(cells,/Synthetic estimate fabric|Synthetic dynamic fabric|面料|辅料|成衣销售|成本加成|汇率/u);
         for(const sheet of workbook.worksheets){assert.equal(sheet.getCell('A6').value,'报价工价');assert.equal(sheet.getCell('A7').value,'客户确认工价');assert.equal(sheet.getCell('B7').value,null);}
         assert.deepEqual(workbook.worksheets.map(sheet=>sheet.getCell('B6').value),[10,22]);
+        assert.equal(workbook.worksheets[1].getCell('B8').value,"USD","Processing export retains the selected PV labor currency without FX");
       } else {
         assert.ok(cells.includes("Synthetic estimate fabric"));
         assert.ok(cells.includes("USD"),"Selected PV keeps its own USD labor snapshot");const sheet=workbook.worksheets[1],templateWorkbook=new ExcelJS.Workbook();await templateWorkbook.xlsx.load(readFileSync(resolve('templates/quote-export-template-v1.xlsx')));const layout=parseQuoteExportTemplateLayout(templateWorkbook.worksheets[0]);

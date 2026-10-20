@@ -1,4 +1,4 @@
-# 恢复点：旧Quote完整87项通过，待最终冻结复核；6C业务问题仍待答
+# 恢复点：旧Quote冻结87项通过，最终保留加工USD导出覆盖待重验
 
 2026-10-21；Goal active/no budget；main996dfedc12da3527343cd3ff2aa5eea35497e10e（独立API）。
 当前codex/server-quote-acceptance，输入干净4e10596329e5ac6418a76ccf05123de47df54545，root唯一writer。
@@ -21,10 +21,14 @@ Source workflow验收步骤及任务/共享状态/输入归档。无应用、SQL
 工作4已87/87（158141.1777ms，含阶段节点），0fail/cancel/skip，session25590可收尾核对。
 工作4运行期间只再补interruptedScope的catch先标unsafe再重抛，case/phase共用，CDP探针验证该catch；
 最后独立静态复审无新增阻断。需冻结后重跑该套件，不把工作4当最后源码验证。
-types/Node/全仓lint已通过；项目session54750、显式基线session65608仍运行，先核实handle/终态不重启。
+types/Node/全仓lint、927项目273651.1289ms和116显式基线265684.7854ms均通过，0失败/取消/跳过。
+冻结2e1b9efd835061015b538d5ba499a3d027ec29da再跑87/87（120270.9772ms，session64495终态待收尾确认），
+精确main996守卫PASS；scope JSON证明原应用/SQL/权限/237证据50能力不变、三归档Git blob逐字等于4e。
+其后只在加工XLSX保留原第二PV USD币种覆盖（不写隐藏FX/材料），加一条实际USD单元格断言，
+精确eslint已通过；新checkpoint后重验整套，不能挪用2e1b结果。
 两个截图helper已改每次唯一子目录，Source workflow追加该套件命令；不修改旧PNG/ID。
 
-下一步收齐现有结果，源码checkpoint后重跑最终完整浏览器与精确lint，完成项目/基线及main996 guard，
+下一步新源码checkpoint、最终完整浏览器/精确lint/main996 guard；已有927/116不因不消费这三个driver而盲重跑，
 有界安全交付/独立SHA/新CI，不建累计重复业务PR，不借4e绿灯。新源码build如执行需前端后Node串行，避免dist被清。
 6C两业务选择尚待人答，不以Git授权代答。无真实数据/来源/部署/merge/close/退役，保护全部旧环境/Browser。
 [输入4e10三摘要逐字归档](tasks/completed/2026-10-21-quote-acceptance-inputs/4e105963/)，旧日期/hash/限制完整沿链保存。
