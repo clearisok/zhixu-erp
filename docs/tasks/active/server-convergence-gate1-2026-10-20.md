@@ -37,3 +37,20 @@ final quality/baseline, independent code review and exact remote delivery remain
 The actual main application behavior is unchanged in this Gate. #120–#123 integration
 remains Gate 2. New Server closing CNY/USD is a future domain target, not a change to
 current Quote currencies or a claim that closing exists.
+
+## Isolated build transport diagnosis
+
+Checkpoint `23d18878af85e69fc753096913f445916d32c76a` first Docker build failed
+while `apk` streamed Python 3.14.8 from the default Alpine CDN: package extraction
+reported I/O error. A minimal new container reproduced it. Host C/D and Docker
+filesystem have ample free space; no matching kernel I/O error was observed.
+Separately downloaded Python APK passed `apk verify` and tar extraction, and its
+local-file installation succeeded; a subsequent network pycache fetch failed.
+Thus the evidence localizes failure to that package transfer path, not a proven
+disk fault. Its underlying CDN/proxy/TLS cause remains unresolved.
+
+An isolated HTTPS contrast using USTC (listed on the official Alpine mirrors page)
+installed the same Python 3.14.8 successfully, with signature/TLS checks intact.
+The Dockerfile now offers explicit build-only `ZHIXU_APK_MIRROR=ustc`; default
+behavior is unchanged, no host/daemon/proxy/trust configuration is altered.
+This is not evidence that the original channel permanently recovered.
