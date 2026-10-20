@@ -26,6 +26,7 @@ import { createSyntheticQuoteFixture } from "./quote-fixture.js";
 import { lockProductionResourceScope } from "../production-resources/snapshot-lock.js";
 import { previewSaleAdjustment } from "../sales-orders/sale-adjustment-service.js";
 import { startDisposablePostgres } from "./postgres-container.js";
+import { createProductionPlanClient, productionPlanFingerprint } from "../../features/production-scheduling/server/production-plan-client.js";
 
 const keys: PermissionKey[] = ["order.view", "schedule.view", "schedule.create", "schedule.edit", "ainuoke.sync", "settings.production_infrastructure.edit", "settings.production_group.edit", "settings.outsource_factory.edit"];
 test("Gate6B planning: empty schema, real PostgreSQL and trusted HTTP atomic commands", { timeout: 180000 }, async t => {
@@ -397,6 +398,32 @@ test("Gate6B planning: empty schema, real PostgreSQL and trusted HTTP atomic com
     const read = await request("/orders/" + id); assert.equal(read.status, 200, read.text); assert.equal(read.body.order.quantity, "70"); assert.deepEqual(read.body.order.colors, []); assert.equal(read.body.order.styleNo, "SYN-PROCESS-PLAN");
     const result = await save(await createIntent(id)); assert.equal(result.assignments[0].orderId, id);
     assert.equal(/confirmedLabor|laborPrice|salePrice|USD|CNY/u.test(JSON.stringify((await request("/orders/" + id)).body)), false);
+  });
+  await t.test("browser client previews and verifies actual API create, replay, edit, cancel and replan receipts", async () => {
+    const client = createProductionPlanClient(((path, init) => fetch(base + String(path), { ...init,
+      headers: { ...init?.headers, Cookie: editor.cookie, Origin: base } })) as typeof fetch);
+    const id = await order(), clientGroup = await resource("groups", { name: "客户端合成组", shortName: "客户端", enabled: true, productionSiteId: site.id, sortOrder: 3, remark: "" });
+    const intent = await createIntent(id, planData({ executorId: clientGroup.id })), previewed = await client.preview(intent);
+    const input = { requestId: randomUUID(), intent: previewed.intent, previewHash: previewed.previewHash };
+    assert.equal(await productionPlanFingerprint(input), planHash(input));
+    const created = await client.execute(input); assert.equal(created.status, "applied"); if (created.status !== "applied") assert.fail();
+    assert.equal(created.assignments[0].orderId, id); assert.equal((await client.execute(input)).replayed, true);
+    assert.equal((await client.receipt(input)).state, "known");
+    const first = created.assignments[0], next = { action: "update" as const, orderId: id, assignmentId: first.id, expectedVersion: first.version, expectedPlanVersion: created.orderVersions[0].version,
+      data: planData({ executorId: clientGroup.id, remark: "合成客户端修改" }), reason: "合成验证" };
+    const editPreview = await client.preview(next), edited = await client.execute({ requestId: randomUUID(), intent: editPreview.intent, previewHash: editPreview.previewHash });
+    assert.equal(edited.status, "applied"); if (edited.status !== "applied") assert.fail();
+    const queue = await request("/groups/" + clientGroup.id), replan = { action: "replan" as const, groupId: clientGroup.id, expectedQueueVersion: queue.body.version, anchorDate: "2027-01-11", orderedAssignmentIds: null };
+    const queuePreview = await client.preview(replan), replanned = await client.execute({ requestId: randomUUID(), intent: queuePreview.intent, previewHash: queuePreview.previewHash });
+    assert.equal(replanned.status, "applied"); if (replanned.status !== "applied") assert.fail();
+    // The original formula retains the saved first start. A new fallback anchor
+    // alone is a legitimate no-op, not a synthetic assignment revision.
+    assert.equal(replanned.changed, false); assert.deepEqual(replanned.assignments, []);
+    const live = edited.assignments[0], cancel = { action: "cancel" as const, orderId: id, assignmentId: live.id, expectedVersion: live.version, expectedPlanVersion: replanned.orderVersions[0].version, reason: "合成取消" };
+    const cancelPreview = await client.preview(cancel), cancelled = await client.execute({ requestId: randomUUID(), intent: cancelPreview.intent, previewHash: cancelPreview.previewHash });
+    assert.equal(cancelled.status, "applied"); if (cancelled.status === "applied") assert.equal(cancelled.assignments[0].status, "cancelled");
+    const staleInput = { ...input, requestId: randomUUID() }, rejected = await client.execute(staleInput);
+    assert.equal(rejected.status, "rejected"); assert.equal((await client.receipt(staleInput)).state, "known");
   });
   assert.deepEqual(errors.map(error => error.requestId), expectedErrorIds); assert.ok(errors.every(error => error.event === "unhandled_request_error" && error.errorType === "error"));
 });

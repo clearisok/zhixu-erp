@@ -1,0 +1,226 @@
+import { canonicalPlanJson } from "../../../server/production-scheduling/canonical-json";
+import { derivePlanDuration, parsePlanCommand, parsePlanIntent, planDecimal, type PlanCommand, type PlanIntent } from "../../../server/production-scheduling/contract";
+import type { Assignment } from "../../../server/production-scheduling/repository";
+import type { PlanOutcome, previewProductionPlan } from "../../../server/production-scheduling/service";
+import { productionResourceDate, productionResourceUuid } from "../../../server/production-resources/contract";
+import { ServerAuthError } from "../../server-auth/server-auth-client";
+
+export type { PlanCommand, PlanIntent, Assignment };
+export type PlanPreview = Awaited<ReturnType<typeof previewProductionPlan>>;
+export type VerifiedPlanOutcome = PlanOutcome & { payloadHash: string };
+export type PlanReceipt = { state: "known"; requestId: string; result: VerifiedPlanOutcome }
+  | { state: "pending" | "unknown"; requestId: string; result: null };
+type Lease = () => boolean;
+type PlanDraft = PlanPreview["changes"][number]["after"];
+type ResourceSummary = PlanPreview["resources"][string];
+
+const messages: Record<string, string> = {
+  invalid_production_plan_intent: "请检查执行方、数量、工期和日期。",
+  production_plans_unavailable: "生产排单暂时不可用，请重新读取。",
+  production_order_frozen: "这张订单已完成或取消，不能修改排单。",
+  historical_duplicate_order_read_only: "这张历史订单仅可查看，请使用当前有效订单。",
+  production_assignment_not_found: "这条排单不存在，请重新读取。",
+  sales_order_not_found: "这张订单不存在，请重新读取。",
+  production_plan_preview_changed: "订单、来源或队列已变化，请重新预览后确认。",
+  production_order_plan_version_conflict: "这张订单的排单已更新，请重新读取。",
+  production_assignment_version_conflict: "这条排单已更新或取消，请重新读取。",
+  production_queue_version_conflict: "生产组队列已更新，请重新读取。",
+  production_queue_members_changed: "队列成员已变化，请重新读取完整队列。",
+  production_plan_request_conflict: "原请求内容不一致，请先核对原操作。",
+  production_order_color_changed: "订单颜色已变化，请重新选择。",
+  order_color_identity_ambiguous: "来源颜色无法唯一识别，请先核对。",
+  production_resources_disabled: "所选生产组、地点或日历已停用，请重新选择。",
+  production_factory_disabled: "所选外发厂已停用，请重新选择。",
+  production_schedule_scan_limit: "排期超出本次计算范围，请缩小范围。",
+  production_schedule_duration_too_long: "工期超出支持范围，请检查数量和日产量。",
+  production_queue_limit: "这个生产组的队列过长，请缩小范围。",
+  production_order_plan_limit: "这张订单的排单过多，请先核对。",
+  plan_client_unavailable: "当前浏览器无法安全核对请求，请使用受支持的安全访问入口。",
+  plan_response_invalid: "返回的排单资料无法安全核对，已保留原请求。",
+  plan_receipt_mismatch: "核对结果与原请求不一致，已保留原请求。",
+  plan_owner_changed: "登录状态已变化；原请求仍保留，请重新读取后核对。",
+  plan_outcome_unknown: "保存结果尚未确认，请核对原请求；不会自动重试。",
+  plan_known_rejection: "本次排单未应用，请核对资料后重新预览。",
+};
+export class ProductionPlanError extends ServerAuthError {
+  constructor(status: number, code: string, readonly knownNotApplied = false) { super(status, code, messages[code]); }
+}
+const invalid = (): never => { throw new ProductionPlanError(502, "plan_response_invalid"); };
+const mismatch = (): never => { throw new ProductionPlanError(502, "plan_receipt_mismatch"); };
+const assertLease = (current: Lease) => { if (!current()) throw new ProductionPlanError(0, "plan_owner_changed"); };
+function object(value: unknown): Record<string, unknown> { if (!value || typeof value !== "object" || Array.isArray(value)) return invalid(); return value as Record<string, unknown>; }
+function integer(value: unknown, min = 0, max = Number.MAX_SAFE_INTEGER): number { if (!Number.isSafeInteger(value) || (value as number) < min || (value as number) > max) return invalid(); return value as number; }
+function text(value: unknown, max = 2000): string { if (typeof value !== "string" || value.length > max || value.includes("\0")) return invalid(); return value; }
+function uuid(value: unknown) { try { return productionResourceUuid(value); } catch { return invalid(); } }
+function date(value: unknown) { try { return productionResourceDate(value); } catch { return invalid(); } }
+function decimal(value: unknown, positive = false) { try { return planDecimal(value, positive); } catch { return invalid(); } }
+function hash(value: unknown): string { if (typeof value !== "string" || !/^[a-f0-9]{64}$/u.test(value)) return invalid(); return value; }
+function boolean(value: unknown): boolean { if (typeof value !== "boolean") return invalid(); return value; }
+function timestamp(value: unknown): string { const result = text(value, 30); if (!Number.isFinite(Date.parse(result)) || new Date(result).toISOString() !== result) return invalid(); return result; }
+function array(value: unknown, max = 500): unknown[] { if (!Array.isArray(value) || value.length > max) return invalid(); return value; }
+function unique<T>(items: T[], id: (item: T) => string): T[] { if (new Set(items.map(id)).size !== items.length) return invalid(); return items; }
+
+export function canonicalProductionPlanCommand(value: unknown): PlanCommand {
+  try { return parsePlanCommand(value); } catch { throw new ProductionPlanError(400, "invalid_production_plan_intent", true); }
+}
+export async function productionPlanFingerprint(value: PlanCommand): Promise<string> {
+  const command = canonicalProductionPlanCommand(value);
+  if (!globalThis.crypto?.subtle) throw new ProductionPlanError(0, "plan_client_unavailable");
+  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonicalPlanJson(command)));
+  return Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, "0")).join("");
+}
+function draft(value: unknown, newIdentity = false): PlanDraft {
+  const raw = object(value), executionType = raw.executionType, dateMode = raw.dateMode, durationMode = raw.durationMode;
+  if (!["internal", "outsource"].includes(executionType as string) || !["auto_queue", "manual_fixed"].includes(dateMode as string)
+    || !["average_daily_output", "workdays"].includes(durationMode as string) || !["planned", "cancelled"].includes(raw.status as string)) return invalid();
+  const productionGroupId = raw.productionGroupId === null ? null : uuid(raw.productionGroupId);
+  const outsourceFactoryId = raw.outsourceFactoryId === null ? null : uuid(raw.outsourceFactoryId);
+  const colorId = raw.colorId === null ? null : uuid(raw.colorId), colorNameSnapshot = raw.colorNameSnapshot === null ? null : text(raw.colorNameSnapshot);
+  if ((colorId === null) !== (colorNameSnapshot === null)
+    || (executionType === "internal" ? !productionGroupId || outsourceFactoryId !== null : !outsourceFactoryId || productionGroupId !== null || dateMode !== "manual_fixed")) return invalid();
+  const plannedQuantity = decimal(raw.plannedQuantity), dailyOutputSnapshot = decimal(raw.dailyOutputSnapshot, durationMode === "average_daily_output");
+  const requiredWorkdays = integer(raw.requiredWorkdays, 1, 36600), plannedStartDate = date(raw.plannedStartDate), plannedEndDate = date(raw.plannedEndDate);
+  const firstProductionDate = raw.firstProductionDate === null ? null : date(raw.firstProductionDate);
+  const nonWorkingDayCount = raw.nonWorkingDayCount === null ? null : integer(raw.nonWorkingDayCount);
+  const queueSequence = raw.queueSequence === null ? null : integer(raw.queueSequence, 1);
+  if (plannedEndDate < plannedStartDate || (firstProductionDate !== null && (firstProductionDate < plannedStartDate || firstProductionDate > plannedEndDate))
+    || (dateMode === "manual_fixed" ? firstProductionDate !== null || nonWorkingDayCount !== null : firstProductionDate === null || nonWorkingDayCount === null)
+    || (executionType === "internal" ? queueSequence === null : queueSequence !== null)) return invalid();
+  const derived = derivePlanDuration({ plannedQuantity, duration: durationMode === "workdays" ? { mode: "workdays", workdays: requiredWorkdays } : { mode: "average_daily_output", dailyOutput: dailyOutputSnapshot } });
+  if (derived.requiredWorkdays !== requiredWorkdays || derived.dailyOutputSnapshot !== dailyOutputSnapshot) return invalid();
+  return { id: raw.id === null && newIdentity ? null : uuid(raw.id), orderId: uuid(raw.orderId), version: integer(raw.version, 1),
+    executionType: executionType as PlanDraft["executionType"], productionGroupId, outsourceFactoryId, colorId, colorNameSnapshot,
+    plannedQuantity, durationMode: durationMode as PlanDraft["durationMode"], dailyOutputSnapshot, requiredWorkdays,
+    dateMode: dateMode as PlanDraft["dateMode"], plannedStartDate, plannedEndDate, firstProductionDate, nonWorkingDayCount, queueSequence,
+    resourceSnapshotHash: hash(raw.resourceSnapshotHash), status: raw.status as PlanDraft["status"], remark: text(raw.remark) };
+}
+function assignment(value: unknown): Assignment {
+  const raw = object(value), item = draft(raw);
+  const actor = (v: unknown) => { if (typeof v !== "string" || !/^[1-9]\d{0,18}$/u.test(v)) return invalid(); return v; };
+  return { ...item, id: uuid(item.id), createdBy: actor(raw.createdBy), updatedBy: actor(raw.updatedBy), createdAt: timestamp(raw.createdAt), updatedAt: timestamp(raw.updatedAt) };
+}
+function summary(value: unknown): ResourceSummary {
+  const raw = object(value), reference = (v: unknown) => { const row = object(v); return { id: uuid(row.id), name: text(row.name), version: integer(row.version, 1) }; };
+  if (raw.executionType === "internal") return { executionType: "internal", group: reference(raw.group), site: reference(raw.site), calendar: reference(raw.calendar) };
+  if (raw.executionType === "outsource") return { executionType: "outsource", factory: reference(raw.factory) };
+  return invalid();
+}
+function versions(value: unknown, key: "orderId" | "groupId") {
+  return unique(array(value).map(v => { const raw = object(v); return { id: uuid(raw[key]), version: integer(raw.version) }; }), row => row.id);
+}
+function matchesData(row: PlanDraft, intent: Exclude<PlanIntent, { action: "replan" | "cancel" }>) {
+  const data = intent.data, expected = derivePlanDuration(data);
+  return row.orderId === intent.orderId && row.executionType === data.executionType && (row.productionGroupId ?? row.outsourceFactoryId) === data.executorId
+    && row.colorId === data.colorId && row.plannedQuantity === data.plannedQuantity && row.durationMode === data.duration.mode
+    && row.dailyOutputSnapshot === expected.dailyOutputSnapshot && row.requiredWorkdays === expected.requiredWorkdays && row.dateMode === data.dates.mode
+    && (data.dates.mode !== "manual_fixed" || (row.plannedStartDate === data.dates.startDate && row.plannedEndDate === data.dates.endDate)) && row.remark === data.remark;
+}
+function projectPreview(value: unknown, intent: PlanIntent): PlanPreview {
+  const raw = object(value); let responseIntent: PlanIntent;
+  try { responseIntent = parsePlanIntent(raw.intent); } catch { return invalid(); }
+  if (canonicalPlanJson(responseIntent) !== canonicalPlanJson(intent)) return mismatch();
+  const resources = Object.fromEntries(Object.entries(object(raw.resources)).map(([key, val]) => [hash(key), summary(val)]));
+  const changes = array(raw.changes).map(value => {
+    const change = object(value), before = change.before === null ? null : draft(change.before), after = draft(change.after, intent.action === "create");
+    if ((!before && intent.action !== "create") || (before && (before.id !== after.id || before.orderId !== after.orderId || before.version + 1 !== after.version))) return invalid();
+    for (const row of [before, after]) if (row) {
+      const fact = resources[row.resourceSnapshotHash];
+      if (!fact || fact.executionType !== row.executionType || (fact.executionType === "internal" ? fact.group?.id !== row.productionGroupId : fact.factory?.id !== row.outsourceFactoryId)) return invalid();
+    }
+    if (intent.action === "replan") { if (after.productionGroupId !== intent.groupId || after.status !== "planned" || (intent.orderedAssignmentIds && !intent.orderedAssignmentIds.includes(after.id!))) return mismatch(); }
+    else if (after.orderId !== intent.orderId || (intent.action === "create" ? before !== null || after.id !== null || after.version !== 1 : after.id !== intent.assignmentId || before?.version !== intent.expectedVersion)) return mismatch();
+    if (intent.action === "cancel" ? after.status !== "cancelled" : after.status !== "planned") return mismatch();
+    if ((intent.action === "create" || intent.action === "update") && !matchesData(after, intent)) return mismatch();
+    return { before, after };
+  });
+  unique(changes, change => change.after.id ?? "new");
+  if ((intent.action === "create" || intent.action === "cancel") && changes.length !== 1 || intent.action === "update" && changes.length > 1) return mismatch();
+  const warningKinds = ["protected_overlap", "protected_end_missing", "queue_replan_available", "historical_color_needs_review", "order_over_assigned", "color_over_assigned"];
+  const warnings = array(raw.warnings, 2000).map(value => { const row = object(value); if (!warningKinds.includes(row.kind as string)) return invalid();
+    return { kind: row.kind as string, assignmentId: row.assignmentId === null ? null : uuid(row.assignmentId),
+      ...(Object.hasOwn(row, "orderId") ? { orderId: uuid(row.orderId) } : {}), ...(Object.hasOwn(row, "previousEndDate") ? { previousEndDate: row.previousEndDate === null ? null : date(row.previousEndDate) } : {}) }; });
+  const orderVersions = versions(raw.orderVersions, "orderId").map(row => ({ orderId: row.id, version: row.version }));
+  const queueVersions = versions(raw.queueVersions, "groupId").map(row => ({ groupId: row.id, version: row.version }));
+  if (changes.some(change => !orderVersions.some(row => row.orderId === change.after.orderId)
+    || [change.before, change.after].some(item => item?.productionGroupId && !queueVersions.some(row => row.groupId === item.productionGroupId)))) return mismatch();
+  if (intent.action === "replan" ? queueVersions.find(row => row.groupId === intent.groupId)?.version !== intent.expectedQueueVersion
+    : orderVersions.length !== 1 || orderVersions[0].orderId !== intent.orderId || orderVersions[0].version !== intent.expectedPlanVersion) return mismatch();
+  return { intent: responseIntent, previewHash: hash(raw.previewHash), changes, resources, warnings, orderVersions, queueVersions };
+}
+function projectOutcome(value: unknown, command: PlanCommand, fingerprint: string): VerifiedPlanOutcome {
+  const raw = object(value); if (raw.requestId !== command.requestId || raw.payloadHash !== fingerprint) return mismatch();
+  if (raw.status === "rejected") {
+    const error = object(raw.error); if (![404, 409].includes(error.status as number) || typeof error.code !== "string") return invalid();
+    const code = Object.hasOwn(messages, error.code) ? error.code : "plan_known_rejection";
+    return { status: "rejected", requestId: command.requestId, payloadHash: fingerprint, error: { status: error.status as number, code } };
+  }
+  if (raw.status !== "applied") return invalid();
+  const changed = boolean(raw.changed), assignments = unique(array(raw.assignments).map(assignment), row => row.id), intent = command.intent;
+  if (changed !== (assignments.length > 0) || (changed ? typeof raw.operationId !== "string" || !raw.operationId.startsWith("operation-") || raw.operationId !== "operation-" + uuid(raw.operationId.slice(10)) : raw.operationId !== null)) return invalid();
+  if (intent.action === "replan") {
+    if (assignments.some(row => row.productionGroupId !== intent.groupId || row.status !== "planned" || (intent.orderedAssignmentIds && !intent.orderedAssignmentIds.includes(row.id)))) return mismatch();
+  } else {
+    if ((intent.action === "create" || intent.action === "cancel") && assignments.length !== 1 || assignments.length > 1) return mismatch();
+    const row = assignments[0];
+    if (row && (row.orderId !== intent.orderId || row.version !== intent.expectedVersion + 1 || (intent.action !== "create" && row.id !== intent.assignmentId)
+      || (intent.action === "cancel" ? row.status !== "cancelled" : row.status !== "planned" || !matchesData(row, intent)))) return mismatch();
+  }
+  const orderVersions = versions(raw.orderVersions, "orderId").map(row => ({ orderId: row.id, version: row.version }));
+  const queueVersions = versions(raw.queueVersions, "groupId").map(row => ({ groupId: row.id, version: row.version }));
+  if (assignments.some(item => !orderVersions.some(row => row.orderId === item.orderId)
+    || item.productionGroupId && !queueVersions.some(row => row.groupId === item.productionGroupId))) return mismatch();
+  if (intent.action === "replan" ? queueVersions.find(row => row.groupId === intent.groupId)?.version !== intent.expectedQueueVersion + Number(changed)
+    : orderVersions.length !== 1 || orderVersions[0].orderId !== intent.orderId || orderVersions[0].version !== intent.expectedPlanVersion + Number(changed)) return mismatch();
+  return { requestId: command.requestId, payloadHash: fingerprint, status: "applied", changed, assignments, orderVersions, queueVersions, operationId: raw.operationId as string | null };
+}
+
+export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
+  const prefix = "/api/v1/production-scheduling", maxBytes = 1024 * 1024;
+  async function request(path: string, current: Lease, body?: PlanIntent | PlanCommand) {
+    assertLease(current); let response: Response;
+    try { response = await fetchImpl(prefix + path, { method: body ? "POST" : "GET", credentials: "include", cache: "no-store",
+      ...(body ? { headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1" }, body: JSON.stringify(body) } : {}) }); }
+    catch { assertLease(current); throw new ProductionPlanError(0, "plan_outcome_unknown"); }
+    assertLease(current);
+    let data: unknown;
+    try {
+      if (!response.body) return invalid();
+      const reader = response.body.getReader(), decoder = new TextDecoder("utf-8", { fatal: true }); let bytes = 0, json = "";
+      try { for (;;) { const chunk = await reader.read(); assertLease(current); if (chunk.done) break; bytes += chunk.value.byteLength;
+        if (bytes > maxBytes) { await reader.cancel(); return invalid(); } json += decoder.decode(chunk.value, { stream: true }); }
+        json += decoder.decode(); data = JSON.parse(json);
+      } finally { reader.releaseLock(); }
+    } catch (error) { assertLease(current); if (error instanceof ProductionPlanError) throw error; throw new ProductionPlanError(response.status, "plan_outcome_unknown"); }
+    assertLease(current); return { response, data: object(data) };
+  }
+  function httpError(response: Response, data: Record<string, unknown>, command = false): never {
+    const raw = data.error && typeof data.error === "object" ? data.error as Record<string, unknown> : {};
+    const code = response.status === 401 ? "authentication_required" : response.status === 403 ? "permission_denied"
+      : typeof raw.code === "string" && Object.hasOwn(messages, raw.code) ? raw.code : "plan_outcome_unknown";
+    throw new ProductionPlanError(response.status, code, command && response.status === 400 && code === "invalid_production_plan_intent");
+  }
+  return {
+    async preview(value: PlanIntent, current: Lease = () => true): Promise<PlanPreview> {
+      let intent: PlanIntent; try { intent = parsePlanIntent(value); } catch { throw new ProductionPlanError(400, "invalid_production_plan_intent", true); }
+      const { response, data } = await request("/preview", current, intent); if (!response.ok) return httpError(response, data);
+      return projectPreview(data, intent);
+    },
+    async execute(value: PlanCommand, current: Lease = () => true) {
+      assertLease(current); const command = canonicalProductionPlanCommand(value), fingerprint = await productionPlanFingerprint(command); assertLease(current);
+      const { response, data } = await request("/commands", current, command);
+      if (!response.ok && data.status !== "rejected") return httpError(response, data, true);
+      const outcome = projectOutcome(data, command, fingerprint);
+      if (typeof data.replayed !== "boolean" || (outcome.status === "applied" ? !response.ok : response.status !== outcome.error.status)) return invalid();
+      return { ...outcome, replayed: data.replayed };
+    },
+    async receipt(value: PlanCommand, current: Lease = () => true): Promise<PlanReceipt> {
+      assertLease(current); const command = canonicalProductionPlanCommand(value), fingerprint = await productionPlanFingerprint(command); assertLease(current);
+      const { response, data } = await request(`/commands/${command.requestId}`, current); if (!response.ok) return httpError(response, data);
+      if (data.requestId !== command.requestId) return mismatch();
+      if (data.state === "known") return { state: "known", requestId: command.requestId, result: projectOutcome(data.result, command, fingerprint) };
+      if (!["pending", "unknown"].includes(data.state as string) || data.result !== null) return invalid();
+      return { state: data.state as "pending" | "unknown", requestId: command.requestId, result: null };
+    },
+  };
+}
+export const productionPlanClient = createProductionPlanClient();

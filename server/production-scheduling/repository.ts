@@ -6,12 +6,11 @@ import { effectiveOrderJoins, sourceOwnerSql } from "../sales-orders/effective-o
 import { readStableOrderColors } from "../sales-orders/color-identities.js";
 import { readProductionResourceSnapshot, type ProductionResource } from "../production-resources/service.js";
 import { SCHEDULE_PLANNING_LIMITS } from "./planning-preview.js";
+import { canonicalPlanJson } from "./canonical-json.js";
 
 export const planFail = (status: number, code: string): never => { throw new HttpError(status, code, code); };
 export function planHash(value: unknown): string {
-  const canonical = (v: unknown): unknown => Array.isArray(v) ? v.map(canonical) : v && typeof v === "object"
-    ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([key, item]) => [key, canonical(item)])) : v;
-  return createHash("sha256").update(JSON.stringify(canonical(value))).digest("hex");
+  return createHash("sha256").update(canonicalPlanJson(value)).digest("hex");
 }
 export type ResourceFacts = { schemaVersion: "production-resource.v1"; executionType: "internal";
   group: Extract<ProductionResource, { kind: "groups" }>; site: Extract<ProductionResource, { kind: "sites" }>; calendar: Extract<ProductionResource, { kind: "calendars" }>

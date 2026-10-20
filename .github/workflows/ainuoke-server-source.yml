@@ -31,6 +31,7 @@ jobs:
           npx --no-install tsx --test --test-concurrency=1 server/production-resources/contract.test.ts server/integration/production-resources.integration.test.ts
           npx --no-install tsx --test --test-concurrency=1 server/production-scheduling/contract.test.ts server/production-scheduling/planning-preview.test.ts server/integration/production-scheduling.integration.test.ts server/integration/production-scheduling-upgrade.integration.test.ts
           npx --no-install tsx --test features/operations-settings/server/__tests__/*.test.ts
+          npx --no-install tsx --test features/production-scheduling/server/__tests__/*.test.ts
           npm run test:ainuoke-server-source
           npm run test:order-source-evidence
           npx --no-install tsx --test --test-concurrency=1 features/quote-center/server/__tests__/quote-creation-contract.test.ts server/integration/quote-order-context.integration.test.ts

@@ -161,3 +161,22 @@ e5三CI成功不挪作后台新结果，不重复调度或建累计PR。此时�
 不混用两种hash。最终清单再次实际通过116/116发布基线（166075.0818ms）及main996源码/证据守卫；
 全types/Node编译与实际app导入亦重验通过。当前增量仅docs，应用/SQL/测试/CI与7eb完全一致。
 最终HEAD随后由Git解析；远端/三个新CI仍须实际核实，不制造自证提交循环。
+
+## 6B可信客户端准备（343a3ec1输入）
+
+本阶段baseline为干净`codex/server-production-planning`/`343a3ec10bb7d6a8fe2b0d79ff1b4e0b4be51741`，
+无继承用户dirty。343a由既有工具一次push并独立API精确核实；只为该HEAD各调度一次Source39434740100、
+Team39434744552、Baseline39434752778，目前运行/排队，不借e5结果或重启live作业。main独立API仍996，#120–127原头保持。
+三输入摘要逐字归档`planning-client-343a3ec1/`。本切片只准备可信preview/command/receipt客户端、actor范围的tab未决请求、
+精确响应投影与测试，并抽取原planHash的相同canonical字节供浏览器WebCrypto共用；不改hash协议或SQL。
+不会开放路由、挂载旧Browser仓库、生成UI、写实际完成/金额或升级任何用户环境。页面接线为后续阶段。
+
+343a三项CI随后独立核实全部completed/success，未重复调度。新客户端工作源码实际通过15项客户端/outbox，
+64项契约/纯计算/PG+HTTP/升级（16519.5617ms）。首轮62pass/2fail含新child及parent，原因是测试误以为
+新fallback anchor必产生重排版本；原内核按已批准规则保留首条保存日期，合法no-op返回空变更。测试改为明确验证no-op，
+取消继续使用已保存版本；未更改排期算法或删除断言。原失败日志保留。随后补缺订单/组版本及流式读取中lease失效负例，
+15重验（536.6321ms）通过。全部types、Node、精确实现/测试lint及编译app实际导入通过。
+
+可选独立bundle起初因esbuild包未安装而未运行，未安装依赖；改用仓库已锁定Vite，三个浏览器产物成功在内存生成，
+无Node/PG执行或Browser仓库导入。无新页面/像素或运行升级声明。独立只读复审无阻塞，后续UI必须捕获session/epoch lease，
+不能用仅userId回调冒称A→B→A页面验证。下面先独立源码checkpoint，再冻结回归与有界交付。
