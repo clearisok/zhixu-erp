@@ -1,9 +1,9 @@
-# 恢复点：Server 收敛 Gate 2
+# 恢复点：Server 收敛 Gate 3
 
-main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；分支 `codex/server-pr-integration`；初始 clean，先 FF 到已核实 #125/add2d690，再执行 #120/57daca3d 的本地保留历史合并。当前所有增量均属于 Gate 2；没有用户 dirty。唯一实现 owner 维护共享文档和清单，reviewer 只读。
+main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；分支 `codex/server-navigation-continuity` 从该main建立并显式FF到组合b4c47f1356205e1f064f714ce1fb51efb58e2823，初始clean、无用户dirty。唯一实现owner7bf3维护共享文件，reviewer只读。Gate2原摘要已逐字归档。
 
-当前恢复：#120 合并 eb3a2833、门禁修复 a12825ef、#123 合并 `7eb63602cdb51c043414deabe4d3afed59a1e72d`、第二节点冻结 `de73e611083d8cdc42b4447fa7ce67d93fd94095`。220证据完整；920项目（含116基线）、434后端/集成、52浏览器、112客户端、类型/Node/lint、两种构建、精确996门禁通过，独立复审无新阻塞。Gate2本地工程PASS，远端组合CI未执行。状态收口后，从main996单独提取门禁三文件交付最小工具PR；当前整合分支只作验证引用，不新建重复累计业务PR。原120–125本阶段不合并/改头。仅允许点名三个验收workflow，不触发生产部署workflow。详见Gate2记录。
+Gate2工程PASS，组合b4c47f13及工具956921f6各一次上传、GitHub API已独立核精确SHA。工具唯一草稿#126，三个PR检查进行中；组合仅验证引用，dispatch runs39359434158/source、39359438237/team-access、39359442064/baseline，须核每个run.head_sha及最终结果。不得触发生产workflow。工具矛盾分类仍保留，未重复推送，不能称网络根因已修复。
 
-Gate1已交付唯一草稿 #125，独立API证明完整SHA add2d690a9c3afe6ec1a2633551eaef7dee72ce1，三项 Hosted CI 通过；工具错误状态被保留，未重推。本次一次上传授权已执行，勿重复推送该提交。持久空目标 https://localhost:62426 使用镜像8175f628与固定ops d084a586，62业务表0行，1技术管理员，29schema。当前源码继续开发不会改变该目标。证书未安装系统信任。
+Gate3尚无应用改动。先写/运行实际构建导航回归验证当前.rsc MIME/Cache及Shell连续性，再最小修复；保护dirty导航/退出、身份失效、权限和Browser隔离。源码静态读已发现.rsc未列Content-Type，身份checking/error在Shell外；不能将推断冒充完整复现。使用临时PG/Chromium，不动62426/50426/3001。详见Gate3任务。
 
-保留3001/50426/59069及所有旧样本，Gate2只用合成副本与一次性库组合验收；不自动合并、部署、改真实账号/业务库或新来源读取。未来Server关账销售CNY、工价USD，不自动换汇。原状态逐字归档于 docs/tasks/completed/2026-10-20-gate2-inputs/。
+用户已明确“以后都自动授权不要再问我”，作为批准工程内Git恢复/PR/CI及必要修复的持续授权，已记入git-delivery-resilience；后续不再逐次请求上传许可。精确SHA、bounded attempts、独立核实、工作树与secrets保护仍保持；不扩自动合并/正式部署/真实数据/新来源/资产删除或共享TLS配置。Gate1空目标仍62426/旧镜像8175、固定ops d084；保留3001/50426/59069，未来Server关账销售CNY/工价USD，无自动换汇。
