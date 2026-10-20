@@ -39,14 +39,25 @@ update、restore、ignore 五种命令均返回200、改变raw Estimate及Quote�
 原成功例保持。随后只补上述三行产品保护，定向PG/HTTP与单元28/28（12302.2841ms）通过。
 首次typecheck检出新增测试对QuoteResponseRecord union未缩窄；补运行时assert.ok缩窄后，
 类型、Node编译及全仓lint通过。未改产品类型或放宽断言；下一步冻结完整定向与项目/基线复核，
-当前不称整个切片最终PASS。
+源码冻结 `8ce227d05d9719653638493386693af819ef6827`；其后仅CI接线checkpoint
+`db037290da1e74fbb67d3de190af0059c68419a3` 未改产品。该冻结实际结果：
+定向28/28（17964.9544ms）、全项目927/927（256163.0327ms）、显式基线116/116
+（247111.8648ms）、完整Quote Chromium87/87（134483.4707ms），全部0失败/取消/跳过。
+前端仍919643，后台为新保护源码；Node实际编译app导入PASS，不冒称新前端构建或部署。
+独立静态复审截至8ce未发现阻断，确认默认类型/历史边界、raw保护和三归档逐字一致；
+reviewer没有代跑测试。上述为本地工程结果，最终main996守卫/远端交付及新CI仍分开核实。
 一次性库探针原JSON及红/后续验证日志在ignored outputs保留，不上传raw业务数据。
 
 ## Delivery and boundaries
 
 输入933d已一次上传并独立API exact；工具STOP标签与remoteSha矛盾的原回执和独立证明均保留，
-没有再次push，不宣称永久网络修复。仅三项验收CI各调度一次：Source39472329558仍运行，
-Team39472336074与Baseline39472342830已success、同完整SHA、attempt1；后续结果须独立核实。
+没有再次push，不宣称永久网络修复。仅三项验收CI各调度一次：Source39472329558实际失败，
+Team39472336074与Baseline39472342830已success，同完整SHA、attempt1；未重启任何旧run。
+Source停在原quote-order-context-ui首case目标按钮文案超时，后六case通过，新Quote87和Python未执行。
+本机自然8/8（19072.6607ms）未复现，不能据此说CI已修；受控最后一个真实候选GET释放，
+按钮首次启用时仅点击一次，实际仍留订单页并出现父导航拦截，且创建POST为0。
+这是已复现的同步窗口；原CI没有地址/提示证据，不能确定该次CI根因完全相同。后续独立UI修复，
+不混入本切片三行API保护或借延长超时/重复点击消除失败。
 本切片尚未交付。#120–127原头不动，不创建重复累计业务PR、不merge/close/deploy。
 不安装依赖、不变共享Git/TLS/proxy/auth，不升级3001/50426/59069/62426或旧卷/工作树/Browser，
 不改真实账号/业务库，不新增艾诺科读取/绑定/激活/调度或退役。Goal保持active。
