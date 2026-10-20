@@ -1,4 +1,4 @@
-# 当前状态：来源导航同步修复，待精确构建验收
+# 当前状态：来源导航同步本地验收通过，准备新CI
 
 2026-10-21；Goal active；main独立API为996dfedc12da3527343cd3ff2aa5eea35497e10e。
 codex/server-source-navigation-guard，输入干净37f9fb78c425946376b0533b362568253fd23db1，root唯一writer。
@@ -15,7 +15,10 @@ Baseline39472342830 success，同SHA/attempt1，不重启旧run。
 CI缺当时页面证据，不确定完全同根因。产品仅将既有onGuardChange镜像由passive改layout，
 不删除dirty/pending、无导航permit/点击重试；V1精确单文件记录，无布局/文案/断点变化。
 正式新断言涵盖1440/390首次启用单击、精确sourceOrderId且零创建，以及原六尺寸/回执/ABA/401负控。
-当前修复后的构建、浏览器、质量、发布守卫及新CI尚待，不冒称本轮完成。
+最终源be7fe816cb47148afbd70f0d16454f13334cfd1e显式Server构建/三build-info、串行Node/app导入、TS/lint通过。
+实际41浏览器（80300.2467ms）/927项目（231948.8273ms）/116基线（222060.1008ms）全过，0失败/取消/跳过。
+独立只读复审无阻断；root查看390/1440截图无新布局问题，非pixel diff或用户接受。
+最终文档HEAD/main守卫、远端完整SHA和新CI尚待，不借旧绿灯。
 
 237证据/50能力和旧PNG保持；#120–127原头不动，不建重复累计业务PR，不merge/close/deploy。
 持续安全Git工程授权不逐次问，不改共享Git/TLS/proxy/auth、不安装依赖。
