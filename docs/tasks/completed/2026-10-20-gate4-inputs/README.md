@@ -13,3 +13,8 @@ git-tool-37bd0e1e preserves the three incoming shared summaries byte-for-byte fr
 summaries remain authoritative; the incoming PR retains its original ancestry.
 Its source39379407326/team39379407265/baseline39379407269 are independently
 confirmed exact37 completed/success; their earlier pending text remains history.
+
+readchain-4bfa6a75 preserves the three root state blobs byte-for-byte from
+4bfa6a75371ad1ea40562c57920908df8ea9d2f1 before4B. Its pending final guard text
+is a historical checkpoint: that exact guard subsequently passed, while two
+bounded uploads failed and independent matching-ref reads proved no remote branch.

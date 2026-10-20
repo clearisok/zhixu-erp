@@ -155,3 +155,15 @@ No fieldName/compareType was guessed, and 6087050 was not business-read in this 
 No PostgreSQL schema/table/identity model changed. Existing `sales_orders` UUID and immutable `sales_order_source_links` remain authoritative. Browser Order Center still uses the Browser Repository.
 
 The Phase 2B2.3 fresh Preview is complete: 511 BillNo queries yielded 505 usable, 0 missing and 6 invalid candidates; all 511 aggregates passed the disposable PostgreSQL service path. A real bootstrap still requires separate explicit authorization. Browser cutover remains a separate later Gate.
+## 2026-10-20 Gate4B saved size display candidate
+
+The formal detail now has a default-closed saved color-size disclosure in the
+existing note position. It consumes only the4A allowlisted DTO, with no upstream
+read or write. Slot order/gaps/repeated labels, null, pending quantity and0 remain
+separate; recorded business matrix anomalies are explained without summing or
+repairing quantities. Small decimal values are not rounded to0 for display.
+The saved batch timestamp is explicitly not a per-color fetch or freshness proof.
+Processing orders have no invented Ainuoke size data. This does not change the
+source adapter, identity, evidence limits or approval of any live source scope.
+Actual browser acceptance and candidate source are tracked in the Gate4 task;
+no new runtime or human-accepted status is implied.

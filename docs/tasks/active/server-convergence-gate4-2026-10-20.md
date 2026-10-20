@@ -187,3 +187,53 @@ manifest blobs remaina1879b70. No unresolved conflict or unowned edit remains.
 Types/lint/exact guard are recorded in the merge logs before commit. Tool tests53
 and prior baseline116 bind unchanged source/test blobs; no synthetic coverage is
 represented as a runtime upgrade or real source activation.
+
+## 4A exact delivery state and 4B phase baseline
+
+Recovery baseline2026-10-20: branch codex/server-order-source-readchain,
+HEAD4bfa6a75371ad1ea40562c57920908df8ea9d2f1, worktree/index clean;
+no inherited dirty or merge in progress. Final4A exact guard passed. Two bounded
+Git attempts (configured-proxy OpenSSL/HTTP1.1, then default transport) each made
+one normal push and failed uncertain transport. Both subsequent independent
+matching-refs reads returned an empty array; the branch was absent at the last
+06:40UTC observation. No remote delivery or4A CI is claimed. Raw traces/secrets
+were not printed; shared config/auth/trust unchanged. Receipts remain in ignored
+outputs/server-convergence-g4a-delivery.json and
+outputs/server-convergence-g4a-default-recovery.json. Do not repeat unchanged
+failed channels. Standing user recovery authority remains, without new approval.
+
+4B begins from this clean exact baseline. Independent existing read-only reviewer
+confirmed the explicitly approved narrow V1 scope: restore saved size display at
+the current unwired-note position, default closed; lazy readonly DeliveryPlan
+inside existing low-frequency technical details. No primary card/table-column,
+color-price component, navigation, density, matrix editor, source refresh or
+writer changes. The user has not yet accepted these new rendered details.
+
+### 4B source candidate and initial verification
+
+The default-closed size disclosure reuses the existing native summary/table CSS
+at the old unwired-note position. The existing source/technical fold owns its
+expanded state and lazy DeliveryPlan read; remounting an order/identity cannot
+carry an expanded request into a new closed disclosure. A layout-owned lease
+rejects old replies before data or session invalidation.403 clears facts locally;
+401 invalidates only its current committed identity. Explicit retry is GET-only.
+No source refresh, protected editor, new navigation/columns or price change.
+
+Independent static review found size toLocaleString would round0.0001 to0;
+String preserves the already saved numeric value and new browser assertions
+include0/0.0001/1.23456/null. A test that prohibited the word 'total' conflicted
+with the non-recalculation explanation; it now forbids actual total rows/tfoot
+while retaining technical-field negatives. The immutable default-row flag is
+labelled 'initial default row', distinct from current collection ownership.
+
+The original a187 full-SHA build was actually opened for before evidence at1440
+and390. Functional checks passed, but initial cleanup hit Windows EBUSY on its
+private Chromium lockfile. Graceful Browser.close plus bounded owned-temp removal
+fixed cleanup; the before recheck passed2/2 (35157ms), with new PNGs/geometry in
+ignored outputs/saved-order-sources-ui/before-a1879b70...-1792479934618/.
+No user browser/profile or existing runtime was touched. Initial typecheck found
+a union narrowing issue, fixed without a cast; final types/Node and24 saved
+evidence/API/client regressions passed (42784ms). Whole-project/lint, exact-SHA
+after builds and actual4B browser tests remain pending at this source checkpoint.
+Main was independently API-rechecked as996dfedc12da3527343cd3ff2aa5eea35497e10e;
+the validation branch still returned an empty matching-ref array. No retry push.

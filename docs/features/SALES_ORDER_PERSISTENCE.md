@@ -254,3 +254,18 @@ The server read model now exposes aggregate/current mirror facts plus list-only 
 This does not make the full Browser `SalesOrder` type a server DTO. PO, customer/brand IDs, salesperson/merchandiser, business delivery, quantity changes, delivery plans, price versions, execution snapshots, attachments and audit display fields remain absent or separately owned. See `SALES_ORDER_BROWSER_CUTOVER.md` for the exhaustive matrix.
 
 Real authenticated shadow GET is currently blocked: existing users are active/password-backed, but the permission catalog, roles and assignments are empty and `order.view` cannot resolve. C0 did not run the write-capable server startup or synchronize RBAC. Browser list/detail/write cutover remain NO.
+## 2026-10-20 Gate4B saved read disclosure candidate
+
+The formal Server detail reuses its native, default-closed disclosures: saved
+color/size evidence replaces the old unwired note; the existing low-frequency
+source/technical disclosure lazily reads the existing DeliveryPlan GET. The main
+color-price table, card order, navigation and all writers are unchanged. Saved
+sizes keep slot order, gaps, duplicate names, null versus0 and existing numeric
+precision without recalculation. Plan quantities remain decimal strings; null
+dates, void history and unknown collection ownership remain explicit. A row's
+initial-default marker is historical, distinct from current collection ownership.
+Each expanded plan request is scoped to the committed order/session generation;
+old200/401 replies cannot update or invalidate a new identity. Retry is explicit
+and reads only Zhixu DB, never Ainuoke. Detail and plans are separate snapshots.
+This is a local implementation candidate, not a deployment, human acceptance or
+protected plan editor. Current test/source evidence is in the Gate4 task.

@@ -1,0 +1,11 @@
+{
+  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "level": "V1",
+  "paths": [
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/order-center/components/server-saved-order-sources.tsx"
+  ],
+  "pages": ["order-detail"],
+  "visibleDifference": "Restore approved Gate4 saved sizes at the unwired-note location using a default-closed native disclosure; lazy readonly Zhixu DeliveryPlan inside the existing technical disclosure. No main color-price columns, navigation, density, writers or source refresh changes.",
+  "evidence": ["docs/tasks/active/server-convergence-gate4-2026-10-20.md"]
+}
