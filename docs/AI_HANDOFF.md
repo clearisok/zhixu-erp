@@ -1,5 +1,7 @@
 # 恢复点：Server 收敛 Gate5 LOCAL PASS / REMOTE待核
 
+最新远端：G5精确c6ca37b2已送达，Baseline39402680845/Team39402675944成功；Source39402671214因0033创建参考未纳入归一只读引用清单失败，保护保守阻断。当前原G5分支正补固定引用/完整摘要回归（26定向、40归一、45归属、33完整执行通过）；最终证据/守卫/新远端CI待核，不称三CI全绿。Gate6仅独立本地准备184b110e，未实施资源API/UI。
+
 2026-10-20。Goal active；main 独立 API 再核实 `996dfedc12da3527343cd3ff2aa5eea35497e10e`。当前 `codex/server-source-quote-create`，应用/两构建精确 `54ef59e408c0b7f6bead8948b64500b64e5dcf86`，从 main 干净建立后显式 FF 到已验收 Gate4 `96e9d320ff6d0ad51254291cd3c35c2d32d6070f`。7bf3 唯一实现 owner，既有审查者只读；无继承用户 dirty。前三份摘要逐字保留于 `tasks/completed/2026-10-20-gate5-inputs/pre-final-source54/`。
 
 Gate4A/4B 精确96三CI已绿（Source39390380075、Team39390385593、Baseline39390391327）；4C写入未实施。Gate1–3及工具#127已有验收保持，不重复推送/触发旧CI。

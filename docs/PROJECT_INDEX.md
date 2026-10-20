@@ -1,5 +1,7 @@
 # 项目知识索引
 
+最新远端：G5精确c6ca37b2已送达，Baseline39402680845/Team39402675944成功；Source39402671214因0033创建参考未纳入归一只读引用清单失败，保护保守阻断。当前原G5分支正补固定引用/完整摘要回归（26定向、40归一、45归属、33完整执行通过）；最终证据/守卫/新远端CI待核，不称三CI全绿。Gate6仅独立本地准备184b110e，未实施资源API/UI。
+
 2026-10-20 当前恢复入口：[Gate5任务](tasks/active/server-convergence-gate5-2026-10-20.md)、[冻结工程证据](tasks/completed/2026-10-20-order-quote-context-engineering.md)、CURRENT_STATE、AI_HANDOFF。main独立核实 `996dfedc12da3527343cd3ff2aa5eea35497e10e`，应用/两构建 `54ef59e408c0b7f6bead8948b64500b64e5dcf86`；17新API/客户端、927项目、261数据库、新8/现行40/P6 13浏览器和显式116基线通过，冻结证据f5c1eae0及226证据/48能力绑定、精确main守卫已通过，远端CI待收口。原Gate4精确96及三CI已通过，4C写入未实施。
 
 只读创建参考与商业采用分离，来源/价格仍按D145/D149；角色权限/用户/日志按D146，整体收敛按D147。旧长Quote浏览器45pass/44fail/2cancel的过期断言和未完成后半验证有明确记录，不称全产品全绿。Gate6A日历→地点→组及外发厂评估完成，尚未实施；不搬Browser Seed，不改关账口径。
