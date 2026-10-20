@@ -104,3 +104,7 @@ Gate5精确c6已由既有工具一次上传并独立GitHub API核实；Baseline3
 新纯预览首轮18/18（641.5409ms）、原Browser排单25/25（238.3113ms）通过；全量types、精确三路径lint通过。最初误用不存在的`build:server`，没有执行编译；核对实际package后用正式`server:build`通过，原失败日志保留。本阶段还须完成复审、最终定向回归、精确基线/证据收口及checkpoint，不能把准备内核称正式Server排单。现有端口、容器、卷、账号与Browser资料未改，本小阶段未重新观察旧运行环境。
 
 最终应用增量定向组合43/43（1622.018ms）通过：18新Server纯预览及25原Browser排单；全量typecheck、正式server:build、精确三路径lint、编译后planning模块实际加载全部通过。只读独立复审核对真实排序、保护谓词、固定重叠/未知结束、逐队列预算、输入副本和V0范围，无阻塞，未执行测试/网络/DB。正式Source CI加一条纯测试命令。下一步先冻结源码checkpoint，再为修改的历史feature文档追加新证据，不重写旧production记录；完整项目和发布基线须在该前向证据到位后实际运行，不提前称PASS。
+
+源码冻结 `39190a91de55ee2c05e6cd38888745150e56dc52` 后未修改任何应用/测试/CI；只为feature文档追加 `production-server-planning-preparation-20261020` 前向记录，supersedes原production，绑定39190原Git blob SHA256。230条证据中的原229逐项不变，49能力及其他顶层字段不变；独立只读复核归档Git内容等于d717、V0准确且无提前能力声明。
+
+本次实际最终验证：全项目927/927（269999.6728ms）、显式发布基线116/116（267931.9975ms）、精确39190/main996守卫PASS（11页/49能力/52累计UI路径）、精确39190元数据的Server前端构建通过。types/Node/精确lint/模块加载与43定向范围如上；没有新SQL/API/运行环境变化，未声称重跑新数据库或像素验收。下一步最终文档checkpoint/精确守卫与有界交付，送达后才调度新HEAD三CI；尚未发生的远端/CI不写PASS。后续先实现6B写服务，再6C执行。

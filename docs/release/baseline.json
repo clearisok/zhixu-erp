@@ -1893,6 +1893,16 @@
       "recordedAtSha": "7b5fc1623b9ae8e60eae4dd4ac5ecc7b0032d364",
       "renderedSourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
       "sha256": "abfe8795e2e20617d8953584da2ed6f60776ac83614376ee6562305415cb0879"
+    },
+    {
+      "id": "production-server-planning-preparation-20261020",
+      "kind": "document",
+      "path": "docs/features/PRODUCTION_SCHEDULING.md",
+      "recordedAtSha": "39190a91de55ee2c05e6cd38888745150e56dc52",
+      "renderedSourceSha": "39190a91de55ee2c05e6cd38888745150e56dc52",
+      "sha256": "b1feb8616504e748dbe772f2c60d034a0926d3d3925e72f76fe35ffdfe24f584",
+      "supersedes": "production",
+      "changeReason": "Document the approved Gate6B pure queue-preview preparation separately from the unchanged Browser scheduling owner. This does not mark Server schedule persistence, API/UI, completion, deployment or human acceptance complete."
     }
   ],
   "pages": [
