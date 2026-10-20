@@ -58,7 +58,16 @@ test('built source-context draft uses existing editor and receipt recovery with 
       await command('Page.navigate', { url: x.base + path });
       await until(() => evaluate("window.navEpoch!==" + marker + "&&document.readyState==='complete'"), 'navigation');
     };
-    const has = text => until(() => evaluate('Boolean(document.body?.innerText.includes(' + JSON.stringify(text) + '))'), text);
+    const has = async text => {
+      try { await until(() => evaluate('Boolean(document.body?.innerText.includes(' + JSON.stringify(text) + '))'), text); }
+      catch (error) {
+        let diagnostic = { unavailable: true };
+        try { diagnostic = await evaluate("({path:location.pathname+location.search,width:innerWidth,notice:document.body?.innerText.includes('来源维护尚未完成'),controls:[...document.querySelectorAll('button')].map(n=>({label:n.getAttribute('aria-label')??n.textContent.trim(),disabled:n.matches(':disabled')}))})"); }
+        catch { /* Diagnostics must not replace the original bounded-read error. */ }
+        console.error('SOURCE_CONTEXT_READ_DIAGNOSTIC ' + JSON.stringify({ expected: text, ...diagnostic }));
+        throw error;
+      }
+    };
     const click = async label => {
       const predicate = `n=>(n.getAttribute('aria-label')??n.textContent.trim())===${JSON.stringify(label)}&&!n.matches(':disabled')&&n.getClientRects().length`;
       await until(() => evaluate(`Boolean([...document.querySelectorAll('button,a')].find(${predicate}))`), 'enabled control ' + label);
@@ -76,9 +85,14 @@ test('built source-context draft uses existing editor and receipt recovery with 
     // Browser repository or upstream Ainuoke request is used by this suite.
     await command('Page.addScriptToEvaluateOnNewDocument', { source: `
       window.createMode='ready';window.receiptMode='ready';window.contextMode='ready';window.creationWaiters=[];window.contextWaiters=[];
+      window.holdNextSourceQuotes=false;window.sourceQuoteWaiters=[];
       const sourceQuoteFetch=fetch;
       window.fetch=async(...args)=>{
         const url=new URL(String(args[0]),location.href),method=args[1]?.method??'GET';
+        if(url.pathname==='/api/v1/order-source-quotes'&&holdNextSourceQuotes){
+          holdNextSourceQuotes=false;const response=await sourceQuoteFetch(...args);
+          return new Promise(done=>sourceQuoteWaiters.push(()=>done(response)));
+        }
         if(url.pathname.includes('/creation-receipts/')){
           if(receiptMode==='pending')return new Response(JSON.stringify({state:'pending',retryable:false}));
           if(receiptMode==='once401'){receiptMode='ready';return new Response(JSON.stringify({error:{code:'synthetic_current_expired'}}),{status:401});}
@@ -103,6 +117,29 @@ test('built source-context draft uses existing editor and receipt recovery with 
     const frozen = async () => (await x.pool.query("SELECT row_to_json(t) row FROM sales_orders t ORDER BY id")).rows;
     const originalOrders = await frozen();
     await loginCookie(x.users[0]);
+    await t.test('first enabled source click sees the synchronized parent guard without retry or create POST', async () => {
+      const n = await count(), p = posts();
+      for (const width of [1440, 390]) {
+        await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 390 });
+        await navigate(order); await has('维护来源');
+        await evaluate('holdNextSourceQuotes=true'); await click('维护来源');
+        await until(() => evaluate('sourceQuoteWaiters.length===1'), 'actual final source list reply held');
+        await until(() => evaluate("Boolean([...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='创建报价'&&n.matches(':disabled')&&n.getClientRects().length))"), 'source control rendered disabled before release');
+        await evaluate(`(()=>{
+          window.readyClickCount=0;window.readyClickEnabled=null;
+          const observer=new MutationObserver(()=>{
+            const button=[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='创建报价'&&!n.matches(':disabled')&&n.getClientRects().length);
+            if(button&&readyClickCount===0){observer.disconnect();readyClickCount++;readyClickEnabled=!button.matches(':disabled');button.click();}
+          });
+          observer.observe(document.body,{childList:true,attributes:true,subtree:true});sourceQuoteWaiters.shift()();
+        })()`);
+        await until(() => evaluate('readyClickCount===1'), 'single first-enabled click');
+        await has('创建经销报价草稿');
+        const result = await evaluate("({path:location.pathname,sourceOrderId:new URLSearchParams(location.search).get('sourceOrderId'),clicks:readyClickCount,enabled:readyClickEnabled,blocked:document.body.innerText.includes('来源维护尚未完成')})");
+        assert.deepEqual(result, { path: '/quote-center/new', sourceOrderId: x.orderId, clicks: 1, enabled: true, blocked: false });
+        assert.equal(await count(), n); assert.equal(posts(), p);
+      }
+    });
     await t.test('existing source entry opens readonly context; route mount, refresh and return make no drafts at six widths', async () => {
       const n = await count(), p = posts();
       for (const [width, deviceScaleFactor] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {

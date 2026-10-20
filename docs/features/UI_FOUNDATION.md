@@ -8,6 +8,12 @@ UI Foundation 为 Quote Center 和基础设置提供统一的 ERP 页面、表�
 
 ## Current behavior
 
+2026-10-21 来源维护导航同步：来源按钮的父级保护镜像与自身guard均在layout提交，
+避免fieldset已启用而父页面仍按旧busy状态拦截唯一一次创建报价导航。
+只同步原onGuardChange及cleanup；不移除dirty/pending保护、不增加导航豁免或重放操作。
+真实响应屏障、1440/390首次启用单击及原导航负控见
+[独立修复](../tasks/active/server-source-navigation-guard-2026-10-21.md)。无布局、文案或断点变化。
+
 2026-10-20 D-148 / Server convergence Gate3: the trusted Server boundary owns one
 persistent AppShell frame. Page-level AppShell calls register route/identity-scoped
 title, explicit back target and existing feature navigation callbacks; only the
