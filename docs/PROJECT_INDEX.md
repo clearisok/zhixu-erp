@@ -1,16 +1,15 @@
 # 项目知识索引
 
-2026-10-21最新恢复：[旧Quote验收维护](tasks/active/server-convergence-quote-acceptance-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
-main 996dfedc12da3527343cd3ff2aa5eea35497e10e；codex/server-quote-acceptance从干净4e10开始。
-Gate6B精确4e10独立交付及Source39464481379/Team39464487383/Baseline39464494767三CI全success，未重复调度。
-应用仍919643；只维护验收和CI/文档。旧45/44/2及31未启动保留历史；工作1为54/11、2为75/5、3为84/3，第四轮及2e1b冻结均87/87。最终源码84cd2376512a7835a8a10abd4dc6a0671245553d冻结87/87、0失败/取消/跳过；927项目/116基线及精确main996守卫通过，待交付/新CI。
-实际完成/物流/出货/关账未闭环，6C两项业务选择待答；237证据/50能力、旧环境/PNG/Browser/PR头不改，无新真实来源或部署。
-[4e10三摘要逐字Git blob归档](tasks/completed/2026-10-21-quote-acceptance-inputs/4e105963/)保留原日期/hash/结果/限制。
+2026-10-21恢复：[加工Estimate命令保护](tasks/active/server-processing-estimate-guard-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
+main996dfedc12da3527343cd3ff2aa5eea35497e10e；codex/server-processing-estimate-guard从干净933d开始。
+输入933d一次上传/独立exact，Source39472329558仍运行，Team39472336074/Baseline39472342830已success，均attempt1。
+[前轮旧Quote维护](tasks/active/server-convergence-quote-acceptance-2026-10-21.md)源码84cd冻结87/87、927项目/116基线通过；原45/44/2及31未启动保留历史。
+本轮实际探针确认加工隐藏Estimate可写，响应没有泄露；三行服务端保护定向28/28，最终冻结/质量/交付尚待。
+无UI/SQL/权限/237证据50能力变化，不借旧CI。6C两业务问题待答，执行/物流/出货/Server关账未闭环。
+[933d三摘要Git blob归档](tasks/completed/2026-10-21-processing-estimate-inputs/933df626/)保留完整旧日期/hash/结果/限制及原Gate6/4e10恢复链。
+D145/D149报价来源与商业价格、D146系统管理、D147收敛边界继续；#120–127不merge/close，不建重复累计业务PR。
+3001/50426/59069/62426及旧卷/工作树/Browser保护，62426仍Gate1源8175；持续Git授权不扩大真实数据/来源/部署/退役范围。
 
-
-[不可变UI工程证据](tasks/completed/2026-10-20-production-resources-ui-engineering.md)保留6A应用1da/证据7b、927/261/116、39资源、14built/18导航及selector修正。早期6B纯预览39190及43/927/116独立保留；新后台25项PG/HTTP、来源异单冻结、逐次历史及跨模块反序锁有实际负例/交错验证，外部覆盖仍unavailable。三摘要[e5输入](tasks/completed/2026-10-20-gate6-inputs/planning-backend-e5cc27da/)与[7eb冻结前状态](tasks/completed/2026-10-20-gate6-inputs/planning-backend-7ebfe985/)逐字归档；更早日期/hash/结果/限制不覆盖。旧Quote45/44/2及31未启动是原时点缺口，现有维护结果见顶部新任务，不改写原证据。
-
-D145/D149报价来源与创建参考、D146系统管理、D147整体收敛有效。[G5修复证据](tasks/completed/2026-10-20-order-quote-reference-ci-repair.md)及[原54工程证明](tasks/completed/2026-10-20-order-quote-context-engineering.md)保留旧45/44/2验收缺口。Gate4精确96三CI绿、4C未做；生产排单/完成、出货、关账未闭环。#120–127不自动合并/关闭，不建重复累计业务PR。62426仍Gate1源8175，3001/50426/59069保留，未升级或人工接受。持续工程Git授权不扩真实数据/来源/部署/退役。前次摘要[逐字归档](tasks/completed/2026-10-20-gate6-inputs/contract-31e04281/)，日期/hash/结果/限制保持。
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：

@@ -1,31 +1,23 @@
-# 恢复点：旧Quote最终冻结87项通过，准备一次交付与新CI
+# 恢复点：加工 Estimate 保护定向28通过，质量和冻结验收待完成
 
-2026-10-21；Goal active/no budget；main996dfedc12da3527343cd3ff2aa5eea35497e10e（独立API）。
-当前codex/server-quote-acceptance，输入干净4e10596329e5ac6418a76ccf05123de47df54545，root唯一writer。
-[范围/证据](tasks/active/server-convergence-quote-acceptance-2026-10-21.md)。
+2026-10-21；Goal active/no budget；main996dfedc12da3527343cd3ff2aa5eea35497e10e，独立API核实。
+codex/server-processing-estimate-guard从main显式快进干净933df62646e9507a4e7754a3eba2462eeadf1776；root唯一writer。
+[当前任务](tasks/active/server-processing-estimate-guard-2026-10-21.md)。输入三个摘要逐字Git blob归档，不覆盖旧证据。
 
-4e10精确main996守卫、一次push、独立API exact、三个新CI均完成：Source39464481379、Team39464487383、
-Baseline39464494767全部success/同SHA/attempt1。ignored outputs有4e10-ci-final/final-identity；不得重推/重调。
-Gate6B应用919643及所有frozen验证见既有工程记录，不冒称完成/出货/关账或已升级62426。
+933d已经一次上传并独立exact，原工具STOP标签与exact remoteSha矛盾；没有第二次push。
+Source39472329558仍运行，watch session85985；Team39472336074/Baseline39472342830已success，均attempt1。
+不可重复调度；先核对933d最终source，再把ignored CI回执存本机。其本地87/927/116和旧失败见上一任务。
 
-本轮只改quote-server-ui.integration.test.mjs、direct-creation-ui.mjs、pr91-second-acceptance-ui.mjs、
-Source workflow验收步骤及任务/共享状态/输入归档。无应用、SQL、权限目录、237/50或frozen feature/PNG变化。
-八个阶段各240s、子例60s、CDP20s；AsyncLocalStorage覆盖case及phase；无结果的超时停止共享browser，
-每阶段独立受控cleanup清Fetch/held GET/标志，失败停止；只读轮询仅处理精确navigation context失效，不重放写入。
-旧Quote来源SO fixture改正式合同/加工批次及明确商业采用，再通过既有CCT服务建确认依据；订单快照不被共享价覆盖，旧PATCH精确409。
-加工API/workbook只工价，动态材料/null/0保留在经销；正控最小金额授权，原无权/成本撤权/Estimate/Browser负控保留。
+本次探针在全新owned tmpfs PostgreSQL、合成身份和loopback HTTP实际确认加工五Estimate命令200、raw/版本改变。
+响应真实省略Estimate/restricted，不是金额泄露；首个probe的===null误判已解释，原结果保留。
+三行产品guard只在applyEstimateCommand克隆/分配身份前按保存defaultRevisionId拒绝当前加工；
+不依据历史source/currentRevisionId，不改Browser/SQL/repository/鉴权/CAS或成本公式。
+新单元红7pass/5fail；补保护后的unit+PG/HTTP28/28（12302.2841ms）。新增类型断言union缩窄已修，
+质量第二轮session69932待收尾；原失败日志保留。更新只涉及一个产品模块、两个测试、feature/任务/共享摘要/输入归档。
+定向涵盖五命令409/raw版本审计不变、加工正常PUT保留/注入拒绝，以及当前经销含加工历史/已删来源PV恢复。
 
-工作1至4的原始失败、修正及158141.1777ms结果保留在任务；不抹去旧45/44/2和31未启动。
-最后interruptedScope先标unsafe再重抛，case/phase共用、CDP探针验证；已独立窄复审，无新增阻断。
-types/Node/全仓lint、927项目273651.1289ms和116显式基线265684.7854ms均通过，0失败/取消/跳过。
-2e1b9efd835061015b538d5ba499a3d027ec29da冻结87/87（120270.9772ms）已终态0。
-最终源码84cd2376512a7835a8a10abd4dc6a0671245553d保留加工第二PV USD工价工作簿断言，
-冻结全套87/87（114428.0135ms，session69259已终态0）、0fail/cancel/skip；owned cleanup PASS。
-精确main996守卫PASS；scope JSON证明原应用/SQL/权限/237证据50能力不变、三归档Git blob逐字等于4e。
-两个截图helper已改每次唯一子目录，Source workflow追加该套件命令；不修改旧PNG/ID。
-
-下一步只提交验收结果文档、最终独立复审/main996 guard，然后有界安全交付/独立SHA/三个新CI。
-本批尚未上传，旧分支CI不是本批PASS；不建累计重复业务PR。已有927/116不因不消费这三个driver而盲重跑。
-如需新源码build，前端后Node串行，避免dist被清。
-6C两业务选择尚待人答，不以Git授权代答。无真实数据/来源/部署/merge/close/退役，保护全部旧环境/Browser。
-[输入4e10三摘要逐字归档](tasks/completed/2026-10-21-quote-acceptance-inputs/4e105963/)，旧日期/hash/限制完整沿链保存。
+下一步最终只读复审、源码checkpoint、冻结定向/全项目/显式基线/Node质量/main996守卫；
+如改测试或收到CI失败先读精确日志，不靠旧绿灯。不建累计重复业务PR、不改原#120–127。
+前端源码没有变化，原build919643保持；Node编译如执行必须避开并发前端build清dist。
+237证据50能力/旧PNG保持；如原冻结feature无当前记录，无需捏造状态升级。
+6C两项业务选择仍待人答，Git授权不代答。无真实数据/来源/部署/merge/close/退役，保护全部旧环境。
