@@ -309,3 +309,17 @@ root直接查看最终390队列/表单和1536 DPR1.25截图，无新阻塞；旧
 均0 failure/skip/cancel；日志ui-bound-project-final、ui-bound-baseline-final保留。应用仍919643，之后仅证据/摘要。
 main及#120–127原头再次独立API核实未变；远端本分支仍6524。下一步最终docs head守卫、一次有界上传、
 独立远端完整SHA后才各调度Source/Team/Baseline新CI；当前未发生交付/CI不预记PASS。
+
+6283ae43a6966ce6b1554fa5445dc1ec316806ab最终main996 guard PASS；一次有界进程级OpenSSL/HTTP1.1/sslVerify=true上传，
+环境随后恢复。工具返回STOP_AUTH_OR_DIVERGENCE/TARGET_NOT_DELIVERED却带exact remoteSha，原JSON保留；
+独立GitHub API精确核实6283且6524是其祖先，确认实际送达，没有第二次push或永久网络修复结论。
+Source39458886134/Team39458892887/Baseline39458898843只各dispatch一次。Baseline成功；另两项失败分别是
+continuous-ui:162和animated-login-ui:135仍把production-scheduling当未开放。实际截图文字分别为正确权限拒绝、正式登录，
+不是业务/鉴权失效；失败日志完整保留，未重启旧runs。其他旧关闭负控继续有效。
+本次只适配两个验收文件：保留closing等关闭路由；新验证匿名跳转/returnTo/401、不挂业务DOM，及既有无权跟单403、
+管理员真实空组/无业务写/无旧Browser store。精确919构建下login11/11（14091.0396ms）、continuous首轮14/14
+（53096.9595ms）、加强角色负控后14/14（53082.482ms）全部通过；两文件eslint、独立只读窄复审无阻断。
+产品/SQL/权限/237证据50能力及919应用字节不变，无需借CI修复扩大重构或重复数据库/像素验收；927/116仍是绑定后的实际结果。
+下一步独立CI修复commit/精确main守卫、一次上传和独立API，再对新head各调度三个CI。没有后发生结果的预写PASS。
+6C预审指出重排当前0/null占位与资源无条件刷新必须随执行事实接线修复；同时需要执行回执权限、历史/归一引用和正确锁序。
+完成权限能否跨单重排、已有产出取消/换执行方后的归属是实际业务规则冲突，已发两项异步问题，相关写入等待用户回答。

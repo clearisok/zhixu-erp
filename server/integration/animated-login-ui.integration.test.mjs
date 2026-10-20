@@ -132,8 +132,22 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
    assert.equal(await evalJs("location.pathname"),"/quote-center");
    await evalJs("window.logoutFail=false");await click("退出登录");await ready();assert.equal(await evalJs("location.pathname"),"/login");
    await navigate("/login");await ready();
-   await navigate("/production-scheduling");await has("尚未接通");
+   await navigate("/closing-center");await has("尚未接通");
    assert.equal(await evalJs("document.querySelector('.zx-login-form')!==null"),false);
+   await navigate("/login");await ready();
+  });
+  await t.test("production planning follows the explicit order-read gate and never loads anonymous business data",async()=>{
+   await navigate("/production-scheduling");
+   if(build.orderRead==="snapshot"){
+    await ready();
+    assert.equal(await evalJs("location.pathname"),"/login");
+    assert.equal(await evalJs("new URLSearchParams(location.search).get('returnTo')"),"/production-scheduling");
+    assert.equal(await evalJs("document.querySelector('.ps-server-scheduling-page')!==null"),false);
+    assert.equal((await fetch(x.base+"/api/v1/production-scheduling/groups")).status,401);
+   }else{
+    await has("尚未接通");
+    assert.equal(await evalJs("document.querySelector('.zx-login-form')!==null"),false);
+   }
    await navigate("/login");await ready();
   });
   await t.test("session restore failure shows retry without credentials form, then recovers",async()=>{
