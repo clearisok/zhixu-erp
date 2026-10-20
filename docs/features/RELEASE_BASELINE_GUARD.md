@@ -80,9 +80,25 @@ document version must match the working file; earlier blobs stay readable in Git
 Do not remove the old ID or reuse it for a different assertion.
 Multiple committed revisions in one stacked branch may form a forward chain.
 Every chain must reach an ID in the actual PR-base manifest; intermediate Git
-blobs remain hash-checked. Missing links, cycles, forks, same-commit document
+blobs remain hash-checked. Missing links, cycles, unclosed forks, same-commit document
 revisions and path/kind changes fail closed. This does not authorize overwriting
 any original evidence or advance deployment/acceptance status.
+
+Parallel reviewed document branches can converge through an explicit document-only
+`mergeOf: [<predecessor-id>, <predecessor-id>, ...]` record, mutually exclusive with
+`supersedes`. It needs a nonempty reason, at least two unique nonredundant predecessors
+of the same kind/path, and the exact document blob from a real Git merge checkpoint.
+The guard reads that checkpoint's actual Git parents: two parent branches must
+contribute different predecessor histories. All predecessor commits must be strict
+ancestors of the checkpoint and the checkpoint must be in the checked head.
+
+Every branch must trace back to the actual PR base; cycles and multiple final leaves
+remain errors. All evidence records in the Git parents' manifests must be retained
+unchanged, including records not yet on main. A merge cannot hide missing intermediate
+blobs or modify old hashes/edges. Its own `mergeOf` is immutable in later PRs. A normal
+forward `supersedes` revision may follow the merge. Screenshot, approval, capability,
+runtime and UI-impact requirements stay unchanged; this is evidence convergence,
+not permission for any product or deployment change.
 
 PNG history remains at its old path with exact bytes. A new screenshot uses a
 new ID/path and a nonempty `changeReason` plus `approvalEvidence` pointing to a

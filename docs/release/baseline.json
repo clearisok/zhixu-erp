@@ -1787,6 +1787,18 @@
       "sha256": "acacb2b504f27d2fe4c1c3c0bd5921a71bad3619f1e01c8ce9695703ec4cb765",
       "supersedes": "order-business-source-color-20261017",
       "changeReason": "2026-10-19 authorized audit remediation: reconcile superseded decisions and current source/price ownership; preserve original history and deployment boundaries."
+    },
+    {
+      "id": "decisions-convergence-stabilization-merge-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "eb3a2833eaa9fe93f7ef8d3ab3014607fa548327",
+      "sha256": "5fba7e3f30f9e86dae20db972a570fdf4aea45510e4fa25490f08dc068c9230b",
+      "mergeOf": [
+        "decisions-server-convergence-20261020",
+        "decisions-stabilization-20261019"
+      ],
+      "changeReason": "Preserve both immutable parent-branch decision histories in the actual PR120/Server-convergence merge checkpoint; D-145 cleanup and approved D-147 target both remain."
     }
   ],
   "pages": [

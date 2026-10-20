@@ -42,6 +42,25 @@ Tests must use real synthetic Git branches as well as existing negative fixtures
 
 ## Status
 
-Local merge in progress; no combined tests or final Gate PASS yet. Gate1 remote
-exact SHA independently verified despite contradictory delivery-tool labels;
-#125 CI is checked separately. No repeat upload was made.
+#125's three Hosted CI checks are successful at the independently verified
+`add2d690a9c3afe6ec1a2633551eaef7dee72ce1`. The one authorized recovery upload is
+already consumed; no repeat upload was made. The tool's contradictory status
+classification is preserved, not interpreted as a permanent network repair.
+
+The real #120 merge checkpoint is `eb3a2833eaa9fe93f7ef8d3ab3014607fa548327`.
+The old guard rejected the unclosed parallel evidence, as expected. All original
+217 records remain unchanged; a new document merge node binds the exact merged
+DECISION_LOG Git blob. Its actual parent commits and each parent manifest are
+checked, including side-only evidence not yet on main.
+
+The first expanded baseline run passed 111/112 tests. Its sole failure was a
+fixture inheriting a parent's mergeOf while adding supersedes; the helper now
+explicitly removes the inherited merge form. Independent review also caught a
+screenshot anchor/cycle regression in the initial DAG extension. The original
+single-parent screenshot check is restored with legal two-generation, cycle,
+unanchored and prohibited-merge cases. The reviewer statically confirmed the fix.
+The complete expanded suite then passed **116/116**, zero failures/skips/cancellations
+(335956 ms). Syntax, focused lint and the exact main-996 production source/evidence
+guard passed (11 pages/46 capabilities/one inherited #120 UI file). No new UI or
+schema behavior was added by this tooling correction. No combined Gate PASS or
+#123 integration is claimed yet; those are the next dependent step.
