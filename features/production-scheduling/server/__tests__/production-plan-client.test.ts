@@ -73,10 +73,29 @@ test("pending/unknown/known receipts perform only GET and never invent a retry o
   for (const data of [{ state: "known", requestId: orderId, result: outcome }, { state: "known", requestId, result: { ...outcome, payloadHash: "wrong" } }, { state: "unknown", requestId, result: outcome }]) await assert.rejects(() => client(data).receipt(command));
 });
 test("transport/JSON/UTF8/oversize failures remain safe unknown or invalid results after one attempt", async () => {
-  for (const fetcher of [async () => { throw Error("secret-token"); }, async () => new Response("secret-token", { status: 502 }), async () => new Response(new Uint8Array([255])), async () => new Response(" ".repeat(1024 * 1024 + 1))]) {
+  for (const fetcher of [async () => { throw Error("secret-token"); }, async () => new Response("secret-token", { status: 502 }), async () => new Response(new Uint8Array([255])), async () => new Response(" ".repeat(1024 * 1024 + 4097))]) {
     let calls = 0; await assert.rejects(() => createProductionPlanClient((async () => { calls++; return fetcher(); }) as typeof fetch).execute(command), (error: unknown) => error instanceof Error && !error.message.includes("secret-token")); assert.equal(calls, 1);
   }
   await assert.rejects(() => client({ error: { code: "secret-token", message: "secret-token" } }, 503).execute(command), { code: "plan_outcome_unknown", knownNotApplied: false });
+});
+test("constructed one-MiB logical results retain bounded room for both command and receipt envelopes", async () => {
+  const rows = Array.from({ length: 400 }, (_, index) => ({ ...row, id: (index + 100).toString(16).padStart(8, "0") + "-1111-4111-8111-111111111111", queueSequence: index + 1, remark: "" }));
+  const replan: PlanCommand = { ...command, intent: { action: "replan", groupId, expectedQueueVersion: 2, anchorDate: "2027-01-04", orderedAssignmentIds: rows.map(item => item.id) } };
+  const logical = { requestId, status: "applied", changed: true, operationId: outcome.operationId, assignments: rows,
+    orderVersions: [{ orderId, version: 3 }], queueVersions: [{ groupId, version: 3 }] };
+  // Wire-format construction only: a real service preview may hit its larger
+  // complete fingerprint limit before this logical result size is reachable.
+  let remaining = 1024 * 1024 - Buffer.byteLength(JSON.stringify(logical)); assert.ok(remaining > 0);
+  for (const item of rows) { const length = Math.min(2000, remaining); item.remark = "x".repeat(length); remaining -= length; }
+  assert.equal(remaining, 0); assert.equal(Buffer.byteLength(JSON.stringify(logical)), 1024 * 1024);
+  const result = { ...logical, payloadHash: planHash(replan) }, reply = { ...result, replayed: false };
+  assert.ok(Buffer.byteLength(JSON.stringify(reply)) > 1024 * 1024);
+  assert.equal((await client(reply).execute(replan)).status, "applied");
+  assert.equal((await client({ state: "known", requestId, result }).receipt(replan)).state, "known");
+  let cancelled = false;
+  const oversized = new ReadableStream<Uint8Array>({ start(controller) { controller.enqueue(new Uint8Array(1024 * 1024 + 4097)); }, cancel() { cancelled = true; } });
+  await assert.rejects(() => createProductionPlanClient((async () => new Response(oversized)) as typeof fetch).execute(command), { code: "plan_response_invalid" });
+  assert.equal(cancelled, true);
 });
 test("identity change during digest prevents POST and GET; late 401 belongs to the old owner", async () => {
   for (const operation of ["execute", "receipt"] as const) { const calls: { url: string; init?: RequestInit }[] = []; let active = true;

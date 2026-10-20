@@ -175,7 +175,10 @@ function projectOutcome(value: unknown, command: PlanCommand, fingerprint: strin
 }
 
 export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
-  const prefix = "/api/v1/production-scheduling", maxBytes = 1024 * 1024;
+  // Server bounds the logical result at1MiB before adding its digest/replay
+  // fields or receipt wrapper. Keep a fixed envelope allowance, not an
+  // unbounded read or a larger domain/command payload limit.
+  const prefix = "/api/v1/production-scheduling", maxBytes = 1024 * 1024 + 4096;
   async function request(path: string, current: Lease, body?: PlanIntent | PlanCommand) {
     assertLease(current); let response: Response;
     try { response = await fetchImpl(prefix + path, { method: body ? "POST" : "GET", credentials: "include", cache: "no-store",

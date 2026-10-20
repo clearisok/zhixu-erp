@@ -180,3 +180,14 @@ Team39434744552、Baseline39434752778，目前运行/排队，不借e5结果或�
 可选独立bundle起初因esbuild包未安装而未运行，未安装依赖；改用仓库已锁定Vite，三个浏览器产物成功在内存生成，
 无Node/PG执行或Browser仓库导入。无新页面/像素或运行升级声明。独立只读复审无阻塞，后续UI必须捕获session/epoch lease，
 不能用仅userId回调冒称A→B→A页面验证。下面先独立源码checkpoint，再冻结回归与有界交付。
+
+源码checkpoint`531b443f4fdb1ddc8fb5dce369e1b9e4212b640c`后实际冻结64/64（33620.4776ms）、
+927/927项目（224872.3249ms）、116/116基线（223383.51ms）、全仓lint/精确main996守卫均通过，
+11页/49能力/54累计UI路径。精确531 Server构建成功，build-info核实531/session/Server quote+master/writable/snapshot。
+只读复审确认15路径范围、manifest不变及343三摘要Git blob逐字一致，无阻塞；当时工作树干净。
+
+冻结后额外审查确认一处协议边界差异：Server先将逻辑result限1MiB，再附加hash/replayed或known回执外层，
+客户端原来按整条响应限1MiB。增加固定4KiB传输包装余量，领域/请求正文限制不动；新构造单测覆盖POST、known GET
+及超过wire cap取消读流，16客户端/outbox通过（542.1045ms）。这是防御性兼容修复；真实可提交重排能否逼近该边界未验证，
+较大的完整preview fingerprint可能先阻断，不称已复现真实订单故障。独立只读审查确认此范围与措辞，未跑测试/DB/network。
+下面为这份修复创建新源码checkpoint再重验，不把531全量结果冒称修改后的精确源码结果。
