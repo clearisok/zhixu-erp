@@ -87,3 +87,50 @@ DECISION_LOG and both previous leaf IDs; 220 total evidence records retain every
 original field from both parent manifests. Application/schema changes remain the
 reviewed #120/#121–123 changes. Types/server compilation, lint and complete source
 regressions are now running; isolated SQL/API and built-browser acceptance follow.
+
+## Combined validation and delivery shape
+
+At source checkpoint `de73e611083d8cdc42b4447fa7ce67d93fd94095`, types, Node
+compilation and full lint passed. The complete root suite passed **920/920**,
+including all 116 release-baseline/responsive cases (463315 ms). The explicit
+Server/session/snapshot build passed. The exact main-996 guard passed with
+17 changed UI inputs, 11 pages and 46 capability records; original approval and
+status protections are unchanged.
+
+Actual production-built Chromium passed 8 team/settings/log, 7 business-source,
+6 order-sale, 8 processing-push, 13 bound-source/material and 10 login cases:
+**52/52**. The session/quote-client suite separately passed **112/112**. Screenshots
+under ignored outputs/server-convergence-g2-browser show the desktop business log,
+105-event complete operation details and 390px password dialog; these were visually
+inspected, not claimed as user acceptance or new frozen approvals. Only synthetic
+accounts, temporary profiles and uniquely owned disposable databases were used.
+The default Browser build also passed. All ten selected backend/integration
+commands passed: team-access 33; business-operation-logs 12; full PostgreSQL 261;
+business-source 9; order-commercial 31; order-sale-adjustments 12; processing-push
+13; payment-operator 21; payment-store 19; historical preparation compatibility 23.
+That is **434 passed** checks, zero failures/skips/cancellations; each database
+fixture owns its temporary resources. No real source request is involved.
+
+Independent static review verified the #120 color/source implementation and tests
+against exact 57d blobs; #123 auth/permissions/log code against exact ebe blobs;
+219 original evidence records, the new merge-node hash and three byte-exact input
+archives. No new implementation blocker was found. Three stale current-state
+sentences were corrected; PERMISSIONS no longer describes the implemented log as
+future work. Gate2 local engineering is PASS. Current persistent 62426 remains
+the original empty Gate1 image; there has been no target migration/cutover. Remote
+combined CI, individual PR merges and user acceptance remain separate pending work.
+
+Gate0 explicitly prohibits a duplicate cumulative implementation PR. Preserve this
+branch as the fixed combined verification reference. The necessary document-merge
+guard will be extracted by exact paths into a minimal independent tooling PR from
+main 996 (not by wholesale cherry-picking a12825ef, which includes integration
+state and business evidence). It needs its own pure-main validation. Existing
+#120–125 stay unchanged in this verification phase and are not merged/closed.
+
+If remote delivery is authorized and verified, only the three named acceptance
+workflows (source, team-access, release-baseline) may be dispatched on the combined
+reference; never the production-deployment workflow. Verify main, branch and each
+run.head_sha independently. Dispatch has no PR base, so its baseline job does not
+replace the explicit exact-main guard. Later user-approved individual PR merges
+still need forward integration of the then-current main and new checks; this
+candidate does not pre-approve those future merge trees.
