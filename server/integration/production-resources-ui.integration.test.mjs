@@ -176,7 +176,7 @@ test('Gate6A built resource pages preserve empty Server ownership, dates, receip
       await click('取消'); assert.equal(await count('production_outsource_factories'), 1);
     });
     await phase('calendar edited from a site card refreshes current calendar and site facts', async () => {
-      await navigate('/system-settings/production-infrastructure'); await has('合成验收地点'); await click('编辑工作日历'); await formField('日历名称', '合成验收日历已修订');
+      await navigate('/system-settings/production-infrastructure'); await has('合成验收地点'); await click('编辑工作日历', 'section[aria-label=生产地点] button'); await formField('日历名称', '合成验收日历已修订');
       await evaluate("(()=>{const box=document.querySelector('[role=dialog]');const n=[...box.querySelectorAll('.qc-weekday-field label')].find(n=>n.textContent==='周六').querySelector('input');n.click()})()");
       await click('＋ 添加特殊日期');
       await evaluate("(()=>{const n=[...document.querySelectorAll('input[aria-label=特殊日期]')].at(-1);Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,'2027-01-02');n.dispatchEvent(new Event('input',{bubbles:true}));const note=[...document.querySelectorAll('input[aria-label=特殊日期说明]')].at(-1);Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(note,'第二合成日期');note.dispatchEvent(new Event('input',{bubbles:true}))})()");
@@ -268,7 +268,7 @@ test('Gate6A built resource pages preserve empty Server ownership, dates, receip
         await click('取消'); await has('有未保存修改'); await click('放弃修改');
       }
       for (const width of [1440, 390]) {
-        await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 390 }); await navigate('/system-settings/production-infrastructure'); await has('合成验收地点'); await click('编辑工作日历');
+        await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 390 }); await navigate('/system-settings/production-infrastructure'); await has('合成验收地点'); await click('编辑工作日历', 'section[aria-label=生产地点] button');
         await until(() => evaluate("document.querySelector('input[aria-label=特殊日期]')?.value==='2027-01-01'"), 'responsive calendar detail');
         const metrics = await evaluate("({page:'calendar',width:innerWidth,scroll:document.documentElement.scrollWidth,drawer:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON()})");
         assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.drawer.width <= width + 1); geometry.push(metrics); await shot('calendar-form-' + width); await click('取消');
