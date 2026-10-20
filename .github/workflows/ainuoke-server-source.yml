@@ -35,6 +35,7 @@ jobs:
           npm run test:ainuoke-server-source
           npm run test:order-source-evidence
           npx --no-install tsx --test --test-concurrency=1 features/quote-center/server/__tests__/quote-creation-contract.test.ts server/integration/quote-order-context.integration.test.ts
+          npx --no-install tsx --test features/quote-center/server/__tests__/estimate-workflows.test.ts
           npm run test:order-identity
           npm run test:order-commercial
           npm run test:order-business-source

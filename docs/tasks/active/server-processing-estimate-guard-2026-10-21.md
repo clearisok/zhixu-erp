@@ -30,6 +30,7 @@ update、restore、ignore 五种命令均返回200、改变raw Estimate及Quote�
 - 在既有 `applyEstimateCommand` 克隆、分配身份前检查保存的默认Revision。
   当前加工统一409 `estimate_not_applicable`；请求source/current视图不改变权威。
 - 不改服务鉴权/CAS、普通PUT保护、repository、SQL、历史或确认/商业价格。
+- 既有Source验收CI显式运行该纯命令单元；API回归继续由原test:postgres执行，不另建workflow。
 - 默认经销包含加工历史时仍允许原生命周期，尤其来源PV移除后的独立历史恢复。
 - 加工全部五命令拒绝后比较完整raw快照、版本和审计；普通资料保存保留隐藏事实、
   PUT注入继续拒绝，响应字段省略按Object.hasOwn验证。
