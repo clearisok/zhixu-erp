@@ -7,7 +7,7 @@
 ## 入口和职责
 
 `/production-scheduling`先通过authority wrapper选择owner。Server不挂载Browser排单、订单、资料或款式进度repository；
-旧Browser页面和长期namespace不改。仅恢复已存在的生产排单菜单，需要order.view和schedule.view。
+旧Browser页面和长期namespace不改。仅恢复已存在的生产排单菜单，需要order.view和schedule.view，以及原orderRead=snapshot候选开关。
 未开放经营工作台、关账或未实现的Server物流。新目标空库无默认生产组、地点、日历或订单Seed。
 
 保留原生产组MasterDetail、队列表格、订单池、表单及Foundation弹窗/抽屉。

@@ -112,6 +112,7 @@
 /* Delivery Phase 3: scheduling workspace. */
 .ps-scheduling-page { gap: 12px; }
 .ps-workspace-toolbar { margin-bottom: 0; }
+.ps-server-scheduling-page .ps-workspace-toolbar .qc-toolbar-actions { display: flex; }
 .ps-workspace-toolbar .qc-search-field { min-width: 270px; }
 .ps-workspace-toolbar .ps-view-tabs { white-space: nowrap; }
 .ps-compact-group-picker { display: none; }

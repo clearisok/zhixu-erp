@@ -17,5 +17,5 @@ export function isServerQuoteRoute(path: string): boolean {
 }
 
 export function isEnabledServerRoute(path:string):boolean {
-  return isServerQuoteRoute(path) && (!isOrderReadRoute(path) || orderReadEnabled());
+  return isServerQuoteRoute(path) && (!(isOrderReadRoute(path) || path === "/production-scheduling") || orderReadEnabled());
 }

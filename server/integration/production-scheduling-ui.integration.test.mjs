@@ -155,7 +155,13 @@ test('Gate6B built scheduling preserves exact plans, recovery, source boundaries
     await phase('cached-before-send and late-original recovery reuse the exact request after an explicit unknown check', async () => {
       for (const mode of ['before-network', 'late']) {
         await startPlan('SYN-PLAN-06', second.id, '10'); await click('预览排单'); await has('确认排单变更'); await evaluate('planMode=' + JSON.stringify(mode)); await click('确认保存'); await has('保存结果尚未确认'); const original = await pendingCommand(), before = posts();
-        assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent==='重试原请求')"), false); await click('核对原请求', '[role=dialog] button'); await has('暂未找到原操作回执'); await click('重试原请求', '[role=dialog] button'); await has('排单已保存'); assert.equal(posts(), before + 1);
+        assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent==='重试原请求')"), false);
+        if (mode === 'before-network') {
+          const blocker = await x.pool.connect(), actor = (await x.pool.query("SELECT id::text FROM app_users WHERE username='plan.editor'")).rows[0].id;
+          try { await blocker.query('BEGIN'); await blocker.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', ['production-plan:' + actor + ':' + original.requestId]); await click('核对原请求', '[role=dialog] button'); await has('原操作仍在处理中'); assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent==='重试原请求')"), false); await blocker.query('COMMIT'); }
+          finally { await blocker.query('ROLLBACK'); blocker.release(); }
+        }
+        await click('核对原请求', '[role=dialog] button'); await has('暂未找到原操作回执'); await click('重试原请求', '[role=dialog] button'); await has('排单已保存'); assert.equal(posts(), before + 1);
         if (mode === 'late') await evaluate('Promise.all(planLateWaiters.splice(0).map(run=>run()))');
         assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1);
         const bodies = await evaluate('planBodies.slice(-2)'); assert.deepEqual(bodies[0], original); assert.deepEqual(bodies[1], original);
@@ -176,8 +182,8 @@ test('Gate6B built scheduling preserves exact plans, recovery, source boundaries
     });
     await phase('late mutation and receipt responses cannot acknowledge a new A-B-A session or expire it', async () => {
       for (const channel of ['post', 'receipt']) for (const status of [200, 401]) {
-        await evaluate("planListMode='delay401'"); await click('重新读取'); await until(() => evaluate('planWaiters.length===1'), 'held current read');
-        await startPlan('SYN-PLAN-08', second.id, '1'); await click('预览排单'); await has('确认排单变更'); await evaluate('planMode=' + JSON.stringify(channel === 'post' ? 'delay' + status : 'lost')); await click('确认保存');
+        await startPlan('SYN-PLAN-08', second.id, '1'); await evaluate("planListMode='delay401'"); await click('重新读取'); await until(() => evaluate('planWaiters.length===1'), 'held current read');
+        await click('预览排单'); await has('确认排单变更'); await evaluate('planMode=' + JSON.stringify(channel === 'post' ? 'delay' + status : 'lost')); await click('确认保存');
         if (channel === 'receipt') { await has('保存结果尚未确认'); await evaluate('planReceiptMode=' + JSON.stringify('delay' + status)); await click('核对原请求', '[role=dialog] button'); }
         const waiters = channel === 'post' ? 'planPostWaiters' : 'planReceiptWaiters'; await until(() => evaluate(waiters + '.length===1'), 'held old response'); const original = await pendingCommand();
         const key = 'zhixu.server.production-plan.pending.v1.' + (await x.pool.query("SELECT public_id::text FROM app_users WHERE username='plan.editor'")).rows[0].public_id, raw = await evaluate('sessionStorage.getItem(' + JSON.stringify(key) + ')');
@@ -203,15 +209,18 @@ test('Gate6B built scheduling preserves exact plans, recovery, source boundaries
       await click('加载更早记录', '[role=dialog] button'); await until(() => evaluate("[...document.querySelectorAll('[role=dialog] strong')].some(n=>n.textContent.startsWith('版本 1 ·'))"), 'oldest exact version'); const text = await evaluate("document.querySelector('[role=dialog]').innerText"); assert.ok(text.includes('Y历史原组名')); assert.ok(text.includes('Y历史采用后组名')); assert.equal(text.includes('版本 53'), false); assert.equal(text.includes('当前名称不能补造历史'), false); await shot('anchored-history'); await click('关闭排单历史');
     });
     await phase('revoked write permission preserves pending bytes until authorized receipt lookup and exact retry', async () => {
-      await x.user('plan.revoked'); await loginCookie('plan.revoked'); await navigate('/production-scheduling'); await has('A合成一组'); await startPlan('SYN-PLAN-11', second.id, '1'); await click('预览排单'); await has('确认排单变更'); await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='plan.revoked' AND permission_key='schedule.create'"); const n = await count('production_schedule_assignments'); await click('确认保存'); await has('没有执行此操作的权限'); const original = await pendingCommand(); assert.equal(await count('production_schedule_assignments'), n);
+      await x.user('plan.revoked'); await loginCookie('plan.revoked'); await navigate('/production-scheduling'); await has('A合成一组'); await startPlan('SYN-PLAN-11', second.id, '1'); await click('预览排单'); await has('确认排单变更'); await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='plan.revoked' AND permission_key IN ('schedule.create','schedule.edit')"); const n = await count('production_schedule_assignments'); await click('确认保存'); await has('没有执行此操作的权限'); const original = await pendingCommand(); assert.equal(await count('production_schedule_assignments'), n);
       await click('核对原请求', '[role=dialog] button'); await has('没有执行此操作的权限'); assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent==='重试原请求')"), false);
       await x.pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('plan.revoked','schedule.create')"); await click('核对原请求', '[role=dialog] button'); await has('暂未找到原操作回执'); await click('重试原请求', '[role=dialog] button'); await has('排单已保存'); assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1); await loginCookie('plan.editor'); await navigate('/production-scheduling'); await has('A合成一组');
+    });
+    await phase('zero remaining quantity does not offer an accidental one-click zero edit', async () => {
+      await x.plan(orders[11], data({ executorId: second.id, plannedQuantity: '100.125' })); await click('未排订单'); await click('全部订单'); await field('input[aria-label=搜索排单]', 'SYN-PLAN-12'); await has('SYN-PLAN-12'); await click('查看排单', '.ps-pool-row button'); await click('编辑排单', '[role=dialog] button'); await has('可排 0'); assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='全部可排数量').disabled"), true); assert.equal(await evaluate("document.querySelector('input[aria-label=排单数量]').value"), '100.125'); await closeClean();
     });
     await phase('real desktop, DPR and mobile geometry preserve usable queue and form bounds', async () => {
       for (const [width, deviceScaleFactor] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {
         await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor, mobile: width === 390 }); await navigate('/production-scheduling'); await has('A合成一组');
         let metrics = await evaluate("({page:'queue',width:innerWidth,scroll:document.documentElement.scrollWidth})"); assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); geometry.push(metrics); await shot('queue-' + width);
-        await startPlan('SYN-PLAN-09', second.id); metrics = await evaluate("({page:'form',width:innerWidth,scroll:document.documentElement.scrollWidth,panel:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON()})"); assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.panel.width <= width + 1); geometry.push(metrics); await shot('form-' + width); await closeClean(); await has('有未保存修改'); await click('放弃修改');
+        await startPlan('SYN-PLAN-09', second.id); metrics = await evaluate("({page:'form',width:innerWidth,scroll:document.documentElement.scrollWidth,panel:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON(),fields:[...document.querySelectorAll('[role=dialog] input,[role=dialog] select,[role=dialog] textarea')].filter(n=>n.getClientRects().length).map(n=>({label:n.getAttribute('aria-label'),left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right}))})"); assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.panel.width <= width + 1); assert.ok(metrics.fields.every(row => row.left >= metrics.panel.left && row.right <= metrics.panel.right), JSON.stringify(metrics)); geometry.push(metrics); await shot('form-' + width); await closeClean(); await has('有未保存修改'); await click('放弃修改');
       }
     });
     assert.deepEqual(errors, []); assert.deepEqual(x.errors, []); assert.equal(await count('quote_center_quotes'), 0);

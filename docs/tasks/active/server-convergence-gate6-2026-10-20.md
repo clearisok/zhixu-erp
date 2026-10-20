@@ -280,3 +280,9 @@ main独立API仍996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原头保�
 页面源checkpoint1bf19744669c97f46dba4e74f67bc6fda3b85c68及三build-info精确Server构建/串行Node导入已通过，未上传。
 首次真实built Chromium停在空库窄屏：Master隐藏后详情仅显示“请选择”，缺少可见空状态；不是接口/登录/数据失败。
 失败记录在本机production-planning-ui/1bf...-1792511750946；没有继续下游或声称浏览器通过。已在原详情区域补同一EmptyState，待重构建验证。
+
+2026-10-21前向：b915空状态已通过；第二次built验收脚本未等待异步表单，第三次ABA脚本延迟了已卸载视图，
+第四次撤权脚本保留edit而误预期GET被403，均保留原失败，修正测试前置而非放松产品保护。cc8页面实际14业务场景通过，
+第五次停在390工具栏通用actions被Foundation隐藏；Server页面限定class恢复已有视图按钮，不改变Browser页或全局Toolbar。
+加入原orderRead=snapshot开关到排单路由，默认关闭时不意外开放；对应正负单元沿用同一authority服务。
+新页面完整验收仍待，不能把14个子项或旧CI称本Phase全通过。

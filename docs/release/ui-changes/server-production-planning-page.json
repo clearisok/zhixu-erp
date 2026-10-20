@@ -3,6 +3,7 @@
   "level": "V1",
   "paths": [
     "app/production-scheduling/page.tsx",
+    "app/production-scheduling/production-scheduling.css",
     "components/foundation/app-shell.tsx",
     "features/quote-center/authority/quote-authority.ts",
     "features/operations-settings/components/server-production-reference-picker.tsx",

@@ -163,7 +163,7 @@ function Workspace() {
       : state?.action?.kind === "cancel" ? { [state.action.order.summary.id]: state.action.order.summary } : {};
 
   return <PermissionAuthorityProvider can={session.hasPermission}>
-    <PageContainer className="ps-scheduling-page">
+    <PageContainer className="ps-scheduling-page ps-server-scheduling-page">
       <PageHeader eyebrow="PRODUCTION SCHEDULING" title="生产排单" count={directory ? `${directory.total} ${state?.view === "groups" ? "个生产组" : "张订单"}` : undefined}
         description="按生产组查看计划队列，再处理未排订单。" secondaryActions={<Button variant="secondary" onClick={refresh}>重新读取</Button>} />
       {state?.notice && <p role="status">{state.notice}</p>}{state?.error && <p role="alert">{state.error}</p>}
@@ -171,7 +171,7 @@ function Workspace() {
         {state.pending && <Button variant="secondary" disabled={state.busy} onClick={() => void check()}>核对原请求</Button>}
         {canRetry && <Button disabled={state.busy} onClick={() => void send(state.pending!)}>重试原请求</Button>}
       </Card>}
-      <Toolbar search={<SearchField label="搜索排单" value={state?.search ?? ""} onChange={search => change(value => ({ ...value, search, offset: 0, groups: undefined, orders: undefined, listError: "" }))}
+      <Toolbar className="ps-workspace-toolbar" search={<SearchField label="搜索排单" value={state?.search ?? ""} onChange={search => change(value => ({ ...value, search, offset: 0, groups: undefined, orders: undefined, listError: "" }))}
         placeholder={state?.view === "groups" ? "搜索生产组、地点或日历，空格为且" : "搜索订单、款号或客户，空格为且"} />}
         actions={<div className="ps-view-tabs">{([["groups", "生产组"], ["orders", "未排订单"], ["warnings", "计划异常"]] as const).map(([key, label]) => <button key={key} className={state?.view === key ? "active" : ""} onClick={() => chooseView(key)}>{label}</button>)}</div>} />
       {state?.listError && <p role="alert">{state.listError}</p>}
