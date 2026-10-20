@@ -4,6 +4,10 @@
 
 为订单、排单和关账提供可复用的生产基础资料、关账默认设置、权限目录、追加式日志和非破坏持久化边界。本模块自身不承载业务流程；订单业务位于 `features/order-center/`，排单业务位于 `features/production-scheduling/`，关账业务位于 `features/closing-center/`。
 
+## Server收敛进展（2026-10-20，Gate6）
+
+现有下文功能仍属Browser owner。Server仅新增四资源命令的纯输入契约与8项测试，位于 `server/production-resources/contract.ts`；尚无资源schema/API/UI，不把契约等同于服务端持久化。计划日历→地点→组及独立外发厂，稳定ID、版本、停用保留历史、无默认Seed，不调用Browser聚合normalizer。资源关系、fresh权限、CAS、事务幂等与审计留下一小阶段验收。物流与关账不混入；Server关账目标按D147为CNY销售/USD工价，未实现，不修改下文Browser历史RMB字段。精确阶段证据见[Gate6](../tasks/active/server-convergence-gate6-2026-10-20.md)。
+
 ## Current behavior
 
 - “基础设置 > 生产组”支持查询、新增、编辑、排序、备注和启用/停用。

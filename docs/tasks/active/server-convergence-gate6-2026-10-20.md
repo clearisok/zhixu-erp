@@ -20,3 +20,15 @@ Gate5精确c6已由既有工具一次上传并独立GitHub API核实；Baseline3
 ## Next
 
 先完成Gate5引用修复和精确CI；本分支是独立本地准备checkpoint，不作为已验收Gate6交付。之后整合经过验收的依赖历史，先实现6A后台，明确未开放路线，再做既有UI接线。完整产品体验前仍须维护旧Quote长验收的过时规则和父级预算；原45/44/2结果不被抹去。
+
+## 2026-10-20 18:20 恢复：依赖已绿，6A纯契约
+
+前述c6失败及准备状态保留为发生时记录，由本节前向更新。Gate5最终 `5464aca3582bbec13b056727b7dc3bd8b938cb72` 已由一次正常push交付并经独立GitHub API核实。该精确提交的新Source [39405202505](https://github.com/clearisok/zhixu-erp/actions/runs/39405202505)、Team [39405206974](https://github.com/clearisok/zhixu-erp/actions/runs/39405206974)、Baseline [39405211718](https://github.com/clearisok/zhixu-erp/actions/runs/39405211718) 均completed/success；未用旧目标绿灯替代。main再次独立核实仍 `996dfedc12da3527343cd3ff2aa5eea35497e10e`。
+
+本分支保留准备184b110e，并以显式merge `251287b943df4e240467c51dc56844d6ee79729a` 整合已验收5464历史，无冲突或继承用户dirty。修改前登记仅两个实现owner未跟踪契约文件；共享摘要修改前逐字、逐SHA256存档于 `completed/2026-10-20-gate6-inputs/reference-fix-5464aca3/`。
+
+本小阶段仅新增 `server/production-resources/contract.ts` 及其测试：四类显式输入、服务端身份与版本边界、真实日期、非空唯一工作日/例外日、Unicode、非有限值、稀疏数组及伪服务端字段拒绝。生产组排序保留小数；外发厂不强加地点/日历；没有Browser默认资料、成本或关账币种。技术上限明确拒绝而非截断：1000例外、3650提前天数、排序绝对值10亿。
+
+本阶段实际执行：纯契约8/8（369.9008ms）、全量typecheck、Node编译、两精确路径lint通过；独立审查无阻塞。尚无新数据库表、资源API、权限命令、事务幂等、CAS、资源关系查询或UI，不能据此标记资源能力完成，也未声称重跑完整项目/数据库/浏览器。下一步6A后台再依次验证这些边界，随后复用既有表单。保留旧45/44/2验收缺口、62426原镜像与全部真实操作限制。
+
+收口再次实际执行纯契约8/8（308.0259ms），精确main源码/证据守卫PASS（11页/48能力/41继承UI路径，无新增UI），显式发布基线116/116（160044.8728ms）；无失败、取消或跳过。该基线不替代资源DB/API/浏览器验收。当前小阶段独立commit后继续6A后台，不创建累计重复PR。

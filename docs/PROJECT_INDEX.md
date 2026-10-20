@@ -1,11 +1,10 @@
 # 项目知识索引
 
-2026-10-20最新恢复：[Gate5任务](tasks/active/server-convergence-gate5-2026-10-20.md)、[引用修复证据](tasks/completed/2026-10-20-order-quote-reference-ci-repair.md)、CURRENT_STATE、AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；后端修复aaf12af31b5ba29a80fa98db9114a287f905c69a、proof07cd7ffb；UI/配置仍54原blob。26/40/45/33定向及类型/Node/lint、显式116基线和精确main守卫通过，228证据/48能力前向绑定。旧c6送达后Baseline/Team绿、Source因新引用清单遗漏失败；已保守修复，最终新精确远端/CI待核，不借旧绿灯。
+2026-10-20最新恢复：[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；当前codex/server-production-resources，显式merge251287b9保留准备184及Gate5最终5464历史。G5最终5464已独立核实送达，新Source39405202505/Team39405206974/Baseline39405211718全部success；不再借旧c6绿灯或重复调度。
 
-[原54工程证据](tasks/completed/2026-10-20-order-quote-context-engineering.md)保留927项目/261数据库/两构建/8+40+13浏览器；旧长45/44/2和未启动后半仍未冒称全绿。规则D145/D149报价来源/创建参考与采用分离，D146系统管理，D147整体收敛。Gate4精确96三CI已绿，4C写入未做；Gate6四资源仅只读评估/独立准备184b110e，生产完成/出货/关账尚未闭环。
+Gate6目前仅四资源纯输入契约与8/8验证、types/Node/两路径lint；无SQL/API/UI/CAS/事务幂等，不标记资源完成。继续日历→地点→生产组及独立外发厂，复用现有权限和表单，无Browser默认Seed。Gate5源aaf/proof07/UI54、228证据/48能力及旧失败见[引用修复证据](tasks/completed/2026-10-20-order-quote-reference-ci-repair.md)；[原54工程证明](tasks/completed/2026-10-20-order-quote-context-engineering.md)与旧45/44/2验收缺口保持。
 
-#120–127不自动合并/关闭，不建重复累计业务PR。62426仍Gate1源8175，3001/50426/59069保留，未升级或人工接受。持续Git授权限工程交付/CI，不扩正式部署、真实账号/业务库、新来源读取/绑定/调度或退役。收口前日期/hash/结果/限制[逐字归档](tasks/completed/2026-10-20-gate5-inputs/pre-final-source54/)，更早历史在其链接中。
-
+D145/D149报价来源与创建参考、D146系统管理、D147整体收敛仍有效。Gate4精确96三CI已绿，4C写入未做；生产排单/完成、出货、关账尚未闭环。#120–127不自动合并/关闭，不建重复累计业务PR。62426仍Gate1源8175，3001/50426/59069保留，未升级或人工接受。持续工程Git授权不扩真实数据/来源/部署/退役。前次三摘要[逐字归档](tasks/completed/2026-10-20-gate6-inputs/reference-fix-5464aca3/)，保留日期/hash/结果/限制。
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
