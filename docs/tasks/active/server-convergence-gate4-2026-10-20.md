@@ -265,3 +265,11 @@ A fresh safe read-only network diagnosis observed default4191ms, HTTP1.1 4865ms
 and OpenSSL/HTTP1.1 4746ms all command_pass at main996. Shared config unchanged,
 no push by diagnosis, root cause unresolved. Standing authority allows one
 bounded final delivery after local acceptance, not unlimited retries.
+
+Independent evidence review found the prior9-case title described a full A→B→A
+cycle but the actual held replies covered A→B and A→A. Rather than weaken the
+requirement, the original A200 now stays pending through real logout/login to B,
+then logout/login back to A, before release; old401 separately crosses same-account
+re-login. Final strengthened9/9 passed20370ms on unchanged production sourcee9.
+The frozen proof uses this precise scope, while prior screenshot hashes still
+identify their original20977ms run. No original log or commit is overwritten.

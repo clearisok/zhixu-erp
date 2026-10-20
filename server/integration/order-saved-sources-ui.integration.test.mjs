@@ -217,6 +217,12 @@ test('built order disclosures preserve saved size and owned plan facts without s
         await input('input[name=username]', nextUser); await input('input[name=password]', x.password); await click('登录织序');
         await has('查看颜色尺码'); await fold('来源与技术详情'); await has('9007199254740993.123456789012345678');
         mark('new identity plan shown');
+        if (mode === 'delay200') {
+          await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员');
+          await input('input[name=username]', x.users[0]); await input('input[name=password]', x.password); await click('登录织序');
+          await has('查看颜色尺码'); await fold('来源与技术详情'); await has('9007199254740993.123456789012345678');
+          mark('A to B to A plan shown before releasing original A reply');
+        }
         assert.equal(await evaluate('planWaiters.length'), 1, 'held old response must survive the real SPA login transition');
         await evaluate('planWaiters.splice(0).forEach(done=>done())'); await wait(250);
         mark('old reply released');

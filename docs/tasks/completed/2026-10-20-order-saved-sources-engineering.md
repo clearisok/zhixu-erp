@@ -47,12 +47,13 @@ and receipt-protected writes remain a later optional slice.
   passed with full application SHAe9aca2cb5792f53ab595f2c08dc1ecee8a46e185.
   Server buildIdserver-g4b-e9aca2cb, buildTime2026-10-20T07:15:47.5649641Z;
   build metadata is retained in ignored outputs, no running image was upgraded.
-- New real built Chromium suite9/9 passed finally (20977ms): six widths
+- New real built Chromium suite9/9 passed finally (20370ms): six widths
   1920/1536@1.25/1440/1280/900/390, native keyboard, default closed/no eager GET,
   small decimals0/0.0001/1.23456/null, slot gaps/duplicate labels/beyond26,
   exact large plan decimals/null/void history, offline403/wrong owner/manual retry,
   actual processing Quote→batch→SO with no invented Ainuoke data, all seven roles,
-  old200/401 across real A→B→A logins, and current401 clearing facts/login.
+  an original held200 across real A→logout→B→logout→A, held401 across same-account
+  A→logout→A, and current401 clearing facts/login.
 - Existing built P6 suite13/13 passed (59334ms): original layout/headers at six
   widths, trusted login/deep links, seven-role material reads, persisted next
   generation, failure recovery, unsupported routes, unsaved/unknown Quote save and
@@ -69,7 +70,11 @@ session case was cancelled at the parent deadline. Native Enter text/page focus,
 per-command15-second CDP deadlines and close rejection fixed the harness; product
 source did not change. The cancelled run's exact private browser/process and tmpfs
 fixture were identified and cleaned; other older fixtures/user environments were
-preserved. A subsequent9/9 pass (172827ms) and final9/9 pass prove the correction.
+preserved. Subsequent9/9 (172827ms) and9/9 (20977ms) prove the harness correction.
+Independent evidence review clarified those earlier logins were A→B and A→A,
+not one pending reply crossing the full cycle. The final strengthened9/9
+(20370ms) keeps the original A200 pending through B and back to A before release.
+Production source stayede9; screenshot hashes below bind the earlier20977ms run.
 
 ## Local visual evidence and boundaries
 
