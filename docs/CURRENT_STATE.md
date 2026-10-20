@@ -4,7 +4,7 @@
 
 Gate1空持久目标及#125、Gate2组合及#126、Gate3导航、Gate4A/4B保存来源/颜色分码/DeliveryPlan只读链已有隔离工程与各自精确三CI；Gate4最终96的Source39390380075/Team39390385593/Baseline39390391327全部成功。Gate4C写入、Server排单/完成、成衣出货和关账尚未闭环。
 
-Gate5应用本地验收完成：既有首次来源选择→原new页可信非金额事实→显式经销草稿→原Editor。0033保存不可变创建参考，复用原编号/writer/defaults/回执，不自动写SO/CCT/采用；普通一键创建及加工批次不变。17新API/客户端、927项目、261数据库、两构建、新8及现行40/P6 13浏览器、显式116基线、类型/Node/lint通过；独立只读审查无新阻断。首次失败与修复保留，冻结证据/精确守卫绑定及最终远端交付仍待。详见[工程证据](tasks/completed/2026-10-20-order-quote-context-engineering.md)和[Gate5](tasks/active/server-convergence-gate5-2026-10-20.md)。
+Gate5应用本地验收完成：既有首次来源选择→原new页可信非金额事实→显式经销草稿→原Editor。0033保存不可变创建参考，复用原编号/writer/defaults/回执，不自动写SO/CCT/采用；普通一键创建及加工批次不变。17新API/客户端、927项目、261数据库、两构建、新8及现行40/P6 13浏览器、显式116基线、类型/Node/lint通过；独立只读审查无新阻断。首次失败与修复保留；工程证据f5c1eae0已冻结，226条证据/48能力前向绑定及exact-main守卫通过（11页/41累计UI路径），旧222证据/47能力/运行截图未改；最终远端交付仍待。详见[工程证据](tasks/completed/2026-10-20-order-quote-context-engineering.md)和[Gate5](tasks/active/server-convergence-gate5-2026-10-20.md)。
 
 额外旧Quote长套件未绿：45通过/44失败/2取消，旧规则断言与D145/96已冲突，31后续项未启动；不声称全产品浏览器完成，完整体验前需独立维护旧验收。当前现行四组40项已通过，未为旧测试恢复共享价格或加工成本显示。
 

@@ -1837,6 +1837,40 @@
       "recordedAtSha": "9f23b8d61e09ff344142aa70e353f89dd427cf51",
       "renderedSourceSha": "e9aca2cb5792f53ab595f2c08dc1ecee8a46e185",
       "sha256": "e5a2dba93ffb9eec3fc4d3933a33a3b60c671087c1e1631b6010203a3f69c5c1"
+    },
+    {
+      "id": "decisions-source-quote-context-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+      "sha256": "a223ff3cc94892c1dfd3b8276450fca5ae8f083336b53033bf81ab884d827f4c",
+      "supersedes": "decisions-server-navigation-continuity-20261020",
+      "changeReason": "Approved convergence Gate5 adds explicit source-context draft creation using the existing writer/receipt/editor; preserve ordinary creation, immutable history, price ownership and deployment boundaries."
+    },
+    {
+      "id": "order-source-quote-context-20261020",
+      "kind": "document",
+      "path": "docs/features/ORDER_BUSINESS_SOURCE.md",
+      "recordedAtSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+      "sha256": "fbda716ce45bff18581c3a27b0a45f2ca2140d52aafbdf1a5a890b12cd3014f6",
+      "supersedes": "source-stabilization-20261019",
+      "changeReason": "Approved convergence Gate5 adds explicit source-context draft creation using the existing writer/receipt/editor; preserve ordinary creation, immutable history, price ownership and deployment boundaries."
+    },
+    {
+      "id": "quote-source-context-feature-20261020",
+      "kind": "document",
+      "path": "docs/features/QUOTE_CENTER.md",
+      "recordedAtSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+      "sha256": "a0ce7ef69a73256671216c52ef80a35f23dc2358ef9b0d7fc31945b8c53058a5",
+      "changeReason": "Approved convergence Gate5 adds explicit source-context draft creation using the existing writer/receipt/editor; preserve ordinary creation, immutable history, price ownership and deployment boundaries."
+    },
+    {
+      "id": "order-quote-context-create-engineering-20261020",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-20-order-quote-context-engineering.md",
+      "recordedAtSha": "f5c1eae04dd6189fe2da05307a8b9dfcb73c3e30",
+      "renderedSourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+      "sha256": "beb005932cc9b9bb95460a5ff9806b379239158ab7718f3362118ff0a4fa0f01"
     }
   ],
   "pages": [
@@ -1865,13 +1899,15 @@
       "routeFile": "app/quote-center/new/page.tsx",
       "components": [
         "features/quote-center/components/production-quote-pages.tsx",
-        "features/quote-center/components/quote-editor.tsx"
+        "features/quote-center/components/quote-editor.tsx",
+        "features/quote-center/components/quote-direct-create.tsx"
       ],
       "acceptance": "approved-history",
       "acceptanceScope": "D-102 click creates and retains one numbered draft; supersedes old two-step cancellation. No complete standalone screenshot baseline claimed.",
       "evidence": [
         "decisions",
-        "quote-pr91"
+        "quote-pr91",
+        "order-quote-context-create-engineering-20261020"
       ]
     },
     {
@@ -1879,7 +1915,9 @@
       "route": "/quote-center/detail",
       "routeFile": "app/quote-center/detail/page.tsx",
       "components": [
-        "features/quote-center/components/quote-editor.tsx"
+        "features/quote-center/components/quote-editor.tsx",
+        "features/quote-center/components/quote-creation-origin.tsx",
+        "features/quote-center/components/restricted-quote-content.tsx"
       ],
       "acceptance": "approved-history",
       "acceptanceScope": "Original Editor plus PR91 compact sections/PV cards; PR93 grants are security constraints, not new layout approval.",
@@ -1888,7 +1926,8 @@
         "quote-pr91",
         "security-pr93",
         "quote-detail-1280",
-        "quote-pv-390"
+        "quote-pv-390",
+        "order-quote-context-create-engineering-20261020"
       ]
     },
     {
@@ -1936,7 +1975,8 @@
       "routeFile": "app/order-center/server-detail/page.tsx",
       "components": [
         "features/order-center/components/server-sales-order-detail-page.tsx",
-        "features/order-center/components/server-saved-order-sources.tsx"
+        "features/order-center/components/server-saved-order-sources.tsx",
+        "features/order-center/components/order-business-source-button.tsx"
       ],
       "acceptance": "approved-history",
       "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D147/Gate4B saved sizes and readonly plan disclosures have isolated engineering evidence only; no new human acceptance, runtime upgrade or Source activation.",
@@ -1954,7 +1994,8 @@
         "material-order-header-order-header-390",
         "material-order-page-approved-scope",
         "material-order-header-ui-verification",
-        "order-saved-source-read-engineering-20261020"
+        "order-saved-source-read-engineering-20261020",
+        "order-quote-context-create-engineering-20261020"
       ]
     },
     {
@@ -6571,6 +6612,91 @@
           "runtimeId": "preview18444",
           "evidence": [
             "order-saved-source-read-engineering-20261020"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-quote-context-create",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
+      "evidence": [
+        "order-quote-context-create-engineering-20261020"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-20",
+          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
+          "sourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+          "evidence": [
+            "order-quote-context-create-engineering-20261020"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-20",
+          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
+          "sourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+          "evidence": [
+            "order-quote-context-create-engineering-20261020"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-20",
+          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
+          "sourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+          "evidence": [
+            "order-quote-context-create-engineering-20261020"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-20",
+          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
+          "sourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+          "evidence": [
+            "order-quote-context-create-engineering-20261020"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-20",
+          "scope": "D147/Gate5 trusted initial contract context explicitly creates a distribution Quote draft through the existing defaults writer, numbered receipt owner and Editor. Immutable creation reference is separate from commercial adoption; no SO/CCT/processing consumer or Browser writes. Known rejections and late session replies are protected. Local scoped acceptance passed; legacy whole-Quote UI suite remains non-green and unexecuted later cases are not accepted.",
+          "sourceSha": "54ef59e408c0b7f6bead8948b64500b64e5dcf86",
+          "evidence": [
+            "order-quote-context-create-engineering-20261020"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-20",
+          "scope": "New context-create candidate not deployed. Historical runtime source/image retained without re-observation.",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "evidence": [
+            "order-quote-context-create-engineering-20261020"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-20",
+          "scope": "New context-create candidate not deployed. Historical runtime source/image retained without re-observation.",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "evidence": [
+            "order-quote-context-create-engineering-20261020"
           ]
         }
       }

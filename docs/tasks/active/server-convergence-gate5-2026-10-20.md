@@ -40,3 +40,5 @@ Gate 4A/4B 的上述完整提交已通过既有工具一次 push 并独立核实
 额外旧Quote+P6长套件实际45pass/44fail/2cancel，439204ms；四类旧假设在96/D145已过时，31后半项因父测试结束无法启动。当前替代套件通过不等于旧后半导出/设置已验，未恢复废止生产行为或增加超时迎合旧测试。完整体验前单列旧验收维护，保留原失败日志和源文件。
 
 main再次API核实仍996。三份收口前摘要逐字归档 `completed/2026-10-20-gate5-inputs/pre-final-source54/`。下一步先提交这份新工程证据，再追加其精确Git blob绑定/分维度能力，保留所有旧证据/47能力/运行截图；最终exact-main守卫、独立复审、干净checkpoint和有界交付/三CI仍待，不冒称远端送达。
+
+冻结工程证据checkpoint `f5c1eae04dd6189fe2da05307a8b9dfcb73c3e30`；新文档证据4条以Git blob绑定（3条source54文档+1条f5工程证明，rendered54），226证据/48能力；旧222证据、47能力、PNG、运行快照逐项保持。最终源码守卫针对独立核实main996通过：11页面/48能力/41累计UI路径，checkedHead=f5、manifest为待提交前向增量。现LOCAL ENGINEERING PASS；最终独立复核/干净commit及远端交付/CI继续，不因本地PASS称main或部署完成。
