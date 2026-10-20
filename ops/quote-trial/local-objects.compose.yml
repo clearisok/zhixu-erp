@@ -3,6 +3,10 @@ services:
   app:
     environment:
       NODE_EXTRA_CA_CERTS: /run/tls/ca.pem
+      NEXT_PUBLIC_ZHIXU_ORDER_READ: snapshot
+      ZHIXU_AINUOKE_SOURCE_READ: snapshot
+      ZHIXU_AINUOKE_SOURCE_KEY: local-empty
+      ZHIXU_AINUOKE_SOURCE_MAX_AGE_MS: "600000"
     volumes: !override
       - appsecrets:/run/secrets:ro
       - ${TRIAL_TLS_CA_FILE:?explicit local CA required}:/run/tls/ca.pem:ro
@@ -12,13 +16,21 @@ services:
       objects-tls: {condition: service_healthy}
   objects:
     image: bitnamilegacy/minio@sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20
-    user: "1001:1001"
+    # Match the pinned image's non-root UID and writable runtime-directory group.
+    user: "1001:0"
+    # The image declares /certs as a VOLUME. Cover the unused internal TLS
+    # directory explicitly so Docker cannot create an unowned anonymous volume.
+    tmpfs:
+      - /certs:ro,size=64k,mode=0555,noexec,nosuid
     environment:
       MINIO_ROOT_USER_FILE: /run/secrets/cos-id
       MINIO_ROOT_PASSWORD_FILE: /run/secrets/cos-key
       MINIO_BROWSER: "off"
     volumes:
-      - objects:/bitnami/minio/data
+      - type: volume
+        source: objects
+        target: /bitnami/minio/data
+        volume: {nocopy: true}
       - objectsecrets:/run/secrets:ro
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9000/minio/health/live"]
@@ -47,6 +59,10 @@ services:
       retries: 30
     depends_on:
       objects: {condition: service_healthy}
+  gateway:
+    # Docker does not publish host ports from an internal-only network. Only this
+    # fixed-upstream TLS gateway joins the separate ingress bridge.
+    networks: [default, ingress]
 volumes:
   objects:
   appsecrets:
@@ -54,3 +70,5 @@ volumes:
 networks:
   default:
     internal: true
+  ingress:
+    internal: false

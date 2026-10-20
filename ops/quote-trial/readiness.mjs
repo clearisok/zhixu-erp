@@ -17,6 +17,7 @@ export function probeJson(url,ca,{timeoutMs=2500,hostname}={}) {
 }
 export function verifyBuild(info,safe){
   if(info.gitCommit!==safe.commit||info.buildId!==safe.buildId||info.buildTime!==safe.buildTime||info.quoteAuthority!=='server'||info.masterSettingsAuthority!=='server'||info.quoteWriterMode!=='writable'||info.identityMode!=='session')throw Error('runtime_identity_mismatch');
+  if(safe.localObjects&&info.orderRead!=='snapshot')throw Error('runtime_identity_mismatch');
 }
 export function verifyRuntime(rows,expected,{requireRunning=false}={}){
   const services=trialServices(expected.localObjects);

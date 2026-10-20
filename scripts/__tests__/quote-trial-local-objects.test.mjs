@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateTrial, validateComposeTarget } from '../../ops/quote-trial/trial.mjs';
-import { LOCAL_OBJECT_IMAGE, LOCAL_SERVICES, isLocalObjectEndpoint, verifyLocalObjectMounts, assertLocalMaintenance, assertLocalInitialization } from '../../ops/quote-trial/local-objects.mjs';
+import { LOCAL_OBJECT_IMAGE, LOCAL_SERVICES, LOCAL_VOLUMES, isLocalObjectEndpoint, verifyLocalObjectMounts, verifyLocalVolumeOwnership, assertLocalMaintenance, assertLocalInitialization } from '../../ops/quote-trial/local-objects.mjs';
 import { verifyRuntime, waitReady } from '../../ops/quote-trial/readiness.mjs';
 import { readTrialConfig } from '../../ops/quote-trial/trial.mjs';
 import { execFileSync } from 'node:child_process';
@@ -19,11 +19,11 @@ test('storage loader URL normalization preserves the exact local endpoint, never
 const mount=(source,target,read_only=false)=>({type:'volume',source,target,read_only});
 function model(){return {name:safe.project,services:{
   database:{image:'postgres:16-alpine',volumes:[mount('data','/var/lib/postgresql/data')]},
-  app:{image:safe.image,environment:{DB_HOST:'database',DB_NAME:'quote_trial',DB_USER:'quote_trial',NODE_ENV:'production',ZHIXU_IDENTITY_MODE:'session',ZHIXU_COOKIE_SECURE:'true',ZHIXU_GIT_COMMIT:safe.commit,ZHIXU_BUILD_ID:safe.buildId,ZHIXU_BUILD_TIME:safe.buildTime,NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE:'writable',NODE_EXTRA_CA_CERTS:'/run/tls/ca.pem',ZHIXU_ATTACHMENT_S3_ENDPOINT:values.TRIAL_S3_ENDPOINT,ZHIXU_ATTACHMENT_S3_FORCE_PATH_STYLE:'true'},volumes:[mount('appsecrets','/run/secrets',true)]},
-  gateway:{image:safe.image,ports:[{host_ip:'127.0.0.1',published:String(safe.port)}],healthcheck:{test:['CMD','node','/trial/gateway-health.mjs']}},
-  objects:{image:LOCAL_OBJECT_IMAGE,user:'1001:1001',environment:{MINIO_ROOT_USER_FILE:'/run/secrets/cos-id',MINIO_ROOT_PASSWORD_FILE:'/run/secrets/cos-key'},volumes:[mount('objects','/bitnami/minio/data'),mount('objectsecrets','/run/secrets',true)],healthcheck:{test:['CMD','curl','--fail','--silent','http://127.0.0.1:9000/minio/health/live']}},
+  app:{image:safe.image,environment:{DB_HOST:'database',DB_NAME:'quote_trial',DB_USER:'quote_trial',NODE_ENV:'production',ZHIXU_IDENTITY_MODE:'session',ZHIXU_COOKIE_SECURE:'true',ZHIXU_GIT_COMMIT:safe.commit,ZHIXU_BUILD_ID:safe.buildId,ZHIXU_BUILD_TIME:safe.buildTime,NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE:'writable',NODE_EXTRA_CA_CERTS:'/run/tls/ca.pem',NEXT_PUBLIC_ZHIXU_ORDER_READ:'snapshot',ZHIXU_AINUOKE_SOURCE_READ:'snapshot',ZHIXU_AINUOKE_SOURCE_KEY:'local-empty',ZHIXU_AINUOKE_SOURCE_MAX_AGE_MS:'600000',ZHIXU_ATTACHMENT_S3_ENDPOINT:values.TRIAL_S3_ENDPOINT,ZHIXU_ATTACHMENT_S3_FORCE_PATH_STYLE:'true'},volumes:[mount('appsecrets','/run/secrets',true)]},
+  gateway:{image:safe.image,networks:{default:null,ingress:null},ports:[{host_ip:'127.0.0.1',published:String(safe.port)}],healthcheck:{test:['CMD','node','/trial/gateway-health.mjs']}},
+  objects:{image:LOCAL_OBJECT_IMAGE,user:'1001:0',tmpfs:['/certs:ro,size=64k,mode=0555,noexec,nosuid'],environment:{MINIO_ROOT_USER_FILE:'/run/secrets/cos-id',MINIO_ROOT_PASSWORD_FILE:'/run/secrets/cos-key'},volumes:[{...mount('objects','/bitnami/minio/data'),volume:{nocopy:true}},mount('objectsecrets','/run/secrets',true)],healthcheck:{test:['CMD','curl','--fail','--silent','http://127.0.0.1:9000/minio/health/live']}},
   'objects-tls':{image:safe.image,user:'1000:1000',command:['node','/trial/tls-gateway.mjs'],environment:{TRIAL_PROXY_HOST:'objects',TRIAL_PROXY_PORT:'9000'},healthcheck:{test:['CMD','node','/trial/local-object-health.mjs']}},
-},volumes:Object.fromEntries(['data','objects','appsecrets','objectsecrets'].map(key=>[key,{name:`${safe.project}_${key}`}])) ,networks:{default:{name:`${safe.project}_default`,internal:true}}};}
+},volumes:Object.fromEntries(['data','objects','appsecrets','objectsecrets'].map(key=>[key,{name:`${safe.project}_${key}`}])) ,networks:{default:{name:`${safe.project}_default`,internal:true},ingress:{name:`${safe.project}_ingress`,internal:false}}};}
 const expected={project:safe.project,localObjects:true,images:Object.fromEntries(LOCAL_SERVICES.map(s=>[s,`${s}-image`])),hashes:Object.fromEntries(LOCAL_SERVICES.map(s=>[s,`${s}-hash`]))};
 function rows(){const m=model();return LOCAL_SERVICES.map(service=>({project:safe.project,service,image:expected.images[service],configHash:expected.hashes[service],running:true,health:'healthy',mounts:(m.services[service].volumes||[]).map(v=>({Type:'volume',Name:`${safe.project}_${v.source}`,Destination:v.target,RW:!v.read_only}))}));}
 test('local objects is opt-in, fixed HTTPS/path-style, never a remote or invalid fallback',()=>{
@@ -33,7 +33,7 @@ test('local objects is opt-in, fixed HTTPS/path-style, never a remote or invalid
 });
 test('exact five-service local Compose with isolated persistent volumes is accepted',()=>validateComposeTarget(model(),safe));
 test('foreign storage, network, extra services, public ports and TLS downgrades fail closed',()=>{
-  const mutations=[m=>m.services.extra={image:safe.image},m=>delete m.services.objects,m=>m.volumes.objects.external=true,m=>m.volumes.objects.name='old-data',m=>m.networks.default.internal=false,m=>m.networks.old={name:'old'},m=>m.services.objects.ports=[{published:'9000'}],m=>m.services['objects-tls'].ports=[{published:'8443'}],m=>m.services.objects.image='minio:latest',m=>m.services.objects.tmpfs=['/bitnami/minio/data'],m=>m.services.objects.volumes[0].type='bind',m=>m.services.objects.volumes[0].source='foreign',m=>m.services.app.volumes[0].read_only=false,m=>m.services.objects.environment.MINIO_ROOT_PASSWORD='plaintext',m=>m.services.app.environment.NODE_TLS_REJECT_UNAUTHORIZED='0',m=>m.services['objects-tls'].environment.NODE_OPTIONS='--some-hook',m=>m.services['objects-tls'].environment.TRIAL_PROXY_PORT='3000',m=>m.services.objects.healthcheck.disable=true];
+  const mutations=[m=>m.services.extra={image:safe.image},m=>delete m.services.objects,m=>m.volumes.objects.external=true,m=>m.volumes.objects.name='old-data',m=>m.networks.default.internal=false,m=>m.services.app.networks={default:null,ingress:null},m=>m.services.objects.volumes[0].volume.nocopy=false,m=>m.networks.old={name:'old'},m=>m.services.objects.ports=[{published:'9000'}],m=>m.services['objects-tls'].ports=[{published:'8443'}],m=>m.services.objects.image='minio:latest',m=>m.services.objects.tmpfs=['/bitnami/minio/data'],m=>m.services.objects.volumes[0].type='bind',m=>m.services.objects.volumes[0].source='foreign',m=>m.services.app.volumes[0].read_only=false,m=>m.services.objects.environment.MINIO_ROOT_PASSWORD='plaintext',m=>m.services.app.environment.NODE_TLS_REJECT_UNAUTHORIZED='0',m=>m.services['objects-tls'].environment.NODE_OPTIONS='--some-hook',m=>m.services['objects-tls'].environment.TRIAL_PROXY_PORT='3000',m=>m.services.objects.healthcheck.disable=true];
   for(const mutate of mutations){const m=model();mutate(m);assert.throws(()=>validateComposeTarget(m,safe));}
   assert.throws(()=>validateComposeTarget(model(),{...safe,localObjects:false}));
 });
@@ -58,8 +58,16 @@ test('init validates existing DB identity before up and never adopts an unattach
   const db=rows().filter(r=>r.service==='database');assertLocalInitialization(db,expected,true);
   for(const field of ['image','configHash','project'])assert.throws(()=>assertLocalInitialization([{...db[0],[field]:'wrong'}],expected,true),/runtime_identity_mismatch/);
 });
+
+test('unattached existing local volumes require exact project and volume ownership before any up',()=>{
+  const volumes=LOCAL_VOLUMES.map(key=>({Name:`${safe.project}_${key}`,Labels:{'com.docker.compose.project':safe.project,'com.docker.compose.volume':key}}));
+  verifyLocalVolumeOwnership([],safe.project);verifyLocalVolumeOwnership(volumes,safe.project);
+  for(const volume of volumes){
+    for(const labels of [null,{}, {...volume.Labels,'com.docker.compose.project':'other'}, {...volume.Labels,'com.docker.compose.volume':'other'}])assert.throws(()=>verifyLocalVolumeOwnership([{...volume,Labels:labels}],safe.project),/runtime_storage_mismatch/);
+  }
+});
 test('DB healthy and five healthy containers cannot hide missing bucket, bad credentials or TLS',async()=>{
-  const probe=async path=>({status:200,body:path.includes('health')?{status:'ok',database:'ready'}:{gitCommit:safe.commit,buildId:safe.buildId,buildTime:safe.buildTime,quoteAuthority:'server',masterSettingsAuthority:'server',quoteWriterMode:'writable',identityMode:'session'}});
+  const probe=async path=>({status:200,body:path.includes('health')?{status:'ok',database:'ready'}:{gitCommit:safe.commit,buildId:safe.buildId,buildTime:safe.buildTime,quoteAuthority:'server',masterSettingsAuthority:'server',quoteWriterMode:'writable',identityMode:'session',orderRead:'snapshot'}});
   await assert.rejects(waitReady({inspect:rows,expected,safe,probe}),/local_object_storage_not_ready/);
   await assert.rejects(waitReady({inspect:rows,expected,safe,probe,storageProbe:async()=>{throw Error('local_object_storage_not_ready');}}),/local_object_storage_not_ready/);
   let calls=0;await waitReady({inspect:rows,expected,safe,probe,storageProbe:async()=>{calls++;}});assert.equal(calls,1);

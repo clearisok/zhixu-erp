@@ -10,14 +10,20 @@ database/app/gateway plus a digest-pinned MinIO and its internal HTTPS proxy.
 It is a local candidate, not a new permission to deploy or replace 50426/3001/18443/18444.
 
 Local mode uses its own project network and four owned named volumes: `data`,
-`objects`, `appsecrets`, `objectsecrets`. Only the gateway has a loopback host port.
+`objects`, `appsecrets`, `objectsecrets`. Only the gateway has a loopback host port
+and a separate project-owned ingress bridge; app/DB/objects stay internal-only.
 No public object/console port, external network/volume, tmpfs business storage,
 legacy import, Browser fallback or continuous source collection. The internal
-network has no external egress. No shared Git, proxy or system certificate trust
+application network has no external egress. No shared Git, proxy or system certificate trust
 configuration is changed. Credentials are generated into a new Windows ACL-protected
 directory; separate Linux secret volumes are seeded once as 1000:1000 / 1001:1001,
 mode 0600 and mounted read-only. A partial preparation is retained for review,
 never overwritten by retry. The new target has no historical business data.
+MinIO runs as its supported non-root 1001:0, with a new 1001:1001/0700 data volume
+and `nocopy`. Its unused `/certs` path is the sole read-only 64KiB tmpfs exception,
+preventing an image-declared anonymous volume; no business bytes use that mount.
+Snapshot reads use the empty `local-empty` namespace, with no source profile,
+target, credentials, collection or scheduler activation.
 
 Use `new-local-target.ps1` with explicit new Root/Project/Port, exact Image/Commit/
 BuildId/BuildTime. It defaults to a non-writing check; `-Execute` only creates

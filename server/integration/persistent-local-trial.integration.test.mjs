@@ -32,6 +32,13 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   const owned=[`zhixu-quote-trial-it-${nonce}`,`zhixu-quote-trial-recovery-${nonce}`];
   const expectedMigrations=(await readdir(resolve('database/migrations'))).filter(n=>/^\d{4}_.+\.sql$/.test(n)).sort();
   let completed=false,backup,backupHash;
+  // A failed Node subtest does not reject t.test(). Stop dependent phases and
+  // retain their private fixtures unless every phase actually completed.
+  async function phase(name,work){
+    let passed=false;
+    await t.test(name,async()=>{await work();passed=true;});
+    if(!passed)throw Error(`owned_phase_failed: ${name}`);
+  }
   t.after(async()=>{
     for(const s of states){assert.ok(owned.includes(s.project));await s.compose(completed?['down','--volumes']:['stop']);}
     if(completed){
@@ -59,7 +66,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   const a=await state(owned[0]);let cookie,quoteId,record,attachmentId,attachmentPath,snapshot,adminHash;
   const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=','base64');
   const read=async(s,session)=>{const r=await s.request(`/api/v1/quotes/${quoteId}`,{cookie:session});assert.equal(r.status,200);return r.json().quote;};
-  await t.test('one-time private preparation and explicit empty-schema init; no automatic migration',async()=>{
+  await phase('one-time private preparation and explicit empty-schema init; no automatic migration',async()=>{
     assert.match(await trial(a,'check'),/CHECK_ONLY/);
     assert.match(await trial(a,'prepare-local'),/LOCAL_SECRETS_PREPARED/);
     await assert.rejects(trial(a,'prepare-local'));
@@ -76,10 +83,15 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     for(const table of tables){assert.match(table,/^[a-z_]+$/);if(!technical.has(table))assert.equal(await a.sql(`SELECT count(*) FROM ${table}`),'0',table);}
     assert.equal(await a.sql('SELECT count(*) FROM app_users'),'1');
     assert.equal(await docker(['exec',a.app,'stat','-c','%u:%g:%a','/run/secrets/cos-id']),'1000:1000:600');
+    assert.equal(await docker(['exec',`${a.project}-objects-1`,'stat','-c','%u:%g:%a','/bitnami/minio/data']),'1001:1001:700');
+    const objectMounts=JSON.parse(await docker(['inspect','--format','{{json .Mounts}}',`${a.project}-objects-1`]));
+    assert.deepEqual(objectMounts.filter(m=>m.Type==='volume').map(m=>m.Name).sort(),[`${a.project}_objects`,`${a.project}_objectsecrets`].sort());
+    const certMounts=JSON.parse(await docker(['inspect','--format','{{json .HostConfig.Tmpfs}}',`${a.project}-objects-1`]));
+    assert.equal(certMounts['/certs'],'ro,size=64k,mode=0555,noexec,nosuid');
     for(const service of ['database','app','objects','objects-tls'])assert.equal(await docker(['port',`${a.project}-${service}-1`]),'');
     cookie=await a.login();
   });
-  await t.test('DB health cannot mask missing bucket, wrong credentials or untrusted object TLS',async()=>{
+  await phase('DB health cannot mask missing bucket, wrong credentials or untrusted object TLS',async()=>{
     assert.equal((await a.request('/api/v1/health')).status,200);
     const bundle=a.values.TRIAL_OBJECT_BUNDLE_DIR;await writeFile(join(bundle,'wrong-id'),'synthetic-wrong-key');
     const wrongCa=join(bundle,'wrong-ca.pem'),wrongKey=join(bundle,'wrong-key.pem');
@@ -92,7 +104,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     finally{await writeFile(a.values.TRIAL_TLS_CA_FILE,originalCa);}
     assert.match(await a.compose(['exec','-T','app','node','/trial/local-object-control.mjs','check']),/READY/);
   });
-  await t.test('formal Quote/attachment API writes only synthetic records and downloads exact S3 bytes',async()=>{
+  await phase('formal Quote/attachment API writes only synthetic records and downloads exact S3 bytes',async()=>{
     assert.equal((await a.request('/api/v1/quotes')).status,401);
     const requestId=randomUUID();const made=await a.request('/api/v1/quotes/creation-defaults',{method:'POST',cookie,body:{clientRequestId:requestId}});assert.equal(made.status,201);
     quoteId=made.json().result.quoteId;record=await read(a,cookie);
@@ -104,7 +116,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     assert.equal(await a.sql('SELECT count(*) FROM sales_orders'),'0');
     await assert.rejects(trial(a,'objects-export'));
   });
-  await t.test('restart and cold container recreation preserve DB identity, adopted rows and attachment bytes',async()=>{
+  await phase('restart and cold container recreation preserve DB identity, adopted rows and attachment bytes',async()=>{
     const before=await a.sql('SELECT string_agg(version::text,\',\' ORDER BY version) FROM schema_migrations');
     assert.match(await trial(a,'restart'),/READY/);
     // Only this newly-created test project is recreated; named volumes remain.
@@ -116,13 +128,13 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     assert.equal(await a.sql('SELECT string_agg(version::text,\',\' ORDER BY version) FROM schema_migrations'),before);
   });
   const target=s=>['-ExpectedContainerName',s.db,'-ExpectedComposeProject',s.project,'-ExpectedVolumeName',`${s.project}_data`,'-ExpectedDatabaseName','quote_trial','-ExpectedTargetFingerprint',sha(`${s.project}|${s.db}|${s.project}_data|quote_trial|local_socket|5432`)];
-  await t.test('offline DB and object bundle backup use the existing exact-target tools',async()=>{
+  await phase('offline DB and object bundle backup use the existing exact-target tools',async()=>{
     await trial(a,'maintenance');const out=await run('pwsh',['-NoProfile','-File',resolve('Backup-Zhixu.ps1'),...target(a)]);
     const name=/filename=(zhixu-[a-zA-Z0-9-]+\.dump)/.exec(out)?.[1];assert.ok(name);backup=resolve('backups',name);backupHash=sha(await readFile(backup));
     assert.match(await trial(a,'objects-export'),/"integrity":"PASS"/);
     const manifest=JSON.parse(await readFile(join(a.values.TRIAL_OBJECT_BUNDLE_DIR,'objects.json'),'utf8'));assert.equal(manifest.objects.length,1);assert.equal(manifest.objects[0].sha256,sha(png));
   });
-  await t.test('independent restore rejects writers/tampering, preserves original IDs and verifies all bytes',async()=>{
+  await phase('independent restore rejects writers/tampering, preserves original IDs and verifies all bytes',async()=>{
     const b=await state(owned[1]);await trial(b,'prepare-local');await b.compose(['up','-d','--wait','database']);
     assert.match(await trial(b,'restore-check'),/EMPTY_NO_CLIENTS/);
     await trial(b,'objects-init');

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { probeJson, verifyRuntime, waitReady, safeFailure } from './readiness.mjs';
-import { LOCAL_OBJECT_IMAGE, trialServices, validateLocalObjectConfig, validateLocalObjectModel, verifyLocalObjectMounts, assertLocalMaintenance, assertLocalInitialization } from './local-objects.mjs';
+import { LOCAL_OBJECT_IMAGE, LOCAL_VOLUMES, trialServices, validateLocalObjectConfig, validateLocalObjectModel, verifyLocalObjectMounts, verifyLocalVolumeOwnership, assertLocalMaintenance, assertLocalInitialization } from './local-objects.mjs';
 export function validateTrial(values) {
   if(!/^zhixu-quote-trial-[a-z0-9-]{3,40}$/.test(values.TRIAL_PROJECT||''))throw Error('invalid_trial_project');
   const port=Number(values.TRIAL_PORT);if(!Number.isInteger(port)||port<1024||port>65535||[3000,3001,3002].includes(port))throw Error('invalid_trial_port');
@@ -63,10 +63,16 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
     };
     docker(['config','-q']);
     validateComposeTarget(JSON.parse(docker(['config','--format','json'])),safe);
+    if(safe.localObjects){
+      const names=new Set(rawDocker(['volume','ls','--format','{{.Name}}']).trim().split(/\r?\n/));
+      const existing=LOCAL_VOLUMES.map(key=>`${safe.project}_${key}`).filter(name=>names.has(name));
+      if(existing.length)verifyLocalVolumeOwnership(JSON.parse(rawDocker(['volume','inspect',...existing])),safe.project);
+    }
     const image=JSON.parse(execFileSync('docker',['image','inspect','--format','{{json .Config.Labels}}',safe.image],{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:10000}));
     if(image['org.opencontainers.image.revision']!==safe.commit||image['io.zhixu.build-id']!==values.TRIAL_BUILD_ID||image['org.opencontainers.image.created']!==values.TRIAL_BUILD_TIME||image['io.zhixu.identity-mode']!=='session'||image['io.zhixu.quote-authority']!=='server'||image['io.zhixu.master-settings-authority']!=='server'||image['io.zhixu.quote-writer-mode']!=='writable')throw Error('image_identity_mismatch');
     const built=JSON.parse(execFileSync('docker',['run','--rm','--network','none','--entrypoint','node',safe.image,'-e',"console.log(require('fs').readFileSync('dist/client/build-info.json','utf8'))"],{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:30000}));
     if(built.gitCommit!==safe.commit||built.buildId!==values.TRIAL_BUILD_ID||built.buildTime!==values.TRIAL_BUILD_TIME||built.identityMode!=='session'||built.quoteAuthority!=='server'||built.masterSettingsAuthority!=='server'||built.quoteWriterMode!=='writable')throw Error('compiled_identity_mismatch');
+    if(safe.localObjects&&built.orderRead!=='snapshot')throw Error('compiled_identity_mismatch');
     if(action==='check')console.log(JSON.stringify({...safe,operation:'CHECK_ONLY'}));
     else if(action==='prepare-local') {
       if(!safe.localObjects||ack!==`--execute=${safe.project}`)throw Error('explicit_matching_execute_required');
@@ -84,6 +90,13 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
           '--mount',`type=bind,source=${values.TRIAL_SECRET_KEY_FILE},target=/input/key,readonly`,safe.image,
           '-c','test ! -e /out/cos-id && test ! -e /out/cos-key && cp /input/id /out/cos-id && cp /input/key /out/cos-key && chown "$1" /out/cos-id /out/cos-key && chmod 600 /out/cos-id /out/cos-key','sh',owner]);
       }
+      const objectVolume=`${safe.project}_objects`;
+      rawDocker(['volume','create','--label',`com.docker.compose.project=${safe.project}`,'--label','com.docker.compose.volume=objects',objectVolume]);
+      // Only the just-created empty volume is initialized. Never repair/chown an
+      // adopted store: prepare-local already refuses every existing target volume.
+      rawDocker(['run','--rm','--network','none','--read-only','--user','0:0','--entrypoint','sh',
+        '--mount',`type=volume,source=${objectVolume},target=/out`,safe.image,
+        '-c','test -z "$(ls -A /out)" && chown 1001:1001 /out && chmod 700 /out']);
       console.log(JSON.stringify({project:safe.project,operation:action,result:'LOCAL_SECRETS_PREPARED'}));
     }
     else if(action==='objects-init') {

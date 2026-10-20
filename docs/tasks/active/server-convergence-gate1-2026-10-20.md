@@ -13,7 +13,7 @@ it is not merged. The approved continuous Goal is now active.
 - Preserve 3001, 50426, 59069, 62326, historical environments, accounts and volumes.
   No cutover, source collection, real account changes, formal deployment or merge.
 - Reuse `ops/quote-trial` production/session/PostgreSQL/S3 and existing backup format.
-  Local objects is opt-in, exact five services with internal-only network, digest-pinned
+  Local objects is opt-in, exact five services with internal application network, digest-pinned
   object image, owned named volumes, private keys and process-specific certificate trust.
 - Normal startup stays schema verify-only. Explicit initialization is new-empty-only.
   No new backend, attachment owner, database restore implementation or global TLS bypass.
@@ -54,3 +54,35 @@ installed the same Python 3.14.8 successfully, with signature/TLS checks intact.
 The Dockerfile now offers explicit build-only `ZHIXU_APK_MIRROR=ustc`; default
 behavior is unchanged, no host/daemon/proxy/trust configuration is altered.
 This is not evidence that the original channel permanently recovered.
+
+## Actual image rehearsal corrections (in progress)
+
+The image `zhixu-persistent-local:8175f628-20261020` built successfully from
+`8175f6280d54b6d4af28cb2ebe6d86741b906b9d`; updated operational scripts are
+separately bound into the test project and must be pinned at final delivery.
+Initial actual-image attempts exposed and corrected:
+
+- Bitnami's data directory is root:root/0775. The 1001:1001 process could not
+  create its private identity files. One-time preparation now initializes only
+  the new empty object volume to 1001:1001/0700; `nocopy` prevents Docker image
+  copy-up from restoring the old directory ownership.
+- The image declares `/certs` as an anonymous volume. Its unused internal TLS
+  directory now has a precise read-only/noexec/nosuid 64KiB tmpfs mount. This is
+  the sole tmpfs exception; all business bytes remain in owned named volumes.
+- Its internal runtime/PID directories require the image's supported non-root
+  `1001:0`, not the initially chosen `1001:1001`. Secret/data ownership remains
+  1001:1001; no root process or broad host permission change is introduced.
+- Docker did not publish the gateway port from an internal-only bridge. Only the
+  fixed-upstream TLS gateway now additionally joins a separate project-owned
+  ingress bridge. App/DB/objects have no external route or public port.
+- The snapshot-enabled image correctly rejected missing source-read configuration.
+  Local mode now explicitly uses snapshot reads under the unused `local-empty`
+  namespace. No profile/target or collector is activated, no credential is mounted,
+  and the internal network still has no external egress.
+- Independent review found pre-start checks must include unattached existing
+  named volumes and failed Node subtests must stop dependent phases. Both are
+  corrected; failed synthetic projects are stopped and retained for diagnosis.
+
+These failures are engineering findings, not successful acceptance. The protected
+3001/50426 listeners remain unchanged. Full lint and 94 release tests passed;
+the final full persistence/recovery result remains pending.
