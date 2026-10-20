@@ -177,6 +177,9 @@
 }
 
 @media (max-width:599px) {
+  .ps-server-scheduling-page .ps-workspace-toolbar { flex-direction: column; align-items: stretch; }
+  .ps-server-scheduling-page .ps-workspace-toolbar .qc-toolbar-query { flex: none; }
+  .ps-server-scheduling-page .ps-workspace-toolbar .qc-toolbar-actions { justify-content: flex-start; }
   .ps-workspace-toolbar .qc-toolbar-actions { width: 100%; overflow-x: auto; }
   .ps-workspace-toolbar .ps-view-tabs { width: max-content; }
   .ps-compact-group-picker { grid-template-columns: 1fr; }

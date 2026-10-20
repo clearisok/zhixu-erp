@@ -286,3 +286,10 @@ main独立API仍996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原头保�
 第五次停在390工具栏通用actions被Foundation隐藏；Server页面限定class恢复已有视图按钮，不改变Browser页或全局Toolbar。
 加入原orderRead=snapshot开关到排单路由，默认关闭时不意外开放；对应正负单元沿用同一authority服务。
 新页面完整验收仍待，不能把14个子项或旧CI称本Phase全通过。
+
+46f9精确构建17/17（30842.4724ms）通过；复用原fieldset样式后应用6baca85d04f6b4ca61c5a68bef899865ed51d6d4，
+排单/资料/导航同一精确built组合49/49（84532.6526ms）、126定向（57485.9596ms）、TS/lint/Node/串行app导入通过。
+测试兼容checkpoint125789aa仅修原snapshot=true仍断言排单关闭的旧用例，2/2（479.6947ms）通过，应用字节未改。
+本轮实际927项目（255258.9075ms）、116基线（253470.1828ms）、261DB（268996.2674ms）全部通过；不借旧结果。
+随后像素复核发现390搜索和视图按钮同排挤压，宽度无溢出不足以排除此问题。仅Server移动Toolbar分行，
+补search/views非重叠实际几何断言，待新精确构建；此时不据49几何PASS冒称最终视觉完成。旧失败/截图不改。
