@@ -1928,6 +1928,14 @@
       "recordedAtSha": "4989cb396fe8f81b19bc489756405e5dfdd75cfa",
       "renderedSourceSha": "7ebfe9856719757f55bad63118e79d3ee9964729",
       "sha256": "a7aace0c96ae4bc45017161b0bb4a9a46497f8da61f20d3e230c08332da94642"
+    },
+    {
+      "id": "server-production-planning-reads-contract-20261020",
+      "kind": "document",
+      "path": "docs/features/SERVER_PRODUCTION_PLANNING_READS.md",
+      "recordedAtSha": "70cb8fb4b470aa7b09a1216a2b115606688a4ffd",
+      "renderedSourceSha": "15295ecb265f91316476e4b010abc7b9083d2ac6",
+      "sha256": "c1a59ceb1594f859b13394ec08b1ba78d219fe530c6b5de83e406e281d7d36a9"
     }
   ],
   "pages": [

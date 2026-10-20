@@ -247,3 +247,10 @@ feature文档后续前向冻结，不覆盖旧证据；按最小充分真实PG/H
 哈希有效不等于revision有效；未修改守卫、基线、原证据或能力。按独立reviewer复核，精确恢复7eb原feature，
 将独立读投影的资格/聚合/分页/历史/权限写入有完整内容的SERVER_PRODUCTION_PLANNING_READS.md；原233不动，
 先冻结新补充文档，再登记独立234记录。先前未提交的错误revision记录不交付，原失败日志保留；应用字节不变。
+
+独立读取契约/工程记录冻结70cb8fb4b470aa7b09a1216a2b115606688a4ffd，应用源码15295不变。
+随后第234条独立文档记录绑定70cb的READS Git blob（SHA256 c1a59ceb1594f859b13394ec08b1ba78d219fe530c6b5de83e406e281d7d36a9），
+renderedSource为15295，无supersedes/mergeOf。原233证据、49能力及7eb基础feature逐字不改。
+实际main996源码/证据守卫已PASS（11页/49能力/54累计UI路径），首个失败仍在本机log保留。
+全量115/927/116及构建结果按前文精确范围，不因docs收口再跑未改应用测试；最后只需最终docs HEAD guard/
+一次安全交付/独立SHA后各调度Source/Team/Baseline，不能预先写远端或CI PASS。无新PR/合并/部署/真实数据操作。
