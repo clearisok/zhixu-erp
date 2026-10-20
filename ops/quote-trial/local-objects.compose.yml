@@ -1,0 +1,56 @@
+# Opt-in local S3 implementation. No public object/console ports or external volumes.
+services:
+  app:
+    environment:
+      NODE_EXTRA_CA_CERTS: /run/tls/ca.pem
+    volumes: !override
+      - appsecrets:/run/secrets:ro
+      - ${TRIAL_TLS_CA_FILE:?explicit local CA required}:/run/tls/ca.pem:ro
+      - ./local-object-control.mjs:/trial/local-object-control.mjs:ro
+      - ./local-objects.mjs:/trial/local-objects.mjs:ro
+    depends_on:
+      objects-tls: {condition: service_healthy}
+  objects:
+    image: bitnamilegacy/minio@sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20
+    user: "1001:1001"
+    environment:
+      MINIO_ROOT_USER_FILE: /run/secrets/cos-id
+      MINIO_ROOT_PASSWORD_FILE: /run/secrets/cos-key
+      MINIO_BROWSER: "off"
+    volumes:
+      - objects:/bitnami/minio/data
+      - objectsecrets:/run/secrets:ro
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 2s
+      timeout: 3s
+      start_period: 5s
+      retries: 30
+  objects-tls:
+    image: ${TRIAL_IMAGE:?}
+    user: "1000:1000"
+    command: ["node", "/trial/tls-gateway.mjs"]
+    environment:
+      TRIAL_PROXY_HOST: objects
+      TRIAL_PROXY_PORT: "9000"
+    volumes:
+      - ./tls-gateway.mjs:/trial/tls-gateway.mjs:ro
+      - ./local-object-health.mjs:/trial/local-object-health.mjs:ro
+      - ${TRIAL_TLS_CA_FILE:?}:/run/tls/ca.pem:ro
+      - ${TRIAL_TLS_CERT_FILE:?}:/run/tls/cert.pem:ro
+      - ${TRIAL_TLS_KEY_FILE:?}:/run/tls/key.pem:ro
+    healthcheck:
+      test: ["CMD", "node", "/trial/local-object-health.mjs"]
+      interval: 2s
+      timeout: 4s
+      start_period: 5s
+      retries: 30
+    depends_on:
+      objects: {condition: service_healthy}
+volumes:
+  objects:
+  appsecrets:
+  objectsecrets:
+networks:
+  default:
+    internal: true

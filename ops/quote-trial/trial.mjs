@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { probeJson, verifyRuntime, waitReady, safeFailure } from './readiness.mjs';
+import { LOCAL_OBJECT_IMAGE, trialServices, validateLocalObjectConfig, validateLocalObjectModel, verifyLocalObjectMounts, assertLocalMaintenance, assertLocalInitialization } from './local-objects.mjs';
 export function validateTrial(values) {
   if(!/^zhixu-quote-trial-[a-z0-9-]{3,40}$/.test(values.TRIAL_PROJECT||''))throw Error('invalid_trial_project');
   const port=Number(values.TRIAL_PORT);if(!Number.isInteger(port)||port<1024||port>65535||[3000,3001,3002].includes(port))throw Error('invalid_trial_port');
@@ -16,7 +17,8 @@ export function validateTrial(values) {
   if(values.TRIAL_COMPOSE_OVERRIDE&&!isAbsolute(values.TRIAL_COMPOSE_OVERRIDE))throw Error('absolute_override_required');
   if(values.TRIAL_TLS_CA_FILE&&!isAbsolute(values.TRIAL_TLS_CA_FILE))throw Error('absolute_file_required');
   if(values.TRIAL_READY_TIMEOUT_MS!==undefined&&(!/^\d+$/.test(values.TRIAL_READY_TIMEOUT_MS)||Number(values.TRIAL_READY_TIMEOUT_MS)<1000||Number(values.TRIAL_READY_TIMEOUT_MS)>120000))throw Error('readiness_timeout_invalid');
-  return {project:values.TRIAL_PROJECT,image:values.TRIAL_IMAGE,commit:values.TRIAL_COMMIT,buildId:values.TRIAL_BUILD_ID,buildTime:values.TRIAL_BUILD_TIME,origin:origin.origin,port};
+  const localObjects=validateLocalObjectConfig(values);
+  return {project:values.TRIAL_PROJECT,image:values.TRIAL_IMAGE,commit:values.TRIAL_COMMIT,buildId:values.TRIAL_BUILD_ID,buildTime:values.TRIAL_BUILD_TIME,origin:origin.origin,port,localObjects};
 }
 export function readTrialConfig(path) {
   const values={};for(const line of readFileSync(path,'utf8').split(/\r?\n/)) {
@@ -25,7 +27,7 @@ export function readTrialConfig(path) {
   }return values;
 }
 export function validateComposeTarget(model,safe) {
-  if(model.name!==safe.project||Object.keys(model.services).sort().join(',')!=='app,database,gateway')throw Error('unexpected_stack');
+  if(model.name!==safe.project||Object.keys(model.services).sort().join(',')!==[...trialServices(safe.localObjects)].sort().join(','))throw Error('unexpected_stack');
   for(const [key,volume] of Object.entries(model.volumes||{}))if(volume.external||volume.driver_opts||volume.name!==`${safe.project}_${key}`)throw Error('foreign_volume');
   for(const [key,network] of Object.entries(model.networks||{}))if(network.external||network.name!==`${safe.project}_${key}`)throw Error('foreign_network');
   const {app,database,gateway}=model.services;
@@ -36,18 +38,28 @@ export function validateComposeTarget(model,safe) {
   for(const [key,value] of Object.entries({ZHIXU_GIT_COMMIT:safe.commit,ZHIXU_BUILD_ID:safe.buildId,ZHIXU_BUILD_TIME:safe.buildTime,NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE:'writable'}))if(app.environment[key]!==value)throw Error('runtime_identity_mismatch');
   if(gateway.ports?.length!==1||gateway.ports[0].host_ip!=='127.0.0.1'||String(gateway.ports[0].published)!==String(safe.port))throw Error('unsafe_binding');
   if(gateway.healthcheck?.disable||JSON.stringify(gateway.healthcheck?.test)!==JSON.stringify(['CMD','node','/trial/gateway-health.mjs']))throw Error('gateway_probe_required');
+  if(safe.localObjects)validateLocalObjectModel(model,safe);
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   try {
     const [action='check',configPath,ack]=process.argv.slice(2);if(!configPath)throw Error('explicit_config_required');
     const config=resolve(configPath), values=readTrialConfig(config), safe=validateTrial(values);
-    const args=['compose','--env-file',config,'-f',resolve(dirname(fileURLToPath(import.meta.url)),'compose.yml'),...(values.TRIAL_COMPOSE_OVERRIDE?['-f',values.TRIAL_COMPOSE_OVERRIDE]:[]),'-p',safe.project];
+    const ops=dirname(fileURLToPath(import.meta.url)), services=trialServices(safe.localObjects);
+    const args=['compose','--env-file',config,'-f',resolve(ops,'compose.yml'),...(safe.localObjects?['-f',resolve(ops,'local-objects.compose.yml')]:[]),...(values.TRIAL_COMPOSE_OVERRIDE?['-f',values.TRIAL_COMPOSE_OVERRIDE]:[]),'-p',safe.project];
     const docker=(a,timeout=180000)=>execFileSync('docker',[...args,...a],{encoding:'utf8',env:{...process.env,...values},stdio:['ignore','pipe','pipe'],timeout});
     const rawDocker=a=>execFileSync('docker',a,{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:10000});
-    const expected={project:safe.project,images:Object.fromEntries(['database','app','gateway'].map(service=>[service,rawDocker(['image','inspect','--format','{{.Id}}',service==='database'?'postgres:16-alpine':safe.image]).trim()])),hashes:Object.fromEntries(docker(['config','--hash','*']).trim().split(/\r?\n/).map(line=>line.trim().split(/\s+/)))};
+    const expected={project:safe.project,localObjects:safe.localObjects,images:Object.fromEntries(services.map(service=>[service,rawDocker(['image','inspect','--format','{{.Id}}',service==='database'?'postgres:16-alpine':service==='objects'?LOCAL_OBJECT_IMAGE:safe.image]).trim()])),hashes:Object.fromEntries(docker(['config','--hash','*']).trim().split(/\r?\n/).map(line=>line.trim().split(/\s+/)))};
     const inspect=()=>{
-      const ids=docker(['ps','-a','-q','database','app','gateway'],10000).trim().split(/\r?\n/).filter(Boolean);
-      return ids.map(id=>JSON.parse(rawDocker(['inspect','--format','{"image":{{json .Image}},"running":{{json .State.Running}},"health":{{if .State.Health}}{{json .State.Health.Status}}{{else}}"missing"{{end}},"project":{{json (index .Config.Labels "com.docker.compose.project")}},"service":{{json (index .Config.Labels "com.docker.compose.service")}},"configHash":{{json (index .Config.Labels "com.docker.compose.config-hash")}}}',id])));
+      const ids=rawDocker(['ps','-a','--filter',`label=com.docker.compose.project=${safe.project}`,'-q']).trim().split(/\r?\n/).filter(Boolean);
+      const rows=ids.map(id=>JSON.parse(rawDocker(['inspect','--format','{"image":{{json .Image}},"running":{{json .State.Running}},"health":{{if .State.Health}}{{json .State.Health.Status}}{{else}}"missing"{{end}},"project":{{json (index .Config.Labels "com.docker.compose.project")}},"service":{{json (index .Config.Labels "com.docker.compose.service")}},"configHash":{{json (index .Config.Labels "com.docker.compose.config-hash")}},"mounts":{{json .Mounts}}}',id])));
+      if(safe.localObjects){
+        verifyLocalObjectMounts(rows,safe.project);
+        for(const name of new Set(rows.flatMap(r=>r.mounts.filter(m=>m.Type==='volume').map(m=>m.Name)))){
+          const labels=JSON.parse(rawDocker(['volume','inspect','--format','{{json .Labels}}',name]));
+          if(labels?.['com.docker.compose.project']!==safe.project)throw Error('runtime_storage_mismatch');
+        }
+      }
+      return rows;
     };
     docker(['config','-q']);
     validateComposeTarget(JSON.parse(docker(['config','--format','json'])),safe);
@@ -56,9 +68,38 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
     const built=JSON.parse(execFileSync('docker',['run','--rm','--network','none','--entrypoint','node',safe.image,'-e',"console.log(require('fs').readFileSync('dist/client/build-info.json','utf8'))"],{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:30000}));
     if(built.gitCommit!==safe.commit||built.buildId!==values.TRIAL_BUILD_ID||built.buildTime!==values.TRIAL_BUILD_TIME||built.identityMode!=='session'||built.quoteAuthority!=='server'||built.masterSettingsAuthority!=='server'||built.quoteWriterMode!=='writable')throw Error('compiled_identity_mismatch');
     if(action==='check')console.log(JSON.stringify({...safe,operation:'CHECK_ONLY'}));
+    else if(action==='prepare-local') {
+      if(!safe.localObjects||ack!==`--execute=${safe.project}`)throw Error('explicit_matching_execute_required');
+      if(inspect().length)throw Error('local_prepare_requires_new_project');
+      const names=rawDocker(['volume','ls','--format','{{.Name}}']).trim().split(/\r?\n/);
+      if(['data','objects','appsecrets','objectsecrets'].some(key=>names.includes(`${safe.project}_${key}`)))throw Error('local_prepare_requires_new_volumes');
+      // Private host inputs are copied once into owned Linux volumes, with exact
+      // application/MinIO owners and 0600. Never overwrite an existing secret volume.
+      for(const [key,owner] of [['appsecrets','1000:1000'],['objectsecrets','1001:1001']]) {
+        const volume=`${safe.project}_${key}`;
+        rawDocker(['volume','create','--label',`com.docker.compose.project=${safe.project}`,'--label',`com.docker.compose.volume=${key}`,volume]);
+        rawDocker(['run','--rm','--network','none','--read-only','--user','0:0','--entrypoint','sh',
+          '--mount',`type=volume,source=${volume},target=/out`,
+          '--mount',`type=bind,source=${values.TRIAL_SECRET_ID_FILE},target=/input/id,readonly`,
+          '--mount',`type=bind,source=${values.TRIAL_SECRET_KEY_FILE},target=/input/key,readonly`,safe.image,
+          '-c','test ! -e /out/cos-id && test ! -e /out/cos-key && cp /input/id /out/cos-id && cp /input/key /out/cos-key && chown "$1" /out/cos-id /out/cos-key && chmod 600 /out/cos-id /out/cos-key','sh',owner]);
+      }
+      console.log(JSON.stringify({project:safe.project,operation:action,result:'LOCAL_SECRETS_PREPARED'}));
+    }
+    else if(action==='objects-init') {
+      if(!safe.localObjects||ack!==`--execute=${safe.project}`)throw Error('explicit_matching_execute_required');
+      assertLocalMaintenance(inspect(),expected,{allowObjects:true});
+      docker(['up','-d','--wait','objects','objects-tls']);
+      assertLocalMaintenance(inspect(),expected,{allowObjects:true});
+      console.log(docker(['run','--rm','--no-deps','app','node','/trial/local-object-control.mjs','init','--execute']));
+    }
     else if(['start','restart','init'].includes(action)) {
       if(ack!==`--execute=${safe.project}`)throw Error('explicit_matching_execute_required');
       if(action==='init') {
+        if(safe.localObjects){
+          const names=rawDocker(['volume','ls','--format','{{.Name}}']).trim().split(/\r?\n/);
+          assertLocalInitialization(inspect(),expected,names.includes(`${safe.project}_data`));
+        }
         const writers=execFileSync('docker',['ps','--filter',`label=com.docker.compose.project=${safe.project}`,'--format','{{.Label "com.docker.compose.service"}}'],{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:10000}).trim().split('\n').filter(Boolean);
         if(writers.some(service=>service!=='database'))throw Error('init_requires_stopped_application');
         docker(['up','-d','--wait','database']);
@@ -75,11 +116,13 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
           // Never silently recreate an existing database because its configuration changed.
           const db=inspect().find(r=>r.service==='database');
           if(db&&(db.image!==expected.images.database||db.configHash!==expected.hashes.database))throw Error('runtime_identity_mismatch');
+          if(safe.localObjects)for(const row of inspect().filter(r=>!['app','gateway'].includes(r.service)))if(!services.includes(row.service)||row.image!==expected.images[row.service]||row.configHash!==expected.hashes[row.service])throw Error('runtime_identity_mismatch');
         }
         docker(action==='start'?['up','-d','app','gateway']:['restart','app','gateway']);
         console.log(JSON.stringify({project:safe.project,operation:action,result:'COMMAND_SUBMITTED'}));
         const ca=readFileSync(values.TRIAL_TLS_CA_FILE||values.TRIAL_TLS_CERT_FILE);
-        await waitReady({inspect,expected,safe,timeoutMs:Number(values.TRIAL_READY_TIMEOUT_MS||90000),probe:(path,timeoutMs)=>probeJson(`${safe.origin}${path}`,ca,{timeoutMs})});
+        await waitReady({inspect,expected,safe,timeoutMs:Number(values.TRIAL_READY_TIMEOUT_MS||90000),probe:(path,timeoutMs)=>probeJson(`${safe.origin}${path}`,ca,{timeoutMs}),
+          ...(safe.localObjects?{storageProbe:async()=>{try{docker(['exec','-T','app','node','/trial/local-object-control.mjs','check'],10000);}catch{throw Error('local_object_storage_not_ready');}}}:{})});
       }
       console.log(JSON.stringify({project:safe.project,operation:action,result:action==='init'?'PASS':'READY',...(action==='init'?{}:{readiness:'PASS'})}));
     } else if(action==='status')console.log(JSON.stringify({project:safe.project,operation:'STATUS_ONLY',services:inspect().map(({service,running,health})=>({service,running,health}))}));
@@ -102,12 +145,16 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
       }
       console.log(JSON.stringify({project,container,volume:`${safe.project}_data`,database:'quote_trial',fingerprint:createHash('sha256').update(`${project}|${container}|${safe.project}_data|${identity}`).digest('hex'),...(action==='restore-check'?{restoreTarget:'EMPTY_NO_CLIENTS'}:{})}));
     }
-    else if(['maintenance','objects-export','objects-restore'].includes(action)) {
+    else if(['maintenance','maintenance-db','objects-export','objects-restore'].includes(action)) {
       if(ack!==`--execute=${safe.project}`)throw Error('explicit_matching_execute_required');
-      if(action==='maintenance')docker(['stop','app','gateway']);
+      if(action==='maintenance'||action==='maintenance-db'){
+        if(safe.localObjects)verifyRuntime(inspect(),expected);
+        docker(['stop','app','gateway',...(action==='maintenance-db'&&safe.localObjects?['objects-tls','objects']:[])]);
+      }
       else {
         const running=docker(['ps','--services','--status','running']).split('\n').filter(Boolean);
-        if(running.some(s=>s!=='database'))throw Error('offline_maintenance_required');
+        if(safe.localObjects)assertLocalMaintenance(inspect(),expected,{allowObjects:true});
+        else if(running.some(s=>s!=='database'))throw Error('offline_maintenance_required');
         if(!values.TRIAL_COMPOSE_OVERRIDE||!values.TRIAL_OBJECT_BUNDLE_DIR||!isAbsolute(values.TRIAL_OBJECT_BUNDLE_DIR))throw Error('explicit_bundle_override_required');
         console.log(docker(['run','--rm','--no-deps','app','node','/trial/object-bundle.mjs',action==='objects-export'?'export':'restore','--execute']));
       }

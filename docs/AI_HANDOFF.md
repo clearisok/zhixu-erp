@@ -1,4 +1,12 @@
-# 恢复点：已批准 Server 收敛，从 Gate 0 开始
+# 恢复点：Server 收敛 Gate 1 持久化空目标
+
+2026-10-20；Goal 已启用。当前分支 `codex/server-persistent-empty-target`，从核实 main `996dfedc12da3527343cd3ff2aa5eea35497e10e` 开始，显式包含 Gate 0 `652fed6464b5aea144689480c936a0c5f2d62d90`。工作树初始干净。#124 为唯一 Gate 0 草稿，三项 CI 已通过，未合并。
+
+Gate 1 复用现有 trial/S3/备份实现，增加本机持久对象模式。当前仅工具和测试增量；未启动新目标、未完成真实镜像演练。下一步按[Gate 1 记录](tasks/active/server-convergence-gate1-2026-10-20.md)完成固定 SHA 构建、独立空副本重启/恢复及最终空目标，最后工程门禁、复审、独立草稿交付。3001/50426 和现有环境保留，不将验证副本或旧临时库当长期运行目标。
+
+下列 Gate 0 恢复点保留其原日期和状态；当前步骤以上方和 Gate 1 为准。
+
+## 历史 Gate 0 恢复点
 
 2026-10-20；main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；分支 `codex/server-convergence-baseline`，工作树 `C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api`。初始无 dirty。此阶段仅文档和基线元数据，由主控整合者维护；独立审查者只读。
 
