@@ -28,7 +28,9 @@ The three implementation/doc files are exact path copies from the reviewed
 combined candidate `b4c47f1356205e1f064f714ce1fb51efb58e2823`. No wholesale
 cherry-pick: that candidate also contains unmerged application/schema changes and
 220 combined evidence records. This branch retains main's complete **213-record**
-manifest without modification and has no app/server/database/CSS changes.
+evidence and business metadata unchanged; only the top-level baselineSha and
+verifiedAt are reconciled to the independently verified main/date. There are no
+app/server/database/CSS changes.
 
 Tests use owned temporary Git repositories with actual diverging branches and
 conflict-resolution merge commits. Negative cases include missing/changed side
@@ -36,7 +38,16 @@ evidence, unrelated parents, ordinary-commit pseudo merges, missing intermediate
 blobs, cycles/orphans/unclosed forks, cross-path/kind edges and immutable-history
 rewrites. Screenshot positive/negative coverage is independent of the new DAG.
 
-Pure-main validation is pending. Do not reuse the combined candidate's successful
+Pure-main validation is pending. The first exact check failed because main's
+manifest still names its prior PR base 064e3af, while this new PR's actual base is
+996dfed. Independent review identified the same stale metadata. Only baselineSha
+and verifiedAt were corrected, with every other top-level field and all 213
+records compared unchanged. The unfinished old-configuration suite was stopped by
+its two exact owned test PIDs; other Node processes/environments were untouched.
+That interrupted run is not PASS. Syntax and focused lint had already passed.
+Rerun the full suite and exact check after this metadata correction.
+
+Do not reuse the combined candidate's successful
 116 baseline cases as this branch's own result. Syntax, focused lint, full baseline
 and exact-main guard must pass here, then independent static review. No database,
 runtime, browser or external source access is needed for this tooling-only slice.
