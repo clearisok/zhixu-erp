@@ -66,7 +66,7 @@ function serverRouteLiterals(source) {
 
 /** Read-only source/evidence contract. This is not a browser pixel or deployment test. */
 export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths = [], hasCommit = () => false,
-  readBlob = () => null, isAncestor = () => false, checkedHead, previousManifest }) {
+  readBlob = () => null, isAncestor = () => false, readCommitParents = () => [], checkedHead, previousManifest }) {
   const errors = [];
   const fail = (code, detail) => errors.push({ code, detail });
   const read = repositoryReader(root);
@@ -87,20 +87,6 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   const historicalHashes = new Map();
   const priorEvidence = new Map((previousManifest?.evidence ?? []).map(item => [item.id, item]));
   if (!previousManifest || ![1, 2].includes(previousManifest.schemaVersion)) fail('HISTORY_REQUIRED', 'A Git-loaded prior manifest is required.');
-  const proposedEvidence = new Map((manifest.evidence ?? []).map(item => [item.id, item]));
-  // Multiple checkpoint revisions in one PR must still terminate at an immutable base record.
-  const anchoredRevision = item => {
-    const visited = new Set([item.id]);
-    let parent = item.supersedes;
-    while (!priorEvidence.has(parent)) {
-      if (!parent || visited.has(parent)) return false;
-      visited.add(parent);
-      const previous = proposedEvidence.get(parent);
-      if (!previous || previous.kind !== item.kind || previous.path !== item.path) return false;
-      parent = previous.supersedes;
-    }
-    return true;
-  };
   const superseded = new Set();
   const revisions = new Map((manifest.evidence ?? []).map(item => [item.id, item]));
   const successor = new Map();
@@ -109,42 +95,109 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     if (!nonempty(item.id) || candidates.has(item.id)) fail('EVIDENCE_ID', String(item.id));
     candidates.set(item.id, item);
   }
+  const parentsOf = item => Array.isArray(item.mergeOf) ? item.mergeOf : item.supersedes ? [item.supersedes] : [];
+  // Every branch, not just one selected predecessor, must reach the immutable
+  // actual PR base. A merge node never excuses an orphan or a cycle.
+  const anchoredRevision = item => {
+    const visit = (current, visited) => {
+      if (!current || current.kind !== item.kind || current.path !== item.path || visited.has(current.id)) return false;
+      if (priorEvidence.has(current.id)) return true;
+      const parents = parentsOf(current);
+      const next = new Set(visited).add(current.id);
+      return parents.length > 0 && parents.every(id => visit(revisions.get(id), next));
+    };
+    return parentsOf(item).length > 0 && parentsOf(item).every(id => visit(revisions.get(id), new Set([item.id])));
+  };
+  // Screenshot replacements keep distinct paths, so they use the original
+  // single-predecessor anchor/cycle rule rather than the document path DAG.
+  const anchoredScreenshotRevision = item => {
+    const visited = new Set();
+    let current = item;
+    while (current) {
+      if (visited.has(current.id)) return false;
+      visited.add(current.id);
+      if (priorEvidence.has(current.id)) return true;
+      current = current.supersedes ? revisions.get(current.supersedes) : undefined;
+    }
+    return false;
+  };
+  const verifyMergeCheckpoint = (item, predecessors) => {
+    let gitParents;
+    try { gitParents = readCommitParents(item.recordedAtSha); } catch { /* Fail closed below. */ }
+    if (!Array.isArray(gitParents) || gitParents.length < 2 || new Set(gitParents).size !== gitParents.length
+      || gitParents.some(sha => !fullSha(sha) || !hasCommit(sha))) {
+      fail('EVIDENCE_MERGE_COMMIT', item.id); return;
+    }
+    // Two genuine parent branches must each contribute a predecessor that the
+    // other parent branches do not already contain. An unrelated old merge or
+    // a later ordinary checkpoint cannot impersonate this integration.
+    const contributingBranches = gitParents.filter((sha, index) => predecessors.some(old =>
+      isAncestor(old.recordedAtSha, sha) && !gitParents.some((other, otherIndex) =>
+        index !== otherIndex && isAncestor(old.recordedAtSha, other))));
+    if (contributingBranches.length < 2 || predecessors.some(old =>
+      !gitParents.some(sha => isAncestor(old.recordedAtSha, sha)))) fail('EVIDENCE_MERGE_COMMIT', item.id);
+    // Preserve evidence from the actual merged parents as well as main. These
+    // side-branch records may not have reached main yet, but are still history.
+    for (const sha of gitParents) {
+      let parentManifest;
+      try { parentManifest = JSON.parse(readBlob(sha, manifestPath)?.toString('utf8')); } catch { /* Fail closed below. */ }
+      if (parentManifest?.schemaVersion !== 2 || parentManifest.repository !== manifest.repository || !Array.isArray(parentManifest.evidence)) {
+        fail('EVIDENCE_MERGE_HISTORY', item.id); continue;
+      }
+      const ids = new Set();
+      for (const old of parentManifest.evidence) {
+        if (!nonempty(old.id) || ids.has(old.id) || !same(revisions.get(old.id), old)) fail('EVIDENCE_MERGE_HISTORY_CHANGED', String(old.id));
+        ids.add(old.id);
+      }
+    }
+  };
   for (const item of candidates.values()) {
-    if (!item.supersedes) continue;
-    const old = revisions.get(item.supersedes);
-    if (!old || old.kind !== item.kind || (item.kind === 'document' ? old.path !== item.path || old.recordedAtSha === item.recordedAtSha : old.path === item.path)
-      || !nonempty(item.changeReason) || successor.has(item.supersedes)) {
+    const merging = item.mergeOf !== undefined;
+    const parents = parentsOf(item);
+    if (merging && (item.kind !== 'document' || item.supersedes !== undefined || !Array.isArray(item.mergeOf)
+      || parents.length < 2 || new Set(parents).size !== parents.length || parents.some(id => !nonempty(id) || id === item.id))) {
+      fail('EVIDENCE_REVISION', String(item.id));
+      continue;
+    }
+    if (!parents.length) continue;
+    const predecessors = parents.map(id => revisions.get(id));
+    if (!nonempty(item.changeReason) || predecessors.some(old => !old || old.kind !== item.kind
+      || (item.kind === 'document' ? old.path !== item.path || old.recordedAtSha === item.recordedAtSha : old.path === item.path))) {
       fail('EVIDENCE_REVISION', String(item.id));
       if (item.kind === 'document' && !priorEvidence.has(item.id) && !anchoredRevision(item)) fail('EVIDENCE_REVISION_ANCHOR', item.id);
       continue;
     }
-    successor.set(item.supersedes, item.id);
-    // A stacked revision must trace back to evidence frozen in the actual PR base.
-    // No synthetic root, dangling link, fork or cycle may hide worktree drift.
-    let cursor = item;
-    const visited = new Set();
-    let anchored = false;
-    while (cursor) {
-      if (visited.has(cursor.id)) break;
-      visited.add(cursor.id);
-      if (priorEvidence.has(cursor.id)) { anchored = true; break; }
-      cursor = cursor.supersedes ? revisions.get(cursor.supersedes) : null;
+    if (item.kind === 'screenshot' && !anchoredScreenshotRevision(item)) {
+      fail('EVIDENCE_REVISION', String(item.id)); continue;
     }
-    if (!anchored) { fail('EVIDENCE_REVISION', String(item.id)); if (item.kind === 'document') fail('EVIDENCE_REVISION_ANCHOR', item.id); continue; }
+    for (const parent of parents) {
+      if (!successor.has(parent)) successor.set(parent, new Set());
+      if (item.kind !== 'document' && successor.get(parent).size) fail('EVIDENCE_REVISION', String(item.id));
+      successor.get(parent).add(item.id);
+    }
     if (item.kind === 'document') {
+      if (!anchoredRevision(item)) {
+        fail('EVIDENCE_REVISION', String(item.id)); fail('EVIDENCE_REVISION_ANCHOR', item.id); continue;
+      }
       if (!priorEvidence.has(item.id)) {
         if (!isAncestor(manifest.baselineSha, item.recordedAtSha) || !isAncestor(item.recordedAtSha, checkedHead)
-          || !priorEvidence.has(old.id) && !isAncestor(old.recordedAtSha, item.recordedAtSha)) fail('EVIDENCE_REVISION_ANCESTRY', item.id);
-        if (!anchoredRevision(item)) { fail('EVIDENCE_REVISION_ANCHOR', item.id); fail('EVIDENCE_REVISION', item.id); }
+          || predecessors.some(old => !isAncestor(old.recordedAtSha, item.recordedAtSha))) fail('EVIDENCE_REVISION_ANCESTRY', item.id);
+        if (merging) {
+          if (predecessors.some((old, index) => predecessors.some((other, otherIndex) => index !== otherIndex
+            && isAncestor(old.recordedAtSha, other.recordedAtSha)))) fail('EVIDENCE_MERGE_REDUNDANT', item.id);
+          verifyMergeCheckpoint(item, predecessors);
+        }
       }
-      superseded.add(item.supersedes);
+      for (const parent of parents) superseded.add(parent);
     }
   }
   const leaves = new Map();
+  const unclosedPaths = new Set();
   for (const item of candidates.values()) if (item.kind === 'document' && !superseded.has(item.id)) {
-    if (leaves.has(item.path)) fail('EVIDENCE_REVISION_LEAF', item.path);
+    if (leaves.has(item.path)) { fail('EVIDENCE_REVISION_LEAF', item.path); unclosedPaths.add(item.path); }
     leaves.set(item.path, item.id);
   }
+  for (const [parent, children] of successor) if (children.size > 1 && unclosedPaths.has(revisions.get(parent)?.path)) fail('EVIDENCE_REVISION', parent);
   for (const item of manifest.evidence ?? []) {
     if (!nonempty(item.id) || evidence.has(item.id)) fail('EVIDENCE_ID', String(item.id));
     evidence.set(item.id, item);
@@ -168,7 +221,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   }
   for (const [id, prior] of priorEvidence) {
     const current = evidence.get(id);
-    if (!current || ['kind', 'path', 'recordedAtSha', 'renderedSourceSha', 'supersedes', 'changeReason', 'approvalEvidence', ...(prior.sha256 ? ['sha256'] : [])]
+    if (!current || ['kind', 'path', 'recordedAtSha', 'renderedSourceSha', 'supersedes', 'mergeOf', 'changeReason', 'approvalEvidence', ...(prior.sha256 ? ['sha256'] : [])]
       .some(key => !same(current[key], prior[key]))) fail('EVIDENCE_HISTORY_CHANGED', id);
   }
   for (const item of evidence.values()) {
@@ -350,6 +403,7 @@ export function runCheck(root, expectedBaseSha) {
   const commitCache = new Map();
   const blobCache = new Map();
   const ancestryCache = new Map();
+  const parentCache = new Map();
   const errors = validateBaseline({ root, manifest, expectedBaseSha, changedPaths, previousManifest, checkedHead:git(root,['rev-parse','HEAD']),
     isAncestor: (ancestor, descendant) => {
       const key = `${ancestor}:${descendant}`;
@@ -363,6 +417,14 @@ export function runCheck(root, expectedBaseSha) {
       const key = `${sha}:${file}`;
       if (!blobCache.has(key)) blobCache.set(key, readEvidenceBlob(root, sha, file));
       return blobCache.get(key);
+    },
+    readCommitParents: sha => {
+      if (!parentCache.has(sha)) {
+        const [identity, ...parents] = git(root, ['rev-list', '--parents', '-n', '1', sha]).split(' ');
+        if (identity !== sha || parents.some(parent => !fullSha(parent))) throw new Error('invalid_commit_parents');
+        parentCache.set(sha, parents);
+      }
+      return parentCache.get(sha);
     },
     hasCommit: sha => {
       if (!commitCache.has(sha)) {

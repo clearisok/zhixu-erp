@@ -357,6 +357,7 @@ for(const mode of ['dangling','cycle','fork','path-drift','blob-tamper','unancho
 function addCheckpointRevision(f, parent, id, sha) {
   const body=Buffer.from(`Synthetic checkpoint ${id}\n`);
   const item={...parent,id,recordedAtSha:sha,sha256:hash(body),supersedes:parent.id,changeReason:'Explicit same-PR checkpoint revision'};
+  delete item.mergeOf;
   f.manifest.evidence.push(item);f.knownCommits.add(sha);f.blobs.set(`${sha}:${item.path}`,body);f.write(item.path,body);
   return item;
 }
@@ -417,3 +418,110 @@ for (const corruption of ['unrelated-sha','new-root','second-leaf','deleted-midd
 });
 
 test('sibling branch sharing main cannot supply a new frozen revision',t=>{const f=fixture(t),old=f.manifest.evidence.find(e=>e.id==='quote-original');const added=newProof(f,{id:'sibling-revision',file:old.path,body:'# Other branch version\n'});added.supersedes=old.id;added.changeReason='Different branch';has(f.check({checkedHead:'e'.repeat(40),isAncestor:(a,b)=>a===original.baselineSha&&b===added.recordedAtSha}),'EVIDENCE_REVISION_ANCESTRY');});
+
+function screenshotRevisions(f) {
+  const old = f.manifest.evidence.find(item => item.kind === 'screenshot');
+  const bytes = f.blobs.get(`${old.recordedAtSha}:${old.path}`);
+  const approval = f.manifest.evidence.find(item => item.kind === 'document').id;
+  const add = (parent, id, sha) => {
+    const item = { ...old, id, path: `artifacts/${id}.png`, recordedAtSha: sha,
+      supersedes: parent.id, changeReason: 'Synthetic approved screenshot replacement', approvalEvidence: approval };
+    f.manifest.evidence.push(item); f.knownCommits.add(sha);
+    f.blobs.set(`${sha}:${item.path}`, bytes); f.write(item.path, bytes);
+    return item;
+  };
+  const first = add(old, 'screenshot-first', 'c'.repeat(40));
+  return { old, first, second: add(first, 'screenshot-second', 'd'.repeat(40)) };
+}
+
+test('approved screenshot replacements preserve the original single-parent base anchor', t => {
+  const f = fixture(t); screenshotRevisions(f);
+  assert.deepEqual(f.check(), []);
+  assert.deepEqual(f.check({ previousManifest: structuredClone(f.manifest) }), []);
+});
+
+for (const mode of ['cycle', 'unanchored', 'merge']) test(`screenshot revisions reject ${mode}`, t => {
+  const f = fixture(t), { old, first, second } = screenshotRevisions(f);
+  if (mode === 'cycle') first.supersedes = second.id;
+  if (mode === 'unanchored') delete first.supersedes;
+  if (mode === 'merge') { delete second.supersedes; second.mergeOf = [old.id, first.id]; }
+  has(f.check(), 'EVIDENCE_REVISION');
+});
+
+function realEvidenceMerge(t) {
+  const f=fixture(t),legacyCommits=new Set(f.knownCommits),old=f.manifest.evidence.find(e=>e.id==='quote-original');
+  const git=(args,allowed=[0])=>{
+    const result=spawnSync('git',['-c','core.autocrlf=false','-c','commit.gpgsign=false','-c','user.name=Evidence Fixture','-c','user.email=evidence@example.invalid',...args],{cwd:f.root,encoding:'utf8',windowsHide:true,timeout:15000});
+    assert.ok(allowed.includes(result.status),`owned_fixture_git_failed:${args[0]}`);return result.stdout.trim();
+  };
+  const saveManifest=m=>f.write(manifestPath,JSON.stringify(m,null,2)+'\n');
+  const commit=(message,files)=>{git(['add','--',...files]);git(['commit','-q','-m',message]);return git(['rev-parse','HEAD']);};
+  git(['init','-q','--initial-branch=main']);saveManifest(f.manifest);
+  const base=commit('synthetic frozen baseline',[manifestPath,old.path]);
+  git(['switch','-q','-c','left']);
+  const leftBytes=Buffer.from('# Left reviewed version\n'),sidePath='docs/left-only-proof.md',sideBytes=Buffer.from('# Side-branch evidence must survive\n');
+  f.write(old.path,leftBytes);f.write(sidePath,sideBytes);
+  const leftSha=commit('left document',[old.path,sidePath]);
+  const left={id:'real-left',kind:'document',path:old.path,recordedAtSha:leftSha,sha256:hash(leftBytes),supersedes:old.id,changeReason:'Left reviewed change'};
+  const side={id:'real-side-proof',kind:'document',path:sidePath,recordedAtSha:leftSha,sha256:hash(sideBytes)};
+  const leftManifest=structuredClone(f.manifest);leftManifest.evidence.push(left,side);saveManifest(leftManifest);
+  const leftHead=commit('freeze left evidence',[manifestPath]);
+  git(['switch','-q','main']);git(['switch','-q','-c','right']);
+  const rightBytes=Buffer.from('# Right reviewed version\n');f.write(old.path,rightBytes);
+  const rightSha=commit('right document',[old.path]);
+  const right={id:'real-right',kind:'document',path:old.path,recordedAtSha:rightSha,sha256:hash(rightBytes),supersedes:old.id,changeReason:'Right reviewed change'};
+  const rightManifest=structuredClone(f.manifest);rightManifest.evidence.push(right);saveManifest(rightManifest);
+  const rightHead=commit('freeze right evidence',[manifestPath]);
+  git(['merge','--no-ff','--no-commit','left'],[1]);
+  const mergedBytes=Buffer.from('# Reviewed union of both versions\n');f.write(old.path,mergedBytes);
+  const union=structuredClone(f.manifest);union.evidence.push(left,side,right);saveManifest(union);
+  const mergedSha=commit('resolve both real branches',[old.path,sidePath,manifestPath]);
+  const merged={id:'real-merged',kind:'document',path:old.path,recordedAtSha:mergedSha,sha256:hash(mergedBytes),mergeOf:[left.id,right.id],changeReason:'Reviewed real branch reconciliation'};
+  f.manifest.evidence=union.evidence.concat(merged);
+  const normalize=sha=>legacyCommits.has(sha)?base:sha;
+  const commitCache=new Map(),ancestryCache=new Map(),blobCache=new Map(),parentCache=new Map();
+  const options={
+    checkedHead:mergedSha,
+    hasCommit:sha=>{if(legacyCommits.has(sha))return true;if(!commitCache.has(sha))commitCache.set(sha,spawnSync('git',['cat-file','-e',`${sha}^{commit}`],{cwd:f.root,stdio:'ignore',windowsHide:true}).status===0);return commitCache.get(sha);},
+    isAncestor:(a,b)=>{const key=`${normalize(a)}:${normalize(b)}`;if(!ancestryCache.has(key))ancestryCache.set(key,spawnSync('git',['merge-base','--is-ancestor',normalize(a),normalize(b)],{cwd:f.root,stdio:'ignore',windowsHide:true}).status===0);return ancestryCache.get(key);},
+    readBlob:(sha,file)=>{const key=`${sha}:${file}`;if(f.blobs.has(key))return f.blobs.get(key);if(!blobCache.has(key)){const r=spawnSync('git',['show',`${sha}:${file}`],{cwd:f.root,windowsHide:true,maxBuffer:8*1024*1024});blobCache.set(key,r.status===0?r.stdout:null);}return blobCache.get(key);},
+    readCommitParents:sha=>{if(!parentCache.has(sha))parentCache.set(sha,git(['rev-list','--parents','-n','1',sha]).split(' ').slice(1));return parentCache.get(sha);},
+  };
+  return {f,git,commit,options,base,old,left,right,side,merged,mergedBytes,leftHead,rightHead};
+}
+
+test('explicit document reconciliation verifies actual Git parents and keeps every branch record',async t=>{
+  const s=realEvidenceMerge(t),{f,options,left,right,side,merged}=s;
+  assert.equal(options.readCommitParents(merged.recordedAtSha).length,2);
+  assert.equal(options.isAncestor(left.recordedAtSha,right.recordedAtSha),false);
+  assert.deepEqual(f.check(options),[]);
+  const valid=structuredClone(f.manifest);
+  const cases=[
+    ['unclosed branch',m=>m.evidence=m.evidence.filter(e=>e.id!==merged.id),'EVIDENCE_REVISION'],
+    ['missing branch edge',m=>m.evidence.find(e=>e.id===merged.id).mergeOf=[left.id],'EVIDENCE_REVISION'],
+    ['duplicate branch edge',m=>m.evidence.find(e=>e.id===merged.id).mergeOf=[left.id,left.id],'EVIDENCE_REVISION'],
+    ['both revision forms',m=>m.evidence.find(e=>e.id===merged.id).supersedes=left.id,'EVIDENCE_REVISION'],
+    ['cross-path predecessor',m=>m.evidence.find(e=>e.id===merged.id).mergeOf=[left.id,side.id],'EVIDENCE_REVISION'],
+    ['cross-kind merge',m=>m.evidence.find(e=>e.id===merged.id).kind='screenshot','EVIDENCE_REVISION'],
+    ['cycle',m=>m.evidence.find(e=>e.id===left.id).supersedes=merged.id,'EVIDENCE_REVISION_ANCHOR'],
+    ['deleted side-branch evidence',m=>m.evidence=m.evidence.filter(e=>e.id!==side.id),'EVIDENCE_MERGE_HISTORY_CHANGED'],
+    ['altered side-branch evidence',m=>m.evidence.find(e=>e.id===side.id).changeReason='changed after branch freeze','EVIDENCE_MERGE_HISTORY_CHANGED'],
+    ['self edge',m=>m.evidence.find(e=>e.id===merged.id).mergeOf=[left.id,merged.id],'EVIDENCE_REVISION'],
+  ];
+  for(const [name,mutate,code] of cases)await t.test(name,()=>{Object.assign(f.manifest,structuredClone(valid));mutate(f.manifest);has(f.check(options),code);});
+  Object.assign(f.manifest,structuredClone(valid));
+  await t.test('an unmerged checked head cannot borrow the sibling history',()=>has(f.check({...options,checkedHead:s.leftHead}),'EVIDENCE_REVISION_ANCESTRY'));
+  await t.test('missing intermediate bytes still block a closed merge',()=>has(f.check({...options,readBlob:(sha,file)=>sha===left.recordedAtSha&&file===left.path?null:options.readBlob(sha,file)}),'EVIDENCE_BLOB'));
+  await t.test('parent manifest evidence is required',()=>has(f.check({...options,readBlob:(sha,file)=>sha===s.rightHead&&file===manifestPath?null:options.readBlob(sha,file)}),'EVIDENCE_MERGE_HISTORY'));
+  await t.test('all actual parent branches must contribute',()=>has(f.check({...options,readCommitParents:()=>[s.leftHead,s.base]}),'EVIDENCE_MERGE_COMMIT'));
+  await t.test('evidence and merge-edge ordering do not select a winning branch',()=>{f.manifest.evidence.reverse();f.manifest.evidence.find(e=>e.id===merged.id).mergeOf.reverse();assert.deepEqual(f.check(options),[]);Object.assign(f.manifest,structuredClone(valid));});
+  await t.test('a frozen merge edge cannot be rewritten in the next PR',()=>{const previousManifest=structuredClone(valid);f.manifest.evidence.find(e=>e.id===merged.id).mergeOf.reverse();has(f.check({...options,previousManifest}),'EVIDENCE_HISTORY_CHANGED');Object.assign(f.manifest,structuredClone(valid));});
+  await t.test('ordinary commits cannot masquerade as merges; later linear revisions remain valid',()=>{
+    const body=Buffer.from('# Explicit follow-up after the verified merge\n');f.write(merged.path,body);
+    const nextSha=s.commit('follow-up document',[merged.path]);
+    const fake=f.manifest.evidence.find(e=>e.id===merged.id);fake.recordedAtSha=nextSha;fake.sha256=hash(body);
+    has(f.check({...options,checkedHead:nextSha}),'EVIDENCE_MERGE_COMMIT');
+    Object.assign(f.manifest,structuredClone(valid));f.manifest.evidence.push({id:'real-follow-up',kind:'document',path:merged.path,recordedAtSha:nextSha,sha256:hash(body),supersedes:merged.id,changeReason:'Normal forward update after convergence'});
+    assert.deepEqual(f.check({...options,checkedHead:nextSha}),[]);
+  });
+});
