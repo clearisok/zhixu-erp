@@ -211,3 +211,29 @@ manifest仍233/49不变，不提前标记排单页面、完成或部署。最终
 异常仅投影已证明的计划事实；实际完成、物流未接线时明确未纳入，不显示零或无风险。沿用原总览/队列/未排池及表单样式，
 不接旧完成updater、自动重排、裸外发价或订单调价。只读证据：原page约692起布局、原风险函数185起、现service193–217读接口、
 sales-orders/repository约440列表。此段是工程建议，不是新增API已实现或新UI获人工接受。
+
+
+## 6B集合读取与稳定历史（1391feb5输入）
+
+本Phase baseline为干净codex/server-production-planning / 1391feb5856bb23ab172f0eb7e6e7ffdcd51082e，
+main独立API核实仍996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原头不变；root唯一writer。
+三摘要逐字Git blob归档planning-read-1391feb5/，无继承dirty。1391已由独立API与既有工具DryRun正常Git读取
+双重精确核实，第二次push为零；首次工具分类矛盾与原始错误原因unresolved保留于本机安全reconciliation。
+该HEAD仅各调度一次Source39440371972、Team39440379174、Baseline39440385738；后两者success，Source仍运行，
+不借旧343结果，不重试live CI，不改共享Git配置。
+
+允许增量为现有排单service/repository/routes及窄只读查询helper和对应合成测试，统一现有可信业务SQL，
+补组总览、全部可信有效订单池、单组批量订单摘要及asOfVersion稳定历史。沿用资源自然排序、精确decimal与1MiB限额，
+不汇总历史归一SO执行数据，不引入实际完成/物流/价格。无SQL迁移、UI挂载/路由开放、权限新增、来源读取或环境升级。
+feature文档后续前向冻结，不覆盖旧证据；按最小充分真实PG/HTTP、类型/lint/项目/基线验证并由既有reviewer只读复审。
+
+1391的三项CI随后全部completed/success并独立再次核对完整SHA，本机final回执保留，未重复调度。
+读投影首轮73/73（32442.9176ms）、扩大114/114（60599.5401ms）通过；后者当时group create能力微调与并发
+测试属于工作树验收，不冒称冻结HEAD。只读复审发现P2：订单目录hasMore可能承诺超100000 offset的下一页；
+已在真实返回路径用统一边界明确422并补纯边界反例。另补伪加工profile无消费记录不可排单、同一快照count→外部来源
+数量更新→page仍旧值及后续请求读取零值。历史同时验证52版本/50条页、期间追加53后锚定页仍为2/1，资源改名不补造历史。
+
+最终增量实际115/115定向（61465.1851ms），包含计划契约/计算、真实PG/HTTP、升级、旧identity、订单议价/来源与
+加工批次服务；无skip/cancel/fail。全量types、Node编译与精确lint通过，既有reviewer静态复核修复无新阻塞，未运行
+测试/DB/network。root按已验证字节创建源码checkpoint，随后补项目/基线/完整lint/精确Server build及前向feature证据；
+不因源码checkpoint换SHA重复运行未变代码的定向测试。无UI、迁移、执行量、真实来源/账号/业务库或环境变更。

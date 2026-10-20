@@ -4,7 +4,8 @@ import type { IdentityAuthority } from "../auth/identity-authority.js";
 import { HttpError } from "../http/errors.js";
 import { assertMutationBoundary, readJsonBody } from "../http/request.js";
 import { sendJson } from "../http/responses.js";
-import { executeProductionPlan, previewProductionPlan, readOrderProductionPlans, readProductionAssignment, readProductionPlanReceipt, readProductionQueue } from "./service.js";
+import { executeProductionPlan, listProductionPlanGroups, listProductionPlanOrders, previewProductionPlan, readOrderProductionPlans, readProductionAssignment, readProductionPlanReceipt, readProductionQueue } from "./service.js";
+import { parsePlanHistoryQuery } from "./read-contract.js";
 
 export async function routeProductionScheduling(request: IncomingMessage, response: ServerResponse, dependencies: {
   pool: Pool; identityAuthority: IdentityAuthority; allowedOrigins: readonly string[];
@@ -23,6 +24,8 @@ export async function routeProductionScheduling(request: IncomingMessage, respon
     return true;
   }
   if (request.method !== "GET") throw new HttpError(405, "method_not_allowed", "Method not allowed");
+  if (url.pathname === prefix + "/orders") { sendJson(response, 200, await listProductionPlanOrders(dependencies.pool, actor, url.searchParams)); return true; }
+  if (url.pathname === prefix + "/groups") { sendJson(response, 200, await listProductionPlanGroups(dependencies.pool, actor, url.searchParams)); return true; }
   const match = /^\/api\/v1\/production-scheduling\/(orders|groups|assignments|commands)\/([^/]+)$/u.exec(url.pathname);
   if (!match) throw new HttpError(404, "not_found", "Route not found");
   if (match[1] !== "assignments" && url.search) throw new HttpError(400, "invalid_production_plan_query", "Unexpected query");
@@ -30,9 +33,8 @@ export async function routeProductionScheduling(request: IncomingMessage, respon
   else if (match[1] === "groups") sendJson(response, 200, await readProductionQueue(dependencies.pool, actor, match[2]));
   else if (match[1] === "commands") sendJson(response, 200, await readProductionPlanReceipt(dependencies.pool, actor, match[2]));
   else {
-    if ([...url.searchParams.keys()].some(key => key !== "offset") || url.searchParams.getAll("offset").length > 1
-      || !/^\d{1,6}$/u.test(url.searchParams.get("offset") ?? "0")) throw new HttpError(400, "invalid_production_history_query", "Invalid history page");
-    sendJson(response, 200, await readProductionAssignment(dependencies.pool, actor, match[2], Number(url.searchParams.get("offset") ?? "0")));
+    const query = parsePlanHistoryQuery(url.searchParams);
+    sendJson(response, 200, await readProductionAssignment(dependencies.pool, actor, match[2], query.offset, query.asOfVersion));
   }
   return true;
 }

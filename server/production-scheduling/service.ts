@@ -15,6 +15,8 @@ import { freezePhysicalOrderGroups, lockEffectiveAttribution } from "../sales-or
 import { requireVerifiedOrderBusiness } from "../sales-orders/identity-service.js";
 import { derivePlanDuration, parsePlanCommand, parsePlanIntent, type PlanCommand, type PlanData, type PlanIntent } from "./contract.js";
 import { previewInternalQueue, SCHEDULE_PLANNING_LIMITS } from "./planning-preview.js";
+import { parsePlanListQuery } from "./read-contract.js";
+import { listPlanGroups, listPlanOrders, readPlanOrderSummaries } from "./read-model.js";
 import {
   assignmentsForGroup, assignmentsForOrder, bumpPlanHeads, currentResourceFacts, groupPlanVersion, orderPlanVersion,
   persistAssignment, planFail, planHash, productionPlansAvailable, publicAssignment, readAssignment, readOrderPlanFacts, storeResourceFacts,
@@ -190,13 +192,28 @@ export async function previewProductionPlan(pool: Pool, identity: TrustedIdentit
   const intent = parsePlanIntent(raw);
   return readTransaction(pool, identity, async (client, actor) => { requirePlanActor(actor, intentPermission(intent)); return previewProjection(await buildPlan(client, intent, false), actor); });
 }
+export async function listProductionPlanOrders(pool: Pool, identity: TrustedIdentity, params = new URLSearchParams()) {
+  const query = parsePlanListQuery(params, "orders");
+  if (query.kind !== "orders") return planFail(400, "invalid_production_plan_query");
+  return readTransaction(pool, identity, client => listPlanOrders(client, query));
+}
+export async function listProductionPlanGroups(pool: Pool, identity: TrustedIdentity, params = new URLSearchParams()) {
+  const query = parsePlanListQuery(params, "groups");
+  if (query.kind !== "groups") return planFail(400, "invalid_production_plan_query");
+  return readTransaction(pool, identity, async (client, actor) => {
+    const result = await listPlanGroups(client, query);
+    return { ...result, items: result.items.map(item => ({ ...item, canCreate: actor.permissions.includes("schedule.create") && item.resourcesEnabled
+      && item.assignmentCount < SCHEDULE_PLANNING_LIMITS.queueRows && item.queueVersion < 2147483647 })) };
+  });
+}
 export async function readOrderProductionPlans(pool: Pool, identity: TrustedIdentity, inputId: string) {
   const id = productionResourceUuid(inputId);
   return readTransaction(pool, identity, async (client, actor) => {
-    const order = await readOrderPlanFacts(client, id), assignments = await assignmentsForOrder(client, id);
-    return { order, assignments: assignments.map(publicAssignment), resources: Object.fromEntries(assignments.map(row => [row.resourceSnapshotHash, resourceSummary(row.resourceFacts)])),
-      canCreate: actor.permissions.includes("schedule.create") && order.effectiveOrderId === id && !["completed", "cancelled"].includes(order.lifecycleState),
-      canEdit: actor.permissions.includes("schedule.edit") && order.effectiveOrderId === id && !["completed", "cancelled"].includes(order.lifecycleState) };
+    const order = await readOrderPlanFacts(client, id), assignments = await assignmentsForOrder(client, id), summary = (await readPlanOrderSummaries(client, [id]))[id];
+    const writable = summary?.eligible === true && order.planVersion < 2147483647;
+    return { order, summary, assignments: assignments.map(publicAssignment), resources: Object.fromEntries(assignments.map(row => [row.resourceSnapshotHash, resourceSummary(row.resourceFacts)])),
+      canCreate: actor.permissions.includes("schedule.create") && writable,
+      canEdit: actor.permissions.includes("schedule.edit") && writable };
   });
 }
 export async function readProductionQueue(pool: Pool, identity: TrustedIdentity, inputId: string) {
@@ -204,17 +221,32 @@ export async function readProductionQueue(pool: Pool, identity: TrustedIdentity,
   return readTransaction(pool, identity, async client => {
     const group = await readProductionResourceSnapshot(client, "groups", id), assignments = await assignmentsForGroup(client, id);
     return { groupId: id, group: { id: group.id, name: group.name, version: group.version, enabled: group.enabled }, version: await groupPlanVersion(client, id),
-      assignments: assignments.map(publicAssignment), resources: Object.fromEntries(assignments.map(row => [row.resourceSnapshotHash, resourceSummary(row.resourceFacts)])) };
+      assignments: assignments.map(publicAssignment), resources: Object.fromEntries(assignments.map(row => [row.resourceSnapshotHash, resourceSummary(row.resourceFacts)])),
+      ordersById: await readPlanOrderSummaries(client, [...new Set(assignments.map(row => row.orderId))]) };
   });
 }
-export async function readProductionAssignment(pool: Pool, identity: TrustedIdentity, inputId: string, offset = 0) {
+export async function readProductionAssignment(pool: Pool, identity: TrustedIdentity, inputId: string, offset = 0, asOfVersion: number | null = null) {
   const id = productionResourceUuid(inputId);
   if (!Number.isSafeInteger(offset) || offset < 0 || offset > 100000) planFail(400, "invalid_production_history_query");
   return readTransaction(pool, identity, async client => {
     const row = await readAssignment(client, id);
+    const anchor = asOfVersion ?? row.version;
+    if (!Number.isSafeInteger(anchor) || anchor < 1 || anchor > row.version) planFail(400, "invalid_production_history_query");
     const history = (await client.query(`SELECT version,snapshot,request_id::text AS "requestId",operation_id AS "operationId",reason,recorded_at AS "recordedAt"
-      FROM production_schedule_plan_versions WHERE assignment_id=$1 ORDER BY version DESC LIMIT 50 OFFSET $2`, [id, offset])).rows;
-    return { assignment: publicAssignment(row), resourceSnapshot: row.resourceFacts, history, offset, limit: 50 };
+      FROM production_schedule_plan_versions WHERE assignment_id=$1 AND version<=$3 ORDER BY version DESC LIMIT 51 OFFSET $2`, [id, offset, anchor])).rows;
+    if (history.length > 50 && offset + 50 > 100000) planFail(422, "production_history_projection_limit");
+    const page = history.slice(0, 50), hashes = [...new Set(page.map(item => String(item.snapshot.resource_snapshot_hash)))];
+    const resources: Record<string, ReturnType<typeof resourceSummary>> = {};
+    if (hashes.length) {
+      const snapshots = (await client.query<{ hash: string; facts: ResourceFacts }>("SELECT hash,facts FROM production_schedule_resource_snapshots WHERE hash=ANY($1::text[])", [hashes])).rows;
+      if (snapshots.length !== hashes.length) planFail(503, "production_resource_snapshot_invalid");
+      for (const snapshot of snapshots) {
+        if (planHash(snapshot.facts) !== snapshot.hash) planFail(503, "production_resource_snapshot_invalid");
+        resources[snapshot.hash] = resourceSummary(snapshot.facts);
+      }
+    }
+    return { assignment: publicAssignment(row), resourceSnapshot: row.resourceFacts, history: page, resources, offset, limit: 50,
+      asOfVersion: anchor, hasMore: history.length > 50, nextOffset: history.length > 50 ? offset + 50 : null };
   });
 }
 function auditSnapshot(row: StoredAssignment, orderNo?: string) {

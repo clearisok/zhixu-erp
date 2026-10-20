@@ -14,6 +14,7 @@ import { executeProductionResourceCommand, readProductionResource, type Producti
 import { parseProductionResourceCommand, type ProductionResourceType } from "../production-resources/contract.js";
 import { type PlanData, type PlanIntent } from "../production-scheduling/contract.js";
 import { planHash } from "../production-scheduling/repository.js";
+import { listProductionPlanOrders } from "../production-scheduling/service.js";
 import { createAinuokeSalesOrder } from "../sales-orders/service.js";
 import { createSalesOrder, replaceCurrentAinuokeColorSlice, createOrUpdateSourceLink, upsertCurrentAinuokeContractMirror } from "../sales-orders/repository.js";
 import { writeAttributionHeadInTransaction } from "../sales-orders/effective-attribution.js";
@@ -288,6 +289,7 @@ test("Gate6B planning: empty schema, real PostgreSQL and trusted HTTP atomic com
     // Synthetic historical metadata fixture, not the guarded normalization
     // execution service and not authorization to normalize any real order.
     const source = await order(), target = (await createSalesOrder(pool, { creationSource: "manual" })).id, pair = [source, target].sort();
+    const sourcePlan = await save(await createIntent(source, planData({ executorId: secondGroup.id, plannedQuantity: "7" })));
     const caseId = (await pool.query("INSERT INTO sales_order_normalization_cases(first_order_id,second_order_id,created_by,request_id,payload_hash) VALUES($1,$2,$3,$4,$5) RETURNING id", [...pair, editor.actor.internalUserId, randomUUID(), "a".repeat(64)])).rows[0].id;
     await pool.query("INSERT INTO sales_order_normalization_case_events(case_id,version,actor_id,request_id,payload_hash,event_type,reason,evidence) VALUES($1,1,$2,$3,$4,'opened','synthetic old identity','{}')", [caseId, editor.actor.internalUserId, randomUUID(), "b".repeat(64)]);
     const connection = await pool.connect();
@@ -309,6 +311,12 @@ test("Gate6B planning: empty schema, real PostgreSQL and trusted HTTP atomic com
       await connection.query("COMMIT"); const saved = await pending; assert.equal(saved.status, 200, saved.text); await refreshed;
       const details = await request("/assignments/" + saved.body.assignments[0].id); assert.equal(details.body.assignment.colorId, colorId); assert.equal(details.body.assignment.colorNameSnapshot, "富贵红");
       const current = await request("/orders/" + target); assert.equal(current.body.order.colors[0].colorName, "蓝色"); assert.deepEqual(current.body.order.deliveryPlans, []);
+      assert.equal(current.body.summary.plannedQuantity, "30");
+      const sourceRead = await request("/orders/" + source); assert.equal(sourceRead.body.summary.plannedQuantity, "7"); assert.equal(sourceRead.body.canEdit, false);
+      const queueRead = await request("/groups/" + secondGroup.id);
+      assert.ok(queueRead.body.assignments.some((row: { id: string }) => row.id === sourcePlan.assignments[0].id));
+      assert.equal(queueRead.body.ordersById[source].eligible, false); assert.equal(queueRead.body.ordersById[source].effectiveOrderId, target);
+      assert.equal((await request("/orders?allocation=all&search=" + sourceRead.body.order.orderNo)).body.total, 0);
       assert.equal((await pool.query("SELECT quantity::text FROM sales_order_delivery_plans WHERE sales_order_id=$1", [source])).rows[0].quantity, "100");
       await pool.query("DROP TRIGGER synthetic_plan_pause ON operation_logs; DROP FUNCTION synthetic_plan_pause()");
       // Reverse ordering: a committed source mutation must invalidate the old
@@ -398,6 +406,9 @@ test("Gate6B planning: empty schema, real PostgreSQL and trusted HTTP atomic com
     const read = await request("/orders/" + id); assert.equal(read.status, 200, read.text); assert.equal(read.body.order.quantity, "70"); assert.deepEqual(read.body.order.colors, []); assert.equal(read.body.order.styleNo, "SYN-PROCESS-PLAN");
     const result = await save(await createIntent(id)); assert.equal(result.assignments[0].orderId, id);
     assert.equal(/confirmedLabor|laborPrice|salePrice|USD|CNY/u.test(JSON.stringify((await request("/orders/" + id)).body)), false);
+    const listed = await request("/orders?allocation=all&search=SYN-PROCESS-PLAN");
+    assert.equal(listed.status, 200, listed.text); assert.equal(listed.body.total, 1); assert.equal(listed.body.items[0].businessType, "processing");
+    assert.equal(listed.body.items[0].plannedQuantity, "30"); assert.equal(/Labor|salePrice|USD|CNY/u.test(listed.text), false);
   });
   await t.test("browser client previews and verifies actual API create, replay, edit, cancel and replan receipts", async () => {
     const client = createProductionPlanClient(((path, init) => fetch(base + String(path), { ...init,
@@ -424,6 +435,113 @@ test("Gate6B planning: empty schema, real PostgreSQL and trusted HTTP atomic com
     assert.equal(cancelled.status, "applied"); if (cancelled.status === "applied") assert.equal(cancelled.assignments[0].status, "cancelled");
     const staleInput = { ...input, requestId: randomUUID() }, rejected = await client.execute(staleInput);
     assert.equal(rejected.status, "rejected"); assert.equal((await client.receipt(staleInput)).state, "known");
+  });
+  await t.test("directory queries enforce live grants, session and strict query boundaries", async () => {
+    for (const path of ["/orders", "/groups"]) {
+      assert.equal((await request(path, undefined, null)).status, 401); assert.equal((await request(path, undefined, quoteOnly.cookie)).status, 403);
+      assert.equal((await request(path, undefined, viewer.cookie)).status, 200);
+      assert.equal((await request(path + "?limit=101")).status, 400); assert.equal((await request(path + "?search=a&search=b")).status, 400);
+    }
+    const revoked = await user("plan.revoked.directory", ["order.view", "schedule.view"]);
+    assert.equal((await request("/orders", undefined, revoked.cookie)).status, 200);
+    await pool.query("DELETE FROM app_role_permissions WHERE role_id=$1 AND permission_key='schedule.view'", [revoked.roleId]);
+    assert.equal((await request("/orders", undefined, revoked.cookie)).status, 403); assert.equal((await request("/groups", undefined, revoked.cookie)).status, 403);
+    assert.equal((await request("/orders?status=all")).status, 400); assert.equal((await request("/groups?allocation=all")).status, 400);
+  });
+  await t.test("global order totals aggregate internal and outsource plans before filters and paging with exact decimals", async () => {
+    const ids = [await order(), await order(), await order()];
+    for (const [index, id] of ids.entries()) await pool.query("UPDATE ainuoke_sales_order_contract_mirrors SET inside_order_no=$2,customer_name_snapshot='查询测试客户' WHERE sales_order_id=$1", [id, "POOL-SLICE-" + index]);
+    await pool.query("UPDATE ainuoke_sales_order_contract_mirrors SET quantity=9007199254740993.25 WHERE sales_order_id=$1", [ids[0]]);
+    await save(await createIntent(ids[0], planData({ executorId: secondGroup.id, plannedQuantity: "9007199254740992.1" })));
+    const external = await save(await createIntent(ids[0], planData({ executionType: "outsource", executorId: factory.id, plannedQuantity: "0.15", dates: { mode: "manual_fixed", startDate: "2027-01-04", endDate: "2027-01-05" } })));
+    const cancelled = await save(await createIntent(ids[0], planData({ executorId: secondGroup.id, plannedQuantity: "50" })));
+    await save({ action: "cancel", orderId: ids[0], assignmentId: cancelled.assignments[0].id, expectedVersion: 1, expectedPlanVersion: cancelled.orderVersions[0].version, reason: "合成取消不计量" });
+    await save(await createIntent(ids[1], planData({ executorId: secondGroup.id, plannedQuantity: "100.25" })));
+    const first = await request("/orders?search=POOL-SLICE%20查询测试&limit=1");
+    assert.equal(first.status, 200, first.text); assert.equal(first.body.total, 2); assert.equal(first.body.items.length, 1); assert.equal(first.body.hasMore, true);
+    const second = await request("/orders?search=POOL-SLICE%20查询测试&limit=1&offset=1");
+    assert.equal(second.body.total, 2); assert.equal(second.body.hasMore, false); assert.notEqual(first.body.items[0].id, second.body.items[0].id);
+    const beyond = await request("/orders?search=POOL-SLICE&offset=99"); assert.equal(beyond.body.total, 2); assert.deepEqual(beyond.body.items, []);
+    const all = await request("/orders?allocation=all&search=POOL-SLICE"); assert.equal(all.body.total, 3);
+    const large = all.body.items.find((row: { id: string }) => row.id === ids[0]);
+    assert.equal(large.quantity, "9007199254740993.25"); assert.equal(large.plannedQuantity, "9007199254740992.25"); assert.equal(large.remainingQuantity, "1"); assert.equal(large.assignmentCount, 2); assert.equal(large.allocationState, "partial");
+    const over = (await request("/orders?allocation=overassigned&search=POOL-SLICE")).body;
+    assert.equal(over.total, 1); assert.equal(over.items[0].id, ids[1]); assert.equal(over.items[0].overassignedQuantity, "0.25"); assert.equal(over.items[0].remainingQuantity, "0");
+    assert.equal((await request("/orders?search=POOL-SLICE%20no-such-token")).body.total, 0);
+    assert.equal((await request("/orders?allocation=all&search=9007199254740993.25")).body.total, 0);
+    assert.equal((await request("/orders?allocation=all&search=POOL-SLICE%25")).body.total, 0);
+    assert.equal(external.assignments[0].executionType, "outsource");
+  });
+  await t.test("untrusted and unknown order facts remain readable but never advertise executable candidates", async () => {
+    const missing = (await createSalesOrder(pool, { creationSource: "manual" })).id;
+    const detail = await request("/orders/" + missing); assert.equal(detail.status, 200, detail.text); assert.equal(detail.body.summary.quantity, null);
+    assert.equal(detail.body.summary.remainingQuantity, null); assert.equal(detail.body.summary.allocationState, "unknown"); assert.equal(detail.body.canCreate, false); assert.equal(detail.body.canEdit, false);
+    const mismatched = (await createSalesOrder(pool, { creationSource: "ainuoke" })).id, fake = randomUUID();
+    await pool.query("INSERT INTO ainuoke_sales_order_contract_mirrors(sales_order_id,source_id,source_row_identity,sales_contract_no,inside_order_no,quantity,source_hash,fetched_at) VALUES($1,$2,$2,$2,'UNTRUSTED-STYLE',100,'synthetic',now())", [mismatched, fake]);
+    await createOrUpdateSourceLink(pool, { salesOrderId: mismatched, sourceSystem: "ainuoke", sourceEntityType: "sales_contract", externalId: fake + "-mismatch", salesContractNo: fake });
+    const invalid = await request("/orders/" + mismatched); assert.equal(invalid.body.summary.businessType, "unclassified"); assert.equal(invalid.body.canCreate, false);
+    const profileOnly = (await createSalesOrder(pool, { creationSource: "quote", sourceQuoteId: "synthetic-no-consumption", sourceRevisionId: "R1", sourcePriceVersionId: "V1" })).id;
+    await pool.query("INSERT INTO sales_order_identity_profiles(sales_order_id,business_type) VALUES($1,'processing')", [profileOnly]);
+    const unconsumed = await request("/orders/" + profileOnly); assert.equal(unconsumed.body.summary.businessType, "unclassified"); assert.equal(unconsumed.body.canCreate, false); assert.equal(unconsumed.body.canEdit, false);
+    const orders = await request("/orders?allocation=all&limit=100"); assert.equal(orders.body.items.some((row: { id: string }) => [missing, mismatched, profileOnly].includes(row.id)), false);
+  });
+  await t.test("count and page retain one database snapshot when source quantity changes between the two queries", async () => {
+    const id = await order(); await pool.query("UPDATE ainuoke_sales_order_contract_mirrors SET inside_order_no='REPEATABLE-POOL' WHERE sales_order_id=$1", [id]);
+    let interleaved = false;
+    const scopedPool = { connect: async () => {
+      const client = await pool.connect();
+      return new Proxy(client, { get(target, key) {
+        if (key === "query") return async (...args: unknown[]) => {
+          const result = await Reflect.apply(target.query, target, args);
+          if (typeof args[0] === "string" && args[0].includes("SELECT count(*)::text total FROM filtered")) {
+            assert.equal(interleaved, false); interleaved = true;
+            await pool.query("UPDATE ainuoke_sales_order_contract_mirrors SET quantity=0 WHERE sales_order_id=$1", [id]);
+          }
+          return result;
+        };
+        const value = Reflect.get(target, key); return typeof value === "function" ? value.bind(target) : value;
+      } });
+    } } as unknown as pg.Pool;
+    const result = await listProductionPlanOrders(scopedPool, editor.actor, new URLSearchParams("search=REPEATABLE-POOL"));
+    assert.equal(interleaved, true); assert.equal(result.total, 1); assert.equal(result.items[0].quantity, "100"); assert.equal(result.items[0].allocationState, "unassigned");
+    assert.equal((await request("/orders?search=REPEATABLE-POOL")).body.total, 0);
+    const current = await request("/orders/" + id); assert.equal(current.body.summary.quantity, "0"); assert.equal(current.body.summary.allocationState, "allocated");
+  });
+  await t.test("group overview retains disabled queues and completed order summaries while using existing natural sort", async () => {
+    const group2 = await resource("groups", { name: "读取组2", shortName: "read2", enabled: true, productionSiteId: site.id, sortOrder: 20, remark: "" });
+    const group10 = await resource("groups", { name: "读取组10", shortName: "read10", enabled: true, productionSiteId: site.id, sortOrder: 20, remark: "" });
+    const unused = await resource("groups", { name: "读取组空停用", shortName: "empty", enabled: false, productionSiteId: site.id, sortOrder: 20, remark: "" });
+    const id = await order(); const saved = await save(await createIntent(id, planData({ executorId: group2.id, plannedQuantity: "10.125" })));
+    await pool.query("UPDATE sales_orders SET lifecycle_state='completed',version=version+1 WHERE id=$1", [id]);
+    await changeResource(group2, { enabled: false });
+    const overview = await request("/groups?search=读取组"); assert.equal(overview.status, 200, overview.text); assert.equal(overview.body.total, 2);
+    assert.deepEqual(overview.body.items.map((row: { id: string }) => row.id), [group2.id, group10.id]);
+    const first = overview.body.items[0]; assert.equal(first.enabled, false); assert.equal(first.canCreate, false); assert.equal(first.plannedQuantity, "10.125"); assert.equal(first.headAssignmentId, saved.assignments[0].id);
+    assert.equal(overview.body.ordersById[id].eligible, false); assert.equal(overview.body.ordersById[id].lifecycleState, "completed");
+    const queue = await request("/groups/" + group2.id); assert.equal(queue.body.assignments.length, 1); assert.equal(queue.body.ordersById[id].orderNo, overview.body.ordersById[id].orderNo);
+    const hidden = await request("/groups?status=all&search=读取组&limit=1&offset=2"); assert.equal(hidden.body.total, 3); assert.equal(hidden.body.items[0].id, unused.id); assert.equal(hidden.body.hasMore, false);
+    assert.equal((await request("/orders?allocation=all&search=" + encodeURIComponent(queue.body.ordersById[id].orderNo))).body.total, 0);
+  });
+  await t.test("history version anchors prevent duplicate pages and resource names come from each adopted snapshot", async () => {
+    let historyGroup = await resource("groups", { name: "历史读取原名称", shortName: "history", enabled: true, productionSiteId: site.id, sortOrder: 21, remark: "" });
+    const id = await order(); let saved = await save(await createIntent(id, planData({ executorId: historyGroup.id })));
+    const assignmentId = saved.assignments[0].id, oldHash = saved.assignments[0].resourceSnapshotHash;
+    historyGroup = await changeResource(historyGroup, { name: "历史读取采用后名称" });
+    const queue = await request("/groups/" + historyGroup.id);
+    saved = await save({ action: "replan", groupId: historyGroup.id, expectedQueueVersion: queue.body.version, anchorDate: "2027-01-04", orderedAssignmentIds: null });
+    assert.equal(saved.changed, true); const newHash = saved.assignments[0].resourceSnapshotHash; assert.notEqual(oldHash, newHash);
+    for (let index = 0; index < 50; index++) saved = await save({ action: "update", orderId: id, assignmentId, expectedVersion: saved.assignments[0].version, expectedPlanVersion: saved.orderVersions[0].version,
+      reason: "合成历史读取", data: planData({ executorId: historyGroup.id, remark: "版本 " + index }) });
+    const page1 = await request("/assignments/" + assignmentId); assert.equal(page1.status, 200, page1.text); assert.equal(page1.body.asOfVersion, 52); assert.equal(page1.body.hasMore, true); assert.equal(page1.body.nextOffset, 50);
+    assert.equal(page1.body.history.length, 50); assert.deepEqual(page1.body.history.map((row: { version: number }) => row.version), Array.from({ length: 50 }, (_, i) => 52 - i));
+    saved = await save({ action: "update", orderId: id, assignmentId, expectedVersion: 52, expectedPlanVersion: saved.orderVersions[0].version, reason: "翻页期间追加", data: planData({ executorId: historyGroup.id, remark: "追加53" }) });
+    await changeResource(historyGroup, { name: "当前主数据名称不能补造历史" });
+    const page2 = await request("/assignments/" + assignmentId + "?offset=50&asOfVersion=52");
+    assert.equal(page2.body.assignment.version, 53); assert.equal(page2.body.asOfVersion, 52); assert.equal(page2.body.hasMore, false); assert.equal(page2.body.nextOffset, null);
+    assert.deepEqual(page2.body.history.map((row: { version: number }) => row.version), [2, 1]);
+    assert.equal(page2.body.resources[oldHash].group.name, "历史读取原名称"); assert.equal(page2.body.resources[newHash].group.name, "历史读取采用后名称");
+    assert.equal(page2.text.includes("当前主数据名称不能补造历史"), false); assert.equal((await request("/assignments/" + assignmentId + "?asOfVersion=54")).status, 400);
+    assert.equal((await request("/assignments/" + assignmentId + "?offset=99&asOfVersion=52")).body.history.length, 0);
   });
   assert.deepEqual(errors.map(error => error.requestId), expectedErrorIds); assert.ok(errors.every(error => error.event === "unhandled_request_error" && error.errorType === "error"));
 });
