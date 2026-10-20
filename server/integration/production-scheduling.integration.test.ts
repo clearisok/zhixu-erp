@@ -15,7 +15,7 @@ import { parseProductionResourceCommand, type ProductionResourceType } from "../
 import { type PlanData, type PlanIntent } from "../production-scheduling/contract.js";
 import { planHash } from "../production-scheduling/repository.js";
 import { createAinuokeSalesOrder } from "../sales-orders/service.js";
-import { createSalesOrder, replaceCurrentAinuokeColorSlice } from "../sales-orders/repository.js";
+import { createSalesOrder, replaceCurrentAinuokeColorSlice, createOrUpdateSourceLink, upsertCurrentAinuokeContractMirror } from "../sales-orders/repository.js";
 import { writeAttributionHeadInTransaction } from "../sales-orders/effective-attribution.js";
 import { collectFullNormalizationEvidence } from "../sales-orders/normalization-full-evidence.js";
 import { parseAttributionProposal } from "../sales-orders/normalization-execution-model.js";
@@ -24,6 +24,7 @@ import { createQuoteRepository } from "../quotes/repository.js";
 import { quoteSnapshotFromBrowser } from "../quotes/model.js";
 import { createSyntheticQuoteFixture } from "./quote-fixture.js";
 import { lockProductionResourceScope } from "../production-resources/snapshot-lock.js";
+import { previewSaleAdjustment } from "../sales-orders/sale-adjustment-service.js";
 import { startDisposablePostgres } from "./postgres-container.js";
 
 const keys: PermissionKey[] = ["order.view", "schedule.view", "schedule.create", "schedule.edit", "ainuoke.sync", "settings.production_infrastructure.edit", "settings.production_group.edit", "settings.outsource_factory.edit"];
@@ -327,6 +328,41 @@ test("Gate6B planning: empty schema, real PostgreSQL and trusted HTTP atomic com
     assert.equal(cancelled.assignments[0].status, "cancelled"); assert.equal((await request("/assignments/" + row.id)).body.history.length, 2);
     await pool.query("UPDATE sales_orders SET lifecycle_state='completed',version=version+1 WHERE id=$1", [id]);
     assert.equal((await request("/preview", await createIntent(id))).body.error.code, "production_order_frozen");
+  });
+  await t.test("batch price preview and multi-order replan lock expanded physical groups in the same global order", async () => {
+    const ids = [];
+    for (let i = 0; i < 4; i++) ids.push((await createSalesOrder(pool, { creationSource: "ainuoke" })).id);
+    ids.sort(); const [sourceTwo, rootOne, rootTwo, sourceOne] = ids;
+    // Adversarial physical groups {02,04} and {01,03}; sorting just the roots
+    // takes the groups in the opposite order to the globally smallest source.
+    for (const [source, root] of [[sourceOne, rootOne], [sourceTwo, rootTwo]]) {
+      const key = "SYN-LOCK-" + randomUUID();
+      await createOrUpdateSourceLink(pool, { salesOrderId: source, sourceSystem: "ainuoke", sourceEntityType: "sales_contract", externalId: key, salesContractNo: key, insideOrderNo: key });
+      await upsertCurrentAinuokeContractMirror(pool, source, { sourceId: key, sourceRowIdentity: key, salesContractNo: key, insideOrderNo: key, lifecycleStatusRaw: "生效", contractDate: "2027-01-01", contractDeliveryDate: "2027-02-01", styleNo: "SYNTHETIC-LOCK", companyNameSnapshot: "Synthetic", customerNameSnapshot: "Synthetic", brandNameSnapshot: "Synthetic", quantity: 100, sourceHash: key, fetchedAt: "2026-10-20T00:00:00Z" });
+      const pair = [source, root].sort(), connection = await pool.connect();
+      try {
+        await connection.query("BEGIN"); await connection.query("SELECT pg_advisory_xact_lock(hashtextextended('order-effective-attribution',0))");
+        const caseId = (await connection.query("INSERT INTO sales_order_normalization_cases(first_order_id,second_order_id,created_by,request_id,payload_hash) VALUES($1,$2,$3,$4,$5) RETURNING id", [...pair, editor.actor.internalUserId, randomUUID(), "a".repeat(64)])).rows[0].id;
+        await connection.query("INSERT INTO sales_order_normalization_case_events(case_id,version,actor_id,request_id,payload_hash,event_type,reason,evidence) VALUES($1,1,$2,$3,$4,'opened','synthetic lock fixture','{}')", [caseId, editor.actor.internalUserId, randomUUID(), "b".repeat(64)]);
+        const change = (await connection.query("INSERT INTO sales_order_attribution_changes(case_id,case_version,change_type,actor_id,request_id,payload_hash,evidence_hash,evidence_basis,reason) VALUES($1,1,'normalize',$2,$3,$4,$4,'{}','synthetic lock fixture') RETURNING id", [caseId, editor.actor.internalUserId, randomUUID(), "d".repeat(64)])).rows[0].id;
+        for (const id of pair) await connection.query("INSERT INTO sales_order_attribution_members(change_id,sales_order_id,effective_order_id,previous_version) VALUES($1,$2,$3,0)", [change, id, root]);
+        for (const id of pair) await writeAttributionHeadInTransaction(connection, change, id); await connection.query("COMMIT");
+      } finally { await connection.query("ROLLBACK"); connection.release(); }
+    }
+    const queueGroup = await resource("groups", { name: "交错锁验证组", shortName: "锁", enabled: true, productionSiteId: site.id, sortOrder: 2, remark: "" });
+    await save(await createIntent(rootOne, planData({ executorId: queueGroup.id }))); await save(await createIntent(rootTwo, planData({ executorId: queueGroup.id })));
+    const queue = await request("/groups/" + queueGroup.id), input = await command({ action: "replan", groupId: queueGroup.id, expectedQueueVersion: queue.body.version, anchorDate: "2027-01-04", orderedAssignmentIds: queue.body.assignments.map((row: { id: string }) => row.id).reverse() });
+    const pricing = await user("plan.price", [...keys, "quote.view", "quote.order_price.adjust", "commercial.sale.view", "commercial.sale.edit"]), blocker = await pool.connect();
+    try {
+      await blocker.query("BEGIN"); await blocker.query("SELECT id FROM sales_orders WHERE id=$1 FOR UPDATE", [sourceTwo]);
+      const planPending = request("/commands", input); await waitLock("SELECT id::text FROM sales_orders WHERE id IN%FOR UPDATE%");
+      const pricePending = previewSaleAdjustment(pool, pricing.actor, { items: [{ salesOrderId: rootOne }, { salesOrderId: rootTwo }], rule: { kind: "amount", value: "-1" } });
+      const deadline = Date.now() + 4000; let waiting = 0;
+      while (Date.now() < deadline) { waiting = (await pool.query<{ n: number }>("SELECT count(*)::int n FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND query LIKE 'SELECT id::text FROM sales_orders WHERE id IN%FOR UPDATE%'")).rows[0].n; if (waiting === 2) break; await new Promise(done => setTimeout(done, 20)); }
+      assert.equal(waiting, 2); await blocker.query("COMMIT");
+      const [planned, priced] = await Promise.all([planPending, pricePending]); assert.equal(planned.status, 200, planned.text);
+      assert.equal(priced.items.length, 2); assert.ok(priced.items.every(item => item.status === "failed" && item.code === "order_commercial_basis_required"));
+    } finally { await blocker.query("ROLLBACK"); blocker.release(); }
   });
   await t.test("normalization inventories direct and indirect plan bytes but external coverage stays unavailable", async () => {
     const alias = (await createSalesOrder(pool, { creationSource: "manual" })).id, pair = [a, alias].sort();
