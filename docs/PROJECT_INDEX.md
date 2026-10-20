@@ -1,6 +1,12 @@
 # 项目知识索引
 
-2026-10-21最新恢复：[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[Server排单UI](features/SERVER_PRODUCTION_PLANNING_UI.md)、[工程证据](tasks/completed/2026-10-21-production-planning-ui-engineering.md)、CURRENT_STATE/AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；codex/server-production-planning。应用919643精确build/三build-info/Node/types/lint和17 built排单通过，49 built/126定向/261DB及绑定后927项目/116基线证据保留。3f2f最终guard/一次push/独立API exact，Baseline与Team CI成功；Source计划17项通过，后在颜色议价测试DOM时序失败。现受控7/后半28/lint/独立复审通过，仅测试和摘要变更；新head守卫/交付/CI待收口。原234证据/49能力逐项保持，现237/50。6C业务取舍异步待答；无实际完成/物流/出货/关账、新真实来源或部署。[3f2f三摘要Git blob逐字归档](tasks/completed/2026-10-20-gate6-inputs/planning-ui-ci-3f2fbbac/)，更早日期/hash/限制沿链保留。
+2026-10-21最新恢复：[旧Quote验收维护](tasks/active/server-convergence-quote-acceptance-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
+main 996dfedc12da3527343cd3ff2aa5eea35497e10e；codex/server-quote-acceptance从干净4e10开始。
+Gate6B精确4e10独立交付及Source39464481379/Team39464487383/Baseline39464494767三CI全success，未重复调度。
+应用仍919643；只维护验收和CI/文档。旧45/44/2和31未启动保留；工作1为54/11、2为75/5、3为84/3，第四轮87/87、均0取消/跳过；最后中止catch标记待冻结复核。
+实际完成/物流/出货/关账未闭环，6C两项业务选择待答；237证据/50能力、旧环境/PNG/Browser/PR头不改，无新真实来源或部署。
+[4e10三摘要逐字Git blob归档](tasks/completed/2026-10-21-quote-acceptance-inputs/4e105963/)保留原日期/hash/结果/限制。
+
 
 [不可变UI工程证据](tasks/completed/2026-10-20-production-resources-ui-engineering.md)保留6A应用1da/证据7b、927/261/116、39资源、14built/18导航及selector修正。早期6B纯预览39190及43/927/116独立保留；新后台25项PG/HTTP、来源异单冻结、逐次历史及跨模块反序锁有实际负例/交错验证，外部覆盖仍unavailable。三摘要[e5输入](tasks/completed/2026-10-20-gate6-inputs/planning-backend-e5cc27da/)与[7eb冻结前状态](tasks/completed/2026-10-20-gate6-inputs/planning-backend-7ebfe985/)逐字归档；更早日期/hash/结果/限制不覆盖。旧Quote45/44/2和31未启动仍是独立缺口。
 

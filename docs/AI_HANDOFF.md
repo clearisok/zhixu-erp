@@ -1,37 +1,30 @@
-# 恢复点：Gate6B颜色验收目标组件等待修复，待最终交付/CI
+# 恢复点：旧Quote完整87项通过，待最终冻结复核；6C业务问题仍待答
 
-2026-10-21；Goal active/no budget；main996dfedc12da3527343cd3ff2aa5eea35497e10e（独立API核实）。
-codex/server-production-planning；root唯一writer、既有reviewer只读。
-应用源码919643d8cde2b0ec22987631e685e6a661829881不变；本批基于干净3f2fbbace6d03062c54b53f6ba836f84ef224366，仅适配测试/摘要，不复写冻结文档。
-[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[本批证据](tasks/completed/2026-10-21-production-planning-ui-engineering.md)。
+2026-10-21；Goal active/no budget；main996dfedc12da3527343cd3ff2aa5eea35497e10e（独立API）。
+当前codex/server-quote-acceptance，输入干净4e10596329e5ac6418a76ccf05123de47df54545，root唯一writer。
+[范围/证据](tasks/active/server-convergence-quote-acceptance-2026-10-21.md)。
 
-919643精确Server build（三build-info的919/session/server/writable/snapshot）、Node串行导入、types/lint、
-17 built排单验收32133.1662ms通过。6baca同阶段49 built、126定向、927项目/116基线/261DB全部通过；
-随后只改Server限定CSS、验收兼容和文档；Git diff已核实后台/客户端/authority/AppShell函数字节未变。
-旧49几何PASS后像素复核发现390搜索挤压，919分行+非重叠实际断言，最终截图已root查看。所有中途失败/来源/耗时见冻结证据。
+4e10精确main996守卫、一次push、独立API exact、三个新CI均完成：Source39464481379、Team39464487383、
+Baseline39464494767全部success/同SHA/attempt1。ignored outputs有4e10-ci-final/final-identity；不得重推/重调。
+Gate6B应用919643及所有frozen验证见既有工程记录，不冒称完成/出货/关账或已升级62426。
 
-新页authority先选owner，不挂Browser；原route+snapshot开关+order/schedule权限；精确字符串表单、当前颜色待核对、
-单订单内部/外发、整组重排/固定日期保护、分版本历史。无实际完成/物流/价格/迁移/新权限。
-完整session lease、原actor/tab命令、GETunknown后明确人工重试相同requestId/intent/hash，pending/mismatch不重发；
-protected router、等待字段禁用、SAVEPOINT预期404/409/422拒绝持久化并清成功orderIds，裸错误不清缓存。
-跨SO499→500实际PG边界和POST/receipt200/401的A→B→A均已验收；新旧用户资料未触碰。
+本轮只改quote-server-ui.integration.test.mjs、direct-creation-ui.mjs、pr91-second-acceptance-ui.mjs、
+Source workflow验收步骤及任务/共享状态/输入归档。无应用、SQL、权限目录、237/50或frozen feature/PNG变化。
+八个阶段各240s、子例60s、CDP20s；AsyncLocalStorage覆盖case及phase；无结果的超时停止共享browser，
+每阶段独立受控cleanup清Fetch/held GET/标志，失败停止；只读轮询仅处理精确navigation context失效，不重放写入。
+旧Quote来源SO fixture改正式合同/加工批次及明确商业采用，再通过既有CCT服务建确认依据；订单快照不被共享价覆盖，旧PATCH精确409。
+加工API/workbook只工价，动态材料/null/0保留在经销；正控最小金额授权，原无权/成本撤权/Estimate/Browser负控保留。
 
-新UI契约919/工程证明1c6/D150前向修订1c6均已真实Git blob绑定，原234/49逐项不改，现237/50；
-首轮guard检出D150工作树漂移，保留原记录并追加supersedes后main996 guard PASS，未绕过检查。
-绑定后927/927项目212626.5359ms、116/116基线210878.984ms通过，均0 fail/skip/cancel；独立只读证据复审无阻断。
-3f2f最终guard PASS，一次push后独立API exact（6283是祖先）；工具再次STOP标签/target矛盾，原receipt保留，未重推或声称永久修复。
-3f2f Baseline39461363083、Team39461357465 success；Source39461350814的计划17项通过，后在议价UI:116
-材料角色全页“无权查看”来自独立commercial-versions卡，business-source颜色尚未加载，脚本对undefined取DOM失败。
-仅改order-sale-adjustment-ui：groups等待目标details非空行并返回同次快照；明确暂缓真实颜色GET、断言目标未挂载，
-释放原响应后原金额隐藏/零价/同价异方案断言继续。没有伪DTO、写重试、任意固定延迟或产品变化。
-自然本机重跑7/7（16423.8155ms）未复现，不假称复现；受控7/7（16257.6655ms）、后半三套28/28
-（48803.9965ms）、精确lint与独立只读复审通过。旧login11/continuous14和6283失败链见Gate6任务/逐字输入档。
-下一步干净修复commit及其main996 guard，既有工具一次push/独立API exact；先查同head已有runs，
-仅对新head调度Source/Team/Baseline各一次并复审，不重启旧runs、不建重复累计业务PR。
+工作1实际54pass/11fail/0cancel/skip（105527.8342ms），工作2为75pass/5fail/0cancel/skip（93547.4871ms）。
+已修弹窗未就绪、49条第二页24、加工freight隐藏null/raw0、CCT raw字段改nested合同、审计详情未读取完。
+工作3为84pass/3fail（125581.7341ms），唯一leaf是日志搜索旧FormItem selector；改现有SearchField。
+工作4已87/87（158141.1777ms，含阶段节点），0fail/cancel/skip，session25590可收尾核对。
+工作4运行期间只再补interruptedScope的catch先标unsafe再重抛，case/phase共用，CDP探针验证该catch；
+最后独立静态复审无新增阻断。需冻结后重跑该套件，不把工作4当最后源码验证。
+types/Node/全仓lint已通过；项目session54750、显式基线session65608仍运行，先核实handle/终态不重启。
+两个截图helper已改每次唯一子目录，Source workflow追加该套件命令；不修改旧PNG/ID。
 
-持续工程Git授权不逐次询问；不改共享Git/TLS/proxy/auth、不合并/关闭#120–127。
-不动3001/50426/59069/62426（仍8175）、旧卷/Browser/其他工作树或真实账号/业务库；
-无新艾诺科范围、部署或退役。6C/出货/Server关账待继续，未来CNY销售/USD工价不自动换汇。
-6C预审已识别计划重排必须接执行事实而非0/null，并保护资源历史、执行回执与归一引用；尚无6C实现。
-两项真实权限/产出归属取舍已向用户异步询问，不能把Git自动授权当业务规则答案；可继续CI收口。
-旧Quote45/44/2和31未启动独立；输入[3f2f三摘要Git blob归档](tasks/completed/2026-10-20-gate6-inputs/planning-ui-ci-3f2fbbac/)，更早6524链沿原任务保持。
+下一步收齐现有结果，源码checkpoint后重跑最终完整浏览器与精确lint，完成项目/基线及main996 guard，
+有界安全交付/独立SHA/新CI，不建累计重复业务PR，不借4e绿灯。新源码build如执行需前端后Node串行，避免dist被清。
+6C两业务选择尚待人答，不以Git授权代答。无真实数据/来源/部署/merge/close/退役，保护全部旧环境/Browser。
+[输入4e10三摘要逐字归档](tasks/completed/2026-10-21-quote-acceptance-inputs/4e105963/)，旧日期/hash/限制完整沿链保存。
