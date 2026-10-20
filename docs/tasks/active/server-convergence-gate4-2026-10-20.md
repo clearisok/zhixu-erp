@@ -151,3 +151,39 @@ no remaining blocker after strict summary typing and source-link cardinality fix
 No new image, runtime, UI component or database upgrade has occurred. A clean
 source checkpoint precedes exact-SHA Browser/Server builds and the explicit
 baseline command; those later checks are not claimed by this checkpoint.
+
+## 4A local acceptance and tool forward integration
+
+Clean application sourcea1879b70dde94d9670f33da476732157e48c9443 produced both
+Browser-compatible and explicit Server/session/snapshot builds. Build metadata was
+saved separately; no running environment was upgraded. The actual built P6
+Chromium suite passed13/13 (63668ms) with seven roles, six viewport widths,
+no Browser fallback, refresh/failure and identity/unsaved-write boundaries.
+The explicit npm run test:release-baseline passed116/116 (351371ms), in addition
+to the927 project suite. Full types/compiled Node/lint and exact-main guard passed.
+Independent second code review found no blocker.4A is local engineering PASS;
+4B display and4C optional protected editing are not implemented or claimed.
+
+Tool37bd0e1e81810f46c1972f37630dc99b7fc9b18d is independently exact remote and
+all three checks completed/success (source39379407326/team39379407265/
+baseline39379407269). Unique PR127 stays draft/open. Its forward merge preserves
+both original histories; this is a local task-branch integration, not a main merge.
+Conflicts are limited to three shared summaries, resilience history and the
+commercial test. Root recovery state is retained; incoming summaries are archived.
+Resilience histories are combined. The stronger full-field restricted projection
+and allowed-price positive control are retained together with Gate3's recursive
+numeric sentinel assertions and harmless-ID control. No freeze assertion is lost.
+The corresponding SQL regression, types/lint and exact guard run after resolution.
+No raw application, permission or schema conflict exists. Remote4A delivery/CI
+will be reported only after exact verification; no duplicate cumulative PR.
+
+### Conflict-resolution verification
+
+After forward integration the combined commercial source SQL suite passed9/9
+(5111ms), and the24-case evidence/API/client suite passed again (11918ms).
+Independent staged-diff review confirmed all incoming tool, CI, login test and
+archived summary blobs exactly match37; the business application/SQL/permissions/
+manifest blobs remaina1879b70. No unresolved conflict or unowned edit remains.
+Types/lint/exact guard are recorded in the merge logs before commit. Tool tests53
+and prior baseline116 bind unchanged source/test blobs; no synthetic coverage is
+represented as a runtime upgrade or real source activation.

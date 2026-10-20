@@ -25,7 +25,7 @@ test('quote-only source, stable colors and immutable commercial lines',{timeout:
  await synchronizePermissionCatalog(pool);await pool.query("INSERT INTO app_roles(id,name) VALUES('source-test','Synthetic')");for(const p of PERMISSION_KEYS)await pool.query('INSERT INTO app_role_permissions VALUES($1,$2)',['source-test',p]);
  const u=(await pool.query("INSERT INTO app_users(username,password_hash,display_name,role) VALUES('source-test','unused','Synthetic','viewer') RETURNING id::text,public_id::text")).rows[0];await pool.query("INSERT INTO app_user_roles VALUES($1,'source-test')",[u.id]);
  const actor:TrustedIdentity={internalUserId:u.id,userId:u.public_id,username:'source-test',userName:'Synthetic',permissions:await permissionsForUser(pool,u.id)};
- const q=createSyntheticQuoteFixture('business-source-synthetic','distribution');for(const r of q.revisions){r.imageAttachmentIds=[];r.fileAttachmentIds=[];r.styleImageAttachmentId=null;}
+ const q=createSyntheticQuoteFixture('business-source-synthetic-120','distribution');for(const r of q.revisions){r.imageAttachmentIds=[];r.fileAttachmentIds=[];r.styleImageAttachmentId=null;}
  const r=q.revisions.find(r=>r.revisionId===q.defaultRevisionId)!;r.baseInfo.quoteStyleNo='SYN-SHIRT';r.baseInfo.brandName='Synthetic Brand';
  for(const [i,p] of r.priceVersions.entries()){p.quantity=100;p.trims.forEach(l=>l.usage=0);p.pricingParameters.laborCurrency='CNY';p.confirmation={quotedGarmentPrice:999,quotedLaborPrice:999,confirmedGarmentPrice:120+i*10,confirmedLaborPrice:10+i,note:'synthetic',confirmedAt:'2026-10-17T00:00:00Z'};}
  await createQuoteRepository(pool).create(quoteSnapshotFromBrowser(q));let n=0;
@@ -65,7 +65,26 @@ test('quote-only source, stable colors and immutable commercial lines',{timeout:
   const missing=await order(['Green']);await assert.rejects(()=>command(missing,{kind:'quote',quoteId:q.id,revisionId:r.revisionId,assignments:[]}),code('order_colors_changed'));
  });
  await t.test('amount field projection and completed orders fail closed',async()=>{
-  const restricted={...actor,permissions:actor.permissions.filter(p=>!p.startsWith('commercial.'))};const data=await readOrderBusinessSource(pool,restricted,a);assert.equal(data.commercial.current?.lines?.[0].sale.visibility,'restricted');const containsPrice=(v:unknown):boolean=>Array.isArray(v)?v.some(containsPrice):v&&typeof v==='object'?Object.values(v).some(containsPrice):v===120||v==='120';assert.equal(containsPrice(data),false);assert.equal(containsPrice({id:'00000000-0000-4000-8000-000000000120'}),false);assert.equal(containsPrice({sale:120}),true);
+  const restricted={...actor,permissions:actor.permissions.filter(p=>!p.startsWith('commercial.'))};
+  const data=await readOrderBusinessSource(pool,restricted,a),current=data.commercial.current;
+  assert.ok(current);assert.equal(current.quoteId,q.id);assert.ok(current.quoteId.includes('120'));
+  assert.equal(current.lines?.length,2);
+  assert.deepEqual(current.sale,{visibility:'restricted'});assert.deepEqual(current.labor,{visibility:'restricted'});
+  for(const key of ['reason','salePrice','saleCurrency','laborPrice','laborCurrency','productSnapshot','sourceSnapshot'])
+   assert.equal(Object.hasOwn(current,key),false,`Restricted version exposes ${key}`);
+  for(const line of current.lines??[]){
+   assert.deepEqual(line.sale,{visibility:'restricted'});assert.deepEqual(line.labor,{visibility:'restricted'});
+   for(const key of ['salePrice','baseSalePrice','laborPrice','laborCurrency','source','product','productHash'])
+    assert.equal(Object.hasOwn(line,key),false,`Restricted color exposes ${key}`);
+  }
+  assert.deepEqual(Object.keys(data.product??{}).sort(),['quoteCode','revisionLabel','priceVersionName','styleNo','styleName'].sort());
+  const visible=await readOrderBusinessSource(pool,actor,a),visibleLine=visible.commercial.current?.lines?.[0];
+  assert.ok(visibleLine?.sale.visibility==='allowed');assert.equal(visibleLine.sale.value.price,'120');
+
+  const containsPrice=(value:unknown):boolean=>Array.isArray(value)?value.some(containsPrice):value&&typeof value==='object'?Object.values(value).some(containsPrice):value===120||value==='120';
+  assert.equal(containsPrice(data),false);
+  assert.equal(containsPrice({id:'00000000-0000-4000-8000-000000000120'}),false);
+  assert.equal(containsPrice({sale:120}),true);
   const id=await order();await pool.query("UPDATE sales_orders SET lifecycle_state='completed',version=version+1 WHERE id=$1",[id]);await assert.rejects(()=>command(id),code('order_commercial_frozen'));
  });
  await t.test('source search splits whitespace into AND terms without granting costs',async()=>{

@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-20 当前优先：[Server 收敛 Gate 4](tasks/active/server-convergence-gate4-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147/148。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Gate2组合/草稿#126及Gate3精确16f8d57d均三CI全绿，完整工程/历史失败见各任务。当前分支codex/server-order-source-readchain，4A保存颜色尺码白名单及DeliveryPlan只读链已本地实现，24新定向/70领域回归通过，最终检查待收口；尚无4B新UI/4C写入，无新来源、迁移或价格写入。独立工具草稿#127的37bd0e1e精确送达，三项新CI运行（baseline绿），不称全绿。上阶段摘要[逐字归档](tasks/completed/2026-10-20-gate4-inputs/)。62426仍Gate1空镜像，3001/50426保留；[持续Git授权](tasks/active/git-delivery-resilience.md)不扩合并、正式部署或真实数据。以下旧日期保留当时结果。
+2026-10-20 当前优先：[Server 收敛 Gate 4](tasks/active/server-convergence-gate4-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147/148。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Gate2组合/草稿#126及Gate3精确16f8d57d均三CI全绿，完整工程/历史失败见各任务。当前分支codex/server-order-source-readchain，4A保存颜色尺码白名单及DeliveryPlan只读链已本地实现，24新定向/70领域/927项目/两构建/13浏览器/116基线与复审通过，工具向前整合后9+24再验通过，远端验收待核；尚无4B新UI/4C写入，无新来源、迁移或价格写入。独立工具草稿#127的37bd0e1e精确送达，三项新CI精确全绿。上阶段摘要[逐字归档](tasks/completed/2026-10-20-gate4-inputs/)。62426仍Gate1空镜像，3001/50426保留；[持续Git授权](tasks/active/git-delivery-resilience.md)不扩合并、正式部署或真实数据。以下旧日期保留当时结果。
 
 D-146 的角色权限、用户管理和操作日志本阶段已合入候选源码，正式说明见[系统管理任务](tasks/active/system-settings-administration-2026-10-19.md)、[权限](features/PERMISSIONS.md)及[日志](features/OPERATION_LOGS.md)。原 #123 状态/索引逐字保留在 Gate2 输入归档，不恢复过期主线或交付待办。
 

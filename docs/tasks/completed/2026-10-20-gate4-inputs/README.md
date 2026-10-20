@@ -6,3 +6,10 @@ before Gate4 shared summaries change. File hashes were compared at copy time.
 The old pending CI text is preserved as its original record; the Gate4 task gives
 the subsequently verified three successful exact16 CI runs. No historical date,
 commit, result or limitation was erased.
+
+
+git-tool-37bd0e1e preserves the three incoming shared summaries byte-for-byte from
+37bd0e1e81810f46c1972f37630dc99b7fc9b18d before forward integration. Root Gate4
+summaries remain authoritative; the incoming PR retains its original ancestry.
+Its source39379407326/team39379407265/baseline39379407269 are independently
+confirmed exact37 completed/success; their earlier pending text remains history.

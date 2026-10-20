@@ -26,6 +26,26 @@ repeat push was made and permanent transport/root-cause repair is not claimed.
 Draft #126 contains only the release evidence tool. Only the three named
 acceptance workflows were dispatched on the integration reference, not deployment.
 
+## Current bounded recovery — 2026-10-20
+
+The human user's “以后都自动授权不要再问我” is standing authorization for
+safe Git recovery delivery, PR/CI and necessary engineering fixes within the
+approved task. It replaces repeated per-upload questions, not the exact-SHA,
+bounded-attempt, independent-evidence or no-auto-merge/deployment/data boundaries.
+Historical single-attempt records below remain historical. No shared proxy,
+authentication or TLS-verification change is authorized by this tool repair.
+
+See [the preflight repair](git-delivery-preflight-fallback-2026-10-20.md).
+After an actual Git transport failure only, one fixed-host GitHub matching-refs
+read may prove the exact existing SHA or absence through a successful empty
+response. A 404, malformed response or non-exact prefix is never absence proof.
+Certificate identity/configuration and authentication/divergence failures stop
+without this fallback. All original local guards, normal push at most once,
+independent postflight and uncertain delivery handling remain. Receipts now keep
+safe phase/category/code/timing summaries; never raw errors or credentials.
+Successful API-assisted delivery remains NETWORK_DEGRADED for the observed Git
+channel. It is not a permanent network/root-cause repair or an automatic retry.
+
 ## Baseline / scope
 
 A worktree `D:/workspace/zhixu-quote-two-step` started clean on
