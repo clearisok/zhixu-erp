@@ -78,3 +78,13 @@ Gate5精确c6已由既有工具一次上传并独立GitHub API核实；Baseline3
 下一步本地独立源码checkpoint冻结，再执行完整项目/数据库/发布基线和精确SHA构建/浏览器；这些未完成前不记6A工程最终PASS，不借311 Hosted CI。各类运维/真实数据/来源及资产退役边界不变。
 
 源码checkpoint前新增断言已实际执行：14/14（20747.2784ms）通过，明确验证地点卡/日历卡都显示新名称、工作周和2条例外；外发6宽度、日历1440/390无整页溢出，截图本机ignored outputs保存。类型与精确路径lint通过。再次独立GitHub API核实main仍996，无额外范围或真实操作。待冻结后重验仍保留为下一步，不把本工作构建冒充提交构建。
+
+## 6A源码冻结与最终本地工程证据
+
+应用源码checkpoint `1da0b546e00c5eb6d4d215757f85e96c57a8f306` 后完成：927/927项目（275700.7987ms）、261/261数据库（292080.9625ms）、116/116发布基线（273878.9202ms）；全量types/Node/全仓lint与精确1da Server前端构建通过。该轮combined browser为30pass/2fail，不能记32绿：资源parent/响应式child的全局同名按钮selector选到另一日历。应用没有选错资源；独立核对失败快照确为其他合成日历的有效详情。导航子套18/18通过。随后只把两个site-origin selector限定到地点section，未改任何应用/SQL/UI blob，资源14/14重验通过（20691.8435ms）。
+
+纯测试修正与不可变工程证据checkpoint `7b5fc1623b9ae8e60eae4dd4ac5ecc7b0032d364` 保留source1da全部原始历史。[新UI工程证据](../completed/2026-10-20-production-resources-ui-engineering.md)明确working与frozen、失败与重验、检查范围和未执行项，不覆盖[8c后台](../completed/2026-10-20-production-resources-backend-engineering.md)。39资源检查是同一已提交blob，未经更换测试消除实际缺陷。独立静态复审无阻塞，仅阅读代码/日志。
+
+前次1da三摘要逐字SHA256保存在 `completed/2026-10-20-gate6-inputs/ui-source-1da0b546/`。当前前向加入唯一 `production-resource-server` 能力和7b冻结文档证据：229证据/49能力，implemented yes/isolated passed，merged false/human not-run/source not-applicable/18443与18444 not-deployed；旧Browser production及全部旧记录/截图不变。最终文档checkpoint继续精确main守卫、基线检查与有界交付，仅在独立完整SHA核实后对新HEAD调度三个CI，不借311绿灯，不建重复累计业务PR。以后新Gate再前向记录实际远端/CI结果，避免用当前未完成事件制造自证。
+
+能力清单收口后实际重验：精确main996守卫PASS（11页/49能力/51累计UI路径），发布基线116/116（167003.2535ms），无失败/取消/跳过。独立只读复审逐项核对旧228证据/48能力及其他顶层字段保持，新增证据Git blob SHA256与清单一致，三摘要归档内容及规范化blob等于1da；当前增量仅文档/清单/输入归档，无应用、SQL、UI或CI变化。复审无阻塞，审查者未执行测试、网络或数据库操作。随后创建文档checkpoint并验证实际完整HEAD，远端与新CI仍待独立实证，不提前记为通过。

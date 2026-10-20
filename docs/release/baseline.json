@@ -1885,6 +1885,14 @@
       "path": "docs/tasks/completed/2026-10-20-order-quote-reference-ci-repair.md",
       "recordedAtSha": "07cd7ffb4f0885baaa2ee829f54006804336c11d",
       "sha256": "20d033c968361058900a374f0c172b7ed03a7d5938c4d7aee836e624a0047566"
+    },
+    {
+      "id": "production-resource-server-engineering-20261020",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-20-production-resources-ui-engineering.md",
+      "recordedAtSha": "7b5fc1623b9ae8e60eae4dd4ac5ecc7b0032d364",
+      "renderedSourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+      "sha256": "abfe8795e2e20617d8953584da2ed6f60776ac83614376ee6562305415cb0879"
     }
   ],
   "pages": [
@@ -6720,6 +6728,91 @@
           "runtimeId": "preview18444",
           "evidence": [
             "order-quote-context-create-engineering-20261020"
+          ]
+        }
+      }
+    },
+    {
+      "id": "production-resource-server",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source.",
+      "evidence": [
+        "production-resource-server-engineering-20261020"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-20",
+          "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source. Local isolated engineering only; remote delivery and CI are independently checked at the final head.",
+          "sourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+          "evidence": [
+            "production-resource-server-engineering-20261020"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-20",
+          "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source. Local isolated engineering only; remote delivery and CI are independently checked at the final head.",
+          "sourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+          "evidence": [
+            "production-resource-server-engineering-20261020"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-20",
+          "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source. Local isolated engineering only; remote delivery and CI are independently checked at the final head.",
+          "sourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+          "evidence": [
+            "production-resource-server-engineering-20261020"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-20",
+          "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source. Local isolated engineering only; remote delivery and CI are independently checked at the final head.",
+          "sourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+          "evidence": [
+            "production-resource-server-engineering-20261020"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-20",
+          "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source. Local isolated engineering only; remote delivery and CI are independently checked at the final head.",
+          "sourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+          "evidence": [
+            "production-resource-server-engineering-20261020"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-20",
+          "scope": "New Server production-resource candidate not deployed. Historical runtime identifiers retained without re-observation.",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "evidence": [
+            "production-resource-server-engineering-20261020"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-20",
+          "scope": "New Server production-resource candidate not deployed. Historical runtime identifiers retained without re-observation.",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "evidence": [
+            "production-resource-server-engineering-20261020"
           ]
         }
       }
