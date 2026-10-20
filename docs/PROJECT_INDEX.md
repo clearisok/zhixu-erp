@@ -1,36 +1,12 @@
-2026-10-20 当前恢复优先：[Server 收敛 Gate 1](tasks/active/server-convergence-gate1-2026-10-20.md)、[Gate 0 基线](tasks/active/server-convergence-gate0-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147。main 已核实 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；#119 已合并，#120-124 仍草稿。Goal 已启用，新持久化副本的重启/备份/独立恢复已演练，新空目标 62426 已 READY（零业务），精确交付/CI待收口；旧入口未替换。用户确认未来 Server 成衣销售产值 CNY／工价 USD，未实现 Server 关账。下文旧状态按原日期/SHA保留。
-
-2026-10-19当前恢复优先：[PR114 → PR119整合](tasks/active/pr114-119-integration-2026-10-19.md)、CURRENT_STATE与AI_HANDOFF。用户已批准工程整合及交付，未批准合并/关闭PR；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。下文旧状态按原日期/SHA保留。
-
-2026-10-19最新恢复：[最终交付回执](tasks/active/price-coordination-final-delivery-2026-10-19.md)的“测试兼容修复精确交付”与[独立分支验收](tasks/active/payment-operator-upgrade-ledger-2026-10-19.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；用户新授权的119/f004一次上传及117/1b08、118/d577安全快进均已独立精确核实，三个新提交九项CI全部SUCCESS，本轮增量复审无新阻塞。不重复上传，不自动合并部署；优先CURRENT_STATE/AI_HANDOFF，下文保留各阶段日期/SHA及旧结果。
-
-2026-10-19前轮恢复：[最终交付回执](tasks/active/price-coordination-final-delivery-2026-10-19.md)与[上游测试兼容修复](tasks/active/payment-operator-upgrade-ledger-2026-10-19.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，指定1ab0一次上传及117/118安全快进已精确核实；119新三CI绿，117/118旧source失败已在各自本地候选修复并分别完成尾部/浏览器验收，加工已前向整合且只两份测试/文档不同。此段为新范围交付前历史；当前结果以上方及CURRENT_STATE/AI_HANDOFF为准。
-
-2026-10-17最新交付恢复：[D145交付与CI复审](tasks/active/price-coordination-delivery-ci-2026-10-17.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；四原始分支已核实，PR110三绿，117/118/119旧角色验收修复本地通过、尚待新范围交付；不把旧CI失败或本地通过冒称新Hosted CI完成。
-
-2026-10-18恢复优先：先读CURRENT_STATE/AI_HANDOFF与[交付后的CI兼容复审](tasks/active/price-coordination-ci-followup-2026-10-18.md)。指定16614上传一次与117/118安全快进已核实；新引用兼容、旧升级/暂停/只读Modal验收已本地收口，远端新修复仍待独立范围交付。main仍064e3afaf7d08b3cb62907d4402f97d9c292f1e5；不恢复负责人、准备或公开归一，不扩大真实数据/演示/部署授权。
-
-2026-10-17 D145最终本地工程恢复入口：[价格协同工程证据](tasks/completed/2026-10-17-quote-order-price-coordination-engineering.md)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，先读CURRENT_STATE/AI_HANDOFF；报价唯一来源、颜色商业版本、统一成衣议价及加工纯工价/同步推送已验收，远端交付/CI与人工接受另核实，勿恢复下文D144已退役交互。
-
-2026-10-17 D-145实施恢复优先：CURRENT_STATE/AI_HANDOFF、[商业版本与议价](features/ORDER_COMMERCIAL_VERSIONS.md)、[加工批次协同增量](features/PROCESSING_ORDER_BATCHES.md)、[本轮阶段记录](tasks/active/quote-order-price-coordination-progress-2026-10-17.md)。新来源只报价，无负责人；D144独立翻单/侧栏为被替代历史。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5；不扩真实演示/来源/部署权限。
-
-2026-10-17最新恢复优先：CURRENT_STATE/AI_HANDOFF与[订单业务来源](features/ORDER_BUSINESS_SOURCE.md)、D144。用户取消负责人/认领/合同前准备，合同类先可信接纳，加工批次独立；旧下文为各日期历史阶段，勿据此恢复退役UI。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，新候选未合并部署。
-
-2026-10-16最新恢复优先：[两合同真实隔离执行](tasks/completed/2026-10-16-selected-demo-execution.md)与[新冻结证据](tasks/completed/evidence/2026-10-16-selected-demo-execution.json)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，PR116@0df仍依赖草稿未合并。用户新授权后，新本机空库2 SO/7合成账号/2物料及2财务快照已落地；无持续调度/真实业务库或账号/宁波18443/18444。app18:08到期、当前来源仍10分钟，物料历史可读，财务历史ERP入口尚缺；私有离线副本不代表当前状态。先读CURRENT_STATE/AI_HANDOFF；以下旧工程“0操作/未授权”保留原日期与SHA，不代表执行后状态。
-
 # 项目知识索引
 
-2026-10-16当前阶段：同一工作树新增[财务操作入口](tasks/active/ainuoke-payment-operator.md)，依赖已交付PR113@3896；完整入口21项/原财务112/PG261通过，干净源码6658实际回执和默认Browser构建通过；root898/基线94/精确main守卫通过，独立草稿远端/CI待收口。当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5，真实两合同一次读取已用完，无真实迁移/启用/写入。优先CURRENT_STATE/AI_HANDOFF；下文旧阶段按原日期/SHA阅读。
+2026-10-20 当前优先：[Server 收敛 Gate 2](tasks/active/server-convergence-gate2-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Gate 1 草稿 #125 已精确交付，62426 持久化空目标 READY，旧 3001/50426 保留。本阶段按固定 SHA 整合 #120 与 #121→#122→#123，代码与证据均须重新组合验收。以下各旧日期保留其当时结果。
 
-2026-10-16当前恢复优先读CURRENT_STATE/AI_HANDOFF与[浏览器验收修复](tasks/active/browser-validation-readiness-2026-10-16.md)：6就绪回归、G5四浏览器35/35、财务两浏览器20/20；生产UI不变，最终head三CI另核实。PR113/114为依赖草稿，真实两合同一次许可已用完，无DB/激活。下文各旧阶段结果按其日期/SHA阅读。
+2026-10-19 当前工程基线 main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；PR108–119 已合并。先读 [CURRENT_STATE](CURRENT_STATE.md) 与 [SYSTEM_OVERVIEW](SYSTEM_OVERVIEW.md)，本轮修复与隔离验收见 [任务记录](tasks/active/price-source-stabilization-2026-10-19.md)。合并、部署、来源激活、人工接受分开记录。
 
-2026-10-16新增：[两合同真实只读证据](tasks/active/evidence/ainuoke-payment-request-probe/real-two-contracts-2026-10-16.md)，用户一次固定许可已用完，12/9行、两遍一致、5HTTP/4report，指定合同过滤/完整性通过；无DB/激活，整体映射与银行实付未确认。PR113精确f9三CI通过，当前只前向补充新证据；#109–112最新精确head各三CI绿，G5独立页面交付收口中。先读[当前状态](CURRENT_STATE.md)/[接力](AI_HANDOFF.md)，下段保留前阶段日期/hash与待验证状态，不作为新结论。
-
-2026-10-16当前main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。优先CURRENT_STATE/AI_HANDOFF、[网络恢复及PR113首轮CI修复](tasks/active/github-network-recovery-2026-10-16.md)、[受控采集任务](tasks/active/ainuoke-payment-controlled-collector.md)与[货款申请模块](features/AINUOKE_PAYMENT_REQUESTS.md)。原4622d6d已精确送达唯一草稿PR113；本Phase只修测试/CI/文档，升级109/109、完整PG261/261及基线94/94通过，浏览器和新head Hosted CI另核实。原协调服务22/172、root898和42能力构建证据保留，不称本轮全部重跑。真实过滤、目标启用/写入、操作CLI/调度均未完成或未获授权。GitHub为实时事实源，随源码/授权/证据变化更新。
+当前来源/价格以 D-145 为准：新来源仅报价、无负责人、合同类先可信合同、加工批次独立、订单成交价不可变追加。旧阶段恢复流水已[逐字归档](tasks/completed/2026-10-19-pre-stabilization/PROJECT_INDEX.md)，不作为当前待办。
 
 ## 系统简介
-
-并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
 

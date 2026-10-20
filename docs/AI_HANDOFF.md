@@ -1,11 +1,9 @@
-# 恢复点：Server 收敛 Gate 1
+# 恢复点：Server 收敛 Gate 2
 
-2026-10-20；Goal active。分支 `codex/server-persistent-empty-target`，7bf3 工作树，初始干净；核实 main `996dfedc12da3527343cd3ff2aa5eea35497e10e`，依赖 Gate 0 `652fed6464b5aea144689480c936a0c5f2d62d90`（草稿 #124 三 CI 通过，未合并）。本轮只有一个实现 owner 和一位只读 reviewer。
+main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；分支 `codex/server-pr-integration`；初始 clean，先 FF 到已核实 #125/add2d690，再执行 #120/57daca3d 的本地保留历史合并。当前所有增量均属于 Gate 2；没有用户 dirty。唯一实现 owner 维护共享文档和清单，reviewer 只读。
 
-实际镜像 `zhixu-persistent-local:8175f628-20261020`，源码 `8175f6280d54b6d4af28cb2ebe6d86741b906b9d`，build `server-g1-8175f628-20261020` / `2026-10-20T00:27:36Z`。固定 ops 为 `d084a586586c54222f62df36961c51704a7a6c34`，20 个文件逐字节匹配 Git blob，位于 `D:/zhixu-server-convergence/tools-d084a586`。新空目标 `https://localhost:62426` 已 READY，62 张业务表零行、1 个技术管理员、29 项 schema。真实演练 r4/r5 完整 7/7 通过；r6 内核检查发现 Windows Compose 未落实命令行只读参数，已改为固定最终 Compose 层；r7 完整 7/7 通过（320675ms）。42 ops、94 基线、类型及 lint 通过；最终精确门禁、PR 和 CI 待收口。完整结果和失败保留规则在 [Gate 1](tasks/active/server-convergence-gate1-2026-10-20.md)。
+当前恢复：先完成 #120 的融合文档 checkpoint M（原业务代码自动合并；共享状态冲突已按当前 Gate 校准），清单完整保留双方记录但会因真实并行分叉被旧门禁拒绝，不能宣称 PASS。随后实现仅文档 mergeOf 节点与真实 Git 父关系/父支证据并集保护，追加绑定 M 文档 blob 的新节点，再合 #123/ebe4cb16（含 #121/4e075115、#122/349a8458），按同一机制收敛。不要改写原记录、SHA、边或历史提交，也不要忽略门禁失败。详见 Gate2记录。
 
-下一步：最终文档/checkpoint、精确 main 守卫、一次安全交付与独立远端 SHA/唯一草稿/CI；最新代码的独立静态复审无阻塞。新空目标已显式初始化并只读核对零业务，不再运行 init。证书只给进程显式信任，尚未安装系统信任；用户浏览器接受与工程 HTTPS 检查分开记录。完成最终文档/checkpoint、main 守卫、一次安全交付与独立远端 SHA/唯一草稿/CI。本轮默认 Git 只读探测 uncertain_transport，两个显式进程级对照通过；无共享配置改动，未 push 本分支，网络根因未证明已修复。按 AGENTS 不自动恢复交付，准备具体最终 SHA 后请求一次恢复授权；等待时可继续同一基线的 Gate 2 本地整合。
+Gate1已交付唯一草稿 #125，独立API证明完整SHA add2d690a9c3afe6ec1a2633551eaef7dee72ce1；工具错误状态被保留，未重推；Hosted CI待核实。持久空目标 https://localhost:62426 使用镜像8175f628与固定ops d084a586，62业务表0行，1技术管理员，29schema。当前源码继续开发不会改变该目标。证书未安装系统信任。
 
-保护 3001/50426/59069、旧库/账号/来源样本和所有非本轮合成资产；不迁移旧业务，不切换 50426，不新增来源采集/绑定/激活/调度，不自动 merge/deploy/退役。D-147 CNY 销售／USD 工价是未来 Server 关账目标，不改既有报价公式或历史。Gate 2 固定 #120 `57daca3d` 与 #121 `4e075115`→#122 `349a8458`→#123 `ebe4cb16`，不得把旧 PR 验收当成新组合验收。
-
-此前接力[逐字归档](tasks/completed/2026-10-20-gate0-state/AI_HANDOFF.md)，旧日期、hash、结果和限制均保留。
+保留3001/50426/59069及所有旧样本，Gate2只用合成副本与一次性库组合验收；不自动合并、部署、改真实账号/业务库或新来源读取。未来Server关账销售CNY、工价USD，不自动换汇。原状态逐字归档于 docs/tasks/completed/2026-10-20-gate2-inputs/。
