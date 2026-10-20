@@ -47,15 +47,19 @@ test("calendar dates represent real days including leap years and early ISO year
 });
 test("a date has one explicit exception and input size is rejected rather than truncated", () => {
   const exception = values.calendars.exceptions[0];
-  for (const exceptions of [[exception, { ...exception, type: "non_working" }], [{ ...exception, type: "holiday" }], [{ ...exception, type: ["working"] }], [{ ...exception, id }], [{ ...exception, date: "2027-02-30" }], Array(1), Array(PRODUCTION_RESOURCE_LIMITS.exceptions + 1).fill(exception)]) rejects(command("calendars", { ...values.calendars, exceptions }));
+  for (const exceptions of [[exception, { ...exception, type: "non_working" }], [{ ...exception, type: "holiday" }], [{ ...exception, type: ["working"] }], [{ ...exception, id }], [{ ...exception, name: " " }], [{ ...exception, date: "2027-02-30" }], Array(1), Array(PRODUCTION_RESOURCE_LIMITS.exceptions + 1).fill(exception)]) rejects(command("calendars", { ...values.calendars, exceptions }));
 });
 test("site country and lead time remain independent of price and currency", () => {
   const site = parseProductionResourceCommand(command("sites"));
   if (site.kind !== "sites") assert.fail("Expected site");
-  assert.equal(site.data.countryCode, "CN"); assert.equal(site.data.preProductionSampleLeadDays, 0);
+  assert.equal(site.data.countryCode, "cn"); assert.equal(site.data.preProductionSampleLeadDays, 0);
   assert.equal(parseProductionResourceCommand(command("sites", { ...values.sites, countryCode: null })).kind, "sites");
+  for (const country of ["CHN", "中国", "柬埔寨 / 金边"]) {
+    const parsed = parseProductionResourceCommand(command("sites", { ...values.sites, countryCode: country }));
+    if (parsed.kind !== "sites") assert.fail("Expected site"); assert.equal(parsed.data.countryCode, country);
+  }
   for (const lead of [-1, 0.1, null, "5", PRODUCTION_RESOURCE_LIMITS.leadDays + 1]) rejects(command("sites", { ...values.sites, preProductionSampleLeadDays: lead }));
-  for (const country of ["", "CHN", 1, "1N"]) rejects(command("sites", { ...values.sites, countryCode: country }));
+  for (const country of ["", " ", 1, "a".repeat(81)]) rejects(command("sites", { ...values.sites, countryCode: country }));
 });
 test("settings text keeps supported Unicode and rejects invalid transport values without echoing them", () => {
   assert.equal(parseProductionResourceCommand(command("factories", { ...values.factories, name: "  合成🧵工厂  " })).data.name, "合成🧵工厂");

@@ -28,6 +28,7 @@ jobs:
         run: |
           node --test server/integration/chromium-endpoint.test.mjs
           npm run server:build
+          npx --no-install tsx --test --test-concurrency=1 server/production-resources/contract.test.ts server/integration/production-resources.integration.test.ts
           npm run test:ainuoke-server-source
           npm run test:order-source-evidence
           npx --no-install tsx --test --test-concurrency=1 features/quote-center/server/__tests__/quote-creation-contract.test.ts server/integration/quote-order-context.integration.test.ts

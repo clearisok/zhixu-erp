@@ -63,6 +63,7 @@ import { serveStatic } from "./static-files.js";
 import { routeMaterialProgressSettings } from "./material-progress-settings/routes.js";
 import { routeTeamAccess } from "./auth/team-access-routes.js";
 import { routeManagedRoles } from "./auth/managed-role-routes.js";
+import { routeProductionResources } from "./production-resources/routes.js";
 import type { PaymentSnapshotReader } from './ainuoke-source/payment-request-store.js';
 
 export type ServerLogger = {
@@ -358,6 +359,7 @@ async function route(
   if (await routeTeamAccess(request, response, dependencies)) return;
   if (await routeManagedRoles(request, response, dependencies)) return;
   if (await routeMaterialProgressSettings(request, response, dependencies)) return;
+  if (await routeProductionResources(request, response, dependencies)) return;
   const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
   const creationOrder = /^\/api\/v1\/quotes\/creation-order-context\/([^/]+)$/.exec(path);
   const creationOrigin = /^\/api\/v1\/quotes\/([^/]+)\/creation-origin$/.exec(path);

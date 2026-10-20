@@ -6,7 +6,17 @@
 
 ## Server收敛进展（2026-10-20，Gate6）
 
-现有下文功能仍属Browser owner。Server仅新增四资源命令的纯输入契约与8项测试，位于 `server/production-resources/contract.ts`；尚无资源schema/API/UI，不把契约等同于服务端持久化。计划日历→地点→组及独立外发厂，稳定ID、版本、停用保留历史、无默认Seed，不调用Browser聚合normalizer。资源关系、fresh权限、CAS、事务幂等与审计留下一小阶段验收。物流与关账不混入；Server关账目标按D147为CNY销售/USD工价，未实现，不修改下文Browser历史RMB字段。精确阶段证据见[Gate6](../tasks/active/server-convergence-gate6-2026-10-20.md)。
+现有下文页面和聚合Repository仍属Browser owner。Server现有独立四资源后台（`server/production-resources/`、0034）：生产日历→地点→组及独立外发厂，稳定UUID、版本、停用保留历史、无默认Seed，不调用Browser聚合normalizer。后台不表示资源UI或排单已接通；当前只是6A后台小阶段。物流与关账不混入；Server关账目标按D147为CNY销售/USD工价，未实现，不修改下文Browser历史RMB字段。精确阶段证据见[Gate6](../tasks/active/server-convergence-gate6-2026-10-20.md)。
+
+### Server接口与事务边界
+
+- 仅正式session authority开放 `/api/v1/production-resources/{calendars|sites|groups|factories}` 列表及 `/{kind}/{uuid}` 详情；不存在local-single-user或Browser fallback。列表按显式启停过滤，搜索以空格分词为AND，limit≤100；完整候选超过5000时明确拒绝并要求细化搜索，不截断冒充分页。日历列表只给例外数量，完整日期从详情读，防止列表复制1000项例外。生产组复用既有自然排序函数；同名允许，不以名称去重。
+- `POST /commands` 精确接收requestId/action/kind/resourceId/expectedVersion/data，创建不接受调用方ID，更新必须正版本；输入真实日期、非空唯一工作日、每天一个例外、最多1000例外/3650提前天数，伪actor/时间/价格字段拒绝。HTTP body上限1MiB。新启用地点/组要求父日历/地点启用，锁到事务提交；停用父资料不自动改子资料或历史。
+- 沿用三个既有edit权限键，无新增grant。`schedule.view`可读；对应编辑者可读自身类型，生产组编辑者可只读地点/日历用于选项。写入从库中重读active身份和授权；锁序为用户→角色ID顺序→绑定/权限→资源，兼容角色管理的角色→权限顺序。过期调用方permissions/name不作为依据。
+- actor/request有界互斥，规范化payload哈希防变内容；资源/例外/追加审计/不可变回执同事务，整条日历一次提交。CAS冲突或已知关联拒绝保存终态，重放不重新生效；未知异常全部回滚。`GET /commands/{requestId}` 仅同一actor及当前对应edit权限，返回known/pending/unknown，不能据unknown自动重POST。重放的resource是发生时版本，不冒称最新，需另读当前详情。
+- 0034仅新增空表，不回填、不改既有迁移、不建排单、不改商业数据。普通DML不能删除资源、篡改创建身份或跳版本，回执不可更新/删除；资源停用仍可查。日历例外修改保留于审计及原回执；未来排单须冻结采用的资源事实，不动态重写历史日期。
+
+当前25项纯契约/真实一次性PostgreSQL/HTTP验证覆盖空库、权限、版本、幂等、拒绝、关联、竞态及回滚；完整回归与远端证据以Gate6任务最新记录为准。尚无资源页面/Server排单/完成/成衣出货/关账验收或真实目标升级。
 
 ## Current behavior
 

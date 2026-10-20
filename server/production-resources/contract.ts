@@ -64,14 +64,14 @@ function calendar(value: unknown): CalendarInput {
     const item = exact(value, ["date", "type", "name"]), date = productionResourceDate(item.date);
     if (dates.has(date) || (item.type !== "working" && item.type !== "non_working")) invalid();
     dates.add(date);
-    return { date, type: item.type as CalendarExceptionInput["type"], name: text(item.name, 200) };
+    return { date, type: item.type as CalendarExceptionInput["type"], name: text(item.name, 200, true, true) };
   });
   return { ...common(raw), workingWeekdays: workingWeekdays.sort((a, b) => a - b), exceptions: exceptions.sort((a, b) => a.date.localeCompare(b.date)) };
 }
 function site(value: unknown): SiteInput {
   const raw = exact(value, [...commonKeys, "countryCode", "productionCalendarId", "preProductionSampleLeadDays"]);
-  const countryCode = raw.countryCode === null ? null : text(raw.countryCode, 2).toUpperCase();
-  if (countryCode !== null && !/^[A-Z]{2}$/u.test(countryCode)) invalid();
+  // Existing production-site UI accepts a country/region label, not only ISO codes.
+  const countryCode = raw.countryCode === null ? null : text(raw.countryCode, 80, true, true);
   return { ...common(raw), countryCode, productionCalendarId: productionResourceUuid(raw.productionCalendarId), preProductionSampleLeadDays: integer(raw.preProductionSampleLeadDays, 0, PRODUCTION_RESOURCE_LIMITS.leadDays) };
 }
 function group(value: unknown): GroupInput {
