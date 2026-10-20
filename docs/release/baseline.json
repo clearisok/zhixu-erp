@@ -1820,6 +1820,15 @@
         "decisions-price-processing-20261017-roles-20261019"
       ],
       "changeReason": "Actual fixed PR123 merge retains D-146 administration together with D-145 stabilization and D-147 Server target, preserving both original parent manifests and histories."
+    },
+    {
+      "id": "decisions-server-navigation-continuity-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "b278602fc670f13bb4df29691d2b98b7ffa86fbc",
+      "sha256": "cdeb67c55a4c50a35c34079949969a68c3bc776f933d4b982e7f6739efd68aa3",
+      "supersedes": "decisions-convergence-system-management-merge-20261020",
+      "changeReason": "Approved Gate3 restores persistent Server navigation and feature-owned exit protection without changing layout, business ownership, permissions or source activation; preserve both merged decision histories."
     }
   ],
   "pages": [

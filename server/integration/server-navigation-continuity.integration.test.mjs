@@ -99,7 +99,8 @@ test('built Server navigation keeps the workspace continuous without changing au
       window.insertForeignHistory=path=>{originalHistoryPush({foreignSentinel:'preserve-me'},'',path);window.dispatchEvent(new PopStateEvent('popstate',{state:history.state}));};
       window.fetch=(...args)=>{
         const path=new URL(typeof args[0]==='string'?args[0]:args[0].url,location.origin).pathname;
-        if(path==='/api/v1/quotes/creation-defaults'&&window.holdCreation){window.creationPosts=(window.creationPosts??0)+1;return nativeFetch(...args).then(response=>new Promise((done,reject)=>{window.releaseCreation=()=>done(response);window.loseCreationReceipt=()=>reject(Error('synthetic lost response'));}));}
+        if(path==='/api/v1/quotes/creation-defaults')window.creationPosts=(window.creationPosts??0)+1;
+        if(path==='/api/v1/quotes/creation-defaults'&&window.holdCreation){return nativeFetch(...args).then(response=>new Promise((done,reject)=>{window.releaseCreation=()=>done(response);window.loseCreationReceipt=()=>reject(Error('synthetic lost response'));}));}
         if(path.startsWith('/api/v1/quotes/creation-receipts/')&&window.holdCreationReceipt)return nativeFetch(...args).then(response=>new Promise(done=>window.releaseCreationReceipt=()=>done(response)));
         if(path==='/api/v1/auth/me'){
           if(window.continuityRestoreFail)return Promise.resolve(new Response('{}',{status:503}));
@@ -190,6 +191,12 @@ test('built Server navigation keeps the workspace continuous without changing au
         assert.equal(await evaluate('window.creationPosts'), 1);
         await click('订单中心'); await has('导入加工订单');
       });
+      await phase('creation on the new page hands the same request to its mounted Recovery and automatically opens the saved draft', async () => {
+        await full('/quote-center/new'); await has('创建报价草稿'); await mark();
+        await click('＋ 新建报价'); await until(() => evaluate("location.pathname==='/quote-center/detail'"), 'new-page committed creation'); await has('草稿已创建并保留');
+        assert.equal(await evaluate('window.creationPosts'),1); await wait(100); stable(await measure('new-page-creation-handoff'));
+        await click('订单中心'); await has('导入加工订单');
+      });
       await phase('native hash history preserves the active draft and records distinct fragment entries', async () => {
         await click('系统设置'); await click('角色权限'); await has('新建角色'); await click('新建角色'); await field('.qc-permission-account-fields input', '片段导航草稿');
         await evaluate("window.confirm=()=>false;location.hash='navigation-fragment'"); await wait(200);
@@ -237,18 +244,24 @@ test('built Server navigation keeps the workspace continuous without changing au
           assert.equal(await evaluate('document.documentElement.scrollWidth>innerWidth+1'), false);
         }
       });
-      await phase('a late creation receipt cannot navigate after forced identity invalidation and a different user login', async () => {
+      for(const origin of ['/quote-center','/quote-center/new'])await phase('a late creation receipt from '+origin+' cannot navigate after a different user logs in', async () => {
         await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-        await full('/quote-center'); await quoteReady(); await evaluate('window.holdCreation=true'); await click('＋ 新建报价'); await until(() => evaluate('Boolean(window.releaseCreation)'), 'late creation response held');
+        if(origin.endsWith('/new')){
+          await evaluate("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})"); await full('/quote-center'); await has('欢迎回来');
+          await input('username','navigation.root'); await input('password',password); await click('登录织序'); await quoteReady();
+        }
+        await full(origin); await quoteReady(); await evaluate('window.holdCreation=true;window.holdCreationReceipt=true'); await click('＋ 新建报价'); await until(() => evaluate('Boolean(window.releaseCreation)'), 'late creation response held');
         const documentId = await evaluate('window.continuityDocument');
         await evaluate("fetch('/api/v1/auth/logout',{method:'POST',headers:{'X-Zhixu-Request':'1'}})");
-        await field('[aria-label="搜索报价"]', 'force-session-expiry'); await has('欢迎回来');
+        if(origin.endsWith('/new')){await has('核对创建结果'); await evaluate('window.holdCreationReceipt=false'); await click('核对创建结果');}
+        else await field('[aria-label="搜索报价"]', 'force-session-expiry');
+        await has('欢迎回来');
         assert.equal(await evaluate("document.querySelectorAll('.qc-app-shell').length"), 0);
         await evaluate("history.replaceState(history.state,'','/login?returnTo=%2Fquote-center')"); await wait(100);
         await input('username', 'navigation.second'); await input('password', 'synthetic-only'); await click('登录织序');
         await until(() => evaluate("location.pathname==='/quote-center'&&document.body.innerText.includes('navigation.second')"), 'different user workspace');
         assert.equal(await evaluate('window.continuityDocument'), documentId);
-        await evaluate('releaseCreation()'); await wait(250);
+        await evaluate('releaseCreation();if(window.releaseCreationReceipt)releaseCreationReceipt()'); await wait(250);
         assert.equal(await evaluate('location.pathname'), '/quote-center'); assert.equal(await evaluate("document.body.innerText.includes('navigation.second')"), true);
         assert.equal(await evaluate("document.querySelectorAll('[role=dialog]').length"), 0); assert.equal(await evaluate('window.creationPosts'), 1);
       });

@@ -131,3 +131,30 @@ temporary stacked/cumulative PR. Later forward-merge the then-current main,
 prove main..HEAD contains only Gate3 delta, reconcile baseline and rerun before
 creating the unique draft PR to main. This preserves original history and does
 not pre-approve merges. 62426 still runs the Gate1 image; no runtime cutover.
+
+## Full-regression finding at source b278602f
+
+The first fixed-source build is b278602fc670f13bb4df29691d2b98b7ffa86fbc,
+server-g3-b278602f-final, 2026-10-20T03:47:39.1780993Z. Types/Node compilation/lint
+passed; 158 auth/client/team/session/log checks passed. Explicit baseline 116/116
+passed. Root was 926/927: one old textual contract expected an inline route
+predicate, now factored to the same enabled boolean; it was updated to verify both
+the predicate assignment and fail-closed unsupported-route branch.
+
+Actual browser was 67/69, with one failed processing-creation subtest and its
+parent. This exposed a real new-page handoff regression: replaceState updates the
+request parameter and unmounts the nested create button before the POST resolves.
+Its strict unmounted-owner permit correctly refuses navigation, but the mounted
+Recovery's first GET can still be pending. The repair keeps the strict shared
+permit, explicitly hands the same request ID/scope to the still-mounted Recovery,
+and lets that owner handle the original response. Started ID is recorded before
+URL/POST; stale scope/request/unmounted callbacks are ignored. Receipt state is
+ID-bound and committed is not downgraded by a late pending GET. Active 401s use the
+same owner/scope protection; an old failure cannot invalidate a later login.
+No polling or repeated POST was added. List creation keeps its original owner.
+
+New actual-browser cases cover successful /new creation with one POST and both
+list/new late responses after another user logs in. Fresh typecheck, targeted
+lint and 9 History/authority contracts passed on the patch. Full exact-build,
+browser and root reruns remain required; this is not yet Gate3 PASS. The original
+failed logs and first build identity remain preserved under ignored outputs.
