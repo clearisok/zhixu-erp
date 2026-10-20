@@ -88,3 +88,19 @@ Gate5精确c6已由既有工具一次上传并独立GitHub API核实；Baseline3
 前次1da三摘要逐字SHA256保存在 `completed/2026-10-20-gate6-inputs/ui-source-1da0b546/`。当前前向加入唯一 `production-resource-server` 能力和7b冻结文档证据：229证据/49能力，implemented yes/isolated passed，merged false/human not-run/source not-applicable/18443与18444 not-deployed；旧Browser production及全部旧记录/截图不变。最终文档checkpoint继续精确main守卫、基线检查与有界交付，仅在独立完整SHA核实后对新HEAD调度三个CI，不借311绿灯，不建重复累计业务PR。以后新Gate再前向记录实际远端/CI结果，避免用当前未完成事件制造自证。
 
 能力清单收口后实际重验：精确main996守卫PASS（11页/49能力/51累计UI路径），发布基线116/116（167003.2535ms），无失败/取消/跳过。独立只读复审逐项核对旧228证据/48能力及其他顶层字段保持，新增证据Git blob SHA256与清单一致，三摘要归档内容及规范化blob等于1da；当前增量仅文档/清单/输入归档，无应用、SQL、UI或CI变化。复审无阻塞，审查者未执行测试、网络或数据库操作。随后创建文档checkpoint并验证实际完整HEAD，远端与新CI仍待独立实证，不提前记为通过。
+
+## 6B独立计算切片开始（d7172477输入）
+
+6A最终 `d7172477b75569165d3a2c1b04ddc58ea24008b4` 已经既有工具一次安全上传及独立API精确核实；最终守卫PASS。Source39419852838、Team39419859614、Baseline39419866529各只dispatch一次；此切片开始时后两项success、Source仍运行，不借旧311结果，不重启live作业。传输仅本进程精确仓库URL使用OpenSSL/HTTP1.1/sslVerify=true，环境随后恢复，无共享配置变化或永久根因结论。
+
+新分支 `codex/server-production-planning` 从本地可验证、独立API再次核实的main996干净创建，再明确FF到d717；工作树/index干净，无继承用户dirty。三输入摘要逐字SHA256存档于 `completed/2026-10-20-gate6-inputs/planning-start-d7172477/`。仅允许复用现有日期纯函数的加性扫描预算、Server队列纯预览及测试、正式Source CI的一条纯计算测试接线、V0领域辅助影响记录和文档；本小阶段不建表、不接路由、不开放排单/执行写入，不依赖尚在运行的Source CI授予任何运行能力。
+
+只读审查已证实旧队列虽排序却按原集合遍历；通用编辑还会按最新日历重算已执行日期。新预览须真正按sequence/createdAt/id遍历，只输出未开工自动项的前后差异，固定/已开工/部分完成/已完成不移动；固定时段重叠明确提示，不让游标向过去倒退。复用特殊日期覆盖、交接日不计整工作日的原公式，不动Browser仓库、Seed或任何已保存记录。预览要求显式锚点，真实日期、唯一例外及全队列扫描预算，超界报错，不截断冒充成功。
+
+后续6B事务仍须补有效SO保护、稳定颜色与商业依据解耦、同组版本/CAS及资源快照、请求回执和原子审计；新FK与全部版本/回执同步引用清单及指纹。DeliveryPlan只读需求，未知不补0，不反写订单。外发裸单价无币种/独立权限，不从客户确认工价推定；本计算切片没有任何金额。完整排单API/UI和6C完成仍未实现。
+
+6B实现期间独立核实6A精确d717三个原run ID全部completed/success：[Source39419852838](https://github.com/clearisok/zhixu-erp/actions/runs/39419852838)、[Team39419859614](https://github.com/clearisok/zhixu-erp/actions/runs/39419859614)、[Baseline39419866529](https://github.com/clearisok/zhixu-erp/actions/runs/39419866529)。未重复调度或将其挪作6B新代码CI。#120–127仍原草稿头，不创建累计重复业务PR、自动合并或关闭。
+
+新纯预览首轮18/18（641.5409ms）、原Browser排单25/25（238.3113ms）通过；全量types、精确三路径lint通过。最初误用不存在的`build:server`，没有执行编译；核对实际package后用正式`server:build`通过，原失败日志保留。本阶段还须完成复审、最终定向回归、精确基线/证据收口及checkpoint，不能把准备内核称正式Server排单。现有端口、容器、卷、账号与Browser资料未改，本小阶段未重新观察旧运行环境。
+
+最终应用增量定向组合43/43（1622.018ms）通过：18新Server纯预览及25原Browser排单；全量typecheck、正式server:build、精确三路径lint、编译后planning模块实际加载全部通过。只读独立复审核对真实排序、保护谓词、固定重叠/未知结束、逐队列预算、输入副本和V0范围，无阻塞，未执行测试/网络/DB。正式Source CI加一条纯测试命令。下一步先冻结源码checkpoint，再为修改的历史feature文档追加新证据，不重写旧production记录；完整项目和发布基线须在该前向证据到位后实际运行，不提前称PASS。

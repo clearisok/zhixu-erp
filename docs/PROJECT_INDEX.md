@@ -1,8 +1,8 @@
 # 项目知识索引
 
-2026-10-20最新恢复：[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[资源与页面](features/OPERATIONS_FOUNDATION.md)、CURRENT_STATE、AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；codex/server-production-resources。6A应用冻结1da/测试证据7b，927/261/116、39资源、14built资源/18导航及两构建通过，最终交付/CI另核当前完整HEAD。229证据/49能力，新增资源工程与旧Browser生产分开，未合并/部署/人工接受。
+2026-10-20最新恢复：[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[资源与页面](features/OPERATIONS_FOUNDATION.md)、[排单准备](features/PRODUCTION_SCHEDULING.md)、CURRENT_STATE、AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；当前codex/server-production-planning从main干净FF到6A最终d717。d717已精确交付，Source39419852838/Team39419859614/Baseline39419866529全部success。6A应用1da/证据7b、927/261/116、39资源、14built/18导航及两构建范围保持；229证据/49能力，未合并/部署/人工接受。
 
-[不可变UI工程证据](tasks/completed/2026-10-20-production-resources-ui-engineering.md)保留1da构建、两个纯测试selector修正及所有验收范围；[1da输入摘要](tasks/completed/2026-10-20-gate6-inputs/ui-source-1da0b546/)逐字归档。后台8c证据和311精确三CI仍独立保留，不能借作新UI结果。6B/6C及出货/关账未闭环；旧Quote45/44/2和31未启动不被新资源验收覆盖。
+[不可变UI工程证据](tasks/completed/2026-10-20-production-resources-ui-engineering.md)保留1da构建、两个纯测试selector修正及所有验收范围。6B目前仅纯预览/扫描预算，18新+25旧Browser排单、types/Node/lint首轮通过，复审及最终checkpoint进行中；没有Server排单写API或完成/出货/关账。新代码不借d717 CI。三摘要输入[逐字归档](tasks/completed/2026-10-20-gate6-inputs/planning-start-d7172477/)，更早8c/311/1da历史证据不覆盖。旧Quote45/44/2和31未启动不被新资源验收覆盖。
 
 D145/D149报价来源与创建参考、D146系统管理、D147整体收敛有效。[G5修复证据](tasks/completed/2026-10-20-order-quote-reference-ci-repair.md)及[原54工程证明](tasks/completed/2026-10-20-order-quote-context-engineering.md)保留旧45/44/2验收缺口。Gate4精确96三CI绿、4C未做；生产排单/完成、出货、关账未闭环。#120–127不自动合并/关闭，不建重复累计业务PR。62426仍Gate1源8175，3001/50426/59069保留，未升级或人工接受。持续工程Git授权不扩真实数据/来源/部署/退役。前次摘要[逐字归档](tasks/completed/2026-10-20-gate6-inputs/contract-31e04281/)，日期/hash/结果/限制保持。
 ## 系统简介
