@@ -11,8 +11,8 @@ content. Active Quote list/detail 401s invalidate the Server session, with no
 Browser fallback. UI departure guards share existing feature dirty/receipt states
 and owner/identity-scoped permits; they do not create or retry business writes.
 No schema, permission catalog, route allowlist, data ownership or runtime activation
-changes. Actual temporary-DB/Chromium acceptance and remaining exact-build/CI
-work are recorded in [Gate3](../tasks/active/server-convergence-gate3-2026-10-20.md).
+changes. Actual temporary-DB/Chromium acceptance, exact builds and separate CI
+status are recorded in [Gate3](../tasks/active/server-convergence-gate3-2026-10-20.md).
 The persistent 62426 target remains the earlier Gate1 image until a separate
 candidate upgrade; old deployments below retain their own historical status.
 

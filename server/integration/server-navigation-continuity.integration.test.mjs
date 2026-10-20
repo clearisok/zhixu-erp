@@ -192,7 +192,8 @@ test('built Server navigation keeps the workspace continuous without changing au
         await click('订单中心'); await has('导入加工订单');
       });
       await phase('creation on the new page hands the same request to its mounted Recovery and automatically opens the saved draft', async () => {
-        await full('/quote-center/new'); await has('创建报价草稿'); await mark();
+        await full('/quote-center/new'); await has('使用 Server 报价设置的默认类型');
+        await until(()=>evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='＋ 新建报价'&&!n.disabled)"),'hydrated new-page create'); await mark();
         await click('＋ 新建报价'); await until(() => evaluate("location.pathname==='/quote-center/detail'"), 'new-page committed creation'); await has('草稿已创建并保留');
         assert.equal(await evaluate('window.creationPosts'),1); await wait(100); stable(await measure('new-page-creation-handoff'));
         await click('订单中心'); await has('导入加工订单');

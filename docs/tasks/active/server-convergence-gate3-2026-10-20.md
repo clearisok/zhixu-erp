@@ -158,3 +158,52 @@ list/new late responses after another user logs in. Fresh typecheck, targeted
 lint and 9 History/authority contracts passed on the patch. Full exact-build,
 browser and root reruns remain required; this is not yet Gate3 PASS. The original
 failed logs and first build identity remain preserved under ignored outputs.
+
+## Final local engineering (2026-10-20)
+
+Application source checkpoint: `ed5821ba6b15a471c283f94e40f9a1e4257c3658`.
+The only subsequent executable change corrects the acceptance harness: Card's
+title is an HTML attribute, not visible body text; wait for the actual explanation
+and hydrated create button. No application behavior was changed by that fix.
+
+- Full root **927/927 PASS** (342628 ms), including all 116 release-baseline cases;
+  explicit baseline command also passed 116/116. Types, Node compilation and full
+  lint passed; the final changed harness also passed targeted eslint.
+- Auth/client/team/session/log API checks **158/158 PASS**; no backend change after
+  that run. Earlier Gate2's 434 tests remain earlier evidence, not a new Gate3 run.
+- After the harness correction, navigation passed separately **18/18** on the
+  first exact ed5821ba build. The six business suites had passed **53** in that
+  preceding attempt. These were separate runs, not an invented 71/71 result.
+- Default Browser build passed, 2026-10-20T04:09:46.7237226Z,
+  browser-g3-ed5821ba; root/list/new emitted no Server History script. No Browser
+  profile or long-term store was initialized, copied or reset.
+- An auxiliary byte-reproduction assertion after rebuilding Server did not pass:
+  all 210 files existed, compiled/assets were unchanged, but 90 HTML/.rsc outputs
+  differed. No deterministic-build or exact-byte restoration claim is made. A
+  fresh actual-timestamp Server candidate was therefore built and fully retested.
+- Final candidate: server-g3-ed5821ba-restored,
+  **2026-10-20T04:12:39.4179942Z**, server/session/snapshot, source ed5821ba.
+  On this actual candidate all seven Chromium suites passed **71/71** in one run
+  (148694 ms): navigation18, continuous13, login10, business-source7, sale7,
+  processing8, team/log8. Zero failures, cancellations or skips. Screenshots and
+  frame/request measurements are in ignored outputs/server-navigation-continuity-
+  restored-ed5821ba; previous dated/build-specific attempts remain untouched.
+- Exact main-996 release guard PASS: 11 pages, 46 unchanged capability records,
+  36 combined UI inputs. New Gate3 V1 record covers exactly its own 22 paths.
+  All original 220 evidence records are unchanged; D148 adds one forward document
+  revision bound to b278602f's exact committed blob. No screenshot/status rewrite.
+- Independent read-only review checked actual code, source/ID/scope guards,
+  original evidence and logs; no remaining implementation blocker. It did not run
+  tests or approve deployment. Real-source reads, target upgrades, user acceptance
+  and final Hosted CI are separate from this local PASS.
+
+Git read-only diagnosis observed default transport PASS and two process-only
+contrasts uncertain_transport; no shared configuration changed. This is evidence
+of intermittent behavior, not a permanent root-cause repair. Under standing user
+authorization deliver the clean final checkpoint once through the existing tool,
+then independently verify remote SHA before dispatching the three acceptance CI.
+Remote Gate3 verification is pending at this document checkpoint. Final commit is
+resolved from the branch HEAD; it contains the unchanged application checkpoint,
+the tested wait correction and this documentation. No cumulative PR will be
+created; after dependencies merge and a fresh main-delta check passes, create
+only the unique incremental PR.
