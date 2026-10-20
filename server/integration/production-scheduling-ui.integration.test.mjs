@@ -99,6 +99,8 @@ test('Gate6B built scheduling preserves exact plans, recovery, source boundaries
     await loginCookie('plan.editor'); await navigate('/production-scheduling');
     await phase('empty Server route preserves Browser namespaces and exposes only the authorized existing menu', async () => {
       await has('暂无生产组'); assert.equal(posts(), 0); for (const table of ['production_groups', 'sales_orders', 'production_schedule_assignments', 'quote_center_quotes']) assert.equal(await count(table), 0);
+      assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.'))"), []);
+      assert.deepEqual(await evaluate('indexedDB.databases().then(rows=>rows.map(row=>row.name))'), []);
       await evaluate("localStorage.setItem('zhixu.erp.local.production-scheduling','synthetic-preserved-browser');localStorage.setItem('zhixu.erp.local.operations-settings','synthetic-preserved-resources')");
       assert.equal(await evaluate("document.querySelectorAll('button[aria-label=生产排单]').length"), 1); assert.equal(await evaluate("document.body.innerText.includes('关账中心')"), false);
     });
