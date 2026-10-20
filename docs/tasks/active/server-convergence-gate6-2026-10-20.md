@@ -323,3 +323,17 @@ continuous-ui:162和animated-login-ui:135仍把production-scheduling当未开放
 下一步独立CI修复commit/精确main守卫、一次上传和独立API，再对新head各调度三个CI。没有后发生结果的预写PASS。
 6C预审指出重排当前0/null占位与资源无条件刷新必须随执行事实接线修复；同时需要执行回执权限、历史/归一引用和正确锁序。
 完成权限能否跨单重排、已有产出取消/换执行方后的归属是实际业务规则冲突，已发两项异步问题，相关写入等待用户回答。
+
+3f2fbbace6d03062c54b53f6ba836f84ef224366最终main996 guard PASS，一次上传及独立API exact，原6283为祖先；
+工具STOP标签/remoteStatus仍与exact remoteSha矛盾，原JSON和独立证明均留存，未第二次push，不宣称长期网络修复。
+Source39461350814/Team39461357465/Baseline39461363083只各dispatch一次；后两项success。Source实际排单17/17与
+前序后台、质量、构建、导航/资源等均通过，随后order-sale-adjustment-ui:116读取未就绪颜色details触发TypeError，Python步骤未执行。
+具体时序：材料角色的独立commercial-versions卡先显示“无权查看”，business-source颜色分组尚未挂载，原groups直接对undefined取DOM。
+自然本机重跑7/7（16423.8155ms）通过，未称自然复现。现只改该验收：等待目标非空行并返回同次只读快照，
+另暂缓该订单真实GET响应，确认其他卡已显示权限文字而目标确实未挂载，再释放原响应继续原隐藏金额/零价/同价异方案断言。
+受控7/7（16257.6655ms）、精确eslint、独立只读窄复审无阻断；无伪造DTO、任意固定延迟、写重试或产品/权限/SQL变化。
+为覆盖新CI尚未走到的后半段，实际运行material-history-ui/material-display-ui/payment-read-panel-ui组合28/28
+（48803.9965ms），0 fail/skip/cancel。应用仍精确919；冻结文档/237证据50能力不变。后续新head三CI前不冒称全绿。
+3f2f三摘要按真实Git blob逐字归档planning-ui-ci-3f2fbbac/：CURRENT SHA256 52c18f20b960685015216b935834fb4b0315e1b914de5ca6a6be7aa3bb6bea1a，
+AI d0397941a2b4a13276afb10030c9b60082f131d595e50aac2cc388be823fefd3，INDEX 44ead2b2dbe8faecf06e34bae56907700c137605c366408915a8ad35f8751aef。
+6C两项业务问题仍待回答，不用Git自动授权代答；其他工程安全边界保持。

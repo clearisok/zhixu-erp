@@ -106,14 +106,26 @@ test("quote center negotiates selected orders and recovers original receipts", {
       const result=await commitSaleAdjustment(x.pool,actor,{requestId:randomUUID(),reason:'Synthetic color price summary',rule,items:[{salesOrderId:id,expectedVersion:item.expectedVersion,fingerprint:item.fingerprint,overrides}]});assert.equal(result.items[0].status,'updated');
       await navigate('/order-center/server-detail?id='+id);await has('订单调价历史');await until(()=>evaluate("Boolean(document.querySelector('.oc-price-summary'))"),'price summary loaded');
     };
-    const groups=()=>evaluate("[...[...document.querySelectorAll('details')].find(n=>n.querySelector('summary')?.textContent==='按价格方案查看颜色').querySelectorAll('p')].map(n=>n.textContent)");
+    const groups=async()=>{
+      let rows=null;
+      await until(async()=>{
+        rows=await evaluate("(()=>{const d=[...document.querySelectorAll('details')].find(n=>n.querySelector('summary')?.textContent==='按价格方案查看颜色');return d?[...d.querySelectorAll('p')].map(n=>n.textContent):null;})()");
+        return Array.isArray(rows)&&rows.length>0;
+      },'color price scheme groups loaded');
+      return rows;
+    };
     await adjust('120');
     assert.deepEqual((await groups()).sort(),['素色 · 120 CNY/件：白','素色 · 128 CNY/件：蓝、黑','印花 · 128 CNY/件：红'].sort());
     assert.doesNotMatch(await evaluate("document.querySelector('.oc-price-summary').textContent"),/不适用/);
     await screenshot('color-summary-distinct-20261019');
     await adjust('0');assert.ok((await groups()).includes('素色 · 0 CNY/件：白'));
+    const colorReadHook=await command('Page.addScriptToEvaluateOnNewDocument',{source:"window.colorReadReleases=[];window.colorReadsReleased=false;const colorReadFetch=window.fetch;window.fetch=(...a)=>{const response=colorReadFetch(...a);if(new URL(String(a[0]),location.href).pathname!=="+JSON.stringify('/api/v1/sales-orders/'+id+'/business-source')+"||!['GET',undefined].includes(a[1]?.method))return response;return response.then(value=>new Promise(done=>{if(window.colorReadsReleased)done(value);else window.colorReadReleases.push(()=>done(value));}));};window.releaseColorReads=()=>{window.colorReadsReleased=true;window.colorReadReleases.splice(0).forEach(done=>done());};"});
     await login('demo.material');await navigate('/order-center/server-detail?id='+id);await has('无权查看');
-    assert.ok((await groups()).every(v=>!v.includes('128')&&!v.includes('120')&&!v.includes('0 CNY')));
+    await until(()=>evaluate('window.colorReadReleases.length>0'),'held color-source read');
+    assert.equal(await evaluate("[...document.querySelectorAll('details')].some(n=>n.querySelector('summary')?.textContent==='按价格方案查看颜色')"),false,'another commercial card can render before color prices');
+    await command('Page.removeScriptToEvaluateOnNewDocument',{identifier:colorReadHook.identifier});
+    const restrictedGroups=groups();await evaluate('releaseColorReads()');
+    assert.ok((await restrictedGroups).every(v=>!v.includes('128')&&!v.includes('120')&&!v.includes('0 CNY')));
     await login('demo.admin');await adjust('128');await has('统一成交价 128 CNY/件');
     assert.equal(await evaluate("document.querySelector('.oc-server-color-table').innerText.includes('实际成交价')"),false);
     await click('查看价格明细');assert.equal(await evaluate("[...document.querySelectorAll('.oc-server-color-table tbody tr')].filter(n=>n.innerText.includes('128 CNY')).length"),4);
