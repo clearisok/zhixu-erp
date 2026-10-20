@@ -60,3 +60,21 @@ Gate5精确c6已由既有工具一次上传并独立GitHub API核实；Baseline3
 新[不可变后台工程证据](../completed/2026-10-20-production-resources-backend-engineering.md)绑定8c，前次三摘要逐字归档 `completed/2026-10-20-gate6-inputs/backend-8c178ba0/`。此后只提交证据/状态文档，源文件blob必须与8c一致。旧58/1Linux skip、首轮927/261及新测试fixture版本错误的结果不覆盖。
 
 网络：重新核对main的GitHub API读发生HTTP2流传输中断；未把exit0/空SHA当成功。随后依既有脚本一次有界只读诊断：默认Git成功读996（5327ms）、显式HTTP1.1对照失败（3184ms）、进程OpenSSL/HTTP1.1对照成功读996（2672ms），configurationChanged=false、pushSubmitted=false。只证明间歇通道，无永久根因结论，不改共享proxy/TLS/认证。持续用户授权覆盖本次安全恢复交付，无需再次提问；下一步精确最终commit守卫、既有工具至多一次push、独立SHA、三个命名CI。未核实不借Gate5结果、不重复调度/建PR。
+
+## 6A界面接线开始（311f0ad8输入）
+
+上一Goal轮为实际进展：独立源码/证据commit、冻结25/43/927/261验证、精确交付。最终 `311f0ad8da30b101200147a18c32db9b4abca9f6` 守卫PASS，默认一次push传输失败且独立远端仍31；随后有界进程OpenSSL/HTTP1.1/sslVerify=true仅精确仓库URL对照的一次push成功，独立API核实完整311。进程环境已恢复，不宣称永久网络修复。Source39411504225、Team39411508697、Baseline39411512585仅各dispatch一次；本阶段开始核实Baseline成功、其余两项仍in_progress，不重启live作业。receipt与精确CI元数据在本机ignored outputs。
+
+新阶段main独立API仍996，开放#120–127仍原头，当前branch/HEAD为codex/server-production-resources/311，工作树与index干净，无继承用户dirty。允许接线现有三资源页面/共享表单字段、窄Server客户端与原请求缓存、导航/路由、精确UI影响记录和测试/文档；不改Browser仓库/Seed、生产公式、真实权限或现有环境。当前UI尚未完成，不提前标记能力。
+
+先复用现有canonical命令与服务端已存digest，为POST/GET回执加性返回payloadHash，客户端核验原内容，避免只凭requestId/kind解除错误待核请求；不新增命令表或哈希算法。后续表单、会话owner、保存失败/未知、刷新恢复与数据权限都须实际Browser测试。历史输入、成功/失败以及后台源码8c证据保持独立，不挪作新UI验收。
+
+本阶段独立核实311三个命名CI全部completed/success。界面接线按原表格/同页卡片与抽屉进行，撤回曾尝试的基础设施tabs/DataTable，未作为获准V2交付。独立只读复审发现并修复关联搜索Enter误提交、同页地点保留旧日历事实；后一项只增只读刷新generation，不重置草稿/未决命令。复审最终无阻塞，未替其声称执行任何测试。
+
+本地实际结果：39/39契约+客户端+PG/HTTP（6880.5089ms），其中14客户端/17PG；全量types、Node编译、精确实现/测试路径lint通过，原Browser静态16/16。Server工作构建（明确标记311-resource-ui-working-v3，不是精确冻结SHA）14/14真实built UI（20190.2414ms）：空库不Seed、完整日历编辑、23候选分页和搜索Enter零POST、CAS保留旧输入/明确读最新、同页引用刷新、回执丢失刷新GET、未知明确同请求重试、摘要冲突阻断、只读/无权Enter、fresh撤权Enter、list及committed POST/known receipt的200/401跨A→B→A、6宽度及dirty提示。后续最终测试还增加卡片同步与日历390/1440像素断言；尚待执行，不能挪用前次14绿灯。基础设施新目标未升级。
+
+首轮UI验收失败保留在ignored outputs：测试未等待异步选项或详情，或混淆背景与抽屉同名搜索控件，以及在真实事务提交前过早断言数量；修正明确等待和dialog作用域后通过，未以删除用例或弱化业务保护消除失败。原Browser静态测试随字段抽取定位新共享文件，16/16，不改变规则。精确main守卫PASS（11页/48能力/51累计UI路径）；旧228证据/48能力尚未标成新资源能力。新阶段三摘要修改前逐字SHA256归档到backend-delivery-311f0ad8，所有增量属root，无继承用户dirty。
+
+下一步本地独立源码checkpoint冻结，再执行完整项目/数据库/发布基线和精确SHA构建/浏览器；这些未完成前不记6A工程最终PASS，不借311 Hosted CI。各类运维/真实数据/来源及资产退役边界不变。
+
+源码checkpoint前新增断言已实际执行：14/14（20747.2784ms）通过，明确验证地点卡/日历卡都显示新名称、工作周和2条例外；外发6宽度、日历1440/390无整页溢出，截图本机ignored outputs保存。类型与精确路径lint通过。再次独立GitHub API核实main仍996，无额外范围或真实操作。待冻结后重验仍保留为下一步，不把本工作构建冒充提交构建。

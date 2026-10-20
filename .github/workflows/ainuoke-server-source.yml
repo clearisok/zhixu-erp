@@ -29,6 +29,7 @@ jobs:
           node --test server/integration/chromium-endpoint.test.mjs
           npm run server:build
           npx --no-install tsx --test --test-concurrency=1 server/production-resources/contract.test.ts server/integration/production-resources.integration.test.ts
+          npx --no-install tsx --test features/operations-settings/server/__tests__/*.test.ts
           npm run test:ainuoke-server-source
           npm run test:order-source-evidence
           npx --no-install tsx --test --test-concurrency=1 features/quote-center/server/__tests__/quote-creation-contract.test.ts server/integration/quote-order-context.integration.test.ts
@@ -86,6 +87,7 @@ jobs:
           npm run test:ainuoke-continuous-ui
           npx --no-install tsx --test server/integration/order-saved-sources-ui.integration.test.mjs
           npx --no-install tsx --test server/integration/quote-order-context-ui.integration.test.mjs
+          npx --no-install tsx --test server/integration/production-resources-ui.integration.test.mjs
           npm run test:processing-batches-ui
           npm run test:processing-quote-push-ui
           npm run test:order-business-source-ui

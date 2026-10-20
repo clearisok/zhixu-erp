@@ -149,4 +149,8 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 - Browser Backup 无法备份个人 Ainuoke credential；Windows Credential Manager 与 Local Bridge 生命周期独立，迁移设备时必须由本人重新绑定。
 - 大量附件会使 JSON 备份体积较大；未来对象存储阶段应升级为流式归档格式。
 
+2026-10-20 Gate6A：正式生产资料页面使用 sessionStorage `zhixu.server.production-resource.pending.v1.<public-user-id>.<kind>` 暂存一份未确认原命令（schemaVersion/userId/kind/savedAt/command）。只含该用户主动填写的名称、启停、备注、联系人、电话、日期及关系ID/版本；不含密码、令牌、金额、Browser账本、来源凭据或服务端返回快照。最多1MiB，存储写入与读回确认成功后才POST；不能可靠保存时拒绝发送，不以内存假装可恢复。它是单标签页的未决命令，不是基础资料权威库、跨设备同步或Browser备份。
+
+刷新只恢复核对入口，不自动POST。回执的actor/request/kind及既有规范化SHA-256与原内容一致后才删除本键；已知成功另读最新资料，不拿旧回执覆盖现版本。pending/unknown不等于未执行；只有用户明确点击“重试原请求”才发送同一编号与同一内容。损坏、未来版本、摘要冲突和其他用户原字节保持，不静默清除或生成新编号。会话切换使当前异步owner失效，不能消费另一用户缓存。关闭标签页可能丢失这个临时核对地址；已入库资料、审计和服务端回执仍在。无localStorage/IndexedDB/Seed读取、写入、清理或Browser回退。
+
 2026-10-17 D-145 Server会话恢复：新增sessionStorage zhixu.server.order-price.pending.v1.<public-user-id>仅请求UUID、zhixu.server.processing-push.pending.v1.<public-user-id>仅请求UUID/Quote IDs；不存金额/原因/令牌，不读写Browser业务namespace/IndexedDB或Seed。原载荷仅当前组件内存保存。只显式重试原命令/核对服务端回执；已确认完成或明确受理前拒绝时删除本组件恢复标记。不同用户不能复用标记，切换授权范围重新加载投影。没有服务端记录且原内存稿已丢失时保持核对状态，不冒称未执行或自动重新下单。

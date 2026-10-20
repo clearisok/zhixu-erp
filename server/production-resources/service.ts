@@ -213,7 +213,7 @@ export async function executeProductionResourceCommand(pool: Pool, identity: Tru
     const prior = (await client.query<{ payload_hash: string; result: ResourceOutcome }>("SELECT payload_hash,result FROM production_resource_commands WHERE actor_id=$1 AND request_id=$2", [actor.internalUserId, command.requestId])).rows[0];
     if (prior) {
       if (prior.payload_hash !== digest) fail(409, "production_resource_request_conflict");
-      await client.query("COMMIT"); return { ...prior.result, replayed: true };
+      await client.query("COMMIT"); return { ...prior.result, payloadHash: prior.payload_hash, replayed: true };
     }
     await client.query("SAVEPOINT resource_apply");
     let result: ResourceOutcome;
@@ -224,7 +224,7 @@ export async function executeProductionResourceCommand(pool: Pool, identity: Tru
       result = { requestId: command.requestId, kind: command.kind, status: "rejected", error: { status: error.status, code: error.code } };
     }
     await client.query("INSERT INTO production_resource_commands(actor_id,request_id,kind,payload_hash,result) VALUES($1,$2,$3,$4,$5::jsonb)", [actor.internalUserId, command.requestId, command.kind, digest, JSON.stringify(result)]);
-    await client.query("COMMIT"); return { ...result, replayed: false };
+    await client.query("COMMIT"); return { ...result, payloadHash: digest, replayed: false };
   } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
 }
 export async function readProductionResourceReceipt(pool: Pool, identity: TrustedIdentity, requestInput: string) {
@@ -233,9 +233,9 @@ export async function readProductionResourceReceipt(pool: Pool, identity: Truste
     await client.query("BEGIN"); const actor = await currentActor(client, identity); await available(client);
     if (!Object.values(specifications).some(spec => actor.permissions.includes(spec.edit))) fail(403, "permission_denied");
     const lock = (await client.query<{ ready: boolean }>("SELECT pg_try_advisory_xact_lock_shared(hashtextextended($1,0)) AS ready", [commandLock(actor, requestId)])).rows[0].ready;
-    const row = lock ? (await client.query<{ kind: ProductionResourceType; result: ResourceOutcome }>("SELECT kind,result FROM production_resource_commands WHERE actor_id=$1 AND request_id=$2", [actor.internalUserId, requestId])).rows[0] : null;
+    const row = lock ? (await client.query<{ kind: ProductionResourceType; payload_hash: string; result: ResourceOutcome }>("SELECT kind,payload_hash,result FROM production_resource_commands WHERE actor_id=$1 AND request_id=$2", [actor.internalUserId, requestId])).rows[0] : null;
     if (row) requirePermission(actor.permissions, specifications[row.kind].edit);
     await client.query("COMMIT");
-    return row ? { state: "known" as const, requestId, result: row.result } : { state: lock ? "unknown" as const : "pending" as const, requestId, result: null };
+    return row ? { state: "known" as const, requestId, result: { ...row.result, payloadHash: row.payload_hash } } : { state: lock ? "unknown" as const : "pending" as const, requestId, result: null };
   } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
 }

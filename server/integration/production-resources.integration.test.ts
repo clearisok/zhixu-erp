@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
 import pg from "pg";
@@ -95,11 +95,14 @@ test("Gate6A empty Server resources: PostgreSQL, HTTP authority, CAS and durable
   await t.test("same request concurrently creates one stable identity and one atomic audit", async () => {
     const input = command("factories", { ...factoryData, name: "幂等外发厂" });
     const replies = await Promise.all([save(input), save(input)]); assert.deepEqual(replies.map(r => r.status), [200, 200]);
+    const payloadHash = createHash("sha256").update(JSON.stringify(parseProductionResourceCommand(input))).digest("hex");
+    assert.deepEqual(replies.map(r => r.body.payloadHash), [payloadHash, payloadHash]);
     const id = replies[0].body.resource.id; assert.equal(id, replies[1].body.resource.id); assert.deepEqual(replies.map(r => r.body.replayed).sort(), [false, true]);
     assert.equal((await pool.query("SELECT count(*)::int n FROM operation_logs WHERE entity_id=$1", [id])).rows[0].n, 1);
     const audit = (await pool.query("SELECT actor_name,after_data FROM operation_logs WHERE entity_id=$1", [id])).rows[0];
     assert.equal(audit.actor_name, "合成资源 resource.admin"); assert.equal(audit.after_data.objectName, "幂等外发厂");
     const recovery = await request("/commands/" + input.requestId, admin.cookie); assert.equal(recovery.body.state, "known"); assert.equal(recovery.body.result.resource.id, id);
+    assert.equal(recovery.body.result.payloadHash, payloadHash);
     assert.equal((await save({ ...input, data: { ...factoryData, name: "不同内容" } })).body.error.code, "production_resource_request_conflict");
     assert.equal((await request("/commands/" + input.requestId, groupEditor.cookie)).body.state, "unknown", "receipt scope is actor plus request");
   });
@@ -110,6 +113,7 @@ test("Gate6A empty Server resources: PostgreSQL, HTTP authority, CAS and durable
     const rejected = replies[0].status === 409 ? first : second;
     assert.equal((await save(rejected)).body.replayed, true); assert.equal((await save(rejected)).status, 409);
     const receipt = await request("/commands/" + rejected.requestId, admin.cookie); assert.equal(receipt.body.result.status, "rejected");
+    assert.equal(receipt.body.result.payloadHash, createHash("sha256").update(JSON.stringify(parseProductionResourceCommand(rejected))).digest("hex"));
     assert.equal((await get("factories", factory.id)).version, 2);
     const unchanged = await save(update(factory)); assert.equal(unchanged.body.changed, false); assert.equal(unchanged.body.resource.version, 2);
     assert.equal((await pool.query("SELECT count(*)::int n FROM operation_logs WHERE entity_id=$1", [factory.id])).rows[0].n, 2);
