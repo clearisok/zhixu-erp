@@ -1,23 +1,26 @@
-# 恢复点：Gate6B集合读取实现、扩大验收中
+# 恢复点：Gate6B读取层15295已通过，独立文档证据收口
 
 2026-10-20；Goal active/no budget；main996dfedc12da3527343cd3ff2aa5eea35497e10e。
-branch codex/server-production-planning；本Phase输入1391feb5856bb23ab172f0eb7e6e7ffdcd51082e干净。
-7bf3/root唯一writer、既有reviewer只读；无继承dirty。三摘要[1391逐字归档](tasks/completed/2026-10-20-gate6-inputs/planning-read-1391feb5/)。
+branch codex/server-production-planning，应用/测试/CI源码15295ecb265f91316476e4b010abc7b9083d2ac6。
+root唯一writer、既有reviewer只读，无继承dirty。[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)。
 
-1391已API+DryRun正常Git精确核实；Source39440371972/Team39440379174/Baseline39440385738均success，每项仅一次。
-首次工具STOP标签矛盾、原错误原因unresolved及reconciliation保留本机；未重复push或改common-dir/auth/TLS配置。
-后台343a与源码7eb/4989证明、客户端874的65/927/116/精确build均是各自历史范围，不借作新读投影验收。
+115定向（61465.1851ms）、927项目（233576.0933ms）、116基线（232253.9186ms）、全types/Node/lint、
+精确Server frontend build（client/server/SSR完整15295及server/session/writable/snapshot）、串行compiled app import通过。
+初次并行app import输出未找到、首个guard文档revision未锚定真实main失败均保留；没有偷偷改工具/基线/证据。
+独立reviewer已核读投影和P2修复无阻塞，未运行测试/DB/network；原233/49与三输入Git blob归档一致。
 
-本增量只改Server读投影/统一可信SQL/查询契约/现有service/routes/合成测试与Source CI；无新SQL或UI/route。
-目录orders按精确SO聚合未取消内部+外发计划后筛选分页，正常候选严格可信/有效/未冻结；未知null不作零、历史别名不并量。
-groups保留停用有计划组、复用原自然排序；队列批量ordersById保留历史/冻结SO；history保持旧snapshot并加版本锚点、hasMore和当时资源摘要。
-原validator加工表能力显式判断，prefix13无加工表的真实合同验证已通过。没有金额或实际完成字段。
-目录分页P2修复后115定向（61465.1851ms）、types/Node/精确lint通过，独立静态复审无阻塞；项目/基线/build及交付待收口。
+补充读取子模块为SERVER_PRODUCTION_PLANNING_READS.md；基础SERVER_PRODUCTION_PLANNING.md精确恢复7eb冻结字节。
+原因：该新路径原7eb证据还没进main，不能在同一路径另挂supersedes假装可达main锚点。
+先commit新补充与工程记录，再登记独立234文档（recordedAt为文档commit，renderedSource为15295，不设supersedes），
+最后实际guard/复审/最终docs commit并有界交付，独立完整远端SHA后仅调度三个新CI。此时尚未交付，不借1391三绿。
+应用字节自15295未改；勿因docs hash变化重跑已过的未变应用测试，证据/守卫按最终清单核实。
 
-下一步等待既有reviewer实际diff复审；源码checkpoint后执行精确应用/SQL/API回归、项目/基线、types/lint/Serverbuild、main996 guard。
-feature文档已修订，需前向冻结证据，旧233/49不改，不自证未来SHA。然后安全一次交付/完整SHA/三个CI，各不借旧结果。
-之后才接原排单页面，须session/epoch lease、未知原请求只核对，不能挂旧Browser writer/成本/完成updater。
+目录严格可信有效资格，精确按物理SO聚合内部+外发未取消计划后过滤分页；未知null、别名7不并入主单30。
+停用有计划组/冻结与历史队列仍可读，批量ordersById；历史asOfVersion/hasMore和当时资源摘要，旧snapshot形状保留。
+没有新SQL/UI/allowlist/金额/实际完成或Browser写入。下一步已有表单Server接线；须session/epoch lease及原请求核对。
 
-#120–127不合并/关闭，不建重复累计PR。旧Quote45/44/2及31未启动、6A14built/18导航等历史限制保持。
-不升级3001/50426/59069/62426，不动旧卷/Browser/工作树或真实账号/业务库；62426仍8175。
-无新艾诺科读取/绑定/激活/调度、正式部署或退役，未来CNY销售/USD工价不重标历史。持续Git工程授权无需再问。
+1391已API+DryRun正常Git双重精确核实，Source39440371972/Team39440379174/Baseline39440385738全success，各一次。
+原工具STOP标签矛盾与原原因unresolved保留，不重复push/改common-dir/auth/TLS。持续工程Git授权无需再问。
+#120–127不merge/close，不建重复累计PR；旧Quote45/44/2及31未启动、6A各范围保持。
+不动3001/50426/59069/62426、旧卷/Browser/工作树或真实账号/业务库；62426仍8175。
+无新艾诺科读取/绑定/激活/调度、正式部署或退役，未来CNY销售/USD工价不重标历史。

@@ -1,22 +1,23 @@
-# 当前状态：Gate6B可信客户端已交付，集合读取验收中
+# 当前状态：Gate6B读取层工程通过，文档证据收口
 
 2026-10-20；Goal active；main独立核实996dfedc12da3527343cd3ff2aa5eea35497e10e。
-当前codex/server-production-planning，Phase输入1391feb5856bb23ab172f0eb7e6e7ffdcd51082e干净，root唯一writer。
-[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)与[Server排单计划](features/SERVER_PRODUCTION_PLANNING.md)为入口。
-1391由API+正常Git只读双重精确核实；首次push工具分类矛盾和原错误原因unresolved保留，不重推、不改共享配置。
-1391 Source39440371972/Team39440379174/Baseline39440385738均success，各仅调度一次。
+branch codex/server-production-planning；应用/测试/CI源码15295ecb265f91316476e4b010abc7b9083d2ac6冻结，root唯一writer。
+[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[基础契约](features/SERVER_PRODUCTION_PLANNING.md)＋
+[读取补充](features/SERVER_PRODUCTION_PLANNING_READS.md)、[工程记录](tasks/completed/2026-10-20-production-planning-reads-engineering.md)。
 
-当前增量：共用严格可信合同/加工消费SQL，保留旧阶段缺加工表兼容；订单池先按全部物理SO聚合内部+外发未取消计划，
-再过滤/分页，同事务批量队列订单摘要；组总览保留停用有计划组、原自然排序；历史版本锚定/hasMore及当时资源摘要。
-没有UI/路由开放、SQL迁移、实际完成/出货/关账、金额、来源读取或运行升级。旧history.snapshot形状保持。
-修正目录分页P2后115定向（含真实一致性并发与伪加工负例）、types/Node/精确lint通过，独立静态复审无阻塞。项目/基线/build与最终交付仍待收口。
-下一步独立复审、源码checkpoint及冻结回归、文档前向证据，然后有界交付/独立SHA/三个新CI；不借1391结果。
+读取层支持可信有效订单池、精确物理SO计划总量、停用有计划组总览、同事务批量队列摘要与稳定版本锚定历史。
+历史别名不并量、未知不作零、权限/业务资格共用、旧阶段缺加工表兼容。无UI/allowlist/迁移/金额/实际完成。
+115定向（61465.1851ms）、927项目（233576.0933ms）、116基线（232253.9186ms）、全types/Node/lint、
+精确Server frontend build及三build-info核实、串行实际app导入均通过；独立复审分页P2已修，无新阻塞。
+首次并行app载入未找到输出及source/evidence revision guard失败均保留，不假报首次成功。
+原后台文档恢复冻结字节；新的读取子模块契约另存，先checkpoint后新增独立证据，最终guard与交付待核实。
 
-后台7eb/4989/343a工程证明及60/927/261/116保持；客户端874及1391的65/927/116、精确Serverbuild/browser bundle
-和16客户端/outbox无页面证据分别保持。当前233证据/49能力，既有记录不改；本批feature修订将在checkpoint后前向绑定。
-现有6A1da/7b、39资源和14built/18导航、旧Quote45pass/44fail/2cancel与31未启动缺口仍独立保留。
-#120–127原头不变，不建重复累计业务PR，不自动merge/close/deploy；后续继续Server排单页面与6C独立执行事实。
+1391已API＋正常Git只读精确核实，Source39440371972/Team39440379174/Baseline39440385738全部success，各仅一次；
+首次push工具分类矛盾、原原因unresolved保留，无第二次上传或共享配置修改。此结果不借作15295后新CI。
+旧233证据/49能力全部不变；后台7eb/4989/343a及客户端874/1391、6A1da/7b各自范围保留。
+旧Quote45/44/2及31未启动仍独立缺口。#120–127原头不变，不建重复累计PR、不merge/close/deploy。
 
-持续工程Git授权有效，无需逐次再问。3001/50426/59069/62426、旧卷/工作树/Browser保持；62426仍Gate1源8175。
+下一步绑定读取文档/最终守卫→一次有界交付/独立SHA/三个新CI，再接原排单页面与6C独立执行事实。
+持续工程Git授权有效，无需逐次再问。3001/50426/59069/62426和旧卷/工作树/Browser保持；62426仍Gate1源8175。
 无真实账号/业务库、新艾诺科读取/绑定/激活/调度、正式部署或退役；未来CNY销售/USD工价不换汇或重标历史。
-三摘要[1391逐字归档](tasks/completed/2026-10-20-gate6-inputs/planning-read-1391feb5/)，更早日期/hash/结果/限制沿任务链保留。
+[1391输入三摘要逐字归档](tasks/completed/2026-10-20-gate6-inputs/planning-read-1391feb5/)，更早日期/hash/结果/限制沿链保留。

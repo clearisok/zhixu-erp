@@ -1,6 +1,6 @@
 # Server排单计划
 
-2026-10-20；Gate6B后台与集合读取切片，遵守D-043直接订单归属和D-147新空目标。
+2026-10-20；Gate6B后台切片，遵守D-043直接订单归属和D-147新空目标。
 Browser排单/实际完成/运输/关账仍见[原功能](PRODUCTION_SCHEDULING.md)，不导入或覆盖。
 本阶段有持久化计划API，没有新排单页面、实际开工/完成、出货、金额或关账功能。
 工程验收、精确交付和CI结果以[Gate6任务](../tasks/active/server-convergence-gate6-2026-10-20.md)及不可变证据为准。
@@ -65,35 +65,14 @@ Assignment版本、actor/request和审计。主数据改名/停用/换日历不�
 | POST `/preview` | 精确解析create/update/cancel/replan意图，返回差异、警告、版本及previewHash；不写库 |
 | POST `/commands` | requestId + 同一intent + previewHash；同事务版本/审计/回执，已知拒绝返回原404/409 |
 | GET `/commands/:requestId` | 当前actor的known/pending/unknown和原内容hash；不能据unknown自动重发 |
-| GET `/orders?search=&allocation=remaining&offset=0&limit=50` | 全部可信有效可写生命周期订单先累计计划、筛选再分页，不从一页订单推断全局未排数量 |
-| GET `/groups?search=&status=relevant&offset=0&limit=50` | 按原生产组自然排序的完整聚合总览，默认保留启用组与停用但仍有计划的组 |
 | GET `/orders/:id` | 非金额订单/稳定颜色/客户交期需求及计划、资源摘要和当前可操作性 |
-| GET `/groups/:id` | 有界完整当前队列、队列版本及同一事务批量ordersById；历史别名/完成订单的既有计划不丢失 |
-| GET `/assignments/:id?offset=0&asOfVersion=...` | 当前计划、完整已采用资源及50条/页不可变历史，按首次返回的版本锚点稳定翻页 |
+| GET `/groups/:id` | 有界完整当前队列及队列版本 |
+| GET `/assignments/:id?offset=0` | 当前计划、完整已采用资源及50条/页不可变历史 |
 
 读取同时要求order.view和schedule.view；预览/提交create另需schedule.create，其余需schedule.edit。
 每次服务从DB刷新身份/权限，写命令锁住用户、角色和授权直到提交。回执也重验对应操作权限。
 没有新grant或隐式管理员；不因生产权限获得任何成本/金额。POST继续同源/CSRF边界、1MiB正文；
 预览、回执及读取超过1MiB明确失败，不泄漏原始数据库异常。操作复用唯一OperationLog。
-
-## 集合读取与历史解释
-
-订单池默认`remaining`只列已知正剩余量（unassigned/partial），可筛选all、unassigned、partial、allocated、
-overassigned或unknown。正常候选同时要求当前有效SO、未完成/未取消生命周期，以及与写命令相同的严格可信合同或
-已消费加工批次校验；不依赖认领或报价采用。共享SQL保持合同精确匹配数=1及加工三个报价标识一致。旧阶段未有加工表时，
-原合同validator不生成引用缺表的SQL，不能以CASE分支短路替代schema能力判断。
-
-只按每张物理SO累加未取消的内部与外发计划；历史别名计划不搬到有效SO、也不与主单执行量相加。数量、剩余和超排
-均为精确decimal字符串，未知为null，零保持零。客户DeliveryPlan不加入排单总量。列表总数与页面位于同一个只读一致性事务；
-搜索只匹配订单号、合同号、款号、客户、品牌和客户参考等白名单，不读取报价/CCT/确认JSON或金额。空格分词为且，%/_按文字。
-每页1–100条、offset最高100000；生产组为保留原自然排序先读取最多5000候选，超界明确422，不截断后伪报总数。
-
-组总览的队首仅表示计划顺序，不表示正在生产。总计划量与尾日期包含该组全部当前计划，即使其SO后来冻结或成为历史别名；
-同事务批量订单摘要保留原UUID、订单号和只读资格。新建能力还要求当前组/地点/日历启用，停用不抹除采用的资源历史。
-历史首次返回asOfVersion，后续携带同一值限制版本上界；新增版本不会挤动原历史页。响应保留原history[].snapshot，
-增加hasMore/nextOffset及按各历史resource_snapshot_hash读取的资源名称摘要，不能拿当前master名称补造历史。
-不接受未来/非正版本；50条页和100000 offset窗口不足时明确有界失败，不能宣称历史已完整。当前assignment可高于锚定历史版本。
-没有实际完成、物料物流或成衣出货事实时不输出零或“无风险”。本批仍不开放页面或调用旧Browser writer。
 
 ## 未完成与安全边界
 

@@ -237,3 +237,13 @@ feature文档后续前向冻结，不覆盖旧证据；按最小充分真实PG/H
 加工批次服务；无skip/cancel/fail。全量types、Node编译与精确lint通过，既有reviewer静态复核修复无新阻塞，未运行
 测试/DB/network。root按已验证字节创建源码checkpoint，随后补项目/基线/完整lint/精确Server build及前向feature证据；
 不因源码checkpoint换SHA重复运行未变代码的定向测试。无UI、迁移、执行量、真实来源/账号/业务库或环境变更。
+
+源码checkpoint15295ecb265f91316476e4b010abc7b9083d2ac6后，927/927项目（233576.0933ms）、
+116/116基线（232253.9186ms）、全仓lint、精确Server frontend build通过，三build-info完整15295/session/server/writable/snapshot。
+首次编译app导入与前端build并行时输出文件未找到；随后串行Node重编译和实际导入通过，前次失败不抹除。
+[工程记录](../completed/2026-10-20-production-planning-reads-engineering.md)保留115/927/116范围及未做浏览器/性能边界。
+
+实际main996源码守卫首轮拒绝新feature的同路径supersedes：原7eb新路径未在main，修订链无法锚定真实base。
+哈希有效不等于revision有效；未修改守卫、基线、原证据或能力。按独立reviewer复核，精确恢复7eb原feature，
+将独立读投影的资格/聚合/分页/历史/权限写入有完整内容的SERVER_PRODUCTION_PLANNING_READS.md；原233不动，
+先冻结新补充文档，再登记独立234记录。先前未提交的错误revision记录不交付，原失败日志保留；应用字节不变。
