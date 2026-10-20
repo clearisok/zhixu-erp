@@ -83,8 +83,71 @@ source evidence and manual DeliveryPlan ownership separate; never reallocate pla
 Run focused SQL/API/client, project/types/lint/Node/build and exact baseline checks;
 actual built Chromium for UI slices; independent review and exact-head CI.
 
-No4A implementation or new tests have run at this baseline. Isolated data only.
+At the initial16f8d57d baseline, no4A implementation or new tests had run. Isolated data only.
 Readonly environment check found3001/50426/59069/62426 still listening and the five
 Gate1 containers healthy on image zhixu-persistent-local:8175f628-20261020. No fresh
 business-table count or runtime upgrade is claimed. No merge, deployment, real
 account/business-data/source operation, scheduler, cleanup or asset retirement.
+
+## 4A implementation checkpoint (local, not Gate4 completion)
+
+Baseline documentation checkpoint5a2a8bc0ba81f5b44e80c6b59af11e52443fabec was
+clean. Root alone changed the typed evidence projection, order detail SQL and
+Server DTO/GET helper, existing plan comparison, tests and source acceptance CI.
+No UI component, schema, price writer, permission or source adapter changed.
+
+- Saved6087105 metadata is validated, not asserted as a DTO. Output excludes raw
+  metadata, hashes, credentials, hidden prices and arbitrary extension properties.
+  Known rule/slot budgets explicitly return evidence_too_large without truncation.
+  Pending source null, explicit zero, unchanged slot gaps and repeated names remain
+  distinct. Recorded matrix anomalies do not discard valid colors or recalculate
+  quantity. Processing has not_applicable evidence and no fabricated Ainuoke plans.
+- Contract color summary exposes only recorded status/drift/batch time; array or
+  object status coercion found in review was corrected to strict string validation.
+  It never reports freshness or a per-color fetch time from the batch maximum.
+- A plan source comparison now requires exact source-link/mirror ID and BillNo.
+  Review found that a normal JOIN could duplicate rows with an extra unmatched
+  historical link; EXISTS preserves one plan result. The order read's lateral
+  link selection likewise prefers the exact mirror match, otherwise requires a
+  sole candidate. It does not guess among multiple unmatched historical links.
+  Owned plans and each order's commercial terms remain untouched.
+- The new read helper performs one no-store, credentialed GET to the existing
+  DeliveryPlan endpoint. It preserves decimal strings, null/date/void history and
+  typed401/403/404 errors; no PATCH, retry or Browser fallback is added. Detail
+  and plan are still separate requests/snapshots.
+
+New targeted suite24/24 passed (11179ms). It includes eight pure evidence cases,
+seven client/adapter cases and a disposable PostgreSQL parent with eight child
+cases: formal contract→colors/sizes→materials/plans, seven roles without money
+permissions, malformed/foreign/large evidence, source absence, invalid initial
+identity, extra historical link, a controlled RR concurrent refresh, and session
+revocation/404/invalidID. Fixture failures were corrected, not hidden: the material
+contract is nested under progress.order;0022 correctly rejected source-ID mutation,
+so the negative fixture now creates an invalid initial association in a transaction
+without disabling any trigger; mirror insertion already initializes a plan set.
+
+Five existing domain suites70/70 passed (68437ms): DeliveryPlan including legacy
+0009 upgrade/concurrency/audit, effective attribution/current-vs-history, processing
+batch lifecycle, first binding/material reads, and PostgreSQL foundation/API.
+Types and compiled Node passed. One unsafe optional assertion in the new test was
+caught by lint and corrected; final lint/project/build/guard/review remain pending
+at this checkpoint. No new actual-browser result is claimed for4A yet.
+
+Independent tool37bd0e1e81810f46c1972f37630dc99b7fc9b18d is now exact remote and
+PR127 remains draft. Two earlier bounded attempts failed (direct TLS timeout and
+default transport failure), each independently proving remote still5a9. A read-only
+contrast observed the configured-proxy/OpenSSL/HTTP1.1 profile pass; one separately
+bounded process-only recovery succeeded, with TLS verification on and no persistent
+config/auth change. Final exact37 CI39379407326/source and39379407265/team are
+running;39379407269/baseline succeeded. Do not claim all green or permanent repair.
+
+### Local source checkpoint readiness
+
+The full project suite passed927/927 (366484ms), including the116 existing
+baseline/responsive checks; final lint passed with no warning, types/Node compiled,
+and the exact-main guard passed (38 UI-scoped paths cumulatively, only two new
+read DTO/helper paths with V0/no visible change). Independent second review found
+no remaining blocker after strict summary typing and source-link cardinality fixes.
+No new image, runtime, UI component or database upgrade has occurred. A clean
+source checkpoint precedes exact-SHA Browser/Server builds and the explicit
+baseline command; those later checks are not claimed by this checkpoint.

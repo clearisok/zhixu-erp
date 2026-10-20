@@ -90,8 +90,10 @@ export type SalesOrderColorReadModel = {
   colorName: string;
   quantity: number;
   deliveryDate: string | null;
+  sizeEvidence: import("./source-evidence.js").SalesOrderColorSizeEvidence;
 };
 
 export type SalesOrderDetailReadModel = SalesOrderReadModel & {
   colors: SalesOrderColorReadModel[];
+  colorSource: import("./source-evidence.js").SalesOrderColorSourceEvidence;
 };

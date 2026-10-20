@@ -29,6 +29,7 @@ jobs:
           node --test server/integration/chromium-endpoint.test.mjs
           npm run server:build
           npm run test:ainuoke-server-source
+          npm run test:order-source-evidence
           npm run test:order-identity
           npm run test:order-commercial
           npm run test:order-business-source

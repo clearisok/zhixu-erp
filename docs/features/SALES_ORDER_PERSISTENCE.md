@@ -1,3 +1,5 @@
+> 2026-10-20 Server收敛Gate4A工程增量，未合并/部署/来源激活：正式详情新增保存颜色分码的白名单 `sizeEvidence` 与颜色来源摘要 `colorSource`，见[当前任务](../tasks/active/server-convergence-gate4-2026-10-20.md)。仍复用当前来源owner与单次RR查询，不输出任意source_metadata、hash或金额。保留旧无证据、结构异常、待定0与真实0；原矩阵不平/溢出不删除颜色，不凭部分槽位重算。无新迁移、采集或价格写入。DeliveryPlan只读客户端使用现有GET；自身计划与当前可信来源对照分别拥有，失配来源不作为数量/日期依据。旧日期能力按其当时状态阅读。
+
 > 2026-10-15 本地Gate4消费者增量，未合并/部署：有效与历史读取、当前来源owner投影和新写归属保护见[ORDER_NORMALIZATION](ORDER_NORMALIZATION.md)及[任务](../tasks/active/order-effective-attribution.md)。原UUID/创建历史/绑定/各单价格和计划不变；公共归一执行仍未实现。下面历史bootstrap日期/环境能力仅按当时证据阅读。
 
 <!-- Current bounded first-binding path; historical bootstrap evidence below is preserved. -->
