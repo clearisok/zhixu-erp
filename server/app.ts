@@ -61,6 +61,7 @@ import type { AttachmentStorage } from "./attachments/storage.js";
 import { serveStatic } from "./static-files.js";
 import { routeMaterialProgressSettings } from "./material-progress-settings/routes.js";
 import { routeTeamAccess } from "./auth/team-access-routes.js";
+import { routeManagedRoles } from "./auth/managed-role-routes.js";
 import type { PaymentSnapshotReader } from './ainuoke-source/payment-request-store.js';
 
 export type ServerLogger = {
@@ -354,6 +355,7 @@ async function route(
 
   if (await routeQuoteMasters(request, response, dependencies, correlationId)) return;
   if (await routeTeamAccess(request, response, dependencies)) return;
+  if (await routeManagedRoles(request, response, dependencies)) return;
   if (await routeMaterialProgressSettings(request, response, dependencies)) return;
   const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
   if ((request.method === "GET" && (path === "/api/v1/quotes/creation-options" || creationReceipt))

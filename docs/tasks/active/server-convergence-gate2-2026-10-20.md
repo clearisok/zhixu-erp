@@ -64,3 +64,19 @@ The complete expanded suite then passed **116/116**, zero failures/skips/cancell
 guard passed (11 pages/46 capabilities/one inherited #120 UI file). No new UI or
 schema behavior was added by this tooling correction. No combined Gate PASS or
 #123 integration is claimed yet; those are the next dependent step.
+
+The guard checkpoint is `a12825ef829213a58306563e49de704d34ee4b2e`.
+The exact #123 head was then merged with no-ff/no-commit. Application/SQL/API/test
+changes applied without conflict; only the three shared state documents,
+DECISION_LOG and baseline.json needed reconciliation. #123's original state,
+handoff and index are archived byte-for-byte. D-146 is retained alongside the
+already reviewed D-145 cleanup and D-147. The manifest retains all 219 source
+records unchanged and the two approved role/user route additions. Its second
+parallel document branch intentionally remains unclosed until the actual merge
+checkpoint is committed and a new mergeOf proof binds that Git blob. Combined
+tests have not run yet; no runtime or business data is changed by this merge.
+`git diff --cached --check` reports ten existing extra EOF blank lines in exact
+#123 source files (including 0031). Each is verified unchanged against the input
+Git blob; this integration does not rewrite an already-used migration or unrelated
+source merely to silence those inherited formatting warnings. Conflict-resolution
+documents are checked separately; byte-exact historical archives are preserved.

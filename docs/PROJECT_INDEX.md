@@ -2,6 +2,8 @@
 
 2026-10-20 当前优先：[Server 收敛 Gate 2](tasks/active/server-convergence-gate2-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Gate 1 草稿 #125 已精确交付，62426 持久化空目标 READY，旧 3001/50426 保留。本阶段按固定 SHA 整合 #120 与 #121→#122→#123，代码与证据均须重新组合验收。以下各旧日期保留其当时结果。
 
+D-146 的角色权限、用户管理和操作日志本阶段已合入候选源码，正式说明见[系统管理任务](tasks/active/system-settings-administration-2026-10-19.md)、[权限](features/PERMISSIONS.md)及[日志](features/OPERATION_LOGS.md)。原 #123 状态/索引逐字保留在 Gate2 输入归档，不恢复过期主线或交付待办。
+
 2026-10-19 当前工程基线 main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；PR108–119 已合并。先读 [CURRENT_STATE](CURRENT_STATE.md) 与 [SYSTEM_OVERVIEW](SYSTEM_OVERVIEW.md)，本轮修复与隔离验收见 [任务记录](tasks/active/price-source-stabilization-2026-10-19.md)。合并、部署、来源激活、人工接受分开记录。
 
 当前来源/价格以 D-145 为准：新来源仅报价、无负责人、合同类先可信合同、加工批次独立、订单成交价不可变追加。旧阶段恢复流水已[逐字归档](tasks/completed/2026-10-19-pre-stabilization/PROJECT_INDEX.md)，不作为当前待办。

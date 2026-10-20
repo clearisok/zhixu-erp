@@ -1799,6 +1799,15 @@
         "decisions-stabilization-20261019"
       ],
       "changeReason": "Preserve both immutable parent-branch decision histories in the actual PR120/Server-convergence merge checkpoint; D-145 cleanup and approved D-147 target both remain."
+    },
+    {
+      "id": "decisions-price-processing-20261017-roles-20261019",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "28a8ebee37c80e06598f28df21bc3466edd6efc6",
+      "sha256": "36c37559890de048f2da5c2aaa851c8c7ade0166675e5e018a07945e21a8a261",
+      "supersedes": "decisions-price-processing-20261017",
+      "changeReason": "User-approved D146 configurable roles, password and navigation; previous blobs retained."
     }
   ],
   "pages": [
@@ -2102,7 +2111,9 @@
     "/order-center",
     "/order-center/server-detail",
     "/order-center/style-progress/detail",
-    "/system-settings/progress-settings"
+    "/system-settings/progress-settings",
+    "/system-settings/roles",
+    "/system-settings/users"
   ],
   "capabilities": [
     {

@@ -1,0 +1,17 @@
+.qc-business-logs{display:grid;gap:20px;min-width:0}
+.qc-log-filters{display:flex;flex-wrap:wrap;gap:12px;align-items:end;padding:18px}
+.qc-log-filters>.qc-search-field{flex:1 1 100%;min-width:0}
+.qc-log-filters>label:not(.qc-search-field){display:grid;gap:8px;flex:1 1 140px;font-size:13px;color:var(--muted)}
+.qc-log-filters .qc-control{width:100%;min-width:0}
+.qc-log-action{display:grid;gap:6px}.qc-log-action small,.qc-log-summary small,.qc-log-detail-count{color:var(--muted)}
+.qc-log-pagination{display:flex;gap:16px;align-items:center;justify-content:center}
+.qc-log-summary{padding:18px 0;border-bottom:1px solid var(--line)}.qc-log-summary h3{font-size:20px;line-height:1.5;margin:12px 0}
+.qc-log-summary p{margin:0 0 14px}.qc-log-event{margin:20px 0}.qc-log-event h4{font-size:15px;line-height:1.6}
+.qc-log-differences{border-collapse:collapse;width:100%;min-width:0;table-layout:fixed;font-size:14px}
+.qc-log-differences th,.qc-log-differences td{text-align:left;border-bottom:1px solid var(--line);padding:12px 10px;vertical-align:top;overflow-wrap:anywhere;white-space:normal;font-size:14px}
+.qc-log-differences thead th{background:#f2f6f4;color:var(--muted);font-weight:500}
+.qc-log-differences th:first-child{width:28%}.qc-log-differences td:last-child{color:var(--forest);background:#f8fbf9}
+.qc-log-technical{border-top:1px solid var(--line);padding-top:16px;margin-top:28px;font-size:13px}
+.qc-log-technical summary{cursor:pointer;color:var(--muted)}.qc-log-technical pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}
+.qc-log-mobile{display:grid;gap:10px;padding:16px}.qc-log-mobile small{color:var(--muted)}
+@media(max-width:600px){.qc-log-filters{padding:14px}.qc-log-pagination{gap:8px;font-size:13px}.qc-log-filters>button{flex:1}.qc-log-differences th,.qc-log-differences td{padding:10px 6px;font-size:12px}}
