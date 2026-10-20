@@ -109,11 +109,25 @@ now validates the gateway's exact app upstream/port/command, not only its networ
 The same review requires all restore paths to mount the effective backup input
 read-only. The one-off CLI now does this for configured and explicit directories;
 the container independently checks the Linux mount flag. r6 covers rejection of
-a writable direct call and both read-only paths. Its result is pending at this
-checkpoint; do not call final Gate PASS before that result and review.
+a writable direct call and both read-only paths. r6 correctly stopped at the
+kernel guard: on this Windows Docker Compose, `run --volume ...:ro` retained an
+inherited RW mount at the same destination. Inspect showed `RW=true`, kernel
+options were `rw`, and an owned synthetic probe could write. No final target had
+started. A bounded contrast using a fixed final Compose layer with long-syntax
+`read_only:true` showed `RW=false`, kernel `ro` and `EROFS` on the synthetic write.
+The CLI now uses that final layer only for one-off restore, with the effective
+directory supplied only in that child process's environment. Canonical hashes
+and configuration are unchanged. The independent reviewer found no blocker in
+this correction. r7 complete recovery validation is pending; r6 is not PASS.
 
 42 operational tests passed after the final policy changes. Full lint, typecheck,
 Docker production build and 94 release-baseline tests passed in this Gate;
 the latest changed operational files also passed targeted lint and whitespace
 checks. The exact final-head guard, remote PR/CI and final empty runtime remain
 separate pending checks. No browser pixel or human acceptance is claimed.
+
+The first private ops archive was retained unused when exact-blob verification
+noticed Git's Windows CRLF conversion. All normalized blobs matched; no source
+change was inferred. The operational snapshot is instead exported with a bounded
+`git -c core.autocrlf=false archive` invocation and must pass exact byte/blob checks.
+No shared Git configuration is modified.

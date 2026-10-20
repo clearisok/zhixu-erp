@@ -97,6 +97,9 @@ test('new Windows private target prepares once, validates real composed model, n
     const file=join(folder,'trial.conf'),before=readFileSync(file,'utf8'),v=readTrialConfig(file),safe=validateTrial(v);
     const cert=new X509Certificate(readFileSync(v.TRIAL_TLS_CERT_FILE));assert.equal(cert.checkHost('objects-tls'),'objects-tls');assert.equal(cert.checkHost('wrong.invalid'),undefined);assert.equal(cert.checkIP('127.0.0.1'),'127.0.0.1');
     const m=JSON.parse(run('docker',['compose','--env-file',file,'-f',resolve('ops/quote-trial/compose.yml'),'-f',resolve('ops/quote-trial/local-objects.compose.yml'),'-f',resolve('ops/quote-trial/objects.compose.yml'),'-p',v.TRIAL_PROJECT,'config','--format','json']));validateComposeTarget(m,safe);
+    const restored=JSON.parse(run('docker',['compose','--env-file',file,'-f',resolve('ops/quote-trial/compose.yml'),'-f',resolve('ops/quote-trial/local-objects.compose.yml'),'-f',resolve('ops/quote-trial/objects.compose.yml'),'-f',resolve('ops/quote-trial/objects-readonly.compose.yml'),'-p',v.TRIAL_PROJECT,'config','--format','json']));
+    assert.equal(m.services.app.volumes.find(v=>v.target==='/bundle').read_only,undefined);
+    assert.equal(restored.services.app.volumes.find(v=>v.target==='/bundle').read_only,true);
     assert.throws(()=>run('pwsh',[...args,'-Execute']));assert.equal(readFileSync(file,'utf8'),before);
     assert.doesNotMatch(JSON.stringify(receipt),/PASSWORD|SECRET|token/i);
   } finally { assert.ok(resolve(parent).startsWith(resolve(tmpdir())+sep));rmSync(parent,{recursive:true}); }

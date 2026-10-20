@@ -60,7 +60,7 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
     const config=resolve(configPath), values=readTrialConfig(config), safe=validateTrial(values);
     const ops=dirname(fileURLToPath(import.meta.url)), services=trialServices(safe.localObjects);
     const args=['compose','--env-file',config,'-f',resolve(ops,'compose.yml'),...(safe.localObjects?['-f',resolve(ops,'local-objects.compose.yml')]:[]),...(values.TRIAL_COMPOSE_OVERRIDE?['-f',values.TRIAL_COMPOSE_OVERRIDE]:[]),'-p',safe.project];
-    const docker=(a,timeout=180000)=>execFileSync('docker',[...args,...a],{encoding:'utf8',env:{...process.env,...values},stdio:['ignore','pipe','pipe'],timeout});
+    const docker=(a,timeout=180000,overrides={})=>execFileSync('docker',[...args,...a],{encoding:'utf8',env:{...process.env,...values,...overrides},stdio:['ignore','pipe','pipe'],timeout});
     const rawDocker=a=>execFileSync('docker',a,{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:10000});
     const expected={project:safe.project,localObjects:safe.localObjects,images:Object.fromEntries(services.map(service=>[service,rawDocker(['image','inspect','--format','{{.Id}}',service==='database'?'postgres:16-alpine':service==='objects'?LOCAL_OBJECT_IMAGE:safe.image]).trim()])),hashes:Object.fromEntries(docker(['config','--hash','*']).trim().split(/\r?\n/).map(line=>line.trim().split(/\s+/)))};
     const inspect=()=>{
@@ -184,7 +184,9 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
         else if(running.some(s=>s!=='database'))throw Error('offline_maintenance_required');
         if(!values.TRIAL_COMPOSE_OVERRIDE||!values.TRIAL_OBJECT_BUNDLE_DIR||!isAbsolute(values.TRIAL_OBJECT_BUNDLE_DIR))throw Error('explicit_bundle_override_required');
         const effectiveBundle=bundleOverride??parseObjectBundleOverride(action,`--bundle-dir=${values.TRIAL_OBJECT_BUNDLE_DIR}`);
-        console.log(docker(['run','--rm','--no-deps','--volume',`${effectiveBundle}:/bundle${action==='objects-restore'?':ro':''}`,'app','node','/trial/object-bundle.mjs',action==='objects-export'?'export':'restore','--execute']));
+        // Compose on Windows can retain the inherited RW mount when --volume
+        // repeats its target. A fixed final Compose layer reliably sets RO.
+        console.log(docker([...(action==='objects-restore'?['-f',resolve(ops,'objects-readonly.compose.yml')]:[]),'run','--rm','--no-deps','app','node','/trial/object-bundle.mjs',action==='objects-export'?'export':'restore','--execute'],180000,{TRIAL_OBJECT_BUNDLE_DIR:effectiveBundle}));
       }
     }
     else throw Error('unsupported_operation');
