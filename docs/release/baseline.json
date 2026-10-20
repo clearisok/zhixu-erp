@@ -1829,6 +1829,14 @@
       "sha256": "cdeb67c55a4c50a35c34079949969a68c3bc776f933d4b982e7f6739efd68aa3",
       "supersedes": "decisions-convergence-system-management-merge-20261020",
       "changeReason": "Approved Gate3 restores persistent Server navigation and feature-owned exit protection without changing layout, business ownership, permissions or source activation; preserve both merged decision histories."
+    },
+    {
+      "id": "order-saved-source-read-engineering-20261020",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-20-order-saved-sources-engineering.md",
+      "recordedAtSha": "9f23b8d61e09ff344142aa70e353f89dd427cf51",
+      "renderedSourceSha": "e9aca2cb5792f53ab595f2c08dc1ecee8a46e185",
+      "sha256": "e5a2dba93ffb9eec3fc4d3933a33a3b60c671087c1e1631b6010203a3f69c5c1"
     }
   ],
   "pages": [
@@ -1927,10 +1935,11 @@
       "route": "/order-center/server-detail?id=UUID",
       "routeFile": "app/order-center/server-detail/page.tsx",
       "components": [
-        "features/order-center/components/server-sales-order-detail-page.tsx"
+        "features/order-center/components/server-sales-order-detail-page.tsx",
+        "features/order-center/components/server-saved-order-sources.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance.",
+      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D147/Gate4B saved sizes and readonly plan disclosures have isolated engineering evidence only; no new human acceptance, runtime upgrade or Source activation.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -1944,7 +1953,8 @@
         "material-order-header-order-header-1440",
         "material-order-header-order-header-390",
         "material-order-page-approved-scope",
-        "material-order-header-ui-verification"
+        "material-order-header-ui-verification",
+        "order-saved-source-read-engineering-20261020"
       ]
     },
     {
@@ -6477,6 +6487,91 @@
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"
+        }
+      }
+    },
+    {
+      "id": "order-saved-source-read",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate4 saved contract/color/size evidence and readonly owned DeliveryPlan in existing default-closed disclosures; exact identity, unknown/zero/history, lazy GET and committed-session late-reply protection. No writer, price, schema, source refresh or Browser fallback.",
+      "evidence": [
+        "order-saved-source-read-engineering-20261020"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-20",
+          "scope": "D147 Gate4 saved contract/color/size evidence and readonly owned DeliveryPlan in existing default-closed disclosures; exact identity, unknown/zero/history, lazy GET and committed-session late-reply protection. No writer, price, schema, source refresh or Browser fallback. Local isolated engineering only; no merge, runtime or human acceptance.",
+          "sourceSha": "e9aca2cb5792f53ab595f2c08dc1ecee8a46e185",
+          "evidence": [
+            "order-saved-source-read-engineering-20261020"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-20",
+          "scope": "D147 Gate4 saved contract/color/size evidence and readonly owned DeliveryPlan in existing default-closed disclosures; exact identity, unknown/zero/history, lazy GET and committed-session late-reply protection. No writer, price, schema, source refresh or Browser fallback. Local isolated engineering only; no merge, runtime or human acceptance.",
+          "sourceSha": "e9aca2cb5792f53ab595f2c08dc1ecee8a46e185",
+          "evidence": [
+            "order-saved-source-read-engineering-20261020"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-20",
+          "scope": "D147 Gate4 saved contract/color/size evidence and readonly owned DeliveryPlan in existing default-closed disclosures; exact identity, unknown/zero/history, lazy GET and committed-session late-reply protection. No writer, price, schema, source refresh or Browser fallback. Local isolated engineering only; no merge, runtime or human acceptance.",
+          "sourceSha": "e9aca2cb5792f53ab595f2c08dc1ecee8a46e185",
+          "evidence": [
+            "order-saved-source-read-engineering-20261020"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-20",
+          "scope": "D147 Gate4 saved contract/color/size evidence and readonly owned DeliveryPlan in existing default-closed disclosures; exact identity, unknown/zero/history, lazy GET and committed-session late-reply protection. No writer, price, schema, source refresh or Browser fallback. Local isolated engineering only; no merge, runtime or human acceptance.",
+          "sourceSha": "e9aca2cb5792f53ab595f2c08dc1ecee8a46e185",
+          "evidence": [
+            "order-saved-source-read-engineering-20261020"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-20",
+          "scope": "D147 Gate4 saved contract/color/size evidence and readonly owned DeliveryPlan in existing default-closed disclosures; exact identity, unknown/zero/history, lazy GET and committed-session late-reply protection. No writer, price, schema, source refresh or Browser fallback. Local isolated engineering only; no merge, runtime or human acceptance.",
+          "sourceSha": "e9aca2cb5792f53ab595f2c08dc1ecee8a46e185",
+          "evidence": [
+            "order-saved-source-read-engineering-20261020"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-20",
+          "scope": "New saved-read candidate not deployed. Historical runtime source/image retained without re-observation.",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "evidence": [
+            "order-saved-source-read-engineering-20261020"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-20",
+          "scope": "New saved-read candidate not deployed. Historical runtime source/image retained without re-observation.",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "evidence": [
+            "order-saved-source-read-engineering-20261020"
+          ]
         }
       }
     }

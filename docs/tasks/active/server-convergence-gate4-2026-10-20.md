@@ -273,3 +273,27 @@ then logout/login back to A, before release; old401 separately crosses same-acco
 re-login. Final strengthened9/9 passed20370ms on unchanged production sourcee9.
 The frozen proof uses this precise scope, while prior screenshot hashes still
 identify their original20977ms run. No original log or commit is overwritten.
+
+Frozen binding review:9f23b8d61e09ff344142aa70e353f89dd427cf51 records the
+corrected evidence bytes; rendered application remainse9. Document SHA256
+is e5a2dba93ffb9eec3fc4d3933a33a3b60c671087c1e1631b6010203a3f69c5c1.
+Independent read-only reviewer confirmed all221 prior evidence and46 prior
+capabilities byte-for-byte semantically unchanged. Only order-detail adds the
+helper/proof and a no-new-human-acceptance scope; the new47th capability has
+separate implemented/isolated/merge/runtime/human/source dimensions. Guard PASS
+at baseline996/checkedHead9f23,11 pages/47 capabilities/39 cumulative UI paths.
+Explicit release-baseline remains pending here. Existing PR120–127 were API-read
+again at their original heads and draft/open; main remains996. No main merge,
+PR close, duplicate cumulative PR, deployment or source operation occurred.
+
+4A/4B final local acceptance: the explicit npm run test:release-baseline passed
+116/116 (364437ms). The bound guard passed with11 pages/47 capabilities and39
+cumulative UI paths at main996. Independent final review verified the new proof
+Git blob/hash, precise stronger identity tests, all prior221/46 records preserved,
+V1 scope and separate unmerged/not-deployed/not-human-accepted dimensions. No
+production source changed aftere9; only test/evidence/binding/status commits follow.
+Final exact commit guard and one bounded standing-authority delivery follow this
+local checkpoint. It is a validation ref, not a duplicate cumulative business PR.
+No4C editor has been added. Next Gate5 remains dependent on this verified read
+baseline; exploratory reads of the existing Quote receipt/default writer were
+read-only, with no Gate5 code or schema changes at this checkpoint.
