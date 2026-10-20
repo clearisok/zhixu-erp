@@ -90,6 +90,7 @@ jobs:
           npx --no-install tsx --test server/integration/order-saved-sources-ui.integration.test.mjs
           npx --no-install tsx --test server/integration/quote-order-context-ui.integration.test.mjs
           npx --no-install tsx --test server/integration/production-resources-ui.integration.test.mjs
+          npx --no-install tsx --test server/integration/production-scheduling-ui.integration.test.mjs
           npm run test:processing-batches-ui
           npm run test:processing-quote-push-ui
           npm run test:order-business-source-ui

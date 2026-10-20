@@ -306,8 +306,12 @@ export async function executeProductionPlan(pool: Pool, identity: TrustedIdentit
       if (projection.previewHash !== command.previewHash) planFail(409, "production_plan_preview_changed");
       result = await applyBuild(client, actor, command, build); orderIds = build.orders.map(order => order.id); bounded(result, "production_plan_receipt_too_large");
     } catch (error) {
-      if (!(error instanceof HttpError) || ![404, 409].includes(error.status)) throw error;
-      await client.query("ROLLBACK TO SAVEPOINT plan_apply"); result = { requestId: command.requestId, status: "rejected", error: { status: error.status, code: error.code } };
+      // Expected domain/budget rejection is a known rollback, including a queue
+      // filled after preview. Persist its exact request receipt so the UI can
+      // resume editing; SQL/auth/transport failures still have unknown outcomes.
+      if (!(error instanceof HttpError) || ![404, 409, 422].includes(error.status)) throw error;
+      await client.query("ROLLBACK TO SAVEPOINT plan_apply"); orderIds = [];
+      result = { requestId: command.requestId, status: "rejected", error: { status: error.status, code: error.code } };
     }
     await client.query("INSERT INTO production_schedule_commands(actor_id,request_id,action,payload_hash,command,result) VALUES($1,$2,$3,$4,$5,$6)", [actor.internalUserId, command.requestId, command.intent.action, digest, command, result]);
     for (const id of orderIds) await client.query("INSERT INTO production_schedule_command_orders(actor_id,request_id,sales_order_id) VALUES($1,$2,$3)", [actor.internalUserId, command.requestId, id]);

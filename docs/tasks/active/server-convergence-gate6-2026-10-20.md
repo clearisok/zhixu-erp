@@ -254,3 +254,25 @@ renderedSource为15295，无supersedes/mergeOf。原233证据、49能力及7eb�
 实际main996源码/证据守卫已PASS（11页/49能力/54累计UI路径），首个失败仍在本机log保留。
 全量115/927/116及构建结果按前文精确范围，不因docs收口再跑未改应用测试；最后只需最终docs HEAD guard/
 一次安全交付/独立SHA后各调度Source/Team/Baseline，不能预先写远端或CI PASS。无新PR/合并/部署/真实数据操作。
+
+
+## 6B页面接线（6524c7d0输入）
+
+本Phase baseline为干净codex/server-production-planning / 6524c7d0b24f60e96c0abb39be4fa3e194ed7b4a，
+无继承dirty，root唯一writer。6524既有工具一次正常push（8119ms）并独立API精确核实，未重复上传；
+只调度Source39446392644/Team39446399962/Baseline39446406949各一次，当前均真实运行中，不因观察超时重启。
+main独立API仍996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原头保持。三摘要Git blob逐字归档planning-ui-6524c7d0/。
+
+允许增量为可信读客户端、精确字符串表单、Server排单页面/authority wrapper、复用执行方分页选择、
+现有AppShell菜单与allowlist窄开放、路径影响/能力证据及合成单元/API/真实built浏览器验证。
+保留原生产组MasterDetail、队列表格、订单池与表单样式/公式；不新增V2/V3布局，不将Server DTO强转Browser模型。
+未知保存先保留原actor/tab命令，session对象/epoch lease阻断ABA旧响应；原请求仅GET核对，不自动POST。
+真实完成/物流未接线不显示零或无风险，不挂Browser完成updater、价格或裸外发价。
+不改Browser仓库/Seed/Storage namespace、不迁移SQL、不升级任何已有环境/真实数据/来源或正式部署。
+
+6524的Source39446392644/Team39446399962/Baseline39446406949已独立核实全部completed/success，未重启或借用旧CI。
+页面源代码阶段全typecheck、27客户端/表单、33实际PG/API（20664.3349ms）通过；首次typecheck一处可空state已修、
+首次lint三处测试unused警告仍保留日志，正在完成修正后的lint/Node及实际built浏览器，尚不能标页面Gate PASS。
+独立静态复审指出具体Button导航绕过保护、取消/重排输入等待竞态和容量422缺回执；分别复用protected router、
+禁用等待字段、SAVEPOINT明确拒绝持久化。新增跨SO499→500实际边界通过，裸HTTP422仍不清缓存。
+新增[页面契约](../../features/SERVER_PRODUCTION_PLANNING_UI.md)说明精确缓存、unknown显式人工重试和所有未完成边界。

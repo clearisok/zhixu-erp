@@ -543,6 +543,39 @@ test("Gate6B planning: empty schema, real PostgreSQL and trusted HTTP atomic com
     assert.equal(page2.text.includes("当前主数据名称不能补造历史"), false); assert.equal((await request("/assignments/" + assignmentId + "?asOfVersion=54")).status, 400);
     assert.equal((await request("/assignments/" + assignmentId + "?offset=99&asOfVersion=52")).body.history.length, 0);
   });
+  await t.test("cross-order capacity changes produce durable 422 rejection receipts and allow a new preview elsewhere", async () => {
+    const crowded = await resource("groups", { name: "合成容量边界组", shortName: "capacity", enabled: true, productionSiteId: site.id, sortOrder: 50, remark: "" });
+    const bulkOrder = await order(), target = await order();
+    const fixed = planData({ executorId: crowded.id, plannedQuantity: "1", duration: { mode: "workdays", workdays: 1 }, dates: { mode: "manual_fixed", startDate: "2027-01-04", endDate: "2027-01-04" } });
+    const first = (await save(await createIntent(bulkOrder, fixed))).assignments[0];
+    // Owned synthetic boundary fixture: retain every SQL revision constraint.
+    // Seed 498 additional physical rows, then use the real API for row 500.
+    const seed = await pool.connect();
+    try {
+      await seed.query("BEGIN");
+      await seed.query(`INSERT INTO production_schedule_assignments(sales_order_id,execution_type,production_group_id,planned_quantity,duration_mode,daily_output_snapshot,required_workdays,
+        date_mode,planned_start_date,planned_end_date,queue_sequence,resource_snapshot_hash,created_by,updated_by,remark)
+        SELECT $1,'internal',$2,1,'workdays',1,1,'manual_fixed','2027-01-04','2027-01-04',i,$3,$4,$4,'Synthetic capacity fixture'
+        FROM generate_series(2,499) i`, [bulkOrder, crowded.id, first.resourceSnapshotHash, editor.actor.internalUserId]);
+      await seed.query(`INSERT INTO production_schedule_plan_versions(assignment_id,sales_order_id,version,snapshot,actor_id,request_id,operation_id,reason)
+        SELECT id,sales_order_id,version,production_plan_row_snapshot(a),$2,gen_random_uuid(),'synthetic-capacity-fixture','Owned test fixture'
+        FROM production_schedule_assignments a WHERE sales_order_id=$1 AND id<>$3`, [bulkOrder, editor.actor.internalUserId, first.id]);
+      await seed.query("UPDATE production_order_plan_heads SET version=version+1 WHERE sales_order_id=$1", [bulkOrder]);
+      await seed.query("UPDATE production_group_plan_heads SET version=version+1 WHERE production_group_id=$1", [crowded.id]);
+      await seed.query("COMMIT");
+    } finally { await seed.query("ROLLBACK"); seed.release(); }
+    const original = await command(await createIntent(target, fixed));
+    await save(await createIntent(bulkOrder, fixed));
+    const before = await count("production_schedule_assignments"), rejected = await request("/commands", original);
+    assert.equal(rejected.status, 422, rejected.text); assert.equal(rejected.body.status, "rejected"); assert.equal(rejected.body.error.code, "production_queue_limit");
+    assert.equal(await count("production_schedule_assignments"), before); assert.equal((await request("/orders/" + target)).body.order.planVersion, 0);
+    assert.equal((await pool.query("SELECT count(*)::int n FROM production_schedule_commands WHERE actor_id=$1 AND request_id=$2", [editor.actor.internalUserId, original.requestId])).rows[0].n, 1);
+    assert.equal((await pool.query("SELECT count(*)::int n FROM production_schedule_command_orders WHERE actor_id=$1 AND request_id=$2", [editor.actor.internalUserId, original.requestId])).rows[0].n, 0);
+    const client = createProductionPlanClient(((path, init) => fetch(base + String(path), { ...init, headers: { ...init?.headers, Cookie: editor.cookie, Origin: base } })) as typeof fetch);
+    const receipt = await client.receipt(original); assert.equal(receipt.state, "known"); if (receipt.state === "known") assert.equal(receipt.result.status, "rejected");
+    assert.equal((await client.execute(original)).status, "rejected");
+    const next = await createIntent(target, planData({ executorId: secondGroup.id })); assert.equal((await save(next)).status, "applied");
+  });
   assert.deepEqual(errors.map(error => error.requestId), expectedErrorIds); assert.ok(errors.every(error => error.event === "unhandled_request_error" && error.errorType === "error"));
 });
 type AssignmentShape = { id: string };

@@ -1,23 +1,23 @@
-# 当前状态：Gate6B读取层本地通过，准备精确交付
+# 当前状态：Gate6B排单页面接线，实际构建验收中
 
 2026-10-20；Goal active；main独立核实996dfedc12da3527343cd3ff2aa5eea35497e10e。
-branch codex/server-production-planning；应用/测试/CI源码15295ecb265f91316476e4b010abc7b9083d2ac6冻结，root唯一writer。
-[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[基础契约](features/SERVER_PRODUCTION_PLANNING.md)＋
-[读取补充](features/SERVER_PRODUCTION_PLANNING_READS.md)、[工程记录](tasks/completed/2026-10-20-production-planning-reads-engineering.md)。
+branch codex/server-production-planning，root唯一writer；本Phase从干净6524c7d0b24f60e96c0abb39be4fa3e194ed7b4a继续。
+[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[页面契约](features/SERVER_PRODUCTION_PLANNING_UI.md)、
+[后台](features/SERVER_PRODUCTION_PLANNING.md)＋[读取](features/SERVER_PRODUCTION_PLANNING_READS.md)。
 
-读取层支持可信有效订单池、精确物理SO计划总量、停用有计划组总览、同事务批量队列摘要与稳定版本锚定历史。
-历史别名不并量、未知不作零、权限/业务资格共用、旧阶段缺加工表兼容。无UI/allowlist/迁移/金额/实际完成。
-115定向（61465.1851ms）、927项目（233576.0933ms）、116基线（232253.9186ms）、全types/Node/lint、
-精确Server frontend build及三build-info核实、串行实际app导入均通过；独立复审分页P2已修，无新阻塞。
-首次并行app载入未找到输出及source/evidence revision guard失败均保留，不假报首次成功。
-原后台文档冻结字节保持；读取补充冻结70cb并绑定独立234记录，main996守卫PASS（11/49/54）；最终交付/新CI待核实。
+6524已一次正常push并API精确核实；Source39446392644/Team39446399962/Baseline39446406949全部success，各仅一次。
+原读取应用15295的115/927/116、types/Node/lint/精确Serverbuild/app导入及独立静态复审保持；234证据/49能力的原记录不改。
+这些旧测试/CI不借作本Phase新页面的结果。原三个摘要[Git blob逐字归档](tasks/completed/2026-10-20-gate6-inputs/planning-ui-6524c7d0/)。
 
-1391已API＋正常Git只读精确核实，Source39440371972/Team39440379174/Baseline39440385738全部success，各仅一次；
-首次push工具分类矛盾、原原因unresolved保留，无第二次上传或共享配置修改。此结果不借作15295后新CI。
-新增读取契约后234证据/49能力，原233与49能力全部不变；后台7eb/4989/343a及客户端874/1391、6A1da/7b各自范围保留。
-旧Quote45/44/2及31未启动仍独立缺口。#120–127原头不变，不建重复累计PR、不merge/close/deploy。
+新页面使用可信订单池/组队列/历史，复用原MasterDetail和表单；authority先选owner，恢复原排单菜单，
+不挂Browser仓库。精确数量、待核对颜色、未知值、采用资源、内部/外发与多订单预览分开显示。
+保存前缓存原命令；unknown只在当前session明确GET核对后才可人工重试原字节，无自动POST。
+复审三项已修：具体查看订单按钮用protected router，取消/重排预览禁用输入，已回滚领域422持久拒绝可核对。
+27客户端/表单、33实际PG/API（含跨SO499→500队列填满，20664.3349ms）、全TS和Node通过；lint、built Chromium及最终回归收口中。
+首次TS可空state与测试unused警告均保留日志，不声称首次全通过。还没有页面Gate PASS/新CI、人工接受或环境升级。
 
-下一步最终docs HEAD守卫→一次有界交付/独立SHA/三个新CI，再接原排单页面与6C独立执行事实。
-持续工程Git授权有效，无需逐次再问。3001/50426/59069/62426和旧卷/工作树/Browser保持；62426仍Gate1源8175。
-无真实账号/业务库、新艾诺科读取/绑定/激活/调度、正式部署或退役；未来CNY销售/USD工价不换汇或重标历史。
-[1391输入三摘要逐字归档](tasks/completed/2026-10-20-gate6-inputs/planning-read-1391feb5/)，更早日期/hash/结果/限制沿链保留。
+新UI没有实际完成、物流或关账，也没有金额、迁移或新权限；这不是完整生产闭环。旧Quote45/44/2及31未启动仍独立保留。
+6A1da/7b、后台7eb/4989/343a、客户端874/1391和读取15295/70cb/6524的日期/hash/结果/限制沿证据链保持。
+#120–127原头不变，不建重复累计PR、不merge/close/deploy；持续工程Git授权无需逐次询问。
+3001/50426/59069/62426、旧卷/工作树/Browser不动；62426仍Gate1源8175。
+无真实账号/业务库、新艾诺科读取/绑定/激活/调度或正式退役；未来CNY销售/USD工价不换汇、不重标历史。

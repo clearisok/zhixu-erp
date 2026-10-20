@@ -4,10 +4,10 @@ import { Button } from "@/components/foundation";
 import { useServerSession } from "@/features/server-auth";
 import { ProductionResourceError, productionResourceClient, type ProductionResource, type ResourceDirectory } from "../server/production-resource-client";
 
-type ReferenceKind = "sites" | "calendars";
+type ReferenceKind = "sites" | "calendars" | "groups" | "factories";
 /** A paged lookup, never an incomplete first-page dropdown presented as all records. */
 export function ServerProductionReferencePicker({ kind, value, onChange, isCurrent }: { kind: ReferenceKind; value: string; onChange: (id: string) => void; isCurrent: () => boolean }) {
-  const session = useServerSession(), label = kind === "sites" ? "生产地点" : "工作日历";
+  const session = useServerSession(), label = { sites: "生产地点", calendars: "工作日历", groups: "生产组", factories: "外发厂" }[kind];
   const [query, setQuery] = useState(""), [offset, setOffset] = useState(0), [attempt, retry] = useState(0);
   const lease = useMemo(() => ({ session, kind, query, offset, attempt }), [session, kind, query, offset, attempt]);
   const committed = useRef<typeof lease | null>(null);

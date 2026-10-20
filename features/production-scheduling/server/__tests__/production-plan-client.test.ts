@@ -56,13 +56,15 @@ test("no-change update is terminal but fabricated create/no-op or wrong receipt 
   for (const bad of [{ ...outcome, requestId: orderId }, { ...outcome, payloadHash: "c".repeat(64) }, { ...outcome, assignments: [{ ...row, version: 2 }] }, { ...outcome, assignments: [{ ...row, plannedQuantity: "31", dailyOutputSnapshot: "16" }] }, { ...outcome, changed: false, operationId: null, assignments: [] }, { ...outcome, operationId: "operation-invalid" }, { ...outcome, orderVersions: [{ orderId, version: 4 }] }, { ...outcome, orderVersions: [] }, { ...outcome, queueVersions: [] }, { ...outcome, replayed: "false" }]) await assert.rejects(() => client(bad).execute(command));
 });
 test("durable rejections verify status/hash and suppress untrusted code or error text", async () => {
-  for (const status of [404, 409]) {
+  for (const status of [404, 409, 422]) {
     const rejected = { requestId, payloadHash: planHash(command), status: "rejected", error: { status, code: "production_plan_preview_changed", message: "secret-token" }, replayed: true };
     assert.equal((await client(rejected, status).execute(command)).status, "rejected");
     await assert.rejects(() => client(rejected, 200).execute(command));
     await assert.rejects(() => client({ ...rejected, payloadHash: "c".repeat(64) }, status).execute(command));
     assert.equal(JSON.stringify(await client({ ...rejected, error: { status, code: "secret-token" } }, status).execute(command)).includes("secret-token"), false);
+    const receipt = await client({ state: "known", requestId, result: rejected }).receipt(command); assert.equal(receipt.state, "known");
   }
+  await assert.rejects(() => client({ error: { code: "production_queue_limit" } }, 422).execute(command), { knownNotApplied: false });
 });
 test("pending/unknown/known receipts perform only GET and never invent a retry or automatic acknowledgement", async () => {
   for (const state of ["known", "pending", "unknown"] as const) {
