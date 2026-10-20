@@ -4,6 +4,14 @@
 
 # Quote Center
 
+## 订单上下文创建候选（2026-10-20，D-149 / Server 收敛 Gate5）
+
+合同订单首次“维护来源”可进入既有 `/quote-center/new?sourceOrderId=<SO UUID>`。进入、刷新、返回和上下文GET均不创建；服务端核实有效订单、可信稳定合同及当前保存事实，用户明确点击后才调用原 `creation-defaults`、编号分配、writer、Editor与回执。合同上下文明示并固定为经销；其他制作默认保持。预填款号、精确数量、成衣交期，不按客户/品牌名称猜master ID；不自动采用报价或创建 SO。加工已消费来源继续由批次固定。
+
+新命令可带 `{orderContext:{salesOrderId,fingerprint}}`，客户端数据只是选择器，首次与提交事务均核对来源/权限/生命周期；原只带clientRequestId的普通创建hash/source:null保持。0033 将原始非金额创建引用与报价/审计/committed回执同事务保存，并以SQL拒绝update/delete；它不属于可编辑Quote aggregate，也不是订单商业依据。Quote可服务多张订单；多次明确新请求可建立不同报价，不以SO ID全局去重。
+
+原始引用在详情中只读并可返回原订单，需quote.view及order.view，不授予金额/成本。已知来源拒绝保留rejected回执，未知提交仅查原回执；回执缺失不代表可重新POST。刷新/身份变化/迟到回复受mounted owner与session lease约束。新schema只在一次性合成库验证；未合并、部署或来源激活，实际验收/失败见[Gate5](../tasks/active/server-convergence-gate5-2026-10-20.md)。下方历史日期创建范围不覆盖本新增候选。
+
 > 2026-10-11 D-103：确认销售价/工价由独立 commercial.sale/labor.view/edit 保护，成本权限不授予商业权限。CCT读为allowed/restricted、PATCH按实际字段授权并保留遗漏值；历史确认、列表/汇总、客户导出和日志同样受保护。受限普通保存恢复数据库CAS基线隐藏字段，不清空历史。详见[权限](PERMISSIONS.md)与[本轮实际HTTP证据](../tasks/active/commercial-amount-read-security.md)。正式Server角色管理UI/API尚未实现。
 
 ## Quote内部成本读取修复（2026-10-11，独立安全工程）
@@ -14,7 +22,7 @@ Server Quote响应先执行既有 quote.cost.view字段白名单：无权仍可�
 
 ## 普通电脑立即创建（D-102，PR #91 验收修正）
 
-新交互使用 POST /api/v1/quotes/creation-defaults，仅接受 clientRequestId；可信 Server 读取设置、审核预设、持久 receipt、原编号/Writer/事务/审计，创建类型及初始 PV 一次完成。列表点击后直达现有详情；空草稿保留。/new 是显式按钮或只读 receipt 恢复页，挂载/刷新不写入。未知结果保留原 token、只核对、不自动 POST。
+普通列表交互使用 POST /api/v1/quotes/creation-defaults，只发送 clientRequestId；Gate5上下文候选扩展见上节。可信 Server 读取设置、审核预设、持久 receipt、原编号/Writer/事务/审计，创建类型及初始 PV 一次完成。列表点击后直达现有详情；空草稿保留。/new 是显式按钮或只读 receipt 恢复页，挂载/刷新不写入。未知结果保留原 token、只核对、不自动 POST。
 
 全局设置新增可空 defaultQuoteType/defaultManufacturingCountry（0011），复用 defaultManufacturingPresetId；旧客户端省略新增字段不清空已配置值。未配置类型有经销技术回退来源标记，其余业务值不猜。新草稿复制有效匹配方案形成独立 PV 快照；第二轮用户明确取消未来 Server 自动套用系统工序/其他费用，旧字段与已保存费用/历史完整保留。品牌/业务员自身默认费用及单据级编辑不变。类型仅在既有头部展示，制作方案通过正式 PV 报价设置查看；generic PUT 类型变更拒绝，也不能追加不同于已保存当前类型的客户端 Revision 绕过保护（409 quote_type_workflow_required，草稿及已确认数据/审计保持）。完整已有类型切换未实施。
 

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { useProtectedRouter as useRouter, useServerNavigationProtection } from "@/components/foundation/server-navigation-protection";
-import { AppShell, Button, Card, DescriptionList, PageContainer, PageHeader } from "@/components/foundation";
+import { AppShell, Button, Card, DescriptionList, FormSection, PageContainer, PageHeader } from "@/components/foundation";
 import { useServerSession } from "@/features/server-auth";
 import { quoteCreationClient } from "../server/quote-creation-client";
 import { QuoteServerError } from "../server/quote-server-client";
@@ -124,7 +124,7 @@ export function QuoteCreationRecovery() {
     }).catch(cause => { if (active && current(requestId, lease)) { if (cause instanceof QuoteServerError && cause.status === 401) session.invalidate(); else setError({ lease, message: "创建结果无法核对；原请求已保留，不会再次创建。" }); } });
     return () => { active = false; };
   }, [requestId, failure, lease, session, current, remember, goToReceipt]);
-  return <AppShell title="新建报价" identityMode="server"><PageContainer><PageHeader title="新建报价" description="点击创建后保留一张有编号的草稿；返回不会删除。" /><Card title={requestId ? "核对草稿创建结果" : sourceOrderId ? "从合同订单创建报价" : "创建报价草稿"}>
+  const content = <>
     {!requestId ? sourceOrderId ? <OrderContextDraft sourceOrderId={sourceOrderId} navigationOwner={navigationOwner} /> : <><p>使用 Server 报价设置的默认类型及制作方案，创建后直接填写款式报价明细。</p><DirectQuoteCreateButton navigationOwner={navigationOwner} /></> : <>
       <p role="status">{receipt?.state === "rejected" ? "创建被拒绝，请检查来源及报价默认设置。" : "草稿正在创建或结果尚未确认。请核对原请求，不要重复新建。"}</p>
       {params.has("failed") && <p role="alert">创建请求失败或结果不确定（{params.get("failed") === "409" ? "409" : "未确认"}）；不会自动重试，请核对原请求。</p>}
@@ -132,5 +132,9 @@ export function QuoteCreationRecovery() {
     </>}
     {sourceOrderId && <Button variant="secondary" onClick={() => router.push(`/order-center/server-detail?id=${encodeURIComponent(sourceOrderId)}`)}>返回订单</Button>}
     <Button variant="secondary" onClick={() => router.push("/quote-center")}>返回报价列表</Button>
-  </Card></PageContainer></AppShell>;
+  </>;
+  const title = requestId ? "核对草稿创建结果" : sourceOrderId ? "从合同订单创建报价" : "创建报价草稿";
+  return <AppShell title="新建报价" identityMode="server"><PageContainer><PageHeader title="新建报价" description="点击创建后保留一张有编号的草稿；返回不会删除。" />
+    {sourceOrderId ? <FormSection title={title} columns={1}><div>{content}</div></FormSection> : <Card title={title}>{content}</Card>}
+  </PageContainer></AppShell>;
 }
