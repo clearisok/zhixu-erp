@@ -23,10 +23,11 @@
 
 ### D-150 Server排单计划版本与采用资源事实
 
-- 2026-10-20，Active；实施D-147的Gate6B后台，延续D-043直接 `SalesOrder → Assignment[]`。计划与客户DeliveryPlan、实际完成、金额和关账独立；不以认领、负责人或商业采用作为可信合同/加工批次计划的前置。没有实际执行HTTP或新页面，不宣称生产闭环。
+- 2026-10-20，Active；实施D-147的Gate6B后台，延续D-043直接 `SalesOrder → Assignment[]`。计划与客户DeliveryPlan、实际完成、金额和关账独立；不以认领、负责人或商业采用作为可信合同/加工批次计划的前置。本条初记时无新页面；2026-10-21接入原排单UI，仍没有实际执行HTTP，不宣称生产闭环。
 - 计划头、每订单集合和每组队列各自CAS；完整预览后明确提交，跨组写首版用单个事务锁串行化，保留精确版本/指纹，不能无确认重排其他订单。完整采用的组/地点/日历或外发厂事实不可变，普通编辑不追随master变化，明确重排才采用最新日历；固定及执行保护延续原规则。
 - 0035不回填旧数据/权限。逐次不可变计划版本、唯一actor/request回执及同事务OperationLog保留；SQL不允许漏中间版本、补造旧版本或删除身份。稳定颜色与商业身份共用非金额算法；有效组全部物理SO先按UUID冻结，来源子集变化服从父行锁，历史source owner不被改绑或搬移交期。
 - 新SO引用和成功回执/间接快照纳入归一完整指纹，但外部生产/财务覆盖仍unavailable；拒绝回执没有成功订单桥接，不将其冒称全量操作盘点。当前无外发裸单价或币种推断，不扩展D-147未来关账规则。
+- 2026-10-21页面接线复用同一计划服务、原布局/表单和orderRead=snapshot开关，无Browser回退。会话lease与原actor/tab命令保护下，必须明确GET得unknown后才可人工重试原编号/内容/hash，不自动POST。SAVEPOINT内明确领域404/409/422回滚后持久拒绝，客户端核验原请求回执；裸错误、SQL/审计/连接失败不清缓存。[页面契约](features/SERVER_PRODUCTION_PLANNING_UI.md)与[工程证据](tasks/completed/2026-10-21-production-planning-ui-engineering.md)区分应用源、实际测试、交付/部署与人工接受。
 - 证据：0035、`server/production-scheduling/`、`server/sales-orders/color-identities.ts`、`freezePhysicalOrderGroups`、实际PG/HTTP与升级测试；当前工程结果与未完成项见[Server排单计划](features/SERVER_PRODUCTION_PLANNING.md)、[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)。正式部署、真实来源/账号/业务库及旧资产退役仍未获授权。
 
 ### D-149 可信订单创建报价参考与商业采用分离
