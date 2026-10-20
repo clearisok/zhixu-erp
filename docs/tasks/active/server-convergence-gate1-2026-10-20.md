@@ -22,7 +22,7 @@ it is not merged. The approved continuous Goal is now active.
 - Final persistent target must be empty before user use; synthetic writing/recovery
   occurs only in two new test projects. No testing then clearing the final target.
 
-## Review and checks to date
+## Initial review and checks (before actual-image rehearsal)
 
 Independent pre-review confirmed strict three/five-service separation, actual volume
 checks, signed HeadBucket, DB-only restore freeze and distinct target object ownership
@@ -55,7 +55,7 @@ The Dockerfile now offers explicit build-only `ZHIXU_APK_MIRROR=ustc`; default
 behavior is unchanged, no host/daemon/proxy/trust configuration is altered.
 This is not evidence that the original channel permanently recovered.
 
-## Actual image rehearsal corrections (in progress)
+## Actual image rehearsal corrections
 
 The image `zhixu-persistent-local:8175f628-20261020` built successfully from
 `8175f6280d54b6d4af28cb2ebe6d86741b906b9d`; updated operational scripts are
@@ -85,4 +85,35 @@ Initial actual-image attempts exposed and corrected:
 
 These failures are engineering findings, not successful acceptance. The protected
 3001/50426 listeners remain unchanged. Full lint and 94 release tests passed;
-the final full persistence/recovery result remains pending.
+at this early checkpoint the full persistence/recovery result was still pending.
+
+## Rehearsal results and final review (2026-10-20)
+
+Actual-image r4 at ops checkpoint `b546c65ca2098bb34c6c166112865077dacf66a0`
+passed all 7 tests (289829 ms). It validated explicit empty schema initialization,
+29 migrations, one technical administrator and zero business rows before testing;
+formal authenticated Quote/attachment API creation and exact-byte download;
+restart and cold container recreation; offline DB/object backup; and independent
+new-target restore. Missing bucket, incorrect credentials, untrusted TLS, active
+writers, tampered bytes and object collisions were rejected. Restored IDs,
+administrator hash, schema ledger and attachment bytes remained unchanged.
+
+r5 passed all 7 tests (304027 ms), additionally proving fresh-directory repeat
+exports preserve the canonical app configuration hash and cannot overwrite an
+existing bundle. Both successful runs cleaned only their own generated test
+projects, volumes, fixtures and dumps. Earlier failed projects were stopped and
+retained; no global prune or existing environment cleanup occurred.
+
+Independent static review found and resolved a gateway policy gap: local mode
+now validates the gateway's exact app upstream/port/command, not only its network.
+The same review requires all restore paths to mount the effective backup input
+read-only. The one-off CLI now does this for configured and explicit directories;
+the container independently checks the Linux mount flag. r6 covers rejection of
+a writable direct call and both read-only paths. Its result is pending at this
+checkpoint; do not call final Gate PASS before that result and review.
+
+42 operational tests passed after the final policy changes. Full lint, typecheck,
+Docker production build and 94 release-baseline tests passed in this Gate;
+the latest changed operational files also passed targeted lint and whitespace
+checks. The exact final-head guard, remote PR/CI and final empty runtime remain
+separate pending checks. No browser pixel or human acceptance is claimed.

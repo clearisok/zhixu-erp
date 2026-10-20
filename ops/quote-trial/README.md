@@ -49,13 +49,18 @@ same exact service policy as the command tool. A changing developer checkout is
 not a persistent operational tool path.
 
 Backup uses `maintenance` to stop app/gateway, then the existing exact-target DB
-backup and `objects-export` with a fresh bundle directory. Local object services
+backup and `objects-export ... --bundle-dir=<new-absolute-private-directory>`.
+Keep the canonical config unchanged: the directory overrides only the one-off
+backup container, so a fresh backup does not change the stopped runtime's hash.
+Local object services
 may stay running only after their exact project/image/config/volume checks. No
 bucket scan or attachment deletion is introduced. For DB restoration, use a
 different new empty project and stop **all** non-database services (`maintenance-db`
 on an initialized project). The shared restore writer guard is unchanged. Only
 after DB restore succeeds may `objects-init` start that copy's private object
 services, then `objects-restore` verifies every backup byte/collision before writes.
+Its effective bundle (configured directory or explicit `--bundle-dir`) is always
+mounted read-only; the source backup is not repaired or overwritten by restoration.
 Finally start the application and verify readback. A restore failure stays in
 maintenance. Do not point a restore copy at the source project's objects.
 
@@ -322,12 +327,14 @@ fingerprint. Pass those exact fields to the already verified scripts:
 pwsh -NoProfile -File Backup-Zhixu.ps1 -ExpectedContainerName <container> -ExpectedComposeProject <project> -ExpectedVolumeName <volume> -ExpectedDatabaseName quote_trial -ExpectedTargetFingerprint <fingerprint>
 ```
 
-For object backup, set `TRIAL_COMPOSE_OVERRIDE` to the absolute reviewed
-`ops/quote-trial/objects.compose.yml`, and `TRIAL_OBJECT_BUNDLE_DIR` to a new absolute
-protected bundle directory. Validate config again, then:
+The canonical configuration must already include the reviewed absolute
+`ops/quote-trial/objects.compose.yml` override and an absolute protected
+`TRIAL_OBJECT_BUNDLE_DIR`. Do not edit that config to rotate backup directories.
+Create a new protected, empty directory for each export and override only the
+one-off job (an existing bundle is refused, never overwritten):
 
 ```text
-node ops/quote-trial/trial.mjs objects-export <config> --execute=<exact-project>
+node ops/quote-trial/trial.mjs objects-export <config> --execute=<exact-project> --bundle-dir=<new-absolute-private-directory>
 ```
 
 Preserve dump + its exact-target manifest + objects.json + object byte files
@@ -348,7 +355,7 @@ dump or point a disposable restore at COS. The tested restore call is:
 ```text
 node ops/quote-trial/trial.mjs restore-check <new-config>
 pwsh -NoProfile -File Restore-Zhixu.ps1 -BackupFile <dump-under-reviewed-backups-root> -ExpectedContainerName <new-container> -ExpectedComposeProject <new-project> -ExpectedVolumeName <new-volume> -ExpectedDatabaseName quote_trial -ExpectedTargetFingerprint <new-fingerprint> -ExpectedBackupSha256 <verified-sha> -ConfirmDataLoss -ConfirmTargetFingerprint <same-new-fingerprint>
-node ops/quote-trial/trial.mjs objects-restore <new-config> --execute=<exact-new-project>
+node ops/quote-trial/trial.mjs objects-restore <new-config> --execute=<exact-new-project> --bundle-dir=<verified-absolute-private-directory>
 ```
 
 The trial `restore-check` proves empty schema/no clients and stopped services;

@@ -17,9 +17,10 @@ export function validateLocalObjectConfig(values) {
 }
 
 export function validateLocalObjectModel(model,safe) {
-  const {app,objects,'objects-tls':tls}=model.services;
+  const {app,gateway,objects,'objects-tls':tls}=model.services;
   if(Object.keys(model.volumes||{}).sort().join(',')!=='appsecrets,data,objects,objectsecrets'||Object.keys(model.networks||{}).sort().join(',')!=='default,ingress'||model.networks.default.internal!==true||model.networks.ingress.internal===true)throw Error('unsafe_local_storage_network');
   if(Object.keys(model.services.gateway.networks||{}).sort().join(',')!=='default,ingress')throw Error('unsafe_local_gateway_network');
+  if(gateway.environment?.TRIAL_PROXY_HOST!=='app'||!['3000',undefined].includes(gateway.environment?.TRIAL_PROXY_PORT)||!same(gateway.command,['node','/trial/tls-gateway.mjs']))throw Error('unsafe_local_gateway_upstream');
   for(const [name,service] of Object.entries(model.services)) {
     if(service.tmpfs?.length&&!(name==='objects'&&same(service.tmpfs,['/certs:ro,size=64k,mode=0555,noexec,nosuid']))||service.extra_hosts?.length||name!=='gateway'&&service.networks&&Object.keys(service.networks).some(n=>n!=='default'))throw Error('unsafe_local_service');
     if(service.environment?.NODE_TLS_REJECT_UNAUTHORIZED!==undefined||service.environment?.NODE_OPTIONS!==undefined)throw Error('unsafe_local_tls');

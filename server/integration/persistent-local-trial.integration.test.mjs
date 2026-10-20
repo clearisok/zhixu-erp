@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdtemp, readFile, writeFile, readdir, cp, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, readdir, cp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve, join, sep } from 'node:path';
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
@@ -17,7 +17,7 @@ async function run(bin,args,input){
   try{return (await execute(bin,args,{encoding:'utf8',windowsHide:true,timeout:180000,maxBuffer:8e6})).stdout.trim();}catch{throw Error('owned_command_failed');}
 }
 const docker=(args,input)=>run('docker',args,input);
-const trial=(state,action)=>run(process.execPath,[resolve('ops/quote-trial/trial.mjs'),action,state.config,`--execute=${state.project}`]);
+const trial=(state,action,bundle)=>run(process.execPath,[resolve('ops/quote-trial/trial.mjs'),action,state.config,`--execute=${state.project}`,...(bundle?[`--bundle-dir=${bundle}`]:[])]);
 async function port(){const server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));const result=server.address().port;await new Promise(r=>server.close(r));assert.ok(![3000,3001,3002,50426,59069,62326,18443,18444].includes(result));return result;}
 
 test('persistent local trial: owned volumes, signed TLS S3, restart and independent recovery',{
@@ -133,6 +133,13 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     const name=/filename=(zhixu-[a-zA-Z0-9-]+\.dump)/.exec(out)?.[1];assert.ok(name);backup=resolve('backups',name);backupHash=sha(await readFile(backup));
     assert.match(await trial(a,'objects-export'),/"integrity":"PASS"/);
     const manifest=JSON.parse(await readFile(join(a.values.TRIAL_OBJECT_BUNDLE_DIR,'objects.json'),'utf8'));assert.equal(manifest.objects.length,1);assert.equal(manifest.objects[0].sha256,sha(png));
+    const nextBundle=join(a.folder,'second-bundle');await mkdir(nextBundle);
+    const runtimeHash=await docker(['inspect','--format','{{index .Config.Labels "com.docker.compose.config-hash"}}',a.app]);
+    await assert.rejects(trial(a,'objects-export'));
+    assert.match(await trial(a,'objects-export',nextBundle),/"integrity":"PASS"/);
+    assert.deepEqual(JSON.parse(await readFile(join(nextBundle,'objects.json'),'utf8')).objects,manifest.objects);
+    assert.equal(await docker(['inspect','--format','{{index .Config.Labels "com.docker.compose.config-hash"}}',a.app]),runtimeHash);
+    await assert.rejects(trial(a,'objects-export',nextBundle));
   });
   await phase('independent restore rejects writers/tampering, preserves original IDs and verifies all bytes',async()=>{
     const b=await state(owned[1]);await trial(b,'prepare-local');await b.compose(['up','-d','--wait','database']);
@@ -146,7 +153,13 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     const from=a.values.TRIAL_OBJECT_BUNDLE_DIR,to=b.values.TRIAL_OBJECT_BUNDLE_DIR;
     await cp(join(from,'objects.json'),join(to,'objects.json'));await cp(join(from,'objects'),join(to,'objects'),{recursive:true});
     const file=join(to,'objects',`${attachmentId}.bin`);await writeFile(file,'tampered');await assert.rejects(trial(b,'objects-restore'));
-    await writeFile(file,png);assert.match(await trial(b,'objects-restore'),/"integrity":"PASS"/);assert.match(await trial(b,'objects-restore'),/"integrity":"PASS"/);
+    await writeFile(file,png);
+    // The bundle tool independently rejects a writable mount, even if invoked
+    // directly. Both canonical and explicit paths must pass the kernel RO check.
+    await assert.rejects(b.compose(['run','--rm','--no-deps','app','node','/trial/object-bundle.mjs','restore','--execute']));
+    for(const bundle of [undefined,to]){
+      const restored=await trial(b,'objects-restore',bundle);assert.match(restored,/"integrity":"PASS"/);assert.match(restored,/"bundleReadOnly":true/);
+    }
     const putSynthetic=async bytes=>b.compose(['run','--rm','--no-deps','app','node','--input-type=module','-e',
       `import {loadServerConfig} from './dist/server/server/config.js';import {S3AttachmentStorage} from './dist/server/server/attachments/s3-storage.js';const s=new S3AttachmentStorage(loadServerConfig().attachmentStorage);try{await s.put('attachments/${attachmentId}/original',Buffer.from('${bytes.toString('base64')}','base64'),'image/png');}finally{s.destroy();}`]);
     await putSynthetic(Buffer.from('synthetic-collision'));await assert.rejects(trial(b,'objects-restore'));

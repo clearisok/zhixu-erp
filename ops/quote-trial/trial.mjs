@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync, statSync } from 'node:fs';
 import { resolve, dirname, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -26,6 +26,18 @@ export function readTrialConfig(path) {
     const m=/^([A-Z_][A-Z0-9_]*)=(.*)$/.exec(line);if(!m||Object.hasOwn(values,m[1]))throw Error('invalid_config');values[m[1]]=m[2];
   }return values;
 }
+// A fresh offline bundle must not change the canonical service configuration or
+// invalidate the stopped application's identity. Override only the one-off job.
+export function parseObjectBundleOverride(action,argument) {
+  if(argument===undefined)return undefined;
+  if(!['objects-export','objects-restore'].includes(action)||!argument.startsWith('--bundle-dir='))throw Error('invalid_bundle_argument');
+  const path=argument.slice('--bundle-dir='.length);
+  if(!isAbsolute(path)||/[\r\n]/.test(path))throw Error('absolute_bundle_directory_required');
+  const resolved=resolve(path),actual=realpathSync(resolved);
+  const samePath=process.platform==='win32'?actual.toLowerCase()===resolved.toLowerCase():actual===resolved;
+  if(!samePath||!statSync(actual).isDirectory())throw Error('direct_bundle_directory_required');
+  return actual;
+}
 export function validateComposeTarget(model,safe) {
   if(model.name!==safe.project||Object.keys(model.services).sort().join(',')!==[...trialServices(safe.localObjects)].sort().join(','))throw Error('unexpected_stack');
   for(const [key,volume] of Object.entries(model.volumes||{}))if(volume.external||volume.driver_opts||volume.name!==`${safe.project}_${key}`)throw Error('foreign_volume');
@@ -42,7 +54,9 @@ export function validateComposeTarget(model,safe) {
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   try {
-    const [action='check',configPath,ack]=process.argv.slice(2);if(!configPath)throw Error('explicit_config_required');
+    const [action='check',configPath,ack,bundleArgument,...extra]=process.argv.slice(2);if(!configPath)throw Error('explicit_config_required');
+    if(extra.length)throw Error('unexpected_arguments');
+    const bundleOverride=parseObjectBundleOverride(action,bundleArgument);
     const config=resolve(configPath), values=readTrialConfig(config), safe=validateTrial(values);
     const ops=dirname(fileURLToPath(import.meta.url)), services=trialServices(safe.localObjects);
     const args=['compose','--env-file',config,'-f',resolve(ops,'compose.yml'),...(safe.localObjects?['-f',resolve(ops,'local-objects.compose.yml')]:[]),...(values.TRIAL_COMPOSE_OVERRIDE?['-f',values.TRIAL_COMPOSE_OVERRIDE]:[]),'-p',safe.project];
@@ -169,7 +183,8 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
         if(safe.localObjects)assertLocalMaintenance(inspect(),expected,{allowObjects:true});
         else if(running.some(s=>s!=='database'))throw Error('offline_maintenance_required');
         if(!values.TRIAL_COMPOSE_OVERRIDE||!values.TRIAL_OBJECT_BUNDLE_DIR||!isAbsolute(values.TRIAL_OBJECT_BUNDLE_DIR))throw Error('explicit_bundle_override_required');
-        console.log(docker(['run','--rm','--no-deps','app','node','/trial/object-bundle.mjs',action==='objects-export'?'export':'restore','--execute']));
+        const effectiveBundle=bundleOverride??parseObjectBundleOverride(action,`--bundle-dir=${values.TRIAL_OBJECT_BUNDLE_DIR}`);
+        console.log(docker(['run','--rm','--no-deps','--volume',`${effectiveBundle}:/bundle${action==='objects-restore'?':ro':''}`,'app','node','/trial/object-bundle.mjs',action==='objects-export'?'export':'restore','--execute']));
       }
     }
     else throw Error('unsupported_operation');
