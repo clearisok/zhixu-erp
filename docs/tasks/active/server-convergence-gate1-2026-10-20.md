@@ -118,16 +118,70 @@ started. A bounded contrast using a fixed final Compose layer with long-syntax
 The CLI now uses that final layer only for one-off restore, with the effective
 directory supplied only in that child process's environment. Canonical hashes
 and configuration are unchanged. The independent reviewer found no blocker in
-this correction. r7 complete recovery validation is pending; r6 is not PASS.
+this correction. r7 then passed all 7 tests (320675 ms): the writable direct call
+was rejected, configured and explicit restore directories both returned the
+kernel-backed `bundleReadOnly:true` receipt, and all restored IDs/bytes matched.
+r6 remains a recorded compatibility failure, not PASS. No application code or
+database schema changed to resolve the operational mount issue.
 
-42 operational tests passed after the final policy changes. Full lint, typecheck,
+42 operational tests passed; the final Windows Compose correction additionally
+passed 12 focused operational tests and the full r7 image rehearsal. Full lint, typecheck,
 Docker production build and 94 release-baseline tests passed in this Gate;
 the latest changed operational files also passed targeted lint and whitespace
-checks. The exact final-head guard, remote PR/CI and final empty runtime remain
-separate pending checks. No browser pixel or human acceptance is claimed.
+checks. The exact guard passed at ops checkpoint
+`d084a586586c54222f62df36961c51704a7a6c34`; the final documentation head and remote
+PR/CI are checked separately. No browser pixel or human acceptance is claimed.
 
 The first private ops archive was retained unused when exact-blob verification
 noticed Git's Windows CRLF conversion. All normalized blobs matched; no source
 change was inferred. The operational snapshot is instead exported with a bounded
 `git -c core.autocrlf=false archive` invocation and must pass exact byte/blob checks.
 No shared Git configuration is modified.
+
+## Final empty local candidate
+
+The reviewed operational snapshot is `d084a586586c54222f62df36961c51704a7a6c34`
+at `D:/zhixu-server-convergence/tools-d084a586`. All 20 files match exact Git
+blobs; the archive SHA-256 is
+`8c6d45b544f0757a814abe8128c8c02cf635284ee016923202422ad89a50f554`.
+Runtime paths point to this copy, not a changing checkout. The unused CRLF
+snapshot remains outside the runtime path. No package installation is required.
+
+New project `zhixu-quote-trial-server-g1`, private inputs under
+`D:/zhixu-server-convergence/gate1-empty`, listens only at
+`https://localhost:62426`. Explicit prepare/init/objects-init/start returned READY.
+HTTPS health and build-info readback matched image source
+`8175f6280d54b6d4af28cb2ebe6d86741b906b9d`, build
+`server-g1-8175f628-20261020` / `2026-10-20T00:27:36Z`, Server Quote/master settings,
+session identity and snapshot order read. The app's business baseline is main
+`996dfedc12da3527343cd3ff2aa5eea35497e10e`; #120–#123 are not in this image.
+
+At `2026-10-20T01:16:34Z`, a read-only transaction verified 62 business tables,
+zero total business rows, one technical administrator and 29 schema migrations.
+No Quotes, orders, attachments, source profiles or collection targets were seeded.
+All five services were healthy. The 3001/50426 listeners retained PIDs 26680/33856;
+the 62426 listener belongs to the existing Docker forwarding process. No old
+container, database, account, Browser store, certificate trust or entry was changed.
+
+The private receipt records this verification, without credentials. The generated
+certificate expires `2027-01-18T01:11:09Z`; SHA-256
+`4A25E33BBFE5D28CEDCE659D687D85768EE1AE6CB6674C50136D1B5D70F202DD`.
+Only explicit process CA verification has been used. Browser trust/visual and user
+acceptance remain pending; the target is not a replacement for 50426 or a formal
+deployment. The generated `local.admin` password remains in its private local
+file and is never put in Git, logs or this record. No continuous collection runs.
+
+Local engineering, isolated recovery and empty-runtime checks are PASS. Exact
+remote delivery and Hosted CI are separate pending evidence. Gate 2 combines
+fixed PR heads before this candidate is offered as the complete new experience.
+
+## Git transport observation, delivery separate
+
+A bounded read-only `git-delivery-diagnose.ps1` run observed default Git transport
+exit 128 / `uncertain_transport` (6216 ms), while explicit process HTTP/1.1 and
+OpenSSL+HTTP/1.1 contrasts returned exact main `996dfedc12da3527343cd3ff2aa5eea35497e10e`
+(2281/3108 ms). A Git proxy is configured; no proxy value or credential was read
+or published, and no shared configuration was changed. This does not prove a
+permanent network fix or authorize repeated pushes. No Gate 1 upload has been
+attempted. Preserve the final local SHA; recovery delivery follows the repository
+protocol and its specific authorization. Independent local Gate 2 work may continue.
