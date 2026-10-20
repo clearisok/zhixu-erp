@@ -47,10 +47,14 @@ its two exact owned test PIDs; other Node processes/environments were untouched.
 That interrupted run is not PASS. Syntax and focused lint had already passed.
 Rerun the full suite and exact check after this metadata correction.
 
-Do not reuse the combined candidate's successful
-116 baseline cases as this branch's own result. Syntax, focused lint, full baseline
-and exact-main guard must pass here, then independent static review. No database,
-runtime, browser or external source access is needed for this tooling-only slice.
+At checkpoint `a2d2af55f4d4ccd8eb79df543185b2c433d7f2d6`, the independently rerun
+complete baseline suite passed **116/116**, no failures/skips/cancellations
+(306421 ms). Syntax and focused lint passed. The exact 996 source/evidence guard
+passed (11 pages/46 capabilities/**0 changed UI files**). Independent review
+confirmed the baseline correction, unchanged 213 records and narrow scope with no
+remaining blocker. These are this pure-main branch's own results, not borrowed
+from the combined candidate. Final documentation HEAD is checked separately.
+No database/runtime/browser/external-source run is claimed for this tooling slice.
 
 ## Related convergence evidence and delivery boundary
 
