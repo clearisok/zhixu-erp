@@ -21,6 +21,13 @@
 
 ## Active
 
+### D-148 Server 导航连续性与退出保护
+
+- 2026-10-20，Active；执行用户已批准的 Server 收敛 Gate3，恢复既有导航/布局，不新增菜单或开放路由。可信根边界持有唯一 AppShell，页面只注册精确路由/身份作用域的标题、返回目标和现有回调；身份等待/失败局部展示，匿名态移除受保护内容。Browser 原路径和长期存储保持。
+- `.rsc` 使用 component MIME 与 no-store，避免误作普通二进制导致整页重载。早期脚本只包装公开 History API 并保留调用方 state 语义；不修改框架内部、不依赖 Navigation API、不存业务数据。可证明历史索引先恢复再确认，取消不丢 Forward。
+- 未保存、处理中、提交结果未知均由原业务组件登记；保存/核对命令仍归领域组件，不自动重试。异步离开许可绑定挂载 owner 和可信身份，旧响应不得打断新登录。无索引历史不猜方向、不覆盖其他 entry；保留输入并明确地址可能不同，下次已确认跳转重新加载文档，原生离开保护保留。
+- 无 schema、来源范围、公式、金额权限、角色目录或创建语义变化。当前仅工程候选；部署、人工接受、来源激活分开。证据：`server/static-files.ts`、`components/foundation/server-navigation-history.ts`、`server-navigation-protection.tsx`、`app-shell.tsx`、`quote-server-boundary.tsx` 及实际 Chromium 导航测试；完整结果见[Gate3](tasks/active/server-convergence-gate3-2026-10-20.md)。
+
 ### D-147 Server 收敛、空数据目标与关账币种
 
 - 日期：2026-10-20；状态：Active（用户批准的目标与执行边界；本 Gate 只有文档，尚未实现 Server 关账）。D-146 已由未合并 #121-123 使用，本项不替代角色管理决定。

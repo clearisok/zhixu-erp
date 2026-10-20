@@ -1,11 +1,13 @@
 "use client";
+import {useServerNavigationProtection} from '@/components/foundation/server-navigation-protection';
 import {OrderColorPrices} from './order-color-prices';
 import { MaterialHistoryDialog } from "./material-history-dialog";
 import { OrderBusinessSourceButton } from "./order-business-source-button";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { OrderMaterialSummary } from '@/features/ainuoke-material-progress/order-material-summary';
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useProtectedRouter as useRouter } from "@/components/foundation/server-navigation-protection";
 import {
   AlertBanner,
   AppShell,
@@ -95,6 +97,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   const searchParams = useSearchParams();
   const router=useRouter();
   const [preparationGuard,setPreparationGuard]=useState(false),[navigationNotice,setNavigationNotice]=useState('');
+  useServerNavigationProtection({blocked:preparationGuard,message:'来源维护尚未完成，请先保存或关闭维护来源。'});
   const updatePreparationGuard=useCallback((blocked:boolean)=>{setPreparationGuard(blocked);if(!blocked)setNavigationNotice('');},[]);
   const requestNavigation=useCallback((target:string)=>{if(preparationGuard){setNavigationNotice('来源维护尚未完成，请先保存或关闭维护来源。');return;}router.push(target);},[preparationGuard,router]);
   useEffect(()=>{if(!preparationGuard)return;const protect=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',protect);return()=>window.removeEventListener('beforeunload',protect);},[preparationGuard]);

@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-20 当前优先：[Server 收敛 Gate 3](tasks/active/server-convergence-gate3-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Gate2固定组合已本地验收并送达验证引用，独立门禁草稿#126及组合CI待最终结果；Gate1草稿#125三绿，62426空目标READY，3001/50426保留。Git恢复/PR/CI已有[持续用户授权](tasks/active/git-delivery-resilience.md)，不再逐次询问。以下旧日期保留当时结果。
+2026-10-20 当前优先：[Server 收敛 Gate 3](tasks/active/server-convergence-gate3-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147/148。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Gate2固定组合和独立门禁草稿#126均精确送达且各三项CI全通过；Gate3导航修复定向浏览器通过，正固定源码及完整验收。Gate1草稿#125三绿，62426空目标READY，3001/50426保留。Git恢复/PR/CI已有[持续用户授权](tasks/active/git-delivery-resilience.md)，不再逐次询问。以下旧日期保留当时结果。
 
 D-146 的角色权限、用户管理和操作日志本阶段已合入候选源码，正式说明见[系统管理任务](tasks/active/system-settings-administration-2026-10-19.md)、[权限](features/PERMISSIONS.md)及[日志](features/OPERATION_LOGS.md)。原 #123 状态/索引逐字保留在 Gate2 输入归档，不恢复过期主线或交付待办。
 

@@ -7,6 +7,7 @@ import type { CreationInput, CreationCommand, CreationReceipt } from "../../../s
 import type { CreationOptions, CreationPreview } from "../../../server/quotes/creation-workflows";
 import { quoteCreationClient } from "../server/quote-creation-client";
 import { QuoteServerError } from "../server/quote-server-client";
+import { useServerNavigationProtection } from "@/components/foundation/server-navigation-protection";
 
 const initial: CreationInput = { source: null, quoteType: "distribution", selection: { country: null, presetId: null }, fields: { brandId: null, salespersonId: null, styleNo: "", styleName: "", quantity: null, garmentLeadDate: null, note: "" }, parameterOverrides: {} };
 const errorText = (error: unknown) => error instanceof QuoteServerError ? `Server HTTP ${error.status} · ${error.code}。输入已保留，请重新核对资料。` : "网络结果未确认。输入已保留，不自动重试创建。";
@@ -24,6 +25,7 @@ export function QuoteCreationWizard({ initialFields }: { initialFields?: Partial
   const [submitted, setSubmitted] = useState(Boolean(existingRequestId));
   const requestId = useRef<string | null>(existingRequestId);
   const [search, setSearch] = useState("");
+  useServerNavigationProtection({blocked:busy||unknown,message:"报价创建结果尚未确认，请先核对原请求。"});
   useEffect(() => {
     if (!unknown) return;
     const protect = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
