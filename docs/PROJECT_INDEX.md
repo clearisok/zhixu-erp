@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-20 当前优先：[Server 收敛 Gate 3](tasks/active/server-convergence-gate3-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147/148。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Gate2组合与工具草稿#126均精确送达/各三CI全通过。Gate3应用ed5821ba本地PASS（927项目/158相关客户端API/最终71浏览器/两构建/精确守卫）；验证ref0123f421已送达，CI发现旧日志分页测试假设，正作仅测试兼容修复后复核，不冒称远端全绿。无累计PR。Gate1草稿#125三绿，62426空目标READY，3001/50426保留。Git恢复/PR/CI已有[持续用户授权](tasks/active/git-delivery-resilience.md)，不再逐次询问。以下旧日期保留当时结果。
+2026-10-20 当前优先：[Server 收敛 Gate 3](tasks/active/server-convergence-gate3-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147/148。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Gate2组合与工具草稿#126均精确送达/各三CI全通过。Gate3应用ed5821ba本地PASS（927项目/158相关客户端API/71浏览器＋36补齐/两构建/精确守卫）。验证ref22b50178精确送达，team/baseline CI绿；日志分页及物料旧提示断言仅测试兼容修复后继续三CI，不冒称全绿。无累计PR。Gate1草稿#125三绿，62426空目标READY，3001/50426保留。Git恢复/PR/CI已有[持续用户授权](tasks/active/git-delivery-resilience.md)，不再逐次询问。以下旧日期保留当时结果。
 
 D-146 的角色权限、用户管理和操作日志本阶段已合入候选源码，正式说明见[系统管理任务](tasks/active/system-settings-administration-2026-10-19.md)、[权限](features/PERMISSIONS.md)及[日志](features/OPERATION_LOGS.md)。原 #123 状态/索引逐字保留在 Gate2 输入归档，不恢复过期主线或交付待办。
 

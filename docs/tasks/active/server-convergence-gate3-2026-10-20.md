@@ -240,3 +240,35 @@ operation-log code and the 221-record manifest have no change. Do not repeat
 browser builds or old failing CI merely for this test-only patch. The new exact
 checkpoint still requires the three named CI; superseded non-deployment Source
 run may be cancelled after its replacement exists, with that result retained.
+
+### Full source-page coverage and final test compatibility
+
+The audit compatibility checkpoint `22b50178c68224ec47b6f149f599d8a3c799f2c3`
+was uploaded once and independently verified exact. On that SHA team39370370980
+and baseline39370373372 completed success. Source39370368419 was cancelled after
+the earlier Source run exposed another known old UI expectation; it is not PASS.
+Original Source39369188594 finished failure on the material-settings topbar
+unknown-save dialog assertion. Its backend, source build and preceding navigation
+steps passed; no partial step or cancelled run is called a complete workflow PASS.
+
+That old material test expected the feature's pending dialog from the topbar.
+The restored root guard intentionally handles ordinary Shell/Link/History
+departures first and exposes the shared notice with the feature's exact reason.
+Dirty/nonpending navigation still uses the original feature dialog. The test now
+checks the shared title/reason, unchanged settings URL and still-locked inputs,
+then closes the notice and retries the same request. Exact body equality, one
+version/audit increment, concurrent conflict and revoked-writer checks remain.
+Production code is unchanged. Existing domain-specific explicit discard, including
+the bottom return button's warning, remains authoritative; this Gate does not
+silently abolish that business action or claim every explicit discard is banned.
+
+Actual material-display suite passed **10/10** (18951 ms), and the previously
+unselected processing-batch/material-history/payment-panel suites passed **26/26**
+(57537 ms), all on the same ed5821ba-restored candidate, synthetic owned fixtures,
+zero failures/cancellations/skips. These are 36 additional checks, separate from
+the earlier single 71/71 browser run. Local acceptance now includes all existing
+Source workflow UI surfaces. Targeted eslint/diff checks and independent read-only
+review passed; assertions are stronger, not removed. No application/schema,
+business permission, source activation or evidence-manifest change is involved.
+Commit this final test/doc compatibility delta, check its exact main guard, upload
+once and run the three fresh acceptance CI. No repeated run of a known bad SHA.
