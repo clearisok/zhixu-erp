@@ -82,6 +82,7 @@ function OrderContextDraft({ sourceOrderId, navigationOwner }: { sourceOrderId: 
 export function QuoteCreationRecovery() {
   const router = useRouter(), params = useSearchParams(), session = useServerSession();
   const requestId = params.get("creationRequestId"), sourceOrderId = params.get("sourceOrderId");
+  const failure = params.get("failed");
   const scope = JSON.stringify([session.user?.id, session.permissions, sourceOrderId]);
   const lease = useMemo(() => ({ scope, sourceOrderId, session }), [scope, sourceOrderId, session]), committed = useRef<typeof lease | null>(null), mounted = useRef(true);
   const activeRequest = useRef<{ id: string; lease: typeof lease } | null>(null);
@@ -122,7 +123,7 @@ export function QuoteCreationRecovery() {
       if (!active || !current(requestId, lease)) return; remember(requestId, next); goToReceipt(next);
     }).catch(cause => { if (active && current(requestId, lease)) { if (cause instanceof QuoteServerError && cause.status === 401) session.invalidate(); else setError({ lease, message: "创建结果无法核对；原请求已保留，不会再次创建。" }); } });
     return () => { active = false; };
-  }, [requestId, lease, session, current, remember, goToReceipt]);
+  }, [requestId, failure, lease, session, current, remember, goToReceipt]);
   return <AppShell title="新建报价" identityMode="server"><PageContainer><PageHeader title="新建报价" description="点击创建后保留一张有编号的草稿；返回不会删除。" /><Card title={requestId ? "核对草稿创建结果" : sourceOrderId ? "从合同订单创建报价" : "创建报价草稿"}>
     {!requestId ? sourceOrderId ? <OrderContextDraft sourceOrderId={sourceOrderId} navigationOwner={navigationOwner} /> : <><p>使用 Server 报价设置的默认类型及制作方案，创建后直接填写款式报价明细。</p><DirectQuoteCreateButton navigationOwner={navigationOwner} /></> : <>
       <p role="status">{receipt?.state === "rejected" ? "创建被拒绝，请检查来源及报价默认设置。" : "草稿正在创建或结果尚未确认。请核对原请求，不要重复新建。"}</p>

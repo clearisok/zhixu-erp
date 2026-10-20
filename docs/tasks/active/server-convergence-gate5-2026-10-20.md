@@ -24,3 +24,9 @@ Gate 4A/4B 的上述完整提交已通过既有工具一次 push 并独立核实
 实际构建/私有 Chromium、新UI脚本、最新全量与最终独立复审仍待；不得将脚本存在称为浏览器PASS。最终须覆盖入口、只读上下文、明确点击、刷新、返回、拒绝终态、未知结果、跨身份迟到、无权及历史只读，并执行相关API/数据库、项目、两种构建、116基线及精确源码守卫。
 
 本阶段依赖仍未合并；仅交付验证引用，不创建重复累计业务 PR。用户明确批准依赖合并后，保留历史前向整合 main、重新核实增量再给唯一草稿 PR。无自动合并、关闭、正式部署、真实账号/业务库、新来源读取/绑定/调度、资产退役或共享 TLS 配置修改。
+
+## Source checkpoint and first built check
+
+本地应用 checkpoint `3d053d59a1c36730ffe7471b97c3b3d252d05ed2`，Server/session/snapshot 构建通过，buildId `server-g5-3d053d59`，buildTime `2026-10-20T17:08:31+08:00`；该精确提交源码守卫 PASS（11页面/47能力/41累计UI路径）。不是远端交付或部署。
+
+首轮真实私有 Chromium：8项计数中5 pass/3 fail（含父测试），59221ms。明确创建、防双击、真实提交后丢回执、原始迟到成功/401穿过A→B→A、只读上下文迟到401及无权/缺失保护已通过；首个多宽度用例在fieldset仍disabled时合成click被忽略，修复测试为等待`:disabled`消失。另一个实际页面竞态：首次receipt GET早于POST结束得到pending，HTTP409随后只更新failed参数却未重新读取；现将failed变化纳入原回执只读effect，拒绝终态可再次核对。不增加POST或自动业务重试。该修复尚待新精确构建重验，不冒称首轮通过。旧失败日志与截图留在本机忽略outputs/server-convergence-g5-ui.log及source-quote-ui目录。

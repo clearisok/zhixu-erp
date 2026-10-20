@@ -59,7 +59,11 @@ test('built source-context draft uses existing editor and receipt recovery with 
       await until(() => evaluate("window.navEpoch!==" + marker + "&&document.readyState==='complete'"), 'navigation');
     };
     const has = text => until(() => evaluate('Boolean(document.body?.innerText.includes(' + JSON.stringify(text) + '))'), text);
-    const click = label => evaluate(`(()=>{const n=[...document.querySelectorAll('button,a')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())===${JSON.stringify(label)}&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing control '+${JSON.stringify(label)});n.click()})()`);
+    const click = async label => {
+      const predicate = `n=>(n.getAttribute('aria-label')??n.textContent.trim())===${JSON.stringify(label)}&&!n.matches(':disabled')&&n.getClientRects().length`;
+      await until(() => evaluate(`Boolean([...document.querySelectorAll('button,a')].find(${predicate}))`), 'enabled control ' + label);
+      return evaluate(`(()=>{const n=[...document.querySelectorAll('button,a')].find(${predicate});if(!n)throw Error('missing control');n.click()})()`);
+    };
     const loginCookie = async username => { const cookie = await x.login(username), at = cookie.indexOf('='); await command('Network.setCookie', { name: cookie.slice(0, at), value: cookie.slice(at + 1), domain: '127.0.0.1', path: '/', httpOnly: true }); };
     const input = (selector, value) => evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)});Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,${JSON.stringify(value)});n.dispatchEvent(new Event('input',{bubbles:true}))})()`);
     const loginUI = async username => { await input('input[name=username]', username); await input('input[name=password]', x.password); await click('登录织序'); };
