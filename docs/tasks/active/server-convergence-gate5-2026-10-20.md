@@ -50,3 +50,5 @@ Gate5 `c6ca37b2f4b2ea9dc7487647b925b0ffcef98768` 已既有工具一次push（pus
 补充 `quote_creation_order_contexts / sales_order_id / quote_id` 到固定清单及升级前可选过滤。新API回归确认实际创建后的引用计数、原ID、reviewHash、无SO/执行写入；新完整证据测试直接比较该表全字节摘要、总evidenceHash和冻结读取。原shared effective锁与执行exclusive锁保持，未知外键仍阻断，不新增归一写能力。实际本地26定向、40归一、45归属、33完整证据/执行回归通过；类型/Node/定向lint先通过，最后新完整测试的类型复核和最终feature证据绑定/守卫、精确交付/三CI待收口。UI/SQL迁移/报价writer未修改；原54构建/8+40+13浏览器和旧长套件失败边界保持，不冒称重跑。
 
 Gate6只读准备另存 `codex/server-production-resources` 的184b110e（3份c6摘要逐字归档+任务），无新应用代码；先在本Gate5分支完成此兼容修复，不把Gate6带入交付。
+
+引用修复应用checkpoint aaf12af31b5ba29a80fa98db9114a287f905c69a；纠正proof冻结07cd7ffb4f0885baaa2ee829f54006804336c11d。新26定向最后16506ms，40归一21926ms、45归属19404ms、33完整执行19086ms；最后类型/Node/四路径lint通过。UI/config blob严格等于54，不重写原构建/浏览器证据。显式 `npm run test:release-baseline` 再次116/116通过163393ms；228证据/48能力与exact-main guard通过，checkedHead07。原226证据/47旧能力、全部页和runtime逐项保持；第48新能力按纠正proof前向记录aaf后端来源，原54 UI证明保留。独立只读审查无阻断；最终commit/精确HEAD守卫、送达和三项新CI仍待，不称c6 Source成功。

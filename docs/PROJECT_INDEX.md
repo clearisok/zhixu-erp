@@ -1,12 +1,10 @@
 # 项目知识索引
 
-最新远端：G5精确c6ca37b2已送达，Baseline39402680845/Team39402675944成功；Source39402671214因0033创建参考未纳入归一只读引用清单失败，保护保守阻断。当前原G5分支正补固定引用/完整摘要回归（26定向、40归一、45归属、33完整执行通过）；最终证据/守卫/新远端CI待核，不称三CI全绿。Gate6仅独立本地准备184b110e，未实施资源API/UI。
+2026-10-20最新恢复：[Gate5任务](tasks/active/server-convergence-gate5-2026-10-20.md)、[引用修复证据](tasks/completed/2026-10-20-order-quote-reference-ci-repair.md)、CURRENT_STATE、AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；后端修复aaf12af31b5ba29a80fa98db9114a287f905c69a、proof07cd7ffb；UI/配置仍54原blob。26/40/45/33定向及类型/Node/lint、显式116基线和精确main守卫通过，228证据/48能力前向绑定。旧c6送达后Baseline/Team绿、Source因新引用清单遗漏失败；已保守修复，最终新精确远端/CI待核，不借旧绿灯。
 
-2026-10-20 当前恢复入口：[Gate5任务](tasks/active/server-convergence-gate5-2026-10-20.md)、[冻结工程证据](tasks/completed/2026-10-20-order-quote-context-engineering.md)、CURRENT_STATE、AI_HANDOFF。main独立核实 `996dfedc12da3527343cd3ff2aa5eea35497e10e`，应用/两构建 `54ef59e408c0b7f6bead8948b64500b64e5dcf86`；17新API/客户端、927项目、261数据库、新8/现行40/P6 13浏览器和显式116基线通过，冻结证据f5c1eae0及226证据/48能力绑定、精确main守卫已通过，远端CI待收口。原Gate4精确96及三CI已通过，4C写入未实施。
+[原54工程证据](tasks/completed/2026-10-20-order-quote-context-engineering.md)保留927项目/261数据库/两构建/8+40+13浏览器；旧长45/44/2和未启动后半仍未冒称全绿。规则D145/D149报价来源/创建参考与采用分离，D146系统管理，D147整体收敛。Gate4精确96三CI已绿，4C写入未做；Gate6四资源仅只读评估/独立准备184b110e，生产完成/出货/关账尚未闭环。
 
-只读创建参考与商业采用分离，来源/价格仍按D145/D149；角色权限/用户/日志按D146，整体收敛按D147。旧长Quote浏览器45pass/44fail/2cancel的过期断言和未完成后半验证有明确记录，不称全产品全绿。Gate6A日历→地点→组及外发厂评估完成，尚未实施；不搬Browser Seed，不改关账口径。
-
-#120–127未自动合并/关闭，不建重复累计业务PR。62426仍Gate1源8175，3001/50426/59069保留，未升级或人工接受。持续Git授权仅工程交付/CI；不扩正式部署、真实账号/业务库、新来源读取/绑定/调度或资产退役。收口前包含日期/hash/结果/限制的三份摘要[逐字归档](tasks/completed/2026-10-20-gate5-inputs/pre-final-source54/)，更早原文亦在其链接的历史归档，不用旧恢复流水代替当前状态。
+#120–127不自动合并/关闭，不建重复累计业务PR。62426仍Gate1源8175，3001/50426/59069保留，未升级或人工接受。持续Git授权限工程交付/CI，不扩正式部署、真实账号/业务库、新来源读取/绑定/调度或退役。收口前日期/hash/结果/限制[逐字归档](tasks/completed/2026-10-20-gate5-inputs/pre-final-source54/)，更早历史在其链接中。
 
 ## 系统简介
 
