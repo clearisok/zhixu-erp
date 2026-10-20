@@ -2,7 +2,7 @@
 
 2026-10-20最新恢复：[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[四资源后台边界](features/OPERATIONS_FOUNDATION.md)、CURRENT_STATE、AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；当前codex/server-production-resources，契约31e04281已交付，保留251 merge/准备184及Gate5最终5464历史。6A已做空表/session API/版本/事务幂等/审计及权限关联检查，UI未接；不标记排单/完成或完整6A完成。
 
-最终资源25/25、types/Node/精确lint通过；组合58pass/1Linux-only skip。首轮927项目/261PG/全仓源码lint/116基线通过，最后兼容修改后的冻结PG、最终精确交付/CI待核。自由国家/地区文本与联系人/电话搜索沿用原表单，角色r→rp锁序已负测。Gate5最终5464的新Source39405202505/Team39405206974/Baseline39405211718全success；228证据/48能力及旧c6失败保留，不借旧绿灯。
+资源后台源码8c178ba0b65e4117138fbc8e4cc1432a52d0dbf2冻结，25/43/927/261、types/Node/精确lint、编译模块加载、116基线与精确main守卫通过；[不可变工程证据](tasks/completed/2026-10-20-production-resources-backend-engineering.md)保留首轮、旧58/1skip和失败范围。最终文档checkpoint完整远端/三CI另核。自由国家/地区、联系人/电话搜索沿用原表单，角色r→rp锁序已负测。Gate5最终5464的新Source39405202505/Team39405206974/Baseline39405211718全success；228证据/48能力及旧c6失败保持，不借旧绿灯。
 
 D145/D149报价来源与创建参考、D146系统管理、D147整体收敛有效。[G5修复证据](tasks/completed/2026-10-20-order-quote-reference-ci-repair.md)及[原54工程证明](tasks/completed/2026-10-20-order-quote-context-engineering.md)保留旧45/44/2验收缺口。Gate4精确96三CI绿、4C未做；生产排单/完成、出货、关账未闭环。#120–127不自动合并/关闭，不建重复累计业务PR。62426仍Gate1源8175，3001/50426/59069保留，未升级或人工接受。持续工程Git授权不扩真实数据/来源/部署/退役。前次摘要[逐字归档](tasks/completed/2026-10-20-gate6-inputs/contract-31e04281/)，日期/hash/结果/限制保持。
 ## 系统简介
