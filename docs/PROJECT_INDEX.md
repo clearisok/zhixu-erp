@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-20最新恢复：[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[资源与页面](features/OPERATIONS_FOUNDATION.md)、[Server排单计划](features/SERVER_PRODUCTION_PLANNING.md)、[后台冻结证据](tasks/completed/2026-10-20-production-planning-backend-engineering.md)、CURRENT_STATE、AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；当前codex/server-production-planning，源码冻结7ebfe985。0035/计划API/历史/快照/CAS本地工程通过：60定向、927项目、261数据库、116基线及精确Server构建；新远端/CI待实际核实，不借输入e5三绿。没有新UI、完成/出货/关账或部署；232证据/49能力只前向增加文档，没有提前标完整生产能力。
+2026-10-20最新恢复：[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[资源与页面](features/OPERATIONS_FOUNDATION.md)、[Server排单计划](features/SERVER_PRODUCTION_PLANNING.md)、[后台冻结证据](tasks/completed/2026-10-20-production-planning-backend-engineering.md)、CURRENT_STATE、AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；当前codex/server-production-planning，源码冻结7ebfe985。0035/计划API/历史/快照/CAS本地工程通过：60定向、927项目、261数据库、116基线及精确Server构建；新远端/CI待实际核实，不借输入e5三绿。没有新UI、完成/出货/关账或部署；233证据/49能力只前向增加文档与工程证据，没有提前标完整生产能力。
 
 [不可变UI工程证据](tasks/completed/2026-10-20-production-resources-ui-engineering.md)保留6A应用1da/证据7b、927/261/116、39资源、14built/18导航及selector修正。早期6B纯预览39190及43/927/116独立保留；新后台25项PG/HTTP、来源异单冻结、逐次历史及跨模块反序锁有实际负例/交错验证，外部覆盖仍unavailable。三摘要[e5输入](tasks/completed/2026-10-20-gate6-inputs/planning-backend-e5cc27da/)与[7eb冻结前状态](tasks/completed/2026-10-20-gate6-inputs/planning-backend-7ebfe985/)逐字归档；更早日期/hash/结果/限制不覆盖。旧Quote45/44/2和31未启动仍是独立缺口。
 
