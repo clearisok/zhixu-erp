@@ -80,3 +80,10 @@ tests have not run yet; no runtime or business data is changed by this merge.
 Git blob; this integration does not rewrite an already-used migration or unrelated
 source merely to silence those inherited formatting warnings. Conflict-resolution
 documents are checked separately; byte-exact historical archives are preserved.
+
+The second real merge is `7eb63602cdb51c043414deabe4d3afed59a1e72d`, with exact
+parents a12825ef and ebe4cb16. Its new document merge node binds the merged
+DECISION_LOG and both previous leaf IDs; 220 total evidence records retain every
+original field from both parent manifests. Application/schema changes remain the
+reviewed #120/#121–123 changes. Types/server compilation, lint and complete source
+regressions are now running; isolated SQL/API and built-browser acceptance follow.
