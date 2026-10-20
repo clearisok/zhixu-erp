@@ -1,14 +1,10 @@
 # 项目知识索引
 
-2026-10-20 最新恢复入口：[Server 收敛 Gate5](tasks/active/server-convergence-gate5-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF。Gate4精确96e9d320远端核实，Source39390380075/Team39390385593/Baseline39390391327全部精确成功；4C写入未实施。当前codex/server-source-quote-create从核实main996创建并FF96；新17项API/客户端、类型/Node/lint通过，UI构建/浏览器/全量/最终守卫仍待，不称Gate5完成。#120–127未合并/关闭，62426未升级。下方Gate4段落保留为收口前历史，其原“待交付”不覆盖本条最新事实；原摘要已逐字归档于tasks/completed/2026-10-20-gate5-inputs/。
+2026-10-20 当前恢复入口：[Gate5任务](tasks/active/server-convergence-gate5-2026-10-20.md)、[冻结工程证据](tasks/completed/2026-10-20-order-quote-context-engineering.md)、CURRENT_STATE、AI_HANDOFF。main独立核实 `996dfedc12da3527343cd3ff2aa5eea35497e10e`，应用/两构建 `54ef59e408c0b7f6bead8948b64500b64e5dcf86`；17新API/客户端、927项目、261数据库、新8/现行40/P6 13浏览器和显式116基线通过，最终证据绑定/源码守卫/远端CI待收口。原Gate4精确96及三CI已通过，4C写入未实施。
 
-2026-10-20 当前优先：[Server 收敛 Gate 4](tasks/active/server-convergence-gate4-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147/148。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Gate2组合/草稿#126及Gate3精确16f8d57d均三CI全绿，完整工程/历史失败见各任务。当前分支codex/server-order-source-readchain，4A保存颜色尺码白名单及DeliveryPlan只读链已本地实现，24新定向/70领域/927项目/两构建/13浏览器/116基线与复审通过，工具向前整合后9+24再验通过，远端验收待核；4B原生只读折叠的应用e9aca2cb两构建、新9/原P6 13浏览器与复审通过，927项目/24 API/类型/lint通过；冻结绑定/复审、显式116基线和源码守卫通过，4A/4B本地PASS；最终精确交付/CI待核；4bfa两次上传后API确认分支不存在，远端/CI待交付；4C写入未实现，无新来源、迁移或价格写入。独立工具草稿#127的37bd0e1e精确送达，三项新CI精确全绿。上阶段摘要[逐字归档](tasks/completed/2026-10-20-gate4-inputs/)。62426仍Gate1空镜像，3001/50426保留；[持续Git授权](tasks/active/git-delivery-resilience.md)不扩合并、正式部署或真实数据。以下旧日期保留当时结果。
+只读创建参考与商业采用分离，来源/价格仍按D145/D149；角色权限/用户/日志按D146，整体收敛按D147。旧长Quote浏览器45pass/44fail/2cancel的过期断言和未完成后半验证有明确记录，不称全产品全绿。Gate6A日历→地点→组及外发厂评估完成，尚未实施；不搬Browser Seed，不改关账口径。
 
-D-146 的角色权限、用户管理和操作日志本阶段已合入候选源码，正式说明见[系统管理任务](tasks/active/system-settings-administration-2026-10-19.md)、[权限](features/PERMISSIONS.md)及[日志](features/OPERATION_LOGS.md)。原 #123 状态/索引逐字保留在 Gate2 输入归档，不恢复过期主线或交付待办。
-
-2026-10-19 当前工程基线 main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；PR108–119 已合并。先读 [CURRENT_STATE](CURRENT_STATE.md) 与 [SYSTEM_OVERVIEW](SYSTEM_OVERVIEW.md)，本轮修复与隔离验收见 [任务记录](tasks/active/price-source-stabilization-2026-10-19.md)。合并、部署、来源激活、人工接受分开记录。
-
-当前来源/价格以 D-145 为准：新来源仅报价、无负责人、合同类先可信合同、加工批次独立、订单成交价不可变追加。旧阶段恢复流水已[逐字归档](tasks/completed/2026-10-19-pre-stabilization/PROJECT_INDEX.md)，不作为当前待办。
+#120–127未自动合并/关闭，不建重复累计业务PR。62426仍Gate1源8175，3001/50426/59069保留，未升级或人工接受。持续Git授权仅工程交付/CI；不扩正式部署、真实账号/业务库、新来源读取/绑定/调度或资产退役。收口前包含日期/hash/结果/限制的三份摘要[逐字归档](tasks/completed/2026-10-20-gate5-inputs/pre-final-source54/)，更早原文亦在其链接的历史归档，不用旧恢复流水代替当前状态。
 
 ## 系统简介
 
