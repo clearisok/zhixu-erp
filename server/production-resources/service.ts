@@ -2,10 +2,12 @@ import { createHash } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 import type { PermissionKey } from "../../features/permissions/model/permissions.js";
 import { productionGroupsForMasterData } from "../../features/operations-settings/model/master-data-presentation.js";
-import { permissionsForUser, requirePermission } from "../auth/permissions.js";
+import { requirePermission } from "../auth/permissions.js";
+import { readCurrentActor as currentActor } from "../auth/current-actor.js";
 import type { TrustedIdentity } from "../auth/session.js";
 import { HttpError } from "../http/errors.js";
 import { appendOperationLog, type ServerOperationLogInput } from "../operation-logs/repository.js";
+import { lockProductionResourceScope } from "./snapshot-lock.js";
 import {
   parseProductionResourceCommand, productionResourceUuid, PRODUCTION_RESOURCE_TYPES,
   type CalendarExceptionInput, type ProductionResourceCommand, type ProductionResourceInputs, type ProductionResourceType,
@@ -52,20 +54,6 @@ async function available(client: PoolClient) {
   const row = (await client.query<{ ready: boolean }>("SELECT bool_and(to_regclass('public.'||name) IS NOT NULL) AS ready FROM unnest($1::text[]) name", [tables])).rows[0];
   if (!row.ready) fail(503, "production_resources_unavailable");
 }
-async function currentActor(client: PoolClient, identity: TrustedIdentity, write = false) {
-  const row = (await client.query<{ username: string; display_name: string }>(`SELECT username,display_name FROM app_users
-    WHERE id=$1::bigint AND public_id::text=$2 AND active AND archived_at IS NULL ${write ? "FOR SHARE" : ""}`, [identity.internalUserId, identity.userId])).rows[0];
-  if (!row) return fail(401, "authentication_required");
-  if (write) {
-    // Role administration updates r before deleting rp. Take the same order,
-    // including stable role ordering for preserved historical multi-role users.
-    await client.query(`SELECT r.id FROM app_roles r JOIN app_user_roles ur ON ur.role_id=r.id
-      WHERE ur.user_id=$1 ORDER BY r.id FOR SHARE OF r`, [identity.internalUserId]);
-    await client.query(`SELECT ur.user_id FROM app_user_roles ur JOIN app_role_permissions rp ON rp.role_id=ur.role_id
-      WHERE ur.user_id=$1 FOR SHARE OF ur,rp`, [identity.internalUserId]);
-  }
-  return { ...identity, username: row.username, userName: row.display_name, permissions: await permissionsForUser(client, identity.internalUserId) };
-}
 function canRead(actor: TrustedIdentity, kind: ProductionResourceType) {
   const permissions: PermissionKey[] = ["schedule.view", specifications[kind].edit];
   // A group editor needs its site/calendar selectors, not edit access to them.
@@ -87,12 +75,17 @@ function mapResource(kind: ProductionResourceType, row: Row, exceptions: Calenda
     case "factories": return { ...common, kind, shortName: row.short_name, contactPerson: row.contact_person, phone: row.phone };
   }
 }
-async function getResource(client: PoolClient, kind: ProductionResourceType, id: string, lock = false): Promise<ProductionResource> {
-  const row = (await client.query<Row>(`SELECT * FROM ${specifications[kind].table} WHERE id=$1::uuid ${lock ? "FOR UPDATE" : ""}`, [id])).rows[0];
+async function getResource(client: PoolClient, kind: ProductionResourceType, id: string, lock: boolean | "share" = false): Promise<ProductionResource> {
+  const row = (await client.query<Row>(`SELECT * FROM ${specifications[kind].table} WHERE id=$1::uuid ${lock ? lock === "share" ? "FOR SHARE" : "FOR UPDATE" : ""}`, [id])).rows[0];
   if (!row) return fail(404, "production_resource_not_found");
   const exceptions = kind === "calendars" ? (await client.query<CalendarExceptionInput>(`SELECT exception_date::text AS date,exception_type AS type,name
     FROM production_calendar_exceptions WHERE calendar_id=$1 ORDER BY exception_date`, [id])).rows : [];
   return mapResource(kind, row, exceptions);
+}
+/** Internal repository primitive. Caller supplies transaction, domain authority
+ * and, for freeze=true, the shared resource-snapshot scope lock. */
+export async function readProductionResourceSnapshot(client: PoolClient, kindInput: ProductionResourceType, idInput: string, freeze = false): Promise<ProductionResource> {
+  return getResource(client, productionResourceKind(kindInput), productionResourceUuid(idInput), freeze ? "share" : false);
 }
 async function readTransaction<T>(pool: Pool, identity: TrustedIdentity, fn: (client: PoolClient, actor: TrustedIdentity) => Promise<T>) {
   const client = await pool.connect();
@@ -215,6 +208,7 @@ export async function executeProductionResourceCommand(pool: Pool, identity: Tru
       if (prior.payload_hash !== digest) fail(409, "production_resource_request_conflict");
       await client.query("COMMIT"); return { ...prior.result, payloadHash: prior.payload_hash, replayed: true };
     }
+    await lockProductionResourceScope(client, "write");
     await client.query("SAVEPOINT resource_apply");
     let result: ResourceOutcome;
     try { result = await apply(client, actor, command); }

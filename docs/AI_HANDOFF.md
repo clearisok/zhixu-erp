@@ -1,15 +1,26 @@
-# 恢复点：6A三CI通过，6B纯预览本地通过待精确交付
+# 恢复点：Gate6B计划后台，源码冻结前
 
-2026-10-20；Goal active/no budget。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；当前 `codex/server-production-planning`，从main干净创建后显式FF到 `d7172477b75569165d3a2c1b04ddc58ea24008b4`。root/7bf3唯一writer，既有reviewer只读，无继承用户dirty。[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)记录完整恢复链。
+2026-10-20，Goal active/no budget。main996dfedc12da3527343cd3ff2aa5eea35497e10e，
+当前codex/server-production-planning，本阶段输入e5cc27dad98b125e54ad0af1cb831e5a148bd399。
+7bf3/root唯一writer、既有reviewer只读，无继承用户dirty；全部增量属本阶段。
+[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)记录范围及恢复链。
 
-6A d717既有工具仅一次上传、独立API精确核实；Source39419852838/Team39419859614/Baseline39419866529均success，元数据在ignored outputs，不重复dispatch。应用1da/证据7b、927/261/116、39资源、14实际built/18导航及两个selector修正范围不变。229证据/49能力，未合并/部署/人工接受，不挪作6B新代码CI。
+e5精确交付，Source39423655348/Team39423661759/Baseline39423667763均success，不重调度/借作后台CI。
+6A d717/三CI、1da/7b及旧Quote45/44/2、31未启动范围保持。
 
-6B应用冻结 `39190a91de55ee2c05e6cd38888745150e56dc52`；原shared日期纯函数只增可选扫描预算，新纯预览及18测试/V0/Source CI单条接线。按sequence/createdAt/id遍历，固定/实际开始/部分完成/完成均不移动；固定重叠提示且游标不倒退，缺结束不猜today。全队列36600扫描日/500行超界明确拒绝，输入不修改。没有DB/API/路由/业务写入或金额。43/43定向（1622ms）、927/927（269999ms）、116/116（267931ms）、types/Node/精确lint/实际编译模块/精确Server构建通过；39190/main996守卫PASS（11页/49能力/52累计UI路径）。最初误用npm脚本的失败保留。
+新0035和production-scheduling契约/repository/service/routes、实际PG/HTTP/升级测试已实现计划层。
+订单/队列/Assignment CAS，完整资源快照、逐次历史、同事务审计/回执；无完成/出货/关账或金额。
+资源scope及fresh actor复用6A；非金额颜色helper复用0028身份。freezePhysicalOrderGroups锁全部物理成员，
+计划与商业颜色命令共用；source writer/SQL子集服从父冻结。归一含成功直接/间接引用，拒绝无bridge，
+外部覆盖仍unavailable。中间版本/补造旧版本SQL负例与sourceOwner异单并发已实际通过。
 
-源码39190后只修改文档/manifest；feature前向证据绑定39190 Git blob与SHA256，230证据/49能力，原229/49及其他清单字段逐项不变。独立只读复审kernel与元数据无阻塞，未执行测试/网络/DB。先从git HEAD解析最终文档commit，跑精确main守卫，按持续授权既有git-delivery一次有界上传并独立核实完整SHA；只有确认送达后调度Source/Team/Baseline各一次，记录run ID并观察原ID，不借d717 CI。
+工作源码：22纯、114相关、抽取冻结后59、24排单PG/升级；types/Node/精确lint通过。
+最后组404与角色等待撤权测试仍须冻结重验。首轮16pass/1fail是日志脱敏断言错误，nullable和fixture旧必填字段
+类型失败已修，旧日志保留。下一步源码checkpoint，再最终定向/全项目/PG/显式基线与守卫；
+D150及新feature须追加Git blob证据，不改旧230/49，不提前标完整生产能力。
 
-审查者仍只读，不写共享文件。后续6B还需有效SO/颜色身份、并发队列和资源快照、回执/幂等/审计及UI；6C执行独立，不搬Browser updater。新FK、版本/回执必须补归一引用清单/完整指纹，旧覆盖unavailable不冒充verified。DeliveryPlan不反写；外发裸单价无币种，不推定确认工价或换汇。旧Quote45/44/2及31未启动保持缺口。
-
-保留3001/50426/59069/62426和全部旧卷/工作树/Browser资料，本阶段未重新观察旧目标。无自动合并/关闭PR、正式部署、真实账号/业务DB、新来源读取/绑定/调度、资产退役或共享Git/proxy/TLS/auth改动。#120–127原头保留，不建重复累计业务PR。CNY销售/USD工价是未来关账目标，不重标原商业版本。持续Git授权不用重复问；本次d717进程精确URL对照已恢复环境。
-
-本阶段修改前三摘要已逐字SHA256归档 [planning-start-d7172477](tasks/completed/2026-10-20-gate6-inputs/planning-start-d7172477/)；旧日期/hash/失败/限制均沿链接保留。
+reviewer已修来源竞态和中间历史缺失两P2；最后复用freeze helper后须精确复核。审查者未运行测试。
+没有新UI/浏览器验收；后续复用原表单，6C实际执行独立，不能搬Browser updater/裸外发单价。
+持续Git授权覆盖有界恢复/精确SHA/三个命名CI，不再每次问；交付核实后才PR/CI，原#120–127先校准依赖。
+不merge/close/deploy；保留3001/50426/59069/62426和旧卷/Browser/工作树，不操作真实数据/账号或新来源范围。
+未来CNY销售/USD工价不重标历史。本阶段输入[e5逐字归档](tasks/completed/2026-10-20-gate6-inputs/planning-backend-e5cc27da/)。

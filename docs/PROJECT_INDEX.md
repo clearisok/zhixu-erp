@@ -1,8 +1,8 @@
 # 项目知识索引
 
-2026-10-20最新恢复：[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[资源与页面](features/OPERATIONS_FOUNDATION.md)、[排单准备](features/PRODUCTION_SCHEDULING.md)、CURRENT_STATE、AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；当前codex/server-production-planning从main干净FF到6A最终d717。d717已精确交付，Source39419852838/Team39419859614/Baseline39419866529全部success。6A应用1da/证据7b、927/261/116、39资源、14built/18导航及两构建范围保持；当前230证据/49能力，未合并/部署/人工接受。
+2026-10-20最新恢复：[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)、[资源与页面](features/OPERATIONS_FOUNDATION.md)、[Server排单计划](features/SERVER_PRODUCTION_PLANNING.md)、CURRENT_STATE、AI_HANDOFF。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；当前codex/server-production-planning，输入e5cc27da已精确交付，Source39423655348/Team39423661759/Baseline39423667763均success，不借作后台新CI。0035/计划API/历史/快照/CAS本地实现，待冻结及完整验收；没有新UI、完成/出货/关账或部署，230证据/49能力未提前改状态。
 
-[不可变UI工程证据](tasks/completed/2026-10-20-production-resources-ui-engineering.md)保留1da构建、两个纯测试selector修正及所有验收范围。6B目前仅纯预览/扫描预算，源码冻结39190，43定向/927项目/116基线、types/Node/lint/精确Server构建及main守卫通过，静态复审无阻塞；feature文档前向证据为230条，49能力不变，没有Server排单写API或完成/出货/关账。最终文档HEAD交付/CI另核，不借d717 CI。三摘要输入[逐字归档](tasks/completed/2026-10-20-gate6-inputs/planning-start-d7172477/)，更早8c/311/1da历史证据不覆盖。旧Quote45/44/2和31未启动不被新资源验收覆盖。
+[不可变UI工程证据](tasks/completed/2026-10-20-production-resources-ui-engineering.md)保留6A应用1da/证据7b、927/261/116、39资源、14built/18导航及selector修正。早期6B纯预览39190及43/927/116独立保留；新后台工作源码22纯、114相关、抽取冻结后59及24排单/升级检查通过，最后新增用例和完整回归尚待。来源异单冻结与逐次历史有实际负例，不把外部覆盖冒称verified。三摘要[e5逐字归档](tasks/completed/2026-10-20-gate6-inputs/planning-backend-e5cc27da/)，更早输入/失败不覆盖；旧Quote45/44/2和31未启动仍是独立缺口。
 
 D145/D149报价来源与创建参考、D146系统管理、D147整体收敛有效。[G5修复证据](tasks/completed/2026-10-20-order-quote-reference-ci-repair.md)及[原54工程证明](tasks/completed/2026-10-20-order-quote-context-engineering.md)保留旧45/44/2验收缺口。Gate4精确96三CI绿、4C未做；生产排单/完成、出货、关账未闭环。#120–127不自动合并/关闭，不建重复累计业务PR。62426仍Gate1源8175，3001/50426/59069保留，未升级或人工接受。持续工程Git授权不扩真实数据/来源/部署/退役。前次摘要[逐字归档](tasks/completed/2026-10-20-gate6-inputs/contract-31e04281/)，日期/hash/结果/限制保持。
 ## 系统简介
