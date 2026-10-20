@@ -1,5 +1,7 @@
 # 项目知识索引
 
+2026-10-20 最新恢复入口：[Server 收敛 Gate5](tasks/active/server-convergence-gate5-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF。Gate4精确96e9d320远端核实，Source39390380075/Team39390385593/Baseline39390391327全部精确成功；4C写入未实施。当前codex/server-source-quote-create从核实main996创建并FF96；新17项API/客户端、类型/Node/lint通过，UI构建/浏览器/全量/最终守卫仍待，不称Gate5完成。#120–127未合并/关闭，62426未升级。下方Gate4段落保留为收口前历史，其原“待交付”不覆盖本条最新事实；原摘要已逐字归档于tasks/completed/2026-10-20-gate5-inputs/。
+
 2026-10-20 当前优先：[Server 收敛 Gate 4](tasks/active/server-convergence-gate4-2026-10-20.md)、CURRENT_STATE、AI_HANDOFF、D-147/148。main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Gate2组合/草稿#126及Gate3精确16f8d57d均三CI全绿，完整工程/历史失败见各任务。当前分支codex/server-order-source-readchain，4A保存颜色尺码白名单及DeliveryPlan只读链已本地实现，24新定向/70领域/927项目/两构建/13浏览器/116基线与复审通过，工具向前整合后9+24再验通过，远端验收待核；4B原生只读折叠的应用e9aca2cb两构建、新9/原P6 13浏览器与复审通过，927项目/24 API/类型/lint通过；冻结绑定/复审、显式116基线和源码守卫通过，4A/4B本地PASS；最终精确交付/CI待核；4bfa两次上传后API确认分支不存在，远端/CI待交付；4C写入未实现，无新来源、迁移或价格写入。独立工具草稿#127的37bd0e1e精确送达，三项新CI精确全绿。上阶段摘要[逐字归档](tasks/completed/2026-10-20-gate4-inputs/)。62426仍Gate1空镜像，3001/50426保留；[持续Git授权](tasks/active/git-delivery-resilience.md)不扩合并、正式部署或真实数据。以下旧日期保留当时结果。
 
 D-146 的角色权限、用户管理和操作日志本阶段已合入候选源码，正式说明见[系统管理任务](tasks/active/system-settings-administration-2026-10-19.md)、[权限](features/PERMISSIONS.md)及[日志](features/OPERATION_LOGS.md)。原 #123 状态/索引逐字保留在 Gate2 输入归档，不恢复过期主线或交付待办。

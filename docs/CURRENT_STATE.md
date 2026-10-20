@@ -1,11 +1,11 @@
-# 当前状态：Server 收敛 Gate 4，可信只读订单链
+# 当前状态：Server 收敛 Gate 5，订单上下文创建报价
 
-2026-10-20；main独立核实为 `996dfedc12da3527343cd3ff2aa5eea35497e10e`，Goal active。分支 `codex/server-order-source-readchain` 从该main干净建立并显式FF到16f8d57daf900802a2f3b6c3c41d878dbd6cdd9f。7bf3唯一实现owner；已有审查者只读，无继承用户dirty。上阶段摘要[逐字归档](tasks/completed/2026-10-20-gate4-inputs/)，原日期/hash/失败与限制保留。
+2026-10-20。main 独立核实 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；Goal active。当前 `codex/server-source-quote-create` 从该 main 干净建立并显式 FF 到已验收依赖 `96e9d320ff6d0ad51254291cd3c35c2d32d6070f`。7bf3 为唯一实现 owner，既有审查者只读；无继承用户 dirty。Gate4 收口前摘要[逐字归档](tasks/completed/2026-10-20-gate5-inputs/readchain-96e9d320/)。
 
-Gate1持久化空目标62426已READY；#125精确送达且三CI通过。Gate2组合b4c47f13和独立工具草稿#126均精确交付/三CI通过。Gate3导航连续性应用ed5821ba本地通过：927项目（含116基线）、158相关客户端/API、一次71浏览器＋另轮36来源页面、类型/Node/lint/两构建/精确守卫与只读复审。最终16f8d57d独立远端核实，其source39374706787、team39374709996、baseline39374712862全部completed/success且head_sha精确一致。历史失败/取消见[Gate3](tasks/active/server-convergence-gate3-2026-10-20.md)。依赖未合并，暂不创建累计业务PR。
+Gate1 空持久目标及 #125、Gate2 组合及 #126、Gate3 导航及 Gate4A/4B 可信保存来源/分码/交付计划只读链均已完成各自隔离工程验收和精确远端三 CI。Gate4 最终精确96e9d320的 Source39390380075、Team39390385593、Baseline39390391327 全部 completed/success。Gate4C 写入未实施；生产排单/完成、成衣出货及 Server 关账尚未闭环。[Gate4证据](tasks/active/server-convergence-gate4-2026-10-20.md)保留实际测试、原失败及范围，不替换截图/历史。
 
-Gate4A本地已实现：保存6087105颜色分码白名单，区分未记录/结构异常/业务矩阵异常及pending0；来源摘要不伪造逐色时间或TTL。既有DeliveryPlan GET校验精确来源，保留自主计划/历史，并新增无写客户端；有多个不匹配历史link时不猜身份、不重复订单。24新定向、70领域和927项目（含116基线）、类型/Node/lint/精确守卫通过，二次复审无阻断；应用a1879b70两构建、13实际浏览器和显式116基线通过；工具37已保留历史向前整合，冲突9商业/24颜色证据及复审通过；最终4bfa精确守卫通过；两次有界上传失败后独立API均确认分支未建立，远端/CI待交付。[Gate4](tasks/active/server-convergence-gate4-2026-10-20.md)记录失败与修复。4B应用e9aca2cb已完成两构建、9项新浏览器/13项P6及只读复审，927项目/24证据API/类型与lint通过；冻结绑定/复审、显式116基线及源码守卫通过，4A/4B本地PASS；最终精确提交与远端CI按交付回执核实；4C写入未实现，不称整Gate远端完成；无迁移/新采集/价格系统/Browser写入。
+Gate5 正在本地实施：既有来源首次选择 → 原 new 页可信非金额上下文 → 显式经销草稿 → 原 Editor。复用原编号/writer/defaults/回执，0033 新增不可变创建参考，不自动采用价格或写订单/CCT，不从已消费加工订单换绑。普通一键创建保持。首次已知来源拒绝保存 rejected，未知结果仍只读核对；session lease 和 layout cleanup 隔离旧响应。17项新 API/客户端、类型、Node 编译及定向 lint 通过；旧创建组合41项曾通过，最新浏览器/构建/全量/最终守卫与独立复审仍待，不称 Gate5 PASS。详见[Gate5](tasks/active/server-convergence-gate5-2026-10-20.md)。
 
-独立工具草稿#127的37bd0e1e81810f46c1972f37630dc99b7fc9b18d已精确送达，三项CI source39379407326/team39379407265/baseline39379407269全部精确成功；旧失败记录保留。53工具/94基线/9权限投影/10实际登录浏览器及复审通过。进程级恢复未改共享Git/代理/TLS/认证，间歇网络根因不称永久解决。
+#120–#127仍原 head、draft/open，未自动合并/关闭。依赖待用户决定，不创建累计业务 PR；验证分支远端/CI与本地工程分别记录。工具 #127 精确37bd0e1e三CI已通过；网络间歇根因仍未证明永久修复，未改共享 Git/代理/TLS/认证。
 
-62426仍为Gate1镜像8175，未升级/人工接受；最近只读检查五容器健康、3001/50426/59069/62426仍监听，未重查业务表数量。用户持续授权批准工程内有界Git恢复/PR/CI，不再逐次询问；不扩合并/关闭PR、正式部署、真实账号/业务数据、来源采集/绑定/调度、资产退役或共享TLS配置。未来Server关账销售CNY/工价USD，未新增换汇。
+62426 仍 Gate1 镜像8175及固定ops d084，未升级或人工接受；3001/50426/59069保留，本阶段未重查运行库数量或真实账号。持续工程 Git/PR/CI 授权不扩自动合并/正式部署、真实账号/业务库、新来源读取/绑定/调度或资产退役。未来 Server 关账销售 CNY/工价 USD，无自动换汇；其他业务口径仍按 Gate0 待决项处理。
