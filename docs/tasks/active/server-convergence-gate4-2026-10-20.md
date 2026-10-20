@@ -237,3 +237,31 @@ evidence/API/client regressions passed (42784ms). Whole-project/lint, exact-SHA
 after builds and actual4B browser tests remain pending at this source checkpoint.
 Main was independently API-rechecked as996dfedc12da3527343cd3ff2aa5eea35497e10e;
 the validation branch still returned an empty matching-ref array. No retry push.
+
+## 4B local engineering acceptance
+
+Application e9aca2cb5792f53ab595f2c08dc1ecee8a46e185 has both production builds,
+24 evidence/API/client,927 project (including116 baseline/responsive), full types,
+Node and lint PASS. Actual new Chromium9/9 finally passed20977ms; original P6
+regression13/13 passed59334ms. New suite covers six widths/keyboard, exact sizes
+and plan decimals/unknown/void history, actual processing Quote→batch→SO,
+seven roles, no writes/Browser fallback, manual failure recovery and real A→B→A
+old200/401 plus current401. Source before/after PNGs and geometry are separate
+new local artifacts; no old baseline replaced or human acceptance claimed.
+Frozen dimensional proof is completed/2026-10-20-order-saved-sources-engineering.md.
+Final binding/explicit release-baseline/final guard and remote CI remain pending.
+
+First full new browser run failed Enter activation and cancelled delayed session
+at parent240s, then required exact owned-browser/process/tmpfs-fixture cleanup.
+The test harness now sends native Enter text after page focus and bounds all CDP
+commands/closed-socket replies; application e9 stayed unchanged. Recheck9/9
+(172827ms) and final9/9 (20977ms) passed, with final screenshots scrolled to the
+actual plan section. The first cleanup identity guard preserved the disposable
+container when an empty tmpfs option was mistaken for absence; exact image/name,
+no mounts and tmpfs-key presence were verified before cleaning only that fixture.
+Two unrelated older fixtures and all existing environments were preserved.
+
+A fresh safe read-only network diagnosis observed default4191ms, HTTP1.1 4865ms
+and OpenSSL/HTTP1.1 4746ms all command_pass at main996. Shared config unchanged,
+no push by diagnosis, root cause unresolved. Standing authority allows one
+bounded final delivery after local acceptance, not unlimited retries.

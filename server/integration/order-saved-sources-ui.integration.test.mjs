@@ -42,17 +42,21 @@ test('built order disclosures preserve saved size and owned plan facts without s
     ws = new WebSocket('ws://127.0.0.1:' + port + path);
     await new Promise((done, reject) => { ws.addEventListener('open', done, { once: true }); ws.addEventListener('error', reject, { once: true }); });
     const command = (method, params = {}, sid = session) => new Promise((done, reject) => {
-      pending.set(++id, { done, reject }); ws.send(JSON.stringify({ id, method, params, sessionId: sid }));
+      const request = ++id;
+      const timer = setTimeout(() => { pending.delete(request); reject(Error('CDP ' + method + ' timed out')); }, 15000);
+      pending.set(request, { done, reject, timer }); ws.send(JSON.stringify({ id: request, method, params, sessionId: sid }));
     });
     closeBrowser = () => command('Browser.close', {}, undefined);
     ws.addEventListener('message', ({ data }) => {
       const r = JSON.parse(String(data)), p = pending.get(r.id);
-      if (p) { pending.delete(r.id); if (r.error) p.reject(Error(JSON.stringify(r.error))); else p.done(r.result); }
+      if (p) { pending.delete(r.id); clearTimeout(p.timer); if (r.error) p.reject(Error(JSON.stringify(r.error))); else p.done(r.result); }
       if (r.method === 'Runtime.exceptionThrown') errors.push(r.params.exceptionDetails.text);
     });
+    ws.addEventListener('close', () => { for (const p of pending.values()) { clearTimeout(p.timer); p.reject(Error('Owned browser connection closed')); } pending.clear(); });
     const target = await command('Target.createTarget', { url: 'about:blank' }, undefined);
     session = (await command('Target.attachToTarget', { targetId: target.targetId, flatten: true }, undefined)).sessionId;
     await command('Page.enable'); await command('Runtime.enable'); await command('Network.enable');
+    await command('Page.bringToFront');
     const evaluate = async expression => {
       const r = await command('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
       assert.equal(r.exceptionDetails, undefined, JSON.stringify(r.exceptionDetails)); return r.result.value;
@@ -120,7 +124,8 @@ test('built order disclosures preserve saved size and owned plan facts without s
         assert.equal(measure.overflow, false); assert.equal(measure.columns, width >= 600 ? 3 : 1); metrics.push({ width, ...measure });
         if (width === 1440 || width === 390) await shot('default-' + width);
         await evaluate("document.querySelector('[data-saved-color-sizes]>summary').focus()");
-        await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
+        await command('Page.bringToFront');
+        await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, text: '\r', unmodifiedText: '\r' });
         await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
         await has('颜色数量待确认，尺码数量保持未知。');
         assert.equal(await evaluate('planReads'), 0);
@@ -150,7 +155,9 @@ test('built order disclosures preserve saved size and owned plan facts without s
       await fold('来源与技术详情'); await has('9007199254740993.123456789012345678');
       const text = await evaluate("document.querySelector('[data-saved-delivery-plans]').innerText");
       assert.match(text, /日期未记录/); assert.match(text, /已作废（历史保留）/); assert.match(text, /艾诺科合同数量（对照）/); assert.match(text, /100/);
-      assert.equal(await evaluate('planReads'), 1); await shot('plan-facts');
+      assert.equal(await evaluate('planReads'), 1);
+      await evaluate("document.querySelector('[data-saved-delivery-plans]').scrollIntoView({block:'start'})");
+      await shot('plan-facts');
       await fold('来源与技术详情'); await fold('来源与技术详情'); await has('9007199254740993.123456789012345678');
       assert.equal(await evaluate('planReads'), 2);
     });
@@ -200,14 +207,19 @@ test('built order disclosures preserve saved size and owned plan facts without s
 
     await t.test('old success and401 cannot affect a new login, including A to B to A', async () => {
       for (const [mode, nextUser] of [['delay200', x.users[1]], ['delay401', x.users[0]]]) {
+        const mark = label => { if (process.env.ORDER_SAVED_SOURCES_EVIDENCE === '1') console.log('Saved sources delay check: ' + mode + ' ' + label); };
         await login(x.users[0]); await navigate(route); await has('查看颜色尺码');
         await evaluate('planMode=' + JSON.stringify(mode)); await fold('来源与技术详情');
         await until(() => evaluate('planWaiters.length===1'), 'held plan response');
+        mark('old reply held');
         await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员');
+        mark('logged out');
         await input('input[name=username]', nextUser); await input('input[name=password]', x.password); await click('登录织序');
         await has('查看颜色尺码'); await fold('来源与技术详情'); await has('9007199254740993.123456789012345678');
+        mark('new identity plan shown');
         assert.equal(await evaluate('planWaiters.length'), 1, 'held old response must survive the real SPA login transition');
         await evaluate('planWaiters.splice(0).forEach(done=>done())'); await wait(250);
+        mark('old reply released');
         assert.equal(await evaluate("document.body.innerText.includes('987654321.123456789012345678')"), false);
         assert.equal(await evaluate("location.pathname"), '/order-center/server-detail');
         assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"), 200);
