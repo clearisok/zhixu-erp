@@ -1,4 +1,8 @@
-# 恢复点：PR114整合工程通过，准备交付唯一PR119
+# 恢复点：独立 Git 预检工具修复
+
+2026-10-20；main996dfedc12da3527343cd3ff2aa5eea35497e10e已API核实；分支codex/git-delivery-preflight-fallback从该main clean建立。唯一owner root，审查者只读。实际脚本TLS失败/128与交替成功读取均已保存，不能宣称根因修复。新增只在Git纯传输失败后进行一次固定github.com API预检，保持祖先、本地状态、单次正常push与独立postflight。证书/认证异常不能fallback，HTTP404不证明新分支不存在。53工具/94基线/Node语法/脚本lint/精确996守卫通过，0UI；复审无阻断。详见[任务](tasks/active/git-delivery-preflight-fallback-2026-10-20.md)；最终commit后再核精确guard、一次交付和新CI，不冒称远端PASS。用户持续授权覆盖安全恢复，不再逐次询问，不扩合并、正式部署或真实数据。7bf3应用16f8d57d不动；只用已验收工具后再交付该固定SHA并跑三项CI。
+
+# 2026-10-19 历史恢复点：PR114整合工程通过，准备交付唯一PR119
 
 2026-10-19；main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。用户已授权整合修复、测试、交付、CI和PR说明；不merge/close、不部署、不改真实数据。分支feat/processing-quote-push-and-selection，clean源码merge20061a50e15da8c233ffb790057b1ce6e898c3fd包含12个开放PR精确head。最终文档commit以Git为准。
 
