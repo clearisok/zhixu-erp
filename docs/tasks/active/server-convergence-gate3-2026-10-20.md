@@ -1,5 +1,13 @@
 # Server convergence Gate 3 — navigation continuity
 
+Final remote acceptance:16f8d57daf900802a2f3b6c3c41d878dbd6cdd9f is independently
+verified remote. Source39374706787 (8m35s), team39374709996 and baseline39374712862
+all completed/success, every run.head_sha exact16, re-read through GitHub API at
+2026-10-20T05:35:59.778Z. Local application/test evidence below remains unchanged.
+No cumulative PR/merge/deployment/runtime upgrade or real-source operation occurred.
+Git recovery tool work is isolated in draft#127; original transport failures and
+old failed/cancelled CI below remain historical evidence, not current retries.
+
 2026-10-20; main `996dfedc12da3527343cd3ff2aa5eea35497e10e` reverified through
 GitHub before this phase. Branch `codex/server-navigation-continuity` starts there
 then explicitly fast-forwards to fixed accepted integration

@@ -1,9 +1,11 @@
-# 恢复点：Server 收敛 Gate 3
+# 恢复点：Server 收敛 Gate 4，只读订单链
 
-main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；分支 `codex/server-navigation-continuity` 从该main建立并显式FF到组合b4c47f1356205e1f064f714ce1fb51efb58e2823，初始clean、无用户dirty。唯一实现owner7bf3维护共享文件，reviewer只读。Gate2原摘要已逐字归档。
+2026-10-20；main `996dfedc12da3527343cd3ff2aa5eea35497e10e` 已独立API核实。分支 `codex/server-order-source-readchain` 从该main干净建立，显式FF到16f8d57daf900802a2f3b6c3c41d878dbd6cdd9f。唯一实现owner7bf3；已有reviewer只读。上阶段三份摘要逐字归档于 `tasks/completed/2026-10-20-gate4-inputs/navigation-16f8d57d/`，历史失败/取消不删除。
 
-Gate2工程PASS，组合b4c47f13及工具956921f6各一次上传、GitHub API已独立核精确SHA。工具唯一草稿#126，三项PR检查全通过；组合仅验证引用，dispatch runs39359434158/source、39359438237/team-access、39359442064/baseline也均completed/success，全部run.head_sha精确相符。不得触发生产workflow。工具矛盾分类仍保留，未重复推送，不能称网络根因已修复。
+Gate3工程及远端验收PASS：精确16的source39374706787、team39374709996、baseline39374712862均completed/success，已独立核head_sha。应用源码ed5821ba未再改变；927项目/158客户端API/71同次浏览器＋36来源页面/两构建/精确守卫及只读复审通过。Gate1/2与历史结果见各任务；不创建累计业务PR，依赖获准合并后再校准增量。
 
-Gate3本地PASS；应用ed5821ba6b15a471c283f94e40f9a1e4257c3658，候选server-g3-ed5821ba-restored、2026-10-20T04:12:39.4179942Z、server/session/snapshot。927项目（含116基线）、158相关客户端/API、71同次浏览器＋另轮36来源页面、类型/Node/lint/两构建/精确守卫通过，221证据保持。0123与22b50178c68224ec47b6f149f599d8a3c799f2c3已各一次交付/独立精确核实；22的team39370370980、baseline39370373372成功，source39370368419因已知被替代旧断言取消。0123的source39369188594失败于material-display旧pending标题，后续两失败属未关notice级联。仅适配mjs为共享notice/理由/路径不变/输入锁定；exact retry、audit、并发、撤权原断言保留，实跑10/10；批次/物料历史/付款面板补跑26/26。生产/权限/manifest未变，领域显式放弃仍保留。只本Gate文档＋test兼容收口→精确guard→一次新commit交付→三新CI；CI未全绿不称远端PASS，不重跑坏SHA。详见Task全部失败/取消。无累计PR/合并/部署/真实数据/新来源；62426仍Gate1，保留3001/50426/59069。
+Gate4当前只有范围/恢复点文档，尚无实现或新测试。先4A白名单投影已保存6087105颜色分码，保留未知/0/pending、原slot/重复尺码/矩阵异常；合同证据时间不是逐色采集时刻。4B再复用现有详情展示及DeliveryPlan GET；PATCH尚无receipt，先不开放编辑。详见[Gate4](tasks/active/server-convergence-gate4-2026-10-20.md)。不新增真实采集、迁移、价格writer或Browser回退。
 
-用户已明确“以后都自动授权不要再问我”，作为批准工程内Git恢复/PR/CI及必要修复的持续授权，已记入git-delivery-resilience；后续不再逐次请求上传许可。精确SHA、bounded attempts、独立核实、工作树与secrets保护仍保持；不扩自动合并/正式部署/真实数据/新来源/资产删除或共享TLS配置。Gate1空目标仍62426/旧镜像8175、固定ops d084；保留3001/50426/59069，未来Server关账销售CNY/工价USD，无自动换汇。
+独立工具草稿#127位于另工作树，5a9a2c7e7bd7a73f2e55c77dd697d5a5938d3a3b精确送达；source39375799649及baseline39375799568绿，team39375799693失败于登录CDP跳转上下文短暂失效，正局部修验收等待。不要称工具三绿、不要覆盖本恢复点或整体复制旧摘要。Git根因仍属间歇传输，未改共享配置；持续授权覆盖有界恢复，不改TLS校验。
+
+用户已明确“以后都自动授权不要再问我”，批准工程内Git恢复/PR/CI及必要修复持续授权见git-delivery-resilience；不扩自动合并/关闭PR、正式部署、真实账号/数据、新来源、资产退役或共享TLS配置。62426仍Gate1空镜像8175/固定ops d084，未升级或人工接受；保留3001/50426/59069。未来Server关账销售CNY/工价USD，无自动换汇。
