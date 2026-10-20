@@ -98,3 +98,27 @@ The current CI compatibility checkpoint contains only that integration test and
 state/task documents. It does not alter any application, permissions, SQL, formulas,
 source scope, UI or deployment flow. Exact commit delivery and new CI remain to
 be verified separately before a final green claim.
+
+## Second CI compatibility checkpoint: navigation observation
+
+Exact5a9a2c7e7bd7a73f2e55c77dd697d5a5938d3a3b was safely uploaded once and
+independently verified. Its source39375799649 and baseline39375799568 succeeded.
+Team39375799693 failed in the first animated login browser subtest: CDP returned
+-32000, Inspected target navigated or closed, while redirecting a protected URL.
+The captured body was already the login page; other eight child checks passed.
+This is observed test transport invalidation, not proof of a login product defect.
+
+Only animated-login's bounded read-only readiness poll now tolerates the same
+three exact navigation-context errors as the existing source/history harnesses.
+All other errors still fail; the150-poll budget is unchanged, and clicks, login,
+password reset or any mutation are not retried. No application/SQL/RBAC change.
+A fresh explicit Server build and the actual Chromium login suite passed10/10
+(25000ms) on an isolated synthetic database/profile. Direct protected deep link,
+no business shell before login, return target, auth failures and secret-storage
+assertions all remain. The tool53 and baseline94 test/code blobs are unchanged.
+Targeted syntax/lint, exact-main guard and independent review close this local
+checkpoint; fresh final delivery/CI evidence must still be recorded separately.
+
+The navigation validation16 CI is now independently confirmed three-success,
+all exact16 head_sha:39374706787/source,39374709996/team,39374712862/baseline.
+Root Gate4 recovery documents are separate; this tool PR cannot replace them.
