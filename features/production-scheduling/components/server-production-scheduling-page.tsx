@@ -158,6 +158,9 @@ function Workspace() {
   const chooseView = (value: State["view"]) => change(current => ({ ...current, view: value, offset: 0, search: "", groups: undefined, orders: undefined, listError: "" }));
   const page = (next: number) => change(value => ({ ...value, offset: next, groups: undefined, orders: undefined, listError: "" }));
   const orderLink = (id: string) => router.push(`/order-center/server-detail?id=${encodeURIComponent(id)}`);
+  const previewOrders = state?.action?.kind === "replan" ? state.action.queue.ordersById
+    : state?.editor ? { [state.editor.order.summary.id]: state.editor.order.summary }
+      : state?.action?.kind === "cancel" ? { [state.action.order.summary.id]: state.action.order.summary } : {};
 
   return <PermissionAuthorityProvider can={session.hasPermission}>
     <PageContainer className="ps-scheduling-page">
@@ -206,7 +209,7 @@ function Workspace() {
       </Modal>
       <Modal open={Boolean(state?.preview)} title="确认排单变更" description="确认后保存这一份预览；资料变化时需要重新预览。" onClose={() => { if (!state?.busy && !blocked) change(value => ({ ...value, preview: null })); }}
         footer={<><Button variant="secondary" disabled={state?.busy || blocked} onClick={() => change(value => ({ ...value, preview: null }))}>返回修改</Button><Button disabled={state?.busy || blocked || !state?.preview?.changes.length} onClick={() => void send()}>确认保存</Button></>}>
-        <div className="ps-queue-table-wrap"><table className="ps-queue-table"><thead><tr><th>款号 / 计划</th><th>修改前</th><th>修改后</th><th>采用资源</th></tr></thead><tbody>{state?.preview?.changes.map((item, index) => <tr key={item.after.id ?? index}><td>{title(state.action?.kind === "replan" ? state.action.queue.ordersById[item.after.orderId] : state.editor?.order.summary ?? (state.action?.kind === "cancel" ? state.action.order.summary : undefined))}<small>{item.after.colorNameSnapshot || "整单"}</small></td><td>{item.before ? `${item.before.plannedQuantity} · ${item.before.plannedStartDate} → ${item.before.plannedEndDate}` : "新增"}</td><td>{item.after.status === "cancelled" ? "取消" : `${item.after.plannedQuantity} · ${item.after.plannedStartDate} → ${item.after.plannedEndDate}`}</td><td>{resourceName(state.preview!.resources, item.after.resourceSnapshotHash)}</td></tr>)}</tbody></table></div>
+        <div className="ps-queue-table-wrap"><table className="ps-queue-table"><thead><tr><th>款号 / 计划</th><th>修改前</th><th>修改后</th><th>采用资源</th></tr></thead><tbody>{state?.preview?.changes.map((item, index) => <tr key={item.after.id ?? index}><td><strong>{title(previewOrders[item.after.orderId])}</strong><small>{previewOrders[item.after.orderId]?.orderNo} · {item.after.colorNameSnapshot || "整单"}</small></td><td>{item.before ? `${item.before.plannedQuantity} · ${item.before.plannedStartDate} → ${item.before.plannedEndDate}` : "新增"}</td><td>{item.after.status === "cancelled" ? "取消" : `${item.after.plannedQuantity} · ${item.after.plannedStartDate} → ${item.after.plannedEndDate}`}</td><td>{resourceName(state.preview!.resources, item.after.resourceSnapshotHash)}</td></tr>)}</tbody></table></div>
         {state?.preview?.warnings.map((item, index) => <p key={index} role="status">{warningText[item.kind] || "计划需要核对"}</p>)}{state?.preview && !state.preview.changes.length && <p>计划没有变化，无需再次保存。</p>}{state?.error && <p role="alert">{state.error}</p>}
         {state?.pending && <Button variant="secondary" disabled={state.busy} onClick={() => void check()}>核对原请求</Button>}
         {canRetry && <Button disabled={state?.busy} onClick={() => void send(state!.pending!)}>重试原请求</Button>}

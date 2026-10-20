@@ -113,7 +113,7 @@ test('Gate6B built scheduling preserves exact plans, recovery, source boundaries
     const data = patch => ({ executionType: 'internal', executorId: group.id, colorId: null, plannedQuantity: '10', duration: { mode: 'workdays', workdays: 2 }, dates: { mode: 'auto_queue', startDate: '2027-01-04' }, remark: '', ...patch });
     await phase('global pagination, AND search and reference paging precede an explicit exact-decimal plan', async () => {
       await click('未排订单'); await has('SYN-PLAN-01'); assert.equal(await evaluate("document.querySelectorAll('.ps-pool-row:not(.head)').length"), 20); await click('下一页'); await has('SYN-PLAN-21'); assert.equal(await evaluate("document.querySelectorAll('.ps-pool-row:not(.head)').length"), 5);
-      await poolSearch('SYN-PLAN-01 合成客户'); await click('排单', '.ps-pool-row button');
+      await poolSearch('SYN-PLAN-01 合成客户'); await click('排单', '.ps-pool-row button'); await has('直接排单');
       assert.equal(await evaluate("document.querySelector('select[aria-label=生产组选择]').value"), ''); assert.equal(await evaluate("document.querySelector('input[aria-label=计划开始]').value"), '');
       await has('23 条'); await click('下页生产组'); await has('第 2 页'); await field('input[aria-label=搜索生产组]', 'A合成一组'); await has('1 条'); await field('select[aria-label=生产组选择]', group.id, 'HTMLSelectElement');
       await field('input[aria-label=排单数量]', '40.125'); await field('input[aria-label=所需工作日]', '2'); await field('input[aria-label=计划开始]', '2027-01-04');
