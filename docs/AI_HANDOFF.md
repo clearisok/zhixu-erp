@@ -1,4 +1,4 @@
-# 恢复点：Gate6B排单UI本地通过，冻结证据后精确交付
+# 恢复点：Gate6B排单UI最终本地验收通过，精确交付与新CI
 
 2026-10-21；Goal active/no budget；main996dfedc12da3527343cd3ff2aa5eea35497e10e（独立API核实）。
 codex/server-production-planning；root唯一writer、既有reviewer只读。
@@ -16,8 +16,10 @@ codex/server-production-planning；root唯一writer、既有reviewer只读。
 protected router、等待字段禁用、SAVEPOINT预期404/409/422拒绝持久化并清成功orderIds，裸错误不清缓存。
 跨SO499→500实际PG边界和POST/receipt200/401的A→B→A均已验收；新旧用户资料未触碰。
 
-下一步：冻结本批工程文件，绑定新UI契约+工程证据两个独立ID和局部能力，不改原234/49；
-最终main996 guard、证据绑定后项目/基线回归、干净final commit，既有工具一次安全push/独立API exact SHA，
+新UI契约919/工程证明1c6/D150前向修订1c6均已真实Git blob绑定，原234/49逐项不改，现237/50；
+首轮guard检出D150工作树漂移，保留原记录并追加supersedes后main996 guard PASS，未绕过检查。
+绑定后927/927项目212626.5359ms、116/116基线210878.984ms通过，均0 fail/skip/cancel；独立只读证据复审无阻断。
+下一步干净final文档commit及其main996 guard，既有工具一次安全push/独立API exact SHA，
 只调度Source/Team/Baseline各一次并复审，不建重复累计业务PR。此处尚未交付新批，不借旧CI。
 6524已有Source39446392644/Team39446399962/Baseline39446406949全success（各一次）。
 

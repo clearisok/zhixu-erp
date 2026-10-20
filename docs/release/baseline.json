@@ -1936,6 +1936,32 @@
       "recordedAtSha": "70cb8fb4b470aa7b09a1216a2b115606688a4ffd",
       "renderedSourceSha": "15295ecb265f91316476e4b010abc7b9083d2ac6",
       "sha256": "c1a59ceb1594f859b13394ec08b1ba78d219fe530c6b5de83e406e281d7d36a9"
+    },
+    {
+      "id": "server-production-planning-ui-contract-20261021",
+      "kind": "document",
+      "path": "docs/features/SERVER_PRODUCTION_PLANNING_UI.md",
+      "recordedAtSha": "919643d8cde2b0ec22987631e685e6a661829881",
+      "renderedSourceSha": "919643d8cde2b0ec22987631e685e6a661829881",
+      "sha256": "557db585f55266958d4f66790d6677d31d9d10b9ef9c299ed5bc528f8988af40"
+    },
+    {
+      "id": "server-production-planning-ui-engineering-20261021",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-21-production-planning-ui-engineering.md",
+      "recordedAtSha": "1c6a5e3a80dd2c1c5dc9910c4c63948e72feac47",
+      "renderedSourceSha": "919643d8cde2b0ec22987631e685e6a661829881",
+      "sha256": "74792e333243053da5a511f7ef05d530f4ba2938e0aa55b77b2abea7217fcedc"
+    },
+    {
+      "id": "decisions-server-production-planning-ui-20261021",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "1c6a5e3a80dd2c1c5dc9910c4c63948e72feac47",
+      "renderedSourceSha": "919643d8cde2b0ec22987631e685e6a661829881",
+      "supersedes": "decisions-server-production-planning-20261020",
+      "changeReason": "D150 forward revision records the approved Server planning UI and original-request recovery, durable rejected-domain receipts and separate engineering evidence; historical decisions remain immutable. No actual production completion, pricing, source activation, deployment or human acceptance is claimed.",
+      "sha256": "9b47e7456422210d2f9de981ef3cdd5c55fd90194bd3519f058a55e00db7e935"
     }
   ],
   "pages": [
@@ -6857,6 +6883,91 @@
           "runtimeId": "preview18444",
           "evidence": [
             "production-resource-server-engineering-20261020"
+          ]
+        }
+      }
+    },
+    {
+      "id": "production-plan-server",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate6B empty Server planning only: trusted orders and group directories, exact non-monetary internal/outsource assignments, adopted immutable resources, preview/CAS, atomic audit, durable expected rejections, verified original-request recovery, protected existing route and read-only version history. Existing Browser stores are not mounted. Final 919643 private Chromium covers mobile search/view non-overlap. No actual completion, logistics, garment shipment, closing/FX, real Source activation, deployment or human acceptance.",
+      "evidence": [
+        "server-production-planning-ui-engineering-20261021"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6B empty Server planning only: trusted orders and group directories, exact non-monetary internal/outsource assignments, adopted immutable resources, preview/CAS, atomic audit, durable expected rejections, verified original-request recovery, protected existing route and read-only version history. Existing Browser stores are not mounted. Final 919643 private Chromium covers mobile search/view non-overlap. No actual completion, logistics, garment shipment, closing/FX, real Source activation, deployment or human acceptance.",
+          "sourceSha": "919643d8cde2b0ec22987631e685e6a661829881",
+          "evidence": [
+            "server-production-planning-ui-engineering-20261021"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6B empty Server planning only: trusted orders and group directories, exact non-monetary internal/outsource assignments, adopted immutable resources, preview/CAS, atomic audit, durable expected rejections, verified original-request recovery, protected existing route and read-only version history. Existing Browser stores are not mounted. Final 919643 private Chromium covers mobile search/view non-overlap. No actual completion, logistics, garment shipment, closing/FX, real Source activation, deployment or human acceptance.",
+          "sourceSha": "919643d8cde2b0ec22987631e685e6a661829881",
+          "evidence": [
+            "server-production-planning-ui-engineering-20261021"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6B empty Server planning only: trusted orders and group directories, exact non-monetary internal/outsource assignments, adopted immutable resources, preview/CAS, atomic audit, durable expected rejections, verified original-request recovery, protected existing route and read-only version history. Existing Browser stores are not mounted. Final 919643 private Chromium covers mobile search/view non-overlap. No actual completion, logistics, garment shipment, closing/FX, real Source activation, deployment or human acceptance.",
+          "sourceSha": "919643d8cde2b0ec22987631e685e6a661829881",
+          "evidence": [
+            "server-production-planning-ui-engineering-20261021"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6B empty Server planning only: trusted orders and group directories, exact non-monetary internal/outsource assignments, adopted immutable resources, preview/CAS, atomic audit, durable expected rejections, verified original-request recovery, protected existing route and read-only version history. Existing Browser stores are not mounted. Final 919643 private Chromium covers mobile search/view non-overlap. No actual completion, logistics, garment shipment, closing/FX, real Source activation, deployment or human acceptance.",
+          "sourceSha": "919643d8cde2b0ec22987631e685e6a661829881",
+          "evidence": [
+            "server-production-planning-ui-engineering-20261021"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6B empty Server planning only: trusted orders and group directories, exact non-monetary internal/outsource assignments, adopted immutable resources, preview/CAS, atomic audit, durable expected rejections, verified original-request recovery, protected existing route and read-only version history. Existing Browser stores are not mounted. Final 919643 private Chromium covers mobile search/view non-overlap. No actual completion, logistics, garment shipment, closing/FX, real Source activation, deployment or human acceptance.",
+          "sourceSha": "919643d8cde2b0ec22987631e685e6a661829881",
+          "evidence": [
+            "server-production-planning-ui-engineering-20261021"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-21",
+          "scope": "New Server planning UI candidate not deployed. Historical runtime identifiers retained without re-observation.",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "evidence": [
+            "server-production-planning-ui-engineering-20261021"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-21",
+          "scope": "New Server planning UI candidate not deployed. Historical runtime identifiers retained without re-observation.",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "evidence": [
+            "server-production-planning-ui-engineering-20261021"
           ]
         }
       }

@@ -299,3 +299,13 @@ main独立API仍996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原头保�
 root直接查看最终390队列/表单和1536 DPR1.25截图，无新阻塞；旧PNG和失败不覆盖，详细SHA256在新工程记录。
 本次新增文档以两个独立记录冻结，不改原234证据/49能力。下一步绑定局部计划能力后重新做最终项目/基线与main996守卫，
 有界交付、独立exact SHA和三个新CI前仍不是本批REMOTE DELIVERY PASS。
+
+2026-10-21最终绑定：UI契约919643、工程证明1c6a5e3各新增独立记录；首轮main996 guard检出D150仍指旧7eb，
+按原协议追加1c6的D150 supersedes文档，不改旧记录/哈希。原234 evidence与49 capability逐项deepEqual保持，
+现237/50；局部Server计划能力implemented yes、isolated passed-historical，其余合并/部署/人工接受仍否或未运行。
+第二轮main996 guard已PASS（checkedHead1c6＋追加清单，11页/50能力/60累计UI路径）。
+独立reviewer核对三个新Git blob、计数/耗时/四PNG哈希及状态范围无阻断，未冒称代跑测试。
+绑定后的完整项目927/927（212626.5359ms）、显式基线116/116（210878.984ms）再次实际通过，
+均0 failure/skip/cancel；日志ui-bound-project-final、ui-bound-baseline-final保留。应用仍919643，之后仅证据/摘要。
+main及#120–127原头再次独立API核实未变；远端本分支仍6524。下一步最终docs head守卫、一次有界上传、
+独立远端完整SHA后才各调度Source/Team/Baseline新CI；当前未发生交付/CI不预记PASS。
