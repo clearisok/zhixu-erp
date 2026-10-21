@@ -19,7 +19,7 @@ CONFIG = {"baseUrl": APPROVED_HTTP_ORIGIN, "transportPolicy": APPROVED_HTTP_POLI
 
 def response(rows=None, total=200):
     return {"reObj": {"isOk": True}, "dataList": json.dumps({"rows": rows if rows is not None else [
-        {"id": 1, "InsideOrderNo": "D1935-other-contract", "CandidateQty": None, "CandidateDate": ""}]}),
+        {"id": 1, "InsideOrderNo": "D1933-other-contract", "CandidateQty": None, "CandidateDate": ""}]}),
         "dataCount": total, "pageIndex": 0, "pageSize": 0,
         "reportObj": json.dumps({"reportId": 6086979, "cellList": json.dumps([{"fieldName": "CandidateQty"}])})}
 
@@ -56,14 +56,15 @@ class GarmentCandidateProbeTests(TestCase):
         self.assertEqual(body["sqlCdtn"]["pageSize"], 100)
         condition = body["sqlCdtn"]["conditionList"][0]
         self.assertEqual((condition["fieldName"], condition["compareType"], condition["compareValue"], condition["flowName"]),
-                         ("insideorderno", "contains", "D1935", "[内层]"))
+                         ("insideorderno", "contains", "D1933", "[内层]"))
         self.assertEqual((evidence["httpAttempts"], evidence["reportRequests"], evidence["returnedRows"]), (2, 1, 1))
-        self.assertEqual(evidence["queryContext"], {"insideOrderNo": "D1935"})
+        self.assertEqual(evidence["queryContext"], {"insideOrderNo": "D1933"})
         self.assertFalse(any(item.report_id == "6086979" for item in REPORT_CATALOG.values()))
         self.assertEqual(evidence["rawResponseSha256"], sha256(evidence["rawReportResponse"].encode()).hexdigest())
 
     def test_scope_cannot_expand_or_use_payment_action_before_login(self):
         for patch_value in ({"page": 2}, {"insideOrderNo": "OTHER"}, {"reportId": 6086979}, {"action": "read-first-page-only"},
+                            {"action": "read-6086979-d1935-first-page-only"},
                             {"baseUrl": APPROVED_HTTP_ORIGIN + "/"}, {"baseUrl": "https://example.invalid"}, {"password": ""}):
             with self.subTest(patch_value=patch_value):
                 transport = FakeTransport()
@@ -78,7 +79,7 @@ class GarmentCandidateProbeTests(TestCase):
             body = request_body()
             body["sqlCdtn"][field] = value
             self.assertFalse(transport.report_body_allowed(body))
-        for field, value in (("compareValue", "D19350"), ("compareType", "is"), ("fieldName", "BillNo")):
+        for field, value in (("compareValue", "D19330"), ("compareType", "is"), ("fieldName", "BillNo")):
             body = request_body()
             body["sqlCdtn"]["conditionList"][0][field] = value
             self.assertFalse(transport.report_body_allowed(body))

@@ -1,7 +1,8 @@
 # 项目知识索引
 
 2026-10-21恢复：[Gate7一次真实核验](tasks/completed/2026-10-21-garment-shipment-first-page.md)、[工具任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
-main996dfedc12da3527343cd3ff2aa5eea35497e10e本轮独立API核实；当前codex/garment-shipment-source-probe从该对象显式FF干净3b9。
+main996dfedc12da3527343cd3ff2aa5eea35497e10e本轮独立API核实；当前codex/garment-shipment-d1933-probe从该对象显式FF干净97cfa。
+用户已给下一样本D1933；原5个诊断实现/测试文件固定范围校准，Node12/Python142/types/Node/lint/PS AST及复审通过。未执行新真实请求，同预算一次读取仍待确认。
 用户提供6086979/insideorderno contains D1935的查询载荷，不是返回字段或成衣出货含义证据；新工具固定一次登录+一次首页、100行/4MiB/120秒。
 复用原客户端/Transport/私密报告，0重试/翻页/DB/绑定/激活，不注册正常目录。用户随后明确批准固定首页一次，实际1登录+1报表成功、total0/rows0。
 报告名已确认“成衣出运登记明细表”、38列定义；原文受保护、hash离线读回一致。零行原因未证实，该许可已用完，不取消筛选或自动扩大查询。

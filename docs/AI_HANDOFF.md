@@ -1,12 +1,14 @@
-# 恢复点：6086979一次真实核验完成，38列但D1935零行
+# 恢复点：D1935真实零行保留；用户给D1933，固定工具校准收口
 
 2026-10-21，目标active/未完成。当前Goal轮有实质进展：Gate6D纯契约3b9及Gate7专用诊断与合成验收。
 root唯一writer、既有reviewer只读；main本轮API996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原完整头/open draft未变。
-codex/garment-shipment-source-probe从main对象创建并显式FF到干净3b9a44a04b9fe7ae075098b7c76ff87564510b26，无继承dirty。
+当前codex/garment-shipment-d1933-probe从main对象创建并显式FF到干净97cfa7800dfa143ac834b51673cb2bbb47aaa32c，无继承dirty。
+用户已提供下一样本D1933，当前只将5个诊断实现/测试文件固定D1935→D1933，旧D1935 action/context明确拒绝，不增加任意参数或真实请求。
+新Node12/12（10335.8354ms）、Python142/2.392s、types/Node/lint/PS AST0及只读复审通过；干净checkpoint和精确HEAD守卫收口。下一步确认D1933一次同预算首页范围，旧D1935许可不复用。
 [当前任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)、[3b9三摘要输入](tasks/completed/2026-10-21-garment-probe-inputs/3b9a44a0/)保留全部旧日期/hash/结果/限制。
 
-用户已回答出货问题但只给来源线索：6086979、insideorderno contains D1935、page1/pageSize100/[内层]。
-尚无真实响应、数量/日期语义、单位、颜色、稳定合同/行ID证据，不能记成已选人工发货时点或正式映射。
+用户起初回答出货问题给来源线索：6086979、insideorderno contains D1935、page1/pageSize100/[内层]。
+尚无非空行响应、数量/日期语义、单位、颜色、稳定合同/行ID证据，不能记成已选人工发货时点或正式映射。
 已检索本仓相关源码/文档和本工作树ignored outputs无既有6086979；不代表所有旧工作树/外部系统都无此报表。
 
 新增scripts/ainuoke-garment-shipment-probe.ps1、Node和Python专用probe及测试；原private writer只增加kind/prefix，workflow只添测试命令。

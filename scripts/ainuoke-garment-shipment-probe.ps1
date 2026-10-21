@@ -29,7 +29,7 @@ function Validate-PrivatePath([string]$Directory, [string]$File) {
     if ($LASTEXITCODE -ne 0) { throw 'private_acl_invalid' }
 }
 try {
-    if ($Help) { Write-Output 'Fixed 6086979 / insideorderno contains D1935, first page only. -ReadFirstPage -CredentialFile. 1 login + 1 report, <=100 rows/4MiB/120s, no retry/DB/activation.'; exit 0 }
+    if ($Help) { Write-Output 'Fixed 6086979 / insideorderno contains D1933, first page only. -ReadFirstPage -CredentialFile. 1 login + 1 report, <=100 rows/4MiB/120s, no retry/DB/activation.'; exit 0 }
     if (-not $ReadFirstPage -or -not $CredentialFile) { $failureCode='shipment_probe_explicit_action_required'; throw 'scope_required' }
     if (-not $IsWindows) { throw 'windows_private_terminal_required' }
     $stage='worktree'
@@ -67,7 +67,7 @@ try {
     $start.WorkingDirectory=$repositoryRoot; $start.UseShellExecute=$false; $start.CreateNoWindow=$true
     $start.RedirectStandardInput=$true; $start.RedirectStandardOutput=$true; $start.RedirectStandardError=$true
     $start.StandardInputEncoding=[Text.UTF8Encoding]::new($false); $start.StandardOutputEncoding=[Text.UTF8Encoding]::new($false)
-    foreach ($argument in @('--import','tsx','server/ainuoke-source/garment-shipment-probe.ts','--read-6086979-d1935-first-page','--stdin-config',('--private-output='+$directory))) { $start.ArgumentList.Add($argument) }
+    foreach ($argument in @('--import','tsx','server/ainuoke-source/garment-shipment-probe.ts','--read-6086979-d1933-first-page','--stdin-config',('--private-output='+$directory))) { $start.ArgumentList.Add($argument) }
     $process=[Diagnostics.Process]::Start($start)
     $stdout=$process.StandardOutput.ReadToEndAsync(); $stderr=$process.StandardError.ReadToEndAsync()
     $process.StandardInput.Write($configuration); $process.StandardInput.Close()
@@ -83,7 +83,7 @@ try {
     if ($process.ExitCode -eq 0) {
         if ($receipt.result -ne 'READ_ONLY_CANDIDATE_PAGE_RECORDED' -or $receipt.reportId -ne '6086979' -or $receipt.page -ne 1 -or $receipt.pageSize -ne 100 -or
             $receipt.httpAttempts -ne 2 -or $receipt.reportRequests -ne 1 -or $receipt.mappingVerified -ne $false -or $receipt.businessMeaningVerified -ne $false -or
-            (($receipt.queryContext.PSObject.Properties.Name)-join ',') -ne 'insideOrderNo' -or $receipt.queryContext.insideOrderNo -ne 'D1935' -or
+            (($receipt.queryContext.PSObject.Properties.Name)-join ',') -ne 'insideOrderNo' -or $receipt.queryContext.insideOrderNo -ne 'D1933' -or
             $receipt.sourceFingerprint -notmatch '^[0-9a-f]{64}$' -or $receipt.toolingCommit -notmatch '^[0-9a-f]{40}$' -or
             @($receipt.rowFields).Count -gt 1000 -or @($receipt.rowFields | Where-Object { $_ -isnot [string] -or $_ -notmatch '^[A-Za-z_][A-Za-z0-9_]{0,127}$' }).Count -gt 0) { throw 'receipt_scope_invalid' }
     } else {

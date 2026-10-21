@@ -49,3 +49,11 @@ insideorderno contains只查候选，可能包含多合同或前后缀相似记�
 工具已保存干净e8f979bd9aa223fae0f330723ffc2f8301b8dcd7，精确HEAD/main996守卫PASS/11页/51能力/累计63 UI路径/errors空。随后用户明确批准固定首页一次读取，由私密进程执行成功，实际1登录+1报表/2HTTP，0行/total0、38列定义。该许可已用完，无重试/翻页/改条件或DB/绑定/激活。
 
 已确认报告名“成衣出运登记明细表”，含本次出库数Num、出运日期outdate、销售合同号ExpContractNo等元信息；没有真实行，不能把元信息候选提升为实际映射或关账规则。onlyMyUser=true只是上游标志，不推断0行原因。完整脱敏字段表、时点、私密路径/hash和未验证项见[真实核验报告](../completed/2026-10-21-garment-shipment-first-page.md)。此前“未读取”各段按工具准备时点阅读，不覆盖旧证据。
+
+## 用户提供D1933后的固定范围校准
+
+用户回答下一样本范围为D1933。本轮main独立API再次核实仍996dfedc12da3527343cd3ff2aa5eea35497e10e；97cfa7800dfa143ac834b51673cb2bbb47aaa32c文档checkpoint及精确HEAD守卫PASS，工作树干净。中途只读分析了物流后台、创建了未改文件的codex/server-logistics-resource-store引用，没有遗留SQL/API/业务增量；收到样本后建立codex/garment-shipment-d1933-probe从该main对象显式FF到干净97cfa，无继承dirty。
+
+只校准原5个诊断实现/测试文件的固定D1935为固定D1933，保持报表/分页/原host/预算/无重试及私密链不变，不接受调用方任意查询。旧D1935命令与上下文明确拒绝；旧e8f工具、97cfa真实零行结果/元信息/hash保留不覆盖。本切片先离线验证并形成干净工具checkpoint，新增一次实际请求仍待具体范围授权，未读取凭据或上游。前一D1935许可不复用。
+
+本次校准实际Node12/12（10335.8354ms，0失败/取消/跳过）、全Python142项/2.392s OK、types/Node编译/两路径lint/PS AST0通过，既有reviewer只读复审无阻断。日志outputs/g7-d1933-*。本次没有共享private writer、workflow或UI/SQL变化，不重跑或借用旧82/116作为新输入的测试；前阶段实际基线116保持其原源码时点。独立checkpoint后核对精确main/HEAD源码守卫，0新Hosted CI/PR/远端写入/真实请求。

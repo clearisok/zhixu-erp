@@ -1,8 +1,10 @@
-# 当前状态：Gate7一次真实核验完成，D1935返回零行
+# 当前状态：D1935零行证据保留；用户提供D1933，工具固定范围校准
 
 2026-10-21；main本轮独立API核实996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原完整头/open draft未变。
-root唯一writer、既有reviewer只读。codex/garment-shipment-source-probe从该main对象创建并显式FF到干净
-3b9a44a04b9fe7ae075098b7c76ff87564510b26，无继承dirty；[Gate7当前任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)。
+root唯一writer、既有reviewer只读。当前codex/garment-shipment-d1933-probe从该main对象创建并显式FF到干净
+97cfa7800dfa143ac834b51673cb2bbb47aaa32c，无继承dirty；[Gate7当前任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)。
+用户已提供下一样本D1933，只校准原5个诊断实现/测试文件的固定条件；新Node12/12、Python142、types/Node/lint/PS AST及只读复审通过。
+原host/6086979/1登录+1报表/100行/4MiB/120秒及所有保护保持；旧D1935命令/上下文拒绝。D1933未读真实凭据/上游，新增一次请求预算仍待确认。
 
 用户对原成衣出货时点问题提供了6086979报表载荷：insideorderno contains D1935、首页100行。
 随后用户明确批准一次固定首页读取，已实际完成1登录+1报表/2HTTP：报告名“成衣出运登记明细表”、38列定义，D1935条件下total0/rows0。
@@ -29,4 +31,4 @@ Git工具664fb5f8ae2248a83aff1ba5a623dc22ba2da664已独立exact，唯一CI395439
 原243证据/51能力/旧PNG不变。Gate8加工服务产值、关账stale及旧CNY工价处理仍待决定；出货/Server关账/真实激活与总体目标未完成。
 保护3001/50426/59069/62426、旧卷/工作树/Browser，62426仍Gate1源8175；不建重复累计PR、不merge/close/deploy或升级旧入口。
 持续安全工程/Git授权不扩真实账号/业务库/艾诺科读取/绑定/激活/调度/退役。CNY销售/USD工价分开，不换汇、不重标历史。
-不安装依赖，不改共享Git/proxy/TLS/认证。下一步需有明细的准确样本范围后再核对；不重用本次许可或自动扩大查询。独立物流资料Server工程可继续。
+不安装依赖，不改共享Git/proxy/TLS/认证。下一步完成D1933干净工具/具体预算确认后核对，不重用前次许可或自动扩大查询。独立物流资料Server工程可继续。

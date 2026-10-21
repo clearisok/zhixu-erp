@@ -1,4 +1,4 @@
-"""Fixed 6086979 / D1935 first-page candidate evidence; not a source catalog entry."""
+"""Fixed 6086979 / D1933 first-page candidate evidence; not a source catalog entry."""
 from __future__ import annotations
 
 import json
@@ -17,8 +17,8 @@ from .payment_request_probe import (
 
 REPORT_ID = "6086979"
 PAGE_SIZE = 100
-ACTION = "read-6086979-d1935-first-page-only"
-QUERY = {"insideOrderNo": "D1935"}
+ACTION = "read-6086979-d1933-first-page-only"
+QUERY = {"insideOrderNo": "D1933"}
 SCHEMA = "ainuoke-garment-shipment-candidate-page.v1"
 DEFINITION = ReportDefinition(
     key=cast(ReportKey, "garment_shipment_candidate"), report_id=REPORT_ID,

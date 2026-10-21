@@ -16,11 +16,11 @@ const config = parseCollectorConfig({ sourceKey: "synthetic-garment-probe", base
   username: "synthetic-account", password: "Synthetic-Secret-Only", operatorUsername: "readonly-no-db-authorization" });
 const now = Date.parse("2026-10-21T00:00:00Z");
 function evidence(patch: Record<string, unknown> = {}, rawPatch: Record<string, unknown> = {}) {
-  const raw = { reObj: { isOk: true }, dataList: JSON.stringify({ rows: [{ id: 1, InsideOrderNo: "D1935-other-contract", CandidateQty: null,
+  const raw = { reObj: { isOk: true }, dataList: JSON.stringify({ rows: [{ id: 1, InsideOrderNo: "D1933-other-contract", CandidateQty: null,
     CandidateDate: "", CandidateDecimal: "12345678901234567890.123456789" }] }), dataCount: 200, pageIndex: 0, pageSize: 0,
     reportObj: JSON.stringify({ reportId: 6086979, cellList: JSON.stringify([{ fieldName: "CandidateQty" }]) }), ...rawPatch };
   const text = JSON.stringify(raw);
-  return { schemaVersion: "ainuoke-garment-shipment-candidate-page.v1", reportId: "6086979", queryContext: { insideOrderNo: "D1935" },
+  return { schemaVersion: "ainuoke-garment-shipment-candidate-page.v1", reportId: "6086979", queryContext: { insideOrderNo: "D1933" },
     page: 1, pageSize: 100, reportedTotal: 200, returnedRows: 1, fetchedAt: new Date(now).toISOString(), httpAttempts: 2, reportRequests: 1,
     rawReportResponse: text, rawResponseSha256: createHash("sha256").update(text).digest("hex"), ...patch };
 }
@@ -35,14 +35,14 @@ test("candidate evidence does not promote a contains result to contract, quantit
   assert.equal(result.summary.shipmentQuantityMeaning, "not-verified"); assert.equal(result.summary.mappingVerified, false);
   assert.equal(result.privateReport.rawReportResponse, input.rawReportResponse);
   const summary = JSON.stringify(result.summary);
-  for (const privateValue of ["D1935-other-contract", "12345678901234567890.123456789", config.password, config.username]) assert.ok(!summary.includes(privateValue));
+  for (const privateValue of ["D1933-other-contract", "12345678901234567890.123456789", config.password, config.username]) assert.ok(!summary.includes(privateValue));
   assert.ok(result.summary.rowFields.includes("CandidateQty"));
   assert.equal(result.summary.databaseAccess, "none"); assert.equal(result.summary.sourceActivation, "not-activated");
 });
 
 test("exact scope, counts, timestamps, pagination and hash cannot be changed by a worker frame", () => {
-  for (const patch of [{ reportId: "6087050" }, { page: 2 }, { pageSize: 101 }, { queryContext: { insideOrderNo: "D19350" } },
-    { queryContext: { insideOrderNo: "D1935", salesContractNo: "PRIVATE" } }, { httpAttempts: 3 }, { reportRequests: 2 },
+  for (const patch of [{ reportId: "6087050" }, { page: 2 }, { pageSize: 101 }, { queryContext: { insideOrderNo: "D19330" } },
+    { queryContext: { insideOrderNo: "D1933", salesContractNo: "PRIVATE" } }, { queryContext: { insideOrderNo: "D1935" } }, { httpAttempts: 3 }, { reportRequests: 2 },
     { rawResponseSha256: "0".repeat(64) }, { reportedTotal: 1 }, { returnedRows: 0 }, { returnedRows: true },
     { fetchedAt: new Date(now + 1).toISOString() }, { fetchedAt: new Date(now - 120001).toISOString() }, { actorId: "forged" }])
     assert.throws(() => validateGarmentCandidate(evidence(patch), config, now));
@@ -131,10 +131,11 @@ test("timeout, invalid UTF-8 and oversized child output stop without retry", asy
 
 test("CLI scope is fixed, explicit and private; unsupported password flags never reach collection", () => {
   const output = resolve("outputs/synthetic-garment-private");
-  assert.equal(parseGarmentProbeArguments(["--read-6086979-d1935-first-page", "--stdin-config", "--private-output=" + output]).privateOutput, output);
+  assert.equal(parseGarmentProbeArguments(["--read-6086979-d1933-first-page", "--stdin-config", "--private-output=" + output]).privateOutput, output);
   for (const args of [[], ["--run-read-only", "--stdin-config", "--private-output=" + output],
-    ["--read-6086979-d1935-first-page", "--stdin-config", "--private-output=relative"],
-    ["--read-6086979-d1935-first-page", "--stdin-config", "--private-output=" + output, "--page=2"]]) assert.throws(() => parseGarmentProbeArguments(args));
+    ["--read-6086979-d1935-first-page", "--stdin-config", "--private-output=" + output],
+    ["--read-6086979-d1933-first-page", "--stdin-config", "--private-output=relative"],
+    ["--read-6086979-d1933-first-page", "--stdin-config", "--private-output=" + output, "--page=2"]]) assert.throws(() => parseGarmentProbeArguments(args));
   const result = spawnSync(process.execPath, ["--import", "tsx", "server/ainuoke-source/garment-shipment-probe.ts", "--password=PRIVATE"], { encoding: "utf8", timeout: 15000 });
   assert.equal(result.status, 1);
   const receipt = JSON.parse(result.stdout);

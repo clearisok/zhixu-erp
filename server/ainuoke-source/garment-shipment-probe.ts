@@ -7,9 +7,9 @@ import { inspect, SourceError } from "./contract.js";
 import { assertPrivateOutput, writePrivateReport } from "./live-preflight.js";
 import { PAYMENT_WORKER_FAILURE_CODES } from "./payment-request-probe.js";
 
-export const GARMENT_PROBE_LIMITS = Object.freeze({ reportId: "6086979", insideOrderNo: "D1935", page: 1, pageSize: 100,
+export const GARMENT_PROBE_LIMITS = Object.freeze({ reportId: "6086979", insideOrderNo: "D1933", page: 1, pageSize: 100,
   responseBytes: 4 * 1024 * 1024, workerBytes: 16 * 1024 * 1024, timeoutMs: 120000 });
-export const GARMENT_PROBE_ACTION = "read-6086979-d1935-first-page-only";
+export const GARMENT_PROBE_ACTION = "read-6086979-d1933-first-page-only";
 const workerSchema = "ainuoke-garment-shipment-candidate-page.v1";
 const failureSchema = "ainuoke-garment-shipment-candidate-failure.v1";
 const publicSchema = "ainuoke-garment-shipment-probe.v1";
@@ -97,7 +97,7 @@ export function rejectedGarmentCandidate(input: unknown, configuration: Collecto
     || typeof evidence.rawReportResponse !== "string" || Buffer.byteLength(evidence.rawReportResponse, "utf8") > GARMENT_PROBE_LIMITS.responseBytes
     || evidence.rawResponseSha256 !== createHash("sha256").update(evidence.rawReportResponse).digest("hex")) return fail();
   const query = object(evidence.queryContext);
-  if (Object.keys(query).join(",") !== "insideOrderNo" || query.insideOrderNo !== "D1935") return fail();
+  if (Object.keys(query).join(",") !== "insideOrderNo" || query.insideOrderNo !== "D1933") return fail();
   const raw = decoded(evidence.rawReportResponse), data = decoded(raw.dataList);
   const metadata = raw.reportObj == null || typeof raw.reportObj === "string" && !raw.reportObj.trim() ? null : decoded(raw.reportObj);
   const columnValue = metadata?.cellList;
@@ -105,7 +105,7 @@ export function rejectedGarmentCandidate(input: unknown, configuration: Collecto
     : typeof columnValue === "string" ? jsonValue(columnValue) : columnValue;
   for (const value of [raw, data, metadata, columns]) if (value != null) secretScreen(value, config.password);
   return { schemaVersion: "ainuoke-garment-shipment-rejected-private.v1", validationStatus: "rejected", failureCode: code,
-    reportId: "6086979", queryContext: { insideOrderNo: "D1935" }, sourceFingerprint: accountFingerprint(config),
+    reportId: "6086979", queryContext: { insideOrderNo: "D1933" }, sourceFingerprint: accountFingerprint(config),
     databaseAccess: "none", sourceActivation: "not-activated", mappingVerified: false, businessMeaningVerified: false,
     rawResponseSha256: evidence.rawResponseSha256, rawReportResponse: evidence.rawReportResponse, rawNumericTextIsAuthoritative: true };
 }
@@ -138,7 +138,7 @@ export function validateGarmentCandidate(input: unknown, configuration: Collecto
   const allFields = new Set(data.rows.flatMap(row => Object.keys(object(row))));
   const rowFields = [...allFields].filter(key => /^[A-Za-z_][A-Za-z0-9_]{0,127}$/u.test(key)).sort();
   if (rowFields.length > 1000) return fail();
-  const common = { reportId: "6086979", queryContext: { insideOrderNo: "D1935" }, sourceFingerprint: accountFingerprint(config),
+  const common = { reportId: "6086979", queryContext: { insideOrderNo: "D1933" }, sourceFingerprint: accountFingerprint(config),
     databaseAccess: "none", sourceActivation: "not-activated", mappingVerified: false, businessMeaningVerified: false } as const;
   return {
     summary: { schemaVersion: publicSchema, result: "READ_ONLY_CANDIDATE_PAGE_RECORDED", ...common, page: 1, pageSize: 100,
@@ -154,11 +154,11 @@ export function validateGarmentCandidate(input: unknown, configuration: Collecto
 
 export function parseGarmentProbeArguments(args: string[]) {
   const output = args.find(arg => arg.startsWith("--private-output="))?.slice("--private-output=".length);
-  if (args.length !== 3 || new Set(args).size !== 3 || !args.includes("--read-6086979-d1935-first-page") || !args.includes("--stdin-config") || !output || !isAbsolute(output)) return fail("shipment_probe_explicit_action_required");
+  if (args.length !== 3 || new Set(args).size !== 3 || !args.includes("--read-6086979-d1933-first-page") || !args.includes("--stdin-config") || !output || !isAbsolute(output)) return fail("shipment_probe_explicit_action_required");
   return { privateOutput: output };
 }
 export async function main(args = process.argv.slice(2)) {
-  if (args.length === 1 && args[0] === "--help") { process.stdout.write("Fixed 6086979 / insideorderno contains D1935, first page only: <=100 rows / 4MiB / 120s, 1 login + 1 report, no retry/DB/activation.\n"); return; }
+  if (args.length === 1 && args[0] === "--help") { process.stdout.write("Fixed 6086979 / insideorderno contains D1933, first page only: <=100 rows / 4MiB / 120s, 1 login + 1 report, no retry/DB/activation.\n"); return; }
   let stage = "arguments";
   let collected: unknown, config: CollectorConfig | undefined, privateOutput: string | undefined, toolingCommit: string | undefined;
   try {
