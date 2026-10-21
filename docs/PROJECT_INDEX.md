@@ -4,6 +4,8 @@
 
 前向收口：6e55已一次上传/精确核实；team-access CI通过，baseline检查通过但流程未收口，source失败于旧货款申请UI首按钮选择器。仅修测试、最终9/9及语法/lint通过，产品/SQL/manifest不改；修复后精确守卫、交付与新CI继续见任务，不把旧失败或未执行步骤写PASS。
 
+当前前向：08精确远端已核实，异常退出/本地跟踪落后分别记录，已正常fetch快进同步但不推断原根因。08的team-access/baseline成功，source失败于资源撤权Enter就绪；仅硬化测试，受控焦点复现和完整23/23通过，产品不变。新检查点的交付/CI见任务，不创建重复累计PR。
+
 下段是已完成的前阶段证据，原根文档已逐字节归档，不覆盖其测试/日期/源码绑定。
 
 2026-10-21；codex/server-material-arrival-ui；独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净689afa，无继承dirty；root唯一writer/既有reviewer只读。

@@ -1,4 +1,4 @@
-# 恢复点：Gate7A已交付，旧验收选择器修正待新CI
+# 恢复点：Gate7A精确远端已核实，第二处验收时序修复待新CI
 
 2026-10-21；codex/server-garment-shipment-observations；独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净e4d7a8dd6f6bd3c409747ab44b71823422cfb8d1，原三份根文档逐字节归档到tasks/completed/2026-10-21-garment-shipment-inputs/e4d7a8dd/；root唯一writer/既有reviewer只读。
 
@@ -8,7 +8,11 @@
 
 6e55e5c352e734ff523f3af06d0cfbbf9df9711b精确HEAD守卫PASS后，一次上传DELIVERED_VERIFIED，独立API完整SHA一致。三项CI：team-access39620078921成功；baseline39620085365的check通过但流程仍in_progress；source39620073275失败，仅旧payment-read-panel-ui入口点到了新增到料按钮，8子项连带超时。完整日志本机脱敏保存，未上传raw；其后报价UI/Python未执行，不能写全CI通过。
 
-修复仅该测试按事件按钮可访问名称/文本定位，单次点击，断言事件Drawer存在且到料Planner不在，焦点回原事件按钮；权限/金额/分页/过期/GET计数原断言保留。最终9/9（20038.9005ms）、语法/lint通过；产品/SQL/manifest/冻结报告不改。下一步新checkpoint、精确守卫、一次安全交付和三项新CI，不能借旧提交CI。旧664f原因仍unresolved，不宣称永久网络恢复；用户持续工程授权不扩大真实读取额度。
+支付测试修复08a1a8ecdf2b4d12197b9bce39170976e80752ce已精确守卫PASS，本机9/9（20038.9005ms）、语法/lint与独立复审通过；产品/SQL/manifest/冻结报告不改。实际一次push退出1/工具STOP_AUTH_OR_DIVERGENCE，但API精确远端08已核实；不重推。只读发现origin跟踪仍6e55，核对祖先/clean/远端后一次正常fetch该引用到08，3222ms/无force/无FETCH_HEAD/无配置改变。两次退出具体原因仍unknown，不把认证分类当作诊断。
+
+08的team-access39624217024与baseline39624225057成功；source39624208435失败于production-resources-ui的撤权Enter提示超时。原完整23项本机通过（32865.2889ms），旧CI没有焦点/HTTP现场。只修测试：保留并执行真实初始RAF，受控证明可覆盖提前设置的输入焦点；就绪后一次真实Enter→恰好1 POST/403，原0资源/0回执及同ID显式retry仅1记录保留。完整23/23（31351.8724ms）、语法/lint及独立复审通过；候选竞态实证不冒称旧CI已确定根因。只增加白名单焦点/状态诊断，不记录凭据/响应body。
+
+下一步新checkpoint、精确main守卫/clean、一次交付及三项新CI；不借父提交结果。拟用ignored capture-delivery-signals.mjs透传同一deliver/runCommand采固定布尔错误信号，默认origin与全部守卫/次数不变，raw不存、诊断失败不影响原结果；离线隐私断言通过，实际执行尚待。持续工程授权不扩大真实读取额度。
 
 **不创建重复累计业务PR**：本分支含未合并依赖，按已批准Gate0仅交付验证引用；核实后只dispatch ainuoke-server-source、first-team-access、release-baseline三项验收CI并复审。冻结报告中的未来条件句不是另建PR授权。远端/CI终态另记，不能把本地结果当Hosted PASS；不合并或关闭现有PR。
 

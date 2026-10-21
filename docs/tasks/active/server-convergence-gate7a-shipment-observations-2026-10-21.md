@@ -61,3 +61,17 @@ db3396cd4ef2bd4c6298c1e67ff8e59342576f5f精确main996守卫PASS，11页/53能力
 helper改按事件按钮完整可访问名称形状与文本定位，只点击一次；等待事件或误开的Planner后，明确断言事件存在且Planner未开，焦点回同一个事件触发器。首次9/9通过（20855.7941ms）；按复审建议追加Planner明确排除后，最终原完整9/9（20038.9005ms）、0fail/cancel/skip，含六尺寸、七合成角色、真实DB撤权、延迟、过期及原请求计数，语法与单文件lint通过。运行使用原应用字节未变的99c52/build20261021-222838，不伪称重建新产品或新截图接受；无真实Source/旧体验库操作。
 
 后续需新checkpoint的精确main守卫/clean、一次工具交付并独立核对，再仅运行三项指定验收CI。用户持续授权涵盖该必要CI修复，不重复请求精确SHA例外；不合并、不关闭或部署。最终远端与Hosted结果后续记录，不能复用6e55的结果冒称新提交通过。
+
+## 08精确远端、跟踪引用修复与第二处验收就绪
+
+08a1a8ecdf2b4d12197b9bce39170976e80752ce精确main996守卫PASS/clean、独立复审通过。实际pushes=1、exit1、6349ms、工具STOP_AUTH_OR_DIVERGENCE，但工具后验及独立GitHub API均证明远端精确08。保留工具原STOP，不伪造DELIVERED_VERIFIED或重推。只读见本地origin跟踪仍6e55，文件Archive非只读、当前无lock；没有原始stderr，不能断言是本地引用、认证或网络根因。验证本地6e55为08祖先、clean和精确远端后，一次正常fetch仅快进该tracking ref到08（--no-auto-maintenance/--no-tags/--no-write-fetch-head，无force），3222ms/exit0；0新push、0共享配置/工作分支/历史修改。该安全修复不证明原退出原因或长期稳定。
+
+仅对已核实远端08各dispatch一次三项指定CI：source39624208435、team-access39624217024、baseline39624225057。后二者均终态success；source failure于production-resources-ui:337的fresh grants/Enter用例，“没有执行此操作的权限”16秒超时，后续未执行步骤不写PASS。日志本机去控制字符保存source-ci-repair.log；当前没有其failure.json/焦点/响应现场。
+
+开始本次修复前baseline为clean08。本机原完整资源UI23/23（32865.2889ms）通过，所以不将旧CI直接认定为产品授权漏洞。实际代码service:242在写前读取currentActor/校验permission，client映射403且页面应保留原请求；独立reviewer未发现确定绕过路径。测试先focus input、再两次CDP发送Enter，overlay.ts的初始RAF可能在中间把焦点移到关闭钮，是有代码依据的候选时序。
+
+只修改生产资料浏览器测试：受控保留真实RAF回调，先focus input，再照常执行回调，实证焦点转到Drawer关闭钮；恢复原RAF并检查input/值/表单有效及submit启用，再发送一次真实Enter，不假submit或重复按键。核对恰好1 POST及实际403、资源数量不变/0命令记录；恢复权限后GET unknown，原UUID人工retry且仅新增1条记录，额外POST严格只有1次。失败仅打印固定焦点形状/HTTP状态计数，无正文/凭据。原UI/业务/SQL/权限不改，未放宽16秒等待。
+
+最终完整23/23（31351.8724ms）、0fail/cancel/skip，语法/单文件lint与独立只读复审通过；使用原99c52/build20261021-222838应用字节。结论仅是候选竞态机制受控验证且新用例严格通过，缺旧CI现场仍不能确认当次唯一根因。产品、manifest、冻结报告/截图不变，不重跑或冒称新全量927/116；下一精确守卫与Hosted重新核实。
+
+下一次正常checkpoint交付拟通过既有deliver可测试接口包一层同一runCommand（原参数/默认origin/次数/状态机不变），只采样推送失败的固定布尔信号及字节/hash，不保存raw、不改认证或配置；ignored capture-delivery-signals.mjs已语法及离线canary隐私检查通过，0请求/push，执行前独立只读复审。观察落盘失败不得影响原结果；不是恢复已到达08或另创传输通道。持续授权涵盖本次必要工程修复；不扩大真实Source、合并或部署。

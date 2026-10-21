@@ -59,11 +59,13 @@ test('Gate6A/6D built resource pages preserve Server ownership, logistics member
   const x = await startFixture(resolve('dist/client')), temp = await mkdtemp(join(tmpdir(), 'zhixu-resource-ui-'));
   const evidence = resolve('outputs/production-resources-ui', build.gitCommit + '-' + Date.now()); await mkdir(evidence, { recursive: true });
   let browser, ws, session, sequence = 0, closeBrowser, evaluate;
-  const pending = new Map(), errors = [], network = [], geometry = [];
+  const pending = new Map(), errors = [], network = [], commandResponses = [], geometry = [];
   const phase = async (name, run) => {
     let failure;
     await t.test(name, async () => { try { await run(); } catch (error) { failure = error; throw error; } });
     if (failure) {
+      const focus = evaluate ? await evaluate("(()=>{const n=document.activeElement,d=document.querySelector('[role=dialog]');return {tag:n?.tagName,type:n?.getAttribute('type'),insideDialog:Boolean(d?.contains(n)),drawerClose:n===d?.querySelector('header>button'),arrivalPlanner:Boolean(document.querySelector('.sp-v4-planner'))}})()").catch(() => null) : null;
+      console.error('Owned resource UI diagnostic: ' + JSON.stringify({ name, focus, commandPosts: network.filter(row => row.method === 'POST' && row.path === '/api/v1/production-resources/commands').length, commandStatuses: commandResponses.map(row => row.status) }));
       await writeFile(join(evidence, 'failure.json'), JSON.stringify({ name, body: evaluate ? await evaluate('document.body?.innerText').catch(() => '') : '', fields: evaluate ? await evaluate("[...document.querySelectorAll('[role=dialog] input,[role=dialog] select,[role=dialog] textarea')].map(n=>({label:n.getAttribute('aria-label')??n.closest('label')?.textContent,value:n.value}))").catch(() => []) : [], errors, network }, null, 2));
       throw Error('Resource UI prerequisite failed: ' + name, { cause: failure });
     }
@@ -83,6 +85,7 @@ test('Gate6A/6D built resource pages preserve Server ownership, logistics member
       if (call) { pending.delete(event.id); clearTimeout(call.timer); if (event.error) call.reject(Error(JSON.stringify(event.error))); else call.done(event.result); }
       if (event.method === 'Runtime.exceptionThrown') errors.push(event.params.exceptionDetails.text);
       if (event.method === 'Network.requestWillBeSent') network.push({ method: event.params.request.method, path: new URL(event.params.request.url).pathname });
+      if (event.method === 'Network.responseReceived' && new URL(event.params.response.url).pathname === '/api/v1/production-resources/commands') commandResponses.push({ status: event.params.response.status });
       if (event.method === 'Page.javascriptDialogOpening') void command('Page.handleJavaScriptDialog', { accept: true }).catch(() => {});
     });
     ws.addEventListener('close', () => { for (const call of pending.values()) { clearTimeout(call.timer); call.reject(Error('Owned browser closed')); } pending.clear(); });
@@ -336,15 +339,34 @@ test('Gate6A/6D built resource pages preserve Server ownership, logistics member
     });
     await phase('fresh server grants block stale form Enter after revocation and preserve the exact retry identity', async () => {
       await x.user('resource.revoked', ['quote.view', 'settings.outsource_factory.edit']); await loginCookie('resource.revoked'); await navigate('/basic-settings/outsource-factories'); await has('合成验收外发厂');
-      const n = await count('production_outsource_factories'); await click('＋ 新增外发厂'); await formField('名称', '合成撤权保护外发厂');
+      const n = await count('production_outsource_factories');
+      // Hold, then execute the real initial-focus frame to reproduce the race in
+      // the old harness. No synthetic submit or second Enter is used.
+      await evaluate("(()=>{const original=requestAnimationFrame.bind(window);window.resourceFocusFrame={original,held:[]};window.requestAnimationFrame=callback=>original(timestamp=>resourceFocusFrame.held.push(()=>callback(timestamp)))})()");
+      try {
+        await click('＋ 新增外发厂'); await formField('名称', '合成撤权保护外发厂');
+        await until(() => evaluate("document.body.style.overflow==='hidden'"), 'drawer focus lifecycle installed');
+        await evaluate('new Promise(done=>resourceFocusFrame.original(done))');
+        assert.ok(await evaluate('resourceFocusFrame.held.length>0'), 'the real overlay focus frame is held');
+        assert.equal(await evaluate("(()=>{const n=document.querySelector('[role=dialog] input');n.focus();return document.activeElement===n})()"), true);
+        await evaluate('(()=>{requestAnimationFrame=resourceFocusFrame.original;resourceFocusFrame.held.splice(0).forEach(run=>run())})()');
+        assert.equal(await evaluate("document.activeElement===document.querySelector('[role=dialog] header>button')"), true, 'the pending initial frame can replace an early input focus');
+      } finally {
+        await evaluate('(()=>{if(window.resourceFocusFrame){requestAnimationFrame=resourceFocusFrame.original;resourceFocusFrame.held.splice(0).forEach(run=>run())}})()');
+      }
       await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='resource.revoked' AND permission_key='settings.outsource_factory.edit'");
-      await evaluate("document.querySelector('[role=dialog] input').focus()");
+      const before = posts(), responseStart = commandResponses.length;
+      assert.equal(await evaluate("(()=>{const d=document.querySelector('[role=dialog]'),n=d.querySelector('input'),submit=d.querySelector('button[type=submit]');n.focus();return document.activeElement===n&&n.value==='合成撤权保护外发厂'&&!n.matches(':disabled')&&!submit.matches(':disabled')&&d.checkValidity()})()"), true, 'one native Enter starts from the ready form input');
       await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 }); await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
+      await until(() => posts() === before + 1, 'one native Enter reaches the resource API');
+      await until(() => commandResponses.length === responseStart + 1, 'revoked command response');
+      assert.equal(commandResponses.at(-1).status, 403);
       await has('没有执行此操作的权限'); assert.equal(await count('production_outsource_factories'), n);
       const original = await evaluate("JSON.parse(sessionStorage.getItem(Object.keys(sessionStorage).find(k=>k.startsWith('zhixu.server.production-resource.pending.v1.')))).command");
       assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_resource_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 0);
       await x.pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('resource.revoked','settings.outsource_factory.edit')");
       await click('核对原请求', '[role=dialog] button'); await has('暂未查到原请求结果'); await click('重试原请求', '[role=dialog] button'); await has('外发厂已保存'); assert.equal(await count('production_outsource_factories'), n + 1);
+      assert.equal(posts(), before + 2, 'only the explicit original retry sends one additional POST');
       assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_resource_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1);
       await loginCookie(x.root); await navigate('/basic-settings/outsource-factories'); await has('合成验收外发厂');
     });
