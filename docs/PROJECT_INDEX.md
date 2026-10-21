@@ -1,7 +1,7 @@
 # 项目知识索引
 
 2026-10-21；codex/server-material-arrival-ui；独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净689afa，无继承dirty；root唯一writer/既有reviewer只读。
-应用14a71172/build20261021-210416、harness77b8、冻结报告/四PNG ee14615f，[冻结验收](tasks/completed/2026-10-21-material-arrivals-ui-engineering.md)与[阶段任务](tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md)为本阶段恢复入口。42定向/15built到仓/10原UI/927项目、类型lint与构建通过；252证据/52能力前向登记，最终metadata守卫/发布检查收口中。
+应用14a71172/build20261021-210416、harness77b8、冻结报告/四PNG ee14615f，[冻结验收](tasks/completed/2026-10-21-material-arrivals-ui-engineering.md)与[阶段任务](tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md)为本阶段恢复入口。42定向/15built到仓/10原UI/927项目、类型lint与构建通过；252证据/52能力前向登记，f6cd430e精确HEAD守卫及修正后116发布通过。
 原人工计划与逐批物流已接Server，Source交期不冒充到Hub；Source自动读取仅联动本地GET，旧草稿/历史/原请求保留。无真实Source/部署/用户接受；Git664f写STOP保留。D152已确认，完整Goal仍active，正式成衣/关账/环境收敛继续。
 
 ## 系统简介
@@ -132,3 +132,5 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
 
 当前应用a290edfe3ba26173e21e0c4df08f35be48fe16f4：42项定向/11项built浏览器通过，六宽度与回执/会话恢复已覆盖；完整项目/发布及截图证据仍在收口。初失败与修正见阶段任务。
+
+2026-10-21本阶段收口：LOCAL ENGINEERING PASS；62426最新只读build-info未连通，当前READY未验证，Gate1/8175仅历史资产观察。无新远端交付/部署或真实来源操作，下一Gate仍按Goal推进。

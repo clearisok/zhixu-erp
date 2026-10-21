@@ -74,3 +74,10 @@ v6私有Chromium11/11（含父项），19044.6331ms，0fail/cancel/skip：六宽
 
 证据报告/四PNG已冻结ee14615fd2d5ccc64984f2bda41041a05d6355b9；manifest仅新增5项为252，能力仍52，既有manual-arrival扩展页面/物流及七维。初metadata守卫因isolatedTest混入截图引用报STATUS_EVIDENCE_KIND，按既有document-only契约改为只引报告；图片仍在能力总evidence中，无应用变化。v2守卫PASS：checkedHead ee14615f，11页/52能力/76累计UI路径/errors空。
 逐对象核实输入689afa的全部247证据、其他51能力、pages/CSS/responsive/routes/runtime/limitations完全相同；三摘要归档与输入Git字节一致。首次最终release在初metadata错误时已开始，不能用其结果冒称修正后整套PASS；终态后在正确metadata上重跑并另记。
+
+## 最终metadata验收与边界
+
+第一次最终release在错误metadata启动，99项中87通过/12失败，169370.2198ms，错误为STATUS_EVIDENCE_KIND；不作为修正后结果。修正只让七维指向已冻结文档，未改应用、报告或PNG。f6cd430eaa77f88d492478350ef12eb1493abbbb干净checkpoint上重跑：npm run test:release-baseline **116/116**，195751.0199ms，0fail/cancel/skip。同一完整HEAD的精确main守卫PASS，11页/52能力/76累计UI路径/errors空。
+独立只读最终复审确认252证据的Git/blob/哈希/源码绑定、旧247证据/其他51能力保持，七维无合并/部署/人工接受越界；未代跑测试或网络。冻结报告ee14615f及四PNG不改，后续结果只在本任务/root摘要记录。
+只读检查127.0.0.1:62426/build-info.json为HttpRequestException，localhost同路径5秒为TaskCanceledException，当前READY无法验证；不据此判定资产丢失或变更源码，保留Gate1/8175历史观察，未启动/停机/替换旧入口。docker只读可见两临时命名容器创建于2026-10-19，非本阶段创建，归属未核验且未清理。
+本阶段LOCAL ENGINEERING PASS，REMOTE DELIVERY仍未做新push/PR/Hosted CI；664f写STOP原因未明，不重试/切认证/改共享配置。无真实Source/业务数据库/账号变更、绑定/激活/调度、合并或部署。完整Goal继续，正式成衣Source身份/颜色/冲销、Server关账、环境及用户验收未完成。
