@@ -53,7 +53,7 @@ test('garment observations and history use the exact Server order detail without
         return r;
       };` });
     const evaluate = async expression => { const value = await command('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }); assert.equal(value.exceptionDetails, undefined, JSON.stringify(value.exceptionDetails)); return value.result.value; };
-    const has = text => until(() => evaluate('document.body.innerText.includes(' + JSON.stringify(text) + ')'), text);
+    const has = text => until(() => evaluate('(document.body?.innerText??\'\').includes(' + JSON.stringify(text) + ')'), text);
     const text = selector => evaluate('document.querySelector(' + JSON.stringify(selector) + ')?.innerText??\'\'');
     const click = async (name, selector = '[data-garment-section] button') => {
       const find = `(()=>[...document.querySelectorAll(${JSON.stringify(selector)})].find(n=>n.textContent.trim()===${JSON.stringify(name)}))()`;
@@ -78,6 +78,7 @@ test('garment observations and history use the exact Server order detail without
     await phase('six widths keep source records and history within the viewport using table-local overflow', async () => {
       for (const [width, scale] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {
         await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: scale, mobile: width === 390 });
+        await until(async () => (await text('[data-garment-section]')).includes('9007199254740993.000000000001'), 'displayed records before screenshot');
         await evaluate("document.querySelector('[data-garment-section]').scrollIntoView({block:'start'})");
         const geometry = await evaluate("(()=>{const b=document.querySelector('[data-garment-section]').getBoundingClientRect();return {width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth+1,inside:b.left>=-1&&b.right<=innerWidth+1}})()"); assert.equal(geometry.overflow, false); assert.equal(geometry.inside, true);
         await shot('current-' + width); await click('出货历史'); await has('查看第 1 次记录');
@@ -127,7 +128,7 @@ test('garment observations and history use the exact Server order detail without
       await has('已过期 · 历史观察'); await has('9007199254740993.000000000001'); assert.equal(await evaluate("garmentWire.requests.filter(r=>r.path.includes('/garment-shipments')).length"), before);
       await x.pool.query("UPDATE ainuoke_garment_shipment_targets SET freshness_ms=120000,version=version+1 WHERE source_key='synthetic-demo'");
     });
-    await phase('revoked permission and disabled source clear old content until explicit reread', async () => {
+    await phase('a 403 response and disabled source clear old content until explicit reread', async () => {
       await x.garments.publish(1); await click('重新读取出货记录'); await has('9007199254740993.000000000001'); await evaluate("garmentWire.current='403'"); await click('重新读取出货记录'); await has('当前账号没有查看成衣出货的权限。'); assert.equal((await text('[data-garment-section]')).includes('9007199254740993.000000000001'), false);
       await click('重试'); await has('9007199254740993.000000000001'); await x.garments.setEnabled(false); await click('重新读取出货记录'); await has('成衣出货来源尚未接通。'); assert.equal((await text('[data-garment-section]')).includes('9007199254740993.000000000001'), false);
       await x.garments.setEnabled(true); await click('重试'); await has('9007199254740993.000000000001');
@@ -140,8 +141,9 @@ test('garment observations and history use the exact Server order detail without
     await phase('all existing synthetic roles respect current order and source grants without amount leakage', async () => {
       for (const username of x.users) {
         const grants = new Set((await x.pool.query('SELECT rp.permission_key FROM app_users u JOIN app_user_roles ur ON ur.user_id=u.id JOIN app_role_permissions rp ON rp.role_id=ur.role_id WHERE u.username=$1', [username])).rows.map(row => row.permission_key));
-        await cookie(username); await command('Page.navigate', { url: x.base + route });
-        await until(() => evaluate("document.body.innerText.includes('订单概况')||document.body.innerText.includes('当前 Server 账号没有订单查看权限')"), 'role order state ' + username);
+        await cookie(username); const marker = randomUUID(); await evaluate('window.garmentRoleNavigation=' + JSON.stringify(marker)); await command('Page.navigate', { url: x.base + route });
+        await until(() => evaluate('window.garmentRoleNavigation!==' + JSON.stringify(marker) + '&&document.readyState===\'complete\''), 'fresh role document');
+        await until(() => evaluate("(document.body?.innerText??'').includes('订单概况')||(document.body?.innerText??'').includes('当前 Server 账号没有订单查看权限')"), 'role order state ' + username);
         const allowed = grants.has('order.view') && grants.has('ainuoke.view');
         assert.equal(await evaluate("!!document.querySelector('[data-garment-section]')"), allowed);
         if (allowed) { await click('展开出货记录'); await has('9007199254740993.000000000001'); }

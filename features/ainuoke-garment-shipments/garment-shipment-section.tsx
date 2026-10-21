@@ -65,20 +65,20 @@ export function GarmentShipmentSection({ orderId, contract, processing = false, 
   if (processing || historicalAlias || !contract) return <Card className="oc-server-detail-section"><header><h2>成衣出货</h2></header><p style={{ padding: 18 }}>{processing ? "加工订单不适用艾诺科成衣出货来源。" : historicalAlias ? "此历史订单保留原身份，不自动读取其他订单的成衣出货记录。" : "尚无可信销售合同，暂不能读取成衣出货。"}</p></Card>;
   return <Card className="oc-server-detail-section" data-garment-section>
     <header style={{ flexWrap: "wrap", gap: 12 }}><div><h2>成衣出货</h2><small>按合同查看已采集的来源记录</small></div><div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-      <Button variant="text" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>{expanded ? "收起出货记录" : "展开出货记录"}</Button>
-      <Button variant="secondary" onClick={openHistory}>出货历史</Button>
+      <Button size="compact" variant="text" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>{expanded ? "收起出货记录" : "展开出货记录"}</Button>
+      <Button size="compact" variant="secondary" onClick={openHistory}>出货历史</Button>
     </div></header>
     {expanded && <div style={{ padding: "0 18px 18px", minWidth: 0 }}>
-      {blocked ? <ErrorState description={blocked} onRetry={reread} /> : current.loading ? <LoadingState label="读取成衣出货" /> : current.error ? <ErrorState description={current.error.message} onRetry={reread} />
+      {blocked ? <ErrorState description={blocked} onRetry={reread} /> : current.loading ? <LoadingState compact rows={2} label="读取成衣出货" /> : current.error ? <ErrorState description={current.error.message} onRetry={reread} />
         : current.data ? <Observation key={current.data.status === "observed" ? current.data.model.publicationId : current.data.model.sourceStatus} view={current.data} stale={Boolean(current.stale)} /> : null}
       {!blocked && <Button variant="text" disabled={current.loading} onClick={reread}>重新读取出货记录</Button>}
     </div>}
     <Drawer open={historyOpen} title="成衣出货历史" description="每次采集独立保存，选择记录查看当时的数量、日期和颜色匹配。" onClose={closeHistory} footer={<Button variant="secondary" onClick={closeHistory}>关闭出货历史</Button>}>
-      {blocked ? <ErrorState description={blocked} onRetry={reread} /> : current.loading ? <LoadingState label="核对当前来源范围" /> : current.error ? <ErrorState description={current.error.message} onRetry={reread} />
+      {blocked ? <ErrorState description={blocked} onRetry={reread} /> : current.loading ? <LoadingState compact rows={2} label="核对当前来源范围" /> : current.error ? <ErrorState description={current.error.message} onRetry={reread} />
         : publicationId ? <><Button variant="text" onClick={() => setPublicationId(undefined)}>返回出货记录列表</Button>
-          {selected.loading ? <LoadingState label="读取所选出货记录" /> : selected.error ? <ErrorState description={selected.error.message} onRetry={() => void selected.reload()} />
+          {selected.loading ? <LoadingState compact rows={2} label="读取所选出货记录" /> : selected.error ? <ErrorState description={selected.error.message} onRetry={() => void selected.reload()} />
             : selected.data ? <Observation key={publicationId} view={selected.data} stale={Boolean(selected.stale)} /> : null}</>
-        : history.loading ? <LoadingState label="读取出货历史" /> : history.error ? <ErrorState description={history.error.message} onRetry={() => void history.reload()} /> : history.data ? <>
+        : history.loading ? <LoadingState compact rows={2} label="读取出货历史" /> : history.error ? <ErrorState description={history.error.message} onRetry={() => void history.reload()} /> : history.data ? <>
           {history.data.records.length ? history.data.records.map(record => <section key={record.publicationId} style={{ padding: "12px 0", borderBottom: "1px solid var(--qc-border)", overflowWrap: "anywhere" }}>
             <strong>{capturedTime(record.observedThrough)}</strong><p>第 {record.generation} 次记录 · {record.rowCount} 条来源明细</p><Button variant="text" onClick={() => setPublicationId(record.publicationId)}>查看第 {record.generation} 次记录</Button>
           </section>) : <EmptyState compact title="本页没有可展示的记录" description={history.data.nextBeforeGeneration !== null ? "仍可继续查看更早记录。" : "其他订单的记录不会移入或相加。"} />}

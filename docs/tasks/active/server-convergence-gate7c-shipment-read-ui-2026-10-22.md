@@ -51,3 +51,7 @@
 此为D147已批准Server化与成衣出货范围内的局部接线（见Gate0和原批准请求）；不改变D152/153数量日期/观察业务规则。V2精确影响记录须先于最终门禁，六尺寸/实际构建/权限与竞态合成验收完成后才记工程UI通过。尚无新真实额度答复，不读取私密报告或凭据；所有已有运行环境继续保护。
 
 第二切片源码已接默认收起Card/历史Drawer、当前与所选记录独立、布局owner和失效block。typecheck/lint（初次一项effect依赖warning已修）通过，完整定向现85通过。只向原owned continuous fixture增加可选garment，既有默认行为不变；新built harness/既有Source workflow接入仅使用私有Chromium及一次性PG。先源码checkpoint，再以完整SHA显式Server构建，尚未运行浏览器或新增能力状态证明。独立复审进行中。
+
+应用checkpoint3452efba13bb716160ee5892a71e37fd62c96750已显式Server构建（build20261022-021857）。初轮built浏览器11个业务阶段通过，含六尺寸/准确量日/空游标/关闭与ABA/单调到期/403/target停用；最后七角色循环因新页面瞬间body=null的harness等待表达式失败，根父test也记fail，未改成PASS。原日志及15张初轮PNG保留ignored目录。已修等待为null-safe且逐角色fresh-document marker；截图先等待实际记录，避免拍到关闭历史后的局部loading。仅将本区块按钮/LoadingState收紧为既有compact选项；新源码checkpoint、重建及完整浏览器复验继续，不覆盖旧图。
+
+第二切片静态复审无剩余P1/P2；403注入仅证明前端清理，不冒称本阶段真的改角色后撤权；七角色将另验实际session读取，后端权限/撤权证据来自85定向的原PG/HTTP测试。修后typecheck/lint通过，原continuous默认fixture回归运行中。无真实Source或数据操作。
