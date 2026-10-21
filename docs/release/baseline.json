@@ -2222,6 +2222,14 @@
       "recordedAtSha": "0e546e2a653c1285d15b4321b105936eeaa9cbf3",
       "renderedSourceSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
       "sha256": "aa642eac58af3b74d2a5a17438085d5c231b7feac4c3e00498b187adf88423d7"
+    },
+    {
+      "id": "current-delivery-coverage-engineering-20261022",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-22-current-delivery-coverage-engineering.md",
+      "recordedAtSha": "192234e77db546138593c7cb2878b37a770ab44a",
+      "renderedSourceSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
+      "sha256": "04163d3aa6db3ece31dde3c67f2ad2b9843aa344f50e83c20b2a7bbf1cde5df5"
     }
   ],
   "pages": [
@@ -7751,6 +7759,91 @@
           "scope": "Not deployed or re-observed; preserve the original dated runtime/image identity. This backend slice does not change the protected environment.",
           "evidence": [
             "delivery-plan-request-engineering-20261022"
+          ],
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444"
+        }
+      }
+    },
+    {
+      "id": "production-current-delivery-coverage",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Existing production order detail GET adds bounded exact-decimal coverage of cumulative active DeliveryPlans by current registered output and outstanding planned work at each date. Reuses D151, fresh grants and one read-only RR snapshot; cancelled output is retained, ended remainder released, undated demand unassessed and original SO attribution preserved. No new UI, schema, writes, money, shipment or Source activation.",
+      "evidence": [
+        "current-delivery-coverage-engineering-20261022"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
+          "scope": "Existing production order detail GET adds bounded exact-decimal coverage of cumulative active DeliveryPlans by current registered output and outstanding planned work at each date. Reuses D151, fresh grants and one read-only RR snapshot; cancelled output is retained, ended remainder released, undated demand unassessed and original SO attribution preserved. No new UI, schema, writes, money, shipment or Source activation.",
+          "evidence": [
+            "current-delivery-coverage-engineering-20261022"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-22",
+          "sourceSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
+          "scope": "Not merged at independently reverified main996dfedc12da3527343cd3ff2aa5eea35497e10e. Validation ref only; preserve original PRs and commits without automatic merge or duplicate cumulative PR.",
+          "evidence": [
+            "current-delivery-coverage-engineering-20261022"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
+          "scope": "15 pure/PG/HTTP/RR/old-client checks and76 related execution/planning/upgrade checks,927 project and116 release checks, types/lint/Node/frontend builds passed using owned synthetic fixtures. The initial evidence-anchor failure and its repair are retained separately; final metadata guard and remote CI are subsequent checkpoints.",
+          "evidence": [
+            "current-delivery-coverage-engineering-20261022"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
+          "scope": "Not run. This backend-only additive projection has no new visible risk UI or browser/pixel acceptance claim.",
+          "evidence": [
+            "current-delivery-coverage-engineering-20261022"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
+          "scope": "No real Ainuoke request, credential/private report read, binding, activation, scheduler or existing business DB mutation.",
+          "evidence": [
+            "current-delivery-coverage-engineering-20261022"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Not deployed or re-observed. Preserve the original dated runtime/image facts; this read-only backend slice does not change the protected environment.",
+          "evidence": [
+            "current-delivery-coverage-engineering-20261022"
+          ],
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Not deployed or re-observed. Preserve the original dated runtime/image facts; this read-only backend slice does not change the protected environment.",
+          "evidence": [
+            "current-delivery-coverage-engineering-20261022"
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"

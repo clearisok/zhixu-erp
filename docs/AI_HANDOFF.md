@@ -1,12 +1,12 @@
-# 恢复点：交期覆盖纯规则与PG验收通过，待收口
+# 恢复点：交期覆盖本地验收与证据完成，待精确交付
 
-2026-10-22；feat/server-delivery-coverage，main独立核实996dfedc12da3527343cd3ff2aa5eea35497e10e；干净输入144f2a269affb41207566557f09ed06e8decf49a，无继承dirty。root唯一writer，既有server_convergence_review只读。实际源码已冻结ff8b8d68bf25e61ea757caee90ad5a7e998d6037；先读[当前任务](tasks/active/server-delivery-coverage-2026-10-22.md)、D155及实际delivery-coverage/service/tests，当前新增dirty只属本文档/证据修正，尚未交付，Goal active。
+2026-10-22；feat/server-delivery-coverage，main再次独立核实996dfedc12da3527343cd3ff2aa5eea35497e10e；干净输入144f2a269affb41207566557f09ed06e8decf49a，无继承dirty。root唯一writer，既有server_convergence_review只读。实际源码ff8b8d68bf25e61ea757caee90ad5a7e998d6037，新契约0e54、报告192234e77db546138593c7cb2878b37a770ab44a；后续全部文档变化。先读[当前任务](tasks/active/server-delivery-coverage-2026-10-22.md)、D155及实际delivery-coverage/service/tests，当前仅最终metadata待提交，尚未交付，Goal active。
 
 复用原GET/fresh权限/READ ONLY RR，executions只读一次。累计需求与当前实际+到截点预计剩余比较；直接调用D151数量投影，取消产出保留、结束余量释放。无日期未评估、不回退Source、不按单个actualCompletedDate重建日产量，不减出货观察；原物理SO归属、精确decimal与有界完整响应保持。无新schema/UI/写命令/金额。
 
 定向15/15（8375.1411ms）、相关原执行/排单/升级76/76（53630.6943ms）、typecheck和全lint通过。首轮11/15及TS target的BigInt literal失败已记录原因：测试表名/错误码/容量样本和构造写法，未改业务规则或工程target。新RR测试在真实事务读取交期后暂停，另一连接提交交期与执行，再恢复证明不混快照；不是仅比较mock数据。测试只清理自身随机合成PG，旧环境无操作。
 
-后续最终定向15/15（8389.6034ms）、Node/前端build、全项目927/927（262124.4801ms）、发布116/116（260394.2574ms）通过。固定源复审无应用P1/P2，但精确main守卫确实拒绝feature revision锚点，review同一P2。已恢复原执行契约字节，只删除未提交的被拒记录，独立保存SERVER_DELIVERY_COVERAGE.md；D155仍绑定实际ff8。下一步先提交新契约/修正，再绑定新root并核实际守卫；不得改guard、旧记录或称之前守卫通过。原263/56及全部旧字段保留，随后冻结工程报告/独立能力和最终精确交付/三CI。
+最终定向15/15（8389.6034ms）、Node/前端build、全项目927/927（262124.4801ms）、发布116/116（260394.2574ms）通过。首轮实际守卫四项锚点失败完整保留；原执行契约恢复、独立新root后main996/head0e54守卫PASS。工程报告现冻结192并绑定，manifest266/57，原263/56及全部其他字段不变；新能力七维只声明隔离后台实现，review无P1/P2。working main996/head192/11pages/57能力/80继承UI路径守卫也PASS。下一步提交metadata后核精确commit守卫、原工具一次交付/独立远端完整SHA、source/team/release三CI；不提前称新远端/CI，不重跑全项目或116来掩盖原失败。
 
 上一阶段144的实际应用源12cf、报告98580保持。原push STOP后精确远端144、原工具只读Dry Run pushes=0为DELIVERED_VERIFIED；source39685216005/team39685221309/release39685225162均attempt1 success，已在旧任务追加实结果，不改冻结报告，不因此称永久网络恢复。安全只读snapshot在ignored outputs/delivery-plan-receipts/ci-snapshot.mjs；不可重跑已用ci-dispatch.mjs或推送144。
 
