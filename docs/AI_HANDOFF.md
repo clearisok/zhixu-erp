@@ -1,4 +1,6 @@
-# 恢复点：0042候选镜像已验收，来源CI一项待修
+# 恢复点：到料只读浏览器验收的原子激活
+
+当前fix/material-arrival-browser-activation从干净c0d87bcd55fbda58db101f46d6e61b07f77db7df开始；main996dfedc12da3527343cd3ff2aa5eea35497e10e不变。先读[新任务](tasks/active/material-arrival-browser-activation-2026-10-22.md)。只改测试harness和状态文档；静态发现Source completion→arrival reload会在两次CDP enabled检查/click之间禁用按钮，需受控GET屏障复现，不能倒推原CI根因。原c0d镜像阶段精确守卫及发布116通过、精确远端已核，Release另在跑；下文保留其恢复信息，最终本阶段收口再压缩。
 
 2026-10-22；chore/server-current-image-0042，干净输入105cfbfcb336c0c29efe583f9ff09fda52bc07f0，main996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer、既有reviewer只读。先读[当前镜像任务](tasks/active/server-current-image-0042-2026-10-22.md)；本阶段无应用/SQL/ops/测试/UI变化。scope64f7、冻结报告88c2bdd645d7e3a8972a91e507be6ad836554452；manifest267/57，原266/57及其他字段不变，独立证据review无P1/P2，main996/head88工作守卫PASS。最终文档提交后核精确守卫/原工具交付/仅发布CI，不把parent三项归到新文档SHA。
 
