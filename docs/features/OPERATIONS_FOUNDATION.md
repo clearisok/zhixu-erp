@@ -8,6 +8,19 @@
 
 下文聚合Repository仍属Browser owner。正式Server使用独立四资源后台（`server/production-resources/`、0034）：生产日历→地点→组及独立外发厂，稳定UUID、版本、停用保留历史、无默认Seed，不调用Browser聚合normalizer。6A已接线现有三个路由与共享表单，实际工程与远端状态以[Gate6](../tasks/active/server-convergence-gate6-2026-10-20.md)为准，不据此称排单/生产闭环。物流与关账不混入；Server关账目标按D147为CNY销售/USD工价，未实现，不修改下文Browser历史RMB字段。
 
+### Server物流资料后台增量（2026-10-21，Gate6D）
+
+本机后台新增0037空表和同一production-resources HTTP服务的hubs、transport-plans类型。旧四资源parser、客户端类型、页面和Browser存储保持；下文6A四类型说明保留其原范围。新资料尚未接页面或物流推荐，不能称已可体验、已部署或来源已激活。
+
+- 集货仓与“路线＋完整方式列表”各有稳定UUID/父版本。新建只由服务端分配身份；更新包含全部已有方式（含停用），新增项modeId为null；移除、外来身份或跨方案搬移明确拒绝。方式列表保留提交顺序，sortOrder另存，运输天数为0–3650整数自然日，最多100项，不截断/四舍五入。
+- 仓、生产地点均需显式UUID，不从首个/唯一选项或Browser默认值推断。启用方案要求仓、地点和日历均启用；停用父资料不级联修改已有方案。同一Hub/Site最多一个启用方案，停用历史可并存；同名仓、同名方案及同名方式不作身份去重。更改方案端点保留同一方案/方式身份及完整审计，后续执行必须采用冻结事实，不能动态重写历史。
+- 沿用settings.production_infrastructure.edit；schedule.view可只读，生产组编辑权限不扩到物流。可信session/fresh DB身份、Origin/CSRF、相同actor/request互斥、原全资源写/冻结锁、父CAS、完整成员校验、资源/子项/审计/不可变回执共用一次事务，无新权限或第二writer。
+- 列表沿用空格AND、启停、分页和5000候选上限，只给modeCount/enabledModeCount，不复制完整子列表；详情包含全部方式。更新不能从省略方式的列表拼空子集。新kind复用POST /api/v1/production-resources/commands及原回执GET；原请求hash口径保持，提交结果未知先读回执，不能盲目重建UUID或重发。
+- HTTP输入和原不可变回执均保留1MiB限额。物流命令在SAVEPOINT内按PostgreSQL实际JSONB文本测量生成编号后的回执；若超限，回滚本次父子/审计改动，保存精简的422/logistics_result_too_large拒绝回执，不能因HTTP输入已合规就假定结果可保存。不截断字段，不扩大旧四资源的错误语义。
+- SQL保留创建身份、逐次版本、原方案归属及资源/子方式，拒绝普通DML物理删除；可延后的位置唯一约束允许原子重排。0037只加空表并扩原回执kind检查，不回填订单、生产或Browser资料。缺0037时新kind503；旧四资源仍可按既有schema验证，正常启动仍verify-only。
+
+当前实际纯契约/新旧PG/HTTP/0036升级首轮59/59通过，复审容量问题先红测500再修复，最终60/60（22905.2786ms）通过。升级前已有可信SO、排单和10.125实际产出，所有原业务表、权限、审计、资源、回执前后逐项不变。包括真实COMMIT后故意丢回执、父子锁、并发CAS、全局freeze、100项上限和后段子项/审计失败全回滚。最终质量检查及复审以[Gate6D任务](../tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)为准；未升级现有体验/业务库，无新真实艾诺科读取或运输/出货/关账流水。
+
 ### Server接口与事务边界
 
 - 仅正式session authority开放 `/api/v1/production-resources/{calendars|sites|groups|factories}` 列表及 `/{kind}/{uuid}` 详情；不存在local-single-user或Browser fallback。列表按显式启停过滤，搜索以空格分词为AND，limit≤100；完整候选超过5000时明确拒绝并要求细化搜索，不截断冒充分页。日历列表只给例外数量，完整日期从详情读，防止列表复制1000项例外。生产组复用既有自然排序函数；同名允许，不以名称去重。

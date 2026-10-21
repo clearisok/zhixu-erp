@@ -121,7 +121,7 @@ test("omitted or foreign child identities and stale complete membership fail clo
   membershipConflict(parsedPlan(update({ ...plan, modes: [mode] })), [modeId]);
 });
 
-test("new contracts do not open existing resource endpoints before storage and permissions are ready", () => {
+test("the old four-kind parser stays narrow; logistics parsing rejects unrelated kinds", () => {
   assert.deepEqual(PRODUCTION_RESOURCE_TYPES, ["calendars", "sites", "groups", "factories"]);
   for (const input of [create(), create("hubs", hub)]) assert.throws(() => parseProductionResourceCommand(input), { status: 400 });
   for (const kind of ["calendars", "routes", "modes", "shipments", "supplyHubs"]) rejects(create(kind));

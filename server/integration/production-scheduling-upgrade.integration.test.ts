@@ -14,6 +14,7 @@ import { parseProductionResourceCommand } from "../production-resources/contract
 import { executeProductionResourceCommand } from "../production-resources/service.js";
 import { startDisposablePostgres } from "./postgres-container.js";
 import { normalizationReferences } from "../sales-orders/normalization-preview.js";
+import { migrationFilesAfter } from "./current-migration-ledger-fixture.js";
 import { bumpPlanHeads, currentResourceFacts, persistAssignment, planHash, storeResourceFacts, type StoredAssignment } from "../production-scheduling/repository.js";
 
 test("0034 to 0035 then 0036 preserves synthetic resources, identity, source, demand, plans, receipts and grant bytes", { timeout: 180000 }, async t => {
@@ -76,7 +77,7 @@ test("0034 to 0035 then 0036 preserves synthetic resources, identity, source, de
   } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
   tables.push("production_order_plan_heads", "production_group_plan_heads", "production_schedule_assignments", "production_schedule_plan_versions", "production_schedule_resource_snapshots", "production_schedule_commands", "production_schedule_command_orders");
   const before36 = await snapshot();
-  assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, ["0036_production_execution_facts.sql"]);
+  assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, migrationFilesAfter(35));
   assert.deepEqual(await snapshot(), before36); await verifyMigrationsCurrent(pool, resolve("database/migrations"));
   for (const table of ["production_schedule_executions", "production_schedule_execution_versions"]) assert.equal((await pool.query("SELECT count(*)::int n FROM " + table)).rows[0].n, 0);
   assert.deepEqual((await pool.query("SELECT assignment_id::text,version::text FROM production_schedule_execution_epochs")).rows, [{ assignment_id: assignmentId, version: "0" }]);

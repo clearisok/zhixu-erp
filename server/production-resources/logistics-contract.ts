@@ -7,6 +7,8 @@ import {
 } from "./contract.js";
 
 export const LOGISTICS_RESOURCE_LIMITS = { modes: 100, transitDays: 3650 } as const;
+export const LOGISTICS_RESOURCE_TYPES = ["hubs", "transport-plans"] as const;
+export type LogisticsResourceType = typeof LOGISTICS_RESOURCE_TYPES[number];
 export type SupplyHubInput = ProductionResourceCommon;
 export type TransportModeInput = ProductionResourceCommon & {
   modeId: string | null; transitDays: number; sortOrder: number;
@@ -40,7 +42,7 @@ function transportPlan(value: unknown, create: boolean): TransportPlanInput {
     productionSiteId: productionResourceUuid(raw.productionSiteId), modes };
 }
 
-/** This contract does not register an HTTP kind or establish parent availability. */
+/** Parent availability and complete existing child membership require a transaction. */
 export function parseLogisticsResourceCommand(value: unknown): LogisticsResourceCommand {
   const { base, kind, data } = parseProductionResourceEnvelope(value);
   if (kind === "hubs") return { ...base, kind, data: common(fields(data, commonKeys)) };

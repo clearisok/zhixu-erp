@@ -4,8 +4,8 @@ import type { IdentityAuthority } from "../auth/identity-authority.js";
 import { HttpError } from "../http/errors.js";
 import { assertMutationBoundary, readJsonBody } from "../http/request.js";
 import { sendJson } from "../http/responses.js";
-import { parseProductionResourceCommand } from "./contract.js";
-import { executeProductionResourceCommand, listProductionResources, parseResourceListQuery, productionResourceKind, readProductionResource, readProductionResourceReceipt } from "./service.js";
+import { managedResourceKind, parseManagedResourceCommand } from "./managed-contract.js";
+import { executeProductionResourceCommand, listProductionResources, parseResourceListQuery, readProductionResource, readProductionResourceReceipt } from "./service.js";
 
 export async function routeProductionResources(request: IncomingMessage, response: ServerResponse, dependencies: {
   pool: Pool; identityAuthority: IdentityAuthority; allowedOrigins: readonly string[];
@@ -18,7 +18,7 @@ export async function routeProductionResources(request: IncomingMessage, respons
   if (url.pathname === prefix + "/commands" && request.method === "POST") {
     if (url.search) throw new HttpError(400, "invalid_production_resource_query", "Unexpected query");
     assertMutationBoundary(request, dependencies.allowedOrigins);
-    const result = await executeProductionResourceCommand(dependencies.pool, actor, parseProductionResourceCommand(await readJsonBody(request, 1024 * 1024)));
+    const result = await executeProductionResourceCommand(dependencies.pool, actor, parseManagedResourceCommand(await readJsonBody(request, 1024 * 1024)));
     sendJson(response, result.status === "rejected" ? result.error.status : 200, result); return true;
   }
   if (request.method !== "GET") throw new HttpError(405, "method_not_allowed", "Method not allowed");
@@ -29,7 +29,7 @@ export async function routeProductionResources(request: IncomingMessage, respons
   }
   const resource = /^\/api\/v1\/production-resources\/([^/]+)(?:\/([^/]+))?$/u.exec(url.pathname);
   if (!resource) throw new HttpError(404, "not_found", "Route not found");
-  const kind = productionResourceKind(resource[1]);
+  const kind = managedResourceKind(resource[1]);
   if (resource[2]) {
     if (url.search) throw new HttpError(400, "invalid_production_resource_query", "Unexpected query");
     sendJson(response, 200, { resource: await readProductionResource(dependencies.pool, actor, kind, resource[2]) });

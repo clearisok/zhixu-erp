@@ -1,45 +1,25 @@
-# 恢复点：D1933真实16行与D-152口径确认，正式接线仍未实现
+# 恢复点：Gate6D物流资料后台，主控唯一writer
 
-2026-10-21，目标active/未完成。当前Goal轮有实质进展：Gate6D纯契约3b9及Gate7专用诊断与合成验收。
-root唯一writer、既有reviewer只读；main本轮API996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原完整头/open draft未变。
-当前codex/garment-shipment-d1933-probe从main对象创建并显式FF到干净97cfa7800dfa143ac834b51673cb2bbb47aaa32c，无继承dirty。
-用户提供下一样本D1933后，只将5个诊断实现/测试文件固定D1935→D1933，旧D1935 action/context明确拒绝；代码校准本身不增加任意参数或真实请求，实际一次授权随后单独记录。
-新Node12/12（10335.8354ms）、Python142/2.392s、types/Node/lint/PS AST0及只读复审通过；干净2688a079227ec0f703287250d759e0923b58c1bf、精确main996/HEAD守卫PASS。
-随后用户另批D1933首页一次，实际1登录+1报表/2HTTP，2026-10-21T05:36:23.266365+00:00成功返回16/16行，1合同/4单据/6颜色、单位全件，Num合计9869.00。许可已用完，0重试/翻页/DB/绑定/激活。
-用户明确确认Num/outdate为逐笔出货数量/业务日期，已写D-152；不是关账/收入/生产完成量决定。[D1933真实报告](tasks/completed/2026-10-21-garment-shipment-d1933.md)保留全部时点/hash/原文私密路径/限制。
-原文UTF-8/精确decimal不变，离线读取只做脱敏统计；前次D1935证据和合同/单据/颜色/行ID真实值不进Git。观察到的16个id唯一不证明跨次稳定，未访问SO数据库或Source Discovery。
-样本Num逐行和9869 vs按色唯一styleNum参考9250，差异619保留；16行ycyNum符合观察id升序下“本笔之前累计”，只作样本关系，不推广全表公式/把id当通用时间。
-FDate/indate为2026-10-07，outdate为2026-10-11；factory/wx/isClearing为空、wxprice未返回，不猜执行方/出清/币种。正式收集器/观察存储/合同分色匹配/API/UI/关账仍待工程。
-[当前任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)、[3b9三摘要输入](tasks/completed/2026-10-21-garment-probe-inputs/3b9a44a0/)保留全部旧日期/hash/结果/限制。
+2026-10-21；main独立GitHub API核实996dfedc12da3527343cd3ff2aa5eea35497e10e。
+root唯一writer，既有server_convergence_review只读。当前codex/server-logistics-resource-store从干净97cfa显式FF到f59cf6ec0b383771dd14350bf99053dd85404a36，无继承dirty。
+[阶段任务](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)；[三摘要原输入](tasks/completed/2026-10-21-logistics-store-inputs/f59cf6ec/)完整保留此前日期/hash/结果/限制。
 
-用户起初回答出货问题给来源线索：6086979、insideorderno contains D1935、page1/pageSize100/[内层]。
-起初工具准备时尚无非空行响应，后续实际16行和用户Num/outdate决定见上段；跨次稳定行ID/合同/颜色映射仍未验证，不能记成已选人工发货时点或完整正式映射。
-已检索本仓相关源码/文档和本工作树ignored outputs无既有6086979；不代表所有旧工作树/外部系统都无此报表。
+输入f59包含已批准D152和D1933真实观察，最终源码守卫PASS；当前新阶段仅自身代码/测试/文档dirty，没有未知dirty。新0037不改0001–0036，不更动共享权限或UI。
+已实现managed-contract分派六kind；旧PRODUCTION_RESOURCE_TYPES/ProductionResource/ResourceOutcome默认仍四类型，原hash兼容。service复用唯一事务writer和global资源锁；logistics-store只有父子IO。
+新hubs及运输方案聚合沿用infra edit，schedule.view可读；新UUID服务端分配，保留所有旧mode（含停用），不能搬移/删除；父CAS及子列表位置一起保存。
+同Hub/Site最多一启用方案，停用历史可并存。明确父仓/地点/日历启用，停用不级联。列表只子数量，详情才全列表。新kind缺0037返回503，原四资源仍支持其旧schema，启动只校验。
 
-新增scripts/ainuoke-garment-shipment-probe.ps1、Node和Python专用probe及测试；原private writer只增加kind/prefix，workflow只添测试命令。
-固定原host/9043、一次登录+一次报表、100行/4MiB/120秒、无重试/第二页/Discovery/其他report/DB/绑定/激活/调度。
-独立于正常Report Catalog；原文decimal/重复行/空值保留hash，metadata可为数组/编码/空白；未知不补零。
-两处空白cellList与显式null总数已修复，后者先有红测；Node验证拒绝时只允许保留有界且秘密筛查过的原证据，绝不自动重读。
-脚本使用既有文件格式和受保护ACL、匿名stdin、UTF-8/ASCII worker帧，闭合错误/计数，无凭据/行值输出。
-以上是工具准备时点；随后用户明确批准固定首页一次，已执行成功，详见下方真实终态。不将工具工程通过记为业务核验。
+已实际验证：新kind原400红测0通过/2失败（5846.7471ms）、首轮12/12（7888.9947ms）、组合纯/新旧PG/HTTP/升级59/59（21194.6082ms，0失败/取消/跳过）。
+升级在0036先建可信合成SO、计划和10.125实际产出，全部原public业务表除schema_migrations字节不变。真实COMMIT后丢回执只读恢复、全局freeze/Hub锁、原子重排/停用/追加、后段子项及审计失败全回滚、撤权、100项上限均覆盖。
+广回归实际PG269/269（264890.3776ms）、生产98/98（70871.3071ms）、项目927/927（379376.4553ms）、全lint及候选build通过；对应原生进程均已terminal。候选build环境标记f59/工作树代码，不冒称精确源码发布证明。
+reviewer指出新物流result生成UUID后可能超原1MiB回执限制，主控真实红测16pass/2fail（7930.083ms），500≠期望422。已在SAVEPOINT内用PG实际JSONB字节测量，仅新物流kind超限回滚父子/审计后存限定422/logistics_result_too_large，旧四类型/表约束不变。
+最终新旧纯/PG/HTTP/升级组合60/60（22905.2786ms）、全量types/Node编译/改动三路径lint通过；269/98/927按容量修复前时序保留，不假称复跑。reviewer只读核对修复与红绿日志，无新增阻断，未代其声称运行测试。
+本阶段新基线116/116（319435.4533ms）、working-tree精确main996/f59守卫PASS，11页/51能力/累计63 UI路径/errors空；完整manifest与f59相同，3份输入档案与Git blob字节一致。
+无遗留长测试进程。下一步独立源码checkpoint，精确HEAD/main守卫与源码标记候选build，再文档收口commit。不得把本机通过记新Hosted CI/交付，远端仍STOP。
 
-实际组合Node82/82（46444.019ms）；最终新工具12/12（11609.6873ms）；Python早期141/2.650s、最终142/1.973s均OK，分别保留log。
-最终types/Node编译/四路径lint通过，PowerShell AST无错误；Windows私密链只合成账号/自有tmp repo。
-既有reviewer只读复审无新代码阻断，未替其声称运行测试；本轮基线116/116（357102.8747ms）、main996源码守卫PASS/11页/51能力/累计63 UI路径，0新Hosted CI/PR。
-工具干净checkpoint=e8f979bd9aa223fae0f330723ffc2f8301b8dcd7，精确main996/HEAD源码守卫PASS。随后用户明确授权一次固定首页，由私密进程消费既有文件成功执行。
-实际1登录+1报表/2HTTP，2026-10-21T05:17:51.436041+00:00采集；6086979=“成衣出运登记明细表”、38列定义，但D1935返回total0/rows0。
-许可已用完，0重试/翻页/DB/绑定/激活。原文和hash只在受保护ignored目录，脱敏[真实报告](tasks/completed/2026-10-21-garment-shipment-first-page.md)保留路径/hash/38字段/全部限制。
-onlyMyUser=true是上游标志，不证明零行原因；不能擅自取消筛选。下一步取得实际有出运明细的准确样本范围后再核对，未知行ID/日期/单位/取消/冲销继续未知。
-前次只有Num/outdate/ExpContractNo/CnColor/QtyUnit元信息；后续16行及Num/outdate用户决定见上段。跨次身份/可信合同颜色完整映射仍未验证；wxprice未知币种，不替代CCT/订单工价或默认USD。D109不重问，不让用户提供密码或执行命令。
-
-3b9 Gate6D纯物流19/36及精确main守卫已通过，未新增SQL/API/UI/权限/Seed；[原任务](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)仍待后续事务/父子锁/CAS/服务接线。
-d6执行UI/三CI与工具664f/唯一CI39543987486各自终态在completed，不借给当前probe。
-664f实际push exit1/STOP_AUTH_OR_DIVERGENCE原因未证实，远端写入保持STOP，不重推/换认证；717/3b9仅本机，不能声称已送达。
-
-原243证据全保留，新增decisions-garment-shipment-20261021前向文档版，共244；51能力状态/旧PNG不变。
-21e95e342972d17ef3d721dedc7d209e3a975415保存D152/真实证据后，精确守卫唯一EVIDENCE_WORKTREE_DRIFT（原decisions-server-production-execution-ui-20261021叶）。
-按既有规则新增supersedes版本，绑定21e95:docs/DECISION_LOG.md精确SHA256=7ec3d115362c3858d3244afff6987d00d59c71884c70dc13cc7ea611aa925118；不修改旧记录/截图/状态/算法。
-当前只manifest与收口文档增量；新证据链基线116/116（345552.8014ms，0失败/取消/跳过）通过，working-tree精确main996/21e95守卫PASS（11页/51能力/累计63 UI路径，errors空）。既有reviewer只读核对原243记录/非证据字段全不变、新叶精确blob/hash及实际日志，无新阻断；最终收口commit后再核对精确HEAD，不声明远端或运行能力。
-完整Server目标未完成。Gate8除CNY销售/USD工价外的口径待决，不换汇或重标历史。
-保护3001/50426/59069/62426、旧卷/工作树/Browser，62426仍8175；不merge/close/deploy、真实账号/业务库或退役。
-持续工程授权不逐次询问，但不扩新增真实报表次数；不安装依赖、不改共享Git/proxy/TLS/认证。
+D152：Num/outdate已明确；单据/进仓/交期分别保留，不自动关账/收入/生产完成。D1933一次16/16行、4单据6颜色9869件；styleNum分色参考9250差619不裁剪/覆盖。
+D1933和D1935各一次真实许可均已用完，无重试/翻页/来源激活；受保护原文不stage/展示。完整Source正式行身份/生命周期/可信合同分色/存储/API/UI尚待工程。
+f59新证据链116/116（345552.8014ms），精确main守卫11页/51能力/累计63 UI路径PASS；原243证据保留新增1叶=244，旧PNG/能力不变。当前物流代码不借此PASS。
+Gate6C d6三CI和工具664f唯一CI各自证据保留；Git664f真实push exit1导致STOP_AUTH_OR_DIVERGENCE，虽然远端exact，具体原因仍未知，不重推/更换认证。
+保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175，未升级。无新Hosted CI/PR/merge/close/deploy/真实账号/业务库。
+Goal active/未完成；Gate8加工服务产值、关账stale、旧CNY工价待决，CNY销售/USD工价不换汇/重标历史。安全工程/Git持续授权不扩新增真实来源/部署/退役；D109 HTTP原风险不重问。

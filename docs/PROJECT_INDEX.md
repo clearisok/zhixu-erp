@@ -1,22 +1,15 @@
 # 项目知识索引
 
-2026-10-21恢复：[D1933真实16行及口径确认](tasks/completed/2026-10-21-garment-shipment-d1933.md)、[D1935原零行](tasks/completed/2026-10-21-garment-shipment-first-page.md)、[工具任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
-main996dfedc12da3527343cd3ff2aa5eea35497e10e本轮独立API核实；当前codex/garment-shipment-d1933-probe从该对象显式FF干净97cfa。
-工具2688已通过Node12/Python142/types/Node/lint/PS AST/复审及精确main996守卫；用户另批D1933首页一次，已成功1登录+1报表/16行，1合同/4单据/6颜色、件、Num合计9869.00。许可已用完。
-用户已确认D-152：Num逐笔数量/outdate业务日期；单据/进仓日另存，不自动关账/收入/生产完成。正式Source、跨次行身份、合同颜色接线未验证，无DB/绑定/激活/调度。
-用户提供6086979/insideorderno contains D1935的查询载荷，不是返回字段或成衣出货含义证据；新工具固定一次登录+一次首页、100行/4MiB/120秒。
-复用原客户端/Transport/私密报告，0重试/翻页/DB/绑定/激活，不注册正常目录。用户随后明确批准固定首页一次，实际1登录+1报表成功、total0/rows0。
-报告名已确认“成衣出运登记明细表”、38列定义；原文受保护、hash离线读回一致。零行原因未证实，该许可已用完，不取消筛选或自动扩大查询。
-实际组合Node82/82、修复显式null总数后新工具12/12、最终Python142/142、types/Node/lint及只读复审通过；本轮基线116/116、main996/e8f精确HEAD守卫PASS，无新Hosted CI/PR。
-缺失metadata/数量/日期仍未知，原decimal/重复行不改，不用contains匹配SO或推算关账；原243证据全保留，D152前向文档版新增后共244，51能力状态/旧PNG保持。
-21e95决策checkpoint的唯一文档叶漂移按规则补前向版本，绑定其精确Git blob，不改旧hash；新证据链116/116（345552.8014ms）、working-tree精确main996守卫与独立只读复审通过，最终commit后再核对精确HEAD，不把旧PASS借给新证据链。
-[3b9三摘要输入](tasks/completed/2026-10-21-garment-probe-inputs/3b9a44a0/)完整保存此前日期/hash/结果/限制。
-[Gate6D物流纯契约](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)已本机3b9：19纯/36含原PG与HTTP、types/Node/lint/复审/精确main守卫通过，无新物流SQL/API/UI。
-[Gate6C原交付终态](tasks/completed/2026-10-21-production-execution-ui-delivery.md)保留d6及三CI实际结果，不借给当前工具。
-工具664f已独立exact、唯一CI39543987486成功，但真实push exit1仍STOP/原因未证实、不重推；717/3b9仅本机，详见[工具终态](tasks/completed/2026-10-21-git-delivery-success-classification.md)。
-Gate7数量/日期已由D-152确认，跨次身份/生命周期/正式接线未验证；Gate8其他口径待决。出货/物流/Server关账与真实激活仍未闭环，目标未完成。
-#120–127原完整头/open draft未变；不建重复累计PR、不merge/close/deploy。保护3001/50426/59069/62426、旧卷/工作树/Browser。
-持续安全工程/Git授权不扩新真实账号/业务库/来源读取/激活/部署/退役；D109原HTTP风险已接受不重问。
+2026-10-21；main独立GitHub API核实996dfedc12da3527343cd3ff2aa5eea35497e10e。
+root唯一writer，既有server_convergence_review只读。当前codex/server-logistics-resource-store从干净97cfa显式FF到f59cf6ec0b383771dd14350bf99053dd85404a36，无继承dirty。
+[阶段任务](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)；[三摘要原输入](tasks/completed/2026-10-21-logistics-store-inputs/f59cf6ec/)完整保留此前日期/hash/结果/限制。
+
+当前物流后台新增0037与hubs/transport-plans同一服务，尚未接UI/物流推荐；首轮59/59，容量复审红测后最终60/60、types/Node/lint通过；广回归269PG/98生产/927项目、基线116及独立复审通过。精确源码构建/守卫收口以CURRENT_STATE/AI_HANDOFF和阶段任务为准，不冒称新CI/部署。
+Gate7 [D1933真实核验](tasks/completed/2026-10-21-garment-shipment-d1933.md)16/16行、9869件；用户D152确认Num/outdate，非自动关账/收入。两个单次真实许可已用完，不扩大读取。
+[原D1935零行](tasks/completed/2026-10-21-garment-shipment-first-page.md)、[专用工具任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)和f59最终守卫/116项新证据链保留；原243+新1=244、51能力/旧PNG不变。
+正式成衣Source/跨次身份/可信合同颜色接线仍待；物流/backend不冒称页面完成或部署。Gate8其他口径未决，目标active/未完成。
+Git664f远端exact但真实push exit1仍STOP，具体原因未证实；后续增量仅本机，无新PR/CI，不重推/换认证。#120–127保持原记录，不合并/关闭。
+保护3001/50426/59069/62426和旧卷/工作树/Browser；工程授权不扩真实账号/业务库/来源/部署/退役。历史详情均保存在原任务与摘要输入档案。
 
 ## 系统简介
 
