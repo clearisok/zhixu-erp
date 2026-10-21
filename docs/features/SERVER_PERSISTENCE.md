@@ -2,6 +2,19 @@
 
 # PostgreSQL Server Persistence Foundation
 
+## Current candidate persistence rehearsal (2026-10-22 engineering)
+
+The exact cleanf4692eea Server image initializes40 migrations and passed the
+existing owned-project persistence/independent recovery rehearsal8/8, including
+formal synthetic Quote/PNG readback and fail-closed restore/TLS checks. A test-only
+cleanup guard now excludes refused/unprepared projects; production operations,
+application and schema are unchanged. Applicable ops contracts passed22/22.
+This does not upgrade62426/50426 or prove every domain's nonempty historical
+recovery. Old targets, accounts and data remain protected; no real Source read,
+activation, deployment or user acceptance occurred. Exact image, checks and one
+unavailable historical-image fixture are separated in the
+[frozen report](../tasks/completed/2026-10-22-current-server-persistence-engineering.md).
+
 ## Server navigation continuity (D-148, 2026-10-20 engineering)
 
 The Node static handler now serves compiled `.rsc` as

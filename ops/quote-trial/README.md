@@ -70,6 +70,14 @@ on Windows only with explicit `ZHIXU_LOCAL_TRIAL_IMAGE` and full
 final empty target. Validation results belong to the Gate 1 evidence record;
 the historical results below retain their original source and date.
 
+2026-10-22 current-image engineering: clean sourcef4692eea was built and the
+corrected actual-image rehearsal passed8/8 with40 migrations (maximum0041),
+including restart, cold recreation and independent synthetic Quote/PNG restore.
+Cleanup skips projects whose preparation was refused or never succeeded. Reserved
+old ports are excluded from random test port selection. This is not an upgrade
+of62426 or50426, all-domain historical recovery, deployment or user acceptance.
+See the [frozen evidence](../../docs/tasks/completed/2026-10-22-current-server-persistence-engineering.md).
+
 ## Historical Quote trial candidate (2026-10-09)
 
 The candidate engineering evidence below is **not deployment evidence**. D-098 locks the merged Quote-first

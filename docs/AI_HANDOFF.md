@@ -1,9 +1,9 @@
-# 恢复点：已有合同受控来源刷新
+# 恢复点：当前Server候选持久化演练
 
-2026-10-22；feat/server-bound-source-refresh，独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e后FF干净a29675586231806960eb5069087e705f0d0c4642。root唯一writer，既有reviewer只读。原三摘要逐字节归档至tasks/completed/2026-10-22-bound-source-refresh-inputs/a2967558；范围/失败顺序见[当前任务](tasks/active/server-convergence-bound-source-refresh-2026-10-22.md)。
+2026-10-22；chore/server-candidate-persistence-rehearsal，独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e后FF干净f4692eea92556ca02fcc068c03940fd2982a4d10，无继承dirty。root唯一writer，既有reviewer只读。旧三摘要精确归档tasks/completed/2026-10-22-candidate-persistence-inputs/f4692eea；[本阶段](tasks/active/server-candidate-persistence-rehearsal-2026-10-22.md)与[冻结报告](tasks/completed/2026-10-22-current-server-persistence-engineering.md)提供范围。
 
-新离线合同刷新编排、0041不可变成功回执、精确预览/原请求核对、物理owner与完整引用盘点已实现。首轮类型/fixture/历史alias UPSERT问题有原日志；最终18定向、81相关、269完整PG及927项目通过。独立复审两项P2（连接目标、日志关联）已关闭，并发撤权/历史改号/报告落盘失败已实际验证。type/lint/Node/前端构建通过；应用与冻结报告81a8d600434844784067e7c977a173b566e7c634，前向55能力/260证据与116发布全部通过。最终committed-HEAD/clean/guard回执读outputs/bound-source-refresh/checkpoint-final.json，不存在或非PASS不得凭本文冒报。无UI文件、HTTP writer或Source调用；真实数据/账号/原环境不动。
+干净f469的新镜像zhixu-persistent-local:f4692eea-20261022（ID ee7095b4d404c2bd2a1b62402e941f21cff86266817f4e2168d467dccf837f1d）已实际验收。40迁移/最大0041；首轮7/7后补测试清理prepared保护，修正后8/8、适用运维22/22及语法/lint通过。只改演练helper与文档；应用/SQL/UI不变。旧f0c硬编码镜像测试首步缺镜像失败、0创建，未冒报通过。最终source checkpoint、前向证据、发布及exact HEAD/clean/guard必须读ignored outputs/current-image-persistence/checkpoint-final.json，不存在或非PASS不得预报。旧18/81/269/927结果属于前阶段，未重跑。
 
-a296三项Hosted CI已完成success且HEAD精确，回执outputs/garment-total-integrity/ci-final.json；原delivery工具STOP/exit1仍保留，独立API只证明exact，不证明通道修复。没有重复push。新Phase Git远端写仍停止，本地工程可继续；不合并/关闭/部署。当前输出在ignored outputs/bound-source-refresh，最终精确HEAD/clean/guard与独立复审必须另核。
+Git写仍停止：旧a296工具exit1/STOP_AUTH_OR_DIVERGENCE，独立API exact且三CI success，根因未明。不要因成功读取或exact而盲重推；无新PR/Hosted CI，禁止merge/close/deploy。main再次独立重读仍996。新Phase输出只在ignored目录，原冻结报告/证据和旧运行态不改。
 
-Num/outdate已确认，不重问。真实C1/C0/C1额度、加工服务产值/CNY工价采用/关账stale原三问仍待答，不能默认，不读凭据或旧候选。持续Goal还包括持久化候选演练、受控成衣来源、关账与最终合并/切换建议；不要因本切片通过就complete。3001/50426/59069/62426及全部旧端口/卷/账号/Browser/工作树保护，62426公开readback仍8175旧Gate1镜像。
+原3001/50426/59069/62426 PID不变；62426仍8175旧Gate1镜像，不是当前f469体验入口。所有旧端口/卷/账号/Browser/工作树保护；0新真实Source/凭据或候选读取/业务库操作。Num/outdate已确认，不重问；C1/C0/C1额度与三项关账待决不默认。Goal仍active，下一步是最终门禁及候选依赖/切换条件，不能局部PASS就complete。

@@ -18,7 +18,29 @@ async function run(bin,args,input){
 }
 const docker=(args,input)=>run('docker',args,input);
 const trial=(state,action,bundle)=>run(process.execPath,[resolve('ops/quote-trial/trial.mjs'),action,state.config,`--execute=${state.project}`,...(bundle?[`--bundle-dir=${bundle}`]:[])]);
-async function port(){const server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));const result=server.address().port;await new Promise(r=>server.close(r));assert.ok(![3000,3001,3002,50426,59069,62326,18443,18444].includes(result));return result;}
+async function port(){const server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));const result=server.address().port;await new Promise(r=>server.close(r));assert.ok(![3000,3001,3002,50426,59069,62200,62310,62316,62326,62426,18443,18444].includes(result));return result;}
+async function cleanupPreparedStates(states,owned,completed){
+  for(const s of states){
+    assert.ok(owned.includes(s.project));
+    // A rejected preparation can mean that another project owns this name.
+    // Only successful preparation in this run permits stop/down cleanup.
+    if(s.prepared)await s.compose(completed?['down','--volumes']:['stop']);
+  }
+}
+
+test('rehearsal cleanup never stops a refused or unprepared project',async()=>{
+  const calls=[],owned=['owned-source','refused-existing'];
+  const states=[
+    {project:owned[0],prepared:true,compose:async args=>calls.push(args)},
+    {project:owned[1],prepared:false,compose:async()=>assert.fail('refused project must not be touched')},
+  ];
+  await cleanupPreparedStates(states,owned,false);
+  assert.deepEqual(calls,[['stop']]);
+  calls.length=0;
+  await cleanupPreparedStates(states,owned,true);
+  assert.deepEqual(calls,[['down','--volumes']]);
+  await assert.rejects(cleanupPreparedStates([{project:'unrelated',prepared:true}],owned,false));
+});
 
 test('persistent local trial: owned volumes, signed TLS S3, restart and independent recovery',{
   skip:process.platform!=='win32'||!process.env.ZHIXU_LOCAL_TRIAL_IMAGE,
@@ -40,7 +62,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     if(!passed)throw Error(`owned_phase_failed: ${name}`);
   }
   t.after(async()=>{
-    for(const s of states){assert.ok(owned.includes(s.project));await s.compose(completed?['down','--volumes']:['stop']);}
+    await cleanupPreparedStates(states,owned,completed);
     if(completed){
       if(backup){assert.ok(backup.startsWith(resolve('backups')+sep)&&backup.endsWith('.dump'));await rm(backup);await rm(`${backup}.manifest.json`);}
       assert.ok(resolve(parent).startsWith(resolve(tmpdir())+sep));await rm(parent,{recursive:true});
@@ -51,7 +73,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     await run('pwsh',['-NoProfile','-File',resolve('ops/quote-trial/new-local-target.ps1'),'-Root',folder,'-Project',project,'-Port',String(p),'-Image',image,'-Commit',commit,'-BuildId',labels['io.zhixu.build-id'],'-BuildTime',labels['org.opencontainers.image.created'],'-Execute']);
     const config=join(folder,'trial.conf'),values=readTrialConfig(config);
     const prefix=['compose','--env-file',config,'-f',resolve('ops/quote-trial/compose.yml'),'-f',resolve('ops/quote-trial/local-objects.compose.yml'),'-f',resolve('ops/quote-trial/objects.compose.yml'),'-p',project];
-    const s={project,folder,config,values,db:`${project}-database-1`,app:`${project}-app-1`,compose:args=>docker([...prefix,...args])};states.push(s);
+    const s={project,folder,config,values,prepared:false,db:`${project}-database-1`,app:`${project}-app-1`,compose:args=>docker([...prefix,...args])};states.push(s);
     s.sql=q=>docker(['exec','-i',s.db,'psql','-X','-q','-U','quote_trial','-d','quote_trial','-At','-v','ON_ERROR_STOP=1'],q);
     const ca=await readFile(values.TRIAL_TLS_CA_FILE);
     s.request=(path,{method='GET',body,cookie,headers={}}={})=>new Promise((yes,no)=>{
@@ -69,6 +91,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   await phase('one-time private preparation and explicit empty-schema init; no automatic migration',async()=>{
     assert.match(await trial(a,'check'),/CHECK_ONLY/);
     assert.match(await trial(a,'prepare-local'),/LOCAL_SECRETS_PREPARED/);
+    a.prepared=true;
     await assert.rejects(trial(a,'prepare-local'));
     await a.compose(['up','-d','--wait','database']);
     assert.equal(await a.sql("SELECT count(*) FROM pg_tables WHERE schemaname='public'"),'0');
@@ -142,7 +165,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     await assert.rejects(trial(a,'objects-export',nextBundle));
   });
   await phase('independent restore rejects writers/tampering, preserves original IDs and verifies all bytes',async()=>{
-    const b=await state(owned[1]);await trial(b,'prepare-local');await b.compose(['up','-d','--wait','database']);
+    const b=await state(owned[1]);assert.match(await trial(b,'prepare-local'),/LOCAL_SECRETS_PREPARED/);b.prepared=true;await b.compose(['up','-d','--wait','database']);
     assert.match(await trial(b,'restore-check'),/EMPTY_NO_CLIENTS/);
     await trial(b,'objects-init');
     const args=['-NoProfile','-File',resolve('Restore-Zhixu.ps1'),'-BackupFile',backup,...target(b),'-ExpectedBackupSha256',backupHash,'-ConfirmDataLoss','-ConfirmTargetFingerprint',target(b).at(-1)];
