@@ -2,6 +2,7 @@
   "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
   "level": "V1",
   "paths": [
+    "app/production-scheduling/production-scheduling.css",
     "features/production-scheduling/components/server-production-scheduling-page.tsx",
     "features/production-scheduling/components/server-production-plan-fields.tsx",
     "features/production-scheduling/components/server-production-execution-fields.tsx",
