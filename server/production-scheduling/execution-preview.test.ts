@@ -121,6 +121,12 @@ test("an already-started downstream row with unknown end rejects the entire repl
     (error: unknown) => error instanceof SchedulePlanningError && error.code === "schedule_queue_anchor_missing");
   assert.deepEqual(queue, before);
 });
+test("temporarily protecting preceding rows does not normalize an invalid persisted date mode", () => {
+  const earlier = executionQueueRow(assignment(1), null), target = assignment(2);
+  const queue = { queueVersion: 6, resources: facts(), assignments: [{ ...earlier, dateMode: "corrupt" as typeof earlier.dateMode }, executionQueueRow(target, null)] };
+  assert.throws(() => previewExecutionChange({ ...input(), assignment: target, intent: { ...intent(target), replan: { expectedQueueVersion: 6 } }, queue }),
+    (error: unknown) => error instanceof SchedulePlanningError && error.code === "schedule_planning_snapshot_invalid");
+});
 test("wrong queue/version/target fact and unrequested queue previews are rejected", () => {
   const value = input(), queue = { queueVersion: 6, resources: facts(), assignments: [executionQueueRow(value.assignment, null)] };
   const combined = { ...value, intent: { ...value.intent, replan: { expectedQueueVersion: 6 } }, queue };

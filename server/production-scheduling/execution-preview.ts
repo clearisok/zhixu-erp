@@ -105,7 +105,7 @@ export function previewExecutionChange(input: {
     // move or refresh their adopted resources. No saved dateMode is changed.
     const earlier = new Set(ordered.slice(0, targetIndex).map(row => row.id));
     queuePreview = previewInternalQueue({ ...queue, anchorDate: intent.data.actualCompletedDate!, assignments: queue.assignments.map(row =>
-      row.id === assignment.id ? executionQueueRow(assignment, after) : earlier.has(row.id) ? { ...row, dateMode: "manual_fixed" } : row) });
+      row.id === assignment.id ? executionQueueRow(assignment, after) : earlier.has(row.id) && row.dateMode === "auto_queue" ? { ...row, dateMode: "manual_fixed" } : row) });
   } else if (input.queue !== null) fail(503, "production_unrequested_queue_preview");
   return { intent, before, after, changed, warnings, queuePreview, replannableAssignmentIds };
 }

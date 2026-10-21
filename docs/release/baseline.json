@@ -1962,6 +1962,16 @@
       "supersedes": "decisions-server-production-planning-20261020",
       "changeReason": "D150 forward revision records the approved Server planning UI and original-request recovery, durable rejected-domain receipts and separate engineering evidence; historical decisions remain immutable. No actual production completion, pricing, source activation, deployment or human acceptance is claimed.",
       "sha256": "9b47e7456422210d2f9de981ef3cdd5c55fd90194bd3519f058a55e00db7e935"
+    },
+    {
+      "id": "decisions-server-production-execution-20261021",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "f344ee2072252f178720c985bfab3113ffa59e87",
+      "renderedSourceSha": "f344ee2072252f178720c985bfab3113ffa59e87",
+      "supersedes": "decisions-server-production-planning-ui-20261021",
+      "changeReason": "D151 records the human decisions on completion plus edit permission for downstream replanning and preservation of original execution attribution. Pure execution rules only; no actual execution database/API/UI, deployment or human acceptance is claimed.",
+      "sha256": "ba6f61cfdfc865e66aa8887d7486cc5c77920e675477380e9bdef53c9a7d75ed"
     }
   ],
   "pages": [
