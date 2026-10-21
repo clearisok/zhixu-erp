@@ -57,3 +57,9 @@ insideorderno contains只查候选，可能包含多合同或前后缀相似记�
 只校准原5个诊断实现/测试文件的固定D1935为固定D1933，保持报表/分页/原host/预算/无重试及私密链不变，不接受调用方任意查询。旧D1935命令与上下文明确拒绝；旧e8f工具、97cfa真实零行结果/元信息/hash保留不覆盖。本切片先离线验证并形成干净工具checkpoint，新增一次实际请求仍待具体范围授权，未读取凭据或上游。前一D1935许可不复用。
 
 本次校准实际Node12/12（10335.8354ms，0失败/取消/跳过）、全Python142项/2.392s OK、types/Node编译/两路径lint/PS AST0通过，既有reviewer只读复审无阻断。日志outputs/g7-d1933-*。本次没有共享private writer、workflow或UI/SQL变化，不重跑或借用旧82/116作为新输入的测试；前阶段实际基线116保持其原源码时点。独立checkpoint后核对精确main/HEAD源码守卫，0新Hosted CI/PR/远端写入/真实请求。
+
+## D1933真实终态与用户业务决定
+
+上述工具已干净提交2688a079227ec0f703287250d759e0923b58c1bf，精确main996/HEAD守卫PASS。用户随后另批D1933首页一次，实际1登录+1报表/2HTTP成功，16/16行、1合同/4单据/6颜色、全部件；本次许可已用完，0重试/翻页/DB/绑定/激活/调度。
+
+主控离线核对raw/包装hash、与D1935相同的38列元信息和逐行类型/唯一性/Decimal统计；用户据样本明确确认Num/outdate出货口径，写D-152和BUSINESS_RULES。完整脱敏结果见[D1933报告](../completed/2026-10-21-garment-shipment-d1933.md)。原报告mappingVerified/businessMeaningVerified=false是采集时点的封存状态，不回写；随后用户确认独立前向记录，不将其扩张成已验证全量映射/Server闭环。

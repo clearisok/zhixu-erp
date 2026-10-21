@@ -1,14 +1,19 @@
-# 恢复点：D1935真实零行保留；用户给D1933，固定工具校准收口
+# 恢复点：D1933真实16行与D-152口径确认，正式接线仍未实现
 
 2026-10-21，目标active/未完成。当前Goal轮有实质进展：Gate6D纯契约3b9及Gate7专用诊断与合成验收。
 root唯一writer、既有reviewer只读；main本轮API996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原完整头/open draft未变。
 当前codex/garment-shipment-d1933-probe从main对象创建并显式FF到干净97cfa7800dfa143ac834b51673cb2bbb47aaa32c，无继承dirty。
-用户已提供下一样本D1933，当前只将5个诊断实现/测试文件固定D1935→D1933，旧D1935 action/context明确拒绝，不增加任意参数或真实请求。
-新Node12/12（10335.8354ms）、Python142/2.392s、types/Node/lint/PS AST0及只读复审通过；干净checkpoint和精确HEAD守卫收口。下一步确认D1933一次同预算首页范围，旧D1935许可不复用。
+用户提供下一样本D1933后，只将5个诊断实现/测试文件固定D1935→D1933，旧D1935 action/context明确拒绝；代码校准本身不增加任意参数或真实请求，实际一次授权随后单独记录。
+新Node12/12（10335.8354ms）、Python142/2.392s、types/Node/lint/PS AST0及只读复审通过；干净2688a079227ec0f703287250d759e0923b58c1bf、精确main996/HEAD守卫PASS。
+随后用户另批D1933首页一次，实际1登录+1报表/2HTTP，2026-10-21T05:36:23.266365+00:00成功返回16/16行，1合同/4单据/6颜色、单位全件，Num合计9869.00。许可已用完，0重试/翻页/DB/绑定/激活。
+用户明确确认Num/outdate为逐笔出货数量/业务日期，已写D-152；不是关账/收入/生产完成量决定。[D1933真实报告](tasks/completed/2026-10-21-garment-shipment-d1933.md)保留全部时点/hash/原文私密路径/限制。
+原文UTF-8/精确decimal不变，离线读取只做脱敏统计；前次D1935证据和合同/单据/颜色/行ID真实值不进Git。观察到的16个id唯一不证明跨次稳定，未访问SO数据库或Source Discovery。
+样本Num逐行和9869 vs按色唯一styleNum参考9250，差异619保留；16行ycyNum符合观察id升序下“本笔之前累计”，只作样本关系，不推广全表公式/把id当通用时间。
+FDate/indate为2026-10-07，outdate为2026-10-11；factory/wx/isClearing为空、wxprice未返回，不猜执行方/出清/币种。正式收集器/观察存储/合同分色匹配/API/UI/关账仍待工程。
 [当前任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)、[3b9三摘要输入](tasks/completed/2026-10-21-garment-probe-inputs/3b9a44a0/)保留全部旧日期/hash/结果/限制。
 
 用户起初回答出货问题给来源线索：6086979、insideorderno contains D1935、page1/pageSize100/[内层]。
-尚无非空行响应、数量/日期语义、单位、颜色、稳定合同/行ID证据，不能记成已选人工发货时点或正式映射。
+起初工具准备时尚无非空行响应，后续实际16行和用户Num/outdate决定见上段；跨次稳定行ID/合同/颜色映射仍未验证，不能记成已选人工发货时点或完整正式映射。
 已检索本仓相关源码/文档和本工作树ignored outputs无既有6086979；不代表所有旧工作树/外部系统都无此报表。
 
 新增scripts/ainuoke-garment-shipment-probe.ps1、Node和Python专用probe及测试；原private writer只增加kind/prefix，workflow只添测试命令。
@@ -25,7 +30,7 @@ root唯一writer、既有reviewer只读；main本轮API996dfedc12da3527343cd3ff2
 实际1登录+1报表/2HTTP，2026-10-21T05:17:51.436041+00:00采集；6086979=“成衣出运登记明细表”、38列定义，但D1935返回total0/rows0。
 许可已用完，0重试/翻页/DB/绑定/激活。原文和hash只在受保护ignored目录，脱敏[真实报告](tasks/completed/2026-10-21-garment-shipment-first-page.md)保留路径/hash/38字段/全部限制。
 onlyMyUser=true是上游标志，不证明零行原因；不能擅自取消筛选。下一步取得实际有出运明细的准确样本范围后再核对，未知行ID/日期/单位/取消/冲销继续未知。
-候选Num/outdate/ExpContractNo/CnColor/QtyUnit来自元信息，不是正式映射；wxprice未知币种，不替代CCT/订单工价或默认USD。D109不重问，不让用户提供密码或执行命令。
+前次只有Num/outdate/ExpContractNo/CnColor/QtyUnit元信息；后续16行及Num/outdate用户决定见上段。跨次身份/可信合同颜色完整映射仍未验证；wxprice未知币种，不替代CCT/订单工价或默认USD。D109不重问，不让用户提供密码或执行命令。
 
 3b9 Gate6D纯物流19/36及精确main守卫已通过，未新增SQL/API/UI/权限/Seed；[原任务](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)仍待后续事务/父子锁/CAS/服务接线。
 d6执行UI/三CI与工具664f/唯一CI39543987486各自终态在completed，不借给当前probe。
