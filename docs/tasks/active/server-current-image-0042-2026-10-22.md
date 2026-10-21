@@ -28,3 +28,16 @@ build server-candidate-105cfbfc-20261022，2026-10-21T22:53:53Z。
 详细六阶段、精确作用域和未重跑范围见[工程报告](../completed/2026-10-22-current-0042-image-persistence-engineering.md)。
 无应用/SQL/ops/测试/UI变更。待冻结报告/新证据、独立复审、最终精确守卫及交付/发布CI；
 不把parent105的CI当本阶段文档CI。
+
+## 冻结及独立复审
+
+报告冻结为88c2bdd645d7e3a8972a91e507be6ad836554452，新证据只追加至267条，
+57能力及原266条和其他manifest字段逐对象不变。独立review核实精确image/source/time、
+8/8日志和317334.7113ms、41迁移/最大0042、自有fixture清理边界与报告hash，无P1/P2；
+reviewer未自行运行容器或测试。working main996/head88精确守卫PASS，errors[]。
+最终文档commit后再核该SHA的guard/交付/Release CI，不重跑无变化的业务全套。
+
+输入105的CI实际结果现已完成：Team39689484921、Release39689490085 success；
+Source39689481386 failure（attempt1，2026-10-21T23:07:03Z）。失败为material-arrivals-ui
+只读角色阶段等待“分批预计到料”超时，后续Quote/Python阶段未运行。当前尚未判定根因；
+不编辑冻结报告、放宽timeout、重复dispatch或把候选镜像8/8当作该UI通过。

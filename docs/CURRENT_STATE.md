@@ -1,15 +1,13 @@
-# 当前状态：Server交期覆盖只读投影
+# 当前状态：0042候选镜像隔离验收已通过
 
-2026-10-22；feat/server-delivery-coverage，独立main仍996dfedc12da3527343cd3ff2aa5eea35497e10e，干净输入144f2a269affb41207566557f09ed06e8decf49a。root唯一writer、既有reviewer只读，无继承dirty。[当前任务](tasks/active/server-delivery-coverage-2026-10-22.md)和D155记录精确范围；完整Goal仍active。
+2026-10-22；chore/server-current-image-0042，干净输入105cfbfcb336c0c29efe583f9ff09fda52bc07f0。main于本阶段再次独立核实为996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer、既有reviewer只读，无继承dirty；完整Goal仍active。
 
-本阶段仅扩展现有生产订单详情GET：同一只读RR快照内按日期累计有效交期需求，比较当前登记产出与截点前预计剩余。取消产出保留、结束余量释放、历史alias不合量，无日期为未评估，不回退Source日期。不是历史准时率、库存、成衣出货或关账。无新表、写入口、UI或金额。
+[当前镜像任务](tasks/active/server-current-image-0042-2026-10-22.md)只复用既有Dockerfile/ops/测试：从精确105 Git archive构建一次新镜像zhixu-persistent-local:105cfbfc-20261022，image646acc4a，build时间2026-10-21T22:53:53Z，41迁移/最大0042。实际空库初始化、附件字节、重启/冷重建、备份及另一空项目恢复8/8通过（317334.7113ms，无skip）。仅清理成功prepare的自有随机合成fixture；候选镜像保留，没有新用户入口。
 
-源码ff8b8d68bf25e61ea757caee90ad5a7e998d6037。定向15/15、相关76/76、全项目927/927、发布116/116、类型/lint/Node及前端build通过。首轮main守卫的文档锚点P2已按规则修正；[新契约](features/SERVER_DELIVERY_COVERAGE.md)冻结0e54，[工程报告](tasks/completed/2026-10-22-current-delivery-coverage-engineering.md)冻结192234e77db546138593c7cb2878b37a770ab44a，原执行文档逐字恢复。固定源码及证据review无P1/P2；working守卫main996/head192/57能力PASS，待最终metadata精确守卫/交付/新CI。原失败与真实结果保留，不改守卫或冻结报告。
+[冻结工程报告](tasks/completed/2026-10-22-current-0042-image-persistence-engineering.md)记录于88c2bdd645d7e3a8972a91e507be6ad836554452，renderedSource为105；独立证据复审无P1/P2。manifest267证据/57能力，原266/57及全部其他字段不变，working main996/head88守卫PASS。最终文档提交、精确守卫及交付/发布CI另行核对；本阶段无应用/SQL/ops/测试/UI变化，也未重跑全项目或PG全套。
 
-[上一DeliveryPlan阶段](tasks/active/server-delivery-plan-receipts-2026-10-22.md)：源码12cf，报告98580，最终144已精确远端核实。原push STOP保留，后续原工具只读Dry Run pushes=0为DELIVERED_VERIFIED；source39685216005/team39685221309/release39685225162均attempt1 success，不重复推送或dispatch。原定向42/最终receipt19、全项目927、PG270、发布116和精确守卫通过；不由本阶段替代或扩写其冻结报告。
+[交期覆盖阶段](tasks/active/server-delivery-coverage-2026-10-22.md)源码ff8、新契约0e54、报告192、最终105已精确远端核实。定向15、相关76、项目927、发布116、类型/lint/构建通过；原文档锚点失败及修复保留。105的Team39689484921、Release39689490085为attempt1 success；Source39689481386于23:07:03Z失败，定位到material-arrivals-ui只读角色阶段等待“分批预计到料”超时。尚未判断产品或测试根因，不称三CI通过，不盲目重跑。其前置144阶段三CI均成功，不能替代105的失败。
 
-7d历史整合保留PR120–127全部原head；各原PR仍为未合并草稿。当前分支仅收敛验证引用，不创建重复累计业务PR，不自动merge/close。manifest266证据/57能力，原263/56、截图和其他字段逐对象不变；新增覆盖能力只声明隔离后台工程，不抬高部署/接受/来源状态。
+当前分支只是收敛验证引用，不创建重复累计业务PR。PR120–127仍为未合并草稿，原heads/提交历史保留；不自动merge/close。旧50426/59069/62326/62426仍4978/5052/333d/8175，f469镜像及40迁移历史证据保留；新105镜像不代表任何旧入口已升级。
 
-旧入口50426/59069/62326/62426仍4978/5052/333d/8175；f469候选未切换且不含0042。本轮不碰3001、现有端口/卷/账号/Browser/工作树；没有真实Source、凭据或业务库操作、迁移、部署或退役。新运行仍需全新目标及精确镜像和入口批准。
-
-Num/outdate已由D152承接并获用户再次确认，不重问、不扩真实读取额度。固定C1/C0/C1额度及加工产值/CNY工价/关账stale仍待原问题，不默认。后续UI/正式成衣来源/关账和运行收敛仍未完成。
+3001及全部旧端口/卷/账号/Browser/工作树保持；无新真实Source、凭据/业务库读取、迁移、绑定、激活、调度、正式部署或环境退役。Num/outdate已由D152承接且再次确认，不重问。固定C1/C0/C1额度及加工产值/CNY工价/关账stale仍待原问题，不默认。下一步先定位并闭合105的浏览器CI失败；新交期维护UI需具体交互批准，正式成衣来源/关账/运行收敛仍未完成。

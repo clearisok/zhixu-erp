@@ -2230,6 +2230,14 @@
       "recordedAtSha": "192234e77db546138593c7cb2878b37a770ab44a",
       "renderedSourceSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
       "sha256": "04163d3aa6db3ece31dde3c67f2ad2b9843aa344f50e83c20b2a7bbf1cde5df5"
+    },
+    {
+      "id": "current-0042-image-persistence-engineering-20261022",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-22-current-0042-image-persistence-engineering.md",
+      "recordedAtSha": "88c2bdd645d7e3a8972a91e507be6ad836554452",
+      "renderedSourceSha": "105cfbfcb336c0c29efe583f9ff09fda52bc07f0",
+      "sha256": "8aa6c9433c3a59ca10ad9a85c4feac122518c724e3d915f5a080c3a809afd5a2"
     }
   ],
   "pages": [
