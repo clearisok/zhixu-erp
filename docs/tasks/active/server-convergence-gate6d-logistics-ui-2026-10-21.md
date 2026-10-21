@@ -36,3 +36,7 @@ UI影响按RELEASE_BASELINE_GUARD登记精确路径V1：恢复原已批准区域
 源码checkpoint c87cc178a5496bf4f7276084d9f6999905c09679已干净保存，精确main996守卫PASS；显式Server前端/顺序Node构建通过，buildId20261021-151553。三摘要档案Git blob逐项与56cf706e一致，旧能力及PNG保持。独立复审确认长名称P2关闭，没有据此替代浏览器验收。
 
 首轮真实built浏览器10个子场景通过，在第11项CAS最新读取超时（总10pass/2fail，34441.9692ms；outputs/g6d-ui-browser-first.log及对应failure.json保留）。已证实：拒绝后清空列表等待重新读取时mayEdit暂为false，原“读取最新版本”按钮仅按blocked放行，点击被edit内部守卫静默忽略。修复为按钮同时等待mayEdit；新用例持有拒绝后的真实列表响应，明确断言按钮禁用，释放后才读取完整最新方案。类型通过，待新源码构建及浏览器复跑，不将首轮10项写成最终通过。
+
+该修复已保存23278ffc48c54f700af77d50b63659c0e978288e并完成精确源构建/顺序Node。第二轮built业务及原安全场景21项通过，最后几何用例在1920宽失败（总21pass/2fail，31132.1586ms，outputs/g6d-ui-browser-conflict-fix.log）：后加载foundation.css的480px基础Drawer覆盖globals既有760px基础设施规则，运输方式及右侧关联字段超出面板。修复仅为新Server Hub/运输方案加专用class和高于基础规则的760px选择器，手机沿用全宽；Browser及旧四资源宽度不变，不更换表单布局。V1精确记录新增app/globals.css路径，截屏在断言前保存，待新构建/六尺寸复跑。
+
+本阶段项目广回归927/927（318367.6965ms，0失败/取消/跳过）通过；运行始于c87cc178，在已记录的最新读取按钮修复阶段结束，最后新增CSS尚未纳入此结果。后续几何与源码守卫单独验证，不冒称927验证新CSS。

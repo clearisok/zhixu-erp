@@ -15,3 +15,5 @@ D152 Num/outdate已确认，不再问；D1933一次16/16行9869件，参考差61
 Git664f实际push exit1虽远端exact仍STOP_AUTH_OR_DIVERGENCE，具体原因未证实；不重推或改认证/共享配置，无新Hosted CI/PR。工程持续授权不扩真实部署/业务数据。
 保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175未升级。Goal active/未完成，Gate8加工服务产值、关账stale、旧CNY工价待决，CNY销售/USD工价不换汇/重标。
 源码c87cc178a5496bf4f7276084d9f6999905c09679已保存且精确main守卫/Server及顺序Node构建通过；独立复审长名称P2关闭。首轮built 10pass/2fail，CAS拒绝后最新读取按钮可点击却被mayEdit内部拒绝，已修复为等待mayEdit并加真实hold-list确定性用例；当前自身dirty仅该源码、测试与事实文档，类型通过，待新checkpoint/build/browser。旧首轮日志/截图不覆盖。
+
+23278ffc修复后built业务/安全21项通过，六尺寸新物流几何在1920触发基础Drawer480px覆盖既有760px规则，21pass/2fail原日志保留。当前自身增量只为Server新物流抽屉加专用class/760px优先级（手机全宽），Browser/旧4资源不变，V1追加app/globals.css。项目927/927（318367.6965ms）已terminal，时序先于此CSS，不能借作CSS验收；待新源checkpoint/build/geometry。
