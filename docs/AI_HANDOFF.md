@@ -1,9 +1,9 @@
-# 恢复点：当前Server候选持久化演练
+# 恢复点：原始历史整合与Git引用冲突核对
 
-2026-10-22；chore/server-candidate-persistence-rehearsal，独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e后FF干净f4692eea92556ca02fcc068c03940fd2982a4d10，无继承dirty。root唯一writer，既有reviewer只读。旧三摘要精确归档tasks/completed/2026-10-22-candidate-persistence-inputs/f4692eea；[本阶段](tasks/active/server-candidate-persistence-rehearsal-2026-10-22.md)与[冻结报告](tasks/completed/2026-10-22-current-server-persistence-engineering.md)提供范围。
+2026-10-22；chore/server-candidate-history-integration，从独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e后FF干净7ac59413d5b55b0aa31962f6952a8c635b166c38。当前本机no-ff整合#126原956921f63ba3069c059ca64c2324edbc33afefd8，只四状态文档冲突，已保留较新摘要/manifest；双方三摘要Git blob精确归档tasks/completed/2026-10-22-history-integration-inputs。root唯一writer，reviewer只读。范围/原始失败见[当前任务](tasks/active/server-candidate-history-integration-2026-10-22.md)。下一步commit后核父级/8PR祖先/非doc树等价和发布门禁，不能凭此预报新checkpoint已PASS。
 
-干净f469的新镜像zhixu-persistent-local:f4692eea-20261022（ID ee7095b4d404c2bd2a1b62402e941f21cff86266817f4e2168d467dccf837f1d）已实际验收。40迁移/最大0041；首轮7/7后补测试清理prepared保护，修正后8/8、适用运维22/22及语法/lint通过。测试/冻结报告提交2fdd8b277e870c1e3077ad4f7bf19eb5ad1172f9；只增一条证据至261/55能力，旧记录和状态不变。应用/SQL/UI不变。旧f0c硬编码镜像测试首步缺镜像失败、0创建，未冒报通过。最终发布及exact HEAD/clean/guard必须读ignored outputs/current-image-persistence/checkpoint-final.json，不存在或非PASS不得预报。旧18/81/269/927结果属于前阶段，未重跑。
+7ac已远端exact：原推送exit1/STOP保留，后验及独立API exact，原工具随后DryRun返回DELIVERED_VERIFIED/pushes0。offline标准模板的完整SHA256/字节数精确匹配7ac与a296，确认具体拒绝为目标ref已存在；不是已证实的认证/TLS失败。谁在哪环节并发创建仍unknown，不称永久网络修好。a296 tracking一次正常非force fetch补齐，HEAD/dirty/config不变。诊断observer P2已修，5项隐私/失败用例通过，原deliver参数/策略未改。不要重推7ac或覆盖旧STOP回执；所有诊断在ignored outputs/git-reference-diagnosis。
 
-本阶段metadata guard及发布116/116通过（192535.3855ms），原260证据/55能力状态和归档blob经独立静态复审核实；最终exact-commit guard/clean读checkpoint。Git写仍停止：旧a296工具exit1/STOP_AUTH_OR_DIVERGENCE，独立API exact且三CI success，根因未明。不要因成功读取或exact而盲重推；无新PR/Hosted CI，禁止merge/close/deploy。main再次独立重读仍996，开放120–127草稿各自三CI成功；#126原head956不在候选祖先，三工具blob相同不等于原历史已包含，后续整合必须保留，不自动close。新Phase输出只在ignored目录，原冻结报告/证据和旧运行态不改。
+7ac验收CI各一次/attempt1：source39673330905、team39673338812、baseline39673344242。观察具体run，不重新dispatch或把中途步骤写成功；无新累计PR，不merge/close/deploy。上一阶段7ac镜像/发布8/22/116证据和f469实际镜像仍各有原日期/hash；本机新merge不改变应用/tool/test blob，待实证。旧261证据/55能力/状态与截图全部保持。
 
-原3001/50426/59069/62426 PID不变；62426仍8175旧Gate1镜像，不是当前f469体验入口。所有旧端口/卷/账号/Browser/工作树保护；0新真实Source/凭据或候选读取/业务库操作。Num/outdate已确认，不重问；C1/C0/C1额度与三项关账待决不默认。Goal仍active，下一步是保留原始提交的候选依赖/安全切换条件，不能局部PASS就complete。
+3001/50426/59069/62426及所有旧资产保护，62426仍8175旧镜像；0真实Source/凭据/候选/业务库操作。Num/outdate已确认不重问；C1/C0/C1额度及三项关账问题不默认。Goal active；当前新phase精确提交、release/guard和clean读outputs/server-history-integration/checkpoint-final.json，不存在不得猜。

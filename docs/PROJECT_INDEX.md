@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)与[当前镜像持久化演练](tasks/active/server-candidate-persistence-rehearsal-2026-10-22.md)为准。当前chore/server-candidate-persistence-rehearsal从独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e后FF干净f469；镜像使用该精确源码，修正测试清理归属后实际8/8与适用运维22/22通过，40迁移/最大0041，未升级62426或50426。完整镜像、失败及边界见[冻结报告](tasks/completed/2026-10-22-current-server-persistence-engineering.md)，最终门禁/提交以ignored阶段checkpoint为准。前阶段合同刷新与18/81/269/927/116结果、55能力/260证据，以及a296三CI success/Git写STOP并列事实均保存在[精确输入归档](tasks/completed/2026-10-22-candidate-persistence-inputs/f4692eea/PROJECT_INDEX.md)。无新远端交付/CI/部署、真实来源或旧数据操作；Num/outdate已确认，真实额度及关账原待决继续。下方历史模块索引不替代当前阶段和运行镜像事实。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)与[原始历史整合](tasks/active/server-candidate-history-integration-2026-10-22.md)为准。当前chore/server-candidate-history-integration从独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e后FF干净7ac，仅在本机补#126原956祖先，四份状态文档冲突已保留新事实，应用/tool/test blob不变待精确核实。261证据/55能力及状态保留。7ac/a296原错误已由完整字节/hash精确模板核为目标ref已存在；来源未知，不称网络永久修好。7ac独立远端exact及原工具零push核对已完成，原STOP仍保留；三新CI绑定7ac各一次并仍需终态。旧三摘要/冻结镜像8/22/116结果等分别保存在[7ac输入归档](tasks/completed/2026-10-22-history-integration-inputs/7ac59413/PROJECT_INDEX.md)与原报告。无GitHub合并/关闭、新累计PR、部署或真实来源/旧数据操作；原待决继续。下方历史索引不替代当前恢复点与实际运行镜像。
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
