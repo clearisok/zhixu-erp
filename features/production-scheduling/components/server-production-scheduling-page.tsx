@@ -255,7 +255,7 @@ function Workspace() {
           update={patch => change(value => value.executionEditor ? { ...value, executionEditor: { ...value.executionEditor, form: { ...value.executionEditor.form, ...patch } }, executionPreview: null, error: "" } : value)} /></fieldset>}
         {state?.error && <p role="alert">{state.error}</p>}
       </Modal>
-      <Modal open={Boolean(state?.executionPreview)} title={state?.executionPreview?.intent.replan ? "确认更新后续排期" : "确认实际进度"}
+      <Modal className="ps-server-execution-preview" open={Boolean(state?.executionPreview)} title={state?.executionPreview?.intent.replan ? "确认更新后续排期" : "确认实际进度"}
         description={state?.executionPreview?.intent.replan ? "本单实际记录与列出的后续变更一起保存；固定及已有实际记录的排单保持原样。" : "只保存本单实际记录，不移动其他订单的排期。"}
         onClose={() => { if (!blocked) change(value => ({ ...value, executionPreview: null })); }}
         footer={<><Button variant="secondary" disabled={blocked} onClick={() => change(value => ({ ...value, executionPreview: null }))}>返回修改</Button><Button disabled={blocked || !state?.executionPreview || !state.executionPreview.changed && !state.executionPreview.planChanges.length} onClick={() => void send()}>确认保存</Button></>}>
