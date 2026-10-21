@@ -1,15 +1,15 @@
-# 当前状态：Server人工到仓页面本地验收
+# 当前状态：Server成衣出货观察基础已完成本地验收
 
-2026-10-21；codex/server-material-arrival-ui；独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净689afa，无继承dirty；root唯一writer/既有reviewer只读。
+2026-10-21；分支codex/server-garment-shipment-observations；独立核实main为996dfedc12da3527343cd3ff2aa5eea35497e10e。干净e4d7输入及原三份根文档已归档；root唯一writer、既有reviewer独立只读。
 
-应用源码14a71172168fe429c187dadef2f3b654198c3394，harness77b8af68db9a6baf9749bf14a61be541794b2611；build20261021-210416完整SHA，前端/Node构建exit0。报告/四PNG冻结在ee14615fd2d5ccc64984f2bda41041a05d6355b9，见[冻结验收](tasks/completed/2026-10-21-material-arrivals-ui-engineering.md)与[阶段任务](tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md)。
+应用检查点b6521d0d510ca0447822096e101919c97f76a980，构建源码99c52a526f59253d9da124c3bb9b54f077b6c115（应用字节不变），build20261021-222838；前端与Node构建、编译后模块检查通过。冻结报告在c031ee33b9ee147cdc742e870dd51d818356c774，见[工程证据](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)、[阶段任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)和[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。
 
-原卡片/分批Modal/历史Drawer接同一0039 owner，逐批复用原物流公式；稳定需求、分单位精确数量、采用地点/明确Hub、原请求恢复及历史独立。Source既有自动读取完成后仅联动本地GET；旧草稿保留，依据变化/加载/失败暂停旧建议。没有Source-following、自动补齐、排单/实际/价格/出货/关账写入或Browser迁移。
+0040仅新增四张默认空表：完整两遍观察、可信合同/稳定颜色、不可变捕获上下文、当前权限和物理来源归属冻结、CAS/事务审计、原请求回执及DB-only当前/历史读取。Num/outdate采用D152已确认口径；未知、负数、未匹配和来源过期独立保留。不跨观察累加、不把缺行当取消，不改生产完成、价格、收入或关账。尚无正式受控采集器、来源激活、成衣页面或经验证的跨次出货事件身份。
 
-42项定向（后端/client/helper与14a字节一致）、15项built到仓、10项原排序/事件UI、14a后927项项目及类型/全lint通过；六宽度与图片已查看。旧116发布结果保留原时点；新增证据后f6cd430e精确HEAD守卫通过，修正后发布116/116、195751.0199ms通过。252证据/52能力只前向更新本能力，旧247证据及其他51能力/截图/runtime不改。开发StrictMode双effect未实测，人工接受未运行。
+实际41定向、146 Python、927项目、相关回归124通过/1项既有Linux CLI在Windows跳过；类型、全lint、生产构建通过。发布套件在db3396cd为116/116（190542.8489ms）；同一精确HEAD守卫PASS，11页/53能力/累计76个继承UI路径。254证据/53能力前向登记，原253证据/52能力和旧截图不变；本阶段没有新增UI，不借旧截图冒称浏览器或人工验收。独立应用及证据复审无阻断，失败时序保留在任务记录。
 
-保护3001/50426/59069/62426、旧卷/Browser/账号及其他工作树；62426资产保留Gate1/8175历史观察；本轮只读build-info未连通，当前READY未验证，不启动或升级。无真实凭据/Source/业务库、新绑定/激活/调度或部署。Git664f非零写入原因未明，STOP_AUTH_OR_DIVERGENCE保留；本阶段无新push/PR/Hosted CI/合并/关闭。
+Git旧664f非零原因仍unresolved。当前三种只读连接及一次无上传push预演通过，实际上传仍为0；它仅证明本时点认证/引用计划可用，不代表永久网络修复。收口后允许一次既有工具安全交付并独立核实完整SHA。依据Gate0，本累计依赖分支只作验证引用，随后仅运行source、team-access、release-baseline三项CI，不创建重复累计业务PR，不合并/关闭。远端与CI终态独立记录，不拿本地PASS替代。
 
-D152的Num/outdate已确认，两笔真实额度已用完。下一步正式成衣来源身份/颜色/取消冲销、Server关账、环境收敛与用户验收继续分Gate；销售CNY/工价USD不换汇或重标。完整Goal active/未完成。
+保护3001/50426/59069/62426及全部旧卷、Browser、账号与其他工作树；62426当前READY未验证，不启动/升级。无真实凭据读取、新Source请求、绑定/激活/调度、现有业务库操作或部署。D1933/D1935两笔授权已用完。
 
-本阶段LOCAL ENGINEERING PASS；最终文档commit与干净状态以Git核实。冻结证据不改，全部失败时序/局限/远端STOP见阶段任务。
+完整Goal仍active。下一步继续正式成衣采集/UI、Server关账和环境收敛；加工产值归类、已有CNY工价及完成更正复核三项业务问题待用户答复，不默认决定。销售CNY/工价USD不自动换汇或重标；旧到仓阶段证据保留原日期与源码。

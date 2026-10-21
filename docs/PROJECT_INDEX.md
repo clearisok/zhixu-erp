@@ -1,6 +1,6 @@
 # 项目知识索引
 
-当前2026-10-21前向阶段：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。从干净e4d7输入继续，见[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[成衣观察feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)和AI_HANDOFF。41定向/146 Python/types/全lint通过，最终项目/引用回归、构建、复审与发布守卫待；不把内部观察API当作正式来源/页面/事件账或关账。
+当前2026-10-21前向阶段：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。从干净e4d7输入继续，见[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[成衣观察feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)和[冻结工程证据](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)。41定向/146 Python/927项目/124相关通过及1既有Windows跳过，类型/lint/生产构建/独立复审通过；db339精确守卫及116发布通过。254证据/53能力；仅验证引用交付和三项指定CI待，不创建重复累计业务PR。不把内部观察API当作正式来源/页面/事件账或关账；完整Goal继续。
 
 下段是已完成的前阶段证据，原根文档已逐字节归档，不覆盖其测试/日期/源码绑定。
 
