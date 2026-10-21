@@ -1,13 +1,13 @@
-# 当前状态：原物料页接入Server人工批次与逐批物流
+# 当前状态：Server人工到仓页面本地验收
 
-2026-10-21；codex/server-material-arrival-ui，输入干净689afa128bc13f56d96dfa5db13403808048943f，无继承dirty。独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e，PR120–127原草稿未变。root唯一writer/既有reviewer只读。[阶段任务](tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md)、[后台契约](features/SERVER_MATERIAL_ARRIVALS.md)、[输入Git原文](tasks/completed/2026-10-21-material-arrival-ui-inputs/689afa12/)。
+2026-10-21；codex/server-material-arrival-ui；独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净689afa，无继承dirty；root唯一writer/既有reviewer只读。
 
-正在把原分批到料Modal/历史Drawer接到0039唯一owner，并复用唯一物流算法。Source交期、人工到Hub与Actual独立，部分未安排合法，不猜默认仓或自动补齐。计划失效保留原事实，不搬物理SO/执行/价格。只返回非金额白名单；页面、回执恢复、精确数量与逐批建议是本阶段待验收范围，不提前写完成。
+应用源码14a71172168fe429c187dadef2f3b654198c3394，harness77b8af68db9a6baf9749bf14a61be541794b2611；build20261021-210416完整SHA，前端/Node构建exit0。报告/四PNG冻结在ee14615fd2d5ccc64984f2bda41041a05d6355b9，见[冻结验收](tasks/completed/2026-10-21-material-arrivals-ui-engineering.md)与[阶段任务](tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md)。
 
-前一阶段应用源码cbfd1e65595a05444e632b5bee9e0dec83c8e12b/build20261021-183455；26/45/55/927/116、类型lint/构建与最终689afa守卫PASS。准确时序与失败修正见[冻结后台报告](tasks/completed/2026-10-21-material-arrivals-engineering.md)。原247证据/52能力及截图保持；这些不是本阶段新UI或物流验收。
+原卡片/分批Modal/历史Drawer接同一0039 owner，逐批复用原物流公式；稳定需求、分单位精确数量、采用地点/明确Hub、原请求恢复及历史独立。Source既有自动读取完成后仅联动本地GET；旧草稿保留，依据变化/加载/失败暂停旧建议。没有Source-following、自动补齐、排单/实际/价格/出货/关账写入或Browser迁移。
 
-保护3001/50426/59069/62426、旧卷/Browser/账号与其他工作树；62426仍8175不升级。仅合成一次性PG/私有浏览器；无真实Source/凭据/业务DB、新绑定/激活/调度或部署。Git664f非零写入原因未明，STOP保留；只读main成功不证明写恢复，无新PR/Hosted CI/合并/关闭。
+42项定向（后端/client/helper与14a字节一致）、15项built到仓、10项原排序/事件UI、14a后927项项目及类型/全lint通过；六宽度与图片已查看。旧116发布结果保留原时点；新增证据工作副本守卫已过；最终HEAD守卫/发布套件收口中，不冒称已跑。252证据/52能力只前向更新本能力，旧247证据及其他51能力/截图/runtime不改。开发StrictMode双effect未实测，人工接受未运行。
 
-D152 Num/outdate已确认，两笔真实额度已用完。正式成衣跨次身份/颜色、Server关账、环境收敛与用户验收仍待，销售CNY/工价USD不换汇或重标，Goal active/未完成。
+保护3001/50426/59069/62426、旧卷/Browser/账号及其他工作树；62426仍8175。无真实凭据/Source/业务库、新绑定/激活/调度或部署。Git664f非零写入原因未明，STOP_AUTH_OR_DIVERGENCE保留；本阶段无新push/PR/Hosted CI/合并/关闭。
 
-当前应用a290edfe3ba26173e21e0c4df08f35be48fe16f4：42项定向/11项built浏览器通过，六宽度与回执/会话恢复已覆盖；完整项目/发布及截图证据仍在收口。初失败与修正见阶段任务。
+D152的Num/outdate已确认，两笔真实额度已用完。下一步正式成衣来源身份/颜色/取消冲销、Server关账、环境收敛与用户验收继续分Gate；销售CNY/工价USD不换汇或重标。完整Goal active/未完成。

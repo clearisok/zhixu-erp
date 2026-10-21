@@ -71,3 +71,6 @@ v6私有Chromium11/11（含父项），19044.6331ms，0fail/cancel/skip：六宽
 14a71172168fe429c187dadef2f3b654198c3394/build20261021-210416：完整SHA前端及Node构建、类型/全lint通过；新增联动built14/14，26495.5818ms。补两次真实响应后受控503的固定error分支，最终截图版15/15（含父项），23964.5257ms，0fail/cancel/skip；保存到独立final-reviewed目录，不覆盖先前截图。Source_failed HTTP200与HTTP503两条路径分开验证。
 原排序/事件UI组合首轮24中22通过/2失败（含父项），43574.8498ms：旧设置宽度测试在Emulation变化后未等React/布局帧，输入边界立即断言失败；原CSS/设置产品无改动。补两帧稳定后保持原断言并增加实际geometry诊断，原UI10/10，16812.2166ms；七角色、事件单位/多余仓、排序、并发/丢回执/撤权均通过。
 14a后完整项目927/927，188351.7322ms；类型/全lint exit0。独立GH main复核仍996完整SHA，未刷新或改写业务环境。独立审查已确认自动完成信号、旧建议暂停与CDP异常收口无新产品阻断；最终证据登记/发布检查收口继续。
+
+证据报告/四PNG已冻结ee14615fd2d5ccc64984f2bda41041a05d6355b9；manifest仅新增5项为252，能力仍52，既有manual-arrival扩展页面/物流及七维。初metadata守卫因isolatedTest混入截图引用报STATUS_EVIDENCE_KIND，按既有document-only契约改为只引报告；图片仍在能力总evidence中，无应用变化。v2守卫PASS：checkedHead ee14615f，11页/52能力/76累计UI路径/errors空。
+逐对象核实输入689afa的全部247证据、其他51能力、pages/CSS/responsive/routes/runtime/limitations完全相同；三摘要归档与输入Git字节一致。首次最终release在初metadata错误时已开始，不能用其结果冒称修正后整套PASS；终态后在正确metadata上重跑并另记。

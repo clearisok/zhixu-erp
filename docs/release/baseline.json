@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
-  "verifiedAt": "2026-10-20",
+  "verifiedAt": "2026-10-21",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -2052,6 +2052,55 @@
       "renderedSourceSha": "cbfd1e65595a05444e632b5bee9e0dec83c8e12b",
       "sha256": "57c2a1256492257f5057819c561e7b8a6c95415025fe0d0b579c98c686e5c21d",
       "changeReason": "Initial manifest registration binds the final independently reviewed report at 652596. The pre-clarification report remains in Git at 440dda and in the task chronology, but never became a manifest record. Preserve all original 246 evidence records, 51 capabilities, screenshots and historical runtime observations; no application or acceptance scope change."
+    },
+    {
+      "id": "server-material-arrivals-ui-engineering-20261021",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-21-material-arrivals-ui-engineering.md",
+      "recordedAtSha": "ee14615fd2d5ccc64984f2bda41041a05d6355b9",
+      "renderedSourceSha": "14a71172168fe429c187dadef2f3b654198c3394",
+      "sha256": "21a0b16cc84e13d26f663bd8b8329ce24751bfb3e79ce3127495b27a7c3c6820",
+      "changeReason": "New independently reviewed local engineering report for D147 restoration of the original manual-arrival Modal, history Drawer and original per-batch logistics. It preserves the cbfd backend proof, original artifacts, failure chronology and separate acceptance/deployment boundaries."
+    },
+    {
+      "id": "server-arrival-ui-planner-desktop-20261021",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-21-material-arrivals-ui/planner-1440.png",
+      "recordedAtSha": "ee14615fd2d5ccc64984f2bda41041a05d6355b9",
+      "renderedSourceSha": "14a71172168fe429c187dadef2f3b654198c3394",
+      "sha256": "2bb5250fd10bc2eb99fae2bbbc4ea2d6ea14c0fa1c66f275970560f4fb11d865",
+      "approvalEvidence": "server-material-arrivals-ui-engineering-20261021",
+      "changeReason": "Synthetic built Chromium evidence within the user-approved D147 Server restoration of existing material UI (V1); no new design or user visual-acceptance claim. Original screenshot paths and bytes remain unchanged."
+    },
+    {
+      "id": "server-arrival-ui-planner-mobile-20261021",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-21-material-arrivals-ui/planner-390.png",
+      "recordedAtSha": "ee14615fd2d5ccc64984f2bda41041a05d6355b9",
+      "renderedSourceSha": "14a71172168fe429c187dadef2f3b654198c3394",
+      "sha256": "27052b2ad006fbb34bfe0833e0f208e9624b63e3e42b67b373a6227b9b75440d",
+      "approvalEvidence": "server-material-arrivals-ui-engineering-20261021",
+      "changeReason": "Synthetic built Chromium evidence within the user-approved D147 Server restoration of existing material UI (V1); no new design or user visual-acceptance claim. Original screenshot paths and bytes remain unchanged."
+    },
+    {
+      "id": "server-arrival-ui-source-changed-20261021",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-21-material-arrivals-ui/draft-source-changed.png",
+      "recordedAtSha": "ee14615fd2d5ccc64984f2bda41041a05d6355b9",
+      "renderedSourceSha": "14a71172168fe429c187dadef2f3b654198c3394",
+      "sha256": "a1f14062f3c153ce573a2054374648339ded35fa6535045f825fb07aaca9513a",
+      "approvalEvidence": "server-material-arrivals-ui-engineering-20261021",
+      "changeReason": "Synthetic built Chromium evidence within the user-approved D147 Server restoration of existing material UI (V1); no new design or user visual-acceptance claim. Original screenshot paths and bytes remain unchanged."
+    },
+    {
+      "id": "server-arrival-ui-history-mobile-20261021",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-21-material-arrivals-ui/history-390.png",
+      "recordedAtSha": "ee14615fd2d5ccc64984f2bda41041a05d6355b9",
+      "renderedSourceSha": "14a71172168fe429c187dadef2f3b654198c3394",
+      "sha256": "f6964587db7b6c1e166a437d5c542be6acb5cebcf1d8fdf8773e84cb1f08fa2f",
+      "approvalEvidence": "server-material-arrivals-ui-engineering-20261021",
+      "changeReason": "Synthetic built Chromium evidence within the user-approved D147 Server restoration of existing material UI (V1); no new design or user visual-acceptance claim. Original screenshot paths and bytes remain unchanged."
     }
   ],
   "pages": [
@@ -7168,76 +7217,81 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "D147 Gate6D manual-only Server ExpectedArrivalBatch/Allocation backend, with stable scoped demand identity, exact partial capacity, occurrence Source/Hub evidence, physical-order history, preview/CAS, fresh grants, atomic audit and durable original-request receipts. Known source, unit, hub, factory, ambiguity and over-allocation changes preserve history rather than guessing. Source due dates remain a separate fact, never invented Hub arrivals. No UI, per-batch logistics algorithm, Browser write or migration, source-following, event pairing, production/price/shipment/closing writes, real Source activation, deployment or human acceptance.",
+      "scope": "Manual-only Server arrival owner plus the original material-card/Modal/history UI and current per-batch derived logistics using the original calculator, adopted production site and explicit persisted Hub. Exact quantities, occurrence history, preview/CAS, fresh permissions, original-request recovery and automatic local-read synchronization are verified. No Source-following, event pairing, Browser write/migration, production/price/shipment/closing mutation, real activation, deployment or human acceptance.",
       "evidence": [
-        "server-material-arrivals-engineering-20261021"
+        "server-material-arrivals-engineering-20261021",
+        "server-material-arrivals-ui-engineering-20261021",
+        "server-arrival-ui-planner-desktop-20261021",
+        "server-arrival-ui-planner-mobile-20261021",
+        "server-arrival-ui-source-changed-20261021",
+        "server-arrival-ui-history-mobile-20261021"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-21",
-          "scope": "Manual-only backend implemented at exact cbfd checkpoint. Arrival UI and per-batch logistics remain pending; no whole-domain completion claim.",
-          "sourceSha": "cbfd1e65595a05444e632b5bee9e0dec83c8e12b",
+          "scope": "Original Server manual-arrival page, independent history/recovery and derived logistics implemented at exact14a; backend proof cbfd retained. No whole ERP completion claim.",
+          "sourceSha": "14a71172168fe429c187dadef2f3b654198c3394",
           "evidence": [
-            "server-material-arrivals-engineering-20261021"
+            "server-material-arrivals-ui-engineering-20261021"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-21",
-          "scope": "false at independently verified main996. No push, new PR or Hosted CI for this checkpoint; historical 664f delivery remains separate.",
-          "sourceSha": "cbfd1e65595a05444e632b5bee9e0dec83c8e12b",
+          "scope": "False at independently verified main996. No new push/PR/Hosted CI or merge; historical664f delivery and CI remain separate.",
+          "sourceSha": "14a71172168fe429c187dadef2f3b654198c3394",
           "evidence": [
-            "server-material-arrivals-engineering-20261021"
+            "server-material-arrivals-ui-engineering-20261021"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-21",
-          "scope": "Exact cbfd local engineering: 26 directed, 45 source/security, 55 inventory/upgrade, 927 project and 116 release checks; typecheck, full lint, sequential frontend/Node builds and exact-main source guard passed. Synthetic disposable PG/loopback only. Initial failures and two P2 corrections retained; no browser acceptance for this backend.",
-          "sourceSha": "cbfd1e65595a05444e632b5bee9e0dec83c8e12b",
+          "scope": "Exact14a production build20261021-210416: 15 built arrival, 10 original material UI and 927 project checks; type/lint/frontend/Node builds and source guard passed. 42 directed checks use unchanged backend/client/calculator bytes. Prior116 release suite timing and later metadata checks remain separately recorded. Synthetic disposable PG/private Chromium only; no dev StrictMode double-effect test.",
+          "sourceSha": "14a71172168fe429c187dadef2f3b654198c3394",
           "evidence": [
-            "server-material-arrivals-engineering-20261021"
+            "server-material-arrivals-ui-engineering-20261021"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-21",
-          "scope": "No new arrival UI or user acceptance performed. Existing experience environments remain untouched.",
-          "sourceSha": "cbfd1e65595a05444e632b5bee9e0dec83c8e12b",
+          "scope": "User has not accepted this new arrival UI; model screenshot inspection and existing experience are not human acceptance.",
+          "sourceSha": "14a71172168fe429c187dadef2f3b654198c3394",
           "evidence": [
-            "server-material-arrivals-engineering-20261021"
+            "server-material-arrivals-ui-engineering-20261021"
           ]
         },
         "sourceActivation": {
           "value": "not-applicable",
           "assessedAt": "2026-10-21",
-          "scope": "Manual plan owner only; reads existing bounded persisted Source evidence. No new real query, binding, activation or scheduler.",
-          "sourceSha": "cbfd1e65595a05444e632b5bee9e0dec83c8e12b",
+          "scope": "Manual owner reads existing accepted bounded snapshots only. No new real Source read, binding, activation or schedule; no Source-following.",
+          "sourceSha": "14a71172168fe429c187dadef2f3b654198c3394",
           "evidence": [
-            "server-material-arrivals-engineering-20261021"
+            "server-material-arrivals-ui-engineering-20261021"
           ]
         },
         "trial18443": {
           "value": "not-deployed",
           "assessedAt": "2026-10-21",
-          "scope": "New manual arrival backend is not deployed. Historical runtime source/image identifiers retained without re-observation.",
+          "scope": "Not deployed or re-observed. Preserve the exact historical source/image/runtime identity without suggesting this new application is running there.",
           "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
           "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
           "runtimeId": "trial18443",
           "evidence": [
-            "server-material-arrivals-engineering-20261021"
+            "server-material-arrivals-ui-engineering-20261021"
           ]
         },
         "preview18444": {
           "value": "not-deployed",
           "assessedAt": "2026-10-21",
-          "scope": "New manual arrival backend is not deployed. Historical runtime source/image identifiers retained without re-observation.",
+          "scope": "Not deployed or re-observed. Preserve the exact historical source/image/runtime identity without suggesting this new application is running there.",
           "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444",
           "evidence": [
-            "server-material-arrivals-engineering-20261021"
+            "server-material-arrivals-ui-engineering-20261021"
           ]
         }
       }
