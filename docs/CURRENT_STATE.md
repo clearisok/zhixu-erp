@@ -1,4 +1,4 @@
-# 当前状态：固定成衣合同核验工具合成收口中
+# 当前状态：固定成衣合同核验工具本地通过，交付待核实
 
 2026-10-22；codex/garment-contract-filter-verification；独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净acfed2d091297c9fb587680a29ca6932892fa8ea已正常一次交付DELIVERED_VERIFIED，独立API/Git精确一致，本地跟踪同步；前阶段三CI精确63c成功，最终acfed文档守卫PASS，不冒称文档HEAD重跑全部CI。历史Git异常根因未定。
 
@@ -6,7 +6,7 @@
 
 本阶段实现固定D1933旧样本合同C1→虚拟C0→C1首页诊断。CLI先校验冻结候选双hash和runtime，再读取凭据；每报表4MiB/三报表累计12MiB，登录另4MiB，1登录+最多3报表/180秒/无重试翻页。诊断不生成可发布业务快照或激活来源。准备/测试只用自有合成临时文件，真实请求尚无新授权，D1933/D1935额度已用完；未读取真实凭据/私密原文、访问业务库、修改schema、注册Catalog、开调度或启动体验环境。
 
-新Node13/13、Python全套162/162及共享解析器原payment合同19/19已通过，含实际GBK worker→Node与合成Windows launcher/私密写入/ACL/hash；类型、lint、Server编译、应用构建已通过，最终重复定向与项目/发布门禁仍收口。独立review原P2普通括号文本误拒已修复并补测，最终静态复审无阻断。首轮发布失败来自临时给冻结决策加技术进度；该行已移回任务文档，DECISION_LOG与原blob一致，不改旧证据/hash。后续精确commit/远端/CI分别记录，当前不先报REMOTE PASS。
+源码55362ddc815e975e48aded9a8d67136d75d65c79已干净checkpoint。新Node13/13、Python全套162/162、原payment合同19/19、项目927/927、发布116/116全部通过，类型/lint/Server编译/应用构建通过；工作区守卫基于独立main996通过，最终文档HEAD仍单独重验。实际GBK worker→Node与合成Windows launcher/私密写入/ACL/hash已覆盖；没有真实候选核验或新业务页面验收。独立review原P2已修，最终静态复审无阻断。原901/910、90/99失败与修复留任务，DECISION_LOG保持原blob，不改旧证据/hash。远端/CI尚未交付，不先报REMOTE PASS。
 
 Num/outdate沿用D152，观察不跨采集累加、不作生产完成或收入/关账。Gate7A的41定向/146Python/927项目/124相关+1旧Windows跳过/116发布、冻结报告c031和254证据/53能力均是此前精确源码的结果；冻结证据和所有原截图不改。
 
