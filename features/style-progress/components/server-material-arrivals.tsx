@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AlertBanner, Button, Card, Drawer, Modal, UnsavedDraftDialog } from "@/components/foundation";
 import { useServerNavigationProtection } from "@/components/foundation/server-navigation-protection";
@@ -12,7 +12,7 @@ import { materialArrivalMessage, materialArrivalsClient, MaterialArrivalError, t
 import type { MaterialArrivalsController } from "../server/use-material-arrivals";
 import { MaterialReadCard, MaterialReadTable } from "./material-read-display";
 
-const issues: Record<string, string> = { source_unavailable: "当前来源不可用", hub_changed: "集货仓已变化", demand_unavailable: "需求待核对", unit_changed: "单位已变化", overallocated: "已安排超过当前需求" };
+const issues: Record<string, string> = { source_unavailable: "当前来源不可用", hub_changed: "集货仓已变化", demand_unavailable: "需求待核对", unit_changed: "单位已变化", overallocated: "已安排超过当前需求", context_updating: "到料依据更新中", context_unavailable: "到料依据暂不可用", context_changed: "到料依据已更新" };
 const label = (d: { color: string; specification: string; materialCode: string }) => [d.color, d.specification].filter(Boolean).join(" / ") || d.materialCode || "未记录颜色规格";
 const days = (value: number | null | undefined) => value === null || value === undefined ? "—" : value < 0 ? `晚 ${Math.abs(value)} 天` : `${value} 天`;
 const qty = (value: string | null, unit: string | null) => value === null ? "未知" : value + (unit ? " " + unit : "（单位未知）");
@@ -76,9 +76,11 @@ function ArrivalPlanner({ controller, initial, canonicalKey, name, onClose, onHi
   useLayoutEffect(() => { const life = lifecycle.current, readSequence = sequence; life.active = true; life.epoch += 1;
     return () => { life.active = false; life.epoch += 1; readSequence.current += 1; }; }, []);
   const saved = scope.plans.find(x => x.plan.canonicalKey === canonicalKey), rows = arrivalEditorDemands(scope, canonicalKey);
+  const currentRead = controller.read;
+  const contextChanged = useMemo(() => Boolean(currentRead && canonicalPlanJson({ source: currentRead.source, tracking: currentRead.tracking, logistics: currentRead.logistics }) !== canonicalPlanJson({ source: scope.source, tracking: scope.tracking, logistics: scope.logistics })), [currentRead, scope]);
   const dirty = canonicalPlanJson(drafts) !== canonicalPlanJson(arrivalDrafts(saved?.plan ?? null));
   const locked = busy || controller.busy || Boolean(controller.pending) || controller.pendingUnavailable;
-  const editable = scope.canEdit && Boolean(controller.read?.canEdit) && controller.session.hasPermission("style_progress.edit") && !controller.error && !controller.loading && !locked;
+  const editable = scope.canEdit && Boolean(controller.read?.canEdit) && controller.session.hasPermission("style_progress.edit") && !controller.error && !controller.loading && !contextChanged && !locked;
   useServerNavigationProtection({ dirty, blocked: busy || controller.busy });
   const currentLease = () => { const owner = controller.lease(), epoch = lifecycle.current.epoch, ticket = ++sequence.current; return () => owner() && lifecycle.current.active && lifecycle.current.epoch === epoch && sequence.current === ticket; };
   const update = (next: ArrivalDraftBatch[]) => { if (!editable || inFlight.current) return; setDrafts(next); setPreview(null); setError(""); };
@@ -100,11 +102,13 @@ function ArrivalPlanner({ controller, initial, canonicalKey, name, onClose, onHi
       const result = await controller.submit(preview.intent, preview.previewHash); if (current()) { if (result.status === "applied") onClose(); else { setPreview(null); setError(materialArrivalMessage(new MaterialArrivalError(result.error.status, result.error.code))); } } }
     catch (reason) { if (current()) setError(materialArrivalMessage(reason)); } finally { inFlight.current = false; if (current()) setBusy(false); }
   };
-  const logisticsIssues = preview ? [] : saved?.issues ?? [];
+  const readingIssue = controller.error ? "context_unavailable" : controller.loading ? "context_updating" : contextChanged ? "context_changed" : null;
+  const logisticsIssues = [...(preview ? [] : saved?.issues ?? []), ...(readingIssue ? [readingIssue] : [])];
   return <><Modal open title="分批预计到料" eyebrow="EXPECTED ARRIVAL AT SUPPLYHUB" description={name + " · 每批填写预计到集货仓日期，允许部分未安排。"} className="sp-v4-planner" onClose={close}
     footer={<><Button variant="text" disabled={locked} onClick={() => void readAgain()}>重新读取</Button><Button variant="secondary" disabled={busy || controller.busy} onClick={close}>{editable ? "取消" : "关闭"}</Button>
       {preview ? <Button disabled={!editable} onClick={() => void save()}>确认保存</Button> : <Button disabled={!editable} onClick={() => void review()}>预览变更</Button>}</>}>
     {error && <AlertBanner tone="danger" title="尚未保存">{error}</AlertBanner>}
+    {contextChanged && <AlertBanner tone="warning" title="到料依据已更新">请重新读取后继续；本次输入已保留，旧运输建议暂停显示。</AlertBanner>}
     {(controller.pending || controller.pendingUnavailable) && <p role="status">请在页面上方核对原请求，新的修改暂不提交。</p>}
     {!scope.canEdit && <p role="status">当前只能查看已保存计划。</p>}
     <p>当前集货仓：{scope.tracking?.hubSnapshot?.name ?? "未设置"}{saved?.plan.data.tracking?.hubSnapshot?.name && saved.plan.supplyHubId !== scope.tracking?.supplyHubId ? `；原计划保存在${saved.plan.data.tracking.hubSnapshot.name}。` : ""}</p>
@@ -149,7 +153,8 @@ export function ServerMaterialArrivalWorkspace({ controller, currentKeys, childr
   const permit = useServerNavigationProtection({ blocked, message: "请先核对分批到料的原请求。原记录已保留，不会自动重试。" });
   const open = (key: string, name: string) => { if (controller.read) setEditor({ token: controller.token, key, name, scope: controller.read, id: ++count.current }); };
   const actions = (key: string, name: string) => <Button variant="secondary" size="compact" disabled={!controller.read || controller.loading} onClick={() => open(key, name)}>{controller.read?.canEdit ? "分批到料" : "到料计划"}</Button>;
-  const summary = (key: string) => { const row = controller.read?.plans.find(x => x.plan.canonicalKey === key); return row && controller.read ? <SavedArrivalPlan plan={row.plan} planIssues={row.issues} scope={controller.read} /> : null; };
+  const readingIssues = controller.error ? ["context_unavailable"] : controller.loading ? ["context_updating"] : [];
+  const summary = (key: string) => { const row = controller.read?.plans.find(x => x.plan.canonicalKey === key); return row && controller.read ? <SavedArrivalPlan plan={row.plan} planIssues={[...row.issues, ...readingIssues]} scope={controller.read} /> : null; };
   const orphaned = controller.read?.plans.filter(x => !currentKeys.includes(x.plan.canonicalKey)) ?? [];
   return <>
     {controller.error && <AlertBanner tone="warning" title="到料计划暂未更新">{controller.error}</AlertBanner>}
@@ -162,7 +167,7 @@ export function ServerMaterialArrivalWorkspace({ controller, currentKeys, childr
     {children({ actions, summary })}
     {orphaned.length > 0 && <section className="sp-v4-material-list" aria-label="已保存的到料计划">{orphaned.map(({ plan, issues: planIssues }) => <MaterialReadCard key={plan.id} materialKey={plan.canonicalKey}>
       <div className="sp-v4-material-head"><strong>{plan.canonicalIdentity.materialName} · 已保存计划</strong><div className="sp-material-card-actions">{actions(plan.canonicalKey, plan.canonicalIdentity.materialName)}</div></div>
-      <SavedArrivalPlan plan={plan} planIssues={planIssues} scope={controller.read!} />
+      <SavedArrivalPlan plan={plan} planIssues={[...planIssues, ...readingIssues]} scope={controller.read!} />
     </MaterialReadCard>)}</section>}
     {editor?.token === controller.token && <ArrivalPlanner key={editor.id} controller={controller} initial={editor.scope} canonicalKey={editor.key} name={editor.name} onClose={() => setEditor(null)}
       onHistory={() => setHistory({ token: controller.token, key: editor.key, name: editor.name, id: ++count.current })} />}

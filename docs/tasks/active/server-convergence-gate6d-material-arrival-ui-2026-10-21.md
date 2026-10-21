@@ -63,3 +63,7 @@ UI v3在61e9完整构建上确认双击保存只写一笔，但第二次本地�
 应用最终修复a290edfe3ba26173e21e0c4df08f35be48fe16f4，前端/Node均exit0。v4前三项通过，丢回执用例过早按“待核对”横幅检查数据库，横幅在POST前就出现；改等明确丢回复错误后核对，并未改生产行为。v5六项通过，后续失败因测试误用另一页面登录按钮名称，改提交本页面真实登录form。
 v6私有Chromium11/11（含父项），19044.6331ms，0fail/cancel/skip：六宽度、分单位部分安排、双击一笔、dirty设置导航、COMMIT后丢回执/刷新不POST、摘要不符保留、unknown明确同UUID重试、close MutationObserver旧401、历史ABA、POST/receipt成功与401四种ABA、Source失败仍读历史、只读与无金额端点/Browser回退。不是开发模式StrictMode双effect实测。
 扩展后的npm run test:material-arrivals为42/42，40820.6286ms，0fail/cancel/skip。新增测试已加入同一CI脚本，built用例加入已有Source工作流（未声称Hosted CI已跑）。截图版补局部表格滚动，完整项目/发布检查与最终证据仍在收口。
+
+截图版首次11/11，27253.3997ms，保留原输出；桌面1440和手机390已实际查看，原Modal内滚动/固定底部/分单位无溢出。后补CDP有界收口及明确清空后13/13，19973.6373ms；首次clear用例误点loading禁用按钮，补等待后通过。
+应用a290上的完整项目927/927，237811.5565ms；发布116/116，236006.0124ms；最终类型与全lint exit0。随后复审确认Source自动刷新未联动到料GET的读漂移，作为新产品修复继续验证，以上结果保持原时点不冒称修复后。
+最小联动使用useOrderMaterial稳定完成对象（连续同错误仍有新对象）触发现有GET，无新计时器/采集/POST。旧草稿和scope保留，来源/tracking/logistics事实变化暂停建议，明确重读后继续；自动GET失败同样不继续显示旧建议，原请求独立。

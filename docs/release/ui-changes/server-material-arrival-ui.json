@@ -10,9 +10,15 @@
     "features/style-progress/server/material-arrivals-client.ts",
     "features/style-progress/server/material-arrivals-pending.ts",
     "features/style-progress/server/use-material-arrivals.ts",
-    "features/style-progress/server/material-arrival-draft.ts"
+    "features/style-progress/server/material-arrival-draft.ts",
+    "features/ainuoke-material-progress/order-material-summary.tsx"
   ],
-  "pages": ["material"],
-  "visibleDifference": "Restore the approved original material-card, per-batch arrival Modal and history Drawer on Server authority using the existing Foundation and planner classes. The old Source-only Server page lacked manual batches and per-batch logistics. The new surface uses the single 0039 owner, exact decimal strings, explicit Hub facts, original slowest-feasible calculator and explicit preview/save/receipt recovery. History remains accessible when Source fails. Add no navigation, global CSS, new density, formula, Browser business storage, schedule or commercial mutation. A types-only narrowing in the existing calculator permits a safe Server input projection without changing its runtime algorithm. Actual built-browser evidence remains pending at this checkpoint.",
-  "evidence": ["docs/tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md", "docs/features/SERVER_MATERIAL_ARRIVALS.md"]
+  "pages": [
+    "material"
+  ],
+  "visibleDifference": "Restore the approved original material-card, per-batch arrival Modal and history Drawer on Server authority using the existing Foundation and planner classes. The old Source-only Server page lacked manual batches and per-batch logistics. The new surface uses the single 0039 owner, exact decimal strings, explicit Hub facts, original slowest-feasible calculator and explicit preview/save/receipt recovery. History remains accessible when Source fails. Add no navigation, global CSS, new density, formula, Browser business storage, schedule or commercial mutation. A types-only narrowing in the existing calculator permits a safe Server input projection without changing its runtime algorithm. Actual built-browser evidence remains pending at this checkpoint. Existing Source completion now triggers only the local arrival GET; stale open-draft advice pauses until explicit reread, while inputs remain unchanged. No additional timer or real Source capture.",
+  "evidence": [
+    "docs/tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md",
+    "docs/features/SERVER_MATERIAL_ARRIVALS.md"
+  ]
 }

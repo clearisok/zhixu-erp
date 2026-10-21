@@ -25,6 +25,8 @@ async function until(read, label, timeout = 16000) {
 test('manual material arrivals and original logistics run on the exact built Server page', { timeout: 360000 }, async t => {
   const phase = async (name, run) => { let failed; await t.test(name, async () => { try { await run(); } catch (error) { failed = error; throw error; } }); if (failed) throw failed; };
   const info = JSON.parse(readFileSync('dist/client/build-info.json', 'utf8')); assert.equal(info.quoteAuthority, 'server'); assert.equal(info.orderRead, 'snapshot'); assert.match(info.gitCommit, /^[a-f0-9]{40}$/);
+  const evidenceRun = process.env.MATERIAL_ARRIVALS_UI_RUN ?? ''; assert.match(evidenceRun, /^[a-z0-9-]{0,64}$/);
+  const evidenceDirectory = resolve('outputs/material-arrivals-ui', info.gitCommit + '-' + info.buildId + (evidenceRun ? '-' + evidenceRun : ''));
   const x = await startContinuousFixture(resolve('dist/client'), { materialArrivals: true, materialDisplay: true });
   const temp = await mkdtemp(join(tmpdir(), 'zhixu-material-arrivals-ui-')), pending = new Map(), errors = [], metrics = [];
   let browser, ws, session, id = 0;
@@ -32,6 +34,7 @@ test('manual material arrivals and original logistics run on the exact built Ser
   const resource = async (kind, data) => { const result = await executeProductionResourceCommand(x.pool, actor, parseManagedResourceCommand({ requestId: randomUUID(), action: 'create', kind, resourceId: null, expectedVersion: 0, data })); assert.equal(result.status, 'applied'); return result.resource; };
   const setHub = async hubId => { const row = (await x.pool.query('SELECT version FROM production_order_execution_trackings WHERE sales_order_id=$1', [x.orderId])).rows[0]; const preview = await previewOrderTracking(x.pool, actor, { action: 'set_order_tracking', orderId: x.orderId, expectedVersion: row?.version ?? 0, data: { supplyHubId: hubId, remark: '' } }); assert.equal((await executeOrderTracking(x.pool, actor, { requestId: randomUUID(), intent: preview.intent, previewHash: preview.previewHash })).status, 'applied'); };
   try {
+    if (process.env.MATERIAL_ARRIVALS_UI_EVIDENCE === '1') { await mkdir(resolve('outputs/material-arrivals-ui'), { recursive: true }); await mkdir(evidenceDirectory); }
     const calendar = await resource('calendars', { name: '合成日历', enabled: true, remark: '', workingWeekdays: [0, 1, 2, 3, 4, 5, 6], exceptions: [] });
     const site = await resource('sites', { name: '采用生产地点', enabled: true, remark: '', countryCode: 'KH', productionCalendarId: calendar.id, preProductionSampleLeadDays: 5 });
     const group = await resource('groups', { name: '合成生产组', shortName: '', enabled: true, remark: '', productionSiteId: site.id, sortOrder: 1 });
@@ -41,8 +44,15 @@ test('manual material arrivals and original logistics run on the exact built Ser
     assert.equal((await executeProductionPlan(x.pool, actor, { requestId: randomUUID(), intent: plan.intent, previewHash: plan.previewHash })).status, 'applied');
     const profile = join(temp, 'profile'); browser = spawn(process.env.CHROME_PATH ?? (process.platform === 'win32' ? 'C:/Program Files/Google/Chrome/Application/chrome.exe' : 'google-chrome'), ['--headless=new', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0', '--user-data-dir=' + profile, 'about:blank'], { stdio: 'ignore', windowsHide: true });
     const [port, path] = await waitForChromiumEndpoint(profile, { timeoutMs: 20000 }); ws = new WebSocket('ws://127.0.0.1:' + port + path); await new Promise((done, reject) => { ws.addEventListener('open', done, { once: true }); ws.addEventListener('error', reject, { once: true }); });
-    const command = (method, params = {}, sid = session) => new Promise((done, reject) => { pending.set(++id, { done, reject }); ws.send(JSON.stringify({ id, method, params, sessionId: sid })); });
-    ws.addEventListener('message', ({ data }) => { const r = JSON.parse(String(data)), p = pending.get(r.id); if (p) { pending.delete(r.id); if (r.error) p.reject(Error(JSON.stringify(r.error))); else p.done(r.result); } if (r.method === 'Runtime.exceptionThrown') errors.push(r.params.exceptionDetails.text); if (r.method === 'Page.javascriptDialogOpening') void command('Page.handleJavaScriptDialog', { accept: true }); });
+    const command = (method, params = {}, sid = session, timeoutMs = 15000) => new Promise((done, reject) => {
+      if (ws.readyState !== WebSocket.OPEN) { reject(Error('private CDP socket is closed')); return; }
+      const requestId = ++id, timer = setTimeout(() => { pending.delete(requestId); reject(Error('CDP timeout ' + method)); }, timeoutMs);
+      const settle = { done: value => { clearTimeout(timer); done(value); }, reject: error => { clearTimeout(timer); reject(error); } }; pending.set(requestId, settle);
+      try { ws.send(JSON.stringify({ id: requestId, method, params, sessionId: sid })); } catch (error) { pending.delete(requestId); settle.reject(error); }
+    });
+    const disconnect = () => { for (const request of pending.values()) request.reject(Error('private CDP socket disconnected')); pending.clear(); };
+    ws.addEventListener('close', disconnect); ws.addEventListener('error', disconnect);
+    ws.addEventListener('message', ({ data }) => { const r = JSON.parse(String(data)), p = pending.get(r.id); if (p) { pending.delete(r.id); if (r.error) p.reject(Error(JSON.stringify(r.error))); else p.done(r.result); } if (r.method === 'Runtime.exceptionThrown') errors.push(r.params.exceptionDetails.text); if (r.method === 'Page.javascriptDialogOpening') void command('Page.handleJavaScriptDialog', { accept: true }).catch(error => errors.push(String(error))); });
     const target = await command('Target.createTarget', { url: 'about:blank' }, undefined); session = (await command('Target.attachToTarget', { targetId: target.targetId, flatten: true }, undefined)).sessionId;
     await command('Page.enable'); await command('Runtime.enable'); await command('Network.enable');
     await command('Page.addScriptToEvaluateOnNewDocument', { source: `
@@ -65,10 +75,14 @@ test('manual material arrivals and original logistics run on the exact built Ser
     const loginUI = async username => { await until(() => evaluate("!!document.querySelector('input[name=username]')"), 'login card'); await field('input[name=username]', username); await field('input[name=password]', x.password); await evaluate("document.querySelector('input[name=username]').closest('form').requestSubmit()"); await has('合成缝纫线'); };
     const logout = async () => { await evaluate("document.querySelector('[aria-label=用户菜单]').click()"); await click('退出登录'); await until(() => evaluate("!!document.querySelector('input[name=username]')"), 'logged out'); };
     const open = async (name = '合成缝纫线') => { await until(() => evaluate(`(()=>{const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.querySelector('.sp-v4-material-identity strong')?.textContent===${JSON.stringify(name)});const b=c&&[...c.querySelectorAll('button')].find(n=>['分批到料','到料计划'].includes(n.textContent));return b&&!b.disabled})()`), 'planner action'); await evaluate(`(()=>{const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.querySelector('.sp-v4-material-identity strong')?.textContent===${JSON.stringify(name)});[...c.querySelectorAll('button')].find(n=>['分批到料','到料计划'].includes(n.textContent)).click()})()`); await has('分批预计到料'); };
+    const openSaved = async () => { const find="(()=>{const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.querySelector('.sp-v4-material-head>strong')?.textContent==='合成缝纫线 · 已保存计划');return c&&[...c.querySelectorAll('button')].find(n=>['分批到料','到料计划'].includes(n.textContent))})()"; await until(()=>evaluate('!!'+find+'&&!'+find+'.disabled'),'saved planner action'); await evaluate(find+'.click()'); await has('分批预计到料'); };
     const preview = async () => { await click('预览变更', '.sp-v4-planner button'); await has('确认本次计划'); };
     const version = async () => (await x.pool.query('SELECT max(version)::int n FROM material_arrival_plans')).rows[0].n ?? 0;
     const pendingRaw = () => evaluate("Object.keys(sessionStorage).filter(k=>k.startsWith('zhixu.server.material-arrival.pending.v1.')).map(k=>sessionStorage.getItem(k))");
-    const shot = async name => { if (process.env.MATERIAL_ARRIVALS_UI_EVIDENCE !== '1') return; const directory = resolve('outputs/material-arrivals-ui', info.gitCommit + '-' + info.buildId); await mkdir(directory, { recursive: true }); await writeFile(join(directory, name + '.png'), Buffer.from((await command('Page.captureScreenshot', { format: 'png' })).data, 'base64')); };
+    const shot = async name => { if (process.env.MATERIAL_ARRIVALS_UI_EVIDENCE !== '1') return; await writeFile(join(evidenceDirectory, name + '.png'), Buffer.from((await command('Page.captureScreenshot', { format: 'png' })).data, 'base64')); };
+    await phase('an unanswered CDP evaluation has its own deadline and releases the owned pending request', async () => {
+      await assert.rejects(command('Runtime.evaluate', { expression: 'new Promise(()=>{})', awaitPromise: true }, session, 200), /CDP timeout Runtime.evaluate/); assert.equal(pending.size, 0); assert.equal(await evaluate('1+1'), 2);
+    });
     await loginCookie('demo.admin'); await navigate();
     await phase('missing explicit Hub never creates a default resource or enables new batches', async () => { await open(); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='＋ 增加批次').disabled"), true); await has('当前集货仓：未设置'); await click('取消', '.sp-v4-planner button'); assert.equal(await version(), 0); });
     await setHub(hub.id); await click('刷新来源');
@@ -78,6 +92,12 @@ test('manual material arrivals and original logistics run on the exact built Ser
       await has('已安排 14 个 / 需求 20 个'); await has('已安排 1.5 条 / 需求 2 条');
       await evaluate('window.arrivalConfirm=window.confirm;window.arrivalConfirmCount=0;window.confirm=()=>{arrivalConfirmCount++;return false}'); await click('辅料排列设置'); assert.equal(await evaluate('location.pathname+location.search'), materialPath); assert.equal(await evaluate('arrivalConfirmCount'), 1); await evaluate('window.confirm=window.arrivalConfirm');
       await preview(); const before = await evaluate('arrivalWire.posts.length'); await evaluate("(()=>{const n=[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='确认保存');n.click();n.click()})()"); await until(() => evaluate("!document.querySelector('.sp-v4-planner')"), 'saved planner closes'); assert.equal(await version(), 1); assert.equal(await evaluate('arrivalWire.posts.length'), before + 1); assert.deepEqual(await pendingRaw(), []);
+    });
+    await phase('automatic Source refresh re-reads arrivals and pauses old advice without replacing an open draft', async () => {
+      await open(); await field('.sp-v4-batch:nth-child(1) input[type=date]', '2027-01-04'); const before = await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length"); await x.capture(); await evaluate("window.dispatchEvent(new Event('focus'))");
+      await has('到料依据已更新'); assert.equal(await evaluate("document.querySelector('.sp-v4-batch input[type=date]').value"), '2027-01-04'); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-batch-logistics strong')].some(n=>n.textContent==='海运'||n.textContent==='陆运')"), false);
+      assert.ok(await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length") > before);
+      await click('重新读取', '.sp-v4-planner button'); await until(() => evaluate("!document.querySelector('.sp-v4-planner').innerText.includes('到料依据已更新')"), 'explicit draft context refresh'); assert.equal(await evaluate("document.querySelector('.sp-v4-batch input[type=date]').value"), '2027-01-04'); assert.equal(await version(), 1); await click('取消', '.sp-v4-planner button'); await click('放弃修改');
     });
     await phase('six widths preserve local tables, Modal and history geometry without document overflow', async () => {
       for (const [width, scale] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {
@@ -121,14 +141,20 @@ test('manual material arrivals and original logistics run on the exact built Ser
     });
     await phase('Source failure preserves saved plans, history and dates while blocking new allocations', async () => {
       x.setMode('failed'); await assert.rejects(x.capture()); await click('刷新来源'); await has('合成缝纫线 · 已保存计划'); await until(() => evaluate("[...document.querySelectorAll('.sp-v4-material-card')].some(n=>n.textContent.includes('合成缝纫线')&&n.textContent.includes('当前来源不可用'))"), 'source failure issue');
-      await evaluate("(()=>{const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.textContent.includes('合成缝纫线'));[...c.querySelectorAll('button')].find(n=>['分批到料','到料计划'].includes(n.textContent)).click()})()"); await has('2027-01-07'); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='＋ 增加批次').disabled"), true); await click('到料历史', '.sp-v4-planner button'); await until(() => evaluate("document.querySelectorAll('[data-arrival-history-version]').length===7"), 'source-free history'); await shot('source-unavailable-history'); await evaluate("document.querySelector('.qc-drawer>header>button').click()"); await click('取消', '.sp-v4-planner button'); x.setMode('ready'); await x.capture(); await click('刷新来源'); await has('合成缝纫线');
+      await openSaved(); await has('2027-01-07'); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='＋ 增加批次').disabled"), true); await click('到料历史', '.sp-v4-planner button'); await until(() => evaluate("document.querySelectorAll('[data-arrival-history-version]').length===7"), 'source-free history'); await shot('source-unavailable-history'); await evaluate("document.querySelector('.qc-drawer>header>button').click()"); await click('取消', '.sp-v4-planner button'); x.setMode('ready'); await x.capture(); await click('刷新来源'); await has('合成缝纫线');
     });
     await phase('read-only role never receives edit controls or Browser fallback', async () => {
       await loginCookie('demo.finance'); await navigate(); await open(); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner input')].every(n=>n.disabled)"), true); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='预览变更').disabled"), true); await click('关闭', '.sp-v4-planner button');
       assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"), []); assert.deepEqual(await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/quotes')||r.path.includes('confirmed-commercial-terms'))"), []); assert.equal(await version(), 7);
     });
+    await phase('an explicit clear works with failed Source and preserves all earlier dated allocations in history', async () => {
+      await loginCookie('demo.admin'); await navigate(); x.setMode('failed'); await assert.rejects(x.capture()); await click('刷新来源'); await has('合成缝纫线 · 已保存计划');
+      await openSaved();
+      await click('清空本物料计划', '.sp-v4-planner button'); await preview(); await click('确认保存', '.sp-v4-planner button'); await until(() => evaluate("!document.querySelector('.sp-v4-planner')"), 'empty plan saved'); assert.equal(await version(), 8);
+      await openSaved(); await click('到料历史', '.sp-v4-planner button'); await until(() => evaluate("document.querySelectorAll('[data-arrival-history-version]').length===8"), 'clear history'); await has('已清空计划'); await has('2027-01-07'); await shot('explicit-clear-history');
+    });
     assert.deepEqual(errors, []); assert.deepEqual(x.errors, []);
-    if (process.env.MATERIAL_ARRIVALS_UI_EVIDENCE === '1') { const directory = resolve('outputs/material-arrivals-ui', info.gitCommit + '-' + info.buildId); await mkdir(directory, { recursive: true }); await writeFile(join(directory, 'receipt.json'), JSON.stringify({ schemaVersion: 'material-arrivals-ui.v1', renderedSourceSha: info.gitCommit, buildId: info.buildId, synthetic: true, realDatabaseAccess: false, sourceActivation: 'not-activated', metrics }, null, 2) + '\n'); }
+    if (process.env.MATERIAL_ARRIVALS_UI_EVIDENCE === '1') await writeFile(join(evidenceDirectory, 'receipt.json'), JSON.stringify({ schemaVersion: 'material-arrivals-ui.v1', renderedSourceSha: info.gitCommit, buildId: info.buildId, synthetic: true, realDatabaseAccess: false, sourceActivation: 'not-activated', metrics }, null, 2) + '\n');
   } finally {
     if (ws) ws.close(); if (browser) browser.kill(); await x.close(); const owned = relative(resolve(tmpdir()), resolve(temp)); if (!owned || owned.startsWith('..') || isAbsolute(owned) || !owned.startsWith('zhixu-material-arrivals-ui-')) throw Error('unsafe private browser cleanup'); await rm(temp, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
   }
