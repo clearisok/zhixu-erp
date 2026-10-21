@@ -49,7 +49,7 @@ verify-only与HTTP边界，当前定向42/42通过。旧0008→0009测试保留�
 910项中899通过、11失败，全部为D154尚未前向绑定而触发同一
 `EVIDENCE_WORKTREE_DRIFT decisions-garment-observations-20261021`，原日志保留于ignored
 outputs/delivery-plan-receipts/project-tests.log。须先提交新文档blob并绑定前向版本，
-再重跑全项目/116发布/精确main守卫；当前不能称全项目或最终门禁PASS。
+再重跑全项目/116发布/精确main守卫；此首轮不作为全项目或最终门禁PASS。
 
 源码checkpoint为`12cfaf18867fea94f6733389851191afc29f31a4`。D154前向记录已绑定此
 提交的实际Git blob，原261条证据逐对象保持不变。随后全项目**927/927**通过
@@ -60,3 +60,15 @@ outputs/delivery-plan-receipts/project-tests.log。须先提交新文档blob并�
 
 完成后记录实际测试、精确commit/远端/CI和remaining dirty。当前尚未交付，不合并、
 关闭PR、部署、采集、切换旧入口或修改真实数据。完整Goal仍active。
+
+## 本地最终Gate与远端交付分开记录
+
+工程报告冻结于`98580dbc49aeb11189492e42dc6a23be6dda48dd`，记录实际12cf应用源；
+新manifest共263条证据/56项能力，原261条/55项及其他字段逐对象完整保留。
+独立元数据review无P1/P2，未声称执行测试或真实环境操作。
+
+独立发布回归**116/116通过**（192854.8423ms），working精确守卫main996/
+head985/11pages/56能力/80继承UI路径PASS。只改后台，无新UI路径或截图批准。
+最终metadata commit后再次核精确守卫，才执行既有交付工具一次/远端完整SHA核对及
+source、team-access、release三项CI；本条不提前称远端或CI成功。该分支保留完整原始
+累计历史，仅作当前收敛验证引用，不新建重复累计业务PR，也不快进/合并其他PR。

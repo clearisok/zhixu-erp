@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)和[DeliveryPlan可靠保存任务](tasks/active/server-delivery-plan-receipts-2026-10-22.md)为准。feat/server-delivery-plan-receipts从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建立并FF干净d59a05e0e7fe5540322485c39a6756a9ba81ab6f；root唯一writer、既有reviewer只读，无继承dirty。原PATCH兼容、统一回执、fresh权限、CAS/并发/故障/容量与0042隔离升级已实现并定向验收，尚在冻结证据/全项目/最终门禁收口，无新远端或CI。原[只读就绪审计](tasks/active/server-convergence-release-readiness-2026-10-22.md)、7d历史整合及CI39676484374成功保留；原摘要[Git blob归档](tasks/completed/2026-10-22-release-readiness-inputs/7d323de5/PROJECT_INDEX.md)。新工程不等于运行旧入口或人工接受；不改UI/真实Source/现有环境，不自动合并/关闭/部署，不新建重复累计PR。完整Goal active，Num/outdate不重问，其余原待答不默认。下方历史索引按日期、authority和实际版本阅读。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)和[DeliveryPlan可靠保存任务](tasks/active/server-delivery-plan-receipts-2026-10-22.md)为准。feat/server-delivery-plan-receipts基线独立main996dfedc12da3527343cd3ff2aa5eea35497e10e，干净输入d59a05e0e7fe5540322485c39a6756a9ba81ab6f；root唯一writer、既有reviewer只读，无继承dirty。应用源12cfaf18867fea94f6733389851191afc29f31a4、工程报告98580dbc49aeb11189492e42dc6a23be6dda48dd；定向42/最终receipt19、全项目927、PG270及发布116通过，263证据/56能力前向绑定，固定源及证据review无P1/P2。待最终metadata精确守卫/远端/三CI，不提前宣称交付。原[只读就绪审计](tasks/active/server-convergence-release-readiness-2026-10-22.md)、7d历史整合/CI39676484374及[Git blob归档](tasks/completed/2026-10-22-release-readiness-inputs/7d323de5/PROJECT_INDEX.md)保留。无UI/真实Source/现有环境修改、合并/关闭/部署或重复累计PR。完整Goal active，Num/outdate不重问，其余原待答不默认。
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
