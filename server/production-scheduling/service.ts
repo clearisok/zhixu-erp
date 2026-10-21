@@ -15,6 +15,7 @@ import { derivePlanDuration, parsePlanCommand, parsePlanIntent, type PlanCommand
 import { previewInternalQueue, queuePlanningRowIsProtected, SCHEDULE_PLANNING_LIMITS } from "./planning-preview.js";
 import { assertExecutionAttributionUnchanged, executionQueueRow, projectExecutionQuantities } from "./execution-preview.js";
 import { executionFacts, executionsForAssignments, productionExecutionsAvailable, type StoredExecution } from "./execution-store.js";
+import { projectDeliveryCoverage } from "./delivery-coverage.js";
 import { productionRequestLock, requireProductionPermissions, runProductionCommand, savedCommandPermissions } from "./command-transaction.js";
 import { parsePlanListQuery } from "./read-contract.js";
 import { listPlanGroups, listPlanOrders, readPlanOrderSummaries } from "./read-model.js";
@@ -229,9 +230,10 @@ export async function readOrderProductionPlans(pool: Pool, identity: TrustedIden
   const id = productionResourceUuid(inputId);
   return readTransaction(pool, identity, async (client, actor) => {
     const order = await readOrderPlanFacts(client, id), assignments = await assignmentsForOrder(client, id), summary = (await readPlanOrderSummaries(client, [id]))[id];
+    const executions = await executionsForAssignments(client, assignments.map(row => row.id));
     const writable = summary?.eligible === true && order.planVersion < 2147483647;
     return { order, summary, assignments: assignments.map(publicAssignment), resources: Object.fromEntries(assignments.map(row => [row.resourceSnapshotHash, resourceSummary(row.resourceFacts)])),
-      executions: await executionsForAssignments(client, assignments.map(row => row.id)),
+      executions, deliveryCoverage: projectDeliveryCoverage(order.deliveryPlans, assignments.map(row => ({ ...row, execution: executionFacts(executions[row.id]) }))),
       canCreate: actor.permissions.includes("schedule.create") && writable,
       canEdit: actor.permissions.includes("schedule.edit") && writable,
       canComplete: actor.permissions.includes("schedule.complete") && writable };

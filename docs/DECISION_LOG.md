@@ -21,6 +21,14 @@
 
 ## Active
 
+### D-155 交期覆盖只投影当前登记事实
+
+- 2026-10-22，Active；D-147收敛内的只读技术切片，承接BUSINESS_RULES累计多交期比较、D043物理SO归属与D151取消产出/结束余量规则，不引入新的出货或财务口径。
+- 原生产订单详情GET在同一READ ONLY REPEATABLE READ中读取当前有效DeliveryPlan、原物理SO全部排单及一次执行映射。按日期分组累计需求，保留全部计划ID；当前登记实际产出全部可用于比较，未取消且未结束任务的正剩余量按原计划结束日加入预计供给。缺口不为负，不重复消费供给，不跨历史alias加总。
+- 名称限定为“当前登记事实的交期覆盖”。不是历史准时率、日生产事件、库存或出货；不把累计完成量按一个结束日期重建流水，也不扣减6086979观察。缺日期逐行未评估，完全没有有效日期为未评估，不回退Source日期或伪造无风险。
+- 复用已有D151数量投影、fresh读取权限及有界响应，不新增表、写接口、授权或UI；既有500排单/1000有效交期/1MiB详情上限保持，精确十进制超量明确失败。生产planVersion不冒称DeliveryPlan集合版本。
+- 证据：`server/production-scheduling/delivery-coverage.ts`、原`readOrderProductionPlans`与纯/PG/HTTP/RR交错测试；[阶段任务](tasks/active/server-delivery-coverage-2026-10-22.md)分别记录实际验收与交付。无新真实采集、绑定、激活、业务库操作、部署或人工接受。
+
 ### D-154 DeliveryPlan沿用原命令并保存可核对回执
 
 - 2026-10-22，Active；D-147已批准Server收敛范围内的技术决定，不改变D-100的Source/人工所有权、系统默认0、人工正数和历史计划规则。复用原PATCH/writer/响应，0042只新增空不可变请求回执表，不回填或重建计划。
