@@ -1,12 +1,12 @@
-# 恢复点：原物料与运输Server页面本地验收通过，广回归运行中
+# 恢复点：订单物料与运输Server UI本地收口
 
-2026-10-21；codex/server-order-logistics-ui，输入干净01eca83d794d62557e9f3ce579bdb71477c98f5a，main独立只读996dfedc12da3527343cd3ff2aa5eea35497e10e，无继承dirty。root唯一writer，既有server_convergence_review只读。
-[任务](tasks/active/server-convergence-gate6d-order-logistics-ui-2026-10-21.md)、[输入原文](tasks/completed/2026-10-21-order-logistics-ui-inputs/01eca83d/)、[后台工程记录](tasks/completed/2026-10-21-order-logistics-context-engineering.md)。
+2026-10-21；codex/server-order-logistics-ui，从本阶段独立核实main996dfedc12da3527343cd3ff2aa5eea35497e10e创建并明确FF干净01eca83d794d62557e9f3ce579bdb71477c98f5a，无继承dirty。root唯一writer，既有server_convergence_review只读。
+[冻结工程记录](tasks/completed/2026-10-21-order-logistics-ui-engineering.md)、[阶段](tasks/active/server-convergence-gate6d-order-logistics-ui-2026-10-21.md)、[输入原文](tasks/completed/2026-10-21-order-logistics-ui-inputs/01eca83d/)、[契约](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)。main收口前独立API仍996。
 
-客户端projection/ProductionCommand/原transport/outbox新增tracking，无第二writer/恢复账本。41/41（1165.8484ms）纯客户端通过，先红2pass/4fail589.0281ms保留。reviewer静态复审无新增安全阻断；旧页面applied联合类型/文案随接线同步。
-应用源码2a0cec28a0ab736c6f7500bf512dd7260364c5cb/build20261021-171525已显式Server前端和顺序Node构建exit0；之后仅测试补3处条件等待和事实文档，产品文件未改。页面复用原组件/单槽，Hub空值/停用、预览/恢复/25历史已接入。41纯客户端（1585.0935ms）、24契约/真实HTTP/升级（33683.0579ms）通过。
-最终built37/37（36子项+父项，95398.3492ms），共享资源built23/23（37806.8778ms）通过；0fail/cancel/skip。原built两轮分别27pass/2fail64735.1027ms、34pass/2fail109011.6345ms，均因测试提前读取异步候选/按钮；补两处失败等待及一处几何资料就绪等待，不改业务断言。原失败保留。
-三个P2场景：可选GET不阻塞旧计划、冻结retain不冒充已存事实、layout owner阻断旧401 commit窗口；独立reviewer静态及最终实际日志/1440和390表单/预览/历史图复审无新阻断。root查看同组表单/预览。证据目录outputs/production-planning-ui/2a0cec28a0ab736c6f7500bf512dd7260364c5cb-1792574544755/；Browser/账号/DB均fixture自建已清理，不升级现有入口。
-当前进程：项目npm test 8944→outputs/g6d-order-tracking-ui-project.log，发布116相关回归63316→outputs/g6d-order-tracking-ui-release-tests.log，全lint26504→outputs/g6d-order-tracking-ui-lint-complete.log。须取终态，不能因已运行当PASS。类型source日志exit0；最终文档/证据后精确HEAD对main守卫仍待。新V1路径记录server-order-logistics-context-page.json。完成广测后新增冻结工程证据并只扩现有production-plan-server能力范围，不改旧245/其他能力/PNG。
-后台精确23/269/116等失败与修复时序见冻结记录，不复写旧DECISION_LOG/旧文档hash。无Server ArrivalBatch/完整物流/正式6086979/关账。D152Num/outdate已确认，真实两次许可用完，不新读/绑定/激活/调度。
-Git664f非零真实push虽远端exact仍STOP、具体原因未知，不重推/换认证；只读成功不证明恢复，无新push/PR/Hosted CI/merge/close/deploy。保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175。不动真实账号/业务库，不安装依赖或共享配置。Goal active/未完成。
+应用2a0cec28a0ab736c6f7500bf512dd7260364c5cb/build20261021-171525，Server quote/master、session、writable、orderRead=snapshot。后续78416eea只补3处测试等待与事实，产品未改。原Modal/队列更多/订单详情接跟进，严格DTO、原ProductionCommand/outbox单槽schema1/lease/digest/receipt复用；不另建writer、不挂Browser或重写SQL。
+最终41客户端1585.0935ms、24真实HTTP/PG/升级33683.0579ms、37排单跟进built95398.3492ms、23资源built37806.8778ms、927项目405856.9473ms、116发布403099.6915ms均0fail/cancel/skip；类型/全lint/前端与顺序Node构建exit0。所有测试进程terminal，fixture自有资源已清理。原27pass/2fail、34pass/2fail和先红/TS2352修复均保留，不冒称一次全绿。
+可选GET独立加载、只读不误显草稿、layout详情owner拦旧401三P2已实测关闭；reviewer核日志/1440-390表单预览/历史图无阻断，未代其运行测试/DB/网络。图片与geometry在outputs/production-planning-ui/2a0cec28a0ab736c6f7500bf512dd7260364c5cb-1792574544755/。
+78416/main996源码守卫PASS11页/51能力/累计66UI路径/errors空；新冻结报告/只扩现有production-plan-server范围后须运行最终精确HEAD守卫并读outputs/g6d-order-tracking-ui-final-guard.log。原245证据/其他能力/PNG不改；最终HEAD由git核实。文档与源码分commit，不借旧CI。
+
+下一独立阶段仍需Server ExpectedArrivalBatch与逐物料投影，不能把Source交期当预计到仓；原唯一推荐算法复用D065–069，不猜默认仓/路线或自动补齐分批。新阶段重新核main/dirty/迁移编号，从当前已验证HEAD明确接续，不把未完能力写成闭环。正式6086979跨次身份/合同颜色及Server关账仍待；D152Num/outdate已确认，两次真实许可均已用完，不新增查询或激活。Gate8其余口径待决，CNY销售/USD工价不换汇/重标。
+Git664f非零真实push虽exact仍STOP且具体原因未知，不重推/换认证；只读成功不证明写恢复。无新push/PR/Hosted CI/merge/close/deploy。保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175未升级，不动真实账号/业务库、不安装依赖或改共享配置。Goal active/未完成。

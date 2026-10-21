@@ -76,3 +76,4 @@ ProductionCommand向前扩展set_order_tracking，仍共用原transport、权限
 
 本阶段先完成纯客户端与真实HTTP契约验证，实际built Chromium、全门禁和精确源码证据仍按页面任务记录；
 本节不表示部署、人工接受或完整到仓/物流闭环。
+独立页面阶段现已在2a0cec28源码/build20261021-171525完成本地工程验收：41客户端、24真实HTTP/升级、37排单跟进built、23资源built、927项目与116发布回归通过，原失败和验证边界见[冻结记录](../tasks/completed/2026-10-21-order-logistics-ui-engineering.md)。未升级现有体验入口。
