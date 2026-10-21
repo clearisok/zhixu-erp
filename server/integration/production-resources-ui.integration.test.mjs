@@ -267,8 +267,9 @@ test('Gate6A/6D built resource pages preserve Server ownership, logistics member
       await evaluate('resourceWaiters.splice(0).forEach(done=>done())'); await has('方案已更新，请重新读取。');
       assert.equal(await evaluate("document.body.innerText.includes('合成并发新增方式')"), false);
       await click('重新读取', 'section[aria-label=运输方案] button'); await has('合成并发新增方式'); await editPlan('合成空运'); await formField('方案备注', '尚未保存的方案备注');
-      route = await amend('transport-plans', route.id, { remark: '另一人更新方案备注' }); await click('保存运输方案'); await has('资料已被其他人更新');
-      assert.equal(await evaluate("document.querySelector('[role=dialog] textarea').value"), '尚未保存的方案备注'); await click('读取最新版本'); await until(() => evaluate("document.querySelector('[role=dialog] textarea').value==='另一人更新方案备注'"), 'latest complete route');
+      route = await amend('transport-plans', route.id, { remark: '另一人更新方案备注' }); await evaluate("resourceListMode='delay200'"); await click('保存运输方案'); await has('资料已被其他人更新'); await until(() => evaluate('resourceWaiters.length===1'), 'held post-conflict directory');
+      assert.equal(await evaluate("document.querySelector('[role=dialog] textarea').value"), '尚未保存的方案备注'); assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='读取最新版本').matches(':disabled')"), true);
+      await evaluate('resourceWaiters.splice(0).forEach(done=>done())'); await click('读取最新版本'); await until(() => evaluate("document.querySelector('[role=dialog] textarea').value==='另一人更新方案备注'"), 'latest complete route');
       assert.equal(await evaluate("document.querySelectorAll('[role=dialog] [aria-label=运输方式名称]').length"), route.modes.length); await click('取消');
     });
     await phase('a held pre-save parent read cannot submit after A to B to A session replacement', async () => {
