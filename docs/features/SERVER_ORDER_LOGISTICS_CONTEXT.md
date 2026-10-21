@@ -2,6 +2,7 @@
 
 2026-10-21，D-054 / D-147 Gate6D。当前为后台工程切片，不表示页面接线或物流闭环；
 精确源码、测试结果及未完成范围以[阶段任务](../tasks/active/server-convergence-gate6d-order-logistics-2026-10-21.md)为准。
+源码checkpoint ffef7c174d4256adf5e1da4dcf0f7b8526dda72b已完成本地验收，完整测试时序及失败修正见[工程记录](../tasks/completed/2026-10-21-order-logistics-context-engineering.md)。无新CI/部署或UI接线。
 原Browser跟进及唯一推荐算法见[生产排单](PRODUCTION_SCHEDULING.md)，不读取、导入或改写其存储。
 
 ## 正式事实与历史
@@ -11,7 +12,7 @@
 - 首次空值且空备注不创建head；已有记录清空后保留原UUID与版本历史。无变化不增加版本/审计。
 - 新建/更换仓必须引用启用的真实资料；已引用停用仓仍可查看、清空或仅改备注。
   每次真实变更保留发生时完整仓业务字段，当前仓资料单独返回；主数据变化不重写历史或旧回执。
-- 0038独立head与逐事件history，不给订单推断初值、不seed/backfill、不修改001–0037。
+- 0038独立head与逐事件history，不给订单推断初值、不seed/backfill、不修改0001–0037。
   SQL保护原SO/UUID/创建人时间、精确版本、发生时仓快照、每个中间历史事件及更新人。
   不物理删除、不搬归属，不将历史重复的仓继承/汇总到有效SO。
 - 不保存物料日期、齐套、数量、计划、实际执行方、报价/金额、出货或关账。

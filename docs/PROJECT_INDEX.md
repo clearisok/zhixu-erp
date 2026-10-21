@@ -2,7 +2,7 @@
 
 2026-10-21；main以独立GitHub读取核实996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer/既有reviewer只读。
 当前codex/server-order-logistics-context，输入干净e223a38c246d2f21c6684d76cd10a82dfa46895c，无继承dirty；[输入三摘要Git原文](tasks/completed/2026-10-21-order-logistics-inputs/e223a38c/)保留原时点/hash/限制。
-[本阶段任务](tasks/active/server-convergence-gate6d-order-logistics-2026-10-21.md)与[Server订单集货仓契约](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)是当前后台恢复入口。0038/原命令事务/独立物理SO仓及精确历史已定向23/23（25170.6001ms），204生产/归一组合为容量修复前通过；长历史P2改25条完整页，真实丢回复与加工正反控补齐，独立复审无新阻断。修复后类型/全lint/Node构建通过，项目/全PG/基线仍进行，不称最终提交/CI。原冻结D152文档无新决定不改，漂移失败与首轮合成测试错误保留。
+[本阶段任务](tasks/active/server-convergence-gate6d-order-logistics-2026-10-21.md)、[契约](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)与[工程记录](tasks/completed/2026-10-21-order-logistics-context-engineering.md)是当前后台恢复入口。源码ffef7c174d4256adf5e1da4dcf0f7b8526dda72b：定向23/23、全PG269/269、最终类型/全lint/Node构建及精确main守卫通过，独立复审无剩余阻断；204生产/归一为容量修复前结果。项目924/927的3项冻结文档漂移修正后，相关116/116包含三项通过，不写单次927全过。原决策/清单/245证据及PNG保持，详细时序与失败保留，不冒称新CI/页面或部署。
 
 Gate6D既有卡/抽屉已接Server仓/完整运输方案，共用原服务/权限/回执，Browser持久化不改。最终应用源f4c3aa06、build20261021-152547；实际built23/23（22子项+父项）、61后台/21客户端/14Browser模型通过；927项目/116基线按修复前后时序保留，类型/全lint/前端及顺序Node构建/精确main守卫/独立复审通过。
 原244证据及历史PNG保持，新增物流工程文档证据为245；51能力中只扩现有资源能力到六资料，其他50项不变。b58冻结报告/hash与清单经独立复审核对，main996源码守卫PASS。远端仍STOP（664f实际push exit1具体原因未知），新只读诊断可读main不证明推送恢复；无新PR/CI/合并或部署。
