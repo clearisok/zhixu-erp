@@ -2214,6 +2214,14 @@
       "sha256": "d0f344ad684936a00525ec2ed3615a48ce9a148ed088be26b0a52497de0dae51",
       "supersedes": "decisions-delivery-plan-receipts-20261022",
       "changeReason": "D155 projects current registered production facts against cumulative DeliveryPlans. Preserve every prior decision and D151 cancellation/completion attribution; no source, money, shipment, closing or UI change."
+    },
+    {
+      "id": "server-production-delivery-coverage-contract-20261022",
+      "kind": "document",
+      "path": "docs/features/SERVER_DELIVERY_COVERAGE.md",
+      "recordedAtSha": "0e546e2a653c1285d15b4321b105936eeaa9cbf3",
+      "renderedSourceSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
+      "sha256": "aa642eac58af3b74d2a5a17438085d5c231b7feac4c3e00498b187adf88423d7"
     }
   ],
   "pages": [

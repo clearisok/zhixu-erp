@@ -62,3 +62,8 @@ typecheck、全lint已通过。定向包括真实RR交错提交、内外发/停�
 只撤去尚未提交、被拒绝的feature记录；原263条、56能力及D155实际ff8绑定保留。
 待新契约冻结后作为新root绑定，再核精确守卫；应用源码和已执行测试不因此冒称改变。
 上一阶段144三CI此时均attempt1 success，最终结果已追加原任务，不改冻结工程报告。
+
+修正后的实际main守卫PASS（main996/head0e54，11pages/56能力/80继承UI路径，errors[]）。
+独立证据复审确认P2闭合、原263/56与其他字段逐对象不变；ff8至0e54无应用/SQL/测试变化。
+实际验收及失败限定整理为[冻结工程报告](../completed/2026-10-22-current-delivery-coverage-engineering.md)。
+下一步只冻结并绑定报告/独立能力，最终metadata精确守卫/远端及新CI仍独立待完成。
