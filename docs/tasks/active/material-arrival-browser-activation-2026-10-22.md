@@ -22,3 +22,20 @@ Source完成后会queueMicrotask重读arrivals，loading再次禁用按钮。两
 
 本分支是原收敛验证历史的前向修复引用，不创建重复累计PR，不改变PR120–127。
 不merge/close/部署、真实读取/业务库操作；原待答不默认。完整Goal仍active。
+
+## 实际本地验收
+
+源码72d0a0af8302e4aa761d587a3ca786296a23b4c0只改原浏览器测试，独立静态review无P1/P2。
+精确Server build server-activation-72d0a0af-20261022（2026-10-22T07:24:50+08:00）完成；
+16/16 built浏览器通过（23374.3454ms，无skip）。受控GET将读取2→3，disabled点击0→0，
+新helper释放后恰1次enabled/connected点击，只读输入保持禁用、版本仍7。不是倒推历史CI时序。
+syntax、全lint、最终typecheck、Node/前端build和main996/head72精确守卫PASS；发布116/116
+通过（198257.996ms）。没有重跑项目927/PG270，不复用这些旧计数冒称新验收。
+
+typecheck首轮只因本任务outputs内的精确源码提取副本也被TS glob扫描而失败；2603文件逐一
+hash核对原tar后，仅此自有副本移出项目到新私密目录，原tar/image/错误日志保留；不改tsconfig、
+依赖或共享环境。后续类型检查通过。完整范围见[工程报告](../completed/2026-10-22-material-arrival-browser-activation-engineering.md)。
+
+上一c0d文档阶段Release39692878584 attempt1 success已独立核实。PR120–127开放草稿heads均
+与Gate0原值一致，没有修改PR。本阶段冻结报告、绑定、最终metadata guard/交付及新CI仍待；
+原105失败保留，不重发其原workflow或提前宣称最终三CI通过。
