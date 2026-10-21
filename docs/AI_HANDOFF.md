@@ -1,13 +1,11 @@
-# 恢复点：Gate7A三项CI成功，最终文档收口
+# 恢复点：Gate7B固定合同过滤核验工具准备
 
-2026-10-22；codex/server-garment-shipment-observations；独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer/既有reviewer只读。当前只更新四份恢复文档，应用/SQL/UI/manifest/冻结证据不变；最终文档HEAD以git解析，精确守卫与远端单独核实。
+2026-10-22；分支codex/garment-contract-filter-verification；独立main996dfedc12da3527343cd3ff2aa5eea35497e10e，从main建立后只FF至干净acfed2d091297c9fb587680a29ca6932892fa8ea。原三根文档逐字节归档在tasks/completed/2026-10-22-garment-filter-inputs/acfed2d0/；root唯一writer/既有reviewer只读。
 
-[任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)保留失败/交付记录，[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)为契约。应用b6521d0d510ca0447822096e101919c97f76a980，本地验收构建99c52a526f59253d9da124c3bb9b54f077b6c115/build20261021-222838；[冻结报告](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)在c031ee33b9ee147cdc742e870dd51d818356c774，LF hash d96aea2e1810408122072f02bc5b5bc064da1d70f9808fcfaf444379ee8aea05，不得补写后续结果。原e4d7根文档逐字节归档保留。
+先读[Gate7B任务](tasks/active/server-convergence-gate7b-filter-verification-2026-10-22.md)、[成衣观察契约](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、D152/153及实际probe/transport/lossless/private IO/PS wrapper。前轮为progress：acfed正常一次DELIVERED_VERIFIED/API及Git精确，63c三CI终态success（source39634167328/team39634173683/baseline39634178966），acfed纯文档精确守卫PASS/clean。旧Git错误仍unknown，不能说永久修复。
 
-实际41定向/146 Python/927项目、124相关+1既有Windows跳过、类型/lint/构建/编译模块、116发布及63c精确守卫通过；254证据/53能力。两处旧UI测试各9/9、23/23，产品未变。caf来源CI因job20分钟上限取消，63c只把总预算改30分钟、没有删检查/放宽单项限制。精确63c40b8d0b93e2fcd63a5997d99c0b47ec587566的source39634167328、team39634173683、baseline39634178966全部终态success；六个source实测阶段均成功，回执ignored ci-63c-final.json。不要借这些CI冒称最终文档HEAD重新跑过。
+当前仅任务/基线文档，尚未新增代码/测试或真实请求。准备固定C1首页→虚拟零合同→C1首页，1login+最多3reports/100行/各4MiB/总12MiB/180秒、无翻页重试。真正执行前另批具体新额度；现有D1933/1935已用完，不读真实私密报告/凭据。CLI候选必须精确绑定已冻结D1933私密文件hash，不允许任意合同/report/page。所有校准结果只私密证据，不自动发布业务快照/激活。
 
-63c一次push仍exit1/STOP，但独立API及Git读取证明精确送达，不重推；v2固定诊断仅引用更新拒绝，认证/transport false，CAS未知。此前正常fetch仅tracking08→caf，3176ms，工作分支/改动/配置不变。新ignored capture-delivery-signals-v3.mjs及3离线检查/复审已通过：只识别唯一精确ref操作和最多一条同SHA/同分支标准摘要，wx保留原回执、raw不存、诊断错误不影响原deliver。下一次仅新文档checkpoint正常交付，不能重试63c或换认证。
+复用既有Node24 exact numeric reviver、Python strict_json/transport/private报告读写，避免复制身份/业务系统。下一步完成独立只读预审，再串行实现/合成验收/commit/guard/安全交付。新测试只临时合成数据，不复用前轮数字作新PASS；不改生产UI/SQL/默认配置/Catalog或现有环境。
 
-只读现况确认62426 HTTPS health/build分别200、精确旧8175/Gate1身份；仅public cert+2 GET、0登录/业务读取/Source。五Docker服务healthy不等于重验完整READY，未重查对象/schema/业务行；它尚未升级到当前累计分支。3001/50426/59069/62426及旧资产/Browser/账号全部保留，不启动停止/升级部署。原快照和UI截图不动。
-
-按Gate0仅验证引用，不创建重复累计PR，不merge/close/deploy。Goal active，后续正式采集/UI、Server关账和环境收敛仍须推进。D152 Num/outdate已确认，D1933/1935额度用完，不能新读凭据/私密原文/Source；具体查询工具准备和真实额度分开。三项关账业务问题待答，不推断批准。最终四文档检查/commit/guard/一次交付完成后，再开始独立下一Gate。
+完整Goal active；关账三问题仍待用户原回答，不推断同意。按Gate0只验证引用，不新建累计PR/merge/close/deploy。保护全部旧环境/账号/Browser；62426只是旧8175 public health/build已读回，不等于全READY或新版。冻结报告c031/LF d96aea2e1810408122072f02bc5b5bc064da1d70f9808fcfaf444379ee8aea05与旧截图不动。

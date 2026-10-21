@@ -1,5 +1,8 @@
 # 项目知识索引
 
+2026-10-22 Gate7B准备：codex/garment-contract-filter-verification，从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建立并FF干净acfed2d091297c9fb587680a29ca6932892fa8ea。见[新阶段任务](tasks/active/server-convergence-gate7b-filter-verification-2026-10-22.md)。本阶段只准备合同过滤核验工具，真实额度未批准/未使用，不读凭据或真实私密报告，不访问业务DB或激活来源。前阶段根文档逐字节归档，完整Goal继续。
+
+
 当前2026-10-22：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、[冻结工程报告](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)为恢复入口。41定向/146 Python/927项目/124相关通过+1既有Windows跳过，类型/lint/构建/116发布/精确守卫通过；254证据/53能力。内部观察不是正式采集、成衣页面、事件总账或关账，Goal继续。
 
 精确63c40b8d0b93e2fcd63a5997d99c0b47ec587566远端已独立核实，原push exit1/STOP保留、不重推；source39634167328、team39634173683、baseline39634178966均终态success。此前caf source因job20分钟上限取消；只将总预算调30分钟，检查未删减。最终文档HEAD守卫/交付另核实，不冒称同一CI新跑。62426只读HTTPS健康和build-info已匹配旧8175/Gate1；不是当前新构建或完整READY，不升级旧环境、不新建累计PR/merge/deploy。原失败、旧证据及Git不确定性留在任务，不覆盖冻结记录。
