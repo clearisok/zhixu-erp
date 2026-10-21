@@ -21,6 +21,14 @@
 
 ## Active
 
+### D-154 DeliveryPlan沿用原命令并保存可核对回执
+
+- 2026-10-22，Active；D-147已批准Server收敛范围内的技术决定，不改变D-100的Source/人工所有权、系统默认0、人工正数和历史计划规则。复用原PATCH/writer/响应，0042只新增空不可变请求回执表，不回填或重建计划。
+- 可选显式UUID与旧body确定性身份共用actor-scoped ledger。首await前复制原SO与全部规范命令；同请求返回原完整结果，不新增第二行。不同请求保留集合CAS。旧客户端无随机身份或缺表时绕过路径。
+- POST原完整命令只读核对，fresh user/roles/grants与原actor/SO/intent必须匹配。历史结果不因后来Source/CAS/alias变化重判；unknown不证明失败，不自动重发。原UUID、Source归属、生产和商业事实不改。
+- 计划、可信审计、成功回执同事务。仅本writer固定409/422保留终态拒绝；连接/SQL/审计/锁超时不伪造业务拒绝。完整结果含作废历史，compact JSON和PG jsonb实际字节双上限16MiB；超限SAVEPOINT撤销业务/审计后存小拒绝，不截断历史。新SO外键纳入完整引用指纹。
+- 证据：`server/sales-orders/delivery-plan-service.ts`、`delivery-plan-request.ts`、0042及隔离域/HTTP/升级/真实锁等待/COMMIT丢回执合成测试，见[阶段任务](tasks/active/server-delivery-plan-receipts-2026-10-22.md)。这是后台工程，未新增UI、采集、来源激活、业务库迁移、部署或人工接受；完整Goal仍未完成。
+
 ### D-153 成衣出货先建立不可变观察，不猜跨次事件
 
 - 2026-10-21，Active；D-147已批准工程范围内的技术决定，不改变D-152的Num/outdate业务口径。0040新增独立、默认关闭的订单来源target/快照/颜色匹配/head；纯checked-page契约只证明指定查询两遍观察一致，不把原contains首页样本升级为完整合同或已激活Source。

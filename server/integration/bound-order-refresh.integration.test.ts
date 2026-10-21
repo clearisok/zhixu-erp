@@ -8,6 +8,7 @@ import {tmpdir} from 'node:os';
 import pg from 'pg';
 import {startDisposablePostgres} from './postgres-container.js';
 import {runMigrations} from '../db/migration-runner.js';
+import {migrationFilesAfter} from './current-migration-ledger-fixture.js';
 import {bootstrapAdmin} from '../auth/bootstrap.js';
 import {synchronizePermissionCatalog} from '../auth/permissions.js';
 import {loadExistingBootstrapActor} from '../sales-orders/bootstrap-runner.js';
@@ -211,7 +212,7 @@ test('controlled offline bound-source refresh on owned disposable PG',{timeout:1
    await bindOrders(old,a,{...options,expectedPreview:(await previewBindings(b)).reviewHash,collect:async()=>b});
    const tables=['app_users','app_roles','app_role_permissions','sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors','sales_order_delivery_plan_sets','sales_order_delivery_plans','operation_logs'];
    const snapshot=async()=>Promise.all(tables.map(async table=>(await old.query(`SELECT row_to_json(x) data FROM ${table} x ORDER BY row_to_json(x)::text`)).rows));
-   const before=await snapshot();assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,['0041_bound_order_source_refresh_receipts.sql']);
+   const before=await snapshot();assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,migrationFilesAfter(40));
    assert.deepEqual(await snapshot(),before);assert.equal((await old.query('SELECT count(*)::int n FROM ainuoke_order_source_refresh_receipts')).rows[0].n,0);
    assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,[]);
   }finally{await old.end();const child=relative(resolve(tmpdir()),resolve(directory));assert.ok(child&&!child.startsWith('..')&&!isAbsolute(child));await rm(directory,{recursive:true,force:true});}

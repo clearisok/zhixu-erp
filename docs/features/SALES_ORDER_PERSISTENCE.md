@@ -75,8 +75,44 @@ Release requires a separate coupled app/schema Activation Gate: new app + pre-00
 ### C4.3 narrow API
 
 - `GET /api/v1/sales-orders/:uuid/delivery-plans` requires trusted identity + `order.view`, returns `{ deliveryPlanSet }` with independent ownership/version, source references, stable rows (including void history) and reconciliation.
-- `PATCH` on the same path additionally requires `order.edit`, allowlisted Origin and `X-Zhixu-Request: 1`. Body: `{ expectedVersion, upserts: [{ id: UUID|null, deliveryDate: YYYY-MM-DD, quantity: decimal-string }], voidIds: [UUID] }`. Null row ID creates a server UUID; existing ID edits that same row. Upserts/voids are atomic and bounded to 100 affected rows per command. Empty commands, duplicate/foreign/voided IDs, invalid dates/amounts and caller actor/ownership/source fields fail closed. User amounts retain the established strictly positive plan-input rule; the explicitly confirmed zero exception belongs to system-derived defaults.
+- `PATCH` on the same path additionally requires `order.edit`, allowlisted Origin and `X-Zhixu-Request: 1`. Body: `{ requestId?: UUID, expectedVersion, upserts: [{ id: UUID|null, deliveryDate: YYYY-MM-DD, quantity: decimal-string }], voidIds: [UUID] }`. Null row ID creates a server UUID; existing ID edits that same row. Upserts/voids are atomic and bounded to 100 affected rows per command. Empty commands, duplicate/foreign/voided IDs (including UUID case variants), invalid dates/amounts and caller actor/ownership/source fields fail closed. User amounts retain the established strictly positive plan-input rule; the explicitly confirmed zero exception belongs to system-derived defaults.
 - Authentication/permission/invalid input/absent order/stale collection return 401/403/400/404/409. No generic SalesOrder PATCH/POST or source-refresh HTTP route is added. Raw source hashes/metadata remain internal. No UI cutover occurs in this Server-domain task.
+
+### Reliable C4.3 command receipts (2026-10-22 engineering slice)
+
+0042 adds an initially empty immutable `sales_order_delivery_plan_requests` ledger.
+The existing writer and success envelope remain unchanged. Explicit request UUIDs
+are actor-scoped. Legacy bodies use the same ledger with a deterministic key over
+the original SO and complete normalized intent; replay returns the original result
+rather than inventing a fresh request or adding another plan. Distinct requests
+still compete on the collection CAS. Commands own their copied arrays before any
+await. UUID case is canonical; decimal strings remain exact, not coerced to Number.
+
+`POST /api/v1/sales-orders/:uuid/delivery-plans/receipt` takes the original complete
+command body, requires the same fresh view/edit grants, Origin and trusted header,
+and accepts no query selectors. `{receipt}` contains schemaVersion, original SO,
+requestId/null, requestMode and status `unknown|applied|rejected`. Applied includes
+the exact original full `deliveryPlanSet` and trusted operationId; rejected includes
+the fixed original error. `unknown` can race an uncommitted command and is **not**
+proof of failure or permission to automatically resubmit. Lookup itself writes no
+plans, audit or receipts. No arbitrary hash, actor or receipt ID selector is added.
+
+Fresh user/role/grant locks precede actor/request and original order/collection
+locks. Prior results only require current authorization and exact original intent;
+subsequent source/CAS/lifecycle/alias changes cannot invalidate a historical result.
+New writes still require the original effective order. Plans, existing trusted
+audit and success receipt commit together. Only the writer's fixed CAS/row/alias
+409 and capacity422 become durable rejections. SQL, audit, lock timeout and unknown
+transport failures roll back and remain unconfirmed; they are not recorded as
+business rejection. No missing-ledger fallback is permitted.
+
+The full original result includes retained void history, never only the first100
+rows. Both compact JSON and actual PG jsonb text must fit16MiB (HTTP's fixed outer
+identity/envelope adds less than1KiB). Capacity failure rolls back plans/audit to a
+savepoint and commits a small explicit422 receipt. Commands are bounded64KiB.
+The original SO FK and full receipt bytes participate in existing complete
+normalization fingerprints. No legacy backfill, new UI, price/source/production
+write or deployment is implied; [task and actual checks](../tasks/active/server-delivery-plan-receipts-2026-10-22.md).
 
 ## C4.2 ConfirmedCommercialTerms extension
 

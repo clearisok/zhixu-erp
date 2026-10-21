@@ -20,6 +20,7 @@ export const NORMALIZATION_REFERENCES = [
  ['confirmed_commercial_terms_sales_orders','sales_order_id','sales_order_id'],
  ['sales_order_delivery_plan_sets','sales_order_id','sales_order_id'],
  ['sales_order_delivery_plans','sales_order_id','id'],
+ ['sales_order_delivery_plan_requests','sales_order_id','id'],
  ['ainuoke_material_source_snapshots','sales_order_id','run_id'],
  ['ainuoke_payment_source_targets','sales_order_id','source_key'],
  ['ainuoke_payment_snapshots','sales_order_id','id'],
@@ -65,7 +66,8 @@ const references=NORMALIZATION_REFERENCES;
  * closed. Observations are reference evidence, never actual bank payments. */
 export async function normalizationReferences(client:PoolClient){
  const refreshReady=(await client.query("SELECT to_regclass('public.ainuoke_order_source_refresh_receipts') IS NOT NULL AS ready")).rows[0].ready;
- const references=NORMALIZATION_REFERENCES.filter(([table])=>refreshReady||table!=='ainuoke_order_source_refresh_receipts');
+ const planRequestsReady=(await client.query("SELECT to_regclass('public.sales_order_delivery_plan_requests') IS NOT NULL AS ready")).rows[0].ready;
+ const references=NORMALIZATION_REFERENCES.filter(([table])=>(refreshReady||table!=='ainuoke_order_source_refresh_receipts')&&(planRequestsReady||table!=='sales_order_delivery_plan_requests'));
  const present=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads')`)).rows[0].n;
  if(present!==0&&present!==3)throw new HttpError(503,'payment_reference_schema_incomplete','Financial source reference schema is incomplete');
