@@ -88,3 +88,16 @@ caf062d0e80cdfbafcf4e1cf35c9d4553b6de90b精确main996守卫PASS/clean。reviewed
 本次增量前baseline是clean caf。仅将ainuoke-server-source.yml的job总预算20→30分钟，保留全部步骤/命令和单测等待限制，给予增长后的集成+浏览器完整流程有界余量，不通过删检查、扩单项等待或重试掩盖失败。业务源码、SQL、UI、manifest、冻结报告/截图不改；其余两workflow不改。语法/精确差异、发布门禁及独立复审后创建独立checkpoint，再一次正常交付及独立精确核实；只运行三项指定CI，不新建累计PR、不merge/close/deploy，不新增真实查询或改现有库。
 
 本次working守卫PASS，checkedHead caf/精确main996、11页/53能力/76继承UI路径、errors空；精确单行预算替换、五路径白名单、冻结LF hash与git diff --check通过，独立只读复审无阻断。没有重跑或冒称新的927/116全量结果。另核实本地tracking08为caf祖先、远端精确caf、已登记工作diff后，仅正常fetch该ref快进到caf：3176ms/exit0，无force、无FETCH_HEAD/配置/工作分支变化，工作diff指纹前后相同，0 push。回执tracking-ref-caf-recovery.json；这修复本地跟踪不一致，不证明原push退出的原因。新checkpoint交付与Hosted终态仍待。
+
+
+## 63c重新验收成功与最终文档阶段（2026-10-22）
+
+63c40b8d0b93e2fcd63a5997d99c0b47ec587566精确main996守卫PASS、clean、独立复审无阻断；相对caf仅一行workflow总预算及四文档。一次既有deliver核心交付5378ms/exit1/STOP_AUTH_OR_DIVERGENCE，工具后验、独立API及Git ls-remote均远端精确63c，0重推。v2安全采样认证/401/403/权限/transport false，rejected/ref-update true，targetRefConflict unknown；412字节/hash保留、不存原文，不能推断CAS/服务端或本地位置。原STOP不改为DELIVERED_VERIFIED。v1/v2及旧回执原样保留。
+
+未来正常新checkpoint使用的ignored v3只额外容纳一条标准Git拒绝摘要，完整SHA必须等于本次目标、完整分支逐字相同，并仍有唯一精确白名单操作；摘要不代替真实操作，多ref/多摘要/不符SHA返回unknown。3项离线正负隐私检查及独立只读复审无阻断，原deliver/runCommand/默认origin/次数/wx/失败隔离不变，源码hash在安全捕获内，不存raw。该候选机制不能倒推63c当次原因，不因此恢复重推。
+
+核实精确63c后，2026-10-21T16:22:19.674Z起仅各dispatch一次source39634167328、team-access39634173683、baseline39634178966。三项现均completed/success、head_sha精确63c；source job实际21分21秒，旧20分钟总预算确实不足；source的compiled、quality、build、P6浏览器、Quote工作簿与Python六阶段逐项success。完整job/step白名单回执ci-63c-final.json保存在ignored目录。caf取消和早期测试失败不删除或改写；新结果不外推真实Source、部署或人工接受。
+
+等待CI期间只读核实环境元数据：3001/50426仍原PID26680/33856，62426五既有服务healthy。仅读取已知public cert（指纹4A25E33BBFE5D28CEDCE659D687D85768EE1AE6CB6674C50136D1B5D70F202DD），使用现有正常TLS probe，以localhost证书身份连127.0.0.1:62426，两次GET /api/v1/health、/build-info.json，0重试/登录/业务读取/Source。2026-10-21T16:30:09.773Z health200/DB-ready、build-info200精确旧8175f6280d54b6d4af28cb2ebe6d86741b906b9d/server-g1-8175f628-20261020/2026-10-20T00:27:36Z及Server/session/snapshot配置，回执runtime-g1-readonly-20261022.json。只能确认公开入口身份可达；未重查对象签名/schema/业务行或完整运行配置，不更新为全READY/已升级，也不证明先前连接失败的原因。证书信任/运行环境均未修改。
+
+本次最终收口仅四份文档，开始baseline clean63c；应用/SQL/测试/workflow/manifest/冻结证据/截图不再变。下一步四文档差异复审、独立commit、新HEAD精确守卫与一次正常交付，CI仍明确绑定63c，不为纯文档重复全部业务CI。GitHub main及8个开放草稿#120–127保持原完整head，未合并/关闭，当前仍只验证引用。Goal active，正式成衣收集/UI、关账与环境收敛继续；三项业务问题和新真实读取额度保持原边界。

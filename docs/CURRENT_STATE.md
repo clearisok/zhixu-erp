@@ -1,15 +1,15 @@
-# 当前状态：成衣出货观察本地通过，CI总预算修复待复验
+# 当前状态：Server成衣出货观察基础本地与三项CI通过
 
-2026-10-22；分支codex/server-garment-shipment-observations；独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净e4d7，root唯一writer/既有reviewer独立只读。当前修复从干净caf062d0e80cdfbafcf4e1cf35c9d4553b6de90b开始，不动其他工作树。
+2026-10-22；分支codex/server-garment-shipment-observations；独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer/既有reviewer只读。当前仅累计验证引用，按Gate0不另建重复业务PR，不合并/关闭或部署。
 
-应用b6521d0d510ca0447822096e101919c97f76a980，构建99c52a526f59253d9da124c3bb9b54f077b6c115/build20261021-222838，应用字节保持；冻结报告c031ee33b9ee147cdc742e870dd51d818356c774，见[工程证据](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)、[任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。0040仅新增默认空表；内部不可变两遍观察、可信合同/稳定颜色、CAS/审计和DB-only历史读取已本地验收。Num/outdate采用D152口径，不跨观察求和，不改生产完成、价格、收入或关账；尚无正式采集器、来源激活或成衣页面。
+应用b6521d0d510ca0447822096e101919c97f76a980，本地验收构建99c52a526f59253d9da124c3bb9b54f077b6c115/build20261021-222838，后续业务源码不变。[冻结报告](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)在c031ee33b9ee147cdc742e870dd51d818356c774；[阶段任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)保留全部失败/交付时序，[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)为当前契约。0040仅新增默认空表；不可变两遍观察、可信合同/稳定颜色、CAS/事务审计和DB-only当前/历史读取已实现。Num/outdate采用D152口径，不跨观察累加、不修改生产完成/价格/收入/关账；正式受控收集器、精确合同过滤核验、来源激活和成衣页面仍待。
 
-实际41定向/146 Python/927项目通过，124相关通过及1既有Windows跳过；类型、全lint、生产前端与Node构建、编译模块检查通过。db339精确守卫及116/116发布通过；caf精确守卫亦PASS。254证据/53能力，冻结报告及旧截图不变。本阶段无新UI、人工接受或部署；两份既有UI测试先后修复并分别本机9/9、23/23通过，产品未改。详情和原失败保留任务记录。
+实际41定向/146 Python/927项目、124相关通过+1既有Windows跳过；类型、全lint、前端/Node构建和编译模块通过。db339发布116/116，63c40b8d0b93e2fcd63a5997d99c0b47ec587566精确main守卫PASS；254证据/53能力。两份旧UI验收修复各本机9/9、23/23通过，未改产品。原冻结报告/截图不变，不把旧浏览器证据当作新成衣UI或人工接受。
 
-caf实际一次push退出1，工具STOP_AUTH_OR_DIVERGENCE保留；工具后验、独立API、Git读取和无上传预演均证明远端精确caf，不重推。固定诊断仅见引用更新拒绝信号，未见认证/传输中断，位置/CAS根因仍unknown；一个push目的地、无额外hook。交付观察时origin跟踪08；核实祖先/精确远端后正常fetch已快进caf（3176ms），工作分支/改动及配置不变。该修复不证明原根因。ignored v2诊断改按完整白名单引用识别，3项离线检查及只读复审通过；不改变deliver守卫、参数、次数或认证。
+Hosted精确63c：source39634167328、team-access39634173683、baseline39634178966均completed/success；来源六个实际验收步骤（数据库/来源、quality、构建、P6浏览器、报价工作簿、Python）全部success。caf上一轮source因job20分钟上限取消，后续只改总预算20→30且保留全部检查，不能把该旧取消写PASS；前两处旧测试失败同样保留。最终文档提交只做状态收口，新HEAD守卫与精确远端另核实，不伪称在文档HEAD重跑全部CI。
 
-Hosted caf：team-access39629550902和baseline39629557322终态success；source39629544075因job20分钟上限cancelled（GitHub明确注解），非已报告断言失败。数据库/来源及P6浏览器全部步骤success；报价UI持续推进到内部汇总时被取消，Python跳过，不能写完整CI PASS。实测编译/集成10分46秒，P6浏览器6分38秒，加setup/构建使报价剩余预算不足。
+63c实际一次push退出1/工具STOP保留，但工具后验、独立API和Git读取均精确63c，不重推。固定诊断见引用更新拒绝，未见认证/连接中断，具体CAS/位置仍unknown；此前tracking08已正常fetch快进caf，工作分支及配置未变。ignored v3只额外识别同一精确SHA/分支的标准拒绝摘要，3项离线负向/隐私检查及复审通过；不能倒推旧错误根因，原deliver守卫/次数/认证不变。
 
-当前只将该workflow总预算20→30分钟，全部步骤、命令、单测等待上限不变；业务源码/SQL/UI/manifest/冻结证据不改。working守卫及独立复审PASS；新commit精确HEAD门禁、一次交付与三项指定CI继续；不复用caf的两项成功冒称新提交通过。按Gate0仅验证引用，不新建累计PR、不合并或关闭。
+本次只读现况：3001/50426监听PID保持，62426五服务healthy；用已知public证书指纹、正常TLS及两次无登录GET，health200/DB-ready、build-info200并精确匹配8175f6280d54b6d4af28cb2ebe6d86741b906b9d/Gate1镜像。这只恢复公开入口身份可达性证据，未重验对象签名、schema/业务行或用户接受，不是完整READY或新版部署；该镜像不含#120–123及本轮应用。全部旧资产/Browser/账号/体验库保留，不启动升级。
 
-保护3001/50426/59069/62426、18443/18444及全部旧资产/Browser/账号；62426当前READY仍未验证，不启动升级。无真实凭据读取、新Source请求、绑定/激活/调度、现有业务库操作或部署。D1933/1935额度已用完。完整Goal active；正式采集/UI、Server关账和环境收敛继续。加工产值归类、已有CNY工价及完成更正复核三项待用户回答，不自动决定或换汇。
+无新真实凭据/私密原文读取、Source请求、绑定/激活/调度、现有业务库修改或部署；D1933/D1935额度已用完。完整Goal active，下一步正式成衣受控采集/UI，再推进Server关账及环境收敛。加工产值归类、已有CNY工价和完成更正复核三项仍待用户回答，不默认决定、换汇或重标币种。

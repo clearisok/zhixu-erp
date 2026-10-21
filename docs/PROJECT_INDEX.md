@@ -1,8 +1,8 @@
 # 项目知识索引
 
-当前2026-10-22前向阶段：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)与[冻结工程证据](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)为恢复入口。41定向/146 Python/927项目/124相关通过+1既有Windows跳过；类型/lint/构建/116发布/精确守卫通过，254证据/53能力。内部观察不是正式采集、页面、事件账或关账，完整Goal继续。
+当前2026-10-22：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、[冻结工程报告](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)为恢复入口。41定向/146 Python/927项目/124相关通过+1既有Windows跳过，类型/lint/构建/116发布/精确守卫通过；254证据/53能力。内部观察不是正式采集、成衣页面、事件总账或关账，Goal继续。
 
-caf062d0e80cdfbafcf4e1cf35c9d4553b6de90b精确远端已独立核实，原push退出1/STOP保留；安全诊断见引用更新拒绝，根因未定，不重推。caf的team-access39629550902、baseline39629557322成功；source39629544075因job20分钟总上限取消，数据库/来源/P6步骤成功，报价UI中断/Python跳过，不能称全CI通过。仅将总预算20→30分钟，所有检查与单项限制不变；新checkpoint验收/交付/CI继续，不另建累计PR或合并部署。两处旧UI测试修复、早期CI和Git诊断原记录留在任务及Git，不覆盖冻结证据。
+精确63c40b8d0b93e2fcd63a5997d99c0b47ec587566远端已独立核实，原push exit1/STOP保留、不重推；source39634167328、team39634173683、baseline39634178966均终态success。此前caf source因job20分钟上限取消；只将总预算调30分钟，检查未删减。最终文档HEAD守卫/交付另核实，不冒称同一CI新跑。62426只读HTTPS健康和build-info已匹配旧8175/Gate1；不是当前新构建或完整READY，不升级旧环境、不新建累计PR/merge/deploy。原失败、旧证据及Git不确定性留在任务，不覆盖冻结记录。
 
 下段是已完成的前阶段证据，原根文档已逐字节归档，不覆盖其测试/日期/源码绑定。
 
