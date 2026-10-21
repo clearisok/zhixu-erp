@@ -50,3 +50,15 @@ typecheck、全lint已通过。定向包括真实RR交错提交、内外发/停�
 最终typecheck/变更TS lint、Node及前端build通过。working独立review无P1/P2；reviewer
 读取日志但未自行执行测试。下一步冻结本源，再绑定D155和执行feature新版本后运行
 全项目/发布回归与精确守卫；当前不提前称这些最终检查或新CI完成。
+
+源码冻结为`ff8b8d68bf25e61ea757caee90ad5a7e998d6037`，无新应用改动。
+随后全项目927/927（262124.4801ms）、独立发布116/116（260394.2574ms）通过；
+这些回归不替代实际main守卫。首轮守卫确实FAIL：新feature revision接在main尚无的
+独立文档root上，触发REVISION/ANCHOR/LEAF/WORKTREE_DRIFT四项；日志保留。
+独立review发现同一元数据P2，应用代码无P1/P2。
+
+处理为恢复原SERVER_PRODUCTION_EXECUTION.md冻结字节；新实质契约独立放在
+[SERVER_DELIVERY_COVERAGE](../../features/SERVER_DELIVERY_COVERAGE.md)，不改守卫或旧证据。
+只撤去尚未提交、被拒绝的feature记录；原263条、56能力及D155实际ff8绑定保留。
+待新契约冻结后作为新root绑定，再核精确守卫；应用源码和已执行测试不因此冒称改变。
+上一阶段144三CI此时均attempt1 success，最终结果已追加原任务，不改冻结工程报告。

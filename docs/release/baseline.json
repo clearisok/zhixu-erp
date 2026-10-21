@@ -2204,6 +2204,16 @@
       "recordedAtSha": "98580dbc49aeb11189492e42dc6a23be6dda48dd",
       "renderedSourceSha": "12cfaf18867fea94f6733389851191afc29f31a4",
       "sha256": "c67f121a745e22cfcf6134789a1c29cc31cfee2b7632e15ff7e2e894adc7a2ce"
+    },
+    {
+      "id": "decisions-current-delivery-coverage-20261022",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
+      "renderedSourceSha": "ff8b8d68bf25e61ea757caee90ad5a7e998d6037",
+      "sha256": "d0f344ad684936a00525ec2ed3615a48ce9a148ed088be26b0a52497de0dae51",
+      "supersedes": "decisions-delivery-plan-receipts-20261022",
+      "changeReason": "D155 projects current registered production facts against cumulative DeliveryPlans. Preserve every prior decision and D151 cancellation/completion attribution; no source, money, shipment, closing or UI change."
     }
   ],
   "pages": [

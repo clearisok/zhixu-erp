@@ -72,3 +72,19 @@ head985/11pages/56能力/80继承UI路径PASS。只改后台，无新UI路径或
 最终metadata commit后再次核精确守卫，才执行既有交付工具一次/远端完整SHA核对及
 source、team-access、release三项CI；本条不提前称远端或CI成功。该分支保留完整原始
 累计历史，仅作当前收敛验证引用，不新建重复累计业务PR，也不快进/合并其他PR。
+
+## 精确远端与CI结果（2026-10-22）
+
+最终提交`144f2a269affb41207566557f09ed06e8decf49a`的精确main守卫PASS。
+既有工具一次实际push返回STOP_AUTH_OR_DIVERGENCE，pushes=1，但独立API为exact144；
+原始回执保留，未捕获原stderr，不推断其根因。随后同一原工具Dry Run、pushes=0，
+独立git_read为DELIVERED_VERIFIED，不重复上传或修改认证/代理/TLS/共享配置。
+
+该精确144的三项workflow_dispatch均仅执行一次，attempt=1、结论success：
+
+- Source [39685216005](https://github.com/clearisok/zhixu-erp/actions/runs/39685216005)，完成于2026-10-21T22:36:53Z。
+- Team [39685221309](https://github.com/clearisok/zhixu-erp/actions/runs/39685221309)。
+- Release [39685225162](https://github.com/clearisok/zhixu-erp/actions/runs/39685225162)。
+
+这是原源码与metadata的远端验证，不等于网络永久修复、PR合并、部署或人工接受。
+无新PR/其他PR变更；完整Goal继续，后续独立只读交期覆盖从干净144开始。
