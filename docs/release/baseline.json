@@ -2110,6 +2110,15 @@
       "sha256": "9091225f719b491a8d110e885641a10bb7645df14036687f4278b118f85eaaf8",
       "supersedes": "decisions-garment-shipment-20261021",
       "changeReason": "D153 records the approved Goal technical observation owner: exact-query checked pages, immutable original scope/color evidence, bounded DB-only reads and original-capture recovery. It changes no D152 quantity/date rule, real-source activation, UI or closing authority."
+    },
+    {
+      "id": "server-garment-shipment-observations-engineering-20261021",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-21-garment-shipment-observations-engineering.md",
+      "recordedAtSha": "c031ee33b9ee147cdc742e870dd51d818356c774",
+      "renderedSourceSha": "99c52a526f59253d9da124c3bb9b54f077b6c115",
+      "sha256": "d96aea2e1810408122072f02bc5b5bc064da1d70f9808fcfaf444379ee8aea05",
+      "changeReason": "New immutable Gate7A synthetic engineering report: checked exact-query observations, trusted physical/effective order scope, frozen colors, bounded history and recovery. No event-ledger, real collection/activation, UI or closing claim; prior evidence remains unchanged."
     }
   ],
   "pages": [
@@ -7301,6 +7310,91 @@
           "runtimeId": "preview18444",
           "evidence": [
             "server-material-arrivals-ui-engineering-20261021"
+          ]
+        }
+      }
+    },
+    {
+      "id": "garment-shipment-observations-server",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Internal Server 6086979 observation foundation only: complete two-pass checked-page contract, immutable original scope and color matches, per-target CAS/audit, original capture receipts and DB-only current/history GET. Default disabled; exact upstream filter execution, live collector, UI, stable business events/cancellation and closing adoption are not implemented or activated.",
+      "evidence": [
+        "server-garment-shipment-observations-engineering-20261021"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-21",
+          "sourceSha": "99c52a526f59253d9da124c3bb9b54f077b6c115",
+          "scope": "Internal Server 6086979 observation foundation only: complete two-pass checked-page contract, immutable original scope and color matches, per-target CAS/audit, original capture receipts and DB-only current/history GET. Default disabled; exact upstream filter execution, live collector, UI, stable business events/cancellation and closing adoption are not implemented or activated.",
+          "evidence": [
+            "server-garment-shipment-observations-engineering-20261021"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-21",
+          "sourceSha": "99c52a526f59253d9da124c3bb9b54f077b6c115",
+          "scope": "False at independently verified main996; no automatic merge.",
+          "evidence": [
+            "server-garment-shipment-observations-engineering-20261021"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-21",
+          "sourceSha": "99c52a526f59253d9da124c3bb9b54f077b6c115",
+          "scope": "41 directed, 124 related passes with 1 Windows Linux-CLI skip, 927 project, 146 Python; type/lint, sequential exact99 production frontend/Node builds and compiled-module projection. Disposable synthetic PG/session HTTP only, no new browser pixel test. Final release metadata gate is recorded separately.",
+          "evidence": [
+            "server-garment-shipment-observations-engineering-20261021"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-21",
+          "sourceSha": "99c52a526f59253d9da124c3bb9b54f077b6c115",
+          "scope": "Not run. Confirmation of Num/outdate is a business rule, not acceptance of this Server capability.",
+          "evidence": [
+            "server-garment-shipment-observations-engineering-20261021"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-21",
+          "sourceSha": "99c52a526f59253d9da124c3bb9b54f077b6c115",
+          "scope": "Default-disabled target/read switch; no live collector, request quota, source binding/activation/scheduler or real database mutation.",
+          "evidence": [
+            "server-garment-shipment-observations-engineering-20261021"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-21",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Not deployed or re-observed by this Gate. Historical runtime/source/image identity preserved; the new observation application is not asserted to run here.",
+          "evidence": [
+            "server-garment-shipment-observations-engineering-20261021"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-21",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Not deployed or re-observed by this Gate. Historical runtime/source/image identity preserved; the new observation application is not asserted to run here.",
+          "evidence": [
+            "server-garment-shipment-observations-engineering-20261021"
           ]
         }
       }
