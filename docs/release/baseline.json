@@ -1972,6 +1972,25 @@
       "supersedes": "decisions-server-production-planning-ui-20261021",
       "changeReason": "D151 records the human decisions on completion plus edit permission for downstream replanning and preservation of original execution attribution. Pure execution rules only; no actual execution database/API/UI, deployment or human acceptance is claimed.",
       "sha256": "ba6f61cfdfc865e66aa8887d7486cc5c77920e675477380e9bdef53c9a7d75ed"
+    },
+    {
+      "id": "decisions-server-production-execution-ledger-20261021",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "76d3e7c3132f16ab71d2409260379fcdddccc6ea",
+      "renderedSourceSha": "4cd603d7836332ecc8aa580acdc4a7a53173d4eb",
+      "sha256": "347f5e845bd1d8ccc66905343945a9d35d3d76f73e34d55ecf5eaa85f1f9b47e",
+      "supersedes": "decisions-server-production-execution-20261021",
+      "changeReason": "D151 forward engineering records actual execution persistence, protected attribution and atomic commands; actual application source is 4cd. No execution UI, deployment, source activation or human acceptance claim."
+    },
+    {
+      "id": "server-production-execution-ledger-contract-20261021",
+      "kind": "document",
+      "path": "docs/features/SERVER_PRODUCTION_EXECUTION.md",
+      "recordedAtSha": "76d3e7c3132f16ab71d2409260379fcdddccc6ea",
+      "renderedSourceSha": "4cd603d7836332ecc8aa580acdc4a7a53173d4eb",
+      "sha256": "48e73b2ead149cda84793d022348830f48250ad02668086447c1868c56aca7bb",
+      "changeReason": "Current execution contract and 0036 read extension, recorded in the forward documentation checkpoint. Preserve the original 0035 read contract and its frozen evidence. No runtime or acceptance status change."
     }
   ],
   "pages": [
