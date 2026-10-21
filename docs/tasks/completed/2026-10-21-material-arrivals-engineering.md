@@ -51,7 +51,8 @@ Source不可用可明确清空旧计划，历史证据不能用于新增Allocati
 
 ## 源码checkpoint完整门禁
 
-均在cbfd1e65595a05444e632b5bee9e0dec83c8e12b上；没有产品代码在这些验证后改变。
+最终应用源码字节冻结为cbfd1e65595a05444e632b5bee9e0dec83c8e12b；类型/lint在该checkpoint建立前完成，
+随后构建、完整回归及精确源码守卫在cbfd执行。没有产品代码在这些验证后改变。
 
 - `npm run typecheck`、全量`npm run lint` exit0。
 - 显式Server quote/master、session、writable、orderRead=snapshot构建：buildId **20261021-183455**，
