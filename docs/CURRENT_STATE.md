@@ -1,28 +1,24 @@
-# 当前状态：来源导航同步本地验收通过，准备新CI
+# 当前状态：Gate6C业务选择已确认，执行纯规则验收中
 
-2026-10-21；Goal active；main独立API为996dfedc12da3527343cd3ff2aa5eea35497e10e。
-codex/server-source-navigation-guard，输入干净37f9fb78c425946376b0533b362568253fd23db1，root唯一writer。
-[当前任务](tasks/active/server-source-navigation-guard-2026-10-21.md)。输入三摘要逐字Git blob归档。
+2026-10-21；main独立API仍996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原头/draft保持。
+新codex/server-production-execution从该main干净创建、显式FF到fc032c0f2428dcf2d511a868846201ce1d3677b5。
+root唯一writer；[Gate6C任务](tasks/active/server-convergence-gate6c-2026-10-21.md)、[当前执行契约](features/SERVER_PRODUCTION_EXECUTION.md)。
+用户已确认跨单重排需完成＋编辑权限，已产出留原排单/执行方，剩余另建；D151记录，不再等待这两项。
 
-加工Estimate保护37f9已一次上传并独立exact，工具STOP与remoteSha矛盾原回执保留，无第二次push。
-其8ce/db03冻结28定向/87浏览器/927项目/116基线、类型/Node/lint/main996守卫通过，未单独重启CI；
-后续在整合后的新来源导航head做三个验收workflow，不把祖先本地结果改称新head CI。
-原933d Source39472329558失败于来源上下文首case，Quote87/Python未运行；Team39472336074/
-Baseline39472342830 success，同SHA/attempt1，不重启旧run。
+前阶段fc已独立送达，Source39477717691/Team39477723659/Baseline39477729351均success、attempt1，
+full SHA exact；LinuxQuote87/87、Python131/131，本机be7 Quote87/87及41/927/116保留精确范围。
+原933d Source失败仍保留，不改称通过。fc三摘要按Git blob逐字归档，旧日期/hash/结果/限制不丢。
 
-旧919643构建自然8/8未复现，但控制最后一个真实候选GET后，首次enabled按钮单击被父guard拦，
-无创建POST已复现。新正式红回归7pass/2fail（38088.2661ms），唯一leaf及父节点失败，原用例通过。
-CI缺当时页面证据，不确定完全同根因。产品仅将既有onGuardChange镜像由passive改layout，
-不删除dirty/pending、无导航permit/点击重试；V1精确单文件记录，无布局/文案/断点变化。
-正式新断言涵盖1440/390首次启用单击、精确sourceOrderId且零创建，以及原六尺寸/回执/ABA/401负控。
-最终源be7fe816cb47148afbd70f0d16454f13334cfd1e显式Server构建/三build-info、串行Node/app导入、TS/lint通过。
-实际41浏览器（80300.2467ms）/927项目（231948.8273ms）/116基线（222060.1008ms）全过，0失败/取消/跳过。
-独立只读复审无阻断；root查看390/1440截图无新布局问题，非pixel diff或用户接受。
-最终文档HEAD/main守卫、远端完整SHA和新CI尚待，不借旧绿灯。
+当前新增执行输入、纯差异/数量投影、后续重排及负向测试；无SQL/API/UI或当前运行态行为变化。
+实际新执行21项与原计划组合48/48（726.2257ms）、类型/full lint、Node编译与实际模块/app导入通过；冻结/基线待收口。
+取消产出不丢、历史执行方/颜色锁定、减量/更正原因、精确小数/真实日期/版本已覆盖；
+正常进展不强加更正原因，目标之前及已开工/固定记录不被联动重排。未声称事务权限或持久化已实现。
+下一步先冻结纯模块，再前向新增执行历史/事务服务并接入所有计划保护和读取，随后接现有结束弹窗。
+新数据库/API/浏览器/远端/CI尚未执行，不预写通过；复审无阻断并已补未知结束负测；成衣出货和Server关账仍未完成。
 
-237证据/50能力和旧PNG保持；#120–127原头不动，不建重复累计业务PR，不merge/close/deploy。
-持续安全Git工程授权不逐次问，不改共享Git/TLS/proxy/auth、不安装依赖。
-保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍Gate1源8175，未升级/人工接受。
-无真实账号/业务库、新艾诺科读取/绑定/激活/调度/退役，CNY销售/USD工价不换汇或重标历史。
-6C两业务问题仍待回答，执行/物流/出货/Server关账未闭环，相关写入未实施。
-[37f9输入归档](tasks/completed/2026-10-21-source-navigation-inputs/37f9fb78/)及原任务保留旧日期/hash/结果/限制。
+237证据/50能力与旧PNG保持；D151文档需前向冻结记录，不改变已采用能力状态。
+持续Git工程授权不逐次询问，不建重复累计业务PR、不merge/close/deploy、不升级旧体验。
+保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍Gate1源8175，无人工接受升级。
+不修改真实账号/业务库，不新增艾诺科读取/绑定/激活/调度或资产退役，不安装/改共享Git配置。
+CNY销售/USD工价保持，不引入换汇或重标历史。后续出货/关账口径仍需各Gate核实。
+[fc输入归档](tasks/completed/2026-10-21-production-execution-inputs/fc032c0f/)保留完整恢复链。

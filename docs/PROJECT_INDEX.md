@@ -1,13 +1,12 @@
 # 项目知识索引
 
-2026-10-21恢复：[来源导航guard同步](tasks/active/server-source-navigation-guard-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
-main996dfedc12da3527343cd3ff2aa5eea35497e10e；codex/server-source-navigation-guard从干净/已独立送达37f9开始。
-[加工Estimate保护](tasks/active/server-processing-estimate-guard-2026-10-21.md)28/87/927/116及质量/main守卫通过，后续在新整合head做三CI。
-933d Source39472329558在原来源上下文UI首case失败，Quote87/Python未跑；Team39472336074/Baseline39472342830 success，attempt1。
-本轮旧built自然8/8、受控启用单击被父guard拦、POST=0；正式红7/2已复现。仅将父guard镜像放layout同步，源be7冻结Server构建/三标识/Node/类型/lint及41浏览器/927项目/116基线全过；待最终守卫/交付/新CI。
-无布局/文案/断点变化；237证据50能力/旧PNG保持。6C业务问题待答，完成/物流/出货/关账未闭环。
-[37f9三摘要逐字输入](tasks/completed/2026-10-21-source-navigation-inputs/37f9fb78/)保留全部旧日期/hash/结果/限制及原恢复链。
-D145/D149报价来源与独立商业价、D146角色用户、D147收敛继续；#120–127不merge/close，不建重复累计业务PR。
+2026-10-21恢复：[Gate6C执行任务](tasks/active/server-convergence-gate6c-2026-10-21.md)、[纯执行契约](features/SERVER_PRODUCTION_EXECUTION.md)、CURRENT_STATE/AI_HANDOFF。
+main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；codex/server-production-execution输入干净/已送达fc032c0f。
+用户已确认完成＋重排双权限与原产出归属，D151前向记录；新执行21项/原计划组合48/48、类型/lint/Node/app导入通过，尚无执行SQL/API/UI。
+fc最终三CI success/attempt1，LinuxQuote87/Python131实际执行；本机be7 Quote87和41/927/116及原933d失败范围保留。
+[fc三摘要逐字输入](tasks/completed/2026-10-21-production-execution-inputs/fc032c0f/)保留所有旧日期/hash/结果/限制及恢复链。
+计划与执行事实分离，下一步事务历史/计划保护/读取，再接既有结束页面；出货/关账及真实激活仍未闭环。
+237证据/50能力/旧PNG保持；#120–127原头不动，不建重复累计业务PR、不merge/close/deploy。
 保护3001/50426/59069/62426及旧卷/工作树/Browser；持续Git授权不扩真实数据/来源/部署/退役范围。
 
 ## 系统简介
