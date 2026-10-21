@@ -6,6 +6,7 @@ main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；codex/server-producti
 b891三CI success/attempt1，新执行22/LinuxQuote87/Python131及Team项目927实际通过；原be7/f344/933d失败和红测范围保留。
 [b891三摘要逐字输入](tasks/completed/2026-10-21-production-execution-inputs/b8910f6c/)保留旧日期/hash/结果/限制及fc恢复链。
 15/15执行/升级、39/39引用归属通过；前后测试范围见任务，最终冻结/远端/新CI待。执行UI、出货/关账及真实激活未闭环。
+0035原阶段读取文档保持70cb8历史字节；当前数量、executions和空队首扩展以执行契约为准。
 原237证据/50能力/旧PNG保持，D151只前向追加，现238/50；#120–127原头不动，不建重复累计业务PR、不merge/close/deploy。
 保护3001/50426/59069/62426及旧卷/工作树/Browser；持续Git授权不扩真实数据/来源/部署/退役范围。
 

@@ -40,6 +40,24 @@ namespace保持，0035计划身份/状态/快照不改。精确源码及验证�
 记录未做的部分不继续作为待执行任务。超产不会形成负待执行量。不得跨历史重复SO汇总，
 也不将这一实物占用投影冒称客户需求、财务产值、成衣出货或已付款。
 
+## 执行读取与原计划接口兼容
+
+本节是0036对[0035原阶段读取契约](SERVER_PRODUCTION_PLANNING_READS.md)的明确扩展；原文件及
+70cb8 Git blob保持当时证据。新执行规则不能从旧阶段“实际完成尚未接线”的说明推断当前状态。
+订单列表/详情新增精确completedQuantity、outstandingPlannedQuantity和accountedQuantity；
+plannedQuantity仍指未取消原计划。remaining/overassigned/allocation改按accountedQuantity
+先聚合、筛选再分页；未知需求null、零和实际未登记保持不同。历史别名仍按物理SO分别投影。
+
+订单/组详情批量增加executions，原Assignment状态继续planned/cancelled；缺失执行是空映射，
+单Assignment详情的execution为null。canComplete与原canCreate/canEdit按fresh权限、可信
+业务、有效归属和生命周期投影。无成本、成衣价、工价或币种，不经JS number汇总数量。
+
+生产组assignmentCount/总计划量包含全部未取消计划，pendingAssignmentCount、队首和尾日期
+仅指尚未结束任务；completedQuantity包含取消后的产出，outstandingPlannedQuantity是仍待
+执行的精确量。全结束组保留历史计划数、空队首和空尾日期；旧客户端新增该明确校验，不能
+伪造队首或因完成后count不为0拒绝整个列表。500行技术上限仍明确，不静默截断。
+计划和执行历史各自按稳定版本锚定，追加新事件不挤动既有分页；资源名称采用历史快照。
+
 ## 执行服务与计划保护
 
 `production_schedule_executions`保存独立head，`production_schedule_execution_versions`逐事件
