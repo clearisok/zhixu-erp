@@ -8,6 +8,8 @@ export type GroupFields = { name: string; shortName: string; productionSiteId: s
 export type FactoryFields = { name: string; shortName: string; contactPerson: string; phone: string; remark: string };
 export type CalendarFields = { name: string; workingWeekdays: number[]; exceptions: { id: string; date: string; type: "working" | "non_working"; name: string }[]; remark: string };
 export type SiteFields = { name: string; countryCode: string | null; productionCalendarId: string; preProductionSampleLeadDays: number; enabled: boolean; remark: string };
+export type HubFields = { name: string; enabled: boolean; remark: string };
+export type TransportModeFields = { id: string; name: string; enabled: boolean; transitDays: number | null; sortOrder: number | null };
 export const weekdayLabels = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"] as const;
 export function weekdaySummary(days: number[]) {
   const ordered = [...new Set(days)].sort((left, right) => left - right);
@@ -64,4 +66,27 @@ export function ProductionSiteFields({ value, onChange, calendars = [], calendar
     <p className="qc-infrastructure-reference-note">{referenceCount === undefined ? "地点可停用，已有历史引用继续保留。" : `当前被 ${referenceCount} 个生产组使用。被引用的地点只能停用，不能物理删除。`}</p>
     <FormItem label="备注"><textarea className="qc-control" rows={3} value={value.remark} onChange={event => onChange({ ...value, remark: event.target.value })} /></FormItem>
   </div>;
+}
+
+export function SupplyHubFields({ value, onChange }: { value: HubFields; onChange: (value: HubFields) => void }) {
+  return <div className="qc-infrastructure-form">
+    <FormItem label="集货仓名称" required><input className="qc-control" value={value.name} onChange={event => onChange({ ...value, name: event.target.value })} /></FormItem>
+    <FormItem label="状态"><select className="qc-control" value={value.enabled ? "enabled" : "disabled"} onChange={event => onChange({ ...value, enabled: event.target.value === "enabled" })}><option value="enabled">启用</option><option value="disabled">停用</option></select></FormItem>
+    <FormItem label="备注"><textarea className="qc-control" rows={3} value={value.remark} onChange={event => onChange({ ...value, remark: event.target.value })} /></FormItem>
+  </div>;
+}
+
+/** Existing transport layout only. Callers retain identities, persistence and nullable policy. */
+export function TransportPlanFields({ hubControl, siteControl, modes, onAddMode, onModeChange, remark, onRemarkChange, maxModes }: {
+  hubControl: ReactNode; siteControl: ReactNode; modes: TransportModeFields[]; onAddMode: () => void;
+  onModeChange: (id: string, patch: Partial<Omit<TransportModeFields, "id">>) => void; remark: string; onRemarkChange: (remark: string) => void; maxModes?: number;
+}) {
+  return <div className="qc-infrastructure-form"><div className="qc-infrastructure-steps">
+    <FormItem label="1. 出发集货仓" required>{hubControl}</FormItem><FormItem label="2. 到达生产地点" required>{siteControl}</FormItem>
+  </div><section className="qc-transport-mode-editor"><header><div><strong>3. 运输方式</strong><small>系统按自然日和排序使用现有运输方式事实。</small></div><Button variant="secondary" size="compact" disabled={maxModes !== undefined && modes.length >= maxModes} onClick={onAddMode}>＋ 增加运输方式</Button></header>
+    {modes.map(mode => <div key={mode.id}><input className="qc-control" aria-label="运输方式名称" placeholder="名称" value={mode.name} onChange={event => onModeChange(mode.id, { name: event.target.value })} />
+      <NullableNumberInput className="qc-control" min="0" aria-label="运输自然日" value={mode.transitDays} onValueChange={transitDays => onModeChange(mode.id, { transitDays })} /><span>自然日</span>
+      <label><input type="checkbox" checked={mode.enabled} onChange={event => onModeChange(mode.id, { enabled: event.target.checked })} /> 启用</label>
+      <NullableNumberInput className="qc-control" min="0" aria-label="运输方式排序" value={mode.sortOrder} onValueChange={sortOrder => onModeChange(mode.id, { sortOrder })} /></div>)}
+  </section><FormItem label="方案备注"><textarea className="qc-control" rows={3} value={remark} onChange={event => onRemarkChange(event.target.value)} /></FormItem></div>;
 }

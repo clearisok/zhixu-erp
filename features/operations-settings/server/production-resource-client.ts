@@ -1,12 +1,30 @@
 // This shared validator is deliberately isomorphic: no Node/PG/auth side effects.
 // The Server always validates again; using it here grants no mutation authority.
-import { parseProductionResourceCommand, productionResourceUuid, type ProductionResourceCommand, type ProductionResourceType } from "../../../server/production-resources/contract";
-import type { ProductionResource, ProductionResourceSummary, ResourceListQuery, ResourceOutcome } from "../../../server/production-resources/service";
+import { productionResourceCommon, productionResourceUuid } from "../../../server/production-resources/contract";
+import { LOGISTICS_RESOURCE_LIMITS } from "../../../server/production-resources/logistics-contract";
+import { parseManagedResourceCommand, type ManagedResourceCommand as ProductionResourceCommand, type ManagedResourceType as ProductionResourceType } from "../../../server/production-resources/managed-contract";
+import type { ManagedProductionResource as ProductionResource, ManagedResourceSummary as ProductionResourceSummary, ResourceListQuery, ResourceOutcome } from "../../../server/production-resources/service";
 import { ServerAuthError } from "../../server-auth/server-auth-client";
 export type { ProductionResource, ProductionResourceSummary, ProductionResourceCommand, ProductionResourceType, ResourceListQuery };
-export type VerifiedResourceOutcome = ResourceOutcome & { payloadHash: string };
+export type VerifiedResourceOutcome = ResourceOutcome<ProductionResource> & { payloadHash: string };
 export type ResourceDirectory = { items: ProductionResourceSummary[]; total: number; offset: number; limit: number; canEdit: boolean };
 export type ResourceReceipt = { state: "known"; requestId: string; result: VerifiedResourceOutcome } | { state: "pending" | "unknown"; requestId: string; result: null };
+/** A bounded label only: full parent names and UUIDs remain separate facts. */
+export function transportPlanDisplayName(hubName: string, siteName: string): string {
+  const separator = " → ", limit = 200, full = hubName + separator + siteName;
+  if (full.length <= limit) return full;
+  const available = limit - separator.length;
+  let hubBudget = Math.min(hubName.length, Math.floor(available / 2));
+  const siteBudget = Math.min(siteName.length, available - hubBudget);
+  hubBudget = Math.min(hubName.length, available - siteBudget);
+  const label = (name: string, budget: number) => {
+    if (name.length <= budget) return name;
+    let prefix = "";
+    for (const char of name) { if (prefix.length + char.length > budget - 1) break; prefix += char; }
+    return prefix + "…";
+  };
+  return label(hubName, hubBudget) + separator + label(siteName, siteBudget);
+}
 
 const messages: Record<string, string> = {
   invalid_production_resource_command: "请检查名称、关联资料、数值和日期，特殊日期说明不能留空。",
@@ -20,6 +38,12 @@ const messages: Record<string, string> = {
   production_calendar_disabled: "工作日历已停用，请选择启用的日历。",
   production_site_not_found: "生产地点不存在，请重新选择。",
   production_site_disabled: "生产地点已停用，请选择启用的地点。",
+  production_supply_hub_not_found: "集货仓不存在，请重新选择。",
+  production_supply_hub_disabled: "集货仓已停用，请选择启用的集货仓。",
+  logistics_parents_required: "请明确选择出发集货仓和到达生产地点。",
+  logistics_mode_membership_conflict: "运输方式已变化，请重新读取完整方案后修改；已有方式通过停用保留。",
+  logistics_route_pair_conflict: "这个集货仓和生产地点已有启用的运输方案，请编辑已有方案。",
+  logistics_result_too_large: "运输方案内容过多，请核对原请求结果后缩短备注。",
   production_resource_request_conflict: "原请求的内容不一致，请先核对原操作。",
   resource_receipt_mismatch: "核对结果与原请求不一致，已保留原请求，请联系管理员核查。",
   resource_outcome_unknown: "保存结果尚未确认，请核对原请求；不会自动重试。",
@@ -38,9 +62,10 @@ function timestamp(value: unknown): string { if (typeof value !== "string" || !N
 const fields = {
   calendars: ["workingWeekdays", "exceptions"], sites: ["countryCode", "productionCalendarId", "preProductionSampleLeadDays"],
   groups: ["shortName", "productionSiteId", "sortOrder"], factories: ["shortName", "contactPerson", "phone"],
+  hubs: [], "transport-plans": ["supplyHubId", "productionSiteId", "modes"],
 } as const;
 export function canonicalResourceCommand(value: unknown): ProductionResourceCommand {
-  try { return parseProductionResourceCommand(value); } catch { throw new ProductionResourceError(400, "invalid_production_resource_command", true); }
+  try { return parseManagedResourceCommand(value); } catch { throw new ProductionResourceError(400, "invalid_production_resource_command", true); }
 }
 export async function resourceCommandFingerprint(value: ProductionResourceCommand): Promise<string> {
   const command = canonicalResourceCommand(value);
@@ -60,27 +85,44 @@ function projectResource(value: unknown, kind: ProductionResourceType, summary: 
   // A list omits exception bodies. Validate its week template without inventing
   // a detail resource with an empty exception list.
   if (summary && kind === "calendars") data.exceptions = [];
+  if (summary && kind === "transport-plans") {
+    let commonData;
+    try { commonData = productionResourceCommon({ name: raw.name, enabled: raw.enabled, remark: raw.remark }); } catch { return invalid(); }
+    const modeCount = integer(raw.modeCount, 1), enabledModeCount = integer(raw.enabledModeCount);
+    if (modeCount > LOGISTICS_RESOURCE_LIMITS.modes || enabledModeCount > modeCount) return invalid();
+    return { ...common, kind, ...commonData, supplyHubId: uuid(raw.supplyHubId), productionSiteId: uuid(raw.productionSiteId), modeCount, enabledModeCount };
+  }
   let parsed: ProductionResourceCommand;
-  try { parsed = parseProductionResourceCommand({ requestId: common.id, action: "update", kind, resourceId: common.id, expectedVersion: common.version, data }); } catch { return invalid(); }
+  try { parsed = parseManagedResourceCommand({ requestId: common.id, action: "update", kind, resourceId: common.id, expectedVersion: common.version, data }); } catch { return invalid(); }
   if (summary && parsed.kind === "calendars") {
     const { exceptions: _exceptions, ...calendar } = parsed.data; void _exceptions;
     return { ...common, kind: "calendars", ...calendar, exceptionCount: integer(raw.exceptionCount) };
   }
+  if (summary && parsed.kind === "hubs") return { ...common, kind: "hubs", ...parsed.data, enabledRouteCount: integer(raw.enabledRouteCount) };
+  if (parsed.kind === "transport-plans" && parsed.data.modes.some(mode => mode.modeId === null)) return invalid();
   return { ...common, ...parsed.data } as ProductionResource;
+}
+function matchesResourceData(resource: ProductionResource, command: ProductionResourceCommand, changed: boolean): boolean {
+  const actual = productionResourceInput(resource);
+  if (command.kind !== "transport-plans") return JSON.stringify(actual) === JSON.stringify(command.data);
+  if (resource.kind !== "transport-plans" || resource.modes.length !== command.data.modes.length || (!changed && command.data.modes.some(mode => mode.modeId === null))) return false;
+  const normalized = { ...actual, modes: resource.modes.map((mode, index) => ({ ...mode, modeId: command.data.modes[index].modeId === null ? null : mode.modeId })) };
+  return JSON.stringify(normalized) === JSON.stringify(command.data);
 }
 async function projectOutcome(value: unknown, command: ProductionResourceCommand, fingerprint: string): Promise<VerifiedResourceOutcome> {
   const raw = object(value);
   if (raw.requestId !== command.requestId || raw.kind !== command.kind || raw.payloadHash !== fingerprint) throw new ProductionResourceError(502, "resource_receipt_mismatch");
   if (raw.status === "rejected") {
     const error = object(raw.error);
-    if (![404, 409].includes(error.status as number) || typeof error.code !== "string" || !Object.hasOwn(messages, error.code)) return invalid();
+    const capacity = (command.kind === "hubs" || command.kind === "transport-plans") && error.status === 422 && error.code === "logistics_result_too_large";
+    if ((!capacity && ![404, 409].includes(error.status as number)) || typeof error.code !== "string" || !Object.hasOwn(messages, error.code)) return invalid();
     return { requestId: command.requestId, kind: command.kind, payloadHash: fingerprint, status: "rejected", error: { status: error.status as number, code: error.code } };
   }
   if (raw.status !== "applied" || typeof raw.changed !== "boolean") return invalid();
   const resource = projectResource(raw.resource, command.kind, false) as ProductionResource;
   const expectedVersion = command.action === "create" ? 1 : command.expectedVersion + (raw.changed ? 1 : 0);
   if ((command.action === "update" && resource.id !== command.resourceId) || resource.version !== expectedVersion || (command.action === "create" && !raw.changed)
-    || JSON.stringify(productionResourceInput(resource)) !== JSON.stringify(command.data)) throw new ProductionResourceError(502, "resource_receipt_mismatch");
+    || !matchesResourceData(resource, command, raw.changed)) throw new ProductionResourceError(502, "resource_receipt_mismatch");
   if (raw.changed) {
     if (typeof raw.operationId !== "string" || !raw.operationId.startsWith("operation-") || "operation-" + uuid(raw.operationId.slice(10)) !== raw.operationId) return invalid();
   } else if (raw.operationId !== null) return invalid();

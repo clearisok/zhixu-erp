@@ -26,7 +26,7 @@ export type ProductionResource = Extract<ManagedProductionResource, { kind: Prod
 type Calendar = Extract<ProductionResource, { kind: "calendars" }>;
 type TransportPlan = Extract<ManagedProductionResource, { kind: "transport-plans" }>;
 export type ProductionResourceSummary = Exclude<ProductionResource, Calendar> | (Omit<Calendar, "exceptions"> & { exceptionCount: number });
-type ManagedResourceSummary = ProductionResourceSummary | Extract<ManagedProductionResource, { kind: "hubs" }> | (Omit<TransportPlan, "modes"> & { modeCount: number; enabledModeCount: number });
+export type ManagedResourceSummary = ProductionResourceSummary | (Extract<ManagedProductionResource, { kind: "hubs" }> & { enabledRouteCount: number }) | (Omit<TransportPlan, "modes"> & { modeCount: number; enabledModeCount: number });
 export type ResourceOutcome<R extends ManagedProductionResource = ProductionResource> = {
   requestId: string; kind: R["kind"]; status: "applied"; resource: R;
   changed: boolean; operationId: string | null;
@@ -77,7 +77,7 @@ type Row = {
   short_name: string; working_weekdays: number[]; exception_count: number;
   production_calendar_id: string; country_code: string | null; pre_production_sample_lead_days: number;
   production_site_id: string; sort_order: number; contact_person: string; phone: string;
-  supply_hub_id: string; mode_count: number; enabled_mode_count: number;
+  supply_hub_id: string; mode_count: number; enabled_mode_count: number; enabled_route_count: number;
 };
 function mapResource(kind: ManagedResourceType, row: Row, exceptions: CalendarExceptionInput[] = [], modes: StoredTransportMode[] = []): ManagedProductionResource {
   const common = { id: row.id, name: row.name, enabled: row.enabled, remark: row.remark, version: row.version, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString() };
@@ -129,7 +129,8 @@ export async function listProductionResources(pool: Pool, identity: TrustedIdent
     }
     // Complete bounded candidate set is required before reusing the existing natural group sort.
     const counts = kind === "calendars" ? ", (SELECT count(*)::int FROM production_calendar_exceptions e WHERE e.calendar_id=r.id) AS exception_count"
-      : kind === "transport-plans" ? ", (SELECT count(*)::int FROM production_transport_modes m WHERE m.route_id=r.id) AS mode_count, (SELECT count(*)::int FROM production_transport_modes m WHERE m.route_id=r.id AND m.enabled) AS enabled_mode_count" : "";
+      : kind === "transport-plans" ? ", (SELECT count(*)::int FROM production_transport_modes m WHERE m.route_id=r.id) AS mode_count, (SELECT count(*)::int FROM production_transport_modes m WHERE m.route_id=r.id AND m.enabled) AS enabled_mode_count"
+      : kind === "hubs" ? ", (SELECT count(*)::int FROM production_supply_routes p WHERE p.supply_hub_id=r.id AND p.enabled) AS enabled_route_count" : "";
     const rows = (await client.query<Row>(`SELECT r.*${counts}
       FROM ${specifications[kind].table} r ${clauses.length ? "WHERE " + clauses.join(" AND ") : ""} LIMIT 5001`, values)).rows;
     if (rows.length > 5000) return fail(422, "production_resource_search_too_broad");
@@ -143,6 +144,7 @@ export async function listProductionResources(pool: Pool, identity: TrustedIdent
         const { modes: _modes, ...summary } = resource; void _modes;
         return { ...summary, modeCount: row.mode_count, enabledModeCount: row.enabled_mode_count };
       }
+      if (resource.kind === "hubs") return { ...resource, enabledRouteCount: row.enabled_route_count };
       return resource;
     });
     if (kind === "groups") {

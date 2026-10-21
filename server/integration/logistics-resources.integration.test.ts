@@ -251,6 +251,14 @@ test("Server logistics resources share atomic commands, authority and durable id
     for (const query of ["limit=101", "status=active", "limit=1&limit=2", "scope=all"]) assert.equal((await request("/transport-plans?" + query, admin.cookie)).status, 400);
     const row = (await request("/transport-plans", admin.cookie)).body.items.find((item: { id: string }) => item.id === plan.id); assert.equal(row.modeCount, 4); assert.equal(Object.hasOwn(row, "modes"), false);
   });
+  await t.test("Hub service-route counts aggregate all enabled routes independently of list pagination", async () => {
+    const anotherSite = await create("sites", { name: "合成计数地点", enabled: true, remark: "", countryCode: null, productionCalendarId: calendar.id, preProductionSampleLeadDays: 0 });
+    await create("transport-plans", { ...planData, productionSiteId: anotherSite.id });
+    const changed = await save(update(hub, { remark: "完整服务计数" })); assert.equal(changed.status, 200); hub = changed.body.resource;
+    const result = await request("/hubs?limit=1&search=" + encodeURIComponent("完整服务计数"), viewer.cookie);
+    assert.equal(result.status, 200, result.text); assert.equal(result.body.total, 1); assert.equal(result.body.items[0].id, hub.id); assert.equal(result.body.items[0].enabledRouteCount, 2);
+    assert.equal(Object.hasOwn(await get("hubs", hub.id), "enabledRouteCount"), false);
+  });
   await t.test("revoked database permissions deny new submissions and historical receipts", async () => {
     const member = await user("logistics.former", ["settings.production_infrastructure.edit"]);
     const input = createCommand("hubs", { name: "撤权前仓", enabled: true, remark: "" }); assert.equal((await save(input, member.cookie)).status, 200);

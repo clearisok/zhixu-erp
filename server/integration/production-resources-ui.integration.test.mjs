@@ -44,16 +44,17 @@ async function startFixture(staticDirectory) {
       assert.equal(response.status, 200); return response.headers.get('set-cookie').split(';')[0];
     };
     const cookie = await login(root);
+    const read = async (kind, id) => { const response = await fetch(base + '/api/v1/production-resources/' + kind + '/' + id, { headers: { Cookie: cookie } }); assert.equal(response.status, 200); return (await response.json()).resource; };
     const save = async (kind, data, identity = {}) => {
       const command = { requestId: randomUUID(), kind, action: 'create', resourceId: null, expectedVersion: 0, ...identity, data };
       const response = await fetch(base + '/api/v1/production-resources/commands', { method: 'POST', headers: { Cookie: cookie, 'Content-Type': 'application/json', Origin: base, 'X-Zhixu-Request': '1' }, body: JSON.stringify(command) });
       const result = await response.json(); assert.equal(response.status, 200, JSON.stringify(result)); return result.resource;
     };
-    return { pool, errors, base, root, password, login, save, user, close };
+    return { pool, errors, base, root, password, login, save, read, user, close };
   } catch (error) { await close(); throw error; }
 }
 
-test('Gate6A built resource pages preserve empty Server ownership, dates, receipts, CAS and session boundaries', { timeout: 240000 }, async t => {
+test('Gate6A/6D built resource pages preserve Server ownership, logistics members, receipts and session boundaries', { timeout: 300000 }, async t => {
   const build = JSON.parse(readFileSync('dist/client/build-info.json', 'utf8')); assert.equal(build.quoteAuthority, 'server'); assert.equal(build.identityMode, 'session');
   const x = await startFixture(resolve('dist/client')), temp = await mkdtemp(join(tmpdir(), 'zhixu-resource-ui-'));
   const evidence = resolve('outputs/production-resources-ui', build.gitCommit + '-' + Date.now()); await mkdir(evidence, { recursive: true });
@@ -101,9 +102,20 @@ test('Gate6A built resource pages preserve empty Server ownership, dates, receip
     const loginUI = async username => { await field('input[name=username]', username); await field('input[name=password]', x.password); await click('登录织序'); };
     const posts = () => network.filter(row => row.method === 'POST' && row.path === '/api/v1/production-resources/commands').length;
     const count = async table => (await x.pool.query('SELECT count(*)::int n FROM ' + table)).rows[0].n;
+    const amend = async (kind, id, patch) => { const { id: _id, kind: _kind, version, createdAt: _created, updatedAt: _updated, ...data } = await x.read(kind, id); void _id; void _kind; void _created; void _updated; return x.save(kind, { ...data, ...patch }, { action: 'update', resourceId: id, expectedVersion: version }); };
+    const choose = async (label, id, search) => {
+      const prior = label === '集货仓' ? await evaluate('resourceParentReads') : null;
+      if (search) await field(`[role=dialog] input[aria-label=搜索${label}]`, search);
+      await until(() => evaluate(`Boolean(document.querySelector('select[aria-label="${label}选择"] option[value="${id}"]'))`), 'loaded ' + label);
+      await field(`select[aria-label=${label}选择]`, id, 'HTMLSelectElement');
+      if (prior !== null) await until(() => evaluate(`resourceParentReads>${prior}&&resourceParentInFlight===0`), 'selected Hub read finished');
+    };
+    const modeField = (index, label, value) => evaluate(`(()=>{const n=[...document.querySelectorAll('[role=dialog] [aria-label="${label}"]')][${index}];if(!n)throw Error('missing mode field');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,${JSON.stringify(value)});n.dispatchEvent(new Event('input',{bubbles:true}))})()`);
+    const editPlan = async needle => { const expression = `(()=>{const card=[...document.querySelectorAll('.qc-infrastructure-plan-card')].find(n=>n.textContent.includes(${JSON.stringify(needle)}));return [...(card?.querySelectorAll('button')??[])].find(n=>n.textContent==='编辑运输方案'&&!n.matches(':disabled'))})()`; await until(() => evaluate(`Boolean(${expression})`), 'editable plan ' + needle); await evaluate(`${expression}.click()`); };
     const shot = async name => { const result = await command('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); await writeFile(join(evidence, name + '.png'), Buffer.from(result.data, 'base64')); };
     await command('Page.addScriptToEvaluateOnNewDocument', { source: `
       window.resourceMode='ready';window.resourceListMode='ready';window.resourceReceiptMode='ready';window.resourceWaiters=[];window.resourcePostWaiters=[];window.resourceReceiptWaiters=[];
+      window.resourceParentMode='ready';window.resourceParentWaiters=[];window.resourceParentReads=0;window.resourceParentInFlight=0;
       const resourceFetch=fetch;
       window.fetch=async(...args)=>{
         const url=new URL(String(args[0]),location.href),method=args[1]?.method??'GET';
@@ -120,10 +132,15 @@ test('Gate6A built resource pages preserve empty Server ownership, dates, receip
           if(mode==='once401')return Response.json({error:{code:'synthetic_current_expired'}},{status:401});
           const response=await resourceFetch(...args);if(mode==='delay200'||mode==='delay401'){const data=await response.json();return new Promise(done=>resourceReceiptWaiters.push(()=>done(mode==='delay401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):Response.json(data,{status:response.status}))));}return response;
         }
-        if(/^\\/api\\/v1\\/production-resources\\/(factories|sites|groups|calendars)$/.test(url.pathname)&&method==='GET'){
+        if(/^\\/api\\/v1\\/production-resources\\/(factories|sites|groups|calendars|hubs|transport-plans)$/.test(url.pathname)&&method==='GET'){
           const mode=resourceListMode;resourceListMode='ready';const response=await resourceFetch(...args);
           if(mode==='delay200'||mode==='delay401')return new Promise(done=>resourceWaiters.push(()=>done(mode==='delay401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):response)));
           return response;
+        }
+        if(url.pathname.startsWith('/api/v1/production-resources/hubs/')&&method==='GET'){
+          resourceParentReads++;resourceParentInFlight++;const mode=resourceParentMode;resourceParentMode='ready';let response;
+          try{response=await resourceFetch(...args);}finally{resourceParentInFlight--;}
+          if(mode==='delay200')return new Promise(done=>resourceParentWaiters.push(()=>done(response)));return response;
         }
         return resourceFetch(...args);
       };` });
@@ -131,11 +148,12 @@ test('Gate6A built resource pages preserve empty Server ownership, dates, receip
     await phase('empty actual routes do not seed Browser defaults, quotes, orders, logistics or resources', async () => {
       for (const path of ['/basic-settings/production-groups', '/basic-settings/outsource-factories', '/system-settings/production-infrastructure']) { await navigate(path); await has('没有匹配的'); }
       await has('没有匹配的工作日历');
-      for (const table of ['production_calendars', 'production_sites', 'production_groups', 'production_outsource_factories', 'sales_orders', 'quote_center_quotes']) assert.equal(await count(table), 0);
+      await has('没有匹配的集货仓'); await has('没有匹配的运输方案');
+      for (const table of ['production_calendars', 'production_sites', 'production_groups', 'production_outsource_factories', 'production_supply_hubs', 'production_supply_routes', 'production_transport_modes', 'sales_orders', 'quote_center_quotes']) assert.equal(await count(table), 0);
       assert.equal(posts(), 0); assert.equal(await evaluate("Object.keys(localStorage).some(k=>k==='zhixu.erp.local.operations-settings')"), false);
-      assert.equal(await evaluate("document.body.innerText.includes('新增运输方案')"), false);
+      assert.equal(await evaluate("document.body.innerText.includes('新增运输方案')"), true);
     });
-    let calendar, site;
+    let calendar, site, hub, route;
     await phase('calendar form creates explicit dates and subsequent editing preserves the complete exception body', async () => {
       await click('＋ 工作日历'); await formField('日历名称', '合成验收日历'); await click('＋ 添加特殊日期');
       await field('input[aria-label=特殊日期]', '2027-01-01'); await field('input[aria-label=特殊日期说明]', '合成假日');
@@ -187,6 +205,91 @@ test('Gate6A built resource pages preserve empty Server ownership, dates, receip
       await shot('production-infrastructure-related-current');
       await navigate('/basic-settings/outsource-factories'); await has('合成验收外发厂');
     });
+    await phase('logistics forms require explicit paged parents and persist complete Server-assigned members once', async () => {
+      await navigate('/system-settings/production-infrastructure'); await has('没有匹配的集货仓'); await click('＋ 集货仓'); await formField('集货仓名称', 'A合成验收仓');
+      await click('保存集货仓'); await has('集货仓已保存'); hub = (await x.pool.query("SELECT id::text FROM production_supply_hubs WHERE name='A合成验收仓'")).rows[0];
+      for (let i = 0; i < 22; i++) await x.save('hubs', { name: 'Z合成分页仓' + String(i).padStart(2, '0'), enabled: true, remark: '' });
+      await click('＋ 新增运输方案'); assert.equal(await evaluate("document.querySelector('select[aria-label=集货仓选择]').value"), ''); assert.equal(await evaluate("document.querySelector('select[aria-label=生产地点选择]').value"), '');
+      await until(() => evaluate("document.querySelector('select[aria-label=集货仓选择]').parentElement.innerText.includes('23 条')"), 'all Hub candidates'); await click('下页集货仓'); await has('第 2 页');
+      await choose('集货仓', hub.id, '合成 验收'); await choose('生产地点', site.id);
+      await click('＋ 增加运输方式'); await modeField(0, '运输方式名称', '合成海运'); await modeField(0, '运输自然日', '12'); await modeField(0, '运输方式排序', '20');
+      await click('＋ 增加运输方式'); await modeField(1, '运输方式名称', '合成空运'); await modeField(1, '运输自然日', '0'); await modeField(1, '运输方式排序', '10');
+      const before = posts(); await evaluate("(()=>{const n=[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='保存运输方案');n.click();n.click()})()");
+      await has('运输方案已保存'); assert.equal(posts(), before + 1); assert.equal(await count('production_supply_routes'), 1); assert.equal(await count('production_transport_modes'), 2);
+      route = await x.read('transport-plans', (await x.pool.query('SELECT id::text FROM production_supply_routes')).rows[0].id);
+      assert.equal(route.name, 'A合成验收仓 → 合成验收地点'); assert.equal(new Set(route.modes.map(mode => mode.modeId)).size, 2); assert.ok(route.modes.every(mode => mode.modeId));
+      await until(() => evaluate("(()=>{const n=document.querySelector('.qc-infrastructure-plan-card');return n?.innerText.includes('合成空运')&&n.innerText.includes('0 个自然日')&&n.innerText.indexOf('合成空运')<n.innerText.indexOf('合成海运')})()"), 'persisted sorted mode chips');
+      await shot('logistics-complete-plan'); await navigate('/system-settings/production-infrastructure'); await has('合成空运');
+    });
+    await phase('complete edit retains disabled identities, rejects blank days, and appends only new Server identities', async () => {
+      const originalIds = route.modes.map(mode => mode.modeId); await editPlan('合成空运');
+      await until(() => evaluate("document.querySelectorAll('[role=dialog] [aria-label=运输方式名称]').length===2"), 'full mode detail');
+      await modeField(0, '运输自然日', ''); const before = posts(); await click('保存运输方案');
+      await until(() => evaluate("Boolean(document.querySelector('[role=dialog] [role=alert]'))"), 'blank transit days validation'); assert.equal(posts(), before); assert.equal(await evaluate("document.querySelector('[aria-label=运输自然日]').value"), '');
+      await modeField(0, '运输自然日', '12'); await evaluate("document.querySelector('.qc-transport-mode-editor > div input[type=checkbox]').click()");
+      await click('＋ 增加运输方式'); await modeField(2, '运输方式名称', '合成陆运'); await modeField(2, '运输自然日', '5'); await click('保存运输方案'); await has('运输方案已保存');
+      route = await x.read('transport-plans', route.id); assert.deepEqual(route.modes.slice(0, 2).map(mode => mode.modeId), originalIds); assert.equal(route.modes[0].enabled, false); assert.ok(route.modes[2].modeId); assert.equal(new Set(route.modes.map(mode => mode.modeId)).size, 3);
+      await editPlan('合成空运'); await until(() => evaluate("document.querySelectorAll('[role=dialog] [aria-label=运输方式名称]').length===3"), 'disabled member remains editable');
+      assert.equal(await evaluate("document.querySelector('.qc-transport-mode-editor > div input[type=checkbox]').checked"), false);
+      await click('保存运输方案'); await has('资料未发生变化'); assert.equal((await x.read('transport-plans', route.id)).version, route.version);
+    });
+    await phase('Hub rename refreshes route labels; disabling it preserves existing route and rejects enabled edits', async () => {
+      await click('编辑集货仓'); await formField('集货仓名称', 'A合成验收仓已改名'); await click('保存集货仓'); await has('集货仓已保存');
+      await until(() => evaluate("document.querySelector('.qc-infrastructure-plan-card strong')?.textContent.includes('A合成验收仓已改名')"), 'Hub reference renamed');
+      await click('编辑集货仓'); await formField('状态', 'disabled'); await click('保存集货仓'); await has('集货仓已保存');
+      const original = await x.read('transport-plans', route.id); assert.equal(original.enabled, true); await editPlan('合成空运'); await until(() => evaluate("document.querySelector('select[aria-label=集货仓选择] option:checked')?.textContent.includes('已停用')"), 'disabled selected Hub retained');
+      await formField('方案备注', '不能通过已停用仓保存启用方案'); await click('保存运输方案'); await has('已停用');
+      await until(() => evaluate("!document.querySelector('[role=dialog] fieldset').disabled"), 'known Hub rejection releases request'); assert.deepEqual(await x.read('transport-plans', route.id), original); await click('取消'); await click('放弃修改');
+      await click('编辑集货仓'); await formField('状态', 'enabled'); await click('保存集货仓'); await has('集货仓已保存');
+    });
+    await phase('logistics committed reply loss recovers generated members with GET only after refresh', async () => {
+      const second = await x.save('sites', { name: '合成第二地点', enabled: true, remark: '', countryCode: null, productionCalendarId: calendar.id, preProductionSampleLeadDays: 0 });
+      await click('＋ 新增运输方案'); await choose('集货仓', hub.id); await choose('生产地点', second.id, '合成 第二');
+      await click('＋ 增加运输方式'); await modeField(0, '运输方式名称', '合成丢回执方式'); await evaluate("resourceMode='lost'"); const before = posts();
+      await click('保存运输方案'); await has('原保存请求尚未确认'); await until(async () => await count('production_supply_routes') === 2, 'real logistics commit');
+      await navigate('/system-settings/production-infrastructure'); await has('原保存请求尚未确认'); assert.equal(posts(), before + 1); await click('核对原请求'); await has('运输方案已保存'); assert.equal(posts(), before + 1);
+      const saved = (await x.pool.query('SELECT id::text FROM production_supply_routes WHERE production_site_id=$1', [second.id])).rows[0]; assert.ok((await x.read('transport-plans', saved.id)).modes[0].modeId);
+      assert.equal(await evaluate("Object.keys(sessionStorage).filter(k=>k.startsWith('zhixu.server.production-resource.pending.v1.')).length"), 0);
+    });
+    await phase('logistics manual retry preserves original command and name despite later parent rename', async () => {
+      const third = await x.save('sites', { name: '合成第三地点', enabled: true, remark: '', countryCode: null, productionCalendarId: calendar.id, preProductionSampleLeadDays: 0 });
+      await click('＋ 新增运输方案'); await choose('集货仓', hub.id); await choose('生产地点', third.id, '合成 第三');
+      await click('＋ 增加运输方式'); await modeField(0, '运输方式名称', '合成原请求重试方式'); await evaluate("resourceMode='before-network'"); const before = posts();
+      await click('保存运输方案'); await has('原保存请求尚未确认'); const original = await evaluate("JSON.parse(sessionStorage.getItem(Object.keys(sessionStorage).find(k=>k.endsWith('.transport-plans')))).command");
+      await amend('hubs', hub.id, { name: 'A合成验收仓重试后名称' }); await navigate('/system-settings/production-infrastructure'); await has('原保存请求尚未确认'); await click('核对原请求'); await has('暂未查到原请求结果');
+      await click('重试原请求'); await has('运输方案已保存'); assert.equal(posts(), before + 1);
+      const saved = (await x.pool.query('SELECT id::text,name FROM production_supply_routes WHERE production_site_id=$1', [third.id])).rows[0]; assert.equal(saved.name, original.data.name);
+      assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_resource_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1);
+    });
+    await phase('route cards reject child details from a different parent version and editors retain CAS drafts', async () => {
+      await evaluate("resourceListMode='delay200'"); await click('重新读取', 'section[aria-label=运输方案] button'); await until(() => evaluate('resourceWaiters.length===1'), 'held old route list');
+      route = await amend('transport-plans', route.id, { modes: [...route.modes, { modeId: null, name: '合成并发新增方式', enabled: true, remark: '', transitDays: 2, sortOrder: 40 }] });
+      await evaluate('resourceWaiters.splice(0).forEach(done=>done())'); await has('方案已更新，请重新读取。');
+      assert.equal(await evaluate("document.body.innerText.includes('合成并发新增方式')"), false);
+      await click('重新读取', 'section[aria-label=运输方案] button'); await has('合成并发新增方式'); await editPlan('合成空运'); await formField('方案备注', '尚未保存的方案备注');
+      route = await amend('transport-plans', route.id, { remark: '另一人更新方案备注' }); await click('保存运输方案'); await has('资料已被其他人更新');
+      assert.equal(await evaluate("document.querySelector('[role=dialog] textarea').value"), '尚未保存的方案备注'); await click('读取最新版本'); await until(() => evaluate("document.querySelector('[role=dialog] textarea').value==='另一人更新方案备注'"), 'latest complete route');
+      assert.equal(await evaluate("document.querySelectorAll('[role=dialog] [aria-label=运输方式名称]').length"), route.modes.length); await click('取消');
+    });
+    await phase('a held pre-save parent read cannot submit after A to B to A session replacement', async () => {
+      await evaluate("resourceListMode='delay401'"); await click('重新读取', 'section[aria-label=生产地点] button'); await until(() => evaluate('resourceWaiters.length===1'), 'held current site list');
+      await click('＋ 新增运输方案'); await choose('集货仓', hub.id); await choose('生产地点', site.id); await click('＋ 增加运输方式'); await modeField(0, '运输方式名称', '旧会话不得保存方式');
+      const before = posts(), routes = await count('production_supply_routes'); await evaluate("resourceParentMode='delay200'"); await click('保存运输方案'); await until(() => evaluate('resourceParentWaiters.length===1'), 'held pre-save Hub read'); assert.equal(posts(), before);
+      await evaluate('resourceWaiters.splice(0).forEach(done=>done())'); await has('忘记密码？请联系系统管理员'); await loginUI('resource.second'); await has('合成验收地点');
+      await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员'); await loginUI(x.root); await has('合成验收地点'); await evaluate('resourceParentWaiters.splice(0).forEach(done=>done())');
+      await until(() => evaluate("Boolean(document.querySelector('section[aria-label=运输方案] .qc-infrastructure-plan-card'))"), 'returned current route directory'); assert.equal(posts(), before); assert.equal(await count('production_supply_routes'), routes);
+      assert.equal(await evaluate("Object.keys(sessionStorage).filter(k=>k.endsWith('.transport-plans')).length"), 0); assert.equal(await evaluate("Boolean(document.querySelector('[role=dialog]'))"), false);
+      await navigate('/basic-settings/outsource-factories'); await has('合成验收外发厂');
+    });
+    await phase('long valid parent names remain fully referenced while the generated title stays within its existing limit', async () => {
+      const hubName = '长名仓' + '仓'.repeat(197), siteName = '长名厂' + '厂'.repeat(197);
+      const longHub = await x.save('hubs', { name: hubName, enabled: true, remark: '' }), longSite = await x.save('sites', { name: siteName, enabled: true, remark: '', countryCode: null, productionCalendarId: calendar.id, preProductionSampleLeadDays: 0 });
+      await navigate('/system-settings/production-infrastructure'); await has('合成空运'); await click('＋ 新增运输方案'); await choose('集货仓', longHub.id, '长名仓'); await choose('生产地点', longSite.id, '长名厂');
+      await click('＋ 增加运输方式'); await modeField(0, '运输方式名称', '合成长名称方式'); await click('保存运输方案'); await has('运输方案已保存'); await has('合成长名称方式');
+      const saved = (await x.pool.query('SELECT name FROM production_supply_routes WHERE supply_hub_id=$1 AND production_site_id=$2', [longHub.id, longSite.id])).rows[0]; assert.ok(saved.name.length <= 200); assert.ok(saved.name.includes('…'));
+      assert.equal((await x.read('hubs', longHub.id)).name, hubName); assert.equal((await x.read('sites', longSite.id)).name, siteName); assert.equal(await evaluate('document.body.innerText.includes(' + JSON.stringify(hubName) + ')&&document.body.innerText.includes(' + JSON.stringify(siteName) + ')'), true);
+      await navigate('/basic-settings/outsource-factories'); await has('合成验收外发厂');
+    });
     await phase('committed write with lost receipt survives refresh and GET recovery without another POST', async () => {
       await click('＋ 新增外发厂'); await formField('名称', '合成回执丢失外发厂'); await evaluate("resourceMode='lost'"); const before = posts();
       await click('保存外发厂'); await has('原保存请求尚未确认'); await until(async () => await count('production_outsource_factories') === 2, 'real lost-reply transaction committed');
@@ -212,6 +315,8 @@ test('Gate6A built resource pages preserve empty Server ownership, dates, receip
         await loginCookie(username); await navigate('/basic-settings/outsource-factories'); await has(username === 'resource.viewer' ? '合成验收外发厂' : '没有执行此操作的权限');
         assert.equal(await evaluate("[...document.querySelectorAll('button')].find(n=>n.textContent==='＋ 新增外发厂').matches(':disabled')"), true);
         await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 }); await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
+        await navigate('/system-settings/production-infrastructure'); await has(username === 'resource.viewer' ? '合成空运' : '没有执行此操作的权限');
+        for (const label of ['＋ 集货仓', '＋ 新增运输方案']) assert.equal(await evaluate("[...document.querySelectorAll('button')].find(n=>n.textContent===" + JSON.stringify(label) + ").matches(':disabled')"), true);
       }
       assert.equal(posts(), before); assert.equal(await count('production_outsource_factories'), n);
       await loginCookie(x.root); await navigate('/basic-settings/outsource-factories'); await has('合成验收外发厂');
@@ -272,6 +377,16 @@ test('Gate6A built resource pages preserve empty Server ownership, dates, receip
         await until(() => evaluate("document.querySelector('input[aria-label=特殊日期]')?.value==='2027-01-01'"), 'responsive calendar detail');
         const metrics = await evaluate("({page:'calendar',width:innerWidth,scroll:document.documentElement.scrollWidth,drawer:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON()})");
         assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.drawer.width <= width + 1); geometry.push(metrics); await shot('calendar-form-' + width); await click('取消');
+      }
+    });
+    await phase('existing Hub and transport cards and drawers keep all fields inside six actual viewport widths', async () => {
+      for (const width of [1920, 1536, 1440, 1280, 900, 390]) {
+        await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 390 }); await navigate('/system-settings/production-infrastructure'); await has('合成空运');
+        await editPlan('合成空运'); await until(() => evaluate("document.querySelectorAll('[role=dialog] [aria-label=运输方式名称]').length===4"), 'responsive full logistics detail');
+        const metrics = await evaluate("(()=>{const drawer=document.querySelector('[role=dialog]'),rect=drawer.getBoundingClientRect();return {page:'transport-plan',width:innerWidth,scroll:document.documentElement.scrollWidth,drawer:rect.toJSON(),overflow:[...drawer.querySelectorAll('input,select,textarea,button')].filter(n=>{const r=n.getBoundingClientRect();return r.width&& (r.left<rect.left-1||r.right>rect.right+1)}).map(n=>n.getAttribute('aria-label')??n.textContent)}})()");
+        assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.drawer.width <= width + 1); assert.deepEqual(metrics.overflow, [], JSON.stringify(metrics)); geometry.push(metrics); await shot('transport-plan-form-' + width); await click('取消');
+        await click('编辑集货仓'); const hubMetrics = await evaluate("({page:'hub',width:innerWidth,scroll:document.documentElement.scrollWidth,drawer:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON()})");
+        assert.ok(hubMetrics.scroll <= width + 1, JSON.stringify(hubMetrics)); assert.ok(hubMetrics.drawer.width <= width + 1); geometry.push(hubMetrics); await shot('hub-form-' + width); await click('取消');
       }
     });
     assert.deepEqual(errors, []); assert.deepEqual(x.errors, []); assert.equal(await count('sales_orders'), 0); assert.equal(await count('quote_center_quotes'), 0);

@@ -6,25 +6,32 @@ import { useServerNavigationProtection } from "@/components/foundation/server-na
 import { PermissionAuthorityProvider } from "@/features/permissions/components/permission-authority";
 import type { PermissionKey } from "@/features/permissions/model/permissions";
 import { useServerSession } from "@/features/server-auth";
-import { canonicalResourceCommand, productionResourceClient, ProductionResourceError, type ProductionResource, type ProductionResourceCommand, type ProductionResourceSummary, type ProductionResourceType, type ResourceDirectory, type ResourceListQuery, type VerifiedResourceOutcome } from "../server/production-resource-client";
+import { canonicalResourceCommand, productionResourceClient, ProductionResourceError, transportPlanDisplayName, type ProductionResource, type ProductionResourceCommand, type ProductionResourceSummary, type ProductionResourceType, type ResourceDirectory, type ResourceListQuery, type VerifiedResourceOutcome } from "../server/production-resource-client";
 import { acknowledgeResourcePending, readResourcePending, saveResourcePending } from "../server/production-resource-outbox";
-import { OutsourceFactoryFields, ProductionCalendarFields, ProductionGroupFields, ProductionSiteFields, weekdaySummary, type CalendarFields } from "./production-resource-fields";
+import { OutsourceFactoryFields, ProductionCalendarFields, ProductionGroupFields, ProductionSiteFields, SupplyHubFields, TransportPlanFields, weekdaySummary, type CalendarFields } from "./production-resource-fields";
 import { ServerProductionReferencePicker } from "./server-production-reference-picker";
-import type { ProductionResourceInputs } from "../../../server/production-resources/contract";
+import type { ManagedResourceInputMap } from "../../../server/production-resources/managed-contract";
+import { LOGISTICS_RESOURCE_LIMITS, type TransportModeInput } from "../../../server/production-resources/logistics-contract";
 
 const specifications = {
   calendars: { title: "工作日历", edit: "settings.production_infrastructure.edit", description: "维护每周工作日及明确的特殊日期。" },
   sites: { title: "生产地点", edit: "settings.production_infrastructure.edit", description: "维护地点、工作日历及产前准备时间。" },
   groups: { title: "生产组", edit: "settings.production_group.edit", description: "维护内部生产组基础资料；稳定 ID 不随名称修改而变化。" },
   factories: { title: "外发厂", edit: "settings.outsource_factory.edit", description: "维护外发加工厂的名称、联系人和联系电话。" },
+  hubs: { title: "集货仓", edit: "settings.production_infrastructure.edit", description: "集货仓是预计到料计划的到达点，也是运输方案的出发点。" },
+  "transport-plans": { title: "运输方案", edit: "settings.production_infrastructure.edit", description: "一个运输方案包含出发仓、到达地点和可选运输方式。" },
 } satisfies Record<ProductionResourceType, { title: string; edit: PermissionKey; description: string }>;
-type DraftData = { [K in ProductionResourceType]: { kind: K; data: K extends "calendars" ? Omit<ProductionResourceInputs[K], "exceptions"> & { exceptions: CalendarFields["exceptions"] } : ProductionResourceInputs[K] } }[ProductionResourceType];
+type ModeDraft = Omit<TransportModeInput, "transitDays" | "sortOrder"> & { editorId: string; transitDays: number | null; sortOrder: number | null };
+type DraftData = { [K in ProductionResourceType]: { kind: K; data: K extends "calendars" ? Omit<ManagedResourceInputMap[K], "exceptions"> & { exceptions: CalendarFields["exceptions"] }
+  : K extends "transport-plans" ? Omit<ManagedResourceInputMap[K], "modes"> & { modes: ModeDraft[] } : ManagedResourceInputMap[K] } }[ProductionResourceType];
 type Draft = DraftData & { resourceId: string | null; expectedVersion: number };
 function newDraft(kind: ProductionResourceType): Draft {
   const common = { name: "", enabled: true, remark: "" }, identity = { resourceId: null, expectedVersion: 0 };
   if (kind === "calendars") return { ...identity, kind, data: { ...common, workingWeekdays: [1, 2, 3, 4, 5, 6], exceptions: [] } };
   if (kind === "sites") return { ...identity, kind, data: { ...common, countryCode: null, productionCalendarId: "", preProductionSampleLeadDays: 0 } };
   if (kind === "groups") return { ...identity, kind, data: { ...common, shortName: "", productionSiteId: "", sortOrder: 0 } };
+  if (kind === "hubs") return { ...identity, kind, data: common };
+  if (kind === "transport-plans") return { ...identity, kind, data: { ...common, supplyHubId: "", productionSiteId: "", modes: [] } };
   return { ...identity, kind, data: { ...common, shortName: "", contactPerson: "", phone: "" } };
 }
 function resourceDraft(resource: ProductionResource): Draft {
@@ -34,16 +41,20 @@ function resourceDraft(resource: ProductionResource): Draft {
     case "sites": return { ...identity, kind: resource.kind, data: { name: resource.name, enabled: resource.enabled, remark: resource.remark, countryCode: resource.countryCode, productionCalendarId: resource.productionCalendarId, preProductionSampleLeadDays: resource.preProductionSampleLeadDays } };
     case "groups": return { ...identity, kind: resource.kind, data: { name: resource.name, enabled: resource.enabled, remark: resource.remark, shortName: resource.shortName, productionSiteId: resource.productionSiteId, sortOrder: resource.sortOrder } };
     case "factories": return { ...identity, kind: resource.kind, data: { name: resource.name, enabled: resource.enabled, remark: resource.remark, shortName: resource.shortName, contactPerson: resource.contactPerson, phone: resource.phone } };
+    case "hubs": return { ...identity, kind: resource.kind, data: { name: resource.name, enabled: resource.enabled, remark: resource.remark } };
+    case "transport-plans": return { ...identity, kind: resource.kind, data: { name: resource.name, enabled: resource.enabled, remark: resource.remark, supplyHubId: resource.supplyHubId, productionSiteId: resource.productionSiteId, modes: resource.modes.map(mode => ({ ...mode, editorId: mode.modeId })) } };
   }
 }
-function draftCommand(draft: Draft, requestId: string) {
-  const data = draft.kind === "calendars" ? { ...draft.data, exceptions: draft.data.exceptions.map(({ id: _id, ...item }) => { void _id; return item; }) } : draft.data;
+function draftCommand(draft: Draft, requestId: string, planName?: string) {
+  const data = draft.kind === "calendars" ? { ...draft.data, exceptions: draft.data.exceptions.map(({ id: _id, ...item }) => { void _id; return item; }) }
+    : draft.kind === "transport-plans" ? { ...draft.data, name: planName ?? draft.data.name, modes: draft.data.modes.map(({ editorId: _key, ...mode }) => { void _key; return mode; }) } : draft.data;
   return canonicalResourceCommand({ requestId, kind: draft.kind, action: draft.resourceId ? "update" : "create", resourceId: draft.resourceId, expectedVersion: draft.expectedVersion, data });
 }
 const safeError = (error: unknown) => error instanceof ProductionResourceError ? error.message : "操作未能安全完成，请重新读取或核对原请求。";
 const pendingMessage = "保存正在处理或结果尚未确认，请先核对原请求。";
+const referenceKey = (kind: ProductionResourceType, id: string) => kind + ":" + id;
 type OwnedState<L> = {
-  lease: L; query: ResourceListQuery; revision: number; directory?: ResourceDirectory; names: Record<string, string>; references: Record<string, ProductionResource>; error: string; listError: string; notice: string;
+  lease: L; query: ResourceListQuery; revision: number; directory?: ResourceDirectory; names: Record<string, string>; references: Record<string, ProductionResource>; referenceErrors: Record<string, string>; error: string; listError: string; notice: string;
   draft: Draft | null; initial: Draft | null; confirmClose: boolean; pending: ProductionResourceCommand | null; corrupt: boolean;
   receipt: "unchecked" | "pending" | "unknown" | "mismatch"; busy: boolean;
 };
@@ -72,7 +83,7 @@ function ResourceWorkspace({ kind, infrastructure = false, editorRef, onEditCale
       let pending: ProductionResourceCommand | null = null, corrupt = false;
       try { pending = readResourcePending(window.sessionStorage, { userId: session.user.id, kind }); } catch { corrupt = true; }
       if (!active || !isCurrent()) return;
-      setOwned({ lease, query: { search: "", status: "all", offset: 0, limit: 20 }, revision: 0, names: {}, references: {}, error: "", listError: "", notice: "", draft: null, initial: null, confirmClose: false, pending, corrupt, receipt: "unchecked", busy: false });
+      setOwned({ lease, query: { search: "", status: "all", offset: 0, limit: 20 }, revision: 0, names: {}, references: {}, referenceErrors: {}, error: "", listError: "", notice: "", draft: null, initial: null, confirmClose: false, pending, corrupt, receipt: "unchecked", busy: false });
     });
     return () => { active = false; };
   }, [kind, lease, session, isCurrent]);
@@ -82,16 +93,17 @@ function ResourceWorkspace({ kind, infrastructure = false, editorRef, onEditCale
     let active = true;
     void productionResourceClient.list(kind, query).then(async directory => {
       if (!active || !isCurrent()) return;
-      change(value => ({ ...value, directory, listError: "", names: {}, references: {} }));
-      const refKind = kind === "groups" ? "sites" : kind === "sites" ? "calendars" : null;
-      if (!refKind) return;
-      const ids = [...new Set(directory.items.flatMap(item => item.kind === "groups" ? [item.productionSiteId] : item.kind === "sites" ? [item.productionCalendarId] : []))];
-      const names: Record<string, string> = {}, references: Record<string, ProductionResource> = {};
-      await Promise.all(ids.map(async id => {
-        try { const item = await productionResourceClient.read(refKind, id); if (active && isCurrent()) { names[id] = item.name + (item.enabled ? "" : "（已停用）"); references[id] = item; } }
-        catch (error) { if (active && isCurrent()) { if (error instanceof ProductionResourceError && error.status === 401) session.invalidate(); else names[id] = "关联资料暂时无法读取"; } }
+      change(value => ({ ...value, directory, listError: "", names: {}, references: {}, referenceErrors: {} }));
+      const needed = directory.items.flatMap((item): [ProductionResourceType, string][] => item.kind === "groups" ? [["sites", item.productionSiteId]] : item.kind === "sites" ? [["calendars", item.productionCalendarId]]
+        : item.kind === "transport-plans" ? [["hubs", item.supplyHubId], ["sites", item.productionSiteId], ["transport-plans", item.id]] : []);
+      const unique = new Map(needed.map(([kind, id]) => [referenceKey(kind, id), [kind, id] as const]));
+      const names: Record<string, string> = {}, references: Record<string, ProductionResource> = {}, referenceErrors: Record<string, string> = {};
+      await Promise.all([...unique.values()].map(async ([refKind, id]) => {
+        const key = referenceKey(refKind, id);
+        try { const item = await productionResourceClient.read(refKind, id); if (active && isCurrent()) { names[key] = item.name + (item.enabled ? "" : "（已停用）"); references[key] = item; } }
+        catch (error) { if (active && isCurrent()) { if (error instanceof ProductionResourceError && error.status === 401) session.invalidate(); else { names[key] = "关联资料暂时无法读取"; referenceErrors[key] = "运输方式暂时无法读取，请重新读取。"; } } }
       }));
-      if (active && isCurrent()) change(value => value.directory === directory ? { ...value, names, references } : value);
+      if (active && isCurrent()) change(value => value.directory === directory ? { ...value, names, references, referenceErrors } : value);
     }).catch(error => {
       if (!active || !isCurrent()) return;
       if (error instanceof ProductionResourceError && error.status === 401) session.invalidate();
@@ -131,7 +143,15 @@ function ResourceWorkspace({ kind, infrastructure = false, editorRef, onEditCale
     let command: ProductionResourceCommand | undefined, persisted = false;
     try {
       if (!session.user || !isCurrent()) return;
-      command = original ?? (state.draft ? draftCommand(state.draft, crypto.randomUUID()) : undefined); if (!command) return;
+      let planName: string | undefined;
+      if (!original && state.draft?.kind === "transport-plans") {
+        const { supplyHubId, productionSiteId } = state.draft.data;
+        if (!supplyHubId || !productionSiteId) throw new ProductionResourceError(400, "logistics_parents_required", true);
+        const [hub, site] = await Promise.all([productionResourceClient.read("hubs", supplyHubId), productionResourceClient.read("sites", productionSiteId)]);
+        if (!isCurrent()) return;
+        planName = transportPlanDisplayName(hub.name, site.name);
+      }
+      command = original ?? (state.draft ? draftCommand(state.draft, crypto.randomUUID(), planName) : undefined); if (!command) return;
       saveResourcePending(window.sessionStorage, { userId: session.user.id, kind }, command);
       persisted = true;
       if (!isCurrent()) return;
@@ -170,7 +190,7 @@ function ResourceWorkspace({ kind, infrastructure = false, editorRef, onEditCale
   };
   const draft = state?.draft, rows = state?.directory?.items ?? [];
   const updateDraft = (next: Draft) => { if (mayEdit && !blocked && busyOwner.current !== lease) change(value => ({ ...value, draft: next, error: "" })); };
-  const referenceName = (id: string) => state?.names[id] ?? "关联资料核对中";
+  const referenceName = (kind: ProductionResourceType, id: string) => state?.names[referenceKey(kind, id)] ?? "关联资料核对中";
   const actions = (item: ProductionResourceSummary) => <><Button variant="text" size="compact" permission={spec.edit} disabled={blocked} onClick={() => void edit(item)}>编辑</Button><Button variant="text" size="compact" permission={spec.edit} disabled={blocked} onClick={() => void toggle(item)}>{item.enabled ? "停用" : "启用"}</Button></>;
   const columns: DataColumn<ProductionResourceSummary>[] = [
     { key: "name", header: spec.title, width: 190, sticky: "left", responsivePriority: "primary", render: item => <span className="qc-master-identity"><strong>{item.name}</strong><small>{item.id}</small></span> },
@@ -179,47 +199,66 @@ function ResourceWorkspace({ kind, infrastructure = false, editorRef, onEditCale
       { key: "exceptions", header: "特殊日期", width: 100, render: (item: ProductionResourceSummary) => item.kind === "calendars" ? `${item.exceptionCount} 条` : "" },
     ] : kind === "sites" ? [
       { key: "country", header: "国家 / 地区", width: 160, render: (item: ProductionResourceSummary) => item.kind === "sites" ? item.countryCode : "" },
-      { key: "calendar", header: "工作日历", minWidth: 160, responsivePriority: "primary" as const, render: (item: ProductionResourceSummary) => item.kind === "sites" ? referenceName(item.productionCalendarId) : "" },
+      { key: "calendar", header: "工作日历", minWidth: 160, responsivePriority: "primary" as const, render: (item: ProductionResourceSummary) => item.kind === "sites" ? referenceName("calendars", item.productionCalendarId) : "" },
       { key: "lead", header: "产前准备", width: 100, render: (item: ProductionResourceSummary) => item.kind === "sites" ? `${item.preProductionSampleLeadDays} 天` : "" },
     ] : kind === "groups" ? [
       { key: "short", header: "简称", width: 100, render: (item: ProductionResourceSummary) => item.kind === "groups" ? item.shortName : "" },
-      { key: "site", header: "生产地点", minWidth: 160, responsivePriority: "primary" as const, render: (item: ProductionResourceSummary) => item.kind === "groups" ? referenceName(item.productionSiteId) : "" },
+      { key: "site", header: "生产地点", minWidth: 160, responsivePriority: "primary" as const, render: (item: ProductionResourceSummary) => item.kind === "groups" ? referenceName("sites", item.productionSiteId) : "" },
       { key: "sort", header: "排序", width: 80, render: (item: ProductionResourceSummary) => item.kind === "groups" ? item.sortOrder : "" },
-    ] : [
+    ] : kind === "factories" ? [
       { key: "short", header: "简称", width: 100, render: (item: ProductionResourceSummary) => item.kind === "factories" ? item.shortName : "" },
       { key: "contact", header: "联系人", width: 120, responsivePriority: "primary" as const, render: (item: ProductionResourceSummary) => item.kind === "factories" ? item.contactPerson : "" },
       { key: "phone", header: "联系电话", width: 140, render: (item: ProductionResourceSummary) => item.kind === "factories" ? item.phone : "" },
-    ]),
+    ] : []),
     { key: "status", header: "状态", width: 88, responsivePriority: "primary", render: item => <StatusTag tone={item.enabled ? "success" : "neutral"}>{item.enabled ? "启用" : "停用"}</StatusTag> },
     { key: "remark", header: "备注", minWidth: 150, render: item => <span className="qc-master-note" title={item.remark}>{item.remark}</span> },
     { key: "actions", header: "操作", width: 140, sticky: "right", responsivePriority: "primary", render: actions },
   ];
+  const infrastructureCard = (item: ProductionResourceSummary) => {
+    if (item.kind === "transport-plans") {
+      const detail = state?.references[referenceKey("transport-plans", item.id)];
+      const current = detail?.kind === "transport-plans" && detail.version === item.version ? detail : null;
+      const modes = current?.modes.filter(mode => mode.enabled).sort((left, right) => left.sortOrder - right.sortOrder) ?? [];
+      return <Card key={item.id} className="qc-infrastructure-plan-card"><header><div><strong>{referenceName("hubs", item.supplyHubId)} <span aria-hidden>→</span> {referenceName("sites", item.productionSiteId)}</strong><small>{item.enabled ? "运输方案启用" : "运输方案停用"}</small></div><Button variant="secondary" permission={spec.edit} disabled={blocked} onClick={() => void edit(item)}>编辑运输方案</Button></header><div>
+        {!current ? <p role="status">{detail ? "方案已更新，请重新读取。" : state?.referenceErrors[referenceKey("transport-plans", item.id)] ?? "正在核对运输方式…"}</p>
+          : modes.length ? modes.map(mode => <span key={mode.modeId}><strong>{mode.name}</strong><small>{mode.transitDays} 个自然日</small></span>) : <p>暂无启用的运输方式</p>}
+      </div></Card>;
+    }
+    const calendar = item.kind === "sites" ? state?.references[referenceKey("calendars", item.productionCalendarId)] : undefined;
+    return <Card key={item.id} className="qc-infrastructure-entity-card"><header><div><strong>{item.name}</strong><small>{item.kind === "sites" ? item.countryCode || "未设置国家/地区" : item.kind === "hubs" ? "物料预计到达的集货仓" : "每周模板与明确日期"}</small></div><StatusTag tone={item.enabled ? "success" : "neutral"}>{item.enabled ? "启用" : "停用"}</StatusTag></header><dl>
+      {item.kind === "sites" && <><div><dt>工作日历</dt><dd>{referenceName("calendars", item.productionCalendarId)}</dd></div><div><dt>工作日</dt><dd>{calendar?.kind === "calendars" ? weekdaySummary(calendar.workingWeekdays) : "待核对"}</dd></div><div><dt>产前准备</dt><dd>{item.preProductionSampleLeadDays} 天</dd></div><div><dt>特殊日期</dt><dd>{calendar?.kind === "calendars" ? `${calendar.exceptions.length} 条` : "待核对"}</dd></div></>}
+      {item.kind === "calendars" && <><div><dt>工作日</dt><dd>{weekdaySummary(item.workingWeekdays)}</dd></div><div><dt>特殊日期</dt><dd>{item.exceptionCount} 条</dd></div><div><dt>备注</dt><dd>{item.remark || "—"}</dd></div></>}
+      {item.kind === "hubs" && <><div><dt>服务路线</dt><dd>{item.enabledRouteCount} 条</dd></div><div><dt>备注</dt><dd>{item.remark || "—"}</dd></div></>}
+    </dl><footer>{item.kind === "sites" && <Button variant="text" permission={spec.edit} disabled={blocked || !calendar} onClick={() => onEditCalendar?.(item.productionCalendarId)}>编辑工作日历</Button>}<Button variant="secondary" permission={spec.edit} disabled={blocked} onClick={() => void edit(item)}>{item.kind === "sites" ? "编辑地点" : item.kind === "hubs" ? "编辑集货仓" : "编辑工作日历"}</Button></footer></Card>;
+  };
   if (session.status !== "authenticated") return <p role="status">正在核对登录状态…</p>;
   return <PermissionAuthorityProvider can={permission}>
     <section className={infrastructure ? "qc-infrastructure-business-section" : undefined} aria-label={spec.title}>
-    {infrastructure ? <header><div>{kind === "sites" && <span>01</span>}<div><h2>{kind === "sites" ? "在哪里生产" : "工作日历"}</h2><p>{spec.description}</p></div></div><Button permission={spec.edit} disabled={!state || blocked} onClick={() => { if (mayEdit && isCurrent() && !blocked) showDraft(newDraft(kind)); }}>＋ {spec.title}</Button></header> : <PageHeader eyebrow="PRODUCTION MASTER DATA" title={spec.title} count={state?.directory ? `${state.directory.total} 条` : undefined} description={spec.description} primaryAction={<Button permission={spec.edit} disabled={!state || blocked} onClick={() => { if (mayEdit && isCurrent() && !blocked) showDraft(newDraft(kind)); }}>＋ 新增{spec.title}</Button>} />}
+    {infrastructure ? <header><div>{kind !== "calendars" && <span>{kind === "sites" ? "01" : kind === "hubs" ? "02" : "03"}</span>}<div><h2>{kind === "sites" ? "在哪里生产" : kind === "hubs" ? "物料从哪里发" : kind === "transport-plans" ? "仓库到工厂怎么走" : "工作日历"}</h2><p>{spec.description}</p></div></div><Button permission={spec.edit} disabled={!state || blocked} onClick={() => { if (mayEdit && isCurrent() && !blocked) showDraft(newDraft(kind)); }}>{kind === "transport-plans" ? "＋ 新增运输方案" : `＋ ${spec.title}`}</Button></header> : <PageHeader eyebrow="PRODUCTION MASTER DATA" title={spec.title} count={state?.directory ? `${state.directory.total} 条` : undefined} description={spec.description} primaryAction={<Button permission={spec.edit} disabled={!state || blocked} onClick={() => { if (mayEdit && isCurrent() && !blocked) showDraft(newDraft(kind)); }}>＋ 新增{spec.title}</Button>} />}
     {(state?.error || state?.listError) && <p role="alert" className="qc-form-alert">{state.error || state.listError}</p>}{state?.notice && <p role="status">{state.notice}</p>}
     {state?.corrupt && <Card><p role="alert">原请求缓存无法安全读取，内容已保留。请联系管理员核对，当前不会再次提交。</p></Card>}
     {state?.pending && <Card><p>原保存请求尚未确认。不会自动重新提交。</p><p>{state.pending.action === "create" ? "新增" : "修改"}{spec.title}：{state.pending.data.name} · {state.pending.data.enabled ? "启用" : "停用"}</p><small>原请求：{state.pending.requestId}</small><div className="qc-master-actions"><Button variant="secondary" disabled={state.busy} onClick={() => void check()}>核对原请求</Button>{state.receipt === "unknown" && <Button permission={spec.edit} disabled={state.busy} onClick={() => void send(state.pending!)}>重试原请求</Button>}</div></Card>}
     <Toolbar search={<SearchField label={`搜索${spec.title}`} value={state?.query.search ?? ""} placeholder="名称、简称或备注；空格为且" onChange={search => { if (!blocked) change(value => ({ ...value, query: { ...value.query, search, offset: 0 }, directory: undefined })); }} />} actions={<><select aria-label="启用状态" className="qc-control" value={state?.query.status ?? "all"} disabled={blocked} onChange={event => change(value => ({ ...value, query: { ...value.query, status: event.target.value as ResourceListQuery["status"], offset: 0 }, directory: undefined }))}><option value="all">全部状态</option><option value="enabled">启用</option><option value="disabled">停用</option></select><Button variant="secondary" disabled={!state || state.busy} onClick={() => change(value => ({ ...value, revision: value.revision + 1, directory: undefined }))}>重新读取</Button></>} />
-    {infrastructure ? <div className="qc-infrastructure-card-grid">
-      {!state?.directory ? <p role="status">{state?.listError || "正在读取…"}</p> : !rows.length ? <EmptyState title={`没有匹配的${spec.title}`} /> : rows.map(item => {
-        const calendar = item.kind === "sites" ? state.references[item.productionCalendarId] : undefined;
-        return <Card key={item.id} className="qc-infrastructure-entity-card"><header><div><strong>{item.name}</strong><small>{item.kind === "sites" ? item.countryCode || "未设置国家/地区" : "每周模板与明确日期"}</small></div><StatusTag tone={item.enabled ? "success" : "neutral"}>{item.enabled ? "启用" : "停用"}</StatusTag></header><dl>
-          {item.kind === "sites" && <><div><dt>工作日历</dt><dd>{referenceName(item.productionCalendarId)}</dd></div><div><dt>工作日</dt><dd>{calendar?.kind === "calendars" ? weekdaySummary(calendar.workingWeekdays) : "待核对"}</dd></div><div><dt>产前准备</dt><dd>{item.preProductionSampleLeadDays} 天</dd></div><div><dt>特殊日期</dt><dd>{calendar?.kind === "calendars" ? `${calendar.exceptions.length} 条` : "待核对"}</dd></div></>}
-          {item.kind === "calendars" && <><div><dt>工作日</dt><dd>{weekdaySummary(item.workingWeekdays)}</dd></div><div><dt>特殊日期</dt><dd>{item.exceptionCount} 条</dd></div><div><dt>备注</dt><dd>{item.remark || "—"}</dd></div></>}
-        </dl><footer>{item.kind === "sites" && <Button variant="text" permission={spec.edit} disabled={blocked || !calendar} onClick={() => onEditCalendar?.(item.productionCalendarId)}>编辑工作日历</Button>}<Button variant="secondary" permission={spec.edit} disabled={blocked} onClick={() => void edit(item)}>{item.kind === "sites" ? "编辑地点" : "编辑工作日历"}</Button></footer></Card>;
-      })}
+    {infrastructure ? <div className={kind === "transport-plans" ? "qc-infrastructure-plan-list" : "qc-infrastructure-card-grid"}>
+      {!state?.directory ? <p role="status">{state?.listError || "正在读取…"}</p> : !rows.length ? <EmptyState title={`没有匹配的${spec.title}`} /> : rows.map(infrastructureCard)}
     </div> : <Card className="qc-master-list"><DataTable rows={rows} columns={columns} rowKey={item => item.id} ariaLabel={spec.title} loading={!state || !state.directory && !state.listError} error={state?.listError} empty={<EmptyState title={`没有匹配的${spec.title}`} description={state?.query.search ? "请调整搜索关键词" : `可从页面右上角新增${spec.title}`} />} renderRecord={item => <div className="qc-master-record"><header><strong>{item.name}</strong><StatusTag tone={item.enabled ? "success" : "neutral"}>{item.enabled ? "启用" : "停用"}</StatusTag></header><dl>{columns.filter(column => !["name", "status", "actions"].includes(column.key)).map(column => <div key={column.key}><dt>{column.header}</dt><dd>{column.render(item) || "—"}</dd></div>)}</dl><footer>{actions(item)}</footer></div>} /></Card>}
     <div className="qc-master-actions"><Button variant="secondary" disabled={!state?.directory || blocked || !state.query.offset} onClick={() => change(value => ({ ...value, query: { ...value.query, offset: Math.max(0, value.query.offset - 20) }, directory: undefined }))}>上一页</Button><span>{state?.directory ? `${state.query.offset + (rows.length ? 1 : 0)}–${state.query.offset + rows.length} / ${state.directory.total}` : "正在读取…"}</span><Button variant="secondary" disabled={!state?.directory || blocked || state.query.offset + 20 >= state.directory.total} onClick={() => change(value => ({ ...value, query: { ...value.query, offset: value.query.offset + 20 }, directory: undefined }))}>下一页</Button></div>
     </section>
-    <Drawer open={Boolean(draft)} className={kind === "calendars" || kind === "sites" ? "qc-infrastructure-drawer" : "qc-master-data-drawer"} title={`${draft?.resourceId ? "编辑" : "新增"}${spec.title}`} description="保存后保留稳定身份和修改历史；停用不会删除历史引用。" onClose={requestClose} onSubmit={() => send()} footer={<><Button variant="secondary" disabled={blocked} onClick={requestClose}>取消</Button>{draft?.resourceId && <Button variant="text" disabled={blocked} onClick={() => { if (dirty && !window.confirm("重新读取会放弃本次未保存输入，是否继续？")) return; void edit({ id: draft.resourceId! }); }}>读取最新版本</Button>}<Button type="submit" permission={spec.edit} disabled={blocked}>保存{spec.title}</Button></>}>
+    <Drawer open={Boolean(draft)} className={infrastructure || kind === "calendars" || kind === "sites" ? "qc-infrastructure-drawer" : "qc-master-data-drawer"} title={`${draft?.resourceId ? "编辑" : "新增"}${spec.title}`} description="保存后保留稳定身份和修改历史；停用不会删除历史引用。" onClose={requestClose} onSubmit={() => send()} footer={<><Button variant="secondary" disabled={blocked} onClick={requestClose}>取消</Button>{draft?.resourceId && <Button variant="text" disabled={blocked} onClick={() => { if (dirty && !window.confirm("重新读取会放弃本次未保存输入，是否继续？")) return; void edit({ id: draft.resourceId! }); }}>读取最新版本</Button>}<Button type="submit" permission={spec.edit} disabled={blocked}>保存{spec.title}</Button></>}>
       {draft && <fieldset disabled={blocked || !mayEdit} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
-        {draft.kind !== "sites" && <FormItem label="状态"><select className="qc-control" value={draft.data.enabled ? "enabled" : "disabled"} onChange={event => updateDraft({ ...draft, data: { ...draft.data, enabled: event.target.value === "enabled" } } as Draft)}><option value="enabled">启用</option><option value="disabled">停用</option></select></FormItem>}
+        {draft.kind !== "sites" && draft.kind !== "hubs" && <FormItem label="状态"><select className="qc-control" value={draft.data.enabled ? "enabled" : "disabled"} onChange={event => updateDraft({ ...draft, data: { ...draft.data, enabled: event.target.value === "enabled" } } as Draft)}><option value="enabled">启用</option><option value="disabled">停用</option></select></FormItem>}
         {draft.kind === "calendars" && <ProductionCalendarFields value={draft.data} createExceptionId={() => crypto.randomUUID()} onChange={data => updateDraft({ ...draft, data: { ...draft.data, ...data } })} />}
         {draft.kind === "sites" && <ProductionSiteFields value={draft.data} onChange={data => updateDraft({ ...draft, data })} calendarControl={<ServerProductionReferencePicker kind="calendars" value={draft.data.productionCalendarId} isCurrent={isCurrent} onChange={id => updateDraft({ ...draft, data: { ...draft.data, productionCalendarId: id } })} />} />}
         {draft.kind === "groups" && <ProductionGroupFields value={draft.data} onChange={data => updateDraft({ ...draft, data: { ...draft.data, ...data } })} siteControl={<ServerProductionReferencePicker kind="sites" value={draft.data.productionSiteId} isCurrent={isCurrent} onChange={id => updateDraft({ ...draft, data: { ...draft.data, productionSiteId: id } })} />} />}
         {draft.kind === "factories" && <OutsourceFactoryFields value={draft.data} onChange={data => updateDraft({ ...draft, data: { ...draft.data, ...data } })} />}
+        {draft.kind === "hubs" && <SupplyHubFields value={draft.data} onChange={data => updateDraft({ ...draft, data })} />}
+        {draft.kind === "transport-plans" && <TransportPlanFields
+          hubControl={<ServerProductionReferencePicker kind="hubs" value={draft.data.supplyHubId} isCurrent={isCurrent} onChange={id => updateDraft({ ...draft, data: { ...draft.data, supplyHubId: id } })} />}
+          siteControl={<ServerProductionReferencePicker kind="sites" value={draft.data.productionSiteId} isCurrent={isCurrent} onChange={id => updateDraft({ ...draft, data: { ...draft.data, productionSiteId: id } })} />}
+          modes={draft.data.modes.map(mode => ({ ...mode, id: mode.editorId }))} maxModes={LOGISTICS_RESOURCE_LIMITS.modes}
+          onAddMode={() => updateDraft({ ...draft, data: { ...draft.data, modes: [...draft.data.modes, { editorId: crypto.randomUUID(), modeId: null, name: "", enabled: true, remark: "", transitDays: 0, sortOrder: (draft.data.modes.at(-1)?.sortOrder ?? 0) + 10 }] } })}
+          onModeChange={(id, patch) => updateDraft({ ...draft, data: { ...draft.data, modes: draft.data.modes.map(mode => mode.editorId === id ? { ...mode, ...patch } : mode) } })}
+          remark={draft.data.remark} onRemarkChange={remark => updateDraft({ ...draft, data: { ...draft.data, remark } })} />}
       </fieldset>}
       {state?.error && <p role="alert" className="qc-form-alert">{state.error}</p>}{state?.pending && <><p>{pendingMessage}</p><Button variant="secondary" disabled={state.busy} onClick={() => void check()}>核对原请求</Button>{state.receipt === "unknown" && <Button permission={spec.edit} disabled={state.busy} onClick={() => void send(state.pending!)}>重试原请求</Button>}</>}
     </Drawer>
@@ -233,10 +272,10 @@ export function ServerProductionResourceSettingsPage({ kind }: { kind: Productio
 export function ServerProductionInfrastructureSettingsPage() {
   const calendarEditor = useRef<ResourceEditorActions>(null), [referenceRevision, refreshReferences] = useState(0);
   return <AppShell title="生产与运输" identityMode="server"><PageContainer>
-    <PageHeader eyebrow="PRODUCTION & TRANSPORT" title="生产与运输" description="维护生产地点和工作日历；运输资料尚未开放。" />
-    <ResourceWorkspace kind="sites" infrastructure referenceRevision={referenceRevision} onEditCalendar={id => { void calendarEditor.current?.edit({ id }); }} />
-    <ResourceWorkspace kind="calendars" infrastructure editorRef={calendarEditor} onApplied={() => refreshReferences(value => value + 1)} />
-    <section className="qc-infrastructure-business-section"><header><div><span>02</span><div><h2>物料从哪里发</h2><p>集货仓尚未开放。</p></div></div></header></section>
-    <section className="qc-infrastructure-business-section"><header><div><span>03</span><div><h2>仓库到工厂怎么走</h2><p>运输方案尚未开放。</p></div></div></header></section>
+    <PageHeader eyebrow="PRODUCTION & TRANSPORT" title="生产与运输" description="维护生产地点、工作日历、集货仓与运输方案。" />
+    <ResourceWorkspace kind="sites" infrastructure referenceRevision={referenceRevision} onApplied={() => refreshReferences(value => value + 1)} onEditCalendar={id => { void calendarEditor.current?.edit({ id }); }} />
+    <ResourceWorkspace kind="calendars" infrastructure editorRef={calendarEditor} referenceRevision={referenceRevision} onApplied={() => refreshReferences(value => value + 1)} />
+    <ResourceWorkspace kind="hubs" infrastructure referenceRevision={referenceRevision} onApplied={() => refreshReferences(value => value + 1)} />
+    <ResourceWorkspace kind="transport-plans" infrastructure referenceRevision={referenceRevision} onApplied={() => refreshReferences(value => value + 1)} />
   </PageContainer></AppShell>;
 }
