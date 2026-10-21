@@ -61,3 +61,15 @@ Git仍STOP_AUTH_OR_DIVERGENCE（664f推送非零原因未证明），只读main�
 显式Server前端及顺序Node构建exit0，build20261021-183455。精确main996源码守卫11页/51能力/66累计UI路径/errors空。
 收口前独立GitHub API仍main996；默认只读Git成功，OpenSSL进程对照uncertain_transport，不证明写恢复。
 无新push/PR/Hosted CI/部署或真实来源读取。后续仅前向登记新后台能力，不重写原246证据/51能力。
+
+工程报告原文冻结于440dda3958f6c2c61db08800b605abe92870bf26；独立复审进一步核对执行时点，
+类型/lint在相同应用字节冻结前执行，构建/完整回归/守卫在cbfd执行。以6525963606f4ff285f3ab4800c5cd23996feab0d
+前向更正报告，原blob不覆盖。初登记尝试将本次尚未提交清单的两份报告串为supersedes链，被现有守卫拒绝
+（REVISION/ANCHOR/LEAF/WORKTREE_DRIFT；outputs/g6d-arrivals-metadata-precommit-guard.log），审查者同时指出。
+不改守卫或伪造main锚点，仅首次登记652最终报告为新根，440报告仍由Git与本时序保留；两条候选记录均未进入已提交清单。
+清单追加一条最终报告及material-arrival-plan-server独立manual-only后台能力，总247证据/52能力；
+旧246证据/51能力及页面/CSS/运行快照/PNG逐项不变。没有把新后台写成已接通UI/物流。
+完整元数据HEAD由最终Git提交绑定；最终精确main守卫另记outputs，不构造自引用hash或冒称Hosted CI。
+修正登记后工作区守卫PASS：checkedHead652596、11页/52能力/66累计UI路径/errors空，
+outputs/g6d-arrivals-metadata-reviewed-guard.log。独立审查者静态核对新根blob/hash/祖先、七维状态、旧清单及应用不变，
+无剩余元数据阻断；未代跑守卫或其他测试。最终提交后的精确HEAD检查单独保留，不把此工作区结果冒称最终提交结果。
