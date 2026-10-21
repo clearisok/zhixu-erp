@@ -103,6 +103,12 @@ async function getResource<K extends ManagedResourceType>(client: PoolClient, ki
 export async function readProductionResourceSnapshot(client: PoolClient, kindInput: ProductionResourceType, idInput: string, freeze = false): Promise<ProductionResource> {
   return getResource(client, productionResourceKind(kindInput), productionResourceUuid(idInput), freeze ? "share" : false);
 }
+/** Fixed logistics primitive; does not widen the four planning resource kinds. */
+export async function readProductionSupplyHubSnapshot(client: PoolClient, idInput: string, freeze = false) {
+  await available(client, "hubs");
+  const { id, name, enabled, remark, version } = await getResource(client, "hubs", productionResourceUuid(idInput), freeze ? "share" : false);
+  return { id, name, enabled, remark, version };
+}
 async function readTransaction<T>(pool: Pool, identity: TrustedIdentity, fn: (client: PoolClient, actor: TrustedIdentity) => Promise<T>) {
   const client = await pool.connect();
   try {

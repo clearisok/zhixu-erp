@@ -1,12 +1,16 @@
-# 当前状态：物流资料Server页面已完成本机验收，后续接线继续
+# 当前状态：订单集货仓后台实施中
 
-2026-10-21；main独立读取核实996dfedc12da3527343cd3ff2aa5eea35497e10e。codex/server-logistics-resource-ui，干净56cf706e输入，无继承dirty；root唯一writer/既有reviewer只读。
-[工程记录](tasks/completed/2026-10-21-logistics-resources-ui-engineering.md)、[阶段任务](tasks/active/server-convergence-gate6d-logistics-ui-2026-10-21.md)、[三摘要输入](tasks/completed/2026-10-21-logistics-ui-inputs/56cf706e/)保留完整时点/hash/失败和限制。
+2026-10-21；codex/server-order-logistics-context，输入e223a38c246d2f21c6684d76cd10a82dfa46895c干净，无继承dirty。
+main本轮独立GitHub只读核实996dfedc12da3527343cd3ff2aa5eea35497e10e；root唯一writer，既有reviewer只读。
+[阶段任务](tasks/active/server-convergence-gate6d-order-logistics-2026-10-21.md)、[契约](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)、[输入三摘要原文](tasks/completed/2026-10-21-order-logistics-inputs/e223a38c/)是当前恢复入口。
 
-Gate6D仓及完整运输方案接入现有生产与运输卡/抽屉，同一production-resources事务/权限/CAS/审计/回执。显式分页父关系、完整停用成员、Server分配新方式ID、原请求恢复及会话ABA保护；列表详情父版本一致，全量Hub路线数。Browser默认/ID/存储及旧四资源布局不改，无新SQL。
-最终应用源f4c3aa06ffcd8adf4bed39ba99bc0e336dceb451，三个build-info一致（20261021-152547，Server/session/writable/snapshot）。built23/23，33468.8431ms（22子项+父项），六尺寸无横向裁剪；61后台、21客户端、14Browser模型，类型/全lint/前端和顺序Node构建/独立复审通过。927项目318367.6965ms早于最后CSS、116基线300921.5408ms早于证据扩展；后续精确main守卫另证，不冒称这两套回归覆盖后加内容。f4守卫11页/51能力/64累计UI路径PASS。
-已修复长名称标题、CAS最新读取按钮状态、Server物流抽屉被480px规则压窄；验收脚本两次等待/目标定位修正只改测试。失败/图像原样保留。工程记录及测试修正已在b58a5bd3f32f6c500a446b82c238d338349a4761冻结；新增证据logistics-resource-server-engineering-20261021，原244完整保留共245，仍51能力，只扩production-resource-server六资料范围。Git blob/hash与七维度经独立复审核对；本机清单main996守卫PASS，旧PNG和其他50能力不变。
+新增0038、tracking意图/服务/HTTP/逐版本历史，复用原production-scheduling权限、事务、幂等及回执；明确选择SupplyHub，不推断默认仓，不改SO/计划/实际执行/商业事实。
+最终定向23/23（25170.6001ms）通过，包含实际commit后丢HTTP回复、最大合法转义文本51版本完整分页及加工消费正反控。独立复审P2长历史容量已修为25条完整页，无新阻断；未修改共用1MiB或旧50条协议。204生产/归一回归为容量修复前通过，时序保留；修复后全PG269/269（328042.0712ms）、全类型/全lint/Node构建exit0、精确main源码/证据守卫PASS。项目/基线重跑仍执行，最终收口与CI未完成。首轮测试数据错误及冻结文档漂移保留在任务，不改旧证据哈希。
+新旧前缀升级验证分别限定0036→0037、0037→0038，不借后续迁移改写旧阶段意义。
 
-D152已确认6086979 Num逐笔数量/outdate业务日期，单据/进仓/交期独立，不自动关账/收入/生产完成。D1933一次16/16行9869件，styleNum参考差619保留；D1935/D1933许可用完，无新查询/翻页/绑定/激活。正式成衣Source稳定跨次身份/生命周期/合同颜色/API/UI、订单Hub/逐物料物流继续待。
-Git664f真实push exit1仍STOP/具体原因未证实。本阶段只读诊断默认/HTTP1.1可读main，OpenSSL对照失败，不改配置且未push；无新Hosted CI/PR，不借旧CI，不merge/close。Gate8加工服务产值、关账stale、旧CNY工价待决，CNY销售/USD工价不换汇/重标。
-Goal active/未完成。保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175未升级。不动真实账号/业务库，不新增Source范围/调度，不安装依赖/改共享认证或部署/退役。
+上一物流资料页面完成于e223，应用源f4c3aa06；built23/23、后台61/21客户端/14Browser模型等精确时序、927/116广测限制及245证据/51能力见[冻结记录](tasks/completed/2026-10-21-logistics-resources-ui-engineering.md)，不覆盖本阶段。
+订单跟进页面、ExpectedArrivalBatch持久化/逐物料物流、成衣Source与Server关账仍待。D152已确认Num/outdate，不自动收入/关账；D1935/D1933一次许可用完，不新增真实请求。
+Git664f真实push exit1具体原因仍未知，STOP_AUTH_OR_DIVERGENCE保持；只读成功不证明写恢复，无新push/PR/Hosted CI/合并/关闭/部署。
+
+Goal active/未完成。保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175未升级。
+不动真实账号/业务库，不扩大Source、绑定/激活或调度，不安装依赖/改变共享认证。Gate8加工服务产值/关账stale/旧CNY工价仍待决，销售CNY/工价USD不换汇或重标。

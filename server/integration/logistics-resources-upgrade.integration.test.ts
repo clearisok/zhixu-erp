@@ -21,6 +21,11 @@ test("0036 to 0037 preserves existing plans, actual output, resources, receipts,
   const postgres = await startDisposablePostgres(), pool = new pg.Pool({ connectionString: await postgres.createDatabase("logistics_upgrade") });
   t.after(async () => { try { await pool.end(); } finally { await postgres.stop(); } });
   const prefix = await mkdtemp(join(tmpdir(), "zhixu-logistics-prefix36-"));
+  const target37 = await mkdtemp(join(tmpdir(), "zhixu-logistics-target37-"));
+  t.after(async () => {
+    const distance = relative(resolve(tmpdir()), resolve(target37)); assert.ok(distance && !distance.startsWith("..") && !isAbsolute(distance)); await rm(target37, { recursive: true });
+  });
+  for (const file of await readdir("database/migrations")) if (file.endsWith(".sql") && Number(file.slice(0, 4)) <= 37) await copyFile(join("database/migrations", file), join(target37, file));
   try {
     for (const file of await readdir("database/migrations")) if (file.endsWith(".sql") && Number(file.slice(0, 4)) <= 36) await copyFile(join("database/migrations", file), join(prefix, file));
     await runMigrations(pool, prefix);
@@ -53,18 +58,18 @@ test("0036 to 0037 preserves existing plans, actual output, resources, receipts,
   const snapshot = () => Promise.all(tables.map(async table => ({ table, rows: (await pool.query(`SELECT to_jsonb(row)::text payload FROM "${table}" row ORDER BY payload`)).rows })));
   const before = await snapshot();
   await t.test("old resources work on 0036 while logistics and verify-only startup fail closed", async () => {
-    await assert.rejects(() => verifyMigrationsCurrent(pool, resolve("database/migrations")), PendingMigrationsError);
-    assert.deepEqual((await inspectMigrationStatus(pool, resolve("database/migrations"))).pending, ["0037_production_logistics_resources.sql"]);
+    await assert.rejects(() => verifyMigrationsCurrent(pool, target37), PendingMigrationsError);
+    assert.deepEqual((await inspectMigrationStatus(pool, target37)).pending, ["0037_production_logistics_resources.sql"]);
     const receipt = await readProductionResourceReceipt(pool, actor, calendar.command.requestId); assert.equal(receipt.state, "known");
     await assert.rejects(() => listProductionResources(pool, actor, "hubs", { search: "", status: "all", offset: 0, limit: 20 }), { status: 503, code: "production_resources_unavailable" });
     await assert.rejects(() => executeProductionResourceCommand(pool, actor, parseLogisticsResourceCommand({ action: "create", requestId: randomUUID(), kind: "hubs", resourceId: null, expectedVersion: 0, data: { name: "不应写入", enabled: true, remark: "" } })), { status: 503 });
     assert.deepEqual(await snapshot(), before);
   });
   await t.test("the new migration only adds empty logistics tables and expands the receipt kind constraint", async () => {
-    assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, ["0037_production_logistics_resources.sql"]);
-    assert.deepEqual(await snapshot(), before); await verifyMigrationsCurrent(pool, resolve("database/migrations"));
+    assert.deepEqual((await runMigrations(pool, target37)).applied, ["0037_production_logistics_resources.sql"]);
+    assert.deepEqual(await snapshot(), before); await verifyMigrationsCurrent(pool, target37);
     for (const table of ["production_supply_hubs", "production_supply_routes", "production_transport_modes"]) assert.equal((await pool.query(`SELECT count(*)::int n FROM ${table}`)).rows[0].n, 0);
-    assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, []);
+    assert.deepEqual((await runMigrations(pool, target37)).applied, []);
     const replay = await executeProductionResourceCommand(pool, actor, calendar.command); assert.equal(replay.status, "applied"); assert.equal(replay.replayed, true); if (replay.status === "applied") assert.deepEqual(replay.resource, calendar.resource);
     assert.deepEqual(await snapshot(), before);
     assert.equal((await pool.query("SELECT completed_quantity::text FROM production_schedule_executions WHERE assignment_id=$1", [assignment.id])).rows[0].completed_quantity, "10.125");

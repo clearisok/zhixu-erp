@@ -88,7 +88,7 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 - SalesOrder 不保存执行方式、执行方、排单/完成数量或可编辑生产状态。执行模式、生产状态与全部数量摘要由 Production Scheduling Service 统一投影。
 - 完成数量减少必须有原因；已开工排单更换执行方、切换内部/外发或取消也必须有原因，并写入唯一 OperationLog。
 - DeliveryPlan 是客户交付需求，ScheduleAssignment 是生产安排。多交期风险按日期顺序比较累计需求与预计/实际累计完成量；没有客户交期时不生成虚假风险。
-- OrderExecutionTracking 记录面料、辅料、样品、印绣花和短溢装等轻量状态，并通过稳定 SupplyHub ID 分别保存面料/辅料到仓日期；不复制数量、价格、执行方或排单事实。两类物料都到仓后才形成齐套日。
+- OrderExecutionTracking 原Browser记录面料、辅料、样品、印绣花和短溢装等轻量状态，并通过稳定 SupplyHub ID 分别保存面料/辅料到仓日期；不复制数量、价格、执行方或排单事实。两类物料都到仓后才形成齐套日。2026-10-21 Server前向切片仅明确保存订单SupplyHub与备注及逐次历史，未记录为null，不导入Browser状态或把Source交期当预计到仓；参见[Server跟进契约](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)。
 - 平均日产属于款式参考，保存在 `SalesOrder.averageDailyOutput`；按日产量排单时写入 Assignment 快照并推导工作日。工作日模式只把工作日作为权威输入，不反写订单参考日产。
 - 内部生产组按可编辑 ProductionCalendar 串行排队；上一款结束日等于下一款交接开始日，但交接日不计入完整生产工作日。实际完成日期不覆盖计划结束日期，自动顺排前必须预览并确认。
 - 运输建议由 SupplyHub、SupplyRoute、ProductionSite 与 TransportMode 投影；封样提前期来自 ProductionSite，推荐满足最晚到厂日的最慢可行运输方式，建议不创建物流订单且不修改排期。
