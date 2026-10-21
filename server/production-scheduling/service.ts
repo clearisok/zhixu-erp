@@ -5,16 +5,17 @@ import { calculateScheduleDates, ScheduleScanLimitError } from "../../features/p
 import { readCurrentActor } from "../auth/current-actor.js";
 import { requirePermission } from "../auth/permissions.js";
 import type { TrustedIdentity } from "../auth/session.js";
-import { HttpError } from "../http/errors.js";
 import { appendOperationLog, createServerOperationId } from "../operation-logs/repository.js";
-import { lockProductionResourceScope } from "../production-resources/snapshot-lock.js";
 import { productionResourceUuid } from "../production-resources/contract.js";
 import { readProductionResourceSnapshot } from "../production-resources/service.js";
 import { ensureStableOrderColor } from "../sales-orders/color-identities.js";
-import { freezePhysicalOrderGroups, lockEffectiveAttribution } from "../sales-orders/effective-attribution.js";
+import { freezePhysicalOrderGroups } from "../sales-orders/effective-attribution.js";
 import { requireVerifiedOrderBusiness } from "../sales-orders/identity-service.js";
 import { derivePlanDuration, parsePlanCommand, parsePlanIntent, type PlanCommand, type PlanData, type PlanIntent } from "./contract.js";
-import { previewInternalQueue, SCHEDULE_PLANNING_LIMITS } from "./planning-preview.js";
+import { previewInternalQueue, queuePlanningRowIsProtected, SCHEDULE_PLANNING_LIMITS } from "./planning-preview.js";
+import { assertExecutionAttributionUnchanged, executionQueueRow, projectExecutionQuantities } from "./execution-preview.js";
+import { executionFacts, executionsForAssignments, productionExecutionsAvailable, type StoredExecution } from "./execution-store.js";
+import { productionRequestLock, requireProductionPermissions, runProductionCommand, savedCommandPermissions } from "./command-transaction.js";
 import { parsePlanListQuery } from "./read-contract.js";
 import { listPlanGroups, listPlanOrders, readPlanOrderSummaries } from "./read-model.js";
 import {
@@ -23,19 +24,20 @@ import {
   type Assignment, type ResourceFacts, type StoredAssignment,
 } from "./repository.js";
 
-type Draft = Omit<StoredAssignment, "id" | "createdBy" | "updatedBy" | "createdAt" | "updatedAt"> & { id: string | null };
-type Mutation = { before: StoredAssignment | null; after: Draft };
+export type Draft = Omit<StoredAssignment, "id" | "createdBy" | "updatedBy" | "createdAt" | "updatedAt"> & { id: string | null };
+export type Mutation = { before: StoredAssignment | null; after: Draft };
 type Warning = { kind: string; assignmentId: string | null; orderId?: string; previousEndDate?: string | null };
-type PlanBuild = { intent: PlanIntent; orders: Awaited<ReturnType<typeof readOrderPlanFacts>>[]; queues: { groupId: string; version: number; assignments: StoredAssignment[] }[]; mutations: Mutation[]; warnings: Warning[] };
-export type PlanOutcome = { requestId: string; status: "applied"; changed: boolean; operationId: string | null; assignments: Assignment[];
+export type PlanBuild = { intent: PlanIntent; orders: Awaited<ReturnType<typeof readOrderPlanFacts>>[]; queues: { groupId: string; version: number; assignments: StoredAssignment[] }[]; mutations: Mutation[]; warnings: Warning[]; executions: Record<string, StoredExecution> };
+export type AppliedPlanOutcome = { requestId: string; status: "applied"; changed: boolean; operationId: string | null; assignments: Assignment[];
   orderVersions: { orderId: string; version: number }[]; queueVersions: { groupId: string; version: number }[];
-} | { requestId: string; status: "rejected"; error: { status: number; code: string } };
+};
+export type PlanOutcome = AppliedPlanOutcome | { requestId: string; status: "rejected"; error: { status: number; code: string } };
 const intentPermission = (intent: PlanIntent): PermissionKey => intent.action === "create" ? "schedule.create" : "schedule.edit";
 function requirePlanActor(actor: TrustedIdentity, permission: PermissionKey = "schedule.view") {
   for (const key of ["order.view", "schedule.view", permission] as PermissionKey[]) requirePermission(actor.permissions, key);
 }
 function bounded(value: unknown, code = "production_plan_preview_too_large") { if (Buffer.byteLength(JSON.stringify(value)) > 1024 * 1024) planFail(422, code); }
-function draft(row: StoredAssignment): Draft {
+export function planDraft(row: StoredAssignment): Draft {
   const { createdBy: _createdBy, updatedBy: _updatedBy, createdAt: _createdAt, updatedAt: _updatedAt, ...result } = row;
   void _createdBy; void _updatedBy; void _createdAt; void _updatedAt; return result;
 }
@@ -48,12 +50,12 @@ function previewProjection(build: PlanBuild, actor: TrustedIdentity) {
   const resources = new Map<string, ReturnType<typeof resourceSummary>>();
   const project = (row: Draft | StoredAssignment) => {
     resources.set(row.resourceSnapshotHash, resourceSummary(row.resourceFacts));
-    const { resourceFacts: _facts, ...rest } = row; void _facts; return rest;
+      const { resourceFacts: _facts, ...rest } = row; void _facts; return rest;
   };
-  const changes = build.mutations.map(mutation => ({ before: mutation.before ? project(draft(mutation.before)) : null, after: project(mutation.after) }));
+  const changes = build.mutations.map(mutation => ({ before: mutation.before ? project(planDraft(mutation.before)) : null, after: project(mutation.after) }));
   const facts = Object.fromEntries(build.mutations.map(mutation => [mutation.after.resourceSnapshotHash, mutation.after.resourceFacts]));
   const fingerprint = { actorId: actor.userId, intent: build.intent, orders: build.orders,
-    queues: build.queues.map(queue => ({ ...queue, assignments: queue.assignments.map(publicAssignment) })), changes, facts, warnings: build.warnings };
+    queues: build.queues.map(queue => ({ ...queue, assignments: queue.assignments.map(publicAssignment) })), executions: build.executions, changes, facts, warnings: build.warnings };
   bounded(fingerprint);
   const result = { intent: build.intent, previewHash: planHash(fingerprint),
     changes, resources: Object.fromEntries(resources), warnings: build.warnings,
@@ -61,7 +63,7 @@ function previewProjection(build: PlanBuild, actor: TrustedIdentity) {
     queueVersions: build.queues.map(queue => ({ groupId: queue.groupId, version: queue.version })) };
   bounded(result); return result;
 }
-async function validateOrder(client: PoolClient, id: string) {
+export async function validateProductionOrder(client: PoolClient, id: string) {
   const order = await readOrderPlanFacts(client, id);
   if (order.effectiveOrderId !== id) planFail(409, "historical_duplicate_order_read_only");
   const business = await requireVerifiedOrderBusiness(client, id);
@@ -99,14 +101,16 @@ async function buildPlan(client: PoolClient, intent: PlanIntent, freeze: boolean
   const targetScope = await scope(client, intent);
   if (freeze && targetScope.orderIds.length) await freezePhysicalOrderGroups(client, targetScope.orderIds);
   const orders = [];
-  for (const id of targetScope.orderIds) orders.push(await validateOrder(client, id));
+  for (const id of targetScope.orderIds) orders.push(intent.action === "replan" ? await readOrderPlanFacts(client, id) : await validateProductionOrder(client, id));
   const queues = [];
   for (const groupId of targetScope.groupIds) {
     const version = await groupPlanVersion(client, groupId);
     if (version >= 2147483647) planFail(409, "production_queue_version_exhausted");
     queues.push({ groupId, version, assignments: await assignmentsForGroup(client, groupId) });
   }
-  const result: PlanBuild = { intent, orders, queues, mutations: [], warnings: [] };
+  const orderAssignments = intent.action === "replan" ? [] : await assignmentsForOrder(client, intent.orderId);
+  const executions = await executionsForAssignments(client, [...new Set([...orderAssignments, ...queues.flatMap(queue => queue.assignments)].map(row => row.id))]);
+  const result: PlanBuild = { intent, orders, queues, mutations: [], warnings: [], executions };
   if (intent.action === "replan") {
     const queue = queues[0]; if (queue.version !== intent.expectedQueueVersion) planFail(409, "production_queue_version_conflict");
     const resources = await currentResourceFacts(client, "internal", intent.groupId, freeze);
@@ -114,11 +118,15 @@ async function buildPlan(client: PoolClient, intent: PlanIntent, freeze: boolean
     const ids = intent.orderedAssignmentIds;
     if (ids && (ids.length !== queue.assignments.length || ids.some(id => !queue.assignments.some(row => row.id === id)))) planFail(409, "production_queue_members_changed");
     const rows = queue.assignments.map((row, i) => ({ ...row, queueSequence: ids ? ids.indexOf(row.id) + 1 : row.queueSequence ?? i + 1 }));
+    const readOnlyOrders = new Set(orders.filter(order => order.effectiveOrderId !== order.id || ["completed", "cancelled"].includes(order.lifecycleState)).map(order => order.id));
+    const queueRow = (row: StoredAssignment) => {
+      const value = executionQueueRow(row, executionFacts(executions[row.id]));
+      return readOnlyOrders.has(row.orderId) && value.dateMode === "auto_queue" ? { ...value, dateMode: "manual_fixed" as const } : value;
+    };
     let preview: ReturnType<typeof previewInternalQueue>;
     try {
       preview = previewInternalQueue({ queueVersion: queue.version, anchorDate: intent.anchorDate, resources,
-        assignments: rows.map(row => ({ ...row, salesOrderId: row.orderId, productionGroupId: intent.groupId, queueSequence: row.queueSequence,
-          nonWorkingDayCount: row.nonWorkingDayCount ?? 0, completedQuantity: "0", actualStartDate: null, actualCompletedDate: null })) });
+        assignments: rows.map(queueRow) });
     } catch (error) {
       if (error instanceof Error && error.name === "SchedulePlanningError") return planFail(422, error.message); throw error;
     }
@@ -128,9 +136,12 @@ async function buildPlan(client: PoolClient, intent: PlanIntent, freeze: boolean
       const dates = preview.changes.find(change => change.assignmentId === row.id)?.after;
       if (dates && (!dates.plannedStartDate || !dates.plannedEndDate)) return planFail(503, "production_plan_dates_invalid");
       const calculated = dates ? { plannedStartDate: dates.plannedStartDate!, plannedEndDate: dates.plannedEndDate!, firstProductionDate: dates.firstProductionDate, nonWorkingDayCount: dates.nonWorkingDayCount } : {};
-      const after: Draft = { ...draft(before), queueSequence: row.queueSequence,
-        ...(before.dateMode === "auto_queue" ? { ...calculated, resourceFacts: resources, resourceSnapshotHash: planHash(resources) } : {}) };
-      if (planHash(draft(before)) !== planHash(after)) {
+      const protectedRow = queuePlanningRowIsProtected(queueRow(before));
+      if (protectedRow && before.queueSequence !== row.queueSequence) planFail(409, "production_execution_queue_position_locked");
+      const after: Draft = { ...planDraft(before), queueSequence: row.queueSequence,
+        ...(!protectedRow ? { ...calculated, resourceFacts: resources, resourceSnapshotHash: planHash(resources) } : {}) };
+      if (planHash(planDraft(before)) !== planHash(after)) {
+        await validateProductionOrder(client, before.orderId);
         if (before.version >= 2147483647) planFail(409, "production_assignment_version_exhausted");
         after.version++; result.mutations.push({ before, after });
       }
@@ -139,17 +150,20 @@ async function buildPlan(client: PoolClient, intent: PlanIntent, freeze: boolean
   }
   const order = orders[0];
   if (order.planVersion !== intent.expectedPlanVersion) planFail(409, "production_order_plan_version_conflict");
-  const existing = await assignmentsForOrder(client, order.id);
+  const existing = orderAssignments;
   const before = intent.action === "create" ? null : existing.find(row => row.id === intent.assignmentId);
   if (intent.action !== "create" && !before) return planFail(404, "production_assignment_not_found");
   if (before && (before.version !== intent.expectedVersion || before.status === "cancelled")) planFail(409, "production_assignment_version_conflict");
   if (before && before.version >= 2147483647) planFail(409, "production_assignment_version_exhausted");
   if (intent.action === "cancel") {
-    result.mutations.push({ before: before!, after: { ...draft(before!), version: before!.version + 1, status: "cancelled" } });
+    if (executions[before!.id] && !intent.reason.trim()) planFail(409, "production_execution_reason_required");
+    result.mutations.push({ before: before!, after: { ...planDraft(before!), version: before!.version + 1, status: "cancelled" } });
     if (before!.productionGroupId) result.warnings.push({ kind: "queue_replan_available", assignmentId: before!.id }); return result;
   }
   if (!before && existing.length >= SCHEDULE_PLANNING_LIMITS.queueRows) planFail(422, "production_order_plan_limit");
   const data = intent.data;
+  const execution = before ? executionFacts(executions[before.id]) : null;
+  if (before) assertExecutionAttributionUnchanged(before, data, execution);
   const executorUnchanged = before && before.executionType === data.executionType && (before.productionGroupId ?? before.outsourceFactoryId) === data.executorId;
   // Editing a saved plan keeps its adopted calendar. Only explicit replan or
   // selecting a different executor adopts current master facts.
@@ -164,8 +178,11 @@ async function buildPlan(client: PoolClient, intent: PlanIntent, freeze: boolean
   const sequence = groupQueue ? executorUnchanged ? before!.queueSequence! : Math.max(0, ...groupQueue.assignments.map(row => row.queueSequence!)) + 1 : null;
   if (sequence !== null && !Number.isSafeInteger(sequence)) planFail(409, "production_queue_sequence_exhausted");
   const preceding = groupQueue ? executorUnchanged ? groupQueue.assignments.slice(0, groupQueue.assignments.findIndex(row => row.id === before!.id)) : groupQueue.assignments : [];
-  const previousEnd = preceding.length ? preceding.reduce((end, row) => row.plannedEndDate > end ? row.plannedEndDate : end, preceding[0].plannedEndDate) : null;
-  const dates = plannedDates(data, resources, duration.requiredWorkdays, previousEnd);
+  const ends = preceding.map(row => executions[row.id]?.actualCompletedDate ?? row.plannedEndDate);
+  const previousEnd = ends.length ? ends.reduce((end, value) => value > end ? value : end) : null;
+  if (before && execution && data.dates.mode === "auto_queue" && data.dates.startDate !== before.plannedStartDate) planFail(409, "production_execution_auto_dates_locked");
+  const dates = before && execution && data.dates.mode === "auto_queue" ? { plannedStartDate: before.plannedStartDate, plannedEndDate: before.plannedEndDate,
+    firstProductionDate: before.firstProductionDate, nonWorkingDayCount: before.nonWorkingDayCount } : plannedDates(data, resources, duration.requiredWorkdays, previousEnd);
   const after: Draft = { id: before?.id ?? null, orderId: order.id, version: (before?.version ?? 0) + 1, executionType: data.executionType,
     productionGroupId: data.executionType === "internal" ? data.executorId : null, outsourceFactoryId: data.executionType === "outsource" ? data.executorId : null,
     colorId: data.colorId, colorNameSnapshot: data.colorId === null ? null : historicalSameColor ? before!.colorNameSnapshot : color!.colorName,
@@ -174,17 +191,18 @@ async function buildPlan(client: PoolClient, intent: PlanIntent, freeze: boolean
   if (data.dates.mode === "manual_fixed" && previousEnd && after.plannedStartDate < previousEnd) result.warnings.push({ kind: "protected_overlap", assignmentId: after.id, previousEndDate: previousEnd });
   if (before) {
     const sameVersion = { ...after, version: before.version };
-    if (planHash(draft(before)) === planHash(sameVersion)) return result;
+    if (planHash(planDraft(before)) === planHash(sameVersion)) return result;
+    if (execution && intent.action === "update" && !intent.reason.trim()) planFail(409, "production_execution_reason_required");
     if (queues.some(queue => queue.assignments.some(row => row.id !== before.id && row.queueSequence! > (before.queueSequence ?? Number.MAX_SAFE_INTEGER)))) result.warnings.push({ kind: "queue_replan_available", assignmentId: before.id });
   }
-  const remaining = existing.filter(row => row.id !== before?.id && row.status !== "cancelled");
-  if (order.quantity !== null && exceeds([...remaining.map(row => row.plannedQuantity), after.plannedQuantity], order.quantity)) result.warnings.push({ kind: "order_over_assigned", assignmentId: after.id, orderId: order.id });
-  if (color && !color.ambiguous && exceeds([...remaining.filter(row => row.colorId === color.id).map(row => row.plannedQuantity), after.plannedQuantity], color.quantity)) result.warnings.push({ kind: "color_over_assigned", assignmentId: after.id, orderId: order.id });
+  const projected = [...existing.filter(row => row.id !== before?.id), after].map(row => ({ ...row, execution: row.id ? executionFacts(executions[row.id]) : null }));
+  if (order.quantity !== null && exceeds([projectExecutionQuantities(projected).accountedQuantity], order.quantity)) result.warnings.push({ kind: "order_over_assigned", assignmentId: after.id, orderId: order.id });
+  if (color && !color.ambiguous && exceeds([projectExecutionQuantities(projected.filter(row => row.colorId === color.id)).accountedQuantity], color.quantity)) result.warnings.push({ kind: "color_over_assigned", assignmentId: after.id, orderId: order.id });
   result.mutations.push({ before: before ?? null, after }); return result;
 }
 async function readTransaction<T>(pool: Pool, identity: TrustedIdentity, callback: (client: PoolClient, actor: TrustedIdentity) => Promise<T>) {
   const client = await pool.connect();
-  try { await client.query("BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY"); const actor = await readCurrentActor(client, identity); requirePlanActor(actor); await productionPlansAvailable(client);
+  try { await client.query("BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY"); const actor = await readCurrentActor(client, identity); requirePlanActor(actor); await productionPlansAvailable(client); await productionExecutionsAvailable(client);
     const result = await callback(client, actor); bounded(result, "production_plan_read_too_large"); await client.query("COMMIT"); return result;
   } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
 }
@@ -212,8 +230,10 @@ export async function readOrderProductionPlans(pool: Pool, identity: TrustedIden
     const order = await readOrderPlanFacts(client, id), assignments = await assignmentsForOrder(client, id), summary = (await readPlanOrderSummaries(client, [id]))[id];
     const writable = summary?.eligible === true && order.planVersion < 2147483647;
     return { order, summary, assignments: assignments.map(publicAssignment), resources: Object.fromEntries(assignments.map(row => [row.resourceSnapshotHash, resourceSummary(row.resourceFacts)])),
+      executions: await executionsForAssignments(client, assignments.map(row => row.id)),
       canCreate: actor.permissions.includes("schedule.create") && writable,
-      canEdit: actor.permissions.includes("schedule.edit") && writable };
+      canEdit: actor.permissions.includes("schedule.edit") && writable,
+      canComplete: actor.permissions.includes("schedule.complete") && writable };
   });
 }
 export async function readProductionQueue(pool: Pool, identity: TrustedIdentity, inputId: string) {
@@ -222,6 +242,7 @@ export async function readProductionQueue(pool: Pool, identity: TrustedIdentity,
     const group = await readProductionResourceSnapshot(client, "groups", id), assignments = await assignmentsForGroup(client, id);
     return { groupId: id, group: { id: group.id, name: group.name, version: group.version, enabled: group.enabled }, version: await groupPlanVersion(client, id),
       assignments: assignments.map(publicAssignment), resources: Object.fromEntries(assignments.map(row => [row.resourceSnapshotHash, resourceSummary(row.resourceFacts)])),
+      executions: await executionsForAssignments(client, assignments.map(row => row.id)),
       ordersById: await readPlanOrderSummaries(client, [...new Set(assignments.map(row => row.orderId))]) };
   });
 }
@@ -245,7 +266,7 @@ export async function readProductionAssignment(pool: Pool, identity: TrustedIden
         resources[snapshot.hash] = resourceSummary(snapshot.facts);
       }
     }
-    return { assignment: publicAssignment(row), resourceSnapshot: row.resourceFacts, history: page, resources, offset, limit: 50,
+    return { assignment: publicAssignment(row), execution: (await executionsForAssignments(client, [row.id]))[row.id] ?? null, resourceSnapshot: row.resourceFacts, history: page, resources, offset, limit: 50,
       asOfVersion: anchor, hasMore: history.length > 50, nextOffset: history.length > 50 ? offset + 50 : null };
   });
 }
@@ -258,8 +279,9 @@ function auditSnapshot(row: StoredAssignment, orderNo?: string) {
     状态: row.status === "planned" ? "已排单" : "已取消", 备注: row.remark,
   } };
 }
-async function applyBuild(client: PoolClient, actor: TrustedIdentity, command: PlanCommand, build: PlanBuild): Promise<PlanOutcome> {
-  const operationId = build.mutations.length ? createServerOperationId() : null, assignments: Assignment[] = [];
+export async function applyPlanBuild(client: PoolClient, actor: TrustedIdentity, command: PlanCommand, build: PlanBuild,
+  context?: { operationId: string | null; sequenceStart: number; deferHeads: boolean }): Promise<AppliedPlanOutcome> {
+  const operationId = context ? context.operationId : build.mutations.length ? createServerOperationId() : null, assignments: Assignment[] = [];
   for (const [index, mutation] of build.mutations.entries()) {
     const { after, before } = mutation;
     const color = build.orders.find(order => order.id === after.orderId)?.colors.find(row => row.id === after.colorId && !row.ambiguous);
@@ -273,7 +295,7 @@ async function applyBuild(client: PoolClient, actor: TrustedIdentity, command: P
       SELECT id,sales_order_id,version,production_plan_row_snapshot(a),$2,$3,$4,$5 FROM production_schedule_assignments a WHERE id=$1`,
     [saved.id, actor.internalUserId, command.requestId, operationId, command.intent.action === "update" || command.intent.action === "cancel" ? command.intent.reason : ""]);
     const orderNo = build.orders.find(order => order.id === saved.orderId)?.orderNo;
-    await appendOperationLog(client, actor, { operationId: operationId!, operationSequence: index, module: "生产排单", entityType: "ScheduleAssignment", entityId: saved.id,
+    await appendOperationLog(client, actor, { operationId: operationId!, operationSequence: index + (context?.sequenceStart ?? 0), module: "生产排单", entityType: "ScheduleAssignment", entityId: saved.id,
       action: command.intent.action === "create" ? "新增排单" : command.intent.action === "cancel" ? "取消排单" : command.intent.action === "replan" ? "队列重排" : "修改排单",
       beforeData: before ? auditSnapshot(before, orderNo) : null, afterData: auditSnapshot(saved, orderNo), metadata: { requestId: command.requestId, previewHash: command.previewHash, appliedVersion: saved.version,
         reason: command.intent.action === "update" || command.intent.action === "cancel" ? command.intent.reason : "" } });
@@ -281,51 +303,29 @@ async function applyBuild(client: PoolClient, actor: TrustedIdentity, command: P
   }
   const changedOrders = [...new Set(build.mutations.map(mutation => mutation.after.orderId))].sort();
   const changedGroups = build.mutations.length ? [...new Set(build.queues.map(queue => queue.groupId))].sort() : [];
-  await bumpPlanHeads(client, changedOrders, changedGroups);
+  if (!context?.deferHeads) await bumpPlanHeads(client, changedOrders, changedGroups);
   const orderVersions = [], queueVersions = [];
   for (const order of build.orders) orderVersions.push({ orderId: order.id, version: await orderPlanVersion(client, order.id) });
   for (const queue of build.queues) queueVersions.push({ groupId: queue.groupId, version: await groupPlanVersion(client, queue.groupId) });
   return { requestId: command.requestId, status: "applied", changed: assignments.length > 0, operationId, assignments, orderVersions, queueVersions };
 }
-const requestLock = (actor: TrustedIdentity, requestId: string) => `production-plan:${actor.internalUserId}:${requestId}`;
 export async function executeProductionPlan(pool: Pool, identity: TrustedIdentity, raw: unknown) {
-  const command = parsePlanCommand(raw), digest = planHash(command), client = await pool.connect();
-  try {
-    await client.query("BEGIN"); await client.query("SET LOCAL lock_timeout='5s'");
-    await lockEffectiveAttribution(client);
-    const actor = await readCurrentActor(client, identity, true); requirePlanActor(actor, intentPermission(command.intent)); await productionPlansAvailable(client);
-    await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))", [requestLock(actor, command.requestId)]);
-    const prior = (await client.query<{ payload_hash: string; result: PlanOutcome }>("SELECT payload_hash,result FROM production_schedule_commands WHERE actor_id=$1 AND request_id=$2", [actor.internalUserId, command.requestId])).rows[0];
-    if (prior) { if (prior.payload_hash !== digest) planFail(409, "production_plan_request_conflict"); await client.query("COMMIT"); return { ...prior.result, payloadHash: digest, replayed: true }; }
-    await client.query("SELECT pg_advisory_xact_lock(hashtextextended('production-planning-write-v1',0))");
-    await lockProductionResourceScope(client, "freeze");
-    await client.query("SAVEPOINT plan_apply");
-    let result: PlanOutcome, orderIds: string[] = [];
-    try {
-      const build = await buildPlan(client, command.intent, true), projection = previewProjection(build, actor);
-      if (projection.previewHash !== command.previewHash) planFail(409, "production_plan_preview_changed");
-      result = await applyBuild(client, actor, command, build); orderIds = build.orders.map(order => order.id); bounded(result, "production_plan_receipt_too_large");
-    } catch (error) {
-      // Expected domain/budget rejection is a known rollback, including a queue
-      // filled after preview. Persist its exact request receipt so the UI can
-      // resume editing; SQL/auth/transport failures still have unknown outcomes.
-      if (!(error instanceof HttpError) || ![404, 409, 422].includes(error.status)) throw error;
-      await client.query("ROLLBACK TO SAVEPOINT plan_apply"); orderIds = [];
-      result = { requestId: command.requestId, status: "rejected", error: { status: error.status, code: error.code } };
-    }
-    await client.query("INSERT INTO production_schedule_commands(actor_id,request_id,action,payload_hash,command,result) VALUES($1,$2,$3,$4,$5,$6)", [actor.internalUserId, command.requestId, command.intent.action, digest, command, result]);
-    for (const id of orderIds) await client.query("INSERT INTO production_schedule_command_orders(actor_id,request_id,sales_order_id) VALUES($1,$2,$3)", [actor.internalUserId, command.requestId, id]);
-    await client.query("COMMIT"); return { ...result, payloadHash: digest, replayed: false };
-  } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
+  const command = parsePlanCommand(raw);
+  return runProductionCommand(pool, identity, command, ["order.view", "schedule.view", intentPermission(command.intent)], async (client, actor) => {
+    await productionExecutionsAvailable(client);
+    const build = await buildPlan(client, command.intent, true), projection = previewProjection(build, actor);
+    if (projection.previewHash !== command.previewHash) planFail(409, "production_plan_preview_changed");
+    return { result: await applyPlanBuild(client, actor, command, build), orderIds: build.orders.filter(order => order.effectiveOrderId === order.id).map(order => order.id) };
+  });
 }
 export async function readProductionPlanReceipt(pool: Pool, identity: TrustedIdentity, inputId: string) {
   const requestId = productionResourceUuid(inputId), client = await pool.connect();
   try {
     await client.query("BEGIN"); const actor = await readCurrentActor(client, identity); requirePlanActor(actor); await productionPlansAvailable(client);
-    if (!actor.permissions.includes("schedule.create") && !actor.permissions.includes("schedule.edit")) planFail(403, "permission_denied");
-    const ready = (await client.query<{ ready: boolean }>("SELECT pg_try_advisory_xact_lock_shared(hashtextextended($1,0)) ready", [requestLock(actor, requestId)])).rows[0].ready;
-    const row = ready ? (await client.query<{ action: PlanIntent["action"]; payload_hash: string; result: PlanOutcome }>("SELECT action,payload_hash,result FROM production_schedule_commands WHERE actor_id=$1 AND request_id=$2", [actor.internalUserId, requestId])).rows[0] : null;
-    if (row) requirePlanActor(actor, row.action === "create" ? "schedule.create" : "schedule.edit");
+    if (!["schedule.create", "schedule.edit", "schedule.complete"].some(key => actor.permissions.includes(key as PermissionKey))) planFail(403, "permission_denied");
+    const ready = (await client.query<{ ready: boolean }>("SELECT pg_try_advisory_xact_lock_shared(hashtextextended($1,0)) ready", [productionRequestLock(actor, requestId)])).rows[0].ready;
+    const row = ready ? (await client.query<{ command: unknown; payload_hash: string; result: PlanOutcome }>("SELECT command,payload_hash,result FROM production_schedule_commands WHERE actor_id=$1 AND request_id=$2", [actor.internalUserId, requestId])).rows[0] : null;
+    if (row) requireProductionPermissions(actor, savedCommandPermissions(row.command));
     await client.query("COMMIT"); return row ? { state: "known" as const, requestId, result: { ...row.result, payloadHash: row.payload_hash } } : { state: ready ? "unknown" as const : "pending" as const, requestId, result: null };
   } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
 }

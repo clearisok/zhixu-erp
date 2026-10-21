@@ -1,25 +1,25 @@
-# 恢复点：Gate6C明确业务选择后推进纯执行契约
+# 恢复点：Gate6C执行ledger与原计划保护，冻结前验收
 
 2026-10-21；Objective仍为已批准逐Gate收敛，未达成。main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实。
-codex/server-production-execution从main显式FF干净fc032c0f2428dcf2d511a868846201ce1d3677b5，无继承dirty。
-root唯一writer、既有reviewer只读；[当前任务](tasks/active/server-convergence-gate6c-2026-10-21.md)。
+codex/server-production-execution-ledger从main显式FF干净b8910f6c11654f7faa8d67c6974cc9d45334694e，无继承dirty。
+root唯一writer、既有reviewer只读；[当前任务](tasks/active/server-convergence-gate6c-persistence-2026-10-21.md)。
 用户已明确：完成并跨单重排需schedule.complete＋schedule.edit；原产出留原排单和执行方、剩余另建。
 D151替代新Server直接换执行方携带旧完成量，Browser历史与仓库不改。不再重复询问这两项。
 
-fc已一次上传且独立API exact；Source39477717691/Team39477723659/Baseline39477729351 success/attempt1。
-实际LinuxQuote87/87/Python131/131，本机be7 Quote87及41/927/116证据保留。原933d失败不改写。
-三份fc摘要逐字Git blob归档于completed/2026-10-21-production-execution-inputs/fc032c0f/。
+b891已一次DELIVERED_VERIFIED且独立API exact；Source39522656348/Team39522663508/Baseline39522670751 success/attempt1。
+实际Linux新执行22、Quote87/Python131、Team项目927通过；本机49/49及旧be7/f344/933d失败/红测范围不改写。
+三份b891摘要逐字Git blob归档于completed/2026-10-21-production-execution-inputs/b8910f6c/，内含fc恢复链。
 
-当前只新增两个server纯模块和两测试、Source CI纯测试命令及文档，没有执行表/API/UI。
-f344冻结48/48、927/927（216680.115ms）、116/116（215194.1989ms）及main996守卫通过。
-全类型/full lint/Node编译及模块/app导入通过。随后非法前序dateMode红21/1、一行修复，49/49、再次类型/精确lint通过。
-独立只读reviewer无阻断，建议的未知结束传播负测已加入并实际通过；未代跑测试。
-负测覆盖身份/三CAS/精确小数/日期/伪金额和actor/取消产出/更正原因/归属锁及只调后续未开工队列。
-正常in_progress→completed/补首次日期无需更正理由；更改已记录日期、减量/重新打开须原因。
-前序仍约束队列且不得刷新资源；执行历史更正为零也不解除执行方/颜色锁。
+当前0036 head/history/每排单技术epoch、execution-service/store与共用command-transaction；
+旧计划读写、真实数量投影、normalization独立0/3 schema和完整历史指纹同批接线。
+已有执行后归属/资源不动；普通改计划须原因，取消产出保留，剩余另建。SQL全事件历史受保护。
+只读review发现全结束组队首读取及原始RR首份执行幻读，已各补真实回归。RR红测12/2（含父）
+后epoch修复15/15执行/升级、39/39引用归属通过。原计划业务字节不动，只初始化技术0。
+早于epoch的96/96、客户端27/27及类型/lint通过；最终组合/类型/全项目正在复验，勿预写PASS。
+reviewer第二轮静态核实epoch锁序及日志，当前无新阻断；未代跑测试/DB/网络。
 
-最终Node与execution/app实际导入通过。下一步独立修复checkpoint/精确守卫、安全交付与新CI；不将f344旧运行冒称含后发生的一行修复。
-随后实际DB/API服务必须先接全部执行读取、计划保护、同锁序/CAS/事务/回执/审计/归一引用，再开放写。
-最后复用原结束弹窗和构建浏览器验证；不把纯内核、祖先CI或节点编译冒称这些后续结果。
+下一步完成本阶段源码checkpoint，绑定新的D151/执行读取前向文档证据，精确main守卫及显式基线，
+必要Node编译/实际模块导入、安全一次交付、独立SHA和三CI。不重复前阶段已结束CI，不建文档循环提交。
+其后才复用原结束弹窗、执行客户端/会话原请求保护及浏览器验证；当前无本阶段浏览器/新体验/部署。
 manifest只前向追加D151，现238/50；原237/50/旧PNG保持，#120–127不动，不建重复累计业务PR、不merge/close/deploy。
 保护3001/50426/59069/62426和旧卷/Browser，真实账号/业务库/来源范围及退役无新增授权。

@@ -19,7 +19,7 @@ type PlanDraft = PlanPreview["changes"][number]["after"];
 type ResourceSummary = PlanPreview["resources"][string];
 export type PlanResources = Record<string, ResourceSummary>;
 export type PlanGroupRow = { id: string; name: string; shortName: string; enabled: boolean; version: number; queueVersion: number;
-  assignmentCount: number; plannedQuantity: string; headAssignmentId: string | null; headOrderId: string | null;
+  assignmentCount: number; pendingAssignmentCount: number; plannedQuantity: string; completedQuantity: string; outstandingPlannedQuantity: string; headAssignmentId: string | null; headOrderId: string | null;
   plannedThroughDate: string | null; siteName: string; calendarName: string; resourcesEnabled: boolean; canCreate: boolean };
 export type PlanOrderRead = { summary: PlanOrderSummary; order: { id: string; orderNo: string; planVersion: number;
   colors: { id: string; colorName: string; quantity: string; ambiguous: boolean }[];
@@ -155,7 +155,8 @@ function projectOrderSummary(value: unknown): PlanOrderSummary {
   if ((quantity === null ? remainingQuantity !== null || overassignedQuantity !== null || allocationState !== "unknown" : remainingQuantity === null || overassignedQuantity === null || allocationState === "unknown")
     || eligible && (id !== effectiveOrderId || businessType === "unclassified" || ["completed", "cancelled"].includes(lifecycleState))) return invalid();
   return { id, effectiveOrderId, eligible, orderNo: text(raw.orderNo), lifecycleState, businessType: businessType as PlanOrderSummary["businessType"],
-    quantity, plannedQuantity: readDecimal(raw.plannedQuantity), remainingQuantity, overassignedQuantity, allocationState: allocationState as PlanOrderSummary["allocationState"],
+    quantity, plannedQuantity: readDecimal(raw.plannedQuantity), completedQuantity: readDecimal(raw.completedQuantity), outstandingPlannedQuantity: readDecimal(raw.outstandingPlannedQuantity),
+    accountedQuantity: readDecimal(raw.accountedQuantity), remainingQuantity, overassignedQuantity, allocationState: allocationState as PlanOrderSummary["allocationState"],
     assignmentCount: integer(raw.assignmentCount), planVersion: integer(raw.planVersion, 0, 2147483647), styleNo: optionalText(raw.styleNo), factoryStyleNo: optionalText(raw.factoryStyleNo),
     customerName: optionalText(raw.customerName), brandName: optionalText(raw.brandName), contractNo: optionalText(raw.contractNo), customerReference: optionalText(raw.customerReference), deliveryDate: optionalDate(raw.deliveryDate) };
 }
@@ -289,12 +290,13 @@ export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
       const { response, data } = await request(`/groups?${params}`, current); if (!response.ok) return httpError(response, data);
       const page = projectPage(data, query, value => {
         const raw = object(value), enabled = boolean(raw.enabled), resourcesEnabled = boolean(raw.resourcesEnabled), canCreate = boolean(raw.canCreate);
-        const assignmentCount = integer(raw.assignmentCount), queueVersion = integer(raw.queueVersion, 0, 2147483647);
+        const assignmentCount = integer(raw.assignmentCount), pendingAssignmentCount = integer(raw.pendingAssignmentCount, 0, assignmentCount), queueVersion = integer(raw.queueVersion, 0, 2147483647);
         const headAssignmentId = optionalUuid(raw.headAssignmentId), headOrderId = optionalUuid(raw.headOrderId), plannedThroughDate = optionalDate(raw.plannedThroughDate);
-        if ((assignmentCount === 0 ? headAssignmentId !== null || headOrderId !== null || plannedThroughDate !== null : !headAssignmentId || !headOrderId || !plannedThroughDate)
+        if ((pendingAssignmentCount === 0 ? headAssignmentId !== null || headOrderId !== null || plannedThroughDate !== null : !headAssignmentId || !headOrderId || !plannedThroughDate)
           || canCreate && (!resourcesEnabled || assignmentCount >= 500 || queueVersion === 2147483647) || resourcesEnabled && !enabled) return invalid();
         return { id: uuid(raw.id), name: text(raw.name), shortName: text(raw.shortName), enabled, resourcesEnabled, canCreate,
-          version: integer(raw.version, 1, 2147483647), queueVersion, assignmentCount, plannedQuantity: readDecimal(raw.plannedQuantity), headAssignmentId, headOrderId, plannedThroughDate,
+          version: integer(raw.version, 1, 2147483647), queueVersion, assignmentCount, pendingAssignmentCount, plannedQuantity: readDecimal(raw.plannedQuantity),
+          completedQuantity: readDecimal(raw.completedQuantity), outstandingPlannedQuantity: readDecimal(raw.outstandingPlannedQuantity), headAssignmentId, headOrderId, plannedThroughDate,
           siteName: text(raw.siteName), calendarName: text(raw.calendarName) };
       });
       unique(page.items, item => item.id);

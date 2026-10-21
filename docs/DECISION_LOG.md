@@ -26,8 +26,8 @@
 - 2026-10-21，Active；用户明确回答Gate6C两个待决项：仅登记完成使用既有 `schedule.complete`；同时重排后续其他订单必须另有 `schedule.edit`。读取/领域权限仍需 `order.view` 和 `schedule.view`，提交与原请求回执均以fresh grants校验，不因本次恰无日期变化省略编辑权限。
 - 已完成数量保留原Assignment、原订单、原生产组/外发厂及颜色归属。取消剩余任务或换执行方不搬产出，剩余另建Assignment；更正为零也不解除已有执行历史的归属保护。此条替代旧Browser“给出原因即可直接换执行方并携带完成量”的新Server采用方式；Browser历史和仓库不改。
 - 完成与计划、客户需求、金额独立；原超产只提示、减量需原因、实际日期独立、已开工/固定排单不自动移动规则保持。新Server明确更正已记录日期/已结束状态须原因，不以计划或当前日期补造缺失的实际日期。联动只调整目标之后可重排项，前序继续约束队列。
-- 当前只实现纯输入/差异/数量投影与队列预览，尚无执行表/API/UI、事务授权或实际完成持久化。后续必须同事务追加执行版本及当时归属，接入全部计划保护、CAS/幂等/审计/回执与引用盘点后才开放；不批准生产部署、真实数据或Server关账。
-- 证据：用户本轮明确选择；`server/production-scheduling/execution-contract.ts`、`execution-preview.ts`及相应纯测试，当前范围见[执行契约](features/SERVER_PRODUCTION_EXECUTION.md)与[Gate6C](tasks/active/server-convergence-gate6c-2026-10-21.md)。D-150计划历史继续保留，不把纯内核宣称为完成事实。
+- 原纯输入/差异/数量投影与队列预览已在b891冻结/送达并三CI通过，该阶段尚无执行表/API/UI。前向切片新增0036、执行HTTP和共享事务命令，原始执行版本/归属与全部计划保护、CAS/幂等/审计/回执及引用盘点一起接线，只做一次性合成PG工程；执行页面仍待，不批准部署、真实数据或Server关账。
+- 证据：用户本轮明确选择；`server/production-scheduling/execution-contract.ts`、`execution-preview.ts`、`execution-service.ts`、`command-transaction.ts`、0036及相应纯/PG/HTTP测试。当前范围见[执行契约](features/SERVER_PRODUCTION_EXECUTION.md)与[持久化任务](tasks/active/server-convergence-gate6c-persistence-2026-10-21.md)，[原Gate6C](tasks/active/server-convergence-gate6c-2026-10-21.md)保留纯阶段历史。D-150计划历史继续保留，后台工程不冒称页面、部署或人工接受。
 
 ### D-150 Server排单计划版本与采用资源事实
 

@@ -1,11 +1,11 @@
 # 项目知识索引
 
-2026-10-21恢复：[Gate6C执行任务](tasks/active/server-convergence-gate6c-2026-10-21.md)、[纯执行契约](features/SERVER_PRODUCTION_EXECUTION.md)、CURRENT_STATE/AI_HANDOFF。
-main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；codex/server-production-execution输入干净/已送达fc032c0f。
-用户已确认完成＋重排双权限与原产出归属，D151前向记录；f344冻结48/927/116通过，收尾快照修复后49/49/类型/精确lint通过，尚无执行SQL/API/UI。
-fc最终三CI success/attempt1，LinuxQuote87/Python131实际执行；本机be7 Quote87和41/927/116及原933d失败范围保留。
-[fc三摘要逐字输入](tasks/completed/2026-10-21-production-execution-inputs/fc032c0f/)保留所有旧日期/hash/结果/限制及恢复链。
-计划与执行事实分离，下一步事务历史/计划保护/读取，再接既有结束页面；出货/关账及真实激活仍未闭环。
+2026-10-21恢复：[Gate6C持久化任务](tasks/active/server-convergence-gate6c-persistence-2026-10-21.md)、[执行契约](features/SERVER_PRODUCTION_EXECUTION.md)、CURRENT_STATE/AI_HANDOFF。
+main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；codex/server-production-execution-ledger输入干净/已送达b8910f6c。
+完成＋重排双权限与原产出归属已确认，D151前向记录；当前0036执行head/history/技术epoch、统一事务回执、旧计划保护及真实数量读取本地验收。
+b891三CI success/attempt1，新执行22/LinuxQuote87/Python131及Team项目927实际通过；原be7/f344/933d失败和红测范围保留。
+[b891三摘要逐字输入](tasks/completed/2026-10-21-production-execution-inputs/b8910f6c/)保留旧日期/hash/结果/限制及fc恢复链。
+15/15执行/升级、39/39引用归属通过；前后测试范围见任务，最终冻结/远端/新CI待。执行UI、出货/关账及真实激活未闭环。
 原237证据/50能力/旧PNG保持，D151只前向追加，现238/50；#120–127原头不动，不建重复累计业务PR、不merge/close/deploy。
 保护3001/50426/59069/62426及旧卷/工作树/Browser；持续Git授权不扩真实数据/来源/部署/退役范围。
 
@@ -94,7 +94,7 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 | Quote Center | `features/QUOTE_CENTER.md` | `app/quote-center/`、`features/quote-center/` |
 | Quote production、Server migration 与 progressive rollout | `features/QUOTE_PRODUCTION.md`、`features/QUOTE_CUTOVER_READINESS.md`、`features/QUOTE_MIGRATION_RUNBOOK.md`、`features/QUOTE_MASTER_SETTINGS_ACTIVATION.md`、`features/Q3B2I_CUTOVER_RUNBOOK.md`、`features/QUOTE_CENTER.md`、`features/DATA_LIFECYCLE.md`、`features/ATTACHMENTS.md`、`features/SERVER_PERSISTENCE.md`、`features/PERMISSIONS.md` | Route B、Server foundation、Q2B2C Quote aggregate cutover dependency map、Q5-A/B historical Quote preview/guarded operational boundary，以及 Q3B2I-C2 已完成的 master/settings Server authority；C0/C1 runbook 为历史执行证据，实现事实仍以 Quote/Server/master/attachment 代码和测试为准 |
 | 新订单中心、报价转订单、翻单、交期、订单价格历史与 PostgreSQL SalesOrder foundation/bootstrap/shadow read | `features/ORDER_CENTER.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`、`features/SALES_ORDER_BROWSER_CUTOVER.md`、`features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`、`features/SERVER_PERSISTENCE.md`、`features/OPERATIONS_FOUNDATION.md`、`features/DATA_LIFECYCLE.md` | Browser runtime：`app/order-center/`、`features/order-center/`；server foundation/read：`server/sales-orders/`、`features/order-center/server/`、`features/ainuoke-sync/service/sales-order-final-bootstrap-preview.ts`、`features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts`、`database/migrations/0002_sales_order_foundation.sql`、`0003_sales_order_number_sequence.sql` |
-| 生产队列、排单中心、物料运输、订单预警与交期风险 | `features/PRODUCTION_SCHEDULING.md`；Server追加读 `features/SERVER_PRODUCTION_PLANNING_UI.md`、`features/SERVER_PRODUCTION_PLANNING.md`、`features/SERVER_PRODUCTION_PLANNING_READS.md`，权限/资料见原文档 | Browser与Server authority先分流；`app/production-scheduling/`、`features/production-scheduling/server/`、`server/production-scheduling/`；Server只有计划，实际完成/物流仍未接通 |
+| 生产队列、排单中心、物料运输、订单预警与交期风险 | `features/PRODUCTION_SCHEDULING.md`；Server追加读 `features/SERVER_PRODUCTION_PLANNING_UI.md`、`features/SERVER_PRODUCTION_PLANNING.md`、`features/SERVER_PRODUCTION_PLANNING_READS.md`、`features/SERVER_PRODUCTION_EXECUTION.md`，权限/资料见原文档 | Browser与Server authority先分流；`app/production-scheduling/`、`features/production-scheduling/server/`、`server/production-scheduling/`；Server执行后台本地验收，执行页面/物流尚未接通 |
 | 款式进度、面辅料跟进、逐物料物流与真实 Excel 导入 | `features/STYLE_PROGRESS.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/DATA_LIFECYCLE.md` | `app/order-center/style-progress/`、`features/style-progress/`、`tests/style-progress.test.mjs` |
 | 关账月份、关账归属、月度产值与锁账 | `features/CLOSING_CENTER.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/PERMISSIONS.md` | `app/closing-center/`、`features/closing-center/`、`tests/closing-center.test.mjs` |
 | Quote Center 附件 | `features/ATTACHMENTS.md`、`features/QUOTE_CENTER.md` | `quote-attachments.ts`、`attachment-panel.tsx`、附件 repository |
