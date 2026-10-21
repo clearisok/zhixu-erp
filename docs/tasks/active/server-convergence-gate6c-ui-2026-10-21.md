@@ -48,6 +48,10 @@ root实看390内部弹窗确认footer已两行且全部可见；另实看linked-
 精确数值、截图hash、原失败与验收边界集中在新工程记录，不修改旧冻结阶段文档。下一步文档冻结/manifest前向绑定、完整项目与显式基线、最终守卫/有界交付/精确新CI；当前不预写它们PASS。
 Gate7成衣出货时点已发异步业务问题，未答不实施依赖规则，继续本UI收口。
 
+独立只读复审27b代码与工程材料无业务阻断。两处文档收准：列表为“可排”、待执行在订单排单详情；replayed仅由POST校验，known GET无此字段。应用字节未变。
+5f的临时清单首次绑定守卫通过（243证据/51能力），但未提交；临时版本保存于ignored outputs/g6c-ui-provisional-5f62-manifest.json。
+在首次提交清单前，只把本轮新增UI契约记录绑定到该文案修正的实际Git blob，原240证据/50能力及全部历史链保持。它不是已提交证据的覆盖，也不新建无main锚点的supersedes链。
+
 ## 安全与冻结文档
 
 原SERVER_PRODUCTION_PLANNING_READS/UI和SERVER_PRODUCTION_EXECUTION是各自已冻结阶段证据；本UI另有复杂契约文档，不原地改新根破坏main锚点。
