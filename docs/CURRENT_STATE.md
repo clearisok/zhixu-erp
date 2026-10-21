@@ -1,12 +1,11 @@
-# 当前状态：订单物料与运输Server页面本地验收完成
+# 当前状态：Server人工预计到仓后台定向验收通过
 
-2026-10-21；codex/server-order-logistics-ui，输入干净01eca83d794d62557e9f3ce579bdb71477c98f5a，无继承dirty。main开始/收口前独立API均996dfedc12da3527343cd3ff2aa5eea35497e10e；root唯一writer/既有reviewer只读。
-[工程记录](tasks/completed/2026-10-21-order-logistics-ui-engineering.md)、[阶段任务](tasks/active/server-convergence-gate6d-order-logistics-ui-2026-10-21.md)、[输入原文](tasks/completed/2026-10-21-order-logistics-ui-inputs/01eca83d/)、[契约](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)。
+2026-10-21；codex/server-material-arrival-plans，输入干净bb0ee1768d4d97c26b60458248e305fe5a241a97，无继承dirty。独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e；PR120–127原草稿未变。root唯一writer/既有reviewer只读。[阶段任务](tasks/active/server-convergence-gate6d-material-arrivals-2026-10-21.md)、[后台契约](features/SERVER_MATERIAL_ARRIVALS.md)、[输入Git原文](tasks/completed/2026-10-21-material-arrival-inputs/bb0ee176/)。
 
-应用源码2a0cec28a0ab736c6f7500bf512dd7260364c5cb/build20261021-171525，显式Server/session/snapshot。原物料与运输Modal、队列更多和订单详情仅维护明确集货仓/备注，复用原单槽、权限、预览/回执/历史；无Browser回退或新SQL。后续78416仅3处测试等待与文档，产品文件未改。
-41客户端、24契约/真实PG-HTTP/升级、37排单跟进built、23资源built、927项目、116发布回归通过，0失败/取消/跳过；类型/全lint/前端及顺序Node构建exit0。独立复审三P2场景及1440/390图像均闭环，无剩余阻断；原两轮built失败/先红/类型修复时序保留。78416对main996源码守卫PASS11页/51能力/累计66UI路径/errors空，冻结新证据后再查最终HEAD。
-原245证据/旧PNG不改，061c3251冻结工程文档后新增第246条证据，仅扩原production-plan-server的仓/备注范围；其他50能力、部署、人工接受分别保留。后台历史269PG等不冒充本UI重跑，详见原冻结报告。
+0039人工ExpectedArrivalBatch/Allocation后台、稳定需求UUID、同代Source/Hub快照、预览/CAS/幂等/回执/审计及25条锚定历史已实现。数量变化不换长期UUID；歧义/单位/厂供/消失/超配/改仓保留旧事实，要求明确核对。Source交期只作对照，不造到Hub日期或自动补齐。无Browser、四流、排单、价格或关账写入；DTO不暴露生产/仓备注或金额。页面与逐批物流接线仍待。
 
-ExpectedArrivalBatch/逐物料物流、6086979正式跨次身份/合同颜色、Server关账仍待。D152 Num/outdate已确认，不自动收入或关账；真实D1935/D1933单次许可均已用完。
-Git664f实际push非零具体原因未知，STOP_AUTH_OR_DIVERGENCE保持；只读成功不证明写恢复。无新push/PR/Hosted CI/合并/关闭/部署。
-Goal active/未完成。保护3001/50426/59069/62426、旧卷/工作树/Browser，62426仍8175未升级。不动真实账号/业务库、不扩大Source/绑定/激活/调度、不安装依赖或改共享认证。CNY销售/USD工价不换汇或重标；Gate8其他口径待决。
+定向26/26 32717.1341ms、来源/安全45/45 47736.5341ms、引用/迁移55/55 37362.7995ms通过，0fail/cancel/skip；类型/全lint通过。此前跟进/升级24/24 28915.7061ms结果独立保留。45项含原确认快照、历史/HTTP、共享CCT未采用隔离及已采用订单business-source七角色，不是旧CCT接口已采用正控。首轮安全31/37旧假设和两项复审P2修正时序保留，不冒称一次全绿。完整项目/发布基线与构建尚在本阶段收口。
+
+上一原物料与运输UI 2a0cec28/build20261021-171525的精确证据见[冻结报告](tasks/completed/2026-10-21-order-logistics-ui-engineering.md)，不冒称本轮重跑。原246证据/51能力/截图未改，当前不代表页面或完整物流完成。
+
+Git664f非零push具体原因未证明，STOP_AUTH_OR_DIVERGENCE；只读成功不证明写恢复。无新push/PR/Hosted CI/合并/关闭/部署。Goal active/未完成。保护3001/50426/59069/62426及旧卷/Browser，62426仍8175未升级。不动真实账号/业务库、不扩Source/绑定/激活/调度，不安装依赖/改共享认证。D152 Num/outdate确认，两笔真实额度用完；正式成衣Source与Server关账仍待，CNY销售/USD工价不换汇或重标。

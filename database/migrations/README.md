@@ -86,3 +86,9 @@ Assignment及当时计划版本/资源归属；不改0035计划状态，不回�
 停用历史保留。没有默认仓、路线、方式、账号、权限、订单或执行记录；仅扩原命令kind约束。
 0036非空合成副本升级已证明原public业务表（含排单/实际产出/权限/审计/回执）字节不变。
 只授权自己的随机一次性PG验收，正常启动仍verify-only；不因此升级旧目标或开放持续来源。
+
+0038_production_order_tracking.sql：物理SO明确集货仓/备注、独立CAS及逐次不可变历史，原生产命令回执共用。
+0039_material_arrival_plans.sql：独立Server人工到仓批次/Allocation owner，长期需求UUID与各代Source证据分离，
+按物理SO/Canonical组保存手工分批、当时Hub/跟进版本与精确需求容量；actor/request回执及原OperationLog审计。
+不复制来源数量成为订单权威，不将Source交期转到仓，不补齐未安排数量、不绑定四流、不换单位、不seed或回填。
+旧迁移保持；只在一次性合成PG演练0038非空Source/跟进/回执升级，现有目标和正式数据库未执行。
