@@ -1,5 +1,7 @@
 # 恢复点：Gate7C只读客户端/页面接线起点
 
+第二切片43989d1a/build20261022-022257已13/13 built通过，原continuous70通过/1既有跳过；实看PNG后历史窄Drawer改同一Foundation逐笔Card、长数折行，harness补无溢出/完整量日及截图header偏移。新视觉小修准备checkpoint/重建/复验，不能复用旧图声称新版本PASS。项目/发布全套仍在跑，root唯一writer，REMOTE仍pending。
+
 第一切片已提交1630c19ddd278a2026157ad092b337a11522b643，精确HEAD守卫PASS，工作树曾干净；第二切片从该点开始，仅原订单详情/历史Drawer接线和合成验收，尚未运行浏览器。下段保留第一切片结果与限制；REMOTE仍pending，不执行新Git写入。
 
 2026-10-22；分支codex/server-garment-shipment-read-ui；本轮重新API核实main996dfedc12da3527343cd3ff2aa5eea35497e10e，从main建立后只FF至干净2612bf8697679fcaa26ff8aac8e81a450b05428f。三根旧摘要逐字节保存在tasks/completed/2026-10-22-garment-read-inputs/2612bf86/。root唯一writer，既有reviewer只读；无继承dirty。

@@ -79,7 +79,7 @@ test('garment observations and history use the exact Server order detail without
       for (const [width, scale] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {
         await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: scale, mobile: width === 390 });
         await until(async () => (await text('[data-garment-section]')).includes('9007199254740993.000000000001'), 'displayed records before screenshot');
-        await evaluate("document.querySelector('[data-garment-section]').scrollIntoView({block:'start'})");
+        await evaluate("document.querySelector('[data-garment-section]').scrollIntoView({block:'start'});window.scrollBy(0,-80)");
         const geometry = await evaluate("(()=>{const b=document.querySelector('[data-garment-section]').getBoundingClientRect();return {width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth+1,inside:b.left>=-1&&b.right<=innerWidth+1}})()"); assert.equal(geometry.overflow, false); assert.equal(geometry.inside, true);
         await shot('current-' + width); await click('出货历史'); await has('查看第 1 次记录');
         const drawer = await evaluate("(()=>{const b=document.querySelector('.qc-drawer').getBoundingClientRect();return {inside:b.left>=-1&&b.right<=innerWidth+1,overflow:document.documentElement.scrollWidth>innerWidth+1,footer:!!document.querySelector('.qc-drawer>footer')}})()"); assert.equal(drawer.inside, true); assert.equal(drawer.overflow, false); assert.equal(drawer.footer, true); metrics.push({ ...geometry, drawer }); await shot('history-' + width); await click('关闭出货历史', '.qc-drawer button');
@@ -92,7 +92,15 @@ test('garment observations and history use the exact Server order detail without
       x.garments.setOffset(0); await shot('stale-policy');
     });
     await phase('empty current observation and old nonempty detail remain separate', async () => {
-      await x.garments.publish(0); await click('重新读取出货记录'); await has('本次指定合同查询没有记录'); await click('出货历史'); await has('查看第 1 次记录'); await click('查看第 1 次记录', '.qc-drawer button'); await has('9007199254740993.000000000001'); await shot('historical-detail'); await click('关闭出货历史', '.qc-drawer button'); await has('本次指定合同查询没有记录'); assert.equal((await text('[data-garment-section]')).includes('9007199254740993.000000000001'), false);
+      await x.garments.publish(0); await click('重新读取出货记录'); await has('本次指定合同查询没有记录'); await click('出货历史'); await has('查看第 1 次记录'); await click('查看第 1 次记录', '.qc-drawer button'); await has('9007199254740993.000000000001');
+      for (const width of [1440, 390]) {
+        await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 390 });
+        await evaluate('new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)))');
+        assert.equal(await evaluate("(()=>{const n=document.querySelector('[data-garment-history-record]'),d=document.querySelector('.qc-drawer').getBoundingClientRect();return !!n&&n.innerText.includes('9007199254740993.000000000001')&&n.innerText.includes('2026-10-11')&&n.scrollWidth<=n.clientWidth+1&&d.left>=-1&&d.right<=innerWidth+1})()"), true);
+        await shot('historical-detail-' + width);
+      }
+      await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+      await click('关闭出货历史', '.qc-drawer button'); await has('本次指定合同查询没有记录'); assert.equal((await text('[data-garment-section]')).includes('9007199254740993.000000000001'), false);
     });
     await phase('an empty filtered history page still follows the server cursor', async () => {
       for (let i = 0; i < 25; i++) await x.garments.publish(0);

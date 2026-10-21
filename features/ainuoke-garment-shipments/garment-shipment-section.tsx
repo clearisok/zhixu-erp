@@ -17,7 +17,7 @@ function colorMatch(row: GarmentReadRow) {
     : { missing_source_color: "来源颜色未提供", unmatched: "未匹配订单颜色", ambiguous: "颜色重名，待核对" }[row.colorMatch.state];
 }
 
-function Observation({ view, stale }: { view: TimedGarmentView; stale: boolean }) {
+function Observation({ view, stale, recordsOnly = false }: { view: TimedGarmentView; stale: boolean; recordsOnly?: boolean }) {
   const [page, setPage] = useState(0);
   if (view.status === "empty") return <EmptyState compact title={GARMENT_EMPTY_LABELS[view.model.sourceStatus]} />;
   const model = view.model, rows = model.rows.slice(page * 20, (page + 1) * 20);
@@ -25,16 +25,17 @@ function Observation({ view, stale }: { view: TimedGarmentView; stale: boolean }
     { key: "document", header: "出货单据", width: 160, responsivePriority: "primary", render: row => sourceText(row.fields.billno) },
     { key: "date", header: "出运日期", width: 180, responsivePriority: "primary", render: row => <span>{businessDate(row)}<small style={{ display: "block" }}>单据日 {sourceText(row.fields.FDate)} · 进仓日 {sourceText(row.fields.indate)}</small></span> },
     { key: "sourceColor", header: "来源颜色", width: 140, responsivePriority: "primary", render: row => sourceText(row.fields.CnColor) },
-    { key: "quantity", header: "本次出库数", width: 180, align: "right", responsivePriority: "primary", render: row => quantity(row) },
+    { key: "quantity", header: "本次出库数", width: 180, align: "right", responsivePriority: "primary", render: row => <span style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{quantity(row)}</span> },
     { key: "color", header: "当时匹配的订单颜色", width: 180, responsivePriority: "secondary", render: colorMatch },
   ];
+  const record = (row: GarmentReadRow) => <div style={{ overflowWrap: "anywhere" }}><strong>{sourceText(row.fields.billno)} · {sourceText(row.fields.CnColor)}</strong><p>本次出库数 {quantity(row)}</p><p>{row.businessDate.state === "known" ? "出运日期 " : ""}{businessDate(row)}</p><p>当时匹配：{colorMatch(row)}</p><small>单据日 {sourceText(row.fields.FDate)} · 进仓日 {sourceText(row.fields.indate)}</small></div>;
   return <div style={{ overflowWrap: "anywhere" }}>
     <p><StatusTag tone={stale ? "neutral" : "success"}>{stale ? "已过期 · 历史观察" : "来源观察"}</StatusTag> 截至 {capturedTime(model.observedThrough)} · 第 {model.generation} 次记录</p>
     {model.targetPolicyChanged && <AlertBanner tone="warning" title="来源时效设置已变化">本记录仍按采集时的原策略判断时效。</AlertBanner>}
     {model.colorBasisChanged && <AlertBanner tone="warning" title="订单颜色已变化">以下保留采集时的颜色匹配，请核对差异。</AlertBanner>}
     {model.rows.length ? <>
-      <DataTable rows={rows} columns={columns} rowKey={row => row.observationId} ariaLabel="成衣出货来源记录" moduleKey="order-center" tableKey="order-center.garment-shipments" layout="readable"
-        renderRecord={row => <div style={{ overflowWrap: "anywhere" }}><strong>{sourceText(row.fields.billno)} · {sourceText(row.fields.CnColor)}</strong><p>本次出库数 {quantity(row)}</p><p>出运日期 {businessDate(row)}</p><p>当时匹配：{colorMatch(row)}</p><small>单据日 {sourceText(row.fields.FDate)} · 进仓日 {sourceText(row.fields.indate)}</small></div>} />
+      {recordsOnly ? <div role="list" aria-label="历史出货明细" style={{ display: "grid", gap: 12 }}>{rows.map(row => <Card role="listitem" key={row.observationId} data-garment-history-record style={{ padding: 14 }}>{record(row)}</Card>)}</div>
+        : <DataTable rows={rows} columns={columns} rowKey={row => row.observationId} ariaLabel="成衣出货来源记录" moduleKey="order-center" tableKey="order-center.garment-shipments" layout="readable" renderRecord={record} />}
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, padding: "12px 0" }}>
         <Button variant="text" disabled={page === 0} onClick={() => setPage(value => value - 1)}>上一页出货</Button>
         <span>{page * 20 + 1}–{Math.min((page + 1) * 20, model.rows.length)} / {model.rows.length} 条</span>
@@ -77,7 +78,7 @@ export function GarmentShipmentSection({ orderId, contract, processing = false, 
       {blocked ? <ErrorState description={blocked} onRetry={reread} /> : current.loading ? <LoadingState compact rows={2} label="核对当前来源范围" /> : current.error ? <ErrorState description={current.error.message} onRetry={reread} />
         : publicationId ? <><Button variant="text" onClick={() => setPublicationId(undefined)}>返回出货记录列表</Button>
           {selected.loading ? <LoadingState compact rows={2} label="读取所选出货记录" /> : selected.error ? <ErrorState description={selected.error.message} onRetry={() => void selected.reload()} />
-            : selected.data ? <Observation key={publicationId} view={selected.data} stale={Boolean(selected.stale)} /> : null}</>
+            : selected.data ? <Observation key={publicationId} view={selected.data} stale={Boolean(selected.stale)} recordsOnly /> : null}</>
         : history.loading ? <LoadingState compact rows={2} label="读取出货历史" /> : history.error ? <ErrorState description={history.error.message} onRetry={() => void history.reload()} /> : history.data ? <>
           {history.data.records.length ? history.data.records.map(record => <section key={record.publicationId} style={{ padding: "12px 0", borderBottom: "1px solid var(--qc-border)", overflowWrap: "anywhere" }}>
             <strong>{capturedTime(record.observedThrough)}</strong><p>第 {record.generation} 次记录 · {record.rowCount} 条来源明细</p><Button variant="text" onClick={() => setPublicationId(record.publicationId)}>查看第 {record.generation} 次记录</Button>
