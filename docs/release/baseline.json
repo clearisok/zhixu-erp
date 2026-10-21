@@ -2101,6 +2101,15 @@
       "sha256": "f6964587db7b6c1e166a437d5c542be6acb5cebcf1d8fdf8773e84cb1f08fa2f",
       "approvalEvidence": "server-material-arrivals-ui-engineering-20261021",
       "changeReason": "Synthetic built Chromium evidence within the user-approved D147 Server restoration of existing material UI (V1); no new design or user visual-acceptance claim. Original screenshot paths and bytes remain unchanged."
+    },
+    {
+      "id": "decisions-garment-observations-20261021",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "b6521d0d510ca0447822096e101919c97f76a980",
+      "sha256": "9091225f719b491a8d110e885641a10bb7645df14036687f4278b118f85eaaf8",
+      "supersedes": "decisions-garment-shipment-20261021",
+      "changeReason": "D153 records the approved Goal technical observation owner: exact-query checked pages, immutable original scope/color evidence, bounded DB-only reads and original-capture recovery. It changes no D152 quantity/date rule, real-source activation, UI or closing authority."
     }
   ],
   "pages": [
