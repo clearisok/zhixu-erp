@@ -49,3 +49,15 @@ db3396cd4ef2bd4c6298c1e67ff8e59342576f5f精确main996守卫PASS，11页/53能力
 交付沿用[Gate0](server-convergence-gate0-2026-10-20.md)的“不创建重复累计implementation PR”：当前含未合并依赖，仅发布本分支为验证引用，不新建累计业务PR，不合并/关闭旧PR。核实后仅dispatch ainuoke-server-source.yml、first-team-access.yml、release-baseline.yml；三文件workflow_dispatch无额外inputs，默认分支ref必须指向已核实提交。冻结报告的未来条件句不扩大PR授权。远端和Hosted CI终态单独记录，不能拿本地测试冒充。
 
 当前本地工程PASS、实际上传0、Hosted CI未运行。完整Goal保持active；真实采集/UI/关账/环境收敛及三项待答业务问题继续，不修改旧体验库或扩大真实查询。
+
+## 首次交付及CI验收选择器修复
+
+最终文档6e55e5c352e734ff523f3af06d0cfbbf9df9711b精确main996守卫PASS、clean；git-delivery实际pushes=1、command_pass/exit0/10389ms，独立GitHub API证明完整远端SHA一致，DELIVERED_VERIFIED/NORMAL。没有切认证、改共享配置或新建PR；旧664f原始根因不因此补造。三项指定workflow_dispatch均一次成功并绑定该精确SHA：source39620073275、team-access39620078921、baseline39620085365。
+
+实际Hosted：team-access成功；baseline的job/check成功，但workflow聚合仍in_progress，不能宣称整个流程已完成；source已终态failure。source此前数据库/来源/41项成衣观察及原到料UI15项等已执行步骤通过，失败位于payment-read-panel-ui.integration.test.mjs的8个子项（父项合计9失败），均openEvents的existing drawer timed out；后续报价UI/Python被跳过，不能借本地结果写Hosted PASS。日志由jobs API读回到ignored outputs并去除终端控制字符，不stage原文。
+
+失败根因：旧helper取.sp-material-card-actions的第一个button；Gate6D在事件按钮前增加了“分批到料/到料计划”，未等到料读取时还可能disabled。产品事件按钮现有aria-label与“查看事件”未变。独立reviewer只读核对日志/真实组件，扫描server/tests仅此一处旧首按钮选择器，不视为支付产品回归。修复前baseline是clean6e55；本增量只改该测试和四份恢复文档，不改产品、SQL、金额/权限/分页/过期语义、manifest或冻结证据，不放宽等待上限。
+
+helper改按事件按钮完整可访问名称形状与文本定位，只点击一次；等待事件或误开的Planner后，明确断言事件存在且Planner未开，焦点回同一个事件触发器。首次9/9通过（20855.7941ms）；按复审建议追加Planner明确排除后，最终原完整9/9（20038.9005ms）、0fail/cancel/skip，含六尺寸、七合成角色、真实DB撤权、延迟、过期及原请求计数，语法与单文件lint通过。运行使用原应用字节未变的99c52/build20261021-222838，不伪称重建新产品或新截图接受；无真实Source/旧体验库操作。
+
+后续需新checkpoint的精确main守卫/clean、一次工具交付并独立核对，再仅运行三项指定验收CI。用户持续授权涵盖该必要CI修复，不重复请求精确SHA例外；不合并、不关闭或部署。最终远端与Hosted结果后续记录，不能复用6e55的结果冒称新提交通过。

@@ -2,6 +2,8 @@
 
 当前2026-10-21前向阶段：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。从干净e4d7输入继续，见[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[成衣观察feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)和[冻结工程证据](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)。41定向/146 Python/927项目/124相关通过及1既有Windows跳过，类型/lint/生产构建/独立复审通过；db339精确守卫及116发布通过。254证据/53能力；仅验证引用交付和三项指定CI待，不创建重复累计业务PR。不把内部观察API当作正式来源/页面/事件账或关账；完整Goal继续。
 
+前向收口：6e55已一次上传/精确核实；team-access CI通过，baseline检查通过但流程未收口，source失败于旧货款申请UI首按钮选择器。仅修测试、最终9/9及语法/lint通过，产品/SQL/manifest不改；修复后精确守卫、交付与新CI继续见任务，不把旧失败或未执行步骤写PASS。
+
 下段是已完成的前阶段证据，原根文档已逐字节归档，不覆盖其测试/日期/源码绑定。
 
 2026-10-21；codex/server-material-arrival-ui；独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净689afa，无继承dirty；root唯一writer/既有reviewer只读。
