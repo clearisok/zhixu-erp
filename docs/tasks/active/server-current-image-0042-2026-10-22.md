@@ -17,3 +17,14 @@ secret volumes与非旧入口的loopback端口。六阶段检查新空库显式i
 新source39689481386、team39689484921、release39689490085均attempt1执行中；不重发/重复dispatch。
 当前仅验证引用，不新建重复累计PR，不合并/关闭/部署/切换50426或62426。
 3001及全部旧端口、卷、账号、Browser、工作树保持。完整Goal仍active，原待答不默认。
+
+## 实际工程结果
+
+镜像从精确105cfbfc Git archive一次构建并核实标签；image ID
+sha256:646acc4a19b19209009e3b230a107c8ea1bf4ece2fe3a1c2ab7d5ff283578071，
+build server-candidate-105cfbfc-20261022，2026-10-21T22:53:53Z。
+原actual-image测试一次8/8通过（317334.7113ms，无skip），41迁移/最大0042。
+只清理自身成功prepare的合成项目和自身备份，未操作旧入口；候选image保留，不是新运行环境。
+详细六阶段、精确作用域和未重跑范围见[工程报告](../completed/2026-10-22-current-0042-image-persistence-engineering.md)。
+无应用/SQL/ops/测试/UI变更。待冻结报告/新证据、独立复审、最终精确守卫及交付/发布CI；
+不把parent105的CI当本阶段文档CI。
