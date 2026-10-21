@@ -111,6 +111,24 @@ test('zero exits cannot hide timeout, spawn failure, output limits or identity e
     assert.equal(errorCategory({ code: 0, stderr: '', [field]: true }), category);
   assert.equal(errorCategory({ code: 0, stderr: 'SSL certificate verify failed PRIVATE' }), 'tls_identity_or_configuration');
   assert.equal(errorCategory({ code: 1, stderr: 'HTTP 403 PRIVATE', timedOut: true }), 'authentication_or_divergence');
+  assert.equal(errorCategory({ code: 0, stderr: 'TLS unexpected EOF PRIVATE' }), 'uncertain_transport');
+});
+
+test('healthy zero exit transport warnings retain degraded mode after exact delivery', async t => {
+  const f = await fixture(t);
+  const run = async (command, args, cwd) => {
+    const result = await f.dependencies.run(command, args, cwd);
+    return command === 'git' && args[0] === 'push' ? { ...result, stderr: `${result.stderr}\nTLS unexpected EOF PRIVATE` } : result;
+  };
+  const result = await deliver(f.options, { ...f.dependencies, run });
+  assert.equal(result.state, 'DELIVERED_VERIFIED');
+  assert.equal(result.remoteStatus, 'EXACT_HEAD_VERIFIED');
+  assert.equal(result.pushDiagnostic.exitCode, 0);
+  assert.equal(result.pushDiagnostic.category, 'uncertain_transport');
+  assert.equal(result.networkMode, 'NETWORK_DEGRADED');
+  assert.equal(f.pushes(), 1);
+  assert.equal(result.retry, false);
+  assert.ok(!JSON.stringify(result).includes('PRIVATE'));
 });
 
 for (const mode of ['delivered_response_lost', 'not_delivered', 'remote_unverifiable', 'authentication', 'zero_exit_unverifiable']) {

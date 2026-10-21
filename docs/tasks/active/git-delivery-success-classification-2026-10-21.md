@@ -29,6 +29,10 @@ d6上传仅一次，工具同时返回STOP_AUTH_OR_DIVERGENCE、TARGET_NOT_DELIV
 
 既有独立reviewer补充的P2一并修正：remoteStatus只表达独立观察到的exact/不同或不存在/未核实，不由state倒推；非零认证或证书异常可以同时STOP和exact，但continueLocal/retry保持禁止。纯状态显式要求remoteVerified，已证实分歧优先，不信任孤立SHA字符串。正常成功也不能覆盖超时、启动失败、输出超限的诊断。
 
-接下来保存精确源码/状态checkpoint，独立复审、精确main守卫与显式基线，通过后才有界交付及相应新CI。尚未预记新远端/CI成功。
+首个源码/状态checkpoint为e6fbb892f68b1d14710e383deafb1605e6d94dfd；该精确HEAD对main996的源码守卫通过（11页面/51能力/63条累计UI路径，errors=[]），显式发布基线116/116通过，305613.6671ms。原243证据/51能力与冻结业务源不变。
+
+交付前root另发现该checkpoint的健康零退出早返回会隐藏TLS EOF警告。保留追加red：2个定向用例均失败，3604.5087ms；没有用65/65冒称最终版通过。修复只豁免成功输出的普通拒绝关键词，继续检查传输告警。新裸仓库用例证明零退出且独立exact可以同时DELIVERED_VERIFIED和NETWORK_DEGRADED，仅一次push、不重试、不泄露原文。最终完整工具66/66通过，0失败/跳过/取消，142597.9358ms；最新定向eslint通过。原red/green及新red/final-green各自日志保留在ignored outputs，未覆盖。
+
+既有reviewer只读复核最终两文件增量无阻断；没有改业务、SQL、UI、权限、来源或共享网络配置。接下来保存前向修复checkpoint，核对最终精确HEAD守卫，再有界交付并仅运行相关Release baseline CI；不重派d6 Source/Team。新远端/CI尚未执行，不提前记PASS。
 
 Gate7成衣出货时点仍待用户选择，未实施依赖定义的schema/命令；Gate8的加工服务产值、关账stale及旧CNY工价处理仍待决定。完整Server收敛目标未完成。本工具修复不替代后续业务Gate。

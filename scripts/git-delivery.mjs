@@ -10,8 +10,8 @@ const sha = value => /^[0-9a-f]{40}$/.test(value ?? '');
 const denied = /authentication failed|permission denied|access denied|could not read username|invalid username|(?:error:|HTTP)\s*(401|403)|non-fast-forward|\brejected\b|conflict|diverg/i;
 export function errorCategory(result) {
   if (isTlsIdentityFailure(result.stderr)) return 'tls_identity_or_configuration';
-  if (result.code === 0 && !result.timedOut && !result.spawnError && !result.overflow) return 'command_pass';
-  if (denied.test(result.stderr)) return 'authentication_or_divergence';
+  const successful = result.code === 0 && !result.timedOut && !result.spawnError && !result.overflow;
+  if (!successful && denied.test(result.stderr)) return 'authentication_or_divergence';
   if (result.timedOut) return 'timeout';
   if (result.spawnError) return 'executable_unavailable';
   if (result.overflow) return 'output_limit_exceeded';

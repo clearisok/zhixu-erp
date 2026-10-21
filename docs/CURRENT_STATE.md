@@ -13,8 +13,9 @@ Source另5个Windows平台跳过，Git fixture52通过/1Windows跳过；不记�
 
 交付工具曾同时输出STOP与exact remoteSha；具体旧stderr和网络根因未证实。已在纯函数/临时裸仓库复现成功ref关键词误判，
 正做最小修复与脱敏诊断：成功命令仍须独立精确SHA；非零认证、TLS身份异常及已证实分歧仍STOP。
-新工具65/65（138380.601ms）、语法/定向lint通过；red64中53通过/11失败的复现记录保持。
-精确交付/新CI另行验收，不借d6绿灯。当前工具切片尚未提交或远端交付，不提前记远端PASS。
+源码checkpoint e6fbb892f68b1d14710e383deafb1605e6d94dfd对main守卫及显式基线116/116通过。
+首轮red53/64、green65/65保持；交付前另以2项red发现零退出隐藏TLS EOF，已修正并完整66/66通过（142597.9358ms），最新lint通过。
+既有reviewer复核无阻断；传输警告仍保留NETWORK_DEGRADED，不宣称永久网络修复。最终前向提交/精确交付/新CI另验，不借d6绿灯。
 
 [d6三摘要逐字输入](tasks/completed/2026-10-21-production-execution-ui-delivery-inputs/d6b17c7a/)保存旧日期/hash/结果/限制。
 原243证据/51能力/旧PNG和业务源27b保持；不为了收口状态改写冻结证据或重复派发旧CI。

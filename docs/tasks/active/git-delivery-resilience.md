@@ -11,6 +11,10 @@ authentication failures, TLS identity failures and proven divergence as STOP.
 Successful exit alone never establishes delivery. Remote observation and the
 decision to continue are separate fields. Additive diagnostics contain only
 exit/category/timeout/timing metadata, never raw output.
+The final local regression has 66 passing tests, including a healthy zero exit
+with a TLS EOF warning and independent exact SHA: delivery is verified while
+network mode remains degraded. The first 65-test checkpoint and the subsequent
+two failing warning checks remain separate historical results, not overwritten.
 
 This reproduction is not proof of the original d6 stderr or a permanent network
 repair. The [d6 delivery record](../completed/2026-10-21-production-execution-ui-delivery.md)
