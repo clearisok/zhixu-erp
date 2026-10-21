@@ -1,16 +1,18 @@
 # 项目知识索引
 
-2026-10-21恢复：[工具交付终态](tasks/completed/2026-10-21-git-delivery-success-classification.md)、[原工具任务](tasks/active/git-delivery-success-classification-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
-main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；当前codex/git-delivery-success-classification从main显式FF干净d6。
+2026-10-21恢复：[Gate6D物流资料任务](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
+main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；当前codex/server-logistics-resources从main显式FF干净717。
+当前只有新增Hub/运输方案纯输入契约，复用production-resources外壳，原4HTTP kind不变；19纯/含原PG与HTTP36、types/Node/lint通过、独立复审无阻断。
+没有物流新SQL/API/UI/权限/默认Seed，不借旧CI标记新能力；源码checkpoint和精确守卫仍在收口。
+[717三摘要输入](tasks/completed/2026-10-21-logistics-resource-inputs/717bbab2/)保留前阶段全部日期/hash/结果/限制，提交核对Git blob文本一致。
 [Gate6C执行页面交付终态](tasks/completed/2026-10-21-production-execution-ui-delivery.md)：d6b17c7ab7deabdb0f9378d063572476b816c1ad一次上传、独立API exact。
 Source39538964254/Team39538971997/Baseline39538980120均success/attempt1，实际执行纯22/PG15、客户端35、完整PG269、执行Chromium28、Quote87/Python131、项目927/基线116通过。
 Source5个Windows平台跳过、Git fixture52通过/1Windows跳过；精确日志和既有独立复审已核对，不改写早期失败与跳过。
 应用最终源27b、六尺寸30几何及原UI/后台范围保持；[执行页面契约](features/SERVER_PRODUCTION_EXECUTION_UI.md)和[原页面任务](tasks/active/server-convergence-gate6c-ui-2026-10-21.md)继续有效。
 [d6三摘要逐字输入](tasks/completed/2026-10-21-production-execution-ui-delivery-inputs/d6b17c7a/)保留旧日期/hash/结果/限制与d207/b891/be7/f344/933d链。
-当前只修可复现Git成功ref关键词误判、远端事实标签及安全元数据，不改业务/SQL/UI；e6守卫/基线116通过。
-保留首修65/65与后续TLS警告2项red，最终工具66/66及lint通过、独立复审无阻断；最终精确交付/CI另验，不借d6绿灯。
-后续源码664fb5f8ae2248a83aff1ba5a623dc22ba2da664一次上传、独立API exact；实际exit1的STOP仍保持、原因未证实、不重推。
-唯一新CI39543987486已success/attempt1（116/116、Git65通过/1Windows跳过），实际日志复审无新增阻断；随后文档仅本机归档，未上传。
+工具源码664fb5f8ae2248a83aff1ba5a623dc22ba2da664一次上传、独立API exact；实际exit1的STOP仍保持、原因未证实、不重推。
+唯一CI39543987486已success/attempt1（116/116、Git65通过/1Windows跳过），实际日志复审无新增阻断；717文档仅本机归档未上传。
+工具原65/66及全部red、最终守卫和具体保护见[工具终态](tasks/completed/2026-10-21-git-delivery-success-classification.md)，不冒称网络长期恢复。
 Gate7出货定义已询问未答，Gate8其他口径待决；出货/物流/Server关账与真实激活仍未闭环，完整目标未达成。
 原243证据/51能力/旧PNG保持，#120–127原完整头/open draft已重新核实；不建重复累计业务PR、不merge/close/deploy。
 保护3001/50426/59069/62426及旧卷/工作树/Browser；持续Git授权不扩真实数据/来源/部署/退役范围。

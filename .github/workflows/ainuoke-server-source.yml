@@ -28,7 +28,7 @@ jobs:
         run: |
           node --test server/integration/chromium-endpoint.test.mjs
           npm run server:build
-          npx --no-install tsx --test --test-concurrency=1 server/production-resources/contract.test.ts server/integration/production-resources.integration.test.ts
+          npx --no-install tsx --test --test-concurrency=1 server/production-resources/contract.test.ts server/production-resources/logistics-contract.test.ts server/integration/production-resources.integration.test.ts
           npx --no-install tsx --test --test-concurrency=1 server/production-scheduling/contract.test.ts server/production-scheduling/read-contract.test.ts server/production-scheduling/planning-preview.test.ts server/integration/production-scheduling.integration.test.ts server/integration/production-scheduling-upgrade.integration.test.ts
           npx --no-install tsx --test server/production-scheduling/execution-contract.test.ts server/production-scheduling/execution-preview.test.ts
           npx --no-install tsx --test --test-concurrency=1 server/integration/production-execution.integration.test.ts
