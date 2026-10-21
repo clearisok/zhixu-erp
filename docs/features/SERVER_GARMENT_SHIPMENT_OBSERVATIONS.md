@@ -53,6 +53,16 @@ Node `garment-shipment-observations.ts` 只接内部checked pages，不能由HTT
 
 ## 验证与剩余工作
 
+### Gate7B：固定合同过滤核验工具（未执行真实查询）
+
+`garment-contract-verification.ts` / Python `garment_contract_verification.py` 只作独立诊断。CLI只能接收私密候选、凭据、输出目录路径和固定动作，不接受合同、报表、页号或替换hash。先探测Node数字原文能力、clean commit与私密输出，再核对已冻结D1933候选的包装hash、内部原文hash、原工具提交、唯一非空合同/账号指纹及id/billno见证，之后才读取凭据。旧候选的历史日期不冒充新捕获时效；合成选择解析函数不构成真实范围授权。
+
+固定队列为C1首页 → 虚拟合同C0首页 → C1首页，条件为6086979 / ExpContractNo / is / [内层]。该查询条件仍是待实测假设；不会在失败后改字段、改比较器、去除条件或翻页。最多1次登录+3次报表、每报表4MiB、报表累计12MiB、登录另4MiB、整链180秒，无重试。首页total>100即停止；正向非空、全行精确合同、双总数一致、id唯一/见证存在，两遍内容集合一致；C0必须成功且明确total=0/rows=[]。行序变化允许，数量精度不经浮点改写。
+
+复用Python严格无损JSON与有界传输、Node精确数值解析、已有私密文件ACL/hash检查和不可覆盖报告写入。Python端任何失败停止，安全已收页面可私密保留；含秘密反射、重复键或无法安全解析的文本不落地。Node独立复核原文hash、完整范围、时间、顺序与两遍内容；超时/损坏进程回执标记次数未知，不补零。公共回执只含别名、数量、hash和静态原因。普通“[待核]”等业务文字保持文本，真正编码JSON继续检查重复键及秘密字段。
+
+Windows入口 `scripts/ainuoke-garment-contract-verification.ps1` 只创建新的受保护ignored目录并启动原Node入口，不在PowerShell读取或显示密码。准备/测试均只用合成临时文件；真实私密报告与凭据未读取，新真实额度尚未批准/消耗。诊断结果不注册Catalog、不激活target、不访问DB、不产出可发布快照或默认新鲜度，也不证明所有合同过滤、跨次事件身份、取消或关账。当前收口与实际测试/交付结果见[Gate7B任务](../tasks/active/server-convergence-gate7b-filter-verification-2026-10-22.md)。
+
 `npm run test:garment-shipment-observations`执行纯契约、一次性PG/真实session HTTP、0039升级、并发撤权/停用/物理来源更新、丢回执、过期重放、历史分页、跨单颜色FK、容量及审计回滚。Python全套含原文精度/hash检查。新增命令接入既有Source验收workflow；本地PASS不代表Hosted CI。
 
 真实启用前仍须有具体受控查询授权，核实精确合同过滤、分页和两遍范围，不能重复使用D1933已消耗额度。正式收集器/操作者命令、来源失败记录、UI、取消/冲销/事件身份及财务采用分别交付；不从一次样本或本快照模型推断业务闭环。完整Goal继续。
