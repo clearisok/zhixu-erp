@@ -1,10 +1,11 @@
 # 项目知识索引
 
-2026-10-21恢复：[Gate7固定首页诊断任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
+2026-10-21恢复：[Gate7一次真实核验](tasks/completed/2026-10-21-garment-shipment-first-page.md)、[工具任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
 main996dfedc12da3527343cd3ff2aa5eea35497e10e本轮独立API核实；当前codex/garment-shipment-source-probe从该对象显式FF干净3b9。
 用户提供6086979/insideorderno contains D1935的查询载荷，不是返回字段或成衣出货含义证据；新工具固定一次登录+一次首页、100行/4MiB/120秒。
-复用原客户端/Transport/私密报告，0重试/翻页/DB/绑定/激活，不注册正常目录。只合成验证，尚未读取真实凭据或上游，新增真实范围待确认。
-实际组合Node82/82、修复显式null总数后新工具12/12、最终Python142/142、types/Node/lint及只读复审通过；本轮基线116/116、精确main源码守卫PASS，源码checkpoint后核对HEAD，无新Hosted CI/PR。
+复用原客户端/Transport/私密报告，0重试/翻页/DB/绑定/激活，不注册正常目录。用户随后明确批准固定首页一次，实际1登录+1报表成功、total0/rows0。
+报告名已确认“成衣出运登记明细表”、38列定义；原文受保护、hash离线读回一致。零行原因未证实，该许可已用完，不取消筛选或自动扩大查询。
+实际组合Node82/82、修复显式null总数后新工具12/12、最终Python142/142、types/Node/lint及只读复审通过；本轮基线116/116、main996/e8f精确HEAD守卫PASS，无新Hosted CI/PR。
 缺失metadata/数量/日期仍未知，原decimal/重复行不改，不用contains匹配SO或推算关账；原243证据/51能力/旧PNG保持。
 [3b9三摘要输入](tasks/completed/2026-10-21-garment-probe-inputs/3b9a44a0/)完整保存此前日期/hash/结果/限制。
 [Gate6D物流纯契约](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)已本机3b9：19纯/36含原PG与HTTP、types/Node/lint/复审/精确main守卫通过，无新物流SQL/API/UI。

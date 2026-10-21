@@ -1,4 +1,4 @@
-# 恢复点：6086979固定首页诊断本机收口，真实读取尚未授权
+# 恢复点：6086979一次真实核验完成，38列但D1935零行
 
 2026-10-21，目标active/未完成。当前Goal轮有实质进展：Gate6D纯契约3b9及Gate7专用诊断与合成验收。
 root唯一writer、既有reviewer只读；main本轮API996dfedc12da3527343cd3ff2aa5eea35497e10e，#120–127原完整头/open draft未变。
@@ -14,13 +14,16 @@ codex/garment-shipment-source-probe从main对象创建并显式FF到干净3b9a44
 独立于正常Report Catalog；原文decimal/重复行/空值保留hash，metadata可为数组/编码/空白；未知不补零。
 两处空白cellList与显式null总数已修复，后者先有红测；Node验证拒绝时只允许保留有界且秘密筛查过的原证据，绝不自动重读。
 脚本使用既有文件格式和受保护ACL、匿名stdin、UTF-8/ASCII worker帧，闭合错误/计数，无凭据/行值输出。
-未执行真实凭据文件读取或上游请求，不将工具工程通过记为业务核验。
+以上是工具准备时点；随后用户明确批准固定首页一次，已执行成功，详见下方真实终态。不将工具工程通过记为业务核验。
 
 实际组合Node82/82（46444.019ms）；最终新工具12/12（11609.6873ms）；Python早期141/2.650s、最终142/1.973s均OK，分别保留log。
 最终types/Node编译/四路径lint通过，PowerShell AST无错误；Windows私密链只合成账号/自有tmp repo。
 既有reviewer只读复审无新代码阻断，未替其声称运行测试；本轮基线116/116（357102.8747ms）、main996源码守卫PASS/11页/51能力/累计63 UI路径，0新Hosted CI/PR。
-下一步保存干净checkpoint并核对精确HEAD守卫；随后一次性询问新增真实范围：固定6086979/D1935首页，1登录+1报告，无重试、DB或激活。
-不再询问已接受D109 HTTP风险，不让用户复制命令或提供密码；只有明确范围批准后由私密进程消费D:/workspace/ainuoke-key.txt。
+工具干净checkpoint=e8f979bd9aa223fae0f330723ffc2f8301b8dcd7，精确main996/HEAD源码守卫PASS。随后用户明确授权一次固定首页，由私密进程消费既有文件成功执行。
+实际1登录+1报表/2HTTP，2026-10-21T05:17:51.436041+00:00采集；6086979=“成衣出运登记明细表”、38列定义，但D1935返回total0/rows0。
+许可已用完，0重试/翻页/DB/绑定/激活。原文和hash只在受保护ignored目录，脱敏[真实报告](tasks/completed/2026-10-21-garment-shipment-first-page.md)保留路径/hash/38字段/全部限制。
+onlyMyUser=true是上游标志，不证明零行原因；不能擅自取消筛选。下一步取得实际有出运明细的准确样本范围后再核对，未知行ID/日期/单位/取消/冲销继续未知。
+候选Num/outdate/ExpContractNo/CnColor/QtyUnit来自元信息，不是正式映射；wxprice未知币种，不替代CCT/订单工价或默认USD。D109不重问，不让用户提供密码或执行命令。
 
 3b9 Gate6D纯物流19/36及精确main守卫已通过，未新增SQL/API/UI/权限/Seed；[原任务](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)仍待后续事务/父子锁/CAS/服务接线。
 d6执行UI/三CI与工具664f/唯一CI39543987486各自终态在completed，不借给当前probe。

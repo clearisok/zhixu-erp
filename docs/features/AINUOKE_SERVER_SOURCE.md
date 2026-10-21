@@ -1,4 +1,6 @@
-2026-10-21工程增量：用户提供6086979、insideorderno contains D1935首页载荷作为成衣出货来源线索。新增专用Node/Python/私密PowerShell诊断，复用原客户端、有界Transport和私密写入；固定1登录+1报表、100行/4MiB/120秒，0重试/翻页/DB/绑定/激活，不注册Report Catalog或持续Source。只有合成验收，尚未执行新真实读取；新增范围待具体确认。响应字段、单位、数量/日期含义、颜色和稳定合同/行身份未核实，不以contains结果匹配SO、不将物料出运当成衣出货。细节及实际测试见[Gate7任务](../tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)。下方旧日期/hash/结果/限制不改。
+2026-10-21新增真实证据：工具e8f已通过合成验收/复审和精确main守卫，用户随后另批固定D1935首页一次读取。实际1登录+1报表成功，6086979名为“成衣出运登记明细表”、38列定义，但total0/rows0；该许可已用完，未重试/翻页/DB/绑定/激活。原文仅存本机受保护ignored报告，完整字段表/hash/时点/未知见[一次真实核验](../tasks/completed/2026-10-21-garment-shipment-first-page.md)。只有元信息，Num/outdate/ExpContractNo仍是候选，未证明数量/日期/合同/单位/行身份或关账口径；不默认wxprice币种，不因onlyMyUser标志推断零行原因或扩大查询。
+
+2026-10-21工程准备时点：用户提供6086979、insideorderno contains D1935首页载荷作为成衣出货来源线索。新增专用Node/Python/私密PowerShell诊断，复用原客户端、有界Transport和私密写入；固定1登录+1报表、100行/4MiB/120秒，0重试/翻页/DB/绑定/激活，不注册Report Catalog或持续Source。当时只有合成验收，新增真实范围尚待确认；后续一次实际结果见上段。细节及实际测试见[Gate7任务](../tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)。下方旧日期/hash/结果/限制不改。
 
 2026-10-16执行后更新：用户另批新两合同隔离空库方案及一次首绑补读，已通过原D143/D142落地2 SO、2物料/2财务快照，7合成角色读回39项物料与21行申请。仅新本机只读演示、无调度，原10分钟时效不变；物料历史过期后可读，财务历史ERP入口仍缺。见[执行报告](../tasks/completed/2026-10-16-selected-demo-execution.md)及[冻结证据](../tasks/completed/evidence/2026-10-16-selected-demo-execution.json)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5、PR116草稿未合并；不是生产/全量Source激活。下文旧日期/SHA与“未授权/0操作”保留历史含义。
 
