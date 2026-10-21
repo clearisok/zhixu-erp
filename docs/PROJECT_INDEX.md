@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22 Gate7B本地通过：codex/garment-contract-filter-verification，从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建立并FF干净acfed2d091297c9fb587680a29ca6932892fa8ea。见[新阶段任务](tasks/active/server-convergence-gate7b-filter-verification-2026-10-22.md)和[固定核验契约](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。源码55362ddc：13Node/162Python/19原payment/927项目/116发布、类型lint及两构建通过；最终HEAD守卫/交付/CI另核实。真实额度未批准/未使用，不读真实凭据/私密报告，不访问业务DB或激活来源。前阶段根文档逐字节归档，完整Goal继续。
+2026-10-22 Gate7B本地通过：codex/garment-contract-filter-verification，从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建立并FF干净acfed2d091297c9fb587680a29ca6932892fa8ea。见[阶段任务](tasks/active/server-convergence-gate7b-filter-verification-2026-10-22.md)和[核验契约](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。源码55362ddc：13Node/162Python/19原payment/927项目/116发布、类型lint及两构建通过；远端38499498精确独立核实/守卫PASS，push原STOP保留不重推，3CI进行中。真实额度已问一次、尚未答复/使用，不读真实凭据/原文或业务DB，不激活来源。前阶段根文档逐字节归档，完整Goal继续。
 
 
 当前2026-10-22：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、[冻结工程报告](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)为恢复入口。41定向/146 Python/927项目/124相关通过+1既有Windows跳过，类型/lint/构建/116发布/精确守卫通过；254证据/53能力。内部观察不是正式采集、成衣页面、事件总账或关账，Goal继续。

@@ -40,3 +40,12 @@
 工作区源码守卫PASS（checkedHead0e4c519e，含当时未提交增量）；后续最终文档HEAD会再精确运行，不混称同一HEAD。独立只读review已确认P2修复及合成launcher正控/产品负控，未读取真实文件或跑真实请求。当前新增工具已就绪，真实过滤语义仍未验证；不新增能力合并/部署/激活/用户接受状态，保留254旧证据/53能力。
 
 最终文档commit、精确守卫、一次安全交付、独立远端完整SHA与三个CI结果后续单独记载。沿用批准的验证引用，不创建重复累计PR；任何Git不确定结果先核实、不盲推。仍无真实Source查询、凭据/原文读取、DB/账号/调度/环境或UI改动。
+
+## 交付与CI起点
+
+- 验收文档38499498068acc31f2d1b7e76ca2f27572721bf4精确main996守卫PASS（11页面/53能力/76条继承UI路径，errors=[]），clean。
+- 仅执行一次既有git-delivery工具，pushes=1/exit1/6531ms，返回STOP_AUTH_OR_DIVERGENCE、continueLocal=false，同时remoteStatus=EXACT_HEAD_VERIFIED/remoteSha384。原始回执保存在ignored outputs/garment-filter-gate7b/delivery-38499498.log；未重推，也未称工具DELIVERED_VERIFIED。
+- root随后独立GitHub API再次核实完整384；本地HEAD仍384/clean，for-each-ref code0确认对应tracking ref不存在。原始stderr不保留，不能倒推真正认证失败、服务器引用更新或本地引用根因。
+- 既有只读diagnose工具默认/HTTP1.1/OpenSSL+HTTP1.1三对照均code0/main996（3346/2718/2675ms）；无持久配置或认证变化。push.followTags、remote.origin.mirror未配置。只读通畅不是推送可靠性证明，根因保持unresolved；本轮停止Git写入，文档checkpoint只本地保全。
+- 仅在已经精确独立核实的384上启动原三验收CI，不改分支/账号/业务：Source [39644366031](https://github.com/clearisok/zhixu-erp/actions/runs/39644366031)、Team [39644375067](https://github.com/clearisok/zhixu-erp/actions/runs/39644375067)、Baseline [39644382880](https://github.com/clearisok/zhixu-erp/actions/runs/39644382880)，初查均head384/status=in_progress。后续终态不能由本地测试或动作dispatch推断。
+- 固定C1/C0/C1真实核验额度已异步单次请求，要求用户明确回答且三CI通过再执行。目前无回复/0真实请求、不读取旧真实私密报告或凭据。技术准备不消耗旧额度、不自动批准新额度。

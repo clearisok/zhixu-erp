@@ -6,6 +6,10 @@
 
 当前已实现固定C1首页→虚拟零合同→C1首页，1login+最多3reports/100行/每报表4MiB/报表累计12MiB、登录另4MiB/180秒，无翻页重试。Node先探测数字原文runtime、clean/output、候选包装/原文双hash及唯一合同，再读私密凭据；CLI不接受任意合同/report/page/hash。结果只为私密诊断，不输出业务发布输入或激活。真正执行前另批具体新额度；D1933/1935已用完，本阶段不读真实私密报告/凭据。
 
-应用checkpoint55362ddc815e975e48aded9a8d67136d75d65c79干净。13新Node/162Python/19原payment/927项目/116发布均通过，类型/lint/Server编译/应用构建通过；工作区守卫PASS，最终文档HEAD仍单独守卫。实际Python/GBK与合成Windows launcher成功私密落盘已覆盖，产品CLI拒非冻结候选先于missing credential；不是读取真实候选PASS。独立review普通括号文本P2已修、最终静态复审无阻断。首轮DECISION技术进度误写导致9门禁失败已修，保留原日志且原blob/hash/业务规则未变。下一步文档checkpoint/精确守卫、一次既有安全交付、独立remote SHA和三CI；Gate0不新建累计PR。全部验证只合成，没有DB/页面/环境改动。
+应用55362ddc815e975e48aded9a8d67136d75d65c79、已核实远端38499498068acc31f2d1b7e76ca2f27572721bf4。13新Node/162Python/19原payment/927项目/116发布、类型lint/Server编译/应用构建、精确384守卫全通过；独立review无阻断，原9项文档漂移失败及P2修复记录保留。不是读取真实候选PASS，未改SQL/UI/环境。
+
+重要：本次唯一push exit1/6531ms，工具STOP_AUTH_OR_DIVERGENCE/continueLocal=false保持；独立API再次exact384，本地tracking不存在。3只读Git/TLS对照成功（main996），mirror/followTags未配置；根因仍unknown，不重推384，不按“网络已恢复”自动再次写入。原失败和新诊断在ignored outputs/garment-filter-gate7b/。仅对远端已核实384启动source39644366031/team39644375067/baseline39644382880，均进行中，须核实head和终态。新文档checkpoint只本地保全，Gate0不新建累计PR/merge/deploy。
+
+真实核验新额度已单次异步询问：冻结D1933唯一C1/C0/C1、1login+3reports/100/4MiB各、报表12MiB/登录另4MiB/180秒，无重试翻页/DB/激活；尚无回答，且要求CI成功后才能执行。不重问、不把时间当同意。下一独立只读页面研究可依赖Gate7A，不能把payment过期即清空语义复制给成衣历史；现DTO无expiresAt，需明确单调时效/历史保持，reviewer正只读预审。
 
 完整Goal active；关账三问题仍待用户原回答，不推断同意。按Gate0只验证引用，不新建累计PR/merge/close/deploy。保护全部旧环境/账号/Browser；62426只是旧8175 public health/build已读回，不等于全READY或新版。冻结报告c031/LF d96aea2e1810408122072f02bc5b5bc064da1d70f9808fcfaf444379ee8aea05与旧截图不动。
