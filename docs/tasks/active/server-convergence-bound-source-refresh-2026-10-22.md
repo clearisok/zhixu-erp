@@ -74,3 +74,17 @@ checkpoint. No new remote delivery/CI/deployment is implied. a296's three exact
 Hosted CI runs separately completed success; Git write STOP and unknown root cause
 remain. No real source read, credential access, existing migration, merge/close,
 retirement or user acceptance occurred. The overall Goal remains active.
+
+## Frozen application and forward metadata
+
+Application/report checkpoint: 81a8d600434844784067e7c977a173b566e7c634.
+All three archived input summaries are Git-blob-identical to a296. The forward
+manifest appends one document and one capability (260/55), leaving every previous
+entry and all pages/CSS/routes/runtime records unchanged. Main-based metadata
+guard PASS and full release116/116 (190441.751ms) passed. No new UI evidence
+was invented. The final metadata commit's exact HEAD/clean/guard is independently
+recorded in ignored outputs/bound-source-refresh/checkpoint-final.json.
+
+No remote write was retried; no new PR or hosted CI for this slice is claimed.
+Pending exact-source quota/closing decisions and all protected runtime boundaries
+remain. The continuous Goal is active; this does not complete Gate4C or Gate8.

@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)与[已有合同受控刷新](tasks/active/server-convergence-bound-source-refresh-2026-10-22.md)为准。当前feat/server-bound-source-refresh从独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e建分支后FF干净a296；离线预览/提交/不可变原回执和历史owner保护在本地验收，无自动采集/HTTP writer或真实操作。a296三CI精确success；新代码远端/CI/部署仍未交付，Git写停止与独立exact的事实分开记录。原三摘要及全部历史日期/hash/结果/限制逐字节保存在[输入归档](tasks/completed/2026-10-22-bound-source-refresh-inputs/a2967558/PROJECT_INDEX.md)。Num/outdate已确认，真实读取额度及关账原待决继续。下方历史模块索引不替代当前阶段与运行镜像事实。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)与[已有合同受控刷新](tasks/active/server-convergence-bound-source-refresh-2026-10-22.md)为准。当前feat/server-bound-source-refresh从独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e建分支后FF干净a296；离线预览/提交/不可变原回执和历史owner保护已在81a8d600434844784067e7c977a173b566e7c634冻结，18/81/269/927及116发布与类型/lint/构建通过，55能力/260证据前向登记；无自动采集/HTTP writer或真实操作。a296三CI精确success；新代码远端/CI/部署仍未交付，Git写停止与独立exact的事实分开记录。原三摘要及全部历史日期/hash/结果/限制逐字节保存在[输入归档](tasks/completed/2026-10-22-bound-source-refresh-inputs/a2967558/PROJECT_INDEX.md)。Num/outdate已确认，真实读取额度及关账原待决继续。下方历史模块索引不替代当前阶段与运行镜像事实。
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：

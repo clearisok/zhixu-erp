@@ -2168,6 +2168,15 @@
       "sha256": "e20dce6e4a35d3099a5711702662771df3f267c6bf7b6c0f59c12988c63ae766",
       "approvalEvidence": "server-garment-shipment-read-ui-engineering-20261022",
       "changeReason": "New synthetic built Chromium screenshot within user-approved D147 Server garment read scope, local V2 impact. No prior PNG overwritten and no user visual acceptance or deployment claimed."
+    },
+    {
+      "id": "bound-order-source-refresh-engineering-20261022",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-22-bound-order-refresh-engineering.md",
+      "recordedAtSha": "81a8d600434844784067e7c977a173b566e7c634",
+      "renderedSourceSha": "81a8d600434844784067e7c977a173b566e7c634",
+      "sha256": "8840dd082ac01a0ffc4b5526a0098c421d4578bb10f3df3af84fb97135262079",
+      "changeReason": "New D147 engineering evidence for explicit offline bound-contract promotion. Preserve prior evidence and distinguish local validation from merge, runtime, real Source activation and user acceptance."
     }
   ],
   "pages": [
@@ -7532,6 +7541,91 @@
           "runtimeId": "preview18444"
         }
       }
+    },
+    {
+      "id": "bound-order-source-refresh",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Explicit offline preview/apply/original-request receipt for one already bound contract, formal Discovery/6087105 adapters, physical owner and DeliveryPlan protection, immutable 0041 success receipts and complete reference inventory. No HTTP writer, collection, SO creation, continuous refresh, commercial/execution rewrite or deployment.",
+      "evidence": [
+        "bound-order-source-refresh-engineering-20261022"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "81a8d600434844784067e7c977a173b566e7c634",
+          "scope": "Explicit offline preview/apply/original-request receipt for one already bound contract, formal Discovery/6087105 adapters, physical owner and DeliveryPlan protection, immutable 0041 success receipts and complete reference inventory. No HTTP writer, collection, SO creation, continuous refresh, commercial/execution rewrite or deployment.",
+          "evidence": [
+            "bound-order-source-refresh-engineering-20261022"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-22",
+          "sourceSha": "81a8d600434844784067e7c977a173b566e7c634",
+          "scope": "Not merged at independently verified main996dfedc12da3527343cd3ff2aa5eea35497e10e; no automatic merge.",
+          "evidence": [
+            "bound-order-source-refresh-engineering-20261022"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "81a8d600434844784067e7c977a173b566e7c634",
+          "scope": "18 focused PG/private-operator cases, 81 related, 269 full PostgreSQL, 927 project, types/lint/Node/frontend builds. Synthetic owned fixtures only; no new browser pixel acceptance. Final release metadata tests are a separate checkpoint.",
+          "evidence": [
+            "bound-order-source-refresh-engineering-20261022"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "81a8d600434844784067e7c977a173b566e7c634",
+          "scope": "Not run. This operator has not been exercised by the user or deployed to an experience environment.",
+          "evidence": [
+            "bound-order-source-refresh-engineering-20261022"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "81a8d600434844784067e7c977a173b566e7c634",
+          "scope": "Offline only; no source request, credential read, target binding/activation, scheduler or real database mutation.",
+          "evidence": [
+            "bound-order-source-refresh-engineering-20261022"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Not deployed or re-observed. Preserve the dated historical runtime/image identity without asserting that this application runs there.",
+          "evidence": [
+            "bound-order-source-refresh-engineering-20261022"
+          ],
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Not deployed or re-observed. Preserve the dated historical runtime/image identity without asserting that this application runs there.",
+          "evidence": [
+            "bound-order-source-refresh-engineering-20261022"
+          ],
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444"
+        }
+      }
     }
   ],
   "runtimeSnapshots": [
@@ -7563,6 +7657,7 @@
     "No target Zhixu runtime, ledger, accounts or deployment changed or reverified by this bounded payment diagnostic. The dated upstream first-page observation is not Source activation.",
     "Static Server allowlist is only the capability ceiling; orderRead defaults disabled and explicit snapshot runtime must match the compiled build and source reader.",
     "New contracts and existing main/color source mirrors do not automatically refresh. Historical snapshots accumulate without retention automation.",
-    "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment."
+    "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment.",
+    "Bound-contract refresh is an explicit offline promotion command only. Its hashes bind reviewed bytes/target, not human execution authorization; no continuous contract refresh or source activation is supplied."
   ]
 }
