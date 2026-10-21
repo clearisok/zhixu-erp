@@ -153,4 +153,6 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 
 刷新只恢复核对入口，不自动POST。回执的actor/request/kind及既有规范化SHA-256与原内容一致后才删除本键；已知成功另读最新资料，不拿旧回执覆盖现版本。pending/unknown不等于未执行；只有用户明确点击“重试原请求”才发送同一编号与同一内容。损坏、未来版本、摘要冲突和其他用户原字节保持，不静默清除或生成新编号。会话切换使当前异步owner失效，不能消费另一用户缓存。关闭标签页可能丢失这个临时核对地址；已入库资料、审计和服务端回执仍在。无localStorage/IndexedDB/Seed读取、写入、清理或Browser回退。
 
+2026-10-21 Gate6D沿用同一schema1和namespace，增加hubs/transport-plans两个kind作用域；不换key或迁移/清理旧四类型原字节。物流未决命令只增加显式仓/地点UUID、完整方式字段和既有/待分配身份，不保存Server返回快照；本地editorId不进入命令。新请求派生显示标题后先原字节读回才POST，原请求重试不重新派生名称/身份。生成新方式ID的回执必须核对全部成员/顺序/业务值后才删除原命令；裸422、错误摘要或未知结果保持缓存。父资料读取后的owner校验与原WebCrypto/网络/401/确认保护共同覆盖A→B→A；Browser长期数据、备份、Seed和IndexedDB不变。
+
 2026-10-17 D-145 Server会话恢复：新增sessionStorage zhixu.server.order-price.pending.v1.<public-user-id>仅请求UUID、zhixu.server.processing-push.pending.v1.<public-user-id>仅请求UUID/Quote IDs；不存金额/原因/令牌，不读写Browser业务namespace/IndexedDB或Seed。原载荷仅当前组件内存保存。只显式重试原命令/核对服务端回执；已确认完成或明确受理前拒绝时删除本组件恢复标记。不同用户不能复用标记，切换授权范围重新加载投影。没有服务端记录且原内存稿已丢失时保持核对状态，不冒称未执行或自动重新下单。

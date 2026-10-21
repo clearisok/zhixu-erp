@@ -112,6 +112,10 @@ test('Gate6A/6D built resource pages preserve Server ownership, logistics member
     };
     const modeField = (index, label, value) => evaluate(`(()=>{const n=[...document.querySelectorAll('[role=dialog] [aria-label="${label}"]')][${index}];if(!n)throw Error('missing mode field');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,${JSON.stringify(value)});n.dispatchEvent(new Event('input',{bubbles:true}))})()`);
     const editPlan = async needle => { const expression = `(()=>{const card=[...document.querySelectorAll('.qc-infrastructure-plan-card')].find(n=>n.textContent.includes(${JSON.stringify(needle)}));return [...(card?.querySelectorAll('button')??[])].find(n=>n.textContent==='编辑运输方案'&&!n.matches(':disabled'))})()`; await until(() => evaluate(`Boolean(${expression})`), 'editable plan ' + needle); await evaluate(`${expression}.click()`); };
+    const editHub = async name => {
+      const expression = "(()=>{const card=[...document.querySelectorAll('section[aria-label=集货仓] .qc-infrastructure-entity-card')].find(n=>n.querySelector('strong')?.textContent===" + JSON.stringify(name) + ");return [...(card?.querySelectorAll('button')??[])].find(n=>n.textContent==='编辑集货仓'&&!n.matches(':disabled'))})()";
+      await until(() => evaluate('Boolean(' + expression + ')'), 'editable Hub ' + name); await evaluate(expression + '.click()');
+    };
     const shot = async name => { const result = await command('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); await writeFile(join(evidence, name + '.png'), Buffer.from(result.data, 'base64')); };
     await command('Page.addScriptToEvaluateOnNewDocument', { source: `
       window.resourceMode='ready';window.resourceListMode='ready';window.resourceReceiptMode='ready';window.resourceWaiters=[];window.resourcePostWaiters=[];window.resourceReceiptWaiters=[];
@@ -386,7 +390,8 @@ test('Gate6A/6D built resource pages preserve Server ownership, logistics member
         await editPlan('合成空运'); await until(() => evaluate("document.querySelectorAll('[role=dialog] [aria-label=运输方式名称]').length===4"), 'responsive full logistics detail');
         const metrics = await evaluate("(()=>{const drawer=document.querySelector('[role=dialog]'),rect=drawer.getBoundingClientRect();return {page:'transport-plan',width:innerWidth,scroll:document.documentElement.scrollWidth,drawer:rect.toJSON(),overflow:[...drawer.querySelectorAll('input,select,textarea,button')].filter(n=>{const r=n.getBoundingClientRect();return r.width&& (r.left<rect.left-1||r.right>rect.right+1)}).map(n=>n.getAttribute('aria-label')??n.textContent)}})()");
         geometry.push(metrics); await shot('transport-plan-form-' + width); assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.drawer.width <= width + 1); assert.deepEqual(metrics.overflow, [], JSON.stringify(metrics)); await click('取消');
-        await click('编辑集货仓'); const hubMetrics = await evaluate("({page:'hub',width:innerWidth,scroll:document.documentElement.scrollWidth,drawer:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON()})");
+        await editHub('A合成验收仓重试后名称'); await until(() => evaluate("document.querySelector('[role=dialog] input')?.value==='A合成验收仓重试后名称'"), 'responsive Hub detail');
+        const hubMetrics = await evaluate("({page:'hub',width:innerWidth,scroll:document.documentElement.scrollWidth,drawer:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON()})");
         assert.ok(hubMetrics.scroll <= width + 1, JSON.stringify(hubMetrics)); assert.ok(hubMetrics.drawer.width <= width + 1); geometry.push(hubMetrics); await shot('hub-form-' + width); await click('取消');
       }
     });

@@ -1,19 +1,14 @@
-# 恢复点：Gate6D物流资料Server页面，待built Chromium及最终收口
+# 恢复点：Gate6D物流页面本机验收完成，待文档冻结及清单前向收口
 
-2026-10-21；分支codex/server-logistics-resource-ui，HEAD输入56cf706e5582f1b4c202b302370234cc98751090。由main996dfedc12da3527343cd3ff2aa5eea35497e10e显式FF到56，无继承dirty；当前全部dirty为主控本UI阶段。root唯一writer，既有server_convergence_review只读复审已派发。
-[任务](tasks/active/server-convergence-gate6d-logistics-ui-2026-10-21.md)，[三摘要输入原文](tasks/completed/2026-10-21-logistics-ui-inputs/56cf706e/)完整保留后台和D152证据。
+2026-10-21；分支codex/server-logistics-resource-ui，HEAD应用源f4c3aa06ffcd8adf4bed39ba99bc0e336dceb451；main独立核实996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净56cf706e，无继承dirty；当前自身dirty仅最终测试等待/目标定位及事实文档。root唯一writer，既有reviewer只读最终无阻断。
+[当前任务](tasks/active/server-convergence-gate6d-logistics-ui-2026-10-21.md)、[完整工程记录](tasks/completed/2026-10-21-logistics-resources-ui-engineering.md)、[输入三摘要Git原文](tasks/completed/2026-10-21-logistics-ui-inputs/56cf706e/)。原后台edf/56与D152 f59证据保持。
 
-当前新增/修改：6个UI/client/outbox文件、新logistics-resource-client测试、managed输入类型/summary导出、Hub全量enabledRouteCount SQL及PG测试、原production-resources-ui.integration.test.mjs扩展。无新SQL/旧迁移修改。V1精确路径记录docs/release/ui-changes/server-logistics-resource-page.json，旧能力/244证据/PNG先不改。
-复用原卡片/抽屉与纯字段；Browser的ID、默认、存储、nullable→0保持原语义。Server6kind用同一parser/client/outbox，旧4kind规范化/hash保持。Hub/Site显式分页选择，完整详情含停用方式，modeId=null仅新项由Server分配；原请求重试不重建名称/ID/hash，pre-save父读取后检查lease。
-方案列表只当前页读完整detail，父版本一致才显示方式；不同kind引用键隔离。Hub服务路线数从SQL全量聚合。回执核对完整成员/顺序/已有与新ID、精确字段；裸422不清缓存。
+应用源c87→CAS按钮23278→专用Server物流宽度f4。原六kind唯一服务/完整成员/显式父关系/新方式Server ID/缓存回执/lease均已接现有卡抽屉；Browser与旧4布局/存储不改。新客户端21、旧Browser模型14、纯/PG/HTTP/升级61通过。项目927（318367.6965ms）早于CSS，基线116（300921.5408ms）早于新证据，时序不改写。
+精确f4显式Server前端及顺序Node构建通过，三个build-info一致，buildId20261021-152547；验证outputs/g6d-ui-build-verification.json。类型和最终全lint通过。f4/main996守卫PASS11页/51能力/64累计UI路径。
+最终实际built23/23（33468.8431ms，22子项+父项），六宽1920/1536/1440/1280/900/390方案overflow=[]；Hub和旧四表单几何也通过。outputs/g6d-ui-browser-verified.log；图片/geometry在outputs/production-resources-ui/f4c3aa06ffcd8adf4bed39ba99bc0e336dceb451-1792567864371/。root/reviewer分别查看手机/桌面，无新阻断，reviewer未运行测试/DB/网络。
+保留全部失败：c87 10pass2fail CAS按钮静默；23278 21pass2fail真480宽裁剪；f4前两次21pass2fail测试未等HubGET/误选排序首Hub，只改测试后最终绿。后续无产品源码变化，不需重建同一f4，仅按精确blob证明。
 
-本阶段实际：最初客户端红测5失败；首轮19/19，最终20/20（668.3117ms，outputs/g6d-ui-client-final.log）。Browser模型14/14（241.6036ms，g6d-ui-browser-model.log）。新旧纯/PG/HTTP/升级61/61（21296.8896ms，g6d-ui-backend-regression.log），会话15455已terminal。类型两次及首轮9路径lint通过；后续浏览器测试改动还须重新lint/check。
-原built Chromium测试现在含物流明确父引用/分页、完整ID与停用、空数值、Hub改名停用、丢回执/原内容重试、列表detail版本竞态、CAS、pre-save父GET跨A→B→A、权限及6尺寸。尚未执行新构建/浏览器，不冒称通过。下一步检查测试代码→types/lint→源码checkpoint→精确source显式Server候选构建→顺序Node build→实际自有空PG/Chromium。失败保存原日志/截图并修复；后续项目/基线/精确main守卫及复审，不借旧CI。
-
-前阶段后台edf67656/最终56：60定向、116基线、精确main守卫/三个build-info一致。此前广回归269PG/98生产/927项目发生在容量修复前，时序见原任务；新页面不借用。原D152 f59证据新增1叶、原243保留=244，旧PNG/能力不改。
-D152 Num/outdate已确认，不再问；D1933一次16/16行9869件，参考差619保留；D1935/D1933真实请求额度均用完。正式成衣Source稳定跨次身份/合同颜色/生命周期接线继续待，禁止新增真实请求/DB/绑定/激活。
-Git664f实际push exit1虽远端exact仍STOP_AUTH_OR_DIVERGENCE，具体原因未证实；不重推或改认证/共享配置，无新Hosted CI/PR。工程持续授权不扩真实部署/业务数据。
-保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175未升级。Goal active/未完成，Gate8加工服务产值、关账stale、旧CNY工价待决，CNY销售/USD工价不换汇/重标。
-源码c87cc178a5496bf4f7276084d9f6999905c09679已保存且精确main守卫/Server及顺序Node构建通过；独立复审长名称P2关闭。首轮built 10pass/2fail，CAS拒绝后最新读取按钮可点击却被mayEdit内部拒绝，已修复为等待mayEdit并加真实hold-list确定性用例；当前自身dirty仅该源码、测试与事实文档，类型通过，待新checkpoint/build/browser。旧首轮日志/截图不覆盖。
-
-23278ffc修复后built业务/安全21项通过，六尺寸新物流几何在1920触发基础Drawer480px覆盖既有760px规则，21pass/2fail原日志保留。当前自身增量只为Server新物流抽屉加专用class/760px优先级（手机全宽），Browser/旧4资源不变，V1追加app/globals.css。项目927/927（318367.6965ms）已terminal，时序先于此CSS，不能借作CSS验收；待新源checkpoint/build/geometry。
+下一步：保存当前测试/feature/工程记录及三摘要为独立commit，得其Git SHA后计算冻结工程记录Git blob SHA256；新增独立evidence ID并前向扩production-resource-server六类型scope/各维度证据。旧244证据/其他能力/PNG保持；更新三摘要为最终清单事实，最终commit后精确main守卫/dirty检查，不重复已通过广测或借旧CI。必要时让既有reviewer只读核对清单与blob。
+所有长检查均terminal，无遗留fixture。当前正式目标仍未完成：订单Hub/逐物料物流、成衣Source跨次身份/合同颜色接线以及Gate8决定继续。D152 Num/outdate已确认不再问；D1935/D1933各一次真实许可已用完，无新增读取/绑定/激活。CNY销售/USD工价不换汇/重标。
+Git664f真实push exit1虽remoteexact仍STOP/具体原因未知；本阶段既有工具只读诊断默认/HTTP1.1成功、OpenSSL对照失败，未改配置/未push，不据可读宣布通道长期恢复。无新Hosted CI/PR/merge/close/deploy。
+保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175。不修改真实账号/业务库，不安装依赖或扩Source/调度/退役。Goal active，不能标complete/blocked/paused。

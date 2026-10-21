@@ -40,3 +40,13 @@ UI影响按RELEASE_BASELINE_GUARD登记精确路径V1：恢复原已批准区域
 该修复已保存23278ffc48c54f700af77d50b63659c0e978288e并完成精确源构建/顺序Node。第二轮built业务及原安全场景21项通过，最后几何用例在1920宽失败（总21pass/2fail，31132.1586ms，outputs/g6d-ui-browser-conflict-fix.log）：后加载foundation.css的480px基础Drawer覆盖globals既有760px基础设施规则，运输方式及右侧关联字段超出面板。修复仅为新Server Hub/运输方案加专用class和高于基础规则的760px选择器，手机沿用全宽；Browser及旧四资源宽度不变，不更换表单布局。V1精确记录新增app/globals.css路径，截屏在断言前保存，待新构建/六尺寸复跑。
 
 本阶段项目广回归927/927（318367.6965ms，0失败/取消/跳过）通过；运行始于c87cc178，在已记录的最新读取按钮修复阶段结束，最后新增CSS尚未纳入此结果。后续几何与源码守卫单独验证，不冒称927验证新CSS。
+
+## 最终本机验收
+
+应用源f4c3aa06ffcd8adf4bed39ba99bc0e336dceb451、buildId20261021-152547；三个build-info字节一致，Server/session/writable/snapshot核对通过（outputs/g6d-ui-build-verification.json）。该精确源main996守卫PASS，11页/51能力/累计64 UI路径/errors空。
+
+后续两次21pass/2fail仅为验收脚本未等Hub详情和误取中文排序首卡，日志/图像保留；只修脚本等待与明确目标后，最终built 23/23（33468.8431ms，22子场景+1父项），0失败/取消/跳过。Hub/方案6尺寸、完整成员、回执/重试、撤权/ABA及旧四资源均覆盖；原Browser业务存储未读写。root查看最终手机/桌面截图，既有reviewer独立查看图像/几何/代码，无新产品或安全阻断，未代其声称运行测试。
+
+本阶段基线116/116（300921.5408ms）及最终全lint exit0通过；927广回归和116均保留实际时序，不借这些称新Hosted CI/部署。完整事实与能力范围见[冻结工程记录](../completed/2026-10-21-logistics-resources-ui-engineering.md)。该记录与测试等待修正先保存Git，再新增独立文档证据到现有资源能力；不覆盖旧244证据/其他能力/历史PNG，清单收口后只再查最终精确HEAD守卫。
+
+本阶段Git仅只读诊断：默认/HTTP1.1可读精确main，OpenSSL进程对照失败，未改配置/提交push；旧664f实际非零原因仍未证实，STOP不放宽，当前无新PR/CI。现有入口及真实数据不变。目标active/未完成，下一独立工程是订单Hub/逐物料物流及成衣Source可信身份接线，不因此授权新增真实查询/激活/部署。

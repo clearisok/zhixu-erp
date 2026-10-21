@@ -1,14 +1,13 @@
 # 项目知识索引
 
-2026-10-21；main独立GitHub API核实996dfedc12da3527343cd3ff2aa5eea35497e10e。
-root唯一writer，既有server_convergence_review只读。当前codex/server-logistics-resource-ui从该main创建并显式FF到干净56cf706e5582f1b4c202b302370234cc98751090，无继承dirty。
-[页面阶段任务](tasks/active/server-convergence-gate6d-logistics-ui-2026-10-21.md)；[三摘要原输入](tasks/completed/2026-10-21-logistics-ui-inputs/56cf706e/)保留前阶段完整日期/hash/结果/限制。
+2026-10-21；main以独立GitHub读取核实996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer/既有reviewer只读。
+当前codex/server-logistics-resource-ui，输入干净56cf706e5582f1b4c202b302370234cc98751090，无继承dirty；[输入三摘要Git原文](tasks/completed/2026-10-21-logistics-ui-inputs/56cf706e/)保留原时点/hash/限制。
+[本阶段任务](tasks/active/server-convergence-gate6d-logistics-ui-2026-10-21.md)与[工程记录](tasks/completed/2026-10-21-logistics-resources-ui-engineering.md)是物流页面恢复入口。
 
-Gate6D物流后台已本机收口（源码edf67656，最终56cf706e，60定向/116基线）；当前复用原卡片/抽屉接Server仓及完整运输方案，共用原客户端/缓存/会话保护，Browser资料存储不改。
-本阶段实际客户端20/20、原Browser模型14/14、新旧纯/PG/HTTP/升级61/61、类型及首轮9路径lint通过；实际built Chromium扩展尚在完善，不能称已可体验/新CI或部署。后台历史广回归与时序见[后台任务](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)。
-Gate7 [D1933真实观察](tasks/completed/2026-10-21-garment-shipment-d1933.md)16/16行、9869件；用户D152确认Num/outdate，非自动关账/收入。D1935/D1933两笔真实读取许可均用完，无新增读取、绑定/激活。正式成衣Source稳定行身份/合同颜色接线仍待。
-244旧/前向证据、51能力及旧PNG当前不变；新阶段不能借旧验收。Git664f真实push exit1仍STOP，原因未证实；后续仅本机，无新PR/CI，不重推/换认证。
-保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍Gate1源8175。工程授权不扩真实账号/业务库/Source/部署/退役。Gate8其他口径未决，Goal active/未完成。
+Gate6D既有卡/抽屉已接Server仓/完整运输方案，共用原服务/权限/回执，Browser持久化不改。最终应用源f4c3aa06、build20261021-152547；实际built23/23（22子项+父项）、61后台/21客户端/14Browser模型通过；927项目/116基线按修复前后时序保留，类型/全lint/前端及顺序Node构建/精确main守卫/独立复审通过。
+旧244证据、51能力及PNG先保持；本阶段工程记录先冻结，再前向扩现有资源能力范围。远端仍STOP（664f实际push exit1具体原因未知），新只读诊断可读main不证明推送恢复；无新PR/CI/合并或部署。
+Gate7 [D1933观察](tasks/completed/2026-10-21-garment-shipment-d1933.md)16/16行9869件，D152确认Num/outdate，不自动关账/收入。D1935/D1933两次真实许可用完，正式成衣Source跨次身份/合同颜色/API/UI仍待。订单Hub/逐物料物流接线也仍待。
+保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175。工程授权不扩真实账号/业务库/Source/部署/退役。Gate8其他口径未决，Goal active/未完成。
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
