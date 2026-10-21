@@ -1,7 +1,7 @@
 # 项目知识索引
 
 2026-10-21；codex/server-material-arrival-ui，输入干净689afa128bc13f56d96dfa5db13403808048943f，无继承dirty。独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e，PR120–127原草稿未变。root唯一writer/既有reviewer只读。[阶段任务](tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md)、[后台契约](features/SERVER_MATERIAL_ARRIVALS.md)、[输入Git原文](tasks/completed/2026-10-21-material-arrival-ui-inputs/689afa12/)。
-本阶段复用原卡片/BatchPlanner/Drawer接0039人工到仓与逐批唯一物流，准确范围、依赖、权限及验收见阶段任务。Source交期不冒充到Hub，不搬历史或写排单/价格。本阶段新增协议/HTTP16项及类型/lint通过，实际浏览器/完整回归仍待，旧247证据/52能力/截图保留。
+本阶段复用原卡片/BatchPlanner/Drawer接0039人工到仓与逐批唯一物流，准确范围、依赖、权限及验收见阶段任务。Source交期不冒充到Hub，不搬历史或写排单/价格。本阶段42项定向/11项built浏览器通过，完整回归与证据收口仍待，旧247证据/52能力/截图保留。
 前一应用cbfd/build20261021-183455、最终689afa守卫通过；26/45/55/927/116与失败修正见[冻结报告](tasks/completed/2026-10-21-material-arrivals-engineering.md)，不冒称当前UI验收。
 Git664f非零写入原因未明，STOP保留；无新push/PR/Hosted CI/合并/关闭/部署。保护原环境/卷/Browser/其他工作树；62426仍8175。正式成衣Source/关账/环境收敛/用户验收仍待，D152 Num/outdate已确认，Goal active。
 
@@ -132,4 +132,4 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
 
-当前实现checkpoint：新协议/精确数量/HTTP16/16，10846.9011ms；类型v2、lint v3 exit0，首失败与四项P2修复见阶段任务。实际浏览器/完整回归/新能力证据仍待，旧冻结状态保持。
+当前应用a290edfe3ba26173e21e0c4df08f35be48fe16f4：42项定向/11项built浏览器通过，六宽度与回执/会话恢复已覆盖；完整项目/发布及截图证据仍在收口。初失败与修正见阶段任务。

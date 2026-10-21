@@ -57,3 +57,9 @@ Git664f非零push具体原因未明，相关写入STOP保留；本阶段只读ma
 精确main源码守卫f287通过：11页/52能力/75累计UI路径/errors空；不是像素/业务验收。
 
 UI v3在61e9完整构建上确认双击保存只写一笔，但第二次本地动作抢走首动作lease导致弹窗未关闭；新增弹窗同步inFlight锁，预览/重读/保存/关闭共用，后台幂等不变。类型与定向lint通过，仍需实际复验。
+
+## built页面验收进展
+
+应用最终修复a290edfe3ba26173e21e0c4df08f35be48fe16f4，前端/Node均exit0。v4前三项通过，丢回执用例过早按“待核对”横幅检查数据库，横幅在POST前就出现；改等明确丢回复错误后核对，并未改生产行为。v5六项通过，后续失败因测试误用另一页面登录按钮名称，改提交本页面真实登录form。
+v6私有Chromium11/11（含父项），19044.6331ms，0fail/cancel/skip：六宽度、分单位部分安排、双击一笔、dirty设置导航、COMMIT后丢回执/刷新不POST、摘要不符保留、unknown明确同UUID重试、close MutationObserver旧401、历史ABA、POST/receipt成功与401四种ABA、Source失败仍读历史、只读与无金额端点/Browser回退。不是开发模式StrictMode双effect实测。
+扩展后的npm run test:material-arrivals为42/42，40820.6286ms，0fail/cancel/skip。新增测试已加入同一CI脚本，built用例加入已有Source工作流（未声称Hosted CI已跑）。截图版补局部表格滚动，完整项目/发布检查与最终证据仍在收口。

@@ -8,6 +8,6 @@
 
 客户端只缓存未核对原命令，不写Browser账本；持久读回后才能POST，unknown/pending/损坏/迟到回复保留。会话/订单lease、25条历史锚点、当前Source与原历史分离。原Modal/卡片/Drawer布局复用，精确V0/V1路径记录，需真实构建/六宽度/HTTP与恢复验收才登记能力。Source-following无地点证明不开放。
 
-当前HEAD/dirty以git核实；本阶段新协议/HTTP16项、类型与lint通过；实际构建/浏览器及完整回归仍待。主控唯一writer，独立reviewer只读。Git664f写停止仍在，不重推/换认证；无新PR/CI/合并/部署。保护原端口/卷/Browser/其他工作树及真实Source额度。D152已确认，正式成衣/关账/环境与用户验收仍待，Goal不complete。
+当前HEAD/dirty以git核实；本阶段42项定向/11项built浏览器通过，完整回归与证据收口仍待。主控唯一writer，独立reviewer只读。Git664f写停止仍在，不重推/换认证；无新PR/CI/合并/部署。保护原端口/卷/Browser/其他工作树及真实Source额度。D152已确认，正式成衣/关账/环境与用户验收仍待，Goal不complete。
 
-当前实现checkpoint：新协议/精确数量/HTTP16/16，10846.9011ms；类型v2、lint v3 exit0，首失败与四项P2修复见阶段任务。实际浏览器/完整回归/新能力证据仍待，旧冻结状态保持。
+当前应用a290edfe3ba26173e21e0c4df08f35be48fe16f4：42项定向/11项built浏览器通过，六宽度与回执/会话恢复已覆盖；完整项目/发布及截图证据仍在收口。初失败与修正见阶段任务。
