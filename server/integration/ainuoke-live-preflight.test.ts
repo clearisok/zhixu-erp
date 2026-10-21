@@ -158,6 +158,10 @@ test("complete and incomplete production reports persist in private targets with
     const receipt = writePrivateReport(directory, { synthetic: true, privateFact: "synthetic-only" });
     assert.equal(JSON.parse(readFileSync(receipt.privateReportPath, "utf8")).privateFact, "synthetic-only");
     assert.equal(receipt.privateReportSha256, createHash("sha256").update(readFileSync(receipt.privateReportPath)).digest("hex"));
+    const garmentReceipt = writePrivateReport(directory, { synthetic: true, mappingVerified: false }, "garment-shipment");
+    assert.match(garmentReceipt.privateReportPath, /ainuoke-garment-shipment-private-[0-9a-f-]{36}\.json$/u);
+    assert.equal(garmentReceipt.privateReportSha256, createHash("sha256").update(readFileSync(garmentReceipt.privateReportPath)).digest("hex"));
+    assert.throws(() => writePrivateReport(directory, { password: "synthetic-forbidden" }, "garment-shipment"), /source_secret_field/);
     const complete = await run(), incomplete = await runFullPreflight(config, { collect: async () => { throw new SourceError("source_timeout"); } });
     for (const result of [complete, incomplete]) {
       const productionReceipt = writePrivateReport(directory, result.privateReport);

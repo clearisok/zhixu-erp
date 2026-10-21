@@ -1,3 +1,5 @@
+2026-10-21工程增量：用户提供6086979、insideorderno contains D1935首页载荷作为成衣出货来源线索。新增专用Node/Python/私密PowerShell诊断，复用原客户端、有界Transport和私密写入；固定1登录+1报表、100行/4MiB/120秒，0重试/翻页/DB/绑定/激活，不注册Report Catalog或持续Source。只有合成验收，尚未执行新真实读取；新增范围待具体确认。响应字段、单位、数量/日期含义、颜色和稳定合同/行身份未核实，不以contains结果匹配SO、不将物料出运当成衣出货。细节及实际测试见[Gate7任务](../tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)。下方旧日期/hash/结果/限制不改。
+
 2026-10-16执行后更新：用户另批新两合同隔离空库方案及一次首绑补读，已通过原D143/D142落地2 SO、2物料/2财务快照，7合成角色读回39项物料与21行申请。仅新本机只读演示、无调度，原10分钟时效不变；物料历史过期后可读，财务历史ERP入口仍缺。见[执行报告](../tasks/completed/2026-10-16-selected-demo-execution.md)及[冻结证据](../tasks/completed/evidence/2026-10-16-selected-demo-execution.json)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5、PR116草稿未合并；不是生产/全量Source激活。下文旧日期/SHA与“未授权/0操作”保留历史含义。
 
 2026-10-16 D143新增内部两合同一次采集预算：selected-bindings/selected-materials复用原可信Discovery与映射；1登录80报表81HTTP180秒、0网络重试/认证续期，逐行合同身份/完整分页/时效重新校验。13项Node/实际Python/一次性PG及全Python131通过，转义秘密值保护经双红测复现后修复，最终源码71b；root898/基线94通过；没有新CLI/HTTP/scheduler或真实写入授权。详情见[活动任务](../tasks/active/ainuoke-selected-source-once.md)。PR115精确db4236cf三CI全绿/复审、仍草稿未合并。旧真实两合同许可已用完，不重复采集。

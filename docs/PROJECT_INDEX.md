@@ -1,21 +1,18 @@
 # 项目知识索引
 
-2026-10-21恢复：[Gate6D物流资料任务](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
-main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；当前codex/server-logistics-resources从main显式FF干净717。
-当前只有新增Hub/运输方案纯输入契约，复用production-resources外壳，原4HTTP kind不变；19纯/含原PG与HTTP36、types/Node/lint通过、独立复审无阻断。
-没有物流新SQL/API/UI/权限/默认Seed，不借旧CI标记新能力；源码checkpoint和精确守卫仍在收口。
-[717三摘要输入](tasks/completed/2026-10-21-logistics-resource-inputs/717bbab2/)保留前阶段全部日期/hash/结果/限制，提交核对Git blob文本一致。
-[Gate6C执行页面交付终态](tasks/completed/2026-10-21-production-execution-ui-delivery.md)：d6b17c7ab7deabdb0f9378d063572476b816c1ad一次上传、独立API exact。
-Source39538964254/Team39538971997/Baseline39538980120均success/attempt1，实际执行纯22/PG15、客户端35、完整PG269、执行Chromium28、Quote87/Python131、项目927/基线116通过。
-Source5个Windows平台跳过、Git fixture52通过/1Windows跳过；精确日志和既有独立复审已核对，不改写早期失败与跳过。
-应用最终源27b、六尺寸30几何及原UI/后台范围保持；[执行页面契约](features/SERVER_PRODUCTION_EXECUTION_UI.md)和[原页面任务](tasks/active/server-convergence-gate6c-ui-2026-10-21.md)继续有效。
-[d6三摘要逐字输入](tasks/completed/2026-10-21-production-execution-ui-delivery-inputs/d6b17c7a/)保留旧日期/hash/结果/限制与d207/b891/be7/f344/933d链。
-工具源码664fb5f8ae2248a83aff1ba5a623dc22ba2da664一次上传、独立API exact；实际exit1的STOP仍保持、原因未证实、不重推。
-唯一CI39543987486已success/attempt1（116/116、Git65通过/1Windows跳过），实际日志复审无新增阻断；717文档仅本机归档未上传。
-工具原65/66及全部red、最终守卫和具体保护见[工具终态](tasks/completed/2026-10-21-git-delivery-success-classification.md)，不冒称网络长期恢复。
-Gate7出货定义已询问未答，Gate8其他口径待决；出货/物流/Server关账与真实激活仍未闭环，完整目标未达成。
-原243证据/51能力/旧PNG保持，#120–127原完整头/open draft已重新核实；不建重复累计业务PR、不merge/close/deploy。
-保护3001/50426/59069/62426及旧卷/工作树/Browser；持续Git授权不扩真实数据/来源/部署/退役范围。
+2026-10-21恢复：[Gate7固定首页诊断任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
+main996dfedc12da3527343cd3ff2aa5eea35497e10e本轮独立API核实；当前codex/garment-shipment-source-probe从该对象显式FF干净3b9。
+用户提供6086979/insideorderno contains D1935的查询载荷，不是返回字段或成衣出货含义证据；新工具固定一次登录+一次首页、100行/4MiB/120秒。
+复用原客户端/Transport/私密报告，0重试/翻页/DB/绑定/激活，不注册正常目录。只合成验证，尚未读取真实凭据或上游，新增真实范围待确认。
+实际组合Node82/82、修复显式null总数后新工具12/12、最终Python142/142、types/Node/lint及只读复审通过；本轮基线116/116、精确main源码守卫PASS，源码checkpoint后核对HEAD，无新Hosted CI/PR。
+缺失metadata/数量/日期仍未知，原decimal/重复行不改，不用contains匹配SO或推算关账；原243证据/51能力/旧PNG保持。
+[3b9三摘要输入](tasks/completed/2026-10-21-garment-probe-inputs/3b9a44a0/)完整保存此前日期/hash/结果/限制。
+[Gate6D物流纯契约](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)已本机3b9：19纯/36含原PG与HTTP、types/Node/lint/复审/精确main守卫通过，无新物流SQL/API/UI。
+[Gate6C原交付终态](tasks/completed/2026-10-21-production-execution-ui-delivery.md)保留d6及三CI实际结果，不借给当前工具。
+工具664f已独立exact、唯一CI39543987486成功，但真实push exit1仍STOP/原因未证实、不重推；717/3b9仅本机，详见[工具终态](tasks/completed/2026-10-21-git-delivery-success-classification.md)。
+Gate7业务字段/语义未核实，Gate8其他口径待决；出货/物流/Server关账与真实激活仍未闭环，目标未完成。
+#120–127原完整头/open draft未变；不建重复累计PR、不merge/close/deploy。保护3001/50426/59069/62426、旧卷/工作树/Browser。
+持续安全工程/Git授权不扩新真实账号/业务库/来源读取/激活/部署/退役；D109原HTTP风险已接受不重问。
 
 ## 系统简介
 
