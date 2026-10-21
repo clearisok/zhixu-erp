@@ -106,6 +106,7 @@ jobs:
           npm run test:material-history-ui
           npx --no-install tsx --test server/integration/material-display-ui.integration.test.mjs
           npm run test:material-arrivals-ui
+          npm run test:garment-shipments-ui
           npm run test:ainuoke-payment-panel-ui
       - name: Quote lifecycle, workbooks, summaries and defaults in private Chromium
         run: npm run test:quote-server-ui

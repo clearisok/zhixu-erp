@@ -4,6 +4,7 @@ import {OrderColorPrices} from './order-color-prices';
 import { SavedColorSizes, SavedOrderSourceDetails } from './server-saved-order-sources';
 import { MaterialHistoryDialog } from "./material-history-dialog";
 import { OrderBusinessSourceButton } from "./order-business-source-button";
+import { GarmentShipmentSection } from "@/features/ainuoke-garment-shipments/garment-shipment-section";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { OrderMaterialSummary } from '@/features/ainuoke-material-progress/order-material-summary';
@@ -244,6 +245,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
 
           {detail.businessType==='processing'?<Card className="oc-server-detail-section"><p style={{padding:18}}>加工订单不关联艾诺科销售合同，艾诺科物料流水不适用。</p></Card>:detail.attribution?.historicalDuplicate?<Card className="oc-server-detail-section"><p style={{padding:18}}>当前物料来源请在有效订单查看；原单快照保留在历史物料来源。</p></Card>:<OrderMaterialSummary key={'materials-'+scopeKey} salesOrderId={detail.id} />}
           {detail.businessType!=='processing'&&<MaterialHistoryDialog key={'material-history-'+scopeKey} orderId={detail.id}/>}
+          <GarmentShipmentSection key={'garment-'+scopeKey} orderId={detail.id} contract={detail.billNo} processing={detail.businessType==='processing'} historicalAlias={Boolean(detail.attribution?.historicalDuplicate)} />
           <Card className="oc-server-detail-section">
             <SavedOrderSourceDetails key={'technical-'+scopeKey} orderId={detail.id} processing={detail.businessType==='processing'}>
               <DescriptionList columns={3} compact items={[

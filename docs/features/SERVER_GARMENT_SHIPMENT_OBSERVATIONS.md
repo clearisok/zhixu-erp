@@ -57,6 +57,8 @@ Node `garment-shipment-observations.ts` 只接内部checked pages，不能由HTT
 
 单调时钟扣除请求耗时，保留到期及空观察；原策略不被付款十分钟或当前target替代。每次请求必须提供当前owner lease，切单/会话/关闭/取消后不消费迟到正文或401；调用方页面仍须采用layout owner/epoch并在权限失效时隐藏旧内容。无自动重试、存储、Source调用或变更命令。历史空页可以仍有游标，按游标继续；摘要与精确publication详情分开，详情失效不回退另一快照。当前第一切片为模型/客户端与合成回归，订单页面和浏览器接线另行验收，不冒称已经可体验。
 
+第二切片的`garment-shipment-section.tsx`接在原正式订单详情，复用Foundation Card/DataTable/移动记录/Drawer，默认收起；只显示Num/outdate、原日期、原单位和冻结颜色，无总量或金额操作。`use-garment-shipments.ts`采用实际session对象和layout epoch/序列/开关/所选publication的owner；到期仅本地改标签，不发请求。打开历史先用本地GET重核当前绑定，当前与历史模型独立；撤权/来源失效清整个区块并要求显式重新读取，不影响订单详情其他区块。当前仅已写源码，实际构建浏览器验收待完成；既有环境不升级，合成fixture仅自有一次性PG/私有Chromium。
+
 ## 验证与剩余工作
 
 ### Gate7B：固定合同过滤核验工具（未执行真实查询）

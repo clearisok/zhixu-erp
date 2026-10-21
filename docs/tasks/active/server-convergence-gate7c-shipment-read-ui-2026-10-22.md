@@ -43,3 +43,11 @@
 独立复审发现两处枚举先String转换会误接数组（reason与colorMatch.state）；已加字符串类型前置及数组/嵌套数组四个负例，静态复核无剩余P1/P2，待修后运行复验。容量测试为16MiB理论传输上界加读取元信息的合成构造，非HTTP空白padding，也不冒称该最大构造已通过PG jsonb::text/原input发布。所有输入为合成，未打开旧私密候选/凭据或发真实请求。日志保留ignored `outputs/garment-read-gate7c/`。页面/历史抽屉仍是后续切片。
 
 第一切片最终运行：44修后客户端、927项目、116发布基线全部通过；修后typecheck/lint、实际server:build与应用build通过。81条原定向中的PG/HTTP/升级通过，枚举修改只影响客户端，四个负例另行全部通过。相对已核实main的工作树发布守卫PASS（11页/53能力，78累计UI路径）；这是含本切片dirty源码的检查，不冒称已运行浏览器。独立只读复审已闭环，无剩余P1/P2，UI/原始owner ABA及浏览器仍待后续实施。先独立checkpoint并核对精确提交守卫；REMOTE本切片pending，遵守原STOP不新增Git写入。
+
+## 第二切片起点：原订单详情接线
+
+第一切片提交1630c19ddd278a2026157ad092b337a11522b643、工作树干净，精确checkedHead发布守卫PASS；无远端Git写入。第二切片沿同分支从该HEAD开始，root唯一writer。复用原订单详情Card/DataTable与Foundation Drawer，不新建路由/全局CSS或变更主导航；默认收起、局部加载、当前/历史独立，历史摘要可空页继续。权限或来源范围失效后清全部观察，显式重新读取才再尝试；GET只读本地DB，不是Source刷新。layout owner同时绑定实际session对象、请求epoch、开关和所选publication，防关闭后迟到及ABA。
+
+此为D147已批准Server化与成衣出货范围内的局部接线（见Gate0和原批准请求）；不改变D152/153数量日期/观察业务规则。V2精确影响记录须先于最终门禁，六尺寸/实际构建/权限与竞态合成验收完成后才记工程UI通过。尚无新真实额度答复，不读取私密报告或凭据；所有已有运行环境继续保护。
+
+第二切片源码已接默认收起Card/历史Drawer、当前与所选记录独立、布局owner和失效block。typecheck/lint（初次一项effect依赖warning已修）通过，完整定向现85通过。只向原owned continuous fixture增加可选garment，既有默认行为不变；新built harness/既有Source workflow接入仅使用私有Chromium及一次性PG。先源码checkpoint，再以完整SHA显式Server构建，尚未运行浏览器或新增能力状态证明。独立复审进行中。

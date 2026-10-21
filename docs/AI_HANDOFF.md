@@ -1,5 +1,7 @@
 # 恢复点：Gate7C只读客户端/页面接线起点
 
+第一切片已提交1630c19ddd278a2026157ad092b337a11522b643，精确HEAD守卫PASS，工作树曾干净；第二切片从该点开始，仅原订单详情/历史Drawer接线和合成验收，尚未运行浏览器。下段保留第一切片结果与限制；REMOTE仍pending，不执行新Git写入。
+
 2026-10-22；分支codex/server-garment-shipment-read-ui；本轮重新API核实main996dfedc12da3527343cd3ff2aa5eea35497e10e，从main建立后只FF至干净2612bf8697679fcaa26ff8aac8e81a450b05428f。三根旧摘要逐字节保存在tasks/completed/2026-10-22-garment-read-inputs/2612bf86/。root唯一writer，既有reviewer只读；无继承dirty。
 
 先读[Gate7C](tasks/active/server-convergence-gate7c-shipment-read-ui-2026-10-22.md)、模块feature、D152/153及实际store/DTO/订单model/material-arrivals layout-owner hook。第一切片LOCAL ENGINEERING PASS：model/client、原策略expiresAt、INT历史游标；81定向/44修后client/927项目/116发布、类型lint/两构建/工作树守卫通过，独立复审枚举数组问题已修、无剩余P1/P2。接下来独立checkpoint及精确提交守卫，再现有订单详情折叠区/历史抽屉；不复制payment的过期清空、十分钟或非空断言。历史空页可能仍有游标，当前/历史分别保存；撤权/来源失效须清内容，A→B→A和关闭后迟到401不得注销新owner。冻结colorMatch不因当前颜色重配，不出总量/收入/成本。
