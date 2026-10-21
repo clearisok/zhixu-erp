@@ -4,7 +4,7 @@
 root唯一writer，既有server_convergence_review只读。当前codex/server-logistics-resource-store从干净97cfa显式FF到f59cf6ec0b383771dd14350bf99053dd85404a36，无继承dirty。
 [阶段任务](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)；[三摘要原输入](tasks/completed/2026-10-21-logistics-store-inputs/f59cf6ec/)完整保留此前日期/hash/结果/限制。
 
-当前物流后台新增0037与hubs/transport-plans同一服务，尚未接UI/物流推荐；首轮59/59，容量复审红测后最终60/60、types/Node/lint通过；广回归269PG/98生产/927项目、基线116及独立复审通过。精确源码构建/守卫收口以CURRENT_STATE/AI_HANDOFF和阶段任务为准，不冒称新CI/部署。
+当前物流后台新增0037与hubs/transport-plans同一服务，尚未接UI/物流推荐；首轮59/59，容量复审红测后最终60/60、types/Node/lint通过；广回归269PG/98生产/927项目、基线116及独立复审通过。源码edf676560d9fa333123d9e08eeb0b876afd6ee51精确main996守卫与本机显式Server/Node构建通过，三个build-info一致，不冒称新CI/部署；最终文档收口以CURRENT_STATE/AI_HANDOFF和阶段任务为准。
 Gate7 [D1933真实核验](tasks/completed/2026-10-21-garment-shipment-d1933.md)16/16行、9869件；用户D152确认Num/outdate，非自动关账/收入。两个单次真实许可已用完，不扩大读取。
 [原D1935零行](tasks/completed/2026-10-21-garment-shipment-first-page.md)、[专用工具任务](tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)和f59最终守卫/116项新证据链保留；原243+新1=244、51能力/旧PNG不变。
 正式成衣Source/跨次身份/可信合同颜色接线仍待；物流/backend不冒称页面完成或部署。Gate8其他口径未决，目标active/未完成。

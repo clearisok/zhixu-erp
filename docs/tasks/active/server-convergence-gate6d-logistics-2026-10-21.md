@@ -63,3 +63,11 @@ root继续唯一writer，复用既有只读reviewer。main通过独立GitHub API
 本阶段基线116/116（319435.4533ms，0失败/取消/跳过）通过；working-tree精确main996/f59守卫PASS（11页/51能力/累计63 UI路径、errors空），完整manifest与f59逐项相同，三个输入摘要与原Git blob字节一致。当前无新UI影响、能力状态/截图/权限或来源范围变化；容量修复独立复审、最终源码checkpoint与精确HEAD守卫/构建继续，不借旧CI或声明远端送达。
 
 容量修复后既有reviewer再次独立只读核对代码、数据库字节口径和实际红/绿日志，确认P2已消除、无新增阻断；其没有运行测试或连接DB/网络。随后仅保留源码checkpoint后的精确HEAD/main守卫与精确source标记构建收口。此前全部原生测试进程已正常终止，无遗留调度/监听入口。
+
+### 精确源码收口
+
+最终源码及事实checkpoint为edf676560d9fa333123d9e08eeb0b876afd6ee51（22个已核实自身文件，干净工作树）。该精确HEAD对main996dfedc12da3527343cd3ff2aa5eea35497e10e守卫PASS：11页/51能力/累计63 UI路径、errors=[]，日志outputs/g6d-store-edf67656-main-guard.log。
+
+随后以该完整source SHA做显式Server候选build，成功后才顺序Node build，均通过；最后全量lint通过。client/server/server-ssr三个build-info精确一致：gitCommit=edf676560d9fa333123d9e08eeb0b876afd6ee51，buildId=20261021-143211，buildTime=2026-10-21T14:32:11+08:00，Server主数据/报价、session、writable、snapshot配置全部断言通过。本机回执outputs/g6d-store-build-verification.json；构建和Node日志分别exact-candidate-build.log、exact-node-build.log，lint为full-lint-final.log。这只证明本机产物，不建立新监听、升级体验库或代替浏览器/人工验收。
+
+当前仅最后事实文档收口，再对最终commit核实精确HEAD/main守卫及dirty；全测试已按前述真实时序完成，不因纯文档提交重复。远端写入仍受原664f非零退出STOP约束，本阶段没有新push、PR或Hosted CI，不借既有CI、不合并/关闭/部署或执行真实来源/业务库操作。页面/订单Hub/物流推荐与成衣Source继续后续独立阶段。
