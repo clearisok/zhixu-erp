@@ -12,4 +12,4 @@ export const savedAssignment: Assignment = { id: assignmentId, orderId, version:
 export const resources: PlanOrderRead["resources"] = { [resourceHash]: { executionType: "internal", group: { id: groupId, name: "采用的原组名", version: 1 },
   site: { id: orderId, name: "地点", version: 1 }, calendar: { id: requestId, name: "日历", version: 1 } } };
 export const orderRead: PlanOrderRead = { summary: orderSummary, order: { id: orderId, orderNo: orderSummary.orderNo, planVersion: 2, colors: [], deliveryPlans: [] },
-  assignments: [savedAssignment], resources, canCreate: true, canEdit: true };
+  assignments: [savedAssignment], executions: {}, resources, canCreate: true, canEdit: true, canComplete: true };

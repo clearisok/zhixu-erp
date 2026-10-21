@@ -1,11 +1,13 @@
 # 项目知识索引
 
-2026-10-21恢复：[Gate6C持久化任务](tasks/active/server-convergence-gate6c-persistence-2026-10-21.md)、[执行契约](features/SERVER_PRODUCTION_EXECUTION.md)、CURRENT_STATE/AI_HANDOFF。
-main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；codex/server-production-execution-ledger输入干净/已送达b8910f6c。
+2026-10-21恢复：[Gate6C页面任务](tasks/active/server-convergence-gate6c-ui-2026-10-21.md)、[执行页面契约](features/SERVER_PRODUCTION_EXECUTION_UI.md)、CURRENT_STATE/AI_HANDOFF。
+main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；codex/server-production-execution-ui输入干净/已送达d207b1a2。
 完成＋重排双权限与原产出归属已确认，D151前向记录；当前0036执行head/history/技术epoch、统一事务回执、旧计划保护及真实数量读取本地验收。
 b891三CI success/attempt1，新执行22/LinuxQuote87/Python131及Team项目927实际通过；原be7/f344/933d失败和红测范围保留。
 [b891三摘要逐字输入](tasks/completed/2026-10-21-production-execution-inputs/b8910f6c/)保留旧日期/hash/结果/限制及fc恢复链。
-4cd源码/76d3文档冻结；98生产组合、27客户端、39引用归属、927项目、116基线及原计划Chromium17通过；精确最终提交/远端/新CI待。
+4cd源码/76d3文档冻结；98生产组合、27客户端、39引用归属、927项目、116基线及原计划Chromium17通过；d207已一次送达且独立API exact。
+Source39530058362/Team39530065617/Baseline39530073595 success/attempt1，完整日志实际核查。新执行UI35客户端/TS/定向lint通过，built浏览器尚待。
+仅登记不依赖非必需queue，原唯一槽扩为计划或执行，原结束弹窗/历史恢复；d207三摘要逐字归档保留后端链。
 首两轮文档绑定失败保留，不放宽守卫。执行UI、出货/关账及真实激活未闭环。
 0035原阶段读取文档保持70cb8历史字节；当前数量、executions和空队首扩展以执行契约为准。
 原238证据/50能力/旧PNG保持，本轮前向追加D151及执行文档，现240/50；#120–127原头不动，不建重复累计业务PR、不merge/close/deploy。

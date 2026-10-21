@@ -3,7 +3,7 @@ import { canonicalDecimal } from "../quotes/decimal-projection.js";
 import { canonicalPlanJson } from "./canonical-json.js";
 import { parseExecutionData, parseExecutionIntent, type ExecutionData, type ExecutionIntent } from "./execution-contract.js";
 import { previewInternalQueue, queuePlanningRowIsProtected, SCHEDULE_PLANNING_LIMITS, type QueuePlanningInput, type QueuePlanningRow } from "./planning-preview.js";
-import type { StoredAssignment } from "./repository.js";
+import type { Assignment } from "./repository.js";
 
 export type ExecutionFacts = ExecutionData & { version: number };
 const fail = (status: number, code: string): never => { throw new HttpError(status, code, code); };
@@ -21,7 +21,7 @@ function currentFacts(value: ExecutionFacts | null): ExecutionFacts | null {
   } catch { return fail(503, "production_execution_snapshot_invalid"); }
 }
 /** Actual attribution stays locked even after a later correction reduces output to zero. */
-export function assertExecutionAttributionUnchanged(before: Pick<StoredAssignment, "executionType" | "productionGroupId" | "outsourceFactoryId" | "colorId">,
+export function assertExecutionAttributionUnchanged(before: Pick<Assignment, "executionType" | "productionGroupId" | "outsourceFactoryId" | "colorId">,
   next: { executionType: "internal" | "outsource"; executorId: string; colorId: string | null }, execution: ExecutionFacts | null) {
   if (currentFacts(execution) && (before.executionType !== next.executionType
     || (before.productionGroupId ?? before.outsourceFactoryId) !== next.executorId || before.colorId !== next.colorId)) {
@@ -57,7 +57,7 @@ export function projectExecutionQuantities(assignments: readonly { status: "plan
   }
   return { completedQuantity, activePlannedQuantity, outstandingPlannedQuantity, accountedQuantity: add(completedQuantity, outstandingPlannedQuantity) };
 }
-export function executionQueueRow(assignment: StoredAssignment, execution: ExecutionFacts | null): QueuePlanningRow {
+export function executionQueueRow(assignment: Assignment, execution: ExecutionFacts | null): QueuePlanningRow {
   const facts = currentFacts(execution);
   if (assignment.executionType !== "internal" || !assignment.productionGroupId || assignment.queueSequence === null) return fail(409, "production_internal_queue_required");
   return { id: assignment.id, salesOrderId: assignment.orderId, productionGroupId: assignment.productionGroupId, version: assignment.version,
@@ -69,7 +69,7 @@ export function executionQueueRow(assignment: StoredAssignment, execution: Execu
 }
 /** Pure only: the service must still freeze scope, refresh grants, fingerprint and transact. */
 export function previewExecutionChange(input: {
-  intent: ExecutionIntent; assignment: StoredAssignment; execution: ExecutionFacts | null; planVersion: number;
+  intent: ExecutionIntent; assignment: Assignment; execution: ExecutionFacts | null; planVersion: number;
   queue: Omit<QueuePlanningInput, "anchorDate"> | null;
 }) {
   const intent = parseExecutionIntent(input.intent), before = currentFacts(input.execution), assignment = input.assignment;

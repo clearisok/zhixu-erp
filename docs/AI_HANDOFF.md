@@ -1,8 +1,8 @@
-# 恢复点：Gate6C执行ledger与原计划保护，冻结前验收
+# 恢复点：Gate6C后端三CI已通过，执行页面接线验收
 
 2026-10-21；Objective仍为已批准逐Gate收敛，未达成。main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实。
-codex/server-production-execution-ledger从main显式FF干净b8910f6c11654f7faa8d67c6974cc9d45334694e，无继承dirty。
-root唯一writer、既有reviewer只读；[当前任务](tasks/active/server-convergence-gate6c-persistence-2026-10-21.md)。
+codex/server-production-execution-ui从main显式FF干净d207b1a2d116f92d542499b5e21c933e0d2d5a23，无继承dirty。
+root唯一writer、既有reviewer只读；[当前任务](tasks/active/server-convergence-gate6c-ui-2026-10-21.md)。
 用户已明确：完成并跨单重排需schedule.complete＋schedule.edit；原产出留原排单和执行方、剩余另建。
 D151替代新Server直接换执行方携带旧完成量，Browser历史与仓库不改。不再重复询问这两项。
 
@@ -24,8 +24,13 @@ b891已一次DELIVERED_VERIFIED且独立API exact；Source39522656348/Team395226
 不是新执行UI。两轮drift/anchor失败和修正链保留，不再改变已冻结的执行feature/Decision文档。
 reviewer第二轮静态核实epoch锁序及日志，当前无新阻断；未代跑测试/DB/网络。
 
-下一步最终checkpoint与该精确HEAD守卫、安全一次交付、独立SHA和三CI；只派发source/team/baseline。
-不重复前阶段CI，不建文档循环提交。其后复用原结束弹窗、执行客户端/会话原请求保护及浏览器验证；
-当前仅17项原计划浏览器回归，无新增执行UI、新体验或部署。原238/50/旧PNG保持，#120–127不动，
+d207已由原工具一次DELIVERED_VERIFIED/独立API exact。Source39530058362/Team39530065617/Baseline39530073595
+全部success/attempt1，执行PG15/纯22、项目927、基线116、Quote87、Python131实际通过；不重复派发。
+d207三摘要逐字Git归档production-execution-ui-inputs/d207b1a2/，完整后端历史不丢。
+新UI复用原弹窗/队列/抽屉与同一客户端/单一pending v1槽，35客户端测试/TS/定向lint通过。
+首次TS纯参数过窄已仅改公共Assignment类型；独立复审P2“仅登记额外依赖queue”已改显式联动才读，
+实际built/合成PG/Chromium新增执行场景待运行；旧17回归不是本UI通过。新UI文档另建，不改原冻结feature。
+下一步source checkpoint/精确Server构建、顺序Node编译导入、真实执行/恢复/角色/六尺寸测试；证据绑定/最终基线待。
+原240/50/旧PNG保持，#120–127不动，
 不建重复累计业务PR、不merge/close/deploy。后续执行UI独立文档，不改本阶段新根的冻结证据。
 保护3001/50426/59069/62426和旧卷/Browser，真实账号/业务库/来源范围及退役无新增授权。

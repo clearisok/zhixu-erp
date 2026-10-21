@@ -29,7 +29,7 @@ async function fixture(staticDirectory) {
   try {
     await runMigrations(pool, resolve('database/migrations')); await synchronizePermissionCatalog(pool);
     const password = 'Synthetic-Planning-Only';
-    const permissions = ['quote.view', 'order.view', 'schedule.view', 'schedule.create', 'schedule.edit', 'ainuoke.sync', 'settings.production_infrastructure.edit', 'settings.production_group.edit', 'settings.outsource_factory.edit'];
+    const permissions = ['quote.view', 'order.view', 'schedule.view', 'schedule.create', 'schedule.edit', 'schedule.complete', 'ainuoke.sync', 'settings.production_infrastructure.edit', 'settings.production_group.edit', 'settings.outsource_factory.edit'];
     const user = async (username, grants = permissions) => {
       const row = (await pool.query("INSERT INTO app_users(username,password_hash,display_name,role) VALUES($1,crypt($2,gen_salt('bf',4)),$1,'viewer') RETURNING id::text,public_id::text", [username, password])).rows[0];
       await pool.query('INSERT INTO app_roles(id,name) VALUES($1,$1)', [username]); await pool.query('INSERT INTO app_user_roles(user_id,role_id) VALUES($1,$2)', [row.id, username]);
@@ -37,6 +37,7 @@ async function fixture(staticDirectory) {
       return { internalUserId: row.id, userId: row.public_id, userName: username, username, permissions: grants };
     };
     const actor = await user('plan.editor'); await user('plan.second'); await user('plan.viewer', ['quote.view', 'order.view', 'schedule.view']); await user('plan.denied', ['quote.view']);
+    await user('plan.completer', ['quote.view', 'order.view', 'schedule.view', 'schedule.complete']); await user('plan.edit-only', ['quote.view', 'order.view', 'schedule.view', 'schedule.edit']);
     await new Promise(done => server.listen(0, '127.0.0.1', done)); const base = 'http://127.0.0.1:' + server.address().port; origins.push(base);
     const login = async username => { const response = await fetch(base + '/api/v1/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: base, 'X-Zhixu-Request': '1' }, body: JSON.stringify({ username, password }) }); assert.equal(response.status, 200); return response.headers.get('set-cookie').split(';')[0]; };
     const cookie = await login('plan.editor');
@@ -55,11 +56,22 @@ async function fixture(staticDirectory) {
       const preview = await request('/api/v1/production-scheduling/preview', intent);
       return request('/api/v1/production-scheduling/commands', { requestId: randomUUID(), intent: preview.intent, previewHash: preview.previewHash });
     };
-    return { pool, errors, base, password, login, user, resource, changeResource, order, plan, request, close };
+    const execution = async (assignmentId, patch, replan = false, reason = '') => {
+      const { assignment } = await request('/api/v1/production-scheduling/assignments/' + assignmentId);
+      const order = await request('/api/v1/production-scheduling/orders/' + assignment.orderId), saved = order.executions[assignmentId];
+      const queue = replan ? await request('/api/v1/production-scheduling/groups/' + assignment.productionGroupId) : null;
+      const intent = { action: 'record_execution', orderId: assignment.orderId, assignmentId, expectedAssignmentVersion: assignment.version,
+        expectedExecutionVersion: saved?.version ?? 0, expectedPlanVersion: order.order.planVersion,
+        data: { status: saved?.status ?? 'in_progress', completedQuantity: saved?.completedQuantity ?? '0', actualStartDate: saved?.actualStartDate ?? null, actualCompletedDate: saved?.actualCompletedDate ?? null, ...patch }, reason,
+        replan: queue ? { expectedQueueVersion: queue.version } : null };
+      const preview = await request('/api/v1/production-scheduling/execution/preview', intent);
+      return request('/api/v1/production-scheduling/execution/commands', { requestId: randomUUID(), intent: preview.intent, previewHash: preview.previewHash });
+    };
+    return { pool, errors, base, password, login, user, resource, changeResource, order, plan, execution, request, close };
   } catch (error) { await close(); throw error; }
 }
 
-test('Gate6B built scheduling preserves exact plans, recovery, source boundaries and session ownership', { timeout: 300000 }, async t => {
+test('Gate6B/C built scheduling preserves plans, actual execution, recovery and session ownership', { timeout: 300000 }, async t => {
   const build = JSON.parse(readFileSync('dist/client/build-info.json', 'utf8')); assert.equal(build.quoteAuthority, 'server'); assert.equal(build.identityMode, 'session');
   const x = await fixture(resolve('dist/client')), temp = await mkdtemp(join(tmpdir(), 'zhixu-plan-ui-'));
   const evidence = resolve('outputs/production-planning-ui', build.gitCommit + '-' + Date.now()); await mkdir(evidence, { recursive: true });
@@ -82,6 +94,7 @@ test('Gate6B built scheduling preserves exact plans, recovery, source boundaries
     const loginCookie = async username => { const cookie = await x.login(username), i = cookie.indexOf('='); await command('Network.setCookie', { name: cookie.slice(0, i), value: cookie.slice(i + 1), domain: '127.0.0.1', path: '/', httpOnly: true }); };
     const loginUI = async username => { await field('input[name=username]', username); await field('input[name=password]', x.password); await click('登录织序'); };
     const posts = () => network.filter(row => row.method === 'POST' && row.path === '/api/v1/production-scheduling/commands').length;
+    const executionPosts = () => network.filter(row => row.method === 'POST' && row.path === '/api/v1/production-scheduling/execution/commands').length;
     const count = async table => (await x.pool.query('SELECT count(*)::int n FROM ' + table)).rows[0].n;
     const shot = async name => { const image = await command('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); await writeFile(join(evidence, name + '.png'), Buffer.from(image.data, 'base64')); };
     const poolSearch = async name => { await click('未排订单'); await field('input[aria-label=搜索排单]', name); await has(name.split(' ')[0]); await until(() => evaluate("document.querySelectorAll('.ps-pool-row:not(.head)').length===1"), 'one order'); };
@@ -89,12 +102,16 @@ test('Gate6B built scheduling preserves exact plans, recovery, source boundaries
     const savePreview = async () => { await click('预览排单'); await has('确认排单变更'); await click('确认保存'); await has('排单已保存'); };
     const closeClean = () => click('取消', '[role=dialog] button');
     const pendingCommand = () => evaluate("JSON.parse(sessionStorage.getItem(Object.keys(sessionStorage).find(k=>k.startsWith('zhixu.server.production-plan.pending.v1.')))).command");
+    const openActual = async (index, label = '更正实际记录') => { await click('未排订单'); await click('全部订单'); await field('input[aria-label=搜索排单]', 'SYN-PLAN-' + String(index).padStart(2, '0')); await until(() => evaluate("document.querySelectorAll('.ps-pool-row:not(.head)').length===1"), 'one actual order'); await click('查看排单', '.ps-pool-row button'); await click(label, '[role=dialog] button'); await has('累计完成数量'); };
+    const actualHead = async id => (await x.request('/api/v1/production-scheduling/executions/' + id)).execution;
+    const actualSave = async () => { await click('预览进度', '[role=dialog] button'); await has('确认实际进度'); await click('确认保存', '[role=dialog] button'); await has('实际进度已保存'); };
     await command('Page.addScriptToEvaluateOnNewDocument', { source: `
-      window.planMode='ready';window.planListMode='ready';window.planReceiptMode='ready';window.planPreviewMode='ready';window.planWaiters=[];window.planPostWaiters=[];window.planReceiptWaiters=[];window.planPreviewWaiters=[];window.planLateWaiters=[];window.planBodies=[];
+      window.planMode='ready';window.planListMode='ready';window.planReceiptMode='ready';window.planPreviewMode='ready';window.executionQueueMode='ready';window.planWaiters=[];window.planPostWaiters=[];window.planReceiptWaiters=[];window.planPreviewWaiters=[];window.planLateWaiters=[];window.planBodies=[];
       const planFetch=fetch;window.fetch=async(...args)=>{const u=new URL(typeof args[0]==='string'?args[0]:args[0].url,location.href),m=args[1]?.method??'GET';
-        if(u.pathname==='/api/v1/production-scheduling/commands'&&m==='POST'){planBodies.push(JSON.parse(args[1].body));const mode=planMode;planMode='ready';if(mode==='before-network')throw Error('synthetic offline before send');if(mode==='late'){planLateWaiters.push(()=>planFetch(...args));throw Error('synthetic response missing before late arrival');}const r=await planFetch(...args);if(mode==='lost')throw Error('synthetic lost reply');if(mode==='mismatch'){const d=await r.json();return Response.json({...d,payloadHash:'a'.repeat(64)},{status:r.status});}if(mode==='delay200'||mode==='delay401'){const d=await r.json();return new Promise(done=>planPostWaiters.push(()=>done(mode==='delay401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):Response.json(d,{status:r.status}))));}return r;}
-        if(u.pathname==='/api/v1/production-scheduling/preview'){const mode=planPreviewMode;planPreviewMode='ready';const r=await planFetch(...args);return mode==='hold'?new Promise(done=>planPreviewWaiters.push(()=>done(r))):r;}
+        if(['/api/v1/production-scheduling/commands','/api/v1/production-scheduling/execution/commands'].includes(u.pathname)&&m==='POST'){planBodies.push(JSON.parse(args[1].body));const mode=planMode;planMode='ready';if(mode==='before-network')throw Error('synthetic offline before send');if(mode==='late'){planLateWaiters.push(()=>planFetch(...args));throw Error('synthetic response missing before late arrival');}const r=await planFetch(...args);if(mode==='lost')throw Error('synthetic lost reply');if(mode==='mismatch'){const d=await r.json();return Response.json({...d,payloadHash:'a'.repeat(64)},{status:r.status});}if(mode==='delay200'||mode==='delay401'){const d=await r.json();return new Promise(done=>planPostWaiters.push(()=>done(mode==='delay401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):Response.json(d,{status:r.status}))));}return r;}
+        if(['/api/v1/production-scheduling/preview','/api/v1/production-scheduling/execution/preview'].includes(u.pathname)){const mode=planPreviewMode;planPreviewMode='ready';const r=await planFetch(...args);return mode==='hold'?new Promise(done=>planPreviewWaiters.push(()=>done(r))):r;}
         if(u.pathname.startsWith('/api/v1/production-scheduling/commands/')){const mode=planReceiptMode;planReceiptMode='ready';const r=await planFetch(...args);if(mode==='mismatch'){const d=await r.json();return Response.json({...d,result:d.result?{...d.result,payloadHash:'a'.repeat(64)}:d.result});}if(mode==='delay200'||mode==='delay401'){const d=await r.json();return new Promise(done=>planReceiptWaiters.push(()=>done(mode==='delay401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):Response.json(d,{status:r.status}))));}return r;}
+        if(/^\\/api\\/v1\\/production-scheduling\\/groups\\/[a-f0-9-]+$/.test(u.pathname)&&m==='GET'&&executionQueueMode==='fail')return Response.json({error:{code:'production_plan_read_too_large'}},{status:422});
         if(/^\\/api\\/v1\\/production-scheduling\\/(groups|orders)$/.test(u.pathname)&&m==='GET'){const mode=planListMode;planListMode='ready';const r=await planFetch(...args);if(mode==='delay200'||mode==='delay401')return new Promise(done=>planWaiters.push(()=>done(mode==='delay401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):r)));return r;}return planFetch(...args);};` });
     await loginCookie('plan.editor'); await navigate('/production-scheduling');
     await phase('empty Server route preserves Browser namespaces and exposes only the authorized existing menu', async () => {
@@ -218,11 +235,120 @@ test('Gate6B built scheduling preserves exact plans, recovery, source boundaries
     await phase('zero remaining quantity does not offer an accidental one-click zero edit', async () => {
       await x.plan(orders[11], data({ executorId: second.id, plannedQuantity: '100.125' })); await click('未排订单'); await click('全部订单'); await field('input[aria-label=搜索排单]', 'SYN-PLAN-12'); await has('SYN-PLAN-12'); await click('查看排单', '.ps-pool-row button'); await click('编辑排单', '[role=dialog] button'); await has('可排 0'); assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='全部可排数量').disabled"), true); assert.equal(await evaluate("document.querySelector('input[aria-label=排单数量]').value"), '100.125'); await closeClean();
     });
+    const executionGroup = await x.resource('groups', { name: 'X实际执行组', enabled: true, remark: '', shortName: 'X', productionSiteId: site.id, sortOrder: 35 });
+    const executionOrders = [await x.order(26), await x.order(27), await x.order(28)];
+    const firstActual = (await x.plan(executionOrders[0], data({ executorId: executionGroup.id, plannedQuantity: '30' }))).assignments[0];
+    const laterActual = (await x.plan(executionOrders[1], data({ executorId: executionGroup.id }))).assignments[0];
+    const fixedActual = (await x.plan(executionOrders[2], data({ executorId: executionGroup.id, plannedQuantity: '20', dates: { mode: 'manual_fixed', startDate: '2027-02-01', endDate: '2027-02-02' } }))).assignments[0];
+    await phase('actual registration never defaults facts or depends on an unrelated full queue', async () => {
+      await openActual(26, '登记进度');
+      for (const label of ['累计完成数量', '实际开工日期']) assert.equal(await evaluate(`document.querySelector('input[aria-label="${label}"]').value`), '');
+      await field('select[aria-label=执行状态]', 'completed', 'HTMLSelectElement'); await field('input[aria-label=累计完成数量]', '12.5'); await click('仅记录结束', '[role=dialog] button'); await has('请检查累计完成数量'); assert.equal(await actualHead(firstActual.id), null);
+      await field('input[aria-label=实际完成日期]', '2027-01-08'); await evaluate("executionQueueMode='fail'"); const before = executionPosts(); await click('结束并预览后续排期', '[role=dialog] button'); await has('本次资料较多'); assert.equal(executionPosts(), before);
+      await field('select[aria-label=执行状态]', 'in_progress', 'HTMLSelectElement'); await click('预览进度', '[role=dialog] button'); await has('确认实际进度'); await has('尚未登记');
+      await evaluate("(()=>{const b=[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='确认保存');b.click();b.click()})()"); await has('实际进度已保存'); await evaluate("executionQueueMode='ready'");
+      const saved = await actualHead(firstActual.id); assert.equal(saved.completedQuantity, '12.5'); assert.equal(saved.actualStartDate, null); assert.equal(saved.actualCompletedDate, null); assert.equal(saved.version, 1); assert.equal(executionPosts(), before + 1);
+      assert.equal((await x.request('/api/v1/production-scheduling/assignments/' + firstActual.id)).assignment.plannedEndDate, firstActual.plannedEndDate);
+    });
+    await phase('actual concurrency rejection preserves typed quantity and exact reread versions', async () => {
+      await openActual(26); await field('input[aria-label=累计完成数量]', '14'); await click('预览进度', '[role=dialog] button'); await has('确认实际进度');
+      await x.execution(firstActual.id, { completedQuantity: '13' }); await click('确认保存', '[role=dialog] button'); await has('实际进度已更新');
+      assert.equal((await actualHead(firstActual.id)).completedQuantity, '13'); assert.equal(await evaluate("Object.keys(sessionStorage).some(k=>k.startsWith('zhixu.server.production-plan.pending.v1.'))"), false);
+      await click('重新读取实际记录', '[role=dialog] button'); await has('输入已保留'); assert.equal(await evaluate("document.querySelector('input[aria-label=累计完成数量]').value"), '14'); await actualSave(); assert.equal((await actualHead(firstActual.id)).version, 3);
+    });
+    await phase('correcting to zero requires reason and never unlocks executor, color or queue position', async () => {
+      await openActual(26); await field('input[aria-label=累计完成数量]', '0'); await click('预览进度', '[role=dialog] button'); await has('请填写说明'); assert.equal((await actualHead(firstActual.id)).version, 3);
+      await field('textarea[aria-label=执行更正说明]', '纠正累计数量', 'HTMLTextAreaElement'); await actualSave(); assert.equal((await actualHead(firstActual.id)).completedQuantity, '0');
+      await click('查看排单', '.ps-pool-row button'); await click('编辑排单', '[role=dialog] button'); await has('已有实际记录，执行方保持不变');
+      for (const label of ['生产组织', '排单颜色']) assert.equal(await evaluate(`document.querySelector('select[aria-label="${label}"]').matches(':disabled')`), true);
+      await closeClean(); await click('生产组', '.ps-view-tabs button'); await field('select[id=server-plan-group]', executionGroup.id, 'HTMLSelectElement'); await has('X实际执行组 · 计划队列');
+      await click('更多排单：SYN-PLAN-26 · 1'); assert.equal(await evaluate("[...document.querySelectorAll('.ps-row-more-menu button')].find(n=>n.textContent==='下移').disabled"), true);
+      await click('更多排单：SYN-PLAN-26 · 1');
+    });
+    await phase('completion-only and edit-only roles cannot acquire linked replanning authority', async () => {
+      await loginCookie('plan.completer'); await navigate('/production-scheduling'); await has('A合成一组'); await openActual(26, '结束排单');
+      assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].some(n=>n.textContent==='结束并预览后续排期')"), false);
+      await field('input[aria-label=累计完成数量]', '30'); await field('input[aria-label=实际完成日期]', '2027-01-08'); await field('input[aria-label=实际开工日期]', '2027-01-04');
+      const read = await x.request('/api/v1/production-scheduling/orders/' + executionOrders[0]), queue = await x.request('/api/v1/production-scheduling/groups/' + executionGroup.id);
+      const forbidden = { action: 'record_execution', orderId: executionOrders[0], assignmentId: firstActual.id, expectedAssignmentVersion: firstActual.version, expectedExecutionVersion: 4, expectedPlanVersion: read.order.planVersion,
+        data: { status: 'completed', completedQuantity: '30', actualStartDate: '2027-01-04', actualCompletedDate: '2027-01-08' }, reason: '', replan: { expectedQueueVersion: queue.version } };
+      assert.equal(await evaluate(`fetch('/api/v1/production-scheduling/execution/preview',{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(${JSON.stringify(forbidden)})}).then(r=>r.status)`), 403);
+      await click('仅记录结束', '[role=dialog] button'); await has('确认实际进度'); await click('确认保存', '[role=dialog] button'); await has('实际进度已保存');
+      assert.equal((await actualHead(firstActual.id)).version, 5); assert.equal((await x.request('/api/v1/production-scheduling/assignments/' + laterActual.id)).assignment.plannedStartDate, laterActual.plannedStartDate);
+      await loginCookie('plan.edit-only'); await navigate('/production-scheduling'); await has('A合成一组'); await click('未排订单'); await click('全部订单'); await field('input[aria-label=搜索排单]', 'SYN-PLAN-26'); await has('SYN-PLAN-26'); await click('查看排单', '.ps-pool-row button'); await has('完成 30');
+      assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].some(n=>['登记进度','更正实际记录','结束排单'].includes(n.textContent))"), false);
+      assert.equal(await evaluate(`fetch('/api/v1/production-scheduling/execution/preview',{method:'POST',headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(${JSON.stringify({ ...forbidden, replan: null })})}).then(r=>r.status)`), 403);
+      await loginCookie('plan.editor'); await navigate('/production-scheduling'); await has('A合成一组');
+    });
+    await phase('explicit completion and downstream changes share one transaction and preserve fixed plans', async () => {
+      await openActual(26); await field('input[aria-label=实际完成日期]', '2027-01-09'); await field('textarea[aria-label=执行更正说明]', '核对实际结束日期并顺排', 'HTMLTextAreaElement');
+      await evaluate("planPreviewMode='hold'"); await click('结束并预览后续排期', '[role=dialog] button'); await until(() => evaluate('planPreviewWaiters.length===1'), 'held actual replan preview');
+      assert.equal(await evaluate("document.querySelector('input[aria-label=实际完成日期]').matches(':disabled')"), true); await evaluate('planPreviewWaiters.splice(0).forEach(done=>done())'); await has('确认更新后续排期'); await has('SYN-PLAN-27');
+      assert.equal((await actualHead(firstActual.id)).version, 5); assert.equal((await x.request('/api/v1/production-scheduling/assignments/' + laterActual.id)).assignment.plannedStartDate, laterActual.plannedStartDate);
+      const before = executionPosts(); await click('确认保存', '[role=dialog] button'); await has('实际进度已保存'); assert.equal(executionPosts(), before + 1);
+      assert.equal((await actualHead(firstActual.id)).version, 6); assert.equal((await x.request('/api/v1/production-scheduling/assignments/' + firstActual.id)).assignment.plannedEndDate, firstActual.plannedEndDate);
+      assert.notEqual((await x.request('/api/v1/production-scheduling/assignments/' + laterActual.id)).assignment.plannedStartDate, laterActual.plannedStartDate);
+      assert.equal((await x.request('/api/v1/production-scheduling/assignments/' + fixedActual.id)).assignment.plannedStartDate, fixedActual.plannedStartDate);
+      const linked = (await x.pool.query('SELECT e.operation_id,(SELECT count(*)::int FROM operation_logs l WHERE l.operation_id=e.operation_id) AS n FROM production_schedule_execution_versions e WHERE assignment_id=$1 AND version=6', [firstActual.id])).rows[0]; assert.ok(linked.n >= 2); await shot('actual-linked-confirmed');
+    });
+    await phase('cancelling the remainder preserves output while a new assignment owns the new task', async () => {
+      await click('查看排单', '.ps-pool-row button'); await click('取消排单', '[role=dialog] button'); await field('textarea[aria-label=取消排单说明]', '保留30件产出，剩余另排', 'HTMLTextAreaElement'); await click('查看变更预览', '[role=dialog] button'); await has('确认排单变更'); await click('确认保存', '[role=dialog] button'); await has('排单已保存');
+      const read = await x.request('/api/v1/production-scheduling/orders/' + executionOrders[0]); assert.equal(read.summary.completedQuantity, '30'); assert.equal(read.summary.plannedQuantity, '0'); assert.equal(read.summary.remainingQuantity, '70.125'); assert.equal(read.executions[firstActual.id].attribution.productionGroupId, executionGroup.id);
+      await startPlan('SYN-PLAN-26', second.id, '70.125'); await savePreview(); const after = await x.request('/api/v1/production-scheduling/orders/' + executionOrders[0]); assert.equal(after.assignments.length, 2); assert.equal(after.executions[firstActual.id].completedQuantity, '30'); assert.equal(after.summary.accountedQuantity, '100.125');
+      assert.equal(after.assignments.find(row => row.id === firstActual.id).status, 'cancelled'); assert.equal(after.assignments.find(row => row.id !== firstActual.id).productionGroupId, second.id);
+    });
+    await phase('lost and mismatched actual receipts survive refresh and clear only the original request', async () => {
+      await openActual(27, '登记进度'); await field('input[aria-label=累计完成数量]', '5.125'); await click('预览进度', '[role=dialog] button'); await has('确认实际进度'); await evaluate("planMode='lost'"); await click('确认保存', '[role=dialog] button'); await has('保存结果尚未确认');
+      const original = await pendingCommand(); assert.equal(original.intent.action, 'record_execution'); const before = executionPosts(); assert.equal((await actualHead(laterActual.id)).version, 1);
+      await navigate('/production-scheduling'); await has('有一条排单操作结果待核对'); assert.equal(executionPosts(), before); await click('核对原请求'); await has('实际进度已保存'); assert.equal((await actualHead(laterActual.id)).version, 1);
+      await openActual(27); await field('input[aria-label=累计完成数量]', '6.125'); await click('预览进度', '[role=dialog] button'); await has('确认实际进度'); await evaluate("planMode='mismatch'"); await click('确认保存', '[role=dialog] button'); await has('核对结果与原请求不一致'); await evaluate("planReceiptMode='mismatch'"); await click('核对原请求', '[role=dialog] button'); await has('核对结果与原请求不一致'); assert.equal((await actualHead(laterActual.id)).version, 2);
+      await click('核对原请求', '[role=dialog] button'); await has('实际进度已保存'); assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1);
+    });
+    await phase('late actual mutation and receipt responses cannot cross A-B-A session ownership', async () => {
+      let quantity = 7;
+      for (const channel of ['post', 'receipt']) for (const status of [200, 401]) {
+        await openActual(27); await field('input[aria-label=累计完成数量]', String(quantity++)); await evaluate("planListMode='delay401'"); await click('重新读取'); await until(() => evaluate('planWaiters.length===1'), 'held actual current read');
+        await click('预览进度', '[role=dialog] button'); await has('确认实际进度'); await evaluate('planMode=' + JSON.stringify(channel === 'post' ? 'delay' + status : 'lost')); await click('确认保存', '[role=dialog] button');
+        if (channel === 'receipt') { await has('保存结果尚未确认'); await evaluate('planReceiptMode=' + JSON.stringify('delay' + status)); await click('核对原请求', '[role=dialog] button'); }
+        const waiters = channel === 'post' ? 'planPostWaiters' : 'planReceiptWaiters'; await until(() => evaluate(waiters + '.length===1'), 'held old actual response');
+        const original = await pendingCommand(), key = 'zhixu.server.production-plan.pending.v1.' + (await x.pool.query("SELECT public_id::text FROM app_users WHERE username='plan.editor'")).rows[0].public_id, raw = await evaluate('sessionStorage.getItem(' + JSON.stringify(key) + ')');
+        await evaluate('planWaiters.splice(0).forEach(done=>done())'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.second'); await has('A合成一组'); assert.equal(await evaluate("document.body.innerText.includes('有一条排单操作结果待核对')"), false);
+        await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.editor'); await has('有一条排单操作结果待核对'); await evaluate(waiters + '.splice(0).forEach(done=>done())'); await wait(180);
+        assert.equal(await evaluate('sessionStorage.getItem(' + JSON.stringify(key) + ')'), raw); assert.equal(await evaluate("document.body.innerText.includes('忘记密码？请联系系统管理员')"), false); await click('核对原请求'); await has('实际进度已保存');
+        assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1);
+      }
+    });
+    await phase('unreceived actual completion requires fresh dual grants before receipt and exact manual retry', async () => {
+      await openActual(27, '结束排单'); await field('input[aria-label=实际完成日期]', '2027-01-15'); await field('input[aria-label=累计完成数量]', '10');
+      await click('结束并预览后续排期', '[role=dialog] button'); await has('确认更新后续排期'); await evaluate("planMode='before-network'"); await click('确认保存', '[role=dialog] button'); await has('保存结果尚未确认'); const original = await pendingCommand(); assert.ok(original.intent.replan);
+      await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='plan.editor' AND permission_key='schedule.edit'"); await click('核对原请求', '[role=dialog] button'); await has('没有执行此操作的权限');
+      assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent==='重试原请求')"), false);
+      await x.pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('plan.editor','schedule.edit')"); await click('核对原请求', '[role=dialog] button'); await has('暂未找到原操作回执'); await click('重试原请求', '[role=dialog] button'); await has('实际进度已保存');
+      assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1);
+    });
+    let externalActual;
+    await phase('disabled outsourced resources retain original names and exact over-plan actual quantities', async () => {
+      let factory = await x.resource('factories', { name: '实际原外发厂', enabled: true, remark: '', shortName: '', contactPerson: '', phone: '' });
+      const order = await x.order(29); externalActual = (await x.plan(order, data({ executionType: 'outsource', executorId: factory.id, plannedQuantity: '15', dates: { mode: 'manual_fixed', startDate: '2027-01-04', endDate: '2027-01-06' } }))).assignments[0];
+      factory = await x.changeResource(factory, { name: '停用后的新厂名', enabled: false }); void factory;
+      await openActual(29, '登记进度'); await has('实际原外发厂'); assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].some(n=>n.textContent==='结束并预览后续排期')"), false);
+      await field('input[aria-label=累计完成数量]', '9007199254740993.001'); await click('预览进度', '[role=dialog] button'); await has('实际完成超过本条计划'); await click('确认保存', '[role=dialog] button'); await has('实际进度已保存'); assert.equal((await actualHead(externalActual.id)).completedQuantity, '9007199254740993.001');
+      assert.equal((await actualHead(externalActual.id)).attribution.productionGroupId, null); assert.equal((await actualHead(externalActual.id)).attribution.outsourceFactoryId, externalActual.outsourceFactoryId);
+    });
+    await phase('execution history preserves independent pagination and frozen orders remain readable only', async () => {
+      for (let n = 0; n < 50; n++) await x.execution(laterActual.id, { status: 'in_progress', completedQuantity: String(100 + n), actualCompletedDate: null }, false, '合成历史更正');
+      const anchor = (await actualHead(laterActual.id)).version; await click('未排订单'); await click('全部订单'); await field('input[aria-label=搜索排单]', 'SYN-PLAN-27'); await has('SYN-PLAN-27'); await click('查看排单', '.ps-pool-row button'); await click('查看执行历史', '[role=dialog] button'); await has('实际版本 ' + anchor);
+      await x.execution(laterActual.id, { completedQuantity: '150' }, false, '分页后新增'); await click('加载更早执行记录', '[role=dialog] button'); await until(() => evaluate("[...document.querySelectorAll('[role=dialog] strong')].some(n=>n.textContent.startsWith('实际版本 1 ·'))"), 'oldest execution version');
+      assert.equal(await evaluate(`document.querySelector('[role=dialog]').innerText.includes('实际版本 ${anchor + 1} ·')`), false); await shot('actual-anchored-history'); await click('关闭执行历史');
+      await x.pool.query("UPDATE sales_orders SET lifecycle_state='completed',version=version+1 WHERE id=$1", [executionOrders[1]]); await click('重新读取'); await click('生产组', '.ps-view-tabs button'); await field('select[id=server-plan-group]', executionGroup.id, 'HTMLSelectElement'); await has('历史 / 已冻结，仅查看');
+      await click('更多排单：SYN-PLAN-27 · 1'); assert.equal(await evaluate("[...document.querySelectorAll('.ps-row-more-menu button')].some(n=>['登记进度','更正实际记录','结束排单'].includes(n.textContent))"), false); await click('查看执行历史', '.ps-row-more-menu button'); await has('实际版本 ' + (anchor + 1)); await click('关闭执行历史');
+    });
     await phase('real desktop, DPR and mobile geometry preserve usable queue and form bounds', async () => {
       for (const [width, deviceScaleFactor] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {
         await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor, mobile: width === 390 }); await navigate('/production-scheduling'); await has('A合成一组');
         let metrics = await evaluate("({page:'queue',width:innerWidth,scroll:document.documentElement.scrollWidth,search:document.querySelector('.ps-workspace-toolbar .qc-search-field').getBoundingClientRect().toJSON(),views:document.querySelector('.ps-workspace-toolbar .ps-view-tabs').getBoundingClientRect().toJSON()})"); assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.search.right <= metrics.views.left + 1 || metrics.views.right <= metrics.search.left + 1 || metrics.search.bottom <= metrics.views.top + 1 || metrics.views.bottom <= metrics.search.top + 1, JSON.stringify(metrics)); geometry.push(metrics); await shot('queue-' + width);
         await startPlan('SYN-PLAN-09', second.id); metrics = await evaluate("({page:'form',width:innerWidth,scroll:document.documentElement.scrollWidth,panel:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON(),fields:[...document.querySelectorAll('[role=dialog] input,[role=dialog] select,[role=dialog] textarea')].filter(n=>n.getClientRects().length).map(n=>({label:n.getAttribute('aria-label'),left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right}))})"); assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.panel.width <= width + 1); assert.ok(metrics.fields.every(row => row.left >= metrics.panel.left && row.right <= metrics.panel.right), JSON.stringify(metrics)); geometry.push(metrics); await shot('form-' + width); await closeClean(); await has('有未保存修改'); await click('放弃修改');
+        await openActual(29); await field('select[aria-label=执行状态]', 'completed', 'HTMLSelectElement'); metrics = await evaluate("({page:'actual-form',width:innerWidth,scroll:document.documentElement.scrollWidth,panel:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON(),fields:[...document.querySelectorAll('[role=dialog] input,[role=dialog] select,[role=dialog] textarea')].filter(n=>n.getClientRects().length).map(n=>({label:n.getAttribute('aria-label'),left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right}))})"); assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.panel.width <= width + 1); assert.ok(metrics.fields.every(row => row.left >= metrics.panel.left && row.right <= metrics.panel.right), JSON.stringify(metrics)); geometry.push(metrics); await shot('actual-form-' + width); await closeClean(); await has('有未保存修改'); await click('放弃修改');
       }
     });
     assert.deepEqual(errors, []); assert.deepEqual(x.errors, []); assert.equal(await count('quote_center_quotes'), 0);
