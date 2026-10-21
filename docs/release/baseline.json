@@ -1991,6 +1991,32 @@
       "renderedSourceSha": "4cd603d7836332ecc8aa580acdc4a7a53173d4eb",
       "sha256": "48e73b2ead149cda84793d022348830f48250ad02668086447c1868c56aca7bb",
       "changeReason": "Current execution contract and 0036 read extension, recorded in the forward documentation checkpoint. Preserve the original 0035 read contract and its frozen evidence. No runtime or acceptance status change."
+    },
+    {
+      "id": "decisions-server-production-execution-ui-20261021",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5f62c20d07aa0655ed8df343490acdaeebac0bf1",
+      "renderedSourceSha": "27b3f08febdbe76e9253e8db5d30855faa26346f",
+      "sha256": "8a1901add6d3d961a62169e772dd958eea55bf1bfb035368390def365967284e",
+      "supersedes": "decisions-server-production-execution-ledger-20261021",
+      "changeReason": "D151 forward implementation scope: original completion/linked-replan UI, single request recovery and isolated six-size evidence. Preserve the backend stage and all prior decisions; no new business rule or deployment approval."
+    },
+    {
+      "id": "server-production-execution-ui-contract-20261021",
+      "kind": "document",
+      "path": "docs/features/SERVER_PRODUCTION_EXECUTION_UI.md",
+      "recordedAtSha": "f73357c26d028825e72c8c74c08f243a1ace666c",
+      "renderedSourceSha": "27b3f08febdbe76e9253e8db5d30855faa26346f",
+      "sha256": "3413783d7a12b3876fa9baa8b70aa1d8025d04da6d7bbc96cb4e1b54af9e082b"
+    },
+    {
+      "id": "server-production-execution-ui-engineering-20261021",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-21-production-execution-ui-engineering.md",
+      "recordedAtSha": "5f62c20d07aa0655ed8df343490acdaeebac0bf1",
+      "renderedSourceSha": "27b3f08febdbe76e9253e8db5d30855faa26346f",
+      "sha256": "cb84d99cfc4324cd66d1a93f3fa9dbe152afd58ee79177e5dc983811fb7a3c3f"
     }
   ],
   "pages": [
@@ -6997,6 +7023,92 @@
           "runtimeId": "preview18444",
           "evidence": [
             "server-production-planning-ui-engineering-20261021"
+          ]
+        }
+      }
+    },
+    {
+      "id": "production-execution-server",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate6C Server actual execution on the existing scheduling page: exact independent cumulative output/dates, immutable original attribution, correction reasons, explicit dual-permission completion plus downstream replan, shared transaction/audit/receipt and one actor-tab pending slot, no optional queue dependency for record-only, anchored execution history, frozen read-only records. Final 27b private Chromium includes six-size four-action footer and visible aligned before/after columns. No Browser migration, monetary fields, garment shipment, logistics, closing/FX, real Source activation, deployment or human acceptance.",
+      "evidence": [
+        "server-production-execution-ui-engineering-20261021",
+        "server-production-execution-ui-contract-20261021"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6C Server actual execution on the existing scheduling page: exact independent cumulative output/dates, immutable original attribution, correction reasons, explicit dual-permission completion plus downstream replan, shared transaction/audit/receipt and one actor-tab pending slot, no optional queue dependency for record-only, anchored execution history, frozen read-only records. Final 27b private Chromium includes six-size four-action footer and visible aligned before/after columns. No Browser migration, monetary fields, garment shipment, logistics, closing/FX, real Source activation, deployment or human acceptance.",
+          "sourceSha": "27b3f08febdbe76e9253e8db5d30855faa26346f",
+          "evidence": [
+            "server-production-execution-ui-engineering-20261021"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6C Server actual execution on the existing scheduling page: exact independent cumulative output/dates, immutable original attribution, correction reasons, explicit dual-permission completion plus downstream replan, shared transaction/audit/receipt and one actor-tab pending slot, no optional queue dependency for record-only, anchored execution history, frozen read-only records. Final 27b private Chromium includes six-size four-action footer and visible aligned before/after columns. No Browser migration, monetary fields, garment shipment, logistics, closing/FX, real Source activation, deployment or human acceptance.",
+          "sourceSha": "27b3f08febdbe76e9253e8db5d30855faa26346f",
+          "evidence": [
+            "server-production-execution-ui-engineering-20261021"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6C Server actual execution on the existing scheduling page: exact independent cumulative output/dates, immutable original attribution, correction reasons, explicit dual-permission completion plus downstream replan, shared transaction/audit/receipt and one actor-tab pending slot, no optional queue dependency for record-only, anchored execution history, frozen read-only records. Final 27b private Chromium includes six-size four-action footer and visible aligned before/after columns. No Browser migration, monetary fields, garment shipment, logistics, closing/FX, real Source activation, deployment or human acceptance.",
+          "sourceSha": "27b3f08febdbe76e9253e8db5d30855faa26346f",
+          "evidence": [
+            "server-production-execution-ui-engineering-20261021"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6C Server actual execution on the existing scheduling page: exact independent cumulative output/dates, immutable original attribution, correction reasons, explicit dual-permission completion plus downstream replan, shared transaction/audit/receipt and one actor-tab pending slot, no optional queue dependency for record-only, anchored execution history, frozen read-only records. Final 27b private Chromium includes six-size four-action footer and visible aligned before/after columns. No Browser migration, monetary fields, garment shipment, logistics, closing/FX, real Source activation, deployment or human acceptance.",
+          "sourceSha": "27b3f08febdbe76e9253e8db5d30855faa26346f",
+          "evidence": [
+            "server-production-execution-ui-engineering-20261021"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6C Server actual execution on the existing scheduling page: exact independent cumulative output/dates, immutable original attribution, correction reasons, explicit dual-permission completion plus downstream replan, shared transaction/audit/receipt and one actor-tab pending slot, no optional queue dependency for record-only, anchored execution history, frozen read-only records. Final 27b private Chromium includes six-size four-action footer and visible aligned before/after columns. No Browser migration, monetary fields, garment shipment, logistics, closing/FX, real Source activation, deployment or human acceptance.",
+          "sourceSha": "27b3f08febdbe76e9253e8db5d30855faa26346f",
+          "evidence": [
+            "server-production-execution-ui-engineering-20261021"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-21",
+          "scope": "New Server execution UI candidate not deployed. Historical runtime identifiers retained without re-observation.",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "evidence": [
+            "server-production-execution-ui-engineering-20261021"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-21",
+          "scope": "New Server execution UI candidate not deployed. Historical runtime identifiers retained without re-observation.",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "evidence": [
+            "server-production-execution-ui-engineering-20261021"
           ]
         }
       }

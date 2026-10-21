@@ -1,4 +1,4 @@
-# 恢复点：Gate6C执行页面27b已验收，文档冻结和最终交付待
+# 恢复点：Gate6C执行页面27b已验收，完整门禁和最终交付待
 
 2026-10-21；用户批准逐Gate目标仍未达成，main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实。
 当前codex/server-production-execution-ui从main显式FF d207，无继承dirty。root sole writer，既有reviewer只读。
@@ -16,9 +16,11 @@ Source39530058362/Team39530065617/Baseline39530073595均success/attempt1；新�
 第三轮c7e28未涵盖内部四按钮，增强后发现x=-34；294 footer修复28通过；root又发现移动旧表格隐藏表头，
 27b scoped对照表修复并增表头/列对齐断言，最终28通过。旧图/日志均不覆盖，不扩大早期结果范围。
 
-下一步提交新UI feature/工程记录及D151前向状态，绑定manifest：保留原240条/50能力，新增三doc和局部执行能力；
+新UI feature/工程记录及D151已提交，f733只修正列表/详情数量栏目及POST/GET回执文案；应用仍27b。
+manifest前向绑定为243证据/51能力：保留原240条/50能力，新增三doc和局部执行能力；
 原SERVER_PRODUCTION_EXECUTION/PLANNING_READS/UI不改（新根不在main，不能随意supersedes）。D151链可达main。
-随后精确main守卫、完整项目/显式基线、独立复审、最终干净commit，再一次有界交付/独立exact与三新CI。
+5f临时未提交绑定保存在ignored outputs，首次提交前将新UI契约绑定f733实际blob；原历史记录完全不改。
+下一步精确main守卫、完整项目/显式基线、独立复审、最终干净commit，再一次有界交付/独立exact与三新CI。
 本分支尚未上传，不建文档自循环，不派发旧HEAD。原#120–127不动，不建重复累计业务PR，不merge/close/deploy。
 
 Gate7“成衣出货时点”已发异步业务问题，未答不实施依赖schema；可继续本UI最终门禁/交付。
