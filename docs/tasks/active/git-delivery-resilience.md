@@ -1,5 +1,22 @@
 # Git delivery resilience — 2026-10-12
 
+## Forward classification repair — 2026-10-21
+
+See the [scoped reproduction and repair](git-delivery-success-classification-2026-10-21.md).
+A legal ref name in successful Git output can contain `conflict`, `rejected`,
+`non-fast-forward` or `divergence`; the pre-repair substring classifier could mistake
+it for a failure even after independent exact verification. The new phase uses
+owned temporary bare repositories to reproduce this defect and keeps real nonzero
+authentication failures, TLS identity failures and proven divergence as STOP.
+Successful exit alone never establishes delivery. Remote observation and the
+decision to continue are separate fields. Additive diagnostics contain only
+exit/category/timeout/timing metadata, never raw output.
+
+This reproduction is not proof of the original d6 stderr or a permanent network
+repair. The [d6 delivery record](../completed/2026-10-21-production-execution-ui-delivery.md)
+preserves that uncertainty and its independently verified commit/three CI runs.
+New tool verification remains separately recorded in the scoped task.
+
 ## Current standing authorization — 2026-10-20
 
 The human user answered the concrete two-branch Gate2 recovery request with

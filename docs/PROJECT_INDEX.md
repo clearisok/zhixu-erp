@@ -1,18 +1,15 @@
 # 项目知识索引
 
-2026-10-21恢复：[Gate6C页面任务](tasks/active/server-convergence-gate6c-ui-2026-10-21.md)、[执行页面契约](features/SERVER_PRODUCTION_EXECUTION_UI.md)、CURRENT_STATE/AI_HANDOFF。
-main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；codex/server-production-execution-ui输入干净/已送达d207b1a2。
-完成＋重排双权限与原产出归属已确认，D151前向记录；当前0036执行head/history/技术epoch、统一事务回执、旧计划保护及真实数量读取本地验收。
-b891三CI success/attempt1，新执行22/LinuxQuote87/Python131及Team项目927实际通过；原be7/f344/933d失败和红测范围保留。
-[b891三摘要逐字输入](tasks/completed/2026-10-21-production-execution-inputs/b8910f6c/)保留旧日期/hash/结果/限制及fc恢复链。
-4cd源码/76d3文档冻结；98生产组合、27客户端、39引用归属、927项目、116基线及原计划Chromium17通过；d207已一次送达且独立API exact。
-Source39530058362/Team39530065617/Baseline39530073595 success/attempt1，完整日志实际核查。新执行UI最终源27b，35客户端/98组合/TS/全lint/精确build及built28通过。
-六尺寸30几何、手机四按钮与修改前后表头已核对；新工程记录冻结，f733只收准契约文案、清单243/51。
-488完整项目927/显式基线116通过；绑定后main守卫和独立复审通过，最终提交守卫/远端与新CI仍待，不借后端CI冒称页面交付。
-仅登记不依赖非必需queue，原唯一槽扩为计划或执行，原结束弹窗/历史恢复；d207三摘要逐字归档保留后端链。
-首两轮文档绑定失败与本UI早期失败保留，不放宽守卫。执行UI仅本地工程，出货/关账及真实激活未闭环。
-0035原阶段读取文档保持70cb8历史字节；当前数量、executions和空队首扩展以执行契约为准。
-后端原240证据/50能力/旧PNG保持，UI前向追加三文档及局部能力为243/51；#120–127原头不动，不建重复累计业务PR、不merge/close/deploy。
+2026-10-21恢复：[当前交付工具任务](tasks/active/git-delivery-success-classification-2026-10-21.md)、CURRENT_STATE/AI_HANDOFF。
+main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；当前codex/git-delivery-success-classification从main显式FF干净d6。
+[Gate6C执行页面交付终态](tasks/completed/2026-10-21-production-execution-ui-delivery.md)：d6b17c7ab7deabdb0f9378d063572476b816c1ad一次上传、独立API exact。
+Source39538964254/Team39538971997/Baseline39538980120均success/attempt1，实际执行纯22/PG15、客户端35、完整PG269、执行Chromium28、Quote87/Python131、项目927/基线116通过。
+Source5个Windows平台跳过、Git fixture52通过/1Windows跳过；精确日志和既有独立复审已核对，不改写早期失败与跳过。
+应用最终源27b、六尺寸30几何及原UI/后台范围保持；[执行页面契约](features/SERVER_PRODUCTION_EXECUTION_UI.md)和[原页面任务](tasks/active/server-convergence-gate6c-ui-2026-10-21.md)继续有效。
+[d6三摘要逐字输入](tasks/completed/2026-10-21-production-execution-ui-delivery-inputs/d6b17c7a/)保留旧日期/hash/结果/限制与d207/b891/be7/f344/933d链。
+当前只修可复现Git成功ref关键词误判、远端事实标签及安全元数据，不改业务/SQL/UI；工具65/65及syntax/lint通过，新交付/CI另验，不借d6绿灯。
+Gate7出货定义已询问未答，Gate8其他口径待决；出货/物流/Server关账与真实激活仍未闭环，完整目标未达成。
+原243证据/51能力/旧PNG保持，#120–127原完整头/open draft已重新核实；不建重复累计业务PR、不merge/close/deploy。
 保护3001/50426/59069/62426及旧卷/工作树/Browser；持续Git授权不扩真实数据/来源/部署/退役范围。
 
 ## 系统简介

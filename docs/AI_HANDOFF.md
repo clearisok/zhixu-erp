@@ -1,30 +1,25 @@
-# 恢复点：Gate6C执行页面本地验收通过，精确最终交付待
+# 恢复点：d6三CI终态已核实，正在修交付工具；Gate7定义待答
 
-2026-10-21；用户批准逐Gate目标仍未达成，main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实。
-当前codex/server-production-execution-ui从main显式FF d207，无继承dirty。root sole writer，既有reviewer只读。
-[当前任务](tasks/active/server-convergence-gate6c-ui-2026-10-21.md)、[UI契约](features/SERVER_PRODUCTION_EXECUTION_UI.md)、
-[工程记录](tasks/completed/2026-10-21-production-execution-ui-engineering.md)；业务D151两问已答，不重复问。
+2026-10-21；目标active、完整收敛未达成。main独立API996dfedc12da3527343cd3ff2aa5eea35497e10e。
+当前codex/git-delivery-success-classification从该main新建并FF d6，初始无dirty；root唯一writer、既有reviewer只读。
+[当前工具任务](tasks/active/git-delivery-success-classification-2026-10-21.md)、[d6交付终态](tasks/completed/2026-10-21-production-execution-ui-delivery.md)。
 
-d207b1a2d116f92d542499b5e21c933e0d2d5a23一次DELIVERED_VERIFIED/独立API exact。
-Source39530058362/Team39530065617/Baseline39530073595均success/attempt1；新执行PG15、纯22、
-项目927/基线116、Quote87/Python131实际日志核实，不重复派发。原失败/红测范围在d207输入逐字归档及前Task保留。
-前端源c7e、footer294、最终27b3f08febdbe76e9253e8db5d30855faa26346f，之后只文档/清单/状态，不改应用。
-新客户端/表单35、相关计划/执行/PG/HTTP/升级98、全TS/lint、精确Server构建/顺序Node导入通过。
-最终built28/28（62842.4468ms），六尺寸30几何，0失败/跳过/取消。实际fixture/错误hash/丢回执/原请求重试、
-撤权双权限、A-B-A、取消产出保留及新Assignment、停用厂精确大数、历史锚点/冻结均已实际执行。
-初次TS纯参数过窄已仅改类型；review P2额外queue前置改显式联动才读；浏览器旧角色/分页前置失败保留。
-第三轮c7e28未涵盖内部四按钮，增强后发现x=-34；294 footer修复28通过；root又发现移动旧表格隐藏表头，
-27b scoped对照表修复并增表头/列对齐断言，最终28通过。旧图/日志均不覆盖，不扩大早期结果范围。
+d6b17c7ab7deabdb0f9378d063572476b816c1ad一次上传、独立API exact；工具原回执STOP/remoteSha矛盾保留，未重推。
+Source39538964254/Team39538971997/Baseline39538980120均success/attempt1，实际完整日志及独立复审无阻断。
+新执行纯22/PG15、客户端35、完整PG269、built执行28、Quote87/Python131、项目927/基线116实际通过。
+Source5个Windows平台跳过，Git fixture52通过/1Windows跳过。不能称全部CI零跳过；不重派这三个原run。
+最终应用仍27b3f08febdbe76e9253e8db5d30855faa26346f，六尺寸30几何与早期失败链在原工程/任务记录保持。
+[d6三摘要逐字归档](tasks/completed/2026-10-21-production-execution-ui-delivery-inputs/d6b17c7a/)保留全部前阶段事实，不覆写冻结feature/清单/旧PNG。
 
-新UI feature/工程记录及D151已提交，f733只修正列表/详情数量栏目及POST/GET回执文案；应用仍27b。
-manifest前向绑定为243证据/51能力：保留原240条/50能力，新增三doc和局部执行能力；
-原SERVER_PRODUCTION_EXECUTION/PLANNING_READS/UI不改（新根不在main，不能随意supersedes）。D151链可达main。
-5f临时未提交绑定保存在ignored outputs，首次提交前将新UI契约绑定f733实际blob；原历史记录完全不改。
-488439ce完整项目927/927（348430.4582ms）、显式基线116/116（345861.2882ms）通过，0失败/取消/跳过。
-f733绑定后精确main守卫PASS（11页/51能力/63累计UI路径）；独立只读复审确认三doc真实blob/hash、原240/50保持和未部署边界，无阻断。
-GitHub API重核main仍996、#120–127均原完整头/open draft。下一步最终干净commit/精确守卫，再一次有界交付/独立exact与三新CI。
-本分支尚未上传，不建文档自循环，不派发旧HEAD。原#120–127不动，不建重复累计业务PR，不merge/close/deploy。
+当前已直接复现工具成功输出合法ref中conflict等词导致误判；真实临时裸仓库red回归64项中53通过/11失败（134767.0109ms），
+包括误分类及尚无新诊断字段。最小修复green65/65（138380.601ms）、syntax/定向lint已通过，0失败/跳过/取消；未交付。
+修复只忽略健康零退出输出的拒绝关键词；TLS身份仍优先、非零认证仍STOP、已证实分歧仍STOP。
+纯状态显式要求remoteVerified；remoteStatus按真实独立证据，STOP可同时exact但不准继续/重试；pushDiagnostic仅安全元数据。
+不保留raw stderr/凭据；d6旧stderr不在，不能把本次复现冒称其全部根因或永久网络恢复。
 
-Gate7“成衣出货时点”已发异步业务问题，未答不实施依赖schema；可继续本UI最终门禁/交付。
-保护3001/50426/59069/62426及旧卷/Browser；62426仍Gate1源8175。无真实账号/业务库/新真实来源操作或退役授权；
-持续Git安全恢复已获用户长期授权，不再逐次提问。CNY销售/USD工价不换汇/重标；旧资产不删除，不安装/改共享配置。
+下一步收green、独立复审、代码/事实checkpoint、精确main守卫与显式基线，再有界工具交付；只对新工具范围运行相应CI。
+不借d6三CI称新工具通过，不建文档CI自循环。原#120–127完整头/open draft已重新API核对，保持不动；不建重复累计业务PR。
+
+Gate7成衣出货时点已发异步业务问题，未答不实施依赖schema；Gate8其他口径仍待，不能用物料出运/计划数补成衣事实。
+保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175。无merge/close/deploy、真实账号/业务库或新真实来源操作/退役。
+持续Git工程恢复已获长期授权，不重复问；CNY销售/USD工价不换汇、不重标，不安装依赖、不改共享Git/proxy/TLS/认证。

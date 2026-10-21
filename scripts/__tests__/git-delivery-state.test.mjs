@@ -8,7 +8,7 @@ test('network failure permits independent local engineering, never retry or fake
   assert.ok(!JSON.stringify(deliveryState({...base,stderr:'Connection reset password=PRIVATE'})).includes('PRIVATE'));
 });
 test('response lost but exact remote SHA verified means delivered, no duplicate push',()=>{
-  assert.equal(deliveryState({...base,stderr:'EOF',remoteSha:targetSha}).state,'DELIVERED_VERIFIED');
+  assert.equal(deliveryState({...base,stderr:'EOF',remoteSha:targetSha,remoteVerified:true}).state,'DELIVERED_VERIFIED');
 });
 test('authentication/permissions never treated as network recovery',()=>{
   for(const stderr of ['authentication failed','permission denied','rejected non-fast-forward Connection reset']) assert.equal(deliveryState({...base,stderr}).continueLocal,false);
@@ -32,7 +32,7 @@ test('Schannel, close_notify and TLS EOF are uncertain transport; verified old r
 });
 test('known inherited dirty requires exact approved SHA256, mismatch remains STOP',()=>{
   const fingerprint='c'.repeat(64);
-  assert.equal(deliveryState({...base,exitCode:0,clean:false,dirtyFingerprint:fingerprint,expectedDirtyFingerprint:fingerprint,remoteSha:targetSha}).state,'DELIVERED_VERIFIED');
+  assert.equal(deliveryState({...base,exitCode:0,clean:false,dirtyFingerprint:fingerprint,expectedDirtyFingerprint:fingerprint,remoteSha:targetSha,remoteVerified:true}).state,'DELIVERED_VERIFIED');
   assert.equal(deliveryState({...base,clean:false,dirtyFingerprint:fingerprint,expectedDirtyFingerprint:'d'.repeat(64)}).state,'STOP_UNKNOWN_WORKTREE');
   assert.equal(deliveryState({...base,remoteRelation:'diverged',stderr:'TLS EOF'}).state,'STOP_AUTH_OR_DIVERGENCE');
 });
@@ -56,4 +56,22 @@ test('normal successful push branch names are not certificate failures',()=>{
     const stderr=`To https://github.com/example/repo.git\n * [new branch] abc -> ${branch}\n`;
     assert.equal(deliveryState({...base,exitCode:0,stderr,remoteSha:targetSha,remoteVerified:true}).state,'DELIVERED_VERIFIED');
   }
+});
+
+test('successful ref messages cannot turn independent exact delivery into authentication failure',()=>{
+  for(const branch of ['fix/conflict-report','fix/divergence-proof','fix/rejected-marker','fix/non-fast-forward-notes']) {
+    const stderr=`To https://github.com/example/repo.git\n * [new branch] abc -> ${branch}\n`;
+    assert.equal(deliveryState({...base,exitCode:0,stderr,remoteSha:targetSha,remoteVerified:true}).state,'DELIVERED_VERIFIED');
+    assert.equal(deliveryState({...base,exitCode:0,stderr}).state,'LOCAL_PASS_REMOTE_UNVERIFIED');
+    assert.equal(deliveryState({...base,exitCode:0,stderr,remoteSha,remoteVerified:true}).state,'LOCAL_PASS_REMOTE_NOT_DELIVERED');
+  }
+});
+
+test('zero exit does not bypass certificate identity or malformed remote evidence',()=>{
+  assert.equal(deliveryState({...base,exitCode:0,stderr:'SSL certificate verify failed',remoteSha:targetSha,remoteVerified:true}).state,'STOP_TLS_IDENTITY_OR_CONFIGURATION');
+  assert.equal(deliveryState({...base,exitCode:0,stderr:'conflict report',remoteSha:'short',remoteVerified:true}).state,'STOP_INVALID_EVIDENCE');
+  assert.equal(deliveryState({...base,exitCode:1,stderr:'HTTP 403',remoteSha:targetSha,remoteVerified:true}).state,'STOP_AUTH_OR_DIVERGENCE');
+  assert.equal(deliveryState({...base,exitCode:0,remoteSha:targetSha,remoteVerified:false}).state,'LOCAL_PASS_REMOTE_UNVERIFIED');
+  for(const observed of [remoteSha,targetSha])
+    assert.equal(deliveryState({...base,exitCode:0,remoteSha:observed,remoteVerified:true,remoteRelation:'diverged'}).state,'STOP_AUTH_OR_DIVERGENCE');
 });

@@ -12,11 +12,12 @@ export function deliveryState({ phase, exitCode, stderr = '', targetSha, remoteS
   if (!baselineExists) return { state: 'STOP_BASELINE_MISSING', continueLocal: false, retry: false };
   if (isTlsIdentityFailure(stderr))
     return { state: 'STOP_TLS_IDENTITY_OR_CONFIGURATION', continueLocal: false, retry: false };
-  if (/authentication failed|permission denied|access denied|could not read username|invalid username|(?:error:|HTTP)\s*(401|403)|non-fast-forward|\brejected\b|conflict|diverg/i.test(stderr))
+  // Successful ref/progress messages may contain these words in legal branch names.
+  if (exitCode !== 0 && /authentication failed|permission denied|access denied|could not read username|invalid username|(?:error:|HTTP)\s*(401|403)|non-fast-forward|\brejected\b|conflict|diverg/i.test(stderr))
     return { state: 'STOP_AUTH_OR_DIVERGENCE', continueLocal: false, retry: false };
-  if (phase === 'push' && sha(targetSha) && remoteSha === targetSha)
-    return { state: 'DELIVERED_VERIFIED', continueLocal: true, retry: false };
   if (remoteRelation === 'diverged') return { state: 'STOP_AUTH_OR_DIVERGENCE', continueLocal: false, retry: false };
+  if (phase === 'push' && remoteVerified && sha(targetSha) && remoteSha === targetSha)
+    return { state: 'DELIVERED_VERIFIED', continueLocal: true, retry: false };
   if (phase === 'push' && remoteSha !== undefined && remoteSha !== null && (!sha(remoteSha) || !sha(targetSha)))
     return { state: 'STOP_INVALID_EVIDENCE', continueLocal: false, retry: false };
   if (phase === 'push' && exitCode === 0 && !remoteVerified)

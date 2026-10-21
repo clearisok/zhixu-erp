@@ -10,6 +10,7 @@ const sha = value => /^[0-9a-f]{40}$/.test(value ?? '');
 const denied = /authentication failed|permission denied|access denied|could not read username|invalid username|(?:error:|HTTP)\s*(401|403)|non-fast-forward|\brejected\b|conflict|diverg/i;
 export function errorCategory(result) {
   if (isTlsIdentityFailure(result.stderr)) return 'tls_identity_or_configuration';
+  if (result.code === 0 && !result.timedOut && !result.spawnError && !result.overflow) return 'command_pass';
   if (denied.test(result.stderr)) return 'authentication_or_divergence';
   if (result.timedOut) return 'timeout';
   if (result.spawnError) return 'executable_unavailable';
@@ -198,8 +199,8 @@ export async function deliver(options, dependencies = {}) {
       targetSha: options.expectedHead, remoteSha: after.sha, remoteVerified: after.verified,
       remoteRelation: relation, ...initial, expectedDirtyFingerprint: options.expectedDirtyFingerprint });
     return summary(decision.state, { continueLocal: decision.continueLocal, remoteSha: after.sha,
-      remoteStatus: decision.state === 'DELIVERED_VERIFIED' ? 'EXACT_HEAD_VERIFIED' : after.verified ? 'TARGET_NOT_DELIVERED' : 'REMOTE_UNVERIFIED',
-      pushCategory: errorCategory(pushed), elapsedMs: pushed.elapsedMs, channel: after.channel,
+      remoteStatus: after.verified ? after.sha === options.expectedHead ? 'EXACT_HEAD_VERIFIED' : 'TARGET_NOT_DELIVERED' : 'REMOTE_UNVERIFIED',
+      pushCategory: errorCategory(pushed), pushDiagnostic: safeCommandSummary(pushed), elapsedMs: pushed.elapsedMs, channel: after.channel,
       ...(preflight ? { preflight } : {}),
       networkMode: degraded || errorCategory(pushed) === 'uncertain_transport' || pushed.timedOut || decision.state.startsWith('LOCAL_PASS_REMOTE_') ? 'NETWORK_DEGRADED' : 'NORMAL',
       ...(decision.state === 'DELIVERED_VERIFIED' ? {} : { recovery }) });
