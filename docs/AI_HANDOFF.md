@@ -1,9 +1,13 @@
-# 恢复点：原始历史收口，保留真实来源和关账边界
+# 恢复点：完成就绪审计，继续DeliveryPlan可靠保存
 
-2026-10-22；chore/server-candidate-history-integration，独立 main 996dfedc12da3527343cd3ff2aa5eea35497e10e。实际本机 no-ff merge e6ba5f049dd7fe835e8025a7fa6280585923ff34，按序双父级 7ac59413d5b55b0aa31962f6952a8c635b166c38 / 956921f63ba3069c059ca64c2324edbc33afefd8；八个PR120–127原head祖先全部已核实。1287非doc树条目、manifest原blob/261证据/55能力/全部状态均与7ac一致；213 incoming、6摘要归档及3历史doc完整。root唯一writer，既有reviewer只读，无继承dirty。阶段[事实与边界](tasks/active/server-candidate-history-integration-2026-10-22.md)；最终文档HEAD/guard/clean读ignored outputs/server-history-integration/checkpoint-final.json，不推测不存在的回执。
+2026-10-22；chore/server-convergence-release-readiness从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建立，再FF干净7d323de50d563a6ee7533d0584a2372dc55281e4。root唯一writer、既有reviewer只读，无继承dirty。先读[当前审计](tasks/active/server-convergence-release-readiness-2026-10-22.md)，原三摘要Git blob保存在tasks/completed/2026-10-22-release-readiness-inputs/7d323de5。ignored outputs/server-release-readiness保留限定公开运行元数据、原模板失败与补充正向观察，无Env/密码/业务行/Source私密原文。
 
-精确e6ba/main996守卫PASS；发布/响应式116/116、零失败/跳过/取消（195593.4372ms）。独立复审无P1/P2。7ac三个实际CI各一次/attempt1均completed/success：source39673330905、team39673338812、baseline39673344242。不要重新dispatch同一7ac，或将其标作e6ba/后续文档HEAD的CI；应用/tool/test/SQL/UI/workflow不变已由全树比对实证，本次没有重跑其他业务/镜像/浏览器检查。
+上一轮progress：e6ba实际双父级7ac/956及#120–127原head祖先全核实，应用/tool/test非doc树等价；7d远端精确+最终发布CI39676484374 success，7ac三CI也success，116本地发布/精确guard/review已完成。原推送STOP/exit1与后续原工具零push DELIVERED_VERIFIED分开留存，不能倒写exit0或称网络永久修好；不重推7d。当前261证据/55能力/状态及冻结报告不改。
 
-7ac远端exact，原exit1/STOP仍保留；随后原工具DryRun DELIVERED_VERIFIED/pushes0，无重推。7ac/a296完整stderr字节/hash与固定可信目标标准模板精确匹配，确认目标引用已存在；谁在哪里并发创建仍unknown，不称永久网络修好。a296 tracking已一次非force fetch补齐；诊断observer隔离失败P2已修、5项离线用例通过，原工具策略未改。所有原始安全回执留在ignored outputs/git-reference-diagnosis；新历史验证引用交付另读本phase回执，不覆盖旧STOP。
+审计确认当前入口不是最新候选：50426=4978、59069=5052、62326=333d、62426=8175；62426五服务healthy但不是新40-migration体验。3001仍监听，本次public build未能解析，旧历史身份不当新观察。两PG fixtures是tmpfs；Source演示PG有named volumes。f469镜像ID仍ee7095...，至7d仅文档和持久化测试helper差异。新目标用全新库/对象/secret volumes，现有入口/库不升级或删除，不把start/restart当migration。
 
-无累计实现PR，无GitHub合并/关闭/部署或旧环境升级。3001/50426/59069/62426等保护，62426仍8175旧镜像；0真实Source/凭据/候选/业务DB操作。用户Num/outdate确认已由D152承接，不重问。固定C1/C0/C1额度及三项关账业务问题尚未回复，不默认；可以继续独立工程，但不越过真实核验、业务决定、入口切换及退役授权。Goal保持active。
+下一步不是等待所有业务回复：DeliveryPlan当前命令只有expectedVersion/upserts/voidIds，PATCH服务无requestId/精确回执，UI主要lazy GET。D100永久手工所有权与业务规则已确认，可独立推进可靠保存后台；请先读实际model/service/API、0009/0018/0020/0035约束、旧demo和升级/API测试。兼容旧PATCH与{deliveryPlanSet}；旧body也进同一回执ledger，不保留无表时无回执旁路。fresh actor/role锁序参考auth/current-actor，不全仓改旧helper；人工写只对原有效SO，不随sourceOwner写历史alias。下一独立分支/phase按新baseline记录、前向迁移与隔离测试，UI批准范围另核。
+
+原真实C1/C0/C1额度和三项关账问题仍未回复，Num/outdate不重问；它们不阻塞独立DeliveryPlan工程。无自动merge/close/deploy/入口切换/旧资产退役/新真实读取或账号业务库操作。Goal active，不把观察模型/局部验收当全项目完成，也不因部分待答就标全部blocked。
+
+DeliveryPlan之后还有可独立推进的多交期风险只读投影：当前Server warnings主要overassigned，deliveryPlans已读但风险计算仍只在Browser；BUSINESS_RULES的累计交期/供给口径已确认，须保持取消后原产出、exact decimal/null及历史owner，不机械复制Browser模型。本阶段未实施。
