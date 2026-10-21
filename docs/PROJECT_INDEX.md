@@ -1,10 +1,8 @@
 # 项目知识索引
 
-当前2026-10-21前向阶段：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。从干净e4d7输入继续，见[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[成衣观察feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)和[冻结工程证据](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)。41定向/146 Python/927项目/124相关通过及1既有Windows跳过，类型/lint/生产构建/独立复审通过；db339精确守卫及116发布通过。254证据/53能力；仅验证引用交付和三项指定CI待，不创建重复累计业务PR。不把内部观察API当作正式来源/页面/事件账或关账；完整Goal继续。
+当前2026-10-22前向阶段：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)与[冻结工程证据](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)为恢复入口。41定向/146 Python/927项目/124相关通过+1既有Windows跳过；类型/lint/构建/116发布/精确守卫通过，254证据/53能力。内部观察不是正式采集、页面、事件账或关账，完整Goal继续。
 
-前向收口：6e55已一次上传/精确核实；team-access CI通过，baseline检查通过但流程未收口，source失败于旧货款申请UI首按钮选择器。仅修测试、最终9/9及语法/lint通过，产品/SQL/manifest不改；修复后精确守卫、交付与新CI继续见任务，不把旧失败或未执行步骤写PASS。
-
-当前前向：08精确远端已核实，异常退出/本地跟踪落后分别记录，已正常fetch快进同步但不推断原根因。08的team-access/baseline成功，source失败于资源撤权Enter就绪；仅硬化测试，受控焦点复现和完整23/23通过，产品不变。新检查点的交付/CI见任务，不创建重复累计PR。
+caf062d0e80cdfbafcf4e1cf35c9d4553b6de90b精确远端已独立核实，原push退出1/STOP保留；安全诊断见引用更新拒绝，根因未定，不重推。caf的team-access39629550902、baseline39629557322成功；source39629544075因job20分钟总上限取消，数据库/来源/P6步骤成功，报价UI中断/Python跳过，不能称全CI通过。仅将总预算20→30分钟，所有检查与单项限制不变；新checkpoint验收/交付/CI继续，不另建累计PR或合并部署。两处旧UI测试修复、早期CI和Git诊断原记录留在任务及Git，不覆盖冻结证据。
 
 下段是已完成的前阶段证据，原根文档已逐字节归档，不覆盖其测试/日期/源码绑定。
 

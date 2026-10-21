@@ -75,3 +75,16 @@ helper改按事件按钮完整可访问名称形状与文本定位，只点击�
 最终完整23/23（31351.8724ms）、0fail/cancel/skip，语法/单文件lint与独立只读复审通过；使用原99c52/build20261021-222838应用字节。结论仅是候选竞态机制受控验证且新用例严格通过，缺旧CI现场仍不能确认当次唯一根因。产品、manifest、冻结报告/截图不变，不重跑或冒称新全量927/116；下一精确守卫与Hosted重新核实。
 
 下一次正常checkpoint交付拟通过既有deliver可测试接口包一层同一runCommand（原参数/默认origin/次数/状态机不变），只采样推送失败的固定布尔信号及字节/hash，不保存raw、不改认证或配置；ignored capture-delivery-signals.mjs已语法及离线canary隐私检查通过，0请求/push，执行前独立只读复审。观察落盘失败不得影响原结果；不是恢复已到达08或另创传输通道。持续授权涵盖本次必要工程修复；不扩大真实Source、合并或部署。
+
+
+## caf精确交付、三项CI与总预算修复（2026-10-22）
+
+caf062d0e80cdfbafcf4e1cf35c9d4553b6de90b精确main996守卫PASS/clean。reviewed ignored v1包装仍调用原deliver/runCommand，实际pushes1、exit1、5662ms、工具STOP_AUTH_OR_DIVERGENCE；工具后验和独立GitHub API均远端精确caf，不重推也不改写原STOP。固定布尔采样见rejected/remote rejection/ref-update信号，认证/401/403/permission及transport均false；stderr仅保存412字节/hash，不存raw。generic localRefUpdate名称不能证明来自本地，准确位置和CAS根因仍unknown。
+
+只读目的地核实：一个可信origin/push URL、无自定义push URL、无额外pre-push hook；Git ls-remote及GitHub API都精确caf。一次无上传receive-pack预演exit0/2146ms、porcelain等号/up-to-date，0实际push、0配置/认证变化；当前通道一致不证明旧根因或长期稳定。origin跟踪仍08，未自动强制改写。修正ignored v2诊断：已知错误语法提取完整ref后只匹配两条允许引用；相似后缀/子路径/附带其他ref/多冲突一律unknown，不保存其CAS，generic标志改名refUpdateSignal。3项离线检查和独立只读复审通过，原守卫/次数/wx/失败隔离不变；未执行v2真实交付。
+
+三项workflow各dispatch一次，时间2026-10-21T15:52:05.6472809Z、精确caf：source39629544075、team-access39629550902、baseline39629557322。后两项终态success。source于16:12:27Z终态cancelled，job119323729945的GitHub明确annotation为“The job has exceeded the maximum execution time of 20m0s”；不是已报告的断言失败。compiled数据库/来源步骤15:52:38→16:03:24（10分46秒）、quality及build通过，P6浏览器16:03:36→16:10:14（6分38秒）全部success，包含两份已修验收。Quote步骤16:10:14开始，持续多个客户确认/CCT/工作簿/ZIP/审计/内部汇总子用例通过，16:12:20被整体预算中止；不能把未结束父项写通过，后续Python明确skipped。完整本机脱敏日志与状态/注解保存ignored source-ci-caf-cancelled.log、ci-caf-cancelled.json，旧记录不覆盖。
+
+本次增量前baseline是clean caf。仅将ainuoke-server-source.yml的job总预算20→30分钟，保留全部步骤/命令和单测等待限制，给予增长后的集成+浏览器完整流程有界余量，不通过删检查、扩单项等待或重试掩盖失败。业务源码、SQL、UI、manifest、冻结报告/截图不改；其余两workflow不改。语法/精确差异、发布门禁及独立复审后创建独立checkpoint，再一次正常交付及独立精确核实；只运行三项指定CI，不新建累计PR、不merge/close/deploy，不新增真实查询或改现有库。
+
+本次working守卫PASS，checkedHead caf/精确main996、11页/53能力/76继承UI路径、errors空；精确单行预算替换、五路径白名单、冻结LF hash与git diff --check通过，独立只读复审无阻断。没有重跑或冒称新的927/116全量结果。另核实本地tracking08为caf祖先、远端精确caf、已登记工作diff后，仅正常fetch该ref快进到caf：3176ms/exit0，无force、无FETCH_HEAD/配置/工作分支变化，工作diff指纹前后相同，0 push。回执tracking-ref-caf-recovery.json；这修复本地跟踪不一致，不证明原push退出的原因。新checkpoint交付与Hosted终态仍待。
