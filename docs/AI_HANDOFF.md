@@ -4,9 +4,9 @@
 
 原PATCH与响应保留；显式UUID/legacy确定性身份进入同一ledger，首await前复制意图，fresh user/roles/grants，历史结果不重判CAS/alias；POST原命令receipt只读且unknown不证明失败。计划/审计/回执原子，固定409/422才存拒绝；compact/PG jsonb双16MiB超量回滚业务后存小拒绝，历史不截断。无缺表写旁路；新原SO外键进入完整引用指纹。未修改UI、金额、Source或生产规则。
 
-本地定向42/42、最终新receipt19/19、bound-refresh18/18、有效归属45/45、归一只读40/40/完整执行证据33/33、全PG270/270、typecheck、lint、Node和前端build通过。测试只用本阶段自建合成PG/MinIO，自动清理自身fixture；旧环境无操作。首次合成角色同名失败与HTTP复用requestId的409已修测试，没有改弱规则。全项目第一次运行因D154尚未前向绑定冻结证据而失败；此状态必须保留，提交证据并绑定manifest后重跑，不得把当前称全项目或最终发布PASS。
+源码已提交12cfaf18867fea94f6733389851191afc29f31a4。本地定向42/42、最终新receipt19/19、bound-refresh18/18、有效归属45/45、归一只读40/40/完整执行证据33/33、全PG270/270、typecheck、lint、Node和前端build通过。测试只用本阶段自建合成PG/MinIO并清理自身fixture；旧环境无操作。首次合成角色同名失败与HTTP复用requestId的409已修测试，没有改弱规则。首轮全项目899/910、11项均为D154尚未前向绑定的同一漂移；原日志保留。追加实际12cf Git blob绑定后重跑927/927通过（197456.008ms），working精确守卫PASS；固定源码review无P1/P2。
 
-下一步：完成源码checkpoint，将D154作为前向DECISION_LOG文档版本绑定（旧leaf为decisions-garment-observations-20261021）；冻结本阶段报告并绑定新证据，保留原261证据/55能力的全部历史。再运行全项目与116发布、精确main守卫，复审固定提交后按既有工具一次交付/精确SHA/CI。当前没有新最终门禁PASS。不要为过门禁修改旧截图/证据或自动合并部署。
+下一步：已完成D154前向绑定（旧leaf仍保留），将[本阶段工程报告](tasks/completed/2026-10-22-delivery-plan-request-engineering.md)提交冻结并绑定新技术切片证据，保留原261证据/55能力全部历史。再运行独立发布回归、精确main守卫，复审固定提交后按既有工具一次交付/精确SHA/CI。当前没有新最终发布PASS。不要修改旧截图/证据或自动合并部署。
 
 上一轮收敛[只读就绪审计](tasks/active/server-convergence-release-readiness-2026-10-22.md)保留于d59；7d323de50d563a6ee7533d0584a2372dc55281e4的原始PR120–127历史、exact远端及CI39676484374成功不变，应用等价7ac三CI也成功。原失败交付回执保留，不重推7d或宣称永久网络修复。#120–127仍草稿，禁止新增重复累计业务PR、自动merge/close。
 

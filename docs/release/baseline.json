@@ -2186,6 +2186,16 @@
       "renderedSourceSha": "2fdd8b277e870c1e3077ad4f7bf19eb5ad1172f9",
       "sha256": "0c13e49ec439bb1797423e840d54dd74e2e9c79576737261b69c5e0797b361fe",
       "changeReason": "New exact f469 Server image persistence evidence with the 2fdd cleanup-protected harness. Preserve all earlier evidence and statuses; no existing-target upgrade, real Source activation, deployment or user acceptance."
+    },
+    {
+      "id": "decisions-delivery-plan-receipts-20261022",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "12cfaf18867fea94f6733389851191afc29f31a4",
+      "renderedSourceSha": "12cfaf18867fea94f6733389851191afc29f31a4",
+      "sha256": "505c5e5f7dbf564c7451526b863686418e26bf179ef32567ad2010c2068598f1",
+      "supersedes": "decisions-garment-observations-20261021",
+      "changeReason": "D154 adds technical request identity, immutable exact receipts and fresh authorization for the existing DeliveryPlan writer. Preserve every old decision, quantity/ownership rule, source and deployment boundary; no new UI or business rule."
     }
   ],
   "pages": [

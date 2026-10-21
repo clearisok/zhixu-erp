@@ -51,5 +51,12 @@ verify-only与HTTP边界，当前定向42/42通过。旧0008→0009测试保留�
 outputs/delivery-plan-receipts/project-tests.log。须先提交新文档blob并绑定前向版本，
 再重跑全项目/116发布/精确main守卫；当前不能称全项目或最终门禁PASS。
 
+源码checkpoint为`12cfaf18867fea94f6733389851191afc29f31a4`。D154前向记录已绑定此
+提交的实际Git blob，原261条证据逐对象保持不变。随后全项目**927/927**通过
+（197456.008ms），首次失败日志不改写。当前working守卫也PASS（main996、源码12cf、
+11pages/55能力/80继承UI路径）；这不替代最终提交守卫/单独发布回归或新运行验收。
+固定源码只读review无P1/P2，未让reviewer冒称执行测试。完整冻结范围和实际检查见
+[后台工程证据](../completed/2026-10-22-delivery-plan-request-engineering.md)。
+
 完成后记录实际测试、精确commit/远端/CI和remaining dirty。当前尚未交付，不合并、
 关闭PR、部署、采集、切换旧入口或修改真实数据。完整Goal仍active。
