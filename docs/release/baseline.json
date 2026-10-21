@@ -2017,6 +2017,15 @@
       "recordedAtSha": "5f62c20d07aa0655ed8df343490acdaeebac0bf1",
       "renderedSourceSha": "27b3f08febdbe76e9253e8db5d30855faa26346f",
       "sha256": "cb84d99cfc4324cd66d1a93f3fa9dbe152afd58ee79177e5dc983811fb7a3c3f"
+    },
+    {
+      "id": "decisions-garment-shipment-20261021",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "21e95e342972d17ef3d721dedc7d209e3a975415",
+      "sha256": "7ec3d115362c3858d3244afff6987d00d59c71884c70dc13cc7ea611aa925118",
+      "supersedes": "decisions-server-production-execution-ui-20261021",
+      "changeReason": "D152 records the user-confirmed 6086979 Num/outdate garment shipment rule and bounded D1933 observation. Preserve every prior decision blob, all capability statuses, screenshots and deployment/activation boundaries; this is a forward document version only."
     }
   ],
   "pages": [

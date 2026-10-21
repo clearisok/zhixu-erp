@@ -63,3 +63,9 @@ insideorderno contains只查候选，可能包含多合同或前后缀相似记�
 上述工具已干净提交2688a079227ec0f703287250d759e0923b58c1bf，精确main996/HEAD守卫PASS。用户随后另批D1933首页一次，实际1登录+1报表/2HTTP成功，16/16行、1合同/4单据/6颜色、全部件；本次许可已用完，0重试/翻页/DB/绑定/激活/调度。
 
 主控离线核对raw/包装hash、与D1935相同的38列元信息和逐行类型/唯一性/Decimal统计；用户据样本明确确认Num/outdate出货口径，写D-152和BUSINESS_RULES。完整脱敏结果见[D1933报告](../completed/2026-10-21-garment-shipment-d1933.md)。原报告mappingVerified/businessMeaningVerified=false是采集时点的封存状态，不回写；随后用户确认独立前向记录，不将其扩张成已验证全量映射/Server闭环。
+
+真实观察/业务规则已在21e95e342972d17ef3d721dedc7d209e3a975415保存（仅8文档）。该新checkpoint精确main守卫拦住了未登记的决策文档变化：唯一EVIDENCE_WORKTREE_DRIFT，detail=decisions-server-production-execution-ui-20261021。不是代码/业务数据失败，也不跳过保护。
+
+读取RELEASE_BASELINE_GUARD既有前向版本规则后，保留全部243个原evidence记录/全部非evidence manifest字段，新增decisions-garment-shipment-20261021，supersedes原决策叶，recordedAtSha=21e95e342972d17ef3d721dedc7d209e3a975415，冻结其docs/DECISION_LOG.md的LF-normalized SHA256=7ec3d115362c3858d3244afff6987d00d59c71884c70dc13cc7ea611aa925118。总证据244，51能力状态/旧PNG/现有UI影响不变，不声明新出货能力或改旧hash。随后重新运行基线负向套件和精确源码守卫，最终结果后续记录；不借原116冒充此次新链验证。
+
+新证据链实际基线116/116（345552.8014ms），0失败/取消/跳过；working-tree精确main996/21e95守卫PASS，11页/51能力/累计63 UI路径，errors空。既有reviewer独立只读核对原243记录和所有非evidence字段不变、新叶精确Git blob/hash及实际PASS日志，无新阻断。结果分别保存outputs/g7-d152-baseline-tests.log与g7-d152-forward-main-guard.log；原漂移失败保留，不重写为事先计划。随后独立收口commit并再核对精确HEAD。没有新增真实读取、Hosted CI/PR、DB/绑定/激活或可体验出货功能。

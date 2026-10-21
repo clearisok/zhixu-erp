@@ -36,6 +36,10 @@ onlyMyUser=true是上游标志，不证明零行原因；不能擅自取消筛�
 d6执行UI/三CI与工具664f/唯一CI39543987486各自终态在completed，不借给当前probe。
 664f实际push exit1/STOP_AUTH_OR_DIVERGENCE原因未证实，远端写入保持STOP，不重推/换认证；717/3b9仅本机，不能声称已送达。
 
-原243证据/51能力/旧PNG保持，完整Server目标未完成。Gate8除CNY销售/USD工价外的口径待决，不换汇或重标历史。
+原243证据全保留，新增decisions-garment-shipment-20261021前向文档版，共244；51能力状态/旧PNG不变。
+21e95e342972d17ef3d721dedc7d209e3a975415保存D152/真实证据后，精确守卫唯一EVIDENCE_WORKTREE_DRIFT（原decisions-server-production-execution-ui-20261021叶）。
+按既有规则新增supersedes版本，绑定21e95:docs/DECISION_LOG.md精确SHA256=7ec3d115362c3858d3244afff6987d00d59c71884c70dc13cc7ea611aa925118；不修改旧记录/截图/状态/算法。
+当前只manifest与收口文档增量；新证据链基线116/116（345552.8014ms，0失败/取消/跳过）通过，working-tree精确main996/21e95守卫PASS（11页/51能力/累计63 UI路径，errors空）。既有reviewer只读核对原243记录/非证据字段全不变、新叶精确blob/hash及实际日志，无新阻断；最终收口commit后再核对精确HEAD，不声明远端或运行能力。
+完整Server目标未完成。Gate8除CNY销售/USD工价外的口径待决，不换汇或重标历史。
 保护3001/50426/59069/62426、旧卷/工作树/Browser，62426仍8175；不merge/close/deploy、真实账号/业务库或退役。
 持续工程授权不逐次询问，但不扩新增真实报表次数；不安装依赖、不改共享Git/proxy/TLS/认证。

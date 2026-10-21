@@ -31,7 +31,9 @@ Git工具664fb5f8ae2248a83aff1ba5a623dc22ba2da664已独立exact，唯一CI395439
 实际push exit1/权限或分歧分类仍STOP、具体原因未证实，不重推/换认证或声称通道永久恢复。
 717文档及3b9业务仅本机未上传；完整测试/失败/平台跳过见[工具终态](tasks/completed/2026-10-21-git-delivery-success-classification.md)。
 
-原243证据/51能力/旧PNG不变。Gate8加工服务产值、关账stale及旧CNY工价处理仍待决定；出货/Server关账/真实激活与总体目标未完成。
+原243证据全部保留；为D-152新增1份决策文档前向版本，共244证据，51能力状态/旧PNG不变。
+21e95新规则checkpoint的守卫捕获唯一EVIDENCE_WORKTREE_DRIFT，已将新版本绑定其精确Git blob，旧hash不改；新证据链116/116（345552.8014ms）及working-tree精确main996守卫PASS，独立只读复审无阻断。收口commit后再核对精确HEAD，不借旧PASS。
+Gate8加工服务产值、关账stale及旧CNY工价处理仍待决定；出货/Server关账/真实激活与总体目标未完成。
 保护3001/50426/59069/62426、旧卷/工作树/Browser，62426仍Gate1源8175；不建重复累计PR、不merge/close/deploy或升级旧入口。
 持续安全工程/Git授权不扩真实账号/业务库/艾诺科读取/绑定/激活/调度/退役。CNY销售/USD工价分开，不换汇、不重标历史。
 不安装依赖，不改共享Git/proxy/TLS/认证。下一步保存真实观察/用户决定并推进合成工程，不重用前次许可或自动扩大查询。独立物流资料Server工程可继续。

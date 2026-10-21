@@ -8,7 +8,8 @@ main996dfedc12da3527343cd3ff2aa5eea35497e10e本轮独立API核实；当前codex/
 复用原客户端/Transport/私密报告，0重试/翻页/DB/绑定/激活，不注册正常目录。用户随后明确批准固定首页一次，实际1登录+1报表成功、total0/rows0。
 报告名已确认“成衣出运登记明细表”、38列定义；原文受保护、hash离线读回一致。零行原因未证实，该许可已用完，不取消筛选或自动扩大查询。
 实际组合Node82/82、修复显式null总数后新工具12/12、最终Python142/142、types/Node/lint及只读复审通过；本轮基线116/116、main996/e8f精确HEAD守卫PASS，无新Hosted CI/PR。
-缺失metadata/数量/日期仍未知，原decimal/重复行不改，不用contains匹配SO或推算关账；原243证据/51能力/旧PNG保持。
+缺失metadata/数量/日期仍未知，原decimal/重复行不改，不用contains匹配SO或推算关账；原243证据全保留，D152前向文档版新增后共244，51能力状态/旧PNG保持。
+21e95决策checkpoint的唯一文档叶漂移按规则补前向版本，绑定其精确Git blob，不改旧hash；新证据链116/116（345552.8014ms）、working-tree精确main996守卫与独立只读复审通过，最终commit后再核对精确HEAD，不把旧PASS借给新证据链。
 [3b9三摘要输入](tasks/completed/2026-10-21-garment-probe-inputs/3b9a44a0/)完整保存此前日期/hash/结果/限制。
 [Gate6D物流纯契约](tasks/active/server-convergence-gate6d-logistics-2026-10-21.md)已本机3b9：19纯/36含原PG与HTTP、types/Node/lint/复审/精确main守卫通过，无新物流SQL/API/UI。
 [Gate6C原交付终态](tasks/completed/2026-10-21-production-execution-ui-delivery.md)保留d6及三CI实际结果，不借给当前工具。
