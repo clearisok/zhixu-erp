@@ -1,7 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)和[Gate7D原始总数校验](tasks/active/server-convergence-gate7d-capture-integrity-2026-10-22.md)为准。当前codex/garment-observation-total-integrity从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建分支后FF干净1031；小修166完整Python/85观察PG等/116发布及工作树guard通过，最终精确HEAD另核。Gate7C只读页面1031已新一次正常交付并独立exact，Team与Baseline CI通过、Source仍进行中；不是正式采集或部署。Num/outdate已确认，真实额度/后续关账仍待原答复。此前各阶段时点、完整hash/测试与限制逐字节保存在[输入归档](tasks/completed/2026-10-22-garment-total-integrity-inputs/1031d5d5/PROJECT_INDEX.md)，不以历史段落覆盖当前恢复点。
-
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)与[已有合同受控刷新](tasks/active/server-convergence-bound-source-refresh-2026-10-22.md)为准。当前feat/server-bound-source-refresh从独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e建分支后FF干净a296；离线预览/提交/不可变原回执和历史owner保护在本地验收，无自动采集/HTTP writer或真实操作。a296三CI精确success；新代码远端/CI/部署仍未交付，Git写停止与独立exact的事实分开记录。原三摘要及全部历史日期/hash/结果/限制逐字节保存在[输入归档](tasks/completed/2026-10-22-bound-source-refresh-inputs/a2967558/PROJECT_INDEX.md)。Num/outdate已确认，真实读取额度及关账原待决继续。下方历史模块索引不替代当前阶段与运行镜像事实。
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
@@ -128,7 +127,3 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 - `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
-
-当前应用a290edfe3ba26173e21e0c4df08f35be48fe16f4：42项定向/11项built浏览器通过，六宽度与回执/会话恢复已覆盖；完整项目/发布及截图证据仍在收口。初失败与修正见阶段任务。
-
-2026-10-21本阶段收口：LOCAL ENGINEERING PASS；62426最新只读build-info未连通，当前READY未验证，Gate1/8175仅历史资产观察。无新远端交付/部署或真实来源操作，下一Gate仍按Goal推进。

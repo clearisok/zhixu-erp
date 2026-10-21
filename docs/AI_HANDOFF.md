@@ -1,9 +1,9 @@
-# 恢复点：成衣原始总数校验收口
+# 恢复点：已有合同受控来源刷新
 
-2026-10-22；codex/garment-observation-total-integrity，从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建分支后只FF干净1031。原三摘要逐字节及Git blob归档、范围/失败顺序见[Gate7D](tasks/active/server-convergence-gate7d-capture-integrity-2026-10-22.md)。root唯一writer/既有reviewer只读，无继承dirty。
+2026-10-22；feat/server-bound-source-refresh，独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e后FF干净a29675586231806960eb5069087e705f0d0c4642。root唯一writer，既有reviewer只读。原三摘要逐字节归档至tasks/completed/2026-10-22-bound-source-refresh-inputs/a2967558；范围/失败顺序见[当前任务](tasks/active/server-convergence-bound-source-refresh-2026-10-22.md)。
 
-本Phase只加Python双total一致性两行及4方法回归。166完整Python、85原观察Node/PG/HTTP/升级、修后116发布及工作树guard通过；独立复审无剩余P1/P2。red7方法/16子例失败、初次发布90/99九个索引缺完整SHA失败均保留，未改清单/截图hash或规则。无TS/UI/schema变更，不冒称新type/lint/build/浏览器运行。阶段最终commit后必须核对精确HEAD guard及clean，最新回执写ignored outputs/garment-total-integrity/checkpoint-final.json；不存在或非PASS就不能凭本段假报收口。远端/CI也读该回执及原run，不能盲推/重复dispatch。
+新离线合同刷新编排、0041不可变成功回执、精确预览/原请求核对、物理owner与完整引用盘点已实现。首轮类型/fixture/历史alias UPSERT问题有原日志；最终18定向、81相关、269完整PG及927项目通过。独立复审两项P2（连接目标、日志关联）已关闭，并发撤权/历史改号/报告落盘失败已实际验证。type/lint/Node/前端构建及工作树main门禁通过；前向能力元数据及最终精确HEAD检查继续。无UI文件、HTTP writer或Source调用；真实数据/账号/原环境不动。
 
-1031的新一次普通push已exit0/DELIVERED_VERIFIED并独立exact（outputs/git-recovery-gate7c），旧384不重推、STOP/unknown根因保留。精确1031 Team39656336108、Baseline39656348774 success；Source39656324228在19:02 UTC已过编译/质量/显式构建，P6进行中。冻结应用4066/build20261022-022801、报告四图a21a不改，259证据/54能力全包与1031逐字一致。不创建重复累计PR、merge/close/deploy。
+a296三项Hosted CI已完成success且HEAD精确，回执outputs/garment-total-integrity/ci-final.json；原delivery工具STOP/exit1仍保留，独立API只证明exact，不证明通道修复。没有重复push。新Phase Git远端写仍停止，本地工程可继续；不合并/关闭/部署。当前输出在ignored outputs/bound-source-refresh，最终精确HEAD/clean/guard与独立复审必须另核。
 
-固定C1/C0/C1真实额度已问未答、旧单次额度耗尽，0新请求，不打开旧私密候选/凭据。关账三项原问题待答，不重问/默认。保护3001/50426/59069/62426等所有旧环境/卷/账号/Browser/工作树。正式collector、事件与关账仍后续，Goal active。
+Num/outdate已确认，不重问。真实C1/C0/C1额度、加工服务产值/CNY工价采用/关账stale原三问仍待答，不能默认，不读凭据或旧候选。持续Goal还包括持久化候选演练、受控成衣来源、关账与最终合并/切换建议；不要因本切片通过就complete。3001/50426/59069/62426及全部旧端口/卷/账号/Browser/工作树保护，62426公开readback仍8175旧Gate1镜像。

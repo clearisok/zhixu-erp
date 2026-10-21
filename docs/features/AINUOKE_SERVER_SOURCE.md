@@ -32,6 +32,17 @@
 
 # 艾诺科 Server Source：正式订单与持续物料展示
 
+## 2026-10-22：已有合同的明确离线刷新
+
+新增既有SO来源刷新编排，复用正式Discovery/6087105映射及原合同/颜色/DeliveryPlan
+写入。私密离线工具先预览精确目标与差异，再按原requestId明确提交/查回执；不读取凭据、
+不发起Source请求，也不改变原物料采集/调度动作。0041仅建空回执表，未升级现有环境。
+缺失或无效颜色拒绝替换，保留旧来源；人工交期、商业与生产历史不被覆盖。历史来源
+只写原owner，不搬绑定/流水/计划。完整行为与边界见
+[订单持久化](SALES_ORDER_PERSISTENCE.md#controlled-bound-contract-refresh-2026-10-22-engineering-slice)
+及[本阶段](../tasks/active/server-convergence-bound-source-refresh-2026-10-22.md)。
+这是工程候选，不是持续合同自动刷新、真实采集或部署完成。下方历史日期状态仍按原时点阅读。
+
 ## 当前恢复摘要（2026-10-15）
 
 main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。6086941首页100/17675与49字段、D136两行含义/个/CNY确认及精确只读观察模型已本地完成，原报告/数值/未知值/重复行不改。金额币种只限定cgGoodsAmount/PayAmount/GoodsAmount，不扩张到报关/开票/预付或收款。

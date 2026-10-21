@@ -1,11 +1,13 @@
-# 当前状态：成衣观察完整性修复与只读页面交付
+# 当前状态：已有合同的受控来源刷新
 
-2026-10-22；codex/garment-observation-total-integrity；独立GitHub main996dfedc12da3527343cd3ff2aa5eea35497e10e。从main建分支后只FF干净1031d5d55905992ea1d12f075f63d3d22a956779；root唯一writer/既有reviewer只读。原三摘要逐字节归档在tasks/completed/2026-10-22-garment-total-integrity-inputs/1031d5d5，Git blob亦相同。
+2026-10-22；分支feat/server-bound-source-refresh，从独立GitHub main 996dfedc12da3527343cd3ff2aa5eea35497e10e建立后，仅FF干净a29675586231806960eb5069087e705f0d0c4642。root唯一writer，既有reviewer只读；无继承dirty。原三摘要逐字节归档在tasks/completed/2026-10-22-bound-source-refresh-inputs/a2967558。
 
-[Gate7D](tasks/active/server-convergence-gate7d-capture-integrity-2026-10-22.md)关闭原始双总数矛盾P2：无IO Python解析器只加两行严格比较；166完整Python/85原观察PG等/116发布全部通过，独立静态复审无新增P1/P2。初次90/99的9项索引缺完整基线错误已修、原日志保留；修后工作树guard PASS。最后commit的精确HEAD/远端/CI回执另存ignored outputs/garment-total-integrity/checkpoint-final.json，不凭本文预报未来检查。无Node协议、SQL、UI、旧快照或业务口径改变；259证据/54能力全包未动，未新增类型/lint/build/浏览器运行声明。
+[本阶段](tasks/active/server-convergence-bound-source-refresh-2026-10-22.md)补已有合同镜像/颜色的明确离线预览、提交与原请求回执，复用正式Discovery/6087105适配器和原DeliveryPlan来源写入。0041只增加空的不可变成功回执表；目标连接、可信绑定、当前/物理订单、完整来源、归属与计划版本共同绑定预览。缺失/无效颜色拒绝替换，不清空旧值。人工计划、商业版本及实际生产历史保持；历史来源只写原owner。没有HTTP Source写入口、网络采集或持续合同刷新。
 
-[Gate7C](tasks/active/server-convergence-gate7c-shipment-read-ui-2026-10-22.md)应用4066/build20261022-022801，报告四PNG在a21a冻结；原85定向/13出货built/14原P6/927项目/116发布/精确1031守卫保持历史证据。1031已一次普通push正常exit0/DELIVERED_VERIFIED并独立API exact；没有重推384或改认证/TLS/共享配置，旧STOP/root-cause unknown保留，不声称永久网络修复。精确1031的Team39656336108、Baseline39656348774均success；Source39656324228已过编译/来源/质量和构建，19:02 UTC仍P6浏览器，不冒称终态。安全预演/回执见ignored outputs/git-recovery-gate7c。
+本地类型、lint、Node/前端构建、927项目、81相关回归、18最终定向与269完整PostgreSQL均已通过；复审两项P2及最终负测已关闭。工作树main门禁通过，前向能力元数据和最终精确提交仍须核对。初次类型/fixture/alias UPSERT失败日志保留；不能凭本段预报最终PASS。新代码尚未远端交付/CI/部署，不创建重复累计PR。
 
-Num/outdate按D152；观察不跨次累加、不推取消/收入/关账。真实C1/C0/C1额度已问未答，0新增请求、不读私密候选/凭据，不绑定/激活/调度。正式collector与关账三项原待决继续，Goal active。不新建重复累计PR或自动merge/close。
+a296的独立API精确远端核实及三CI已完成success：Source39658820783、Team39658832008、Baseline39658845543，attempt1。工具原STOP_AUTH_OR_DIVERGENCE/exit1与独立exact并列，根因未明；没有重推或更改认证/TLS/共享配置。1031三CI也已通过。当前仅继续安全本地工程，Git远端写仍停止。
 
-保护3001/50426/59069/62426、全部旧端口/卷/账号/Browser/工作树；无重启、升级、清理、真实迁移、宁波/18443/18444部署或用户接受。62426仅旧8175公开健康观察，不是新版本READY。测试仅自有合成空库/私有Chromium。
+Num/outdate继续按已确认D152执行。真实C1/C0/C1读取额度及三项关账问题仍待原答复，0新增真实请求，不读旧私密候选/凭据。下一步按原Gate顺序完成持久化候选演练和合并/目标切换建议；不因局部完成标记总Goal完成。
+
+3001/50426/59069/62426及其他旧环境/卷/账号/Browser/工作树继续保护。最新只读62426健康和build-info确认仍为8175f6280d54b6d4af28cb2ebe6d86741b906b9d旧Gate1镜像，不能称本阶段新版本READY或50426切换完成。不合并、关闭PR、部署、升级现有库、退休环境或修改真实数据；验收只用新建自有合成库与私密文件。

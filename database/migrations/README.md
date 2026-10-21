@@ -1,5 +1,13 @@
 # PostgreSQL migrations
 
+0041 adds an empty, immutable successful bound-contract refresh receipt keyed by
+actor/request UUID. It stores original and effective SO references, exact command
+and preview hashes and a bounded result, without raw Source data or prices. It does
+not backfill, activate Source, create orders, grant permissions or migrate an
+existing environment. The offline operator is verify-only for schema; source
+promotion and trusted audit share one explicit transaction. Normalization includes
+both SO references and complete row bytes. Real upgrades remain separately gated.
+
 0034 adds empty production calendars, date exceptions, sites, groups and outsource
 factories plus immutable actor/request outcomes. Stable resource identity,
 forward versions and disable-instead-of-delete guards do not import Browser

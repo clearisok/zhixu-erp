@@ -7,6 +7,42 @@
 
 # SalesOrder PostgreSQL Persistence Foundation
 
+## Controlled bound-contract refresh (2026-10-22 engineering slice)
+
+`server/ainuoke-source/bound-order-refresh.ts` promotes an already captured formal
+Discovery/6087105 bundle. Preview is read-only; apply requires its exact hash and
+an actor-scoped UUID request. It reuses formal mapping and the original source
+writer in one caller-owned transaction. Source account/profile, connection target,
+stable contract/link identity, current effective attribution, physical source owner,
+both SO versions, full current mirrors and owner DeliveryPlan collection are bound
+to that preview. Source identity is never selected by style or InsideOrderNo.
+
+Missing/invalid color enrichment fails closed, preserving the prior mirror. This
+first refresh slice does not treat an empty color result as permission to clear it.
+Accepted quantity/date/size evidence remains source-owned. Explicit source changes
+preserve manual DeliveryPlan rows, commercial versions, stable color identities and
+execution snapshots; new/renamed colors do not inherit historical prices. Historical
+source remains on its original owner. An existing link's InsideOrderNo may update,
+without an INSERT/UPSERT or identity/provenance change; 0018 keeps historical alias
+and effective-root plans unchanged. The original direct wrapper remains internal.
+
+0041 adds one initially empty immutable success receipt relation; actor/request
+uniqueness and exact payload matching serialize replay. No network IO occurs inside
+or outside this promotion command. Receipt, mirrors and correlated trusted audit
+commit together. Readback/replay refresh authorization and return historical results
+without rerunning freshness/CAS. Unknown receipt absence does not prove failure.
+Raw bundles and prices do not enter the receipt. Both physical and effective order
+references participate in normalization's complete row fingerprints.
+
+`source:ainuoke:bound-refresh` is an explicit private offline operator with
+`--action=plan|apply|receipt`. Job and evidence use absolute protected ignored paths
+and exact SHA256; apply also requires request ID, preview hash and explicit execute
+token. The executable checks a clean committed checkout and verifies migrations
+without applying them. It cannot load Source credentials, collect, activate, bind a
+new order, start scheduling or deploy. Existing material `--execute`/`--schedule`
+semantics remain unchanged. Actual tests and delivery limits are tracked in the
+[Gate 4 follow-up](../tasks/active/server-convergence-bound-source-refresh-2026-10-22.md).
+
 ## PR93 integration verification — 2026-10-12
 
 Ordinary main merge 070d958 preserves both optional Material GET and the commercial-terms-read.v1 CCT projection/partial PATCH. New Material HTTP negative audit reuses the shared synthetic security fixture and covers 401, viewer/cost/sale/labor/full read grants, no-store, read-only write rejection, immediate session revocation and default unconfigured Material503. CCT null/zero, exact provenance, linked/unlinked currencies, CAS and trustworthy audit/transaction behavior remain intact. No migration, roles policy change, live Source or production activation occurred. [Joint verification and current counts](../tasks/active/order-material-pr93-integration.md).
