@@ -1,13 +1,13 @@
-# 当前状态：0042候选镜像隔离验收已通过
+# 当前状态：到料浏览器激活回归已本地通过
 
-2026-10-22；chore/server-current-image-0042，干净输入105cfbfcb336c0c29efe583f9ff09fda52bc07f0。main于本阶段再次独立核实为996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer、既有reviewer只读，无继承dirty；完整Goal仍active。
+2026-10-22；fix/material-arrival-browser-activation，干净输入c0d87bcd55fbda58db101f46d6e61b07f77db7df，独立main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer、既有reviewer只读，无继承dirty；Goal active。
 
-[当前镜像任务](tasks/active/server-current-image-0042-2026-10-22.md)只复用既有Dockerfile/ops/测试：从精确105 Git archive构建一次新镜像zhixu-persistent-local:105cfbfc-20261022，image646acc4a，build时间2026-10-21T22:53:53Z，41迁移/最大0042。实际空库初始化、附件字节、重启/冷重建、备份及另一空项目恢复8/8通过（317334.7113ms，无skip）。仅清理成功prepare的自有随机合成fixture；候选镜像保留，没有新用户入口。
+[当前任务](tasks/active/material-arrival-browser-activation-2026-10-22.md)只改原到料浏览器测试。Source完成触发另一arrival读取时，原两次CDP“检查enabled→click”存在窗口；现同次检查connected/enabled并恰好点击一次，等待预算不变。真实合成GET屏障复现disabled点击零事件、释放后新helper恰1次点击，读取2→3、只读输入禁用、版本仍7。此复现不倒推原CI实际时序，不改变产品、权限、SQL、工作流或UI。
 
-[冻结工程报告](tasks/completed/2026-10-22-current-0042-image-persistence-engineering.md)记录于88c2bdd645d7e3a8972a91e507be6ad836554452，renderedSource为105；独立证据复审无P1/P2。manifest267证据/57能力，原266/57及全部其他字段不变，working main996/head88守卫PASS。最终文档提交、精确守卫及交付/发布CI另行核对；本阶段无应用/SQL/ops/测试/UI变化，也未重跑全项目或PG全套。
+源码72d0a0af8302e4aa761d587a3ca786296a23b4c0，built浏览器16/16（23374.3454ms）、发布116/116（198257.996ms）、syntax/类型/lint/Node及前端build通过。初次类型检查仅扫入本任务源码提取副本；2603文件核对原tar后自有副本移出项目，原tar/image/错误保留。main996/head72守卫PASS，独立静态review无P1/P2。[冻结报告](tasks/completed/2026-10-22-material-arrival-browser-activation-engineering.md)记录于91c2eafba03e6a3d471add0be76442f5b9804ec8；manifest268证据/57能力，原267/57及其他字段不变，最终metadata守卫/交付/三CI仍待，不提前PASS。
 
-[交期覆盖阶段](tasks/active/server-delivery-coverage-2026-10-22.md)源码ff8、新契约0e54、报告192、最终105已精确远端核实。定向15、相关76、项目927、发布116、类型/lint/构建通过；原文档锚点失败及修复保留。105的Team39689484921、Release39689490085为attempt1 success；Source39689481386于23:07:03Z失败，定位到material-arrivals-ui只读角色阶段等待“分批预计到料”超时。尚未判断产品或测试根因，不称三CI通过，不盲目重跑。其前置144阶段三CI均成功，不能替代105的失败。
+[0042镜像阶段](tasks/active/server-current-image-0042-2026-10-22.md)最终c0d已精确远端，Release39692878584 attempt1 success。精确105镜像8/8（317334.7113ms），41迁移/最大0042；候选保留、未新建长期入口。[交期覆盖](tasks/active/server-delivery-coverage-2026-10-22.md)105的Source39689481386原failure保留，Team/Release success；新测试修复不把旧失败改成通过。其15/76/927/116工程与144前置三CI各自有冻结证据，未在本测试阶段重跑全项目/PG全套。
 
-当前分支只是收敛验证引用，不创建重复累计业务PR。PR120–127仍为未合并草稿，原heads/提交历史保留；不自动merge/close。旧50426/59069/62326/62426仍4978/5052/333d/8175，f469镜像及40迁移历史证据保留；新105镜像不代表任何旧入口已升级。
+PR120–127于本阶段再次核实仍是原heads的未合并草稿，全部历史保留。当前仅收敛验证引用，不建重复累计PR、不自动merge/close。旧50426/59069/62326/62426仍4978/5052/333d/8175，f469历史镜像保留；新105候选没有切换旧入口。
 
-3001及全部旧端口/卷/账号/Browser/工作树保持；无新真实Source、凭据/业务库读取、迁移、绑定、激活、调度、正式部署或环境退役。Num/outdate已由D152承接且再次确认，不重问。固定C1/C0/C1额度及加工产值/CNY工价/关账stale仍待原问题，不默认。下一步先定位并闭合105的浏览器CI失败；新交期维护UI需具体交互批准，正式成衣来源/关账/运行收敛仍未完成。
+3001及全部旧端口/卷/账号/Browser/工作树保持。无真实Source、凭据/私密报告读取、业务库操作、迁移、绑定、激活、调度、正式部署或退役。Num/outdate已确认，不重问；C1/C0/C1额度、加工产值/CNY工价/关账stale仍待原问题，不默认。交期维护新按钮/弹窗已有合成草图，未实施或获V2批准；正式成衣来源、Server关账和运行收敛仍未完成。

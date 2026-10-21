@@ -39,3 +39,8 @@ hash核对原tar后，仅此自有副本移出项目到新私密目录，原tar/
 上一c0d文档阶段Release39692878584 attempt1 success已独立核实。PR120–127开放草稿heads均
 与Gate0原值一致，没有修改PR。本阶段冻结报告、绑定、最终metadata guard/交付及新CI仍待；
 原105失败保留，不重发其原workflow或提前宣称最终三CI通过。
+
+报告冻结91c2eafba03e6a3d471add0be76442f5b9804ec8并前向绑定为第268条证据；原267条、
+57能力及所有其他manifest字段逐对象不变。独立证据复审无P1/P2；working main996/head91
+守卫PASS（11pages/57capabilities/80继承UI paths，errors[]）。后续只有最终metadata提交与
+该精确SHA的guard/交付/三CI，不修改报告、不将旧失败改为通过。
