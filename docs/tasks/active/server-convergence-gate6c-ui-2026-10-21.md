@@ -53,6 +53,11 @@ Gate7成衣出货时点已发异步业务问题，未答不实施依赖规则，
 在首次提交清单前，只把本轮新增UI契约记录绑定到该文案修正的实际Git blob，原240证据/50能力及全部历史链保持。它不是已提交证据的覆盖，也不新建无main锚点的supersedes链。
 f733绑定后精确main996守卫PASS：11页/51能力/63累计UI路径，errors为空；仅源码/证据检查，不替代完整项目、显式基线或浏览器。完整检查与最终HEAD交付仍待。
 
+488439ce4d43b8cf8afe0a1e888e443634d997fa本地完整收口：npm test 927/927（348430.4582ms）、显式test:release-baseline 116/116（345861.2882ms），两者0失败/取消/跳过，日志在ignored outputs/g6c-ui-488-{full-project,release-tests}.log。
+独立只读复审确认三新增文档的实际Git blob/hash、原240证据/50能力逐项保持及分维度边界，无业务阻断；未代跑测试/DB/网络。
+再次独立GitHub API核实main仍996dfedc12da3527343cd3ff2aa5eea35497e10e，原#120–127均原完整头/open draft；没有修改它们。
+应用最终源仍27b，之后仅文档和清单。下一步只保存最终状态/精确HEAD守卫，再一次有界交付、独立远端full SHA和三项新CI，不以本地PASS代替远端。
+
 ## 安全与冻结文档
 
 原SERVER_PRODUCTION_PLANNING_READS/UI和SERVER_PRODUCTION_EXECUTION是各自已冻结阶段证据；本UI另有复杂契约文档，不原地改新根破坏main锚点。

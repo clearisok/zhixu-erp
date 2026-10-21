@@ -1,4 +1,4 @@
-# 恢复点：Gate6C执行页面27b已验收，完整门禁和最终交付待
+# 恢复点：Gate6C执行页面本地验收通过，精确最终交付待
 
 2026-10-21；用户批准逐Gate目标仍未达成，main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实。
 当前codex/server-production-execution-ui从main显式FF d207，无继承dirty。root sole writer，既有reviewer只读。
@@ -20,7 +20,9 @@ Source39530058362/Team39530065617/Baseline39530073595均success/attempt1；新�
 manifest前向绑定为243证据/51能力：保留原240条/50能力，新增三doc和局部执行能力；
 原SERVER_PRODUCTION_EXECUTION/PLANNING_READS/UI不改（新根不在main，不能随意supersedes）。D151链可达main。
 5f临时未提交绑定保存在ignored outputs，首次提交前将新UI契约绑定f733实际blob；原历史记录完全不改。
-下一步精确main守卫、完整项目/显式基线、独立复审、最终干净commit，再一次有界交付/独立exact与三新CI。
+488439ce完整项目927/927（348430.4582ms）、显式基线116/116（345861.2882ms）通过，0失败/取消/跳过。
+f733绑定后精确main守卫PASS（11页/51能力/63累计UI路径）；独立只读复审确认三doc真实blob/hash、原240/50保持和未部署边界，无阻断。
+GitHub API重核main仍996、#120–127均原完整头/open draft。下一步最终干净commit/精确守卫，再一次有界交付/独立exact与三新CI。
 本分支尚未上传，不建文档自循环，不派发旧HEAD。原#120–127不动，不建重复累计业务PR，不merge/close/deploy。
 
 Gate7“成衣出货时点”已发异步业务问题，未答不实施依赖schema；可继续本UI最终门禁/交付。
