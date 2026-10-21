@@ -49,7 +49,13 @@ Node `garment-shipment-observations.ts` 只接内部checked pages，不能由HTT
 
 所有读取重新核实启用且未归档用户的`order.view`和`ainuoke.view`；内部发布还需`ainuoke.sync`，不借用物料导入权限。GET只读DB，no-store，无外部HTTP、凭据、Browser回退或自动刷新采集。加工业务经真实批次验证后返回not_applicable，伪业务类型标签不能冒充可信订单。旧alias不自动跳转读取另一张SO的历史。
 
-观察时效由target明确策略标注fresh/stale，过期历史仍可读；原target版本变化显示targetPolicyChanged。账号/profile/可信归属变化不会把旧观察重新认作新范围的当前数据。历史摘要是不可变索引，详情才是完整内容重建；不把摘要标成已验证全包。
+观察时效由target明确策略标注fresh/stale，过期历史仍可读；原target版本变化显示targetPolicyChanged。读取DTO另给出`expiresAt = observedFrom + 原快照freshness_ms`，当前target改策略不延长旧快照。账号/profile/可信归属变化不会把旧观察重新认作新范围的当前数据。历史摘要是不可变索引，详情才是完整内容重建；不把摘要标成已验证全包。历史游标覆盖PostgreSQL正INT完整范围，不只接受九位数。
+
+### Gate7C只读契约与客户端
+
+`features/ainuoke-garment-shipments/model.ts`复用原数量/日期纯投影，旧server导出继续兼容；没有Browser或财务公式。`client.ts`只请求以上同源GET，独立校验17个公开字段、固定报表/合同/订单/所选publication、两遍trace与行投影，拒绝额外金额/备注。客户端校验不是来源过滤、授权或密码学证明。公开payload工程上限16MiB之外仅另留64KiB读取元信息；历史摘要64KiB，流式累计超限即取消，不截断。
+
+单调时钟扣除请求耗时，保留到期及空观察；原策略不被付款十分钟或当前target替代。每次请求必须提供当前owner lease，切单/会话/关闭/取消后不消费迟到正文或401；调用方页面仍须采用layout owner/epoch并在权限失效时隐藏旧内容。无自动重试、存储、Source调用或变更命令。历史空页可以仍有游标，按游标继续；摘要与精确publication详情分开，详情失效不回退另一快照。当前第一切片为模型/客户端与合成回归，订单页面和浏览器接线另行验收，不冒称已经可体验。
 
 ## 验证与剩余工作
 

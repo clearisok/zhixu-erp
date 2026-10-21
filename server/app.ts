@@ -472,7 +472,7 @@ async function route(
     const query = new URL(request.url ?? '/', 'http://local').searchParams;
     if (garmentMatch[2] === 'history') {
       const raw = query.get('beforeGeneration');
-      if ([...query.keys()].some(key => key !== 'beforeGeneration') || query.getAll('beforeGeneration').length > 1 || raw !== null && !/^[1-9]\d{0,8}$/.test(raw))
+      if ([...query.keys()].some(key => key !== 'beforeGeneration') || query.getAll('beforeGeneration').length > 1 || raw !== null && !/^[1-9]\d{0,9}$/.test(raw))
         throw new HttpError(400, 'invalid_garment_history_query', '历史分页参数无效。');
       sendJson(response, 200, await dependencies.orderGarmentShipmentRead.history(identity, garmentMatch[1], raw === null ? undefined : Number(raw)));
     } else {

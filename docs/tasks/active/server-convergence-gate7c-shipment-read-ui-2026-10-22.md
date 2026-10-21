@@ -1,12 +1,12 @@
 # Gate7C准备：成衣出货来源只读客户端与页面
 
-2026-10-22；D147已批准Server收敛工程，D152/153数量日期/观察边界不变。本文件为下一独立切片的代码核对结果，尚未实施客户端、页面或DTO变更，不是新真实采集/target激活、部署或人工验收许可。root唯一writer，既有reviewer只读；实际实施前另记录分支、完整HEAD、main与dirty baseline。
+2026-10-22；D147已批准Server收敛工程，D152/153数量日期/观察边界不变。本文件保留接线准备及第一切片实施证据，不是新真实采集/target激活、部署或人工验收许可。root唯一writer，既有reviewer只读；分支/完整HEAD/main/dirty baseline见下。
 
 ## 实施起点
 
 本轮起点独立GitHub API再次核实main996dfedc12da3527343cd3ff2aa5eea35497e10e；原codex/garment-contract-filter-verification在2612bf8697679fcaa26ff8aac8e81a450b05428f干净。新分支codex/server-garment-shipment-read-ui从main建立，再只FF完整2612输入，无reset/rebase/force。原根摘要三份逐字节归档到tasks/completed/2026-10-22-garment-read-inputs/2612bf86/，均为普通工程文档，不读取真实私密报告/凭据。
 
-上一轮为progress：Gate7B实现、测试、独立复审及源码384远端精确核实完成；本轮已确认该384的Team/Baseline success，Source live且Server/质量/构建三步骤success，P6浏览器步骤仍进行中。不是仅凭锁文件等候。原Git push STOP/原因unknown继续保留，不重推384或自动写新远端；本地独立工程可在已验证输入上继续。
+上一轮为progress：Gate7B实现、测试、独立复审及源码384远端精确核实完成；本轮先观察Team/Baseline success、Source live，后按原39644366031/head384核实Source终态success（全步骤含原P6、Quote、Python均通过），故三CI现在全通过。原Git push STOP/原因unknown继续保留，不重推384或自动写新远端；本地独立工程可在已验证输入上继续。
 
 第一切片限定model/client、原快照expiresAt与合成测试，不增加路由/数据库/Source调用或修改Browser。页面为后续同Gate独立切片，未实现前不能记为UI交付；真实额度已询问未答复，不以等待额度阻塞合成工程。
 
@@ -33,3 +33,13 @@
 该只读接线可依赖已收口Gate7A内部观察契约，不依赖新真实读取或上游激活。正式collector/target启用仍须另有过滤/分页证据和具体许可。Gate7B固定C1/C0/C1额度已单次询问但尚无答复，不重复询问或提前读取。关账加工归类、旧CNY工价和完成更正复核仍待原问题，不在本切片决定。
 
 独立reviewer本轮静态预审给出以上六项边界，无新业务阻断；未实施、运行测试或读取真实文件/凭据/Source/业务DB。
+
+## 第一切片实施与验证（进行中）
+
+开始HEAD441edd614c911475c55049342108a70a60f72523、工作树干净。新增共享公开model、独立只读client；原server纯函数原样提取且re-export兼容。只读store追加原策略expiresAt；history HTTP语法从九位扩展十位、store继续限制1..2147483647。无SQL/migration、开关、Catalog、UI组件或运行环境变化。
+
+合成首跑40客户端检查通过；初次typecheck两处TS窄化错误已修正，随后typecheck通过。定向命令包含原纯观察、客户端、一次性PG/session HTTP和0039→0040非空升级，共81通过；lint通过。第一次误用不存在的`build:server`命令停止、未安装或改环境；核对package后实际`server:build`通过，原日志保留。项目与发布全套继续核实，不以定向结果替代。
+
+独立复审发现两处枚举先String转换会误接数组（reason与colorMatch.state）；已加字符串类型前置及数组/嵌套数组四个负例，静态复核无剩余P1/P2，待修后运行复验。容量测试为16MiB理论传输上界加读取元信息的合成构造，非HTTP空白padding，也不冒称该最大构造已通过PG jsonb::text/原input发布。所有输入为合成，未打开旧私密候选/凭据或发真实请求。日志保留ignored `outputs/garment-read-gate7c/`。页面/历史抽屉仍是后续切片。
+
+第一切片最终运行：44修后客户端、927项目、116发布基线全部通过；修后typecheck/lint、实际server:build与应用build通过。81条原定向中的PG/HTTP/升级通过，枚举修改只影响客户端，四个负例另行全部通过。相对已核实main的工作树发布守卫PASS（11页/53能力，78累计UI路径）；这是含本切片dirty源码的检查，不冒称已运行浏览器。独立只读复审已闭环，无剩余P1/P2，UI/原始owner ABA及浏览器仍待后续实施。先独立checkpoint并核对精确提交守卫；REMOTE本切片pending，遵守原STOP不新增Git写入。
