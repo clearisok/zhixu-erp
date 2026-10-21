@@ -56,12 +56,13 @@ test('manual material arrivals and original logistics run on the exact built Ser
     const target = await command('Target.createTarget', { url: 'about:blank' }, undefined); session = (await command('Target.attachToTarget', { targetId: target.targetId, flatten: true }, undefined)).sessionId;
     await command('Page.enable'); await command('Runtime.enable'); await command('Network.enable');
     await command('Page.addScriptToEvaluateOnNewDocument', { source: `
-      window.arrivalWire={posts:[],requests:[],postMode:'ready',receiptMode:'ready',historyMode:'ready',readMode:'ready',postWaiters:[],receiptWaiters:[],historyWaiters:[]};
+      window.arrivalWire={posts:[],requests:[],postMode:'ready',receiptMode:'ready',historyMode:'ready',readMode:'ready',sourceMode:'ready',postWaiters:[],receiptWaiters:[],historyWaiters:[]};
       window.arrivalFetch=window.fetch;window.fetch=async(input,init)=>{const u=new URL(String(input),location.href),m=init?.method??'GET',w=arrivalWire;w.requests.push({path:u.pathname,method:m});
         if(u.pathname==='/api/v1/material-arrivals/commands'&&m==='POST'){w.posts.push(JSON.parse(init.body));const mode=w.postMode;w.postMode='ready';if(mode==='before')throw Error('synthetic before send');const r=await arrivalFetch(input,init);if(mode==='lost')throw Error('synthetic lost reply');if(mode==='hold200'||mode==='hold401')return new Promise(done=>w.postWaiters.push(()=>done(mode==='hold401'?Response.json({error:{code:'authentication_required'}},{status:401}):r)));return r;}
         if(u.pathname.startsWith('/api/v1/material-arrivals/commands/')&&m==='GET'){const mode=w.receiptMode;w.receiptMode='ready';const r=await arrivalFetch(input,init);if(mode==='mismatch'){const d=await r.json();return Response.json({...d,payloadHash:'f'.repeat(64)});}if(mode==='hold200'||mode==='hold401')return new Promise(done=>w.receiptWaiters.push(()=>done(mode==='hold401'?Response.json({error:{code:'authentication_required'}},{status:401}):r)));return r;}
         if(u.pathname.endsWith('/history')&&u.pathname.startsWith('/api/v1/material-arrivals/')){const mode=w.historyMode;w.historyMode='ready';const r=await arrivalFetch(input,init);if(mode==='hold401')return new Promise(done=>w.historyWaiters.push(()=>done(Response.json({error:{code:'authentication_required'}},{status:401}))));return r;}
         if(u.pathname.startsWith('/api/v1/material-arrivals/orders/')&&!u.pathname.endsWith('/history')&&w.readMode==='401'){w.readMode='ready';return Response.json({error:{code:'authentication_required'}},{status:401});}
+        if(u.pathname.endsWith('/material-progress')&&w.sourceMode==='503'){w.sourceMode='ready';await arrivalFetch(input,init);return Response.json({error:{code:'synthetic_source_read_unavailable'}},{status:503});}
         return arrivalFetch(input,init);
       };` });
     const evaluate = async expression => { const r = await command('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }); assert.equal(r.exceptionDetails, undefined, JSON.stringify(r.exceptionDetails)); return r.result.value; };
@@ -96,8 +97,15 @@ test('manual material arrivals and original logistics run on the exact built Ser
     await phase('automatic Source refresh re-reads arrivals and pauses old advice without replacing an open draft', async () => {
       await open(); await field('.sp-v4-batch:nth-child(1) input[type=date]', '2027-01-04'); const before = await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length"); await x.capture(); await evaluate("window.dispatchEvent(new Event('focus'))");
       await has('到料依据已更新'); assert.equal(await evaluate("document.querySelector('.sp-v4-batch input[type=date]').value"), '2027-01-04'); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-batch-logistics strong')].some(n=>n.textContent==='海运'||n.textContent==='陆运')"), false);
+      await shot('draft-source-changed');
       assert.ok(await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length") > before);
       await click('重新读取', '.sp-v4-planner button'); await until(() => evaluate("!document.querySelector('.sp-v4-planner').innerText.includes('到料依据已更新')"), 'explicit draft context refresh'); assert.equal(await evaluate("document.querySelector('.sp-v4-batch input[type=date]').value"), '2027-01-04'); assert.equal(await version(), 1); await click('取消', '.sp-v4-planner button'); await click('放弃修改');
+    });
+    await phase('two identical HTTP errors each trigger a new local arrival read without a timer or write', async () => {
+      const count = () => evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length");
+      const posts = await evaluate('arrivalWire.posts.length');
+      for (let attempt = 0; attempt < 2; attempt++) { const before = await count(); await evaluate("arrivalWire.sourceMode='503';window.dispatchEvent(new Event('focus'))"); await has('正式物料来源未接通或不可读取'); await until(async () => await count() > before, 'same HTTP error completion ' + attempt); }
+      assert.equal(await evaluate('arrivalWire.posts.length'), posts); await evaluate("window.dispatchEvent(new Event('focus'))"); await until(() => evaluate("[...document.querySelectorAll('.sp-v4-material-identity strong')].some(n=>n.textContent==='合成缝纫线')"), 'real Source read restored');
     });
     await phase('six widths preserve local tables, Modal and history geometry without document overflow', async () => {
       for (const [width, scale] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {
@@ -141,6 +149,8 @@ test('manual material arrivals and original logistics run on the exact built Ser
     });
     await phase('Source failure preserves saved plans, history and dates while blocking new allocations', async () => {
       x.setMode('failed'); await assert.rejects(x.capture()); await click('刷新来源'); await has('合成缝纫线 · 已保存计划'); await until(() => evaluate("[...document.querySelectorAll('.sp-v4-material-card')].some(n=>n.textContent.includes('合成缝纫线')&&n.textContent.includes('当前来源不可用'))"), 'source failure issue');
+      const before = await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length"); await evaluate("window.dispatchEvent(new Event('focus'))");
+      await until(async () => await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length") > before, 'same Source error has a new completed read');
       await openSaved(); await has('2027-01-07'); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='＋ 增加批次').disabled"), true); await click('到料历史', '.sp-v4-planner button'); await until(() => evaluate("document.querySelectorAll('[data-arrival-history-version]').length===7"), 'source-free history'); await shot('source-unavailable-history'); await evaluate("document.querySelector('.qc-drawer>header>button').click()"); await click('取消', '.sp-v4-planner button'); x.setMode('ready'); await x.capture(); await click('刷新来源'); await has('合成缝纫线');
     });
     await phase('read-only role never receives edit controls or Browser fallback', async () => {
