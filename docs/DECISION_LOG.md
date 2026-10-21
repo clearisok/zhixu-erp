@@ -21,6 +21,14 @@
 
 ## Active
 
+### D-153 成衣出货先建立不可变观察，不猜跨次事件
+
+- 2026-10-21，Active；D-147已批准工程范围内的技术决定，不改变D-152的Num/outdate业务口径。0040新增独立、默认关闭的订单来源target/快照/颜色匹配/head；纯checked-page契约只证明指定查询两遍观察一致，不把原contains首页样本升级为完整合同或已激活Source。
+- 复用可信合同、当前有效归属和稳定订单颜色。冻结实际物理来源SO、link/归属/订单版本与颜色依据；数量变化不换颜色身份，重名/改名/缺失不猜匹配。原观察和映射不被当前镜像重写。
+- id只用于捕获内重复检查；不同快照不相加，记录消失或零行不解释为取消/清零，负值不解释为冲销。Num、outdate与其他累计/日期列独立，不写生产完成、商业金额、收入或关账。
+- 采用当前actor/role锁序、profile→完整物理SO冻结、CAS/事务审计及精确原捕获回执；回执核对与新发布180秒预算分离。历史列表只读标量摘要，详情完整重建；JSONB实际容量在任何身份/快照写入前校验，超限422且全回滚。
+- 证据与范围：`server/ainuoke-source/garment-shipment-observations.ts`、`garment-shipment-store.ts`、0040、合成PG/HTTP/升级测试及[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。没有新增真实读取/绑定/激活/调度/部署或用户接受；正式收集器、UI、稳定事件和撤销语义仍待分Gate验证。
+
 ### D-152 成衣出货采用艾诺科逐笔数量与出运日期
 
 - 2026-10-21，Active（用户确认业务口径；尚未形成正式Server出货或来源激活）。6086979“成衣出运登记明细表”的Num“本次出库数”为逐笔成衣出货数量，outdate“出运日期”为出货业务日期。FDate单据日、indate进仓日、DeliveryDate交期分开保留，outdate缺失不以其他日期补造。

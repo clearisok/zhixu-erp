@@ -68,6 +68,7 @@ import { routeProductionScheduling } from "./production-scheduling/routes.js";
 import { routeMaterialArrivals } from "./material-arrivals/routes.js";
 import type { SourceReadConfig } from "./ainuoke-source/reader.js";
 import type { PaymentSnapshotReader } from './ainuoke-source/payment-request-store.js';
+import type { GarmentShipmentReader } from './ainuoke-source/garment-shipment-store.js';
 
 export type ServerLogger = {
   error(event: Record<string, unknown>): void;
@@ -85,10 +86,11 @@ export type AppDependencies = {
   materialArrivalSource?: SourceReadConfig | null;
   orderMaterialHistory?: MaterialHistoryReader;
   orderPaymentRead?: PaymentSnapshotReader;
+  orderGarmentShipmentRead?: GarmentShipmentReader;
   normalizationExecution?: NormalizationExecutionOptions;
   orderCommandMode?: OrderCommandMode;
 };
-type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "materialArrivalSource" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "materialArrivalSource" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">;
+type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "materialArrivalSource" | "orderMaterialHistory" | "orderPaymentRead" | "orderGarmentShipmentRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "materialArrivalSource" | "orderMaterialHistory" | "orderPaymentRead" | "orderGarmentShipmentRead" | "normalizationExecution">;
 
 const defaultLogger: ServerLogger = {
   error(event) {
@@ -456,6 +458,27 @@ async function route(
     const query=new URL(request.url??'/','http://local').searchParams;response.setHeader('Cache-Control','no-store');
     if(materialHistoryMatch[2]){if(query.size)throw new HttpError(400,'invalid_material_history_query','Query selectors not accepted');sendJson(response,200,await dependencies.orderMaterialHistory.read(identity,materialHistoryMatch[1],materialHistoryMatch[2]));}
     else sendJson(response,200,await dependencies.orderMaterialHistory.list(identity,materialHistoryMatch[1],parseMaterialHistoryQuery(query)));
+    return;
+  }
+
+  const garmentMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/garment-shipments(?:\/(history|[^/]+))?$/.exec(path);
+  if (garmentMatch) {
+    response.setHeader('Cache-Control', 'no-store');
+    if (dependencies.identityAuthority.mode !== 'session') throw new HttpError(503, 'garment_read_requires_session', '需要可信会话。');
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, 'authentication_required', '需要登录。');
+    if (request.method !== 'GET') throw new HttpError(405, 'method_not_allowed', '仅支持读取。');
+    if (!dependencies.orderGarmentShipmentRead) throw new HttpError(503, 'garment_read_not_connected', '成衣出货来源尚未接通。');
+    const query = new URL(request.url ?? '/', 'http://local').searchParams;
+    if (garmentMatch[2] === 'history') {
+      const raw = query.get('beforeGeneration');
+      if ([...query.keys()].some(key => key !== 'beforeGeneration') || query.getAll('beforeGeneration').length > 1 || raw !== null && !/^[1-9]\d{0,8}$/.test(raw))
+        throw new HttpError(400, 'invalid_garment_history_query', '历史分页参数无效。');
+      sendJson(response, 200, await dependencies.orderGarmentShipmentRead.history(identity, garmentMatch[1], raw === null ? undefined : Number(raw)));
+    } else {
+      if (query.size) throw new HttpError(400, 'invalid_garment_source_request', '仅接受正式订单UUID。');
+      sendJson(response, 200, await dependencies.orderGarmentShipmentRead.read(identity, garmentMatch[1], garmentMatch[2]));
+    }
     return;
   }
 

@@ -92,3 +92,8 @@ Assignment及当时计划版本/资源归属；不改0035计划状态，不回�
 按物理SO/Canonical组保存手工分批、当时Hub/跟进版本与精确需求容量；actor/request回执及原OperationLog审计。
 不复制来源数量成为订单权威，不将Source交期转到仓，不补齐未安排数量、不绑定四流、不换单位、不seed或回填。
 旧迁移保持；只在一次性合成PG演练0038非空Source/跟进/回执升级，现有目标和正式数据库未执行。
+
+0040_garment_shipment_observations.sql：D152 Num/outdate 的内部成衣观察owner，默认空/独立关闭target、
+不可变原输入/精确上下文/颜色依据及逐代head；颜色匹配使用订单复合FK，不移历史来源或执行记录。
+不是出货事件账、真实Source激活、完成或关账。0039非空合成库升级逐行保护所有原public表；
+只授权新建的一次性PG验收，不对现有目标执行schema更新或回填。

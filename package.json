@@ -104,7 +104,8 @@
     "test:processing-quote-push": "tsx --test --test-concurrency=1 server/integration/processing-quote-push.integration.test.ts",
     "test:processing-quote-push-ui": "tsx --test server/integration/processing-quote-push-ui.integration.test.mjs",
     "test:business-operation-logs": "tsx --test --test-concurrency=1 server/integration/business-operation-logs.integration.test.ts server/integration/quote-audit-read.integration.test.ts",
-    "test:material-arrivals-ui": "tsx --test --test-concurrency=1 server/integration/material-arrivals-ui.integration.test.mjs"
+    "test:material-arrivals-ui": "tsx --test --test-concurrency=1 server/integration/material-arrivals-ui.integration.test.mjs",
+    "test:garment-shipment-observations": "tsx --test --test-concurrency=1 server/ainuoke-source/garment-shipment-observations.test.ts server/integration/garment-shipment-store.integration.test.ts server/integration/garment-shipment-upgrade.integration.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

@@ -1,5 +1,9 @@
 # 项目知识索引
 
+当前2026-10-21前向阶段：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。从干净e4d7输入继续，见[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[成衣观察feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)和AI_HANDOFF。41定向/146 Python/types/全lint通过，最终项目/引用回归、构建、复审与发布守卫待；不把内部观察API当作正式来源/页面/事件账或关账。
+
+下段是已完成的前阶段证据，原根文档已逐字节归档，不覆盖其测试/日期/源码绑定。
+
 2026-10-21；codex/server-material-arrival-ui；独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净689afa，无继承dirty；root唯一writer/既有reviewer只读。
 应用14a71172/build20261021-210416、harness77b8、冻结报告/四PNG ee14615f，[冻结验收](tasks/completed/2026-10-21-material-arrivals-ui-engineering.md)与[阶段任务](tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md)为本阶段恢复入口。42定向/15built到仓/10原UI/927项目、类型lint与构建通过；252证据/52能力前向登记，f6cd430e精确HEAD守卫及修正后116发布通过。
 原人工计划与逐批物流已接Server，Source交期不冒充到Hub；Source自动读取仅联动本地GET，旧草稿/历史/原请求保留。无真实Source/部署/用户接受；Git664f写STOP保留。D152已确认，完整Goal仍active，正式成衣/关账/环境收敛继续。
