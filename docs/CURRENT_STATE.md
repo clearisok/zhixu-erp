@@ -1,13 +1,13 @@
-# 当前状态：Server人工预计到仓后台本地验收通过
+# 当前状态：原物料页接入Server人工批次与逐批物流
 
-2026-10-21；codex/server-material-arrival-plans，输入干净bb0ee1768d4d97c26b60458248e305fe5a241a97，无继承dirty。独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e；PR120–127原草稿未变。root唯一writer/既有reviewer只读。[阶段任务](tasks/active/server-convergence-gate6d-material-arrivals-2026-10-21.md)、[后台契约](features/SERVER_MATERIAL_ARRIVALS.md)、[输入Git原文](tasks/completed/2026-10-21-material-arrival-inputs/bb0ee176/)。
+2026-10-21；codex/server-material-arrival-ui，输入干净689afa128bc13f56d96dfa5db13403808048943f，无继承dirty。独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e，PR120–127原草稿未变。root唯一writer/既有reviewer只读。[阶段任务](tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md)、[后台契约](features/SERVER_MATERIAL_ARRIVALS.md)、[输入Git原文](tasks/completed/2026-10-21-material-arrival-ui-inputs/689afa12/)。
 
-0039人工ExpectedArrivalBatch/Allocation后台、稳定需求UUID、同代Source/Hub快照、预览/CAS/幂等/回执/审计及25条锚定历史已实现。数量变化不换长期UUID；歧义/单位/厂供/消失/超配/改仓保留旧事实，要求明确核对。Source交期只作对照，不造到Hub日期或自动补齐。无Browser、四流、排单、价格或关账写入；DTO不暴露生产/仓备注或金额。页面与逐批物流接线仍待。
+正在把原分批到料Modal/历史Drawer接到0039唯一owner，并复用唯一物流算法。Source交期、人工到Hub与Actual独立，部分未安排合法，不猜默认仓或自动补齐。计划失效保留原事实，不搬物理SO/执行/价格。只返回非金额白名单；页面、回执恢复、精确数量与逐批建议是本阶段待验收范围，不提前写完成。
 
-源码cbfd1e65595a05444e632b5bee9e0dec83c8e12b/build20261021-183455。定向26/26 32717.1341ms、来源/安全45/45 47736.5341ms、引用/迁移55/55 37362.7995ms、项目927/927 232165.1055ms、发布116/116 230542.8865ms，均0fail/cancel/skip；类型/全lint、前端及顺序Node构建exit0。精确main守卫11页/51能力/66路径/errors空。[冻结记录](tasks/completed/2026-10-21-material-arrivals-engineering.md)保留原24跟进升级、首轮安全31/37旧假设及两项P2修正，不冒称一次全绿。45项的七角色是已采用business-source，不是旧CCT接口正控；独立复审无剩余阻断，未代跑测试/DB/网络。
+前一阶段应用源码cbfd1e65595a05444e632b5bee9e0dec83c8e12b/build20261021-183455；26/45/55/927/116、类型lint/构建与最终689afa守卫PASS。准确时序与失败修正见[冻结后台报告](tasks/completed/2026-10-21-material-arrivals-engineering.md)。原247证据/52能力及截图保持；这些不是本阶段新UI或物流验收。
 
-本阶段报告440dda3958f6c2c61db08800b605abe92870bf26，复审补正执行时序于6525963606f4ff285f3ab4800c5cd23996feab0d，保留原blob和结果。类型/lint在相同应用源码冻结前完成，构建/完整回归/精确守卫在cbfd执行。初登记试用未锚定main的修订链被守卫拒绝，未提交；按既有规则仅首次登记652最终报告为新根，不改守卫。清单追加一条报告证据和manual-only后台能力material-arrival-plan-server，原246证据/51能力/页面/运行快照/截图逐项保持，总247/52；不代表页面或完整物流完成。
+保护3001/50426/59069/62426、旧卷/Browser/账号与其他工作树；62426仍8175不升级。仅合成一次性PG/私有浏览器；无真实Source/凭据/业务DB、新绑定/激活/调度或部署。Git664f非零写入原因未明，STOP保留；只读main成功不证明写恢复，无新PR/Hosted CI/合并/关闭。
 
-上一原物料与运输UI 2a0cec28/build20261021-171525的精确证据见[冻结报告](tasks/completed/2026-10-21-order-logistics-ui-engineering.md)，不冒称本轮重跑。
+D152 Num/outdate已确认，两笔真实额度已用完。正式成衣跨次身份/颜色、Server关账、环境收敛与用户验收仍待，销售CNY/工价USD不换汇或重标，Goal active/未完成。
 
-Git664f非零push具体原因未证明，STOP_AUTH_OR_DIVERGENCE；只读成功不证明写恢复。无新push/PR/Hosted CI/合并/关闭/部署。Goal active/未完成。保护3001/50426/59069/62426及旧卷/Browser，62426仍8175未升级。不动真实账号/业务库、不扩Source/绑定/激活/调度，不安装依赖/改共享认证。D152 Num/outdate确认，两笔真实额度用完；正式成衣Source与Server关账仍待，CNY销售/USD工价不换汇或重标。
+当前实现checkpoint：新协议/精确数量/HTTP16/16，10846.9011ms；类型v2、lint v3 exit0，首失败与四项P2修复见阶段任务。实际浏览器/完整回归/新能力证据仍待，旧冻结状态保持。

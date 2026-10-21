@@ -13,6 +13,7 @@ import { ARRIVAL_READ_PERMISSIONS, ARRIVAL_WRITE_PERMISSIONS, arrivalFail, arriv
   parseArrivalCommand, parseArrivalIntent, sumArrivalQuantities, type ArrivalIntent } from "./contract.js";
 import { materialArrivalHash } from "./demand-identity.js";
 import { readArrivalSource, type ArrivalSource } from "./source.js";
+import { readArrivalLogisticsContext } from "./logistics.js";
 import { arrivalTrackingBasis, boundArrivalPayload, materialArrivalsAvailable, persistArrivalPlan, readArrivalPlan, readArrivalPlans, verifyArrivalDemandRegistry,
   type ArrivalBasis, type StoredArrivalPlan } from "./store.js";
 
@@ -158,7 +159,18 @@ export async function readMaterialArrivals(pool: Pool, identity: TrustedIdentity
     await verifyArrivalDemandRegistry(client, id, source.demands);
     let canEdit = ARRIVAL_WRITE_PERMISSIONS.every(key => actor.permissions.includes(key));
     if (canEdit) try { await writableOrder(client, order); } catch (error) { if (!(error instanceof HttpError) || error.status !== 409) throw error; canEdit = false; }
-    return { order, source, tracking: arrivalTrackingBasis(tracking), canEdit, plans: plans.map(plan => ({ plan, issues: materialArrivalPlanIssues(plan, source, tracking?.supplyHubId ?? null) })) };
+    let logistics;
+    try { logistics = await readArrivalLogisticsContext(client, id, tracking?.supplyHubId ?? null); }
+    catch (error) {
+      if (!(error instanceof HttpError) || !["production_plans_unavailable", "production_resource_snapshot_invalid", "production_order_plan_limit", "material_arrival_projection_limit"].includes(error.code)) throw error;
+      // An unavailable optional recommendation cannot erase the manual plan or
+      // hide recovery. Do not convert SQL failures into a passing projection.
+      logistics = { schemaVersion: "material-arrival-logistics.v1" as const, orderId: id, status: "unavailable" as const, planVersion: 0,
+        assignment: null, supplyHubId: tracking?.supplyHubId ?? null, settings: { productionGroups: [], productionSites: [], supplyHubs: [], supplyRoutes: [], transportModes: [] },
+        versions: { hub: null, route: null, modes: [] }, issues: ["context_unavailable" as const] };
+    }
+    return { order, source, tracking: arrivalTrackingBasis(tracking), logistics, canEdit,
+      plans: plans.map(plan => ({ plan, issues: materialArrivalPlanIssues(plan, source, tracking?.supplyHubId ?? null) })) };
   });
 }
 export async function readMaterialArrivalHistory(pool: Pool, identity: TrustedIdentity, rawId: string, rawKey: string, offset = 0, asOfVersion: number | null = null) {
@@ -167,10 +179,21 @@ export async function readMaterialArrivalHistory(pool: Pool, identity: TrustedId
   return transaction(pool, identity, async client => {
     const order = await orderFacts(client, id), plan = await readArrivalPlan(client, id, key), anchor = asOfVersion ?? plan?.version ?? 0;
     if (!Number.isSafeInteger(anchor) || anchor < 0 || anchor > (plan?.version ?? 0) || plan && anchor === 0) arrivalFail(400, "invalid_material_arrival_history_query");
-    const rows = (await client.query(`SELECT version,snapshot,request_id::text AS "requestId",operation_id AS "operationId",recorded_at AS "recordedAt"
+    type Snapshot = { id: string; sales_order_id: string; canonical_key: string; canonical_identity: StoredArrivalPlan["canonicalIdentity"];
+      supply_hub_id: string | null; source_run_id: string; data: ArrivalBasis; version: number; created_at: string; updated_at: string };
+    const rows = (await client.query<{ version: number; snapshot: Snapshot; requestId: string; operationId: string; recordedAt: Date }>(`SELECT version,snapshot,request_id::text AS "requestId",operation_id AS "operationId",recorded_at AS "recordedAt"
       FROM material_arrival_plan_versions WHERE plan_id=$1 AND version<=$2 ORDER BY version DESC LIMIT 26 OFFSET $3`, [plan?.id ?? null, anchor, offset])).rows;
     if (rows.length > 25 && offset + 25 > 100000) arrivalFail(422, "material_arrival_projection_limit");
-    return { order, plan, history: rows.slice(0, 25), offset, limit: 25, asOfVersion: anchor, hasMore: rows.length > 25, nextOffset: rows.length > 25 ? offset + 25 : null };
+    const history = rows.slice(0, 25).map(row => {
+      const raw = row.snapshot;
+      if (raw.sales_order_id !== id || raw.canonical_key !== key || raw.id !== plan?.id || raw.version !== row.version)
+        return arrivalFail(503, "material_arrival_history_invalid");
+      const snapshot: StoredArrivalPlan = { id: raw.id, orderId: raw.sales_order_id, canonicalKey: raw.canonical_key, canonicalIdentity: raw.canonical_identity,
+        supplyHubId: raw.supply_hub_id, sourceRunId: raw.source_run_id, data: raw.data, version: raw.version,
+        createdAt: new Date(raw.created_at).toISOString(), updatedAt: new Date(raw.updated_at).toISOString() };
+      return { version: row.version, snapshot, requestId: row.requestId, operationId: row.operationId, recordedAt: row.recordedAt.toISOString() };
+    });
+    return { order, plan, history, offset, limit: 25 as const, asOfVersion: anchor, hasMore: rows.length > 25, nextOffset: rows.length > 25 ? offset + 25 : null };
   });
 }
 /** Recovery is independent of the current Source pointer, lifecycle and Hub. */

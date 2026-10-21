@@ -76,7 +76,7 @@
     "test:processing-batches-ui": "tsx --test server/integration/processing-batch-ui.integration.test.mjs",
     "test:order-command-control": "tsx --test --test-concurrency=1 server/integration/order-command-control.test.ts server/integration/order-command-control.integration.test.ts server/integration/order-command-rollback.integration.test.ts",
     "test:material-history": "tsx --test --test-concurrency=1 server/integration/material-history.integration.test.ts",
-    "test:material-arrivals": "tsx --test --test-concurrency=1 server/material-arrivals/contract.test.ts server/integration/material-arrivals.integration.test.ts server/integration/material-arrivals-upgrade.integration.test.ts server/integration/material-generation-integration.test.ts",
+    "test:material-arrivals": "tsx --test --test-concurrency=1 server/material-arrivals/contract.test.ts server/integration/material-arrivals.integration.test.ts server/integration/material-arrivals-upgrade.integration.test.ts server/integration/material-generation-integration.test.ts features/style-progress/server/__tests__/arrival-logistics.test.ts features/style-progress/server/__tests__/material-arrivals-client.test.ts server/integration/material-arrival-logistics.integration.test.ts",
     "test:material-history-client": "tsx --test features/order-center/server/__tests__/material-history-client.test.ts",
     "test:material-history-ui": "tsx --test server/integration/material-history-ui.integration.test.mjs",
     "test:order-preparation-client": "tsx --test features/order-center/server/__tests__/preparation-client.test.ts features/order-center/server/__tests__/preparation-outbox.test.ts",

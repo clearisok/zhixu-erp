@@ -12,6 +12,14 @@
 
 这是同一Origin、同一标签页内的恢复保护；手动清理站点、关闭标签页或浏览器设备丢失不在持久保障范围。共享浏览器用户可访问本机站点存储，不能将该缓存作为保密凭据仓库。若整标签页丢失，应先按原参考/准备及服务端记录核对，不能假设未提交而重建业务。缓存不可用时新命令不发送，不以仅内存草稿冒称可恢复。后续跨设备待办服务另立交付，不隐式扩大本阶段。
 
+## Server人工到仓请求恢复（2026-10-21）
+
+独立sessionStorage槽`zhixu.server.material-arrival.pending.v1.<publicUserUUID>`仅保存该actor/tab未核实原命令，
+不存凭据、token、金额或Browser业务数据。先保存并读回再POST，刷新不自动POST；
+仅内容摘要核对成功的原回执可确认并删除自己的精确槽。损坏/未来schema/未知/处理中保留，
+不能覆盖为新请求；新账号不读取其他actor槽。关闭标签页/人为清理不在保障范围。
+无现有namespace、schema、IndexedDB、Seed或备份迁移，详见`SERVER_MATERIAL_ARRIVALS.md`。
+
 ## Purpose
 
 保护 Quote Center 在浏览器中的长期验收数据，使页面刷新、HMR、DEV 重启、Production Build、Docker rebuild、Seed 变化和前端 schema 演进均不会自动清空或覆盖用户数据。
