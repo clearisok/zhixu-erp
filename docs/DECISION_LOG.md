@@ -28,6 +28,7 @@
 - 完成与计划、客户需求、金额独立；原超产只提示、减量需原因、实际日期独立、已开工/固定排单不自动移动规则保持。新Server明确更正已记录日期/已结束状态须原因，不以计划或当前日期补造缺失的实际日期。联动只调整目标之后可重排项，前序继续约束队列。
 - 原纯输入/差异/数量投影与队列预览已在b891冻结/送达并三CI通过，该阶段尚无执行表/API/UI。前向切片新增0036、执行HTTP和共享事务命令，原始执行版本/归属与全部计划保护、CAS/幂等/审计/回执及引用盘点一起接线，只做一次性合成PG工程；执行页面仍待，不批准部署、真实数据或Server关账。
 - 证据：用户本轮明确选择；`server/production-scheduling/execution-contract.ts`、`execution-preview.ts`、`execution-service.ts`、`command-transaction.ts`、0036及相应纯/PG/HTTP测试。当前范围见[执行契约](features/SERVER_PRODUCTION_EXECUTION.md)与[持久化任务](tasks/active/server-convergence-gate6c-persistence-2026-10-21.md)，[原Gate6C](tasks/active/server-convergence-gate6c-2026-10-21.md)保留纯阶段历史。D-150计划历史继续保留，后台工程不冒称页面、部署或人工接受。
+- 2026-10-21后续页面切片复用原进度/结束弹窗与预览/历史，同一Server事务及actor/tab唯一pending槽；仅登记不依赖整组读取，显式联动才读队列并核实双权限。未知请求不证明写授权，已保存回执及重试继续fresh鉴权；A→B→A旧响应不得清缓存。27b合成built 28/28、六尺寸含手机四按钮/对照表头工程验收；原“页面仍待”是持久化切片当时范围，不改其冻结证据。见[执行页面契约](features/SERVER_PRODUCTION_EXECUTION_UI.md)、[新工程记录](tasks/completed/2026-10-21-production-execution-ui-engineering.md)。无新业务口径、价格/币种、真实来源/部署或人工接受批准。
 
 ### D-150 Server排单计划版本与采用资源事实
 

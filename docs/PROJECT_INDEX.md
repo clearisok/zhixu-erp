@@ -6,9 +6,10 @@ main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实；codex/server-producti
 b891三CI success/attempt1，新执行22/LinuxQuote87/Python131及Team项目927实际通过；原be7/f344/933d失败和红测范围保留。
 [b891三摘要逐字输入](tasks/completed/2026-10-21-production-execution-inputs/b8910f6c/)保留旧日期/hash/结果/限制及fc恢复链。
 4cd源码/76d3文档冻结；98生产组合、27客户端、39引用归属、927项目、116基线及原计划Chromium17通过；d207已一次送达且独立API exact。
-Source39530058362/Team39530065617/Baseline39530073595 success/attempt1，完整日志实际核查。新执行UI35客户端/TS/定向lint通过，built浏览器尚待。
+Source39530058362/Team39530065617/Baseline39530073595 success/attempt1，完整日志实际核查。新执行UI最终源27b，35客户端/98组合/TS/全lint/精确build及built28通过。
+六尺寸30几何、手机四按钮与修改前后表头已核对；新工程记录冻结/清单/完整门禁与新最终HEAD交付仍待，不借后端CI冒称页面交付。
 仅登记不依赖非必需queue，原唯一槽扩为计划或执行，原结束弹窗/历史恢复；d207三摘要逐字归档保留后端链。
-首两轮文档绑定失败保留，不放宽守卫。执行UI、出货/关账及真实激活未闭环。
+首两轮文档绑定失败与本UI早期失败保留，不放宽守卫。执行UI仅本地工程，出货/关账及真实激活未闭环。
 0035原阶段读取文档保持70cb8历史字节；当前数量、executions和空队首扩展以执行契约为准。
 原238证据/50能力/旧PNG保持，本轮前向追加D151及执行文档，现240/50；#120–127原头不动，不建重复累计业务PR、不merge/close/deploy。
 保护3001/50426/59069/62426及旧卷/工作树/Browser；持续Git授权不扩真实数据/来源/部署/退役范围。
