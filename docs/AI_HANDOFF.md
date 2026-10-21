@@ -1,4 +1,8 @@
-# 恢复点：交期覆盖本地验收与证据完成，待精确交付
+# 恢复点：当前0042镜像在独立合成环境验收中
+
+2026-10-22当前工作分支chore/server-current-image-0042，干净输入105cfbfcb336c0c29efe583f9ff09fda52bc07f0；main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。先读[当前镜像任务](tasks/active/server-current-image-0042-2026-10-22.md)。仅新Git archive精确P构建与原actual-image测试，不改应用/SQL/ops/UI，不触旧端口/卷/账号/Browser。构建/测试日志在ignored outputs/current-image-0042；尚未称镜像或新持久化验收PASS。root唯一writer、既有reviewer只读。
+
+输入105cfbfc已精确远端+原工具零push只读DELIVERED_VERIFIED；首push STOP保留未重推。其release39689490085成功，source39689481386/team39689484921仍attempt1执行；不可重跑outputs/delivery-coverage/ci-dispatch.mjs，只可用ci-snapshot.mjs只读查状态。当前新阶段仅验证引用，无新PR/merge/close/部署。以下为输入P保存的交期覆盖工程恢复记录，原源与冻结证据不改。
 
 2026-10-22；feat/server-delivery-coverage，main再次独立核实996dfedc12da3527343cd3ff2aa5eea35497e10e；干净输入144f2a269affb41207566557f09ed06e8decf49a，无继承dirty。root唯一writer，既有server_convergence_review只读。实际源码ff8b8d68bf25e61ea757caee90ad5a7e998d6037，新契约0e54、报告192234e77db546138593c7cb2878b37a770ab44a；后续全部文档变化。先读[当前任务](tasks/active/server-delivery-coverage-2026-10-22.md)、D155及实际delivery-coverage/service/tests，当前仅最终metadata待提交，尚未交付，Goal active。
 
