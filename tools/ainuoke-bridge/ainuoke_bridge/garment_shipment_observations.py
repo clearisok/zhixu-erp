@@ -49,6 +49,8 @@ def extract_garment_observation_page(capture):
         if count(response.get("pageIndex")) != capture["page"] or count(response.get("pageSize")) != 100:
             fail("shipment_observation_page_mismatch")
         total = count(response["dataCount"] if "dataCount" in response else data.get("total"))
+        if "dataCount" in response and "total" in data and count(data["total"]) != total:
+            fail("shipment_observation_count_mismatch")
         rows = data.get("rows")
         if (total > 2000 or not isinstance(rows, list) or capture["page"] > max(1, (total + 99) // 100)
                 or len(rows) != min(100, max(0, total - (capture["page"] - 1) * 100))):

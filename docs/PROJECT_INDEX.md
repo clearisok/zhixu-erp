@@ -1,21 +1,6 @@
 # 项目知识索引
 
-2026-10-22当前为[Gate7C只读接线](tasks/active/server-convergence-gate7c-shipment-read-ui-2026-10-22.md)：codex/server-garment-shipment-read-ui；独立main996dfedc12da3527343cd3ff2aa5eea35497e10e，从其建分支后只FF2612，旧根摘要逐字节归档。最终应用4066/build20261022-022801、[冻结报告与四图](tasks/completed/2026-10-22-garment-shipment-read-ui-engineering.md)a21a已本地合成验收：85定向、13出货built、14原P6、70默认source通过/1既有跳过、类型lint两构建；新259/54清单后927项目/116发布/工作树守卫重新全过。最终commit精确守卫单独核对，回执见CURRENT_STATE。无真实Source/部署/用户接受，REMOTE pending，Git原STOP保留；Gate7B exact384三CI全success。完整Goal继续；下段为历史时点，最新恢复以CURRENT_STATE/AI_HANDOFF/Gate7C为准。
-
-2026-10-22 Gate7B本地通过：codex/garment-contract-filter-verification，从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建立并FF干净acfed2d091297c9fb587680a29ca6932892fa8ea。见[阶段任务](tasks/active/server-convergence-gate7b-filter-verification-2026-10-22.md)和[核验契约](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。源码55362ddc：13Node/162Python/19原payment/927项目/116发布、类型lint及两构建通过；远端38499498精确独立核实/守卫PASS，push原STOP保留不重推，3CI进行中。真实额度已问一次、尚未答复/使用，不读真实凭据/原文或业务DB，不激活来源。前阶段根文档逐字节归档，完整Goal继续。
-
-精确384的Team/Baseline现已success，Source仍进行中；本机文档d949守卫PASS，未远端再推。[Gate7C准备](tasks/active/server-convergence-gate7c-shipment-read-ui-2026-10-22.md)已完成代码与静态review核对、尚无客户端/UI实施；不因等待真实额度停止独立合成工程。
-
-
-当前2026-10-22：codex/server-garment-shipment-observations，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e。[Gate7A任务](tasks/active/server-convergence-gate7a-shipment-observations-2026-10-21.md)、[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、[冻结工程报告](tasks/completed/2026-10-21-garment-shipment-observations-engineering.md)为恢复入口。41定向/146 Python/927项目/124相关通过+1既有Windows跳过，类型/lint/构建/116发布/精确守卫通过；254证据/53能力。内部观察不是正式采集、成衣页面、事件总账或关账，Goal继续。
-
-精确63c40b8d0b93e2fcd63a5997d99c0b47ec587566远端已独立核实，原push exit1/STOP保留、不重推；source39634167328、team39634173683、baseline39634178966均终态success。此前caf source因job20分钟上限取消；只将总预算调30分钟，检查未删减。最终文档HEAD守卫/交付另核实，不冒称同一CI新跑。62426只读HTTPS健康和build-info已匹配旧8175/Gate1；不是当前新构建或完整READY，不升级旧环境、不新建累计PR/merge/deploy。原失败、旧证据及Git不确定性留在任务，不覆盖冻结记录。
-
-下段是已完成的前阶段证据，原根文档已逐字节归档，不覆盖其测试/日期/源码绑定。
-
-2026-10-21；codex/server-material-arrival-ui；独立GitHub main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。输入干净689afa，无继承dirty；root唯一writer/既有reviewer只读。
-应用14a71172/build20261021-210416、harness77b8、冻结报告/四PNG ee14615f，[冻结验收](tasks/completed/2026-10-21-material-arrivals-ui-engineering.md)与[阶段任务](tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md)为本阶段恢复入口。42定向/15built到仓/10原UI/927项目、类型lint与构建通过；252证据/52能力前向登记，f6cd430e精确HEAD守卫及修正后116发布通过。
-原人工计划与逐批物流已接Server，Source交期不冒充到Hub；Source自动读取仅联动本地GET，旧草稿/历史/原请求保留。无真实Source/部署/用户接受；Git664f写STOP保留。D152已确认，完整Goal仍active，正式成衣/关账/环境收敛继续。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)和[Gate7D原始总数校验](tasks/active/server-convergence-gate7d-capture-integrity-2026-10-22.md)为准。当前codex/garment-observation-total-integrity从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建分支后FF干净1031；小修166完整Python/85观察PG等/116发布及工作树guard通过，最终精确HEAD另核。Gate7C只读页面1031已新一次正常交付并独立exact，Team与Baseline CI通过、Source仍进行中；不是正式采集或部署。Num/outdate已确认，真实额度/后续关账仍待原答复。此前各阶段时点、完整hash/测试与限制逐字节保存在[输入归档](tasks/completed/2026-10-22-garment-total-integrity-inputs/1031d5d5/PROJECT_INDEX.md)，不以历史段落覆盖当前恢复点。
 
 ## 系统简介
 
