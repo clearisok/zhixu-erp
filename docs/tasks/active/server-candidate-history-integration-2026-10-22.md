@@ -87,3 +87,47 @@ existing environment upgrade, scheduler, retirement, 50426 cutover or deployment
 Num/outdate is already confirmed. The pending exact-source quota and three closing
 decisions are not defaulted. The complete Goal remains active. This local graph
 integration does not promote capability merge/deploy/user-acceptance dimensions.
+
+## Verified local closure
+
+The actual local merge checkpoint is
+`e6ba5f049dd7fe835e8025a7fa6280585923ff34`. Its exact ordered parents are
+`7ac59413d5b55b0aa31962f6952a8c635b166c38` and
+`956921f63ba3069c059ca64c2324edbc33afefd8`. All eight original PR120–127 heads
+are now ancestors. Independent review verified all1287 non-document tree entries
+(mode/type/blob/path) against7ac, not merely a selected file sample. They are
+identical. Only13 document paths changed. The complete manifest Git blob is
+unchanged:261 evidence records,55 capabilities and every status remain intact;
+all213 incoming records are preserved exactly. Six parent-summary archives and
+three incoming task/history documents have their exact original Git blobs.
+
+At the committed e6ba head, the explicit main-996 source/evidence guard passed
+(11 pages,55 capabilities,80 inherited UI paths,errors=[]). The release-baseline
+and responsive suite passed116/116, zero failures/skips/cancellations
+(195593.4372ms). The independent reviewer found no P1/P2. No application, SQL,
+tool, test, workflow, UI or runtime content changed in this history-only phase;
+the earlier business/image/browser results keep their original source and date
+instead of being claimed as new runs.
+
+Main was independently reread as
+`996dfedc12da3527343cd3ff2aa5eea35497e10e`. Open draft PR120–127 retain their
+specified original heads, CLEAN status and three successful checks each; none
+was merged, closed or rewritten. The three newly dispatched acceptance runs
+at exact7ac, attempt1, are now all completed/success:
+
+- Source [39673330905](https://github.com/clearisok/zhixu-erp/actions/runs/39673330905).
+- Team [39673338812](https://github.com/clearisok/zhixu-erp/actions/runs/39673338812).
+- Baseline [39673344242](https://github.com/clearisok/zhixu-erp/actions/runs/39673344242).
+
+These are7ac CI results. They are not labeled as CI runs of e6ba or a later
+documentation head. Exact final HEAD/clean/guard and bounded validation-reference
+delivery are recorded separately under ignored
+`outputs/server-history-integration/`; no duplicate cumulative implementation PR
+is introduced. An upload is not a GitHub PR/main merge or deployment.
+
+Num/outdate has been explicitly confirmed again by the user; D-152 already
+captures that rule and is not rewritten. Real C1/C0/C1 quota and the three
+closing decisions remain unanswered; no new real request, credential/private
+candidate read or business-database operation has occurred. Existing environments,
+accounts, Browser data and frozen evidence remain protected. This phase is local
+engineering PASS; the complete Goal stays active.

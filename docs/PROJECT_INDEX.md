@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)与[原始历史整合](tasks/active/server-candidate-history-integration-2026-10-22.md)为准。当前chore/server-candidate-history-integration从独立main 996dfedc12da3527343cd3ff2aa5eea35497e10e后FF干净7ac，仅在本机补#126原956祖先，四份状态文档冲突已保留新事实，应用/tool/test blob不变待精确核实。261证据/55能力及状态保留。7ac/a296原错误已由完整字节/hash精确模板核为目标ref已存在；来源未知，不称网络永久修好。7ac独立远端exact及原工具零push核对已完成，原STOP仍保留；三新CI绑定7ac各一次并仍需终态。旧三摘要/冻结镜像8/22/116结果等分别保存在[7ac输入归档](tasks/completed/2026-10-22-history-integration-inputs/7ac59413/PROJECT_INDEX.md)与原报告。无GitHub合并/关闭、新累计PR、部署或真实来源/旧数据操作；原待决继续。下方历史索引不替代当前恢复点与实际运行镜像。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)与[原始历史整合](tasks/active/server-candidate-history-integration-2026-10-22.md)为准。chore/server-candidate-history-integration基线 main 996dfedc12da3527343cd3ff2aa5eea35497e10e；实际本机merge e6ba5f049dd7fe835e8025a7fa6280585923ff34已核双父级7ac/956及#120–127八个原head祖先。1287非doc树条目与7ac完全一致，261证据/55能力/全部状态、213incoming和9份归档/历史doc原blob保持；精确守卫、116发布检查及独立复审通过。最终文档HEAD/clean/guard及验证引用交付另读ignored outputs/server-history-integration，不预报远端状态。7ac三新CI各一次/attempt1现均success；不是新merge HEAD的CI。7ac/a296原拒绝已由完整字节/hash模板证明目标ref已存在，源头仍unknown；7ac独立exact及原工具零push核对完成，旧STOP保留，不称网络永久修好。旧摘要/镜像8/22/116证据保存在[7ac输入归档](tasks/completed/2026-10-22-history-integration-inputs/7ac59413/PROJECT_INDEX.md)与原冻结报告。无GitHub合并/关闭、新累计PR、部署或真实来源/旧数据操作；D152已承接Num/outdate，原额度及关账待决继续。下方历史索引不替代当前恢复点与实际运行镜像。
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
