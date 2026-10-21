@@ -33,3 +33,8 @@
 独立复审发现两处P2：可选跟进挂起阻塞原计划、冻结后只读误显草稿。已改独立抽屉owner读取、只读展示保存事实并标草稿，原built fixture补对应挂起/旧401/503与冻结retain场景；尚待实际运行。
 旧drawer401的commit→passive清理窗口进一步通过layout-committed实例owner与请求lease收紧，fixture在新Modal首次挂载的MutationObserver中释放旧401，不靠等清理之后再验证。最终类型exit0；全lint曾exit0，后续该小修仍在最终重验范围。
 本阶段最终lint、实际built浏览器和最终门禁仍待，不冒称PASS。
+源码checkpoint为2a0cec28a0ab736c6f7500bf512dd7260364c5cb，显式Server build20261021-171525/2026-10-21T17:15:25+08:00及顺序Node构建exit0，未部署。
+首次built27pass/2fail（29含父项，64735.1027ms）：原26子场景及首次跟进已通过，下一场在异步仓目录尚未到达时直接读取不存在option.disabled，属于验收等待错误。补明确候选存在等待，不改应用或断言语义，原失败保留；继续同一应用build完整重验。
+第二次built34pass/2fail（36含父项，109011.6345ms）：跟进并发/回执/冻结/可选GET/权限/ABA均已通过；历史锚点检查已通过，随后在新队列到达前提前取得undefined按钮标签并将其固定为click目标。失败现场稍后已显示真实SYN-PLAN-30行。补目标存在等待，不改应用/域规则；几何等后置项仍未运行，继续同一2a0应用重验。
+最终第三次built37/37（36子项+父项，95398.3492ms），0失败/取消/跳过；应用仍2a0，测试相对checkpoint仅3处只读等待（两处失败修复+一处几何资料前置），没有删除/放宽原断言。共享六资源built回归23/23（37806.8778ms）。root与独立reviewer查看1440/390跟进表单/预览，reviewer另看历史；三P2实际用例通过，无剩余阻断。图片/geometry保存在outputs/production-planning-ui/2a0cec28a0ab736c6f7500bf512dd7260364c5cb-1792574544755/，没有覆盖旧图。
+项目/发布回归及最终全lint运行中，终态及最后精确SHA门禁仍待收口，不借旧CI。

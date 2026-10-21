@@ -381,6 +381,7 @@ test('Gate6B/C/D built scheduling preserves plans, actual execution, tracking, r
       trackingHub = await x.changeResource(trackingHub, { name: 'A合成仓当前名称', enabled: false });
       await openTracking(30); await has('上次保存时：A合成集货仓'); await has('当前名称：A合成仓当前名称');
       assert.equal(await evaluate("document.querySelector('select[aria-label=集货仓选择]').value"), trackingHub.id);
+      await until(() => evaluate(`[...document.querySelector('select[aria-label=集货仓选择]').options].some(n=>n.value===${JSON.stringify(disabledTrackingHub.id)})`), 'loaded disabled hub option');
       assert.equal(await evaluate(`[...document.querySelector('select[aria-label=集货仓选择]').options].find(n=>n.value===${JSON.stringify(disabledTrackingHub.id)}).disabled`), true);
       await field('textarea[aria-label=物料与运输备注]', '保留原停用仓，更新备注', 'HTMLTextAreaElement'); await trackingSave();
       assert.equal((await trackingHead(trackingOrder)).hubSnapshot.name, 'A合成仓当前名称');
@@ -459,6 +460,7 @@ test('Gate6B/C/D built scheduling preserves plans, actual execution, tracking, r
       await click('加载更早跟进记录', '[role=dialog] button'); await until(() => evaluate("[...document.querySelectorAll('[role=dialog] strong')].some(n=>n.textContent==='跟进版本 1')"), 'oldest tracking version');
       assert.equal(await evaluate(`document.querySelector('[role=dialog]').innerText.includes('跟进版本 ${anchor + 1}')`), false); await shot('tracking-anchored-history'); await click('关闭物料与运输历史');
       await x.plan(trackingOrder, data({ plannedQuantity: '5' })); await click('生产组', '.ps-view-tabs button'); await field('input[aria-label=搜索排单]', 'A合成一组'); await has('A合成一组 · 计划队列');
+      await until(() => evaluate("[...document.querySelectorAll('button')].some(n=>n.getAttribute('aria-label')?.startsWith('更多排单：SYN-PLAN-30 ·'))"), 'fresh queued tracking order');
       const label = await evaluate("[...document.querySelectorAll('button')].map(n=>n.getAttribute('aria-label')).find(n=>n?.startsWith('更多排单：SYN-PLAN-30 ·'))"); await click(label); await click('物料与运输', '.ps-row-more-menu button');
       await until(() => evaluate("document.querySelector('textarea[aria-label=物料与运输备注]')?.value==='历史打开后新增'"), 'same tracking order from queue'); await closeClean();
     });
@@ -478,6 +480,7 @@ test('Gate6B/C/D built scheduling preserves plans, actual execution, tracking, r
         for (let i = 0; i < metrics.buttons.length; i++) for (let j = i + 1; j < metrics.buttons.length; j++) { const a = metrics.buttons[i], b = metrics.buttons[j]; assert.ok(a.right <= b.left + 1 || b.right <= a.left + 1 || a.bottom <= b.top + 1 || b.bottom <= a.top + 1, JSON.stringify(metrics)); }
         geometry.push(metrics); await shot('actual-internal-' + width); await closeClean(); await has('有未保存修改'); await click('放弃修改');
         await openTracking(30); await field('textarea[aria-label=物料与运输备注]', '逐批核对，保持已确认资料。\n' + '长备注验证'.repeat(90), 'HTMLTextAreaElement');
+        await until(() => evaluate("document.querySelector('.ps-server-tracking-modal')?.innerText.includes('24 条')"), 'tracking references ready before geometry');
         metrics = await evaluate("({page:'tracking-form',width:innerWidth,scroll:document.documentElement.scrollWidth,panel:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON(),fields:[...document.querySelectorAll('[role=dialog] input,[role=dialog] select,[role=dialog] textarea')].filter(n=>n.getClientRects().length).map(n=>({label:n.getAttribute('aria-label'),left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right})),buttons:[...document.querySelectorAll('[role=dialog] footer button')].map(n=>n.getBoundingClientRect().toJSON())})");
         assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.panel.width <= width + 1); assert.ok(metrics.fields.every(row => row.left >= metrics.panel.left && row.right <= metrics.panel.right), JSON.stringify(metrics)); assert.ok(metrics.buttons.every(row => row.left >= metrics.panel.left && row.right <= metrics.panel.right && row.bottom <= 1001), JSON.stringify(metrics)); geometry.push(metrics); await shot('tracking-form-' + width);
         await click('预览跟进', '[role=dialog] button'); await has('确认物料与运输');
