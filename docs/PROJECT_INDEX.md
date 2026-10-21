@@ -1,5 +1,7 @@
 # 项目知识索引
 
+2026-10-22当前为[Gate7C只读接线](tasks/active/server-convergence-gate7c-shipment-read-ui-2026-10-22.md)：codex/server-garment-shipment-read-ui，从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建立后只FF干净2612bf8697679fcaa26ff8aac8e81a450b05428f。旧根摘要逐字节归档；本阶段尚只有基线文档，无代码/测试。先DTO/model/client及原快照到期时间，再页面；不读真实Source、不改Browser/价格/DB/schema/环境。下段保留前阶段各时点，最新恢复以CURRENT_STATE/AI_HANDOFF和Gate7C为准。
+
 2026-10-22 Gate7B本地通过：codex/garment-contract-filter-verification，从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建立并FF干净acfed2d091297c9fb587680a29ca6932892fa8ea。见[阶段任务](tasks/active/server-convergence-gate7b-filter-verification-2026-10-22.md)和[核验契约](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。源码55362ddc：13Node/162Python/19原payment/927项目/116发布、类型lint及两构建通过；远端38499498精确独立核实/守卫PASS，push原STOP保留不重推，3CI进行中。真实额度已问一次、尚未答复/使用，不读真实凭据/原文或业务DB，不激活来源。前阶段根文档逐字节归档，完整Goal继续。
 
 精确384的Team/Baseline现已success，Source仍进行中；本机文档d949守卫PASS，未远端再推。[Gate7C准备](tasks/active/server-convergence-gate7c-shipment-read-ui-2026-10-22.md)已完成代码与静态review核对、尚无客户端/UI实施；不因等待真实额度停止独立合成工程。

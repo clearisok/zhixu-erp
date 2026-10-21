@@ -2,6 +2,14 @@
 
 2026-10-22；D147已批准Server收敛工程，D152/153数量日期/观察边界不变。本文件为下一独立切片的代码核对结果，尚未实施客户端、页面或DTO变更，不是新真实采集/target激活、部署或人工验收许可。root唯一writer，既有reviewer只读；实际实施前另记录分支、完整HEAD、main与dirty baseline。
 
+## 实施起点
+
+本轮起点独立GitHub API再次核实main996dfedc12da3527343cd3ff2aa5eea35497e10e；原codex/garment-contract-filter-verification在2612bf8697679fcaa26ff8aac8e81a450b05428f干净。新分支codex/server-garment-shipment-read-ui从main建立，再只FF完整2612输入，无reset/rebase/force。原根摘要三份逐字节归档到tasks/completed/2026-10-22-garment-read-inputs/2612bf86/，均为普通工程文档，不读取真实私密报告/凭据。
+
+上一轮为progress：Gate7B实现、测试、独立复审及源码384远端精确核实完成；本轮已确认该384的Team/Baseline success，Source live且Server/质量/构建三步骤success，P6浏览器步骤仍进行中。不是仅凭锁文件等候。原Git push STOP/原因unknown继续保留，不重推384或自动写新远端；本地独立工程可在已验证输入上继续。
+
+第一切片限定model/client、原快照expiresAt与合成测试，不增加路由/数据库/Source调用或修改Browser。页面为后续同Gate独立切片，未实现前不能记为UI交付；真实额度已询问未答复，不以等待额度阻塞合成工程。
+
 ## 已验证接口与复用边界
 
 - `garment-shipment-store.ts:216`的freshness来自原snapshot `observedFrom + stored freshness_ms`；当前DTO只有标签/evaluatedAt，没有expiresAt。计划前向追加expiresAt，绝不用observedThrough、当前target策略或payment固定600000替代。前台用单调时钟扣除请求时间，到期只转“已过期／历史观察”，不清空仍有权限的模型。

@@ -1,15 +1,13 @@
-# 恢复点：Gate7B固定合同过滤工具本地收口
+# 恢复点：Gate7C只读客户端/页面接线起点
 
-2026-10-22；分支codex/garment-contract-filter-verification；独立main996dfedc12da3527343cd3ff2aa5eea35497e10e，从main建立后只FF至干净acfed2d091297c9fb587680a29ca6932892fa8ea。原三根文档逐字节归档在tasks/completed/2026-10-22-garment-filter-inputs/acfed2d0/；root唯一writer/既有reviewer只读。
+2026-10-22；分支codex/server-garment-shipment-read-ui；本轮重新API核实main996dfedc12da3527343cd3ff2aa5eea35497e10e，从main建立后只FF至干净2612bf8697679fcaa26ff8aac8e81a450b05428f。三根旧摘要逐字节保存在tasks/completed/2026-10-22-garment-read-inputs/2612bf86/。root唯一writer，既有reviewer只读；无继承dirty。
 
-先读[Gate7B任务](tasks/active/server-convergence-gate7b-filter-verification-2026-10-22.md)、[成衣观察契约](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、D152/153及实际probe/transport/lossless/private IO/PS wrapper。前轮为progress：acfed正常一次DELIVERED_VERIFIED/API及Git精确，63c三CI终态success（source39634167328/team39634173683/baseline39634178966），acfed纯文档精确守卫PASS/clean。旧Git错误仍unknown，不能说永久修复。
+先读[Gate7C](tasks/active/server-convergence-gate7c-shipment-read-ui-2026-10-22.md)、模块feature、D152/153及实际store/DTO/订单model/material-arrivals layout-owner hook。当前只有新分支/基线文档，无本轮代码/测试。先model/client与原stored策略expiresAt，再现有订单详情折叠区/历史抽屉；不复制payment的过期清空、十分钟或非空断言。历史空页可能仍有游标，当前/历史分别保存；撤权/来源失效须清内容，A→B→A和关闭后迟到401不得注销新owner。冻结colorMatch不因当前颜色重配，不出总量/收入/成本。
 
-当前已实现固定C1首页→虚拟零合同→C1首页，1login+最多3reports/100行/每报表4MiB/报表累计12MiB、登录另4MiB/180秒，无翻页重试。Node先探测数字原文runtime、clean/output、候选包装/原文双hash及唯一合同，再读私密凭据；CLI不接受任意合同/report/page/hash。结果只为私密诊断，不输出业务发布输入或激活。真正执行前另批具体新额度；D1933/1935已用完，本阶段不读真实私密报告/凭据。
+前轮是progress：Gate7B固定诊断已合成实现/复审，13Node/162Python/19payment/927项目/116发布/类型lint两构建通过。38499498068acc31f2d1b7e76ca2f27572721bf4精确远端API核实、守卫PASS；本地2612文档守卫PASS。原push一次exit1/6531ms/STOP_AUTH_OR_DIVERGENCE/continueLocal=false保留，不重推384；tracking缺失，3只读TLS对照正常，mirror/followTags未配置，根因unknown。停止新的远端Git写入，不以网络已恢复再试；既有授权不包括force/认证/TLS配置改变。
 
-应用55362ddc815e975e48aded9a8d67136d75d65c79、已核实远端38499498068acc31f2d1b7e76ca2f27572721bf4。13新Node/162Python/19原payment/927项目/116发布、类型lint/Server编译/应用构建、精确384守卫全通过；独立review无阻断，原9项文档漂移失败及P2修复记录保留。不是读取真实候选PASS，未改SQL/UI/环境。
+精确384 CI：Team39644375067/Baseline39644382880 success，Source39644366031本轮仍live；Server/质量/构建success，P6浏览器step进行中。后续按同run/head核实终态，不重启任务。Gate0不新建累计PR/merge/close/deploy。当前主线工程可独立本地继续，不把CI或真实授权等待当作全Goal阻断。
 
-重要：本次唯一push exit1/6531ms，工具STOP_AUTH_OR_DIVERGENCE/continueLocal=false保持；独立API再次exact384，本地tracking不存在。3只读Git/TLS对照成功（main996），mirror/followTags未配置；根因仍unknown，不重推384，不按“网络已恢复”自动再次远端写入。原失败和新诊断在ignored outputs/garment-filter-gate7b/。精确384的Team39644375067/Baseline39644382880已success，Source39644366031仍in_progress，必须核实终态；不据2项成功执行真实请求。文档d949精确守卫PASS，后续文档checkpoint只本地保全，Gate0不新建累计PR/merge/deploy。
+固定C1/C0/C1真实额度已问一次，尚无回复；要求原工具CI成功及用户明确答复才执行。D1933/D1935已耗完，不读真实候选/凭据或业务DB，不采集/激活。若后续答复，先核实工具blob仍等于已验收55362版本、clean及精确CI，再在获准范围执行，不能从新只读页面代码推导扩大范围。关账3原问题仍待答，不重问或默认同意。
 
-真实核验新额度已单次异步询问：冻结D1933唯一C1/C0/C1、1login+3reports/100/4MiB各、报表12MiB/登录另4MiB/180秒，无重试翻页/DB/激活；尚无回答，且要求CI成功后才能执行。不重问、不把时间当同意。下一[Gate7C静态准备](tasks/active/server-convergence-gate7c-shipment-read-ui-2026-10-22.md)已完成实际DTO/页面/hook及review核对，无实施：原策略expiresAt/单调钟保留stale历史、空历史页按游标继续、撤权清旧内容、layout owner防迟到200/401和冻结颜色。可独立推进合成客户端/UI，不以真实采集为其前提；仍须新阶段基线/路径影响/测试，不复制payment业务语义。
-
-完整Goal active；关账三问题仍待用户原回答，不推断同意。按Gate0只验证引用，不新建累计PR/merge/close/deploy。保护全部旧环境/账号/Browser；62426只是旧8175 public health/build已读回，不等于全READY或新版。冻结报告c031/LF d96aea2e1810408122072f02bc5b5bc064da1d70f9808fcfaf444379ee8aea05与旧截图不动。
+保留所有旧环境/卷/账号/Browser/工作树；新测试只自有合成库。254证据/53能力和原截图不改；V0客户端及后续V2 UI精确路径影响/冻结证据须按release guard前向记录，未实现/未测试不改状态。完整Goal active。
