@@ -37,7 +37,7 @@ Git仍STOP_AUTH_OR_DIVERGENCE（664f推送非零原因未证明），只读main�
 无新push/PR/Hosted CI/合并/关闭/部署或真实来源读取授权。D1935/D1933两笔单次真实额度均用完。
 本阶段未完成前不更改能力状态；Goal active，Server收敛、到仓UI/逐物料物流、成衣Source和关账仍待。
 
-## 定向验收与复审（完整门禁尚未收口）
+## 定向验收与复审时序
 
 初3契约通过600.754ms；首轮type因BigInt目标及审计类型失败，修复为现有ES目标与统一审计扩展后通过。
 初17整合/既有generation通过27635.4996ms；跟进与升级24项通过28915.7061ms。
@@ -49,6 +49,15 @@ Git仍STOP_AUTH_OR_DIVERGENCE（664f推送非零原因未证明），只读main�
 401/403/撤权/no-store保留。另加跑现有已采用business-source七角色，不冒称旧CCT端点正控。
 修正后来源/安全45/45、0fail/cancel/skip，47736.5341ms，含确认数据与元信息外部修改不能改变构造快照。
 引用/迁移/SQL归属55/55、0fail/cancel/skip，37362.7995ms；outputs/g6d-arrivals-inventory-upgrade-regression.log。
-类型与全lint通过；完整项目/发布回归、构建和精确源码守卫待本阶段收口。
+此定向时点类型与全lint通过；完整项目/发布回归、构建及精确源码守卫结果续记于下节。
 既有审查者只读检查实际diff/未跟踪源码与日志，确认P2关闭、旧安全测试更新合理，无剩余已知公开API阻断；
 未代跑测试、DB或网络。三个输入摘要与Git比较仅checkout CRLF不同，无内容dirty；归档仍保存原Git字节。
+
+## 完整本地收口
+
+源码checkpoint cbfd1e65595a05444e632b5bee9e0dec83c8e12b，干净。完整工程事实见
+[冻结报告](../completed/2026-10-21-material-arrivals-engineering.md)，不覆盖原失败与中间结果。
+该源码上项目927/927 232165.1055ms、发布116/116 230542.8865ms，0fail/cancel/skip；类型/全lint、
+显式Server前端及顺序Node构建exit0，build20261021-183455。精确main996源码守卫11页/51能力/66累计UI路径/errors空。
+收口前独立GitHub API仍main996；默认只读Git成功，OpenSSL进程对照uncertain_transport，不证明写恢复。
+无新push/PR/Hosted CI/部署或真实来源读取。后续仅前向登记新后台能力，不重写原246证据/51能力。

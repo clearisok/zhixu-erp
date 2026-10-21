@@ -1,6 +1,8 @@
 # Server人工预计到仓批次
 
 2026-10-21；D147 Gate6D后台切片，实施与验收状态见[阶段任务](../tasks/active/server-convergence-gate6d-material-arrivals-2026-10-21.md)。
+源码cbfd1e65595a05444e632b5bee9e0dec83c8e12b/build20261021-183455已通过本地工程验收；
+26定向、45来源安全、55引用迁移、927项目、116发布结果与失败修正边界见[冻结记录](../tasks/completed/2026-10-21-material-arrivals-engineering.md)。
 继承D054、D065–069；不改变Browser模型、身份、存储或原唯一物流算法。
 目前Source交期没有已证明的到Hub地点语义，因此仅作只读对照；本切片没有自动Source批次或恢复来源写入。
 页面和逐批物流接线是后续独立阶段，后台通过不代表可邀请用户体验完整物流。

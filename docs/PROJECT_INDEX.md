@@ -2,7 +2,7 @@
 
 2026-10-21；main独立GitHub核实996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer/既有reviewer只读。
 当前codex/server-material-arrival-plans，输入干净bb0ee1768d4d97c26b60458248e305fe5a241a97，无继承dirty；[阶段任务](tasks/active/server-convergence-gate6d-material-arrivals-2026-10-21.md)、[后台契约](features/SERVER_MATERIAL_ARRIVALS.md)、[输入Git原文](tasks/completed/2026-10-21-material-arrival-inputs/bb0ee176/)。
-0039人工到仓后台26定向/45来源安全/55引用迁移通过，类型/全lint通过；完整门禁、源码checkpoint和冻结证据待收口。稳定Demand与Source原行分离，manual-only/partial/精确数量/Hub快照，来源交期不冒充到Hub。无Browser或价格/生产写入；两项P2及旧共享CCT安全验收修正时序保留。
+0039人工到仓后台源码cbfd1e65595a05444e632b5bee9e0dec83c8e12b/build20261021-183455；26定向/45来源安全/55引用迁移/927项目/116发布、类型/全lint/顺序构建与精确main守卫通过，[冻结工程记录](tasks/completed/2026-10-21-material-arrivals-engineering.md)保留失败修正时序。稳定Demand与Source原行分离，manual-only/partial/精确数量/Hub快照，来源交期不冒充到Hub。无Browser或价格/生产写入；前向能力证据登记待完成。
 原UI 2a0cec28/build20261021-171525的41/24/37/23/927/116见[冻结工程报告](tasks/completed/2026-10-21-order-logistics-ui-engineering.md)，不冒称本轮重跑。原246证据/51能力/PNG不改。到仓UI/逐物料物流、正式6086979跨次身份与颜色、Server关账仍待；D152 Num/outdate确认，不自动收入或关账。
 Git664f非零push原因未证明，STOP仍在；无新PR/Hosted CI/合并/关闭/部署，Goal active。保护3001/50426/59069/62426、旧卷/Browser，62426仍8175，不扩大真实账号/业务库/Source/调度授权。
 
