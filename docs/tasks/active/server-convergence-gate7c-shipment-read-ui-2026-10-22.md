@@ -57,3 +57,13 @@
 第二切片静态复审无剩余P1/P2；403注入仅证明前端清理，不冒称本阶段真的改角色后撤权；七角色将另验实际session读取，后端权限/撤权证据来自85定向的原PG/HTTP测试。修后typecheck/lint通过，原continuous默认fixture回归运行中。无真实Source或数据操作。
 
 43989d1acf0c48e6244640d6f1d8a58736893136/build20261022-022257的13项built验收全通过，含7个实际合成角色；默认continuous回归70通过/1既有Windows跳过。随后实际查看桌面、手机、手机历史及桌面详情PNG：无文档溢出，但桌面窄Drawer的宽表需横滚才能看数量。主动将历史详情改为同一Foundation Card逐笔排列，当前桌面仍用表，精确长数量允许折行，未知日期不重复前缀；只改局部展示。harness新增历史卡量日完整且无横溢出断言、截图避开固定header。该小修另checkpoint/重建后重新完整验收；旧439截图/13PASS不冒称新视觉修正已经验收，旧失败/图片一并保留。
+
+## 第二切片最终应用验收与证据绑定
+
+最终应用4066b00a2532cbd5572bcd4ef8a5fe7c8453edff，显式Server build20261022-022801。13出货built全通过（25015.259ms），历史卡明确1440/390双视口断言及截图；14原P6 built全通过（54774.8721ms），不是删减旧断言换绿。类型/lint/最终server:build通过；第一切片六个DTO/client/store/API/PG文件从1630至4066经Git核对无差异。独立复审小改无新增P1/P2。
+
+已实际查看最终四图并以COPYFILE_EXCL逐字节复制，不覆盖旧PNG；[冻结工程报告](../completed/2026-10-22-garment-shipment-read-ui-engineering.md)及四图commit为a21a5acec9ce00485e96067405c3d6e667c73186，报告LF SHA256 e98df9d8a72a993f82acca30fd455bdcc319bdd697d62951c7fb52aa43fedb40。报告区分每项测试时点、真实与注入403、单纯业务确认与人工UI接受、旧CI与本轮REMOTE pending；禁止后续覆盖。
+
+清单现前向加报告+4PNG及独立只读UI能力，259证据/54能力；Node deepEqual逐项验证原254证据、53能力、全部runtimeSnapshots未变。新能力 implemented=yes、isolatedTest=passed-historical、merged=false、humanAcceptance=not-run、sourceActivation=not-connected、18443/18444 not-deployed，各维度使用新冻结报告，runtime原SHA/image不改。该元数据增量仍须完整项目/发布负向、工作树及最终commit精确门禁，当前不预写最终PASS。不新增真实查询/Source激活/环境动作或重复累计PR。
+
+最终新清单后重跑：927项目全部通过（246765.3899ms），116发布负向/响应式全部通过（245058.1755ms）；新259/54工作树守卫PASS，checkedHead a21a、11页/80累计UI路径/errors=[]。独立metadata复审核对全部旧记录、新blob/hash/祖先关系与4图、测试尾部，无剩余P1/P2；feature末尾过期笼统UI措辞已收紧为“后续采集操作UI”。仅将本Phase七份文档/清单stage收口。最终元数据提交后再查精确HEAD守卫，非自引用结果保存ignored outputs/garment-read-gate7c/checkpoint-final.json；文件不存在或非PASS时不得凭本段假报精确提交门禁。没有新Git远端写入、PR/CI或真实Source动作，完整Goal继续。

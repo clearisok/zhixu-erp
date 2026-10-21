@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
-  "verifiedAt": "2026-10-21",
+  "verifiedAt": "2026-10-22",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -2119,6 +2119,55 @@
       "renderedSourceSha": "99c52a526f59253d9da124c3bb9b54f077b6c115",
       "sha256": "d96aea2e1810408122072f02bc5b5bc064da1d70f9808fcfaf444379ee8aea05",
       "changeReason": "New immutable Gate7A synthetic engineering report: checked exact-query observations, trusted physical/effective order scope, frozen colors, bounded history and recovery. No event-ledger, real collection/activation, UI or closing claim; prior evidence remains unchanged."
+    },
+    {
+      "id": "server-garment-shipment-read-ui-engineering-20261022",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-22-garment-shipment-read-ui-engineering.md",
+      "recordedAtSha": "a21a5acec9ce00485e96067405c3d6e667c73186",
+      "renderedSourceSha": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+      "sha256": "e98df9d8a72a993f82acca30fd455bdcc319bdd697d62951c7fb52aa43fedb40",
+      "changeReason": "New independently reviewed synthetic engineering evidence for the D147 Server garment read surface, D152 Num/outdate and D153 observation-only boundary. Keep all prior records, hashes and activation/deployment/human-acceptance limits."
+    },
+    {
+      "id": "server-garment-read-current-1440-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-22-garment-shipment-ui/current-1440.png",
+      "recordedAtSha": "a21a5acec9ce00485e96067405c3d6e667c73186",
+      "renderedSourceSha": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+      "sha256": "80e40a39cb13c323d69980661a6e8973e0c5f09be96473095623445b50311d08",
+      "approvalEvidence": "server-garment-shipment-read-ui-engineering-20261022",
+      "changeReason": "New synthetic built Chromium screenshot within user-approved D147 Server garment read scope, local V2 impact. No prior PNG overwritten and no user visual acceptance or deployment claimed."
+    },
+    {
+      "id": "server-garment-read-current-390-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-22-garment-shipment-ui/current-390.png",
+      "recordedAtSha": "a21a5acec9ce00485e96067405c3d6e667c73186",
+      "renderedSourceSha": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+      "sha256": "a9c61633933a40e83c4c0c325e110468d764191a9909c14fc17b3f6ad39db491",
+      "approvalEvidence": "server-garment-shipment-read-ui-engineering-20261022",
+      "changeReason": "New synthetic built Chromium screenshot within user-approved D147 Server garment read scope, local V2 impact. No prior PNG overwritten and no user visual acceptance or deployment claimed."
+    },
+    {
+      "id": "server-garment-read-historical-detail-1440-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-22-garment-shipment-ui/historical-detail-1440.png",
+      "recordedAtSha": "a21a5acec9ce00485e96067405c3d6e667c73186",
+      "renderedSourceSha": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+      "sha256": "f7885ac55a4eb006f25016e15fe7104279ea942971c365473ba9e7035cb1b027",
+      "approvalEvidence": "server-garment-shipment-read-ui-engineering-20261022",
+      "changeReason": "New synthetic built Chromium screenshot within user-approved D147 Server garment read scope, local V2 impact. No prior PNG overwritten and no user visual acceptance or deployment claimed."
+    },
+    {
+      "id": "server-garment-read-historical-detail-390-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-22-garment-shipment-ui/historical-detail-390.png",
+      "recordedAtSha": "a21a5acec9ce00485e96067405c3d6e667c73186",
+      "renderedSourceSha": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+      "sha256": "e20dce6e4a35d3099a5711702662771df3f267c6bf7b6c0f59c12988c63ae766",
+      "approvalEvidence": "server-garment-shipment-read-ui-engineering-20261022",
+      "changeReason": "New synthetic built Chromium screenshot within user-approved D147 Server garment read scope, local V2 impact. No prior PNG overwritten and no user visual acceptance or deployment claimed."
     }
   ],
   "pages": [
@@ -7396,6 +7445,91 @@
           "evidence": [
             "server-garment-shipment-observations-engineering-20261021"
           ]
+        }
+      }
+    },
+    {
+      "id": "garment-shipment-read-ui-server",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate7C Server garment observations on existing order detail: strict quantity-only bounded DTO/client, original stored expiry, monotonic stale labels retaining history, current versus selected publication isolation, frozen colors, full INT cursor/empty-page continuation and layout session/epoch leases. Default-collapsed Foundation current table/mobile records and history cards/Drawer, exact4066 built six-width and seven-role synthetic acceptance. No Source request/activation, live collector, event accumulation/cancellation inference, commercial or production mutation, closing, Browser migration, deployment or user acceptance.",
+      "evidence": [
+        "server-garment-shipment-read-ui-engineering-20261022"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+          "scope": "D147 Gate7C Server garment observations on existing order detail: strict quantity-only bounded DTO/client, original stored expiry, monotonic stale labels retaining history, current versus selected publication isolation, frozen colors, full INT cursor/empty-page continuation and layout session/epoch leases. Default-collapsed Foundation current table/mobile records and history cards/Drawer, exact4066 built six-width and seven-role synthetic acceptance. No Source request/activation, live collector, event accumulation/cancellation inference, commercial or production mutation, closing, Browser migration, deployment or user acceptance.",
+          "evidence": [
+            "server-garment-shipment-read-ui-engineering-20261022"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-22",
+          "sourceSha": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+          "scope": "False at independently verified main996; no automatic merge.",
+          "evidence": [
+            "server-garment-shipment-read-ui-engineering-20261022"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+          "scope": "85 directed contracts/client/disposable PG/session HTTP/upgrade, 13 exact4066 built garment browser checks, 14 original P6 built regressions, 70 default source passes with 1 existing Windows skip. Final manifest/source gate is tracked separately.",
+          "evidence": [
+            "server-garment-shipment-read-ui-engineering-20261022"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+          "scope": "Not run. Num/outdate confirmation is a business rule and does not accept this Server UI.",
+          "evidence": [
+            "server-garment-shipment-read-ui-engineering-20261022"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+          "scope": "Default disabled and not connected. No new real Source quota consumed, credential/report read, collector, target binding/activation or scheduler.",
+          "evidence": [
+            "server-garment-shipment-read-ui-engineering-20261022"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Not deployed or re-observed; preserve dated historical runtime/source/image identity without asserting the new application runs there.",
+          "evidence": [
+            "server-garment-shipment-read-ui-engineering-20261022"
+          ],
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Not deployed or re-observed; preserve dated historical runtime/source/image identity without asserting the new application runs there.",
+          "evidence": [
+            "server-garment-shipment-read-ui-engineering-20261022"
+          ],
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444"
         }
       }
     }
