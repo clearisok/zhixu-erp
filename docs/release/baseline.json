@@ -2026,6 +2026,14 @@
       "sha256": "7ec3d115362c3858d3244afff6987d00d59c71884c70dc13cc7ea611aa925118",
       "supersedes": "decisions-server-production-execution-ui-20261021",
       "changeReason": "D152 records the user-confirmed 6086979 Num/outdate garment shipment rule and bounded D1933 observation. Preserve every prior decision blob, all capability statuses, screenshots and deployment/activation boundaries; this is a forward document version only."
+    },
+    {
+      "id": "logistics-resource-server-engineering-20261021",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-21-logistics-resources-ui-engineering.md",
+      "recordedAtSha": "b58a5bd3f32f6c500a446b82c238d338349a4761",
+      "renderedSourceSha": "f4c3aa06ffcd8adf4bed39ba99bc0e336dceb451",
+      "sha256": "8c511b87dc48aa074269df16e4377043a23820965ef613fef29be979d1c778f4"
     }
   ],
   "pages": [
@@ -6877,76 +6885,77 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source.",
+      "scope": "D147 Gate6A/6D six empty Server production resources: calendars/date exceptions, sites, groups, independent outsource factories, supply hubs and complete transport-plan modes, on existing card/table/drawer routes. Explicit paged parents, Server-generated member IDs, full-membership CAS, current fresh grants, atomic audit and verified original-command receipts, parent-read session leases, version-matched detail cards and full Hub counts. Exact f4 build and six-width Chromium acceptance; Browser stores, old resource layouts and historical evidence retained. No order-Hub adoption, material logistics execution, garment shipment, closing/FX, real Source activation, environment upgrade or human acceptance.",
       "evidence": [
-        "production-resource-server-engineering-20261020"
+        "production-resource-server-engineering-20261020",
+        "logistics-resource-server-engineering-20261021"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
-          "assessedAt": "2026-10-20",
-          "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source. Local isolated engineering only; remote delivery and CI are independently checked at the final head.",
-          "sourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6A/6D six empty Server production resources: calendars/date exceptions, sites, groups, independent outsource factories, supply hubs and complete transport-plan modes, on existing card/table/drawer routes. Explicit paged parents, Server-generated member IDs, full-membership CAS, current fresh grants, atomic audit and verified original-command receipts, parent-read session leases, version-matched detail cards and full Hub counts. Exact f4 build and six-width Chromium acceptance; Browser stores, old resource layouts and historical evidence retained. No order-Hub adoption, material logistics execution, garment shipment, closing/FX, real Source activation, environment upgrade or human acceptance. Local isolated engineering; merged=false at verified main996, no new remote delivery or Hosted CI.",
+          "sourceSha": "f4c3aa06ffcd8adf4bed39ba99bc0e336dceb451",
           "evidence": [
-            "production-resource-server-engineering-20261020"
+            "logistics-resource-server-engineering-20261021"
           ]
         },
         "merged": {
           "value": false,
-          "assessedAt": "2026-10-20",
-          "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source. Local isolated engineering only; remote delivery and CI are independently checked at the final head.",
-          "sourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6A/6D six empty Server production resources: calendars/date exceptions, sites, groups, independent outsource factories, supply hubs and complete transport-plan modes, on existing card/table/drawer routes. Explicit paged parents, Server-generated member IDs, full-membership CAS, current fresh grants, atomic audit and verified original-command receipts, parent-read session leases, version-matched detail cards and full Hub counts. Exact f4 build and six-width Chromium acceptance; Browser stores, old resource layouts and historical evidence retained. No order-Hub adoption, material logistics execution, garment shipment, closing/FX, real Source activation, environment upgrade or human acceptance. Local isolated engineering; merged=false at verified main996, no new remote delivery or Hosted CI.",
+          "sourceSha": "f4c3aa06ffcd8adf4bed39ba99bc0e336dceb451",
           "evidence": [
-            "production-resource-server-engineering-20261020"
+            "logistics-resource-server-engineering-20261021"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
-          "assessedAt": "2026-10-20",
-          "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source. Local isolated engineering only; remote delivery and CI are independently checked at the final head.",
-          "sourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6A/6D six empty Server production resources: calendars/date exceptions, sites, groups, independent outsource factories, supply hubs and complete transport-plan modes, on existing card/table/drawer routes. Explicit paged parents, Server-generated member IDs, full-membership CAS, current fresh grants, atomic audit and verified original-command receipts, parent-read session leases, version-matched detail cards and full Hub counts. Exact f4 build and six-width Chromium acceptance; Browser stores, old resource layouts and historical evidence retained. No order-Hub adoption, material logistics execution, garment shipment, closing/FX, real Source activation, environment upgrade or human acceptance. Local isolated engineering; merged=false at verified main996, no new remote delivery or Hosted CI.",
+          "sourceSha": "f4c3aa06ffcd8adf4bed39ba99bc0e336dceb451",
           "evidence": [
-            "production-resource-server-engineering-20261020"
+            "logistics-resource-server-engineering-20261021"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
-          "assessedAt": "2026-10-20",
-          "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source. Local isolated engineering only; remote delivery and CI are independently checked at the final head.",
-          "sourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6A/6D six empty Server production resources: calendars/date exceptions, sites, groups, independent outsource factories, supply hubs and complete transport-plan modes, on existing card/table/drawer routes. Explicit paged parents, Server-generated member IDs, full-membership CAS, current fresh grants, atomic audit and verified original-command receipts, parent-read session leases, version-matched detail cards and full Hub counts. Exact f4 build and six-width Chromium acceptance; Browser stores, old resource layouts and historical evidence retained. No order-Hub adoption, material logistics execution, garment shipment, closing/FX, real Source activation, environment upgrade or human acceptance. Local isolated engineering; merged=false at verified main996, no new remote delivery or Hosted CI.",
+          "sourceSha": "f4c3aa06ffcd8adf4bed39ba99bc0e336dceb451",
           "evidence": [
-            "production-resource-server-engineering-20261020"
+            "logistics-resource-server-engineering-20261021"
           ]
         },
         "sourceActivation": {
           "value": "not-applicable",
-          "assessedAt": "2026-10-20",
-          "scope": "D147 Gate6A empty Server calendars/date exceptions, sites, groups and independent outsource factories with existing-field/table/card/drawer routes, paged lookups, fresh grants, CAS, atomic audit and verified original-command receipts. No Browser fallback, default seeds, schedule/completion/shipment/closing/FX or real-environment upgrade. The two selector-only acceptance corrections do not change the frozen application source. Local isolated engineering only; remote delivery and CI are independently checked at the final head.",
-          "sourceSha": "1da0b546e00c5eb6d4d215757f85e96c57a8f306",
+          "assessedAt": "2026-10-21",
+          "scope": "D147 Gate6A/6D six empty Server production resources: calendars/date exceptions, sites, groups, independent outsource factories, supply hubs and complete transport-plan modes, on existing card/table/drawer routes. Explicit paged parents, Server-generated member IDs, full-membership CAS, current fresh grants, atomic audit and verified original-command receipts, parent-read session leases, version-matched detail cards and full Hub counts. Exact f4 build and six-width Chromium acceptance; Browser stores, old resource layouts and historical evidence retained. No order-Hub adoption, material logistics execution, garment shipment, closing/FX, real Source activation, environment upgrade or human acceptance. Local isolated engineering; merged=false at verified main996, no new remote delivery or Hosted CI.",
+          "sourceSha": "f4c3aa06ffcd8adf4bed39ba99bc0e336dceb451",
           "evidence": [
-            "production-resource-server-engineering-20261020"
+            "logistics-resource-server-engineering-20261021"
           ]
         },
         "trial18443": {
           "value": "not-deployed",
-          "assessedAt": "2026-10-20",
-          "scope": "New Server production-resource candidate not deployed. Historical runtime identifiers retained without re-observation.",
+          "assessedAt": "2026-10-21",
+          "scope": "This new six-resource Server candidate was not deployed by this Gate. Historical runtime source/image identifiers retained without re-observation.",
           "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
           "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
           "runtimeId": "trial18443",
           "evidence": [
-            "production-resource-server-engineering-20261020"
+            "logistics-resource-server-engineering-20261021"
           ]
         },
         "preview18444": {
           "value": "not-deployed",
-          "assessedAt": "2026-10-20",
-          "scope": "New Server production-resource candidate not deployed. Historical runtime identifiers retained without re-observation.",
+          "assessedAt": "2026-10-21",
+          "scope": "This new six-resource Server candidate was not deployed by this Gate. Historical runtime source/image identifiers retained without re-observation.",
           "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444",
           "evidence": [
-            "production-resource-server-engineering-20261020"
+            "logistics-resource-server-engineering-20261021"
           ]
         }
       }

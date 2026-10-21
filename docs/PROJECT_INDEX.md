@@ -5,7 +5,7 @@
 [本阶段任务](tasks/active/server-convergence-gate6d-logistics-ui-2026-10-21.md)与[工程记录](tasks/completed/2026-10-21-logistics-resources-ui-engineering.md)是物流页面恢复入口。
 
 Gate6D既有卡/抽屉已接Server仓/完整运输方案，共用原服务/权限/回执，Browser持久化不改。最终应用源f4c3aa06、build20261021-152547；实际built23/23（22子项+父项）、61后台/21客户端/14Browser模型通过；927项目/116基线按修复前后时序保留，类型/全lint/前端及顺序Node构建/精确main守卫/独立复审通过。
-旧244证据、51能力及PNG先保持；本阶段工程记录先冻结，再前向扩现有资源能力范围。远端仍STOP（664f实际push exit1具体原因未知），新只读诊断可读main不证明推送恢复；无新PR/CI/合并或部署。
+原244证据及历史PNG保持，新增物流工程文档证据为245；51能力中只扩现有资源能力到六资料，其他50项不变。b58冻结报告/hash与清单经独立复审核对，main996源码守卫PASS。远端仍STOP（664f实际push exit1具体原因未知），新只读诊断可读main不证明推送恢复；无新PR/CI/合并或部署。
 Gate7 [D1933观察](tasks/completed/2026-10-21-garment-shipment-d1933.md)16/16行9869件，D152确认Num/outdate，不自动关账/收入。D1935/D1933两次真实许可用完，正式成衣Source跨次身份/合同颜色/API/UI仍待。订单Hub/逐物料物流接线也仍待。
 保护3001/50426/59069/62426、旧卷/工作树/Browser；62426仍8175。工程授权不扩真实账号/业务库/Source/部署/退役。Gate8其他口径未决，Goal active/未完成。
 ## 系统简介

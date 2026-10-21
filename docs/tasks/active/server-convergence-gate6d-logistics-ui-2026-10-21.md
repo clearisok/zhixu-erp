@@ -50,3 +50,5 @@ UI影响按RELEASE_BASELINE_GUARD登记精确路径V1：恢复原已批准区域
 本阶段基线116/116（300921.5408ms）及最终全lint exit0通过；927广回归和116均保留实际时序，不借这些称新Hosted CI/部署。完整事实与能力范围见[冻结工程记录](../completed/2026-10-21-logistics-resources-ui-engineering.md)。该记录与测试等待修正先保存Git，再新增独立文档证据到现有资源能力；不覆盖旧244证据/其他能力/历史PNG，清单收口后只再查最终精确HEAD守卫。
 
 本阶段Git仅只读诊断：默认/HTTP1.1可读精确main，OpenSSL进程对照失败，未改配置/提交push；旧664f实际非零原因仍未证实，STOP不放宽，当前无新PR/CI。现有入口及真实数据不变。目标active/未完成，下一独立工程是订单Hub/逐物料物流及成衣Source可信身份接线，不因此授权新增真实查询/激活/部署。
+
+冻结工程报告/测试修正已提交b58a5bd3f32f6c500a446b82c238d338349a4761，应用代码/SQL仍与f4相同。前向新增logistics-resource-server-engineering-20261021，Git blob SHA256=8c511b87dc48aa074269df16e4377043a23820965ef613fef29be979d1c778f4，原244条完整保留共245；仍51能力，仅扩现有production-resource-server范围及七维度证据，其他50/历史环境标识/旧PNG不变。既有reviewer独立实算blob并逐项核对无阻断；新清单working-tree对main996守卫PASS（11页/51能力/64累计UI路径/errors空）。最终只提交这份清单及摘要收口，再核对精确HEAD，不生成自引用SHA或覆盖冻结报告。
