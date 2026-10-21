@@ -56,12 +56,14 @@ test('manual material arrivals and original logistics run on the exact built Ser
     const target = await command('Target.createTarget', { url: 'about:blank' }, undefined); session = (await command('Target.attachToTarget', { targetId: target.targetId, flatten: true }, undefined)).sessionId;
     await command('Page.enable'); await command('Runtime.enable'); await command('Network.enable');
     await command('Page.addScriptToEvaluateOnNewDocument', { source: `
-      window.arrivalWire={posts:[],requests:[],postMode:'ready',receiptMode:'ready',historyMode:'ready',readMode:'ready',sourceMode:'ready',postWaiters:[],receiptWaiters:[],historyWaiters:[]};
+      window.arrivalWire={posts:[],requests:[],postMode:'ready',receiptMode:'ready',historyMode:'ready',readMode:'ready',sourceMode:'ready',postWaiters:[],receiptWaiters:[],historyWaiters:[],readWaiters:[],activationAttempts:0,plannerClicks:[]};
+      document.addEventListener('click',event=>{const b=event.target.closest('button');if(b&&b.closest('.sp-v4-material-card')&&['分批到料','到料计划'].includes(b.textContent))arrivalWire.plannerClicks.push({disabled:b.disabled,connected:b.isConnected});},true);
       window.arrivalFetch=window.fetch;window.fetch=async(input,init)=>{const u=new URL(String(input),location.href),m=init?.method??'GET',w=arrivalWire;w.requests.push({path:u.pathname,method:m});
         if(u.pathname==='/api/v1/material-arrivals/commands'&&m==='POST'){w.posts.push(JSON.parse(init.body));const mode=w.postMode;w.postMode='ready';if(mode==='before')throw Error('synthetic before send');const r=await arrivalFetch(input,init);if(mode==='lost')throw Error('synthetic lost reply');if(mode==='hold200'||mode==='hold401')return new Promise(done=>w.postWaiters.push(()=>done(mode==='hold401'?Response.json({error:{code:'authentication_required'}},{status:401}):r)));return r;}
         if(u.pathname.startsWith('/api/v1/material-arrivals/commands/')&&m==='GET'){const mode=w.receiptMode;w.receiptMode='ready';const r=await arrivalFetch(input,init);if(mode==='mismatch'){const d=await r.json();return Response.json({...d,payloadHash:'f'.repeat(64)});}if(mode==='hold200'||mode==='hold401')return new Promise(done=>w.receiptWaiters.push(()=>done(mode==='hold401'?Response.json({error:{code:'authentication_required'}},{status:401}):r)));return r;}
         if(u.pathname.endsWith('/history')&&u.pathname.startsWith('/api/v1/material-arrivals/')){const mode=w.historyMode;w.historyMode='ready';const r=await arrivalFetch(input,init);if(mode==='hold401')return new Promise(done=>w.historyWaiters.push(()=>done(Response.json({error:{code:'authentication_required'}},{status:401}))));return r;}
         if(u.pathname.startsWith('/api/v1/material-arrivals/orders/')&&!u.pathname.endsWith('/history')&&w.readMode==='401'){w.readMode='ready';return Response.json({error:{code:'authentication_required'}},{status:401});}
+        if(u.pathname.startsWith('/api/v1/material-arrivals/orders/')&&!u.pathname.endsWith('/history')&&w.readMode==='hold200'){w.readMode='ready';const r=await arrivalFetch(input,init);return new Promise(done=>w.readWaiters.push(()=>done(r)));}
         if(u.pathname.endsWith('/material-progress')&&w.sourceMode==='503'){w.sourceMode='ready';await arrivalFetch(input,init);return Response.json({error:{code:'synthetic_source_read_unavailable'}},{status:503});}
         return arrivalFetch(input,init);
       };` });
@@ -75,8 +77,11 @@ test('manual material arrivals and original logistics run on the exact built Ser
     const loginCookie = async username => { const cookie = await x.login(username), i = cookie.indexOf('='); await command('Network.setCookie', { name: cookie.slice(0, i), value: cookie.slice(i + 1), domain: '127.0.0.1', path: '/', httpOnly: true }); };
     const loginUI = async username => { await until(() => evaluate("!!document.querySelector('input[name=username]')"), 'login card'); await field('input[name=username]', username); await field('input[name=password]', x.password); await evaluate("document.querySelector('input[name=username]').closest('form').requestSubmit()"); await has('合成缝纫线'); };
     const logout = async () => { await evaluate("document.querySelector('[aria-label=用户菜单]').click()"); await click('退出登录'); await until(() => evaluate("!!document.querySelector('input[name=username]')"), 'logged out'); };
-    const open = async (name = '合成缝纫线') => { await until(() => evaluate(`(()=>{const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.querySelector('.sp-v4-material-identity strong')?.textContent===${JSON.stringify(name)});const b=c&&[...c.querySelectorAll('button')].find(n=>['分批到料','到料计划'].includes(n.textContent));return b&&!b.disabled})()`), 'planner action'); await evaluate(`(()=>{const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.querySelector('.sp-v4-material-identity strong')?.textContent===${JSON.stringify(name)});[...c.querySelectorAll('button')].find(n=>['分批到料','到料计划'].includes(n.textContent)).click()})()`); await has('分批预计到料'); };
-    const openSaved = async () => { const find="(()=>{const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.querySelector('.sp-v4-material-head>strong')?.textContent==='合成缝纫线 · 已保存计划');return c&&[...c.querySelectorAll('button')].find(n=>['分批到料','到料计划'].includes(n.textContent))})()"; await until(()=>evaluate('!!'+find+'&&!'+find+'.disabled'),'saved planner action'); await evaluate(find+'.click()'); await has('分批预计到料'); };
+    // Source completion can start another arrival GET between separate CDP calls.
+    // Only poll before activation; check and click atomically once, then await the dialog.
+    const activatePlanner = (name, saved) => evaluate(`(()=>{arrivalWire.activationAttempts++;const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.querySelector(${JSON.stringify(saved ? '.sp-v4-material-head>strong' : '.sp-v4-material-identity strong')})?.textContent===${JSON.stringify(name)});const b=c&&[...c.querySelectorAll('button')].find(n=>['分批到料','到料计划'].includes(n.textContent));if(!b||!b.isConnected||b.disabled)return false;b.click();return true})()`);
+    const open = async (name = '合成缝纫线') => { await until(() => activatePlanner(name, false), 'planner action'); await has('分批预计到料'); };
+    const openSaved = async () => { await until(() => activatePlanner('合成缝纫线 · 已保存计划', true), 'saved planner action'); await has('分批预计到料'); };
     const preview = async () => { await click('预览变更', '.sp-v4-planner button'); await has('确认本次计划'); };
     const version = async () => (await x.pool.query('SELECT max(version)::int n FROM material_arrival_plans')).rows[0].n ?? 0;
     const pendingRaw = () => evaluate("Object.keys(sessionStorage).filter(k=>k.startsWith('zhixu.server.material-arrival.pending.v1.')).map(k=>sessionStorage.getItem(k))");
@@ -152,6 +157,25 @@ test('manual material arrivals and original logistics run on the exact built Ser
       const before = await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length"); await evaluate("window.dispatchEvent(new Event('focus'))");
       await until(async () => await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length") > before, 'same Source error has a new completed read');
       await openSaved(); await has('2027-01-07'); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='＋ 增加批次').disabled"), true); await click('到料历史', '.sp-v4-planner button'); await until(() => evaluate("document.querySelectorAll('[data-arrival-history-version]').length===7"), 'source-free history'); await shot('source-unavailable-history'); await evaluate("document.querySelector('.qc-drawer>header>button').click()"); await click('取消', '.sp-v4-planner button'); x.setMode('ready'); await x.capture(); await click('刷新来源'); await has('合成缝纫线');
+    });
+    await phase('Source-triggered arrival reload cannot consume a disabled read-only activation', async () => {
+      await loginCookie('demo.finance'); await navigate();
+      const find="(()=>{const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.querySelector('.sp-v4-material-identity strong')?.textContent==='合成缝纫线');return c&&[...c.querySelectorAll('button')].find(n=>n.textContent==='到料计划')})()";
+      await until(()=>evaluate('!!'+find+'&&!'+find+'.disabled'),'initial read-only action enabled');
+      const before=await evaluate("({clicks:arrivalWire.plannerClicks.length,reads:arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length})");
+      await evaluate("arrivalWire.readMode='hold200';window.dispatchEvent(new Event('focus'))");
+      await until(()=>evaluate('arrivalWire.readWaiters.length===1&&!!'+find+'&&'+find+'.disabled'),'Source completion holds new arrival read and disables action');
+      const ignored=await evaluate(`(()=>{const b=${find},clicks=arrivalWire.plannerClicks.length,captured={disabled:b.disabled,connected:b.isConnected};b.click();return {...captured,clicksBefore:clicks,clicksAfter:arrivalWire.plannerClicks.length}})()`);
+      assert.deepEqual(ignored,{disabled:true,connected:true,clicksBefore:before.clicks,clicksAfter:before.clicks});
+      const attempts=await evaluate('arrivalWire.activationAttempts'),opening=open();
+      void opening.catch(()=>undefined);
+      await until(()=>evaluate('arrivalWire.activationAttempts>'+attempts),'atomic helper checked blocked action');
+      assert.equal(await evaluate('arrivalWire.plannerClicks.length'),before.clicks);
+      await evaluate('arrivalWire.readWaiters.splice(0).forEach(done=>done())');await opening;
+      const after=await evaluate("({clicks:arrivalWire.plannerClicks.length,last:arrivalWire.plannerClicks.at(-1),reads:arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length})");
+      assert.equal(after.clicks,before.clicks+1);assert.deepEqual(after.last,{disabled:false,connected:true});assert.ok(after.reads>before.reads);
+      assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner input')].every(n=>n.disabled)"),true);await click('关闭','.sp-v4-planner button');assert.equal(await version(),7);
+      t.diagnostic(JSON.stringify({controlledActivation:{ignored,before,after},synthetic:true,productionRootCauseNotInferred:true}));
     });
     await phase('read-only role never receives edit controls or Browser fallback', async () => {
       await loginCookie('demo.finance'); await navigate(); await open(); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner input')].every(n=>n.disabled)"), true); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='预览变更').disabled"), true); await click('关闭', '.sp-v4-planner button');
