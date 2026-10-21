@@ -51,3 +51,7 @@ Git664f非零push具体原因未明，相关写入STOP保留；本阶段只读ma
 类型v2通过；lint初轮23错3警告（render ref），改layout owner后v2余1错1警告（effect同步状态）；改为外部恢复微任务并memo可见状态，v3全量exit0。
 独立只读复审发现并关闭4项P2：设置导航守卫、preview tracking/source一致性、129位派生余额、Drawer layout清理前旧401。
 实际built浏览器/六宽度、完整回归、精确发布守卫尚未执行，不把本checkpoint称最终PASS。日志保存在outputs/g6e-arrivals-*。
+
+首个应用checkpoint f28762005ee2587ae859a89b1b02c71edaf963f6。前端/Node构建exit0；首次构建仅短SHA，未用于验收，重建完整SHA的build20261021-203457后开始私有Chromium。
+首UI尝试因测试误用tracking表名失败；v2实际发现刷新期间仍可打开旧Hub的初始Modal，新增批次停留禁用。入口改为等待当前计划读取完成（不自动改写已开草稿）。相关从属场景首次未通过，完整日志保留，不将连带失败当独立产品缺陷。测试改为首依赖失败即停，并按单位定位分配字段，避免随机UUID排序假设。
+精确main源码守卫f287通过：11页/52能力/75累计UI路径/errors空；不是像素/业务验收。

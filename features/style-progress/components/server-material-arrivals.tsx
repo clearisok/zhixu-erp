@@ -147,7 +147,7 @@ export function ServerMaterialArrivalWorkspace({ controller, currentKeys, childr
   const blocked = controller.busy || Boolean(controller.pending) || controller.pendingUnavailable;
   const permit = useServerNavigationProtection({ blocked, message: "请先核对分批到料的原请求。原记录已保留，不会自动重试。" });
   const open = (key: string, name: string) => { if (controller.read) setEditor({ token: controller.token, key, name, scope: controller.read, id: ++count.current }); };
-  const actions = (key: string, name: string) => <Button variant="secondary" size="compact" disabled={!controller.read} onClick={() => open(key, name)}>{controller.read?.canEdit ? "分批到料" : "到料计划"}</Button>;
+  const actions = (key: string, name: string) => <Button variant="secondary" size="compact" disabled={!controller.read || controller.loading} onClick={() => open(key, name)}>{controller.read?.canEdit ? "分批到料" : "到料计划"}</Button>;
   const summary = (key: string) => { const row = controller.read?.plans.find(x => x.plan.canonicalKey === key); return row && controller.read ? <SavedArrivalPlan plan={row.plan} planIssues={row.issues} scope={controller.read} /> : null; };
   const orphaned = controller.read?.plans.filter(x => !currentKeys.includes(x.plan.canonicalKey)) ?? [];
   return <>
