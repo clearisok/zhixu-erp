@@ -71,7 +71,7 @@ function ArrivalHistoryDrawer({ controller, canonicalKey, name, onClose }: { con
 function ArrivalPlanner({ controller, initial, canonicalKey, name, onClose, onHistory }: { controller: MaterialArrivalsController; initial: ArrivalRead; canonicalKey: string; name: string; onClose: () => void; onHistory: () => void }) {
   const [scope, setScope] = useState(initial), [drafts, setDrafts] = useState<ArrivalDraftBatch[]>(() => arrivalDrafts(initial.plans.find(x => x.plan.canonicalKey === canonicalKey)?.plan ?? null));
   const [preview, setPreview] = useState<ArrivalPreview | null>(null), [error, setError] = useState(""), [busy, setBusy] = useState(false), [confirmClose, setConfirmClose] = useState(false);
-  const lifecycle = useRef({ active: false, epoch: 0 }), sequence = useRef(0), draftRef = useRef(drafts);
+  const lifecycle = useRef({ active: false, epoch: 0 }), sequence = useRef(0), draftRef = useRef(drafts), inFlight = useRef(false);
   useLayoutEffect(() => { draftRef.current = drafts; }, [drafts]);
   useLayoutEffect(() => { const life = lifecycle.current, readSequence = sequence; life.active = true; life.epoch += 1;
     return () => { life.active = false; life.epoch += 1; readSequence.current += 1; }; }, []);
@@ -81,23 +81,24 @@ function ArrivalPlanner({ controller, initial, canonicalKey, name, onClose, onHi
   const editable = scope.canEdit && Boolean(controller.read?.canEdit) && controller.session.hasPermission("style_progress.edit") && !controller.error && !controller.loading && !locked;
   useServerNavigationProtection({ dirty, blocked: busy || controller.busy });
   const currentLease = () => { const owner = controller.lease(), epoch = lifecycle.current.epoch, ticket = ++sequence.current; return () => owner() && lifecycle.current.active && lifecycle.current.epoch === epoch && sequence.current === ticket; };
-  const update = (next: ArrivalDraftBatch[]) => { if (!editable) return; setDrafts(next); setPreview(null); setError(""); };
-  const close = () => { if (busy || controller.busy) return; if (dirty && !controller.pending) setConfirmClose(true); else onClose(); };
-  const readAgain = async () => { const current = currentLease(); setBusy(true); setError(""); setPreview(null);
-    try { const read = await controller.reload(); if (current() && read) setScope(read); } catch (reason) { if (current()) setError(materialArrivalMessage(reason)); } finally { if (current()) setBusy(false); } };
+  const update = (next: ArrivalDraftBatch[]) => { if (!editable || inFlight.current) return; setDrafts(next); setPreview(null); setError(""); };
+  const close = () => { if (inFlight.current || busy || controller.busy) return; if (dirty && !controller.pending) setConfirmClose(true); else onClose(); };
+  const readAgain = async () => { if (inFlight.current) return; inFlight.current = true; const current = currentLease(); setBusy(true); setError(""); setPreview(null);
+    try { const read = await controller.reload(); if (current() && read) setScope(read); } catch (reason) { if (current()) setError(materialArrivalMessage(reason)); } finally { inFlight.current = false; if (current()) setBusy(false); } };
   const review = async () => {
+    if (!editable || inFlight.current) return; inFlight.current = true;
     const current = currentLease(), snapshot = canonicalPlanJson(draftRef.current); setBusy(true); setError(""); setPreview(null);
     try { const intent = arrivalDraftIntent(scope.order.id, canonicalKey, saved?.plan.version ?? 0, draftRef.current);
       const fresh = await controller.reload(); if (!current() || !fresh) return;
       const result = await controller.preview(intent, fresh, current);
       if (current() && snapshot === canonicalPlanJson(draftRef.current)) { setScope(fresh); setPreview(result); } }
-    catch (reason) { if (current()) setError(materialArrivalMessage(reason)); } finally { if (current()) setBusy(false); }
+    catch (reason) { if (current()) setError(materialArrivalMessage(reason)); } finally { inFlight.current = false; if (current()) setBusy(false); }
   };
   const save = async () => {
-    if (!preview || !editable) return; const current = currentLease(); setBusy(true); setError("");
+    if (!preview || !editable || inFlight.current) return; inFlight.current = true; const current = currentLease(); setBusy(true); setError("");
     try { const intended = arrivalDraftIntent(scope.order.id, canonicalKey, saved?.plan.version ?? 0, draftRef.current); if (canonicalPlanJson(intended) !== canonicalPlanJson(preview.intent)) throw new MaterialArrivalError(409, "material_arrival_preview_changed");
       const result = await controller.submit(preview.intent, preview.previewHash); if (current()) { if (result.status === "applied") onClose(); else { setPreview(null); setError(materialArrivalMessage(new MaterialArrivalError(result.error.status, result.error.code))); } } }
-    catch (reason) { if (current()) setError(materialArrivalMessage(reason)); } finally { if (current()) setBusy(false); }
+    catch (reason) { if (current()) setError(materialArrivalMessage(reason)); } finally { inFlight.current = false; if (current()) setBusy(false); }
   };
   const logisticsIssues = preview ? [] : saved?.issues ?? [];
   return <><Modal open title="分批预计到料" eyebrow="EXPECTED ARRIVAL AT SUPPLYHUB" description={name + " · 每批填写预计到集货仓日期，允许部分未安排。"} className="sp-v4-planner" onClose={close}
