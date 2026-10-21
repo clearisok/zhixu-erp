@@ -6,7 +6,7 @@ type ReadStorage = Pick<Storage, "getItem">;
 type Scope = { userId: string };
 const maxBytes = 1024 * 1024;
 const unavailable = (): never => { throw new Error("production_plan_pending_unavailable"); };
-/** One unresolved plan OR execution command per actor/tab, with the original key/envelope. */
+/** One unresolved plan, execution OR tracking command per actor/tab; original key/envelope. */
 export const productionPlanPendingKey = (scope: Scope) => "zhixu.server.production-plan.pending.v1." + productionResourceUuid(scope.userId);
 export function readProductionPlanPending(storage: ReadStorage, scope: Scope): ProductionCommand | null {
   const raw = storage.getItem(productionPlanPendingKey(scope)); if (raw === null) return null;

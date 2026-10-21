@@ -6,7 +6,7 @@ import { ProductionResourceError, productionResourceClient, type ProductionResou
 
 type ReferenceKind = "sites" | "calendars" | "groups" | "factories" | "hubs";
 /** A paged lookup, never an incomplete first-page dropdown presented as all records. */
-export function ServerProductionReferencePicker({ kind, value, onChange, isCurrent }: { kind: ReferenceKind; value: string; onChange: (id: string) => void; isCurrent: () => boolean }) {
+export function ServerProductionReferencePicker({ kind, value, onChange, isCurrent, emptyLabel }: { kind: ReferenceKind; value: string; onChange: (id: string) => void; isCurrent: () => boolean; emptyLabel?: string }) {
   const session = useServerSession(), label = { sites: "生产地点", calendars: "工作日历", groups: "生产组", factories: "外发厂", hubs: "集货仓" }[kind];
   const [query, setQuery] = useState(""), [offset, setOffset] = useState(0), [attempt, retry] = useState(0);
   const lease = useMemo(() => ({ session, kind, query, offset, attempt }), [session, kind, query, offset, attempt]);
@@ -46,7 +46,7 @@ export function ServerProductionReferencePicker({ kind, value, onChange, isCurre
   return <div>
     <input className="qc-control" aria-label={`搜索${label}`} placeholder={`搜索${label}，空格为且`} value={query} onChange={event => { if (isCurrent()) { setQuery(event.target.value); setOffset(0); } }} onKeyDown={event => { if (event.key === "Enter" && !event.nativeEvent.isComposing) { event.preventDefault(); event.stopPropagation(); } }} />
     <select className="qc-control" aria-label={`${label}选择`} value={value} onChange={event => { if (isCurrent()) onChange(event.target.value); }}>
-      <option value="">请选择{label}</option>
+      <option value="">{emptyLabel ?? `请选择${label}`}</option>
       {retained && <option value={value}>{current?.result ? current.result.name + (current.result.enabled ? "" : "（已停用）") : current?.error ? "已选资料暂时无法读取" : "正在核对已选资料…"}</option>}
       {options.map(item => <option key={item.id} value={item.id} disabled={!item.enabled && item.id !== value}>{item.name}{item.enabled ? "" : "（已停用）"}</option>)}
     </select>

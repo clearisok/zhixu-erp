@@ -57,3 +57,22 @@
 
 本切片仅一次性合成PG/loopback HTTP，不升级现有体验入口，不读取真实艾诺科、绑定/激活、
 持续调度或部署。后续复用原“物料与运输”弹窗再独立验收客户端与实际浏览器。
+
+## 原页面Server接线（独立工程阶段）
+
+[页面阶段](../tasks/active/server-convergence-gate6d-order-logistics-ui-2026-10-21.md)复用原排单队列更多、订单排单抽屉、
+“物料与运输”Modal、差异表和历史抽屉。当前只承载明确集货仓/备注，不挂载Browser投影或伪造物流风险。
+订单计划先显示；可选跟进资料独立加载，旧抽屉或旧会话迟到响应不更新当前对象，也不以旧401退出新会话。
+
+仓选择复用原资料客户端的显式搜索/分页；无记录为未设置，停用原引用可保留。写入前重新读取/预览；
+冲突保留输入，重新读取后必须再预览。当前只读时展示Server已保存事实，保留的草稿明确标为未应用。
+历史每页25完整事件，固定asOfVersion；之后新增不挤动已打开页面，不以最新仓名覆盖发生时名称。
+
+ProductionCommand向前扩展set_order_tracking，仍共用原transport、权限、会话lease、SHA256与
+`zhixu.server.production-plan.pending.v1.<public-user-id>`的schema1单槽。旧计划/执行包装字节不变；
+本槽任一命令未核对前不能保存第二条。原UUID/意图/hash持久读回后才POST，未知不自动重试，
+仅同session明确GET=unknown后允许人工重试全部原内容。核对回执不冒充当前仓事实，当前内容另行读取。
+不改变localStorage/IndexedDB/Browser namespace、Seed或长期数据；损坏/未来/撤权记录保留。
+
+本阶段先完成纯客户端与真实HTTP契约验证，实际built Chromium、全门禁和精确源码证据仍按页面任务记录；
+本节不表示部署、人工接受或完整到仓/物流闭环。
