@@ -61,3 +61,28 @@ No push is retried in this phase. Num/outdate is already confirmed; pending real
 filter-verification quota and the three closing decisions are not defaulted.
 This phase cannot establish all-domain nonempty historical recovery, an old-target
 upgrade, deployment or user business acceptance. The overall Goal remains active.
+
+## Frozen checkpoint and forward registration
+
+The corrected harness, report and precise input archives are committed as
+`2fdd8b277e870c1e3077ad4f7bf19eb5ad1172f9`; the working tree was clean.
+Precommit main-based guard passed11pages/55capabilities, with80 inherited UI paths
+and no new UI changes in this phase. All three input archive blobs matchf469.
+One new immutable document evidence is now appended, leaving the previous260
+records and all55 capability/status/page/runtime objects unchanged. No deployment
+dimension is promoted. Final release tests and exact committed guard follow.
+
+Metadata main-based guard passed, and the final release suite passed116/116
+with0 failures/skips/cancellations (192535.3855ms). Independent static review
+verified the report's frozen blob/hash, unchanged260 old evidence and55 capability
+objects, and all three input archive blobs. The exact final metadata-commit guard
+and clean state are separately recorded in ignored checkpoint-final.json; no
+second full application/PG/browser run is implied by these document-only changes.
+
+Read-only GitHub review still shows eight open draft PRs120–127, each CLEAN with
+its existing source/team-access/baseline checks successful. Those checks belong
+to their own heads, not this new candidate. Seven heads are actual ancestors;
+#126 head956921f63ba3069c059ca64c2324edbc33afefd8 is not, although its guard,
+guard-test and feature-document blobs exactly match the candidate. Preserve its
+original history in future integration; do not call it automatically included,
+redundant or safe to close. No GitHub write or merge decision was made.

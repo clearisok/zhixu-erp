@@ -2177,6 +2177,15 @@
       "renderedSourceSha": "81a8d600434844784067e7c977a173b566e7c634",
       "sha256": "8840dd082ac01a0ffc4b5526a0098c421d4578bb10f3df3af84fb97135262079",
       "changeReason": "New D147 engineering evidence for explicit offline bound-contract promotion. Preserve prior evidence and distinguish local validation from merge, runtime, real Source activation and user acceptance."
+    },
+    {
+      "id": "server-current-image-persistence-engineering-20261022",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-22-current-server-persistence-engineering.md",
+      "recordedAtSha": "2fdd8b277e870c1e3077ad4f7bf19eb5ad1172f9",
+      "renderedSourceSha": "2fdd8b277e870c1e3077ad4f7bf19eb5ad1172f9",
+      "sha256": "0c13e49ec439bb1797423e840d54dd74e2e9c79576737261b69c5e0797b361fe",
+      "changeReason": "New exact f469 Server image persistence evidence with the 2fdd cleanup-protected harness. Preserve all earlier evidence and statuses; no existing-target upgrade, real Source activation, deployment or user acceptance."
     }
   ],
   "pages": [
