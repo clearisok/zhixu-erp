@@ -1,5 +1,7 @@
 # 项目知识索引
 
+2026-10-22最新恢复入口：[固定核验配置修复](tasks/active/garment-filter-metadata-screening-2026-10-22.md)。Branch fix/garment-filter-metadata-screening，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e，干净输入31cad6f71dced9f1ad399b13dd1b4871d2234abc。F三CI success后的一次固定调用在本地candidate失败，0 HTTP/0报表、凭据未读；离线冻结hash/范围正确，仅修编码配置秘密检查深度，不自动重试或扩大Source范围。下方为输入阶段摘要。
+
 2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)和[到料激活任务](tasks/active/material-arrival-browser-activation-2026-10-22.md)为准。fix/material-arrival-browser-activation，main996dfedc12da3527343cd3ff2aa5eea35497e10e、干净输入c0d87bcd55fbda58db101f46d6e61b07f77db7df。唯一测试源72d0，受控真实GET屏障built16/16、发布116、类型/lint/构建/精确守卫通过，静态review无P1/P2；[报告](tasks/completed/2026-10-22-material-arrival-browser-activation-engineering.md)冻结91c2，manifest268/57、原267/57及其他字段不变，最终metadata/交付/三CI待核。[0042镜像](tasks/active/server-current-image-0042-2026-10-22.md)c0d已精确远端且Release39692878584 success，105镜像8/8/41迁移保留，不是旧入口升级。[交期覆盖](tasks/active/server-delivery-coverage-2026-10-22.md)105原Source39689481386 failure、Team/Release success保留，当前受控复现不倒推原CI时序。[DeliveryPlan](tasks/active/server-delivery-plan-receipts-2026-10-22.md)144三CI success与[就绪审计](tasks/active/server-convergence-release-readiness-2026-10-22.md)/7d归档继续。root唯一writer、既有reviewer只读；无产品/UI/SQL/真实Source/既有环境/PR变更，不合并/关闭/部署。Goal active，Num/outdate已确认，其他原待答不默认。
 ## 系统简介
 

@@ -1,4 +1,6 @@
-# 恢复点：到料激活测试修复待最终交付与CI
+# 恢复点：固定核验配置深度兼容
+
+2026-10-22最新：fix/garment-filter-metadata-screening，main996dfedc12da3527343cd3ff2aa5eea35497e10e建立后FF至干净31cad6f71dced9f1ad399b13dd1b4871d2234abc。先读[当前任务](tasks/active/garment-filter-metadata-screening-2026-10-22.md)。F已精确远端、三CI attempt1/success；一次获准固定调用在candidate阶段失败，0 HTTP/0报表、凭据未读，已停止，不自动重跑已消费run-authorized-filter.mjs。原尝试/回执保留。离线hash/范围正确，合法编码配置深度13/组合19触发inspect12/screen16；当前只修固定Node/Python有界秘密检查并合成负测，不扩大真实额度。三份原摘要逐字节归档；下方为输入阶段恢复记录，最终收口后以当前任务替代。
 
 2026-10-22；fix/material-arrival-browser-activation从干净c0d87bcd55fbda58db101f46d6e61b07f77db7df开始，main996dfedc12da3527343cd3ff2aa5eea35497e10e不变。先读[当前任务](tasks/active/material-arrival-browser-activation-2026-10-22.md)。scope8aa17、唯一测试源72d0a0af8302e4aa761d587a3ca786296a23b4c0、冻结报告91c2eafba03e6a3d471add0be76442f5b9804ec8；当前只有最终metadata dirty，无应用/SQL/UI改动。manifest268/57仅加报告，原267/57及其他字段不变，不再运行已消费bind-engineering.mjs。
 

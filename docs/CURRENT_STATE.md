@@ -1,4 +1,6 @@
-# 当前状态：到料浏览器激活回归已本地通过
+# 当前状态：固定成衣核验的本地配置兼容修复
+
+2026-10-22最新：[当前任务](tasks/active/garment-filter-metadata-screening-2026-10-22.md)在fix/garment-filter-metadata-screening从main996dfedc12da3527343cd3ff2aa5eea35497e10e建立后FF至干净31cad6f71dced9f1ad399b13dd1b4871d2234abc。F精确远端、三CI均success。一次获准C1/C0/C1调用在candidate阶段失败，0 HTTP/0报表、未读凭据且未重试；离线核实冻结hash/唯一合同均正确，合法编码配置深度误拒。先修固定工具/负测，不改查询或预算。下方输入记录按其原时点保留，完整Goal仍active。
 
 2026-10-22；fix/material-arrival-browser-activation，干净输入c0d87bcd55fbda58db101f46d6e61b07f77db7df，独立main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer、既有reviewer只读，无继承dirty；Goal active。
 

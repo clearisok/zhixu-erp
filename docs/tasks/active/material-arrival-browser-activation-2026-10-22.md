@@ -44,3 +44,15 @@ hash核对原tar后，仅此自有副本移出项目到新私密目录，原tar/
 57能力及所有其他manifest字段逐对象不变。独立证据复审无P1/P2；working main996/head91
 守卫PASS（11pages/57capabilities/80继承UI paths，errors[]）。后续只有最终metadata提交与
 该精确SHA的guard/交付/三CI，不修改报告、不将旧失败改为通过。
+
+## 后续精确交付和CI
+
+最终31cad6f71dced9f1ad399b13dd1b4871d2234abc的main996精确守卫PASS。原一次Execute
+返回STOP_AUTH_OR_DIVERGENCE但remoteSha精确F；原stderr未保留，原因unresolved。
+后续只读DryRun pushes=0返回DELIVERED_VERIFIED，远端精确F，没有第二次push。
+Source39694581228（2026-10-21T23:59:14Z）、Team39694584779、Release39694588911
+均attempt1/completed/success；没有重跑旧105失败workflow。
+
+随后获准的一次固定合同工具在candidate阶段失败，0 HTTP/0报表、凭据未读；不算来源过滤通过。
+离线定位编码配置深度误拒，转入[独立前向修复](garment-filter-metadata-screening-2026-10-22.md)。
+冻结报告保持其当时事实，本任务只追加后续结果。
