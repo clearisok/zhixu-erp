@@ -9,9 +9,11 @@ from typing import Mapping, cast
 
 from .ainuoke_client import AinuokeClient, UpstreamSchemaError
 from .contracts import ReportDefinition, ReportKey, build_report_request
+from .garment_contract_verification import screen as screen_garment_report
+from .payment_request_observations import PaymentObservationError
 from .payment_request_probe import (
     BoundedPaymentTransport, MAX_RESPONSE_BYTES, FAILURE_CODES as BASE_FAILURE_CODES,
-    reject_reflected_secrets, report_metadata, safe_failure as base_safe_failure,
+    report_metadata, safe_failure as base_safe_failure,
     validate_input as base_validate_input,
 )
 
@@ -91,7 +93,13 @@ def probe(data, transport=None):
             raise UpstreamSchemaError("shipment_probe_report_mismatch")
     for value in (raw, rows, metadata):
         if value is not None:
-            reject_reflected_secrets(value, (data["password"], session.jwt_token, session.session_id))
+            try:
+                screen_garment_report(value, (data["password"], session.jwt_token, session.session_id))
+            except PaymentObservationError as error:
+                code = {"payment_observation_duplicate_json_key": "shipment_probe_duplicate_json_key",
+                        "payment_observation_invalid_json": "shipment_probe_invalid_json"}.get(
+                            error.args[0] if error.args else None, "shipment_probe_invalid_evidence")
+                raise UpstreamSchemaError(code) from None
     if (len(page.rows) > PAGE_SIZE or len(page.rows) > page.total
             or transport.http_attempts != 2 or transport.report_requests != 1):
         raise UpstreamSchemaError("shipment_probe_invalid_evidence")
@@ -111,6 +119,8 @@ def safe_failure(error, transport):
     # Legacy helper errors stay closed static codes; never emit arbitrary exception text.
     candidate = error.args[0] if error.args else None
     base = base_safe_failure(error, transport)
+    if candidate == "garment_filter_structure_limit":
+        candidate = "shipment_probe_structure_limit"
     code = candidate if isinstance(candidate, str) and candidate in FAILURE_CODES else str(base["code"]).replace("payment_probe", "shipment_probe")
     return {**base, "schemaVersion": "ainuoke-garment-shipment-candidate-failure.v1",
             "code": code if code in FAILURE_CODES else "shipment_probe_failed"}

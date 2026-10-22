@@ -36,7 +36,8 @@ const count = (value: unknown) => {
   if (typeof value !== "string" || !/^(?:0|[1-9]\d*)$/u.test(value) || !Number.isSafeInteger(Number(value))) return fail("garment_filter_count_mismatch");
   return Number(value);
 };
-function screen(value: unknown, password = "", depth = 0): void {
+/** Shared by the fixed candidate probe; this validates data, never read scope. */
+export function screen(value: unknown, password = "", depth = 0): void {
   // Count object edges and encoded-JSON edges together. Report configuration
   // legitimately exceeds the generic Source bundle's smaller tree limit.
   if (depth > 64) return fail("garment_filter_structure_limit");

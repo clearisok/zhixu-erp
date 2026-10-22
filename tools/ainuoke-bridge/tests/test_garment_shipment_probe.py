@@ -47,6 +47,31 @@ class FakeTransport:
 
 
 class GarmentCandidateProbeTests(TestCase):
+    def test_deep_configuration_is_bounded_without_changing_raw_text(self):
+        layout = "合成配置"
+        for index in range(13):
+            layout = [layout] if index % 2 else {"child": layout}
+        for value in (layout, json.dumps(layout)):
+            payload = response()
+            payload["reportObj"] = json.dumps({"reportId": 6086979, "cellList": [], "layout": value})
+            transport = FakeTransport(payload)
+            evidence = probe(CONFIG, transport)
+            self.assertEqual(evidence["rawReportResponse"], transport.last_report_text)
+            self.assertEqual((transport.http_attempts, transport.report_requests), (2, 1))
+
+    def test_nested_encoded_secrets_and_duplicate_keys_never_leave_worker(self):
+        layouts = [json.dumps({"child": json.dumps({"sessionId": "PRIVATE"})}), '{"x":1,"x":1}']
+        for secret in (CONFIG["password"], "synthetic-jwt", "synthetic-session"):
+            layouts.append(json.dumps({"label": secret}).replace("s", "\\u0073").replace("S", "\\u0053"))
+        for layout in layouts:
+            with self.subTest(layout=layout):
+                payload = response()
+                payload["reportObj"] = json.dumps({"reportId": 6086979, "cellList": [], "layout": layout})
+                transport = FakeTransport(payload)
+                with self.assertRaises(UpstreamSchemaError):
+                    probe(CONFIG, transport)
+                self.assertEqual((transport.http_attempts, transport.report_requests), (2, 1))
+
     def test_only_user_supplied_request_and_no_catalog_registration(self):
         transport = FakeTransport()
         evidence = probe(CONFIG, transport)
@@ -61,6 +86,21 @@ class GarmentCandidateProbeTests(TestCase):
         self.assertEqual(evidence["queryContext"], {"insideOrderNo": "D1933"})
         self.assertFalse(any(item.report_id == "6086979" for item in REPORT_CATALOG.values()))
         self.assertEqual(evidence["rawResponseSha256"], sha256(evidence["rawReportResponse"].encode()).hexdigest())
+
+    def test_deep_rejection_keeps_closed_failure_counts_without_retry(self):
+        layout = "PRIVATE-MUST-NOT-REFLECT"
+        for _ in range(65):
+            layout = {"child": layout}
+        payload = response()
+        payload["reportObj"] = json.dumps({"reportId": 6086979, "cellList": [], "layout": layout})
+        transport = FakeTransport(payload)
+        with self.assertRaises(UpstreamSchemaError) as error:
+            probe(CONFIG, transport)
+        receipt = safe_failure(error.exception, transport)
+        self.assertEqual(receipt["code"], "shipment_probe_structure_limit")
+        self.assertEqual(receipt["workerStage"], "validation")
+        self.assertEqual((receipt["httpAttempts"], receipt["reportRequests"], len(transport.calls)), (2, 1, 2))
+        self.assertNotIn("PRIVATE-MUST-NOT-REFLECT", json.dumps(receipt))
 
     def test_scope_cannot_expand_or_use_payment_action_before_login(self):
         for patch_value in ({"page": 2}, {"insideOrderNo": "OTHER"}, {"reportId": 6086979}, {"action": "read-first-page-only"},

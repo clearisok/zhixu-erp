@@ -25,6 +25,38 @@ function evidence(patch: Record<string, unknown> = {}, rawPatch: Record<string, 
     rawReportResponse: text, rawResponseSha256: createHash("sha256").update(text).digest("hex"), ...patch };
 }
 
+test("report configuration screening accepts bounded deep configuration without changing raw evidence", () => {
+  let layout: unknown = "合成配置";
+  for (let i = 0; i < 13; i++) layout = i % 2 ? [layout] : { child: layout };
+  for (const configLayout of [layout, JSON.stringify(layout)]) {
+    const input = evidence({}, { reportObj: JSON.stringify({ reportId: 6086979, cellList: [], layout: configLayout }) });
+    const original = structuredClone(input);
+    assert.equal(validateGarmentCandidate(input, config, now).privateReport.rawReportResponse, input.rawReportResponse);
+    assert.deepEqual(input, original);
+  }
+});
+
+test("report configuration screening rejects nested encoded secret keys, reflections and duplicate keys", () => {
+  const reflected = JSON.stringify({ label: config.password }).replaceAll("S", "\\u0053");
+  for (const layout of [JSON.stringify({ child: JSON.stringify({ sessionId: "PRIVATE" }) }), reflected, '{"x":1,"x":1}']) {
+    const input = evidence({}, { reportObj: JSON.stringify({ reportId: 6086979, cellList: [], layout }) });
+    assert.throws(() => validateGarmentCandidate(input, config, now));
+    assert.throws(() => rejectedGarmentCandidate(input, config, "shipment_probe_invalid_evidence"));
+  }
+});
+
+test("report configuration screening keeps JSON and combined-depth limits as closed errors", () => {
+  let jsonDepth: unknown = "PRIVATE-MUST-NOT-REFLECT", combinedDepth: unknown = "PRIVATE-MUST-NOT-REFLECT";
+  for (let i = 0; i < 65; i++) jsonDepth = { child: jsonDepth };
+  for (let i = 0; i < 61; i++) combinedDepth = { child: combinedDepth };
+  for (const [layout, expectedCode] of [[jsonDepth, "shipment_probe_invalid_evidence"],
+    [JSON.stringify(combinedDepth), "shipment_probe_structure_limit"]]) {
+    const input = evidence({}, { reportObj: JSON.stringify({ reportId: 6086979, cellList: [], layout }) });
+    assert.throws(() => validateGarmentCandidate(input, config, now), error => error instanceof Error
+      && "code" in error && error.code === expectedCode && !error.message.includes("PRIVATE-MUST-NOT-REFLECT"));
+  }
+});
+
 test("candidate evidence does not promote a contains result to contract, quantity or shipment semantics", () => {
   const input = evidence(), original = structuredClone(input);
   const result = validateGarmentCandidate(input, config, now);

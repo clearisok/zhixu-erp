@@ -3,9 +3,10 @@ import { createHash } from "node:crypto";
 import { isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY, accountFingerprint, parseCollectorConfig, type CollectorConfig } from "./collector.js";
-import { inspect, SourceError } from "./contract.js";
+import { SourceError } from "./contract.js";
 import { assertPrivateOutput, writePrivateReport } from "./live-preflight.js";
 import { PAYMENT_WORKER_FAILURE_CODES } from "./payment-request-probe.js";
+import { screen as screenGarmentReport } from "./garment-contract-verification.js";
 
 export const GARMENT_PROBE_LIMITS = Object.freeze({ reportId: "6086979", insideOrderNo: "D1933", page: 1, pageSize: 100,
   responseBytes: 4 * 1024 * 1024, workerBytes: 16 * 1024 * 1024, timeoutMs: 120000 });
@@ -83,12 +84,13 @@ export async function collectGarmentCandidate(input: CollectorConfig,
   });
 }
 
-function secretScreen(value: unknown, password: string, depth = 0): void {
-  if (depth > 16) return fail();
-  if (depth === 0) inspect(value);
-  if (typeof value === "string" && password && value.includes(password)) return fail("source_secret_field");
-  if (Array.isArray(value)) value.forEach(item => secretScreen(item, password, depth + 1));
-  else if (value && typeof value === "object") Object.values(value).forEach(item => secretScreen(item, password, depth + 1));
+function secretScreen(value: unknown, password: string): void {
+  try { screenGarmentReport(value, password); }
+  catch (error) {
+    if (error instanceof SourceError && error.code === "source_secret_field") throw error;
+    return fail(error instanceof SourceError && error.code === "garment_filter_structure_limit"
+      ? "shipment_probe_structure_limit" : "shipment_probe_invalid_evidence");
+  }
 }
 export function rejectedGarmentCandidate(input: unknown, configuration: CollectorConfig, code: string) {
   const config = configForProbe(configuration), evidence = object(input);

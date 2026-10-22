@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[交期覆盖接线](tasks/active/server-delivery-coverage-ui-2026-10-22.md)及[客户端契约](features/SERVER_DELIVERY_COVERAGE_UI.md)为准。feat/server-delivery-coverage-client，干净输入c5b4bec40097606142c69ecc2517de82a4c07370、main996dfedc12da3527343cd3ff2aa5eea35497e10e；源码483be024的V0客户端54/原PG与投影15/types/full lint/双build/原页面built37/发布116通过，两项独立静态无P1/P2。修正V0页面记录后的1ed81a5精确main门禁PASS且远端exact，原拒绝类push与后续零push只读核对分别保留；三新CI39796325961/39796336473/39796346404于14:33Z均queued、精确1ed、attempt1，尚未PASS。新展示仅有具体v1草图，V2问题待回复。上一维护交期产品2a199、2f0三CI通过，最终c5b远端exact，旧摘要已按Git字节归档，失败/截图/284证据58能力保持。无自动合并关闭、部署/入口切换、真实Source或业务库操作；完整目标未完成，Num/outdate已确认，原关账待答不默认。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[成衣固定恢复任务](tasks/active/garment-filter-recovery-2026-10-22.md)及[诊断契约](features/AINUOKE_GARMENT_DIAGNOSTICS.md)为准。feat/garment-filter-recovery从main996dfedc12da3527343cd3ff2aa5eea35497e10e建立，仅FF干净已交付632c62c069869dbf618d976240790cc2d44232b4。筛查红测已局部修复，Node32/Python172/types/full lint/Server编译及独立静态通过；组合恢复入口尚未实现、新真实范围未授权。上一客户端1ed三原CI现均success、未重跑，见[终态](tasks/completed/2026-10-22-delivery-coverage-client-ci.md)；483构建/1edCI/632状态分开保留。交期覆盖v1展示仍待具体批准。旧三摘要已按Git字节[归档](tasks/completed/2026-10-22-garment-recovery-inputs/632c62c0/)，失败/截图/284证据58能力保持。无自动合并关闭、部署/入口切换、真实Source或业务库操作；完整目标未完成，Num/outdate已确认，原关账待答不默认。
 
 ## 系统简介
 
