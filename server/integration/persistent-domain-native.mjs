@@ -116,10 +116,6 @@ export async function persistentDomainNative(mode, input) {
         upserts: [{ id: manual[0].id, deliveryDate: '2027-01-11', quantity: manual[0].quantity }], voidIds: [manual[1].id] });
       stage = 'commercial';
       const quote = input.quotes.distribution, revision = quote.revisions.find(r => r.revisionId === quote.defaultRevisionId);
-      const { updateConfirmedCommercialTermsByQuote } = await import('./dist/server/server/confirmed-commercial-terms/service.js');
-      await updateConfirmedCommercialTermsByQuote(pool, actor, { quoteId: quote.id, revisionId: revision.revisionId, priceVersionId: revision.priceVersions[0].id },
-        { expectedVersion: 0, expectedQuoteVersion: (await repo.getById(quote.id)).version,
-          customerConfirmedPrice: '120', confirmedLaborPrice: '10', laborCurrency: 'CNY' });
       const colors = await readPricingColors(pool, saved.orderId); assert.equal(colors.length, 2);
       saved.blueId = colors.find(c => c.colorName === '蓝色').id; saved.redId = colors.find(c => c.colorName === '红色').id;
       const selection = { kind: 'quote', quoteId: quote.id, revisionId: revision.revisionId,
@@ -127,6 +123,12 @@ export async function persistentDomainNative(mode, input) {
       const preview = await previewOrderBusinessSource(pool, actor, saved.orderId, selection);
       await adoptOrderBusinessSource(pool, actor, saved.orderId, { selection, requestId: randomUUID(), expectedVersion: preview.version,
         fingerprint: preview.fingerprint, reason: '合成颜色价格恢复验证' });
+      // Existing CCT commands require a formal association. Create it only after
+      // adoption, and prove that a later quote confirmation does not rewrite SO.
+      const { updateConfirmedCommercialTermsByQuote } = await import('./dist/server/server/confirmed-commercial-terms/service.js');
+      await updateConfirmedCommercialTermsByQuote(pool, actor, { quoteId: quote.id, revisionId: revision.revisionId, priceVersionId: revision.priceVersions[0].id },
+        { expectedVersion: 0, expectedQuoteVersion: (await repo.getById(quote.id)).version,
+          customerConfirmedPrice: '125', confirmedLaborPrice: '10', laborCurrency: 'CNY' });
       stage = 'processing'; saved.processing = await createBatch();
       stage = 'resources';
       const resource = async (kind, data) => {
@@ -177,6 +179,7 @@ export async function persistentDomainNative(mode, input) {
     assert.equal(original.assignment.status, 'cancelled'); assert.equal(original.assignment.productionGroupId, saved.groupId);
     assert.equal(history.execution.completedQuantity, '25'); assert.equal(history.history.length, 2);
     assert.equal(assignments.assignments.length, 3); assert.equal(commercial.commercial.current.lines.length, 2);
+    assert.equal(commercial.commercial.current.lines.find(line => line.colorId === saved.blueId).sale.value.price, '120');
     const requestReceipts = [];
     for (const id of saved.planRequests) { const result = await plan.readProductionPlanReceipt(pool, actor, id); assert.equal(result.state, 'known'); requestReceipts.push(result); }
     assert.deepEqual(await consumeProcessingBatches(pool, actor, saved.processing.command), saved.processing.result);

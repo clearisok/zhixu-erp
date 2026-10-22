@@ -16,6 +16,8 @@ export function localDockerEnvironment(environment, endpoint) {
 export function requirePinnedImage(inspected, expected) {
   assert.match(expected.id || '', /^sha256:[a-f0-9]{64}$/);
   assert.match(expected.commit || '', /^[a-f0-9]{40}$/);
+  assert.ok(typeof expected.buildId === 'string' && expected.buildId.length > 0);
+  assert.ok(typeof expected.buildTime === 'string' && Number.isFinite(Date.parse(expected.buildTime)));
   assert.equal(inspected.Id, expected.id, 'domain_image_id_changed');
   const labels = inspected.Config?.Labels || {};
   assert.equal(labels['org.opencontainers.image.revision'], expected.commit);
@@ -82,13 +84,15 @@ export async function readDatabaseFingerprint(sql) {
   const tableSql = tableNames.map(table => `SELECT jsonb_build_object('table','${identifier(table).slice(1, -1)}',
     'count',count(*),'sha256',encode(digest(COALESCE(string_agg(to_jsonb(t)::text,E'\\n' ORDER BY to_jsonb(t)::text COLLATE "C"),''),'sha256'),'hex'))::text AS row
     FROM public.${identifier(table)} t`).join('\nUNION ALL\n');
-  const tables = (await sql(tableSql)).split(/\r?\n/).filter(Boolean).map(row => JSON.parse(row));
+  const tables = (await sql(tableSql)).split(/\r?\n/).filter(Boolean).map(row => JSON.parse(row))
+    .sort((a, b) => a.table < b.table ? -1 : a.table > b.table ? 1 : 0);
   const sequenceNames = (await sql("SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='S' ORDER BY c.relname COLLATE \"C\""))
     .split(/\r?\n/).filter(Boolean);
   const sequenceSql = sequenceNames.map(name => `SELECT jsonb_build_object('name','${identifier(name).slice(1, -1)}',
     'lastValue',v.last_value::text,'isCalled',v.is_called,'start',s.seqstart::text,'increment',s.seqincrement::text,
     'min',s.seqmin::text,'max',s.seqmax::text,'cache',s.seqcache::text,'cycle',s.seqcycle,'type',format_type(s.seqtypid,NULL))::text AS row
     FROM public.${identifier(name)} v CROSS JOIN pg_sequence s WHERE s.seqrelid='public.${identifier(name)}'::regclass`).join('\nUNION ALL\n');
-  const sequences = sequenceSql ? (await sql(sequenceSql)).split(/\r?\n/).filter(Boolean).map(row => JSON.parse(row)) : [];
+  const sequences = sequenceSql ? (await sql(sequenceSql)).split(/\r?\n/).filter(Boolean).map(row => JSON.parse(row))
+    .sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0) : [];
   return { schemaVersion: 'synthetic-domain-fingerprint.v1', tables, sequences };
 }

@@ -24,6 +24,8 @@ test('exact image needs ID and all build facts, not a mutable tag or commit labe
     const changed = structuredClone(inspected); changed.Config.Labels[key] = 'different';
     assert.throws(() => requirePinnedImage(changed, image));
   }
+  assert.throws(() => requirePinnedImage(inspected, { ...image, buildId: undefined }));
+  assert.throws(() => requirePinnedImage(inspected, { ...image, buildTime: 'unknown' }));
 });
 test('domain containers must have the exact owned project, service, image and DB volume', () => {
   const project = 'zhixu-quote-trial-it-0123456789';

@@ -55,7 +55,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   const domains=process.env.ZHIXU_LOCAL_TRIAL_DOMAINS==='1';
   if(domains){
     const contextEndpoint=await run('docker',['context','inspect','--format','{{.Endpoints.docker.Host}}']);
-    commandEnvironment=localDockerEnvironment(process.env,process.env.DOCKER_HOST||contextEndpoint);
+    commandEnvironment=localDockerEnvironment(process.env,contextEndpoint);
   }
   assert.match(commit||'',/^[0-9a-f]{40}$/);
   const inspectedImage=JSON.parse(await docker(['image','inspect',image]))[0],labels=inspectedImage.Config.Labels;
@@ -79,7 +79,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     if(completed){
       if(backup){assert.ok(backup.startsWith(resolve('backups')+sep)&&backup.endsWith('.dump'));await rm(backup);await rm(`${backup}.manifest.json`);}
       assert.ok(resolve(parent).startsWith(resolve(tmpdir())+sep));await rm(parent,{recursive:true});
-    }else t.diagnostic('Failure retains owned synthetic volumes/private fixtures for investigation; no unrelated cleanup.');
+    }else t.diagnostic(`Failure retains owned synthetic volumes/private fixtures for investigation; no unrelated cleanup. ${JSON.stringify({projects:owned,privateRoot:parent})}`);
   });
   async function state(project){
     const folder=join(parent,project),p=await port();
@@ -179,7 +179,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
         const r=q.revisions.find(r=>r.revisionId===q.defaultRevisionId);r.baseInfo.quoteStyleNo='SYN-RECOVERY-'+type;r.baseInfo.brandName='合成恢复品牌';
         for(const [i,p] of r.priceVersions.entries()){p.quantity=100;p.trims.forEach(t=>t.usage=0);p.pricingParameters.laborCurrency=type==='processing'?'USD':'CNY';
           p.confirmation={quotedGarmentPrice:type==='processing'?null:120+i*10,quotedLaborPrice:type==='processing'?5+i:10+i,
-            confirmedGarmentPrice:type==='processing'?null:120+i*10,confirmedLaborPrice:type==='processing'?5+i:10+i,note:'synthetic recovery',confirmedAt:'2026-10-23T00:00:00Z'};}
+            confirmedGarmentPrice:type==='processing'?null:120+i*10,confirmedLaborPrice:type==='processing'?5+i:10+i,note:'synthetic recovery',confirmedAt:new Date().toISOString()};}
         quotes[type]=q;
       }process.stdout.write(JSON.stringify({quotes,materialBundle:bundle(),syntheticOrder}));
     `]));

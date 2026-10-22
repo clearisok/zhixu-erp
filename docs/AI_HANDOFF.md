@@ -10,6 +10,10 @@ chore/server-current-image-0042，baseline94a1767b4743e1c21a961c5232929c4600cd34
 6/6通过；默认未给image的旧演练只运行cleanup1/1、镜像项skip，不能算实际镜像验收。
 精确0c image实际domain-mode、独立复审和发布门禁待执行。先提交本checkpoint，
 再从干净精确test-driver HEAD启动受保护的全新项目演练；如失败保留自有现场修复。
+首轮b9d1f585实际78,287.808ms在commercial fixture因quote_commercial_terms_not_linked停止；
+前3个子阶段通过，4pass/2fail，无依赖备份/恢复。自有失败项目已stop、卷/私密输入保留。
+修正测试顺序：先采用Quote确认快照，再由正式CCT命令确认125；订单仍采用120。
+不改应用CCT规则。完整实际重跑待，不能将fixture错误写成业务缺陷或验收成功。
 
 先读当前任务、LEGACY_ERP、现有persistent-local-trial.integration.test.mjs及ops/quote-trial。
 旧8项只填Quote/PNG，不能当其他ERP领域恢复。计划只改test/fixture/必要文档，复用原0c镜像
