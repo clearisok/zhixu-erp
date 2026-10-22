@@ -238,8 +238,8 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       await createQuoteRepository(x.pool).create(quoteSnapshotFromBrowser(quote));
       const batch = await createProcessingBatch(x.pool, actor, { requestId: randomUUID(), quoteId: quote.id, revisionId: revision.revisionId, priceVersionId: pv.id,
         customerName: '合成加工交付客户', businessStyleNo: 'SYNTHETIC-DELIVERY-PROCESSING', quantity: '30', orderDate: '2026-10-22', deliveryDate: '2027-05-01', customerReference: '', deliveryRequirements: '', referenceOrderId: null });
-      const preview = await previewProcessingBatch(x.pool, actor, batch.batchId);
-      const confirmed = await confirmProcessingBatch(x.pool, actor, batch.batchId, { requestId: randomUUID(), expectedVersion: batch.version, sourceFingerprint: preview.candidate.fingerprint });
+      const batchPreview = await previewProcessingBatch(x.pool, actor, batch.batchId);
+      const confirmed = await confirmProcessingBatch(x.pool, actor, batch.batchId, { requestId: randomUUID(), expectedVersion: batch.version, sourceFingerprint: batchPreview.candidate.fingerprint });
       const consumed = await consumeProcessingBatches(x.pool, actor, { requestId: randomUUID(), items: [{ batchId: batch.batchId, expectedVersion: confirmed.version }] });
       assert.equal(consumed.results[0].status, 'created');
       await navigate('/order-center/server-detail?id=' + consumed.results[0].salesOrderId); await open(); await has('加工订单无艾诺科合同对照。');

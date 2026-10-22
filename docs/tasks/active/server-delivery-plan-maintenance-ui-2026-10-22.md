@@ -116,6 +116,10 @@ Foundation的rAF返回。第二跑3子阶段通过，包括736/390/320布局；�
 三个f663输入摘要逐字节保留于../completed/2026-10-22-delivery-plan-ui-inputs/f6639c5e/。
 焦点修正后的类型、完整lint通过；独立只读复审未发现新P1/P2，明确真实键盘/布局结论
 仍须新精确built验收，未将静态review当作浏览器PASS。
+源码b2b92224afebfc219b067cb4d1891343dfa6dc48精确串行构建通过；新built前9阶段通过，
+包含重发后焦点、CAS、存储故障、voidall、同用户ABA迟到200/401及刷新不重发。
+第10阶段为测试局部batch preview变量遮蔽已有UI preview函数而触发TDZ，未执行该阶段后续；
+仅改测试变量名，不改产品、SQL、权限或放宽断言。原日志保留，完整built继续待验。
 
 ## 验收和交付
 
