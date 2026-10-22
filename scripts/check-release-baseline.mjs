@@ -8,6 +8,9 @@ import ts from 'typescript';
 export const manifestPath = 'docs/release/baseline.json';
 // Bootstrap only while PR95's base has no manifest; this reviewed commit is in its ancestry.
 export const initialReviewSha = 'b5411b68618e663d97ca50ac5bb9f49bc688193e';
+const integrationMergeLimit = 256;
+const integrationParentLimit = 8;
+const integrationManifestBytes = 64 * 1024 * 1024;
 const fullSha = value => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
@@ -66,7 +69,8 @@ function serverRouteLiterals(source) {
 
 /** Read-only source/evidence contract. This is not a browser pixel or deployment test. */
 export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths = [], hasCommit = () => false,
-  readBlob = () => null, isAncestor = () => false, readCommitParents = () => [], checkedHead, previousManifest }) {
+  readBlob = () => null, isAncestor = () => false, readCommitParents = () => [], readMergeCommits = () => null,
+  checkedHead, historyBaseSha = expectedBaseSha ?? manifest?.baselineSha, previousManifest }) {
   const errors = [];
   const fail = (code, detail) => errors.push({ code, detail });
   const read = repositoryReader(root);
@@ -121,9 +125,108 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     }
     return false;
   };
+  const parentManifests = new Map();
+  let parentBytes = 0;
+  const parentManifest = sha => {
+    if (parentManifests.has(sha)) return parentManifests.get(sha);
+    const result = { valid: false, ids: new Map(), changed: [], limit: false };
+    if (parentBytes >= integrationManifestBytes) {
+      result.limit = true; parentManifests.set(sha, result); return result;
+    }
+    let bytes, parsed;
+    try { bytes = readBlob(sha, manifestPath); } catch { /* Missing history is never an empty manifest. */ }
+    if (Buffer.isBuffer(bytes)) {
+      parentBytes += bytes.length;
+      if (parentBytes > integrationManifestBytes) result.limit = true;
+      else try { parsed = JSON.parse(bytes.toString('utf8')); } catch { /* Fail closed below. */ }
+    }
+    if (parsed?.schemaVersion === 2 && parsed.repository === manifest.repository && Array.isArray(parsed.evidence)) {
+      result.valid = true;
+      for (const old of parsed.evidence) {
+        if (!old || typeof old !== 'object' || Array.isArray(old)) { result.changed.push('invalid-parent-record'); continue; }
+        if (!nonempty(old.id) || result.ids.has(old.id) || !same(revisions.get(old.id), old)) result.changed.push(String(old.id));
+        result.ids.set(old.id, old);
+      }
+    }
+    parentManifests.set(sha, result);
+    return result;
+  };
+  const reportedHistory = new Set();
+  const historyFailure = (code, detail) => {
+    const key = `${code}:${detail}`;
+    if (!reportedHistory.has(key)) { fail(code, detail); reportedHistory.add(key); }
+  };
+  const retainParentHistory = (parents, prefix, label) => {
+    let valid = true;
+    for (const sha of parents) {
+      const history = parentManifest(sha);
+      if (history.limit) historyFailure('EVIDENCE_INTEGRATION_LIMIT', 'parent_manifest_bytes');
+      if (!history.valid) { historyFailure(`${prefix}_HISTORY`, label); valid = false; }
+      for (const id of history.changed) { historyFailure(`${prefix}_HISTORY_CHANGED`, id); valid = false; }
+    }
+    return valid;
+  };
+  // Inspect the actual Git integration corridor, independently of which
+  // recordedAt a document author chooses (or whether a new record exists).
+  const integrations = new Map();
+  let mergeCommits;
+  try { mergeCommits = readMergeCommits(historyBaseSha, checkedHead); } catch { /* Fail closed below. */ }
+  if (!fullSha(historyBaseSha) || !fullSha(checkedHead) || !isAncestor(historyBaseSha, checkedHead)) {
+    fail('EVIDENCE_INTEGRATION_ANCESTRY', 'actual base must be in checked head');
+  }
+  if (!Array.isArray(mergeCommits)) fail('EVIDENCE_INTEGRATION_HISTORY', 'actual merge corridor unavailable');
+  else if (mergeCommits.length > integrationMergeLimit) fail('EVIDENCE_INTEGRATION_LIMIT', 'merge_count');
+  else for (const sha of mergeCommits) {
+    if (!fullSha(sha) || !hasCommit(sha) || integrations.has(sha) || sha === historyBaseSha
+      || !isAncestor(historyBaseSha, sha) || !isAncestor(sha, checkedHead)) {
+      fail('EVIDENCE_INTEGRATION_COMMIT', String(sha)); continue;
+    }
+    let parents;
+    try { parents = readCommitParents(sha); } catch { /* Fail closed below. */ }
+    if (Array.isArray(parents) && parents.length > integrationParentLimit) {
+      fail('EVIDENCE_INTEGRATION_LIMIT', 'parent_count'); continue;
+    }
+    if (!Array.isArray(parents) || parents.length < 2 || new Set(parents).size !== parents.length
+      || parents.some(parent => !fullSha(parent) || !hasCommit(parent))
+      || !parents.some(parent => isAncestor(historyBaseSha, parent))) {
+      fail('EVIDENCE_INTEGRATION_COMMIT', String(sha)); continue;
+    }
+    if (parents.some(parent => parent === sha || !isAncestor(parent, sha))) {
+      fail('EVIDENCE_INTEGRATION_COMMIT', sha); continue;
+    }
+    const valid = retainParentHistory(parents, 'EVIDENCE_INTEGRATION', sha);
+    integrations.set(sha, { parents, valid });
+  }
+  const reachesRevision = (witness, id) => {
+    const pending = [...parentsOf(witness)], visited = new Set();
+    while (pending.length) {
+      const next = pending.pop();
+      if (next === id) return true;
+      if (visited.has(next)) continue;
+      visited.add(next);
+      const ancestor = candidates.get(next);
+      if (ancestor?.kind === witness.kind && ancestor.path === witness.path) pending.push(...parentsOf(ancestor));
+    }
+    return false;
+  };
+  const hasForwardWitness = item => {
+    for (const witness of candidates.values()) {
+      if (witness.id === item.id || witness.kind !== 'document' || witness.path !== item.path || !reachesRevision(witness, item.id)) continue;
+      const integration = integrations.get(witness.recordedAtSha);
+      if (!integration?.valid || integration.parents.length !== 2 || !integration.parents.includes(historyBaseSha)) continue;
+      const source = integration.parents.find(sha => sha !== historyBaseSha);
+      if (isAncestor(historyBaseSha, source) || isAncestor(source, historyBaseSha)
+        || !isAncestor(item.recordedAtSha, source) || !isAncestor(witness.recordedAtSha, checkedHead)) continue;
+      if (same(parentManifest(source).ids.get(item.id), item)) return true;
+    }
+    return false;
+  };
   const verifyMergeCheckpoint = (item, predecessors) => {
     let gitParents;
     try { gitParents = readCommitParents(item.recordedAtSha); } catch { /* Fail closed below. */ }
+    if (Array.isArray(gitParents) && gitParents.length > integrationParentLimit) {
+      fail('EVIDENCE_INTEGRATION_LIMIT', 'parent_count'); return;
+    }
     if (!Array.isArray(gitParents) || gitParents.length < 2 || new Set(gitParents).size !== gitParents.length
       || gitParents.some(sha => !fullSha(sha) || !hasCommit(sha))) {
       fail('EVIDENCE_MERGE_COMMIT', item.id); return;
@@ -138,18 +241,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
       !gitParents.some(sha => isAncestor(old.recordedAtSha, sha)))) fail('EVIDENCE_MERGE_COMMIT', item.id);
     // Preserve evidence from the actual merged parents as well as main. These
     // side-branch records may not have reached main yet, but are still history.
-    for (const sha of gitParents) {
-      let parentManifest;
-      try { parentManifest = JSON.parse(readBlob(sha, manifestPath)?.toString('utf8')); } catch { /* Fail closed below. */ }
-      if (parentManifest?.schemaVersion !== 2 || parentManifest.repository !== manifest.repository || !Array.isArray(parentManifest.evidence)) {
-        fail('EVIDENCE_MERGE_HISTORY', item.id); continue;
-      }
-      const ids = new Set();
-      for (const old of parentManifest.evidence) {
-        if (!nonempty(old.id) || ids.has(old.id) || !same(revisions.get(old.id), old)) fail('EVIDENCE_MERGE_HISTORY_CHANGED', String(old.id));
-        ids.add(old.id);
-      }
-    }
+    retainParentHistory(gitParents, 'EVIDENCE_MERGE', item.id);
   };
   for (const item of candidates.values()) {
     const merging = item.mergeOf !== undefined;
@@ -180,7 +272,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
         fail('EVIDENCE_REVISION', String(item.id)); fail('EVIDENCE_REVISION_ANCHOR', item.id); continue;
       }
       if (!priorEvidence.has(item.id)) {
-        if (!isAncestor(manifest.baselineSha, item.recordedAtSha) || !isAncestor(item.recordedAtSha, checkedHead)
+        if ((!isAncestor(manifest.baselineSha, item.recordedAtSha) && !hasForwardWitness(item)) || !isAncestor(item.recordedAtSha, checkedHead)
           || predecessors.some(old => !isAncestor(old.recordedAtSha, item.recordedAtSha))) fail('EVIDENCE_REVISION_ANCESTRY', item.id);
         if (merging) {
           if (predecessors.some((old, index) => predecessors.some((other, otherIndex) => index !== otherIndex
@@ -404,7 +496,9 @@ export function runCheck(root, expectedBaseSha) {
   const blobCache = new Map();
   const ancestryCache = new Map();
   const parentCache = new Map();
-  const errors = validateBaseline({ root, manifest, expectedBaseSha, changedPaths, previousManifest, checkedHead:git(root,['rev-parse','HEAD']),
+  const errors = validateBaseline({ root, manifest, expectedBaseSha, changedPaths, previousManifest, historyBaseSha:base, checkedHead:git(root,['rev-parse','HEAD']),
+    readMergeCommits: (ancestor, descendant) => git(root, ['rev-list', '--ancestry-path', '--min-parents=2',
+      `--max-count=${integrationMergeLimit + 1}`, `${ancestor}..${descendant}`]).split('\n').filter(Boolean),
     isAncestor: (ancestor, descendant) => {
       const key = `${ancestor}:${descendant}`;
       if (!ancestryCache.has(key)) {

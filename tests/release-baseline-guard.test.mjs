@@ -43,7 +43,7 @@ function fixture(t) {
   };
   const edit = (file, transform) => write(file, transform(readFileSync(path.join(root, file), 'utf8')));
   const check = (overrides = {}) => validateBaseline({ root, manifest, previousManifest, expectedBaseSha: original.baselineSha,
-    checkedHead:original.baselineSha, isAncestor: (a,b) => knownCommits.has(a) && knownCommits.has(b), hasCommit: value => knownCommits.has(value), readBlob: (sha, file) => blobs.get(`${sha}:${file}`) ?? null, ...overrides });
+    checkedHead:original.baselineSha, readMergeCommits:()=>[], isAncestor: (a,b) => knownCommits.has(a) && knownCommits.has(b), hasCommit: value => knownCommits.has(value), readBlob: (sha, file) => blobs.get(`${sha}:${file}`) ?? null, ...overrides });
   return { root, manifest, write, edit, check, blobs, knownCommits, previousManifest };
 }
 const has = (errors, code) => assert.ok(errors.some(error => error.code === code), `Expected ${code}; got ${JSON.stringify(errors)}`);
@@ -482,6 +482,7 @@ function realEvidenceMerge(t) {
   const commitCache=new Map(),ancestryCache=new Map(),blobCache=new Map(),parentCache=new Map();
   const options={
     checkedHead:mergedSha,
+    readMergeCommits:(baseSha,head)=>git(['rev-list','--ancestry-path','--min-parents=2','--max-count=257',`${normalize(baseSha)}..${normalize(head)}`]).split('\n').filter(Boolean),
     hasCommit:sha=>{if(legacyCommits.has(sha))return true;if(!commitCache.has(sha))commitCache.set(sha,spawnSync('git',['cat-file','-e',`${sha}^{commit}`],{cwd:f.root,stdio:'ignore',windowsHide:true}).status===0);return commitCache.get(sha);},
     isAncestor:(a,b)=>{const key=`${normalize(a)}:${normalize(b)}`;if(!ancestryCache.has(key))ancestryCache.set(key,spawnSync('git',['merge-base','--is-ancestor',normalize(a),normalize(b)],{cwd:f.root,stdio:'ignore',windowsHide:true}).status===0);return ancestryCache.get(key);},
     readBlob:(sha,file)=>{const key=`${sha}:${file}`;if(f.blobs.has(key))return f.blobs.get(key);if(!blobCache.has(key)){const r=spawnSync('git',['show',`${sha}:${file}`],{cwd:f.root,windowsHide:true,maxBuffer:8*1024*1024});blobCache.set(key,r.status===0?r.stdout:null);}return blobCache.get(key);},
@@ -542,9 +543,24 @@ function advancedMainEvidenceMerge(t, doubleSided = false) {
   return { ...s, options, actualBase, baseManifest, sourceHead, integrationSha, witness, bytes, save };
 }
 
+function assertOversizedParentsDoNotReadObjects(s) {
+  for (const count of [9, 10000]) {
+    const parents = Array.from({ length: count }, (_, index) => (index + 1).toString(16).padStart(40, '0'));
+    const identities = new Set(parents), calls = [];
+    has(s.f.check({ ...s.options,
+      readCommitParents: sha => sha === s.integrationSha ? parents : s.options.readCommitParents(sha),
+      hasCommit: sha => { if (identities.has(sha)) { calls.push('object'); return true; } return s.options.hasCommit(sha); },
+      isAncestor: (a, b) => { if (identities.has(a) || identities.has(b)) { calls.push('ancestry'); return true; } return s.options.isAncestor(a, b); },
+      readBlob: (sha, file) => { if (identities.has(sha)) calls.push('blob'); return s.options.readBlob(sha, file); },
+    }), 'EVIDENCE_INTEGRATION_LIMIT');
+    assert.deepEqual(calls, [], 'parent limit must run before object, ancestry or manifest reads');
+  }
+}
+
 for (const doubleSided of [false, true]) test(`main advancement preserves ${doubleSided ? 'both document branches' : 'single-side frozen history'} with a real integration witness`, t => {
   const s = advancedMainEvidenceMerge(t, doubleSided);
   assert.deepEqual(s.f.check(s.options), []);
+  assertOversizedParentsDoNotReadObjects(s);
 });
 
 test('forward integration corridor retains side-only history even after a later ordinary checkpoint', async t => {
@@ -574,6 +590,67 @@ test('forward integration corridor retains side-only history even after a later 
     f.write(s.old.path, f.blobs.get(`${s.old.recordedAtSha}:${s.old.path}`));
     has(f.check({ ...s.options, checkedHead: later }), 'EVIDENCE_INTEGRATION_HISTORY_CHANGED');
   });
+});
+
+test('main advancement requires exact Git integration, complete parents and bounded discovery', async t => {
+  const s = advancedMainEvidenceMerge(t), { f } = s;
+  const valid = structuredClone(f.manifest);
+  await t.test('old side history needs its explicit same-path witness', () => {
+    f.manifest.evidence = f.manifest.evidence.filter(item => item.id !== s.witness.id);
+    has(f.check(s.options), 'EVIDENCE_REVISION_ANCESTRY');
+    Object.assign(f.manifest, structuredClone(valid));
+  });
+  await t.test('an unrelated later ordinary checkpoint is not that witness', () => {
+    f.write('docs/ordinary-after-forward.md', '# Ordinary post-integration change\n');
+    const later = s.commit('ordinary commit cannot impersonate integration witness', ['docs/ordinary-after-forward.md']);
+    f.manifest.evidence.find(item => item.id === s.witness.id).recordedAtSha = later;
+    has(f.check({ ...s.options, checkedHead: later }), 'EVIDENCE_REVISION_ANCESTRY');
+    Object.assign(f.manifest, structuredClone(valid));
+  });
+  await t.test('unmerged actual main or evidence cannot borrow the integration', () => {
+    has(f.check({ ...s.options, checkedHead: s.sourceHead }), 'EVIDENCE_INTEGRATION_ANCESTRY');
+    has(f.check({ ...s.options, isAncestor: (a, b) => a === s.merged.recordedAtSha && b === s.sourceHead ? false : s.options.isAncestor(a, b) }), 'EVIDENCE_REVISION_ANCESTRY');
+  });
+  await t.test('missing or malformed source-parent manifest is not empty history', () => {
+    for (const replacement of [null, Buffer.from('not-json')]) {
+      has(f.check({ ...s.options, readBlob: (sha, file) => sha === s.sourceHead && file === manifestPath ? replacement : s.options.readBlob(sha, file) }), 'EVIDENCE_INTEGRATION_HISTORY');
+    }
+  });
+  await t.test('source must actually contain the imported immutable record', () => {
+    const parent = JSON.parse(s.options.readBlob(s.sourceHead, manifestPath).toString('utf8'));
+    parent.evidence = parent.evidence.filter(item => item.id !== s.merged.id);
+    has(f.check({ ...s.options, readBlob: (sha, file) => sha === s.sourceHead && file === manifestPath ? Buffer.from(JSON.stringify(parent)) : s.options.readBlob(sha, file) }), 'EVIDENCE_REVISION_ANCESTRY');
+  });
+  await t.test('malformed parent evidence is a closed history error', () => {
+    const malformed = Buffer.from(JSON.stringify({ schemaVersion: 2, repository: original.repository, evidence: [null] }));
+    has(f.check({ ...s.options, readBlob: (sha, file) => sha === s.sourceHead && file === manifestPath ? malformed : s.options.readBlob(sha, file) }), 'EVIDENCE_INTEGRATION_HISTORY_CHANGED');
+  });
+  await t.test('wrong or missing actual parents reject a pseudo integration', () => {
+    has(f.check({ ...s.options, readCommitParents: sha => sha === s.integrationSha ? [s.sourceHead, s.base] : s.options.readCommitParents(sha) }), 'EVIDENCE_INTEGRATION_COMMIT');
+    has(f.check({ ...s.options, readCommitParents: () => [] }), 'EVIDENCE_INTEGRATION_COMMIT');
+  });
+  await t.test('discovery failures, foreign merges and duplicate entries fail closed', () => {
+    has(f.check({ ...s.options, readMergeCommits: () => { throw new Error('synthetic discovery failure'); } }), 'EVIDENCE_INTEGRATION_HISTORY');
+    has(f.check({ ...s.options, readMergeCommits: () => [s.merged.recordedAtSha] }), 'EVIDENCE_INTEGRATION_COMMIT');
+    has(f.check({ ...s.options, readMergeCommits: () => [s.integrationSha, s.integrationSha] }), 'EVIDENCE_INTEGRATION_COMMIT');
+  });
+  await t.test('a count or parent limit never turns a truncated history into PASS', () => {
+    has(f.check({ ...s.options, readMergeCommits: () => Array(257).fill(s.integrationSha) }), 'EVIDENCE_INTEGRATION_LIMIT');
+    const ancestors = s.git(['rev-list', s.integrationSha]).split('\n').filter(sha => sha !== s.integrationSha && sha !== s.actualBase);
+    const parents = [s.actualBase, ...ancestors.slice(0, 8)];
+    assert.equal(parents.length, 9);
+    has(f.check({ ...s.options, readCommitParents: sha => sha === s.integrationSha ? parents : s.options.readCommitParents(sha) }), 'EVIDENCE_INTEGRATION_LIMIT');
+  });
+  await t.test('an exhausted parent-byte budget stops all further parent-manifest reads', () => {
+    const reads = [], oversized = Buffer.alloc(65 * 1024 * 1024, ' ');
+    assert.equal(s.options.readCommitParents(s.integrationSha)[0], s.sourceHead);
+    has(f.check({ ...s.options, readBlob: (sha, file) => {
+      if (file === manifestPath) { reads.push(sha); return oversized; }
+      return s.options.readBlob(sha, file);
+    } }), 'EVIDENCE_INTEGRATION_LIMIT');
+    assert.deepEqual(reads, [s.sourceHead]);
+  });
+  assert.deepEqual(f.check(s.options), []);
 });
 
 test('explicit document reconciliation verifies actual Git parents and keeps every branch record',async t=>{

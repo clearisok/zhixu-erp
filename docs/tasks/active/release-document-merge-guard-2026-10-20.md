@@ -118,3 +118,27 @@ at all returned an empty error list. The failing negative assertions preserve
 this real omission; they are not reported as production regression PASS. The
 full log is retained in outputs/release-main-advance-20261023/red.log. Production
 guard code is still unchanged at this checkpoint.
+
+The reviewed correction is now implemented. Actual corridor discovery is capped
+at256 merge commits; each merge is capped at8 parents before any parent object,
+ancestry or blob reads; distinct parent manifests are capped at64MiB with caching
+and no later reads after budget exhaustion. Invalid/null records, missing history
+and out-of-corridor commits fail closed. The eligibility exception requires an
+explicit same-path descendant frozen at the real two-parent integration H whose
+parents are exactly the comparison base and an independent source containing the
+exact old record. Existing anchor, predecessor ancestry, mergeOf contribution,
+blob and screenshot guards are retained. No application/schema/UI/workflow changed.
+
+Focused green expanded tests passed16/16 (111780.2333ms). The first full suite
+passed134/134 (376912.5766ms), with zero failures/skips/cancellations, before the
+last parent-bound ordering correction and its single/double-sided9/10000-parent
+spy assertions. Thus it is intermediate evidence only. Syntax and focused lint
+passed after that correction; static independent review found no remainingP1/P2.
+The final complete suite, committed exact-main guard, delivery and freshCI remain
+pending. Logs retain the red, first-green, expanded-green and first-full attempts
+under outputs/release-main-advance-20261023 without overwriting old observations.
+
+A read-only actual-Git scan of cumulative94 found9 corridor merges,17 distinct
+parent manifests,6045487 bytes,max2 parents and286 retained evidence objects with
+no errors. This checks the proposed bounds against the current candidate, not
+the final new guard itself. No candidate branch or runtime was modified by the scan.
