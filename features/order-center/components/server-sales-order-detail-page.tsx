@@ -4,9 +4,10 @@ import {OrderColorPrices} from './order-color-prices';
 import { SavedColorSizes, SavedOrderSourceDetails } from './server-saved-order-sources';
 import { MaterialHistoryDialog } from "./material-history-dialog";
 import { OrderBusinessSourceButton } from "./order-business-source-button";
+import { ServerDeliveryPlanMaintenance } from './server-delivery-plan-maintenance';
 import { GarmentShipmentSection } from "@/features/ainuoke-garment-shipments/garment-shipment-section";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { OrderMaterialSummary } from '@/features/ainuoke-material-progress/order-material-summary';
 import { useSearchParams } from "next/navigation";
 import { useProtectedRouter as useRouter } from "@/components/foundation/server-navigation-protection";
@@ -98,16 +99,21 @@ function ServerDetailFrame({
 export function ServerSalesOrderDetailPage({ executionOnly = false }: { executionOnly?: boolean } = {}) {
   const searchParams = useSearchParams();
   const router=useRouter();
-  const [preparationGuard,setPreparationGuard]=useState(false),[navigationNotice,setNavigationNotice]=useState('');
-  useServerNavigationProtection({blocked:preparationGuard,message:'来源维护尚未完成，请先保存或关闭维护来源。'});
+  const [preparationGuard,setPreparationGuard]=useState(false),[deliveryGuard,setDeliveryGuard]=useState(false),[navigationNotice,setNavigationNotice]=useState('');
+  const protectedMaintenance = preparationGuard || deliveryGuard;
+  const maintenanceMessage = '来源或交期维护尚未完成，请先保存、关闭或核对原请求。';
+  useServerNavigationProtection({blocked:protectedMaintenance,message:maintenanceMessage});
   const updatePreparationGuard=useCallback((blocked:boolean)=>{setPreparationGuard(blocked);if(!blocked)setNavigationNotice('');},[]);
-  const requestNavigation=useCallback((target:string)=>{if(preparationGuard){setNavigationNotice('来源维护尚未完成，请先保存或关闭维护来源。');return;}router.push(target);},[preparationGuard,router]);
-  useEffect(()=>{if(!preparationGuard)return;const protect=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',protect);return()=>window.removeEventListener('beforeunload',protect);},[preparationGuard]);
-  const salesOrderId = searchParams.get("id")?.normalize("NFKC").trim() ?? "";
+  const updateDeliveryGuard=useCallback((blocked:boolean)=>{setDeliveryGuard(blocked);if(!blocked)setNavigationNotice('');},[]);
+  const [deliveryPlanRefreshToken, setDeliveryPlanRefreshToken] = useState(0);
+  const requestNavigation=useCallback((target:string)=>{if(protectedMaintenance){setNavigationNotice(maintenanceMessage);return;}router.push(target);},[protectedMaintenance,router]);
+  useEffect(()=>{if(!protectedMaintenance)return;const protect=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',protect);return()=>window.removeEventListener('beforeunload',protect);},[protectedMaintenance]);
+  const salesOrderId = searchParams.get("id")?.normalize("NFKC").trim().toLowerCase() ?? "";
   const serverSession = useServerSession();
+  const deliverySaved = useCallback((orderId: string) => { if (orderId === salesOrderId) setDeliveryPlanRefreshToken(value => value + 1); }, [salesOrderId]);
   const requestLogout = async () => {
-    if (preparationGuard) {
-      setNavigationNotice('来源维护尚未完成，请先保存或关闭维护来源，再退出登录。');
+    if (protectedMaintenance) {
+      setNavigationNotice(maintenanceMessage);
       return;
     }
     await serverSession.logout();
@@ -120,7 +126,11 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
   const [error, setError] = useState<string | null>(null);
   const loadEpoch = useRef(0);
   const [loadedScope, setLoadedScope] = useState("");
+  const [loadedIdentity, setLoadedIdentity] = useState<object | null>(null);
   const scopeKey = `${salesOrderId}/${serverSession.user?.id ?? ""}/${serverSession.permissions.join("|")}/${executionOnly}`;
+  const identity = useMemo(() => ({ salesOrderId, serverSession, executionOnly }), [salesOrderId, serverSession, executionOnly]);
+  const identityOwner = useRef<object | null>(null);
+  useLayoutEffect(() => { const epoch = loadEpoch; identityOwner.current = identity; return () => { identityOwner.current = null; epoch.current++; }; }, [identity]);
   const loadDetail = useCallback(async () => {
     if (serverSession.status !== "authenticated" || !serverSession.hasPermission("order.view")) return;
     const epoch=++loadEpoch.current;
@@ -128,6 +138,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
       setDetail(null);
       setNotFound(true);
       setLoadedScope(scopeKey);
+      setLoadedIdentity(identity);
       setLoading(false);
       return;
     }
@@ -139,10 +150,10 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
     setError(null);
     try {
       const nextDetail = await loadServerOrderCenterDetail(serverSalesOrderReadRepository, salesOrderId);
-      if(epoch!==loadEpoch.current)return;
+      if(epoch!==loadEpoch.current||identityOwner.current!==identity)return;
       setDetail(nextDetail);
     } catch (nextError) {
-      if(epoch!==loadEpoch.current)return;
+      if(epoch!==loadEpoch.current||identityOwner.current!==identity)return;
       if ((nextError instanceof SalesOrderServerReadError) && nextError.status === 401) {
         setSessionExpired(true);
         serverSession.invalidate();
@@ -154,9 +165,9 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
         setError(unavailableMessage(nextError));
       }
     } finally {
-      if (epoch === loadEpoch.current) { setLoadedScope(scopeKey); setLoading(false); }
+      if (epoch === loadEpoch.current && identityOwner.current === identity) { setLoadedScope(scopeKey); setLoadedIdentity(identity); setLoading(false); }
     }
-  }, [salesOrderId, serverSession, scopeKey]);
+  }, [salesOrderId, serverSession, scopeKey, identity]);
 
   useEffect(() => {
     const epochRef = loadEpoch;
@@ -207,10 +218,10 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
     );
   }
 
-  if (loadedScope !== scopeKey) return <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={null}><LoadingState label="读取 PostgreSQL 正式订单详情" /></ServerDetailFrame>;
+  if (loadedScope !== scopeKey || loadedIdentity !== identity) return <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={null}><LoadingState label="读取 PostgreSQL 正式订单详情" /></ServerDetailFrame>;
 
   return (
-    <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={detail} sourceAction={detail?<OrderBusinessSourceButton key={'source-'+scopeKey} orderId={salesOrderId} businessType={detail.businessType} readOnly={Boolean(detail.attribution?.historicalDuplicate)||['completed','cancelled'].includes(detail.lifecycleState)} onGuardChange={updatePreparationGuard}/>:undefined}>
+    <ServerDetailFrame onRequestNavigation={requestNavigation} onRequestLogout={requestLogout} detail={detail} sourceAction={detail?<><OrderBusinessSourceButton key={'source-'+scopeKey} orderId={salesOrderId} businessType={detail.businessType} readOnly={Boolean(detail.attribution?.historicalDuplicate)||['completed','cancelled'].includes(detail.lifecycleState)} onGuardChange={updatePreparationGuard}/><ServerDeliveryPlanMaintenance key={'delivery-'+scopeKey} orderId={salesOrderId} processing={detail.businessType==='processing'} readOnly={Boolean(detail.attribution?.historicalDuplicate)} onGuardChange={updateDeliveryGuard} onSaved={deliverySaved}/></>:undefined}>
 
       {navigationNotice&&<AlertBanner tone="warning" title={navigationNotice}/> }
       {loading ? (
@@ -247,7 +258,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
           {detail.businessType!=='processing'&&<MaterialHistoryDialog key={'material-history-'+scopeKey} orderId={detail.id}/>}
           <GarmentShipmentSection key={'garment-'+scopeKey} orderId={detail.id} contract={detail.billNo} processing={detail.businessType==='processing'} historicalAlias={Boolean(detail.attribution?.historicalDuplicate)} />
           <Card className="oc-server-detail-section">
-            <SavedOrderSourceDetails key={'technical-'+scopeKey} orderId={detail.id} processing={detail.businessType==='processing'}>
+            <SavedOrderSourceDetails key={'technical-'+scopeKey} orderId={detail.id} processing={detail.businessType==='processing'} deliveryPlanRefreshToken={deliveryPlanRefreshToken}>
               <DescriptionList columns={3} compact items={[
                 { key: "uuid", label: "UUID", value: detail.id },
                 { key: "version", label: "数据版本", value: `v${detail.version}` },

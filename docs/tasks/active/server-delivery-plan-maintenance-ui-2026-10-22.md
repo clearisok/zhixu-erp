@@ -64,6 +64,31 @@ Release39699355389均attempt1/success。未重复dispatch。此为前置工具�
 修正后精确main996 guard通过（11页/57能力/83累计UI路径/errors[]），发布116/116通过
 （210207.5217ms，无skip）。这是源码/证据门禁，不代替后续产品浏览器验收。
 
+## 页面接线切片 baseline
+
+独立输入checkpoint406a1fffe65fc442913c2d66a0c7cc4d77f24a74，工作树干净；类型/lint/26项
+及116发布检查、精确提交guard已通过。一次Execute的STOP诊断与exact远端同时保留；随后仅原工具
+DryRun零push通过DELIVERED_VERIFIED/exact406a，未重复推送或更改认证。未建累计重复PR。
+本阶段在同分支上只改已批准Modal/maintenance hook/组件/css、detail双guard和旧GET披露刷新，
+实际路径前向补入同一V2记录；不改backend/schema/Source。实现中的草稿和产品验收不提前宣称PASS。
+
+静态review补齐两处P2：processing的source对照字段只来自艾诺科，不伪称原加工数据；合法
+大写UUID在详情入口规范为小写，使pending、当前GET与旧披露刷新一致。另发现发送前断网会使
+receipt长期unknown的恢复死角。按已批准“先核对原请求、不盲目再保存”及D154“不自动重发”
+做技术收口：仅精确unknown回执后提供二次确认的完全相同原请求重发，沿用原actor/SO/UUID/
+expectedVersion/body；发送前重新核对原槽存在且完整相等。任何错误/错回执/身份变化均不开放，
+每次确认只发一次；再次失回执回到核对，不自动续发或生成新UUID。不是新增业务writer或新建计划。
+
+页面已接线，实际隔离built验收仍待。新旧client33/33（538.1156ms）、Server编译通过。
+第一次项目927项为926通过/1旧Modal源码regex失败（197297.441ms）；只放宽其原简写属性拼写，
+原overlay焦点生命周期断言保留，定向7/7通过（222.8072ms）。全项目重验待；不隐去原失败。
+Source验收workflow加入客户端三套与新隔离built用例，不触发部署。
+
+原DeliveryPlan API/请求/PG合成42/42通过（31787.6579ms，无skip），只用三个自有一次性库。
+第二次项目检查910项为908通过/2证据正控失败（186216.0854ms）：两项均为新D156尚未
+supersede原冻结决策，未修改旧hash消除失败。先保存源码/新文档checkpoint，随后独立追加
+新证据并重验；此过渡checkpoint不送达、不宣称最终Gate通过。输入406a的三摘要已逐字节归档。
+
 ## 验收和交付
 
 先只读核实实际代码再定精确文件；复用Foundation，不改全局主题/断点/路由。纯客户端/草稿/

@@ -1,0 +1,35 @@
+.qc-modal.oc-delivery-modal { width: min(880px, calc(100vw - 40px)); max-width: 880px; }
+.oc-delivery-modal .qc-modal-body { display: grid; gap: 18px; min-width: 0; }
+.oc-delivery-modal h3 { margin: 0; font-size: 18px; color: var(--qc-ink, #243f37); }
+.oc-delivery-modal p { margin: 0; line-height: 1.65; overflow-wrap: anywhere; }
+.oc-delivery-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.oc-delivery-table { overflow-x: auto; min-width: 0; border: 1px solid #dce5e0; border-radius: 12px; }
+.oc-delivery-table table { width: 100%; border-collapse: collapse; text-align: left; }
+.oc-delivery-table th { background: #f3f7f5; color: #687b73; font-size: 13px; font-weight: 600; }
+.oc-delivery-table th, .oc-delivery-table td { padding: 12px 14px; border-bottom: 1px solid #e5ebe7; vertical-align: middle; }
+.oc-delivery-table tr:last-child td { border-bottom: 0; }
+.oc-delivery-table th:first-child { width: 38%; }
+.oc-delivery-table th:nth-child(2) { width: 38%; }
+.oc-delivery-table .qc-control { min-width: 0; width: 100%; font-variant-numeric: tabular-nums; }
+.oc-delivery-modal .oc-delivery-note { color: #708178; font-size: 13px; }
+.oc-delivery-balance { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; padding: 14px 16px; border-radius: 10px; background: #f1f7f4; font-size: 14px; }
+.oc-delivery-notice { padding: 12px 16px; border-radius: 10px; background: #f1f7f4; color: #285c4c; }
+.oc-delivery-result { display: grid; gap: 12px; padding: 22px 4px; }
+.oc-delivery-result details { color: #708178; font-size: 12px; }
+.oc-delivery-history { color: #708178; font-size: 13px; }
+.oc-delivery-history summary { cursor: pointer; margin-bottom: 10px; }
+.oc-delivery-history p { text-decoration: line-through; padding: 5px 0; }
+.oc-delivery-empty { padding: 18px 0; color: #708178; }
+.oc-delivery-void-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 150px; }
+@media (max-width: 599px) {
+  .qc-modal.oc-delivery-modal { width: calc(100vw - 24px); max-height: calc(100dvh - 24px); }
+  .oc-delivery-modal .qc-modal-body { gap: 14px; padding: 18px 14px; }
+  .oc-delivery-table th, .oc-delivery-table td { padding: 10px 8px; }
+  .oc-delivery-table th:first-child { width: 43%; }
+  .oc-delivery-table th:nth-child(2) { width: 35%; }
+  .oc-delivery-table .qc-control { padding-left: 8px; padding-right: 8px; }
+  .oc-delivery-table input[type="date"] { font-size: 13px; }
+  .oc-delivery-table td:last-child .qc-button { padding-left: 7px; padding-right: 7px; }
+  .oc-delivery-modal > footer { flex-wrap: wrap; gap: 8px; padding: 14px; }
+  .oc-delivery-modal > footer .qc-button { min-height: 40px; }
+}

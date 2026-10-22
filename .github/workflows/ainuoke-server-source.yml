@@ -41,6 +41,7 @@ jobs:
           npm run test:order-source-evidence
           npm run test:bound-order-refresh
           npx --no-install tsx --test --test-concurrency=1 server/sales-orders/delivery-plan-request.test.ts server/integration/delivery-plan-requests.integration.test.ts
+          npx --no-install tsx --test features/order-center/server/__tests__/delivery-plan-client.test.ts features/order-center/server/__tests__/delivery-plan-draft.test.ts features/order-center/server/__tests__/delivery-plan-pending.test.ts
           npx --no-install tsx --test --test-concurrency=1 features/quote-center/server/__tests__/quote-creation-contract.test.ts server/integration/quote-order-context.integration.test.ts
           npx --no-install tsx --test features/quote-center/server/__tests__/estimate-workflows.test.ts
           npm run test:order-identity
@@ -99,6 +100,7 @@ jobs:
           npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
           npm run test:ainuoke-continuous-ui
           npx --no-install tsx --test server/integration/order-saved-sources-ui.integration.test.mjs
+          npx --no-install tsx --test server/integration/delivery-plan-maintenance-ui.integration.test.mjs
           npx --no-install tsx --test server/integration/quote-order-context-ui.integration.test.mjs
           npx --no-install tsx --test server/integration/production-resources-ui.integration.test.mjs
           npx --no-install tsx --test server/integration/production-scheduling-ui.integration.test.mjs

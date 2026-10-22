@@ -21,6 +21,23 @@
 
 ## Active
 
+### D-156 Server交付计划维护沿用原领域和原请求恢复
+
+- 2026-10-22，Active；用户对原call_d4696fa532a64295ba294304d8404abf回复“按草图实施”。
+  [冻结批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)限定标题小按钮、
+  Foundation弹窗增改作废、预览保存、来源只读与数量差异提示；不改变D100/D154后台规则。
+- 复用原GET/PATCH/原完整body receipt。仅实际变更提交；默认0/null不被强制改为人工正数，
+  作废历史和行身份保留。交期与商业/生产事实独立，来源维护和交期维护独立owner后合并退出保护。
+- actor/tab技术pending先完整存读后发送，不是Browser账本或回退。未知不清缓存、不自动重写；
+  为避免发送前断网后永久未知，只有精确unknown回执才开放二次人工确认的同UUID/CAS/body重发。
+  再次发送前核对原槽完整相等，一次确认最多一发；重发后旧许可失效，错误/切单/换会话不沿用。
+  此为已批准“先核对、不盲目再保存”的恢复实现，不新增业务写入口或产生新计划身份。
+- 规范SO UUID贯通缓存/当前GET/旧披露刷新；实际session对象在layout失效，防同用户ABA和迟到401。
+  processing不把仅来源镜像的null伪称加工资料未记录。完成/取消状态沿用原DeliveryPlan编辑权限。
+- 证据：`features/order-center/server/delivery-plan-*`、maintenance hook/组件、原详情及Foundation Modal。
+  目前client33项/类型/lint及静态review通过，built浏览器/最终门禁仍待；阶段结果分开记录于
+  [当前任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)。不代表部署或人工接受。
+
 ### D-155 交期覆盖只投影当前登记事实
 
 - 2026-10-22，Active；D-147收敛内的只读技术切片，承接BUSINESS_RULES累计多交期比较、D043物理SO归属与D151取消产出/结束余量规则，不引入新的出货或财务口径。

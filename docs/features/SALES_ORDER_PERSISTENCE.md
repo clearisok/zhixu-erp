@@ -128,9 +128,19 @@ historical marker remains legal after an explicit edit. Unknown is not rejection
 Draft comparison submits only actual differences, preserves unchanged null/zero
 defaults, and requires explicit voids. Decimal preview uses exact integer scale;
 oversized historical display facts are kept with comparison unavailable, not0.
-The separate actor/tab pending slot is documented in DATA_LIFECYCLE. At this
-checkpoint these helpers are tested but not wired to a visible product action;
-no new backend rule, SQL, source query or runtime activation is introduced.
+The separate actor/tab pending slot is documented in DATA_LIFECYCLE. The approved
+small title action now opens a Foundation edit/preview/confirm modal. Source facts
+stay read-only; processing has no fabricated Ainuoke comparison. Actual session
+object/order ownership invalidates replies at layout commit, and independent
+source/delivery exit guards are combined. Success refreshes current plans and any
+expanded saved disclosure; a historical receipt is never the current collection.
+
+After an exact unknown receipt only, a second explicit human confirmation may
+replay the identical original request. Recheck the original actor slot before
+sending, with no new UUID/CAS or automatic retry. A new lost reply revokes that
+permission and returns to receipt checking. Wiring and synthetic client tests
+exist; built-browser acceptance is still pending. No new backend rule, SQL, source
+query or runtime activation is introduced.
 
 ## C4.2 ConfirmedCommercialTerms extension
 

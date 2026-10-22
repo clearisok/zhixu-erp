@@ -1,11 +1,11 @@
-# 当前状态：已批准Server交付计划维护交互
+# 当前状态：Server交付计划维护接线，built验收待完成
 
-2026-10-22；feat/server-delivery-plan-maintenance-ui，从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建立后仅FF至干净377a3c9eb40a852851c1d4e05296a4d30f4ce9e9。root唯一writer、既有reviewer只读，完整Goal active。三份原摘要逐字节归档；先读[当前UI任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)及[具体交互批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)。纯client/draft/pending已实现但未接页面；26/26合成检查、类型及lint通过，实际浏览器与完整产品验收仍待。
+2026-10-22；feat/server-delivery-plan-maintenance-ui，独立main996dfedc12da3527343cd3ff2aa5eea35497e10e为基线，输入377a3c9eb40a852851c1d4e05296a4d30f4ce9e9。客户端checkpoint406a1fffe65fc442913c2d66a0c7cc4d77f24a74已精确远端：一次Execute STOP与零push DryRun DELIVERED_VERIFIED分别保留，无重复push或认证修改。输入三摘要按377/406a逐字节归档，root唯一writer、既有reviewer只读，完整Goal active。
 
-用户按原草图批准标题旁小按钮“维护交期”、Foundation弹窗增改作废日期/数量、预览保存、来源只读与差异提示。复用D100/D154后台；未知结果只核对原请求，保留历史、零/null系统默认行和独立会话/订单owner，不新增价格、Source或业务规则。新UI须精确V2路径记录及隔离built验收，不把原型当作App已实现。
+按[冻结批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)接入标题小按钮、Foundation编辑/预览/确认弹窗，复用D100/D154原后台。默认0/null、作废历史、source只读与差异提示保持。实际session/SO owner、来源与交期独立退出保护、成功后当前GET和旧披露刷新均已接线；processing无伪合同对照，大写UUID统一。仅精确unknown回执后二次人工确认可重发原UUID/CAS/body，发送前重新核对原槽，不自动重发或新建请求。
 
-前置[固定工具修复](tasks/active/garment-filter-metadata-screening-2026-10-22.md)最终377已精确远端、精确main守卫PASS。原一次Execute STOP与零push DryRun DELIVERED_VERIFIED分别保留，不推断原stderr缺失的原因。2026-10-22T00:48:51.505Z只读核实其Source39699348958、Team39699352582、Release39699355389均attempt1/success；未重复dispatch。这不是本UI提交的CI，UI后台144三CI另有证据。
+[当前任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)区分工程和未验收：client33/33、类型/lint/Server编译通过；旧Modal源码断言已适配，7项定向通过。927初次926/1失败保留；后一次暴露新D156与旧冻结文档未向前绑定，正按规则追加证据，不能宣称全项目PASS。真实隔离built浏览器、最终门禁/CI仍待，不改变正式能力状态或部署。
 
-修复源码a98e：Node17/Python169/类型/lint/Server与显式Server前端build/发布116（186116.334ms）及独立review通过。获准的一次固定调用在本地candidate失败，0 HTTP/0报表、未读凭据；随后只离线修复配置深度并核对冻结候选成功，没有自动再次调用。真实合同过滤仍未验证，UI批准不扩展该范围。原F三CI、105失败、c0d镜像8/8及144等各冻结历史保持；manifest仅追加已冻结UI批准，269/57，268份原证据不改。
+前置工具377的Source39699348958、Team39699352582、Release39699355389均attempt1/success（00:48:51Z核实）；不是本UI提交CI。其一次固定调用candidate本地失败，0 HTTP/0报表、未读凭据；离线候选修复通过不等于真实合同过滤通过，原尝试不重跑。原F/105/c0d/144等冻结历史保留；当前manifest269/57，D156需独立提交后前向绑定，不覆盖旧证据。
 
-PR120–127保留，不建重复累计PR、不merge/close。3001及50426/59069/62326/62426等旧端口、卷、账号、Browser和工作树不动；只用自有合成fixture。无新真实Source、业务库、绑定、激活、调度或部署。Num/outdate已确认；其他关账问题仍待，不默认。正式成衣收集器、Server关账和运行收敛未完成。
+PR120–127保留，不建重复累计PR，不merge/close/正式部署。保护3001、50426、59069、62326、62426及全部旧端口、卷、账号、Browser和工作树；仅自有合成fixture。无新增真实Source额度、业务库、绑定、激活或调度。Num/outdate已确认，原关账待答不默认；正式成衣采集器、Server关账及运行收敛仍未完成。

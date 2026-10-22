@@ -1,15 +1,15 @@
-# 恢复点：实施已批准的交付计划维护UI
+# 恢复点：已批准交期维护接线，待精确built验收
 
-2026-10-22；feat/server-delivery-plan-maintenance-ui，从main996dfedc12da3527343cd3ff2aa5eea35497e10e建立后仅FF到干净377a3c9eb40a852851c1d4e05296a4d30f4ce9e9。先读[当前任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)和[明确批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)。输入三摘要在completed/2026-10-22-delivery-plan-ui-inputs/377a3c9e/。root唯一writer、既有server_convergence_review只读，不新agent；reviewer正在检查实际接线边界。
+2026-10-22；feat/server-delivery-plan-maintenance-ui；main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实，输入377。最近可靠客户端406a1fffe65fc442913c2d66a0c7cc4d77f24a74已精确远端。一次Execute STOP（push1/exact远端）后仅原工具DryRun零push DELIVERED_VERIFIED，保留诊断，不猜stderr原因、不重复push。root唯一writer，既有server_convergence_review只读，不新agent；完整Goal active。
 
-用户call_d4696fa532a64295ba294304d8404abf已答“按草图实施（推荐）”。原prototype为线程visualizations/delivery-plan-review.html，hash9ce8a0c744039874e514423a5b5fbada6d58f2d9af555b85f065806d682b64c1，不再问此批准。若需改可视化先完整读visualize skill；实现复用Foundation与原页面，不引入全局主题/路由。批准冻结89993412de4cc3f8f3ef19488d20bac67f85c3d9，精确V2记录与manifest追加完成。纯client/pending/draft已实现，26/26（478.3262ms）/类型/完整lint通过；未接Modal、detail或旧披露，不冒称产品/浏览器完成。客户端P2结果漏核对已补：修改/作废ID、精确日期数量、独立非默认新增行；默认编辑标记保留。16MiB空白JSON只证明传输容量。下一步页面hook/Modal/双guard/刷新，详任务及实际代码。
+先读[当前任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)、[冻结批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)、D100/D154/D156及实际dirty。三份输入摘要在completed/2026-10-22-delivery-plan-ui-inputs/377a3c9e和406a1fff，逐字节保留。原call_d4696fa532a64295ba294304d8404abf已答按草图实施，不重问批准；无新Source/业务库/合并/部署授权。
 
-实际GET/PATCH及POST receipt在server/app.ts:513/527；D154后台144三CI完成。GET/PATCH返回{deliveryPlanSet}，receipt返回{receipt}。写/核对需order.view+order.edit及Origin/X-Zhixu-Request:1；requestId显式UUID、expectedVersion、upserts{id:null|UUID,deliveryDate,正decimal-string≤64字符}、voidIds，共1..100变更。系统默认行允许0/null，未改不能upsert；历史作废保留，允许显式作废全部。不要复制Browser浮点/remark或新建后端writer。实际backend不因商业采用、负责人或完成状态增加前置，UI不要夹带新领域限制。
+页面已接线：三个纯client/draft/pending、maintenance hook/组件/css、Modal默认false的closeDisabled、detail实际session对象owner与source/delivery双guard、旧GET严格投影与刷新token。输入UUID入口小写化，processing source对照不适用。API仍为原GET/PATCH/完整原body POST receipt；人工正数量/日期/100变更，历史全读16MiB+64KiB，默认0/null不回写。同值不算实际变化、显式void保历史。
 
-新客户端须白名单、有界完整响应、current lease及原请求精确回执；不能回退Browser或取第一行/平均值。会话/权限/SO/ABA变化前移除旧数据，迟到401不invalidate新会话。pending为actor/tab单槽sessionStorage，只存未决Server命令、跨SO不可覆盖；发送前写入并核对成功，unknown只查receipt，匹配applied/rejected后才清；恢复/刷新不自动PATCH。接detail时sourceGuard与deliveryGuard分开再OR，不能相互清掉。旧SavedDeliveryPlans如已展开，保存后也需受owner控制重读。
+pending技术sessionStorage actor/tab单槽先存读再写，不碰Browser账本。未知不清槽/不自动PATCH；仅严格原receipt unknown后二次人工确认才可重发完全相同UUID/CAS/body，发送前核对原槽存在且canonical相等。同步锁一次确认一发；再次失回执清旧许可，必须重新核对。current session/SO/layout lease保护全部异步，迟到401不能注销新会话。已知终态后旧receipt不冒充当前集合，须另GET并刷新展开披露。
 
-前置377已精确远端/精确guard PASS。一次Execute STOP（exact远端）与零push DryRun DELIVERED_VERIFIED保留，无第二push；原raw stderr缺失不猜原因。2026-10-22T00:48:51.505Z只读核实其Source39699348958、Team39699352582、Release39699355389均attempt1/success。outputs/garment-filter-screening/ci-dispatch.json已消费，不重跑dispatch或真实工具。结果已追加新任务，不把旧成功冒充本UI HEAD。
+实际client33/33（538.1156ms）、类型/lint/Server编译通过；静态review修复应用结果漏核对、processing误标、大写UUID及unknown无恢复死角，目前无新P1/P2。项目927首跑926/1旧Modal regex失败（197297.441ms），定向7/7已适配（222.8072ms）；第二跑因新增D156冻结证据未绑定失败，日志保留。须先提交新D156 blob，再追加supersedes证据，旧ID/hash不改，随后重验，不假报PASS。manifest269/57，批准绑定89993412；新决策尚待前向绑定。
 
-工具源码a98e的17Node/169Python/types/lint/build/116release（186116.334ms）及独立静态review已通过；377只多metadata。原授权固定工具在F=31cad6三CI通过后一次调用即candidate失败，0 HTTP/0报表/未读凭据。旧wx attempt和receipt不得删除或重跑；离线原包装/raw hash、唯一合同及16id核对通过，修复只是编码配置深度误拒，真实过滤仍未验证。没有新Source额度，当前UI批准不能扩大它。
+新server/integration/delivery-plan-maintenance-ui.integration.test.mjs尚未执行，要求exact HEAD build/private Chromium/新一次性PG。已含null/0、精度、预览/voidall、失回执、错receipt、unknown+人工重放再失回执、存储不可用/原槽消失、CAS、ABA late200/401、刷新、完成订单、加工与七角色/窄屏。需构建后实际修复并验收，不把静态看过当测试通过。Source验收workflow仅新增客户端/该built用例，不触发部署。下一步更新新决策证据、完成类型/lint/npm/release/精确guard，源码checkpoint，显式Server构建并实际运行；API delivery suite在outputs/delivery-plan-ui/delivery-api.log运行中，先核对会话7537，不重复并发。
 
-manifest仅追加批准至269/57，原268证据/旧冻结报告/105失败/c0d持久镜像/144回执保持。后续UI需真实隔离built Chromium/原P6回归，类型lint构建release及精确main守卫/独立review，重要Gate checkpoint并安全交付一次，不创建重复累计PR、merge/close/部署。保护3001、所有旧端口/卷/账号/Browser/工作树，仅新自有合成fixture。Num/outdate不重问，原关账问题不默认，完整Goal active。
+前置377三CI已成功：39699348958/39699352582/39699355389，均attempt1，00:48:51Z核实；不重dispatch。原固定Source调用candidate失败0 HTTP/0报表、未读凭据；离线修复已验证，但旧run-authorized-filter.mjs及wx尝试已消费，不能重跑。原F/105失败/c0d镜像8/8/144回执历史保留。不改3001、50426等旧端口/卷/账号/Browser/工作树，不建重复累计PR、不merge/close/正式部署。Num/outdate已确认，其他原关账问题仍待。

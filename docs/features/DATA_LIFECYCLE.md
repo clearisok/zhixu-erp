@@ -29,7 +29,11 @@
 不自动PATCH；仅当前owner核实匹配的applied/rejected终态后清除原槽。损坏/未来schema原字节
 保留并阻止新发送；存储不可用时不以纯内存代替恢复保障。关闭标签页或清站点不在保障范围。
 
-当前只有纯客户端/draft/pending与合成测试，页面尚未接线；见
+发送前断网可能一直unknown；只有精确原receipt明确unknown后，才开放二次人工确认重发原请求。
+原UUID/CAS/日期/数量不变，发送前再验证原槽存在且完整相同。每次确认最多一次；重发即清除旧
+unknown许可，失回执必须重新核对；错误或身份变化不能沿用许可。不会自动重发或清除损坏记录。
+
+客户端与页面已接线，隔离built浏览器验收仍待；见
 [交期维护任务](../tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)。
 
 ## Purpose
