@@ -1,5 +1,7 @@
 # 恢复点：已批准交期维护接线，待精确built验收
 
+6f81f1af扩展built第3阶段触屏高度失败；独立review同时发现继承nowrap导致长数量预览溢出。局部移除旧footer40px、增加white-space:normal并补64字符预览不写入断言，业务/API未改；须新精确built实测，原失败保留。
+
 最新d742ae6d精确Server构建、built12/12（21503.3034ms）与串行项目927/927（431386.9447ms）通过。人工查看PNG发现内部表继承1000px最小宽度，旧外层几何断言未覆盖；现仅局部CSS/标签按已批准手机草图修正，测试增加8种宽度、内层overflow/控件边界/作废确认/手机预览。须当前源码checkpoint后新exact构建/built、类型/lint/精确guard及发布门禁；不能把旧PNG当成新布局通过。
 
 最新b2b92224精确串行构建通过；built前9阶段通过含焦点修复/CAS/存储/voidall/ABA/刷新。第10阶段测试变量preview遮蔽同名UI helper导致TDZ，仅改为batchPreview，产品无变；须新checkpoint及精确构建继续完成剩余完成订单/加工/七角色，不宣称完整PASS。

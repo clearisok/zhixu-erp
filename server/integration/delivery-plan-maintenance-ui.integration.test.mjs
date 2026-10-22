@@ -149,7 +149,10 @@ test('approved delivery plan maintenance works on the exact built Server detail'
         metrics.push({ width, height, touch, dpr, ...geometry }); await shot('edit-' + width);
       }
       await modalClick('作废'); await has('作废本期？'); assert.equal(await evaluate("(()=>{const p=document.querySelector('.oc-delivery-modal'),r=p.getBoundingClientRect();return [...p.querySelectorAll('.oc-delivery-void-confirm button')].every(n=>{const b=n.getBoundingClientRect();return b.left>=r.left&&b.right<=r.right})})()"), true);
-      await click('取消', '.oc-delivery-void-confirm button'); await preview(); assert.equal(await evaluate("(()=>{const t=document.querySelector('.oc-delivery-preview-table');return t.scrollWidth<=t.clientWidth+1})()"), true); await shot('preview-320'); await modalClick('返回修改');
+      await click('取消', '.oc-delivery-void-confirm button');
+      const previewRow = await evaluate("document.querySelectorAll('.oc-delivery-modal input[type=date]').length"), longQuantity = '9'.repeat(64);
+      await input('计划数量 ' + previewRow, longQuantity); await preview(); await has(longQuantity, '.oc-delivery-preview-table');
+      assert.equal(await evaluate("(()=>{const t=document.querySelector('.oc-delivery-preview-table');return t.scrollWidth<=t.clientWidth+1})()"), true); await shot('preview-320'); await modalClick('返回修改'); await input('计划数量 ' + previewRow, '3');
       await command('Emulation.setTouchEmulationEnabled', { enabled: false }); await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
       await modalClick('取消'); await click('放弃修改'); await absent(); assert.deepEqual(await read(), before);
     });

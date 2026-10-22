@@ -6,7 +6,7 @@
 .oc-delivery-table { overflow-x: auto; min-width: 0; border: 1px solid #dce5e0; border-radius: 12px; }
 .oc-delivery-table table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; text-align: left; }
 .oc-delivery-table th { background: #f3f7f5; color: #687b73; font-size: 13px; font-weight: 600; }
-.oc-delivery-table th, .oc-delivery-table td { padding: 12px 14px; border-bottom: 1px solid #e5ebe7; vertical-align: middle; overflow-wrap: anywhere; }
+.oc-delivery-table th, .oc-delivery-table td { padding: 12px 14px; border-bottom: 1px solid #e5ebe7; vertical-align: middle; white-space: normal; overflow-wrap: anywhere; }
 .oc-delivery-table tr:last-child td { border-bottom: 0; }
 .oc-delivery-table th:first-child { width: 38%; }
 .oc-delivery-table th:nth-child(2) { width: 38%; }
@@ -36,7 +36,6 @@
   .oc-delivery-table .qc-control { padding-left: 10px; padding-right: 10px; font-size: 16px; }
   .oc-delivery-table td:last-child .qc-button { padding-left: 7px; padding-right: 7px; }
   .oc-delivery-modal > footer { flex-wrap: wrap; gap: 8px; padding: 14px; }
-  .oc-delivery-modal > footer .qc-button { min-height: 40px; }
 }
 @media (pointer: coarse) {
   .oc-delivery-modal .qc-button, .oc-delivery-modal .qc-control { min-height: 44px; }
