@@ -2264,6 +2264,82 @@
       "sha256": "4de7cecda25c5f3e8e045537fb18afaf5e8afc9a505615db35637c688e6513ed",
       "supersedes": "decisions-current-delivery-coverage-20261022",
       "changeReason": "D156 records the specifically approved DeliveryPlan maintenance UI and exact original-request recovery. Preserve D100/D154, every prior decision and snapshot; no new writer, source collection, database migration, deployment or human acceptance claim."
+    },
+    {
+      "id": "decisions-delivery-plan-maintenance-verified-20261022",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "9b52dc1d75ee4e7d79ef76c29d76069a88f0a074",
+      "renderedSourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+      "sha256": "76c15686344dda1c732d67d6ed5404aa5dfb268d73966f0ea16e7307f99cd138",
+      "supersedes": "decisions-delivery-plan-maintenance-ui-20261022",
+      "changeReason": "Forward D156 engineering evidence to the approved and isolated-tested maintenance UI. Retain every original decision, source and business rule; no deployment, human acceptance or Source activation claim."
+    },
+    {
+      "id": "server-delivery-plan-maintenance-ui-engineering-20261022",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md",
+      "recordedAtSha": "9b52dc1d75ee4e7d79ef76c29d76069a88f0a074",
+      "renderedSourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+      "sha256": "d7526fd9c4e0cb606e961b1cc1f06e4219e410a346431d28902db1d3a9b154df"
+    },
+    {
+      "id": "server-delivery-plan-maintenance-ui-geometry-20261022",
+      "kind": "document",
+      "path": "docs/tasks/assets/server-delivery-plan-maintenance-2026-10-22-7584d77f/receipt.json",
+      "recordedAtSha": "9b52dc1d75ee4e7d79ef76c29d76069a88f0a074",
+      "renderedSourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+      "sha256": "05779c43e946f64f049a2de6fc058f2bd2d99bd91a1d7a3920fb6a1528346064"
+    },
+    {
+      "id": "server-delivery-plan-maintenance-saved-open-disclosure-desktop-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/server-delivery-plan-maintenance-2026-10-22-7584d77f/saved-open-disclosure-desktop.png",
+      "recordedAtSha": "9b52dc1d75ee4e7d79ef76c29d76069a88f0a074",
+      "renderedSourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+      "sha256": "a0638413cbdf6a92461f8c701dbea71dabad09941f5de203c070a8a99139cf90",
+      "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
+      "changeReason": "New specifically approved maintenance UI rendered from exact7584 with synthetic data; preserves every historical screenshot at its original path and hash."
+    },
+    {
+      "id": "server-delivery-plan-maintenance-edit-1440-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/server-delivery-plan-maintenance-2026-10-22-7584d77f/edit-1440.png",
+      "recordedAtSha": "9b52dc1d75ee4e7d79ef76c29d76069a88f0a074",
+      "renderedSourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+      "sha256": "1ee290c2849cc85b5e817f1f9b6354bff3d76a28cf5779d3972c5e053eaf7bd1",
+      "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
+      "changeReason": "New specifically approved maintenance UI rendered from exact7584 with synthetic data; preserves every historical screenshot at its original path and hash."
+    },
+    {
+      "id": "server-delivery-plan-maintenance-edit-390-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/server-delivery-plan-maintenance-2026-10-22-7584d77f/edit-390.png",
+      "recordedAtSha": "9b52dc1d75ee4e7d79ef76c29d76069a88f0a074",
+      "renderedSourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+      "sha256": "181db25c83fdd1371cc477998346e7bdaa9f8ef0e1e8d316c7b56f56d50439fe",
+      "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
+      "changeReason": "New specifically approved maintenance UI rendered from exact7584 with synthetic data; preserves every historical screenshot at its original path and hash."
+    },
+    {
+      "id": "server-delivery-plan-maintenance-edit-320-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/server-delivery-plan-maintenance-2026-10-22-7584d77f/edit-320.png",
+      "recordedAtSha": "9b52dc1d75ee4e7d79ef76c29d76069a88f0a074",
+      "renderedSourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+      "sha256": "68732d33dc279234e0ae920a42719907ad526d2f72cf65bfcefc9fdd5d012e13",
+      "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
+      "changeReason": "New specifically approved maintenance UI rendered from exact7584 with synthetic data; preserves every historical screenshot at its original path and hash."
+    },
+    {
+      "id": "server-delivery-plan-maintenance-preview-320-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/server-delivery-plan-maintenance-2026-10-22-7584d77f/preview-320.png",
+      "recordedAtSha": "9b52dc1d75ee4e7d79ef76c29d76069a88f0a074",
+      "renderedSourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+      "sha256": "c550104cfe8baea7dc847a19077b16ead628c63f5cede47abf4232eaa61c4ab0",
+      "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
+      "changeReason": "New specifically approved maintenance UI rendered from exact7584 with synthetic data; preserves every historical screenshot at its original path and hash."
     }
   ],
   "pages": [
@@ -7878,6 +7954,94 @@
           "scope": "Not deployed or re-observed. Preserve the original dated runtime/image facts; this read-only backend slice does not change the protected environment.",
           "evidence": [
             "current-delivery-coverage-engineering-20261022"
+          ],
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444"
+        }
+      }
+    },
+    {
+      "id": "server-delivery-plan-maintenance-ui",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "Approved small Server order-detail action and Foundation edit/preview/confirm DeliveryPlan maintenance, original D100/D154 writer and actor-scoped original-request receipts. Exact decimal drafts, retained default zero/null/history, canonical SO/session leases, independent exit guards and current disclosure refresh. Eight-width/seven-role synthetic browser evidence and single-scroll mobile long-value layout; no schema, Source, price, production, deployment or user-acceptance claim.",
+      "evidence": [
+        "server-delivery-plan-maintenance-ui-engineering-20261022",
+        "server-delivery-plan-maintenance-ui-geometry-20261022",
+        "server-delivery-plan-maintenance-ui-approval-20261022"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+          "scope": "Approved small Server order-detail action and Foundation edit/preview/confirm DeliveryPlan maintenance, original D100/D154 writer and actor-scoped original-request receipts. Exact decimal drafts, retained default zero/null/history, canonical SO/session leases, independent exit guards and current disclosure refresh. Eight-width/seven-role synthetic browser evidence and single-scroll mobile long-value layout; no schema, Source, price, production, deployment or user-acceptance claim.",
+          "evidence": [
+            "server-delivery-plan-maintenance-ui-engineering-20261022"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-22",
+          "sourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+          "scope": "Not merged at independently verified main996dfedc12da3527343cd3ff2aa5eea35497e10e. Existing PRs and original commits remain; no automatic merge or duplicate cumulative PR.",
+          "evidence": [
+            "server-delivery-plan-maintenance-ui-engineering-20261022"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+          "scope": "Exact7584 frontend build and12 built checks, eight widths including1536/DPR1.25 and320 touch emulation, seven trusted roles, receipt loss/replay/CAS/session/focus/long-value/single-scroll. Earlier API42,client33,d742 project927 and483ef P6 fourteen are identified separately in the report; final guard/release/remote CI are later checkpoints.",
+          "evidence": [
+            "server-delivery-plan-maintenance-ui-engineering-20261022",
+            "server-delivery-plan-maintenance-ui-geometry-20261022"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+          "scope": "Explicit wireframe approval permits implementation; independent engineering visual review is not user business acceptance.",
+          "evidence": [
+            "server-delivery-plan-maintenance-ui-engineering-20261022"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
+          "scope": "No real Source request, credential/private report read, binding, activation, scheduler or existing business database mutation. Prior one-shot filter attempt stays consumed.",
+          "evidence": [
+            "server-delivery-plan-maintenance-ui-engineering-20261022"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Not deployed or re-observed. Preserve the dated historical runtime/source/image; the new maintenance UI is not running there.",
+          "evidence": [
+            "server-delivery-plan-maintenance-ui-engineering-20261022"
+          ],
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-22",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Not deployed or re-observed. Preserve the dated historical runtime/source/image; the new maintenance UI is not running there.",
+          "evidence": [
+            "server-delivery-plan-maintenance-ui-engineering-20261022"
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"
