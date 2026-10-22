@@ -55,3 +55,39 @@ FROZEN常量或worker固定序列。第2/3步单独记录实际源码和验收�
 前一客户端的原三CI现已全部成功，见[精确终态](../completed/2026-10-22-delivery-coverage-client-ci.md)。
 它们属于1ed而非本修复，原watch观察超时后没有重启工作流；不借旧CI给新源码报PASS。
 发布116、最终精确提交门禁及本修复的远端/新CI尚待，不提前声明本Gate完成。
+
+## 第2/3步工程输入
+
+从干净checkpoint `64de5c060e68d28ee8525b1e6b6418f4428143a4`继续；其精确main guard PASS。
+单push返回STOP拒绝分类但独立API exact，未重推；原工具随后零push只读DELIVERED_VERIFIED、
+Git read exact。两回执分别保留在outputs/garment-filter-recovery，不推断网络永久恢复。
+旧摘要与证据收口独立静态复审无P1/P2，不代表新组合工具已验收。
+
+新增固定恢复协调器、受限CLI/PowerShell launcher与合成测试，正在工程验收。CLI只有新动作、
+凭据文件及私密输出三个参数，无合同、候选/hash、页码覆盖；精确数值runtime/干净提交/私密目录
+先于凭据读取。候选严格选择后写入、核对新hash并受保护读回，才继续C1/C0/C1；旧FROZEN不变。
+每阶段独立已知/未知计数，未知第二阶段不清空第一阶段下限；共享单调deadline涵盖落盘/读回。
+launcher只传文件路径，不读取凭据，并从自身启动计时180秒、超时终止进程树。
+尚未执行新真实请求；本段不是新的真实执行授权或最终测试结果。
+
+## 第2/3步当前验收
+
+初始新9项纯Node通过；初次typecheck发现path/match控制流未收窄，改为明确never函数声明后
+types通过，没有通过强制类型断言跳过。加入真实私密writer/hash读回与Windows launcher合成
+凭据/宽ACL/dirty测试后11/11通过（20898.7951ms）；新旧三套合计43/43（51736.1023ms）、
+完整Python172/172（1.940s）、完整lint和Server编译通过，无fail/cancel/skip。随后仅为Linux
+无outputs父目录的干净checkout补上recursive mkdir，平台范围与测试结果另行核实。
+没有前端/业务DB/API/浏览器/真实Source测试，初始类型失败单独保留。发布116正在执行，
+组合工具独立静态复审及最终精确源码/交付/CI尚待；不提前报告最终Gate通过。
+
+独立审查提出P2：外层180秒Kill先于内层终态时会丢第一阶段已知计数/候选回执。现新增最多3个
+安全阶段帧与1终态，外层只使用完整换行且校验后的帧；超时保留exact、把未终态not-started降
+为unknown，重新汇总已知下限。不扩大Source时间，终止后只做本机回执核对。首次新增超时测试
+13中12通过/1失败（25218.8319ms），实际只到测试shim的箭头对象字面量语法错误，没有运行
+180秒或发HTTP。已修正fixture并增加无采集的语法/参数前检，完整180秒用例正在重新执行。
+不能把旧11项通过当作这个P2已验证关闭；原失败保留。
+
+首轮发布测试99项90通过/9失败（300059.1665ms），原因均为新D157尚未登记前向文档版本的
+EVIDENCE_WORKTREE_DRIFT；后续17项响应式未运行。按RELEASE_BASELINE_GUARD先提交新决策
+字节，再追加supersedes记录，旧ID/hash不改、不删，不修改截图或弱化测试。当前清单仍284/58，
+新前向冻结及最终发布测试尚待。

@@ -108,6 +108,7 @@
     "test:material-arrivals-ui": "tsx --test --test-concurrency=1 server/integration/material-arrivals-ui.integration.test.mjs",
     "test:garment-shipment-observations": "tsx --test --test-concurrency=1 server/ainuoke-source/garment-shipment-observations.test.ts features/ainuoke-garment-shipments/__tests__/client.test.ts server/integration/garment-shipment-store.integration.test.ts server/integration/garment-shipment-upgrade.integration.test.ts",
     "test:garment-contract-verification": "tsx --test --test-concurrency=1 server/integration/garment-contract-verification.test.ts",
+    "test:garment-filter-recovery": "tsx --test --test-concurrency=1 server/integration/garment-filter-recovery.test.ts",
     "test:garment-shipments-ui": "tsx --test --test-concurrency=1 server/integration/garment-shipments-ui.integration.test.mjs",
     "source:ainuoke:bound-refresh": "tsx server/ainuoke-source/bound-order-refresh-cli.ts",
     "test:bound-order-refresh": "tsx --test --test-concurrency=1 server/integration/bound-order-refresh.test.ts server/integration/bound-order-refresh.integration.test.ts"

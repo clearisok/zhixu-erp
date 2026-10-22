@@ -70,6 +70,7 @@ jobs:
           npm run test:ainuoke-payment-probe
           npx --no-install tsx --test --test-concurrency=1 server/integration/garment-shipment-probe.test.ts
           npm run test:garment-contract-verification
+          npm run test:garment-filter-recovery
           npm run test:garment-shipment-observations
           npm run test:ainuoke-payment-observations
           npm run test:ainuoke-payment-contracts

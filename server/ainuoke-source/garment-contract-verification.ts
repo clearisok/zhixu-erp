@@ -78,8 +78,9 @@ function rawPage(text: string, password = "") {
   if (!Array.isArray(data.rows) || data.rows.length !== total) fail("garment_filter_count_mismatch");
   return { total, rows: (data.rows as unknown[]).map(object) };
 }
-/** Pure selection parser for synthetic tests. Only readFrozenGarmentCandidate
- * is the real CLI scope authority; callers cannot supply a replacement hash. */
+/** Pure selection parser. The old CLI uses readFrozenGarmentCandidate; the
+ * fresh recovery CLI derives identity from its own fixed producer and readback.
+ * Neither CLI accepts an arbitrary candidate/hash replacement. */
 export function selectionFromGarmentCandidate(input: unknown, candidateSha256: string): GarmentFilterSelection {
   const value = object(input); screen(value);
   if (value.schemaVersion !== "ainuoke-garment-shipment-candidate-private.v1" || !sha(candidateSha256)

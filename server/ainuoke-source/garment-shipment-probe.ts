@@ -38,6 +38,13 @@ const configForProbe = (input: unknown) => {
 class WorkerFailure extends SourceError {
   constructor(readonly detail: { code: string; workerStage: string; httpAttempts: number; reportRequests: number }) { super(detail.code); }
 }
+/** Only validated worker failures carry exact counts; transport failures do not. */
+export function garmentCandidateFailureDetails(error: unknown) {
+  return error instanceof WorkerFailure ? { ...error.detail } : null;
+}
+export const GARMENT_PROBE_FAILURE_CODES = Object.freeze([...workerCodes, "shipment_probe_timeout", "shipment_probe_output_limit", "shipment_probe_worker_unavailable", "shipment_probe_worker_encoding",
+  "shipment_probe_worker_failed", "shipment_probe_scope_refused", "shipment_probe_hash_mismatch", "shipment_probe_stale_evidence", "shipment_probe_clean_commit_required",
+  "preflight_private_output_required", "invalid_collector_configuration", "source_secret_field"]);
 function failureEvidence(value: unknown): WorkerFailure {
   const item = object(value);
   if (Object.keys(item).sort().join(",") !== "code,httpAttempts,reportRequests,schemaVersion,workerStage"
@@ -179,9 +186,7 @@ export async function main(args = process.argv.slice(2)) {
     const receipt = writePrivateReport(privateOutput, { ...result.privateReport, toolingCommit }, "garment-shipment");
     process.stdout.write(JSON.stringify({ ...result.summary, toolingCommit, ...receipt }) + "\n");
   } catch (error) {
-    const allowed = new Set([...workerCodes, "shipment_probe_timeout", "shipment_probe_output_limit", "shipment_probe_worker_unavailable", "shipment_probe_worker_encoding",
-      "shipment_probe_worker_failed", "shipment_probe_scope_refused", "shipment_probe_hash_mismatch", "shipment_probe_stale_evidence", "shipment_probe_clean_commit_required",
-      "preflight_private_output_required", "invalid_collector_configuration", "source_secret_field"]);
+    const allowed = new Set(GARMENT_PROBE_FAILURE_CODES);
     const code = error instanceof SourceError && allowed.has(error.code) ? error.code : "shipment_probe_failed";
     const detail = error instanceof WorkerFailure ? error.detail : {};
     let retained: Record<string, unknown> = {};
