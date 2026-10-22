@@ -2,7 +2,7 @@
 
 本次独立核实的 main 基线为 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；历史证据各自保留原来源 SHA。
 
-2026-10-23恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)及[冻结业务恢复报告](tasks/completed/2026-10-23-server-domain-recovery-engineering.md)为准。既有chore/server-current-image-0042，干净driver353381dd复用原精确0c镜像9/9通过：app启动前106表/5sequence一致，68非空与38未实测空表分别记录，原领域回执/历史及恢复后续写通过。旧Quote/PNG-only8/8不扩大；三次失败、自有Docker网段恢复及12保留卷有证据。7定向/116发布及353静态复审通过，最终交付/CI待。原[阶段任务](tasks/active/server-domain-recovery-2026-10-23.md)、[94摘要归档](tasks/completed/2026-10-23-domain-recovery-inputs/94a1767b/CURRENT_STATE.md)保留。#126精确0be三CI完成而merge确认仍待；#127四处共享文档冲突仅虚拟验证。新真实Source、覆盖v1和关账问题仍待；全部旧环境保持，不自动merge/close/部署或操作真实业务库；完整Goal未完成。
+2026-10-23 恢复以 [CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)及[精确 CI / 全目标核对](tasks/completed/2026-10-23-domain-recovery-ci-and-goal-audit.md)为准。精确 686270c0 已核实送达，Source/Team/Release 三项原 run 均 attempt 1 / success，不重跑。原 353 driver / 不可变 0c 镜像的 9/9、106 表/5 sequence、7 定向/116 发布及复审见[冻结恢复报告](tasks/completed/2026-10-23-server-domain-recovery-engineering.md)，失败与保护范围不覆盖。候选含 #120–125、#127 原 head，但不含 #126 最新 0be；main 未包含这些 head。#126 merge、新固定 Source 额度、覆盖 v1 与关账问题仍待；维护交期已批准并实现，批准不能混用。[原 686 摘要](tasks/completed/2026-10-23-ci-closeout-inputs/686270c0/CURRENT_STATE.md)保留，文档后继 head 不借用 686 CI。所有旧环境保持，无自动 merge/close/部署或真实业务操作；完整 Goal 未完成。
 
 ## 系统简介
 

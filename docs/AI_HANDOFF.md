@@ -1,30 +1,40 @@
-# 恢复点：合成业务恢复工程通过，准备交付
+# 恢复点：精确 686 CI 已结束，核对剩余 Gate
 
-2026-10-23；main996dfedc12da3527343cd3ff2aa5eea35497e10e，完整Goal active。
-root唯一writer，既有release_safety_review只读。当前chore/server-current-image-0042；
-phase基线94a1767b。工程driver353381ddb0c800a1c64fa32202c587ca3a350f08，应用镜像源
-0c7377d99a51bcab6589217edff69a54e7b2ee21/ID4a489d9a8fd7a78acf5fc3fb9c88855c24637b9c09e56c932a280461e0d47e92。
-先读冻结报告tasks/completed/2026-10-23-server-domain-recovery-engineering.md。
-旧94三摘要和353的失败过程接力均按Git字节归档到domain-recovery-inputs。
+2026-10-23；完整 Goal active，root 唯一 writer，既有 reviewer 只读。main 独立重读为
+`996dfedc12da3527343cd3ff2aa5eea35497e10e`。当前 `chore/server-current-image-0042`；
+本次文档收口输入为干净 `686270c009dc4bb9b4b9232d408e86c64f768068`。
+先读 CURRENT_STATE 和[CI/目标核对](tasks/completed/2026-10-23-domain-recovery-ci-and-goal-audit.md)。
+原三摘要逐 Git blob 归档到 `tasks/completed/2026-10-23-ci-closeout-inputs/686270c0/`。
+本次仅文档发布回归 116/116（347342.7729ms）、归档/链接检查及独立复审通过，83835 终态。
+剩余审计未发现绕过待决项仍有必要实施的业务工程，不自行制造新切片。
 
-实际9/9通过246597.9241ms；106表/5sequence在app startup/login前精确一致，68非空、
-38空且未实测；原业务回执/历史及继续合法命令通过。恢复后新建加工批次/SO，在恢复的剩余35件
-排单登记5件，原取消排单25件不变。receipt为outputs/server-domain-recovery-20261023/run-0f6ed1513b.json，
-SHA256c4fd5744ffbc77dc4c73e66798759775f2d869e1b060697884a443e8020f0226。
-7/7纯定向、限定lint/语法和完整发布116/116通过358212.8084ms；各自真实范围不混用。
-原353静态及最终结果/文档复审无P1/P2；精确996最终文档门禁待收口，再安全送达并运行三acceptance CI。
-本分支仅验证引用，不新建累计业务PR；旧三项Source0c CI不冒称新分支CI。
+## 已结束，不再 poll / redispatch
 
-实际句柄5888/98055/71235均失败终态，11100最终9pass，91903发布116pass，81698为16e门禁PASS，
-全部终态，不再poll。353第一轮因本机默认网段池耗尽，诊断已具体确认；只down本phase已停
-的2ad6e5bd60/5c985d2309/2986cd3055，无volumes参数，12卷和私密配置保留；成功0f6ed1513b两项目
-按原guard清理完成。禁止全局prune或处理别的项目/卷；不改共享Docker/Git/TLS/proxy配置。
-不挂新应用代码，native同一DATABASE_URL拒绝guard先于Pool导入，Source只是内部合成输入。
+- 精确 686 远端送达已独立核实。一次 push 的 STOP/非零回执与随后 exact 零推送只读核对分别
+  保留，不改写为 push exit 0，不声称长期网络修复。
+- Source `39834196864`、Team `39834203852`、Release `39834211313` 均 attempt 1 / success，
+  full head 均为 686。watch 92849 观察期限结束不代表 CI 失败，随后只读核实原 run 成功。
+  本机回执在 `outputs/server-domain-recovery-20261023/{ci-686270c0-final,final-delivery-686270c0}.json`。
+- 原 353 driver / 原 0c 镜像 9/9 整库恢复、7/7 定向、116/116 发布回归均通过；原失败及
+  范围见[冻结报告](tasks/completed/2026-10-23-server-domain-recovery-engineering.md)。所有旧 exec/watch
+  句柄均终态，不重新轮询。文档后继 head 不能借 686 CI 声称自身通过。
+- #126 精确 `0be89ff99a7339a68934ed94a56fdc32b11cc8ab` 的本地 134、三 CI 和复审也已完成。
 
-#126精确0be89ff99a7339a68934ed94a56fdc32b11cc8ab已送达、134本地及三CI全部success、复审完成。
-Source39823068530/Team39823068516/Release39823068537和watch93718均终态。merge确认仍待人回复，
-不自动merge/ready/close。#127与其四文档/清单冲突只有虚拟验证；实际main前移后才整合测试。
-新固定真实Source额度、覆盖v1和原关账三问仍待，Num/outdate已确认，不重复问；获准真实读取前
-要从干净树回stable feat/garment-filter-recovery精确0c，不能在本验收分支消耗旧额度。
-3001、50426/其他旧入口、账号、Browser、业务库、所有原工作树保持；无部署/切换/激活/退役。
-standing安全Git恢复/CI授权有效，不再逐SHA问；不授权自动合并或真实业务操作。
+## 尚待答复，不默认、不重复问
+
+1. #126 具体 merge 确认。未获答复不 ready/merge/close；main 前移后再实际整合 #127。
+   686/0c 含 #120–125、#127 原 head，不含 #126 最新 0be；这些 head 都未进 main。
+   四文档/清单冲突只虚拟验证。当前分支只作验证引用，不创建重复累计业务 PR。
+2. 新真实 Source 固定恢复额度。获准后先回干净稳定
+   `feat/garment-filter-recovery@0c7377d99a51bcab6589217edff69a54e7b2ee21`，只执行已列
+   `ainuoke-garment-filter-recovery.ps1 -RecoverFilter` 范围；不在本测试分支消费额度。
+   原额度已用完，不重建丢失冻结样本，不读/输出凭据，不自行重采。
+3. 交期覆盖 v1 具体草图。客户端已实现；可见面板待批准。原维护交期批准只覆盖已实现的多期
+   维护，不扩张为覆盖面板批准；v1 资产/hash 不改。
+4. Server 关账三问：加工服务产值分类、已采用 CNY 工价与 USD 关账、完成更正后的 stale。
+   Num/outdate 已明确，不重问；不默认口径或机械复制 Browser 关账公式。
+
+3001、50426 及其他旧入口/账号/Browser/业务库/工作树不动；无自动部署、切换、退役、
+Source/绑定/激活/调度。standing 安全 Git 恢复/CI 授权有效，不逐 SHA 询问，但不是自动合并
+或真实业务操作授权。失败演练的 12 卷及私密配置保留，禁止全局 prune。成功项目已按原 guard
+清理，不重复清理。
