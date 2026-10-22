@@ -14,6 +14,9 @@ overlay的打开/焦点/滚动生命周期不变。交期弹窗复用该基础�
 及焦点/单滚动/完整长数量见[冻结工程证据](../tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md)。
 交期表局部清除legacy全局1000px最小宽度/nowrap，手机按批准草图分行，正文仅一处纵向滚动，
 日期/数量/操作与预览标签完整保留；不改其他表格或环境。
+后续CI发现手机“只显示最后操作”规则隐藏来源按钮，仅订单详情将两操作分组，并局部
+处理named grid、按钮全宽和细指针窄屏层叠；全局PageHeader不改。原失败与精确2a199的
+13项维护/9项报价上下文/14项P6复验见[纠正记录](../tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md)。
 
 2026-10-21 来源维护导航同步：来源按钮的父级保护镜像与自身guard均在layout提交，
 避免fieldset已启用而父页面仍按旧busy状态拦截唯一一次创建报价导航。

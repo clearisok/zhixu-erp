@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[交期维护任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)及[原工程记录](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md)为准。feat/server-delivery-plan-maintenance-ui，main996dfedc12da3527343cd3ff2aa5eea35497e10e。产品7584既有本地验收与manifest278/58保留；6c8精确交付/guard通过，Release39746532945、Team39746525939 success，Source39746518775在原报价上下文手机来源入口检查失败，后续两步骤未执行。局部修复中，不以维护交期12项通过掩盖该产品缺陷。原Source一次candidate失败0HTTP/未读凭据，额度已消费；不重跑/扩大采集。root唯一writer、既有reviewer只读，无自动合并关闭/正式部署/真实业务库。完整目标未完成，Num/outdate已确认，原关账待答不默认。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[交期维护任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)及[手机纠正记录](tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md)为准。feat/server-delivery-plan-maintenance-ui，产品2a199、main996dfedc12da3527343cd3ff2aa5eea35497e10e；类型/lint/精确构建、维护13/报价上下文9/P6十四、八宽度九模式通过，独立代码/视觉无剩余P1/P2。6c8旧CI两绿一红及本机复现保留，新证据/发布检查/远端/CI仍待。原278证据/旧图片不覆盖；无自动合并关闭/正式部署/真实业务库或新增Source，全部旧环境保护。完整目标未完成，Num/outdate已确认，原关账待答不默认。
 
 ## 系统简介
 

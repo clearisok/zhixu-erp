@@ -1,13 +1,13 @@
-# 恢复点：Source CI发现手机来源操作被隐藏，局部修复中
+# 恢复点：手机来源回归已纠正，待最终交付
 
-2026-10-22；feat/server-delivery-plan-maintenance-ui，最终产品7584d77ff366b419e8481a7e3d3efc31627b398b；main996dfedc12da3527343cd3ff2aa5eea35497e10e已独立核实。完整Goal active，root唯一writer，既有reviewer只读。用户重新提供AGENTS，当前适用；之前撤销只属阶段历史。常设安全Git恢复/CI授权继续，不重问每SHA；不自动合并关闭、正式部署或改真实账号/业务库。
+2026-10-22；feat/server-delivery-plan-maintenance-ui，产品2a19960a8f9810062f15b87e18214505aa74f8c5；main996dfedc12da3527343cd3ff2aa5eea35497e10e已再次独立核实。root唯一writer、既有reviewer只读；最新AGENTS适用，常设安全Git恢复/CI授权有效，不重问每SHA。禁止自动合并关闭、正式部署、真实账号/业务库或新增Source范围；完整目标未完成。
 
-已批准call_d4696fa532a64295ba294304d8404abf草图。新小按钮/弹窗复用原GET/PATCH/完整body receipt：默认0/null、作废历史、差异提示、精确数量、actor/tab pending、当前session/SO lease、双退出guard保持。精确unknown后二次人工确认才可同UUID/CAS/body重发，发前核对原槽；不自动重试/新请求。成功另GET当前集合并刷新披露，processing无伪合同对照。
+批准call_d4696fa532a64295ba294304d8404abf已实现。维护交期沿用原GET/PATCH/完整body receipt，默认0/null、永久人工所有权、作废历史、exact decimal、session/SO owner及独立退出保护不变。未知先核对，精确unknown后二次确认同UUID/CAS/body重发，成功另GET当前集合；processing无伪合同对照。
 
-[冻结工程记录](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md)包含源码/结果/失败/限制与五PNG哈希：client33、原API42、类型/完整lint/Server编译通过；d742项目927/927，483ef73e P6 14/14，最终7584构建与built12/12、八宽度/七角色/键盘/长数量/单滚动通过。当前docs/tasks/assets/server-delivery-plan-maintenance-2026-10-22-7584d77f只有合成数据。D156与新报告/截图先提交，再前向绑定，旧270证据/57能力不改；不要运行最终guard直到绑定完成。
+6c8已一次安全push并独立API exact；Release39746532945和Team39746525939成功，Source39746518775失败。原Foundation手机last-action隐藏来源，原quote上下文在390两子项失败；本机原7584构建亦复现6pass/3fail。未放宽原测试。局部分组后又修正旧named areas、全宽按钮和窄细指针grid层叠；原失败及各源码结果见[任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)。
 
-证据checkpoint9b52dc1d75ee4e7d79ef76c29d76069a88f0a074后，manifest已追加新D156 supersedes/新报告/geometry/5PNG和独立UI能力58（共278证据）；旧270/57和其他字段逐项全等，没有部署/合并/人工接受/Source升格。7adf发布116/116通过380083.2885ms，无skip；root与独立证据复审均核实8项新证据Git blob/hash/祖先及7维状态，无新P1/P2。6c8ecb6d52e3c1e86120bb42d538223d0c8c8473精确main996 guard PASS11/58/87；一次push/exit0/独立API exact SHA，DELIVERED_VERIFIED/NORMAL，原历史根因仍unknown。
+2a199最终类型/完整lint/Server前端构建通过；维护13/13 28595.4665ms、报价上下文9/9 23826.8719ms、P6 14/14 58604.9834ms，无skip。页头八宽度九模式含320fine，Modal八宽度/七角色；root与独立reviewer看最终三图，无剩余P1/P2。新四PNG/receipt与[纠正报告](tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md)必须先commit，再前向追加证据并更新本UI能力证明，不覆盖原278条证据/57项其他能力/旧图片。
 
-6c8仅dispatch一次Source39746518775、Team39746525939、Release39746532945；后两者success，Source failure。新维护12、原P6十四及披露九均通过；quote-order-context UI两子项在390等“维护来源”超时（含父3fail/6pass），报价生命周期/Python未执行。原Foundation手机规则只显示最后一个直接子操作，新增交期导致来源隐藏；局部分组+八宽度双入口可见性检查后重验，不放宽原quote上下文断言。API日志读取失败，改用既有只读GitHub connector取得完整job日志；不改Git认证配置。回执outputs/delivery-plan-ui/ci-dispatch.json与final-delivery.log。没有该head的PR，不创建重复累计业务PR，原#120–127仍open/draft原SHA。
+下一步完成证据绑定、npm run test:release-baseline、精确最终HEAD对main守卫，然后既有工具一次安全交付并独立核实，仅Source/Team/Release三CI。新提交尚未送达，不把6c8两绿一红或原377三绿作为新CI。验证引用不创建重复累计PR，原#120–127保持。
 
-原根文件/登记外部缺失原因未知，已从公共Git精确9319恢复/repair回7bf3，保留依赖链接/空目录/全部历史，无其他工作树或业务数据删除。旧ignored输出已不在原位置，不伪称找回；当前输出重建。只在31个已登记工作树根检查原D1933私密候选的精确相对路径，均未找到，未搜索全部磁盘或读取凭据/原文；依赖该候选的真实过滤工具不能运行，不能重建冻结hash来绕过。前置377三CI成功但非当前UI；原固定Source一次candidate失败0HTTP/未读凭据已消费，不能因wx文件缺失重跑。Num/outdate已确认，其他原关账问题不默认；正式采集器/Server关账/环境收敛仍未完成。
+原根恢复/依赖/历史及旧ignored缺失边界保留。D1933私密候选在31个登记根的精确原相对路径未找到，未搜索全部磁盘或读凭据/原文；固定工具不能运行，不改冻结hash或重建已消费wx。原唯一固定调用candidate失败0HTTP，许可仍已消费。Num/outdate已确认；原关账业务问题待答，不默认。正式采集器/Server关账/运行入口收敛仍未完成。

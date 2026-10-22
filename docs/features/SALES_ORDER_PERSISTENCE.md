@@ -141,6 +141,11 @@ sending, with no new UUID/CAS or automatic retry. A new lost reply revokes that
 permission and returns to receipt checking. Exact-source synthetic built UI,
 seven-role/eight-width coverage and original P6 regression are recorded in the
 [frozen engineering evidence](../tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md).
+The later Source CI caught a hidden mobile source action. Both actions now share
+a scoped detail-header group: compact at desktop, paired below the identity on
+mobile including narrow fine-pointer windows. The original source-context and
+P6 regressions, actual hit-tests and new screenshots are frozen separately in
+[the correction record](../tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md).
 This is not deployment or human acceptance. No new backend rule, SQL, source query
 or runtime activation is introduced.
 
