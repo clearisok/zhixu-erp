@@ -54,3 +54,20 @@ FROZEN_CANDIDATE_ACCEPTED_OFFLINE；sourceRequests=0/credentialAccess=none/DB=no
 完整lint通过；main996工作区守卫PASS（checkedHead16834a286868b095d72b7323cbbb46cdf88b56fc，
 11页面/57能力/80继承UI路径，errors[]）。独立静态review无P1/P2，reviewer未执行测试或读取
 私密文件。下一步只提交本阶段增量，再以精确源码构建、发布116回归及最终收口；不复用旧CI。
+
+## 最终本地工程
+
+源码a98e4da5bff5b772bea292abdf33bc179a614fd6，clean。原Node红测16项中13通过/3新增失败，
+修复及补充大整数用例后17/17通过；Python原18项中2新增失败，完整最终169/169通过。
+不是将原红测改称通过。最终类型、完整lint、Server编译均PASS；显式Server前端build
+server-garment-filter-a98e4da5-20261022/full sourcea98e、声明时间2026-10-22T08:14:40+08:00，
+session/Server/writable/snapshot构建通过，build-info已回读。
+
+发布回归116/116（186116.334ms）通过，无skip。独立静态review无P1/P2，不代表reviewer执行了
+测试或读取真实文件。没有重跑全项目927/PG270或UI像素；本阶段无SQL/UI/业务能力状态变化，
+manifest268证据/57能力及全部旧记录逐字不变，不为工具修复抬高能力或部署标签。
+
+原冻结候选离线已由原产品函数重新解析通过；这是本地工作区检查，未再次调用CLI或collector，
+未读凭据/发HTTP/访问DB。原失败的尝试、回执、公开脱敏诊断与所有本阶段日志保留在ignored
+outputs/material-arrival-activation与outputs/garment-filter-screening。当前只待最终文档HEAD
+精确guard、安全交付和该精确HEAD三CI；无重复累计PR，不自动合并/关闭/部署。
