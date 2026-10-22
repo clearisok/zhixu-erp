@@ -1,4 +1,4 @@
-# 当前状态：交期覆盖客户端初验通过，展示待确认
+# 当前状态：交期覆盖客户端本地验收通过，展示待确认
 
 2026-10-22；`feat/server-delivery-coverage-client`。从独立核实的main
 `996dfedc12da3527343cd3ff2aa5eea35497e10e`建分支，仅FF干净已送达输入
@@ -13,7 +13,10 @@ DeliveryPlan/执行及原纯函数核对全部明细和摘要，阻断伪零缺�
 
 实际定向54/54（1487.0117ms）、原纯投影与真实PG/API15/15（11331.9875ms）通过，均无
 fail/cancel/skip；typecheck与完整lint通过。独立静态复审无P1/P2，容量文案已按建议精确化；
-reviewer没有执行测试。Node/前端构建、原生产页面built、发布检查、远端与新CI仍待。
+reviewer没有执行测试。精确483be024的Node/Server前端构建通过；原生产页面built37/37，
+79299.1902ms；发布单测116/116，365977.5741ms，均无fail/cancel/skip。原可见页面未回归，
+没有覆盖面板系统验收。精确main门禁首轮只报V0页面ID未登记，失败回执保留；现仅按既有
+清单改为order-detail/navigation，最终commit门禁、远端与新CI仍待，不借旧CI。
 
 新增展示只做了合成交互草图，736/390/320三宽度×五种数据状态15项原型检查通过；不是
 实际系统接线或用户接受。草图版本v1 SHA256为`efaf55aac9a947d698fade85bec0c7e74ef624000f7a0a947b356cb1e1ef3a6e`，

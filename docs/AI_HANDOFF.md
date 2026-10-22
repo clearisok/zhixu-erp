@@ -1,4 +1,4 @@
-# 恢复点：交期覆盖客户端V0，展示草图待批
+# 恢复点：交期覆盖客户端V0本地通过，展示草图待批
 
 2026-10-22；main996dfedc12da3527343cd3ff2aa5eea35497e10e再次独立核实，PR120–127原head不变。
 当前`feat/server-delivery-coverage-client`从main新建后仅FF干净c5b4bec40097606142c69ecc2517de82a4c07370。
@@ -13,8 +13,12 @@ missing/null为unavailable；已提供coverage由同响应计划/执行和原pro
 
 实际54/54定向（1487.0117ms）、原15/15 PG/API（11331.9875ms）、types/full lint通过，无skip。
 日志outputs/delivery-coverage-client/{client,api,typecheck,lint}-initial.log；独立静态复审无P1/P2。
-后续精确源码checkpoint、Node/Server前端build、原排单built、发布116/精确main guard、证据复审、
-单次交付及三项新CI仍待，不借2f旧CI。本阶段先技术客户端，不创建重复累计业务PR。
+源码checkpoint483be024的Node/Server前端build均通过；原排单built37/37（79299.1902ms）、
+发布116/116（365977.5741ms）均无skip。精确main guard首轮UI_CHANGE_PAGE失败，
+原guard-483be024.json保留；仅修正V0记录为清单既有order-detail/navigation，无产品变化。
+两位只读reviewer分别完成产品与证据复审，无P1/P2；后者未执行测试。
+最终commit的精确main guard、单次交付及三项新CI仍待，不借2f旧CI。
+本阶段先技术客户端，不创建重复累计业务PR。V2具体v1草图问题已提交，仍无回复。
 
 草图v1 efaf55aac9a947d698fade85bec0c7e74ef624000f7a0a947b356cb1e1ef3a6e已复制到
 docs/tasks/assets/server-delivery-coverage-proposal-2026-10-22-v1；三宽×五状态原型15项通过。

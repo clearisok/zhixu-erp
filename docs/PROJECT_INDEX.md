@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[交期覆盖接线](tasks/active/server-delivery-coverage-ui-2026-10-22.md)及[客户端契约](features/SERVER_DELIVERY_COVERAGE_UI.md)为准。feat/server-delivery-coverage-client，干净输入c5b4bec40097606142c69ecc2517de82a4c07370、main996dfedc12da3527343cd3ff2aa5eea35497e10e；V0客户端54/原PG与投影15/types/full lint通过，独立静态无P1/P2。新展示仅有具体草图，V2待批准；构建/原页面built/发布/交付/新CI仍待。上一维护交期产品2a199、2f0三CI通过，最终c5b远端exact，旧摘要已按Git字节归档，失败/截图/284证据58能力保持。无自动合并关闭、部署/入口切换、真实Source或业务库操作；完整目标未完成，Num/outdate已确认，原关账待答不默认。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[交期覆盖接线](tasks/active/server-delivery-coverage-ui-2026-10-22.md)及[客户端契约](features/SERVER_DELIVERY_COVERAGE_UI.md)为准。feat/server-delivery-coverage-client，干净输入c5b4bec40097606142c69ecc2517de82a4c07370、main996dfedc12da3527343cd3ff2aa5eea35497e10e；源码483be024的V0客户端54/原PG与投影15/types/full lint/双build/原页面built37/发布116通过，两项独立静态无P1/P2。精确main门禁首轮V0页面ID失败已仅改记录，最终commit门禁待重核；交付/新CI仍待。新展示仅有具体v1草图，V2问题待回复。上一维护交期产品2a199、2f0三CI通过，最终c5b远端exact，旧摘要已按Git字节归档，失败/截图/284证据58能力保持。无自动合并关闭、部署/入口切换、真实Source或业务库操作；完整目标未完成，Num/outdate已确认，原关账待答不默认。
 
 ## 系统简介
 
