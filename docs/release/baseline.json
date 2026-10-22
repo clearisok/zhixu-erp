@@ -2340,6 +2340,62 @@
       "sha256": "c550104cfe8baea7dc847a19077b16ead628c63f5cede47abf4232eaa61c4ab0",
       "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
       "changeReason": "New specifically approved maintenance UI rendered from exact7584 with synthetic data; preserves every historical screenshot at its original path and hash."
+    },
+    {
+      "id": "server-order-maintenance-mobile-correction-20261022",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md",
+      "recordedAtSha": "9212049214cf1f7fce7970743197f955dd303b9d",
+      "renderedSourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+      "sha256": "a6e91ec90ae82ae62d1891fea4b210685fe4b1e932bcdf30f838b182192d0757"
+    },
+    {
+      "id": "server-order-maintenance-mobile-geometry-20261022",
+      "kind": "document",
+      "path": "docs/tasks/assets/order-maintenance-mobile-actions-2026-10-22-2a19960a/receipt.json",
+      "recordedAtSha": "9212049214cf1f7fce7970743197f955dd303b9d",
+      "renderedSourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+      "sha256": "effccbe6046620ad19ee625b97a2aa826687f9d401b4eac2238572cf5004fbbd"
+    },
+    {
+      "id": "server-order-maintenance-header-1440-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/order-maintenance-mobile-actions-2026-10-22-2a19960a/header-1440.png",
+      "recordedAtSha": "9212049214cf1f7fce7970743197f955dd303b9d",
+      "renderedSourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+      "sha256": "c655ed6fcbde9c314285e9fdbbeb256bdb9e29e597fa6e84e1a3a0408144cf88",
+      "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
+      "changeReason": "Forward the specifically approved paired Server order actions after a real mobile CI defect; exact2a199 synthetic build, original source entry preserved, no global layout or historical screenshot replacement."
+    },
+    {
+      "id": "server-order-maintenance-header-390-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/order-maintenance-mobile-actions-2026-10-22-2a19960a/header-390.png",
+      "recordedAtSha": "9212049214cf1f7fce7970743197f955dd303b9d",
+      "renderedSourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+      "sha256": "7f984810f068be717140660931f7b9e68ff6133f02e303e878765fa51e6c1842",
+      "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
+      "changeReason": "Forward the specifically approved paired Server order actions after a real mobile CI defect; exact2a199 synthetic build, original source entry preserved, no global layout or historical screenshot replacement."
+    },
+    {
+      "id": "server-order-maintenance-header-320-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/order-maintenance-mobile-actions-2026-10-22-2a19960a/header-320.png",
+      "recordedAtSha": "9212049214cf1f7fce7970743197f955dd303b9d",
+      "renderedSourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+      "sha256": "7f6333cb8fd1d76a8d5ce10099edbd1f72d17a22fd8bbff8d35935be9ad61a52",
+      "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
+      "changeReason": "Forward the specifically approved paired Server order actions after a real mobile CI defect; exact2a199 synthetic build, original source entry preserved, no global layout or historical screenshot replacement."
+    },
+    {
+      "id": "server-order-maintenance-header-320-fine-20261022",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/order-maintenance-mobile-actions-2026-10-22-2a19960a/header-320-fine.png",
+      "recordedAtSha": "9212049214cf1f7fce7970743197f955dd303b9d",
+      "renderedSourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+      "sha256": "d7b3bda98e90e7dd709517f6b75f2b1a28569398eda5451f94387c9a6e7a3c2e",
+      "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
+      "changeReason": "Forward the specifically approved paired Server order actions after a real mobile CI defect; exact2a199 synthetic build, original source entry preserved, no global layout or historical screenshot replacement."
     }
   ],
   "pages": [
@@ -7971,57 +8027,59 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "Approved small Server order-detail action and Foundation edit/preview/confirm DeliveryPlan maintenance, original D100/D154 writer and actor-scoped original-request receipts. Exact decimal drafts, retained default zero/null/history, canonical SO/session leases, independent exit guards and current disclosure refresh. Eight-width/seven-role synthetic browser evidence and single-scroll mobile long-value layout; no schema, Source, price, production, deployment or user-acceptance claim.",
+      "scope": "Approved DeliveryPlan UI and original D100/D154 protocol, with preserved source/delivery actions: compact desktop, paired below the title on mobile and narrow fine-pointer windows. Exact2a199 isolated13 maintenance,9 original quote-context and14 P6 checks; eight header widths/nine modes and eight modal widths, seven roles. No backend/schema, commercial, Source activation, deployment or human-acceptance change.",
       "evidence": [
         "server-delivery-plan-maintenance-ui-engineering-20261022",
         "server-delivery-plan-maintenance-ui-geometry-20261022",
-        "server-delivery-plan-maintenance-ui-approval-20261022"
+        "server-delivery-plan-maintenance-ui-approval-20261022",
+        "server-order-maintenance-mobile-correction-20261022",
+        "server-order-maintenance-mobile-geometry-20261022"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-22",
-          "sourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
-          "scope": "Approved small Server order-detail action and Foundation edit/preview/confirm DeliveryPlan maintenance, original D100/D154 writer and actor-scoped original-request receipts. Exact decimal drafts, retained default zero/null/history, canonical SO/session leases, independent exit guards and current disclosure refresh. Eight-width/seven-role synthetic browser evidence and single-scroll mobile long-value layout; no schema, Source, price, production, deployment or user-acceptance claim.",
+          "sourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+          "scope": "Approved DeliveryPlan UI and original D100/D154 protocol, with preserved source/delivery actions: compact desktop, paired below the title on mobile and narrow fine-pointer windows. Exact2a199 isolated13 maintenance,9 original quote-context and14 P6 checks; eight header widths/nine modes and eight modal widths, seven roles. No backend/schema, commercial, Source activation, deployment or human-acceptance change.",
           "evidence": [
-            "server-delivery-plan-maintenance-ui-engineering-20261022"
+            "server-order-maintenance-mobile-correction-20261022"
           ]
         },
         "merged": {
           "value": false,
           "assessedAt": "2026-10-22",
-          "sourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
-          "scope": "Not merged at independently verified main996dfedc12da3527343cd3ff2aa5eea35497e10e. Existing PRs and original commits remain; no automatic merge or duplicate cumulative PR.",
+          "sourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+          "scope": "Not merged at independently verified main996dfedc12da3527343cd3ff2aa5eea35497e10e; original commits/PRs retained. No duplicate cumulative PR or automatic merge.",
           "evidence": [
-            "server-delivery-plan-maintenance-ui-engineering-20261022"
+            "server-order-maintenance-mobile-correction-20261022"
           ]
         },
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-22",
-          "sourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
-          "scope": "Exact7584 frontend build and12 built checks, eight widths including1536/DPR1.25 and320 touch emulation, seven trusted roles, receipt loss/replay/CAS/session/focus/long-value/single-scroll. Earlier API42,client33,d742 project927 and483ef P6 fourteen are identified separately in the report; final guard/release/remote CI are later checkpoints.",
+          "sourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+          "scope": "Exact2a199 build/typecheck/full lint;13 maintenance,9 original quote-context and14 P6 built checks pass with no skips. Header hit-test/visibility/placement at eight widths/nine modes including320 fine; original modal eight-width, seven-role, receipts/CAS/owner/focus preserved. Earlier failures are retained. Final release/remote CI are separate later records.",
           "evidence": [
-            "server-delivery-plan-maintenance-ui-engineering-20261022",
-            "server-delivery-plan-maintenance-ui-geometry-20261022"
+            "server-order-maintenance-mobile-correction-20261022",
+            "server-order-maintenance-mobile-geometry-20261022"
           ]
         },
         "humanAcceptance": {
           "value": "not-run",
           "assessedAt": "2026-10-22",
-          "sourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
-          "scope": "Explicit wireframe approval permits implementation; independent engineering visual review is not user business acceptance.",
+          "sourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+          "scope": "Original wireframe approval authorizes implementation; independent code/visual review is engineering and not user acceptance.",
           "evidence": [
-            "server-delivery-plan-maintenance-ui-engineering-20261022"
+            "server-order-maintenance-mobile-correction-20261022"
           ]
         },
         "sourceActivation": {
           "value": "not-connected",
           "assessedAt": "2026-10-22",
-          "sourceSha": "7584d77ff366b419e8481a7e3d3efc31627b398b",
-          "scope": "No real Source request, credential/private report read, binding, activation, scheduler or existing business database mutation. Prior one-shot filter attempt stays consumed.",
+          "sourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+          "scope": "No real Source request, credential read, binding, activation, scheduler or business database mutation; prior fixed read quota stays consumed.",
           "evidence": [
-            "server-delivery-plan-maintenance-ui-engineering-20261022"
+            "server-order-maintenance-mobile-correction-20261022"
           ]
         },
         "trial18443": {

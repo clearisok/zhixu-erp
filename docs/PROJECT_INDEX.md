@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[交期维护任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)及[手机纠正记录](tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md)为准。feat/server-delivery-plan-maintenance-ui，产品2a199、main996dfedc12da3527343cd3ff2aa5eea35497e10e；类型/lint/精确构建、维护13/报价上下文9/P6十四、八宽度九模式通过，独立代码/视觉无剩余P1/P2。6c8旧CI两绿一红及本机复现保留，新证据/发布检查/远端/CI仍待。原278证据/旧图片不覆盖；无自动合并关闭/正式部署/真实业务库或新增Source，全部旧环境保护。完整目标未完成，Num/outdate已确认，原关账待答不默认。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[交期维护任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)及[手机纠正记录](tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md)为准。feat/server-delivery-plan-maintenance-ui，产品2a199、main996dfedc12da3527343cd3ff2aa5eea35497e10e；类型/lint/精确构建、维护13/报价上下文9/P6十四、八宽度九模式及本次发布116通过。独立代码/视觉/证据复审无剩余P1/P2。6c8旧CI两绿一红及本机复现保留，证据已前向绑定284/58，最终guard/远端/新CI仍待。原278证据/旧图片不覆盖；无自动合并关闭/正式部署/真实业务库或新增Source，全部旧环境保护。完整目标未完成，Num/outdate已确认，原关账待答不默认。
 
 ## 系统简介
 
