@@ -5,6 +5,14 @@ const localEndpoints = new Set([
   'npipe:////./pipe/docker_engine',
   'npipe:////./pipe/dockerDesktopLinuxEngine',
 ]);
+// Self-contained so the driver can serialize this exact tested guard into the
+// native fixture. It runs before importing config or constructing any Pool.
+export function assertOwnedDatabaseEnvironment(environment, commit) {
+  const required = { ZHIXU_GIT_COMMIT: commit, DB_HOST: 'database', DB_PORT: '5432', DB_NAME: 'quote_trial', DB_USER: 'quote_trial' };
+  if (environment.DATABASE_URL || Object.entries(required).some(([key, value]) => environment[key] !== value)) {
+    const error = new Error('synthetic_database_scope_invalid'); error.code = 'synthetic_database_scope_invalid'; throw error;
+  }
+}
 export function localDockerEnvironment(environment, endpoint) {
   assert.ok(localEndpoints.has(endpoint), 'domain_recovery_requires_local_docker');
   if (environment.DOCKER_HOST) assert.equal(environment.DOCKER_HOST, endpoint, 'docker_host_scope_conflict');

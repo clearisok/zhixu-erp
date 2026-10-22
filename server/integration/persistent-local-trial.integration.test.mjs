@@ -12,7 +12,7 @@ import { createServer } from 'node:net';
 import { request } from 'node:https';
 import { readTrialConfig } from '../../ops/quote-trial/trial.mjs';
 import { localDockerEnvironment, requirePinnedImage, requireOwnedContainer, readDatabaseFingerprint,
-  recoveryCoverage, compareRecoveryFingerprints } from './persistent-domain-rehearsal.mjs';
+  recoveryCoverage, compareRecoveryFingerprints, assertOwnedDatabaseEnvironment } from './persistent-domain-rehearsal.mjs';
 import { persistentDomainNative } from './persistent-domain-native.mjs';
 const execute=promisify(execFile),sha=b=>createHash('sha256').update(b).digest('hex');
 let commandEnvironment=process.env;
@@ -110,7 +110,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   }
   async function native(s,mode,payload){
     await verifyDomainTarget(s);
-    const code=`const chunks=[];for await(const chunk of process.stdin)chunks.push(chunk);const input=JSON.parse(Buffer.concat(chunks));const result=await (${persistentDomainNative.toString()})(${JSON.stringify(mode)},input);process.stdout.write(JSON.stringify(result));`;
+    const code=`const chunks=[];for await(const chunk of process.stdin)chunks.push(chunk);const input=JSON.parse(Buffer.concat(chunks));const result=await (${persistentDomainNative.toString()})(${JSON.stringify(mode)},input,${assertOwnedDatabaseEnvironment.toString()});process.stdout.write(JSON.stringify(result));`;
     const result=JSON.parse(await docker(['exec','-i',s.app,'node','--input-type=module','-e',code],JSON.stringify({project:s.project,commit,...payload})));
     assert.equal(result.status,'passed',JSON.stringify({stage:result.stage,code:result.code}));return result;
   }
@@ -173,13 +173,15 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
       import {randomUUID} from 'node:crypto';
       import {createSyntheticQuoteFixture} from './server/integration/quote-fixture.ts';
       import {bundle,syntheticOrder} from './server/integration/ainuoke-source-fixture.ts';
+      import {validateCustomerConfirmation} from './features/quote-center/model/quote-validation.ts';
       const quotes={};for(const type of ['distribution','processing']){
         const q=createSyntheticQuoteFixture(randomUUID(),type);
         for(const r of q.revisions){r.imageAttachmentIds=[];r.fileAttachmentIds=[];r.styleImageAttachmentId=null;r.garmentMedia=[];r.quoteDocuments=[];}
-        const r=q.revisions.find(r=>r.revisionId===q.defaultRevisionId);r.baseInfo.quoteStyleNo='SYN-RECOVERY-'+type;r.baseInfo.brandName='合成恢复品牌';
-        for(const [i,p] of r.priceVersions.entries()){p.quantity=100;p.trims.forEach(t=>t.usage=0);p.pricingParameters.laborCurrency=type==='processing'?'USD':'CNY';
+        const r=q.revisions.find(r=>r.revisionId===q.defaultRevisionId);r.baseInfo.quoteStyleNo='SYN-RECOVERY-'+type;r.baseInfo.brandName='合成恢复品牌';r.baseInfo.styleName='合成恢复款';
+        for(const [i,p] of r.priceVersions.entries()){p.name='合成方案'+(i+1);p.quantity=100;p.trims.forEach(t=>t.usage=0);p.pricingParameters.laborCurrency=type==='processing'?'USD':'CNY';
           p.confirmation={quotedGarmentPrice:type==='processing'?null:120+i*10,quotedLaborPrice:type==='processing'?5+i:10+i,
-            confirmedGarmentPrice:type==='processing'?null:120+i*10,confirmedLaborPrice:type==='processing'?5+i:10+i,note:'synthetic recovery',confirmedAt:new Date().toISOString()};}
+            confirmedGarmentPrice:type==='processing'?null:120+i*10,confirmedLaborPrice:type==='processing'?5+i:10+i,note:'synthetic recovery',confirmedAt:new Date().toISOString()};
+          if(!validateCustomerConfirmation(r,p,{labor:0,garment:type==='processing'?null:0}).valid)throw Error('synthetic_confirmation_fixture_incomplete');}
         quotes[type]=q;
       }process.stdout.write(JSON.stringify({quotes,materialBundle:bundle(),syntheticOrder}));
     `]));

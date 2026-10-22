@@ -14,6 +14,10 @@ chore/server-current-image-0042，baseline94a1767b4743e1c21a961c5232929c4600cd34
 前3个子阶段通过，4pass/2fail，无依赖备份/恢复。自有失败项目已stop、卷/私密输入保留。
 修正测试顺序：先采用Quote确认快照，再由正式CCT命令确认125；订单仍采用120。
 不改应用CCT规则。完整实际重跑待，不能将fixture错误写成业务缺陷或验收成功。
+第二轮16e8976c为78,205.2332ms，同一fixture缺款式名称被quote_confirmation_incomplete拒绝；
+自有5c985d2309项目已stop/保留。现在补齐并用原纯校验先验输入，新增独立复审指出的
+DATABASE_URL优先覆盖拒绝（在config/Pool导入前执行同一可序列化纯guard）；7/7纯回归和
+限定lint通过。16e精确996门禁PASS（88 inherited UI，当前phase无UI增量）；最终实际待。
 
 先读当前任务、LEGACY_ERP、现有persistent-local-trial.integration.test.mjs及ops/quote-trial。
 旧8项只填Quote/PNG，不能当其他ERP领域恢复。计划只改test/fixture/必要文档，复用原0c镜像

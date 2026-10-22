@@ -1,6 +1,6 @@
 // Serialized into `docker exec node` by the opt-in rehearsal. Imports below are
 // the pinned image's original compiled services, never the checkout's TS code.
-export async function persistentDomainNative(mode, input) {
+export async function persistentDomainNative(mode, input, databaseGuard) {
   let pool, stage = 'scope';
   try {
     const { default: assert } = await import('node:assert/strict');
@@ -8,9 +8,7 @@ export async function persistentDomainNative(mode, input) {
     const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
     assert.ok(['seed', 'read', 'continue'].includes(mode));
     assert.match(input.project, /^zhixu-quote-trial-(?:it|recovery)-[a-f0-9]{10}$/);
-    assert.equal(process.env.ZHIXU_GIT_COMMIT, input.commit);
-    assert.equal(process.env.DB_HOST, 'database'); assert.equal(process.env.DB_NAME, 'quote_trial');
-    assert.equal(process.env.DB_USER, 'quote_trial'); assert.equal(process.env.DB_PORT, '5432');
+    databaseGuard(process.env, input.commit);
     const { loadServerConfig } = await import('./dist/server/server/config.js');
     const { createDatabasePool } = await import('./dist/server/server/db/pool.js');
     pool = createDatabasePool({ connectionString: loadServerConfig().databaseUrl, max: 2, applicationName: 'synthetic-domain-rehearsal' });
@@ -116,6 +114,7 @@ export async function persistentDomainNative(mode, input) {
         upserts: [{ id: manual[0].id, deliveryDate: '2027-01-11', quantity: manual[0].quantity }], voidIds: [manual[1].id] });
       stage = 'commercial';
       const quote = input.quotes.distribution, revision = quote.revisions.find(r => r.revisionId === quote.defaultRevisionId);
+      saved.cctProvenance = { quoteId: quote.id, revisionId: revision.revisionId, priceVersionId: revision.priceVersions[0].id };
       const colors = await readPricingColors(pool, saved.orderId); assert.equal(colors.length, 2);
       saved.blueId = colors.find(c => c.colorName === '蓝色').id; saved.redId = colors.find(c => c.colorName === '红色').id;
       const selection = { kind: 'quote', quoteId: quote.id, revisionId: revision.revisionId,
@@ -126,7 +125,7 @@ export async function persistentDomainNative(mode, input) {
       // Existing CCT commands require a formal association. Create it only after
       // adoption, and prove that a later quote confirmation does not rewrite SO.
       const { updateConfirmedCommercialTermsByQuote } = await import('./dist/server/server/confirmed-commercial-terms/service.js');
-      await updateConfirmedCommercialTermsByQuote(pool, actor, { quoteId: quote.id, revisionId: revision.revisionId, priceVersionId: revision.priceVersions[0].id },
+      await updateConfirmedCommercialTermsByQuote(pool, actor, saved.cctProvenance,
         { expectedVersion: 0, expectedQuoteVersion: (await repo.getById(quote.id)).version,
           customerConfirmedPrice: '125', confirmedLaborPrice: '10', laborCurrency: 'CNY' });
       stage = 'processing'; saved.processing = await createBatch();
@@ -173,6 +172,8 @@ export async function persistentDomainNative(mode, input) {
     const receipt = await readDeliveryPlanRequestReceipt(pool, actor, saved.orderId, saved.deliveryCommand);
     assert.equal(receipt.status, 'applied'); assert.notEqual(receipt.deliveryPlanSet.version, delivery.version);
     const commercial = await readOrderBusinessSource(pool, actor, saved.orderId);
+    const { readConfirmedCommercialTermsByQuote } = await import('./dist/server/server/confirmed-commercial-terms/service.js');
+    const cct = await readConfirmedCommercialTermsByQuote(pool, saved.cctProvenance); assert.equal(cct.current.customerConfirmedPrice, '125');
     const assignments = await plan.readOrderProductionPlans(pool, actor, saved.orderId);
     const original = await plan.readProductionAssignment(pool, actor, saved.originalAssignment);
     const history = await execution.readProductionExecutionHistory(pool, actor, saved.originalAssignment);
@@ -199,7 +200,7 @@ export async function persistentDomainNative(mode, input) {
       const { evaluatedAt: _time, freshness: _freshness, ...stable } = view;
       void _time; void _freshness; garments.push(stable);
     }
-    const proof = { delivery, receipt, commercial, assignments, original, history, requestReceipts,
+    const proof = { delivery, receipt, commercial, cct, assignments, original, history, requestReceipts,
       processing: saved.processing.result, material, garments, garmentHistory: await garmentReader.history(actor, saved.orderId) };
     // No invented clock: financial rows can legitimately be hidden after expiry.
     const sourceStatus = { payment: paymentRead.sourceStatus, paymentRows: paymentRead.rows.length,

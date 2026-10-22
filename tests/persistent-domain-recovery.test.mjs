@@ -1,10 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { localDockerEnvironment, requirePinnedImage, requireOwnedContainer, requiredPopulatedTables,
-  recoveryCoverage, compareRecoveryFingerprints, readDatabaseFingerprint } from '../server/integration/persistent-domain-rehearsal.mjs';
+  recoveryCoverage, compareRecoveryFingerprints, readDatabaseFingerprint, assertOwnedDatabaseEnvironment } from '../server/integration/persistent-domain-rehearsal.mjs';
 
 const endpoint = 'npipe:////./pipe/dockerDesktopLinuxEngine';
 const image = { id: 'sha256:' + 'a'.repeat(64), commit: 'b'.repeat(40), buildId: 'synthetic-build', buildTime: '2026-10-23T00:00:00Z' };
+test('serialized native guard refuses DATABASE_URL pollution before a Pool can be constructed', () => {
+  const env = { ZHIXU_GIT_COMMIT: image.commit, DB_HOST: 'database', DB_PORT: '5432', DB_NAME: 'quote_trial', DB_USER: 'quote_trial' };
+  assertOwnedDatabaseEnvironment(env, image.commit);
+  for (const changed of [{ DATABASE_URL: 'postgresql://outside.invalid/protected' }, { DB_HOST: 'localhost' },
+    { DB_NAME: 'zhixu' }, { DB_USER: 'postgres' }, { DB_PORT: '5433' }, { ZHIXU_GIT_COMMIT: 'wrong' }]) {
+    let opened = false;
+    assert.throws(() => { assertOwnedDatabaseEnvironment({ ...env, ...changed }, image.commit); opened = true; },
+      error => error.code === 'synthetic_database_scope_invalid');
+    assert.equal(opened, false);
+  }
+  assert.ok(!/import|require\(|process\.env/.test(assertOwnedDatabaseEnvironment.toString()));
+});
 test('domain driver pins only a verified local endpoint and leaves shared environment unchanged', () => {
   const original = { DOCKER_CONTEXT: 'desktop-linux', PATH: 'synthetic', DOCKER_HOST: endpoint };
   const pinned = localDockerEnvironment(original, endpoint);
@@ -69,10 +81,11 @@ test('whole-schema fingerprint is read-only, includes untouched sequences and re
     if (query.startsWith('SELECT tablename')) return 'app_users\nsales_orders';
     if (query.startsWith('SELECT c.relname')) return 'sales_order_no_seq';
     if (query.includes("'lastValue'")) return JSON.stringify({ name: 'sales_order_no_seq', lastValue: '2', isCalled: false });
-    return ['app_users', 'sales_orders'].map(table => JSON.stringify({ table, count: 1, sha256: 'a'.repeat(64) })).join('\n');
+    return ['sales_orders', 'app_users'].map(table => JSON.stringify({ table, count: 1, sha256: 'a'.repeat(64) })).join('\n');
   };
   const result = await readDatabaseFingerprint(sql);
   assert.equal(result.tables.length, 2); assert.equal(result.sequences[0].isCalled, false);
+  assert.deepEqual(result.tables.map(row => row.table), ['app_users', 'sales_orders']);
   assert.ok(calls.some(query => query.includes('seqcache') && query.includes('seqcycle') && query.includes('seqtypid')));
   assert.ok(calls.some(query => query.includes('to_jsonb(t)::text COLLATE "C"')));
   assert.ok(calls.every(query => !/nextval|setval|INSERT|UPDATE|DELETE|TRUNCATE|ALTER|CREATE/i.test(query)));
