@@ -2,7 +2,7 @@
 
 本次独立核实的 main 基线为 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；历史证据各自保留原来源 SHA。
 
-2026-10-23恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)及[业务恢复任务](tasks/active/server-domain-recovery-2026-10-23.md)为准。当前既有chore/server-current-image-0042@94a1767b，扩展test-only合成领域恢复：旧精确0c镜像8/8仅有Quote/PNG，其他业务表为空，不能当完整ERP恢复。新模式固定原image ID和本机Docker、原编译领域服务，维护后逐表/sequence对比、原回执和恢复后续写；实际运行仍待。旧三摘要按Git字节[归档](tasks/completed/2026-10-23-domain-recovery-inputs/94a1767b/CURRENT_STATE.md)。#126精确0be89ff9已交付，134/134、本次三CI成功并复审，merge确认仍待；#127四处共享文档冲突已虚拟验证，不提前整合。新真实Source、覆盖v1和关账问题仍待；3001及全部旧环境保持，不自动merge/close/部署或操作真实业务库；完整Goal未完成。
+2026-10-23恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)及[冻结业务恢复报告](tasks/completed/2026-10-23-server-domain-recovery-engineering.md)为准。既有chore/server-current-image-0042，干净driver353381dd复用原精确0c镜像9/9通过：app启动前106表/5sequence一致，68非空与38未实测空表分别记录，原领域回执/历史及恢复后续写通过。旧Quote/PNG-only8/8不扩大；三次失败、自有Docker网段恢复及12保留卷有证据。7定向/116发布及353静态复审通过，最终交付/CI待。原[阶段任务](tasks/active/server-domain-recovery-2026-10-23.md)、[94摘要归档](tasks/completed/2026-10-23-domain-recovery-inputs/94a1767b/CURRENT_STATE.md)保留。#126精确0be三CI完成而merge确认仍待；#127四处共享文档冲突仅虚拟验证。新真实Source、覆盖v1和关账问题仍待；全部旧环境保持，不自动merge/close/部署或操作真实业务库；完整Goal未完成。
 
 ## 系统简介
 

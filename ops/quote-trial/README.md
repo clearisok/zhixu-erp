@@ -92,6 +92,16 @@ closing implementation, recovery of an old environment, deployment or user accep
 Only successfully prepared projects are cleaned up after complete success; any
 failed phase stops dependent work and retains its owned volumes/private evidence.
 
+2026-10-23 domain mode actually passed9/9 using driver353381dd and the original
+0c7377d9 image:106 public tables (68 populated/38 empty and not exercised) and5
+sequences matched before application startup on the restore target; original
+business-service receipts and continued commands passed. See the separately
+[frozen domain evidence](../../docs/tasks/completed/2026-10-23-server-domain-recovery-engineering.md).
+This does not broaden the old8/8 or claim complete business acceptance. Local
+default-network-pool exhaustion was resolved only by down-without-volumes of
+three verified stopped fixtures from this phase, retaining their12 volumes and
+private config. No old/shared project or global Docker networking was changed.
+
 2026-10-22 current-image engineering: clean sourcef4692eea was built and the
 corrected actual-image rehearsal passed8/8 with40 migrations (maximum0041),
 including restart, cold recreation and independent synthetic Quote/PNG restore.

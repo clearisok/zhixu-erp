@@ -1,43 +1,30 @@
-# 恢复点：Server 业务数据恢复演练
+# 恢复点：合成业务恢复工程通过，准备交付
 
 2026-10-23；main996dfedc12da3527343cd3ff2aa5eea35497e10e，完整Goal active。
-root唯一writer；沿用既有只读release_safety_review，不新建并行实现。当前既有
-chore/server-current-image-0042，baseline94a1767b4743e1c21a961c5232929c4600cd34aa干净。
-修改前已逐字归档94的三摘要到tasks/completed/2026-10-23-domain-recovery-inputs/94a1767b。
-新阶段启动回执outputs/server-domain-recovery-20261023/start.json。
+root唯一writer，既有release_safety_review只读。当前chore/server-current-image-0042；
+phase基线94a1767b。工程driver353381ddb0c800a1c64fa32202c587ca3a350f08，应用镜像源
+0c7377d99a51bcab6589217edff69a54e7b2ee21/ID4a489d9a8fd7a78acf5fc3fb9c88855c24637b9c09e56c932a280461e0d47e92。
+先读冻结报告tasks/completed/2026-10-23-server-domain-recovery-engineering.md。
+旧94三摘要和353的失败过程接力均按Git字节归档到domain-recovery-inputs。
 
-本阶段实现checkpoint：test-only domain-native/helper和6项纯负向/比较回归已编写，
-6/6通过；默认未给image的旧演练只运行cleanup1/1、镜像项skip，不能算实际镜像验收。
-精确0c image实际domain-mode、独立复审和发布门禁待执行。先提交本checkpoint，
-再从干净精确test-driver HEAD启动受保护的全新项目演练；如失败保留自有现场修复。
-首轮b9d1f585实际78,287.808ms在commercial fixture因quote_commercial_terms_not_linked停止；
-前3个子阶段通过，4pass/2fail，无依赖备份/恢复。自有失败项目已stop、卷/私密输入保留。
-修正测试顺序：先采用Quote确认快照，再由正式CCT命令确认125；订单仍采用120。
-不改应用CCT规则。完整实际重跑待，不能将fixture错误写成业务缺陷或验收成功。
-第二轮16e8976c为78,205.2332ms，同一fixture缺款式名称被quote_confirmation_incomplete拒绝；
-自有5c985d2309项目已stop/保留。现在补齐并用原纯校验先验输入，新增独立复审指出的
-DATABASE_URL优先覆盖拒绝（在config/Pool导入前执行同一可序列化纯guard）；7/7纯回归和
-限定lint通过。16e精确996门禁PASS（88 inherited UI，当前phase无UI增量）；最终实际待。
+实际9/9通过246597.9241ms；106表/5sequence在app startup/login前精确一致，68非空、
+38空且未实测；原业务回执/历史及继续合法命令通过。恢复后新建加工批次/SO，在恢复的剩余35件
+排单登记5件，原取消排单25件不变。receipt为outputs/server-domain-recovery-20261023/run-0f6ed1513b.json，
+SHA256c4fd5744ffbc77dc4c73e66798759775f2d869e1b060697884a443e8020f0226。
+7/7纯定向、限定lint/语法和完整发布116/116通过358212.8084ms；各自真实范围不混用。
+原353静态及最终结果/文档复审无P1/P2；精确996最终文档门禁待收口，再安全送达并运行三acceptance CI。
+本分支仅验证引用，不新建累计业务PR；旧三项Source0c CI不冒称新分支CI。
 
-先读当前任务、LEGACY_ERP、现有persistent-local-trial.integration.test.mjs及ops/quote-trial。
-旧8项只填Quote/PNG，不能当其他ERP领域恢复。计划只改test/fixture/必要文档，复用原0c镜像
-4a489d9a8fd7a78acf5fc3fb9c88855c24637b9c09e56c932a280461e0d47e92；镜像源码0c7377d9，
-工具源码另记，不能挂载新TS替代原编译应用。Docker endpoint已只读核实desktop-linux本机
-named pipe，执行时须进程级固定，拒绝远端覆盖。两个新成功prepare项目，exact DB/volume/
-image/container身份，失败保留自有现场；不清理其他资源。维护后所有helper结束，再备份前
-与恢复后app启动/login前比较所有public表、行数/确定性内容hash和sequence状态；非空矩阵
-与原领域读取/原回执另证。Source固定合成输入，无外部HTTP；过期如实stale，不刷新时间。
+实际句柄5888/98055/71235均失败终态，11100最终9pass，91903发布116pass，81698为16e门禁PASS，
+全部终态，不再poll。353第一轮因本机默认网段池耗尽，诊断已具体确认；只down本phase已停
+的2ad6e5bd60/5c985d2309/2986cd3055，无volumes参数，12卷和私密配置保留；成功0f6ed1513b两项目
+按原guard清理完成。禁止全局prune或处理别的项目/卷；不改共享Docker/Git/TLS/proxy配置。
+不挂新应用代码，native同一DATABASE_URL拒绝guard先于Pool导入，Source只是内部合成输入。
 
-#126精确0be89ff99a7339a68934ed94a56fdc32b11cc8ab已送达、三CI全部success、复审无P1/P2。
-本地134/134，最终精确996guard PASS；原CI Source39823068530/Team39823068516/Release39823068537，
-均head0be/attempt1。watch93718终态，不再poll；完整回执outputs/release-main-advance-20261023。
-原上传STOP后未重推，独立API及原工具0push只读DELIVERED_VERIFIED。原PR说明已核对，仍草稿。
-已向用户请求仅merge #126（保留历史），尚未回复；#127与它4处冲突只有三摘要及baseline，
-213历史证据相同、仅verifiedAt不同。没有任何main merge。当前94未整合新工具，不把它冒称
-已包含0be；冻结的新guard曾在94实际通过。原0be分支保持干净/远端，不改。
-
-新真实Source恢复、覆盖v1与原关账三问仍待回复；不能默认。Num/outdate不再问。
-任何获准真实读取前，必须从干净树切回stable feat/garment-filter-recovery精确0c；旧一次
-额度已用完，不能在本新验收分支消耗。全部旧入口/卷/账号/Browser/工作树、3001保护。
-standing安全Git恢复授权有效，不再逐SHA询问；不授权自动merge/close、部署/切换、真实
-账号/业务库、Source绑定/激活/调度或退役。优先做不依赖待答的隔离工程，按阶段提交。
+#126精确0be89ff99a7339a68934ed94a56fdc32b11cc8ab已送达、134本地及三CI全部success、复审完成。
+Source39823068530/Team39823068516/Release39823068537和watch93718均终态。merge确认仍待人回复，
+不自动merge/ready/close。#127与其四文档/清单冲突只有虚拟验证；实际main前移后才整合测试。
+新固定真实Source额度、覆盖v1和原关账三问仍待，Num/outdate已确认，不重复问；获准真实读取前
+要从干净树回stable feat/garment-filter-recovery精确0c，不能在本验收分支消耗旧额度。
+3001、50426/其他旧入口、账号、Browser、业务库、所有原工作树保持；无部署/切换/激活/退役。
+standing安全Git恢复/CI授权有效，不再逐SHA问；不授权自动合并或真实业务操作。
