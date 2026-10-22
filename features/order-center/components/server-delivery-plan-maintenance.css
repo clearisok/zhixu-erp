@@ -1,5 +1,5 @@
 .qc-modal.oc-delivery-modal { width: min(880px, calc(100vw - 40px)); max-width: 880px; }
-.oc-delivery-modal .qc-modal-body { display: grid; gap: 18px; min-width: 0; }
+.oc-delivery-modal .qc-modal-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; min-width: 0; }
 .oc-delivery-modal h3 { margin: 0; font-size: 18px; color: var(--qc-ink, #243f37); }
 .oc-delivery-modal p { margin: 0; line-height: 1.65; overflow-wrap: anywhere; }
 .oc-delivery-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -13,6 +13,7 @@
 .oc-delivery-table .qc-control { min-width: 0; width: 100%; font-variant-numeric: tabular-nums; }
 .oc-delivery-modal .oc-delivery-note { color: #708178; font-size: 13px; }
 .oc-delivery-balance { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; padding: 14px 16px; border-radius: 10px; background: #f1f7f4; font-size: 14px; }
+.oc-delivery-balance > * { min-width: 0; overflow-wrap: anywhere; }
 .oc-delivery-notice { padding: 12px 16px; border-radius: 10px; background: #f1f7f4; color: #285c4c; }
 .oc-delivery-result { display: grid; gap: 12px; padding: 22px 4px; }
 .oc-delivery-result details { color: #708178; font-size: 12px; }
