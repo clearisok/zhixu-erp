@@ -2406,6 +2406,15 @@
       "sha256": "b4c5f921780e58b79216d34f346566e11029a6fd9e15ee5c22349f11648de1a2",
       "supersedes": "decisions-delivery-plan-maintenance-verified-20261022",
       "changeReason": "D157 adds the fixed fresh diagnostic producer and protected new-file identity, finite progress receipts and shared Source deadline. Preserve every prior decision/frozen identity; no new real-read authorization, business snapshot, schema, UI, deployment or acceptance claim."
+    },
+    {
+      "id": "current-0c7377d9-image-persistence-engineering-20261023",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-23-current-server-image-0c7377d9-engineering.md",
+      "recordedAtSha": "05d93d47c150f450a052d20b59b7c8258f1330e9",
+      "renderedSourceSha": "0c7377d99a51bcab6589217edff69a54e7b2ee21",
+      "sha256": "e19cd6bc6f4d8b84e6a9d17c0805a075b71ed151691b8e14c4c91e301a054596",
+      "changeReason": "New exact 0c candidate image and unchanged actual-image persistence/recovery rehearsal. Preserve all prior image/evidence/status records; no existing target replacement, real Source read, deployment or user acceptance."
     }
   ],
   "pages": [

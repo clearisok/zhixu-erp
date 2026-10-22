@@ -115,3 +115,22 @@ supersedes原D156验证记录，recorded/rendered均405，SHA256
 `outputs/garment-filter-recovery/release-forward-final.log`与原99/90/9失败分别保留。
 本地工程PASS；最终精确commit guard/送达/Source与Team及Release新CI仍待，不自动建立重复
 累计PR、合并或部署。正式合同过滤实证、真实范围许可及完整成衣Source仍未完成。
+
+## 精确0c交付与原三CI终态（2026-10-23）
+
+最终源码/验收记录提交为`0c7377d99a51bcab6589217edff69a54e7b2ee21`，精确main996门禁PASS。
+既有交付工具只实际push一次，原STOP/exit1与独立API exact分别保留；之后原工具零push只读
+DELIVERED_VERIFIED，不重推或推断网络永久修复。原始回执均在ignored outputs/garment-filter-recovery。
+
+三个工作流各dispatch一次，均精确0c、attempt1；在`2026-10-22T16:25:39.962Z`独立观察全部
+completed/success：[Source39810661082](https://github.com/clearisok/zhixu-erp/actions/runs/39810661082)、
+[Team39810668692](https://github.com/clearisok/zhixu-erp/actions/runs/39810668692)、
+[Release39810675561](https://github.com/clearisok/zhixu-erp/actions/runs/39810675561)。分支筛选入口曾
+返回空，工作流固定入口定位到这三个原run，没有重新dispatch/rerun。只读watch38441现已终态，
+最终回执`actions-ci-final-results.json`保留，不再poll。
+
+Source job119935699710的实际完整日志确认各阶段成功，报价浏览器87/87、Python172/172
+（1.204s）。Hosted Linux共有9个明确Windows条件skip，其中包括本次新launcher与真实180秒
+合成超时两项；不能报为全部平台零skip。对应Windows本地完整45/45及实际180秒子树检查的
+原结果仍单独绑定405源码，不以Linux跳过冒称重新执行。没有新真实凭据读取、Source请求、
+绑定、激活、业务库操作或部署。新固定恢复范围问题仍待明确回复；CI成功不替代该许可。
