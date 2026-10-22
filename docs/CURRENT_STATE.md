@@ -1,38 +1,31 @@
-# 当前状态：固定成衣恢复本地验收通过，远端与CI待核实
+# 当前状态：当前候选镜像持久化8项通过，来源工具CI继续
 
-2026-10-22；`feat/garment-filter-recovery`。从独立核实的main
-`996dfedc12da3527343cd3ff2aa5eea35497e10e`建分支，仅FF干净已送达输入
-`632c62c069869dbf618d976240790cc2d44232b4`；root唯一writer，既有reviewer只读。
-完整Server收敛目标仍未完成；本切片不依赖待确认的新交期覆盖面板。
+2026-10-23；root唯一writer，既有reviewer只读。main独立核实仍
+`996dfedc12da3527343cd3ff2aa5eea35497e10e`。复用既有
+`chore/server-current-image-0042`，仅从c0d87bcd快进到干净0c7377d99a51bcab6589217edff69a54e7b2ee21，
+没有新增工作树/分支或改其他工作区。当前切片只冻结镜像工程报告，不改应用/SQL/UI/ops。
 
-[成衣固定诊断](features/AINUOKE_GARMENT_DIAGNOSTICS.md)发现并合成复现两类缺陷：合法深层
-配置被通用小深度拒绝，编码JSON中的秘密/反射/重复键可能漏检。现局部复用原合同核验的严格
-筛查，保持组合深度64、原始字节和封闭错误码；没有改变FROZEN、固定查询、请求次数或预算。
-最终Node32/32、Python172/172、types、完整lint及Server编译通过；独立静态无P1/P2，reviewer
-未执行测试。红测和中间失败保留，见[当前任务](tasks/active/garment-filter-recovery-2026-10-22.md)。
-没有新前端构建、DB/API、像素或真实采集验收。筛查checkpoint64de已精确guard及零push只读
-送达核实；原拒绝类push回执保留。新组合工具的最终发布、精确送达和新CI尚待。
+精确0c Git archive新构建候选镜像，tag zhixu-persistent-local:0c7377d9-20261023，image
+sha256:4a489d9a8fd7a78acf5fc3fb9c88855c24637b9c09e56c932a280461e0d47e92。
+既有actual-image合成验收8/8通过（322827.0248ms，无fail/cancel/skip），含空库显式初始化、
+TLS/S3、正式报价/PNG、重启/冷重建、exact-target备份及另一独立空项目恢复；仅清理自身成功
+prepare的fixture。实际41迁移/最大0042/无0013，未重标旧105/f469镜像或旧证据。
+[工程报告](tasks/completed/2026-10-23-current-server-image-0c7377d9-engineering.md)与
+[当前任务](tasks/active/server-current-image-0c7377d9-2026-10-23.md)分别记录事实和交付。
 
-新固定入口已顺序组合原D1933首页和C1/C0/C1，采用本次文件实际hash/受保护读回的新身份。
-源码405d3e01已保存，新旧最终45/45（232290.6899ms）、Python172、types/full lint/Server
-编译通过。独立审查所提外层超时P2已补最多3个安全帧，实际180秒合成验证保留首段事实并
-确认子树停止；静态复审无剩余P1/P2，reviewer未跑测试。
-上限2登录/4报表、共享180秒，不翻页/重试/业务库；新真实范围未授权。
-旧私密候选只在31个原工作树精确路径未找到，不冒称全盘丢失或重造hash。
-原一次许可已消费，0HTTP不自动重试。Num/outdate已确认，不再询问或擅改口径。
+来源恢复工具源码405、最终验收0c：45Node/172Python/types/full lint/Server编译/发布116通过；
+原P2经实际180秒合成进程树验证和独立静态关闭。0c精确main guard PASS、原工具零push只读
+DELIVERED_VERIFIED；单push的STOP/API exact原回执保留，无重推/永久网络修复推断。
+三CI各一次、精确0c/attempt1：Team39810668692、Release39810675561已success；
+Source39810661082尚in_progress，不预报PASS。分支过滤接口曾为空，固定工作流入口找到原run，
+未重新dispatch。完整证据见[来源任务](tasks/active/garment-filter-recovery-2026-10-22.md)。
 
-上一交期覆盖客户端产品483be024、修正验收1ed81a5及纯状态632分别保留。最终两提交门禁
-和远端exact已证实；三个原CI39796325961/39796336473/39796346404现全部success，精确1ed、
-attempt1，未重跑。原watch观察超时及Team详情滞后不改写为产品失败；终态与平台skip见
-[CI记录](tasks/completed/2026-10-22-delivery-coverage-client-ci.md)。这些结果不冒称新诊断修复CI。
-覆盖展示v1草图仍待具体批准，原维护交期批准不扩张；没有新可见面板或人工接受。
+新真实2登录/4报表具体问题已发出，尚待回复；CI通过也不能替代批准，未读凭据/上游。
+旧0HTTP许可已消费，旧冻结hash不重造。覆盖v1草图及原关账三问待答，不默认；Num/outdate
+已确认。不创建重复累计PR、不自动merge/close，PR120–127仍原开放草稿。完整Goal active。
 
-旧摘要按Git字节保存在[输入快照](tasks/completed/2026-10-22-garment-recovery-inputs/632c62c0/)。
-发布首轮99项90通过/9失败，只因D157尚未前向冻结；响应式R1–R20实际已通过，原17项差额
-描述已纠正。现按405精确字节仅追加文档版本至285证据/58能力，原284/其他字段逐对象不变、
-独立复审通过。前向冻结后发布116/116通过（347796.3971ms，无fail/cancel/skip）；
-最终提交的精确main guard、送达及新CI待独立核实，不借64de或1ed旧回执。旧合同/截图与能力维度不变。
-PR120–127仍open/draft原head；
-不新建重复累计PR或自动merge/close。3001、50426及其他旧入口/卷/账号/Browser/工作树保护。
-无部署、入口切换、真实Source/账号/业务库操作。原关账三问仍待答、不默认；正式成衣收集、
-Server关账、合并/目标入口和退役仍待独立完成。
+最新只读运行证据：3001仍e3e8e743；50426未验证且当时无监听，不推断停止原因；62426仍运行
+Gate1旧8175f628候选。新0c镜像没有替换它们，没有新长期入口或正式部署。全部旧端口/卷/账号/
+Browser/工作树继续保护，无业务库/真实账号/Source绑定激活调度。镜像8项不代表每个ERP领域
+历史恢复或Server关账就绪。旧摘要按Git字节[归档](tasks/completed/2026-10-23-current-image-inputs/0c7377d9/)。
+清单当前285证据/58能力，D157精确405冻结不改；本新报告尚待自身冻结/独立复审和最终交付。

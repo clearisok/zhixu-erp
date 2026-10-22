@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[成衣固定恢复任务](tasks/active/garment-filter-recovery-2026-10-22.md)及[诊断契约](features/AINUOKE_GARMENT_DIAGNOSTICS.md)为准。feat/garment-filter-recovery从main996dfedc12da3527343cd3ff2aa5eea35497e10e建立，仅FF干净已交付632c62c069869dbf618d976240790cc2d44232b4；筛查64de已精确门禁/远端核实。405源码本地最终45Node/Python172/types/full lint/Server编译及发布116通过，超时P2实际180秒用例与独立静态收口；真实新范围未授权，最终远端/CI仍待。D157按405精确字节前向冻结，清单285/58、旧284记录/其他字段/截图保持；原失败保留并纠正17项差额描述。上一客户端1ed三原CI已success，见[终态](tasks/completed/2026-10-22-delivery-coverage-client-ci.md)。交期覆盖v1展示仍待具体批准。无自动合并关闭、部署/入口切换、真实Source或业务库操作；完整目标未完成，Num/outdate已确认，原关账待答不默认。
+2026-10-23恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[当前镜像任务](tasks/active/server-current-image-0c7377d9-2026-10-23.md)及[工程报告](tasks/completed/2026-10-23-current-server-image-0c7377d9-engineering.md)为准。复用chore/server-current-image-0042，仅FF干净0c；精确0c archive新镜像actual-image一次8/8、322827.0248ms、41迁移最大0042通过，不替换旧入口。来源工具0c的45/Python172/发布116/精确门禁及送达已独立完成；Team39810668692/Release39810675561成功，Source39810661082执行中，固定run不重调度。新真实具体许可、覆盖v1、原关账问题仍待，不默认。3001仍e3；50426最新只读快照无监听；62426仍旧8175候选。旧状态按Git字节归档，清单暂285/58、D157405冻结及旧截图保持。本phase纯文档，报告待自身冻结/复审/交付，无合并关闭、部署、真实Source或业务库操作；完整Goal未完成。
 
 ## 系统简介
 
