@@ -24,8 +24,8 @@
 .oc-delivery-empty { padding: 18px 0; color: #708178; }
 .oc-delivery-void-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; }
 @media (max-width: 599px) {
-  .oc-server-detail-page .qc-page-header:has(.oc-server-detail-actions) { grid-template-columns: minmax(0, 1fr); }
-  .oc-server-detail-page .qc-page-header > .qc-page-actions { grid-column: 1 / -1; justify-content: flex-start; }
+  .oc-server-detail-page .qc-page-header[data-variant="list"]:not(:has(.qc-page-back)):has(.oc-server-detail-actions) { grid-template-areas: "identity" "actions"; grid-template-columns: minmax(0, 1fr); }
+  .oc-server-detail-page .qc-page-header[data-variant="list"]:has(.oc-server-detail-actions) > .qc-page-actions { align-items: flex-start; justify-content: flex-start; }
   .qc-modal.oc-delivery-modal { width: calc(100vw - 24px); max-height: calc(100dvh - 24px); }
   .oc-delivery-modal .qc-modal-body { gap: 14px; padding: 18px 14px; }
   .oc-delivery-table table, .oc-delivery-table tbody { display: block; }

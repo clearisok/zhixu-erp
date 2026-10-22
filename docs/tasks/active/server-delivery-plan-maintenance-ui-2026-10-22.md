@@ -202,6 +202,12 @@ pass6/fail3（61912.8875ms，无skip），排除仅Hosted平台推测。修复�
 原维护CSS的该详情手机操作行及维护built用例；不改Foundation全局、Source按钮/创建writer或
 原quote上下文断言。新增八宽度检查两个按钮真实rect/display/visibility/hit-test、viewport、
 触屏44px，并逐个打开关闭原弹窗，确认0 PATCH且所有原订单/交期事实不变。
+ab4cea9b4fe74c520bb16dd145c5f43d8046f3cc类型/定向lint及精确Server前端构建通过；
+扩展维护13/13（25243.2654ms）、原报价上下文9/9（23645.8853ms）及P6 14/14
+（60787.2989ms）全部通过，无skip。root看新手机PNG且独立review核对现有CSS后，仍发现
+本页旧named grid-area更高specificity保留右列，操作未落到拟定的标题下方；不把上述绿灯
+当该布局已通过。仅增强本页带操作组的手机selector，明确identity/actions两行named areas，
+测试另断言actionsBelowIdentity与两个按钮同一行。下一精确构建/截图/回归待验。
 
 ## 验收和交付
 
