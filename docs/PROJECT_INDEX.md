@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)和[交期维护任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)为准。feat/server-delivery-plan-maintenance-ui，main996dfedc12da3527343cd3ff2aa5eea35497e10e、输入377；客户端406a已精确远端。页面接线已实现，client33/类型/lint/Server编译及静态复审通过，built/最终门禁仍待；D156新文档需独立提交后前向绑定，旧证据不覆盖。批准89993412已冻结，269/57暂不升能力。前置377三CI均attempt1/success，原固定工具一次candidate失败0HTTP/0报表且未读凭据，不重跑或扩大采集。root唯一writer/既有reviewer只读，保护旧环境，无新Source/业务库/合并关闭/正式部署。完整Goal active，Num/outdate已确认，原关账待答不默认。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)和[交期维护任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)为准。feat/server-delivery-plan-maintenance-ui，main996dfedc12da3527343cd3ff2aa5eea35497e10e、输入377；客户端406a已精确远端。页面接线已实现，client33/类型/lint/Server编译及静态复审通过，built/最终门禁仍待；D156已冻结在源码2468并前向绑定，旧证据不覆盖。批准89993412已冻结，270/57暂不升能力。前置377三CI均attempt1/success，原固定工具一次candidate失败0HTTP/0报表且未读凭据，不重跑或扩大采集。root唯一writer/既有reviewer只读，保护旧环境，无新Source/业务库/合并关闭/正式部署。完整Goal active，Num/outdate已确认，原关账待答不默认。
 
 ## 系统简介
 

@@ -89,6 +89,11 @@ Source验收workflow加入客户端三套与新隔离built用例，不触发部�
 supersede原冻结决策，未修改旧hash消除失败。先保存源码/新文档checkpoint，随后独立追加
 新证据并重验；此过渡checkpoint不送达、不宣称最终Gate通过。输入406a的三摘要已逐字节归档。
 
+页面源码checkpoint2468db4a775223324c15ccb3f4116bc6f2a67591保持原始历史；其D156文档
+新冻结SHA256为4de7cecda25c5f3e8e045537fb18afaf5e8afc9a505615db35637c688e6513ed。
+01:19Z仅追加supersedes新证据，269→270、能力57不变，原269份证据和其他manifest字段完整相等。
+尚未交付该页面源码；下一步精确HEAD构建、隔离built验收及源码/证据门禁重验。
+
 ## 验收和交付
 
 先只读核实实际代码再定精确文件；复用Foundation，不改全局主题/断点/路由。纯客户端/草稿/

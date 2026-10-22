@@ -2254,6 +2254,16 @@
       "recordedAtSha": "89993412de4cc3f8f3ef19488d20bac67f85c3d9",
       "renderedSourceSha": "377a3c9eb40a852851c1d4e05296a4d30f4ce9e9",
       "sha256": "502952456442969eef6b194e4d2d927f3110455ef9220d01f755fc9fba93bd87"
+    },
+    {
+      "id": "decisions-delivery-plan-maintenance-ui-20261022",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "2468db4a775223324c15ccb3f4116bc6f2a67591",
+      "renderedSourceSha": "2468db4a775223324c15ccb3f4116bc6f2a67591",
+      "sha256": "4de7cecda25c5f3e8e045537fb18afaf5e8afc9a505615db35637c688e6513ed",
+      "supersedes": "decisions-current-delivery-coverage-20261022",
+      "changeReason": "D156 records the specifically approved DeliveryPlan maintenance UI and exact original-request recovery. Preserve D100/D154, every prior decision and snapshot; no new writer, source collection, database migration, deployment or human acceptance claim."
     }
   ],
   "pages": [
