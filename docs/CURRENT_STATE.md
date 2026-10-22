@@ -1,17 +1,32 @@
-# 当前状态：交期维护已交付，三项CI通过
+# 当前状态：交期覆盖客户端初验通过，展示待确认
 
-2026-10-22；feat/server-delivery-plan-maintenance-ui。最终产品2a19960a8f9810062f15b87e18214505aa74f8c5；main996dfedc12da3527343cd3ff2aa5eea35497e10e于09:33Z再次独立核实。root唯一writer、既有reviewer只读，完整Server收敛目标未完成。纠正与证据提交2f0a1e3a0fdf54035d526b891e20a3a8fd3d48dd已一次安全上传并独立API精确核实；新三CI均success/attempt1，不借旧CI结果。此后收口仅更新四份状态文档，不改产品、测试或清单。
+2026-10-22；`feat/server-delivery-coverage-client`。从独立核实的main
+`996dfedc12da3527343cd3ff2aa5eea35497e10e`建分支，仅FF干净已送达输入
+`c5b4bec40097606142c69ecc2517de82a4c07370`；root唯一writer，既有reviewer只读。
+完整Server收敛目标未完成，上一Goal轮次实际交付/三CI通过属于progress。
 
-按[具体批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)实现小按钮及Foundation多期增改作废、预览确认。来源只读、默认0/null、行身份、精确数量、独立退出guard和原请求核对保持。未知仅精确unknown后二次人工确认同UUID/CAS/body重发；成功独立GET当前集合。无新后端/SQL或金额、生产规则。
+本阶段发现并补齐D155客户端丢弃coverage的缺口，见[当前任务](tasks/active/server-delivery-coverage-ui-2026-10-22.md)
+与[客户端契约](features/SERVER_DELIVERY_COVERAGE_UI.md)。仍是原session GET/lease、1MiB逻辑
+响应与既有4KiB封套余量；缺失/null是未提供，不回算。已提供结果白名单投影，并用同响应
+DeliveryPlan/执行及原纯函数核对全部明细和摘要，阻断伪零缺口、跨单/遗漏需求和重复供给。
+没有新API、SQL、写入口、权限、Browser owner或可见页面变化。
 
-6c8的Release39746532945、Team39746525939成功，Source39746518775失败；旧手机只显示最后操作使来源按钮隐藏，本机原测试复现。原维护12项通过未覆盖两入口并存，不抵消该缺陷。失败、旧P2及中间复验均保存在[当前任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)和[纠正记录](tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md)。
+实际定向54/54（1487.0117ms）、原纯投影与真实PG/API15/15（11331.9875ms）通过，均无
+fail/cancel/skip；typecheck与完整lint通过。独立静态复审无P1/P2，容量文案已按建议精确化；
+reviewer没有执行测试。Node/前端构建、原生产页面built、发布检查、远端与新CI仍待。
 
-最终2a199类型、完整lint及精确Server构建通过；维护13/13（28595.4665ms）、原报价上下文9/9（23826.8719ms）、原P6 14/14（58604.9834ms）通过。页头八宽度九模式、Modal八宽度与七合成角色保留；独立代码/视觉复审无剩余P1/P2。新报告/四PNG/geometry在9212049214cf1f7fce7970743197f955dd303b9d冻结，再前向绑定为284证据/58能力；原278证据、前57能力和其他字段、两环境证明完整保留，独立证据复审通过。绑定后的发布检查116/116通过（423553.1156ms，fail/cancel/skip均0）；2f0的精确main守卫PASS（11页/58能力/87路径，errors=[]）。
+新增展示只做了合成交互草图，736/390/320三宽度×五种数据状态15项原型检查通过；不是
+实际系统接线或用户接受。草图版本v1 SHA256为`efaf55aac9a947d698fade85bec0c7e74ef624000f7a0a947b356cb1e1ef3a6e`，
+冻结资产见当前任务。V2局部面板必须具体批准后实施，不扩张原维护交期批准。
 
-新[Source39753491253](https://github.com/clearisok/zhixu-erp/actions/runs/39753491253)、[Team39753498411](https://github.com/clearisok/zhixu-erp/actions/runs/39753498411)、[Release39753504786](https://github.com/clearisok/zhixu-erp/actions/runs/39753504786)均通过，09:33:35.757Z独立核对精确2f0/attempt1。Team日志确认全项目927/927、无skip；Source确认维护13、报价上下文9、P6十四、报价生命周期87及Python169通过。Linux CI有7项既有Windows专属包装条件跳过，不冒称本轮执行；详见当前任务。所有Hosted数据均为合成隔离验证，不代表真实Source筛选或运行入口已激活。
+上一阶段产品2a199、验收提交2f0的Source39753491253/Team39753498411/Release39753504786
+均成功；全项目927、报价生命周期87、Python169及原失败/平台跳过按原任务保留。最终状态
+c5b已精确远端核实，原push拒绝分类和后续零push只读确认分别保留，不声称永久网络修复。
+旧三份状态按精确Git blob归档在[输入快照](tasks/completed/2026-10-22-delivery-coverage-client-inputs/c5b4bec4/)。
+发布清单仍284证据/58能力，冻结合同/旧图片及所有状态维度不变。
 
-[原工程记录](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md)按源码保存client33/API42、d742项目927及旧构建/截图结果；本切片不冒称重新运行这些检查。旧7adf发布116与6c8守卫/交付仍是其原时点，后续结果分别核实。
-
-原根外部缺失原因未知，已从公共Git精确恢复/repair，原依赖和全部Git历史保留；旧ignored输出未找到，不伪称恢复。D1933私密候选仅在31个登记根的精确原相对路径检查均未找到，未检查全部磁盘。原一次固定核验candidate失败0HTTP/未读凭据，额度已消费；不重用、修改hash或新增查询。
-
-PR120–127仍open/draft原head，无累计重复PR、自动merge/close或正式部署。3001、50426及其他旧入口/卷/账号/Browser/工作树均保护。Num/outdate已确认，原关账待答不默认；正式成衣采集、Server关账及目标入口切换仍未完成。
+PR120–127本阶段重读仍open/draft原head；不新建重复累计PR或自动merge/close。
+3001、50426及全部旧端口/卷/账号/Browser/工作树继续保护，没有部署、入口切换、真实采集或
+业务库操作。D1933私密候选仍缺原精确路径，原0HTTP一次许可已消费。Num/outdate已确认；
+加工产值、CNY工价进入USD关账和完成更正的原问题待答，不默认。正式成衣采集、关账、
+合并/目标入口和退役仍未完成。

@@ -163,8 +163,12 @@ test("current-fact delivery coverage: real PostgreSQL snapshots and original non
       assert.equal((await fetch(url)).status, 401);
       const before = await counts(), response = await fetch(url, { headers: { Cookie: cookie } }); assert.equal(response.status, 200);
       assert.equal(response.headers.get("cache-control"), "no-store"); assert.equal((await response.json()).deliveryCoverage.schemaVersion, "production-delivery-coverage.v1");
-      const oldClient = createProductionPlanClient((input, init) => fetch(base + String(input), { ...init, headers: { ...Object.fromEntries(new Headers(init?.headers)), Cookie: cookie } }));
-      const compatible = await oldClient.order(id); assert.equal(compatible.order.id, id); assert.equal(Object.hasOwn(compatible, "deliveryCoverage"), false);
+      const currentClient = createProductionPlanClient((input, init) => fetch(base + String(input), { ...init, headers: { ...Object.fromEntries(new Headers(init?.headers)), Cookie: cookie } }));
+      const compatible = await currentClient.order(id); assert.equal(compatible.order.id, id);
+      assert.ok(compatible.deliveryCoverage);
+      assert.equal(compatible.deliveryCoverage.schemaVersion, "production-delivery-coverage.v1");
+      assert.equal(compatible.deliveryCoverage.assessment, "assessed");
+      assert.equal(compatible.deliveryCoverage.checkpoints[0].gapQuantity, "100");
       assert.deepEqual(await counts(), before); assert.equal((await fetch(url + "?actor=spoof", { headers: { Cookie: cookie } })).status, 400);
       await pool.query("DELETE FROM app_role_permissions WHERE role_id='coverage.role' AND permission_key='schedule.view'");
       await assert.rejects(() => read(id), code("permission_denied")); assert.equal((await fetch(url, { headers: { Cookie: cookie } })).status, 403);

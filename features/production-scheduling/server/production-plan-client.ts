@@ -13,11 +13,13 @@ import type { StoredExecution } from "../../../server/production-scheduling/exec
 import { parseProductionCommand, type ProductionCommand } from "./production-command";
 import { parseOrderTrackingIntent, type OrderTrackingCommand, type OrderTrackingIntent } from "../../../server/production-scheduling/tracking-contract";
 import { createOrderTrackingProjections, type OrderTrackingHistoryRead, type OrderTrackingPreview, type OrderTrackingRead, type VerifiedTrackingOutcome } from "./production-tracking-projection";
+import { createDeliveryCoverageProjection } from "./delivery-coverage-projection";
+import type { DeliveryCoverage } from "../../../server/production-scheduling/delivery-coverage";
 
 export type { PlanCommand, PlanIntent, Assignment };
 export type { ExecutionCommand, ExecutionIntent, StoredExecution, ProductionCommand };
 export type { OrderTrackingCommand, OrderTrackingIntent, OrderTrackingRead, OrderTrackingPreview, OrderTrackingHistoryRead, VerifiedTrackingOutcome };
-export type { PlanOrderSummary, PlanListQuery };
+export type { PlanOrderSummary, PlanListQuery, DeliveryCoverage };
 export type PlanPreview = Awaited<ReturnType<typeof previewProductionPlan>>;
 export type VerifiedPlanOutcome = PlanOutcome & { payloadHash: string };
 export type PlanReceipt = { state: "known"; requestId: string; result: VerifiedPlanOutcome }
@@ -44,7 +46,8 @@ export type PlanGroupRow = { id: string; name: string; shortName: string; enable
 export type PlanOrderRead = { summary: PlanOrderSummary; order: { id: string; orderNo: string; planVersion: number;
   colors: { id: string; colorName: string; quantity: string; ambiguous: boolean }[];
   deliveryPlans: { id: string; date: string | null; quantity: string }[] };
-  assignments: Assignment[]; executions: Record<string, StoredExecution>; resources: PlanResources; canCreate: boolean; canEdit: boolean; canComplete: boolean };
+  assignments: Assignment[]; executions: Record<string, StoredExecution>; resources: PlanResources; deliveryCoverage: DeliveryCoverage | null;
+  canCreate: boolean; canEdit: boolean; canComplete: boolean };
 export type PlanQueueRead = { groupId: string; group: { id: string; name: string; version: number; enabled: boolean }; version: number;
   assignments: Assignment[]; executions: Record<string, StoredExecution>; resources: PlanResources; ordersById: Record<string, PlanOrderSummary> };
 export type ExecutionScope = { order: PlanOrderRead; assignment: Assignment; queue: PlanQueueRead | null };
@@ -139,6 +142,7 @@ function array(value: unknown, max = 500): unknown[] { if (!Array.isArray(value)
 function unique<T>(items: T[], id: (item: T) => string): T[] { if (new Set(items.map(id)).size !== items.length) return invalid(); return items; }
 const trackingProjection = createOrderTrackingProjections({ object, integer, text, uuid, timestamp, boolean, hash, invalid, mismatch,
   errorCode: code => Object.hasOwn(messages, code) ? code : "plan_known_rejection" });
+const deliveryCoverageProjection = createDeliveryCoverageProjection({ object, array, uuid, date, decimal: readDecimal, invalid, mismatch });
 
 export function canonicalProductionPlanCommand(value: unknown): PlanCommand {
   try { return parsePlanCommand(value); } catch { throw new ProductionPlanError(400, "invalid_production_plan_intent", true); }
@@ -518,8 +522,13 @@ export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
       const deliveryPlans = unique(array(raw.deliveryPlans, 1000).map(value => { const row = object(value); return { id: uuid(row.id), date: optionalDate(row.date), quantity: readDecimal(row.quantity) }; }), item => item.id);
       const assignments = unique(array(data.assignments).map(assignment), item => item.id), canCreate = boolean(data.canCreate), canEdit = boolean(data.canEdit), canComplete = boolean(data.canComplete);
       if (assignments.some(row => row.orderId !== id) || (canCreate || canEdit || canComplete) && (!info.eligible || planVersion === 2147483647)) return mismatch();
+      const executions = projectExecutions(data.executions, assignments);
+      const deliveryCoverage = deliveryCoverageProjection(data.deliveryCoverage, deliveryPlans,
+        assignments.map(row => ({ ...row, execution: executionFactsOnly(executions[row.id]) })));
+      if (deliveryCoverage && (deliveryCoverage.completedQuantity !== info.completedQuantity
+        || deliveryCoverage.outstandingPlannedQuantity !== info.outstandingPlannedQuantity)) return mismatch();
       return { order: { id, orderNo: info.orderNo, planVersion, colors, deliveryPlans }, summary: info, assignments,
-        executions: projectExecutions(data.executions, assignments), resources: projectResources(data.resources, assignments), canCreate, canEdit, canComplete };
+        executions, resources: projectResources(data.resources, assignments), deliveryCoverage, canCreate, canEdit, canComplete };
     },
     async queue(inputId: string, current: Lease = () => true): Promise<PlanQueueRead> {
       const id = uuid(inputId), { response, data } = await request(`/groups/${id}`, current); if (!response.ok) return httpError(response, data);

@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[交期维护任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)及[手机纠正记录](tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md)为准。feat/server-delivery-plan-maintenance-ui，产品2a199、main996dfedc12da3527343cd3ff2aa5eea35497e10e；类型/lint/精确构建、维护13/报价上下文9/P6十四、八宽度九模式及本次发布116通过。独立代码/视觉/证据复审无剩余P1/P2。6c8旧CI两绿一红及本机复现保留，证据前向绑定284/58；2f0a1e3a0fdf54035d526b891e20a3a8fd3d48dd精确main守卫与交付已核实，新Release39753504786、Team39753498411、Source39753491253均成功/attempt1（含全项目927、报价生命周期87、Python169）；平台跳过及四份纯状态文档收口见当前任务，不混称新源码CI。原278证据/旧图片不覆盖；无自动合并关闭/正式部署/真实业务库或新增Source，全部旧环境保护。完整目标未完成，Num/outdate已确认，原关账待答不默认。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[交期覆盖接线](tasks/active/server-delivery-coverage-ui-2026-10-22.md)及[客户端契约](features/SERVER_DELIVERY_COVERAGE_UI.md)为准。feat/server-delivery-coverage-client，干净输入c5b4bec40097606142c69ecc2517de82a4c07370、main996dfedc12da3527343cd3ff2aa5eea35497e10e；V0客户端54/原PG与投影15/types/full lint通过，独立静态无P1/P2。新展示仅有具体草图，V2待批准；构建/原页面built/发布/交付/新CI仍待。上一维护交期产品2a199、2f0三CI通过，最终c5b远端exact，旧摘要已按Git字节归档，失败/截图/284证据58能力保持。无自动合并关闭、部署/入口切换、真实Source或业务库操作；完整目标未完成，Num/outdate已确认，原关账待答不默认。
 
 ## 系统简介
 

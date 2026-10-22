@@ -1,0 +1,92 @@
+<div id="weaveops-delivery-coverage-proposal" class="viz-dotted-background">
+  <div class="preview-tools"><label for="coverage-scenario">预览情形</label><select id="coverage-scenario" aria-label="预览交期覆盖情形"><option value="gap">有数量缺口</option><option value="covered">覆盖有日期需求</option><option value="partial">部分交期未定</option><option value="undated">尚无有效交期</option><option value="unavailable">服务未提供结果</option></select><span>合成数据 · 待确认草图</span></div>
+  <section class="product-drawer" aria-label="建议的订单排单抽屉">
+    <header class="drawer-heading"><h2>订单排单</h2><button type="button" class="icon-close" aria-label="关闭示意">×</button></header>
+    <div class="drawer-content">
+      <div class="order-heading"><h3>演示衬衫</h3><p>SO-DEMO-018 · 订单 100 件 · 已排 90 件</p><div class="existing-actions"><button type="button" disabled>查看订单</button><button type="button" disabled>新增排单</button></div></div>
+      <section class="coverage-card" aria-label="当前登记事实的交期覆盖">
+        <div class="coverage-heading"><h3>交期覆盖</h3><button type="button" id="coverage-refresh">重新读取</button></div>
+        <div id="coverage-status" class="coverage-status" aria-live="polite"></div>
+        <p id="coverage-totals" class="coverage-totals"></p>
+        <table class="coverage-table"><thead><tr><th>交期 / 本期需求</th><th>累计需求</th><th>当前＋预计</th><th>数量缺口</th></tr></thead><tbody id="coverage-rows"></tbody></table>
+        <details id="coverage-undated"><summary>未定交期 1 条 · 20 件</summary><p>交期待定 · 数量 20 件</p></details>
+        <p class="coverage-note">按当前登记完成量与交期前预计剩余量核对。不是库存、实际出货或历史准时率。</p>
+        <span id="coverage-feedback" class="visually-hidden" aria-live="polite"></span>
+      </section>
+      <section class="existing-card" aria-label="现有物料与运输区域"><h3>物料与运输</h3><p>集货仓：演示集货仓</p><p>备注：按原流程跟进</p></section>
+    </div>
+  </section>
+</div>
+<style>
+#weaveops-delivery-coverage-proposal{--qc-paper:light-dark(#f3f3ef,#182721);--qc-panel:light-dark(#ffffff,#21372e);--qc-ink:light-dark(#203d34,#e0eee7);--qc-muted:light-dark(#697d73,#adc1b7);--qc-line:light-dark(#dce5df,#446052);--qc-soft:light-dark(#f1f7f4,#2c4639);--qc-warn:light-dark(#885419,#f1cd92);--qc-warn-bg:light-dark(#fff5e7,#473926);font-family:"Microsoft YaHei",system-ui,sans-serif;font-size:14px;line-height:1.65;color:var(--qc-ink);padding:12px;box-sizing:border-box;color-scheme:light dark}
+#weaveops-delivery-coverage-proposal *{box-sizing:border-box}
+#weaveops-delivery-coverage-proposal [hidden]{display:none!important}
+#weaveops-delivery-coverage-proposal .preview-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 auto 14px;max-width:620px;padding-right:90px;min-height:44px}
+#weaveops-delivery-coverage-proposal .preview-tools span{color:var(--qc-muted);font-size:12px}
+#weaveops-delivery-coverage-proposal select{font:inherit;color:var(--qc-ink);background:var(--qc-panel);border:1px solid var(--qc-line);border-radius:7px;padding:6px 9px;max-width:100%}
+#weaveops-delivery-coverage-proposal .product-drawer{max-width:620px;margin:auto;background:var(--qc-panel);border:1px solid var(--qc-line);box-shadow:0 12px 35px color-mix(in srgb,var(--qc-ink) 9%,transparent);border-radius:14px;overflow:hidden}
+#weaveops-delivery-coverage-proposal .drawer-heading{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--qc-line)}
+#weaveops-delivery-coverage-proposal h2{font-family:Georgia,"Songti SC",serif;font-size:24px;font-weight:500;margin:0}
+#weaveops-delivery-coverage-proposal h3{font-size:16px;font-weight:500;margin:0}
+#weaveops-delivery-coverage-proposal p{margin:6px 0;color:var(--qc-muted);overflow-wrap:anywhere}
+#weaveops-delivery-coverage-proposal .drawer-content{padding:22px;display:grid;gap:20px}
+#weaveops-delivery-coverage-proposal .order-heading h3{font-size:19px}
+#weaveops-delivery-coverage-proposal button{display:inline-flex;gap:6px;align-items:center;justify-content:center;font:inherit;font-size:12px;font-weight:500;background:var(--qc-panel);color:var(--qc-ink);border:1px solid var(--qc-line);border-radius:7px;padding:7px 12px;min-height:34px}
+#weaveops-delivery-coverage-proposal button:disabled{opacity:.65}
+#weaveops-delivery-coverage-proposal .icon-close{border-radius:50%;width:36px;padding:0;flex:0 0 auto}
+#weaveops-delivery-coverage-proposal .icon-close i{width:16px;height:16px}
+#weaveops-delivery-coverage-proposal .existing-actions{display:flex;gap:8px;margin-top:12px}
+#weaveops-delivery-coverage-proposal .coverage-card,#weaveops-delivery-coverage-proposal .existing-card{border:1px solid var(--qc-line);border-radius:10px;overflow:hidden;padding:16px}
+#weaveops-delivery-coverage-proposal .coverage-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+#weaveops-delivery-coverage-proposal .coverage-heading button{border:0;padding:2px 0;min-height:30px;white-space:nowrap}
+#weaveops-delivery-coverage-proposal .coverage-heading i{width:13px;height:13px}
+#weaveops-delivery-coverage-proposal .coverage-status{background:var(--qc-soft);padding:7px 10px;border-radius:6px;font-weight:500}
+#weaveops-delivery-coverage-proposal .coverage-status[data-warning="true"]{background:var(--qc-warn-bg);color:var(--qc-warn)}
+#weaveops-delivery-coverage-proposal .coverage-totals{font-size:12px;margin:10px 0 12px}
+#weaveops-delivery-coverage-proposal table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
+#weaveops-delivery-coverage-proposal th{font-weight:500;font-size:12px;color:var(--qc-muted);background:var(--qc-soft)}
+#weaveops-delivery-coverage-proposal th,#weaveops-delivery-coverage-proposal td{padding:10px 7px;border-bottom:1px solid var(--qc-line);text-align:left;vertical-align:top;overflow-wrap:anywhere}
+#weaveops-delivery-coverage-proposal th:first-child{width:34%}
+#weaveops-delivery-coverage-proposal td small{display:block;font-size:12px;color:var(--qc-muted)}
+#weaveops-delivery-coverage-proposal .has-gap{color:var(--qc-warn);font-weight:500}
+#weaveops-delivery-coverage-proposal .coverage-note{font-size:12px;margin:12px 0 0}
+#weaveops-delivery-coverage-proposal details{margin-top:12px;background:var(--qc-warn-bg);padding:9px 12px;border-radius:6px;color:var(--qc-warn)}
+#weaveops-delivery-coverage-proposal details p{color:inherit;font-size:12px}
+#weaveops-delivery-coverage-proposal .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+@media(max-width:480px){#weaveops-delivery-coverage-proposal{padding:8px}#weaveops-delivery-coverage-proposal .drawer-heading{padding:16px}#weaveops-delivery-coverage-proposal .drawer-content{padding:14px;gap:16px}#weaveops-delivery-coverage-proposal .coverage-card{padding:12px}#weaveops-delivery-coverage-proposal thead{display:none}#weaveops-delivery-coverage-proposal tbody,#weaveops-delivery-coverage-proposal table{display:block}#weaveops-delivery-coverage-proposal tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:12px 0;border-bottom:1px solid var(--qc-line)}#weaveops-delivery-coverage-proposal td{padding:0;border:0}#weaveops-delivery-coverage-proposal td:first-child{grid-column:1 / -1;display:flex;gap:12px;align-items:baseline}#weaveops-delivery-coverage-proposal td:not(:first-child)::before{content:attr(data-label);display:block;font-size:12px;color:var(--qc-muted);margin-bottom:4px}}
+@media(pointer:coarse){#weaveops-delivery-coverage-proposal button,#weaveops-delivery-coverage-proposal select{min-height:44px}}
+</style>
+<script>
+(()=>{
+  const root=document.getElementById('weaveops-delivery-coverage-proposal');
+  const select=root.querySelector('#coverage-scenario');
+  const rows=root.querySelector('#coverage-rows');
+  const status=root.querySelector('#coverage-status');
+  const totals=root.querySelector('#coverage-totals');
+  const table=root.querySelector('.coverage-table');
+  const undated=root.querySelector('#coverage-undated');
+  const scenarios={
+    gap:{label:'存在 10 件数量缺口',warning:true,done:'15',remaining:'75',rows:[['2026-11-10','30','30','45','0'],['2026-11-12','70','100','90','10']]},
+    covered:{label:'已覆盖有日期的需求',warning:false,done:'15',remaining:'90',rows:[['2026-11-10','30','30','45','0'],['2026-11-12','70','100','105','0']]},
+    partial:{label:'部分交期未定，尚未全部评估',warning:true,done:'15',remaining:'75',rows:[['2026-11-10','30','30','45','0'],['2026-11-12','70','100','90','10']],undated:true},
+    undated:{label:'尚无有效交期，未评估',warning:true,done:'15',remaining:'75',rows:[],undated:true},
+    unavailable:{label:'服务尚未提供交期覆盖结果',warning:false,rows:[]}
+  };
+  function apply(saved){const mode=saved?.privateContent?.scenario??saved?.modelContent?.scenario??saved?.scenario;select.value=Object.hasOwn(scenarios,mode)?mode:'gap';render();}
+  function render(){
+    const mode=select.value,model=scenarios[mode];
+    status.textContent=model.label;status.dataset.warning=String(model.warning);
+    totals.textContent=model.done?'当前登记完成 '+model.done+' 件 · 预计剩余 '+model.remaining+' 件':'等待服务提供可信的同次读取结果。';
+    rows.replaceChildren();
+    for(const values of model.rows){const row=document.createElement('tr');const first=document.createElement('td');const day=document.createElement('span');day.textContent=values[0];const current=document.createElement('small');current.textContent='本期 '+values[1]+' 件';first.append(day,current);row.append(first);for(let i=2;i<5;i++){const cell=document.createElement('td');cell.dataset.label=['累计需求','当前＋预计','数量缺口'][i-2];cell.textContent=values[i]+' 件';if(i===4&&values[i]!=='0')cell.className='has-gap';row.append(cell);}rows.append(row);}
+    table.hidden=model.rows.length===0;undated.hidden=!model.undated;undated.open=false;
+    undated.querySelector('summary').textContent=mode==='undated'?'未定交期 1 条 · 100 件':'未定交期 1 条 · 20 件';
+    undated.querySelector('p').textContent=mode==='undated'?'交期待定 · 数量 100 件':'交期待定 · 数量 20 件';
+  }
+  select.addEventListener('change',()=>{render();window.openai?.setWidgetState?.({modelContent:{proposal:'delivery-coverage',scenario:select.value},privateContent:{scenario:select.value}})?.catch(()=>{});});
+  root.querySelector('#coverage-refresh').addEventListener('click',()=>{render();root.querySelector('#coverage-feedback').textContent='已重新读取当前合成示例。';});
+  root.querySelector('.icon-close').addEventListener('click',()=>{undated.open=false;root.querySelector('#coverage-feedback').textContent='当前为待确认草图。';});
+  window.addEventListener('openai:set_globals',event=>{if(event.detail?.globals?.widgetState)apply(event.detail.globals.widgetState);});
+  apply(window.openai?.widgetState);
+})();
+</script>
