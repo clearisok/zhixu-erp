@@ -37,21 +37,28 @@ const count = (value: unknown) => {
   return Number(value);
 };
 function screen(value: unknown, password = "", depth = 0): void {
-  if (depth > 16) return fail("source_secret_field");
+  // Count object edges and encoded-JSON edges together. Report configuration
+  // legitimately exceeds the generic Source bundle's smaller tree limit.
+  if (depth > 64) return fail("garment_filter_structure_limit");
   if (typeof value === "string") {
     if (password && value.includes(password)) return fail("source_secret_field");
     const text = value.trim();
     if (text.startsWith("{") || text.startsWith("[")) {
       // Ordinary business labels such as [内层] are not encoded JSON. Valid JSON
       // is still parsed strictly so duplicate/secret keys cannot hide in text.
-      try { JSON.parse(text); } catch { return; }
+      try { JSON.parse(text); } catch (error) {
+        if (error instanceof SyntaxError) return;
+        return fail("garment_filter_structure_limit");
+      }
       screen(parse(text), password, depth + 1);
     }
   } else if (Array.isArray(value)) value.forEach(item => screen(item, password, depth + 1));
   else if (value && typeof value === "object") {
-    inspect(value);
+    // Reuse the existing secret-key policy at this level; this walker alone
+    // owns recursion, so a second, smaller subtree limit cannot reject metadata.
+    inspect(Object.fromEntries(Object.keys(value).map(key => [key, null])));
     Object.values(value).forEach(item => screen(item, password, depth + 1));
-  }
+  } else inspect(value);
 }
 function decodePage(text: string, password = "") {
   const raw = decoded(text), data = decoded(raw.dataList), meta = decoded(raw.reportObj);
@@ -142,7 +149,7 @@ export async function collectGarmentFilter(input: unknown, selection: GarmentFil
       password: config.password, action: GARMENT_FILTER_ACTION, selection }));
   });
 }
-const workerCodes = new Set([...PAYMENT_WORKER_FAILURE_CODES, ...("garment_filter_input_invalid garment_filter_scope_refused garment_filter_selection_invalid garment_filter_account_mismatch garment_filter_deadline garment_filter_sequence_refused garment_filter_response_limit garment_filter_report_mismatch garment_filter_page_mismatch garment_filter_count_mismatch garment_filter_page_limit garment_filter_empty_unverified garment_filter_contract_mismatch garment_filter_row_invalid garment_filter_duplicate_row garment_filter_witness_missing garment_filter_control_nonempty garment_filter_source_changed garment_filter_failed payment_observation_duplicate_json_key payment_observation_invalid_json payment_observation_invalid_shape payment_observation_invalid_count").split(" ")]);
+const workerCodes = new Set([...PAYMENT_WORKER_FAILURE_CODES, ...("garment_filter_input_invalid garment_filter_scope_refused garment_filter_selection_invalid garment_filter_account_mismatch garment_filter_deadline garment_filter_sequence_refused garment_filter_response_limit garment_filter_structure_limit garment_filter_report_mismatch garment_filter_page_mismatch garment_filter_count_mismatch garment_filter_page_limit garment_filter_empty_unverified garment_filter_contract_mismatch garment_filter_row_invalid garment_filter_duplicate_row garment_filter_witness_missing garment_filter_control_nonempty garment_filter_source_changed garment_filter_failed payment_observation_duplicate_json_key payment_observation_invalid_json payment_observation_invalid_shape payment_observation_invalid_count").split(" ")]);
 export const GARMENT_FILTER_FAILURE_CODES = Object.freeze([...workerCodes, ...("garment_filter_invalid_evidence garment_filter_invalid_json garment_filter_candidate_invalid garment_filter_timeout garment_filter_worker_limit garment_filter_worker_unavailable garment_filter_worker_invalid garment_filter_exact_runtime_required garment_filter_explicit_scope_required garment_filter_clean_commit_required garment_filter_credential_invalid garment_filter_failed source_secret_field preflight_private_output_required").split(" ")]);
 function safeEnvelope(input: unknown, config: CollectorConfig, selection: GarmentFilterSelection, now: number) {
   const value = object(input); keys(value, "schemaVersion,result,code,workerStage,selectionHash,httpAttempts,reportRequests,pages");

@@ -37,3 +37,20 @@ fix/garment-filter-metadata-screening从独立main996dfedc12da3527343cd3ff2aa5ee
 
 无UI/API/SQL/业务规则变化，不新增能力状态、重复累计PR或真实采集额度。旧环境、账户、卷、
 Browser和全部工作树保护。交期UI仍待原具体批准，其他关账问题不默认；完整Goal active。
+
+## 实际实现与首轮验证
+
+scope16834a28，原4个Node/Python实现/测试文件为唯一源码增量。先增加合成深配置用例，旧实现
+实际失败；修复后Node17/17（19029.9317ms）与Python全套169/169通过。混合对象/数组/编码
+JSON的64/65边界、13层配置、深层秘密键及pw/jwt/session反射、转义重复键、解析资源异常、
+超长整数、原普通括号文字与固定候选先于凭据负控均保持。没有降低秘密规则或改共享付款模块。
+
+root只调用原readFrozenGarmentCandidate离线重验：原包装/raw哈希和tooling保持，
+FROZEN_CANDIDATE_ACCEPTED_OFFLINE；sourceRequests=0/credentialAccess=none/DB=none。
+源码文件hash9f4787667762af57a6fa1ba933b603b8d9c46095e18fd6a1554d18e2292f54cb，
+这是工作区源码检查，不冒称已提交版本的CI。类型和Server编译通过；其余lint/前端构建/发布/
+精确守卫/独立review及远端CI另行收口，不提前PASS。
+
+完整lint通过；main996工作区守卫PASS（checkedHead16834a286868b095d72b7323cbbb46cdf88b56fc，
+11页面/57能力/80继承UI路径，errors[]）。独立静态review无P1/P2，reviewer未执行测试或读取
+私密文件。下一步只提交本阶段增量，再以精确源码构建、发布116回归及最终收口；不复用旧CI。

@@ -32,7 +32,7 @@ DEFINITION = ReportDefinition(key=cast(ReportKey, "garment_contract_verification
 CODES = frozenset(FAILURE_CODES | {
     "garment_filter_input_invalid", "garment_filter_scope_refused", "garment_filter_selection_invalid",
     "garment_filter_account_mismatch", "garment_filter_deadline", "garment_filter_sequence_refused",
-    "garment_filter_response_limit", "garment_filter_report_mismatch", "garment_filter_page_mismatch",
+    "garment_filter_response_limit", "garment_filter_structure_limit", "garment_filter_report_mismatch", "garment_filter_page_mismatch",
     "garment_filter_count_mismatch", "garment_filter_page_limit", "garment_filter_empty_unverified",
     "garment_filter_contract_mismatch", "garment_filter_row_invalid", "garment_filter_duplicate_row",
     "garment_filter_witness_missing", "garment_filter_control_nonempty", "garment_filter_source_changed",
@@ -140,15 +140,22 @@ def decoded_page(text, secrets):
 
 
 def screen(value, secrets, depth=0):
-    if depth > 16:
-        fail("payment_probe_structure_limit")
-    reject_reflected_secrets(value, secrets)
+    # One bound includes both object edges and JSON encoded inside text. Reuse
+    # the secret policy shallowly, without its smaller generic subtree limit.
+    if depth > 64:
+        fail("garment_filter_structure_limit")
+    if isinstance(value, dict):
+        reject_reflected_secrets({key: None for key in value}, secrets)
+    elif not isinstance(value, list):
+        reject_reflected_secrets(value, secrets)
     if isinstance(value, str) and value.lstrip().startswith(("{", "[")):
         def invalid_constant(_value):
             raise ValueError()
         try:
-            json.loads(value, parse_constant=invalid_constant)
-        except (ValueError, RecursionError):
+            json.loads(value, parse_int=str, parse_float=str, parse_constant=invalid_constant)
+        except RecursionError:
+            fail("garment_filter_structure_limit")
+        except ValueError:
             return  # Ordinary labels such as [内层] are not encoded JSON.
         screen(strict_json(value), secrets, depth + 1)
     elif isinstance(value, dict):

@@ -10,7 +10,7 @@ from ainuoke_bridge.ainuoke_client import AuthExpiredError, NetworkAinuokeError,
 from ainuoke_bridge.contracts import REPORT_CATALOG
 from ainuoke_bridge.garment_contract_verification import (
     ACTION, DEFINITION, ZERO_CONTRACT, VerificationTransport, checked_page, collect, main as worker_main,
-    request_queue, validate_input,
+    request_queue, validate_input, screen,
 )
 from ainuoke_bridge.payment_request_contract_probe import fingerprint
 from ainuoke_bridge.payment_request_observations import strict_json
@@ -228,6 +228,51 @@ class GarmentContractVerificationTests(TestCase):
             text = page([{**row, "remark": label}])
             with self.subTest(label=label):
                 self.assertEqual(collect(CONFIG, FakeTransport([text, page([]), text]))["result"], "complete")
+
+    def test_deep_encoded_configuration_is_valid_and_combined_depth_is_bounded(self):
+        def nested(levels, leaf="合成配置"):
+            for index in range(levels):
+                leaf = [leaf] if index % 2 else {"child": leaf}
+            return leaf
+        metadata = {"reportId": 6086979, "cellList": [], "layout": json.dumps(nested(13), ensure_ascii=False)}
+        text = page(reportObj=json.dumps(metadata, ensure_ascii=False))
+        result = collect(CONFIG, FakeTransport([text, page([]), text]))
+        self.assertEqual(result["result"], "complete")
+        screen({"encoded": json.dumps(nested(62))}, ())
+        with self.assertRaises(UpstreamSchemaError) as raised:
+            screen({"encoded": json.dumps(nested(63))}, ())
+        self.assertEqual(raised.exception.args[0], "garment_filter_structure_limit")
+
+    def test_deep_secrets_duplicates_and_json_parser_resource_errors_are_not_plain_labels(self):
+        for leaf in ({"token": "PRIVATE"}, [{"cookie": "PRIVATE"}], {"ordinary": CONFIG["password"]},
+                     {"ordinary": "synthetic-jwt"}, {"ordinary": "synthetic-session"}, '{"a":1,"\\u0061":2}'):
+            layout = leaf
+            for _ in range(13):
+                layout = {"child": layout}
+            text = page(reportObj=json.dumps({"reportId": 6086979, "cellList": [], "layout": json.dumps(layout)}))
+            result = collect(CONFIG, FakeTransport([text]))
+            self.assertEqual(result["result"], "failed")
+            self.assertEqual(result["reportRequests"], 1)
+            self.assertEqual(result["pages"], [])
+        # This valid JSON fits the row text limit, but exceeds Python's parser
+        # recursion budget. It must not bypass secret checks as a plain label.
+        row = strict_json(strict_json(page())["dataList"])["rows"][0]
+        text = page([{**row, "remark": "[" * 1000 + "0" + "]" * 1000}])
+        result = collect(CONFIG, FakeTransport([text]))
+        self.assertEqual(result["result"], "failed")
+        self.assertEqual(result["code"], "garment_filter_structure_limit")
+        self.assertEqual((result["reportRequests"], len(result["pages"])), (1, 0))
+
+    def test_large_encoded_metadata_integer_does_not_bypass_strict_decoding(self):
+        huge = "9" * 4500
+        encoded = '{"huge":' + huge + '}'
+        text = page(reportObj=json.dumps({"reportId": 6086979, "cellList": [], "layout": encoded}))
+        self.assertEqual(collect(CONFIG, FakeTransport([text, page([]), text]))["result"], "complete")
+        secret = '{"huge":' + huge + ',"token":"PRIVATE"}'
+        text = page(reportObj=json.dumps({"reportId": 6086979, "cellList": [], "layout": secret}))
+        result = collect(CONFIG, FakeTransport([text]))
+        self.assertEqual(result["result"], "failed")
+        self.assertEqual((result["reportRequests"], len(result["pages"])), (1, 0))
 
     def test_network_failure_has_actual_counts_no_retry_and_only_preceding_safe_page(self):
         transport = FakeTransport(failure_at=2)

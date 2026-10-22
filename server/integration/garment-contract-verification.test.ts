@@ -71,6 +71,34 @@ test("ordinary bracket business labels remain text while valid encoded JSON is s
   }
   assert.throws(() => validate(evidence([raw([{ ...row, remark: '{"x":1,"x":1}' }]), raw([]), raw()])));
 });
+function nestedMetadata(levels: number, leaf: unknown = "合成配置") {
+  let layout = leaf;
+  for (let index = 0; index < levels; index += 1) layout = index % 2 ? [layout] : { child: layout };
+  return raw([row], { reportObj: JSON.stringify({ reportId: 6086979, cellList: [], layout: JSON.stringify(layout) }) });
+}
+test("encoded report configuration may reach object depth13 and combined depth19 without weakening scope", () => {
+  const text = nestedMetadata(13), frozen = candidate(text), original = structuredClone(frozen);
+  assert.equal(selectionFromGarmentCandidate(frozen, "a".repeat(64)).salesContractNo, row.ExpContractNo);
+  assert.deepEqual(frozen, original);
+  assert.equal(validate(evidence([text, raw([]), text])).summary.result, "SCOPED_FILTER_OBSERVED");
+});
+test("combined wrapper, object and encoded JSON depth is bounded at64 before credentials", () => {
+  assert.equal(selectionFromGarmentCandidate(candidate(nestedMetadata(58)), "a".repeat(64)).salesContractNo, row.ExpContractNo);
+  assert.throws(() => selectionFromGarmentCandidate(candidate(nestedMetadata(59)), "a".repeat(64)), { message: "garment_filter_structure_limit" });
+});
+test("deep report configuration still rejects secret keys, reflected secrets and decoded duplicate keys", () => {
+  for (const leaf of [{ token: "SYNTHETIC-SECRET" }, [{ cookie: "SYNTHETIC-SECRET" }], { ordinary: config.password }, '{"a":1,"\\u0061":2}']) {
+    const text = nestedMetadata(13, leaf);
+    assert.throws(() => validate(evidence([text, raw([]), text])));
+  }
+  assert.throws(() => selectionFromGarmentCandidate(candidate(nestedMetadata(13, { authorization: "SYNTHETIC-SECRET" })), "a".repeat(64)), { message: "source_secret_field" });
+});
+test("encoded metadata numbers beyond interpreter conversion limits remain exact text", () => {
+  const huge = "9".repeat(4500), metadata = '{"reportId":6086979,"cellList":[],"layout":"{\\"huge\\":' + huge + '}"}';
+  const text = raw([row], { reportObj: metadata });
+  assert.equal(selectionFromGarmentCandidate(candidate(text), "a".repeat(64)).salesContractNo, row.ExpContractNo);
+  assert.equal(validate(evidence([text, raw([]), text])).summary.result, "SCOPED_FILTER_OBSERVED");
+});
 test("parent independently checks the full page, exact contract, control and second-pass contents", () => {
   for (const [texts, code] of [
     [[raw([{ ...row, ExpContractNo: "SYNTHETIC-C10" }]), raw([]), raw()], "garment_filter_contract_mismatch"],

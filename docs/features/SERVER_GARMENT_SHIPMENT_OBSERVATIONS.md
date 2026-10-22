@@ -71,7 +71,9 @@ Node `garment-shipment-observations.ts` 只接内部checked pages，不能由HTT
 
 复用Python严格无损JSON与有界传输、Node精确数值解析、已有私密文件ACL/hash检查和不可覆盖报告写入。Python端任何失败停止，安全已收页面可私密保留；含秘密反射、重复键或无法安全解析的文本不落地。Node独立复核原文hash、完整范围、时间、顺序与两遍内容；超时/损坏进程回执标记次数未知，不补零。公共回执只含别名、数量、hash和静态原因。普通“[待核]”等业务文字保持文本，真正编码JSON继续检查重复键及秘密字段。
 
-Windows入口 `scripts/ainuoke-garment-contract-verification.ps1` 只创建新的受保护ignored目录并启动原Node入口，不在PowerShell读取或显示密码。准备/测试均只用合成临时文件；真实私密报告与凭据未读取，新真实额度尚未批准/消耗。诊断结果不注册Catalog、不激活target、不访问DB、不产出可发布快照或默认新鲜度，也不证明所有合同过滤、跨次事件身份、取消或关账。当前收口与实际测试/交付结果见[Gate7B任务](../tasks/active/server-convergence-gate7b-filter-verification-2026-10-22.md)。
+Windows入口 `scripts/ainuoke-garment-contract-verification.ps1` 只创建新的受保护ignored目录并启动原Node入口，不在PowerShell读取或显示密码。最初准备/测试只用合成临时文件；2026-10-22获准的一次工具调用在candidate本地校验失败，0 HTTP/0报表、未进入凭据阶段，失败即停。仅离线读取已授权冻结候选后，查明合法编码配置的对象深度13/组合19超过原通用检查限制；[修复任务](../tasks/active/garment-filter-metadata-screening-2026-10-22.md)保留原失败与哈希核验。固定工具现逐层复用原秘密键/反射规则，并以统一组合深度64检查对象、数组和编码JSON；超深及解析资源异常用固定错误码拒绝，普通括号文字仍保持文本。此局部修复不改变通用Source/付款模块、冻结hash、条件或请求预算。
+
+离线候选解析通过不等于真实过滤已核验。诊断不注册Catalog、不激活target、不访问DB、不产出可发布快照或默认新鲜度，也不证明所有合同过滤、跨次事件身份、取消或关账；没有自动第二次真实调用。原工具工程/交付历史见[Gate7B任务](../tasks/active/server-convergence-gate7b-filter-verification-2026-10-22.md)。
 
 `npm run test:garment-shipment-observations`执行纯契约、一次性PG/真实session HTTP、0039升级、并发撤权/停用/物理来源更新、丢回执、过期重放、历史分页、跨单颜色FK、容量及审计回滚。Python全套含原文精度/hash检查。新增命令接入既有Source验收workflow；本地PASS不代表Hosted CI。
 
