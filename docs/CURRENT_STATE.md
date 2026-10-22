@@ -1,4 +1,4 @@
-# 当前状态：交期覆盖客户端本地验收通过，展示待确认
+# 当前状态：交期覆盖客户端已送达，新CI排队，展示待确认
 
 2026-10-22；`feat/server-delivery-coverage-client`。从独立核实的main
 `996dfedc12da3527343cd3ff2aa5eea35497e10e`建分支，仅FF干净已送达输入
@@ -16,7 +16,11 @@ fail/cancel/skip；typecheck与完整lint通过。独立静态复审无P1/P2，�
 reviewer没有执行测试。精确483be024的Node/Server前端构建通过；原生产页面built37/37，
 79299.1902ms；发布单测116/116，365977.5741ms，均无fail/cancel/skip。原可见页面未回归，
 没有覆盖面板系统验收。精确main门禁首轮只报V0页面ID未登记，失败回执保留；现仅按既有
-清单改为order-detail/navigation，最终commit门禁、远端与新CI仍待，不借旧CI。
+清单改为order-detail/navigation。修正提交1ed81a5590ac509d574e95bb0ebdc85275ea4fc0的
+精确main门禁PASS：11页/58能力/88累计UI路径，errors空。单次push返回拒绝分类但独立API
+exact；没有重推，原工具零push只读DELIVERED_VERIFIED再次exact，原异常保持，不推断根因。
+新三CI39796325961/39796336473/39796346404于14:33:03.614Z均精确1ed、attempt1、queued；
+不是CI PASS，不借旧CI。后续纯状态commit不冒称是483构建或1ed CI的实际源码。
 
 新增展示只做了合成交互草图，736/390/320三宽度×五种数据状态15项原型检查通过；不是
 实际系统接线或用户接受。草图版本v1 SHA256为`efaf55aac9a947d698fade85bec0c7e74ef624000f7a0a947b356cb1e1ef3a6e`，

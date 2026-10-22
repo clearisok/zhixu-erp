@@ -85,3 +85,30 @@ Git blob、三份输入摘要及四份原型资产字节/hash；无P1/P2。revie
 其关于旧摘要落后的建议现前向更新；完整发布门禁的上述失败独立保留。
 新V2面板具体v1草图已通过异步问题提交，尚无回复，不自动默认。
 本地结果与远端送达、新CI分开登记；当前还没有本阶段新CI或PR。
+
+## 精确门禁、送达和新CI排队
+
+修正记录及本地结果提交为`1ed81a5590ac509d574e95bb0ebdc85275ea4fc0`，工作树干净；
+产品代码与483完全相同。精确main996的源码门禁实际PASS，11页、58能力、88累计UI路径，
+errors为空。新回执`outputs/delivery-coverage-client/guard-1ed81a5.json`与原483失败分别保留。
+元数据增量独立复审无P1/P2，不替代实际门禁。
+
+仅执行一次既有安全交付工具，pushes=1；原结果为STOP_AUTH_OR_DIVERGENCE、exit1，
+但工具独立GitHub API已精确核实远端1ed81a5。没有重复push；随后原工具Dry Run无Execute，
+pushes=0、DELIVERED_VERIFIED，Git只读通道再次精确同一完整SHA。原拒绝分类/回执不改写
+为exit0，也没有认证、代理、TLS或共享配置更改，不推断永久网络恢复或拒绝根因。
+本机回执为`delivery-attempt-1ed81a5.json`、`delivery-1ed81a5.log`和
+`delivery-readonly-1ed81a5.log`，均在`outputs/delivery-coverage-client/`。
+
+2026-10-22T14:31Z仅向三个既有验收workflow各dispatch一次；14:33:03.614Z独立核对
+三run都精确head1ed、同分支、attempt1，尚为queued，不是CI PASS：
+
+| 工作流 | run | 状态快照 |
+|---|---|---|
+| Ainuoke server source | [39796325961](https://github.com/clearisok/zhixu-erp/actions/runs/39796325961) | queued |
+| First team access | [39796336473](https://github.com/clearisok/zhixu-erp/actions/runs/39796336473) | queued |
+| Release baseline | [39796346404](https://github.com/clearisok/zhixu-erp/actions/runs/39796346404) | queued |
+
+单次dispatch回执和有界只读watch各自保留；不重复dispatch或借旧CI。只作为固定验证引用，
+没有新建重复累计PR、修改原PR、自动merge/close或部署。后续状态提交只含本任务与三份摘要，
+不将483构建或1ed CI重标成后续文档commit的实际执行。V2问题仍待具体回复。

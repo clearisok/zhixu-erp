@@ -1,4 +1,4 @@
-# 恢复点：交期覆盖客户端V0本地通过，展示草图待批
+# 恢复点：交期覆盖客户端V0已送达，新CI排队，草图待批
 
 2026-10-22；main996dfedc12da3527343cd3ff2aa5eea35497e10e再次独立核实，PR120–127原head不变。
 当前`feat/server-delivery-coverage-client`从main新建后仅FF干净c5b4bec40097606142c69ecc2517de82a4c07370。
@@ -17,7 +17,15 @@ missing/null为unavailable；已提供coverage由同响应计划/执行和原pro
 发布116/116（365977.5741ms）均无skip。精确main guard首轮UI_CHANGE_PAGE失败，
 原guard-483be024.json保留；仅修正V0记录为清单既有order-detail/navigation，无产品变化。
 两位只读reviewer分别完成产品与证据复审，无P1/P2；后者未执行测试。
-最终commit的精确main guard、单次交付及三项新CI仍待，不借2f旧CI。
+修正提交1ed81a5590ac509d574e95bb0ebdc85275ea4fc0的精确main guard已PASS，11/58/88、errors空。
+一次push仍返回STOP拒绝分类且API exact；未重推。随后原工具Dry Run pushes0
+DELIVERED_VERIFIED，Git read exact1ed，原失败与新只读回执分别保留，不推断永久修复。
+三新CI均只dispatch一次：Source39796325961（job119884304957）、Team39796336473、
+Release39796346404；14:33:03.614Z均精确1ed、attempt1、queued，不是PASS。
+有界只读watch正在shell handle54724；恢复时先poll此handle，不另起watch或重dispatch。
+回执outputs/delivery-coverage-client/actions-ci-{dispatch,latest}.json；终态会另存final-results
+或failure.json。若handle已结束，先读现有回执再做一次只读核对，不重新执行有副作用的helper。
+后续纯状态checkpoint仅四份文档，不冒称新构建或新CI；其精确最终门禁/送达仍须分别核实。
 本阶段先技术客户端，不创建重复累计业务PR。V2具体v1草图问题已提交，仍无回复。
 
 草图v1 efaf55aac9a947d698fade85bec0c7e74ef624000f7a0a947b356cb1e1ef3a6e已复制到
