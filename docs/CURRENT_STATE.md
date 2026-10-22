@@ -1,11 +1,11 @@
-# 当前状态：固定核验配置兼容已本地修复
+# 当前状态：已批准Server交付计划维护交互
 
-2026-10-22；fix/garment-filter-metadata-screening，干净输入31cad6f71dced9f1ad399b13dd1b4871d2234abc，独立main仍996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer、既有reviewer只读，无继承dirty；Goal active。[当前任务](tasks/active/garment-filter-metadata-screening-2026-10-22.md)保留完整范围、失败和实际验收；三份输入摘要逐字节归档。
+2026-10-22；feat/server-delivery-plan-maintenance-ui，从独立main996dfedc12da3527343cd3ff2aa5eea35497e10e建立后仅FF至干净377a3c9eb40a852851c1d4e05296a4d30f4ce9e9。root唯一writer、既有reviewer只读，完整Goal active。三份原摘要逐字节归档；先读[当前UI任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)及[具体交互批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)。目前只有范围/批准文档，尚未修改产品。
 
-用户批准C1/C0/C1后，在前置F三CI全部通过、clean及精确远端核对下，仅调用一次原工具。2026-10-22T00:00:21.957Z至00:00:27.519Z在candidate阶段FAIL，HTTP=0/报表=0，未读取凭据或登录；失败即停，无自动重试。离线核实冻结包装/raw哈希、唯一合同及16唯一id均正确；合法编码配置对象深度13/组合19触发原inspect12/screen16。此为本地工具误拒，不是来源过滤或网络结论。
+用户按原草图批准标题旁小按钮“维护交期”、Foundation弹窗增改作废日期/数量、预览保存、来源只读与差异提示。复用D100/D154后台；未知结果只核对原请求，保留历史、零/null系统默认行和独立会话/订单owner，不新增价格、Source或业务规则。新UI须精确V2路径记录及隔离built验收，不把原型当作App已实现。
 
-源码a98e4da5bff5b772bea292abdf33bc179a614fd6仅改固定Node/Python screen和合成测试：浅键复用原秘密规则、统一组合64，资源异常失败关闭。Node17/17（19029.9317ms）、Python全169、类型/lint/Server编译/显式Server前端build、发布116/116（186116.334ms）通过，独立静态review无P1/P2。原冻结候选仅离线解析成功，sourceRequests=0/credentialAccess=none/DB=none；合同条件/hash/4MiB/12MiB/180秒和无重试不变。最终文档HEAD守卫、交付及新CI另核，不混称F结果。
+前置[固定工具修复](tasks/active/garment-filter-metadata-screening-2026-10-22.md)最终377已精确远端、精确main守卫PASS。原一次Execute STOP与零push DryRun DELIVERED_VERIFIED分别保留，不推断原stderr缺失的原因。新CI：Team39699352582、Release39699355389 success；Source39699348958仍in_progress（2026-10-22T00:28:38.973Z，均attempt1）。不重复dispatch，不提前宣称三CI成功；其工具变化不阻塞独立UI只读设计，UI后台144三CI另有证据。
 
-manifest268证据/57能力完全不变，无UI/API/SQL/业务规则或能力状态变化。前置F的Source39694581228、Team39694584779、Release39694588911均attempt1/success；其原Execute STOP与零push DryRun回执保留。旧105 Source失败、c0d镜像8/8/41迁移、144三CI和各冻结报告仍各归原源码，没有给旧镜像换身份或切换入口。
+修复源码a98e：Node17/Python169/类型/lint/Server与显式Server前端build/发布116（186116.334ms）及独立review通过。获准的一次固定调用在本地candidate失败，0 HTTP/0报表、未读凭据；随后只离线修复配置深度并核对冻结候选成功，没有自动再次调用。真实合同过滤仍未验证，UI批准不扩展该范围。原F三CI、105失败、c0d镜像8/8及144等各冻结历史保持；manifest268/57未改。
 
-PR120–127仍按原验证图保留，不建重复累计PR、不merge/close。3001及50426/59069/62326/62426等旧端口、卷、账号、Browser、工作树不动。无真实业务库、绑定、激活、调度或部署。真实精确合同过滤仍未通过，不能自动再次执行旧尝试；Num/outdate已确认，交期UI原具体批准与其他关账问题仍待，不默认。正式收集器、Server关账及运行收敛尚未完成。
+PR120–127保留，不建重复累计PR、不merge/close。3001及50426/59069/62326/62426等旧端口、卷、账号、Browser和工作树不动；只用自有合成fixture。无新真实Source、业务库、绑定、激活、调度或部署。Num/outdate已确认；其他关账问题仍待，不默认。正式成衣收集器、Server关账和运行收敛未完成。

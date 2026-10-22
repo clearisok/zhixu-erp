@@ -71,3 +71,14 @@ manifest268证据/57能力及全部旧记录逐字不变，不为工具修复抬
 未读凭据/发HTTP/访问DB。原失败的尝试、回执、公开脱敏诊断与所有本阶段日志保留在ignored
 outputs/material-arrival-activation与outputs/garment-filter-screening。当前只待最终文档HEAD
 精确guard、安全交付和该精确HEAD三CI；无重复累计PR，不自动合并/关闭/部署。
+
+## 实际交付与新CI
+
+最终377a3c9eb40a852851c1d4e05296a4d30f4ce9e9/main996精确守卫PASS、clean。原工具仅一次
+Execute返回STOP_AUTH_OR_DIVERGENCE、pushes=1、remoteSha精确377；原回执保留，未记录原Git
+stderr所以不推断根因。随后原工具只读DryRun pushes=0返回DELIVERED_VERIFIED/精确377，
+未第二次push或更改共享配置。独立API再次核实远端精确后各dispatch一次：Source39699348958、
+Team39699352582、Release39699355389，均attempt1，初查in_progress，不能提前PASS。
+
+用户另批准原交期草图，转入[独立UI接线](server-delivery-plan-maintenance-ui-2026-10-22.md)。
+此交互批准不扩展真实Source，原唯一失败尝试不重跑；后续CI只读核实并在新任务记录终态。
