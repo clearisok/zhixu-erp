@@ -36,7 +36,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
   assert.match(runName, /^[a-z0-9-]{0,64}$/);
   const directory = resolve('outputs/delivery-plan-ui', info.gitCommit + '-' + info.buildId + (runName ? '-' + runName : ''));
   const x = await startContinuousFixture(resolve('dist/client'));
-  const temp = await mkdtemp(join(tmpdir(), 'zhixu-delivery-plan-ui-')), pending = new Map(), errors = [], metrics = [];
+  const temp = await mkdtemp(join(tmpdir(), 'zhixu-delivery-plan-ui-')), pending = new Map(), errors = [], metrics = [], headerMetrics = [];
   const actor = await loadExistingBootstrapActor(x.pool, x.users[0]);
   let browser, ws, session, serial = 0;
   const read = () => readDeliveryPlanSet(x.pool, x.orderId);
@@ -113,6 +113,23 @@ test('approved delivery plan maintenance works on the exact built Server detail'
     const shot = async name => { if (evidence) await writeFile(join(directory, name + '.png'), Buffer.from((await command('Page.captureScreenshot', { format: 'png' })).data, 'base64')); };
     await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
     await cookie('demo.admin'); await navigate();
+
+    await phase('source and delivery actions stay visible and actually open at eight widths without any write', async () => {
+      const before = await read();
+      for (const [width, height, touch, dpr] of [[1920, 1080, false, 1], [1536, 864, false, 1.25], [1440, 1000, false, 1], [1280, 900, false, 1], [900, 900, false, 1], [736, 900, false, 1], [390, 844, true, 1], [320, 740, true, 1]]) {
+        await command('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dpr, mobile: touch }); await command('Emulation.setTouchEmulationEnabled', { enabled: touch });
+        const header = await evaluate("(()=>{const group=document.querySelector('.oc-server-detail-actions');return{documentOverflow:document.documentElement.scrollWidth>innerWidth+1,buttons:[...group.querySelectorAll('button')].map(n=>{const r=n.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2),s=getComputedStyle(n);return{label:n.textContent.trim(),visible:r.width>0&&r.height>0&&s.visibility==='visible'&&s.display!=='none',disabled:n.disabled,reachable:!!hit&&n.contains(hit),inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,touchTarget:!matchMedia('(pointer:coarse)').matches||r.height>=44}})}})()");
+        assert.equal(header.documentOverflow, false); assert.deepEqual(header.buttons.map(n => n.label), ['维护来源', '维护交期']);
+        for (const button of header.buttons) assert.deepEqual(button, { label: button.label, visible: true, disabled: false, reachable: true, inside: true, touchTarget: true }, `${button.label} must remain usable at width ${width}`);
+        headerMetrics.push({ width, height, touch, dpr, ...header });
+        if ([1440, 390, 320].includes(width)) await shot('header-' + width);
+        await click('维护来源'); await has('搜索报价', '.oc-source-modal'); await click('关闭', '.oc-source-modal button');
+        await until(() => evaluate("!document.querySelector('.oc-source-modal')"), 'closed source modal');
+        await open(); await modalClick('取消'); await absent();
+      }
+      assert.equal(await evaluate('deliveryWire.patches.length'), 0); assert.deepEqual(await read(), before); assert.deepEqual(await immutable(), baseline);
+      await command('Emulation.setTouchEmulationEnabled', { enabled: false }); await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+    });
 
     await phase('small title action, retained null/zero default and unchanged preview never write', async () => {
       const version = (await read()).version;
@@ -269,7 +286,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       }
     });
     assert.deepEqual(errors, []); assert.deepEqual(x.errors, []);
-    if (evidence) await writeFile(join(directory, 'receipt.json'), JSON.stringify({ schemaVersion: 'delivery-plan-maintenance-ui.v1', renderedSourceSha: info.gitCommit, buildId: info.buildId, synthetic: true, realSourceRequests: 0, metrics }, null, 2) + '\n');
+    if (evidence) await writeFile(join(directory, 'receipt.json'), JSON.stringify({ schemaVersion: 'delivery-plan-maintenance-ui.v2', renderedSourceSha: info.gitCommit, buildId: info.buildId, synthetic: true, realSourceRequests: 0, headerMetrics, metrics }, null, 2) + '\n');
   } finally {
     if (ws) ws.close(); if (browser) browser.kill(); await x.close();
     const owned = relative(resolve(tmpdir()), resolve(temp));

@@ -197,6 +197,11 @@ GitHub只读connector取得原119716210613 job日志，未更换Git认证或输�
 实际Foundation手机CSS只显示页头最后一个直接子操作；新交期作为最后一项使来源display:none。
 这是产品回归，既有测试正确捕获。下一切片仅在详情局部分组/响应式排布，原全局规则不动，
 原quote上下文断言不放宽；维护built扩至八宽度双入口可见、可达及边界检查，再精确构建/复审。
+clean1697文档checkpoint后，原quote上下文测试使用原7584产品构建在本机复现同样
+pass6/fail3（61912.8875ms，无skip），排除仅Hosted平台推测。修复只改detail局部group、
+原维护CSS的该详情手机操作行及维护built用例；不改Foundation全局、Source按钮/创建writer或
+原quote上下文断言。新增八宽度检查两个按钮真实rect/display/visibility/hit-test、viewport、
+触屏44px，并逐个打开关闭原弹窗，确认0 PATCH且所有原订单/交期事实不变。
 
 ## 验收和交付
 
