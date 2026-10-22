@@ -1,4 +1,4 @@
-# 恢复点：成衣固定恢复已实现，外层超时P2验证中
+# 恢复点：成衣恢复45/Python172/发布116通过，精确交付待核实
 
 2026-10-22；main996dfedc12da3527343cd3ff2aa5eea35497e10e已独立重读，PR120–127仍原草稿。
 当前`feat/garment-filter-recovery`从main建立后仅FF干净632c62c069869dbf618d976240790cc2d44232b4。
@@ -6,7 +6,7 @@ root唯一writer；原完整Goal active。standing安全Git交付/CI授权有效
 不授权自动merge/close、部署/入口切换、真实Source额度、账号/业务库或旧资产退役。
 
 先读[任务](tasks/active/garment-filter-recovery-2026-10-22.md)及
-[固定诊断](features/AINUOKE_GARMENT_DIAGNOSTICS.md)。当前切片只有原probe共用合同screen及
+[固定诊断](features/AINUOKE_GARMENT_DIAGNOSTICS.md)。第一步64de只有原probe共用合同screen及
 Node/Python反例；FROZEN、原查询/队列/预算/CLI未改，无HTTP或凭据读取。已复现原红测，
 保留重复键错误归一修复和测试分类纠正的中间失败。最终Node32/32（26284.2356ms）、Python
 172/172（2.314s）、types/full lint/Server编译通过；独立静态无P1/P2，reviewer未跑测试。
@@ -17,13 +17,14 @@ STOP/API exact回执保留，未重推。新组合工具发布、精确commit门
 现已组合原collectGarmentCandidate/validator→严格唯一合同/见证→私密文件实际hash/读回→
 collectGarmentFilter/validator。建议固定2登录+4报表、每报表4MiB/累计16MiB、每登录另限
 4MiB、共享单调180秒，CLI不接受候选/合同/hash覆盖；同账号，失败即停，不重试或翻页。
-11项新增+原套合计43/43、Python172/1.940s、types/full lint/Server编译通过。独立审查发现
-外层超时丢首段计数P2，已补最多3个安全PROGRESS帧、完整换行/文件核验与超时已知下限合并。
-真实180秒Windows合成进程树用例在handle49359；先poll，不重起。首次13中12pass/1fail仅
-为fixture语法错误，现已修正并有无采集的前检；不冒称已验证关闭。
-首轮发布99中90pass/9fail，D157文档尚未前向冻结，后续17响应式未运行；原日志保留。
-须先提交新DECISION_LOG字节，再追加同路径supersedes文档证据，保留旧ID/hash/截图，
-当前清单暂284/58。组合工具最终测试/独立复审、精确guard/送达及新CI仍待。
+源码405d3e01a76b2c5dd1efd91a9a13a98d8a2f277a已保存。最终组合45/45（232290.6899ms），
+Python172/1.940s、types/full lint/Server编译通过。独立审查所提超时P2已修复并静态无剩余
+P1/P2；主控真实180秒合成测试1/1通过183736.6554ms，首段2/1/文件保留，后段unknown且
+子树停止。handles49359/11611已终态，不再poll；原fixture失败保留，reviewer未跑测试。
+首轮发布99中90pass/9fail因D157未前向冻结；响应式R1–R20实际通过，原17差额描述已纠正。
+现仅追加405精确D157文档至285/58，旧ID/hash/截图逐对象不变；证据独立复审无P1/P2。
+前向冻结后发布116/116通过347796.3971ms、无skip；handle97858已终态，不再poll。
+组合工具最终提交的精确guard/送达及新CI仍待，不借旧回执。原失败与本次PASS分别保留。
 完成后再一次性申请
 新真实具体范围；旧0HTTP许可已消费，不能重试。旧候选31个工作树原路径未找到，非全盘结论，
 不重建原hash/字节。无业务DB/target/Source激活。

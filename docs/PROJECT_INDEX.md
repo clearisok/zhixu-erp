@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[成衣固定恢复任务](tasks/active/garment-filter-recovery-2026-10-22.md)及[诊断契约](features/AINUOKE_GARMENT_DIAGNOSTICS.md)为准。feat/garment-filter-recovery从main996dfedc12da3527343cd3ff2aa5eea35497e10e建立，仅FF干净已交付632c62c069869dbf618d976240790cc2d44232b4；筛查64de已精确门禁/远端核实。组合入口已实现，新旧43Node/Python172/types/full lint/Server编译通过；外层超时P2已补阶段帧、180秒合成验证中，新真实范围未授权。D157须前向冻结，原发布9个drift失败保留，不改旧ID/hash/截图。上一客户端1ed三原CI现均success、未重跑，见[终态](tasks/completed/2026-10-22-delivery-coverage-client-ci.md)；483构建/1edCI/632状态分开保留。交期覆盖v1展示仍待具体批准。无自动合并关闭、部署/入口切换、真实Source或业务库操作；完整目标未完成，Num/outdate已确认，原关账待答不默认。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[成衣固定恢复任务](tasks/active/garment-filter-recovery-2026-10-22.md)及[诊断契约](features/AINUOKE_GARMENT_DIAGNOSTICS.md)为准。feat/garment-filter-recovery从main996dfedc12da3527343cd3ff2aa5eea35497e10e建立，仅FF干净已交付632c62c069869dbf618d976240790cc2d44232b4；筛查64de已精确门禁/远端核实。405源码本地最终45Node/Python172/types/full lint/Server编译及发布116通过，超时P2实际180秒用例与独立静态收口；真实新范围未授权，最终远端/CI仍待。D157按405精确字节前向冻结，清单285/58、旧284记录/其他字段/截图保持；原失败保留并纠正17项差额描述。上一客户端1ed三原CI已success，见[终态](tasks/completed/2026-10-22-delivery-coverage-client-ci.md)。交期覆盖v1展示仍待具体批准。无自动合并关闭、部署/入口切换、真实Source或业务库操作；完整目标未完成，Num/outdate已确认，原关账待答不默认。
 
 ## 系统简介
 

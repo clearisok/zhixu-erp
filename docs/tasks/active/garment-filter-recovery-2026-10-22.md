@@ -88,6 +88,30 @@ types通过，没有通过强制类型断言跳过。加入真实私密writer/ha
 不能把旧11项通过当作这个P2已验证关闭；原失败保留。
 
 首轮发布测试99项90通过/9失败（300059.1665ms），原因均为新D157尚未登记前向文档版本的
-EVIDENCE_WORKTREE_DRIFT；后续17项响应式未运行。按RELEASE_BASELINE_GUARD先提交新决策
+EVIDENCE_WORKTREE_DRIFT。405摘要曾误将总数差额17写成响应式未运行；原日志实际R1–R20及
+子规则全部通过，差额为父断言失败后未进入的后续嵌套检查。此处前向更正，旧提交/日志保留。
+按RELEASE_BASELINE_GUARD先提交新决策
 字节，再追加supersedes记录，旧ID/hash不改、不删，不修改截图或弱化测试。当前清单仍284/58，
 新前向冻结及最终发布测试尚待。
+
+## 405源码最终验证与前向冻结
+
+产品/决策checkpoint `405d3e01a76b2c5dd1efd91a9a13a98d8a2f277a`已干净保存。P2代码经独立静态
+复审无剩余P1/P2；主控另实际完成180秒Windows合成超时1/1（183736.6554ms，总184321.2265ms）：
+保留候选2HTTP/1报表/文件hash，后段unknown，合成worker树确已停止；超时后约3.7秒只做本机
+ACL/hash核对，无Source请求。旧失败没有换成PASS，reviewer未执行测试。
+
+随后组合三套测试完整45/45通过（232290.6899ms，无fail/cancel/skip），日志文件名含fast但
+name-pattern实际没有排除完整名称中的180秒用例，因此按实际完整45计，不报44或仅快速检查。
+Python172/172（1.940s）、最终types/full lint/Server编译通过，无业务DB/API或新前端验收。
+
+清单仅追加D157文档版本至285/58，新ID `decisions-garment-filter-recovery-20261022`，同路径
+supersedes原D156验证记录，recorded/rendered均405，SHA256
+`b4c5f921780e58b79216d34f346566e11029a6fd9e15ee5c22349f11648de1a2`。
+独立证据复审核对原284记录、其他字段、能力和截图逐对象不变，无P1/P2；旧D156/blob链保留。
+前向冻结后的发布测试仍在执行，精确最终guard/送达/新CI另行记录，不能沿用64de/1ed回执。
+
+前向冻结后实际发布116/116通过（347796.3971ms，无fail/cancel/skip），
+`outputs/garment-filter-recovery/release-forward-final.log`与原99/90/9失败分别保留。
+本地工程PASS；最终精确commit guard/送达/Source与Team及Release新CI仍待，不自动建立重复
+累计PR、合并或部署。正式合同过滤实证、真实范围许可及完整成衣Source仍未完成。

@@ -2396,6 +2396,16 @@
       "sha256": "d7b3bda98e90e7dd709517f6b75f2b1a28569398eda5451f94387c9a6e7a3c2e",
       "approvalEvidence": "server-delivery-plan-maintenance-ui-approval-20261022",
       "changeReason": "Forward the specifically approved paired Server order actions after a real mobile CI defect; exact2a199 synthetic build, original source entry preserved, no global layout or historical screenshot replacement."
+    },
+    {
+      "id": "decisions-garment-filter-recovery-20261022",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "405d3e01a76b2c5dd1efd91a9a13a98d8a2f277a",
+      "renderedSourceSha": "405d3e01a76b2c5dd1efd91a9a13a98d8a2f277a",
+      "sha256": "b4c5f921780e58b79216d34f346566e11029a6fd9e15ee5c22349f11648de1a2",
+      "supersedes": "decisions-delivery-plan-maintenance-verified-20261022",
+      "changeReason": "D157 adds the fixed fresh diagnostic producer and protected new-file identity, finite progress receipts and shared Source deadline. Preserve every prior decision/frozen identity; no new real-read authorization, business snapshot, schema, UI, deployment or acceptance claim."
     }
   ],
   "pages": [
