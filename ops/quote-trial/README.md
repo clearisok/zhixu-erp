@@ -70,6 +70,28 @@ on Windows only with explicit `ZHIXU_LOCAL_TRIAL_IMAGE` and full
 final empty target. Validation results belong to the Gate 1 evidence record;
 the historical results below retain their original source and date.
 
+The optional `ZHIXU_LOCAL_TRIAL_DOMAINS=1` test-driver mode additionally requires
+`ZHIXU_LOCAL_TRIAL_IMAGE_ID`, `ZHIXU_LOCAL_TRIAL_BUILD_ID` and
+`ZHIXU_LOCAL_TRIAL_BUILD_TIME` matching the immutable image. It pins a verified
+local Docker named-pipe endpoint for child commands and rejects remote/TLS
+overrides. It uses the same two newly prepared owned projects; no existing
+environment, real source credential, HTTP collector or business data is used.
+After the original Quote-only check, test-only input is sent through the image's
+original compiled domain services. No application code is mounted or rebuilt.
+The fixture covers contract/colors, manual delivery plans and original receipts,
+color commercial versions, processing batches, production resources/plans and
+execution history, plus explicitly synthetic material/payment/garment snapshots.
+After maintenance and helper shutdown, it compares all public table content hashes,
+row counts and all sequence state with the independent restore **before** app
+startup or login, then checks native service reads, original receipts and new
+legal commands. Empty tables are explicitly not exercised. Expired observations
+stay stale; timestamps are never refreshed to make a proof pass. A generated
+receipt under ignored `outputs/server-domain-recovery-20261023/` identifies both
+test-driver HEAD and image source. This is not HTTP/UI source activation, a Server
+closing implementation, recovery of an old environment, deployment or user acceptance.
+Only successfully prepared projects are cleaned up after complete success; any
+failed phase stops dependent work and retains its owned volumes/private evidence.
+
 2026-10-22 current-image engineering: clean sourcef4692eea was built and the
 corrected actual-image rehearsal passed8/8 with40 migrations (maximum0041),
 including restart, cold recreation and independent synthetic Quote/PNG restore.

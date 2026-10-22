@@ -2,7 +2,7 @@
 
 本次独立核实的 main 基线为 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；历史证据各自保留原来源 SHA。
 
-2026-10-23恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[当前镜像任务](tasks/active/server-current-image-0c7377d9-2026-10-23.md)及[工程报告](tasks/completed/2026-10-23-current-server-image-0c7377d9-engineering.md)为准。复用chore/server-current-image-0042，仅FF干净0c；精确0c archive新镜像actual-image一次8/8、322827.0248ms、41迁移最大0042通过，不替换旧入口。来源工具0c的45/Python172/发布116/精确门禁及送达已独立完成；Source39810661082/Team39810668692/Release39810675561三原CI均成功，固定run不重调度。新真实具体许可、覆盖v1、原关账问题仍待，不默认。3001仍e3；50426最新只读快照无监听；62426仍旧8175候选。旧状态按Git字节归档；报告05d93冻结、清单仅286/58，旧285/D157405及旧截图保持，独立复审无P1/P2。首轮发布115/116仅索引main锚点遗漏，补索引后精确guard PASS，修复后完整发布116/116通过348937.8123ms。本phase纯文档，最终交付待核实；main前移后旧分支证据的祖先约束兼容风险须先复现修复，再建议业务合并，无合并关闭、部署、真实Source或业务库操作；完整Goal未完成。
+2026-10-23恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)及[业务恢复任务](tasks/active/server-domain-recovery-2026-10-23.md)为准。当前既有chore/server-current-image-0042@94a1767b，扩展test-only合成领域恢复：旧精确0c镜像8/8仅有Quote/PNG，其他业务表为空，不能当完整ERP恢复。新模式固定原image ID和本机Docker、原编译领域服务，维护后逐表/sequence对比、原回执和恢复后续写；实际运行仍待。旧三摘要按Git字节[归档](tasks/completed/2026-10-23-domain-recovery-inputs/94a1767b/CURRENT_STATE.md)。#126精确0be89ff9已交付，134/134、本次三CI成功并复审，merge确认仍待；#127四处共享文档冲突已虚拟验证，不提前整合。新真实Source、覆盖v1和关账问题仍待；3001及全部旧环境保持，不自动merge/close/部署或操作真实业务库；完整Goal未完成。
 
 ## 系统简介
 

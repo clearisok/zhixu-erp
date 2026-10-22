@@ -1,44 +1,35 @@
-# 恢复点：0c镜像8项及Source三CI通过，文档发布复验继续
+# 恢复点：Server 业务数据恢复演练
 
-2026-10-23；main996dfedc12da3527343cd3ff2aa5eea35497e10e，PR120–127仍原head开放草稿。
-root唯一writer，standing安全Git/CI授权有效，无自动merge/close、部署/旧入口切换、真实账号/
-业务库、Source额度或退役授权。原完整Goal active，不能缩范围或标complete。
+2026-10-23；main996dfedc12da3527343cd3ff2aa5eea35497e10e，完整Goal active。
+root唯一writer；沿用既有只读release_safety_review，不新建并行实现。当前既有
+chore/server-current-image-0042，baseline94a1767b4743e1c21a961c5232929c4600cd34aa干净。
+修改前已逐字归档94的三摘要到tasks/completed/2026-10-23-domain-recovery-inputs/94a1767b。
+新阶段启动回执outputs/server-domain-recovery-20261023/start.json。
 
-当前复用chore/server-current-image-0042，从c0d87bcd仅FF干净0c7377d99a51bcab6589217edff69a54e7b2ee21。
-feat/garment-filter-recovery仍稳定0c不改。报告/任务见CURRENT_STATE链接；新镜像来自精确0c
-Git archive，tag zhixu-persistent-local:0c7377d9-20261023，image4a489d9a8fd7a78acf5fc3fb9c88855c24637b9c09e56c932a280461e0d47e92。
-既有actual-image一次8/8，322827.0248ms，无skip；41迁移/最大0042/无0013。只清理本次成功
-prepare的两组合成project/卷/备份。没有新代码/SQL/UI/ops；旧105/f469图像/记录不变。
-本地receipt指针outputs/garment-filter-recovery/current-image-ref.json，源image及log已保留。
-报告已在05d93d47c150f450a052d20b59b7c8258f1330e9冻结，新记录286/58、hash e19cd6bc6f4d8b84e6a9d17c0805a075b71ed151691b8e14c4c91e301a054596。
-旧285记录及其他字段、D157405/旧截图不变，独立证据复审无P1/P2。首轮发布115/116，仅
-PROJECT_INDEX缺完整main锚点，原失败保留；补索引后精确guard PASS。修复后完整发布116/116
-通过，348937.8123ms，无skip；日志image-release-anchor-fixed.log。36178已终态PASS，旧44343
-终态FAIL，均不再poll。后续最终精确main guard/安全交付；纯文档只需Release新CI，不重跑
-不变Source/Team，最终回执在outputs/garment-filter-recovery。
+本阶段实现checkpoint：test-only domain-native/helper和6项纯负向/比较回归已编写，
+6/6通过；默认未给image的旧演练只运行cleanup1/1、镜像项skip，不能算实际镜像验收。
+精确0c image实际domain-mode、独立复审和发布门禁待执行。先提交本checkpoint，
+再从干净精确test-driver HEAD启动受保护的全新项目演练；如失败保留自有现场修复。
 
-来源工具0c本地45/Python172/types/lint/Server编译/发布116及精确guard通过，远端exact。
-单push STOP/API exact和后续原工具零push只读DELIVERED_VERIFIED分别保留，没重推。
-Source39810661082、Team39810668692、Release39810675561均固定head0c/attempt1，全部success，
-终态2026-10-22T16:25:39.962Z。watch38441已终态，不再poll；最终回执
-outputs/garment-filter-recovery/actions-ci-final-results.json。不新dispatch/rerun。Source报价浏览器87/
-Python172通过，Hosted9个Windows条件skip，其中本次2项由本地45/真实180秒合成另证；不冒称
-Linux全平台零skip。分支过滤查询曾空，固定workflow入口找到原run；不因空筛选重复调度。
-当前image测试handle18858、build31917均终态；旧49359/11611/97858也终态，不再poll。
+先读当前任务、LEGACY_ERP、现有persistent-local-trial.integration.test.mjs及ops/quote-trial。
+旧8项只填Quote/PNG，不能当其他ERP领域恢复。计划只改test/fixture/必要文档，复用原0c镜像
+4a489d9a8fd7a78acf5fc3fb9c88855c24637b9c09e56c932a280461e0d47e92；镜像源码0c7377d9，
+工具源码另记，不能挂载新TS替代原编译应用。Docker endpoint已只读核实desktop-linux本机
+named pipe，执行时须进程级固定，拒绝远端覆盖。两个新成功prepare项目，exact DB/volume/
+image/container身份，失败保留自有现场；不清理其他资源。维护后所有helper结束，再备份前
+与恢复后app启动/login前比较所有public表、行数/确定性内容hash和sequence状态；非空矩阵
+与原领域读取/原回执另证。Source固定合成输入，无外部HTTP；过期如实stale，不刷新时间。
 
-新的固定真实恢复问题已发出，尚无回复。只有明确批准且Source0c CI成功后，才从干净工作树
-切回stable feat/garment-filter-recovery0c，再自行执行一次新private launcher；不读/显示凭据。
-范围D1933完整首页→唯一C1/C0/C1，最多2登录+4报表，100行/4MiB每页、报表16MiB、登录各4MiB，
-180秒停止Source，随后本机回执核对；无重试/翻页/业务库/绑定/激活/调度。不要复用已消费的
-旧0HTTP许可或替换旧FROZEN；没有回复不能默认批准。实际Source报告只能留ignored受保护目录。
+#126精确0be89ff99a7339a68934ed94a56fdc32b11cc8ab已送达、三CI全部success、复审无P1/P2。
+本地134/134，最终精确996guard PASS；原CI Source39823068530/Team39823068516/Release39823068537，
+均head0be/attempt1。watch93718终态，不再poll；完整回执outputs/release-main-advance-20261023。
+原上传STOP后未重推，独立API及原工具0push只读DELIVERED_VERIFIED。原PR说明已核对，仍草稿。
+已向用户请求仅merge #126（保留历史），尚未回复；#127与它4处冲突只有三摘要及baseline，
+213历史证据相同、仅verifiedAt不同。没有任何main merge。当前94未整合新工具，不把它冒称
+已包含0be；冻结的新guard曾在94实际通过。原0be分支保持干净/远端，不改。
 
-覆盖v1具体草图仍待回复，原维护交期批准不扩张。冻结HTML hash
- efaf55aac9a947d698fade85bec0c7e74ef624000f7a0a947b356cb1e1ef3a6e保持；可视化改动前重读skill。
-原关账三问待答不默认；Num/outdate已确认。3001保护，50426最新快照无监听不推断原因；
-62426原Gate1 image8175f628仍运行，未替换。全部旧入口/卷/账号/Browser/工作树不动。
-旧三摘要归档tasks/completed/2026-10-23-current-image-inputs/0c7377d9，原日期/hash/失败/截图保留。
-
-下一条不依赖用户待答的工程：先复现main前移后旧分支冻结证据的严格祖先约束兼容问题，
-再考虑窄修复原#126工具PR；reviewer已指出具体line183风险，未执行merge-tree或修改文件。
-禁止仅删祖先校验、改旧记录或笼统承诺改baseline即可整合；先检查原分支/worktree baseline，
-用真实合成Git DAG做正负反例、保留所有旧证据/截图保护，独立复审与CI。没有任何merge授权。
+新真实Source恢复、覆盖v1与原关账三问仍待回复；不能默认。Num/outdate不再问。
+任何获准真实读取前，必须从干净树切回stable feat/garment-filter-recovery精确0c；旧一次
+额度已用完，不能在本新验收分支消耗。全部旧入口/卷/账号/Browser/工作树、3001保护。
+standing安全Git恢复授权有效，不再逐SHA询问；不授权自动merge/close、部署/切换、真实
+账号/业务库、Source绑定/激活/调度或退役。优先做不依赖待答的隔离工程，按阶段提交。
