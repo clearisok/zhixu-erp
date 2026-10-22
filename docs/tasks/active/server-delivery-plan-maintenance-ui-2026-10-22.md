@@ -208,6 +208,10 @@ ab4cea9b4fe74c520bb16dd145c5f43d8046f3cc类型/定向lint及精确Server前端�
 本页旧named grid-area更高specificity保留右列，操作未落到拟定的标题下方；不把上述绿灯
 当该布局已通过。仅增强本页带操作组的手机selector，明确identity/actions两行named areas，
 测试另断言actionsBelowIdentity与两个按钮同一行。下一精确构建/截图/回归待验。
+4e2b955b1db5ece88976a841250b79262c769b6c精确构建通过，但新built第一阶段的同排
+断言实际失败（含父0pass/2fail，12826.8552ms），后续测试未跑；不能沿用ab4结果。
+另查明旧quote-center通用页头按钮width100%让组内按钮各占整行；仅本详情操作组直接按钮
+显式auto宽/不伸缩，保留44px与所有下方/同排/可达断言。失败几何消息与截图在断言前保留。
 
 ## 验收和交付
 
