@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)和[交期维护任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)为准。feat/server-delivery-plan-maintenance-ui，main996dfedc12da3527343cd3ff2aa5eea35497e10e、输入377；客户端406a已精确远端。页面接线已实现，client33/类型/lint/Server编译及静态复审通过，built/最终门禁仍待；D156已冻结在源码2468并前向绑定，旧证据不覆盖。批准89993412已冻结，270/57暂不升能力。前置377三CI均attempt1/success，原固定工具一次candidate失败0HTTP/0报表且未读凭据，不重跑或扩大采集。root唯一writer/既有reviewer只读，保护旧环境，无新Source/业务库/合并关闭/正式部署。完整Goal active，Num/outdate已确认，原关账待答不默认。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)、[交期维护任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)及[冻结工程记录](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md)为准。feat/server-delivery-plan-maintenance-ui，产品7584、main996dfedc12da3527343cd3ff2aa5eea35497e10e；client33/API42、类型/lint/构建、d742项目927、483ef原P6 14及最终7584 built12/八宽度/七角色通过，独立视觉复审无新P1/P2。证据先checkpoint再前向绑定，旧270/57及历史11PNG不覆盖；最终门禁/远端/新CI仍待。仅406a已精确远端。恢复后的原工作区/依赖/全部历史保留，最新AGENTS适用。原Source一次candidate失败0HTTP/未读凭据，额度已消费；不重跑/扩大采集。root唯一writer、既有reviewer只读，无自动合并关闭/正式部署/真实业务库。完整Goal active，Num/outdate已确认，原关账待答不默认。
 
 ## 系统简介
 

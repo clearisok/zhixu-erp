@@ -138,9 +138,11 @@ expanded saved disclosure; a historical receipt is never the current collection.
 After an exact unknown receipt only, a second explicit human confirmation may
 replay the identical original request. Recheck the original actor slot before
 sending, with no new UUID/CAS or automatic retry. A new lost reply revokes that
-permission and returns to receipt checking. Wiring and synthetic client tests
-exist; built-browser acceptance is still pending. No new backend rule, SQL, source
-query or runtime activation is introduced.
+permission and returns to receipt checking. Exact-source synthetic built UI,
+seven-role/eight-width coverage and original P6 regression are recorded in the
+[frozen engineering evidence](../tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md).
+This is not deployment or human acceptance. No new backend rule, SQL, source query
+or runtime activation is introduced.
 
 ## C4.2 ConfirmedCommercialTerms extension
 

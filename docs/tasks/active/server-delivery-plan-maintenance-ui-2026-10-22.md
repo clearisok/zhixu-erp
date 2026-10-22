@@ -158,6 +158,14 @@ lock字节相等，最终HEAD9319/clean，空恢复目录保留。未删除或�
 人工新PNG确认横向问题已消除，但grid默认auto行使表格纵向压缩，出现表内第二滚动区。
 现仅将正文grid-auto-rows设max-content，由既有Modal正文承担纵向滚动；测试加内表无纵向
 滚动断言，手机预览滚动正文至完整修改值后截图。仍不改Foundation全局或领域规则。
+最终产品7584d77ff366b419e8481a7e3d3efc31627b398b精确Server前端构建及12/12
+built通过（22089.7988ms，无skip），八宽度内部/外部边界、完整64位预览、单滚动及七角色
+均实际验证。root查看新PNG后固化五张截图与几何receipt；旧11张及所有旧证据不改。
+[冻结工程记录](../completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md)分别列各来源
+SHA/结果与已知限制。当前只做证据checkpoint，下一步前向绑定D156/新报告/PNG/能力维度，
+再运行精确main守卫及发布检查；不预报交付/新CI通过。用户本轮重新提供AGENTS，当前适用。
+独立最终代码/视觉复审实际查看preview320/edit390/edit1440及receipt，原两项层叠P2、父轨道
+与嵌套滚动均闭合，无新P1/P2；明确483ef的P6结果不冒充7584重跑，也不冒称用户接受/部署。
 
 ## 验收和交付
 

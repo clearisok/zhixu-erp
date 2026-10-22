@@ -35,8 +35,10 @@
 - 规范SO UUID贯通缓存/当前GET/旧披露刷新；实际session对象在layout失效，防同用户ABA和迟到401。
   processing不把仅来源镜像的null伪称加工资料未记录。完成/取消状态沿用原DeliveryPlan编辑权限。
 - 证据：`features/order-center/server/delivery-plan-*`、maintenance hook/组件、原详情及Foundation Modal。
-  目前client33项/类型/lint及静态review通过，built浏览器/最终门禁仍待；阶段结果分开记录于
-  [当前任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)。不代表部署或人工接受。
+  具体源码、client/API/项目检查及精确built/八宽度证据见
+  [冻结工程记录](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md)；
+  [当前任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)另行记录远端/最终门禁/CI。
+  工程通过不代表部署或人工接受；原决策阶段快照与失败保留，不改D100/D154规则。
 
 ### D-155 交期覆盖只投影当前登记事实
 
