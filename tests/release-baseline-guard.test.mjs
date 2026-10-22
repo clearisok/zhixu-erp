@@ -490,6 +490,92 @@ function realEvidenceMerge(t) {
   return {f,git,commit,options,base,old,left,right,side,merged,mergedBytes,leftHead,rightHead};
 }
 
+function advancedMainEvidenceMerge(t, doubleSided = false) {
+  const s = realEvidenceMerge(t), { f, git, commit } = s;
+  const save = () => f.write(manifestPath, JSON.stringify(f.manifest, null, 2) + '\n');
+  save();
+  const sourceHead = commit('freeze complete side history before main advances', [manifestPath]);
+  git(['switch', '-q', 'main']);
+  git(['switch', '-q', '-c', 'tool-change']);
+  const toolPath = 'docs/synthetic-tool-only.md';
+  f.write(toolPath, '# Independent tool change\n');
+  let mainProof;
+  if (doubleSided) {
+    const bytes = Buffer.from('# Independent main document change\n');
+    f.write(s.old.path, bytes);
+    const sha = commit('main document checkpoint', [toolPath, s.old.path]);
+    mainProof = { id: 'advanced-main-proof', kind: 'document', path: s.old.path,
+      recordedAtSha: sha, sha256: hash(bytes), supersedes: s.old.id, changeReason: 'Independent main review' };
+    const mainManifest = structuredClone(f.previousManifest);
+    mainManifest.evidence.push(mainProof);
+    f.write(manifestPath, JSON.stringify(mainManifest, null, 2) + '\n');
+    commit('freeze main proof', [manifestPath]);
+  } else commit('independent tool only', [toolPath]);
+  git(['switch', '-q', 'main']);
+  git(['merge', '--no-ff', '-m', 'advance actual main with independent tool', 'tool-change']);
+  const actualBase = git(['rev-parse', 'HEAD']);
+  const baseManifest = JSON.parse(git(['show', `${actualBase}:${manifestPath}`]));
+  git(['switch', '-q', 'right']);
+  git(['merge', '--no-ff', '--no-commit', 'main'], doubleSided ? [1] : [0]);
+  if (mainProof) f.manifest.evidence.push(mainProof);
+  f.manifest.baselineSha = actualBase;
+  const bytes = doubleSided ? Buffer.from('# Explicit union of side and new main\n') : s.mergedBytes;
+  f.write(s.old.path, bytes);
+  for (const file of ['docs/CURRENT_STATE.md', 'docs/AI_HANDOFF.md', 'docs/PROJECT_INDEX.md']) {
+    f.edit(file, text => text.replaceAll(original.baselineSha, actualBase));
+  }
+  save();
+  const integrationSha = commit('forward integrate exact advanced main', [manifestPath, s.old.path,
+    'docs/CURRENT_STATE.md', 'docs/AI_HANDOFF.md', 'docs/PROJECT_INDEX.md']);
+  const witness = { id: 'advanced-main-integration-witness', kind: 'document', path: s.old.path,
+    recordedAtSha: integrationSha, sha256: hash(bytes), changeReason: 'Preserve frozen side history while integrating exact current main' };
+  if (doubleSided) witness.mergeOf = [s.merged.id, mainProof.id];
+  else witness.supersedes = s.merged.id;
+  f.manifest.evidence.push(witness);
+  const options = { ...s.options, expectedBaseSha: actualBase, historyBaseSha: actualBase,
+    previousManifest: baseManifest, checkedHead: integrationSha,
+    readMergeCommits: (base, head) => git(['rev-list', '--ancestry-path', '--min-parents=2',
+      '--max-count=257', `${base}..${head}`]).split('\n').filter(Boolean) };
+  assert.equal(options.isAncestor(actualBase, s.merged.recordedAtSha), false);
+  assert.equal(options.isAncestor(actualBase, integrationSha), true);
+  assert.equal(options.isAncestor(s.merged.recordedAtSha, integrationSha), true);
+  return { ...s, options, actualBase, baseManifest, sourceHead, integrationSha, witness, bytes, save };
+}
+
+for (const doubleSided of [false, true]) test(`main advancement preserves ${doubleSided ? 'both document branches' : 'single-side frozen history'} with a real integration witness`, t => {
+  const s = advancedMainEvidenceMerge(t, doubleSided);
+  assert.deepEqual(s.f.check(s.options), []);
+});
+
+test('forward integration corridor retains side-only history even after a later ordinary checkpoint', async t => {
+  const s = advancedMainEvidenceMerge(t), { f } = s;
+  const valid = structuredClone(f.manifest);
+  await t.test('dropping a different-path source-parent proof is rejected', () => {
+    f.manifest.evidence = valid.evidence.filter(item => item.id !== s.side.id);
+    has(f.check(s.options), 'EVIDENCE_INTEGRATION_HISTORY_CHANGED');
+    Object.assign(f.manifest, structuredClone(valid));
+  });
+  await t.test('changing a different-path source-parent proof is rejected', () => {
+    f.manifest.evidence.find(item => item.id === s.side.id).changeReason = 'silently replaced';
+    has(f.check(s.options), 'EVIDENCE_INTEGRATION_HISTORY_CHANGED');
+    Object.assign(f.manifest, structuredClone(valid));
+  });
+  const body = Buffer.from('# Ordinary checkpoint cannot erase source evidence\n');
+  f.write(s.old.path, body);
+  const later = s.commit('ordinary checkpoint after actual integration', [s.old.path]);
+  await t.test('a later ordinary record cannot launder all source-parent records', () => {
+    Object.assign(f.manifest, structuredClone(s.baseManifest), { baselineSha: s.actualBase });
+    f.manifest.evidence.push({ id: 'post-merge-ordinary-proof', kind: 'document', path: s.old.path,
+      recordedAtSha: later, sha256: hash(body), supersedes: s.old.id, changeReason: 'Later ordinary checkpoint' });
+    has(f.check({ ...s.options, checkedHead: later }), 'EVIDENCE_INTEGRATION_HISTORY_CHANGED');
+  });
+  await t.test('omitting all new records cannot hide actual source-parent history', () => {
+    Object.assign(f.manifest, structuredClone(s.baseManifest), { baselineSha: s.actualBase });
+    f.write(s.old.path, f.blobs.get(`${s.old.recordedAtSha}:${s.old.path}`));
+    has(f.check({ ...s.options, checkedHead: later }), 'EVIDENCE_INTEGRATION_HISTORY_CHANGED');
+  });
+});
+
 test('explicit document reconciliation verifies actual Git parents and keeps every branch record',async t=>{
   const s=realEvidenceMerge(t),{f,options,left,right,side,merged}=s;
   assert.equal(options.readCommitParents(merged.recordedAtSha).length,2);

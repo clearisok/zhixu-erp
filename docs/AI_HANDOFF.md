@@ -1,7 +1,24 @@
-# 恢复点：独立 release document merge guard
+# 恢复点：原PR126的main前移证据回归
 
-2026-10-20；main `996dfedc12da3527343cd3ff2aa5eea35497e10e`；分支 `codex/release-document-merge-guard` 从该 main 干净建立。只按精确路径提取 b4c47f13 的 guard/test/feature 三文件，不整体 cherry-pick a12825ef；不包含业务累计代码或220项组合清单。main的213项证据及业务元数据保持原样；仅baselineSha/verifiedAt对齐996/2026-10-20。原摘要/接力逐字归档。
+2026-10-23；main`996dfedc12da3527343cd3ff2aa5eea35497e10e`。root唯一writer，reviewer只读。
+当前原`codex/release-document-merge-guard`，从干净956921f63ba3069c059ca64c2324edbc33afefd8
+继续，原branch不在其他worktree占用。仅工具/测试/文档；已知dirty为6份逐字输入归档、新
+main advancement测试及本次状态/task更新，不能混入应用或其他候选。
 
-独立本地验收完成：a2d2af55源码116/116基线（306421ms）、语法/lint、精确996守卫全部通过，0UI输入变化；独立reviewer已确认元数据修复和213历史完整。首次旧基线失败/中断测试保留，不称通过。本次最终文档提交后再核精确守卫，远端未送达、未创建新PR/组合CI。NETWORK_DEGRADED仍保留；Gate1/add2一次上传已用完且精确核实，不重复推送。下一步请求本工具最终SHA与组合b4c47f13两个指定引用的恢复范围，不自动重试。
+先读CURRENT_STATE、原release-document-merge-guard任务及feature，实际check脚本与合成
+Git测试。新red已完成7项0pass/7fail（66868.6335ms，预期反例），日志outputs/release-main-advance-20261023/red.log；
+两类合法整合误拒绝，后置普通checkpoint删除side历史却返回[]。生产码尚未改，不能称修复PASS；
+handle69204已终态，不再poll。reviewer已指出：只改base→HEAD会漏旁支
+x；只在recordedAt为merge时检查也可用后置普通T洗掉全部side记录。拟定有界同路径H见证
++actualBase→HEAD真实merge走廊父清单逐对象保留；缺对象/清单/数量超限fail closed。
+保持原mergeOf/锚点/blob/截图规则；需要独立正负Git回归和复审，不删除祖先约束。
 
-组合分支 `codex/server-pr-integration` 的可靠恢复提交 `b4c47f1356205e1f064f714ce1fb51efb58e2823` 已本地通过，旧62426固定ops/镜像不依赖本checkout。完成工具切片后安全切回并继续Gate3路由闪屏；不创建重复累计业务PR。若触发CI，只能点名source、team-access、release-baseline三个验收workflow，并核每次run.head_sha；绝不触发deploy-production。所有PR维持未合并，旧环境/账号/业务数据和来源范围不变。
+原完整候选/Goal状态在归档94a1767b三摘要，原956摘要同目录另一子目录。94工具文档
+已精确guard/远端；Release39816442442 success、attempt1/head94，watch11552已终态，不再poll。
+Source0c三原CI39810661082/39810668692/39810675561也success，watch38441已终态。
+新image8/8与发布116是原切片事实，不借作本修复PASS。所有ignored回执保留。
+
+Full Goal active；standing安全Git恢复授权有效，不再逐SHA询问。无自动merge/close、正式
+部署/入口切换、真实账号/业务库、退役或新Source额度授权。新固定真实恢复问题尚未回复；
+若明确批准，须从干净树切到stable feat/garment-filter-recovery精确0c再执行一次，不能在
+本dirty工具分支误消耗0HTTP许可。覆盖v1/原关账三问不默认，Num/outdate已确认。

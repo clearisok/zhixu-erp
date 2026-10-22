@@ -78,3 +78,43 @@ authorization has already been used and exact delivery verified. A new recovery
 attempt needs its own concrete SHA scope; no automatic retry or shared Git/TLS/
 proxy modification. Original state/handoff are archived byte-for-byte under
 tasks/completed/2026-10-20-release-document-merge-guard-predecessor.
+
+## Main advancement compatibility (2026-10-23)
+
+Main is independently still996dfedc12da3527343cd3ff2aa5eea35497e10e. Reuse the
+original unowned-elsewhere branch at clean956921f63ba3069c059ca64c2324edbc33afefd8;
+root is the sole writer. Both its old summaries and the complete Goal recovery
+summaries from94a1767b are archived byte-exactly in the dated input directory.
+The new phase is only guard/tests/docs, not the cumulative application candidate.
+The standing safe Git recovery authorization supersedes the old per-SHA request
+restriction above; no automatic merge/deploy or real Source authority follows.
+
+Read-only review identified a real P2: actual main can advance to M after side
+evidence was frozen. Even a legitimate later merge H cannot make M an ancestor
+of those old evidence commits. Rewriting old IDs/hashes is prohibited. Replacing
+that check by base-to-HEAD alone would miss side-only history; checking parents
+only when an author chooses a merge as recordedAt can be bypassed by a later
+ordinary checkpoint. Neither shortcut is accepted.
+
+The proposed narrow correction separates eligibility from history preservation:
+old side revisions need a same-path explicit witness at the actual integration
+H, with exact new-base/source parents and retained source identity. Independently,
+enumerate actual merges only within actualBase-to-HEAD ancestry, with a hard count
+bound and Git-loaded parent manifests. All their evidence must remain object-equal,
+even if the author creates no new document record at H. Missing objects/manifests
+or an exceeded bound reject; there is no truncated PASS. Existing mergeOf branch
+contribution, every base anchor/blob/edge/leaf and all screenshot rules remain.
+
+Actual synthetic Git red tests are running before production changes. Final
+counts, correction, review and delivery/CI must be recorded after observation;
+old116 is not a result for this new behavior. Source0c and image94 CI successes
+remain on their own exact heads. No PR has been merged or closed.
+
+The actual focused red run completed7 tests,0pass/7fail,66868.6335ms, no skip or
+cancel. Both legitimate single/double-sided integrations were rejected with the
+three old-side EVIDENCE_REVISION_ANCESTRY errors. More significantly, after an
+ordinary post-merge checkpoint, deleting all side records or adding no new record
+at all returned an empty error list. The failing negative assertions preserve
+this real omission; they are not reported as production regression PASS. The
+full log is retained in outputs/release-main-advance-20261023/red.log. Production
+guard code is still unchanged at this checkpoint.
