@@ -1,5 +1,6 @@
 "use client";
 
+import { useLayoutEffect, useRef } from 'react';
 import { AlertBanner, Button, DescriptionList, LoadingState, Modal, UnsavedDraftDialog } from '@/components/foundation';
 import { useServerDeliveryPlanMaintenance } from './use-server-delivery-plan-maintenance';
 import './server-delivery-plan-maintenance.css';
@@ -15,6 +16,24 @@ export function ServerDeliveryPlanMaintenance({ orderId, processing = false, rea
 }) {
   const controller = useServerDeliveryPlanMaintenance({ orderId, readOnly, onGuardChange, onSaved });
   const { view, canView, canWrite, editable, closeDisabled } = controller;
+  const focusAnchor = useRef<HTMLSpanElement>(null);
+  const previousRetry = useRef<{ lease: object; open: boolean } | null>(null);
+  const retryOpen = view.open && view.retryConfirmation && !view.busy && Boolean(view.pending) && view.verifiedUnknown === view.pending?.command.requestId;
+  useLayoutEffect(() => {
+    const previous = previousRetry.current;
+    previousRetry.current = { lease: view.lease, open: retryOpen };
+    if (!canView || !view.open || retryOpen || !previous?.open || previous.lease !== view.lease) return;
+    // The retry trigger disappears after sending. Restore only this still-owned
+    // panel, after the nested overlay has attempted its normal focus return.
+    let frame = window.requestAnimationFrame(() => {
+      frame = window.requestAnimationFrame(() => {
+        const panel = focusAnchor.current?.closest<HTMLElement>('.oc-delivery-modal');
+        if (!panel?.isConnected || [...document.querySelectorAll('[role="dialog"]')].at(-1) !== panel || panel.contains(document.activeElement)) return;
+        panel.focus({ preventScroll: true });
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [canView, retryOpen, view.lease, view.open]);
   if (!canView) return null;
   const unresolved = Boolean(view.pending) || view.pendingUnavailable;
   const foreign = view.pending && view.pending.salesOrderId !== orderId;
@@ -39,6 +58,7 @@ export function ServerDeliveryPlanMaintenance({ orderId, processing = false, rea
           : view.error || !view.data ? <Button disabled={view.busy} onClick={controller.reload}>重新读取计划</Button>
           : <Button type="submit" disabled={!editable}>预览变更</Button>}
       </>}>
+      <span hidden ref={focusAnchor} />
       {view.error && <AlertBanner tone="danger" title="交付计划暂未完成核对">{view.error}</AlertBanner>}
       {view.notice && <p className="oc-delivery-notice" role="status">{view.notice}</p>}
       {unresolved ? <section className="oc-delivery-result" aria-live="polite">
@@ -82,7 +102,7 @@ export function ServerDeliveryPlanMaintenance({ orderId, processing = false, rea
           </>}
         </>}
     </Modal>
-    <Modal open={view.open && view.retryConfirmation && !view.busy && Boolean(view.pending) && view.verifiedUnknown === view.pending?.command.requestId}
+    <Modal open={retryOpen}
       title="确认重发原请求" description="服务端暂未查到已完成记录；这不是修改后重新保存。" onClose={controller.cancelRetry}
       footer={<><Button variant="secondary" onClick={controller.cancelRetry}>继续核对</Button><Button onClick={controller.retry}>确认重发同一请求</Button></>}>
       <p>将完全沿用原订单、请求编号、日期、数量及版本。系统按同一请求核对，不会新建另一份计划。</p>

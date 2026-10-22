@@ -93,7 +93,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       };` });
     const evaluate = async expression => { const r = await command('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }); assert.equal(r.exceptionDetails, undefined, JSON.stringify(r.exceptionDetails)); return r.result.value; };
     const has = (text, selector = 'body') => until(() => evaluate(`(document.querySelector(${JSON.stringify(selector)})?.innerText??'').includes(${JSON.stringify(text)})`), text);
-    const click = (text, selector = 'button') => until(() => evaluate(`(()=>{const n=[...document.querySelectorAll(${JSON.stringify(selector)})].find(n=>n.textContent.trim()===${JSON.stringify(text)});if(!n||!n.isConnected||n.disabled||!n.getClientRects().length)return false;n.click();return true})()`), 'enabled ' + text);
+    const click = (text, selector = 'button') => until(() => evaluate(`(()=>{const n=[...document.querySelectorAll(${JSON.stringify(selector)})].find(n=>n.textContent.trim()===${JSON.stringify(text)});if(!n||!n.isConnected||n.disabled||!n.getClientRects().length)return false;n.focus({preventScroll:true});n.click();return true})()`), 'enabled ' + text);
     const input = (label, value) => evaluate(`(()=>{const n=document.querySelector('.oc-delivery-modal [aria-label='+${JSON.stringify(JSON.stringify(label))}+']');if(!n||n.disabled)throw Error('missing enabled input');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,${JSON.stringify(value)});n.dispatchEvent(new Event('input',{bubbles:true}));n.dispatchEvent(new Event('change',{bubbles:true}));})()`);
     const modalClick = label => click(label, '.oc-delivery-modal button');
     const route = '/order-center/server-detail?id=' + x.orderId.toUpperCase();
@@ -109,6 +109,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
     const preview = async () => { await modalClick('预览变更'); await has('确认本次计划', '.oc-delivery-modal'); };
     const hasPlanDate = date => until(() => evaluate(`Array.from(document.querySelectorAll('.oc-delivery-modal input[type=date]')).some(n=>n.value===${JSON.stringify(date)})`), 'current plan date ' + date);
     const saved = async () => { await has('交付计划已保存', '.oc-delivery-modal'); await until(() => evaluate("[...document.querySelectorAll('.oc-delivery-modal footer button')].some(n=>n.textContent==='返回交付计划'&&!n.disabled)"), 'fresh collection read'); };
+    const unknownReady = async () => { await has('保存结果暂未确认'); await until(() => evaluate("[...document.querySelectorAll('.oc-delivery-modal button')].some(n=>n.textContent==='核对保存结果'&&!n.disabled)"), 'original save settled before receipt check'); };
     const shot = async name => { if (evidence) await writeFile(join(directory, name + '.png'), Buffer.from((await command('Page.captureScreenshot', { format: 'png' })).data, 'base64')); };
     await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
     await cookie('demo.admin'); await navigate();
@@ -139,7 +140,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
     await phase('unsaved cancellation, keyboard focus and responsive modal geometry preserve all facts', async () => {
       const before = await read(); await open(); await add('2027-02-02', '3'); await modalClick('取消'); await has('交付计划有未保存修改');
       await click('继续编辑'); await until(() => evaluate("document.querySelectorAll('[role=dialog]').length===1"), 'continue original dialog');
-      assert.equal(await evaluate("document.querySelector('.oc-delivery-modal').contains(document.activeElement)"), true);
+      await until(() => evaluate("document.querySelector('.oc-delivery-modal').contains(document.activeElement)"), 'focus restored to original delivery modal');
       for (const [width, height, touch] of [[736, 900, false], [390, 844, true], [320, 740, true]]) {
         await command('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: touch }); await command('Emulation.setTouchEmulationEnabled', { enabled: touch });
         const geometry = await evaluate("(()=>{const p=document.querySelector('.oc-delivery-modal'),r=p.getBoundingClientRect(),f=p.querySelector('footer').getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,footerBottom:f.bottom,viewport:innerWidth,height:innerHeight,documentOverflow:document.documentElement.scrollWidth>innerWidth+1}})()");
@@ -150,7 +151,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       await modalClick('取消'); await click('放弃修改'); await absent(); assert.deepEqual(await read(), before);
     });
     await phase('lost success retains exact pending, wrong receipt cannot clear it, historical receipt reloads current collection', async () => {
-      await open(); await add('2027-02-03', '2'); await preview(); await evaluate("deliveryWire.patchMode='lost'"); await modalClick('确认保存'); await has('保存结果暂未确认');
+      await open(); await add('2027-02-03', '2'); await preview(); await evaluate("deliveryWire.patchMode='lost'"); await modalClick('确认保存'); await unknownReady();
       const raw = await pendingRaw(); assert.equal(raw.length, 1); const before = await evaluate('deliveryWire.patches.length');
       await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
       assert.equal(await evaluate("!!document.querySelector('.oc-delivery-modal')"), true);
@@ -164,14 +165,18 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       assert.equal(await evaluate('deliveryWire.patches.length'), before); await modalClick('取消'); await absent();
     });
     await phase('before-send failure permits only exact unknown receipt then explicit identical replay, once per confirmation', async () => {
-      await open(); await add('2027-02-05', '5'); await preview(); await evaluate("deliveryWire.patchMode='before'"); await modalClick('确认保存'); await has('保存结果暂未确认');
+      await open(); await add('2027-02-05', '5'); await preview(); await evaluate("deliveryWire.patchMode='before'"); await modalClick('确认保存'); await unknownReady();
       const before = await evaluate('deliveryWire.patches.length'), raw = await pendingRaw(), version = (await read()).version;
       assert.equal(await evaluate("document.body.innerText.includes('重发完全相同的原请求')"), false);
       await modalClick('核对保存结果'); await has('重发完全相同的原请求'); assert.deepEqual(await pendingRaw(), raw); assert.equal((await read()).version, version);
       await modalClick('重发完全相同的原请求'); await has('确认重发原请求');
+      await click('继续核对'); await until(() => evaluate("document.querySelectorAll('[role=dialog]').length===1&&document.querySelector('.oc-delivery-modal').contains(document.activeElement)"), 'focus after cancelling original replay');
+      assert.equal(await evaluate('deliveryWire.patches.length'), before);
+      await modalClick('重发完全相同的原请求'); await has('确认重发原请求');
       await evaluate("deliveryWire.patchMode='lost'");
       await evaluate("(()=>{const n=[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='确认重发同一请求');n.click();n.click();})()");
-      await has('保存结果暂未确认'); assert.equal(await evaluate('deliveryWire.patches.length'), before + 1);
+      await unknownReady(); assert.equal(await evaluate('deliveryWire.patches.length'), before + 1);
+      await until(() => evaluate("document.querySelector('.oc-delivery-modal').contains(document.activeElement)"), 'focus after original replay');
       assert.equal(await evaluate("document.body.innerText.includes('重发完全相同的原请求')"), false); assert.deepEqual(await pendingRaw(), raw);
       await modalClick('核对保存结果'); await saved(); assert.equal(await evaluate('deliveryWire.patches.length'), before + 1);
       const commands = await evaluate('deliveryWire.patches.slice(-2)'); assert.deepEqual(commands[0], commands[1]);
@@ -219,7 +224,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
         await evaluate('deliveryWire.patchWaiters.shift()()'); await has('订单概况'); assert.equal(await evaluate("!!document.querySelector('input[name=username]')"), false);
         assert.deepEqual(await pendingRaw(), raw); await modalClick('核对保存结果'); await saved(); await modalClick('关闭'); await absent();
       }
-      await open(); await add('2027-02-09', '9'); await preview(); await evaluate("deliveryWire.patchMode='lost'"); await modalClick('确认保存'); await has('保存结果暂未确认');
+      await open(); await add('2027-02-09', '9'); await preview(); await evaluate("deliveryWire.patchMode='lost'"); await modalClick('确认保存'); await unknownReady();
       const raw = await pendingRaw(); await navigate(); await open(); await has('保存结果暂未确认'); assert.deepEqual(await pendingRaw(), raw); assert.equal(await evaluate('deliveryWire.patches.length'), 0);
       await modalClick('核对保存结果'); await saved(); assert.equal(await evaluate('deliveryWire.patches.length'), 0); await modalClick('关闭'); await absent();
     });

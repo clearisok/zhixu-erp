@@ -10,6 +10,8 @@ pending技术sessionStorage actor/tab单槽先存读再写，不碰Browser账本
 
 实际client33/33（538.1156ms）、类型/lint/Server编译通过；静态review修复应用结果漏核对、processing误标、大写UUID及unknown无恢复死角，目前无新P1/P2。项目927首跑926/1旧Modal regex失败（197297.441ms），定向7/7已适配（222.8072ms）；第二跑因新增D156冻结证据未绑定失败，日志保留。须先提交新D156 blob，再追加supersedes证据，旧ID/hash不改，随后重验，不假报PASS。manifest270/57；批准89993412和新决策2468均已冻结，原269份证据不改。
 
-新server/integration/delivery-plan-maintenance-ui.integration.test.mjs尚未执行，要求exact HEAD build/private Chromium/新一次性PG。已含null/0、精度、预览/voidall、失回执、错receipt、unknown+人工重放再失回执、存储不可用/原槽消失、CAS、ABA late200/401、刷新、完成订单、加工与七角色/窄屏。需构建后实际修复并验收，不把静态看过当测试通过。Source验收workflow仅新增客户端/该built用例，不触发部署。下一步更新新决策证据、完成类型/lint/npm/release/精确guard，源码checkpoint，显式Server构建并实际运行；API delivery suite已42/42通过（31787.6579ms），自有一次性PG，无skip，不重复并发。
+f6639c5ee6c43162cbc7f1f6a63e62f8e9583175已本地干净保存并通过精确guard11/57/87，未交付。构建与项目并行时有原生构建异常及两子进程失败，根因未定；同源码串行构建通过，完整项目需node --test --test-concurrency=1 tests/*.test.mjs串行重验，不放宽超时或改共享环境。当前只有root产品焦点修正/测试屏障及准确文档增量；三个输入摘要已逐字节归档到f6639c5e。
+
+新built浏览器已实际三次运行（日志在outputs/delivery-plan-ui），前三次的测试时序问题已修正；第三次前4阶段通过，第5阶段真实产品缺陷为重发后原按钮消失、焦点离开主弹窗。现交期组件增加同lease/仍open/最上层的局部延迟focus fallback，取消延迟回调保护切单/身份/卸载；保留焦点断言并补取消重发不写入。需类型/lint、源码checkpoint、全新exact HEAD显式Server串行构建后继续built；后续CAS/存储/voidall/ABA/加工/七角色尚未通过，不能预报。Source workflow已加此用例，不触发部署；API42/42已通过（31787.6579ms，自有一次性PG，无skip），后台未改不重复并发。
 
 前置377三CI已成功：39699348958/39699352582/39699355389，均attempt1，00:48:51Z核实；不重dispatch。原固定Source调用candidate失败0 HTTP/0报表、未读凭据；离线修复已验证，但旧run-authorized-filter.mjs及wx尝试已消费，不能重跑。原F/105失败/c0d镜像8/8/144回执历史保留。不改3001、50426等旧端口/卷/账号/Browser/工作树，不建重复累计PR、不merge/close/正式部署。Num/outdate已确认，其他原关账问题仍待。
