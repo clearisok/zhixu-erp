@@ -142,3 +142,31 @@ A read-only actual-Git scan of cumulative94 found9 corridor merges,17 distinct
 parent manifests,6045487 bytes,max2 parents and286 retained evidence objects with
 no errors. This checks the proposed bounds against the current candidate, not
 the final new guard itself. No candidate branch or runtime was modified by the scan.
+
+## Final local acceptance (2026-10-23)
+
+At the clean production/test checkpoint
+`cff4addd59f5492b677ae88b502db0d0e5affa72`, the final complete release suite passed
+**134/134**, zero failures/skips/cancellations, **377139.5791ms**, including both
+single/double-sided9/10000-parent no-object-read assertions. Syntax and focused
+ESLint passed. The explicit independently reverified main996 guard passed with
+11pages/46capabilities/0changedUI and no errors. Read-only independent review of
+that exact checkpoint found no remainingP1/P2 and verified all213 evidence objects,
+46capabilities and9 Git-byte-identical summary archives. Source receipt and full
+logs remain under outputs/release-main-advance-20261023; this is not an application,
+database, browser, deployment or user-acceptance result.
+
+After all local readers terminated, freeze that script from its actual Git blob
+`d7c811b2aa45ae2955be8382df428d432516a552` (SHA256
+`9720c7beff1e00b618350f9b468fd307c614692c4f812cef3fac55d534d93940`),
+clean-switch to the existing complete candidate
+`94a1767b4743e1c21a961c5232929c4600cd34aa` and run the new guard with the same
+actual996 base. It also passed:11pages/58capabilities/88inheritedUI paths/errors[].
+The candidate was never edited and the original tool branch was safely restored.
+This actual new-guard result supplements the earlier parent scan. No new worktree,
+runtime, dependency installation or business operation was required.
+
+Next is a documentation-only final checkpoint, its exact-head/main guard, one
+safe delivery to the existingPR126, independent full remoteSHA verification and
+freshCI/review. OldCI stays attached to its original956 head and cannot prove this
+fix. No automatic merge/close/deployment or additional realSource read is authorized.

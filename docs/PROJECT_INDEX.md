@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-23恢复优先读CURRENT_STATE、AI_HANDOFF与[原工具PR126任务](tasks/active/release-document-merge-guard-2026-10-20.md)。main完整基线 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；本分支只修main前移后的旧side证据导入与父历史保护，不含其他业务候选。真实Git red及窄修复/静态独立复审已完成，首轮134项通过；其后上限检查顺序收紧，最终源码仍需完整回归/精确交付/新CI。不自动合并、部署或真实Source/业务库操作。旧956、完整Goal候选94与红测93摘要均按Git字节[归档](tasks/completed/2026-10-23-release-main-advance-inputs/)，下方旧阶段按其日期阅读。完整Goal仍active，Source0c与image94原CI已成功。
+2026-10-23恢复优先读CURRENT_STATE、AI_HANDOFF与[原工具PR126任务](tasks/active/release-document-merge-guard-2026-10-20.md)。main完整基线 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；本分支只修main前移后的旧side证据导入与父历史保护，不含其他业务候选。最终源码cff4addd完整134项、精确996门禁及独立复审通过；同脚本验证完整候选94亦通过。接着交付原#126/核实精确HEAD/检查新CI，不能把旧CI当作新结果。不自动合并、部署或真实Source/业务库操作。旧956、完整Goal候选94与红测93摘要均按Git字节[归档](tasks/completed/2026-10-23-release-main-advance-inputs/)，下方旧阶段按其日期阅读。完整Goal仍active，Source0c与image94原CI已成功。
 
 ## 系统简介
 
