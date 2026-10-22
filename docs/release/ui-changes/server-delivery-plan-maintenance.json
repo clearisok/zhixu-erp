@@ -1,0 +1,19 @@
+{
+  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "level": "V2",
+  "paths": [
+    "features/order-center/server/delivery-plan-client.ts",
+    "features/order-center/server/delivery-plan-draft.ts",
+    "features/order-center/server/delivery-plan-pending.ts"
+  ],
+  "pages": ["order-detail"],
+  "visibleDifference": "Implement the specifically approved small maintain-delivery-dates action in the existing Server order detail and a Foundation modal for editing, explicit voiding, preview and confirmed save. Source contract dates remain read-only, quantity differences are warnings, and unknown submissions require original-request readback. Keep default zero/null rows unless explicitly edited, retained void history, independent guards and current identity ownership. Reuse the existing D100/D154 API; no new route, global theme, Source collection, price or production command. Optional Modal close disabling keeps the default behavior for all other callers. Implementation and isolated built-browser acceptance are still pending at scope registration.",
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md"
+  },
+  "evidence": [
+    "docs/tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md",
+    "docs/features/SALES_ORDER_PERSISTENCE.md"
+  ]
+}

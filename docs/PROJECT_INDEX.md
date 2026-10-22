@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)和[交付计划维护UI](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)为准。feat/server-delivery-plan-maintenance-ui，main996dfedc12da3527343cd3ff2aa5eea35497e10e、干净输入377a3c9eb40a852851c1d4e05296a4d30f4ce9e9。[具体V2批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)已收到，不重问；目前只有scope，复用D100/D154及Foundation，下一步接client/回执/Modal。前置[工具修复](tasks/active/garment-filter-metadata-screening-2026-10-22.md)已精确远端，17Node/169Python/116release与构建/静态review通过；Team/Release CI success、Source39699348958仍运行。其原一次授权调用candidate失败0 HTTP/0报表、未读凭据；离线候选通过不等于真实过滤通过，不重跑旧尝试。manifest268/57和原冻结历史保持，root唯一writer/既有reviewer只读，无新Source/业务库/部署/合并关闭。完整Goal active，Num/outdate已确认，其他原待答不默认。
+2026-10-22恢复以[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)和[交付计划维护UI](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)为准。feat/server-delivery-plan-maintenance-ui，main996dfedc12da3527343cd3ff2aa5eea35497e10e、干净输入377a3c9eb40a852851c1d4e05296a4d30f4ce9e9。[具体V2批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)已收到，不重问；纯client/draft/pending的26项合成检查、类型及lint通过，Modal/页面接线与浏览器验收仍待。前置[工具修复](tasks/active/garment-filter-metadata-screening-2026-10-22.md)已精确远端，17Node/169Python/116release与构建/静态review通过；Source/Team/Release均attempt1/success（00:48Z核实）。原一次调用candidate失败0 HTTP/0报表、未读凭据；离线候选通过不等于真实过滤通过，不重跑旧尝试。manifest仅追加冻结UI批准至269/57，原历史不改；root唯一writer/既有reviewer只读，无新Source/业务库/部署/合并关闭。完整Goal active，Num/outdate已确认，其他原待答不默认。
 
 ## 系统简介
 

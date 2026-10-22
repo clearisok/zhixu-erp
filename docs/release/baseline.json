@@ -2246,6 +2246,14 @@
       "recordedAtSha": "91c2eafba03e6a3d471add0be76442f5b9804ec8",
       "renderedSourceSha": "72d0a0af8302e4aa761d587a3ca786296a23b4c0",
       "sha256": "409ba10309c6319673fe3585c67270bcdf0afbf8346bb04b1a8774b354cab8d9"
+    },
+    {
+      "id": "server-delivery-plan-maintenance-ui-approval-20261022",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md",
+      "recordedAtSha": "89993412de4cc3f8f3ef19488d20bac67f85c3d9",
+      "renderedSourceSha": "377a3c9eb40a852851c1d4e05296a4d30f4ce9e9",
+      "sha256": "502952456442969eef6b194e4d2d927f3110455ef9220d01f755fc9fba93bd87"
     }
   ],
   "pages": [

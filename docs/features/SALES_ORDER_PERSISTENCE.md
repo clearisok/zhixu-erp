@@ -114,6 +114,24 @@ The original SO FK and full receipt bytes participate in existing complete
 normalization fingerprints. No legacy backfill, new UI, price/source/production
 write or deployment is implied; [task and actual checks](../tasks/active/server-delivery-plan-receipts-2026-10-22.md).
 
+### Approved DeliveryPlan maintenance client slice (2026-10-22)
+
+The specifically approved UI scope is recorded in the
+[maintenance task](../tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md).
+Client helpers reuse this exact GET/PATCH/original-body receipt protocol and the
+Server command validator. Full retained history is read within a16MiB+64KiB
+transport bound;100 is a changed-row write budget, not a history read limit.
+Applied results must reflect the exact edited IDs/date/decimal quantities and
+voids; additions match distinct non-default active rows. A source-derived row's
+historical marker remains legal after an explicit edit. Unknown is not rejection.
+
+Draft comparison submits only actual differences, preserves unchanged null/zero
+defaults, and requires explicit voids. Decimal preview uses exact integer scale;
+oversized historical display facts are kept with comparison unavailable, not0.
+The separate actor/tab pending slot is documented in DATA_LIFECYCLE. At this
+checkpoint these helpers are tested but not wired to a visible product action;
+no new backend rule, SQL, source query or runtime activation is introduced.
+
 ## C4.2 ConfirmedCommercialTerms extension
 
 2026-10-09 linked follow-up: exact saved Server Quote provenance is now required for Quote mutation; both terms expectedVersion and positive expectedQuoteVersion must pass the locked saved-source check. Order current uses only its existing terms CAS/permissions and established currency, not the Quote's current/default edit eligibility. Multiple formal Orders read/write the same context; no source binding/aggregate/version/sequence/mirror mutation occurs. This does not expose Order creation or implement a new Order UI.

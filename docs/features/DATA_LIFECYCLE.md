@@ -20,6 +20,18 @@
 不能覆盖为新请求；新账号不读取其他actor槽。关闭标签页/人为清理不在保障范围。
 无现有namespace、schema、IndexedDB、Seed或备份迁移，详见`SERVER_MATERIAL_ARRIVALS.md`。
 
+## Server交付计划原请求恢复（2026-10-22客户端切片）
+
+独立sessionStorage槽`zhixu.server.delivery-plan.pending.v1.<publicUserUUID>`只保存该actor/tab
+的一份未决Server交期命令：SO/request UUID、原expectedVersion、日期/精确数量upserts及voidIds。
+不保存登录凭据、价格、服务端快照，也不读写Browser业务namespace、schema、IndexedDB、Seed或备份。
+发送前必须完整保存并读回；不同订单或请求不能覆盖该槽。刷新只恢复原意图供receipt核对，
+不自动PATCH；仅当前owner核实匹配的applied/rejected终态后清除原槽。损坏/未来schema原字节
+保留并阻止新发送；存储不可用时不以纯内存代替恢复保障。关闭标签页或清站点不在保障范围。
+
+当前只有纯客户端/draft/pending与合成测试，页面尚未接线；见
+[交期维护任务](../tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)。
+
 ## Purpose
 
 保护 Quote Center 在浏览器中的长期验收数据，使页面刷新、HMR、DEV 重启、Production Build、Docker rebuild、Seed 变化和前端 schema 演进均不会自动清空或覆盖用户数据。
