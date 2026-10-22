@@ -76,10 +76,10 @@ export function ServerDeliveryPlanMaintenance({ orderId, processing = false, rea
           ]} />}
           {stage === 'preview' && view.preview ? <>
             <h3>确认本次计划</h3>
-            <div className="oc-delivery-table" role="region" aria-label="交付计划变更预览" tabIndex={0}>
+            <div className="oc-delivery-table oc-delivery-preview-table" role="region" aria-label="交付计划变更预览" tabIndex={0}>
               <table><thead><tr><th>变更</th><th>修改前</th><th>修改后</th></tr></thead><tbody>{view.preview.changes.map((change, index) => <tr key={index}>
-                <td>{changeLabels[change.kind]}</td><td>{change.before ? `${change.before.deliveryDate ?? '日期未记录'} · ${change.before.quantity} 件` : '—'}</td>
-                <td>{change.after ? `${change.after.deliveryDate} · ${change.after.quantity} 件` : '作废，历史保留'}</td>
+                <td data-label="变更">{changeLabels[change.kind]}</td><td data-label="修改前">{change.before ? `${change.before.deliveryDate ?? '日期未记录'} · ${change.before.quantity} 件` : '—'}</td>
+                <td data-label="修改后">{change.after ? `${change.after.deliveryDate} · ${change.after.quantity} 件` : '作废，历史保留'}</td>
               </tr>)}</tbody></table>
             </div>
             <div className="oc-delivery-balance"><strong>有效日期计划合计：{view.preview.total ?? '暂无法汇总'} 件</strong><span>{processing && view.data.sourceQuantity === null ? '加工订单无艾诺科合同对照。' : balances[view.preview.quantityStatus]}</span></div>
@@ -88,8 +88,8 @@ export function ServerDeliveryPlanMaintenance({ orderId, processing = false, rea
             <div className="oc-delivery-toolbar"><h3>交付计划</h3><Button variant="secondary" size="compact" disabled={!editable} onClick={controller.add}>＋ 新增一期</Button></div>
             {activeRows.length ? <div className="oc-delivery-table" role="region" aria-label="交付计划编辑" tabIndex={0}>
               <table><thead><tr><th>交付日期</th><th>计划数量（件）</th><th>操作</th></tr></thead><tbody>{activeRows.map((row, index) => <tr key={row.editorId}>
-                <td><input className="qc-control" type="date" aria-label={`交付日期 ${index + 1}`} value={row.deliveryDate} disabled={!editable} onChange={event => controller.change(row.editorId, { deliveryDate: event.target.value })} /></td>
-                <td><input className="qc-control" type="text" inputMode="decimal" aria-label={`计划数量 ${index + 1}`} maxLength={Math.max(64, row.quantity.length)} value={row.quantity} disabled={!editable} onChange={event => controller.change(row.editorId, { quantity: event.target.value })} /></td>
+                <td data-label="交付日期"><input className="qc-control" type="date" aria-label={`交付日期 ${index + 1}`} value={row.deliveryDate} disabled={!editable} onChange={event => controller.change(row.editorId, { deliveryDate: event.target.value })} /></td>
+                <td data-label="计划数量（件）"><input className="qc-control" type="text" inputMode="decimal" aria-label={`计划数量 ${index + 1}`} maxLength={Math.max(64, row.quantity.length)} value={row.quantity} disabled={!editable} onChange={event => controller.change(row.editorId, { quantity: event.target.value })} /></td>
                 <td>{view.voiding === row.editorId ? <div className="oc-delivery-void-confirm"><span>作废本期？</span><Button variant="danger" size="compact" disabled={!editable} onClick={controller.confirmVoid}>确认作废</Button><Button variant="text" size="compact" disabled={!editable} onClick={controller.cancelVoid}>取消</Button></div>
                   : <Button variant="text" size="compact" disabled={!editable} onClick={() => controller.requestVoid(row.editorId)}>{row.id ? '作废' : '移除'}</Button>}</td>
               </tr>)}</tbody></table>

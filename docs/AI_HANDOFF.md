@@ -1,5 +1,7 @@
 # 恢复点：已批准交期维护接线，待精确built验收
 
+最新d742ae6d精确Server构建、built12/12（21503.3034ms）与串行项目927/927（431386.9447ms）通过。人工查看PNG发现内部表继承1000px最小宽度，旧外层几何断言未覆盖；现仅局部CSS/标签按已批准手机草图修正，测试增加8种宽度、内层overflow/控件边界/作废确认/手机预览。须当前源码checkpoint后新exact构建/built、类型/lint/精确guard及发布门禁；不能把旧PNG当成新布局通过。
+
 最新b2b92224精确串行构建通过；built前9阶段通过含焦点修复/CAS/存储/voidall/ABA/刷新。第10阶段测试变量preview遮蔽同名UI helper导致TDZ，仅改为batchPreview，产品无变；须新checkpoint及精确构建继续完成剩余完成订单/加工/七角色，不宣称完整PASS。
 
 2026-10-22；feat/server-delivery-plan-maintenance-ui；main996dfedc12da3527343cd3ff2aa5eea35497e10e独立核实，输入377。最近可靠客户端406a1fffe65fc442913c2d66a0c7cc4d77f24a74已精确远端；页面源码checkpoint2468db4a775223324c15ccb3f4116bc6f2a67591已本地保存，built与交付仍待。一次Execute STOP（push1/exact远端）后仅原工具DryRun零push DELIVERED_VERIFIED，保留诊断，不猜stderr原因、不重复push。root唯一writer，既有server_convergence_review只读，不新agent；完整Goal active。

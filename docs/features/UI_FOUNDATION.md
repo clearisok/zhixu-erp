@@ -11,7 +11,8 @@ UI Foundation 为 Quote Center 和基础设置提供统一的 ERP 页面、表�
 2026-10-22交期维护接线：Modal增加默认false的可选closeDisabled，只用于明确的处理中/
 未知回执锁定。X、Escape、backdrop使用同一layout更新的关闭委托；其他caller默认行为及
 overlay的打开/焦点/滚动生命周期不变。交期弹窗复用该基础，实际built焦点/窄屏验收仍待，
-见[交期维护任务](../tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)。
+见[交期维护任务](../tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)。交期表局部清除
+legacy全局1000px最小宽度，手机按批准草图分行显示日期/数量/操作与预览标签；不改其他表格。
 
 2026-10-21 来源维护导航同步：来源按钮的父级保护镜像与自身guard均在layout提交，
 避免fieldset已启用而父页面仍按旧busy状态拦截唯一一次创建报价导航。

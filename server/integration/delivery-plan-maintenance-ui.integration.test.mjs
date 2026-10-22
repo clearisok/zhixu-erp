@@ -141,12 +141,15 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       const before = await read(); await open(); await add('2027-02-02', '3'); await modalClick('取消'); await has('交付计划有未保存修改');
       await click('继续编辑'); await until(() => evaluate("document.querySelectorAll('[role=dialog]').length===1"), 'continue original dialog');
       await until(() => evaluate("document.querySelector('.oc-delivery-modal').contains(document.activeElement)"), 'focus restored to original delivery modal');
-      for (const [width, height, touch] of [[736, 900, false], [390, 844, true], [320, 740, true]]) {
-        await command('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: touch }); await command('Emulation.setTouchEmulationEnabled', { enabled: touch });
-        const geometry = await evaluate("(()=>{const p=document.querySelector('.oc-delivery-modal'),r=p.getBoundingClientRect(),f=p.querySelector('footer').getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,footerBottom:f.bottom,viewport:innerWidth,height:innerHeight,documentOverflow:document.documentElement.scrollWidth>innerWidth+1}})()");
+      for (const [width, height, touch, dpr] of [[1920, 1080, false, 1], [1536, 864, false, 1.25], [1440, 1000, false, 1], [1280, 900, false, 1], [900, 900, false, 1], [736, 900, false, 1], [390, 844, true, 1], [320, 740, true, 1]]) {
+        await command('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dpr, mobile: touch }); await command('Emulation.setTouchEmulationEnabled', { enabled: touch });
+        const geometry = await evaluate("(()=>{const p=document.querySelector('.oc-delivery-modal'),r=p.getBoundingClientRect(),f=p.querySelector('footer').getBoundingClientRect(),t=p.querySelector('.oc-delivery-table');return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,footerBottom:f.bottom,viewport:innerWidth,height:innerHeight,documentOverflow:document.documentElement.scrollWidth>innerWidth+1,tableOverflow:t.scrollWidth>t.clientWidth+1,controlsOutside:[...t.querySelectorAll('input,button')].some(n=>{const b=n.getBoundingClientRect();return b.left<r.left||b.right>r.right}),touchTargets:!matchMedia('(pointer:coarse)').matches||[...p.querySelectorAll('button,input')].every(n=>n.getBoundingClientRect().height>=44)}})()");
         assert.ok(geometry.left >= -1 && geometry.right <= width + 1 && geometry.top >= -1 && geometry.bottom <= height + 1); assert.equal(geometry.documentOverflow, false); assert.ok(geometry.footerBottom <= height + 1);
-        metrics.push({ width, height, touch, ...geometry }); await shot('edit-' + width);
+        assert.equal(geometry.tableOverflow, false); assert.equal(geometry.controlsOutside, false); assert.equal(geometry.touchTargets, true);
+        metrics.push({ width, height, touch, dpr, ...geometry }); await shot('edit-' + width);
       }
+      await modalClick('作废'); await has('作废本期？'); assert.equal(await evaluate("(()=>{const p=document.querySelector('.oc-delivery-modal'),r=p.getBoundingClientRect();return [...p.querySelectorAll('.oc-delivery-void-confirm button')].every(n=>{const b=n.getBoundingClientRect();return b.left>=r.left&&b.right<=r.right})})()"), true);
+      await click('取消', '.oc-delivery-void-confirm button'); await preview(); assert.equal(await evaluate("(()=>{const t=document.querySelector('.oc-delivery-preview-table');return t.scrollWidth<=t.clientWidth+1})()"), true); await shot('preview-320'); await modalClick('返回修改');
       await command('Emulation.setTouchEmulationEnabled', { enabled: false }); await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
       await modalClick('取消'); await click('放弃修改'); await absent(); assert.deepEqual(await read(), before);
     });
