@@ -1760,6 +1760,16 @@
       "sha256": "36c37559890de048f2da5c2aaa851c8c7ade0166675e5e018a07945e21a8a261",
       "supersedes": "decisions-price-processing-20261017",
       "changeReason": "User-approved D146 configurable roles, password and navigation; previous blobs retained."
+    },
+    {
+      "id": "decisions-pr123-main-be9-import-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "65d90b5323c78d23afa0076b155cee2ddff58a4b",
+      "renderedSourceSha": "65d90b5323c78d23afa0076b155cee2ddff58a4b",
+      "sha256": "36c37559890de048f2da5c2aaa851c8c7ade0166675e5e018a07945e21a8a261",
+      "supersedes": "decisions-price-processing-20261017-roles-20261019",
+      "changeReason": "Preserve the original D146 role-management decision and every predecessor through a real merge whose parents are exact main be9aaa3f and independent original PR123 ebe4cb16. Integration evidence only; no changed business rule or historical approval."
     }
   ],
   "pages": [
