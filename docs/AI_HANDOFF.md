@@ -1,7 +1,9 @@
-# 恢复点：PR123 normal merge approved main d1dd
+# 恢复点：PR123新main组合与测试关闭修复
 
-2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680。用户仅批准并已核实#126/#127/#120按merge commit合并；其他PR未获合并/关闭授权。当前codex/pr123-main-be9-forward继续原#12303570e196d1406c39e8cfacddbe80792e0c9aacc前向整合，不移动原live-readiness本地分支或替换50426/59069。
+2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，#126/#127/#120已分别获准保留原历史合并。完整G1–G5继续；#123本阶段只工程整合，不自动合并或关闭其他PR，不部署、不改真实业务数据。
 
-root唯一writer，既有reviewer只读。原0357/旧三CI保留，开始clean；本轮只读API核实main d1dd和原PR123 head，正常merge发生四处docs冲突。五份已批准main产品/验收增量自动合入，旧角色用户日志模块与0031/0032不改。221历史并集完整保留，三V2仅baseline前移、原字节归档；需实际merge H并冻结一个DECISION mergeOf见证后才做新main精确门禁。无reset/rebase/clean/force。
+root唯一writer、既有reviewer只读。9ea组合types/server/lint、804源码/68API/112frontend、两构建和134发布已通过，证据222/46原对象不改。首次builtUI的日志查询与profile清理失败完整保留；当前3测试文件只加真实初始GET屏障和owned Chromium close，12单元/8角色日志真实built通过，原14价格加工场景有各自9ea日志。产品/build/SQL/权限未改，不需要重跑不变域来冒称更大覆盖。
 
-新组合验收尚未运行：类型/lint/Node与Browser+Server构建、源码与角色用户日志/商业来源API及真实Chromium、发布134、CI和复审按实际结果记录。原0357或其他采集分支的绿灯不冒充新范围。先提交可恢复checkpoint，后测试和更新唯一#123；不动原live-readiness/system-settings-ci本地ref或环境。不得在本轮自动合并/关闭PR、操作真实Source/账号/业务库或切换旧入口。完整Goal与原待决问题继续。
+下一步提交本阶段7路径、精确d1dd守卫与独立最终复审，既有工具最多一次送达验证引用并核对fullSHA/tree，再将唯一原#123以force=false快进并更新说明/检查新CI。不能移动仍绑定体验环境的原localref ebe。未知交付先核对，不盲推或伪造提交；原Git STOP/网络根因未定保持，安全恢复已获持续授权。
+
+#125在root另一个已保护分支做新main验证，Gate7E e971三CI已各一次；不混入这些业务分支，不自动merge/close或部署/Source/真实账号数据库操作。完整目标与待决边界不变。

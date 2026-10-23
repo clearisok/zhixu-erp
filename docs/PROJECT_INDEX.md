@@ -1,8 +1,9 @@
 # 项目知识索引
 
-2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680。用户仅批准并已核实#126/#127/#120按merge commit合并；其他PR未获合并/关闭授权。当前codex/pr123-main-be9-forward继续原#12303570e196d1406c39e8cfacddbe80792e0c9aacc前向整合，不移动原live-readiness本地分支或替换50426/59069。
+2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，#126/#127/#120已分别获准保留原历史合并。完整G1–G5继续；#123本阶段只工程整合，不自动合并或关闭其他PR，不部署、不改真实业务数据。
 
-恢复先读CURRENT_STATE、AI_HANDOFF和[PR123前向任务](tasks/active/pr123-main-forward-2026-10-23.md)。本阶段新组合尚待测试/精确门禁/独立复审/交付CI；原角色用户日志验收保持各自日期和源码，不重置既有体验环境。原V2布局/授权和46能力不变，所有父清单221记录保留，实际merge H后仅冻结同路径DECISION见证。
+[PR123前向任务](tasks/active/pr123-main-forward-2026-10-23.md)：642d真实双父保留221原证据，222/46合流见证；9ea的804源码/68API/112前端/134发布、类型lint两构建通过，14报价加工与修复后8角色日志built场景分别保留真实结果。新精确提交交付/CI及最终复审待收口；旧环境/报价/账号不变，不把候选或CI当部署。
+
 ## 系统简介
 
 并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。

@@ -28,3 +28,30 @@ export async function waitForChromiumEndpoint(profile,{timeoutMs=15000,pollMs=50
  }while(performance.now()<deadline);
  throw Error('Chromium endpoint was not fully written before the readiness deadline');
 }
+
+// Only a ChildProcess returned by this fixture's own spawn is accepted. Never
+// discover or terminate browsers by name/PID, and never delete a live profile.
+export async function stopOwnedChromium(child,{gracefulClose,graceMs=1500,exitMs=5000}={}){
+ if(!child)return;
+ if(typeof child.once!=='function'||typeof child.removeListener!=='function'||typeof child.kill!=='function'
+  ||!Number.isFinite(graceMs)||graceMs<=0||graceMs>10000||!Number.isFinite(exitMs)||exitMs<=0||exitMs>10000)throw Error('Invalid owned Chromium shutdown budget');
+ const ended=()=>child.exitCode!==null||child.signalCode!==null;
+ if(ended())return;
+ let closed=false,finish;
+ const closure=new Promise(done=>{finish=done;});
+ const onClose=()=>{closed=true;finish();};
+ child.once('close',onClose);
+ const waitForClose=ms=>new Promise(done=>{
+  const timer=setTimeout(()=>done(closed),ms);
+  closure.then(()=>{clearTimeout(timer);done(true);});
+ });
+ try{
+  if(ended())return;
+  if(gracefulClose){
+   void Promise.resolve().then(gracefulClose).catch(()=>undefined);
+   if(await waitForClose(graceMs))return;
+  }
+  child.kill();
+  if(!await waitForClose(exitMs))throw Error('Owned Chromium did not close; private profile retained');
+ }finally{child.removeListener('close',onClose);}
+}

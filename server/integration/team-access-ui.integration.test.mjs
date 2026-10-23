@@ -1,4 +1,4 @@
-import {readChromiumEndpoint} from './chromium-endpoint.mjs';
+import {readChromiumEndpoint,stopOwnedChromium} from './chromium-endpoint.mjs';
 import assert from "node:assert/strict";
 import test from "node:test";
 import { spawn } from "node:child_process";
@@ -20,7 +20,7 @@ test("First team production-built UI uses trusted session, existing layout and s
  const x=await startCommercialSecurityFixture(resolve("dist/client"));t.after(x.close);
  const password="Synthetic-UI-Only-2026";
  await bootstrapAdmin(x.pool,{username:"synthetic.ui.root",displayName:"合成管理员",password});
- const temp=await mkdtemp(join(tmpdir(),"zhixu-team-ui-"));let browser,ws,session,id=0;const pending=new Map(),errors=[];
+ const temp=await mkdtemp(join(tmpdir(),"zhixu-team-ui-"));let browser,ws,session,closeBrowser,id=0;const pending=new Map(),errors=[];
  try{
   const profile=join(temp,"profile");
   let launchError,chromiumEndpoint;let diagnostics="";
@@ -38,10 +38,11 @@ test("First team production-built UI uses trusted session, existing layout and s
   } catch(error) {throw Error(error.message+"; startup diagnostics: "+diagnostics);}
   const [port,path]=chromiumEndpoint;
   ws=new WebSocket("ws://127.0.0.1:"+port+path);await new Promise((done,reject)=>{ws.addEventListener("open",done,{once:true});ws.addEventListener("error",reject,{once:true});});
-  const command=(method,params={},sid=session)=>new Promise((done,reject)=>{pending.set(++id,{done,reject});ws.send(JSON.stringify({id,method,params,sessionId:sid}));});
+  const command=(method,params={},sid=session)=>new Promise((done,reject)=>{pending.set(++id,{done,reject});ws.send(JSON.stringify({id,method,params,sessionId:sid??undefined}));});
   ws.addEventListener("message",({data})=>{const r=JSON.parse(String(data)),p=pending.get(r.id);if(p){pending.delete(r.id);if(r.error)p.reject(Error(JSON.stringify(r.error)));else p.done(r.result);}if(r.method==="Runtime.exceptionThrown")errors.push(r.params.exceptionDetails.text);});
   const target=await command("Target.createTarget",{url:"about:blank"},undefined);
   session=(await command("Target.attachToTarget",{targetId:target.targetId,flatten:true},undefined)).sessionId;
+  closeBrowser=()=>command("Browser.close",{},null);
   await command("Page.enable");await command("Runtime.enable");
   await command("Emulation.setDeviceMetricsOverride",{width:1280,height:900,deviceScaleFactor:1,mobile:false});
   const evalJs=async expression=>{const r=await command("Runtime.evaluate",{expression,awaitPromise:true,returnByValue:true});assert.equal(r.exceptionDetails,undefined,JSON.stringify(r.exceptionDetails));return r.result.value;};
@@ -134,7 +135,11 @@ test("First team production-built UI uses trusted session, existing layout and s
    const actor={internalUserId:row.id,userId:row.public_id,username:"synthetic.ui.root",userName:"合成历史管理员",permissions:[]};
    for(let i=0;i<105;i++)await appendOperationLog(x.pool,actor,{operationId:"operation-ui-history",module:"权限管理",entityType:"User",entityId:"test-history-"+i,action:"修改账号",beforeData:{objectName:"Jackson",values:{name:"Jackson",status:"inactive"}},afterData:{objectName:"Jackson",values:{name:"Jackson",status:"active"}}});
    await command("Emulation.setDeviceMetricsOverride",{width:1280,height:900,deviceScaleFactor:1,mobile:false});
+   await command("Page.addScriptToEvaluateOnNewDocument",{source: `(()=>{const read=window.fetch.bind(window);let first=true;window.fetch=async(...args)=>{const u=new URL(String(args[0]),location.href);if(first&&location.pathname==='/system-settings/operation-logs'&&u.pathname==='/api/v1/operation-logs'){first=false;window.auditInitialStarted=true;await new Promise(resolve=>{window.releaseAuditInitial=resolve;});const response=await read(...args);window.auditInitialCompleted=true;return response;}return read(...args);};})()`});
    await navigate("/system-settings/operation-logs");await has("查看团队操作与修改前后的记录");
+   await until(()=>evalJs("window.auditInitialStarted===true&&[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='查询'&&n.disabled&&n.getClientRects().length)"),"initial audit query is disabled while its actual read waits");
+   await evalJs("window.releaseAuditInitial()");
+   await until(()=>evalJs("window.auditInitialCompleted===true&&[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='查询'&&n.isConnected&&!n.disabled&&n.getClientRects().length)"),"initial audit read completes and releases query");
    await input("input[aria-label=日志关键词]","Jackson");await click("查询");await has("共 105 条");
    assert.equal((await body()).includes("operation-ui-history"),false);await shot("audit-desktop");
    await click("查看详情");await has("已读取 100 / 105");await has("修改前");await has("停用");await has("启用");
@@ -163,9 +168,10 @@ test("First team production-built UI uses trusted session, existing layout and s
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{
-  ws?.close();if(browser&&browser.exitCode===null){browser.kill();await wait(500);}
+  try{await stopOwnedChromium(browser,{gracefulClose:closeBrowser});}
+  finally{ws?.close();for(const p of pending.values())p.reject(Error("Owned browser fixture closed"));pending.clear();}
   const distance=relative(resolve(tmpdir()),resolve(temp));
-  assert.ok(distance&&!distance.startsWith("..")&&!isAbsolute(distance)&&temp.includes("zhixu-team-ui-"));
-  await rm(temp,{recursive:true,force:true});
+  assert.ok(distance.startsWith("zhixu-team-ui-")&&!distance.includes("/")&&!distance.includes("\\")&&!isAbsolute(distance));
+  await rm(temp,{recursive:true,force:true,maxRetries:5,retryDelay:100});
  }
 });

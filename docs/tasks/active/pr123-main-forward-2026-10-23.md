@@ -27,3 +27,9 @@
 历史归档完整性：cached whitespace检查仅命中main原样继承的2026-10-19-pre-stabilization/BUSINESS_RULES.md末尾空行；staged blob与批准main逐字节一致，保留不重写。排除此单一冻结归档后，其余本阶段增量检查通过。
 
 真实merge642d5f124323506f9fc143eb6fcdba7e8868fedd双父[03570e19,d1dd4f0f]，221原证据完整并集后，仅追加DECISION_LOG的真实mergeOf见证，总222/46。五个非文档增量仅来自已批准main的价格汇总/加工提交保护及其验收，角色/用户/日志产品与迁移沿原0357保持。新的组合验收与远端交付尚待。
+
+## 新main组合本地结果与fixture前向修复
+
+9eaefe9a：类型/Server编译/lint、804源码（26506.8625ms）、68角色用户日志/来源/加工API（79961.8603ms）、112前端认证（2979.8819ms）、Browser与Server两构建通过。发布134/134通过501443.7121ms，测试前后HEAD和manifest不变，0skip。首次builtUI22总20pass2fail：报价6与加工8通过；日志子项在静态页头后立即点查询失败，父项500ms终止后删profile发生EBUSY。旧日志保留；当次未捕获disabled快照，不能声称唯一根因。独立复审识别初始loading/disabled的具体竞态窗口与未等close的P2夹具缺陷。
+
+仅三测试文件前向修复：首次真实GET回复屏障证明查询初始禁用、回复完成后可用，再单次点击；不循环click或扩大180秒预算。复用已审e971 owned-close/helper及12单元，调用方Browser级close、pending清理、直接自有mkdtemp边界，未确认不删除。12/12单元（369.6562ms）、三文件lint、修复后8/8角色日志实际built（22098.0523ms）通过，0skip；原14价格加工结果保持各自9ea范围。当前build/product/SQL/222清单未改；新checkpoint门禁、最终复审、交付和CI尚待。
