@@ -132,3 +132,5 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 - `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
+
+当前共享CI整合证据见[原输入](tasks/completed/2026-10-23-pr123-ci-context-inputs/)，baseline仍为be9aaa3f4efa232e1451075a355f0ce42e35a69e。
