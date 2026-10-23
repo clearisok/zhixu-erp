@@ -62,3 +62,9 @@ CI等待期间另作G1只读观察：07:40Z受保护端口中3001/62326/62426有
 精确357 archive新镜像bf40f039690f5809e951b96977ee982dc87670bd90a87948294468de839a6b1a，Node22.23.3支持原数字词元、42迁移最大0043。原domain模式完整9/9通过267123.7111ms，68非空/39空表、5序列一致，重启/冷重建/DB+S3备份与独立恢复/原请求/合法继续写入均通过；0043命令表保持空，不能写成该域非空恢复。只清理两个成功准备的自有随机fixture，现有环境和真实来源未动。
 
 用户另明确批准仅merge #120。一次实际merge成功，main d1dd4f0fcf9992d5c055c7b67b6832b635485680，parents[be9,fca]、tree60e5d67127a6bd5354b0ade854f8e6550d569778全核对。#123/#125仍草稿；旧API baseRefOid保持原值，本地均已含be9，但不据此预验未来main。当前候选正常merge d1dd，四冲突仅共享三摘要/manifest；保留全部299候选与main独有4记录和两侧Git原字节。真实merge H后按原规则合流四条冻结文档，不改旧IDs/hash、业务、SQL、页面或截图。
+
+9171真实merge保留双方所有303对象。首次绑定脚本误用raw bytes比较CRLF工作树与Git LF，写入前停止，manifest未改；采用原守卫已有document LF规范化核验并以Git blob计算新hash，没有重写文档。该脚本失败后外层仍运行一次未绑定的303守卫，按预期报未合流叶/旧侧祖先，并发现已进入main的price-source UI路径不再属于候选diff；保留失败日志。修正该一份UI影响记录为main原字节，只有其余22份仍属候选的旧V1记录前移基线，路径/批准/截图/行为不改。随后绑定四条真实9171文档见证和独立报告，总308/59；新的精确main检查待观察，不删旧证据或放宽守卫。
+
+## 新main与owned Chrome关闭本地收口
+
+9171工作树308/59的explicit d1dd守卫PASS（11页、87候选UI路径、errors空）。发布134/134通过597458.319ms，0fail/cancel/skip；测试前后HEAD和manifest hash均不变。三个测试工具文件仅操作fixture自己的ChildProcess与mkdtemp，优先CDP关闭，有界回退同一handle.kill，确认close后才删目录，未知则保留；12/12关闭单元、18/18真实built导航（原17子场景保持）、scoped lint及新Server UI构建通过。既有独立审查者复核无P1/P2。没有产品、SQL、迁移、UI或旧环境变化。最终checkpoint/精确守卫、一次交付及新三CI尚待，不将旧357CI结果改名。

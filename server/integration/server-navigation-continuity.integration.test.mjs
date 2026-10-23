@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join, relative, resolve } from 'node:path';
-import { waitForChromiumEndpoint } from './chromium-endpoint.mjs';
+import { waitForChromiumEndpoint, stopOwnedChromium } from './chromium-endpoint.mjs';
 import { startCommercialSecurityFixture } from './commercial-security-fixture.ts';
 import { bootstrapAdmin } from '../auth/bootstrap.ts';
 
@@ -50,7 +50,7 @@ test('built Server navigation keeps the workspace continuous without changing au
     }
   });
   const temp = await mkdtemp(join(tmpdir(), 'zhixu-navigation-ui-'));
-  let browser, ws, session, sequence = 0, acceptNativeDeparture = false;
+  let browser, ws, session, closeBrowser, sequence = 0, acceptNativeDeparture = false;
   const pending = new Map(), exceptions = [], documents = [];
   try {
     const profile = join(temp, 'profile');
@@ -63,8 +63,9 @@ test('built Server navigation keeps the workspace continuous without changing au
     const command = (method, params = {}, sid = session) => new Promise((done, reject) => {
       const id = ++sequence, timer = setTimeout(() => { pending.delete(id); reject(Error('browser_command_timeout:' + method)); }, 30000);
       pending.set(id, { done: value => { clearTimeout(timer); done(value); }, reject: error => { clearTimeout(timer); reject(error); } });
-      ws.send(JSON.stringify({ id, method, params, sessionId: sid }));
+      ws.send(JSON.stringify({ id, method, params, sessionId: sid ?? undefined }));
     });
+    closeBrowser = () => command('Browser.close', {}, null);
     ws.addEventListener('message', ({ data }) => {
       const event = JSON.parse(String(data)), call = pending.get(event.id);
       if (call) { pending.delete(event.id); if (event.error) call.reject(Error(JSON.stringify(event.error))); else call.done(event.result); }
@@ -277,9 +278,9 @@ test('built Server navigation keeps the workspace continuous without changing au
     await writeFile(join(evidence, observing ? 'before-observations.json' : 'after-observations.json'), JSON.stringify(records, null, 2) + '\n');
     if (observing) t.diagnostic('OBSERVATION ONLY: no navigation acceptance assertions were executed; see before-observations.json.');
   } finally {
-    ws?.close(); for (const call of pending.values()) call.reject(Error('owned_browser_closed')); pending.clear();
-    if (browser && browser.exitCode === null) { browser.kill(); await wait(500); }
-    const distance = relative(resolve(tmpdir()), resolve(temp)); assert.ok(distance && !distance.startsWith('..') && !isAbsolute(distance) && temp.includes('zhixu-navigation-ui-'));
-    await rm(temp, { recursive: true, force: true });
+    try { await stopOwnedChromium(browser, { gracefulClose: closeBrowser }); }
+    finally { ws?.close(); for (const call of pending.values()) call.reject(Error('owned_browser_closed')); pending.clear(); }
+    const distance = relative(resolve(tmpdir()), resolve(temp)); assert.ok(distance.startsWith('zhixu-navigation-ui-') && !isAbsolute(distance) && !distance.includes('/') && !distance.includes('\\'));
+    await rm(temp, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
 });

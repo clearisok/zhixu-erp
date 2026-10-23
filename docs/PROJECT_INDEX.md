@@ -1,8 +1,9 @@
 # 项目知识索引
 
-2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]和精确树已核对。#1230357/#1254cf仍草稿、九项原CI分属原SHA；不自动合并或关闭其他PR，不表示部署或Source激活。
+2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]及精确树已核对。#1230357/#1254cf的原CI仅证明原SHA；当前正前向整合，不自动合并或关闭其他PR，不表示部署或Source激活。
 
-当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)继续合成工程。357的Team/Release成功，Source在17导航子场景后清理profile失败，后续跳过；新精确357镜像独立恢复9/9通过。新main合流保留303原证据，真实merge见证/新报告绑定及关闭时序修复待收口。先读CURRENT_STATE、AI_HANDOFF、原冻结工程报告，再读实际代码；不将候选镜像或CI当真实激活/部署。
+当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)继续合成工程。真实merge9171保留303原证据，新绑定总308/59；新main守卫与发布134、owned Chrome12单元/18真实导航通过。357旧CI及独立恢复9/9各保留实际范围；新精确checkpoint交付/CI待收口。先读CURRENT_STATE、AI_HANDOFF、冻结报告及实际代码，候选或CI不代表真实激活/部署。
+
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：

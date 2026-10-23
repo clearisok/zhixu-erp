@@ -1,9 +1,9 @@
-# 恢复点：新main文档合流与Chrome自有profile清理
+# 恢复点：308证据与owned Chrome关闭修复已本地验收
 
-2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]和精确树已核对。#1230357/#1254cf仍草稿、九项原CI分属原SHA；不自动合并或关闭其他PR，不表示部署或Source激活。
+2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]及精确树已核对。#1230357/#1254cf的原CI仅证明原SHA；当前正前向整合，不自动合并或关闭其他PR，不表示部署或Source激活。
 
-root唯一writer、既有reviewer只读。开始357干净；API批准merge #120一次成功，新main d1dd双父/tree精确。一次普通fetch后正常merge发生四处文档/manifest冲突，未reset/clean/abort/rebase/force。保留两侧原字节归档和全部303证据，最新产品内容沿独立候选，不能选单侧清单覆盖。当前需完成真实merge H，再按实际H冻结四条D/ORDER/CLOSING/PRODUCTION文档见证及新镜像报告；这是工程checkpoint，尚未称新基线PASS。
+root唯一writer，既有reviewer只读。开始357干净，批准#120一次merge并核对main d1dd精确双父/tree；一次普通fetch后正常merge H=9171b107，保留303原对象及两侧8份Git字节。当前308/59已追加四条文档合流见证和独立357镜像/CI报告；所有旧ID、截图、能力维度不改。新main工作树守卫及发布134/134通过（597458.319ms、0skip、HEAD/manifest稳定）。
 
-357三CI均attempt1：Team/Release success；Source compiled/quality/build success，导航17子场景通过，父项ENOTEMPTY仅清理时序，后续Quote/Python skipped。先修测试owned Chrome实际close后再删mkdtemp，保留所有UI断言/原预算；补有意义关闭负测和真实built导航验收，再新checkpoint/精确main门禁/复审及一次交付、新CI。原9fc/d992/16a6/357结果不改名；原push STOP但API exact、原因unresolved，不重推。
+仅三个测试工具文件修复owned Chrome close时序：12单元、18真实built导航、scoped lint/Server UI build通过，17业务子断言及240秒预算保持。独立复审无P1/P2。当前完成状态文档及独立checkpoint后，跑精确commit守卫，既有工具一次交付并独立核对远端；保持原357 push STOP、Source失败及跳过事实，不重推/不冒称长期网络恢复。新Source/Team/Release需各一次实际CI。
 
-新357镜像bf40f039、42迁移最大0043，domain模式9/9、68非空/39空表/5序列一致；0043命令表空未exercise。输出位于outputs/garment-collection-control-20261023，独立报告待冻结。旧环境/Source/账号/业务库无操作。#123/#125之后仅前向整合，不自动merge或关闭；全Goal/覆盖v1/关账/切换与真实额度边界仍保留。
+#123在独立已登记工作树前向整合d1dd；只允许已批准代码正常合流、保留角色/用户/日志原历史与冻结证据，测试后再更新唯一PR。#125后续同理，均不merge或close。旧环境、Source、账号、业务库无操作；全Goal/覆盖v1/关账/切换与真实额度边界不变。
