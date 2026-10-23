@@ -10,7 +10,15 @@
 
 真实 merge H=`5deb87590833de050280f6cfa2163595aaa72511` 已保留两个精确 parent：e061 和 57d。H 后为两个旧侧文档修订追加同路径见证，recorded/rendered 均 H，hash 来自 H 的 LF 文本；只追加到 217/46，旧 215 节点与能力原样保留。原五个产品/回归/演示 blob 精确等于 57d，守卫/134 项测试等于 e061。七份本轮归档与原 Git 字节相同。diff whitespace 只有原 57d 的既有 BUSINESS_RULES 归档 EOF 空行，未为消除提示修改历史。
 
-本阶段新验证：精确 main 门禁、完整发布守卫回归、类型/lint及相关加工来源回归；只使用临时合成数据库。新结果未产生前不引用旧 CI 为本轮 PASS。原 2026-10-19 的应用/浏览器/数据库/构建验收仍见 [原任务](price-source-stabilization-2026-10-19.md)。
+新源码检查点 `1b64e27f20d105acec2e9c607b7528d9a3dfb41d` 已完成：
+
+- 显式 main e061 门禁 PASS：11 页、46 能力、1 个 UI 文件，errors=[]。
+- 完整发布守卫 134/134，441669.465ms；其余源码回归 804/804，21499.2769ms，两组无重叠。均 0 失败、取消或跳过。
+- 临时合成 PostgreSQL/API 34/34，45150.3506ms；实际 Chromium 6/6，18255.1926ms，含同方案异价、同价异方案及未知结果恢复。未使用已有业务库、账号或用户浏览器 profile。
+- 精确 Git archive 的仓库外新临时源码快照完成 typecheck、Server 编译、lint 及 Server/session/writable/snapshot 正式构建。build-info 完整 gitCommit=1b64e27f；只接既有 node_modules junction，无安装。归档 SHA256=`956c72c95413a37db1169c50600e127d4d6ce776c935fedd8c9e6e3fe79df033`。
+- 首轮原工作树 typecheck 失败，48 项错误全部位于保留的 ignored 旧镜像 `outputs/server-current-image-0c.../context`。旧上下文未删未改，也未放宽 tsconfig；以上干净快照检查是另一明确范围，不能把首轮写成通过。
+
+原 2026-10-19 结果仍见 [原任务](price-source-stabilization-2026-10-19.md)。新回执/日志在本机 ignored `outputs/pr120-main-forward-20261023/`，含 merge/witness/archives/QA scope 和终态计数。静态独立复审无 P1/P2；最终文档、远端精确提交及新 CI 继续分别核实，不借旧 CI 作新结果。
 
 ## 交付与保护
 
