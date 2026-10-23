@@ -25,19 +25,30 @@ jobs:
       - name: Locked dependencies without lifecycle scripts
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Guard negative cases and current responsive behavior
-        run: npm run test:release-baseline
+        run: |
+          node --test scripts/__tests__/resolve-pr-validation-base.test.mjs
+          npm run test:release-baseline
       - name: Delivery evidence and bounded recovery against isolated Git fixtures
         run: node --test scripts/__tests__/git-delivery-state.test.mjs scripts/__tests__/git-delivery.test.mjs
       - name: Guard syntax and lint
         run: |
           node --check scripts/check-release-baseline.mjs
-          npx --no-install eslint scripts/check-release-baseline.mjs tests/release-baseline-guard.test.mjs --max-warnings 0
+          node --check scripts/resolve-pr-validation-base.mjs
+          npx --no-install eslint scripts/check-release-baseline.mjs tests/release-baseline-guard.test.mjs scripts/resolve-pr-validation-base.mjs scripts/__tests__/resolve-pr-validation-base.test.mjs --max-warnings 0
       - name: Validate reviewed baseline and UI impact
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          WORKFLOW_EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_EVENT_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          CHECKOUT_SHA: ${{ github.sha }}
+          CHECKOUT_REF: ${{ github.ref }}
         run: |
-          if [ -n "$BASE_SHA" ]; then
+          if [ "$WORKFLOW_EVENT_NAME" = "pull_request" ]; then
+            BASE_SHA="$(node scripts/resolve-pr-validation-base.mjs)"
             npm run check:release-baseline -- --base-sha "$BASE_SHA"
-          else
+          elif [ "$WORKFLOW_EVENT_NAME" = "workflow_dispatch" ]; then
             npm run check:release-baseline
+          else
+            exit 1
           fi

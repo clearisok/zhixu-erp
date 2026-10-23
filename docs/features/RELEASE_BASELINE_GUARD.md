@@ -23,6 +23,16 @@ a network lookup: verify/fetch main independently before updating the snapshot.
 The guard checks committed, staged, unstaged and untracked UI paths relative to
 that base; it never stages or rewrites them. Missing objects stop the gate.
 
+For `pull_request` CI, `scripts/resolve-pr-validation-base.mjs` selects the first
+parent of the merge actually checked out. It first verifies the event, PR merge
+ref/number, exact checkout SHA, exactly two parents, the second parent against
+the event's PR head SHA, and both local parent objects. A stale event `base.sha`
+is logged but never used as the comparison base. Invalid PR context fails rather
+than falling back to default inspection. No network request, floating ref or
+guard exception is introduced; `workflow_dispatch` retains the default command.
+The reproduced failure and tests are in
+[the CI context task](../tasks/active/release-pr-base-context-2026-10-23.md).
+
 ## Inventory and minimum blocking checks
 
 - [baseline.json](../release/baseline.json): nine routes/component owners and
