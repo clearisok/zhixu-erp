@@ -1,5 +1,25 @@
 # Git delivery resilience — 2026-10-12
 
+## Current bounded recovery — 2026-10-20
+
+The human user's “以后都自动授权不要再问我” is standing authorization for
+safe Git recovery delivery, PR/CI and necessary engineering fixes within the
+approved task. It replaces repeated per-upload questions, not the exact-SHA,
+bounded-attempt, independent-evidence or no-auto-merge/deployment/data boundaries.
+Historical single-attempt records below remain historical. No shared proxy,
+authentication or TLS-verification change is authorized by this tool repair.
+
+See [the preflight repair](git-delivery-preflight-fallback-2026-10-20.md).
+After an actual Git transport failure only, one fixed-host GitHub matching-refs
+read may prove the exact existing SHA or absence through a successful empty
+response. A 404, malformed response or non-exact prefix is never absence proof.
+Certificate identity/configuration and authentication/divergence failures stop
+without this fallback. All original local guards, normal push at most once,
+independent postflight and uncertain delivery handling remain. Receipts now keep
+safe phase/category/code/timing summaries; never raw errors or credentials.
+Successful API-assisted delivery remains NETWORK_DEGRADED for the observed Git
+channel. It is not a permanent network/root-cause repair or an automatic retry.
+
 ## Baseline / scope
 
 A worktree `D:/workspace/zhixu-quote-two-step` started clean on
@@ -122,3 +142,7 @@ old TLS evidence retained, not rewritten as current network failure.
   Backup path: same guarded tool once in ordinary Windows PowerShell. No global
   backend switch, credential change or SSH conversion. Root cause **UNRESOLVED**;
   observed successful push/read is evidence of this attempt, not a permanent fix.
+
+## 2026-10-23：远端事实与命令安全分开
+
+修复只涉及回执：独立核实remote.verified且完整SHA精确为目标时，remoteStatus为EXACT_HEAD_VERIFIED，即使认证、TLS身份、ref拒绝等仍使state保持STOP。保留continueLocal=false、错误类别、非零退出和retry=false；不以已送达豁免安全异常。精确目标不再附冗余重推命令，旧/缺失/无法核实的远端仍分别标识。没有collision白名单、共享配置或认证变化，也不据布尔采样判断全历史根因。详细红绿及56/134验收见[本轮任务](pr127-main-forward-2026-10-23.md)。

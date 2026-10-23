@@ -3,7 +3,7 @@ import test from 'node:test';
 import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { deliver, diagnose, trustedOrigin, runCommand, workingEvidence } from '../git-delivery.mjs';
+import { deliver, diagnose, trustedOrigin, runCommand, workingEvidence, errorCategory } from '../git-delivery.mjs';
 
 async function fixture(t) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'zhixu-git-delivery-'));
@@ -123,7 +123,194 @@ test('preflight network failure prevents push with one safe recovery command', a
   assert.equal(result.pushes, 0);
   assert.equal(result.networkMode, 'NETWORK_DEGRADED');
   assert.ok(!JSON.stringify(result).includes('SECRET'));
+  assert.equal(result.preflight.git.category, 'uncertain_transport');
+  assert.equal(result.preflight.api.exitCode, 1);
 });
+
+function refPayload(branch, targetSha) {
+  return [{ ref: `refs/heads/${branch}`, object: { type: 'commit', sha: targetSha } }];
+}
+
+test('transport-only Git preflight can use one independent API read and one actual push', async t => {
+  const f = await fixture(t);
+  await f.local(['push', 'origin', 'HEAD']);
+  const previous = f.options.expectedHead;
+  await writeFile(path.join(f.worktree, 'fixture.txt'), 'next checkpoint\n');
+  await f.local(['commit', '-am', 'next checkpoint']);
+  const expectedHead = await f.local(['rev-parse', 'HEAD']);
+  const calls = [];
+  const run = async (command, args, cwd) => {
+    if (command === 'git' && args[0] === 'ls-remote') {
+      calls.push('git-read');
+      return { code: 128, stderr: 'schannel: SSL/TLS handshake failed SECRET', stdout: '', elapsedMs: 3 };
+    }
+    if (command === 'gh') {
+      assert.deepEqual(args.slice(0, 3), ['api', '--hostname', 'github.com']);
+      if (args.some(arg => arg.includes('/matching-refs/'))) {
+        calls.push('api-preflight');
+        return { code: 0, stdout: JSON.stringify(refPayload(f.options.branch, previous)), stderr: '' };
+      }
+      calls.push('api-postflight');
+      const actual = await f.local(['ls-remote', 'origin', `refs/heads/${f.options.branch}`]);
+      return { code: 0, stdout: actual.split(/\s+/)[0], stderr: '' };
+    }
+    return f.dependencies.run(command, args, cwd);
+  };
+  const result = await deliver({ ...f.options, expectedHead }, { ...f.dependencies, run });
+  assert.equal(result.state, 'DELIVERED_VERIFIED');
+  assert.equal(result.remoteSha, expectedHead);
+  assert.equal(result.pushes, 1);
+  assert.equal(f.pushes(), 1);
+  assert.equal(result.networkMode, 'NETWORK_DEGRADED');
+  assert.deepEqual(calls, ['git-read', 'api-preflight', 'api-postflight']);
+  assert.ok(!JSON.stringify(result).includes('SECRET'));
+});
+
+test('API preflight exact target returns the original commit without pushing again', async t => {
+  const f = await fixture(t);
+  const run = async (command, args, cwd) => {
+    if (command === 'git' && args[0] === 'ls-remote') return { code: 1, stdout: '', stderr: 'Failed to connect SECRET' };
+    if (command === 'gh') return { code: 0, stdout: JSON.stringify(refPayload(f.options.branch, f.options.expectedHead)), stderr: '' };
+    return f.dependencies.run(command, args, cwd);
+  };
+  const result = await deliver(f.options, { ...f.dependencies, run });
+  assert.equal(result.state, 'DELIVERED_VERIFIED');
+  assert.equal(result.remoteSha, f.options.expectedHead);
+  assert.equal(result.remoteStatus, 'EXACT_HEAD_VERIFIED');
+  assert.equal(result.channel, 'github_api');
+  assert.equal(result.networkMode, 'NETWORK_DEGRADED');
+  assert.equal(f.pushes(), 0);
+});
+
+test('successful empty matching-refs evidence permits a new branch, never a 404 assumption', async t => {
+  const f = await fixture(t);
+  let reads = 0;
+  const run = async (command, args, cwd) => {
+    if (command === 'git' && args[0] === 'ls-remote') return { code: 1, stdout: '', stderr: 'Could not resolve host SECRET' };
+    if (command === 'gh') {
+      reads++;
+      return { code: 0, stdout: args.some(arg => arg.includes('/matching-refs/')) ? '[]' : f.options.expectedHead, stderr: '' };
+    }
+    return f.dependencies.run(command, args, cwd);
+  };
+  const result = await deliver(f.options, { ...f.dependencies, run });
+  assert.equal(result.state, 'DELIVERED_VERIFIED');
+  assert.equal(f.pushes(), 1);
+  assert.equal(reads, 2);
+  assert.equal(await f.local(['ls-remote', 'origin', `refs/heads/${f.options.branch}`]), `${f.options.expectedHead}\trefs/heads/${f.options.branch}`);
+});
+
+for (const [name, stderr, state, metadata = {}] of [
+  ['authentication', 'authentication failed SECRET', 'STOP_AUTH_OR_DIVERGENCE'],
+  ['certificate', 'SSL certificate problem: certificate verify failed SECRET', 'STOP_TLS_IDENTITY_OR_CONFIGURATION'],
+  ['configuration', 'unsupported ssl backend SECRET', 'STOP_TLS_IDENTITY_OR_CONFIGURATION'],
+  ['SNI identity', 'schannel: SNI or certificate check failed: SEC_E_WRONG_PRINCIPAL SECRET', 'STOP_TLS_IDENTITY_OR_CONFIGURATION'],
+  ['hostname identity', 'SSL: no alternative certificate subject name matches target hostname SECRET', 'STOP_TLS_IDENTITY_OR_CONFIGURATION'],
+  ['timed-out identity', 'SSL certificate verify failed SECRET', 'STOP_TLS_IDENTITY_OR_CONFIGURATION', { timedOut: true }],
+  ['timed-out authorization', 'HTTP 403 SECRET', 'STOP_AUTH_OR_DIVERGENCE', { timedOut: true }],
+  ['divergence', 'non-fast-forward rejected SECRET', 'STOP_AUTH_OR_DIVERGENCE']
+]) {
+  test(`Git ${name} stops before API fallback or push`, async t => {
+    const f = await fixture(t);
+    let apiReads = 0;
+    const run = async (command, args, cwd) => {
+      if (command === 'git' && args[0] === 'ls-remote') return { code: 1, stdout: '', stderr, ...metadata };
+      if (command === 'gh') { apiReads++; return { code: 0, stdout: '[]', stderr: '' }; }
+      return f.dependencies.run(command, args, cwd);
+    };
+    const result = await deliver(f.options, { ...f.dependencies, run });
+    assert.equal(result.state, state);
+    assert.equal(apiReads, 0);
+    assert.equal(f.pushes(), 0);
+    assert.ok(!JSON.stringify(result).includes('SECRET'));
+  });
+}
+
+for (const [name, code, payload, stderr, state] of [
+  ['malformed', 0, 'SECRET', '', 'STOP_REMOTE_EVIDENCE_INVALID'],
+  ['wrong ref', 0, JSON.stringify(refPayload('other/branch', 'a'.repeat(40))), '', 'STOP_REMOTE_EVIDENCE_INVALID'],
+  ['non-exact prefix', 0, JSON.stringify(refPayload('chore/test-delivery/child', 'a'.repeat(40))), '', 'STOP_REMOTE_EVIDENCE_INVALID'],
+  ['duplicate exact', 0, JSON.stringify([...refPayload('chore/test-delivery', 'a'.repeat(40)), ...refPayload('chore/test-delivery', 'b'.repeat(40))]), '', 'STOP_REMOTE_EVIDENCE_INVALID'],
+  ['bad SHA', 0, JSON.stringify(refPayload('chore/test-delivery', 'SECRET')), '', 'STOP_REMOTE_EVIDENCE_INVALID'],
+  ['coerced SHA array', 0, JSON.stringify(refPayload('chore/test-delivery', ['a'.repeat(40)])), '', 'STOP_REMOTE_EVIDENCE_INVALID'],
+  ['404', 1, '', 'gh: Not Found (HTTP 404) SECRET', 'LOCAL_PASS_REMOTE_UNVERIFIED'],
+  ['403', 1, '', 'gh: Resource not accessible (HTTP 403) SECRET', 'STOP_AUTH_OR_DIVERGENCE'],
+  ['certificate', 1, '', 'SSL certificate verify failed SECRET', 'STOP_TLS_IDENTITY_OR_CONFIGURATION']
+]) {
+  test(`API fallback ${name} cannot authorize a push`, async t => {
+    const f = await fixture(t);
+    const run = async (command, args, cwd) => {
+      if (command === 'git' && args[0] === 'ls-remote') return { code: 1, stdout: '', stderr: 'TLS EOF', elapsedMs: 3 };
+      if (command === 'gh') return { code, stdout: payload, stderr };
+      return f.dependencies.run(command, args, cwd);
+    };
+    const result = await deliver(f.options, { ...f.dependencies, run });
+    assert.equal(result.state, state);
+    assert.equal(result.networkMode, 'NETWORK_DEGRADED');
+    assert.equal(f.pushes(), 0);
+    assert.ok(!JSON.stringify(result).includes('SECRET'));
+  });
+}
+
+test('API preflight cannot bypass missing ancestry or a changed local worktree', async t => {
+  const f = await fixture(t);
+  let remoteSha = 'a'.repeat(40);
+  let mutate = false;
+  const run = async (command, args, cwd) => {
+    if (command === 'git' && args[0] === 'ls-remote') return { code: 1, stdout: '', stderr: 'TLS EOF' };
+    if (command === 'gh') {
+      if (mutate) await writeFile(path.join(f.worktree, 'concurrent.txt'), 'preserve this edit');
+      return { code: 0, stdout: JSON.stringify(remoteSha ? refPayload(f.options.branch, remoteSha) : []), stderr: '' };
+    }
+    return f.dependencies.run(command, args, cwd);
+  };
+  assert.equal((await deliver(f.options, { ...f.dependencies, run })).state, 'STOP_REMOTE_RELATION_UNVERIFIABLE');
+  remoteSha = null;
+  mutate = true;
+  assert.equal((await deliver(f.options, { ...f.dependencies, run })).state, 'STOP_LOCAL_CHANGED');
+  assert.equal(await readFile(path.join(f.worktree, 'concurrent.txt'), 'utf8'), 'preserve this edit');
+  assert.equal(f.pushes(), 0);
+});
+
+test('DNS and connect failures remain transport failures; permissions and certificates take precedence', () => {
+  for (const stderr of ['Could not resolve host SECRET', 'Could not resolve proxy SECRET', 'Failed to connect SECRET', 'Connection timed out SECRET'])
+    assert.equal(errorCategory({ code: 128, stderr }), 'uncertain_transport');
+  assert.equal(errorCategory({ code: 1, stderr: 'TLS error (HTTP 403) SECRET' }), 'authentication_or_divergence');
+  assert.equal(errorCategory({ code: 1, stderr: 'TLS certificate verify failed SECRET' }), 'tls_identity_or_configuration');
+});
+
+test('API preflight cannot bypass a real divergent commit', async t => {
+  const f = await fixture(t);
+  const tree = await f.local(['rev-parse', `${f.options.expectedHead}^{tree}`]);
+  const target = await f.local(['commit-tree', tree, '-p', f.options.expectedHead, '-m', 'target child commit']);
+  const sibling = await f.local(['commit-tree', tree, '-p', f.options.expectedHead, '-m', 'unaccepted remote commit']);
+  await f.local(['update-ref', `refs/heads/${f.options.branch}`, target]); // Only this isolated fixture.
+  const run = async (command, args, cwd) => {
+    if (command === 'git' && args[0] === 'ls-remote') return { code: 1, stdout: '', stderr: 'TLS EOF' };
+    if (command === 'gh') return { code: 0, stdout: JSON.stringify(refPayload(f.options.branch, sibling)), stderr: '' };
+    return f.dependencies.run(command, args, cwd);
+  };
+  assert.equal((await deliver({ ...f.options, expectedHead: target }, { ...f.dependencies, run })).state, 'STOP_AUTH_OR_DIVERGENCE');
+  assert.equal(f.pushes(), 0);
+});
+
+for (const mode of ['timeout', 'unavailable']) {
+  test(`API preflight ${mode} stops with no push or network retry`, async t => {
+    const f = await fixture(t);
+    const calls = [];
+    const run = async (command, args, cwd) => {
+      if (command === 'git' && args[0] === 'ls-remote') { calls.push('git-read'); return { code: 1, stdout: '', stderr: 'TLS EOF' }; }
+      if (command === 'gh') { calls.push('api-read'); return { code: 1, stdout: '', stderr: 'PRIVATE', timedOut: mode === 'timeout', spawnError: mode === 'unavailable' }; }
+      return f.dependencies.run(command, args, cwd);
+    };
+    const result = await deliver(f.options, { ...f.dependencies, run });
+    assert.equal(result.state, 'LOCAL_PASS_REMOTE_UNVERIFIED');
+    assert.equal(result.preflight.api.category, mode === 'timeout' ? 'timeout' : 'executable_unavailable');
+    assert.equal(f.pushes(), 0);
+    assert.deepEqual(calls, ['git-read', 'api-read']);
+    assert.ok(!JSON.stringify(result).includes('PRIVATE'));
+  });
+}
 
 test('GitHub API is independent post-push verification after Git EOF', async t => {
   const f = await fixture(t);
@@ -154,6 +341,18 @@ test('bounded subprocess timeout; diagnostic proxy and transport output is redac
   assert.equal(result.gitProxyConfigured, true);
   assert.equal(result.pushSubmitted, false);
   assert.ok(!JSON.stringify(result).includes('PRIVATE'));
+});
+
+test('subprocess timeout keeps observed identity errors in memory for fail-closed classification', async t => {
+  const f = await fixture(t);
+  const result = await runCommand(process.execPath, ['-e', "process.stderr.write('SSL certificate verify failed PRIVATE\\n');setTimeout(()=>{},5000)"], f.worktree, 2000);
+  assert.equal(result.timedOut, true);
+  assert.equal(errorCategory(result), 'tls_identity_or_configuration');
+  const classified = await deliver(f.options, { ...f.dependencies, run: (command, args, cwd) =>
+    command === 'git' && args[0] === 'ls-remote' ? Promise.resolve(result) : f.dependencies.run(command, args, cwd) });
+  assert.equal(classified.state, 'STOP_TLS_IDENTITY_OR_CONFIGURATION');
+  assert.equal(f.pushes(), 0);
+  assert.ok(!JSON.stringify(classified).includes('PRIVATE'));
 });
 
 test('origin only accepts exact repository without credentials', () => {
@@ -194,3 +393,29 @@ test('PowerShell real entry defaults dry, rejects main and conflicting actions',
   assert.equal(JSON.parse(conflicting.stdout).state, 'STOP_CONFLICTING_ACTIONS');
   assert.equal(f.pushes(), 0);
 });
+
+for (const [name, stderr, state, category] of [
+  ['ref rejection', 'remote rejected: cannot lock ref refs/heads/chore/test-delivery: reference already exists SECRET', 'STOP_AUTH_OR_DIVERGENCE', 'authentication_or_divergence'],
+  ['authentication', 'authentication failed SECRET', 'STOP_AUTH_OR_DIVERGENCE', 'authentication_or_divergence'],
+  ['certificate identity', 'SSL certificate verify failed SECRET', 'STOP_TLS_IDENTITY_OR_CONFIGURATION', 'tls_identity_or_configuration'],
+]) {
+  test(`exact remote identity is separate from a retained push STOP: ${name}`, async t => {
+    const f = await fixture(t);
+    const run = async (command, args, cwd) => {
+      const result = await f.dependencies.run(command, args, cwd);
+      if (command === 'git' && args[0] === 'push') return { ...result, code: 1, stderr };
+      return result;
+    };
+    const result = await deliver(f.options, { ...f.dependencies, run });
+    assert.equal(result.state, state);
+    assert.equal(result.continueLocal, false);
+    assert.equal(result.pushCategory, category);
+    assert.equal(result.remoteSha, f.options.expectedHead);
+    assert.equal(result.remoteStatus, 'EXACT_HEAD_VERIFIED');
+    assert.equal(result.pushes, 1);
+    assert.equal(f.pushes(), 1);
+    assert.equal(result.retry, false);
+    assert.equal(Object.hasOwn(result, 'recovery'), false);
+    assert.ok(!JSON.stringify(result).includes('SECRET'));
+  });
+}

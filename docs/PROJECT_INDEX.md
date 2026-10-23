@@ -1,3 +1,9 @@
+2026-10-23当前恢复优先：#127后置核实事实修正，main完整e06162c70c9792895c30030216dc8c2a66368069。原e2精确交付、三CI通过；本阶段只纠正已核实目标SHA却写未送达的回执，并保留所有STOP策略；dff新56/134及精确门禁通过，最终交付/CI另核。先读CURRENT_STATE、AI_HANDOFF与[同一任务](tasks/active/pr127-main-forward-2026-10-23.md)；下文保留前阶段日期/结果，原三摘要另有[逐字输入](tasks/completed/2026-10-23-pr127-postflight-facts-inputs/)。不自动合并或部署。
+
+2026-10-23 当前工具恢复优先：CURRENT_STATE、AI_HANDOFF 与[真实 main 前向整合](tasks/active/pr127-main-forward-2026-10-23.md)。#126 已按具体批准以 merge commit 进入 main `e06162c70c9792895c30030216dc8c2a66368069`，原历史保留；#127 的真实四处文档/清单冲突已解决，merge checkpoint7af已通过新53/134/9/10及构建回归。213证据/46能力不改，两侧摘要按原Git字节归档。最终文档精确守卫/远端/新CI分别待核，不借旧结果；未新增业务/UI/SQL或共享配置变更。
+
+以下索引保留 main 整合前各自日期与来源 SHA，当前恢复点以上文和两份状态摘要为准。原#127输入索引另存[37bd归档](tasks/completed/2026-10-23-pr127-forward-inputs/37bd0e1e/PROJECT_INDEX.md)。全项目候选仍由7bf3主控保留，本PR不带入累计业务功能，不自动合并其他PR或部署。
+
 # 项目知识索引
 
 2026-10-23恢复优先读CURRENT_STATE、AI_HANDOFF与[原工具PR126任务](tasks/active/release-document-merge-guard-2026-10-20.md)。main完整基线 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；本分支只修main前移后的旧side证据导入与父历史保护，不含其他业务候选。最终源码cff4addd完整134项、精确996门禁及独立复审通过；同脚本验证完整候选94亦通过。接着交付原#126/核实精确HEAD/检查新CI，不能把旧CI当作新结果。不自动合并、部署或真实Source/业务库操作。旧956、完整Goal候选94与红测93摘要均按Git字节[归档](tasks/completed/2026-10-23-release-main-advance-inputs/)，下方旧阶段按其日期阅读。完整Goal仍active，Source0c与image94原CI已成功。
