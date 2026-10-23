@@ -2,7 +2,7 @@
 
 2026-10-23；完整G1–G5 Goal继续。main=be9aaa3f4efa232e1451075a355f0ce42e35a69e；只有#126/#127已具体批准合并。#120 fca/#1230357/#1254cf的九CI保持原精确范围，仍草稿。累计49dc一次精确送达、Release39909321129 attempt1成功、复审无P1/P2；不表示业务合并、部署或Source激活。
 
-当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)只推进合成/隔离工程；原9fc完整QA通过，复审P2已复现修复，33定向通过，修复后的冻结/发布门禁/复审/新CI待收口。恢复先读CURRENT_STATE、AI_HANDOFF及既有[成衣观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。原证据/能力/批准与旧运行态保留，真实读取、激活、关账和目标切换不自动授权。
+当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)只推进合成/隔离工程；原9fc完整QA和最终d992的33定向、精确types/lint/build及复审通过。299/59冻结仅追加，发布134/精确门禁/新CI待收口。恢复先读CURRENT_STATE、AI_HANDOFF及[当前工程报告](tasks/completed/2026-10-23-garment-collection-control-engineering.md)；原[成衣feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)保留9fc冻结阶段。真实读取、激活、关账和目标切换不自动授权。
 
 ## 系统简介
 

@@ -2523,6 +2523,25 @@
       "renderedSourceSha": "9fc4b8d839f7b7d5123d0f2cddfd08da38e6a2aa",
       "sha256": "727f8b7bd35e77c4ea3b916ade3bb58c7e3e494758b3dd3e650d77a730183531",
       "changeReason": "D158 adds a default-unmounted, first-page-scoped durable garment collection controller and atomic receipts. Preserve D152/D153, every old evidence/status/approval and runtime; no real request, activation, user DB mutation or deployment."
+    },
+    {
+      "id": "decisions-garment-collection-review-fix-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "d99282fa41788a385d94e91bf7f26a318dc7c0ac",
+      "renderedSourceSha": "d99282fa41788a385d94e91bf7f26a318dc7c0ac",
+      "sha256": "0e56b18dcbb1a6789c255b7111edaee6eff1d92de1d2a06a2808070fe66a75f2",
+      "supersedes": "decisions-garment-collection-control-20261023",
+      "changeReason": "Forward revision after independently reproduced permit expiry and rollback receipt metadata fixes. Preserve the original 9fc test scope and all old evidence/status/approvals; final d992 source remains unmounted with no real Source, account, business database or deployment operation."
+    },
+    {
+      "id": "garment-collection-control-engineering-20261023",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-23-garment-collection-control-engineering.md",
+      "recordedAtSha": "c2c7a618b8fe3bb640c749144b315d0176f1395a",
+      "renderedSourceSha": "d99282fa41788a385d94e91bf7f26a318dc7c0ac",
+      "sha256": "700c36d81d567abdcbc793b3b65ccd0fbb47372a8c3da08cb6304d7a431eb2ce",
+      "changeReason": "Freeze original9fc versus finald992 local engineering and reviewer reproduction results. Final exact-main guard, release134, remote delivery and fresh CI are separate subsequent observations; no Source activation, user acceptance or deployment."
     }
   ],
   "pages": [
@@ -8227,6 +8246,107 @@
           "scope": "Not deployed or re-observed. Preserve the dated historical runtime/source/image; the new maintenance UI is not running there.",
           "evidence": [
             "server-delivery-plan-maintenance-ui-engineering-20261022"
+          ],
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444"
+        }
+      }
+    },
+    {
+      "id": "garment-collection-control-server",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147/D158 internal single-SO durable garment collection plan/claim/receipt and atomic publication, with fixed two-pass complete first-page worker. Original Num/outdate, immutable observations, permissions and effective-owner locks remain. No mounted HTTP/CLI/Catalog/scheduler or target activation; actual filter proof stays account/contract scoped and does not grant new query quota.",
+      "evidence": [
+        "garment-collection-control-engineering-20261023",
+        "garment-collection-control-feature-20261023",
+        "decisions-garment-collection-review-fix-20261023"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-23",
+          "sourceSha": "d99282fa41788a385d94e91bf7f26a318dc7c0ac",
+          "scope": "D147/D158 internal single-SO durable garment collection plan/claim/receipt and atomic publication, with fixed two-pass complete first-page worker. Original Num/outdate, immutable observations, permissions and effective-owner locks remain. No mounted HTTP/CLI/Catalog/scheduler or target activation; actual filter proof stays account/contract scoped and does not grant new query quota.",
+          "evidence": [
+            "garment-collection-control-engineering-20261023",
+            "garment-collection-control-feature-20261023",
+            "decisions-garment-collection-review-fix-20261023"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-23",
+          "sourceSha": "d99282fa41788a385d94e91bf7f26a318dc7c0ac",
+          "scope": "Not merged at independently re-read main be9aaa3f4efa232e1451075a355f0ce42e35a69e. Original dependent business PRs remain drafts; this cumulative validation reference is not a second business PR.",
+          "evidence": [
+            "garment-collection-control-engineering-20261023",
+            "garment-collection-control-feature-20261023",
+            "decisions-garment-collection-review-fix-20261023"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-23",
+          "sourceSha": "d99282fa41788a385d94e91bf7f26a318dc7c0ac",
+          "scope": "Finald992:33 directed, exact Git archive full types/lint/Server and explicit Server UI builds; independent review no remaining P1/P2. Original9fc retains its own952 project,270 PG/API,85 observations,33 normalization,181 Python and13 built UI results. All listed tests have zero skips. The two controller fixes do not relabel old full QA; release guard/134 and new hosted CI are later results.",
+          "evidence": [
+            "garment-collection-control-engineering-20261023",
+            "garment-collection-control-feature-20261023",
+            "decisions-garment-collection-review-fix-20261023"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-23",
+          "sourceSha": "d99282fa41788a385d94e91bf7f26a318dc7c0ac",
+          "scope": "No user business acceptance. Existing Num/outdate business confirmation and engineer browser regression do not accept this new unmounted control layer.",
+          "evidence": [
+            "garment-collection-control-engineering-20261023",
+            "garment-collection-control-feature-20261023",
+            "decisions-garment-collection-review-fix-20261023"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-23",
+          "sourceSha": "d99282fa41788a385d94e91bf7f26a318dc7c0ac",
+          "scope": "No real upstream request, credential/private-report read, source binding, target enablement, scheduler or existing business DB mutation. Old fixed query quota is consumed; no fresh quota implied by scopeHash/proofHash.",
+          "evidence": [
+            "garment-collection-control-engineering-20261023",
+            "garment-collection-control-feature-20261023",
+            "decisions-garment-collection-review-fix-20261023"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-23",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "scope": "Not deployed or re-observed. Preserve the dated historical runtime/source/image identity; this new control layer is not asserted to run in the protected environment.",
+          "evidence": [
+            "garment-collection-control-engineering-20261023",
+            "garment-collection-control-feature-20261023",
+            "decisions-garment-collection-review-fix-20261023"
+          ],
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443"
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-23",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "scope": "Not deployed or re-observed. Preserve the dated historical runtime/source/image identity; this new control layer is not asserted to run in the protected environment.",
+          "evidence": [
+            "garment-collection-control-engineering-20261023",
+            "garment-collection-control-feature-20261023",
+            "decisions-garment-collection-review-fix-20261023"
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"
