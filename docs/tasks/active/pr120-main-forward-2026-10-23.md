@@ -45,3 +45,5 @@ K须保留parents=[e872,5f]；原五个产品/测试/演示文件保持57d，新
 2026-10-23；#127精确7b565f321d170a7db6e361455791ee4db4f37ba8经具体批准，以merge commit进入main be9aaa3f4efa232e1451075a355f0ce42e35a69e，parents=[e06162c7,7b565f32]、tree=7b已独立核实，原7提交与分支保留。#120输入0561f5ed三CI全成功仍保留原范围；本阶段从干净树进行真实merge。只有workflow/两状态摘要3冲突，PROJECT_INDEX与manifest自动合入后由唯一整合者对齐。双方摘要和UIimpact见[原始输入](../completed/2026-10-23-pr120-be9-forward-inputs/)。
 
 workflow同时保留19解析器/134发布/交付工具回归。原五个业务blob=57d，main新工具与两处旧验收适配保持main内容，不混入新业务规则。manifest217/46先完整保留，仅基线/UIimpact元数据前移；真实merge后追加两条同路径见证。此checkpoint尚未完成新门禁/测试/交付，不能用旧CI作新PASS。全目标继续，覆盖v1/关账/切换退役待决，真实Source额度已消耗，所有用户环境保护。
+
+真实merge H=8f7719ed0565b19acf39fdd988fd24e4abc9c992，parents=[0561f5ede50d17ba5b104ef230b504434f5e7f28,be9aaa3f4efa232e1451075a355f0ce42e35a69e]已核实。业务五blob=原57d，main工具/两项旧测试适配/guard与134回归=be9。旧217节点与46能力原样保留，追加两条H同路径见证至219/46；新源码检查继续。

@@ -7,3 +7,5 @@ root唯一writer；既有reviewer独立只读。合并输入：HEAD=0561f5ede50d
 下一步保存真实merge H，核对双父与旧五个业务blob、main工具blob；再为DECISION_LOG和ORDER_BUSINESS_SOURCE追加H同路径见证，保留旧217条及46能力，不伪造新截图或产品批准。运行新base显式门禁、134发布、19解析器、56交付工具及必要静态/集成检查，独立复审后一次安全交付原#120，精确核实新SHA和CI。随后只在未绑定用户运行态的工作树前向整合#123/#125。
 
 原0561三CI与原1b64本地804/34DB/6Chromium/干净快照构建保留原范围，新组合尚未声称通过。Git恢复站立授权有效，每可靠checkpoint一次push，结果不明先核实；STOP与EXACT事实分离不等于放宽安全策略。完整目标及业务待决项不变；不新读Source、不绑定激活、不改用户环境/账号/数据，不自动合并关闭或部署。
+
+真实merge H=8f7719ed0565b19acf39fdd988fd24e4abc9c992，parents=[0561f5ed,be9aaa3f]；五个业务blob=57d、main工具/两项旧测试适配/守卫134均为精确main。两条H见证已追加至219/46；新测试和精确门禁尚待执行。
