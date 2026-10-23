@@ -2,7 +2,7 @@
 
 2026-10-23；实际 main=be9aaa3f4efa232e1451075a355f0ce42e35a69e，仅#126/#127已按具体批准合并。当前codex/pr123-main-be9-forward从干净main整合原#123 ebe4cb16c8f5ea65df6243d8a5627094c6f62da1；保留#121/#122/#123原历史，原用户体验50426/59069和其工作树不切换、不重建、不改账号/库。原远端分支暂不动，验证后仅force=false快进原#123，不创建重复业务PR。
 
-恢复先读CURRENT_STATE、AI_HANDOFF和[PR123前向任务](tasks/active/pr123-main-forward-2026-10-23.md)。角色/用户/日志当前规则D-146及features/PERMISSIONS、OPERATION_LOGS；历史阶段摘要已[逐字归档](tasks/completed/2026-10-23-pr123-be9-forward-inputs/)。新组合未借用旧CI，完整目标与运行环境保护边界保持。
+恢复先读CURRENT_STATE、AI_HANDOFF和[PR123前向任务](tasks/active/pr123-main-forward-2026-10-23.md)。角色/用户/日志当前规则D-146及features/PERMISSIONS、OPERATION_LOGS；历史阶段摘要已[逐字归档](tasks/completed/2026-10-23-pr123-be9-forward-inputs/)。新组合134/804/54API/25Chromium/112前端及类型lint两构建/精确be9门禁通过，独立静态复审无P1/P2；最终HEAD远端/CI另核。完整目标与运行环境保护边界保持。
 
 ## 系统简介
 

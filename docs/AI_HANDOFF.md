@@ -1,9 +1,7 @@
-# 恢复点：PR123 新main前向整合
+# 恢复点：PR123组合本地PASS，交付当前最终HEAD
 
-2026-10-23；实际 main=be9aaa3f4efa232e1451075a355f0ce42e35a69e，仅#126/#127已按具体批准合并。当前codex/pr123-main-be9-forward从干净main整合原#123 ebe4cb16c8f5ea65df6243d8a5627094c6f62da1；保留#121/#122/#123原历史，原用户体验50426/59069和其工作树不切换、不重建、不改账号/库。原远端分支暂不动，验证后仅force=false快进原#123，不创建重复业务PR。
+2026-10-23；main完整be9aaa3f4efa232e1451075a355f0ce42e35a69e。root唯一writer，既有reviewer只读；H65双父[be9,ebe]、K3c双父[7f1c,5f]，215/46旧对象及新H见证、15原字节归档和3份impact仅基线前移已核实。新134发布/804源码/54管理日志来源API/25Chromium/112默认环境前端均全通过；类型、编译、lint、两构建及精确be9门禁PASS，静态复审无P1/P2。
 
-root唯一writer、既有reviewer只读；先读CURRENT_STATE与[任务](tasks/active/pr123-main-forward-2026-10-23.md)、AGENTS和实际Git。当前5冲突已解决，原9份Git字节归档。下一步真实H双父[be9,ebe]、DECISION同路径见证，再合入独立CI解析器5f，保留所有发布/交付工具回归。原产品、迁移与历史不改，不reset/clean/rebase/force。
+保留首轮112检查的111/1：QA驱动保留前一步snapshot环境，默认路由断言失败；清除该进程构建覆盖后112/112，未改产品或测试，不掩盖失败。下一步最终文档commit后精确门禁，再一次安全push本验证分支；独立核对完整远端SHA/tree后以force=false快进原#123远端，更新唯一说明、新CI及复审。原所属live-readiness本地ref=ebe与文件均不动，system-settings-ci与50426/59069不切换。
 
-新组合必须独立完成发布134、管理与日志DB/API、实际浏览器、类型lint构建及精确base门禁，保存checkpoint后只一次安全交付。原#123所属live-readiness工作树与本地feat/business-operation-logs ref不动；可推独立验证分支，再核实远端force=false快进原PR。未知结果先核实，不盲推；所有用户运行环境/账号/业务数据保护，不新读Source或部署/自动merge/close。
-
-2026-10-23共享CI整合：原5f工具提交前向保留；冲突为workflow/三摘要及baseline锚点，保留真实base=be9与215/46，workflow同时执行19解析器、134发布和56交付工具。双方摘要逐Git字节归档，产品/SQL无新变化。新组合测试、精确门禁与交付仍待执行。
+原#120已送达fca新CI另核；#125独立验收继续。所有用户环境/数据保护，完整目标未完成；未知结果先核实，不盲推、不force/reset/clean/rebase，不自动merge/close/部署或新Source读取绑定激活。先读[任务](tasks/active/pr123-main-forward-2026-10-23.md)及实际Git状态。
