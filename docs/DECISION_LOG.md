@@ -5,6 +5,9 @@
 - **Active**：当前实现仍遵守的决定。
 - **Superseded**：已被新的实现或决定替代，仅保留背景。
 - **Deprecated**：为兼容仍可能存在，但新代码不应继续依赖。
+- **Partially Superseded**：只保留条目明确列出的保护；被替代的交互/写入口不能据旧段落恢复。
+
+2026-10-19 校准：main `996dfedc12da3527343cd3ff2aa5eea35497e10e` 已包含 PR108–119。下列旧条目的“未合并/本地/待UI”是其记录日期的阶段事实；当前工程入口见 CURRENT_STATE 与 SYSTEM_OVERVIEW。合并不代表部署、真实激活或人工接受。
 
 ### D-043 ScheduleAssignment 直接归属 SalesOrder，生产计划层退出 Runtime
 
@@ -31,14 +34,14 @@
 
 - 2026-10-17，Active，用户批准[完整实施范围](tasks/active/quote-order-price-coordination-2026-10-17.md)。新业务只保留报价来源；合同类可信合同与加工批次身份保持。后续来源弹窗/颜色映射/报价中心议价取代D144对应交互，历史不删除。
 - 报价确认权威由CCT是否存在决定：存在时空值也不回退；不存在时使用可证明的保存PV确认。SO使用关系不抹除确认事实。解析器供列表/汇总、导出和商业采用复用；详情无CCT时仍走PV确认命令，已有CCT拒绝第二写入源。
-- 订单价格仅来自独立不可变商业版本。用户批准的下一阶段在报价中心对指定订单追加成交价版本；不修改共享CCT、不新增PriceVersion、不换汇/重算成本，加工仅工价。Phase1确认解析器、Phase2稳定颜色/逐色商业版本及报价唯一来源、Phase3统一订单议价及只读历史已实现；Phase4加工同步推送、纯工价投影/导出与左侧选择模式已实现；仅本地工程验收，未合并部署或人工业务接受。
+- 订单价格仅来自独立不可变商业版本。在报价中心对指定订单追加成交价版本；不修改共享CCT、不新增PriceVersion、不换汇/重算成本，加工仅工价。Phase1确认解析器、Phase2稳定颜色/逐色商业版本及报价唯一来源、Phase3统一订单议价及只读历史已实现；Phase4加工同步推送、纯工价投影/导出与左侧选择模式已实现；已随 PR119 合并至 main；部署、真实激活及人工业务接受仍须独立证据。
 - 代码：server/confirmed-commercial-terms/confirmation-source.ts；server/quotes/business-source.ts、customer-export.ts、service.ts；commercial-source.ts。只用一次性合成库，无真实迁移、采集、合并或部署。
 
 
 ### D-144 无负责人订单与合同后业务来源维护
 
 - 日期：2026-10-17；状态：Partially Superseded by D-145（独立翻单入口与来源侧栏已替换，其他保护保留）。明确用户要求替代D121认领/转交、合同前准备与独立首单血统操作；D129/D130准备采用流程退役。合同类仍先可信艾诺科接纳，加工批次独立入口经用户再次确认保留。
-- 正式订单无负责人。业务来源只有来自报价或来自翻单；首次和产品/工艺/价格变化使用确认报价，完全沿用历史已确认条件才是翻单。顶部维护来源侧栏替代大卡片；加工导入/推送改紧凑标题操作，取消归一/复核UI及公开写操作，历史数据不删除。
+- 历史 D-144 原文（下述翻单、侧栏及价格变化必须重报已由 D-145 替代）：正式订单无负责人。业务来源只有来自报价或来自翻单；首次和产品/工艺/价格变化使用确认报价，完全沿用历史已确认条件才是翻单。顶部维护来源侧栏替代大卡片；加工导入/推送改紧凑标题操作，取消归一/复核UI及公开写操作，历史数据不删除。
 - 0027追加不可变产品条件快照，与既有订单商业版本同事务；翻单保存原单/原版本并精确复制规格、工艺及价格。旧商业历史无产品证据不自动回填，报价后改不覆盖已采用订单。确认价格、金额权限、并发CAS、幂等、冻结和创建身份保护继续。
 - 代码：business-source-service.ts、product-snapshot.ts、0027、OrderBusinessSourceButton及对应集成测试。旧内部历史服务与权限key仅兼容历史，不开放旧HTTP写入；新API按操作权限，不按负责人控制。
 - [用户批准范围](tasks/active/order-business-source-approved-scope-2026-10-17.md)与[功能说明](features/ORDER_BUSINESS_SOURCE.md)。仅合成/新隔离候选验证，不自动合并、部署、真实账号/业务库迁移或新的来源采集。
@@ -182,7 +185,9 @@
 
 ### D-128 Gate4 发布复核方案、当前权限与相关血统指纹
 
-- 日期2026-10-15；Active，落实D121已批准独立复核/历史保护，不改变正式创建路径、数量、货币或实际操作授权。
+- 2026-10-19 状态：Partially Superseded by D-144。岗位复核公开写入口退役；既有证明、历史读取、权限与覆盖证据保护保留，下文不是重新开放入口的依据。
+
+- 日期2026-10-15；原批准范围：落实D121已批准独立复核/历史保护，不改变正式创建路径、数量、货币或实际操作授权。
 - 复用0019不可变proof，管理员内容键幂等发布并事务审计；可信生产/财务岗位读取待办、精确方案/当前签名状态及历史分页。默认未配置真实Adapter/permit，发布和状态查询不授权执行。
 - 全库身份/血统hash会错误使无关新SO触发全员重签，改为拟root可达引用链、缺失叶边及相关身份epoch；相关变化/循环与所有目标完整引用/外部冻结数据仍守卫。原hash/proof不改，新指纹须新复核。
 - Fresh role/order.view/授权tuple保护；财务复核说明沿用金额字段权限，作者身份不绕过撤权。NaN不能绕过冻结来源或一小时许可。旧成功发布可回历史receipt，失效状态独立校验。
@@ -208,7 +213,9 @@
 
 ### D-125 Gate4 有效归属与普通SQL写入保护
 
-- 日期2026-10-15；Active，落实已批准D-121归一/历史保护计划，不扩大真实操作授权。
+- 2026-10-19 状态：Partially Superseded by D-144。归一不再是公开业务操作；有效归属解析、SQL 防绕过、不可变身份/流水保护继续保留，不执行真实归一。
+
+- 日期2026-10-15；原批准范围：落实已批准D-121归一/历史保护计划，不扩大真实操作授权。
 - 0018保留原UUID/绑定/流水，0019完整有界证据及独立复核，默认执行关闭；0020在已声明Server表增加普通DML防绕过。来源事实仍写不可变原owner，当前快照按有效根和精确generation发布；不搬移或加总旧计划/价格/流水。
 - 新订单商业/执行不能写历史别名；参考记录可以保留历史身份。加工批次身份不能与合同归一，后补可信绑定也必须维护合同唯一。过期RR快照用事务write epoch阻断，数据库约束不能证明所有旧镜像功能兼容。
 - Source证据不可改删，旧null scope/epoch历史保留，新发布不冒称旧快照当前。此条记录时点运行态关闭策略仍待，后续本地实现见D126；历史Source/UI、真实外部覆盖、恢复演练及具体授权仍待，整个Gate4不提前标完成。
@@ -216,7 +223,9 @@
 
 ### D-124 Gate4 历史订单复核案件与覆盖证据
 
-- 日期2026-10-14；Active，落实D121批准计划的预览/案件阶段，不扩大真实操作授权。
+- 2026-10-19 状态：Partially Superseded by D-144。公开归一案件/复核写入口退役；未知外部流水不推断无流水、原历史保留和内部防护继续，下文交互仅作历史。
+
+- 日期2026-10-14；原批准范围：落实D121批准计划的预览/案件阶段，不扩大真实操作授权。
 - 来源观察、交付计划和商业版本不等于生产执行；无法覆盖Browser/外部生产或财务时维持unknown，禁止以Server无行推导“无流水”。有限引用摘要不是归一执行令牌。
 - 规范化SO对唯一案件、不可改写事件、fresh受信管理员权限、请求幂等/CAS和事务审计；撤回/重开保留历史，不改订单有效归属、创建身份或执行记录。
 - 复用现有订单中心Foundation管理员弹窗；保存结果不确定保留原请求，证据变化要求重新预览。不新增生产route或实际归一按钮。
@@ -379,7 +388,9 @@
 
 ### D-103 Server 商业金额的独立查看与修改授权
 
-- 日期：2026-10-11；状态：Active；来源：用户 PR93 Gate2 正式批准。细化 D-084/D-087 的共享当前商业条款权限，不改变其唯一事实、精确金额、历史或币种所有权。
+- 2026-10-19 状态：Active（金额字段授权）；订单共享 current 语义由 D-122/D-145 替代，D-104 已补角色管理，D-145 已补逐色价格与加工仅工价。下文旧阶段范围不限制已批准的新实现。
+
+- 日期：2026-10-11；来源：用户 PR93 Gate2 正式批准。金额授权、精确金额、历史与币种保护继续。
 - 新增 `commercial.sale.view/edit`、`commercial.labor.view/edit`。正式 Server 管理员默认拥有四键，其他角色默认不增加；不能从 quote.cost、quote.confirm、order.edit 或客户端角色名称推导。既有可信 `role-server-admin` 由目录同步幂等补授；新管理员复用 bootstrap。未绑定可信管理员角色的旧账号不会按名称自动提权。
 - 修改某类商业金额同时需要其 view+edit 及原领域动作权限。CCT PATCH 按实际提交字段授权，未提交字段由事务锁定的当前行保留；显式 null 为合法清空，零为有效值。Quote 端仍检查已保存来源资格、Quote CAS、CCT CAS；linked 工价币种仍由 PV 所有，不能通过空值绕过币种保护。
 - GET/PATCH 返回 `commercial-terms-read.v1` 的 sale/labor allowed 或 restricted；无权不返回 value、不伪造 null/0。Quote 历史确认字段、列表、客户文件、内部汇总和日志同样投影/授权，数据库历史与审计不改写。Quote 内部成本仍是 quote.cost.view/edit；物料采购执行价格不纳入商业金额授权。
@@ -561,8 +572,10 @@
 
 ### D-087 ConfirmedCommercialTerms uses a shared Quote-provenance context with explicit SalesOrder associations
 
+- 2026-10-19 状态：Partially Superseded by D-122 / D-145。保留 CCT 报价确认域、精确 provenance、CAS、币种与审计；所有 SO 共享读写 current row、order-owned writer、订单端改工价不再适用。订单只读独立采用版本，下文保留原实现历史。
+
+- 原状态（2026-09-14，已部分替代）：Active（implementation complete in PR；real migration not authorized）
 - 日期：2026-09-14
-- 状态：Active（implementation complete in PR；real migration not authorized）
 - 决定：`ConfirmedCommercialTerms` 使用独立 PostgreSQL UUID identity。完整 `quoteId + revisionId + priceVersionId` 是可选的精确 provenance，并在 terms context 上唯一；一个该 context 可关联一张或多张 formal SalesOrder，所有关联订单因此读取/修改同一个 current row。没有 Quote provenance 的 SalesOrder 使用一对一的 order-owned context，绝不填充伪造 Quote 字段。
 - 金额：客户确认价格是 CNY/件；确认工价使用 PostgreSQL `NUMERIC` 并携带 `CNY|USD` qualifier。API 以 decimal string 传输，不引入浮点或新舍入规则；`NULL` 与 `0` 严格不同。
 - 币种所有权：linked context 的工价币种由 exact Quote PriceVersion 建立和变更。Order surface 只能保留该 qualifier；双向变更或未建立时由 Order 发明币种均返回 409，且不产生 terms/OperationLog。unlinked order-owned context 仍允许 Order 明确选择 `CNY|USD`。
@@ -572,8 +585,10 @@
 
 ### D-084 Linked Quote and SalesOrder share only current confirmed commercial terms
 
+- 2026-10-19 状态：Partially Superseded by D-122 / D-145。订单共享当前金额及两端编辑已替代；报价确认的单一权威、精确金额、可信审计、历史不回写仍保留。下文决定为原时点记录。
+
+- 原状态（2026-09-14，已部分替代）：Active；确认 C4.0 审计 C4-D10，取代“Quote 与 Order 的当前客户确认价格和确认工价各自独立维护”的旧 AI 建议。C4.2 implementation 由 D-087 落地，真实 activation 尚未授权。
 - 日期：2026-09-14
-- 状态：Active；确认 C4.0 审计 C4-D10，取代“Quote 与 Order 的当前客户确认价格和确认工价各自独立维护”的旧 AI 建议。C4.2 implementation 由 D-087 落地，真实 activation 尚未授权。
 - 决定：在同一业务流中已稳定关联的 Quote 与 SalesOrder，“客户确认价格”和“确认工价”分别是一个共享的当前业务事实，不得在 Quote 与 Order 各保存一份可独立漂移的当前值。Quote Center 与 Order Detail 都可编辑这两项共享当前值，任一表面的修改都必须在另一表面读到同一结果。概念上可称为 `ConfirmedCommercialTerms`，本 docs-only 决策不锁定 SQL 表名或 API 名称。
 - 审计/历史：每次修改必须通过可信身份记录 actor、timestamp、old value 和 new value，遵守 server OperationLog 原则。Quote Revision / PriceVersion 历史快照仍为 immutable historical facts，共享当前值变化不回写历史快照。
 - 边界：不对 Quote PriceVersion 与 Order PriceVersion 做全量 live-link。面辅料成本、margin、汇率、加工假设、Quote 制作国家及其他 PriceVersion 事实仍相互独立。未关联 Quote 的 SalesOrder 不得伪造 Quote 关系。

@@ -1,8 +1,10 @@
-2026-10-20 用户批准 Server 收敛，main 核实为 `996dfedc12da3527343cd3ff2aa5eea35497e10e`。D-147 确认无历史业务迁移需求，新目标采用空业务库；不因此清空旧环境。新 Server 关账目标为成衣销售产值 CNY、工价 USD，分别保存与汇总，不新增自动换汇，不回写历史报价或来源币种。Server 关账尚未实现，其他关账口径仍待确认。见 [Gate 0](tasks/active/server-convergence-gate0-2026-10-20.md)。下方各日期旧实现状态按历史阅读；#120 的规则校准仍在独立 PR，整合须保留本项新决定。
+# 已确认业务规则
 
-2026-10-17最新规则以D145与报价价格协同任务为准：新来源仅报价，合同/加工创建身份保持，订单中心只首次匹配并只读成交价；颜色定价、报价中心议价与新加工交互已通过本地合成工程验收；未合并部署或人工接受。下文D144原日期规则由此部分替代，历史不删除。
+2026-10-19，工程基线 main `996dfedc12da3527343cd3ff2aa5eea35497e10e`。当前订单/价格规则以 D-145 为准；下文注明 Browser/legacy 的规则不自动应用于 Server。[校准前逐字记录](tasks/completed/2026-10-19-pre-stabilization/BUSINESS_RULES.md)保留已替代描述、日期和证据。
 
-2026-10-17 D-144：正式订单无负责人，不认领/转交，不建合同前翻单准备。合同类仍先可信艾诺科合同接纳；加工批次独立创建例外保留。合同后“维护来源”选择来自报价（首次或条件变化后的确认报价）或来自翻单（完整沿用原单已确认规格、工艺和价格）。订单冻结产品/商业版本，后改报价不覆盖历史；未知历史不补造。旧归一与准备公开写操作退役，原数据/防重/来源身份保持。详见 [订单业务来源](features/ORDER_BUSINESS_SOURCE.md)；下方旧规则被本段明确替代的部分仅属历史。
+## Server收敛与关账币种目标（D-147，2026-10-20）
+
+用户已批准新Server目标从空业务库开始，无历史业务迁移需求；这不授权清空旧环境或证明其无记录。成衣销售产值目标CNY、工价USD分别保存和汇总，不新增自动换汇，不回写已有Quote/PV/CCT、采购来源或历史快照。Server关账尚未实现，其他待决口径保持。#120已于2026-10-23单独批准合并，以下价格/来源校准与本决定并存；两侧原日期说明逐字保留于本次输入归档。见D-147与Gate0。
 
 ## 艾诺科货款申请数量与币种（D-136，2026-10-15）
 
@@ -20,20 +22,17 @@
 
 用户已核对一张入库单：rknum31条之外另有num_dyc1条，同一单位。两项独立展示；多余仓不加进既有入库齐套。num_dyc缺失不是0，不按采购/理论差值推算；按入库事件可信原行一致性读取，不跨物料或单位汇总。样本确认不冒称全量库存验收。
 
-# 已确认业务规则
+## 当前正式订单与价格（D-121 / D-122 / D-144 / D-145）
 
-## 订单身份新规则（2026-10-14用户批准，D-121）
+合同类只由可信艾诺科合同接纳产生；加工类由一次真实下单批次创建，独立于艾诺科。同报价版本可服务多个批次/订单，合同/批次唯一防重保持。无负责人、认领、转交或合同前翻单准备；新来源仅报价，独立翻单和公开归一写入口已退役，历史保留。后补报价不改创建历史和执行流水。
 
-合同类正式SO只由可信艾诺科销售合同接纳产生；报价/翻单准备不能在合同前独立建正式SO。加工类以后按一次客户下单批次创建，与艾诺科无关，同报价版本允许多个真实批次。创建历史、血统、认领、商业依据独立。既有执行流水不因后补血统或依据而重建。
+报价 CCT / 已确认 PV 提供确认依据；每张订单显式采用自己的不可变商业版本，可按颜色绑定同一 Revision 的不同 PriceVersion。所有订单议价在报价中心，不修改 CCT、不新增原报价方案、不换汇或重新算成本。订单中心只首次匹配及只读成交价/历史，不能重存来源覆盖议价。加工订单仅工价，由批次固定来源，不接受成衣议价或报价上下文换绑。
 
-订单金额显式采用不可变商业版本已在本地Gate2实现；本地Gate3按D-123实现加工批次双入口，两者均未合并main或部署。旧共享CCT条目仅保留历史实现背景，订单采用语义由D-122及ORDER_COMMERCIAL_VERSIONS取代；报价确认来源和金额权限保持。严禁共享报价修改静默改写已采用的订单价。历史重复SO不自动删除、搬流水或加总。
-
-跟单经理仅新增角色定义，具备认领/血统/准备及确认售价/工价查看，不默认读取测算成本；真实账号与权限未改变。合同前准备可保存原单、数量、交期及变化说明和可选精确拟报价上下文，不生成SO。本地0023后台候选可在可信合同SO认领后显式采用准备补血统，实际价格仍独立采用Gate2商业版本；本地现有UI已接，精确冻结与远端交付分别收口，历史类型不自动回填。完整批准规则见[实施计划](tasks/active/order-identity-program.md)。
-
+金额权限、CAS、幂等、审计与冻结保持。Server 完整生产排单/关账尚未实现；Browser 历史不迁入。跟单经理角色定义不代表订单有负责人，也不授予测算成本。当前实现见[商业版本](features/ORDER_COMMERCIAL_VERSIONS.md)及[业务来源](features/ORDER_BUSINESS_SOURCE.md)。
 
 ## 上线前受控接纳新增合同（D-112，2026-10-13）
 
-用户决定宁波首轮上线前支持受控接纳当前授权账号新出现的艾诺科合同。必须先完整发现、展示选中合同预览、由操作人提供目标与预览指纹明确确认；不可让持续采集自动建单。已有合同在来源中消失或身份冲突时不硬删、不猜测重绑。独立工程分支已实现此流程的合成代码与测试，但截至本记录未合并、未对真实账号或数据库执行；旧订单主信息/颜色自动刷新仍不在此范围。[工程范围](tasks/active/ainuoke-controlled-new-contracts.md)。
+用户决定宁波首轮上线前支持受控接纳当前授权账号新出现的艾诺科合同。必须先完整发现、展示选中合同预览、由操作人提供目标与预览指纹明确确认；不可让持续采集自动建单。已有合同在来源中消失或身份冲突时不硬删、不猜测重绑。此流程已进入 main；原阶段的未交付状态保存在历史文档，真实账号和数据库执行需独立范围；旧订单主信息/颜色自动刷新仍不在此范围。[工程范围](tasks/active/ainuoke-controlled-new-contracts.md)。
 
 ## 首批团队与金额边界（D-104，2026-10-12）
 
@@ -43,9 +42,9 @@
 
 - 销售价与确认工价分别由 commercial.sale.view/edit、commercial.labor.view/edit 控制；每项修改需对应查看及修改授权，加上原 Quote/Order 动作权限。Server 管理员默认四项；其他角色不默认授予，不从 Quote 成本或旧动作权限推导。
 - 用户最终确认：测算销售单价和系统最终报价同属成衣销售价展示，Server 必须有 `commercial.sale.view`；仅 `quote.cost.view` 可看内部成本，不授予这些结果。仅 sale.view 不授予内部成本；列表 `garmentPrice` 继续同时要求 cost.view + sale.view。销售价减估算成本的派生汇总另需 sale.view，Estimate/成本原权限不取消。无权显示“无权查看”，与未填/null、零不同。授权成本输入可能被用户自行推算，本规则不声称阻止这种数学推导；公式、精度、历史与默认 Browser 行为不变。
-- CCT 部分 PATCH 只处理实际提交字段，未提交保留事务内旧值；有权 null 清空、零有效。仍是 Quote/Order 一个共享 current，Quote/CCT 各自 CAS、精确 decimal、linked 币种及审计事务不变，不改历史快照。
+- CCT 部分 PATCH 只处理实际提交字段，未提交保留事务内旧值；有权 null 清空、零有效。报价 CCT 与订单采用版本按 D-122/D-145 分离；Quote/CCT CAS、精确 decimal、币种及审计事务不变，不改历史快照。
 - 受限字段在当前值、历史、导出、日志和客户端中都不得泄露或假作空值；普通订单数量/颜色/交期/物料进度不因商业金额权限被取消。Quote 内部成本保留既有独立保护。艾诺科采购价格/金额仍为团队共享执行信息，织序不可改写。
-- 现有完整 unlinked Quote 确认快照命令需两类金额授权；CCT 支持单字段修改。Server 角色管理页面/API 尚未实施，不能用 Browser mock 用户管理当作正式配置。颜色级销售价格不在本轮。
+- 经销报价确认按两类金额授权，加工确认只需工价授权；CCT 支持单字段修改。Server 角色管理已存在，不能用 Browser mock 权限代替。颜色级成交价由 D-145 承接。
 
 ## 宁波首批上线条件（D-105，2026-10-12）
 
@@ -68,7 +67,7 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 
 以下六项来自用户本轮明确确认；实现状态与技术建议见 [Quote Intake](features/QUOTE_INTAKE.md) 和 [实施契约](tasks/active/quote-intake-v1-implementation-contract.md)。不得把确认规则等同于已上线能力。
 
-- **QI-01 加工显示与计算**：加工报价突出工价与工序；面辅料编辑默认隐藏，但已有数据、ID、价格、数量、来源不删除或清零。现有公式保持不变，UI 隐藏不排除内部材料成本，包含材料的成衣价格不能标成纯加工报价。对外 Excel 计算范围变更须另行确认。
+- **QI-01 加工显示与计算**：加工报价突出工价与工序；面辅料编辑默认隐藏，但已有数据、ID、价格、数量、来源不删除或清零。现有公式保持不变，UI 隐藏不排除内部材料成本，包含材料的成衣价格不能标成纯加工报价。D-145 已批准加工对外报价和内部汇总只输出适用工价；旧面辅料及成衣金额事实保留，不写空。
 - **QI-02 类型切换**：QuoteType 属于整个 Revision。未发生客户确认时，经明确确认可修改当前可编辑 Revision；任一价格版本已有客户确认时必须创建新 Revision，再切换类型，保留旧历史及确认事实，新 Revision 沿用现有创建规则。必须检查 linked ConfirmedCommercialTerms 与 SalesOrder provenance，不清空共享当前确认，不允许 generic PUT 绕过。
 - **QI-03 权限范围**：Intake 默认本人可见；查看或编辑他人记录须明确授权，不按管理员或前端角色名称推断数据范围。收集权限不授予 Quote 成本、正式报价管理或全局设置权限；actor/创建人仅由可信 Server session 派生。
 - **QI-04 转换与保留**：V1 每条 Intake 最多转为一张正式 Quote，具有数据库唯一约束、幂等命令与恢复查询；成功后冻结原始资料、保留原图与来源快照。允许重复款号，不以款号/图片 hash 自动合并；正常转换不物理删除原图或来源。
@@ -125,7 +124,9 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 - 3000 与 3001 是不同 Origin，默认不共享浏览器数据；复制验收数据必须使用显式备份/恢复。
 - 自动化测试只使用注入的 test namespace，不得清理或读写 DEV 浏览器数据。
 
-### 当前本地单用户开发身份（D-093）
+### 历史本地单用户开发身份（D-093，仅显式本机开发）
+
+当前 Server 正式/多人验收使用可信 session；下列 local-single-user 是保留的受限开发模式，不是默认生产账号策略。
 
 - 当前开发阶段的 Server Authority 使用显式 `local-single-user` 身份模式，不要求用户输入织序账号密码或持有 session cookie；其权限集合为完整 `PermissionKey` 目录。该模式不是生产多用户认证模型，不得在未经单独安全评审的公网部署中启用。
 - 所有 Server business service 仍通过可信 `TrustedIdentity`、权限键、事务和 OperationLog 边界工作；请求 body/header 不能选择 actor。现有 `app_users` 兼容行只承担审计 FK，不是当前登录账号。Legacy 根路径 ERP 登录不在本规则变更范围。
@@ -196,9 +197,9 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 - Production country 只属于 Quote / Quote PriceVersion 上下文；正式 server SalesOrder 不增加 `productionCountry`，也不迁移 Browser 同名字段。Scheduling `ProductionSite`/实际执行地是不同业务概念，不得重命名或混同。
 - Ainuoke 工艺单/合同交期是只读 source fact。Zhixu `DeliveryPlan` 是可编辑、可展开多行的客户交付要求/计划 domain，修改计划不得改写 source delivery date；详情后续必须将 source date 以弱化的次要文字另行保留。
 - Ainuoke SalesOrder 首次创建且存在有效 source delivery date 时，初始化一条同日期的默认 DeliveryPlan。只要用户从未编辑、拆分、新增或其他手工改动整个集合，该 untouched system-derived default 才可跟随后续 source date 变化。一旦发生任何用户介入，整个 DeliveryPlan collection 转为 Zhixu-owned；后续 source refresh 只更新 source fact，不覆写用户计划，差异只通过 drift/reconciliation 显式呈现。具体 flag/列名由后续实现决定，但必须能确定性区分两种所有权状态。
-- 对已在同一业务流中关联的 Quote 与 SalesOrder，“客户确认价格”和“确认工价”分别是一个共享的当前业务事实。Quote Center 与 Order Detail 都可编辑这两项当前数值，任一修改都必须在另一表面读到同一结果，并用可信 actor 记录 timestamp、old value 和 new value。精确 linked context 的工价币种 qualifier 由 Quote PriceVersion 语义建立；Order 只能保留并只读显示，不能独立选择、更改或在未知时猜测。历史 Quote Revision/PriceVersion 快照不回写；完整 Quote/Order PriceVersion 不做 live-link，面辅料成本、margin、汇率、加工假设、Quote production country 及其他字段仍独立。未关联 Quote 的 SalesOrder 不得伪造 Quote 关系。
-- C4.2 implementation 将该规则落为独立 Server current domain：客户确认价格固定解释为 CNY/件；确认工价保留明确的 `CNY|USD` 币种，金额缺失保持 `NULL` 而不是 0。精确 Quote provenance 可由多张 formal SalesOrder 共享同一个 terms identity；无 Quote provenance 的 SalesOrder 只创建自己的 order-owned context，且可由 Order 明确选择工价币种。Quote-linked Order 在币种尚未由 Quote 建立时提交工价必须 fail closed。该实现不迁移 Browser confirmation，不改变历史 Quote snapshot，也不授权真实数据库 activation。
-- C4.2 之外的上述 C4 规则仍未实现。Customer/Brand master mapping、orderDate 语义、source style 向 Zhixu Style master 的长期关系、超出当前 source/adjustment 规则的颜色人工模型、settlement/pricing basis、execution snapshots、attachments、process/customer requirement/inspection/remark 语义以及 Browser retirement 细节仍为 pending。
+- 原 D-084/D-087 的订单共享当前金额与订单编辑入口由 D-122/D-145 替代：报价确认源与订单实际采用版本分开，报价变化不得覆盖订单。历史原文见本页归档；金额精度、权限和审计保护继续。
+- CCT 仍是独立报价确认领域；销售价 CNY、工价 CNY/USD、NULL 与零严格区分。旧订单 CCT 写入口拒绝，新订单价格读取独立商业版本。
+- 未闭环范围（不能由已实现的商业版本推定完成）：Customer/Brand master mapping、orderDate 语义、source style 向 Zhixu Style master 的长期关系、超出当前 source/adjustment 规则的颜色人工模型、settlement/pricing basis、execution snapshots、attachments、process/customer requirement/inspection/remark 语义以及 Browser retirement 细节仍为 pending。
 
 - `SalesOrder` 同时是订单身份和单款执行单位；一张 SalesOrder 只允许一个款式。同一客户 PO 可以对应多张不同订单，但订单号 trim + case normalize 后必须唯一。
 - 订单来源为 `manual | quote | reorder | ainuoke`。报价生成订单时，Quote/Revision/PriceVersion 来源 ID 直接保存在 SalesOrder；翻单只保存 `sourceOrderId` 并生成新的 SalesOrder 与 P1，`sourceOrderItemId` 已废弃。

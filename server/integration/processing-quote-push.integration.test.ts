@@ -20,6 +20,11 @@ import {createProcessingBatch,previewProcessingBatch,confirmProcessingBatch,cons
 import {updateConfirmedCommercialTermsByQuote} from '../confirmed-commercial-terms/service.js';
 import {createCustomerExportService} from '../quotes/customer-export.js';
 import {createInternalSummaryService} from '../quotes/internal-summary.js';
+import {adoptColorSource,previewColorSource} from '../sales-orders/color-commercial.js';
+import {readCommercialCandidate} from '../sales-orders/commercial-source.js';
+import {productHash,quoteProductSnapshot} from '../sales-orders/product-snapshot.js';
+import {createServer} from 'node:http';
+import {createApp} from '../app.js';
 
 test('processing quote sync reuses quote confirmation, batches and per-order commercial snapshots',{timeout:180000},async t=>{
  const db=await startDisposablePostgres(),pool=new pg.Pool({connectionString:await db.createDatabase('processing_quote_push')});t.after(async()=>{await pool.end();await db.stop();});await runMigrations(pool,resolve('database/migrations'));await synchronizePermissionCatalog(pool);
@@ -49,5 +54,40 @@ test('processing quote sync reuses quote confirmation, batches and per-order com
  });
  await t.test('customer workbook and internal summary contain labor only for processing',async()=>{const q=await quote(),rev=q.revisions.find(r=>r.revisionId===q.defaultRevisionId)!,file=await createCustomerExportService(pool).generate({...actor,permissions:actor.permissions.filter(p=>p!=='commercial.sale.view')},q.id,{expectedVersion:1,revisionId:rev.revisionId,priceVersionIds:rev.priceVersions.map(p=>p.id)}),workbook=new ExcelJS.Workbook();await workbook.xlsx.load(file.bytes as unknown as ArrayBuffer);const contents=workbook.worksheets.flatMap(s=>s.getSheetValues()).flat(3).join(' ');assert.match(contents,/客户确认工价/u);assert.doesNotMatch(contents,/面料|辅料|成衣销售|888\.25|777\.125/u);
   const service=createInternalSummaryService(pool,async table=>{assert.ok(!table.headers.some(h=>/面料|辅料|销售|成衣/u.test(h)));return {buffer:new ArrayBuffer(4),fileName:'synthetic.xlsx',rowCount:table.rows.length,headers:table.headers};});await service.generate(actor,{items:[{quoteId:q.id,expectedVersion:1}],columns:['quote','fabricCost','trimCost','labor','garmentPrice','confirmedLabor','confirmedGarment'],rowMode:'price-version',estimateColumns:['estimateTotal','estimateDifference']});
+ });
+ await t.test('direct source submission cannot replace a processing batch basis, even with a valid fingerprint',async()=>{
+  const q=await quote(),result=await pushProcessingQuotes(pool,actor,await plan(q.id));
+  assert.equal(result.results[0].status,'processed');if(result.results[0].status!=='processed')return;
+  const id=result.results[0].items[0].salesOrderId!,before=await readOrderCommercialState(pool,id);
+  const selection={kind:'quote' as const,quoteId:q.id,revisionId:before.current!.revisionId,priceVersionId:before.current!.priceVersionId};
+  const c=await pool.connect();let fingerprint:string;
+  try{
+   const source=await readCommercialCandidate(c,{quoteId:selection.quoteId,revisionId:selection.revisionId,priceVersionId:selection.priceVersionId}),product=await quoteProductSnapshot(c,source);
+   const lines=[{colorId:null,colorName:null,quantity:null,priceVersionId:selection.priceVersionId,priceVersionName:String(product.productSnapshot.priceVersion.name??''),source,product:product.productSnapshot,productHash:product.productHash,baseSalePrice:source.salePrice,salePrice:source.salePrice,laborPrice:source.laborPrice,laborCurrency:source.laborCurrency}];
+   fingerprint=productHash({selection,lines});
+  }finally{c.release();}
+  const snapshot=async()=>({
+   commercial:await readOrderCommercialState(pool,id),quote:await repo.getById(q.id),
+   orders:(await pool.query('SELECT to_jsonb(o) data FROM sales_orders o WHERE id=$1',[id])).rows,
+   batches:(await pool.query('SELECT to_jsonb(b) data FROM processing_order_batches b WHERE quote_id=$1 ORDER BY id',[q.id])).rows,
+   auditCount:(await pool.query('SELECT count(*)::int n FROM operation_logs')).rows[0].n,
+  }),unchanged=await snapshot();
+  await assert.rejects(()=>previewColorSource(pool,actor,id,selection,q.id),{code:'processing_order_source_fixed_by_batch'});
+  const command={selection,requestId:randomUUID(),expectedVersion:before.version,fingerprint,reason:'Synthetic direct submission without preview'};
+  for(const request of [command,command,{...command,requestId:randomUUID()}]){
+   await assert.rejects(()=>adoptColorSource(pool,actor,id,request,q.id),{code:'processing_order_source_fixed_by_batch'});
+   assert.deepEqual(await snapshot(),unchanged);
+  }
+  const origin='http://processing-source-test.invalid',server=createServer(createApp({pool,allowedOrigins:[origin],security:{secureCookies:false,sessionTtlSeconds:3600},identityAuthority:{mode:'session',resolve:async()=>actor,verify:async()=>undefined}}));
+  await new Promise<void>(done=>server.listen(0,'127.0.0.1',done));
+  try{
+   const address=server.address();assert.ok(address&&typeof address==='object');
+   const url='http://127.0.0.1:'+address.port+'/api/v1/quotes/'+q.id+'/orders/'+id+'/business-source',headers={Origin:origin,'Content-Type':'application/json','X-Zhixu-Request':'1'};
+   for(const [path,body]of [[url+'/preview',selection],[url,command]] as const){
+    const response=await fetch(path,{method:'POST',headers,body:JSON.stringify(body)});
+    assert.equal(response.status,409);assert.equal((await response.json()).error.code,'processing_order_source_fixed_by_batch');
+   }
+   assert.deepEqual(await snapshot(),unchanged);
+  }finally{await new Promise<void>((done,reject)=>server.close(e=>e?reject(e):done()));}
  });
 });

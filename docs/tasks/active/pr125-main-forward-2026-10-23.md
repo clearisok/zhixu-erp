@@ -15,3 +15,9 @@
 源码36507203ed4f53f132674478f9ecf8e39b6f397a新134/134发布（513181.8739ms）、42/42运维（16868.1722ms）、804/804其余源码均通过，零失败/取消/跳过；显式be9门禁PASS（11页/46能力/0UI，errors=[]）。独立Gitarchive SHA256=3ab883b0dcd212b91ae655504f903e8a8d9c390891b2a420954746d9bd1a5496，tree=bfe376f4cb6cbc126155c6166b170603cfea6720，仓库外新临时上下文仅接既有node_modules junction、不安装，类型/Server编译/lint及Browser/Server/session/snapshot两构建均通过，build-info完整commit=36507203。原根工作树ignored旧镜像上下文未删未改，不放宽tsconfig。
 
 独立静态复审核实17个原Dockerfile/ops/测试blob、main保护、共享解析器与workflow组合、旧215/46、新217见证及12归档，无P1/P2。相同共享工具75在0494已通过，仅保留工具源码范围；本树Hosted CI仍独立核对。没有新镜像构建、持久化演练/目标init或用户运行态更新，不把旧r7/8175/d084/READY写成新结果。最终文档门禁、一次交付和三CI另核。
+
+## 已批准PR120之后的前向主线
+
+用户仅批准#120并已完成main d1dd精确双父/tree核对。root从clean e971保留原Gate7E分支后，以clean4cf建立codex/pr125-main-d1dd-forward，正常merge d1dd。首个自动范围检查发现第五处BUSINESS_RULES而停止，未扩大范围或提交；实际核对五冲突均文档/manifest。保留D147空库目标/CNY销售/USD工价和main已批准的D145/来源校准，已替代旧说明归档不删除，不改业务决定。两侧10份Gitblob逐字归档；原217/main219并集223，46能力与运行/截图不变。自动业务合流仅已批准main的五个价格/加工相关路径，原17ops源码保持。真实H绑定、新组合QA和交付CI尚待，不借原365或r7结果。
+
+本轮cached whitespace仅命中三份冻结历史BUSINESS_RULES归档的原末尾空行；staged blob分别与main/4cf原blob完全一致，未为消除告警重写历史。精确排除此三文件后，本阶段其余增量检查通过。

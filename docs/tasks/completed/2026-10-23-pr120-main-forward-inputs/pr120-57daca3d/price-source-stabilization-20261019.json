@@ -1,0 +1,14 @@
+{
+  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "level": "V1",
+  "paths": [
+    "features/order-center/components/order-color-prices.tsx"
+  ],
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "修复同方案不同颜色成交价被第一项价格掩盖的汇总；同价异方案保持分组，混合价格摘要不再误标不适用。无新导航或价格写入口。",
+  "evidence": [
+    "docs/tasks/active/price-source-stabilization-2026-10-19.md"
+  ]
+}
