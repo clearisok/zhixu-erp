@@ -4,7 +4,7 @@
 
 [当前恢复切片](tasks/active/server-current-target-recovery-2026-10-23.md)：产品image源5e0967cdfd22e998d564c9a139622f8de39e3b8d，image ID85f49cbe94cf63442db24b502b52a637de226f78d2e660d6059aff9c4ad99079；构建Server及46路由0skip通过。最终driver848acfc721de8f0ae5ad2390ddbfac984f573829仅测试/文档变化，沿用原镜像、不重标源码。新随机双项目9/9恢复通过411361.7715ms、0fail/cancel/skip：108张表中70非空/38未覆盖、5sequence、43迁移；原ID、全库指纹、对象字节、商业/生产/来源历史保持。0044启停回执1/2/3版恢复后仍为历史，跨库旧预览拒绝，新预览停用至4版；没有真实Source或实际target启用。
 
-[冻结工程报告](tasks/completed/2026-10-23-current-target-command-recovery-engineering.md)保留Windows长argv失败（仅driver改stdin）、第二轮start失败及确认的Docker地址池耗尽。仅释放本轮13停止容器/5空网络，179卷名称、私密输入/备份和所有无关容器/网络保持；不声称卷内容逐字校验。最终同代码/同镜像复验成功，不无限重试。纯10/scoped lint/848 actual-main守卫通过，发布回归和最终HEAD守卫/远端交付仍分别待核，不冒称Hosted CI通过。
+[冻结工程报告](tasks/completed/2026-10-23-current-target-command-recovery-engineering.md)保留Windows长argv失败（仅driver改stdin）、第二轮start失败及确认的Docker地址池耗尽。仅释放本轮13停止容器/5空网络，179卷名称、私密输入/备份和所有无关容器/网络保持；不声称卷内容逐字校验。最终同代码/同镜像复验成功，不无限重试。纯10/scoped lint/848 actual-main守卫通过。稳定b8c6937170a93fd7105f26472f107866c4000ae3发布134/134通过570330.8831ms，0fail/cancel/skip；前后HEAD/清单hash/clean保持。独立增量复审核对23证据hash、原330对象/59能力和成本评估，未发现P1/P2，复审者未运行测试。最终状态提交的精确门禁及验证引用交付分别存本机回执；没有Hosted CI运行或PASS声明。
 
 [成本策略与评估](tasks/active/ci-cost-control-2026-10-23.md)：当前无Push+PR重复触发，三个验证workflow无并发取消/npm cache，超时15/20/30分钟。建议先加PR过时取消和下载缓存，保持检查名及全部测试；范围选择先验证依赖与required checks。本轮未改workflow，不触发新付费CI，不重复已通过全项目/UI测试或同产品镜像构建。
 

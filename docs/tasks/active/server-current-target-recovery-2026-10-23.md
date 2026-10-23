@@ -81,3 +81,9 @@ clean driver `848acfc721de8f0ae5ad2390ddbfac984f573829`、原5e096镜像在第�
 用户已确认Billing修复与USD5月预算。按[成本评估](ci-cost-control-2026-10-23.md)保留
 必要合并检查，不重跑旧计费失败或反复派完整CI。原“Billing未处理”保留为各时点历史，
 本轮没有付费运行或新PR；后续交付仍遵守独立精确SHA核对与禁止重复累计PR。
+
+## 发布回归收口
+
+稳定b8c6937170a93fd7105f26472f107866c4000ae3发布134/134通过570330.8831ms，0fail/cancel/skip；前后HEAD/清单hash/clean保持。独立增量复审核对23证据hash、原330对象/59能力和成本评估，未发现P1/P2，复审者未运行测试。
+
+15:06:33Z独立API main仍d1dd、五草稿heads不变。最终仅四状态文档commit，随后对精确最终HEAD运行一次actual-main守卫；不重跑unit10、9/9恢复、同产品镜像、全项目或UI。新成本策略下不派CI/重跑旧失败、不新建累计重复业务PR；作为验证引用交付，最多一次既有安全工具Execute、独立核实远端，任何STOP不重推。最终本机回执见ignored outputs/goal-next-audit-20261023-c54baa4d/final-closure.json。
