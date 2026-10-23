@@ -2504,6 +2504,25 @@
       "sha256": "b1feb8616504e748dbe772f2c60d034a0926d3d3925e72f76fe35ffdfe24f584",
       "supersedes": "production-main-e061-import-20261023",
       "changeReason": "Freeze the unchanged side document at actual merge H with exact comparison main be9 and independent original cumulative7c parent. Retain every original evidence object, business rule, approval and runtime dimension; no new Source request, business write, UI or deployment."
+    },
+    {
+      "id": "decisions-garment-collection-control-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "9fc4b8d839f7b7d5123d0f2cddfd08da38e6a2aa",
+      "renderedSourceSha": "9fc4b8d839f7b7d5123d0f2cddfd08da38e6a2aa",
+      "sha256": "b53f0292f257d6f547b11214424a662e14fe4d3ad5a1b68e017295eba83debc6",
+      "supersedes": "decisions-main-be9-import-20261023",
+      "changeReason": "D158 adds a default-unmounted, first-page-scoped durable garment collection controller and atomic receipts. Preserve D152/D153, every old evidence/status/approval and runtime; no real request, activation, user DB mutation or deployment."
+    },
+    {
+      "id": "garment-collection-control-feature-20261023",
+      "kind": "document",
+      "path": "docs/features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md",
+      "recordedAtSha": "9fc4b8d839f7b7d5123d0f2cddfd08da38e6a2aa",
+      "renderedSourceSha": "9fc4b8d839f7b7d5123d0f2cddfd08da38e6a2aa",
+      "sha256": "727f8b7bd35e77c4ea3b916ade3bb58c7e3e494758b3dd3e650d77a730183531",
+      "changeReason": "D158 adds a default-unmounted, first-page-scoped durable garment collection controller and atomic receipts. Preserve D152/D153, every old evidence/status/approval and runtime; no real request, activation, user DB mutation or deployment."
     }
   ],
   "pages": [
