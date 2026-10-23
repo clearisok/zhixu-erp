@@ -127,7 +127,9 @@ export function checkBuildArtifacts({ root = process.cwd(), env = process.env } 
   for (const route of expectedRoutes) {
     const stem = route === '/' ? 'index' : route.slice(1);
     const html = requiredFile(client, `${stem}.html`);
-    if (!/<html(?:\s|>)/iu.test(html) || !/<body(?:\s|>)/iu.test(html) || !/<\/html>/iu.test(html)) fail('invalid_html');
+    // Vinext exports its default 404 response verbatim as "Not Found".
+    const defaultFallback = route === '/404' && html === 'Not Found';
+    if (!defaultFallback && (!/<html(?:\s|>)/iu.test(html) || !/<body(?:\s|>)/iu.test(html) || !/<\/html>/iu.test(html))) fail('invalid_html');
     for (const [tag] of html.matchAll(/<(?:[^"'<>]|"[^"]*"|'[^']*')+>/gu)) {
       const attributes = [...tag.matchAll(/\s+([A-Za-z][A-Za-z0-9:-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/gu)]
         .map(match => ({ name: match[1].toLowerCase(), value: match[2] ?? match[3] ?? match[4] ?? '' }));

@@ -2,7 +2,7 @@
 
 2026-10-24续；root唯一writer，既有reviewer只读。codex/build-artifact-completeness从actual main d1dd4f0fcf9992d5c055c7b67b6832b635485680新建，再FF明确Goal依赖f4f8f61e7535bd678f8dfcf3e22143747b6e03c1；baseline clean。完整G1–G5仍active。
 
-本片package.json原build后强制check-build-artifacts.mjs、测试/V0及文档。ca917干净Browser实际46路由完整，但新门禁拒绝CSS-only空壳JS预加载；fail-fast未跑Server。原失败/context保留。独立复审核实plugin-rsc/Vite先后导致悬空提示，不证明运行JS缺失。新规则只对非manifest的link modulepreload缺文件报告warning；实际script/stylesheet/清单仍FAIL，防data-rel/title/混合/重复rel冒充。14项/lint通过，另修复引号内大于号分词P2；最终复核、新source双模式实际构建及发布门禁待。先提交干净source，再新自有长路径archive/原依赖各构建一次；不覆盖原失败、不安装/重建Docker/重跑旧DB。预加载404仍已知，不能说修好或零404。
+本片package.json原build后强制产物检查。ca917/9f79真实Browser均46页完整，先后被CSS-only预加载及默认纯文本404拒绝，原失败保留、Server均未启动。新规则仅非manifest的link modulepreload缺文件显式warning；实际script/stylesheet/清单仍FAIL。框架默认/404精确Not Found例外，普通页面/截断不放行；dotenv、quoted >两P2均闭合，最后例外独立复审无P1/P2。tests/build-artifacts.test.mjs移入原npm test入口，15项/lint通过；新source两模式正式构建及发布门禁仍待。9f79产物只读兼容PASS不是新构建。新source先clean commit，再新自有长路径archive/原依赖各构建一次；不覆盖原失败、不安装/重建Docker/重跑旧DB。预加载404仍已知，不能说修好或零404。
 
 #123远端CB cb1658d97485bbf6c529660fffb50215548fffcd、main未变。team39978341735、baseline39979177113、source39979170713三workflow_dispatch success，但不满足PR required checks，PR仍旧pull_request计费失败；不称PR全绿或可合并，不再派本轮付费CI。真正准备合并时使用正确PR事件。ignored outputs/pr123-merge-ci-20261023保存API、事件绑定及唯一watch证据。#121/#122是CB祖先，#124在#125，CB/CA互不包含；不重做CB未变本地测试。
 

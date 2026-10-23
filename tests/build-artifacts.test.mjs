@@ -5,9 +5,9 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkBuildArtifacts, staticAppRoutes } from '../check-build-artifacts.mjs';
+import { checkBuildArtifacts, staticAppRoutes } from '../scripts/check-build-artifacts.mjs';
 
-const script = fileURLToPath(new URL('../check-build-artifacts.mjs', import.meta.url));
+const script = fileURLToPath(new URL('../scripts/check-build-artifacts.mjs', import.meta.url));
 function fixture(t, server = false) {
   const root = mkdtempSync(join(tmpdir(), 'zhixu-build-artifact-test-'));
   t.after(() => rmSync(root, { recursive: true }));
@@ -82,6 +82,15 @@ test('missing or empty HTML, RSC, fallback and build metadata cannot pass', t =>
   }
 });
 
+test('only the default 404 may use the exact framework Not Found response', t => {
+  const fallback = fixture(t); fallback.put('dist/client/404.html', 'Not Found');
+  assert.equal(fallback.check().status, 'PASS');
+  for (const [name, value] of [['index.html', 'Not Found'], ['404.html', 'arbitrary partial response']]) {
+    const f = fixture(t); f.put(`dist/client/${name}`, value);
+    assert.throws(f.check, /build_artifacts_invalid_html/u);
+  }
+});
+
 test('stale or mismatched build identity, authority and malformed metadata fail', t => {
   for (const field of ['gitCommit', 'buildId', 'buildTime', 'quoteAuthority', 'orderRead', 'identityMode', 'masterSettingsAuthority', 'quoteWriterMode']) {
     const f = fixture(t, true);
@@ -122,7 +131,7 @@ test('actual CLI rejects an incomplete build with nonzero exit and no raw errors
 });
 
 test('the formal npm build requires the artifact guard after compilation', () => {
-  const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
   assert.equal(pkg.scripts.build, 'vinext build && node scripts/check-build-artifacts.mjs');
 });
 

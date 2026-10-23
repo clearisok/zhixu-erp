@@ -70,6 +70,20 @@ script、stylesheet或manifest依赖时仍FAIL；data-rel、title中的文本、
 unit-quoted-tag.log和lint-quoted-tag.log。新source两模式实际构建、
 最终发布门禁及独立复审仍待，不借用ca917的失败或前f4f成功冒充。
 
+随后干净9f79270902e3380c3e36c173229e985fa89e721a的Browser正式构建同样rendered46/0skip，
+门禁在最后404报invalid_html，Server仍按fail-fast未运行。只读核对发现404.html恰为9字节
+Not Found；锁定vinext的build/prerender.js:717–727将404 Response.text原样输出，
+server/http-error-responses.js:33提供该默认文本。这不是普通页面截断。
+现仅/404且内容精确等于Not Found可无HTML壳；自定义404仍需完整HTML，缺失/空文件、
+其他页面纯文本及任意截断继续失败。独立复审此例外无P1/P2；15/15及lint通过。
+用新checker只读复验保存的9f79产物为45页面+1fallback、116资源、1个已知预加载warning；
+只说明检查兼容性，不是新源码实际构建。原两个失败context/日志均保留。
+
+定向用例从scripts/__tests__移至tests/build-artifacts.test.mjs，以自动进入现有npm test
+及First team access的根测试入口，不改workflow触发器/检查名。移动后15/15与scoped lint
+再核通过，日志unit-root-entry.log/lint-root-entry.log；未借此重跑未变的954业务测试。
+接下来新干净source双模式各正式构建一次及最终发布门禁，结果仍待实际登记。
+
 #123@cb1658的验证是独立对象：team39978341735、baseline39979177113、source39979170713
 三次workflow_dispatch已success。但官方及实际API确认手动事件不满足PR required checks，
 PR仍显示旧pull_request计费失败，不能称PR全绿或可合并。这次事件选择未达到补齐PR检查
