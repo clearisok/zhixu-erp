@@ -95,6 +95,13 @@ package.json工具接线及不存在的build-pipeline列为UI。原isUiPath并�
 失败日志保留，当前仅任务范围说明。不是移走实际UI路径/降低设计审查，继承的87条
 UI输入仍按原记录校验。前置FAIL使134未启动；待新clean文档checkpoint再运行守卫。
 
+ef08dee1e83e87b7b7fbd6690d890210acab75aa最终本地收口：精确d1dd守卫PASS，唯一完整
+发布134/134通过333821.0794ms，0fail/cancel/skip，HEAD/清单/clean稳定，构建代码对
+c721无diff。全diff和分类纠正独立复审无P1/P2。上文待验/失败为发生时事实，原文和
+日志均保留；[证据续记](../completed/2026-10-24-build-artifact-guard-engineering.md)冻结
+实际source/结果/hash。最后文档commit再按同main核对；新分支仅一次安全交付验证引用，
+预检异常即停，不重推旧F、不新建累计PR、不另派Hosted CI。本片不等于完整Goal完成。
+
 #123@cb1658的验证是独立对象：team39978341735、baseline39979177113、source39979170713
 三次workflow_dispatch已success。但官方及实际API确认手动事件不满足PR required checks，
 PR仍显示旧pull_request计费失败，不能称PR全绿或可合并。这次事件选择未达到补齐PR检查

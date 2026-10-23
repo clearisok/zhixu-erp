@@ -66,3 +66,27 @@ ignored目录outputs/server-build-artifact-guard-20261023，原文件及失败co
 本片当前只本地checkpoint，未送达/新建PR，不冒充远端PASS。旧refs、3001及其他入口、
 业务库/账号、Browser数据、卷和备份均未修改。无真实采集、target激活/调度、运行切换、
 部署、退役、merge或close。
+
+## 收口续记（保留上文发生时状态）
+
+388560首次精确守卫只拒多余的本片UI记录：原分类器不把package.json后置工具门禁
+当作UI编译输入，build-pipeline也不是登记页。被拒原文移至同目录
+2026-10-24-build-artifact-initial-ui-record.json，迁移前后Git blob同为
+77729df6c3e85044745ff20a27dc4aa104939747；不改分类器、页清单或原87个UI输入。
+首轮前置FAIL后134未启动，原日志保留，不改写为通过。
+
+随后干净ef08dee1e83e87b7b7fbd6690d890210acab75aa：
+
+- 精确d1dd守卫PASS：11页/59能力/87变动UI输入、errors空。
+- 发布134/134、0失败/取消/跳过，333821.0794ms；只运行这一份完整回归。
+- 开始/终态HEAD、manifest SHA256及clean完全相同；相对c721的package/checker/test代码
+  diff为空。未重跑双构建、15项或旧业务/数据库/恢复。
+- 全diff独立审查、错误记录分类复核均无剩余P1/P2，只读审查没有自行运行测试。
+- ignored release-result-ef08dee1.json保存完整终态，原守卫日志SHA256为
+  f11e22777ee48a2d4a22ee7571dbfe5ec0bc88928b4838fa1d5e0919f00e83ac，
+  134日志为515cdc1388e8d685443c2f5bb06b31365fe96a45e4f86db9b885afce2f2589b2。
+
+之后只允许状态文档收口，最终提交仍须精确d1dd守卫和既有交付协议核实。
+新分支仅验证引用，不新建累计业务PR；只有直接Git只读预检READY_DRY_RUN/NORMAL、
+身份/祖先/clean通过，才一次首交付。新STOP即停、独立核实，不重推旧F或换认证。
+这不是新Hosted CI授权使用计划，不刷新#123旧失败状态，不代表永久网络恢复。
