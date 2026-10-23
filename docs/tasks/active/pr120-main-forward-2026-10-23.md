@@ -25,3 +25,11 @@
 最终干净 checkpoint 后验证原本地分支仍 57d、未在其他工作树占用，remote 原 PR 也仍同 head。可将原本地分支非强制快进至整合提交，使用既有同名安全工具一次交付并独立核对完整 SHA，再更新唯一 #120 说明并检查新三 CI。无法证明映射/祖先/干净树即停止相关动作。不创建重复 PR，不自动合并或关闭。
 
 完整 Goal 仍 active；[累计候选记录](https://github.com/clearisok/zhixu-erp/blob/7c0c027334e49ae9c3c833f45cc1aeccb05d52e5/docs/tasks/active/candidate-main-forward-2026-10-23.md)是独立冻结事实，不随本分支复制其他业务代码。#126 已合并，#127 已验收仍草稿。固定真实查询额度已消耗，不再读取。所有旧入口、卷、工作树、账号和业务数据保护；不部署、切换、来源激活、调度或退役。
+
+## 第二阶段：共享CI修复的前向整合
+
+原e872精确送达、PR冲突解除，但新Release39889936426使用旧event base=996，实际checkout993父为[e061,e872]。另两CI39889936721/39889936322已success。失败不覆盖。独立PR128的5f6482cb只修CI上下文，134+19本地/门禁与Release/Team CI通过，Source attempt1在Chromium端点就绪前失败，根因未定。当前前向整合该相同原始工具提交，未等同于合并main。双方摘要[逐字保留](../completed/2026-10-23-pr120-ci-context-inputs/)。
+
+K须保留parents=[e872,5f]；原五个产品/测试/演示文件保持57d，新增workflow/解析器/测试保持5f；guard/134测试保持e061。217证据/46能力、旧H见证及V1 UI impact不变，无新产品或Source范围。新组合的134/19和精确main门禁待执行，原应用结果仍属于1b64相同源码。只更新唯一#120，不自动merge/close或部署。
+
+2026-10-23后续CI观察：PR128 Source39893272059 attempt1在第一项私密Chromium端点20秒就绪等待中失败，尚未进入页面断言，实际1项0通过/1失败。Release/Team成功不抵销该失败；原日志保留。其Source workflow、Chromium helper及应用与已成功的e872 Source相同，先做固定SHA/同job的有界核对，不延长超时、不跳过测试、不宣称已三绿。

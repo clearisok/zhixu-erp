@@ -1,8 +1,8 @@
 # 项目知识索引
 
-2026-10-23 当前独立 PR120 前移：main `e06162c70c9792895c30030216dc8c2a66368069` 已含 #126；只整合原 #120 两项价格/来源修复及原历史。H=5deb8759、绑定源码=1b64e27f；新 134+804 源码、34 DB/API、6 Chromium 及干净快照类型/lint/构建通过，远端/新 CI 待核实。先读 [CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md) 与 [本阶段任务](tasks/active/pr120-main-forward-2026-10-23.md)。双方原摘要及 UI impact 已[逐字归档](tasks/completed/2026-10-23-pr120-main-forward-inputs/)。
+2026-10-23：原PR120继续整合共享CI修复，main精确`e06162c70c9792895c30030216dc8c2a66368069`。原e872已精确送达、Team/Source CI通过，但Release使用旧payload基线而失败。独立PR128工具5f6482cb本地134+19与Release/Team CI通过，Source attempt1在私密Chromium端点就绪前20秒超时而失败，原日志保留，尚未证明根因；当前只前向合入同一工具提交，业务源码不变。先读CURRENT_STATE、AI_HANDOFF及[原任务](tasks/active/pr120-main-forward-2026-10-23.md)，双方摘要[逐字归档](tasks/completed/2026-10-23-pr120-ci-context-inputs/)。不自动合并任何PR或部署。
 
-完整 Server 收敛 Goal 仍 active；累计候选、固定真实读取及后续边界见 [独立累计阶段冻结记录](https://github.com/clearisok/zhixu-erp/blob/7c0c027334e49ae9c3c833f45cc1aeccb05d52e5/docs/tasks/active/candidate-main-forward-2026-10-23.md)，不表示该候选已合并或部署。当前报价/来源规则 D-145 不变；旧恢复流水按日期阅读。
+完整目标未完成，累计及固定真实读取见[7c冻结记录](https://github.com/clearisok/zhixu-erp/blob/7c0c027334e49ae9c3c833f45cc1aeccb05d52e5/docs/tasks/active/candidate-main-forward-2026-10-23.md)；已用额度不重读。
 
 ## 系统简介
 
