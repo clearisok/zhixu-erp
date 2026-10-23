@@ -25,3 +25,5 @@ main d1dd4f0fcf9992d5c055c7b67b6832b635485680及五个草稿PR121–125已由独
 原target20/20通过14016.558ms，0fail/cancel/skip。首次Server编译及scoped lint退出0。操作者首轮25项23pass/2fail（436062.3783ms，0cancel/skip）：失败为新目标全链的采集成功断言及其父test，实际返回COLLECTION_NOT_PUBLISHED；原采集/恢复全部通过。新fake worker只推进10ms，而原workerFrame第一条capture在结束前20ms，导致首条落在本次开始之前。夹具按原操作者测试改为推进100ms；不放宽生产时间校验、不重试真实请求。此原失败日志保留initial-operator.log。
 
 独立实际diff复审无P1/P2；非阻断建议将公开action转字符串改为严格枚举，已采用。真实COMMIT后响应丢失、报告落盘失败、缺证明/profile停用、意图冲突/fresh权限/CAS等新负测在首轮通过；dirty子进程仅正确拒绝执行，不能冒充clean正控。接下来保存source checkpoint，再精确native构建及clean目标/纯测试；最终结果另记，不预报通过。
+
+source7ece2f5a2a8c290fa15c0e35426748abf5840201上新纯测试7/7通过19365.2922ms，clean目标全链8/8通过238629.8621ms，均0fail/cancel/skip；后者实际源码子进程依次plan/apply/删除证明后receipt正控通过，没有Source IO，前后HEAD保持、dirty空。初次精确native全量typecheck退出2（33859ms），四处均是新增测试的联合返回类型/字段缩窄问题；后续只修正测试类型声明和一条字段存在断言，业务源码不变。原exact-qa失败目录保留，新的精确QA另写exact-qa-final，不覆盖失败。目标集成测试的可执行转译字节需与7ece比较，不能把原运行SHA冒称成新提交。

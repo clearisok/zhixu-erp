@@ -56,6 +56,7 @@ test("target public results distinguish historical completion and never project 
     assert.equal(summary.automaticRetry, false); assert.equal(JSON.stringify(summary).includes("not-public"), false);
   }
   const historical = garmentOperatorSummary("target-receipt", randomUUID(), { receiptState: "completed", result, replayed: true });
+  assert.ok("receiptIsHistorical" in historical);
   assert.equal(historical.result, "TARGET_COMMAND_COMPLETED"); assert.equal(historical.receiptIsHistorical, true);
   assert.ok("enabledAtCompletion" in historical); assert.equal(historical.enabledAtCompletion, true);
   assert.equal(historical.sourceReadThisInvocation, "none"); assert.equal(garmentOperatorExitCode(historical), 0);

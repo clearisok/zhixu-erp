@@ -56,7 +56,7 @@ test("one protected operator owns separate target and collection commands withou
       ...(action === "apply-target" ? ["--scope-hash=" + changes.scopeHash, "--execute=I_CONFIRM_EXACT_TARGET"] : []),
       ...(action === "collect-once" ? ["--scope-hash=" + changes.scopeHash, "--execute=I_CONFIRM_EXACT_SCOPE", "--credential-file=" + job.key.path] : [])]);
   }
-  async function run(job: Job, action: Action, changes: Changes = {}): Promise<Record<string, unknown>> {
+  async function run(job: Job, action: Action, changes: Changes = {}): Promise<Record<string, unknown> & { result: string }> {
     return runGarmentOperator(args(job, action, changes), toolingCommit, { now, collect: async (_input, range) => { calls++; clock += 100; return workerFrame(range, clock); } });
   }
   function scope(value: Awaited<ReturnType<typeof run>>) { assert.ok("scopeHash" in value && typeof value.scopeHash === "string"); return value.scopeHash; }
