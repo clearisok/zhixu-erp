@@ -1,7 +1,7 @@
-# 恢复点：PR123组合本地PASS，交付当前最终HEAD
+# 恢复点：PR123 normal merge approved main d1dd
 
-2026-10-23；main完整be9aaa3f4efa232e1451075a355f0ce42e35a69e。root唯一writer，既有reviewer只读；H65双父[be9,ebe]、K3c双父[7f1c,5f]，215/46旧对象及新H见证、15原字节归档和3份impact仅基线前移已核实。新134发布/804源码/54管理日志来源API/25Chromium/112默认环境前端均全通过；类型、编译、lint、两构建及精确be9门禁PASS，静态复审无P1/P2。
+2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680。用户仅批准并已核实#126/#127/#120按merge commit合并；其他PR未获合并/关闭授权。当前codex/pr123-main-be9-forward继续原#12303570e196d1406c39e8cfacddbe80792e0c9aacc前向整合，不移动原live-readiness本地分支或替换50426/59069。
 
-保留首轮112检查的111/1：QA驱动保留前一步snapshot环境，默认路由断言失败；清除该进程构建覆盖后112/112，未改产品或测试，不掩盖失败。下一步最终文档commit后精确门禁，再一次安全push本验证分支；独立核对完整远端SHA/tree后以force=false快进原#123远端，更新唯一说明、新CI及复审。原所属live-readiness本地ref=ebe与文件均不动，system-settings-ci与50426/59069不切换。
+root唯一writer，既有reviewer只读。原0357/旧三CI保留，开始clean；本轮只读API核实main d1dd和原PR123 head，正常merge发生四处docs冲突。五份已批准main产品/验收增量自动合入，旧角色用户日志模块与0031/0032不改。221历史并集完整保留，三V2仅baseline前移、原字节归档；需实际merge H并冻结一个DECISION mergeOf见证后才做新main精确门禁。无reset/rebase/clean/force。
 
-原#120已送达fca新CI另核；#125独立验收继续。所有用户环境/数据保护，完整目标未完成；未知结果先核实，不盲推、不force/reset/clean/rebase，不自动merge/close/部署或新Source读取绑定激活。先读[任务](tasks/active/pr123-main-forward-2026-10-23.md)及实际Git状态。
+新组合验收尚未运行：类型/lint/Node与Browser+Server构建、源码与角色用户日志/商业来源API及真实Chromium、发布134、CI和复审按实际结果记录。原0357或其他采集分支的绿灯不冒充新范围。先提交可恢复checkpoint，后测试和更新唯一#123；不动原live-readiness/system-settings-ci本地ref或环境。不得在本轮自动合并/关闭PR、操作真实Source/账号/业务库或切换旧入口。完整Goal与原待决问题继续。
