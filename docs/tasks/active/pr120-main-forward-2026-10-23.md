@@ -8,7 +8,7 @@
 
 ## 整合与验证计划
 
-真实 merge H 必须保留两个精确 parent：e061 和 57d。H 后为两个旧侧文档修订追加同路径见证，recorded/rendered 均 H，hash 来自 H 的 LF 文本；只追加到 217/46，不改旧证据。尚未提交 H；后续提交与新验证结果会在本文件前向补充。
+真实 merge H=`5deb87590833de050280f6cfa2163595aaa72511` 已保留两个精确 parent：e061 和 57d。H 后为两个旧侧文档修订追加同路径见证，recorded/rendered 均 H，hash 来自 H 的 LF 文本；只追加到 217/46，旧 215 节点与能力原样保留。原五个产品/回归/演示 blob 精确等于 57d，守卫/134 项测试等于 e061。七份本轮归档与原 Git 字节相同。diff whitespace 只有原 57d 的既有 BUSINESS_RULES 归档 EOF 空行，未为消除提示修改历史。
 
 本阶段新验证：精确 main 门禁、完整发布守卫回归、类型/lint及相关加工来源回归；只使用临时合成数据库。新结果未产生前不引用旧 CI 为本轮 PASS。原 2026-10-19 的应用/浏览器/数据库/构建验收仍见 [原任务](price-source-stabilization-2026-10-19.md)。
 
