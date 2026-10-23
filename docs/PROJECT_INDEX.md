@@ -1,4 +1,4 @@
-2026-10-23当前恢复优先：#127后置核实事实修正，main完整e06162c70c9792895c30030216dc8c2a66368069。原e2精确交付、三CI通过；本阶段只纠正已核实目标SHA却写未送达的回执，并保留所有STOP策略。先读CURRENT_STATE、AI_HANDOFF与[同一任务](tasks/active/pr127-main-forward-2026-10-23.md)；下文保留前阶段日期/结果，原三摘要另有[逐字输入](tasks/completed/2026-10-23-pr127-postflight-facts-inputs/)。不自动合并或部署。
+2026-10-23当前恢复优先：#127后置核实事实修正，main完整e06162c70c9792895c30030216dc8c2a66368069。原e2精确交付、三CI通过；本阶段只纠正已核实目标SHA却写未送达的回执，并保留所有STOP策略；dff新56/134及精确门禁通过，最终交付/CI另核。先读CURRENT_STATE、AI_HANDOFF与[同一任务](tasks/active/pr127-main-forward-2026-10-23.md)；下文保留前阶段日期/结果，原三摘要另有[逐字输入](tasks/completed/2026-10-23-pr127-postflight-facts-inputs/)。不自动合并或部署。
 
 2026-10-23 当前工具恢复优先：CURRENT_STATE、AI_HANDOFF 与[真实 main 前向整合](tasks/active/pr127-main-forward-2026-10-23.md)。#126 已按具体批准以 merge commit 进入 main `e06162c70c9792895c30030216dc8c2a66368069`，原历史保留；#127 的真实四处文档/清单冲突已解决，merge checkpoint7af已通过新53/134/9/10及构建回归。213证据/46能力不改，两侧摘要按原Git字节归档。最终文档精确守卫/远端/新CI分别待核，不借旧结果；未新增业务/UI/SQL或共享配置变更。
 

@@ -103,3 +103,5 @@ CI/review must be independently observed before calling remote delivery complete
 新增3个真实临时Git场景覆盖ref拒绝、认证和证书，均真实送达后注入错误并独立核实；另补API预检exact的状态期待。4项先红（0通过/4失败，15651.3838ms），修复后4通过，零失败/跳过/取消。首轮编辑因Windows CRLF锚点失败在源码写入前，输入归档已保存，随后跑的旧选中测试不能算红测；失败日志分别保留。完整56工具/134发布及最终门禁、远端/新CI待执行。
 
 本机日志为ignored outputs/pr127-postflight-facts-20261023；应用、SQL、UI与依赖不变，未重跑实际应用/DB/Chromium，不把旧7af构建改标新源码。未改共享配置或认证，也未把一次布尔采样扩展成全历史根因。
+
+源码checkpoint dff2854f69e96f5ce39cd88785663c935e92b246的完整56/56工具（165270.9192ms）和134/134发布（416597.6421ms）均通过，零失败/取消/跳过；精确e061门禁PASS（11页/46能力/0UI）、脚本语法与定向lint通过。三个输入归档逐Git字节一致；状态机、manifest、发布guard/134测试均保持e2/main。独立静态review无P1/P2，reviewer未代跑测试；最终只文档提交的精确门禁/单次交付/新CI仍分别核实。没有重跑应用构建、真实页面或DB，因为本增量不改这些源码。

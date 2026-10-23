@@ -142,3 +142,7 @@ old TLS evidence retained, not rewritten as current network failure.
   Backup path: same guarded tool once in ordinary Windows PowerShell. No global
   backend switch, credential change or SSH conversion. Root cause **UNRESOLVED**;
   observed successful push/read is evidence of this attempt, not a permanent fix.
+
+## 2026-10-23：远端事实与命令安全分开
+
+修复只涉及回执：独立核实remote.verified且完整SHA精确为目标时，remoteStatus为EXACT_HEAD_VERIFIED，即使认证、TLS身份、ref拒绝等仍使state保持STOP。保留continueLocal=false、错误类别、非零退出和retry=false；不以已送达豁免安全异常。精确目标不再附冗余重推命令，旧/缺失/无法核实的远端仍分别标识。没有collision白名单、共享配置或认证变化，也不据布尔采样判断全历史根因。详细红绿及56/134验收见[本轮任务](pr127-main-forward-2026-10-23.md)。
