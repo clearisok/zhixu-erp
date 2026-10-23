@@ -194,6 +194,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     assert.equal(domainSeed.sourceStatus.payment,'observed');
     assert.deepEqual(domainSeed.proof.garmentCommands.receipts.map(r=>r.receiptState),['completed','completed','unverified_started']);
     assert.equal(domainSeed.proof.garmentCommands.replayCalls,0);
+    assert.deepEqual(domainSeed.proof.garmentTargets.receipts.map(r=>r.result.enabled),[true,false,true]);
   });
   await phase('restart and cold container recreation preserve DB identity, adopted rows and attachment bytes',async()=>{
     const before=await a.sql('SELECT string_agg(version::text,\',\' ORDER BY version) FROM schema_migrations');
@@ -259,6 +260,8 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
       assert.ok(continued.continued.newOrderId);
       assert.equal(continued.continued.garmentCollection.oldPreviewWorkerCalls,0);
       assert.equal(continued.continued.garmentCollection.freshPreviewWorkerCalls,1);
+      assert.deepEqual(continued.continued.garmentTarget,{receiptState:'completed',enabled:false,version:4,
+        oldPreviewWrote:false,originalEnableIsHistorical:true,realSourceRequests:0});
       const report=resolve('outputs/server-domain-recovery-20261023',`run-${nonce}.json`);await mkdir(resolve(report,'..'),{recursive:true});
       await writeFile(report,JSON.stringify({schemaVersion:'synthetic-domain-recovery.v1',completedAt:new Date().toISOString(),
         testDriverHead:await run('git',['rev-parse','HEAD']),image:expectedImage,dockerEndpoint:commandEnvironment.DOCKER_HOST,
@@ -267,6 +270,9 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
         garmentCommandRecovery:{receiptStates:recovered.proof.garmentCommands.receipts.map(r=>r.receiptState),
           outcomes:recovered.proof.garmentCommands.receipts.map(r=>r.result?.outcome??null),
           replayWorkerCalls:recovered.proof.garmentCommands.replayCalls,realSourceRequests:0},
+        garmentTargetRecovery:{receiptStates:recovered.proof.garmentTargets.receipts.map(r=>r.receiptState),
+          enabledAtCompletion:recovered.proof.garmentTargets.receipts.map(r=>r.result.enabled),
+          versionsAtCompletion:recovered.proof.garmentTargets.receipts.map(r=>r.result.version),realSourceRequests:0},
         limits:'Synthetic compiled-service evidence only; no real Source, HTTP/UI activation, closing, deployment or old-environment recovery.'},null,2));
       t.diagnostic(`Domain recovery receipt ${report}; ${coverage.filter(r=>r.count).length} populated and ${coverage.filter(r=>!r.count).length} empty/not-exercised public tables; ${domainFingerprint.sequences.length} sequences.`);
     }

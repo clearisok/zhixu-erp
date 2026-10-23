@@ -33,6 +33,7 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
     const payment = await import('./dist/server/server/ainuoke-source/payment-request-store.js');
     const garment = await import('./dist/server/server/ainuoke-source/garment-shipment-store.js');
     const collection = await import('./dist/server/server/ainuoke-source/garment-collection-control.js');
+    const targetControl = await import('./dist/server/server/ainuoke-source/garment-target-control.js');
     const { parseCollectorConfig, accountFingerprint, APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY } = await import('./dist/server/server/ainuoke-source/collector.js');
     const { hash: sourceHash } = await import('./dist/server/server/ainuoke-source/contract.js');
     const repo = createQuoteRepository(pool);
@@ -98,6 +99,34 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
       assert.equal(replayCalls, 0);
       assert.ok(!JSON.stringify(receipts).includes(commandConfig.password));
       return { receipts, replayCalls, realSourceRequests: 0 };
+    }
+    async function plannedTarget(request) {
+      const preview = { requestId: randomUUID(), expiresAt: new Date(Date.now() + 600000).toISOString() };
+      const result = await targetControl.planGarmentTarget(pool, actor, request, preview);
+      return { request, permit: { ...preview, scopeHash: result.scopeHash }, databaseFingerprint: result.scope.databaseFingerprint };
+    }
+    async function applyTarget(job) {
+      const receipt = await targetControl.applyGarmentTarget(pool, actor, job.request, job.permit);
+      assert.equal(receipt.receiptState, 'completed'); assert.equal(receipt.result.sourceRead, 'none');
+      return receipt;
+    }
+    async function currentCommandTarget() {
+      return (await pool.query('SELECT enabled,version FROM ainuoke_garment_shipment_targets WHERE source_key=$1 AND sales_order_id=$2',
+        [commandSourceKey, saved.orderId])).rows[0];
+    }
+    async function targetHistory() {
+      const receipts = [];
+      for (const [key, enabled, version] of [['enabled', true, 1], ['disabled', false, 2], ['reenabled', true, 3]]) {
+        const job = saved.targetJobs[key];
+        const receipt = await targetControl.readGarmentTargetReceipt(pool, actor,
+          { sourceKey: commandSourceKey, salesOrderId: saved.orderId, requestId: job.permit.requestId });
+        assert.equal(receipt.receiptState, 'completed'); assert.equal(receipt.result.enabled, enabled);
+        assert.equal(receipt.result.version, version); assert.equal(receipt.receiptIsHistorical, true);
+        assert.equal(receipt.sourceReadThisInvocation, 'none'); assert.equal(receipt.automaticRetry, false);
+        receipts.push(receipt);
+      }
+      assert.ok(!JSON.stringify(receipts).includes(commandConfig.password));
+      return { receipts, realSourceRequests: 0 };
     }
     async function createBatch(referenceOrderId = null) {
       const quote = saved.processingQuote, revision = quote.revisions.find(r => r.revisionId === quote.defaultRevisionId);
@@ -232,9 +261,20 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
       }
       stage = 'garment-command-published';
       await pool.query('INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2)', [commandSourceKey, commandFingerprint]);
-      const request = commandRequest(contract), proof = collection.garmentCollectionProof(request);
-      await pool.query('INSERT INTO ainuoke_garment_shipment_targets(source_key,sales_order_id,account_fingerprint,freshness_ms,enabled,verification_sha256) VALUES($1,$2,$3,60000,true,$4)',
-        [commandSourceKey, saved.orderId, commandFingerprint, proof.verificationSha256]);
+      const request = commandRequest(contract);
+      stage = 'garment-target-commands'; saved.targetJobs = {};
+      const enable = { action: 'enable', request, freshnessMs: 60000 };
+      const disable = { action: 'disable', sourceKey: commandSourceKey, salesOrderId: saved.orderId, operatorUsername: 'local.admin' };
+      const enabled = saved.targetJobs.enabled = await plannedTarget(enable);
+      assert.equal((await applyTarget(enabled)).result.version, 1);
+      const disabled = saved.targetJobs.disabled = await plannedTarget(disable);
+      assert.equal((await applyTarget(disabled)).result.enabled, false);
+      const replay = await applyTarget(enabled);
+      assert.equal(replay.receiptIsHistorical, true); assert.equal(replay.result.enabled, true);
+      assert.deepEqual(await currentCommandTarget(), { enabled: false, version: 2 });
+      const reenabled = saved.targetJobs.reenabled = await plannedTarget(enable);
+      assert.equal((await applyTarget(reenabled)).result.version, 3);
+      stage = 'garment-command-published';
       saved.collectionJobs = {};
       let workerCalls = 0;
       const published = saved.collectionJobs.published = await plannedCommand(request);
@@ -277,6 +317,7 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
       assert.equal((await pool.query('SELECT count(*)::int n FROM ainuoke_garment_collection_commands WHERE source_key=$1', [commandSourceKey])).rows[0].n, 3);
       // The unconsumed preview is not permission to run against another DB.
       saved.unconsumedCollection = await plannedCommand(request);
+      saved.unconsumedTarget = await plannedTarget(disable);
     }
     stage = 'business-read'; assert.ok(saved);
     const delivery = await readDeliveryPlanSet(pool, saved.orderId);
@@ -313,8 +354,9 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
     }
     stage = 'garment-command-history';
     const garmentCommands = await commandHistory();
+    const garmentTargets = await targetHistory();
     const proof = { delivery, receipt, commercial, cct, assignments, original, history, requestReceipts,
-      processing: saved.processing.result, material, garments, garmentHistory: await garmentReader.history(actor, saved.orderId), garmentCommands };
+      processing: saved.processing.result, material, garments, garmentHistory: await garmentReader.history(actor, saved.orderId), garmentCommands, garmentTargets };
     // No invented clock: financial rows can legitimately be hidden after expiry.
     const sourceStatus = { payment: paymentRead.sourceStatus, paymentRows: paymentRead.rows.length,
       garment: (await garmentReader.read(actor, saved.orderId)).freshness };
@@ -334,6 +376,24 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
         { collect: collectAfterRestore });
       assert.equal(continuedCollection.receiptState, 'completed'); assert.equal(continuedCollection.result.outcome, 'published');
       assert.equal(collectedAfterRestore, 1); assert.notEqual(continuedCollection.result.publicationId, saved.collectionPublicationId);
+      stage = 'continued-target-commands';
+      const oldTarget = saved.unconsumedTarget;
+      assert.ok(Date.parse(oldTarget.permit.expiresAt) > Date.now(), 'old_target_preview_expired_before_database_fence_test');
+      const freshTarget = await plannedTarget(oldTarget.request);
+      assert.notEqual(freshTarget.databaseFingerprint, oldTarget.databaseFingerprint);
+      const beforeTarget = await currentCommandTarget();
+      await assert.rejects(targetControl.applyGarmentTarget(pool, actor, oldTarget.request, oldTarget.permit),
+        error => error.code === 'garment_target_scope_changed');
+      assert.deepEqual(await currentCommandTarget(), beforeTarget);
+      const disabledTarget = await applyTarget(freshTarget);
+      assert.equal(disabledTarget.result.enabled, false); assert.equal(disabledTarget.result.version, 4);
+      // A restored completed enable remains historical; replay cannot undo a later disable.
+      const originalEnable = await applyTarget(saved.targetJobs.enabled);
+      assert.equal(originalEnable.receiptIsHistorical, true); assert.equal(originalEnable.result.enabled, true);
+      assert.deepEqual(await currentCommandTarget(), { enabled: false, version: 4 });
+      assert.equal((await pool.query('SELECT count(*)::int n FROM ainuoke_garment_target_commands WHERE source_key=$1',
+        [commandSourceKey])).rows[0].n, 4);
+      stage = 'continued-production-commands';
       const next = await createBatch(saved.processing.orderId);
       assert.notEqual(next.orderId, saved.processing.orderId); assert.notEqual(next.orderId, saved.orderId);
       const continued = await recordExecution(saved.remainingAssignment, '5', 'in_progress');
@@ -341,7 +401,9 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
       assert.equal((await execution.readProductionExecutionHistory(pool, actor, saved.originalAssignment)).execution.completedQuantity, '25');
       return { status: 'passed', proof, sourceStatus, continued: { newOrderId: next.orderId, originalOrderId: saved.orderId,
         originalCompleted: '25', newCompleted: '5', garmentCollection: { publicationId: continuedCollection.result.publicationId,
-          oldPreviewWorkerCalls, freshPreviewWorkerCalls: collectedAfterRestore, realSourceRequests: 0 } } };
+          oldPreviewWorkerCalls, freshPreviewWorkerCalls: collectedAfterRestore, realSourceRequests: 0 },
+          garmentTarget: { receiptState: disabledTarget.receiptState, enabled: false, version: 4,
+            oldPreviewWrote: false, originalEnableIsHistorical: true, realSourceRequests: 0 } } };
     }
     return { status: 'passed', ...(mode === 'seed' ? { saved } : {}), proof, sourceStatus };
   } catch (error) {
