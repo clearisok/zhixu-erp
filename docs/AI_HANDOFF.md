@@ -1,13 +1,11 @@
-# 当前接力：本片工程收口，最终交付回执独立核实
+# 恢复点：构建完整性与PR事件边界
 
-2026-10-23，codex/server-current-target-recovery；actual main d1dd4f0fcf9992d5c055c7b67b6832b635485680，15:06:33Z独立API与五草稿heads均不变。完整G1–G5 Goal active，不能把此切片标整体完成。仅#126/#127/#120合并获批，其余不自动merge/close。
+2026-10-23；root唯一writer，既有reviewer只读。codex/build-artifact-completeness从actual main d1dd4f0fcf9992d5c055c7b67b6832b635485680新建，再FF明确Goal依赖f4f8f61e7535bd678f8dfcf3e22143747b6e03c1；baseline clean。完整G1–G5仍active。
 
-稳定b8c6937170a93fd7105f26472f107866c4000ae3发布134/134通过570330.8831ms，0fail/cancel/skip；前后HEAD/清单hash/clean保持。独立增量复审核对23证据hash、原330对象/59能力和成本评估，未发现P1/P2，复审者未运行测试。manifest331/59只加e5dbad5ea7f0f8069422395f524a64c3ecd0016b独立恢复报告，旧330和其他维度/UI/runtime/批准逐字保持，hash dc86909e0d091eaa535f10fff7cbe59a6d7f42fdde910b989f7e6056318ed2d9。四状态文档commit后只跑最终HEAD/actual-main守卫并一次有界交付。最终事实必须读ignored outputs/goal-next-audit-20261023-c54baa4d/final-closure.json及其所引日志；不存在/不匹配不得预报通过。已有unit10/9恢复/镜像与134不得为文档变化重复执行。
+本片package.json原build后强制check-build-artifacts.mjs、定向测试/V0及文档。原45页失败但exit0已有真实记录，新脚本从源推导完整产物，不硬编码46。首unused import lint失败保留；复用框架同一production dotenv解析修复独立P2，并补CLI目录别名负控后12项/lint通过。P2复核、两模式实际构建及最终门禁仍待。先提交干净source，在新规范长路径archive/既有依赖中各构建Browser/Server一次；不安装、覆盖旧dist、重建Docker或重跑旧DB/恢复。最终守卫/必要发布/独立diff复审后收口，不预报。
 
-精确image5e0967cdfd22e998d564c9a139622f8de39e3b8d / sha256:85f49cbe94cf63442db24b502b52a637de226f78d2e660d6059aff9c4ad99079；46路由0skip/Server编译PASS。driver848acfc721de8f0ae5ad2390ddbfac984f573829只测试/文档，产品输入不变。第三轮9/9在原镜像新双项目通过411361.7715ms，108表/70非空/38未覆盖/5sequence/43迁移，原ID/指纹/对象/0044历史与跨库许可保护通过。23原日志hash及两失败在冻结current-target-command-recovery-engineering报告和当前active任务保留，前态逐字归档已核Git blob相等。
+#123远端CB cb1658d97485bbf6c529660fffb50215548fffcd、main未变。team39978341735、baseline39979177113、source39979170713三workflow_dispatch success，但不满足PR required checks，PR仍旧pull_request计费失败；不称PR全绿或可合并，不再派本轮付费CI。真正准备合并时使用正确PR事件。ignored outputs/pr123-merge-ci-20261023保存API、事件绑定及唯一watch证据。#121/#122是CB祖先，#124在#125，CB/CA互不包含；不重做CB未变本地测试。
 
-第二轮恢复启动失败与确认的地址池耗尽分开陈述；只释放本轮13停止owned容器/5空网络，179卷名称/所有私密输入/备份/无关网络容器保持，不冒称卷内容hash。原Mounts顺序scope STOP零删除和canonical纠正保存。无全局prune/改daemon，原旧环境/Browser/账号/业务库保持。
+前f4f原工具STOP与独立精确SHA/tree/父并存见ignored outputs/goal-next-audit-20261023-c54baa4d/final-closure.json；不重推/force/改认证。原134/9及全部旧Goal事实见[前态归档](tasks/completed/2026-10-23-build-artifact-guard-inputs/AI_HANDOFF.md)，按Git f4f逐字保存；manifest仍331/59。当前首字节比较STOP仅因checkout CRLF，必须证明Git diff空且LF规范化相等，不能忽略未知hunk。
 
-用户已确认Billing解决，USD5月预算：不批量rerun，不频繁push，集中本地验收后交付，重要阶段/准备合并时保留必要CI。五workflow仅评估，无Push+PR重复触发；优先PR过时取消/npm下载cache，未改YAML/削测试。当前本轮0Actions/dispatch，Git只读通过不证明上传可靠；新验证引用可按原工具DryRun/最多一次Execute、独立核SHA，任何STOP即停，不反复尝试、不新建累计业务PR。
-
-3001/62326/62426原构建保留，50426/59069当时连接拒绝不是退役，未重启或切换。原refs ebe4cb16/4cf19e82、所有旧工作树/数据/对象/卷保护。无真实凭据/Source报告读取、请求、实际target/绑定/调度或正式部署。关账三问、coverage-v1、50426切换人工接受、真实额度及逐项退役待决不默认、不重复询问。
+保护所有旧环境/账号/业务库/Browser/卷/备份，3001保留；无50426切换、Source额度/target/调度/部署/退役。关账三问、coverage-v1、真实来源、多页/稳定事件和人工接受不默认、不重复询问；先完成当前构建质量缺口。

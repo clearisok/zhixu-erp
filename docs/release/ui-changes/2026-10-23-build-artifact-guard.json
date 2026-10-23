@@ -1,0 +1,8 @@
+{
+  "baselineSha": "d1dd4f0fcf9992d5c055c7b67b6832b635485680",
+  "level": "V0",
+  "paths": ["package.json"],
+  "pages": ["build-pipeline"],
+  "visibleDifference": "none",
+  "evidence": ["docs/tasks/active/server-build-artifact-guard-2026-10-23.md"]
+}

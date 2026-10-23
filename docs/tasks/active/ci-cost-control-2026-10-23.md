@@ -55,3 +55,17 @@ GitHub官方支持[条件并发取消](https://docs.github.com/en/actions/how-to
 最终发布回归与精确main/HEAD源码证据门禁属于必要收口，按一次稳定候选运行；
 网络或新失败只处理直接受影响项。不得将未运行、失败或取消说成通过。
 不承诺固定节省百分比或USD5足够覆盖任意次数完整CI，实际用量尚未读取。
+
+## 后续实际发现：手动验证不能替代PR必需检查
+
+同日后续仅对合并链下一候选#123@cb1658派发一次team、source、baseline的
+workflow_dispatch，三个运行39978341735/39979170713/39979177113均success。
+实际head-check-runs有这三份新成功；PR rollup却只认原pull_request计费失败，仍FAILURE。
+[GitHub官方](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks)
+明确手动事件的checks不计入PR required checks。选择手动事件没有达到补齐PR检查的目的，
+不能写成PR全绿或以它绕过合并门槛。原成功/失败和事件均保留，未改状态。
+
+为避免立即付两遍相同测试的费用，本轮停止再派CI。以后准备合并的必要检查必须在
+正确PR事件运行，不能为替代失败检查而先dispatch整套；手动事件只用于明确需要的
+独立工程验证，不能冒称满足PR保护。原PR head/base或构建输入变动时再按范围决定
+必要重验；其他PR和已经通过的同源测试不批量重跑。本片新构建门禁只做本地验证。

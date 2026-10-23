@@ -46,7 +46,7 @@
     "test:object-storage-preflight": "tsx --test --test-concurrency=1 server/integration/object-storage-preflight.integration.test.ts",
     "qa:data:prepare": "node scripts/generate-ui-qa-data.mjs prepare",
     "qa:data:cleanup": "node scripts/generate-ui-qa-data.mjs cleanup",
-    "build": "vinext build",
+    "build": "vinext build && node scripts/check-build-artifacts.mjs",
     "start": "vinext start",
     "test": "node --test tests/*.test.mjs",
     "check:release-baseline": "node scripts/check-release-baseline.mjs",
