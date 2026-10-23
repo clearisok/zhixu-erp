@@ -1,5 +1,7 @@
 # 项目知识索引
 
+最新Gate7F交付仅一次推送未送达：02c22576本地精确守卫PASS，原工具uncertain_transport/NETWORK_DEGRADED，12:23:38Z独立API确认新分支不存在；不重试、不新建重复PR、不重派账单CI。工程与远端状态分开，详见当前接力。
+
 2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，最终收口前独立API重读相符。#126/#127/#120已分别获准、保留原历史合并；#123 cb1658、#125 ca05仍草稿未合并。两PR新CI被账号Billing/支出上限拒绝启动、0steps；用户确认未处理，继续安全本地工程，不重跑、不改账单。
 
 [最终PR组合验证](tasks/active/server-final-pr-combination-2026-10-23.md)已本地验收，原事实见[冻结工程记录](tasks/completed/2026-10-23-final-pr-combination-engineering.md)。最终8f2一次工具push为STOP_AUTH_OR_DIVERGENCE，独立API却精确核实SHA/tree/父；两项事实并存，根因未解，不重推或冒称通道永久恢复。[Gate7F受控成衣操作者](tasks/active/server-garment-operator-2026-10-23.md)本地通过：15定向/实际clean源码入口、33原控制、40共享、4618类型/lint/构建，复审无P1/P2；[a786报告](tasks/completed/2026-10-23-garment-operator-engineering.md)已冻结。026346ee的321/59精确d1dd守卫及134/134发布通过、HEAD/清单稳定；旧对象/状态保持，无真实target/Source额度、Hosted CI或部署声明。
