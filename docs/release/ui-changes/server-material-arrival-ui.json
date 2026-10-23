@@ -1,5 +1,5 @@
 {
-  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
+  "baselineSha": "d1dd4f0fcf9992d5c055c7b67b6832b635485680",
   "level": "V1",
   "paths": [
     "features/production-scheduling/service/material-logistics-service.ts",

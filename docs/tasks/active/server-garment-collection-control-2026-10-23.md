@@ -54,3 +54,11 @@ CI等待期间另作G1只读观察：07:40Z受保护端口中3001/62326/62426有
 ## 后续与完整目标边界
 
 代码checkpoint后用精确源码外部context完成充分验收；冻结新工程报告/D158/feature证据并追加能力分维度记录，不改原295证据和58能力历史/批准/截图。最终精确be9门禁、一次验证引用交付、Source/Team/Release实际CI与复审。依赖仍未合并，不创建重复累计业务PR，不自动merge/close或部署。操作者入口与真实target/新读取范围仍另有具体批准；多页实证、跨次事件、覆盖v1、关账三项、50426切换/退役待决不默认。
+
+## 357 CI、精确新镜像与批准PR120主线
+
+357一次push仍STOP_AUTH_OR_DIVERGENCE/exit1/6321ms，独立API full SHA/tree/parent精确；无重复推送。一次无上传dry-run exit0，配置和hook/锁元数据未发现原因，未改共享设置，原始push细节未留，根因unresolved。独立安全复核允许只继续CI，不改写STOP。新三CI各attempt1：Team39922020576、Release39922025000成功；Source39922015112后端/迁移/来源、quality与Server build成功，在导航17子场景全部通过后，父项清理临时profile发生ENOTEMPTY。后续Quote/Python跳过，不冒称全Source PASS。
+
+精确357 archive新镜像bf40f039690f5809e951b96977ee982dc87670bd90a87948294468de839a6b1a，Node22.23.3支持原数字词元、42迁移最大0043。原domain模式完整9/9通过267123.7111ms，68非空/39空表、5序列一致，重启/冷重建/DB+S3备份与独立恢复/原请求/合法继续写入均通过；0043命令表保持空，不能写成该域非空恢复。只清理两个成功准备的自有随机fixture，现有环境和真实来源未动。
+
+用户另明确批准仅merge #120。一次实际merge成功，main d1dd4f0fcf9992d5c055c7b67b6832b635485680，parents[be9,fca]、tree60e5d67127a6bd5354b0ade854f8e6550d569778全核对。#123/#125仍草稿；旧API baseRefOid保持原值，本地均已含be9，但不据此预验未来main。当前候选正常merge d1dd，四冲突仅共享三摘要/manifest；保留全部299候选与main独有4记录和两侧Git原字节。真实merge H后按原规则合流四条冻结文档，不改旧IDs/hash、业务、SQL、页面或截图。

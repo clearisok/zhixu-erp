@@ -1,9 +1,8 @@
 # 项目知识索引
 
-2026-10-23；完整G1–G5 Goal继续。main=be9aaa3f4efa232e1451075a355f0ce42e35a69e；只有#126/#127已具体批准合并。#120 fca/#1230357/#1254cf的九CI保持原精确范围，仍草稿。累计49dc一次精确送达、Release39909321129 attempt1成功、复审无P1/P2；不表示业务合并、部署或Source激活。
+2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]和精确树已核对。#1230357/#1254cf仍草稿、九项原CI分属原SHA；不自动合并或关闭其他PR，不表示部署或Source激活。
 
-当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)只推进合成/隔离工程；原9fc/d992本地QA、299/59发布134/守卫和复审通过。16a6 exact远端但push STOP保留；Team/Release成功，Source旧升级测试tail断言失败。两测试兼容修复42/33通过，新checkpoint/交付/CI待收口。恢复先读CURRENT_STATE、AI_HANDOFF及[工程报告](tasks/completed/2026-10-23-garment-collection-control-engineering.md)；原[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)保留9fc冻结阶段。真实读取、激活、关账和目标切换不自动授权。
-
+当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)继续合成工程。357的Team/Release成功，Source在17导航子场景后清理profile失败，后续跳过；新精确357镜像独立恢复9/9通过。新main合流保留303原证据，真实merge见证/新报告绑定及关闭时序修复待收口。先读CURRENT_STATE、AI_HANDOFF、原冻结工程报告，再读实际代码；不将候选镜像或CI当真实激活/部署。
 ## 系统简介
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：

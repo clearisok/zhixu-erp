@@ -1,9 +1,11 @@
-# 当前状态：Gate7E成衣单次采集控制层工程
+# 当前状态：批准PR120合并与Gate7E CI收口
 
-2026-10-23；完整G1–G5 Goal继续。main=be9aaa3f4efa232e1451075a355f0ce42e35a69e；只有#126/#127已具体批准合并。#120 fca/#1230357/#1254cf的九CI保持原精确范围，仍草稿。累计49dc一次精确送达、Release39909321129 attempt1成功、复审无P1/P2；不表示业务合并、部署或Source激活。
+2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]和精确树已核对。#1230357/#1254cf仍草稿、九项原CI分属原SHA；不自动合并或关闭其他PR，不表示部署或Source激活。
 
-当前codex/server-garment-collection-control从干净main FF49dc，新增内部单SO plan/collect/receipt及固定两遍首页worker，0043只新增空技术命令表。采前started持久化、网络无DB锁、原发布/成功回执同事务，未知只核对。重建完整过滤证明、fresh权限、实际库/连接、target/原物理owner/颜色/head绑定；损坏回执fail closed。没有HTTP/CLI/Catalog/调度或启用入口，不自动读Source。
+当前codex/server-garment-collection-control将独立357候选与新main正常merge。冲突仅三共享摘要和manifest；原299与main独有4证据完整并集303，原Git字节另存归档。下一步在真实merge checkpoint绑定四条文档见证和独立镜像报告，再验精确新main守卫。产品、SQL、页面、截图、原能力维度及现有运行环境不改。
 
-原9fc完整QA、最终d992的33定向/精确types/lint/Server/UI build、299/59的134和16a6精确be9守卫及复审通过。[报告](tasks/completed/2026-10-23-garment-collection-control-engineering.md)保留各范围。16a6远端SHA/tree精确，但原一次push STOP保留、根因未定；正常fetch只补缺失tracking。16a6 Team/Release成功，Source因旧0041升级尾清单断言失败、后续跳过；两测试改用显式ledger，42 DeliveryPlan/33成衣及编译/lint通过。新修复提交/守卫/复审/交付CI待收口，原业务/迁移/ledger/截图不改。
+Gate7E内部单SO plan/collect/receipt、固定两遍首页worker及0043空技术表已本地合成验收。业务源码d992、原9fc完整QA与后续33定向/精确archive构建保持原范围。357的Team39922020576（952项目及权限/浏览器）和Release39922025000（19解析/134发布、交付工具68pass1平台skip）成功。Source39922015112后端/迁移/Source/构建均成功；17导航子场景成功后，父项因清理自有Chrome profile ENOTEMPTY失败，后续Quote/Python跳过，正在修复测试关闭时序。原16a6失败与两次一次push STOP/exact远端事实保留，根因未定、不重推。
 
-真实证明仍仅原账号单合同完整首页，预算/零哨兵边界保持；固定额度已用，无新Source/凭据文件/私密报告或真实库操作。全目标仍缺操作者接线/具体激活、多页/事件、关账待决、目标切换接受及退役。维护交期已批准，覆盖v1未批准。另07:40Z只读发现50426无监听，3001/62326旧build、62426五容器healthy；未启动或替换。保留所有端口/账号/Browser/库/对象/卷/工作树/0c，待正式收敛前重新核实。
+357精确Git归档新镜像bf40f039的Windows合成持久化/独立恢复9/9通过，68非空/39空表和5序列指纹一致、42迁移最大0043；新增成衣命令表为空，仅empty-preserved-not-exercised，不冒称该域非空恢复。所有实际影像/CI/旧报告各保留源码与时间，见本阶段任务。
+
+没有新真实Source/凭据或私密报告读取、现有库/账号/端口操作、持续调度或部署。完整目标仍缺具体激活/操作者接线、多页与事件、关账待决、50426切换接受及逐项退役。维护交期已批准，覆盖v1和原三项关账问题不默认。
