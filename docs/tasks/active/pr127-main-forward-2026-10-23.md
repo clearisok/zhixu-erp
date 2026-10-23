@@ -93,3 +93,13 @@ static review and did not execute the runtime checks. All local process handles
 56984/12560/2143/57198 are terminal. Next freeze is documentation-only; its exact
 committed-head/main guard, one safe delivery, unique #127 update and fresh three
 CI/review must be independently observed before calling remote delivery complete.
+
+## 后置核实的事实字段修正（2026-10-23）
+
+输入e2dc2704ba51da18e7d0b1c098a7a1657f59a40e，工作树干净；GitHub main=e06162c70c9792895c30030216dc8c2a66368069及原PR127/ref精确e2经API核实。原e2三CI39878435788/39878435864/39878435843全部成功；本次不借旧结果作为新代码验收。新[输入摘要](../completed/2026-10-23-pr127-postflight-facts-inputs/)完整保留旧日期、hash与限制。
+
+实际发现：deliver用decision.state判断remoteStatus，导致认证/TLS/ref拒绝即使postflight verified且目标完全一致仍写TARGET_NOT_DELIVERED并给重推命令。当前只分离事实：精确remote用EXACT_HEAD_VERIFIED、不再给冗余recovery；原STOP、continueLocal、错误类别、非零退出及单次push保持，不实现collision成功豁免。
+
+新增3个真实临时Git场景覆盖ref拒绝、认证和证书，均真实送达后注入错误并独立核实；另补API预检exact的状态期待。4项先红（0通过/4失败，15651.3838ms），修复后4通过，零失败/跳过/取消。首轮编辑因Windows CRLF锚点失败在源码写入前，输入归档已保存，随后跑的旧选中测试不能算红测；失败日志分别保留。完整56工具/134发布及最终门禁、远端/新CI待执行。
+
+本机日志为ignored outputs/pr127-postflight-facts-20261023；应用、SQL、UI与依赖不变，未重跑实际应用/DB/Chromium，不把旧7af构建改标新源码。未改共享配置或认证，也未把一次布尔采样扩展成全历史根因。

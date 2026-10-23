@@ -170,7 +170,7 @@ export async function deliver(options, dependencies = {}) {
     const degraded = before.degraded === true || ['uncertain_transport', 'timeout'].includes(before.category);
     const preflightSummary = { ...(preflight ? { preflight } : {}), networkMode: degraded ? 'NETWORK_DEGRADED' : 'NORMAL' };
     if (!before.verified) return summary(before.category === 'authentication_or_divergence' ? 'STOP_AUTH_OR_DIVERGENCE' : before.category === 'tls_identity_or_configuration' ? 'STOP_TLS_IDENTITY_OR_CONFIGURATION' : before.category === 'invalid_evidence' ? 'STOP_REMOTE_EVIDENCE_INVALID' : 'LOCAL_PASS_REMOTE_UNVERIFIED', { recovery, remoteStatus: 'REMOTE_UNVERIFIED', ...preflightSummary });
-    if (before.sha === options.expectedHead) return summary('DELIVERED_VERIFIED', { remoteSha: before.sha, channel: before.channel, ...preflightSummary });
+    if (before.sha === options.expectedHead) return summary('DELIVERED_VERIFIED', { remoteSha: before.sha, remoteStatus: 'EXACT_HEAD_VERIFIED', channel: before.channel, ...preflightSummary });
     if (before.sha) {
       const relation = await git(['merge-base', '--is-ancestor', before.sha, options.expectedHead]);
       if (relation.code !== 0) return summary(relation.code === 1 ? 'STOP_AUTH_OR_DIVERGENCE' : 'STOP_REMOTE_RELATION_UNVERIFIABLE');
@@ -194,15 +194,18 @@ export async function deliver(options, dependencies = {}) {
       if (ancestry.code === 1) relation = 'diverged';
       else if (ancestry.code !== 0) return summary('STOP_REMOTE_RELATION_UNVERIFIABLE', { remoteSha: after.sha });
     }
+    // Remote identity and command safety are independent facts. An exact target
+    // does not relax STOP, but must not be reported as absent or retried.
+    const exactRemote = after.verified && after.sha === options.expectedHead;
     const decision = deliveryState({ phase: 'push', exitCode: pushed.code, stderr: pushed.stderr,
       targetSha: options.expectedHead, remoteSha: after.sha, remoteVerified: after.verified,
       remoteRelation: relation, ...initial, expectedDirtyFingerprint: options.expectedDirtyFingerprint });
     return summary(decision.state, { continueLocal: decision.continueLocal, remoteSha: after.sha,
-      remoteStatus: decision.state === 'DELIVERED_VERIFIED' ? 'EXACT_HEAD_VERIFIED' : after.verified ? 'TARGET_NOT_DELIVERED' : 'REMOTE_UNVERIFIED',
+      remoteStatus: exactRemote ? 'EXACT_HEAD_VERIFIED' : after.verified ? 'TARGET_NOT_DELIVERED' : 'REMOTE_UNVERIFIED',
       pushCategory: errorCategory(pushed), elapsedMs: pushed.elapsedMs, channel: after.channel,
       ...(preflight ? { preflight } : {}),
       networkMode: degraded || errorCategory(pushed) === 'uncertain_transport' || pushed.timedOut || decision.state.startsWith('LOCAL_PASS_REMOTE_') ? 'NETWORK_DEGRADED' : 'NORMAL',
-      ...(decision.state === 'DELIVERED_VERIFIED' ? {} : { recovery }) });
+      ...(exactRemote ? {} : { recovery }) });
   } catch {
     return summary('STOP_LOCAL_EVIDENCE_UNVERIFIABLE');
   }

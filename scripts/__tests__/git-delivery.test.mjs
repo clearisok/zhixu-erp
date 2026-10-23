@@ -176,6 +176,7 @@ test('API preflight exact target returns the original commit without pushing aga
   const result = await deliver(f.options, { ...f.dependencies, run });
   assert.equal(result.state, 'DELIVERED_VERIFIED');
   assert.equal(result.remoteSha, f.options.expectedHead);
+  assert.equal(result.remoteStatus, 'EXACT_HEAD_VERIFIED');
   assert.equal(result.channel, 'github_api');
   assert.equal(result.networkMode, 'NETWORK_DEGRADED');
   assert.equal(f.pushes(), 0);
@@ -392,3 +393,29 @@ test('PowerShell real entry defaults dry, rejects main and conflicting actions',
   assert.equal(JSON.parse(conflicting.stdout).state, 'STOP_CONFLICTING_ACTIONS');
   assert.equal(f.pushes(), 0);
 });
+
+for (const [name, stderr, state, category] of [
+  ['ref rejection', 'remote rejected: cannot lock ref refs/heads/chore/test-delivery: reference already exists SECRET', 'STOP_AUTH_OR_DIVERGENCE', 'authentication_or_divergence'],
+  ['authentication', 'authentication failed SECRET', 'STOP_AUTH_OR_DIVERGENCE', 'authentication_or_divergence'],
+  ['certificate identity', 'SSL certificate verify failed SECRET', 'STOP_TLS_IDENTITY_OR_CONFIGURATION', 'tls_identity_or_configuration'],
+]) {
+  test(`exact remote identity is separate from a retained push STOP: ${name}`, async t => {
+    const f = await fixture(t);
+    const run = async (command, args, cwd) => {
+      const result = await f.dependencies.run(command, args, cwd);
+      if (command === 'git' && args[0] === 'push') return { ...result, code: 1, stderr };
+      return result;
+    };
+    const result = await deliver(f.options, { ...f.dependencies, run });
+    assert.equal(result.state, state);
+    assert.equal(result.continueLocal, false);
+    assert.equal(result.pushCategory, category);
+    assert.equal(result.remoteSha, f.options.expectedHead);
+    assert.equal(result.remoteStatus, 'EXACT_HEAD_VERIFIED');
+    assert.equal(result.pushes, 1);
+    assert.equal(f.pushes(), 1);
+    assert.equal(result.retry, false);
+    assert.equal(Object.hasOwn(result, 'recovery'), false);
+    assert.ok(!JSON.stringify(result).includes('SECRET'));
+  });
+}

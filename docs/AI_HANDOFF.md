@@ -1,35 +1,9 @@
-# 恢复点：#127 在实际合并后的 main 上收口
+# 恢复点：#127 的事实回执与安全决策分离
 
-2026-10-23；root 唯一 writer，既有 reviewer 只读。用户批准 #126 merge commit 与 #127
-前向整合。实际 main `e06162c70c9792895c30030216dc8c2a66368069`；parents 精确为
-`996dfedc12da3527343cd3ff2aa5eea35497e10e` 与
-`0be89ff99a7339a68934ed94a56fdc32b11cc8ab`。tree已核对，原历史/分支保留。
+2026-10-23；root唯一writer。当前branch codex/git-delivery-preflight-fallback，干净输入e2dc2704ba51da18e7d0b1c098a7a1657f59a40e，main完整e06162c70c9792895c30030216dc8c2a66368069。用户站立授权安全工程/单次Git恢复/PR与CI，不自动merge或部署。旧三摘要逐Git字节归档，先读CURRENT_STATE、[本阶段任务](tasks/active/pr127-main-forward-2026-10-23.md)及实际status。
 
-当前复用 `C:/Users/Administrator/.codex/worktrees/git-delivery-preflight/zhixu-ainuoke-api`，
-branch `codex/git-delivery-preflight-fallback`，干净输入37bd0e1e81810f46c1972f37630dc99b7fc9b18d。
-唯一 PR #127 仍草稿，尚未合并。先读 CURRENT_STATE、
-[本轮任务](tasks/active/pr127-main-forward-2026-10-23.md)、原工具任务和 RELEASE_BASELINE_GUARD。
+当前改动只有git-delivery.mjs回执事实、4项相关期待及文档。deliveryState原blob保持e2；认证/TLS/分歧STOP、continueLocal=false、pushCategory和CLI非零不变。after.verified且sha精确等于target时remoteStatus为EXACT_HEAD_VERIFIED，且不给冗余recovery；不创建collision白名单，不重写旧结果或推断全局网络恢复。
 
-真实 merge e061 仅四处文档/清单冲突；两侧三摘要已逐 Git 字节归档到
-`tasks/completed/2026-10-23-pr127-forward-inputs/{37bd0e1e,e06162c7}/`。
-213证据/46能力及其他非元数据清单字段完全一致；新清单 baselineSha 必须为实际e061。
-发布守卫及其134回归来自 main；不改它们，不混入全项目候选的286证据/58能力/88UI路径。
-原127的交付工具和两个CI兼容测试原样保留；不要通过放宽TLS、权限、回执或断言消除失败。
+新4项隔离Git先红后绿；首轮脚本因CRLF锚点失败，写码前停止，已单独记录。下一步保存本阶段checkpoint，完整56工具/134发布、语法lint、精确e061门禁、独立review、最终文档commit及再次门禁；原#127原e2三CI全绿不能替代新提交结果。每个最终可靠目标一次既有工具交付，核实完整remoteSHA后更新唯一#127和新CI。未知dirty/身份/分歧停止相关动作，不force/reset/clean。
 
-实际 merge checkpoint 为 `7af55486b4b668ece1add73a202bf8f01d2fc3ae`，parents37bd/e061。
-工具53/53（158394.0935ms）、发布134/134（300753.775ms）、来源API9/9（7340.6715ms）、
-私有Chromium登录10/10（17934.0384ms）均通过，零失败/跳过/取消；类型、定向lint及两个构建通过。
-日志与build-info在 `outputs/pr127-forward-e061-20261023/`；56984/12560/2143/57198均终态，
-不再poll。前端源码精确7af，buildId pr127-forward-7af55486-20261023，buildTime08:18:26+08。
-独立静态review无P1/P2，reviewer未跑测试。最终只文档checkpoint后，仍须实际精确e061 guard、
-一次安全交付、核实完整remoteSHA、更新同一#127及其新三CI/复审。不自动合并#127或其他PR。
-standing安全Git恢复/CI授权有效，无须逐SHA重问；出现未知dirty/分歧/身份异常则保护现场。
-
-7bf3仍为全项目主控验证引用bee4c632，原三CI绑定686，文档Release39841049038绑定bee；
-都是终态，不重启。此次独立Source已从干净stable0c执行且成功（2登录/4报表）；额度已用完。
-脱敏回执在7bf3 `outputs/pr126-main-forward-20261023/source-execution-receipt.json`，
-原文在另一个受保护目录，禁止读取凭据、重采或把样本观察提升为全域过滤/正式激活。
-本轮Source报告留其独立阶段，#127不发布原文或增加来源能力。
-
-3001、50426及其他旧环境/卷/账号/Browser/业务库不动，无部署、入口切换、退役、绑定或
-调度。覆盖v1/关账三问仍待；Num/outdate已确认。完整 Goal 未完成。
+原7af应用构建/9API/10Chromium属于旧相同应用源码，本工具事实修正不重称新运行体验；213证据/46能力与全部冻结blob不变。7bf3的PR120+独立PR128 CI上下文工具由同一主控另行整合，不混入本切片。所有用户环境/账号/卷/Browser数据保护，不新读Source、绑定、激活、调度或部署。目标尚未完成，待决范围保持。
