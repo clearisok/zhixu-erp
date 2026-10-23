@@ -1,5 +1,7 @@
 # 项目知识索引
 
+2026-10-23当前优先阅读[精确镜像与0044恢复任务](tasks/active/server-current-target-recovery-2026-10-23.md)及[CI成本评估](tasks/active/ci-cost-control-2026-10-23.md)。driver848的同5e096镜像最终9/9恢复通过，108表/70非空/5序列/43迁移；原两失败和只释放本轮13停止容器/5空网络的证据保留，179卷名称与旧环境不动。[冻结报告](tasks/completed/2026-10-23-current-target-command-recovery-engineering.md)区分image/driver、真实运行与工程、未部署/激活。用户已确认Billing修复及每月USD5：不批量重跑旧CI、本地验收后集中交付、保留必要合并检查；本轮仅评估workflow，未改测试门槛或触发CI。最终发布门禁/交付另核。
+
 当前[Gate7H配置接线](tasks/active/server-garment-target-operator-2026-10-23.md)本地验收通过：clean7ece全链8、ffa纯7及精确types/lint/Server/UI46路由0skip、原target20通过。[8b63纠正记录](tasks/completed/2026-10-23-garment-target-binding-correction.md)保留完整拒绝候选，两旧feature恢复，当前以[独立契约](features/AINUOKE_GARMENT_TARGET_OPERATOR.md)为准；活动330/59，旧324/其他维度保持。7a07 actual main守卫PASS、发布134/134通过345397ms，HEAD/清单/clean稳定、0fail/cancel/skip，复审无P1/P2。仅本地工程，无真实激活、Hosted CI或部署。
 
 当前[Gate7G目标配置后台](tasks/active/server-garment-target-control-2026-10-23.md)在同一d1dd基线上本地完成，13:03:09Z独立main/五草稿不变。源码5fac20定向、精确native types/lint/Server/UI构建46路由0skip通过，独立复审P2修复后无P1/P2；[492b冻结报告](tasks/completed/2026-10-23-garment-target-control-engineering.md)保留原失败。前向绑定324/59，不改旧对象/状态/UI/运行态；首次项目15项失败均为绑定前漂移，最终稳定25da上项目954/954、发布134/134、精确d1dd守卫通过，均0fail/cancel/skip且HEAD/清单/clean稳定。无新真实激活或读取；Git降级和Hosted CI账单问题仍各自保留，不重复推送或触发CI。

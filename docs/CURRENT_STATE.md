@@ -1,13 +1,15 @@
-# 当前状态：Gate7H本地完整验收通过，最终状态收口
+# 当前状态：最新Server镜像非空恢复验证通过
 
-2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，13:03:09.707Z独立API重读相符，#121–125五草稿保持；已明确批准的#126/#127/#120合并历史保留，未合并其他PR。#123 cb1658与#125 ca05新CI因账号Billing/支出上限未启动、0steps；用户确认未处理，继续安全本地交付，不重派CI或改账单。
+2026-10-23，完整G1–G5 Goal仍active。已独立核实main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，#121–125仍为五个草稿；仅#126/#127/#120获批合并的历史保持。用户现已确认Actions计费修复、USD5月预算；之前CI零steps拒绝是历史事实，不批量rerun或重新派发。
 
-[Gate7H](tasks/active/server-garment-target-operator-2026-10-23.md)接入原操作者的plan-target/apply-target/target-receipt，复用D160/0044，不新增schema、权限、HTTP、采集器或调度。clean7ece全链8/8含源码子进程；ffa56b683333f61e7e0f23ed122a26854a5a4204纯7、精确types/lint/Server/UI46路由0skip及原target20通过，运行SHA/类型等价范围分别保留。[03cc报告](tasks/completed/2026-10-23-garment-target-operator-engineering.md)保留原失败；3fb的main锚点P2已按[8b63纠正](tasks/completed/2026-10-23-garment-target-binding-correction.md)闭环，原候选完整无损归档、旧feature恢复、失败ID不复用。[当前契约](features/AINUOKE_GARMENT_TARGET_OPERATOR.md)为独立根，活动330/59，原324及其他58能力/维度/UI/运行态保持。最终7a07acdf1362e74434bbefe5b3b19840afe8cd66 actual main守卫PASS；134/134于14:13:08.479Z通过345397ms，0fail/cancel/skip，HEAD/清单/clean稳定；复审无P1/P2。最后只做状态收口并重核精确HEAD，不借本地结果宣称Hosted CI或真实激活。
+[当前恢复切片](tasks/active/server-current-target-recovery-2026-10-23.md)：产品image源5e0967cdfd22e998d564c9a139622f8de39e3b8d，image ID85f49cbe94cf63442db24b502b52a637de226f78d2e660d6059aff9c4ad99079；构建Server及46路由0skip通过。最终driver848acfc721de8f0ae5ad2390ddbfac984f573829仅测试/文档变化，沿用原镜像、不重标源码。新随机双项目9/9恢复通过411361.7715ms、0fail/cancel/skip：108张表中70非空/38未覆盖、5sequence、43迁移；原ID、全库指纹、对象字节、商业/生产/来源历史保持。0044启停回执1/2/3版恢复后仍为历史，跨库旧预览拒绝，新预览停用至4版；没有真实Source或实际target启用。
 
-[Gate7G](tasks/active/server-garment-target-control-2026-10-23.md)在clean81ce基线上补内部单SO成衣target plan/apply/receipt及空0044技术回执。enable复验具体证明、可信物理绑定与明确时效；disable不依赖profile/绑定/head健康，历史enable重放不重新启用。目标、原审计与回执同事务，未知COMMIT只核对原请求。没有新公开启用入口、Source读取、实际target激活、既有库/账号操作或部署。
+[冻结工程报告](tasks/completed/2026-10-23-current-target-command-recovery-engineering.md)保留Windows长argv失败（仅driver改stdin）、第二轮start失败及确认的Docker地址池耗尽。仅释放本轮13停止容器/5空网络，179卷名称、私密输入/备份和所有无关容器/网络保持；不声称卷内容逐字校验。最终同代码/同镜像复验成功，不无限重试。纯10/scoped lint/848 actual-main守卫通过，发布回归和最终HEAD守卫/远端交付仍分别待核，不冒称Hosted CI通过。
 
-源码5fac2326634375ded9935782df947ce5871eab43，clean定向20/20；原采集33、观察85、归一引用33通过0skip。独立复审发现actor/UUID审计分组P2，修复并补负测后关闭，无其他P1/P2。精确native archive全量types、Server、完整lint、显式Server UI构建通过，46路由/0skip/单Context，build-info精确5fac；非Docker镜像或人工像素接受。[492b冻结报告](tasks/completed/2026-10-23-garment-target-control-engineering.md)保留失败及各检查范围。首次项目937项922pass/15fail均为D160绑定前的证据漂移；前向追加3条记录为324/59，原321对象/58其他能力/其余维度/UI/运行态保留。最终稳定25da387f32640984239f6734b4e5bbd737dbdaf9上项目954/954、发布134/134通过，均0fail/cancel/skip；2026-10-23T13:18:37Z完成，前后HEAD、清单hash及clean状态保持。精确d1dd源码/证据守卫PASS；最终只做状态文档收口后再次检查守卫，不重写冻结证据。
+[成本策略与评估](tasks/active/ci-cost-control-2026-10-23.md)：当前无Push+PR重复触发，三个验证workflow无并发取消/npm cache，超时15/20/30分钟。建议先加PR过时取消和下载缓存，保持检查名及全部测试；范围选择先验证依赖与required checks。本轮未改workflow，不触发新付费CI，不重复已通过全项目/UI测试或同产品镜像构建。
 
-[Gate7F](tasks/active/server-garment-operator-2026-10-23.md)本地134发布及最终81ce守卫通过；02c22576唯一push发生uncertain_transport/NETWORK_DEGRADED，独立API确认新分支不存在。更早8f2则协议STOP_AUTH_OR_DIVERGENCE但独立exact SHA/tree/父，两项事实并存。根因未解，不重推、不新建重复累计PR或冒称长期恢复；本Gate只本地checkpoint。
+14:29:58Z公开loopback版本核验：3001=e3e8e743保留，62326=333d7cb2、62426=8175f628/10月20日旧构建；50426/59069连接拒绝，不能据此视作退役。未重启、替换、切换这些入口。原runtime refs ebe4cb16/4cf19e82及全部旧库/账号/Browser/卷/其他工作树保护。
 
-3001/50426/59069/62426等旧入口、Browser、对象/卷、账号及所有工作树保护；原用户运行态refs ebe4/4cf1保持。后续仍缺真实目标启用/新读取额度、多页/跨次事件、关账待决、coverage-v1/50426切换接受及逐项退役。原业务问题不默认、不重复提问；工程、合并、交付、CI、部署、来源激活及人工接受分别记录。
+原Gate7G/7H及其所有失败、证据纠正和发布结果通过[前态逐字归档](tasks/completed/2026-10-23-current-target-recovery-inputs/CURRENT_STATE.md)、[当前操作者契约](features/AINUOKE_GARMENT_TARGET_OPERATOR.md)恢复。manifest暂保持330/59，其他维度/UI/runtime/批准未变；本片只追加独立恢复报告证据，不改旧对象。
+
+仍待：最新候选的50426切换及人工接受、coverage-v1批准、真实target/新Source额度、多页/稳定事件与关账三项业务决定、旧资产逐项退役。原待决不默认、不重复询问；不自动merge/close或正式部署。Git只读对照现通过，上传可靠性及既往STOP根因仍未证明；只按既有工具有界交付并独立核实精确SHA。
