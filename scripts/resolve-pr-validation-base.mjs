@@ -7,7 +7,7 @@ const fail = code => { throw Object.assign(new Error(code), { code }); };
 function readLocalGit(root, args) {
   const result = spawnSync('git', args, {
     cwd: root, encoding: 'utf8', timeout: 10_000, maxBuffer: 16 * 1024,
-    windowsHide: true,
+    windowsHide: true, env: { ...process.env, GIT_NO_LAZY_FETCH: '1' },
   });
   if (result.error || result.signal || result.status !== 0) fail('PR_BASE_GIT_READ_FAILED');
   return result.stdout.trim();

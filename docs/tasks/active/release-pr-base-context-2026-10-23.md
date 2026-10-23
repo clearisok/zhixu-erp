@@ -14,6 +14,8 @@
 
 workflow_dispatch保持原默认命令，未知事件拒绝。权限、fetch-depth、checkout及guard源码/134回归均保持原样。新解析器19项合成与临时真实Git/CLI检查通过，4625.6548ms；完整发布及最终门禁尚待执行。无业务、SQL、UI、运行配置或Source范围增加。
 
+源码 checkpoint `856947574be89b79fa39033f30632f1aeb63bdb5` 的解析器19项再次通过（6971.1204ms）。首轮精确门禁及完整134回归因AI_HANDOFF只写缩写、未包含清单完整基线而失败；原日志保留为 `release-first-85694757.log`，不能声称首轮通过。随后只补全该文档基线，并在解析器的Git子进程设置 `GIT_NO_LAZY_FETCH=1`，使缺对象时不触发promisor远端补取（[Git官方定义](https://git-scm.com/docs/git#Documentation/git.txt-GITNOLAZYFETCH)）；不改共享Git配置。新checkpoint与重跑结果继续记录，原guard不变。
+
 ## 验证与交付边界
 
 完整测试、最终精确HEAD、远端和新CI逐步记录。本机日志在ignored `outputs/release-pr-base-context-20261023/`，原失败与两份前摘要[按Git字节保留](../completed/2026-10-23-pr-base-context-inputs/)。仅更新本切片，先交付唯一草稿PR，再把相同原始修复提交前向整合到受影响原PR；不复制各自业务代码。若main再前移，重新核实真实main和各侧H见证，不能把旧e061见证当新基线。

@@ -1,6 +1,6 @@
 # 恢复点：PR 实际检出基线解析器
 
-2026-10-23，root唯一writer，既有reviewer只读。先读CURRENT_STATE、[任务](tasks/active/release-pr-base-context-2026-10-23.md)、AGENTS和实际git状态。当前 `codex/release-pr-base-context` 从main e061干净建立，前一原PR120 e872已精确送达，原分支保留；不混入业务修复。
+2026-10-23，root唯一writer，既有reviewer只读。先读CURRENT_STATE、[任务](tasks/active/release-pr-base-context-2026-10-23.md)、AGENTS和实际git状态。当前 `codex/release-pr-base-context` 从main `e06162c70c9792895c30030216dc8c2a66368069` 干净建立，前一原PR120 e872已精确送达，原分支保留；不混入业务修复。
 
 真实失败：Release39889936426 checkout993=[e061,e872]，payload base=996，guard按旧值报错。只修release workflow的比较参数和新增本地Git只读解析器/19项测试；main guard/134回归不变。验证 HEAD==CHECKOUT_SHA、PR merge ref和编号、恰好双父、第二父==PR head、父对象完整，取第一父；PR上下文异常拒绝，无default回退。workflow_dispatch保留原行为。无fetch/API/认证或权限扩展。
 
