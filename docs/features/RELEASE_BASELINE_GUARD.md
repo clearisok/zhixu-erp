@@ -80,9 +80,50 @@ document version must match the working file; earlier blobs stay readable in Git
 Do not remove the old ID or reuse it for a different assertion.
 Multiple committed revisions in one stacked branch may form a forward chain.
 Every chain must reach an ID in the actual PR-base manifest; intermediate Git
-blobs remain hash-checked. Missing links, cycles, forks, same-commit document
+blobs remain hash-checked. Missing links, cycles, unclosed forks, same-commit document
 revisions and path/kind changes fail closed. This does not authorize overwriting
 any original evidence or advance deployment/acceptance status.
+
+Parallel reviewed document branches can converge through an explicit document-only
+`mergeOf: [<predecessor-id>, <predecessor-id>, ...]` record, mutually exclusive with
+`supersedes`. It needs a nonempty reason, at least two unique nonredundant predecessors
+of the same kind/path, and the exact document blob from a real Git merge checkpoint.
+The guard reads that checkpoint's actual Git parents: two parent branches must
+contribute different predecessor histories. All predecessor commits must be strict
+ancestors of the checkpoint and the checkpoint must be in the checked head.
+
+Every branch must trace back to the actual PR base; cycles and multiple final leaves
+remain errors. All evidence records in the Git parents' manifests must be retained
+unchanged, including records not yet on main. A merge cannot hide missing intermediate
+blobs or modify old hashes/edges. Its own `mergeOf` is immutable in later PRs. A normal
+forward `supersedes` revision may follow the merge. Screenshot, approval, capability,
+runtime and UI-impact requirements stay unchanged; this is evidence convergence,
+not permission for any product or deployment change.
+
+When main advances while another branch already has frozen document revisions,
+do not rewrite those old IDs or hashes and do not remove their ancestry check.
+An older side revision may instead reach a same-path document integration witness
+through the explicit revision edges. The witness is frozen at the real merge H,
+with exactly the current comparison base M and the independent source S as its
+two Git parents. M and S must not contain one another. S's Git manifest must
+contain the exact imported record, its recorded commit must be in S, and H must
+be in the checked head. A single-sided document uses `supersedes`; an actual
+two-sided document conflict still uses `mergeOf` with the original contribution
+and nonredundancy checks. A later ordinary commit cannot impersonate H. No new
+manifest field or replacement of a historical record is needed.
+
+History preservation is independent of this eligibility exception. For an
+explicit PR-base check, the guard enumerates the real merge commits in the
+base-to-HEAD ancestry corridor and reads each actual parent's Git manifest. Every
+parent evidence object must remain unchanged, including source-only records of
+unrelated paths. This also applies when H has no document record or its author
+freezes a later ordinary checkpoint. Missing/invalid Git history is not an empty
+manifest. Discovery is bounded to256 corridor merges,8 parents per merge and64MiB
+of distinct parent manifests; exceeding a bound fails explicitly without a
+truncated PASS. Parent manifests are cached, and ordinary commits do not add
+manifest reads. This protects history actually merged into the inspected corridor,
+not unmerged branches outside it. Default local/dispatch inspection still compares
+working changes to HEAD; it cannot replace the explicit actual-main PR gate.
 
 PNG history remains at its old path with exact bytes. A new screenshot uses a
 new ID/path and a nonempty `changeReason` plus `approvalEvidence` pointing to a
