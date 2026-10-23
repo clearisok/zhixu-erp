@@ -2646,6 +2646,29 @@
       "renderedSourceSha": "65545a743ff714a243dd3ea0ac30fa20028c8f59",
       "sha256": "d4e62de4846f941cffbc7633fe2d665262faaac040e2b2e6cf75c7002d38b933",
       "changeReason": "Freeze exact65545 synthetic nonempty collection-command restart and independent DB/object restore using the unchanged exact357 compiled image. Preserve initial failures, owned-network resource handling and zero real Source scope; no implementation, merge, activation, human acceptance or runtime status upgrade."
+    },
+    {
+      "id": "decisions-pr123-main-be9-import-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "65d90b5323c78d23afa0076b155cee2ddff58a4b",
+      "renderedSourceSha": "65d90b5323c78d23afa0076b155cee2ddff58a4b",
+      "sha256": "36c37559890de048f2da5c2aaa851c8c7ade0166675e5e018a07945e21a8a261",
+      "supersedes": "decisions-price-processing-20261017-roles-20261019",
+      "changeReason": "Preserve the original D146 role-management decision and every predecessor through a real merge whose parents are exact main be9aaa3f and independent original PR123 ebe4cb16. Integration evidence only; no changed business rule or historical approval."
+    },
+    {
+      "id": "decisions-pr123-main-d1dd-merge-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "642d5f124323506f9fc143eb6fcdba7e8868fedd",
+      "renderedSourceSha": "642d5f124323506f9fc143eb6fcdba7e8868fedd",
+      "sha256": "d4f7062714f77f474554908f1e0a202af1f9b5fb386fb4da0e1129ea7ab65750",
+      "mergeOf": [
+        "decisions-pr123-main-be9-import-20261023",
+        "decisions-pr120-main-be9-import-20261023"
+      ],
+      "changeReason": "PR123 retains its approved role/user/log decisions and forward-integrates approved PR120 main through actual two-parent merge 642d5f12; no original decision record or approval is rewritten."
     }
   ],
   "pages": [

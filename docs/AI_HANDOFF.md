@@ -1,13 +1,9 @@
-# 恢复点：非空采集命令恢复与309发布门禁通过
+# 恢复点：最终PR组合第一笔正常merge
 
-2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]及精确树已核对。#123/#125前向提交已送达但Actions被账号Billing拒绝启动；不自动合并/关闭，不表示部署或Source激活。
+2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准、保留原历史合并。#123 cb1658、#125 ca05仍草稿未合并，新CI被账号Billing/支出上限拒绝启动；用户确认未处理，继续安全本地工程，不重跑CI、不改账单。
 
-root唯一writer，既有reviewer只读。e971313a7b0ad5dd52b65cd33fb26106e60275ef已精确送达，Source39928182328、Team39928186934、Release39928191131各attempt1成功；Ubuntu专属跳过与旧357失败保留原范围。308/59及发布134/134、owned Chrome12单元/18实际导航证据不改。
+当前[最终PR组合验证](tasks/active/server-final-pr-combination-2026-10-23.md)从精确main建立，FF已交付候选1962后正常合流#123/#125完整原历史。原单SO采集控制候选1962已一次正常送达并独立核对SHA/tree/parent；非空命令恢复9/9、309发布134/134、独立复审无P1/P2保持原范围。当前第一笔merge待提交，311证据并集无ID碰撞、59能力不变，DECISION双叶待真实merge后绑定。无新的组合PASS/CI/部署或来源激活声明。
 
-本阶段只有四个恢复测试文件及文档增量。65545a743ff714a243dd3ea0ac30fa20028c8f59的9保护/lint及精确d1dd守卫通过；产品/SQL/构建/ops与原357镜像相同。完整新演练9/9通过302720.1184ms、0skip：69非空/38空表、5序列一致，0043三态3行，重放worker=0；未过期旧permit跨库scope_changed/0worker，新预览1worker。报告run-d3c7f103dc哈希及两个失败阶段/安全释放自有失败网络、保留全部卷的证据见completed/2026-10-23-garment-command-nonempty-recovery.md。脱敏诊断只能证明地址池/网段分配类失败，不细分“耗尽”。所有实际采集为计数fake worker、内部网络，真实Source=0。
+root唯一writer，既有reviewer只读。精确输入与冲突/归档见active/server-final-pr-combination-2026-10-23.md；ignored outputs/final-pr-combination-20261023记录本阶段baseline、证据并集与测试。第一笔父为1962/cb1658；311/59保持所有旧对象，DECISION两叶将在真实merge commit后追加见证，不改旧hash。两个Chromium helper blobs原已相同，待补的是team-access-ui调用方修复；不再称三个helper。后续正常merge ca05，保留两边完整历史和证据，不能选择两个merge bases中的一个当唯一基线。
 
-新报告冻结于d740ab775e768aea9fb4be7856fa85748af062d8，Git blob SHA256 d4e62de4846f941cffbc7633fe2d665262faaac040e2b2e6cf75c7002d38b933；e7b3d00989c15c82c8f57aeebab75237ef2e86cb绑定309/59，仅isolatedTest重新评估，308原对象/其他维度/截图/批准保持。explicit d1dd守卫PASS；309发布134/134通过557424.8867ms、0skip，HEAD与manifest a0573243b5edd7888dde9ab91f564ba6d6b7ff88e2b538c9bc4063efa9bb9176稳定。独立复审无P1/P2。当前只完成状态文档收口；随后精确最终HEAD守卫和既有工具一次交付，完整远端SHA/tree/parent独立核实结果保存在ignored outputs/garment-command-recovery-20261023。此冻结点不预报远端或新CI，不重跑账单受限CI，不新建重复累计业务PR。
-
-下一安全本地阶段：前向合流已验收的#123 cb1658与#125 ca05完整原历史到组合验证分支；当前候选还缺CB的team-access-ui真实GET屏障修复，三个Chromium helper blobs已相同。两者与本候选各有两个merge bases，不能挑一个当唯一基线；使用正常merge并保留双方冻结证据。先复核精确refs和干净baseline，当前phase最终checkpoint/交付核实后再开始，不merge GitHub main/close或部署。没有新的类型/build/UI运行声明；本phase产品未变。
-
-#123已前向整合并精确送达cb1658d97485bbf6c529660fffb50215548fffcd，#125同样ca05d3e75d3b28be44184a5ef645c9f24e6f38d3；原本地分支及运行态未移动。两PR均草稿未合并，新CI因账号Billing/支出上限拒绝启动、0steps，不能写代码失败或PASS；用户已确认尚未处理，继续本地交付、不重跑。旧push STOP/exact远端并存、根因unresolved，不重推。旧环境、Source、账号、业务库无操作；完整Goal、覆盖v1/关账/切换待决不默认。
+先核对实际暂存差异/产品等价并创建本地merge checkpoint，再绑定真实文档见证；第二笔同样独立冻结。组合验收待，账单受限CI不重跑，不创建重复累计业务PR。原本地feat/business-operation-logs=ebe4与codex/server-persistent-empty-target=4cf1保持用户运行态，不移动。无新真实Source/凭据/私密报告、现有库/账号/端口、持续调度或部署。
