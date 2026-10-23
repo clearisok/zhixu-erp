@@ -83,7 +83,7 @@ test("unverified claim/COMMIT/started/unknown is never successful or a retry lea
   }
   const published = garmentOperatorSummary("receipt", randomUUID(), { receiptState: "completed", sourceReadThisInvocation: "none",
     result: { outcome: "published", requestCounts: { httpAttempts: 3, reportRequests: 2 }, publicationId: randomUUID(), snapshotId: "a".repeat(64), generation: 1 } });
-  assert.equal(published.result, "COLLECTION_PUBLISHED"); assert.equal(published.receiptIsHistorical, true);
+  assert.equal(published.result, "COLLECTION_PUBLISHED"); assert.ok("receiptIsHistorical" in published); assert.equal(published.receiptIsHistorical, true);
   assert.equal(garmentOperatorExitCode(published), 0); assert.equal(published.sourceReadThisInvocation, "none");
   assert.equal(garmentOperatorExitCode({ result: "PRIVATE_REPORT_UNAVAILABLE" }), 2);
   assert.equal(garmentOperatorExitCode({ result: "COLLECTION_NOT_PUBLISHED" }), 2);

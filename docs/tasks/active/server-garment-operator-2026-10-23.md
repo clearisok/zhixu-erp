@@ -24,3 +24,5 @@
 独立静态复审发现P2产物衔接：最初CLI仅接内部三字段，现有核验工具却输出完整private wrapper。已改为严格原producer包装adapter，原checkedAt重建并完整比对；合成fixture直接消费原producer产物，拒绝伪label/manifest/bare triple。修复后5项纯测17143.4729ms通过、Server编译通过；补真实现存合成actor撤sync/缺凭据负控。该修复后的完整PG/clean源码入口与复审尚待，不借第二轮结果。
 
 后续先完成定向/原控制层回归与独立复审，保存独立源码checkpoint，再以精确Git archive/native长路径验证类型/构建、干净源码入口。追加不可变证据和本维度能力，再运行explicit d1dd守卫及发布134。Git交付继续尊重既有STOP，Hosted CI账单限制未解除；不创建重复累计业务PR，不将本地结果冒称送达或CI通过。
+
+ee6f570f5c689569b088cc5af28a64c7795821f3干净源码完整定向15/15通过251843.0245ms、0skip，原producer包装及撤权负控均通过，实际源码子进程receipt正控退出0/历史published/零Source。精确native archive类型检查发现纯测试86行union字段未先narrow，未继续Server/lint/UI构建；已只增assert.ok显式窄化，不改产品。原失败context/archive/日志保留，新精确checkpoint后重验类型、纯测与构建；15项结果仍属于ee6f，不改名为下一SHA。

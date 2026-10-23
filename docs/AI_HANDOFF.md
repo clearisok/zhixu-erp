@@ -8,7 +8,7 @@
 
 首轮4纯测通过；初次TS窄化修正后Server编译通过。原PG9项3pass/6fail（含父）：缺actor异常没有code、固定夹具时钟因Windows ACL耗时晚于DB started保护。已静态安全映射actor；夹具每单重置实际起点、原允许九分钟permit，不改SQL。第二轮13/13通过220194.8743ms、0skip，dirty源码入口正确拒绝；原控制层33/33通过20721.6352ms、0skip。
 
-独立复审P2为旧三字段proof不兼容已有完整producer产物，已按固定完整wrapper adapter修复，合成fixture直接消费原producer。新增5纯测17143.4729ms通过，Server编译通过；补自有现存actor撤ainuoke.sync/缺凭据负控。adapter后的最终PG/clean源码入口及独立复审待执行，不能借旧13结果。当前日志在outputs/garment-operator-20261023；baseline.json是建立新分支前的独立读数，前一分支名正确，任务文档记录新分支建立/FF。
+独立复审P2为旧三字段proof不兼容已有完整producer产物，已按固定完整wrapper adapter修复，合成fixture直接消费原producer。ee6f570f5c689569b088cc5af28a64c7795821f3的15/15完整定向251843.0245ms通过、0skip，含自定义现存actor撤sync/缺凭据负控和实际clean committed源码子进程receipt正控。原5纯测/Server编译通过；独立最终复审仍待。ee6f native archive全量typecheck仅发现纯测试86行未先narrow receiptIsHistorical，后续构建未运行，原失败context保留；现只增一条assert.ok，不改产品，保存新checkpoint再重验类型/纯测/构建。15结果仍绑定ee6f，不改名。当前日志在outputs/garment-operator-20261023；baseline.json是建立新分支前的独立读数，前一分支名正确。
 
 下一步：scoped lint/源码checkpoint → 干净源码实际入口与新定向/共享私密报告回归 → 精确Git archive的native长路径类型/Server编译/所需构建 → 独立复审 → 冻结新文档/证据及能力维度 → explicit d1dd guard/发布134。旧feature无main证据锚点不能改原冻结字节，新操作者有独立复杂上下文文档；不改guard或旧hash绕过。新真实Source/私密文件读取、target激活、现有库/账号、部署/切换/退役仍不在本阶段。
 
