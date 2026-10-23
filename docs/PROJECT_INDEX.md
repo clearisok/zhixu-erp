@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-23恢复优先读CURRENT_STATE、AI_HANDOFF与[原工具PR126任务](tasks/active/release-document-merge-guard-2026-10-20.md)。main完整基线 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；本分支只修main前移后的旧side证据导入与父历史保护，不含其他业务候选。最终源码cff4addd完整134项、精确996门禁及独立复审通过；同脚本验证完整候选94亦通过。接着交付原#126/核实精确HEAD/检查新CI，不能把旧CI当作新结果。不自动合并、部署或真实Source/业务库操作。旧956、完整Goal候选94与红测93摘要均按Git字节[归档](tasks/completed/2026-10-23-release-main-advance-inputs/)，下方旧阶段按其日期阅读。完整Goal仍active，Source0c与image94原CI已成功。
+2026-10-23，当前独立[CI实际PR基线任务](tasks/active/release-pr-base-context-2026-10-23.md)，main精确`e06162c70c9792895c30030216dc8c2a66368069`已含#126；#127仍草稿。原#120 e872精确送达并解除冲突，但新Release发现旧event base与实际merge父不同；修复工具与业务分开。先读CURRENT_STATE/AI_HANDOFF，原摘要[逐字归档](tasks/completed/2026-10-23-pr-base-context-inputs/)。完整Goal仍active，累计/Source事实见[7c冻结记录](https://github.com/clearisok/zhixu-erp/blob/7c0c027334e49ae9c3c833f45cc1aeccb05d52e5/docs/tasks/active/candidate-main-forward-2026-10-23.md)。不自动合并/部署/真实Source操作。
 
 ## 系统简介
 

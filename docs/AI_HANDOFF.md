@@ -1,36 +1,9 @@
-# 恢复点：原PR126的main前移证据回归
+# 恢复点：PR 实际检出基线解析器
 
-2026-10-23；main`996dfedc12da3527343cd3ff2aa5eea35497e10e`。root唯一writer，reviewer只读。
-当前原`codex/release-document-merge-guard`，从干净956921f63ba3069c059ca64c2324edbc33afefd8
-继续，原branch不在其他worktree占用。红测checkpoint93f7e43f15595c9030eef892af708222cfaa5f33
-已保存，后续仅本工具/测试/feature/verifiedAt元数据、逐字摘要归档及当前状态更新。
-不能混入应用、SQL、UI或其他候选。
+2026-10-23，root唯一writer，既有reviewer只读。先读CURRENT_STATE、[任务](tasks/active/release-pr-base-context-2026-10-23.md)、AGENTS和实际git状态。当前 `codex/release-pr-base-context` 从main e061干净建立，前一原PR120 e872已精确送达，原分支保留；不混入业务修复。
 
-先读CURRENT_STATE、原release-document-merge-guard任务及feature，实际check脚本与合成
-Git测试。新red已完成7项0pass/7fail（66868.6335ms，预期反例），日志outputs/release-main-advance-20261023/red.log；
-两类合法整合误拒绝，后置普通checkpoint删除side历史却返回[]。窄修复及静态独立复审已完成；
-扩展16项定向通过；首轮完整134/134、376912.5766ms、0跳过/失败/取消，见release-full.log。
-handle69204/80816/3257均终态，不再poll。首轮guard-working PASS检查的是dirty树/HEAD93，
-不是最终提交证据。首轮后将8-parent上限提前到对象/祖先读取前，双路径9/10000-parent
-spy已补；最终源码cff4addd59f5492b677ae88b502db0d0e5affa72完整134/134通过，
-377139.5791ms、0跳过/失败/取消，release-final-cff4addd.log；handle60442已终态。
-精确996门禁PASS/11页46能力0UI，handle38758终态；语法/lint通过、独立复审无剩余P1/P2。
-本次只剩最终文档commit/精确提交门禁、向原PR126交付及新CI，不重跑无关应用验收。
-实现有界同路径H见证+actualBase→HEAD真实merge走廊父清单逐对象保留；256merge/8parent/
-64MiB、缺对象/清单/超限fail closed。保持原mergeOf/锚点/blob/截图规则，不删除祖先约束。
+真实失败：Release39889936426 checkout993=[e061,e872]，payload base=996，guard按旧值报错。只修release workflow的比较参数和新增本地Git只读解析器/19项测试；main guard/134回归不变。验证 HEAD==CHECKOUT_SHA、PR merge ref和编号、恰好双父、第二父==PR head、父对象完整，取第一父；PR上下文异常拒绝，无default回退。workflow_dispatch保留原行为。无fetch/API/认证或权限扩展。
 
-只读扫描完整候选94：9 corridor merges/17 distinct parent manifests/6045487 bytes/
-max2parents/286证据/errors[]。本地测试终态后已从cff的Git blob冻结脚本到ignored输出，
-安全切到既有chore/server-current-image-0042精确94运行显式996门禁，PASS/11页58能力/
-88继承UI路径/errors[]，cumulative-94-new-guard.log、handle27377终态；树始终干净，
-已安全切回cff原分支。未改候选、应用、数据库或旧运行环境。
+下一步静态复审、提交checkpoint、精确e061门禁、完整发布回归及脚本语法/lint；然后独立精确交付并创建唯一工具草稿PR/新CI，前向整合相同修复提交到原PR120，复验新CI。不自动合并任何其他PR。原120的First team新CI已成功，Source最后观察运行中；Release真实失败保留，不冒称三绿。
 
-原完整候选/Goal状态在归档94a1767b三摘要，原956摘要同目录另一子目录。94工具文档
-已精确guard/远端；Release39816442442 success、attempt1/head94，watch11552已终态，不再poll。
-Source0c三原CI39810661082/39810668692/39810675561也success，watch38441已终态。
-新image8/8与发布116是原切片事实，不借作本修复PASS。所有ignored回执保留。
-
-Full Goal active；standing安全Git恢复授权有效，不再逐SHA询问。无自动merge/close、正式
-部署/入口切换、真实账号/业务库、退役或新Source额度授权。新固定真实恢复问题尚未回复；
-若明确批准，须从干净树切到stable feat/garment-filter-recovery精确0c再执行一次，不能在
-本dirty工具分支误消耗0HTTP许可。覆盖v1/原关账三问不默认，Num/outdate已确认。
+站立安全Git恢复授权有效，不再逐SHA询问。先前push exit1/STOP而API exact的冲突原文保留，不重复推送、不据此宣称网络永久修复。所有旧运行入口和数据保护；本轮无真实Source或业务库、账号、部署/切换/退役操作。完整Goal与待决业务边界不变。双方前摘要已[逐字归档](tasks/completed/2026-10-23-pr-base-context-inputs/)。
