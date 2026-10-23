@@ -2724,6 +2724,30 @@
       "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
       "supersedes": "closing-pr125-main-be9-import-20261023",
       "changeReason": "Carry the unchanged approved D147 target-currency document through actual PR125/main d97a72ff merge; original side-chain evidence and all historical currency facts stay intact."
+    },
+    {
+      "id": "decisions-final-pr125-combination-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "b14f79fb47e607ba55268916fe9f10023141df3f",
+      "sha256": "0e56b18dcbb1a6789c255b7111edaee6eff1d92de1d2a06a2808070fe66a75f2",
+      "mergeOf": [
+        "decisions-final-pr123-combination-20261023",
+        "decisions-pr125-main-d1dd-merge-20261023"
+      ],
+      "changeReason": "Retain both reviewed final current-main histories at the actual 33f5/ca05 local validation merge; preserve confirmed D147 and all existing business/runtime limits."
+    },
+    {
+      "id": "closing-final-pr125-combination-20261023",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "b14f79fb47e607ba55268916fe9f10023141df3f",
+      "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
+      "mergeOf": [
+        "closing-pr120-main-d1dd-import-20261023",
+        "closing-pr125-main-d1dd-import-20261023"
+      ],
+      "changeReason": "Retain both reviewed final current-main histories at the actual 33f5/ca05 local validation merge; preserve confirmed D147 and all existing business/runtime limits."
     }
   ],
   "pages": [
