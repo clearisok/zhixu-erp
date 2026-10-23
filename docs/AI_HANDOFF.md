@@ -1,4 +1,4 @@
-# 恢复点：Gate7H工程与134通过，文档锚点纠正待精确守卫
+# 恢复点：Gate7H本地全部通过，最终状态commit后守卫
 
 2026-10-23；完整G1–G5 Goal active。root唯一writer，既有reviewer只读。当前分支codex/server-garment-target-operator，从main d1dd4f0fcf9992d5c055c7b67b6832b635485680建立，再FF clean cd7cd459885230b839d8d98a723f8f26e7d5bd24。开始独立API核实main及草稿PR121–125 heads未变；baseline见ignored outputs/garment-target-operator-20261023/baseline.json。
 
@@ -10,7 +10,9 @@
 
 8b63df468d439fea43a6c40cc145e1ef30d976f5仅文档纠正：原两feature恢复cd7原blob；当前实质契约在features/AINUOKE_GARMENT_TARGET_OPERATOR.md新根。completed/2026-10-23-rejected-garment-target-binding保存完整B清单无损gzip（解压原SHA daa3fd、压缩SHA686384647c98405c898dc6ace4e718b6a4ff481f913d840a3e3ec4f9e406a90d）、两modified feature、八错误与134实际PASS终态。两失败ID只退出未通过活动候选，JSON/原Git历史保留、永不复用。03cc报告原文不改；新纠正报告区分134测试和实际main守卫。
 
-新活动清单330/59，原324全部不变、原B合法D161/report保留、其他58能力/维度/UI/runtime/批准保持；新四证据绑定8b63。manifest SHA256 79e3631d9a772f8334fa4b56781eda9b8d0b8fc7d694c93d097ab5796669cf16，详见reconciled-binding.json。下一步仅提交清单/状态checkpoint，重跑actual main守卫、独立归档/锚点复核；代码、测试、SQL及validator未变，不把3fb的134冒称在新HEAD重跑。若检查不要求额外回归，不重复全项目；最后状态commit后守卫仍须精确新HEAD。Git/CI/部署边界不变。
+新活动清单330/59，原324全部不变、原B合法D161/report保留、其他58能力/维度/UI/runtime/批准保持；新四证据绑定8b63。manifest SHA256 79e3631d9a772f8334fa4b56781eda9b8d0b8fc7d694c93d097ab5796669cf16，详见reconciled-binding.json。独立复审核实无损归档/原324/合法锚点，P2闭环，无新增P1/P2，未执行测试。
+
+修正后7a07acdf1362e74434bbefe5b3b19840afe8cd66精确actual main守卫PASS，errors空。新release134/134于2026-10-23T14:13:08.479Z通过345397ms，0fail/cancel/skip；前后HEAD和manifest完全一致，dirty空，原始release-reconciled-result.json及log保留。它独立于3fb的测试PASS/guard FAIL；不得抹去旧候选。下一步仅四状态文档commit收口，再运行最终HEAD对d1dd精确守卫、检查clean并汇报；不改冻结feature/报告、manifest、代码/测试/SQL或validator，不重复已经通过的其他检查。Git/CI/部署边界不变，Goal仍active。
 
 Gate7G已完成：S5fac2326634375ded9935782df947ce5871eab43，报告492b4d39e8e59eb6a579b212e9d297aee29a622f，绑定25da387f32640984239f6734b4e5bbd737dbdaf9，最终cd7c守卫PASS。稳定25da项目954/954、发布134/134，均0fail/cancel/skip、HEAD/manifest/clean稳定；源码20及原33/85/33、types/lint/Server/UI46路由0skip通过，复审P2修复后无P1/P2。原失败、各日志hash/源码范围和完整清单在Gate7G任务及冻结报告保留。
 

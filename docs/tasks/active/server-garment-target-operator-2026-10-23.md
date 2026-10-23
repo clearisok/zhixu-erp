@@ -43,3 +43,9 @@ source7ece2f5a2a8c290fa15c0e35426748abf5840201上新纯测试7/7通过19365.2922
 [8b63纠正](../completed/2026-10-23-garment-target-binding-correction.md)保留原03cc报告与Git祖先；[拒绝候选档案](../completed/2026-10-23-rejected-garment-target-binding/README.md)无损保存完整B清单、两modified feature、原JSON、8错误和134终态。两个失效ID仅退出未通过的活动候选，永不复用。两旧feature恢复cd7冻结blob，当前D161使用独立AINUOKE_GARMENT_TARGET_OPERATOR.md；旧324证据全部不变，原合法D161/report保留。
 
 新清单330/59，其他58能力/非目标维度/UI/runtime/批准保持，manifest SHA256 79e3631d9a772f8334fa4b56781eda9b8d0b8fc7d694c93d097ab5796669cf16。业务代码、SQL、测试和validator不变；仅文档/活动证据修正后重跑actual main守卫与独立复核。134结果继续归属3fb，不能声称在新HEAD重跑；当前修正守卫尚待，不预报PASS。
+
+## 最终修正候选的终态
+
+7a07acdf1362e74434bbefe5b3b19840afe8cd66精确actual main d1dd4f0fcf9992d5c055c7b67b6832b635485680守卫PASS（11页面/59能力/87继承UI，errors空）。修正后的发布测试另行重跑134/134，于2026-10-23T14:13:08.479Z通过345397ms，0fail/cancel/skip、exit0。前后HEAD=7a07、清单hash=79e363均一致、dirty为空；原始release-reconciled-result.json和log保留。这不是把3fb结果改名，旧PASS测试/FAIL守卫记录仍保持。
+
+独立复审逐字核对原清单无损gzip、原两feature、旧324/合法两记录/新锚点，确认P2闭环，无新增P1/P2；复审者未执行测试。最终仅四份状态文档独立commit，随后再验精确最终HEAD守卫，不更改已冻结数据。无本Gate远端push、PR新建、CI派发、merge/close、真实Source或部署。完整G1–G5仍待真实激活/新额度、事件/关账待决及用户切换/退役批准，不能把此切片标Goal完成。
