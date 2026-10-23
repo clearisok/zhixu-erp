@@ -4,7 +4,7 @@
 
 本片4测试/driver文件无产品/SQL/UI/权限/ops变化。第一次seed前ENAMETOOLONG只修stdin；第二轮DB/对象恢复后start失败，随后bounded probe确认地址池耗尽。13停止owned容器/5空网络按scope释放，179卷名称/无关容器网络/所有私密输入/备份保留；原scope因Mounts顺序STOP零删除，deepEqual只证顺序后canonical。第三轮同848/5e096成功。所有原日志hash和边界在tasks/completed/2026-10-23-current-target-command-recovery-engineering.md；原前态逐字在current-target-recovery-inputs。
 
-下一步：提交冻结报告/状态；仅追加该独立根至manifest（原330对象/59能力及其他维度逐字保持），跑一次稳定候选发布134及最终精确HEAD/actual-main守卫，独立复审。不要改已冻结feature/决策/报告，避免前次未合并feature根修订P2。Git诊断三只读通过，不证明push可靠；常设授权下最终可用原工具一次DryRun/Execute并独立核对，任何STOP不重推。作为验证引用交付，不新建重复累计业务PR。
+冻结报告/状态已提交e5dbad5ea7f0f8069422395f524a64c3ecd0016b，仅追加该独立根至manifest331/59，原330对象及其他维度逐字保持。下一步只跑一次稳定候选发布134及最终精确HEAD/actual-main守卫，独立复审。不要改已冻结feature/决策/报告，避免前次未合并feature根修订P2。Git诊断三只读通过，不证明push可靠；常设授权下最终可用原工具一次DryRun/Execute并独立核对，任何STOP不重推。作为验证引用交付，不新建重复累计业务PR。
 
 用户刚确认Billing已处理、USD5月预算：不批量重跑旧失败、不反复dispatch，集中本地修改再push；保留必要合并CI，当前workflow仅做评估。优先concurrency/npm下载cache，不能直接跳测试；详见tasks/active/ci-cost-control-2026-10-23.md。不要为文档收口重跑全项目/BrowserUI/同镜像构建。
 

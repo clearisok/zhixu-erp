@@ -2860,6 +2860,15 @@
       "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
       "sha256": "b4c21437320ceb911e336d53d093bf78ccd7cc42832a6d5fd641c36a81d2354a",
       "changeReason": "Reject and losslessly archive two invalid, never-passed feature revisions without a main anchor. Preserve their IDs/history in the rejected-candidate archive, restore the old frozen feature blobs, and use a substantive independent D161 feature root. No guard, product, schema, permission, UI or runtime change."
+    },
+    {
+      "id": "current-target-command-recovery-engineering-20261023",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-23-current-target-command-recovery-engineering.md",
+      "recordedAtSha": "e5dbad5ea7f0f8069422395f524a64c3ecd0016b",
+      "renderedSourceSha": "848acfc721de8f0ae5ad2390ddbfac984f573829",
+      "sha256": "882ed55fba1be6bb2fc3297a95bb0c4ba819bc4326b10f0dc50514a75f8fa65c",
+      "changeReason": "Add independent exact-image synthetic recovery evidence for nonempty0044 target receipts and Windows stdin driver. Preserve prior330 evidence objects, all59 capability dimensions, UI/runtime/approval facts. No Source, target or deployment activation; no workflow or quality-gate change."
     }
   ],
   "pages": [

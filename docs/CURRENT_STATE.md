@@ -10,6 +10,6 @@
 
 14:29:58Z公开loopback版本核验：3001=e3e8e743保留，62326=333d7cb2、62426=8175f628/10月20日旧构建；50426/59069连接拒绝，不能据此视作退役。未重启、替换、切换这些入口。原runtime refs ebe4cb16/4cf19e82及全部旧库/账号/Browser/卷/其他工作树保护。
 
-原Gate7G/7H及其所有失败、证据纠正和发布结果通过[前态逐字归档](tasks/completed/2026-10-23-current-target-recovery-inputs/CURRENT_STATE.md)、[当前操作者契约](features/AINUOKE_GARMENT_TARGET_OPERATOR.md)恢复。manifest暂保持330/59，其他维度/UI/runtime/批准未变；本片只追加独立恢复报告证据，不改旧对象。
+原Gate7G/7H及其所有失败、证据纠正和发布结果通过[前态逐字归档](tasks/completed/2026-10-23-current-target-recovery-inputs/CURRENT_STATE.md)、[当前操作者契约](features/AINUOKE_GARMENT_TARGET_OPERATOR.md)恢复。manifest前向追加独立恢复报告至331/59，其他维度/UI/runtime/批准未变；新根绑定e5dbad5e，原330对象逐字保持；其他维度/UI/runtime/批准不改。
 
 仍待：最新候选的50426切换及人工接受、coverage-v1批准、真实target/新Source额度、多页/稳定事件与关账三项业务决定、旧资产逐项退役。原待决不默认、不重复询问；不自动merge/close或正式部署。Git只读对照现通过，上传可靠性及既往STOP根因仍未证明；只按既有工具有界交付并独立核实精确SHA。
