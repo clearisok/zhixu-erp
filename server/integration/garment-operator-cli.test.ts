@@ -17,7 +17,7 @@ const intent = () => {
     operatorUsername, source, salesOrderId: randomUUID(), verification: null };
 };
 
-test("garment operator requires exactly one fixed action and never accepts target/SQL/worker/retry flags", () => {
+test("garment operator requires exactly one fixed action and rejects unscoped target/SQL/worker/retry flags", () => {
   assert.equal(garmentOperatorArguments(["--receipt=6086979", ...base()]).action, "receipt");
   assert.equal(garmentOperatorArguments(["--plan-collection=6086979", ...base(), expiry]).action, "plan-collection");
   const collect = ["--collect-once=6086979", ...base(), expiry, "--scope-hash=" + "b".repeat(64),
@@ -29,6 +29,39 @@ test("garment operator requires exactly one fixed action and never accepts targe
     ["--receipt=6086979", ...base(), expiry], ["--collect-once=6086979", ...base(), expiry],
     ...["enable", "sql", "migrate", "bootstrap", "schedule", "retry", "worker", "max-pages", "source-contract", "python"].map(flag => [...collect, "--" + flag + "=yes"])])
     assert.throws(() => garmentOperatorArguments(args), { code: "garment_operator_explicit_action_required" });
+});
+
+test("target commands require their own exact action, explicit policy and confirmation without a credential flag", () => {
+  const plan = ["--plan-target=6086979", ...base(), expiry, "--target-action=enable", "--freshness-ms=60000"];
+  const apply = ["--apply-target=6086979", ...base(), expiry, "--target-action=disable", "--scope-hash=" + "b".repeat(64), "--execute=I_CONFIRM_EXACT_TARGET"];
+  assert.equal(garmentOperatorArguments(plan).action, "plan-target");
+  assert.equal(garmentOperatorArguments(apply).action, "apply-target");
+  assert.equal(garmentOperatorArguments(["--target-receipt=6086979", ...base()]).action, "target-receipt");
+  for (const args of [plan.filter(x => !x.startsWith("--freshness-ms=")), plan.filter(x => !x.startsWith("--target-action=")),
+    ...["0", "999", "86400001", "1000.5", "1e4", "+1000", "01000", "9007199254740993"].map(value => plan.map(x => x.startsWith("--freshness-ms=") ? "--freshness-ms=" + value : x)),
+    [...plan, "--collect-once=6086979"], [...plan, "--credential-file=" + resolve("outputs/absent-key.txt")],
+    [...apply, "--freshness-ms=60000"], apply.map(x => x === "--execute=I_CONFIRM_EXACT_TARGET" ? "--execute=I_CONFIRM_EXACT_SCOPE" : x),
+    ["--target-receipt=6086979", ...base(), "--target-action=enable"], ["--target-receipt=6086979", ...base(), expiry],
+    ["--receipt=6086979", ...base(), "--target-action=disable"], [...plan, "--retry=yes"], [...plan, "--target-action=enable"]])
+    assert.throws(() => garmentOperatorArguments(args), { code: "garment_operator_explicit_action_required" });
+});
+
+test("target public results distinguish historical completion and never project an unverified target state", () => {
+  const result = { schemaVersion: "ainuoke-garment-target-outcome.v1", action: "enable", enabled: true, changed: true, version: 3,
+    sourceRead: "none", snapshotsPublished: 0 };
+  for (const receiptState of ["unknown", "unverified_commit", "unverified_started"]) {
+    const summary = garmentOperatorSummary("apply-target", randomUUID(), { receiptState, result, secret: "not-public" });
+    assert.equal(summary.result, "TARGET_COMMAND_UNVERIFIED"); assert.equal(garmentOperatorExitCode(summary), 2);
+    assert.equal("enabledAtCompletion" in summary, false); assert.equal("targetVersionAtCompletion" in summary, false);
+    assert.equal(summary.automaticRetry, false); assert.equal(JSON.stringify(summary).includes("not-public"), false);
+  }
+  const historical = garmentOperatorSummary("target-receipt", randomUUID(), { receiptState: "completed", result, replayed: true });
+  assert.equal(historical.result, "TARGET_COMMAND_COMPLETED"); assert.equal(historical.receiptIsHistorical, true);
+  assert.ok("enabledAtCompletion" in historical); assert.equal(historical.enabledAtCompletion, true);
+  assert.equal(historical.sourceReadThisInvocation, "none"); assert.equal(garmentOperatorExitCode(historical), 0);
+  const wrongLedger = garmentOperatorSummary("target-receipt", randomUUID(), { receiptState: "completed", result: { outcome: "published" } });
+  assert.equal(wrongLedger.result, "TARGET_COMMAND_UNVERIFIED");
+  assert.equal(garmentOperatorExitCode(garmentOperatorSummary("plan-target", randomUUID(), { scopeHash: "a".repeat(64), expiresAt: expiry })), 0);
 });
 
 test("job accepts only a bounded single SO private intent, with no credential or supplied permission", () => {

@@ -1,5 +1,13 @@
 # 决策日志
 
+### D-161 成衣目标配置接入原受控操作者，配置与采集回执分别核对
+
+- 2026-10-23，Active engineering decision，D147既有Server收敛范围内；D160原“无CLI”保留为Gate7G冻结范围，本片复用原garment-operator-cli和原target服务增加plan-target/apply-target/target-receipt，不新增CLI、schema、权限、HTTP、Catalog或调度。工程入口不授予真实target激活或新的Source请求额度。
+- target plan/apply必须明确enable或disable，enable必填1000..86400000整数毫秒时效，无默认值；apply需原UUID/期限/hash及独立I_CONFIRM_EXACT_TARGET，不能复用采集确认短语。target一律拒绝credential-file；disable/target-receipt不打开证明或秘密文件、不执行Source IO。原collect-once的具体范围、凭据延迟读取及请求预算不变。
+- apply直接调用D160原服务，保留已完成请求的意图校验和历史重放；不能强制重新预览或用原enable回执重新激活已停target。公开字段明确是enabledAtCompletion/targetVersionAtCompletion并标历史，不当作当前状态；未知COMMIT不输出暂定配置成功，报告落盘失败只核对原请求。
+- 0043与0044回执严格按原动作独立查询，同actor/UUID可分别存在，不跨账本回退；unknown不证明未做过。干净已提交源码、migration verify-only、fresh角色、原完整producer包装和私密文件保护继续有效。原观察/生产/财务和币种口径不变。
+- 证据：原garment-operator-cli及纯参数/投影负测、新合成PG target-operator链，见[阶段任务](tasks/active/server-garment-target-operator-2026-10-23.md)。只用自有一次性库和fake Source；真实激活、读取、运行切换及部署仍分别待批准，不预报工程或Hosted CI结果。
+
 ### D-160 成衣目标配置复用原目标并保存独立原子历史回执
 
 - 2026-10-23，Active engineering decision，D147既有收敛范围内；不改变D152数量/日期、D153观察与D158/159单次采集，真实启用和新读取额度仍另行批准。本片仅内部plan/apply/receipt，无CLI/HTTP/Catalog/调度或实际激活。

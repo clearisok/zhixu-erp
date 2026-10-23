@@ -1,6 +1,8 @@
-# 当前状态：Gate7G本地最终回归通过，远端与Hosted CI分别待恢复
+# 当前状态：Gate7G本地通过，Gate7H操作者接线验收中
 
 2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，13:03:09.707Z独立API重读相符，#121–125五草稿保持；已明确批准的#126/#127/#120合并历史保留，未合并其他PR。#123 cb1658与#125 ca05新CI因账号Billing/支出上限未启动、0steps；用户确认未处理，继续安全本地交付，不重派CI或改账单。
+
+[Gate7H](tasks/active/server-garment-target-operator-2026-10-23.md)从clean cd7cd459独立分支接入原操作者的plan-target/apply-target/target-receipt，复用D160服务及0044，不新增schema、权限、HTTP、采集器或调度。目标命令不读凭据、不发Source请求；旧enable回执只说明历史，不自动重新开启。原目标20/20回归及首次Server编译/scoped lint通过；新参数/投影与原采集、配置全链测试正在运行，独立实际diff复审无P1/P2，clean源码入口正控、精确构建和发布证据仍待完成，不预报PASS。
 
 [Gate7G](tasks/active/server-garment-target-control-2026-10-23.md)在clean81ce基线上补内部单SO成衣target plan/apply/receipt及空0044技术回执。enable复验具体证明、可信物理绑定与明确时效；disable不依赖profile/绑定/head健康，历史enable重放不重新启用。目标、原审计与回执同事务，未知COMMIT只核对原请求。没有新公开启用入口、Source读取、实际target激活、既有库/账号操作或部署。
 

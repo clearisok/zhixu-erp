@@ -184,8 +184,8 @@ export async function planGarmentTarget(pool: Pool, caller: TrustedIdentity, inp
       humanApproval: "still_required" as const };
   });
 }
-/** Internal DB-only command. It is not mounted in an operator CLI, HTTP route or
- * scheduler and does not confer real-target authorization. No Source IO. */
+/** DB-only command, mounted only by the explicit protected-file operator action.
+ * No HTTP/scheduler or real-target authorization is implied. No Source IO. */
 export async function applyGarmentTarget(pool: Pool, caller: TrustedIdentity, input: GarmentTargetRequest,
   permitInput: GarmentCollectionPermit, now = Date.now) {
   const identity = structuredClone(caller), request = parseGarmentTargetRequest(input, now()), permit = permitOf(structuredClone(permitInput));

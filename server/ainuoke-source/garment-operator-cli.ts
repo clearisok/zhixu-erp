@@ -14,11 +14,14 @@ import { assertPrivateOutput, writePrivateReport } from "./live-preflight.js";
 import { readPaymentCredential, readPaymentPrivateFile } from "./payment-private-files.js";
 import { collectGarmentOnce, planGarmentCollection, readGarmentCollectionReceipt,
   type GarmentCollectionRequest } from "./garment-collection-control.js";
+import { applyGarmentTarget, planGarmentTarget, readGarmentTargetReceipt, type GarmentTargetRequest } from "./garment-target-control.js";
 
 const fail = (code: string): never => { throw new SourceError(code); };
 const sha = (value: unknown): value is string => typeof value === "string" && /^[a-f0-9]{64}$/u.test(value);
-const actions = ["plan-collection", "collect-once", "receipt"] as const;
+const actions = ["plan-collection", "collect-once", "receipt", "plan-target", "apply-target", "target-receipt"] as const;
 type Action = typeof actions[number];
+const isReceipt = (action: Action) => action === "receipt" || action === "target-receipt";
+const isTargetCommand = (action: Action) => action === "plan-target" || action === "apply-target";
 function iso(value: unknown): value is string {
   return typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(value)
     && Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
@@ -34,14 +37,22 @@ export function garmentOperatorArguments(args: string[]) {
   if (selected.length !== 1) fail("garment_operator_explicit_action_required");
   const action = selected[0];
   const allowed = [action, "job", "expected-job", "private-output", "request-id",
-    ...(action !== "receipt" ? ["expires-at"] : []),
-    ...(action === "collect-once" ? ["scope-hash", "execute", "credential-file"] : [])];
+    ...(!isReceipt(action) ? ["expires-at"] : []),
+    ...(action === "collect-once" ? ["scope-hash", "execute", "credential-file"] : []),
+    ...(isTargetCommand(action) ? ["target-action", ...(values.get("target-action") === "enable" ? ["freshness-ms"] : [])] : []),
+    ...(action === "apply-target" ? ["scope-hash", "execute"] : [])];
   if ([...values.keys()].some(key => !allowed.includes(key)) || values.get(action) !== "6086979"
     || !isAbsolute(values.get("job") ?? "") || !sha(values.get("expected-job"))
     || !isAbsolute(values.get("private-output") ?? "") || !identityUuid.test(values.get("request-id") ?? "")
-    || action !== "receipt" && !iso(values.get("expires-at"))
+    || !isReceipt(action) && !iso(values.get("expires-at"))
     || action === "collect-once" && (!sha(values.get("scope-hash")) || values.get("execute") !== "I_CONFIRM_EXACT_SCOPE"
-      || !isAbsolute(values.get("credential-file") ?? ""))) fail("garment_operator_explicit_action_required");
+      || !isAbsolute(values.get("credential-file") ?? ""))
+    || isTargetCommand(action) && (!["enable", "disable"].includes(values.get("target-action") ?? "")
+      || values.get("target-action") === "enable" && (!/^[1-9]\d*$/u.test(values.get("freshness-ms") ?? "")
+        || !Number.isSafeInteger(Number(values.get("freshness-ms"))) || Number(values.get("freshness-ms")) < 1000
+        || Number(values.get("freshness-ms")) > 86400000))
+    || action === "apply-target" && (!sha(values.get("scope-hash")) || values.get("execute") !== "I_CONFIRM_EXACT_TARGET"))
+    fail("garment_operator_explicit_action_required");
   values.set("request-id", values.get("request-id")!.toLowerCase());
   return { action, values };
 }
@@ -101,11 +112,27 @@ export function parseGarmentOperatorVerification(input: unknown, config: Collect
 /** Closed public projection. An unverified COMMIT can contain a provisional
  * published outcome; it must never be presented as a successful publication. */
 export function garmentOperatorSummary(action: Action, requestId: string, value: Record<string, unknown>) {
-  if (action === "plan-collection") return {
-    schemaVersion: "ainuoke-garment-operator.v1", result: "READ_ONLY_PLAN_RECORDED", action, requestId,
+  if (action === "plan-collection" || action === "plan-target") return {
+    schemaVersion: "ainuoke-garment-operator.v1", result: action === "plan-target" ? "READ_ONLY_TARGET_PLAN_RECORDED" : "READ_ONLY_PLAN_RECORDED", action, requestId,
     scopeHash: value.scopeHash, expiresAt: value.expiresAt, humanApproval: "still_required",
     sourceReadThisInvocation: "none", databaseWrites: "none", automaticRetry: false,
   };
+  if (action === "apply-target" || action === "target-receipt") {
+    const raw = value.receiptState === "completed" && value.result && typeof value.result === "object"
+      ? value.result as Record<string, unknown> : null;
+    const outcome = raw?.schemaVersion === "ainuoke-garment-target-outcome.v1" && (raw.action === "enable" || raw.action === "disable")
+      && typeof raw.enabled === "boolean" && typeof raw.changed === "boolean" && Number.isSafeInteger(raw.version) && Number(raw.version) >= 0
+      && raw.sourceRead === "none" && raw.snapshotsPublished === 0 ? raw : null;
+    return {
+      schemaVersion: "ainuoke-garment-operator.v1", result: outcome ? "TARGET_COMMAND_COMPLETED" : "TARGET_COMMAND_UNVERIFIED", action, requestId,
+      receiptState: value.receiptState, replayed: value.replayed === true,
+      receiptIsHistorical: action === "target-receipt" || value.receiptIsHistorical === true,
+      ...(outcome ? { targetAction: outcome.action, enabledAtCompletion: outcome.enabled, changed: outcome.changed, targetVersionAtCompletion: outcome.version } : {}),
+      ...(value.receiptState === "unknown" ? { absenceProvesNoPriorWork: false } : {}),
+      sourceReadThisInvocation: "none", snapshotsPublished: 0, nextAction: outcome ? "none" : "inspect_original_request",
+      automaticRetry: false, databaseWrites: action === "target-receipt" ? "none" : "explicit_action_only",
+    };
+  }
   const completed = value.receiptState === "completed";
   const outcome = completed && value.result && typeof value.result === "object" ? value.result as Record<string, unknown> : null;
   const published = outcome?.outcome === "published";
@@ -123,7 +150,8 @@ export function garmentOperatorSummary(action: Action, requestId: string, value:
   };
 }
 export const garmentOperatorExitCode = (output: { result: string }) =>
-  ["READ_ONLY_PLAN_RECORDED", "COLLECTION_PUBLISHED"].includes(output.result) ? 0 : output.result === "FAIL" ? 1 : 2;
+  ["READ_ONLY_PLAN_RECORDED", "READ_ONLY_TARGET_PLAN_RECORDED", "COLLECTION_PUBLISHED", "TARGET_COMMAND_COMPLETED"].includes(output.result)
+    ? 0 : output.result === "FAIL" ? 1 : 2;
 
 /** Testable orchestration of the existing one-shot service. Only in-process
  * engineering tests may inject a clock/worker; the executable has no such flag. */
@@ -139,21 +167,33 @@ export async function runGarmentOperator(parsed: ReturnType<typeof garmentOperat
   pool.options.statement_timeout = 15000; pool.options.query_timeout = 20000;
   let result: Record<string, unknown>;
   try {
-    // Verify only: never migrate, bootstrap an account, bind or enable a target.
+    // Verify only: never migrate, bootstrap an account or bind a contract.
     await verifyMigrationsCurrent(pool, resolve("database/migrations"));
     const actor = await loadExistingBootstrapActor(pool, job.config.operatorUsername).catch(error => {
       if (error instanceof BootstrapGuardError) return fail("garment_operator_actor_unavailable");
       throw error;
     });
-    if (action === "receipt") {
+    const collectionRequest = () => {
+      const proofFile = job.verification;
+      if (!proofFile) return fail("garment_operator_verification_required");
+      const verification = parseGarmentOperatorVerification(readGarmentOperatorJson(proofFile.path, proofFile.sha256, 48 * 1024 * 1024), job.config, now());
+      return { config: job.config, salesOrderId: job.salesOrderId, verification } satisfies GarmentCollectionRequest;
+    };
+    if (action === "target-receipt") {
+      result = await readGarmentTargetReceipt(pool, actor, { sourceKey: job.config.sourceKey, salesOrderId: job.salesOrderId, requestId });
+    } else if (isTargetCommand(action)) {
+      const request: GarmentTargetRequest = values.get("target-action") === "disable"
+        ? { action: "disable", sourceKey: job.config.sourceKey, salesOrderId: job.salesOrderId, operatorUsername: job.config.operatorUsername }
+        : { action: "enable", request: collectionRequest(), freshnessMs: Number(values.get("freshness-ms")) };
+      const permit = { requestId, expiresAt: values.get("expires-at")! };
+      result = action === "plan-target" ? await planGarmentTarget(pool, actor, request, permit, now)
+        : await applyGarmentTarget(pool, actor, request, { ...permit, scopeHash: values.get("scope-hash")! }, now);
+    } else if (action === "receipt") {
       // Recovery deliberately does not open verification/credential files, build
       // a new plan or require the original target to remain enabled.
       result = await readGarmentCollectionReceipt(pool, actor, { sourceKey: job.config.sourceKey, salesOrderId: job.salesOrderId, requestId });
     } else {
-      const proofFile = job.verification;
-      if (!proofFile) return fail("garment_operator_verification_required");
-      const verification = parseGarmentOperatorVerification(readGarmentOperatorJson(proofFile.path, proofFile.sha256, 48 * 1024 * 1024), job.config, now());
-      const request: GarmentCollectionRequest = { config: job.config, salesOrderId: job.salesOrderId, verification };
+      const request = collectionRequest();
       const expiresAt = values.get("expires-at")!;
       if (action === "plan-collection") result = await planGarmentCollection(pool, actor, request, { requestId, expiresAt }, now());
       else {
@@ -204,10 +244,14 @@ const safeCodes = new Set(["garment_operator_explicit_action_required", "garment
   "garment_operator_actor_unavailable", "authentication_required", "permission_denied", "garment_collection_invalid_request", "garment_collection_invalid_permit",
   "garment_collection_permit_expired", "garment_collection_request_conflict", "garment_collection_operator_mismatch",
   "garment_collection_filter_scope_mismatch", "garment_collection_scope_changed", "garment_collection_receipt_integrity_failed",
+  "garment_target_invalid_request", "garment_target_invalid_permit", "garment_target_freshness_required", "garment_target_permit_expired",
+  "garment_target_commands_unavailable", "garment_target_profile_mismatch", "garment_target_account_immutable", "garment_target_order_unavailable",
+  "garment_target_not_applicable", "garment_target_binding_mismatch", "garment_target_receipt_integrity_failed", "garment_target_operator_mismatch",
+  "garment_target_request_conflict", "garment_target_scope_changed",
   "garment_source_not_connected", "garment_binding_changed", "garment_binding_unavailable", "garment_order_not_available"]);
 export async function main(args = process.argv.slice(2)) {
   if (args.length === 1 && args[0] === "--help") {
-    process.stdout.write("6086979 operator: --plan-collection=6086979, --collect-once=6086979 or --receipt=6086979.\nAll require --job=<absolute protected JSON> --expected-job=<SHA256> --private-output=<protected ignored directory> --request-id=<UUID>.\nPlan/collect require --expires-at=<UTC ISO>; collect also --scope-hash=<exact plan> --execute=I_CONFIRM_EXACT_SCOPE --credential-file=<private local file>.\nA plan/hash does not grant Source authorization. No target enable, migrations, bootstrap, scheduler, automatic retries or deployments. Receipt needs no verification/credential file.\n"); return;
+    process.stdout.write("6086979 operator actions: --plan-collection, --collect-once, --receipt, --plan-target, --apply-target or --target-receipt, each =6086979.\nAll require --job=<absolute protected JSON> --expected-job=<SHA256> --private-output=<protected ignored directory> --request-id=<UUID>.\nPlans/writes require --expires-at=<UTC ISO>. Collection requires --scope-hash=<exact plan> --execute=I_CONFIRM_EXACT_SCOPE --credential-file=<private local file>.\nTarget plan/apply requires --target-action=enable|disable; enable also --freshness-ms=<explicit integer>. Apply requires --scope-hash=<exact plan> --execute=I_CONFIRM_EXACT_TARGET and accepts no credential file.\nBoth receipts and target disable need no verification/credential file. Target commands perform no Source IO.\nA plan/hash does not grant real target activation or Source authorization. No migrations, bootstrap, scheduler, automatic retries or deployments.\n"); return;
   }
   try {
     const parsed = garmentOperatorArguments(args);
