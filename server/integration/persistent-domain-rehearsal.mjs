@@ -44,6 +44,17 @@ export function requireOwnedContainer(inspected, { project, service, imageId, db
   return { id: inspected.Id, image: inspected.Image, project, service };
 }
 
+export function requireIsolatedApplicationNetwork(inspected, network, project) {
+  requireOwnedContainer(inspected, { project, service: 'app' });
+  const name = `${project}_default`;
+  assert.deepEqual(Object.keys(inspected.NetworkSettings?.Networks || {}), [name], 'domain_app_external_network_refused');
+  assert.equal(network.Name, name);
+  assert.equal(network.Internal, true, 'domain_network_egress_refused');
+  assert.equal(network.Labels?.['com.docker.compose.project'], project);
+  assert.equal(network.Labels?.['com.docker.compose.network'], 'default');
+  return { appContainerId: inspected.Id, project, network: name, internal: true };
+}
+
 // Positive domain coverage is separate from equality of empty tables.
 export const requiredPopulatedTables = [
   'sales_orders', 'sales_order_source_links', 'ainuoke_sales_order_contract_mirrors',

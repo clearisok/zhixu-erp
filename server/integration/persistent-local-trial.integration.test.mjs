@@ -11,7 +11,7 @@ import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { createServer } from 'node:net';
 import { request } from 'node:https';
 import { readTrialConfig } from '../../ops/quote-trial/trial.mjs';
-import { localDockerEnvironment, requirePinnedImage, requireOwnedContainer, readDatabaseFingerprint,
+import { localDockerEnvironment, requirePinnedImage, requireOwnedContainer, requireIsolatedApplicationNetwork, readDatabaseFingerprint,
   recoveryCoverage, compareRecoveryFingerprints, assertOwnedDatabaseEnvironment } from './persistent-domain-rehearsal.mjs';
 import { persistentDomainNative } from './persistent-domain-native.mjs';
 const execute=promisify(execFile),sha=b=>createHash('sha256').update(b).digest('hex');
@@ -66,7 +66,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   const owned=[`zhixu-quote-trial-it-${nonce}`,`zhixu-quote-trial-recovery-${nonce}`];
   const expectedMigrations=(await readdir(resolve('database/migrations'))).filter(n=>/^\d{4}_.+\.sql$/.test(n)).sort();
   let completed=false,backup,backupHash,domainSeed,domainFingerprint,coverage;
-  const identities=[];
+  const identities=[],isolatedNetworks=[];
   // A failed Node subtest does not reject t.test(). Stop dependent phases and
   // retain their private fixtures unless every phase actually completed.
   async function phase(name,work){
@@ -105,6 +105,11 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
       const inspected=JSON.parse(await docker(['inspect',`${s.project}-${service}-1`]))[0];
       identities.push(requireOwnedContainer(inspected,{project:s.project,service,
         ...(service==='database'?{dbVolume:`${s.project}_data`}:{imageId:expectedImage.id})}));
+      if(service==='app'){
+        const network=JSON.parse(await docker(['network','inspect','--format',
+          '{"Name":{{json .Name}},"Internal":{{json .Internal}},"Labels":{{json .Labels}}}',`${s.project}_default`]));
+        isolatedNetworks.push(requireIsolatedApplicationNetwork(inspected,network,s.project));
+      }
     }
     assert.match(await run('pwsh',['-NoProfile','-File',resolve('Backup-Zhixu.ps1'),...target(s),'-VerifyTargetOnly']),/target_verified/);
   }
@@ -257,7 +262,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
       const report=resolve('outputs/server-domain-recovery-20261023',`run-${nonce}.json`);await mkdir(resolve(report,'..'),{recursive:true});
       await writeFile(report,JSON.stringify({schemaVersion:'synthetic-domain-recovery.v1',completedAt:new Date().toISOString(),
         testDriverHead:await run('git',['rev-parse','HEAD']),image:expectedImage,dockerEndpoint:commandEnvironment.DOCKER_HOST,
-        projects:owned,identities,fingerprint:domainFingerprint,coverage,proofSha256:sha(JSON.stringify(domainSeed.proof)),
+        projects:owned,identities,isolatedNetworks,fingerprint:domainFingerprint,coverage,proofSha256:sha(JSON.stringify(domainSeed.proof)),
         sourceStatus:{before:domainSeed.sourceStatus,after:recovered.sourceStatus},continued:continued.continued,
         garmentCommandRecovery:{receiptStates:recovered.proof.garmentCommands.receipts.map(r=>r.receiptState),
           outcomes:recovered.proof.garmentCommands.receipts.map(r=>r.result?.outcome??null),

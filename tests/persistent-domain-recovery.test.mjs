@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { localDockerEnvironment, requirePinnedImage, requireOwnedContainer, requiredPopulatedTables,
+import { localDockerEnvironment, requirePinnedImage, requireOwnedContainer, requireIsolatedApplicationNetwork, requiredPopulatedTables,
   recoveryCoverage, compareRecoveryFingerprints, readDatabaseFingerprint, assertOwnedDatabaseEnvironment } from '../server/integration/persistent-domain-rehearsal.mjs';
 
 const endpoint = 'npipe:////./pipe/dockerDesktopLinuxEngine';
@@ -56,6 +56,21 @@ function fingerprint() {
       { table: 'empty_future_domain', count: 0, sha256: 'b'.repeat(64) }],
     sequences: [{ name: 'sales_order_no_seq', lastValue: '2', isCalled: true, increment: '1' }] };
 }
+
+test('synthetic compiled collection cannot run with an external or unrelated application network', () => {
+  const project = 'zhixu-quote-trial-it-0123456789', name = `${project}_default`;
+  const app = { Id: 'd'.repeat(64), Config: { Labels: { 'com.docker.compose.project': project, 'com.docker.compose.service': 'app' } },
+    NetworkSettings: { Networks: { [name]: {} } } };
+  const network = { Name: name, Internal: true, Labels: { 'com.docker.compose.project': project, 'com.docker.compose.network': 'default' } };
+  requireIsolatedApplicationNetwork(app, network, project);
+  for (const Networks of [{}, { [name]: {}, [`${project}_ingress`]: {} }, { protected_network: {} }])
+    assert.throws(() => requireIsolatedApplicationNetwork({ ...app, NetworkSettings: { Networks } }, network, project));
+  for (const changed of [{ Internal: false }, { Name: 'protected_network' }, { Labels: {} },
+    { Labels: { ...network.Labels, 'com.docker.compose.project': 'unrelated' } },
+    { Labels: { ...network.Labels, 'com.docker.compose.network': 'ingress' } }])
+    assert.throws(() => requireIsolatedApplicationNetwork(app, { ...network, ...changed }, project));
+  assert.throws(() => requireIsolatedApplicationNetwork(app, network, 'zhixu-quote-trial-server-g1'));
+});
 test('empty tables are explicitly unexercised and cannot prove a required business domain', () => {
   const before = fingerprint(), coverage = recoveryCoverage(before);
   assert.equal(coverage.at(-1).coverage, 'empty-preserved-not-exercised');

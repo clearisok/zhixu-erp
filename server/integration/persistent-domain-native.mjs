@@ -33,14 +33,15 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
     const payment = await import('./dist/server/server/ainuoke-source/payment-request-store.js');
     const garment = await import('./dist/server/server/ainuoke-source/garment-shipment-store.js');
     const collection = await import('./dist/server/server/ainuoke-source/garment-collection-control.js');
-    const { parseCollectorConfig, accountFingerprint } = await import('./dist/server/server/ainuoke-source/collector.js');
+    const { parseCollectorConfig, accountFingerprint, APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY } = await import('./dist/server/server/ainuoke-source/collector.js');
     const { hash: sourceHash } = await import('./dist/server/server/ainuoke-source/contract.js');
     const repo = createQuoteRepository(pool);
     const sourceKey = 'synthetic-domain-recovery', fingerprint = 'a'.repeat(64);
-    // This fixture can never target the real Source. Every collector call below
-    // supplies a counted synthetic worker; the loopback discard port is a second fence.
+    // The fixed verifier requires its approved origin/policy. Credentials and
+    // every counted worker below are synthetic; the harness first verifies that
+    // this owned app has only an internal Docker network and no external route.
     const commandSourceKey = 'synthetic-garment-command-recovery';
-    const commandConfig = parseCollectorConfig({ sourceKey: commandSourceKey, baseUrl: 'http://127.0.0.1:9',
+    const commandConfig = parseCollectorConfig({ sourceKey: commandSourceKey, baseUrl: APPROVED_HTTP_ORIGIN, transportPolicy: APPROVED_HTTP_POLICY,
       username: 'synthetic-recovery-source', password: 'Synthetic-No-Transport', operatorUsername: 'local.admin' });
     const commandFingerprint = accountFingerprint(commandConfig);
     let saved = input.saved;
@@ -327,7 +328,8 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
       const collectAfterRestore = async (...args) => { collectedAfterRestore++; return syntheticCommandWorker(...args); };
       await assert.rejects(collection.collectGarmentOnce(pool, actor, oldPreview.request, oldPreview.permit,
         { collect: collectAfterRestore }), error => error.code === 'garment_collection_scope_changed');
-      assert.equal(collectedAfterRestore, 0);
+      const oldPreviewWorkerCalls = collectedAfterRestore;
+      assert.equal(oldPreviewWorkerCalls, 0);
       const continuedCollection = await collection.collectGarmentOnce(pool, actor, freshPreview.request, freshPreview.permit,
         { collect: collectAfterRestore });
       assert.equal(continuedCollection.receiptState, 'completed'); assert.equal(continuedCollection.result.outcome, 'published');
@@ -339,7 +341,7 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
       assert.equal((await execution.readProductionExecutionHistory(pool, actor, saved.originalAssignment)).execution.completedQuantity, '25');
       return { status: 'passed', proof, sourceStatus, continued: { newOrderId: next.orderId, originalOrderId: saved.orderId,
         originalCompleted: '25', newCompleted: '5', garmentCollection: { publicationId: continuedCollection.result.publicationId,
-          oldPreviewWorkerCalls: 0, freshPreviewWorkerCalls: collectedAfterRestore, realSourceRequests: 0 } } };
+          oldPreviewWorkerCalls, freshPreviewWorkerCalls: collectedAfterRestore, realSourceRequests: 0 } } };
     }
     return { status: 'passed', ...(mode === 'seed' ? { saved } : {}), proof, sourceStatus };
   } catch (error) {
