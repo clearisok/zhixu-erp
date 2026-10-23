@@ -1,4 +1,4 @@
-2026-10-23 当前工具恢复优先：CURRENT_STATE、AI_HANDOFF 与[真实 main 前向整合](tasks/active/pr127-main-forward-2026-10-23.md)。#126 已按具体批准以 merge commit 进入 main `e06162c70c9792895c30030216dc8c2a66368069`，原提交历史保留；#127 正在原分支上解决四处文档/清单冲突并重新验收。213证据/46能力不改，新基线对齐实际main；没有新增业务/UI/SQL或共享配置变更。两侧摘要已原Git字节归档；本地/远端/CI分别核实，不借旧结果。
+2026-10-23 当前工具恢复优先：CURRENT_STATE、AI_HANDOFF 与[真实 main 前向整合](tasks/active/pr127-main-forward-2026-10-23.md)。#126 已按具体批准以 merge commit 进入 main `e06162c70c9792895c30030216dc8c2a66368069`，原历史保留；#127 的真实四处文档/清单冲突已解决，merge checkpoint7af已通过新53/134/9/10及构建回归。213证据/46能力不改，两侧摘要按原Git字节归档。最终文档精确守卫/远端/新CI分别待核，不借旧结果；未新增业务/UI/SQL或共享配置变更。
 
 以下索引保留 main 整合前各自日期与来源 SHA，当前恢复点以上文和两份状态摘要为准。原#127输入索引另存[37bd归档](tasks/completed/2026-10-23-pr127-forward-inputs/37bd0e1e/PROJECT_INDEX.md)。全项目候选仍由7bf3主控保留，本PR不带入累计业务功能，不自动合并其他PR或部署。
 

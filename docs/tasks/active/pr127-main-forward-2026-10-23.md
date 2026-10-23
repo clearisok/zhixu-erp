@@ -53,3 +53,43 @@ collect again. Do not publish its private raw files in this PR.
 Keep3001/50426/other entries, volumes, Browser data and all original worktrees intact.
 Coverage-v1, closing rules, cutover and retirement remain separate decisions.
 The complete G1–G5 Goal is not achieved by this integration slice.
+
+## Actual local integration and acceptance
+
+The clean merge checkpoint is
+`7af55486b4b668ece1add73a202bf8f01d2fc3ae`; its parents are exactly original127
+`37bd0e1e81810f46c1972f37630dc99b7fc9b18d` and actual main e061. All original
+#127 code/workflow/two test-fix blobs match37bd; inherited #126 guard/test/feature
+blobs matche061. The six archives match their source Git blobs. The new manifest
+retains all213 evidence/46 capabilities and non-metadata fields unchanged.
+
+| New executed check on7af | Result | Duration |
+| --- | --- | --- |
+| Isolated Git delivery/tool suite | 53/53 | 158394.0935ms |
+| Release guard and responsive suite | 134/134 | 300753.775ms |
+| Owned disposable-PG business-source API | 9/9 | 7340.6715ms |
+| Actual private-Chromium animated login | 10/10 | 17934.0384ms |
+| Typecheck, scoped ESLint, Server compilation | pass | not separately timed |
+| Explicit Server/session frontend build | pass | not separately timed |
+
+All four counted suites have zero failure/cancellation/skip. The build identity is
+`pr127-forward-7af55486-20261023`, full gitCommit7af, buildTime
+`2026-10-23T08:18:26+08:00`; Quote/master authorityServer, identitysession,
+writerwritable, orderReaddisabled. This is the existing tool-PR application scope,
+not the full candidate's enabled Order/Production UI. A documentation descendant
+does not relabel this built source. Logs/build-info remain ignored under
+`outputs/pr127-forward-e061-20261023/`.
+
+The runtime checks pinned the local Docker Desktop Linux named pipe after rejecting
+conflicting endpoint/TLS/DB overrides; existing fixtures used fresh tmpfs PG and a
+private Chrome profile. LOGIN_EVIDENCE=0 prevented screenshot updates. No existing
+profile/port/account/volume or raw business/source data was used. Default Browser
+build/full npm regression is left to the actual new Hosted Team workflow, not
+claimed as an additional local run.
+
+The existing independent reviewer checked the actuale061→7af diff, original blobs,
+both input archives and manifest/STOP boundaries; no P1/P2. It was a read-only
+static review and did not execute the runtime checks. All local process handles
+56984/12560/2143/57198 are terminal. Next freeze is documentation-only; its exact
+committed-head/main guard, one safe delivery, unique #127 update and fresh three
+CI/review must be independently observed before calling remote delivery complete.

@@ -16,9 +16,13 @@ branch `codex/git-delivery-preflight-fallback`，干净输入37bd0e1e81810f46c19
 发布守卫及其134回归来自 main；不改它们，不混入全项目候选的286证据/58能力/88UI路径。
 原127的交付工具和两个CI兼容测试原样保留；不要通过放宽TLS、权限、回执或断言消除失败。
 
-下一步：完成独立 merge checkpoint，实际执行工具53、发布134、类型/lint/Server构建及
-来源9/私有Chromium登录10的相关回归；最终精确e061 guard、一次安全交付、同一#127更新及
-精确新head三CI/复审分别收口。测试未执行前不预报PASS；不自动合并#127或其他PR。
+实际 merge checkpoint 为 `7af55486b4b668ece1add73a202bf8f01d2fc3ae`，parents37bd/e061。
+工具53/53（158394.0935ms）、发布134/134（300753.775ms）、来源API9/9（7340.6715ms）、
+私有Chromium登录10/10（17934.0384ms）均通过，零失败/跳过/取消；类型、定向lint及两个构建通过。
+日志与build-info在 `outputs/pr127-forward-e061-20261023/`；56984/12560/2143/57198均终态，
+不再poll。前端源码精确7af，buildId pr127-forward-7af55486-20261023，buildTime08:18:26+08。
+独立静态review无P1/P2，reviewer未跑测试。最终只文档checkpoint后，仍须实际精确e061 guard、
+一次安全交付、核实完整remoteSHA、更新同一#127及其新三CI/复审。不自动合并#127或其他PR。
 standing安全Git恢复/CI授权有效，无须逐SHA重问；出现未知dirty/分歧/身份异常则保护现场。
 
 7bf3仍为全项目主控验证引用bee4c632，原三CI绑定686，文档Release39841049038绑定bee；
