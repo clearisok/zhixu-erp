@@ -2748,6 +2748,34 @@
         "closing-pr125-main-d1dd-import-20261023"
       ],
       "changeReason": "Retain both reviewed final current-main histories at the actual 33f5/ca05 local validation merge; preserve confirmed D147 and all existing business/runtime limits."
+    },
+    {
+      "id": "decisions-garment-operator-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "461841c0542f05f01e2677877df59af3b45d5bc3",
+      "renderedSourceSha": "461841c0542f05f01e2677877df59af3b45d5bc3",
+      "sha256": "23e5a974aacea80f909d26c0d4f02b82bf21fbb68afc2add5067198989260625",
+      "supersedes": "decisions-final-pr125-combination-20261023",
+      "changeReason": "D159 adds an explicit guarded source-checkout operator over the original D158 single-shot controller; preserve original producer proof/time, receipt recovery, every prior evidence/status and runtime. Synthetic engineering only; no real query, target enable, deployment or hosted-CI claim."
+    },
+    {
+      "id": "garment-operator-feature-20261023",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_GARMENT_OPERATOR.md",
+      "recordedAtSha": "461841c0542f05f01e2677877df59af3b45d5bc3",
+      "renderedSourceSha": "461841c0542f05f01e2677877df59af3b45d5bc3",
+      "sha256": "c6f0e212725190175def7ac7e1d7bb27516acfd667176b282d5ca064272e1b34",
+      "changeReason": "D159 adds an explicit guarded source-checkout operator over the original D158 single-shot controller; preserve original producer proof/time, receipt recovery, every prior evidence/status and runtime. Synthetic engineering only; no real query, target enable, deployment or hosted-CI claim."
+    },
+    {
+      "id": "garment-operator-engineering-20261023",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-23-garment-operator-engineering.md",
+      "recordedAtSha": "a786f5f796ae64e63a174ac332dc42f8ffc2c763",
+      "renderedSourceSha": "461841c0542f05f01e2677877df59af3b45d5bc3",
+      "sha256": "20802a7c74c14b190224f4f025f3a7158e7dc2d505488f0ebd5b91e54bdcae42",
+      "changeReason": "D159 adds an explicit guarded source-checkout operator over the original D158 single-shot controller; preserve original producer proof/time, receipt recovery, every prior evidence/status and runtime. Synthetic engineering only; no real query, target enable, deployment or hosted-CI claim."
     }
   ],
   "pages": [
@@ -8469,23 +8497,30 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "D147/D158 internal single-SO durable garment collection plan/claim/receipt and atomic publication, with fixed two-pass complete first-page worker. Original Num/outdate, immutable observations, permissions and effective-owner locks remain. No mounted HTTP/CLI/Catalog/scheduler or target activation; actual filter proof stays account/contract scoped and does not grant new query quota.",
+      "scope": "D147/D152/D153/D158 controller plus D159 guarded source-checkout single-SO plan/collect-once/receipt. Original producer wrapper/time, scope-before-secret, durable one-shot claim and atomic publication remain. No mounted HTTP/Catalog/scheduler, target-enable command, real query quota or source activation; only first-page proof for the exact account/contract.",
       "evidence": [
         "garment-collection-control-engineering-20261023",
         "garment-collection-control-feature-20261023",
         "decisions-garment-collection-review-fix-20261023",
-        "garment-command-nonempty-recovery-20261023"
+        "garment-command-nonempty-recovery-20261023",
+        "decisions-garment-operator-20261023",
+        "garment-operator-feature-20261023",
+        "garment-operator-engineering-20261023"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-23",
-          "sourceSha": "d99282fa41788a385d94e91bf7f26a318dc7c0ac",
-          "scope": "D147/D158 internal single-SO durable garment collection plan/claim/receipt and atomic publication, with fixed two-pass complete first-page worker. Original Num/outdate, immutable observations, permissions and effective-owner locks remain. No mounted HTTP/CLI/Catalog/scheduler or target activation; actual filter proof stays account/contract scoped and does not grant new query quota.",
+          "sourceSha": "461841c0542f05f01e2677877df59af3b45d5bc3",
+          "scope": "D147/D152/D153/D158 controller plus D159 guarded source-checkout single-SO plan/collect-once/receipt. Original producer wrapper/time, scope-before-secret, durable one-shot claim and atomic publication remain. No mounted HTTP/Catalog/scheduler, target-enable command, real query quota or source activation; only first-page proof for the exact account/contract.",
           "evidence": [
             "garment-collection-control-engineering-20261023",
             "garment-collection-control-feature-20261023",
-            "decisions-garment-collection-review-fix-20261023"
+            "decisions-garment-collection-review-fix-20261023",
+            "garment-command-nonempty-recovery-20261023",
+            "decisions-garment-operator-20261023",
+            "garment-operator-feature-20261023",
+            "garment-operator-engineering-20261023"
           ]
         },
         "merged": {
@@ -8502,13 +8537,16 @@
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-23",
-          "sourceSha": "65545a743ff714a243dd3ea0ac30fa20028c8f59",
-          "scope": "Additional exact65545 test driver with locked exact357 image bf40f039; product/SQL/build/ops inputs identical, not a new65545 image. Windows recovery9/9 (302720.1184ms),69 populated/38 empty public tables and5 sequences;0043 has three durable states, zero replay worker calls, unexpired cross-DB old permit rejected and fresh permit one synthetic worker. Nine scope guards/scoped lint/exact d1dd guard pass. Earlier9fc/d992/E results keep their own scopes. No real HTTP/Source; new hosted CI and final release evidence gate remain separate.",
+          "sourceSha": "461841c0542f05f01e2677877df59af3b45d5bc3",
+          "scope": "D159 addition: exact ee6f operator15/15 including clean source executable; final4618 pure5/5 and native Git-archive types/Server/full lint/explicit Server build46 routes0skip pass. Original controller33/33 and shared private/recovery40/40 pass; shared run spans test/docs-only commit with identical relevant executable blobs. Earlier65545 nonempty recovery retains original image/test scope. No real Source/credential/private-report read, target activation, existing DB/account mutation or deployment; hosted CI remains billing-blocked.",
           "evidence": [
             "garment-collection-control-engineering-20261023",
             "garment-collection-control-feature-20261023",
             "decisions-garment-collection-review-fix-20261023",
-            "garment-command-nonempty-recovery-20261023"
+            "garment-command-nonempty-recovery-20261023",
+            "decisions-garment-operator-20261023",
+            "garment-operator-feature-20261023",
+            "garment-operator-engineering-20261023"
           ]
         },
         "humanAcceptance": {
