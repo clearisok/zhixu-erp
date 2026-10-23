@@ -1,6 +1,6 @@
 # 项目知识索引
 
-当前[Gate7G目标配置后台](tasks/active/server-garment-target-control-2026-10-23.md)在同一d1dd基线上本地推进，13:03:09Z独立main/五草稿不变。源码5fac20定向、精确native types/lint/Server/UI构建46路由0skip通过，独立复审P2修复后无P1/P2；[492b冻结报告](tasks/completed/2026-10-23-garment-target-control-engineering.md)保留原失败。前向绑定324/59，不改旧对象/状态/UI/运行态；首次项目15项失败均为绑定前漂移，最终新清单项目/发布待收口。无新真实激活或读取；Git降级和Hosted CI账单问题仍各自保留，不重复推送或触发CI。
+当前[Gate7G目标配置后台](tasks/active/server-garment-target-control-2026-10-23.md)在同一d1dd基线上本地完成，13:03:09Z独立main/五草稿不变。源码5fac20定向、精确native types/lint/Server/UI构建46路由0skip通过，独立复审P2修复后无P1/P2；[492b冻结报告](tasks/completed/2026-10-23-garment-target-control-engineering.md)保留原失败。前向绑定324/59，不改旧对象/状态/UI/运行态；首次项目15项失败均为绑定前漂移，最终稳定25da上项目954/954、发布134/134、精确d1dd守卫通过，均0fail/cancel/skip且HEAD/清单/clean稳定。无新真实激活或读取；Git降级和Hosted CI账单问题仍各自保留，不重复推送或触发CI。
 
 最新Gate7F交付仅一次推送未送达：02c22576本地精确守卫PASS，原工具uncertain_transport/NETWORK_DEGRADED，12:23:38Z独立API确认新分支不存在；不重试、不新建重复PR、不重派账单CI。工程与远端状态分开，详见当前接力。
 

@@ -28,4 +28,13 @@ clean source5fac2326634375ded9935782df947ce5871eab43的20/20通过12999.5089ms�
 
 首次项目937项922pass/15fail、514745.8556ms，均是新增D160在manifest前向绑定之前运行引发的EVIDENCE_WORKTREE_DRIFT，0取消/跳过。该失败不修改原保护/断言，也不冒称全套通过。[冻结报告](../completed/2026-10-23-garment-target-control-engineering.md)于492b4d39e8e59eb6a579b212e9d297aee29a622f保存，blob SHA256 226c3736a478905193bb11ced1b3fd0e617d0a7e7a8a98cbe3ff3b0f760353a9；旧失败/各源码范围和十日志hash完整。
 
-D160、独立feature和新报告前向追加为324/59，保留原321证据、58其他能力、其余维度、全部UI/批准/运行态；manifest SHA256 d2e58fcfe32a53b6784717aa09f9f13cbf010db769ab720c68f955df8ce8cc50。13:03:09.707Z独立API再次核实main d1dd/五草稿heads不变。随后稳定绑定checkpoint上重验explicit d1dd guard、项目及发布134；尚未运行不预报PASS。Git NETWORK_DEGRADED，本Gate不再push、建重复PR或派账单CI。
+D160、独立feature和新报告前向追加为324/59，保留原321证据、58其他能力、其余维度、全部UI/批准/运行态；manifest SHA256 d2e58fcfe32a53b6784717aa09f9f13cbf010db769ab720c68f955df8ce8cc50。13:03:09.707Z独立API再次核实main d1dd/五草稿heads不变。Git NETWORK_DEGRADED，本Gate不再push、建重复PR或派账单CI。
+
+## 稳定绑定的最终回归
+
+绑定checkpoint25da387f32640984239f6734b4e5bbd737dbdaf9上，精确d1dd4f0fcf9992d5c055c7b67b6832b635485680源码/证据守卫PASS（11页面/59能力/87继承UI路径、errors空）。两组回归同时开始于2026-10-23T13:07:46Z，期间无源码、文档、清单或测试修改：
+
+- npm test：954/954，通过；0fail/cancel/skip，exit0；13:18:37.225Z完成，650990ms。
+- npm run test:release-baseline：134/134，通过；0fail/cancel/skip，exit0；13:18:36.007Z完成，649684ms。
+
+两个终态均独立保存headBefore=headAfter=25da，manifestBefore=manifestAfter=d2e58f，dirtyAfter空；完整hash见ignored project-final-result.json/release-final-result.json及对应完整log。这些是稳定新证据下的后续PASS，不覆盖首次937项/15项漂移失败，不等同Hosted CI运行。最终仅更新CURRENT_STATE/AI_HANDOFF/PROJECT_INDEX/本任务四份状态文档，独立commit后再次精确HEAD守卫。冻结报告、D160、feature、manifest及产品/测试/SQL不再改变。
