@@ -1769,6 +1769,26 @@
       "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
       "supersedes": "closing",
       "changeReason": "Distinguish approved D-147 future Server CNY sales and USD labor from existing Browser implementation; retain original closing evidence and capability status."
+    },
+    {
+      "id": "decisions-pr125-main-be9-import-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "3021f5b3a9c2251fe6ffaa6f1cd0044a6aefc0bc",
+      "renderedSourceSha": "3021f5b3a9c2251fe6ffaa6f1cd0044a6aefc0bc",
+      "sha256": "19d80a35bea637bebd140356491e40412d5fadad1449c2e927fa3d142a9f7578",
+      "supersedes": "decisions-server-convergence-20261020",
+      "changeReason": "Retain the original PR125 D147 decision and every prior blob through the real merge with exact main be9 and independent originaladd2 parents. Integration witness only; no new runtime or closing implementation claim."
+    },
+    {
+      "id": "closing-pr125-main-be9-import-20261023",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "3021f5b3a9c2251fe6ffaa6f1cd0044a6aefc0bc",
+      "renderedSourceSha": "3021f5b3a9c2251fe6ffaa6f1cd0044a6aefc0bc",
+      "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
+      "supersedes": "closing-server-target-20261020",
+      "changeReason": "Retain the original PR125 D147 decision and every prior blob through the real merge with exact main be9 and independent originaladd2 parents. Integration witness only; no new runtime or closing implementation claim."
     }
   ],
   "pages": [
