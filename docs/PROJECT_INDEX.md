@@ -2,7 +2,7 @@
 
 2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]及精确树已核对。#123前向交付cb1658d9、#125前向交付ca05d3e7，均草稿未合并；新CI被账号Billing/支出上限拒绝启动、0steps。用户确认尚未处理，继续本地工程，不自动合并/关闭、不改账单或部署。
 
-当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)非空请求恢复9/9通过：65545 driver配原357镜像，69非空/38空表/5序列一致，三态回执及跨库许可保护通过，真实Source=0。[独立报告](tasks/completed/2026-10-23-garment-command-nonempty-recovery.md)保留两次失败及环境处理；新绑定/发布/交付待收口。e971三CI和308/59保留原范围，候选或CI不代表真实激活/部署。
+当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)非空请求恢复9/9通过：65545 driver配原357镜像，69非空/38空表/5序列一致，三态回执及跨库许可保护通过，真实Source=0。[独立报告](tasks/completed/2026-10-23-garment-command-nonempty-recovery.md)冻结于d740，保留两次失败及环境处理；309/59新绑定仅评估isolatedTest，发布/交付待收口。e971三CI保留原范围，候选或CI不代表真实激活/部署。
 
 ## 系统简介
 

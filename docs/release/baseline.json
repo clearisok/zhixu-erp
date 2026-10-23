@@ -2637,6 +2637,15 @@
       "renderedSourceSha": "357a88e513632cdb93e01698096daf1eaf099355",
       "sha256": "39cc887fa40ef1e7f39eb36ea4e7f6b37ceccbc3047a56a8610ff2ce5a3bb634",
       "changeReason": "Freeze exact357 CI outcomes and owned nine-case image recovery with explicit failed Source UI cleanup and empty collector-command-table limits; no source activation, environment upgrade or new business claim."
+    },
+    {
+      "id": "garment-command-nonempty-recovery-20261023",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-23-garment-command-nonempty-recovery.md",
+      "recordedAtSha": "d740ab775e768aea9fb4be7856fa85748af062d8",
+      "renderedSourceSha": "65545a743ff714a243dd3ea0ac30fa20028c8f59",
+      "sha256": "d4e62de4846f941cffbc7633fe2d665262faaac040e2b2e6cf75c7002d38b933",
+      "changeReason": "Freeze exact65545 synthetic nonempty collection-command restart and independent DB/object restore using the unchanged exact357 compiled image. Preserve initial failures, owned-network resource handling and zero real Source scope; no implementation, merge, activation, human acceptance or runtime status upgrade."
     }
   ],
   "pages": [
@@ -8362,7 +8371,8 @@
       "evidence": [
         "garment-collection-control-engineering-20261023",
         "garment-collection-control-feature-20261023",
-        "decisions-garment-collection-review-fix-20261023"
+        "decisions-garment-collection-review-fix-20261023",
+        "garment-command-nonempty-recovery-20261023"
       ],
       "statusEvidence": {
         "implemented": {
@@ -8390,12 +8400,13 @@
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-23",
-          "sourceSha": "d99282fa41788a385d94e91bf7f26a318dc7c0ac",
-          "scope": "Finald992:33 directed, exact Git archive full types/lint/Server and explicit Server UI builds; independent review no remaining P1/P2. Original9fc retains its own952 project,270 PG/API,85 observations,33 normalization,181 Python and13 built UI results. All listed tests have zero skips. The two controller fixes do not relabel old full QA; release guard/134 and new hosted CI are later results.",
+          "sourceSha": "65545a743ff714a243dd3ea0ac30fa20028c8f59",
+          "scope": "Additional exact65545 test driver with locked exact357 image bf40f039; product/SQL/build/ops inputs identical, not a new65545 image. Windows recovery9/9 (302720.1184ms),69 populated/38 empty public tables and5 sequences;0043 has three durable states, zero replay worker calls, unexpired cross-DB old permit rejected and fresh permit one synthetic worker. Nine scope guards/scoped lint/exact d1dd guard pass. Earlier9fc/d992/E results keep their own scopes. No real HTTP/Source; new hosted CI and final release evidence gate remain separate.",
           "evidence": [
             "garment-collection-control-engineering-20261023",
             "garment-collection-control-feature-20261023",
-            "decisions-garment-collection-review-fix-20261023"
+            "decisions-garment-collection-review-fix-20261023",
+            "garment-command-nonempty-recovery-20261023"
           ]
         },
         "humanAcceptance": {

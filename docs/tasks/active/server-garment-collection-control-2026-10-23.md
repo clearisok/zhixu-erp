@@ -86,3 +86,5 @@ e971313a7b0ad5dd52b65cd33fb26106e60275ef已独立API核对完整SHA/tree/parent�
 修正后的9/9保护单元通过212.4692ms、0skip，覆盖额外ingress/错误归属/非internal网络的拒绝；四文件scoped lint及diff whitespace通过。下一步独立checkpoint，再用保持357真实身份的锁定镜像执行全链路。
 
 65545完整重验9/9通过302720.1184ms、0skip：0043三态3行、69非空/38空public表及5序列一致，原回执重放worker=0，尚未过期旧permit跨库拒绝，新预览一次合成worker。产品/SQL/ops仍与原357镜像等价，没有真实Source。第二轮在恢复后启动前遇Docker地址池/网段分配类失败，不能细分脱敏原文；仅释放本阶段3个失败项目的13容器/5网络且全部卷和无关ID保留后，以同一代码/镜像/预算重验通过。完整范围、原失败、哈希和清理证据冻结于[非空恢复报告](../completed/2026-10-23-garment-command-nonempty-recovery.md)。下一步追加一条不可变证据和isolatedTest维度，重跑发布门禁；远端/新CI不预报PASS。
+
+报告已commit d740ab775e768aea9fb4be7856fa85748af062d8，原Git blob SHA256 d4e62de4846f941cffbc7633fe2d665262faaac040e2b2e6cf75c7002d38b933。只追加一条证据，309/59；所有308原对象与其他58项能力、目标能力除isolatedTest外的维度/值、运行态和截图保持。新评估明确driver65545与image357身份、实际9/9和零Source；不是新增已合并/部署/人工接受标签。309守卫、发布134、复审和精确交付随后独立核实。
