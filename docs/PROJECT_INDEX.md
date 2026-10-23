@@ -2,7 +2,7 @@
 
 2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，最终收口前独立API重读相符。#126/#127/#120已分别获准、保留原历史合并；#123 cb1658、#125 ca05仍草稿未合并。两PR新CI被账号Billing/支出上限拒绝启动、0steps；用户确认未处理，继续安全本地工程，不重跑、不改账单。
 
-[最终PR组合验证](tasks/active/server-final-pr-combination-2026-10-23.md)已本地验收：实际merge4d41父1962/cb1658、b14f父33f5/ca05；d086冻结318证据/59能力，756父对象及全部状态完整不变。唯一非文档增量为CB原team-access-ui夹具，产品/SQL/UI/构建/ops与1962相同，原D147与金额权限负测保留。21单元/9PG/8实际built/134发布及精确d1dd守卫通过，独立复审无P1/P2。原失败、长路径单变量对照和范围见[工程记录](tasks/completed/2026-10-23-final-pr-combination-engineering.md)。最终文档HEAD远端尚待核对，不代表新CI、部署或激活。
+[最终PR组合验证](tasks/active/server-final-pr-combination-2026-10-23.md)已本地验收，原事实见[冻结工程记录](tasks/completed/2026-10-23-final-pr-combination-engineering.md)。最终8f2一次工具push为STOP_AUTH_OR_DIVERGENCE，独立API却精确核实SHA/tree/父；两项事实并存，根因未解，不重推或冒称通道永久恢复。现继续[Gate7F受控成衣操作者](tasks/active/server-garment-operator-2026-10-23.md)：复用原控制层，显式plan/单次/原回执；只做合成工程，无真实target启用或Source额度。新源码完整验收和冻结待收口，不借原结果。
 
 ## 系统简介
 
@@ -69,6 +69,8 @@
 ## 当前来源任务
 
 [Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受。D109已批准HTTP且认证成功；D110有真实完整可见合同发现及80物料抽样。目标三行单位/身份获人工确认、QtyUnit工程已合并；全量颜色/物料规模、数量未知原因及持续运行/部署仍待Gate。
+
+[成衣受控操作者](features/AINUOKE_GARMENT_OPERATOR.md)复用D158单次命令/原子发布，直接校验原过滤工具完整报告；receipt不依赖凭据或证明文件。真实target启用、多页实证、请求额度和正式运行仍独立待批准/验证，不等于成衣事件账或关账。
 
 [准备在合同后的采用](features/ORDER_PREPARATION_ADOPTION.md)已补后台与现有Foundation新入口，[页面阶段](tasks/active/order-preparation-adoption-ui.md)精确证据待收口；加工标签必须核实合法批次，不回填历史类型。
 

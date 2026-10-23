@@ -1,13 +1,17 @@
-# 恢复点：最终PR组合工程通过，待最终精确交付
+# 恢复点：Gate7F受控操作者，准备源码checkpoint验收
 
-2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，最终收口前独立API重读相符。#126/#127/#120已分别获准、保留原历史合并；#123 cb1658、#125 ca05仍草稿未合并。两PR新CI被账号Billing/支出上限拒绝启动、0steps；用户确认未处理，继续安全本地工程，不重跑、不改账单。
+2026-10-23；完整G1–G5 Goal继续，root唯一writer、既有reviewer只读。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，11:23:47.807Z独立API核实。用户确认Billing未处理，继续本地工作，不重派已知拒绝启动的CI、不改账单。新分支codex/server-garment-operator从main建立后FF8f2，开始树干净；当前仅本阶段增量，无继承dirty。
 
-root唯一writer，既有reviewer只读。当前分支codex/server-final-pr-combination，实际4d41/b14f双父merge及d086文档见证完整保留1962、cb1658、ca05。318/59只追加证据；756父对象、所有能力状态及18新父归档原字节已核对。唯一非文档增量为CB原team-access-ui；产品/SQL/UI/构建/ops与1962相同。原本地feat/business-operation-logs=ebe4、codex/server-persistent-empty-target=4cf1用户运行态refs不移动。
+前阶段8f2b32703af7ba7a7afe6fd89a2b5454fd1518a1独立API确认tree cfbdf12cca57728fbdfe2d4edf08c71132b60b12/父d086，工具一次push仍STOP_AUTH_OR_DIVERGENCE，根因unresolved；不重推、不更新PR冒称协议PASS。#123 cb1658/#125 ca05仍草稿，原运行态本地refs ebe4/4cf1不移动。完整历史/QA见completed/2026-10-23-final-pr-combination-engineering.md及ignored outputs/final-pr-combination-20261023。
 
-新d086精确d1dd guard PASS（11页/59能力/87继承UI/errors=[]）；发布134/134、575747.8533ms、0skip，HEAD与manifest db85afb352762913f08eee2513d42456d4d9735e6200ceb7891fcb7caefbd5be稳定。类型/Server编译/scoped lint、21保护单元/9PG/8真实built全通过；scope/review无P1/P2。具体源码、时长、原失败和证据见completed/2026-10-23-final-pr-combination-engineering.md及ignored outputs/final-pr-combination-20261023。
+本阶段新增garment-operator-cli.ts，严格单SO私密job；plan/collect-once/receipt三动作，不含target-enable/SQL/HTTP/调度/重试。复用原D158控制层、verify-only、现有actor、私密文件/报告。原producer完整filter-private wrapper固定adapter保留原checkedAt并重建全部包装；只在fresh范围相等后开凭据，receipt不读证明/秘密。未知claim/COMMIT/started或报告失败退出2且只核对原UUID。公开投影封闭，实际源码入口需要clean committed exact entry/native path；fake worker只能由内部测试注入。
 
-重要本机验收限制：fs.realpathSync不展开Windows短名，native才展开；同一ab33archive短路径曾产生两个SSR Context/45路由skip，vinext却exit0，原UI1/1失败。仅用native长路径新context、原所有输入后单Context/46路由/原UI8通过，原失败产物保留。后续外部context先native规范化，不改全局TMP，不以退出0替代HTML/预渲染和真实浏览器。ignored驱动最初bin string/map错误也保留；旧qa/result中的initialDriverStop.completedSteps引用了后续数组，初次四步的准确停止记录是qa/initial-driver-stop.json，后续1个UI失败不是初次驱动失败的一部分。
+首轮4纯测通过；初次TS窄化修正后Server编译通过。原PG9项3pass/6fail（含父）：缺actor异常没有code、固定夹具时钟因Windows ACL耗时晚于DB started保护。已静态安全映射actor；夹具每单重置实际起点、原允许九分钟permit，不改SQL。第二轮13/13通过220194.8743ms、0skip，dirty源码入口正确拒绝；原控制层33/33通过20721.6352ms、0skip。
 
-本次最终仅状态/工程报告文档收口；下一执行最终HEAD精确main守卫、既有交付工具一次上传和独立完整SHA/tree/父验证。最终远端事实保存在outputs/final-pr-combination-20261023，不预报PASS、不建重复累计业务PR、不重跑账单受限CI。原1962已送达事实保留；历史STOP/exact并存根因未解，不因一次NORMAL宣称永久恢复。
+独立复审P2为旧三字段proof不兼容已有完整producer产物，已按固定完整wrapper adapter修复，合成fixture直接消费原producer。新增5纯测17143.4729ms通过，Server编译通过；补自有现存actor撤ainuoke.sync/缺凭据负控。adapter后的最终PG/clean源码入口及独立复审待执行，不能借旧13结果。当前日志在outputs/garment-operator-20261023；baseline.json是建立新分支前的独立读数，前一分支名正确，任务文档记录新分支建立/FF。
 
-后续可独立审查显式Server构建产物检查，防止预渲染缺路由而退出0；当前未实施正式流水线新guard，不夹带UI或业务改造。完整G1–G5继续，不自动merge/close，不新读真实Source/凭据/私密报告，不修改现有库/账号或部署/切换/退役。原覆盖v1/关账三问/真实额度/50426切换待决不重复默认。
+下一步：scoped lint/源码checkpoint → 干净源码实际入口与新定向/共享私密报告回归 → 精确Git archive的native长路径类型/Server编译/所需构建 → 独立复审 → 冻结新文档/证据及能力维度 → explicit d1dd guard/发布134。旧feature无main证据锚点不能改原冻结字节，新操作者有独立复杂上下文文档；不改guard或旧hash绕过。新真实Source/私密文件读取、target激活、现有库/账号、部署/切换/退役仍不在本阶段。
+
+外部context必须fs.realpathSync.native规范化Windows短名；前轮同ab33archive短路径45 prerender skip而exit0，长路径46/0skip及原8built通过。不要改全局TMP，不以exit0代替实际产物。原失败证据和上下文原地保留，已不在本阶段QA范围。
+
+不得自动merge/close或新建重复累计业务PR；Git协议STOP保护保留。完整目标剩余真实激活、多页/事件、关账三问、覆盖v1/50426切换/逐项退役不默认或重复询问。所有结论分工程/远端/CI/运行/人工接受。

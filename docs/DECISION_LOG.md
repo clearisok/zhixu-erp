@@ -1,5 +1,13 @@
 # 决策日志
 
+### D-159 成衣操作者入口复用单次控制层，回执恢复独立于秘密与证明
+
+- 2026-10-23，Active engineering decision；D147/Gate7F已批准工程范围内，延续D152/D153/D158全部业务与原子回执保护。D158及其feature中“无CLI”保留为原Gate7E交付范围；本阶段另增干净已提交源码CLI，只有plan-collection、collect-once和receipt，不新增HTTP、schema、target启用、Catalog或调度。
+- 私密严格单SO job与原C1/C0/C1完整报告/hash/checkedAt；固定adapter在原核验时间重建完整producer包装后才提取内部证明，不要求人工裁剪报告。plan只读，fresh scope通过后才读凭据，原控制层采前再校验。固定完整首页100行、两遍/1登录/2报表/180秒、零重试，不扩大真实请求额度；hash和确认短语不等于真实采集授权。未配置/批准启用的target直接拒绝，不补默认值或SQL激活。
+- receipt以当前真实actor/原UUID直读同一不可变请求，不打开证明或凭据、不要求target仍启用或permit仍新鲜。未知claim/COMMIT/started或报告落盘失败不输出published成功；只核对原请求，不换UUID或回收started。只有已核实完成published退出0，业务未发布或未核实退出2。
+- 复用现有私密ACL/有界UTF8/hash/单硬链接检查、严格重复键和秘密字段检查；公开投影不输出来源账号/合同/原文/数量/连接串或任意异常，凭据只由原worker私密stdin使用。新入口不另写终态/审计，成功发布仍在D158同一事务。
+- 证据：garment-operator-cli.ts及合成纯/PG/源码入口测试，[操作者文档](features/AINUOKE_GARMENT_OPERATOR.md)。本轮不读真实Source/凭据/私密报告、不改现有库/账号或部署；真实启用、多页实证、跨次事件、关账和目标切换分别待Gate。工程验证结果与Hosted CI账单阻断分开记录。
+
 ### D-158 单SO成衣采集使用持久单次回执与原子发布
 
 - 2026-10-23，Active；D147/D152/D153已批准范围内的技术工程，不改变Num/outdate、价格、生产完成、关账或跨次事件口径。0043只新增空技术命令表；不回填、不启用target，不新增HTTP/公开CLI/Catalog/调度入口。
