@@ -72,6 +72,7 @@ jobs:
           npm run test:garment-contract-verification
           npm run test:garment-filter-recovery
           npm run test:garment-shipment-observations
+          npm run test:garment-collection-control
           npm run test:ainuoke-payment-observations
           npm run test:ainuoke-payment-contracts
           npm run test:ainuoke-payment-snapshots

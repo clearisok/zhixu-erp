@@ -1,8 +1,8 @@
 # 项目知识索引
 
-2026-10-23；完整G1–G5 Goal继续。实际main=be9aaa3f4efa232e1451075a355f0ce42e35a69e，仅#126/#127已获具体批准合并。#120 fca748cb、#12303570e19、#1254cf19e82精确送达，九项新CI attempt1成功、独立复审无P1/P2，仍草稿未合并关闭或部署。
+2026-10-23；完整G1–G5 Goal继续。main=be9aaa3f4efa232e1451075a355f0ce42e35a69e；只有#126/#127已具体批准合并。#120 fca/#1230357/#1254cf的九CI保持原精确范围，仍草稿。累计49dc一次精确送达、Release39909321129 attempt1成功、复审无P1/P2；不表示业务合并、部署或Source激活。
 
-累计候选be9/7c/原5f真实整合K e1acad98的本地134+88及精确门禁通过、静态复审无P1/P2；最终交付/新Release分别核实，不借旧镜像证明新部署。恢复先读CURRENT_STATE、AI_HANDOFF和[当前前向任务](tasks/active/candidate-main-forward-2026-10-23.md)。295证据/58能力、原35份材料、23UI批准保留；下一可推进工程为单SO成衣持久回执/原子发布控制层，尚未实现或真实启用。
+当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)只推进合成/隔离工程；31定向/181 Python已通过，完整门禁/复审/新CI待收口。恢复先读CURRENT_STATE、AI_HANDOFF及既有[成衣观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。原证据/能力/批准与旧运行态保留，真实读取、激活、关账和目标切换不自动授权。
 
 ## 系统简介
 

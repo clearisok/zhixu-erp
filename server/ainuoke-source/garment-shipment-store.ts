@@ -139,79 +139,103 @@ async function boundedStorage(client: PoolClient, values: { input: unknown; scop
   return texts;
 }
 
+/** Internal preparation on a caller-owned read snapshot. No collection or activation. */
+export async function prepareGarmentPublicationInTransaction(client: PoolClient, identity: TrustedIdentity,
+  sourceKey: string, orderId: string, now = Date.now()) {
+  ids(sourceKey, orderId);
+  if (!Number.isFinite(now) || now < 0) fail(503, "garment_capture_clock_invalid");
+  await actorFor(client, identity, true, false); await available(client);
+  const business = await verifiedOrder(client, orderId);
+  if (business.businessType === "processing") fail(409, "garment_source_not_applicable");
+  const target = await targetFor(client, sourceKey, orderId, false); if (!enabled(target)) fail(503, "garment_source_not_connected");
+  const order = (await boundOrders(client, false, [orderId]))[0]; if (!order) return fail(409, "garment_binding_unavailable");
+  const basis = basisOf(await readStableOrderColors(client, orderId)), current = await headFor(client, sourceKey, orderId);
+  return contextOf(sourceKey, order, target, basis, current?.generation ?? 0, now);
+}
+
 /** Internal preparation only. It performs no collector, HTTP or activation. */
 export async function prepareGarmentPublication(pool: Pool, identity: TrustedIdentity, sourceKey: string, orderId: string, now = Date.now()) {
   ids(sourceKey, orderId);
   if (!Number.isFinite(now) || now < 0) fail(503, "garment_capture_clock_invalid");
-  return transaction(pool, false, async client => {
-    await actorFor(client, identity, true, false); await available(client);
-    const business = await verifiedOrder(client, orderId);
-    if (business.businessType === "processing") fail(409, "garment_source_not_applicable");
-    const target = await targetFor(client, sourceKey, orderId, false); if (!enabled(target)) fail(503, "garment_source_not_connected");
-    const order = (await boundOrders(client, false, [orderId]))[0]; if (!order) return fail(409, "garment_binding_unavailable");
-    const basis = basisOf(await readStableOrderColors(client, orderId)), current = await headFor(client, sourceKey, orderId);
-    return contextOf(sourceKey, order, target, basis, current?.generation ?? 0, now);
-  });
+  return transaction(pool, false, client => prepareGarmentPublicationInTransaction(client, identity, sourceKey, orderId, now));
 }
 
-/** Server-only checked-page publication. No HTTP writer/activation is exposed.
- * Current permissions and all binding facts are rechecked after collection. */
-export async function publishGarmentObservation(pool: Pool, caller: TrustedIdentity, requestedContext: GarmentPublicationContext,
-  input: unknown, scope: GarmentObservationScope, now = Date.now()) {
+function checkedGarmentPublication(caller: TrustedIdentity, requestedContext: GarmentPublicationContext,
+  input: unknown, scope: GarmentObservationScope, now: number) {
   const identity = structuredClone(caller), context = structuredClone(requestedContext), checkedInput = structuredClone(input), checkedScope = structuredClone(scope);
   ids(context.sourceKey, context.salesOrderId);
   const snapshot = restoreGarmentObservationSnapshot(checkedInput, checkedScope);
   if (!Number.isFinite(now) || now < Date.parse(snapshot.observedThrough) || !Number.isFinite(context.preparedAt) || context.preparedAt < 0 || context.preparedAt > now
     || Date.parse(snapshot.observedFrom) < context.preparedAt) fail(409, "garment_capture_precedes_scope");
-  return transaction(pool, true, async client => {
-    await lockEffectiveAttribution(client);
-    const actor = await actorFor(client, identity, true); await available(client);
-    await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))", ["garment-publication:" + context.sourceKey + ":" + context.salesOrderId]);
-    const target = await targetFor(client, context.sourceKey, context.salesOrderId, true); if (!enabled(target)) return fail(503, "garment_source_not_connected");
-    await freezePhysicalOrderGroups(client, [context.salesOrderId]);
-    const business = await verifiedOrder(client, context.salesOrderId); if (business.businessType !== "ainuoke_contract") fail(409, "garment_source_not_applicable");
-    const order = (await boundOrders(client, true, [context.salesOrderId]))[0]; if (!order) return fail(409, "garment_binding_changed");
-    const colors = await readStableOrderColors(client, order.id), basis = basisOf(colors);
-    const actual = contextOf(context.sourceKey, order, target, basis, context.generation, context.preparedAt);
-    const old = (await client.query<Stored>(`SELECT ${columns} FROM ainuoke_garment_shipment_snapshots s
-      WHERE source_key=$1 AND sales_order_id=$2 AND snapshot_id=$3`, [context.sourceKey, order.id, snapshot.snapshotId])).rows[0];
-    if (old) {
-      if (!bindingMatches(old, order, target) || hash(old.publication_context) !== hash(context) || hash(old.input) !== hash(checkedInput)
-        || hash(verifyStored(old)) !== hash(projectColors(snapshot, old.color_basis)))
-        return fail(409, "garment_capture_retry_conflict");
-      return { publicationId: old.id, snapshotId: old.snapshot_id, generation: old.generation, alreadyPublished: true };
-    }
-    if (hash(actual) !== hash(context) || snapshot.sourceFingerprint !== actual.sourceFingerprint || snapshot.salesContractNo !== actual.salesContractNo)
-      fail(409, "garment_binding_changed");
-    if (now - Date.parse(snapshot.observedFrom) > GARMENT_OBSERVATION_LIMITS.captureWindowMs) fail(409, "garment_capture_expired");
-    const payload = projectColors(snapshot, basis);
-    const current = await headFor(client, context.sourceKey, order.id);
-    if ((current?.generation ?? 0) !== context.generation) fail(409, "garment_generation_conflict");
-    if (context.generation >= 2147483647) fail(422, "garment_generation_limit");
-    if (current) {
-      verifyStored(current);
-      if (Date.parse(snapshot.observedFrom) < Date.parse(current.payload.observedFrom) || Date.parse(snapshot.observedThrough) < Date.parse(current.payload.observedThrough))
-        fail(409, "garment_observation_regressed");
-    }
-    const texts = await boundedStorage(client, { input: checkedInput, scope: checkedScope, context, basis, payload });
-    for (const color of colors.filter(color => !color.ambiguous)) await ensureStableOrderColor(client, order.id, color);
-    const publicationId = randomUUID(), generation = context.generation + 1;
-    await client.query(`INSERT INTO ainuoke_garment_shipment_snapshots(id,source_key,sales_order_id,generation,account_fingerprint,target_version,freshness_ms,
-      source_owner_order_id,source_link_id,attribution_change_id,attribution_version,order_version,sales_contract_no,snapshot_id,row_count,observed_from,observed_through,
-      input,scope,publication_context,color_basis,color_basis_hash,payload,content_hash,actor_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`,
-    [publicationId, context.sourceKey, order.id, generation, context.sourceFingerprint, context.targetVersion, context.freshnessMs, context.sourceOwnerOrderId,
-      context.sourceLinkId, context.attributionChangeId, context.attributionVersion, context.orderVersion, context.salesContractNo, snapshot.snapshotId, payload.rows.length,
-      snapshot.observedFrom, snapshot.observedThrough, texts.input, texts.scope, texts.context, texts.basis, hash(basis), texts.payload, hash(payload), actor.internalUserId]);
-    for (const row of payload.rows) await client.query(`INSERT INTO ainuoke_garment_shipment_color_matches(snapshot_id,sales_order_id,source_record_id,match_state,order_color_id)
-      VALUES($1,$2,$3,$4,$5)`, [publicationId, order.id, row.sourceRecordId, row.colorMatch.state, row.colorMatch.state === "matched" ? row.colorMatch.orderColorId : null]);
-    if (current) {
-      const changed = await client.query("UPDATE ainuoke_garment_shipment_heads SET snapshot_id=$3,generation=$4 WHERE source_key=$1 AND sales_order_id=$2 AND generation=$5",
-        [context.sourceKey, order.id, publicationId, generation, current.generation]); if (changed.rowCount !== 1) fail(409, "garment_generation_conflict");
-    } else await client.query("INSERT INTO ainuoke_garment_shipment_heads(source_key,sales_order_id,snapshot_id,generation) VALUES($1,$2,$3,$4)", [context.sourceKey, order.id, publicationId, generation]);
-    await appendOperationLog(client, actor, { module: "艾诺科同步", action: "采集艾诺科来源", entityType: "AinuokeSourceRun", entityId: publicationId,
-      afterData: { values: { salesOrderId: order.id, generation } }, metadata: { sourceReportId: "6086979", publicationId, generation, rowCount: payload.rows.length, sourceOnly: true } });
-    return { publicationId, snapshotId: snapshot.snapshotId, generation, alreadyPublished: false };
-  });
+  return { identity, context, checkedInput, checkedScope, snapshot, now };
+}
+
+async function publishCheckedGarmentObservation(client: PoolClient, checked: ReturnType<typeof checkedGarmentPublication>) {
+  const { identity, context, checkedInput, checkedScope, snapshot, now } = checked;
+  await lockEffectiveAttribution(client);
+  const actor = await actorFor(client, identity, true); await available(client);
+  await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))", ["garment-publication:" + context.sourceKey + ":" + context.salesOrderId]);
+  const target = await targetFor(client, context.sourceKey, context.salesOrderId, true); if (!enabled(target)) return fail(503, "garment_source_not_connected");
+  await freezePhysicalOrderGroups(client, [context.salesOrderId]);
+  const business = await verifiedOrder(client, context.salesOrderId); if (business.businessType !== "ainuoke_contract") fail(409, "garment_source_not_applicable");
+  const order = (await boundOrders(client, true, [context.salesOrderId]))[0]; if (!order) return fail(409, "garment_binding_changed");
+  const colors = await readStableOrderColors(client, order.id), basis = basisOf(colors);
+  const actual = contextOf(context.sourceKey, order, target, basis, context.generation, context.preparedAt);
+  const old = (await client.query<Stored>(`SELECT ${columns} FROM ainuoke_garment_shipment_snapshots s
+    WHERE source_key=$1 AND sales_order_id=$2 AND snapshot_id=$3`, [context.sourceKey, order.id, snapshot.snapshotId])).rows[0];
+  if (old) {
+    if (!bindingMatches(old, order, target) || hash(old.publication_context) !== hash(context) || hash(old.input) !== hash(checkedInput)
+      || hash(verifyStored(old)) !== hash(projectColors(snapshot, old.color_basis)))
+      return fail(409, "garment_capture_retry_conflict");
+    return { publicationId: old.id, snapshotId: old.snapshot_id, generation: old.generation, alreadyPublished: true };
+  }
+  if (hash(actual) !== hash(context) || snapshot.sourceFingerprint !== actual.sourceFingerprint || snapshot.salesContractNo !== actual.salesContractNo)
+    fail(409, "garment_binding_changed");
+  if (now - Date.parse(snapshot.observedFrom) > GARMENT_OBSERVATION_LIMITS.captureWindowMs) fail(409, "garment_capture_expired");
+  const payload = projectColors(snapshot, basis);
+  const current = await headFor(client, context.sourceKey, order.id);
+  if ((current?.generation ?? 0) !== context.generation) fail(409, "garment_generation_conflict");
+  if (context.generation >= 2147483647) fail(422, "garment_generation_limit");
+  if (current) {
+    verifyStored(current);
+    if (Date.parse(snapshot.observedFrom) < Date.parse(current.payload.observedFrom) || Date.parse(snapshot.observedThrough) < Date.parse(current.payload.observedThrough))
+      fail(409, "garment_observation_regressed");
+  }
+  const texts = await boundedStorage(client, { input: checkedInput, scope: checkedScope, context, basis, payload });
+  for (const color of colors.filter(color => !color.ambiguous)) await ensureStableOrderColor(client, order.id, color);
+  const publicationId = randomUUID(), generation = context.generation + 1;
+  await client.query(`INSERT INTO ainuoke_garment_shipment_snapshots(id,source_key,sales_order_id,generation,account_fingerprint,target_version,freshness_ms,
+    source_owner_order_id,source_link_id,attribution_change_id,attribution_version,order_version,sales_contract_no,snapshot_id,row_count,observed_from,observed_through,
+    input,scope,publication_context,color_basis,color_basis_hash,payload,content_hash,actor_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`,
+  [publicationId, context.sourceKey, order.id, generation, context.sourceFingerprint, context.targetVersion, context.freshnessMs, context.sourceOwnerOrderId,
+    context.sourceLinkId, context.attributionChangeId, context.attributionVersion, context.orderVersion, context.salesContractNo, snapshot.snapshotId, payload.rows.length,
+    snapshot.observedFrom, snapshot.observedThrough, texts.input, texts.scope, texts.context, texts.basis, hash(basis), texts.payload, hash(payload), actor.internalUserId]);
+  for (const row of payload.rows) await client.query(`INSERT INTO ainuoke_garment_shipment_color_matches(snapshot_id,sales_order_id,source_record_id,match_state,order_color_id)
+    VALUES($1,$2,$3,$4,$5)`, [publicationId, order.id, row.sourceRecordId, row.colorMatch.state, row.colorMatch.state === "matched" ? row.colorMatch.orderColorId : null]);
+  if (current) {
+    const changed = await client.query("UPDATE ainuoke_garment_shipment_heads SET snapshot_id=$3,generation=$4 WHERE source_key=$1 AND sales_order_id=$2 AND generation=$5",
+      [context.sourceKey, order.id, publicationId, generation, current.generation]); if (changed.rowCount !== 1) fail(409, "garment_generation_conflict");
+  } else await client.query("INSERT INTO ainuoke_garment_shipment_heads(source_key,sales_order_id,snapshot_id,generation) VALUES($1,$2,$3,$4)", [context.sourceKey, order.id, publicationId, generation]);
+  await appendOperationLog(client, actor, { module: "艾诺科同步", action: "采集艾诺科来源", entityType: "AinuokeSourceRun", entityId: publicationId,
+    afterData: { values: { salesOrderId: order.id, generation } }, metadata: { sourceReportId: "6086979", publicationId, generation, rowCount: payload.rows.length, sourceOnly: true } });
+  return { publicationId, snapshotId: snapshot.snapshotId, generation, alreadyPublished: false };
+}
+
+/** The caller owns BEGIN/COMMIT. This allows a publication and its durable
+ * operator success receipt to commit atomically, using the same lock order and
+ * fresh authorization as the original wrapper. Never hold it across network IO. */
+export async function publishGarmentObservationInTransaction(client: PoolClient, caller: TrustedIdentity,
+  requestedContext: GarmentPublicationContext, input: unknown, scope: GarmentObservationScope, now = Date.now()) {
+  const checked = checkedGarmentPublication(caller, requestedContext, input, scope, now);
+  return publishCheckedGarmentObservation(client, checked);
+}
+
+/** Server-only checked-page publication. Preserve synchronous input capture
+ * before the first await, current permissions, scope/CAS and original replay. */
+export async function publishGarmentObservation(pool: Pool, caller: TrustedIdentity, requestedContext: GarmentPublicationContext,
+  input: unknown, scope: GarmentObservationScope, now = Date.now()) {
+  const checked = checkedGarmentPublication(caller, requestedContext, input, scope, now);
+  return transaction(pool, true, client => publishCheckedGarmentObservation(client, checked));
 }
 
 function readProjection(row: Stored, basis: ColorBasis, target: Target, now: number): GarmentObservedView {

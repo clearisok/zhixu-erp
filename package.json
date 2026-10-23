@@ -107,6 +107,7 @@
     "test:business-operation-logs": "tsx --test --test-concurrency=1 server/integration/business-operation-logs.integration.test.ts server/integration/quote-audit-read.integration.test.ts",
     "test:material-arrivals-ui": "tsx --test --test-concurrency=1 server/integration/material-arrivals-ui.integration.test.mjs",
     "test:garment-shipment-observations": "tsx --test --test-concurrency=1 server/ainuoke-source/garment-shipment-observations.test.ts features/ainuoke-garment-shipments/__tests__/client.test.ts server/integration/garment-shipment-store.integration.test.ts server/integration/garment-shipment-upgrade.integration.test.ts",
+    "test:garment-collection-control": "tsx --test --test-concurrency=1 server/integration/garment-collection-worker.test.ts server/integration/garment-collection-control.integration.test.ts server/integration/garment-collection-upgrade.integration.test.ts",
     "test:garment-contract-verification": "tsx --test --test-concurrency=1 server/integration/garment-contract-verification.test.ts",
     "test:garment-filter-recovery": "tsx --test --test-concurrency=1 server/integration/garment-filter-recovery.test.ts",
     "test:garment-shipments-ui": "tsx --test --test-concurrency=1 server/integration/garment-shipments-ui.integration.test.mjs",

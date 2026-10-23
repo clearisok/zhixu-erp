@@ -78,3 +78,15 @@ Windows入口 `scripts/ainuoke-garment-contract-verification.ps1` 只创建新�
 `npm run test:garment-shipment-observations`执行纯契约、一次性PG/真实session HTTP、0039升级、并发撤权/停用/物理来源更新、丢回执、过期重放、历史分页、跨单颜色FK、容量及审计回滚。Python全套含原文精度/hash检查。新增命令接入既有Source验收workflow；本地PASS不代表Hosted CI。
 
 真实启用前仍须有具体受控查询授权，核实精确合同过滤、分页和两遍范围，不能重复使用D1933已消耗额度。正式收集器/操作者命令、来源失败记录、后续采集操作UI、取消/冲销/事件身份及财务采用分别交付；本轮订单只读展示不代表这些后续能力完成，不从一次样本或本快照模型推断业务闭环。完整Goal继续。
+
+## Gate7E：默认关闭的单SO采集控制层（2026-10-23工程）
+
+前述各Gate的旧“尚无收集器”按原阶段阅读。D158新增内部planGarmentCollection / collectGarmentOnce / readGarmentCollectionReceipt及固定worker；不注册HTTP、CLI、Catalog、调度或目标启用命令。新表0043只存技术请求身份、原scope、有效期、started/terminal及publication引用，既有0040观察语义、已确认Num/outdate和所有公开GET不变。
+
+plan为同一READ ONLY RR，核对fresh order.view/ainuoke.view/ainuoke.sync、操作账号及可信合同；scope绑定实际库与连接、原物理owner/link、有效归属、target/version、颜色和head代际、完整过滤证明及预算。证明按原C1/C0/C1完整原文重建，目标verification_sha256必须等于该具体证明；非空hash、旧contains候选、款号或另一账号/合同均不能替代。现有真实证明只覆盖该账户、该合同完整首页，不表示其他合同或多页已证明，也不授予新请求。
+
+首版固定6086979 / ExpContractNo / is / [内层]，单合同两遍各首页100行，最多1登录+2报表/3HTTP、每响应4MiB、报表累计8MiB、worker180秒、无重试/重登/翻页/重定向/代理。总数>100第一遍停止，正式pageIndex/pageSize必须精确1/100；诊断零哨兵不补成正式页。Python严格提取，Node再次用原文hash/无损JSON/完整计数/合同/两遍内容重建。空观察合法，不要求旧见证仍存在，不把消失解释为取消。原观察模型20页工程能力仍保留，但本控制层不启用未获证明的多页分支。
+
+执行先持久started且确认COMMIT，再且仅再调用一次worker；网络期间释放全部DB事务/锁。采前重核scope，采后原发布primitive再鉴权、冻结整物理组、核对颜色/target/owner/CAS。发布及成功命令回执/审计同事务；失败不改旧head。COMMIT回执丢失不会自动重采或重发，started永不自动回收。回执核对按原actor/UUID返回历史结果，不因捕获/permit过期、目标关闭或head前移而重建；scope/payload/hash及结果字段再次校验，损坏503，不返回任意JSON。原凭据、原文、金额、颜色明细不进回执。
+
+已执行31定向和181 Python；新31覆盖两端传输、实际Python+FakeTransport、真实PG单次并发/COMMIT丢回执、终态/审计回滚、旧head保留、撤权/来源与颜色变化、损坏回执、完整指纹及非空0042升级。完整类型/项目/构建、发布门禁、独立复审及新CI另记[本阶段任务](../tasks/active/server-garment-collection-control-2026-10-23.md)。没有新真实Source/私密文件读取、目标启用、现有库升级或部署/人工接受。完整G1–G5继续，不以本内部切片替代业务闭环。

@@ -1,5 +1,14 @@
 # 决策日志
 
+### D-158 单SO成衣采集使用持久单次回执与原子发布
+
+- 2026-10-23，Active；D147/D152/D153已批准范围内的技术工程，不改变Num/outdate、价格、生产完成、关账或跨次事件口径。0043只新增空技术命令表；不回填、不启用target，不新增HTTP/公开CLI/Catalog/调度入口。
+- 内部只读plan绑定实际DB/连接指纹、fresh actor、可信合同/原物理owner/link/有效归属、target版本、颜色依据、generation、完整过滤证明hash及原请求/有效期。非空verification hash不代表通用过滤证明；须重新校验本账号本合同C1/C0/C1原证据，并与目标逐字相符。当前真实证据仅完整首页，首版worker每遍只读一页100行，总数>100在第一遍停止，不补页号零哨兵或扩为多页。
+- 请求开始前先提交started；同actor/UUID并发只允许一个worker，started不回收、不作为重采lease。采集期间不持DB锁；1登录+2报表/3HTTP、每响应4MiB、报表8MiB、180秒及零重试为工程天花板，不是新真实额度。worker经私密stdin，凭据/原文不写日志或回执。
+- 原0040发布逻辑提为caller-owned事务primitive，原wrapper保持。快照、颜色、head、原审计及成功终态同事务；终态/审计失败全回滚。已确认回滚可另存小失败终态，无法证明COMMIT结果只核对原request，不再次采集/发布。原始日期、scope、数量、旧快照与创建身份保留。
+- 原请求核对重新鉴权，重建scope/payload身份并校验封闭结果形状；过期/目标变更后仍返回原历史回执，不把当前head当历史成败。未知计数不补0。新SO与原物理SO引用同时进入完整归一指纹；不因此开放归一执行。
+- 证据：garment-collection-control.ts、garment-collection-worker.ts/Python、0043及新纯/PG/非空0042升级检查。当前31项定向、181项Python已执行，完整工程、冻结证据、独立复审与新CI待后续记录。仅合成传输/一次性库，未读真实凭据或报告、未发新Source请求、未修改现有库/账号或部署；操作者入口、真实范围授权/激活、多页实证及跨次事件仍各自待Gate。
+
 状态说明：
 
 - **Active**：当前实现仍遵守的决定。
