@@ -1,5 +1,14 @@
 # 决策日志
 
+### D-160 成衣目标配置复用原目标并保存独立原子历史回执
+
+- 2026-10-23，Active engineering decision，D147既有收敛范围内；不改变D152数量/日期、D153观察与D158/159单次采集，真实启用和新读取额度仍另行批准。本片仅内部plan/apply/receipt，无CLI/HTTP/Catalog/调度或实际激活。
+- enable复验具体原过滤证明、profile账号、唯一可信合同/原owner/有效归属、当前版本及明确时效，不默认策略或替换已有target账号。disable不依赖证明、profile/合同/颜色/head健康，允许停止历史alias；目标不存在为no-op，不建目标。所有历史/快照保留，只有实际变化才前移版本。
+- 四项既有fresh权限、DB/actor/UUID/意图/期限/hash与原publication锁统一。配置无外部IO，0044采用completed-only不可变技术回执，目标、原审计和回执一次事务；不复用付款双合同账本或0043持久started。锁等待后重核期限与范围，未知COMMIT只读核对原UUID，不能暂定成功或自动重试。
+- 回执独立于当前target和证明，旧enable重放只返回历史事实，不重新启用。原SO与物理owner引用进入完整归一指纹，不开放实际归一或移动执行/财务。旧观察不因新target时效变长而延长。
+- 代码证据：garment-target-control.ts、0044、新纯/PG/非空升级及原采集负测，见[功能边界](features/AINUOKE_GARMENT_TARGET_CONTROL.md)与[阶段任务](tasks/active/server-garment-target-control-2026-10-23.md)。首次19项16pass/3fail为夹具删除受保护镜像、遗漏案件事件；第二17pass/2fail为错误归一两个不同可信合同；修复夹具后19/19通过，没有放宽业务或SQL保护。最终完整验证与复审另记，未读真实凭据/Source或操作现有库。
+- 独立实际diff复审发现新审计operationId未区分actor的P2；已仅在新operationId中加入actor ID，旧日志消费者/历史不改。新增两个actor共用UUID对不同SO成功且两组审计独立的实际PG负控后20/20通过12674.2402ms、0skip；独立复审核对源码/日志后关闭P2，无其他P1/P2，未自行运行测试。最终冻结/发布检查仍按阶段证据区分。
+
 ### D-159 成衣操作者入口复用单次控制层，回执恢复独立于秘密与证明
 
 - 2026-10-23，Active engineering decision；D147/Gate7F已批准工程范围内，延续D152/D153/D158全部业务与原子回执保护。D158及其feature中“无CLI”保留为原Gate7E交付范围；本阶段另增干净已提交源码CLI，只有plan-collection、collect-once和receipt，不新增HTTP、schema、target启用、Catalog或调度。

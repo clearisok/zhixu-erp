@@ -1,4 +1,6 @@
-# 恢复点：Gate7F本地通过，单次交付未送达
+# 恢复点：Gate7G内部目标配置，定向通过待独立复审/精确构建
+
+当前codex/server-garment-target-control，从已核实main d1dd4f0fcf9992d5c055c7b67b6832b635485680建立后FF clean81ce0a015a17cfa74bf6b006dc97d9ee36468a8a；开始无继承dirty，所有增量归本Gate。0044仅completed-only技术回执；原target/审计/回执同事务，enable复验proof/明确时效/可信物理绑定，disable不读profile/binding/head，不改变观察。新服务不挂CLI/HTTP/Catalog/调度，不激活真实目标。修复审计operationId的actor隔离P2后20新定向通过；33原采集/85观察/33完整归一回归通过0skip。独立复审已确认P2关闭、无其他P1/P2，未自行运行测试。最终精确native archive类型/lint/构建及发布门禁待做。根目录types失败因既有ignored outputs旧源码混入，保留原产物/tsconfig，用干净archive验证。见本Gate任务和功能说明。
 
 最新终态：02c225767b99a39cc3e46e2e2c1857b132ee4f75精确d1dd守卫PASS，原三项diagnose退出0、指定full SHA DryRun=READY_DRY_RUN/NORMAL。唯一Execute为LOCAL_PASS_REMOTE_NOT_DELIVERED、pushes=1、uncertain_transport、NETWORK_DEGRADED；12:23:38.773Z独立GitHub API匹配refs成功且精确ref数0，main仍d1dd。ignored final-delivery/independent-verification保留原结果。不重试同通道、不创建PR或触发CI；继续不依赖远端的本地工程。源码、清单和冻结证据不变。
 

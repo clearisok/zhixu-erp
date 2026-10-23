@@ -1,5 +1,7 @@
 # 项目知识索引
 
+当前[Gate7G目标配置后台](tasks/active/server-garment-target-control-2026-10-23.md)在同一d1dd基线上本地推进，复用[成衣target](features/AINUOKE_GARMENT_TARGET_CONTROL.md)，无新真实激活或读取。定向及原领域回归通过，最终构建/复审/发布尚待；Git通道降级和Hosted CI账单问题仍各自保留，不重复推送或触发CI。
+
 最新Gate7F交付仅一次推送未送达：02c22576本地精确守卫PASS，原工具uncertain_transport/NETWORK_DEGRADED，12:23:38Z独立API确认新分支不存在；不重试、不新建重复PR、不重派账单CI。工程与远端状态分开，详见当前接力。
 
 2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，最终收口前独立API重读相符。#126/#127/#120已分别获准、保留原历史合并；#123 cb1658、#125 ca05仍草稿未合并。两PR新CI被账号Billing/支出上限拒绝启动、0steps；用户确认未处理，继续安全本地工程，不重跑、不改账单。

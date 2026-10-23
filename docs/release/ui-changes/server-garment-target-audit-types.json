@@ -1,0 +1,9 @@
+{
+  "baselineSha": "d1dd4f0fcf9992d5c055c7b67b6832b635485680",
+  "level": "V0",
+  "paths": ["features/operation-logs/model/operation-log.ts"],
+  "pages": ["material"],
+  "visibleDifference": "none",
+  "evidence": ["docs/tasks/active/server-garment-target-control-2026-10-23.md"],
+  "reason": "Only a non-monetary immutable audit action/entity union for the internal garment target command. No renderer, layout, route, Browser persistence, UI interaction or automatic target activation change."
+}

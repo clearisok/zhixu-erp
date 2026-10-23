@@ -110,6 +110,7 @@
     "test:garment-collection-control": "tsx --test --test-concurrency=1 server/integration/garment-collection-worker.test.ts server/integration/garment-collection-control.integration.test.ts server/integration/garment-collection-upgrade.integration.test.ts",
     "source:ainuoke:garment-operator": "tsx server/ainuoke-source/garment-operator-cli.ts",
     "test:garment-operator": "tsx --test --test-concurrency=1 server/integration/garment-operator-cli.test.ts server/integration/garment-operator.integration.test.ts",
+    "test:garment-target-control": "tsx --test --test-concurrency=1 server/integration/garment-target-control.integration.test.ts server/integration/garment-target-upgrade.integration.test.ts",
     "test:garment-contract-verification": "tsx --test --test-concurrency=1 server/integration/garment-contract-verification.test.ts",
     "test:garment-filter-recovery": "tsx --test --test-concurrency=1 server/integration/garment-filter-recovery.test.ts",
     "test:garment-shipments-ui": "tsx --test --test-concurrency=1 server/integration/garment-shipments-ui.integration.test.mjs",
