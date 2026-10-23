@@ -4,7 +4,7 @@
 
 用户已确认Billing修复和USD5月预算。本轮只对#123精确CB cb1658d97485bbf6c529660fffb50215548fffcd派发team39978341735、baseline39979177113、source39979170713，三次workflow_dispatch均success。但官方和实际API已证明手动事件不满足PR required checks，PR仍显示旧pull_request计费失败，不能称全绿或可合并。本轮不再重复付费运行；真正准备合并时仅补正确PR事件检查，不改状态或降低保护。#121/#122已在CB，其他PR不运行。CB本地成功结果按原source复用，不冒充新门禁验收。
 
-[当前构建门禁](tasks/active/server-build-artifact-guard-2026-10-23.md)补原vinext exit0/45页失败缺口。[c721工程证据](tasks/completed/2026-10-24-build-artifact-guard-engineering.md)确认15项/lint、双模式正式构建各45页面+1fallback/116资源通过。Browser1预加载warning、Server0；不宣称旧预加载404已修。默认404精确Not Found例外，普通页/必需依赖/身份仍FAIL。原两次误拒及两P2保留并已修。发布134/精确门禁/最终复审待；无框架、页面、业务、API、SQL或环境变化，V0仅package.json接线。
+[当前构建门禁](tasks/active/server-build-artifact-guard-2026-10-23.md)补原vinext exit0/45页失败缺口。[c721工程证据](tasks/completed/2026-10-24-build-artifact-guard-engineering.md)确认15项/lint、双模式正式构建各45页面+1fallback/116资源通过。Browser1预加载warning、Server0，不宣称已修；普通页/必需依赖/身份仍FAIL。原两次误拒及两P2保留并已修。首次精确守卫只拒本片错误V0记录，原字节移至历史，工具接线不伪造UI路径或改分类器；134未启动，最终门禁待。无框架、页面、业务、API、SQL或环境变化。
 
 前f4f最终守卫PASS，远端SHA/tree/父精确核实；工具仍STOP_AUTH_OR_DIVERGENCE、pushes=1，原因未定、不重推旧SHA。原134/134属b8c693，9/9恢复属driver848/镜像5e096，未在本片重跑。manifest仍331/59，旧对象/其他状态维度不改；所有失败及完整旧事实见[逐字前态](tasks/completed/2026-10-23-build-artifact-guard-inputs/CURRENT_STATE.md)。
 

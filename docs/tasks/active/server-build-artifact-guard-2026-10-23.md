@@ -30,7 +30,7 @@ f4f8f61e7535bd678f8dfcf3e22143747b6e03c1；baseline clean，原分支/提交保�
   显式源码/ID/time及默认Git身份。成功只说明静态构建产物完整，不代表Provider、
   浏览器行为、API、数据库、Source、部署或用户接受都已验证。
 - package.json是本次唯一构建接线变化，原Docker/CI自动沿用，不改检查名或测试范围。
-  V0精确路径记录描述无可见UI变化；不引入V2/V3设计或覆盖截图。
+  这是只读后置工具门禁，不改变UI构建转换；不引入V2/V3设计或覆盖截图。
 
 ## 验证及资源边界
 
@@ -87,6 +87,13 @@ server/http-error-responses.js:33提供该默认文本。这不是普通页面�
 HEAD与clean末尾稳定。[工程证据](../completed/2026-10-24-build-artifact-guard-engineering.md)
 冻结source/tree/archive、时间/日志hash及原两失败，不代表浏览器/API/部署或人工接受。
 必要发布基线、134回归及最后全diff独立复审仍待，本片不再启动付费CI。
+
+388560c6的首次精确d1dd守卫FAIL，仅UI_CHANGE_PAGE/PATH：本片多余的V0记录把
+package.json工具接线及不存在的build-pipeline列为UI。原isUiPath并不把package.json
+列入UI输入；本片没有新UI文件，不修改分类器/页清单绕过。被拒记录原字节迁至
+[历史输入](../completed/2026-10-24-build-artifact-initial-ui-record.json)，旧Git版本及
+失败日志保留，当前仅任务范围说明。不是移走实际UI路径/降低设计审查，继承的87条
+UI输入仍按原记录校验。前置FAIL使134未启动；待新clean文档checkpoint再运行守卫。
 
 #123@cb1658的验证是独立对象：team39978341735、baseline39979177113、source39979170713
 三次workflow_dispatch已success。但官方及实际API确认手动事件不满足PR required checks，
