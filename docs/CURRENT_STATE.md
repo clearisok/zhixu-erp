@@ -4,6 +4,6 @@
 
 当前codex/server-garment-collection-control从干净main FF49dc，新增内部单SO plan/collect/receipt及固定两遍首页worker，0043只新增空技术命令表。采前started持久化、网络无DB锁、原发布/成功回执同事务，未知只核对。重建完整过滤证明、fresh权限、实际库/连接、target/原物理owner/颜色/head绑定；损坏回执fail closed。没有HTTP/CLI/Catalog/调度或启用入口，不自动读Source。
 
-原9fc的31定向/181 Python、952项目、270 PG/API、85原观察、33归一、13 built UI及精确archive类型/lint/Server/UI构建已通过。复审P2许可等待已红测复现并修复，回滚事实另存；实际第二actor负测及33定向、Server编译/scoped lint通过。新修复冻结、发布134、复审和新CI待收口，不冒称最终PASS。详见[当前任务](tasks/active/server-garment-collection-control-2026-10-23.md)。原295证据/58能力/23UI影响/截图保持，现仅追加D158/feature两证据为297。
+原9fc的31定向/181 Python、952项目、270 PG/API、85原观察、33归一、13 built UI通过。最终源码d99282fa41788a385d94e91bf7f26a318dc7c0ac修复许可等待P2与回滚事实，33定向及精确archive全量类型/lint/Server/UI构建通过，独立复审无剩余P1/P2。范围详见[冻结工程报告](tasks/completed/2026-10-23-garment-collection-control-engineering.md)。最终ledger/134/精确守卫、新交付及CI待收口。原295证据/58能力/23UI影响/截图保持，目前297证据，之后仅前向追加。
 
 现有真实证明只覆盖本账号单合同完整首页；首版total>100即停，不将零page哨兵填成正式页，不放开其他合同/多页或新增额度。Source固定许可已用，未读私密凭据/报告或修改真实库。全目标仍缺正式操作者接线/真实授权激活、多页/事件语义、Server关账待决、目标入口部署接受及授权退役。维护交期已批准实现，覆盖v1未批准。保护3001/50426/59069/62426及旧入口/账号/Browser/库/对象/卷/工作树和0c镜像，不切换、重置、部署或退役。

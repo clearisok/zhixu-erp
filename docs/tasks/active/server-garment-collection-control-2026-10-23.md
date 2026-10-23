@@ -31,6 +31,8 @@
 
 root在全量952完成后才修改主树：worker前再次fresh，回滚确认保存为独立事实，不被后续committing变化覆盖。补实际第二DB actor的fresh权限、foreign receipt/permit拒绝，以及成功发布丢回执不能声称回滚的断言。修复后33/33定向通过（17460.7503ms、0skip），Server编译和两文件scoped lint通过。SQL、worker预算、Python、公开GET及UI未变。修复后精确源码checkpoint、冻结证据/发布134、新CI及最终复审继续，不把旧9fc完整QA改名。
 
+最终源码d99282fa41788a385d94e91bf7f26a318dc7c0ac已独立复审无剩余P1/P2；精确d992 archive的全量types/lint/Server和显式Server UI构建全部退出0。[不可变工程报告](../completed/2026-10-23-garment-collection-control-engineering.md)区分原9fc、最终d992和之后发布/远端范围。接下来只追加冻结/能力、跑134与explicit be9守卫，安全交付验证引用并核实新CI，不改业务源码。
+
 ## 后续与完整目标边界
 
 代码checkpoint后用精确源码外部context完成充分验收；冻结新工程报告/D158/feature证据并追加能力分维度记录，不改原295证据和58能力历史/批准/截图。最终精确be9门禁、一次验证引用交付、Source/Team/Release实际CI与复审。依赖仍未合并，不创建重复累计业务PR，不自动merge/close或部署。操作者入口与真实target/新读取范围仍另有具体批准；多页实证、跨次事件、覆盖v1、关账三项、50426切换/退役待决不默认。

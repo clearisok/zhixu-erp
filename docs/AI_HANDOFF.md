@@ -6,4 +6,4 @@ root唯一writer、既有reviewer只读。分支codex/server-garment-collection-
 
 内部control+bounded Python/Node worker、0043空技术表、原publisher caller-owned事务primitive、原归一完整引用和显式migration ledger已实现。原9fc源码全量952/270PG/85观察/33归一/181Python/13built及精确archive types/lint/build通过。复审1P2已红测复现修复：最终范围await后再fresh；回滚事实不因失败终态COMMIT未知覆盖。新增实际第二actor负测后33定向/Server编译/scoped lint通过，旧失败保留。原wrapper输入捕获/锁序/CAS/重放、首页预算及所有真实边界保持。
 
-下一步：修复后的源码checkpoint和精确类型/复审；D158/feature在原297上追加same-path revision，新报告和59th scoped能力分维度冻结后跑explicit be9 gate及134，再一次交付验证ref、新Source/Team/Release并复审。旧9fc完整QA不改名；原295/58不可改写。不创建累计业务PR/自动mergeclose；不得以旧0c/686/49dc结果冒充新源码。完整目标和所有真实范围/环境保护、待决保持。
+最终源码d99282fa41788a385d94e91bf7f26a318dc7c0ac；新精确archive全量types/lint/Server/UI build已通过，独立复审无剩余P1/P2。下一步D158/feature在原297上追加same-path revision，[工程报告](tasks/completed/2026-10-23-garment-collection-control-engineering.md)及59th scoped能力分维度冻结后跑explicit be9 gate及134，再一次交付验证ref、新Source/Team/Release并复审。旧9fc完整QA不改名；原295/58不可改写。不创建累计业务PR/自动mergeclose；不得以旧0c/686/49dc结果冒充新源码。完整目标和所有真实范围/环境保护、待决保持。
