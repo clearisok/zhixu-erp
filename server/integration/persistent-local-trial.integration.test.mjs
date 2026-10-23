@@ -115,8 +115,11 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   }
   async function native(s,mode,payload){
     await verifyDomainTarget(s);
-    const code=`const chunks=[];for await(const chunk of process.stdin)chunks.push(chunk);const input=JSON.parse(Buffer.concat(chunks));const result=await (${persistentDomainNative.toString()})(${JSON.stringify(mode)},input,${assertOwnedDatabaseEnvironment.toString()});process.stdout.write(JSON.stringify(result));`;
-    const result=JSON.parse(await docker(['exec','-i',s.app,'node','--input-type=module','-e',code],JSON.stringify({project:s.project,commit,...payload})));
+    // The compiled-domain driver has outgrown Windows' command-line limit.
+    // Send code and fixture only through stdin, keeping exec argv fixed/small.
+    const input=JSON.stringify(JSON.stringify({project:s.project,commit,...payload}));
+    const code=`const input=JSON.parse(${input});const result=await (${persistentDomainNative.toString()})(${JSON.stringify(mode)},input,${assertOwnedDatabaseEnvironment.toString()});process.stdout.write(JSON.stringify(result));`;
+    const result=JSON.parse(await docker(['exec','-i',s.app,'node','--input-type=module'],code));
     assert.equal(result.status,'passed',JSON.stringify({stage:result.stage,code:result.code}));return result;
   }
   const a=await state(owned[0]);let cookie,quoteId,record,attachmentId,attachmentPath,snapshot,adminHash;

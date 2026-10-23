@@ -44,3 +44,18 @@ Git NETWORK_DEGRADED 不重复推送；Hosted CI 被账号 Billing 拒绝启动�
 
 初步语法检查、scoped lint 与恢复守卫纯测试10/10通过，0fail/cancel/skip；
 实际新镜像和双项目恢复尚未执行，独立 diff 复审进行中。
+
+## 首轮镜像与 Windows 测试驱动修复
+
+精确source `5e0967cdfd22e998d564c9a139622f8de39e3b8d` 的新镜像构建通过，
+46 routes / 0 skipped，Server编译通过；image ID
+`sha256:85f49cbe94cf63442db24b502b52a637de226f78d2e660d6059aff9c4ad99079`。
+首轮恢复在调用native seed前发生Windows `spawn ENAMETOOLONG`；不是数据库或
+目标业务断言失败。完整结果和日志保留于ignored
+`outputs/goal-next-audit-20261023-c54baa4d/image-1351477dd3`。
+失败时仅停止本次成功准备的自有项目，保留其私密夹具与卷，旧容器身份/状态/端口逐项保持。
+
+原native程序随0044测试扩大超过命令行上限，修为固定短argv、通过stdin传递程序及
+双JSON编码的合成输入，不经过shell。编译服务和镜像输入未改；后续重跑另记driver SHA，
+沿用原精确5e096镜像而不重新标记其构建版本，先核对两SHA间只含测试/文档。
+不放宽permit、网络、来源/数据库范围或备份恢复保护，首轮失败不得改写为通过。

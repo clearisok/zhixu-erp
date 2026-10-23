@@ -5,3 +5,5 @@
 本片仅四份恢复test/driver增量：新增0044非空覆盖，原compiled target服务enable/disable/reenable及历史重放，恢复前后原ID/回执和全库指纹，新DB拒绝旧未消费target permit。语法/scoped lint/纯10通过；实际镜像/恢复尚待，不能写PASS。保存source checkpoint后，从精确Git archive构建显式Server image，两个新随机owned项目用原运维工具做合成恢复。root唯一writer，既有reviewer只读。
 
 旧长期62426候选仍8175/10月20日，最新357恢复image止0043；不改旧环境。当前监听3001/62326/62426；50426/59069未出现仅为观察，不是退役。原refs ebe4/4cf1、旧库/账号/Browser/卷/其他工作树保护。不读真实凭据或私密Source报告、不发请求或实际target启用、不切换50426、不部署/合并/关闭。Git降级不重推，Billing未处理不派CI。完整Goal active，原业务待决不默认。
+
+首轮精确5e096镜像构建PASS，46路由0skip，ID85f49cbe94cf63442db24b502b52a637de226f78d2e660d6059aff9c4ad99079；恢复native seed前Windows长argv触发ENAMETOOLONG，日志/自有失败夹具保持，原容器metadata不变。driver仅改stdin执行，语法和scoped lint通过；保存此新checkpoint后，用原5e096镜像另开随机项目重跑，必须分开image source/driver SHA。Git只读三对照目前通过，不证明推送可靠，未改共享配置；Billing仍阻断。
