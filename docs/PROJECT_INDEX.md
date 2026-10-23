@@ -1,8 +1,8 @@
 # 项目知识索引
 
-2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]及精确树已核对。#1230357/#1254cf的原CI仅证明原SHA；当前正前向整合，不自动合并或关闭其他PR，不表示部署或Source激活。
+2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]及精确树已核对。#123前向交付cb1658d9、#125前向交付ca05d3e7，均草稿未合并；新CI被账号Billing/支出上限拒绝启动、0steps。用户确认尚未处理，继续本地工程，不自动合并/关闭、不改账单或部署。
 
-当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)继续合成工程。真实merge9171保留303原证据，新绑定总308/59；新main守卫与发布134、owned Chrome12单元/18真实导航通过。357旧CI及独立恢复9/9各保留实际范围；新精确checkpoint交付/CI待收口。先读CURRENT_STATE、AI_HANDOFF、冻结报告及实际代码，候选或CI不代表真实激活/部署。
+当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)继续非空请求恢复验收。e971精确交付及新三CI成功，308/59和旧357镜像9/9保留实际范围；0043旧演练为空，本阶段8保护单元/lint通过，完整三态恢复尚待。先读CURRENT_STATE、AI_HANDOFF、冻结报告及实际代码，候选或CI不代表真实激活/部署。
 
 ## 系统简介
 

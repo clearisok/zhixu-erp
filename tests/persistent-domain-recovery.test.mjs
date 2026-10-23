@@ -66,6 +66,15 @@ test('empty tables are explicitly unexercised and cannot prove a required busine
   const duplicate = structuredClone(before); duplicate.tables.push(duplicate.tables[0]);
   assert.throws(() => recoveryCoverage(duplicate));
 });
+test('collection-command recovery cannot be claimed from a missing or empty command table', () => {
+  const table = 'ainuoke_garment_collection_commands';
+  const missing = fingerprint(); missing.tables = missing.tables.filter(row => row.table !== table);
+  assert.throws(() => recoveryCoverage(missing), /unexercised_domain_table:ainuoke_garment_collection_commands/);
+  const empty = fingerprint(); empty.tables = empty.tables.filter(row => row.table !== table);
+  empty.tables.push({ table, count: 0, sha256: 'b'.repeat(64) });
+  assert.throws(() => recoveryCoverage(empty), /unexercised_domain_table:ainuoke_garment_collection_commands/);
+});
+
 test('restore comparison detects table removal, quantity changes and uncalled sequence changes', () => {
   const before = fingerprint(); compareRecoveryFingerprints(before, structuredClone(before));
   for (const change of [f => f.tables.pop(), f => f.tables[0].count++, f => f.tables[0].sha256 = 'c'.repeat(64),

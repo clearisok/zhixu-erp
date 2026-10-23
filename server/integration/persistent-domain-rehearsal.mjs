@@ -56,6 +56,7 @@ export const requiredPopulatedTables = [
   'production_resource_commands', 'ainuoke_source_profiles', 'ainuoke_source_runs', 'ainuoke_material_source_snapshots',
   'ainuoke_payment_snapshots', 'ainuoke_payment_heads',
   'ainuoke_garment_shipment_snapshots', 'ainuoke_garment_shipment_color_matches', 'ainuoke_garment_shipment_heads',
+  'ainuoke_garment_collection_commands',
   'operation_logs',
 ];
 export function recoveryCoverage(fingerprint) {

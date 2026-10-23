@@ -32,9 +32,72 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
     const { createOrderMaterialReader } = await import('./dist/server/features/ainuoke-material-progress/read-service.js');
     const payment = await import('./dist/server/server/ainuoke-source/payment-request-store.js');
     const garment = await import('./dist/server/server/ainuoke-source/garment-shipment-store.js');
+    const collection = await import('./dist/server/server/ainuoke-source/garment-collection-control.js');
+    const { parseCollectorConfig, accountFingerprint } = await import('./dist/server/server/ainuoke-source/collector.js');
+    const { hash: sourceHash } = await import('./dist/server/server/ainuoke-source/contract.js');
     const repo = createQuoteRepository(pool);
     const sourceKey = 'synthetic-domain-recovery', fingerprint = 'a'.repeat(64);
+    // This fixture can never target the real Source. Every collector call below
+    // supplies a counted synthetic worker; the loopback discard port is a second fence.
+    const commandSourceKey = 'synthetic-garment-command-recovery';
+    const commandConfig = parseCollectorConfig({ sourceKey: commandSourceKey, baseUrl: 'http://127.0.0.1:9',
+      username: 'synthetic-recovery-source', password: 'Synthetic-No-Transport', operatorUsername: 'local.admin' });
+    const commandFingerprint = accountFingerprint(commandConfig);
     let saved = input.saved;
+    const digest = value => createHash('sha256').update(value).digest('hex');
+    const commandRow = contract => ({ id: 'SYN-COMMAND-ROW', billno: 'SYN-COMMAND-OUT', ExpContractNo: contract,
+      CnColor: '蓝色', QtyUnit: '件', Num: '25', outdate: '2026-10-11' });
+    const rawCommandPage = rows => JSON.stringify({ reObj: { isOk: true }, dataList: JSON.stringify({ rows, total: rows.length }),
+      dataCount: rows.length, pageIndex: 1, pageSize: 100, reportObj: JSON.stringify({ reportId: 6086979, cellList: [] }) });
+    function commandRequest(contract) {
+      const now = Date.now(), positive = rawCommandPage([commandRow(contract)]);
+      const selection = { schemaVersion: 'ainuoke-garment-filter-selection.v1', sourceFingerprint: commandFingerprint,
+        candidateSha256: sourceHash('synthetic-recovery-candidate'), rawResponseSha256: digest(positive), toolingCommit: input.commit,
+        salesContractNo: contract, witness: { id: 'SYN-COMMAND-ROW', billno: 'SYN-COMMAND-OUT' } };
+      return { config: commandConfig, salesOrderId: saved.orderId, verification: { selection, checkedAt: new Date(now).toISOString(),
+        evidence: { schemaVersion: 'ainuoke-garment-filter-evidence.v1', result: 'complete', code: null, workerStage: 'validation',
+          selectionHash: sourceHash(selection), httpAttempts: 4, reportRequests: 3,
+          pages: [positive, rawCommandPage([]), positive].map((text, i) => ({ sequence: i + 1, alias: i === 1 ? 'C0' : 'C1',
+            capturedAt: new Date(now - 2 + i).toISOString(), rawReportResponse: text, rawResponseSha256: digest(text) })) } } };
+    }
+    async function syntheticCommandWorker(_config, scope) {
+      // Actual capture times follow the service's prepared scope, without a forged clock.
+      await new Promise(resolve => setTimeout(resolve, 25));
+      const captures = [];
+      for (let i = 0; i < 2; i++) {
+        const text = rawCommandPage([commandRow(scope.salesContractNo)]);
+        captures.push({ schemaVersion: 'ainuoke-garment-shipment-capture.v1', reportId: '6086979',
+          sourceFingerprint: scope.sourceFingerprint, queryContext: { match: 'exact', salesContractNo: scope.salesContractNo },
+          page: 1, pageSize: 100, capturedAt: new Date().toISOString(), rawResponseSha256: digest(text), rawReportResponse: text });
+        await new Promise(resolve => setTimeout(resolve, 2));
+      }
+      return { schemaVersion: 'ainuoke-garment-collection-worker.v1', result: 'complete',
+        counts: { httpAttempts: 3, reportRequests: 2 }, captures };
+    }
+    async function plannedCommand(request) {
+      const preview = { requestId: randomUUID(), expiresAt: new Date(Date.now() + 600000).toISOString() };
+      const result = await collection.planGarmentCollection(pool, actor, request, preview);
+      return { request, permit: { ...preview, scopeHash: result.scopeHash }, databaseFingerprint: result.scope.databaseFingerprint };
+    }
+    async function commandHistory() {
+      const jobs = saved.collectionJobs, receipts = [];
+      assert.deepEqual(Object.keys(jobs).sort(), ['failed', 'published', 'started']);
+      let replayCalls = 0;
+      for (const key of ['published', 'failed', 'started']) {
+        const job = jobs[key];
+        const view = await collection.readGarmentCollectionReceipt(pool, actor,
+          { sourceKey: commandSourceKey, salesOrderId: saved.orderId, requestId: job.permit.requestId });
+        assert.equal(view.receiptState, key === 'started' ? 'unverified_started' : 'completed');
+        assert.equal(view.result?.outcome ?? null, key === 'published' ? 'published' : key === 'failed' ? 'not_published' : null);
+        assert.equal(view.sourceReadThisInvocation, 'none'); assert.equal(view.automaticRetry, false);
+        const replay = await collection.collectGarmentOnce(pool, actor, job.request, job.permit,
+          { collect: async () => { replayCalls++; throw Error('unexpected_synthetic_recollection'); } });
+        assert.deepEqual(replay, view); receipts.push(view);
+      }
+      assert.equal(replayCalls, 0);
+      assert.ok(!JSON.stringify(receipts).includes(commandConfig.password));
+      return { receipts, replayCalls, realSourceRequests: 0 };
+    }
     async function createBatch(referenceOrderId = null) {
       const quote = saved.processingQuote, revision = quote.revisions.find(r => r.revisionId === quote.defaultRevisionId);
       const draft = await createProcessingBatch(pool, actor, { requestId: randomUUID(), quoteId: quote.id,
@@ -166,6 +229,53 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
         saved.garmentPublications.push(await garment.publishGarmentObservation(pool, actor, context, await checkedPasses(context, '6086979'),
           { sourceFingerprint: fingerprint, salesContractNo: contract }));
       }
+      stage = 'garment-command-published';
+      await pool.query('INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2)', [commandSourceKey, commandFingerprint]);
+      const request = commandRequest(contract), proof = collection.garmentCollectionProof(request);
+      await pool.query('INSERT INTO ainuoke_garment_shipment_targets(source_key,sales_order_id,account_fingerprint,freshness_ms,enabled,verification_sha256) VALUES($1,$2,$3,60000,true,$4)',
+        [commandSourceKey, saved.orderId, commandFingerprint, proof.verificationSha256]);
+      saved.collectionJobs = {};
+      let workerCalls = 0;
+      const published = saved.collectionJobs.published = await plannedCommand(request);
+      const firstReceipt = await collection.collectGarmentOnce(pool, actor, published.request, published.permit,
+        { collect: async (...args) => { workerCalls++; return syntheticCommandWorker(...args); } });
+      assert.equal(firstReceipt.receiptState, 'completed'); assert.equal(firstReceipt.result.outcome, 'published');
+      saved.collectionPublicationId = firstReceipt.result.publicationId;
+      stage = 'garment-command-failed';
+      const failed = saved.collectionJobs.failed = await plannedCommand(request);
+      const failedReceipt = await collection.collectGarmentOnce(pool, actor, failed.request, failed.permit,
+        { collect: async () => { workerCalls++; throw Error('synthetic_worker_failure_before_any_transport'); } });
+      assert.equal(failedReceipt.receiptState, 'completed'); assert.equal(failedReceipt.result.outcome, 'not_published');
+      assert.equal(failedReceipt.result.requestCounts, 'unknown');
+      stage = 'garment-command-claim-reply-loss';
+      const started = saved.collectionJobs.started = await plannedCommand(request);
+      let lost = false;
+      // Execute the real claim COMMIT, then lose only its reply. No fabricated
+      // command row or terminal outcome is inserted by the fixture.
+      const claimReplyLoss = new Proxy(pool, { get(target, key) {
+        if (key === 'connect') return async () => {
+          const client = await target.connect(); let armed = false;
+          return new Proxy(client, { get(connection, property) {
+            if (property === 'query') return async (...args) => {
+              const text = typeof args[0] === 'string' ? args[0] : args[0]?.text ?? '';
+              const result = await connection.query(...args);
+              if (text.includes('INSERT INTO ainuoke_garment_collection_commands')) armed = true;
+              if (text.trim() === 'COMMIT' && armed && !lost) { lost = true; throw Error('synthetic_claim_reply_lost'); }
+              return result;
+            };
+            const value = Reflect.get(connection, property, connection);
+            return typeof value === 'function' ? value.bind(connection) : value;
+          } });
+        };
+        const value = Reflect.get(target, key, target);
+        return typeof value === 'function' ? value.bind(target) : value;
+      } });
+      const uncertain = await collection.collectGarmentOnce(claimReplyLoss, actor, started.request, started.permit,
+        { collect: async () => { workerCalls++; throw Error('claim_loss_must_not_reach_worker'); } });
+      assert.equal(lost, true); assert.equal(uncertain.receiptState, 'unverified_claim'); assert.equal(workerCalls, 2);
+      assert.equal((await pool.query('SELECT count(*)::int n FROM ainuoke_garment_collection_commands WHERE source_key=$1', [commandSourceKey])).rows[0].n, 3);
+      // The unconsumed preview is not permission to run against another DB.
+      saved.unconsumedCollection = await plannedCommand(request);
     }
     stage = 'business-read'; assert.ok(saved);
     const delivery = await readDeliveryPlanSet(pool, saved.orderId);
@@ -200,19 +310,36 @@ export async function persistentDomainNative(mode, input, databaseGuard) {
       const { evaluatedAt: _time, freshness: _freshness, ...stable } = view;
       void _time; void _freshness; garments.push(stable);
     }
+    stage = 'garment-command-history';
+    const garmentCommands = await commandHistory();
     const proof = { delivery, receipt, commercial, cct, assignments, original, history, requestReceipts,
-      processing: saved.processing.result, material, garments, garmentHistory: await garmentReader.history(actor, saved.orderId) };
+      processing: saved.processing.result, material, garments, garmentHistory: await garmentReader.history(actor, saved.orderId), garmentCommands };
     // No invented clock: financial rows can legitimately be hidden after expiry.
     const sourceStatus = { payment: paymentRead.sourceStatus, paymentRows: paymentRead.rows.length,
       garment: (await garmentReader.read(actor, saved.orderId)).freshness };
     if (mode === 'continue') {
       stage = 'continued-commands';
+      const oldPreview = saved.unconsumedCollection;
+      assert.ok(Date.parse(oldPreview.permit.expiresAt) > Date.now(), 'old_preview_expired_before_database_fence_test');
+      const freshPreview = await plannedCommand(oldPreview.request);
+      assert.notEqual(freshPreview.databaseFingerprint, oldPreview.databaseFingerprint);
+      let collectedAfterRestore = 0;
+      const collectAfterRestore = async (...args) => { collectedAfterRestore++; return syntheticCommandWorker(...args); };
+      await assert.rejects(collection.collectGarmentOnce(pool, actor, oldPreview.request, oldPreview.permit,
+        { collect: collectAfterRestore }), error => error.code === 'garment_collection_scope_changed');
+      assert.equal(collectedAfterRestore, 0);
+      const continuedCollection = await collection.collectGarmentOnce(pool, actor, freshPreview.request, freshPreview.permit,
+        { collect: collectAfterRestore });
+      assert.equal(continuedCollection.receiptState, 'completed'); assert.equal(continuedCollection.result.outcome, 'published');
+      assert.equal(collectedAfterRestore, 1); assert.notEqual(continuedCollection.result.publicationId, saved.collectionPublicationId);
       const next = await createBatch(saved.processing.orderId);
       assert.notEqual(next.orderId, saved.processing.orderId); assert.notEqual(next.orderId, saved.orderId);
       const continued = await recordExecution(saved.remainingAssignment, '5', 'in_progress');
       assert.equal(continued.execution.completedQuantity, '5');
       assert.equal((await execution.readProductionExecutionHistory(pool, actor, saved.originalAssignment)).execution.completedQuantity, '25');
-      return { status: 'passed', proof, sourceStatus, continued: { newOrderId: next.orderId, originalOrderId: saved.orderId, originalCompleted: '25', newCompleted: '5' } };
+      return { status: 'passed', proof, sourceStatus, continued: { newOrderId: next.orderId, originalOrderId: saved.orderId,
+        originalCompleted: '25', newCompleted: '5', garmentCollection: { publicationId: continuedCollection.result.publicationId,
+          oldPreviewWorkerCalls: 0, freshPreviewWorkerCalls: collectedAfterRestore, realSourceRequests: 0 } } };
     }
     return { status: 'passed', ...(mode === 'seed' ? { saved } : {}), proof, sourceStatus };
   } catch (error) {

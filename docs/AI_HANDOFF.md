@@ -1,9 +1,9 @@
-# 恢复点：308证据与owned Chrome关闭修复已本地验收
+# 恢复点：非空采集命令恢复验收准备
 
-2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]及精确树已核对。#1230357/#1254cf的原CI仅证明原SHA；当前正前向整合，不自动合并或关闭其他PR，不表示部署或Source激活。
+2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680；#126/#127/#120已分别获准并保留原历史合并，#120双父[be9,fca]及精确树已核对。#123/#125前向提交已送达但Actions被账号Billing拒绝启动；不自动合并/关闭，不表示部署或Source激活。
 
-root唯一writer，既有reviewer只读。开始357干净，批准#120一次merge并核对main d1dd精确双父/tree；一次普通fetch后正常merge H=9171b107，保留303原对象及两侧8份Git字节。当前308/59已追加四条文档合流见证和独立357镜像/CI报告；所有旧ID、截图、能力维度不改。新main工作树守卫及发布134/134通过（597458.319ms、0skip、HEAD/manifest稳定）。
+root唯一writer，既有reviewer只读。e971313a7b0ad5dd52b65cd33fb26106e60275ef已精确送达，Source39928182328、Team39928186934、Release39928191131各attempt1成功；Ubuntu专属跳过与旧357失败保留原范围。308/59及发布134/134、owned Chrome12单元/18实际导航证据不改。
 
-仅三个测试工具文件修复owned Chrome close时序：12单元、18真实built导航、scoped lint/Server UI build通过，17业务子断言及240秒预算保持。独立复审无P1/P2。当前完成状态文档及独立checkpoint后，跑精确commit守卫，既有工具一次交付并独立核对远端；保持原357 push STOP、Source失败及跳过事实，不重推/不冒称长期网络恢复。新Source/Team/Release需各一次实际CI。
+本阶段从干净e971继续原分支，只有四个恢复测试文件及状态文档增量。补0043非空恢复：使用compiled服务产生发布成功、失败、claim COMMIT已落库但回执丢失三种请求；重启/独立恢复后原UUID回执不得重采，旧未消费permit不能跨库，新预览仅一次合成worker。8项覆盖保护和scoped lint已通过；完整Docker演练尚未执行，不能宣称恢复PASS。旧357镜像可在产品/SQL/构建/ops输入等价核验后复用，但仍保留357镜像身份，不冒称新HEAD镜像。
 
-#123在独立已登记工作树前向整合d1dd；只允许已批准代码正常合流、保留角色/用户/日志原历史与冻结证据，测试后再更新唯一PR。#125后续同理，均不merge或close。旧环境、Source、账号、业务库无操作；全Goal/覆盖v1/关账/切换与真实额度边界不变。
+#123已前向整合并精确送达cb1658d97485bbf6c529660fffb50215548fffcd，#125同样ca05d3e75d3b28be44184a5ef645c9f24e6f38d3；原本地分支及运行态未移动。两PR均草稿未合并，新CI因账号Billing/支出上限拒绝启动、0steps，不能写代码失败或PASS；用户已确认尚未处理，继续本地交付、不重跑。旧push STOP/exact远端并存、根因unresolved，不重推。旧环境、Source、账号、业务库无操作；完整Goal、覆盖v1/关账/切换待决不默认。

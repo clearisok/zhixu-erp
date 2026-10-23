@@ -68,3 +68,13 @@ CI等待期间另作G1只读观察：07:40Z受保护端口中3001/62326/62426有
 ## 新main与owned Chrome关闭本地收口
 
 9171工作树308/59的explicit d1dd守卫PASS（11页、87候选UI路径、errors空）。发布134/134通过597458.319ms，0fail/cancel/skip；测试前后HEAD和manifest hash均不变。三个测试工具文件仅操作fixture自己的ChildProcess与mkdtemp，优先CDP关闭，有界回退同一handle.kill，确认close后才删目录，未知则保留；12/12关闭单元、18/18真实built导航（原17子场景保持）、scoped lint及新Server UI构建通过。既有独立审查者复核无P1/P2。没有产品、SQL、迁移、UI或旧环境变化。最终checkpoint/精确守卫、一次交付及新三CI尚待，不将旧357CI结果改名。
+
+## e971交付与非空命令恢复增量
+
+e971313a7b0ad5dd52b65cd33fb26106e60275ef已独立API核对完整SHA/tree/parent；工具一次push仍为STOP_AUTH_OR_DIVERGENCE，原STOP不改写、不重推。Source39928182328、Team39928186934、Release39928191131各attempt1成功，实际checkout为e971；Source导航18/Quote87/Python181均实际执行通过，九项Windows专属路径跳过；Release134及解析19通过，交付工具68pass/1Windows skip。独立复审无P1/P2，不把Ubuntu跳过改成Windows验证。
+
+后续#123已安全前向到cb1658d97485bbf6c529660fffb50215548fffcd，#125到ca05d3e75d3b28be44184a5ef645c9f24e6f38d3，均未合并。六项新Actions因账号付款或支出上限拒绝启动，jobs.steps=[]，未运行测试。用户确认尚未处理，允许继续独立交付；不更改账单或重复启动相同CI。各PR本地验收有各自原SHA/日志，不能借e971绿灯。
+
+当前从干净e971开始新恢复测试阶段，baseline保存在ignored outputs/garment-command-recovery-20261023/baseline.json。原357镜像恢复9/9只有空0043，不能证明技术命令域。新增负测先实际失败（8总/7pass/1fail，Missing expected exception），随后requiredPopulatedTables显式要求0043非空；8/8保护单元通过211.8822ms、四文件scoped lint退出0。
+
+新fixture只运行隔离镜像compiled服务，所有collect均显式注入计数合成worker、loopback discard地址、不读本机Source凭据。经原命令生成published、not_published、真实claim COMMIT完成后丢失回执的started三态；测试重启/独立恢复后同UUID查询/重放不调用worker，并检查未消费旧permit跨库被拒绝，新预览仅一次合法合成采集。完整演练尚未运行，不能预报PASS。拟复用357精确imageID/build事实，前提是Git输入逐路径证明所有产品/SQL/构建/ops不变；测试driver与镜像revision分别记录，不重标镜像或冒称新HEAD构建。
