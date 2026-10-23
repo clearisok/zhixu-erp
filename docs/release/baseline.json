@@ -2669,6 +2669,18 @@
         "decisions-pr120-main-be9-import-20261023"
       ],
       "changeReason": "PR123 retains its approved role/user/log decisions and forward-integrates approved PR120 main through actual two-parent merge 642d5f12; no original decision record or approval is rewritten."
+    },
+    {
+      "id": "decisions-final-pr123-combination-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "4d41e5d90bc6c7dfe29ff355d5941fb7b1c904a8",
+      "sha256": "0e56b18dcbb1a6789c255b7111edaee6eff1d92de1d2a06a2808070fe66a75f2",
+      "mergeOf": [
+        "decisions-pr120-candidate-d1dd-merge-20261023",
+        "decisions-pr123-main-d1dd-merge-20261023"
+      ],
+      "changeReason": "Preserve both final current-main decision histories at the actual 1962/cb1658 local validation merge; no business rule or runtime status changes."
     }
   ],
   "pages": [
