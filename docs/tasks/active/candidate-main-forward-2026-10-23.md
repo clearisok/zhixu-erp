@@ -128,3 +128,5 @@ automatic merge/close or mutation of protected runtime-bound checkouts.
 随后仅整合原5f共享CI解析器，相关Release按精确候选独立核实；不重派不变应用的Source/Team或创建重复累计PR。本阶段不改业务、SQL、UI、运行环境或Source范围。完整目标继续，不默认覆盖v1/关账/入口切换与资产退役。
 
 真实第二阶段H=5804a607ce78bde091dccb1ff50f3f03cea8e816，有序父为完整be9/7c；应用、SQL、UI及工具之外的全部跟踪业务blob均与7c相同。29份输入归档为原Git字节。原291证据对象与58能力逐对象不变，追加四条真实H同路径见证为295；23impact仅base前移。此绑定尚未声称组合测试或CI通过。
+
+共享解析器原5f验证merge的实际冲突为三摘要、baseline锚点和Release测试步骤。保留295/58/be9、完整候选交付回归，增添19项解析器检验和实际PR merge父基线解析。六份父摘要按原Git字节另存candidate-be9-parser-inputs。无应用/SQL/UI改动，下一步执行这份组合的独立工具验收。

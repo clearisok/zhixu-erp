@@ -130,3 +130,5 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 - `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
+
+共享CI解析器原5f按正常验证merge整合，保留原历史和候选交付工具全部保护；两侧摘要原Git字节另存[归档](tasks/completed/2026-10-23-candidate-be9-parser-inputs/)。新组合发布134、交付工具和解析器回归仍待执行；不变业务未借用工具结果宣称重新验收。
