@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -123,18 +123,34 @@ export function checkBuildArtifacts({ root = process.cwd(), env = process.env } 
       assets.add(asset);
     }
   }
+  const warnings = [];
   for (const route of expectedRoutes) {
     const stem = route === '/' ? 'index' : route.slice(1);
     const html = requiredFile(client, `${stem}.html`);
     if (!/<html(?:\s|>)/iu.test(html) || !/<body(?:\s|>)/iu.test(html) || !/<\/html>/iu.test(html)) fail('invalid_html');
-    for (const match of html.matchAll(/(?:src|href)="(\/assets\/[^"?#]+)(?:[?#][^"]*)?"/gu)) {
-      requiredFile(client, match[1].slice(1));
+    for (const [tag] of html.matchAll(/<(?:[^"'<>]|"[^"]*"|'[^']*')+>/gu)) {
+      const attributes = [...tag.matchAll(/\s+([A-Za-z][A-Za-z0-9:-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/gu)]
+        .map(match => ({ name: match[1].toLowerCase(), value: match[2] ?? match[3] ?? match[4] ?? '' }));
+      const relations = attributes.filter(attribute => attribute.name === 'rel');
+      const hint = /^<link\s/iu.test(tag) && relations.length === 1 && relations[0].value.toLowerCase() === 'modulepreload';
+      for (const { name, value } of attributes) {
+        if (!['src', 'href'].includes(name) || !value.startsWith('/assets/')) continue;
+        const asset = value.split(/[?#]/u, 1)[0].slice(1);
+        const target = resolve(client, asset);
+        if (!target.startsWith(`${client}${sep}`) || asset.includes('\\')) fail('unsafe_path');
+        // A preload hint does not execute a module. Missing manifest/runtime
+        // dependencies remain fatal; unresolved hints are visible diagnostics.
+        if (hint && name === 'href' && !assets.has(asset) && !existsSync(target)) {
+          warnings.push({ code: 'unresolved_modulepreload', route, asset });
+        } else requiredFile(client, asset);
+      }
     }
     if (route !== '/404') requiredFile(client, `${stem}.rsc`);
   }
   return { status: 'PASS', pages: routes.length, fallbackPages: 1, assets: assets.size,
     buildId: info.buildId, gitCommit: info.gitCommit, quoteAuthority: info.quoteAuthority,
-    scope: 'static build artifacts only; not browser, API, database, deployment or user acceptance' };
+    warningCount: warnings.length, warnings,
+    scope: 'required static artifacts only; preload hints may warn; not browser, API, database, deployment or user acceptance' };
 }
 
 let invokedDirectly = false;

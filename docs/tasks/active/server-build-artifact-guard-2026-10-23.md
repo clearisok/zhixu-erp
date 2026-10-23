@@ -41,9 +41,34 @@ lint仅因未用import失败，原日志保留；移除import并固定CLI夹具�
 随后补CLI目录别名负控。独立P2指出vinext子进程先加载production dotenv，父shell的
 默认期望会误拒合法Server构建；现复用锁定框架同一个loadDotenv及优先级/展开，在env
 副本中解析，只投影公开字段、不改变父环境或输出其他键。补dotenv-only、shell覆盖及
-身份漂移后12/12与scoped lint通过；真实构建及P2修复复核仍待，未读真实.env。
+身份漂移后12/12与scoped lint通过；独立复核P2已闭合，无新增P1/P2，未读真实.env。
 实际Browser及Server构建各使用新自有规范长路径上下文和既有依赖，不安装依赖、
 覆盖旧dist或重建Docker镜像；最终结果按实际source/日志补充，不预报。
+
+## 2026-10-24续：真实失败与非执行预加载边界
+
+干净ca9174c2abe125c03904f4af060c13f14c2fd45b在新规范路径archive实际执行正式
+Browser build：vinext完整rendered46页、0skip，但新门禁以missing_or_invalid_file非零。
+按fail-fast未启动Server构建，不能称双模式通过。原context、日志及actual-builds.json
+保存在ignored outputs/server-build-artifact-guard-20261023，原失败不覆盖。
+
+唯一缺文件是users HTML的link rel=modulepreload所指admin-settings-PIGc8ys0.js；
+实际manifest仅保留admin-settings-BGl_0nf5.css，CSS和页面执行JS均在。
+锁定plugin-rsc先保存chunk依赖，Vite后删除纯CSS的JS空壳，SSR仍由旧依赖生成预加载。
+独立只读复审核实此链，未证明缺少运行JS；没有有据的小范围配置修复。
+不造空JS、不移除CSS、不修改框架，原预加载404仍是已知问题，未做浏览器修复验收。
+
+门禁范围明确为必需静态产物：只有属性解析确认的link rel=modulepreload、未被manifest
+声明、文件确实不存在的href可报告unresolved_modulepreload warning。相同URL作为
+script、stylesheet或manifest依赖时仍FAIL；data-rel、title中的文本、混合/重复rel
+不能冒充。每份PASS摘要包含warningCount/warnings，不宣称零404；未来其他未解析提示
+不得自动归因为CSS-only。原缺页/依赖/身份保护不降级。
+
+首轮13/13/scoped lint通过；独立复审另发现HTML属性中合法的引号内大于号会截断
+标签、漏查后续src/href的P2。现分词保留完整单/双引号内容，补script/stylesheet负控及
+预加载正控，14/14定向与scoped lint通过，0失败/取消/跳过。先前日志保留，新日志另存
+unit-quoted-tag.log和lint-quoted-tag.log。新source两模式实际构建、
+最终发布门禁及独立复审仍待，不借用ca917的失败或前f4f成功冒充。
 
 #123@cb1658的验证是独立对象：team39978341735、baseline39979177113、source39979170713
 三次workflow_dispatch已success。但官方及实际API确认手动事件不满足PR required checks，

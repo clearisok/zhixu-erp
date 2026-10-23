@@ -1,10 +1,10 @@
 # 当前状态：构建产物完整性与PR检查事件
 
-2026-10-23；main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，完整G1–G5 Goal仍active。仅#126/#127/#120获批合并；其余不自动merge/close、部署或退役。
+2026-10-24续；main基线=d1dd4f0fcf9992d5c055c7b67b6832b635485680，完整G1–G5 Goal仍active。仅#126/#127/#120获批合并；其余不自动merge/close、部署或退役。
 
 用户已确认Billing修复和USD5月预算。本轮只对#123精确CB cb1658d97485bbf6c529660fffb50215548fffcd派发team39978341735、baseline39979177113、source39979170713，三次workflow_dispatch均success。但官方和实际API已证明手动事件不满足PR required checks，PR仍显示旧pull_request计费失败，不能称全绿或可合并。本轮不再重复付费运行；真正准备合并时仅补正确PR事件检查，不改状态或降低保护。#121/#122已在CB，其他PR不运行。CB本地成功结果按原source复用，不冒充新门禁验收。
 
-[当前构建门禁](tasks/active/server-build-artifact-guard-2026-10-23.md)修复已记录的vinext exit0/45页失败未被正式流水线拒绝的问题。原build后只读校验源路由/完整rendered索引、HTML/RSC/404、chunk和公开build-info，匹配本次身份；不硬编码46，不读取私密server配置。独立P2的dotenv输入误拒及CLI别名保护已修，12项/scoped lint通过；两模式隔离构建、发布检查和最终复审仍待。无框架、页面、业务、API、SQL或环境变化，V0仅覆盖package.json接线。
+[当前构建门禁](tasks/active/server-build-artifact-guard-2026-10-23.md)补原vinext exit0/45页失败缺口。ca917实际Browser完整46页却被门禁拒绝：唯一缺失为CSS空壳JS的预加载，Server未运行；原失败保留。现明确非manifest的未解析modulepreload为可见warning，实际script/stylesheet/manifest依赖仍必需，不造假文件、不宣称预加载404已修。14项/scoped lint通过，dotenv及引号内大于号分词两P2已修；新source双模式构建、发布及最终复审仍待。无框架、页面、业务、API、SQL或环境变化，V0仅package.json接线。
 
 前f4f最终守卫PASS，远端SHA/tree/父精确核实；工具仍STOP_AUTH_OR_DIVERGENCE、pushes=1，原因未定、不重推旧SHA。原134/134属b8c693，9/9恢复属driver848/镜像5e096，未在本片重跑。manifest仍331/59，旧对象/其他状态维度不改；所有失败及完整旧事实见[逐字前态](tasks/completed/2026-10-23-build-artifact-guard-inputs/CURRENT_STATE.md)。
 

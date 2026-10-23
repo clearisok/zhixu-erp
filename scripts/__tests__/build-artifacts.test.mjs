@@ -160,3 +160,34 @@ test('explicit shell build inputs override dotenv without weakening stale-identi
   f.env.ZHIXU_BUILD_ID = 'new-shell-identity';
   assert.throws(f.check, /build_artifacts_build_identity_mismatch/u);
 });
+
+test('unresolved modulepreload is visible, while script, stylesheet and manifest dependencies remain required', t => {
+  const hint = '<link rel="modulepreload" href="/assets/optional.js" crossorigin=""/>';
+  const f = fixture(t); f.put('dist/client/index.html', `<html><body>${hint}</body></html>`);
+  assert.deepEqual(f.check().warnings, [{ code: 'unresolved_modulepreload', route: '/', asset: 'assets/optional.js' }]);
+  assert.equal(f.check().warningCount, 1);
+  for (const required of ['<script src="/assets/optional.js"></script>', '<link rel="stylesheet" href="/assets/optional.js"/>']) {
+    const other = fixture(t); other.put('dist/client/index.html', `<html><body>${hint}${required}</body></html>`);
+    assert.throws(other.check, /build_artifacts_missing_or_invalid_file/u);
+  }
+  const declared = fixture(t); declared.put('dist/client/index.html', `<html><body>${hint}</body></html>`);
+  declared.json('dist/client/.vite/manifest.json', { entry: { file: 'assets/optional.js', isEntry: true } });
+  assert.throws(declared.check, /build_artifacts_missing_or_invalid_file/u);
+  const css = fixture(t); rmSync(join(css.root, 'dist/client/assets/app.css'));
+  assert.throws(css.check, /build_artifacts_missing_or_invalid_file/u);
+  for (const impostor of ['data-rel="modulepreload"', 'title=\'rel="modulepreload"\'', 'rel="stylesheet modulepreload"', 'rel="modulepreload" rel="stylesheet"']) {
+    const other = fixture(t); other.put('dist/client/index.html', `<html><body><link ${impostor} href="/assets/optional.js"/></body></html>`);
+    assert.throws(other.check, /build_artifacts_missing_or_invalid_file/u);
+  }
+});
+
+test('quoted greater-than characters do not hide required script or stylesheet resources', t => {
+  for (const title of ['title="a > b"', "title='a > b'"]) {
+    for (const tag of [`<script ${title} src="/assets/missing.js"></script>`, `<link ${title} rel="stylesheet" href="/assets/missing.css"/>`]) {
+      const f = fixture(t); f.put('dist/client/index.html', `<html><body>${tag}</body></html>`);
+      assert.throws(f.check, /build_artifacts_missing_or_invalid_file/u);
+    }
+    const hint = fixture(t); hint.put('dist/client/index.html', `<html><body><link ${title} rel="modulepreload" href="/assets/optional.js"/></body></html>`);
+    assert.deepEqual(hint.check().warnings, [{ code: 'unresolved_modulepreload', route: '/', asset: 'assets/optional.js' }]);
+  }
+});

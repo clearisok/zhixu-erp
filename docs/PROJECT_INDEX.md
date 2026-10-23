@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-23当前继续[正式构建产物门禁](tasks/active/server-build-artifact-guard-2026-10-23.md)：防止原vinext exit0/45页失败被当作完整静态构建，首9项/scoped lint通过，新增别名负控和真实双模式构建待核。#123精确CB三次手动CI已成功，但workflow_dispatch不满足PR required checks，PR仍为原计费失败，不能称全绿；本轮不再重复付费，正确PR事件检查留到真正合并点。其他PR不重跑；前f4f原事实逐字归档，完整Goal和运行/来源/合并边界不变。
+2026-10-24续[正式构建产物门禁](tasks/active/server-build-artifact-guard-2026-10-23.md)：ca917真实Browser46页完整，却因CSS-only悬空modulepreload被拒绝，原失败保留、Server未运行。现非manifest预加载单列warning，必需执行依赖仍FAIL；14项/lint通过，quoted >分词P2亦已修，新source双模式构建/发布待核，不宣称预加载404已修。#123精确CB三次手动CI成功但不满足PR required checks，PR仍原计费失败；本轮不重复付费，正确PR事件留真正合并点。其他PR不重跑，完整Goal及所有运行/来源/合并边界不变。
 
 2026-10-23当前优先阅读[精确镜像与0044恢复任务](tasks/active/server-current-target-recovery-2026-10-23.md)及[CI成本评估](tasks/active/ci-cost-control-2026-10-23.md)。driver848的同5e096镜像最终9/9恢复通过，108表/70非空/5序列/43迁移；原两失败和只释放本轮13停止容器/5空网络的证据保留，179卷名称与旧环境不动。[冻结报告](tasks/completed/2026-10-23-current-target-command-recovery-engineering.md)区分image/driver、真实运行与工程、未部署/激活。用户已确认Billing修复及每月USD5：不批量重跑旧CI、本地验收后集中交付、保留必要合并检查；本轮仅评估workflow，未改测试门槛或触发CI。最终发布门禁/交付另核。
 
