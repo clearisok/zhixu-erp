@@ -1,0 +1,16 @@
+{
+  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "level": "V1",
+  "paths": [
+    "app/globals.css",
+    "features/operations-settings/components/operations-settings-pages.tsx",
+    "features/operations-settings/components/production-resource-fields.tsx",
+    "features/operations-settings/components/server-production-resource-page.tsx",
+    "features/operations-settings/components/server-production-reference-picker.tsx",
+    "features/operations-settings/server/production-resource-client.ts",
+    "features/operations-settings/server/production-resource-outbox.ts"
+  ],
+  "pages": ["navigation"],
+  "visibleDifference": "D147 Gate6D restores the existing approved supply-hub and transport-plan card/drawer areas in the current production-infrastructure route, replacing Server-only unavailable placeholders. Reuse the existing fields, classes, paged references and command recovery with Server authority; preserve Browser layout, repository, defaults and storage. A Server-logistics-only selector restores the existing intended 760px infrastructure form width that the later base 480px Drawer rule otherwise overrides; phone follows the existing full-width Drawer behavior. No new navigation, density, V2/V3 redesign, logistics/shipment execution, closing, real deployment or human acceptance claim.",
+  "evidence": ["docs/tasks/active/server-convergence-gate6d-logistics-ui-2026-10-21.md"]
+}

@@ -1,5 +1,5 @@
 {
-  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
   "level": "V1",
   "visibleDifference": "Restore the approved Server workspace during soft navigation and identity loading: keep the existing Shell/header/sidebar, retain existing feature dirty and unknown-receipt protections, and show local loading/error states. No menu, density, breakpoint or domain workflow redesign; foreign-history recovery retains native unload protection.",
   "paths": [

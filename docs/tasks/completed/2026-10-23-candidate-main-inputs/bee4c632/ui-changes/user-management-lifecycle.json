@@ -1,0 +1,26 @@
+{
+  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "level": "V2",
+  "visibleDifference": "Approved separate user table, filters, archive/restore dialogs and six-character password handling; shared Server navigation.",
+  "paths": [
+    "app/system-settings/users/page.tsx",
+    "components/foundation/app-shell.tsx",
+    "features/operation-logs/model/operation-log.ts",
+    "features/permissions/admin-settings.css",
+    "features/permissions/components/server-user-permission-page.tsx",
+    "features/permissions/server/team-access-client.ts",
+    "features/quote-center/authority/quote-authority.ts"
+  ],
+  "pages": [
+    "navigation",
+    "user-permissions"
+  ],
+  "evidence": [
+    "docs/tasks/active/system-settings-administration-2026-10-19.md",
+    "server/integration/team-access-ui.integration.test.mjs"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/system-settings-administration-2026-10-19.md"
+  }
+}

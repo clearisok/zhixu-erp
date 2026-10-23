@@ -100,6 +100,31 @@ forward `supersedes` revision may follow the merge. Screenshot, approval, capabi
 runtime and UI-impact requirements stay unchanged; this is evidence convergence,
 not permission for any product or deployment change.
 
+When main advances while another branch already has frozen document revisions,
+do not rewrite those old IDs or hashes and do not remove their ancestry check.
+An older side revision may instead reach a same-path document integration witness
+through the explicit revision edges. The witness is frozen at the real merge H,
+with exactly the current comparison base M and the independent source S as its
+two Git parents. M and S must not contain one another. S's Git manifest must
+contain the exact imported record, its recorded commit must be in S, and H must
+be in the checked head. A single-sided document uses `supersedes`; an actual
+two-sided document conflict still uses `mergeOf` with the original contribution
+and nonredundancy checks. A later ordinary commit cannot impersonate H. No new
+manifest field or replacement of a historical record is needed.
+
+History preservation is independent of this eligibility exception. For an
+explicit PR-base check, the guard enumerates the real merge commits in the
+base-to-HEAD ancestry corridor and reads each actual parent's Git manifest. Every
+parent evidence object must remain unchanged, including source-only records of
+unrelated paths. This also applies when H has no document record or its author
+freezes a later ordinary checkpoint. Missing/invalid Git history is not an empty
+manifest. Discovery is bounded to256 corridor merges,8 parents per merge and64MiB
+of distinct parent manifests; exceeding a bound fails explicitly without a
+truncated PASS. Parent manifests are cached, and ordinary commits do not add
+manifest reads. This protects history actually merged into the inspected corridor,
+not unmerged branches outside it. Default local/dispatch inspection still compares
+working changes to HEAD; it cannot replace the explicit actual-main PR gate.
+
 PNG history remains at its old path with exact bytes. A new screenshot uses a
 new ID/path and a nonempty `changeReason` plus `approvalEvidence` pointing to a
 frozen document record of the explicit user approval. A replacement may identify

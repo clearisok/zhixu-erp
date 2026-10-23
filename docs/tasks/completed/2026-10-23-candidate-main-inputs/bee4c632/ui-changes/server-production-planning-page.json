@@ -1,0 +1,19 @@
+{
+  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "level": "V1",
+  "paths": [
+    "app/production-scheduling/page.tsx",
+    "app/production-scheduling/production-scheduling.css",
+    "components/foundation/app-shell.tsx",
+    "features/quote-center/authority/quote-authority.ts",
+    "features/operations-settings/components/server-production-reference-picker.tsx",
+    "features/production-scheduling/components/production-scheduling-authority-page.tsx",
+    "features/production-scheduling/components/server-production-scheduling-page.tsx",
+    "features/production-scheduling/components/server-production-plan-fields.tsx",
+    "features/production-scheduling/server/production-plan-client.ts",
+    "features/production-scheduling/server/production-plan-form.ts"
+  ],
+  "pages": ["navigation"],
+  "visibleDifference": "Approved D-147 Gate6B Server convergence: restore the existing production scheduling route and reuse its group master/detail, queue, order pool, assignment fields and Foundation preview/history surfaces with trusted Server reads and commands. Server never mounts Browser repositories. Dates stay explicit, unknown actual completion/material data is labelled unavailable, and only a verified unknown receipt permits a separate manual retry of the same request. Restore the existing menu item only for order.view plus schedule.view. No new navigation, density redesign, formula, amount, actual completion or closing workflow, deployment or human acceptance claim.",
+  "evidence": ["docs/tasks/active/server-convergence-gate6-2026-10-20.md"]
+}

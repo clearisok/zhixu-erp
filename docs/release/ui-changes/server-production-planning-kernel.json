@@ -1,5 +1,5 @@
 {
-  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
   "level": "V0",
   "paths": ["features/production-scheduling/service/production-scheduling-service.ts"],
   "pages": ["order-detail"],

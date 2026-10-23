@@ -1,5 +1,5 @@
 {
-  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
   "level": "V1",
   "visibleDifference": "Synchronize the existing source-maintenance parent navigation guard before the enabled button can be used. A single click on Create Quote after the real source list read finishes reaches the original contract-context draft page. Existing dirty, pending, unknown-result and logout protections remain; no navigation exemption, click replay, layout, label, density or breakpoint change.",
   "paths": ["features/order-center/components/order-business-source-button.tsx"],

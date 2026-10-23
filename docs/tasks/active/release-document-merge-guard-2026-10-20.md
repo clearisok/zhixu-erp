@@ -78,3 +78,95 @@ authorization has already been used and exact delivery verified. A new recovery
 attempt needs its own concrete SHA scope; no automatic retry or shared Git/TLS/
 proxy modification. Original state/handoff are archived byte-for-byte under
 tasks/completed/2026-10-20-release-document-merge-guard-predecessor.
+
+## Main advancement compatibility (2026-10-23)
+
+Main is independently still996dfedc12da3527343cd3ff2aa5eea35497e10e. Reuse the
+original unowned-elsewhere branch at clean956921f63ba3069c059ca64c2324edbc33afefd8;
+root is the sole writer. Both its old summaries and the complete Goal recovery
+summaries from94a1767b are archived byte-exactly in the dated input directory.
+The new phase is only guard/tests/docs, not the cumulative application candidate.
+The standing safe Git recovery authorization supersedes the old per-SHA request
+restriction above; no automatic merge/deploy or real Source authority follows.
+
+Read-only review identified a real P2: actual main can advance to M after side
+evidence was frozen. Even a legitimate later merge H cannot make M an ancestor
+of those old evidence commits. Rewriting old IDs/hashes is prohibited. Replacing
+that check by base-to-HEAD alone would miss side-only history; checking parents
+only when an author chooses a merge as recordedAt can be bypassed by a later
+ordinary checkpoint. Neither shortcut is accepted.
+
+The proposed narrow correction separates eligibility from history preservation:
+old side revisions need a same-path explicit witness at the actual integration
+H, with exact new-base/source parents and retained source identity. Independently,
+enumerate actual merges only within actualBase-to-HEAD ancestry, with a hard count
+bound and Git-loaded parent manifests. All their evidence must remain object-equal,
+even if the author creates no new document record at H. Missing objects/manifests
+or an exceeded bound reject; there is no truncated PASS. Existing mergeOf branch
+contribution, every base anchor/blob/edge/leaf and all screenshot rules remain.
+
+Actual synthetic Git red tests are running before production changes. Final
+counts, correction, review and delivery/CI must be recorded after observation;
+old116 is not a result for this new behavior. Source0c and image94 CI successes
+remain on their own exact heads. No PR has been merged or closed.
+
+The actual focused red run completed7 tests,0pass/7fail,66868.6335ms, no skip or
+cancel. Both legitimate single/double-sided integrations were rejected with the
+three old-side EVIDENCE_REVISION_ANCESTRY errors. More significantly, after an
+ordinary post-merge checkpoint, deleting all side records or adding no new record
+at all returned an empty error list. The failing negative assertions preserve
+this real omission; they are not reported as production regression PASS. The
+full log is retained in outputs/release-main-advance-20261023/red.log. Production
+guard code is still unchanged at this checkpoint.
+
+The reviewed correction is now implemented. Actual corridor discovery is capped
+at256 merge commits; each merge is capped at8 parents before any parent object,
+ancestry or blob reads; distinct parent manifests are capped at64MiB with caching
+and no later reads after budget exhaustion. Invalid/null records, missing history
+and out-of-corridor commits fail closed. The eligibility exception requires an
+explicit same-path descendant frozen at the real two-parent integration H whose
+parents are exactly the comparison base and an independent source containing the
+exact old record. Existing anchor, predecessor ancestry, mergeOf contribution,
+blob and screenshot guards are retained. No application/schema/UI/workflow changed.
+
+Focused green expanded tests passed16/16 (111780.2333ms). The first full suite
+passed134/134 (376912.5766ms), with zero failures/skips/cancellations, before the
+last parent-bound ordering correction and its single/double-sided9/10000-parent
+spy assertions. Thus it is intermediate evidence only. Syntax and focused lint
+passed after that correction; static independent review found no remainingP1/P2.
+The final complete suite, committed exact-main guard, delivery and freshCI remain
+pending. Logs retain the red, first-green, expanded-green and first-full attempts
+under outputs/release-main-advance-20261023 without overwriting old observations.
+
+A read-only actual-Git scan of cumulative94 found9 corridor merges,17 distinct
+parent manifests,6045487 bytes,max2 parents and286 retained evidence objects with
+no errors. This checks the proposed bounds against the current candidate, not
+the final new guard itself. No candidate branch or runtime was modified by the scan.
+
+## Final local acceptance (2026-10-23)
+
+At the clean production/test checkpoint
+`cff4addd59f5492b677ae88b502db0d0e5affa72`, the final complete release suite passed
+**134/134**, zero failures/skips/cancellations, **377139.5791ms**, including both
+single/double-sided9/10000-parent no-object-read assertions. Syntax and focused
+ESLint passed. The explicit independently reverified main996 guard passed with
+11pages/46capabilities/0changedUI and no errors. Read-only independent review of
+that exact checkpoint found no remainingP1/P2 and verified all213 evidence objects,
+46capabilities and9 Git-byte-identical summary archives. Source receipt and full
+logs remain under outputs/release-main-advance-20261023; this is not an application,
+database, browser, deployment or user-acceptance result.
+
+After all local readers terminated, freeze that script from its actual Git blob
+`d7c811b2aa45ae2955be8382df428d432516a552` (SHA256
+`9720c7beff1e00b618350f9b468fd307c614692c4f812cef3fac55d534d93940`),
+clean-switch to the existing complete candidate
+`94a1767b4743e1c21a961c5232929c4600cd34aa` and run the new guard with the same
+actual996 base. It also passed:11pages/58capabilities/88inheritedUI paths/errors[].
+The candidate was never edited and the original tool branch was safely restored.
+This actual new-guard result supplements the earlier parent scan. No new worktree,
+runtime, dependency installation or business operation was required.
+
+Next is a documentation-only final checkpoint, its exact-head/main guard, one
+safe delivery to the existingPR126, independent full remoteSHA verification and
+freshCI/review. OldCI stays attached to its original956 head and cannot prove this
+fix. No automatic merge/close/deployment or additional realSource read is authorized.
