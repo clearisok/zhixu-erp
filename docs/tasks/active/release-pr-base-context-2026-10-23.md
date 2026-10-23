@@ -14,7 +14,7 @@
 
 workflow_dispatch保持原默认命令，未知事件拒绝。权限、fetch-depth、checkout及guard源码/134回归均保持原样。新解析器19项合成与临时真实Git/CLI检查通过，4625.6548ms；完整发布及最终门禁尚待执行。无业务、SQL、UI、运行配置或Source范围增加。
 
-源码 checkpoint `856947574be89b79fa39033f30632f1aeb63bdb5` 的解析器19项再次通过（6971.1204ms）。首轮精确门禁及完整134回归因AI_HANDOFF只写缩写、未包含清单完整基线而失败；原日志保留为 `release-first-85694757.log`，不能声称首轮通过。随后只补全该文档基线，并在解析器的Git子进程设置 `GIT_NO_LAZY_FETCH=1`，使缺对象时不触发promisor远端补取（[Git官方定义](https://git-scm.com/docs/git#Documentation/git.txt-GITNOLAZYFETCH)）；不改共享Git配置。新checkpoint与重跑结果继续记录，原guard不变。
+源码 checkpoint `856947574be89b79fa39033f30632f1aeb63bdb5` 的解析器19项再次通过（6971.1204ms）。首轮精确门禁及发布回归因AI_HANDOFF只写缩写、未包含清单完整基线而失败；该轮实际执行117项、102通过/15失败、0取消/跳过，359134.7276ms，失败阻止了部分嵌套检查继续。原日志保留为 `release-first-85694757.log`，不能声称首轮通过。随后补全该文档基线，并在解析器的Git子进程设置 `GIT_NO_LAZY_FETCH=1`，使缺对象时不触发promisor远端补取（[Git官方定义](https://git-scm.com/docs/git#Documentation/git.txt-GITNOLAZYFETCH)）；不改共享Git配置。源码 checkpoint=`9b1d0560a284b36635c17d5557e92e71f0c21d03`；重跑结果继续记录，原guard不变。
 
 ## 验证与交付边界
 
