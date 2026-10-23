@@ -1,11 +1,7 @@
-# 恢复点：PR120 对新 main 的前向整合
+# 恢复点：PR120 本地通过，交付当前最终HEAD
 
-2026-10-23；已独立核实 main=be9aaa3f4efa232e1451075a355f0ce42e35a69e。用户仅批准的 #126、#127 已以 merge commit 合并；#127 merge 的两个 parent 为 e06162c7 与7b565f32，tree=已审查7b，原提交和分支保留。#120/#123/#125/#128 未获合并/关闭授权。
+2026-10-23；main精确be9aaa3f4efa232e1451075a355f0ce42e35a69e，仅#126/#127已获准合并。root唯一writer、既有reviewer只读。当前codex/price-source-stabilization真实merge8f双父[0561,be9]，源码0494新134/134发布（519804.6598ms）、75/75工具（179301.6531ms）、语法lint、显式be9门禁均通过，零失败取消跳过。独立静态复审无P1/P2；219/46旧对象、H见证、7份Git原字节归档与V1仅基线前移已核实。
 
-root唯一writer；既有reviewer独立只读。合并输入：HEAD=0561f5ede50d17ba5b104ef230b504434f5e7f28，MERGE_HEAD=be9aaa3f4efa232e1451075a355f0ce42e35a69e，开始树干净；当前3处已按本阶段解决。先读[任务](tasks/active/pr120-main-forward-2026-10-23.md)、CURRENT_STATE和实际Git状态，不reset/clean/rebase/force。双方三摘要与原UIimpact逐Git字节保存。
+下一步对最终文档commit再跑精确门禁；每可靠目标一次既有交付工具，独立核实远端完整SHA/tree后更新唯一#120与新三CI。不使用原0561绿灯替代。产品五blob=57d，工具/两项测试/guard=be9，共享解析器=5f；无新业务、SQL或运行配置改动。原1b64 DB/Chromium/构建仅保留原范围，本阶段无重建用户体验。
 
-下一步保存真实merge H，核对双父与旧五个业务blob、main工具blob；再为DECISION_LOG和ORDER_BUSINESS_SOURCE追加H同路径见证，保留旧217条及46能力，不伪造新截图或产品批准。运行新base显式门禁、134发布、19解析器、56交付工具及必要静态/集成检查，独立复审后一次安全交付原#120，精确核实新SHA和CI。随后只在未绑定用户运行态的工作树前向整合#123/#125。
-
-原0561三CI与原1b64本地804/34DB/6Chromium/干净快照构建保留原范围，新组合尚未声称通过。Git恢复站立授权有效，每可靠checkpoint一次push，结果不明先核实；STOP与EXACT事实分离不等于放宽安全策略。完整目标及业务待决项不变；不新读Source、不绑定激活、不改用户环境/账号/数据，不自动合并关闭或部署。
-
-真实merge H=8f7719ed0565b19acf39fdd988fd24e4abc9c992，parents=[0561f5ed,be9aaa3f]；五个业务blob=57d、main工具/两项旧测试适配/守卫134均为精确main。两条H见证已追加至219/46；新测试和精确门禁尚待执行。
+#123独立worktree正验收，不触碰原live-readiness/system-settings-ci localref；#125待前向整合。站立Git恢复授权有效，未知结果先核实，不重复上传精确同目标、不force/reset/clean/rebase。完整目标未完成，业务待决保持；不新读Source、不绑定激活调度、不自动merge/close/部署、不改真实数据或用户环境。
