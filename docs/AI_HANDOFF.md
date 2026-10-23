@@ -1,19 +1,15 @@
-# 恢复点：Gate7G内部目标配置，定向通过待独立复审/精确构建
+# 恢复点：Gate7G绑定完成，等待稳定清单最终回归
 
-当前codex/server-garment-target-control，从已核实main d1dd4f0fcf9992d5c055c7b67b6832b635485680建立后FF clean81ce0a015a17cfa74bf6b006dc97d9ee36468a8a；开始无继承dirty，所有增量归本Gate。0044仅completed-only技术回执；原target/审计/回执同事务，enable复验proof/明确时效/可信物理绑定，disable不读profile/binding/head，不改变观察。新服务不挂CLI/HTTP/Catalog/调度，不激活真实目标。修复审计operationId的actor隔离P2后20新定向通过；33原采集/85观察/33完整归一回归通过0skip。独立复审已确认P2关闭、无其他P1/P2，未自行运行测试。最终精确native archive类型/lint/构建及发布门禁待做。根目录types失败因既有ignored outputs旧源码混入，保留原产物/tsconfig，用干净archive验证。见本Gate任务和功能说明。
+2026-10-23；完整G1–G5 Goal继续，root唯一writer，既有reviewer只读。当前codex/server-garment-target-control，开始clean81ce0a015a17cfa74bf6b006dc97d9ee36468a8a，main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，13:03:09.707Z独立API相符、五草稿PR121–125不变。Billing未处理，不重派CI/改账单；Git NETWORK_DEGRADED，本Gate不重推，不新建重复累计业务PR，不merge/close/deploy。
 
-最新终态：02c225767b99a39cc3e46e2e2c1857b132ee4f75精确d1dd守卫PASS，原三项diagnose退出0、指定full SHA DryRun=READY_DRY_RUN/NORMAL。唯一Execute为LOCAL_PASS_REMOTE_NOT_DELIVERED、pushes=1、uncertain_transport、NETWORK_DEGRADED；12:23:38.773Z独立GitHub API匹配refs成功且精确ref数0，main仍d1dd。ignored final-delivery/independent-verification保留原结果。不重试同通道、不创建PR或触发CI；继续不依赖远端的本地工程。源码、清单和冻结证据不变。
+源码5fac2326634375ded9935782df947ce5871eab43，tree632b9126797529baa4246233f2c8b53836060f95。0044只新增空completed-only技术回执，旧迁移不动；内部plan/apply/receipt复用原target和原publication锁，enable具体proof/可信绑定/明确时效，disable独立、历史alias可停、无target no-op。target/原audit/receipt同事务，COMMIT未知不公开暂定成功。原receipt与当前target/证明/permit分离，历史enable不重新启用。无CLI/HTTP/Catalog/调度/真实激活或新Source读取。新SO/owner两FK进入完整引用。
 
-2026-10-23；完整G1–G5 Goal继续。root唯一writer、既有reviewer只读。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，12:16:57.723Z独立API相符，五草稿PR121–125不变。Billing未处理，用户允许继续安全本地交付，不重派CI或改账单。当前codex/server-garment-operator源8f2，开始clean，无继承dirty。
+独立复审P2审计ID已加actor并补两actor同UUID两SO负控；20定向修复后12674.2402ms通过，clean5fac20通过12999.5089ms。原采集33/85观察/33归一通过0skip，保持各自前checkpoint范围。独立源码/日志复审确认无P1/P2，未自行运行测试。5fac精确native archive全量types28378ms、Server10561ms、完整lint53643ms、显式Server UI15162ms退出0，46路由/0skip/单Context，build-id server-garment-target-5fac2326-20261023。HEAD稳定、dirty空；没有新Docker image/部署或像素人工接受。
 
-源码ee6f570f5c689569b088cc5af28a64c7795821f3新增受控plan/collect-once/receipt，原producer完整包装adapter/checkedAt、scope先于秘密、独立receipt和未知不成功。最终461841c0542f05f01e2677877df59af3b45d5bc3仅多纯测assert.ok和状态文档，产品/SQL/workflow/package字节相同；后续只有报告、清单和状态。没有target-enable/SQL/HTTP/Catalog/调度，不读真实Source/凭据/私密报告，不改已有库/账号或部署。
+报告492b4d39e8e59eb6a579b212e9d297aee29a622f，completed/2026-10-23-garment-target-control-engineering.md，Git blob SHA256 226c3736a478905193bb11ced1b3fd0e617d0a7e7a8a98cbe3ff3b0f760353a9。当前新增D160/feature/报告为324证据/59能力；源S5fac，报告R492b。原321证据/58其他能力/本能力其他维度/全部UI/批准/运行态保持，manifest SHA256 d2e58fcfe32a53b6784717aa09f9f13cbf010db769ab720c68f955df8ce8cc50。首次根目录typecheck受旧ignored outputs源码污染，精确archive已通过；首次项目937项922pass/15fail、514745.8556ms均是绑定前的EVIDENCE_WORKTREE_DRIFT，原失败不能抹成PASS。
 
-ee6f15/15完整定向251843.0245ms含实际clean源码receipt正控；原control33/33 20721.6352ms。共享40/40 252610.6654ms跨ee6f→4618测试/文档commit，相关执行blob不变，不称稳定HEAD全套。4618纯5/5 18275.1847ms、精确native archive types/Server/完整lint/显式Server build退出0，46路由/0skip/单Context/build-info精确4618。独立源码/证据复审无P1/P2。原失败与修正均保留，没有放宽SQL/保护或删除测试。
+下一步：只提交manifest及当前状态这份独立绑定checkpoint；以精确d1dd运行guard，稳定HEAD/清单下重新npm test和npm run test:release-baseline，保留实际终态；最后仅状态收口、精确HEAD守卫与独立证据复审。不再改已冻结D160/feature/报告，无新UI或业务改变。ignored outputs/garment-target-control-20261023中engineering-scope/binding/exact-qa及全部日志有原hash；原失败和后续PASS分别记录。
 
-报告commit a786f5f796ae64e63a174ac332dc42f8ffc2c763，completed/2026-10-23-garment-operator-engineering.md，blob SHA256 20802a7c74c14b190224f4f025f3a7158e7dc2d505488f0ebd5b91e54bdcae42。321/59绑定commit026346ee1931a2a6b7c67d4ddfeb47bef39f06b3，精确d1dd守卫PASS；发布134/134、568997.0852ms、0fail/cancel/skip，HEAD/manifest ddbfdd37b1cc4990929957164a636a7d85278560ac0f8dd19fbd243327fe6858稳定、dirty空。原318对象/58其他能力/其他维度/UI/批准/截图/运行态不变；新implemented/isolatedTest评估状态值不变。
+前一Gate7F：02c225767b99a39cc3e46e2e2c1857b132ee4f75最终guard通过；三项diagnose/DryRun正常后的唯一push uncertain_transport，12:23:38.773Z独立API确认分支不存在、main d1dd。最终状态81ce守卫也通过，本Gate无push。更早8f2原STOP与独立exact SHA/tree/父保留，根因未解；不改写STOP或假称永久恢复。旧用户refs ebe4cb16c8f5ea65df6243d8a5627094c6f62da1/4cf19e823b14fd2167081dd9d0c755278ce4322b及3001/50426/59069/62426等、Browser/对象/卷/工作树不动。
 
-最后仅四状态文档收口；新最终HEAD先精确d1dd守卫。独立安全复核根据standing“以后都自动授权不要再问我”，允许对新分支新最终SHA一次首交付，无需重复问人；但须先原只读diagnose和指定新分支/full SHA默认DryRun，只有直接Git正常且READY_DRY_RUN/NORMAL才一次Execute，已exact则不推。任何新STOP/降级/关系不明停止，不重试或更换认证。独立API核对完整SHA/tree/父，远端exact与协议STOP分开记，不能宣称永久恢复。账单受限CI不触发，不创建重复累计业务PR，不merge/close/deploy。
-
-最终事实读取ignored outputs/garment-operator-20261023：release/result.json和日志为稳定0263工程结果；final-head-guard、final-diagnose、final-dry-run、final-delivery、final-independent-verification是其后实测（尚未发生时不得假称成功）。原8f2仍STOP_AUTH_OR_DIVERGENCE，但独立exact8f2/tree/父；不改写旧STOP、不重推8f2或假报根因已解。旧用户refs ebe4cb16c8f5ea65df6243d8a5627094c6f62da1/4cf19e823b14fd2167081dd9d0c755278ce4322b保持；3001/50426/59069/62426等、Browser/对象/卷/工作树不动。
-
-完整目标仍缺真实target生命周期/激活与具体新额度、多页/事件、关账三问、coverage-v1/50426切换和逐项退役。原待决不默认、不重复询问；此操作者切片不等于Goal完成。外部context始终realpathSync.native规范化，旧失败、镜像和运行态证据保留各自source/日期。
+真实target启用/新查询额度、后续操作者配置接线、多页/事件、关账三问、coverage-v1/50426切换和逐项退役仍各自待Gate/业务决定。原待决不默认、不重复问；此后台切片不等于Goal完成。所有外部构建context使用realpathSync.native，不能再以ADMINI~1路径触发双Context后将exit0假称有效构建。

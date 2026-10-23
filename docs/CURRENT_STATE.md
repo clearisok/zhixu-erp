@@ -1,15 +1,11 @@
-# 当前状态：Gate7G成衣目标后台配置验收中
+# 当前状态：Gate7G源码与隔离验收通过，最终发布回归待收口
 
-2026-10-23，main仍d1dd4f0fcf9992d5c055c7b67b6832b635485680；[Gate7G](tasks/active/server-garment-target-control-2026-10-23.md)在clean 81ce基线上补内部单SO目标plan/apply/receipt与空0044技术回执，不增加公开启用入口或实际激活。修复独立复审P2审计分组后20定向通过，原采集33、观察85、归一引用33通过，均0skip；独立复审无剩余P1/P2，精确native源码构建与最终发布尚待。原失败/夹具修正及根目录ignored旧源码影响types的事实保留，不改保护或旧产物。
+2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，13:03:09.707Z独立API重读相符，#121–125五草稿保持；已明确批准的#126/#127/#120合并历史保留，未合并其他PR。#123 cb1658与#125 ca05新CI因账号Billing/支出上限未启动、0steps；用户确认未处理，继续安全本地交付，不重派CI或改账单。
 
-Gate7F最终02c225767b99a39cc3e46e2e2c1857b132ee4f75精确d1dd守卫PASS。2026-10-23T12:23:38Z独立API确认新分支不存在、main仍d1dd；本次三项只读Git及DryRun正常后，原工具唯一push发生uncertain_transport，LOCAL_PASS_REMOTE_NOT_DELIVERED/NETWORK_DEGRADED。工程通过与远端未送达分别保留，不重推、不新建PR、不触发账单受限CI。后续安全本地阶段可继续。
+[Gate7G](tasks/active/server-garment-target-control-2026-10-23.md)在clean81ce基线上补内部单SO成衣target plan/apply/receipt及空0044技术回执。enable复验具体证明、可信物理绑定与明确时效；disable不依赖profile/绑定/head健康，历史enable重放不重新启用。目标、原审计与回执同事务，未知COMMIT只核对原请求。没有新公开启用入口、Source读取、实际target激活、既有库/账号操作或部署。
 
-2026-10-23；完整G1–G5 Goal继续。main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，12:16:57.723Z独立API重读相符，五草稿PR121–125保持。#126/#127/#120已分别获准、保留历史合并；#123 cb1658、#125 ca05仍草稿。新CI因账号Billing/支出上限未启动、0steps；用户确认尚未处理，继续安全本地工程，不重派或改账单。
+源码5fac2326634375ded9935782df947ce5871eab43，clean定向20/20；原采集33、观察85、归一引用33通过0skip。独立复审发现actor/UUID审计分组P2，修复并补负测后关闭，无其他P1/P2。精确native archive全量types、Server、完整lint、显式Server UI构建通过，46路由/0skip/单Context，build-info精确5fac；非Docker镜像或人工像素接受。[492b冻结报告](tasks/completed/2026-10-23-garment-target-control-engineering.md)保留失败及各检查范围。首次项目937项922pass/15fail均为D160绑定前的证据漂移；现已前向追加3条记录为324/59，原321对象/58其他能力/其余维度/UI/运行态保留。待稳定新清单重新执行项目/发布134和explicit main守卫，不冒称最终通过。
 
-[最终组合](tasks/completed/2026-10-23-final-pr-combination-engineering.md)保留实际4d41/b14f双父merge、318证据/59能力及756父对象；d086的21单元/9PG/8built/134发布通过、独立复审无P1/P2。最终8f2精确守卫PASS，一次工具push仍STOP_AUTH_OR_DIVERGENCE；独立API完整SHA/tree/父精确，不改写STOP、不重推或假称网络根因已解。旧失败及native长路径构建对照保留原范围。
+[Gate7F](tasks/active/server-garment-operator-2026-10-23.md)本地134发布及最终81ce守卫通过；02c22576唯一push发生uncertain_transport/NETWORK_DEGRADED，独立API确认新分支不存在。更早8f2则协议STOP_AUTH_OR_DIVERGENCE但独立exact SHA/tree/父，两项事实并存。根因未解，不重推、不新建重复累计PR或冒称长期恢复；本Gate只本地checkpoint。
 
-[Gate7F](tasks/active/server-garment-operator-2026-10-23.md)新增单SO显式plan/collect-once/receipt源码入口，复用原控制层及私密保护，无SQL/schema/HTTP/Catalog/调度或目标启用。原producer完整包装/checkedAt核对、scope先于秘密、独立receipt及未知不成功保护已验。ee6f完整15/干净源码实际入口、原控制33及共享40通过；最终4618纯5/全量types/Server/完整lint/显式Server UI构建通过，46路由/0skip/单Context。[a786冻结报告](tasks/completed/2026-10-23-garment-operator-engineering.md)保留失败与各源码范围。026346ee的321/59精确d1dd守卫和发布134/134通过568997.0852ms、0skip，HEAD/清单稳定、树干净；独立源码/证据复审无P1/P2。最终仅状态收口，精确交付结果随后独立核实，不预报远端/CI。
-
-没有真实Source或凭据/私密报告读取、现有账号/DB操作、部署/切换/退役、其他PR merge/close。3001/50426/59069/62426等旧运行入口、Browser、对象、卷及所有工作树保护。原用户运行态refs ebe4/4cf1保持。
-
-完整目标仍缺真实范围授权/target生命周期与激活、多页及跨次事件、关账待决、50426切换接受及逐项退役；覆盖v1/关账三问不默认、不重复发问。工程、远端交付、Hosted CI、部署、来源激活及人工接受分别记录。
+3001/50426/59069/62426等旧入口、Browser、对象/卷、账号及所有工作树保护；原用户运行态refs ebe4/4cf1保持。后续仍缺真实目标启用/新读取额度、受控操作者配置接线、多页/跨次事件、关账待决、coverage-v1/50426切换接受及逐项退役。原业务问题不默认、不重复提问；工程、合并、交付、CI、部署、来源激活及人工接受分别记录。

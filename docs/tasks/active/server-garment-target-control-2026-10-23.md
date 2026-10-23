@@ -21,3 +21,11 @@ Gate7F本地定向/构建/134发布及最终81ce守卫PASS；02c22576唯一push�
 原领域回归已实测：采集33/33通过18887.1627ms，观察85/85通过27384.3863ms，完整归一/执行33/33通过28243.9022ms，均0fail/cancel/skip，只自有一次性PG、合成证明与fake transport。没有任何新的Source请求或既有库操作；Hosted CI账单仍未处理，不据本地通过声称CI已运行。
 
 独立实际diff复审发现P2：新审计operationId仅UUID，而请求为actor+UUID，可能让两actor独立目标操作混为同组。已只给新operationId增加actor ID，不改旧消费者/历史；新增两actor/同UUID/不同SO均成功、两receipt/两audit组且每组一事件。含最终0044两个FK盘点索引的新20/20通过12674.2402ms、0fail/cancel/skip。独立复审核对实际源码/新测试/日志后确认P2关闭，无其他P1/P2，未自行运行测试；不代替最终精确构建、发布或真实激活。
+
+## 精确源码与前向证据
+
+clean source5fac2326634375ded9935782df947ce5871eab43的20/20通过12999.5089ms；精确Git archive/native context全量types28378ms、Server10561ms、完整lint53643ms、显式Server UI15162ms全部退出0。46路由/0skip/单Context/原用户路由，build-info精确5fac，HEAD稳定/dirty空。没有安装依赖、新Docker镜像或部署。
+
+首次项目937项922pass/15fail、514745.8556ms，均是新增D160在manifest前向绑定之前运行引发的EVIDENCE_WORKTREE_DRIFT，0取消/跳过。该失败不修改原保护/断言，也不冒称全套通过。[冻结报告](../completed/2026-10-23-garment-target-control-engineering.md)于492b4d39e8e59eb6a579b212e9d297aee29a622f保存，blob SHA256 226c3736a478905193bb11ced1b3fd0e617d0a7e7a8a98cbe3ff3b0f760353a9；旧失败/各源码范围和十日志hash完整。
+
+D160、独立feature和新报告前向追加为324/59，保留原321证据、58其他能力、其余维度、全部UI/批准/运行态；manifest SHA256 d2e58fcfe32a53b6784717aa09f9f13cbf010db769ab720c68f955df8ce8cc50。13:03:09.707Z独立API再次核实main d1dd/五草稿heads不变。随后稳定绑定checkpoint上重验explicit d1dd guard、项目及发布134；尚未运行不预报PASS。Git NETWORK_DEGRADED，本Gate不再push、建重复PR或派账单CI。

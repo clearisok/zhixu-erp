@@ -2776,6 +2776,34 @@
       "renderedSourceSha": "461841c0542f05f01e2677877df59af3b45d5bc3",
       "sha256": "20802a7c74c14b190224f4f025f3a7158e7dc2d505488f0ebd5b91e54bdcae42",
       "changeReason": "D159 adds an explicit guarded source-checkout operator over the original D158 single-shot controller; preserve original producer proof/time, receipt recovery, every prior evidence/status and runtime. Synthetic engineering only; no real query, target enable, deployment or hosted-CI claim."
+    },
+    {
+      "id": "decisions-garment-target-control-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5fac2326634375ded9935782df947ce5871eab43",
+      "renderedSourceSha": "5fac2326634375ded9935782df947ce5871eab43",
+      "sha256": "643053b154d5f0e32fdc1b18301edc9bc854daac30223d4e10555161a86a4ade",
+      "supersedes": "decisions-garment-operator-20261023",
+      "changeReason": "D160 adds internal single-SO target transactions over the original garment target, with explicit policy, scoped proof, independent stopping and atomic historical receipts. Preserve all old evidence, states and runtime. Synthetic engineering only; no public activation entry, real Source, existing database mutation, deployment or hosted-CI claim."
+    },
+    {
+      "id": "garment-target-control-feature-20261023",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_GARMENT_TARGET_CONTROL.md",
+      "recordedAtSha": "5fac2326634375ded9935782df947ce5871eab43",
+      "renderedSourceSha": "5fac2326634375ded9935782df947ce5871eab43",
+      "sha256": "8babe3810369704bfd19232c7702d4faf0ecd68dc1c8ef16cadeed1980ab92a4",
+      "changeReason": "D160 adds internal single-SO target transactions over the original garment target, with explicit policy, scoped proof, independent stopping and atomic historical receipts. Preserve all old evidence, states and runtime. Synthetic engineering only; no public activation entry, real Source, existing database mutation, deployment or hosted-CI claim."
+    },
+    {
+      "id": "garment-target-control-engineering-20261023",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-23-garment-target-control-engineering.md",
+      "recordedAtSha": "492b4d39e8e59eb6a579b212e9d297aee29a622f",
+      "renderedSourceSha": "5fac2326634375ded9935782df947ce5871eab43",
+      "sha256": "226c3736a478905193bb11ced1b3fd0e617d0a7e7a8a98cbe3ff3b0f760353a9",
+      "changeReason": "D160 adds internal single-SO target transactions over the original garment target, with explicit policy, scoped proof, independent stopping and atomic historical receipts. Preserve all old evidence, states and runtime. Synthetic engineering only; no public activation entry, real Source, existing database mutation, deployment or hosted-CI claim."
     }
   ],
   "pages": [
@@ -8497,7 +8525,7 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "D147/D152/D153/D158 controller plus D159 guarded source-checkout single-SO plan/collect-once/receipt. Original producer wrapper/time, scope-before-secret, durable one-shot claim and atomic publication remain. No mounted HTTP/Catalog/scheduler, target-enable command, real query quota or source activation; only first-page proof for the exact account/contract.",
+      "scope": "D147/D152/D153/D158 collection controller, D159 guarded source operator and D160 internal single-SO target plan/apply/receipt. Original proof/time, one-shot collection and atomic publication remain; target policy is explicit, stopping independent and receipts historical. No mounted target-activation entry, HTTP/Catalog/scheduler, real query quota or source activation; only the exact account/contract first-page proof.",
       "evidence": [
         "garment-collection-control-engineering-20261023",
         "garment-collection-control-feature-20261023",
@@ -8505,14 +8533,17 @@
         "garment-command-nonempty-recovery-20261023",
         "decisions-garment-operator-20261023",
         "garment-operator-feature-20261023",
-        "garment-operator-engineering-20261023"
+        "garment-operator-engineering-20261023",
+        "decisions-garment-target-control-20261023",
+        "garment-target-control-feature-20261023",
+        "garment-target-control-engineering-20261023"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-23",
-          "sourceSha": "461841c0542f05f01e2677877df59af3b45d5bc3",
-          "scope": "D147/D152/D153/D158 controller plus D159 guarded source-checkout single-SO plan/collect-once/receipt. Original producer wrapper/time, scope-before-secret, durable one-shot claim and atomic publication remain. No mounted HTTP/Catalog/scheduler, target-enable command, real query quota or source activation; only first-page proof for the exact account/contract.",
+          "sourceSha": "5fac2326634375ded9935782df947ce5871eab43",
+          "scope": "D147/D152/D153/D158 collection controller, D159 guarded source operator and D160 internal single-SO target plan/apply/receipt. Original proof/time, one-shot collection and atomic publication remain; target policy is explicit, stopping independent and receipts historical. No mounted target-activation entry, HTTP/Catalog/scheduler, real query quota or source activation; only the exact account/contract first-page proof.",
           "evidence": [
             "garment-collection-control-engineering-20261023",
             "garment-collection-control-feature-20261023",
@@ -8520,7 +8551,10 @@
             "garment-command-nonempty-recovery-20261023",
             "decisions-garment-operator-20261023",
             "garment-operator-feature-20261023",
-            "garment-operator-engineering-20261023"
+            "garment-operator-engineering-20261023",
+            "decisions-garment-target-control-20261023",
+            "garment-target-control-feature-20261023",
+            "garment-target-control-engineering-20261023"
           ]
         },
         "merged": {
@@ -8537,8 +8571,8 @@
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-23",
-          "sourceSha": "461841c0542f05f01e2677877df59af3b45d5bc3",
-          "scope": "D159 addition: exact ee6f operator15/15 including clean source executable; final4618 pure5/5 and native Git-archive types/Server/full lint/explicit Server build46 routes0skip pass. Original controller33/33 and shared private/recovery40/40 pass; shared run spans test/docs-only commit with identical relevant executable blobs. Earlier65545 nonempty recovery retains original image/test scope. No real Source/credential/private-report read, target activation, existing DB/account mutation or deployment; hosted CI remains billing-blocked.",
+          "sourceSha": "5fac2326634375ded9935782df947ce5871eab43",
+          "scope": "D160 clean5fac new20/20 and exact native archive full types/lint/Server/explicit Server UI build46 routes0skip pass; independent audit actor/UUID P2 fixed and re-reviewed. Original collection33/observation85/reference33 pass before source checkpoint, with their code unchanged; final20 covers new migration/indexes/audit fix. Old failures and pending-before-binding project15 failures remain in frozen report. No real Source/private file read, target activation, existing DB/account operation, new image or deployment; hosted CI billing-blocked.",
           "evidence": [
             "garment-collection-control-engineering-20261023",
             "garment-collection-control-feature-20261023",
@@ -8546,7 +8580,10 @@
             "garment-command-nonempty-recovery-20261023",
             "decisions-garment-operator-20261023",
             "garment-operator-feature-20261023",
-            "garment-operator-engineering-20261023"
+            "garment-operator-engineering-20261023",
+            "decisions-garment-target-control-20261023",
+            "garment-target-control-feature-20261023",
+            "garment-target-control-engineering-20261023"
           ]
         },
         "humanAcceptance": {
