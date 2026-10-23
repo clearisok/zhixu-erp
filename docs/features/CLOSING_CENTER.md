@@ -1,5 +1,11 @@
 # 关账中心
 
+## Approved Server target (2026-10-20, D-147; not implemented)
+
+用户确认未来 Server 成衣销售产值关账币种为 CNY，工价为 USD。两类金额分别保存与汇总，不直接相加，不新增自动换汇；不改写既有 Quote/PV/CCT、采购来源币种或历史关账。新系统从空业务库建立，不安排历史业务迁移，也不删除旧数据。
+
+以下描述现有 Browser 路径，不是 Server 完成证明。当前新记录不自动换汇，部分旧文档的 USD 转 RMB 描述与实现不一致；不得照搬到新 Server。加工服务产值归类、完成变化引起的 stale、出货与关账依据仍待确认。详见[批准范围和证据](../tasks/active/server-convergence-gate0-2026-10-20.md)。
+
 ## Purpose
 
 在单款 SalesOrder 与直接归属订单的 ScheduleAssignment 基线上，按月保存数量、价格、汇率、税率和生产执行方快照，形成可确认、锁定和重新打开的月度产值事实。关账不回写订单、排单或完成数量，也不实现应收应付、发票、付款或总账。

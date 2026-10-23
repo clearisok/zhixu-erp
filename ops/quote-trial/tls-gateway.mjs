@@ -2,8 +2,10 @@
 import { createServer } from 'node:https';
 import { request } from 'node:http';
 import { readFileSync } from 'node:fs';
+const upstreamPort=Number(process.env.TRIAL_PROXY_PORT||3000);
+if(!Number.isInteger(upstreamPort)||upstreamPort<1||upstreamPort>65535)throw Error('invalid_proxy_port');
 const server=createServer({cert:readFileSync('/run/tls/cert.pem'),key:readFileSync('/run/tls/key.pem')},(req,res)=>{
-  const upstream=request({host:process.env.TRIAL_PROXY_HOST||'app',port:3000,path:req.url,method:req.method,
+  const upstream=request({host:process.env.TRIAL_PROXY_HOST||'app',port:upstreamPort,path:req.url,method:req.method,
     headers:{...req.headers,'x-forwarded-proto':'https'},timeout:120000},remote=>{
       res.writeHead(remote.statusCode||502,remote.headers);remote.pipe(res);
       res.once('close',()=>remote.destroy());

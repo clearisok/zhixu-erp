@@ -10,6 +10,12 @@ const [mode,ack]=process.argv.slice(2);
 let pool,storage;
 try {
   if(!['export','restore'].includes(mode)||ack!=='--execute')throw Error('explicit_operation_required');
+  // Verify the kernel mount, including the default configured bundle. Restore
+  // must never be able to repair or overwrite its backup input.
+  const bundleReadOnly=mode==='restore'&&(await readFile('/proc/self/mountinfo','utf8')).split('\n').some(line=>{
+    const fields=line.split(' ');return fields[4]==='/bundle'&&fields[5]?.split(',').includes('ro');
+  });
+  if(mode==='restore'&&!bundleReadOnly)throw Error('read_only_restore_bundle_required');
   const config=loadServerConfig();if(config.attachmentStorage.kind!=='s3')throw Error('s3_required');
   pool=new pg.Pool({connectionString:config.databaseUrl});storage=new S3AttachmentStorage(config.attachmentStorage);
   const db=(await pool.query('SELECT current_database() name')).rows[0].name;if(db!=='quote_trial')throw Error('trial_database_required');
@@ -33,6 +39,6 @@ try {
     const data=[];for(const row of rows){const b=await readFile(join('/bundle/objects',`${row.id}.bin`));if(String(b.length)!==row.bytes||sha(b)!==row.sha256)throw Error('backup_integrity_failed');const stat=await storage.head(row.key);if(stat&&(String(stat.byteSize)!==row.bytes||stat.sha256!==row.sha256))throw Error('target_object_collision');data.push(b);}
     for(let i=0;i<rows.length;i++){if(!(await storage.head(rows[i].key)))await storage.put(rows[i].key,data[i],'application/octet-stream');await download(rows[i]);}
   }
-  console.log(JSON.stringify({operation:mode,referencedObjects:rows.length,integrity:'PASS'}));
+  console.log(JSON.stringify({operation:mode,referencedObjects:rows.length,integrity:'PASS',...(mode==='restore'?{bundleReadOnly}:{})}));
 } catch {console.error('trial_object_bundle_failed_keep_maintenance');process.exitCode=1;}
 finally {storage?.destroy();await pool?.end();}
