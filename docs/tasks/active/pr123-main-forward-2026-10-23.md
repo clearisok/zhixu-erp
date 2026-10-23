@@ -25,3 +25,5 @@
 原215与main219证据无ID碰撞、并集221，全46能力/截图/运行维度保持。新11份输入归档包含双方三摘要/清单与原3V2 UI记录，只有三UI baseline从be9改为d1dd，批准/路径/可见行为不变。实际merge H后将D146侧与main的DECISION双叶正常mergeOf，当前新组合类型/源码/SQL/API/Chromium/构建/134/精确门禁/CI/复审均待，不借旧结果。此阶段不合并或关闭任何PR、读真实Source、迁移现有库或部署。
 
 历史归档完整性：cached whitespace检查仅命中main原样继承的2026-10-19-pre-stabilization/BUSINESS_RULES.md末尾空行；staged blob与批准main逐字节一致，保留不重写。排除此单一冻结归档后，其余本阶段增量检查通过。
+
+真实merge642d5f124323506f9fc143eb6fcdba7e8868fedd双父[03570e19,d1dd4f0f]，221原证据完整并集后，仅追加DECISION_LOG的真实mergeOf见证，总222/46。五个非文档增量仅来自已批准main的价格汇总/加工提交保护及其验收，角色/用户/日志产品与迁移沿原0357保持。新的组合验收与远端交付尚待。
