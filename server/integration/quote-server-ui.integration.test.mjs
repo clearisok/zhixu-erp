@@ -969,7 +969,7 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       const file=await evaluate("(async()=>{const f=generatedDownloads.at(-1);return {name:f.name,bytes:Array.from(new Uint8Array(await f.blob.arrayBuffer()))}})()");
       const bytes=Buffer.from(file.bytes),wb=new ExcelJS.Workbook();await wb.xlsx.load(bytes);const template=new ExcelJS.Workbook();await template.xlsx.load(readFileSync(resolve('templates/quote-export-template-v1.xlsx')));const layout=parseQuoteExportTemplateLayout(template.worksheets[0]),point=layout.summary.customerConfirmedPrice;
       assert.equal(wb.worksheets[0].getCell(point.row,point.column).value,88.25);assert.equal(wb.worksheets[1].getCell(point.row,point.column).value,null);assert.ok(!JSON.stringify(wb.worksheets.map(s=>s.getSheetValues())).includes("1.23456789"),"Shared labor is not substituted for the system cost");
-      const logs=(await pool.query("SELECT count(*)::int n FROM operation_logs")).rows[0].n;await action("操作记录");await hasText("确认商业条款");await hasText("88.25");assert.equal((await pool.query("SELECT count(*)::int n FROM operation_logs")).rows[0].n,logs);
+      const logs=(await pool.query("SELECT count(*)::int n FROM operation_logs")).rows[0].n;await action("操作记录");await hasText("确认商业条款");await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent==='查看详情').click()");await hasText("88.25");assert.equal((await pool.query("SELECT count(*)::int n FROM operation_logs")).rows[0].n,logs);
       assert.deepEqual(await linked.read(),before);await isolated();assert.deepEqual(await evaluate("unhandledRejections"),[]);t.diagnostic(`Linked XLSX: ${bytes.length} bytes SHA-256 ${createHash('sha256').update(bytes).digest('hex')} shared price/system separation parsed`);
     });
     for(const status of [409,0])await t.test(`actual linked ${status||"network"}: saved-first, retained inputs/target, explicit read never resubmits`,async()=>{
@@ -1051,16 +1051,16 @@ test("Fresh Server Quote: actual Chromium list/new/detail/masters and save/attac
       for(let n=0;n<106;n++)await appendOperationLog(pool,actor,{module:'报价中心',action:'保存报价',entityType:'Quote',entityId:permissionQuote,quoteId:permissionQuote,
         beforeData:{values:{syntheticField:`before-${n}`}},afterData:{values:{syntheticField:`after-${n}`}},metadata:{fixture:'Synthetic audit event'}});
       const before=(await pool.query('SELECT count(*)::int n FROM operation_logs')).rows[0].n;
-      await loginAs('auditReader');await navigate(`/quote-center/detail?id=${permissionQuote}`);await hasText('Server 报价 · v');await action('操作记录');await hasText('本页事件 25');await hasText('Synthetic event-time actor');
-      await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent==='技术详情').click()");await hasText('Server 事件快照');assert.ok((await text()).includes('after-'));await evaluate("document.querySelector('button[aria-label=\"关闭Server 事件快照\"]').click()");
-      await click('下一页事件');await hasText('本页事件 25');await click('刷新记录');await hasText('本页事件 25');
+      await loginAs('auditReader');await navigate(`/quote-center/detail?id=${permissionQuote}`);await hasText('Server 报价 · v');await action('操作记录');await hasText('本页 25 条');await hasText('Synthetic event-time actor');
+      await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent==='查看详情').click()");await hasText('操作详情');assert.ok((await text()).includes('after-'));await evaluate("document.querySelector('button[aria-label=\"关闭操作详情\"]').click()");
+      await click('下一页');await hasText('本页 25 条');await click('刷新记录');await hasText('本页 25 条');
       assert.doesNotMatch((await evaluate('logResponses')).join(''),/PRIVATE-ESTIMATE-UI-PROBE|estimateHistoryCount|estimate\.generate|estimate\.regenerate/);await isolated();await click('关闭');
-      await navigate('/system-settings/operation-logs');await hasText('可信 Server 只读事件');await hasText('本页事件 25');await click('下一页事件');await hasText('本页事件 25');await isolated();
-      await labelInput('模块','Synthetic no matching module');await hasText('暂无匹配的 Server 事件');await hasText('本页事件 0 / 总计 0');await labelInput('模块','');await hasText('本页事件 25');
+      await navigate('/system-settings/operation-logs');await hasText('查看团队操作与修改前后的记录');await hasText('本页 25 条');await click('下一页');await hasText('本页 25 条');await isolated();
+      await labelInput('日志关键词','Synthetic no matching module');await click('查询');await hasText('暂无匹配的操作记录');await hasText('本页 0 条 / 共 0 条');await labelInput('日志关键词','');await click('查询');await hasText('本页 25 条');
       failureStatus=503;await command('Fetch.enable',{patterns:[{urlPattern:'*/api/v1/operation-logs*',requestStage:'Request'}]},sessionId);
-      try{await click('刷新记录');await hasText('操作记录读取失败');await hasText('HTTP 503');}finally{await command('Fetch.disable',{},sessionId);failureStatus=0;}
+      try{await click('刷新记录');await hasText('操作记录读取失败');await hasText('记录暂时无法读取');}finally{await command('Fetch.disable',{},sessionId);failureStatus=0;}
       assert.equal((await pool.query('SELECT count(*)::int n FROM operation_logs')).rows[0].n,before);assert.deepEqual(await evaluate('unhandledRejections'),[]);
-      await loginAs('viewer');await navigate('/system-settings/operation-logs');await hasText('需要 audit_log.view');assert.deepEqual(await evaluate('logResponses'),[]);await isolated();
+      await loginAs('viewer');await navigate('/system-settings/operation-logs');await hasText('需要操作日志查看权限');assert.deepEqual(await evaluate('logResponses'),[]);await isolated();
     });
     const summaryColumns = async (labels) => evaluate(`(()=>{const root=[...document.querySelectorAll('[role=dialog]')].find(n=>n.textContent.includes('内部报价汇总'));for(const label of root.querySelectorAll('.qc-setting-options label')){const input=label.querySelector('input');const wanted=${JSON.stringify(labels)}.includes(label.textContent.trim());if(input.checked!==wanted)input.click();}})()`);
     const parsedDownload = async () => {

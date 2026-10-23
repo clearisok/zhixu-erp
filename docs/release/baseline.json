@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
+  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
   "verifiedAt": "2026-10-23",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
@@ -1751,6 +1751,15 @@
       "path": "docs/tasks/completed/2026-10-17-quote-price-final-review.md",
       "recordedAtSha": "5bd47275599eb7f9039d38a853a6ce294635c1d9",
       "sha256": "4c698ffbe7e0f1360f8d87db8f37c57c94c73344de2573ff204134900131bf93"
+    },
+    {
+      "id": "decisions-price-processing-20261017-roles-20261019",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "28a8ebee37c80e06598f28df21bc3466edd6efc6",
+      "sha256": "36c37559890de048f2da5c2aaa851c8c7ade0166675e5e018a07945e21a8a261",
+      "supersedes": "decisions-price-processing-20261017",
+      "changeReason": "User-approved D146 configurable roles, password and navigation; previous blobs retained."
     }
   ],
   "pages": [
@@ -2054,7 +2063,9 @@
     "/order-center",
     "/order-center/server-detail",
     "/order-center/style-progress/detail",
-    "/system-settings/progress-settings"
+    "/system-settings/progress-settings",
+    "/system-settings/roles",
+    "/system-settings/users"
   ],
   "capabilities": [
     {

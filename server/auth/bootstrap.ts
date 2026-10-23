@@ -1,4 +1,5 @@
 import type { Pool } from "pg";
+import { passwordValidationMessage } from "../../features/permissions/model/password-policy.js";
 import { PERMISSION_KEYS } from "../../features/permissions/model/permissions.js";
 
 export type BootstrapAdminConfig = {
@@ -9,9 +10,8 @@ export type BootstrapAdminConfig = {
 
 export async function bootstrapAdmin(pool: Pool, config: BootstrapAdminConfig): Promise<boolean> {
   if (config.password === undefined) return false;
-  if (config.password.length < 12) {
-    throw new Error("ZHIXU_ADMIN_PASSWORD must contain at least 12 characters");
-  }
+  const passwordError = passwordValidationMessage(config.password);
+  if (passwordError) throw new Error(passwordError);
 
   const client = await pool.connect();
   try {
