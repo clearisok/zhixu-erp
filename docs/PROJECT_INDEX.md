@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-23，当前独立[CI实际PR基线任务](tasks/active/release-pr-base-context-2026-10-23.md)，main精确`e06162c70c9792895c30030216dc8c2a66368069`已含#126；#127仍草稿。原#120 e872精确送达并解除冲突，但新Release发现旧event base与实际merge父不同；修复工具与业务分开。先读CURRENT_STATE/AI_HANDOFF，原摘要[逐字归档](tasks/completed/2026-10-23-pr-base-context-inputs/)。完整Goal仍active，累计/Source事实见[7c冻结记录](https://github.com/clearisok/zhixu-erp/blob/7c0c027334e49ae9c3c833f45cc1aeccb05d52e5/docs/tasks/active/candidate-main-forward-2026-10-23.md)。不自动合并/部署/真实Source操作。
+2026-10-23，当前独立[CI实际PR基线任务](tasks/active/release-pr-base-context-2026-10-23.md)，main精确`e06162c70c9792895c30030216dc8c2a66368069`已含#126；#127仍草稿。原#120 e872精确送达但Release使用旧event base。独立修复9b1d0560/验收628f5951新134+19及精确门禁/语法/lint/YAML通过，远端与新CI待核实。先读CURRENT_STATE/AI_HANDOFF，原摘要[逐字归档](tasks/completed/2026-10-23-pr-base-context-inputs/)。完整Goal仍active，累计/Source事实见[7c冻结记录](https://github.com/clearisok/zhixu-erp/blob/7c0c027334e49ae9c3c833f45cc1aeccb05d52e5/docs/tasks/active/candidate-main-forward-2026-10-23.md)。不自动合并/部署/真实Source操作。
 
 ## 系统简介
 
