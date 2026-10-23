@@ -7,3 +7,5 @@ E原业务5blob=57d，工具3blob=5f，guard/134测试=e061；217证据/46能力
 原e872的Source/Team两CI成功、Release因payload旧base失败；原失败保留。工具128已精确送达、Release/Team成功，Source attempt1在端点就绪前20秒超时失败；同一5f已仅重跑一次失败job，attempt2仍待终态，未改超时/测试或代码。独立CI解析器验证真实PR merge的双父身份，从第一父取base，不用旧payload、不降低守卫。未自动合并任何其他PR。
 
 站立Git恢复授权有效，但每可靠checkpoint只一次push/独立exact核实。旧STOP+exact和新远端ref创建已存在布尔采样均保留；认证/TLS/代理配置不变，不能由采样推断所有根因。若使用下一次诊断，另用新targetSHA回执，不覆盖已执行5f driver/回执。所有旧环境与数据保护；完整目标及待决业务范围不变，不重读Source、不绑定/激活/部署。
+
+最终复审仅收窄F/E的启动证据措辞：五个启动相关文件相同，不声称整个应用相同；文档后继不改K业务或工具代码。Git HEAD为当前交付目标，269的已核实CI仍保留其原head范围。
