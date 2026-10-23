@@ -2816,26 +2816,6 @@
       "changeReason": "D161 connects explicit protected-file target plan/apply/receipt to the original D160 service and operator. No new schema, permission, collector, HTTP, scheduler or real Source authorization. Preserve all prior evidence, dimensions, UI and runtime."
     },
     {
-      "id": "garment-operator-target-config-feature-20261023",
-      "kind": "document",
-      "path": "docs/features/AINUOKE_GARMENT_OPERATOR.md",
-      "recordedAtSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
-      "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
-      "sha256": "5cbd02bb224e07f061599ac1335f37101a68888509380edd63d7a757a7162733",
-      "supersedes": "garment-operator-feature-20261023",
-      "changeReason": "D161 connects explicit protected-file target plan/apply/receipt to the original D160 service and operator. No new schema, permission, collector, HTTP, scheduler or real Source authorization. Preserve all prior evidence, dimensions, UI and runtime."
-    },
-    {
-      "id": "garment-target-control-operator-feature-20261023",
-      "kind": "document",
-      "path": "docs/features/AINUOKE_GARMENT_TARGET_CONTROL.md",
-      "recordedAtSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
-      "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
-      "sha256": "48b92a09a487b41c3f76c0eb6b97e4172f0507284fc7eca8fa56d4b3409b2ce6",
-      "supersedes": "garment-target-control-feature-20261023",
-      "changeReason": "D161 connects explicit protected-file target plan/apply/receipt to the original D160 service and operator. No new schema, permission, collector, HTTP, scheduler or real Source authorization. Preserve all prior evidence, dimensions, UI and runtime."
-    },
-    {
       "id": "garment-target-operator-engineering-20261023",
       "kind": "document",
       "path": "docs/tasks/completed/2026-10-23-garment-target-operator-engineering.md",
@@ -2843,6 +2823,43 @@
       "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
       "sha256": "c7ab1822838fd1be87adda3c1afe3a3b514fa63abd307062a9ae56edd8181ea1",
       "changeReason": "D161 connects explicit protected-file target plan/apply/receipt to the original D160 service and operator. No new schema, permission, collector, HTTP, scheduler or real Source authorization. Preserve all prior evidence, dimensions, UI and runtime."
+    },
+    {
+      "id": "decisions-garment-target-operator-binding-fix-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "8b63df468d439fea43a6c40cc145e1ef30d976f5",
+      "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "sha256": "e50c0e63e8a35c85f31d0ab0b43f5c66ee1b43af46eba631363b0647237cde31",
+      "supersedes": "decisions-garment-target-operator-20261023",
+      "changeReason": "Reject and losslessly archive two invalid, never-passed feature revisions without a main anchor. Preserve their IDs/history in the rejected-candidate archive, restore the old frozen feature blobs, and use a substantive independent D161 feature root. No guard, product, schema, permission, UI or runtime change."
+    },
+    {
+      "id": "garment-target-operator-current-feature-20261023",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_GARMENT_TARGET_OPERATOR.md",
+      "recordedAtSha": "8b63df468d439fea43a6c40cc145e1ef30d976f5",
+      "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "sha256": "8ee35e7367d47e335a41de76b64ed7a9cd8e2c256f88162ac8baba93fe3cc709",
+      "changeReason": "Reject and losslessly archive two invalid, never-passed feature revisions without a main anchor. Preserve their IDs/history in the rejected-candidate archive, restore the old frozen feature blobs, and use a substantive independent D161 feature root. No guard, product, schema, permission, UI or runtime change."
+    },
+    {
+      "id": "garment-target-binding-rejected-20261023",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-23-rejected-garment-target-binding/README.md",
+      "recordedAtSha": "8b63df468d439fea43a6c40cc145e1ef30d976f5",
+      "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "sha256": "bae260f0f2fe9dba5695e61d68aab8223af2d4e88b541b891da201c30ee7ca5e",
+      "changeReason": "Reject and losslessly archive two invalid, never-passed feature revisions without a main anchor. Preserve their IDs/history in the rejected-candidate archive, restore the old frozen feature blobs, and use a substantive independent D161 feature root. No guard, product, schema, permission, UI or runtime change."
+    },
+    {
+      "id": "garment-target-binding-correction-20261023",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-23-garment-target-binding-correction.md",
+      "recordedAtSha": "8b63df468d439fea43a6c40cc145e1ef30d976f5",
+      "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "sha256": "b4c21437320ceb911e336d53d093bf78ccd7cc42832a6d5fd641c36a81d2354a",
+      "changeReason": "Reject and losslessly archive two invalid, never-passed feature revisions without a main anchor. Preserve their IDs/history in the rejected-candidate archive, restore the old frozen feature blobs, and use a substantive independent D161 feature root. No guard, product, schema, permission, UI or runtime change."
     }
   ],
   "pages": [
@@ -8577,9 +8594,11 @@
         "garment-target-control-feature-20261023",
         "garment-target-control-engineering-20261023",
         "decisions-garment-target-operator-20261023",
-        "garment-operator-target-config-feature-20261023",
-        "garment-target-control-operator-feature-20261023",
-        "garment-target-operator-engineering-20261023"
+        "garment-target-operator-engineering-20261023",
+        "decisions-garment-target-operator-binding-fix-20261023",
+        "garment-target-operator-current-feature-20261023",
+        "garment-target-binding-rejected-20261023",
+        "garment-target-binding-correction-20261023"
       ],
       "statusEvidence": {
         "implemented": {
@@ -8599,9 +8618,11 @@
             "garment-target-control-feature-20261023",
             "garment-target-control-engineering-20261023",
             "decisions-garment-target-operator-20261023",
-            "garment-operator-target-config-feature-20261023",
-            "garment-target-control-operator-feature-20261023",
-            "garment-target-operator-engineering-20261023"
+            "garment-target-operator-engineering-20261023",
+            "decisions-garment-target-operator-binding-fix-20261023",
+            "garment-target-operator-current-feature-20261023",
+            "garment-target-binding-rejected-20261023",
+            "garment-target-binding-correction-20261023"
           ]
         },
         "merged": {
@@ -8619,7 +8640,7 @@
           "value": "passed-historical",
           "assessedAt": "2026-10-23",
           "sourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
-          "scope": "D161 clean7ece target chain8/8 (actual source plan/apply/deleted-proof receipt), initial original collection checks and target20 pass; ffa pure7/7, exact native full types/lint/Server/explicit Server UI46 routes0skip pass. Business sources and target-test executable bytes equal7ece, with runtime SHA retained separately. Independent review no P1/P2. Original fixture/type failures retained. No real Source, existing database/account operation, image, deployment, CI run or user acceptance.",
+          "scope": "D161 clean7ece target chain8/8 (actual source plan/apply/deleted-proof receipt), initial original collection checks and target20 pass; ffa pure7/7, exact native full types/lint/Server/explicit Server UI46 routes0skip pass. Business sources and target-test executable bytes equal7ece, with runtime SHA retained separately. Independent review no P1/P2. Original fixture/type failures retained. No real Source, existing database/account operation, image, deployment, CI run or user acceptance. Rejected3fb feature-anchor errors and its passing release134 terminal are archived, without treating those tests as the failed actual-main guard; current D161 feature is an independent root, old324 evidence unchanged. Corrected release validation remains separate and pending.",
           "evidence": [
             "garment-collection-control-engineering-20261023",
             "garment-collection-control-feature-20261023",
@@ -8632,9 +8653,11 @@
             "garment-target-control-feature-20261023",
             "garment-target-control-engineering-20261023",
             "decisions-garment-target-operator-20261023",
-            "garment-operator-target-config-feature-20261023",
-            "garment-target-control-operator-feature-20261023",
-            "garment-target-operator-engineering-20261023"
+            "garment-target-operator-engineering-20261023",
+            "decisions-garment-target-operator-binding-fix-20261023",
+            "garment-target-operator-current-feature-20261023",
+            "garment-target-binding-rejected-20261023",
+            "garment-target-binding-correction-20261023"
           ]
         },
         "humanAcceptance": {

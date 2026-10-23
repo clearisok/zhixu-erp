@@ -1,4 +1,4 @@
-# 恢复点：Gate7H精确工程通过，最终证据绑定收口
+# 恢复点：Gate7H工程与134通过，文档锚点纠正待精确守卫
 
 2026-10-23；完整G1–G5 Goal active。root唯一writer，既有reviewer只读。当前分支codex/server-garment-target-operator，从main d1dd4f0fcf9992d5c055c7b67b6832b635485680建立，再FF clean cd7cd459885230b839d8d98a723f8f26e7d5bd24。开始独立API核实main及草稿PR121–125 heads未变；baseline见ignored outputs/garment-target-operator-20261023/baseline.json。
 
@@ -6,9 +6,11 @@
 
 原target20/20通过14016.558ms；首轮操作者25项23pass/2fail为新fake worker时钟使采集未发布，按原夹具推进100ms修复，失败保留。clean7ece2f5a2a8c290fa15c0e35426748abf5840201新目标链8/8通过238629.8621ms，实际源码子进程plan/apply/删证明receipt正控通过，前后HEAD/clean保持。首次archive typecheck4处测试类型错误保留exact-qa；只修测试类型/一条纯断言到ffa56b683333f61e7e0f23ed122a26854a5a4204。业务源码和目标测试转译JS与7ece逐字一致，不能把7ece运行SHA冒称ffa。ffa纯7/7通过18208.5865ms，exact-qa-final全量types29475ms/Server10838ms/lint56783ms/UI14955ms退出0，46路由0skip单Context，build-info精确ffa。独立实际源码/日志/等价复审无P1/P2，未自行执行测试。
 
-冻结报告03cc4bf1a34fbc53026be59e0b82479dc281bc6f，路径completed/2026-10-23-garment-target-operator-engineering.md，blob SHA256 c7ab1822838fd1be87adda3c1afe3a3b514fa63abd307062a9ae56edd8181ea1；16份ignored日志hash和完整源码范围见engineering-scope.json。13:47:51.950Z独立API核实main/五草稿未变。D161/operator/target feature/报告前向4份新证据，328/59，旧324对象、其他58能力/维度、UI/运行态/批准保持，manifest SHA256 daa3fd4697b92851aeee001b0f4b344a1837c84ccce4be3e22d126eedbc5b648。
+冻结报告03cc4bf1a34fbc53026be59e0b82479dc281bc6f及16日志hash保持。原绑定3fb5c93b5d156a27db79079056ee1ebec8b14c79上发布134/134通过555149ms，0fail/cancel/skip、HEAD/manifest/clean稳定；但actual main guard终态8条REVISION/ANCHOR/LEAF/DRIFT，独立复审P2明确为两个未进main的新feature根不能继续修订，不能借134通过冒称清单通过。两个结果都保存，不改守卫。
 
-下一步：只提交manifest及四份状态文档绑定checkpoint，运行精确main守卫、稳定清单发布134及独立证据复核；不更改已冻结D161/feature/报告或代码测试SQL。最后仅状态收口commit及最终HEAD守卫，仍不push/CI派发/merge/close/deploy。类型/lint/build/CLI实际验收已充分，UI无新变化，不扩大为重复全项目/像素验收声明；Gate7G954仍保留各自SHA。
+8b63df468d439fea43a6c40cc145e1ef30d976f5仅文档纠正：原两feature恢复cd7原blob；当前实质契约在features/AINUOKE_GARMENT_TARGET_OPERATOR.md新根。completed/2026-10-23-rejected-garment-target-binding保存完整B清单无损gzip（解压原SHA daa3fd、压缩SHA686384647c98405c898dc6ace4e718b6a4ff481f913d840a3e3ec4f9e406a90d）、两modified feature、八错误与134实际PASS终态。两失败ID只退出未通过活动候选，JSON/原Git历史保留、永不复用。03cc报告原文不改；新纠正报告区分134测试和实际main守卫。
+
+新活动清单330/59，原324全部不变、原B合法D161/report保留、其他58能力/维度/UI/runtime/批准保持；新四证据绑定8b63。manifest SHA256 79e3631d9a772f8334fa4b56781eda9b8d0b8fc7d694c93d097ab5796669cf16，详见reconciled-binding.json。下一步仅提交清单/状态checkpoint，重跑actual main守卫、独立归档/锚点复核；代码、测试、SQL及validator未变，不把3fb的134冒称在新HEAD重跑。若检查不要求额外回归，不重复全项目；最后状态commit后守卫仍须精确新HEAD。Git/CI/部署边界不变。
 
 Gate7G已完成：S5fac2326634375ded9935782df947ce5871eab43，报告492b4d39e8e59eb6a579b212e9d297aee29a622f，绑定25da387f32640984239f6734b4e5bbd737dbdaf9，最终cd7c守卫PASS。稳定25da项目954/954、发布134/134，均0fail/cancel/skip、HEAD/manifest/clean稳定；源码20及原33/85/33、types/lint/Server/UI46路由0skip通过，复审P2修复后无P1/P2。原失败、各日志hash/源码范围和完整清单在Gate7G任务及冻结报告保留。
 

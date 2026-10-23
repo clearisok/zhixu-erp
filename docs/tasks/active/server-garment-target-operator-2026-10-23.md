@@ -35,3 +35,11 @@ source7ece2f5a2a8c290fa15c0e35426748abf5840201上新纯测试7/7通过19365.2922
 精确Git archive/native context全量types29475ms、Server编译10838ms、完整lint56783ms、显式Server UI构建14955ms退出0。46路由/0skip/单Context，原用户路由生成，build-info精确ffa；HEAD稳定、dirty空，没有安装依赖/新镜像/部署或像素接受。独立实际源码/终态/等价复核无P1/P2，复审者未执行测试。
 
 [冻结工程报告](../completed/2026-10-23-garment-target-operator-engineering.md)03cc4bf1a34fbc53026be59e0b82479dc281bc6f，blob SHA256 c7ab1822838fd1be87adda3c1afe3a3b514fa63abd307062a9ae56edd8181ea1。D161与两feature及报告前向追加4份为328/59；原324对象、其他58能力/维度/UI/运行态及批准保持，manifest SHA256 daa3fd4697b92851aeee001b0f4b344a1837c84ccce4be3e22d126eedbc5b648。13:47:51.950Z独立API main/五草稿未变。下一步稳定清单的精确main守卫、发布134和最终状态收口，不将待运行写成PASS。原失败和16日志hash保留，Git降级/Billing阻塞不重试或改写。
+
+## 绑定复审P2及纠正
+
+原3fb5c93b5d156a27db79079056ee1ebec8b14c79实际main守卫FAIL八条REVISION/ANCHOR/LEAF/DRIFT；同HEAD发布134/134通过555149ms、0fail/cancel/skip，前后HEAD/清单/clean稳定。两者职责不同，134通过不能替代actual main守卫。独立复审定位两个前驱feature均是尚未进入d1dd的新根，不能按已有main锚点继续修订。未改业务或守卫以消除失败。
+
+[8b63纠正](../completed/2026-10-23-garment-target-binding-correction.md)保留原03cc报告与Git祖先；[拒绝候选档案](../completed/2026-10-23-rejected-garment-target-binding/README.md)无损保存完整B清单、两modified feature、原JSON、8错误和134终态。两个失效ID仅退出未通过的活动候选，永不复用。两旧feature恢复cd7冻结blob，当前D161使用独立AINUOKE_GARMENT_TARGET_OPERATOR.md；旧324证据全部不变，原合法D161/report保留。
+
+新清单330/59，其他58能力/非目标维度/UI/runtime/批准保持，manifest SHA256 79e3631d9a772f8334fa4b56781eda9b8d0b8fc7d694c93d097ab5796669cf16。业务代码、SQL、测试和validator不变；仅文档/活动证据修正后重跑actual main守卫与独立复核。134结果继续归属3fb，不能声称在新HEAD重跑；当前修正守卫尚待，不预报PASS。

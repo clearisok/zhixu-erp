@@ -1,6 +1,6 @@
 # 项目知识索引
 
-当前[Gate7H原操作者配置接线](tasks/active/server-garment-target-operator-2026-10-23.md)本地工程通过：复用D160，目标plan/apply/receipt不读凭据或Source，不新增schema/权限/HTTP/采集器，新旧回执分账本、历史与当前状态分开。clean7ece全链8/8、最终ffa纯7及精确native types/lint/Server/UI46路由0skip、原target20通过，复审无P1/P2。[03cc报告](tasks/completed/2026-10-23-garment-target-operator-engineering.md)保留原失败与运行SHA；前向328/59不改旧324证据或其他维度。最终稳定清单发布/HEAD守卫仍待，非真实激活、Hosted CI或部署。
+当前[Gate7H配置接线](tasks/active/server-garment-target-operator-2026-10-23.md)工程通过，clean7ece全链8、ffa纯7及精确types/lint/Server/UI46路由0skip、原target20通过。3fb发布134通过但actual main守卫8条锚点错误；[8b63纠正记录](tasks/completed/2026-10-23-garment-target-binding-correction.md)保留完整拒绝候选，两旧feature恢复冻结blob，当前以[独立配置契约](features/AINUOKE_GARMENT_TARGET_OPERATOR.md)为准。活动330/59，旧324证据和其他维度保持；代码/测试/守卫不变，最终main守卫待复验，非真实激活、Hosted CI或部署。
 
 当前[Gate7G目标配置后台](tasks/active/server-garment-target-control-2026-10-23.md)在同一d1dd基线上本地完成，13:03:09Z独立main/五草稿不变。源码5fac20定向、精确native types/lint/Server/UI构建46路由0skip通过，独立复审P2修复后无P1/P2；[492b冻结报告](tasks/completed/2026-10-23-garment-target-control-engineering.md)保留原失败。前向绑定324/59，不改旧对象/状态/UI/运行态；首次项目15项失败均为绑定前漂移，最终稳定25da上项目954/954、发布134/134、精确d1dd守卫通过，均0fail/cancel/skip且HEAD/清单/clean稳定。无新真实激活或读取；Git降级和Hosted CI账单问题仍各自保留，不重复推送或触发CI。
 
@@ -76,7 +76,7 @@
 
 [Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受。D109已批准HTTP且认证成功；D110有真实完整可见合同发现及80物料抽样。目标三行单位/身份获人工确认、QtyUnit工程已合并；全量颜色/物料规模、数量未知原因及持续运行/部署仍待Gate。
 
-[成衣受控操作者](features/AINUOKE_GARMENT_OPERATOR.md)复用D158单次命令/原子发布，直接校验原过滤工具完整报告；receipt不依赖凭据或证明文件。真实target启用、多页实证、请求额度和正式运行仍独立待批准/验证，不等于成衣事件账或关账。
+[成衣受控操作者当前契约](features/AINUOKE_GARMENT_TARGET_OPERATOR.md)复用D158单次命令/原子发布及D160配置事务，直接校验原过滤工具完整报告；receipt不依赖凭据或证明文件。D159/D160原feature保留各自冻结阶段，当前新增配置以D161独立文档为准。真实target启用、多页实证、请求额度和正式运行仍独立待批准/验证，不等于成衣事件账或关账。
 
 [准备在合同后的采用](features/ORDER_PREPARATION_ADOPTION.md)已补后台与现有Foundation新入口，[页面阶段](tasks/active/order-preparation-adoption-ui.md)精确证据待收口；加工标签必须核实合法批次，不回填历史类型。
 
