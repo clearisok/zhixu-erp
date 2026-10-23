@@ -35,7 +35,7 @@ export async function supportsMaterialCaptureContext(client:Pool|PoolClient){
  const row=(await client.query<{count:number}>("SELECT count(*)::int AS count FROM information_schema.columns WHERE table_schema='public' AND ((table_name='ainuoke_material_source_snapshots' AND column_name IN ('source_link_id','captured_order_version')) OR (table_name='ainuoke_source_runs' AND column_name='order_scope'))")).rows[0];
  if(row.count===0)return false;if(row.count!==3)throw new SourceError('source_capture_context_schema_incomplete');return true;
 }
-export async function boundOrders(client: Pool | PoolClient, lock = false): Promise<BoundSourceOrder[]> {
+export async function boundOrders(client: Pool | PoolClient, lock = false, selectedIds?: readonly string[]): Promise<BoundSourceOrder[]> {
  const attributed=await supportsSourceAttribution(client);
  if(lock&&attributed)await client.query("SELECT pg_advisory_xact_lock_shared(hashtextextended('order-effective-attribution',0))");
  const rows=(await client.query<{id:string;version:number;sales_contract_no:string;style_no:string;inside_order_no:string;source_owner_order_id:string;source_link_id:string;attribution_change_id:string|null;attribution_version:number;processing:boolean}>(`SELECT ${attributed?'target.id':'o.id'}::text AS id,${attributed?'target.version':'o.version'} AS version,m.sales_contract_no,m.style_no,m.inside_order_no,o.id::text AS source_owner_order_id,l.id::text AS source_link_id,
@@ -44,7 +44,8 @@ export async function boundOrders(client: Pool | PoolClient, lock = false): Prom
  FROM sales_orders o JOIN ainuoke_sales_order_contract_mirrors m ON m.sales_order_id=o.id
  JOIN sales_order_source_links l ON l.sales_order_id=o.id AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract' AND l.external_id=m.source_id AND l.sales_contract_no=m.sales_contract_no
  ${attributed?'JOIN sales_order_effective_identities mapping ON mapping.original_order_id=o.id JOIN sales_orders target ON target.id=mapping.effective_order_id':''}
- ORDER BY ${attributed?'target.id':'o.id'},o.id LIMIT 1001 ${lock?'FOR SHARE OF o,m,l'+(attributed?',target':''):''}`)).rows;
+ ${selectedIds ? `WHERE ${attributed?'target.id':'o.id'}=ANY($1::uuid[])` : ''}
+ ORDER BY ${attributed?'target.id':'o.id'},o.id LIMIT 1001 ${lock?'FOR SHARE OF o,m,l'+(attributed?',target':''):''}`,selectedIds?[selectedIds]:[])).rows;
  if(rows.length>1000)throw new SourceError('source_order_limit');
  if(rows.some(r=>r.processing))throw new SourceError('source_business_type_conflict');
  if(new Set(rows.map(r=>r.id)).size!==rows.length)throw new SourceError('source_binding_conflict');

@@ -1,0 +1,8 @@
+{
+  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
+  "level": "V0",
+  "paths": ["features/production-scheduling/service/production-scheduling-service.ts"],
+  "pages": ["order-detail"],
+  "visibleDifference": "none",
+  "evidence": ["docs/tasks/active/server-convergence-gate6-2026-10-20.md"]
+}

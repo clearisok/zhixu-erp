@@ -1,0 +1,30 @@
+{
+  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
+  "level": "V2",
+  "visibleDifference": "Approved role MasterDetail replaces fixed-preset permissions, shared password field and full Server settings navigation.",
+  "paths": [
+    "components/foundation/app-shell.tsx",
+    "features/operation-logs/model/operation-log.ts",
+    "features/permissions/components/server-user-permission-page.tsx",
+    "features/permissions/server/team-access-client.ts",
+    "features/quote-center/authority/quote-authority.ts",
+    "features/permissions/admin-settings.css",
+    "features/permissions/components/password-field.tsx",
+    "features/permissions/components/server-role-page.tsx",
+    "features/permissions/model/password-policy.ts",
+    "features/permissions/server/role-client.ts",
+    "app/system-settings/roles/page.tsx"
+  ],
+  "pages": [
+    "navigation",
+    "user-permissions"
+  ],
+  "evidence": [
+    "docs/tasks/active/system-settings-administration-2026-10-19.md",
+    "server/integration/team-access-ui.integration.test.mjs"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/system-settings-administration-2026-10-19.md"
+  }
+}

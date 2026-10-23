@@ -5,6 +5,9 @@
 - **Active**：当前实现仍遵守的决定。
 - **Superseded**：已被新的实现或决定替代，仅保留背景。
 - **Deprecated**：为兼容仍可能存在，但新代码不应继续依赖。
+- **Partially Superseded**：只保留条目明确列出的保护；被替代的交互/写入口不能据旧段落恢复。
+
+2026-10-19 校准：main `996dfedc12da3527343cd3ff2aa5eea35497e10e` 已包含 PR108–119。下列旧条目的“未合并/本地/待UI”是其记录日期的阶段事实；当前工程入口见 CURRENT_STATE 与 SYSTEM_OVERVIEW。合并不代表部署、真实激活或人工接受。
 
 ### D-043 ScheduleAssignment 直接归属 SalesOrder，生产计划层退出 Runtime
 
@@ -18,18 +21,142 @@
 
 ## Active
 
+### D-157 成衣新采样诊断与原冻结证据分离
+
+- 2026-10-23事实更新，不改变本条规则：用户另行批准的一次固定恢复核验已由干净0c工具执行，精确2登录/4报表；本账号唯一合同C1两次各16条且内容一致，虚拟C0为空。许可已消费，未访问业务库或发布业务快照，不证明全合同、多页、跨次事件或正式激活。[独立报告](tasks/completed/2026-10-23-fixed-garment-filter-read.md)保留原失败、原冻结hash与新候选的区分；不据此再次采集。
+
+- 2026-10-22，Active engineering decision；D-147已批准工程范围内的固定恢复工具，不改变
+  D-152/153业务口径，也不扩大任何真实读取许可。原D1933冻结文件在已核对工作树原精确路径
+  未找到，不依据摘要重造字节/hash。旧FROZEN及旧固定CLI完整保留。
+- 新入口只允许本次固定D1933完整首页生产新候选，以实际工具提交/私密文件/raw hash建立
+  独立身份；唯一合同、见证和账号校验，以及私密写入和实际hash读回通过后，才复用原C1/C0/C1
+  worker。CLI不接受替换候选、合同/hash或页码，失败不改字段/比较器或重试。
+- 工程上限2登录+4报表，单报表4MiB/报表累计16MiB、登录各另4MiB、共享单调180秒含本地阶段。
+  新入口预检干净/runtime/私密目录在凭据前，但新候选由读取一次凭据后生成；不能混用旧冻结
+  入口的检查顺序保证。阶段未知计数不补0，后段失败保留前段证据和已知下限。
+- 最多3个固定、安全且完整换行的阶段回执，加1个终态；不是持续采集或原文输出。外层入口
+  到180秒终止进程树后，仅核对本机完整阶段帧/文件，保留已知事实；未完成的阶段不伪称未发
+  请求。候选的私密写入/读回属于采集前预算，本机终止/回执核对不继续发出Source请求。
+- 证据：`server/ainuoke-source/garment-filter-recovery.ts`、对应PowerShell、新合成反例及
+  [任务](tasks/active/garment-filter-recovery-2026-10-22.md)。局部筛查复用不放宽通用Source或
+  付款模块。无业务API/schema/UI、DB读取/写入、Source激活/调度/部署或人工业务接受；真实
+  新范围仍须具体批准，旧0HTTP单次许可不复用。
+
+### D-156 Server交付计划维护沿用原领域和原请求恢复
+
+- 2026-10-22，Active；用户对原call_d4696fa532a64295ba294304d8404abf回复“按草图实施”。
+  [冻结批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)限定标题小按钮、
+  Foundation弹窗增改作废、预览保存、来源只读与数量差异提示；不改变D100/D154后台规则。
+- 复用原GET/PATCH/原完整body receipt。仅实际变更提交；默认0/null不被强制改为人工正数，
+  作废历史和行身份保留。交期与商业/生产事实独立，来源维护和交期维护独立owner后合并退出保护。
+- actor/tab技术pending先完整存读后发送，不是Browser账本或回退。未知不清缓存、不自动重写；
+  为避免发送前断网后永久未知，只有精确unknown回执才开放二次人工确认的同UUID/CAS/body重发。
+  再次发送前核对原槽完整相等，一次确认最多一发；重发后旧许可失效，错误/切单/换会话不沿用。
+  此为已批准“先核对、不盲目再保存”的恢复实现，不新增业务写入口或产生新计划身份。
+- 规范SO UUID贯通缓存/当前GET/旧披露刷新；实际session对象在layout失效，防同用户ABA和迟到401。
+  processing不把仅来源镜像的null伪称加工资料未记录。完成/取消状态沿用原DeliveryPlan编辑权限。
+- 证据：`features/order-center/server/delivery-plan-*`、maintenance hook/组件、原详情及Foundation Modal。
+  具体源码、client/API/项目检查及精确built/八宽度证据见
+  [冻结工程记录](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md)；
+  [当前任务](tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)另行记录远端/最终门禁/CI。
+  工程通过不代表部署或人工接受；原决策阶段快照与失败保留，不改D100/D154规则。
+
+### D-155 交期覆盖只投影当前登记事实
+
+- 2026-10-22，Active；D-147收敛内的只读技术切片，承接BUSINESS_RULES累计多交期比较、D043物理SO归属与D151取消产出/结束余量规则，不引入新的出货或财务口径。
+- 原生产订单详情GET在同一READ ONLY REPEATABLE READ中读取当前有效DeliveryPlan、原物理SO全部排单及一次执行映射。按日期分组累计需求，保留全部计划ID；当前登记实际产出全部可用于比较，未取消且未结束任务的正剩余量按原计划结束日加入预计供给。缺口不为负，不重复消费供给，不跨历史alias加总。
+- 名称限定为“当前登记事实的交期覆盖”。不是历史准时率、日生产事件、库存或出货；不把累计完成量按一个结束日期重建流水，也不扣减6086979观察。缺日期逐行未评估，完全没有有效日期为未评估，不回退Source日期或伪造无风险。
+- 复用已有D151数量投影、fresh读取权限及有界响应，不新增表、写接口、授权或UI；既有500排单/1000有效交期/1MiB详情上限保持，精确十进制超量明确失败。生产planVersion不冒称DeliveryPlan集合版本。
+- 证据：`server/production-scheduling/delivery-coverage.ts`、原`readOrderProductionPlans`与纯/PG/HTTP/RR交错测试；[阶段任务](tasks/active/server-delivery-coverage-2026-10-22.md)分别记录实际验收与交付。无新真实采集、绑定、激活、业务库操作、部署或人工接受。
+
+### D-154 DeliveryPlan沿用原命令并保存可核对回执
+
+- 2026-10-22，Active；D-147已批准Server收敛范围内的技术决定，不改变D-100的Source/人工所有权、系统默认0、人工正数和历史计划规则。复用原PATCH/writer/响应，0042只新增空不可变请求回执表，不回填或重建计划。
+- 可选显式UUID与旧body确定性身份共用actor-scoped ledger。首await前复制原SO与全部规范命令；同请求返回原完整结果，不新增第二行。不同请求保留集合CAS。旧客户端无随机身份或缺表时绕过路径。
+- POST原完整命令只读核对，fresh user/roles/grants与原actor/SO/intent必须匹配。历史结果不因后来Source/CAS/alias变化重判；unknown不证明失败，不自动重发。原UUID、Source归属、生产和商业事实不改。
+- 计划、可信审计、成功回执同事务。仅本writer固定409/422保留终态拒绝；连接/SQL/审计/锁超时不伪造业务拒绝。完整结果含作废历史，compact JSON和PG jsonb实际字节双上限16MiB；超限SAVEPOINT撤销业务/审计后存小拒绝，不截断历史。新SO外键纳入完整引用指纹。
+- 证据：`server/sales-orders/delivery-plan-service.ts`、`delivery-plan-request.ts`、0042及隔离域/HTTP/升级/真实锁等待/COMMIT丢回执合成测试，见[阶段任务](tasks/active/server-delivery-plan-receipts-2026-10-22.md)。这是后台工程，未新增UI、采集、来源激活、业务库迁移、部署或人工接受；完整Goal仍未完成。
+
+### D-153 成衣出货先建立不可变观察，不猜跨次事件
+
+- 2026-10-21，Active；D-147已批准工程范围内的技术决定，不改变D-152的Num/outdate业务口径。0040新增独立、默认关闭的订单来源target/快照/颜色匹配/head；纯checked-page契约只证明指定查询两遍观察一致，不把原contains首页样本升级为完整合同或已激活Source。
+- 复用可信合同、当前有效归属和稳定订单颜色。冻结实际物理来源SO、link/归属/订单版本与颜色依据；数量变化不换颜色身份，重名/改名/缺失不猜匹配。原观察和映射不被当前镜像重写。
+- id只用于捕获内重复检查；不同快照不相加，记录消失或零行不解释为取消/清零，负值不解释为冲销。Num、outdate与其他累计/日期列独立，不写生产完成、商业金额、收入或关账。
+- 采用当前actor/role锁序、profile→完整物理SO冻结、CAS/事务审计及精确原捕获回执；回执核对与新发布180秒预算分离。历史列表只读标量摘要，详情完整重建；JSONB实际容量在任何身份/快照写入前校验，超限422且全回滚。
+- 证据与范围：`server/ainuoke-source/garment-shipment-observations.ts`、`garment-shipment-store.ts`、0040、合成PG/HTTP/升级测试及[feature](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。没有新增真实读取/绑定/激活/调度/部署或用户接受；正式收集器、UI、稳定事件和撤销语义仍待分Gate验证。
+
+### D-152 成衣出货采用艾诺科逐笔数量与出运日期
+
+- 2026-10-21，Active（用户确认业务口径；尚未形成正式Server出货或来源激活）。6086979“成衣出运登记明细表”的Num“本次出库数”为逐笔成衣出货数量，outdate“出运日期”为出货业务日期。FDate单据日、indate进仓日、DeliveryDate交期分开保留，outdate缺失不以其他日期补造。
+- 本次独立授权D1933首页1登录+1报表已完成，16行/4单据/6颜色、单位均件；原文受保护，完整事实/样本限定见[核验报告](tasks/completed/2026-10-21-garment-shipment-d1933.md)。ycyNum/UsableNum继续作为独立来源观察，不代替Num或逐行相加；样本中的累计关系不提升为全表公式。
+- 本条Num只在6086979中表示本次成衣出库；不能复用6086941同名Num的采购数量口径，也不能用物料出运代替成衣出货。
+- 合同与颜色必须沿可信Source/既有身份精确核对，工厂款号contains仅用于找候选。出运单据号billno不等于销售合同BillNo，CustomerOrderNo不等于正式SO号。来源值与数量差异保留，不借此覆盖合同数量、生产完成量、订单商业版本或价格。
+- 用户仅确认出货数量/日期，不自动确认收入、付款、开票或关账，不授权新增真实查询/DB写入/绑定/激活/调度。稳定行身份、取消/冲销、完整采集与正式Server接线仍须各自工程验证。wxprice缺失或币种未知不补零/默认USD，不替代CCT或已采用工价。
+- 对D-147的补充仅限原待决出货数量/日期；加工服务产值、关账stale、已采用CNY工价处理等其他问题仍待确认。证据：用户在D1933样本核验后明确选择“采用Num和outdate”；工具2688及只读报告不等于部署/人工系统接受。
+
+### D-151 Server执行完成权限与原始产出归属
+
+- 2026-10-21，Active；用户明确回答Gate6C两个待决项：仅登记完成使用既有 `schedule.complete`；同时重排后续其他订单必须另有 `schedule.edit`。读取/领域权限仍需 `order.view` 和 `schedule.view`，提交与原请求回执均以fresh grants校验，不因本次恰无日期变化省略编辑权限。
+- 已完成数量保留原Assignment、原订单、原生产组/外发厂及颜色归属。取消剩余任务或换执行方不搬产出，剩余另建Assignment；更正为零也不解除已有执行历史的归属保护。此条替代旧Browser“给出原因即可直接换执行方并携带完成量”的新Server采用方式；Browser历史和仓库不改。
+- 完成与计划、客户需求、金额独立；原超产只提示、减量需原因、实际日期独立、已开工/固定排单不自动移动规则保持。新Server明确更正已记录日期/已结束状态须原因，不以计划或当前日期补造缺失的实际日期。联动只调整目标之后可重排项，前序继续约束队列。
+- 原纯输入/差异/数量投影与队列预览已在b891冻结/送达并三CI通过，该阶段尚无执行表/API/UI。前向切片新增0036、执行HTTP和共享事务命令，原始执行版本/归属与全部计划保护、CAS/幂等/审计/回执及引用盘点一起接线，只做一次性合成PG工程；执行页面仍待，不批准部署、真实数据或Server关账。
+- 证据：用户本轮明确选择；`server/production-scheduling/execution-contract.ts`、`execution-preview.ts`、`execution-service.ts`、`command-transaction.ts`、0036及相应纯/PG/HTTP测试。当前范围见[执行契约](features/SERVER_PRODUCTION_EXECUTION.md)与[持久化任务](tasks/active/server-convergence-gate6c-persistence-2026-10-21.md)，[原Gate6C](tasks/active/server-convergence-gate6c-2026-10-21.md)保留纯阶段历史。D-150计划历史继续保留，后台工程不冒称页面、部署或人工接受。
+- 2026-10-21后续页面切片复用原进度/结束弹窗与预览/历史，同一Server事务及actor/tab唯一pending槽；仅登记不依赖整组读取，显式联动才读队列并核实双权限。未知请求不证明写授权，已保存回执及重试继续fresh鉴权；A→B→A旧响应不得清缓存。27b合成built 28/28、六尺寸含手机四按钮/对照表头工程验收；原“页面仍待”是持久化切片当时范围，不改其冻结证据。见[执行页面契约](features/SERVER_PRODUCTION_EXECUTION_UI.md)、[新工程记录](tasks/completed/2026-10-21-production-execution-ui-engineering.md)。无新业务口径、价格/币种、真实来源/部署或人工接受批准。
+
+### D-150 Server排单计划版本与采用资源事实
+
+- 2026-10-20，Active；实施D-147的Gate6B后台，延续D-043直接 `SalesOrder → Assignment[]`。计划与客户DeliveryPlan、实际完成、金额和关账独立；不以认领、负责人或商业采用作为可信合同/加工批次计划的前置。本条初记时无新页面；2026-10-21接入原排单UI，仍没有实际执行HTTP，不宣称生产闭环。
+- 计划头、每订单集合和每组队列各自CAS；完整预览后明确提交，跨组写首版用单个事务锁串行化，保留精确版本/指纹，不能无确认重排其他订单。完整采用的组/地点/日历或外发厂事实不可变，普通编辑不追随master变化，明确重排才采用最新日历；固定及执行保护延续原规则。
+- 0035不回填旧数据/权限。逐次不可变计划版本、唯一actor/request回执及同事务OperationLog保留；SQL不允许漏中间版本、补造旧版本或删除身份。稳定颜色与商业身份共用非金额算法；有效组全部物理SO先按UUID冻结，来源子集变化服从父行锁，历史source owner不被改绑或搬移交期。
+- 新SO引用和成功回执/间接快照纳入归一完整指纹，但外部生产/财务覆盖仍unavailable；拒绝回执没有成功订单桥接，不将其冒称全量操作盘点。当前无外发裸单价或币种推断，不扩展D-147未来关账规则。
+- 2026-10-21页面接线复用同一计划服务、原布局/表单和orderRead=snapshot开关，无Browser回退。会话lease与原actor/tab命令保护下，必须明确GET得unknown后才可人工重试原编号/内容/hash，不自动POST。SAVEPOINT内明确领域404/409/422回滚后持久拒绝，客户端核验原请求回执；裸错误、SQL/审计/连接失败不清缓存。[页面契约](features/SERVER_PRODUCTION_PLANNING_UI.md)与[工程证据](tasks/completed/2026-10-21-production-planning-ui-engineering.md)区分应用源、实际测试、交付/部署与人工接受。
+- 证据：0035、`server/production-scheduling/`、`server/sales-orders/color-identities.ts`、`freezePhysicalOrderGroups`、实际PG/HTTP与升级测试；当前工程结果与未完成项见[Server排单计划](features/SERVER_PRODUCTION_PLANNING.md)、[Gate6任务](tasks/active/server-convergence-gate6-2026-10-20.md)。正式部署、真实来源/账号/业务库及旧资产退役仍未获授权。
+
+### D-149 可信订单创建报价参考与商业采用分离
+
+- 2026-10-20，Active；执行用户已批准的Server收敛Gate5窄接线，未扩展普通D-102创建、D-145报价唯一来源或加工批次规则。合同首次来源选择可进入原new页，服务端核实当前有效SO/稳定合同/保存事实，明确点击创建经销草稿；其他预设与原编号/writer/Editor复用，不按名称猜master ID。
+- 不可变创建参考通过0033同事务关联Quote、actor/request和原SO；后续Quote编辑、Source刷新、商业采用均不覆盖它。该参考不限制Quote服务其他订单，不自动创建SO/CCT或采用价格；已采用合同、完成/取消、历史重复和加工消费订单不能从此入口换绑。
+- 幂等包含上下文，原普通hash保持；首次已知业务拒绝保存rejected，未知提交缺回执不许可重POST。恢复只读、会话owner立即失效和来源二次CAS/镜像锁保护并存。引用读取不授予成本/金额权限。实现证据：creation-order-context.ts、creation-workflows.ts、0033及对应API/实际构建测试；验收以[Gate5](tasks/active/server-convergence-gate5-2026-10-20.md)为准，不提前称部署/人工接受。
+
+### D-148 Server 导航连续性与退出保护
+
+- 2026-10-20，Active；执行用户已批准的 Server 收敛 Gate3，恢复既有导航/布局，不新增菜单或开放路由。可信根边界持有唯一 AppShell，页面只注册精确路由/身份作用域的标题、返回目标和现有回调；身份等待/失败局部展示，匿名态移除受保护内容。Browser 原路径和长期存储保持。
+- `.rsc` 使用 component MIME 与 no-store，避免误作普通二进制导致整页重载。早期脚本只包装公开 History API 并保留调用方 state 语义；不修改框架内部、不依赖 Navigation API、不存业务数据。可证明历史索引先恢复再确认，取消不丢 Forward。
+- 未保存、处理中、提交结果未知均由原业务组件登记；保存/核对命令仍归领域组件，不自动重试。异步离开许可绑定挂载 owner 和可信身份，旧响应不得打断新登录。无索引历史不猜方向、不覆盖其他 entry；保留输入并明确地址可能不同，下次已确认跳转重新加载文档，原生离开保护保留。
+- 无 schema、来源范围、公式、金额权限、角色目录或创建语义变化。当前仅工程候选；部署、人工接受、来源激活分开。证据：`server/static-files.ts`、`components/foundation/server-navigation-history.ts`、`server-navigation-protection.tsx`、`app-shell.tsx`、`quote-server-boundary.tsx` 及实际 Chromium 导航测试；完整结果见[Gate3](tasks/active/server-convergence-gate3-2026-10-20.md)。
+
+### D-147 Server 收敛、空数据目标与关账币种
+
+- 日期：2026-10-20；状态：Active（用户批准的目标与执行边界；本 Gate 只有文档，尚未实现 Server 关账）。D-146 已由未合并 #121-123 使用，本项不替代角色管理决定。
+- 用户批准全项目收敛计划，并确认目前没有业务数据需要迁移。延续 D-096：新目标从空业务库建立，不导入旧 Browser、Legacy、演示报价/订单、账号或来源样本。无需迁移不等于授权清空、删除或证明旧库没有记录；3001 必须保留，50426 为待核实持久化目标。
+- 新 Server 关账目标：成衣销售产值币种为 CNY，工价为 USD；金额与币种共同保存、分别展示汇总，不直接相加、不新增自动换汇。不是把现有 Quote/PV/CCT、采购来源或历史快照批量改成 USD，也不修改既有报价公式。
+- Gate 1 改为准备全新持久化空环境，不搬历史业务数据。旧体验数据原地保留；已有入口替换、删除资产、合并 PR、正式部署、真实账号或新艾诺科采集/绑定/激活/调度仍需具体授权。
+- 成衣出货定义、加工服务产值是否计入成衣销售产值、完成变化引起的关账 stale 仍待确认；币种决定不批准税率、确认时点、收付款或利润规则。现有 color-commercial.ts 允许 CNY/USD 工价，Gate 8 前须明确已采用 CNY 工价的处理方式，不得只改币种标签或套用默认 USD。D-042 的 Browser 历史保持；未来 Server 不能把原币混合总数标成 RMB。
+- 2026-10-21部分确认：出货逐笔数量Num/业务日期outdate由D-152明确，原句保留2026-10-20待决时点。行身份/取消冲销/正式接线尚未验证；其他关账口径仍待确认，不因此授权真实激活或关账。
+- 依据：用户 2026-10-20 明确批准；[Gate 0 资产/能力账本](tasks/active/server-convergence-gate0-2026-10-20.md)。代码事实：closing-service.ts 新记录 legacyFxRateApplied=false、原币与 RMB 命名汇总并存，closing-repository.ts 仍为 Browser owner；本阶段未改变代码。
+
+### D-146 可配置角色与独立用户管理
+
+- 2026-10-19，Active；用户批准[系统设置管理方案](tasks/active/system-settings-administration-2026-10-19.md)，替代D-104的固定预设、组合角色分配及旧管理布局限制；保留可信session、金额独立授权、审计和历史保护。
+- 服务器管理员是唯一可管理角色/用户的受保护角色。其他预设与自定义角色可编辑/归档；库中授权为准，启动、读取和用户编辑不得覆盖。保存角色权限撤销使用者会话。管理权限不能授予自定义角色。
+- 新建/明确改角色只选择一个；旧多角色不隐式清理。删除用户为可恢复归档，保留账号和业务引用；恢复停用，确认有效角色并重置密码后启用。不能自锁，至少一名启用管理员。
+- 密码至少6个Unicode字符，不限组合，不trim，bcrypt72字节上限。既有密码/限流不变。
+- 导航与角色页为Phase1；用户页和日志按独立后续阶段交付。三阶段均只隔离验收，尚未合并或生产部署。
+- 证据：server/auth/managed-roles.ts、admin-guard.ts、0031_managed_roles.sql、server/integration/managed-roles.integration.test.ts。
+
+
 ### D-145 报价确认权威与订单实际成交价独立
 
 - 2026-10-17，Active，用户批准[完整实施范围](tasks/active/quote-order-price-coordination-2026-10-17.md)。新业务只保留报价来源；合同类可信合同与加工批次身份保持。后续来源弹窗/颜色映射/报价中心议价取代D144对应交互，历史不删除。
 - 报价确认权威由CCT是否存在决定：存在时空值也不回退；不存在时使用可证明的保存PV确认。SO使用关系不抹除确认事实。解析器供列表/汇总、导出和商业采用复用；详情无CCT时仍走PV确认命令，已有CCT拒绝第二写入源。
-- 订单价格仅来自独立不可变商业版本。用户批准的下一阶段在报价中心对指定订单追加成交价版本；不修改共享CCT、不新增PriceVersion、不换汇/重算成本，加工仅工价。Phase1确认解析器、Phase2稳定颜色/逐色商业版本及报价唯一来源、Phase3统一订单议价及只读历史已实现；Phase4加工同步推送、纯工价投影/导出与左侧选择模式已实现；仅本地工程验收，未合并部署或人工业务接受。
+- 订单价格仅来自独立不可变商业版本。在报价中心对指定订单追加成交价版本；不修改共享CCT、不新增PriceVersion、不换汇/重算成本，加工仅工价。Phase1确认解析器、Phase2稳定颜色/逐色商业版本及报价唯一来源、Phase3统一订单议价及只读历史已实现；Phase4加工同步推送、纯工价投影/导出与左侧选择模式已实现；已随 PR119 合并至 main；部署、真实激活及人工业务接受仍须独立证据。
 - 代码：server/confirmed-commercial-terms/confirmation-source.ts；server/quotes/business-source.ts、customer-export.ts、service.ts；commercial-source.ts。只用一次性合成库，无真实迁移、采集、合并或部署。
 
 
 ### D-144 无负责人订单与合同后业务来源维护
 
 - 日期：2026-10-17；状态：Partially Superseded by D-145（独立翻单入口与来源侧栏已替换，其他保护保留）。明确用户要求替代D121认领/转交、合同前准备与独立首单血统操作；D129/D130准备采用流程退役。合同类仍先可信艾诺科接纳，加工批次独立入口经用户再次确认保留。
-- 正式订单无负责人。业务来源只有来自报价或来自翻单；首次和产品/工艺/价格变化使用确认报价，完全沿用历史已确认条件才是翻单。顶部维护来源侧栏替代大卡片；加工导入/推送改紧凑标题操作，取消归一/复核UI及公开写操作，历史数据不删除。
+- 历史 D-144 原文（下述翻单、侧栏及价格变化必须重报已由 D-145 替代）：正式订单无负责人。业务来源只有来自报价或来自翻单；首次和产品/工艺/价格变化使用确认报价，完全沿用历史已确认条件才是翻单。顶部维护来源侧栏替代大卡片；加工导入/推送改紧凑标题操作，取消归一/复核UI及公开写操作，历史数据不删除。
 - 0027追加不可变产品条件快照，与既有订单商业版本同事务；翻单保存原单/原版本并精确复制规格、工艺及价格。旧商业历史无产品证据不自动回填，报价后改不覆盖已采用订单。确认价格、金额权限、并发CAS、幂等、冻结和创建身份保护继续。
 - 代码：business-source-service.ts、product-snapshot.ts、0027、OrderBusinessSourceButton及对应集成测试。旧内部历史服务与权限key仅兼容历史，不开放旧HTTP写入；新API按操作权限，不按负责人控制。
 - [用户批准范围](tasks/active/order-business-source-approved-scope-2026-10-17.md)与[功能说明](features/ORDER_BUSINESS_SOURCE.md)。仅合成/新隔离候选验证，不自动合并、部署、真实账号/业务库迁移或新的来源采集。
@@ -173,7 +300,9 @@
 
 ### D-128 Gate4 发布复核方案、当前权限与相关血统指纹
 
-- 日期2026-10-15；Active，落实D121已批准独立复核/历史保护，不改变正式创建路径、数量、货币或实际操作授权。
+- 2026-10-19 状态：Partially Superseded by D-144。岗位复核公开写入口退役；既有证明、历史读取、权限与覆盖证据保护保留，下文不是重新开放入口的依据。
+
+- 日期2026-10-15；原批准范围：落实D121已批准独立复核/历史保护，不改变正式创建路径、数量、货币或实际操作授权。
 - 复用0019不可变proof，管理员内容键幂等发布并事务审计；可信生产/财务岗位读取待办、精确方案/当前签名状态及历史分页。默认未配置真实Adapter/permit，发布和状态查询不授权执行。
 - 全库身份/血统hash会错误使无关新SO触发全员重签，改为拟root可达引用链、缺失叶边及相关身份epoch；相关变化/循环与所有目标完整引用/外部冻结数据仍守卫。原hash/proof不改，新指纹须新复核。
 - Fresh role/order.view/授权tuple保护；财务复核说明沿用金额字段权限，作者身份不绕过撤权。NaN不能绕过冻结来源或一小时许可。旧成功发布可回历史receipt，失效状态独立校验。
@@ -199,7 +328,9 @@
 
 ### D-125 Gate4 有效归属与普通SQL写入保护
 
-- 日期2026-10-15；Active，落实已批准D-121归一/历史保护计划，不扩大真实操作授权。
+- 2026-10-19 状态：Partially Superseded by D-144。归一不再是公开业务操作；有效归属解析、SQL 防绕过、不可变身份/流水保护继续保留，不执行真实归一。
+
+- 日期2026-10-15；原批准范围：落实已批准D-121归一/历史保护计划，不扩大真实操作授权。
 - 0018保留原UUID/绑定/流水，0019完整有界证据及独立复核，默认执行关闭；0020在已声明Server表增加普通DML防绕过。来源事实仍写不可变原owner，当前快照按有效根和精确generation发布；不搬移或加总旧计划/价格/流水。
 - 新订单商业/执行不能写历史别名；参考记录可以保留历史身份。加工批次身份不能与合同归一，后补可信绑定也必须维护合同唯一。过期RR快照用事务write epoch阻断，数据库约束不能证明所有旧镜像功能兼容。
 - Source证据不可改删，旧null scope/epoch历史保留，新发布不冒称旧快照当前。此条记录时点运行态关闭策略仍待，后续本地实现见D126；历史Source/UI、真实外部覆盖、恢复演练及具体授权仍待，整个Gate4不提前标完成。
@@ -207,7 +338,9 @@
 
 ### D-124 Gate4 历史订单复核案件与覆盖证据
 
-- 日期2026-10-14；Active，落实D121批准计划的预览/案件阶段，不扩大真实操作授权。
+- 2026-10-19 状态：Partially Superseded by D-144。公开归一案件/复核写入口退役；未知外部流水不推断无流水、原历史保留和内部防护继续，下文交互仅作历史。
+
+- 日期2026-10-14；原批准范围：落实D121批准计划的预览/案件阶段，不扩大真实操作授权。
 - 来源观察、交付计划和商业版本不等于生产执行；无法覆盖Browser/外部生产或财务时维持unknown，禁止以Server无行推导“无流水”。有限引用摘要不是归一执行令牌。
 - 规范化SO对唯一案件、不可改写事件、fresh受信管理员权限、请求幂等/CAS和事务审计；撤回/重开保留历史，不改订单有效归属、创建身份或执行记录。
 - 复用现有订单中心Foundation管理员弹窗；保存结果不确定保留原请求，证据变化要求重新预览。不新增生产route或实际归一按钮。
@@ -360,7 +493,7 @@
 
 ### D-104 宁波首批六角色与可信账号管理
 
-- 日期：2026-10-12；状态：Active。来源：用户批准“先用合成账号完成六角色测试…保持现有UI…不修改真实账号、数据库或部署…不自动合并”。真实账号以后用户自行创建。
+- 日期：2026-10-12；状态：Partially Superseded by D-146（固定预设及旧管理交互限制）。来源：用户批准“先用合成账号完成六角色测试…保持现有UI…不修改真实账号、数据库或部署…不自动合并”。真实账号以后用户自行创建。
 - 六角色：系统管理员、管理者、报价经理、物控经理、生产经理、财务经理。登录团队可见已授权采集的艾诺科订单/物料/来源采购价；织序金额沿用D-103独立保护。首轮来源使用用户本人账号，覆盖全部合同是用户陈述，未实测；不保存真实凭据。
 - 接受建议后的矩阵：管理者/财务只读金额+导出审计；报价经理报价/金额/主资料；物控无织序金额；生产只有工价查看，不授成本/售价。精确keys见server/auth/team-roles.ts。未接Source/Order/Production/Closing不因权限键存在而上线。
 - 复用session/RBAC/表/审计/密码基础；设置页/API只允许可信授权管理。缺失预设由显式写入安装，已有差异fail closed，不自动提权旧账号。CAS、自锁/最后管理员保护、修改撤销会话，无匿名注册或硬删除。
@@ -370,7 +503,9 @@
 
 ### D-103 Server 商业金额的独立查看与修改授权
 
-- 日期：2026-10-11；状态：Active；来源：用户 PR93 Gate2 正式批准。细化 D-084/D-087 的共享当前商业条款权限，不改变其唯一事实、精确金额、历史或币种所有权。
+- 2026-10-19 状态：Active（金额字段授权）；订单共享 current 语义由 D-122/D-145 替代，D-104 已补角色管理，D-145 已补逐色价格与加工仅工价。下文旧阶段范围不限制已批准的新实现。
+
+- 日期：2026-10-11；来源：用户 PR93 Gate2 正式批准。金额授权、精确金额、历史与币种保护继续。
 - 新增 `commercial.sale.view/edit`、`commercial.labor.view/edit`。正式 Server 管理员默认拥有四键，其他角色默认不增加；不能从 quote.cost、quote.confirm、order.edit 或客户端角色名称推导。既有可信 `role-server-admin` 由目录同步幂等补授；新管理员复用 bootstrap。未绑定可信管理员角色的旧账号不会按名称自动提权。
 - 修改某类商业金额同时需要其 view+edit 及原领域动作权限。CCT PATCH 按实际提交字段授权，未提交字段由事务锁定的当前行保留；显式 null 为合法清空，零为有效值。Quote 端仍检查已保存来源资格、Quote CAS、CCT CAS；linked 工价币种仍由 PV 所有，不能通过空值绕过币种保护。
 - GET/PATCH 返回 `commercial-terms-read.v1` 的 sale/labor allowed 或 restricted；无权不返回 value、不伪造 null/0。Quote 历史确认字段、列表、客户文件、内部汇总和日志同样投影/授权，数据库历史与审计不改写。Quote 内部成本仍是 quote.cost.view/edit；物料采购执行价格不纳入商业金额授权。
@@ -552,8 +687,10 @@
 
 ### D-087 ConfirmedCommercialTerms uses a shared Quote-provenance context with explicit SalesOrder associations
 
+- 2026-10-19 状态：Partially Superseded by D-122 / D-145。保留 CCT 报价确认域、精确 provenance、CAS、币种与审计；所有 SO 共享读写 current row、order-owned writer、订单端改工价不再适用。订单只读独立采用版本，下文保留原实现历史。
+
+- 原状态（2026-09-14，已部分替代）：Active（implementation complete in PR；real migration not authorized）
 - 日期：2026-09-14
-- 状态：Active（implementation complete in PR；real migration not authorized）
 - 决定：`ConfirmedCommercialTerms` 使用独立 PostgreSQL UUID identity。完整 `quoteId + revisionId + priceVersionId` 是可选的精确 provenance，并在 terms context 上唯一；一个该 context 可关联一张或多张 formal SalesOrder，所有关联订单因此读取/修改同一个 current row。没有 Quote provenance 的 SalesOrder 使用一对一的 order-owned context，绝不填充伪造 Quote 字段。
 - 金额：客户确认价格是 CNY/件；确认工价使用 PostgreSQL `NUMERIC` 并携带 `CNY|USD` qualifier。API 以 decimal string 传输，不引入浮点或新舍入规则；`NULL` 与 `0` 严格不同。
 - 币种所有权：linked context 的工价币种由 exact Quote PriceVersion 建立和变更。Order surface 只能保留该 qualifier；双向变更或未建立时由 Order 发明币种均返回 409，且不产生 terms/OperationLog。unlinked order-owned context 仍允许 Order 明确选择 `CNY|USD`。
@@ -563,8 +700,10 @@
 
 ### D-084 Linked Quote and SalesOrder share only current confirmed commercial terms
 
+- 2026-10-19 状态：Partially Superseded by D-122 / D-145。订单共享当前金额及两端编辑已替代；报价确认的单一权威、精确金额、可信审计、历史不回写仍保留。下文决定为原时点记录。
+
+- 原状态（2026-09-14，已部分替代）：Active；确认 C4.0 审计 C4-D10，取代“Quote 与 Order 的当前客户确认价格和确认工价各自独立维护”的旧 AI 建议。C4.2 implementation 由 D-087 落地，真实 activation 尚未授权。
 - 日期：2026-09-14
-- 状态：Active；确认 C4.0 审计 C4-D10，取代“Quote 与 Order 的当前客户确认价格和确认工价各自独立维护”的旧 AI 建议。C4.2 implementation 由 D-087 落地，真实 activation 尚未授权。
 - 决定：在同一业务流中已稳定关联的 Quote 与 SalesOrder，“客户确认价格”和“确认工价”分别是一个共享的当前业务事实，不得在 Quote 与 Order 各保存一份可独立漂移的当前值。Quote Center 与 Order Detail 都可编辑这两项共享当前值，任一表面的修改都必须在另一表面读到同一结果。概念上可称为 `ConfirmedCommercialTerms`，本 docs-only 决策不锁定 SQL 表名或 API 名称。
 - 审计/历史：每次修改必须通过可信身份记录 actor、timestamp、old value 和 new value，遵守 server OperationLog 原则。Quote Revision / PriceVersion 历史快照仍为 immutable historical facts，共享当前值变化不回写历史快照。
 - 边界：不对 Quote PriceVersion 与 Order PriceVersion 做全量 live-link。面辅料成本、margin、汇率、加工假设、Quote 制作国家及其他 PriceVersion 事实仍相互独立。未关联 Quote 的 SalesOrder 不得伪造 Quote 关系。

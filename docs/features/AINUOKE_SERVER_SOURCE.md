@@ -1,3 +1,13 @@
+2026-10-21 Gate7A前向工程：新增[Server成衣出货观察](SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)，内部完整两遍checked-page快照、可信订单/稳定颜色冻结、CAS/审计/原回执及DB-only当前/历史GET；0040默认空且独立关闭，不将下方contains首页样本冒充精确完整合同。真实过滤/正式收集器、UI、跨次行身份及取消冲销仍待验证，没有新增真实请求/激活或关账。下段保留真实核验当时的完成范围。
+
+2026-10-21后续真实证据与D-152：固定D1933工具2688经合成验收/复审/精确守卫后，用户另批一次首页读取，实际1登录+1报表成功，16/16行、1合同/4单据/6颜色、单位件、Num逐行合计9869.00。用户随后明确采用Num/outdate作为出货逐笔数量/业务日期；FDate/indate/交期独立，不自动关账/收入或回写生产完成。累计列只保留独立观察，样本关系不推广全表。完整hash/时点/差异/未验证项见[D1933报告](../tasks/completed/2026-10-21-garment-shipment-d1933.md)。许可已用完，无翻页/重试/DB/绑定/激活；正式收集器/API/UI、跨次行身份与可信合同颜色关联仍待工程。
+
+2026-10-21D1933准备时点：只校准原工具的固定款号/动作，旧D1935动作与上下文拒绝；原预算及所有保护不变。当时只有离线验证，随后一次真实结果见上段。旧e8f工具与D1935零行证据保留，不覆盖原报告。
+
+2026-10-21新增真实证据：工具e8f已通过合成验收/复审和精确main守卫，用户随后另批固定D1935首页一次读取。实际1登录+1报表成功，6086979名为“成衣出运登记明细表”、38列定义，但total0/rows0；该许可已用完，未重试/翻页/DB/绑定/激活。原文仅存本机受保护ignored报告，完整字段表/hash/时点/未知见[一次真实核验](../tasks/completed/2026-10-21-garment-shipment-first-page.md)。只有元信息，Num/outdate/ExpContractNo仍是候选，未证明数量/日期/合同/单位/行身份或关账口径；不默认wxprice币种，不因onlyMyUser标志推断零行原因或扩大查询。
+
+2026-10-21工程准备时点：用户提供6086979、insideorderno contains D1935首页载荷作为成衣出货来源线索。新增专用Node/Python/私密PowerShell诊断，复用原客户端、有界Transport和私密写入；固定1登录+1报表、100行/4MiB/120秒，0重试/翻页/DB/绑定/激活，不注册Report Catalog或持续Source。当时只有合成验收，新增真实范围尚待确认；后续一次实际结果见上段。细节及实际测试见[Gate7任务](../tasks/active/server-convergence-gate7-source-probe-2026-10-21.md)。下方旧日期/hash/结果/限制不改。
+
 2026-10-16执行后更新：用户另批新两合同隔离空库方案及一次首绑补读，已通过原D143/D142落地2 SO、2物料/2财务快照，7合成角色读回39项物料与21行申请。仅新本机只读演示、无调度，原10分钟时效不变；物料历史过期后可读，财务历史ERP入口仍缺。见[执行报告](../tasks/completed/2026-10-16-selected-demo-execution.md)及[冻结证据](../tasks/completed/evidence/2026-10-16-selected-demo-execution.json)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5、PR116草稿未合并；不是生产/全量Source激活。下文旧日期/SHA与“未授权/0操作”保留历史含义。
 
 2026-10-16 D143新增内部两合同一次采集预算：selected-bindings/selected-materials复用原可信Discovery与映射；1登录80报表81HTTP180秒、0网络重试/认证续期，逐行合同身份/完整分页/时效重新校验。13项Node/实际Python/一次性PG及全Python131通过，转义秘密值保护经双红测复现后修复，最终源码71b；root898/基线94通过；没有新CLI/HTTP/scheduler或真实写入授权。详情见[活动任务](../tasks/active/ainuoke-selected-source-once.md)。PR115精确db4236cf三CI全绿/复审、仍草稿未合并。旧真实两合同许可已用完，不重复采集。
@@ -21,6 +31,17 @@
 0025仅一次性合成库演练。真实来源过滤、目标SO清单、备份/回退和迁移/写入/激活仍须各自明确授权；默认读取开关关闭、关闭目标可停止新读取/发布，已存身份和观察历史保留，不承诺旧镜像直接兼容新schema。
 
 # 艾诺科 Server Source：正式订单与持续物料展示
+
+## 2026-10-22：已有合同的明确离线刷新
+
+新增既有SO来源刷新编排，复用正式Discovery/6087105映射及原合同/颜色/DeliveryPlan
+写入。私密离线工具先预览精确目标与差异，再按原requestId明确提交/查回执；不读取凭据、
+不发起Source请求，也不改变原物料采集/调度动作。0041仅建空回执表，未升级现有环境。
+缺失或无效颜色拒绝替换，保留旧来源；人工交期、商业与生产历史不被覆盖。历史来源
+只写原owner，不搬绑定/流水/计划。完整行为与边界见
+[订单持久化](SALES_ORDER_PERSISTENCE.md#controlled-bound-contract-refresh-2026-10-22-engineering-slice)
+及[本阶段](../tasks/active/server-convergence-bound-source-refresh-2026-10-22.md)。
+这是工程候选，不是持续合同自动刷新、真实采集或部署完成。下方历史日期状态仍按原时点阅读。
 
 ## 当前恢复摘要（2026-10-15）
 

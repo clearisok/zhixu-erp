@@ -1,5 +1,13 @@
 # Ainuoke 6087105 Garment Color / Size Source
 
+## 2026-10-20 保存证据的 Server 只读投影（工程候选）
+
+`server/sales-orders/source-evidence.ts` 校验保存的6087105报表、精确规范化合同号、pending/sourceQuantity、槽位与字段类型后输出白名单；不是第二套采集/矩阵算法。详情 `sizeEvidence` 为available/not_recorded/invalid/not_applicable，后者用于加工；可用证据保留原rule、slot顺序、重复尺码名称、null数量及已记录matrixStatus。结构异常与业务矩阵不平/溢出分别表达，不反写数量或商业颜色身份。旧缺证据不补0或false；保存总量与当前颜色数量变化不符时标记quantity_changed。
+
+颜色为空时 `colorSource` 保留已记录的usable/missing/invalid或当时未记录；仅输出摘要，不输出原始行、hash、credentials或价格。保存来源批次时间为Discovery与颜色批次时间的最大值，不是逐色最后采集时间，不套物料TTL或伪造fresh/expiresAt。读取预算为rule16384字符、1024槽位与单名称1024字符，超界明确evidence_too_large；不截断来源、不限制今后采集规则，也不删除颜色。正常规则超过26槽的null溢出证据仍保留。
+
+范围、测试和未交付状态见[Server收敛Gate4](../tasks/active/server-convergence-gate4-2026-10-20.md)。本增量不刷新真实来源、不迁移数据，也不改变D-116/117或原hash算法。
+
 ## 2026-10-14 后续用户修订（D-117，当前工程规则）
 具名且总量/所有尺码数量均空的颜色投影为0，保留sourceQuantity:null与quantityPendingConfirmation:true；对应PENDING_COLOR_QUANTITY_ZERO不阻断颜色可用。原始null与明确0在hash、metadata和订单提醒中可区分。负数/非法值/总量空但尺码已有值不转换。下文D-116“具名数量null”的旧规则由此替代；无名纯空占位规则保持。六份旧异常报告离线重放已全部usable，保留九条待定0颜色并排除六条纯空占位；不是实时采集或真实激活。
 
@@ -147,3 +155,15 @@ No fieldName/compareType was guessed, and 6087050 was not business-read in this 
 No PostgreSQL schema/table/identity model changed. Existing `sales_orders` UUID and immutable `sales_order_source_links` remain authoritative. Browser Order Center still uses the Browser Repository.
 
 The Phase 2B2.3 fresh Preview is complete: 511 BillNo queries yielded 505 usable, 0 missing and 6 invalid candidates; all 511 aggregates passed the disposable PostgreSQL service path. A real bootstrap still requires separate explicit authorization. Browser cutover remains a separate later Gate.
+## 2026-10-20 Gate4B saved size display candidate
+
+The formal detail now has a default-closed saved color-size disclosure in the
+existing note position. It consumes only the4A allowlisted DTO, with no upstream
+read or write. Slot order/gaps/repeated labels, null, pending quantity and0 remain
+separate; recorded business matrix anomalies are explained without summing or
+repairing quantities. Small decimal values are not rounded to0 for display.
+The saved batch timestamp is explicitly not a per-color fetch or freshness proof.
+Processing orders have no invented Ainuoke size data. This does not change the
+source adapter, identity, evidence limits or approval of any live source scope.
+Actual browser acceptance and candidate source are tracked in the Gate4 task;
+no new runtime or human-accepted status is implied.

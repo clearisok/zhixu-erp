@@ -2,6 +2,33 @@
 
 # PostgreSQL Server Persistence Foundation
 
+## Current candidate persistence rehearsal (2026-10-22 engineering)
+
+The exact cleanf4692eea Server image initializes40 migrations and passed the
+existing owned-project persistence/independent recovery rehearsal8/8, including
+formal synthetic Quote/PNG readback and fail-closed restore/TLS checks. A test-only
+cleanup guard now excludes refused/unprepared projects; production operations,
+application and schema are unchanged. Applicable ops contracts passed22/22.
+This does not upgrade62426/50426 or prove every domain's nonempty historical
+recovery. Old targets, accounts and data remain protected; no real Source read,
+activation, deployment or user acceptance occurred. Exact image, checks and one
+unavailable historical-image fixture are separated in the
+[frozen report](../tasks/completed/2026-10-22-current-server-persistence-engineering.md).
+
+## Server navigation continuity (D-148, 2026-10-20 engineering)
+
+The Node static handler now serves compiled `.rsc` as
+`text/x-component; charset=utf-8` with no-store. The trusted UI boundary preserves
+one frame while route content/identity loads or fails, never a previous user's
+content. Active Quote list/detail 401s invalidate the Server session, with no
+Browser fallback. UI departure guards share existing feature dirty/receipt states
+and owner/identity-scoped permits; they do not create or retry business writes.
+No schema, permission catalog, route allowlist, data ownership or runtime activation
+changes. Actual temporary-DB/Chromium acceptance, exact builds and separate CI
+status are recorded in [Gate3](../tasks/active/server-convergence-gate3-2026-10-20.md).
+The persistent 62426 target remains the earlier Gate1 image until a separate
+candidate upgrade; old deployments below retain their own historical status.
+
 ## PR #91 / D-102 immediate creation defaults（2026-10-10 engineering only）
 
 0011 adds nullable type/country to existing quote_global_settings, no backfill and no changes to0001–0010. `creation-defaults {clientRequestId}` uses the original trusted Quote writer, receipt/actor-bound idempotency, allocator, two guarded transactions (technical registration then atomic Quote/receipt/audit commit) and active/state/version revalidation. Empty numbered drafts are kept; unknown results use original receipt GET, not an automatic second POST. Existing POST{} remains compatible. Global settings/presets still use Bundle CAS/audit; omitted new fields do not clear stored values. Type changes through aggregate PUT fail closed pending a dedicated workflow. Normal startup remains verify-only.

@@ -25,7 +25,7 @@ export async function runSecondAcceptance({t,pool,requests,navigate,hasText,labe
   };
   const choose=async(id,scope='默认制作方案')=>evaluate(`document.querySelector('[role="radiogroup"][aria-label="'+${JSON.stringify(scope)}+'"] [data-scheme-id="'+${JSON.stringify(id)}+'"]').click()`);
   // Ordinary reruns must not overwrite the frozen, approved historical baseline.
-  const folder=resolve('outputs/quote-pr91-second-acceptance');await mkdir(folder,{recursive:true});
+  const folder=resolve('outputs/quote-pr91-second-acceptance',String(Date.now()));await mkdir(folder,{recursive:true});
   const metrics=[];
   const capture=async(name)=>{const{data}=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:false},sessionId);await writeFile(join(folder,name+'.png'),Buffer.from(data,'base64'));};
   const viewport=async(width)=>{

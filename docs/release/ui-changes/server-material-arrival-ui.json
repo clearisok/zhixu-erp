@@ -1,0 +1,25 @@
+{
+  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
+  "level": "V1",
+  "paths": [
+    "features/production-scheduling/service/material-logistics-service.ts",
+    "features/style-progress/components/material-control-tower-read-only.tsx",
+    "features/style-progress/components/style-progress-server-page.tsx",
+    "features/style-progress/components/server-material-arrivals.tsx",
+    "features/style-progress/model/server-arrival-logistics.ts",
+    "features/style-progress/server/material-arrivals-client.ts",
+    "features/style-progress/server/material-arrivals-pending.ts",
+    "features/style-progress/server/use-material-arrivals.ts",
+    "features/style-progress/server/material-arrival-draft.ts",
+    "features/ainuoke-material-progress/order-material-summary.tsx"
+  ],
+  "pages": [
+    "material"
+  ],
+  "visibleDifference": "Restore the approved original material-card, per-batch arrival Modal and history Drawer on Server authority using the existing Foundation and planner classes. The old Source-only Server page lacked manual batches and per-batch logistics. The new surface uses the single 0039 owner, exact decimal strings, explicit Hub facts, original slowest-feasible calculator and explicit preview/save/receipt recovery. History remains accessible when Source fails. Add no navigation, global CSS, new density, formula, Browser business storage, schedule or commercial mutation. A types-only narrowing in the existing calculator permits a safe Server input projection without changing its runtime algorithm. Exact14a production-build browser evidence is now frozen in the final engineering report; no user acceptance or deployment is implied. Existing Source completion now triggers only the local arrival GET; stale open-draft advice pauses until explicit reread, while inputs remain unchanged. No additional timer or real Source capture.",
+  "evidence": [
+    "docs/tasks/active/server-convergence-gate6d-material-arrival-ui-2026-10-21.md",
+    "docs/features/SERVER_MATERIAL_ARRIVALS.md",
+    "docs/tasks/completed/2026-10-21-material-arrivals-ui-engineering.md"
+  ]
+}

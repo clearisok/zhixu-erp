@@ -1,5 +1,28 @@
 # PostgreSQL migrations
 
+0041 adds an empty, immutable successful bound-contract refresh receipt keyed by
+actor/request UUID. It stores original and effective SO references, exact command
+and preview hashes and a bounded result, without raw Source data or prices. It does
+not backfill, activate Source, create orders, grant permissions or migrate an
+existing environment. The offline operator is verify-only for schema; source
+promotion and trusted audit share one explicit transaction. Normalization includes
+both SO references and complete row bytes. Real upgrades remain separately gated.
+
+0034 adds empty production calendars, date exceptions, sites, groups and outsource
+factories plus immutable actor/request outcomes. Stable resource identity,
+forward versions and disable-instead-of-delete guards do not import Browser
+defaults, create schedules, grant permissions or touch commercial data. Relations
+are explicit calendar -> site -> group. The command service validates current
+availability and authorization transactionally; SQL foreign keys retain history.
+Only disposable synthetic databases have been authorized for this stage. Normal
+startup is still verify-only; existing targets have not been upgraded.
+
+0033 adds an immutable, nonmonetary Quote creation reference to a proven order
+context. It is separate from Quote revision data and commercial adoption, shares
+the existing actor/request receipt identity, and performs no backfill, grants,
+SO creation or price adoption. Only disposable databases are authorized here;
+normal startup remains verify-only and real activation is separately gated.
+
 0025 adds independent, per-SO opt-in payment-request observation targets,
 immutable snapshots and monotonic/CAS heads. It inserts no target, snapshot,
 account or grant. Existing material Source enablement does not enable financial
@@ -50,3 +73,35 @@ normalization; old proof hashes are not rewritten. Synthetic PG validation only;
 real activation and old binary compatibility remain separately gated.
 
 0028_order_color_commercial_versions.sql：D145商业版本颜色明细扩展，保留0015/0016/0027；旧记录不回填。只在一次性合成数据库演练，真实迁移须另行授权。
+
+0035_production_schedule_plans.sql：D147新目标的计划层，不是完成量或关账。
+直接引用有效SalesOrder及既有稳定颜色身份；独立订单/队列CAS、不可变资源事实、
+逐次计划版本、actor/request回执及成功命令订单桥接。来源/颜色/交期子集服从物理
+父订单冻结，来源持有单与当前有效单仍保留各自历史。没有新权限、默认资料、
+价格、币种、实际执行、交期回写或旧数据导入；未知人工日期的工作日计数保持null。
+应用正常启动仍只验证迁移；当前只授权一次性合成数据库，不能据文件存在激活旧库。
+
+0036_production_execution_facts.sql：D151的独立实际执行头与逐次不可变版本。引用原物理SO、
+Assignment及当时计划版本/资源归属；不改0035计划状态，不回填完成量、授予权限或计算金额。
+已有执行后执行方、颜色及采用资源不可搬移，更正为零也不解锁；取消计划保留产出。
+逐事件精确历史、明确更正原因和有效归属保护与原命令回执共用。仅一次性合成PG验收；
+独立技术epoch只为既有计划初始化0，后续执行推进，阻止旧RR快照漏看首次执行；不补造产出。
+正常启动仍verify-only，不因代码、CI或文件存在升级当前体验或真实库。
+
+0037_production_logistics_resources.sql：Gate6D物流资料空表，集货仓、路线与子方式共用
+原production-resources事务/审计/不可变回执，原四资源payload哈希不变。父版本与完整成员
+校验支持原子新增/停用/重排，方式UUID不跨路线搬移/删除；同Hub/Site最多一条启用路线，
+停用历史保留。没有默认仓、路线、方式、账号、权限、订单或执行记录；仅扩原命令kind约束。
+0036非空合成副本升级已证明原public业务表（含排单/实际产出/权限/审计/回执）字节不变。
+只授权自己的随机一次性PG验收，正常启动仍verify-only；不因此升级旧目标或开放持续来源。
+
+0038_production_order_tracking.sql：物理SO明确集货仓/备注、独立CAS及逐次不可变历史，原生产命令回执共用。
+0039_material_arrival_plans.sql：独立Server人工到仓批次/Allocation owner，长期需求UUID与各代Source证据分离，
+按物理SO/Canonical组保存手工分批、当时Hub/跟进版本与精确需求容量；actor/request回执及原OperationLog审计。
+不复制来源数量成为订单权威，不将Source交期转到仓，不补齐未安排数量、不绑定四流、不换单位、不seed或回填。
+旧迁移保持；只在一次性合成PG演练0038非空Source/跟进/回执升级，现有目标和正式数据库未执行。
+
+0040_garment_shipment_observations.sql：D152 Num/outdate 的内部成衣观察owner，默认空/独立关闭target、
+不可变原输入/精确上下文/颜色依据及逐代head；颜色匹配使用订单复合FK，不移历史来源或执行记录。
+不是出货事件账、真实Source激活、完成或关账。0039非空合成库升级逐行保护所有原public表；
+只授权新建的一次性PG验收，不对现有目标执行schema更新或回填。

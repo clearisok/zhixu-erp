@@ -8,6 +8,7 @@ import {tmpdir} from 'node:os';
 import {join,resolve,relative,isAbsolute} from 'node:path';
 import {startContinuousFixture} from './ainuoke-continuous-fixture.ts';
 const pause=ms=>new Promise(done=>setTimeout(done,ms));
+const eventTriggerSelector='.sp-material-card-actions button[aria-label^="查看 "][aria-label$=" 事件"]';
 async function until(read,label,timeout=20000){const end=Date.now()+timeout;while(Date.now()<end){try{if(await read())return;}catch(e){if(!/Execution context was destroyed|Cannot find context|Inspected target navigated/.test(String(e)))throw e;}await pause(75);}throw Error(label+' timed out');}
 test('contract payment observations use the existing drawer without false material matching',{timeout:240000},async t=>{
   const info=JSON.parse(readFileSync('dist/client/build-info.json','utf8'));assert.equal(info.quoteAuthority,'server');assert.equal(info.orderRead,'snapshot');assert.match(info.gitCommit,/^[a-f0-9]{40}$/u);
@@ -31,7 +32,12 @@ test('contract payment observations use the existing drawer without false materi
     const login=async user=>{const cookie=await x.login(user),split=cookie.indexOf('=');await command('Network.setCookie',{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:'127.0.0.1',path:'/',httpOnly:true});};
     const route='/order-center/style-progress/detail?orderId='+x.orderId;
     const navigate=async()=>{const marker=Date.now()+Math.random();await evaluate('window.oldPaymentDocument='+marker);await command('Page.navigate',{url:x.base+route});await until(()=>evaluate("window.oldPaymentDocument!=="+marker+"&&document.readyState==='complete'&&Boolean(document.querySelector('.sp-v4-material-card'))"),'material page');await evaluate('document.fonts.ready');};
-    const openEvents=async()=>{assert.equal(await evaluate("(()=>{const b=document.querySelector('.sp-material-card-actions button');if(!b)return false;b.focus();b.click();return true;})()"),true);await until(()=>evaluate("Boolean(document.querySelector('.sp-material-events'))"),'existing drawer');};
+    const openEvents=async()=>{
+      assert.equal(await evaluate("(()=>{const b=document.querySelector("+JSON.stringify(eventTriggerSelector)+");if(!b||b.disabled||b.textContent.trim()!=='查看事件')return false;b.focus();b.click();return true;})()"),true,'click the named material event action');
+      await until(()=>evaluate("Boolean(document.querySelector('.sp-material-events')||document.querySelector('.sp-v4-planner'))"),'material event overlay');
+      assert.equal(await evaluate("Boolean(document.querySelector('.sp-material-events'))"),true,'event action opens the event drawer, not the arrival planner');
+      assert.equal(await evaluate("document.querySelector('.sp-v4-planner')===null"),true,'opening events leaves the arrival planner closed');
+    };
     const openPayments=async()=>{await openEvents();await click('对账');await has('127 条合同来源明细');};
     const close=async()=>{await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await until(()=>evaluate("!document.querySelector('.sp-material-events')"),'drawer closed');};
     const screenshot=async name=>{if(!evidence)return;await mkdir(evidence,{recursive:true});const data=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(evidence,name+'.png'),Buffer.from(data.data,'base64'));};
@@ -91,8 +97,8 @@ test('contract payment observations use the existing drawer without false materi
       assert.equal(await evaluate("document.querySelector('.sp-payment-requests')===null"),true);
       x.payments.setDelay(0);await click('对账');await has('127 条合同来源明细');await close();
       // The shared overlay restores focus in requestAnimationFrame after unmount.
-      await until(()=>evaluate("Boolean(document.activeElement?.getAttribute('aria-label')?.startsWith('查看 '))"),'drawer trigger focus restored',3000);
-      assert.equal(await evaluate("document.activeElement?.getAttribute('aria-label')?.startsWith('查看 ')") ,true);
+      await until(()=>evaluate("Boolean(document.activeElement?.matches("+JSON.stringify(eventTriggerSelector)+"))"),'drawer event trigger focus restored',3000);
+      assert.equal(await evaluate("Boolean(document.activeElement?.matches("+JSON.stringify(eventTriggerSelector)+"))") ,true);
     });
     await t.test('seven synthetic roles see only contract Source records; no Quote/CCT or Browser fallback requests',async()=>{
       for(const user of x.users){await login(user);await navigate();await openPayments();await has('币种待核');

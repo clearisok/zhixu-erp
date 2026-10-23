@@ -1,0 +1,11 @@
+{
+  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
+  "level": "V0",
+  "paths": [
+    "features/ainuoke-garment-shipments/model.ts",
+    "features/ainuoke-garment-shipments/client.ts"
+  ],
+  "pages": ["order-detail"],
+  "visibleDifference": "none",
+  "evidence": ["docs/tasks/active/server-convergence-gate7c-shipment-read-ui-2026-10-22.md"]
+}

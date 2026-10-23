@@ -31,6 +31,18 @@ export const CURRENT_MIGRATION_FILES = Object.freeze([
   '0028_order_color_commercial_versions.sql',
   '0029_order_sale_adjustment_operations.sql',
   '0030_processing_quote_push_receipts.sql',
+  '0031_managed_roles.sql',
+  '0032_user_lifecycle.sql',
+  '0033_quote_creation_order_context.sql',
+  '0034_production_resources.sql',
+  '0035_production_schedule_plans.sql',
+  '0036_production_execution_facts.sql',
+  '0037_production_logistics_resources.sql',
+  '0038_production_order_tracking.sql',
+  '0039_material_arrival_plans.sql',
+  '0040_garment_shipment_observations.sql',
+  '0041_bound_order_source_refresh_receipts.sql',
+  '0042_delivery_plan_request_receipts.sql',
 ]);
 
 export const migrationFilesAfter = (version: number) =>

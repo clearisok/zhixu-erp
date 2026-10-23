@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Pool } from "pg";
 import type { IdentityAuthority } from "./identity-authority.js";
-import { readTeamAccess, executeTeamCommand, parseTeamCommand } from "./team-access.js";
+import { readTeamAccess, executeTeamCommand, parseTeamCommand, parseTeamQuery } from "./team-access.js";
 import { HttpError } from "../http/errors.js";
 import { assertMutationBoundary, readJsonBody } from "../http/request.js";
 import { sendJson } from "../http/responses.js";
@@ -15,7 +15,7 @@ export async function routeTeamAccess(request: IncomingMessage, response: Server
   const identity = await dependencies.identityAuthority.resolve(request);
   if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
   requirePermission(identity.permissions, "user_permissions.view");
-  if (request.method === "GET") sendJson(response, 200, await readTeamAccess(dependencies.pool, identity));
+  if (request.method === "GET") sendJson(response, 200, await readTeamAccess(dependencies.pool, identity, parseTeamQuery(new URL(request.url ?? "/", "http://localhost").searchParams)));
   else {
     requirePermission(identity.permissions, "user_permissions.manage");
     assertMutationBoundary(request, dependencies.allowedOrigins);

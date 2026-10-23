@@ -8,6 +8,41 @@ UI Foundation 为 Quote Center 和基础设置提供统一的 ERP 页面、表�
 
 ## Current behavior
 
+2026-10-22交期维护接线：Modal增加默认false的可选closeDisabled，只用于明确的处理中/
+未知回执锁定。X、Escape、backdrop使用同一layout更新的关闭委托；其他caller默认行为及
+overlay的打开/焦点/滚动生命周期不变。交期弹窗复用该基础；精确7584的12项built与八宽度
+及焦点/单滚动/完整长数量见[冻结工程证据](../tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md)。
+交期表局部清除legacy全局1000px最小宽度/nowrap，手机按批准草图分行，正文仅一处纵向滚动，
+日期/数量/操作与预览标签完整保留；不改其他表格或环境。
+后续CI发现手机“只显示最后操作”规则隐藏来源按钮，仅订单详情将两操作分组，并局部
+处理named grid、按钮全宽和细指针窄屏层叠；全局PageHeader不改。原失败与精确2a199的
+13项维护/9项报价上下文/14项P6复验见[纠正记录](../tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md)。
+
+2026-10-21 来源维护导航同步：来源按钮的父级保护镜像与自身guard均在layout提交，
+避免fieldset已启用而父页面仍按旧busy状态拦截唯一一次创建报价导航。
+只同步原onGuardChange及cleanup；不移除dirty/pending保护、不增加导航豁免或重放操作。
+真实响应屏障、1440/390首次启用单击及原导航负控见
+[独立修复](../tasks/active/server-source-navigation-guard-2026-10-21.md)。无布局、文案或断点变化。
+
+2026-10-20 D-148 / Server convergence Gate3: the trusted Server boundary owns one
+persistent AppShell frame. Page-level AppShell calls register route/identity-scoped
+title, explicit back target and existing feature navigation callbacks; only the
+frame/sidebar state survives navigation. Identity loading/failure is local to the
+content, with protected content removed when identity is unavailable. Existing
+layout, menu, responsive rules and CSS order are unchanged; Browser keeps its
+page-owned frame. `.rsc` responses use component MIME and no-store.
+
+Server dirty/in-flight/unknown-receipt owners register UI-only exit protection.
+Menu, links, public router, Back/Forward and logout respect it; save/reconcile
+commands remain feature-owned. Early public History indexing lets known traversal
+restore before confirmation, without losing Forward on cancel. Foreign entries
+are never guessed or rewritten: retain the draft and explain the next approved
+navigation opens a fresh document. Native beforeunload protection is retained.
+Registration and async navigation permits are bound to the mounted owner and
+trusted identity, preventing an old receipt from navigating a later login.
+No Browser business storage or framework-private history state is repurposed.
+See [Gate3 evidence and limits](../tasks/active/server-convergence-gate3-2026-10-20.md).
+
 D-099 Quote UI convergence: PR #64 is the visual/IA baseline, current Server the security/data/business baseline. Reuse this Foundation, not a new UI library/theme. Original Server list grouping is a feature-level opt-in over independent authorized fields and stable UI preferences; other `DataTable` consumers retain fit-first behavior. More/Portal/keyboard actions, trusted Shell, local scrolling and PR83 sticky/compact-cost fixes remain. Server type-first creation uses shared PageHeader/Card/FormItem without changing write timing. [Audit and synthetic evidence](../tasks/active/quote-original-ui-convergence.md); ENGINEERING PASS, human UI approval PENDING, no runtime deployment.
 
 `components/foundation/` 当前包含：

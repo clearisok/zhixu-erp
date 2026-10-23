@@ -1,5 +1,6 @@
 import type { CreationInput, CreationCommand, CreationReceipt } from "../../../server/quotes/creation-contract";
 import type { CreationOptions, CreationPreview } from "../../../server/quotes/creation-workflows";
+import type { CreationOrderContext, CreationOrderSelection } from "../../../server/quotes/creation-order-context";
 import { QuoteServerError } from "./quote-server-client";
 
 export function createQuoteCreationClient(fetchImpl: typeof fetch = fetch) {
@@ -10,7 +11,9 @@ export function createQuoteCreationClient(fetchImpl: typeof fetch = fetch) {
     return body as T;
   };
   return {
-    defaults: (clientRequestId: string) => request<CreationReceipt>("creation-defaults", {clientRequestId}),
+    defaults: (clientRequestId: string, orderContext?: CreationOrderSelection) => request<CreationReceipt>("creation-defaults", {clientRequestId,...(orderContext?{orderContext}:{})}),
+    orderContext: (orderId: string) => request<CreationOrderContext>(`creation-order-context/${encodeURIComponent(orderId)}`),
+    origin: (quoteId: string) => request<{context: CreationOrderContext | null}>(`${encodeURIComponent(quoteId)}/creation-origin`),
     options: (search = "") => request<CreationOptions>(`creation-options?search=${encodeURIComponent(search)}`),
     preview: (input: CreationInput) => request<CreationPreview>("creation-preview", input),
     execute: (input: CreationCommand) => request<CreationReceipt>("creation-workflows", input),

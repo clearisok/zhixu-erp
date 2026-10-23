@@ -1,5 +1,11 @@
 # 生产队列、排单与物料运输
 
+## Server准备状态（2026-10-20，Gate6B）
+
+下文Repository、页面和完整排单行为仍是Browser实现。6A的四资源及现有设置页面已经独立验收，不等于Server排单。当前新增 `server/production-scheduling/planning-preview.ts` 只有无副作用的内部队列预览：按sequence/createdAt/id计算，绑定输入资源/Assignment版本，保留固定及已有执行事实，显示固定时段冲突，不把未知结束当今天。复用原特殊日期和交接日公式，以全队列36600个扫描日/500行的技术预算明确拒绝超界，不返回截断结果。
+
+共享 `calculateScheduleDates` 只增加可选扫描预算；Browser原调用不传该选项，原返回形状、仓库、Seed和已保存日期不变。该纯切片不访问数据库、创建API/排单、保存完成量、读取或修改商业金额，也不包含fresh授权/CAS/请求回执的写服务。内部队列预览不是客户DeliveryPlan，不改客户需求；Server计划分配、颜色身份接线、原子审计、UI和6C完成尚待后续切片。精确验证及失败范围见[Gate6任务](../tasks/active/server-convergence-gate6-2026-10-20.md)。
+
 ## Purpose
 
 在 v6 单款 SalesOrder 基线上直接维护生产分配、内部队列、实际完成、物料到仓、运输建议与交期风险。模块不修改订单商务事实，不复用根路径 PostgreSQL 旧 `schedules`，关账只引用稳定 `ScheduleAssignment.id`。

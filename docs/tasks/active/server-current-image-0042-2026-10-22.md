@@ -1,0 +1,51 @@
+# 当前Server镜像的独立持久化验收
+
+2026-10-22，chore/server-current-image-0042；干净输入105cfbfcb336c0c29efe583f9ff09fda52bc07f0，
+main再次独立核实996dfedc12da3527343cd3ff2aa5eea35497e10e。root唯一writer，既有reviewer只读。
+只复用既有Dockerfile、ops和actual-image测试，不改应用、schema、业务或UI。
+
+旧f469候选仅含40个迁移/最大0041；当前代码含0042，不能沿用旧镜像证明当前版本。
+从输入精确Git archive单独构建新标签镜像，使用既有Server/session/writable/snapshot参数和
+build-only USTC选项，保留TLS/signature，不改共享网络、认证、Docker daemon或系统信任。
+
+仅运行既有persistent-local-trial.integration.test.mjs，使用其新随机合成project/DB/对象/
+secret volumes与非旧入口的loopback端口。六阶段检查新空库显式init、S3/TLS、合成报价/PNG、
+重启/冷重建、精确目标备份和另一空项目恢复；只清理本次成功prepare的自有fixture。
+失败保留自身现场，不能停止或删除未prepare/外部项目。没有真实Source或账号/业务库操作。
+
+开始时105cfbfc已通过精确守卫及原工具一次push/零push只读送达核对；初次STOP回执保留。
+新source39689481386、team39689484921、release39689490085均attempt1执行中；不重发/重复dispatch。
+当前仅验证引用，不新建重复累计PR，不合并/关闭/部署/切换50426或62426。
+3001及全部旧端口、卷、账号、Browser、工作树保持。完整Goal仍active，原待答不默认。
+
+## 实际工程结果
+
+镜像从精确105cfbfc Git archive一次构建并核实标签；image ID
+sha256:646acc4a19b19209009e3b230a107c8ea1bf4ece2fe3a1c2ab7d5ff283578071，
+build server-candidate-105cfbfc-20261022，2026-10-21T22:53:53Z。
+原actual-image测试一次8/8通过（317334.7113ms，无skip），41迁移/最大0042。
+只清理自身成功prepare的合成项目和自身备份，未操作旧入口；候选image保留，不是新运行环境。
+详细六阶段、精确作用域和未重跑范围见[工程报告](../completed/2026-10-22-current-0042-image-persistence-engineering.md)。
+无应用/SQL/ops/测试/UI变更。待冻结报告/新证据、独立复审、最终精确守卫及交付/发布CI；
+不把parent105的CI当本阶段文档CI。
+
+## 冻结及独立复审
+
+报告冻结为88c2bdd645d7e3a8972a91e507be6ad836554452，新证据只追加至267条，
+57能力及原266条和其他manifest字段逐对象不变。独立review核实精确image/source/time、
+8/8日志和317334.7113ms、41迁移/最大0042、自有fixture清理边界与报告hash，无P1/P2；
+reviewer未自行运行容器或测试。working main996/head88精确守卫PASS，errors[]。
+最终文档commit后再核该SHA的guard/交付/Release CI，不重跑无变化的业务全套。
+
+输入105的CI实际结果现已完成：Team39689484921、Release39689490085 success；
+Source39689481386 failure（attempt1，2026-10-21T23:07:03Z）。失败为material-arrivals-ui
+只读角色阶段等待“分批预计到料”超时，后续Quote/Python阶段未运行。当前尚未判定根因；
+不编辑冻结报告、放宽timeout、重复dispatch或把候选镜像8/8当作该UI通过。
+
+## 最终文档交付
+
+最终c0d87bcd55fbda58db101f46d6e61b07f77db7df的main996精确守卫PASS，发布116/116通过
+（202484.7174ms）。原工具一次Execute返回STOP但remoteSha精确c0d，原STOP回执保留；
+后续同工具只读DryRun pushes=0、DELIVERED_VERIFIED，未重复上传或改变认证/共享配置。
+只dispatch Release381772612一次：run39692878584、attempt1 success，已独立核实；
+未将parent105的Source失败改称通过，也未为本纯文档提交重跑全部后台/浏览器CI。

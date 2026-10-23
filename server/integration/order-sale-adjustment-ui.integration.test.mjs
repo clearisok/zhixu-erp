@@ -1,5 +1,8 @@
 import {previewOrderBusinessSource,adoptOrderBusinessSource} from '../sales-orders/business-source-service.ts';
 import {readOrderCommercialState} from '../sales-orders/commercial-version-service.ts';
+import {readPricingColors} from '../sales-orders/color-commercial.ts';
+import {previewSaleAdjustment,commitSaleAdjustment} from '../sales-orders/sale-adjustment-service.ts';
+import {randomUUID} from 'node:crypto';
 import {createSyntheticQuoteFixture} from './quote-fixture.ts';
 import {createQuoteRepository} from '../quotes/repository.ts';
 import {quoteSnapshotFromBrowser} from '../quotes/model.ts';
@@ -74,9 +77,60 @@ test("quote center negotiates selected orders and recovers original receipts", {
     await open();await click('调价历史');await has('Synthetic response-loss test');for(const width of [1440,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await wait(200);const r=await evaluate("(()=>{const r=document.querySelector('[role=dialog]').getBoundingClientRect();return {left:r.left,right:r.right};})()");assert.ok(r.left>=-1&&r.right<=width+1);await screenshot('sale-adjustment-'+width);}await click('关闭');
     await navigate('/order-center/server-detail?id='+second);await has('117 CNY');await has('订单调价历史');assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>/确认订单调价|批量调整/.test(n.textContent))"),false);
   });
+  await t.test('nested quote-source unknown submission blocks browser history and preserves the original command',async()=>{
+    await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+    await navigate('/order-center');await has('导入加工订单');await click('报价中心');await has('更多');await click('更多报价操作');await click('批量调整订单成交价');await has('SO-00000002');
+    await evaluate("[...document.querySelectorAll('[role=dialog] tbody tr')].find(n=>n.textContent.includes('SO-00000002')).querySelector('button').click()");
+    await has(q.quoteCode);await evaluate("(()=>{const d=[...document.querySelectorAll('[role=dialog]')].at(-1);const row=[...d.querySelectorAll('tbody tr')].find(n=>n.textContent.includes("+JSON.stringify(q.quoteCode)+"));row.querySelector('button').click();})()");await has('统一应用价格方案');await click('预览来源与价格');await input('[role=dialog] textarea','Synthetic nested source pending');
+    await evaluate("window.nestedSourceFetch=window.fetch;window.nestedSourceCommands=[];window.fetch=(...a)=>{if(String(a[0]).endsWith('/business-source')&&a[1]?.method==='POST'){nestedSourceCommands.push(JSON.parse(a[1].body));if(nestedSourceCommands.length===1)return Promise.reject(new TypeError('Synthetic before acceptance'));return Promise.resolve(new Response(JSON.stringify({error:{code:'business_source_changed'}}),{status:409,headers:{'Content-Type':'application/json'}}));}return nestedSourceFetch(...a);}");
+    await click('确认维护来源');await has('原请求重试');await evaluate('history.back()');await has('请先完成当前操作');
+    assert.equal(await evaluate('location.pathname'),'/quote-center');assert.equal(await evaluate('nestedSourceCommands.length'),1);await click('继续处理');
+    await click('原请求重试');await has('报价或颜色已变化');const commands=await evaluate('nestedSourceCommands');assert.equal(commands.length,2);assert.deepEqual(commands[0],commands[1]);
+    assert.equal((await readOrderCommercialState(x.pool,second)).current.salePrice,'117');
+    await evaluate('window.fetch=window.nestedSourceFetch');await click('关闭');await has('放弃来源选择');await click('放弃并关闭');await click('关闭');
+  });
   await t.test('a transport failure before acceptance can retry the exact in-memory command',async()=>{
     await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});await open();await evaluate("[...document.querySelectorAll('[role=dialog] tbody tr')].find(n=>n.textContent.includes('SO-00000002')).querySelector('input[type=checkbox]').click()");await input('[aria-label="调价规则数值"]','-1');await click('预览调整');await input('[role=dialog] textarea','Synthetic pre-acceptance transport failure');
     await evaluate("window.originalPriceFetch=window.fetch;window.rejectBeforePrice=true;window.fetch=(...a)=>{if(String(a[0])==='/api/v1/order-price-adjustments'&&a[1]?.method==='POST'&&rejectBeforePrice){rejectBeforePrice=false;return Promise.reject(new TypeError('Synthetic failed before request'));}return originalPriceFetch(...a);}");await click('确认订单调价');await has('重试原提交');await click('核对原请求');await has('尚未找到原请求回执');await click('重试原提交');await has('已处理 1 张');assert.equal((await readOrderCommercialState(x.pool,second)).version,4);assert.equal((await readOrderCommercialState(x.pool,second)).current.salePrice,'116');await click('关闭');
+  });
+  await t.test('color summaries distinguish prices within a scheme and schemes with the same price',async()=>{
+    const colored=createSyntheticQuoteFixture('color-summary-ui','distribution'),r=colored.revisions.find(v=>v.revisionId===colored.defaultRevisionId);
+    for(const v of colored.revisions){v.imageAttachmentIds=[];v.fileAttachmentIds=[];v.styleImageAttachmentId=null;}
+    for(const [i,p] of r.priceVersions.entries()){p.name=i?'印花':'素色';p.quantity=100;p.pricingParameters.laborCurrency='CNY';p.confirmation={quotedGarmentPrice:120+i*10,quotedLaborPrice:10,confirmedGarmentPrice:120+i*10,confirmedLaborPrice:10,note:'Synthetic',confirmedAt:'2026-10-19T00:00:00Z'};}
+    await createQuoteRepository(x.pool).create(quoteSnapshotFromBrowser(colored));
+    const id=(await createAinuokeSalesOrder(x.pool,actor,{source:{sourceId:'SYN-COLORS',sourceRowIdentity:'SYN-COLORS-ROW',salesContractNo:'SYN-COLORS',insideOrderNo:'SYN-COLORS',lifecycleStatusRaw:'生效',contractDate:'2026-10-01',contractDeliveryDate:'2026-12-01',styleNo:'SYN-COLORS',companyNameSnapshot:'Synthetic',customerNameSnapshot:'Synthetic',brandNameSnapshot:'Synthetic',quantity:100,sourceHash:'synthetic',fetchedAt:'2026-10-19T00:00:00Z'},colors:['黑','白','蓝','红'].map((colorName,i)=>({sourceLineIdentity:'c-'+i,colorName,quantity:25,deliveryDate:null,sourceHash:'c-'+i}))})).salesOrder.id;
+    const colors=await readPricingColors(x.pool,id),selection={kind:'quote',quoteId:colored.id,revisionId:r.revisionId,assignments:colors.map(c=>({colorId:c.id,priceVersionId:r.priceVersions[c.colorName==='红'?1:0].id}))},p=await previewOrderBusinessSource(x.pool,actor,id,selection);
+    await adoptOrderBusinessSource(x.pool,actor,id,{selection,requestId:randomUUID(),expectedVersion:0,fingerprint:p.fingerprint,reason:'Synthetic color mapping'});
+    const adjust=async white=>{
+      const rule={kind:'set',value:'128'},overrides=colors.map(c=>({colorId:c.id,price:c.colorName==='白'?white:'128'})),preview=await previewSaleAdjustment(x.pool,actor,{rule,items:[{salesOrderId:id,overrides}]}),item=preview.items[0];assert.equal(item.status,'ready');
+      const result=await commitSaleAdjustment(x.pool,actor,{requestId:randomUUID(),reason:'Synthetic color price summary',rule,items:[{salesOrderId:id,expectedVersion:item.expectedVersion,fingerprint:item.fingerprint,overrides}]});assert.equal(result.items[0].status,'updated');
+      await navigate('/order-center/server-detail?id='+id);await has('订单调价历史');await until(()=>evaluate("Boolean(document.querySelector('.oc-price-summary'))"),'price summary loaded');
+    };
+    const groups=async()=>{
+      let rows=null;
+      await until(async()=>{
+        rows=await evaluate("(()=>{const d=[...document.querySelectorAll('details')].find(n=>n.querySelector('summary')?.textContent==='按价格方案查看颜色');return d?[...d.querySelectorAll('p')].map(n=>n.textContent):null;})()");
+        return Array.isArray(rows)&&rows.length>0;
+      },'color price scheme groups loaded');
+      return rows;
+    };
+    await adjust('120');
+    assert.deepEqual((await groups()).sort(),['素色 · 120 CNY/件：白','素色 · 128 CNY/件：蓝、黑','印花 · 128 CNY/件：红'].sort());
+    assert.doesNotMatch(await evaluate("document.querySelector('.oc-price-summary').textContent"),/不适用/);
+    await screenshot('color-summary-distinct-20261019');
+    await adjust('0');assert.ok((await groups()).includes('素色 · 0 CNY/件：白'));
+    const colorReadHook=await command('Page.addScriptToEvaluateOnNewDocument',{source:"window.colorReadReleases=[];window.colorReadsReleased=false;const colorReadFetch=window.fetch;window.fetch=(...a)=>{const response=colorReadFetch(...a);if(new URL(String(a[0]),location.href).pathname!=="+JSON.stringify('/api/v1/sales-orders/'+id+'/business-source')+"||!['GET',undefined].includes(a[1]?.method))return response;return response.then(value=>new Promise(done=>{if(window.colorReadsReleased)done(value);else window.colorReadReleases.push(()=>done(value));}));};window.releaseColorReads=()=>{window.colorReadsReleased=true;window.colorReadReleases.splice(0).forEach(done=>done());};"});
+    await login('demo.material');await navigate('/order-center/server-detail?id='+id);await has('无权查看');
+    await until(()=>evaluate('window.colorReadReleases.length>0'),'held color-source read');
+    assert.equal(await evaluate("[...document.querySelectorAll('details')].some(n=>n.querySelector('summary')?.textContent==='按价格方案查看颜色')"),false,'another commercial card can render before color prices');
+    await command('Page.removeScriptToEvaluateOnNewDocument',{identifier:colorReadHook.identifier});
+    const restrictedGroups=groups();await evaluate('releaseColorReads()');
+    assert.ok((await restrictedGroups).every(v=>!v.includes('128')&&!v.includes('120')&&!v.includes('0 CNY')));
+    await login('demo.admin');await adjust('128');await has('统一成交价 128 CNY/件');
+    assert.equal(await evaluate("document.querySelector('.oc-server-color-table').innerText.includes('实际成交价')"),false);
+    await click('查看价格明细');assert.equal(await evaluate("[...document.querySelectorAll('.oc-server-color-table tbody tr')].filter(n=>n.innerText.includes('128 CNY')).length"),4);
+    assert.match(await evaluate("document.querySelector('.oc-server-color-table').innerText"),/印花/);
+    assert.match(await evaluate("document.querySelector('.oc-server-color-table').innerText"),/素色/);
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{

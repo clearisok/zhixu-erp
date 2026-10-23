@@ -1,0 +1,20 @@
+{
+  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "level": "V2",
+  "paths": [
+    "features/ainuoke-garment-shipments/use-garment-shipments.ts",
+    "features/ainuoke-garment-shipments/garment-shipment-section.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx"
+  ],
+  "pages": ["order-detail"],
+  "visibleDifference": "Add the approved Server garment-shipment read surface inside the existing order detail, with a collapsed Card, original Foundation current table/mobile records and a history Drawer using narrow readable cards. Quantity/date/frozen color observations only; separate current and historical views, localized unavailable state and no source collection, totals, commercial, completion or closing operations. No new route, navigation, global styles or Browser business storage. Exact4066/build20261022-022801 synthetic built acceptance passed 13 checks, six widths and seven roles; original P6 passed14. Frozen report/four new PNGs retain failures and separate deployment/human-acceptance boundaries.",
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/server-convergence-gate0-2026-10-20.md"
+  },
+  "evidence": [
+    "docs/tasks/active/server-convergence-gate7c-shipment-read-ui-2026-10-22.md",
+    "docs/features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md",
+    "docs/tasks/completed/2026-10-22-garment-shipment-read-ui-engineering.md"
+  ]
+}

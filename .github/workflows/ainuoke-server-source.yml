@@ -11,7 +11,7 @@ permissions:
 jobs:
   source:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -28,7 +28,22 @@ jobs:
         run: |
           node --test server/integration/chromium-endpoint.test.mjs
           npm run server:build
+          npx --no-install tsx --test --test-concurrency=1 server/production-resources/contract.test.ts server/production-resources/logistics-contract.test.ts server/production-resources/managed-contract.test.ts server/integration/production-resources.integration.test.ts server/integration/logistics-resources.integration.test.ts server/integration/logistics-resources-upgrade.integration.test.ts
+          npx --no-install tsx --test --test-concurrency=1 server/production-scheduling/contract.test.ts server/production-scheduling/read-contract.test.ts server/production-scheduling/planning-preview.test.ts server/integration/production-scheduling.integration.test.ts server/integration/production-scheduling-upgrade.integration.test.ts
+          npx --no-install tsx --test server/production-scheduling/execution-contract.test.ts server/production-scheduling/execution-preview.test.ts
+          npx --no-install tsx --test --test-concurrency=1 server/integration/production-execution.integration.test.ts
+          npm run test:delivery-coverage
+          npx --no-install tsx --test --test-concurrency=1 server/production-scheduling/tracking-contract.test.ts server/integration/order-tracking.integration.test.ts server/integration/order-tracking-upgrade.integration.test.ts
+          npm run test:material-arrivals
+          npx --no-install tsx --test features/operations-settings/server/__tests__/*.test.ts
+          npx --no-install tsx --test features/production-scheduling/server/__tests__/*.test.ts
           npm run test:ainuoke-server-source
+          npm run test:order-source-evidence
+          npm run test:bound-order-refresh
+          npx --no-install tsx --test --test-concurrency=1 server/sales-orders/delivery-plan-request.test.ts server/integration/delivery-plan-requests.integration.test.ts
+          npx --no-install tsx --test features/order-center/server/__tests__/delivery-plan-client.test.ts features/order-center/server/__tests__/delivery-plan-draft.test.ts features/order-center/server/__tests__/delivery-plan-pending.test.ts
+          npx --no-install tsx --test --test-concurrency=1 features/quote-center/server/__tests__/quote-creation-contract.test.ts server/integration/quote-order-context.integration.test.ts
+          npx --no-install tsx --test features/quote-center/server/__tests__/estimate-workflows.test.ts
           npm run test:order-identity
           npm run test:order-commercial
           npm run test:order-business-source
@@ -53,6 +68,10 @@ jobs:
           npm run test:ainuoke-targeted-diagnostic
           npm run test:ainuoke-live-preflight
           npm run test:ainuoke-payment-probe
+          npx --no-install tsx --test --test-concurrency=1 server/integration/garment-shipment-probe.test.ts
+          npm run test:garment-contract-verification
+          npm run test:garment-filter-recovery
+          npm run test:garment-shipment-observations
           npm run test:ainuoke-payment-observations
           npm run test:ainuoke-payment-contracts
           npm run test:ainuoke-payment-snapshots
@@ -64,6 +83,7 @@ jobs:
           npx --no-install tsx --test server/integration/fresh-start.integration.test.ts
       - name: Quality, quantity and owned fixture boundaries
         run: |
+          node --test scripts/__tests__/quote-trial-config.test.mjs scripts/__tests__/quote-trial-readiness.test.mjs scripts/__tests__/quote-trial-local-objects.test.mjs
           npx --no-install tsx --test server/integration/ainuoke-quality-diagnostic.test.ts server/integration/ainuoke-quantity-facts.test.ts server/integration/isolated-demo.test.ts
           node --test scripts/__tests__/isolated-source-window.test.mjs scripts/__tests__/isolated-demo-safety.test.mjs scripts/__tests__/isolated-demo-verification.test.mjs
       - name: Explicit source candidate build
@@ -77,14 +97,25 @@ jobs:
         run: npm run build
       - name: Existing P6 pages, six roles and persisted refresh in private Chromium
         run: |
+          node --test tests/server-navigation-history.test.mjs
+          npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
           npm run test:ainuoke-continuous-ui
+          npx --no-install tsx --test server/integration/order-saved-sources-ui.integration.test.mjs
+          npx --no-install tsx --test server/integration/delivery-plan-maintenance-ui.integration.test.mjs
+          npx --no-install tsx --test server/integration/quote-order-context-ui.integration.test.mjs
+          npx --no-install tsx --test server/integration/production-resources-ui.integration.test.mjs
+          npx --no-install tsx --test server/integration/production-scheduling-ui.integration.test.mjs
           npm run test:processing-batches-ui
           npm run test:processing-quote-push-ui
           npm run test:order-business-source-ui
           npm run test:order-sale-adjustments-ui
           npm run test:material-history-ui
           npx --no-install tsx --test server/integration/material-display-ui.integration.test.mjs
+          npm run test:material-arrivals-ui
+          npm run test:garment-shipments-ui
           npm run test:ainuoke-payment-panel-ui
+      - name: Quote lifecycle, workbooks, summaries and defaults in private Chromium
+        run: npm run test:quote-server-ui
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge
         env:

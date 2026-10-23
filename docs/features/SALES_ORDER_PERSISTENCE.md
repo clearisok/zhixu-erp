@@ -1,9 +1,47 @@
+> 2026-10-20 Server收敛Gate4A工程增量，未合并/部署/来源激活：正式详情新增保存颜色分码的白名单 `sizeEvidence` 与颜色来源摘要 `colorSource`，见[当前任务](../tasks/active/server-convergence-gate4-2026-10-20.md)。仍复用当前来源owner与单次RR查询，不输出任意source_metadata、hash或金额。保留旧无证据、结构异常、待定0与真实0；原矩阵不平/溢出不删除颜色，不凭部分槽位重算。无新迁移、采集或价格写入。DeliveryPlan只读客户端使用现有GET；自身计划与当前可信来源对照分别拥有，失配来源不作为数量/日期依据。旧日期能力按其当时状态阅读。
+
 > 2026-10-15 本地Gate4消费者增量，未合并/部署：有效与历史读取、当前来源owner投影和新写归属保护见[ORDER_NORMALIZATION](ORDER_NORMALIZATION.md)及[任务](../tasks/active/order-effective-attribution.md)。原UUID/创建历史/绑定/各单价格和计划不变；公共归一执行仍未实现。下面历史bootstrap日期/环境能力仅按当时证据阅读。
 
 <!-- Current bounded first-binding path; historical bootstrap evidence below is preserved. -->
 > 2026-10-12（main db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e）：D106首次空订单账本绑定复用本域transaction helper，由server/ainuoke-source/binding.ts进行fresh Preview/目标/hash/权限/整批审计保护；旧bootstrap冻结guard不变。新增合同与主镜像持续刷新不在本轮。来源DATE在SQL转为日历字符串，修复时区偏移；未改schema或真实日期。详见[Server Source](AINUOKE_SERVER_SOURCE.md)。
 
 # SalesOrder PostgreSQL Persistence Foundation
+
+## Controlled bound-contract refresh (2026-10-22 engineering slice)
+
+`server/ainuoke-source/bound-order-refresh.ts` promotes an already captured formal
+Discovery/6087105 bundle. Preview is read-only; apply requires its exact hash and
+an actor-scoped UUID request. It reuses formal mapping and the original source
+writer in one caller-owned transaction. Source account/profile, connection target,
+stable contract/link identity, current effective attribution, physical source owner,
+both SO versions, full current mirrors and owner DeliveryPlan collection are bound
+to that preview. Source identity is never selected by style or InsideOrderNo.
+
+Missing/invalid color enrichment fails closed, preserving the prior mirror. This
+first refresh slice does not treat an empty color result as permission to clear it.
+Accepted quantity/date/size evidence remains source-owned. Explicit source changes
+preserve manual DeliveryPlan rows, commercial versions, stable color identities and
+execution snapshots; new/renamed colors do not inherit historical prices. Historical
+source remains on its original owner. An existing link's InsideOrderNo may update,
+without an INSERT/UPSERT or identity/provenance change; 0018 keeps historical alias
+and effective-root plans unchanged. The original direct wrapper remains internal.
+
+0041 adds one initially empty immutable success receipt relation; actor/request
+uniqueness and exact payload matching serialize replay. No network IO occurs inside
+or outside this promotion command. Receipt, mirrors and correlated trusted audit
+commit together. Readback/replay refresh authorization and return historical results
+without rerunning freshness/CAS. Unknown receipt absence does not prove failure.
+Raw bundles and prices do not enter the receipt. Both physical and effective order
+references participate in normalization's complete row fingerprints.
+
+`source:ainuoke:bound-refresh` is an explicit private offline operator with
+`--action=plan|apply|receipt`. Job and evidence use absolute protected ignored paths
+and exact SHA256; apply also requires request ID, preview hash and explicit execute
+token. The executable checks a clean committed checkout and verifies migrations
+without applying them. It cannot load Source credentials, collect, activate, bind a
+new order, start scheduling or deploy. Existing material `--execute`/`--schedule`
+semantics remain unchanged. Actual tests and delivery limits are tracked in the
+[Gate 4 follow-up](../tasks/active/server-convergence-bound-source-refresh-2026-10-22.md).
 
 ## PR93 integration verification — 2026-10-12
 
@@ -37,8 +75,79 @@ Release requires a separate coupled app/schema Activation Gate: new app + pre-00
 ### C4.3 narrow API
 
 - `GET /api/v1/sales-orders/:uuid/delivery-plans` requires trusted identity + `order.view`, returns `{ deliveryPlanSet }` with independent ownership/version, source references, stable rows (including void history) and reconciliation.
-- `PATCH` on the same path additionally requires `order.edit`, allowlisted Origin and `X-Zhixu-Request: 1`. Body: `{ expectedVersion, upserts: [{ id: UUID|null, deliveryDate: YYYY-MM-DD, quantity: decimal-string }], voidIds: [UUID] }`. Null row ID creates a server UUID; existing ID edits that same row. Upserts/voids are atomic and bounded to 100 affected rows per command. Empty commands, duplicate/foreign/voided IDs, invalid dates/amounts and caller actor/ownership/source fields fail closed. User amounts retain the established strictly positive plan-input rule; the explicitly confirmed zero exception belongs to system-derived defaults.
+- `PATCH` on the same path additionally requires `order.edit`, allowlisted Origin and `X-Zhixu-Request: 1`. Body: `{ requestId?: UUID, expectedVersion, upserts: [{ id: UUID|null, deliveryDate: YYYY-MM-DD, quantity: decimal-string }], voidIds: [UUID] }`. Null row ID creates a server UUID; existing ID edits that same row. Upserts/voids are atomic and bounded to 100 affected rows per command. Empty commands, duplicate/foreign/voided IDs (including UUID case variants), invalid dates/amounts and caller actor/ownership/source fields fail closed. User amounts retain the established strictly positive plan-input rule; the explicitly confirmed zero exception belongs to system-derived defaults.
 - Authentication/permission/invalid input/absent order/stale collection return 401/403/400/404/409. No generic SalesOrder PATCH/POST or source-refresh HTTP route is added. Raw source hashes/metadata remain internal. No UI cutover occurs in this Server-domain task.
+
+### Reliable C4.3 command receipts (2026-10-22 engineering slice)
+
+0042 adds an initially empty immutable `sales_order_delivery_plan_requests` ledger.
+The existing writer and success envelope remain unchanged. Explicit request UUIDs
+are actor-scoped. Legacy bodies use the same ledger with a deterministic key over
+the original SO and complete normalized intent; replay returns the original result
+rather than inventing a fresh request or adding another plan. Distinct requests
+still compete on the collection CAS. Commands own their copied arrays before any
+await. UUID case is canonical; decimal strings remain exact, not coerced to Number.
+
+`POST /api/v1/sales-orders/:uuid/delivery-plans/receipt` takes the original complete
+command body, requires the same fresh view/edit grants, Origin and trusted header,
+and accepts no query selectors. `{receipt}` contains schemaVersion, original SO,
+requestId/null, requestMode and status `unknown|applied|rejected`. Applied includes
+the exact original full `deliveryPlanSet` and trusted operationId; rejected includes
+the fixed original error. `unknown` can race an uncommitted command and is **not**
+proof of failure or permission to automatically resubmit. Lookup itself writes no
+plans, audit or receipts. No arbitrary hash, actor or receipt ID selector is added.
+
+Fresh user/role/grant locks precede actor/request and original order/collection
+locks. Prior results only require current authorization and exact original intent;
+subsequent source/CAS/lifecycle/alias changes cannot invalidate a historical result.
+New writes still require the original effective order. Plans, existing trusted
+audit and success receipt commit together. Only the writer's fixed CAS/row/alias
+409 and capacity422 become durable rejections. SQL, audit, lock timeout and unknown
+transport failures roll back and remain unconfirmed; they are not recorded as
+business rejection. No missing-ledger fallback is permitted.
+
+The full original result includes retained void history, never only the first100
+rows. Both compact JSON and actual PG jsonb text must fit16MiB (HTTP's fixed outer
+identity/envelope adds less than1KiB). Capacity failure rolls back plans/audit to a
+savepoint and commits a small explicit422 receipt. Commands are bounded64KiB.
+The original SO FK and full receipt bytes participate in existing complete
+normalization fingerprints. No legacy backfill, new UI, price/source/production
+write or deployment is implied; [task and actual checks](../tasks/active/server-delivery-plan-receipts-2026-10-22.md).
+
+### Approved DeliveryPlan maintenance client slice (2026-10-22)
+
+The specifically approved UI scope is recorded in the
+[maintenance task](../tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md).
+Client helpers reuse this exact GET/PATCH/original-body receipt protocol and the
+Server command validator. Full retained history is read within a16MiB+64KiB
+transport bound;100 is a changed-row write budget, not a history read limit.
+Applied results must reflect the exact edited IDs/date/decimal quantities and
+voids; additions match distinct non-default active rows. A source-derived row's
+historical marker remains legal after an explicit edit. Unknown is not rejection.
+
+Draft comparison submits only actual differences, preserves unchanged null/zero
+defaults, and requires explicit voids. Decimal preview uses exact integer scale;
+oversized historical display facts are kept with comparison unavailable, not0.
+The separate actor/tab pending slot is documented in DATA_LIFECYCLE. The approved
+small title action now opens a Foundation edit/preview/confirm modal. Source facts
+stay read-only; processing has no fabricated Ainuoke comparison. Actual session
+object/order ownership invalidates replies at layout commit, and independent
+source/delivery exit guards are combined. Success refreshes current plans and any
+expanded saved disclosure; a historical receipt is never the current collection.
+
+After an exact unknown receipt only, a second explicit human confirmation may
+replay the identical original request. Recheck the original actor slot before
+sending, with no new UUID/CAS or automatic retry. A new lost reply revokes that
+permission and returns to receipt checking. Exact-source synthetic built UI,
+seven-role/eight-width coverage and original P6 regression are recorded in the
+[frozen engineering evidence](../tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md).
+The later Source CI caught a hidden mobile source action. Both actions now share
+a scoped detail-header group: compact at desktop, paired below the identity on
+mobile including narrow fine-pointer windows. The original source-context and
+P6 regressions, actual hit-tests and new screenshots are frozen separately in
+[the correction record](../tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md).
+This is not deployment or human acceptance. No new backend rule, SQL, source query
+or runtime activation is introduced.
 
 ## C4.2 ConfirmedCommercialTerms extension
 
@@ -252,3 +361,18 @@ The server read model now exposes aggregate/current mirror facts plus list-only 
 This does not make the full Browser `SalesOrder` type a server DTO. PO, customer/brand IDs, salesperson/merchandiser, business delivery, quantity changes, delivery plans, price versions, execution snapshots, attachments and audit display fields remain absent or separately owned. See `SALES_ORDER_BROWSER_CUTOVER.md` for the exhaustive matrix.
 
 Real authenticated shadow GET is currently blocked: existing users are active/password-backed, but the permission catalog, roles and assignments are empty and `order.view` cannot resolve. C0 did not run the write-capable server startup or synchronize RBAC. Browser list/detail/write cutover remain NO.
+## 2026-10-20 Gate4B saved read disclosure candidate
+
+The formal Server detail reuses its native, default-closed disclosures: saved
+color/size evidence replaces the old unwired note; the existing low-frequency
+source/technical disclosure lazily reads the existing DeliveryPlan GET. The main
+color-price table, card order, navigation and all writers are unchanged. Saved
+sizes keep slot order, gaps, duplicate names, null versus0 and existing numeric
+precision without recalculation. Plan quantities remain decimal strings; null
+dates, void history and unknown collection ownership remain explicit. A row's
+initial-default marker is historical, distinct from current collection ownership.
+Each expanded plan request is scoped to the committed order/session generation;
+old200/401 replies cannot update or invalidate a new identity. Retry is explicit
+and reads only Zhixu DB, never Ainuoke. Detail and plans are separate snapshots.
+This is a local implementation candidate, not a deployment, human acceptance or
+protected plan editor. Current test/source evidence is in the Gate4 task.

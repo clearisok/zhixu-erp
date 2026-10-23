@@ -1,14 +1,23 @@
-import type { OperationsSettingsState, ProductionSite, SupplyHub, SupplyRoute, TransportMode } from "../../operations-settings/model/operations-settings.ts";
+import type { OperationsSettingsState, ProductionGroup, ProductionSite, SupplyHub, SupplyRoute, TransportMode } from "../../operations-settings/model/operations-settings.ts";
 import type { OrderExecutionTracking, ScheduleAssignment } from "../model/production-scheduling.ts";
 import { getMaterialReadyDate } from "./production-scheduling-service.ts";
 
 export type LogisticsRecommendation = { status: "incomplete" | "no_cross_border" | "feasible" | "late"; materialReadyDate: string | null; latestRequiredArrivalDate: string | null; recommendedMode: TransportMode | null; earliestArrivalDate: string | null; gapDays: number; message: string };
+/** The per-material calculator needs no commercial settings, contacts or notes.
+ * Full Browser resources remain valid inputs; Server can supply only these facts. */
+export type MaterialLogisticsSettings = {
+  productionGroups: Pick<ProductionGroup, "id" | "productionSiteId">[];
+  productionSites: Pick<ProductionSite, "id" | "name" | "enabled" | "preProductionSampleLeadDays">[];
+  supplyHubs: Pick<SupplyHub, "id" | "name" | "enabled">[];
+  supplyRoutes: Pick<SupplyRoute, "id" | "name" | "enabled" | "supplyHubId" | "productionSiteId">[];
+  transportModes: Pick<TransportMode, "id" | "routeId" | "name" | "enabled" | "transitDays" | "sortOrder">[];
+};
 export type MaterialLogisticsRecommendation = {
   status: "pending_schedule" | "hub_missing" | "site_missing" | "route_missing" | "modes_missing" | "incomplete" | "feasible" | "late";
   materialReadyDate: string | null;
   plannedProductionStartDate: string | null;
   latestRequiredArrivalDate: string | null;
-  recommendedMode: TransportMode | null;
+  recommendedMode: MaterialLogisticsSettings["transportModes"][number] | null;
   expectedArrivalDate: string | null;
   bufferDays: number | null;
   gapDays: number;
@@ -16,17 +25,17 @@ export type MaterialLogisticsRecommendation = {
   message: string;
   basis: {
     scheduleAssignmentId: string | null;
-    supplyHub: SupplyHub | null;
-    productionSite: ProductionSite | null;
-    matchedRoute: SupplyRoute | null;
-    candidateTransportModes: TransportMode[];
+    supplyHub: MaterialLogisticsSettings["supplyHubs"][number] | null;
+    productionSite: MaterialLogisticsSettings["productionSites"][number] | null;
+    matchedRoute: MaterialLogisticsSettings["supplyRoutes"][number] | null;
+    candidateTransportModes: MaterialLogisticsSettings["transportModes"][number][];
   };
 };
 const shift = (value: string, days: number) => { const result = new Date(`${value}T00:00:00Z`); result.setUTCDate(result.getUTCDate() + days); return result.toISOString().slice(0, 10); };
 const gap = (from: string, to: string) => Math.ceil((new Date(`${to}T00:00:00Z`).getTime() - new Date(`${from}T00:00:00Z`).getTime()) / 86400000);
 
-type LogisticsAssignment = Pick<ScheduleAssignment, "id" | "executionType" | "productionGroupId" | "plannedStartDate">;
-export function productionSiteForAssignment(assignment: LogisticsAssignment, settings: OperationsSettingsState): ProductionSite | null { if (assignment.executionType !== "internal") return null; const group = settings.productionGroups.find((item) => item.id === assignment.productionGroupId); return settings.productionSites.find((item) => item.id === group?.productionSiteId) ?? null; }
+export type LogisticsAssignment = Pick<ScheduleAssignment, "id" | "executionType" | "productionGroupId" | "plannedStartDate">;
+export function productionSiteForAssignment(assignment: LogisticsAssignment, settings: Pick<MaterialLogisticsSettings, "productionGroups" | "productionSites">): MaterialLogisticsSettings["productionSites"][number] | null { if (assignment.executionType !== "internal") return null; const group = settings.productionGroups.find((item) => item.id === assignment.productionGroupId); return settings.productionSites.find((item) => item.id === group?.productionSiteId) ?? null; }
 export function recommendTransport(input: { assignment: LogisticsAssignment; tracking: OrderExecutionTracking | null; settings: OperationsSettingsState }): LogisticsRecommendation {
   const materialReadyDate = input.tracking ? getMaterialReadyDate(input.tracking) : null; const site = productionSiteForAssignment(input.assignment, input.settings);
   if (!materialReadyDate || !input.assignment.plannedStartDate || !site || !input.tracking?.supplyHubId) return { status: "incomplete", materialReadyDate, latestRequiredArrivalDate: null, recommendedMode: null, earliestArrivalDate: null, gapDays: 0, message: "请补全物料到仓、生产地点和计划开工日期" };
@@ -46,7 +55,7 @@ export function recommendTransport(input: { assignment: LogisticsAssignment; tra
  */
 export function recommendMaterialTransport(input: {
   assignment: LogisticsAssignment | null;
-  settings: OperationsSettingsState;
+  settings: MaterialLogisticsSettings;
   supplyHubId: string | null;
   expectedMaterialReadyDate: string | null;
   actualMaterialReadyDate?: string | null;

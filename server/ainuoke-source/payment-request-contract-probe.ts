@@ -7,6 +7,7 @@ import { APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY, accountFingerprint, parseCo
 import { SourceError, hash, inspect } from "./contract.js";
 import { assertPrivateOutput, writePrivateReport } from "./live-preflight.js";
 import { CANDIDATE_FIELDS } from "./payment-request-fields.js";
+import { parseExactSourceJson } from "./exact-source-json.js";
 
 export const CONTRACT_LIMITS = Object.freeze({ contracts: 2, pagesPerContract: 2, pageSize: 100,
   passes: 2, reportRequests: 8, httpAttempts: 9, responseBytes: 4 * 1024 * 1024,
@@ -109,12 +110,7 @@ export async function collectPaymentContracts(input: unknown, selection: Contrac
   });
 }
 function parseExact(text: string): unknown {
-  const parser = JSON.parse as (text: string, reviver: (key: string, value: unknown, context?: { source?: string }) => unknown) => unknown;
-  return parser(text, (_key, value, context) => {
-    if (typeof value !== "number") return value;
-    if (typeof context?.source !== "string") fail("payment_contract_exact_runtime_required");
-    return context.source;
-  });
+  return parseExactSourceJson(text, "payment_contract_exact_runtime_required");
 }
 function decoded(value: unknown): Obj { return object(typeof value === "string" ? parseExact(value) : value); }
 function count(value: unknown) {

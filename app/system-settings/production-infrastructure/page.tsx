@@ -1,2 +1,2 @@
-import { ProductionInfrastructureSettingsPage } from "@/features/operations-settings";
-export default ProductionInfrastructureSettingsPage;
+import { ProductionInfrastructureAuthorityPage } from "@/features/operations-settings/components/production-resource-settings-page";
+export default ProductionInfrastructureAuthorityPage;

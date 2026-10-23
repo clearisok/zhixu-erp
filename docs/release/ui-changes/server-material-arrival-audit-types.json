@@ -1,0 +1,16 @@
+{
+  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
+  "level": "V0",
+  "paths": [
+    "features/operation-logs/model/operation-log.ts"
+  ],
+  "pages": [
+    "material"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/tasks/active/server-convergence-gate6d-material-arrivals-2026-10-21.md",
+    "docs/features/SERVER_MATERIAL_ARRIVALS.md"
+  ],
+  "reason": "Domain-only action/entity union extensions for the same immutable audit owner. No renderer, layout, routes, Browser storage or interaction change; the arrival API emits only non-monetary business summaries. Arrival and logistics UI remain a separate unimplemented slice."
+}

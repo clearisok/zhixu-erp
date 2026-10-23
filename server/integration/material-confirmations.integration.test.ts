@@ -24,6 +24,7 @@ test('explicit reviewed confirmations use persisted identity, survive batch read
   for(const ports of [wrongAccount,await wrongAccount.prepareBatch!(actor,[x.orderId])])assert.equal((await createOrderMaterialReader(ports)(actor,{salesOrderId:x.orderId})).status,503);
   const ports=createPersistedMaterialPorts(x.pool,{sourceKey:'synthetic-demo',maxAgeMs:1800000},Date.now,review);
   receipt.unit!.value='changed-after-construction';
+  review.sourceKey='changed-after-construction';review.accountFingerprint='c'.repeat(64);
   for(const p of [ports,await ports.prepareBatch!(actor,[x.orderId])]){
    const result=await createOrderMaterialReader(p)(actor,{salesOrderId:x.orderId});assert.equal(result.status,200);
    if(result.status!==200)throw Error('reader failed');

@@ -1,0 +1,17 @@
+{
+  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
+  "level": "V1",
+  "paths": [
+    "app/production-scheduling/production-scheduling.css",
+    "features/operations-settings/components/server-production-reference-picker.tsx",
+    "features/production-scheduling/components/server-production-scheduling-page.tsx",
+    "features/production-scheduling/components/server-production-tracking-fields.tsx",
+    "features/production-scheduling/server/production-plan-client.ts",
+    "features/production-scheduling/server/production-plan-outbox.ts",
+    "features/production-scheduling/server/production-command.ts",
+    "features/production-scheduling/server/production-tracking-projection.ts"
+  ],
+  "pages": ["navigation"],
+  "visibleDifference": "D147 Gate6D restores the approved existing materials-and-transport dialog with explicit supply-hub selection and remark on the current Server scheduling page. Preserve Foundation/master-detail/queue geometry, navigation and Browser persistence. Use the same production command writer, actor/tab pending slot, session lease, exact preview and receipt recovery. Original paged reference picker gains an optional unset label; old consumers retain their existing label. Share existing execution preview table wrapping for the tracking diff without a redesign. Show current hub separately from immutable occurrence snapshots and anchored history. No automatic default, material-date inference, ExpectedArrivalBatch, transport recommendation, shipment, closing, prices, real source read, deployment or human acceptance claim.",
+  "evidence": ["docs/tasks/active/server-convergence-gate6d-order-logistics-ui-2026-10-21.md", "docs/features/SERVER_ORDER_LOGISTICS_CONTEXT.md"]
+}

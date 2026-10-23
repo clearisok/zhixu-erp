@@ -1,4 +1,4 @@
-import {createHash} from 'node:crypto';
+import {readStableOrderColors} from './color-identities.js';
 import type {Pool,PoolClient} from 'pg';
 import type {TrustedIdentity} from '../auth/session.js';
 import {HttpError} from '../http/errors.js';
@@ -6,18 +6,15 @@ import {requirePermission} from '../auth/permissions.js';
 import {readCommercialCandidate,type CommercialCandidate} from './commercial-source.js';
 import {quoteProductSnapshot,productHash,type ProductSnapshot} from './product-snapshot.js';
 import {requireOrderCommandActor,requireVerifiedOrderBusiness} from './identity-service.js';
-import {lockEffectiveAttribution,requireEffectiveOrderForWrite} from './effective-attribution.js';
+import {lockEffectiveAttribution,requireEffectiveOrderForWrite,freezePhysicalOrderGroups} from './effective-attribution.js';
 import {appendOperationLog} from '../operation-logs/repository.js';
 import {orderCommandControlError} from './command-control.js';
 import {identityUuid} from './identity-model.js';
 
 type Queryable=Pick<Pool|PoolClient,'query'>;
 export function pricingFail(status:number,code:string):never{throw new HttpError(status,code,code);}
-const colorKey=(v:string)=>v.normalize('NFC').trim().replace(/\s+/gu,' ').toLowerCase();
-function stableColorId(orderId:string,key:string){const s=createHash('sha256').update(orderId.toLowerCase()+'\0'+key).digest('hex');return `${s.slice(0,8)}-${s.slice(8,12)}-5${s.slice(13,16)}-a${s.slice(17,20)}-${s.slice(20,32)}`;}
 export async function readPricingColors(c:Queryable,orderId:string){
- const rows=(await c.query<{sourceLineIdentity:string;colorName:string;quantity:string}>(`SELECT source_line_identity AS "sourceLineIdentity",color_name AS "colorName",quantity::text FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id=$1 ORDER BY color_name,source_line_identity`,[orderId])).rows;
- return rows.map(row=>({...row,businessKey:colorKey(row.colorName),id:stableColorId(orderId,colorKey(row.colorName)),ambiguous:rows.filter(r=>colorKey(r.colorName)===colorKey(row.colorName)).length!==1}));
+ return readStableOrderColors(c,orderId);
 }
 export type CommercialLine={colorId:string|null;colorName:string|null;quantity:string|null;priceVersionId:string;priceVersionName:string;source:CommercialCandidate;product:ProductSnapshot;productHash:string;baseSalePrice:string|null;salePrice:string|null;laborPrice:string;laborCurrency:'CNY'|'USD'};
 export async function readCommercialLines(c:Queryable,orderId:string,versionId:string):Promise<CommercialLine[]>{
@@ -43,7 +40,7 @@ export async function appendLineCommercialVersion(c:PoolClient,input:{orderId:st
  return {id};
 }
 export async function pricingTarget(c:PoolClient,id:string){
- if(!identityUuid.test(id))pricingFail(400,'invalid_order_id');await requireEffectiveOrderForWrite(c,id);
+ if(!identityUuid.test(id))pricingFail(400,'invalid_order_id');await requireEffectiveOrderForWrite(c,id);await freezePhysicalOrderGroups(c,[id]);
  const business=await requireVerifiedOrderBusiness(c,id,true);if(['completed','cancelled'].includes(business.lifecycle_state))pricingFail(409,'order_commercial_frozen');return business;
 }
 export async function pricingActor(c:PoolClient,actor:TrustedIdentity,permission:'order.commercial.adopt'|'quote.order_price.adjust'){
@@ -72,10 +69,18 @@ async function selectedLines(c:PoolClient,id:string,selection:Selection){
  }
  return assignments.map(({color,priceVersionId}):CommercialLine=>{const v=candidates.get(priceVersionId!)!;return {colorId:color?.id??null,colorName:color?.colorName??null,quantity:color?.quantity??null,priceVersionId:priceVersionId!,priceVersionName:String(v.product.priceVersion.name??''),source:v.source,product:v.product,productHash:v.hash,baseSalePrice:v.source.salePrice,salePrice:v.source.salePrice,laborPrice:v.source.laborPrice,laborCurrency:v.source.laborCurrency};});
 }
+function requireSourceContext(actor:TrustedIdentity,businessType:string,head:{quote_id:string}|undefined,quoteContextId?:string){
+ if(quoteContextId){
+  if(businessType==='processing')pricingFail(409,'processing_order_source_fixed_by_batch');
+  requirePermission(actor.permissions,'quote.order_price.adjust');
+  requirePermission(actor.permissions,'commercial.sale.edit');
+  if(head?.quote_id!==quoteContextId)pricingFail(409,'quote_order_context_changed');
+ }else if(head)pricingFail(409,'source_change_requires_quote_center');
+}
 export async function previewColorSource(pool:Pool,actor:TrustedIdentity,id:string,raw:Record<string,unknown>,quoteContextId?:string){
  const selection=parseColorSelection(raw),c=await pool.connect();try{await c.query('BEGIN');await lockEffectiveAttribution(c);const a=await pricingActor(c,actor,'order.commercial.adopt');const business=await pricingTarget(c,id);
  const head=(await c.query('SELECT h.version,h.current_version_id::text,v.quote_id FROM sales_order_commercial_heads h JOIN sales_order_commercial_versions v ON v.id=h.current_version_id WHERE h.sales_order_id=$1',[id])).rows[0];
- if(quoteContextId){if(business.businessType==='processing')pricingFail(409,'processing_order_source_fixed_by_batch');requirePermission(a.permissions,'quote.order_price.adjust');requirePermission(a.permissions,'commercial.sale.edit');if(head?.quote_id!==quoteContextId)pricingFail(409,'quote_order_context_changed');}else if(head)pricingFail(409,'source_change_requires_quote_center');
+ requireSourceContext(a,business.businessType,head,quoteContextId);
  const lines=await selectedLines(c,id,selection);if((business.businessType==='processing')!==(lines[0].source.quoteType==='processing'))pricingFail(409,'order_quote_business_type_conflict');
  const fingerprint=productHash({selection,lines});await c.query('ROLLBACK');return {version:Number(head?.version??0),selection,fingerprint,pricingMode:pricingMode(lines),lines:projectPricingLines(a,lines),quoteCode:lines[0].product.quoteCode,revisionLabel:String(lines[0].product.revision.revisionLabel??'')};
  }catch(e){await c.query('ROLLBACK');throw orderCommandControlError(e);}finally{c.release();}
@@ -88,7 +93,7 @@ export async function adoptColorSource(pool:Pool,actor:TrustedIdentity,id:string
   await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['order-commercial-request:'+a.internalUserId+':'+raw.requestId]);
   const old=(await c.query('SELECT id::text,payload_hash FROM sales_order_commercial_versions WHERE actor_id=$1 AND request_id=$2',[a.internalUserId,raw.requestId])).rows[0];if(old){if(old.payload_hash!==hash)pricingFail(409,'business_source_retry_mismatch');await c.query('COMMIT');return {commercialVersionId:old.id,replayed:true};}
   const business=await pricingTarget(c,id),head=(await c.query('SELECT h.version,h.current_version_id::text,v.quote_id FROM sales_order_commercial_heads h JOIN sales_order_commercial_versions v ON v.id=h.current_version_id WHERE h.sales_order_id=$1',[id])).rows[0];
-  if(quoteContextId){requirePermission(a.permissions,'quote.order_price.adjust');requirePermission(a.permissions,'commercial.sale.edit');if(head?.quote_id!==quoteContextId)pricingFail(409,'quote_order_context_changed');}else if(head)pricingFail(409,'source_change_requires_quote_center');
+  requireSourceContext(a,business.businessType,head,quoteContextId);
   if(Number(head?.version??0)!==raw.expectedVersion)pricingFail(409,'order_commercial_version_conflict');
   const lines=await selectedLines(c,id,selection);if(productHash({selection,lines})!==raw.fingerprint)pricingFail(409,'business_source_changed');if((business.businessType==='processing')!==(lines[0].source.quoteType==='processing'))pricingFail(409,'order_quote_business_type_conflict');
   for(const color of await readPricingColors(c,id))await c.query('INSERT INTO sales_order_color_identities(id,sales_order_id,business_key,color_name) VALUES($1,$2,$3,$4) ON CONFLICT(sales_order_id,business_key) DO NOTHING',[color.id,id,color.businessKey,color.colorName]);

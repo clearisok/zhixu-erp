@@ -85,8 +85,9 @@ test('payment snapshots: disposable PG upgrade, immutable publication and real s
     assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,migrationFilesAfter(24));
     assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
     assert.deepEqual((await pool.query(`SELECT (SELECT jsonb_agg(to_jsonb(o) ORDER BY id) FROM sales_orders o) AS orders,
-      (SELECT jsonb_agg(to_jsonb(u) ORDER BY id) FROM app_users u) AS users,
+      (SELECT jsonb_agg(to_jsonb(u)-'archived_at'-'last_login_at'-'password_reset_required' ORDER BY id) FROM app_users u) AS users,
       (SELECT jsonb_agg(to_jsonb(l) ORDER BY id) FROM sales_order_source_links l) AS links`)).rows,before);
+    assert.equal((await pool.query("SELECT count(*)::int n FROM app_users WHERE archived_at IS NOT NULL OR last_login_at IS NOT NULL OR password_reset_required")).rows[0].n,0);
     for(const name of ['ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads'])
       assert.equal((await pool.query('SELECT count(*)::int AS n FROM ' + name)).rows[0].n,0);
   });

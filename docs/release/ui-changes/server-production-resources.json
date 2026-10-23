@@ -1,0 +1,25 @@
+{
+  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
+  "level": "V1",
+  "paths": [
+    "app/basic-settings/production-groups/page.tsx",
+    "app/basic-settings/outsource-factories/page.tsx",
+    "app/system-settings/production-infrastructure/page.tsx",
+    "components/foundation/app-shell.tsx",
+    "features/quote-center/authority/quote-authority.ts",
+    "features/operations-settings/components/operations-settings-pages.tsx",
+    "features/operations-settings/components/production-resource-fields.tsx",
+    "features/operations-settings/components/production-resource-settings-page.tsx",
+    "features/operations-settings/components/server-production-resource-page.tsx",
+    "features/operations-settings/components/server-production-reference-picker.tsx",
+    "features/operations-settings/server/production-resource-client.ts",
+    "features/operations-settings/server/production-resource-outbox.ts"
+  ],
+  "pages": [
+    "navigation"
+  ],
+  "visibleDifference": "Approved Server convergence Gate6A only: reuse the existing production group, outsource factory, calendar and site fields, Foundation table/drawer and persistent workspace; restore three existing routes with Server ownership, paged references, explicit save/receipt recovery and existing permissions. Server infrastructure exposes calendar/site only, not Browser logistics or closing defaults. Browser fields delegate without changing the existing repository, storage keys, formulas or identities. No V2/V3 redesign, new schedule/closing workflow, real deployment or human acceptance claim.",
+  "evidence": [
+    "docs/tasks/active/server-convergence-gate6-2026-10-20.md"
+  ]
+}

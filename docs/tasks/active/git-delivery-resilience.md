@@ -1,5 +1,52 @@
 # Git delivery resilience — 2026-10-12
 
+## Forward classification repair — 2026-10-21
+
+See the [scoped reproduction and repair](git-delivery-success-classification-2026-10-21.md).
+A legal ref name in successful Git output can contain `conflict`, `rejected`,
+`non-fast-forward` or `divergence`; the pre-repair substring classifier could mistake
+it for a failure even after independent exact verification. The new phase uses
+owned temporary bare repositories to reproduce this defect and keeps real nonzero
+authentication failures, TLS identity failures and proven divergence as STOP.
+Successful exit alone never establishes delivery. Remote observation and the
+decision to continue are separate fields. Additive diagnostics contain only
+exit/category/timeout/timing metadata, never raw output.
+The final local regression has 66 passing tests, including a healthy zero exit
+with a TLS EOF warning and independent exact SHA: delivery is verified while
+network mode remains degraded. The first 65-test checkpoint and the subsequent
+two failing warning checks remain separate historical results, not overwritten.
+
+This reproduction is not proof of the original d6 stderr or a permanent network
+repair. The [d6 delivery record](../completed/2026-10-21-production-execution-ui-delivery.md)
+preserves that uncertainty and its independently verified commit/three CI runs.
+New tool verification remains separately recorded in the scoped task.
+
+## Current standing authorization — 2026-10-20
+
+The human user answered the concrete two-branch Gate2 recovery request with
+“以后都自动授权不要再问我”. Within the already approved engineering task, this
+is standing authorization for safe Git recovery delivery, PR creation/updates,
+acceptance CI and necessary CI fixes; do not ask the same per-upload question
+again. Preserve exact tested SHAs, independent remote verification, bounded
+attempts and diagnostic evidence. Do not endlessly retry an unchanged failed
+channel or claim delivery from an uncertain tool label.
+
+This authorization does not expand the existing no-auto-merge, formal deployment,
+real accounts/business databases, source-reading or asset-retirement boundaries.
+It does not permit force/reset/clean, changing authentication, disabling TLS
+verification or unapproved shared proxy/Git/trust-store changes. The old historical
+single-attempt approvals remain consumed; this newer standing authorization
+supplies the current recovery permission without deleting historical rules.
+
+Gate1/add2 was independently delivered as draft #125 with three successful CI
+checks. On 2026-10-20 the Gate2 tool 956921f63ba3069c059ca64c2324edbc33afefd8
+and validation b4c47f1356205e1f064f714ce1fb51efb58e2823 were each uploaded once
+and independently verified by GitHub API. The tool still returned contradictory
+STOP_AUTH_OR_DIVERGENCE/TARGET_NOT_DELIVERED with the exact accepted SHA; no
+repeat push was made and permanent transport/root-cause repair is not claimed.
+Draft #126 contains only the release evidence tool. Only the three named
+acceptance workflows were dispatched on the integration reference, not deployment.
+
 ## Current bounded recovery — 2026-10-20
 
 The human user's “以后都自动授权不要再问我” is standing authorization for

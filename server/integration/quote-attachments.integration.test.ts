@@ -213,6 +213,9 @@ test("Q4A attachment foundation uses disposable PostgreSQL and fake object stora
   });
 
   await t.test("API uses trusted session, 401/403, typed metadata and binary read without actor spoof", async () => {
+    // Earlier assertions deliberately exercise the original attachment schema.
+    // Current HTTP authentication runs only after all forward migrations.
+    await runMigrations(pool, resolve("database/migrations"));
     await new Promise<void>((done) => server.listen(0, "127.0.0.1", done));
     const address = server.address(); assert.ok(address && typeof address === "object");
     const base = `http://127.0.0.1:${address.port}`;

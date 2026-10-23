@@ -62,7 +62,7 @@ test("版本更新保留 V1、创建完整独立 V2 并移动当前指针", () =
 test("Modal 只在打开状态变化时执行自动聚焦", async () => {
   const source = await readFile(new URL("../components/foundation/modal.tsx", import.meta.url), "utf8");
   const overlay = await readFile(new URL("../components/foundation/overlay.ts", import.meta.url), "utf8");
-  assert.match(source, /useOverlayLifecycle\(\{ open, panelRef: panel, onClose \}\)/);
+  assert.match(source, /useOverlayLifecycle\(\{ open, panelRef: panel, onClose(?:: \w+)? \}\)/);
   assert.match(overlay, /onCloseRef\.current = onClose/);
   assert.match(overlay, /if \(!open\) return/);
   assert.doesNotMatch(overlay, /\[open, onClose\]/);

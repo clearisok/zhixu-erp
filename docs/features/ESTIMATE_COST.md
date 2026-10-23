@@ -6,6 +6,20 @@
 
 ## Current behavior
 
+### Server 当前加工模式的命令边界（2026-10-21）
+
+D-145 的加工仅工价投影已隐藏 Estimate；对应 Server 写入口按已保存的 `defaultRevisionId`
+判断类型。当前默认 Revision 为加工时，生成、重新生成、编辑、恢复和忽略均返回
+`409 estimate_not_applicable`，不生成身份、不保存版本或成功审计。请求的来源 Revision、
+历史查看状态和 `currentRevisionId` 不能改变这个判断。旧 Estimate 与材料/成本事实完整保留，
+普通资料保存不得清空它们，读取继续省略 Estimate 字段并标为 restricted。
+
+这是现有纯工价流程的 Server 命令保护，不把此前允许隐藏写入的行为冒称已受保护；
+不改变 Browser。下述 Server 通用生命周期适用于当前默认为经销的报价，历史中含加工
+不导致整单被封禁；来源 PV 已删除后的历史恢复规则继续有效。
+
+### 通用生命周期
+
 - 报价版本 Modal 顶部顺序为：成本、V1、V2…、更新报价版本。
 - 新 Quote 的 `activeEstimateCost` 为 `null`；只有用户主动选择某个 QuoteRevision 生成时才创建。
 - 生成时选择来源 PriceVersion（显式 ID；未指定时选基础价格，再回退首项），深复制面料、辅料、工价、其他费用和报价参数，并为 Estimate/成本行生成新 ID。Server 显式来源 ID 不属于所选 Revision 时拒绝，不静默回退。

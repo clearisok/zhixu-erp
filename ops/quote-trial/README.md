@@ -1,4 +1,116 @@
-# Quote trial candidate (2026-10-09)
+# Quote trial operations
+
+## Local persistent empty target — Gate 1 candidate (2026-10-20)
+
+Approved engineering scope is D-147 / [Gate 0](../../docs/tasks/active/server-convergence-gate0-2026-10-20.md).
+The opt-in `TRIAL_LOCAL_OBJECTS=true` mode reuses this production Server runtime,
+session authentication, PostgreSQL, S3 attachment implementation and backup format.
+Default COS mode remains exactly three services. Local mode is exactly five:
+database/app/gateway plus a digest-pinned MinIO and its internal HTTPS proxy.
+It is a local candidate, not a new permission to deploy or replace 50426/3001/18443/18444.
+
+Local mode uses its own project network and four owned named volumes: `data`,
+`objects`, `appsecrets`, `objectsecrets`. Only the gateway has a loopback host port
+and a separate project-owned ingress bridge; app/DB/objects stay internal-only.
+No public object/console port, external network/volume, tmpfs business storage,
+legacy import, Browser fallback or continuous source collection. The internal
+application network has no external egress. No shared Git, proxy or system certificate trust
+configuration is changed. Credentials are generated into a new Windows ACL-protected
+directory; separate Linux secret volumes are seeded once as 1000:1000 / 1001:1001,
+mode 0600 and mounted read-only. A partial preparation is retained for review,
+never overwritten by retry. The new target has no historical business data.
+MinIO runs as its supported non-root 1001:0, with a new 1001:1001/0700 data volume
+and `nocopy`. Its unused `/certs` path is the sole read-only 64KiB tmpfs exception,
+preventing an image-declared anonymous volume; no business bytes use that mount.
+Snapshot reads use the empty `local-empty` namespace, with no source profile,
+target, credentials, collection or scheduler activation.
+
+Use `new-local-target.ps1` with explicit new Root/Project/Port, exact Image/Commit/
+BuildId/BuildTime. It defaults to a non-writing check; `-Execute` only creates
+private inputs and a 90-day self-signed certificate for localhost and objects-tls.
+It does not start containers or install trust. Keep that private directory outside
+Git; renewal is an explicit local operation before the receipt's expiry.
+
+From an immutable copy of the reviewed ops, use `trial.mjs` with the exact config:
+
+1. `check` validates the compiled image and the resolved isolation model.
+2. `prepare-local --execute=<project>` only accepts a new project and new volumes;
+   it prepares private file credentials. It never adopts an existing object store.
+3. `init --execute=<project>` applies current migrations to a new empty public schema.
+4. `objects-init --execute=<project>` starts the two private object services and
+   explicitly initializes the named bucket. It refuses active application writers.
+5. `start --execute=<project>` requires exact healthy services, trusted HTTPS,
+   compiled identity and a signed, read-only HeadBucket. DB health alone is insufficient.
+
+Normal start/restart never runs migrations or resets an existing administrator.
+`status` reports observations only. Failure preserves data and does not fall back
+to memory/localStorage/HTTP. Copy all ops files together: readiness imports the
+same exact service policy as the command tool. A changing developer checkout is
+not a persistent operational tool path.
+
+Backup uses `maintenance` to stop app/gateway, then the existing exact-target DB
+backup and `objects-export ... --bundle-dir=<new-absolute-private-directory>`.
+Keep the canonical config unchanged: the directory overrides only the one-off
+backup container, so a fresh backup does not change the stopped runtime's hash.
+Local object services
+may stay running only after their exact project/image/config/volume checks. No
+bucket scan or attachment deletion is introduced. For DB restoration, use a
+different new empty project and stop **all** non-database services (`maintenance-db`
+on an initialized project). The shared restore writer guard is unchanged. Only
+after DB restore succeeds may `objects-init` start that copy's private object
+services, then `objects-restore` verifies every backup byte/collision before writes.
+Its effective bundle (configured directory or explicit `--bundle-dir`) is always
+mounted read-only; the source backup is not repaired or overwritten by restoration.
+Finally start the application and verify readback. A restore failure stays in
+maintenance. Do not point a restore copy at the source project's objects.
+
+The actual-image rehearsal is `persistent-local-trial.integration.test.mjs`, enabled
+on Windows only with explicit `ZHIXU_LOCAL_TRIAL_IMAGE` and full
+`ZHIXU_LOCAL_TRIAL_COMMIT`. Its unique synthetic projects are distinct from the
+final empty target. Validation results belong to the Gate 1 evidence record;
+the historical results below retain their original source and date.
+
+The optional `ZHIXU_LOCAL_TRIAL_DOMAINS=1` test-driver mode additionally requires
+`ZHIXU_LOCAL_TRIAL_IMAGE_ID`, `ZHIXU_LOCAL_TRIAL_BUILD_ID` and
+`ZHIXU_LOCAL_TRIAL_BUILD_TIME` matching the immutable image. It pins a verified
+local Docker named-pipe endpoint for child commands and rejects remote/TLS
+overrides. It uses the same two newly prepared owned projects; no existing
+environment, real source credential, HTTP collector or business data is used.
+After the original Quote-only check, test-only input is sent through the image's
+original compiled domain services. No application code is mounted or rebuilt.
+The fixture covers contract/colors, manual delivery plans and original receipts,
+color commercial versions, processing batches, production resources/plans and
+execution history, plus explicitly synthetic material/payment/garment snapshots.
+After maintenance and helper shutdown, it compares all public table content hashes,
+row counts and all sequence state with the independent restore **before** app
+startup or login, then checks native service reads, original receipts and new
+legal commands. Empty tables are explicitly not exercised. Expired observations
+stay stale; timestamps are never refreshed to make a proof pass. A generated
+receipt under ignored `outputs/server-domain-recovery-20261023/` identifies both
+test-driver HEAD and image source. This is not HTTP/UI source activation, a Server
+closing implementation, recovery of an old environment, deployment or user acceptance.
+Only successfully prepared projects are cleaned up after complete success; any
+failed phase stops dependent work and retains its owned volumes/private evidence.
+
+2026-10-23 domain mode actually passed9/9 using driver353381dd and the original
+0c7377d9 image:106 public tables (68 populated/38 empty and not exercised) and5
+sequences matched before application startup on the restore target; original
+business-service receipts and continued commands passed. See the separately
+[frozen domain evidence](../../docs/tasks/completed/2026-10-23-server-domain-recovery-engineering.md).
+This does not broaden the old8/8 or claim complete business acceptance. Local
+default-network-pool exhaustion was resolved only by down-without-volumes of
+three verified stopped fixtures from this phase, retaining their12 volumes and
+private config. No old/shared project or global Docker networking was changed.
+
+2026-10-22 current-image engineering: clean sourcef4692eea was built and the
+corrected actual-image rehearsal passed8/8 with40 migrations (maximum0041),
+including restart, cold recreation and independent synthetic Quote/PNG restore.
+Cleanup skips projects whose preparation was refused or never succeeded. Reserved
+old ports are excluded from random test port selection. This is not an upgrade
+of62426 or50426, all-domain historical recovery, deployment or user acceptance.
+See the [frozen evidence](../../docs/tasks/completed/2026-10-22-current-server-persistence-engineering.md).
+
+## Historical Quote trial candidate (2026-10-09)
 
 The candidate engineering evidence below is **not deployment evidence**. D-098 locks the merged Quote-first
 scope; D-096 historical import is NOT REQUIRED. The old environments/data remain
@@ -255,12 +367,14 @@ fingerprint. Pass those exact fields to the already verified scripts:
 pwsh -NoProfile -File Backup-Zhixu.ps1 -ExpectedContainerName <container> -ExpectedComposeProject <project> -ExpectedVolumeName <volume> -ExpectedDatabaseName quote_trial -ExpectedTargetFingerprint <fingerprint>
 ```
 
-For object backup, set `TRIAL_COMPOSE_OVERRIDE` to the absolute reviewed
-`ops/quote-trial/objects.compose.yml`, and `TRIAL_OBJECT_BUNDLE_DIR` to a new absolute
-protected bundle directory. Validate config again, then:
+The canonical configuration must already include the reviewed absolute
+`ops/quote-trial/objects.compose.yml` override and an absolute protected
+`TRIAL_OBJECT_BUNDLE_DIR`. Do not edit that config to rotate backup directories.
+Create a new protected, empty directory for each export and override only the
+one-off job (an existing bundle is refused, never overwritten):
 
 ```text
-node ops/quote-trial/trial.mjs objects-export <config> --execute=<exact-project>
+node ops/quote-trial/trial.mjs objects-export <config> --execute=<exact-project> --bundle-dir=<new-absolute-private-directory>
 ```
 
 Preserve dump + its exact-target manifest + objects.json + object byte files
@@ -281,7 +395,7 @@ dump or point a disposable restore at COS. The tested restore call is:
 ```text
 node ops/quote-trial/trial.mjs restore-check <new-config>
 pwsh -NoProfile -File Restore-Zhixu.ps1 -BackupFile <dump-under-reviewed-backups-root> -ExpectedContainerName <new-container> -ExpectedComposeProject <new-project> -ExpectedVolumeName <new-volume> -ExpectedDatabaseName quote_trial -ExpectedTargetFingerprint <new-fingerprint> -ExpectedBackupSha256 <verified-sha> -ConfirmDataLoss -ConfirmTargetFingerprint <same-new-fingerprint>
-node ops/quote-trial/trial.mjs objects-restore <new-config> --execute=<exact-new-project>
+node ops/quote-trial/trial.mjs objects-restore <new-config> --execute=<exact-new-project> --bundle-dir=<verified-absolute-private-directory>
 ```
 
 The trial `restore-check` proves empty schema/no clients and stopped services;

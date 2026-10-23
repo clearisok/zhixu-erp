@@ -1,0 +1,11 @@
+{
+  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
+  "level": "V0",
+  "visibleDifference": "none",
+  "paths": [
+    "features/order-center/server/sales-order-server-model.ts",
+    "features/order-center/server/sales-order-server-client.ts"
+  ],
+  "pages": ["order-detail"],
+  "evidence": ["docs/tasks/active/server-convergence-gate4-2026-10-20.md"]
+}

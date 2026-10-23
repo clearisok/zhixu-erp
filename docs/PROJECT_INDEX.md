@@ -1,16 +1,10 @@
-2026-10-23当前恢复优先：#127后置核实事实修正，main完整e06162c70c9792895c30030216dc8c2a66368069。原e2精确交付、三CI通过；本阶段只纠正已核实目标SHA却写未送达的回执，并保留所有STOP策略；dff新56/134及精确门禁通过，最终交付/CI另核。先读CURRENT_STATE、AI_HANDOFF与[同一任务](tasks/active/pr127-main-forward-2026-10-23.md)；下文保留前阶段日期/结果，原三摘要另有[逐字输入](tasks/completed/2026-10-23-pr127-postflight-facts-inputs/)。不自动合并或部署。
-
-2026-10-23 当前工具恢复优先：CURRENT_STATE、AI_HANDOFF 与[真实 main 前向整合](tasks/active/pr127-main-forward-2026-10-23.md)。#126 已按具体批准以 merge commit 进入 main `e06162c70c9792895c30030216dc8c2a66368069`，原历史保留；#127 的真实四处文档/清单冲突已解决，merge checkpoint7af已通过新53/134/9/10及构建回归。213证据/46能力不改，两侧摘要按原Git字节归档。最终文档精确守卫/远端/新CI分别待核，不借旧结果；未新增业务/UI/SQL或共享配置变更。
-
-以下索引保留 main 整合前各自日期与来源 SHA，当前恢复点以上文和两份状态摘要为准。原#127输入索引另存[37bd归档](tasks/completed/2026-10-23-pr127-forward-inputs/37bd0e1e/PROJECT_INDEX.md)。全项目候选仍由7bf3主控保留，本PR不带入累计业务功能，不自动合并其他PR或部署。
-
 # 项目知识索引
 
-2026-10-23恢复优先读CURRENT_STATE、AI_HANDOFF与[原工具PR126任务](tasks/active/release-document-merge-guard-2026-10-20.md)。main完整基线 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；本分支只修main前移后的旧side证据导入与父历史保护，不含其他业务候选。最终源码cff4addd完整134项、精确996门禁及独立复审通过；同脚本验证完整候选94亦通过。接着交付原#126/核实精确HEAD/检查新CI，不能把旧CI当作新结果。不自动合并、部署或真实Source/业务库操作。旧956、完整Goal候选94与红测93摘要均按Git字节[归档](tasks/completed/2026-10-23-release-main-advance-inputs/)，下方旧阶段按其日期阅读。完整Goal仍active，Source0c与image94原CI已成功。
+2026-10-23；完整G1–G5 Goal继续。实际main=be9aaa3f4efa232e1451075a355f0ce42e35a69e，仅#126/#127已获具体批准合并。#120 fca748cb、#12303570e19、#1254cf19e82均已精确送达，九项新CI attempt1成功且独立复审无P1/P2；保持草稿，未自动合并关闭或部署。
+
+当前恢复先读CURRENT_STATE、AI_HANDOFF和[累计前向任务](tasks/active/candidate-main-forward-2026-10-23.md)。原累计58能力工程与独立业务PR交付分别记录；新组合验证尚待执行。两侧状态/23UI元数据[原字节归档](tasks/completed/2026-10-23-candidate-be9-inputs/)。旧日期/hash/结果/限制均保留，不借旧镜像证明新部署。
 
 ## 系统简介
-
-并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
 
@@ -95,7 +89,7 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 | Quote Center | `features/QUOTE_CENTER.md` | `app/quote-center/`、`features/quote-center/` |
 | Quote production、Server migration 与 progressive rollout | `features/QUOTE_PRODUCTION.md`、`features/QUOTE_CUTOVER_READINESS.md`、`features/QUOTE_MIGRATION_RUNBOOK.md`、`features/QUOTE_MASTER_SETTINGS_ACTIVATION.md`、`features/Q3B2I_CUTOVER_RUNBOOK.md`、`features/QUOTE_CENTER.md`、`features/DATA_LIFECYCLE.md`、`features/ATTACHMENTS.md`、`features/SERVER_PERSISTENCE.md`、`features/PERMISSIONS.md` | Route B、Server foundation、Q2B2C Quote aggregate cutover dependency map、Q5-A/B historical Quote preview/guarded operational boundary，以及 Q3B2I-C2 已完成的 master/settings Server authority；C0/C1 runbook 为历史执行证据，实现事实仍以 Quote/Server/master/attachment 代码和测试为准 |
 | 新订单中心、报价转订单、翻单、交期、订单价格历史与 PostgreSQL SalesOrder foundation/bootstrap/shadow read | `features/ORDER_CENTER.md`、`features/SALES_ORDER_PERSISTENCE.md`、`features/SALES_ORDER_BOOTSTRAP_PREVIEW.md`、`features/SALES_ORDER_BROWSER_CUTOVER.md`、`features/AINUOKE_GARMENT_COLOR_SIZE_SOURCE.md`、`features/SERVER_PERSISTENCE.md`、`features/OPERATIONS_FOUNDATION.md`、`features/DATA_LIFECYCLE.md` | Browser runtime：`app/order-center/`、`features/order-center/`；server foundation/read：`server/sales-orders/`、`features/order-center/server/`、`features/ainuoke-sync/service/sales-order-final-bootstrap-preview.ts`、`features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts`、`database/migrations/0002_sales_order_foundation.sql`、`0003_sales_order_number_sequence.sql` |
-| 生产队列、排单中心、物料运输、订单预警与交期风险 | `features/PRODUCTION_SCHEDULING.md`、`features/ORDER_CENTER.md`、`features/OPERATIONS_FOUNDATION.md`、`features/PERMISSIONS.md` | `app/production-scheduling/`、`features/production-scheduling/`、`tests/production-scheduling.test.mjs` |
+| 生产队列、排单中心、物料运输、订单预警与交期风险 | `features/PRODUCTION_SCHEDULING.md`；Server追加读 `features/SERVER_PRODUCTION_PLANNING_UI.md`、`features/SERVER_PRODUCTION_PLANNING.md`、`features/SERVER_PRODUCTION_PLANNING_READS.md`、`features/SERVER_PRODUCTION_EXECUTION.md`、`features/SERVER_PRODUCTION_EXECUTION_UI.md`，权限/资料见原文档 | Browser与Server authority先分流；`app/production-scheduling/`、`features/production-scheduling/server/`、`server/production-scheduling/`；Server执行、人工计划及逐批物流页面已本地验收；正式成衣/关账仍待，未部署或人工接受 |
 | 款式进度、面辅料跟进、逐物料物流与真实 Excel 导入 | `features/STYLE_PROGRESS.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/DATA_LIFECYCLE.md` | `app/order-center/style-progress/`、`features/style-progress/`、`tests/style-progress.test.mjs` |
 | 关账月份、关账归属、月度产值与锁账 | `features/CLOSING_CENTER.md`、`features/ORDER_CENTER.md`、`features/PRODUCTION_SCHEDULING.md`、`features/PERMISSIONS.md` | `app/closing-center/`、`features/closing-center/`、`tests/closing-center.test.mjs` |
 | Quote Center 附件 | `features/ATTACHMENTS.md`、`features/QUOTE_CENTER.md` | `quote-attachments.ts`、`attachment-panel.tsx`、附件 repository |

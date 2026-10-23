@@ -1,0 +1,17 @@
+{
+  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
+  "level": "V1",
+  "paths": [
+    "app/production-scheduling/production-scheduling.css",
+    "features/production-scheduling/components/server-production-scheduling-page.tsx",
+    "features/production-scheduling/components/server-production-plan-fields.tsx",
+    "features/production-scheduling/components/server-production-execution-fields.tsx",
+    "features/production-scheduling/server/production-plan-client.ts",
+    "features/production-scheduling/server/production-plan-outbox.ts",
+    "features/production-scheduling/server/production-command.ts",
+    "features/production-scheduling/server/production-execution-form.ts"
+  ],
+  "pages": ["navigation"],
+  "visibleDifference": "Approved D147 Gate6C and explicit D151 answers: restore actual progress and the existing completion/linked-replanning dialog and history surfaces on the same Server scheduling page. Preserve Foundation/master-detail/table geometry and original navigation. Display separate planned and registered actual quantities; unknown facts remain unknown. Record-only never depends on full queue availability; linked changes require both permissions and a second exact preview. Reuse the single actor/tab pending-command slot, session lease, exact digest/receipt and manual recovery. No Browser mounting/data migration, logistics, shipment, closing, prices, new navigation or deployment/human-acceptance claim.",
+  "evidence": ["docs/tasks/active/server-convergence-gate6c-ui-2026-10-21.md", "docs/features/SERVER_PRODUCTION_EXECUTION_UI.md"]
+}

@@ -100,13 +100,23 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
     await assert.rejects(()=>updateDeliveryPlans(pool,actor,order.id,{expectedVersion:plans.version,upserts:[],voidIds:[row.id]}));
     await assert.rejects(()=>pool.query('DELETE FROM sales_order_delivery_plans WHERE id=$1',[row.id]));
   });
-  await t.test('CAS and concurrent writers yield one commit; no lost updates',async()=>{
+  await t.test('same legacy command races once and both callers receive the original commit',async()=>{
     const order=await create();const row=(await read(order.id)).plans[0];
     const command={expectedVersion:1,upserts:[{id:row.id,deliveryDate:'2026-12-01',quantity:'100'}],voidIds:[]};
     const results=await Promise.allSettled([updateDeliveryPlans(pool,actor,order.id,command),updateDeliveryPlans(pool,actor,order.id,command)]);
-    assert.equal(results.filter(r=>r.status==='fulfilled').length,1);const failure=results.find(r=>r.status==='rejected');
-    assert.equal(failure?.status==='rejected' ? failure.reason.status : null,409);
+    assert.equal(results.filter(r=>r.status==='fulfilled').length,2);
+    assert.deepEqual(results[0],results[1]);
     assert.equal((await read(order.id)).version,2);
+    assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_delivery_plan_requests WHERE sales_order_id=$1',[order.id])).rows[0].n,1);
+  });
+  await t.test('different explicit requests compete on CAS, with one commit and one stable rejection',async()=>{
+    const order=await create(),row=(await read(order.id)).plans[0];
+    const command={expectedVersion:1,upserts:[{id:row.id,deliveryDate:'2026-12-01',quantity:'100'}],voidIds:[]};
+    const results=await Promise.allSettled([updateDeliveryPlans(pool,actor,order.id,{...command,requestId:randomUUID()}),updateDeliveryPlans(pool,actor,order.id,{...command,requestId:randomUUID()})]);
+    assert.equal(results.filter(r=>r.status==='fulfilled').length,1);const failure=results.find(r=>r.status==='rejected');
+    assert.equal(failure?.status==='rejected' ? failure.reason.code : null,'delivery_plan_version_conflict');
+    assert.equal((await read(order.id)).version,2);
+    assert.deepEqual((await pool.query('SELECT outcome FROM sales_order_delivery_plan_requests WHERE sales_order_id=$1 ORDER BY outcome',[order.id])).rows,[{outcome:'applied'},{outcome:'rejected'}]);
   });
   for (const firstWriter of ['user', 'source', 'source-source'] as const) {
     await t.test(`controlled root-lock concurrency: ${firstWriter} commits first`, async () => {
@@ -219,6 +229,9 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
       assert.equal((await readDeliveryPlanSet(old,id)).ownership,'uninitialized');
       await refreshAinuokeSalesOrderSource(old,legacyActor,id,{...input,source:{...input.source,sourceHash:'legacy-new',contractDeliveryDate:'2027-01-01'},expectedSourceHash:input.source.sourceHash,expectedPlanVersion:0});
       assert.equal((await readDeliveryPlanSet(old,id)).plans.length,0);
+      // Preserve the original 0008→0009 evidence above. The new command requires
+      // the current actor schema and receipt ledger; never add a missing-table writer fallback.
+      await runMigrations(old,resolve('database/migrations'));
       const plans=await updateDeliveryPlans(old,legacyActor,id,{expectedVersion:0,upserts:[{id:null,deliveryDate:'2027-02-01',quantity:'100'}],voidIds:[]});
       assert.equal(plans.ownership,'user_managed');assert.equal(plans.version,1);
     } finally {await old.end();await rm(directory,{recursive:true,force:true});}
@@ -253,7 +266,7 @@ test('C4.3 DeliveryPlan isolated PostgreSQL domain', { timeout: 180_000 }, async
       assert.equal((await request(`/api/v1/sales-orders/${randomUUID()}/delivery-plans`,cookie)).status,404);
       let response=await request(path,cookie,cmd);assert.equal(response.status,200);
       const saved=(await response.json()).deliveryPlanSet;assert.equal(saved.plans[0].quantity,'0.000000000000000001');assert.equal(saved.ownership,'user_managed');
-      assert.equal((await request(path,cookie,cmd)).status,409);
+      response=await request(path,cookie,cmd);assert.equal(response.status,200);assert.deepEqual((await response.json()).deliveryPlanSet,saved);
       response=await request(path,cookie);assert.equal((await response.json()).deliveryPlanSet.plans[0].id,row.id);
       assert.equal((await request(`/api/v1/sales-orders/${order.id}`,cookie,{expectedVersion:1,lifecycleState:'active'})).status,404);
       assert.equal((await request(`/api/v1/sales-orders/${order.id}/source-refresh`,cookie,{})).status,404);

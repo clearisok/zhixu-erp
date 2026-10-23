@@ -1,0 +1,30 @@
+{
+  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
+  "level": "V2",
+  "paths": [
+    "features/order-center/server/delivery-plan-client.ts",
+    "features/order-center/server/delivery-plan-draft.ts",
+    "features/order-center/server/delivery-plan-pending.ts",
+    "components/foundation/modal.tsx",
+    "features/order-center/server/sales-order-server-client.ts",
+    "features/order-center/components/use-server-delivery-plan-maintenance.ts",
+    "features/order-center/components/server-delivery-plan-maintenance.tsx",
+    "features/order-center/components/server-delivery-plan-maintenance.css",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/order-center/components/server-saved-order-sources.tsx"
+  ],
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "Implement the specifically approved small maintain-delivery-dates action in the existing Server order detail and a Foundation modal for editing, explicit voiding, preview and confirmed save. Source contract dates remain read-only, quantity differences are warnings, and unknown submissions require original-request readback. Only an exact unknown receipt permits a second explicit confirmation to resend the unchanged original UUID/CAS/body; no automatic replay, new intent or cache overwrite is allowed. Keep default zero/null rows, retained void history, independent guards and current session ownership. Saved open disclosures refresh using the canonical SO identity. Processing has no fabricated Ainuoke comparison. Scope table minimum width locally and use the approved mobile date/quantity/action rows, labelled preview and coarse-pointer targets; no global table or breakpoint change. Restore focus to the still-owned topmost maintenance panel when the retry trigger disappears. Reuse D100/D154; no new route, global theme, Source collection, price or production command. Optional Modal close disabling keeps default behavior for other callers. The responsive correction requires new exact built-browser evidence. Keep both existing source and new delivery actions in a scoped detail-header group; at mobile widths place that group on its own row so the unchanged Foundation last-action rule cannot hide the source entry. Eight-width real visibility, hit-test and open/close evidence must verify both actions; no global PageHeader behavior changes.",
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md"
+  },
+  "evidence": [
+    "docs/tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md",
+    "docs/features/SALES_ORDER_PERSISTENCE.md",
+    "docs/tasks/completed/2026-10-22-delivery-plan-maintenance-ui-engineering.md",
+    "docs/tasks/completed/2026-10-22-order-maintenance-mobile-actions-correction.md"
+  ]
+}

@@ -1,5 +1,6 @@
 "use client";
 import {QuoteOrderPriceEntry} from "./quote-order-pricing";
+import {QuoteCreationOrigin} from "./quote-creation-origin";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NumberPrecisionContext } from "@/components/foundation/nullable-number-input";
@@ -9,7 +10,8 @@ import { readableEstimateQuote, type QuoteEditorData as Quote } from "../model/q
 import type { QuoteVersionAction } from "../server/quote-editor-persistence";
 import { mergeAttachmentMirror } from "../server/quote-attachment-draft";
 import { createServerQuoteAttachmentController } from "../model/quote-attachment-controller";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useProtectedRouter as useRouter, useServerNavigationProtection } from "@/components/foundation/server-navigation-protection";
 import {
   AppShell,
   AlertBanner,
@@ -225,6 +227,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   const [revisionManagerOpen, setRevisionManagerOpen] = useState(false);
   const [operationLogOpen, setOperationLogOpen] = useState(false);
   const [priceSyncRequest, setPriceSyncRequest] = useState<PriceSyncRequest>(null);
+  const confirmedNavigation = useServerNavigationProtection({ dirty: isDirty, blocked: serverMode && (serverBusy || Boolean(serverError) || Boolean(priceSyncRequest)), message: "请先完成当前报价保存或核对原请求，再离开。" });
   const [priceDifferencesOpen, setPriceDifferencesOpen] = useState(false);
   const [exportDifferenceWarningOpen, setExportDifferenceWarningOpen] = useState(false);
   const [confirmationValidationIssues, setConfirmationValidationIssues] = useState<QuoteValidationIssue[]>([]);
@@ -456,7 +459,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     const target = pendingNavigation;
     setIsDirty(false);
     setPendingNavigation(null);
-    if (target) router.push(target);
+    if (target) confirmedNavigation(() => router.push(target));
   };
   const cancelDeparture = () => { if (!serverBusy) { setPendingNavigation(null); setPendingLogout(false); } };
   const requestLogout = async () => {
@@ -465,6 +468,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     await serverSession.logout();
   };
   const requestNavigation = (target: string) => {
+    if (serverMode && (serverBusy || serverError || priceSyncRequest)) { notify('请先完成当前报价保存或核对，再离开。'); return; }
     const intent = createNavigationIntent(isDirty, target);
     if (intent.pendingTarget) setPendingNavigation(intent.pendingTarget);
     if (intent.navigateTo) router.push(intent.navigateTo);
@@ -1288,6 +1292,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     {(!serverMode || q3Authority === "frozen") && q3AuthorityNotice}
     {unsafeNumbers.size > 0 && <ErrorState title="数值无法安全精确读写，保存已阻止" description="请修正输入；系统不会舍入后保存。" />}
     {serverError && <ErrorState title="Server 写入需核对" description={serverError} onRetry={() => { if (window.confirm("放弃当前未保存草稿并重新读取 Server？")) { setIsDirty(false); window.setTimeout(() => window.location.reload(), 100); } }} />}
+    {serverMode && <div className="qc-workspace-metadata"><QuoteCreationOrigin quoteId={quote.id}/></div>}
     <FormShell className="qc-page-form-shell" submitOnEnter={false} onSubmit={() => { if (!quoteReadOnly) return save(); }}>
     <div ref={titleSentinelRef} className="qc-title-sentinel"><PageHeader className="qc-quote-object-header" variant="object" eyebrow="QUOTE WORKSPACE" title={pageTitle} description={<span className="qc-quote-object-description"><strong>{pageSubtitle}</strong><span className="qc-workspace-metadata"><b>{revision.baseInfo.brandName || "未填写品牌"}</b><span>{revision.baseInfo.salespersonName || "未填写客户业务员"}</span><span>{revision.baseInfo.quoteType === "distribution" ? "经销报价" : "加工报价"}{activeVersion.pricingParameters.configuration?.sources.some(item => item.field === "quoteType" && item.source === "technical_default") && "（未配置，技术回退）"}</span><span>{quoteStatusLabel}</span><span>报价编号 {quote.quoteCode}</span><span>{quoteFrozen ? "迁移冻结 · 只读" : isHistorical ? "历史只读" : serverMode && quote.aggregateStatus === "draft" ? `草稿已创建并保留 · ${isDirty ? "有未保存修改" : "已保存"}` : "当前编辑"}</span></span></span>} actions={headerActions} /><QuoteCockpit version={activeVersion} processing={revision.baseInfo.quoteType==='processing'} canViewSale={canViewCommercialSale} revisionLabel={revision.revisionLabel} priceVersionLabel={activePriceDisplayName} productionLabel={activeProductionLabel} confirmationLabel={activeConfirmationLabel} differenceCount={unconfirmedCostDifferences.length} historical={isHistorical} onDifferenceClick={() => setPriceDifferencesOpen(true)} onFinalQuoteClick={() => setBreakdownOpen(true)} settingsAction={<Button permission="quote.settings.edit" disabled={serverMode && masterStatus !== "ready"} variant="text" onClick={() => setPricingOpen(true)}>报价设置</Button>} /></div>
     <div className={`qc-sticky-header ${stickyVisible ? "is-visible" : ""}`} aria-hidden={!stickyVisible}><div className="qc-sticky-summary"><strong>{pageTitle}</strong><small>{pageSubtitle} · {revision.baseInfo.brandName || "未填写品牌"} · {revision.baseInfo.salespersonName || "未填写业务员"}</small></div><div className="qc-sticky-state"><span>{revision.revisionLabel} · {activePriceDisplayName}</span><span>{activeProductionLabel} · {revision.baseInfo.quoteType === "distribution" ? "经销" : "加工"}</span><span>{activeVersion.quantity === null ? "数量未填写" : `${activeVersion.quantity.toLocaleString("zh-CN")} 件`}{revision.baseInfo.quoteType!=='processing'&&<> · 成衣 {canViewCommercialSale ? formatFinalGarmentPrice(metrics?.garmentSellingPrice ?? null) : '无权查看'}</>}</span><span>工价 {activeVersion.labor.value === null ? "—" : activeVersion.labor.value.toFixed(2)} {activeVersion.pricingParameters.laborCurrency} · {activeConfirmationLabel}</span><b>{isDirty ? "有未保存修改" : "已保存"}</b></div><div className="qc-sticky-actions">{!quoteReadOnly && <Button permission="quote.edit" onClick={save}>保存</Button>}{!serverMode && !isNew && !quoteFrozen && <Button permission="order.create" disabled={serverMode} title={serverMode ? "转订单尚未接通" : undefined} variant="secondary" onClick={() => setQuoteToOrderOpen(true)}>生成订单</Button>}</div></div>

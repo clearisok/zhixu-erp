@@ -12,6 +12,30 @@
 
 这是同一Origin、同一标签页内的恢复保护；手动清理站点、关闭标签页或浏览器设备丢失不在持久保障范围。共享浏览器用户可访问本机站点存储，不能将该缓存作为保密凭据仓库。若整标签页丢失，应先按原参考/准备及服务端记录核对，不能假设未提交而重建业务。缓存不可用时新命令不发送，不以仅内存草稿冒称可恢复。后续跨设备待办服务另立交付，不隐式扩大本阶段。
 
+## Server人工到仓请求恢复（2026-10-21）
+
+独立sessionStorage槽`zhixu.server.material-arrival.pending.v1.<publicUserUUID>`仅保存该actor/tab未核实原命令，
+不存凭据、token、金额或Browser业务数据。先保存并读回再POST，刷新不自动POST；
+仅内容摘要核对成功的原回执可确认并删除自己的精确槽。损坏/未来schema/未知/处理中保留，
+不能覆盖为新请求；新账号不读取其他actor槽。关闭标签页/人为清理不在保障范围。
+无现有namespace、schema、IndexedDB、Seed或备份迁移，详见`SERVER_MATERIAL_ARRIVALS.md`。
+
+## Server交付计划原请求恢复（2026-10-22客户端切片）
+
+独立sessionStorage槽`zhixu.server.delivery-plan.pending.v1.<publicUserUUID>`只保存该actor/tab
+的一份未决Server交期命令：SO/request UUID、原expectedVersion、日期/精确数量upserts及voidIds。
+不保存登录凭据、价格、服务端快照，也不读写Browser业务namespace、schema、IndexedDB、Seed或备份。
+发送前必须完整保存并读回；不同订单或请求不能覆盖该槽。刷新只恢复原意图供receipt核对，
+不自动PATCH；仅当前owner核实匹配的applied/rejected终态后清除原槽。损坏/未来schema原字节
+保留并阻止新发送；存储不可用时不以纯内存代替恢复保障。关闭标签页或清站点不在保障范围。
+
+发送前断网可能一直unknown；只有精确原receipt明确unknown后，才开放二次人工确认重发原请求。
+原UUID/CAS/日期/数量不变，发送前再验证原槽存在且完整相同。每次确认最多一次；重发即清除旧
+unknown许可，失回执必须重新核对；错误或身份变化不能沿用许可。不会自动重发或清除损坏记录。
+
+客户端与页面已接线，隔离built浏览器验收仍待；见
+[交期维护任务](../tasks/active/server-delivery-plan-maintenance-ui-2026-10-22.md)。
+
 ## Purpose
 
 保护 Quote Center 在浏览器中的长期验收数据，使页面刷新、HMR、DEV 重启、Production Build、Docker rebuild、Seed 变化和前端 schema 演进均不会自动清空或覆盖用户数据。
@@ -148,5 +172,11 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 - localStorage 与两个 IndexedDB database 之间无法形成真正的跨存储原子事务；当前恢复以预校验、内存快照和失败回滚降低风险。
 - Browser Backup 无法备份个人 Ainuoke credential；Windows Credential Manager 与 Local Bridge 生命周期独立，迁移设备时必须由本人重新绑定。
 - 大量附件会使 JSON 备份体积较大；未来对象存储阶段应升级为流式归档格式。
+
+2026-10-20 Gate6A：正式生产资料页面使用 sessionStorage `zhixu.server.production-resource.pending.v1.<public-user-id>.<kind>` 暂存一份未确认原命令（schemaVersion/userId/kind/savedAt/command）。只含该用户主动填写的名称、启停、备注、联系人、电话、日期及关系ID/版本；不含密码、令牌、金额、Browser账本、来源凭据或服务端返回快照。最多1MiB，存储写入与读回确认成功后才POST；不能可靠保存时拒绝发送，不以内存假装可恢复。它是单标签页的未决命令，不是基础资料权威库、跨设备同步或Browser备份。
+
+刷新只恢复核对入口，不自动POST。回执的actor/request/kind及既有规范化SHA-256与原内容一致后才删除本键；已知成功另读最新资料，不拿旧回执覆盖现版本。pending/unknown不等于未执行；只有用户明确点击“重试原请求”才发送同一编号与同一内容。损坏、未来版本、摘要冲突和其他用户原字节保持，不静默清除或生成新编号。会话切换使当前异步owner失效，不能消费另一用户缓存。关闭标签页可能丢失这个临时核对地址；已入库资料、审计和服务端回执仍在。无localStorage/IndexedDB/Seed读取、写入、清理或Browser回退。
+
+2026-10-21 Gate6D沿用同一schema1和namespace，增加hubs/transport-plans两个kind作用域；不换key或迁移/清理旧四类型原字节。物流未决命令只增加显式仓/地点UUID、完整方式字段和既有/待分配身份，不保存Server返回快照；本地editorId不进入命令。新请求派生显示标题后先原字节读回才POST，原请求重试不重新派生名称/身份。生成新方式ID的回执必须核对全部成员/顺序/业务值后才删除原命令；裸422、错误摘要或未知结果保持缓存。父资料读取后的owner校验与原WebCrypto/网络/401/确认保护共同覆盖A→B→A；Browser长期数据、备份、Seed和IndexedDB不变。
 
 2026-10-17 D-145 Server会话恢复：新增sessionStorage zhixu.server.order-price.pending.v1.<public-user-id>仅请求UUID、zhixu.server.processing-push.pending.v1.<public-user-id>仅请求UUID/Quote IDs；不存金额/原因/令牌，不读写Browser业务namespace/IndexedDB或Seed。原载荷仅当前组件内存保存。只显式重试原命令/核对服务端回执；已确认完成或明确受理前拒绝时删除本组件恢复标记。不同用户不能复用标记，切换授权范围重新加载投影。没有服务端记录且原内存稿已丢失时保持核对状态，不冒称未执行或自动重新下单。

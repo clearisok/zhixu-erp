@@ -1,0 +1,21 @@
+{
+  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
+  "level": "V1",
+  "paths": [
+    "features/order-center/components/order-business-source-button.tsx",
+    "features/quote-center/components/quote-direct-create.tsx",
+    "features/quote-center/components/quote-creation-origin.tsx",
+    "features/quote-center/components/quote-editor.tsx",
+    "features/quote-center/components/restricted-quote-content.tsx",
+    "features/quote-center/server/quote-creation-client.ts"
+  ],
+  "pages": [
+    "order-detail",
+    "quote-new",
+    "quote-detail"
+  ],
+  "visibleDifference": "Restore approved convergence Gate5: secondary create-Quote entry at initial source selection, readonly proven contract context on existing new page, explicit numbered draft through the same receipt owner/writer/editor, and readonly original-order return reference. Ordinary list one-click defaults remain. No new modal, navigation, pricing operation, density model, automatic SO/adoption or Browser write.",
+  "evidence": [
+    "docs/tasks/active/server-convergence-gate5-2026-10-20.md"
+  ]
+}

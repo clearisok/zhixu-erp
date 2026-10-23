@@ -1,0 +1,19 @@
+{
+  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
+  "level": "V1",
+  "visibleDifference": "Synchronize the existing source-maintenance parent navigation guard before the enabled button can be used. A single click on Create Quote after the real source list read finishes reaches the original contract-context draft page. Existing dirty, pending, unknown-result and logout protections remain; no navigation exemption, click replay, layout, label, density or breakpoint change.",
+  "paths": [
+    "features/order-center/components/order-business-source-button.tsx"
+  ],
+  "pages": [
+    "order-detail",
+    "quote-new",
+    "quote-list",
+    "quote-detail"
+  ],
+  "evidence": [
+    "docs/tasks/active/server-source-navigation-guard-2026-10-21.md",
+    "server/integration/quote-order-context-ui.integration.test.mjs",
+    "server/integration/server-navigation-continuity.integration.test.mjs"
+  ]
+}

@@ -1,0 +1,390 @@
+{
+  "schemaVersion": "delivery-plan-maintenance-ui.v2",
+  "renderedSourceSha": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+  "buildId": "server-delivery-actions-2a19960a-20261022",
+  "synthetic": true,
+  "realSourceRequests": 0,
+  "headerMetrics": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 1536,
+      "height": 864,
+      "touch": false,
+      "dpr": 1.25,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 900,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 736,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "touch": true,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "height": 740,
+      "touch": true,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "height": 740,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "touch": false,
+      "dpr": 1,
+      "left": 520,
+      "right": 1400,
+      "top": 243.71875,
+      "bottom": 836.265625,
+      "footerBottom": 836.265625,
+      "viewport": 1920,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 1536,
+      "height": 864,
+      "touch": false,
+      "dpr": 1.25,
+      "left": 328,
+      "right": 1208,
+      "top": 135.71875,
+      "bottom": 728.265625,
+      "footerBottom": 728.265625,
+      "viewport": 1536,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "touch": false,
+      "dpr": 1,
+      "left": 280,
+      "right": 1160,
+      "top": 203.71875,
+      "bottom": 796.265625,
+      "footerBottom": 796.265625,
+      "viewport": 1440,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "left": 200,
+      "right": 1080,
+      "top": 153.71875,
+      "bottom": 746.265625,
+      "footerBottom": 746.265625,
+      "viewport": 1280,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 900,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "left": 24,
+      "right": 884,
+      "top": 153.71875,
+      "bottom": 746.265625,
+      "footerBottom": 746.265625,
+      "viewport": 900,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 736,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "left": 24,
+      "right": 720,
+      "top": 153.71875,
+      "bottom": 746.265625,
+      "footerBottom": 746.265625,
+      "viewport": 736,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "touch": true,
+      "dpr": 1,
+      "left": 12,
+      "right": 378,
+      "top": 24,
+      "bottom": 844,
+      "footerBottom": 844,
+      "viewport": 390,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 320,
+      "height": 740,
+      "touch": true,
+      "dpr": 1,
+      "left": 12,
+      "right": 308,
+      "top": 24,
+      "bottom": 740,
+      "footerBottom": 740,
+      "viewport": 320,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    }
+  ]
+}

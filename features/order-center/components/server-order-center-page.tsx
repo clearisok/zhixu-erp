@@ -3,7 +3,7 @@
 import {ProcessingBatchDialog} from "./processing-batch-dialog";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { OrderAlertTags } from "./order-alert-tags";
-import { useRouter } from "next/navigation";
+import { useProtectedRouter as useRouter } from "@/components/foundation/server-navigation-protection";
 import {
   AlertBanner,
   AppShell,
