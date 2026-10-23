@@ -2804,6 +2804,45 @@
       "renderedSourceSha": "5fac2326634375ded9935782df947ce5871eab43",
       "sha256": "226c3736a478905193bb11ced1b3fd0e617d0a7e7a8a98cbe3ff3b0f760353a9",
       "changeReason": "D160 adds internal single-SO target transactions over the original garment target, with explicit policy, scoped proof, independent stopping and atomic historical receipts. Preserve all old evidence, states and runtime. Synthetic engineering only; no public activation entry, real Source, existing database mutation, deployment or hosted-CI claim."
+    },
+    {
+      "id": "decisions-garment-target-operator-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "sha256": "1722b21de57e809798bd6fe218ba5f13c775ef32d75e886f65caf963d27d7000",
+      "supersedes": "decisions-garment-target-control-20261023",
+      "changeReason": "D161 connects explicit protected-file target plan/apply/receipt to the original D160 service and operator. No new schema, permission, collector, HTTP, scheduler or real Source authorization. Preserve all prior evidence, dimensions, UI and runtime."
+    },
+    {
+      "id": "garment-operator-target-config-feature-20261023",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_GARMENT_OPERATOR.md",
+      "recordedAtSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "sha256": "5cbd02bb224e07f061599ac1335f37101a68888509380edd63d7a757a7162733",
+      "supersedes": "garment-operator-feature-20261023",
+      "changeReason": "D161 connects explicit protected-file target plan/apply/receipt to the original D160 service and operator. No new schema, permission, collector, HTTP, scheduler or real Source authorization. Preserve all prior evidence, dimensions, UI and runtime."
+    },
+    {
+      "id": "garment-target-control-operator-feature-20261023",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_GARMENT_TARGET_CONTROL.md",
+      "recordedAtSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "sha256": "48b92a09a487b41c3f76c0eb6b97e4172f0507284fc7eca8fa56d4b3409b2ce6",
+      "supersedes": "garment-target-control-feature-20261023",
+      "changeReason": "D161 connects explicit protected-file target plan/apply/receipt to the original D160 service and operator. No new schema, permission, collector, HTTP, scheduler or real Source authorization. Preserve all prior evidence, dimensions, UI and runtime."
+    },
+    {
+      "id": "garment-target-operator-engineering-20261023",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-23-garment-target-operator-engineering.md",
+      "recordedAtSha": "03cc4bf1a34fbc53026be59e0b82479dc281bc6f",
+      "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+      "sha256": "c7ab1822838fd1be87adda3c1afe3a3b514fa63abd307062a9ae56edd8181ea1",
+      "changeReason": "D161 connects explicit protected-file target plan/apply/receipt to the original D160 service and operator. No new schema, permission, collector, HTTP, scheduler or real Source authorization. Preserve all prior evidence, dimensions, UI and runtime."
     }
   ],
   "pages": [
@@ -8525,7 +8564,7 @@
         "trial18443": "not-deployed",
         "preview18444": "not-deployed"
       },
-      "scope": "D147/D152/D153/D158 collection controller, D159 guarded source operator and D160 internal single-SO target plan/apply/receipt. Original proof/time, one-shot collection and atomic publication remain; target policy is explicit, stopping independent and receipts historical. No mounted target-activation entry, HTTP/Catalog/scheduler, real query quota or source activation; only the exact account/contract first-page proof.",
+      "scope": "D147/D152/D153/D158 collection controller, D159 guarded source operator, D160 atomic target commands and D161 explicit target configuration through the same protected-file operator. Collection and target receipts remain separate; stop/history need no proof or credential; historical enable does not re-enable. No HTTP/Catalog/scheduler, real target activation, new query quota, multi-page proof or cross-observation event claims.",
       "evidence": [
         "garment-collection-control-engineering-20261023",
         "garment-collection-control-feature-20261023",
@@ -8536,14 +8575,18 @@
         "garment-operator-engineering-20261023",
         "decisions-garment-target-control-20261023",
         "garment-target-control-feature-20261023",
-        "garment-target-control-engineering-20261023"
+        "garment-target-control-engineering-20261023",
+        "decisions-garment-target-operator-20261023",
+        "garment-operator-target-config-feature-20261023",
+        "garment-target-control-operator-feature-20261023",
+        "garment-target-operator-engineering-20261023"
       ],
       "statusEvidence": {
         "implemented": {
           "value": "yes",
           "assessedAt": "2026-10-23",
-          "sourceSha": "5fac2326634375ded9935782df947ce5871eab43",
-          "scope": "D147/D152/D153/D158 collection controller, D159 guarded source operator and D160 internal single-SO target plan/apply/receipt. Original proof/time, one-shot collection and atomic publication remain; target policy is explicit, stopping independent and receipts historical. No mounted target-activation entry, HTTP/Catalog/scheduler, real query quota or source activation; only the exact account/contract first-page proof.",
+          "sourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+          "scope": "D147/D152/D153/D158 collection controller, D159 guarded source operator, D160 atomic target commands and D161 explicit target configuration through the same protected-file operator. Collection and target receipts remain separate; stop/history need no proof or credential; historical enable does not re-enable. No HTTP/Catalog/scheduler, real target activation, new query quota, multi-page proof or cross-observation event claims.",
           "evidence": [
             "garment-collection-control-engineering-20261023",
             "garment-collection-control-feature-20261023",
@@ -8554,7 +8597,11 @@
             "garment-operator-engineering-20261023",
             "decisions-garment-target-control-20261023",
             "garment-target-control-feature-20261023",
-            "garment-target-control-engineering-20261023"
+            "garment-target-control-engineering-20261023",
+            "decisions-garment-target-operator-20261023",
+            "garment-operator-target-config-feature-20261023",
+            "garment-target-control-operator-feature-20261023",
+            "garment-target-operator-engineering-20261023"
           ]
         },
         "merged": {
@@ -8571,8 +8618,8 @@
         "isolatedTest": {
           "value": "passed-historical",
           "assessedAt": "2026-10-23",
-          "sourceSha": "5fac2326634375ded9935782df947ce5871eab43",
-          "scope": "D160 clean5fac new20/20 and exact native archive full types/lint/Server/explicit Server UI build46 routes0skip pass; independent audit actor/UUID P2 fixed and re-reviewed. Original collection33/observation85/reference33 pass before source checkpoint, with their code unchanged; final20 covers new migration/indexes/audit fix. Old failures and pending-before-binding project15 failures remain in frozen report. No real Source/private file read, target activation, existing DB/account operation, new image or deployment; hosted CI billing-blocked.",
+          "sourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+          "scope": "D161 clean7ece target chain8/8 (actual source plan/apply/deleted-proof receipt), initial original collection checks and target20 pass; ffa pure7/7, exact native full types/lint/Server/explicit Server UI46 routes0skip pass. Business sources and target-test executable bytes equal7ece, with runtime SHA retained separately. Independent review no P1/P2. Original fixture/type failures retained. No real Source, existing database/account operation, image, deployment, CI run or user acceptance.",
           "evidence": [
             "garment-collection-control-engineering-20261023",
             "garment-collection-control-feature-20261023",
@@ -8583,7 +8630,11 @@
             "garment-operator-engineering-20261023",
             "decisions-garment-target-control-20261023",
             "garment-target-control-feature-20261023",
-            "garment-target-control-engineering-20261023"
+            "garment-target-control-engineering-20261023",
+            "decisions-garment-target-operator-20261023",
+            "garment-operator-target-config-feature-20261023",
+            "garment-target-control-operator-feature-20261023",
+            "garment-target-operator-engineering-20261023"
           ]
         },
         "humanAcceptance": {

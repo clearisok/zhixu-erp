@@ -1,6 +1,6 @@
 # 项目知识索引
 
-当前[Gate7H原操作者配置接线](tasks/active/server-garment-target-operator-2026-10-23.md)在clean cd7c上推进：只复用D160服务，目标plan/apply/receipt不读取凭据或Source，不新增schema/权限/HTTP/采集器；新旧回执分账本、历史状态与当前状态分开。原target20通过，首次编译/scoped lint通过；实际diff独立复审无P1/P2，其余隔离/clean源码/精确构建和发布验收仍待，不代表真实激活、Hosted CI或部署。
+当前[Gate7H原操作者配置接线](tasks/active/server-garment-target-operator-2026-10-23.md)本地工程通过：复用D160，目标plan/apply/receipt不读凭据或Source，不新增schema/权限/HTTP/采集器，新旧回执分账本、历史与当前状态分开。clean7ece全链8/8、最终ffa纯7及精确native types/lint/Server/UI46路由0skip、原target20通过，复审无P1/P2。[03cc报告](tasks/completed/2026-10-23-garment-target-operator-engineering.md)保留原失败与运行SHA；前向328/59不改旧324证据或其他维度。最终稳定清单发布/HEAD守卫仍待，非真实激活、Hosted CI或部署。
 
 当前[Gate7G目标配置后台](tasks/active/server-garment-target-control-2026-10-23.md)在同一d1dd基线上本地完成，13:03:09Z独立main/五草稿不变。源码5fac20定向、精确native types/lint/Server/UI构建46路由0skip通过，独立复审P2修复后无P1/P2；[492b冻结报告](tasks/completed/2026-10-23-garment-target-control-engineering.md)保留原失败。前向绑定324/59，不改旧对象/状态/UI/运行态；首次项目15项失败均为绑定前漂移，最终稳定25da上项目954/954、发布134/134、精确d1dd守卫通过，均0fail/cancel/skip且HEAD/清单/clean稳定。无新真实激活或读取；Git降级和Hosted CI账单问题仍各自保留，不重复推送或触发CI。
 

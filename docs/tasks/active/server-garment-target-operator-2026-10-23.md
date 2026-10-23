@@ -27,3 +27,11 @@ main d1dd4f0fcf9992d5c055c7b67b6832b635485680及五个草稿PR121–125已由独
 独立实际diff复审无P1/P2；非阻断建议将公开action转字符串改为严格枚举，已采用。真实COMMIT后响应丢失、报告落盘失败、缺证明/profile停用、意图冲突/fresh权限/CAS等新负测在首轮通过；dirty子进程仅正确拒绝执行，不能冒充clean正控。接下来保存source checkpoint，再精确native构建及clean目标/纯测试；最终结果另记，不预报通过。
 
 source7ece2f5a2a8c290fa15c0e35426748abf5840201上新纯测试7/7通过19365.2922ms，clean目标全链8/8通过238629.8621ms，均0fail/cancel/skip；后者实际源码子进程依次plan/apply/删除证明后receipt正控通过，没有Source IO，前后HEAD保持、dirty空。初次精确native全量typecheck退出2（33859ms），四处均是新增测试的联合返回类型/字段缩窄问题；后续只修正测试类型声明和一条字段存在断言，业务源码不变。原exact-qa失败目录保留，新的精确QA另写exact-qa-final，不覆盖失败。目标集成测试的可执行转译字节需与7ece比较，不能把原运行SHA冒称成新提交。
+
+## 精确检查与证据绑定
+
+最终source ffa56b683333f61e7e0f23ed122a26854a5a4204，tree c74db8b6bd7cb3e0e1509a41107d01bd74c232bb。type-fix-equivalence.json实证业务源码与7ece不变、目标测试转译JS逐字一致，SHA256 66305fad4cbf97568d8eb83a8ee268ef1e6b66a88694238dbf1a73d7549e400f。新增断言的纯7/7重跑通过18208.5865ms、0fail/cancel/skip。
+
+精确Git archive/native context全量types29475ms、Server编译10838ms、完整lint56783ms、显式Server UI构建14955ms退出0。46路由/0skip/单Context，原用户路由生成，build-info精确ffa；HEAD稳定、dirty空，没有安装依赖/新镜像/部署或像素接受。独立实际源码/终态/等价复核无P1/P2，复审者未执行测试。
+
+[冻结工程报告](../completed/2026-10-23-garment-target-operator-engineering.md)03cc4bf1a34fbc53026be59e0b82479dc281bc6f，blob SHA256 c7ab1822838fd1be87adda3c1afe3a3b514fa63abd307062a9ae56edd8181ea1。D161与两feature及报告前向追加4份为328/59；原324对象、其他58能力/维度/UI/运行态及批准保持，manifest SHA256 daa3fd4697b92851aeee001b0f4b344a1837c84ccce4be3e22d126eedbc5b648。13:47:51.950Z独立API main/五草稿未变。下一步稳定清单的精确main守卫、发布134和最终状态收口，不将待运行写成PASS。原失败和16日志hash保留，Git降级/Billing阻塞不重试或改写。

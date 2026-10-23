@@ -1,12 +1,14 @@
-# 恢复点：Gate7H操作者目标配置接线验收中
+# 恢复点：Gate7H精确工程通过，最终证据绑定收口
 
 2026-10-23；完整G1–G5 Goal active。root唯一writer，既有reviewer只读。当前分支codex/server-garment-target-operator，从main d1dd4f0fcf9992d5c055c7b67b6832b635485680建立，再FF clean cd7cd459885230b839d8d98a723f8f26e7d5bd24。开始独立API核实main及草稿PR121–125 heads未变；baseline见ignored outputs/garment-target-operator-20261023/baseline.json。
 
 本Gate仅扩展原garment-operator-cli.ts：plan-target/apply-target/target-receipt复用D160，不新增schema/权限/HTTP/采集器/调度。target必须明确enable/disable，enable必填时效；apply独立I_CONFIRM_EXACT_TARGET。target不读凭据，disable/receipt不打开证明。0043/0044账本不回退，旧enable不重新开启；未确认COMMIT/报告失败先核对原UUID，公开状态只表示当时完成。新测试在原pg客户端实际COMMIT后注入响应丢失/报告落盘失败，无生产故障开关。
 
-原target20/20通过14016.558ms、0fail/cancel/skip；首次Server编译和scoped lint退出0。新纯参数/公开投影、原采集和新目标全链在initial-operator.log运行，未完成不预报PASS。新fake worker时钟已按原夹具改为推进100ms，避免首条capture早于开始时间；原失败须保留。独立实际diff复审无P1/P2，建议严格action字符串投影已采用；尚未完成clean源码子进程正控、精确native types/lint/build、冻结证据/发布守卫。不要在这些检查完成前宣称Gate通过。
+原target20/20通过14016.558ms；首轮操作者25项23pass/2fail为新fake worker时钟使采集未发布，按原夹具推进100ms修复，失败保留。clean7ece2f5a2a8c290fa15c0e35426748abf5840201新目标链8/8通过238629.8621ms，实际源码子进程plan/apply/删证明receipt正控通过，前后HEAD/clean保持。首次archive typecheck4处测试类型错误保留exact-qa；只修测试类型/一条纯断言到ffa56b683333f61e7e0f23ed122a26854a5a4204。业务源码和目标测试转译JS与7ece逐字一致，不能把7ece运行SHA冒称ffa。ffa纯7/7通过18208.5865ms，exact-qa-final全量types29475ms/Server10838ms/lint56783ms/UI14955ms退出0，46路由0skip单Context，build-info精确ffa。独立实际源码/日志/等价复审无P1/P2，未自行执行测试。
 
-下一步：核对原运行会话终态并定位实际失败；只修复本Gate增量，保存source checkpoint。以realpathSync.native建立精确Git archive，不安装依赖，不纳入ignored旧输出导致的重复源码。clean源码重跑新target命令及纯测试，保留实际终态；再冻结报告、前向追加D161/operator/target feature/报告证据，不改原324对象、状态/UI/运行态，最后稳定清单发布回归和精确HEAD守卫。后续code/doc/测试变化与所用SHA须分别记录。
+冻结报告03cc4bf1a34fbc53026be59e0b82479dc281bc6f，路径completed/2026-10-23-garment-target-operator-engineering.md，blob SHA256 c7ab1822838fd1be87adda3c1afe3a3b514fa63abd307062a9ae56edd8181ea1；16份ignored日志hash和完整源码范围见engineering-scope.json。13:47:51.950Z独立API核实main/五草稿未变。D161/operator/target feature/报告前向4份新证据，328/59，旧324对象、其他58能力/维度、UI/运行态/批准保持，manifest SHA256 daa3fd4697b92851aeee001b0f4b344a1837c84ccce4be3e22d126eedbc5b648。
+
+下一步：只提交manifest及四份状态文档绑定checkpoint，运行精确main守卫、稳定清单发布134及独立证据复核；不更改已冻结D161/feature/报告或代码测试SQL。最后仅状态收口commit及最终HEAD守卫，仍不push/CI派发/merge/close/deploy。类型/lint/build/CLI实际验收已充分，UI无新变化，不扩大为重复全项目/像素验收声明；Gate7G954仍保留各自SHA。
 
 Gate7G已完成：S5fac2326634375ded9935782df947ce5871eab43，报告492b4d39e8e59eb6a579b212e9d297aee29a622f，绑定25da387f32640984239f6734b4e5bbd737dbdaf9，最终cd7c守卫PASS。稳定25da项目954/954、发布134/134，均0fail/cancel/skip、HEAD/manifest/clean稳定；源码20及原33/85/33、types/lint/Server/UI46路由0skip通过，复审P2修复后无P1/P2。原失败、各日志hash/源码范围和完整清单在Gate7G任务及冻结报告保留。
 
