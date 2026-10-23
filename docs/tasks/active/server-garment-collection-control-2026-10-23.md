@@ -84,3 +84,5 @@ e971313a7b0ad5dd52b65cd33fb26106e60275ef已独立API核对完整SHA/tree/parent�
 确认固定验证器同时要求原批准origin/policy，故loopback测试配置不合法；没有放宽产品检查。合成配置改用原compiled collector导出的常量，所有collect显式传计数fake worker；调用native前新增自有app唯一内部network及Compose归属检查，不修改原Compose或共享网络。修正配置在network=none的一次独立临时容器通过证明重建，0 Source请求；最初该preflight漏传stdin，空stdout即停，未执行证明，修正-i后才观察到PASS。新的完整恢复仍待重验，不能将该preflight或134发布当作恢复通过。
 
 修正后的9/9保护单元通过212.4692ms、0skip，覆盖额外ingress/错误归属/非internal网络的拒绝；四文件scoped lint及diff whitespace通过。下一步独立checkpoint，再用保持357真实身份的锁定镜像执行全链路。
+
+65545完整重验9/9通过302720.1184ms、0skip：0043三态3行、69非空/38空public表及5序列一致，原回执重放worker=0，尚未过期旧permit跨库拒绝，新预览一次合成worker。产品/SQL/ops仍与原357镜像等价，没有真实Source。第二轮在恢复后启动前遇Docker地址池/网段分配类失败，不能细分脱敏原文；仅释放本阶段3个失败项目的13容器/5网络且全部卷和无关ID保留后，以同一代码/镜像/预算重验通过。完整范围、原失败、哈希和清理证据冻结于[非空恢复报告](../completed/2026-10-23-garment-command-nonempty-recovery.md)。下一步追加一条不可变证据和isolatedTest维度，重跑发布门禁；远端/新CI不预报PASS。
