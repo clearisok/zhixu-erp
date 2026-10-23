@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-23：原PR120继续整合共享CI修复，main精确`e06162c70c9792895c30030216dc8c2a66368069`。原e872已精确送达、Team/Source CI通过，但Release使用旧payload基线而失败。独立PR128工具5f6482cb本地134+19与Release/Team CI通过，Source attempt1在私密Chromium端点就绪前20秒超时而失败，原日志保留，尚未证明根因；当前只前向合入同一工具提交，业务源码不变。先读CURRENT_STATE、AI_HANDOFF及[原任务](tasks/active/pr120-main-forward-2026-10-23.md)，双方摘要[逐字归档](tasks/completed/2026-10-23-pr120-ci-context-inputs/)。不自动合并任何PR或部署。
+2026-10-23：原PR120继续整合共享CI修复，main精确`e06162c70c9792895c30030216dc8c2a66368069`。原e872已精确送达、Team/Source CI通过，但Release使用旧payload基线而失败。独立PR128工具5f6482cb本地134+19与Release/Team CI通过，Source attempt1在私密Chromium端点就绪前20秒超时而失败，原日志保留，尚未证明根因；当前已前向合入同一原始工具提交，df1789f0的新134/19及精确main门禁通过，业务源码不变；最终交付与新CI另核。先读CURRENT_STATE、AI_HANDOFF及[原任务](tasks/active/pr120-main-forward-2026-10-23.md)，双方摘要[逐字归档](tasks/completed/2026-10-23-pr120-ci-context-inputs/)。不自动合并任何PR或部署。
 
 完整目标未完成，累计及固定真实读取见[7c冻结记录](https://github.com/clearisok/zhixu-erp/blob/7c0c027334e49ae9c3c833f45cc1aeccb05d52e5/docs/tasks/active/candidate-main-forward-2026-10-23.md)；已用额度不重读。
 

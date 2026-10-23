@@ -2,8 +2,8 @@
 
 2026-10-23；main独立核实`e06162c70c9792895c30030216dc8c2a66368069`，仅#126已获准合并。#127 e2dc2704仍草稿。原#120 e872472f已送达且解冲突，Team/Source CI通过；Release39889936426因旧payload base=996与实际checkout父e061不符失败，证据保留。
 
-独立工具[#128](https://github.com/clearisok/zhixu-erp/pull/128)精确`5f6482cb107aca93a464a6a70bfaba2d524a6a7d`已送达，本地134+19、显式e061门禁/语法/lint/YAML及Release/Team CI通过，Source attempt1在私密Chromium端点就绪前20秒超时而失败，原日志保留，尚未证明根因；不预告三绿或已合并。当前原`codex/price-source-stabilization`只前向合入同一原始工具历史，保留业务修复及全部冻结证据，不修改原价格、权限或来源规则。只有三个恢复摘要冲突，无代码冲突。
+独立工具[#128](https://github.com/clearisok/zhixu-erp/pull/128)精确`5f6482cb107aca93a464a6a70bfaba2d524a6a7d`已送达，本地134+19、显式e061门禁/语法/lint/YAML及Release/Team CI通过，Source attempt1在私密Chromium端点就绪前20秒超时而失败，原日志保留；同一精确5f只重跑一次失败job，attempt2仍待终态，尚未证明根因；不预告三绿或已合并。当前原`codex/price-source-stabilization`只前向合入同一原始工具历史，保留业务修复及全部冻结证据，不修改原价格、权限或来源规则。只有三个恢复摘要冲突，无代码冲突。
 
-原业务五个产品/回归/演示blob保持57daca3d；共享workflow/解析器/测试保持5f；guard/134测试保持e061。原217证据/46能力和V1 UI impact保持，未新增能力宣称。原1b64已验证804+134源码/34合成DB/6Chromium及干净快照类型/lint/构建；当前新组合的精确门禁/134+19和新CI尚待执行，不能混写旧结果。见[阶段任务](tasks/active/pr120-main-forward-2026-10-23.md)。
+原业务五个产品/回归/演示blob保持57daca3d；共享workflow/解析器/测试保持5f；guard/134测试保持e061。原217证据/46能力和V1 UI impact保持，未新增能力宣称。原1b64已验证804+134源码/34合成DB/6Chromium及干净快照类型/lint/构建；新组合df1789f0已完成精确main门禁（11页/46能力/1UI）、发布134/134（418188.0114ms）与解析器19/19（6484.0158ms），全部零失败/取消/跳过。新CI仍待最终提交交付后核实。见[阶段任务](tasks/active/pr120-main-forward-2026-10-23.md)。
 
 本次工具push的脱敏采样仅支持远端引用创建已存在/锁引用拒绝的调查方向，独立API确认5f精确送达；不据布尔标志判断所有历史网络根因，不放宽auth/TLS/分歧STOP，不重推。完整目标未完成，覆盖v1/关账三问/50426切换及退役待决；固定Source额度已用。3001、50426、59069、62426及所有旧入口/账号/卷/Browser/工作树保护，无真实数据、来源激活/调度、部署或退役。

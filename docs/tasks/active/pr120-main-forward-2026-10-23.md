@@ -33,3 +33,5 @@
 K须保留parents=[e872,5f]；原五个产品/测试/演示文件保持57d，新增workflow/解析器/测试保持5f；guard/134测试保持e061。217证据/46能力、旧H见证及V1 UI impact不变，无新产品或Source范围。新组合的134/19和精确main门禁待执行，原应用结果仍属于1b64相同源码。只更新唯一#120，不自动merge/close或部署。
 
 2026-10-23后续CI观察：PR128 Source39893272059 attempt1在第一项私密Chromium端点20秒就绪等待中失败，尚未进入页面断言，实际1项0通过/1失败。Release/Team成功不抵销该失败；原日志保留。其Source workflow、Chromium helper及应用与已成功的e872 Source相同，先做固定SHA/同job的有界核对，不延长超时、不跳过测试、不宣称已三绿。
+
+新真实merge K=`df1789f038f782a5f9633badb224a5a8604afcaf`，parents精确[e872,5f]。组合后发布134/134（418188.0114ms）、解析器19/19（6484.0158ms）均零失败/取消/跳过，显式e061门禁PASS（11页/46能力/1UI）。独立静态复审核实五个产品blob、三个CIblob、两个guard blob及六归档，未发现P1/P2；reviewer未代跑测试。没有重复应用构建/DB/浏览器，1b64的原结果仅保留相同源码范围。工具PR128 attempt1的端点启动失败保留，已对同一5f失败job只请求一次重跑，attempt2终态另核。最终文档与新远端CI仍须独立核实。
