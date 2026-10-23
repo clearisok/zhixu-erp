@@ -89,4 +89,4 @@ plan为同一READ ONLY RR，核对fresh order.view/ainuoke.view/ainuoke.sync、�
 
 执行先持久started且确认COMMIT，再且仅再调用一次worker；网络期间释放全部DB事务/锁。采前重核scope，采后原发布primitive再鉴权、冻结整物理组、核对颜色/target/owner/CAS。发布及成功命令回执/审计同事务；失败不改旧head。COMMIT回执丢失不会自动重采或重发，started永不自动回收。回执核对按原actor/UUID返回历史结果，不因捕获/permit过期、目标关闭或head前移而重建；scope/payload/hash及结果字段再次校验，损坏503，不返回任意JSON。原凭据、原文、金额、颜色明细不进回执。
 
-已执行31定向和181 Python；新31覆盖两端传输、实际Python+FakeTransport、真实PG单次并发/COMMIT丢回执、终态/审计回滚、旧head保留、撤权/来源与颜色变化、损坏回执、完整指纹及非空0042升级。完整类型/项目/构建、发布门禁、独立复审及新CI另记[本阶段任务](../tasks/active/server-garment-collection-control-2026-10-23.md)。没有新真实Source/私密文件读取、目标启用、现有库升级或部署/人工接受。完整G1–G5继续，不以本内部切片替代业务闭环。
+原9fc通过31定向、181 Python、952项目、270 PG/API、85原观察、33归一、13 built UI及精确Git archive类型/lint/Server和Server UI构建。独立复审的许可等待P2已用负测复现：最终范围读取后、worker前再次核对期限，过期保存0/0失败原回执；发布回滚确认与随后失败终态COMMIT是否核实分开，不把已提交发布当作已回滚。补真实第二actor及两类丢回执断言后33定向、Server编译/scoped lint通过。修复后的冻结、复审、精确发布门禁及新CI另记[本阶段任务](../tasks/active/server-garment-collection-control-2026-10-23.md)，不借原9fc结果冒充新源码的全量重跑。没有新真实Source/私密文件读取、目标启用、现有库升级或部署/人工接受。完整G1–G5继续，不以本内部切片替代业务闭环。

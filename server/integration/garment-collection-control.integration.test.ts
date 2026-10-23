@@ -104,11 +104,23 @@ test("durable garment commands, one worker, atomic publication and original requ
     const current = await reader.read(admin, first.orderId); assert.ok("publicationId" in current);
     assert.equal(current.publicationId, result.result && "publicationId" in result.result ? result.result.publicationId : null);
   });
-  await t.test("same UUID cannot accept a different permit, actor or order intent", async () => {
+  await t.test("same UUID cannot accept a different permit or order intent", async () => {
     const job = await make(); await collect(job); const before = calls;
     await assert.rejects(() => collectGarmentOnce(pool, job.actor, job.request, { ...job.permit, expiresAt: new Date(clock + 50000).toISOString() }, { now: () => clock, collect: collector() }), { code: "garment_collection_request_conflict" });
     const other = await make(); await assert.rejects(() => collectGarmentOnce(pool, job.actor, other.request, job.permit, { now: () => clock, collect: collector() }), { code: "garment_collection_request_conflict" });
     assert.equal(calls, before);
+  });
+  await t.test("another freshly authorized actor cannot read or consume the original actor's permit", async () => {
+    const job = await make(); await collect(job); const before = calls;
+    const user = (await pool.query("INSERT INTO app_users(username,password_hash,display_name,role) VALUES('garment.other',crypt('synthetic',gen_salt('bf',4)),'合成其他操作人','viewer') RETURNING id::text,public_id::text")).rows[0];
+    await pool.query("INSERT INTO app_user_roles(user_id,role_id) SELECT $1,role_id FROM app_user_roles WHERE user_id=$2", [user.id, admin.internalUserId]);
+    const actor: TrustedIdentity = { internalUserId: user.id, userId: user.public_id, username: "garment.other", userName: "FORGED", permissions: [] };
+    assert.equal((await receipt(job, actor)).receiptState, "unknown");
+    await assert.rejects(() => collectGarmentOnce(pool, actor, job.request, job.permit, { now: () => clock, collect: collector() }), { code: "garment_collection_operator_mismatch" });
+    const request = { ...job.request, config: { ...job.request.config, operatorUsername: actor.username } };
+    await assert.rejects(() => collectGarmentOnce(pool, actor, request, job.permit, { now: () => clock, collect: collector() }), { code: "garment_collection_scope_changed" });
+    assert.equal(calls, before); assert.equal(await count("ainuoke_garment_collection_commands", job), 1);
+    assert.equal((await receipt(job)).receiptState, "completed");
   });
   await t.test("a stale plan or changed verification hash stops before started and before collection", async () => {
     for (const changed of ["version", "proof"] as const) {
@@ -129,6 +141,23 @@ test("durable garment commands, one worker, atomic publication and original requ
       return { query: (text: string, values?: unknown[]) => hook(text, values, () => query(text, values)), release: () => client.release() } as unknown as PoolClient;
     } } as unknown as Pool;
   }
+  await t.test("expiry while awaiting the final read transaction prevents the worker and records zero requests", async () => {
+    const job = await make(); let reads = 0;
+    const delayed = alteredPool(async (text, _values, run) => {
+      if (text === "BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY") reads++;
+      const value = await run();
+      if (text === "COMMIT" && reads === 2) clock = Date.parse(job.permit.expiresAt) + 1;
+      return value;
+    });
+    const before = calls, result = await collect(job, undefined, delayed);
+    assert.equal(calls, before); assert.equal(result.receiptState, "completed");
+    assert.equal(result.result?.outcome, "not_published");
+    assert.ok(result.result && "code" in result.result); assert.equal(result.result.code, "garment_collection_permit_expired");
+    assert.deepEqual(result.result.requestCounts, { httpAttempts: 0, reportRequests: 0 });
+    assert.equal(await count("ainuoke_garment_shipment_snapshots", job), 0);
+    assert.deepEqual((await receipt(job)).result, result.result);
+    assert.deepEqual((await collect(job)).result, result.result); assert.equal(calls, before);
+  });
   await t.test("COMMIT success followed by lost started response never invokes upstream", async () => {
     const job = await make(); let inserted = false, lost = false;
     const broken = alteredPool(async (text, _values, run) => { if (text.startsWith("INSERT INTO ainuoke_garment_collection_commands")) inserted = true;
@@ -141,6 +170,7 @@ test("durable garment commands, one worker, atomic publication and original requ
     const broken = alteredPool(async (text, values, run) => { if (text.startsWith("UPDATE ainuoke_garment_collection_commands") && String(values?.[5]).includes('"published"')) terminal = true;
       const value = await run(); if (text === "COMMIT" && terminal && !lost) { lost = true; throw Error("synthetic publication acknowledgement lost"); } return value; });
     const result = await collect(job, undefined, broken); assert.equal(result.receiptState, "unverified_commit");
+    assert.ok("publicationRolledBack" in result); assert.equal(result.publicationRolledBack, false);
     assert.equal(await count("ainuoke_garment_shipment_snapshots", job), 1); const stored = await receipt(job); assert.equal(stored.receiptState, "completed");
     assert.equal(stored.result?.outcome, "published"); const before = calls; assert.deepEqual((await collect(job)).result, stored.result); assert.equal(calls, before);
   });
@@ -150,6 +180,7 @@ test("durable garment commands, one worker, atomic publication and original requ
       const value = await run(); if (text === "COMMIT" && terminal && !lost) { lost = true; throw Error("synthetic failure acknowledgement lost"); } return value; });
     const result = await collect(job, async () => { await pool.query("UPDATE ainuoke_garment_shipment_targets SET enabled=false,version=version+1 WHERE source_key=$1 AND sales_order_id=$2", [sourceKey, job.orderId]); }, broken);
     assert.equal(result.receiptState, "unverified_commit"); assert.equal(result.result?.outcome, "not_published");
+    assert.ok("publicationRolledBack" in result); assert.equal(result.publicationRolledBack, true);
     assert.equal((await receipt(job)).result?.outcome, "not_published"); assert.equal(await count("ainuoke_garment_shipment_snapshots", job), 0);
   });
   await t.test("terminal write failure rolls back head, colors, snapshot and audit together", async () => {

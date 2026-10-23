@@ -22,7 +22,14 @@
 - 31/31定向通过（16677.0159ms、0skip）；181 Python通过（1.895s）。更早14/26/30中间结果和失败日志留在ignored outputs/garment-collection-control-20261023，不替代本结果。
 - 首轮Python发现total>100仍完成第二遍首页，已改为首遍停止并重验。最初TS窄化错误已修；根全量typecheck还误扫既有ignored旧镜像context，旧文件原地保护，后续用精确Git archive外部context验全量，不改tsconfig或删缓存。scoped lint仅未用准备时间告警，改为显式clock校验。
 - 原publisher同步捕获输入、锁序、CAS、历史重放保持，新增caller-owned primitive。非空0042升级逐旧public表全行JSON字节不变，旧publication仍可读；0043空、重复migration幂等、正常verify-only保持。
-- 全量类型/lint/build、相关旧PG/API、项目和发布守卫/134、独立复审、最终交付与新CI尚待执行。没有页面/样式变化，新的浏览器像素批准不在本范围。
+- 精确9fc Git archive外部context的全量类型/lint/Server和显式Server UI构建通过；没有安装依赖，已有node_modules仅只读junction。该构建的13项真实Chromium回归通过（37960.0029ms、0skip），六宽度和原角色/过期/历史边界保持。没有页面/样式变化，新的浏览器像素批准不在本范围。
+- 9fc源码的952项目通过（656922.3078ms），270 PG/API通过（292183.5075ms），85原成衣观察通过（45460.8512ms），33归一执行引用回归通过（35977.9668ms）；均0fail/cancel/skip。以上结果有自己的源码范围，不冒充后续修复全量重跑。
+
+## 独立复审与前向修复
+
+冻结9fc的只读复审发现1项P2、无P1：最后异步范围读取可能等到许可过期后才调用worker。在独立精确9fc临时context新增负测，确实多调用一次worker；另一个断言复现原发布已回滚、失败终态COMMIT丢回执却报告publicationRolledBack=false。红测总23项、20pass/3fail（含父测试失败），保留原日志，不将其解释为三项缺陷。
+
+root在全量952完成后才修改主树：worker前再次fresh，回滚确认保存为独立事实，不被后续committing变化覆盖。补实际第二DB actor的fresh权限、foreign receipt/permit拒绝，以及成功发布丢回执不能声称回滚的断言。修复后33/33定向通过（17460.7503ms、0skip），Server编译和两文件scoped lint通过。SQL、worker预算、Python、公开GET及UI未变。修复后精确源码checkpoint、冻结证据/发布134、新CI及最终复审继续，不把旧9fc完整QA改名。
 
 ## 后续与完整目标边界
 

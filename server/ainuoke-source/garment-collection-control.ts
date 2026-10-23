@@ -237,6 +237,7 @@ export async function collectGarmentOnce(pool: Pool, caller: TrustedIdentity, in
     fresh(permit, now());
     const current = await readTransaction(pool, client => prepare(client, pool, identity, parsed, now()));
     if (scopeHash(current, permit) !== permit.scopeHash) fail(409, "garment_collection_scope_changed");
+    fresh(permit, now());
     counts = "unknown";
     const raw = await (options.collect ?? collectGarmentObservationPages)(parsed.request.config,
       { sourceFingerprint: scope.context.sourceFingerprint, salesContractNo: scope.context.salesContractNo });
@@ -264,7 +265,8 @@ export async function collectGarmentOnce(pool: Pool, caller: TrustedIdentity, in
       result, replayed: false, receiptIsHistorical: false, sourceReadThisInvocation: "see_result" as const, automaticRetry: false as const };
   } catch (error) {
     const rolledBack = await finishClient?.query("ROLLBACK").then(() => true, () => false);
-    if (!committing && rolledBack) {
+    const publicationRollbackConfirmed = !committing && rolledBack === true;
+    if (publicationRollbackConfirmed) {
       // Publication and its audit were rolled back. Persist a small terminal
       // failure in a new transaction; this does not need the withdrawn domain
       // grant to write business data, and never retries the worker/publication.
@@ -285,7 +287,7 @@ export async function collectGarmentOnce(pool: Pool, caller: TrustedIdentity, in
     return { schemaVersion: "ainuoke-garment-collection-receipt.v1" as const, requestId: permit.requestId,
       receiptState: committing ? "unverified_commit" as const : "unverified_started" as const,
       result: committing ? result ?? null : null, code: committing ? "garment_collection_commit_unverified" : safeCode(error),
-      publicationRolledBack: !committing && rolledBack === true, requestCounts: counts,
+      publicationRolledBack: publicationRollbackConfirmed, requestCounts: counts,
       sourceReadThisInvocation: "see_result" as const, automaticRetry: false as const };
   } finally { finishClient?.release(); }
 }

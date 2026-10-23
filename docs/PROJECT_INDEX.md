@@ -2,7 +2,7 @@
 
 2026-10-23；完整G1–G5 Goal继续。main=be9aaa3f4efa232e1451075a355f0ce42e35a69e；只有#126/#127已具体批准合并。#120 fca/#1230357/#1254cf的九CI保持原精确范围，仍草稿。累计49dc一次精确送达、Release39909321129 attempt1成功、复审无P1/P2；不表示业务合并、部署或Source激活。
 
-当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)只推进合成/隔离工程；31定向/181 Python已通过，完整门禁/复审/新CI待收口。恢复先读CURRENT_STATE、AI_HANDOFF及既有[成衣观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。原证据/能力/批准与旧运行态保留，真实读取、激活、关账和目标切换不自动授权。
+当前[Gate7E单SO成衣控制层](tasks/active/server-garment-collection-control-2026-10-23.md)只推进合成/隔离工程；原9fc完整QA通过，复审P2已复现修复，33定向通过，修复后的冻结/发布门禁/复审/新CI待收口。恢复先读CURRENT_STATE、AI_HANDOFF及既有[成衣观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。原证据/能力/批准与旧运行态保留，真实读取、激活、关账和目标切换不自动授权。
 
 ## 系统简介
 
@@ -131,4 +131,4 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
 
-共享CI解析器原5f按正常验证merge整合，保留原历史和候选交付工具全部保护；两侧摘要原Git字节另存[归档](tasks/completed/2026-10-23-candidate-be9-parser-inputs/)。新组合发布134、交付工具和解析器回归仍待执行；不变业务未借用工具结果宣称重新验收。
+共享CI解析器原5f按正常验证merge整合，保留原历史和候选交付工具全部保护；两侧摘要原Git字节另存[归档](tasks/completed/2026-10-23-candidate-be9-parser-inputs/)。49dc组合发布134、交付工具/解析器88及相关Release CI已通过；不变业务未借用工具结果宣称重新验收。

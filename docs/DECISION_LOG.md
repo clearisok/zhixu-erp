@@ -7,7 +7,7 @@
 - 请求开始前先提交started；同actor/UUID并发只允许一个worker，started不回收、不作为重采lease。采集期间不持DB锁；1登录+2报表/3HTTP、每响应4MiB、报表8MiB、180秒及零重试为工程天花板，不是新真实额度。worker经私密stdin，凭据/原文不写日志或回执。
 - 原0040发布逻辑提为caller-owned事务primitive，原wrapper保持。快照、颜色、head、原审计及成功终态同事务；终态/审计失败全回滚。已确认回滚可另存小失败终态，无法证明COMMIT结果只核对原request，不再次采集/发布。原始日期、scope、数量、旧快照与创建身份保留。
 - 原请求核对重新鉴权，重建scope/payload身份并校验封闭结果形状；过期/目标变更后仍返回原历史回执，不把当前head当历史成败。未知计数不补0。新SO与原物理SO引用同时进入完整归一指纹；不因此开放归一执行。
-- 证据：garment-collection-control.ts、garment-collection-worker.ts/Python、0043及新纯/PG/非空0042升级检查。当前31项定向、181项Python已执行，完整工程、冻结证据、独立复审与新CI待后续记录。仅合成传输/一次性库，未读真实凭据或报告、未发新Source请求、未修改现有库/账号或部署；操作者入口、真实范围授权/激活、多页实证及跨次事件仍各自待Gate。
+- 证据：garment-collection-control.ts、garment-collection-worker.ts/Python、0043及新纯/PG/非空0042升级检查。原9fc的31定向、181 Python、952项目、270 PG/API、85原观察、33归一及13 built UI已通过，精确Git archive类型/lint/Server及Server UI构建通过。独立复审发现最终异步范围读取跨许可期限的P2，负测复现后在worker前重核；另外独立保留发布回滚事实，失败终态COMMIT丢回执不覆盖该事实。新增真实第二actor负测及两类丢回执断言后33定向、Server编译/scoped lint通过；修复后的最终冻结/复审/新CI另记阶段报告。仅合成传输/一次性库，未读真实凭据或报告、未发新Source请求、未修改现有库/账号或部署；操作者入口、真实范围授权/激活、多页实证及跨次事件仍各自待Gate。
 
 状态说明：
 
