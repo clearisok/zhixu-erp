@@ -5,13 +5,14 @@ e06162c70c9792895c30030216dc8c2a66368069。先读 CURRENT_STATE、
 [本阶段任务](tasks/active/candidate-main-forward-2026-10-23.md)及 RELEASE_BASELINE_GUARD。
 
 工作树仍是7bf3，branch chore/server-current-image-0042；干净输入为
-bee4c632ab2e683303f2eb65eb0b936fa35716df。已正常fetch一次main并开始 no-ff/no-commit
-merge 精确e061，实际4冲突为三摘要与baseline。当前修改均root本阶段所有；不是未知dirty。
+bee4c632ab2e683303f2eb65eb0b936fa35716df。已正常fetch一次main，真实H=a6c821994706a9b00e72f6b10fa88a4919d0a6db，
+parents[bee,e061]。c5216e48已绑定四见证和新Source报告（291/58）。当前正常merge
+#127最终e2，只有三摘要冲突；全部为root阶段所有，非未知dirty。
 不要 reset/clean/abort 或从e2 checkout覆盖候选强化后的Git工具和CI测试。
 
-独立审查已确认必须先建立 H=[bee,e061]；四条同路径文档见证在真正H提交后再绑定：
+独立审查已确认并实际按 H=[bee,e061] 建立见证；四条冻结于真正H的同路径后继为：
 DECISION_LOG、CLOSING_CENTER、ORDER_BUSINESS_SOURCE、PRODUCTION_SCHEDULING。
-保留286证据/58能力/所有hash和状态。baseline对齐e061；23个原UI影响JSON仅baseline
+原286证据/58能力/所有hash和状态保持；新增四见证及独立报告至291证据。baseline对齐e061；23个原UI影响JSON仅baseline
 变动，分级/批准与88实际路径不变。两侧三摘要加23份原UI文件逐Git字节归档于
  tasks/completed/2026-10-23-candidate-main-inputs/。不要为达到新基线削弱guard或改截图。
 本次新固定Source报告另冻结成独立新证据，不修改sourceActivation状态。
@@ -27,7 +28,7 @@ DECISION_LOG、CLOSING_CENTER、ORDER_BUSINESS_SOURCE、PRODUCTION_SCHEDULING。
  outputs/pr126-main-forward-20261023/source-phase-final.json。原文仍私密，禁止打开或上传。
 原0HTTP失败/旧冻结hash/缺失旧文件不改，样本观察不是多页、事件身份或来源激活。
 
-接着完成真正H、四见证+新报告前向绑定、精确e061门禁、134发布回归和相关Git工具测试、
+先保存当前e2历史合并，再执行精确e061门禁、134发布回归和相关Git工具测试、
 非工具应用树等价核对及独立复审；standing安全Git/CI授权有效，无须逐SHA提问。
 当前没有本阶段新测试/CI PASS。旧执行句柄均终态，不重启686/bee/0c或127的CI。
 

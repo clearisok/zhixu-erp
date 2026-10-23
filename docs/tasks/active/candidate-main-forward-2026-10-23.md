@@ -76,3 +76,14 @@ as 38428151b8b44db83644025fdc42a69840c999ddbf28a9f201d2ec3c75f86fb2. Syntax and 
 result is claimed at this freeze. Next retain #127 final e2 history by a normal
 validation merge, then run this candidate's own checks without replacing its later
 tool/test improvements. This is not a GitHub #127/main merge or runtime change.
+
+## Retaining the final original PR127 history
+
+After c5216e4865b3eb1f2323c0a74cf2dc28b270cd7b, the normal validation merge of
+e2dc2704ba51da18e7d0b1c098a7a1657f59a40e produced only three summary conflicts.
+Both sides' six documents are archived from exact Git bytes under
+../completed/2026-10-23-candidate-pr127-inputs/. The291-record manifest merged
+identically to c521; no additional witness or status change is invented. All
+non-document application/tool/test blobs remain the prior candidate plus the
+exact main guard. This is original-history preservation, not GitHub PR merge
+or permission to deploy. New final candidate validation remains pending.

@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-23 当前恢复主线：完整 main e06162c70c9792895c30030216dc8c2a66368069 已核实，#126已按批准合并；累计验证候选从bee继续真实main整合。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)与[本阶段任务](tasks/active/candidate-main-forward-2026-10-23.md)。四处文档冲突由root单一整合，保留286证据/58能力，23份原UI影响只前移基线，未改页面或业务规则。新本地门禁/CI尚未执行，不能借用原686/0c或#127结果。
+2026-10-23 当前恢复主线：完整 main e06162c70c9792895c30030216dc8c2a66368069 已核实，#126已按批准合并；累计验证候选从bee继续真实main整合。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)与[本阶段任务](tasks/active/candidate-main-forward-2026-10-23.md)。真实H=a6c82199（parents bee/e061）已保存；随后正常并入e2原历史，仅三摘要冲突，均由root单一整合。原286证据/58能力完整保留，另加四见证及Source报告至291证据，23份原UI影响只前移基线，未改页面或业务规则。新本地门禁/CI尚未执行，不能借用原686/0c或#127结果。
 
 #127 e2dc2704三CI全绿但仍草稿；固定Source本次许可已成功消费，C1各16条/空C0/一致，只限本账号该合同完整首页，见[独立报告](tasks/completed/2026-10-23-fixed-garment-filter-read.md)。不再采集或激活，不自动merge其他PR、部署、切换或退役。原bee与main摘要逐Git字节[归档](tasks/completed/2026-10-23-candidate-main-inputs/)。下方模块索引保留其原日期和范围，完整Goal未完成。
 
