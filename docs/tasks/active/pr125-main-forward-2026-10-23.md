@@ -21,3 +21,7 @@
 用户仅批准#120并已完成main d1dd精确双父/tree核对。root从clean e971保留原Gate7E分支后，以clean4cf建立codex/pr125-main-d1dd-forward，正常merge d1dd。首个自动范围检查发现第五处BUSINESS_RULES而停止，未扩大范围或提交；实际核对五冲突均文档/manifest。保留D147空库目标/CNY销售/USD工价和main已批准的D145/来源校准，已替代旧说明归档不删除，不改业务决定。两侧10份Gitblob逐字归档；原217/main219并集223，46能力与运行/截图不变。自动业务合流仅已批准main的五个价格/加工相关路径，原17ops源码保持。真实H绑定、新组合QA和交付CI尚待，不借原365或r7结果。
 
 本轮cached whitespace仅命中三份冻结历史BUSINESS_RULES归档的原末尾空行；staged blob分别与main/4cf原blob完全一致，未为消除告警重写历史。精确排除此三文件后，本阶段其余增量检查通过。
+
+真实merge d97a72ff3ce4eb6e99e6ecf9c55ba69dff52e174双父[4cf19e82,d1dd4f0f]已核对；223原对象保留，DECISION双叶新增mergeOf见证，总224/46。新的explicit d1dd守卫和组合测试继续，不更新原持久化镜像或用户入口。
+
+首轮224绑定守卫正确拒绝CLOSING旧侧两条祖先关系；原失败bound-guard.log保留。补充同一真实d97a冻结blob的CLOSING前向见证后总225/46，不改变文档字节、旧ID或守卫。
