@@ -7,6 +7,7 @@ import { randomUUID } from "node:crypto";
 import pg from "pg";
 import { startDisposablePostgres } from "./postgres-container.js";
 import { runMigrations, verifyMigrationsCurrent, PendingMigrationsError } from "../db/migration-runner.js";
+import { CURRENT_MIGRATION_FILES } from "./current-migration-ledger-fixture.js";
 import { synchronizePermissionCatalog } from "../auth/permissions.js";
 import { bootstrapAdmin } from "../auth/bootstrap.js";
 import { loadExistingBootstrapActor } from "../sales-orders/bootstrap-runner.js";
@@ -55,7 +56,8 @@ test("0042 to 0043 preserves nonempty old source/order/history rows and leaves c
     finally { client.release(); }
   });
   await t.test("additive migration, exact ledger, repeat verification and old publication remain intact", async () => {
-    assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, ["0043_garment_collection_commands.sql"]);
+    assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied,
+      CURRENT_MIGRATION_FILES.filter(file => Number(file.slice(0, 4)) > 42));
     assert.deepEqual(await snapshot(), before);
     assert.equal((await pool.query("SELECT count(*)::int n FROM ainuoke_garment_collection_commands")).rows[0].n, 0);
     await verifyMigrationsCurrent(pool, resolve("database/migrations")); assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, []);

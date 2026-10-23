@@ -8,6 +8,7 @@ import { isAbsolute, join, relative, resolve } from 'node:path';
 import pg from 'pg';
 import { startDisposablePostgres, type DisposablePostgres } from './postgres-container.js';
 import { runMigrations, verifyMigrationsCurrent, PendingMigrationsError } from '../db/migration-runner.js';
+import { CURRENT_MIGRATION_FILES } from './current-migration-ledger-fixture.js';
 import { synchronizePermissionCatalog } from '../auth/permissions.js';
 import type { TrustedIdentity } from '../auth/session.js';
 import { createAinuokeSalesOrder, type CreateAinuokeSalesOrderInput } from '../sales-orders/service.js';
@@ -406,12 +407,14 @@ async function upgradeReceipts(t: TestContext, db: DisposablePostgres) {
       await assert.rejects(() => readDeliveryPlanRequestReceipt(pool, who.actor, id, command), code('42P01'));
       assert.deepEqual(await snapshot(), before);
       const client = await pool.connect(); try { assert.equal((await normalizationReferences(client)).some(([table]) => table === 'sales_order_delivery_plan_requests'), false); } finally { client.release(); }
-      assert.deepEqual((await runMigrations(pool, resolve('database/migrations'))).applied, ['0042_delivery_plan_request_receipts.sql']);
+      assert.deepEqual((await runMigrations(pool, resolve('database/migrations'))).applied,
+        CURRENT_MIGRATION_FILES.filter(file => Number(file.slice(0, 4)) > 41));
       const oldRows = await snapshot(); assert.deepEqual(oldRows.filter(r => r.table !== 'schema_migrations'), before.filter(r => r.table !== 'schema_migrations'));
       const previousLedger = before.find(r => r.table === 'schema_migrations')!.rows;
       const nowLedger = oldRows.find(r => r.table === 'schema_migrations')!.rows.filter(r => Number(JSON.parse(r.row).version) <= 41);
       assert.deepEqual(nowLedger, previousLedger);
       assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_delivery_plan_requests')).rows[0].n, 0);
+      assert.equal((await pool.query('SELECT count(*)::int n FROM ainuoke_garment_collection_commands')).rows[0].n, 0);
       await verifyMigrationsCurrent(pool, resolve('database/migrations')); assert.deepEqual((await runMigrations(pool, resolve('database/migrations'))).applied, []);
       await assert.rejects(() => verifyMigrationsCurrent(pool, prefix), /Applied migration 42 .*missing from the migration directory/);
       const saved = await updateDeliveryPlans(pool, who.actor, id, command); assert.equal(saved.plans.length, 2); assert.equal(saved.plans[0].quantity, '0');

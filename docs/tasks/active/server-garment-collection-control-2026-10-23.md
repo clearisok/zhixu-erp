@@ -41,6 +41,16 @@ root在全量952完成后才修改主树：worker前再次fresh，回滚确认�
 
 此后仅四份状态文档收口，下一步新精确HEAD守卫、一次既有安全交付、独立完整远端SHA及树核实，随后Source/Team/Release各一次新CI。新远端/CI终态在此文档冻结时尚未观察，不冒称PASS；不新建累计PR、merge/close、部署或Source/现有库操作。后续仍以完整Goal和原待决为准。
 
+## 16a6交付与首次CI后的兼容修复
+
+16a6d1b2ebafca3486ec28f965a1602213865d8f精确be9守卫PASS、clean。原工具实际push一次、6306ms、exit1/STOP_AUTH_OR_DIVERGENCE/continueLocal=false；工具后验和独立API均exact16a6，tree c404ea9d92006fb1c9f48c56794ea515e6d62f2e。原STOP不改写、不重推。三只读对照成功；一次无上传receive-pack dry-run退出0/up-to-date/stderr0，没有auth/reject信号。确认无tracking/lock/前缀冲突后，仅普通no-force定向fetch一次补齐exact tracking，其他refs/HEAD/dirty/config/FETCH_HEAD不变。初次辅助脚本误把缺失show-ref的128预期为1，0fetch即停，改用成功for-each-ref盘点后才执行。原push原因仍unresolved，不据当前成功证明长期恢复；独立复核允许仅继续已授权CI，不依赖重复上传。
+
+各dispatch一次attempt1、head16a6：Source39919082070、Team39919086328、Release39919091201。Team/Release全部success，实际checkout16a6；Release19解析器、134发布、69交付工具中68pass/1Windows专属skip。Source的compiled步骤失败，后续quality/build/browser/Python均skipped，不写PASS。失败唯一子断言为0041非空升级把后续迁移写死仅0042，而正式目录已有0043；24项22pass/2fail包含父项失败，完整失败日志保留。
+
+修复仅两份升级测试：使用既有显式CURRENT_MIGRATION_FILES分别核对41/42之后完整尾序列，保留逐旧public行/旧ledger字节、verify-only、幂等和原回执读写检查；另断言新增成衣命令表为空。没有修改迁移、runner、权限、控制层或产品。完整DeliveryPlan42/42（42442.0384ms）、成衣33/33（30201.3061ms）、Server编译和两文件lint通过，均0skip。最初不存在npm脚本未执行测试；随后误列不存在纯测路径的命令仅运行19项integration（21492.5073ms），保留日志，不冒称24；最终使用仓库实际test:delivery-plans完整脚本42通过。新修复独立checkpoint/精确守卫/复审和新交付/CI尚待，不拿16a6两项绿灯冒充新SHA。
+
+CI等待期间另作G1只读观察：07:40Z受保护端口中3001/62326/62426有监听、50426无监听；恰两次无认证静态build-info GET核实3001为旧e3e8e743、62326为旧333d7cb，未访问业务API或Source。62426五已知容器healthy且PG/对象卷仍在，仅元数据，不重查业务行或源激活。第一次辅助Node脚本模块格式错误，0GET即停；修复后才执行这两次。Docker元数据探测先在私密shell暂持完整inspect再投影，未输出或落盘环境值；这是不必要的读取范围，后续探测须直接用Docker模板选字段。没有服务启动/切换/重置或数据操作。运行观察独立于Gate7E实现验收，未据image tag冒称实际源码或更改旧运行证据。
+
 ## 后续与完整目标边界
 
 代码checkpoint后用精确源码外部context完成充分验收；冻结新工程报告/D158/feature证据并追加能力分维度记录，不改原295证据和58能力历史/批准/截图。最终精确be9门禁、一次验证引用交付、Source/Team/Release实际CI与复审。依赖仍未合并，不创建重复累计业务PR，不自动merge/close或部署。操作者入口与真实target/新读取范围仍另有具体批准；多页实证、跨次事件、覆盖v1、关账三项、50426切换/退役待决不默认。
