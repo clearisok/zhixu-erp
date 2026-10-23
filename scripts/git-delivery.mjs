@@ -3,17 +3,18 @@ import { createHash } from 'node:crypto';
 import { readFile, lstat, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { deliveryState } from './git-delivery-state.mjs';
+import { deliveryState, isTlsIdentityFailure } from './git-delivery-state.mjs';
 
 export const repository = 'clearisok/zhixu-erp';
 const sha = value => /^[0-9a-f]{40}$/.test(value ?? '');
-const denied = /authentication failed|permission denied|access denied|could not read username|invalid username|error: (401|403)|non-fast-forward|\brejected\b|conflict|diverg/i;
+const denied = /authentication failed|permission denied|access denied|could not read username|invalid username|(?:error:|HTTP)\s*(401|403)|non-fast-forward|\brejected\b|conflict|diverg/i;
 export function errorCategory(result) {
+  if (isTlsIdentityFailure(result.stderr)) return 'tls_identity_or_configuration';
+  if (denied.test(result.stderr)) return 'authentication_or_divergence';
   if (result.timedOut) return 'timeout';
   if (result.spawnError) return 'executable_unavailable';
-  if (/certificate problem|certificate verify failed|SEC_E_UNTRUSTED_ROOT|SEC_E_CERT_EXPIRED|CERT_E_|certificate.*(expired|not match)|unsupported ssl backend/i.test(result.stderr)) return 'tls_identity_or_configuration';
-  if (denied.test(result.stderr)) return 'authentication_or_divergence';
-  if (/schannel|close_notify|tls|ssl|eof|connection.*reset|recv failure/i.test(result.stderr)) return 'uncertain_transport';
+  if (result.overflow) return 'output_limit_exceeded';
+  if (/schannel|close_notify|tls|ssl|eof|connection.*reset|recv failure|failed to connect|could not connect|could not resolve (host|proxy)|connection.*timed out/i.test(result.stderr)) return 'uncertain_transport';
   return result.code === 0 ? 'command_pass' : 'command_failed';
 }
 
@@ -42,7 +43,7 @@ export function runCommand(command, args, cwd, timeoutMs = 30000) {
     child.on('error', () => { spawnError = true; });
     child.on('close', code => {
       clearTimeout(timer);
-      resolve({ code: timedOut || overflow || spawnError ? 1 : code, stdout, stderr: timedOut ? 'timeout' : stderr,
+      resolve({ code: timedOut || overflow || spawnError ? 1 : code, stdout, stderr: timedOut ? `${stderr}\ntimeout` : stderr,
         timedOut, spawnError, overflow, elapsedMs: Date.now() - started });
     });
   });
@@ -87,7 +88,7 @@ export async function workingEvidence(worktree, run = runCommand) {
 
 export async function remoteEvidence(worktree, branch, run = runCommand, independent = false) {
   if (independent) {
-    const api = await run('gh', ['api', `repos/${repository}/git/ref/heads/${branch}`, '--jq', '.object.sha'], worktree);
+    const api = await run('gh', ['api', '--hostname', 'github.com', `repos/${repository}/git/ref/heads/${branch}`, '--jq', '.object.sha'], worktree);
     if (api.code === 0 && sha(api.stdout.trim())) return { verified: true, sha: api.stdout.trim(), channel: 'github_api' };
     // A single Git read is a fallback, never another push. Raw API errors are not published.
   }
@@ -97,7 +98,36 @@ export async function remoteEvidence(worktree, branch, run = runCommand, indepen
   const fields = lines[0]?.trim().split(/\s+/);
   if (result.code === 0 && lines.length === 1 && sha(fields[0]) && fields[1] === `refs/heads/${branch}`)
     return { verified: true, sha: fields[0], channel: 'git_read' };
-  return { verified: false, category: errorCategory(result), channel: 'git_read' };
+  return { verified: false, category: errorCategory(result), channel: 'git_read', diagnostic: safeCommandSummary(result) };
+}
+
+/** No stderr, URLs, environment values or credentials enter delivery receipts. */
+function safeCommandSummary(result) {
+  return { exitCode: Number.isInteger(result.code) ? result.code : null,
+    category: errorCategory(result), timedOut: result.timedOut === true,
+    ...(Number.isFinite(result.elapsedMs) ? { elapsedMs: result.elapsedMs } : {}) };
+}
+
+/** One independent read after a transport failure; never retry the failed Git read. */
+export async function preflightRemoteEvidence(worktree, branch, run = runCommand) {
+  const git = await remoteEvidence(worktree, branch, run);
+  if (git.verified || !['uncertain_transport', 'timeout'].includes(git.category)) return git;
+  const api = await run('gh', ['api', '--hostname', 'github.com', `repos/${repository}/git/matching-refs/heads/${branch}`], worktree);
+  const preflight = { git: git.diagnostic, api: safeCommandSummary(api) };
+  if (api.code !== 0) return { verified: false, channel: 'github_api', category: errorCategory(api), preflight, degraded: true };
+  let refs;
+  try { refs = JSON.parse(api.stdout); } catch { /* Invalid evidence must never authorize a push. */ }
+  const targetRef = `refs/heads/${branch}`;
+  const valid = Array.isArray(refs) && refs.every(ref => ref && typeof ref.ref === 'string'
+    && ref.ref.startsWith(targetRef) && ref.object?.type === 'commit'
+    && typeof ref.object.sha === 'string' && sha(ref.object.sha));
+  if (!valid) return { verified: false, channel: 'github_api', category: 'invalid_evidence', preflight, degraded: true };
+  const exact = refs.filter(ref => ref.ref === targetRef);
+  // A successful empty matching-refs result proves absence. A nonempty prefix page
+  // without an exact match does not: it may be paginated. Do not infer from 404.
+  if (refs.length !== 0 && exact.length !== 1)
+    return { verified: false, channel: 'github_api', category: 'invalid_evidence', preflight, degraded: true };
+  return { verified: true, sha: exact[0]?.object.sha ?? null, channel: 'github_api', preflight, degraded: true };
 }
 
 export function recoveryCommand(options) {
@@ -134,15 +164,18 @@ export async function deliver(options, dependencies = {}) {
     const initial = await workingEvidence(worktree, run);
     const dirtyCheck = deliveryState({ phase: 'check', exitCode: 0, ...initial, expectedDirtyFingerprint: options.expectedDirtyFingerprint });
     if (!dirtyCheck.continueLocal) return summary(dirtyCheck.state);
-    const before = await remoteEvidence(worktree, options.branch, run);
+    const before = await preflightRemoteEvidence(worktree, options.branch, run);
     const recovery = recoveryCommand(options);
-    if (!before.verified) return summary(before.category === 'authentication_or_divergence' ? 'STOP_AUTH_OR_DIVERGENCE' : before.category === 'tls_identity_or_configuration' ? 'STOP_TLS_IDENTITY_OR_CONFIGURATION' : 'LOCAL_PASS_REMOTE_UNVERIFIED', { recovery, remoteStatus: 'REMOTE_UNVERIFIED', networkMode: before.category === 'uncertain_transport' || before.category === 'timeout' ? 'NETWORK_DEGRADED' : 'NORMAL' });
-    if (before.sha === options.expectedHead) return summary('DELIVERED_VERIFIED', { remoteSha: before.sha, channel: before.channel });
+    const preflight = before.preflight ?? (before.diagnostic ? { git: before.diagnostic } : undefined);
+    const degraded = before.degraded === true || ['uncertain_transport', 'timeout'].includes(before.category);
+    const preflightSummary = { ...(preflight ? { preflight } : {}), networkMode: degraded ? 'NETWORK_DEGRADED' : 'NORMAL' };
+    if (!before.verified) return summary(before.category === 'authentication_or_divergence' ? 'STOP_AUTH_OR_DIVERGENCE' : before.category === 'tls_identity_or_configuration' ? 'STOP_TLS_IDENTITY_OR_CONFIGURATION' : before.category === 'invalid_evidence' ? 'STOP_REMOTE_EVIDENCE_INVALID' : 'LOCAL_PASS_REMOTE_UNVERIFIED', { recovery, remoteStatus: 'REMOTE_UNVERIFIED', ...preflightSummary });
+    if (before.sha === options.expectedHead) return summary('DELIVERED_VERIFIED', { remoteSha: before.sha, remoteStatus: 'EXACT_HEAD_VERIFIED', channel: before.channel, ...preflightSummary });
     if (before.sha) {
       const relation = await git(['merge-base', '--is-ancestor', before.sha, options.expectedHead]);
       if (relation.code !== 0) return summary(relation.code === 1 ? 'STOP_AUTH_OR_DIVERGENCE' : 'STOP_REMOTE_RELATION_UNVERIFIABLE');
     }
-    if (!options.execute) return summary('READY_DRY_RUN', { remoteSha: before.sha, dirtyProtected: !initial.clean, recovery });
+    if (!options.execute) return summary('READY_DRY_RUN', { remoteSha: before.sha, dirtyProtected: !initial.clean, recovery, ...preflightSummary });
     const freshHead = await git(['rev-parse', 'HEAD']);
     const fresh = await workingEvidence(worktree, run);
     if (freshHead.code !== 0 || freshHead.stdout.trim() !== options.expectedHead || JSON.stringify(fresh) !== JSON.stringify(initial)) return summary('STOP_LOCAL_CHANGED');
@@ -161,14 +194,18 @@ export async function deliver(options, dependencies = {}) {
       if (ancestry.code === 1) relation = 'diverged';
       else if (ancestry.code !== 0) return summary('STOP_REMOTE_RELATION_UNVERIFIABLE', { remoteSha: after.sha });
     }
+    // Remote identity and command safety are independent facts. An exact target
+    // does not relax STOP, but must not be reported as absent or retried.
+    const exactRemote = after.verified && after.sha === options.expectedHead;
     const decision = deliveryState({ phase: 'push', exitCode: pushed.code, stderr: pushed.stderr,
       targetSha: options.expectedHead, remoteSha: after.sha, remoteVerified: after.verified,
       remoteRelation: relation, ...initial, expectedDirtyFingerprint: options.expectedDirtyFingerprint });
     return summary(decision.state, { continueLocal: decision.continueLocal, remoteSha: after.sha,
-      remoteStatus: decision.state === 'DELIVERED_VERIFIED' ? 'EXACT_HEAD_VERIFIED' : after.verified ? 'TARGET_NOT_DELIVERED' : 'REMOTE_UNVERIFIED',
+      remoteStatus: exactRemote ? 'EXACT_HEAD_VERIFIED' : after.verified ? 'TARGET_NOT_DELIVERED' : 'REMOTE_UNVERIFIED',
       pushCategory: errorCategory(pushed), elapsedMs: pushed.elapsedMs, channel: after.channel,
-      networkMode: errorCategory(pushed) === 'uncertain_transport' || pushed.timedOut || decision.state.startsWith('LOCAL_PASS_REMOTE_') ? 'NETWORK_DEGRADED' : 'NORMAL',
-      ...(decision.state === 'DELIVERED_VERIFIED' ? {} : { recovery }) });
+      ...(preflight ? { preflight } : {}),
+      networkMode: degraded || errorCategory(pushed) === 'uncertain_transport' || pushed.timedOut || decision.state.startsWith('LOCAL_PASS_REMOTE_') ? 'NETWORK_DEGRADED' : 'NORMAL',
+      ...(exactRemote ? {} : { recovery }) });
   } catch {
     return summary('STOP_LOCAL_EVIDENCE_UNVERIFIABLE');
   }

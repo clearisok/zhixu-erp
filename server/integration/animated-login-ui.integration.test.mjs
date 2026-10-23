@@ -9,7 +9,18 @@ import { join, resolve, relative, isAbsolute } from "node:path";
 import { startCommercialSecurityFixture } from "./commercial-security-fixture.ts";
 import { bootstrapAdmin } from "../auth/bootstrap.ts";
 const wait=ms=>new Promise(done=>setTimeout(done,ms));
-async function until(read,label){for(let i=0;i<150;i++){if(await read())return;await wait(100);}throw Error(label+" timed out");}
+async function until(read,label){
+ for(let i=0;i<150;i++){
+  try{if(await read())return;}
+  catch(error){
+   // Only read-only readiness observations may outlive a navigation context.
+   // Keep the existing bound; do not replay clicks, login or other mutations.
+   if(!/Inspected target navigated or closed|Execution context was destroyed|Cannot find context with specified id/.test(String(error)))throw error;
+  }
+  await wait(100);
+ }
+ throw Error(label+" timed out");
+}
 test("Animated login: real session, redirects, keyboard, errors and responsive UI",{timeout:180000},async t=>{
  const build=JSON.parse(readFileSync("dist/client/build-info.json","utf8"));
  assert.equal(build.quoteAuthority,"server");assert.equal(build.identityMode,"session");

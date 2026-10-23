@@ -37,6 +37,23 @@ test('known inherited dirty requires exact approved SHA256, mismatch remains STO
   assert.equal(deliveryState({...base,remoteRelation:'diverged',stderr:'TLS EOF'}).state,'STOP_AUTH_OR_DIVERGENCE');
 });
 test('certificate trust/expiry and unsupported TLS config are STOP, not transient transport recovery',()=>{
-  for(const stderr of ['SSL certificate problem: unable to get local issuer certificate','schannel SEC_E_UNTRUSTED_ROOT','SEC_E_CERT_EXPIRED','unsupported SSL backend'])
+  for(const stderr of ['SSL certificate problem: unable to get local issuer certificate','schannel SEC_E_UNTRUSTED_ROOT','SEC_E_CERT_EXPIRED','unsupported SSL backend',
+    'schannel: SNI or certificate check failed: SEC_E_WRONG_PRINCIPAL', 'SSL: no alternative certificate subject name matches target hostname', 'target principal name is incorrect']) {
     assert.equal(deliveryState({...base,stderr}).state,'STOP_TLS_IDENTITY_OR_CONFIGURATION');
+    assert.equal(deliveryState({...base,stderr,remoteSha:targetSha,remoteVerified:true}).state,'STOP_TLS_IDENTITY_OR_CONFIGURATION');
+  }
+});
+
+test('DNS/connect failures preserve pending delivery while HTTP permission errors remain STOP',()=>{
+  for(const stderr of ['Could not resolve host','Could not resolve proxy','Failed to connect'])
+    assert.equal(deliveryState({...base,stderr}).state,'LOCAL_PASS_REMOTE_UNVERIFIED');
+  for(const stderr of ['HTTP 401','HTTP 403'])
+    assert.equal(deliveryState({...base,stderr}).state,'STOP_AUTH_OR_DIVERGENCE');
+});
+
+test('normal successful push branch names are not certificate failures',()=>{
+  for(const branch of ['fix/certificate-label','fix/SEC_E_WRONG_PRINCIPAL','fix/CERT_E_example']) {
+    const stderr=`To https://github.com/example/repo.git\n * [new branch] abc -> ${branch}\n`;
+    assert.equal(deliveryState({...base,exitCode:0,stderr,remoteSha:targetSha,remoteVerified:true}).state,'DELIVERED_VERIFIED');
+  }
 });

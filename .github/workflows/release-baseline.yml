@@ -28,6 +28,8 @@ jobs:
         run: |
           node --test scripts/__tests__/resolve-pr-validation-base.test.mjs
           npm run test:release-baseline
+      - name: Delivery evidence and bounded recovery against isolated Git fixtures
+        run: node --test scripts/__tests__/git-delivery-state.test.mjs scripts/__tests__/git-delivery.test.mjs
       - name: Guard syntax and lint
         run: |
           node --check scripts/check-release-baseline.mjs

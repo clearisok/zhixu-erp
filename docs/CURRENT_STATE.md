@@ -1,11 +1,9 @@
-# 当前状态：原PR120整合共享CI比较上下文
+# 当前状态：PR120 前向整合已合并的 PR127
 
-2026-10-23；main独立核实为e06162c70c9792895c30030216dc8c2a66368069，仅#126已获准合并。#127远端e2dc2704仍草稿，本地回执事实修正另行验收；不复制到本业务分支。
+2026-10-23；已独立核实 main=be9aaa3f4efa232e1451075a355f0ce42e35a69e。用户仅批准的 #126、#127 已以 merge commit 合并；#127 merge 的两个 parent 为 e06162c7 与7b565f32，tree=已审查7b，原提交和分支保留。#120/#123/#125/#128 未获合并/关闭授权。
 
-独立工具[#128](https://github.com/clearisok/zhixu-erp/pull/128)精确5f6482cb已送达，Release/Team attempt1与Source attempt2均成功。Source attempt1在私密Chromium端点启动前20秒超时失败，原日志保留；同一精确5f仅重跑一次，未改代码/超时/测试，根因未定。实际checkout471d3ff9父[e061,5f]、tree=5f已核实。
+当前 codex/price-source-stabilization 从干净0561f5ed将实际main前向merge。冲突只有CI workflow、CURRENT_STATE、AI_HANDOFF；保留CI真实双父比较、19项解析器、134项发布及交付工具测试，不降低任何鉴权、STOP或提交保护。原五个产品/回归/演示blob保持57d；SQL、依赖、应用配置和用户环境不改。217证据/46能力先原样保留；真实merge后为两条侧文档链追加同路径见证，V1 UI影响仅前移基线。
 
-本分支真实merge df1789f0父[e872,5f]，业务五个产品/回归/演示blob=57d，工具三blob=5f，guard/134测试=e061；217证据/46能力、旧H见证、V1 UIimpact和历史全部保留。新组合134/134、19/19及精确e061门禁均通过，零失败/取消/跳过，独立复审无P1/P2。复审只收窄启动证据措辞，不能称F/E整个应用相同。详见[任务](tasks/active/pr120-main-forward-2026-10-23.md)。
+原0561f5ed的三CI均成功，原1b64的804源码/34隔离DB/6私密Chromium及干净快照类型lint构建仍只证明各原范围。新组合的精确main门禁、测试、远端SHA、三CI与复审均须重新核对，当前不借旧结果宣称通过。历史首次失败和重跑均保留。详情见[同一任务](tasks/active/pr120-main-forward-2026-10-23.md)；双方摘要[逐Git字节归档](tasks/completed/2026-10-23-pr120-be9-forward-inputs/)。
 
-269f1523已精确送达；其Release39895928663实际证明eventBase=996而checkout9ac第一父=e061，解析器eventBaseDiffers=true，门禁与19/134成功。文档后继不改代码；最终HEAD的远端/三CI须另行核实，不能沿用269绿灯。原相同业务源码1b64的804源码/34合成DB/6Chromium和干净快照类型lint构建保留其原范围，未重建或升级用户环境。
-
-交付工具旧STOP+exact矛盾保留，未重推已送达目标、未据布尔采样放宽安全规则或宣称全局网络恢复。完整目标未完成；覆盖v1/关账三问/50426切换与旧资产退役待决，固定Source额度已用。3001、50426、59069、62426及其他旧入口/账号/卷/Browser/工作树保护；不自动merge/close、真实数据、来源绑定/激活/调度、部署或退役。
+完整G1–G5目标未完成；覆盖v1、关账三问、50426切换及旧资产退役仍待决定。固定Source额度已用，不新增真实读取/绑定/激活/调度。保护3001、50426、59069、62426及全部既有入口、账号、数据库、卷、Browser与工作树。不部署、不改真实数据、不自动merge或close其他PR，不改共享Git/认证/TLS/代理。

@@ -39,3 +39,9 @@ K须保留parents=[e872,5f]；原五个产品/测试/演示文件保持57d，新
 独立复审收窄一处记录：F与E仍相差本PR原两个产品修复，不能称整个应用相同。相同的仅Source workflow、端点helper及首项测试启动harness；超时发生在CDP/页面断言前。此修正只改证据措辞，不改代码、测试或超时。实际269的Release已验证旧eventBase=996、真实base=e061、eventBaseDiffers=true并通过；新文档后继CI继续按其精确head核实。
 
 冻结前观察：独立PR128完整5f的Release/Team attempt1、Source attempt2均已success；Source实际检出471d3ff9、父[e061,5f]、tree相同，完整原测试集合与131 Python均成功。首次启动失败及一次重跑额度仍保留，不认定其根因为基础设施。root文档后继只校准该状态和证据措辞，代码/清单不改；终版精确门禁、交付和三CI按新HEAD分别核实。
+
+## 第三阶段：批准合并127后的实际main整合
+
+2026-10-23；#127精确7b565f321d170a7db6e361455791ee4db4f37ba8经具体批准，以merge commit进入main be9aaa3f4efa232e1451075a355f0ce42e35a69e，parents=[e06162c7,7b565f32]、tree=7b已独立核实，原7提交与分支保留。#120输入0561f5ed三CI全成功仍保留原范围；本阶段从干净树进行真实merge。只有workflow/两状态摘要3冲突，PROJECT_INDEX与manifest自动合入后由唯一整合者对齐。双方摘要和UIimpact见[原始输入](../completed/2026-10-23-pr120-be9-forward-inputs/)。
+
+workflow同时保留19解析器/134发布/交付工具回归。原五个业务blob=57d，main新工具与两处旧验收适配保持main内容，不混入新业务规则。manifest217/46先完整保留，仅基线/UIimpact元数据前移；真实merge后追加两条同路径见证。此checkpoint尚未完成新门禁/测试/交付，不能用旧CI作新PASS。全目标继续，覆盖v1/关账/切换退役待决，真实Source额度已消耗，所有用户环境保护。

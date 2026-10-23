@@ -1,6 +1,8 @@
 # 项目知识索引
 
-2026-10-23：原PR120已前向整合独立CI工具5f，main完整e06162c70c9792895c30030216dc8c2a66368069。df1789f0新134/19及精确门禁通过；#128三CI全部成功，首次启动失败保留。269的Release已实际验证旧eventBase=996/真实base=e061，文档后继仍须独立核查最终远端/三CI。先读CURRENT_STATE、AI_HANDOFF与[任务](tasks/active/pr120-main-forward-2026-10-23.md)，双方摘要[逐字归档](tasks/completed/2026-10-23-pr120-ci-context-inputs/)。不自动合并或部署。完整目标未完成，累计及固定真实读取见[7c冻结记录](https://github.com/clearisok/zhixu-erp/blob/7c0c027334e49ae9c3c833f45cc1aeccb05d52e5/docs/tasks/active/candidate-main-forward-2026-10-23.md)；已用额度不重读。
+2026-10-23；已独立核实 main=be9aaa3f4efa232e1451075a355f0ce42e35a69e。用户仅批准的 #126、#127 已以 merge commit 合并；#127 merge 的两个 parent 为 e06162c7 与7b565f32，tree=已审查7b，原提交和分支保留。#120/#123/#125/#128 未获合并/关闭授权。
+
+当前恢复：CURRENT_STATE、AI_HANDOFF、[PR120前向任务](tasks/active/pr120-main-forward-2026-10-23.md)。新组合验证与交付另行核实；原三CI成功不替代新HEAD。两侧摘要和UIimpact[逐字保留](tasks/completed/2026-10-23-pr120-be9-forward-inputs/)。本分支只含原两处业务修复与共享CI/交付工具整合；累计候选7c、固定Source核验及旧运行态各保留原日期/source/限制，不复制成新部署或新读取。
 
 ## 系统简介
 
