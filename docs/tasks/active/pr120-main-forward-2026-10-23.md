@@ -37,3 +37,5 @@ K须保留parents=[e872,5f]；原五个产品/测试/演示文件保持57d，新
 新真实merge K=`df1789f038f782a5f9633badb224a5a8604afcaf`，parents精确[e872,5f]。组合后发布134/134（418188.0114ms）、解析器19/19（6484.0158ms）均零失败/取消/跳过，显式e061门禁PASS（11页/46能力/1UI）。独立静态复审核实五个产品blob、三个CIblob、两个guard blob及六归档，未发现P1/P2；reviewer未代跑测试。没有重复应用构建/DB/浏览器，1b64的原结果仅保留相同源码范围。工具PR128 attempt1的端点启动失败保留，已对同一5f失败job只请求一次重跑，attempt2终态另核。最终文档与新远端CI仍须独立核实。
 
 独立复审收窄一处记录：F与E仍相差本PR原两个产品修复，不能称整个应用相同。相同的仅Source workflow、端点helper及首项测试启动harness；超时发生在CDP/页面断言前。此修正只改证据措辞，不改代码、测试或超时。实际269的Release已验证旧eventBase=996、真实base=e061、eventBaseDiffers=true并通过；新文档后继CI继续按其精确head核实。
+
+冻结前观察：独立PR128完整5f的Release/Team attempt1、Source attempt2均已success；Source实际检出471d3ff9、父[e061,5f]、tree相同，完整原测试集合与131 Python均成功。首次启动失败及一次重跑额度仍保留，不认定其根因为基础设施。root文档后继只校准该状态和证据措辞，代码/清单不改；终版精确门禁、交付和三CI按新HEAD分别核实。
