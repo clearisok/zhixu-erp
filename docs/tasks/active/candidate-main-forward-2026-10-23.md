@@ -87,3 +87,34 @@ identically to c521; no additional witness or status change is invented. All
 non-document application/tool/test blobs remain the prior candidate plus the
 exact main guard. This is original-history preservation, not GitHub PR merge
 or permission to deploy. New final candidate validation remains pending.
+
+## Actual local acceptance on J
+
+The clean final validation merge is 2b1e15e20fe72f9e413f86baa1cd0797e9db75f8, parents exactc521/e2. All eight
+current original heads120–127 are ancestors ofJ; only126 is actually merged in
+main. No PR merge/close is inferred from local ancestry. Non-doc delta bee→J is
+only the exact main guard/test. Six candidate tool/two-test strengthening blobs
+stay bee-identical. All old286 evidence/58cap are unchanged,291 total; all35 new
+input archives match exact Git bytes. Twenty-five checked relative links resolve.
+
+| Executed check on J | Result | Duration |
+| --- | --- | --- |
+| Exact actual-main guard | PASS:11pages/58cap/88 inherited UI paths | not separately timed |
+| Release/negative/responsive suite | 134/134,0fail/cancel/skip | 515105.1459ms |
+| Candidate isolated Git delivery suite | 66/66,0fail/cancel/skip | 200679.3634ms |
+| Node syntax and scoped guard/test ESLint | pass | not separately timed |
+
+Independent static review verified H/c521/J ancestry, four same-path H witnesses,
+scoped report hash, all parent evidence, original UI approvals and source/runtime
+boundaries, with no P1/P2. The original0c image is not rebuilt or relabelled, and
+old SQL/browser/Source/Team results keep their own source. This docs/tool-only
+slice does not need a new application build or unrelated runtime rerun.
+
+Next create the documentation closeout commit, run its explicit e061 guard,
+safely deliver the current validation reference once, and verify exact remoteSHA.
+Only the relevant Release workflow is dispatched once for this unchanged-app
+slice; its dispatch default guard does not replace the separate explicit actual-
+main local guard. Final delivery/Release results remain separately observed, not
+claimed at this documentation freeze. Individual business PR main conflicts are
+the next independent stage, using ancestry120,121→122→123 and124→125 without
+automatic merge/close or mutation of protected runtime-bound checkouts.
