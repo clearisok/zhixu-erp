@@ -65,3 +65,14 @@ targets,3001,50426,other ports/accounts/Browser/DBs/volumes and private evidence
 Coverage-v1 approval, three closing decisions, actual cutover/retirement and any new
 real-source query/activation remain separate. Preserve the full objective; do not
 claim a tooling/history integration completes G1–G5.
+
+## Actual merge and evidence binding
+
+H is full a6c821994706a9b00e72f6b10fa88a4919d0a6db, with exact ordered parents bee/e061. The worktree was clean after
+that real merge. The four import witnesses above and the independent fixed-read
+report now bind H's committed Git blobs; all286 original evidence objects remain,
+with291 total/58 unchanged capabilities. The report hash was independently reviewed
+as 38428151b8b44db83644025fdc42a69840c999ddbf28a9f201d2ec3c75f86fb2. Syntax and scoped guard lint passed; no new regression or CI
+result is claimed at this freeze. Next retain #127 final e2 history by a normal
+validation merge, then run this candidate's own checks without replacing its later
+tool/test improvements. This is not a GitHub #127/main merge or runtime change.

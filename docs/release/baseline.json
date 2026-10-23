@@ -2415,6 +2415,55 @@
       "renderedSourceSha": "0c7377d99a51bcab6589217edff69a54e7b2ee21",
       "sha256": "e19cd6bc6f4d8b84e6a9d17c0805a075b71ed151691b8e14c4c91e301a054596",
       "changeReason": "New exact 0c candidate image and unchanged actual-image persistence/recovery rehearsal. Preserve all prior image/evidence/status records; no existing target replacement, real Source read, deployment or user acceptance."
+    },
+    {
+      "id": "decisions-main-e061-import-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "a6c821994706a9b00e72f6b10fa88a4919d0a6db",
+      "renderedSourceSha": "a6c821994706a9b00e72f6b10fa88a4919d0a6db",
+      "sha256": "9ca0294dd51832b0342ab25ce4a276cd13d072e33651469fbfc13b9a61b42baf",
+      "supersedes": "decisions-garment-filter-recovery-20261022",
+      "changeReason": "Freeze the existing side document at the real merge with exact main e061 and independent bee parent. Preserve every original revision and business rule; D157 only records the separately approved scoped observation, with no new request or source activation."
+    },
+    {
+      "id": "closing-main-e061-import-20261023",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "a6c821994706a9b00e72f6b10fa88a4919d0a6db",
+      "renderedSourceSha": "a6c821994706a9b00e72f6b10fa88a4919d0a6db",
+      "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
+      "supersedes": "closing-server-target-20261020",
+      "changeReason": "Freeze the existing side document at the real merge with exact main e061 and independent bee parent. Preserve every original revision and business rule; D157 only records the separately approved scoped observation, with no new request or source activation."
+    },
+    {
+      "id": "order-source-main-e061-import-20261023",
+      "kind": "document",
+      "path": "docs/features/ORDER_BUSINESS_SOURCE.md",
+      "recordedAtSha": "a6c821994706a9b00e72f6b10fa88a4919d0a6db",
+      "renderedSourceSha": "a6c821994706a9b00e72f6b10fa88a4919d0a6db",
+      "sha256": "fbda716ce45bff18581c3a27b0a45f2ca2140d52aafbdf1a5a890b12cd3014f6",
+      "supersedes": "order-source-quote-context-20261020",
+      "changeReason": "Freeze the existing side document at the real merge with exact main e061 and independent bee parent. Preserve every original revision and business rule; D157 only records the separately approved scoped observation, with no new request or source activation."
+    },
+    {
+      "id": "production-main-e061-import-20261023",
+      "kind": "document",
+      "path": "docs/features/PRODUCTION_SCHEDULING.md",
+      "recordedAtSha": "a6c821994706a9b00e72f6b10fa88a4919d0a6db",
+      "renderedSourceSha": "a6c821994706a9b00e72f6b10fa88a4919d0a6db",
+      "sha256": "b1feb8616504e748dbe772f2c60d034a0926d3d3925e72f76fe35ffdfe24f584",
+      "supersedes": "production-server-planning-preparation-20261020",
+      "changeReason": "Freeze the existing side document at the real merge with exact main e061 and independent bee parent. Preserve every original revision and business rule; D157 only records the separately approved scoped observation, with no new request or source activation."
+    },
+    {
+      "id": "fixed-garment-filter-observation-20261023",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-23-fixed-garment-filter-read.md",
+      "recordedAtSha": "a6c821994706a9b00e72f6b10fa88a4919d0a6db",
+      "renderedSourceSha": "0c7377d99a51bcab6589217edff69a54e7b2ee21",
+      "sha256": "38428151b8b44db83644025fdc42a69840c999ddbf28a9f201d2ec3c75f86fb2",
+      "changeReason": "Record the one explicitly approved diagnostic execution on exact original0c: two logins/four reports, this-account unique contract complete first page only; retain failures and old frozen hashes, no database publication, activation or new quota."
     }
   ],
   "pages": [
