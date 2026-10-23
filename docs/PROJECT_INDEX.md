@@ -1,16 +1,10 @@
-2026-10-23当前恢复优先：#127后置核实事实修正，main完整e06162c70c9792895c30030216dc8c2a66368069。原e2精确交付、三CI通过；本阶段只纠正已核实目标SHA却写未送达的回执，并保留所有STOP策略；dff新56/134及精确门禁通过，最终交付/CI另核。先读CURRENT_STATE、AI_HANDOFF与[同一任务](tasks/active/pr127-main-forward-2026-10-23.md)；下文保留前阶段日期/结果，原三摘要另有[逐字输入](tasks/completed/2026-10-23-pr127-postflight-facts-inputs/)。不自动合并或部署。
-
-2026-10-23 当前工具恢复优先：CURRENT_STATE、AI_HANDOFF 与[真实 main 前向整合](tasks/active/pr127-main-forward-2026-10-23.md)。#126 已按具体批准以 merge commit 进入 main `e06162c70c9792895c30030216dc8c2a66368069`，原历史保留；#127 的真实四处文档/清单冲突已解决，merge checkpoint7af已通过新53/134/9/10及构建回归。213证据/46能力不改，两侧摘要按原Git字节归档。最终文档精确守卫/远端/新CI分别待核，不借旧结果；未新增业务/UI/SQL或共享配置变更。
-
-以下索引保留 main 整合前各自日期与来源 SHA，当前恢复点以上文和两份状态摘要为准。原#127输入索引另存[37bd归档](tasks/completed/2026-10-23-pr127-forward-inputs/37bd0e1e/PROJECT_INDEX.md)。全项目候选仍由7bf3主控保留，本PR不带入累计业务功能，不自动合并其他PR或部署。
-
 # 项目知识索引
 
-2026-10-23恢复优先读CURRENT_STATE、AI_HANDOFF与[原工具PR126任务](tasks/active/release-document-merge-guard-2026-10-20.md)。main完整基线 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；本分支只修main前移后的旧side证据导入与父历史保护，不含其他业务候选。最终源码cff4addd完整134项、精确996门禁及独立复审通过；同脚本验证完整候选94亦通过。接着交付原#126/核实精确HEAD/检查新CI，不能把旧CI当作新结果。不自动合并、部署或真实Source/业务库操作。旧956、完整Goal候选94与红测93摘要均按Git字节[归档](tasks/completed/2026-10-23-release-main-advance-inputs/)，下方旧阶段按其日期阅读。完整Goal仍active，Source0c与image94原CI已成功。
+2026-10-23；已独立核实 main=be9aaa3f4efa232e1451075a355f0ce42e35a69e。用户仅批准的 #126、#127 已以 merge commit 合并；#127 merge 的两个 parent 为 e06162c7 与7b565f32，tree=已审查7b，原提交和分支保留。#120/#123/#125/#128 未获合并/关闭授权。
+
+当前恢复：CURRENT_STATE、AI_HANDOFF、[PR120前向任务](tasks/active/pr120-main-forward-2026-10-23.md)。源码0494新134/75、lint及精确be9门禁通过，独立静态复审无P1/P2；最终HEAD远端/三CI另核，原三CI不替代新HEAD。两侧摘要和UIimpact[逐字保留](tasks/completed/2026-10-23-pr120-be9-forward-inputs/)。本分支只含原两处业务修复与共享CI/交付工具整合；累计候选7c、固定Source核验及旧运行态各保留原日期/source/限制，不复制成新部署或新读取。
 
 ## 系统简介
-
-并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
 

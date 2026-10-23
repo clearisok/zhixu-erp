@@ -1,128 +1,44 @@
 # 系统总览
 
-## 当前架构
+2026-10-19，以 main `996dfedc12da3527343cd3ff2aa5eea35497e10e` 为工程基线。工程存在、默认构建、实际部署与人工业务接受是不同事实。[校准前原文](tasks/completed/2026-10-19-pre-stabilization/SYSTEM_OVERVIEW.md)保留历史。
 
-本仓库是一个 Vinext/React/TypeScript 单仓应用，不是传统的 `frontend/` + `backend/` 分仓。Phase 1 新增位于 `server/` 的正式 Node backend foundation；现有 legacy 与 browser mock 路径仍保持隔离。
+## 三条运行路径
 
-### Phase 1 Node/PostgreSQL server foundation
-
-```text
-浏览器
-  -> 同源 /api/v1/*
-  -> Node/TypeScript server
-  -> trusted session + PermissionKey RBAC
-  -> PostgreSQL pool
-```
-
-- 当前只承载 health、Auth/RBAC 与 server OperationLog，不承载 SalesOrder 或其他业务领域。
-- versioned SQL 位于 `database/migrations/`，`schema_migrations` 保存 checksum 和应用信息；旧 `database/001_schema.sql` 不属于新 migration sequence。
-- DEV 3001 通过 Vite proxy 访问 3100 API；Compose 的显式 `server-foundation` profile 演示 Node 同时提供 static + API。未来生产目标是 Browser → Node → PostgreSQL。
-- 详细安全、migration、Docker、测试和 cutover 边界见 `docs/features/SERVER_PERSISTENCE.md`。
-
-### 根路径 ERP（本地 PostgreSQL 路径）
-
-```text
-浏览器 /app/page.tsx
-  -> 同源 /api/*
-  -> 根目录 docker-serve.sh（静态文件 + API 转发）
-  -> PostgreSQL api_dispatch(...)
-  -> customers / quotes / orders / schedules / users / audit_logs
-```
-
-- Docker 镜像不运行 Node 服务；它以 PostgreSQL 镜像为基础，启动数据库和 BusyBox/`nc` 静态服务脚本。
-- 上述描述只针对 legacy `zhixu` service；新 `Dockerfile.server`/`server` profile 运行 Node，但 Phase 1 尚未替换 legacy 默认 service。
-- `database/001_schema.sql` 创建表、约束、索引和 `api_dispatch` 函数。
-- `database/002_admin.sql` 在用户名不存在时创建初始管理员。
-- 数据保存在 Compose 命名 volume `zhixu_data` 中。
-
-### Quote Center、订单、排单与关账（当前浏览器 mock 路径）
-
-```text
-浏览器 /quote-center、/order-center、/production-scheduling、/closing-center、/basic-settings 和 /system-settings
-  -> React feature 组件与领域函数
-  -> mock repository / browser storage
-     - 报价、订单、排单、关账、附件 ID、基础资料、生产基础设施设置、权限与日志：稳定 schemaVersion localStorage namespace
-     - 附件 metadata 与二进制 Blob：IndexedDB
-     - 用户 Excel 模板 metadata 与 Blob：IndexedDB
-```
-
-新 Quote Center/订单/排单/关账路径不调用根路径 ERP 的 `/api/quotes`、旧订单 API 或旧 schedules，也没有独立真实后端或数据库表。Revision、PriceVersion、单款 SalesOrder、ScheduleAssignment、ClosingPeriod、ClosingAllocation、基础资料和附件只存在于当前前端实现及浏览器本地存储中。浏览器数据使用 `zhixu.erp.local.*` 稳定命名空间、`schemaVersion = 9` 和向前迁移；v5 OrderItem 与 v8 ProductionPlan 只作为迁移输入，旧 sessionStorage/localStorage key 只作为兼容迁移来源。
-
-### Vinext / Cloudflare 路径
-
-`next.config.ts` 使用静态导出；`vite.config.ts` 使用 Vinext、Sites 和 Cloudflare 插件。`worker/index.ts` 只提供 Vinext 应用/图片处理入口。目前 `.openai/hosting.json` 未配置 D1 或 R2，`db/schema.ts` 为空，Drizzle journal 没有业务 migration。
-
-因此，Cloudflare/Sites 构建能力不等于已部署 Quote Center 业务后端。
-
-## 技术栈
-
-- Node.js `>=22.13`
-- React 19、TypeScript 5.9
-- Next 16 兼容路由 + Vinext/Vite 构建
-- PostgreSQL 16（根路径 ERP）
-- Docker Compose（本地生产运行）
-- Node test runner / TypeScript 源码契约测试
-- Drizzle/D1 仅为未启用 scaffold
-
-版本以 `package.json`、lockfile 和配置文件为准。
-
-## 前端路由和模块
-
-| 路由 | 模块 | 数据来源 |
+| 路径 | 权威持久化与 API | 当前范围 |
 | --- | --- | --- |
-| `/` | 登录、工作台、旧报价、订单、排单、用户、审计 | PostgreSQL API |
-| `/quote-center` | 报价中心列表 | Quote mock repository |
-| `/quote-center/new` | 新建报价 | 内存草稿，保存后进入 mock repository |
-| `/quote-center/detail?id=...` | 报价详情/Revision/PriceVersion 编辑 | Quote mock repository |
-| `/order-center` | 新订单中心列表与筛选 | Order browser repository |
-| `/order-center/new` | 手工订单或翻单草稿 | Order domain service；保存后进入 repository |
-| `/order-center/detail?id=...` | 订单详情、交期/数量/价格历史、附件与日志 | Order browser repository + IndexedDB attachments |
-| `/production-scheduling` | 直接排单、内部生产队列、外发固定排期、物流建议与交期风险 | ProductionScheduling browser repository |
-| `/closing-center` | 月度关账、归属快照、产值平衡与锁账 | Closing browser repository |
-| `/basic-settings/brands` | 品牌设置 | localStorage |
-| `/basic-settings/customer-salespeople` | 客户业务员设置 | localStorage |
-| `/basic-settings/fabrics` | 面料库 | localStorage |
-| `/basic-settings/trims` | 辅料库 | localStorage |
-| `/basic-settings/production-groups` | 生产组基础资料 | localStorage |
-| `/basic-settings/outsource-factories` | 外发厂基础资料 | localStorage |
-| `/system-settings/closing-settings` | 关账默认税率与月度生产目标 | localStorage |
-| `/system-settings/data-management` | 浏览器数据备份、恢复和显式重置 | localStorage + IndexedDB repositories |
+| 根路径 legacy ERP | PostgreSQL `database/001_schema.sql`、`api_dispatch`；旧 `/api/*` | 旧报价、订单、排单、账号；独立模型和计算规则，不接新 Quote API |
+| 默认 Browser | 稳定 localStorage / IndexedDB、mock repository、前向数据迁移 | 报价、订单、生产排单、关账等历史前端能力；本地 mock 权限不构成服务端安全边界 |
+| 显式 Server | Node/TypeScript `server/app.ts`、可信 session/RBAC、PostgreSQL `database/migrations/`、`/api/v1/*` | 正式报价/资料/附件/导出、合同接纳、加工批次、订单商业版本、逐色价格、议价、只读物料/货款申请来源、交付计划 API |
 
-共用 UI Foundation 位于 `components/foundation/`。Quote Center 领域代码位于 `features/quote-center/`，订单领域位于 `features/order-center/`，排单位于 `features/production-scheduling/`，关账位于 `features/closing-center/`，报价基础资料位于 `features/basic-settings/`，共用生产设置位于 `features/operations-settings/`。正式关系为 `SalesOrder → ScheduleAssignment[]`，以及 `SalesOrder → ClosingAllocation`（可选引用稳定 ScheduleAssignment）。这些浏览器领域不修改根路径 PostgreSQL schema。
+```text
+显式 Server 页面 → 同源 /api/v1 → session + 权限 + 领域命令 → PostgreSQL
+                                      ↑
+受控艾诺科读取 → 可信合同接纳 / 独立来源快照（不改报价和历史成交价）
+```
 
-## 数据库与 migration 状态
+Server 不回退 Browser 数据。生产排单和完整关账仍主要为 Browser 领域；Server DeliveryPlan 不等于完整生产模块。来源采集、目标启用和调度是独立运维动作，不随应用启动或构建自动获准。
 
-- 权威生产数据库定义：`database/001_schema.sql`。
-- 初始化管理员：`database/002_admin.sql`。
-- 当前没有 Alembic、SQLAlchemy、FastAPI 或 Python backend；已新增 Node/TypeScript migration runner 与 `database/migrations/`。
-- Legacy `001_schema.sql`/`002_admin.sql` 仍会在旧容器启动时重复执行；新 Node runtime 正常启动只读验证 migration ledger，schema activation 仅由显式 `npm run db:migrate` 运行带 advisory lock/checksum/transaction 的 forward-only migrations。
-- `db/`、`drizzle/` 指向 SQLite/D1 scaffold，当前不承载业务表，不能作为 PostgreSQL schema 的替代事实源。
+## 主要代码与事实归属
 
-## 根路径 API 概览
+- `server/quotes/` 与 `features/quote-center/`：报价规格、Revision、PriceVersion；确认以现有 CCT 为准，无 CCT 才读已保存确认快照。
+- `server/sales-orders/`：合同/加工身份、独立不可变商业版本、颜色映射、报价中心议价。正式订单无负责人；新业务来源仅报价。
+- `server/ainuoke-source/` 与 `features/style-progress/`：固定来源采集、完整性、去重、快照、物料数量与事件。6086941 货款申请观察独立于 6087050，不代表银行实付。
+- `server/auth/`、`features/permissions/`：可信会话、七角色预设、领域及金额字段权限；角色预设不等于修改真实账号。
+- `features/production-scheduling/`、`features/closing-center/`：Browser 排单/关账；`SalesOrder → ScheduleAssignment[]` 与冻结归属不被本轮迁移。
+- `components/foundation/`：共享表格、表单、Modal、侧栏等；业务规则归领域服务，不能只靠按钮隐藏。
 
-`api_dispatch` 当前处理：
+路由选择由构建 authority 决定。`/quote-center` 可进入 Server 或 Browser；`/order-center/server-detail` 读取正式 Server SO；`/order-center/detail` 的 Browser 事实不能混入前者。`/production-scheduling` 和 `/closing-center` 不能因相邻模块 Server 化就视为正式 Server 闭环。
 
-- 健康与会话：`GET /api/health`、`POST /api/login`、`POST /api/logout`
-- 初始化数据：`GET /api/bootstrap`
-- 报价：创建、变更状态、转订单
-- 订单：变更状态
-- 排单：创建、变更状态
-- 管理：创建用户、修改密码
+## 数据库与运行
 
-除 GET 请求外，前端发送 `X-Zhixu-Request: 1`。权限和具体约束见 `docs/features/LEGACY_ERP.md` 与 SQL 实现。
+- Node runtime 正常启动只读校验 migration ledger；显式迁移使用 advisory lock、checksum、逐迁移事务，已发布 SQL 不重写。新系统定义以 `database/migrations/` 为准，legacy 的 `001_schema.sql` 不代替它。
+- `Dockerfile.server` 构建 Node + 静态应用；旧 `Dockerfile`/`docker-serve.sh` 是另一条 legacy 路径。默认 authority 与显式 Server 构建必须核实 `/build-info.json`，不能仅看页面中的 PROD 字样判断是正式业务环境。
+- 本机隔离验收使用全新数据库、合成账号和数据、独占端口及可核对源码标识。既有演示和真实业务库不因验收被升级。
+- `db/schema.ts`、Drizzle/D1 和 Cloudflare/Sites 部署 scaffold 不代表已有业务数据库；Python Bridge 是受控来源工具，不是 Python ERP 后端。
+- 技术版本以 package/lockfile 为准；不为本次修复升级依赖或更改共享环境。
 
-## 构建、运行和数据保护
+## 验证与未闭环边界
 
-- `scripts/dev.ps1`：固定在 `127.0.0.1:3001` 直接运行当前源码；支持 HMR，端口冲突时只报错，不自动结束进程。
-- `npm run build`：静态生产构建；Vite 插件自动生成 `dist/client/build-info.json` 并把同一份 Build Info 注入页面。
-- `scripts/rebuild-local.ps1`：生产 Docker 的常规显式重建；`scripts/rebuild-local-clean.ps1` 仅用于确认缓存异常后的无缓存排查。
-- `Dockerfile`：多阶段构建；builder 在镜像内复制当前 build context 并执行 `npm run build`，最终 PostgreSQL 镜像只复制 builder 的 `/build/dist/client`，不接受宿主旧 `dist`。
-- `Start-Zhixu.ps1`：正常模式委托给生产重建脚本，再轮询健康检查并可打开浏览器；`-SkipBuild` 只复用已有镜像。
-- 运行实例通过 `/build-info.json` 和页面底部标识暴露 environment/buildId/gitCommit/buildTime。HTML 与 Build Info 禁止长期缓存，带 hash 的 `/assets/*` 使用长期 immutable 缓存。
-- `Backup-Zhixu.ps1` / `Restore-Zhixu.ps1`：PostgreSQL 备份与恢复；恢复要求显式确认数据丢失。
-- `Build-Local.ps1` 对 Windows 下特定 Vinext 退出异常有容错，但只有生成新鲜且含 ZHIXU 标识的 `dist/client/index.html` 才视为成功。
-- Quote Center 浏览器数据的 Build/HMR/rebuild 安全规则见 `docs/features/DATA_LIFECYCLE.md`；这些构建脚本不读取、清理或重置浏览器 localStorage/IndexedDB。
+源码/领域测试、一次性 PostgreSQL 集成测试、真实 Chromium 验收和发布基线分别证明不同层。测试用合成数据，不等同于真实来源全量语义验收或用户接受。正式迁移、备份恢复、真实来源激活及生产部署需要自己的范围和证据。
 
-## 测试边界
-
-自动化测试主要覆盖 Quote Center、订单、排单、关账、计算、Revision、全局费用、基础资料、Foundation 表单行为和源码契约。订单到关账测试覆盖持久化、Quote 转单、翻单、交期、数量/价格历史、生产投影、关账快照/产值/锁定、权限、日志、搜索与备份恢复。当前仍没有覆盖 legacy PostgreSQL `api_dispatch` 业务行为的集成测试。Phase 1 已新增 disposable PG16 容器集成测试，覆盖新 migration、Auth/RBAC、OperationLog 与 health；这不等价于 legacy ERP 或未来业务领域端到端测试。
+当前入口见 [项目索引](PROJECT_INDEX.md)、[当前状态](CURRENT_STATE.md)、[业务规则](BUSINESS_RULES.md)。权限、数据生命周期、来源及发布证据分别见对应 feature 文档；不要将历史阶段的“未实现”复制成当前能力判断。

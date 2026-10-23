@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "e06162c70c9792895c30030216dc8c2a66368069",
+  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
   "verifiedAt": "2026-10-23",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
@@ -1751,6 +1751,64 @@
       "path": "docs/tasks/completed/2026-10-17-quote-price-final-review.md",
       "recordedAtSha": "5bd47275599eb7f9039d38a853a6ce294635c1d9",
       "sha256": "4c698ffbe7e0f1360f8d87db8f37c57c94c73344de2573ff204134900131bf93"
+    },
+    {
+      "id": "decisions-stabilization-20261019",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "61e35af757ed530cf062120e72455b82ae89924e",
+      "sha256": "c028ae9768c2f6eaad430553fe5d8e93598a086f00bf5c463807e0e3dd84d8e1",
+      "supersedes": "decisions-price-processing-20261017",
+      "changeReason": "2026-10-19 authorized audit remediation: reconcile superseded decisions and current source/price ownership; preserve original history and deployment boundaries."
+    },
+    {
+      "id": "source-stabilization-20261019",
+      "kind": "document",
+      "path": "docs/features/ORDER_BUSINESS_SOURCE.md",
+      "recordedAtSha": "61e35af757ed530cf062120e72455b82ae89924e",
+      "sha256": "acacb2b504f27d2fe4c1c3c0bd5921a71bad3619f1e01c8ce9695703ec4cb765",
+      "supersedes": "order-business-source-color-20261017",
+      "changeReason": "2026-10-19 authorized audit remediation: reconcile superseded decisions and current source/price ownership; preserve original history and deployment boundaries."
+    },
+    {
+      "id": "decisions-pr120-main-e061-import-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5deb87590833de050280f6cfa2163595aaa72511",
+      "renderedSourceSha": "5deb87590833de050280f6cfa2163595aaa72511",
+      "sha256": "c028ae9768c2f6eaad430553fe5d8e93598a086f00bf5c463807e0e3dd84d8e1",
+      "supersedes": "decisions-stabilization-20261019",
+      "changeReason": "Preserve original PR120 revision through the real merge with exact main e061 and original57d parents. This same-path integration witness changes no business rule or historical evidence; original fixes and all prior revisions remain intact."
+    },
+    {
+      "id": "source-pr120-main-e061-import-20261023",
+      "kind": "document",
+      "path": "docs/features/ORDER_BUSINESS_SOURCE.md",
+      "recordedAtSha": "5deb87590833de050280f6cfa2163595aaa72511",
+      "renderedSourceSha": "5deb87590833de050280f6cfa2163595aaa72511",
+      "sha256": "acacb2b504f27d2fe4c1c3c0bd5921a71bad3619f1e01c8ce9695703ec4cb765",
+      "supersedes": "source-stabilization-20261019",
+      "changeReason": "Preserve original PR120 revision through the real merge with exact main e061 and original57d parents. This same-path integration witness changes no business rule or historical evidence; original fixes and all prior revisions remain intact."
+    },
+    {
+      "id": "decisions-pr120-main-be9-import-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "8f7719ed0565b19acf39fdd988fd24e4abc9c992",
+      "renderedSourceSha": "8f7719ed0565b19acf39fdd988fd24e4abc9c992",
+      "sha256": "c028ae9768c2f6eaad430553fe5d8e93598a086f00bf5c463807e0e3dd84d8e1",
+      "supersedes": "decisions-pr120-main-e061-import-20261023",
+      "changeReason": "Preserve all original PR120 document revisions through the real merge with exact main be9aaa3f and independent0561f5ed parents. Same-path integration witness only; no new business rule, screenshot or capability claim."
+    },
+    {
+      "id": "source-pr120-main-be9-import-20261023",
+      "kind": "document",
+      "path": "docs/features/ORDER_BUSINESS_SOURCE.md",
+      "recordedAtSha": "8f7719ed0565b19acf39fdd988fd24e4abc9c992",
+      "renderedSourceSha": "8f7719ed0565b19acf39fdd988fd24e4abc9c992",
+      "sha256": "acacb2b504f27d2fe4c1c3c0bd5921a71bad3619f1e01c8ce9695703ec4cb765",
+      "supersedes": "source-pr120-main-e061-import-20261023",
+      "changeReason": "Preserve all original PR120 document revisions through the real merge with exact main be9aaa3f and independent0561f5ed parents. Same-path integration witness only; no new business rule, screenshot or capability claim."
     }
   ],
   "pages": [

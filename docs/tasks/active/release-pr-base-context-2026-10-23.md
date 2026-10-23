@@ -1,0 +1,27 @@
+# Release CI 的实际 PR 合并基线
+
+## 证据与范围
+
+2026-10-23；main `e06162c70c9792895c30030216dc8c2a66368069` 经GitHub API核实且对象本地可验证，未重复降级fetch。前一PR120检查点 `e872472f380262ad3dfc486e38a0d815bcec43a9` 已精确送达；当前新分支 `codex/release-pr-base-context` 从干净main开始。唯一writer=root，独立reviewer只读。
+
+实际Release运行 [39889936426](https://github.com/clearisok/zhixu-erp/actions/runs/39889936426)末步失败：检出 `993c5949c52f100cc3758b02018aab11a2ac7aa1`，父提交精确[e061,e872]、tree=`0e06a1acd713065afdfad5b8614901f1bdb17c69`，但event和PR REST返回的base.sha仍为996dfedc。guard收到旧base，正确拒绝BASE_SHA_MISMATCH及两条旧侧祖先关系。当前main API仍e061，产品树与e872相同。不能把本例扩大为所有GitHub事件都有问题。
+
+[GitHub官方文档](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)说明默认pull_request checkout为PR合并提交；本修复只取实际验证的冻结合并上下文，不联网取浮动base，不修改原guard。#127网络预检工具保持独立；#126已合并历史不重写。
+
+## 实现
+
+新增只读本地解析器：验证pull_request事件、PR编号和merge ref；HEAD精确等于CHECKOUT_SHA；只有两个父，第二父等于event PRhead完整SHA；两个父对象必须可读且为commit。输出第一父作为比较基线，安全日志记录event旧base与差异。缺字段、缺对象、单/多父、head漂移或身份不符一律拒绝，不能回退旧payload、manifest或默认检查。
+
+workflow_dispatch保持原默认命令，未知事件拒绝。权限、fetch-depth、checkout及guard源码/134回归均保持原样。新解析器19项合成与临时真实Git/CLI检查通过，4625.6548ms；完整发布及最终门禁尚待执行。无业务、SQL、UI、运行配置或Source范围增加。
+
+源码 checkpoint `856947574be89b79fa39033f30632f1aeb63bdb5` 的解析器19项再次通过（6971.1204ms）。首轮精确门禁及发布回归因AI_HANDOFF只写缩写、未包含清单完整基线而失败；该轮实际执行117项、102通过/15失败、0取消/跳过，359134.7276ms，失败阻止了部分嵌套检查继续。原日志保留为 `release-first-85694757.log`，不能声称首轮通过。随后补全该文档基线，并在解析器的Git子进程设置 `GIT_NO_LAZY_FETCH=1`，使缺对象时不触发promisor远端补取（[Git官方定义](https://git-scm.com/docs/git#Documentation/git.txt-GITNOLAZYFETCH)）；不改共享Git配置。源码 checkpoint=`9b1d0560a284b36635c17d5557e92e71f0c21d03`；重跑结果继续记录，原guard不变。
+
+## 验证与交付边界
+
+检查点 `628f5951a853d490ad33edceab360efe36e427ad` 的重新验收已完成：完整发布134/134（406863.4288ms）及解析器19/19（7594.8956ms），全部0失败/取消/跳过。显式 e061 门禁 PASS，11页/46能力/0 UI变更、errors=[]；语法、定向lint、既有js-yaml工作流解析通过。守卫及134项测试逐blob等于main；213条证据与46项能力不变，六份归档按Git字节核实。首轮失败保持原文和范围，不覆盖为PASS。
+
+本切片未更改应用、SQL或UI，因此未重复应用构建、数据库或用户浏览器验收；不借原#120的结果充作本工具测试。静态独立复审无P1/P2，最终文档/精确提交、远端和新CI继续核实。只采样下一次既定单次交付的固定布尔诊断，不存Git原始输出、不更换认证或修改共享配置，也不重推旧目标。
+
+完整测试、最终精确HEAD、远端和新CI逐步记录。本机日志在ignored `outputs/release-pr-base-context-20261023/`，原失败与两份前摘要[按Git字节保留](../completed/2026-10-23-pr-base-context-inputs/)。仅更新本切片，先交付唯一草稿PR，再把相同原始修复提交前向整合到受影响原PR；不复制各自业务代码。若main再前移，重新核实真实main和各侧H见证，不能把旧e061见证当新基线。
+
+不自动merge/close、不部署/切换、无真实Source读取/账号/业务库操作；不改共享Git/TLS/代理/认证，不安装依赖。完整Goal与用户待决边界保持。
