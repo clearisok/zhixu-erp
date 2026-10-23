@@ -1,10 +1,10 @@
 # 项目知识索引
 
-2026-10-23恢复优先读CURRENT_STATE、AI_HANDOFF与[原工具PR126任务](tasks/active/release-document-merge-guard-2026-10-20.md)。main完整基线 `996dfedc12da3527343cd3ff2aa5eea35497e10e`；本分支只修main前移后的旧side证据导入与父历史保护，不含其他业务候选。最终源码cff4addd完整134项、精确996门禁及独立复审通过；同脚本验证完整候选94亦通过。接着交付原#126/核实精确HEAD/检查新CI，不能把旧CI当作新结果。不自动合并、部署或真实Source/业务库操作。旧956、完整Goal候选94与红测93摘要均按Git字节[归档](tasks/completed/2026-10-23-release-main-advance-inputs/)，下方旧阶段按其日期阅读。完整Goal仍active，Source0c与image94原CI已成功。
+2026-10-23 当前独立 PR120 前移：main `e06162c70c9792895c30030216dc8c2a66368069` 已含 #126；只整合原 #120 两项价格/来源修复及原历史，不带入其他待合并业务。先读 [CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md) 与 [本阶段任务](tasks/active/pr120-main-forward-2026-10-23.md)。双方原摘要及 UI impact 已[逐字归档](tasks/completed/2026-10-23-pr120-main-forward-inputs/)。
+
+完整 Server 收敛 Goal 仍 active；累计候选、固定真实读取及后续边界见 [独立累计阶段冻结记录](https://github.com/clearisok/zhixu-erp/blob/7c0c027334e49ae9c3c833f45cc1aeccb05d52e5/docs/tasks/active/candidate-main-forward-2026-10-23.md)，不表示该候选已合并或部署。当前报价/来源规则 D-145 不变；旧恢复流水按日期阅读。
 
 ## 系统简介
-
-并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
 

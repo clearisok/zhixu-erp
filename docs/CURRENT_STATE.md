@@ -1,27 +1,11 @@
-# 当前状态：修复工具PR126的main前移证据兼容
+# 当前状态：独立 PR120 前移到已合并 #126 的 main
 
-2026-10-23；main独立核实为`996dfedc12da3527343cd3ff2aa5eea35497e10e`。
-root唯一writer，既有独立reviewer只读。复用原`codex/release-document-merge-guard`干净956921f6，
-该分支未被其他工作树占用，没有新增工作树、reset/clean/force或GitHub合并。当前只修改发布
-工具、合成Git测试和恢复文档，不带入其他业务候选源码、SQL、UI或运行配置。
+2026-10-23；GitHub main 独立核实为 `e06162c70c9792895c30030216dc8c2a66368069`，对象本地可验证；网络降级状态下未重复 fetch。#126 已经批准并以 merge commit 合并；#127 精确 e2dc2704 三 CI 通过但仍草稿未合并。
 
-实际Git红测7项0pass/7fail已复现P2：main前移误拒旧side冻结证据，以及后置普通提交漏掉side历史。
-窄修复已实现：同路径显式整合见证与actualBase→HEAD真实merge走廊父清单保护分别验证；
-最多256个merge、每merge8个parent、父清单累计64MiB，缺失或超限明确拒绝。原锚点、blob/hash、
-前驱祖先、唯一leaf、mergeOf贡献和截图规则保持。扩展16项定向、首轮134项通过后，上限检查
-顺序再收紧；最终源码checkpoint`cff4addd59f5492b677ae88b502db0d0e5affa72`完整回归134/134
-通过（377139.5791ms、0跳过/失败/取消），含单/双侧9及10000-parent零对象读取spy。语法、
-定向lint、精确996门禁通过；独立只读复审无剩余P1/P2。同一Git冻结脚本在既有完整候选94
-也通过（286证据/58能力/88继承UI路径），该候选保持干净、未升级运行环境。见[工具任务](tasks/active/release-document-merge-guard-2026-10-20.md)。
+当前 `codex/pr120-main-forward` 从上述 main 干净开始，保留原 #120 `57daca3d3f23f39f0aafff57502f490206b10084` 的全部提交。仅四处摘要/清单冲突；产品修复仍是原两处：同报价方案不同颜色成交价正确分组，加工订单的报价上下文来源提交与预览统一保护。不新增规则、SQL、依赖或运行配置，不混入累计候选的生产和 Source 功能。原 215 证据/46 能力全部保留；main 的守卫与 134 项测试逐 blob 保持。整合见证在真实双父提交后追加，不重写旧冻结证据。
 
-本分支清单仍213证据/46能力，不把全量候选286/58复制到工具PR。此前完整Goal状态在
-[94a1767b逐字快照](tasks/completed/2026-10-23-release-main-advance-inputs/94a1767b/CURRENT_STATE.md)：
-来源0c三CI全success；当前0c镜像8/8及本地发布116通过；94精确门禁/远端及Release39816442442
-亦success。原推送STOP/exit1和后续零push只读exact分别保留，不推断永久网络修复。
-新工具有上述自身回归；不借原应用/镜像/CI证明新代码。此次未重跑应用、数据库或浏览器验收。
+本阶段新的测试与远端交付尚未完成，不借原 CI 充当新结果。原 #120 的 898 项目、94 发布、34 数据库、6 Chromium 和构建为 2026-10-19 历史证据，见 [原任务](tasks/active/price-source-stabilization-2026-10-19.md)。本轮只更新唯一 #120，精确交付后检查新 CI 和复审；不自动合并或关闭。
 
-Full Goal active；PR120–127仍开放草稿，不自动merge/close。本checkpoint之后仅向原#126
-安全交付、独立核实精确HEAD、检查新CI；不预先宣称远端PASS。交付后结果见原PR及精确HEAD
-回执，再提交具体合并建议。新真实Source固定额度、覆盖v1和原关账问题
-仍待回复，不默认；Num/outdate已确认。3001、50426、62426及全部旧入口/卷/账号/Browser/
-工作树继续保护，无真实Source/账号/业务库、部署或退役操作。原956、94和红测93三摘要均按Git字节归档。
+完整 Goal 仍 active，[累计阶段冻结记录](https://github.com/clearisok/zhixu-erp/blob/7c0c027334e49ae9c3c833f45cc1aeccb05d52e5/docs/tasks/active/candidate-main-forward-2026-10-23.md)保存 7c 的实际 main 整合、Release CI 及固定真实读取边界。该读取额度已用完，不重读。覆盖 v1、关账三项口径、50426 切换及旧资产退役仍待明确决定，不默认。3001、50426、59069、62426 及所有旧环境/卷/账号/Browser/工作树继续保护；不部署、真实账号/业务库写入、来源激活或持续调度。
+
+[双方原摘要](tasks/completed/2026-10-23-pr120-main-forward-inputs/)按 Git 字节保留，旧日期/源码/结果/限制不删除。
