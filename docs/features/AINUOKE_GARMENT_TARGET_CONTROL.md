@@ -2,7 +2,7 @@
 
 ## 职责与边界
 
-D147 / D153 / D158 / D159的后续技术切片。Gate7G复用0040的单SO目标、不可变观察及读取时效，补 `planGarmentTarget / applyGarmentTarget / readGarmentTargetReceipt`，当时没有CLI接线。后续D161/Gate7H由原[操作者](AINUOKE_GARMENT_OPERATOR.md)的明确plan-target/apply-target/target-receipt调用本服务；不新增第二个CLI、HTTP、Catalog、调度或来源模型。真实目标激活与工程入口继续分开授权。
+D147 / D153 / D158 / D159的后续技术切片。复用0040的单SO目标、不可变观察及读取时效，补内部 `planGarmentTarget / applyGarmentTarget / readGarmentTargetReceipt`。不新增公开CLI、HTTP、Catalog、调度或第二套来源模型；原[操作者](AINUOKE_GARMENT_OPERATOR.md)尚不调用此配置服务。
 
 0044只新增空、completed-only的技术回执表。没有Source IO，故目标配置、审计和终态一次事务提交，无需复制0043采集前持久started的网络操作流程。原0040/0043及旧迁移保持；无默认目标、时效、数据回填或账号授权。真实启用、既有库升级、新查询额度和运行切换仍需具体授权，工程函数及scope hash不代表这些授权。
 
@@ -38,4 +38,4 @@ COMMIT响应丢失返回 `unverified_commit` 和null结果，不展示暂定成�
 
 `npm run test:garment-target-control`使用原producer的合成证明、自有一次性PG和计数fake collector，覆盖权限、CAS、锁等待、停用依赖、历史alias、原采集失效、策略冻结、COMMIT丢回执、审计/终态回滚、不可变与损坏回执、引用指纹及0043非空升级。原采集和观察回归另列，不把此命令当作Hosted CI、真实Source激活、部署或人工验收。
 
-阶段源码、实际失败与检查结果见[Gate7G任务](../tasks/active/server-garment-target-control-2026-10-23.md)；原操作者接线单独见[Gate7H任务](../tasks/active/server-garment-target-operator-2026-10-23.md)。真实启用授权、多页证据、跨次事件、关账、coverage-v1与50426切换仍分别待Gate或业务确认。
+阶段源码、实际失败与检查结果见[Gate7G任务](../tasks/active/server-garment-target-control-2026-10-23.md)。真实启用操作者接线、多页证据、跨次事件、关账、coverage-v1与50426切换仍分别待Gate或业务确认。

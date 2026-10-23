@@ -1,0 +1,44 @@
+{
+  "status": "FAIL",
+  "baselineSha": "d1dd4f0fcf9992d5c055c7b67b6832b635485680",
+  "checkedHead": "3fb5c93b5d156a27db79079056ee1ebec8b14c79",
+  "historySha": "d1dd4f0fcf9992d5c055c7b67b6832b635485680",
+  "pages": 11,
+  "capabilities": 59,
+  "changedUiFiles": 87,
+  "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+  "errors": [
+    {
+      "code": "EVIDENCE_REVISION",
+      "detail": "garment-operator-target-config-feature-20261023"
+    },
+    {
+      "code": "EVIDENCE_REVISION_ANCHOR",
+      "detail": "garment-operator-target-config-feature-20261023"
+    },
+    {
+      "code": "EVIDENCE_REVISION",
+      "detail": "garment-target-control-operator-feature-20261023"
+    },
+    {
+      "code": "EVIDENCE_REVISION_ANCHOR",
+      "detail": "garment-target-control-operator-feature-20261023"
+    },
+    {
+      "code": "EVIDENCE_REVISION_LEAF",
+      "detail": "docs/features/AINUOKE_GARMENT_OPERATOR.md"
+    },
+    {
+      "code": "EVIDENCE_REVISION_LEAF",
+      "detail": "docs/features/AINUOKE_GARMENT_TARGET_CONTROL.md"
+    },
+    {
+      "code": "EVIDENCE_WORKTREE_DRIFT",
+      "detail": "garment-operator-feature-20261023"
+    },
+    {
+      "code": "EVIDENCE_WORKTREE_DRIFT",
+      "detail": "garment-target-control-feature-20261023"
+    }
+  ]
+}

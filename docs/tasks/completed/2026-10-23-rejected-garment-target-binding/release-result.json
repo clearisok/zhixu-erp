@@ -1,0 +1,21 @@
+{
+  "dirtyAfter": [],
+  "manifestBefore": "daa3fd4697b92851aeee001b0f4b344a1837c84ccce4be3e22d126eedbc5b648",
+  "headBefore": "3fb5c93b5d156a27db79079056ee1ebec8b14c79",
+  "manifestAfter": "daa3fd4697b92851aeee001b0f4b344a1837c84ccce4be3e22d126eedbc5b648",
+  "headAfter": "3fb5c93b5d156a27db79079056ee1ebec8b14c79",
+  "elapsedMs": 555149,
+  "counts": {
+    "tests": 134,
+    "cancelled": 0,
+    "pass": 134,
+    "fail": 0,
+    "skipped": 0
+  },
+  "startedAt": "2026-10-23T13:52:42.0026776Z",
+  "exitCode": 0,
+  "completedAt": "2026-10-23T14:01:57.1508111Z",
+  "command": "npm run test:release-baseline",
+  "passed": true,
+  "hostedCi": false
+}

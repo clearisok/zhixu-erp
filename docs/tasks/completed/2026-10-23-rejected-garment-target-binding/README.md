@@ -1,0 +1,10 @@
+# 被拒绝的Gate7H文档绑定候选
+
+2026-10-23；保留原3fb5c93b5d156a27db79079056ee1ebec8b14c79及全部祖先，不重写历史。原manifest完整字节由baseline.json.gz无损保存，解压SHA256 daa3fd4697b92851aeee001b0f4b344a1837c84ccce4be3e22d126eedbc5b648，压缩文件SHA256 686384647c98405c898dc6ace4e718b6a4ff481f913d840a3e3ec4f9e406a90d；已用gunzip逐字比对。原两份modified feature、8条guard错误和原发布终态单独保存。无业务原文或凭据。
+
+两个失败ID仅退出未通过的活动候选，永不复用，不作后续前驱：garment-operator-target-config-feature-20261023、garment-target-control-operator-feature-20261023。它们的原JSON逐字字段见rejected-revisions.json；原324证据、合法D161/report两条及所有Git对象保留。失败原因是两个前驱都是尚未进入actual main d1dd清单的新根，不能满足锚点规则；不改守卫、不把此候选写成通过。
+
+- docs/tasks/completed/2026-10-23-rejected-garment-target-binding/AINUOKE_GARMENT_OPERATOR.md：SHA256 5cbd02bb224e07f061599ac1335f37101a68888509380edd63d7a757a7162733
+- docs/tasks/completed/2026-10-23-rejected-garment-target-binding/AINUOKE_GARMENT_TARGET_CONTROL.md：SHA256 48b92a09a487b41c3f76c0eb6b97e4172f0507284fc7eca8fa56d4b3409b2ce6
+
+原feature工作树恢复到cd7cd459885230b839d8d98a723f8f26e7d5bd24的冻结blob；当前D161配置契约迁至独立AINUOKE_GARMENT_TARGET_OPERATOR.md根文档。修正不改变代码、SQL、测试、权限、真实target或任何环境。后续验收必须使用新清单，不能借本候选失败结果或既有代码测试冒称发布通过。

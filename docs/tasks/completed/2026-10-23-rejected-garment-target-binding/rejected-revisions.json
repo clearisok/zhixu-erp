@@ -1,0 +1,22 @@
+[
+  {
+    "id": "garment-operator-target-config-feature-20261023",
+    "kind": "document",
+    "path": "docs/features/AINUOKE_GARMENT_OPERATOR.md",
+    "recordedAtSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+    "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+    "sha256": "5cbd02bb224e07f061599ac1335f37101a68888509380edd63d7a757a7162733",
+    "supersedes": "garment-operator-feature-20261023",
+    "changeReason": "D161 connects explicit protected-file target plan/apply/receipt to the original D160 service and operator. No new schema, permission, collector, HTTP, scheduler or real Source authorization. Preserve all prior evidence, dimensions, UI and runtime."
+  },
+  {
+    "id": "garment-target-control-operator-feature-20261023",
+    "kind": "document",
+    "path": "docs/features/AINUOKE_GARMENT_TARGET_CONTROL.md",
+    "recordedAtSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+    "renderedSourceSha": "ffa56b683333f61e7e0f23ed122a26854a5a4204",
+    "sha256": "48b92a09a487b41c3f76c0eb6b97e4172f0507284fc7eca8fa56d4b3409b2ce6",
+    "supersedes": "garment-target-control-feature-20261023",
+    "changeReason": "D161 connects explicit protected-file target plan/apply/receipt to the original D160 service and operator. No new schema, permission, collector, HTTP, scheduler or real Source authorization. Preserve all prior evidence, dimensions, UI and runtime."
+  }
+]

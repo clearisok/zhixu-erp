@@ -8,6 +8,8 @@
 - 0043与0044回执严格按原动作独立查询，同actor/UUID可分别存在，不跨账本回退；unknown不证明未做过。干净已提交源码、migration verify-only、fresh角色、原完整producer包装和私密文件保护继续有效。原观察/生产/财务和币种口径不变。
 - 证据：原garment-operator-cli及纯参数/投影负测、新合成PG target-operator链，见[阶段任务](tasks/active/server-garment-target-operator-2026-10-23.md)。只用自有一次性库和fake Source；真实激活、读取、运行切换及部署仍分别待批准，不预报工程或Hosted CI结果。
 
+- 绑定复审纠正：D159/D160的两份未合并feature根不能按已发布main锚点修订，原冻结字节恢复；当前配置说明使用独立[操作者配置契约](features/AINUOKE_GARMENT_TARGET_OPERATOR.md)。被拒绝候选及完整字节已归档，失败ID不复用；代码、权限和本条保护不变，守卫保持。
+
 ### D-160 成衣目标配置复用原目标并保存独立原子历史回执
 
 - 2026-10-23，Active engineering decision，D147既有收敛范围内；不改变D152数量/日期、D153观察与D158/159单次采集，真实启用和新读取额度仍另行批准。本片仅内部plan/apply/receipt，无CLI/HTTP/Catalog/调度或实际激活。
