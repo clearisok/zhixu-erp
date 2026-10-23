@@ -2,7 +2,7 @@
 
 2026-10-23；实际main=be9aaa3f4efa232e1451075a355f0ce42e35a69e，仅#126/#127已明确批准合并。当前codex/pr125-main-be9-forward从干净main整合原#125 add2d690a9c3afe6ec1a2633551eaef7dee72ce1（含#124），原提交历史保留；不自动合并或关闭其他PR。
 
-恢复先读CURRENT_STATE、AI_HANDOFF和[PR125前向任务](tasks/active/pr125-main-forward-2026-10-23.md)。Gate1原日期/镜像/恢复结果与边界保留，[双方摘要逐字归档](tasks/completed/2026-10-23-pr125-be9-forward-inputs/)。D147空目标不是清理旧库授权，新组合不冒称已更新用户运行态。
+恢复先读CURRENT_STATE、AI_HANDOFF和[PR125前向任务](tasks/active/pr125-main-forward-2026-10-23.md)。源码365新134/42ops/804、精确be9门禁、类型lint与两构建通过，独立静态复审无P1/P2；最终HEAD远端/CI另核。Gate1原日期/镜像/恢复结果与边界保留，[双方摘要逐字归档](tasks/completed/2026-10-23-pr125-be9-forward-inputs/)。D147空目标不是清理旧库授权，新组合不冒称已更新用户运行态。
 
 ## 系统简介
 
