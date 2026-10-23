@@ -25,3 +25,9 @@
 真实merge d97a72ff3ce4eb6e99e6ecf9c55ba69dff52e174双父[4cf19e82,d1dd4f0f]已核对；223原对象保留，DECISION双叶新增mergeOf见证，总224/46。新的explicit d1dd守卫和组合测试继续，不更新原持久化镜像或用户入口。
 
 首轮224绑定守卫正确拒绝CLOSING旧侧两条祖先关系；原失败bound-guard.log保留。补充同一真实d97a冻结blob的CLOSING前向见证后总225/46，不改变文档字节、旧ID或守卫。
+
+## 新main组合本地终态
+
+源码ee348eee98222b044d4992b47f380f63a0ac0a69：134/134发布通过492331.8459ms，0fail/cancel/skip，HEAD与manifest不变；804源码25502.4326ms、20运维43102.2831ms、补齐其余5个原Windows文件24运维12620.6515ms、22来源/加工API31855.7762ms均通过。两组运维不重叠，共44（原42个quote-trial场景加2个数据库工具）。精确Gitarchive SHA256 3ba995a67921ea9decca1e22de89ee9f25986d2553a4ed4da98fc3af086d6053，tree8f297c818000cb8f1c55688c843462aa93af4480，仓库外新context仅使用既有node_modules junction，无安装/旧缓存删除；全量类型/Server编译/lint、Browser与Server/session/snapshot两构建通过，build-info完整ee348。
+
+独立静态复审225/46、真实d97a双父/2见证、10归档和17ops blob保持无P1/P2；最终文档后继守卫与交付/CI另核，不冒称已更新PR或运行环境。并行#123在cb1658三CI未启动任何步骤，官方annotations均指向账户付款或支出上限，账号处理待回执；不得通过改产品/重复跑或绕账单制造绿灯。e971独立三CI已精确成功，Windows平台跳过保持各自范围。此阶段未重建镜像/init/恢复或触碰62426/用户数据。

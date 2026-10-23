@@ -1,9 +1,11 @@
-# 当前状态：PR125前向整合已批准PR120主线
+# 当前状态：PR125新main本地PASS，Actions账户限制待处理
 
-2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，#126/#127/#120已分别获准保留原历史合并。完整G1–G5继续；本阶段仅前向整合#125，不自动合并或关闭其他PR，不部署或操作真实业务数据。
+2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，#126/#127/#120已分别获准以merge commit合并、原历史保留。完整G1–G5继续；#123/#125尚未获合并授权，不自动合并/关闭其他PR，不部署或操作真实业务数据。
 
-root从干净e971切出codex/pr125-main-d1dd-forward，原Gate7E分支/原始提交保留；以clean4cf继续原#125，正常merge main d1dd。实际五冲突仅三摘要、BUSINESS_RULES与manifest：保留D147空目标/CNY销售/USD工价与main的D145/来源校准，不改变已批准规则。两侧10份Git原blob归档，原217与main219证据并集223/46，真实merge后再绑定见证。
+当前codex/pr125-main-d1dd-forward：真实merge d97a双父[4cf,d1dd]，五文档冲突保留D147空目标/CNY销售/USD工价与main D145来源校准。双方10个Gitblob归档；223原证据完整并集加2见证225/46，原17ops文件逐blob不变，仅继承已批准main五个价格加工路径。
 
-原Dockerfile/ops及持久化验收17blob保持；main的价格汇总/加工保护与原回归自动合入。新组合类型/源码/运维/构建/134/精确守卫、交付CI及复审尚待，旧365/8175/r7/62426/READY仅保留原日期范围，本阶段不重建镜像或现有环境。
+源码ee348eee新发布134/134（492331.8459ms、0skip、HEAD/manifest不变）、804源码、44运维（20+24两组，其中2项数据库工具）、22来源/加工API通过。仓库外精确Gitarchive 3ba995a6保留，仅既有node_modules junction、无安装；类型/Server编译/lint和Browser/Server两构建通过，build-info完整ee348。独立静态复审无P1/P2；最终文档HEAD门禁、一次交付、唯一#125更新与新CI尚待，不把原r7/8175/62426READY冒充新演练。没有新镜像、目标init、持久恢复或用户入口升级。
 
-#123新main候选9eaefe9a的类型/Server编译/lint、804源码、68角色用户日志/来源API与两构建已通过，浏览器/发布134继续。Gate7E e971远端精确SHA/tree已核，工具原STOP仍保留，新三CI已各一次启动，不预报终态。既有3001/50426/59069/62426、Browser、账号、库、对象、卷均保护；无新Source额度/激活/调度、入口切换或退役。
+#123已以force=false更新到cb1658，原localref ebe及体验环境保持。其新三CI未启动任何步骤：GitHub annotations一致提示账户付款或支出上限，需要账号Billing & plans核对；无代码测试结果、无盲重跑，不擅改账单。cb1658本地完整验收及独立复审无剩余P1/P2，原失败夹具与修复范围保留。
+
+Gate7E验证引用e971的Source39928182328/Team39928186934/Release39928191131均attempt1成功，实际checkout一致：导航18、Quote87、Python181执行；Source9个Windows条件skip、Release1个平台skip、Team0分别保留，不据Ubuntu宣称Windows启动器已验收。原357失败、工具STOP/exact远端、根因未定保持。所有旧入口/Browser/账号/库/对象/卷和3001保护，无新Source读取/绑定/激活/调度；覆盖v1/关账三项/50426切换与逐项退役待决。
