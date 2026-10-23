@@ -130,3 +130,15 @@ automatic merge/close or mutation of protected runtime-bound checkouts.
 真实第二阶段H=5804a607ce78bde091dccb1ff50f3f03cea8e816，有序父为完整be9/7c；应用、SQL、UI及工具之外的全部跟踪业务blob均与7c相同。29份输入归档为原Git字节。原291证据对象与58能力逐对象不变，追加四条真实H同路径见证为295；23impact仅base前移。此绑定尚未声称组合测试或CI通过。
 
 共享解析器原5f验证merge的实际冲突为三摘要、baseline锚点和Release测试步骤。保留295/58/be9、完整候选交付回归，增添19项解析器检验和实际PR merge父基线解析。六份父摘要按原Git字节另存candidate-be9-parser-inputs。无应用/SQL/UI改动，下一步执行这份组合的独立工具验收。
+
+## 第二阶段真实本地验收
+
+精确K e1acad983a2abb13edfe7ec4011de060d693e5fb，应用/API/SQL/UI/权限/Source与原7c的完整ls-tree一致；非文档变化仅Release工作流、原共享解析器/测试和交付回执工具/测试。全部原291证据/58能力不变，295总数；35归档逐Git字节一致，23impact仅baseline。独立复审无P1/P2。
+
+| 实际执行检查 | 结果 | 时长 |
+| --- | --- | --- |
+| Release负向/响应式 | 134/134、0fail/cancel/skip | 533394.4989ms |
+| 交付工具与解析器 | 88/88、0fail/cancel/skip | 189165.213ms |
+| 精确be9守卫、Node语法与scoped ESLint | PASS | 未单计 |
+
+只读辅助核验初次把UI目录README作为JSON、并误导入非导出helper，均在辅助脚本修正后重验；未改业务/测试或消耗远端请求。最新main及原验证引用由独立API确认仍be9/7c。最终文档checkpoint之后只跑精确门禁，安全交付当前验证引用一次及相关Release CI；该新远端结果在此冻结尚未观察。旧0c镜像、686应用验收及7c结果不冒充本次构建/运行。后续成衣单SO控制层只允许合成来源及隔离库，不默认新增请求、目标激活、事件归一、关账或用户环境变更。

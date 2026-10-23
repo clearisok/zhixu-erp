@@ -1,11 +1,9 @@
-# 恢复点：累计候选main be9前向整合
+# 恢复点：累计候选be9本地验收后交付
 
-2026-10-23；完整G1–G5 Goal继续。实际main=be9aaa3f4efa232e1451075a355f0ce42e35a69e，仅#126/#127已获具体批准合并。#120 fca748cb、#12303570e19、#1254cf19e82均已精确送达，九项新CI attempt1成功且独立复审无P1/P2；保持草稿，未自动合并关闭或部署。
+2026-10-23；完整G1–G5 Goal继续。实际main=be9aaa3f4efa232e1451075a355f0ce42e35a69e，仅#126/#127已获具体批准合并。#120 fca748cb、#12303570e19、#1254cf19e82精确送达，九项新CI attempt1成功、独立复审无P1/P2，仍草稿未合并关闭或部署。
 
-root唯一writer、既有reviewer只读。当前branch codex/candidate-main-be9-forward；输入HEAD=be9、MERGE_HEAD=7c0c027334e49ae9c3c833f45cc1aeccb05d52e5，开始树干净。四冲突已解决；原6摘要+23UIimpact按Git字节归档。先读CURRENT_STATE、[任务](tasks/active/candidate-main-forward-2026-10-23.md)、实际Git和release guard，不reset/clean/abort/rebase/force。
+root唯一writer，既有reviewer只读。当前codex/candidate-main-be9-forward，已验K=e1acad983a2abb13edfe7ec4011de060d693e5fb。先读CURRENT_STATE、[同一任务](tasks/active/candidate-main-forward-2026-10-23.md)、实际Git及outputs/candidate-main-be9-20261023；不reset/clean/rebase/force。H5804双父be9/7c、W428b追加四条原样文档见证、K双父W/原5f。原291/58逐对象保留，295总证据、35原字节归档、23UI元数据base-only。应用/API/SQL/UI/Source与7c逐blob相同。
 
-保存真实H双父[be9,7c]后，为DECISION_LOG/CLOSING_CENTER/ORDER_BUSINESS_SOURCE/PRODUCTION_SCHEDULING四叶追加H同路径见证，旧291/58及所有历史原样保持。工具回执结合main exact事实与候选诊断；不放宽非零认证/分歧/TLS/dirty/次数保护。接续merge原5f解析器并保留所有检查，再新134/工具/精确be9门禁、独立复审、一次验证引用交付和相关Release。不要借三份PR绿灯或旧镜像当新候选验收，不创建重复累计业务PR。
+新134/134与88/88均0skip，精确be9守卫、syntax/scoped lint及独立复审通过。只读辅助核验曾把README当JSON及误导入非导出符号，修正核验脚本后通过；未改产品/测试或发起失败的远端请求。终态文档后再跑精确门禁；一次交付验证引用chore/server-current-image-0042（先核其本地/远端仍7c且未绑定），独立核对完整SHA，相关Release只派一次，不创建累计业务PR/重派不变应用Source或Team。新CI尚未观察，旧结果保持各自source。
 
-固定Source额度已用，不再采集、绑定激活或调度。原7c/686/0c镜像及恢复结果保留其各自范围；本阶段不重建或改名镜像、不改用户运行态/账号/库/Browser。完整目标及覆盖v1/关账/切换退役待决保持，后续只检查无真实查询的成衣收集器可推进工程。
-
-共享CI解析器原5f按正常验证merge整合，保留原历史和候选交付工具全部保护；两侧摘要原Git字节另存[归档](tasks/completed/2026-10-23-candidate-be9-parser-inputs/)。新组合发布134、交付工具和解析器回归仍待执行；不变业务未借用工具结果宣称重新验收。
+完成该阶段后可继续单SO成衣收集控制层：采前持久started、唯一worker、网络期间不持锁、发布与成功终态原子、未知只核对。复用0040观察而非建事件总账，不把非空verification hash当通用证明；正式页零哨兵仍拒绝，不静默补页号。仅合成/隔离工程，不新增真实Source额度。完整目标、覆盖v1/关账/切换退役待决和所有保护环境保持。
