@@ -26,6 +26,14 @@ function script(name, args) {
 
 function digest(value) { return createHash("sha256").update(value).digest("hex"); }
 
+function backupEntries() {
+  try { return readdirSync(backups).sort(); }
+  catch (error) {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
 async function ready(container) {
   for (let attempt = 0; attempt < 50; attempt += 1) {
     if (run("docker", ["exec", container, "pg_isready", "-U", "drill", "-d", "drill"]).status === 0) return;
@@ -72,11 +80,11 @@ test("database ops fail closed and backup/restore only an isolated disposable ta
     assert.ok(metadata.HostConfig.Tmpfs["/var/lib/postgresql/data"]);
     await ready(container);
 
-    const before = readdirSync(backups).length;
+    const before = backupEntries();
     const verify = backupScript(["-VerifyTargetOnly"]);
     assert.equal(verify.status, 0, verify.stderr);
     assert.match(verify.stdout, /target_verified/);
-    assert.equal(readdirSync(backups).length, before);
+    assert.deepEqual(backupEntries(), before);
     assert.doesNotMatch(verify.stdout + verify.stderr, new RegExp(marker));
     await t.test("wrong project, volume, database, fingerprint and absent container reject without dump", () => {
       const failures = [
@@ -93,10 +101,10 @@ test("database ops fail closed and backup/restore only an isolated disposable ta
         assert.notEqual(result.status, 0, flag);
         assert.doesNotMatch(result.stdout + result.stderr, new RegExp(marker));
       }
-      assert.equal(readdirSync(backups).length, before);
+      assert.deepEqual(backupEntries(), before);
       const wrongFingerprint = script("Backup-Zhixu.ps1", [...args.slice(0, -1), "0".repeat(64)]);
       assert.notEqual(wrongFingerprint.status, 0);
-      assert.equal(readdirSync(backups).length, before);
+      assert.deepEqual(backupEntries(), before);
     });
 
     docker([

@@ -58,7 +58,16 @@ LABEL io.zhixu.build-id=${ZHIXU_BUILD_ID} \
 
 WORKDIR /app
 # Fixed-catalog worker, invoked only by the explicit operator CLI.
-RUN apk add --no-cache python3
+# Optional build-only official mirror. Keep TLS/package signatures and runtime
+# repository defaults; never change the host or Docker daemon network settings.
+ARG ZHIXU_APK_MIRROR=default
+RUN case "$ZHIXU_APK_MIRROR" in \
+      default) apk add --no-cache python3 ;; \
+      ustc) sed 's@https://dl-cdn.alpinelinux.org/alpine@https://mirrors.ustc.edu.cn/alpine@g' /etc/apk/repositories > /tmp/zhixu-apk-repositories \
+        && apk --repositories-file /tmp/zhixu-apk-repositories add --no-cache python3 \
+        && rm /tmp/zhixu-apk-repositories ;; \
+      *) echo 'unsupported_apk_mirror' >&2; exit 1 ;; \
+    esac
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --ignore-scripts --no-audit --no-fund
 COPY --from=builder /build/dist/client ./dist/client/

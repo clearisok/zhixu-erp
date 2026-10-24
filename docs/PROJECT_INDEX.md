@@ -1,8 +1,8 @@
 # 项目知识索引
 
-2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，#126/#127/#120已分别获准保留原历史合并。完整G1–G5继续；#123本阶段只工程整合，不自动合并或关闭其他PR，不部署、不改真实业务数据。
+2026-10-24；实际main=e01a11952b648024c0bd6bf4259de429374981e2，#123已获准保留历史合并，#121/#122自动收口、原分支保留。其余不自动merge/close、不部署、不改真实业务数据。
 
-[PR123前向任务](tasks/active/pr123-main-forward-2026-10-23.md)：642d真实双父保留221原证据，222/46合流见证；9ea的804源码/68API/112前端/134发布、类型lint两构建通过，14报价加工与修复后8角色日志built场景分别保留真实结果。新精确提交交付/CI及最终复审待收口；旧环境/报价/账号不变，不把候选或CI当部署。
+当前[PR125前向任务](tasks/active/pr125-main-forward-2026-10-23.md)正常合流原9e与[独立交付工具](tasks/active/git-delivery-diagnostics-main-2026-10-24.md)e007，不引入累计生产/来源业务。两父验收按blob范围复用，230证据/46能力保持，合流守卫/复审与新目标首交付分别核实；9e原STOP/exact并存不重写、不重推。继续同一#125，不为工具额外创建重复PR或重复CI；旧环境及完整目标各前置不变。
 
 ## 系统简介
 
@@ -133,4 +133,4 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
 
-当前共享CI整合证据见[原输入](tasks/completed/2026-10-23-pr123-ci-context-inputs/)，baseline仍为be9aaa3f4efa232e1451075a355f0ce42e35a69e。
+历史共享CI输入见[PR123原摘要](tasks/completed/2026-10-23-pr123-ci-context-inputs/)与[PR125原摘要](tasks/completed/2026-10-23-pr125-ci-context-inputs/)；旧be9日期/结果仍仅属于其原阶段，当前比较锚点为上述e01a。

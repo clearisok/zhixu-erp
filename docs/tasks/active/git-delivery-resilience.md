@@ -10,6 +10,13 @@ Historical single-attempt records below remain historical. No shared proxy,
 authentication or TLS-verification change is authorized by this tool repair.
 
 See [the preflight repair](git-delivery-preflight-fallback-2026-10-20.md).
+
+2026-10-24 additive diagnostic correction on actual main is tracked in
+[the isolated task](git-delivery-diagnostics-main-2026-10-24.md). Explicit access
+denials and rejected status remain STOP even with zero exit and independently
+exact remote identity; only ordinary successful ref keywords are exempted.
+The post-push decision receipt gains a safe exit/category/timing summary, not
+raw command output. This does not retroactively explain or clear an earlier STOP.
 After an actual Git transport failure only, one fixed-host GitHub matching-refs
 read may prove the exact existing SHA or absence through a successful empty
 response. A 404, malformed response or non-exact prefix is never absence proof.

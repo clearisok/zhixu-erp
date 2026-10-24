@@ -9,6 +9,8 @@
 
 2026-10-19 校准：main `996dfedc12da3527343cd3ff2aa5eea35497e10e` 已包含 PR108–119。下列旧条目的“未合并/本地/待UI”是其记录日期的阶段事实；当前工程入口见 CURRENT_STATE 与 SYSTEM_OVERVIEW。合并不代表部署、真实激活或人工接受。
 
+2026-10-24 合并事实：用户仅批准#123以merge commit进入main e01a11952b648024c0bd6bf4259de429374981e2；#121/#122原提交随祖先保留，GitHub自动收口，分支未删除。D146/D147以下“尚未合并”等语句继续表示其原记录日期，不能据此恢复旧规则；其余PR、部署、账号/业务库、来源和入口切换授权不扩大。
+
 ### D-043 ScheduleAssignment 直接归属 SalesOrder，生产计划层退出 Runtime
 
 - 日期：2026-08-28
@@ -20,6 +22,15 @@
 - 证据：`features/production-scheduling/`、`features/operations-settings/`、schema v9 migration、订单/排单页面和 `tests/production-scheduling.test.mjs`。
 
 ## Active
+
+### D-147 Server 收敛、空数据目标与关账币种
+
+- 日期：2026-10-20；状态：Active（用户批准的目标与执行边界；本 Gate 只有文档，尚未实现 Server 关账）。D-146 已由未合并 #121-123 使用，本项不替代角色管理决定。
+- 用户批准全项目收敛计划，并确认目前没有业务数据需要迁移。延续 D-096：新目标从空业务库建立，不导入旧 Browser、Legacy、演示报价/订单、账号或来源样本。无需迁移不等于授权清空、删除或证明旧库没有记录；3001 必须保留，50426 为待核实持久化目标。
+- 新 Server 关账目标：成衣销售产值币种为 CNY，工价为 USD；金额与币种共同保存、分别展示汇总，不直接相加、不新增自动换汇。不是把现有 Quote/PV/CCT、采购来源或历史快照批量改成 USD，也不修改既有报价公式。
+- Gate 1 改为准备全新持久化空环境，不搬历史业务数据。旧体验数据原地保留；已有入口替换、删除资产、合并 PR、正式部署、真实账号或新艾诺科采集/绑定/激活/调度仍需具体授权。
+- 成衣出货定义、加工服务产值是否计入成衣销售产值、完成变化引起的关账 stale 仍待确认；币种决定不批准税率、确认时点、收付款或利润规则。现有 color-commercial.ts 允许 CNY/USD 工价，Gate 8 前须明确已采用 CNY 工价的处理方式，不得只改币种标签或套用默认 USD。D-042 的 Browser 历史保持；未来 Server 不能把原币混合总数标成 RMB。
+- 依据：用户 2026-10-20 明确批准；[Gate 0 资产/能力账本](tasks/active/server-convergence-gate0-2026-10-20.md)。代码事实：closing-service.ts 新记录 legacyFxRateApplied=false、原币与 RMB 命名汇总并存，closing-repository.ts 仍为 Browser owner；本阶段未改变代码。
 
 ### D-146 可配置角色与独立用户管理
 

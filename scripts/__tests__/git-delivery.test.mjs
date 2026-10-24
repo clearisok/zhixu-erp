@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { deliver, diagnose, trustedOrigin, runCommand, workingEvidence, errorCategory } from '../git-delivery.mjs';
 
-async function fixture(t) {
+async function fixture(t, branch = 'chore/test-delivery') {
   const root = await mkdtemp(path.join(os.tmpdir(), 'zhixu-git-delivery-'));
   t.after(() => rm(root, { recursive: true, force: true })); // Only this test's mkdtemp directory.
   const git = async (args, cwd = root) => {
@@ -19,13 +19,13 @@ async function fixture(t) {
   const local = args => git(args, worktree);
   await local(['config', 'user.email', 'synthetic@example.invalid']);
   await local(['config', 'user.name', 'Synthetic delivery test']);
-  await local(['switch', '-c', 'chore/test-delivery']);
+  await local(['switch', '-c', branch]);
   await local(['remote', 'add', 'origin', path.join(root, 'remote.git')]);
   await writeFile(path.join(worktree, 'fixture.txt'), 'initial\n');
   await local(['add', 'fixture.txt']);
   await local(['commit', '-m', 'isolated baseline']);
   const expectedHead = await local(['rev-parse', 'HEAD']);
-  const options = { worktree, branch: 'chore/test-delivery', expectedHead, execute: true };
+  const options = { worktree, branch, expectedHead, execute: true };
   let pushes = 0;
   const run = async (command, args, cwd) => {
     if (command === 'gh') return { code: 1, stderr: 'test API unavailable', stdout: '' };
@@ -45,6 +45,120 @@ test('dry run, normal push and repeated execution never duplicate delivery', asy
   assert.equal(result.remoteSha, f.options.expectedHead);
   assert.equal((await deliver(f.options, f.dependencies)).state, 'DELIVERED_VERIFIED');
   assert.equal(f.pushes(), 1);
+});
+
+test('successful push ref names do not impersonate rejected commands', async t => {
+  for (const branch of ['chore/conflict-report', 'chore/divergence-proof', 'chore/rejected-marker', 'chore/non-fast-forward-notes']) {
+    await t.test(branch, async child => {
+      const f = await fixture(child, branch);
+      const result = await deliver(f.options, f.dependencies);
+      assert.equal(result.state, 'DELIVERED_VERIFIED');
+      assert.equal(result.remoteStatus, 'EXACT_HEAD_VERIFIED');
+      assert.equal(result.remoteSha, f.options.expectedHead);
+      assert.equal(result.pushCategory, 'command_pass');
+      assert.equal(result.pushDiagnostic.exitCode, 0);
+      assert.equal(result.pushDiagnostic.category, 'command_pass');
+      assert.equal(result.pushDiagnostic.timedOut, false);
+      assert.deepEqual(Object.keys(result.pushDiagnostic).sort(), ['category', 'elapsedMs', 'exitCode', 'timedOut']);
+      assert.equal(f.pushes(), 1);
+      assert.equal((await deliver(f.options, f.dependencies)).pushes, 0);
+      assert.equal(f.pushes(), 1);
+    });
+  }
+});
+
+test('successful push output still requires independent exact remote proof', async t => {
+  const f = await fixture(t, 'chore/conflict-unverified');
+  let pushed = false;
+  const run = async (command, args, cwd) => {
+    if (pushed && command === 'git' && args[0] === 'ls-remote') return { code: 1, stdout: '', stderr: 'TLS EOF SECRET' };
+    const result = await f.dependencies.run(command, args, cwd);
+    if (command === 'git' && args[0] === 'push') pushed = true;
+    return result;
+  };
+  const result = await deliver(f.options, { ...f.dependencies, run });
+  assert.equal(result.state, 'LOCAL_PASS_REMOTE_UNVERIFIED');
+  assert.equal(result.remoteStatus, 'REMOTE_UNVERIFIED');
+  assert.equal(result.pushDiagnostic.exitCode, 0);
+  assert.equal(result.retry, false);
+  assert.equal(f.pushes(), 1);
+  assert.ok(!JSON.stringify(result).includes('SECRET'));
+  assert.ok((await f.local(['ls-remote', 'origin', `refs/heads/${f.options.branch}`])).startsWith(f.options.expectedHead));
+});
+
+test('nonzero authentication and zero-exit TLS identity signals remain STOP even with exact remote', async t => {
+  for (const [code, stderr, state] of [[1, 'authentication failed SECRET', 'STOP_AUTH_OR_DIVERGENCE'], [0, 'SSL certificate verify failed SECRET', 'STOP_TLS_IDENTITY_OR_CONFIGURATION']]) {
+    await t.test(state, async child => {
+      const f = await fixture(child);
+      const run = async (command, args, cwd) => {
+        const result = await f.dependencies.run(command, args, cwd);
+        return command === 'git' && args[0] === 'push' ? { ...result, code, stderr } : result;
+      };
+      const result = await deliver(f.options, { ...f.dependencies, run });
+      assert.equal(result.remoteSha, f.options.expectedHead);
+      assert.equal(result.remoteStatus, 'EXACT_HEAD_VERIFIED');
+      assert.equal(result.state, state);
+      assert.equal(result.pushDiagnostic.exitCode, code);
+      assert.equal(f.pushes(), 1);
+      assert.equal(result.retry, false);
+      assert.ok(!JSON.stringify(result).includes('SECRET'));
+    });
+  }
+});
+
+test('zero exits cannot hide timeout, spawn failure, output limits or identity errors in diagnostics', () => {
+  for (const [field, category] of [['timedOut', 'timeout'], ['spawnError', 'executable_unavailable'], ['overflow', 'output_limit_exceeded']])
+    assert.equal(errorCategory({ code: 0, stderr: '', [field]: true }), category);
+  assert.equal(errorCategory({ code: 0, stderr: 'SSL certificate verify failed PRIVATE' }), 'tls_identity_or_configuration');
+  assert.equal(errorCategory({ code: 1, stderr: 'HTTP 403 PRIVATE', timedOut: true }), 'authentication_or_divergence');
+  assert.equal(errorCategory({ code: 0, stderr: 'TLS unexpected EOF PRIVATE' }), 'uncertain_transport');
+});
+
+test('healthy zero exit transport warnings retain degraded mode after exact delivery', async t => {
+  const f = await fixture(t);
+  const run = async (command, args, cwd) => {
+    const result = await f.dependencies.run(command, args, cwd);
+    return command === 'git' && args[0] === 'push' ? { ...result, stderr: `${result.stderr}\nTLS unexpected EOF PRIVATE` } : result;
+  };
+  const result = await deliver(f.options, { ...f.dependencies, run });
+  assert.equal(result.state, 'DELIVERED_VERIFIED');
+  assert.equal(result.remoteStatus, 'EXACT_HEAD_VERIFIED');
+  assert.equal(result.pushDiagnostic.exitCode, 0);
+  assert.equal(result.pushDiagnostic.category, 'uncertain_transport');
+  assert.equal(result.networkMode, 'NETWORK_DEGRADED');
+  assert.equal(f.pushes(), 1);
+  assert.equal(result.retry, false);
+  assert.ok(!JSON.stringify(result).includes('PRIVATE'));
+});
+
+test('explicit access and rejected status diagnostics never become zero-exit success', () => {
+  for (const stderr of ['authentication failed', 'permission denied (publickey)', 'access denied', 'could not read Username', 'invalid username or password', 'HTTP 403', 'HTTP/2 401', 'The requested URL returned error:403', '! [rejected] HEAD -> fix/example', 'remote: ! [remote rejected] HEAD -> fix/example'])
+    assert.equal(errorCategory({ code: 0, stderr }), 'authentication_or_divergence', stderr);
+  assert.equal(errorCategory({ code: 0, stderr: ' * [new branch] HEAD -> chore/HTTP403-proof' }), 'command_pass');
+});
+
+test('explicit zero-exit refusal retains exact remote proof without retry or recovery', async t => {
+  for (const stderr of ['authentication failed PRIVATE', 'HTTP 403 PRIVATE', 'remote: ! [remote rejected] HEAD -> chore/test-delivery PRIVATE']) {
+    await t.test(stderr.split(' PRIVATE')[0], async child => {
+      const f = await fixture(child);
+      const run = async (command, args, cwd) => {
+        const result = await f.dependencies.run(command, args, cwd);
+        return command === 'git' && args[0] === 'push' ? { ...result, code: 0, stderr } : result;
+      };
+      const result = await deliver(f.options, { ...f.dependencies, run });
+      assert.equal(result.state, 'STOP_AUTH_OR_DIVERGENCE');
+      assert.equal(result.continueLocal, false);
+      assert.equal(result.remoteSha, f.options.expectedHead);
+      assert.equal(result.remoteStatus, 'EXACT_HEAD_VERIFIED');
+      assert.equal(result.pushDiagnostic.exitCode, 0);
+      assert.equal(result.pushDiagnostic.category, 'authentication_or_divergence');
+      assert.equal(result.pushes, 1);
+      assert.equal(f.pushes(), 1);
+      assert.equal(result.retry, false);
+      assert.equal(Object.hasOwn(result, 'recovery'), false);
+      assert.ok(!JSON.stringify(result).includes('PRIVATE'));
+    });
+  }
 });
 
 for (const mode of ['delivered_response_lost', 'not_delivered', 'remote_unverifiable', 'authentication', 'zero_exit_unverifiable']) {
