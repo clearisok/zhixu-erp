@@ -1,5 +1,7 @@
 export type ServerOrderAttribution = {originalOrderId:string;effectiveOrderId:string;attributionChangeId:string|null;attributionVersion:number;historicalDuplicate:boolean};
 
+import type { SalesOrderColorSizeEvidence, SalesOrderColorSourceEvidence } from "../../../server/sales-orders/source-evidence";
+
 import type { OrderAlert } from "./order-alerts";
 export type ServerSalesOrderCreationSource = "quote" | "reorder" | "manual" | "ainuoke";
 export type ServerSalesOrderLifecycleState = "draft" | "confirmed" | "active" | "completed" | "cancelled";
@@ -36,10 +38,13 @@ export type ServerSalesOrderColorDto = {
   colorName: string;
   quantity: number;
   deliveryDate: string | null;
+  /** Older Server responses lack saved evidence; absence must stay unknown. */
+  sizeEvidence?: SalesOrderColorSizeEvidence;
 };
 
 export type ServerSalesOrderDetailDto = ServerSalesOrderReadDto & {
   colors: ServerSalesOrderColorDto[];
+  colorSource?: SalesOrderColorSourceEvidence;
 };
 
 export type ServerSalesOrderListQuery = {
@@ -94,6 +99,7 @@ export type OrderCenterServerDetailViewModel = Omit<
   insideOrderNo: string | null;
   quantity: number | null;
   colors: ServerSalesOrderColorDto[];
+  colorSource?: SalesOrderColorSourceEvidence;
 };
 
 export function adaptServerSalesOrderListItem(dto: ServerSalesOrderReadDto): OrderCenterServerListViewModel {
@@ -150,5 +156,6 @@ export function adaptServerSalesOrderDetail(dto: ServerSalesOrderDetailDto): Ord
     createdAt: dto.createdAt,
     updatedAt: dto.updatedAt,
     colors: dto.colors,
+    ...(dto.colorSource ? { colorSource: dto.colorSource } : {}),
   };
 }
