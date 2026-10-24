@@ -8,6 +8,6 @@
 
 首次定向red为3项1pass2fail，证明合法成功ref关键词误判；初步69/69完整工具通过。但复审发现显式认证/权限拒绝和[remote rejected]不能被exit0豁免，新增定向red2/2失败；现用共享纯判定保留显式拒绝STOP，仅泛化ref词成功例外，TLS优先、exact须remoteVerified、分歧优先。最终完整工具75/75通过（202051.5703ms，0fail/cancel/skip），定向lint通过；65852已终态。所有原red/初步结果保留，不能把初步69当最终版通过。
 
-下一步记录精确源码checkpoint/最终工具blob，运行必要的134发布与精确e01a守卫、独立最终复审。没有业务/SQL/UI变化，不重跑旧ERP/数据库/完整浏览器套件或旧失败Actions。pushDiagnostic仅正常post-push decision路径的白名单摘要，不能宣称每个早退均有诊断。该修复不能追溯证明9e失败原因或解除其STOP。
+源码419fb38503a807480c26d4a59119f0ef5994b7b8的134/134发布通过（280089.0723ms，0fail/cancel/skip，HEAD/manifest稳定），精确e01a守卫PASS/0UI。下一步将本工具独立提交正常前向整合进#125的新交付候选，保留双方原始历史和证据，复用不变模块已通过检查，只补合流范围核对/精确守卫与复审，避免额外工具PR重复触发CI。没有业务/SQL/UI变化，不重跑旧ERP/数据库/完整浏览器套件或旧失败Actions。pushDiagnostic仅正常post-push decision路径的白名单摘要，不能宣称每个早退均有诊断。该修复不能追溯证明9e失败原因或解除其STOP。
 
 完整G1–G5仍继续；#125草稿未获merge批准。保留所有原业务候选与运行依赖；其余关账三问、真实Source/target、coverage-v1、50426切换/用户验收与资产退役不扩大。输出保存在ignored outputs/git-delivery-diagnostics-main-20261024/；当前不做远端写入。

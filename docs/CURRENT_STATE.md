@@ -6,7 +6,7 @@
 
 本轮仅一次上传9e36，工具回执同时为STOP_AUTH_OR_DIVERGENCE与EXACT_HEAD_VERIFIED。远端验证分支确有该完整SHA，但没有原始push退出码/错误证据，不能认定是认证、分歧或误分类的唯一原因；不重推、不清除STOP、不绕过它更新#125。#125仍原CA草稿，未触发新的Actions。
 
-当前独立codex/git-delivery-diagnostics-main-e01a从实际main开始，只加性复用原717中的交付分类/脱敏诊断和测试，保留main的精确远端状态、exact时无执行恢复命令及三条STOP回归。首次定向red复现2项误分类；初步工具69/69通过后，复审发现零退出显式拒绝还应保持STOP，新增red两项均失败，已补共享判定，最终工具75/75通过（202051.5703ms，0fail/cancel/skip），定向lint通过；必要134发布与精确main守卫另核。真实认证/权限、明确拒绝状态、TLS、已证实分歧、dirty及单次push边界不放宽；不把修工具当作9e可重推的授权。
+当前独立codex/git-delivery-diagnostics-main-e01a从实际main开始，只加性复用原717中的交付分类/脱敏诊断和测试，保留main的精确远端状态、exact时无执行恢复命令及三条STOP回归。首次定向red复现2项误分类；初步工具69/69通过后，复审发现零退出显式拒绝还应保持STOP，新增red两项均失败，已补共享判定，最终工具75/75通过（202051.5703ms，0fail/cancel/skip），定向lint通过；源码419fb38503a807480c26d4a59119f0ef5994b7b8的134/134发布通过（280089.0723ms，0fail/cancel/skip，HEAD/manifest稳定），精确e01a源码守卫PASS/0UI。真实认证/权限、明确拒绝状态、TLS、已证实分歧、dirty及单次push边界不放宽；不把修工具当作9e可重推的授权。
 
 原main三摘要按Git字节[归档](tasks/completed/2026-10-24-git-delivery-diagnostics-inputs/)，清单只前移实际main及日期，222证据/46能力和全部截图/运行维度不改。原9e、717、CI节流0ba、产物检查1028及所有业务候选引用保留。工具片不混入生产/来源等累计业务代码；不部署、不读取凭据或真实Source、不动账号/业务库/对象/卷/旧运行入口。
 
