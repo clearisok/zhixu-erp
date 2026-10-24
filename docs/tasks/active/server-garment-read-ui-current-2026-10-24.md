@@ -19,3 +19,11 @@ Num/outdate只读原观察、精确数量/未知值/未匹配颜色/空结果和
 NETWORK_DEGRADED，push0/PR0/Actions0；不重试失败Git通道、不借#125 CI。仅自有合成一次性PG/loopback/私有Chromium；不读真实凭据/Source、不改真实账号/业务DB/现有卷、不绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份及结果。Goal active；0042/0043及关账三问后续不默认。
 
 15路径受控前移：11输入一致、app游标已在0040保留，store测试三方合流与incoming完全相同（保留两cursor断言+新增客户端/expiry断言）。workflow只加本轮UI测试及精确ExpectedSource，package只扩当前client和driver。5路径V1已登记；后台696/0040/41保持，新UI契约独立。两driver P2已修复：after完整ExpectedSource、before精确a0c3外部静态、根CDP及自有Chromium确认退出/保留未知profile、原子enabled点击。新增真实CDP touch；语法/差异检查通过，当前等待本轮source冻结与实际QA，不预写PASS。
+
+## 当前冻结工程验收
+
+source 922488b9474daeed8abc2204e21f6ffeefc39955实际7文件102相关单元/SQL/API、97根811、类型42726/Node编译21875+实际import2750/lint44440ms及双Vite构建/产物PASS；before3/after14/物料10/导航18共45浏览器PASS，全部0fail/cancel/skip。初lint误扫自有旧编译资源的71error/5438warning及80731ms失败完整保留；215文件hash相同移出源码扫描，仅官方lint补跑，不改产品/ignore，不重跑已过范围。proof c71052ea51efd9a28e3fe15b39e65d72faaa72c6冻结23PNG/3JSON、六宽/DPR/CDP touch，9图已查看；清单421/59保留旧393/58/runtime/21routes。
+
+新UIfeature独立，原后台696保持；发布134/最后精确main守卫和最终独立复审仍待，不能提前写PASS。
+
+NETWORK_DEGRADED，push0/PR0/Actions0，不借#125 CI或逐Gate重试Git。仅自有合成一次性PG/loopback/私有Chromium，不读真实凭据/Source，不改真实账号/业务DB/现有卷，不绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份和结果。Goal active；后续0042交期/0043受控采集及关账三问不默认。

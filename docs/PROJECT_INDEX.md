@@ -212,3 +212,5 @@ fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），
 前阶段0041最终b97/main守卫PASS98302ms（11/58/64/errors[]），4cc发布134/134（412214ms），source df5bed、proof da5b；清单393/58。API分阶段联合184/185、1既有Linux CLI Windows跳过，初185的182pass/2fail/1skip及16补跑保持；根811/类型NodeLint通过，139Python/215静态产物仅复用。独立终审无新增P1/P2，不冒称单轮185全绿、Linux通过或Hosted CI。当前[成衣只读UI](tasks/active/server-garment-read-ui-current-2026-10-24.md)从clean b97继续，15路径11同/1已应用/3手工预核；完整前阶段输入保护[前置](tasks/completed/2026-10-24-garment-read-ui-input-state/)。尚无新UI/QA，旧后台696冻结文档不改。
 
 [Server成衣只读UI](features/SERVER_GARMENT_SHIPMENT_UI.md)当前在原订单详情接线，后台696原文冻结保持；新source/driver/六宽浏览器证据待跑，不借旧UI结果。
+
+当前成衣只读UI source922 [proof c710](tasks/completed/2026-10-24-garment-read-ui-current-engineering.md)：实际102相关/811根/类型NodeLint/双build产物、before3/after14/物料10/导航18共45浏览器PASS，23PNG/3JSON、9图查看；lint旧产物误扫原失败及仅lint补跑保留。清单421/59保留旧393/58/runtime/21routes；发布134和最终守卫另核，不借旧4066或#125CI。

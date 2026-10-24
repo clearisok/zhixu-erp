@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T12:03:51.719Z",
+  "verifiedAt": "2026-10-24T12:27:40.779Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -3482,6 +3482,276 @@
       "recordedAtSha": "da5b5cc695106dab71986d32354e99ccae134c23",
       "renderedSourceSha": "df5bedaddd2f9e54f8c66f578e32f06859878104",
       "sha256": "623b5709ff599bd2b505140adc5b0b7e45506ab083277e9151cacffe53d25242"
+    },
+    {
+      "id": "garment-read-ui-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-garment-read-ui-current-engineering.md",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "2165810ec488e4c3dd2b9be9ca82fc37a75a85ee1eee95ca85c503a9277f0d44"
+    },
+    {
+      "id": "server-garment-read-ui-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_GARMENT_SHIPMENT_UI.md",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "b11a560b5a388cae3593658351f8ef20d8a63da4c4e5ec9f4cc1e3e96383bba4"
+    },
+    {
+      "id": "garment-read-ui-current-before-order-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/before-order-1280.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "5aaf2a967e16513f5dd76730ce0eb5617695a189ab3cc84d8c74e399a10ffa9b",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-before-order-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/before-order-1440.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "2b031afa3d27eac0deffacfdb421fd4a82b548aa0b6bc00e5f49520f34ba3f77",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-before-order-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/before-order-1536.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "5f531508ca1a404b194df3c33b3d88a9f3dff235a211876babba8617f0dbbbe1",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-before-order-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/before-order-1920.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "aa0901526a4e09d7454a1635b136e2c753d7b0edbd9baf4c9122fc58d81ee6d7",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-before-order-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/before-order-390.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "9509b27851c5b8cc1c922ed42c56b33758bb23be20d29a660e6b1bc67b6e64d4",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-before-order-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/before-order-900.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "d205bb050a390bd3f175b999317c8b8ffb4eb98fe5ae171da66326ebf257e2ff",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-before-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/before-build-and-checks.json",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "329b8f4f22d856e08ff20457a1b62bed9c5a4475cc7d318ed72ff623eecd3528"
+    },
+    {
+      "id": "garment-read-ui-current-after-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-build-and-checks.json",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "9ae902e89ad92ecdf6a095478a99fefb4b12ad98fb38644f79c7661fdf7c5a36"
+    },
+    {
+      "id": "garment-read-ui-current-after-current-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-current-1280.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "de7a2200a8e3a6e095866d1565dd6b1d28075a38e759990a74bb43aac3749cda",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-current-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-current-1440.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "6348cbf469cd1e793dd02c9dc5a923755a24db3ce625163cac10b4faac47c844",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-current-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-current-1536.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "51be57cf7a8e03b4ed7181550c76bc519dd3119507cbb8075146b626609c03a0",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-current-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-current-1920.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "5180a57864e12ce0714e2e5147573f537300e90816ac0b8770a0726aa92eda58",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-current-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-current-390.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "381e0b5fad32821c7626030f06f46b568d973cacf40562b3821b9c5f72a19458",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-current-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-current-900.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "17e47f56410d13363b693b01b8b1aab81a459e669be3f8affd35c126deaa952d",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-current-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-current-desktop.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "78cb9cc8c12b047a5edb4c3567ac6c34a61edac451498cfaa7c6f43b267b819d",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-historical-detail-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-historical-detail-1440.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "7e4232d2862bbcb39dd8c8ff54f1ab3739bb9f7e5b34e203a6913b77b55157e1",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-historical-detail-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-historical-detail-390.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "aaf2591c7fcf82ec53ee918de680e2d0707d9575925b7d06eb7199e9cd2cd277",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-history-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-history-1280.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "c921a8d80f07a0748d45b9458f881088b7ace33e39d202607feab1b335325a50",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-history-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-history-1440.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "eecbdc23fba38a93a51f2a5f37af0c3fe101842f646f9084c636380eba9f59cc",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-history-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-history-1536.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "6cacc5ad45ccda54fc7c22af622e3f62148682cf27409c8e9a65b57316cd00af",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-history-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-history-1920.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "f8060e7a12a0a42c370c8b2d68c4f42b1f5bd121529a812127c025b0a9d02ade",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-history-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-history-390.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "a66230d01f89018c75ca68935beec534e72b8de7b71f2d3b841367bf5febdd15",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-history-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-history-900.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "c3e1a3147c45299104d53983c9310d8eed4230664f46dbcff80de015dfc0c031",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-receipt",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-receipt.json",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "b1f6512a1c514847a543860a86475600b67002c376b9897d60ceb24929ea4e62"
+    },
+    {
+      "id": "garment-read-ui-current-after-stale-policy",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-stale-policy.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "24bc549143cfb079d06d8e709eb4811b44a312ccdbe1d2d30fdd49521789c094",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "garment-read-ui-current-after-touch-history-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-garment-read-ui-current/after-touch-history-390.png",
+      "recordedAtSha": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "d65164f9d91a0afdf79234190722c3058d245061aceb5ce95e79986ed5e573f7",
+      "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
     }
   ],
   "pages": [
@@ -9162,6 +9432,91 @@
           "scope": "Current offline bound-source refresh not deployed; preserve old runtime facts without new queries.",
           "evidence": [
             "bound-refresh-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "garment-read-ui-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147/D152/D153 current Server order garment observations UI: exact Num/outdate, original snapshot expiry, independent current/history, strict client and committed session/layout ownership. Current102 related checks/root811/type/Node/lint, two actual builds/artifacts and45 browser checks (before3/after14/material10/navigation18),23PNG/3JSON and9 viewed images. Initial generated-artifact lint failure preserved and only full lint rerun after moving owned old static fixture; no product or lint-config change. Unchanged Linux CLI platform gap and offline Python139 reuse remain explicit. No real Source/activation, deployment, event ledger/closing or human acceptance.",
+      "evidence": [
+        "garment-read-ui-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+          "scope": "D147/D152/D153 current Server order garment observations UI: exact Num/outdate, original snapshot expiry, independent current/history, strict client and committed session/layout ownership. Current102 related checks/root811/type/Node/lint, two actual builds/artifacts and45 browser checks (before3/after14/material10/navigation18),23PNG/3JSON and9 viewed images. Initial generated-artifact lint failure preserved and only full lint rerun after moving owned old static fixture; no product or lint-config change. Unchanged Linux CLI platform gap and offline Python139 reuse remain explicit. No real Source/activation, deployment, event ledger/closing or human acceptance.",
+          "evidence": [
+            "garment-read-ui-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+          "scope": "D147/D152/D153 current Server order garment observations UI: exact Num/outdate, original snapshot expiry, independent current/history, strict client and committed session/layout ownership. Current102 related checks/root811/type/Node/lint, two actual builds/artifacts and45 browser checks (before3/after14/material10/navigation18),23PNG/3JSON and9 viewed images. Initial generated-artifact lint failure preserved and only full lint rerun after moving owned old static fixture; no product or lint-config change. Unchanged Linux CLI platform gap and offline Python139 reuse remain explicit. No real Source/activation, deployment, event ledger/closing or human acceptance.",
+          "evidence": [
+            "garment-read-ui-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+          "scope": "D147/D152/D153 current Server order garment observations UI: exact Num/outdate, original snapshot expiry, independent current/history, strict client and committed session/layout ownership. Current102 related checks/root811/type/Node/lint, two actual builds/artifacts and45 browser checks (before3/after14/material10/navigation18),23PNG/3JSON and9 viewed images. Initial generated-artifact lint failure preserved and only full lint rerun after moving owned old static fixture; no product or lint-config change. Unchanged Linux CLI platform gap and offline Python139 reuse remain explicit. No real Source/activation, deployment, event ledger/closing or human acceptance.",
+          "evidence": [
+            "garment-read-ui-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+          "scope": "D147/D152/D153 current Server order garment observations UI: exact Num/outdate, original snapshot expiry, independent current/history, strict client and committed session/layout ownership. Current102 related checks/root811/type/Node/lint, two actual builds/artifacts and45 browser checks (before3/after14/material10/navigation18),23PNG/3JSON and9 viewed images. Initial generated-artifact lint failure preserved and only full lint rerun after moving owned old static fixture; no product or lint-config change. Unchanged Linux CLI platform gap and offline Python139 reuse remain explicit. No real Source/activation, deployment, event ledger/closing or human acceptance.",
+          "evidence": [
+            "garment-read-ui-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+          "scope": "D147/D152/D153 current Server order garment observations UI: exact Num/outdate, original snapshot expiry, independent current/history, strict client and committed session/layout ownership. Current102 related checks/root811/type/Node/lint, two actual builds/artifacts and45 browser checks (before3/after14/material10/navigation18),23PNG/3JSON and9 viewed images. Initial generated-artifact lint failure preserved and only full lint rerun after moving owned old static fixture; no product or lint-config change. Unchanged Linux CLI platform gap and offline Python139 reuse remain explicit. No real Source/activation, deployment, event ledger/closing or human acceptance.",
+          "evidence": [
+            "garment-read-ui-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current garment read UI not deployed; retain original historical runtime observations without a new environment query.",
+          "evidence": [
+            "garment-read-ui-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current garment read UI not deployed; retain original historical runtime observations without a new environment query.",
+          "evidence": [
+            "garment-read-ui-current-engineering-20261024"
           ]
         }
       }
