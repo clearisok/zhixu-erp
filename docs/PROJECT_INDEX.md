@@ -147,8 +147,10 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 | 成衣出货观察 | [不可变观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、[只读界面](features/SERVER_GARMENT_SHIPMENT_UI.md) |
 | 交付计划 | [可靠原请求](features/SERVER_DELIVERY_PLAN_REQUESTS.md)、[维护界面](features/SERVER_DELIVERY_PLAN_MAINTENANCE_UI.md) |
 
-当前仅coverage六非doc路径只读预核：四输入相同，两package/workflow手工增量；原144f→0e546投影及独立feature/D155不引UI/schema/写入。basis=current_registered_facts按当前已登记累计产出+截点前剩余比较有效交期；不是历史准时率/库存/出货/关账，不分配生产量到某日。未知日期未评估、原物理订单/执行方/集合版本保持。保留当前repository PG容量保护和中文提示；483be后续客户端断言依赖新客户端，不窄取到本阶段。当前尚无本轮产品改动或新QA，不借旧ff8b。
+当前仅coverage六非doc路径只读预核：四输入相同，两package/workflow手工增量；原144f→0e546投影及独立feature/D155不引UI/schema/写入。basis=current_registered_facts按当前已登记累计产出+截点前剩余比较有效交期；不是历史准时率/库存/出货/关账，不分配生产量到某日。未知日期未评估、原物理订单/执行方/集合版本保持。保留当前repository PG容量保护和中文提示；483be后续客户端断言依赖新客户端，不窄取到本阶段。该处为起始预核范围；当前source558实际验收见下方证明，不借旧ff8b。
 
 NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅自有合成一次性PG/loopback，0真实凭据/Source、真实账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份和旧结果。Goal active；0043/关账三问不默认。
 
-[Server交期覆盖](features/SERVER_DELIVERY_COVERAGE.md)只追加生产详情DB-only投影，当前四路径受控前移；D155、旧客户端忽略新字段及容量保护保留，新QA待跑。
+[Server交期覆盖](features/SERVER_DELIVERY_COVERAGE.md)只追加生产详情DB-only投影，当前source558的47相关/type/Node/相关lint实际PASS；D155、旧客户端兼容及容量保护保留，见当前证明。
+
+[当前交期覆盖证明](tasks/completed/2026-10-24-delivery-coverage-current-engineering.md)：source558实际47相关/type/Node/import/相关lint通过，proof5e366，清单458/62保留455/61/runtime21routes。无新811/134/Vite/browser/PythonPASS声明；精确main守卫另核，最终累计PR两发布命令仍重跑。

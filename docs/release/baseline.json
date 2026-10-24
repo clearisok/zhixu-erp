@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T14:00:20.127Z",
+  "verifiedAt": "2026-10-24T14:09:09.468Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -4074,6 +4074,32 @@
       "sha256": "ce1654fae0a383bff7789235e021cbeb55229fcce8f57a1ac7d283fe1b9678c8",
       "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
       "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-coverage-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-delivery-coverage-current-engineering.md",
+      "recordedAtSha": "5e36626bbbdbaef5fe46bef1e76bfde51219bf9a",
+      "renderedSourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+      "sha256": "6cfffd5696dce4baeabdfe1870e26d8c5839b6ee8e724734a35844321ae30bea"
+    },
+    {
+      "id": "server-delivery-coverage-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_DELIVERY_COVERAGE.md",
+      "recordedAtSha": "5e36626bbbdbaef5fe46bef1e76bfde51219bf9a",
+      "renderedSourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+      "sha256": "856e4bafbb2a013cf0557cf22867cd502f8078b0b0ab116fe4e7150266a818d6"
+    },
+    {
+      "id": "decisions-delivery-coverage-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5e36626bbbdbaef5fe46bef1e76bfde51219bf9a",
+      "renderedSourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+      "sha256": "e651b47208e65d416f6fe8e90e9fefa3dca1b4fcbc01176be1982db4f08f544c",
+      "supersedes": "decisions-delivery-plan-ui-current-20261024",
+      "changeReason": "Forward-bind D155 current registered-fact read projection, retaining D151 execution identity, D100 demand ownership, all historical decisions and explicit unassessed scope."
     }
   ],
   "pages": [
@@ -10009,6 +10035,91 @@
           "scope": "Current delivery maintenance UI not deployed; keep original runtime snapshots without querying those environments.",
           "evidence": [
             "delivery-plan-ui-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "delivery-coverage-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+      "evidence": [
+        "delivery-coverage-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+          "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+          "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+          "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+          "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+          "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current delivery read projection not deployed; historical runtime facts retained without querying those environments.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current delivery read projection not deployed; historical runtime facts retained without querying those environments.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
           ]
         }
       }
