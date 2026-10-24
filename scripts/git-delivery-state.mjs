@@ -2,6 +2,12 @@ export function isTlsIdentityFailure(stderr = '') {
   return /\bcertificate (?:problem|(?:verify|verification|validation|check|revocation) (?:failed|failure|error)|(?:has |is )?(?:expired|invalid|untrusted)|is not (?:trusted|valid|yet valid))|no alternative certificate subject name|certificate subject name[^\r\n]*(?:not match|mismatch)|SSL peer certificate[^\r\n]*was not OK|(?:^|[\s(:])(?:SEC_E_UNTRUSTED_ROOT|SEC_E_CERT_EXPIRED|SEC_E_WRONG_PRINCIPAL|CERT_E_[A-Z_]+)\b|target principal name is incorrect|unsupported ssl backend|\bssl[^\r\n]*(?:hostname|host name)[^\r\n]*(?:not match|mismatch)/i.test(stderr);
 }
 
+/** Explicit denials always stop; ordinary ref words require a failed command. */
+export function isAccessOrRefRejection(stderr = '', successful = false) {
+  const explicit = /authentication failed|permission denied|access denied|could not read username|invalid username|(?:error:\s*|HTTP(?:\/[0-9.]+)?[ \t]+)(401|403)\b|\[(?:remote )?rejected\]/i;
+  return explicit.test(stderr) || (!successful && /non-fast-forward|\brejected\b|conflict|diverg/i.test(stderr));
+}
+
 /** Pure delivery decision, never logs raw command output or mutates Git config. */
 export function deliveryState({ phase, exitCode, stderr = '', targetSha, remoteSha,
   baselineExists = true, clean = true, dirtyFingerprint, expectedDirtyFingerprint,
@@ -12,11 +18,11 @@ export function deliveryState({ phase, exitCode, stderr = '', targetSha, remoteS
   if (!baselineExists) return { state: 'STOP_BASELINE_MISSING', continueLocal: false, retry: false };
   if (isTlsIdentityFailure(stderr))
     return { state: 'STOP_TLS_IDENTITY_OR_CONFIGURATION', continueLocal: false, retry: false };
-  if (/authentication failed|permission denied|access denied|could not read username|invalid username|(?:error:|HTTP)\s*(401|403)|non-fast-forward|\brejected\b|conflict|diverg/i.test(stderr))
+  if (isAccessOrRefRejection(stderr, exitCode === 0))
     return { state: 'STOP_AUTH_OR_DIVERGENCE', continueLocal: false, retry: false };
-  if (phase === 'push' && sha(targetSha) && remoteSha === targetSha)
-    return { state: 'DELIVERED_VERIFIED', continueLocal: true, retry: false };
   if (remoteRelation === 'diverged') return { state: 'STOP_AUTH_OR_DIVERGENCE', continueLocal: false, retry: false };
+  if (phase === 'push' && remoteVerified && sha(targetSha) && remoteSha === targetSha)
+    return { state: 'DELIVERED_VERIFIED', continueLocal: true, retry: false };
   if (phase === 'push' && remoteSha !== undefined && remoteSha !== null && (!sha(remoteSha) || !sha(targetSha)))
     return { state: 'STOP_INVALID_EVIDENCE', continueLocal: false, retry: false };
   if (phase === 'push' && exitCode === 0 && !remoteVerified)

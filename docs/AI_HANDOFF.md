@@ -1,15 +1,11 @@
-# 恢复点：PR125合流至已批准新main
+# 恢复点：PR125与独立交付工具正常合流
 
-2026-10-24；root唯一writer、既有reviewer只读。先API核实main d1dd与#123 CB/三PR检查/预览树不变，按用户明确批准ready并merge #123为e01a11952b648024c0bd6bf4259de429374981e2，独立核实双父/树和保留分支；#121/#122由GitHub自动随祖先收口，没有手工merge/close其他PR。没有新增Actions。
+2026-10-24；root唯一writer、既有reviewer只读。main e01a11952b648024c0bd6bf4259de429374981e2已获准合并#123，#121/#122自动随祖先收口、原分支保留。其余不自动merge/close，不部署、不动真实账号/业务库/Source。
 
-7bf3由clean CI分支0ba正常切换新建codex/pr125-main-e01a-forward@e01a；原CI、1028和运行态ebe/4cf引用保留。一次标准fetch取到真实main对象，未改认证/TLS/共享配置，不能据此宣称旧push STOP根因已消失。正常merge原CA，仅五共享文档冲突。双方摘要按Git字节归档，原228证据完整并集保留；真实merge955474fa已保存双父[e01a,CA]，用其Git父追加DECISION/CLOSING两见证至230/46，不伪造recordedAt或改旧ID。
+从clean e007保护工具分支后，codex/pr125-delivery-diagnostics-e01a从e01a建立、显式FF9e36c6e9f4eceae4c91585538d47eaa25ec4555d，再正常merge e00750f8efc798303c42aa6435eedc5cb608335d。仅AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX三处冲突；自动manifest等于原9e全字节内容（忽略工作树CRLF），230/46及所有旧证据/截图/状态维度不动。工具原717累计业务没有合入。
 
-原17运维及main46非docs逐blob保持；额外旧database-ops夹具的ENOENT修正已在091ed54eb47415e87261f849eca5c07c23294c6c独立提交。该源码发布134/134、角色/用户schema/API42/42、数据库工具2/2及scoped lint通过，0fail/cancel/skip，134期间HEAD与manifest稳定。c592类型/Server编译/全lint和22项不变运维成功结果复用其准确范围。没有再跑旧全仓/完整UI，不借旧CA/CB验收冒充新执行。
+父范围：#125的091已134发布/42API/2数据库工具、类型/编译/lint/双构建和静态产物，最终9e精确e01a守卫/复审；工具419已75/75与134/134、定向lint、源码守卫/复审，最终e007仅三文档。原red/ENOENT/短路径失败完整保留。下一步验证合流代码逐blob分别等于两父、冻结证据不变，保存真实merge checkpoint，补精确e01a守卫和独立合流复审；不重复不变模块测试，不称合流树新运行了父套件。
 
-完整Goal继续，关账三问未答不默认；#125仍草稿且未获merge授权。其余Source范围/target激活、50426切换、coverage-v1及资产退役不扩大。
+9e已一次上传但旧工具STOP+exact并存，远端SHA/tree/parent确切一致、0 Actions；原退出码/原因unknown。保留原STOP，不重推9e、不因工具本地PASS直接快进#125。新候选独立最终验收后，只有当前直接预检NORMAL、身份/祖先/clean与明确fullSHA都满足，才允许一次新目标首交付；新工具会记录安全退出诊断，认证/明确拒绝/TLS等仍STOP。独立核实送达后才更新唯一#125，不新建重复工具PR；不自动merge。
 
-首次eaea精确e01a守卫FAIL仅三项CLOSING侧链祖先错误；真实9554 forward witness修复后c592守卫PASS，不改原ID/文档/guard。原c592运维23/22pass/1fail的ENOENT发生在VerifyTargetOnly之前；仅fixture改ENOENT为空文件名列表、其他错误不吞、deepEqual强化断言。旧失败、修复后结果及所有临时上下文完整保留。
-
-091短路径构建exit0但产物检查失败（Provider错误），失败证据不删；相同archive SHA256=28ff0d5e33fc0f3f736542c321c53c82d854f7d1d296ae7d9fa35ddf7e15c7e9的新规范长路径对照，Browser/Server双构建及外部已审1028静态产物检查均PASS，各45页/1 fallback/109 assets。Browser一条preload提示、Server零提示；buildId/time也变化，不写成严格单变量根因或框架修复。未新建镜像/持久目标、未升级旧体验，只有自有一次性测试库，不读凭据或真实Source。
-
-下一步只核对本次最终文档commit对e01a的精确守卫和独立最终复审。输出/原始日志均在ignored outputs/pr125-main-e01a-forward-20261024/；新组合仍只本地，远端#125是CA草稿，未触发新Actions。交付/CI不是本地PASS；不自动merge/close#125，不部署或操作真实数据。保留独立CI节流候选0ba6a772与产物工具1028，不混入本PR。
+输出在ignored outputs/pr125-delivery-diagnostics-20261024/，父验证分别在pr125-main-e01a-forward-20261024与git-delivery-diagnostics-main-20261024。保护原9e/e007/717/0ba/1028、运行态ebe/4cf及所有旧环境。完整G1–G5和关账/coverage/Source/50426切换/用户接受/退役边界不变。
