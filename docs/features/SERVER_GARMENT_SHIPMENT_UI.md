@@ -2,7 +2,7 @@
 
 ## 当前范围与数据owner
 
-2026-10-24；D147/D152/D153，基于[已冻结0040后台](SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)和当前0041。这里只在原正式订单详情接入只读区块/历史抽屉，复用当前orderRead与可信session；不新建导航/写入口、不调用Source HTTP、不写产出/订单数量/商业价或关账。后台feature保留原696冻结字节，前后阶段状态按各自日期解释。新UI工程验收仍待。
+2026-10-24；D147/D152/D153，基于[已冻结0040后台](SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)和当前0041。这里只在原正式订单详情接入只读区块/历史抽屉，复用当前orderRead与可信session；不新建导航/写入口、不调用Source HTTP、不写产出/订单数量/商业价或关账。后台feature保留原696冻结字节，前后阶段状态按各自日期解释。新UI工程结果见下方独立冻结证据；发布和最终守卫仍后置。
 
 Num/outdate为原观察的精确数量和业务日期，保留单位、原单据、其他日期/累计列与来源trace；零/负/未知/非法分开，不将观察累加成事件账，不把空结果/消失当取消。未匹配/重名/缺失颜色提示，不填生产方或价格。加工不适用、未连接、未采集和身份变化各自显示。
 
@@ -21,3 +21,7 @@ layout token+epoch+sequence与真实session联合所有权，scope文本相同�
 新driver修复精确构建身份及自有Chromium退出确认、原子enabled+click，before渲染精确a0c3、after精确本轮source；产品/driver/渲染SHA分开。补客户端/真实HTTP、双构建/产物、before零出货请求/写入、after TTL/历史/迟到/ABA/401/403/七角色、六宽/DPR/touch及原订单/物料导航回归；证据按实际SHA另冻结，不借旧4066/a21结果。这里只记实现范围，不预写PASS。
 
 不新增迁移或改0040/41锁序、容量、回执/owner，不读取真实凭据/Source、不绑定/激活/调度/部署，不改现有体验库。完整Goal和后续0042/43及关账待决项独立。
+
+## 当前隔离工程证据
+
+2026-10-24 source 922488b9474daeed8abc2204e21f6ffeefc39955，本轮102相关API/客户端/升级、根811、类型/Node/lint、双构建/产物、before3/after14/物料与导航28均通过。23PNG/3JSON、六宽/DPR及390实际CDP touch，9图已查看；原始lint生成目录污染失败及仅lint修正补跑均保留，未变Python139只范围复用。详见[本轮证明](../tasks/completed/2026-10-24-garment-read-ui-current-engineering.md)。发布134、精确main守卫和独立终审后置，不借本条声称Hosted CI/合并/部署/真实Source或人工接受。
