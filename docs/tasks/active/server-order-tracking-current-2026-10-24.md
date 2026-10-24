@@ -13,3 +13,5 @@
 先核实际SQL/API/测试，再受控前移。一次性PG验证无记录/null/no-op/首次并发/CAS、完整历史/发生时仓快照、停用/清空、同request跨endpoint/撤权/审计原子性、0037非空升级/计划产出保留、历史有效归属。类型、Node编译/实际import、lint和相关SQL/API/根/发布守卫按精确source执行。没有UI改动，原07d前端构建/43浏览器只作未变范围复用，不说成新source测试；客户端/UI在0039后续独立验收。
 
 Git继承NETWORK_DEGRADED，G6B唯一push及独立API均TARGET_NOT_DELIVERED，不再逐Gate重推/触发CI；#1254f独立例外/三CI不借给新代码。Goal active，不自动merge/close/deploy、真实账号/业务库/卷/Source或凭据操作、绑定/激活/调度、50426切换或资产退役。0038→39→40→41后才0042交期写入，不重编号或重写已应用历史。
+
+14路径已受控前移：13输入一致，service规范化三方干净合流并保留新旧容量422；原0037前字节/前端代码保持。同一production命令/回执加入严格set_order_tracking，SQL新head/history/有效归属盘点齐备。新3文件测试脚本和Source CI单条调用，不改触发/门槛。下一步冻结source并跑本轮QA，尚无新结果。

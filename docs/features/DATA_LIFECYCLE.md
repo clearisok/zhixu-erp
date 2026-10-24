@@ -175,3 +175,5 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 2026-10-24 G6C：原production-plan.pending.v1的key/schemaVersion/四字段包装保持，只前向扩展record_execution解析；旧计划原字节兼容，计划/执行共用未决槽。未知新命令在旧客户端明确阻断，不删除/覆盖；新客户端同lease/精确回执才清槽。仅sessionStorage技术请求，不触碰Browser业务namespace/Seed/IndexedDB，见SERVER_PRODUCTION_EXECUTION。
 
 2026-10-24 D147/G6D候选0037只增加空Server物流资料，复用0034回执并保留0034–0036及原四类payload/hash。共享hub/运输表单不改Browser Repository/key/schema/Seed或null政策；Server不读取或写入Browser账本。升级仅一次性PG演练，真实目标未升级，见[当前契约](SERVER_LOGISTICS_RESOURCES.md)。
+
+2026-10-24 D054/D147当前0038候选只新增空订单物流上下文head/history并扩原命令action。新UUID明确归原物理SO，不读/迁移/Seed或修改Browser长期记录，不回填默认仓或搬历史；旧0037之前字节保持。只授权一次性合成PG，实际目标未升级，见[Server契约](SERVER_ORDER_LOGISTICS_CONTEXT.md)。

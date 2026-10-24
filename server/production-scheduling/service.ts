@@ -18,6 +18,7 @@ import { executionFacts, executionsForAssignments, productionExecutionsAvailable
 import { productionRequestLock, requireProductionPermissions, runProductionCommand, savedCommandPermissions } from "./command-transaction.js";
 import { parsePlanListQuery } from "./read-contract.js";
 import { listPlanGroups, listPlanOrders, readPlanOrderSummaries } from "./read-model.js";
+import type { OrderTrackingOutcome } from "./tracking-service.js";
 import {
   assignmentsForGroup, assignmentsForOrder, bumpPlanHeads, currentResourceFacts, groupPlanVersion, orderPlanVersion,
   persistAssignment, planFail, planHash, productionPlansAvailable, publicAssignment, readAssignment, readOrderPlanFacts, storeResourceFacts,
@@ -324,7 +325,7 @@ export async function readProductionPlanReceipt(pool: Pool, identity: TrustedIde
     await client.query("BEGIN"); const actor = await readCurrentActor(client, identity); requirePlanActor(actor); await productionPlansAvailable(client);
     if (!["schedule.create", "schedule.edit", "schedule.complete"].some(key => actor.permissions.includes(key as PermissionKey))) planFail(403, "permission_denied");
     const ready = (await client.query<{ ready: boolean }>("SELECT pg_try_advisory_xact_lock_shared(hashtextextended($1,0)) ready", [productionRequestLock(actor, requestId)])).rows[0].ready;
-    const row = ready ? (await client.query<{ command: unknown; payload_hash: string; result: PlanOutcome }>("SELECT command,payload_hash,result FROM production_schedule_commands WHERE actor_id=$1 AND request_id=$2", [actor.internalUserId, requestId])).rows[0] : null;
+    const row = ready ? (await client.query<{ command: unknown; payload_hash: string; result: PlanOutcome | OrderTrackingOutcome }>("SELECT command,payload_hash,result FROM production_schedule_commands WHERE actor_id=$1 AND request_id=$2", [actor.internalUserId, requestId])).rows[0] : null;
     if (row) requireProductionPermissions(actor, savedCommandPermissions(row.command));
     await client.query("COMMIT"); return row ? { state: "known" as const, requestId, result: { ...row.result, payloadHash: row.payload_hash } } : { state: ready ? "unknown" as const : "pending" as const, requestId, result: null };
   } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
