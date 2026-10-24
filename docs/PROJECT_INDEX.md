@@ -234,3 +234,5 @@ fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），
 触摸第二轮仍1pass/2fail：日志只证实触摸后来源弹窗未出现，不足认定唯一产品或驱动根因；首轮也仅直接证明关闭目标当时不可用，与busy禁用时序一致而非已证实唯一原因。现测试使用instant滚动后两帧再取实际命中，并记录触摸/指针/click现场；不延长16秒、不重复输入、不改普通click/放宽断言。仅驱动及状态变更，56b产品/质量/API/两构建均不重跑，失败原件和两归档保留。
 
 当前[交期维护UI proof869](tasks/completed/2026-10-24-delivery-plan-ui-current-engineering.md)：产品56b57相关/811根/类型NodeLint/双build，driver0e after14、before3及相关40分阶段联合57浏览器，23PNG/4JSON/10图查看；两触摸失败和漏env前置失败保留，仅受影响补跑。清单455/61保留旧424/60/runtime/21routes；新发布134及最后精确main守卫后置。
+
+发布实际终态：70765755ab7dc3524a93090fffd3008df9be5993上134/134 PASS（464627ms），0fail/cancel/skip。与产品56b根811为分阶段联合945，不是一轮执行；57相关与57浏览器也各自独立，浏览器包括两失败后受影响补跑及漏env前置失败，原件保留。driver0e之后只有docs/新证据元数据变化，产品/测试/proof869/独立UI契约/455清单/图片保持。最终clean精确main守卫随后由本机回执核定，不预写PASS；134runner预检在0tests停止不计作测试失败。
