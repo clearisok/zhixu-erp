@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
-  "verifiedAt": "2026-10-24T15:58:10.453Z",
+  "verifiedAt": "2026-10-24T17:19:41.4980847Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -4221,6 +4221,32 @@
       "sha256": "91614bf6af580a4f6e20dc963ebe11ba6797b6b0ff662ef7e25e40b860830b92",
       "supersedes": "decisions-garment-collector-current-20261024-forward-main-9d65-20261024",
       "changeReason": "Bind D160 target-only engineering scope and exact current221/16 plus stronger affected19 checks after the genuine main integration; preserve the complete prior D158 and earlier decision chain, not a new real-operation permission."
+    },
+    {
+      "id": "garment-operator-current-engineering-20261025",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-25-garment-operator-current-engineering.md",
+      "recordedAtSha": "26aa3459aa8f0a713d98a54de22b91b85f2d14b8",
+      "renderedSourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+      "sha256": "255c32820ebc155c440edb4344ea3a08526c41c96bf3c706e833b8166be562f3"
+    },
+    {
+      "id": "server-garment-operator-current-20261025",
+      "kind": "document",
+      "path": "docs/features/SERVER_GARMENT_OPERATOR_CURRENT.md",
+      "recordedAtSha": "26aa3459aa8f0a713d98a54de22b91b85f2d14b8",
+      "renderedSourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+      "sha256": "d4375d03925827d08032c42074a243e1bfaf910a76a72a126ac488f8e612e5d5"
+    },
+    {
+      "id": "decisions-garment-operator-current-20261025",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "26aa3459aa8f0a713d98a54de22b91b85f2d14b8",
+      "renderedSourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+      "sha256": "1e52f04089d8d27dc4b3a8b1224c0fb49e7d68182b4654a10d081c47724e7675",
+      "supersedes": "decisions-garment-target-current-20261024",
+      "changeReason": "Bind original D159/D161 operator composition on current D158/D160 owners, precise current20 and prior79f27/52/71 scopes, no new business rule, Source quota or activation. Preserve all prior decision and actual-main merge witnesses."
     }
   ],
   "pages": [
@@ -10496,6 +10522,91 @@
           "scope": "No target configuration deployment or activation; preserve the actual dated runtime evidence without probing or changing existing environments.",
           "evidence": [
             "garment-target-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "garment-operator-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147/D159/D161 original explicit single-SO CLI composes current D158 collector and D160 target services; no second model, SQL, HTTP, permission, Catalog, scheduler or UI. Clean committed source only; explicit job/database/actor/proof; independent target confirmation and expiry; credential-independent disable/history; same immutable0043/0044, fresh grants/CAS/audit and unknown-result recovery. 79f actual27/52/71 plus type/Node/lint/help;8cf only two tests and docs, currenttype/lint/affected20, strict-green/old-String-mutant-red proves coverageP2closed; exact source scopes retained. All43SQL unchanged; no real Source/credentials/private reports/target/account/oldDB/volume/deployment. Release gates follow metadata; not merged or activated.",
+      "evidence": [
+        "garment-operator-current-engineering-20261025"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-25",
+          "sourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+          "scope": "D147/D159/D161 original explicit single-SO CLI composes current D158 collector and D160 target services; no second model, SQL, HTTP, permission, Catalog, scheduler or UI. Clean committed source only; explicit job/database/actor/proof; independent target confirmation and expiry; credential-independent disable/history; same immutable0043/0044, fresh grants/CAS/audit and unknown-result recovery. 79f actual27/52/71 plus type/Node/lint/help;8cf only two tests and docs, currenttype/lint/affected20, strict-green/old-String-mutant-red proves coverageP2closed; exact source scopes retained. All43SQL unchanged; no real Source/credentials/private reports/target/account/oldDB/volume/deployment. Release gates follow metadata; not merged or activated.",
+          "evidence": [
+            "garment-operator-current-engineering-20261025"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-25",
+          "sourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+          "scope": "D147/D159/D161 original explicit single-SO CLI composes current D158 collector and D160 target services; no second model, SQL, HTTP, permission, Catalog, scheduler or UI. Clean committed source only; explicit job/database/actor/proof; independent target confirmation and expiry; credential-independent disable/history; same immutable0043/0044, fresh grants/CAS/audit and unknown-result recovery. 79f actual27/52/71 plus type/Node/lint/help;8cf only two tests and docs, currenttype/lint/affected20, strict-green/old-String-mutant-red proves coverageP2closed; exact source scopes retained. All43SQL unchanged; no real Source/credentials/private reports/target/account/oldDB/volume/deployment. Release gates follow metadata; not merged or activated.",
+          "evidence": [
+            "garment-operator-current-engineering-20261025"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-25",
+          "sourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+          "scope": "D147/D159/D161 original explicit single-SO CLI composes current D158 collector and D160 target services; no second model, SQL, HTTP, permission, Catalog, scheduler or UI. Clean committed source only; explicit job/database/actor/proof; independent target confirmation and expiry; credential-independent disable/history; same immutable0043/0044, fresh grants/CAS/audit and unknown-result recovery. 79f actual27/52/71 plus type/Node/lint/help;8cf only two tests and docs, currenttype/lint/affected20, strict-green/old-String-mutant-red proves coverageP2closed; exact source scopes retained. All43SQL unchanged; no real Source/credentials/private reports/target/account/oldDB/volume/deployment. Release gates follow metadata; not merged or activated.",
+          "evidence": [
+            "garment-operator-current-engineering-20261025"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-25",
+          "sourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+          "scope": "D147/D159/D161 original explicit single-SO CLI composes current D158 collector and D160 target services; no second model, SQL, HTTP, permission, Catalog, scheduler or UI. Clean committed source only; explicit job/database/actor/proof; independent target confirmation and expiry; credential-independent disable/history; same immutable0043/0044, fresh grants/CAS/audit and unknown-result recovery. 79f actual27/52/71 plus type/Node/lint/help;8cf only two tests and docs, currenttype/lint/affected20, strict-green/old-String-mutant-red proves coverageP2closed; exact source scopes retained. All43SQL unchanged; no real Source/credentials/private reports/target/account/oldDB/volume/deployment. Release gates follow metadata; not merged or activated.",
+          "evidence": [
+            "garment-operator-current-engineering-20261025"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-25",
+          "sourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+          "scope": "D147/D159/D161 original explicit single-SO CLI composes current D158 collector and D160 target services; no second model, SQL, HTTP, permission, Catalog, scheduler or UI. Clean committed source only; explicit job/database/actor/proof; independent target confirmation and expiry; credential-independent disable/history; same immutable0043/0044, fresh grants/CAS/audit and unknown-result recovery. 79f actual27/52/71 plus type/Node/lint/help;8cf only two tests and docs, currenttype/lint/affected20, strict-green/old-String-mutant-red proves coverageP2closed; exact source scopes retained. All43SQL unchanged; no real Source/credentials/private reports/target/account/oldDB/volume/deployment. Release gates follow metadata; not merged or activated.",
+          "evidence": [
+            "garment-operator-current-engineering-20261025"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-25",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No operator deployment or real activation. Preserve original dated runtime and all existing environments without probing or modifying them.",
+          "evidence": [
+            "garment-operator-current-engineering-20261025"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-25",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No operator deployment or real activation. Preserve original dated runtime and all existing environments without probing or modifying them.",
+          "evidence": [
+            "garment-operator-current-engineering-20261025"
           ]
         }
       }

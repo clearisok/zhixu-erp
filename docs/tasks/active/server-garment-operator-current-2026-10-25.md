@@ -17,3 +17,7 @@
 ## 最终受影响结果
 
 8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6 类型17105ms、两文件lint3892ms、两文件完整20/20 PASS270160ms，0fail/cancel/skip；clean源码入口正控成功，HEAD/manifest稳定、dirty空。独立只读复审确认覆盖P2关闭，无剩余P1/P2。原79f的27/52/71与Node等按未变范围保留，未重复。详见[冻结工程证明](../completed/2026-10-25-garment-operator-current-engineering.md)；发布守卫与一次本地134后置。
+
+## 元数据冻结
+
+冻结证明 26aa3459aa8f0a713d98a54de22b91b85f2d14b8，新源码 8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6，比较main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf；475/66保留原472/65及main230证据。新证据和独立契约为新root，DECISION由既有合法main链的最终leaf前向追加；不修改旧ID/hash/边。上述早期PENDING是当时事实，当前工程结果以本节及冻结证明为准。新main精确发布守卫及一次本地134后置，没有新Source/Hosted CI/部署授权。
