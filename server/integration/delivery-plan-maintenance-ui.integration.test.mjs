@@ -34,9 +34,9 @@ test('approved delivery plan maintenance works on the exact built Server detail'
   const staticDirectory = resolve(beforeBuild ? process.env.DELIVERY_PLAN_STATIC_DIR ?? 'dist/client' : 'dist/client');
   const info = JSON.parse(readFileSync(join(staticDirectory, 'build-info.json'), 'utf8'));
   assert.equal(info.quoteAuthority, 'server'); assert.equal(info.orderRead, 'snapshot'); assert.equal(info.identityMode, 'session');
-  const driverSourceSha = process.env.DELIVERY_PLAN_EXPECTED_SOURCE;
+  const driverSourceSha = process.env.DELIVERY_PLAN_DRIVER_SOURCE ?? process.env.DELIVERY_PLAN_EXPECTED_SOURCE;
   assert.match(driverSourceSha ?? '', /^[a-f0-9]{40}$/);
-  const expectedSource = beforeBuild ? process.env.DELIVERY_PLAN_BEFORE_SHA : driverSourceSha;
+  const expectedSource = beforeBuild ? process.env.DELIVERY_PLAN_BEFORE_SHA : process.env.DELIVERY_PLAN_EXPECTED_SOURCE;
   assert.match(expectedSource ?? '', /^[a-f0-9]{40}$/); assert.equal(info.gitCommit, expectedSource);
   if (beforeBuild) assert.equal(expectedSource, '922488b9474daeed8abc2204e21f6ffeefc39955', 'last verified rendered order detail baseline');
   const evidence = process.env.DELIVERY_PLAN_UI_EVIDENCE === '1', runName = process.env.DELIVERY_PLAN_UI_RUN ?? '';
@@ -174,7 +174,8 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
       await command('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
       const touch=async(name,selector)=>{
-        const target=await evaluate(`(()=>{const n=[...document.querySelectorAll(${JSON.stringify(selector)})].find(n=>n.textContent.trim()===${JSON.stringify(name)});if(!n||n.disabled)return null;n.scrollIntoView({block:'center'});const r=n.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,reachable:!!hit&&n.contains(hit)}})()`);
+        let target;
+        await until(async()=>{target=await evaluate(`(()=>{const n=[...document.querySelectorAll(${JSON.stringify(selector)})].find(n=>n.textContent.trim()===${JSON.stringify(name)});if(!n||n.disabled)return null;n.scrollIntoView({block:'center'});const r=n.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,reachable:!!hit&&n.contains(hit)}})()`);return target?.inside&&target.reachable;},'enabled reachable touch '+name);
         assert.ok(target?.inside&&target.reachable); assert.ok(target.width>0&&target.height>=44);
         await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:target.x,y:target.y}]});
         await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]}); return target;
