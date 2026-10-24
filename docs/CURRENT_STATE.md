@@ -7,3 +7,5 @@
 当前原49dc→9fc4b8加d99282采前等待后expiry/回执修复，只读预核14非doc路径：12输入相同，package/workflow仅手工新增验收命令。0043追加空技术请求表，不改41份旧SQL；最多单SO/本账号本合同、两遍完整首页、1登录+2报表/3HTTP、4MiB单响应/8MiB报表/180秒/零重试是工程天花板，不是新增真实许可。started COMMIT确认后才单次worker，网络不持锁，snapshot/head/颜色/审计/终态原子；COMMIT未知不再采集。独立feature与D158记录新契约，不覆盖0040冻结文档。尚无本轮产品或新QA，不借旧31/181。见[当前任务](tasks/active/server-garment-collector-current-2026-10-24.md)。
 
 NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推。仅自有合成一次性PG/loopback和FakeTransport，0真实凭据/报告/Source、账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份及旧结果。Goal active；可见覆盖面板另需V2批准，关账三问不默认。
+
+14路径已受控前移：12原blob精确，2测试命令手工追加；d99282的等待后expiry和发布回滚语义保持，41旧SQL完整hash相同，仅新增0043。独立feature/D158已同步。尚待冻结新source和本轮QA，不借原31/181。

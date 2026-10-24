@@ -23,6 +23,14 @@
 
 ## Active
 
+### D-158 单SO成衣采集使用持久单次回执与原子发布
+
+- 原2026-10-23技术决定，2026-10-24当前受控前移，Active；D147/D152/D153已批准Server工程，不改变Num/outdate、价格、完成、关账或跨次事件。0043只新增空技术命令，不seed/回填/启用target，不开放HTTP/公开CLI/Catalog/调度。
+- 本账号/本合同完整C1/C0/C1过滤证据重建，绑定实际库/actor/可信合同/原物理owner/target/颜色/head及request有效期。仅两遍完整首页100行；1登录+2报表/3HTTP、4MiB单响应/8MiB报表/180秒/零重试是工程天花板，不授予新真实请求或多页范围。
+- started提交确认后才调用唯一worker，等待后重核expiry；网络不持DB锁，started不回收。原0040发布提为同owner事务primitive，snapshot/颜色/head/审计/成功终态原子；COMMIT未知只核原请求，不重采或把回滚尝试当已失败。
+- 原actor/request回执fresh鉴权、封闭形状/hash重建，过期/target变更后仍返回历史；未知计数不补0，凭据/原文不入回执。双SO引用加入完整归一指纹，不开放执行。
+- 当前12原输入精确加2命令手工整合，包含d99282晚expiry/回执修复，41旧SQL保持；见[独立控制层契约](features/SERVER_GARMENT_COLLECTION_CONTROL.md)和[当前任务](tasks/active/server-garment-collector-current-2026-10-24.md)。新source/隔离QA后另冻证据，不借旧31/181或#125CI；未激活/部署/人工接受。
+
 ### D-156 Server交付计划维护沿用原领域和原请求恢复
 
 - 2026-10-22，Active；用户对原call_d4696fa532a64295ba294304d8404abf回复“按草图实施”。

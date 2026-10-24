@@ -164,3 +164,5 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅�
 2026-10-24首次93eb/main守卫实际FAIL113039ms，唯一UI_CHANGE_PAGE：影响记录误用路由名production-scheduling。原JSON/log完整保存initial-*；仅改为现有navigation页面ID，两个helper/V0/visibleDifference:none/产品fc103/截图/guard不变。修正证明85e9360c3aee704f42f2d711b910d0070c6929d8已冻结，清单462/63保持全部旧对象；新最终精确守卫后置，不预写PASS。原62/37/双build等不重复，详见[修正证据](tasks/completed/2026-10-24-delivery-coverage-client-impact-correction.md)。
 
 严格客户端V0最终c835/main守卫119226ms PASS、清单462/63、独立终审无新增P1/P2，完整终态/失败与三摘要保护于[采集器输入](tasks/completed/2026-10-24-garment-collector-input-state/)。当前[0043受控采集器](tasks/active/server-garment-collector-current-2026-10-24.md)仅14路径预核，尚无新产品或QA；无新增真实许可/激活/公开入口。
+
+[单SO成衣采集控制层](features/SERVER_GARMENT_COLLECTION_CONTROL.md)仅内部durable started/worker/原子终态，当前14路径前移完成，新source QA待跑；默认关闭/无真实许可。

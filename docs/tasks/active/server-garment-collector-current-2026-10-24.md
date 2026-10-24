@@ -13,3 +13,5 @@
 冻结source后新worker/控制器/非空0042升级、原0040 store/契约/HTTP/归一引用及相关Source/权限回归，Python实际模块+FakeTransport，类型/Node实际载入/全lint；不借旧31/181。全部旧SQL完整hash对照，默认关闭/无公开入口、started不回收、expiry等待、并发/撤权/COMMIT丢回执和终态原子性必须保留。无UI源变化，复用fc103前端217产物和37原排单UI，不称新build/browserPASS。新工程证明/完整发布134和精确main守卫、独立终审再收口。
 
 NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推。仅自有合成一次性PG/loopback和FakeTransport，0真实凭据/报告/Source、账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份及旧结果。Goal active；可见覆盖面板另需V2批准，关账三问不默认。
+
+14路径已受控前移：12原blob精确，2测试命令手工追加；d99282的等待后expiry和发布回滚语义保持，41旧SQL完整hash相同，仅新增0043。独立feature/D158已同步。尚待冻结新source和本轮QA，不借原31/181。

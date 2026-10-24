@@ -40,6 +40,7 @@ jobs:
           npm run test:order-tracking
           npm run test:material-arrivals
           npm run test:garment-shipment-observations
+          npm run test:garment-collection-control
           npm run test:bound-order-refresh
           npx --no-install tsx --test --test-concurrency=1 server/sales-orders/delivery-plan-request.test.ts server/integration/delivery-plan-requests.integration.test.ts
           npx --no-install tsx --test features/order-center/server/__tests__/delivery-plan-client.test.ts features/order-center/server/__tests__/delivery-plan-draft.test.ts features/order-center/server/__tests__/delivery-plan-pending.test.ts
