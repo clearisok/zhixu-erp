@@ -50,3 +50,7 @@ Goal active；4C/物流/出货/关账后续按依赖，关账三问/coverage-v1/
 ## 新证据checkpoint与绑定
 
 proof6184a442faeb4a263b7d54feb4537db75f49990a干净冻结后，08:48Z独立API核main e01a不变。清单320证据/51能力，原292/50/runtime/21routes逐对象保持；D151前向接D150，新feature、23PNG/2原JSON及proof按Git blob冻结。能力只证明当前实际执行本机工程，不扩大物流/出货/关账或部署/来源状态。下一步metadata后仅一次发布134及最后clean HEAD精确main守卫；尚未通过不提前PASS，网络降级不新push。
+
+## 元数据后发布终态
+
+35f659cea3d0ec0944ba1e6ef8971efa16c0949b实际npm run test:release-baseline为134/134 PASS，进程340872ms，0失败/取消/跳过。9c2之后仅docs/evidence，产品/测试/构建不变，与根811分阶段覆盖99文件945，未重复成功源码。独立proof/metadata复核无P1/P2：旧292/50/21routes/runtime逐对象保持，28新记录Git blob/hash及recorded/rendered祖先均核实。最后clean HEAD精确main守卫单独保存回执，不制造自证循环。Gitdegraded不新push，当前phase Actions0/PR0；完整Goal active。下一阶段只读核实0037物流资料与后续0042交期维护的编号/依赖，不跳过缺失ledger前缀、不擅自改旧迁移。
