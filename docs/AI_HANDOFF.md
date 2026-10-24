@@ -1,12 +1,9 @@
-# 恢复点：订单物流对话框源码与证据已绑定
+# 恢复点：人工预计到仓后台预核
 
-2026-10-24；root唯一writer、既有server_convergence_review只读，Goal active。branch codex/server-order-logistics-dialog-current；main e01a11952b648024c0bd6bf4259de429374981e2，09:52:24Z独立API。起点4a209 clean，prep ebcad2；三摘要/hash及前阶段完整终态见completed/2026-10-24-order-logistics-dialog-input-state/。
+2026-10-24，D054/D065–069/D147/G6D；root唯一writer、既有server_convergence_review只读。main e01a11952b648024c0bd6bf4259de429374981e2于2026-10-24T10:20:46.250Z独立API核实（刚完成前阶段最后守卫，不重复网络读取），新分支codex/server-material-arrivals-current自main显式FF至clean 83a22eb3cff952f70ee209e2515453307cefbaa8。前阶段三摘要/hash及完整终态保护于tasks/completed/2026-10-24-material-arrivals-input-state/。
 
-source e2cf2bb4397a656b58cfab8388049bd84559527e实际37文件386相关API/升级（218272ms）、97根811（26907ms）、before2/after37/资源23/导航18，类型/Node/import/lint、双Vite构建和产物检查全部PASS，0fail/cancel/skip。proof 54c28cec392a435b1fcffedfa47e32c4b7f5f98b冻结17PNG/2原JSON、42几何，主控实际查看8张；六宽含1536 DPR1.25/390 touch。清单361/54保留旧340/53/runtime/21routes。
-产品context C:\Users\Administrator\AppData\Local\Temp\zhixu-order-logistics-dialog-wDA4j5\context，archive SHA256 b98ec655ebeffea70f9011c128922dc45346b97034de1c3cdd18a5a1440da35c；测试driver context C:\Users\Administrator\AppData\Local\Temp\zhixu-order-logistics-dialog-driver-JF2aXn\context，archive SHA256 25830525e45985977fe0ab9a260621f8b2da08395cee8fa9b6c24b3563052f25，after37/资源23/导航18使用新driver和未变e2cf产物，过程在outputs/server-order-logistics-dialog-current-20261024。实际07d before已有计划/5件实际但无tracking，浏览器零命令/跟进读取；不得用旧无实际断言。
+订单物流UI最终83a/main守卫实际PASS96789ms（11/54/53/errors[]）、metadata7f0d发布134/134 PASS381564ms，独立终审P2已关闭、无剩余P1/P2。product e2cf386API/811根/before2、driver2c286f after37/资源23/导航18；17PNG/2JSON、42geometry/看8图，清单361/54/runtime/21routes完整。首轮34/2和两个archive身份完整保留，不冒称新CI/部署。
 
-source独立静态复审无新增P1/P2，reviewer未代跑测试/网络。metadata发布134已完成；下一步最终clean精确main守卫及终审，不重复未改成功检查；旧manifest/截图/runtime/路由不变。
+当前只读预核原bb0ee1768d4d97c26b60458248e305fe5a241a97→cbfd1e65595a05444e632b5bee9e0dec83c8e12b的22路径，20代码输入完全一致、README/package手工对齐；没有下一阶段产品或新QA。下一步0039人工ExpectedArrivalBatch/Allocation后台及原Source快照事务helper；不整体导入旧分支/清单/UI或原Source探测。helper必须保留现有完整快照/归属校验和profile→SO锁序，无HTTP或新增真实来源额度。原宽泛COMMIT未知回滚措辞要收窄，未知仍核原请求。当前任务active/server-material-arrivals-current-2026-10-24.md，outputs/server-material-arrivals-current-20261024保存过程。下一步先读实际SQL/reader/新owner/测试再受控前移，不能以旧cbfd QA代替新source验收。
 
-网络继承degraded，push0/PR0/Actions0，不借#125三CI。后续0039材料到仓→0040/41成衣出货→0042交期前缀；关账三问、真实Source额度/激活、50426切换/人验/退役独立。禁止真实凭据/Source/账号/业务库/卷操作、绑定/激活/调度、自动merge/close/deploy或共享Git/TLS/proxy/auth变更。
-
-7f0d4c77f05a0afb12ae36fb0fc71ea51119785c上发布134/134实际PASS（381564ms），0fail/cancel/skip；与e2cf根811分阶段联合945。product/API/根未改，after由2c286f测试等待修复驱动，原34/2失败保留；不把范围复用称新全量。metadata后仅本次四状态文档，proof/产品/测试/清单保持；最终clean精确main守卫以随后实际回执核定。
+网络继承degraded，当前push0/PR0/Actions0；不逐Gate重试旧失败通道、不借#125三CI。无安装、真实凭据/Source/账号/业务库/卷、绑定/激活/调度、自动merge/close/deploy、50426切换或资产退役。3001/50426/59069/62426、Browser、备份与已有结果保持。Goal active；本切片只有后台，不据此声称逐批物流/UI闭环；0039 UI→0040/41出货→0042交期后续，关账三问不默认。
