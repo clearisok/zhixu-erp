@@ -13,3 +13,5 @@
 新source定向客户端/旧客户端/共享投影/真实PG HTTP，类型Node相关lint；共享前端依赖新增纯函数，须实际双构建/产物和原排单页面回归验证无DOM变化，不拿旧build冒称新模块已打包。V0两UI helper路径先登记；不导入旧原型截图充当新QA或V2批准。若无可见DOM变更，新134仅工具/fixture范围复用，新的精确main守卫仍实跑；最终累计PR两发布命令/必要CI不能省略。
 
 NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅自有合成一次性PG/loopback/私有Chromium，0真实凭据/Source、真实账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份和旧结果。Goal active；可见覆盖面板须另有具体V2批准，0043/关账待决项不默认。
+
+五原路径已受控前移：四原blob/客户端三方无冲突，精确等于incoming加现行snapshot容量中文提示；workflow仅追加新增测试。V0两helper路径已登记，当前无DOM/组件/样式或SQL变化，不带旧原型/截图。独立客户端契约/D155已同步，新source/QA待跑，不借旧483。

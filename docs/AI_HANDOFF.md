@@ -7,3 +7,5 @@
 当前仅原c5b4→483be客户端五路径预核：四输入一致，一production-plan-client三方保留现行snapshot容量中文提示。沿原客户端GET/lease/1MiB+4096封套，白名单验证同响应coverage并复用同一纯D155投影；缺失/null是服务未提供，不伪造零风险或本地补算。V0不改变DOM/菜单/按钮，不实施新风险面板。原后端5e366契约/SQL/执行owner/金额权限保持，新增客户端feature独立。尚无本轮产品或新QA，不借旧483结果。下一步预先计算三方结果、保留容量提示，四原blob受控前移，冻结新source最小充分检查和实际双构建/排单UI；过程outputs/server-delivery-coverage-client-current-20261024。
 
 NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅自有合成一次性PG/loopback/私有Chromium，0真实凭据/Source、真实账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份和旧结果。Goal active；可见覆盖面板须另有具体V2批准，0043/关账待决项不默认。
+
+五原路径已受控前移：四原blob/客户端三方无冲突，精确等于incoming加现行snapshot容量中文提示；workflow仅追加新增测试。V0两helper路径已登记，当前无DOM/组件/样式或SQL变化，不带旧原型/截图。独立客户端契约/D155已同步，新source/QA待跑，不借旧483。
