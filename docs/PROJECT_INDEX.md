@@ -2,7 +2,7 @@
 
 2026-10-24；实际main e01a11952b648024c0bd6bf4259de429374981e2，#123已获准合并，#121/#122随祖先自动收口、原分支保留。当前优先：[导航前向整合](tasks/active/server-navigation-main-forward-2026-10-24.md)、[PR125前向](tasks/active/pr125-main-forward-2026-10-23.md)、[交付诊断](tasks/active/git-delivery-diagnostics-main-2026-10-24.md)。先读CURRENT_STATE与AI_HANDOFF恢复精确状态。
 
-原Gate3仅本地向当前基线前移；237/46旧证据完整，38定向、66现行UI、双构建/产物、134发布及0db精确守卫已PASS。旧Quote长套件失败/取消保留，不称全UI通过；不新增累计PR或付费CI。#125仍CA草稿；4f远端exact与actual push exit1/STOP并存，精确API快进例外尚待答复。其余不自动merge/close、部署、账号/业务库操作、Source读取或旧入口替换。
+原Gate3仅本地向当前基线前移；237/46旧证据完整，38定向、66现行UI、双构建/产物、134发布及0db精确守卫已PASS。后续[当前Quote验收前移](tasks/active/quote-server-current-acceptance-2026-10-24.md)仅维护三个测试/驱动；2bd8在同ca53前端实际87/87 PASS，导出/设置缺口已补，旧失败日志保留；不据此宣称全量Server闭环。加工Estimate API保护另行前移。不新增累计PR或付费CI。#125仍CA草稿；4f远端exact与actual push exit1/STOP并存，精确API快进例外尚待答复。其余不自动merge/close、部署、账号/业务库操作、Source读取或旧入口替换。
 
 ## 系统简介
 

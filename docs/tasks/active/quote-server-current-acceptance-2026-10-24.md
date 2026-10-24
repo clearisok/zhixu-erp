@@ -40,6 +40,23 @@ raw 保留、DTO/DOM 隐藏及 Estimate 请求数为零，不冒充专用 API �
 上一阶段已通过的类型/构建/66 项现行 UI/134 项发布回归保持其原 SHA 与范围，不为本阶段重复运行。
 新失败、取消、跳过与未运行一律单独记录；旧 Quote 的 32 pass/44 fail/2 cancel 不覆盖或删除。
 
+冻结源码 `2bd8b64c86e8422396a84b3c30aaad88f7ede412` 的本轮完整 Quote Chromium
+**87/87 PASS**（117999.6127ms；含阶段/parent 节点，不是 87 个独立业务场景），0 fail/cancel/skip。
+实际执行此前缺口中的加工历史事实、两类确认、CCT/独立订单价、客户 XLSX/历史图片、ZIP 部分失败与
+25 项限制、内部汇总、跨账号偏好/撤权、日志及制造方案/响应式检查。进程 exit0、owned cleanup PASS，
+HEAD 与237清单稳定；运行日志及结构化回执保存在上述 ignored outputs，旧失败结果完整保留。
+
+本轮没有重建前端：rendered SHA `ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658`，
+测试/后台 canonical archive 为2bd8（后台产品 blob 与ca53逐项相同）。原 archive SHA-256
+`3dc6a1b42c4032261ab44db731dc20f3ea0884e425dd4ec209b0577cb40d2738` 已核；
+复制的210个 client 文件完整指纹为
+`abcc02db3ef2dbb4f1ce2eff4ffdb4ec3b32bc5e4a0ac50b00e07836d3e6bf65`。
+`qa-context.json` 分别记录这些身份、全部差异路径和未安装/未重建事实。首次前向拷贝的逐字检查因
+原工作树CRLF而停止，未写入；改用Git过滤后的blob核实三文件确为clean后才前向复制，没有覆盖未知改动。
+
+独立最终复审及本阶段最后精确main守卫分别记录。原134项发布回归的守卫/断言/清单源码未变，
+保留0db原结果，不重复运行；本阶段不把复用结果标成2bd新运行。
+
 未提交本阶段 PR 或触发 Actions。#125 精确 API 快进例外仍待答复，不重推或移动引用。
 不自动合并/关闭其他 PR、部署、改账号/业务库、读凭据/真实 Source、启用调度或退役旧环境。
 原 G1–G5 及生产/出货/关账 Goal 保持 active。

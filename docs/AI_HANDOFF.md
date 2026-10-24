@@ -2,7 +2,7 @@
 
 2026-10-24；root 唯一 writer，现有 reviewer 只读。main e01a11952b648024c0bd6bf4259de429374981e2 于04:45Z核实；#123已获准合并，#121/#122自动收口，原refs保留。#125仍CA草稿，4f已送达与actual Git exit1/STOP并存，精确API快进例外尚待答复；不重推、不移PR引用或新增CI。
 
-当前 codex/quote-server-current-acceptance 从实际main建立并显式快进到导航7635，开始clean。当前阶段只前向复用原2e1b+84cd的三个报价浏览器测试文件，核对D-145规则并接stopOwnedChromium；不带旧CI、摘要或产品改动。任务见 [当前报价验收](tasks/active/quote-server-current-acceptance-2026-10-24.md)。旧44fail/2cancel不抹除，历史87/87不冒称新通过；冻结后先核产品/构建输入与ca53一致，再复用其Server产物跑本套一次。
+当前 codex/quote-server-current-acceptance 从实际main建立并显式快进到导航7635，开始clean。仅前向复用原2e1b+84cd的三个报价测试/驱动并补非空加工历史/安全退出。冻结2bd8b64c86e8422396a84b3c30aaad88f7ede412，三文件语法/scoped lint及完整Quote Chromium87/87 PASS（117999.6127ms，含phase/parent，0fail/cancel/skip），owned cleanup和HEAD/237清单稳定。已证明所有产品/依赖/构建输入与ca53一致，复用其Server构建210文件完整指纹；新测试canonical archive分开记录，未重建、未装依赖。证据见 [当前报价验收](tasks/active/quote-server-current-acceptance-2026-10-24.md)及ignored outputs/quote-server-current-acceptance-20261024/。旧44fail/2cancel保留。独立最终复审与最后精确main守卫待收口；本阶段只元数据补结果，不重复66当前UI/134发布或触发CI。
 
 上一阶段完整收口7635及其QA见[导航前移](tasks/active/server-navigation-main-forward-2026-10-24.md)：产品/测试源码ca53，0db完整发布134/134，最终7635精确main守卫PASS。现行7组UI66/66、双构建/产物/类型/lint不因未改而重复；237证据/46能力与旧blob、PNG、部署维度保留。前轮宽批次90pass/44fail/2cancel只用于记录旧验收缺口。
 
