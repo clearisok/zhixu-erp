@@ -29,7 +29,7 @@
 - enable复验具体原C1/C0/C1过滤证明、profile账号、唯一可信合同/原物理owner/有效归属、版本及明确时效，不提供默认策略或换绑target账号。disable不依赖证明/profile/合同/颜色/head健康，可停止历史alias；不存在为no-op，不建目标。旧观察/原时效和全部历史保持。
 - 四项既有fresh权限、实际DB/actor/UUID/意图/期限/hash与原publication锁统一。配置无外部IO，0044只建空completed-only不可变回执；target、原审计与回执一次事务。锁等待后重核期限与范围，未知COMMIT只读核对原UUID，不暂定成功或自动重试。
 - 新审计operationId同时含actor及UUID，不把两人相同UUID的不同SO操作合组。历史enable回放仅返回当时结果；原SO/物理owner双引用及完整行进入归一指纹，不开放归一执行或移动流水。
-- 当前代码：garment-target-control.ts、0044、目标控制/0043非空升级测试及[独立契约](features/SERVER_GARMENT_TARGET_CONTROL.md)。原代码存在不证明本轮验收；新源码/QA按[当前任务](tasks/active/server-garment-target-current-2026-10-24.md)冻结，尚未运行，不借旧20/954/134。
+- 当前代码：garment-target-control.ts、0044、目标控制/0043非空升级测试及[独立契约](features/SERVER_GARMENT_TARGET_CONTROL.md)。原代码存在不证明本轮验收；新源码/QA按[当前任务](tasks/active/server-garment-target-current-2026-10-24.md)冻结，该条初记时未运行；当前40a/e19分源结果见[冻结证明](tasks/completed/2026-10-24-garment-target-current-engineering.md)，不借旧20/954/134。
 - 真实启停、来源额度、现有库升级、部署、50426切换及旧环境退役均需具体授权，本轮不执行；hash和工程预览不是人类操作授权。
 
 

@@ -5,7 +5,7 @@
     "features/operation-logs/model/operation-log.ts"
   ],
   "pages": [
-    "operation-logs"
+    "navigation"
   ],
   "visibleDifference": "none",
   "evidence": [

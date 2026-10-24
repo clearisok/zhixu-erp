@@ -41,3 +41,7 @@ COMMIT响应丢失返回 `unverified_commit` 和null结果，不展示暂定成�
 `npm run test:garment-target-control`使用原producer的合成证明、自有一次性PG和计数fake collector，覆盖权限、CAS、锁等待、停用依赖、历史alias、原采集失效、策略冻结、COMMIT丢回执、审计/终态回滚、不可变与损坏回执、引用指纹及0043非空升级。原采集和观察回归另列，不把此命令当作Hosted CI、真实Source激活、部署或人工验收。
 
 阶段源码、实际失败与检查结果见[当前任务](../tasks/active/server-garment-target-current-2026-10-24.md)。真实启用操作者接线、多页证据、跨次事件、关账、可见coverage V2与50426切换仍分别待Gate或业务确认。
+
+## 当前实际工程证据
+
+2026-10-24最终测试source 40a930019bd8218784e40d7ea49d780f97042fb7：e19的221/16与类型/Node实际载入/相关lint通过；仅两处精确错误断言加强后，本文件新19/19 PASS8523ms。旧全量范围不冒称重跑，独立源码复审无P1/P2，见[冻结工程证明](../tasks/completed/2026-10-24-garment-target-current-engineering.md)。新main9d65已真实前向合流；发布134/精确守卫后置，未部署/激活或人工接受。
