@@ -68,6 +68,7 @@ try {
         orderCommandMode: config.orderCommandMode,
         attachmentStorage,
         orderMaterialRead: materialSourceConfig ? createPersistedMaterialPorts(pool, materialSourceConfig) : undefined,
+        materialArrivalSource: materialSourceConfig,
         orderPaymentRead: paymentSourceConfig ? createPaymentSnapshotReader(pool, paymentSourceConfig) : undefined,
         orderMaterialHistory: materialSourceConfig ? createPersistedMaterialHistoryReader(pool, materialSourceConfig) : undefined,
       }));

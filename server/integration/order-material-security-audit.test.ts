@@ -3,7 +3,7 @@ import test from 'node:test';
 import type { PermissionKey } from '../../features/permissions/model/permissions.js';
 import { startCommercialSecurityFixture } from './commercial-security-fixture.js';
 
-test('Material integration: actual session HTTP denies protected commercial bytes after PR93', async t => {
+test('Material integration: session grants protect quote CCT and never expose unadopted shared terms as order prices', async t => {
   const x = await startCommercialSecurityFixture();
   t.after(x.close);
   const common: PermissionKey[] = ['order.view', 'quote.view', 'style_progress.read'];
@@ -35,6 +35,12 @@ test('Material integration: actual session HTTP denies protected commercial byte
       assert.equal(r.response.headers.get('cache-control'), 'no-store');
       const dto = r.body.confirmedCommercialTerms;
       assert.equal(dto.contract, 'commercial-terms-read.v1');
+      if(path===x.orderPath){
+        // D145: a legacy quote link is not an adopted order commercial version.
+        // This must remain empty even for a reader with every money grant.
+        assert.equal(dto.linkage,'unlinked');assert.equal(dto.current,null);
+        assert.equal(/12345|67890|98765/.test(r.text),false);continue;
+      }
       assert.equal(dto.current.sale.visibility, c.sale ? 'allowed' : 'restricted');
       assert.equal(dto.current.labor.visibility, c.labor ? 'allowed' : 'restricted');
       assert.equal(Object.hasOwn(dto.current.sale, 'value'), c.sale);

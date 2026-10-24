@@ -48,6 +48,10 @@ export const NORMALIZATION_REFERENCES = [
  ['production_schedule_execution_versions','sales_order_id','assignment_id'],
  ['production_order_execution_trackings','sales_order_id','id'],
  ['production_order_execution_tracking_versions','sales_order_id','tracking_id'],
+ ['material_arrival_demands','sales_order_id','id'],
+ ['material_arrival_plans','sales_order_id','id'],
+ ['material_arrival_plan_versions','sales_order_id','plan_id'],
+ ['material_arrival_command_orders','sales_order_id','request_id'],
 ] as const;
 const references=NORMALIZATION_REFERENCES;
 /** Optional only for an unupgraded rehearsal. A partial financial schema fails
@@ -74,7 +78,10 @@ export async function normalizationReferences(client:PoolClient){
  const trackingTables=['production_order_execution_trackings','production_order_execution_tracking_versions'];
  const trackingCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[trackingTables])).rows[0].n;
  if(trackingCount!==0&&trackingCount!==trackingTables.length)throw new HttpError(503,'production_tracking_reference_schema_incomplete','Production tracking reference schema is incomplete');
- return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table))&&(trackingCount===trackingTables.length||!trackingTables.includes(table)));
+ const arrivalTables=['material_arrival_demands','material_arrival_plans','material_arrival_plan_versions','material_arrival_commands','material_arrival_command_orders'];
+ const arrivalCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[arrivalTables])).rows[0].n;
+ if(arrivalCount!==0&&arrivalCount!==arrivalTables.length)throw new HttpError(503,'material_arrival_reference_schema_incomplete','Material arrival reference schema is incomplete');
+ return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table))&&(trackingCount===trackingTables.length||!trackingTables.includes(table))&&(arrivalCount===arrivalTables.length||!arrivalTables.includes(table)));
 }
 export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');
