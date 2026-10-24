@@ -352,7 +352,7 @@ export async function upsertCurrentAinuokeContractMirror(
   salesOrderId: string,
   input: AinuokeContractMirrorInput,
 ): Promise<void> {
- return writeSourceObservation(client,async client=>{
+ return writeSourceObservation(client,salesOrderId,async client=>{
   await client.query(
     `INSERT INTO ainuoke_sales_order_contract_mirrors(
        sales_order_id, source_id, source_row_identity, sales_contract_no, inside_order_no,
@@ -407,7 +407,7 @@ export async function replaceCurrentAinuokeColorSlice(
   salesOrderId: string,
   colors: readonly AinuokeColorMirrorInput[],
 ): Promise<void> {
- return writeSourceObservation(client,async client=>{
+ return writeSourceObservation(client,salesOrderId,async client=>{
   await client.query("DELETE FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id = $1::uuid", [salesOrderId]);
   for (const color of colors) {
     await client.query(
@@ -429,10 +429,10 @@ export async function replaceCurrentAinuokeColorSlice(
  });
 }
 
-async function writeSourceObservation<T>(client:Queryable,write:(connection:Queryable)=>Promise<T>):Promise<T>{
+async function writeSourceObservation<T>(client:Queryable,salesOrderId:string,write:(connection:Queryable)=>Promise<T>):Promise<T>{
  const ownsTransaction='connect' in client&&!('release' in client);
  const connection=ownsTransaction?await (client as Pool).connect():client as PoolClient;
- try{if(ownsTransaction)await connection.query('BEGIN');await lockEffectiveAttribution(connection);const result=await write(connection);if(ownsTransaction)await connection.query('COMMIT');return result;}
+ try{if(ownsTransaction)await connection.query('BEGIN');await lockEffectiveAttribution(connection);await connection.query('SELECT id FROM sales_orders WHERE id=$1 FOR KEY SHARE',[salesOrderId]);const result=await write(connection);if(ownsTransaction)await connection.query('COMMIT');return result;}
  catch(error){if(ownsTransaction)await connection.query('ROLLBACK');throw error;}
  finally{if(ownsTransaction)(connection as PoolClient).release();}
 }

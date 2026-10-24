@@ -44,6 +44,12 @@ test("explicit Quote authority defaults Browser, rejects illegal combinations, i
   validateQuoteAuthority("server", "server", "writable");
   for (const path of ["/quote-center", "/quote-center/new", "/quote-center/detail", "/basic-settings/brands"]) assert.ok(isEnabledServerRoute(path));
   for (const path of ["/order-center", "/closing-center", "/production-scheduling", "/system-settings/data-management"]) assert.equal(isEnabledServerRoute(path), false);
+  const previous = process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ;
+  try {
+    process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ = "snapshot";
+    for (const path of ["/order-center", "/production-scheduling"]) assert.ok(isEnabledServerRoute(path));
+    for (const path of ["/closing-center", "/system-settings/data-management"]) assert.equal(isEnabledServerRoute(path), false);
+  } finally { if (previous === undefined) delete process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ; else process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ = previous; }
 });
 
 test("per-editor version advances after confirmed saves; concurrent writes rejected without Browser fallback", async () => {

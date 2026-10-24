@@ -35,6 +35,7 @@ export const CURRENT_MIGRATION_FILES = Object.freeze([
   '0032_user_lifecycle.sql',
   '0033_quote_creation_order_context.sql',
   '0034_production_resources.sql',
+  '0035_production_schedule_plans.sql',
 ]);
 
 export const migrationFilesAfter = (version: number) =>

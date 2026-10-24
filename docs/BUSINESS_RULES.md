@@ -74,6 +74,10 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 - **QI-05 成衣交期**：目标交期是成衣完成/应交付日期，转换到 `QuoteRevision.baseInfo.garmentLeadDate`；不自动修改 SalesOrder source date、DeliveryPlan、ScheduleAssignment 或其他订单交付事实。空值保留 null，按合法日历日期校验，不因时区偏移一天。
 - **QI-06 无预设草稿**：无有效制作预设时允许正式 Quote 草稿，参数待完善；不擅自选国家、预设、汇率、加成或运费。非空 laborCurrency 技术默认值不代表用户选择，必须有真正配置完成的判断契约；旧 Quote/PV 快照、币种、公式不受损。
 
+## Server排单计划候选（D150，2026-10-24）
+
+当前G6B候选以可信合同/已消费加工批次SO为owner，计划量、客户交付需求、未来实际完成及关账量独立；不要求订单负责人或先采用报价金额。稳定颜色、不可变资源事实、单条/订单集合/组队列版本、明确预览及原请求回执保护见[Server排单](features/SERVER_PRODUCTION_PLANNING.md)。只恢复既有页面的Server owner，不挂Browser账本或Seed；尚无真实开工/完成、物流/关账闭环或部署声明。下文Browser规则和历史日期保留，不据同名字段混用权威。
+
 ## 新生产计划与排单路径
 
 - 一张 SalesOrder 只允许一个款式，但可直接拥有多个 ScheduleAssignment；ProductionPlan 已退出正式 Runtime。

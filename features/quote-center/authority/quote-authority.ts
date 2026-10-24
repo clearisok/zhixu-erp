@@ -13,9 +13,9 @@ export function quoteAuthority(): QuoteAuthority {
   return parseQuoteAuthority(typeof __ZHIXU_BUILD_INFO__ !== "undefined" ? __ZHIXU_BUILD_INFO__.quoteAuthority : process.env.NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY);
 }
 export function isServerQuoteRoute(path: string): boolean {
-  return ["/", "/quote-center", "/quote-center/new", "/quote-center/detail", "/basic-settings/brands", "/basic-settings/customer-salespeople", "/basic-settings/fabrics", "/basic-settings/trims", "/system-settings/quote-settings", "/system-settings/operation-logs", "/basic-settings/user-permissions", "/order-center", "/order-center/server-detail", "/order-center/style-progress/detail", "/system-settings/progress-settings", "/system-settings/roles", "/system-settings/users", "/basic-settings/production-groups", "/basic-settings/outsource-factories", "/system-settings/production-infrastructure"].includes(path);
+  return ["/", "/quote-center", "/quote-center/new", "/quote-center/detail", "/basic-settings/brands", "/basic-settings/customer-salespeople", "/basic-settings/fabrics", "/basic-settings/trims", "/system-settings/quote-settings", "/system-settings/operation-logs", "/basic-settings/user-permissions", "/order-center", "/order-center/server-detail", "/order-center/style-progress/detail", "/system-settings/progress-settings", "/system-settings/roles", "/system-settings/users", "/basic-settings/production-groups", "/basic-settings/outsource-factories", "/system-settings/production-infrastructure", "/production-scheduling"].includes(path);
 }
 
 export function isEnabledServerRoute(path:string):boolean {
-  return isServerQuoteRoute(path) && (!isOrderReadRoute(path) || orderReadEnabled());
+  return isServerQuoteRoute(path) && (!(isOrderReadRoute(path) || path === "/production-scheduling") || orderReadEnabled());
 }

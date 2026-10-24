@@ -6,14 +6,14 @@ import { join } from "node:path";
 import { parseOrderRead } from "../../features/order-center/server/read-capability.js";
 import { isEnabledServerRoute } from "../../features/quote-center/authority/quote-authority.js";
 import { assertRuntimeBuildIdentity } from "../build-identity.js";
-test("order read defaults off and allows only the four proven pages with explicit snapshot",()=>{
+test("order read defaults off and gates proven source/planning pages with explicit snapshot",()=>{
  const prior=process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ;
  try{
   delete process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ;assert.equal(parseOrderRead(),"disabled");assert.throws(()=>parseOrderRead("true"));
-  for(const p of ["/order-center","/order-center/server-detail","/order-center/style-progress/detail","/system-settings/progress-settings"])assert.equal(isEnabledServerRoute(p),false);
+  for(const p of ["/order-center","/order-center/server-detail","/order-center/style-progress/detail","/system-settings/progress-settings","/production-scheduling"])assert.equal(isEnabledServerRoute(p),false);
   process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ="snapshot";
-  for(const p of ["/order-center","/order-center/server-detail","/order-center/style-progress/detail","/system-settings/progress-settings"])assert.equal(isEnabledServerRoute(p),true);
-  for(const p of ["/order-center/new","/order-center/detail","/order-center/style-progress","/order-center/risks","/order-center/server-preview","/production-scheduling","/closing-center"])assert.equal(isEnabledServerRoute(p),false);
+  for(const p of ["/order-center","/order-center/server-detail","/order-center/style-progress/detail","/system-settings/progress-settings","/production-scheduling"])assert.equal(isEnabledServerRoute(p),true);
+  for(const p of ["/order-center/new","/order-center/detail","/order-center/style-progress","/order-center/risks","/order-center/server-preview","/closing-center"])assert.equal(isEnabledServerRoute(p),false);
  }finally{if(prior===undefined)delete process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ;else process.env.NEXT_PUBLIC_ZHIXU_ORDER_READ=prior;}
 });
 test("compiled source pages require matching runtime and snapshot reader before server startup",async()=>{

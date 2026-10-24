@@ -15,6 +15,16 @@
 这是单标签页临时请求地址，关闭页可能丢失；服务端业务、审计及回执仍保留，不是跨设备同步、
 Browser备份或资料权威库。无localStorage/IndexedDB/Seed读写、换key、迁移或清库。
 
+## Server 排单原请求（2026-10-24，D147 G6B）
+
+`zhixu.server.production-plan.pending.v1.<public-user-id>` 只在sessionStorage保存本actor/tab的一条
+原requestId、精确intent、previewHash及schemaVersion/userId/savedAt。数量、日期、执行方ID、
+原因属于用户待核命令，不含报价价格、资源返回快照、密码或token。完整写入并读回成功后才POST。
+刷新/重新登录先GET核对，不自动POST；仅同会话同命令明确unknown后可手动原ID重试。
+已验证身份/hash的applied/rejected才释放；未知/损坏/未来版本/错摘要或ABA旧响应不清理。
+关闭标签页可能丢缓存，但Server计划/不可变历史/审计/回执仍持久存在；不是离线业务权威或跨设备恢复。
+无Browser账本namespace、IndexedDB、Seed、备份格式、迁移或clear变化。
+
 ## Server 准备请求恢复（D-130，2026-10-15）
 
 正式Server准备流程新增独立临时sessionStorage key：`zhixu.server.order-preparation.pending.v1.<publicUserUUID>.<orderUUID>.<create|adopt>`。它只保存未核实命令（请求ID、原参考或准备ID、数量/日期/变化、可选精确报价三ID或采用CAS/原因），不保存账号密码、token、CCT或价格。与Browser业务账本、schema v13、IndexedDB、Seed及备份格式无读写/迁移关系；不是离线Server订单或Browser回退。
