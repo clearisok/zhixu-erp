@@ -6,7 +6,7 @@
     "features/production-scheduling/server/delivery-coverage-projection.ts"
   ],
   "pages": [
-    "production-scheduling"
+    "navigation"
   ],
   "visibleDifference": "none",
   "evidence": [
