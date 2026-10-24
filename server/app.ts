@@ -44,7 +44,7 @@ import {
 import { getSalesOrderById, listSalesOrders } from "./sales-orders/repository.js";
 import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales-orders/model.js";
 import { readDeliveryPlanSet } from "./sales-orders/delivery-plan-repository.js";
-import { updateDeliveryPlans } from "./sales-orders/delivery-plan-service.js";
+import { updateDeliveryPlans, readDeliveryPlanRequestReceipt } from "./sales-orders/delivery-plan-service.js";
 import { UUID_PATTERN } from "./sales-orders/delivery-plan-model.js";
 import { QuoteConflictError, QuoteInvariantError } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
@@ -507,6 +507,20 @@ async function route(
     response.setHeader('Cache-Control', 'no-store');
     if (result.status !== 200) throw new HttpError(result.status, result.error.code, result.error.message);
     sendJson(response, 200, result.body);
+    return;
+  }
+
+  const deliveryPlanReceiptMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/delivery-plans\/receipt$/.exec(path);
+  if (deliveryPlanReceiptMatch && request.method === "POST") {
+    assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    requirePermission(identity.permissions, "order.view");
+    requirePermission(identity.permissions, "order.edit");
+    const salesOrderId = requiredPathIdentity(deliveryPlanReceiptMatch[1], "salesOrderId");
+    if (new URL(request.url ?? '/', 'http://local').search) throw new HttpError(400, 'invalid_delivery_plan_receipt_query', 'No query selectors are accepted');
+    const receipt = await readDeliveryPlanRequestReceipt(dependencies.pool, identity, salesOrderId, await readJsonBody(request));
+    sendJson(response, 200, { receipt });
     return;
   }
 

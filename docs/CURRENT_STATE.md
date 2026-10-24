@@ -7,3 +7,5 @@
 当前仅前移原d59→12cf的0042后台13非文档路径：10输入一致/1 bound-refresh测试已存在/2 workflow与package手工。保留PATCH成功契约和业务集合所有权，增加显式/legacy原命令不可变回执、fresh权限/并发防重和只读核对。窄取357a中migrationFilesAfter(41)兼容，不引0043断言、UI/client或整条旧分支。SALES_ORDER_PERSISTENCE.md保留da5b冻结字节，独立实质DeliveryPlan feature记录可靠性；D154仅技术决定不改D083/D100口径。见[当前任务](tasks/active/server-delivery-plan-requests-current-2026-10-24.md)。当前仅prep，无新产品或新QA。
 
 NETWORK_DEGRADED，push0/PR0/Actions0；不重试Git失败通道、不借#125 CI。仅自有合成一次性PG/loopback，不读真实凭据/Source、不改真实账号/业务DB/现有卷、不绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份和结果。Goal active；后续交期UI/coverage/0043及关账三问不默认。
+
+0042后台已按13路径受控前移：10输入中9保留exact、请求集成测试仅加migrationFilesAfter(41)兼容；bound-refresh测试已存在不改，workflow/package各单增量。新增D154和独立DeliveryPlan契约，da5b原文和当前出货UI/0040/41产品保持。尚未冻结本轮source或运行新QA，不借旧12cf。

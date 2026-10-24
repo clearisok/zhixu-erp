@@ -15,3 +15,5 @@
 类型/Node实际加载/lint/根、当前发布134与精确main守卫按新结果记录；未改前端/Python只范围复用不重复运行。当前仅prep，尚无新产品/QA。
 
 NETWORK_DEGRADED，push0/PR0/Actions0；不重试Git失败通道、不借#125 CI。仅自有合成一次性PG/loopback，不读真实凭据/Source、不改真实账号/业务DB/现有卷、不绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份和结果。Goal active；后续交期UI/coverage/0043及关账三问不默认。
+
+0042后台已按13路径受控前移：10输入中9保留exact、请求集成测试仅加migrationFilesAfter(41)兼容；bound-refresh测试已存在不改，workflow/package各单增量。新增D154和独立DeliveryPlan契约，da5b原文和当前出货UI/0040/41产品保持。尚未冻结本轮source或运行新QA，不借旧12cf。

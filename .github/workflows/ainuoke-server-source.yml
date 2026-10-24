@@ -41,6 +41,7 @@ jobs:
           npm run test:material-arrivals
           npm run test:garment-shipment-observations
           npm run test:bound-order-refresh
+          npx --no-install tsx --test --test-concurrency=1 server/sales-orders/delivery-plan-request.test.ts server/integration/delivery-plan-requests.integration.test.ts
           npm run test:production-planning
           npm run test:production-execution
           npm run test:order-normalization
