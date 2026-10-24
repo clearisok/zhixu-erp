@@ -437,3 +437,7 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 2026-10-24 D054/D065–069/D147当前Server人工ExpectedArrivalBatch/Allocation独立保存物理SO和Canonical物料内多批日期/精确数量、稳定需求身份及发生时Source/Hub证据；不猜配四流、不换单位、不补齐、不过写来源/实际/排单/金额。后台契约见[Server预计到仓](features/SERVER_MATERIAL_ARRIVALS.md)，页面和唯一逐批物流算法接线后续独立。
 
 2026-10-24 D054/D065–069/D147当前Server物料页按独立人工计划owner接线原分批Modal和历史Drawer；每批依最早未取消排单采用地点与已存Hub复用唯一物流算法。Source日期、人工计划、Actual分离；source失败保留计划/历史，命令原请求恢复不自动POST，权限白名单/owner保护见[当前UI契约](features/SERVER_MATERIAL_ARRIVAL_UI.md)。当前工程验收独立记录，不据源码接线宣称部署或用户接受。
+
+## Server成衣出货观察（D152/D153，2026-10-24前移）
+
+6086979 Num与outdate分别为逐笔数量与业务日期；其他日期/累计列独立，缺失/非法/零/负值不混同。当前0040不可变指定合同观察复用可信合同和稳定颜色，不跨次累加、不将消失作取消、不写生产完成/价格/收入或关账。默认关闭的独立target不代表真实采集/激活；完整边界见[Server成衣观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。本轮工程结果待按精确source验证，原b652结果不借用。

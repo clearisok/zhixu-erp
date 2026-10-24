@@ -7,3 +7,5 @@
 当前只前移49bb0d→b6521d的0040成衣观察后台：16非文档路径、13输入完全相同、workflow/package/README手工追加。复用已审a2967558双总数一致性与1630c19d历史游标两处窄修复，不带0041/0042/0043、UI或expiresAt扩展。保留原稳定颜色、有效归属、物理SO锁、容量、过期原回执、标量历史与四表盘点。当前只有prep，无新产品/QA；过程outputs/server-garment-observations-current-20261024。
 
 NETWORK_DEGRADED继续，push0/PR0/Actions0；不重试失败Git通道。仅新建合成一次性PG、离线Python及loopback会话API；不新增真实Source/凭据读取、绑定/激活/调度、不改真实账号/业务库/现有卷、不安装、自动merge/close/deploy或50426切换退役。保护3001/50426/59069/62426、Browser、备份与原结果。Goal active，关账三问不默认，后续0041/页面/0042分别验收。
+
+0040后台16非文档路径已受控前移：13原输入匹配，workflow/package/README仅追加；a296双总数与1630游标两处窄修复已保留。独立feature及D152/153按已批准规则前向记录；没有0041/43、前端、真实采集或新QA。
