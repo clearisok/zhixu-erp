@@ -496,7 +496,9 @@ test('Gate6B/C/D built scheduling preserves plans, actual execution, tracking, r
       await click('加载更早跟进记录', '[role=dialog] button'); await until(() => evaluate("[...document.querySelectorAll('[role=dialog] strong')].some(n=>n.textContent==='跟进版本 1')"), 'oldest tracking version');
       assert.equal(await evaluate(`document.querySelector('[role=dialog]').innerText.includes('跟进版本 ${anchor + 1}')`), false); await shot('tracking-anchored-history'); await click('关闭物料与运输历史');
       await x.plan(trackingOrder, data({ plannedQuantity: '5' })); await click('生产组', '.ps-view-tabs button'); await field('input[aria-label=搜索排单]', 'A合成一组'); await has('A合成一组 · 计划队列');
-      const label = await evaluate("[...document.querySelectorAll('button')].map(n=>n.getAttribute('aria-label')).find(n=>n?.startsWith('更多排单：SYN-PLAN-30 ·'))"); await click(label); await click('物料与运输', '.ps-row-more-menu button');
+      const queueEntry = "[...document.querySelectorAll('button')].map(n=>n.getAttribute('aria-label')).find(n=>n?.startsWith('更多排单：SYN-PLAN-30 ·'))";
+      await until(() => evaluate('Boolean(' + queueEntry + ')'), 'exact tracking order queue entry');
+      const label = await evaluate(queueEntry); await click(label); await click('物料与运输', '.ps-row-more-menu button');
       await until(() => evaluate("document.querySelector('textarea[aria-label=物料与运输备注]')?.value==='历史打开后新增'"), 'same tracking order from queue'); await closeClean();
     });
     await phase('real desktop, DPR and mobile geometry preserve usable queue and form bounds', async () => {

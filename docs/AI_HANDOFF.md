@@ -11,3 +11,5 @@
 11路径已受控前移：9同/2三方，client干净合流保留容量提示，driver唯一入口冲突在0仓库写入预核停止后明确保留strict before/owned清理并接新tracking验收。before已改观察07d已有计划+实际、无物流入口；fixture明确写1计划/1实际，浏览器零写，不借更早无实际断言。8路径V1和独立feature齐备；现有order-tracking脚本仅加入新client文件，CI原调用复用，无新workflow行或触发。本轮QA尚未运行。
 
 本阶段以独立source checkpoint冻结后，在git archive新上下文和一次性合成PG/Chromium验收；旧07d静态产物仅作before，复制而不链接。未运行项不写PASS；本轮不重推或触发Actions。
+
+浏览器首轮实际34pass/2fail（包含失败父节点），82,299ms；唯一失败在history场景一次性读取尚未出现的queue按钮标签，导致undefined等待超时，原failure.json显示目标行后已出现且无console/server错误。仅补精确SYN-PLAN-30队列项等待，不加全局超时、不放松断言。失败日志/JSON/原context保留；API386、根811、类型NodeLint、before2及双构建未变范围复用，after及未运行资源/导航继续真实验收。
