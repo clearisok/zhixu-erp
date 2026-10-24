@@ -171,3 +171,5 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 - 大量附件会使 JSON 备份体积较大；未来对象存储阶段应升级为流式归档格式。
 
 2026-10-17 D-145 Server会话恢复：新增sessionStorage zhixu.server.order-price.pending.v1.<public-user-id>仅请求UUID、zhixu.server.processing-push.pending.v1.<public-user-id>仅请求UUID/Quote IDs；不存金额/原因/令牌，不读写Browser业务namespace/IndexedDB或Seed。原载荷仅当前组件内存保存。只显式重试原命令/核对服务端回执；已确认完成或明确受理前拒绝时删除本组件恢复标记。不同用户不能复用标记，切换授权范围重新加载投影。没有服务端记录且原内存稿已丢失时保持核对状态，不冒称未执行或自动重新下单。
+
+2026-10-24 G6C：原production-plan.pending.v1的key/schemaVersion/四字段包装保持，只前向扩展record_execution解析；旧计划原字节兼容，计划/执行共用未决槽。未知新命令在旧客户端明确阻断，不删除/覆盖；新客户端同lease/精确回执才清槽。仅sessionStorage技术请求，不触碰Browser业务namespace/Seed/IndexedDB，见SERVER_PRODUCTION_EXECUTION。

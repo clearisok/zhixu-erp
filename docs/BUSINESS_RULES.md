@@ -76,6 +76,8 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 
 ## Server排单计划候选（D150，2026-10-24）
 
+2026-10-24 G6C候选按[执行契约](features/SERVER_PRODUCTION_EXECUTION.md)扩展独立实际head/history与技术epoch；本单完成登记和明确联动后续重排的双权限、原产出归属/剩余另建及更正原因均依用户已批准规则。不借计划量补造实际，不将本轮候选写成已验收/部署；以下G6B及Browser段落保留其阶段边界。
+
 当前G6B候选以可信合同/已消费加工批次SO为owner，计划量、客户交付需求、未来实际完成及关账量独立；不要求订单负责人或先采用报价金额。稳定颜色、不可变资源事实、单条/订单集合/组队列版本、明确预览及原请求回执保护见[Server排单](features/SERVER_PRODUCTION_PLANNING.md)。只恢复既有页面的Server owner，不挂Browser账本或Seed；尚无真实开工/完成、物流/关账闭环或部署声明。下文Browser规则和历史日期保留，不据同名字段混用权威。
 
 ## 新生产计划与排单路径

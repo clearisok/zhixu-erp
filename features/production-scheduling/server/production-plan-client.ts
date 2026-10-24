@@ -7,26 +7,45 @@ import { ServerAuthError } from "../../server-auth/server-auth-client";
 import { canonicalDecimal } from "../../../server/quotes/decimal-projection";
 import { parsePlanListQuery, type PlanListQuery } from "../../../server/production-scheduling/read-contract";
 import type { PlanOrderSummary } from "../../../server/production-scheduling/read-model";
+import { parseExecutionData, parseExecutionIntent, type ExecutionCommand, type ExecutionIntent } from "../../../server/production-scheduling/execution-contract";
+import type { ExecutionFacts } from "../../../server/production-scheduling/execution-preview";
+import type { StoredExecution } from "../../../server/production-scheduling/execution-store";
+import { parseProductionCommand, type ProductionCommand } from "./production-command";
 
 export type { PlanCommand, PlanIntent, Assignment };
+export type { ExecutionCommand, ExecutionIntent, StoredExecution, ProductionCommand };
 export type { PlanOrderSummary, PlanListQuery };
 export type PlanPreview = Awaited<ReturnType<typeof previewProductionPlan>>;
 export type VerifiedPlanOutcome = PlanOutcome & { payloadHash: string };
 export type PlanReceipt = { state: "known"; requestId: string; result: VerifiedPlanOutcome }
   | { state: "pending" | "unknown"; requestId: string; result: null };
+export type VerifiedExecutionOutcome = Extract<VerifiedPlanOutcome, { status: "rejected" }> | {
+  requestId: string; payloadHash: string; status: "applied"; changed: boolean; operationId: string | null;
+  assignments: Assignment[]; execution: StoredExecution; assignmentId: string;
+  orderVersions: { orderId: string; version: number }[]; queueVersions: { groupId: string; version: number }[];
+};
+export type ProductionReceipt = { state: "known"; requestId: string; result: VerifiedPlanOutcome | VerifiedExecutionOutcome }
+  | { state: "pending" | "unknown"; requestId: string; result: null };
+export type ExecutionPreview = { intent: ExecutionIntent; previewHash: string; before: ExecutionFacts | null; after: ExecutionFacts; changed: boolean;
+  warnings: { kind: string; assignmentId: string }[]; planChanges: { before: Assignment; after: PlanDraft }[];
+  orderVersions: { orderId: string; version: number }[]; queueVersions: { groupId: string; version: number }[] };
 type Lease = () => boolean;
 type PlanDraft = PlanPreview["changes"][number]["after"];
 type ResourceSummary = PlanPreview["resources"][string];
 export type PlanResources = Record<string, ResourceSummary>;
 export type PlanGroupRow = { id: string; name: string; shortName: string; enabled: boolean; version: number; queueVersion: number;
-  assignmentCount: number; plannedQuantity: string; headAssignmentId: string | null; headOrderId: string | null;
+  assignmentCount: number; pendingAssignmentCount: number; plannedQuantity: string; completedQuantity: string; outstandingPlannedQuantity: string; headAssignmentId: string | null; headOrderId: string | null;
   plannedThroughDate: string | null; siteName: string; calendarName: string; resourcesEnabled: boolean; canCreate: boolean };
 export type PlanOrderRead = { summary: PlanOrderSummary; order: { id: string; orderNo: string; planVersion: number;
   colors: { id: string; colorName: string; quantity: string; ambiguous: boolean }[];
   deliveryPlans: { id: string; date: string | null; quantity: string }[] };
-  assignments: Assignment[]; resources: PlanResources; canCreate: boolean; canEdit: boolean };
+  assignments: Assignment[]; executions: Record<string, StoredExecution>; resources: PlanResources; canCreate: boolean; canEdit: boolean; canComplete: boolean };
 export type PlanQueueRead = { groupId: string; group: { id: string; name: string; version: number; enabled: boolean }; version: number;
-  assignments: Assignment[]; resources: PlanResources; ordersById: Record<string, PlanOrderSummary> };
+  assignments: Assignment[]; executions: Record<string, StoredExecution>; resources: PlanResources; ordersById: Record<string, PlanOrderSummary> };
+export type ExecutionScope = { order: PlanOrderRead; assignment: Assignment; queue: PlanQueueRead | null };
+export type ExecutionHistoryRead = { assignment: Assignment; execution: StoredExecution | null; asOfVersion: number; offset: number; hasMore: boolean; nextOffset: number | null;
+  history: { version: number; requestId: string; operationId: string; reason: string; recordedAt: string;
+    snapshot: ExecutionFacts & { assignmentVersion: number } }[] };
 type Page<T> = { items: T[]; total: number; offset: number; limit: number; hasMore: boolean };
 export type PlanOrderDirectory = Page<PlanOrderSummary>;
 export type PlanGroupDirectory = Page<PlanGroupRow> & { ordersById: Record<string, PlanOrderSummary> };
@@ -35,6 +54,21 @@ export type PlanHistoryRead = { assignment: Assignment; resources: PlanResources
     snapshot: Pick<Assignment, "id" | "orderId" | "version" | "plannedQuantity" | "plannedStartDate" | "plannedEndDate" | "resourceSnapshotHash" | "status" | "remark" | "colorNameSnapshot"> }[] };
 
 const messages: Record<string, string> = {
+  invalid_production_execution_intent: "请检查累计完成数量、执行状态和实际日期。",
+  production_executions_unavailable: "生产执行暂时不可用，请重新读取。",
+  production_execution_version_conflict: "本条实际进度已更新，请重新读取后预览。",
+  production_execution_preview_changed: "实际进度、订单或后续队列已变化，请重新读取后预览。",
+  production_execution_reason_required: "减少完成量、更正已记录日期、重新打开或修改已取消排单时，请填写说明。",
+  production_execution_attribution_locked: "已有实际记录，不能更换执行方或颜色；请为剩余任务新增排单。",
+  production_execution_auto_dates_locked: "已有实际记录，自动排期不会移动；请核对原记录。",
+  production_execution_queue_position_locked: "已有实际记录的排单不能移动队列位置。",
+  production_execution_queue_changed: "后续队列已变化，请重新读取后预览。",
+  production_cancelled_assignment_has_no_execution: "已取消的排单不能新增实际记录。",
+  production_internal_queue_required: "只有未取消的内部排单可联动后续队列。",
+  production_execution_snapshot_invalid: "实际记录无法安全核对，请联系管理员。",
+  production_execution_projection_limit: "本次实际记录过多，请缩小范围。",
+  production_execution_preview_too_large: "本次完成与重排预览过大，请缩小范围。",
+  production_execution_read_too_large: "本次实际历史过多，请缩小范围。",
   invalid_production_plan_intent: "请检查执行方、数量、工期和日期。",
   production_plans_unavailable: "生产排单暂时不可用，请重新读取。",
   production_order_frozen: "这张订单已完成或取消，不能修改排单。",
@@ -93,8 +127,12 @@ function unique<T>(items: T[], id: (item: T) => string): T[] { if (new Set(items
 export function canonicalProductionPlanCommand(value: unknown): PlanCommand {
   try { return parsePlanCommand(value); } catch { throw new ProductionPlanError(400, "invalid_production_plan_intent", true); }
 }
-export async function productionPlanFingerprint(value: PlanCommand): Promise<string> {
-  const command = canonicalProductionPlanCommand(value);
+export function canonicalProductionCommand(value: unknown): ProductionCommand {
+  try { return parseProductionCommand(value); } catch { throw new ProductionPlanError(400,
+    (value as { intent?: { action?: unknown } } | null)?.intent?.action === "record_execution" ? "invalid_production_execution_intent" : "invalid_production_plan_intent", true); }
+}
+export async function productionPlanFingerprint(value: ProductionCommand): Promise<string> {
+  const command = canonicalProductionCommand(value);
   if (!globalThis.crypto?.subtle) throw new ProductionPlanError(0, "plan_client_unavailable");
   const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonicalPlanJson(command)));
   return Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, "0")).join("");
@@ -156,7 +194,8 @@ function projectOrderSummary(value: unknown): PlanOrderSummary {
   if ((quantity === null ? remainingQuantity !== null || overassignedQuantity !== null || allocationState !== "unknown" : remainingQuantity === null || overassignedQuantity === null || allocationState === "unknown")
     || eligible && (id !== effectiveOrderId || businessType === "unclassified" || ["completed", "cancelled"].includes(lifecycleState))) return invalid();
   return { id, effectiveOrderId, eligible, orderNo: text(raw.orderNo), lifecycleState, businessType: businessType as PlanOrderSummary["businessType"],
-    quantity, plannedQuantity: readDecimal(raw.plannedQuantity), remainingQuantity, overassignedQuantity, allocationState: allocationState as PlanOrderSummary["allocationState"],
+    quantity, plannedQuantity: readDecimal(raw.plannedQuantity), completedQuantity: readDecimal(raw.completedQuantity), outstandingPlannedQuantity: readDecimal(raw.outstandingPlannedQuantity),
+    accountedQuantity: readDecimal(raw.accountedQuantity), remainingQuantity, overassignedQuantity, allocationState: allocationState as PlanOrderSummary["allocationState"],
     assignmentCount: integer(raw.assignmentCount), planVersion: integer(raw.planVersion, 0, 2147483647), styleNo: optionalText(raw.styleNo), factoryStyleNo: optionalText(raw.factoryStyleNo),
     customerName: optionalText(raw.customerName), brandName: optionalText(raw.brandName), contractNo: optionalText(raw.contractNo), customerReference: optionalText(raw.customerReference), deliveryDate: optionalDate(raw.deliveryDate) };
 }
@@ -247,12 +286,126 @@ function projectOutcome(value: unknown, command: PlanCommand, fingerprint: strin
   return { requestId: command.requestId, payloadHash: fingerprint, status: "applied", changed, assignments, orderVersions, queueVersions, operationId: raw.operationId as string | null };
 }
 
+function facts(value: unknown): ExecutionFacts {
+  const raw = object(value);
+  try { return { ...parseExecutionData({ status: raw.status, completedQuantity: raw.completedQuantity, actualStartDate: raw.actualStartDate, actualCompletedDate: raw.actualCompletedDate }), version: integer(raw.version, 1, 2147483647) }; }
+  catch { return invalid(); }
+}
+function execution(value: unknown, plan?: Assignment): StoredExecution {
+  const raw = object(value), attr = object(raw.attribution), data = facts(raw), executionType = attr.executionType;
+  if (executionType !== "internal" && executionType !== "outsource") return invalid();
+  const assignmentId = uuid(raw.assignmentId), orderId = uuid(raw.orderId), assignmentVersion = integer(raw.assignmentVersion, 1, 2147483647);
+  const attribution: StoredExecution["attribution"] = { assignmentId: uuid(attr.assignmentId), orderId: uuid(attr.orderId), executionType,
+    productionGroupId: optionalUuid(attr.productionGroupId), outsourceFactoryId: optionalUuid(attr.outsourceFactoryId),
+    colorId: optionalUuid(attr.colorId), colorNameSnapshot: optionalText(attr.colorNameSnapshot), resourceSnapshotHash: hash(attr.resourceSnapshotHash) };
+  if (attribution.assignmentId !== assignmentId || attribution.orderId !== orderId
+    || (attribution.colorId === null) !== (attribution.colorNameSnapshot === null)
+    || (executionType === "internal" ? !attribution.productionGroupId || attribution.outsourceFactoryId !== null : !attribution.outsourceFactoryId || attribution.productionGroupId !== null)) return mismatch();
+  if (plan && (assignmentId !== plan.id || orderId !== plan.orderId || assignmentVersion > plan.version
+    || canonicalPlanJson(attribution) !== canonicalPlanJson({ assignmentId: plan.id, orderId: plan.orderId, executionType: plan.executionType,
+      productionGroupId: plan.productionGroupId, outsourceFactoryId: plan.outsourceFactoryId, colorId: plan.colorId,
+      colorNameSnapshot: plan.colorNameSnapshot, resourceSnapshotHash: plan.resourceSnapshotHash }))) return mismatch();
+  const createdAt = timestamp(raw.createdAt), updatedAt = timestamp(raw.updatedAt);
+  if (updatedAt < createdAt) return invalid();
+  return { ...data, assignmentId, orderId, assignmentVersion, attribution, createdAt, updatedAt };
+}
+function projectExecutions(value: unknown, rows: readonly Assignment[]): Record<string, StoredExecution> {
+  const raw = object(value), result: Record<string, StoredExecution> = {};
+  if (Object.keys(raw).length > rows.length) return mismatch();
+  for (const [id, value] of Object.entries(raw)) {
+    const row = rows.find(item => item.id === id); if (!row) return mismatch();
+    const item = execution(value, row); if (item.assignmentId !== id) return mismatch(); result[id] = item;
+  }
+  return result;
+}
+const executionFactsOnly = (row: StoredExecution | null | undefined): ExecutionFacts | null => row ? {
+  version: row.version, status: row.status, completedQuantity: row.completedQuantity, actualStartDate: row.actualStartDate, actualCompletedDate: row.actualCompletedDate,
+} : null;
+function projectExecutionPreview(value: unknown, intent: ExecutionIntent, scope: ExecutionScope): ExecutionPreview {
+  const raw = object(value); let responseIntent: ExecutionIntent;
+  try { responseIntent = parseExecutionIntent(raw.intent); } catch { return invalid(); }
+  const row = scope.assignment;
+  if (canonicalPlanJson(responseIntent) !== canonicalPlanJson(intent) || row.id !== intent.assignmentId || row.orderId !== intent.orderId
+    || row.version !== intent.expectedAssignmentVersion || scope.order.order.planVersion !== intent.expectedPlanVersion) return mismatch();
+  const before = raw.before === null ? null : facts(raw.before), after = facts(raw.after), changed = boolean(raw.changed);
+  const expected = executionFactsOnly(scope.order.executions[row.id]);
+  if (canonicalPlanJson(before) !== canonicalPlanJson(expected) || (before?.version ?? 0) !== intent.expectedExecutionVersion
+    || after.version !== intent.expectedExecutionVersion + Number(changed)
+    || canonicalPlanJson(after) !== canonicalPlanJson({ ...intent.data, version: after.version })
+    || changed !== (before === null || canonicalPlanJson({ ...intent.data, version: before.version }) !== canonicalPlanJson(before))) return mismatch();
+  const queue = scope.queue, replannable = unique(array(raw.replannableAssignmentIds).map(uuid), id => id);
+  const target = queue?.assignments.findIndex(item => item.id === row.id) ?? -1;
+  if (intent.replan ? !queue || raw.queuePreview === null || target < 0 || queue.groupId !== row.productionGroupId || queue.version !== intent.replan.expectedQueueVersion
+    || queue.ordersById[intent.orderId]?.planVersion !== intent.expectedPlanVersion : raw.queuePreview !== null || replannable.length > 0) return mismatch();
+  const eligibleIds = new Set(queue?.assignments.slice(target + 1).filter(item => item.status === "planned" && item.dateMode === "auto_queue"
+    && !queue.executions[item.id] && queue.ordersById[item.orderId]?.eligible).map(item => item.id) ?? []);
+  if (replannable.some(id => !eligibleIds.has(id))) return mismatch();
+  const planChanges = unique(array(raw.planChanges).map(value => {
+    const item = object(value), before = assignment(item.before), after = draft(item.after);
+    const current = queue?.assignments.find(item => item.id === before.id);
+    if (!intent.replan || !current || !replannable.includes(before.id) || canonicalPlanJson(before) !== canonicalPlanJson(current)
+      || after.id !== before.id || after.version !== before.version + 1 || after.status !== "planned") return mismatch();
+    // Completion may only re-date and explicitly refresh resources of unstarted later plans.
+    const stable = (value: PlanDraft) => { const { version: _version, plannedStartDate: _start, plannedEndDate: _end, firstProductionDate: _first,
+      nonWorkingDayCount: _days, resourceSnapshotHash: _hash, ...rest } = value; void _version; void _start; void _end; void _first; void _days; void _hash; return rest; };
+    const { createdBy: _createdBy, updatedBy: _updatedBy, createdAt: _createdAt, updatedAt: _updatedAt, ...oldDraft } = before;
+    void _createdBy; void _updatedBy; void _createdAt; void _updatedAt;
+    if (canonicalPlanJson(stable(oldDraft)) !== canonicalPlanJson(stable(after))) return mismatch();
+    return { before, after };
+  }), item => item.before.id);
+  const orderVersions = versions(raw.orderVersions, "orderId").map(item => ({ orderId: item.id, version: item.version }));
+  const expectedOrders = intent.replan ? [...new Set(queue!.assignments.map(item => item.orderId))] : [intent.orderId];
+  if (orderVersions.length !== expectedOrders.length || expectedOrders.some(id => !orderVersions.some(item => item.orderId === id
+    && item.version === (id === intent.orderId ? intent.expectedPlanVersion : queue!.ordersById[id].planVersion)))) return mismatch();
+  const queueVersions = versions(raw.queueVersions, "groupId").map(item => ({ groupId: item.id, version: item.version }));
+  if (row.productionGroupId ? queueVersions.length !== 1 || queueVersions[0].groupId !== row.productionGroupId
+    || intent.replan && queueVersions[0].version !== intent.replan.expectedQueueVersion : queueVersions.length !== 0) return mismatch();
+  const warnings = array(raw.warnings).map(value => { const item = object(value); if (item.kind !== "production_over_completed" || uuid(item.assignmentId) !== row.id) return invalid(); return { kind: item.kind, assignmentId: row.id }; });
+  if (raw.queuePreview !== null) {
+    const preview = object(raw.queuePreview);
+    for (const item of array(preview.warnings)) { const warning = object(item), id = uuid(warning.assignmentId);
+      if (!["protected_overlap", "protected_end_missing"].includes(warning.kind as string) || !queue?.assignments.some(row => row.id === id)) return invalid();
+      warnings.push({ kind: warning.kind as string, assignmentId: id });
+    }
+  }
+  return { intent: responseIntent, previewHash: hash(raw.previewHash), before, after, changed, warnings, planChanges, orderVersions, queueVersions };
+}
+function projectExecutionOutcome(value: unknown, command: ExecutionCommand, fingerprint: string): VerifiedExecutionOutcome {
+  const raw = object(value);
+  if (raw.requestId !== command.requestId || raw.payloadHash !== fingerprint) return mismatch();
+  if (raw.status === "rejected") {
+    const error = object(raw.error); if (![404, 409, 422].includes(error.status as number) || typeof error.code !== "string") return invalid();
+    return { status: "rejected", requestId: command.requestId, payloadHash: fingerprint,
+      error: { status: error.status as number, code: Object.hasOwn(messages, error.code) ? error.code : "plan_known_rejection" } };
+  }
+  if (raw.status !== "applied") return invalid();
+  const intent = command.intent, saved = execution(raw.execution), assignments = unique(array(raw.assignments).map(assignment), row => row.id);
+  const executionChanged = saved.version === intent.expectedExecutionVersion + 1, changed = boolean(raw.changed);
+  if (uuid(raw.assignmentId) !== intent.assignmentId || saved.assignmentId !== intent.assignmentId || saved.orderId !== intent.orderId
+    || saved.assignmentVersion > intent.expectedAssignmentVersion || executionChanged && saved.assignmentVersion !== intent.expectedAssignmentVersion
+    || !executionChanged && saved.version !== intent.expectedExecutionVersion
+    || canonicalPlanJson(executionFactsOnly(saved)) !== canonicalPlanJson({ ...intent.data, version: saved.version })
+    || changed !== (executionChanged || assignments.length > 0)
+    || (changed ? raw.operationId !== "operation-" + uuid(typeof raw.operationId === "string" ? raw.operationId.slice(10) : null) : raw.operationId !== null)) return mismatch();
+  const group = saved.attribution.productionGroupId;
+  if (assignments.some(row => !intent.replan || !group || row.productionGroupId !== group || row.id === saved.assignmentId || row.executionType !== "internal" || row.dateMode !== "auto_queue" || row.status !== "planned")) return mismatch();
+  const orderVersions = versions(raw.orderVersions, "orderId").map(row => ({ orderId: row.id, version: row.version }));
+  const queueVersions = versions(raw.queueVersions, "groupId").map(row => ({ groupId: row.id, version: row.version }));
+  const targetChanged = executionChanged || assignments.some(row => row.orderId === intent.orderId);
+  if (!orderVersions.some(row => row.orderId === intent.orderId && row.version === intent.expectedPlanVersion + Number(targetChanged))
+    || !intent.replan && orderVersions.length !== 1 || assignments.some(item => !orderVersions.some(row => row.orderId === item.orderId))
+    || (group ? queueVersions.length !== 1 || queueVersions[0].groupId !== group
+      || intent.replan && queueVersions[0].version !== intent.replan.expectedQueueVersion + Number(changed) : queueVersions.length !== 0)) return mismatch();
+  return { status: "applied", requestId: command.requestId, payloadHash: fingerprint, changed, operationId: raw.operationId as string | null,
+    execution: saved, assignmentId: saved.assignmentId, assignments, orderVersions, queueVersions };
+}
+
 export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
   // Server bounds the logical result at1MiB before adding its digest/replay
   // fields or receipt wrapper. Keep a fixed envelope allowance, not an
   // unbounded read or a larger domain/command payload limit.
   const prefix = "/api/v1/production-scheduling", maxBytes = 1024 * 1024 + 4096;
-  async function request(path: string, current: Lease, body?: PlanIntent | PlanCommand) {
+  async function request(path: string, current: Lease, body?: PlanIntent | ProductionCommand | ExecutionIntent) {
     assertLease(current); let response: Response;
     try { response = await fetchImpl(prefix + path, { method: body ? "POST" : "GET", credentials: "include", cache: "no-store",
       ...(body ? { headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1" }, body: JSON.stringify(body) } : {}) }); }
@@ -290,12 +443,13 @@ export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
       const { response, data } = await request(`/groups?${params}`, current); if (!response.ok) return httpError(response, data);
       const page = projectPage(data, query, value => {
         const raw = object(value), enabled = boolean(raw.enabled), resourcesEnabled = boolean(raw.resourcesEnabled), canCreate = boolean(raw.canCreate);
-        const assignmentCount = integer(raw.assignmentCount), queueVersion = integer(raw.queueVersion, 0, 2147483647);
+        const assignmentCount = integer(raw.assignmentCount), pendingAssignmentCount = integer(raw.pendingAssignmentCount, 0, assignmentCount), queueVersion = integer(raw.queueVersion, 0, 2147483647);
         const headAssignmentId = optionalUuid(raw.headAssignmentId), headOrderId = optionalUuid(raw.headOrderId), plannedThroughDate = optionalDate(raw.plannedThroughDate);
-        if ((assignmentCount === 0 ? headAssignmentId !== null || headOrderId !== null || plannedThroughDate !== null : !headAssignmentId || !headOrderId || !plannedThroughDate)
+        if ((pendingAssignmentCount === 0 ? headAssignmentId !== null || headOrderId !== null || plannedThroughDate !== null : !headAssignmentId || !headOrderId || !plannedThroughDate)
           || canCreate && (!resourcesEnabled || assignmentCount >= 500 || queueVersion === 2147483647) || resourcesEnabled && !enabled) return invalid();
         return { id: uuid(raw.id), name: text(raw.name), shortName: text(raw.shortName), enabled, resourcesEnabled, canCreate,
-          version: integer(raw.version, 1, 2147483647), queueVersion, assignmentCount, plannedQuantity: readDecimal(raw.plannedQuantity), headAssignmentId, headOrderId, plannedThroughDate,
+          version: integer(raw.version, 1, 2147483647), queueVersion, assignmentCount, pendingAssignmentCount, plannedQuantity: readDecimal(raw.plannedQuantity),
+          completedQuantity: readDecimal(raw.completedQuantity), outstandingPlannedQuantity: readDecimal(raw.outstandingPlannedQuantity), headAssignmentId, headOrderId, plannedThroughDate,
           siteName: text(raw.siteName), calendarName: text(raw.calendarName) };
       });
       unique(page.items, item => item.id);
@@ -309,16 +463,17 @@ export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
       const colors = array(raw.colors, 1000).map(value => { const row = object(value); return { id: uuid(row.id), colorName: text(row.colorName), quantity: readDecimal(row.quantity), ambiguous: boolean(row.ambiguous) }; });
       if (colors.some(item => !item.ambiguous && colors.filter(row => row.id === item.id).length !== 1)) return invalid();
       const deliveryPlans = unique(array(raw.deliveryPlans, 1000).map(value => { const row = object(value); return { id: uuid(row.id), date: optionalDate(row.date), quantity: readDecimal(row.quantity) }; }), item => item.id);
-      const assignments = unique(array(data.assignments).map(assignment), item => item.id), canCreate = boolean(data.canCreate), canEdit = boolean(data.canEdit);
-      if (assignments.some(row => row.orderId !== id) || (canCreate || canEdit) && (!info.eligible || planVersion === 2147483647)) return mismatch();
-      return { order: { id, orderNo: info.orderNo, planVersion, colors, deliveryPlans }, summary: info, assignments, resources: projectResources(data.resources, assignments), canCreate, canEdit };
+      const assignments = unique(array(data.assignments).map(assignment), item => item.id), canCreate = boolean(data.canCreate), canEdit = boolean(data.canEdit), canComplete = boolean(data.canComplete);
+      if (assignments.some(row => row.orderId !== id) || (canCreate || canEdit || canComplete) && (!info.eligible || planVersion === 2147483647)) return mismatch();
+      return { order: { id, orderNo: info.orderNo, planVersion, colors, deliveryPlans }, summary: info, assignments,
+        executions: projectExecutions(data.executions, assignments), resources: projectResources(data.resources, assignments), canCreate, canEdit, canComplete };
     },
     async queue(inputId: string, current: Lease = () => true): Promise<PlanQueueRead> {
       const id = uuid(inputId), { response, data } = await request(`/groups/${id}`, current); if (!response.ok) return httpError(response, data);
       const raw = object(data.group), assignments = unique(array(data.assignments).map(assignment), row => row.id);
       if (uuid(data.groupId) !== id || uuid(raw.id) !== id || assignments.some(row => row.productionGroupId !== id || row.status !== "planned")) return mismatch();
       return { groupId: id, group: { id, name: text(raw.name), version: integer(raw.version, 1, 2147483647), enabled: boolean(raw.enabled) }, version: integer(data.version, 0, 2147483647),
-        assignments, resources: projectResources(data.resources, assignments), ordersById: projectOrdersById(data.ordersById, [...new Set(assignments.map(item => item.orderId))]) };
+        assignments, executions: projectExecutions(data.executions, assignments), resources: projectResources(data.resources, assignments), ordersById: projectOrdersById(data.ordersById, [...new Set(assignments.map(item => item.orderId))]) };
     },
     async history(inputId: string, offset = 0, asOfVersion: number | null = null, current: Lease = () => true): Promise<PlanHistoryRead> {
       const id = uuid(inputId), pageOffset = integer(offset, 0, 100000), anchor = asOfVersion === null ? null : integer(asOfVersion, 1, 2147483647);
@@ -342,19 +497,45 @@ export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
       const { response, data } = await request("/preview", current, intent); if (!response.ok) return httpError(response, data);
       return projectPreview(data, intent);
     },
-    async execute(value: PlanCommand, current: Lease = () => true) {
-      assertLease(current); const command = canonicalProductionPlanCommand(value), fingerprint = await productionPlanFingerprint(command); assertLease(current);
-      const { response, data } = await request("/commands", current, command);
+    async executionPreview(value: ExecutionIntent, scope: ExecutionScope, current: Lease = () => true): Promise<ExecutionPreview> {
+      let intent: ExecutionIntent; try { intent = parseExecutionIntent(value); } catch { throw new ProductionPlanError(400, "invalid_production_execution_intent", true); }
+      const { response, data } = await request("/execution/preview", current, intent); if (!response.ok) return httpError(response, data);
+      return projectExecutionPreview(data, intent, scope);
+    },
+    async executionHistory(inputId: string, offset = 0, asOfVersion: number | null = null, current: Lease = () => true): Promise<ExecutionHistoryRead> {
+      const id = uuid(inputId), pageOffset = integer(offset, 0, 100000), anchor = asOfVersion === null ? null : integer(asOfVersion, 0, 2147483647);
+      const { response, data } = await request(`/executions/${id}?offset=${pageOffset}${anchor === null ? "" : `&asOfVersion=${anchor}`}`, current); if (!response.ok) return httpError(response, data);
+      const plan = assignment(data.assignment), head = data.execution === null ? null : execution(data.execution, plan), at = integer(data.asOfVersion, 0, head?.version ?? 0);
+      const hasMore = boolean(data.hasMore), nextOffset = data.nextOffset === null ? null : integer(data.nextOffset, 0, 100000);
+      if (plan.id !== id || head && at === 0 || anchor !== null && at !== anchor || integer(data.offset) !== pageOffset || integer(data.limit) !== 50
+        || (hasMore ? nextOffset !== pageOffset + 50 : nextOffset !== null)) return mismatch();
+      const history = array(data.history, 50).map((value, index) => {
+        const row = object(value), raw = object(row.snapshot), version = integer(row.version, 1, at);
+        const item = execution({ ...raw, assignmentId: raw.assignment_id, orderId: raw.sales_order_id, assignmentVersion: raw.assignment_version,
+          completedQuantity: raw.completed_quantity, actualStartDate: raw.actual_start_date, actualCompletedDate: raw.actual_completed_date,
+          // Normalize the event's own PG timestamp representation, never borrow today's head values.
+          createdAt: new Date(text(raw.created_at, 50)).toISOString(), updatedAt: new Date(text(raw.updated_at, 50)).toISOString() }, plan);
+        if (version !== at - pageOffset - index || item.version !== version || item.assignmentId !== id) return mismatch();
+        return { version, requestId: uuid(row.requestId), operationId: text(row.operationId), reason: text(row.reason), recordedAt: timestamp(row.recordedAt),
+          snapshot: { ...executionFactsOnly(item)!, assignmentVersion: item.assignmentVersion } };
+      });
+      if (history.length !== Math.max(0, Math.min(50, at - pageOffset)) || hasMore !== (pageOffset + history.length < at)) return mismatch();
+      return { assignment: plan, execution: head, history, asOfVersion: at, offset: pageOffset, hasMore, nextOffset };
+    },
+    async execute(value: ProductionCommand, current: Lease = () => true) {
+      assertLease(current); const command = canonicalProductionCommand(value), fingerprint = await productionPlanFingerprint(command); assertLease(current);
+      const { response, data } = await request(command.intent.action === "record_execution" ? "/execution/commands" : "/commands", current, command);
       if (!response.ok && data.status !== "rejected") return httpError(response, data, true);
-      const outcome = projectOutcome(data, command, fingerprint);
+      const outcome = command.intent.action === "record_execution" ? projectExecutionOutcome(data, command as ExecutionCommand, fingerprint) : projectOutcome(data, command as PlanCommand, fingerprint);
       if (typeof data.replayed !== "boolean" || (outcome.status === "applied" ? !response.ok : response.status !== outcome.error.status)) return invalid();
       return { ...outcome, replayed: data.replayed };
     },
-    async receipt(value: PlanCommand, current: Lease = () => true): Promise<PlanReceipt> {
-      assertLease(current); const command = canonicalProductionPlanCommand(value), fingerprint = await productionPlanFingerprint(command); assertLease(current);
+    async receipt(value: ProductionCommand, current: Lease = () => true): Promise<ProductionReceipt> {
+      assertLease(current); const command = canonicalProductionCommand(value), fingerprint = await productionPlanFingerprint(command); assertLease(current);
       const { response, data } = await request(`/commands/${command.requestId}`, current); if (!response.ok) return httpError(response, data);
       if (data.requestId !== command.requestId) return mismatch();
-      if (data.state === "known") return { state: "known", requestId: command.requestId, result: projectOutcome(data.result, command, fingerprint) };
+      if (data.state === "known") return { state: "known", requestId: command.requestId, result: command.intent.action === "record_execution"
+        ? projectExecutionOutcome(data.result, command as ExecutionCommand, fingerprint) : projectOutcome(data.result, command as PlanCommand, fingerprint) };
       if (!["pending", "unknown"].includes(data.state as string) || data.result !== null) return invalid();
       return { state: data.state as "pending" | "unknown", requestId: command.requestId, result: null };
     },

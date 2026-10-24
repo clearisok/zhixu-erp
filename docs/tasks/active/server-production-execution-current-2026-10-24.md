@@ -32,3 +32,11 @@ G6B实际cd737的268相关API/升级、97根811、76浏览器、类型/Node/impo
 
 不自动merge/close/deploy、不改共享Git/TLS/proxy/auth、读真实凭据/Source、改真实账号/业务库/卷、绑定/激活/调度或退役。3001/50426/59069/62426、Browser、备份与结果保留。
 Goal active；4C/物流/出货/关账后续按依赖，关账三问/coverage-v1/真实来源额度和目标切换前置未擅定。
+
+## 受控前移（尚待冻结QA）
+
+30路径再次核对全部输入blob，28一致/2差异。第一次standalone driver合并在repo0写入时出现唯一入口冲突，原冲突回执保留；明确取当前strict before/build/owned清理与新执行suite，client规范化三方干净。未复制旧workflow/docs/清单、后续物流/关账或8f。现行G6B snapshot PG字节拒绝及client消息不丢失，旧0034/0035无diff。
+
+新增before改为精确旧C规划构建、一条owned合成计划及零执行记录/命令；旧C仍有计划入口，不能继续用G6B的“路线关闭”断言。新after禁外部静态目录，父300s/轮询16s/CDP20s/端点30s保持。driver选择器先核旧C真实aria label，避免等待不存在class。两个脚本生成阶段的本地文本断言失败分别是工作流CRLF与入口合并，不冒称产品测试失败/通过，现场未涉及真实数据。
+
+新执行feature统一SQL/读取/UI与原请求恢复，D151记录已批准规则；不改已冻结的计划feature证据。8路径V1，DATA_LIFECYCLE只记技术槽前向类型。新增npm四文件、原CI只新增一条执行命令，不重复现有outbox/升级，不改事件/任务/超时或重要门槛。接下来独立源码checkpoint，在新canonical archive实跑类型/Node/import/lint、纯规则/相关PG/API/升级、根非发布、before/after/跨页浏览器与双构建，不借旧27b或G6B结果。尚无本轮新QA或远端结果。

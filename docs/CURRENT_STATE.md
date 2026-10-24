@@ -6,8 +6,8 @@ G6B最终b6af0cd247c1e7ec4406e69526fa672544cce1d8，实际工程source cd73726ba
 
 工程通过不等于送达：G6B DryRun READY后唯一Git上传发生uncertain_transport/exit1，pushes=1；工具和一次独立API都核TARGET_NOT_DELIVERED。没有重推/换认证/force，NETWORK_DEGRADED，PR/Actions=0。b6af分支/完整提交已保存；不在后续Gate重复同一失败通道，继续不依赖远端的本地阶段。G6A6fd原一次送达及此前各工程结果保留。
 
-当前codex/server-production-execution-current由已核main新建、显式FF至干净b6af。三摘要原文及hash已保护，无继承dirty；[G6C任务](tasks/active/server-production-execution-current-2026-10-24.md)。只读预核原919→27b最终执行窄切片30路径，28输入相同、2处client/driver需保留当前修复。尚未复制产品/0036或执行新QA，不提前PASS；不会整包引入后续8f或旧workflow/状态。
+当前codex/server-production-execution-current由已核main新建、显式FF至干净b6af。三摘要原文及hash已保护，无继承dirty；[G6C任务](tasks/active/server-production-execution-current-2026-10-24.md)。只读预核原919→27b最终执行窄切片30路径，28输入相同、2处client/driver需保留当前修复。已受控整合30产品/SQL/API/测试路径；driver真冲突在0写入时停止后明确解决，容量/owned清理保护保留。尚未执行本轮冻结QA，不提前PASS；不整包引入后续8f或旧workflow/状态。
 
-下一步：独立执行head/history/epoch、同一命令与页面接线；已产出留原排单/执行方，剩余另建；完成联动重排要求完成+编辑双权限，纯登记不额外要求联动。保留当前容量422、稳定颜色/SO父锁、不可变历史和技术缓存原请求，连接/COMMIT未知不声明回滚。旧0035不改、0036仅自建PG升级，不补造实际完成。
+新候选：独立执行head/history/epoch、同一命令与页面接线；已产出留原排单/执行方，剩余另建；完成联动重排要求完成+编辑双权限，纯登记不额外要求联动。保留当前容量422、稳定颜色/SO父锁、不可变历史和技术缓存原请求，连接/COMMIT未知不声明回滚。旧0035不改、0036仅自建PG升级，不补造实际完成。8路径V1与D151/单一完整执行feature已同步；原CI仅增加一条四文件执行测试，未改触发/预算。下一步源码checkpoint与新的完整隔离QA。
 
 Goal active。4C、物流/出货、关账及其三问、coverage-v1、真实来源额度/目标激活、50426切换和人工接受各有前置。未安装、自动merge/close/deploy、改共享Git/TLS/proxy/auth、读真实凭据/Source、改真实账号/业务库/卷、绑定/激活/调度或退役。3001/50426/59069/62426、Browser、备份/结果保留。

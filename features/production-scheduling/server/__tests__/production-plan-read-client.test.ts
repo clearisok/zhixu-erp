@@ -28,13 +28,13 @@ test("exact aggregate decimals exceed one assignment's precision without number 
 });
 test("queue order summaries include historical owners without turning them into new executable candidates", async () => {
   const historical = { ...orderSummary, effectiveOrderId: groupId, eligible: false };
-  const queue = { groupId, group: { id: groupId, name: "当前组名", version: 2, enabled: false }, version: 3, assignments: [savedAssignment], resources, ordersById: { [orderId]: historical } };
+  const queue = { groupId, group: { id: groupId, name: "当前组名", version: 2, enabled: false }, version: 3, assignments: [savedAssignment], executions: {}, resources, ordersById: { [orderId]: historical } };
   const value = await client(queue).queue(groupId); assert.equal(value.ordersById[orderId].eligible, false); assert.equal(value.assignments[0].plannedQuantity, "30");
   await assert.rejects(() => client({ ...queue, groupId: orderId }).queue(groupId)); await assert.rejects(() => client({ ...queue, ordersById: {} }).queue(groupId));
 });
 test("group directory rejects rows outside the requested enabled/relevant scope", async () => {
   const row = { id: groupId, name: "合成组", shortName: "", enabled: false, resourcesEnabled: false, canCreate: false, version: 1, queueVersion: 0,
-    assignmentCount: 0, plannedQuantity: "0", headAssignmentId: null, headOrderId: null, plannedThroughDate: null, siteName: "地点", calendarName: "日历" };
+    assignmentCount: 0, pendingAssignmentCount: 0, plannedQuantity: "0", completedQuantity: "0", outstandingPlannedQuantity: "0", headAssignmentId: null, headOrderId: null, plannedThroughDate: null, siteName: "地点", calendarName: "日历" };
   const data = { items: [row], ordersById: {}, total: 1, offset: 0, limit: 20, hasMore: false }, input = { search: "", status: "all" as const, offset: 0, limit: 20 };
   assert.equal((await client(data).groups(input)).items[0].enabled, false);
   await assert.rejects(() => client(data).groups({ ...input, status: "relevant" }));
