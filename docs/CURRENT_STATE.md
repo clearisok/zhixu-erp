@@ -1,11 +1,11 @@
-# 当前状态：成衣出货观察后台开始前移
+# 当前状态：成衣出货观察后台隔离工程通过，待发布门禁
 
-2026-10-24；root唯一writer、既有server_convergence_review独立只读。main e01a11952b648024c0bd6bf4259de429374981e2（2026-10-24T11:40:46.633Z独立API，复用同一已核基线），从该main新建codex/server-garment-observations-current后仅FF到clean5f3dc11df3270fceef14227c0a005220bd570145。三份原摘要/hash及完整终态回执保护于completed/2026-10-24-garment-observations-input-state/。
+2026-10-24；main e01a11952b648024c0bd6bf4259de429374981e2（2026-10-24T11:40:46.633Z独立API），branch codex/server-garment-observations-current；从clean5f新建/FF，prep 412594bde33764cde106700613b5bcacb8b80396。原三摘要/hash及前阶段完整终态在completed/2026-10-24-garment-observations-input-state/。
 
-前阶段分批到料UI最终5f/main守卫PASS103116ms（11/56/64/errors[]），9d修正发布134/134（400362ms），产品a0c3相关97/根811、driver abf3及before3/after17/物料10/导航18共48浏览器、类型NodeLint/双构建PASS；清单387/56、proof e2a，独立终审无新增P1/P2。旧Linux CLI平台缺口独立保留，945为分阶段联合，不借#125三CI。
+source d1930a2da590098f70e6433892eab350a3262e0c实际19文件173/174相关单元/SQL/API（150909ms；0fail/cancel，1既有Linux CLI在Windows跳过，未称PASS）、97根811（27921ms）、139离线Python（6961ms）及类型Node实际load/lint全部PASS。proof 696738e5b21a57a4d82e3c1e7b610f96c361f8c1；清单390/57前向保留旧387/56/runtime/21routes。见[工程证明](tasks/completed/2026-10-24-garment-observations-current-engineering.md)及[当前任务](tasks/active/server-garment-observations-current-2026-10-24.md)。发布134与最终clean精确main守卫尚待实际运行，不预写PASS。
 
-当前只前移49bb0d→b6521d的0040成衣观察后台：16非文档路径、13输入完全相同、workflow/package/README手工追加。复用已审a2967558双总数一致性与1630c19d历史游标两处窄修复，不带0041/0042/0043、UI或expiresAt扩展。保留原稳定颜色、有效归属、物理SO锁、容量、过期原回执、标量历史与四表盘点。见[当前任务](tasks/active/server-garment-observations-current-2026-10-24.md)。尚无本轮新产品或QA。
+0040独立默认关闭target、不可变输入/颜色/上下文和CAS head，Num/outdate与其他累计/日期分离，不跨快照求和、取消/冲销、生产完成、价格或关账。源16路径受控前移及两已有窄修复，0034–0039/权限/旧UI不变。0039升级已有合同与Source非空、逐表保护；未预置人工到料计划，不冒称非空计划恢复。
 
-NETWORK_DEGRADED继续，push0/PR0/Actions0；不重试失败Git通道。仅新建合成一次性PG、离线Python及loopback会话API；不新增真实Source/凭据读取、绑定/激活/调度、不改真实账号/业务库/现有卷、不安装、自动merge/close/deploy或50426切换退役。保护3001/50426/59069/62426、Browser、备份与原结果。Goal active，关账三问不默认，后续0041/页面/0042分别验收。
+前端/锁文件未变，复制a0c3产物215文件hash一致；本轮新Vite/浏览器/截图0，旧UI只按未变范围复用，Linux CLI缺口留给必要Linux CI。
 
-0040后台16非文档路径已受控前移：13原输入匹配，workflow/package/README仅追加；a296双总数与1630游标两处窄修复已保留。独立feature及D152/153按已批准规则前向记录；没有0041/43、前端、真实采集或新QA。
+NETWORK_DEGRADED继续，push0/PR0/Actions0，不借#125三CI。只用自有合成一次性PG/loopback/离线Python，不访问真实凭据/Source/账号/业务库/现有卷，不绑定/激活/调度、自动merge/close/deploy或50426切换退役。保护3001/50426/59069/62426、Browser、备份与已有结果。Goal active；后续0041刷新、出货UI/0042交期/0043collector及关账三问分别推进，不默认业务决定。

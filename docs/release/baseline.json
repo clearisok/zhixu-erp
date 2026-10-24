@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T10:57:17.649Z",
+  "verifiedAt": "2026-10-24T11:40:46.633Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -3432,6 +3432,32 @@
       "recordedAtSha": "eb2fc6ed5cca17f453bcd98598e7357cbe12080f",
       "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
       "sha256": "352ef59d26b79e23bf4ebad48f2147929e2266d9f196574a8a338c650a836f42"
+    },
+    {
+      "id": "garment-observations-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-garment-observations-current-engineering.md",
+      "recordedAtSha": "696738e5b21a57a4d82e3c1e7b610f96c361f8c1",
+      "renderedSourceSha": "d1930a2da590098f70e6433892eab350a3262e0c",
+      "sha256": "9dca58ceffa6ac13dfe7706b3f1779597b4861288d61f28d5059feb68f75665d"
+    },
+    {
+      "id": "server-garment-observations-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md",
+      "recordedAtSha": "696738e5b21a57a4d82e3c1e7b610f96c361f8c1",
+      "renderedSourceSha": "d1930a2da590098f70e6433892eab350a3262e0c",
+      "sha256": "e50037be3ea1c188f8d737d74c14eb42c467add92e8d6de538dd81e9d7c9e99f"
+    },
+    {
+      "id": "decisions-garment-observations-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "696738e5b21a57a4d82e3c1e7b610f96c361f8c1",
+      "renderedSourceSha": "d1930a2da590098f70e6433892eab350a3262e0c",
+      "sha256": "083a8028a28b8946b14977d6f6ea5423820f83192f8043dac9b4f5b80b7950f5",
+      "supersedes": "decisions-production-execution-current-20261024",
+      "changeReason": "Forward-bind approved D152 Num/outdate and D153 immutable observations under D147. Preserve prior decision blobs, default-disabled real Source boundary and unresolved closing questions."
     }
   ],
   "pages": [
@@ -8942,6 +8968,91 @@
           "scope": "Current material arrival UI is not deployed; preserve historical runtime observations without re-query.",
           "evidence": [
             "material-arrival-ui-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "garment-observations-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147/D152/D153 current Windows synthetic0040 backend: immutable exact-contract two-pass garment observations, Num/outdate, stable order colors and physical/effective scope, fresh session DB-only reads, CAS/original capture receipts/history and actual JSONB capacity. Current173/174 related checks, one unchanged Linux CLI platform skip NOT passed;811 root/139 offline Python/type/Node/lint. No new Vite/browser, event ledger/closing/collector, real Source/activation, deployment or human acceptance.",
+      "evidence": [
+        "garment-observations-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "d1930a2da590098f70e6433892eab350a3262e0c",
+          "scope": "D147/D152/D153 current Windows synthetic0040 backend: immutable exact-contract two-pass garment observations, Num/outdate, stable order colors and physical/effective scope, fresh session DB-only reads, CAS/original capture receipts/history and actual JSONB capacity. Current173/174 related checks, one unchanged Linux CLI platform skip NOT passed;811 root/139 offline Python/type/Node/lint. No new Vite/browser, event ledger/closing/collector, real Source/activation, deployment or human acceptance.",
+          "evidence": [
+            "garment-observations-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "d1930a2da590098f70e6433892eab350a3262e0c",
+          "scope": "D147/D152/D153 current Windows synthetic0040 backend: immutable exact-contract two-pass garment observations, Num/outdate, stable order colors and physical/effective scope, fresh session DB-only reads, CAS/original capture receipts/history and actual JSONB capacity. Current173/174 related checks, one unchanged Linux CLI platform skip NOT passed;811 root/139 offline Python/type/Node/lint. No new Vite/browser, event ledger/closing/collector, real Source/activation, deployment or human acceptance.",
+          "evidence": [
+            "garment-observations-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "d1930a2da590098f70e6433892eab350a3262e0c",
+          "scope": "D147/D152/D153 current Windows synthetic0040 backend: immutable exact-contract two-pass garment observations, Num/outdate, stable order colors and physical/effective scope, fresh session DB-only reads, CAS/original capture receipts/history and actual JSONB capacity. Current173/174 related checks, one unchanged Linux CLI platform skip NOT passed;811 root/139 offline Python/type/Node/lint. No new Vite/browser, event ledger/closing/collector, real Source/activation, deployment or human acceptance.",
+          "evidence": [
+            "garment-observations-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "d1930a2da590098f70e6433892eab350a3262e0c",
+          "scope": "D147/D152/D153 current Windows synthetic0040 backend: immutable exact-contract two-pass garment observations, Num/outdate, stable order colors and physical/effective scope, fresh session DB-only reads, CAS/original capture receipts/history and actual JSONB capacity. Current173/174 related checks, one unchanged Linux CLI platform skip NOT passed;811 root/139 offline Python/type/Node/lint. No new Vite/browser, event ledger/closing/collector, real Source/activation, deployment or human acceptance.",
+          "evidence": [
+            "garment-observations-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "d1930a2da590098f70e6433892eab350a3262e0c",
+          "scope": "D147/D152/D153 current Windows synthetic0040 backend: immutable exact-contract two-pass garment observations, Num/outdate, stable order colors and physical/effective scope, fresh session DB-only reads, CAS/original capture receipts/history and actual JSONB capacity. Current173/174 related checks, one unchanged Linux CLI platform skip NOT passed;811 root/139 offline Python/type/Node/lint. No new Vite/browser, event ledger/closing/collector, real Source/activation, deployment or human acceptance.",
+          "evidence": [
+            "garment-observations-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current0040 backend not deployed; preserve historical runtime observations without new queries.",
+          "evidence": [
+            "garment-observations-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current0040 backend not deployed; preserve historical runtime observations without new queries.",
+          "evidence": [
+            "garment-observations-current-engineering-20261024"
           ]
         }
       }
