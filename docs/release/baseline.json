@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T12:27:40.779Z",
+  "verifiedAt": "2026-10-24T13:00:21.354Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -3752,6 +3752,32 @@
       "sha256": "d65164f9d91a0afdf79234190722c3058d245061aceb5ce95e79986ed5e573f7",
       "changeReason": "New exact synthetic before/after evidence for approved D147/D152/D153 garment observations in the existing order detail, original Foundation table/history Drawer, six widths/DPR and separate actual CDP touch. Preserve all prior pixels and records; no Source activation/deployment or human acceptance.",
       "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "delivery-plan-requests-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-delivery-plan-requests-current-engineering.md",
+      "recordedAtSha": "3e8691ce009f27e42474102d360f61b2372ec967",
+      "renderedSourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+      "sha256": "0822295d8a793f3f3d9c5636e125532d7419f16f2c93cce70bcc2ad940bd67bd"
+    },
+    {
+      "id": "server-delivery-plan-requests-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_DELIVERY_PLAN_REQUESTS.md",
+      "recordedAtSha": "3e8691ce009f27e42474102d360f61b2372ec967",
+      "renderedSourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+      "sha256": "2f6c265417d2189bd9cb7ff2c5dea24eb51e43068b764fe820766b27ef9d5fef"
+    },
+    {
+      "id": "decisions-delivery-plan-requests-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "3e8691ce009f27e42474102d360f61b2372ec967",
+      "renderedSourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+      "sha256": "f56ca32460ae88fca84b509d60eaf158ecbd1b3a0684e344b11f7758623a1baa",
+      "supersedes": "decisions-garment-observations-current-20261024",
+      "changeReason": "Forward-bind approved D154 original DeliveryPlan command receipts under D083/D100/D147. Preserve prior business ownership, dates/quantities, real-operation limits and all decision history."
     }
   ],
   "pages": [
@@ -9517,6 +9543,91 @@
           "scope": "Current garment read UI not deployed; retain original historical runtime observations without a new environment query.",
           "evidence": [
             "garment-read-ui-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "delivery-plan-requests-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D083/D100/D147/D154 current synthetic0042 DeliveryPlan exact request receipts. Existing PATCH/date/quantity/ownership and lifecycle preserved; original actor/request replay, current grants, atomic plan/audit/receipt, full void history, compact and PG JSONB capacity, COMMIT-lost-acknowledgement recovery, real lock timeout and complete original SO references. Current16files two groups185/185 plus root811/type/Node/lint; Git-required fixture runs once at exact clean source. No new UI/Vite/browser/Python; old215static hashes/139Python only scope reuse. Prior1ae134 tool regression reused for this local no-PR Gate, not current134 PASS; dynamic docs/manifest changed, final cumulativePR both release commands still required. No real Source/upgrade/activation/deployment/human acceptance.",
+      "evidence": [
+        "delivery-plan-requests-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+          "scope": "D083/D100/D147/D154 current synthetic0042 DeliveryPlan exact request receipts. Existing PATCH/date/quantity/ownership and lifecycle preserved; original actor/request replay, current grants, atomic plan/audit/receipt, full void history, compact and PG JSONB capacity, COMMIT-lost-acknowledgement recovery, real lock timeout and complete original SO references. Current16files two groups185/185 plus root811/type/Node/lint; Git-required fixture runs once at exact clean source. No new UI/Vite/browser/Python; old215static hashes/139Python only scope reuse. Prior1ae134 tool regression reused for this local no-PR Gate, not current134 PASS; dynamic docs/manifest changed, final cumulativePR both release commands still required. No real Source/upgrade/activation/deployment/human acceptance.",
+          "evidence": [
+            "delivery-plan-requests-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+          "scope": "D083/D100/D147/D154 current synthetic0042 DeliveryPlan exact request receipts. Existing PATCH/date/quantity/ownership and lifecycle preserved; original actor/request replay, current grants, atomic plan/audit/receipt, full void history, compact and PG JSONB capacity, COMMIT-lost-acknowledgement recovery, real lock timeout and complete original SO references. Current16files two groups185/185 plus root811/type/Node/lint; Git-required fixture runs once at exact clean source. No new UI/Vite/browser/Python; old215static hashes/139Python only scope reuse. Prior1ae134 tool regression reused for this local no-PR Gate, not current134 PASS; dynamic docs/manifest changed, final cumulativePR both release commands still required. No real Source/upgrade/activation/deployment/human acceptance.",
+          "evidence": [
+            "delivery-plan-requests-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+          "scope": "D083/D100/D147/D154 current synthetic0042 DeliveryPlan exact request receipts. Existing PATCH/date/quantity/ownership and lifecycle preserved; original actor/request replay, current grants, atomic plan/audit/receipt, full void history, compact and PG JSONB capacity, COMMIT-lost-acknowledgement recovery, real lock timeout and complete original SO references. Current16files two groups185/185 plus root811/type/Node/lint; Git-required fixture runs once at exact clean source. No new UI/Vite/browser/Python; old215static hashes/139Python only scope reuse. Prior1ae134 tool regression reused for this local no-PR Gate, not current134 PASS; dynamic docs/manifest changed, final cumulativePR both release commands still required. No real Source/upgrade/activation/deployment/human acceptance.",
+          "evidence": [
+            "delivery-plan-requests-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+          "scope": "D083/D100/D147/D154 current synthetic0042 DeliveryPlan exact request receipts. Existing PATCH/date/quantity/ownership and lifecycle preserved; original actor/request replay, current grants, atomic plan/audit/receipt, full void history, compact and PG JSONB capacity, COMMIT-lost-acknowledgement recovery, real lock timeout and complete original SO references. Current16files two groups185/185 plus root811/type/Node/lint; Git-required fixture runs once at exact clean source. No new UI/Vite/browser/Python; old215static hashes/139Python only scope reuse. Prior1ae134 tool regression reused for this local no-PR Gate, not current134 PASS; dynamic docs/manifest changed, final cumulativePR both release commands still required. No real Source/upgrade/activation/deployment/human acceptance.",
+          "evidence": [
+            "delivery-plan-requests-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+          "scope": "D083/D100/D147/D154 current synthetic0042 DeliveryPlan exact request receipts. Existing PATCH/date/quantity/ownership and lifecycle preserved; original actor/request replay, current grants, atomic plan/audit/receipt, full void history, compact and PG JSONB capacity, COMMIT-lost-acknowledgement recovery, real lock timeout and complete original SO references. Current16files two groups185/185 plus root811/type/Node/lint; Git-required fixture runs once at exact clean source. No new UI/Vite/browser/Python; old215static hashes/139Python only scope reuse. Prior1ae134 tool regression reused for this local no-PR Gate, not current134 PASS; dynamic docs/manifest changed, final cumulativePR both release commands still required. No real Source/upgrade/activation/deployment/human acceptance.",
+          "evidence": [
+            "delivery-plan-requests-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current0042 technical request receipts not deployed; retain old runtime snapshots without querying those environments.",
+          "evidence": [
+            "delivery-plan-requests-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current0042 technical request receipts not deployed; retain old runtime snapshots without querying those environments.",
+          "evidence": [
+            "delivery-plan-requests-current-engineering-20261024"
           ]
         }
       }
