@@ -160,3 +160,5 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅�
 [严格交期覆盖客户端V0](features/SERVER_DELIVERY_COVERAGE_UI.md)沿同一GET/原1MiB边界验证完整coverage；source fc103实际62/类型/Node/相关lint/双构建与37built排单UI通过；proof9a31冻结，面板未实施。
 
 [严格客户端当前证明](tasks/completed/2026-10-24-delivery-coverage-client-current-engineering.md)：本轮62与37built排单UI及双构建通过，初次runner smoke失败保留；清单461/63，精确main守卫另核，无新134/811/139或HostedCI声明。
+
+2026-10-24首次93eb/main守卫实际FAIL113039ms，唯一UI_CHANGE_PAGE：影响记录误用路由名production-scheduling。原JSON/log完整保存initial-*；仅改为现有navigation页面ID，两个helper/V0/visibleDifference:none/产品fc103/截图/guard不变。修正证明85e9360c3aee704f42f2d711b910d0070c6929d8已冻结，清单462/63保持全部旧对象；新最终精确守卫后置，不预写PASS。原62/37/双build等不重复，详见[修正证据](tasks/completed/2026-10-24-delivery-coverage-client-impact-correction.md)。

@@ -4126,6 +4126,14 @@
       "sha256": "89f7c3d55276d114a7ebb47e42f994f82f5992c853224ce0e8c6ca2c3d221667",
       "supersedes": "decisions-delivery-coverage-current-20261024",
       "changeReason": "Forward-bind strict same-response client validation for existing D155 read, preserving historical decisions, owner/session/size limits and requiring separate approval for any visible coverage panel."
+    },
+    {
+      "id": "delivery-coverage-client-impact-correction-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-delivery-coverage-client-impact-correction.md",
+      "recordedAtSha": "85e9360c3aee704f42f2d711b910d0070c6929d8",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "cbe80b57942c2a6da83c80f0fcffd2b6e32b3656a53748e4cf4791f52453561a"
     }
   ],
   "pages": [
