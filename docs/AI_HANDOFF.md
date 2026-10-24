@@ -1,15 +1,10 @@
-# 恢复点：订单物料与运输对话框源码冻结
+# 恢复点：订单物流对话框源码与证据已绑定
 
-2026-10-24，D054/D147/G6D，root唯一writer、既有server_convergence_review只读。main e01a11952b648024c0bd6bf4259de429374981e2于2026-10-24T09:52:24.716Z独立API核实，新分支codex/server-order-logistics-dialog-current自main显式FF至clean 4a20952607d4bccdcf37118ed16aad1067efbe03；三摘要/hash及前阶段完整终态在completed/2026-10-24-order-logistics-dialog-input-state/。
+2026-10-24；root唯一writer、既有server_convergence_review只读，Goal active。branch codex/server-order-logistics-dialog-current；main e01a11952b648024c0bd6bf4259de429374981e2，09:52:24Z独立API。起点4a209 clean，prep ebcad2；三摘要/hash及前阶段完整终态见completed/2026-10-24-order-logistics-dialog-input-state/。
 
-上一阶段progress，45f379API/811根与类型NodeLint PASS；fd36发布134 PASS352688ms，4a最后main守卫PASS85215ms、最终静态复审无P1/P2，clean；清单340/53/runtime/21routes保护。
+source e2cf2bb4397a656b58cfab8388049bd84559527e实际37文件386相关API/升级（218272ms）、97根811（26907ms）、before2/after37/资源23/导航18，类型/Node/import/lint、双Vite构建和产物检查全部PASS，0fail/cancel/skip。proof 54c28cec392a435b1fcffedfa47e32c4b7f5f98b冻结17PNG/2原JSON、42几何，主控实际查看8张；六宽含1536 DPR1.25/390 touch。清单361/54保留旧340/53/runtime/21routes。
+canonical context C:\Users\Administrator\AppData\Local\Temp\zhixu-order-logistics-dialog-driver-JF2aXn\context，archive SHA256 b98ec655ebeffea70f9011c128922dc45346b97034de1c3cdd18a5a1440da35c，过程在outputs/server-order-logistics-dialog-current-20261024。实际07d before已有计划/5件实际但无tracking，浏览器零命令/跟进读取；不得用旧无实际断言。
 
-当前ffef→2a0切片11路径9同，client及driver须三方保留容量提示/严格before/owned清理。产品已按受控切片前移，新QA待冻结后运行。V1恢复现有物流Modal/历史/原请求，不新增outbox或默认仓；旧schema/角色/金额保持。当前任务active/server-order-logistics-dialog-current-2026-10-24.md。
+source独立静态复审无新增P1/P2，reviewer未代跑测试/网络。下一步metadata commit后发布134、最终clean精确main守卫及终审，不重复未改成功检查；旧manifest/截图/runtime/路由不变。
 
-新源码需要双build/实际Chromium，before真实渲染07d（45f未改前端仅复用07d），有计划/实际、无tracking控件，不能沿用更早before无实际的断言。Gitdegraded不重推/CI，无真实Source/凭据/账号/业务库/卷、绑定/激活/调度、自动merge/close/deploy、目标切换或退役。Goal active，关账三问/真实来源额度/50426人验独立。
-
-11路径已受控前移：9同/2三方，client干净合流保留容量提示，driver唯一入口冲突在0仓库写入预核停止后明确保留strict before/owned清理并接新tracking验收。before已改观察07d已有计划+实际、无物流入口；fixture明确写1计划/1实际，浏览器零写，不借更早无实际断言。8路径V1和独立feature齐备；现有order-tracking脚本仅加入新client文件，CI原调用复用，无新workflow行或触发。本轮QA尚未运行。
-
-本阶段以独立source checkpoint冻结后，在git archive新上下文和一次性合成PG/Chromium验收；旧07d静态产物仅作before，复制而不链接。未运行项不写PASS；本轮不重推或触发Actions。
-
-浏览器首轮实际34pass/2fail（包含失败父节点），82,299ms；唯一失败在history场景一次性读取尚未出现的queue按钮标签，导致undefined等待超时，原failure.json显示目标行后已出现且无console/server错误。仅补精确SYN-PLAN-30队列项等待，不加全局超时、不放松断言。失败日志/JSON/原context保留；API386、根811、类型NodeLint、before2及双构建未变范围复用，after及未运行资源/导航继续真实验收。
+网络继承degraded，push0/PR0/Actions0，不借#125三CI。后续0039材料到仓→0040/41成衣出货→0042交期前缀；关账三问、真实Source额度/激活、50426切换/人验/退役独立。禁止真实凭据/Source/账号/业务库/卷操作、绑定/激活/调度、自动merge/close/deploy或共享Git/TLS/proxy/auth变更。

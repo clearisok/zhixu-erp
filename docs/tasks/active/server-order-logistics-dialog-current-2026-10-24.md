@@ -17,3 +17,7 @@
 11路径已受控前移：9同/2三方，client干净合流保留容量提示，driver唯一入口冲突在0仓库写入预核停止后明确保留strict before/owned清理并接新tracking验收。before已改观察07d已有计划+实际、无物流入口；fixture明确写1计划/1实际，浏览器零写，不借更早无实际断言。8路径V1和独立feature齐备；现有order-tracking脚本仅加入新client文件，CI原调用复用，无新workflow行或触发。本轮QA尚未运行。
 
 浏览器首轮实际34pass/2fail（包含失败父节点），82,299ms；唯一失败在history场景一次性读取尚未出现的queue按钮标签，导致undefined等待超时，原failure.json显示目标行后已出现且无console/server错误。仅补精确SYN-PLAN-30队列项等待，不加全局超时、不放松断言。失败日志/JSON/原context保留；API386、根811、类型NodeLint、before2及双构建未变范围复用，after及未运行资源/导航继续真实验收。
+
+## 当前冻结源码实际结果
+
+source e2cf2bb4397a656b58cfab8388049bd84559527e实际37文件386相关API/升级（218272ms）、97根811（26907ms）、before2/after37/资源23/导航18，类型/Node/import/lint、双Vite构建和产物检查全部PASS，0fail/cancel/skip。proof 54c28cec392a435b1fcffedfa47e32c4b7f5f98b冻结17PNG/2原JSON、42几何，主控实际查看8张；六宽含1536 DPR1.25/390 touch。清单361/54保留旧340/53/runtime/21routes。独立source静态review无新增P1/P2，审阅者未跑测试/网络。完整过程保存ignored outputs/server-order-logistics-dialog-current-20261024；旧图不改、旧失败/网络回执保留。metadata后发布134及clean精确main守卫再实际运行。
