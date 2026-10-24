@@ -204,3 +204,5 @@ fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），
 前阶段0040最终aad/main守卫PASS96831ms（11/57/64/errors[]），4e发布134/134（406504ms）；产品d1930相关174总/173通过/1既有Linux CLI Windows跳过、根811/Python139/类型NodeLint通过，proof696，清单390/57。旧Linux缺口不称PASS，无新Vite/browser；独立终审无新增P1/P2，不借#125 CI。当前[0041离线刷新](tasks/active/server-bound-refresh-current-2026-10-24.md)从clean aad继续，12路径8同/4手工预核；完整输入保护于[前置](tasks/completed/2026-10-24-bound-refresh-input-state/)。尚无新产品/QA，网络degraded不重推。
 
 [已绑定合同离线刷新](tasks/active/server-bound-refresh-current-2026-10-24.md)当前0041受控前移，12路径8同/4手工，不创建SO/Source请求/自动绑定；沿[订单持久化](features/SALES_ORDER_PERSISTENCE.md)同一事务与明确原owner，当前新验收待跑。
+
+当前0041 df5bed [proof da5b](tasks/completed/2026-10-24-bound-refresh-current-engineering.md)：API联合184/185（1既有平台跳过；初182/2失败/1skip及Git归档前置诊断保留，affected16根工作树补跑全过），根811/类型NodeLint PASS。清单393/58保留旧390/57/runtime/21routes；Python139/UI215只复用，无新Vite/browser，发布134和最终守卫另核。

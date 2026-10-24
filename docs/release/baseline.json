@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T11:40:46.633Z",
+  "verifiedAt": "2026-10-24T12:03:51.719Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -3458,6 +3458,30 @@
       "sha256": "083a8028a28b8946b14977d6f6ea5423820f83192f8043dac9b4f5b80b7950f5",
       "supersedes": "decisions-production-execution-current-20261024",
       "changeReason": "Forward-bind approved D152 Num/outdate and D153 immutable observations under D147. Preserve prior decision blobs, default-disabled real Source boundary and unresolved closing questions."
+    },
+    {
+      "id": "bound-refresh-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-bound-refresh-current-engineering.md",
+      "recordedAtSha": "da5b5cc695106dab71986d32354e99ccae134c23",
+      "renderedSourceSha": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+      "sha256": "7d90a3acaeedf2ee3baf6c0bb87144ff1ff48f274683334c27169fd672ff53ac"
+    },
+    {
+      "id": "sales-order-bound-refresh-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SALES_ORDER_PERSISTENCE.md",
+      "recordedAtSha": "da5b5cc695106dab71986d32354e99ccae134c23",
+      "renderedSourceSha": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+      "sha256": "54c375bb5777c6b1fc9129e210185437639e2d79e98f69638efad92cdb9f695b"
+    },
+    {
+      "id": "ainuoke-bound-refresh-current-20261024",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "da5b5cc695106dab71986d32354e99ccae134c23",
+      "renderedSourceSha": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+      "sha256": "623b5709ff599bd2b505140adc5b0b7e45506ab083277e9151cacffe53d25242"
     }
   ],
   "pages": [
@@ -9053,6 +9077,91 @@
           "scope": "Current0040 backend not deployed; preserve historical runtime observations without new queries.",
           "evidence": [
             "garment-observations-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "bound-order-refresh-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D083/D100/D147 current Windows synthetic0041 offline bound-contract refresh: exact DB target/contract preview, current permissions, actor-request receipt, source-owner UPDATE and manual DeliveryPlan/commercial/execution protection. API phased union184/185, one unchanged Linux CLI platform skip NOT passed; initial182pass/2fail preserved, affected file16/16 clean exact-source rerun after archive Git-ignore precondition diagnosed. Root811/type/Node/lint new PASS; Python139 and215 UI artifacts reused within unchanged scope, not rerun. No real Source/activation, migration of existing targets, deployment or human acceptance.",
+      "evidence": [
+        "bound-refresh-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+          "scope": "D083/D100/D147 current Windows synthetic0041 offline bound-contract refresh: exact DB target/contract preview, current permissions, actor-request receipt, source-owner UPDATE and manual DeliveryPlan/commercial/execution protection. API phased union184/185, one unchanged Linux CLI platform skip NOT passed; initial182pass/2fail preserved, affected file16/16 clean exact-source rerun after archive Git-ignore precondition diagnosed. Root811/type/Node/lint new PASS; Python139 and215 UI artifacts reused within unchanged scope, not rerun. No real Source/activation, migration of existing targets, deployment or human acceptance.",
+          "evidence": [
+            "bound-refresh-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+          "scope": "D083/D100/D147 current Windows synthetic0041 offline bound-contract refresh: exact DB target/contract preview, current permissions, actor-request receipt, source-owner UPDATE and manual DeliveryPlan/commercial/execution protection. API phased union184/185, one unchanged Linux CLI platform skip NOT passed; initial182pass/2fail preserved, affected file16/16 clean exact-source rerun after archive Git-ignore precondition diagnosed. Root811/type/Node/lint new PASS; Python139 and215 UI artifacts reused within unchanged scope, not rerun. No real Source/activation, migration of existing targets, deployment or human acceptance.",
+          "evidence": [
+            "bound-refresh-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+          "scope": "D083/D100/D147 current Windows synthetic0041 offline bound-contract refresh: exact DB target/contract preview, current permissions, actor-request receipt, source-owner UPDATE and manual DeliveryPlan/commercial/execution protection. API phased union184/185, one unchanged Linux CLI platform skip NOT passed; initial182pass/2fail preserved, affected file16/16 clean exact-source rerun after archive Git-ignore precondition diagnosed. Root811/type/Node/lint new PASS; Python139 and215 UI artifacts reused within unchanged scope, not rerun. No real Source/activation, migration of existing targets, deployment or human acceptance.",
+          "evidence": [
+            "bound-refresh-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+          "scope": "D083/D100/D147 current Windows synthetic0041 offline bound-contract refresh: exact DB target/contract preview, current permissions, actor-request receipt, source-owner UPDATE and manual DeliveryPlan/commercial/execution protection. API phased union184/185, one unchanged Linux CLI platform skip NOT passed; initial182pass/2fail preserved, affected file16/16 clean exact-source rerun after archive Git-ignore precondition diagnosed. Root811/type/Node/lint new PASS; Python139 and215 UI artifacts reused within unchanged scope, not rerun. No real Source/activation, migration of existing targets, deployment or human acceptance.",
+          "evidence": [
+            "bound-refresh-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+          "scope": "D083/D100/D147 current Windows synthetic0041 offline bound-contract refresh: exact DB target/contract preview, current permissions, actor-request receipt, source-owner UPDATE and manual DeliveryPlan/commercial/execution protection. API phased union184/185, one unchanged Linux CLI platform skip NOT passed; initial182pass/2fail preserved, affected file16/16 clean exact-source rerun after archive Git-ignore precondition diagnosed. Root811/type/Node/lint new PASS; Python139 and215 UI artifacts reused within unchanged scope, not rerun. No real Source/activation, migration of existing targets, deployment or human acceptance.",
+          "evidence": [
+            "bound-refresh-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current offline bound-source refresh not deployed; preserve old runtime facts without new queries.",
+          "evidence": [
+            "bound-refresh-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current offline bound-source refresh not deployed; preserve old runtime facts without new queries.",
+          "evidence": [
+            "bound-refresh-current-engineering-20261024"
           ]
         }
       }
