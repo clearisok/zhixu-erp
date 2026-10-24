@@ -174,3 +174,5 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅�
 独立复审在d2ff发现原提取函数以String(result/workerStage)枚举、后续却严格比较原值，数组complete可跳过完整页数/请求校验。新增验证器和garmentCollectionProof两项直接回归，原产品定向实际2/2失败（1177ms），保留proof-enum-red.json/log；不是全套测试失败或真实来源事故。仅两处改为typeof string后精确枚举，数组/嵌套数组、空pages与零请求不能冒充完整C1/C0/C1证明。原scalar成功/失败与预算、SQL、publisher、Python、入口/Source范围保持。旧d2ff全量QA属于修复前源码，修复后仅重验受影响4文件/类型/Node/相关lint；不将旧结果冒称重跑。最终新source验收后另冻结。
 
 [采集器当前证明](tasks/completed/2026-10-24-garment-collector-current-engineering.md)：proof490361，纯依赖与枚举P2关闭，清单465/64；新本地134/精确main守卫后置，旧输入精确不冒称闭包/真实来源或远端PASS。
+
+发布实际终态：metadata b9193ef198f4d704f3bfc6edaa815df3360655ac 上本地134/134 PASS（511202ms），0fail/cancel/skip；同一提交对实际main e01a11952b648024c0bd6bf4259de429374981e2 的精确守卫PASS（161153ms，11pages/64cap/76累计UI/errors[]）。发布结果不是7f全套重跑：原280+18/811/152仍属d2ff，最新43/质量属7f；新134属b919。现在只更新四份状态文档，产品/测试/SQL/465证据64能力/图片不变，不再重复134，最终clean提交精确守卫另核。独立metadata复审无新P1/P2，#125仍在等待具体合并确认；本阶段push0/PR0/Actions0，无部署或真实Source。
