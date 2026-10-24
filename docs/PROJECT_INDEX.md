@@ -210,3 +210,5 @@ fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），
 发布测试实际终态：4cc15c9c7b07d12ca50fa5e61f7007436bfac64c上134/134 PASS（412214ms），0fail/cancel/skip；与df5bed根811分阶段联合945，不是一轮。API联合184/185仍含1既有Linux CLI Windows跳过；初185的182pass/2fail与受影响16补跑均保留，不借发布改写旧失败或填补平台缺口。metadata后仅4状态文档，产品/测试/proof/两feature/清单不变；最后clean精确main守卫由随后实际回执核定，不称Hosted CI/合并/部署/真实来源或人工接受。
 
 前阶段0041最终b97/main守卫PASS98302ms（11/58/64/errors[]），4cc发布134/134（412214ms），source df5bed、proof da5b；清单393/58。API分阶段联合184/185、1既有Linux CLI Windows跳过，初185的182pass/2fail/1skip及16补跑保持；根811/类型NodeLint通过，139Python/215静态产物仅复用。独立终审无新增P1/P2，不冒称单轮185全绿、Linux通过或Hosted CI。当前[成衣只读UI](tasks/active/server-garment-read-ui-current-2026-10-24.md)从clean b97继续，15路径11同/1已应用/3手工预核；完整前阶段输入保护[前置](tasks/completed/2026-10-24-garment-read-ui-input-state/)。尚无新UI/QA，旧后台696冻结文档不改。
+
+[Server成衣只读UI](features/SERVER_GARMENT_SHIPMENT_UI.md)当前在原订单详情接线，后台696原文冻结保持；新source/driver/六宽浏览器证据待跑，不借旧UI结果。

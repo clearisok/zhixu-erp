@@ -12,6 +12,7 @@ import { readStableOrderColors, ensureStableOrderColor, orderColorBusinessKey, s
 import { boundOrders, type BoundSourceOrder } from "./service.js";
 import { hash, sourceKeyValid } from "./contract.js";
 import { restoreGarmentObservationSnapshot, GARMENT_OBSERVATION_LIMITS, type GarmentObservationScope, type GarmentObservationSnapshot } from "./garment-shipment-observations.js";
+import type { GarmentEmptyView, GarmentObservedView } from "../../features/ainuoke-garment-shipments/model.js";
 
 const tables = ["ainuoke_garment_shipment_targets", "ainuoke_garment_shipment_snapshots", "ainuoke_garment_shipment_color_matches", "ainuoke_garment_shipment_heads"];
 const fail = (status: number, code: string): never => { throw new HttpError(status, code, "成衣出货观察暂不可用。"); };
@@ -213,13 +214,14 @@ export async function publishGarmentObservation(pool: Pool, caller: TrustedIdent
   });
 }
 
-function readProjection(row: Stored, basis: ColorBasis, target: Target, now: number) {
+function readProjection(row: Stored, basis: ColorBasis, target: Target, now: number): GarmentObservedView {
   if (!Number.isFinite(now) || now < Date.parse(row.payload.observedThrough)) fail(503, "garment_observation_clock_invalid");
   const payload = verifyStored(row);
   return { ...payload, schemaVersion: "order-garment-shipments.v1" as const, salesOrderId: row.sales_order_id, sourceReportId: "6086979" as const,
     sourceStatus: payload.rows.length ? "observed" as const : "observed_empty" as const, publicationId: row.id, generation: row.generation,
     freshness: now - Date.parse(payload.observedFrom) < row.freshness_ms ? "fresh" as const : "stale" as const,
-    evaluatedAt: new Date(now).toISOString(), targetPolicyChanged: row.target_version !== target.version,
+    evaluatedAt: new Date(now).toISOString(), expiresAt: new Date(Date.parse(payload.observedFrom) + row.freshness_ms).toISOString(),
+    targetPolicyChanged: row.target_version !== target.version,
     colorBasisChanged: hash(basis) !== row.color_basis_hash };
 }
 /** DB-only reader. Current and historical data remain observations as-of capture;
@@ -230,7 +232,7 @@ export function createGarmentShipmentReader(pool: Pool, config: { sourceKey: str
     ids(sourceKey, orderId); if (publicationId !== undefined && !identityUuid.test(publicationId)) fail(400, "invalid_garment_source_request");
     return transaction(pool, false, async client => {
       await actorFor(client, identity, false); await available(client); const business = await verifiedOrder(client, orderId);
-      const empty = (sourceStatus: "not_applicable" | "not_connected" | "not_captured" | "identity_changed") => ({
+      const empty = (sourceStatus: "not_applicable" | "not_connected" | "not_captured" | "identity_changed"): GarmentEmptyView => ({
         schemaVersion: "order-garment-shipments.v1" as const, salesOrderId: orderId, sourceReportId: "6086979" as const, sourceStatus, rows: [] });
       if (business.businessType === "processing") return empty("not_applicable");
       const target = await targetFor(client, sourceKey, orderId, false); if (!enabled(target)) return empty("not_connected");

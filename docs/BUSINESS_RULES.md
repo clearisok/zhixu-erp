@@ -443,3 +443,5 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 6086979 Num与outdate分别为逐笔数量与业务日期；其他日期/累计列独立，缺失/非法/零/负值不混同。当前0040不可变指定合同观察复用可信合同和稳定颜色，不跨次累加、不将消失作取消、不写生产完成/价格/收入或关账。默认关闭的独立target不代表真实采集/激活；完整边界见[Server成衣观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。本轮工程结果待按精确source验证，原b652结果不借用。
 
 2026-10-24 D083/D100/D147合同来源更新先核既有可信合同及DB目标的完整证据预览，明确原请求命令；既有身份不变，缺失/非法/空颜色不清旧来源。人工计划/独立价格/生产完成保留，历史原owner不搬移。0041离线工具不采集/绑定或激活；[当前实现契约](features/SALES_ORDER_PERSISTENCE.md)按新source另验，不扩大真实执行许可。
+
+2026-10-24 D147/D152/D153成衣出货只读区块按原0040观察展示Num/outdate、单位/原单据/未知和历史，不跨快照合计，不改完成/价格/关账。时效按原快照策略，不用当前target延长；可信session及layout owner保护，见[当前UI契约](features/SERVER_GARMENT_SHIPMENT_UI.md)。本轮新UI验收仍待，不宣称真实Source激活。

@@ -17,3 +17,5 @@ Num/outdate只读原观察、精确数量/未知值/未匹配颜色/空结果和
 新source冻结后跑客户端+真实HTTP、原观察/升级、类型NodeLoadLint、相关根、双真实构建/产物、before零出货请求/写入与after current/history/TTL/关闭/ABA/401/403/七角色、六宽度/DPR和真实touch。冻结精确渲染/driver/产品SHA及截图/geometry；发布134与最终main守卫、独立终审按实际结果，不借旧UI证明。
 
 NETWORK_DEGRADED，push0/PR0/Actions0；不重试失败Git通道、不借#125 CI。仅自有合成一次性PG/loopback/私有Chromium；不读真实凭据/Source、不改真实账号/业务DB/现有卷、不绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份及结果。Goal active；0042/0043及关账三问后续不默认。
+
+15路径受控前移：11输入一致、app游标已在0040保留，store测试三方合流与incoming完全相同（保留两cursor断言+新增客户端/expiry断言）。workflow只加本轮UI测试及精确ExpectedSource，package只扩当前client和driver。5路径V1已登记；后台696/0040/41保持，新UI契约独立。两driver P2已修复：after完整ExpectedSource、before精确a0c3外部静态、根CDP及自有Chromium确认退出/保留未知profile、原子enabled点击。新增真实CDP touch；语法/差异检查通过，当前等待本轮source冻结与实际QA，不预写PASS。

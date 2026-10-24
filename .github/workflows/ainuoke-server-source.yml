@@ -85,6 +85,8 @@ jobs:
           ZHIXU_GIT_COMMIT: ${{ github.sha }}
         run: npm run build
       - name: Existing P6 pages, six roles and persisted refresh in private Chromium
+        env:
+          GARMENT_SHIPMENTS_EXPECTED_SOURCE: ${{ github.sha }}
         run: |
           node --test tests/server-navigation-history.test.mjs
           npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
@@ -97,6 +99,7 @@ jobs:
           npm run test:order-sale-adjustments-ui
           npm run test:material-history-ui
           npx --no-install tsx --test server/integration/material-display-ui.integration.test.mjs
+          npm run test:garment-shipments-ui
           npm run test:ainuoke-payment-panel-ui
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge

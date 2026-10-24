@@ -115,9 +115,10 @@
     "test:order-tracking": "tsx --test --test-concurrency=1 server/production-scheduling/tracking-contract.test.ts server/integration/order-tracking.integration.test.ts server/integration/order-tracking-upgrade.integration.test.ts features/production-scheduling/server/__tests__/production-tracking-client.test.ts",
     "test:material-arrivals": "tsx --test --test-concurrency=1 server/material-arrivals/contract.test.ts server/integration/material-arrivals.integration.test.ts server/integration/material-arrivals-upgrade.integration.test.ts server/integration/material-generation-integration.test.ts features/style-progress/server/__tests__/arrival-logistics.test.ts features/style-progress/server/__tests__/material-arrivals-client.test.ts server/integration/material-arrival-logistics.integration.test.ts server/integration/material-arrival-client-capacity.integration.test.ts",
     "test:material-arrivals-ui": "tsx --test server/integration/material-arrivals-ui.integration.test.mjs",
-    "test:garment-shipment-observations": "tsx --test --test-concurrency=1 server/ainuoke-source/garment-shipment-observations.test.ts server/integration/garment-shipment-store.integration.test.ts server/integration/garment-shipment-upgrade.integration.test.ts",
+    "test:garment-shipment-observations": "tsx --test --test-concurrency=1 server/ainuoke-source/garment-shipment-observations.test.ts features/ainuoke-garment-shipments/__tests__/client.test.ts server/integration/garment-shipment-store.integration.test.ts server/integration/garment-shipment-upgrade.integration.test.ts",
     "source:ainuoke:bound-refresh": "tsx server/ainuoke-source/bound-order-refresh-cli.ts",
-    "test:bound-order-refresh": "tsx --test --test-concurrency=1 server/integration/bound-order-refresh.test.ts server/integration/bound-order-refresh.integration.test.ts"
+    "test:bound-order-refresh": "tsx --test --test-concurrency=1 server/integration/bound-order-refresh.test.ts server/integration/bound-order-refresh.integration.test.ts",
+    "test:garment-shipments-ui": "tsx --test --test-concurrency=1 server/integration/garment-shipments-ui.integration.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

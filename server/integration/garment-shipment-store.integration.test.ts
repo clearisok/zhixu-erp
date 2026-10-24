@@ -24,6 +24,7 @@ import { createProcessingBatch, previewProcessingBatch, confirmProcessingBatch, 
 import { createApp } from "../app.js";
 import { hash } from "../ainuoke-source/contract.js";
 import { createGarmentShipmentReader, garmentShipmentReadConfig, prepareGarmentPublication, publishGarmentObservation, type GarmentPublicationContext } from "../ainuoke-source/garment-shipment-store.js";
+import { parseGarmentView, parseGarmentHistory } from "../../features/ainuoke-garment-shipments/client.js";
 
 const sourceKey = "synthetic-garment", fingerprint = "a".repeat(64), grants: PermissionKey[] = ["order.view", "ainuoke.view", "ainuoke.sync"];
 const code = (expected: string) => (error: unknown) => (error as { code?: string }).code === expected;
@@ -128,6 +129,8 @@ test("garment observation ownership, immutable SQL, trusted HTTP, CAS and curren
     const context = await prepare(); first = await publish(context);
     assert.equal(first.generation, 1); assert.equal(first.alreadyPublished, false); assert.deepEqual(await publish(context), { ...first, alreadyPublished: true });
     const value = await current(); assert.equal(value.schemaVersion, "order-garment-shipments.v1"); assert.equal(value.rows.length, 127);
+    assert.equal(value.expiresAt, new Date(Date.parse(value.observedFrom) + 60000).toISOString());
+    assert.deepEqual(parseGarmentView(value, orderId, value.salesContractNo), value);
     assert.deepEqual(value.rows[0].quantity, { state: "known", raw: "9007199254740993.000000000001", value: "9007199254740993.000000000001" });
     assert.equal(value.rows[0].colorMatch.state, "matched"); assert.deepEqual(value.rows[0].businessDate, { state: "known", raw: "2026-10-11", value: "2026-10-11" });
     const restarted = createGarmentShipmentReader(pool, { sourceKey }, () => clock); assert.deepEqual(await restarted.read(viewer.actor, orderId), value);
@@ -140,6 +143,7 @@ test("garment observation ownership, immutable SQL, trusted HTTP, CAS and curren
   await t.test("freshness is labelled history, quantities do not re-map colors, rename and ambiguity stay explicit", async () => {
     const old = await current(), oldId = old.rows[0].colorMatch.state === "matched" ? old.rows[0].colorMatch.orderColorId : assert.fail();
     clock += 70000; const stale = await current(); assert.equal(stale.freshness, "stale"); assert.deepEqual(stale.rows, old.rows);
+    assert.equal(stale.expiresAt, old.expiresAt); assert.deepEqual(parseGarmentView(stale, orderId, stale.salesContractNo), stale);
     await replaceCurrentAinuokeColorSlice(pool, orderId, [{ sourceLineIdentity: "SYN-QTY-CHANGED", colorName: "蓝色", quantity: 999, deliveryDate: null, sourceHash: hash("qty") },
       { sourceLineIdentity: "SYN-RED-QTY", colorName: "红色", quantity: 40, deliveryDate: null, sourceHash: hash("red") }]);
     assert.equal((await current()).colorBasisChanged, false); assert.deepEqual((await current()).rows[0].colorMatch, old.rows[0].colorMatch);
@@ -160,7 +164,9 @@ test("garment observation ownership, immutable SQL, trusted HTTP, CAS and curren
     const stale = await prepare(); await publish(stale, 2);
     await assert.rejects(() => publish(stale, 3, 1), code("garment_generation_conflict"));
     await publish(await prepare(), 0); const empty = await current(); assert.equal(empty.sourceStatus, "observed_empty"); assert.equal(empty.disappearanceMeaning, "unknown_not_cancellation");
+    assert.deepEqual(parseGarmentView(empty, orderId, empty.salesContractNo), empty);
     const history = await reader.history(viewer.actor, orderId); assert.ok(history.records.length >= 6);
+    assert.deepEqual(parseGarmentHistory(history, orderId), history);
     assert.ok(history.records.some(record => record.publicationId === first.publicationId));
     assert.equal((await reader.read(viewer.actor, orderId, first.publicationId)).rows.length, 127);
   });
@@ -288,13 +294,14 @@ test("garment observation ownership, immutable SQL, trusted HTTP, CAS and curren
   });
 
   await t.test("profile, target and account changes invalidate prepared captures and hide disconnected data", async () => {
-    const context = await prepare(); await pool.query("UPDATE ainuoke_source_profiles SET enabled=false WHERE source_key=$1", [sourceKey]);
+    const prior = await current(), context = await prepare(); await pool.query("UPDATE ainuoke_source_profiles SET enabled=false WHERE source_key=$1", [sourceKey]);
     await assert.rejects(() => publish(context), code("garment_source_not_connected")); assert.equal((await reader.read(viewer.actor, orderId)).sourceStatus, "not_connected");
     await pool.query("UPDATE ainuoke_source_profiles SET enabled=true,account_fingerprint=$2 WHERE source_key=$1", [sourceKey, "b".repeat(64)]);
     await assert.rejects(() => publish(context), code("garment_source_not_connected")); assert.equal((await reader.history(viewer.actor, orderId)).records.length, 0);
     await pool.query("UPDATE ainuoke_source_profiles SET account_fingerprint=$2 WHERE source_key=$1", [sourceKey, fingerprint]);
     await pool.query("UPDATE ainuoke_garment_shipment_targets SET freshness_ms=120000,version=version+1 WHERE source_key=$1", [sourceKey]);
     await assert.rejects(() => publish(context), code("garment_binding_changed")); assert.equal((await current()).targetPolicyChanged, true);
+    assert.equal((await current()).expiresAt, prior.expiresAt);
   });
 
   await t.test("independent processing batch has no garment source, and a label alone cannot forge business provenance", async () => {

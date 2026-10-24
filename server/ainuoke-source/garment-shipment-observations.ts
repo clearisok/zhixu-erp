@@ -1,4 +1,5 @@
-import { canonicalDecimal } from "../quotes/decimal-projection.js";
+import { GARMENT_VISIBLE_FIELDS, garmentQuantity, garmentBusinessDate, type GarmentSourceField } from "../../features/ainuoke-garment-shipments/model.js";
+export { garmentQuantity, garmentBusinessDate, type GarmentSourceField, type GarmentQuantity, type GarmentBusinessDate } from "../../features/ainuoke-garment-shipments/model.js";
 import { hash } from "./contract.js";
 
 /** Engineering input budgets, not permission to issue any real request. */
@@ -8,13 +9,7 @@ export const GARMENT_SOURCE_FIELDS = ["id", "CompanyName", "billno", "FDate", "C
   "CustomerOrderNo", "CnName", "CnColor", "QtyUnit", "styleNum", "trimnum", "ycyNum", "UsableNum", "Num", "TotalGWa", "TotalNWa",
   "ppmeetting", "indate", "outdate", "Bgrade", "Bgradereason", "factory", "Overfilled", "isClearing", "ExpContractNo", "syap", "syqr",
   "dhmlzg", "dcsj", "GYDJY", "KCDate", "DeliveryDate", "wx", "remark", "wxprice"] as const;
-const visibleFields = ["id", "billno", "ExpContractNo", "insideorderno", "CnColor", "QtyUnit", "Num", "outdate", "FDate", "indate",
-  "DeliveryDate", "styleNum", "trimnum", "ycyNum", "UsableNum", "Overfilled", "Bgrade"] as const;
 type Obj = Record<string, unknown>;
-export type GarmentSourceField = { state: "known"; raw: string } | { state: "unknown"; reason: "missing" | "null" | "blank" };
-type UnknownField = Extract<GarmentSourceField, { state: "unknown" }>;
-export type GarmentQuantity = UnknownField | { state: "known"; raw: string; value: string } | { state: "invalid"; raw: string; reason: "invalid_decimal" };
-export type GarmentBusinessDate = UnknownField | { state: "known"; raw: string; value: string } | { state: "invalid"; raw: string; reason: "invalid_date" };
 export type GarmentObservationScope = { sourceFingerprint: string; salesContractNo: string };
 export class GarmentObservationError extends Error {
   constructor(readonly code: string) { super(code); this.name = "GarmentObservationError"; }
@@ -43,22 +38,6 @@ function sourceField(row: Obj, key: string): GarmentSourceField {
     return fail("shipment_observation_exact_strings_required");
   return value.trim() ? { state: "known", raw: value } : { state: "unknown", reason: "blank" };
 }
-export function garmentQuantity(field: GarmentSourceField): GarmentQuantity {
-  if (field.state !== "known") return field;
-  const raw = field.raw, value = raw.trim();
-  if (value.length <= 128 && /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/u.test(value)) {
-    try { const parsed = canonicalDecimal(value); if (parsed.length <= 128) return { ...field, value: parsed }; } catch { /* retain invalid evidence */ }
-  }
-  return { state: "invalid", raw, reason: "invalid_decimal" };
-}
-export function garmentBusinessDate(field: GarmentSourceField): GarmentBusinessDate {
-  if (field.state !== "known") return field;
-  // Date-only source values are civil dates, never converted through local time.
-  const raw = field.raw, value = raw.trim();
-  const valid = /^\d{4}-\d{2}-\d{2}$/u.test(value) && value >= "1900-01-01" && value <= "9999-12-31"
-    && Number.isFinite(Date.parse(value + "T00:00:00.000Z")) && new Date(value + "T00:00:00.000Z").toISOString().slice(0, 10) === value;
-  return valid ? { ...field, value } : { state: "invalid", raw, reason: "invalid_date" };
-}
 function capturedTime(value: unknown): number {
   if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|\+00:00)$/u.test(value)
     || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString().slice(0, 10) !== value.slice(0, 10))
@@ -86,7 +65,7 @@ function projectPage(input: unknown, scope: GarmentObservationScope) {
     for (const key of Object.keys(row)) sourceField(row, key);
     if (!cleanText(row.id, 128)) fail("shipment_observation_row_identity_missing");
     if (row.ExpContractNo !== scope.salesContractNo) fail("shipment_observation_contract_mismatch");
-    const fields = Object.fromEntries(visibleFields.map(key => [key, sourceField(row, key)])) as Record<typeof visibleFields[number], GarmentSourceField>;
+    const fields = Object.fromEntries(GARMENT_VISIBLE_FIELDS.map(key => [key, sourceField(row, key)])) as Record<typeof GARMENT_VISIBLE_FIELDS[number], GarmentSourceField>;
     return { observationId: hash([captureId, index]), sourceRecordId: row.id as string,
       trace: { captureId, page: Number(page.page), rowIndex: index, rawResponseSha256: page.rawResponseSha256 as string,
         rowContentHash: hash(row), stableBusinessEventIdentity: "unverified" as const },

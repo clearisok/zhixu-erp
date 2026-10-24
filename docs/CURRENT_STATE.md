@@ -7,3 +7,5 @@
 当前只前移441edd→4066的15非文档路径：11相同/1已应用app游标/3手工workflow、package、store测试。带原严格客户端/共享纯model、原快照expiresAt及订单详情只读区块/hook和已修手机历史卡；不带固定真实查询工具、0042/43或自动采集。保留当前0040/41锁序/容量/原回执/owner。旧后台feature696冻结字节保持，新建实质UI契约，避免无actual-main锚点的同路径修订。见[当前任务](tasks/active/server-garment-read-ui-current-2026-10-24.md)。当前只有prep，无新产品/QA。
 
 NETWORK_DEGRADED，push0/PR0/Actions0；不重试失败Git通道、不借#125 CI。仅自有合成一次性PG/loopback/私有Chromium；不读真实凭据/Source、不改真实账号/业务DB/现有卷、不绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份及结果。Goal active；0042/0043及关账三问后续不默认。
+
+15路径受控前移：11输入一致、app游标已在0040保留，store测试三方合流与incoming完全相同（保留两cursor断言+新增客户端/expiry断言）。workflow只加本轮UI测试及精确ExpectedSource，package只扩当前client和driver。5路径V1已登记；后台696/0040/41保持，新UI契约独立。两driver P2已修复：after完整ExpectedSource、before精确a0c3外部静态、根CDP及自有Chromium确认退出/保留未知profile、原子enabled点击。新增真实CDP touch；语法/差异检查通过，当前等待本轮source冻结与实际QA，不预写PASS。
