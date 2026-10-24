@@ -1,6 +1,6 @@
 # Server人工预计到仓批次
 
-2026-10-24；D054/D065–069/D147当前后台受控前移候选，精确源码和本轮实际验收见[阶段任务](../tasks/active/server-material-arrivals-current-2026-10-24.md)；原cbfd结果不作新验收。
+2026-10-24；D054/D065–069/D147 Server人工预计到仓及当前原页面接线候选，精确源码和本轮实际验收见[阶段任务](../tasks/active/server-material-arrivals-current-2026-10-24.md)；原cbfd结果不作新验收。
 继承D054、D065–069；不改变Browser模型、身份、存储或原唯一物流算法。
 目前Source交期没有已证明的到Hub地点语义，因此仅作只读对照；本切片没有自动Source批次或恢复来源写入。
 页面和逐批物流接线当前独立验收，后台通过不代表可邀请用户体验完整物流。
@@ -77,7 +77,7 @@ Source不可用只允许明确清空已有计划，空版本引用历史证据�
 所有验收使用随机一次性合成PG和loopback，保护3001/50426/59069/62426、既有卷、账号、Browser和Source额度。
 没有部署、绑定、激活、调度、真实来源读取或关账授权。
 
-当前仅前移bb0ee176→cbfd的20个代码/SQL路径，输入blob与当前候选完全一致，README/package及单条既有CI调用按当前基线手工对齐。旧0034–0038、前端路由/导航/像素和权限目录不改；后台通过不代表页面、物流建议或人工接受。
+后台受控前移阶段仅前移bb0ee176→cbfd的20个代码/SQL路径，输入blob与当前候选完全一致，README/package及单条既有CI调用按当前基线手工对齐。旧0034–0038、前端路由/导航/像素和权限目录不改；后台通过不代表页面、物流建议或人工接受。
 
 ## 当前原页面接线阶段（2026-10-24，验收进行中）
 
@@ -88,3 +88,5 @@ Source不可用只允许明确清空已有计划，空版本引用历史证据�
 预览前重读并核tracking/source一致，命令仍由0039事务重验；页面/Modal/Drawer以session/layout/request owner隔离迟到成功、错误和401。现阶段源码受控前移，实际构建/新浏览器和完整回归待跑；原f287的16项结果不作本次PASS。见[当前UI任务](../tasks/active/server-material-arrival-ui-current-2026-10-24.md)。
 
 当前候选同时保留加载禁用、同步inFlight与Source完成重读；依据变化仅暂停旧建议、保留草稿，显式重新读取后再预览。客户端不额外施加1000颜色业务限制，完整响应1MiB与0039的身份/数据字节预算保持，当前新测试验收按冻结source另记。
+
+当前UI产品a0c3及abf3触摸测试驱动的实际97相关/811根、before3/after17/物料10/导航18、双构建与容量红绿已验证；[当前工程证明](../tasks/completed/2026-10-24-material-arrival-ui-current-engineering.md)冻结18PNG/3JSON、8图查看。此前“待验收”保留为该checkpoint时序；发布和最终精确main守卫另核，不代表合并、Source/部署或人工接受。独立UI命令要求MATERIAL_ARRIVALS_EXPECTED_SOURCE为实际构建full SHA；before另外仅接受已批准e2cf与before-only静态路径。

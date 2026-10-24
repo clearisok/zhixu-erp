@@ -1,0 +1,82 @@
+{
+  "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+  "build": {
+    "environment": "production",
+    "buildId": "material-arrival-ui-a0c3d164-server-20261024",
+    "gitCommit": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+    "buildTime": "2026-10-24T11:15:32.568Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "before": false,
+  "metrics": [
+    {
+      "width": 1920,
+      "overflow": false,
+      "inside": true,
+      "footer": true,
+      "footerVisible": true,
+      "batches": 2
+    },
+    {
+      "width": 1536,
+      "overflow": false,
+      "inside": true,
+      "footer": true,
+      "footerVisible": true,
+      "batches": 2
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "inside": true,
+      "footer": true,
+      "footerVisible": true,
+      "batches": 2
+    },
+    {
+      "width": 1280,
+      "overflow": false,
+      "inside": true,
+      "footer": true,
+      "footerVisible": true,
+      "batches": 2
+    },
+    {
+      "width": 900,
+      "overflow": false,
+      "inside": true,
+      "footer": true,
+      "footerVisible": true,
+      "batches": 2
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "inside": true,
+      "footer": true,
+      "footerVisible": true,
+      "batches": 2
+    },
+    {
+      "stage": "touch-history",
+      "width": 390,
+      "opened": {
+        "x": 53,
+        "y": 248.609375,
+        "visible": true
+      },
+      "closed": {
+        "x": 352,
+        "y": 36,
+        "visible": true
+      },
+      "browserInput": "CDP touchStart/touchEnd",
+      "businessWrites": 0
+    }
+  ],
+  "errors": []
+}
