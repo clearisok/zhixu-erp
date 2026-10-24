@@ -4,6 +4,7 @@ import {Button,FormItem,Modal} from '@/components/foundation';
 import {useServerSession} from '@/features/server-auth';
 import {orderPricingRequest,OrderSourceError} from '@/features/order-center/components/order-business-source-button';
 import type {previewProcessingQuotePush,pushProcessingQuotes,readProcessingPushReceipt} from '../../../server/sales-orders/processing-quote-push';
+import {useServerNavigationProtection} from '@/components/foundation/server-navigation-protection';
 
 type Preview=Awaited<ReturnType<typeof previewProcessingQuotePush>>;
 type Ready=Extract<Preview['items'][number],{status:'ready'}>;
@@ -17,6 +18,7 @@ export function ProcessingQuotePushDialog({selection,onClose,onDone}:{selection:
  const [hasPendingCommand,setHasPendingCommand]=useState(false);
  const [preview,setPreview]=useState<Preview|null>(null),[drafts,setDrafts]=useState<Record<string,Draft>>({}),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[result,setResult]=useState<Results|null>(null),[pendingMeta,setPendingMeta]=useState<{requestId:string;quoteIds:string[]}|null>(null),[failed,setFailed]=useState<PushCommand|null>(null),[recovery,setRecovery]=useState<Receipt|null>(null);
  const scope=JSON.stringify([session.user?.id,session.permissions]),signature=JSON.stringify(selection),key=`zhixu.server.processing-push.pending.v1.${session.user?.id??'anonymous'}`;
+ useServerNavigationProtection({blocked:busy||Boolean(pendingMeta),message:'加工推送正在处理或结果尚未确认，请先核对原加工推送回执。'});
  const allowed=['quote.view','quote.edit','quote.confirm','commercial.labor.view','commercial.labor.edit','order.view','order.processing.batch.manage','order.processing.consume'].every(p=>session.permissions.includes(p as typeof session.permissions[number]));
  useEffect(()=>{mounted.current=true;let active=true;void Promise.resolve().then(async()=>{try{
   const saved=window.sessionStorage.getItem(key);if(saved){const meta=JSON.parse(saved);if(typeof meta.requestId==='string'&&Array.isArray(meta.quoteIds)){if(active)setPendingMeta(meta);return;}}

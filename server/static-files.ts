@@ -9,6 +9,7 @@ const contentTypes: Record<string, string> = {
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".png": "image/png",
+  ".rsc": "text/x-component; charset=utf-8",
   ".svg": "image/svg+xml",
   ".webp": "image/webp",
   ".woff2": "font/woff2",
@@ -52,7 +53,7 @@ export async function serveStatic(
   response.setHeader("Content-Type", contentTypes[extension] ?? "application/octet-stream");
   response.setHeader(
     "Cache-Control",
-    extension === ".html" || file.endsWith("build-info.json")
+    extension === ".html" || extension === ".rsc" || file.endsWith("build-info.json")
       ? "no-store, max-age=0, must-revalidate"
       : pathname.startsWith("/assets/")
         ? "public, max-age=31536000, immutable"

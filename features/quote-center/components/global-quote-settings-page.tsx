@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useProtectedRouter as useRouter } from "@/components/foundation/server-navigation-protection";
 import { AlertBanner, AppShell, Button, Card, FormItem, FormShell, MasterDetail, NullableNumberInput, PageContainer, PageHeader, StatusTag, Toast } from "@/components/foundation";
 import { ManufacturingSchemeSelector } from "./manufacturing-scheme-selector";
 import { PermissionButton, usePermissionAuthority, usePermissions } from "@/features/permissions";
 import { createGlobalQuoteSettingsOperationLogs, operationLogRepository } from "@/features/operation-logs";
 import { activeManufacturingPresets, defaultGlobalQuoteSettings, loadGlobalQuoteSettings, saveGlobalQuoteSettings, setManufacturingPresetStatus, type GlobalQuoteSettings, type ManufacturingPreset } from "../model/quote-settings";
+import { useServerNavigationProtection } from "@/components/foundation/server-navigation-protection";
 
 export type GlobalQuoteSettingsController = {
   load(): Promise<GlobalQuoteSettings>;
@@ -24,6 +25,7 @@ export function GlobalQuoteSettingsPage({ serverController, serverProduction = f
   const [baseline,setBaseline]=useState<GlobalQuoteSettings|null>(null);
   const [saving,setSaving]=useState(false); const savingRef=useRef(false);
   const dirty=baseline!==null&&JSON.stringify(settings)!==JSON.stringify(baseline);
+  useServerNavigationProtection({dirty,blocked:Boolean(serverController)&&saving,message:"报价设置正在保存，请等待本次操作完成。"});
   useEffect(()=>{const guard=(event:BeforeUnloadEvent)=>{if(dirty){event.preventDefault();event.returnValue="";}};window.addEventListener("beforeunload",guard);return()=>window.removeEventListener("beforeunload",guard);},[dirty]);
   const [toast, setToast] = useState("");
   const [error, setError] = useState("");

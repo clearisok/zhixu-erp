@@ -1,6 +1,8 @@
 "use client";
+import {useServerNavigationProtection} from '@/components/foundation/server-navigation-protection';
 import {useEffect,useRef,useState} from 'react';
-import {useRouter,useSearchParams} from 'next/navigation';
+import {useSearchParams} from 'next/navigation';
+import {useProtectedRouter as useRouter} from '@/components/foundation/server-navigation-protection';
 import {AppShell,PageContainer,PageHeader,Card,Button,Modal} from '@/components/foundation';
 import {ServerLoginCard,useServerSession} from '@/features/server-auth';
 import {quoteAuthority} from '@/features/quote-center/authority/quote-authority';
@@ -15,12 +17,13 @@ function SettingsBody(){
  const [base,setBase]=useState<MaterialProgressSettings|null>(null),[draft,setDraft]=useState<string[]>([]),[keyword,setKeyword]=useState('');
  const [pending,setPending]=useState<ProgressSettingsRequest|null>(null),[saving,setSaving]=useState(false),[message,setMessage]=useState(''),[departure,setDeparture]=useState<Departure|null>(null);const busy=useRef(false);
  const dirty=base!==null&&JSON.stringify(draft)!==JSON.stringify(base.trimPriorityKeywords),blocked=dirty||keyword.length>0||pending!==null||saving;
+ const confirmedNavigation=useServerNavigationProtection({dirty:dirty||keyword.length>0,blocked:saving||Boolean(pending),message:'排序保存结果尚未确认，请先核对原保存请求。'});
  const canEdit=Boolean(base?.canEdit&&read.settings?.canEdit&&session.hasPermission('style_progress.settings.edit'));
  useEffect(()=>{let current=true;const settings=read.settings;if(settings&&(!base||!dirty&&!pending&&settings.version>base.version))queueMicrotask(()=>{if(current){setBase(settings);setDraft([...settings.trimPriorityKeywords]);}});return()=>{current=false;};},[read.settings,base,dirty,pending]);
  useEffect(()=>{if(!blocked)return;const guard=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',guard);return()=>window.removeEventListener('beforeunload',guard);},[blocked]);
  const navigate=(href:string)=>{if(blocked)setDeparture({kind:'navigation',href});else router.push(href);};
  const logout=async()=>{if(blocked){setDeparture({kind:'logout'});return;}await session.logout();router.push('/login');};
- const leave=async()=>{if(!departure||saving)return;try{if(departure.kind==='logout'){await session.logout();router.push('/login');}else router.push(departure.href);}catch{setMessage('退出未完成，修改仍保留，请稍后重试。');setDeparture(null);}};
+ const leave=async()=>{if(!departure||saving)return;try{if(departure.kind==='logout'){await session.logout();router.push('/login');}else confirmedNavigation(()=>router.push(departure.href));}catch{setMessage('退出未完成，修改仍保留，请稍后重试。');setDeparture(null);}};
  const add=()=>{try{const next=normalizeTrimPriorityKeywords([...draft,keyword]);setDraft(next);setKeyword('');setMessage('');}catch{setMessage('请输入不重复的关键词：每项最多40个字符，最多50项。');}};
  const move=(index:number,delta:number)=>setDraft(items=>{const next=[...items],other=index+delta;if(other<0||other>=next.length)return items;[next[index],next[other]]=[next[other],next[index]];return next;});
  const save=async()=>{if(busy.current||!base||!canEdit)return;busy.current=true;setSaving(true);const command=pending??{requestId:crypto.randomUUID(),expectedVersion:base.version,trimPriorityKeywords:[...draft]};setPending(command);setMessage('');try{const result=await materialProgressSettingsClient.save(command);setBase(result.settings);setDraft([...result.settings.trimPriorityKeywords]);setPending(null);setMessage(result.replayed?'已确认原保存结果；正在读取最新设置。':'辅料排列已保存。');read.reload();}catch(error){if(error instanceof MaterialSettingsError&&[400,401,403,409].includes(error.status)){setPending(null);if([401,403,409].includes(error.status))read.reload();}setMessage(materialSettingsMessage(error));}finally{busy.current=false;setSaving(false);}};

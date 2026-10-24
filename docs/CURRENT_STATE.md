@@ -1,13 +1,9 @@
-# 当前状态：PR125持久空目标与交付诊断合流候选
+# Current state: isolated navigation delivery
 
-2026-10-24；实际main=e01a11952b648024c0bd6bf4259de429374981e2。#123已获准以merge commit合并，双父[d1dd,cb1658]、tree e31c5588与已验收CB一致；三项PR检查成功。#121/#122由GitHub随祖先自动收口，原分支保留；没有手工合并或关闭其他PR。
+2026-10-25 Asia/Shanghai. Actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf includes approved PR125 and original history; PR124 was automatically marked merged by GitHub after inclusion. No other merge or close is authorized. Current branch codex/navigation-pr-main-9d65 starts from that exact main and preserves navigation input 7cf7238b93b309cc736b473eeedaba394e6a47b7 through a normal merge.
 
-当前codex/pr125-delivery-diagnostics-e01a从实际main建立、显式FF原9e，再正常merge独立工具e007。冲突仅三份摘要；原PR125的17运维/main46非docs、数据库测试夹具及本工具四文件各自保持已验收blob，不加入生产/来源等累计业务。清单与原9e完全一致，230证据/46能力及截图/运行维度不改，双方历史在真实父提交/既有任务中保留。
+This candidate contains navigation plus three Quote acceptance drivers, no SQL or later Estimate/production/shipment/target-control code. Original product source ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658 is unchanged; exact-source quality/build/current66 and Quote87 local results are reused only in their original scopes after210 retained build files were compared. Old90/44/2 and other limitations remain. New actual-main release checks, delivery/PR CI and final review are PENDING, not claimed passed. See[delivery task](tasks/active/navigation-pr-main-9d65-2026-10-25.md).
 
-#125源码091的134/134、42角色用户API、2数据库工具、类型/Server编译/lint及规范长路径双构建/产物检查保持各自范围；旧ENOENT和短路径失败保留，不冒称部署或永久根因。独立工具419的75/75、134/134（280089.0723ms，HEAD/manifest稳定）、定向lint及精确e01a源码守卫通过，显式拒绝P2已关闭、无新增P1/P2。本次合流只补实际范围/证据守卫与复审，不重复已通过且blob未变的业务/DB/浏览器/构建套件，不把父检查写成合流树的新运行。
+Later cumulative work is safely retained on codex/server-garment-target-current at d4060b60a52db766c548b20a5974b43a224784a8 (final472 evidence/65 capabilities and its local receipts); it is not included in this57-file/33-non-document input. Protected recovery state was copied to ignored outputs/navigation-pr-main-9d65-20261025/protected-*.md before switching. Return to that branch for later slices only after this delivery closes.
 
-9e一次上传后工具STOP_AUTH_OR_DIVERGENCE与独立EXACT_HEAD_VERIFIED并存；远端tree/parent精确相同、Actions=0。缺少原push退出码，具体原因unknown，原STOP不清除、不重推9e。新工具区分成功ref普通词与显式拒绝，后者即使exit0仍STOP，并只在post-push decision提供白名单摘要。新候选需完成合流守卫/复审、当前直接预检正常及身份/祖先/clean检查后，仅一次新目标首交付；独立核实前不移动原#125引用。
-
-#125仍草稿、未获merge批准；本次只准备同一PR的前向交付，不新建重复工具PR或批量重跑CI。未更新旧持久目标、镜像或体验环境，未部署/读取凭据或真实Source/改账号业务库。保留9e、e007、717、CI节流0ba和产物1028等分支与所有3001/50426/旧入口、Browser、卷、对象和备份。
-
-完整G1–G5未完成；其余Server生产/来源工程仍在独立候选。关账三问、coverage-v1、真实来源额度/target激活、50426批准切换/用户接受和逐项资产退役保持各自前置，不能因工程或CI通过自动完成。
+No new installation, Source/credentials/real account/business DB/volume operation, activation/scheduling/deployment or50426 cutover/retirement. Preserve all old environments, Browser data, backups and evidence. NETWORK_DEGRADED does not justify repeated per-Gate pushes; standing recovery permission applies only to safe bounded delivery. Closing business questions, real collection quotas and visible coverageV2 remain separately pending; full Goal active.
