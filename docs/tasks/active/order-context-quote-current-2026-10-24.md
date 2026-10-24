@@ -59,6 +59,9 @@
 首次已启用“创建报价”被导航保护拦下。只把父级通知改为layout effect，全部阻塞逻辑保留；新built用例
 用真实候选GET回复屏障和MutationObserver在fieldset首次enabled时单击一次，不补点或加延时掩盖。
 这是静态发现，未声称已在新构建重现或通过；实际验收须核终态。
+释放真实GET回复前只读等待disabled按钮已提交，避免夹具DOM挂载竞态；释放后仍只在首次enabled单击，
+不增加释放后的等待或补点。before观察仅允许显式模式使用精确6ef旧Server产物，后台/测试用当前源码，
+只观察旧来源缺少入口/旧new忽略上下文，绝不点击创建；after必须使用当前新构建。
 另将来源URL UUID与已有server creationId一样规范为小写，并同步原请求owner的URL比较，
 增加大写合法UUID的单元及只读页面/返回正控，非新的来源规则。
 此前19c的当前状态逐字归档于../completed/2026-10-24-order-context-input-state/CURRENT_STATE.md。

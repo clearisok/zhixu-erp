@@ -20,11 +20,13 @@ async function until(read, label, timeout = 20000) {
   throw Error(label + ' timed out');
 }
 test('built source-context draft uses existing editor and receipt recovery with no SO/adoption write', { timeout: 240000 }, async t => {
-  const info = JSON.parse(readFileSync('dist/client/build-info.json', 'utf8'));
+  const staticDirectory = resolve(process.env.SOURCE_QUOTE_STATIC_DIR ?? 'dist/client');
+  if (process.env.SOURCE_QUOTE_STATIC_DIR) assert.equal(process.env.SOURCE_QUOTE_BEFORE, '1', 'Only an explicit before observation may use a separately identified build');
+  const info = JSON.parse(readFileSync(join(staticDirectory, 'build-info.json'), 'utf8'));
   assert.equal(info.quoteAuthority, 'server'); assert.equal(info.orderRead, 'snapshot');
-  const x = await startContinuousFixture(resolve('dist/client'));
+  const x = await startContinuousFixture(staticDirectory);
   const temp = await mkdtemp(join(tmpdir(), 'zhixu-source-quote-ui-'));
-  const evidence = resolve('outputs/source-quote-ui', info.gitCommit + '-' + Date.now());
+  const evidence = resolve('outputs/source-quote-ui', `${process.env.SOURCE_QUOTE_BEFORE === '1' ? 'before' : 'after'}-${info.gitCommit}-${Date.now()}`);
   let browser, ws, session, closeBrowser, id = 0;
   const pending = new Map(), errors = [], requests = [], metrics = [];
   try {
@@ -108,6 +110,26 @@ test('built source-context draft uses existing editor and receipt recovery with 
     const frozen = async () => (await x.pool.query("SELECT row_to_json(t) row FROM sales_orders t ORDER BY id")).rows;
     const originalOrders = await frozen();
     await loginCookie(x.users[0]);
+    if (process.env.SOURCE_QUOTE_BEFORE === '1') {
+      assert.match(process.env.SOURCE_QUOTE_BEFORE_SHA ?? '', /^[a-f0-9]{40}$/);
+      assert.equal(info.gitCommit, process.env.SOURCE_QUOTE_BEFORE_SHA);
+      await t.test('the exact previous application build lacks the order-context entry and makes no draft', async () => {
+        const n = await count(), p = posts();
+        for (const width of [1440, 390]) {
+          await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 390 });
+          await navigate(order); await has('维护来源'); await click('维护来源'); await has('搜索报价');
+          await until(() => evaluate("Boolean(document.querySelector('fieldset.oc-source-form')&&!document.querySelector('fieldset.oc-source-form').matches(':disabled'))"), 'previous source selection ready');
+          assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent==='创建报价')"), false);
+          await shot('source-' + width); await click('关闭');
+          await navigate(fromOrder); await has('使用 Server 报价设置的默认类型');
+          assert.equal(await evaluate("document.body.innerText.includes('经销报价（合同订单）')"), false);
+          await shot('new-' + width);
+        }
+        assert.equal(await count(), n); assert.equal(posts(), p); assert.deepEqual(await frozen(), originalOrders);
+        assert.deepEqual(errors, []); assert.deepEqual(x.errors, []);
+      });
+      return;
+    }
     await t.test('the first enabled source-create click releases both navigation guards in the same commit', async () => {
       const n = await count(), p = posts();
       await navigate(order); await has('维护来源'); await evaluate("sourceListMode='hold'"); await click('维护来源');
