@@ -1,13 +1,13 @@
-# 当前状态：PR125持久空目标与交付诊断合流候选
+# 当前状态：精确main持久化演练通过
 
-2026-10-24；实际main=e01a11952b648024c0bd6bf4259de429374981e2。#123已获准以merge commit合并，双父[d1dd,cb1658]、tree e31c5588与已验收CB一致；三项PR检查成功。#121/#122由GitHub随祖先自动收口，原分支保留；没有手工合并或关闭其他PR。
+2026-10-25；实际main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf，branch codex/main-persistent-rehearsal-9d65。单次实际镜像演练8/8通过、零失败/跳过/取消（325770ms）；31份迁移、合成报价/附件在重启、冷重建及独立DB+对象恢复后保持。原50个容器身份/状态与179个旧卷保全核对通过。
 
-当前codex/pr125-delivery-diagnostics-e01a从实际main建立、显式FF原9e，再正常merge独立工具e007。冲突仅三份摘要；原PR125的17运维/main46非docs、数据库测试夹具及本工具四文件各自保持已验收blob，不加入生产/来源等累计业务。清单与原9e完全一致，230证据/46能力及截图/运行维度不改，双方历史在真实父提交/既有任务中保留。
+镜像zhixu-persistent-main:9d65c868-20261025-09831663ee完全来自main canonical archive，2346个blob核对，单次构建82674ms。仅测试runner覆盖新harness：prepared归属、旧网络/保护端口拒绝和假compose回归；原应用、ops运行脚本、SQL与UI不改。镜像source与测试blob分别记录，不能称原main7项原样重跑。目标ESLint、链接/白名单/清单等价已通过。
 
-#125源码091的134/134、42角色用户API、2数据库工具、类型/Server编译/lint及规范长路径双构建/产物检查保持各自范围；旧ENOENT和短路径失败保留，不冒称部署或永久根因。独立工具419的75/75、134/134（280089.0723ms，HEAD/manifest稳定）、定向lint及精确e01a源码守卫通过，显式拒绝P2已关闭、无新增P1/P2。本次合流只补实际范围/证据守卫与复审，不重复已通过且blob未变的业务/DB/浏览器/构建套件，不把父检查写成合流树的新运行。
+所有旧体验环境、账号/业务库/卷/备份保持；只操作本轮两个新合成项目，成功后按原harness清理其测试资源。没有新常驻目标、Source请求或HostedCI，不把候选验证当入口升级、真实部署或用户接受。当前62426仍旧8175构建，50426此前无监听且原因未知。
 
-9e一次上传后工具STOP_AUTH_OR_DIVERGENCE与独立EXACT_HEAD_VERIFIED并存；远端tree/parent精确相同、Actions=0。缺少原push退出码，具体原因unknown，原STOP不清除、不重推9e。新工具区分成功ref普通词与显式拒绝，后者即使exit0仍STOP，并只在post-push decision提供白名单摘要。新候选需完成合流守卫/复审、当前直接预检正常及身份/祖先/clean检查后，仅一次新目标首交付；独立核实前不移动原#125引用。
+保护分支：b611c61f65227113b6203d23a1a0fe46cce4537b保存完整G1–G8/R就绪审查，7da954545bd9b720bfc28edbd313bc387dd5c195保存累计成衣工程，db683892e7c90df3ea81c4b8162dd2aa36a3d03a保存独立CI成本控制。均未被本main基线分支删除、合并或部署。
 
-#125仍草稿、未获merge批准；本次只准备同一PR的前向交付，不新建重复工具PR或批量重跑CI。未更新旧持久目标、镜像或体验环境，未部署/读取凭据或真实Source/改账号业务库。保留9e、e007、717、CI节流0ba和产物1028等分支与所有3001/50426/旧入口、Browser、卷、对象和备份。
+PR129仍唯一草稿，精确d1917aaf91f6bfde5904e4f49dc1b6fd82599680的原三CI通过，具体merge待用户答复。Git STOP原原因UNRESOLVED；不上传其他分支、更换认证或自动合并。真实Source额度/target启用、关账三问、可见coverage V2、62426/50426切换、用户接受和旧资产退役继续独立待决。
 
-完整G1–G5未完成；其余Server生产/来源工程仍在独立候选。关账三问、coverage-v1、真实来源额度/target激活、50426批准切换/用户接受和逐项资产退役保持各自前置，不能因工程或CI通过自动完成。
+[本阶段记录](tasks/active/main-persistent-rehearsal-2026-10-25.md)与ignored outputs/main-persistent-rehearsal-20261025保留镜像/TAP/保全证据。最终commit、复审与base源码守卫核对final-checkpoint.json；缺回执不得视为通过，已通过同HEAD不重跑。134及三必要CI仍是未来真实PR交付门槛，本阶段未新运行或冒称通过。完整Goal仍active。

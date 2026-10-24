@@ -1,3 +1,9 @@
+# 当前任务入口
+
+2026-10-25；实际main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[精确main持久化演练](tasks/active/main-persistent-rehearsal-2026-10-25.md)。保护b611完整审查、7da累计工程及db683 CI成本控制。PR129合并待答复，Git STOP与真实操作边界保持。
+
+以下为输入main原索引，保留旧日期/hash与历史状态，当前步骤以上方入口为准。
+
 # 项目知识索引
 
 2026-10-24；实际main=e01a11952b648024c0bd6bf4259de429374981e2，#123已获准保留历史合并，#121/#122自动收口、原分支保留。其余不自动merge/close、不部署、不改真实业务数据。
