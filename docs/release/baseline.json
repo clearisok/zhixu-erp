@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T08:48:25.234Z",
+  "verifiedAt": "2026-10-24T09:04:19.242Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -2797,6 +2797,178 @@
       "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
       "sha256": "a803b2b2af0c1a88497b3c8f40c399ade0650efd7ee4a0f6b4500b22ab324f33",
       "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-logistics-resources-current-engineering.md",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "e7ef9986ca12dc3890b7a0eccbe14f7fc46a2d40f44490e942c54712e439ae00"
+    },
+    {
+      "id": "server-logistics-resources-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_LOGISTICS_RESOURCES.md",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "c7c5925043a794d0e334b484ee60b00a4ebfbf5fbfc52c19da4e13e48578b1d2"
+    },
+    {
+      "id": "logistics-resources-current-20261024-before-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/before-build-and-checks.json",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "6f88f43df88c46f82222726c7c4e2bfa15020bbb4df6c1e77289b71fe5711aa9"
+    },
+    {
+      "id": "logistics-resources-current-20261024-before-infrastructure-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/before-infrastructure-1440.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "b711989e8a4a14730ad5b553d60dabb840799da0e0559bdbc69c759ae501cf12",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-before-infrastructure-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/before-infrastructure-390.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "66839a0eecfad82c654f20af30fb7f5ab08bc60d870cbf5f678557dd21a3d55c",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-build-and-checks.json",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "d9e8856eef65e1fbee6940d66206c171e1e659053e87277a4a8c6b654c634320"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-hub-form-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-hub-form-1280.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "8a25ccd28bb49c49cf5fb521f27000c2c187f12a60ea26ea630e74584f6c5888",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-hub-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-hub-form-1440.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "ef60400c62f4eaec558ae05239d738accdb53ccf718d920ba64884072a4a50dd",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-hub-form-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-hub-form-1536.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "d3cc5eda42f0a06b1afecd766588d9631cb41b2203751e4384caf9eec8a3774d",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-hub-form-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-hub-form-1920.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "e6a7af38c780740f2396370a678060a4555c61642a66dbf6fe2a43fb4b9bed20",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-hub-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-hub-form-390.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "a6b31280d4350a69f62e7a38d13556f447689338d8f6d0b7174bfb074694d578",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-hub-form-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-hub-form-900.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "3f21dee24cec0dd3457a086890f7498b9d81c3fb55f3a0b9bacfec55c5ef8344",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-transport-plan-form-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-transport-plan-form-1280.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "88348f89b2f7d10c641765fa5a9b9b7a2ef7a45810615c4e7861c2ac288c58a7",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-transport-plan-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-transport-plan-form-1440.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "862afc822dd85718f89c432c35a78e992804293eba1dc9c8564e9f6708d1b215",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-transport-plan-form-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-transport-plan-form-1536.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "dad3d49a06d9d18b690ce75e9112c1334dfb2d6d2a065f17fa4f081beca1c930",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-transport-plan-form-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-transport-plan-form-1920.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "8f980b84cc770e409997656bed719eb764b9905f86a43fd60d330cb22413cbae",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-transport-plan-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-transport-plan-form-390.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "7c095c0f67886e37795ec97c2be3f223711d33c01866a74daae081775a7dbd04",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "logistics-resources-current-20261024-after-transport-plan-form-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-logistics-resources-current/after-transport-plan-form-900.png",
+      "recordedAtSha": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "9da151b95c70e1d521b77e4100c7e61de226e849f4a2da816ab12d9c72795c46",
+      "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
       "approvalEvidence": "decisions-server-convergence-20261020"
     }
   ],
@@ -7883,6 +8055,91 @@
           "scope": "Current production execution candidate not deployed. Preserve historical runtime source/image without re-observation.",
           "evidence": [
             "production-execution-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "logistics-resources-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 G6D current Server hubs and atomic transport plans/modes using the existing production resource command, permissions, CAS, immutable actor/request receipts and prior four-resource compatibility. Synthetic API/0036 upgrade/build/browser engineering only; no material arrival, logistics orders, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+      "evidence": [
+        "logistics-resources-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+          "scope": "D147 G6D current Server hubs and atomic transport plans/modes using the existing production resource command, permissions, CAS, immutable actor/request receipts and prior four-resource compatibility. Synthetic API/0036 upgrade/build/browser engineering only; no material arrival, logistics orders, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "logistics-resources-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+          "scope": "D147 G6D current Server hubs and atomic transport plans/modes using the existing production resource command, permissions, CAS, immutable actor/request receipts and prior four-resource compatibility. Synthetic API/0036 upgrade/build/browser engineering only; no material arrival, logistics orders, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "logistics-resources-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+          "scope": "D147 G6D current Server hubs and atomic transport plans/modes using the existing production resource command, permissions, CAS, immutable actor/request receipts and prior four-resource compatibility. Synthetic API/0036 upgrade/build/browser engineering only; no material arrival, logistics orders, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "logistics-resources-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+          "scope": "D147 G6D current Server hubs and atomic transport plans/modes using the existing production resource command, permissions, CAS, immutable actor/request receipts and prior four-resource compatibility. Synthetic API/0036 upgrade/build/browser engineering only; no material arrival, logistics orders, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "logistics-resources-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+          "scope": "D147 G6D current Server hubs and atomic transport plans/modes using the existing production resource command, permissions, CAS, immutable actor/request receipts and prior four-resource compatibility. Synthetic API/0036 upgrade/build/browser engineering only; no material arrival, logistics orders, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "logistics-resources-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current logistics resource candidate not deployed. Preserve historical runtime source/image without re-observation.",
+          "evidence": [
+            "logistics-resources-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current logistics resource candidate not deployed. Preserve historical runtime source/image without re-observation.",
+          "evidence": [
+            "logistics-resources-current-engineering-20261024"
           ]
         }
       }

@@ -1,11 +1,10 @@
-# 恢复点：G6D物流资料只读预核
+# 恢复点：G6D07d/1b8证据已绑定，发布待执行
 
-2026-10-24；root唯一writer、既有server_convergence_review只读，Goal active。当前codex/server-logistics-resources-current，起点干净cab72ba9d38583d2441b42c274be324fb899aab4；main e01a11952b648024c0bd6bf4259de429374981e2已独立API核于2026-10-24T09:04:19.242Z。输入三摘要/hash/前阶段完整回执在completed/2026-10-24-logistics-resources-input-state/，禁止抹掉旧证据。
+2026-10-24；root唯一writer、既有server_convergence_review只读，Goal active。branch codex/server-logistics-resources-current；main e01a11952b648024c0bd6bf4259de429374981e2，09:04:19Z独立API。起点G6C cab72 clean，prep804ca，三摘要/hash及完整前阶段回执在completed/2026-10-24-logistics-resources-input-state/。
 
-G6C9c2实际313API/811根/48UI/类型NodeLint双build，35f发布134/134，cab精确main守卫PASS87550ms，最终clean。当前23路径27b→e223预核19相同，4差异：resource page/client/UI driver/service。须保留容量422、CAS恢复授权、ownedChromium清理；先三方预核后写入，不整包旧docs/workflow/Source。没有本轮新QA或真实操作。
+07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9实际33文件356相关API/升级（195543ms）、97根811（31542ms）、before2/after23/导航18（43浏览器）、类型41815/Node21583/import2921/lint58781ms及双build10030/9680、产物2681/2482ms全部PASS，0失败/取消/跳过。14新PNG/2原JSON已冻结，主控看7张冻结图及2张未选页顶图；六宽均DPR1，不借旧125%结果。proof1b8b22fb643e8ac118a9ed81940a74c8394564c1，清单338/52前向保留原320/51/runtime/21路由。
+canonical context C:\Users\Administrator\AppData\Local\Temp\zhixu-logistics-resources-ksWdUD\context，archive SHA256 e039ad8307e678465d7fddb2c2872c67bf4809c913aac3b1f55355f54833ff89；outputs/server-logistics-resources-current-20261024保存全部过程。新旧容量422/CAS授权/owned清理保持，23路径不含4个未来Source文件。0034–36字节保持，0037只一次性PG演练。
 
-同一production资源命令扩展hub/transport-plans，0037保持原字节，0034–36不改；新稳定子ID全部保留，启用父关系/活跃hub-site唯一/原请求回执。具体任务active/server-logistics-resources-current-2026-10-24.md。
+源码独立静态复审无P1/P2，未代跑测试。下一步metadata commit后实际发布134及clean精确main守卫，结果另记；不重复07d未改成功QA。源CI仅加一行五文件测试，不改触发/门槛。
 
-网络degraded，不重推或重复CI；#125已完成的精确API例外不扩大。新真实来源额度/目标激活/50426切换、人验、资产退役独立。0038–41依赖先于0042，不重编号。不改任何现有账号/业务库/卷/Browser；不自动merge/close/deploy。
-
-23路径实际已前移：19同/4真冲突明确解决，4类容量422/新物流容量422、CAS授权、owned清理保留。新增5文件测试脚本/CI单行、7路径V1和feature。现在冻结新source后做QA，不把未跑检查写PASS；before用9c2原四类可用/物流关闭构建。
+网络继承degraded，push0/新PR0/Actions0，#125精确4f例外与三CI独立，不再推失败通道。后续0038–41前缀后再0042交期；关账三问/新真实来源额度/目标激活/50426切换/人验/退役独立。禁止真实凭据/Source/账号/业务库/卷操作、绑定/激活/调度、自动merge/close/deploy和共享Git/TLS/proxy/auth变更。
