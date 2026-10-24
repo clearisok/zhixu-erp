@@ -174,3 +174,5 @@ fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），
 [Server订单物流对话框](features/SERVER_ORDER_LOGISTICS_DIALOG.md)为当前0038后台的独立UI接线，8路径V1、原请求/身份owner/历史和未保存保护；逐物料到仓/运输建议尚待0039，不宣称完整物流闭环。
 
 当前订单物流对话框 source e2cf 实际386相关API/升级、根811、before2/after37/资源23/导航18、类型NodeLint/双构建及产物PASS；[新proof](tasks/completed/2026-10-24-order-logistics-dialog-current-engineering.md)冻结17PNG/2JSON、42几何、查看8图。清单361/54前向保留旧340/53/runtime/21路由，发布134及最后守卫后续另核，不借旧2a0或#125CI。
+
+7f0d4c77f05a0afb12ae36fb0fc71ea51119785c上发布134/134实际PASS（381564ms），0fail/cancel/skip；与e2cf根811分阶段联合945。product/API/根未改，after由2c286f测试等待修复驱动，原34/2失败保留；不把范围复用称新全量。metadata后仅本次四状态文档，proof/产品/测试/清单保持；最终clean精确main守卫以随后实际回执核定。
