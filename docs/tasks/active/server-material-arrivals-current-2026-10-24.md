@@ -19,3 +19,7 @@
 0039后台20代码/SQL路径已受控前移（全部输入blob相同），README/package/既有Source CI单调用手工合流，未更改触发或重跑CI。新Source reader helper复用原验证与caller事务/锁序，非HTTP采集；独立feature已明确COMMIT未知不得声称回滚。仅operation-log类型联合新增action/entity，V0无视觉差异。新source冻结和当前QA仍待，不借旧cbfd或原UI83a结果。
 
 独立预审与真实隔离API共同确认identity PG容量P2：compact7506/PG8726原HTTP500，红18pass/2fail（含父）21703ms；store在原SAVEPOINT内统一检PG identity≤8192，阈值/SQL不改。工作态contract+API+0038升级绿26/26、26430ms，拒绝零业务残留、同UUID replay/known；邻近PG7326正控persist及强制延迟约束通过后明确回滚。本结果为工作态诊断，冻结QA尚待，不冒称新source通过。
+
+## 当前冻结source实际结果
+
+source c994eac8aee32f9e6877fa81e65a604376760519实际24文件217/218相关单元/SQL/API（194379ms，0fail/cancel，1既有Windows平台SKIP：Linux CLI，未称PASS）、97根811（25433ms，0fail/cancel/skip），类型/Node实际load/lint全部PASS；容量P2红7506→8726导致500→工作绿26/26→冻结案例实际通过，PG7326正控仅测试事务写入/约束后明确回滚。proof 761267deb29796206de5492fa01bb79a417680b1；清单363/55保留旧361/54/runtime/21routes。1项平台SKIP的原guard和CLI blob保持，未改条件、不安装Linux依赖或假称PASS；新到仓/容量及Source读取均已实跑。当前只前向绑定两份文档证据/后台能力，发布134和最终clean main守卫仍待。
