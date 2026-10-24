@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
-  "verifiedAt": "2026-10-24T16:24:24.560Z",
+  "verifiedAt": "2026-10-24T16:32:17.118Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -2029,6 +2029,16 @@
       "recordedAtSha": "85072a26ab40906fbffa37e3facf7326c33eac5c",
       "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
       "sha256": "f3333bc5e5e7ea3e1220e31011766bf0f1c5d950ea02862ac018bd685cd5ce5f"
+    },
+    {
+      "id": "navigation-main-9d65-delivery-closure-20261025",
+      "kind": "document",
+      "path": "docs/tasks/active/navigation-pr-main-9d65-2026-10-25.md",
+      "recordedAtSha": "3fc5f1d19d37fef1654637073bd0bf06ab28dac3",
+      "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
+      "sha256": "71cfd5f9badd74ec7ef0cec55d91422fba0f42d758b6b3320bb80fd5f1651640",
+      "supersedes": "navigation-main-9d65-delivery-20261025",
+      "changeReason": "Append actually observed named main guard and134 release results with preserved exact source scopes, review and limitations. Does not turn pending remote CI, deployment or user acceptance into PASS."
     }
   ],
   "pages": [
