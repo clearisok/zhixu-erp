@@ -1,11 +1,9 @@
-# 当前状态：G6D物流资料隔离工程及发布通过，待最终守卫
+# 当前状态：订单物流上下文开始受控前移
 
-2026-10-24；比较main e01a11952b648024c0bd6bf4259de429374981e2（09:04:19Z独立API）。当前codex/server-logistics-resources-current由main显式FF到干净G6C cab72，prep804ca，source07d481，proof1b8b22。#125独立4f草稿/三CI成功，不等于本轮新代码已交付。
+2026-10-24，main e01a11952b648024c0bd6bf4259de429374981e2已于2026-10-24T09:29:48.067Z独立API核实；当前codex/server-order-tracking-current从main显式FF到clean G6D 4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f，输入保护见[当前任务](tasks/active/server-order-tracking-current-2026-10-24.md)。
 
-07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9实际33文件356相关API/升级（195543ms）、97根811（31542ms）、before2/after23/导航18（43浏览器）、类型41815/Node21583/import2921/lint58781ms及双build10030/9680、产物2681/2482ms全部PASS，0失败/取消/跳过。14新PNG/2原JSON已冻结，主控看7张冻结图及2张未选页顶图；六宽均DPR1，不借旧125%结果。proof1b8b22fb643e8ac118a9ed81940a74c8394564c1，清单338/52前向保留原320/51/runtime/21路由。详见[工程证明](tasks/completed/2026-10-24-logistics-resources-current-engineering.md)和[当前任务](tasks/active/server-logistics-resources-current-2026-10-24.md)。64f03a8ad54633a32d1ea17ccaa1d439339d0f9e发布134/134实际PASS（356242ms），0fail/cancel/skip；与07d根811分阶段联合99文件945，不是一轮单次执行。64f之后只有当前状态文档增量，产品/测试/清单/proof/截图不改，最终clean精确main守卫仍以随后实际回执核定。不重复未改成功范围。
+G6D07d356相关API/升级、根811、43浏览器、类型NodeLint双build/产物全部PASS；64f发布134/134 PASS356242ms，4f3最终精确main守卫PASS96017ms（11/52/51/errors[]），独立最终复审无P1/P2。清单338/52/runtime/21routes与全部旧证据保留。
 
-同一生产资源命令扩展hub/transport-plans，0037空表；23路径19同/4真冲突保留旧容量/CAS/owned清理。完整方式聚合、启用父关系/活跃hub-site唯一及原请求恢复有SQL/API保护。0036非空升级保留旧表、排单和10.125实际产出。物流业务事实、到仓/到厂、成衣出货及0042交期命令仍有后续Gate；关账三问待用户。
+新阶段仅14路径SQL/Server前移预核，13同/1资源service差异。保存物理SO明确集货仓/备注，不填默认或改计划/产出/价格/出货/关账；页面接线后续。本轮尚未写产品或跑新QA。
 
-G6C cab72最终守卫PASS87550ms及35f发布134保持独立历史；G6B唯一push uncertain_transport/exit1后工具+API均TARGET_NOT_DELIVERED，NETWORK_DEGRADED。本阶段push0/PR0/Actions0，不重复失败通道，不借旧CI；G6A6fd原送达保持。
-
-Goal active；没有安装、自动merge/close/deploy、读真实凭据/Source、改真实账号/业务库/卷、绑定/激活/调度、切换50426或退役。3001/50426/59069/62426、Browser、备份/结果完整保留。
+网络degraded，不重推/新PR/Actions；#125独立4f三CI及G6A6fd送达不变，不是本轮交付。Goal active；关账三问、真实Source额度/激活、目标切换、人验/退役另有前置。无安装、自动merge/close/deploy或真实账号/业务库/卷/凭据操作；3001/50426/59069/62426、Browser、备份/结果保留。

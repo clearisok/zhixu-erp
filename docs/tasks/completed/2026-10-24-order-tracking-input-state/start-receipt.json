@@ -1,0 +1,108 @@
+{
+  "at": "2026-10-24T09:29:48.067Z",
+  "branch": "codex/server-order-tracking-current",
+  "main": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "prior": "4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f",
+  "initialClean": true,
+  "previousGoalTurn": "progress",
+  "priorFinal": {
+    "at": "2026-10-24T09:25:24.961Z",
+    "branch": "codex/server-logistics-resources-current",
+    "head": "4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f",
+    "tree": "5bec318db8be8982b3f37d9a3e5fccbaccdcb37f",
+    "source": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+    "sourceTree": "d8a18ba7ca9fb200471e1564255629171a209cef",
+    "proof": "1b8b22fb643e8ac118a9ed81940a74c8394564c1",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T09:25:24.680Z",
+      "head": "4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 96017,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 52,
+        "changedUiFiles": 51,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "release": {
+      "at": "2026-10-24T09:23:38.826Z",
+      "head": "64f03a8ad54633a32d1ea17ccaa1d439339d0f9e",
+      "productAndNonreleaseSource": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "command": "npm run test:release-baseline",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 356242,
+      "counts": {
+        "tests": 134,
+        "pass": 134,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "sourcePathsUnchanged": true
+    },
+    "tests": {
+      "api": 356,
+      "rootNonrelease": 811,
+      "browser": {
+        "before": 2,
+        "after": 23,
+        "navigation": 18
+      },
+      "rootWithReleaseUnion": 945
+    },
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "priorTarget": "b6af0cd247c1e7ec4406e69526fa672544cce1d8",
+      "priorState": "TARGET_NOT_DELIVERED"
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "newPr": null,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "next": [
+      "G6D tracking0038 then material arrivals0039",
+      "Garment shipment0040/refresher0041 and DeliveryPlan0042 after correct ledger prefix"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ],
+    "independentReview": {
+      "at": "2026-10-24T09:27:11.434Z",
+      "reviewer": "server_convergence_review",
+      "scope": "read-only exact final/docs/evidence/results",
+      "result": "no new P1/P2",
+      "testsRunByReviewer": false,
+      "networkUsedByReviewer": false
+    }
+  },
+  "hashes": {
+    "CURRENT_STATE.md": "06ae4d5ff95d5b96e1a6a26f4493f968642e2bfa8a5d41ac988e14b9efcdc165",
+    "AI_HANDOFF.md": "ba9cff30a036d4312af51f339a2049c7929f9962cbd3ce067f9f24c929a358bf",
+    "PROJECT_INDEX.md": "2671c590af7b62451feb02f5e3a5de4da5adbcd4f5b3bd2b7dff76c4535a58ff"
+  },
+  "networkMode": "NETWORK_DEGRADED",
+  "pushes": 0,
+  "branchCreatedAtMainThenExplicitFastForward": true
+}
