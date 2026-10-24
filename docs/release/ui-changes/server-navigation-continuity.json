@@ -1,7 +1,7 @@
 {
-  "baselineSha": "996dfedc12da3527343cd3ff2aa5eea35497e10e",
+  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
   "level": "V1",
-  "visibleDifference": "Restore the approved Server workspace during soft navigation and identity loading: keep the existing Shell/header/sidebar, retain existing feature dirty and unknown-receipt protections, and show local loading/error states. No menu, density, breakpoint or domain workflow redesign; foreign-history recovery retains native unload protection.",
+  "visibleDifference": "Forward-integrate the already approved Gate3 V1 restoration onto verified current main: retain the existing Server Shell while identity/loading/errors transition and preserve feature-owned dirty, pending and unknown-receipt guards. Same 22 paths and original behavior; no menu, density, breakpoint, permission or domain workflow redesign.",
   "paths": [
     "app/layout.tsx",
     "components/foundation/app-shell.tsx",
@@ -27,13 +27,24 @@
     "features/style-progress/components/material-progress-settings-page.tsx"
   ],
   "pages": [
-    "navigation", "quote-list", "quote-new", "quote-detail", "quote-settings",
-    "order-list", "order-detail", "material", "user-permissions", "material-progress-settings", "login"
+    "navigation",
+    "quote-list",
+    "quote-new",
+    "quote-detail",
+    "quote-settings",
+    "order-list",
+    "order-detail",
+    "material",
+    "user-permissions",
+    "material-progress-settings",
+    "login"
   ],
   "evidence": [
+    "docs/tasks/active/server-navigation-main-forward-2026-10-24.md",
     "docs/tasks/active/server-convergence-gate3-2026-10-20.md",
     "server/integration/server-navigation-continuity.integration.test.mjs",
     "server/integration/order-sale-adjustment-ui.integration.test.mjs",
-    "tests/server-navigation-history.test.mjs"
+    "tests/server-navigation-history.test.mjs",
+    "docs/tasks/completed/2026-10-24-navigation-forward-inputs/README.md"
   ]
 }
