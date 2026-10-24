@@ -170,3 +170,5 @@ G6D最终4f3/main守卫实际PASS96017ms，64f发布134/134，独立最终review
 fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），0fail/cancel/skip；与45f根811分阶段联合99文件945，不是一轮执行。metadata以后只有4份状态文档，产品/测试/proof/清单不变，最终clean精确main守卫以随后实际回执核定。
 
 0038后台最终4a/main守卫实际PASS85215ms、fd36发布134/134，独立终审无P1/P2，完整输入已保护于[对话框前置](tasks/completed/2026-10-24-order-logistics-dialog-input-state/)。当前[物料与运输对话框](tasks/active/server-order-logistics-dialog-current-2026-10-24.md)11路径只读预核9同/2差异，尚无本轮新产品/QA，网络degraded不重推/CI。
+
+[Server订单物流对话框](features/SERVER_ORDER_LOGISTICS_DIALOG.md)为当前0038后台的独立UI接线，8路径V1、原请求/身份owner/历史和未保存保护；逐物料到仓/运输建议尚待0039，不宣称完整物流闭环。

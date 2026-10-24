@@ -13,3 +13,5 @@
 精确8个UI生产路径V1；当前Server后台共用0038/production命令，旧0034–38/schema/权限不改。实际冻结类型/Node/import/lint、客户端/SQL/权限/原流程回归、当前source双build/artifact、旧07d before（已有计划/实际但无物流对话框）和当前after/导航/六宽截图与几何，完整根/发布及最后精确main守卫。全部一次性合成PG/Chromium，已有环境不动。
 
 不接逐物料到仓/运输建议/真实来源；0039后续独立。Git NETWORK_DEGRADED，不再逐Gate push、触发CI或借#125三CI。Goal active；不自动merge/close/deploy、真实凭据/Source/账号/业务库/卷、绑定/激活/调度、50426切换或退役。保留3001/50426/59069/62426、Browser、备份和结果。
+
+11路径已受控前移：9同/2三方，client干净合流保留容量提示，driver唯一入口冲突在0仓库写入预核停止后明确保留strict before/owned清理并接新tracking验收。before已改观察07d已有计划+实际、无物流入口；fixture明确写1计划/1实际，浏览器零写，不借更早无实际断言。8路径V1和独立feature齐备；现有order-tracking脚本仅加入新client文件，CI原调用复用，无新workflow行或触发。本轮QA尚未运行。

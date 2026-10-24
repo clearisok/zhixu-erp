@@ -24,6 +24,7 @@ import { createProcessingBatch, previewProcessingBatch, confirmProcessingBatch, 
 import { createQuoteRepository } from "../quotes/repository.js";
 import { quoteSnapshotFromBrowser } from "../quotes/model.js";
 import { createSyntheticQuoteFixture } from "./quote-fixture.js";
+import { createProductionPlanClient } from "../../features/production-scheduling/server/production-plan-client.js";
 
 test("explicit order logistics context: trusted HTTP, atomic history, concurrency and physical order protection", { timeout: 240000 }, async t => {
   const postgres = await startDisposablePostgres(), pool = new pg.Pool({ connectionString: await postgres.createDatabase("order_tracking"), max: 12 });
@@ -270,6 +271,30 @@ test("explicit order logistics context: trusted HTTP, atomic history, concurrenc
     assert.equal((await request("/order-tracking/commands", value)).body.error.code, "historical_duplicate_order_read_only");
     await assert.rejects(() => pool.query("UPDATE production_order_execution_trackings SET version=version+1,remark='forbidden' WHERE sales_order_id=$1", [id]), { code: "23514" });
     assert.equal((await request("/order-tracking/history/" + id)).body.history.length, 1);
+  });
+  await t.test("the existing browser client verifies real tracking HTTP, immutable receipts, history and concurrency", async () => {
+    const id = await order(), selected = await hub("HTTP客户端合成仓");
+    const browser = createProductionPlanClient((async (path, init) => fetch(base + String(path), { ...init, headers: { ...Object.fromEntries(new Headers(init?.headers).entries()), Cookie: editor.cookie, Origin: base } })) as typeof fetch);
+    let scope = await browser.orderTracking(id); assert.equal(scope.tracking, null); assert.equal(scope.currentHub, null);
+    const empty = await browser.orderTrackingPreview({ action: "set_order_tracking", orderId: id, expectedVersion: 0, data: { supplyHubId: null, remark: "" } }, scope);
+    const noop = { requestId: randomUUID(), intent: empty.intent, previewHash: empty.previewHash };
+    const initial = await browser.execute(noop); assert.equal(initial.status, "applied"); if (initial.status === "applied") assert.equal(initial.tracking, null);
+    const preview = await browser.orderTrackingPreview({ ...empty.intent, data: { supplyHubId: selected.id, remark: " HTTP精确备注 " } }, scope);
+    const value = { requestId: randomUUID(), intent: preview.intent, previewHash: preview.previewHash }, applied = await browser.execute(value);
+    assert.equal(applied.status, "applied"); if (applied.status !== "applied") assert.fail(); assert.equal(applied.tracking?.version, 1); assert.equal(applied.tracking?.remark, " HTTP精确备注 ");
+    await changeHub(selected.id, "HTTP仓库当前名称", false); scope = await browser.orderTracking(id);
+    assert.equal(scope.currentHub?.name, "HTTP仓库当前名称"); assert.equal(scope.tracking?.hubSnapshot?.name, "HTTP客户端合成仓");
+    const receipt = await browser.receipt(value); assert.equal(receipt.state, "known"); if (receipt.state !== "known" || receipt.result.status !== "applied") assert.fail();
+    assert.deepEqual(receipt.result.tracking, applied.tracking);
+    const stale = await browser.orderTrackingPreview({ action: "set_order_tracking", orderId: id, expectedVersion: 1, data: { supplyHubId: selected.id, remark: " 保留已停用仓 " } }, scope);
+    await save(await intent(id, selected.id, "另一编辑者已更新"));
+    const rejected = await browser.execute({ requestId: randomUUID(), intent: stale.intent, previewHash: stale.previewHash }); assert.equal(rejected.status, "rejected");
+    scope = await browser.orderTracking(id); assert.equal(scope.tracking?.version, 2);
+    const history = await browser.orderTrackingHistory(id); assert.deepEqual(history.history.map(item => item.version), [2, 1]); assert.equal(history.limit, 25);
+    assert.equal(history.history[0].snapshot.hubSnapshot?.name, "HTTP仓库当前名称"); assert.equal(history.history[1].snapshot.hubSnapshot?.name, "HTTP客户端合成仓");
+    const clear = await browser.orderTrackingPreview({ action: "set_order_tracking", orderId: id, expectedVersion: 2, data: { supplyHubId: null, remark: "" } }, scope);
+    const cleared = await browser.execute({ requestId: randomUUID(), intent: clear.intent, previewHash: clear.previewHash }); assert.equal(cleared.status, "applied");
+    if (cleared.status !== "applied") assert.fail(); assert.equal(cleared.tracking?.id, applied.tracking?.id); assert.equal(cleared.tracking?.version, 3); assert.equal(cleared.tracking?.supplyHubId, null);
   });
   await t.test("completed/cancelled and fresh grant revocation block new commands and saved receipt access", async () => {
     for (const state of ["completed", "cancelled"]) {

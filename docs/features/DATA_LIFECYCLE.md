@@ -177,3 +177,5 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 2026-10-24 D147/G6D候选0037只增加空Server物流资料，复用0034回执并保留0034–0036及原四类payload/hash。共享hub/运输表单不改Browser Repository/key/schema/Seed或null政策；Server不读取或写入Browser账本。升级仅一次性PG演练，真实目标未升级，见[当前契约](SERVER_LOGISTICS_RESOURCES.md)。
 
 2026-10-24 D054/D147当前0038候选只新增空订单物流上下文head/history并扩原命令action。新UUID明确归原物理SO，不读/迁移/Seed或修改Browser长期记录，不回填默认仓或搬历史；旧0037之前字节保持。只授权一次性合成PG，实际目标未升级，见[Server契约](SERVER_ORDER_LOGISTICS_CONTEXT.md)。
+
+2026-10-24当前订单物流对话框沿用actor/tab的production-plan.pending.v1原key/envelope，新增严格tracking命令分支，旧plan/execution原命令及hash兼容；不迁移/清空Browser业务键、不Seed或另建outbox。刷新仅核原请求，unknown不自动重发。实际接线见[Server对话框](SERVER_ORDER_LOGISTICS_DIALOG.md)。
