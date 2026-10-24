@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24",
+  "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
+  "verifiedAt": "2026-10-24T16:24:24.560Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -2003,6 +2003,32 @@
         "closing-navigation-main-e01a-import-20261024"
       ],
       "changeReason": "Close the two genuine imported closing-target document histories at the actual final merge. Preserve all source evidence and currency/open-business boundaries, without claiming Server closing implementation or deployment."
+    },
+    {
+      "id": "decisions-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "85072a26ab40906fbffa37e3facf7326c33eac5c",
+      "sha256": "551aff6a479216d945fdcc9daf76deff7a2bea8c2a64e29beb9ad25364e4f7fa",
+      "supersedes": "decisions-navigation-pr125-convergence-20261024",
+      "changeReason": "Genuine two-parent merge 85072a26ab40906fbffa37e3facf7326c33eac5c joins exact actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf and independent navigation input 7cf7238b93b309cc736b473eeedaba394e6a47b7. Retain all prior document evidence, source dates and QA limitations; no product or runtime-status change."
+    },
+    {
+      "id": "closing-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "85072a26ab40906fbffa37e3facf7326c33eac5c",
+      "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
+      "supersedes": "closing-navigation-pr125-convergence-20261024",
+      "changeReason": "Genuine two-parent merge 85072a26ab40906fbffa37e3facf7326c33eac5c joins exact actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf and independent navigation input 7cf7238b93b309cc736b473eeedaba394e6a47b7. Retain all prior document evidence, source dates and QA limitations; no product or runtime-status change."
+    },
+    {
+      "id": "navigation-main-9d65-delivery-20261025",
+      "kind": "document",
+      "path": "docs/tasks/active/navigation-pr-main-9d65-2026-10-25.md",
+      "recordedAtSha": "85072a26ab40906fbffa37e3facf7326c33eac5c",
+      "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
+      "sha256": "f3333bc5e5e7ea3e1220e31011766bf0f1c5d950ea02862ac018bd685cd5ce5f"
     }
   ],
   "pages": [
