@@ -34,3 +34,20 @@ blob未改，其原结果按原SHA保留。本阶段精确main守卫独立运行
 #125精确API例外仍待答复，Git上传/ref/Actions未执行；不为累计依赖创建重复PR。
 不merge/close/deploy，不改真实账号/业务库，不安装、变共享Git配置、读取凭据/真实Source、
 绑定/激活/调度或退役任何环境。原Goal与G4以后闭环仍继续，不把此窄保护当成全项目完成。
+
+## 冻结源码实际结果
+
+`edf6a7639e94690c30ac62030ab1ec7b1e3757f2` 的新 canonical archive：
+
+- full typecheck PASS（22095ms）；Node compile + compiled app 实际 import PASS（10423ms）。
+- full lint PASS（35545ms）。
+- 两个单元/owned PG+HTTP回归文件 **28/28 PASS**（21742.4005ms测试、22120ms进程；
+  含父项，0fail/cancel/skip）。五个加工命令409、raw/version/audit不变、资料保存保留、
+  经销历史恢复、权限/CAS/并发、审计/子表失败回滚均实际执行。
+- HEAD及237清单稳定；测试fixture的finally正常完成本轮HTTP/PG清理，无真实环境访问。
+
+`qa-context.json`、`qa-results.json` 与原始红/绿日志分别保留在上述ignored目录。
+产品与两回归文件blob均精确等于8ce原实现；没有将历史927/116或前序87结果写成这次运行。
+独立源码窄复审无新增P1/P2，最终日志口径复核另附；复审者不代跑测试。
+最终元数据checkpoint只补这些已观察事实，再运行一次精确e01a发布守卫，
+以 `exact-main-guard-result.json` 的完整checkedHead和返回状态作为最终事实，不重复成功28/类型/编译/lint。
