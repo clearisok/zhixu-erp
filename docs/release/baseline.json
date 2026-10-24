@@ -2018,7 +2018,9 @@
       "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/before-default-1440.png",
       "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
       "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
-      "sha256": "61da1d35b2deb14b5540ef0b48249c5b468a2b0d9176d5f379910758e53dc7cc"
+      "sha256": "61da1d35b2deb14b5540ef0b48249c5b468a2b0d9176d5f379910758e53dc7cc",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
     },
     {
       "id": "order-saved-source-20261024-before-default-390",
@@ -2026,7 +2028,9 @@
       "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/before-default-390.png",
       "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
       "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
-      "sha256": "f07b2e878bcc028f6c22e37176e41974700c178743254f887aec9181bd222f5c"
+      "sha256": "f07b2e878bcc028f6c22e37176e41974700c178743254f887aec9181bd222f5c",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
     },
     {
       "id": "order-saved-source-20261024-before-build-and-geometry",
@@ -2042,7 +2046,9 @@
       "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-default-1440.png",
       "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
       "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
-      "sha256": "b538bd79d52b42e673895533bb5e297ac4db28e95b8c263204752f5bce498ebb"
+      "sha256": "b538bd79d52b42e673895533bb5e297ac4db28e95b8c263204752f5bce498ebb",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
     },
     {
       "id": "order-saved-source-20261024-after-default-390",
@@ -2050,7 +2056,9 @@
       "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-default-390.png",
       "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
       "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
-      "sha256": "a5895abee753a003f80f3003721ad445d098c0ea88b3883815ddf319522f20ac"
+      "sha256": "a5895abee753a003f80f3003721ad445d098c0ea88b3883815ddf319522f20ac",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
     },
     {
       "id": "order-saved-source-20261024-after-sizes-1440",
@@ -2058,7 +2066,9 @@
       "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-sizes-1440.png",
       "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
       "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
-      "sha256": "ac9093b4ee1ed8a293b4045117b347e3a802b115fda49a9f2c8351c2c9872d4e"
+      "sha256": "ac9093b4ee1ed8a293b4045117b347e3a802b115fda49a9f2c8351c2c9872d4e",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
     },
     {
       "id": "order-saved-source-20261024-after-sizes-390",
@@ -2066,7 +2076,9 @@
       "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-sizes-390.png",
       "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
       "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
-      "sha256": "baa14afce4354bca9f30bc94df0891512c4219eab1860cfe19cfab6e9888a6ee"
+      "sha256": "baa14afce4354bca9f30bc94df0891512c4219eab1860cfe19cfab6e9888a6ee",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
     },
     {
       "id": "order-saved-source-20261024-after-plan-facts",
@@ -2074,7 +2086,9 @@
       "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-plan-facts.png",
       "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
       "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
-      "sha256": "ea56fb935d865fe70304959493e83610089751bf6e3b6cecb0e64945931c8d6a"
+      "sha256": "ea56fb935d865fe70304959493e83610089751bf6e3b6cecb0e64945931c8d6a",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
     },
     {
       "id": "order-saved-source-20261024-after-build-and-geometry",
