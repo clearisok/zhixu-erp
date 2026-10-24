@@ -38,3 +38,7 @@ Python严格提取后，Node再次从原文hash、无损JSON、完整计数、�
 ## 证明枚举类型修复
 
 独立复审在d2ff发现原提取函数以String(result/workerStage)枚举、后续却严格比较原值，数组complete可跳过完整页数/请求校验。新增验证器和garmentCollectionProof两项直接回归，原产品定向实际2/2失败（1177ms），保留proof-enum-red.json/log；不是全套测试失败或真实来源事故。仅两处改为typeof string后精确枚举，数组/嵌套数组、空pages与零请求不能冒充完整C1/C0/C1证明。原scalar成功/失败与预算、SQL、publisher、Python、入口/Source范围保持。旧d2ff全量QA属于修复前源码，修复后仅重验受影响4文件/类型/Node/相关lint；不将旧结果冒称重跑。最终新source验收后另冻结。
+
+## 当前实际工程结果
+
+2026-10-24最终7f1c9dec：初次依赖闭包及String枚举P2均已修复，原2红测保留；最新4文件43/43、类型/Node/相关lint通过。d2ff的280+18后台、811根、152Python及fullLint是修复前源码结果，仅按未变范围复用，非7f全量重跑。详见[当前工程证明](../tasks/completed/2026-10-24-garment-collector-current-engineering.md)。217前端/37UI复用fc103，无新Vite/browser；发布134/最终精确main守卫后置，未部署/激活或人工接受。
