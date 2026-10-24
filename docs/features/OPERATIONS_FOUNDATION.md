@@ -9,7 +9,7 @@
 下文聚合 Repository、默认值和关账仍为 Browser 历史。当前独立 Server 候选使用
 `server/production-resources/` 与0034：生产日历→地点→组，以及独立外发厂；稳定UUID、版本、
 停用保留历史、无Seed，不挂载Browser聚合normalizer。三个既有页面复用原表格/同页卡片/抽屉与共享字段。
-工程终态见[本轮任务](../tasks/active/server-production-resources-current-2026-10-24.md)，不把资源CRUD称排单/完成闭环。
+工程终态见[本轮任务](../tasks/active/server-production-resources-current-2026-10-24.md)和[f441冻结验收证明](../tasks/completed/2026-10-24-production-resources-current-engineering.md)：73相关领域/API、根811、before2/after14/导航18及双构建通过，发布/最终守卫另记。不把资源CRUD称排单/完成闭环。
 
 - 正式session接口 `/api/v1/production-resources/{calendars|sites|groups|factories}` 列表/UUID详情，
   无local-single-user或Browser fallback。空格分词AND、分页≤100、完整候选超过5000拒绝而非截断；

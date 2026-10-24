@@ -6,7 +6,7 @@
 
 G5当前源码68a：创建/引用68、根非发布811、before2/after9、原Quote/P6/来源107与类型/Node/lint/双构建产物全部PASS；[新冻结证明](tasks/completed/2026-10-24-order-context-quote-engineering.md)为53c9。清单前向258/48，原247/47不变；61e上发布134/134已PASS，与68a根811联合99文件945；最终精确守卫回执单列，不重复811或用旧54/aaf结果替代。只创建参考，不自动采用商业依据或写SO/CCT；未合并/部署/人工接受。
 
-G6A当前从干净530只前移原d717四资源25路径（全部输入blob已核相同），保留后续CAS/Enter/owned清理，修复实际PG回执容量边界：工作态红24/4→绿28/28；源码冻结后的完整工程验证尚未执行，不冒称旧d717通过。新范围不含生产排单/完成/物流或目标升级。
+G6A当前从干净530只前移原d717四资源25路径（全部输入blob已核相同）。实际f441类型/Node/import/lint、73API、根811、before2/after14/导航18及双构建产物PASS，proof d69f冻结8图/2geometry。容量P2红24/4→工作绿28/28→冻结73绿；不扩大1MiB或重写0034。清单269/49保留旧对象，三条既有路由按D147接通；发布134及最终精确main守卫待本元数据提交后执行，不借旧d717结果。新范围不含生产排单/完成/物流或目标升级。
 
 ## 系统简介
 
@@ -139,4 +139,4 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 
 历史共享CI输入见[PR123原摘要](tasks/completed/2026-10-23-pr123-ci-context-inputs/)与[PR125原摘要](tasks/completed/2026-10-23-pr125-ci-context-inputs/)；旧be9日期/结果仍仅属于其原阶段，当前比较锚点为上述e01a。
 
-2026-10-24 07:01Z：单独获准的#125 expected-CA/force=false→4f API已执行一次，独立API核SHA/tree/双父。GitHub临时PR合并预览dd5700的父为当前main e01a及4f，代码树等于已验收4f；未合并main。Source40072506615、Team40072506633、Baseline40072506617仅自动启动各一次，结果待核，不借旧CI。G6A新源码尚未远端交付；没有扩大新push/其他PR/部署/真实数据许可。回执outputs/pr125-api-lease-20261024。
+2026-10-24 07:01Z：单独获准的#125 expected-CA/force=false→4f API已执行一次，独立API核SHA/tree/双父。GitHub临时PR合并预览dd5700的父为当前main e01a及4f，代码树等于已验收4f；未合并main。Source40072506615、Team40072506633、Baseline40072506617均success、pull_request、attempt1，仅自动各一次，无rerun/dispatch；#125说明已更新且仍open draft，不借旧CI。G6A新源码尚未远端交付；没有扩大新push/其他PR/部署/真实数据许可。回执outputs/pr125-api-lease-20261024。

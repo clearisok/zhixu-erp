@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T06:32:33.310Z",
+  "verifiedAt": "2026-10-24T07:18:11.201Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -2200,6 +2200,110 @@
       "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
       "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
       "sha256": "d98bd9067a0af33fb655fe809bf58854eaa43fd5f1a7c24e4cb0bde33ea4ef78"
+    },
+    {
+      "id": "production-resources-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-production-resources-current-engineering.md",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "52fe921eb48af2d73e0c0e72ecd3916768714dbd979314f209cbdef474e593e9"
+    },
+    {
+      "id": "production-resources-current-20261024-before-infrastructure-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/before-infrastructure-1440.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "e8397b695fda542f1eb5c1eccf49e3133ff31f742320c91029814176ad21bf86",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-before-infrastructure-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/before-infrastructure-390.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "48b0fb2e6072f334ebb45e11684c60186bf2c3fe81aac73f91369975d7fc23be",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-factory-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-factory-form-1440.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "77c73bf56dcd1b083be600c61e823974c31471c28b11bc1993e79f65bb6f7afc",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-factory-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-factory-form-390.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "24bbb121842f73016f08f7a33acb9a164a0031a707974e7d4eb4f78e7ae061df",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-calendar-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-calendar-form-1440.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "ef216a64238fceae0ef8ad7c746e80578add2a6a7f5edcc76fb4d8374c017f89",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-calendar-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-calendar-form-390.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "9e1ede31b9d6ccbec6864c029f1a5cdfbd2e79dedfb3b4d39e1436cdfcbbe786",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-infrastructure-top-764",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-infrastructure-top-764.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "dc052b939c370661f73e13881688b6f262ffaa332bf6a1fec20536fcf0328c5f",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-related-current-top-764",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-related-current-top-764.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "7da083714496ef8d6574369ae8d86ab6ca9c5ea2dbbd2c47234752b2974aea1b",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-before-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/before-build-and-geometry.json",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "682026c91226c95753ef59190517c38c77f2d456f1bc83d89d73bc0a9e8ecc2f"
+    },
+    {
+      "id": "production-resources-current-20261024-after-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-build-and-geometry.json",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "dd9675c05a9aefd2e48ff1e29b3b5a4f5d56a78c7f94ef9883b5e66b14629470"
     }
   ],
   "pages": [
@@ -2514,7 +2618,10 @@
     "/order-center/style-progress/detail",
     "/system-settings/progress-settings",
     "/system-settings/roles",
-    "/system-settings/users"
+    "/system-settings/users",
+    "/basic-settings/production-groups",
+    "/basic-settings/outsource-factories",
+    "/system-settings/production-infrastructure"
   ],
   "capabilities": [
     {
@@ -7026,6 +7133,91 @@
           "scope": "Current order-context Quote candidate not deployed. Preserve the historical runtime source/image without re-observation.",
           "evidence": [
             "order-context-quote-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "production-resources-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+      "evidence": [
+        "production-resources-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current production-resource candidate not deployed. Preserve the historical runtime source/image without re-observation.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current production-resource candidate not deployed. Preserve the historical runtime source/image without re-observation.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
           ]
         }
       }

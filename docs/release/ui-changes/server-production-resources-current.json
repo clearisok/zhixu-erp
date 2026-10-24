@@ -15,7 +15,12 @@
     "features/operations-settings/server/production-resource-outbox.ts",
     "features/quote-center/authority/quote-authority.ts"
   ],
-  "pages": ["navigation"],
+  "pages": [
+    "navigation"
+  ],
   "visibleDifference": "Restore the approved D147 Gate6A Server wiring for existing production-groups, outsource-factories and production-infrastructure routes. Preserve the existing table, same-page cards, shared fields, drawers and navigation hierarchy; no logistics, schedule or closing UI. Resource selectors use bounded paging and explicit current facts; original request recovery is session scoped. Preserve later CAS reload-authority correction. No Browser business storage/default seed, pricing change, redesign or automatic write. Current engineering evidence follows actual frozen builds, not old d717 results.",
-  "evidence": ["docs/tasks/active/server-production-resources-current-2026-10-24.md"]
+  "evidence": [
+    "docs/tasks/active/server-production-resources-current-2026-10-24.md",
+    "docs/tasks/completed/2026-10-24-production-resources-current-engineering.md"
+  ]
 }
