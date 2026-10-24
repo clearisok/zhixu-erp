@@ -4,6 +4,15 @@
 
 # Quote Center
 
+## 2026-10-24 G5可信订单创建参考（当前本地前移候选）
+
+首次维护来源可进入既有new页，只读显示当前可信合同上下文；明确点击后复用D102 writer/编号/
+receipt创建经销草稿。普通列表默认创建不变。只预填保存款号、数量、交期，不按名称猜品牌或人员ID。
+创建参考独立、不可变，不自动采用价格或写订单；同一报价仍可服务其他订单。刷新与返回只核对原请求，
+旧session回复不影响新身份。已采用/完成/取消/加工订单不能由此换绑。
+0033仅在一次性隔离库验证，不升级旧目标；当前验收与明确限制见
+[G5当前任务](../tasks/active/order-context-quote-current-2026-10-24.md)，不借下文旧历史结果宣称通过。
+
 > 2026-10-11 D-103：确认销售价/工价由独立 commercial.sale/labor.view/edit 保护，成本权限不授予商业权限。CCT读为allowed/restricted、PATCH按实际字段授权并保留遗漏值；历史确认、列表/汇总、客户导出和日志同样受保护。受限普通保存恢复数据库CAS基线隐藏字段，不清空历史。详见[权限](PERMISSIONS.md)与[本轮实际HTTP证据](../tasks/active/commercial-amount-read-security.md)。正式Server角色管理UI/API尚未实现。
 
 ## Quote内部成本读取修复（2026-10-11，独立安全工程）
@@ -14,7 +23,7 @@ Server Quote响应先执行既有 quote.cost.view字段白名单：无权仍可�
 
 ## 普通电脑立即创建（D-102，PR #91 验收修正）
 
-新交互使用 POST /api/v1/quotes/creation-defaults，仅接受 clientRequestId；可信 Server 读取设置、审核预设、持久 receipt、原编号/Writer/事务/审计，创建类型及初始 PV 一次完成。列表点击后直达现有详情；空草稿保留。/new 是显式按钮或只读 receipt 恢复页，挂载/刷新不写入。未知结果保留原 token、只核对、不自动 POST。
+普通交互使用 POST /api/v1/quotes/creation-defaults，仅提交 clientRequestId；G5明确订单入口另附服务端已预读的orderContext身份/指纹，不接受客户端合同字段。可信 Server 读取设置、审核预设、持久 receipt、原编号/Writer/事务/审计，创建类型及初始 PV 一次完成。列表点击后直达现有详情；空草稿保留。/new 是显式按钮或只读 receipt 恢复页，挂载/刷新不写入。未知结果保留原 token、只核对、不自动 POST。
 
 全局设置新增可空 defaultQuoteType/defaultManufacturingCountry（0011），复用 defaultManufacturingPresetId；旧客户端省略新增字段不清空已配置值。未配置类型有经销技术回退来源标记，其余业务值不猜。新草稿复制有效匹配方案形成独立 PV 快照；第二轮用户明确取消未来 Server 自动套用系统工序/其他费用，旧字段与已保存费用/历史完整保留。品牌/业务员自身默认费用及单据级编辑不变。类型仅在既有头部展示，制作方案通过正式 PV 报价设置查看；generic PUT 类型变更拒绝，也不能追加不同于已保存当前类型的客户端 Revision 绕过保护（409 quote_type_workflow_required，草稿及已确认数据/审计保持）。完整已有类型切换未实施。
 

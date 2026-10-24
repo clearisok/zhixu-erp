@@ -5,6 +5,13 @@
 
 # SalesOrder PostgreSQL Persistence Foundation
 
+## 2026-10-24 G5创建报价参考（本地候选）
+
+可信合同SO可为新经销报价提供一次不可变创建参考，0033只保存quote/actor/request/原SO及当时上下文，
+不是订单商业采用或第二套价格。创建不更新SO/Source/执行流水；后续Quote或Source变化不覆盖参考。
+新增外键纳入现有历史引用指纹/升级前可选检查，未恢复公开归一操作。现有默认创建、合同/加工身份、
+颜色价格与交付计划读取保持；实际验收见[G5当前任务](../tasks/active/order-context-quote-current-2026-10-24.md)。
+
 ## 2026-10-24 Gate4A 保存来源读取链（本地前向候选）
 
 订单颜色/尺码只投影可信保存证据，DeliveryPlan来源比较同时验证来源link的ID与合同号。

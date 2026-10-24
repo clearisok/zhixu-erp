@@ -33,6 +33,7 @@ export const CURRENT_MIGRATION_FILES = Object.freeze([
   '0030_processing_quote_push_receipts.sql',
   '0031_managed_roles.sql',
   '0032_user_lifecycle.sql',
+  '0033_quote_creation_order_context.sql',
 ]);
 
 export const migrationFilesAfter = (version: number) =>
