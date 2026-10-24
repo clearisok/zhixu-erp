@@ -2003,6 +2003,86 @@
         "closing-navigation-main-e01a-import-20261024"
       ],
       "changeReason": "Close the two genuine imported closing-target document histories at the actual final merge. Preserve all source evidence and currency/open-business boundaries, without claiming Server closing implementation or deployment."
+    },
+    {
+      "id": "order-saved-source-read-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-order-saved-sources-engineering.md",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "2d49319fade0736c70e42f4960069064df43735e430cb85e3d999e7e34aee932"
+    },
+    {
+      "id": "order-saved-source-20261024-before-default-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/before-default-1440.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
+      "sha256": "61da1d35b2deb14b5540ef0b48249c5b468a2b0d9176d5f379910758e53dc7cc"
+    },
+    {
+      "id": "order-saved-source-20261024-before-default-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/before-default-390.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
+      "sha256": "f07b2e878bcc028f6c22e37176e41974700c178743254f887aec9181bd222f5c"
+    },
+    {
+      "id": "order-saved-source-20261024-before-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/before-build-and-geometry.json",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
+      "sha256": "ae39876d8f0efadcbd5b36f0ea12663685216de6249c31051be795effcccba12"
+    },
+    {
+      "id": "order-saved-source-20261024-after-default-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-default-1440.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "b538bd79d52b42e673895533bb5e297ac4db28e95b8c263204752f5bce498ebb"
+    },
+    {
+      "id": "order-saved-source-20261024-after-default-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-default-390.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "a5895abee753a003f80f3003721ad445d098c0ea88b3883815ddf319522f20ac"
+    },
+    {
+      "id": "order-saved-source-20261024-after-sizes-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-sizes-1440.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "ac9093b4ee1ed8a293b4045117b347e3a802b115fda49a9f2c8351c2c9872d4e"
+    },
+    {
+      "id": "order-saved-source-20261024-after-sizes-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-sizes-390.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "baa14afce4354bca9f30bc94df0891512c4219eab1860cfe19cfab6e9888a6ee"
+    },
+    {
+      "id": "order-saved-source-20261024-after-plan-facts",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-plan-facts.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "ea56fb935d865fe70304959493e83610089751bf6e3b6cecb0e64945931c8d6a"
+    },
+    {
+      "id": "order-saved-source-20261024-after-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-build-and-geometry.json",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "8b274ecb34a26247ef374f2e8e66b75757af66cf90542eddc02584b612e28d0b"
     }
   ],
   "pages": [
@@ -2101,10 +2181,11 @@
       "route": "/order-center/server-detail?id=UUID",
       "routeFile": "app/order-center/server-detail/page.tsx",
       "components": [
-        "features/order-center/components/server-sales-order-detail-page.tsx"
+        "features/order-center/components/server-sales-order-detail-page.tsx",
+        "features/order-center/components/server-saved-order-sources.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance.",
+      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D147 Gate4B current 2026-10-24 isolated engineering restores saved size/owned plan reads in default-closed original disclosures; new before/after images and six-width default geometry are engineering evidence only, not renewed human acceptance or deployment.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -2118,7 +2199,15 @@
         "material-order-header-order-header-1440",
         "material-order-header-order-header-390",
         "material-order-page-approved-scope",
-        "material-order-header-ui-verification"
+        "material-order-header-ui-verification",
+        "order-saved-source-read-engineering-20261024",
+        "order-saved-source-20261024-before-default-1440",
+        "order-saved-source-20261024-before-default-390",
+        "order-saved-source-20261024-after-default-1440",
+        "order-saved-source-20261024-after-default-390",
+        "order-saved-source-20261024-after-sizes-1440",
+        "order-saved-source-20261024-after-sizes-390",
+        "order-saved-source-20261024-after-plan-facts"
       ]
     },
     {
@@ -6651,6 +6740,91 @@
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"
+        }
+      }
+    },
+    {
+      "id": "order-saved-source-read",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+      "evidence": [
+        "order-saved-source-read-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+          "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+          "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+          "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+          "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+          "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current saved-read candidate not deployed. Prior immutable runtime source/image preserved without re-observation.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current saved-read candidate not deployed. Prior immutable runtime source/image preserved without re-observation.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
         }
       }
     }
