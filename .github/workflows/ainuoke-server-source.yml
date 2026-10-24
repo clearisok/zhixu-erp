@@ -36,6 +36,7 @@ jobs:
           npm run test:processing-batches
           npm run test:processing-quote-push
           npm run test:production-resources
+          npm run test:logistics-resources
           npm run test:production-planning
           npm run test:production-execution
           npm run test:order-normalization

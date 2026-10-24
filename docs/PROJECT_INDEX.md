@@ -154,3 +154,5 @@ G6C当前30路径已受控前移，28输入一致/2三方，driver真冲突在0�
 G6C当前9c2f5bc536f9e5023a32b2e93cfd292984f00abe实际313相关API/升级、根811、before2/after28/导航18及类型/Node/import/lint/双构建全部PASS；[新证明](tasks/completed/2026-10-24-production-execution-current-engineering.md)冻结23图/2JSON，11张已查看。未改资源/登录/P6不重复，不借旧C或27b结果。proof6184及D151/新feature/能力已前向绑定320/51，原292/50/runtime/21路由保持；35f659cea3d0ec0944ba1e6ef8971efa16c0949b发布134/134 PASS（340872ms），与9c2根811分阶段联合945；最终main守卫另按终态核定，Gitdegraded不重推，Actions0。
 
 2026-10-24 G6C最终cab72/main守卫实际PASS87550ms（11/51/50/errors[]），35f发布134/134；完整回执已保护于[下一阶段输入](tasks/completed/2026-10-24-logistics-resources-input-state/)。当前进入[G6D物流资料](tasks/active/server-logistics-resources-current-2026-10-24.md)，只读预核23路径19相同/4差异，尚未写产品/新QA；网络degraded不重推/CI，Goal active。
+
+G6D [Server物流资料契约](features/SERVER_LOGISTICS_RESOURCES.md)：同一资源命令扩展hubs/transport-plans及0037，现行4处冲突已明确保留容量/CAS/owned清理；后续按新冻结source验收，不借原e223结果。

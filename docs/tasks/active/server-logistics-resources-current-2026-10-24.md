@@ -15,3 +15,7 @@
 新冻结源码执行领域/客户端/一次性PG、0036→0037保留原计划/产出升级、资源/排单回归；真实构建before/after验证原4资源保留及两类新资源、未知恢复/CAS/身份切换/手机宽抽屉；类型、lint、双构建/产物、根与发布检查和精确main守卫。无原始真实Source、凭据、现有业务DB或卷。
 
 Git继承NETWORK_DEGRADED，G6B唯一push及独立API证实TARGET_NOT_DELIVERED；本轮不重撞同通道、不触发Actions，不借#125绿灯。无自动merge/close/deploy、目标升级/入口切换或退役。0038–0041前缀后才接0042交期命令，不重排迁移编号。Goal active。
+
+## 受控前移已实施，待冻结验收
+
+23路径19输入一致/4真冲突，全部在scratch以0仓库写入停下并明确解决后才写入。保留当前描述、CAS授权、双类准确422容量回执和owned Chromium清理。before驱动改观察现有四资源可用/物流关闭，禁止拿G6A之前的关闭页充当前before。新5文件logistics测试脚本和原Source CI仅一条测试调用，不改触发/门槛/超时。7路径V1与独立feature已建立；尚未运行本轮QA，不写PASS。

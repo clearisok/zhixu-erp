@@ -84,8 +84,8 @@ function factory(value: unknown): FactoryInput {
   return { ...common(raw), shortName: text(raw.shortName, 80), contactPerson: text(raw.contactPerson, 120), phone: text(raw.phone, 80) };
 }
 
-/** No actor, timestamp, currency, Browser defaults or generated identity is accepted. */
-export function parseProductionResourceCommand(value: unknown): ProductionResourceCommand {
+/** Shared envelope; domain parsers must still explicitly allow their own kinds. */
+export function parseProductionResourceEnvelope(value: unknown): { base: CommandBase; kind: unknown; data: unknown } {
   const raw = exact(value, ["requestId", "action", "kind", "resourceId", "expectedVersion", "data"]);
   if (raw.action !== "create" && raw.action !== "update") invalid();
   const expectedVersion = integer(raw.expectedVersion, raw.action === "create" ? 0 : 1, 2147483647);
@@ -94,11 +94,21 @@ export function parseProductionResourceCommand(value: unknown): ProductionResour
   const base: CommandBase = raw.action === "create"
     ? { requestId, action: "create", resourceId: null, expectedVersion: 0 }
     : { requestId, action: "update", resourceId: productionResourceUuid(raw.resourceId), expectedVersion };
-  switch (raw.kind) {
-    case "calendars": return { ...base, kind: raw.kind, data: calendar(raw.data) };
-    case "sites": return { ...base, kind: raw.kind, data: site(raw.data) };
-    case "groups": return { ...base, kind: raw.kind, data: group(raw.data) };
-    case "factories": return { ...base, kind: raw.kind, data: factory(raw.data) };
+  return { base, kind: raw.kind, data: raw.data };
+}
+
+/** No actor, timestamp, currency, Browser defaults or generated identity is accepted. */
+export function parseProductionResourceCommand(value: unknown): ProductionResourceCommand {
+  const { base, kind, data } = parseProductionResourceEnvelope(value);
+  switch (kind) {
+    case "calendars": return { ...base, kind, data: calendar(data) };
+    case "sites": return { ...base, kind, data: site(data) };
+    case "groups": return { ...base, kind, data: group(data) };
+    case "factories": return { ...base, kind, data: factory(data) };
     default: return invalid();
   }
 }
+
+export type { Common as ProductionResourceCommon, CommandBase as ProductionResourceCommandBase };
+export { exact as productionResourceFields, text as productionResourceText, integer as productionResourceInteger,
+  common as productionResourceCommon, invalid as invalidProductionResourceCommand };
