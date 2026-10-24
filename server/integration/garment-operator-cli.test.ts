@@ -123,13 +123,23 @@ test("unverified claim/COMMIT/started/unknown is never successful or a retry lea
   assert.equal(garmentOperatorExitCode({ result: "COLLECTION_NOT_PUBLISHED" }), 2);
 });
 
-test("operator wrapper rejects non-string proof enums and zero-request empty pages", () => {
+test("operator wrapper rejects isolated enum mutations with valid producer framing retained", () => {
   const stamp = Date.parse("2026-10-25T00:00:00.000Z"), request = collectionRequest(randomUUID(), "SYN-STRICT-OPERATOR", stamp);
   const report = { ...validateGarmentFilterEvidence(request.verification.evidence, request.config, request.verification.selection, stamp).privateReport,
     toolingCommit: "d".repeat(40) };
-  for (const result of [["complete"], [["complete"]], { toString: "complete" }]) {
-    const evidence = { ...(request.verification.evidence as Record<string, unknown>), result, pages: [], httpAttempts: 0, reportRequests: 0 };
+  for (const change of [{ result: ["complete"] }, { result: [["complete"]] }, { workerStage: ["validation"] }]) {
+    const evidence = { ...(request.verification.evidence as Record<string, unknown>), ...change };
     assert.throws(() => parseGarmentOperatorVerification({ ...report, evidence }, request.config, stamp),
       { code: "garment_operator_verification_invalid" });
   }
+});
+
+test("operator wrapper separately rejects the not-started zero-page complete bypass", () => {
+  const stamp = Date.parse("2026-10-25T00:00:00.000Z"), request = collectionRequest(randomUUID(), "SYN-EMPTY-OPERATOR", stamp);
+  const report = { ...validateGarmentFilterEvidence(request.verification.evidence, request.config, request.verification.selection, stamp).privateReport,
+    toolingCommit: "d".repeat(40) };
+  const evidence = { ...(request.verification.evidence as Record<string, unknown>), result: ["complete"], workerStage: "not-started",
+    pages: [], httpAttempts: 0, reportRequests: 0 };
+  assert.throws(() => parseGarmentOperatorVerification({ ...report, evidence }, request.config, stamp),
+    { code: "garment_operator_verification_invalid" });
 });

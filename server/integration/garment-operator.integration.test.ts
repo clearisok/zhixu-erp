@@ -84,8 +84,10 @@ test("garment operator composes exact preview, one-shot collection and credentia
     const job = await make(), start = calls;
     const tables = ["ainuoke_garment_collection_commands", "ainuoke_garment_target_commands", "ainuoke_garment_shipment_snapshots", "operation_logs"];
     const before = await Promise.all(tables.map(count));
-    for (const [index, result] of [["complete"], [["complete"]], { toString: "complete" }].entries()) {
-      const evidence = { ...(job.request.verification.evidence as Record<string, unknown>), result, pages: [], httpAttempts: 0, reportRequests: 0 };
+    const changes = [{ result: ["complete"] }, { result: [["complete"]] }, { workerStage: ["validation"] },
+      { result: ["complete"], workerStage: "not-started", pages: [], httpAttempts: 0, reportRequests: 0 }];
+    for (const [index, change] of changes.entries()) {
+      const evidence = { ...(job.request.verification.evidence as Record<string, unknown>), ...change };
       const proof = files.write("invalid-enum-proof-" + index + ".json", JSON.stringify({ ...job.report, evidence }));
       const badJob = files.write("invalid-enum-job-" + index + ".json", JSON.stringify({ ...job.intent, verification: proof }));
       await assert.rejects(() => collect(job, "0".repeat(64), undefined, { job: badJob, keyPath: job.key.path + ".absent" }),
