@@ -1,0 +1,23 @@
+{
+  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
+  "level": "V2",
+  "visibleDifference": "Approved business audit table, snapshot labels, Beijing dates, explicit filters and complete operation drawer; technical records collapsed for administrators.",
+  "paths": [
+    "features/operation-logs/components/server-operation-log-viewer.tsx",
+    "features/operation-logs/components/operation-log-modal.tsx",
+    "features/operation-logs/model/server-log-presentation.ts",
+    "features/operation-logs/server-operation-logs.css"
+  ],
+  "pages": [
+    "navigation",
+    "quote-detail"
+  ],
+  "evidence": [
+    "docs/tasks/active/system-settings-administration-2026-10-19.md",
+    "server/integration/team-access-ui.integration.test.mjs"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/system-settings-administration-2026-10-19.md"
+  }
+}

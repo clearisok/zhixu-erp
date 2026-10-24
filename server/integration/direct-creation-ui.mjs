@@ -41,7 +41,8 @@ export async function runDirectCreation({t,pool,requests,navigate,hasText,click,
     assert.equal((await master.getGlobalSettings(actor)).defaultManufacturingCountry,'Cambodia');await isolated();
   });
   await t.test('two-section settings and uncluttered detail five widths have no page overflow; screenshots use synthetic data only',async()=>{
-    const folder=resolve('docs/tasks/active/evidence/quote-pr91-second-acceptance');await mkdir(folder,{recursive:true});
+    // Ordinary test runs must preserve the committed historical screenshots.
+    const folder=resolve('outputs/quote-pr91-direct-creation');await mkdir(folder,{recursive:true});
     for(const width of [1920,1440,1280,900,390]){
       await command('Emulation.setDeviceMetricsOverride',{width,height:width===390?844:800,deviceScaleFactor:1,mobile:width===390},sessionId);
       await command('Emulation.setTouchEmulationEnabled',{enabled:width===390},sessionId);

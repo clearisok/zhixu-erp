@@ -1,10 +1,12 @@
 # 项目知识索引
 
-2026-10-23；已独立核实 main=be9aaa3f4efa232e1451075a355f0ce42e35a69e。用户仅批准的 #126、#127 已以 merge commit 合并；#127 merge 的两个 parent 为 e06162c7 与7b565f32，tree=已审查7b，原提交和分支保留。#120/#123/#125/#128 未获合并/关闭授权。
+2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，#126/#127/#120已分别获准保留原历史合并。完整G1–G5继续；#123本阶段只工程整合，不自动合并或关闭其他PR，不部署、不改真实业务数据。
 
-当前恢复：CURRENT_STATE、AI_HANDOFF、[PR120前向任务](tasks/active/pr120-main-forward-2026-10-23.md)。源码0494新134/75、lint及精确be9门禁通过，独立静态复审无P1/P2；最终HEAD远端/三CI另核，原三CI不替代新HEAD。两侧摘要和UIimpact[逐字保留](tasks/completed/2026-10-23-pr120-be9-forward-inputs/)。本分支只含原两处业务修复与共享CI/交付工具整合；累计候选7c、固定Source核验及旧运行态各保留原日期/source/限制，不复制成新部署或新读取。
+[PR123前向任务](tasks/active/pr123-main-forward-2026-10-23.md)：642d真实双父保留221原证据，222/46合流见证；9ea的804源码/68API/112前端/134发布、类型lint两构建通过，14报价加工与修复后8角色日志built场景分别保留真实结果。新精确提交交付/CI及最终复审待收口；旧环境/报价/账号不变，不把候选或CI当部署。
 
 ## 系统简介
+
+并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
 
@@ -130,3 +132,5 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 - `docs/quote-ui-migration-plan.md` 是迁移规划和设计背景，不是当前行为的最终事实源。
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
+
+当前共享CI整合证据见[原输入](tasks/completed/2026-10-23-pr123-ci-context-inputs/)，baseline仍为be9aaa3f4efa232e1451075a355f0ce42e35a69e。

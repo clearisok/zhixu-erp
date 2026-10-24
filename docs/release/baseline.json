@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "be9aaa3f4efa232e1451075a355f0ce42e35a69e",
+  "baselineSha": "d1dd4f0fcf9992d5c055c7b67b6832b635485680",
   "verifiedAt": "2026-10-23",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
@@ -1753,6 +1753,25 @@
       "sha256": "4c698ffbe7e0f1360f8d87db8f37c57c94c73344de2573ff204134900131bf93"
     },
     {
+      "id": "decisions-price-processing-20261017-roles-20261019",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "28a8ebee37c80e06598f28df21bc3466edd6efc6",
+      "sha256": "36c37559890de048f2da5c2aaa851c8c7ade0166675e5e018a07945e21a8a261",
+      "supersedes": "decisions-price-processing-20261017",
+      "changeReason": "User-approved D146 configurable roles, password and navigation; previous blobs retained."
+    },
+    {
+      "id": "decisions-pr123-main-be9-import-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "65d90b5323c78d23afa0076b155cee2ddff58a4b",
+      "renderedSourceSha": "65d90b5323c78d23afa0076b155cee2ddff58a4b",
+      "sha256": "36c37559890de048f2da5c2aaa851c8c7ade0166675e5e018a07945e21a8a261",
+      "supersedes": "decisions-price-processing-20261017-roles-20261019",
+      "changeReason": "Preserve the original D146 role-management decision and every predecessor through a real merge whose parents are exact main be9aaa3f and independent original PR123 ebe4cb16. Integration evidence only; no changed business rule or historical approval."
+    },
+    {
       "id": "decisions-stabilization-20261019",
       "kind": "document",
       "path": "docs/DECISION_LOG.md",
@@ -1809,6 +1828,19 @@
       "sha256": "acacb2b504f27d2fe4c1c3c0bd5921a71bad3619f1e01c8ce9695703ec4cb765",
       "supersedes": "source-pr120-main-e061-import-20261023",
       "changeReason": "Preserve all original PR120 document revisions through the real merge with exact main be9aaa3f and independent0561f5ed parents. Same-path integration witness only; no new business rule, screenshot or capability claim."
+    },
+    {
+      "id": "decisions-pr123-main-d1dd-merge-20261023",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "642d5f124323506f9fc143eb6fcdba7e8868fedd",
+      "renderedSourceSha": "642d5f124323506f9fc143eb6fcdba7e8868fedd",
+      "sha256": "d4f7062714f77f474554908f1e0a202af1f9b5fb386fb4da0e1129ea7ab65750",
+      "mergeOf": [
+        "decisions-pr123-main-be9-import-20261023",
+        "decisions-pr120-main-be9-import-20261023"
+      ],
+      "changeReason": "PR123 retains its approved role/user/log decisions and forward-integrates approved PR120 main through actual two-parent merge 642d5f12; no original decision record or approval is rewritten."
     }
   ],
   "pages": [
@@ -2112,7 +2144,9 @@
     "/order-center",
     "/order-center/server-detail",
     "/order-center/style-progress/detail",
-    "/system-settings/progress-settings"
+    "/system-settings/progress-settings",
+    "/system-settings/roles",
+    "/system-settings/users"
   ],
   "capabilities": [
     {

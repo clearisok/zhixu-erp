@@ -53,7 +53,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
-    "test:team-access": "tsx --test --test-concurrency=1 features/permissions/server/__tests__/team-access-client.test.ts server/integration/team-access.integration.test.ts",
+    "test:team-access": "tsx --test --test-concurrency=1 features/permissions/server/__tests__/team-access-client.test.ts server/integration/team-access.integration.test.ts server/integration/managed-roles.integration.test.ts server/integration/user-lifecycle.integration.test.ts",
     "test:team-access-ui": "tsx --test --test-concurrency=1 server/integration/team-access-ui.integration.test.mjs",
     "source:ainuoke": "tsx server/ainuoke-source/cli.ts",
     "test:ainuoke-server-source": "tsx --test --test-concurrency=1 server/integration/ainuoke-server-source.test.ts server/integration/ainuoke-server-source.integration.test.ts",
@@ -100,7 +100,8 @@
     "test:order-sale-adjustments": "tsx --test --test-concurrency=1 server/integration/order-sale-adjustment.integration.test.ts",
     "test:order-sale-adjustments-ui": "tsx --test server/integration/order-sale-adjustment-ui.integration.test.mjs",
     "test:processing-quote-push": "tsx --test --test-concurrency=1 server/integration/processing-quote-push.integration.test.ts",
-    "test:processing-quote-push-ui": "tsx --test server/integration/processing-quote-push-ui.integration.test.mjs"
+    "test:processing-quote-push-ui": "tsx --test server/integration/processing-quote-push-ui.integration.test.mjs",
+    "test:business-operation-logs": "tsx --test --test-concurrency=1 server/integration/business-operation-logs.integration.test.ts server/integration/quote-audit-read.integration.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

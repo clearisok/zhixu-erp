@@ -74,6 +74,7 @@ export async function login(
     throw new HttpError(400, "credentials_required", "Username and password are required");
   }
 
+  if(password.includes("\0")||Buffer.byteLength(password,"utf8")>72)throw new HttpError(401,"invalid_credentials","Username or password is invalid");
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -120,6 +121,7 @@ export async function login(
        VALUES ($1, $2::bigint, now() + ($3 * interval '1 second'), 'v1', now())`,
       [tokenDigest(token), user.rows[0].id, config.sessionTtlSeconds],
     );
+    await client.query("UPDATE app_users SET last_login_at=clock_timestamp() WHERE id=$1::bigint",[user.rows[0].id]);
     const identity = await identityForInternalUser(client, user.rows[0]);
     await client.query("COMMIT");
     return { identity, token };
