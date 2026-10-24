@@ -1,6 +1,6 @@
 # 恢复点：G6A资源前移，待独立复审与源码冻结
 
-2026-10-24；root唯一writer，既有server_convergence_review只读。已独立API核main e01a11952b648024c0bd6bf4259de429374981e2，确切时间见前序outputs/order-context-quote-current-20261024/final-readonly-main.json。#123已获准合并，#125仍CA草稿；原expected-CA/force=false→4f精确API例外尚待答复，不重问/绕过旧STOP。Goal active。
+2026-10-24；root唯一writer，既有server_convergence_review只读。已独立API核main e01a11952b648024c0bd6bf4259de429374981e2，确切时间见前序outputs/order-context-quote-current-20261024/final-readonly-main.json。#123已获准合并，#125于07:01Z经新批准API快进至精确4f草稿；本次expected-CA/force=false→4f精确API例外已按用户新答复完成（1API/0Gitpush），旧Git STOP历史保持。Goal active。
 
 当前codex/server-production-resources-current从main新建并显式FF到干净530203b32aa9b237c4b81be285e91be40d4e990e。输入两状态逐字归档completed/2026-10-24-production-resources-input-state/；start/forward-scope回执在ignored outputs/server-production-resources-current-20261024。起始本机show-ref非quiet不存在返回128，已在写前停止；quiet verify明确缺失后才建分支。未reset/clean、覆盖未知dirty。一次状态文档脚本因CRLF段落锚点失败，在首个write前停止；按规范化原文核对后重写本阶段状态，未动产品/业务数据。
 
@@ -12,4 +12,6 @@
 
 前序G5 530/main守卫PASS71947ms/clean；68a API68/root811/before2/after9/QuoteP6来源107、双构建/类型/Node/lint，proof53c9；61e发布134/134 PASS295257ms，分阶段99根945。完整输入已归档，不重跑未改成功范围，不借d717历史绿灯。新阶段尚无冻结结果/远端交付。
 
-Actions=0，不新建累计重复PR/重复CI、自动merge/close/deploy、真实凭据/Source/账号业务库/卷/目标切换或入口退役、共享Git/TLS/proxy/auth修改。保留3001/50426/59069/62426、旧结果/备份及Browser账本。关账三问、coverage-v1、真实来源范围/人工接受仍各有前置。
+仅新批准#125 API更新自动启动3项PR检查（attempt1），无rerun/dispatch；不新建累计重复PR/重复CI、自动merge/close/deploy、真实凭据/Source/账号业务库/卷/目标切换或入口退役、共享Git/TLS/proxy/auth修改。保留3001/50426/59069/62426、旧结果/备份及Browser账本。关账三问、coverage-v1、真实来源范围/人工接受仍各有前置。
+
+2026-10-24 07:01Z：单独获准的#125 expected-CA/force=false→4f API已执行一次，独立API核SHA/tree/双父。GitHub临时PR合并预览dd5700的父为当前main e01a及4f，代码树等于已验收4f；未合并main。Source40072506615、Team40072506633、Baseline40072506617仅自动启动各一次，结果待核，不借旧CI。G6A新源码尚未远端交付；没有扩大新push/其他PR/部署/真实数据许可。回执outputs/pr125-api-lease-20261024。

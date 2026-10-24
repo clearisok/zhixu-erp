@@ -60,3 +60,7 @@ Server路由只加这三个已有业务页面，不把资源CRUD称为排单/生
 3001/50426/59069/62426等环境、备份或已有验收结果，不绑定/激活/调度或退役。
 
 严格before模式只允许显式RESOURCE_UI_BEFORE及完整旧68a SHA，观察三个旧Server资源路由封闭、零资源API/写入和无Browser账本，1440/390仅截图；后台/测试为当前源。after禁止外部静态目录。两种路径都执行owned finally，不借旧构建冒称after。
+
+## 07:01Z 独立远端操作范围前向更新
+
+用户新答复仅授权#125经原API expected ca05/force=false快进精确4f。执行前重核CA、候选tree/双父、main e01a及本地祖先；仅1次update_ref，独立API核4f送达。临时PR预览dd5700父为e01a/4f、tree等于候选；不等于merge main。Source40072506615、Team40072506633、Baseline40072506617自动各运行一次（attempt1），当前尚待终态，无手动dispatch/rerun。旧Git退出1/STOP及根因unknown作为历史保留；本次特定例外已履行，不是全局通道恢复。G6A新代码未因此上传，真实数据/部署边界不变。
