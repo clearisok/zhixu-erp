@@ -35,3 +35,20 @@ DeliveryPlan、有效归属、加工批次、首次绑定/物料读取、PG foun
 #125仍CA草稿，4f精确API例外待答复；不push/ref/PR/CI/merge/close/deploy。
 所有旧环境、数据库/卷/备份/对象和业务身份保留，不安装、不读凭据或新增真实Source请求、
 绑定/激活/调度，也不退役任何入口。G4A通过不能代替4B显示或生产/出货/关账闭环；Goal保持active。
+
+## 冻结源码与实际结果
+
+冻结 `c77ddc9f0746b5e2e4ebd271bca8b9d57b5c1d7f` 的新canonical archive已运行：
+
+- full typecheck PASS（22691ms）；Node compile + compiled app实际import PASS（11709ms）。
+- full lint PASS（37770ms）。
+- 9文件组合 **103/103 PASS**（76441.3985ms测试、76835ms进程，含父项，0fail/cancel/skip）。
+  新纯证据/客户端/来源HTTP链与既有DeliveryPlan、有效归属、加工批次、绑定/物料、PG foundation、
+  order-business-source一起核验，保持颜色商业身份与#120修复。
+- HEAD/237清单稳定，owned fixture正常清理；`qa-context.json`、`qa-results.json`和日志保留在上述ignored目录。
+
+API fixture沿用ca53静态文件仅供既有HTTP构造，不是当前前端构建/页面验证；4B累计构建与实际浏览器
+仍待下一切片。没有将a187的历史24/70/927/116标成新结果，未重跑未变的87/66浏览器或134发布。
+独立源码与终态日志复审无新增P1/P2，仅只读核对，不代跑测试或访问真实Source。
+后续仅元数据checkpoint并运行一次精确e01a守卫，以ignored `exact-main-guard-result.json`
+的完整checkedHead/状态作为最终校验事实，不反复运行本阶段已通过的检查。

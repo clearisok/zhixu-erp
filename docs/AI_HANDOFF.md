@@ -1,13 +1,11 @@
-# 恢复点：Gate4A 订单保存来源读取链前移
+# 恢复点：Gate4A读取链已验，后续4B页面
 
-2026-10-24；root 唯一 writer，现有 reviewer 只读。main e01a11952b648024c0bd6bf4259de429374981e2 于04:45Z核实；#123已获准合并，#121/#122自动收口，原refs保留。#125仍CA草稿，4f已送达与actual Git exit1/STOP并存，精确API快进例外尚待答复；不重推、不移PR引用或新增CI。
+2026-10-24；root唯一writer，现有server_convergence_review只读。main e01a11952b648024c0bd6bf4259de429374981e2于05:10Z再核；#123已按具体授权merge，#121/#122自动收口，原refs保留。#125仍CA草稿。4f remotely exact与actual Git exit1/STOP并存，精确expected-CA/force=false→4f API例外尚无回复，不重问/重推/移PR引用或新增Actions。
 
-当前 codex/quote-server-current-acceptance 从实际main建立并显式快进到导航7635，开始clean。仅前向复用原2e1b+84cd的三个报价测试/驱动并补非空加工历史/安全退出。冻结2bd8b64c86e8422396a84b3c30aaad88f7ede412，三文件语法/scoped lint及完整Quote Chromium87/87 PASS（117999.6127ms，含phase/parent，0fail/cancel/skip），owned cleanup和HEAD/237清单稳定。已证明所有产品/依赖/构建输入与ca53一致，复用其Server构建210文件完整指纹；新测试canonical archive分开记录，未重建、未装依赖。证据见 [当前报价验收](tasks/active/quote-server-current-acceptance-2026-10-24.md)及ignored outputs/quote-server-current-acceptance-20261024/。旧44fail/2cancel保留。7cf7238b93b309cc736b473eeedaba394e6a47b7的精确main守卫PASS（64461ms、errors=[]），独立最终只读复审无新增P1/P2；未重复66当前UI/134发布或触发CI。
+当前codex/order-source-readchain-current从实际main建立并FF到785、开始clean。11个16f→a187 Gate4A文件的原基点blob逐项等于785，才前向复用；没有旧workflow/摘要/manifest导入。冻结c77ddc9f0746b5e2e4ebd271bca8b9d57b5c1d7f的新canonical archive：103/103单元/PG/API（76441.3985ms测试，0fail/cancel/skip）、full类型/Node compile+实际import/full lint PASS；HEAD/237清单稳定，独立源码与日志复审无P1/P2。API fixture仅使用旧ca53静态文件，未做新前端build/browser，不称4B就绪。证据ignored outputs/order-source-readchain-current-20261024/及[任务](tasks/active/order-source-readchain-current-2026-10-24.md)。最终元数据后只跑一次精确e01a守卫，恢复先读exact-main-guard-result.json的完整checkedHead，不重复成功103。
 
-上一阶段完整收口7635及其QA见[导航前移](tasks/active/server-navigation-main-forward-2026-10-24.md)：产品/测试源码ca53，0db完整发布134/134，最终7635精确main守卫PASS。现行7组UI66/66、双构建/产物/类型/lint不因未改而重复；237证据/46能力与旧blob、PNG、部署维度保留。前轮宽批次90pass/44fail/2cancel只用于记录旧验收缺口。
+已保留阶段：导航7635（产品ca53，双构建/产物、66当前UI；0db发布134/134、最终精确守卫）；报价7cf（冻结2bd同ca53前端87/87，补齐导出/设置，最终守卫）；加工785（冻结edf28/28、类型/Node/lint、最终守卫63983ms）。各自原始失败/结果/精确SHA在任务/ignored outputs保留，未装依赖或重跑。237/46旧证据/blob/PNG/运行维度无变化。
 
-当前已进入 codex/server-processing-estimate-current：从实际main建立并快进7cf、开始clean，复用8ce227d0三行产品保护、两回归及feature说明；任务见 [加工Estimate前移](tasks/active/processing-estimate-current-2026-10-24.md)。原产品与旧红灯blob一致，本轮unit先红7pass/5fail。冻结edf6a7639e94690c30ac62030ab1ec7b1e3757f2的新canonical archive中full类型、Node compile+实际app import、full lint及两文件unit/owned PG+HTTP28/28均PASS（测试21742.4005ms，0fail/cancel/skip），HEAD/237清单稳定。独立源码复审无新增P1/P2，最终日志复核单列。785cbfad9b4788be09dd06beef3f73bdabf8fcbc精确e01a守卫PASS（63983ms、errors=[]），最终日志只读复审无新P1/P2；ignored outputs/processing-estimate-current-20261024/保留全部回执，不重复成功测试。未改前端，不重建或重跑87报价浏览器。
+下一步只核原Gate4B（历史候选96e9d320ff6d0ad51254291cd3c35c2d32d6070f）与当前新main的增量，再前向接颜色尺码/计划只读页面、owner/身份迟到保护、实际构建和浏览器验收；不要整合8f整个后续生产/关账候选或把4A当页面PASS。4C写入仍须独立幂等/回执与已批准交互。
 
-保护所有已有分支、运行态ebe/4cf、3001/50426/59069/62426等环境、DB/卷/备份/Browser及已存结果。不安装、不变共享Git/TLS/proxy/auth，不部署、不读凭据/真实Source、不改账号业务库、不merge/close或退役。Goal active；生产关账三问、coverage-v1、来源额度/激活、50426切换/人工接受及退役仍各自前置。
-
-当前codex/order-source-readchain-current从05:10Z再核的实际e01a main建立并显式快进785、开始clean。仅复用16f→a187原Gate4A的11个server/features文件，所有旧基点blob与当前785一致，新路径无用户文件；另加npm入口/两TS路径V0记录和feature/任务说明。不带旧CI/摘要/清单，不改4B UI、4C writer、schema、商业价或真实来源。冻结后做新owned PG/API纯投影/client/来源链及相关域回归、类型/Node/lint/精确守卫；旧a187结果不称本轮PASS。见[当前Gate4A](tasks/active/order-source-readchain-current-2026-10-24.md)。
+保护所有旧分支、运行态ebe/4cf和3001/50426/59069/62426等环境、账号/DB/卷/备份/Browser/对象/结果。不自动merge/close/deploy，不读凭据/真实Source、绑定/激活/调度或退役，不改共享Git/TLS/proxy/auth。Goal active；生产关账三问、coverage-v1、来源额度/目标激活、50426切换/人工接受各自前置。
