@@ -182,3 +182,5 @@ fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），
 [当前人工预计到仓后台契约](features/SERVER_MATERIAL_ARRIVALS.md)复用已有Source快照事务和D054 Hub，0039不生成来源日期或实际事件；工程结果按当前任务新source核定。
 
 当前人工预计到仓后台c994实际217/218相关检查（1既有Linux CLI在Windows平台SKIP，0fail/cancel，不称PASS）、根811/类型NodeLoadLint通过；[新proof](tasks/completed/2026-10-24-material-arrivals-current-engineering.md)冻结容量真实红绿与7326正控，清单363/55前向保留旧361/54/runtime/21routes。无新UI/Vite/截图；发布134与最后守卫后续实跑。
+
+发布测试实际终态：49aa9b16111ad972ab7e8228bfc73ce1875a47ea上134/134 PASS（372749ms），0fail/cancel/skip；与c994根811分阶段联合945。相关API仍明确218总数/217通过/1既有Linux CLI平台SKIP，不借134覆盖该缺口。metadata后只更新本次四状态文档，proof/feature/产品/测试/清单未变；最终clean精确main守卫以随后本机回执核定，未合并/部署/真实采集/新UI或人工接受。
