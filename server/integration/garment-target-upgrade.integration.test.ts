@@ -8,7 +8,7 @@ import { randomUUID } from "node:crypto";
 import pg from "pg";
 import { startDisposablePostgres } from "./postgres-container.js";
 import { runMigrations, verifyMigrationsCurrent, PendingMigrationsError } from "../db/migration-runner.js";
-import { CURRENT_MIGRATION_FILES } from "./current-migration-ledger-fixture.js";
+import { CURRENT_MIGRATION_FILES, migrationFilesAfter } from "./current-migration-ledger-fixture.js";
 import { synchronizePermissionCatalog } from "../auth/permissions.js";
 import { bootstrapAdmin } from "../auth/bootstrap.js";
 import { loadExistingBootstrapActor } from "../sales-orders/bootstrap-runner.js";
@@ -60,7 +60,7 @@ test("0043 nonempty upgrade preserves all old bytes and creates only an empty ta
     finally { client.release(); }
   });
   await t.test("forward-only migration and exact ledger preserve old targets, commands and publications", async () => {
-    assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, ["0044_garment_target_commands.sql"]);
+    assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, migrationFilesAfter(43));
     assert.deepEqual(await snapshot(), before); assert.deepEqual(await reader.read(actor, order.id), oldView);
     assert.equal((await pool.query("SELECT count(*)::int n FROM ainuoke_garment_target_commands")).rows[0].n, 0);
     assert.deepEqual((await pool.query("SELECT filename FROM schema_migrations ORDER BY filename")).rows.map(row => row.filename), CURRENT_MIGRATION_FILES);

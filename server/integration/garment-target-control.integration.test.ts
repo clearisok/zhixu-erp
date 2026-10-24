@@ -95,6 +95,39 @@ test("DB-only garment target lifecycle, historical receipts and original publica
   }
   const other = await currentActor("garment.target.other");
 
+  await t.test("coerced or empty filter proofs cannot create a target, audit or command", async () => {
+    const job = await make(), before = await counts();
+    for (const patch of [
+      { result: ["complete"], workerStage: "not-started", httpAttempts: 0, reportRequests: 0, pages: [] },
+      { result: [["complete"]], workerStage: "not-started", httpAttempts: 0, reportRequests: 0, pages: [] },
+      { result: "complete", workerStage: "not-started", httpAttempts: 0, reportRequests: 0, pages: [] },
+      { workerStage: ["validation"] },
+    ]) {
+      const input = structuredClone(enable(job)) as Extract<GarmentTargetRequest, { action: "enable" }>;
+      Object.assign(input.request.verification.evidence as Record<string, unknown>, patch);
+      await assert.rejects(() => planned(input));
+      await assert.rejects(() => applyGarmentTarget(pool, admin, input, {
+        requestId: randomUUID(), scopeHash: "0".repeat(64), expiresAt: new Date(clock + 540000).toISOString(),
+      }, now));
+      assert.equal(await target(job), undefined);
+      assert.deepEqual(await counts(), before);
+    }
+  });
+  await t.test("historical receipts need fresh grants but never current source-chain reads", async () => {
+    const current = await currentActor("garment.target.receipt"), job = await make();
+    const command = await planned(enable(job, 60000, current.actor), current.actor), original = await apply(command);
+    const independent = alteredPool(async (text, _values, run) => {
+      assert.equal(/\bainuoke_source_profiles\b|\bainuoke_garment_shipment_targets\b|\bainuoke_garment_shipment_heads\b|\bainuoke_sales_order_contract_mirrors\b|\bainuoke_sales_order_color_mirrors\b|\bsales_order_source_links\b/iu.test(text), false);
+      return run();
+    });
+    const read = () => readGarmentTargetReceipt(independent, current.actor, {
+      sourceKey, salesOrderId: job.orderId, requestId: command.permit.requestId,
+    });
+    assert.deepEqual((await read()).result, original.result);
+    await pool.query("DELETE FROM app_role_permissions WHERE role_id=$1 AND permission_key='ainuoke.bind'", [current.role]);
+    try { await assert.rejects(read, { code: "permission_denied" }); }
+    finally { await pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES($1,'ainuoke.bind')", [current.role]); }
+  });
   await t.test("preview is read only; enable creates one target, audit and immutable receipt", async () => {
     const job = await make(), before = await counts(), command = await planned(enable(job));
     assert.deepEqual(await counts(), before); assert.equal(await target(job), undefined); assert.equal(command.plan.humanApproval, "still_required");
@@ -278,7 +311,10 @@ test("DB-only garment target lifecycle, historical receipts and original publica
     } finally { await client.query("ROLLBACK"); client.release(); } };
     const before = await full(); const command = await planned(enable(job)); await apply(command); const after = await full();
     assert.deepEqual(after.unknownReferences, []); assert.notEqual(after.evidenceHash, before.evidenceHash);
-    assert.ok(after.references.filter(ref => ref.relation === "ainuoke_garment_target_commands" && ref.orderId === job.orderId).every(ref => ref.count === 1));
+    const commandReferences = after.references.filter(ref => ref.relation === "ainuoke_garment_target_commands" && ref.orderId === job.orderId);
+    assert.equal(commandReferences.length, 2);
+    assert.deepEqual(commandReferences.map(ref => ref.column).sort(), ["sales_order_id", "source_owner_order_id"]);
+    assert.ok(commandReferences.every(ref => ref.count === 1));
     assert.ok(after.blockers.includes("production_finance_coverage_unavailable"));
     const original = await receipt(command, job);
     await pool.query("ALTER TABLE ainuoke_garment_target_commands DISABLE TRIGGER garment_target_command_guard");
