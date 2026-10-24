@@ -32,4 +32,8 @@ Source数量/日期、客户交期和生产执行owner均不修改；原商业�
 
 ## 当前范围和后置验收
 
-原144f→0e546四核心路径输入与当前相同，package/workflow只追加本轮测试；原生产执行6184契约和PG容量/客户端中文提示保持冻结。483be后续客户端接收coverage的断言依赖另一个UI/client切片，不带入此阶段，当前兼容测试仍证明旧客户端忽略新增字段。新source实际验收后另冻结，不借原ff8b结果。无schema/前端/Python变化，不重复构建、截图/浏览器或未变811；发布134仅按工具/fixture范围复用，动态文档清单已变不称新134 PASS，最终累计PR两发布命令仍须重跑。
+原144f→0e546四核心路径输入与当前相同，package/workflow只追加本轮测试；原生产执行6184契约和PG容量/客户端中文提示保持冻结。483be后续客户端接收coverage的断言依赖另一个UI/client切片，不带入此阶段，当前兼容测试仍证明旧客户端忽略新增字段。当前source实际验收见下方新冻结证明，不借原ff8b结果。无schema/前端/Python变化，不重复构建、截图/浏览器或未变811；发布134仅按工具/fixture范围复用，动态文档清单已变不称新134 PASS，最终累计PR两发布命令仍须重跑。
+
+## 当前隔离工程结果
+
+2026-10-24 source 558345ae7ee4ba2e07f24fd319e42c052919370d：5文件47/47（22083ms）、类型26766/Node编译14340+实际import1871/相关lint9830ms PASS，0fail/cancel/skip。真实PG/HTTP/RR、旧客户端兼容及容量拒绝均本轮验证；无新811/134/Vite/browser/Python通过声明，详见[当前证明](../tasks/completed/2026-10-24-delivery-coverage-current-engineering.md)。metadata动态输入与精确main守卫仍后置，最终累计PR前两发布命令仍重跑；未部署或人工接受。

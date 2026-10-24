@@ -52,6 +52,8 @@
 - fresh order.view+schedule.view，原500排单/1000有效交期/完整1MiB响应及精确十进制边界保持；超限明确422不截断，不读金额、不写计划/执行/回执/审计或新表。不以生产planVersion冒充独立DeliveryPlan集合的CAS。
 - 证据：delivery-coverage.ts/test、同一service订单GET及[独立契约](features/SERVER_DELIVERY_COVERAGE.md)/[当前任务](tasks/active/server-delivery-coverage-current-2026-10-24.md)。新工程结果后置，旧ff8b/483be及#125CI不作本轮PASS；无UI/部署/真实来源或人工接受。
 
+- 2026-10-24当前source558345的47相关/类型/Node/相关lint实际结果见[新工程证明](tasks/completed/2026-10-24-delivery-coverage-current-engineering.md)，无新UI/SQL/134或旧结果替代；最后精确守卫后置。
+
 ### D-154 DeliveryPlan沿用原命令并保存可核对回执
 
 - 原2026-10-22技术决定，2026-10-24受控前移，Active；D147已批准Server收敛范围内的可靠性，不改变D083/D100的来源/人工所有权、系统默认0、人工正数、独立集合版本和历史计划规则。原PATCH/writer/响应保持，0042只新增空不可变请求回执，不回填或重建计划。
