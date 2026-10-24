@@ -68,6 +68,9 @@ export function editEstimate(before: ServerEstimate, input: ServerEstimate): Ser
 /** Clone only: preserve decimal strings verbatim, never invoke a calculator.
  * Server identity/time and new row IDs replace only lifecycle technical fields. */
 export function applyEstimateCommand(quote: ServerQuote, command: EstimateCommand, identity: { id(): string; actor: string; now: string }): ServerQuote {
+  // Match the saved-current read boundary; a historical view/source is not authority.
+  if (quote.revisions.find(revision => revision.revisionId === quote.defaultRevisionId)?.baseInfo.quoteType === "processing")
+    throw new HttpError(409, "estimate_not_applicable", "Estimate commands are unavailable for processing quotes");
   const next = structuredClone(quote);
   const activate = (estimate: ServerEstimate) => {
     if (next.activeEstimateCost) next.estimateCostHistory.push(structuredClone(next.activeEstimateCost));
