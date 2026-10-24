@@ -1,11 +1,11 @@
-# 恢复点：读取链与导航普通合流
+# 恢复点：Gate4B保存来源展示合流
 
-2026-10-25；实际main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf，branch codex/order-readchain-main-9d65，明确依赖未合并PR129 d1917aaf91f6bfde5904e4f49dc1b6fd82599680。本地普通合流原读取链8da0fafb5ebe1f15bb747f44e69ef4ef779d93c5，只有三份共享摘要冲突，无业务代码冲突；保留所有原提交。
+2026-10-25；实际main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf，branch codex/order-source-display-main-9d65，本地普通合流74c94a5138457f645a3667949901320fae450456+19c3faf2d7ab37a8ef1b332d5156b14e45382a56，保留原始提交。全部非docs与原6ef一致，原archive和日志已核对；按精确SHA复用原9/20浏览器、9 API、811根及类型/lint/双构建，不冒称新运行。
 
-原103/类型/编译/lint可复用的依据是整个非docs树与c77逐blob相同，原archive重新核对；加工28仍归原edf和其三个未变blob。读outputs/order-readchain-staging-20261025/{merge-open,reuse-evidence,final-checkpoint}.json，先核双父/实际终态，不重跑已成功作用域或重做合流。当前三冲突由root按已登记输入解决，未纳入未知dirty。最终守卫未有同HEAD回执时不得称PASS；134/三CI仅未来真实PR门槛。
+先读outputs/order-source-display-staging-20261025的preview/start/stage-checks/source-checkpoint/final-checkpoint，按实际同HEAD终态继续，未有回执不算通过。原103/edf28保留其源，4B完整非docs等于6ef，原QA/archive/七PNG/双构建证据不重命名。新V1只校准M；未来PR134/三CI仍保留，当前不重跑成功验收。
 
-fbfecb5753138406404df0307e7c15318cebd73e保留精确main镜像8/8和50旧容器/179旧卷保全；db683保留CI成本控制，b611保留完整就绪审查，7da保留累计成衣工程，均不因本分支改变或部署。当前62426仍旧8175，50426此前无监听且原因未知。
+74c94a保留4A读取链、fbfecb保留main镜像8/8及旧50容器/179卷保全，db683保留CI成本控制，b611保留完整就绪审查，7da保留后续累计工程；它们未因切分支而丢弃或部署。
 
-PR129三项原CI通过、仍唯一草稿，具体merge待用户答复。Git STOP原因UNRESOLVED；本轮不push/ref/PR/CI/merge main，不改认证配置或现有环境/账号/业务库/卷，不读真实凭据/Source/旧私密报告，不绑定/激活/调度。关账三问、来源额度、coverage V2、入口切换/人工接受与旧资产退役保持待决。
+PR129仍唯一草稿且三项原CI通过，具体merge待用户答复；本候选明确依赖未合并导航和本地4A。Git exit1原因UNRESOLVED，STOP不解除，不push/ref/PR/HostedCI/merge main或更改认证/共享配置。真实Source额度、target启用、关账三问、coverage V2、入口切换/用户接受和旧资产退役仍独立待决。
 
-读[阶段记录](tasks/active/order-readchain-main-9d65-2026-10-25.md)后沿完整G1–G8/R继续；本地4A不等于4B/4C、真实来源启用或用户验收。
+读[阶段记录](tasks/active/order-source-display-main-9d65-2026-10-25.md)。未新建/切换环境、读真实Source/凭据、操作现有账号/业务库/卷或开调度；后续G5、生产、4C、出货、关账按各自依赖继续，完整Goal仍active。

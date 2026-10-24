@@ -1,0 +1,3 @@
+# 保存来源展示原输入
+
+2026-10-25。本地普通合流保留74c94a5138457f645a3667949901320fae450456与19c3faf2d7ab37a8ef1b332d5156b14e45382a56原提交。这里逐字保留19c中的原e01a V1记录（SHA256 6015ab1244c9a143e3dcd8f0501b8273744c75fd15f2b0b97ca4f9dc5be6de2e），当前只前移基线，不改变V1批准范围或重设计界面。父版本三份共享摘要及所有旧日期/hash/失败/结果/限制仍在Git对象，可用git show 74c94a5138457f645a3667949901320fae450456:docs/CURRENT_STATE.md与git show 19c3faf2d7ab37a8ef1b332d5156b14e45382a56:docs/CURRENT_STATE.md读取，AI_HANDOFF/PROJECT_INDEX同理。原6d工程证明和7PNG/2JSON保持原文件及哈希，不复制为新验收图。
