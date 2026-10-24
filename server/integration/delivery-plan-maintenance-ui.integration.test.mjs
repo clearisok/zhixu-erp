@@ -45,7 +45,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
   const x = await startContinuousFixture(staticDirectory);
   const temp = await mkdtemp(join(tmpdir(), 'zhixu-delivery-plan-ui-')), pending = new Map(), errors = [], metrics = [], headerMetrics = [];
   const actor = await loadExistingBootstrapActor(x.pool, x.users[0]);
-  let browser, ws, session, closeBrowser, serial = 0;
+  let browser, ws, session, closeBrowser, captureDiagnostic, serial = 0;
   const read = () => readDeliveryPlanSet(x.pool, x.orderId);
   const peer = async (quantity = '7', date = '2027-03-01') => updateDeliveryPlans(x.pool, actor, x.orderId,
     { requestId: randomUUID(), expectedVersion: (await read()).version, upserts: [{ id: null, deliveryDate: date, quantity }], voidIds: [] });
@@ -101,6 +101,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
         if(mode==='hold401')return new Promise(done=>w.readWaiters.push(()=>done(Response.json({error:{code:'authentication_required'}},{status:401}))));return r;
       };` });
     const evaluate = async expression => { const r = await command('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }); assert.equal(r.exceptionDetails, undefined, JSON.stringify(r.exceptionDetails)); return r.result.value; };
+    captureDiagnostic = () => evaluate("({body:(document.body?.innerText??'').slice(0,12000),active:document.activeElement?.textContent?.trim().slice(0,100),touchEvents:window.deliveryTouchEvents??[],viewport:{width:innerWidth,height:innerHeight,scrollX,scrollY},dialogs:[...document.querySelectorAll('[role=dialog]')].map(n=>({text:n.innerText.slice(0,1000),buttons:[...n.querySelectorAll('button')].map(b=>({text:b.textContent.trim(),disabled:b.disabled}))}))})");
     const has = (text, selector = 'body') => until(() => evaluate(`(document.querySelector(${JSON.stringify(selector)})?.innerText??'').includes(${JSON.stringify(text)})`), text);
     const click = (text, selector = 'button') => until(() => evaluate(`(()=>{const n=[...document.querySelectorAll(${JSON.stringify(selector)})].find(n=>n.textContent.trim()===${JSON.stringify(text)});if(!n||!n.isConnected||n.disabled||!n.getClientRects().length)return false;n.focus({preventScroll:true});n.click();return true})()`), 'enabled ' + text);
     const input = (label, value) => evaluate(`(()=>{const n=document.querySelector('.oc-delivery-modal [aria-label='+${JSON.stringify(JSON.stringify(label))}+']');if(!n||n.disabled)throw Error('missing enabled input');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,${JSON.stringify(value)});n.dispatchEvent(new Event('input',{bubbles:true}));n.dispatchEvent(new Event('change',{bubbles:true}));})()`);
@@ -173,9 +174,16 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       const before=await read(), patchCount=await evaluate('deliveryWire.patches.length');
       await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
       await command('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
+      await evaluate("window.deliveryTouchEvents=[];for(const type of ['touchstart','touchend','pointerdown','pointerup','click'])document.addEventListener(type,e=>deliveryTouchEvents.push({type,target:e.target.textContent?.trim().slice(0,100),x:e.clientX??e.changedTouches?.[0]?.clientX,y:e.clientY??e.changedTouches?.[0]?.clientY}),{capture:true,passive:true})");
       const touch=async(name,selector)=>{
         let target;
-        await until(async()=>{target=await evaluate(`(()=>{const n=[...document.querySelectorAll(${JSON.stringify(selector)})].find(n=>n.textContent.trim()===${JSON.stringify(name)});if(!n||n.disabled)return null;n.scrollIntoView({block:'center'});const r=n.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,reachable:!!hit&&n.contains(hit)}})()`);return target?.inside&&target.reachable;},'enabled reachable touch '+name);
+        await until(async()=>{
+          const find=`[...document.querySelectorAll(${JSON.stringify(selector)})].find(n=>n.textContent.trim()===${JSON.stringify(name)})`;
+          if(!await evaluate(`(()=>{const n=${find};if(!n||n.disabled)return false;n.scrollIntoView({block:'center',behavior:'instant'});return true})()`))return false;
+          await evaluate('new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)))');
+          target=await evaluate(`(()=>{const n=${find};if(!n||n.disabled)return null;const r=n.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,reachable:!!hit&&n.contains(hit)}})()`);
+          return target?.inside&&target.reachable;
+        },'enabled reachable touch '+name);
         assert.ok(target?.inside&&target.reachable); assert.ok(target.width>0&&target.height>=44);
         await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:target.x,y:target.y}]});
         await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]}); return target;
@@ -187,7 +195,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       const deliveryClose=await touch('取消','.oc-delivery-modal button'); await absent();
       await until(()=>evaluate("document.activeElement?.textContent.trim()==='维护交期'"),'delivery touch restores focus');
       assert.deepEqual(await read(),before); assert.deepEqual(await immutable(),baseline); assert.equal(await evaluate('deliveryWire.patches.length'),patchCount);
-      metrics.push({touch:{width:390,actualTouchEvents:true,sourceOpen,sourceClose,deliveryOpen,deliveryClose}});
+      metrics.push({touch:{width:390,actualTouchEvents:true,sourceOpen,sourceClose,deliveryOpen,deliveryClose,events:await evaluate('deliveryTouchEvents')}});
       await command('Emulation.setTouchEmulationEnabled',{enabled:false}); await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
     });
 
@@ -349,7 +357,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
     if (evidence) await writeFile(join(directory, 'receipt.json'), JSON.stringify({ schemaVersion: 'delivery-plan-maintenance-ui.v2', driverSourceSha, renderedSourceSha: info.gitCommit, before: false, buildId: info.buildId, synthetic: true, realSourceRequests: 0, headerMetrics, metrics }, null, 2) + '\n');
   } finally {
     let evidenceError,stopError,stopped=false;
-    try { if(evidence) await writeFile(join(directory,'build-and-checks.json'),JSON.stringify({driverSourceSha,renderedSourceSha:info.gitCommit,before:beforeBuild,build:info,headerMetrics,metrics,errors},null,2)+'\n'); } catch(error){evidenceError=error;}
+    try { if(evidence) await writeFile(join(directory,'build-and-checks.json'),JSON.stringify({driverSourceSha,renderedSourceSha:info.gitCommit,before:beforeBuild,build:info,headerMetrics,metrics,errors,diagnostic:await captureDiagnostic?.()},null,2)+'\n'); } catch(error){evidenceError=error;}
     try { await stopOwnedChromium(browser,{gracefulClose:closeBrowser}); stopped=true; } catch(error){stopError=error;}
     finally { ws?.close(); for(const item of pending.values())item.reject(Error('Owned delivery fixture closed')); pending.clear(); }
     try { await x.close(); } finally {
