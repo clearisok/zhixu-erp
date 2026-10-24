@@ -105,10 +105,10 @@ test("DB-only garment target lifecycle, historical receipts and original publica
     ]) {
       const input = structuredClone(enable(job)) as Extract<GarmentTargetRequest, { action: "enable" }>;
       Object.assign(input.request.verification.evidence as Record<string, unknown>, patch);
-      await assert.rejects(() => planned(input));
+      await assert.rejects(() => planned(input), { code: "garment_filter_invalid_evidence" });
       await assert.rejects(() => applyGarmentTarget(pool, admin, input, {
         requestId: randomUUID(), scopeHash: "0".repeat(64), expiresAt: new Date(clock + 540000).toISOString(),
-      }, now));
+      }, now), { code: "garment_filter_invalid_evidence" });
       assert.equal(await target(job), undefined);
       assert.deepEqual(await counts(), before);
     }
