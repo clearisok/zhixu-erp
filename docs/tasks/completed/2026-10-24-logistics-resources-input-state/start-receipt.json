@@ -1,0 +1,151 @@
+{
+  "at": "2026-10-24T09:05:59.659Z",
+  "branch": "codex/server-logistics-resources-current",
+  "main": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "prior": "cab72ba9d38583d2441b42c274be324fb899aab4",
+  "initialClean": true,
+  "initialSourceBranch": "codex/server-production-execution-current",
+  "branchCreatedAtMainThenExplicitFastForward": true,
+  "mainVerifiedAt": "2026-10-24T09:04:19.242Z",
+  "priorFinalGuard": {
+    "at": "2026-10-24T08:57:44.988Z",
+    "head": "cab72ba9d38583d2441b42c274be324fb899aab4",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "code": 0,
+    "timedOut": false,
+    "overflow": false,
+    "elapsedMs": 87550,
+    "result": {
+      "status": "PASS",
+      "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "checkedHead": "cab72ba9d38583d2441b42c274be324fb899aab4",
+      "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "pages": 11,
+      "capabilities": 51,
+      "changedUiFiles": 50,
+      "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+      "errors": []
+    }
+  },
+  "priorRelease": {
+    "at": "2026-10-24T08:55:10.675Z",
+    "head": "35f659cea3d0ec0944ba1e6ef8971efa16c0949b",
+    "productAndNonreleaseSource": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "command": "npm run test:release-baseline",
+    "code": 0,
+    "timedOut": false,
+    "overflow": false,
+    "elapsedMs": 340872,
+    "counts": {
+      "tests": 134,
+      "pass": 134,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "sourcePathsUnchanged": true
+  },
+  "priorFinal": {
+    "at": "2026-10-24T08:59:42.639Z",
+    "branch": "codex/server-production-execution-current",
+    "head": "cab72ba9d38583d2441b42c274be324fb899aab4",
+    "tree": "993c8e8e42e6c395eaeddf5b7e1b5847983e9f6f",
+    "source": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+    "proof": "6184a442faeb4a263b7d54feb4537db75f49990a",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "localEngineering": "PASS",
+    "review": "independent read-only final review: no P1/P2; reviewer did not run tests",
+    "api": {
+      "files": 28,
+      "tests": 313,
+      "source": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe"
+    },
+    "browser": {
+      "before": 2,
+      "after": 28,
+      "navigation": 18,
+      "tests": 48,
+      "source": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe"
+    },
+    "nonrelease": {
+      "source": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "files": 97,
+      "tests": 811
+    },
+    "release": {
+      "at": "2026-10-24T08:55:10.675Z",
+      "head": "35f659cea3d0ec0944ba1e6ef8971efa16c0949b",
+      "productAndNonreleaseSource": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "command": "npm run test:release-baseline",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 340872,
+      "counts": {
+        "tests": 134,
+        "pass": 134,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "sourcePathsUnchanged": true
+    },
+    "guard": {
+      "at": "2026-10-24T08:57:44.988Z",
+      "head": "cab72ba9d38583d2441b42c274be324fb899aab4",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 87550,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "cab72ba9d38583d2441b42c274be324fb899aab4",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 51,
+        "changedUiFiles": 50,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "standardRootUnion": 945,
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "retry": false,
+      "priorBranch": "codex/server-production-planning-current",
+      "priorTarget": "b6af0cd247c1e7ec4406e69526fa672544cce1d8",
+      "priorState": "TARGET_NOT_DELIVERED"
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "newPr": null,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "next": [
+      "G6D logistics resource prefix0037, then dependent tracking/arrival/shipments",
+      "DeliveryPlan0042 after required ledger prefix; no renumber/rewrite applied history"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ]
+  },
+  "protectedSummaryHashes": {
+    "CURRENT_STATE.md": "69421d9f88252e7eb0b7a53f4dfb29bc1ae39e4d881204645ff9fa68311f2458",
+    "AI_HANDOFF.md": "b532f710af6e9c1ca364ed5fada267b37ac3ee31a91f4bf37e0b6e0eac629018",
+    "PROJECT_INDEX.md": "c8f7492f83fb270d503a5e1d6b6b9c5a5d2f8762a963b0a383d3d90686da9096"
+  },
+  "networkMode": "NETWORK_DEGRADED",
+  "pushes": 0
+}
