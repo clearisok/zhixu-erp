@@ -1,8 +1,8 @@
 # 项目知识索引
 
-2026-10-24；实际main=e01a11952b648024c0bd6bf4259de429374981e2，#123已获准保留历史合并，#121/#122自动收口、原分支保留。其余不自动merge/close、不部署、不改真实业务数据。
+2026-10-24；实际main e01a11952b648024c0bd6bf4259de429374981e2，#123已获准合并，#121/#122随祖先自动收口、原分支保留。当前优先：[导航前向整合](tasks/active/server-navigation-main-forward-2026-10-24.md)、[PR125前向](tasks/active/pr125-main-forward-2026-10-23.md)、[交付诊断](tasks/active/git-delivery-diagnostics-main-2026-10-24.md)。先读CURRENT_STATE与AI_HANDOFF恢复精确状态。
 
-当前[PR125前向任务](tasks/active/pr125-main-forward-2026-10-23.md)正常合流原9e与[独立交付工具](tasks/active/git-delivery-diagnostics-main-2026-10-24.md)e007，不引入累计生产/来源业务。两父验收按blob范围复用，230证据/46能力保持，合流守卫/复审与新目标首交付分别核实；9e原STOP/exact并存不重写、不重推。继续同一#125，不为工具额外创建重复PR或重复CI；旧环境及完整目标各前置不变。
+原Gate3仅本地向当前基线前移；旧成果/证据保留，组合检查待执行，不新增累计PR或付费CI。#125仍CA草稿；4f远端exact与actual push exit1/STOP并存，精确API快进例外尚待答复。其余不自动merge/close、部署、账号/业务库操作、Source读取或旧入口替换。
 
 ## 系统简介
 

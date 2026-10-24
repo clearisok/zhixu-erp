@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useServerNavigationProtection } from "@/components/foundation/server-navigation-protection";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
@@ -324,6 +325,7 @@ function ServerQuoteWriterWorkspace() {
     }
   };
 
+  useServerNavigationProtection({dirty,blocked:saving||attachmentBusy,message:"Server 报价正在保存或上传，请等待当前操作完成。"});
   const requestNavigation = (target: string) => {
     if (dirty || attachmentBusy) setPendingNavigation(target);
     else router.push(target);

@@ -1,11 +1,12 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
-import {useRouter} from "next/navigation";
+import {useProtectedRouter as useRouter} from '@/components/foundation/server-navigation-protection';
 import {AppShell,Button,Card,MasterDetail,Modal,PageContainer,PageHeader,SearchField,Toolbar,ErrorState,LoadingState} from "@/components/foundation";
 import {useServerSession} from "@/features/server-auth";
 import {PERMISSION_DEFINITIONS,type PermissionKey} from "../model/permissions";
 import {roleRequest,RoleRequestError,type ManagedRole,type RoleCommand} from "../server/role-client";
 import "../admin-settings.css";
+import {useServerNavigationProtection} from '@/components/foundation/server-navigation-protection';
 type Draft={name:string;description:string;permissions:PermissionKey[]};
 const adminKeys=new Set(["user_permissions.view","user_permissions.manage"]);
 export function ServerRolePage(){const s=useServerSession();return <RolePage key={s.user?.id+":"+s.permissions.join("|")}/>;}
@@ -19,6 +20,7 @@ function RolePage(){
  function remember(value:{requestId:string}|null){setPending(value);try{if(value)sessionStorage.setItem(receiptKey,value.requestId);else sessionStorage.removeItem(receiptKey);}catch{/* No secrets or form values are persisted. */}}
  const permitted=session.hasPermission("user_permissions.manage"),role=roles.find(r=>r.id===selected);
  const dirty=Boolean(draft&&(newRole||role&&(draft.name!==role.name||draft.description!==role.description||JSON.stringify([...draft.permissions].sort())!==JSON.stringify([...role.permissions].sort()))));
+ useServerNavigationProtection({dirty,blocked:busy||Boolean(pending),message:'权限操作尚未确认，请先核对提交结果。'});
  async function refresh(){const result=await roleRequest();if(alive.current){setRoles(result.roles??[]);setLoading(false);}}
  useEffect(()=>{alive.current=true;if(permitted)void refresh().catch(()=>{if(alive.current){setFeedback("角色读取失败，请重试。");setLoading(false);}});return()=>{alive.current=false;};},[permitted]);
  useEffect(()=>{if(!dirty&&!pending)return;const fn=(e:BeforeUnloadEvent)=>e.preventDefault();window.addEventListener("beforeunload",fn);return()=>window.removeEventListener("beforeunload",fn);},[dirty,pending]);

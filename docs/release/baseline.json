@@ -1925,6 +1925,39 @@
       "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
       "supersedes": "closing-pr125-main-d1dd-import-20261023",
       "changeReason": "Carry the unchanged original D147 future Server target-currency document through actual PR125 merge 955474fa with approved e01a main parent. Preserve every earlier closing blob and ancestor witness; this imports document provenance only, not Server closing implementation, migration, FX conversion or deployment."
+    },
+    {
+      "id": "decisions-convergence-stabilization-merge-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "eb3a2833eaa9fe93f7ef8d3ab3014607fa548327",
+      "sha256": "5fba7e3f30f9e86dae20db972a570fdf4aea45510e4fa25490f08dc068c9230b",
+      "mergeOf": [
+        "decisions-server-convergence-20261020",
+        "decisions-stabilization-20261019"
+      ],
+      "changeReason": "Preserve both immutable parent-branch decision histories in the actual PR120/Server-convergence merge checkpoint; D-145 cleanup and approved D-147 target both remain."
+    },
+    {
+      "id": "decisions-convergence-system-management-merge-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "7eb63602cdb51c043414deabe4d3afed59a1e72d",
+      "sha256": "98cf8909feaa2900d7b2ab151f61a1d4e2a9cf173b05c9b9f385fe65449d17ad",
+      "mergeOf": [
+        "decisions-convergence-stabilization-merge-20261020",
+        "decisions-price-processing-20261017-roles-20261019"
+      ],
+      "changeReason": "Actual fixed PR123 merge retains D-146 administration together with D-145 stabilization and D-147 Server target, preserving both original parent manifests and histories."
+    },
+    {
+      "id": "decisions-server-navigation-continuity-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "b278602fc670f13bb4df29691d2b98b7ffa86fbc",
+      "sha256": "cdeb67c55a4c50a35c34079949969a68c3bc776f933d4b982e7f6739efd68aa3",
+      "supersedes": "decisions-convergence-system-management-merge-20261020",
+      "changeReason": "Approved Gate3 restores persistent Server navigation and feature-owned exit protection without changing layout, business ownership, permissions or source activation; preserve both merged decision histories."
     }
   ],
   "pages": [

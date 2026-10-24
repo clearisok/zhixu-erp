@@ -6,8 +6,11 @@
 
 #125源码091的134/134、42角色用户API、2数据库工具、类型/Server编译/lint及规范长路径双构建/产物检查保持各自范围；旧ENOENT和短路径失败保留，不冒称部署或永久根因。独立工具419的75/75、134/134（280089.0723ms，HEAD/manifest稳定）、定向lint及精确e01a源码守卫通过，显式拒绝P2已关闭、无新增P1/P2。本次合流只补实际范围/证据守卫与复审，不重复已通过且blob未变的业务/DB/浏览器/构建套件，不把父检查写成合流树的新运行。
 
-9e一次上传后工具STOP_AUTH_OR_DIVERGENCE与独立EXACT_HEAD_VERIFIED并存；远端tree/parent精确相同、Actions=0。缺少原push退出码，具体原因unknown，原STOP不清除、不重推9e。新工具区分成功ref普通词与显式拒绝，后者即使exit0仍STOP，并只在post-push decision提供白名单摘要。新候选需完成合流守卫/复审、当前直接预检正常及身份/祖先/clean检查后，仅一次新目标首交付；独立核实前不移动原#125引用。
+9e一次上传后工具STOP_AUTH_OR_DIVERGENCE与独立EXACT_HEAD_VERIFIED并存；远端tree/parent精确相同、Actions=0。缺少原push退出码，具体原因unknown，原STOP不清除、不重推9e。新工具区分成功ref普通词与显式拒绝，后者即使exit0仍STOP，并只在post-push decision提供白名单摘要。新合流4f守卫/复审通过，直接预检NORMAL后只上传一次；新回执实际exit1、未超时、STOP_AUTH_OR_DIVERGENCE且远端full4f精确。随后只读Git/API同时读取full4f，代码树/双父也精确。已停止相关写入，未更新PR引用；缺少具体原文原因，不能认定root cause或宣称已修复网络。只读确认无pre-push hook、followTags/mirror未配置，未改共享配置。
 
-#125仍草稿、未获merge批准；本次只准备同一PR的前向交付，不新建重复工具PR或批量重跑CI。未更新旧持久目标、镜像或体验环境，未部署/读取凭据或真实Source/改账号业务库。保留9e、e007、717、CI节流0ba和产物1028等分支与所有3001/50426/旧入口、Browser、卷、对象和备份。
+#125仍CA草稿、未获merge批准；仅更新说明列出旧head和可审阅4f候选，未触发新CI。已提出精确API引用例外询问：仅force=false、expected CA前向到4f；尚无回复不得执行，不重复询问或重推。不新建重复工具PR或批量重跑CI。未更新旧持久目标、镜像或体验环境，未部署/读取凭据或真实Source/改账号业务库。保留9e、e007、717、CI节流0ba和产物1028等分支与所有3001/50426/旧入口、Browser、卷、对象和备份。
 
 完整G1–G5未完成；其余Server生产/来源工程仍在独立候选。关账三问、coverage-v1、真实来源额度/target激活、50426批准切换/用户接受和逐项资产退役保持各自前置，不能因工程或CI通过自动完成。
+
+
+2026-10-24 navigation forward phase: codex/navigation-main-e01a-forward is locally combining original Gate3 16f8d57d with reviewed PR125/tool 4f on actual main e01a11952b648024c0bd6bf4259de429374981e2. Ten expected documentation/evidence/old-tool conflicts only; current main guard/rules preserved. New-combination validation is PENDING; historical Gate3 checks are not rerun facts. See [navigation forward task](tasks/active/server-navigation-main-forward-2026-10-24.md). #125 API exception remains pending; no new PR ref/CI/merge/deployment.

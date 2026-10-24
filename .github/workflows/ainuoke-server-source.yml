@@ -78,6 +78,8 @@ jobs:
         run: npm run build
       - name: Existing P6 pages, six roles and persisted refresh in private Chromium
         run: |
+          node --test tests/server-navigation-history.test.mjs
+          npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
           npm run test:ainuoke-continuous-ui
           npm run test:processing-batches-ui
           npm run test:processing-quote-push-ui
