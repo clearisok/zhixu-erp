@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-24；比较main e01a11952b648024c0bd6bf4259de429374981e2。GitHub main合并事实与当前累计分支工程能力分开；#125 API例外已完成、其4f三CI不能证明后续本地Gate。当前从[CURRENT_STATE](CURRENT_STATE.md)/[AI_HANDOFF](AI_HANDOFF.md)/[覆盖客户端当前任务](tasks/active/server-delivery-coverage-client-current-2026-10-24.md)恢复精确状态。
+2026-10-24；比较main e01a11952b648024c0bd6bf4259de429374981e2。GitHub main合并事实与当前累计分支工程能力分开；#125 API例外已完成、其4f三CI不能证明后续本地Gate。当前从[CURRENT_STATE](CURRENT_STATE.md)/[AI_HANDOFF](AI_HANDOFF.md)/[受控采集器当前任务](tasks/active/server-garment-collector-current-2026-10-24.md)恢复精确状态。
 
 前阶段交期UI最终0a/main守卫实际PASS118001ms（11/61/75/errors[]），707发布134/134 PASS464627ms；产品56b57相关/811根/类型NodeLint/双build，driver0e after14、before3及Quote9/P6 14/物料17分阶段联合57浏览器，proof869、23PNG4JSON/10图查看，清单455/61。两次触摸失败及漏env前置失败完整保留，非一轮57全绿；0tests的runner预检不计134失败。独立终审无新P1/P2，未借#125CI。
 
@@ -162,3 +162,5 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅�
 [严格客户端当前证明](tasks/completed/2026-10-24-delivery-coverage-client-current-engineering.md)：本轮62与37built排单UI及双构建通过，初次runner smoke失败保留；清单461/63，精确main守卫另核，无新134/811/139或HostedCI声明。
 
 2026-10-24首次93eb/main守卫实际FAIL113039ms，唯一UI_CHANGE_PAGE：影响记录误用路由名production-scheduling。原JSON/log完整保存initial-*；仅改为现有navigation页面ID，两个helper/V0/visibleDifference:none/产品fc103/截图/guard不变。修正证明85e9360c3aee704f42f2d711b910d0070c6929d8已冻结，清单462/63保持全部旧对象；新最终精确守卫后置，不预写PASS。原62/37/双build等不重复，详见[修正证据](tasks/completed/2026-10-24-delivery-coverage-client-impact-correction.md)。
+
+严格客户端V0最终c835/main守卫119226ms PASS、清单462/63、独立终审无新增P1/P2，完整终态/失败与三摘要保护于[采集器输入](tasks/completed/2026-10-24-garment-collector-input-state/)。当前[0043受控采集器](tasks/active/server-garment-collector-current-2026-10-24.md)仅14路径预核，尚无新产品或QA；无新增真实许可/激活/公开入口。
