@@ -45,3 +45,7 @@
 真实merge checkpoint955474fa8eb12faed1e5de4bf1c22c2fed321396双父为[e01a11952b648024c0bd6bf4259de429374981e2,ca05d3e75d3b28be44184a5ef645c9f24e6f38d3]；仅追加DECISION合流见证至229/46，原228对象保持。此checkpoint不是新组合最终验收PASS，后续源码及守卫仍待。
 
 首次源码eaeaa3307722a987e657112f7ba36390e9d962e0精确e01a守卫实际FAIL：EVIDENCE_REVISION_ANCESTRY指向closing-server-target-20261020、closing-pr125-main-be9-import-20261023和closing-pr125-main-d1dd-import-20261023。这是旧侧链跨新PR base的接续遗漏，不是产品/SQL测试失败。追加以真实9554原CLOSING字节为依据的forward witness，supersedes旧d1dd-import，230/46；原229对象、文档、Guard和失败日志全部保留。新源码守卫/验收另跑。
+
+## 干净快照夹具修正
+
+c592补证后的精确e01a源码守卫PASS（11页/46能力/0UI变动）；新独立Gitarchive上下文0d26e1aa（完整hash见ignored qa-context.json）的类型/Server编译/lint通过。第一ops23项22pass/1fail、0skip：database-ops-safety在VerifyTargetOnly之前读取不存在的ignored backups目录触发ENOENT，不是备份/恢复脚本失败。原输出/结果/上下文保留。仅前向改该测试：ENOENT表示空文件名列表，其他FS错误保持失败；前后比较改为完整排序文件名，拒绝产生备份的断言更强，不通过创建目录掩盖问题。原17运维和main46非docs仍保持；这是额外一份旧fixture修正。成功的22运维/类型/Server编译/全lint不重复，只跑新fixture/scoped lint与此前未执行的schema API/两构建/产物检查和134。新source还未完成这些检查，实际镜像/持久恢复仅保留原SHA范围。

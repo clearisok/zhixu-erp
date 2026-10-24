@@ -9,3 +9,5 @@
 完整Goal继续，关账三问未答不默认；#125仍草稿且未获merge授权。其余Source范围/target激活、50426切换、coverage-v1及资产退役不扩大。
 
 首次源码eaeaa330精确e01a守卫FAIL仅三项CLOSING侧链祖先错误；补真实9554 forward witness，不改原文/ID/guard。原日志保留，修复后守卫与新组合检查继续，不能先写PASS。
+
+c592精确e01a守卫已PASS；独立Gitarchive类型/Server编译/lint通过。原ops23/22pass/1fail保留，原因是clean archive没有ignored backups目录，旧测试直接readdir在验证调用前失败。只修scripts/__tests__/database-ops-safety.test.mjs：ENOENT为空列表、其他错误不吞、文件名deepEqual更强。下一个新archive仅重跑该失败夹具和scoped lint，再跑未执行的角色/用户schema API、双构建/外部已审产物检查、134；不要重跑不变的22运维、类型/全lint/完整#123 UI。未运行项不能先标PASS。
