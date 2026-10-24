@@ -1,28 +1,18 @@
-# 恢复点：G6B受控前移完成，准备源码冻结与新QA
+# 恢复点：G6B cd737冻结QA通过，证据绑定/发布待收口
 
-2026-10-24；root唯一writer，既有server_convergence_review只读，Goal active。main e01a11952b648024c0bd6bf4259de429374981e2。
-当前codex/server-production-planning-current，baseline40bfaff819288a7fa09051fafe40e74b7c50e1e3；初始clean/无继承dirty。
-只读预核→50路径受控复制919643d8cde2b0ec22987631e685e6a661829881：49输入等于原d717，资源service保留G6A容量修复。
-首次CRLF/LF standalone merge-file在0仓库写入时STOP，规范化后clean三方；旧回执保留，不是业务测试失败。
-保留7eb批量物理SO锁序/15295读取/919移动布局，不整包8f或原workflow/docs；0034不变、0035新表和约束仅隔离验证。
+2026-10-24；root唯一writer、既有server_convergence_review只读，Goal active。main e01a11952b648024c0bd6bf4259de429374981e2。
+当前codex/server-production-planning-current，起点40bf，实际QA source cd73726babfaa86ffef671cbbe3a37fd542dace6，tree8a808ce1ff40a23cf8d6f3df70896efee5ce3a7d。
+原d717→919共50路径逐blob49一致/1资源service三方保留；0写入CRLF冲突原回执保留。不整包8f/旧workflow/状态。
+新ResourceFacts容量P2真实红32/2→工作52绿→冻结268绿；不改0034/0035限制/hash。恢复语义doc P2已修，不把COMMIT未知说成回滚。
 
-新P2真实红：合法calendarReceipt1048294B、完整ResourceFacts1048855B，原preview200后command500；实际34项32pass2fail（子例+父日志）。
-此前fixture误用recorded_at列的单独失败原样保存。现storeResourceFacts在原SAVEPOINT内按PG字节拒绝422，client中文消息，
-不改SQL/上限/原字符。工作态planning+resource两文件52/52 PASS22679ms，含零快照/计划/版本/heads/audit/桥接新增、恰1拒绝、
-真实client GETknown/原IDreplay/另一正常组可新预览；仅working green，不当冻结结果。reviewer静态无P1/P2，未运行测试。
+实际C验收：types38571ms、Node19889/import2811、lint54869；24文件268API/升级155341ms、97根811/29422ms；before2/26504ms，after17/35070、资源14/24622、导航18/21851、登录11/16473、P6 14/58538，合76浏览器；0fail/cancel/skip。
+双build9867/9699ms、独立artifact2712/2534，各45+1/112assets；Server0warning，Browser1既有users preload提示。
+canonical context C:/Users/Administrator/AppData/Local/Temp/zhixu-production-planning-eHQsYc/context；archive06439ae899089ee43a306b293b3bda1d7b4be4939bdee166b2ebc037ed0c7ea9。
+17PNG/2geometry已逐字复制到新evidence目录，proof写明C、before f441、DPR及764顶部。主控看11张；原失败/红绿、截图、全部日志保持。
 
-两旧CI断言按3f2精确修：登录匿名snapshot→returnTo/API401、无权403/无workspace、管理员空组，其他关闭路由负控保留。
-planning UI严格before只允许完整旧f441/外部静态；after禁覆盖，Browser.close用root、stopOwnedChromium确认后才删ownedprofile。
-父300秒/轮询16秒/CDP20秒/端点30秒不变。新产品无6C完成/物流/价格，未知不冒充0。12路径V1记录已写。
-新增单一完整SERVER_PRODUCTION_PLANNING文档及D150/原production前向说明，DATA_LIFECYCLE记技术缓存；旧Browser账本不动。
-package两个脚本、现有PR Source CI仅新增资源/排单API/UI命令，不加事件/任务、不削旧检查，本轮Actions=0。
+接下来只提交本轮docs/evidence冻结proof，再前向manifest：保留269旧证据/49能力/runtime；D150 revision接decisions-order-context-quote-current-20261024，production revision接production，新feature及proof/图像，新增scoped计划能力与/production-scheduling路由。
+然后metadata commit，真实.git根发布134一次及最后clean精确main守卫；不重复C未改成功测试。现还未运行发布/最终guard、不提前PASS。
+最终独立review后既有工具仅1次正常checkpoint交付并独立核SHA/tree/父；无新累计重复PR/Actions。G6A6fd已remote exact，不借#125 4f三CI或旧919结果。
 
-接下来：只提交本阶段明确路径冻结源码，再新canonical archive/复用node_modules/noinstall。
-一次执行计划/资源/颜色/议价/来源/角色/升级等最小充分API组合、types/Node实际import/lint、根非发布、双build/独立artifact，
-新before/after规划UI及导航/资源/login/P6实际浏览器。269/49旧清单先不改；DECISION与production有新版本须在源提交后前向绑定，
-新截图/能力/Server路由依实际验收，发布134和精确main守卫最后执行。未运行检查不预写PASS，不借旧919或#125 CI。
-
-G6A remote6fd已1push/exact SHA tree父、Actions0；local134/main guard PASS，完整final回执在前序outputs。
-#125独立API4f/三PR success attempt1仍open draft，旧STOP根因unknown不抹去；G6B未交付。
-不新建累计重复PR/多余Actions、自动merge/close/deploy、读真实凭据/Source、改账号业务库/卷或绑定/激活/调度/退役。
-保留3001/50426/59069/62426、旧Browser、备份及结果。完成双权限/原产出归属规则保留，关账三问/coverage-v1/来源及人工接受仍各有前置。
+本轮6B仅planned/cancelled，6C实际执行/完成、4C、物流/出货及关账继续依赖。完成重排双权限、原产出保留原排单执行方/剩余另建保留；关账三问/coverage-v1/来源/切换前置未擅定。
+禁止自动merge/close/deploy、共享Git/TLS/proxy/auth修改、真实凭据/Source/账号/业务库/卷操作、绑定/激活/调度或退役。保留3001/50426/59069/62426、Browser、备份和结果。

@@ -141,6 +141,8 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 
 2026-10-24 07:01Z：单独获准的#125 expected-CA/force=false→4f API已执行一次，独立API核SHA/tree/双父。GitHub临时PR合并预览dd5700的父为当前main e01a及4f，代码树等于已验收4f；未合并main。Source40072506615、Team40072506633、Baseline40072506617均success、pull_request、attempt1，仅自动各一次，无rerun/dispatch；#125说明已更新且仍open draft，不借旧CI。G6A新源码尚未远端交付；没有扩大新push/其他PR/部署/真实数据许可。回执outputs/pr125-api-lease-20261024。
 
-G6A最终6fd/main守卫PASS79777ms/clean，0d发布134/134；仅1次正常push后独立API核6fd/tree/父，Actions=0，无新累计PR。G6B已建受保护输入及50路径只读预核，49相同/1容量修复需保留；尚无新产品或验收PASS。旧#125/工具STOP历史与各阶段source事实不混用。
+G6A最终6fd/main守卫PASS79777ms/clean，0d发布134/134；仅1次正常push后独立API核6fd/tree/父，Actions=0，无新累计PR。G6B已由受保护输入/50路径预核完成受控前移，并有独立cd737冻结QA；详见下段，不借旧结果。旧#125/工具STOP历史与各阶段source事实不混用。
 
 G6B产品已按原919受控前移，49输入一致/1资源容量三方保留；新增完整Server排单契约/D150、12路径V1和两个CI兼容用例。实际快照P2红32/2→工作态资源+排单52/52绿（22679ms），不是冻结QA。下一步新源码冻结/本机验收，269/49及新路由/文档绑定待后续证明，不借旧919或#125绿灯。
+
+G6B源码cd73726babfaa86ffef671cbbe3a37fd542dace6实际268相关API/升级、根811、类型/Node/import/lint、before2/after17/资源14/导航18/登录11/P6 14及双构建/产物全部PASS；[新证明](tasks/completed/2026-10-24-production-planning-current-engineering.md)冻结17图/2geometry，11图主控查看。COMMIT未知恢复文档P2已修，仅docs变化。清单新绑定、发布134/最终精确main守卫及远端尚待，不提前PASS；旧269/49/runtime完整，Actions0。

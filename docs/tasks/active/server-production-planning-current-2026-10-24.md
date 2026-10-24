@@ -55,3 +55,9 @@ blob仍等于原d717，唯一差异为server/production-resources/service.ts的�
 新增实际快照容量P2：合法日历回执1048294B，但完整资源facts1048855B，原preview后500/unknown。先有一次fixture误用不存在recorded_at列，修正后真实红34项32pass2fail；原始两轮保留。现原SAVEPOINT内PG真实字节422，保留SQL/限额/hash/字符；工作态两文件52/52 PASS22679ms，0失败/取消/跳过，覆盖零部分写/恰一拒绝/GETknown/原ID重放/正常组再预览。独立只读复审无剩余P1/P2，未替审阅者声称运行测试。
 
 当前产品/SQL/UI已前移，上一节“尚未复制”只表示起始40bf时刻；本阶段尚未完成冻结类型/Node/lint、完整API/升级、双构建/浏览器、根/发布或远端交付。先独立源码checkpoint，然后实际验证，不把工作态52或旧919结果当最终PASS。三摘要、feature/D150和12路径V1同步；清单269/49旧对象未改，新增路由/文档版本/新能力待真实证据后绑定。
+
+## 当前冻结QA终态（cd737）
+
+源码cd73726babfaa86ffef671cbbe3a37fd542dace6实际类型/Node/import/lint、24文件268 API/升级、97根811及before2/after17/资源14/导航18/登录11/P6 14全部PASS，0失败/取消/跳过。双构建/独立产物各45页、1fallback、112assets通过；Browser旧users preload提示1条，Server0。规范archive、真实时长、17新PNG/2geometry及11张主控审图见[新证明](../completed/2026-10-24-production-planning-current-engineering.md)。未扩展测试超时、未新安装，所有实际PG/HTTP/账号均owned合成。
+
+独立文档复审纠正COMMIT未知不可声明回滚，逻辑1MiB与4096字节客户端信封区别明确；不是产品变更，不重复成功C范围。现在只推进proof checkpoint、manifest新版本、发布134和最后精确main守卫，未发生的不提前PASS。269/49原对象及全部旧hash/证据保持，本阶段远端未交付、Actions0，不新增累计PR。
