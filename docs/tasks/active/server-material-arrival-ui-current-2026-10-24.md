@@ -25,3 +25,9 @@ NETWORK_DEGRADED继续，push0/PR0/Actions0；不重复旧失败通道，不借#
 冻结前收窄：3个状态P2采用61e9/a290/14a精确hunk；客户端颜色1000硬限在隔离真实HTTP复现red1fail8500ms，仅两处数组上限对齐已有1MiB响应后green1/1 8964ms。1001颜色合法HTTP保存/回执/读取/历史全部走通；1200来源可读、preview可核，提交known422/replay且无新业务残留，SQL8192/24576保持。该结果为工作态诊断，不称冻结QA。built驱动另取14a→72d0测试hunk，补显式root CDP关闭、自有进程确认、指定before e2cf和after精确SHA、before-only静态覆盖及footer可见断言；当前尚未运行新built浏览器。
 
 当前a0c3冻结实际：类型NodeLoadLint、97相关检查/811根、before3/after16、物料显示10/导航18、双构建产物全部PASS，均0fail/cancel/skip；已看8PNG。新driver仅补390px浏览器touchStart/touchEnd打开/关闭历史及零业务写入的明确验收（此前只做mobile metrics），不改产品/接口/测试断言或预算。其独立测试源码checkpoint和新archive另记，后续只重跑这个受改驱动及定向lint，已成功且未变的其他范围复用，不冒称重跑。
+
+## 当前冻结结果
+
+产品a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad实际97相关单元/SQL/API（112321ms）、根811（17692ms）、类型NodeLoadLint和双构建产物PASS；before3、abf3测试driver after17（28256ms）、物料10/导航18共48浏览器PASS，全部0fail/cancel/skip。初16独立保留，abf3只加触摸及两状态文档，其余未变范围复用不称重跑。proof e2a0089fd9063dae77de0eccbd3ac1d4126994cf；新18PNG/3JSON、8图查看，6宽/DPR1.25及390 CDP触摸。清单386/56保留旧363/55/runtime/21routes；新能力不代表Linux CLI旧缺口、真实Source、合并/部署或人工接受。
+
+发布134和最终clean精确main守卫仍待实际执行，不能提前写PASS；本地工程与远端交付分开。NETWORK_DEGRADED继续，push0/PR0/Actions0，不借#125三CI。仅合成一次性PG/loopback/私有Chromium，不读真实凭据/Source、不操作真实账号/业务DB/卷、不绑定/激活/调度/自动merge/close/deploy/50426切换或退役；保护3001/50426/59069/62426、Browser、备份与结果。Goal active，后续0040/41出货→0042交期→关账三问不默认。

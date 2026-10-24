@@ -1,13 +1,9 @@
-# 当前状态：物料分批到料界面开始前移
+# 当前状态：分批到料与物流界面隔离工程通过，待发布门禁
 
-2026-10-24；D054/D065–069/D147，root唯一writer及既有server_convergence_review只读。main e01a11952b648024c0bd6bf4259de429374981e2于2026-10-24T10:57:17.649Z独立核实；从该main显式FF到clean557ce，新分支codex/server-material-arrival-ui-current。原三摘要/hash及完整前阶段final回执保存在tasks/completed/2026-10-24-material-arrival-ui-input-state/。
+2026-10-24；main e01a11952b648024c0bd6bf4259de429374981e2（10:57:17Z独立API），branch codex/server-material-arrival-ui-current，从clean557ce接续、prep b85cb6；前阶段后台原摘要/hash及完整终态已保护于completed/2026-10-24-material-arrival-ui-input-state/。
 
-前阶段后台最终557ce对main守卫实际PASS93213ms（11/55/54/errors[]），49aa发布134/134（372749ms）；c994相关218项217通过/1既有Windows跳过、根811、类型NodeLoadLint通过，proof761267，清单363/55，独立终审无P1/P2。Linux CLI缺口不称PASS；原Source/SQL/UI与历史失败证据完整。
+产品a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad实际97相关单元/SQL/API（112321ms）、根811（17692ms）、类型NodeLoadLint和双构建产物PASS；before3、abf3测试driver after17（28256ms）、物料10/导航18共48浏览器PASS，全部0fail/cancel/skip。初16独立保留，abf3只加触摸及两状态文档，其余未变范围复用不称重跑。proof e2a0089fd9063dae77de0eccbd3ac1d4126994cf；新18PNG/3JSON、8图查看，6宽/DPR1.25及390 CDP触摸。清单386/56保留旧363/55/runtime/21routes；新能力不代表Linux CLI旧缺口、真实Source、合并/部署或人工接受。见[工程证明](tasks/completed/2026-10-24-material-arrival-ui-current-engineering.md)和[当前任务](tasks/active/server-material-arrival-ui-current-2026-10-24.md)。
 
-本阶段只在原物料页、卡片、分批到料Modal和历史Drawer接线现有0039及唯一material-logistics-service；不新建导航、不改变公式/身份/权限/schema/Source范围。原689afa→f287的15产品/测试/package路径已只读比对：14当前输入相同、package手工增量。原f287只有16项协议/HTTP检查，无完整built浏览器验收，本阶段必须补新真实构建和六宽度，不借旧checkpoint。保留刚修的store PG实际身份容量、0034–0039和完整Source锁序。见[当前任务](tasks/active/server-material-arrival-ui-current-2026-10-24.md)。
+原物料卡片、分批Modal和历史Drawer接独立0039 owner；Source/人工到明确Hub/Actual独立，每批复用唯一物流算法，不换单位、不补齐或改排单/金额。四项P2在冻结前关闭；颜色容量实际red1→green1→冻结97，SQL8192/24576不动。新schema/Source reader/store均未改，临时actor/tab原请求核对与layout owner保护保留。
 
-NETWORK_DEGRADED继续，push0/PR0/Actions0；不重复旧失败通道，不借#125 CI。仅自有合成一次性PG/loopback/私有Chromium；不安装、读取真实凭据/Source、操作真实账号/业务DB/卷、绑定/激活/调度、自动merge/close/deploy、切换或退役50426。保护3001/50426/59069/62426、Browser namespace/IndexedDB、备份和已有结果。Goal active；后续0040/41出货、0042交期/关账分别验收，三问不默认。
-
-14相同输入的产品/测试路径已前移，package只增原3项检查及本轮built驱动入口，原0039/store容量修复未动。9个前端生产路径V1影响记录已登记，沿原卡片/Modal/Drawer及唯一算法接线；尚无新QA，原f28716项不借用。
-
-冻结前收窄：3个状态P2采用61e9/a290/14a精确hunk；客户端颜色1000硬限在隔离真实HTTP复现red1fail8500ms，仅两处数组上限对齐已有1MiB响应后green1/1 8964ms。1001颜色合法HTTP保存/回执/读取/历史全部走通；1200来源可读、preview可核，提交known422/replay且无新业务残留，SQL8192/24576保持。该结果为工作态诊断，不称冻结QA。built驱动另取14a→72d0测试hunk，补显式root CDP关闭、自有进程确认、指定before e2cf和after精确SHA、before-only静态覆盖及footer可见断言；当前尚未运行新built浏览器。
+发布134和最终clean精确main守卫仍待实际执行，不能提前写PASS；本地工程与远端交付分开。NETWORK_DEGRADED继续，push0/PR0/Actions0，不借#125三CI。仅合成一次性PG/loopback/私有Chromium，不读真实凭据/Source、不操作真实账号/业务DB/卷、不绑定/激活/调度/自动merge/close/deploy/50426切换或退役；保护3001/50426/59069/62426、Browser、备份与结果。Goal active，后续0040/41出货→0042交期→关账三问不默认。
