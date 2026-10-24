@@ -15,3 +15,5 @@
 新source冻结后运行原并发/撤权/跨DB/颜色失败/人工计划介入/历史owner/审计回滚/报告落盘失败后删证据读回执、受影响DeliveryPlan/归一引用与升级；类型Node实际载入/lint、范围充分根测试、发布与精确main守卫及独立复审。原升级夹具未预置非空0040观察，不称其已覆盖；原丢回复用例不是COMMIT确认丢失模拟。不借旧81a结果，无前端变化不新称UI验收。
 
 NETWORK_DEGRADED继续，push0/PR0/Actions0，不重试失败Git通道；仅自有合成一次性PG/私密合成夹具/loopback。不新增真实Source/凭据读取、真实账号/业务DB/现有卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役。保护3001/50426/59069/62426、Browser、备份和现有结果。Goal active；后续出货UI/0042交期/0043collector及关账三问不默认。
+
+12非文档路径已受控前移，8原输入匹配、4手工；live-preflight只加bound-order-refresh，未加旧garment诊断；升级测试改用当前显式migrationFilesAfter(40)，旧数据/空表/幂等断言保留。两相关feature按当前边界增量说明，新QA尚未运行。

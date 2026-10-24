@@ -30,6 +30,8 @@ export const NORMALIZATION_REFERENCES = [
  ['ainuoke_garment_shipment_snapshots','source_owner_order_id','id'],
  ['ainuoke_garment_shipment_color_matches','sales_order_id','snapshot_id'],
  ['ainuoke_garment_shipment_heads','sales_order_id','source_key'],
+ ['ainuoke_order_source_refresh_receipts','sales_order_id','request_id'],
+ ['ainuoke_order_source_refresh_receipts','source_owner_order_id','request_id'],
  ['sales_order_identity_profiles','sales_order_id','sales_order_id'],
  ['sales_order_identity_profiles','reference_order_id','sales_order_id'],
  ['sales_order_preparations','reference_order_id','id'],
@@ -62,6 +64,8 @@ const references=NORMALIZATION_REFERENCES;
 /** Optional only for an unupgraded rehearsal. A partial financial schema fails
  * closed. Observations are reference evidence, never actual bank payments. */
 export async function normalizationReferences(client:PoolClient){
+ const refreshReady=(await client.query("SELECT to_regclass('public.ainuoke_order_source_refresh_receipts') IS NOT NULL AS ready")).rows[0].ready;
+ const references=NORMALIZATION_REFERENCES.filter(([table])=>refreshReady||table!=='ainuoke_order_source_refresh_receipts');
  const present=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads')`)).rows[0].n;
  if(present!==0&&present!==3)throw new HttpError(503,'payment_reference_schema_incomplete','Financial source reference schema is incomplete');

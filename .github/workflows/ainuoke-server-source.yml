@@ -40,6 +40,7 @@ jobs:
           npm run test:order-tracking
           npm run test:material-arrivals
           npm run test:garment-shipment-observations
+          npm run test:bound-order-refresh
           npm run test:production-planning
           npm run test:production-execution
           npm run test:order-normalization
