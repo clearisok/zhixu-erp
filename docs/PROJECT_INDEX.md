@@ -206,3 +206,5 @@ fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），
 [已绑定合同离线刷新](tasks/active/server-bound-refresh-current-2026-10-24.md)当前0041受控前移，12路径8同/4手工，不创建SO/Source请求/自动绑定；沿[订单持久化](features/SALES_ORDER_PERSISTENCE.md)同一事务与明确原owner，当前新验收待跑。
 
 当前0041 df5bed [proof da5b](tasks/completed/2026-10-24-bound-refresh-current-engineering.md)：API联合184/185（1既有平台跳过；初182/2失败/1skip及Git归档前置诊断保留，affected16根工作树补跑全过），根811/类型NodeLint PASS。清单393/58保留旧390/57/runtime/21routes；Python139/UI215只复用，无新Vite/browser，发布134和最终守卫另核。
+
+发布测试实际终态：4cc15c9c7b07d12ca50fa5e61f7007436bfac64c上134/134 PASS（412214ms），0fail/cancel/skip；与df5bed根811分阶段联合945，不是一轮。API联合184/185仍含1既有Linux CLI Windows跳过；初185的182pass/2fail与受影响16补跑均保留，不借发布改写旧失败或填补平台缺口。metadata后仅4状态文档，产品/测试/proof/两feature/清单不变；最后clean精确main守卫由随后实际回执核定，不称Hosted CI/合并/部署/真实来源或人工接受。
