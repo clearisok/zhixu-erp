@@ -1,13 +1,13 @@
-# 当前状态：G6B工程已收口，G6C准备受控前移
+# 当前状态：G6C实际执行本地工程通过，待最终门禁
 
-2026-10-24；独立API于08:23:59Z核main e01a11952b648024c0bd6bf4259de429374981e2。#123已按用户授权合并、#121/#122祖先自动收口；#125具体API例外到4f/三项PR CI success attempt1，仍open draft，未ready/merge。原STOP/根因unknown保留，不借作新阶段CI。
+2026-10-24；当前比较main e01a11952b648024c0bd6bf4259de429374981e2（08:23:59Z独立API）。#123已获准合并，#121/#122祖先自动收口；#125具体API到4f/三PR CI success attempt1仍open draft，未ready/merge。原STOP根因unknown保留。
 
-G6B最终b6af0cd247c1e7ec4406e69526fa672544cce1d8，实际工程source cd73726babfaa86ffef671cbbe3a37fd542dace6。268相关API/升级、97根811、before2/after17/资源14/导航18/登录11/P6 14（76浏览器）、类型/Node/import/lint及双build/artifact全部PASS。proof692774；51a发布134/134 PASS319203ms，与C根811分阶段联合99文件945；最终b6af/main守卫PASS78047ms，11页/50能力/47累计UI/errors[]。292/50清单保留旧269/49/runtime，复审无P1/P2。[新证明](tasks/completed/2026-10-24-production-planning-current-engineering.md)。
+当前codex/server-production-execution-current，从核实main显式FF至干净G6B b6af，再独立prep261a/source9c2f5bc536f9e5023a32b2e93cfd292984f00abe。30路径输入28相同/2三方，driver真冲突在0写入时停后明确保留严格before/owned清理，client容量提示保留；不整包旧8f/workflow/清单。0036独立head/history/epoch和同一命令/页面，0034/0035及PG容量保护未改。
 
-工程通过不等于送达：G6B DryRun READY后唯一Git上传发生uncertain_transport/exit1，pushes=1；工具和一次独立API都核TARGET_NOT_DELIVERED。没有重推/换认证/force，NETWORK_DEGRADED，PR/Actions=0。b6af分支/完整提交已保存；不在后续Gate重复同一失败通道，继续不依赖远端的本地阶段。G6A6fd原一次送达及此前各工程结果保留。
+9c2实际类型/Node/import/lint、28文件313相关API/升级、97根811、before2/after28/导航18（48浏览器）、双build/artifact全部PASS，0失败/取消/跳过。新23PNG/2geometry与11张主控审图冻结于[工程证明](tasks/completed/2026-10-24-production-execution-current-engineering.md)。未改资源/登录/P6复用旧C结果，不冒称本轮再跑；独立静态复审无P1/P2。仅docs/evidence后续变化，不重复成功源码。清单仍292/50，D151/新feature/能力待前向绑定；发布134及最终clean精确main守卫尚未运行，不提前PASS。
 
-当前codex/server-production-execution-current由已核main新建、显式FF至干净b6af。三摘要原文及hash已保护，无继承dirty；[G6C任务](tasks/active/server-production-execution-current-2026-10-24.md)。只读预核原919→27b最终执行窄切片30路径，28输入相同、2处client/driver需保留当前修复。已受控整合30产品/SQL/API/测试路径；driver真冲突在0写入时停止后明确解决，容量/owned清理保护保留。尚未执行本轮冻结QA，不提前PASS；不整包引入后续8f或旧workflow/状态。
+已产出保留原排单/物理SO/执行方/颜色/资源，更正0不解除归属，取消或换方剩余另建；仅登记complete、明确联动后续还需edit，预览/提交/回执fresh。计划/实际/交期/金额/出货/关账独立，无记录不造0或今天；同一原请求与事务、CAS/指纹/不可变历史保护。新UI为8路径V1，原CI仅新增一条四文件执行测试，不重复outbox/升级，不改触发/门槛。
 
-新候选：独立执行head/history/epoch、同一命令与页面接线；已产出留原排单/执行方，剩余另建；完成联动重排要求完成+编辑双权限，纯登记不额外要求联动。保留当前容量422、稳定颜色/SO父锁、不可变历史和技术缓存原请求，连接/COMMIT未知不声明回滚。旧0035不改、0036仅自建PG升级，不补造实际完成。8路径V1与D151/单一完整执行feature已同步；原CI仅增加一条四文件执行测试，未改触发/预算。下一步源码checkpoint与新的完整隔离QA。
+G6B最终b6af本地C268/根811/76浏览器、51a发布134及guard78047ms全部PASS，proof692774、292/50/21routes完整。唯一push遇uncertain_transport/exit1，工具及独立API均TARGET_NOT_DELIVERED；NETWORK_DEGRADED，新阶段未重推/换认证/force。G6C无新PR/Actions/送达结论；G6A6fd先前送达仍独立事实。
 
-Goal active。4C、物流/出货、关账及其三问、coverage-v1、真实来源额度/目标激活、50426切换和人工接受各有前置。未安装、自动merge/close/deploy、改共享Git/TLS/proxy/auth、读真实凭据/Source、改真实账号/业务库/卷、绑定/激活/调度或退役。3001/50426/59069/62426、Browser、备份/结果保留。
+Goal active；4C、物流/出货、关账及三问、coverage-v1、真实来源额度/目标激活、50426切换和人工接受各有前置。未安装、自动merge/close/deploy、改共享Git/TLS/proxy/auth、读真实凭据/Source、改账号/业务库/卷、绑定/激活/调度或退役。3001/50426/59069/62426、Browser、备份/结果保留。
