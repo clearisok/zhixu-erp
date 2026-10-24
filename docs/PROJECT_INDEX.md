@@ -2,7 +2,7 @@
 
 2026-10-24，实际main e01a11952b648024c0bd6bf4259de429374981e2；#123经明确批准以merge commit合并，#121/#122由GitHub随祖先自动标为已合并，原分支保留。三项精确CB的PR事件检查通过，不能当作部署或真实来源激活。
 
-当前[PR125前向整合](tasks/active/pr125-main-forward-2026-10-23.md)从实际main新建codex/pr125-main-e01a-forward，正常merge原CA。五处冲突仅状态/决策/清单；D146角色/用户与D147空目标/CNY销售/USD工价同时保留，原运维及main业务代码不重写。新组合验收仍待；当前仅本地，不启动Hosted CI、不升级旧目标。双方摘要[原字节归档](tasks/completed/2026-10-24-pr125-e01a-forward-inputs/)，旧baseline及决策由真实Git父提交/不可变证据保存。
+当前[PR125前向整合](tasks/active/pr125-main-forward-2026-10-23.md)从实际main新建codex/pr125-main-e01a-forward，正常merge原CA。五处冲突仅状态/决策/清单；D146角色/用户与D147空目标/CNY销售/USD工价同时保留，原运维及main业务代码不重写。091新组合本地134/42API/2数据库工具、双构建与产物检查通过；c592类型/Server编译/全lint/不变运维结果按范围保留，旧失败完整记录，最终文档守卫/复审另核。当前仅本地，不启动Hosted CI、不升级旧目标。双方摘要[原字节归档](tasks/completed/2026-10-24-pr125-e01a-forward-inputs/)，旧baseline及决策由真实Git父提交/不可变证据保存。
 
 ## 系统简介
 

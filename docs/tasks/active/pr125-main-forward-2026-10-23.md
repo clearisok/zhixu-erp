@@ -49,3 +49,17 @@
 ## 干净快照夹具修正
 
 c592补证后的精确e01a源码守卫PASS（11页/46能力/0UI变动）；新独立Gitarchive上下文0d26e1aa（完整hash见ignored qa-context.json）的类型/Server编译/lint通过。第一ops23项22pass/1fail、0skip：database-ops-safety在VerifyTargetOnly之前读取不存在的ignored backups目录触发ENOENT，不是备份/恢复脚本失败。原输出/结果/上下文保留。仅前向改该测试：ENOENT表示空文件名列表，其他FS错误保持失败；前后比较改为完整排序文件名，拒绝产生备份的断言更强，不通过创建目录掩盖问题。原17运维和main46非docs仍保持；这是额外一份旧fixture修正。成功的22运维/类型/Server编译/全lint不重复，只跑新fixture/scoped lint与此前未执行的schema API/两构建/产物检查和134。新source还未完成这些检查，实际镜像/持久恢复仅保留原SHA范围。
+
+## e01a组合源码验收终态（2026-10-24）
+
+新增测试夹具及状态checkpoint为091ed54eb47415e87261f849eca5c07c23294c6c，tree a3795efbfdd73ee6a4399e7fe8d914d5296c86df。相对c592仅一份旧测试及三份状态文档变化，产品、SQL、运维脚本、原17/46路径和manifest未变。新的Gitarchive SHA256=28ff0d5e33fc0f3f736542c321c53c82d854f7d1d296ae7d9fa35ddf7e15c7e9；无安装、无私有env，仅接既有node_modules junction。
+
+- c592干净archive：类型26898ms、Server编译10505ms、全lint52636ms通过；原运维23项中的22项不变成功结果继续保留，不把失败改记为通过。
+- 091干净archive：scoped fixture lint3410ms；database-ops2/2、32277ms，真实自有一次性PG工具演练、0skip；migration-evidence/fresh-start/managed-roles/user-lifecycle/team-access共42/42、47621ms、0skip。失败夹具修正后只重跑该文件；与原22项存在覆盖，不累加为24个独立测试。
+- 091发布回归134/134、517126.5949ms，fail/cancel/skip均0；开始结束HEAD均091，manifest SHA256均81c39c25a431db29844b299c90ea4523afd83d59dc74e705b97125d3a5e7969e，原日志及稳定性JSON保留。
+
+短路径上下文先执行Browser build，命令exit0/21480ms，但只读产物检查exit1，分类build_artifacts_route_not_rendered；日志含useServerSession Provider错误。原上下文和dist/日志保留，不以命令0冒称完整构建。只做一次有界规范长路径对照：使用fs.realpathSync.native(os.tmpdir())新建自有context，两份tar实际SHA256完全相同、依赖junction目标相同，无产品/guard变化。新Browser build19288ms＋产物4515ms、Server build19813ms＋产物3554ms均exit0，各45页/1 fallback/109 assets，完整source=091。Browser一条unresolved_modulepreload提示（/system-settings/users），Server无warning。buildId/time同时变化，因此路径相关仅为推断，不能当成严格单变量因果或框架永久修复。
+
+产物检查器从已审1028a5bb冻结文件逐字提取作外部只读验收工具，不把该独立候选混入本PR；原失败守卫仍有效，没有放宽页面检查。静态产物通过不等于新浏览器交互、镜像重建/持久恢复、部署或用户接受；这些本阶段未重跑。既有CB人工/UI及CA镜像等结果保留原SHA，不能冒称新结果。
+
+GitHub只读核实2026-10-24T02:17:16Z：main仍e01a，#125仍open draft、head CA（远端尚有旧文档冲突）。本阶段只本地整合，没有push或触发新的Actions；CI节流0ba6a772独立分支继续保护。独立reviewer对同源码对照和此前fixture/见证无新增P1/P2，最终文档commit的精确e01a守卫及复审后继记录，不重跑已通过134。输出证据在ignored outputs/pr125-main-e01a-forward-20261024/，原失败和上下文均保留。未经明确批准不merge/close#125、不更新旧目标/真实账号/业务库或Source范围。
