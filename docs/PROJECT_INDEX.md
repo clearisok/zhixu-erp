@@ -188,3 +188,5 @@ fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），
 前阶段后台最终557ce对main守卫实际PASS93213ms（11/55/54/errors[]），49aa发布134/134（372749ms）；c994相关218项217通过/1既有Windows跳过、根811、类型NodeLoadLint通过，proof761267，清单363/55，独立终审无P1/P2。Linux CLI缺口不称PASS；原Source/SQL/UI与历史失败证据完整。当前[分批到料界面任务](tasks/active/server-material-arrival-ui-current-2026-10-24.md)从clean557ce继续，15路径预核14相同/package手工，尚无新UI/QA；完整输入保护于[前置](tasks/completed/2026-10-24-material-arrival-ui-input-state/)。
 
 当前[物料分批UI工程证明](tasks/completed/2026-10-24-material-arrival-ui-current-engineering.md)：a0c3实际97/811/类型NodeLint/双构建、before3/abf3 after17/物料10/导航18 PASS，18PNG/3JSON及8图查看；清单386/56。原363/55/runtime/21routes保持，发布134与最终守卫尚待，不借旧f287或#125 CI。
+
+[当前UI契约](features/SERVER_MATERIAL_ARRIVAL_UI.md)使用独立文档根，后台761原字节保留；f7元数据候选已归档，18PNG审批补引用但不改图/hash。清单387/56，旧363/55/runtime/21routes保持，产品/QA未变，修正后发布与最终守卫仍待。

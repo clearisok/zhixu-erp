@@ -19,6 +19,6 @@
   "visibleDifference": "Restore approved D054/D065-069/D147 existing Server material cards, manual batch-arrival modal and history drawer, with per-batch logistics from the existing unique calculator. Explicit saved Hub, independent Source/manual/Actual, exact partial quantities, guarded preview/save/recovery and session/layout owners. Preserve old Browser stores/layout/formula, migration prefix and capacity checks. No new navigation, redesign, Source activation or deployment. Current frozen build before/after and six-width evidence are required separately.",
   "evidence": [
     "docs/tasks/active/server-material-arrival-ui-current-2026-10-24.md",
-    "docs/features/SERVER_MATERIAL_ARRIVALS.md"
+    "docs/features/SERVER_MATERIAL_ARRIVAL_UI.md"
   ]
 }
