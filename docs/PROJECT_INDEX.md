@@ -216,3 +216,5 @@ fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），
 当前成衣只读UI source922 [proof c710](tasks/completed/2026-10-24-garment-read-ui-current-engineering.md)：实际102相关/811根/类型NodeLint/双build产物、before3/after14/物料10/导航18共45浏览器PASS，23PNG/3JSON、9图查看；lint旧产物误扫原失败及仅lint补跑保留。清单421/59保留旧393/58/runtime/21routes；发布134和最终守卫另核，不借旧4066或#125CI。
 
 发布测试实际终态：1ae89745c148e03272e7e8f17bc3b1475010650d上134/134 PASS（432059ms），0fail/cancel/skip；与922488根811分阶段联合945，不是一轮执行。当前102相关检查和45浏览器均在922488本轮运行；lint首败/仅lint补跑保留，旧Linux CLI平台缺口及139Python范围复用不冒称填补。metadata后仅本次4状态文档，产品/测试/proof/新UIfeature/清单/图片保持；最后clean精确main守卫随后按实际回执核定，不称Hosted CI/合并/部署/真实来源或人工接受。
+
+首次最终精确守卫178ee3/main实际FAIL（108416ms），唯一UI_CHANGE_PAGE：本轮V1清单误写order，真实登记ID为order-detail。现仅修正该ID及本状态说明，产品922/proofc710/新UI契约/421清单/图片/守卫实现和测试均未变；原FAIL完整保留outputs/server-garment-read-ui-current-20261024/initial-final-guard-result.json及log。134在1ae的432059ms PASS仅按未变工具/fixture范围复用，不冒称修正后重跑；只重新运行对新最终提交的精确main守卫覆盖该注册修复，结果后置，不预写PASS。
