@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T14:21:53.707Z",
+  "verifiedAt": "2026-10-24T14:44:41.071Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -4134,6 +4134,32 @@
       "recordedAtSha": "85e9360c3aee704f42f2d711b910d0070c6929d8",
       "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
       "sha256": "cbe80b57942c2a6da83c80f0fcffd2b6e32b3656a53748e4cf4791f52453561a"
+    },
+    {
+      "id": "garment-collector-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-garment-collector-current-engineering.md",
+      "recordedAtSha": "4903618b4d63485fe393419da162ba9c9ee7598b",
+      "renderedSourceSha": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+      "sha256": "071dbd9e46b41057c6aabe151a9199b193fb9d5e2d4256766b9f7f044171f3c9"
+    },
+    {
+      "id": "server-garment-collector-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_GARMENT_COLLECTION_CONTROL.md",
+      "recordedAtSha": "4903618b4d63485fe393419da162ba9c9ee7598b",
+      "renderedSourceSha": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+      "sha256": "2d1712957f84f7667a3a29074c2249e555aa7c54cf7e1353f675984fa20746ad"
+    },
+    {
+      "id": "decisions-garment-collector-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "4903618b4d63485fe393419da162ba9c9ee7598b",
+      "renderedSourceSha": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+      "sha256": "0ba3dced386b99019df632d9fff2e3123aaf19ac730a232e8a116d0981e1735f",
+      "supersedes": "decisions-delivery-coverage-client-current-20261024",
+      "changeReason": "Forward-bind D158 bounded one-shot technical command, original observation/owner/lock/receipt semantics, pure missing dependency closure and reproduced enum-coercion correction; retain all prior decisions and no real-read/activation grant."
     }
   ],
   "pages": [
@@ -10239,6 +10265,91 @@
           "scope": "Strict coverage client not deployed; original runtime facts retained, no runtime query or cutover.",
           "evidence": [
             "delivery-coverage-client-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "garment-collector-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147/D152/D153/D158 internal single-SO collector: durable started confirmed before one worker; no network DB locks, exact account/contract proof, scope/fresh expiry/fresh roles, snapshot/color/head/audit/terminal atomic, unknown COMMIT original receipt only. 0043 additive empty command table;41 prior SQL unchanged,42 files/max43; no HTTP/CLI/Catalog/scheduler/target activation. Missing dependency P2 fixed via original pure blocks without old diagnostic IO; String enum P2 actual2red, strict typeof/exact enum and43 new checks at7f. d2ff280+18 API/811 roots/152 Python/full lint retained as scoped pre-fix evidence, NOT7f full rerun; fc103217 artifacts/37UI reused only, no new Vite/browser. New134/exact main guard after this metadata; no remote/real source/deployment claim.",
+      "evidence": [
+        "garment-collector-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+          "scope": "D147/D152/D153/D158 internal single-SO collector: durable started confirmed before one worker; no network DB locks, exact account/contract proof, scope/fresh expiry/fresh roles, snapshot/color/head/audit/terminal atomic, unknown COMMIT original receipt only. 0043 additive empty command table;41 prior SQL unchanged,42 files/max43; no HTTP/CLI/Catalog/scheduler/target activation. Missing dependency P2 fixed via original pure blocks without old diagnostic IO; String enum P2 actual2red, strict typeof/exact enum and43 new checks at7f. d2ff280+18 API/811 roots/152 Python/full lint retained as scoped pre-fix evidence, NOT7f full rerun; fc103217 artifacts/37UI reused only, no new Vite/browser. New134/exact main guard after this metadata; no remote/real source/deployment claim.",
+          "evidence": [
+            "garment-collector-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+          "scope": "D147/D152/D153/D158 internal single-SO collector: durable started confirmed before one worker; no network DB locks, exact account/contract proof, scope/fresh expiry/fresh roles, snapshot/color/head/audit/terminal atomic, unknown COMMIT original receipt only. 0043 additive empty command table;41 prior SQL unchanged,42 files/max43; no HTTP/CLI/Catalog/scheduler/target activation. Missing dependency P2 fixed via original pure blocks without old diagnostic IO; String enum P2 actual2red, strict typeof/exact enum and43 new checks at7f. d2ff280+18 API/811 roots/152 Python/full lint retained as scoped pre-fix evidence, NOT7f full rerun; fc103217 artifacts/37UI reused only, no new Vite/browser. New134/exact main guard after this metadata; no remote/real source/deployment claim.",
+          "evidence": [
+            "garment-collector-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+          "scope": "D147/D152/D153/D158 internal single-SO collector: durable started confirmed before one worker; no network DB locks, exact account/contract proof, scope/fresh expiry/fresh roles, snapshot/color/head/audit/terminal atomic, unknown COMMIT original receipt only. 0043 additive empty command table;41 prior SQL unchanged,42 files/max43; no HTTP/CLI/Catalog/scheduler/target activation. Missing dependency P2 fixed via original pure blocks without old diagnostic IO; String enum P2 actual2red, strict typeof/exact enum and43 new checks at7f. d2ff280+18 API/811 roots/152 Python/full lint retained as scoped pre-fix evidence, NOT7f full rerun; fc103217 artifacts/37UI reused only, no new Vite/browser. New134/exact main guard after this metadata; no remote/real source/deployment claim.",
+          "evidence": [
+            "garment-collector-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+          "scope": "D147/D152/D153/D158 internal single-SO collector: durable started confirmed before one worker; no network DB locks, exact account/contract proof, scope/fresh expiry/fresh roles, snapshot/color/head/audit/terminal atomic, unknown COMMIT original receipt only. 0043 additive empty command table;41 prior SQL unchanged,42 files/max43; no HTTP/CLI/Catalog/scheduler/target activation. Missing dependency P2 fixed via original pure blocks without old diagnostic IO; String enum P2 actual2red, strict typeof/exact enum and43 new checks at7f. d2ff280+18 API/811 roots/152 Python/full lint retained as scoped pre-fix evidence, NOT7f full rerun; fc103217 artifacts/37UI reused only, no new Vite/browser. New134/exact main guard after this metadata; no remote/real source/deployment claim.",
+          "evidence": [
+            "garment-collector-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+          "scope": "D147/D152/D153/D158 internal single-SO collector: durable started confirmed before one worker; no network DB locks, exact account/contract proof, scope/fresh expiry/fresh roles, snapshot/color/head/audit/terminal atomic, unknown COMMIT original receipt only. 0043 additive empty command table;41 prior SQL unchanged,42 files/max43; no HTTP/CLI/Catalog/scheduler/target activation. Missing dependency P2 fixed via original pure blocks without old diagnostic IO; String enum P2 actual2red, strict typeof/exact enum and43 new checks at7f. d2ff280+18 API/811 roots/152 Python/full lint retained as scoped pre-fix evidence, NOT7f full rerun; fc103217 artifacts/37UI reused only, no new Vite/browser. New134/exact main guard after this metadata; no remote/real source/deployment claim.",
+          "evidence": [
+            "garment-collector-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No controlled collector deployment/activation; existing dated runtime facts retained without querying or altering them.",
+          "evidence": [
+            "garment-collector-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No controlled collector deployment/activation; existing dated runtime facts retained without querying or altering them.",
+          "evidence": [
+            "garment-collector-current-engineering-20261024"
           ]
         }
       }

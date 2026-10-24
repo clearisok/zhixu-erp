@@ -1,19 +1,11 @@
-# 当前状态：受控成衣采集器预核，客户端已收口
+# 当前状态：受控采集器隔离验收通过，待发布检查
 
-2026-10-24；main e01a11952b648024c0bd6bf4259de429374981e2（2026-10-24T14:44:41.071Z独立API，同次基线复用），从main建立codex/server-garment-collector-current再FF至clean c83510c5337f63c7f62d422bbb9dfd764e6fc0e7。root唯一writer，既有server_convergence_review只读。原三摘要/hash与完整终审回执已保存completed/2026-10-24-garment-collector-input-state/。
+2026-10-24；比较main e01a11952b648024c0bd6bf4259de429374981e2（2026-10-24T14:44:41.071Z独立API，同次基线复用）；branch codex/server-garment-collector-current从main→FF clean c835→prep b31321dbbd3cf142541e158a8eca3e11f13d1631，root唯一writer/既有server_convergence_review只读。原客户端终态/失败及三摘要完整保护于completed/2026-10-24-garment-collector-input-state/。
 
-严格客户端最终c835/main守卫PASS119226ms（11/63/76/errors[]），sourcefc103实际62/37built排单UI/类型/相关lint/Node/双构建通过；proof9a31、impact修正85e936，清单462/63。首次smoke与页面登记错误保留，修正均未改产品；new134/new811/newPython=0，707134仅工具/fixture范围复用，不称全输入未变或完整945。独立终审无新P1/P2。
+最终产品 7f1c9decc34d8e615a169002fa3f6b77531d5f58（tree 6e6a6dfe10a1d2b702b6835c1e52cb64517f5ee2）：两处严格枚举修复后4文件43/43（27204ms）、type24453/Node11335+真实载入1839/相关lint6064ms PASS。d2ff初验24文件280/280（189379ms）+2文件精确Git18/18（56389ms）、根97文件811/811（29658ms）、离线Python152/152（7149ms，Python5.208s）、type/Node/fullLint通过。后者是修复前源码且仅按未变范围复用，不是7f全量重跑或各组相加的一轮测试。proof 4903618b4d63485fe393419da162ba9c9ee7598b，新清单465/64保留462/63/runtime21routes；独立源码复审无剩余P1/P2。详见[当前证明](tasks/completed/2026-10-24-garment-collector-current-engineering.md)与[任务](tasks/active/server-garment-collector-current-2026-10-24.md)。
 
-当前原49dc→9fc4b8加d99282采前等待后expiry/回执修复，只读预核14非doc路径：12输入相同，package/workflow仅手工新增验收命令。0043追加空技术请求表，不改41份旧SQL；最多单SO/本账号本合同、两遍完整首页、1登录+2报表/3HTTP、4MiB单响应/8MiB报表/180秒/零重试是工程天花板，不是新增真实许可。started COMMIT确认后才单次worker，网络不持锁，snapshot/head/颜色/审计/终态原子；COMMIT未知不再采集。独立feature与D158记录新契约，不覆盖0040冻结文档。尚无本轮产品或新QA，不借旧31/181。见[当前任务](tasks/active/server-garment-collector-current-2026-10-24.md)。
+初始ee210漏严格证明依赖，在QA前发现；仅提取原无IO JSON/证明/screen，不带旧凭据/固定CLI/私密报告入口。d2ff String枚举漏洞有2项实际红测（1177ms）后两行严格类型修复，原日志/结果不改写。d992的等待后expiry/确认回滚及357a升级清单修复保留。41旧SQL原字节保持，0043仅空技术表（42文件/max43），不回填/启用target。
 
-NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推。仅自有合成一次性PG/loopback和FakeTransport，0真实凭据/报告/Source、账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份及旧结果。Goal active；可见覆盖面板另需V2批准，关账三问不默认。
+前端无改，fc103的217产物逐文件hash相同、37UI只按原前端范围复用，无本轮新Vite/browser/截图；不把旧build标为7f。当前metadata后一次必要本地134和精确main守卫/终审待跑，不预写PASS；最终累计PR两发布命令和必要CI不省略。
 
-14路径已受控前移：12原blob精确，2测试命令手工追加；d99282的等待后expiry和发布回滚语义保持，41旧SQL完整hash相同，仅新增0043。独立feature/D158已同步。尚待冻结新source和本轮QA，不借原31/181。
-
-## 依赖闭包校准（新source前）
-
-初次ee210仅14路径的输入相等不证明依赖闭包。独立预审在任何QA前发现缺少严格JSON/合同过滤证明模块，未将该source称可编译或PASS。现只按原49dc的精确函数块提取无IO的Node证据验证器、原无损JSON模块与Python定义/screen，三个import改指新纯模块；不带冻结候选/凭据读取、诊断collect/main、私密报告写入/launcher或新HTTP/CLI/Catalog/scheduler。完整C1/C0/C1、重复键/精度/64层检查不削弱。另仅取357a88e5升级断言使用既有明确迁移清单；新增纯验证与Python screen负向测试。提取块hash/边界在本轮outputs dependency-extraction.json，尚待新QA。
-
-## 证明枚举类型修复
-
-独立复审在d2ff发现原提取函数以String(result/workerStage)枚举、后续却严格比较原值，数组complete可跳过完整页数/请求校验。新增验证器和garmentCollectionProof两项直接回归，原产品定向实际2/2失败（1177ms），保留proof-enum-red.json/log；不是全套测试失败或真实来源事故。仅两处改为typeof string后精确枚举，数组/嵌套数组、空pages与零请求不能冒充完整C1/C0/C1证明。原scalar成功/失败与预算、SQL、publisher、Python、入口/Source范围保持。旧d2ff全量QA属于修复前源码，修复后仅重验受影响4文件/类型/Node/相关lint；不将旧结果冒称重跑。最终新source验收后另冻结。
+NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推，不借#125CI。仅自有合成一次性PG/loopback/私有FakeTransport，0真实凭据/报告/Source、现有账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役。保护3001/50426/59069/62426、Browser、备份与旧结果。Goal active；操作者入口/真实额度/多页/事件身份、可见覆盖V2及关账三问另Gate，不默认。
