@@ -51,5 +51,20 @@ after从新的canonical archive构建Browser兼容与Server/session/snapshot两�
 before2、after9、原P6/来源向导20均PASS，0失败/取消/跳过；双模式构建/产物各45页+fallback/109assets。
 独立源码与日志复审无新增P1/P2；主控查看7张before/after/展开图。首次短路径构建exit0但产物失败，
 完整保留；只做一次规范长路径有界对照，不改业务代码或检查。详见新的
-[冻结工程证据](../../tasks/completed/2026-10-24-order-saved-sources-engineering.md)。
+[冻结工程证据](../completed/2026-10-24-order-saved-sources-engineering.md)。
 最终发布134、manifest新能力及精确main守卫将在此证据冻结后单独收口；未提前标PASS。
+
+## 发布与最终本地收口
+
+新证明6d53、产品6ef及7PNG/2geometry均按真实Git blob绑定；manifest247/47，原237/46与runtime逐项不变。
+fdadce3b357833439e224bfb950c8f67da57d2f8上的显式npm run test:release-baseline一次134/134通过，
+进程280026ms，0失败/取消/跳过。与此前97个非发布根文件811联合恰覆盖标准npm test的99文件/945项；
+未重复成功811，只有发布测试读取本轮变化的metadata。完整旧失败和所有分阶段SHA保留。
+独立metadata/blob/hash/祖先/七维状态复审无新P1/P2，不冒称复审者执行过测试。
+最终metadata提交后执行精确e01a守卫；实际完整HEAD、结果与remaining dirty以ignored
+outputs/order-source-disclosure-current-20261024/的final-exact-main-guard.log、final-guard-result.json及final-local-checkpoint.json为准；
+缺少终态回执时不得称最终Guard完成。本阶段未触发Actions或远端写入，#125/API例外边界保持。
+
+本地等待发布检查时已只读核对后续依赖：G5原54创建UI/后台及aaf引用清单纠正、0033可作为下一独立切片；
+交期维护需原0042回执与fresh-actor等中间依赖，不能仅搬最早7584或整段旧8f。下阶段重新核实实际代码，
+保留当前报价验收/金额保护与手机双操作最终修复，不重问已获批准的交期交互或旧业务口径。
