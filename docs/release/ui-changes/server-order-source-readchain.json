@@ -1,11 +1,15 @@
 {
-  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
   "level": "V0",
   "visibleDifference": "none",
   "paths": [
     "features/order-center/server/sales-order-server-model.ts",
     "features/order-center/server/sales-order-server-client.ts"
   ],
-  "pages": ["order-detail"],
-  "evidence": ["docs/tasks/active/order-source-readchain-current-2026-10-24.md"]
+  "pages": [
+    "order-detail"
+  ],
+  "evidence": [
+    "docs/tasks/active/order-source-readchain-current-2026-10-24.md"
+  ]
 }

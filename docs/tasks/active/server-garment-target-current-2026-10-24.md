@@ -17,3 +17,7 @@
 ## 当前前移
 
 9非doc路径已按允许范围前移：7个source blob精确，package/workflow只新增目标控制测试命令；0043的严格枚举修复和纯依赖闭包保持。42份旧SQL全hash相同，仅新增0044，当前43文件/max44（0013历史缺号不补造）。D160与独立feature记录无IO目标配置；日志仅两处type union，V0/visibleDifference:none，不是新日志UI或公开启停入口。尚待source冻结和新QA，不借旧分支结果。
+
+## 用户批准PR125后当前主线
+
+用户明确批准仅PR125；实际main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf，15:40:08Z merge commit/原双父/树与head一致，原分支保留。独立API和一次fetch核实，详见[合并证明](../completed/2026-10-24-pr125-merge-verification.md)。本地source 747e4783dd0aa56e8806420c2021225e0610565f与新main的merge-tree无产品差异；真实双父前向整合仅状态/证据变化，不能把旧e01a守卫当新main结果。0044尚未QA、真实目标/Source/现有库仍不动。

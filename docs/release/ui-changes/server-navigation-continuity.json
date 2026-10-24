@@ -1,5 +1,5 @@
 {
-  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
   "level": "V1",
   "visibleDifference": "Forward-integrate the already approved Gate3 V1 restoration onto verified current main: retain the existing Server Shell while identity/loading/errors transition and preserve feature-owned dirty, pending and unknown-receipt guards. Same 22 paths and original behavior; no menu, density, breakpoint, permission or domain workflow redesign.",
   "paths": [
