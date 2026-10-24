@@ -56,6 +56,8 @@
 
 - 2026-10-24严格客户端V0受控前移：同一GET白名单保留coverage、复用纯D155投影验证同响应，缺失/null保持服务未提供；不另建公式或显示面板。见[独立客户端契约](features/SERVER_DELIVERY_COVERAGE_UI.md)，本轮新验收后置，不扩张D156批准。
 
+- 2026-10-24严格客户端source fc103fb8实际62及新双构建/原排单built UI通过，smoke runner失败保留，见[本轮证明](tasks/completed/2026-10-24-delivery-coverage-client-current-engineering.md)。V0不引面板、Source请求或第二计算owner，最终精确守卫后置。
+
 ### D-154 DeliveryPlan沿用原命令并保存可核对回执
 
 - 原2026-10-22技术决定，2026-10-24受控前移，Active；D147已批准Server收敛范围内的可靠性，不改变D083/D100的来源/人工所有权、系统默认0、人工正数、独立集合版本和历史计划规则。原PATCH/writer/响应保持，0042只新增空不可变请求回执，不回填或重建计划。

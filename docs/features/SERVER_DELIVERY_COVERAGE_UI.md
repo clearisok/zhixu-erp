@@ -29,3 +29,7 @@
 ## 当前输入和验收范围
 
 当前四原输入精确，production-plan-client三方仅保留G6B已有snapshot容量中文提示；workflow只补新增客户端测试。原D155 backend5e366契约/SQL不改，当前客户端缺失/null和严格同响应验证不改变业务owner。新source后定向单元/真实HTTP/类型Node/相关lint、双构建产物和原排单built回归另冻结，不借旧483的测试、原型或截图；尚无新PASS。没有新的可见面板，具体V2草图须独立批准，不能用D156交期维护批准扩张范围。
+
+## 当前实际工程证据
+
+2026-10-24 source fc103fb87ed3df294922189b4954c1764903ef22：62/62定向、类型、相关lint、Node编译/修正后模块smoke、真实双构建/产物及排单built UI 37/37通过。首次smoke的runner emit范围错误原记录保留，未改产品。见[独立当前证明](../tasks/completed/2026-10-24-delivery-coverage-client-current-engineering.md)；无新覆盖面板或新134/811/139声明。最终精确main守卫、远端及用户接受分别记录，不借旧483或#125CI。
