@@ -1,11 +1,7 @@
-# 当前状态：订单物流上下文后台工程及发布通过，待最终守卫
+# 当前状态：订单物料与运输对话框开始前移
 
-2026-10-24；main e01a11952b648024c0bd6bf4259de429374981e2于2026-10-24T09:29:48.067Z独立API核实。当前codex/server-order-tracking-current，clean起点G6D4f3、prep bcd827、source45f300、proof f676b8。
+2026-10-24，D054/D147/G6D，root唯一writer、既有server_convergence_review只读。main e01a11952b648024c0bd6bf4259de429374981e2于2026-10-24T09:52:24.716Z独立API核实，新分支codex/server-order-logistics-dialog-current自main显式FF至clean 4a20952607d4bccdcf37118ed16aad1067efbe03；三摘要/hash及前阶段完整终态在tasks/completed/2026-10-24-order-logistics-dialog-input-state/。
 
-source 45f30070abeb1d70211eb10eab7841be10e8f894实际36文件379相关API/升级（213201ms）、97根811（26879ms）、类型36595/Node20091/import2377/lint54513ms全PASS，0fail/cancel/skip；proof f676b85dd644ffb6ab1877b414e6bb05223671fe冻结精确证据，SQL/审计提交前回滚和COMMIT未知须核对的文档边界已收窄。清单340/53前向保留原338/52/runtime/21routes；本轮无前端/新截图/新Vite构建或浏览器PASS声明，未变07d产物及43UI仅作用域复用。详见[工程证明](tasks/completed/2026-10-24-order-tracking-current-engineering.md)与[任务](tasks/active/server-order-tracking-current-2026-10-24.md)。fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），0fail/cancel/skip；与45f根811分阶段联合99文件945，不是一轮执行。metadata以后只有4份状态文档，产品/测试/proof/清单不变，最终clean精确main守卫以随后实际回执核定。不重复未改成功范围。
+0038后台45f实际379API/根811/类型NodeLint、fd36发布134及4a最终main守卫PASS85215ms、独立终审无P1/P2已核实；清单340/53/runtime/21routes保持。当前[对话框任务](tasks/active/server-order-logistics-dialog-current-2026-10-24.md)只读预核11路径9同/2差异，尚未写本轮产品/跑新QA。新UI前移必须保留容量提示和driver保护，before观察07d前端已有计划/实际、尚无物流入口。
 
-0038只保存物理SO明确Hub与备注，独立不可变逐次历史/版本；同一production命令、fresh权限、可信合同/消费加工批次、有效未冻结SO及原请求核对，null/no-op不造事实，不改计划/执行/金额。0037非空升级保护原表字节和10.125实际产出。客户端/物料到仓和运输建议UI后续独立接线。
-
-G6D4f3最终守卫PASS96017ms、64f发布134/134和07d43浏览器保留；原输入三摘要/hash/完整回执在completed/2026-10-24-order-tracking-input-state/。网络degraded，本阶段push0/新PR0/Actions0，不借#125三CI或重试失败Git通道。
-
-Goal active；关账三问、真实Source额度/激活、目标切换、人验/退役独立；无安装、自动merge/close/deploy或真实账号/业务库/卷/凭据操作。3001/50426/59069/62426、Browser、备份和结果保持。
+仍无真实目标升级/Source/账号/业务库/卷操作，不自动merge/close/deploy。网络degraded，本阶段push0/PR0/Actions0；#125绿灯独立，不借给新代码。Goal active，0039到仓/出货/0042交期/关账及三问、真实来源额度/激活、50426切换、人验/退役后置。3001/50426/59069/62426、Browser、备份/结果保持。
