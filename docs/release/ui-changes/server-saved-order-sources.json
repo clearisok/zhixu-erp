@@ -1,0 +1,11 @@
+{
+  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "level": "V1",
+  "paths": [
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/order-center/components/server-saved-order-sources.tsx"
+  ],
+  "pages": ["order-detail"],
+  "visibleDifference": "Restore approved Gate4 saved sizes at the existing unwired-note location with a default-closed native disclosure; lazy readonly Zhixu DeliveryPlan inside the existing technical disclosure. Preserve P6 color/price columns, navigation, density, writers and source refresh boundaries.",
+  "evidence": ["docs/tasks/active/order-source-disclosure-current-2026-10-24.md"]
+}
