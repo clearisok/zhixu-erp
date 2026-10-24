@@ -1,16 +1,14 @@
 # 项目知识索引
 
-2026-10-24；实际main e01a11952b648024c0bd6bf4259de429374981e2，#123已获准合并，#121/#122随祖先自动收口、原分支保留。当前优先：[G6C当前执行](tasks/active/server-production-execution-current-2026-10-24.md)、[G6B当前排单](tasks/active/server-production-planning-current-2026-10-24.md)、[G6A当前生产资源](tasks/active/server-production-resources-current-2026-10-24.md)、[G5当前创建报价](tasks/active/order-context-quote-current-2026-10-24.md)、[Gate4B当前展示](tasks/active/order-source-disclosure-current-2026-10-24.md)、[Gate4A当前读取链](tasks/active/order-source-readchain-current-2026-10-24.md)、[导航前向整合](tasks/active/server-navigation-main-forward-2026-10-24.md)、[PR125前向](tasks/active/pr125-main-forward-2026-10-23.md)、[交付诊断](tasks/active/git-delivery-diagnostics-main-2026-10-24.md)。先读CURRENT_STATE与AI_HANDOFF恢复精确状态。
+2026-10-24；比较main e01a11952b648024c0bd6bf4259de429374981e2。GitHub main合并事实与当前累计分支工程能力分开；#125 API例外已完成、其4f三CI不能证明后续本地Gate。当前从[CURRENT_STATE](CURRENT_STATE.md)/[AI_HANDOFF](AI_HANDOFF.md)/[交期覆盖任务](tasks/active/server-delivery-coverage-current-2026-10-24.md)恢复精确状态。
 
-原Gate3仅本地向当前基线前移；237/46旧证据完整，38定向、66现行UI、双构建/产物、134发布及0db精确守卫已PASS。后续[当前Quote验收前移](tasks/active/quote-server-current-acceptance-2026-10-24.md)仅维护三个测试/驱动；2bd8在同ca53前端实际87/87 PASS，导出/设置缺口已补，旧失败日志保留；不据此宣称全量Server闭环。[加工Estimate API保护](tasks/active/processing-estimate-current-2026-10-24.md)已按原8ce窄切片本地前移，edf6的28单元/API、类型/Node/lint PASS；最终精确main守卫另记，不声称全Goal完成。Gate4A c77的103单元/API与类型/Node/lint已本地PASS。当前Gate4B 6ef的新双构建/产物、before2/after9/P6来源20、811根非发布/9API及类型/Node/lint PASS；冻结6d53新证据，旧237/46保留，新增到247/47。只读展示不等于4C编辑、真实来源激活或用户接受，fdad发布134/134也已PASS，与97文件811联合覆盖标准根945项；最终精确main守卫另记。不新增累计PR或付费CI。#125于07:01Z经新批准API快进至精确4f草稿；4f远端exact与actual push exit1/STOP并存，精确API快进例外已于07:01Z按新答复完成。其余不自动merge/close、部署、账号/业务库操作、Source读取或旧入口替换。
+前阶段交期UI最终0a/main守卫实际PASS118001ms（11/61/75/errors[]），707发布134/134 PASS464627ms；产品56b57相关/811根/类型NodeLint/双build，driver0e after14、before3及Quote9/P6 14/物料17分阶段联合57浏览器，proof869、23PNG4JSON/10图查看，清单455/61。两次触摸失败及漏env前置失败完整保留，非一轮57全绿；0tests的runner预检不计134失败。独立终审无新P1/P2，未借#125CI。
 
-G5当前源码68a：创建/引用68、根非发布811、before2/after9、原Quote/P6/来源107与类型/Node/lint/双构建产物全部PASS；[新冻结证明](tasks/completed/2026-10-24-order-context-quote-engineering.md)为53c9。清单前向258/48，原247/47不变；61e上发布134/134已PASS，与68a根811联合99文件945；最终精确守卫回执单列，不重复811或用旧54/aaf结果替代。只创建参考，不自动采用商业依据或写SO/CCT；未合并/部署/人工接受。
-
-G6A当前从干净530只前移原d717四资源25路径（全部输入blob已核相同）。实际f441类型/Node/import/lint、73API、根811、before2/after14/导航18及双构建产物PASS，proof d69f冻结8图/2geometry。容量P2红24/4→工作绿28/28→冻结73绿；不扩大1MiB或重写0034。清单269/49保留旧对象，三条既有路由按D147接通；0d22886a1fc35eea0dbebfaabb315b3967f45440发布134/134 PASS（312533ms），与f441根811分阶段联合945；最终精确守卫另记，不借旧d717结果。新范围不含生产排单/完成/物流或目标升级。
+索引只保留恢复入口；此前全部日期/hash/结果/限制及冗长阶段摘要已原字节保护于[本次输入原索引](tasks/completed/2026-10-24-delivery-coverage-input-state/PROJECT_INDEX.md)（Git原版0a086a912b4077c3dfc08438235e27ea448816a1），不删除历史事实或覆盖证据。
 
 ## 系统简介
 
-并行订单 C4.3 DeliveryPlan Server 领域/API 已实现并 disposable PG87/87 验证；规则 D-083/D-100、0009 集合所有权/CAS、稳定行与 drift 见 [独立交付报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。未真实激活、未接计划 UI，不增加 D-098 报价上线前置。
+C4.3原2026-10-09领域/API及87项历史验证见[原报告](tasks/completed/2026-10-09-order-c43-delivery-plan.md)。当前工作树D154可靠请求与D156维护UI已本地收口，见[交期UI证明](tasks/completed/2026-10-24-delivery-plan-ui-current-engineering.md)；未合并/真实激活/部署或人工接受，不借旧87冒称本轮结果。
 
 织序（ZHIXU）是一个服装工厂业务系统仓库。当前工作树同时包含：
 
@@ -72,7 +70,7 @@ G6A当前从干净530只前移原d717四资源25路径（全部输入blob已核�
 
 [宁波上线方案](ops/ningbo-rollout-plan.md)已按D105重排；[原现场快照](tasks/completed/2026-10-12-ningbo-readonly-preflight.md)仍只证明其原观察时刻。PR98修订不部署、不重查真实DB。
 
-## 当前来源任务
+## 历史来源任务恢复索引（按各文档日期解释）
 
 [Server Source](features/AINUOKE_SERVER_SOURCE.md)：默认关闭的服务端快照/固定采集CLI，按已有正式订单读取四流。用户要求持续展示后才上线Ubuntu；D106首次绑定/调度/原P6接线已在PR100合并、合成体验获用户接受。D109已批准HTTP且认证成功；D110有真实完整可见合同发现及80物料抽样。目标三行单位/身份获人工确认、QtyUnit工程已合并；全量颜色/物料规模、数量未知原因及持续运行/部署仍待Gate。
 
@@ -139,100 +137,16 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 
 历史共享CI输入见[PR123原摘要](tasks/completed/2026-10-23-pr123-ci-context-inputs/)与[PR125原摘要](tasks/completed/2026-10-23-pr125-ci-context-inputs/)；旧be9日期/结果仍仅属于其原阶段，当前比较锚点为上述e01a。
 
-2026-10-24 07:01Z：单独获准的#125 expected-CA/force=false→4f API已执行一次，独立API核SHA/tree/双父。GitHub临时PR合并预览dd5700的父为当前main e01a及4f，代码树等于已验收4f；未合并main。Source40072506615、Team40072506633、Baseline40072506617均success、pull_request、attempt1，仅自动各一次，无rerun/dispatch；#125说明已更新且仍open draft，不借旧CI。G6A新源码尚未远端交付；没有扩大新push/其他PR/部署/真实数据许可。回执outputs/pr125-api-lease-20261024。
+## 当前Server主线恢复入口
 
-G6A最终6fd/main守卫PASS79777ms/clean，0d发布134/134；仅1次正常push后独立API核6fd/tree/父，Actions=0，无新累计PR。G6B已由受保护输入/50路径预核完成受控前移，并有独立cd737冻结QA；详见下段，不借旧结果。旧#125/工具STOP历史与各阶段source事实不混用。
+| 领域 | 当前契约 |
+| --- | --- |
+| 生产资源/排单/完成 | [资源](features/SERVER_PRODUCTION_RESOURCES.md)、[排单](features/SERVER_PRODUCTION_PLANNING.md)、[执行](features/SERVER_PRODUCTION_EXECUTION.md) |
+| 物流资料/订单物流 | [物流资料](features/SERVER_LOGISTICS_RESOURCES.md)、[订单上下文](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)、[对话框](features/SERVER_ORDER_LOGISTICS_DIALOG.md) |
+| 人工预计到仓 | [后台](features/SERVER_MATERIAL_ARRIVALS.md)、[界面](features/SERVER_MATERIAL_ARRIVAL_UI.md) |
+| 成衣出货观察 | [不可变观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、[只读界面](features/SERVER_GARMENT_SHIPMENT_UI.md) |
+| 交付计划 | [可靠原请求](features/SERVER_DELIVERY_PLAN_REQUESTS.md)、[维护界面](features/SERVER_DELIVERY_PLAN_MAINTENANCE_UI.md) |
 
-G6B产品已按原919受控前移，49输入一致/1资源容量三方保留；新增完整Server排单契约/D150、12路径V1和两个CI兼容用例。实际快照P2红32/2→工作态资源+排单52/52绿（22679ms），不是冻结QA。下一步新源码冻结/本机验收，269/49及新路由/文档绑定待后续证明，不借旧919或#125绿灯。
+当前仅coverage六非doc路径只读预核：四输入相同，两package/workflow手工增量；原144f→0e546投影及独立feature/D155不引UI/schema/写入。basis=current_registered_facts按当前已登记累计产出+截点前剩余比较有效交期；不是历史准时率/库存/出货/关账，不分配生产量到某日。未知日期未评估、原物理订单/执行方/集合版本保持。保留当前repository PG容量保护和中文提示；483be后续客户端断言依赖新客户端，不窄取到本阶段。当前尚无本轮产品改动或新QA，不借旧ff8b。
 
-G6B源码cd73726babfaa86ffef671cbbe3a37fd542dace6实际268相关API/升级、根811、类型/Node/import/lint、before2/after17/资源14/导航18/登录11/P6 14及双构建/产物全部PASS；[新证明](tasks/completed/2026-10-24-production-planning-current-engineering.md)冻结17图/2geometry，11图主控查看。COMMIT未知恢复文档P2已修，仅docs变化。proof692774已冻结、清单前向292/50，原269/49/runtime完整；51a366244c822bb4dc157201a9d5bb133ab11f11发布134/134 PASS（319203ms），与C根811联合945；最终精确main守卫及远端按终态回执核定，不预写PASS，Actions0。
-
-G6B最终b6af/main守卫PASS78047ms（11/50/47/errors[]），51a发布134/134；唯一上传uncertain_transport、工具+独立API确认TARGET_NOT_DELIVERED，保留NETWORK_DEGRADED，不借本地PASS冒称远端。G6C从核实main新建后FF到干净b6af，仅30路径只读预核（28输入一致/2保留修复），尚无产品/新QA；见当前任务。原完整输入三摘要/hash受保护，Goal active。
-
-G6C当前30路径已受控前移，28输入一致/2三方，driver真冲突在0写入停后明确保留新旧保护；snapshot PG容量保护未改。单一[执行契约](features/SERVER_PRODUCTION_EXECUTION.md)/D151、8路径V1与单条CI增量已同步。尚待新源码冻结QA，292/50原清单及旧图不改；Git仍degraded不重推。
-
-G6C当前9c2f5bc536f9e5023a32b2e93cfd292984f00abe实际313相关API/升级、根811、before2/after28/导航18及类型/Node/import/lint/双构建全部PASS；[新证明](tasks/completed/2026-10-24-production-execution-current-engineering.md)冻结23图/2JSON，11张已查看。未改资源/登录/P6不重复，不借旧C或27b结果。proof6184及D151/新feature/能力已前向绑定320/51，原292/50/runtime/21路由保持；35f659cea3d0ec0944ba1e6ef8971efa16c0949b发布134/134 PASS（340872ms），与9c2根811分阶段联合945；最终main守卫另按终态核定，Gitdegraded不重推，Actions0。
-
-2026-10-24 G6C最终cab72/main守卫实际PASS87550ms（11/51/50/errors[]），35f发布134/134；完整回执已保护于[下一阶段输入](tasks/completed/2026-10-24-logistics-resources-input-state/)。当前进入[G6D物流资料](tasks/active/server-logistics-resources-current-2026-10-24.md)，只读预核23路径19相同/4差异，尚未写产品/新QA；网络degraded不重推/CI，Goal active。
-
-G6D [Server物流资料契约](features/SERVER_LOGISTICS_RESOURCES.md)：同一资源命令扩展hubs/transport-plans及0037，现行4处冲突已明确保留容量/CAS/owned清理；后续按新冻结source验收，不借原e223结果。
-
-G6D当前07d实际356相关API/升级、根811、43浏览器、类型NodeLint和双build/产物全部PASS；[proof1b8](tasks/completed/2026-10-24-logistics-resources-current-engineering.md)冻结14PNG/2JSON，7张已查看。清单338/52前向保留320旧证据/51能力/runtime/21路由；发布134和最终精确守卫另记，不预写PASS或借旧e223。Git仍degraded不重推/CI。
-
-64f03a8ad54633a32d1ea17ccaa1d439339d0f9e发布134/134实际PASS（356242ms），0fail/cancel/skip；与07d根811分阶段联合99文件945，不是一轮单次执行。64f之后只有当前状态文档增量，产品/测试/清单/proof/截图不改，最终clean精确main守卫仍以随后实际回执核定。
-
-G6D最终4f3/main守卫实际PASS96017ms，64f发布134/134，独立最终review无P1/P2，clean；完整回执已保护于[后续输入](tasks/completed/2026-10-24-order-tracking-input-state/)。当前[订单物流上下文](tasks/active/server-order-tracking-current-2026-10-24.md)14路径预核13同/1差异，尚无新产品/QA；网络degraded不重推/CI。
-
-[Server订单物流上下文](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)为D054/D147后台独立切片：0038、同一production命令/权限与原物理SO、明确仓/备注/历史，不是物料日期或页面闭环。当前任务server-order-tracking-current-2026-10-24，原ffef结果不借作新证据。
-
-订单物流上下文当前source 45f30070abeb1d70211eb10eab7841be10e8f894实际36文件379相关API/升级（213201ms）、97根811（26879ms）、类型36595/Node20091/import2377/lint54513ms全PASS，0fail/cancel/skip；proof f676b85dd644ffb6ab1877b414e6bb05223671fe冻结精确证据，SQL/审计提交前回滚和COMMIT未知须核对的文档边界已收窄。清单340/53前向保留原338/52/runtime/21routes；本轮无前端/新截图/新Vite构建或浏览器PASS声明，未变07d产物及43UI仅作用域复用。发布134/精确守卫后续实跑，不借原ffef。
-
-fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711发布134/134实际PASS（352688ms），0fail/cancel/skip；与45f根811分阶段联合99文件945，不是一轮执行。metadata以后只有4份状态文档，产品/测试/proof/清单不变，最终clean精确main守卫以随后实际回执核定。
-
-0038后台最终4a/main守卫实际PASS85215ms、fd36发布134/134，独立终审无P1/P2，完整输入已保护于[对话框前置](tasks/completed/2026-10-24-order-logistics-dialog-input-state/)。当前[物料与运输对话框](tasks/active/server-order-logistics-dialog-current-2026-10-24.md)11路径只读预核9同/2差异，尚无本轮新产品/QA，网络degraded不重推/CI。
-
-[Server订单物流对话框](features/SERVER_ORDER_LOGISTICS_DIALOG.md)为当前0038后台的独立UI接线，8路径V1、原请求/身份owner/历史和未保存保护；逐物料到仓/运输建议尚待0039，不宣称完整物流闭环。
-
-当前订单物流对话框 source e2cf 实际386相关API/升级、根811、before2/after37/资源23/导航18、类型NodeLint/双构建及产物PASS；[新proof](tasks/completed/2026-10-24-order-logistics-dialog-current-engineering.md)冻结17PNG/2JSON、42几何、查看8图。清单361/54前向保留旧340/53/runtime/21路由，发布134及最后守卫后续另核，不借旧2a0或#125CI。
-
-7f0d4c77f05a0afb12ae36fb0fc71ea51119785c上发布134/134实际PASS（381564ms），0fail/cancel/skip；与e2cf根811分阶段联合945。product/API/根未改，after由2c286f测试等待修复驱动，原34/2失败保留；不把范围复用称新全量。metadata后仅本次四状态文档，proof/产品/测试/清单保持；最终clean精确main守卫以随后实际回执核定。
-
-订单物流UI83a最终守卫实际PASS96789ms，7f0d发布134/134、独立终审P2关闭；完整输入保护于[后续前置](tasks/completed/2026-10-24-material-arrivals-input-state/)。当前[人工预计到仓后台](tasks/active/server-material-arrivals-current-2026-10-24.md)22路径只读预核20代码同/2文档配置差异，尚无产品/新QA；网络degraded不重推/CI。
-
-[当前人工预计到仓后台契约](features/SERVER_MATERIAL_ARRIVALS.md)复用已有Source快照事务和D054 Hub，0039不生成来源日期或实际事件；工程结果按当前任务新source核定。
-
-当前人工预计到仓后台c994实际217/218相关检查（1既有Linux CLI在Windows平台SKIP，0fail/cancel，不称PASS）、根811/类型NodeLoadLint通过；[新proof](tasks/completed/2026-10-24-material-arrivals-current-engineering.md)冻结容量真实红绿与7326正控，清单363/55前向保留旧361/54/runtime/21routes。无新UI/Vite/截图；该条初始记录时发布/守卫待跑，实际终态见后续557ce记录。
-
-发布测试实际终态：49aa9b16111ad972ab7e8228bfc73ce1875a47ea上134/134 PASS（372749ms），0fail/cancel/skip；与c994根811分阶段联合945。相关API仍明确218总数/217通过/1既有Linux CLI平台SKIP，不借134覆盖该缺口。metadata后只更新本次四状态文档，proof/feature/产品/测试/清单未变；最终clean精确main守卫以随后本机回执核定，未合并/部署/真实采集/新UI或人工接受。
-
-前阶段后台最终557ce对main守卫实际PASS93213ms（11/55/54/errors[]），49aa发布134/134（372749ms）；c994相关218项217通过/1既有Windows跳过、根811、类型NodeLoadLint通过，proof761267，清单363/55，独立终审无P1/P2。Linux CLI缺口不称PASS；原Source/SQL/UI与历史失败证据完整。当前[分批到料界面任务](tasks/active/server-material-arrival-ui-current-2026-10-24.md)从clean557ce继续，15路径预核14相同/package手工，尚无新UI/QA；完整输入保护于[前置](tasks/completed/2026-10-24-material-arrival-ui-input-state/)。
-
-当前[物料分批UI工程证明](tasks/completed/2026-10-24-material-arrival-ui-current-engineering.md)：a0c3实际97/811/类型NodeLint/双构建、before3/abf3 after17/物料10/导航18 PASS，18PNG/3JSON及8图查看；清单386/56。原363/55/runtime/21routes保持，发布134与最终守卫尚待，不借旧f287或#125 CI。
-
-[当前UI契约](features/SERVER_MATERIAL_ARRIVAL_UI.md)使用独立文档根，后台761原字节保留；f7元数据候选已归档，18PNG审批补引用但不改图/hash。清单387/56，旧363/55/runtime/21routes保持，产品/QA未变，修正后发布与最终守卫仍待。
-
-修正后发布实际终态：9d5da934caecc37d1d8089e05307bd18d0527ad6上134/134 PASS（400362ms），0fail/cancel/skip；与a0c3根811分阶段联合945。f7候选134/134的398161ms仍独立保留，不替代本次修正清单结果。metadata后仅4状态文档，产品a0c3/driver abf3/证明e2a/新UI契约eb2/图片/清单保持；最终clean精确main守卫随后以本机回执核定。旧Source Linux CLI平台缺口仍独立未验证，不称Goal完成/合并/部署/人工接受。
-
-前阶段分批到料UI最终5f/main守卫PASS103116ms（11/56/64/errors[]），9d修正发布134/134（400362ms），产品a0c3相关97/根811、driver abf3及before3/after17/物料10/导航18共48浏览器、类型NodeLint/双构建PASS；清单387/56、proof e2a，独立终审无新增P1/P2。旧Linux CLI平台缺口独立保留，945为分阶段联合，不借#125三CI。当前[0040观察后台](tasks/active/server-garment-observations-current-2026-10-24.md)从clean5f继续，预核16路径13同/3手工，原完整输入保护于[前置](tasks/completed/2026-10-24-garment-observations-input-state/)。尚无新产品/QA，网络degraded不重推。
-
-[Server成衣出货观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)当前仅0040后台受控前移，默认关闭、Num/outdate/稳定颜色/不可变快照与DB-only读取；当前新验收未跑，不借旧b652或#125 CI。
-
-当前0040 source d1930实际173/174相关API（1既有Linux CLI Windows跳过，不称PASS）、根811/Python139/类型NodeLint通过；[proof696](tasks/completed/2026-10-24-garment-observations-current-engineering.md)冻结口径/范围，清单390/57保留原387/56/runtime/21routes。0039非空Source升级不冒称人工计划非空恢复；无新UI/Vite/截图，发布134及最终守卫另按后置回执。
-
-发布测试实际终态：4e8232007f5d06a6a09def3baee20cd8143a85de上134/134 PASS（406504ms），0fail/cancel/skip；与d1930根811分阶段联合945，不是一轮执行。当前API174总/173通过/1既有Linux CLI Windows跳过仍独立未验证，不借发布覆盖。metadata后仅本次4状态文档，产品/测试/proof/feature/决策/清单不变；最终clean精确main守卫随后以实际回执核定，不称Hosted CI/合并/部署/真实来源或人工接受。
-
-前阶段0040最终aad/main守卫PASS96831ms（11/57/64/errors[]），4e发布134/134（406504ms）；产品d1930相关174总/173通过/1既有Linux CLI Windows跳过、根811/Python139/类型NodeLint通过，proof696，清单390/57。旧Linux缺口不称PASS，无新Vite/browser；独立终审无新增P1/P2，不借#125 CI。当前[0041离线刷新](tasks/active/server-bound-refresh-current-2026-10-24.md)从clean aad继续，12路径8同/4手工预核；完整输入保护于[前置](tasks/completed/2026-10-24-bound-refresh-input-state/)。尚无新产品/QA，网络degraded不重推。
-
-[已绑定合同离线刷新](tasks/active/server-bound-refresh-current-2026-10-24.md)当前0041受控前移，12路径8同/4手工，不创建SO/Source请求/自动绑定；沿[订单持久化](features/SALES_ORDER_PERSISTENCE.md)同一事务与明确原owner，当前新验收待跑。
-
-当前0041 df5bed [proof da5b](tasks/completed/2026-10-24-bound-refresh-current-engineering.md)：API联合184/185（1既有平台跳过；初182/2失败/1skip及Git归档前置诊断保留，affected16根工作树补跑全过），根811/类型NodeLint PASS。清单393/58保留旧390/57/runtime/21routes；Python139/UI215只复用，无新Vite/browser，发布134和最终守卫另核。
-
-发布测试实际终态：4cc15c9c7b07d12ca50fa5e61f7007436bfac64c上134/134 PASS（412214ms），0fail/cancel/skip；与df5bed根811分阶段联合945，不是一轮。API联合184/185仍含1既有Linux CLI Windows跳过；初185的182pass/2fail与受影响16补跑均保留，不借发布改写旧失败或填补平台缺口。metadata后仅4状态文档，产品/测试/proof/两feature/清单不变；最后clean精确main守卫由随后实际回执核定，不称Hosted CI/合并/部署/真实来源或人工接受。
-
-前阶段0041最终b97/main守卫PASS98302ms（11/58/64/errors[]），4cc发布134/134（412214ms），source df5bed、proof da5b；清单393/58。API分阶段联合184/185、1既有Linux CLI Windows跳过，初185的182pass/2fail/1skip及16补跑保持；根811/类型NodeLint通过，139Python/215静态产物仅复用。独立终审无新增P1/P2，不冒称单轮185全绿、Linux通过或Hosted CI。当前[成衣只读UI](tasks/active/server-garment-read-ui-current-2026-10-24.md)从clean b97继续，15路径11同/1已应用/3手工预核；完整前阶段输入保护[前置](tasks/completed/2026-10-24-garment-read-ui-input-state/)。尚无新UI/QA，旧后台696冻结文档不改。
-
-[Server成衣只读UI](features/SERVER_GARMENT_SHIPMENT_UI.md)当前在原订单详情接线，后台696原文冻结保持；新source/driver/六宽浏览器证据待跑，不借旧UI结果。
-
-当前成衣只读UI source922 [proof c710](tasks/completed/2026-10-24-garment-read-ui-current-engineering.md)：实际102相关/811根/类型NodeLint/双build产物、before3/after14/物料10/导航18共45浏览器PASS，23PNG/3JSON、9图查看；lint旧产物误扫原失败及仅lint补跑保留。清单421/59保留旧393/58/runtime/21routes；发布134和最终守卫另核，不借旧4066或#125CI。
-
-发布测试实际终态：1ae89745c148e03272e7e8f17bc3b1475010650d上134/134 PASS（432059ms），0fail/cancel/skip；与922488根811分阶段联合945，不是一轮执行。当前102相关检查和45浏览器均在922488本轮运行；lint首败/仅lint补跑保留，旧Linux CLI平台缺口及139Python范围复用不冒称填补。metadata后仅本次4状态文档，产品/测试/proof/新UIfeature/清单/图片保持；最后clean精确main守卫随后按实际回执核定，不称Hosted CI/合并/部署/真实来源或人工接受。
-
-首次最终精确守卫178ee3/main实际FAIL（108416ms），唯一UI_CHANGE_PAGE：本轮V1清单误写order，真实登记ID为order-detail。现仅修正该ID及本状态说明，产品922/proofc710/新UI契约/421清单/图片/守卫实现和测试均未变；原FAIL完整保留outputs/server-garment-read-ui-current-20261024/initial-final-guard-result.json及log。134在1ae的432059ms PASS仅按未变工具/fixture范围复用，不冒称修正后重跑；只重新运行对新最终提交的精确main守卫覆盖该注册修复，结果后置，不预写PASS。
-
-前阶段成衣只读UI最终9a/main守卫PASS102122ms（11/59/68/errors[]），1ae发布134/134（432059ms），source922488、proofc710；清单421/59。102相关API/811根/45浏览器/类型NodeLint/双build全部本轮通过；lint原误扫失败+仅lint补跑、初178守卫唯一页面ID错误及9a修正保留，134仅按未变工具/fixture复用不称9a重跑。23PNG/3JSON、9图查看；独立终审无新增P1/P2。旧Linux CLI缺口/Python139复用独立，不冒称Hosted CI或人工接受。当前[0042可靠请求后台](tasks/active/server-delivery-plan-requests-current-2026-10-24.md)从clean9a继续，13路径10同/1已存在/2手工预核；完整输入保护[前置](tasks/completed/2026-10-24-delivery-plan-requests-input-state/)。尚无新产品/QA；只读UI和da5b冻结契约保持。
-
-[Server交期可靠请求](features/SERVER_DELIVERY_PLAN_REQUESTS.md)为D154后台，原PATCH/业务所有权保持，独立actor回执与只读核对；当前source/QA后续冻结，不引UI或0043。
-
-当前0042 source62693 [proof3e869](tasks/completed/2026-10-24-delivery-plan-requests-current-engineering.md)：16文件两组185/185、根811/类型NodeLint PASS；215前端产物和Python仅范围复用。清单424/60保留421/59/runtime/21routes，本地无PR Gate不重复未变134工具回归，不称本轮134通过；最终累计PR前两命令仍须重跑，新精确守卫后置。
-
-前阶段0042最终c70aa15b/main守卫PASS104753ms（11/60/68/errors[]），source62693、proof3e869，清单424/60。16文件两组185/185、根811/类型NodeLint PASS；无新Vite/browser/Python，215产物hash同922，139Python仅旧范围。1ae134工具回归仅范围复用，不称本Gate134新PASS/所有输入未变/完整945；最终累计PR交付前两命令仍必须重新跑。独立终审无新增P1/P2，无新CI/远端/真实环境操作。当前[交期维护UI](tasks/active/server-delivery-plan-ui-current-2026-10-24.md)从clean c70继续，17路径16同/1手工预核；[原V2批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)原字节和HTMLhash已核。完整输入保护[前置](tasks/completed/2026-10-24-delivery-plan-ui-input-state/)。该处为本轮起始prep快照；当前source56b/driver0e已实跑，见下方新冻结证明，不借旧2a。
-
-[Server交期维护UI](features/SERVER_DELIVERY_PLAN_MAINTENANCE_UI.md)沿原D156批准和D154回执，只前移client/弹窗与独立技术pending；新精确source验收待跑，coverage/0043不混入。
-
-2026-10-24 source56b实际57客户端/API、根811、类型NodeLint、双构建/产物及before3均PASS。after首轮1pass/2fail（含父节点），停在新真实touch的来源关闭按钮：搜索表单先出现而busy仍禁用关闭，驱动未等enabled。仅修测试等待可见/启用/可命中目标，并区分driver/rendered SHA；产品/既有测试/构建不变，原失败日志完整保留。仅补跑受影响after及尚未运行相关UI；不重复已过57/811/质量/构建。
-
-触摸第二轮仍1pass/2fail：日志只证实触摸后来源弹窗未出现，不足认定唯一产品或驱动根因；首轮也仅直接证明关闭目标当时不可用，与busy禁用时序一致而非已证实唯一原因。现测试使用instant滚动后两帧再取实际命中，并记录触摸/指针/click现场；不延长16秒、不重复输入、不改普通click/放宽断言。仅驱动及状态变更，56b产品/质量/API/两构建均不重跑，失败原件和两归档保留。
-
-当前[交期维护UI proof869](tasks/completed/2026-10-24-delivery-plan-ui-current-engineering.md)：产品56b57相关/811根/类型NodeLint/双build，driver0e after14、before3及相关40分阶段联合57浏览器，23PNG/4JSON/10图查看；两触摸失败和漏env前置失败保留，仅受影响补跑。清单455/61保留旧424/60/runtime/21routes；新发布134及最后精确main守卫后置。
-
-发布实际终态：70765755ab7dc3524a93090fffd3008df9be5993上134/134 PASS（464627ms），0fail/cancel/skip。与产品56b根811为分阶段联合945，不是一轮执行；57相关与57浏览器也各自独立，浏览器包括两失败后受影响补跑及漏env前置失败，原件保留。driver0e之后只有docs/新证据元数据变化，产品/测试/proof869/独立UI契约/455清单/图片保持。最终clean精确main守卫随后由本机回执核定，不预写PASS；134runner预检在0tests停止不计作测试失败。
+NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅自有合成一次性PG/loopback，0真实凭据/Source、真实账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份和旧结果。Goal active；0043/关账三问不默认。
