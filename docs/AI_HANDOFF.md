@@ -1,13 +1,11 @@
-# 恢复点：导航向已核实main整合，尚未交付
+# 恢复点：Server 报价验收向当前 main 前移
 
-2026-10-24；root唯一writer，现有reviewer只读。main e01a11952b648024c0bd6bf4259de429374981e2，#123已获准merge且双父/tree/三CI核实，#121/#122自动收口、refs保留。其余无merge/close/部署/真实账号业务库或Source授权扩大。
+2026-10-24；root 唯一 writer，现有 reviewer 只读。main e01a11952b648024c0bd6bf4259de429374981e2 于04:45Z核实；#123已获准合并，#121/#122自动收口，原refs保留。#125仍CA草稿，4f已送达与actual Git exit1/STOP并存，精确API快进例外尚待答复；不重推、不移PR引用或新增CI。
 
-当前codex/navigation-main-e01a-forward：4f+16f正常中间merge ddaf；真实main+16f merge188bcfff及绑定565；真实收敛merge c6c及绑定99e；review修复ca53（owned Chromium关闭、权限文档旧状态加日期）。保留237证据/46能力、所有原对象和当前main守卫、四工具4f。旧UI影响记录996不能作为e01a的活动记录；逐字归档原JSON，当前原路径前向到e01a，合并重复新路径。此后仅文档改动，产品/测试源码维持ca53。
+当前 codex/quote-server-current-acceptance 从实际main建立并显式快进到导航7635，开始clean。当前阶段只前向复用原2e1b+84cd的三个报价浏览器测试文件，核对D-145规则并接stopOwnedChromium；不带旧CI、摘要或产品改动。任务见 [当前报价验收](tasks/active/quote-server-current-acceptance-2026-10-24.md)。旧44fail/2cancel不抹除，历史87/87不冒称新通过；冻结后先核产品/构建输入与ca53一致，再复用其Server产物跑本套一次。
 
-QA见ignored outputs/navigation-main-e01a-forward-20261024/：ca53 canonical archive，types/Node/lint、28+10定向、双构建/外部1028产物检查PASS。Browser preload提示1、Server0。实际6组58/58含nav18；误带旧Quote长套件使总批次90pass/44fail/2cancel，不称全绿，不再重跑旧父或修改产品迎合废止断言。旧Quote为32/44/2，本次总136；historical Gate5的45/44/2含P6，不能混用。首轮baseline129/130隔离Gitmerge准备失败；只复验该项5/5，rootcauseunknown。初次diagnostic preload Windows路径失败保留，后fileURL定向通过；原断言/超时不变。
+上一阶段完整收口7635及其QA见[导航前移](tasks/active/server-navigation-main-forward-2026-10-24.md)：产品/测试源码ca53，0db完整发布134/134，最终7635精确main守卫PASS。现行7组UI66/66、双构建/产物/类型/lint不因未改而重复；237证据/46能力与旧blob、PNG、部署维度保留。前轮宽批次90pass/44fail/2cancel只用于记录旧验收缺口。
 
-本地收口：0dbbf7af7120373dc383f5544c6218da4538a5c4的精确e01a守卫已PASS（22UI/11页面/46能力）；一次必要完整npm release134/134通过，HEAD/237清单稳定。独立追加加工批次8/8通过，同ca53构建的现行7组为66/66；宽批次旧Quote失败不抹除。最后文档只补实际结果；提交后运行一次精确SHA守卫并保存final-guard-result，不重跑类型/lint/构建/66浏览器/成功134。独立审查ca53应用和0db文档无新P1/P2，最终结果段仅元数据。Gate3新增Hosted CI=0，不为未合并依赖开累计重复PR。下一步可只读准备原Gate4增量，不能把完整Goal标完成。
+另有已静态确认的加工Estimate命令类型边界；旧8f候选保留三行保护和合成验证，须独立复核/前移，不能靠UI字段省略断言宣称API已封闭。
 
-#125仍CA；4f remotely exact与actual Git exit1/STOP并存，不重试Git。已发精确异步例外（expected ca05d3e75d3b28be44184a5ef645c9f24e6f38d3、force=false、target full4f）尚无回复，不重问或代填批准。若获准，先核main/PR lease与对象再用已有update_ref，绝不能把本地1091/当前导航SHA当目标；只一次必要PR CI，不merge或部署。
-
-保护9e/e007/717/0ba/1028及运行态ebe/4cf、所有旧环境/数据/卷/备份/对象。新QA使用自有临时DB和私有Chrome，未动运行目标。完整Goal active，不把当前Git工具/导航当成Server全量完成；Gate4以后原候选仍独立保留。
+保护所有已有分支、运行态ebe/4cf、3001/50426/59069/62426等环境、DB/卷/备份/Browser及已存结果。不安装、不变共享Git/TLS/proxy/auth，不部署、不读凭据/真实Source、不改账号业务库、不merge/close或退役。Goal active；生产关账三问、coverage-v1、来源额度/激活、50426切换/人工接受及退役仍各自前置。

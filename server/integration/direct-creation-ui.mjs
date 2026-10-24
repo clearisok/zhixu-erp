@@ -3,6 +3,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import {createQuoteMasterService} from '../quote-masters/service.ts';
 import {permissionsForUser} from '../auth/permissions.ts';
+import {createQuoteRepository} from '../quotes/repository.ts';
 
 export async function runDirectCreation({t,pool,requests,navigate,hasText,click,evaluate,command,sessionId,sleep,until,isolated,loginAs}) {
   await loginAs('admin');
@@ -25,7 +26,10 @@ export async function runDirectCreation({t,pool,requests,navigate,hasText,click,
     createdId=id;
     const read=()=>evaluate(`fetch('/api/v1/quotes/'+${JSON.stringify(id)}).then(r=>r.json()).then(b=>b.quote)`);
     const record=await read(),pv=record.quote.revisions[0].priceVersions[0];
-    assert.equal(record.quote.revisions[0].baseInfo.quoteType,'processing');assert.equal(pv.pricingParameters.manufacturingPresetId,preset.id);assert.equal(pv.pricingParameters.freightAmount,'0');
+    assert.equal(record.quote.revisions[0].baseInfo.quoteType,'processing');assert.equal(pv.pricingParameters.manufacturingPresetId,preset.id);
+    assert.equal(pv.pricingParameters.freightAmount,null,'Processing read omits the inapplicable freight amount');
+    const stored=await createQuoteRepository(pool).getById(id);
+    assert.equal(stored.quote.revisions[0].priceVersions[0].pricingParameters.freightAmount,'0','The original configured snapshot remains stored');
     assert.equal(await count(),before+1);assert.equal(requests.slice(offset).filter(r=>r.method==='POST'&&r.path==='/api/v1/quotes/creation-defaults').length,1);
     await navigate(`/quote-center/detail?id=${id}`);await hasText('草稿已创建并保留');await navigate('/quote-center');await hasText('＋ 新建报价');
     assert.equal(await count(),before+1,'refresh and returning retain empty draft without another create');await isolated();
@@ -42,7 +46,7 @@ export async function runDirectCreation({t,pool,requests,navigate,hasText,click,
   });
   await t.test('two-section settings and uncluttered detail five widths have no page overflow; screenshots use synthetic data only',async()=>{
     // Ordinary test runs must preserve the committed historical screenshots.
-    const folder=resolve('outputs/quote-pr91-direct-creation');await mkdir(folder,{recursive:true});
+    const folder=resolve('outputs/quote-pr91-direct-creation',String(Date.now()));await mkdir(folder,{recursive:true});
     for(const width of [1920,1440,1280,900,390]){
       await command('Emulation.setDeviceMetricsOverride',{width,height:width===390?844:800,deviceScaleFactor:1,mobile:width===390},sessionId);
       await command('Emulation.setTouchEmulationEnabled',{enabled:width===390},sessionId);
