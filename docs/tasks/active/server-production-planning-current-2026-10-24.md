@@ -65,3 +65,7 @@ blob仍等于原d717，唯一差异为server/production-resources/service.ts的�
 ## 新证据checkpoint与前向绑定
 
 proof69277400b24657b20f435f57bfa7ab5f798cfc3b已冻结，随后独立API于08:11Z再次核main e01a不变。清单292证据/50能力/21Server路由，原269/49/runtime对象逐项不变；D150接68a决策链，production修订保留原blob，新feature、proof及17图/2geometry有精确P/C/f441身份。新增只证明本机planned/cancelled，不扩大完成/来源/部署状态。元数据后再运行发布134与最终clean HEAD精确main守卫，结果尚未发生。
+
+## 元数据后发布终态
+
+51a366244c822bb4dc157201a9d5bb133ab11f11实际npm run test:release-baseline为134/134 PASS，进程319203ms，0失败/取消/跳过。C之后只有docs/evidence，97根811源码未变，分阶段联合99文件945，不重复未改成功范围。独立只读复核proof/292清单无P1/P2：原269/49/runtime逐对象不变，新23记录均核Git blob/SHA256及祖先，21路由与AST允许列表相符，V1原12路径未扩大；审阅者未运行测试。最终clean HEAD/main守卫单独保存回执，不制造自证commit循环。新远端/CI尚未发生，不预写成功。Goal active；G6C只读预核30路径28输入相同，2处client/driver须保留本阶段修复，无tracked写入或新QA声明。

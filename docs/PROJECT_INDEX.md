@@ -145,4 +145,4 @@ G6A最终6fd/main守卫PASS79777ms/clean，0d发布134/134；仅1次正常push�
 
 G6B产品已按原919受控前移，49输入一致/1资源容量三方保留；新增完整Server排单契约/D150、12路径V1和两个CI兼容用例。实际快照P2红32/2→工作态资源+排单52/52绿（22679ms），不是冻结QA。下一步新源码冻结/本机验收，269/49及新路由/文档绑定待后续证明，不借旧919或#125绿灯。
 
-G6B源码cd73726babfaa86ffef671cbbe3a37fd542dace6实际268相关API/升级、根811、类型/Node/import/lint、before2/after17/资源14/导航18/登录11/P6 14及双构建/产物全部PASS；[新证明](tasks/completed/2026-10-24-production-planning-current-engineering.md)冻结17图/2geometry，11图主控查看。COMMIT未知恢复文档P2已修，仅docs变化。proof692774已冻结、清单前向292/50，原269/49/runtime完整；发布134/最终精确main守卫及远端尚待，不提前PASS，Actions0。
+G6B源码cd73726babfaa86ffef671cbbe3a37fd542dace6实际268相关API/升级、根811、类型/Node/import/lint、before2/after17/资源14/导航18/登录11/P6 14及双构建/产物全部PASS；[新证明](tasks/completed/2026-10-24-production-planning-current-engineering.md)冻结17图/2geometry，11图主控查看。COMMIT未知恢复文档P2已修，仅docs变化。proof692774已冻结、清单前向292/50，原269/49/runtime完整；51a366244c822bb4dc157201a9d5bb133ab11f11发布134/134 PASS（319203ms），与C根811联合945；最终精确main守卫及远端按终态回执核定，不预写PASS，Actions0。

@@ -6,7 +6,7 @@
 
 实际快照容量P2先红32pass/2fail→工作52/52→冻结268绿：合法日历回执1048294B，完整facts1048855B超原1MiB；原SAVEPOINT内PG字节422拒绝，不改SQL/限额/hash/字符。首次fixture错字段、真实红及绿日志均保留。连接/COMMIT结果未知的文档表述经复审纠正为保留请求核对回执，不声明回滚；cd737后只有文档/证据，不重跑未改成功范围。
 
-cd737实际类型/Node编译+import/lint、24文件268 API/升级、97根811、before2/after17/资源14/导航18/登录11/P6 14全部PASS，0失败/取消/跳过；双构建及独立产物各45页/1fallback/112assets PASS。冻结17新图/2geometry，11图主控已看，764顶部与DPR1.25像素据实区分。[新证明](tasks/completed/2026-10-24-production-planning-current-engineering.md)。proof69277400b24657b20f435f57bfa7ab5f798cfc3b已冻结；清单292/50前向保留269旧证据/49能力/runtime，D150/production修订链与唯一新增排单路由均绑定。发布134及最后clean精确main守卫尚未执行，不提前PASS。原PR CI仅新增四条资源/排单命令，不增事件/任务，不减旧门槛；本阶段未远端交付、Actions=0，无新增累计重复PR。
+cd737实际类型/Node编译+import/lint、24文件268 API/升级、97根811、before2/after17/资源14/导航18/登录11/P6 14全部PASS，0失败/取消/跳过；双构建及独立产物各45页/1fallback/112assets PASS。冻结17新图/2geometry，11图主控已看，764顶部与DPR1.25像素据实区分。[新证明](tasks/completed/2026-10-24-production-planning-current-engineering.md)。proof69277400b24657b20f435f57bfa7ab5f798cfc3b已冻结；清单292/50前向保留269旧证据/49能力/runtime，D150/production修订链与唯一新增排单路由均绑定。51a366244c822bb4dc157201a9d5bb133ab11f11上发布134/134实际PASS（319203ms），与C的97根811分阶段联合99文件945；最后clean精确main守卫按终态回执核定，不预写PASS。原PR CI仅新增四条资源/排单命令，不增事件/任务，不减旧门槛；本阶段未远端交付、Actions=0，无新增累计重复PR。
 
 G6A最终6fd11e48c431392bb818f3d502794004727d745c已一次正常push并独立核SHA/tree/父，Actions=0；f441 73API/根811/浏览器/双构建、0d发布134及最终main守卫PASS，旧269/49完整。前序G5/4B/导航/Quote等各精确SHA/结果保持，不挪作本阶段PASS。[本轮任务](tasks/active/server-production-planning-current-2026-10-24.md)。
 
