@@ -168,3 +168,7 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅�
 [单SO成衣采集控制层](features/SERVER_GARMENT_COLLECTION_CONTROL.md)仅内部durable started/worker/原子终态，当前14路径前移完成，新source QA待跑；默认关闭/无真实许可。
 
 0043初始ee210在QA前发现漏纯依赖，当前仅提取原JSON/证明/screen最小闭包并补负向测试，不带历史诊断CLI/私密读取或新公开入口。新source QA待跑，原14输入精确只表示初始切片，不冒称闭包完整。
+
+## 证明枚举类型修复
+
+独立复审在d2ff发现原提取函数以String(result/workerStage)枚举、后续却严格比较原值，数组complete可跳过完整页数/请求校验。新增验证器和garmentCollectionProof两项直接回归，原产品定向实际2/2失败（1177ms），保留proof-enum-red.json/log；不是全套测试失败或真实来源事故。仅两处改为typeof string后精确枚举，数组/嵌套数组、空pages与零请求不能冒充完整C1/C0/C1证明。原scalar成功/失败与预算、SQL、publisher、Python、入口/Source范围保持。旧d2ff全量QA属于修复前源码，修复后仅重验受影响4文件/类型/Node/相关lint；不将旧结果冒称重跑。最终新source验收后另冻结。

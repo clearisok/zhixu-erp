@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { hash } from "./contract.js";
 import { assertExactSourceJsonRuntime, strictExactSourceJson } from "./exact-source-json.js";
 import { garmentFilterConfig, screen, validateGarmentFilterEvidence } from "./garment-filter-evidence.js";
+import { garmentCollectionProof } from "./garment-collection-control.js";
 import { collectionRequest, digest, rawPage, sourceRow } from "../integration/garment-collection-fixture.js";
 
 const now = Date.parse("2026-10-23T00:00:03Z"), request = collectionRequest(randomUUID(), "SYN-C1", now);
@@ -76,4 +77,19 @@ test("failed proof retains bounded actual counts and never reports a complete ob
   const value = validate(frame([rawPage([row])], { result: "failed", code: "network_unavailable", workerStage: "report", httpAttempts: 3, reportRequests: 2 }));
   assert.equal(value.summary.result, "FAIL"); assert.equal(value.summary.reportRequests, 2); assert.equal(value.summary.positiveRows, null);
   assert.throws(() => validate(frame([rawPage([row])], { result: "failed", code: "PRIVATE", workerStage: "report", httpAttempts: 3, reportRequests: 2 })));
+});
+test("non-string filter envelope enums reject arrays, nested arrays and empty zero-request proofs", () => {
+  for (const result of [["complete"], [["complete"]], ["failed"], [["failed"]], null, true, 1]) {
+    assert.throws(() => validate(frame([], { result, workerStage: "not-started", httpAttempts: 0, reportRequests: 0 })));
+  }
+  for (const workerStage of [["not-started"], [["report"]], null, false, 1]) {
+    assert.throws(() => validate(frame([], { result: "failed", code: "network_unavailable", workerStage, httpAttempts: 0, reportRequests: 0 })));
+  }
+});
+test("garment proof cannot accept a coerced complete marker without three real proof pages", () => {
+  for (const result of [["complete"], [["complete"]], ["failed"]]) {
+    const changed = { ...request, verification: { ...request.verification,
+      evidence: frame([], { result, workerStage: "not-started", httpAttempts: 0, reportRequests: 0 }) } };
+    assert.throws(() => garmentCollectionProof(changed, now));
+  }
 });

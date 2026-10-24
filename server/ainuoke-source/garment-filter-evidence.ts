@@ -87,8 +87,8 @@ const workerCodes = new Set([...PAYMENT_WORKER_FAILURE_CODES, ...("garment_filte
 export const GARMENT_FILTER_FAILURE_CODES = Object.freeze([...workerCodes, ...("garment_filter_invalid_evidence garment_filter_invalid_json garment_filter_candidate_invalid garment_filter_timeout garment_filter_worker_limit garment_filter_worker_unavailable garment_filter_worker_invalid garment_filter_exact_runtime_required garment_filter_explicit_scope_required garment_filter_clean_commit_required garment_filter_credential_invalid garment_filter_failed source_secret_field preflight_private_output_required").split(" ")]);
 function safeEnvelope(input: unknown, config: CollectorConfig, selection: GarmentFilterSelection, now: number) {
   const value = object(input); keys(value, "schemaVersion,result,code,workerStage,selectionHash,httpAttempts,reportRequests,pages");
-  if (!Number.isFinite(now) || value.schemaVersion !== "ainuoke-garment-filter-evidence.v1" || !["complete", "failed"].includes(String(value.result))
-    || value.selectionHash !== hash(selection) || !["not-started", "login", "report", "validation"].includes(String(value.workerStage))
+  if (!Number.isFinite(now) || value.schemaVersion !== "ainuoke-garment-filter-evidence.v1" || typeof value.result !== "string" || !["complete", "failed"].includes(value.result)
+    || value.selectionHash !== hash(selection) || typeof value.workerStage !== "string" || !["not-started", "login", "report", "validation"].includes(value.workerStage)
     || !Number.isSafeInteger(value.httpAttempts) || !Number.isSafeInteger(value.reportRequests)
     || Number(value.httpAttempts) < 0 || Number(value.httpAttempts) > 4 || Number(value.reportRequests) < 0 || Number(value.reportRequests) > 3
     || !(Number(value.httpAttempts) === Number(value.reportRequests) + 1 || value.httpAttempts === 0 && value.reportRequests === 0)

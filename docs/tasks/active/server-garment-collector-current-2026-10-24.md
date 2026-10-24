@@ -19,3 +19,7 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推。仅自有合成一次
 ## 依赖闭包校准（新source前）
 
 初次ee210仅14路径的输入相等不证明依赖闭包。独立预审在任何QA前发现缺少严格JSON/合同过滤证明模块，未将该source称可编译或PASS。现只按原49dc的精确函数块提取无IO的Node证据验证器、原无损JSON模块与Python定义/screen，三个import改指新纯模块；不带冻结候选/凭据读取、诊断collect/main、私密报告写入/launcher或新HTTP/CLI/Catalog/scheduler。完整C1/C0/C1、重复键/精度/64层检查不削弱。另仅取357a88e5升级断言使用既有明确迁移清单；新增纯验证与Python screen负向测试。提取块hash/边界在本轮outputs dependency-extraction.json，尚待新QA。
+
+## 证明枚举类型修复
+
+独立复审在d2ff发现原提取函数以String(result/workerStage)枚举、后续却严格比较原值，数组complete可跳过完整页数/请求校验。新增验证器和garmentCollectionProof两项直接回归，原产品定向实际2/2失败（1177ms），保留proof-enum-red.json/log；不是全套测试失败或真实来源事故。仅两处改为typeof string后精确枚举，数组/嵌套数组、空pages与零请求不能冒充完整C1/C0/C1证明。原scalar成功/失败与预算、SQL、publisher、Python、入口/Source范围保持。旧d2ff全量QA属于修复前源码，修复后仅重验受影响4文件/类型/Node/相关lint；不将旧结果冒称重跑。最终新source验收后另冻结。
