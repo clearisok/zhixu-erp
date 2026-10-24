@@ -1,28 +1,23 @@
-# 恢复点：G6A冻结工程PASS，待发布与精确守卫
+# 恢复点：G6B当前排单开始，G6A已精确交付
 
 2026-10-24；root唯一writer，既有server_convergence_review只读，Goal active。
-main独立API精确e01a11952b648024c0bd6bf4259de429374981e2；#123已获准合并，#121/#122自动收口且分支保留。
-#125按新具体批准仅1次expected-CA/force=false→4f API，已独立核SHA/tree/双父；3项PR CI全绿/attempt1。
-说明更新，仍open draft，没有ready/merge/close或Git重推。原exit1/STOP历史与根因unknown保留。
-回执outputs/pr125-api-lease-20261024/final-{pr,main,runs,preview}.json，不用stale PR base元数据冒充main。
+main独立API仍e01a11952b648024c0bd6bf4259de429374981e2（新start回执）。
+当前codex/server-production-planning-current从main新建、显式FF到干净6fd11e48c431392bb818f3d502794004727d745c。
+输入CURRENT/AI逐字及SHA256归档completed/2026-10-24-production-planning-input-state/，start在ignored outputs/server-production-planning-current-20261024。
 
-当前codex/server-production-resources-current，产品f0075f96295e1f53ac62d2b2576930a99fed563b，
-实际验收f441e70d133174dd8acc5fcd5943ca90afe74aa5；仅4状态文档差异。proof d69fed670404af4c916270419fa94dce04f252a8。
-25原路径输入逐blob匹配后前移d717，保留CAS授权等待disabled、真实初始rAF/原生Enter403与owned退出确认。
-0034只四资源空表，未接排单/完成/物流。容量P2红24/4、工作绿28/28均保留；真实PG结果超1MiB
-在原SAVEPOINT回滚资源/审计，留静态422可恢复回执，不扩大限额/截断/改字符/重写0034。
+G6A已完成：实际f441类型/Node/import/lint、73领域/API、根811、before2/after14/导航18、双构建各45页/1fallback/110assets；
+Browser1preload提示、Server0，proof d69冻结8PNG/2geometry，269/49保留原对象。容量P2红24/4→工作28/28→冻结73绿。
+0d发布134/134 PASS312533ms，最终6fd精确main守卫PASS79777ms（11页49能力38UI/errors[]），独立复审无P1/P2。
+既有工具新分支DryRun正常后仅一次push，DELIVERED_VERIFIED/exact6fd；独立API核tree=d6b9d57222b848e3d0a57217b1f90ba9fa87b397与父0d，Actions=0，无新累计PR。
+完整local/remote终态在outputs/server-production-resources-current-20261024/final-*-checkpoint.json，不改旧证据。
+#125另按具体API例外到4f，三PR CI success/attempt1，说明更新仍open draft；未ready/merge。旧GitSTOP根因unknown不抹去，不称全局通道恢复。
 
-f441实际PASS：类型23103ms、Node10479+import2016ms、lint36822ms、8文件73/73、97根811/811、
-before2/after14/导航18、双构建产物各45页/1fallback/110assets，Browser1preload提示/Server0。
-before旧68a且无资源API/写入；after完整f441，build resources-f441e70d-server-20261024@07:07:52.823Z。
-8PNG/2geometry冻结；764默认顶部图据实命名，不称全页1440。独立只读复审无P1/P2，未运行测试。
-canonical archive 9489285a2bcdff69cbd9dd268451219f65b06b51b6c9d3f39ce1f9eaa147a00b，
-上下文C:/Users/Administrator/AppData/Local/Temp/zhixu-production-resources-6L0x9P/context；依赖复用/noinstall。
-完整命令/红绿/回执在outputs/server-production-resources-current-20261024；当前任务及completed证明为恢复入口。
+G6B只读预核d717→919643d8cde2b0ec22987631e685e6a661829881的50非docs/workflow路径，49输入blob相同；
+唯一冲突server/production-resources/service.ts为本次容量修复，不得覆盖。记录在前序outputs/.../next-g6b-readonly-scope.json。
+原8c180为中间checkpoint缺整批议价冻结P2，需核7eb修复/15295读取/919页面；原8f更晚共享变更按依赖筛选，不整包合入。
+当前只新增任务与保护输入，未复制产品/SQL/UI，也没有新G6B测试PASS。先读task、实际feature/业务/决策与SQL，再逐路径前移。
+原0034不重写，0035仅隔离库升级；保留fresh actor/角色锁序、来源父/物理SO冻结、快照/CAS/幂等/原请求保护。
+G6C执行、物流、4C/出货/关账另按依赖；已确认完成重排双权限、产出归原排单/执行方的规则不可丢。
 
-下一步：提交269/49清单与三条既有Server路由的元数据，旧258/48及所有runtime对象不可变。
-只新跑一次134发布及最终精确main守卫；811产品未变可复用，联合标准99文件945而非单次全跑。
-0d22886a1fc35eea0dbebfaabb315b3967f45440发布134/134已PASS（312533ms），0失败/取消/跳过。最终精确main守卫随最后提交回执核定；G6A未远端交付，不借#125CI。最终复审后按原首交付规则
-先dry run验证，旧STOP不自动撤销；出现新异常停止，不换认证/force或重复撞通道。
-不新建累计重复PR/重复付费CI、自动merge/close/deploy、读真实凭据/Source、改账号业务库/卷、
-旧Browser账本或3001/50426/59069/62426、备份/既有结果。关账三问、coverage-v1、来源/人工接受仍各有前置。
+不新建累计重复PR/多余Actions、不自动merge/close/deploy；不读真实凭据/Source、改账号业务库/卷或绑定/激活/调度/退役。
+保留3001/50426/59069/62426、旧Browser、备份及全部结果。关账三问/coverage-v1/真实来源额度/目标切换与人工接受各有前置。
