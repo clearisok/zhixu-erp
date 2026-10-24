@@ -29,7 +29,8 @@
 计划集合、组队列或执行版本；两人同时首次保存只有一人成功。
 
 原production_schedule_commands、成功SO桥接和OperationLog共用，不建立第二幂等系统。
-已知404/409/422在SAVEPOINT回滚后保存rejected；SQL/审计等未知失败整体回滚。
+已知404/409/422在SAVEPOINT回滚后保存rejected；提交前可确认的SQL/审计失败回滚。
+连接或COMMIT结果未知时保留原请求、核对精确回执，不能据异常声明已回滚。
 同编号换内容或跨入口冲突；丢回执按原编号查询，pending/unknown不触发自动POST。
 回执重新检查原命令权限，旧返回值是发生时快照，不用当前仓资料重造。
 
