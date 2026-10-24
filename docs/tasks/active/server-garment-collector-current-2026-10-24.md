@@ -15,3 +15,7 @@
 NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推。仅自有合成一次性PG/loopback和FakeTransport，0真实凭据/报告/Source、账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份及旧结果。Goal active；可见覆盖面板另需V2批准，关账三问不默认。
 
 14路径已受控前移：12原blob精确，2测试命令手工追加；d99282的等待后expiry和发布回滚语义保持，41旧SQL完整hash相同，仅新增0043。独立feature/D158已同步。尚待冻结新source和本轮QA，不借原31/181。
+
+## 依赖闭包校准（新source前）
+
+初次ee210仅14路径的输入相等不证明依赖闭包。独立预审在任何QA前发现缺少严格JSON/合同过滤证明模块，未将该source称可编译或PASS。现只按原49dc的精确函数块提取无IO的Node证据验证器、原无损JSON模块与Python定义/screen，三个import改指新纯模块；不带冻结候选/凭据读取、诊断collect/main、私密报告写入/launcher或新HTTP/CLI/Catalog/scheduler。完整C1/C0/C1、重复键/精度/64层检查不削弱。另仅取357a88e5升级断言使用既有明确迁移清单；新增纯验证与Python screen负向测试。提取块hash/边界在本轮outputs dependency-extraction.json，尚待新QA。

@@ -166,3 +166,5 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅�
 严格客户端V0最终c835/main守卫119226ms PASS、清单462/63、独立终审无新增P1/P2，完整终态/失败与三摘要保护于[采集器输入](tasks/completed/2026-10-24-garment-collector-input-state/)。当前[0043受控采集器](tasks/active/server-garment-collector-current-2026-10-24.md)仅14路径预核，尚无新产品或QA；无新增真实许可/激活/公开入口。
 
 [单SO成衣采集控制层](features/SERVER_GARMENT_COLLECTION_CONTROL.md)仅内部durable started/worker/原子终态，当前14路径前移完成，新source QA待跑；默认关闭/无真实许可。
+
+0043初始ee210在QA前发现漏纯依赖，当前仅提取原JSON/证明/screen最小闭包并补负向测试，不带历史诊断CLI/私密读取或新公开入口。新source QA待跑，原14输入精确只表示初始切片，不冒称闭包完整。

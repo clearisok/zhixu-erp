@@ -14,7 +14,7 @@ from time import monotonic
 
 from .ainuoke_client import AinuokeClient, UpstreamSchemaError
 from .contracts import build_report_request
-from .garment_contract_verification import DEFINITION, screen
+from .garment_report_screening import DEFINITION, screen
 from .garment_shipment_observations import extract_garment_observation_page
 from .payment_request_observations import strict_json
 from .payment_request_contract_probe import fingerprint

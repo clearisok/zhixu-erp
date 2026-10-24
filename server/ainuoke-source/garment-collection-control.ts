@@ -8,7 +8,7 @@ import { identityUuid } from "../sales-orders/identity-model.js";
 import { lockEffectiveAttribution, freezePhysicalOrderGroups } from "../sales-orders/effective-attribution.js";
 import { hash, sourceKeyValid } from "./contract.js";
 import type { CollectorConfig } from "./collector.js";
-import { garmentFilterConfig, validateGarmentFilterEvidence, type GarmentFilterSelection } from "./garment-contract-verification.js";
+import { garmentFilterConfig, validateGarmentFilterEvidence, type GarmentFilterSelection } from "./garment-filter-evidence.js";
 import { paymentDatabaseFingerprint } from "./payment-request-collection.js";
 import { prepareGarmentPublicationInTransaction, publishGarmentObservationInTransaction, type GarmentPublicationContext } from "./garment-shipment-store.js";
 import { collectGarmentObservationPages, validateGarmentCollectionResult, garmentCollectionFailureCounts,

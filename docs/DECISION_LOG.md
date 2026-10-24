@@ -31,6 +31,8 @@
 - 原actor/request回执fresh鉴权、封闭形状/hash重建，过期/target变更后仍返回历史；未知计数不补0，凭据/原文不入回执。双SO引用加入完整归一指纹，不开放执行。
 - 当前12原输入精确加2命令手工整合，包含d99282晚expiry/回执修复，41旧SQL保持；见[独立控制层契约](features/SERVER_GARMENT_COLLECTION_CONTROL.md)和[当前任务](tasks/active/server-garment-collector-current-2026-10-24.md)。新source/隔离QA后另冻证据，不借旧31/181或#125CI；未激活/部署/人工接受。
 
+- 2026-10-24初次14路径预核漏纯依赖，ee210未做QA；当前按原函数块前移严格JSON/完整过滤证据与Python筛查，排除旧CLI/凭据/报告入口，新增负向验收，具体范围见独立控制层契约。
+
 ### D-156 Server交付计划维护沿用原领域和原请求恢复
 
 - 2026-10-22，Active；用户对原call_d4696fa532a64295ba294304d8404abf回复“按草图实施”。

@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { accountFingerprint, APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY, parseCollectorConfig, type CollectorConfig } from "./collector.js";
 import { SourceError } from "./contract.js";
 import { strictExactSourceJson, assertExactSourceJsonRuntime } from "./exact-source-json.js";
-import { screen } from "./garment-contract-verification.js";
+import { screen } from "./garment-filter-evidence.js";
 import { buildGarmentObservationSnapshot, type GarmentObservationScope } from "./garment-shipment-observations.js";
 import { PAYMENT_WORKER_FAILURE_CODES } from "./payment-request-probe.js";
 
